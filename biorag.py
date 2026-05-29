@@ -2,18 +2,74 @@
 """BioRAG CLI — Puente para que los agentes OEC (Athena, Artemis, Hermes)
 interactúen con la corteza cerebral compartida desde la terminal.
 
-Uso desde el agente:
+SISTEMA DE MEMORIA BIOMIMETICA
+Basado en principios biologicos: potenciacion a largo plazo (LTP) para recuerdos
+frecuentes, depresion a largo plazo (LTD) para olvido pasivo, inhibicion lateral
+para control de saturacion, y nodos dormidos que se despiertan con busqueda profunda.
+
+USO DESDE EL AGENTE (cada comando explicado):
+
   python3 biorag.py buscar <concepto> [--deep] [--todos]
-    --deep   Buscar tambien en memoria dormida (despierta el nodo)
-    --todos  Mostrar TODOS los recuerdos relacionados, ordenados por relevancia
+    Busca un recuerdo en la corteza. Por defecto devuelve el mejor match.
+    Escanea tanto la clave como el contenido completo del recuerdo.
+    --deep   Busca tambien en nodos dormidos. Si encuentra uno, lo despierta.
+    --todos  Devuelve TODAS las coincidencias ordenadas por relevancia.
+    Ej: biorag.py buscar deep
+        biorag.py buscar angular --deep
+        biorag.py buscar agente --todos
+
   python3 biorag.py guardar <clave> <contenido>
-  python3 biorag.py asociar <a> <b>
+    Almacena informacion en la memoria de corto plazo (memoria de trabajo).
+    Usar 'sueno' para consolidar a largo plazo (corteza permanente).
+    La clave se normaliza a minusculas y guiones bajos.
+    Ej: biorag.py guardar leccion_importante "Lo aprendido hoy fue..."
+
+  python3 biorag.py asociar <concepto_a> <concepto_b>
+    Crea un enlace sinaptico bidireccional entre dos conceptos en el grafo.
+    Al evocar uno, el peso del otro tambien se refuerza (propagacion).
+    Ej: biorag.py asociar formularios_angular data_context_service
+
   python3 biorag.py comunicar <destino> <mensaje>
+    Envia un mensaje a otro agente OEC a traves de la corteza compartida.
+    Destino: athena, artemis, hermes, todos.
+    Identificate con variable de entorno AGENT_NAME.
+    Ej: AGENT_NAME=athena biorag.py comunicar artemis "Mensaje para ti"
+
   python3 biorag.py leer_mensajes [--no-leidos] [--ultimos N] [--para <agente>]
+    Lee mensajes del canal compartido entre agentes.
+    --no-leidos  Solo muestra mensajes no leidos.
+    --ultimos N  Muestra los ultimos N mensajes (defecto: 10).
+    --para X     Filtra mensajes para el agente X.
+    Ej: biorag.py leer_mensajes --no-leidos
+
   python3 biorag.py sueno [limite_energia]
+    Consolida la memoria de corto plazo a largo plazo (corteza permanente).
+    Aplica LTP a recuerdos consolidados, LTD (decaimiento) a no usados,
+    duerme nodos debiles (peso <= 0.1), y aplica inhibicion lateral si
+    la energia sinaptica supera el limite (defecto: 10.0).
+    Ej: biorag.py sueno
+        biorag.py sueno 15.0  (limite de energia mas alto)
+
   python3 biorag.py corteza
+    Lista todos los nodos de la corteza permanente (activos y dormidos).
+    Muestra: concepto, categoria, peso sinaptico, estado y asociaciones.
+    Util para inspeccionar que recuerdos estan disponibles.
+    Ej: biorag.py corteza
+
   python3 biorag.py familiaridad <texto>
+    Escanea un texto en busca de conceptos familiares en la corteza.
+    Sirve para que el agente detecte si el usuario menciona algo conocido.
+    Busca en clave y en contenido de los recuerdos activos.
+    Ej: biorag.py familiaridad "necesito ayuda con formularios Angular"
+
   python3 biorag.py estado
+    Muestra estadisticas de la corteza: nodos activos, dormidos,
+    items en memoria de trabajo, energia sinaptica total.
+    Ej: biorag.py estado
+
+MAS INFORMACION:
+  Repositorio: https://github.com/dennysjmarquez/MemoryBioRAG
+  Creado por Dennys J Marquez — Sistema de memoria para agentes OEC.
 """
 import sys
 import os
