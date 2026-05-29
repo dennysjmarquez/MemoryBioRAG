@@ -268,9 +268,12 @@ def main():
         "leer_mensajes": cmd_leer_mensajes,
     }
 
-    if comando not in comandos:
-        print(f"Comando desconocido: {comando}")
+    if comando in ("help", "--help", "-h"):
         print(__doc__)
+        return 0
+
+    if comando not in comandos:
+        print(f"Comando desconocido: {comando}. Usa 'python3 biorag.py help' para ver la ayuda completa.")
         cerebro.cerrar_sistema()
         return 1
 
