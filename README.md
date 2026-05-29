@@ -54,7 +54,7 @@ MemoryBioRAG/
   ├── main.py                   # Simulador interactivo de consola
   ├── sleep_cycle.py            # Script autónomo de consolidación/sueño
   ├── MemoryBioRAG_Data/        # Bases de datos SQLite (auto-creado)
-  ├── test_memory.py            # Tests automatizados
+  ├── test_memory.py            # Tests automatizados (crea/borra test_memory.db al ejecutarse)
   └── README.md                 # Este archivo
 ```
 
@@ -147,11 +147,13 @@ Un análisis honesto y riguroso de la viabilidad de BioRAG desde nuestra propia 
 
 ### 1. Validar el motor biológico
 
-Ejecuta el script de pruebas automatizado para ver LTP/LTD, Jaccard, spreading activation e inhibición lateral:
+Ejecuta el script de pruebas automatizado para verificar que el motor funciona correctamente (LTP/LTD, Jaccard, spreading activation, comunicación entre agentes). Es como una prueba de calidad — la corres una vez y si pasa todo OK, sabes que BioRAG está sano:
 
 ```bash
 python3 test_memory.py
 ```
+
+Nota: `test_memory.py` crea un archivo `test_memory.db` temporal durante la ejecución y lo borra al terminar. No lo usa ningún agente ni el sistema en producción. Es solo una verificación de calidad.
 
 ### 2. Usar el CLI bridge (para agentes)
 

@@ -8,7 +8,8 @@ sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 from core.memory_store import SQLiteMemoryBioRAG
 
 def test_sistema():
-    db_test_path = "/mnt/recursos_compartidos_y_otros/MemoryBioRAG/MemoryBioRAG_Data/test_memory.db"
+    _biorag_db = os.environ.get('BIORAG_PATH')
+    db_test_path = os.path.join(os.path.dirname(_biorag_db), "test_memory.db")
     
     # Limpiar base de datos de pruebas anterior si existe
     if os.path.exists(db_test_path):
