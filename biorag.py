@@ -20,7 +20,8 @@ sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
 from core.memory_store import SQLiteMemoryBioRAG
 
-DB_PATH = "/mnt/recursos_compartidos_y_otros/MemoryBioRAG/MemoryBioRAG_Data/memory_biorag.db"
+_DEFAULT_DB = os.path.join(os.path.dirname(os.path.abspath(__file__)), "MemoryBioRAG_Data", "memory_biorag.db")
+DB_PATH = os.environ.get('BIORAG_PATH') or _DEFAULT_DB
 
 
 def cmd_buscar(cerebro, args):

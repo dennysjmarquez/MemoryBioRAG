@@ -96,6 +96,35 @@ def test_sistema():
     activos = cerebro.cursor.fetchone()[0]
     print(f"Nodos activos restantes tras Inhibición Lateral: {activos}")
     
+    # 8. Comunicación entre agentes
+    print("\n--- 9. Probando Comunicación entre Agentes ---")
+    # Crear nueva DB limpia para la prueba de comunicacion
+    os.remove(db_test_path)
+    cerebro.conn.close()
+    cerebro = SQLiteMemoryBioRAG(db_path=db_test_path)
+
+    cerebro.enviar_comunicado("athena", "hermes", "Mensaje de prueba de Athena a Hermes")
+    cerebro.enviar_comunicado("artemis", "todos", "Anuncio para todos los agentes")
+    cerebro.enviar_comunicado("hermes", "athena", "Respuesta de Hermes a Athena")
+
+    # Leer todos
+    todos = cerebro.leer_comunicados(ultimos=10)
+    assert len(todos) == 3, f"Error: deberian haber 3 mensajes, hay {len(todos)}"
+    print(f"Mensajes totales: {len(todos)}")
+
+    # Leer no leidos para athena
+    no_leidos = cerebro.leer_comunicados(destino="athena", solo_no_leidos=True, ultimos=10)
+    print(f"Mensajes no leidos para athena: {len(no_leidos)}")
+    assert len(no_leidos) == 2, f"Error: Athena deberia tener 2 no leidos, tiene {len(no_leidos)}"
+
+    # Marcar como leido y verificar
+    ids = [m[0] for m in no_leidos]
+    cerebro.marcar_como_leido(ids)
+    no_leidos_despues = cerebro.leer_comunicados(destino="athena", solo_no_leidos=True, ultimos=10)
+    assert len(no_leidos_despues) == 0, f"Error: deberian quedar 0 no leidos, hay {len(no_leidos_despues)}"
+    print(f"No leidos tras marcar: {len(no_leidos_despues)}")
+    print("--- Comunicacion entre agentes OK ---")
+
     cerebro.cerrar_sistema()
     print("\n--- ¡Todas las pruebas biológicas completadas con éxito! ---")
 

@@ -11,9 +11,14 @@ class SQLiteMemoryBioRAG:
     búsqueda de familiaridad difusa por coincidencia de Jaccard y propagación de activación (Grafo).
     """
 
-    def __init__(self, db_path="/mnt/recursos_compartidos_y_otros/MemoryBioRAG/MemoryBioRAG_Data/memory_biorag.db"):
-        self.db_path = db_path
-        # Asegurar que el directorio de datos existe
+    def __init__(self, db_path=None):
+        if db_path:
+            self.db_path = db_path
+        else:
+            self.db_path = os.environ.get('BIORAG_PATH') or os.path.join(
+                os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+                "MemoryBioRAG_Data", "memory_biorag.db"
+            )
         os.makedirs(os.path.dirname(self.db_path), exist_ok=True)
         # Conectar a SQLite
         self.conn = sqlite3.connect(self.db_path)

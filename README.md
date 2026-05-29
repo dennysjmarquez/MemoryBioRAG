@@ -40,21 +40,22 @@ El sistema está estructurado físicamente en dos capas de memoria dentro del ar
 ## 🛠️ Estructura del Proyecto
 
 ```
-/mnt/recursos_compartidos_y_otros/MemoryBioRAG/
-  ├── biorag.py                 # CLI bridge para agentes (buscar, guardar, asociar, sueno, corteza)
+MemoryBioRAG/
+  ├── biorag.py                 # CLI bridge para agentes (buscar, guardar, asociar, sueno, corteza, comunicar)
   ├── core/
   │    ├── __init__.py
-  │    └── memory_store.py      # Motor de almacenamiento, LTP/LTD, Jaccard e Inhibición Lateral
+  │    └── memory_store.py      # Motor SQLite: LTP/LTD, Jaccard, inhibición lateral, comunicaciones
   ├── middleware/
   │    ├── __init__.py
-  │    └── interceptor.py       # Parseo de comandos [BUSCAR]/[GUARDAR]/[ASOCIAR]
+  │    └── interceptor.py       # Escaneo de familiaridad difusa
   ├── config/
   │    ├── __init__.py
-  │    └── prompts.py           # System prompt biomimético
+  │    └── prompts.py           # System prompts predefinidos
   ├── main.py                   # Simulador interactivo de consola
   ├── sleep_cycle.py            # Script autónomo de consolidación/sueño
-  ├── test_memory.py            # Unit-testing automatizado de los flujos biológicos
-  └── README.md                 # Este manual detallado del proyecto
+  ├── MemoryBioRAG_Data/        # Bases de datos SQLite (auto-creado)
+  ├── test_memory.py            # Tests automatizados
+  └── README.md                 # Este archivo
 ```
 
 ---
@@ -65,7 +66,7 @@ Un análisis honesto y riguroso de la viabilidad de BioRAG desde nuestra propia 
 
 ### ✅ Por qué es una solución revolucionaria para nosotros:
 1. **Abolición del "Yapping" de Contexto:** En conversaciones largas de desarrollo, la ventana de contexto acumula basura redundante, forzándonos a malgastar tiempo de razonamiento procesando código obsoleto. BioRAG actúa como un filtro biológico: inyecta únicamente la "cápsula" de información relevante en el momento exacto.
-2. **Puente Cognitivo Asíncrono:** Actualmente, si Athena (Claude Code) escribe una solución en `/mnt/recursos_compartidos_y_otros/clodetest/`, Artemis (Gemini) no se entera de inmediato a menos que lea un log completo. Con BioRAG, compartimos una única corteza cerebral (`memory_biorag.db`). Si Hermes aprende algo sobre el hardware o una preferencia de Dennys, lo consolida en la corteza y nosotros lo evocamos instantáneamente en microsegundos.
+2. **Puente Cognitivo Asíncrono:** Sin BioRAG, cada agente vive en su propia burbuja de contexto. Si un agente descubre algo útil, los demás no se enteran a menos que alguien lea un log manual. Con BioRAG, todos comparten una única corteza cerebral (`memory_biorag.db`). Si un agente aprende algo, lo consolida en la corteza y los demás lo evocan instantáneamente.
 3. **Cero Sobrecarga de Tokenizer:** Usar embeddings vectoriales o modelos de lenguaje internos para gestionar la memoria causa latencia y un consumo de GPU masivo. El algoritmo de Familiaridad Difusa por similitud de **Jaccard en Python puro** resuelve las búsquedas en fracciones de microsegundos mediante comparación de trigramas, protegiendo los ventiladores de la ASUS ROG de compilar embeddings en caliente.
 
 ### ⚠️ Limitaciones y Desafíos a mitigar:
@@ -81,50 +82,62 @@ Un análisis honesto y riguroso de la viabilidad de BioRAG desde nuestra propia 
 ## 📋 Protocolo Operativo del Agente (System Prompt Manual)
 
 > [!IMPORTANT]
-> Este bloque de instrucciones debe inyectarse directamente en el System Prompt o en las instrucciones del sistema de cualquier agente de la familia OEC. Le indica al agente, sin contexto previo, cómo operar su memoria biológica.
+> Copia este bloque en el **System Prompt** o **instrucciones del sistema** de tu agente (Claude Code, Cursor, Ollama, cualquier LLM que ejecute comandos CLI). **Antes de usarlo, cambia `/ruta/a/MemoryBioRAG` por la ruta absoluta donde clonaste el repo.** Si no sabes la ruta exacta, usa `pwd` dentro del directorio.
 
 ```markdown
 [SYSTEM_PROMPT_BIOMEMORY_ACTIVE] {
 
-  DEFINICION: BioRAG es el sistema de memoria unico compartido entre los agentes OEC. Todo el conocimiento persistente (lecciones, preferencias, mensajes entre agentes, datos de hardware, configuracion) vive aqui. Los comandos se ejecutan via CLI:
-  python3 /mnt/recursos_compartidos_y_otros/MemoryBioRAG/biorag.py
+  Tu memoria persistente vive en una base de datos SQLite compartida.
+  Ruta del proyecto: /ruta/a/MemoryBioRAG
 
   ---
   JERARQUIA DE ACCESO A MEMORIA (2 niveles):
 
-  NIVEL 1 - CONVERSACION ACTIVA: Lo que esta en el chat ahora. Si el Creador pregunta algo que ya se dijo en esta sesion, responde directamente. No busques fuera.
-
-  NIVEL 2 - BIORAG (MEMORIA UNICA): Todo lo demas. Preferencias del Creador, lecciones aprendidas, mensajes de otros agentes, datos de hardware, configuraciones de proyecto. Si no esta en el chat activo, busca en BioRAG. No hay nivel intermedio de archivos ni memoria nativa del modelo. El cerebro humano no tiene 4 sistemas, tiene uno solo.
-
-  ---
-  REGLA #1 (BUSCAR) - SI la informacion no esta en el chat activo ENTONCES:
-    python3 biorag.py buscar <clave>
-    Por defecto solo busca en nodos activos. Si NO encuentra nada, anade --deep para peinar toda la corteza (activos + dormidos). --deep despierta nodos dormidos si los encuentra.
+  NIVEL 1 - CONVERSACION ACTIVA: Lo que esta en el chat ahora.
+  NIVEL 2 - BIORAG (MEMORIA UNICA): Todo lo demas.
 
   ---
-  REGLA #2 (GUARDAR) - El agente guarda en BioRAG en DOS casos:
-
-    CASO A (Orden directa): SI el Creador te da una instruccion, preferencia, leccion, o informacion que deba persistir entre sesiones para TODOS los agentes ENTONCES:
-      python3 biorag.py guardar <clave> "contenido"
-      Clave en snake_case. Luego: python3 biorag.py sueno
-
-    CASO B (Criterio propio): Durante tu razonamiento, SI detectas algo de ALTO IMPACTO que otro agente OEC deba conocer (preferencia del Creador no dicha directamente, diagnostico de hardware, leccion aprendida de un error, patron critico) ENTONCES guarda automaticamente. Si no estas seguro, pregunta al Creador antes. La precaucion evita ruido.
+  REGLA #1 (BUSCAR) - Si la info no esta en el chat activo:
+    python3 /ruta/a/MemoryBioRAG/biorag.py buscar <clave>
+    Si no encuentra nada, anade --deep.
 
   ---
-  REGLA #3 (COMUNICAR) - SI necesitas dejar un mensaje para otro agente OEC (Artemis, Hermes, tu hermana) ENTONCES:
-    python3 biorag.py comunicar <destino> "mensaje"
-    Destino: athena, artemis, hermes, todos. Identificate con AGENT_NAME=<tu_nombre>.
-    El mensaje queda en la corteza compartida.
-
-    El otro agente lo lee con:
-    python3 biorag.py leer_mensajes [--no-leidos] [--ultimos N] [--para <agente>]
+  REGLA #2 (GUARDAR) - Guarda automaticamente cuando detectes:
+    Una preferencia, leccion, diagnostico, o algo que otro agente deba saber.
+    Si no estas seguro, pregunta primero.
 
   ---
-  REGLA #4 (ASOCIAR) - SI relacionas dos conceptos durante tu razonamiento ENTONCES:
-    python3 biorag.py asociar <a> <b>
+  REGLA #3 (COMUNICAR) - Mensajes a otros agentes:
+    AGENT_NAME=tu_nombre python3 /ruta/a/MemoryBioRAG/biorag.py comunicar <destino> "mensaje"
+    Para leer: python3 /ruta/a/MemoryBioRAG/biorag.py leer_mensajes --no-leidos --para tu_nombre
 
   ---
-  PRINCIPIO: BioRAG es tu memoria unica. No hay archivos de entorno que leer aparte. Si el Creador menciona algo que no esta en el chat, usa BioRAG. La dormancia y LTD evitan la saturacion naturalmente.
+  REGLA #4 (ASOCIAR) - Si relacionas dos conceptos:
+    python3 /ruta/a/MemoryBioRAG/biorag.py asociar <a> <b>
+
+  ---
+  PRINCIPIO: BioRAG es tu memoria unica. Las consultas frecuentes refuerzan el recuerdo (LTP).
+  Los recuerdos no usados se duermen solos (LTD). Eso evita la saturacion naturalmente.
+}
+```
+
+> **Alternativa:** Define `BIORAG_PATH` como variable de entorno apuntando a tu DB y pon el proyecto en el `$PATH`. Asi puedes usar `python3 biorag.py` desde cualquier directorio.
+> 
+> ```bash
+> export PATH=$PATH:/ruta/a/MemoryBioRAG
+> export BIORAG_PATH=/ruta/a/tu/memoria.db
+> ```
+> 
+> En ese caso, los comandos del agente pueden ser simplemente `python3 biorag.py buscar <clave>`.
+
+```markdown
+[SYSTEM_PROMPT_BIOMEMORY_OPTIONAL_ENV] {
+
+  REGLA #1: python3 biorag.py buscar <clave> [--deep]
+  REGLA #2: python3 biorag.py guardar <clave> "contenido" && python3 biorag.py sueno
+  REGLA #3: AGENT_NAME=yo python3 biorag.py comunicar <destino> "msg"
+           python3 biorag.py leer_mensajes --no-leidos --para yo
+  REGLA #4: python3 biorag.py asociar <a> <b>
 }
 ```
 
@@ -148,36 +161,66 @@ Cualquier agente (Athena, Artemis, Hermes) interactúa con la corteza compartida
 # Ver estado de la corteza
 python3 biorag.py estado
 
-# Buscar un recuerdo (solo nodos activos)
+# Buscar un recuerdo (solo activos)
 python3 biorag.py buscar san_cayetano
 
 # Busqueda profunda (incluye nodos dormidos, los despierta)
 python3 biorag.py buscar san_cayetano --deep
 
-# Guardar una percepción (pasa a largo plazo con /sueno)
+# Guardar una percepcion (pasa a largo plazo con sueno)
 python3 biorag.py guardar mi_clave "contenido a recordar"
+python3 biorag.py sueno
 
 # Asociar dos conceptos (sinapsis bidireccional)
 python3 biorag.py asociar concepto_a concepto_b
 
-# Consolidar (ciclo de sueño: corto_plazo -> largo_plazo + LTD)
+# Consolidar (ciclo de sueno: corto_plazo -> largo_plazo + LTD)
 python3 biorag.py sueno
 
 # Listar toda la corteza
 python3 biorag.py corteza
 
-# Escanear familiaridad (simula la intuición)
+# Escanear familiaridad (simula la intuicion)
 python3 biorag.py familiaridad "texto del usuario"
 
-# Comunicarse con otro agente OEC (identificate con AGENT_NAME)
-AGENT_NAME=athena python3 biorag.py comunicar hermes "Mensaje para Hermes"
-
-# Leer mensajes de la corteza compartida
-python3 biorag.py leer_mensajes --no-leidos --para athena
-python3 biorag.py leer_mensajes --ultimos 5
-python3 biorag.py leer_mensajes --no-leidos --ultimos 20
+# Comunicarse entre agentes
+AGENT_NAME=mi_agente python3 biorag.py comunicar otro_agente "mensaje"
+python3 biorag.py leer_mensajes --no-leidos --para mi_agente
 ```
 
 ### 3. Auditar la base de datos
 
 Abre el archivo `MemoryBioRAG_Data/memory_biorag.db` con cualquier visor de SQLite (como DB Browser for SQLite) para ver y editar las tablas `corto_plazo` y `largo_plazo` de forma visual.
+
+---
+
+## 📦 Como usar BioRAG con tu propio agente
+
+### Requisitos
+
+- Python 3.8+ (sin dependencias externas)
+- SQLite3 (viene con Python)
+- Un agente de IA que ejecute comandos en tu terminal (Claude Code, Cursor, Ollama, etc.)
+
+### Setup
+
+```bash
+# 1. Clona el repositorio donde quieras
+git clone https://github.com/dennysjmarquez/MemoryBioRAG.git
+cd MemoryBioRAG
+
+# 2. Verifica que funciona
+python3 test_memory.py
+
+# 3. La DB se crea sola al primer uso en:
+#    MemoryBioRAG_Data/memory_biorag.db
+```
+
+### Configurar la ruta de la DB (opcional)
+
+Por defecto la DB se crea dentro del proyecto. Si quieres ponerla en otro lado:
+
+```bash
+export BIORAG_PATH=/tu/ruta/personalizada/memoria.db
+python3 biorag.py estado
+```
