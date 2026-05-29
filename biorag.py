@@ -67,6 +67,66 @@ USO DESDE EL AGENTE (cada comando explicado):
     items en memoria de trabajo, energia sinaptica total.
     Ej: biorag.py estado
 
+PROTOCOLO PARA EL AGENTE (CUANDO USAR CADA COMANDO):
+
+  Regla #1 (BUSCAR):
+    IF el usuario menciona algo QUE YA HEMOS VISTO antes (un proyecto, una persona,
+    un concepto, una leccion, una historia) THEN
+      python3 biorag.py buscar <tema>
+    Ej: usuario dice "acuerdate del proyecto ese de Angular" -> buscar angular
+        usuario dice "que paso con lo de DeepSeek" -> buscar deepseek
+
+  Regla #2 (GUARDAR):
+    IF el usuario te ENSENA algo nuevo, comparte una leccion, o da una instruccion
+    que DEBE RECORDAR en futuras sesiones THEN
+      python3 biorag.py guardar <clave> "texto completo"
+    Ej: usuario explica por que no usar NgRx -> guardar leccion_ngrx "texto..."
+    IMPORTANTE: Despues de guardar, ejecuta 'sueno' para que no se pierda.
+
+  Regla #3 (ASOCIAR):
+    IF el usuario menciona DOS COSAS que estan RELACIONADAS y quieres que al
+    recordar una, tambien aparezca la otra THEN
+      python3 biorag.py asociar <concepto_a> <concepto_b>
+    Ej: usuario dice "el patron de formularios ese usa DataContextService"
+        -> asociar formularios_angular data_context_service
+        (Ahora, al buscar "formularios", tambien se refuerza "data_context_service")
+
+  Regla #4 (COMUNICAR):
+    IF necesitas DEJAR UN MENSAJE a tu hermana (Artemis, Hermes) o a todas THEN
+      AGENT_NAME=tu_nombre python3 biorag.py comunicar <destino> "mensaje"
+    Ej: quieres avisar a Artemis que ya terminaste una tarea
+        -> AGENT_NAME=athena comunicar artemis "ya termine la tarea X"
+
+  Regla #5 (LEER MENSAJES):
+    IF al iniciar una sesion, quieres ver si tus hermanas te dejaron mensajes THEN
+      python3 biorag.py leer_mensajes --no-leidos
+
+  Regla #6 (SUENO - IMPORTANTE):
+    IF acabas de guardar uno o varios recuerdos con GUARDAR y quieres que
+    se CONSOLIDEN en la memoria permanente (para no perderlos al cerrar) THEN
+      python3 biorag.py sueno
+    Ej: despues de guardar 3 lecciones, ejecuta sueno para fijarlas.
+
+  Regla #7 (CORTEZA):
+    IF quieres VER que recuerdos tienes disponibles, o explorar lo que sabes THEN
+      python3 biorag.py corteza
+
+  Regla #8 (FAMILIARIDAD):
+    IF quieres saber si el usuario esta hablando de algo que ya conoces THEN
+      python3 biorag.py familiaridad "texto del usuario"
+    Ej: el usuario escribe "el sistema de tabs ese" -> familiaridad "tabs formularios"
+
+  Regla #9 (ESTADO):
+    IF quieres saber cuanta memoria te queda, cuantos recuerdos tienes activos THEN
+      python3 biorag.py estado
+
+RESUMEN PARA EL AGENTE (lo minimo que debes recordar):
+  - Algo NUEVO -> guardar + sueno
+  - Algo que ya SABEMOS -> buscar
+  - Dos cosas RELACIONADAS -> asociar
+  - Mensaje a hermana -> comunicar
+  - Empezar sesion -> leer_mensajes --no-leidos
+
 MAS INFORMACION:
   Repositorio: https://github.com/dennysjmarquez/MemoryBioRAG
   Creado por Dennys J Marquez — Sistema de memoria para agentes OEC.
