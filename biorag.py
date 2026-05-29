@@ -14,7 +14,7 @@ USO DESDE EL AGENTE (cada comando explicado):
     Escanea tanto la clave como el contenido completo del recuerdo.
     --deep   Busca tambien en nodos dormidos. Si encuentra uno, lo despierta.
     --todos  Devuelve TODAS las coincidencias ordenadas por relevancia.
-    Ej: biorag.py buscar deep
+    Ej: biorag.py buscar formularios
         biorag.py buscar angular --deep
         biorag.py buscar agente --todos
 
