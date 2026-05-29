@@ -66,10 +66,66 @@ class SQLiteMemoryBioRAG:
         union = len(set1.union(set2))
         return interseccion / union if union > 0 else 0.0
 
+    def _buscar_en_contenido(self, query, solo_activos=True):
+        """
+        Busca coincidencias en el CONTENIDO (no solo en clave) usando coincidencia de tokens.
+        Retorna tupla (concepto, contenido, peso, estado, asociaciones) o None.
+        """
+        tokens_query = set(re.findall(r'\b\w{3,}\b', query.lower()))
+
+        if solo_activos:
+            self.cursor.execute("SELECT concepto, contenido, peso_sinaptico, estado, asociaciones FROM largo_plazo WHERE estado = 'activo'")
+        else:
+            self.cursor.execute("SELECT concepto, contenido, peso_sinaptico, estado, asociaciones FROM largo_plazo")
+
+        nodos = self.cursor.fetchall()
+        mejor_puntaje = 0.0
+        mejor_nodo = None
+
+        for concepto, contenido, peso, estado, asociaciones in nodos:
+            contenido_lower = contenido.lower()
+            # Buscar cada token en contenido
+            tokens_encontrados = sum(1 for t in tokens_query if t in contenido_lower)
+            if tokens_encontrados > 0:
+                puntaje = tokens_encontrados / len(tokens_query) * 0.8 + 0.2  # base 0.2 + proporcion
+                if puntaje > mejor_puntaje:
+                    mejor_puntaje = puntaje
+                    mejor_nodo = (concepto, contenido, peso, estado, asociaciones)
+
+        if mejor_nodo and mejor_puntaje >= 0.3:
+            return mejor_nodo
+        return None
+
+    def _buscar_todos_en_contenido(self, query, solo_activos=True):
+        """
+        Busca TODAS las coincidencias en contenido. Retorna lista de tuplas
+        (concepto, contenido, peso, estado, puntaje) ordenadas por relevancia.
+        """
+        tokens_query = set(re.findall(r'\b\w{3,}\b', query.lower()))
+        if not tokens_query:
+            return []
+
+        if solo_activos:
+            self.cursor.execute("SELECT concepto, contenido, peso_sinaptico, estado FROM largo_plazo WHERE estado = 'activo'")
+        else:
+            self.cursor.execute("SELECT concepto, contenido, peso_sinaptico, estado FROM largo_plazo")
+
+        resultados = []
+        for concepto, contenido, peso, estado in self.cursor.fetchall():
+            contenido_lower = contenido.lower()
+            tokens_encontrados = sum(1 for t in tokens_query if t in contenido_lower)
+            if tokens_encontrados > 0:
+                puntaje = tokens_encontrados / len(tokens_query) * 0.8 + 0.2
+                resultados.append((concepto, contenido, peso, estado, puntaje))
+
+        resultados.sort(key=lambda r: r[4], reverse=True)
+        return resultados
+
     def buscar_recuerdo_microsegundos(self, concepto):
         """
         Evoca un recuerdo de largo plazo en microsegundos.
         Solo busca en nodos activos. Si esta dormido, no lo despierta.
+        Busca en clave y en contenido.
         """
         key = concepto.lower().strip()
         inicio = time.perf_counter()
@@ -97,7 +153,14 @@ class SQLiteMemoryBioRAG:
                 key = mejor_coincidencia[0]
                 fila = mejor_coincidencia[1:5]
             else:
-                return None
+                # Fallback: buscar en contenido
+                contenido_match = self._buscar_en_contenido(concepto, solo_activos=True)
+                if contenido_match:
+                    print(f"[MemoryBioRAG] Sin coincidencia en clave. Busqueda en contenido activada: '{concepto}' hallado en '{contenido_match[0]}'")
+                    key = contenido_match[0]
+                    fila = contenido_match[1:5]
+                else:
+                    return None
         else:
             fila = (fila[0], fila[1], fila[2], fila[3])
 
@@ -128,11 +191,45 @@ class SQLiteMemoryBioRAG:
         print(f"[MemoryBioRAG] Evocado exitosamente '{key}' en {(fin - inicio) * 1000000:.2f} microsegundos.")
         return contenido
 
+    def buscar_todos_recuerdos(self, concepto):
+        """
+        Busca TODOS los recuerdos relacionados con un concepto (clave + contenido).
+        Devuelve lista de resultados ordenados por relevancia.
+        Combina coincidencias de clave exacta, Jaccard en clave y busqueda en contenido.
+        """
+        key = concepto.lower().strip()
+        resultados = []
+
+        # 1. Coincidencia exacta
+        self.cursor.execute("SELECT concepto, contenido, peso_sinaptico, estado FROM largo_plazo WHERE concepto = ? AND estado = 'activo'", (key,))
+        fila = self.cursor.fetchone()
+        if fila:
+            resultados.append((fila[0], fila[1], fila[2], fila[3], 1.0))
+
+        # 2. Jaccard en claves activas
+        self.cursor.execute("SELECT concepto, contenido, peso_sinaptico, estado FROM largo_plazo WHERE estado = 'activo'")
+        for concepto_db, contenido_db, peso_db, estado_db in self.cursor.fetchall():
+            if concepto_db == key:
+                continue
+            sim = self._calcular_jaccard(key, concepto_db)
+            if sim >= 0.55:
+                resultados.append((concepto_db, contenido_db, peso_db, estado_db, sim))
+
+        # 3. Contenido (incluye activos ya capturados, se filtran duplicados despues)
+        contenidos = self._buscar_todos_en_contenido(concepto, solo_activos=True)
+        existentes = {r[0] for r in resultados}
+        for concepto_db, contenido_db, peso_db, estado_db, puntaje in contenidos:
+            if concepto_db not in existentes:
+                resultados.append((concepto_db, contenido_db, peso_db, estado_db, puntaje))
+
+        resultados.sort(key=lambda r: r[4], reverse=True)
+        return resultados
+
     def buscar_recuerdo_profundo(self, concepto):
         """
         Busqueda en toda la corteza (activos + dormidos).
         Si encuentra un nodo dormido, lo despierta y aplica LTP.
-        Para busqueda consciente de memorias profundas.
+        Busca en clave y en contenido.
         """
         key = concepto.lower().strip()
         inicio = time.perf_counter()
@@ -160,7 +257,14 @@ class SQLiteMemoryBioRAG:
                 key = mejor_coincidencia[0]
                 fila = mejor_coincidencia[1:5]
             else:
-                return None
+                # Fallback: buscar en contenido (incluye nodos dormidos)
+                contenido_match = self._buscar_en_contenido(concepto, solo_activos=False)
+                if contenido_match:
+                    print(f"[MemoryBioRAG] Sin coincidencia en clave. Busqueda en contenido activada: '{concepto}' hallado en '{contenido_match[0]}'")
+                    key = contenido_match[0]
+                    fila = contenido_match[1:5]
+                else:
+                    return None
         else:
             fila = (fila[0], fila[1], fila[2], fila[3])
 

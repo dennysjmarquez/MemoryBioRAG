@@ -3,7 +3,9 @@
 interactúen con la corteza cerebral compartida desde la terminal.
 
 Uso desde el agente:
-  python3 biorag.py buscar <concepto> [--deep]
+  python3 biorag.py buscar <concepto> [--deep] [--todos]
+    --deep   Buscar tambien en memoria dormida (despierta el nodo)
+    --todos  Mostrar TODOS los recuerdos relacionados, ordenados por relevancia
   python3 biorag.py guardar <clave> <contenido>
   python3 biorag.py asociar <a> <b>
   python3 biorag.py comunicar <destino> <mensaje>
@@ -28,15 +30,35 @@ def cmd_buscar(cerebro, args):
     if not args:
         print("Especifica un concepto. Ej: biorag.py buscar san_cayetano")
         print("  --deep   Buscar tambien en memoria dormida (despierta el nodo)")
+        print("  --todos  Mostrar TODOS los recuerdos relacionados, ordenados por relevancia")
         return 1
     deep = False
+    todos = False
     if "--deep" in args:
         deep = True
         args = [a for a in args if a != "--deep"]
+    if "--todos" in args:
+        todos = True
+        args = [a for a in args if a != "--todos"]
     if not args:
         print("Especifica un concepto.")
         return 1
     concepto = " ".join(args)
+
+    if todos:
+        resultados = cerebro.buscar_todos_recuerdos(concepto)
+        if not resultados:
+            print(f"No se encontro '{concepto}' en la corteza.")
+            return 1
+        print(f"[MemoryBioRAG] {len(resultados)} recuerdos encontrados para '{concepto}':")
+        print("=" * 60)
+        for i, (nombre, contenido, peso, estado, puntaje) in enumerate(resultados, 1):
+            print(f"\n--- #{i}: {nombre} (peso:{peso:.2f}, estado:{estado}, relevancia:{puntaje:.2f}) ---")
+            print(contenido[:500] + ("..." if len(contenido) > 500 else ""))
+        print("\n" + "=" * 60)
+        print(f"Total: {len(resultados)} recuerdos.")
+        return 0
+
     if deep:
         resultado = cerebro.buscar_recuerdo_profundo(concepto)
     else:

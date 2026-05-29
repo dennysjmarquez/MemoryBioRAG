@@ -4,26 +4,39 @@ import time
 def escanear_familiaridad(user_input, cerebro):
     """
     Escanea la entrada del usuario en busca de conceptos familiares en largo plazo.
-    Utiliza coincidencia exacta de tokens y similitud difusa por Jaccard en Python puro.
+    Busca en clave y en contenido. Utiliza coincidencia exacta de tokens, similitud
+    difusa por Jaccard y coincidencia en contenido.
     """
     # Extraer palabras de la entrada del usuario (limpiando puntuación)
     tokens = set(re.findall(r'\b\w{3,}\b', user_input.lower()))
     conceptos_familiares = []
 
-    # Cargar todos los conceptos activos de largo plazo
-    cerebro.cursor.execute("SELECT concepto FROM largo_plazo WHERE estado = 'activo'")
-    nodos_activos = [fila[0] for fila in cerebro.cursor.fetchall()]
+    # Cargar todos los conceptos activos de largo plazo con su contenido
+    cerebro.cursor.execute("SELECT concepto, contenido FROM largo_plazo WHERE estado = 'activo'")
+    nodos_activos = cerebro.cursor.fetchall()
 
-    for nodo in nodos_activos:
-        # 1. Coincidencia exacta de token completo
+    for nodo, contenido in nodos_activos:
+        # 1. Coincidencia exacta de token completo en clave
         if nodo in tokens:
             conceptos_familiares.append(nodo)
             continue
         
         # 2. Familiaridad difusa: Jaccard contra los tokens de la entrada
+        encontrado = False
         for token in tokens:
             sim = cerebro._calcular_jaccard(token, nodo)
-            if sim >= 0.55: # Umbral de intuición
+            if sim >= 0.55:
+                conceptos_familiares.append(nodo)
+                encontrado = True
+                break
+        
+        if encontrado:
+            continue
+
+        # 3. Buscar tokens en el contenido
+        contenido_lower = contenido.lower()
+        for token in tokens:
+            if token in contenido_lower:
                 conceptos_familiares.append(nodo)
                 break
 
