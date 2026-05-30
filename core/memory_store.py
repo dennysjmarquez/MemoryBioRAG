@@ -225,6 +225,80 @@ class SQLiteMemoryBioRAG:
         resultados.sort(key=lambda r: r[4], reverse=True)
         return resultados
 
+    def buscar_por_tokens(self, tokens, modo="relaxed", profundidad="activos", limite=3, pagina=1):
+        """Busqueda multi-token con Soft AND.
+
+        tokens: lista de raices (stems) para buscar en concepto y contenido
+        modo: 'strict' (score=1.0) | 'relaxed' (al menos 1 token coincide)
+        profundidad: 'activos' | 'profundo'
+        limite: resultados por pagina
+        pagina: numero de pagina (1-indexed)
+        Retorna lista de (concepto, contenido, peso, estado, score)
+        """
+        if not tokens:
+            return []
+
+        total_tokens = len(tokens)
+        resultados_con_score = []
+
+        if profundidad == "profundo":
+            self.cursor.execute(
+                "SELECT concepto, contenido, peso_sinaptico, estado FROM largo_plazo"
+            )
+        else:
+            self.cursor.execute(
+                "SELECT concepto, contenido, peso_sinaptico, estado FROM largo_plazo WHERE estado = 'activo'"
+            )
+
+        for concepto, contenido, peso, estado in self.cursor.fetchall():
+            texto_concepto = concepto.lower()
+            texto_contenido = (contenido or "").lower()
+            matches = 0
+            en_concepto = False
+
+            for t in tokens:
+                t_lower = t.lower().strip()
+                if t_lower in texto_concepto:
+                    matches += 1
+                    en_concepto = True
+                elif t_lower in texto_contenido:
+                    matches += 1
+
+            if matches == 0:
+                continue
+
+            score = matches / total_tokens
+            if en_concepto:
+                score = min(1.0, score + 0.1)
+
+            if modo == "strict" and score < 1.0:
+                continue
+
+            resultados_con_score.append(
+                (concepto, contenido, peso, estado, round(score, 2))
+            )
+
+        if not resultados_con_score:
+            return []
+
+        resultados_con_score.sort(key=lambda r: (r[4], r[2]), reverse=True)
+
+        inicio = (pagina - 1) * limite
+        fin = inicio + limite
+        pagina_resultados = resultados_con_score[inicio:fin]
+
+        if profundidad == "profundo":
+            for r in pagina_resultados:
+                if r[3] == "dormido":
+                    nuevo_peso = min(1.0, r[2] + 0.15)
+                    self.cursor.execute(
+                        "UPDATE largo_plazo SET estado = 'activo', peso_sinaptico = ?, ultimo_acceso = ? WHERE concepto = ?",
+                        (nuevo_peso, time.time(), r[0]),
+                    )
+
+        self.conn.commit()
+        return pagina_resultados, len(resultados_con_score)
+
     def buscar_recuerdo_profundo(self, concepto):
         """
         Busqueda en toda la corteza (activos + dormidos).
