@@ -126,6 +126,66 @@ def test_sistema():
     print(f"No leidos tras marcar: {len(no_leidos_despues)}")
     print("--- Comunicacion entre agentes OK ---")
 
+    # 9. Busqueda multi-token (Soft AND)
+    print("\n--- 10. Probando Busqueda Multi-Token (Soft AND) ---")
+    os.remove(db_test_path)
+    cerebro.conn.close()
+    cerebro = SQLiteMemoryBioRAG(db_path=db_test_path)
+    cerebro.percibir_corto_plazo("puerta_madera", "Puerta de madera marron con manija dorada")
+    cerebro.percibir_corto_plazo("color_marron", "El color marron oscuro se usa en muebles")
+    cerebro.percibir_corto_plazo("ventana_blanca", "Ventana de PVC blanca con marco de aluminio")
+    cerebro.percibir_corto_plazo("casa_roja", "Casa pintada de rojo con tejas marrones")
+    cerebro.ciclo_sueno_consolidacion()
+
+    # Test 10a: relaxed mode (2 tokens, debe encontrar match parcial y completo)
+    resultados, total = cerebro.buscar_por_tokens(["puert", "marron"], modo="relaxed")
+    print(f"Relaxed 'puert,marron': {total} resultados, primero: {resultados[0][0] if resultados else 'N/A'}")
+    assert len(resultados) >= 2, f"Error: deberia encontrar al menos 2 (parcial+completo), encontro {len(resultados)}"
+    conceptos_encontrados = [r[0] for r in resultados]
+    assert "puerta_madera" in conceptos_encontrados, "Error: 'puerta_madera' deberia estar (score 1.0)"
+    assert "color_marron" in conceptos_encontrados, "Error: 'color_marron' deberia estar (score 0.5)"
+    print("OK: relaxed mode encuentra match completo y parcial")
+
+    # Test 10b: strict mode (solo match completo)
+    resultados_s, total_s = cerebro.buscar_por_tokens(["puert", "marron"], modo="strict")
+    print(f"Strict 'puert,marron': {total_s} resultados")
+    assert len(resultados_s) == 1, f"Error: strict deberia devolver 1 (solo match completo), devolvio {len(resultados_s)}"
+    assert resultados_s[0][0] == "puerta_madera", "Error: strict deberia encontrar solo 'puerta_madera'"
+    print("OK: strict mode solo devuelve match completo")
+
+    # Test 10c: paginacion
+    for i in range(5):
+        cerebro.cursor.execute("""
+            INSERT OR REPLACE INTO largo_plazo (concepto, contenido, peso_sinaptico, estado, ultimo_acceso)
+            VALUES (?, 'contenido de prueba', 0.5, 'activo', ?)
+        """, (f"concepto_puerta_{i}", time.time()))
+    cerebro.conn.commit()
+    resultados_p1, total_p = cerebro.buscar_por_tokens(["puert"], modo="relaxed", limite=3, pagina=1)
+    resultados_p2, _ = cerebro.buscar_por_tokens(["puert"], modo="relaxed", limite=3, pagina=2)
+    print(f"Pagina 1: {len(resultados_p1)} resultados, Pagina 2: {len(resultados_p2)} resultados, Total: {total_p}")
+    assert len(resultados_p1) == 3, f"Error: pagina 1 deberia tener 3 resultados, tiene {len(resultados_p1)}"
+    assert len(resultados_p2) >= 1, f"Error: pagina 2 deberia tener al menos 1 resultado, tiene {len(resultados_p2)}"
+    # No deben solaparse
+    ids_p1 = {r[0] for r in resultados_p1}
+    ids_p2 = {r[0] for r in resultados_p2}
+    assert ids_p1.isdisjoint(ids_p2), "Error: pagina 1 y 2 no deben solaparse"
+    print("OK: paginacion funciona correctamente, no hay solapamiento")
+
+    # Test 10d: deep mode despierta dormidos
+    cerebro.cursor.execute("UPDATE largo_plazo SET estado = 'dormido', peso_sinaptico = 0.05 WHERE concepto = 'puerta_madera'")
+    cerebro.conn.commit()
+    resultados_deep, _ = cerebro.buscar_por_tokens(["puert", "marron"], modo="strict", profundidad="profundo")
+    print(f"Deep mode: encontro '{resultados_deep[0][0] if resultados_deep else 'N/A'}'")
+    assert len(resultados_deep) == 1, "Error: deep mode deberia despertar y encontrar puerta_madera"
+    assert resultados_deep[0][0] == "puerta_madera", "Error: deep mode deberia encontrar puerta_madera"
+    # Verificar que se desperto
+    cerebro.cursor.execute("SELECT estado FROM largo_plazo WHERE concepto = 'puerta_madera'")
+    estado = cerebro.cursor.fetchone()[0]
+    assert estado == "activo", f"Error: deep mode deberia haber despertado el nodo, estado actual: {estado}"
+    print("OK: deep mode despierta nodos dormidos correctamente")
+
+    print("--- Busqueda multi-token OK ---")
+
     cerebro.cerrar_sistema()
     print("\n--- ¡Todas las pruebas biológicas completadas con éxito! ---")
 

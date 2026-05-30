@@ -9,14 +9,24 @@ para control de saturacion, y nodos dormidos que se despiertan con busqueda prof
 
 USO DESDE EL AGENTE (cada comando explicado):
 
-  python3 biorag.py buscar <concepto> [--deep] [--todos]
+  python3 biorag.py buscar <concepto> [--deep] [--todos] [--tokens "raiz1,raiz2"] [--pagina N] [--modo strict|relaxed]
     Busca un recuerdo en la corteza. Por defecto devuelve el mejor match.
     Escanea tanto la clave como el contenido completo del recuerdo.
-    --deep   Busca tambien en nodos dormidos. Si encuentra uno, lo despierta.
-    --todos  Devuelve TODAS las coincidencias ordenadas por relevancia.
+    --deep          Busca tambien en nodos dormidos. Si encuentra uno, lo despierta.
+    --todos         Devuelve TODAS las coincidencias ordenadas por relevancia.
+    --tokens        Lista de raices stemmeadas separadas por comas (busqueda multi-token).
+                    Activa Soft AND: deben coincidir todas en el mismo recuerdo (strict)
+                    o al menos una (relaxed). El modelo debe stemmear las palabras clave
+                    antes de pasarlas. Ej: "puert,marron" para buscar "puerta marroncita".
+    --pagina N      Pagina de resultados 1-indexada (defecto: 1). Solo con --tokens.
+    --modo M        strict | relaxed. strict solo devuelve recuerdos que matchean TODOS
+                    los tokens. relaxed devuelve cualquier match parcial. Defecto: relaxed.
     Ej: biorag.py buscar formularios
         biorag.py buscar angular --deep
         biorag.py buscar agente --todos
+        biorag.py buscar "puerta marroncita" --tokens "puert,marron"
+        biorag.py buscar "puerta marroncita" --tokens "puert,marron" --pagina 2
+        biorag.py buscar "error compilacion" --tokens "error,compil" --modo strict
 
   python3 biorag.py guardar <clave> <contenido>
     Almacena informacion en la memoria de corto plazo (memoria de trabajo).
@@ -145,21 +155,67 @@ DB_PATH = os.environ.get('BIORAG_PATH') or _DEFAULT_DB
 def cmd_buscar(cerebro, args):
     if not args:
         print("Especifica un concepto. Ej: biorag.py buscar san_cayetano")
-        print("  --deep   Buscar tambien en memoria dormida (despierta el nodo)")
-        print("  --todos  Mostrar TODOS los recuerdos relacionados, ordenados por relevancia")
+        print("  --deep        Buscar tambien en memoria dormida (despierta el nodo)")
+        print("  --todos       Mostrar TODOS los recuerdos relacionados, ordenados por relevancia")
+        print("  --tokens      Lista de raices stemmeadas separadas por comas (busqueda multi-token)")
+        print("  --pagina N    Pagina de resultados (defecto: 1) solo con --tokens")
+        print("  --modo M      strict | relaxed (defecto: relaxed) solo con --tokens")
         return 1
+
     deep = False
     todos = False
+    multi_token = False
+    tokens = []
+    modo = "relaxed"
+    pagina = 1
+
     if "--deep" in args:
         deep = True
         args = [a for a in args if a != "--deep"]
     if "--todos" in args:
         todos = True
         args = [a for a in args if a != "--todos"]
+    for i, a in enumerate(args):
+        if a == "--tokens" and i + 1 < len(args):
+            multi_token = True
+            tokens = [t.strip() for t in args[i + 1].split(",") if t.strip()]
+            args = [x for j, x in enumerate(args) if j != i and j != i + 1]
+            break
+    for i, a in enumerate(args):
+        if a == "--pagina" and i + 1 < len(args):
+            try:
+                pagina = int(args[i + 1])
+            except ValueError:
+                pass
+            args = [x for j, x in enumerate(args) if j != i and j != i + 1]
+            break
+    for i, a in enumerate(args):
+        if a == "--modo" and i + 1 < len(args):
+            modo = args[i + 1] if args[i + 1] in ("strict", "relaxed") else "relaxed"
+            args = [x for j, x in enumerate(args) if j != i and j != i + 1]
+            break
+
     if not args:
         print("Especifica un concepto.")
         return 1
     concepto = " ".join(args)
+
+    if multi_token:
+        profundidad = "profundo" if deep else "activos"
+        resultados, total = cerebro.buscar_por_tokens(tokens, modo=modo, profundidad=profundidad, pagina=pagina)
+        if not resultados:
+            print(f"No se encontraron coincidencias para los tokens especificados.")
+            return 1
+        total_paginas = max(1, (total + 2) // 3)
+        print(f"[MemoryBioRAG] {total} coincidencias encontradas (pagina {pagina}/{total_paginas})")
+        print("=" * 60)
+        for i, (nombre, contenido, peso, estado, score) in enumerate(resultados, 1):
+            print(f"\n--- #{i}: {nombre} (peso:{peso:.2f}, estado:{estado}, score:{score:.2f}) ---")
+            print((contenido or "")[:500] + ("..." if len((contenido or "")) > 500 else ""))
+        print("\n" + "=" * 60)
+        if pagina < total_paginas:
+            print(f"Usa --pagina {pagina + 1} para mas resultados.")
+        return 0
 
     if todos:
         resultados = cerebro.buscar_todos_recuerdos(concepto)

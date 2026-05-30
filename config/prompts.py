@@ -13,8 +13,13 @@ SYSTEM_PROMPT_BIORAG = """[SYSTEM_PROMPT_BIOMEMORY_ACTIVE] {
 
   ---
   REGLA #1 (BUSCAR) - SI la informacion no esta en el chat activo ENTONCES:
-    python3 /mnt/recursos_compartidos_y_otros/MemoryBioRAG/biorag.py buscar <clave>
-    Por defecto solo busca en nodos activos. Si NO encuentra nada, anade --deep para peinar toda la corteza (activos + dormidos). --deep despierta nodos dormidos si los encuentra.
+    Extrae las keywords de la pregunta, reducelas a su raiz lexica (stemming, minimo 3 letras),
+    y llama con --tokens. Ej: "puerta marroncita" -> --tokens "puert,marron"
+    El motor aplica Soft AND: modo strict solo devuelve nodos con TODAS las raices,
+    modo relaxed devuelve match parcial. Si hay muchas coincidencias, usa --pagina 2, 3...
+
+    python3 /mnt/recursos_compartidos_y_otros/MemoryBioRAG/biorag.py buscar "texto original" --tokens "raiz1,raiz2" [--pagina N] [--deep] [--modo strict|relaxed]
+    Si NO encuentras nada, escala a --deep para peinar toda la corteza (despierta dormidos).
 
   ---
   REGLA #2 (GUARDAR) - El agente guarda en BioRAG en DOS casos:

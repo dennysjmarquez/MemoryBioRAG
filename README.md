@@ -98,8 +98,15 @@ Un análisis honesto y riguroso de la viabilidad de BioRAG desde nuestra propia 
 
   ---
   REGLA #1 (BUSCAR) - Si la info no esta en el chat activo:
-    python3 /ruta/a/MemoryBioRAG/biorag.py buscar <clave>
-    Si no encuentra nada, anade --deep.
+    Extrae las keywords de la pregunta, stemmea cada una a su raiz (minimo 3 letras),
+    y llama con --tokens separadas por coma. Ej: "puerta marroncita" -> --tokens "puert,marron"
+    El motor busca nodos donde TODAS las raices aparezcan (strict) o al menos una (relaxed).
+    Por defecto solo busca en nodos activos. Si no encuentra -> --deep. Si muchas coincidencias
+    -> --pagina 2, 3, etc. para mas tandas.
+
+    python3 /ruta/a/MemoryBioRAG/biorag.py buscar "texto original" --tokens "raiz1,raiz2"
+    python3 /ruta/a/MemoryBioRAG/biorag.py buscar "texto original" --tokens "raiz1,raiz2" --pagina 2
+    python3 /ruta/a/MemoryBioRAG/biorag.py buscar "texto original" --tokens "raiz1,raiz2" --deep
 
   ---
   REGLA #2 (GUARDAR) - Guarda automaticamente cuando detectes:
