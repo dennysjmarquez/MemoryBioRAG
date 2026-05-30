@@ -176,6 +176,15 @@ python3 biorag.py buscar san_cayetano
 # Busqueda profunda (incluye nodos dormidos, los despierta)
 python3 biorag.py buscar san_cayetano --deep
 
+# Busqueda multi-token con Soft AND (el modelo stemmea las keywords)
+python3 biorag.py buscar "puerta marroncita" --tokens "puert,marron"
+
+# Segunda tanda de resultados (busqueda progresiva, como el cerebro humano)
+python3 biorag.py buscar "puerta marroncita" --tokens "puert,marron" --pagina 2
+
+# Solo recuerdos donde aparezcan TODAS las raices (modo estricto)
+python3 biorag.py buscar "error compilacion" --tokens "error,compil" --modo strict
+
 # Guardar una percepcion (pasa a largo plazo con sueno)
 python3 biorag.py guardar mi_clave "contenido a recordar"
 python3 biorag.py sueno
