@@ -6,7 +6,7 @@ A diferencia de los sistemas RAG tradicionales (que indexan texto plano rígidam
 
 ---
 
-## v2.2 — Interceptor V2 (Autoguardado Automático)
+## v4.0 — Interceptor V2 (Autoguardado Automático)
 
 - **Interceptor V2** (`middleware/auto_guardado.py`): buffer de sesión con TTL de 30 min que acumula contexto de cada tool call. Al detectar palabras clave (lección, prefiero, error, mejor práctica, etc.) autoguarda en corto plazo sin necesidad de instrucción explícita del agente.
 - **`biorag_contexto_inicio`**: nueva tool MCP para que el agente anuncie el inicio de una interacción significativa y alimente el buffer.
@@ -419,7 +419,7 @@ export BIORAG_PATH=/tu/ruta/memoria.db
 
 ## Historial de Versiones
 
-- **v2.2** — Interceptor V2 (autoguardado automático): buffer de sesión con TTL, 2 nuevas tools MCP (contexto_inicio/contexto_fin), consolidación inmediata sin necesidad de sueno, heurísticas de detección de 30+ patrones léxicos
+- **v4.0** — Interceptor V2 (autoguardado automático): buffer de sesión con TTL, 2 nuevas tools MCP (contexto_inicio/contexto_fin), consolidación inmediata sin necesidad de sueno, heurísticas de detección de 30+ patrones léxicos
 - **v3.0** — MCP server: 8 herramientas nativas para OpenCode, Antigravity, Hermes, VS Code, Cursor
 - **v2.1** — Refinamientos auditoría Artemis: --cat, límite dinámico, limpieza test/dead code, bugfix --todos+FTS5
 - **v2.0** — FTS5 trigram + búsqueda híbrida (BM25/peso/asociaciones) + sinónimos + merge en corto plazo + fallback trigram Jaccard por palabra
