@@ -369,7 +369,28 @@ def test_sistema():
         assert len(resultados_asoc2[0]) == 6, "Error: resultado deberia tener 6 elementos (incluye asociaciones)"
     print("OK: asociaciones disponibles en resultado de FTS5")
 
-    print("\n--- v2.0: FTS5 trigram + sinonimos + merge + score hibrido + fallback Jaccard OK ---")
+    # 26. consolidar_concepto: ciclo completo sin sueno
+    print("\n--- 26. Probando consolidar_concepto (Interceptor V2) ---")
+    cerebro.percibir_corto_plazo("test_auto_v4", "Prueba de autoguardado automatico sin sueno", "v4,auto,test", "test")
+
+    ok = cerebro.consolidar_concepto("test_auto_v4")
+    print(f"  consolidar_concepto() -> {ok}")
+    assert ok, "Error: consolidar_concepto deberia devolver True"
+
+    cerebro.cursor.execute("SELECT concepto FROM corto_plazo WHERE concepto = 'test_auto_v4'")
+    assert not cerebro.cursor.fetchone(), "Error: concepto no deberia estar en corto_plazo"
+    print("  OK: eliminado de corto_plazo")
+
+    resultados, total = cerebro.buscar_por_frase("test_auto_v4", limite=1)
+    assert total == 1 and resultados[0][0] == "test_auto_v4", "Error: no encontrado en FTS5"
+    print(f"  OK: encontrado en FTS5 (trigger automatico, sin sueno)")
+
+    ok_falso = cerebro.consolidar_concepto("no_existe")
+    assert not ok_falso, "Error: concepto inexistente deberia devolver False"
+    print("  OK: concepto inexistente devuelve False")
+    print("OK: consolidar_concepto funciona sin ciclo_sueno")
+
+    print("\n--- v4.0: Interceptor V2 + consolidacion inmediata OK ---")
 
     cerebro.cerrar_sistema()
     print("\n--- ¡Todas las pruebas biologicas completadas con exito! ---")
