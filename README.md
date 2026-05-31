@@ -67,6 +67,8 @@ El sistema está estructurado físicamente en dos capas de memoria dentro del ar
 ```
 MemoryBioRAG/
   ├── biorag.py                 # CLI bridge para agentes (buscar, guardar, asociar, sueno, corteza, comunicar)
+  ├── mcp_server.py             # Servidor MCP: expone BioRAG como herramientas MCP para IDEs
+  ├── requirements.txt          # Dependencias: mcp (servidor MCP)
   ├── core/
   │    ├── __init__.py
   │    └── memory_store.py      # Motor SQLite + FTS5: LTP/LTD, trigram, score híbrido, sinónimos
@@ -81,6 +83,121 @@ MemoryBioRAG/
   ├── MemoryBioRAG_Data/        # Bases de datos SQLite (auto-creado)
   ├── test_memory.py            # Tests automatizados
   └── README.md                 # Este archivo
+```
+
+---
+
+## Servidor MCP (Model Context Protocol)
+
+BioRAG expone una corteza cerebral compartida via MCP para que cualquier IDE o agente compatible (OpenCode, VS Code, Cursor, Cline) se conecte directamente a la memoria sin ejecutar comandos shell.
+
+### Herramientas MCP
+
+| Herramienta | Descripcion |
+|---|---|
+| `biorag_buscar` | Busqueda hibrida (FTS5 trigram + peso sinaptico + asociaciones) |
+| `biorag_guardar` | Guardar recuerdo en corto plazo (consolidar con biorag_sueno) |
+| `biorag_asociar` | Sinapsis bidireccional entre conceptos |
+| `biorag_comunicar` | Enviar mensaje inter-agente (athena, artemis, hermes, todos) |
+| `biorag_leer_mensajes` | Leer canal compartido (auto-marca leidos) |
+| `biorag_sueno` | Consolidar corto -> largo plazo (LTP/LTD) |
+| `biorag_estado` | Stats de la corteza (activos, dormidos, energia) |
+| `biorag_corteza` | Listar todos los nodos de la corteza |
+
+### Resources MCP
+
+| Resource | Descripcion |
+|---|---|
+| `biorag://concepto/{nombre}` | Contenido completo de un concepto |
+| `biorag://mensajes` | Mensajes no leidos en el canal OEC |
+
+### Prompt MCP
+
+| Prompt | Descripcion |
+|---|---|
+| `biorag-system-prompt` | Reglas de acceso a memoria BioRAG para inyectar en el system prompt |
+
+### Instalacion
+
+```bash
+# 1. Clonar el repositorio
+git clone https://github.com/dennysjmarquez/MemoryBioRAG.git
+cd MemoryBioRAG
+
+# 2. Instalar dependencia MCP
+pip install mcp
+
+# 3. Verificar que funciona
+python3 mcp_server.py --help
+```
+
+### Configuracion en OpenCode
+
+Agregar a `~/.config/opencode/opencode.json`:
+
+```json
+{
+  "mcp": {
+    "biorag": {
+      "type": "local",
+      "command": ["python3", "/ruta/a/MemoryBioRAG/mcp_server.py"],
+      "enabled": true
+    }
+  }
+}
+```
+
+Reiniciar OpenCode para que cargue la configuracion.
+
+### Configuracion en VS Code
+
+Crear `.vscode/mcp.json` en la raiz del proyecto:
+
+```json
+{
+  "servers": {
+    "biorag": {
+      "type": "stdio",
+      "command": "python3",
+      "args": ["/ruta/a/MemoryBioRAG/mcp_server.py"]
+    }
+  }
+}
+```
+
+### Configuracion en Cursor
+
+Agregar a `~/.cursor/mcp.json`:
+
+```json
+{
+  "mcpServers": {
+    "biorag": {
+      "command": "python3",
+      "args": ["/ruta/a/MemoryBioRAG/mcp_server.py"]
+    }
+  }
+}
+```
+
+### Modo SSE (servidor HTTP)
+
+Para servir BioRAG como daemon HTTP que multiples IDEs conectan simultaneamente:
+
+```bash
+python3 mcp_server.py --sse --port 8080
+```
+
+Luego configurar los IDEs con `type: "remote"` apuntando a `http://localhost:8080/mcp`.
+
+### Verificacion
+
+```bash
+# Verificar que el servidor MCP esta conectado en OpenCode
+opencode mcp list
+
+# Deberia mostrar:
+# ●  ✓ biorag connected
 ```
 
 ---
