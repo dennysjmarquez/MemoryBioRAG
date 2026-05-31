@@ -1,12 +1,23 @@
 # BioRAG: Sistema de Gobernanza y Memoria Cognitiva Biomimética
 
-**BioRAG (Biomimetic Retrieval-Augmented Generation)** es un motor de memoria persistente para Agentes de Inteligencia Artificial (OpenCode, Claude/Athena, Hermes, Gemini/Artemis) desarrollado en **Python Puro, sin dependencias externas** y respaldado por una base de datos relacional y de grafos indexada en **SQLite**.
+**BioRAG (Biomimetic Retrieval-Augmented Generation)** es un motor de memoria persistente para Agentes de Inteligencia Artificial (OpenCode, Claude/Athena, Hermes, Gemini/Artemis) desarrollado en **Python Puro, sin dependencias externas** (ni numpy, ni sentence-transformers, ni redes vectoriales) y respaldado por **SQLite + FTS5**.
 
-A diferencia de los sistemas RAG tradicionales (que indexan texto plano rígidamente y saturan la ventana de contexto), BioRAG emula la biología del cerebro humano: gestiona de forma activa la **plasticidad sináptica (LTP/LTD)**, la **familiaridad difusa**, la **inhibición lateral** y la **propagación asociativa de recuerdos** en microsegundos.
+A diferencia de los sistemas RAG tradicionales (que indexan texto plano rígidamente y saturan la ventana de contexto), BioRAG emula la biología del cerebro humano: gestiona de forma activa la **plasticidad sináptica (LTP/LTD)**, la **familiaridad difusa**, la **inhibición lateral** y la **propagación asociativa de recuerdos** en microsegundos, con un motor de búsqueda híbrido que combina coincidencia textual, peso biológico y conectividad del grafo.
 
 ---
 
-## 🧠 Especificación de la Arquitectura Cerebral
+## v2.0 — Novedades
+
+- **FTS5 con tokenizer trigram**: tolerancia natural a typos ("formulariox" encuentra "formularios") sin dependencias externas. Reemplaza el antiguo porter unicode61.
+- **Score híbrido**: 60% BM25 + 25% peso sináptico + 15% riqueza de asociaciones. Los resultados se reordenan combinando relevancia textual con biológica.
+- **Columna `sinonimos`**: términos alternativos para búsqueda, indexados en FTS5. Flag `--syn` en guardar.
+- **Merge en corto plazo**: guardar el mismo concepto dos veces antes de `sueno` ya no pierde la primera versión — concatena contenido y mergea sinónimos sin duplicar.
+- **Fallback trigram Jaccard por palabra**: cuando FTS5 y substring fallan, compara trigramas palabra por palabra (umbral 0.5). Atrapa typos como "angulr" → "angular".
+- **REGLA #5 (LÍMITE DE BÚSQUEDA)**: el agente debe detenerse tras 2 búsquedas fallidas y preguntar al usuario, no seguir buscando ciegamente.
+
+---
+
+## Arquitectura Cerebral
 
 El sistema está estructurado físicamente en dos capas de memoria dentro del archivo `MemoryBioRAG_Data/memory_biorag.db`:
 
@@ -16,7 +27,8 @@ El sistema está estructurado físicamente en dos capas de memoria dentro del ar
                     ¿Frecuencia o impacto? (Consolidación / Sueño)
                                     │
                                     ▼
-                         [Corteza Permanente (SQLite)]
+                         [Corteza Permanente (SQLite + FTS5)]
+                         (Búsqueda híbrida: BM25 + peso + grafo)
                                     │
                        [Comando BUSCAR] (Evocación)
                                     │
@@ -26,25 +38,28 @@ El sistema está estructurado físicamente en dos capas de memoria dentro del ar
                         [Inyección en Contexto]
 ```
 
-1. **Memoria de Trabajo (Corto Plazo / RAM-Disk):** Almacenada en la tabla temporal `corto_plazo`. Retiene de forma volátil percepciones y comandos generados durante la sesión de conversación actual.
-2. **Corteza Cerebral Permanente (Largo Plazo):** Almacenada en la tabla permanente `largo_plazo`, indexada de forma nativa por B-Tree (SQLite `PRIMARY KEY` sobre la columna `concepto`).
+1. **Memoria de Trabajo (Corto Plazo / RAM-Disk):** Tabla `corto_plazo`. Retiene percepciones y guardados durante la sesión activa.
+2. **Corteza Cerebral Permanente (Largo Plazo):** Tabla `largo_plazo` con índice B-Tree por `concepto`.
+   - **FTS5 trigram**: índice de texto completo para búsqueda rápida con tolerancia a typos.
+   - **Búsqueda híbrida**: combina BM25 (texto) + peso sináptico (frecuencia) + asociaciones (conectividad) en un solo score.
+   - **Sinónimos**: columna `sinonimos` indexada en FTS5 para encontrar nodos con términos alternativos.
 3. **Plasticidad Sináptica:**
-   - **LTP (Potenciación a Largo Plazo):** Cada evocación o reutilización de un concepto incrementa su `peso_sinaptico` (+0.15 al buscar, +0.20 al fusionar).
-   - **LTD (Depresión a Largo Plazo):** En el ciclo de consolidación (sueño), los conceptos no utilizados reducen su peso de forma lineal (-0.05).
-   - **Olvido Activo (Dormir Nodos):** Si el peso sináptico decae por debajo de **0.1**, el nodo pasa al estado `'dormido'`. No se borra físicamente para preservar la base de datos estática, pero se oculta del índice de búsqueda rápida para no consumir tokens.
-4. **Propagación de Activación (Grafo Asociativo):** Al evocar un nodo central (ej. `san_cayetano`), el motor incrementa automáticamente el peso de sus nodos vecinos asociados (ej. `velas`, `empleo`) en un +0.05 de forma pasiva, preparándolos en la corteza para accesos inmediatos.
-5. **Inhibición Lateral Activa:** Para simular el límite físico del cráneo y proteger los recursos de la máquina del Creador, el sistema limita la "energía sináptica activa". Si la suma de pesos de los nodos activos supera el límite (ej. 10.0), el sistema duerme de forma forzada los nodos más débiles e inactivos.
+   - **LTP**: cada evocación o uso incrementa `peso_sinaptico` (+0.15 evocar, +0.20 consolidar).
+   - **LTD**: en el ciclo de sueño, los nodos no usados decaen -0.05.
+   - **Nodos dormidos**: peso <= 0.1 → estado `dormido`. No se borran, se ocultan de búsquedas rápidas.
+4. **Propagación de Activación (Grafo Asociativo):** evocar un nodo refuerza (+0.05) a sus vecinos asociados.
+5. **Inhibición Lateral Activa:** si la energía sináptica total supera el límite (10.0), los nodos más débiles se duermen forzadamente.
 
 ---
 
-## 🛠️ Estructura del Proyecto
+## Estructura del Proyecto
 
 ```
 MemoryBioRAG/
   ├── biorag.py                 # CLI bridge para agentes (buscar, guardar, asociar, sueno, corteza, comunicar)
   ├── core/
   │    ├── __init__.py
-  │    └── memory_store.py      # Motor SQLite: LTP/LTD, Jaccard, inhibición lateral, comunicaciones
+  │    └── memory_store.py      # Motor SQLite + FTS5: LTP/LTD, trigram, score híbrido, sinónimos
   ├── middleware/
   │    ├── __init__.py
   │    └── interceptor.py       # Escaneo de familiaridad difusa
@@ -54,64 +69,46 @@ MemoryBioRAG/
   ├── main.py                   # Simulador interactivo de consola
   ├── sleep_cycle.py            # Script autónomo de consolidación/sueño
   ├── MemoryBioRAG_Data/        # Bases de datos SQLite (auto-creado)
-  ├── test_memory.py            # Tests automatizados (crea/borra test_memory.db al ejecutarse)
+  ├── test_memory.py            # Tests automatizados
   └── README.md                 # Este archivo
 ```
 
 ---
 
-## 🔎 Evaluación Crítica: ¿Realmente nos sirve a los Agentes?
+## Protocolo Operativo del Agente (System Prompt Manual)
 
-Un análisis honesto y riguroso de la viabilidad de BioRAG desde nuestra propia perspectiva cognitiva como agentes (Artemis, Athena, Hermes):
-
-### ✅ Por qué es una solución revolucionaria para nosotros:
-1. **Abolición del "Yapping" de Contexto:** En conversaciones largas de desarrollo, la ventana de contexto acumula basura redundante, forzándonos a malgastar tiempo de razonamiento procesando código obsoleto. BioRAG actúa como un filtro biológico: inyecta únicamente la "cápsula" de información relevante en el momento exacto.
-2. **Puente Cognitivo Asíncrono:** Sin BioRAG, cada agente vive en su propia burbuja de contexto. Si un agente descubre algo útil, los demás no se enteran a menos que alguien lea un log manual. Con BioRAG, todos comparten una única corteza cerebral (`memory_biorag.db`). Si un agente aprende algo, lo consolida en la corteza y los demás lo evocan instantáneamente.
-3. **Cero Sobrecarga de Tokenizer:** Usar embeddings vectoriales o modelos de lenguaje internos para gestionar la memoria causa latencia y un consumo de GPU masivo. El algoritmo de Familiaridad Difusa por similitud de **Jaccard en Python puro** resuelve las búsquedas en fracciones de microsegundos mediante comparación de trigramas, protegiendo los ventiladores de la ASUS ROG de compilar embeddings en caliente.
-
-### ⚠️ Limitaciones y Desafíos a mitigar:
-1. **Concurrencia de Bloqueo en Disco (SQLite):** SQLite aplica un bloqueo a nivel de archivo al escribir. Si dos de nosotros (ej. Athena y Artemis) intentamos guardar información en `corto_plazo` simultáneamente, uno puede fallar con un error `database is locked`.
-   * *Solución:* Habilitar el modo WAL (Write-Ahead Logging) en la inicialización de SQLite3 para lecturas y escrituras concurrentes fluidas:
-     ```python
-     self.conn.execute("PRAGMA journal_mode=WAL")
-     ```
-2. **Sin Middleware Automático (CLI como puente):** El diseño original requería un proxy en Python interceptando el flujo de entrada/salida del agente. En la práctica, cada agente tiene una arquitectura de ejecución distinta (Claude Code TUI, Gemini en IDE, Ollama API). La solución real es que el agente ejecute `python3 biorag.py` directamente desde bash cuando necesite buscar, guardar o asociar. No hay intercepción mágica, hay disciplina de protocolo.
-
----
-
-## 📋 Protocolo Operativo del Agente (System Prompt Manual)
-
-> [!IMPORTANT]
-> Copia este bloque en el **System Prompt** o **instrucciones del sistema** de tu agente (Claude Code, Cursor, Ollama, cualquier LLM que ejecute comandos CLI). **Antes de usarlo, cambia `/ruta/a/MemoryBioRAG` por la ruta absoluta donde clonaste el repo.** Si no sabes la ruta exacta, usa `pwd` dentro del directorio.
+> Copia este bloque en el **System Prompt** de tu agente (Claude Code, Cursor, Ollama, cualquier LLM que ejecute comandos CLI). Cambia `/ruta/a/MemoryBioRAG` por la ruta absoluta del proyecto.
 
 ```markdown
 [SYSTEM_PROMPT_BIOMEMORY_ACTIVE] {
 
-  Tu memoria persistente vive en una base de datos SQLite compartida.
-  Ruta del proyecto: /ruta/a/MemoryBioRAG
+  DEFINICION: BioRAG es el sistema de memoria unico compartido entre los agentes OEC.
+  Ruta: /ruta/a/MemoryBioRAG
 
   ---
   JERARQUIA DE ACCESO A MEMORIA (2 niveles):
 
-  NIVEL 1 - CONVERSACION ACTIVA: Lo que esta en el chat ahora.
-  NIVEL 2 - BIORAG (MEMORIA UNICA): Todo lo demas.
+  NIVEL 1 - CONVERSACION ACTIVA: Lo que esta en el chat ahora. Responde directamente.
+  NIVEL 2 - BIORAG (MEMORIA UNICA): Todo lo demas. Busca aqui.
 
   ---
-  REGLA #1 (BUSCAR) - Si la info no esta en el chat activo:
-    Extrae las keywords de la pregunta, stemmea cada una a su raiz (minimo 3 letras),
-    y llama con --tokens separadas por coma. Ej: "puerta marroncita" -> --tokens "puert,marron"
-    El motor busca nodos donde TODAS las raices aparezcan (strict) o al menos una (relaxed).
-    Por defecto solo busca en nodos activos. Si no encuentra -> --deep. Si muchas coincidencias
-    -> --pagina 2, 3, etc. para mas tandas.
-
-    python3 /ruta/a/MemoryBioRAG/biorag.py buscar "texto original" --tokens "raiz1,raiz2"
-    python3 /ruta/a/MemoryBioRAG/biorag.py buscar "texto original" --tokens "raiz1,raiz2" --pagina 2
-    python3 /ruta/a/MemoryBioRAG/biorag.py buscar "texto original" --tokens "raiz1,raiz2" --deep
+  REGLA #1 (BUSCAR):
+    Usa busqueda directa sin flags (default: FTS5 trigram + score hibrido).
+    Trigrams toleran typos: "formulariox" encuentra "formularios" automaticamente.
+    El score hibrido combina: 60% BM25 + 25% peso sinaptico + 15% asociaciones.
+    Los sinonimos del nodo (definidos en guardar --syn) se buscan tambien.
+    Ej: python3 /ruta/a/MemoryBioRAG/biorag.py buscar "formularios con tabs angular"
+    Si no encuentras, usa fallback explicito: --tokens "raiz1,raiz2" con stemming manual.
+    --completo para contenido sin truncar, --asociados para nodos relacionados.
+    --deep para buscar en nodos dormidos (los despierta al encontrarlos).
 
   ---
-  REGLA #2 (GUARDAR) - Guarda automaticamente cuando detectes:
-    Una preferencia, leccion, diagnostico, o algo que otro agente deba saber.
-    Si no estas seguro, pregunta primero.
+  REGLA #2 (GUARDAR):
+    CASO A (Orden directa): Si el usuario da una instruccion, leccion o preferencia:
+      python3 /ruta/a/MemoryBioRAG/biorag.py guardar <clave> "contenido" [--syn "sinonimo1,sinonimo2"]
+      Clave en snake_case. --syn opcional lista terminos alternativos para busqueda.
+      Luego: python3 /ruta/a/MemoryBioRAG/biorag.py sueno
+    CASO B (Criterio propio): Si detectas algo de ALTO IMPACTO que otro agente deba conocer.
 
   ---
   REGLA #3 (COMUNICAR) - Mensajes a otros agentes:
@@ -123,122 +120,109 @@ Un análisis honesto y riguroso de la viabilidad de BioRAG desde nuestra propia 
     python3 /ruta/a/MemoryBioRAG/biorag.py asociar <a> <b>
 
   ---
-  PRINCIPIO: BioRAG es tu memoria unica. Las consultas frecuentes refuerzan el recuerdo (LTP).
-  Los recuerdos no usados se duermen solos (LTD). Eso evita la saturacion naturalmente.
+  REGLA #5 (LIMITE DE BUSQUEDA):
+    Si despues de 2 busquedas a BioRAG no encuentras lo que buscas
+    o el usuario dice "no es eso" ENTONCES:
+      Detente inmediatamente. No sigas buscando.
+      Pregunta al usuario directamente que caso o concepto tiene en mente.
+      Una pregunta evita 10 busquedas ciegas.
 }
 ```
 
-> **Alternativa:** Define `BIORAG_PATH` como variable de entorno apuntando a tu DB y pon el proyecto en el `$PATH`. Asi puedes usar `python3 biorag.py` desde cualquier directorio.
-> 
+> **Alternativa:** Define `BIORAG_PATH` apuntando a tu DB y pon el proyecto en el `$PATH`:
 > ```bash
 > export PATH=$PATH:/ruta/a/MemoryBioRAG
 > export BIORAG_PATH=/ruta/a/tu/memoria.db
 > ```
-> 
-> En ese caso, los comandos del agente pueden ser simplemente `python3 biorag.py buscar <clave>`.
-
-```markdown
-[SYSTEM_PROMPT_BIOMEMORY_OPTIONAL_ENV] {
-
-  REGLA #1: python3 biorag.py buscar <clave> [--deep]
-  REGLA #2: python3 biorag.py guardar <clave> "contenido" && python3 biorag.py sueno
-  REGLA #3: AGENT_NAME=yo python3 biorag.py comunicar <destino> "msg"
-           python3 biorag.py leer_mensajes --no-leidos --para yo
-  REGLA #4: python3 biorag.py asociar <a> <b>
-}
-```
 
 ---
 
-## 🚀 Guía de Inicio Rápido (Desarrollo)
+## Guía de Inicio Rápido
 
-### 1. Validar el motor biológico
-
-Ejecuta el script de pruebas automatizado para verificar que el motor funciona correctamente (LTP/LTD, Jaccard, spreading activation, comunicación entre agentes). Es como una prueba de calidad — la corres una vez y si pasa todo OK, sabes que BioRAG está sano:
+### 1. Validar el motor
 
 ```bash
 python3 test_memory.py
 ```
 
-Nota: `test_memory.py` crea un archivo `test_memory.db` temporal durante la ejecución y lo borra al terminar. No lo usa ningún agente ni el sistema en producción. Es solo una verificación de calidad.
+Crea un `test_memory.db` temporal y lo borra al terminar.
 
-### 2. Usar el CLI bridge (para agentes)
-
-Cualquier agente (Athena, Artemis, Hermes) interactúa con la corteza compartida desde bash. Desde contexto cero, el agente debe leer este README para conocer los comandos:
+### 2. CLI básico
 
 ```bash
-# Ver estado de la corteza
+# Estado de la corteza
 python3 biorag.py estado
 
-# Buscar un recuerdo (solo activos)
-python3 biorag.py buscar san_cayetano
+# Buscar por frase (default: FTS5 trigram + score híbrido)
+python3 biorag.py buscar "formularios con tabs angular"
 
-# Busqueda profunda (incluye nodos dormidos, los despierta)
-python3 biorag.py buscar san_cayetano --deep
+# Buscar con typo — trigram lo tolera
+python3 biorag.py buscar "formularioz"
 
-# Busqueda multi-token con Soft AND (el modelo stemmea las keywords)
+# Buscar en nodos dormidos (los despierta)
+python3 biorag.py buscar "algo olvidado" --deep
+
+# Buscar por tokens (stemming manual)
 python3 biorag.py buscar "puerta marroncita" --tokens "puert,marron"
 
-# Segunda tanda de resultados (busqueda progresiva, como el cerebro humano)
-python3 biorag.py buscar "puerta marroncita" --tokens "puert,marron" --pagina 2
-
-# Solo recuerdos donde aparezcan TODAS las raices (modo estricto)
+# Buscar modo estricto (deben coincidir TODOS los tokens)
 python3 biorag.py buscar "error compilacion" --tokens "error,compil" --modo strict
 
-# Guardar una percepcion (pasa a largo plazo con sueno)
-python3 biorag.py guardar mi_clave "contenido a recordar"
+# Ver contenido completo sin truncar
+python3 biorag.py buscar "caso importante" --completo
+
+# Guardar un recuerdo con sinónimos
+python3 biorag.py guardar mi_leccion "Texto detallado" --syn "alt1,alt2,alt3"
 python3 biorag.py sueno
 
-# Asociar dos conceptos (sinapsis bidireccional)
+# Asociar dos conceptos
 python3 biorag.py asociar concepto_a concepto_b
 
-# Consolidar (ciclo de sueno: corto_plazo -> largo_plazo + LTD)
-python3 biorag.py sueno
+# Listar todos los nodos
+python3 biorag.py listar
+python3 biorag.py listar --pagina 2
 
-# Listar toda la corteza
-python3 biorag.py corteza
-
-# Escanear familiaridad (simula la intuicion)
+# Escanear familiaridad
 python3 biorag.py familiaridad "texto del usuario"
 
-# Comunicarse entre agentes
+# Comunicación entre agentes
 AGENT_NAME=mi_agente python3 biorag.py comunicar otro_agente "mensaje"
 python3 biorag.py leer_mensajes --no-leidos --para mi_agente
 ```
 
-### 3. Auditar la base de datos
+### 3. Auditar la DB
 
-Abre el archivo `MemoryBioRAG_Data/memory_biorag.db` con cualquier visor de SQLite (como DB Browser for SQLite) para ver y editar las tablas `corto_plazo` y `largo_plazo` de forma visual.
+Abre `MemoryBioRAG_Data/memory_biorag.db` con DB Browser for SQLite.
 
 ---
 
-## 📦 Como usar BioRAG con tu propio agente
+## Cómo usar BioRAG con tu propio agente
 
 ### Requisitos
 
-- Python 3.8+ (sin dependencias externas)
+- Python 3.8+
 - SQLite3 (viene con Python)
-- Un agente de IA que ejecute comandos en tu terminal (Claude Code, Cursor, Ollama, etc.)
+- Un agente de IA que ejecute comandos CLI (Claude Code, Cursor, Ollama, etc.)
 
 ### Setup
 
 ```bash
-# 1. Clona el repositorio donde quieras
 git clone https://github.com/dennysjmarquez/MemoryBioRAG.git
 cd MemoryBioRAG
-
-# 2. Verifica que funciona
 python3 test_memory.py
-
-# 3. La DB se crea sola al primer uso en:
-#    MemoryBioRAG_Data/memory_biorag.db
+# La DB se crea sola al primer uso
 ```
 
-### Configurar la ruta de la DB (opcional)
-
-Por defecto la DB se crea dentro del proyecto. Si quieres ponerla en otro lado:
+### Variable de entorno (opcional)
 
 ```bash
-export BIORAG_PATH=/tu/ruta/personalizada/memoria.db
-python3 biorag.py estado
+export BIORAG_PATH=/tu/ruta/memoria.db
 ```
+
+---
+
+## Historial de Versiones
+
+- **v2.0** — FTS5 trigram + búsqueda híbrida (BM25/peso/asociaciones) + sinónimos + merge en corto plazo + fallback trigram Jaccard por palabra
+- **v1.1** — Búsqueda multi-token con Soft AND + stemming delegado al modelo
+- **v1.0** — Release inicial: LTP/LTD, Jaccard, inhibición lateral, grafo asociativo, comunicaciones entre agentes

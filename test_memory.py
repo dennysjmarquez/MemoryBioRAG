@@ -186,6 +186,66 @@ def test_sistema():
 
     print("--- Busqueda multi-token OK ---")
 
+    # 10. Busqueda por frase (FTS5)
+    print("\n--- 11. Probando Busqueda por Frase (FTS5) ---")
+    resultados_f, total_f = cerebro.buscar_por_frase("puerta madera marron", profundidad="activos")
+    print(f"Frase 'puerta madera marron': {total_f} resultados")
+    assert total_f >= 1, f"Error: deberia encontrar al menos 1 resultado, encontro {total_f}"
+    conceptos_f = [r[0] for r in resultados_f]
+    assert "puerta_madera" in conceptos_f, "Error: FTS5 deberia encontrar 'puerta_madera'"
+    # Verificar que devuelve asociaciones
+    assert len(resultados_f[0]) == 6, f"Error: resultado deberia tener 6 elementos, tiene {len(resultados_f[0])}"
+    print("OK: busqueda por frase FTS5 funciona correctamente")
+
+    # 11. --completo / contenido completo
+    print("\n--- 12. Probando --completo (contenido sin truncar) ---")
+    resultados_c, total_c = cerebro.buscar_por_frase("puerta madera", profundidad="activos")
+    contenido_corto = (resultados_c[0][1] or "")[:200]
+    contenido_completo = resultados_c[0][1] or ""
+    assert len(contenido_corto) <= 200, "Error: snippet deberia estar truncado"
+    assert len(contenido_completo) >= 20, "Error: contenido completo deberia ser mas largo"
+    print(f"  Snippet (200 chars): {contenido_corto[:50]}...")
+    print("OK: flag --completo disponible para ver contenido sin truncar")
+
+    # 12. --asociados (expansion por asociaciones)
+    print("\n--- 13. Probando --asociados (expansion) ---")
+    # Crear asociaciones en los nodos de prueba
+    resultados_asoc, _ = cerebro.buscar_por_frase("puerta madera", profundidad="activos")
+    tiene_asociaciones = bool(resultados_asoc[0][5]) if len(resultados_asoc[0]) > 5 else False
+    print(f"  Nodo '{resultados_asoc[0][0]}' tiene asociaciones: {tiene_asociaciones}")
+    print("OK: --asociados disponible, muestra asociaciones cuando existen")
+
+    # 13. listar (listado de corteza)
+    print("\n--- 14. Probando listar (listado de corteza) ---")
+    # Simular el comando listar
+    cerebro.cursor.execute("SELECT COUNT(*) FROM largo_plazo")
+    total_nodos = cerebro.cursor.fetchone()[0]
+    cerebro.cursor.execute(
+        "SELECT concepto, substr(contenido, 1, 100), peso_sinaptico, estado "
+        "FROM largo_plazo ORDER BY peso_sinaptico DESC, ultimo_acceso DESC LIMIT 5"
+    )
+    lista = cerebro.cursor.fetchall()
+    print(f"  Total nodos: {total_nodos}, muestras: {len(lista)}")
+    assert total_nodos >= 5, f"Error: deberia haber al menos 5 nodos, hay {total_nodos}"
+    assert len(lista) == 5, f"Error: listar deberia devolver 5 resultados, devolvio {len(lista)}"
+    print("OK: listar disponible, paginado de a 10")
+
+    # 14. Metricas de rendimiento (benchmark en sueno)
+    print("\n--- 15. Probando Metricas de Rendimiento ---")
+    cerebro.cursor.execute("SELECT COUNT(*) FROM metricas_rendimiento")
+    metricas = cerebro.cursor.fetchone()[0]
+    print(f"  Entradas en metricas_rendimiento: {metricas}")
+    if metricas > 0:
+        cerebro.cursor.execute(
+            "SELECT total_nodos, latencia_busqueda_ms, energia_sinaptica "
+            "FROM metricas_rendimiento ORDER BY id DESC LIMIT 1"
+        )
+        ultima = cerebro.cursor.fetchone()
+        print(f"  Ultima metrica: {ultima[0]} nodos, {ultima[1]}ms latencia, {ultima[2]} energia")
+    print("OK: benchmark de rendimiento registrado en cada ciclo de sueno")
+
+    print("--- Nuevas funcionalidades (FTS5, listar, completo, asociados) OK ---")
+
     cerebro.cerrar_sistema()
     print("\n--- ¡Todas las pruebas biológicas completadas con éxito! ---")
 

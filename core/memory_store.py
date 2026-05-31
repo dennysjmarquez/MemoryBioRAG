@@ -33,9 +33,15 @@ class SQLiteMemoryBioRAG:
             CREATE TABLE IF NOT EXISTS corto_plazo (
                 concepto TEXT PRIMARY KEY,
                 contenido TEXT,
-                timestamp REAL
+                timestamp REAL,
+                sinonimos TEXT DEFAULT ''
             )
         """)
+        # Migración segura: agregar sinonimos a corto_plazo si no existe
+        try:
+            self.cursor.execute("ALTER TABLE corto_plazo ADD COLUMN sinonimos TEXT DEFAULT ''")
+        except sqlite3.OperationalError:
+            pass
 
         # 2. Corteza Cerebral (Largo Plazo / Base de datos permanente con indexación B-Tree por PK)
         self.cursor.execute("""
@@ -46,13 +52,22 @@ class SQLiteMemoryBioRAG:
                 peso_sinaptico REAL DEFAULT 1.0,
                 estado TEXT DEFAULT 'activo', -- 'activo' o 'dormido'
                 asociaciones TEXT DEFAULT '', -- Lista de conceptos relacionados separados por comas
-                ultimo_acceso REAL
+                ultimo_acceso REAL,
+                sinonimos TEXT DEFAULT '' -- Terminos alternativos para busqueda FTS5
             )
         """)
+
+        # Migración segura: agregar columna sinonimos si la tabla existía sin ella
+        try:
+            self.cursor.execute("ALTER TABLE largo_plazo ADD COLUMN sinonimos TEXT DEFAULT ''")
+        except sqlite3.OperationalError:
+            pass  # Ya existe
 
         # Crear un índice explícito para acelerar ordenaciones por peso y último acceso (Inhibición y Poda)
         self.cursor.execute("CREATE INDEX IF NOT EXISTS idx_peso_acceso ON largo_plazo (peso_sinaptico, ultimo_acceso)")
         self._crear_tabla_comunicaciones()
+        self._crear_tabla_fts()
+        self._crear_tabla_metricas()
         self.conn.commit()
 
     def _calcular_jaccard(self, str1, str2):
@@ -243,14 +258,14 @@ class SQLiteMemoryBioRAG:
 
         if profundidad == "profundo":
             self.cursor.execute(
-                "SELECT concepto, contenido, peso_sinaptico, estado FROM largo_plazo"
+                "SELECT concepto, contenido, peso_sinaptico, estado, asociaciones FROM largo_plazo"
             )
         else:
             self.cursor.execute(
-                "SELECT concepto, contenido, peso_sinaptico, estado FROM largo_plazo WHERE estado = 'activo'"
+                "SELECT concepto, contenido, peso_sinaptico, estado, asociaciones FROM largo_plazo WHERE estado = 'activo'"
             )
 
-        for concepto, contenido, peso, estado in self.cursor.fetchall():
+        for concepto, contenido, peso, estado, asociaciones in self.cursor.fetchall():
             texto_concepto = concepto.lower()
             texto_contenido = (contenido or "").lower()
             matches = 0
@@ -275,11 +290,11 @@ class SQLiteMemoryBioRAG:
                 continue
 
             resultados_con_score.append(
-                (concepto, contenido, peso, estado, round(score, 2))
+                (concepto, contenido, peso, estado, round(score, 2), asociaciones or "")
             )
 
         if not resultados_con_score:
-            return []
+            return [], 0
 
         resultados_con_score.sort(key=lambda r: (r[4], r[2]), reverse=True)
 
@@ -369,13 +384,24 @@ class SQLiteMemoryBioRAG:
         print(f"[MemoryBioRAG] Evocado exitosamente '{key}' en {(fin - inicio) * 1000000:.2f} microsegundos.")
         return contenido
 
-    def percibir_corto_plazo(self, concepto, contenido):
-        """Almacena temporalmente una percepción o hecho en la memoria de trabajo (Corto Plazo)."""
+    def percibir_corto_plazo(self, concepto, contenido, sinonimos=""):
+        """Almacena temporalmente una percepción o hecho en la memoria de trabajo (Corto Plazo).
+        Si el concepto ya existe en corto plazo, concatena contenido y mergea sinónimos."""
         key = concepto.lower().strip()
+        self.cursor.execute("SELECT contenido, sinonimos FROM corto_plazo WHERE concepto = ?", (key,))
+        existente = self.cursor.fetchone()
+        if existente:
+            contenido_final = existente[0] + f" | Actualización: {contenido}"
+            sinonimos_exist = [s.strip() for s in (existente[1] or "").split(",") if s.strip()]
+            sinonimos_nuevos = [s.strip() for s in (sinonimos or "").split(",") if s.strip() and s.strip() not in sinonimos_exist]
+            sinonimos_final = ",".join(sinonimos_exist + sinonimos_nuevos)
+        else:
+            contenido_final = contenido
+            sinonimos_final = sinonimos
         self.cursor.execute("""
-            INSERT OR REPLACE INTO corto_plazo (concepto, contenido, timestamp)
-            VALUES (?, ?, ?)
-        """, (key, contenido, time.time()))
+            INSERT OR REPLACE INTO corto_plazo (concepto, contenido, timestamp, sinonimos)
+            VALUES (?, ?, ?, ?)
+        """, (key, contenido_final, time.time(), sinonimos_final))
         self.conn.commit()
 
     def ciclo_sueno_consolidacion(self, limite_energia=10.0):
@@ -388,28 +414,32 @@ class SQLiteMemoryBioRAG:
         print("\n--- Iniciando Ciclo de Consolidación (Sueño) ---")
         
         # 1. Transferencia y Fusión de Corto a Largo Plazo
-        self.cursor.execute("SELECT concepto, contenido FROM corto_plazo")
+        self.cursor.execute("SELECT concepto, contenido, sinonimos FROM corto_plazo")
         recuerdos_sesion = self.cursor.fetchall()
         
-        for concepto, contenido in recuerdos_sesion:
-            self.cursor.execute("SELECT contenido, peso_sinaptico, asociaciones FROM largo_plazo WHERE concepto = ?", (concepto,))
+        for concepto, contenido, sinonimos in recuerdos_sesion:
+            self.cursor.execute("SELECT contenido, peso_sinaptico, asociaciones, sinonimos FROM largo_plazo WHERE concepto = ?", (concepto,))
             existente = self.cursor.fetchone()
             
             if existente:
                 # Fusión de información por adición semántica y subida de peso (LTP de consolidación)
                 nuevo_contenido = existente[0] + f" | Actualización: {contenido}"
                 nuevo_peso = min(1.0, existente[1] + 0.20)
+                # Fusión de sinónimos (no duplicar)
+                sinonimos_exist = [s.strip() for s in (existente[3] or "").split(",") if s.strip()]
+                sinonimos_nuevos = [s.strip() for s in (sinonimos or "").split(",") if s.strip() and s.strip() not in sinonimos_exist]
+                sinonimos_final = ",".join(sinonimos_exist + sinonimos_nuevos)
                 self.cursor.execute("""
                     UPDATE largo_plazo 
-                    SET contenido = ?, peso_sinaptico = ?, estado = 'activo', ultimo_acceso = ?
+                    SET contenido = ?, peso_sinaptico = ?, estado = 'activo', ultimo_acceso = ?, sinonimos = ?
                     WHERE concepto = ?
-                """, (nuevo_contenido, nuevo_peso, time.time(), concepto))
+                """, (nuevo_contenido, nuevo_peso, time.time(), sinonimos_final, concepto))
             else:
                 # Creación de un nuevo nodo en el grafo con peso inicial máximo
                 self.cursor.execute("""
-                    INSERT INTO largo_plazo (concepto, categoria, contenido, peso_sinaptico, estado, asociaciones, ultimo_acceso)
-                    VALUES (?, 'general', ?, 1.0, 'activo', '', ?)
-                """, (concepto, contenido, time.time()))
+                    INSERT INTO largo_plazo (concepto, categoria, contenido, peso_sinaptico, estado, asociaciones, ultimo_acceso, sinonimos)
+                    VALUES (?, 'general', ?, 1.0, 'activo', '', ?, ?)
+                """, (concepto, contenido, time.time(), sinonimos or ""))
 
         # 2. Decaimiento Pasivo (LTD): Reducir peso de los nodos activos no consolidados hoy
         # El decaimiento es lineal (-0.05)
@@ -452,6 +482,10 @@ class SQLiteMemoryBioRAG:
         # 5. Vaciar la memoria de corto plazo (La mente amanece despejada)
         self.cursor.execute("DELETE FROM corto_plazo")
         self.conn.commit()
+
+        # 6. Benchmark de rendimiento post-consolidacion
+        self._benchmark_rendimiento()
+
         print("[MemoryBioRAG] Proceso de consolidación y equilibrio sináptico completado con éxito.")
 
     def establecer_asociacion(self, concepto_a, concepto_b):
@@ -532,6 +566,295 @@ class SQLiteMemoryBioRAG:
         placeholders = ",".join("?" * len(ids))
         self.cursor.execute(f"UPDATE comunicaciones SET leido = 1 WHERE id IN ({placeholders})", ids)
         self.conn.commit()
+
+    # ─── FULL-TEXT SEARCH (FTS5) ─────────────────────────────────
+
+    def _crear_tabla_fts(self):
+        """Crea tabla virtual FTS5 con tokenizer trigram y columna sinonimos."""
+        # Verificar si la tabla FTS ya existe con el tokenizer correcto
+        self.cursor.execute("SELECT COUNT(*) FROM sqlite_master WHERE type='table' AND name='largo_plazo_fts'")
+        fts_existe = self.cursor.fetchone()[0] > 0
+
+        if fts_existe:
+            # Verificar si la FTS actual usa trigram (check by testing if a simple query works with the tokenizer)
+            # If it's already trigram, keep it. If porter, rebuild.
+            try:
+                self.cursor.execute("SELECT rowid FROM largo_plazo_fts WHERE largo_plazo_fts MATCH 'abc' LIMIT 1")
+                self.cursor.fetchall()
+            except sqlite3.OperationalError:
+                fts_existe = False
+
+        if fts_existe:
+            # Ya existe con trigram — solo verificar sinonimos column
+            try:
+                self.cursor.execute("SELECT sinonimos FROM largo_plazo_fts LIMIT 0")
+            except sqlite3.OperationalError:
+                fts_existe = False  # Rebuild needed
+
+        if not fts_existe:
+            # Drop existing FTS if any
+            self.cursor.execute("DROP TABLE IF EXISTS largo_plazo_fts")
+            self.cursor.execute("DROP TRIGGER IF EXISTS largo_plazo_ai")
+            self.cursor.execute("DROP TRIGGER IF EXISTS largo_plazo_ad")
+            self.cursor.execute("DROP TRIGGER IF EXISTS largo_plazo_au")
+
+            # Crear nueva FTS con trigram
+            self.cursor.execute("""
+                CREATE VIRTUAL TABLE largo_plazo_fts USING fts5(
+                    concepto,
+                    categoria,
+                    contenido,
+                    sinonimos,
+                    tokenize='trigram'
+                )
+            """)
+            self._poblar_fts()
+
+        # Ensure triggers are up-to-date (drop+recreate to replace stale ones)
+        self.cursor.execute("DROP TRIGGER IF EXISTS largo_plazo_ai")
+        self.cursor.execute("DROP TRIGGER IF EXISTS largo_plazo_ad")
+        self.cursor.execute("DROP TRIGGER IF EXISTS largo_plazo_au")
+        self.cursor.execute("""
+            CREATE TRIGGER largo_plazo_ai AFTER INSERT ON largo_plazo BEGIN
+                INSERT INTO largo_plazo_fts(rowid, concepto, categoria, contenido, sinonimos)
+                VALUES (new.rowid, new.concepto, new.categoria, new.contenido, new.sinonimos);
+            END
+        """)
+        self.cursor.execute("""
+            CREATE TRIGGER largo_plazo_ad AFTER DELETE ON largo_plazo BEGIN
+                DELETE FROM largo_plazo_fts WHERE rowid = old.rowid;
+            END
+        """)
+        self.cursor.execute("""
+            CREATE TRIGGER largo_plazo_au AFTER UPDATE ON largo_plazo BEGIN
+                DELETE FROM largo_plazo_fts WHERE rowid = old.rowid;
+                INSERT INTO largo_plazo_fts(rowid, concepto, categoria, contenido, sinonimos)
+                VALUES (new.rowid, new.concepto, new.categoria, new.contenido, new.sinonimos);
+            END
+        """)
+
+    def _poblar_fts(self):
+        """Puebla la FTS desde datos existentes, incluyendo sinonimos."""
+        self.cursor.execute("SELECT COUNT(*) FROM largo_plazo_fts")
+        if self.cursor.fetchone()[0] > 0:
+            return
+        try:
+            self.cursor.execute("SELECT rowid, concepto, categoria, contenido, sinonimos FROM largo_plazo")
+        except sqlite3.OperationalError:
+            self.cursor.execute("SELECT rowid, concepto, categoria, contenido, '' as sinonimos FROM largo_plazo")
+        for row in self.cursor.fetchall():
+            rowid, concepto, categoria, contenido = row[0], row[1], row[2], row[3]
+            sinonimos = row[4] if len(row) > 4 else ""
+            self.cursor.execute(
+                "INSERT INTO largo_plazo_fts(rowid, concepto, categoria, contenido, sinonimos) VALUES (?, ?, ?, ?, ?)",
+                (rowid, concepto or "", categoria or "", contenido or "", sinonimos or "")
+            )
+        self.conn.commit()
+
+    def _crear_tabla_metricas(self):
+        """Crea tabla de metricas de rendimiento para auto-evaluacion del sistema."""
+        self.cursor.execute("""
+            CREATE TABLE IF NOT EXISTS metricas_rendimiento (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                timestamp REAL NOT NULL,
+                total_nodos INTEGER NOT NULL,
+                total_dormidos INTEGER NOT NULL,
+                latencia_busqueda_ms REAL NOT NULL,
+                tamano_db_bytes INTEGER NOT NULL,
+                nodos_activos INTEGER NOT NULL,
+                energia_sinaptica REAL NOT NULL
+            )
+        """)
+        self.conn.commit()
+
+    def _calcular_score_hibrido(self, rank_idx, total, peso_sinaptico, asociaciones):
+        """Score híbrido: 60% calidad textual (BM25 rank) + 25% peso biológico + 15% riqueza de asociaciones."""
+        # Señal 1: Calidad textual — posición en ranking BM25
+        if total <= 1:
+            score_texto = 1.0
+        else:
+            score_texto = 1.0 - (rank_idx / (total - 1)) * 0.4
+
+        # Señal 2: Peso sináptico — qué tan usado/reforzado está el nodo
+        peso_normalizado = min(1.0, peso_sinaptico)
+
+        # Señal 3: Riqueza de asociaciones — conectividad en el grafo
+        if asociaciones:
+            num_asoc = len([v for v in asociaciones.split(",") if v.strip()])
+            score_asoc = min(1.0, num_asoc / 5.0)
+        else:
+            score_asoc = 0.0
+
+        return round(0.60 * score_texto + 0.25 * peso_normalizado + 0.15 * score_asoc, 4)
+
+    def buscar_por_frase(self, frase, profundidad="activos", pagina=1, limite=3):
+        """Busqueda hibrida: FTS5 trigram + peso sinaptico + asociaciones.
+
+        frase: texto en lenguaje natural. Trigrams nativos de FTS5 manejan
+               typos, variaciones morfologicas y palabras parciales.
+        profundidad: 'activos' | 'profundo'
+        Retorna (resultados, total) donde resultados es lista de
+        (concepto, contenido, peso, estado, score, asociaciones)
+        """
+        if not frase.strip():
+            return [], 0
+
+        # Limpiar la frase para FTS5 trigram
+        query = frase.strip()
+
+        # Construir consulta desde la frase limpia
+        sql = """
+            SELECT l.rowid, l.concepto, l.contenido, l.peso_sinaptico,
+                   l.estado, l.asociaciones
+            FROM largo_plazo_fts f
+            JOIN largo_plazo l ON l.rowid = f.rowid
+            WHERE largo_plazo_fts MATCH ?{filtro}
+            ORDER BY bm25(largo_plazo_fts)
+        """.format(filtro=" AND l.estado = 'activo'" if profundidad != "profundo" else "")
+
+        todos = None
+        try:
+            self.cursor.execute(sql, (query,))
+            todos = self.cursor.fetchall()
+        except sqlite3.OperationalError:
+            pass
+
+        # Fallback 1: substring match en contenido
+        if not todos and len(query) >= 2:
+            filtro = "WHERE estado = 'activo'" if profundidad != "profundo" else ""
+            try:
+                self.cursor.execute(
+                    f"SELECT rowid, concepto, contenido, peso_sinaptico, estado, asociaciones FROM largo_plazo {filtro}"
+                )
+                filas = self.cursor.fetchall()
+                todos = []
+                for row in filas:
+                    texto = f"{row[1]} {row[2]}".lower()
+                    q = query.lower()
+                    if q in texto:
+                        todos.append((row[0], row[1], row[2], row[3], row[4], row[5]))
+                todos = todos[:50]
+            except sqlite3.OperationalError:
+                pass
+
+        # Fallback 2: best-word trigram similarity (typo + word-match tolerance)
+        if not todos and len(query) >= 3:
+            filtro = "WHERE estado = 'activo'" if profundidad != "profundo" else ""
+            try:
+                self.cursor.execute(
+                    f"SELECT rowid, concepto, contenido, peso_sinaptico, estado, asociaciones FROM largo_plazo {filtro}"
+                )
+                filas = self.cursor.fetchall()
+                query_words = re.findall(r'\w{3,}', query.lower())
+                candidatos = []
+                for row in filas:
+                    texto = f"{row[1]} {row[2]}".lower()
+                    text_words = re.findall(r'\w{3,}', texto)
+                    total_score = 0.0
+                    for qw in query_words:
+                        qt = set(qw[i:i+3] for i in range(len(qw) - 2))
+                        if not qt:
+                            continue
+                        best = max(
+                            (len(qt & set(tw[i:i+3] for i in range(len(tw) - 2))) / len(qt)
+                             for tw in text_words if len(tw) >= 3),
+                            default=0.0
+                        )
+                        total_score += best
+                    avg_score = total_score / len(query_words) if query_words else 0.0
+                    if avg_score >= 0.5:
+                        candidatos.append((avg_score, row))
+                candidatos.sort(key=lambda x: x[0], reverse=True)
+                todos = [r[1] for r in candidatos[:10]]
+            except sqlite3.OperationalError:
+                pass
+
+        if not todos:
+            return [], 0
+
+        # Calcular score hibrido para cada resultado
+        total = len(todos)
+        resultados_con_hibrido = []
+        for i, (rowid, concepto, contenido, peso, estado, asociaciones) in enumerate(todos):
+            score_hibrido = self._calcular_score_hibrido(i, total, peso, asociaciones or "")
+            resultados_con_hibrido.append(
+                (concepto, contenido, peso, estado, score_hibrido, asociaciones or "")
+            )
+
+        # Reordenar por score hibrido descendente
+        resultados_con_hibrido.sort(key=lambda r: r[4], reverse=True)
+
+        # Paginar
+        inicio = (pagina - 1) * limite
+        pagina_resultados = resultados_con_hibrido[inicio:inicio + limite]
+
+        if profundidad == "profundo":
+            for r in pagina_resultados:
+                if r[3] == "dormido":
+                    self.cursor.execute(
+                        "UPDATE largo_plazo SET estado = 'activo', peso_sinaptico = MIN(1.0, peso_sinaptico + 0.15), ultimo_acceso = ? WHERE concepto = ?",
+                        (time.time(), r[0]),
+                    )
+            self.conn.commit()
+
+        return pagina_resultados, total
+
+    # ─── AUTO-MANTENIMIENTO Y EVICCION ──────────────────────────
+
+    def _benchmark_rendimiento(self):
+        """Mide latencia de busqueda y registra metricas del sistema."""
+        latencia = 0.0
+        try:
+            inicio = time.perf_counter()
+            self.cursor.execute(
+                "SELECT COUNT(*) FROM largo_plazo_fts WHERE largo_plazo_fts MATCH 'zzz'"
+            )
+            latencia = (time.perf_counter() - inicio) * 1000
+        except sqlite3.OperationalError:
+            latencia = -1.0
+
+        self.cursor.execute("SELECT COUNT(*) FROM largo_plazo")
+        total = self.cursor.fetchone()[0]
+        self.cursor.execute("SELECT COUNT(*) FROM largo_plazo WHERE estado = 'dormido'")
+        dormidos = self.cursor.fetchone()[0]
+        self.cursor.execute("SELECT COUNT(*) FROM largo_plazo WHERE estado = 'activo'")
+        activos = self.cursor.fetchone()[0]
+        self.cursor.execute("SELECT ROUND(SUM(peso_sinaptico), 2) FROM largo_plazo WHERE estado = 'activo'")
+        energia = self.cursor.fetchone()[0] or 0.0
+        tamano = os.path.getsize(self.db_path) if os.path.exists(self.db_path) else 0
+
+        self.cursor.execute("""
+            INSERT INTO metricas_rendimiento
+            (timestamp, total_nodos, total_dormidos, latencia_busqueda_ms,
+             tamano_db_bytes, nodos_activos, energia_sinaptica)
+            VALUES (?, ?, ?, ?, ?, ?, ?)
+        """, (time.time(), total, dormidos, round(latencia, 2), tamano, activos, energia))
+        self.conn.commit()
+
+    def _candidatos_eviccion(self, limite=5):
+        """Identifica nodos candidatos para eviccion (dormant — no ejecuta borrado).
+
+        Retorna lista de (concepto, peso, ultimo_acceso, dias_sin_acceso)
+        """
+        now = time.time()
+        self.cursor.execute("""
+            SELECT concepto, peso_sinaptico, ultimo_acceso,
+                   ROUND((? - ultimo_acceso) / 86400.0, 1) as dias_sin_acceso
+            FROM largo_plazo
+            WHERE estado = 'dormido'
+              AND peso_sinaptico <= 0.1
+            ORDER BY ultimo_acceso ASC
+            LIMIT ?
+        """, (now, limite))
+        return self.cursor.fetchall()
+
+    def _ultimo_benchmark(self):
+        """Retorna la ultima latencia registrada o None si no hay metricas."""
+        self.cursor.execute(
+            "SELECT latencia_busqueda_ms FROM metricas_rendimiento ORDER BY id DESC LIMIT 1"
+        )
+        fila = self.cursor.fetchone()
+        return fila[0] if fila else None
 
     def cerrar_sistema(self):
         """Cierra de forma segura la conexión con la base de datos SQLite."""

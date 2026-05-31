@@ -9,30 +9,40 @@ para control de saturacion, y nodos dormidos que se despiertan con busqueda prof
 
 USO DESDE EL AGENTE (cada comando explicado):
 
-  python3 biorag.py buscar <concepto> [--deep] [--todos] [--tokens "raiz1,raiz2"] [--pagina N] [--modo strict|relaxed]
-    Busca un recuerdo en la corteza. Por defecto devuelve el mejor match.
-    Escanea tanto la clave como el contenido completo del recuerdo.
+  python3 biorag.py buscar <concepto> [--deep] [--todos] [--tokens "raiz1,raiz2"] [--pagina N] [--modo strict|relaxed] [--completo] [--asociados]
+    Busca un recuerdo en la corteza. Por defecto usa busqueda hibrida:
+      - FTS5 con trigram tokenizer: tolera typos y variaciones morfologicas
+        automaticamente. "formulariox" encuentra "formularios".
+      - 60% calidad textual BM25 + 25% peso sinaptico + 15% riqueza de asociaciones
+      - Los sinonimos del nodo (definidos en guardar --syn) se indexan y buscan tambien
     --deep          Busca tambien en nodos dormidos. Si encuentra uno, lo despierta.
     --todos         Devuelve TODAS las coincidencias ordenadas por relevancia.
     --tokens        Lista de raices stemmeadas separadas por comas (busqueda multi-token).
                     Activa Soft AND: deben coincidir todas en el mismo recuerdo (strict)
-                    o al menos una (relaxed). El modelo debe stemmear las palabras clave
-                    antes de pasarlas. Ej: "puert,marron" para buscar "puerta marroncita".
-    --pagina N      Pagina de resultados 1-indexada (defecto: 1). Solo con --tokens.
+                    o al menos una (relaxed). Ej: "puert,marron" para buscar "puerta marroncita".
+    --pagina N      Pagina de resultados 1-indexada (defecto: 1).
     --modo M        strict | relaxed. strict solo devuelve recuerdos que matchean TODOS
                     los tokens. relaxed devuelve cualquier match parcial. Defecto: relaxed.
+    --completo      Muestra el contenido completo sin truncar (defecto: 1500 chars).
+    --asociados     Muestra los nodos asociados a cada resultado.
     Ej: biorag.py buscar formularios
         biorag.py buscar angular --deep
         biorag.py buscar agente --todos
+        biorag.py buscar formularios con tabs
+        biorag.py buscar "formularios con tabs" --completo --asociados
         biorag.py buscar "puerta marroncita" --tokens "puert,marron"
-        biorag.py buscar "puerta marroncita" --tokens "puert,marron" --pagina 2
         biorag.py buscar "error compilacion" --tokens "error,compil" --modo strict
+        biorag.py buscar "formularios con tabs" --deep  (busca tambien en dormidos)
 
-  python3 biorag.py guardar <clave> <contenido>
+  python3 biorag.py guardar <clave> <contenido> [--syn "sinonimo1,sinonimo2"]
     Almacena informacion en la memoria de corto plazo (memoria de trabajo).
     Usar 'sueno' para consolidar a largo plazo (corteza permanente).
+    --syn         Lista de terminos alternativos separados por comas para busqueda.
+                  Estos sinonimos se indexan en FTS5 y permiten encontrar el caso
+                  aunque el usuario use palabras diferentes.
     La clave se normaliza a minusculas y guiones bajos.
-    Ej: biorag.py guardar leccion_importante "Lo aprendido hoy fue..."
+    Ej: biorag.py guardar leccion_importante "Lo aprendido hoy fue..." --syn "leccion,aprendizaje"
+        biorag.py guardar formularios_anidados "Caso completo..." --syn "nested,forms,tabs,angular"
 
   python3 biorag.py asociar <concepto_a> <concepto_b>
     Crea un enlace sinaptico bidireccional entre dos conceptos en el grafo.
@@ -66,6 +76,12 @@ USO DESDE EL AGENTE (cada comando explicado):
     Util para inspeccionar que recuerdos estan disponibles.
     Ej: biorag.py corteza
 
+  python3 biorag.py listar [--pagina N]
+    Lista los conceptos con snippet y metadatos, paginado de a 10.
+    Muestra: concepto, preview del contenido, peso sinaptico y estado.
+    Ej: biorag.py listar
+        biorag.py listar --pagina 2
+
   python3 biorag.py familiaridad <texto>
     Escanea un texto en busca de conceptos familiares en la corteza.
     Sirve para que el agente detecte si el usuario menciona algo conocido.
@@ -82,9 +98,13 @@ PROTOCOLO PARA EL AGENTE (CUANDO USAR CADA COMANDO):
   Regla #1 (BUSCAR):
     IF el usuario menciona algo QUE YA HEMOS VISTO antes (un proyecto, una persona,
     un concepto, una leccion, una historia) THEN
-      python3 biorag.py buscar <tema>
-    Ej: usuario dice "acuerdate del proyecto ese de Angular" -> buscar angular
-        usuario dice "que paso con lo de DeepSeek" -> buscar deepseek
+      Si la busqueda es por frase natural: python3 biorag.py buscar "frase" --frase
+      Si la busqueda es por raices (stemming): python3 biorag.py buscar "texto" --tokens "raiz1,raiz2"
+      Si no sabes las raices exactas: usar --frase primero, fallback a --tokens
+      --completo para ver contenido sin truncar
+      --asociados para ver nodos relacionados
+    Ej: usuario dice "acuerdate del proyecto ese de Angular" -> buscar "Angular formularios tabs" --frase
+        usuario dice "que paso con lo de DeepSeek" -> buscar "analisis DeepSeek BioRAG" --frase
 
   Regla #2 (GUARDAR):
     IF el usuario te ENSENA algo nuevo, comparte una leccion, o da una instruccion
@@ -130,12 +150,38 @@ PROTOCOLO PARA EL AGENTE (CUANDO USAR CADA COMANDO):
     IF quieres saber cuanta memoria te queda, cuantos recuerdos tienes activos THEN
       python3 biorag.py estado
 
+  Regla #10 (LIMITE DE BUSQUEDA):
+    IF despues de 2 busquedas a BioRAG no encuentras lo que buscas
+    O el usuario dice "no es eso" / "era otro caso" ENTONCES:
+      STOP. No sigas buscando ni hagas mas consultas.
+      Pregunta al usuario directamente que concepto tiene en mente.
+      Una pregunta evita 10 busquedas ciegas.
+    Ej: usuario dice "no era ese caso" -> preguntar "cual tienes en mente?"
+        en lugar de lanzar --tokens, --todos, listar, --deep, etc.
+
 RESUMEN PARA EL AGENTE (lo minimo que debes recordar):
   - Algo NUEVO -> guardar + sueno
   - Algo que ya SABEMOS -> buscar
   - Dos cosas RELACIONADAS -> asociar
   - Mensaje a hermana -> comunicar
   - Empezar sesion -> leer_mensajes --no-leidos
+
+NOTA DE DISENO - TAMANO IDEAL DE CADA CASO:
+
+  Cada caso en BioRAG es un concepto unico, no un documento extenso.
+  Objetivo: ~1200-1500 chars por entrada. Suficiente para:
+    - Describir el problema
+    - Exponer la solucion
+    - Extraer la regla aplicable
+
+  El preview por defecto (1500 chars) debe cubrir el nucleo completo.
+  Si un caso necesita mas contexto, usar --completo para la expansion.
+  Esto evita chunking innecesario: BioRAG no parte documentos,
+  cada entrada es completa por diseno.
+
+  Para el agente: un caso bien escrito se lee en 1 sola llamada.
+  Si necesitas --completo, el caso probablemente deberia dividirse
+  en dos conceptos mas pequenos.
 
 MAS INFORMACION:
   Repositorio: https://github.com/dennysjmarquez/MemoryBioRAG
@@ -157,9 +203,12 @@ def cmd_buscar(cerebro, args):
         print("Especifica un concepto. Ej: biorag.py buscar san_cayetano")
         print("  --deep        Buscar tambien en memoria dormida (despierta el nodo)")
         print("  --todos       Mostrar TODOS los recuerdos relacionados, ordenados por relevancia")
+        print("  --frase       Busqueda por frase en lenguaje natural (FTS5, no requiere stemming)")
         print("  --tokens      Lista de raices stemmeadas separadas por comas (busqueda multi-token)")
-        print("  --pagina N    Pagina de resultados (defecto: 1) solo con --tokens")
-        print("  --modo M      strict | relaxed (defecto: relaxed) solo con --tokens")
+        print("  --pagina N    Pagina de resultados (defecto: 1)")
+        print("  --modo M      strict | relaxed (defecto: relaxed)")
+        print("  --completo    Muestra el contenido completo sin truncar")
+        print("  --asociados   Muestra nodos asociados a los resultados")
         return 1
 
     deep = False
@@ -168,6 +217,9 @@ def cmd_buscar(cerebro, args):
     tokens = []
     modo = "relaxed"
     pagina = 1
+    completo = False
+    asociados = False
+    frase = False
 
     if "--deep" in args:
         deep = True
@@ -175,10 +227,31 @@ def cmd_buscar(cerebro, args):
     if "--todos" in args:
         todos = True
         args = [a for a in args if a != "--todos"]
+    if "--completo" in args:
+        completo = True
+        args = [a for a in args if a != "--completo"]
+    if "--asociados" in args:
+        asociados = True
+        args = [a for a in args if a != "--asociados"]
+    if "--frase" in args:
+        frase = True
+        args = [a for a in args if a != "--frase"]
     for i, a in enumerate(args):
-        if a == "--tokens" and i + 1 < len(args):
+        if a == "--tokens":
+            if i + 1 >= len(args):
+                print("Error: --tokens requiere al menos un valor.")
+                print("  Ej: --tokens \"raiz1,raiz2\"")
+                return 1
+            if args[i + 1].startswith("--"):
+                print("Error: --tokens requiere un valor, no otro flag.")
+                print("  Ej: --tokens \"raiz1,raiz2\"")
+                return 1
             multi_token = True
             tokens = [t.strip() for t in args[i + 1].split(",") if t.strip()]
+            if not tokens:
+                print("Error: --tokens requiere al menos una raiz.")
+                print("  Ej: --tokens \"raiz1,raiz2\"")
+                return 1
             args = [x for j, x in enumerate(args) if j != i and j != i + 1]
             break
     for i, a in enumerate(args):
@@ -195,10 +268,45 @@ def cmd_buscar(cerebro, args):
             args = [x for j, x in enumerate(args) if j != i and j != i + 1]
             break
 
+    if not frase and not multi_token and not todos:
+        frase = True
+
     if not args:
         print("Especifica un concepto.")
         return 1
     concepto = " ".join(args)
+
+    def _mostrar_resultados(resultados, total, subtitulo=""):
+        """Helper para display de resultados con --completo y --asociados."""
+        if not resultados:
+            return
+        total_paginas = max(1, (total + 2) // 3) if total > 0 else 1
+        print(f"[MemoryBioRAG] {total} coincidencias encontradas (pagina {pagina}/{total_paginas})")
+        if subtitulo:
+            print(f"  ({subtitulo})")
+        print("=" * 60)
+        for i, (nombre, contenido, peso, estado, score, asociaciones) in enumerate(resultados, 1):
+            print(f"\n--- #{i}: {nombre} (peso:{peso:.2f}, estado:{estado}, score:{score:.2f}) ---")
+            if completo:
+                print(contenido or "")
+            else:
+                print((contenido or "")[:1500] + ("..." if len((contenido or "")) > 1500 else ""))
+            if asociados and asociaciones:
+                vecinos = [v.strip() for v in asociaciones.split(",") if v.strip()]
+                if vecinos:
+                    print(f"     asociaciones: {', '.join(vecinos)}")
+        print("\n" + "=" * 60)
+        if pagina < total_paginas:
+            print(f"Usa --pagina {pagina + 1} para mas resultados.")
+
+    if frase:
+        profundidad = "profundo" if deep else "activos"
+        resultados, total = cerebro.buscar_por_frase(concepto, profundidad=profundidad, pagina=pagina)
+        if not resultados:
+            print(f"No se encontraron coincidencias para la frase.")
+            return 1
+        _mostrar_resultados(resultados, total, "frase: " + concepto[:60])
+        return 0
 
     if multi_token:
         profundidad = "profundo" if deep else "activos"
@@ -206,15 +314,7 @@ def cmd_buscar(cerebro, args):
         if not resultados:
             print(f"No se encontraron coincidencias para los tokens especificados.")
             return 1
-        total_paginas = max(1, (total + 2) // 3)
-        print(f"[MemoryBioRAG] {total} coincidencias encontradas (pagina {pagina}/{total_paginas})")
-        print("=" * 60)
-        for i, (nombre, contenido, peso, estado, score) in enumerate(resultados, 1):
-            print(f"\n--- #{i}: {nombre} (peso:{peso:.2f}, estado:{estado}, score:{score:.2f}) ---")
-            print((contenido or "")[:500] + ("..." if len((contenido or "")) > 500 else ""))
-        print("\n" + "=" * 60)
-        if pagina < total_paginas:
-            print(f"Usa --pagina {pagina + 1} para mas resultados.")
+        _mostrar_resultados(resultados, total, "tokens: " + ",".join(tokens))
         return 0
 
     if todos:
@@ -226,7 +326,8 @@ def cmd_buscar(cerebro, args):
         print("=" * 60)
         for i, (nombre, contenido, peso, estado, puntaje) in enumerate(resultados, 1):
             print(f"\n--- #{i}: {nombre} (peso:{peso:.2f}, estado:{estado}, relevancia:{puntaje:.2f}) ---")
-            print(contenido[:500] + ("..." if len(contenido) > 500 else ""))
+            txt = contenido or ""
+            print(txt[:500] + ("..." if len(txt) > 500 else "")) if not completo else print(txt)
         print("\n" + "=" * 60)
         print(f"Total: {len(resultados)} recuerdos.")
         return 0
@@ -236,20 +337,36 @@ def cmd_buscar(cerebro, args):
     else:
         resultado = cerebro.buscar_recuerdo_microsegundos(concepto)
     if resultado:
-        print(resultado)
+        if completo:
+            print(resultado)
+        else:
+            print(resultado[:1500] + ("..." if len(resultado) > 1500 else ""))
         return 0
     print(f"No se encontro '{concepto}' en la corteza.")
     return 1
 
 
 def cmd_guardar(cerebro, args):
+    sinonimos = ""
+    if "--syn" in args:
+        idx = args.index("--syn")
+        if idx + 1 < len(args) and not args[idx + 1].startswith("--"):
+            sinonimos = args[idx + 1]
+            args = args[:idx] + args[idx + 2:]
+        else:
+            print("Error: --syn requiere una lista de terminos. Ej: --syn \"angular,forms\"")
+            return 1
     if len(args) < 2:
-        print("Uso: biorag.py guardar <clave> <contenido>")
+        print("Uso: biorag.py guardar <clave> <contenido> [--syn \"sinonimo1,sinonimo2\"]")
         return 1
     clave = args[0].lower().replace(" ", "_")
     contenido = " ".join(args[1:])
-    cerebro.percibir_corto_plazo(clave, contenido)
-    print(f"'{clave}' guardado en corto plazo. Consolidalo con 'sueno' para hacerlo permanente.")
+    cerebro.percibir_corto_plazo(clave, contenido, sinonimos)
+    msg = f"'{clave}' guardado en corto plazo."
+    if sinonimos:
+        msg += f" Sinonimos: {sinonimos}."
+    msg += " Consolidalo con 'sueno' para hacerlo permanente."
+    print(msg)
     return 0
 
 
@@ -283,6 +400,53 @@ def cmd_corteza(cerebro, args):
         print(f"{c:<25} {cat:<15} {peso:<8} {est:<10} {asoc}")
     print("-" * 80)
     print(f"Total: {len(filas)} nodos corticales.")
+    return 0
+
+
+def cmd_listar(cerebro, args):
+    """Lista todos los conceptos de la corteza con metadatos y paginacion."""
+    pagina = 1
+    for i, a in enumerate(args):
+        if a == "--pagina" and i + 1 < len(args):
+            try:
+                pagina = int(args[i + 1])
+            except ValueError:
+                pass
+            break
+
+    limite = 10
+    offset = (pagina - 1) * limite
+
+    cerebro.cursor.execute("SELECT COUNT(*) FROM largo_plazo")
+    total = cerebro.cursor.fetchone()[0]
+
+    if total == 0:
+        print("La corteza esta vacia.")
+        return 0
+
+    cerebro.cursor.execute(
+        "SELECT concepto, substr(contenido, 1, 200), peso_sinaptico, estado "
+        "FROM largo_plazo ORDER BY peso_sinaptico DESC, ultimo_acceso DESC "
+        "LIMIT ? OFFSET ?",
+        (limite, offset)
+    )
+    filas = cerebro.cursor.fetchall()
+
+    total_paginas = max(1, (total + limite - 1) // limite)
+    print(f"[MemoryBioRAG] Corteza: {total} nodos (pagina {pagina}/{total_paginas})")
+    print("=" * 70)
+
+    for concepto, snippet, peso, estado in filas:
+        marca = "[ACTIVO]" if estado == "activo" else "[DORMIDO]"
+        print(f"  {marca} {concepto} (peso:{peso:.2f})")
+        if snippet:
+            preview = snippet[:120].replace("\n", " ")
+            print(f"         {preview}")
+        print()
+
+    print("=" * 70)
+    if pagina < total_paginas:
+        print(f"Usa --pagina {pagina + 1} para mas resultados.")
     return 0
 
 
@@ -382,6 +546,7 @@ def main():
         "familiaridad": cmd_familiaridad,
         "comunicar": cmd_comunicar,
         "leer_mensajes": cmd_leer_mensajes,
+        "listar": cmd_listar,
     }
 
     if comando in ("help", "--help", "-h"):
