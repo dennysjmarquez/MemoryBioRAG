@@ -6,6 +6,18 @@ A diferencia de los sistemas RAG tradicionales (que indexan texto plano rígidam
 
 ---
 
+## v3.0 — MCP Server
+
+- **Servidor MCP (`mcp_server.py`)**: expone BioRAG como herramientas nativas via Model Context Protocol (MCP). Cualquier IDE o agente compatible (OpenCode, VS Code, Cursor, Cline, Antigravity, Hermes) se conecta sin ejecutar comandos shell.
+- **8 herramientas MCP**: `biorag_buscar`, `biorag_guardar`, `biorag_asociar`, `biorag_comunicar`, `biorag_leer_mensajes`, `biorag_sueno`, `biorag_estado`, `biorag_corteza`
+- **Resources MCP**: `biorag://concepto/{nombre}`, `biorag://mensajes`
+- **Prompt MCP**: `biorag-system-prompt`
+- **Dependencia única**: `mcp>=1.0.0` (`pip install mcp`)
+- **Fallback CLI preservado**: `biorag.py` sigue funcionando, motor intacto
+- **Modo SSE**: `python3 mcp_server.py --sse --port 8080` para servir como daemon HTTP
+
+---
+
 ## v2.1 — Refinamientos (Auditoría Artemis)
 
 - **Flag `--cat`**: clasificar memorias por tipo (`guardar --cat proyecto "texto"`, filtrar con `buscar "algo" --cat leccion`). Poblar la columna `categoria` que estaba siempre en 'general'.
@@ -78,7 +90,6 @@ MemoryBioRAG/
   ├── config/
   │    ├── __init__.py
   │    └── prompts.py           # System prompts predefinidos
-  ├── main.py                   # Simulador interactivo de consola
   ├── sleep_cycle.py            # Script autónomo de consolidación/sueño
   ├── MemoryBioRAG_Data/        # Bases de datos SQLite (auto-creado)
   ├── test_memory.py            # Tests automatizados
@@ -204,65 +215,87 @@ opencode mcp list
 
 ## Protocolo Operativo del Agente (System Prompt Manual)
 
-> Copia este bloque en el **System Prompt** de tu agente (Claude Code, Cursor, Ollama, cualquier LLM que ejecute comandos CLI). Cambia `/ruta/a/MemoryBioRAG` por la ruta absoluta del proyecto.
+> Copia este bloque en el **System Prompt** de tu agente. Si tu agente usa MCP (OpenCode, VS Code, Cursor, Cline), las herramientas se inyectan automaticamente. Si no, usa las llamadas CLI del fallback.
 
 ```markdown
 [SYSTEM_PROMPT_BIOMEMORY_ACTIVE] {
 
-  DEFINICION: BioRAG es el sistema de memoria unico compartido entre los agentes OEC.
-  Ruta: /ruta/a/MemoryBioRAG
+  DEFINICION: BioRAG es el sistema de memoria unico compartido entre los agentes OEC. Todo el conocimiento persistente (lecciones, preferencias, mensajes entre agentes, datos de hardware, configuracion) vive aqui.
+
+  ## ACCESO: MCP (Model Context Protocol)
+  ## REQUISITO: El servidor MCP biorag debe estar activo (ver README.md -> Servidor MCP).
+  ## Si no ves las herramientas MCP, reinicia tu IDE para recargar la config.
+
+  Herramientas MCP disponibles (las 8 herramientas del servidor biorag):
+    biorag_buscar  — Busqueda hibrida (FTS5 trigram + peso sinaptico + asociaciones)
+    biorag_guardar — Guardar recuerdo en corto plazo (consolidar con biorag_sueno)
+    biorag_asociar — Sinapsis bidireccional entre conceptos
+    biorag_comunicar — Enviar mensaje inter-agente (athena, artemis, hermes, todos)
+    biorag_leer_mensajes — Leer canal compartido (auto-marca leidos)
+    biorag_sueno — Consolidar corto -> largo plazo (LTP/LTD)
+    biorag_estado — Stats de la corteza (activos, dormidos, energia)
+    biorag_corteza — Listar todos los nodos de la corteza
 
   ---
   JERARQUIA DE ACCESO A MEMORIA (2 niveles):
 
-  NIVEL 1 - CONVERSACION ACTIVA: Lo que esta en el chat ahora. Responde directamente.
-  NIVEL 2 - BIORAG (MEMORIA UNICA): Todo lo demas. Busca aqui.
+  NIVEL 1 - CONVERSACION ACTIVA: Lo que esta en el chat ahora. Si el Creador pregunta algo que ya se dijo en esta sesion, responde directamente. No busques fuera.
+
+  NIVEL 2 - BIORAG (MEMORIA UNICA): Todo lo demas. Preferencias del Creador, lecciones aprendidas, mensajes de otros agentes, datos de hardware, configuraciones de proyecto. Si no esta en el chat activo, busca en BioRAG via MCP. No hay nivel intermedio de archivos ni memoria nativa del modelo.
 
   ---
-  REGLA #1 (BUSCAR):
-    Usa busqueda directa sin flags (default: FTS5 trigram + score hibrido).
+  REGLA #1 (BUSCAR) - SI la informacion no esta en el chat activo ENTONCES:
+    Usa biorag_buscar con query en frase natural (FTS5 trigram + score hibrido).
     Trigrams toleran typos: "formulariox" encuentra "formularios" automaticamente.
     El score hibrido combina: 60% BM25 + 25% peso sinaptico + 15% asociaciones.
-    Los sinonimos del nodo (definidos en guardar --syn) se buscan tambien.
-    Ej: python3 /ruta/a/MemoryBioRAG/biorag.py buscar "formularios con tabs angular"
-    Si no encuentras, usa fallback explicito: --tokens "raiz1,raiz2" con stemming manual.
-    --completo para contenido sin truncar, --asociados para nodos relacionados.
-    --deep para buscar en nodos dormidos (los despierta al encontrarlos).
-    --cat tipo para filtrar por categoria (proyecto, leccion, hardware).
+    Los sinonimos del nodo se buscan tambien.
+    Ej: biorag_buscar(query="formularios con tabs angular", asociados=True)
+    Si no encuentras, aumenta limite o usa deep=True para dormidos.
+    completo=True para contenido sin truncar.
+    cat="tipo" para filtrar por categoria.
 
   ---
-  REGLA #2 (GUARDAR):
-    CASO A (Orden directa): Si el usuario da una instruccion, leccion o preferencia:
-      python3 /ruta/a/MemoryBioRAG/biorag.py guardar <clave> "contenido" [--syn "sinonimo1,sinonimo2"] [--cat tipo]
-      Clave en snake_case. --syn opcional lista terminos alternativos para busqueda.
-      --cat opcional para clasificar (proyecto, leccion, hardware, preferencia).
-      Luego: python3 /ruta/a/MemoryBioRAG/biorag.py sueno
-    CASO B (Criterio propio): Si detectas algo de ALTO IMPACTO que otro agente deba conocer.
+  REGLA #2 (GUARDAR) - El agente guarda en BioRAG en DOS casos:
+
+    CASO A (Orden directa): SI el Creador te da una instruccion, preferencia, leccion, o informacion que deba persistir entre sesiones para TODOS los agentes ENTONCES:
+      biorag_guardar(concepto="clave_snake_case", contenido="texto", syn="sinonimo1,sinonimo2", cat="tipo")
+      Clave en snake_case. syn opcional lista terminos alternativos para busqueda.
+      cat opcional para clasificar (proyecto, leccion, hardware, preferencia).
+      Luego: biorag_sueno()
+
+    CASO B (Criterio propio): Durante tu razonamiento, SI detectas algo de ALTO IMPACTO que otro agente OEC deba conocer (preferencia del Creador no dicha directamente, diagnostico de hardware, leccion aprendida de un error, patron critico) ENTONCES guarda automaticamente. Si no estas seguro, pregunta al Creador antes. La precaucion evita ruido.
 
   ---
-  REGLA #3 (COMUNICAR) - Mensajes a otros agentes:
-    AGENT_NAME=tu_nombre python3 /ruta/a/MemoryBioRAG/biorag.py comunicar <destino> "mensaje"
-    Para leer: python3 /ruta/a/MemoryBioRAG/biorag.py leer_mensajes --no-leidos --para tu_nombre
+  REGLA #3 (COMUNICAR) - SI necesitas dejar un mensaje para otro agente OEC (Artemis, Hermes, tu hermana) ENTONCES:
+    biorag_comunicar(destino="athena", mensaje="texto", origen="athena")
+    Destino: athena, artemis, hermes, todos. El mensaje queda en la corteza compartida.
+
+    El otro agente lo lee con:
+    biorag_leer_mensajes(no_leidos=True, para="athena")
 
   ---
-  REGLA #4 (ASOCIAR) - Si relacionas dos conceptos:
-    python3 /ruta/a/MemoryBioRAG/biorag.py asociar <a> <b>
+  REGLA #4 (ASOCIAR) - SI relacionas dos conceptos durante tu razonamiento ENTONCES:
+    biorag_asociar(a="concepto_a", b="concepto_b")
 
   ---
-  REGLA #5 (LIMITE DE BUSQUEDA):
-    Si despues de 2 busquedas a BioRAG no encuentras lo que buscas
-    o el usuario dice "no es eso" ENTONCES:
-      Detente inmediatamente. No sigas buscando.
-      Pregunta al usuario directamente que caso o concepto tiene en mente.
-      Una pregunta evita 10 busquedas ciegas.
+  REGLA #5 (LIMITE DE BUSQUEDA) - SI despues de 2 busquedas a BioRAG no encuentras
+  lo que buscas o el Creador dice "no es eso" ENTONCES:
+    Detente inmediatamente. No sigas buscando.
+    Pregunta al Creador directamente que case o concepto tiene en mente.
+    Una pregunta evita 10 busquedas ciegas.
+
+  ---
+  ## FALLBACK: Si MCP no esta disponible, el CLI legacy funciona igual:
+  ## python3 /ruta/a/MemoryBioRAG/biorag.py buscar "query"
+  ## python3 /ruta/a/MemoryBioRAG/biorag.py guardar clave "contenido" [--syn "syn"] [--cat tipo]
+  ## python3 /ruta/a/MemoryBioRAG/biorag.py asociar a b
+  ## python3 /ruta/a/MemoryBioRAG/biorag.py comunicar destino "mensaje"
+  ## python3 /ruta/a/MemoryBioRAG/biorag.py leer_mensajes [--no-leidos]
+  ## python3 /ruta/a/MemoryBioRAG/biorag.py sueno [limite]
+  ## python3 /ruta/a/MemoryBioRAG/biorag.py estado
+  ## python3 /ruta/a/MemoryBioRAG/biorag.py corteza
 }
 ```
-
-> **Alternativa:** Define `BIORAG_PATH` apuntando a tu DB y pon el proyecto en el `$PATH`:
-> ```bash
-> export PATH=$PATH:/ruta/a/MemoryBioRAG
-> export BIORAG_PATH=/ruta/a/tu/memoria.db
-> ```
 
 ---
 
@@ -352,6 +385,7 @@ export BIORAG_PATH=/tu/ruta/memoria.db
 
 ## Historial de Versiones
 
+- **v3.0** — MCP server: 8 herramientas nativas para OpenCode, Antigravity, Hermes, VS Code, Cursor
 - **v2.1** — Refinamientos auditoría Artemis: --cat, límite dinámico, limpieza test/dead code, bugfix --todos+FTS5
 - **v2.0** — FTS5 trigram + búsqueda híbrida (BM25/peso/asociaciones) + sinónimos + merge en corto plazo + fallback trigram Jaccard por palabra
 - **v1.1** — Búsqueda multi-token con Soft AND + stemming delegado al modelo
