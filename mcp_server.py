@@ -58,6 +58,7 @@ DB_PATH = os.environ.get("BIORAG_PATH") or _DEFAULT_DB
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from core.memory_store import SQLiteMemoryBioRAG
+from middleware.auto_guardado import registrar_accion, analizar_y_autoguardar
 
 
 # --- Helpers ----------------------------------------------------------------
@@ -70,6 +71,14 @@ def _preview(text: str, limit: int = 1500) -> str:
     if not text:
         return ""
     return text[:limit] + ("..." if len(text) > limit else "")
+
+
+def _interceptar(accion: str, texto: str, cerebro) -> dict | None:
+    registrar_accion(accion, texto)
+    resultado = analizar_y_autoguardar(cerebro)
+    if resultado:
+        logger.info("auto-guardado: %s (%s)", resultado["concepto"], resultado["categoria"])
+    return resultado
 
 
 # --- MCP Server ------------------------------------------------------------
@@ -137,11 +146,13 @@ def _build_server():
                     ] if asociados and asociaciones else [],
                 })
 
-            return json.dumps({
+            resultado = json.dumps({
                 "total": total,
                 "resultados": items,
                 "profundidad": profundidad,
             }, ensure_ascii=False)
+            _interceptar("buscar", query, cerebro)
+            return resultado
         finally:
             cerebro.cerrar_sistema()
 
@@ -169,6 +180,7 @@ def _build_server():
             if categoria != "general":
                 msg += f" Categoria: {categoria}."
             msg += " Usa biorag_sueno para consolidar."
+            _interceptar("guardar", f"{clave}: {contenido}", cerebro)
             return json.dumps({"status": "ok", "mensaje": msg, "concepto": clave}, ensure_ascii=False)
         finally:
             cerebro.cerrar_sistema()
@@ -181,6 +193,7 @@ def _build_server():
         cerebro = _get_cerebro()
         try:
             cerebro.establecer_asociacion(a, b)
+            _interceptar("asociar", f"{a} <--> {b}", cerebro)
             return json.dumps({
                 "status": "ok",
                 "mensaje": f"Sinapsis: '{a}' <--> '{b}'",
@@ -200,6 +213,7 @@ def _build_server():
         cerebro = _get_cerebro()
         try:
             cerebro.enviar_comunicado(agente, destino, mensaje)
+            _interceptar("comunicar", f"{agente} -> {destino}: {mensaje}", cerebro)
             return json.dumps({
                 "status": "ok",
                 "mensaje": f"Mensaje de {agente} para {destino} registrado.",
@@ -241,7 +255,11 @@ def _build_server():
             if ids_a_marcar:
                 cerebro.marcar_como_leido(ids_a_marcar)
 
-            return json.dumps({"total": len(items), "mensajes": items}, ensure_ascii=False)
+            resultado = json.dumps({"total": len(items), "mensajes": items}, ensure_ascii=False)
+            if items:
+                textos = [m["contenido"] for m in items[:3]]
+                _interceptar("leer_mensajes", " ".join(textos), cerebro)
+            return resultado
         finally:
             cerebro.cerrar_sistema()
 
@@ -265,6 +283,7 @@ def _build_server():
             finally:
                 sys.stdout = old_stdout
             output = captured.getvalue()
+            _interceptar("sueno", output.strip(), cerebro)
             return json.dumps({
                 "status": "ok",
                 "mensaje": output.strip(),
@@ -293,12 +312,14 @@ def _build_server():
                 "SELECT ROUND(SUM(peso_sinaptico), 2) FROM largo_plazo WHERE estado = 'activo'"
             )
             energia = cerebro.cursor.fetchone()[0] or 0.0
-            return json.dumps({
+            resultado = json.dumps({
                 "activos": activos,
                 "dormidos": dormidos,
                 "corto_plazo": corto,
                 "energia_sinaptica": energia,
             }, ensure_ascii=False)
+            _interceptar("estado", f"activos:{activos} dormidos:{dormidos}", cerebro)
+            return resultado
         finally:
             cerebro.cerrar_sistema()
 
@@ -324,7 +345,51 @@ def _build_server():
                 }
                 for c, cat, p, est, a in filas
             ]
-            return json.dumps({"total": len(items), "nodos": items}, ensure_ascii=False)
+            resultado = json.dumps({"total": len(items), "nodos": items}, ensure_ascii=False)
+            _interceptar("corteza", "", cerebro)
+            return resultado
+        finally:
+            cerebro.cerrar_sistema()
+
+    # ── TOOLS (Interceptor V2) ──────────────────────────────────────────────
+
+    @mcp.tool(
+        name="biorag_contexto_inicio",
+        description=(
+            "Anuncia el inicio de una interaccion significativa. "
+            "Almacena el contexto en el buffer de sesion para que el "
+            "interceptor pueda autoguardar si detecta algo importante."
+        ),
+    )
+    def biorag_contexto_inicio(agente: str, contexto: str = "") -> str:
+        cerebro = _get_cerebro()
+        try:
+            registrar_accion("inicio", f"[{agente}] {contexto}")
+            return json.dumps({"status": "ok", "mensaje": "Contexto de inicio registrado."}, ensure_ascii=False)
+        finally:
+            cerebro.cerrar_sistema()
+
+    @mcp.tool(
+        name="biorag_contexto_fin",
+        description=(
+            "Anuncia el fin de una interaccion. Fuerza el analisis del "
+            "buffer de sesion acumulado y autoguarda si detecta algo nuevo."
+        ),
+    )
+    def biorag_contexto_fin(agente: str, resumen: str = "") -> str:
+        cerebro = _get_cerebro()
+        try:
+            registrar_accion("fin", f"[{agente}] {resumen}")
+            resultado = analizar_y_autoguardar(cerebro, fuerza=True)
+            if resultado:
+                msg = f"Auto-guardado: '{resultado['concepto']}' ({resultado['categoria']}). Usa biorag_sueno para consolidar."
+            else:
+                msg = "No se detecto nada nuevo que amerite guardado."
+            return json.dumps({
+                "status": "ok",
+                "mensaje": msg,
+                "auto_guardado": resultado,
+            }, ensure_ascii=False)
         finally:
             cerebro.cerrar_sistema()
 
@@ -406,6 +471,13 @@ def _build_server():
             "4. Si necesitas dejar mensaje a otro agente -> biorag_comunicar\n"
             "5. Si al iniciar sesion quieres ver mensajes -> biorag_leer_mensajes\n"
             "6. Si despues de 2 busquedas no encuentras -> preguntar al humano\n\n"
+            "Interceptor V2 (autoguardado):\n"
+            "- Al iniciar una interaccion importante -> biorag_contexto_inicio\n"
+            "- Al terminar una interaccion -> biorag_contexto_fin\n"
+            "- El interceptor analiza el buffer acumulado y autoguarda si\n"
+            "  detecta lecciones, patrones, errores o preferencias.\n"
+            "- No necesitas recordar llamar guardar explicitamente cada vez.\n\n"
+            "TTL: 30 min de inactividad resetean el buffer (siesta biomimetica).\n\n"
             "La memoria decae naturalmente (LTD). Los nodos no usados se "
             "duermen solos. Usa biorag_sueno para consolidar recuerdos nuevos."
         )
