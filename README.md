@@ -6,6 +6,18 @@ A diferencia de los sistemas RAG tradicionales (que indexan texto plano rígidam
 
 ---
 
+## v2.2 — Interceptor V2 (Autoguardado Automático)
+
+- **Interceptor V2** (`middleware/auto_guardado.py`): buffer de sesión con TTL de 30 min que acumula contexto de cada tool call. Al detectar palabras clave (lección, prefiero, error, mejor práctica, etc.) autoguarda en corto plazo sin necesidad de instrucción explícita del agente.
+- **`biorag_contexto_inicio`**: nueva tool MCP para que el agente anuncie el inicio de una interacción significativa y alimente el buffer.
+- **`biorag_contexto_fin`**: nueva tool MCP que fuerza el análisis del buffer acumulado. Si autoguardó algo, lo consolida directamente a largo plazo vía `consolidar_concepto()` — sin necesidad de `sueno` posterior.
+- **`consolidar_concepto()`**: nuevo método en `memory_store.py` que mueve un concepto de corto a largo plazo sin ejecutar LTD/inhibición lateral. El trigger FTS5 mantiene el índice sincronizado automáticamente.
+- **Heurísticas biomiméticas**: detección de 30+ patrones léxicos en español que clasifican el contenido en categorías (lección, preferencia, error, anti-patrón, regla, solución, importante).
+- **Sin duplicados**: verifica si el concepto ya existe en la corteza antes de autoguardar.
+- **TTL de 30 minutos**: el buffer expira naturalmente (siesta biomimética), reseteando el contexto.
+
+---
+
 ## v3.0 — MCP Server
 
 - **Servidor MCP (`mcp_server.py`)**: expone BioRAG como herramientas nativas via Model Context Protocol (MCP). Cualquier IDE o agente compatible (OpenCode, VS Code, Cursor, Cline, Antigravity, Hermes) se conecta sin ejecutar comandos shell.
@@ -86,7 +98,8 @@ MemoryBioRAG/
   │    └── memory_store.py      # Motor SQLite + FTS5: LTP/LTD, trigram, score híbrido, sinónimos
   ├── middleware/
   │    ├── __init__.py
-  │    └── interceptor.py       # Escaneo de familiaridad difusa
+  │    ├── interceptor.py       # Escaneo de familiaridad difusa
+  │    └── auto_guardado.py     # Buffer de sesion + autoguardado heurístico
   ├── config/
   │    ├── __init__.py
   │    └── prompts.py           # System prompts predefinidos
@@ -105,7 +118,7 @@ BioRAG expone una corteza cerebral compartida via MCP para que cualquier IDE o a
 ### Herramientas MCP
 
 | Herramienta | Descripcion |
-|---|---|
+|---|---|---|
 | `biorag_buscar` | Busqueda hibrida (FTS5 trigram + peso sinaptico + asociaciones) |
 | `biorag_guardar` | Guardar recuerdo en corto plazo (consolidar con biorag_sueno) |
 | `biorag_asociar` | Sinapsis bidireccional entre conceptos |
@@ -114,6 +127,8 @@ BioRAG expone una corteza cerebral compartida via MCP para que cualquier IDE o a
 | `biorag_sueno` | Consolidar corto -> largo plazo (LTP/LTD) |
 | `biorag_estado` | Stats de la corteza (activos, dormidos, energia) |
 | `biorag_corteza` | Listar todos los nodos de la corteza |
+| `biorag_contexto_inicio` | Anunciar inicio de interaccion para alimentar buffer de autoguardado |
+| `biorag_contexto_fin` | Finalizar interaccion, analiza buffer y consolida si detecta algo nuevo |
 
 ### Resources MCP
 
@@ -226,7 +241,7 @@ opencode mcp list
   ## REQUISITO: El servidor MCP biorag debe estar activo (ver README.md -> Servidor MCP).
   ## Si no ves las herramientas MCP, reinicia tu IDE para recargar la config.
 
-  Herramientas MCP disponibles (las 8 herramientas del servidor biorag):
+  Herramientas MCP disponibles (10 herramientas del servidor biorag):
     biorag_buscar  — Busqueda hibrida (FTS5 trigram + peso sinaptico + asociaciones)
     biorag_guardar — Guardar recuerdo en corto plazo (consolidar con biorag_sueno)
     biorag_asociar — Sinapsis bidireccional entre conceptos
@@ -235,6 +250,8 @@ opencode mcp list
     biorag_sueno — Consolidar corto -> largo plazo (LTP/LTD)
     biorag_estado — Stats de la corteza (activos, dormidos, energia)
     biorag_corteza — Listar todos los nodos de la corteza
+    biorag_contexto_inicio — Al iniciar interaccion, alimenta buffer de autoguardado
+    biorag_contexto_fin — Al finalizar, analiza buffer y consolida automaticamente
 
   ---
   JERARQUIA DE ACCESO A MEMORIA (2 niveles):
@@ -266,7 +283,24 @@ opencode mcp list
     CASO B (Criterio propio): Durante tu razonamiento, SI detectas algo de ALTO IMPACTO que otro agente OEC deba conocer (preferencia del Creador no dicha directamente, diagnostico de hardware, leccion aprendida de un error, patron critico) ENTONCES guarda automaticamente. Si no estas seguro, pregunta al Creador antes. La precaucion evita ruido.
 
   ---
-  REGLA #3 (COMUNICAR) - SI necesitas dejar un mensaje para otro agente OEC (Artemis, Hermes, tu hermana) ENTONCES:
+  REGLA #3 (INTERCEPTOR V2 - AUTO-GUARDADO) - El agente puede usar los hooks
+  de contexto para que el interceptor analice y guarde automaticamente:
+
+    biorag_contexto_inicio(agente="athena", contexto="descripcion del tema")
+    — Al empezar una interaccion importante. Alimenta el buffer de sesion.
+
+    Al terminar la interaccion:
+    biorag_contexto_fin(agente="athena", resumen="lo relevante de la conversacion")
+    — Fuerza el analisis del buffer acumulado. Si detecta algo nuevo
+      (lecciones, preferencias, errores, patrones), lo guarda Y consolida
+      automaticamente a largo plazo. Sin necesidad de biorag_sueno.
+
+    El interceptor tambien analiza automaticamente en cada tool call
+    (buscar, guardar, asociar, etc.) sin necesidad de hooks explicitos.
+    TTL de 30 min resetea el buffer naturalmente (siesta biomimetica).
+
+  ---
+  REGLA #5 (COMUNICAR) - SI necesitas dejar un mensaje para otro agente OEC (Artemis, Hermes, tu hermana) ENTONCES:
     biorag_comunicar(destino="athena", mensaje="texto", origen="athena")
     Destino: athena, artemis, hermes, todos. El mensaje queda en la corteza compartida.
 
@@ -278,7 +312,7 @@ opencode mcp list
     biorag_asociar(a="concepto_a", b="concepto_b")
 
   ---
-  REGLA #5 (LIMITE DE BUSQUEDA) - SI despues de 2 busquedas a BioRAG no encuentras
+  REGLA #6 (LIMITE DE BUSQUEDA) - SI despues de 2 busquedas a BioRAG no encuentras
   lo que buscas o el Creador dice "no es eso" ENTONCES:
     Detente inmediatamente. No sigas buscando.
     Pregunta al Creador directamente que case o concepto tiene en mente.
@@ -385,6 +419,7 @@ export BIORAG_PATH=/tu/ruta/memoria.db
 
 ## Historial de Versiones
 
+- **v2.2** — Interceptor V2 (autoguardado automático): buffer de sesión con TTL, 2 nuevas tools MCP (contexto_inicio/contexto_fin), consolidación inmediata sin necesidad de sueno, heurísticas de detección de 30+ patrones léxicos
 - **v3.0** — MCP server: 8 herramientas nativas para OpenCode, Antigravity, Hermes, VS Code, Cursor
 - **v2.1** — Refinamientos auditoría Artemis: --cat, límite dinámico, limpieza test/dead code, bugfix --todos+FTS5
 - **v2.0** — FTS5 trigram + búsqueda híbrida (BM25/peso/asociaciones) + sinónimos + merge en corto plazo + fallback trigram Jaccard por palabra

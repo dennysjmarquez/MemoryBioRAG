@@ -410,6 +410,29 @@ class SQLiteMemoryBioRAG:
         """, (key, contenido_final, time.time(), sinonimos_final, categoria))
         self.conn.commit()
 
+    def consolidar_concepto(self, concepto):
+        """Mueve un concepto de corto a largo plazo directamente.
+        No ejecuta LTD, inhibición lateral ni toca otros nodos.
+        El trigger FTS5 se encarga del índice automáticamente."""
+        key = concepto.lower().strip()
+        self.cursor.execute(
+            "SELECT contenido, sinonimos, categoria FROM corto_plazo WHERE concepto = ?",
+            (key,),
+        )
+        fila = self.cursor.fetchone()
+        if not fila:
+            return False
+        contenido, sinonimos, categoria = fila
+        self.cursor.execute(
+            "INSERT OR REPLACE INTO largo_plazo "
+            "(concepto, categoria, contenido, peso_sinaptico, estado, sinonimos) "
+            "VALUES (?, ?, ?, 1.0, 'activo', ?)",
+            (key, categoria, contenido, sinonimos or ""),
+        )
+        self.cursor.execute("DELETE FROM corto_plazo WHERE concepto = ?", (key,))
+        self.conn.commit()
+        return True
+
     def ciclo_sueno_consolidacion(self, limite_energia=None):
         """
         Consolida las experiencias de Corto Plazo a Largo Plazo (Corteza Permanente).

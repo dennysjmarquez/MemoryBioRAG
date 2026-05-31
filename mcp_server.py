@@ -382,7 +382,11 @@ def _build_server():
             registrar_accion("fin", f"[{agente}] {resumen}")
             resultado = analizar_y_autoguardar(cerebro, fuerza=True)
             if resultado:
-                msg = f"Auto-guardado: '{resultado['concepto']}' ({resultado['categoria']}). Usa biorag_sueno para consolidar."
+                consolidado = cerebro.consolidar_concepto(resultado["concepto"])
+                if consolidado:
+                    msg = f"Auto-guardado y consolidado: '{resultado['concepto']}' ({resultado['categoria']}). Ya en corteza permanente."
+                else:
+                    msg = f"Auto-guardado en corto plazo: '{resultado['concepto']}' ({resultado['categoria']}). Consolidacion fallo."
             else:
                 msg = "No se detecto nada nuevo que amerite guardado."
             return json.dumps({
