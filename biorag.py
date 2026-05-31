@@ -318,18 +318,12 @@ def cmd_buscar(cerebro, args):
         return 0
 
     if todos:
-        resultados = cerebro.buscar_todos_recuerdos(concepto)
+        profundidad = "profundo" if deep else "activos"
+        resultados, total = cerebro.buscar_por_frase(concepto, profundidad=profundidad, pagina=pagina, limite=100)
         if not resultados:
             print(f"No se encontro '{concepto}' en la corteza.")
             return 1
-        print(f"[MemoryBioRAG] {len(resultados)} recuerdos encontrados para '{concepto}':")
-        print("=" * 60)
-        for i, (nombre, contenido, peso, estado, puntaje) in enumerate(resultados, 1):
-            print(f"\n--- #{i}: {nombre} (peso:{peso:.2f}, estado:{estado}, relevancia:{puntaje:.2f}) ---")
-            txt = contenido or ""
-            print(txt[:500] + ("..." if len(txt) > 500 else "")) if not completo else print(txt)
-        print("\n" + "=" * 60)
-        print(f"Total: {len(resultados)} recuerdos.")
+        _mostrar_resultados(resultados, total, f"todos los resultados ({profundidad})")
         return 0
 
     if deep:
