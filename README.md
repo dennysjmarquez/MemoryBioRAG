@@ -6,6 +6,16 @@ A diferencia de los sistemas RAG tradicionales (que indexan texto plano rígidam
 
 ---
 
+## v2.1 — Refinamientos (Auditoría Artemis)
+
+- **Flag `--cat`**: clasificar memorias por tipo (`guardar --cat proyecto "texto"`, filtrar con `buscar "algo" --cat leccion`). Poblar la columna `categoria` que estaba siempre en 'general'.
+- **Límite de energía dinámico**: `sueno` sin argumentos calcula `n_activos * 1.3` (mínimo 10.0). Escala automáticamente con el tamaño de la corteza.
+- **Limpieza de nodos test**: 6 nodos de prueba (`test_*`, `cli_prueba`) movidos a dormido peso 0.01.
+- **`main.py` eliminado**: dead code, el CLI real es `biorag.py`.
+- **Bugfix: `--todos` ahora usa FTS5**: antes disparaba búsqueda legacy (LIKE), ahora pasa por FTS5 trigram + score híbrido. Compatible con `--deep`.
+
+---
+
 ## v2.0 — Novedades
 
 - **FTS5 con tokenizer trigram**: tolerancia natural a typos ("formulariox" encuentra "formularios") sin dependencias externas. Reemplaza el antiguo porter unicode61.
@@ -48,7 +58,7 @@ El sistema está estructurado físicamente en dos capas de memoria dentro del ar
    - **LTD**: en el ciclo de sueño, los nodos no usados decaen -0.05.
    - **Nodos dormidos**: peso <= 0.1 → estado `dormido`. No se borran, se ocultan de búsquedas rápidas.
 4. **Propagación de Activación (Grafo Asociativo):** evocar un nodo refuerza (+0.05) a sus vecinos asociados.
-5. **Inhibición Lateral Activa:** si la energía sináptica total supera el límite (10.0), los nodos más débiles se duermen forzadamente.
+5. **Inhibición Lateral Activa:** si la energía sináptica total supera el límite (n_activos * 1.3, mínimo 10.0), los nodos más débiles se duermen forzadamente.
 
 ---
 
@@ -101,12 +111,14 @@ MemoryBioRAG/
     Si no encuentras, usa fallback explicito: --tokens "raiz1,raiz2" con stemming manual.
     --completo para contenido sin truncar, --asociados para nodos relacionados.
     --deep para buscar en nodos dormidos (los despierta al encontrarlos).
+    --cat tipo para filtrar por categoria (proyecto, leccion, hardware).
 
   ---
   REGLA #2 (GUARDAR):
     CASO A (Orden directa): Si el usuario da una instruccion, leccion o preferencia:
-      python3 /ruta/a/MemoryBioRAG/biorag.py guardar <clave> "contenido" [--syn "sinonimo1,sinonimo2"]
+      python3 /ruta/a/MemoryBioRAG/biorag.py guardar <clave> "contenido" [--syn "sinonimo1,sinonimo2"] [--cat tipo]
       Clave en snake_case. --syn opcional lista terminos alternativos para busqueda.
+      --cat opcional para clasificar (proyecto, leccion, hardware, preferencia).
       Luego: python3 /ruta/a/MemoryBioRAG/biorag.py sueno
     CASO B (Criterio propio): Si detectas algo de ALTO IMPACTO que otro agente deba conocer.
 
@@ -223,6 +235,7 @@ export BIORAG_PATH=/tu/ruta/memoria.db
 
 ## Historial de Versiones
 
+- **v2.1** — Refinamientos auditoría Artemis: --cat, límite dinámico, limpieza test/dead code, bugfix --todos+FTS5
 - **v2.0** — FTS5 trigram + búsqueda híbrida (BM25/peso/asociaciones) + sinónimos + merge en corto plazo + fallback trigram Jaccard por palabra
 - **v1.1** — Búsqueda multi-token con Soft AND + stemming delegado al modelo
 - **v1.0** — Release inicial: LTP/LTD, Jaccard, inhibición lateral, grafo asociativo, comunicaciones entre agentes

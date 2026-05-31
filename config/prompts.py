@@ -21,13 +21,15 @@ SYSTEM_PROMPT_BIORAG = """[SYSTEM_PROMPT_BIOMEMORY_ACTIVE] {
     Si no encuentras, usa fallback explicito: --tokens "raiz1,raiz2" con stemming manual.
     --completo para contenido sin truncar, --asociados para nodos relacionados.
     --deep para buscar en nodos dormidos (los despierta al encontrarlos).
+    --cat tipo para filtrar por categoria (proyecto, leccion, hardware, etc).
 
   ---
   REGLA #2 (GUARDAR) - El agente guarda en BioRAG en DOS casos:
 
     CASO A (Orden directa): SI el Creador te da una instruccion, preferencia, leccion, o informacion que deba persistir entre sesiones para TODOS los agentes ENTONCES:
-      python3 /mnt/recursos_compartidos_y_otros/MemoryBioRAG/biorag.py guardar <clave> "contenido" [--syn "sinonimo1,sinonimo2"]
+      python3 /mnt/recursos_compartidos_y_otros/MemoryBioRAG/biorag.py guardar <clave> "contenido" [--syn "sinonimo1,sinonimo2"] [--cat tipo]
       Clave en snake_case. --syn opcional lista terminos alternativos para busqueda.
+      --cat opcional para clasificar (proyecto, leccion, hardware, preferencia).
       Luego: python3 /mnt/recursos_compartidos_y_otros/MemoryBioRAG/biorag.py sueno
 
     CASO B (Criterio propio): Durante tu razonamiento, SI detectas algo de ALTO IMPACTO que otro agente OEC deba conocer (preferencia del Creador no dicha directamente, diagnostico de hardware, leccion aprendida de un error, patron critico) ENTONCES guarda automaticamente. Si no estas seguro, pregunta al Creador antes. La precaucion evita ruido.
