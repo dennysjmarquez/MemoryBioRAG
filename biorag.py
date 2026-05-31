@@ -9,7 +9,7 @@ para control de saturacion, y nodos dormidos que se despiertan con busqueda prof
 
 USO DESDE EL AGENTE (cada comando explicado):
 
-  python3 biorag.py buscar <concepto> [--deep] [--todos] [--tokens "raiz1,raiz2"] [--pagina N] [--modo strict|relaxed] [--completo] [--asociados]
+  python3 biorag.py buscar <concepto> [--deep] [--todos] [--tokens "raiz1,raiz2"] [--pagina N] [--modo strict|relaxed] [--cat tipo] [--completo] [--asociados]
     Busca un recuerdo en la corteza. Por defecto usa busqueda hibrida:
       - FTS5 con trigram tokenizer: tolera typos y variaciones morfologicas
         automaticamente. "formulariox" encuentra "formularios".
@@ -25,6 +25,7 @@ USO DESDE EL AGENTE (cada comando explicado):
                     los tokens. relaxed devuelve cualquier match parcial. Defecto: relaxed.
     --completo      Muestra el contenido completo sin truncar (defecto: 1500 chars).
     --asociados     Muestra los nodos asociados a cada resultado.
+    --cat T         Filtrar por categoria (ej: --cat proyecto, --cat leccion).
     Ej: biorag.py buscar formularios
         biorag.py buscar angular --deep
         biorag.py buscar agente --todos
@@ -66,9 +67,9 @@ USO DESDE EL AGENTE (cada comando explicado):
     Consolida la memoria de corto plazo a largo plazo (corteza permanente).
     Aplica LTP a recuerdos consolidados, LTD (decaimiento) a no usados,
     duerme nodos debiles (peso <= 0.1), y aplica inhibicion lateral si
-    la energia sinaptica supera el limite (defecto: 10.0).
+    la energia sinaptica supera el limite (defecto: n_activos * 1.3, min 10.0).
     Ej: biorag.py sueno
-        biorag.py sueno 15.0  (limite de energia mas alto)
+        biorag.py sueno 15.0  (limite de energia manual)
 
   python3 biorag.py corteza
     Lista todos los nodos de la corteza permanente (activos y dormidos).
@@ -207,6 +208,7 @@ def cmd_buscar(cerebro, args):
         print("  --tokens      Lista de raices stemmeadas separadas por comas (busqueda multi-token)")
         print("  --pagina N    Pagina de resultados (defecto: 1)")
         print("  --modo M      strict | relaxed (defecto: relaxed)")
+        print("  --cat T       Filtrar por categoria (ej: proyecto, leccion, hardware)")
         print("  --completo    Muestra el contenido completo sin truncar")
         print("  --asociados   Muestra nodos asociados a los resultados")
         return 1
@@ -267,6 +269,12 @@ def cmd_buscar(cerebro, args):
             modo = args[i + 1] if args[i + 1] in ("strict", "relaxed") else "relaxed"
             args = [x for j, x in enumerate(args) if j != i and j != i + 1]
             break
+    filtro_cat = None
+    for i, a in enumerate(args):
+        if a == "--cat" and i + 1 < len(args) and not args[i + 1].startswith("--"):
+            filtro_cat = args[i + 1]
+            args = [x for j, x in enumerate(args) if j != i and j != i + 1]
+            break
 
     if not frase and not multi_token and not todos:
         frase = True
@@ -301,11 +309,14 @@ def cmd_buscar(cerebro, args):
 
     if frase:
         profundidad = "profundo" if deep else "activos"
-        resultados, total = cerebro.buscar_por_frase(concepto, profundidad=profundidad, pagina=pagina)
+        resultados, total = cerebro.buscar_por_frase(concepto, profundidad=profundidad, pagina=pagina, categoria=filtro_cat)
         if not resultados:
             print(f"No se encontraron coincidencias para la frase.")
             return 1
-        _mostrar_resultados(resultados, total, "frase: " + concepto[:60])
+        subt = f"frase: {concepto[:60]}"
+        if filtro_cat:
+            subt += f" [cat: {filtro_cat}]"
+        _mostrar_resultados(resultados, total, subt)
         return 0
 
     if multi_token:
@@ -319,11 +330,14 @@ def cmd_buscar(cerebro, args):
 
     if todos:
         profundidad = "profundo" if deep else "activos"
-        resultados, total = cerebro.buscar_por_frase(concepto, profundidad=profundidad, pagina=pagina, limite=100)
+        resultados, total = cerebro.buscar_por_frase(concepto, profundidad=profundidad, pagina=pagina, limite=100, categoria=filtro_cat)
         if not resultados:
             print(f"No se encontro '{concepto}' en la corteza.")
             return 1
-        _mostrar_resultados(resultados, total, f"todos los resultados ({profundidad})")
+        subt = f"todos los resultados ({profundidad})"
+        if filtro_cat:
+            subt += f" [cat: {filtro_cat}]"
+        _mostrar_resultados(resultados, total, subt)
         return 0
 
     if deep:
@@ -342,6 +356,7 @@ def cmd_buscar(cerebro, args):
 
 def cmd_guardar(cerebro, args):
     sinonimos = ""
+    categoria = "general"
     if "--syn" in args:
         idx = args.index("--syn")
         if idx + 1 < len(args) and not args[idx + 1].startswith("--"):
@@ -350,15 +365,25 @@ def cmd_guardar(cerebro, args):
         else:
             print("Error: --syn requiere una lista de terminos. Ej: --syn \"angular,forms\"")
             return 1
+    if "--cat" in args:
+        idx = args.index("--cat")
+        if idx + 1 < len(args) and not args[idx + 1].startswith("--"):
+            categoria = args[idx + 1]
+            args = args[:idx] + args[idx + 2:]
+        else:
+            print("Error: --cat requiere un tipo. Ej: --cat proyecto")
+            return 1
     if len(args) < 2:
-        print("Uso: biorag.py guardar <clave> <contenido> [--syn \"sinonimo1,sinonimo2\"]")
+        print("Uso: biorag.py guardar <clave> <contenido> [--syn \"sinonimo1,sinonimo2\"] [--cat tipo]")
         return 1
     clave = args[0].lower().replace(" ", "_")
     contenido = " ".join(args[1:])
-    cerebro.percibir_corto_plazo(clave, contenido, sinonimos)
+    cerebro.percibir_corto_plazo(clave, contenido, sinonimos, categoria)
     msg = f"'{clave}' guardado en corto plazo."
     if sinonimos:
         msg += f" Sinonimos: {sinonimos}."
+    if categoria != "general":
+        msg += f" Categoria: {categoria}."
     msg += " Consolidalo con 'sueno' para hacerlo permanente."
     print(msg)
     return 0
@@ -373,7 +398,7 @@ def cmd_asociar(cerebro, args):
 
 
 def cmd_sueno(cerebro, args):
-    limite = float(args[0]) if args else 10.0
+    limite = float(args[0]) if args else None
     cerebro.ciclo_sueno_consolidacion(limite_energia=limite)
     return 0
 
