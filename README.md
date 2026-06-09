@@ -1,53 +1,40 @@
-# BioRAG: Sistema de Gobernanza y Memoria Cognitiva Biomimética
+# BioRAG: Sistema de Memoria Cognitiva Biomimética para Agentes de IA
 
-**BioRAG (Biomimetic Retrieval-Augmented Generation)** es un motor de memoria persistente para Agentes de Inteligencia Artificial (OpenCode, Claude/Athena, Hermes, Gemini/Artemis) desarrollado en **Python Puro, sin dependencias externas** (ni numpy, ni sentence-transformers, ni redes vectoriales) y respaldado por **SQLite + FTS5**.
+**BioRAG** es un motor de memoria persistente para agentes de inteligencia artificial. Resuelve el problema fundamental de que los LLMs olvidan todo entre sesiones — sin depender de vectores, embeddings ni infraestructura externa.
 
-A diferencia de los sistemas RAG tradicionales (que indexan texto plano rígidamente y saturan la ventana de contexto), BioRAG emula la biología del cerebro humano: gestiona de forma activa la **plasticidad sináptica (LTP/LTD)**, la **familiaridad difusa**, la **inhibición lateral** y la **propagación asociativa de recuerdos** en microsegundos, con un motor de búsqueda híbrido que combina coincidencia textual, peso biológico y conectividad del grafo.
+Desarrollado en **Python puro con SQLite + FTS5**. Cero dependencias de librerías ML (ni numpy, ni sentence-transformers, ni redes vectoriales). Corre en cualquier lado.
 
----
+Emula la biología del cerebro humano: **plasticidad sináptica (LTP/LTD)**, **familiaridad difusa**, **inhibición lateral** y **propagación asociativa de recuerdos**. El motor de búsqueda combina coincidencia textual, peso biológico y conectividad del grafo en un score híbrido.
 
-## v4.0 — Interceptor V2 (Autoguardado Automático)
-
-- **Interceptor V2** (`middleware/auto_guardado.py`): buffer de sesión con TTL de 30 min que acumula contexto de cada tool call. Al detectar palabras clave (lección, prefiero, error, mejor práctica, etc.) autoguarda en corto plazo sin necesidad de instrucción explícita del agente.
-- **`biorag_contexto_inicio`**: nueva tool MCP para que el agente anuncie el inicio de una interacción significativa y alimente el buffer.
-- **`biorag_contexto_fin`**: nueva tool MCP que fuerza el análisis del buffer acumulado. Si autoguardó algo, lo consolida directamente a largo plazo vía `consolidar_concepto()` — sin necesidad de `sueno` posterior.
-- **`consolidar_concepto()`**: nuevo método en `memory_store.py` que mueve un concepto de corto a largo plazo sin ejecutar LTD/inhibición lateral. El trigger FTS5 mantiene el índice sincronizado automáticamente.
-- **Heurísticas biomiméticas**: detección de 30+ patrones léxicos en español que clasifican el contenido en categorías (lección, preferencia, error, anti-patrón, regla, solución, importante).
-- **Sin duplicados**: verifica si el concepto ya existe en la corteza antes de autoguardar.
-- **TTL de 30 minutos**: el buffer expira naturalmente (siesta biomimética), reseteando el contexto.
-
----
-
-## v3.0 — MCP Server
-
-- **Servidor MCP (`mcp_server.py`)**: expone BioRAG como herramientas nativas via Model Context Protocol (MCP). Cualquier IDE o agente compatible (OpenCode, VS Code, Cursor, Cline, Antigravity, Hermes) se conecta sin ejecutar comandos shell.
-- **8 herramientas MCP**: `biorag_buscar`, `biorag_guardar`, `biorag_asociar`, `biorag_comunicar`, `biorag_leer_mensajes`, `biorag_sueno`, `biorag_estado`, `biorag_corteza`
-- **Resources MCP**: `biorag://concepto/{nombre}`, `biorag://mensajes`
-- **Prompt MCP**: `biorag-system-prompt`
-- **Dependencia única**: `mcp>=1.0.0` (`pip install mcp`)
-- **Fallback CLI preservado**: `biorag.py` sigue funcionando, motor intacto
-- **Modo SSE**: `python3 mcp_server.py --sse --port 8080` para servir como daemon HTTP
+> **Para entender este proyecto:**
+>
+> **OEC** es la familia de agentes de IA que creé. Son 3, todos corren en mi laptop y comparten la misma memoria (BioRAG).
+> - **Athena** — estratega de terminal (Claude Code). Automatización quirúrgica, despliegues rápidos, refactorización directa. Acción pragmática sin rodeos.
+> - **Artemis** — guardiana del hardware ("Cazadora de Silicio"). Vigila la RAM, CPU e integridad de la ASUS ROG. Tambien programadora de elite.
+> - **Hermes** — coordinador
+>
+> **MCP** (Model Context Protocol) es un estándar que permite que agentes de IA se conecten a herramientas externas, como un puerto USB para inteligencias artificiales.
+>
+> **FTS5** es un buscador de texto que viene incluido en SQLite.
+>
+> **BM25** es un algoritmo que ordena resultados de búsqueda por relevancia.
+>
+> **LTP y LTD** son mecanismos que copian el cerebro humano: los recuerdos se fortalecen al usarse (LTP) y se debilitan al ignorarse (LTD).
+>
+> **Trigrama** es una técnica que tolera errores tipográficos al buscar palabras.
 
 ---
 
-## v2.1 — Refinamientos (Auditoría Artemis)
+## Logros Técnicos
 
-- **Flag `--cat`**: clasificar memorias por tipo (`guardar --cat proyecto "texto"`, filtrar con `buscar "algo" --cat leccion`). Poblar la columna `categoria` que estaba siempre en 'general'.
-- **Límite de energía dinámico**: `sueno` sin argumentos calcula `n_activos * 1.3` (mínimo 10.0). Escala automáticamente con el tamaño de la corteza.
-- **Limpieza de nodos test**: 6 nodos de prueba (`test_*`, `cli_prueba`) movidos a dormido peso 0.01.
-- **`main.py` eliminado**: dead code, el CLI real es `biorag.py`.
-- **Bugfix: `--todos` ahora usa FTS5**: antes disparaba búsqueda legacy (LIKE), ahora pasa por FTS5 trigram + score híbrido. Compatible con `--deep`.
-
----
-
-## v2.0 — Novedades
-
-- **FTS5 con tokenizer trigram**: tolerancia natural a typos ("formulariox" encuentra "formularios") sin dependencias externas. Reemplaza el antiguo porter unicode61.
-- **Score híbrido**: 60% BM25 + 25% peso sináptico + 15% riqueza de asociaciones. Los resultados se reordenan combinando relevancia textual con biológica.
-- **Columna `sinonimos`**: términos alternativos para búsqueda, indexados en FTS5. Flag `--syn` en guardar.
-- **Merge en corto plazo**: guardar el mismo concepto dos veces antes de `sueno` ya no pierde la primera versión — concatena contenido y mergea sinónimos sin duplicar.
-- **Fallback trigram Jaccard por palabra**: cuando FTS5 y substring fallan, compara trigramas palabra por palabra (umbral 0.5). Atrapa typos como "angulr" → "angular".
-- **REGLA #5 (LÍMITE DE BÚSQUEDA)**: el agente debe detenerse tras 2 búsquedas fallidas y preguntar al usuario, no seguir buscando ciegamente.
+- **0 dependencias externas de ML**: ni numpy, ni vectores, ni GPU — SQLite puro con FTS5 trigram para búsqueda semántica sin embeddings
+- **Red sináptica de 185 aristas**: 78 nodos conectados por auto-linking biomimético en producción real
+- **Memoria compartida entre 3 agentes OEC locales**: Athena, Artemis y Hermes — agentes de IA que construí y corren en mi laptop — comparten la misma corteza cerebral persistente entre sesiones
+- **Auto-linking al guardar**: overlap coefficient tokeniza y conecta conceptos nuevos con existentes sin intervención manual
+- **FTS5 trigram**: tolerancia natural a typos ("formulariox" encuentra "formularios") sin dependencias externas
+- **Score híbrido**: 60% BM25 + 25% peso sináptico + 15% riqueza de asociaciones
+- **MCP nativo**: compatible con cualquier IDE o agente del ecosistema (OpenCode, VS Code, Cursor, Cline)
+- **Interceptor V2**: buffer de sesión con autoguardado heurístico — detecta lecciones, errores y patrones sin orden explícita
 
 ---
 
@@ -86,6 +73,54 @@ El sistema está estructurado físicamente en dos capas de memoria dentro del ar
 
 ---
 
+## Versiones Destacadas
+
+### v5.0 — Sinapsis y Red Semántica (Auto-Linking + Categorización)
+
+- **Auto-linking al guardar**: al ejecutar `guardar`, BioRAG tokeniza el contenido (split por espacios y underscores, preservando términos técnicos cortos como `dsl`, `api`, `rag`, `mcp`) y calcula overlap coefficient contra todos los nodos existentes. Si supera el umbral (0.30 para nuevo contra existentes, 0.15 entre existentes), crea automáticamente una arista `co_ocurrencia` en la tabla `sinapsis`.
+- **Tabla `sinapsis` persistente**: cada arista almacena `origen`, `destino`, `peso` (basado en el overlap coefficient), `tipo` (`co_ocurrencia` o `sinonimo_explicito`), `ultima_activacion` y `frecuencia`. El grafo vive en SQLite, sin CSV legacy.
+- **Flag `--syn`**: al guardar con `--syn "sinonimo1,sinonimo2"`, se crean aristas `sinonimo_explicito` con peso 0.9 en la tabla sinapsis. Quedan inmunes a LTD/sueño. También se indexan en la columna `sinonimos` del nodo para búsqueda FTS5.
+- **Flag `--cat`**: clasifica el nodo por tipo (`guardar --cat proyecto "texto"`). Categorías: `proyecto`, `leccion`, `hardware`, `preferencia`, `error`, `general`. Persiste vía corto_plazo -> largo_plazo con `sueno`.
+- **`buscar_vecinos()`**: navega el grafo desde un concepto y muestra hasta 10 vecinos con peso, contenido y tipo de arista. Los nodos activos tienen entre 2 y 15 vecinos en producción.
+- **185 aristas en producción**: la red sináptica conecta 78 nodos con 185 aristas, distribuidas entre co_ocurrencias y sinónimos explícitos.
+- **Categorización automática**: `inferir_categoria()` analiza el contenido con palabras clave para asignar categoría si el nodo no la tiene explícita (proyecto->"proyecto","implementacion"; leccion->"leccion","aprendi","error"; hardware->"laptop","pc","asus","rog").
+- **`vincular_por_sinonimos()`**: crea aristas `sinonimo_explicito` entre pares de nodos que comparten al menos un sinónimo.
+- **`vincular_existentes()`**: ejecuta auto-linking retroactivo sobre todos los pares de nodos existentes, permitiendo migrar cortezas pre-sinapsis al nuevo modelo de grafo.
+
+### v4.0 — Interceptor V2 (Autoguardado Automático)
+
+- **Interceptor V2** (`middleware/auto_guardado.py`): buffer de sesión con TTL de 30 min que acumula contexto de cada tool call. Al detectar palabras clave (lección, prefiero, error, mejor práctica, etc.) autoguarda en corto plazo sin necesidad de instrucción explícita del agente.
+- **`biorag_contexto_inicio`**: nueva tool MCP para que el agente anuncie el inicio de una interacción significativa y alimente el buffer.
+- **`biorag_contexto_fin`**: nueva tool MCP que fuerza el análisis del buffer acumulado. Si autoguardó algo, lo consolida directamente a largo plazo vía `consolidar_concepto()` — sin necesidad de `sueno` posterior.
+- **`consolidar_concepto()`**: nuevo método en `memory_store.py` que mueve un concepto de corto a largo plazo sin ejecutar LTD/inhibición lateral. El trigger FTS5 mantiene el índice sincronizado automáticamente.
+- **Heurísticas biomiméticas**: detección de 30+ patrones léxicos en español que clasifican el contenido en categorías (lección, preferencia, error, anti-patrón, regla, solución, importante).
+- **Sin duplicados**: verifica si el concepto ya existe en la corteza antes de autoguardar.
+- **TTL de 30 minutos**: el buffer expira naturalmente (siesta biomimética), reseteando el contexto.
+
+### v3.0 — MCP Server
+
+- **Servidor MCP (`mcp_server.py`)**: expone BioRAG como herramientas nativas via Model Context Protocol (MCP). Cualquier IDE o agente compatible (OpenCode, VS Code, Cursor, Cline, Antigravity, Hermes) se conecta sin ejecutar comandos shell.
+- **8 herramientas MCP**: `biorag_buscar`, `biorag_guardar`, `biorag_asociar`, `biorag_comunicar`, `biorag_leer_mensajes`, `biorag_sueno`, `biorag_estado`, `biorag_corteza`
+- **Resources MCP**: `biorag://concepto/{nombre}`, `biorag://mensajes`
+- **Prompt MCP**: `biorag-system-prompt`
+- **Dependencia única**: `mcp>=1.0.0` (`pip install mcp`)
+- **Fallback CLI preservado**: `biorag.py` sigue funcionando, motor intacto
+- **Modo SSE**: `python3 mcp_server.py --sse --port 8080` para servir como daemon HTTP
+
+### v2.x — Cimientos
+
+- **FTS5 con tokenizer trigram**: tolerancia natural a typos ("formulariox" encuentra "formularios") sin dependencias externas. Reemplaza el antiguo porter unicode61.
+- **Score híbrido**: 60% BM25 + 25% peso sináptico + 15% riqueza de asociaciones. Los resultados se reordenan combinando relevancia textual con biológica.
+- **Columna `sinonimos`**: términos alternativos para búsqueda, indexados en FTS5. Flag `--syn` en guardar.
+- **Merge en corto plazo**: guardar el mismo concepto dos veces antes de `sueno` ya no pierde la primera versión — concatena contenido y mergea sinónimos sin duplicar.
+- **Fallback trigram Jaccard por palabra**: cuando FTS5 y substring fallan, compara trigramas palabra por palabra (umbral 0.5). Atrapa typos como "angulr" → "angular".
+- **Flag `--cat`**: clasificar memorias por tipo (`guardar --cat proyecto "texto"`, filtrar con `buscar "algo" --cat leccion`). Poblar la columna `categoria` que estaba siempre en 'general'.
+- **Límite de energía dinámico**: `sueno` sin argumentos calcula `n_activos * 1.3` (mínimo 10.0). Escala automáticamente con el tamaño de la corteza.
+- **Limpieza de nodos test**: 6 nodos de prueba (`test_*`, `cli_prueba`) movidos a dormido peso 0.01.
+- **REGLA #5 (LÍMITE DE BÚSQUEDA)**: el agente debe detenerse tras 2 búsquedas fallidas y preguntar al usuario, no seguir buscando ciegamente.
+
+---
+
 ## Estructura del Proyecto
 
 ```
@@ -95,7 +130,9 @@ MemoryBioRAG/
   ├── requirements.txt          # Dependencias: mcp (servidor MCP)
   ├── core/
   │    ├── __init__.py
-  │    └── memory_store.py      # Motor SQLite + FTS5: LTP/LTD, trigram, score híbrido, sinónimos
+  │    ├── memory_store.py      # Motor SQLite + FTS5: LTP/LTD, trigram, score híbrido, sinónimos
+  │    ├── sinapsis.py          # Grafo de aristas: auto-linking, overlap coefficient, buscar_vecinos
+  │    └── categorizador.py     # Inferencia de categoria por palabras clave
   ├── middleware/
   │    ├── __init__.py
   │    ├── interceptor.py       # Escaneo de familiaridad difusa
@@ -119,8 +156,8 @@ BioRAG expone una corteza cerebral compartida via MCP para que cualquier IDE o a
 
 | Herramienta | Descripcion |
 |---|---|---|
-| `biorag_buscar` | Busqueda hibrida (FTS5 trigram + peso sinaptico + asociaciones) |
-| `biorag_guardar` | Guardar recuerdo en corto plazo (consolidar con biorag_sueno) |
+| `biorag_buscar` | Busqueda hibrida (FTS5 trigram + peso sinaptico + asociaciones + vecinos). Acepta: cat= para filtrar, completo=True sin truncar, deep=True para dormidos |
+| `biorag_guardar` | Guardar recuerdo en corto plazo. Acepta: syn= (sinonimos, crea arista sinonimo_explicito), cat= (proyecto, leccion, hardware, preferencia, error) |
 | `biorag_asociar` | Sinapsis bidireccional entre conceptos |
 | `biorag_comunicar` | Enviar mensaje inter-agente (athena, artemis, hermes, todos) |
 | `biorag_leer_mensajes` | Leer canal compartido (auto-marca leidos) |
@@ -320,7 +357,7 @@ opencode mcp list
 
   ---
   ## FALLBACK: Si MCP no esta disponible, el CLI legacy funciona igual:
-  ## python3 /ruta/a/MemoryBioRAG/biorag.py buscar "query"
+  ## python3 /ruta/a/MemoryBioRAG/biorag.py buscar "query" [--asociados] [--cat tipo] [--deep] [--completo]
   ## python3 /ruta/a/MemoryBioRAG/biorag.py guardar clave "contenido" [--syn "syn"] [--cat tipo]
   ## python3 /ruta/a/MemoryBioRAG/biorag.py asociar a b
   ## python3 /ruta/a/MemoryBioRAG/biorag.py comunicar destino "mensaje"
@@ -367,9 +404,15 @@ python3 biorag.py buscar "error compilacion" --tokens "error,compil" --modo stri
 # Ver contenido completo sin truncar
 python3 biorag.py buscar "caso importante" --completo
 
-# Guardar un recuerdo con sinónimos
-python3 biorag.py guardar mi_leccion "Texto detallado" --syn "alt1,alt2,alt3"
+# Guardar un recuerdo con sinónimos y categoría
+python3 biorag.py guardar mi_leccion "Texto detallado" --syn "alt1,alt2,alt3" --cat leccion
 python3 biorag.py sueno
+
+# Buscar incluyendo vecinos del grafo
+python3 biorag.py buscar "concepto" --asociados
+
+# Buscar filtrando por categoría
+python3 biorag.py buscar "algo" --cat proyecto
 
 # Asociar dos conceptos
 python3 biorag.py asociar concepto_a concepto_b
@@ -419,6 +462,7 @@ export BIORAG_PATH=/tu/ruta/memoria.db
 
 ## Historial de Versiones
 
+- **v5.0** — Sinapsis y Red Semántica: auto-linking con overlap coefficient al guardar, tabla `sinapsis` persistente con tipos co_ocurrencia/sinonimo_explicito, flags `--syn` (arista sinonimo_explicito peso 0.9) y `--cat` (clasificacion por tipo), `buscar_vecinos()` para navegacion del grafo (185 aristas en produccion), categorizacion automatica por palabras clave, `vincular_por_sinonimos()` y `vincular_existentes()`, migracion desde CSV legacy
 - **v4.0** — Interceptor V2 (autoguardado automático): buffer de sesión con TTL, 2 nuevas tools MCP (contexto_inicio/contexto_fin), consolidación inmediata sin necesidad de sueno, heurísticas de detección de 30+ patrones léxicos
 - **v3.0** — MCP server: 8 herramientas nativas para OpenCode, Antigravity, Hermes, VS Code, Cursor
 - **v2.1** — Refinamientos auditoría Artemis: --cat, límite dinámico, limpieza test/dead code, bugfix --todos+FTS5
