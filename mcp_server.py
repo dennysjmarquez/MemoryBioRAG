@@ -58,6 +58,8 @@ DB_PATH = os.environ.get("BIORAG_PATH") or _DEFAULT_DB
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from core.memory_store import SQLiteMemoryBioRAG
+from core.sinapsis import auto_vincular, vincular_por_sinonimos
+from core.categorizador import inferir_categoria
 from middleware.auto_guardado import registrar_accion, analizar_y_autoguardar
 
 
@@ -172,16 +174,32 @@ def _build_server():
         cerebro = _get_cerebro()
         try:
             clave = concepto.lower().replace(" ", "_")
-            categoria = cat or "general"
+            categoria = cat or inferir_categoria(contenido)
             cerebro.percibir_corto_plazo(clave, contenido, syn or "", categoria)
+
+            enlaces = auto_vincular(cerebro, clave, contenido)
+            sinapsis_count = len(enlaces)
+
+            if syn:
+                syn_enlaces = vincular_por_sinonimos(cerebro, clave, syn)
+                todas = list({e[0]: e for e in enlaces + syn_enlaces}.values())
+                sinapsis_count = len(todas)
+
             msg = f"'{clave}' guardado en corto plazo."
             if syn:
                 msg += f" Sinonimos: {syn}."
             if categoria != "general":
                 msg += f" Categoria: {categoria}."
+            if sinapsis_count:
+                msg += f" Vinculado con {sinapsis_count} nodo(s)."
             msg += " Usa biorag_sueno para consolidar."
             _interceptar("guardar", f"{clave}: {contenido}", cerebro)
-            return json.dumps({"status": "ok", "mensaje": msg, "concepto": clave}, ensure_ascii=False)
+            return json.dumps({
+                "status": "ok",
+                "mensaje": msg,
+                "concepto": clave,
+                "sinapsis": sinapsis_count,
+            }, ensure_ascii=False)
         finally:
             cerebro.cerrar_sistema()
 

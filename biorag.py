@@ -194,6 +194,8 @@ import time
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
 from core.memory_store import SQLiteMemoryBioRAG
+from core.sinapsis import auto_vincular, vincular_por_sinonimos
+from core.categorizador import inferir_categoria
 
 _DEFAULT_DB = os.path.join(os.path.dirname(os.path.abspath(__file__)), "MemoryBioRAG_Data", "memory_biorag.db")
 DB_PATH = os.environ.get('BIORAG_PATH') or _DEFAULT_DB
@@ -356,7 +358,7 @@ def cmd_buscar(cerebro, args):
 
 def cmd_guardar(cerebro, args):
     sinonimos = ""
-    categoria = "general"
+    categoria = None
     if "--syn" in args:
         idx = args.index("--syn")
         if idx + 1 < len(args) and not args[idx + 1].startswith("--"):
@@ -378,12 +380,21 @@ def cmd_guardar(cerebro, args):
         return 1
     clave = args[0].lower().replace(" ", "_")
     contenido = " ".join(args[1:])
+    if not categoria:
+        categoria = inferir_categoria(contenido)
     cerebro.percibir_corto_plazo(clave, contenido, sinonimos, categoria)
+    enlaces = auto_vincular(cerebro, clave, contenido)
+    if sinonimos:
+        syn_enlaces = vincular_por_sinonimos(cerebro, clave, sinonimos)
+        todas = list({e[0]: e for e in enlaces + syn_enlaces}.values())
+        enlaces = todas
     msg = f"'{clave}' guardado en corto plazo."
     if sinonimos:
         msg += f" Sinonimos: {sinonimos}."
     if categoria != "general":
         msg += f" Categoria: {categoria}."
+    if enlaces:
+        msg += f" Vinculado con {len(enlaces)} nodo(s): {', '.join(e[0] for e in enlaces)}."
     msg += " Consolidalo con 'sueno' para hacerlo permanente."
     print(msg)
     return 0
