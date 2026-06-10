@@ -431,6 +431,8 @@ class SQLiteMemoryBioRAG:
         )
         self.cursor.execute("DELETE FROM corto_plazo WHERE concepto = ?", (key,))
         self.conn.commit()
+        from core.sinapsis import auto_vincular
+        auto_vincular(self, key, contenido)
         return True
 
     def ciclo_sueno_consolidacion(self, limite_energia=None):
@@ -477,6 +479,11 @@ class SQLiteMemoryBioRAG:
                     INSERT INTO largo_plazo (concepto, categoria, contenido, peso_sinaptico, estado, asociaciones, ultimo_acceso, sinonimos)
                     VALUES (?, ?, ?, 1.0, 'activo', '', ?, ?)
                 """, (concepto, categoria or 'general', contenido, time.time(), sinonimos or ""))
+
+        # Auto-vincular cada concepto consolidado (aristas por solapamiento de tokens)
+        from core.sinapsis import auto_vincular
+        for concepto, contenido, _, _ in recuerdos_sesion:
+            auto_vincular(self, concepto, contenido)
 
         # 2. Decaimiento Pasivo (LTD): Reducir peso de los nodos activos no consolidados hoy
         # El decaimiento es lineal (-0.05)
@@ -730,7 +737,7 @@ class SQLiteMemoryBioRAG:
 
         return round(0.60 * score_texto + 0.25 * peso_normalizado + 0.15 * score_asoc, 4)
 
-    def buscar_por_frase(self, frase, profundidad="activos", pagina=1, limite=3, categoria=None, preview_chars=1500):
+    def buscar_por_frase(self, frase, profundidad="activos", pagina=1, limite=5, categoria=None, preview_chars=1500):
         """Busqueda hibrida: FTS5 trigram + peso sinaptico + asociaciones.
 
         frase: texto en lenguaje natural. Trigrams nativos de FTS5 manejan
@@ -773,6 +780,21 @@ class SQLiteMemoryBioRAG:
             todos = self.cursor.fetchall()
         except sqlite3.OperationalError:
             pass
+
+        # OR fallback: si AND devolvió pocos resultados y hay múltiples palabras, probar OR
+        if todos and len(todos) < max(limite * 2, 5) and len(frase.split()) > 1:
+            palabras = [w for w in frase.split() if len(w) >= 3]
+            if len(palabras) > 1:
+                query_or = " OR ".join(palabras)
+                try:
+                    self.cursor.execute(sql, (query_or,))
+                    or_results = self.cursor.fetchall()
+                    seen_rowids = {r[0] for r in todos}
+                    for r in or_results:
+                        if r[0] not in seen_rowids:
+                            todos.append(r)
+                except sqlite3.OperationalError:
+                    pass
 
         # Fallback 1: substring match en contenido
         if not todos and len(query) >= 2:

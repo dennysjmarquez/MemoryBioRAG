@@ -123,7 +123,7 @@ def _build_server():
         cat: Optional[str] = None,
         completo: bool = False,
         asociados: bool = False,
-        limite: int = 5,
+        limite: int = 10,
         preview_chars: Optional[int] = None,
     ) -> str:
         cerebro = _get_cerebro()

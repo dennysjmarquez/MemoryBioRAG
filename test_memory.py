@@ -201,12 +201,10 @@ def test_sistema():
 
     # 11. --completo / contenido completo
     print("\n--- 12. Probando --completo (contenido sin truncar) ---")
-    resultados_c, total_c = cerebro.buscar_por_frase("puerta madera", profundidad="activos")
-    contenido_corto = (resultados_c[0][1] or "")[:200]
-    contenido_completo = resultados_c[0][1] or ""
-    assert len(contenido_corto) <= 200, "Error: snippet deberia estar truncado"
-    assert len(contenido_completo) >= 20, "Error: contenido completo deberia ser mas largo"
-    print(f"  Snippet (200 chars): {contenido_corto[:50]}...")
+    resultados_c, total_c = cerebro.buscar_por_frase("puerta madera", profundidad="activos", preview_chars=0)
+    contenido_puerta = next((r[1] for r in resultados_c if r[0] == 'puerta_madera'), "")
+    assert len(contenido_puerta) >= 20, f"Error: contenido completo deberia ser mas largo, tiene {len(contenido_puerta)}"
+    print(f"  Contenido 'puerta_madera': {contenido_puerta[:50]}...")
     print("OK: flag --completo disponible para ver contenido sin truncar")
 
     # 12. --asociados (expansion por asociaciones)

@@ -184,6 +184,21 @@ def vincular_por_sinonimos(cerebro, concepto, sinonimos, peso=0.9):
     return vinculados
 
 
+def vincular_existentes(cerebro, umbral=0.3):
+    """Ejecuta auto-linking retroactivo entre todos los pares de nodos existentes en largo_plazo.
+    Puebla el grafo sináptico con aristas faltantes. Se ejecuta una sola vez como migración."""
+    init_sinapsis_table(cerebro.cursor)
+    cerebro.cursor.execute(
+        "SELECT concepto, contenido FROM largo_plazo WHERE estado = 'activo'"
+    )
+    todos = cerebro.cursor.fetchall()
+    total_enlaces = 0
+    for concepto, contenido in todos:
+        enlaces = auto_vincular(cerebro, concepto, contenido, umbral)
+        total_enlaces += len(enlaces)
+    return total_enlaces
+
+
 def migrar_desde_csv(cerebro):
     init_sinapsis_table(cerebro.cursor)
 
