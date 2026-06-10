@@ -75,6 +75,13 @@ El sistema está estructurado físicamente en dos capas de memoria dentro del ar
 
 ## Versiones Destacadas
 
+### v5.0.1 — Optimizaciones de Motor (Junio 2026)
+
+- **Truncado en el motor (`preview_chars`)**: `buscar_por_frase` trunca contenido a 1500 chars por defecto antes de retornar, ahorrando RAM en resultados grandes. El comportamiento se controla desde CLI (`--completo` retorna 0 = completo) y MCP (nuevo parámetro `preview_chars`). La vieja truncación inline en `_mostrar_resultados` se eliminó por redundante.
+- **Evicción condicional (`BIORAG_PODAR=true`)**: al activar la env var, el ciclo de sueño ejecuta `_ejecutar_eviccion(max_borrar=10)` que borra nodos dormidos con peso <= 0.01, empezando por los más viejos. Sin la env var, la evicción no ocurre — cero riesgo de pérdida accidental.
+- **Límite dinámico en Fallback 2 (trigram Jaccard)**: el scan de candidatos ahora usa `LIMIT max(200, limite * 10)` en SQL y `candidatos[:max(limite * 3, 10)]` en Python. Búsquedas con `--todos` ya no escanean la tabla completa.
+- **FTS5 pre-filter en `auto_vincular`**: usa FTS5 MATCH con OR de tokens (3+ chars) para pre-filtrar candidatos, LIMIT 500. Si FTS5 falla (tokens cortos, error de sintaxis), cae al scan completo como fallback — nunca se pierden enlaces.
+
 ### v5.0 — Sinapsis y Red Semántica (Auto-Linking + Categorización)
 
 - **Auto-linking al guardar**: al ejecutar `guardar`, BioRAG tokeniza el contenido (split por espacios y underscores, preservando términos técnicos cortos como `dsl`, `api`, `rag`, `mcp`) y calcula overlap coefficient contra todos los nodos existentes. Si supera el umbral (0.30 para nuevo contra existentes, 0.15 entre existentes), crea automáticamente una arista `co_ocurrencia` en la tabla `sinapsis`.
@@ -156,7 +163,7 @@ BioRAG expone una corteza cerebral compartida via MCP para que cualquier IDE o a
 
 | Herramienta | Descripcion |
 |---|---|---|
-| `biorag_buscar` | Busqueda hibrida (FTS5 trigram + peso sinaptico + asociaciones + vecinos). Acepta: cat= para filtrar, completo=True sin truncar, deep=True para dormidos |
+| `biorag_buscar` | Busqueda hibrida (FTS5 trigram + peso sinaptico + asociaciones + vecinos). Acepta: cat= para filtrar, completo=True sin truncar, deep=True para dormidos, preview_chars= para controlar truncamiento (1500 default) |
 | `biorag_guardar` | Guardar recuerdo en corto plazo. Acepta: syn= (sinonimos, crea arista sinonimo_explicito), cat= (proyecto, leccion, hardware, preferencia, error) |
 | `biorag_asociar` | Sinapsis bidireccional entre conceptos |
 | `biorag_comunicar` | Enviar mensaje inter-agente (athena, artemis, hermes, todos) |
@@ -456,12 +463,17 @@ python3 test_memory.py
 
 ```bash
 export BIORAG_PATH=/tu/ruta/memoria.db
+
+# Activar poda automatica de nodos dormidos al final del ciclo de sueno
+# Peligro: los nodos borrados NO se recuperan. Solo activar si entiendes el riesgo.
+export BIORAG_PODAR=true
 ```
 
 ---
 
 ## Historial de Versiones
 
+- **v5.0.1** — Optimizaciones de motor: truncado en motor (preview_chars=1500), evicción condicional (BIORAG_PODAR=true), límite dinámico en Fallback 2 (no escanea tabla completa), FTS5 pre-filter en auto_vincular
 - **v5.0** — Sinapsis y Red Semántica: auto-linking con overlap coefficient al guardar, tabla `sinapsis` persistente con tipos co_ocurrencia/sinonimo_explicito, flags `--syn` (arista sinonimo_explicito peso 0.9) y `--cat` (clasificacion por tipo), `buscar_vecinos()` para navegacion del grafo (185 aristas en produccion), categorizacion automatica por palabras clave, `vincular_por_sinonimos()` y `vincular_existentes()`, migracion desde CSV legacy
 - **v4.0** — Interceptor V2 (autoguardado automático): buffer de sesión con TTL, 2 nuevas tools MCP (contexto_inicio/contexto_fin), consolidación inmediata sin necesidad de sueno, heurísticas de detección de 30+ patrones léxicos
 - **v3.0** — MCP server: 8 herramientas nativas para OpenCode, Antigravity, Hermes, VS Code, Cursor

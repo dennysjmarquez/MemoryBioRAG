@@ -21,7 +21,7 @@ class SQLiteMemoryBioRAG:
             )
         os.makedirs(os.path.dirname(self.db_path), exist_ok=True)
         # Conectar a SQLite
-        self.conn = sqlite3.connect(self.db_path)
+        self.conn = sqlite3.connect(self.db_path, timeout=5)
         self.conn.execute("PRAGMA journal_mode=WAL")
         self.cursor = self.conn.cursor()
         self._crear_estructura_cerebral()
@@ -523,6 +523,12 @@ class SQLiteMemoryBioRAG:
         # 6. Benchmark de rendimiento post-consolidacion
         self._benchmark_rendimiento()
 
+        # 7. Eviccion opcional (solo si BIORAG_PODAR=true)
+        if os.environ.get("BIORAG_PODAR") == "true":
+            eliminados = self._ejecutar_eviccion(max_borrar=10)
+            if eliminados:
+                print(f"[Eviccion] {eliminados} nodos dormidos eliminados permanentemente.")
+
         print("[MemoryBioRAG] Proceso de consolidación y equilibrio sináptico completado con éxito.")
 
     def establecer_asociacion(self, concepto_a, concepto_b):
@@ -724,13 +730,16 @@ class SQLiteMemoryBioRAG:
 
         return round(0.60 * score_texto + 0.25 * peso_normalizado + 0.15 * score_asoc, 4)
 
-    def buscar_por_frase(self, frase, profundidad="activos", pagina=1, limite=3, categoria=None):
+    def buscar_por_frase(self, frase, profundidad="activos", pagina=1, limite=3, categoria=None, preview_chars=1500):
         """Busqueda hibrida: FTS5 trigram + peso sinaptico + asociaciones.
 
         frase: texto en lenguaje natural. Trigrams nativos de FTS5 manejan
                typos, variaciones morfologicas y palabras parciales.
         profundidad: 'activos' | 'profundo'
         categoria: filtrar por tipo de memoria (ej: 'proyecto', 'leccion')
+        preview_chars: longitud maxima del contenido retornado.
+                       0 o None retorna el contenido completo.
+                       El motor trunca en vez del CLI (ahorra RAM).
         Retorna (resultados, total) donde resultados es lista de
         (concepto, contenido, peso, estado, score, asociaciones)
         """
@@ -790,6 +799,7 @@ class SQLiteMemoryBioRAG:
 
         # Fallback 2: best-word trigram similarity (typo + word-match tolerance)
         if not todos and len(query) >= 3:
+            sql_limit = max(200, limite * 10)
             filtros_fb = []
             if profundidad != "profundo":
                 filtros_fb.append("estado = 'activo'")
@@ -798,7 +808,7 @@ class SQLiteMemoryBioRAG:
             where_fb = ("WHERE " + " AND ".join(filtros_fb)) if filtros_fb else ""
             try:
                 self.cursor.execute(
-                    f"SELECT rowid, concepto, contenido, peso_sinaptico, estado, asociaciones FROM largo_plazo {where_fb}"
+                    f"SELECT rowid, concepto, contenido, peso_sinaptico, estado, asociaciones FROM largo_plazo {where_fb} LIMIT {sql_limit}"
                 )
                 filas = self.cursor.fetchall()
                 query_words = re.findall(r'\w{3,}', query.lower())
@@ -821,7 +831,7 @@ class SQLiteMemoryBioRAG:
                     if avg_score >= 0.5:
                         candidatos.append((avg_score, row))
                 candidatos.sort(key=lambda x: x[0], reverse=True)
-                todos = [r[1] for r in candidatos[:10]]
+                todos = [r[1] for r in candidatos[:max(limite * 3, 10)]]
             except sqlite3.OperationalError:
                 pass
 
@@ -839,6 +849,13 @@ class SQLiteMemoryBioRAG:
 
         # Reordenar por score hibrido descendente
         resultados_con_hibrido.sort(key=lambda r: r[4], reverse=True)
+
+        # Truncar preview a nivel de motor (ahorra RAM en CLI/MCP)
+        if preview_chars and preview_chars > 0:
+            resultados_con_hibrido = [
+                (r[0], (r[1] or "")[:preview_chars] + ("..." if len(r[1] or "") > preview_chars else ""), r[2], r[3], r[4], r[5])
+                for r in resultados_con_hibrido
+            ]
 
         # Paginar
         inicio = (pagina - 1) * limite
@@ -903,6 +920,44 @@ class SQLiteMemoryBioRAG:
             LIMIT ?
         """, (now, limite))
         return self.cursor.fetchall()
+
+    def _ejecutar_eviccion(self, max_borrar=10):
+        """Borra nodos dormidos abandonados para liberar espacio en la corteza.
+
+        Solo se activa cuando la env var BIORAG_PODAR=true.
+        Elimina hasta `max_borrar` nodos que cumplan:
+          - estado = 'dormido'
+          - peso_sinaptico <= 0.01
+        Ordenados por ultimo_acceso ASC (los mas viejos primero).
+
+        USO (solo via env var, no hay flag CLI):
+          export BIORAG_PODAR=true
+          python3 biorag.py sueno
+
+        Sin BIORAG_PODAR=true esto nunca se ejecuta.
+        Los datos borrados no se pueden recuperar — usar con criterio.
+        """
+        self.cursor.execute("""
+            SELECT concepto FROM largo_plazo
+            WHERE estado = 'dormido'
+              AND peso_sinaptico <= 0.01
+            ORDER BY ultimo_acceso ASC
+            LIMIT ?
+        """, (max_borrar,))
+        candidatos = [row[0] for row in self.cursor.fetchall()]
+        if not candidatos:
+            return 0
+        placeholders = ",".join("?" for _ in candidatos)
+        self.cursor.execute(
+            f"DELETE FROM largo_plazo WHERE concepto IN ({placeholders})", candidatos
+        )
+        self.cursor.execute(
+            f"DELETE FROM largo_plazo_fts WHERE rowid IN "
+            f"(SELECT rowid FROM largo_plazo WHERE concepto IN ({placeholders}))",
+            candidatos
+        )
+        self.conn.commit()
+        return len(candidatos)
 
     def _ultimo_benchmark(self):
         """Retorna la ultima latencia registrada o None si no hay metricas."""

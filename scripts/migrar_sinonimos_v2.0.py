@@ -6,12 +6,13 @@ No toca contenido, peso ni estado.
 
 import os, sys
 
-sys.path.insert(0, "/mnt/recursos_compartidos_y_otros/MemoryBioRAG")
+_SCRIPT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+sys.path.insert(0, _SCRIPT_DIR)
 from core.memory_store import SQLiteMemoryBioRAG as CortezaBioRAG
 
 db_path = os.environ.get(
     "BIORAG_PATH",
-    "/mnt/recursos_compartidos_y_otros/MemoryBioRAG/MemoryBioRAG_Data/memory_biorag.db"
+    os.path.join(_SCRIPT_DIR, "MemoryBioRAG_Data", "memory_biorag.db")
 )
 
 SYNONIMOS = {

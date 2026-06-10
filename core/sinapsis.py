@@ -1,5 +1,6 @@
 import re
 import time
+import sqlite3
 
 STOPWORDS_ES = {
     'para', 'como', 'con', 'por', 'que', 'del', 'las', 'los', 'mas',
@@ -58,12 +59,33 @@ def auto_vincular(cerebro, concepto, contenido, umbral=0.3):
     if not tokens_nuevos or len(tokens_nuevos) < 2:
         return []
 
-    cerebro.cursor.execute(
-        "SELECT concepto, contenido FROM largo_plazo "
-        "WHERE estado = 'activo' AND concepto != ?",
-        (concepto,)
-    )
-    existentes = cerebro.cursor.fetchall()
+    # Buscar candidatos via FTS5 primero (indizado, BM25, rapido)
+    # Solo tokens de 3+ chars para FTS5 trigram; terminos tecnicos cortos
+    # (dsl, api, etc.) caen al fallback scan si es necesario
+    terminos_fts = [f'"{t}"' for t in tokens_nuevos if len(t) >= 3]
+    existentes = None
+    if terminos_fts:
+        fts_query = " OR ".join(terminos_fts)
+        try:
+            cerebro.cursor.execute(
+                "SELECT DISTINCT l.concepto, l.contenido "
+                "FROM largo_plazo_fts f JOIN largo_plazo l ON l.rowid = f.rowid "
+                "WHERE largo_plazo_fts MATCH ? AND l.estado = 'activo' AND l.concepto != ? "
+                "ORDER BY bm25(largo_plazo_fts) LIMIT 500",
+                (fts_query, concepto)
+            )
+            existentes = cerebro.cursor.fetchall()
+        except sqlite3.OperationalError:
+            existentes = None
+
+    # Fallback: scan completo si FTS5 no encontro candidatos o fallo
+    if not existentes:
+        cerebro.cursor.execute(
+            "SELECT concepto, contenido FROM largo_plazo "
+            "WHERE estado = 'activo' AND concepto != ?",
+            (concepto,)
+        )
+        existentes = cerebro.cursor.fetchall()
 
     vinculados = []
     for conc_exist, cont_exist in existentes:

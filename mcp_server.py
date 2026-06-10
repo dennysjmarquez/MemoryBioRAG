@@ -124,12 +124,16 @@ def _build_server():
         completo: bool = False,
         asociados: bool = False,
         limite: int = 5,
+        preview_chars: Optional[int] = None,
     ) -> str:
         cerebro = _get_cerebro()
         try:
+            if preview_chars is None:
+                preview_chars = 0 if completo else 1500
             profundidad = "profundo" if deep else "activos"
             resultados, total = cerebro.buscar_por_frase(
-                query, profundidad=profundidad, limite=limite, categoria=cat
+                query, profundidad=profundidad, limite=limite,
+                categoria=cat, preview_chars=preview_chars
             )
             if not resultados:
                 cerebro.cerrar_sistema()
@@ -139,7 +143,7 @@ def _build_server():
             for concepto, contenido, peso, estado, score, asociaciones in resultados:
                 items.append({
                     "concepto": concepto,
-                    "contenido": contenido if completo else _preview(contenido),
+                    "contenido": contenido,
                     "peso_sinaptico": peso,
                     "estado": estado,
                     "score_hibrido": score,

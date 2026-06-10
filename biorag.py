@@ -35,15 +35,20 @@ USO DESDE EL AGENTE (cada comando explicado):
         biorag.py buscar "error compilacion" --tokens "error,compil" --modo strict
         biorag.py buscar "formularios con tabs" --deep  (busca tambien en dormidos)
 
-  python3 biorag.py guardar <clave> <contenido> [--syn "sinonimo1,sinonimo2"]
+  python3 biorag.py guardar <clave> <contenido> [--syn "sinonimo1,sinonimo2"] [--cat tipo]
     Almacena informacion en la memoria de corto plazo (memoria de trabajo).
     Usar 'sueno' para consolidar a largo plazo (corteza permanente).
     --syn         Lista de terminos alternativos separados por comas para busqueda.
                   Estos sinonimos se indexan en FTS5 y permiten encontrar el caso
                   aunque el usuario use palabras diferentes.
+    --cat         Categoria explicita (proyecto, leccion, solucion, arquitectura,
+                  metacognicion, protocolo). Si no se especifica, se infiere del
+                  contenido automaticamente via categorizador.
+    NOTA: Al guardar, BioRAG auto-vincula el nuevo concepto con nodos existentes
+    de tema similar (sinapsis por solapamiento de tokens en tabla sinapsis).
     La clave se normaliza a minusculas y guiones bajos.
     Ej: biorag.py guardar leccion_importante "Lo aprendido hoy fue..." --syn "leccion,aprendizaje"
-        biorag.py guardar formularios_anidados "Caso completo..." --syn "nested,forms,tabs,angular"
+        biorag.py guardar formularios_anidados "Caso completo..." --syn "nested,forms,tabs,angular" --cat proyecto
 
   python3 biorag.py asociar <concepto_a> <concepto_b>
     Crea un enlace sinaptico bidireccional entre dos conceptos en el grafo.
@@ -147,11 +152,17 @@ PROTOCOLO PARA EL AGENTE (CUANDO USAR CADA COMANDO):
       python3 biorag.py familiaridad "texto del usuario"
     Ej: el usuario escribe "el sistema de tabs ese" -> familiaridad "tabs formularios"
 
-  Regla #9 (ESTADO):
+  Regla #9 (FAMILIARIDAD):
+    IF el usuario menciona algo y quieres saber si ya esta en la corteza THEN
+      python3 biorag.py familiaridad "texto del usuario"
+    Escanea tokens en claves y contenido de nodos activos.
+    Retorna lista de conceptos familiares si encuentra coincidencia.
+
+  Regla #10 (ESTADO):
     IF quieres saber cuanta memoria te queda, cuantos recuerdos tienes activos THEN
       python3 biorag.py estado
 
-  Regla #10 (LIMITE DE BUSQUEDA):
+  Regla #11 (LIMITE DE BUSQUEDA):
     IF despues de 2 busquedas a BioRAG no encuentras lo que buscas
     O el usuario dice "no es eso" / "era otro caso" ENTONCES:
       STOP. No sigas buscando ni hagas mas consultas.
@@ -161,11 +172,12 @@ PROTOCOLO PARA EL AGENTE (CUANDO USAR CADA COMANDO):
         en lugar de lanzar --tokens, --todos, listar, --deep, etc.
 
 RESUMEN PARA EL AGENTE (lo minimo que debes recordar):
-  - Algo NUEVO -> guardar + sueno
-  - Algo que ya SABEMOS -> buscar
+  - Algo NUEVO -> guardar + sueno (auto-vincula sinapsis, auto-categoriza)
+  - Algo que ya SABEMOS -> buscar o familiaridad
   - Dos cosas RELACIONADAS -> asociar
   - Mensaje a hermana -> comunicar
   - Empezar sesion -> leer_mensajes --no-leidos
+  - Ver estado de memoria -> estado
 
 NOTA DE DISENO - TAMANO IDEAL DE CADA CASO:
 
@@ -287,7 +299,8 @@ def cmd_buscar(cerebro, args):
     concepto = " ".join(args)
 
     def _mostrar_resultados(resultados, total, subtitulo=""):
-        """Helper para display de resultados con --completo y --asociados."""
+        """Helper para display de resultados con --asociados.
+        El truncado se maneja a nivel del motor (preview_chars en buscar_por_frase)."""
         if not resultados:
             return
         total_paginas = max(1, (total + 2) // 3) if total > 0 else 1
@@ -297,10 +310,7 @@ def cmd_buscar(cerebro, args):
         print("=" * 60)
         for i, (nombre, contenido, peso, estado, score, asociaciones) in enumerate(resultados, 1):
             print(f"\n--- #{i}: {nombre} (peso:{peso:.2f}, estado:{estado}, score:{score:.2f}) ---")
-            if completo:
-                print(contenido or "")
-            else:
-                print((contenido or "")[:1500] + ("..." if len((contenido or "")) > 1500 else ""))
+            print(contenido or "")
             if asociados and asociaciones:
                 vecinos = [v.strip() for v in asociaciones.split(",") if v.strip()]
                 if vecinos:
@@ -310,8 +320,9 @@ def cmd_buscar(cerebro, args):
             print(f"Usa --pagina {pagina + 1} para mas resultados.")
 
     if frase:
+        preview = 0 if completo else None
         profundidad = "profundo" if deep else "activos"
-        resultados, total = cerebro.buscar_por_frase(concepto, profundidad=profundidad, pagina=pagina, categoria=filtro_cat)
+        resultados, total = cerebro.buscar_por_frase(concepto, profundidad=profundidad, pagina=pagina, categoria=filtro_cat, preview_chars=preview)
         if not resultados:
             print(f"No se encontraron coincidencias para la frase.")
             return 1
@@ -331,8 +342,9 @@ def cmd_buscar(cerebro, args):
         return 0
 
     if todos:
+        preview = 0 if completo else None
         profundidad = "profundo" if deep else "activos"
-        resultados, total = cerebro.buscar_por_frase(concepto, profundidad=profundidad, pagina=pagina, limite=100, categoria=filtro_cat)
+        resultados, total = cerebro.buscar_por_frase(concepto, profundidad=profundidad, pagina=pagina, limite=100, categoria=filtro_cat, preview_chars=preview)
         if not resultados:
             print(f"No se encontro '{concepto}' en la corteza.")
             return 1
