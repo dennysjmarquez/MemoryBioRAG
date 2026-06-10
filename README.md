@@ -75,7 +75,7 @@ El sistema está estructurado físicamente en dos capas de memoria dentro del ar
 
 ## Versiones Destacadas
 
-### v5.0.1 — Optimizaciones de Motor (Junio 2026)
+### v5.1 — Optimizaciones de Motor (Junio 2026)
 
 - **Truncado en el motor (`preview_chars`)**: `buscar_por_frase` trunca contenido a 1500 chars por defecto antes de retornar, ahorrando RAM en resultados grandes. El comportamiento se controla desde CLI (`--completo` retorna 0 = completo) y MCP (nuevo parámetro `preview_chars`). La vieja truncación inline en `_mostrar_resultados` se eliminó por redundante.
 - **Evicción condicional (`BIORAG_PODAR=true`)**: al activar la env var, el ciclo de sueño ejecuta `_ejecutar_eviccion(max_borrar=10)` que borra nodos dormidos con peso <= 0.01, empezando por los más viejos. Sin la env var, la evicción no ocurre — cero riesgo de pérdida accidental.
@@ -473,7 +473,7 @@ export BIORAG_PODAR=true
 
 ## Historial de Versiones
 
-- **v5.0.1** — Optimizaciones de motor: truncado en motor (preview_chars=1500), evicción condicional (BIORAG_PODAR=true), límite dinámico en Fallback 2 (no escanea tabla completa), FTS5 pre-filter en auto_vincular
+- **v5.1** — Optimizaciones de motor: truncado en motor (preview_chars=1500), evicción condicional (BIORAG_PODAR=true), límite dinámico en Fallback 2 (no escanea tabla completa), FTS5 pre-filter en auto_vincular
 - **v5.0** — Sinapsis y Red Semántica: auto-linking con overlap coefficient al guardar, tabla `sinapsis` persistente con tipos co_ocurrencia/sinonimo_explicito, flags `--syn` (arista sinonimo_explicito peso 0.9) y `--cat` (clasificacion por tipo), `buscar_vecinos()` para navegacion del grafo (185 aristas en produccion), categorizacion automatica por palabras clave, `vincular_por_sinonimos()` y `vincular_existentes()`, migracion desde CSV legacy
 - **v4.0** — Interceptor V2 (autoguardado automático): buffer de sesión con TTL, 2 nuevas tools MCP (contexto_inicio/contexto_fin), consolidación inmediata sin necesidad de sueno, heurísticas de detección de 30+ patrones léxicos
 - **v3.0** — MCP server: 8 herramientas nativas para OpenCode, Antigravity, Hermes, VS Code, Cursor
