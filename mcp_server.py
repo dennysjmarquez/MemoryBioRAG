@@ -166,6 +166,8 @@ def _build_server():
         name="biorag_guardar",
         description=(
             "Guarda un recuerdo en la memoria de corto plazo. "
+            "Cat validas: System, Architecture, Project, Lesson, Profile, "
+            "Personal, Principle, Protocol, Cognition, Relation, General. "
             "Usar biorag_sueno despues para consolidar a largo plazo."
         ),
     )
@@ -179,6 +181,13 @@ def _build_server():
         try:
             clave = concepto.lower().replace(" ", "_")
             categoria = cat or inferir_categoria(contenido)
+            try:
+                cerebro._resolver_categoria_id(categoria)
+            except ValueError as e:
+                return json.dumps({
+                    "status": "error",
+                    "mensaje": str(e),
+                }, ensure_ascii=False)
             cerebro.percibir_corto_plazo(clave, contenido, syn or "", categoria)
 
             enlaces = auto_vincular(cerebro, clave, contenido)
@@ -373,6 +382,23 @@ def _build_server():
         finally:
             cerebro.cerrar_sistema()
 
+    @mcp.tool(
+        name="biorag_listar_categorias",
+        description=(
+            "Lista las categorias validas para guardar recuerdos. "
+            " Retorna id, nombre y descripcion de cada categoria. "
+            "Usar ANTES de biorag_guardar para saber que cat es valido."
+        ),
+    )
+    def biorag_listar_categorias() -> str:
+        cerebro = _get_cerebro()
+        try:
+            cats = cerebro.listar_categorias()
+            items = [{"id": cid, "nombre": name, "descripcion": desc} for cid, name, desc in cats]
+            return json.dumps({"total": len(items), "categorias": items}, ensure_ascii=False)
+        finally:
+            cerebro.cerrar_sistema()
+
     # ── TOOLS (Interceptor V2) ──────────────────────────────────────────────
 
     @mcp.tool(
@@ -418,6 +444,101 @@ def _build_server():
             }, ensure_ascii=False)
         finally:
             cerebro.cerrar_sistema()
+
+    # ── SYNC TOOLS ──────────────────────────────────────────────────────────
+
+    @mcp.tool(
+        name="biorag_sync_status",
+        description="Muestra categorías pendientes de sincronizar a NotebookLM.",
+    )
+    def biorag_sync_status() -> str:
+        cerebro = _get_cerebro()
+        try:
+            pending = cerebro.sync_status()
+            if not pending:
+                return json.dumps({
+                    "status": "ok",
+                    "mensaje": "No hay categorías pendientes. Todo sincronizado.",
+                    "pendientes": [],
+                }, ensure_ascii=False)
+            items = [{"id": p[0], "nombre": p[1], "cambios": p[2]} for p in pending]
+            msg = f"{len(items)} categoría(s) pendiente(s): " + ", ".join(f"{p[1]}({p[2]})" for p in pending)
+            return json.dumps({
+                "status": "ok",
+                "mensaje": msg,
+                "pendientes": items,
+            }, ensure_ascii=False)
+        finally:
+            cerebro.cerrar_sistema()
+
+    @mcp.tool(
+        name="biorag_export_sync",
+        description=(
+            "Exporta SOLO categorías pendientes a .jsonl.txt en db/. "
+            "Lee sync_log y genera archivos para subir a NotebookLM. "
+            "Retorna lista de archivos a subir."
+        ),
+    )
+    def biorag_export_sync() -> str:
+        import subprocess
+        script_path = os.path.join(
+            os.path.dirname(os.path.abspath(__file__)),
+            "..", "MemoryBioRAG_NOTEBOOK_NCP", "scripts", "export_pending.py"
+        )
+        try:
+            result = subprocess.run(
+                ["python3", script_path],
+                capture_output=True, text=True, timeout=30
+            )
+            output = result.stdout.strip()
+            if result.returncode != 0:
+                return json.dumps({
+                    "status": "error",
+                    "mensaje": f"Error en export:\n{result.stderr}",
+                }, ensure_ascii=False)
+            return json.dumps({
+                "status": "ok",
+                "mensaje": output,
+            }, ensure_ascii=False)
+        except Exception as e:
+            return json.dumps({
+                "status": "error",
+                "mensaje": str(e),
+            }, ensure_ascii=False)
+
+    @mcp.tool(
+        name="biorag_export_full",
+        description=(
+            "Export completo: genera .jsonl.txt de TODAS las categorías. "
+            "Fallback para volcado completo. Retorna lista de archivos generados."
+        ),
+    )
+    def biorag_export_full() -> str:
+        import subprocess
+        script_path = os.path.join(
+            os.path.dirname(os.path.abspath(__file__)),
+            "..", "MemoryBioRAG_NOTEBOOK_NCP", "scripts", "export_full.py"
+        )
+        try:
+            result = subprocess.run(
+                ["python3", script_path],
+                capture_output=True, text=True, timeout=60
+            )
+            output = result.stdout.strip()
+            if result.returncode != 0:
+                return json.dumps({
+                    "status": "error",
+                    "mensaje": f"Error en export:\n{result.stderr}",
+                }, ensure_ascii=False)
+            return json.dumps({
+                "status": "ok",
+                "mensaje": output,
+            }, ensure_ascii=False)
+        except Exception as e:
+            return json.dumps({
+                "status": "error",
+                "mensaje": str(e),
+            }, ensure_ascii=False)
 
     # ── RESOURCES ────────────────────────────────────────────────────────────
 

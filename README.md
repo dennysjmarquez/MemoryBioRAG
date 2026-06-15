@@ -75,6 +75,16 @@ El sistema está estructurado físicamente en dos capas de memoria dentro del ar
 
 ## Versiones Destacadas
 
+### v6.0 — Estandarización de Categorías e Instalador Multiplataforma (Junio 2026)
+
+- **Esquema de categorías unificado**: 11 categorías madre predefinidas en tabla `categories` con relaciones FK. Reemplaza las categorías ad hoc por un sistema normalizado y consultable.
+- **Migraciones de esquema robustas**: Migraciones automáticas para `largo_plazo` y `corto_plazo` con claves primarias `id` y `categoria` como FK INTEGER. Reposición segura de datos existentes.
+- **Inferencia de categorías mejorada**: `categorizador.py` infiere categorías en las 11 categorías estandarizadas.
+- **Instalador multiplataforma**: `install.py` configura BioRAG en 7 plataformas (OpenCode, Claude Code, Claude Desktop, Antigravity, VS Code, Cursor, Cline) con backup automático. Flags: `--uninstall`, `--systemd`, `--show-config`, `--status`.
+- **Base de sincronización incremental**: Tabla `sync_log` + triggers selectivos en `largo_plazo` para export incremental con NotebookLM. Solo categorías con cambios reales se exportan.
+- **Nuevas herramientas MCP**: `biorag_listar_categorias`, `biorag_sync_status`, `biorag_export_sync`, `biorag_export_full`.
+- **FTS5 limpiado**: `categoria` eliminado de la tabla virtual y triggers (indexar enteros no tiene sentido).
+
 ### v5.1 — Optimizaciones de Motor (Junio 2026)
 
 - **Truncado en el motor (`preview_chars`)**: `buscar_por_frase` trunca contenido a 1500 chars por defecto antes de retornar, ahorrando RAM en resultados grandes. El comportamiento se controla desde CLI (`--completo` retorna 0 = completo) y MCP (nuevo parámetro `preview_chars`). La vieja truncación inline en `_mostrar_resultados` se eliminó por redundante.
@@ -134,6 +144,7 @@ El sistema está estructurado físicamente en dos capas de memoria dentro del ar
 MemoryBioRAG/
   ├── biorag.py                 # CLI bridge para agentes (buscar, guardar, asociar, sueno, corteza, comunicar)
   ├── mcp_server.py             # Servidor MCP: expone BioRAG como herramientas MCP para IDEs
+  ├── install.py                # Instalador cross-platform: curl|python3, configura MCP en 7 plataformas
   ├── requirements.txt          # Dependencias: mcp (servidor MCP)
   ├── core/
   │    ├── __init__.py
@@ -162,7 +173,7 @@ BioRAG expone una corteza cerebral compartida via MCP para que cualquier IDE o a
 ### Herramientas MCP
 
 | Herramienta | Descripcion |
-|---|---|---|
+|---|---|
 | `biorag_buscar` | Busqueda hibrida (FTS5 trigram + peso sinaptico + asociaciones + vecinos). Acepta: cat= para filtrar, completo=True sin truncar, deep=True para dormidos, preview_chars= para controlar truncamiento (1500 default) |
 | `biorag_guardar` | Guardar recuerdo en corto plazo. Acepta: syn= (sinonimos, crea arista sinonimo_explicito), cat= (proyecto, leccion, hardware, preferencia, error) |
 | `biorag_asociar` | Sinapsis bidireccional entre conceptos |
@@ -189,86 +200,61 @@ BioRAG expone una corteza cerebral compartida via MCP para que cualquier IDE o a
 
 ### Instalacion
 
+#### Un solo comando (recomendado)
+
+El instalador detecta automaticamente tu sistema operativo, los agentes que tienes instalados y configura BioRAG en ellos:
+
+**Linux / macOS:**
 ```bash
-# 1. Clonar el repositorio
+curl -fsSL https://raw.githubusercontent.com/dennysjmarquez/MemoryBioRAG/main/install.py | python3
+```
+
+**Windows (PowerShell):**
+```powershell
+irm https://raw.githubusercontent.com/dennysjmarquez/MemoryBioRAG/main/install.py | python
+```
+
+Esto instala BioRAG en `~/biorag`, instala la dependencia `mcp`, y conecta todos los
+agentes compatibles que detecte (OpenCode, Claude Code, Claude Desktop, Antigravity,
+VS Code, Cursor, Cline) — con backup automatico de cada configuracion antes de tocarla.
+
+#### Instalacion local (mas control)
+
+```bash
+# Descargar el repositorio
 git clone https://github.com/dennysjmarquez/MemoryBioRAG.git
 cd MemoryBioRAG
 
-# 2. Instalar dependencia MCP
-pip install mcp
-
-# 3. Verificar que funciona
-python3 mcp_server.py --help
+# Ejecutar el instalador
+python3 install.py
 ```
 
-### Configuracion en OpenCode
+El instalador mostrara un menu interactivo pidiendo confirmacion por cada agente detectado.
 
-Agregar a `~/.config/opencode/opencode.json`:
+#### Opciones del instalador
 
-```json
-{
-  "mcp": {
-    "biorag": {
-      "type": "local",
-      "command": ["python3", "/ruta/a/MemoryBioRAG/mcp_server.py"],
-      "enabled": true
-    }
-  }
-}
-```
+| Flag | Descripcion |
+|---|---|
+| `--help` | Muestra ayuda y ejemplos de uso |
+| `--show-config` | Muestra los bloques JSON exactos para configurar manualmente cada plataforma |
+| `--status` | Muestra el estado actual de la instalacion |
+| `--uninstall` | Elimina BioRAG de las configuraciones y datos locales |
+| `--systemd` | Crea un servicio systemd para mantener el servidor SSE activo 24/7 (Linux) |
 
-Reiniciar OpenCode para que cargue la configuracion.
+#### Que hace el instalador exactamente
 
-### Configuracion en VS Code
+1. Verifica que Python 3.8+ este instalado
+2. Descarga o actualiza BioRAG en `~/biorag` (via git clone o ZIP como fallback si no tienes git)
+3. Instala `mcp` usando el mismo Python (`sys.executable -m pip install mcp`)
+4. Detecta que agentes MCP tienes instalados (OpenCode, Claude, Antigravity, etc.)
+5. Por cada agente detectado: hace backup del archivo de configuracion, agrega BioRAG, y verifica que el JSON quedo valido
+6. Verifica que el servidor MCP de BioRAG arranca correctamente
+7. Para Antigravity: configura modo SSE (requiere servidor corriendo, ver `--systemd`)
 
-Crear `.vscode/mcp.json` en la raiz del proyecto:
+#### Si prefieres configurar manualmente
 
-```json
-{
-  "servers": {
-    "biorag": {
-      "type": "stdio",
-      "command": "python3",
-      "args": ["/ruta/a/MemoryBioRAG/mcp_server.py"]
-    }
-  }
-}
-```
-
-### Configuracion en Cursor
-
-Agregar a `~/.cursor/mcp.json`:
-
-```json
-{
-  "mcpServers": {
-    "biorag": {
-      "command": "python3",
-      "args": ["/ruta/a/MemoryBioRAG/mcp_server.py"]
-    }
-  }
-}
-```
-
-### Modo SSE (servidor HTTP)
-
-Para servir BioRAG como daemon HTTP que multiples IDEs conectan simultaneamente:
-
-```bash
-python3 mcp_server.py --sse --port 8080
-```
-
-Luego configurar los IDEs con `type: "remote"` apuntando a `http://localhost:8080/mcp`.
-
-### Verificacion
-
-```bash
-# Verificar que el servidor MCP esta conectado en OpenCode
-opencode mcp list
-
-# Deberia mostrar:
-# ●  ✓ biorag connected
-```
+Ejecuta `python3 install.py --show-config` para ver los bloques JSON exactos
+con las rutas absolutas de tu sistema, listos para copiar y pegar.
 
 ---
 
@@ -364,14 +350,14 @@ opencode mcp list
 
   ---
   ## FALLBACK: Si MCP no esta disponible, el CLI legacy funciona igual:
-  ## python3 /ruta/a/MemoryBioRAG/biorag.py buscar "query" [--asociados] [--cat tipo] [--deep] [--completo]
-  ## python3 /ruta/a/MemoryBioRAG/biorag.py guardar clave "contenido" [--syn "syn"] [--cat tipo]
-  ## python3 /ruta/a/MemoryBioRAG/biorag.py asociar a b
-  ## python3 /ruta/a/MemoryBioRAG/biorag.py comunicar destino "mensaje"
-  ## python3 /ruta/a/MemoryBioRAG/biorag.py leer_mensajes [--no-leidos]
-  ## python3 /ruta/a/MemoryBioRAG/biorag.py sueno [limite]
-  ## python3 /ruta/a/MemoryBioRAG/biorag.py estado
-  ## python3 /ruta/a/MemoryBioRAG/biorag.py corteza
+  ## python3 ~/biorag/biorag.py buscar "query" [--asociados] [--cat tipo] [--deep] [--completo]
+  ## python3 ~/biorag/biorag.py guardar clave "contenido" [--syn "syn"] [--cat tipo]
+  ## python3 ~/biorag/biorag.py asociar a b
+  ## python3 ~/biorag/biorag.py comunicar destino "mensaje"
+  ## python3 ~/biorag/biorag.py leer_mensajes [--no-leidos]
+  ## python3 ~/biorag/biorag.py sueno [limite]
+  ## python3 ~/biorag/biorag.py estado
+  ## python3 ~/biorag/biorag.py corteza
 }
 ```
 
@@ -448,13 +434,22 @@ Abre `MemoryBioRAG_Data/memory_biorag.db` con DB Browser for SQLite.
 
 - Python 3.8+
 - SQLite3 (viene con Python)
-- Un agente de IA que ejecute comandos CLI (Claude Code, Cursor, Ollama, etc.)
+- Un agente de IA que ejecute comandos CLI o soporte MCP (OpenCode, Claude Code, Antigravity, Cursor, VS Code, Cline, Ollama, etc.)
 
-### Setup
+### Setup rápido
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/dennysjmarquez/MemoryBioRAG/main/install.py | python3
+```
+
+Esto instala BioRAG en `~/biorag`, instala la dependencia `mcp`, configura todos los agentes compatibles que tengas instalados, y verifica que el servidor funcione. La base de datos se crea sola al primer uso.
+
+### Setup manual (si prefieres)
 
 ```bash
 git clone https://github.com/dennysjmarquez/MemoryBioRAG.git
 cd MemoryBioRAG
+pip install mcp
 python3 test_memory.py
 # La DB se crea sola al primer uso
 ```
@@ -462,7 +457,7 @@ python3 test_memory.py
 ### Variable de entorno (opcional)
 
 ```bash
-export BIORAG_PATH=/tu/ruta/memoria.db
+export BIORAG_PATH=~/biorag/MemoryBioRAG_Data/memoria.db
 
 # Activar poda automatica de nodos dormidos al final del ciclo de sueno
 # Peligro: los nodos borrados NO se recuperan. Solo activar si entiendes el riesgo.
@@ -473,6 +468,7 @@ export BIORAG_PODAR=true
 
 ## Historial de Versiones
 
+- **v6.0** — Estandarización de categorías (11 categorías madre con FK), instalador multiplataforma (`install.py`), sync_log con triggers selectivos para export incremental, nuevas tools MCP, FTS5 limpio
 - **v5.1** — Optimizaciones de motor: truncado en motor (preview_chars=1500), evicción condicional (BIORAG_PODAR=true), límite dinámico en Fallback 2 (no escanea tabla completa), FTS5 pre-filter en auto_vincular
 - **v5.0** — Sinapsis y Red Semántica: auto-linking con overlap coefficient al guardar, tabla `sinapsis` persistente con tipos co_ocurrencia/sinonimo_explicito, flags `--syn` (arista sinonimo_explicito peso 0.9) y `--cat` (clasificacion por tipo), `buscar_vecinos()` para navegacion del grafo (185 aristas en produccion), categorizacion automatica por palabras clave, `vincular_por_sinonimos()` y `vincular_existentes()`, migracion desde CSV legacy
 - **v4.0** — Interceptor V2 (autoguardado automático): buffer de sesión con TTL, 2 nuevas tools MCP (contexto_inicio/contexto_fin), consolidación inmediata sin necesidad de sueno, heurísticas de detección de 30+ patrones léxicos

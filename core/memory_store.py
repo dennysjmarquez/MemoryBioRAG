@@ -24,55 +24,271 @@ class SQLiteMemoryBioRAG:
         self.conn = sqlite3.connect(self.db_path, timeout=5)
         self.conn.execute("PRAGMA journal_mode=WAL")
         self.cursor = self.conn.cursor()
+        self._cat_cache = {}
         self._crear_estructura_cerebral()
+        self.conn.execute("PRAGMA foreign_keys = ON")
+
+    def _resolver_categoria_id(self, nombre):
+        if not self._cat_cache:
+            cur = self.conn.execute("SELECT id, name FROM categories")
+            for row in cur.fetchall():
+                self._cat_cache[row[1]] = row[0]
+        if nombre not in self._cat_cache:
+            validas = ", ".join(sorted(self._cat_cache.keys()))
+            raise ValueError(f"Categoria '{nombre}' no existe. Validas: {validas}")
+        return self._cat_cache[nombre]
+
+    def listar_categorias(self):
+        self.cursor.execute("SELECT id, name, description FROM categories ORDER BY id")
+        return self.cursor.fetchall()
+
+    def sync_status(self):
+        """Retorna categorías pendientes de sincronizar."""
+        self.cursor.execute("""
+            SELECT c.id, c.name, COUNT(sl.id) as cambios
+            FROM sync_log sl
+            JOIN categories c ON sl.categoria_id = c.id
+            WHERE sl.sincronizado = 0
+            GROUP BY c.id, c.name
+            ORDER BY c.name
+        """)
+        return self.cursor.fetchall()
+
+    def sync_marcado(self, categoria_ids):
+        """Marca categorías como sincronizadas."""
+        if not categoria_ids:
+            return
+        placeholders = ",".join("?" * len(categoria_ids))
+        self.cursor.execute(
+            f"UPDATE sync_log SET sincronizado = 1 WHERE categoria_id IN ({placeholders}) AND sincronizado = 0",
+            categoria_ids
+        )
+        self.conn.commit()
+
+    def sync_limpiar(self):
+        """Limpia el log de sincronización ya procesado."""
+        self.cursor.execute("DELETE FROM sync_log WHERE sincronizado = 1")
+        self.conn.commit()
 
     def _crear_estructura_cerebral(self):
         """Inicializa las tablas que simulan la corteza permanente y la memoria de trabajo."""
         # 1. Memoria de Trabajo (Corto Plazo / RAM-Disk equivalente)
         self.cursor.execute("""
             CREATE TABLE IF NOT EXISTS corto_plazo (
-                concepto TEXT PRIMARY KEY,
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                concepto TEXT UNIQUE NOT NULL,
                 contenido TEXT,
                 timestamp REAL,
-                sinonimos TEXT DEFAULT ''
+                sinonimos TEXT DEFAULT '',
+                categoria INTEGER DEFAULT 1
             )
         """)
-        # Migración segura: agregar sinonimos a corto_plazo si no existe
-        try:
-            self.cursor.execute("ALTER TABLE corto_plazo ADD COLUMN sinonimos TEXT DEFAULT ''")
-        except sqlite3.OperationalError:
-            pass
-        # Migración segura: agregar categoria a corto_plazo
-        try:
-            self.cursor.execute("ALTER TABLE corto_plazo ADD COLUMN categoria TEXT DEFAULT 'general'")
-        except sqlite3.OperationalError:
-            pass
+        # Migración: si categoria es TEXT, recrear con INTEGER
+        self.cursor.execute("PRAGMA table_info(corto_plazo)")
+        cp_cols = {row[1]: row[2] for row in self.cursor.fetchall()}
+        if cp_cols.get('categoria') == 'TEXT':
+            self.cursor.execute("ALTER TABLE corto_plazo RENAME TO corto_plazo_old")
+            self.cursor.execute("""
+                CREATE TABLE corto_plazo (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    concepto TEXT UNIQUE NOT NULL,
+                    contenido TEXT,
+                    timestamp REAL,
+                    sinonimos TEXT DEFAULT '',
+                    categoria INTEGER DEFAULT 1
+                )
+            """)
+            self.cursor.execute("""
+                INSERT INTO corto_plazo (id, concepto, contenido, timestamp, sinonimos, categoria)
+                SELECT id, concepto, contenido, COALESCE(timestamp, 0),
+                       COALESCE(sinonimos, ''),
+                       COALESCE((SELECT id FROM categories WHERE name = corto_plazo_old.categoria), 1)
+                FROM corto_plazo_old
+            """)
+            self.cursor.execute("DROP TABLE corto_plazo_old")
 
         # 2. Corteza Cerebral (Largo Plazo / Base de datos permanente con indexación B-Tree por PK)
         self.cursor.execute("""
             CREATE TABLE IF NOT EXISTS largo_plazo (
-                concepto TEXT PRIMARY KEY,
-                categoria TEXT DEFAULT 'general',
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                concepto TEXT UNIQUE NOT NULL,
+                categoria INTEGER DEFAULT 1,
                 contenido TEXT,
                 peso_sinaptico REAL DEFAULT 1.0,
-                estado TEXT DEFAULT 'activo', -- 'activo' o 'dormido'
-                asociaciones TEXT DEFAULT '', -- Lista de conceptos relacionados separados por comas
+                estado TEXT DEFAULT 'activo',
+                asociaciones TEXT DEFAULT '',
                 ultimo_acceso REAL,
-                sinonimos TEXT DEFAULT '' -- Terminos alternativos para busqueda FTS5
+                sinonimos TEXT DEFAULT '',
+                FOREIGN KEY (categoria) REFERENCES categories(id)
             )
         """)
 
-        # Migración segura: agregar columna sinonimos si la tabla existía sin ella
-        try:
-            self.cursor.execute("ALTER TABLE largo_plazo ADD COLUMN sinonimos TEXT DEFAULT ''")
-        except sqlite3.OperationalError:
-            pass  # Ya existe
+        # Migración desde schema viejo (concepto TEXT PRIMARY KEY, sin id)
+        self.cursor.execute("SELECT COUNT(*) FROM pragma_table_info('largo_plazo') WHERE name = 'id'")
+        tiene_id = self.cursor.fetchone()[0] > 0
+        if not tiene_id:
+            self.cursor.execute("ALTER TABLE largo_plazo RENAME TO largo_plazo_old")
+            self.cursor.execute("""
+                CREATE TABLE largo_plazo (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    concepto TEXT UNIQUE NOT NULL,
+                    categoria TEXT DEFAULT 'General',
+                    contenido TEXT,
+                    peso_sinaptico REAL DEFAULT 1.0,
+                    estado TEXT DEFAULT 'activo',
+                    asociaciones TEXT DEFAULT '',
+                    ultimo_acceso REAL,
+                    sinonimos TEXT DEFAULT ''
+                )
+            """)
+            self.cursor.execute("""
+                INSERT INTO largo_plazo (concepto, categoria, contenido, peso_sinaptico, estado, asociaciones, ultimo_acceso, sinonimos)
+                SELECT concepto, COALESCE(categoria, 'general'), contenido,
+                       COALESCE(peso_sinaptico, 1.0), COALESCE(estado, 'activo'),
+                       COALESCE(asociaciones, ''), COALESCE(ultimo_acceso, 0),
+                       COALESCE(sinonimos, '')
+                FROM largo_plazo_old
+            """)
+            self.cursor.execute("DROP TABLE largo_plazo_old")
+            # Forzar recreación de FTS5 (schema viejo de largo_plazo ya no existe)
+            self.cursor.execute("DROP TABLE IF EXISTS largo_plazo_fts")
+        else:
+            # Migración segura: agregar columna sinonimos si la tabla existía sin ella
+            try:
+                self.cursor.execute("ALTER TABLE largo_plazo ADD COLUMN sinonimos TEXT DEFAULT ''")
+            except sqlite3.OperationalError:
+                pass
+
+        # 3. Tabla de Categorías (taxonomía fija para organización de fuentes)
+        self.cursor.execute("""
+            CREATE TABLE IF NOT EXISTS categories (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                name TEXT UNIQUE NOT NULL,
+                description TEXT DEFAULT ''
+            )
+        """)
+        self.cursor.execute("""
+            INSERT OR IGNORE INTO categories (name, description) VALUES
+                ('System', 'Componentes base del ecosistema, infraestructura técnica, servidores, bases de datos locales, motores de indexación, protocolos de contexto, instaladores, dependencias y configuración del entorno fundamental que sostiene la operación del software'),
+                ('Architecture', 'Decisiones de diseño estructural, lenguajes formales de dominio, patrones de software, estándares de seguridad y marcos organizativos que definen cómo se integran y comunican los distintos módulos del sistema'),
+                ('Project', 'Iniciativas activas, frentes de trabajo en ejecución, configuraciones de soluciones específicas e integraciones con terceros que requieren seguimiento, tareas y entregables definidos'),
+                ('Lesson', 'Conocimiento empírico derivado de fallos resueltos, depuración técnica, análisis de causas raíz, soluciones aplicadas a problemas operativos y aprendizajes que merecen preservarse para no repetir errores'),
+                ('Profile', 'Historial profesional y académico, habilidades técnicas, certificaciones, portafolio de trabajos, empresas y proyectos realizados para acreditación y exposición de la trayectoria del usuario'),
+                ('Personal', 'Datos e información del ámbito privado, preferencias, notas subjetivas, registros del entorno de trabajo y configuraciones personales que no pertenecen a la operación técnica del sistema'),
+                ('Principle', 'Filosofías rectoras, axiomas de desarrollo, reglas de estilo, metodologías conceptuales y criterios de calidad que guían las decisiones y el diseño dentro del ecosistema'),
+                ('Protocol', 'Secuencias operativas estandarizadas, flujos de trabajo repetibles, reglas de sincronización y procedimientos paso a paso para procesos que deben ejecutarse siempre de la misma forma'),
+                ('Cognition', 'Lógica interna de los agentes inteligentes, identidad, rol, instrucciones de sistema, introspección, autoevaluación y control interno del comportamiento y la toma de decisiones'),
+                ('Relation', 'Esquemas de comunicación entre entidades, dinámicas de interacción, roles, canales y protocolos de mensajería entre agentes, usuarios y sistemas externos'),
+                ('General', 'Contenido no clasificado, información transversal, notas de entrada rápida y datos temporales pendientes de categorización o triaje')
+        """)
+
+        # 4. Migración FK: eliminar categoria_id si existe, agregar FK en categoria→categories.name
+        cur = self.cursor
+
+        # --- corto_plazo ---
+        cur.execute("PRAGMA table_info(corto_plazo)")
+        cp_cols = [row[1] for row in cur.fetchall()]
+        if 'categoria_id' in cp_cols:
+            cur.execute("ALTER TABLE corto_plazo RENAME TO corto_plazo_old")
+            cur.execute("""
+                CREATE TABLE corto_plazo (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    concepto TEXT UNIQUE NOT NULL,
+                    contenido TEXT,
+                    timestamp REAL,
+                    sinonimos TEXT DEFAULT '',
+                    categoria TEXT DEFAULT 'General',
+                    FOREIGN KEY (categoria) REFERENCES categories(name)
+                )
+            """)
+            cur.execute("""
+                INSERT INTO corto_plazo (id, concepto, contenido, timestamp, sinonimos, categoria)
+                SELECT id, concepto, contenido, COALESCE(timestamp, 0),
+                       COALESCE(sinonimos, ''), COALESCE(categoria, 'general')
+                FROM corto_plazo_old
+            """)
+            cur.execute("DROP TABLE corto_plazo_old")
+
+        # --- largo_plazo ---
+        cur.execute("PRAGMA table_info(largo_plazo)")
+        lp_cols = {row[1]: row[2] for row in cur.fetchall()}
+        needs_recreate = False
+
+        # Caso 1: categoria_id existe (schema viejo)
+        if 'categoria_id' in lp_cols:
+            needs_recreate = True
+        # Caso 2: categoria es TEXT (necesita convertir a INTEGER)
+        elif lp_cols.get('categoria') == 'TEXT':
+            needs_recreate = True
+        # Caso 3: no tiene FK constraint
+        else:
+            cur.execute("SELECT sql FROM sqlite_master WHERE type='table' AND name='largo_plazo'")
+            create_sql = (cur.fetchone() or [''])[0]
+            if 'FOREIGN KEY' not in create_sql:
+                needs_recreate = True
+
+        if needs_recreate:
+            cur.execute("DROP TRIGGER IF EXISTS largo_plazo_ai")
+            cur.execute("DROP TRIGGER IF EXISTS largo_plazo_ad")
+            cur.execute("DROP TRIGGER IF EXISTS largo_plazo_au")
+            cur.execute("DROP TABLE IF EXISTS largo_plazo_fts")
+            cur.execute("ALTER TABLE largo_plazo RENAME TO largo_plazo_old")
+            cur.execute("""
+                CREATE TABLE largo_plazo (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    concepto TEXT UNIQUE NOT NULL,
+                    categoria INTEGER DEFAULT 1,
+                    contenido TEXT,
+                    peso_sinaptico REAL DEFAULT 1.0,
+                    estado TEXT DEFAULT 'activo',
+                    asociaciones TEXT DEFAULT '',
+                    ultimo_acceso REAL,
+                    sinonimos TEXT DEFAULT '',
+                    FOREIGN KEY (categoria) REFERENCES categories(id)
+                )
+            """)
+            cur.execute("""
+                INSERT INTO largo_plazo (id, concepto, categoria, contenido, peso_sinaptico, estado, asociaciones, ultimo_acceso, sinonimos)
+                SELECT id, concepto,
+                       COALESCE((SELECT id FROM categories WHERE name = largo_plazo_old.categoria), 1),
+                       contenido,
+                       COALESCE(peso_sinaptico, 1.0), COALESCE(estado, 'activo'),
+                       COALESCE(asociaciones, ''), COALESCE(ultimo_acceso, 0),
+                       COALESCE(sinonimos, '')
+                FROM largo_plazo_old
+            """)
+            cur.execute("DROP TABLE largo_plazo_old")
 
         # Crear un índice explícito para acelerar ordenaciones por peso y último acceso (Inhibición y Poda)
         self.cursor.execute("CREATE INDEX IF NOT EXISTS idx_peso_acceso ON largo_plazo (peso_sinaptico, ultimo_acceso)")
         self._crear_tabla_comunicaciones()
         self._crear_tabla_fts()
         self._crear_tabla_metricas()
+        # Vistas para visualización con nombre de categoría
+        self.cursor.execute("""
+            CREATE VIEW IF NOT EXISTS vista_largo_plazo AS
+            SELECT l.*, c.name AS categoria_name
+            FROM largo_plazo l
+            LEFT JOIN categories c ON l.categoria = c.id
+        """)
+        self.cursor.execute("""
+            CREATE VIEW IF NOT EXISTS vista_corto_plazo AS
+            SELECT cp.*, c.name AS categoria_name
+            FROM corto_plazo cp
+            LEFT JOIN categories c ON cp.categoria = c.id
+        """)
+
+        # 7. Tabla de log de sincronización (sync incremental)
+        self.cursor.execute("""
+            CREATE TABLE IF NOT EXISTS sync_log (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                categoria_id INTEGER NOT NULL,
+                accion TEXT NOT NULL,
+                concepto TEXT,
+                timestamp REAL DEFAULT (strftime('%s','now')),
+                sincronizado INTEGER DEFAULT 0
+            )
+        """)
         self.conn.commit()
 
     def _calcular_jaccard(self, str1, str2):
@@ -389,10 +605,11 @@ class SQLiteMemoryBioRAG:
         print(f"[MemoryBioRAG] Evocado exitosamente '{key}' en {(fin - inicio) * 1000000:.2f} microsegundos.")
         return contenido
 
-    def percibir_corto_plazo(self, concepto, contenido, sinonimos="", categoria="general"):
+    def percibir_corto_plazo(self, concepto, contenido, sinonimos="", categoria="General"):
         """Almacena temporalmente una percepción o hecho en la memoria de trabajo (Corto Plazo).
         Si el concepto ya existe en corto plazo, concatena contenido y mergea sinónimos."""
         key = concepto.lower().strip()
+        cat_id = self._resolver_categoria_id(categoria)
         self.cursor.execute("SELECT contenido, sinonimos, categoria FROM corto_plazo WHERE concepto = ?", (key,))
         existente = self.cursor.fetchone()
         if existente:
@@ -400,14 +617,14 @@ class SQLiteMemoryBioRAG:
             sinonimos_exist = [s.strip() for s in (existente[1] or "").split(",") if s.strip()]
             sinonimos_nuevos = [s.strip() for s in (sinonimos or "").split(",") if s.strip() and s.strip() not in sinonimos_exist]
             sinonimos_final = ",".join(sinonimos_exist + sinonimos_nuevos)
-            categoria = existente[2] or categoria
+            cat_id = existente[2] or cat_id
         else:
             contenido_final = contenido
             sinonimos_final = sinonimos
         self.cursor.execute("""
             INSERT OR REPLACE INTO corto_plazo (concepto, contenido, timestamp, sinonimos, categoria)
             VALUES (?, ?, ?, ?, ?)
-        """, (key, contenido_final, time.time(), sinonimos_final, categoria))
+        """, (key, contenido_final, time.time(), sinonimos_final, cat_id))
         self.conn.commit()
 
     def consolidar_concepto(self, concepto):
@@ -422,12 +639,12 @@ class SQLiteMemoryBioRAG:
         fila = self.cursor.fetchone()
         if not fila:
             return False
-        contenido, sinonimos, categoria = fila
+        contenido, sinonimos, cat_id = fila
         self.cursor.execute(
             "INSERT OR REPLACE INTO largo_plazo "
             "(concepto, categoria, contenido, peso_sinaptico, estado, sinonimos) "
             "VALUES (?, ?, ?, 1.0, 'activo', ?)",
-            (key, categoria, contenido, sinonimos or ""),
+            (key, cat_id, contenido, sinonimos or ""),
         )
         self.cursor.execute("DELETE FROM corto_plazo WHERE concepto = ?", (key,))
         self.conn.commit()
@@ -455,7 +672,7 @@ class SQLiteMemoryBioRAG:
         self.cursor.execute("SELECT concepto, contenido, sinonimos, categoria FROM corto_plazo")
         recuerdos_sesion = self.cursor.fetchall()
         
-        for concepto, contenido, sinonimos, categoria in recuerdos_sesion:
+        for concepto, contenido, sinonimos, cat_id in recuerdos_sesion:
             self.cursor.execute("SELECT contenido, peso_sinaptico, asociaciones, sinonimos, categoria FROM largo_plazo WHERE concepto = ?", (concepto,))
             existente = self.cursor.fetchone()
             
@@ -467,18 +684,18 @@ class SQLiteMemoryBioRAG:
                 sinonimos_exist = [s.strip() for s in (existente[3] or "").split(",") if s.strip()]
                 sinonimos_nuevos = [s.strip() for s in (sinonimos or "").split(",") if s.strip() and s.strip() not in sinonimos_exist]
                 sinonimos_final = ",".join(sinonimos_exist + sinonimos_nuevos)
-                categoria = existente[4] or categoria
+                cat_id = existente[4] or cat_id
                 self.cursor.execute("""
                     UPDATE largo_plazo 
                     SET contenido = ?, peso_sinaptico = ?, estado = 'activo', ultimo_acceso = ?, sinonimos = ?, categoria = ?
                     WHERE concepto = ?
-                """, (nuevo_contenido, nuevo_peso, time.time(), sinonimos_final, categoria, concepto))
+                """, (nuevo_contenido, nuevo_peso, time.time(), sinonimos_final, cat_id, concepto))
             else:
                 # Creación de un nuevo nodo en el grafo con peso inicial máximo
                 self.cursor.execute("""
                     INSERT INTO largo_plazo (concepto, categoria, contenido, peso_sinaptico, estado, asociaciones, ultimo_acceso, sinonimos)
                     VALUES (?, ?, ?, 1.0, 'activo', '', ?, ?)
-                """, (concepto, categoria or 'general', contenido, time.time(), sinonimos or ""))
+                """, (concepto, cat_id or 1, contenido, time.time(), sinonimos or ""))
 
         # Auto-vincular cada concepto consolidado (aristas por solapamiento de tokens)
         from core.sinapsis import auto_vincular
@@ -554,7 +771,7 @@ class SQLiteMemoryBioRAG:
             else:
                 self.cursor.execute("""
                     INSERT INTO largo_plazo (concepto, categoria, contenido, peso_sinaptico, estado, asociaciones, ultimo_acceso)
-                    VALUES (?, 'general', '', 1.0, 'activo', ?, ?)
+                    VALUES (?, 1, '', 1.0, 'activo', ?, ?)
                 """, (a, b, time.time()))
         self.conn.commit()
         print(f"[MemoryBioRAG] Sinapsis establecida: '{concepto_a}' <--> '{concepto_b}'")
@@ -648,11 +865,10 @@ class SQLiteMemoryBioRAG:
             self.cursor.execute("DROP TRIGGER IF EXISTS largo_plazo_ad")
             self.cursor.execute("DROP TRIGGER IF EXISTS largo_plazo_au")
 
-            # Crear nueva FTS con trigram
+            # Crear nueva FTS con trigram (sin categoria - ahora es INTEGER FK)
             self.cursor.execute("""
                 CREATE VIRTUAL TABLE largo_plazo_fts USING fts5(
                     concepto,
-                    categoria,
                     contenido,
                     sinonimos,
                     tokenize='trigram'
@@ -666,8 +882,8 @@ class SQLiteMemoryBioRAG:
         self.cursor.execute("DROP TRIGGER IF EXISTS largo_plazo_au")
         self.cursor.execute("""
             CREATE TRIGGER largo_plazo_ai AFTER INSERT ON largo_plazo BEGIN
-                INSERT INTO largo_plazo_fts(rowid, concepto, categoria, contenido, sinonimos)
-                VALUES (new.rowid, new.concepto, new.categoria, new.contenido, new.sinonimos);
+                INSERT INTO largo_plazo_fts(rowid, concepto, contenido, sinonimos)
+                VALUES (new.rowid, new.concepto, new.contenido, new.sinonimos);
             END
         """)
         self.cursor.execute("""
@@ -678,8 +894,35 @@ class SQLiteMemoryBioRAG:
         self.cursor.execute("""
             CREATE TRIGGER largo_plazo_au AFTER UPDATE ON largo_plazo BEGIN
                 DELETE FROM largo_plazo_fts WHERE rowid = old.rowid;
-                INSERT INTO largo_plazo_fts(rowid, concepto, categoria, contenido, sinonimos)
-                VALUES (new.rowid, new.concepto, new.categoria, new.contenido, new.sinonimos);
+                INSERT INTO largo_plazo_fts(rowid, concepto, contenido, sinonimos)
+                VALUES (new.rowid, new.concepto, new.contenido, new.sinonimos);
+            END
+        """)
+
+        # Triggers de sync_log: registrar cambios para export incremental
+        self.cursor.execute("DROP TRIGGER IF EXISTS trg_sync_insert")
+        self.cursor.execute("DROP TRIGGER IF EXISTS trg_sync_update")
+        self.cursor.execute("DROP TRIGGER IF EXISTS trg_sync_delete")
+        self.cursor.execute("""
+            CREATE TRIGGER trg_sync_insert AFTER INSERT ON largo_plazo BEGIN
+                INSERT INTO sync_log (categoria_id, accion, concepto)
+                VALUES (NEW.categoria, 'insert', NEW.concepto);
+            END
+        """)
+        self.cursor.execute("""
+            CREATE TRIGGER trg_sync_update AFTER UPDATE ON largo_plazo
+            WHEN OLD.contenido IS NOT NEW.contenido
+              OR OLD.concepto IS NOT NEW.concepto
+              OR OLD.sinonimos IS NOT NEW.sinonimos
+            BEGIN
+                INSERT INTO sync_log (categoria_id, accion, concepto)
+                VALUES (NEW.categoria, 'update', NEW.concepto);
+            END
+        """)
+        self.cursor.execute("""
+            CREATE TRIGGER trg_sync_delete AFTER DELETE ON largo_plazo BEGIN
+                INSERT INTO sync_log (categoria_id, accion, concepto)
+                VALUES (OLD.categoria, 'delete', OLD.concepto);
             END
         """)
 
@@ -689,15 +932,15 @@ class SQLiteMemoryBioRAG:
         if self.cursor.fetchone()[0] > 0:
             return
         try:
-            self.cursor.execute("SELECT rowid, concepto, categoria, contenido, sinonimos FROM largo_plazo")
+            self.cursor.execute("SELECT rowid, concepto, contenido, sinonimos FROM largo_plazo")
         except sqlite3.OperationalError:
-            self.cursor.execute("SELECT rowid, concepto, categoria, contenido, '' as sinonimos FROM largo_plazo")
+            self.cursor.execute("SELECT rowid, concepto, contenido, '' as sinonimos FROM largo_plazo")
         for row in self.cursor.fetchall():
-            rowid, concepto, categoria, contenido = row[0], row[1], row[2], row[3]
-            sinonimos = row[4] if len(row) > 4 else ""
+            rowid, concepto, contenido = row[0], row[1], row[2]
+            sinonimos = row[3] if len(row) > 3 else ""
             self.cursor.execute(
-                "INSERT INTO largo_plazo_fts(rowid, concepto, categoria, contenido, sinonimos) VALUES (?, ?, ?, ?, ?)",
-                (rowid, concepto or "", categoria or "", contenido or "", sinonimos or "")
+                "INSERT INTO largo_plazo_fts(rowid, concepto, contenido, sinonimos) VALUES (?, ?, ?, ?)",
+                (rowid, concepto or "", contenido or "", sinonimos or "")
             )
         self.conn.commit()
 
@@ -761,7 +1004,8 @@ class SQLiteMemoryBioRAG:
         if profundidad != "profundo":
             filtros.append("l.estado = 'activo'")
         if categoria:
-            filtros.append(f"l.categoria = '{categoria}'")
+            cat_id = self._resolver_categoria_id(categoria)
+            filtros.append(f"l.categoria = {cat_id}")
         clause = (" AND " + " AND ".join(filtros)) if filtros else ""
 
         # Construir consulta desde la frase limpia
@@ -802,7 +1046,8 @@ class SQLiteMemoryBioRAG:
             if profundidad != "profundo":
                 filtros_fb.append("estado = 'activo'")
             if categoria:
-                filtros_fb.append(f"categoria = '{categoria}'")
+                cat_id_fb = self._resolver_categoria_id(categoria)
+                filtros_fb.append(f"categoria = {cat_id_fb}")
             where_fb = ("WHERE " + " AND ".join(filtros_fb)) if filtros_fb else ""
             try:
                 self.cursor.execute(
@@ -826,7 +1071,8 @@ class SQLiteMemoryBioRAG:
             if profundidad != "profundo":
                 filtros_fb.append("estado = 'activo'")
             if categoria:
-                filtros_fb.append(f"categoria = '{categoria}'")
+                cat_id_fb2 = self._resolver_categoria_id(categoria)
+                filtros_fb.append(f"categoria = {cat_id_fb2}")
             where_fb = ("WHERE " + " AND ".join(filtros_fb)) if filtros_fb else ""
             try:
                 self.cursor.execute(

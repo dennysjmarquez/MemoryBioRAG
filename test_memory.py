@@ -375,7 +375,7 @@ def test_sistema():
 
     # 26. consolidar_concepto: ciclo completo sin sueno
     print("\n--- 26. Probando consolidar_concepto (Interceptor V2) ---")
-    cerebro.percibir_corto_plazo("test_auto_v4", "Prueba de autoguardado automatico sin sueno", "v4,auto,test", "test")
+    cerebro.percibir_corto_plazo("test_auto_v4", "Prueba de autoguardado automatico sin sueno", "v4,auto,test", "General")
 
     ok = cerebro.consolidar_concepto("test_auto_v4")
     print(f"  consolidar_concepto() -> {ok}")
@@ -412,7 +412,7 @@ def test_sistema():
 
     # 28. auto_vincular — token overlap entre contenido
     print("\n--- 28. Probando auto_vincular (solapamiento de tokens) ---")
-    cerebro.percibir_corto_plazo("angular_forms", "Formularios reactivos en Angular con validacion", "angular,forms", "proyecto")
+    cerebro.percibir_corto_plazo("angular_forms", "Formularios reactivos en Angular con validacion", "angular,forms", "Project")
     cerebro.ciclo_sueno_consolidacion()
     # Guardar el concepto antes de vincularlo (auto_vincular solo crea aristas, no guarda)
     cerebro.percibir_corto_plazo("nuevo_angular", "Componentes de formularios en Angular con validacion reactiva")
@@ -437,7 +437,7 @@ def test_sistema():
 
     # 30. vincular_por_sinonimos
     print("\n--- 30. Probando vincular_por_sinonimos (sinonimos explicitos) ---")
-    cerebro.percibir_corto_plazo("react_hooks", "useState y useEffect en React", "react,hooks", "proyecto")
+    cerebro.percibir_corto_plazo("react_hooks", "useState y useEffect en React", "react,hooks", "Project")
     cerebro.ciclo_sueno_consolidacion()
     syn_enlaces = vincular_por_sinonimos(cerebro, "react_hooks", "forms,angular")
     print(f"  Sinonimos vincularon: {syn_enlaces}")
@@ -459,7 +459,7 @@ def test_sistema():
 
     # 32. vincular_nuevo_si_existe
     print("\n--- 32. Probando vincular_nuevo_si_existe ---")
-    cerebro.percibir_corto_plazo("vue_forms", "Formularios con v-model en Vue.js", "vue,forms", "proyecto")
+    cerebro.percibir_corto_plazo("vue_forms", "Formularios con v-model en Vue.js", "vue,forms", "Project")
     cerebro.ciclo_sueno_consolidacion()
     from core.sinapsis import vincular_nuevo_si_existe
     enlaces_vue = vincular_nuevo_si_existe(cerebro, "vue_forms")
@@ -471,33 +471,36 @@ def test_sistema():
 
     # 33. inferir_categoria
     print("\n--- 33. Probando inferir_categoria (clasificacion por palabras clave) ---")
-    assert inferir_categoria("Error en la API al procesar la solicitud") == "solucion", \
-        "Error: deberia inferir 'solucion'"
-    assert inferir_categoria("Nuevo repositorio con el codigo del proyecto") == "proyecto", \
-        "Error: deberia inferir 'proyecto'"
-    assert inferir_categoria("Leccion aprendida: no acoplarse a implementacion") == "leccion", \
-        "Error: deberia inferir 'leccion'"
-    assert inferir_categoria("Patron de diseno para el pipeline de datos") == "arquitectura", \
-        "Error: deberia inferir 'arquitectura'"
-    assert inferir_categoria("Mensaje de prueba sin contexto relevante") == "general", \
-        "Error: texto neutro deberia ser 'general'"
-    assert inferir_categoria("") == "general", "Error: vacio deberia ser 'general'"
-    print("OK: inferir_categoria clasifica contenido en 6 categorias + fallback 'general'")
+    assert inferir_categoria("Error en la API al procesar la solicitud") == "Lesson", \
+        "Error: deberia inferir 'Lesson'"
+    assert inferir_categoria("Nuevo repositorio con el codigo del proyecto") == "Project", \
+        "Error: deberia inferir 'Project'"
+    assert inferir_categoria("Leccion aprendida: no acoplarse a implementacion") == "Lesson", \
+        "Error: deberia inferir 'Lesson'"
+    assert inferir_categoria("Patron de diseno para el pipeline de datos") == "Architecture", \
+        "Error: deberia inferir 'Architecture'"
+    assert inferir_categoria("El gato esta sobre la mesa") == "General", \
+        "Error: texto neutro deberia ser 'General'"
+    assert inferir_categoria("") == "General", "Error: vacio deberia ser 'General'"
+    print("OK: inferir_categoria clasifica contenido en 11 categorias + fallback 'General'")
 
     # 34. auto_categorizar_existentes
     print("\n--- 34. Probando auto_categorizar_existentes (batch) ---")
     # Crear nodo legacy con contenido categorizable
-    cerebro.percibir_corto_plazo("test_legacy_cat", "Error encontrado en la API: problema de conexion al servidor", "error,api", "general")
+    cerebro.percibir_corto_plazo("test_legacy_cat", "Error encontrado en la API: problema de conexion al servidor", "error,api", "General")
     cerebro.consolidar_concepto("test_legacy_cat")
-    cerebro.cursor.execute("UPDATE largo_plazo SET categoria = 'general' WHERE concepto = 'test_legacy_cat'")
+    cerebro.cursor.execute("UPDATE largo_plazo SET categoria = 1 WHERE concepto = 'test_legacy_cat'")
     cerebro.conn.commit()
     actualizados, total = auto_categorizar_existentes(cerebro)
-    print(f"  Re-categorizados: {actualizados}/{total} nodos tenian 'general'")
+    print(f"  Re-categorizados: {actualizados}/{total} nodos tenian General (id=1)")
     assert actualizados >= 1, f"Error: deberia re-categorizar al menos 1 nodo, actualizo {actualizados}"
     cerebro.cursor.execute("SELECT categoria FROM largo_plazo WHERE concepto = 'test_legacy_cat'")
     cat = cerebro.cursor.fetchone()[0]
-    assert cat != 'general', f"Error: 'test_legacy_cat' deberia tener categoria inferida, tiene '{cat}'"
-    print(f"  'test_legacy_cat' reclasificado como: {cat} (con 'error' + 'api' -> 'solucion')")
+    assert cat != 1, f"Error: 'test_legacy_cat' deberia tener categoria inferida, tiene '{cat}'"
+    # Get category name for display
+    cerebro.cursor.execute("SELECT name FROM categories WHERE id = ?", (cat,))
+    cat_name = cerebro.cursor.fetchone()[0]
+    print(f"  'test_legacy_cat' reclasificado como: {cat_name} (id={cat}) (con 'error' + 'api' -> 'Lesson')")
     # Verificar que nodos sin contenido no se rompen
     cat_again, _ = auto_categorizar_existentes(cerebro)
     print(f"  Segunda pasada: {cat_again} actualizaciones (deberia ser 0)")
@@ -506,15 +509,18 @@ def test_sistema():
 
     # 35. Integracion: guardar con categoria + auto_vincular simultaneo
     print("\n--- 35. Probando integracion: percibir_corto_plazo con categoria + sinapsis ---")
-    cerebro.percibir_corto_plazo("test_integracion", "Leccion: evitar acoplamiento en servicios", "leccion,acoplamiento", "leccion")
+    cerebro.percibir_corto_plazo("test_integracion", "Leccion: evitar acoplamiento en servicios", "leccion,acoplamiento", "Lesson")
     cerebro.consolidar_concepto("test_integracion")
     auto_vincular(cerebro, "test_integracion", "Leccion: evitar acoplamiento en servicios")
     cerebro.cursor.execute("SELECT categoria FROM largo_plazo WHERE concepto = 'test_integracion'")
     cat_int = cerebro.cursor.fetchone()[0]
-    assert cat_int == "leccion", f"Error: categoria deberia ser 'leccion', es '{cat_int}'"
+    # Get category name for display
+    cerebro.cursor.execute("SELECT name FROM categories WHERE id = ?", (cat_int,))
+    cat_int_name = cerebro.cursor.fetchone()[0]
+    assert cat_int_name == "Lesson", f"Error: categoria deberia ser 'Lesson', es '{cat_int_name}'"
     cerebro.cursor.execute("SELECT COUNT(*) FROM sinapsis WHERE origen = 'test_integracion'")
     sin_count = cerebro.cursor.fetchone()[0]
-    print(f"  Categoria persistida: {cat_int}, aristas desde test_integracion: {sin_count}")
+    print(f"  Categoria persistida: {cat_int_name} (id={cat_int}), aristas desde test_integracion: {sin_count}")
     print("OK: integracion guardado + categoria + sinapsis funciona en flujo completo")
 
     print("\n--- v5.0: Sinapsis + Categorizador OK ---")

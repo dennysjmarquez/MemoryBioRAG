@@ -1,36 +1,54 @@
 CATEGORIA_PALABRAS = {
-    'proyecto': [
+    'System': [
+        'sistema', 'infraestructura', 'servidor', 'base de datos', 'kernel',
+        'motor', 'instalacion', 'dependencia', 'entorno', 'configuracion base',
+        'hardware', 'cortex', 'oec', 'auto',
+    ],
+    'Architecture': [
+        'arquitectura', 'diseno', 'patron', 'estructura', 'esquema',
+        'flujo', 'pipeline', 'modular', 'acoplamiento', 'capa', 'interfaz',
+        'metodologia', 'meta operativa',
+    ],
+    'Project': [
         'proyecto', 'repo', 'repositorio', 'codigo', 'implementacion',
-        'desarrollo', 'api', 'app', 'aplicacion', 'libreria', 'biblioteca',
-        'modulo', 'package', 'componente', 'feature', 'funcionalidad',
+        'api', 'app', 'aplicacion', 'modulo', 'componente', 'feature',
+        'colaboracion', 'experiencia', 'portfolio', 'sesion', 'user',
     ],
-    'solucion': [
-        'error', 'bug', 'fallo', 'solucion', 'fix', 'arreglo', 'resuelto',
-        'problema', 'issue', 'workaround', 'parche', 'debug', 'depuracion',
+    'Lesson': [
+        'error', 'bug', 'fallo', 'solucion', 'leccion', 'leccion aprendida',
+        'aprendizaje', 'aprendida', 'problema', 'issue', 'debug',
+        'investigacion', 'auditoria', 'importante',
     ],
-    'leccion': [
-        'leccion', 'aprendizaje', 'principio', 'regla', 'leccion aprendida',
-        'moraleja', 'insight', 'reflexion', 'descubrimiento',
+    'Profile': [
+        'perfil', 'profesional', 'experiencia laboral', 'habilidad',
+        'certificacion', 'portafolio', 'dennys', 'trayectoria',
     ],
-    'arquitectura': [
-        'arquitectura', 'diseno', 'esquema', 'estructura', 'patron',
-        'diagrama', 'flujo', 'pipeline', 'kernel', 'capa', 'modular',
-        'acoplamiento', 'dependencia', 'interfaz',
+    'Personal': [
+        'personal', 'preferencia', 'gusto', 'privado', 'subjetivo',
+        'diario', 'nota personal',
     ],
-    'metacognicion': [
-        'metacognicion', 'introspeccion', 'mentalidad', 'principio raiz',
-        'pilares', 'identidad', 'proposito', 'conciencia', 'aprendizaje',
+    'Principle': [
+        'principio', 'regla', 'mentalidad', 'filosofia', 'axioma',
+        'inmutable', 'juramento', 'estandar', 'calidad',
     ],
-    'protocolo': [
-        'protocolo', 'permiso', 'autorizacion', 'autonomia', 'consentimiento',
-        'directiva', 'regla obligatoria', 'mandatory', 'invariant',
+    'Protocol': [
+        'protocolo', 'permiso', 'autorizacion', 'procedimiento',
+        'flujo de trabajo', 'sync', 'sincronizacion',
+    ],
+    'Cognition': [
+        'cognicion', 'metacognicion', 'introspeccion', 'identidad',
+        'conciencia', 'proposito', 'pilares', 'autoevaluacion',
+        'consejo', 'debate',
+    ],
+    'Relation': [
+        'relacion', 'comunicacion', 'interaccion', 'canal',
+        'mensaje', 'agente', 'conexion',
     ],
 }
 
-
 def inferir_categoria(contenido):
     if not contenido:
-        return 'general'
+        return 'General'
 
     contenido_lower = contenido.lower()
     puntuaciones = {}
@@ -48,14 +66,14 @@ def inferir_categoria(contenido):
             puntuaciones[categoria] = contador * mejor_longitud
 
     if not puntuaciones:
-        return 'general'
+        return 'General'
 
     return max(puntuaciones, key=puntuaciones.get)
 
 
 def auto_categorizar_existentes(cerebro):
     cerebro.cursor.execute(
-        "SELECT concepto, contenido FROM largo_plazo WHERE categoria = 'general'"
+        "SELECT concepto, contenido FROM largo_plazo WHERE categoria = 1"
     )
     sin_categoria = cerebro.cursor.fetchall()
 
@@ -64,9 +82,9 @@ def auto_categorizar_existentes(cerebro):
         if not contenido:
             continue
         cat = inferir_categoria(contenido)
-        if cat != 'general':
+        if cat != 'General':
             cerebro.cursor.execute(
-                "UPDATE largo_plazo SET categoria = ? WHERE concepto = ?",
+                "UPDATE largo_plazo SET categoria = (SELECT id FROM categories WHERE name = ?) WHERE concepto = ?",
                 (cat, concepto)
             )
             actualizados += 1
