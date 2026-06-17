@@ -525,8 +525,98 @@ def test_sistema():
 
     print("\n--- v5.0: Sinapsis + Categorizador OK ---")
 
+    # 36. Backup trigger (BEFORE DELETE)
+    print("\n--- 36. Probando Backup Trigger (BEFORE DELETE) ---")
+    os.remove(db_test_path)
+    cerebro.conn.close()
+    cerebro = SQLiteMemoryBioRAG(db_path=db_test_path)
+
+    # Verificar que la tabla backup existe
+    cerebro.cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='largo_plazo_backup'")
+    assert cerebro.cursor.fetchone(), "Error: tabla largo_plazo_backup no existe"
+    print("OK: tabla largo_plazo_backup existe")
+
+    # Verificar que el trigger existe
+    cerebro.cursor.execute("SELECT name FROM sqlite_master WHERE type='trigger' AND name='trg_backup_before_delete'")
+    assert cerebro.cursor.fetchone(), "Error: trigger trg_backup_before_delete no existe"
+    print("OK: trigger trg_backup_before_delete existe")
+
+    # Crear nodo de prueba
+    cerebro.percibir_corto_plazo("test_backup", "Contenido completo para backup", "test,backup", "Project")
+    cerebro.consolidar_concepto("test_backup")
+
+    # Verificar que está en largo_plazo
+    cerebro.cursor.execute("SELECT concepto, categoria, contenido, peso_sinaptico, estado FROM largo_plazo WHERE concepto = 'test_backup'")
+    fila_lp = cerebro.cursor.fetchone()
+    assert fila_lp, "Error: nodo no se consolido a largo_plazo"
+    print(f"OK: nodo en largo_plazo: {fila_lp[0]}, cat={fila_lp[1]}, peso={fila_lp[3]}")
+
+    # Verificar sync_log tiene INSERT
+    cerebro.cursor.execute("SELECT accion FROM sync_log WHERE concepto = 'test_backup' AND accion = 'insert'")
+    assert cerebro.cursor.fetchone(), "Error: sync_log no tiene insert para test_backup"
+    print("OK: sync_log tiene entrada INSERT")
+
+    # Borrar el nodo
+    cerebro.cursor.execute("DELETE FROM largo_plazo WHERE concepto = 'test_backup'")
+    cerebro.conn.commit()
+
+    # Verificar que desapareció de largo_plazo
+    cerebro.cursor.execute("SELECT COUNT(*) FROM largo_plazo WHERE concepto = 'test_backup'")
+    assert cerebro.cursor.fetchone()[0] == 0, "Error: nodo no se borro de largo_plazo"
+    print("OK: nodo eliminado de largo_plazo")
+
+    # Verificar que apareció en backup con todos los campos
+    cerebro.cursor.execute(
+        "SELECT concepto, categoria, contenido, peso_sinaptico, estado, sinonimos, deleted_at "
+        "FROM largo_plazo_backup WHERE concepto = 'test_backup'"
+    )
+    fila_backup = cerebro.cursor.fetchone()
+    assert fila_backup, "Error: nodo no aparece en largo_plazo_backup"
+    assert fila_backup[0] == "test_backup", f"Error: concepto en backup no coincide: {fila_backup[0]}"
+    assert fila_backup[1] == 3, f"Error: categoria en backup no coincide: {fila_backup[1]}"
+    assert "Contenido completo para backup" in fila_backup[2], "Error: contenido en backup no coincide"
+    assert fila_backup[3] == 1.0, f"Error: peso en backup no coincide: {fila_backup[3]}"
+    assert fila_backup[4] == "activo", f"Error: estado en backup no coincide: {fila_backup[4]}"
+    assert "test,backup" in fila_backup[5], f"Error: sinonimos en backup no coinciden: {fila_backup[5]}"
+    print(f"OK: backup contiene fila completa: cat={fila_backup[1]}, peso={fila_backup[3]}, sinonimos='{fila_backup[5]}'")
+
+    # Verificar sync_log tiene DELETE
+    cerebro.cursor.execute("SELECT accion FROM sync_log WHERE concepto = 'test_backup' AND accion = 'delete'")
+    assert cerebro.cursor.fetchone(), "Error: sync_log no tiene delete para test_backup"
+    print("OK: sync_log tiene entrada DELETE")
+
+    # Verificar timestamp de borrado
+    assert fila_backup[6] is not None, "Error: deleted_at no tiene timestamp"
+    print(f"  OK: deleted_at = {fila_backup[6]}")
+
+    print("--- Backup trigger OK ---")
+
+    # 37. Restaurar desde backup
+    print("\n--- 37. Probando Restaurar desde Backup ---")
+    cerebro.cursor.execute("""
+        INSERT INTO largo_plazo (concepto, categoria, contenido, peso_sinaptico, estado, sinonimos)
+        SELECT concepto, categoria, contenido, peso_sinaptico, estado, sinonimos
+        FROM largo_plazo_backup WHERE concepto = 'test_backup'
+    """)
+    cerebro.conn.commit()
+
+    cerebro.cursor.execute("SELECT concepto, categoria, contenido FROM largo_plazo WHERE concepto = 'test_backup'")
+    restaurado = cerebro.cursor.fetchone()
+    assert restaurado, "Error: nodo no se pudo restaurar"
+    assert restaurado[2] == fila_backup[2], "Error: contenido restaurado no coincide"
+    print(f"OK: nodo restaurado desde backup: {restaurado[0]}, cat={restaurado[1]}")
+    print("--- Restauracion desde backup OK ---")
+
+    # Cleanup
+    cerebro.cursor.execute("DELETE FROM largo_plazo WHERE concepto = 'test_backup'")
+    cerebro.cursor.execute("DELETE FROM largo_plazo_backup WHERE concepto = 'test_backup'")
+    cerebro.cursor.execute("DELETE FROM sync_log WHERE concepto = 'test_backup'")
+    cerebro.conn.commit()
+
+    print("\n--- Backup Trigger OK ---")
+
     cerebro.cerrar_sistema()
-    print("\n--- ¡Todas las pruebas biologicas completadas con exito! ---")
+    print("\n--- ¡Todas las pruebas biologicas completadas con exito! ---\n\n")
 
 if __name__ == "__main__":
     test_sistema()

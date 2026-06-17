@@ -926,6 +926,30 @@ class SQLiteMemoryBioRAG:
             END
         """)
 
+        # Backup antes de DELETE: copia la fila completa a largo_plazo_backup
+        self.cursor.execute("""
+            CREATE TABLE IF NOT EXISTS largo_plazo_backup (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                concepto TEXT,
+                categoria INTEGER,
+                contenido TEXT,
+                peso_sinaptico REAL,
+                estado TEXT,
+                asociaciones TEXT,
+                sinonimos TEXT,
+                deleted_at REAL DEFAULT (strftime('%s','now'))
+            )
+        """)
+        self.cursor.execute("DROP TRIGGER IF EXISTS trg_backup_before_delete")
+        self.cursor.execute("""
+            CREATE TRIGGER trg_backup_before_delete
+            BEFORE DELETE ON largo_plazo
+            BEGIN
+                INSERT INTO largo_plazo_backup (concepto, categoria, contenido, peso_sinaptico, estado, asociaciones, sinonimos)
+                VALUES (OLD.concepto, OLD.categoria, OLD.contenido, OLD.peso_sinaptico, OLD.estado, OLD.asociaciones, OLD.sinonimos);
+            END
+        """)
+
     def _poblar_fts(self):
         """Puebla la FTS desde datos existentes, incluyendo sinonimos."""
         self.cursor.execute("SELECT COUNT(*) FROM largo_plazo_fts")
