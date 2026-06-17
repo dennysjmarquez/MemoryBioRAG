@@ -41,6 +41,7 @@ def init_sinapsis_table(cursor):
             peso REAL DEFAULT 0.5,
             tipo TEXT DEFAULT 'co_ocurrencia',
             creado_en REAL,
+            ultimo_uso REAL,
             PRIMARY KEY (origen, destino)
         )
     """)
@@ -127,8 +128,19 @@ def buscar_vecinos(cerebro, concepto, profundo=False, max_vecinos=5):
         "ORDER BY peso DESC LIMIT ?",
         (concepto, concepto, max_vecinos)
     )
+    rows = cerebro.cursor.fetchall()
+
+    # Actualizar ultimo_uso de las sinapsis consultadas
+    import time
+    ahora = time.time()
+    cerebro.cursor.execute(
+        "UPDATE sinapsis SET ultimo_uso = ? WHERE origen = ? OR destino = ?",
+        (ahora, concepto, concepto)
+    )
+    cerebro.conn.commit()
+
     vecinos = []
-    for vecino, peso in cerebro.cursor.fetchall():
+    for vecino, peso in rows:
         cerebro.cursor.execute(
             "SELECT contenido FROM largo_plazo WHERE concepto = ? AND estado = 'activo'",
             (vecino,)

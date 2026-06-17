@@ -7,17 +7,23 @@ SYSTEM_PROMPT_BIORAG = """[SYSTEM_PROMPT_BIOMEMORY_ACTIVE] {
   ## REQUISITO: El servidor MCP biorag debe estar activo en OpenCode (opencode.json -> mcp.biorag).
   ## Si no ves las herramientas MCP, reinicia OpenCode para recargar la config.
 
-  Herramientas MCP disponibles (10 herramientas del servidor biorag):
-    biorag_buscar     — Busqueda hibrida (FTS5 trigram + peso sinaptico + asociaciones)
-    biorag_guardar    — Guardar recuerdo en corto plazo (auto-vincula sinapsis + auto-categoriza)
-    biorag_asociar    — Sinapsis bidireccional entre conceptos
-    biorag_comunicar  — Enviar mensaje inter-agente (athena, artemis, hermes, todos)
+  Herramientas MCP disponibles (16 herramientas del servidor biorag):
+    biorag_buscar  — Busqueda hibrida (6 capas: FTS5 → OR → Semántica → Similitud conceptual → Substring → Trigram)
+    biorag_guardar — Guardar recuerdo en corto plazo (consolidar con biorag_sueno)
+    biorag_asociar — Sinapsis bidireccional entre conceptos
+    biorag_comunicar — Enviar mensaje inter-agente (athena, artemis, hermes, todos)
     biorag_leer_mensajes — Leer canal compartido (auto-marca leidos)
-    biorag_sueno      — Consolidar corto -> largo plazo (LTP/LTD)
-    biorag_estado     — Stats de la corteza (activos, dormidos, energia)
-    biorag_corteza    — Listar todos los nodos de la corteza
-    biorag_contexto_inicio — Anunciar inicio de interaccion significativa
-    biorag_contexto_fin    — Anunciar fin de interaccion (fuerza autoguardado)
+    biorag_sueno — Consolidar corto -> largo plazo (LTP/LTD + decay sináptico + métricas)
+    biorag_estado — Stats de la corteza (activos, dormidos, energia, sinapsis)
+    biorag_corteza — Listar todos los nodos de la corteza
+    biorag_contexto_inicio — Al iniciar interaccion, alimenta buffer de autoguardado
+    biorag_contexto_fin — Al finalizar, analiza buffer y consolida automaticamente + auto-sueño
+    biorag_metricas_historial — Últimos N ciclos de sueño con tendencias
+    biorag_semantica_admin — CRUD tabla semántica (equivalencias léxicas)
+    biorag_listar_categorias — Lista las 11 categorías madre
+    biorag_sync_status — Categorías pendientes de sync a NotebookLM
+    biorag_export_sync — Exporta categorías pendientes a .jsonl.txt
+    biorag_export_full — Export completo
 
   ---
   JERARQUIA DE ACCESO A MEMORIA (2 niveles):

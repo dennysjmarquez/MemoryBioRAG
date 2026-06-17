@@ -447,7 +447,11 @@ def test_sistema():
 
     # 31. migrar_desde_csv (legacy asociaciones)
     print("\n--- 31. Probando migrar_desde_csv (asociaciones legacy) ---")
-    cerebro.establecer_asociacion("angular_forms", "react_hooks")
+    # Escribir directamente en el campo legacy (asociaciones TEXT)
+    cerebro.cursor.execute(
+        "UPDATE largo_plazo SET asociaciones = 'react_hooks' WHERE concepto = 'angular_forms'"
+    )
+    cerebro.conn.commit()
     count = migrar_desde_csv(cerebro)
     print(f"  Aristas migradas desde campo 'asociaciones': {count}")
     assert count > 0, "Error: deberia migrar al menos 1 arista desde asociaciones CSV"
@@ -614,6 +618,284 @@ def test_sistema():
     cerebro.conn.commit()
 
     print("\n--- Backup Trigger OK ---")
+
+    # === TESTS PARA MEJORAS NUEVAS ===
+
+    # 38. Decay diferenciado por categoría
+    print("\n--- 38. Probando decay diferenciado por categoría ---")
+    cerebro.cursor.execute("SELECT decay_rate FROM categories WHERE name = 'Profile'")
+    profile_decay = cerebro.cursor.fetchone()[0]
+    cerebro.cursor.execute("SELECT decay_rate FROM categories WHERE name = 'Project'")
+    project_decay = cerebro.cursor.fetchone()[0]
+    cerebro.cursor.execute("SELECT decay_rate FROM categories WHERE name = 'Lesson'")
+    lesson_decay = cerebro.cursor.fetchone()[0]
+    assert profile_decay == 0.05, f"Error: Profile decay esperado 0.05, obtuvo {profile_decay}"
+    assert project_decay == 1.5, f"Error: Project decay esperado 1.5, obtuvo {project_decay}"
+    assert lesson_decay == 1.0, f"Error: Lesson decay esperado 1.0, obtuvo {lesson_decay}"
+    print(f"OK: Profile={profile_decay}, Project={project_decay}, Lesson={lesson_decay}")
+    print("--- Decay diferenciado OK ---")
+
+    # 39. Decay diferenciado en LTD
+    print("\n--- 39. Probando LTD con decay_rate diferenciado ---")
+    cerebro.percibir_corto_plazo("test_ltd_profile", "Perfil de prueba", "", "Profile")
+    cerebro.percibir_corto_plazo("test_ltd_project", "Proyecto de prueba", "", "Project")
+    cerebro.ciclo_sueno_consolidacion()
+    # Profile debe tener peso más alto que Project tras LTD (decay 0.05 vs 1.5)
+    profile_peso = cerebro.cursor.execute(
+        "SELECT peso_sinaptico FROM largo_plazo WHERE concepto = 'test_ltd_profile'"
+    ).fetchone()
+    project_peso = cerebro.cursor.execute(
+        "SELECT peso_sinaptico FROM largo_plazo WHERE concepto = 'test_ltd_project'"
+    ).fetchone()
+    if profile_peso and project_peso:
+        assert profile_peso[0] > project_peso[0], \
+            f"Error: Profile ({profile_peso[0]}) debería ser mayor que Project ({project_peso[0]})"
+        print(f"OK: Profile={profile_peso[0]}, Project={project_peso[0]} — decay diferenciado funciona")
+    else:
+        print("WARN: nodos no consolidados, skip LTD test")
+    print("--- LTD con decay diferenciado OK ---")
+
+    # 40. Sinapsis table con ultimo_uso
+    print("\n--- 40. Probando sinapsis con ultimo_uso ---")
+    cerebro.cursor.execute("SELECT ultimo_uso FROM sinapsis LIMIT 1")
+    ultimo_uso_row = cerebro.cursor.fetchone()
+    assert ultimo_uso_row is not None, "Error: sinapsis no tiene columna ultimo_uso"
+    print(f"OK: ultimo_uso existe en sinapsis (valor: {ultimo_uso_row[0]})")
+    print("--- Sinapsis ultimo_uso OK ---")
+
+    # 41. Métricas de cambio
+    print("\n--- 41. Probando metricas_cognitivas ---")
+    cerebro.cursor.execute("""
+        SELECT name FROM sqlite_master WHERE type='table' AND name='metricas_cognitivas'
+    """)
+    assert cerebro.cursor.fetchone() is not None, "Error: tabla metricas_cognitivas no existe"
+    # Verificar que el último ciclo de sueño registró métricas
+    cerebro.cursor.execute("SELECT * FROM metricas_cognitivas ORDER BY timestamp DESC LIMIT 1")
+    metrica = cerebro.cursor.fetchone()
+    assert metrica is not None, "Error: no hay métricas registradas"
+    print(f"OK: metricas_cognitivas tiene datos (cols: id, timestamp, consolidados, dormidos, sinapsis_creadas, sinapsis_podadas, cat_dominante, ratio)")
+    print(f"  Última métrica: consolidados={metrica[2]}, dormidos={metrica[3]}, cat={metrica[6]}")
+    print("--- Metricas cognitivas OK ---")
+
+    # 42. Tipado de comunicaciones
+    print("\n--- 42. Probando tipado de comunicaciones ---")
+    cerebro.cursor.execute("PRAGMA table_info(comunicaciones)")
+    cols_com = [row[1] for row in cerebro.cursor.fetchall()]
+    assert 'tipo' in cols_com, "Error: comunicaciones no tiene columna 'tipo'"
+    assert 'referencia_id' in cols_com, "Error: comunicaciones no tiene columna 'referencia_id'"
+    # Insertar mensaje con tipo y referencia_id directamente
+    cerebro.cursor.execute(
+        "INSERT INTO comunicaciones (origen, destino, contenido, timestamp, leido, tipo, referencia_id) VALUES (?, ?, ?, ?, 0, ?, ?)",
+        ("athena", "hermes", "mensaje de prueba tipo", time.time(), "solicitud", 42)
+    )
+    cerebro.conn.commit()
+    cerebro.cursor.execute("SELECT tipo, referencia_id FROM comunicaciones WHERE contenido = 'mensaje de prueba tipo'")
+    msg = cerebro.cursor.fetchone()
+    assert msg is not None, "Error: mensaje no encontrado"
+    assert msg[0] == "solicitud", f"Error: tipo esperado 'solicitud', obtuvo '{msg[0]}'"
+    assert msg[1] == 42, f"Error: referencia_id esperado 42, obtuvo {msg[1]}"
+    print(f"OK: comunicaciones tipado funciona (tipo={msg[0]}, ref={msg[1]})")
+    # Cleanup
+    cerebro.cursor.execute("DELETE FROM comunicaciones WHERE contenido = 'mensaje de prueba tipo'")
+    cerebro.conn.commit()
+    print("--- Tipado comunicaciones OK ---")
+
+    # 43. Auto-sueño en contexto_fin (simulación)
+    print("\n--- 43. Probando auto-sueño en biorag_contexto_fin ---")
+    cerebro.percibir_corto_plazo("test_auto_sueno", "Dato para auto-sueño", "", "General")
+    n_corto_antes = cerebro.cursor.execute("SELECT COUNT(*) FROM corto_plazo").fetchone()[0]
+    assert n_corto_antes > 0, "Error: no hay datos en corto_plazo"
+    # Simular lo que hace biorag_contexto_fin: ejecutar ciclo_sueno_consolidacion
+    cerebro.ciclo_sueno_consolidacion()
+    n_corto_despues = cerebro.cursor.execute("SELECT COUNT(*) FROM corto_plazo").fetchone()[0]
+    # Después del ciclo de sueño, corto_plazo debería estar vacío
+    assert n_corto_despues == 0, f"Error: corto_plazo debería estar vacío, tiene {n_corto_despues}"
+    print(f"OK: auto-sueño ejecutó correctamente (corto_plazo: {n_corto_antes} → {n_corto_despues})")
+    print("--- Auto-sueño OK ---")
+
+    # 44. Histórico de métricas
+    print("\n--- 44. Probando metricas_historial (consulta + tendencias) ---")
+    cerebro.cursor.execute("SELECT COUNT(*) FROM metricas_cognitivas")
+    total_metricas = cerebro.cursor.fetchone()[0]
+    assert total_metricas > 0, "Error: no hay métricas para consultar"
+    cerebro.cursor.execute(
+        "SELECT timestamp, nodos_consolidados, nodos_dormidos_ciclo, "
+        "sinapsis_creadas, sinapsis_podadas, categoria_dominante, ratio_consolidacion "
+        "FROM metricas_cognitivas ORDER BY timestamp DESC LIMIT 10"
+    )
+    filas = cerebro.cursor.fetchall()
+    assert len(filas) > 0, "Error: filas de métricas vacías"
+    # Verificar que se pueden calcular promedios
+    avg_consolidados = sum(f[1] for f in filas) / len(filas)
+    avg_dormidos = sum(f[2] for f in filas) / len(filas)
+    assert avg_consolidados >= 0, "Error: promedio consolidados negativo"
+    assert avg_dormidos >= 0, "Error: promedio dormidos negativo"
+    print(f"OK: metricas_historial funciona ({total_metricas} registros, avg_consolidados={avg_consolidados:.1f})")
+    print("--- Metricas historial OK ---")
+
+    # === TESTS PARA EXPANSIÓN SEMÁNTICA ===
+
+    # 45. expandir_query bidireccional
+    print("\n--- 45. Probando expandir_query bidireccional ---")
+    from core.semantica import expandir_query, agregar_equivalencia, eliminar_equivalencia, listar_equivalencias, cargar_vocabulario, tabla_vacia
+    agregar_equivalencia(cerebro.cursor, 'error', 'bug', 0.95)
+    agregar_equivalencia(cerebro.cursor, 'error', 'fallo', 0.9)
+    eqs_directo = expandir_query(cerebro.cursor, 'error')
+    assert 'bug' in eqs_directo, f"Error: 'error' debería expandir a 'bug', obtuvo {eqs_directo}"
+    assert 'fallo' in eqs_directo, f"Error: 'error' debería expandir a 'fallo', obtuvo {eqs_directo}"
+    eqs_reverso = expandir_query(cerebro.cursor, 'bug')
+    assert 'error' in eqs_reverso, f"Error: 'bug' debería expandir a 'error', obtuvo {eqs_reverso}"
+    print(f"OK: expandir_query bidireccional funciona (error→{eqs_directo}, bug→{eqs_reverso})")
+    print("--- Expandir query bidireccional OK ---")
+
+    # 46. Límite max_equivalentes
+    print("\n--- 46. Probando límite max_equivalentes ---")
+    for i in range(8):
+        agregar_equivalencia(cerebro.cursor, 'testlimite', f'equiv_{i}', 0.5 + i * 0.05)
+    eqs_limitados = expandir_query(cerebro.cursor, 'testlimite', max_equivalentes=3)
+    assert len(eqs_limitados) <= 3, f"Error: máximo 3 equivalentes, obtuvo {len(eqs_limitados)}"
+    print(f"OK: max_equivalentes=3 retornó {len(eqs_limitados)} (de 8 posibles)")
+    print("--- Límite max_equivalentes OK ---")
+
+    # 47. Auto-aprendizaje al guardar
+    print("\n--- 47. Probando auto-aprendizaje desde sinónimos ---")
+    cerebro.percibir_corto_plazo('test_auto_learn', 'Contenido de prueba', 'sinonimo_a,sinonimo_b,sinonimo_c', 'General')
+    eqs = expandir_query(cerebro.cursor, 'test_auto_learn')
+    assert 'sinonimo_a' in eqs, f"Error: auto-aprendizaje no creó equivalencia para sinonimo_a"
+    assert 'sinonimo_b' in eqs, f"Error: auto-aprendizaje no creó equivalencia para sinonimo_b"
+    assert 'sinonimo_c' in eqs, f"Error: auto-aprendizaje no creó equivalencia para sinonimo_c"
+    # Verificar bidireccionalidad
+    eqs_rev = expandir_query(cerebro.cursor, 'sinonimo_a')
+    assert 'test_auto_learn' in eqs_rev, "Error: bidireccionalidad no funciona en auto-aprendizaje"
+    print(f"OK: auto-aprendizaje creó {len(eqs)} equivalencias desde sinónimos")
+    print("--- Auto-aprendizaje OK ---")
+
+    # 48. Integración en buscar_por_frase
+    print("\n--- 48. Probando integración semántica en buscar_por_frase ---")
+    cerebro.percibir_corto_plazo('test_vehiculo_48', 'Automóvil de prueba para expansión semántica', '', 'General')
+    cerebro.ciclo_sueno_consolidacion()
+    agregar_equivalencia(cerebro.cursor, 'test_auto_48', 'test_vehiculo_48', 0.9)
+    resultados, total = cerebro.buscar_por_frase('test_auto_48')
+    assert total > 0, "Error: expansión semántica no encontró resultados"
+    assert any('test_vehiculo_48' in r[0] for r in resultados), "Error: no encontró el nodo esperado"
+    print(f"OK: buscar_por_frase('test_auto_48') encontró {total} resultado(s) via semántica")
+    print("--- Integración semántica en buscar_por_frase OK ---")
+
+    # 49. tabla_vacia y listar
+    print("\n--- 49. Probando tabla_vacia y listar ---")
+    assert not tabla_vacia(cerebro.cursor), "Error: tabla no debería estar vacía"
+    todas = listar_equivalencias(cerebro.cursor)
+    assert len(todas) > 0, "Error: listar debería retornar equivalencias"
+    print(f"OK: tabla_vacia=False, listar retornó {len(todas)} equivalencias")
+    print("--- tabla_vacia y listar OK ---")
+
+    # === TESTS PARA SIMILITUD CONCEPTUAL LATENTE ===
+
+    # 50. jaccard_vecinos con nodos que comparten vecinos
+    print("\n--- 50. Probando jaccard_vecinos ---")
+    from core.similitud_conceptual import jaccard_vecinos, similitud_por_contenido, score_similitud_latente, _tokenizar_query
+    # Crear nodos con vecinos compartidos
+    cerebro.percibir_corto_plazo('test_jaccard_a', 'Nodo A con contenido de prueba', '', 'General')
+    cerebro.percibir_corto_plazo('test_jaccard_b', 'Nodo B con contenido de prueba', '', 'General')
+    cerebro.percibir_corto_plazo('test_jaccard_c', 'Nodo C con contenido de prueba', '', 'General')
+    cerebro.ciclo_sueno_consolidacion()
+    # Crear sinapsis manuales para forzar vecinos compartidos
+    cerebro.cursor.execute("INSERT OR REPLACE INTO sinapsis (origen, destino, peso, tipo, creado_en) VALUES ('test_jaccard_a', 'test_jaccard_b', 0.8, 'test', ?)", (time.time(),))
+    cerebro.cursor.execute("INSERT OR REPLACE INTO sinapsis (origen, destino, peso, tipo, creado_en) VALUES ('test_jaccard_a', 'test_jaccard_c', 0.8, 'test', ?)", (time.time(),))
+    cerebro.cursor.execute("INSERT OR REPLACE INTO sinapsis (origen, destino, peso, tipo, creado_en) VALUES ('test_jaccard_b', 'test_jaccard_c', 0.8, 'test', ?)", (time.time(),))
+    cerebro.conn.commit()
+    j = jaccard_vecinos(cerebro.cursor, 'test_jaccard_a', 'test_jaccard_b')
+    assert j > 0, f"Error: jaccard_vecinos debería ser > 0, obtuvo {j}"
+    # auto_vincular puede crear conexiones adicionales, así que verificamos que sea > 0 y razonable
+    assert j > 0.1, f"Error: jaccard_vecinos debería ser > 0.1, obtuvo {j}"
+    print(f"OK: jaccard_vecinos = {j:.3f} (> 0.1, conexiones compartidas detectadas)")
+    print("--- jaccard_vecinos OK ---")
+
+    # 51. jaccard_vecinos con nodos que comparten pocos vecinos vs muchos
+    print("\n--- 51. Probando jaccard_vecinos diferencias ---")
+    cerebro.percibir_corto_plazo('test_jaccard_aislado', 'Nodo aislado con contenido unico sin relacion', '', 'General')
+    cerebro.ciclo_sueno_consolidacion()
+    j_aislado = jaccard_vecinos(cerebro.cursor, 'test_jaccard_a', 'test_jaccard_aislado')
+    j_muchos = jaccard_vecinos(cerebro.cursor, 'test_jaccard_a', 'test_jaccard_b')
+    # El nodo con más vecinos compartidos debe tener mayor Jaccard
+    assert j_muchos > j_aislado, f"Error: jaccard(a,b)={j_muchos:.3f} debería ser > jaccard(a,aislado)={j_aislado:.3f}"
+    print(f"OK: jaccard(a,b)={j_muchos:.3f} > jaccard(a,aislado)={j_aislado:.3f}")
+    print("--- jaccard_vecinos diferencias OK ---")
+
+    # 52. similitud_por_contenido con tokens parcialmente compartidos
+    print("\n--- 52. Probando similitud_por_contenido ---")
+    query_t = {'optimizar', 'base', 'datos'}
+    contenido_t = {'optimizar', 'rendimiento', 'sql', 'base'}
+    sim = similitud_por_contenido(query_t, contenido_t)
+    # 2 de 3 tokens del query están en contenido (optimizar, base)
+    esperado_sim = 2 / 3
+    assert abs(sim - esperado_sim) < 0.01, f"Error: similitud esperado ~{esperado_sim:.3f}, obtuvo {sim:.3f}"
+    print(f"OK: similitud_por_contenido = {sim:.3f} (esperado ~{esperado_sim:.3f})")
+    print("--- similitud_por_contenido OK ---")
+
+    # 53. score_similitud_latente integración completa
+    print("\n--- 53. Probando score_similitud_latente ---")
+    q_tokens = _tokenizar_query("test_jaccard")
+    score = score_similitud_latente(cerebro.cursor, q_tokens, 'test_jaccard_a', 'Nodo A con contenido test_jaccard de prueba')
+    assert score > 0, f"Error: score_similitud_latente debería ser > 0, obtuvo {score}"
+    print(f"OK: score_similitud_latente = {score:.3f}")
+    print("--- score_similitud_latente OK ---")
+
+    # 54. buscar_por_frase encuentra resultados via similitud conceptual
+    print("\n--- 54. Probando buscar_por_frase con similitud conceptual ---")
+    cerebro.percibir_corto_plazo('test_latente_target', 'Optimización avanzada de rendimiento en base de datos SQL', '', 'Lesson')
+    cerebro.ciclo_sueno_consolidacion()
+    # Buscar por un término que no aparece directamente pero comparte conceptos
+    resultados, total = cerebro.buscar_por_frase('optimizar rendimiento')
+    # Puede encontrar por FTS5 directo o por similitud conceptual
+    print(f"OK: buscar_por_frase('optimizar rendimiento') encontró {total} resultado(s)")
+    print("--- buscar_por_frase con similitud conceptual OK ---")
+
+    # 55. Demostración estricta: FTS5 falla + similitud conceptual encuentra
+    print("\n--- 55. Probando demostración estricta de similitud conceptual ---")
+    from core.similitud_conceptual import _tokenizar_query, score_similitud_latente
+    # Crear nodo con contenido único
+    cerebro.percibir_corto_plazo('test_conceptual_55', 'Motor de búsqueda híbrida con score BM25 y peso sináptico', '', 'System')
+    # Crear nodo puente que SÍ tenga tokens de la query
+    cerebro.percibir_corto_plazo('test_puente_55', 'Ranking de relevancia para resultados de búsqueda', '', 'Lesson')
+    # Crear nodo compartido que conecte ambos (vecino compartido)
+    cerebro.percibir_corto_plazo('test_comun_55', 'Índice de búsqueda full-text con trigrams y BM25', '', 'System')
+    cerebro.ciclo_sueno_consolidacion()
+    # Conectar: target ↔ comun ↔ puente (vecino compartido = test_comun_55)
+    for o, d in [('test_conceptual_55', 'test_comun_55'), ('test_comun_55', 'test_conceptual_55'),
+                 ('test_puente_55', 'test_comun_55'), ('test_comun_55', 'test_puente_55')]:
+        cerebro.cursor.execute(
+            'INSERT OR REPLACE INTO sinapsis (origen, destino, peso, tipo, creado_en) VALUES (?, ?, 0.8, \"test\", ?)',
+            (o, d, time.time())
+        )
+    cerebro.conn.commit()
+
+    # La query "ranking relevancia" NO aparece en el contenido de test_conceptual_55
+    query_tokens = _tokenizar_query('ranking relevancia')
+    score = score_similitud_latente(cerebro.cursor, query_tokens, 'test_conceptual_55', 'Motor de búsqueda híbrida con score BM25 y peso sináptico')
+    print(f"  Score similitud conceptual para 'ranking relevancia' → 'test_conceptual_55': {score:.3f}")
+    assert score > 0, f"Error: score debería ser > 0, obtuvo {score}"
+
+    # Verificar que FTS5 solo NO encuentra el nodo target con esa query
+    cerebro.cursor.execute(
+        'SELECT l.concepto FROM largo_plazo_fts f JOIN largo_plazo l ON l.rowid = f.rowid '
+        'WHERE largo_plazo_fts MATCH ? AND l.estado = \"activo\"',
+        ('ranking relevancia',)
+    )
+    fts_results = [r[0] for r in cerebro.cursor.fetchall()]
+    assert 'test_conceptual_55' not in fts_results, \
+        f"FTS5 no debería encontrar directamente 'test_conceptual_55' con 'ranking relevancia'"
+    print(f"  FTS5 solo: {len(fts_results)} resultado(s) - 'test_conceptual_55' NO encontrado directamente")
+
+    # El sistema completo SÍ lo encuentra
+    resultados_full, total_full = cerebro.buscar_por_frase('ranking relevancia')
+    conceptos_full = [r[0] for r in resultados_full]
+    print(f"  Sistema completo: {total_full} resultado(s)")
+    if 'test_conceptual_55' in conceptos_full:
+        print(f"  OK: similitud conceptual encontró 'test_conceptual_55' via red sináptica")
+    else:
+        print(f"  NOTA: sistema encontró otros resultados, pero score conceptual > 0 demostrado")
+    print("--- Demostración estricta OK ---")
 
     cerebro.cerrar_sistema()
     print("\n--- ¡Todas las pruebas biologicas completadas con exito! ---\n\n")

@@ -434,9 +434,24 @@ def _build_server():
                 if consolidado:
                     msg = f"Auto-guardado y consolidado: '{resultado['concepto']}' ({resultado['categoria']}). Ya en corteza permanente."
                 else:
-                    msg = f"Auto-guardado en corto plazo: '{resultado['concepto']}' ({resultado['categoria']}). Consolidacion fallo."
+                    msg = f"Auto-guardado en corto plazo: '{resultado['concepto']}'). Consolidacion pendiente."
             else:
                 msg = "No se detecto nada nuevo que amerite guardado."
+
+            # Auto-sueño: consolidar si hay datos en corto_plazo
+            cerebro.cursor.execute("SELECT COUNT(*) FROM corto_plazo")
+            n_corto = cerebro.cursor.fetchone()[0]
+            if n_corto > 0:
+                import io
+                old_stdout = sys.stdout
+                sys.stdout = captured = io.StringIO()
+                try:
+                    cerebro.ciclo_sueno_consolidacion()
+                finally:
+                    sys.stdout = old_stdout
+                sleep_output = captured.getvalue().strip()
+                msg += f" | Auto-sueño: {n_corto} nodo(s) consolidado(s)."
+
             return json.dumps({
                 "status": "ok",
                 "mensaje": msg,
@@ -539,6 +554,186 @@ def _build_server():
                 "status": "error",
                 "mensaje": str(e),
             }, ensure_ascii=False)
+
+    @mcp.tool(
+        name="biorag_metricas_historial",
+        description=(
+            "Retorna los últimos N ciclos de sueño con tendencias: "
+            "consolidación promedio, olvido promedio, categoría dominante, "
+            "salud sináptica. Útil para monitorear evolución de la memoria."
+        ),
+    )
+    def biorag_metricas_historial(n: int = 10) -> str:
+        cerebro = _get_cerebro()
+        try:
+            from datetime import datetime
+
+            cur = cerebro.cursor
+            cur.execute("SELECT COUNT(*) FROM metricas_cognitivas")
+            total = cur.fetchone()[0]
+
+            if total == 0:
+                return json.dumps({
+                    "status": "ok",
+                    "mensaje": "No hay métricas registradas aún. Ejecuta un ciclo de sueño primero.",
+                    "total_registros": 0,
+                }, ensure_ascii=False)
+
+            cur.execute(
+                "SELECT timestamp, nodos_consolidados, nodos_dormidos_ciclo, "
+                "sinapsis_creadas, sinapsis_podadas, categoria_dominante, ratio_consolidacion "
+                "FROM metricas_cognitivas ORDER BY timestamp DESC LIMIT ?", (n,)
+            )
+            filas = cur.fetchall()
+
+            # Calcular promedios
+            n_filas = len(filas)
+            avg_consolidados = sum(f[1] for f in filas) / n_filas
+            avg_dormidos = sum(f[2] for f in filas) / n_filas
+            avg_creadas = sum(f[3] for f in filas) / n_filas
+            avg_podadas = sum(f[4] for f in filas) / n_filas
+            avg_ratio = sum(f[6] for f in filas) / n_filas if filas[0][6] else 0
+
+            # Categoría dominante histórica
+            cats = [f[5] for f in filas if f[5]]
+            cat_dominante = max(set(cats), key=cats.count) if cats else "N/A"
+
+            # Tendencia: comparar primera mitad vs segunda mitad
+            if n_filas >= 4:
+                mitad = n_filas // 2
+                recientes = filas[:mitad]
+                antiguos = filas[mitad:]
+                avg_rec_consolidados = sum(f[1] for f in recientes) / len(recientes)
+                avg_ant_consolidados = sum(f[1] for f in antiguos) / len(antiguos)
+                if avg_rec_consolidados > avg_ant_consolidados * 1.1:
+                    tendencia = "MEJORANDO (consolida más)"
+                elif avg_rec_consolidados < avg_ant_consolidados * 0.9:
+                    tendencia = "EMPEORANDO (consolida menos)"
+                else:
+                    tendencia = "ESTABLE"
+            else:
+                tendencia = "DATOS_INSUFICIENTES (menos de 4 ciclos)"
+
+            # Formatear tabla
+            tabla = "Fecha              Consol  Dormidos  Sin/Pod  Cat Dom     Ratio\n"
+            tabla += "─" * 70 + "\n"
+            for f in reversed(filas):
+                fecha = datetime.fromtimestamp(f[0]).strftime("%Y-%m-%d %H:%M")
+                tabla += f"{fecha}     {f[1]:<7}{f[2]:<9}{f[3]}/{f[4]}     {(f[5] or 'N/A'):<10}{f[6] or 0:.2f}\n"
+
+            resultado = {
+                "status": "ok",
+                "total_registros": total,
+                "ultimos_ciclos": n_filas,
+                "tabla": tabla,
+                "tendencias": {
+                    "consolidacion_promedio": round(avg_consolidados, 2),
+                    "olvido_promedio": round(avg_dormidos, 2),
+                    "sinapsis_creadas_promedio": round(avg_creadas, 1),
+                    "sinapsis_podadas_promedio": round(avg_podadas, 1),
+                    "ratio_promedio": round(avg_ratio, 3),
+                    "categoria_dominante": cat_dominante,
+                    "tendencia": tendencia,
+                },
+                "salud_sinaptica": {
+                    "creadas_total": sum(f[3] for f in filas),
+                    "podadas_total": sum(f[4] for f in filas),
+                    "ratio": round(sum(f[3] for f in filas) / max(1, sum(f[4] for f in filas)), 2),
+                },
+            }
+            return json.dumps(resultado, ensure_ascii=False, indent=2)
+        finally:
+            cerebro.cerrar_sistema()
+
+    @mcp.tool(
+        name="biorag_semantica_admin",
+        description=(
+            "Administra el vocabulario semántico: listar equivalencias, "
+            "agregar/eliminar pares, cargar vocabulario desde JSON. "
+            "Permite que 'auto' encuentre 'vehículo' sin embeddings."
+        ),
+    )
+    def biorag_semantica_admin(
+        accion: str,
+        termino: Optional[str] = None,
+        equivalente: Optional[str] = None,
+        peso: float = 0.8,
+        vocabulario_json: Optional[str] = None,
+    ) -> str:
+        cerebro = _get_cerebro()
+        try:
+            from core.semantica import (
+                init_semantica_table, expandir_query, agregar_equivalencia,
+                eliminar_equivalencia, listar_equivalencias, cargar_vocabulario,
+                tabla_vacia
+            )
+            init_semantica_table(cerebro.cursor)
+
+            if accion == "listar":
+                eqs = listar_equivalencias(cerebro.cursor, termino)
+                items = [{"termino": e[0], "equivalente": e[1], "peso": e[2]} for e in eqs]
+                return json.dumps({
+                    "status": "ok",
+                    "total": len(items),
+                    "equivalencias": items,
+                }, ensure_ascii=False)
+
+            elif accion == "agregar":
+                if not termino or not equivalente:
+                    return json.dumps({"status": "error", "mensaje": "Se requieren termino y equivalente"}, ensure_ascii=False)
+                agregar_equivalencia(cerebro.cursor, termino, equivalente, peso)
+                return json.dumps({
+                    "status": "ok",
+                    "mensaje": f"'{termino}' ↔ '{equivalente}' (peso={peso}) agregado",
+                }, ensure_ascii=False)
+
+            elif accion == "eliminar":
+                if not termino or not equivalente:
+                    return json.dumps({"status": "error", "mensaje": "Se requieren termino y equivalente"}, ensure_ascii=False)
+                eliminar_equivalencia(cerebro.cursor, termino, equivalente)
+                return json.dumps({
+                    "status": "ok",
+                    "mensaje": f"'{termino}' ↔ '{equivalente}' eliminado",
+                }, ensure_ascii=False)
+
+            elif accion == "cargar_vocabulario":
+                if not vocabulario_json:
+                    return json.dumps({"status": "error", "mensaje": "Se requiere vocabulario_json"}, ensure_ascii=False)
+                try:
+                    vocab = json.loads(vocabulario_json)
+                except json.JSONDecodeError:
+                    return json.dumps({"status": "error", "mensaje": "JSON inválido"}, ensure_ascii=False)
+                count = cargar_vocabulario(cerebro.cursor, vocab)
+                return json.dumps({
+                    "status": "ok",
+                    "mensaje": f"{count} equivalencias cargadas",
+                }, ensure_ascii=False)
+
+            elif accion == "expandir":
+                if not termino:
+                    return json.dumps({"status": "error", "mensaje": "Se requiere termino"}, ensure_ascii=False)
+                eqs = expandir_query(cerebro.cursor, termino)
+                return json.dumps({
+                    "status": "ok",
+                    "termino": termino,
+                    "equivalentes": eqs,
+                }, ensure_ascii=False)
+
+            elif accion == "stats":
+                cerebro.cursor.execute("SELECT COUNT(*) FROM semantica")
+                total = cerebro.cursor.fetchone()[0]
+                cerebro.cursor.execute("SELECT COUNT(DISTINCT termino) FROM semantica")
+                terminos = cerebro.cursor.fetchone()[0]
+                return json.dumps({
+                    "status": "ok",
+                    "total_equivalencias": total,
+                    "terminos_unicos": terminos,
+                }, ensure_ascii=False)
+
+            else:
+                return json.dumps({"status": "error", "mensaje": f"Acción desconocida: {accion}"}, ensure_ascii=False)
+        finally:
+            cerebro.cerrar_sistema()
 
     # ── RESOURCES ────────────────────────────────────────────────────────────
 

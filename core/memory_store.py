@@ -164,7 +164,8 @@ class SQLiteMemoryBioRAG:
             CREATE TABLE IF NOT EXISTS categories (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 name TEXT UNIQUE NOT NULL,
-                description TEXT DEFAULT ''
+                description TEXT DEFAULT '',
+                decay_rate REAL DEFAULT 1.0
             )
         """)
         self.cursor.execute("""
@@ -181,6 +182,34 @@ class SQLiteMemoryBioRAG:
                 ('Relation', 'Esquemas de comunicación entre entidades, dinámicas de interacción, roles, canales y protocolos de mensajería entre agentes, usuarios y sistemas externos'),
                 ('General', 'Contenido no clasificado, información transversal, notas de entrada rápida y datos temporales pendientes de categorización o triaje')
         """)
+
+        # Migración: agregar decay_rate si no existe
+        cur_temp = self.conn.execute("PRAGMA table_info(categories)")
+        cat_cols = [row[1] for row in cur_temp.fetchall()]
+        if 'decay_rate' not in cat_cols:
+            self.cursor.execute("ALTER TABLE categories ADD COLUMN decay_rate REAL DEFAULT 1.0")
+            self.conn.commit()
+
+        # Siempre asegurar decay rates correctos (CREATE TABLE usa DEFAULT 1.0)
+        self.cursor.execute("UPDATE categories SET decay_rate = 0.05 WHERE name = 'Profile'")
+        self.cursor.execute("UPDATE categories SET decay_rate = 0.2 WHERE name = 'Principle'")
+        self.cursor.execute("UPDATE categories SET decay_rate = 0.5 WHERE name = 'Protocol'")
+        self.cursor.execute("UPDATE categories SET decay_rate = 1.0 WHERE name IN ('Lesson', 'Cognition', 'Relation', 'System', 'Architecture', 'Personal')")
+        self.cursor.execute("UPDATE categories SET decay_rate = 1.5 WHERE name = 'Project'")
+        self.cursor.execute("UPDATE categories SET decay_rate = 2.0 WHERE name = 'General'")
+        self.conn.commit()
+
+        # Migración: agregar ultimo_uso a sinapsis si no existe
+        from core.sinapsis import init_sinapsis_table
+        init_sinapsis_table(self.cursor)
+        sinapsis_cols = [row[1] for row in self.conn.execute("PRAGMA table_info(sinapsis)").fetchall()]
+        if 'ultimo_uso' not in sinapsis_cols:
+            self.cursor.execute("ALTER TABLE sinapsis ADD COLUMN ultimo_uso REAL")
+            self.conn.commit()
+
+        # 3b. Tabla semántica para expansión de queries
+        from core.semantica import init_semantica_table
+        init_semantica_table(self.cursor)
 
         # 4. Migración FK: eliminar categoria_id si existe, agregar FK en categoria→categories.name
         cur = self.cursor
@@ -422,6 +451,26 @@ class SQLiteMemoryBioRAG:
                     WHERE concepto = ? AND estado = 'activo'
                 """, (time.time(), vecino))
 
+        # Propagación también vía sinapsis (reemplazo de asociaciones TEXT)
+        from core.sinapsis import init_sinapsis_table
+        init_sinapsis_table(self.cursor)
+        self.cursor.execute(
+            "SELECT destino FROM sinapsis WHERE origen = ? UNION SELECT origen FROM sinapsis WHERE destino = ?",
+            (key, key)
+        )
+        ahora = time.time()
+        for (vecino,) in self.cursor.fetchall():
+            self.cursor.execute("""
+                UPDATE largo_plazo
+                SET peso_sinaptico = MIN(1.0, peso_sinaptico + 0.05),
+                    ultimo_acceso = ?
+                WHERE concepto = ? AND estado = 'activo'
+            """, (ahora, vecino))
+            self.cursor.execute(
+                "UPDATE sinapsis SET ultimo_uso = ? WHERE (origen = ? AND destino = ?) OR (origen = ? AND destino = ?)",
+                (ahora, key, vecino, vecino, key)
+            )
+
         self.conn.commit()
         fin = time.perf_counter()
         print(f"[MemoryBioRAG] Evocado exitosamente '{key}' en {(fin - inicio) * 1000000:.2f} microsegundos.")
@@ -600,6 +649,26 @@ class SQLiteMemoryBioRAG:
                     WHERE concepto = ? AND estado = 'activo'
                 """, (time.time(), vecino))
 
+        # Propagación también vía sinapsis
+        from core.sinapsis import init_sinapsis_table
+        init_sinapsis_table(self.cursor)
+        self.cursor.execute(
+            "SELECT destino FROM sinapsis WHERE origen = ? UNION SELECT origen FROM sinapsis WHERE destino = ?",
+            (key, key)
+        )
+        ahora = time.time()
+        for (vecino,) in self.cursor.fetchall():
+            self.cursor.execute("""
+                UPDATE largo_plazo
+                SET peso_sinaptico = MIN(1.0, peso_sinaptico + 0.05),
+                    ultimo_acceso = ?
+                WHERE concepto = ? AND estado = 'activo'
+            """, (ahora, vecino))
+            self.cursor.execute(
+                "UPDATE sinapsis SET ultimo_uso = ? WHERE (origen = ? AND destino = ?) OR (origen = ? AND destino = ?)",
+                (ahora, key, vecino, vecino, key)
+            )
+
         self.conn.commit()
         fin = time.perf_counter()
         print(f"[MemoryBioRAG] Evocado exitosamente '{key}' en {(fin - inicio) * 1000000:.2f} microsegundos.")
@@ -626,6 +695,11 @@ class SQLiteMemoryBioRAG:
             VALUES (?, ?, ?, ?, ?)
         """, (key, contenido_final, time.time(), sinonimos_final, cat_id))
         self.conn.commit()
+
+        # Auto-aprendizaje semántico: si hay sinónimos, crear equivalencias
+        if sinonimos_final:
+            from core.semantica import auto_aprender_desde_sononimos
+            auto_aprender_desde_sononimos(self.cursor, key, sinonimos_final)
 
     def consolidar_concepto(self, concepto):
         """Mueve un concepto de corto a largo plazo directamente.
@@ -656,17 +730,22 @@ class SQLiteMemoryBioRAG:
         """
         Consolida las experiencias de Corto Plazo a Largo Plazo (Corteza Permanente).
         Aplica LTD (Depresión a Largo Plazo) mediante decaimiento pasivo (-0.05) a los nodos no usados.
-        Duerme los recuerdos cuyo peso sea <= 0.1.
+        Duerme los recuerdos cuyo peso sea <= 0.05.
         Aplica Inhibición Lateral Activa si la 'energía sináptica' total de los nodos activos excede el limite_energia.
-        limite_energia: si es None, se calcula dinámicamente como n_activos * 1.3 (mínimo 10.0).
+        limite_energia: si es None, se calcula dinámicamente como n_activos * 1.6 (mínimo 10.0).
         """
         print("\n--- Iniciando Ciclo de Consolidación (Sueño) ---")
         
-        # Límite dinámico: n_activos * 1.3, mínimo 10.0
+        # Límite dinámico: n_activos * 1.6, mínimo 10.0
         if limite_energia is None:
             self.cursor.execute("SELECT COUNT(*) FROM largo_plazo WHERE estado = 'activo'")
             n_activos = self.cursor.fetchone()[0] or 0
-            limite_energia = max(10.0, n_activos * 1.3)
+            limite_energia = max(10.0, n_activos * 1.6)
+
+        # Métricas del ciclo
+        nodos_dormidos_antes = self.cursor.execute("SELECT COUNT(*) FROM largo_plazo WHERE estado = 'dormido'").fetchone()[0]
+        sinapsis_antes = self.cursor.execute("SELECT COUNT(*) FROM sinapsis").fetchone()[0]
+        n_activos = self.cursor.execute("SELECT COUNT(*) FROM largo_plazo WHERE estado = 'activo'").fetchone()[0] or 0
 
         # 1. Transferencia y Fusión de Corto a Largo Plazo
         self.cursor.execute("SELECT concepto, contenido, sinonimos, categoria FROM corto_plazo")
@@ -697,24 +776,39 @@ class SQLiteMemoryBioRAG:
                     VALUES (?, ?, ?, 1.0, 'activo', '', ?, ?)
                 """, (concepto, cat_id or 1, contenido, time.time(), sinonimos or ""))
 
+            # Borrar de corto_plazo después de consolidar (para que LTD lo incluya)
+            self.cursor.execute("DELETE FROM corto_plazo WHERE concepto = ?", (concepto,))
+
         # Auto-vincular cada concepto consolidado (aristas por solapamiento de tokens)
         from core.sinapsis import auto_vincular
         for concepto, contenido, _, _ in recuerdos_sesion:
             auto_vincular(self, concepto, contenido)
 
-        # 2. Decaimiento Pasivo (LTD): Reducir peso de los nodos activos no consolidados hoy
-        # El decaimiento es lineal (-0.05)
+        # 2. Decaimiento Pasivo (LTD): Reducir peso según decay_rate de la categoría
+        # Profile/Principle decaen lento, Project/General decaen rápido
         self.cursor.execute("""
-            UPDATE largo_plazo 
-            SET peso_sinaptico = ROUND(MAX(0.0, peso_sinaptico - 0.05), 2)
+            UPDATE largo_plazo
+            SET peso_sinaptico = ROUND(MAX(0.0, peso_sinaptico - 0.05 * (
+                SELECT COALESCE(c.decay_rate, 1.0) FROM categories c WHERE c.id = largo_plazo.categoria
+            )), 2)
             WHERE estado = 'activo' AND concepto NOT IN (SELECT concepto FROM corto_plazo)
         """)
-        
+
+        # 2b. Decay Sináptico: reducir peso de conexiones no usadas en 7+ días
+        self.cursor.execute("""
+            UPDATE sinapsis
+            SET peso = ROUND(MAX(0.0, peso * 0.95), 3)
+            WHERE ultimo_uso IS NOT NULL
+              AND ultimo_uso < strftime('%s', 'now') - 604800
+        """)
+        # Podar sinapsis muertas
+        self.cursor.execute("DELETE FROM sinapsis WHERE peso < 0.05")
+
         # 3. Poda selectiva por umbral de fuerza (Dormir recuerdos <= 0.1)
         self.cursor.execute("""
             UPDATE largo_plazo 
             SET estado = 'dormido' 
-            WHERE peso_sinaptico <= 0.1 AND estado = 'activo'
+            WHERE peso_sinaptico <= 0.05 AND estado = 'activo'
         """)
 
         # 4. Inhibición Lateral Activa (Control de Saturación de Energía)
@@ -753,26 +847,42 @@ class SQLiteMemoryBioRAG:
             if eliminados:
                 print(f"[Eviccion] {eliminados} nodos dormidos eliminados permanentemente.")
 
+        # 8. Registrar métricas cognitivas del ciclo
+        nodos_dormidos_despues = self.cursor.execute("SELECT COUNT(*) FROM largo_plazo WHERE estado = 'dormido'").fetchone()[0]
+        sinapsis_despues = self.cursor.execute("SELECT COUNT(*) FROM sinapsis").fetchone()[0]
+        cat_dom = self.cursor.execute("""
+            SELECT c.name FROM largo_plazo l JOIN categories c ON l.categoria = c.id
+            WHERE l.estado = 'activo' GROUP BY c.name ORDER BY COUNT(*) DESC LIMIT 1
+        """).fetchone()
+        self.cursor.execute("""
+            INSERT INTO metricas_cognitivas
+            (timestamp, nodos_consolidados, nodos_dormidos_ciclo, sinapsis_creadas, sinapsis_podadas, categoria_dominante, ratio_consolidacion)
+            VALUES (?, ?, ?, ?, ?, ?, ?)
+        """, (
+            time.time(),
+            len(recuerdos_sesion),
+            nodos_dormidos_despues - nodos_dormidos_antes,
+            max(0, sinapsis_despues - sinapsis_antes),
+            max(0, sinapsis_antes - sinapsis_despues),
+            cat_dom[0] if cat_dom else None,
+            round(len(recuerdos_sesion) / max(1, n_activos), 2)
+        ))
+        self.conn.commit()
+
         print("[MemoryBioRAG] Proceso de consolidación y equilibrio sináptico completado con éxito.")
 
     def establecer_asociacion(self, concepto_a, concepto_b):
         """Crea un enlace sináptico bidireccional entre dos conceptos en el grafo de largo plazo."""
         concepto_a, concepto_b = concepto_a.lower().strip(), concepto_b.lower().strip()
-        
+        from core.sinapsis import init_sinapsis_table
+        init_sinapsis_table(self.cursor)
         for a, b in [(concepto_a, concepto_b), (concepto_b, concepto_a)]:
-            self.cursor.execute("SELECT asociaciones FROM largo_plazo WHERE concepto = ?", (a,))
-            fila = self.cursor.fetchone()
-            if fila:
-                asoc = [v.strip() for v in fila[0].split(",") if v.strip()] if fila[0] else []
-                if b not in asoc:
-                    asoc.append(b)
-                    nuevas_asoc = ",".join(asoc)
-                    self.cursor.execute("UPDATE largo_plazo SET asociaciones = ? WHERE concepto = ?", (nuevas_asoc, a))
-            else:
-                self.cursor.execute("""
-                    INSERT INTO largo_plazo (concepto, categoria, contenido, peso_sinaptico, estado, asociaciones, ultimo_acceso)
-                    VALUES (?, 1, '', 1.0, 'activo', ?, ?)
-                """, (a, b, time.time()))
+            self.cursor.execute("SELECT 1 FROM sinapsis WHERE origen = ? AND destino = ?", (a, b))
+            if not self.cursor.fetchone():
+                self.cursor.execute(
+                    "INSERT INTO sinapsis (origen, destino, peso, tipo, creado_en) VALUES (?, ?, 0.5, 'manual', ?)",
+                    (a, b, time.time())
+                )
         self.conn.commit()
         print(f"[MemoryBioRAG] Sinapsis establecida: '{concepto_a}' <--> '{concepto_b}'")
 
@@ -786,11 +896,19 @@ class SQLiteMemoryBioRAG:
                 destino TEXT NOT NULL DEFAULT 'todos',
                 contenido TEXT NOT NULL,
                 timestamp REAL NOT NULL,
-                leido INTEGER DEFAULT 0
+                leido INTEGER DEFAULT 0,
+                tipo TEXT DEFAULT 'mensaje',
+                referencia_id INTEGER DEFAULT NULL
             )
         """)
         self.cursor.execute("CREATE INDEX IF NOT EXISTS idx_com_destino ON comunicaciones (destino, leido)")
         self.cursor.execute("CREATE INDEX IF NOT EXISTS idx_com_timestamp ON comunicaciones (timestamp)")
+        # Migración: agregar columnas si no existen
+        com_cols = [row[1] for row in self.conn.execute("PRAGMA table_info(comunicaciones)").fetchall()]
+        if 'tipo' not in com_cols:
+            self.cursor.execute("ALTER TABLE comunicaciones ADD COLUMN tipo TEXT DEFAULT 'mensaje'")
+        if 'referencia_id' not in com_cols:
+            self.cursor.execute("ALTER TABLE comunicaciones ADD COLUMN referencia_id INTEGER DEFAULT NULL")
         self.conn.commit()
 
     def enviar_comunicado(self, origen, destino, contenido):
@@ -982,6 +1100,18 @@ class SQLiteMemoryBioRAG:
                 energia_sinaptica REAL NOT NULL
             )
         """)
+        self.cursor.execute("""
+            CREATE TABLE IF NOT EXISTS metricas_cognitivas (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                timestamp REAL NOT NULL,
+                nodos_consolidados INTEGER DEFAULT 0,
+                nodos_dormidos_ciclo INTEGER DEFAULT 0,
+                sinapsis_creadas INTEGER DEFAULT 0,
+                sinapsis_podadas INTEGER DEFAULT 0,
+                categoria_dominante TEXT,
+                ratio_consolidacion REAL
+            )
+        """)
         self.conn.commit()
 
     def _calcular_score_hibrido(self, rank_idx, total, peso_sinaptico, asociaciones):
@@ -1042,7 +1172,7 @@ class SQLiteMemoryBioRAG:
             ORDER BY bm25(largo_plazo_fts)
         """.format(filtro=clause)
 
-        todos = None
+        todos = []
         try:
             self.cursor.execute(sql, (query,))
             todos = self.cursor.fetchall()
@@ -1064,7 +1194,51 @@ class SQLiteMemoryBioRAG:
                 except sqlite3.OperationalError:
                     pass
 
-        # Fallback 1: substring match en contenido
+        # Fallback 1.5: Expansión semántica
+        if not todos and len(query) >= 2:
+            from core.semantica import expandir_query
+            equivalentes = expandir_query(self.cursor, query)
+            if equivalentes:
+                query_exp = " OR ".join(equivalentes)
+                try:
+                    self.cursor.execute(sql, (query_exp,))
+                    sem_results = self.cursor.fetchall()
+                    seen_rowids = {r[0] for r in todos}
+                    for r in sem_results:
+                        if r[0] not in seen_rowids:
+                            todos.append(r)
+                except sqlite3.OperationalError:
+                    pass
+
+        # Fallback 1.7: Similitud conceptual latente (Jaccard vecinos + contenido)
+        if not todos and len(query) >= 2:
+            from core.similitud_conceptual import _tokenizar_query, score_similitud_latente
+            query_tokens = _tokenizar_query(query)
+            if query_tokens:
+                try:
+                    fts_tokens = [f'"{t}"' for t in query_tokens if len(t) >= 3]
+                    if fts_tokens:
+                        fts_q = " OR ".join(fts_tokens)
+                        self.cursor.execute(
+                            "SELECT l.rowid, l.concepto, l.contenido, l.peso_sinaptico, "
+                            "l.estado, l.asociaciones "
+                            "FROM largo_plazo_fts f JOIN largo_plazo l ON l.rowid = f.rowid "
+                            "WHERE largo_plazo_fts MATCH ? AND l.estado = 'activo' LIMIT 100",
+                            (fts_q,)
+                        )
+                        candidatos_lat = self.cursor.fetchall()
+                        scored = []
+                        for rowid, concepto, contenido, peso, estado, asoc in candidatos_lat:
+                            s = score_similitud_latente(self.cursor, query_tokens, concepto, contenido)
+                            if s >= 0.10:
+                                scored.append((s, (rowid, concepto, contenido, peso, estado, asoc or "")))
+                        scored.sort(key=lambda x: x[0], reverse=True)
+                        for _, row in scored[:5]:
+                            todos.append(row)
+                except sqlite3.OperationalError:
+                    pass
+
+        # Fallback 2: substring match en contenido
         if not todos and len(query) >= 2:
             filtros_fb = []
             if profundidad != "profundo":
