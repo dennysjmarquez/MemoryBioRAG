@@ -37,7 +37,7 @@ import os
 import re
 import sys
 import time
-from typing import Any, Optional
+from typing import Any, Optional, List
 
 logging.basicConfig(
     level=logging.WARNING,
@@ -112,9 +112,15 @@ def _build_server():
         name="biorag_buscar",
         description=(
             "Busca recuerdos en la corteza compartida. "
-            "Usa busqueda hibrida: 60% BM25 + 25% peso sinaptico + 15% asociaciones. "
-            "FTS5 trigram tolera typos automaticamente. "
-            "Los sinonimos del nodo se buscan tambien."
+            "FLUJO OBLIGATORIO EN 3 PASOS: "
+            "PASO 1: Enviar la frase del usuario. Si es abstracta/poetica, interpretar y agregar 3-5 palabras clave al final. "
+            "PASO 2: Si PASO 1 da 0 resultados, volver a llamar con rafaga_palabras=[10-15 terminos relacionados]. "
+            "PASO 3: Si PASO 2 da 0 resultados o puro ruido, buscar en el contexto del chat y guardar con biorag_guardar. "
+            "DESPUES DE CADA PASO: Leer los resultados y EXPlicar al usuario con tus propias palabras QUE encontraste. "
+            "No retornar el JSON crudo. Leer el contenido de cada nodo y redactar una respuesta clara. "
+            "Si encontraste algo parecido pero no exacto, decir: 'No encontré X pero encontré Y que dice que...'. "
+            "Ejemplo: biorag_buscar(query='días relax frente al océano playa vacaciones') "
+            "Ejemplo PASO 2: biorag_buscar(query='días relax frente al océano', rafaga_palabras=['playa','mar','costa','verano','descanso','sol','arena','olas'])"
         ),
     )
     def biorag_buscar(
@@ -125,19 +131,36 @@ def _build_server():
         asociados: bool = False,
         limite: int = 10,
         preview_chars: Optional[int] = None,
+        rafaga_palabras: Optional[List[str]] = None,
     ) -> str:
         cerebro = _get_cerebro()
         try:
             if preview_chars is None:
                 preview_chars = 0 if completo else 1500
             profundidad = "profundo" if deep else "activos"
+            
+            # Búsqueda normal primero
             resultados, total = cerebro.buscar_por_frase(
                 query, profundidad=profundidad, limite=limite,
                 categoria=cat, preview_chars=preview_chars
             )
+            
+            # Si no hay resultados y hay ráfaga, activar reminiscencia
+            sinapsis_creadas = []
+            if not resultados and rafaga_palabras:
+                resultados, total, sinapsis_creadas = cerebro.buscar_por_rafaga(
+                    query, rafaga_palabras, limite=limite
+                )
+            
             if not resultados:
                 cerebro.cerrar_sistema()
-                return json.dumps({"total": 0, "resultados": []}, ensure_ascii=False)
+                # Señal de contingencia: la agente debe buscar en su contexto
+                return json.dumps({
+                    "total": 0,
+                    "resultados": [],
+                    "contingencia_contexto": True,
+                    "mensaje": "No se encontraron recuerdos en la corteza. Busca en tu historial de conversacion o contexto actual."
+                }, ensure_ascii=False)
 
             items = []
             for concepto, contenido, peso, estado, score, asociaciones in resultados:
@@ -155,6 +178,7 @@ def _build_server():
             resultado = json.dumps({
                 "total": total,
                 "resultados": items,
+                "sinapsis_creadas": [{"origen": o, "destino": d, "peso": p} for o, d, p in sinapsis_creadas] if sinapsis_creadas else [],
                 "profundidad": profundidad,
             }, ensure_ascii=False)
             _interceptar("buscar", query, cerebro)
@@ -300,7 +324,7 @@ def _build_server():
             "Consolida la memoria de corto plazo a largo plazo. "
             "Aplica LTP a nuevos recuerdos, LTD por decaimiento, "
             "duerme nodos debiles, e inhibicion lateral. "
-            "limite_energia: opcional, defecto dinamico (n_activos * 1.3, min 10.0)."
+            "limite_energia: opcional, defecto dinamico (n_activos * 1.6, min 10.0)."
         ),
     )
     def biorag_sueno(limite_energia: Optional[float] = None) -> str:

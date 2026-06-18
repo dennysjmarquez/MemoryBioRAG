@@ -83,18 +83,24 @@ def _similitud_red(cursor, query_tokens, nodo_concepto, max_puentes=10):
         return 0.0
 
     # Buscar nodos puente cuyo concepto contenga tokens del query
+    # como PALABRA_COMPLETA (no substring). FTS5 trigram matchea "culo" dentro de
+    # "artículos" — el filtro PC exige que sea palabra completa en concepto.
     terminos_fts = [f'"{t}"' for t in query_tokens if len(t) >= 3]
     if not terminos_fts:
         return 0.0
 
     fts_query = " OR ".join(terminos_fts)
+    pc_clause = " AND (" + " OR ".join(
+        ["(PALABRA_COMPLETA(?, l.contenido) = 1 OR PALABRA_COMPLETA(?, l.concepto) = 1)"] * len(terminos_fts)
+    ) + ")"
+    pc_params = tuple(p for t in terminos_fts for p in (t.strip('"'), t.strip('"')))
     try:
         cursor.execute(
             "SELECT l.concepto FROM largo_plazo_fts f "
             "JOIN largo_plazo l ON l.rowid = f.rowid "
             "WHERE largo_plazo_fts MATCH ? AND l.estado = 'activo' "
-            "AND l.concepto != ? LIMIT ?",
-            (fts_query, nodo_concepto, max_puentes)
+            "AND l.concepto != ?" + pc_clause + " LIMIT ?",
+            (fts_query, nodo_concepto) + pc_params + (max_puentes,)
         )
         puentes = [r[0] for r in cursor.fetchall()]
     except sqlite3.OperationalError:

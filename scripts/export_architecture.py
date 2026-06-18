@@ -43,7 +43,7 @@ _DOC_CATEGORIES = """\
 Cada categoría tiene un decay_rate que controla qué tan rápido decae el peso
 sináptico durante el ciclo de sueño. Valores bajos = memorias persistentes.
 
-  Profile  (0.1) — Identidad, casi nunca se olvida
+  Profile  (0.05) — Identidad, casi nunca se olvida
   Principle (0.2) — Reglas y directivas fundamentales
   Protocol (0.5) — Procedimientos operativos
   System   (1.0) — Configuración de sistema
@@ -62,8 +62,8 @@ _DOC_SLEEP_CYCLE = """\
 3. LTD diferenciado: peso -= 0.05 * decay_rate (solo nodos activos)
 4. Decay sináptico: sinapsis con ultimo_uso > 7 días: peso *= 0.95
 5. Podar sinapsis muertas (peso < 0.05)
-6. Dormir nodos débiles (peso <= 0.1)
-7. Inhibición lateral si energía total > límite (n_activos * 1.3, mín 10.0)
+6. Dormir nodos débiles (peso <= 0.05)
+7. Inhibición lateral si energía total > límite (n_activos * 1.6, mín 10.0)
 8. Registrar métricas en metricas_cognitivas
 9. Benchmark de rendimiento (latencia, tamaño DB)
 10. Evicción opcional (BIORAG_PODAR=true): borrar dormidos con peso <= 0.01
@@ -71,9 +71,12 @@ _DOC_SLEEP_CYCLE = """\
 
 _DOC_SCORE = """\
 Score híbrido de búsqueda:
-  60% BM25 (relevancia textual via FTS5 trigram)
+  60% BM25 (relevancia textual via FTS5 trigram) + peso diferencial por centralidad en la red
 + 25% peso sináptico (largo_plazo.peso_sinaptico — frecuencia de uso)
 + 15% riqueza de asociaciones (número de vecinos en tabla sinapsis)
+
+Peso diferencial: tokens con más conexiones en sinapsis + equivalencias en semántica
+pesan más en el scoring. Peso base mínimo de 0.1 para que ningún término desaparezca.
 """
 
 _DOC_ACTIVATION = """\
@@ -85,7 +88,7 @@ Al evocar un nodo:
 """
 
 _DOC_PIPELINE = """\
-Pipeline de búsqueda de 6 capas (buscar_por_frase):
+Pipeline de búsqueda de 8 capas (buscar_por_frase):
 
   Fallback 1.0: FTS5 AND — búsqueda exacta con trigram tokenizer
   Fallback 1.3: FTS5 OR — si AND devuelve pocos, probar OR entre palabras
@@ -94,7 +97,9 @@ Pipeline de búsqueda de 6 capas (buscar_por_frase):
     - Fórmula: 60% red sináptica + 40% contenido
     - Busca nodos "puente" que contengan tokens del query via FTS5
     - Calcula Jaccard entre vecinos de puentes y vecinos del nodo destino
-    - Umbral: 0.15, máximo 5 resultados
+    - Umbral: 0.10, máximo 5 resultados
+  Fallback 1.8: Snap reciente — busca primero en nodos de los últimos 7 días
+  Fallback 1.9: Evocación por cadena — multi-hop con decay logarítmico (1/(2^salto))
   Fallback 2.0: Substring match en contenido (LIKE %query%)
   Fallback 2.5: Best-word trigram similarity (tolerancia a typos, umbral 0.5)
 
@@ -130,7 +135,7 @@ existe "vehículo"→"auto". Esto permite expansión de queries sin embeddings.
 
 _DOC_MCP_TOOLS = """\
 biorag_guardar(concepto, contenido, cat, syn)    — Guardar en corto plazo
-biorag_buscar(query, cat, limite, deep, completo, asociados) — Búsqueda 6 capas
+biorag_buscar(query, cat, limite, deep, completo, asociados) — Búsqueda 8 capas
 biorag_sueno(limite_energia)                     — Ciclo de consolidación
 biorag_estado()                                  — Estadísticas de la corteza
 biorag_corteza()                                 — Listar todos los nodos
@@ -526,7 +531,7 @@ def _export_documentation() -> list[str]:
     out.append(_subsection("PROPAGACIÓN DE ACTIVACIÓN (spreading activation)"))
     out.append(_DOC_ACTIVATION)
 
-    out.append(_subsection("PIPELINE DE BÚSQUEDA (6 capas)"))
+    out.append(_subsection("PIPELINE DE BÚSQUEDA (8 capas)"))
     out.append(_DOC_PIPELINE)
 
     out.append(_subsection("SIMILITUD CONCEPTUAL LATENTE"))

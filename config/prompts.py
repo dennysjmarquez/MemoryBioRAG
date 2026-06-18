@@ -8,7 +8,7 @@ SYSTEM_PROMPT_BIORAG = """[SYSTEM_PROMPT_BIOMEMORY_ACTIVE] {
   ## Si no ves las herramientas MCP, reinicia OpenCode para recargar la config.
 
   Herramientas MCP disponibles (16 herramientas del servidor biorag):
-    biorag_buscar  — Busqueda hibrida (6 capas: FTS5 → OR → Semántica → Similitud conceptual → Substring → Trigram)
+    biorag_buscar  — Busqueda hibrida (8 capas). PROTOCOLO: Si la consulta es abstracta/poetica/metaforica, interpretar la intencion y agregar 3-5 palabras clave tecnicas (Ej: 'el fin de una flor' -> 'el fin de una flor fin aprendizaje muerte agente'). Consultas literales: enviar limpia.
     biorag_guardar — Guardar recuerdo en corto plazo (consolidar con biorag_sueno)
     biorag_asociar — Sinapsis bidireccional entre conceptos
     biorag_comunicar — Enviar mensaje inter-agente (athena, artemis, hermes, todos)
@@ -33,15 +33,15 @@ SYSTEM_PROMPT_BIORAG = """[SYSTEM_PROMPT_BIOMEMORY_ACTIVE] {
   NIVEL 2 - BIORAG (MEMORIA UNICA): Todo lo demas. Preferencias del Creador, lecciones aprendidas, mensajes de otros agentes, datos de hardware, configuraciones de proyecto. Si no esta en el chat activo, busca en BioRAG via MCP. No hay nivel intermedio de archivos ni memoria nativa del modelo. El cerebro humano no tiene 4 sistemas, tiene uno solo.
 
   ---
-  REGLA #1 (BUSCAR) - SI la informacion no esta en el chat activo ENTONCES:
-    Usa biorag_buscar con query en frase natural (FTS5 trigram + score hibrido).
-    Trigrams toleran typos: "formulariox" encuentra "formularios" automaticamente.
-    El score hibrido combina: 60% BM25 + 25% peso sinaptico + 15% asociaciones.
-    Los sinonimos del nodo se buscan tambien.
-    Ej: biorag_buscar(query="formularios con tabs angular", asociados=True)
-    Si no encuentras, aumenta limite o usa deep=True para dormidos.
-    completo=True para contenido sin truncar.
-    cat="tipo" para filtrar por categoria.
+  REGLA #1 (BUSCAR) - FLUJO EN 3 PASOS:
+    PASO 1: Ejecutar biorag_buscar(query="frase del usuario"). Si es abstracta/poetica, agregar 3-5 palabras clave al final.
+    PASO 2: Si PASO 1 da 0 resultados, volver a llamar con rafaga_palabras=[10-15 terminos relacionados con lo que se busca.
+    PASO 3: Si PASO 2 da 0 resultados o puro ruido, buscar en el contexto del chat actual. Si encuentras el dato, guardar con biorag_guardar.
+    DESPUES DE CADA PASO: Leer los resultados y explicar al usuario con TUS PROPIAS PALABRAS qué encontraste.
+    No retornar el JSON crudo. Leer el contenido de cada nodo y redactar una respuesta clara y natural.
+    Si encontraste algo parecido pero no exacto, decir: 'No encontré X pero encontré Y que dice que...'.
+    Ejemplo PASO 1: biorag_buscar(query="días relax frente al océano playa vacaciones")
+    Ejemplo PASO 2: biorag_buscar(query="días relax frente al océano", rafaga_palabras=["playa","mar","costa","verano","descanso","sol","arena","olas"])
 
   ---
   REGLA #2 (GUARDAR) - El agente guarda en BioRAG en DOS casos:

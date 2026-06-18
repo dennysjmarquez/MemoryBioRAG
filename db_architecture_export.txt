@@ -3,7 +3,7 @@
 ======================================================================
   Archivo DB:    memory_biorag.db
   Ruta completa: /mnt/recursos_compartidos_y_otros/MemoryBioRAG/MemoryBioRAG_Data/memory_biorag.db
-  Generado:      2026-06-17 12:15:55
+  Generado:      2026-06-18 10:48:08
   Tamaño DB:     3,936,256 bytes (3844.0 KB)
 ======================================================================
 
@@ -52,7 +52,7 @@ CREATE TABLE corto_plazo (
                 categoria INTEGER DEFAULT 1
             );
 
--- largo_plazo (156 filas)
+-- largo_plazo (178 filas)
 CREATE TABLE largo_plazo (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 concepto TEXT UNIQUE NOT NULL,
@@ -79,7 +79,7 @@ CREATE TABLE largo_plazo_backup (
                 deleted_at REAL DEFAULT (strftime('%s','now'))
             );
 
--- largo_plazo_fts (156 filas)
+-- largo_plazo_fts (178 filas)
 CREATE VIRTUAL TABLE largo_plazo_fts USING fts5(
                     concepto,
                     contenido,
@@ -90,19 +90,19 @@ CREATE VIRTUAL TABLE largo_plazo_fts USING fts5(
 -- largo_plazo_fts_config (1 filas)
 CREATE TABLE 'largo_plazo_fts_config'(k PRIMARY KEY, v) WITHOUT ROWID;
 
--- largo_plazo_fts_content (156 filas)
+-- largo_plazo_fts_content (178 filas)
 CREATE TABLE 'largo_plazo_fts_content'(id INTEGER PRIMARY KEY, c0, c1, c2);
 
--- largo_plazo_fts_data (373 filas)
+-- largo_plazo_fts_data (229 filas)
 CREATE TABLE 'largo_plazo_fts_data'(id INTEGER PRIMARY KEY, block BLOB);
 
--- largo_plazo_fts_docsize (156 filas)
+-- largo_plazo_fts_docsize (178 filas)
 CREATE TABLE 'largo_plazo_fts_docsize'(id INTEGER PRIMARY KEY, sz BLOB);
 
--- largo_plazo_fts_idx (370 filas)
+-- largo_plazo_fts_idx (227 filas)
 CREATE TABLE 'largo_plazo_fts_idx'(segid, term, pgno, PRIMARY KEY(segid, term)) WITHOUT ROWID;
 
--- metricas_cognitivas (11 filas)
+-- metricas_cognitivas (34 filas)
 CREATE TABLE metricas_cognitivas (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 timestamp REAL NOT NULL,
@@ -114,7 +114,7 @@ CREATE TABLE metricas_cognitivas (
                 ratio_consolidacion REAL
             );
 
--- metricas_rendimiento (32 filas)
+-- metricas_rendimiento (55 filas)
 CREATE TABLE metricas_rendimiento (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 timestamp REAL NOT NULL,
@@ -126,7 +126,7 @@ CREATE TABLE metricas_rendimiento (
                 energia_sinaptica REAL NOT NULL
             );
 
--- semantica (1156 filas)
+-- semantica (1528 filas)
 CREATE TABLE semantica (
             termino TEXT NOT NULL,
             equivalente TEXT NOT NULL,
@@ -134,7 +134,7 @@ CREATE TABLE semantica (
             PRIMARY KEY (termino, equivalente)
         );
 
--- sinapsis (451 filas)
+-- sinapsis (1145 filas)
 CREATE TABLE sinapsis (
             origen TEXT NOT NULL,
             destino TEXT NOT NULL,
@@ -147,7 +147,7 @@ CREATE TABLE sinapsis (
 -- sqlite_sequence (8 filas)
 CREATE TABLE sqlite_sequence(name,seq);
 
--- sync_log (0 filas)
+-- sync_log (15 filas)
 CREATE TABLE sync_log (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 categoria_id INTEGER NOT NULL,
@@ -243,7 +243,7 @@ CREATE VIEW vista_largo_plazo AS
 Cada categoría tiene un decay_rate que controla qué tan rápido decae el peso
 sináptico durante el ciclo de sueño. Valores bajos = memorias persistentes.
 
-  Profile  (0.1) — Identidad, casi nunca se olvida
+  Profile  (0.05) — Identidad, casi nunca se olvida
   Principle (0.2) — Reglas y directivas fundamentales
   Protocol (0.5) — Procedimientos operativos
   System   (1.0) — Configuración de sistema
@@ -261,7 +261,7 @@ ID   Nombre          Decay   Descripción
 2    Architecture    1.0     Decisiones de diseño estructural, lenguajes formales de dominio, patrones de software, estándares de seguridad y marcos organizativos que definen cómo se integran y comunican los distintos módulos del sistema
 3    Project         1.5     Iniciativas activas, frentes de trabajo en ejecución, configuraciones de soluciones específicas e integraciones con terceros que requieren seguimiento, tareas y entregables definidos
 4    Lesson          1.0     Conocimiento empírico derivado de fallos resueltos, depuración técnica, análisis de causas raíz, soluciones aplicadas a problemas operativos y aprendizajes que merecen preservarse para no repetir errores
-5    Profile         0.1     Historial profesional y académico, habilidades técnicas, certificaciones, portafolio de trabajos, empresas y proyectos realizados para acreditación y exposición de la trayectoria del usuario
+5    Profile         0.05    Historial profesional y académico, habilidades técnicas, certificaciones, portafolio de trabajos, empresas y proyectos realizados para acreditación y exposición de la trayectoria del usuario
 6    Personal        1.0     Datos e información del ámbito privado, preferencias, notas subjetivas, registros del entorno de trabajo y configuraciones personales que no pertenecen a la operación técnica del sistema
 7    Principle       0.2     Filosofías rectoras, axiomas de desarrollo, reglas de estilo, metodologías conceptuales y criterios de calidad que guían las decisiones y el diseño dentro del ecosistema
 8    Protocol        0.5     Secuencias operativas estandarizadas, flujos de trabajo repetibles, reglas de sincronización y procedimientos paso a paso para procesos que deben ejecutarse siempre de la misma forma
@@ -274,12 +274,12 @@ ID   Nombre          Decay   Descripción
   ESTADÍSTICAS ACTUALES
 ======================================================================
 
-  Nodos totales:          156
-  Nodos activos:          43
-  Nodos dormidos:         113
-  Energía sináptica:      16.34
-  Aristas sinápticas:     451
-  Equivalencias semánt.:  1156 (589 términos únicos)
+  Nodos totales:          178
+  Nodos activos:          161
+  Nodos dormidos:         17
+  Energía sináptica:      72.22
+  Aristas sinápticas:     1145
+  Equivalencias semánt.:  1528 (736 términos únicos)
   Entradas de backup:     0
   En corto plazo (pend.): 0
   Comunicaciones totales: 11
@@ -289,17 +289,17 @@ ID   Nombre          Decay   Descripción
 
 Categoría       Total    Activos  Dormidos Peso Prom.
 -------------------------------------------------------
-System          33       4        29       0.13      
-Project         32       1        31       0.1       
-Lesson          15       5        10       0.25      
-General         14       0        14       0.27      
-Principle       14       3        11       0.28      
-Cognition       12       1        11       0.19      
-Protocol        10       6        4        0.2       
-Relation        10       10       0        0.25      
+Principle       33       33       0        0.72      
+System          33       27       6        0.37      
+Project         32       29       3        0.29      
+Lesson          17       15       2        0.34      
+General         14       13       1        0.41      
+Cognition       12       11       1        0.35      
+Protocol        11       8        3        0.33      
+Relation        10       9        1        0.24      
 Profile         9        9        0        0.5       
-Architecture    4        4        0        0.25      
-Personal        3        0        3        0.1       
+Architecture    4        4        0        0.26      
+Personal        3        3        0        0.33      
 
 
 ======================================================================
@@ -311,14 +311,16 @@ Personal        3        0        3        0.1
 
 Tipo                   Cantidad   Peso Prom.   Mín      Máx     
 ------------------------------------------------------------
-sinonimo_explicito     303        0.9          0.9      0.9     
-co_ocurrencia          82         0.431        0.3      0.94    
+sinonimo_explicito     589        0.9          0.9      0.9     
+co_ocurrencia          288        0.428        0.3      0.94    
+rafaga_rememb          184        0.647        0.6      0.95    
 legacy_csv             47         0.5          0.5      0.5     
+memoria_refleja        18         0.761        0.6      0.95    
 manual_v7              18         0.7          0.7      0.7     
 manual                 1          0.5          0.5      0.5     
 
-  Nodos origen únicos:  76
-  Nodos destino únicos: 110
+  Nodos origen únicos:  137
+  Nodos destino únicos: 164
 
 
 ======================================================================
@@ -327,20 +329,20 @@ manual                 1          0.5          0.5      0.5
 
 Fecha                  Consolid.  Dormidos   Sin.Crea.  Sin.Pod.   Cat.Dom.     Ratio   
 ----------------------------------------------------------------------------------
-2026-06-17 11:24       1          5          0          0          Relation     0.02    
-2026-06-17 11:08       0          3          0          0          Relation     0.0     
-2026-06-17 11:08       0          0          0          0          Relation     0.0     
-2026-06-17 10:43       0          6          0          0          Profile      0.0     
-2026-06-17 10:41       0          4          0          0          Profile      0.0     
+2026-06-18 09:54       1          0          31         0          Principle    0.01    
+2026-06-18 09:39       3          0          92         0          Principle    0.02    
+2026-06-18 08:08       1          0          79         0          Principle    0.03    
+2026-06-17 18:38       1          0          0          0          Principle    0.03    
+2026-06-17 16:30       0          1          0          0          Principle    0.0     
 
 
 --- MÉTRICAS DE RENDIMIENTO (últimas mediciones) ---
 
 Fecha                  Nodos   Act.   Dorm.   Latencia   DB Size      Energía 
 ------------------------------------------------------------------------
-2026-06-17 11:24       156     43     113     0.12       3656 KB      16.34   
-2026-06-17 11:08       155     47     108     0.06       3656 KB      17.42   
-2026-06-17 11:08       155     50     105     0.14       3656 KB      19.46   
+2026-06-18 09:54       180     152    28      0.51       3844 KB      68.66   
+2026-06-18 09:39       179     133    46      0.11       3844 KB      64.47   
+2026-06-18 08:08       176     31     145     0.09       3844 KB      23.23   
 
 
 ======================================================================
@@ -355,8 +357,8 @@ Fecha                  Nodos   Act.   Dorm.   Latencia   DB Size      Energía
 3. LTD diferenciado: peso -= 0.05 * decay_rate (solo nodos activos)
 4. Decay sináptico: sinapsis con ultimo_uso > 7 días: peso *= 0.95
 5. Podar sinapsis muertas (peso < 0.05)
-6. Dormir nodos débiles (peso <= 0.1)
-7. Inhibición lateral si energía total > límite (n_activos * 1.3, mín 10.0)
+6. Dormir nodos débiles (peso <= 0.05)
+7. Inhibición lateral si energía total > límite (n_activos * 1.6, mín 10.0)
 8. Registrar métricas en metricas_cognitivas
 9. Benchmark de rendimiento (latencia, tamaño DB)
 10. Evicción opcional (BIORAG_PODAR=true): borrar dormidos con peso <= 0.01
@@ -365,9 +367,12 @@ Fecha                  Nodos   Act.   Dorm.   Latencia   DB Size      Energía
 --- SCORE HÍBRIDO (búsqueda) ---
 
 Score híbrido de búsqueda:
-  60% BM25 (relevancia textual via FTS5 trigram)
+  60% BM25 (relevancia textual via FTS5 trigram) + peso diferencial por centralidad en la red
 + 25% peso sináptico (largo_plazo.peso_sinaptico — frecuencia de uso)
 + 15% riqueza de asociaciones (número de vecinos en tabla sinapsis)
+
+Peso diferencial: tokens con más conexiones en sinapsis + equivalencias en semántica
+pesan más en el scoring. Peso base mínimo de 0.1 para que ningún término desaparezca.
 
 
 --- PROPAGACIÓN DE ACTIVACIÓN (spreading activation) ---
@@ -379,9 +384,9 @@ Al evocar un nodo:
   - LTP al evocar: +0.15 de peso sináptico
 
 
---- PIPELINE DE BÚSQUEDA (6 capas) ---
+--- PIPELINE DE BÚSQUEDA (8 capas) ---
 
-Pipeline de búsqueda de 6 capas (buscar_por_frase):
+Pipeline de búsqueda de 8 capas (buscar_por_frase):
 
   Fallback 1.0: FTS5 AND — búsqueda exacta con trigram tokenizer
   Fallback 1.3: FTS5 OR — si AND devuelve pocos, probar OR entre palabras
@@ -390,7 +395,9 @@ Pipeline de búsqueda de 6 capas (buscar_por_frase):
     - Fórmula: 60% red sináptica + 40% contenido
     - Busca nodos "puente" que contengan tokens del query via FTS5
     - Calcula Jaccard entre vecinos de puentes y vecinos del nodo destino
-    - Umbral: 0.15, máximo 5 resultados
+    - Umbral: 0.10, máximo 5 resultados
+  Fallback 1.8: Snap reciente — busca primero en nodos de los últimos 7 días
+  Fallback 1.9: Evocación por cadena — multi-hop con decay logarítmico (1/(2^salto))
   Fallback 2.0: Substring match en contenido (LIKE %query%)
   Fallback 2.5: Best-word trigram similarity (tolerancia a typos, umbral 0.5)
 
@@ -429,7 +436,7 @@ existe "vehículo"→"auto". Esto permite expansión de queries sin embeddings.
 --- HERRAMIENTAS MCP (16 tools) ---
 
 biorag_guardar(concepto, contenido, cat, syn)    — Guardar en corto plazo
-biorag_buscar(query, cat, limite, deep, completo, asociados) — Búsqueda 6 capas
+biorag_buscar(query, cat, limite, deep, completo, asociados) — Búsqueda 8 capas
 biorag_sueno(limite_energia)                     — Ciclo de consolidación
 biorag_estado()                                  — Estadísticas de la corteza
 biorag_corteza()                                 — Listar todos los nodos

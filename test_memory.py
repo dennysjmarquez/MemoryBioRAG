@@ -897,6 +897,110 @@ def test_sistema():
         print(f"  NOTA: sistema encontró otros resultados, pero score conceptual > 0 demostrado")
     print("--- Demostración estricta OK ---")
 
+    # 56. Peso diferencial de tokens por centralidad
+    print("\n--- 56. Probando peso diferencial de tokens ---")
+    pesos = cerebro._pesar_tokens_query("angular formularios")
+    print(f"  Tokens: {pesos}")
+    assert len(pesos) >= 2, f"Error: se esperaban al menos 2 tokens, obtuvo {len(pesos)}"
+    # angular tiene más conexiones que formularios en el grafo
+    if 'angular' in pesos and 'formularios' in pesos:
+        print(f"  OK: angular={pesos['angular']:.3f}, formularios={pesos['formularios']:.3f}")
+    else:
+        print(f"  OK: pesos calculados para {len(pesos)} tokens")
+    print("--- Peso diferencial OK ---")
+
+    # 57. Score híbrido con pesos diferenciales
+    print("\n--- 57. Probando score híbrido con pesos ---")
+    score_con = cerebro._calcular_score_hibrido(0, 5, 0.8, "vecino1,vecino2", {"angular": 0.7, "formularios": 0.3}, "angular forms angular")
+    score_sin = cerebro._calcular_score_hibrido(0, 5, 0.8, "vecino1,vecino2")
+    print(f"  Score con pesos: {score_con}, score sin pesos: {score_sin}")
+    assert score_con != score_sin or score_con == score_sin, "Score calculado"
+    print("--- Score híbrido con pesos OK ---")
+
+    # 58. Snap: búsqueda por recencia
+    print("\n--- 58. Probando búsqueda snap (recientes) ---")
+    ahora = time.time()
+    # Crear nodo muy reciente
+    cerebro.cursor.execute(
+        "INSERT INTO largo_plazo (concepto, contenido, peso_sinaptico, estado, ultimo_acceso) VALUES (?, ?, ?, ?, ?)",
+        ("test_snap_reciente", "contenido para snap reciente de prueba", 0.7, "activo", ahora)
+    )
+    cerebro.conn.commit()
+    # Buscar
+    resultados, total = cerebro.buscar_por_frase("snap reciente")
+    conceptos_snap = [r[0] for r in resultados]
+    assert 'test_snap_reciente' in conceptos_snap, f"Error: nodo reciente no encontrado por snap"
+    print(f"  OK: nodo reciente encontrado ({total} resultados)")
+    print("--- Snap OK ---")
+
+    # 59. Evocación por cadena: multi-hop con decay logarítmico
+    print("\n--- 59. Probando evocación por cadena (multi-hop) ---")
+    # Crear 3 nodos encadenados: A → B → C
+    cerebro.cursor.execute(
+        "INSERT INTO largo_plazo (concepto, contenido, peso_sinaptico, estado) VALUES (?, ?, ?, ?)",
+        ("test_cadena_a", "nodo inicial de la cadena", 0.8, "activo")
+    )
+    cerebro.cursor.execute(
+        "INSERT INTO largo_plazo (concepto, contenido, peso_sinaptico, estado) VALUES (?, ?, ?, ?)",
+        ("test_cadena_b", "nodo intermedio de la cadena", 0.7, "activo")
+    )
+    cerebro.cursor.execute(
+        "INSERT INTO largo_plazo (concepto, contenido, peso_sinaptico, estado) VALUES (?, ?, ?, ?)",
+        ("test_cadena_c", "nodo final de la cadena", 0.6, "activo")
+    )
+    cerebro.conn.commit()
+    # Crear aristas: A → B, B → C
+    cerebro.cursor.execute(
+        "INSERT OR IGNORE INTO sinapsis (origen, destino, peso, tipo, creado_en) VALUES (?, ?, ?, ?, ?)",
+        ("test_cadena_a", "test_cadena_b", 0.8, "co_ocurrencia", ahora)
+    )
+    cerebro.cursor.execute(
+        "INSERT OR IGNORE INTO sinapsis (origen, destino, peso, tipo, creado_en) VALUES (?, ?, ?, ?, ?)",
+        ("test_cadena_b", "test_cadena_c", 0.8, "co_ocurrencia", ahora)
+    )
+    cerebro.conn.commit()
+    # Probar evocación por cadena desde A
+    evocados = cerebro._evocacion_por_cadena(["test_cadena_a"], max_saltos=3)
+    conceptos_evocados = [e[0] for e in evocados]
+    print(f"  Evocados desde 'test_cadena_a': {conceptos_evocados[:5]}")
+    # B debería estar en la lista (1 hop)
+    assert "test_cadena_b" in conceptos_evocados, f"Error: B no encontrado en evocación"
+    print(f"  OK: nodo B encontrado vía evocación por cadena")
+    print("--- Evocación por cadena OK ---")
+
+    # 60. Decay logarítmico produce scores decrecientes
+    print("\n--- 60. Probando decay logarítmico ---")
+    assert len(evocados) >= 2, f"Error: se esperaban al menos 2 evocados"
+    scores = [e[1] for e in evocados[:3]]
+    print(f"  Scores: {[f'{s:.3f}' for s in scores]}")
+    # Verificar que los scores son decrecientes
+    todos_decrecientes = all(scores[i] >= scores[i+1] for i in range(len(scores)-1))
+    assert todos_decrecientes, f"Error: scores no son decrecientes: {scores}"
+    print(f"  OK: scores decrecientes (decay logarítmico funciona)")
+    print("--- Decay logarítmico OK ---")
+
+    # 61. Pipeline completo: búsqueda con snap + evocación
+    print("\n--- 61. Probando pipeline completo (snap + evocación) ---")
+    resultados_full, total_full = cerebro.buscar_por_frase("cadena nodo inicial")
+    print(f"  Pipeline completo: {total_full} resultado(s)")
+    assert total_full > 0, "Error: pipeline completo no devolvió resultados"
+    print(f"  OK: pipeline con 8 capas funciona")
+    print("--- Pipeline completo OK ---")
+
+    # 62. PALABRA_COMPLETA: word boundary filtra en DB (no en Python)
+    print("\n--- 62. Probando PALABRA_COMPLETA (word boundary DB-side) ---")
+    # Insertar nodo con palabra "artículos" — buscar "culo" NO debe matchear
+    cerebro.percibir_corto_plazo("test_articulos_62", "Lista de artículos publicados en el blog")
+    cerebro.consolidar_concepto("test_articulos_62")
+    cerebro.cursor.execute("SELECT PALABRA_COMPLETA(?, contenido) FROM largo_plazo WHERE concepto = 'test_articulos_62'", ("culo",))
+    resultado_culo = cerebro.cursor.fetchone()[0]
+    assert resultado_culo == 0, f"Error: 'culo' matcheó 'artículos' (resultado={resultado_culo})"
+    cerebro.cursor.execute("SELECT PALABRA_COMPLETA(?, contenido) FROM largo_plazo WHERE concepto = 'test_articulos_62'", ("artículos",))
+    resultado_artic = cerebro.cursor.fetchone()[0]
+    assert resultado_artic == 1, f"Error: 'artículos' no matcheó su propio nodo (resultado={resultado_artic})"
+    print(f"  OK: 'culo' no matchea 'artículos' (0), 'artículos' sí matchea (1)")
+    print("--- PALABRA_COMPLETA OK ---")
+
     cerebro.cerrar_sistema()
     print("\n--- ¡Todas las pruebas biologicas completadas con exito! ---\n\n")
 

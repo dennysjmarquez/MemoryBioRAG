@@ -71,8 +71,8 @@ USO DESDE EL AGENTE (cada comando explicado):
   python3 biorag.py sueno [limite_energia]
     Consolida la memoria de corto plazo a largo plazo (corteza permanente).
     Aplica LTP a recuerdos consolidados, LTD (decaimiento) a no usados,
-    duerme nodos debiles (peso <= 0.1), y aplica inhibicion lateral si
-    la energia sinaptica supera el limite (defecto: n_activos * 1.3, min 10.0).
+    duerme nodos debiles (peso <= 0.05), y aplica inhibicion lateral si
+    la energia sinaptica supera el limite (defecto: n_activos * 1.6, min 10.0).
     Ej: biorag.py sueno
         biorag.py sueno 15.0  (limite de energia manual)
 
