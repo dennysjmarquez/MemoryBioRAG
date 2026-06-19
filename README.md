@@ -764,7 +764,7 @@ El agente sigue este flujo obligatorio al buscar:
 
 ## Versiones Destacadas
 
-### v8.2 — Auto-aprendizaje de Errores y Anclaje Temporal (Junio 2026)
+### v8.0 — Auto-aprendizaje de Errores y Anclaje Temporal (Junio 2026)
 
 **El sistema aprende de sus propios errores de interpretación.**
 
