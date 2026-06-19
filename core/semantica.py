@@ -140,3 +140,56 @@ def auto_aprender_desde_sononimos(cursor, concepto, sinonimos):
             agregar_equivalencia(cursor, concepto, sinonimo, 0.85)
             count += 1
     return count
+
+
+def poda_tesauro_confianza(cursor, ciclos_sin_uso=3, peso_minimo=0.1):
+    """
+    Poda equivalencias no usadas en N ciclos de sueño.
+    
+    Decae el peso de cada equivalencia en 10% por cada ciclo sin uso.
+    Elimina equivalencias con peso < peso_minimo.
+    
+    Retorna (eliminadas, decadas) como tupla.
+    """
+    import time
+    
+    init_semantica_table(cursor)
+    
+    # Buscar todas las equivalencias
+    cursor.execute("SELECT termino, equivalente, peso FROM semantica")
+    equivalencias = cursor.fetchall()
+    
+    eliminadas = 0
+    decadas = 0
+    
+    for termino, equivalente, peso in equivalencias:
+        # Verificar si la equivalencia fue usada recientemente
+        # (buscar en sinapsis de co_ocurrencia o en búsquedas)
+        cursor.execute("""
+            SELECT COUNT(*) FROM sinapsis 
+            WHERE tipo = 'co_ocurrencia' 
+            AND (origen = ? OR destino = ? OR origen = ? OR destino = ?)
+            AND ultimo_uso > strftime('%s', 'now') - (604800 * ?)
+        """, (termino, termino, equivalente, equivalente, ciclos_sin_uso))
+        usos_recientes = cursor.fetchone()[0]
+        
+        if usos_recientes == 0:
+            # No se usó en los últimos N ciclos → decayer
+            nuevo_peso = round(peso * 0.9, 3)
+            if nuevo_peso < peso_minimo:
+                # Eliminar equivalencia débil
+                cursor.execute(
+                    "DELETE FROM semantica WHERE (termino = ? AND equivalente = ?) OR (termino = ? AND equivalente = ?)",
+                    (termino, equivalente, equivalente, termino)
+                )
+                eliminadas += 1
+            else:
+                # Decayer peso
+                cursor.execute(
+                    "UPDATE semantica SET peso = ? WHERE (termino = ? AND equivalente = ?) OR (termino = ? AND equivalente = ?)",
+                    (nuevo_peso, termino, equivalente, equivalente, termino)
+                )
+                decadas += 1
+    
+    cursor.connection.commit()
+    return eliminadas, decadas

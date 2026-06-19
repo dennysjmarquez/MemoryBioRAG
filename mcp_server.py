@@ -62,6 +62,19 @@ from core.sinapsis import auto_vincular, vincular_por_sinonimos
 from core.categorizador import inferir_categoria
 from middleware.auto_guardado import registrar_accion, analizar_y_autoguardar
 
+# =============================================================================
+# Configuración de Usuario (Override con variables de entorno)
+# =============================================================================
+# Los defaults están aquí. Para cambiar, setear la variable de entorno
+# correspondiente o crear .env.local en la raíz del proyecto.
+# =============================================================================
+
+LIMITE_MCP = int(os.environ.get('BIORAG_LIMITE_MCP', '10'))
+"""Límite de resultados por defecto en búsquedas MCP."""
+
+THRESHOLD_RAFTAGA_MCP = float(os.environ.get('BIORAG_THRESHOLD_RAFTAGA', '0.5'))
+"""Score mínimo para activar ráfaga automáticamente en MCP."""
+
 
 # --- Helpers ----------------------------------------------------------------
 
@@ -123,6 +136,7 @@ def _build_server():
             "NIVEL 4 (Problema): que problema resuelve. "
             "NIVEL 5 (Emocion/Prioridad): urgencia o contexto personal. "
             "Genera 3 terminos por nivel = 15 terminos totales. "
+            "El sistema valida automaticamente las palabras contra la DB antes de buscar. "
             "PASO 3: Si PASO 2 da 0 resultados o puro ruido, buscar en el contexto del chat y guardar con biorag_guardar. "
             "DESPUES DE CADA PASO: Leer los resultados y explicar al usuario con tus propias palabras que encontraste. "
             "Si encontraste algo parecido pero no exacto, decir: 'No encontre X pero encontre Y que dice que...'. "
@@ -136,10 +150,12 @@ def _build_server():
         cat: Optional[str] = None,
         completo: bool = False,
         asociados: bool = False,
-        limite: int = 10,
+        limite: Optional[int] = None,
         preview_chars: Optional[int] = None,
         rafaga_palabras: Optional[List[str]] = None,
     ) -> str:
+        if limite is None:
+            limite = LIMITE_MCP
         cerebro = _get_cerebro()
         try:
             if preview_chars is None:
@@ -152,10 +168,10 @@ def _build_server():
                 categoria=cat, preview_chars=preview_chars
             )
             
-            # Activar ráfaga si: 0 resultados O score del top resultado < 0.5
+            # Activar ráfaga si: 0 resultados O score del top resultado < threshold
             sinapsis_creadas = []
             score_top = resultados[0][4] if resultados else 0
-            if (not resultados or score_top < 0.5) and rafaga_palabras:
+            if (not resultados or score_top < THRESHOLD_RAFTAGA_MCP) and rafaga_palabras:
                 resultados_rafaga, total_rafaga, sinapsis_creadas = cerebro.buscar_por_rafaga(
                     query, rafaga_palabras, limite=limite
                 )

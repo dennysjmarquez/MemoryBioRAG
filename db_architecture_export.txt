@@ -3,7 +3,7 @@
 ======================================================================
   Archivo DB:    memory_biorag.db
   Ruta completa: /mnt/recursos_compartidos_y_otros/MemoryBioRAG/MemoryBioRAG_Data/memory_biorag.db
-  Generado:      2026-06-18 10:48:08
+  Generado:      2026-06-19 13:10:20
   Tamaño DB:     3,936,256 bytes (3844.0 KB)
 ======================================================================
 
@@ -42,7 +42,7 @@ CREATE TABLE comunicaciones (
                 leido INTEGER DEFAULT 0
             , tipo TEXT DEFAULT 'mensaje', referencia_id INTEGER DEFAULT NULL);
 
--- corto_plazo (0 filas)
+-- corto_plazo (2 filas)
 CREATE TABLE corto_plazo (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 concepto TEXT UNIQUE NOT NULL,
@@ -52,7 +52,7 @@ CREATE TABLE corto_plazo (
                 categoria INTEGER DEFAULT 1
             );
 
--- largo_plazo (178 filas)
+-- largo_plazo (193 filas)
 CREATE TABLE largo_plazo (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 concepto TEXT UNIQUE NOT NULL,
@@ -79,7 +79,7 @@ CREATE TABLE largo_plazo_backup (
                 deleted_at REAL DEFAULT (strftime('%s','now'))
             );
 
--- largo_plazo_fts (178 filas)
+-- largo_plazo_fts (193 filas)
 CREATE VIRTUAL TABLE largo_plazo_fts USING fts5(
                     concepto,
                     contenido,
@@ -90,19 +90,19 @@ CREATE VIRTUAL TABLE largo_plazo_fts USING fts5(
 -- largo_plazo_fts_config (1 filas)
 CREATE TABLE 'largo_plazo_fts_config'(k PRIMARY KEY, v) WITHOUT ROWID;
 
--- largo_plazo_fts_content (178 filas)
+-- largo_plazo_fts_content (193 filas)
 CREATE TABLE 'largo_plazo_fts_content'(id INTEGER PRIMARY KEY, c0, c1, c2);
 
--- largo_plazo_fts_data (229 filas)
+-- largo_plazo_fts_data (289 filas)
 CREATE TABLE 'largo_plazo_fts_data'(id INTEGER PRIMARY KEY, block BLOB);
 
--- largo_plazo_fts_docsize (178 filas)
+-- largo_plazo_fts_docsize (193 filas)
 CREATE TABLE 'largo_plazo_fts_docsize'(id INTEGER PRIMARY KEY, sz BLOB);
 
--- largo_plazo_fts_idx (227 filas)
+-- largo_plazo_fts_idx (287 filas)
 CREATE TABLE 'largo_plazo_fts_idx'(segid, term, pgno, PRIMARY KEY(segid, term)) WITHOUT ROWID;
 
--- metricas_cognitivas (34 filas)
+-- metricas_cognitivas (40 filas)
 CREATE TABLE metricas_cognitivas (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 timestamp REAL NOT NULL,
@@ -114,7 +114,7 @@ CREATE TABLE metricas_cognitivas (
                 ratio_consolidacion REAL
             );
 
--- metricas_rendimiento (55 filas)
+-- metricas_rendimiento (61 filas)
 CREATE TABLE metricas_rendimiento (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 timestamp REAL NOT NULL,
@@ -126,7 +126,7 @@ CREATE TABLE metricas_rendimiento (
                 energia_sinaptica REAL NOT NULL
             );
 
--- semantica (1528 filas)
+-- semantica (1734 filas)
 CREATE TABLE semantica (
             termino TEXT NOT NULL,
             equivalente TEXT NOT NULL,
@@ -134,7 +134,7 @@ CREATE TABLE semantica (
             PRIMARY KEY (termino, equivalente)
         );
 
--- sinapsis (1145 filas)
+-- sinapsis (1474 filas)
 CREATE TABLE sinapsis (
             origen TEXT NOT NULL,
             destino TEXT NOT NULL,
@@ -147,7 +147,7 @@ CREATE TABLE sinapsis (
 -- sqlite_sequence (8 filas)
 CREATE TABLE sqlite_sequence(name,seq);
 
--- sync_log (15 filas)
+-- sync_log (0 filas)
 CREATE TABLE sync_log (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 categoria_id INTEGER NOT NULL,
@@ -274,14 +274,14 @@ ID   Nombre          Decay   Descripción
   ESTADÍSTICAS ACTUALES
 ======================================================================
 
-  Nodos totales:          178
-  Nodos activos:          161
-  Nodos dormidos:         17
-  Energía sináptica:      72.22
-  Aristas sinápticas:     1145
-  Equivalencias semánt.:  1528 (736 términos únicos)
+  Nodos totales:          193
+  Nodos activos:          135
+  Nodos dormidos:         58
+  Energía sináptica:      67.82
+  Aristas sinápticas:     1474
+  Equivalencias semánt.:  1734 (801 términos únicos)
   Entradas de backup:     0
-  En corto plazo (pend.): 0
+  En corto plazo (pend.): 2
   Comunicaciones totales: 11
 
 
@@ -289,17 +289,17 @@ ID   Nombre          Decay   Descripción
 
 Categoría       Total    Activos  Dormidos Peso Prom.
 -------------------------------------------------------
-Principle       33       33       0        0.72      
-System          33       27       6        0.37      
-Project         32       29       3        0.29      
-Lesson          17       15       2        0.34      
-General         14       13       1        0.41      
-Cognition       12       11       1        0.35      
-Protocol        11       8        3        0.33      
-Relation        10       9        1        0.24      
+Principle       41       41       0        0.72      
+System          33       18       15       0.26      
+Project         32       22       10       0.24      
+Lesson          23       15       8        0.35      
+General         14       7        7        0.18      
+Cognition       12       7        5        0.29      
+Protocol        11       8        3        0.22      
+Relation        10       5        5        0.26      
 Profile         9        9        0        0.5       
-Architecture    4        4        0        0.26      
-Personal        3        3        0        0.33      
+Architecture    4        1        3        0.13      
+Personal        4        2        2        0.29      
 
 
 ======================================================================
@@ -311,16 +311,16 @@ Personal        3        3        0        0.33
 
 Tipo                   Cantidad   Peso Prom.   Mín      Máx     
 ------------------------------------------------------------
-sinonimo_explicito     589        0.9          0.9      0.9     
-co_ocurrencia          288        0.428        0.3      0.94    
-rafaga_rememb          184        0.647        0.6      0.95    
+sinonimo_explicito     714        0.9          0.9      0.9     
+co_ocurrencia          404        0.502        0.3      0.94    
+rafaga_rememb          272        0.646        0.6      0.95    
 legacy_csv             47         0.5          0.5      0.5     
 memoria_refleja        18         0.761        0.6      0.95    
 manual_v7              18         0.7          0.7      0.7     
 manual                 1          0.5          0.5      0.5     
 
-  Nodos origen únicos:  137
-  Nodos destino únicos: 164
+  Nodos origen únicos:  162
+  Nodos destino únicos: 187
 
 
 ======================================================================
@@ -329,20 +329,20 @@ manual                 1          0.5          0.5      0.5
 
 Fecha                  Consolid.  Dormidos   Sin.Crea.  Sin.Pod.   Cat.Dom.     Ratio   
 ----------------------------------------------------------------------------------
-2026-06-18 09:54       1          0          31         0          Principle    0.01    
-2026-06-18 09:39       3          0          92         0          Principle    0.02    
-2026-06-18 08:08       1          0          79         0          Principle    0.03    
-2026-06-17 18:38       1          0          0          0          Principle    0.03    
-2026-06-17 16:30       0          1          0          0          Principle    0.0     
+2026-06-18 12:42       1          9          33         0          Principle    0.01    
+2026-06-18 12:39       1          30         30         0          Principle    0.01    
+2026-06-18 12:37       1          24         20         0          Principle    0.01    
+2026-06-18 12:33       1          10         4          0          Principle    0.01    
+2026-06-18 12:28       4          15         9          0          Principle    0.02    
 
 
 --- MÉTRICAS DE RENDIMIENTO (últimas mediciones) ---
 
 Fecha                  Nodos   Act.   Dorm.   Latencia   DB Size      Energía 
 ------------------------------------------------------------------------
-2026-06-18 09:54       180     152    28      0.51       3844 KB      68.66   
-2026-06-18 09:39       179     133    46      0.11       3844 KB      64.47   
-2026-06-18 08:08       176     31     145     0.09       3844 KB      23.23   
+2026-06-18 12:42       193     88     105     0.19       3844 KB      48.0    
+2026-06-18 12:39       192     96     96      0.16       3844 KB      50.32   
+2026-06-18 12:37       191     125    66      0.10       3844 KB      55.35   
 
 
 ======================================================================

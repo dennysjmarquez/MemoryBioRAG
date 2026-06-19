@@ -1001,6 +1001,56 @@ def test_sistema():
     print(f"  OK: 'culo' no matchea 'artículos' (0), 'artículos' sí matchea (1)")
     print("--- PALABRA_COMPLETA OK ---")
 
+    # 63. Validador de Ráfaga: valida palabras contra FTS5 antes de buscar
+    print("\n--- 63. Probando Validador de Ráfaga ---")
+    # Crear nodos para testing
+    cerebro.percibir_corto_plazo("test_rafaga_63_a", "Proyecto de machine learning con Python")
+    cerebro.percibir_corto_plazo("test_rafaga_63_b", "Base de datos SQLite para agentes")
+    cerebro.consolidar_concepto("test_rafaga_63_a")
+    cerebro.consolidar_concepto("test_rafaga_63_b")
+    # Generar ráfaga con palabras que existen y que no existen
+    rafaga = ["python", "inexistente_xyz", "sqlite", "falso_abc", "machine"]
+    validadas = cerebro.validar_rafaga(rafaga)
+    print(f"  Ráfaga original: {rafaga}")
+    print(f"  Ráfaga validada: {validadas}")
+    # Verificar que solo palabras existentes fueron validadas
+    assert "python" in validadas, "Error: 'python' debería estar en la DB"
+    assert "sqlite" in validadas, "Error: 'sqlite' debería estar en la DB"
+    assert "machine" in validadas, "Error: 'machine' debería estar en la DB"
+    assert "inexistente_xyz" not in validadas, "Error: 'inexistente_xyz' no debería estar"
+    assert "falso_abc" not in validadas, "Error: 'falso_abc' no debería estar"
+    print(f"  OK: {len(validadas)}/{len(rafaga)} palabras validadas correctamente")
+    print("--- Validador de Ráfaga OK ---")
+
+    # 64. Poda del Tesauro: decay de equivalencias no usadas
+    print("\n--- 64. Probando Poda del Tesauro ---")
+    from core.semantica import agregar_equivalencia, poda_tesauro_confianza, init_semantica_table
+    init_semantica_table(cerebro.cursor)
+    # Crear equivalencias de prueba
+    agregar_equivalencia(cerebro.cursor, "test_term_a", "test_term_b", 0.8)
+    agregar_equivalencia(cerebro.cursor, "test_term_c", "test_term_d", 0.09)  # Peso muy bajo para que se elimine en 1 ciclo
+    # Verificar que las equivalencias existen
+    cerebro.cursor.execute("SELECT COUNT(*) FROM semantica WHERE termino = 'test_term_a'")
+    assert cerebro.cursor.fetchone()[0] > 0, "Error: equivalencia test_term_a no creada"
+    cerebro.cursor.execute("SELECT COUNT(*) FROM semantica WHERE termino = 'test_term_c'")
+    assert cerebro.cursor.fetchone()[0] > 0, "Error: equivalencia test_term_c no creada"
+    # Ejecutar poda (sin sinapsis de uso, así que todas deberían decaer)
+    elim, dec = poda_tesauro_confianza(cerebro.cursor, ciclos_sin_uso=0, peso_minimo=0.1)
+    print(f"  Eliminadas: {elim}, Decaídas: {dec}")
+    # Verificar que la equivalencia débil fue eliminada
+    cerebro.cursor.execute("SELECT COUNT(*) FROM semantica WHERE termino = 'test_term_c'")
+    count_c = cerebro.cursor.fetchone()[0]
+    assert count_c == 0, f"Error: equivalencia débil (0.09) debería haber sido eliminada (count={count_c})"
+    # Verificar que la equivalencia fuerte fue decaída
+    cerebro.cursor.execute("SELECT peso FROM semantica WHERE termino = 'test_term_a' AND equivalente = 'test_term_b'")
+    fila = cerebro.cursor.fetchone()
+    if fila:
+        peso_a = fila[0]
+        print(f"  Peso de test_term_a: {peso_a} (debería ser < 0.8)")
+        assert peso_a < 0.8, f"Error: peso debería haber decaído (peso={peso_a})"
+    print(f"  OK: poda funciona correctamente")
+    print("--- Poda del Tesauro OK ---")
+
     cerebro.cerrar_sistema()
     print("\n--- ¡Todas las pruebas biologicas completadas con exito! ---\n\n")
 

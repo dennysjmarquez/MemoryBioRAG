@@ -3,6 +3,43 @@ import sqlite3
 import time
 import re
 
+# Auto-cargar .env.local al importar (antes de leer任何环境变量)
+from config import _load_env_local
+_load_env_local()
+
+# =============================================================================
+# Configuración de Usuario (Override con variables de entorno)
+# =============================================================================
+# Los defaults están aquí. Para cambiar, setear la variable de entorno
+# correspondiente o crear .env.local en la raíz del proyecto.
+# =============================================================================
+
+CANDIDATOS_SIMILITUD = int(os.environ.get('BIORAG_CANDIDATOS_SIMILITUD', '100'))
+"""Cuántos nodos considerar como candidatos en similitud conceptual."""
+
+MAX_SALTOS_CADENA = int(os.environ.get('BIORAG_MAX_SALTOS_CADENA', '3'))
+"""Máximo de saltos (hops) en evocación por cadena."""
+
+LIMITE_DEFAULT = int(os.environ.get('BIORAG_LIMITE_DEFAULT', '5'))
+"""Límite de resultados por capa de búsqueda."""
+
+UMBRAL_JACCARD = float(os.environ.get('BIORAG_UMBRAL_JACCARD', '0.15'))
+"""Umbral Jaccard para similitud conceptual (0.0-1.0)."""
+
+RAFTAGA_ACTIVA = os.environ.get('BIORAG_RAFTAGA_ACTIVA', 'true').lower() == 'true'
+"""Activar/desactivar ráfaga de reminiscencia."""
+
+THRESHOLD_RAFTAGA = float(os.environ.get('BIORAG_THRESHOLD_RAFTAGA', '0.5'))
+"""Score mínimo para activar ráfaga automáticamente."""
+
+LIMITE_RAFTAGA = int(os.environ.get('BIORAG_LIMITE_RAFTAGA', '5'))
+"""Límite de resultados en búsqueda por ráfaga."""
+
+LIMITE_EVOCACION = int(os.environ.get('BIORAG_LIMITE_EVOCACION', '5'))
+"""Límite de resultados en evocación por cadena."""
+
+# =============================================================================
+
 class SQLiteMemoryBioRAG:
     """
     Motor de Almacenamiento Cognitivo BioRAG basado en SQLite.
@@ -1232,13 +1269,17 @@ class SQLiteMemoryBioRAG:
         total = sum(pesos.values()) or 1
         return {t: p / total for t, p in pesos.items()}
 
-    def _evocacion_por_cadena(self, semillas, max_saltos=3, limite=5):
+    def _evocacion_por_cadena(self, semillas, max_saltos=None, limite=None):
         """Evocación por cadena: spreading activation multi-hop con decay logarítmico.
         
         Sigue aristas de sinapsis en cadena. Cada salto reduce el score
         con decay logarítmico: 1/(2^salto). Más fiel al proceso cognitivo
         humano donde el tercer salto es mucho más débil que el segundo.
         """
+        if max_saltos is None:
+            max_saltos = MAX_SALTOS_CADENA
+        if limite is None:
+            limite = LIMITE_EVOCACION
         visitados = set()
         resultados = []
         actuales = [(n, 1.0) for n in semillas]
@@ -1344,7 +1385,7 @@ class SQLiteMemoryBioRAG:
 
         return round(0.60 * score_texto + 0.25 * peso_normalizado + 0.15 * score_asoc + score_temporal, 4)
 
-    def buscar_por_frase(self, frase, profundidad="activos", pagina=1, limite=5, categoria=None, preview_chars=1500, historial_fallos=None):
+    def buscar_por_frase(self, frase, profundidad="activos", pagina=1, limite=None, categoria=None, preview_chars=1500, historial_fallos=None):
         """Busqueda hibrida: FTS5 trigram + peso sinaptico + asociaciones.
 
         frase: texto en lenguaje natural. Trigrams nativos de FTS5 manejan
@@ -1355,10 +1396,12 @@ class SQLiteMemoryBioRAG:
                        0 o None retorna el contenido completo.
                        El motor trunca en vez del CLI (ahorra RAM).
         historial_fallos: lista de queries anteriores que no dieron resultado.
-                         Se usa para generar variaciones en caso de fallo.
+                          Se usa para generar variaciones en caso de fallo.
         Retorna (resultados, total) donde resultados es lista de
         (concepto, contenido, peso, estado, score, asociaciones)
         """
+        if limite is None:
+            limite = LIMITE_DEFAULT
         if not frase.strip():
             return [], 0
 
@@ -1466,11 +1509,30 @@ class SQLiteMemoryBioRAG:
         # Fallback 1.7: Similitud conceptual latente (Jaccard vecinos + contenido)
         # Usa Jaccard sobre tokens, no requiere match literal. No aplicar PALABRA_COMPLETA.
         # Dynamic Multiplicator: registrar como "latente" con score Jaccard real
+        # OPTIMIZACIÓN: Pre-cargar puentes FTS5 una vez (reduce N queries a 1)
         if not todos and len(query) >= 2:
-            from core.similitud_conceptual import _tokenizar_query, score_similitud_latente
+            from core.similitud_conceptual import _tokenizar_query, score_similitud_latente, LIMITE_SIMILITUD, _cargar_grafo, _limpiar_cache
             query_tokens = _tokenizar_query(query)
             if query_tokens:
                 try:
+                    grafo = _cargar_grafo(self.cursor)
+                    # Batch: pre-fetch puentes FTS5 una vez (1 query SQL)
+                    # En vez de N queries FTS5 separadas en _similitud_red
+                    filtrar = [t for t in query_tokens if len(t) >= 3]
+                    nodos_cache = None
+                    if filtrar:
+                        fts_tokens = [f'"{t}"' for t in filtrar]
+                        fts_q = " OR ".join(fts_tokens)
+                        try:
+                            self.cursor.execute(
+                                "SELECT DISTINCT l.concepto FROM largo_plazo_fts f "
+                                "JOIN largo_plazo l ON l.rowid = f.rowid "
+                                "WHERE largo_plazo_fts MATCH ? AND l.estado = 'activo' LIMIT 50",
+                                (fts_q,)
+                            )
+                            nodos_cache = {row[0] for row in self.cursor.fetchall()}
+                        except sqlite3.OperationalError:
+                            nodos_cache = None
                     fts_tokens = [f'"{t}"' for t in query_tokens if len(t) >= 3]
                     if fts_tokens:
                         fts_q = " OR ".join(fts_tokens)
@@ -1478,22 +1540,24 @@ class SQLiteMemoryBioRAG:
                             "SELECT l.rowid, l.concepto, l.contenido, l.peso_sinaptico, "
                             "l.estado, l.asociaciones "
                             "FROM largo_plazo_fts f JOIN largo_plazo l ON l.rowid = f.rowid "
-                            "WHERE largo_plazo_fts MATCH ? AND l.estado = 'activo' LIMIT 100",
-                            (fts_q,)
+                            "WHERE largo_plazo_fts MATCH ? AND l.estado = 'activo' LIMIT ?",
+                            (fts_q, CANDIDATOS_SIMILITUD)
                         )
                         candidatos_lat = self.cursor.fetchall()
                         scored = []
                         for rowid, concepto, contenido, peso, estado, asoc in candidatos_lat:
-                            s = score_similitud_latente(self.cursor, query_tokens, concepto, contenido)
+                            s = score_similitud_latente(self.cursor, query_tokens, concepto, contenido, grafo=grafo, nodos_cache=nodos_cache)
                             if s >= 0.10:
                                 scored.append((s, (rowid, concepto, contenido, peso, estado, asoc or "")))
                         scored.sort(key=lambda x: x[0], reverse=True)
-                        for jaccard_score, row in scored[:5]:
+                        for jaccard_score, row in scored[:LIMITE_SIMILITUD]:
                             todos.append(row)
                             # Solo registrar si no fue encontrado por capa literal (FTS5 tiene prioridad)
                             if row[1] not in origen_scores:
                                 origen_scores[row[1]] = ("latente", jaccard_score)
+                    _limpiar_cache()
                 except sqlite3.OperationalError:
+                    _limpiar_cache()
                     pass
 
         # Fallback 2.0: substring match con word boundary via PALABRA_COMPLETA
@@ -1612,7 +1676,7 @@ class SQLiteMemoryBioRAG:
                         )
                         semillas = [row[0] for row in self.cursor.fetchall()]
                         if semillas:
-                            evocados = self._evocacion_por_cadena(semillas, max_saltos=3, limite=5)
+                            evocados = self._evocacion_por_cadena(semillas)
                             for concepto_ev, decay_score, _ in evocados:
                                 self.cursor.execute(
                                     "SELECT rowid, concepto, contenido, peso_sinaptico, "
@@ -1699,7 +1763,34 @@ class SQLiteMemoryBioRAG:
 
         return pagina_resultados, total
 
-    def buscar_por_rafaga(self, query, rafaga_palabras, limite=5):
+    def validar_rafaga(self, rafaga_palabras):
+        """Valida palabras de ráfaga contra FTS5 y prioriza por frecuencia.
+        
+        Retorna lista de palabras (strings) ordenada por relevancia.
+        Solo retorna palabras que existen en al menos un nodo de la DB.
+        """
+        if not rafaga_palabras:
+            return []
+        
+        validadas = []
+        for palabra in rafaga_palabras:
+            if len(palabra) < 3:
+                continue
+            try:
+                self.cursor.execute(
+                    "SELECT COUNT(*) FROM largo_plazo_fts WHERE largo_plazo_fts MATCH ?",
+                    (f'"{palabra}"',)
+                )
+                count = self.cursor.fetchone()[0]
+                if count > 0:
+                    validadas.append((palabra, count))
+            except sqlite3.OperationalError:
+                pass
+        
+        validadas.sort(key=lambda x: x[1], reverse=True)
+        return [palabra for palabra, _ in validadas]
+
+    def buscar_por_rafaga(self, query, rafaga_palabras, limite=None):
         """Búsqueda por ráfaga de reminiscencia: emula el proceso humano de recordar.
         
         Cuando la búsqueda normal falla, usa palabras asociadas al azar para encontrar
@@ -1708,6 +1799,8 @@ class SQLiteMemoryBioRAG:
         
         Retorna (resultados, total) y lista de sinapsis creadas.
         """
+        if limite is None:
+            limite = LIMITE_RAFTAGA
         import re
         from itertools import combinations
         
