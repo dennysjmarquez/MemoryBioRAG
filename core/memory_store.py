@@ -1303,39 +1303,46 @@ class SQLiteMemoryBioRAG:
         
         return variaciones[:3]
 
-    def _calcular_score_hibrido(self, rank_idx, total, peso_sinaptico, asociaciones, pesos_tokens=None, contenido="", es_latente=False, score_latente=0.0):
+    def _calcular_score_hibrido(self, rank_idx, total, peso_sinaptico, asociaciones, pesos_tokens=None, contenido="", es_latente=False, score_latente=0.0, ultimo_acceso=None):
         """Score híbrido: 60% calidad textual (BM25 rank) + 25% peso biológico + 15% riqueza de asociaciones.
         Si pesos_tokens está disponible, ajusta el score textual por centralidad del token en la red.
-        Si es_latente=True y score_latente >= 0.15, usa fórmula de emergencia: 70% latente + 20% peso + 10% asociaciones."""
-        # Señal 2: Peso sináptico — qué tan usado/reforzado está el nodo
+        Si es_latente=True y score_latente >= 0.15, usa fórmula de emergencia: 70% latente + 20% peso + 10% asociaciones.
+        Si ultimo_acceso es reciente, agrega bonus temporal (Anclaje Temporal)."""
         peso_normalizado = min(1.0, peso_sinaptico)
 
-        # Señal 3: Riqueza de asociaciones — conectividad en el grafo
         if asociaciones:
             num_asoc = len([v for v in asociaciones.split(",") if v.strip()])
             score_asoc = min(1.0, num_asoc / 5.0)
         else:
             score_asoc = 0.0
 
-        # Multiplicador dinámico: si el nodo viene de capa semántica (Jaccard/evocación)
-        # y el score latente supera el umbral, invertir pesos a favor de la semántica
-        if es_latente and score_latente >= 0.15:
-            return round(0.70 * score_latente + 0.20 * peso_normalizado + 0.10 * score_asoc, 4)
+        # Anclaje Temporal: bonus por frescura del nodo
+        score_temporal = 0.0
+        if ultimo_acceso:
+            import time
+            dias_desde = (time.time() - ultimo_acceso) / 86400
+            if dias_desde <= 7:
+                score_temporal = 0.15
+            elif dias_desde <= 30:
+                score_temporal = 0.08
+            elif dias_desde <= 90:
+                score_temporal = 0.03
 
-        # Señal 1: Calidad textual — posición en ranking BM25
+        if es_latente and score_latente >= 0.15:
+            return round(0.70 * score_latente + 0.20 * peso_normalizado + 0.10 * score_asoc + score_temporal, 4)
+
         if total <= 1:
             score_texto = 1.0
         else:
             score_texto = 1.0 - (rank_idx / (total - 1)) * 0.4
 
-        # Peso diferencial: tokens más conectados rankean más alto
         if pesos_tokens and contenido:
             import re
             tokens_en_contenido = set(re.findall(r'\w{3,}', contenido.lower()))
             peso_query = sum(peso for token, peso in pesos_tokens.items() if token in tokens_en_contenido)
             score_texto = score_texto * 0.7 + peso_query * 0.3
 
-        return round(0.60 * score_texto + 0.25 * peso_normalizado + 0.15 * score_asoc, 4)
+        return round(0.60 * score_texto + 0.25 * peso_normalizado + 0.15 * score_asoc + score_temporal, 4)
 
     def buscar_por_frase(self, frase, profundidad="activos", pagina=1, limite=5, categoria=None, preview_chars=1500, historial_fallos=None):
         """Busqueda hibrida: FTS5 trigram + peso sinaptico + asociaciones.
@@ -1707,12 +1714,29 @@ class SQLiteMemoryBioRAG:
         if not rafaga_palabras:
             return [], 0, []
         
-        # Fase 1: Buscar con cada palabra de la ráfaga (activos + dormidos)
+        # Fase 0: Verificar errores previos de interpretación
+        errores_previos = set()
+        try:
+            self.cursor.execute(
+                "SELECT concepto, contenido FROM largo_plazo "
+                "WHERE concepto LIKE 'error_interpretacion_%' AND estado = 'activo'"
+            )
+            for c, contenido in self.cursor.fetchall():
+                for palabra in rafaga_palabras:
+                    if palabra in (contenido or ""):
+                        errores_previos.add(palabra)
+        except Exception:
+            pass
+        
+        rafaga_limpia = [p for p in rafaga_palabras if p not in errores_previos]
+        
+        if not rafaga_limpia:
+            return [], 0, []
+        
         todos = []
         palabra_ganadora = None
-        nodo_ganador = None
         
-        for palabra in rafaga_palabras:
+        for palabra in rafaga_limpia:
             if len(palabra) < 3:
                 continue
             

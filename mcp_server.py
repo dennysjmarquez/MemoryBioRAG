@@ -114,13 +114,20 @@ def _build_server():
             "Busca recuerdos en la corteza compartida. "
             "FLUJO OBLIGATORIO EN 3 PASOS: "
             "PASO 1: Enviar la frase del usuario. Si es abstracta/poetica, interpretar y agregar 3-5 palabras clave al final. "
-            "PASO 2: Si PASO 1 da 0 resultados, volver a llamar con rafaga_palabras=[10-15 terminos relacionados]. "
+            "PASO 2: Si PASO 1 da 0 resultados O score del top < 0.5, usar rafaga_palabras=[10-15 terminos]. PARA GENERAR LA RAFAGA: "
+            "No busques sinonimos. Busca lo que el usuario NECESITA pero no supo pedir. "
+            "Usa 5 niveles de expansion: "
+            "NIVEL 1 (Literal): sinonimos tecnicos exactos. "
+            "NIVEL 2 (Tecnico): terminos del dominio relacionados. "
+            "NIVEL 3 (Contexto): donde/para que se usa. "
+            "NIVEL 4 (Problema): que problema resuelve. "
+            "NIVEL 5 (Emocion/Prioridad): urgencia o contexto personal. "
+            "Genera 3 terminos por nivel = 15 terminos totales. "
             "PASO 3: Si PASO 2 da 0 resultados o puro ruido, buscar en el contexto del chat y guardar con biorag_guardar. "
-            "DESPUES DE CADA PASO: Leer los resultados y EXPlicar al usuario con tus propias palabras QUE encontraste. "
-            "No retornar el JSON crudo. Leer el contenido de cada nodo y redactar una respuesta clara. "
-            "Si encontraste algo parecido pero no exacto, decir: 'No encontré X pero encontré Y que dice que...'. "
-            "Ejemplo: biorag_buscar(query='días relax frente al océano playa vacaciones') "
-            "Ejemplo PASO 2: biorag_buscar(query='días relax frente al océano', rafaga_palabras=['playa','mar','costa','verano','descanso','sol','arena','olas'])"
+            "DESPUES DE CADA PASO: Leer los resultados y explicar al usuario con tus propias palabras que encontraste. "
+            "Si encontraste algo parecido pero no exacto, decir: 'No encontre X pero encontre Y que dice que...'. "
+            "Ejemplo PASO 1: biorag_buscar(query='dias relax frente al oceano playa vacaciones') "
+            "Ejemplo PASO 2: biorag_buscar(query='dias relax frente al oceano', rafaga_palabras=['playa','mar','costa','verano','descanso','sol','arena','olas'])"
         ),
     )
     def biorag_buscar(
@@ -145,12 +152,21 @@ def _build_server():
                 categoria=cat, preview_chars=preview_chars
             )
             
-            # Si no hay resultados y hay ráfaga, activar reminiscencia
+            # Activar ráfaga si: 0 resultados O score del top resultado < 0.5
             sinapsis_creadas = []
-            if not resultados and rafaga_palabras:
-                resultados, total, sinapsis_creadas = cerebro.buscar_por_rafaga(
+            score_top = resultados[0][4] if resultados else 0
+            if (not resultados or score_top < 0.5) and rafaga_palabras:
+                resultados_rafaga, total_rafaga, sinapsis_creadas = cerebro.buscar_por_rafaga(
                     query, rafaga_palabras, limite=limite
                 )
+                # Combinar resultados: ráfaga + originales (sin duplicados)
+                if resultados_rafaga:
+                    seen = {r[1] for r in resultados}
+                    for r in resultados_rafaga:
+                        if r[1] not in seen:
+                            resultados.append(r)
+                            seen.add(r[1])
+                    total = len(resultados)
             
             if not resultados:
                 cerebro.cerrar_sistema()
