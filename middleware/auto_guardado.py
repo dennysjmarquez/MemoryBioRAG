@@ -4,39 +4,40 @@ import time
 TTL = 1800
 
 _PALABRAS_CLAVE = {
-    "aprendi": "leccion",
-    "aprendido": "leccion",
-    "aprender": "leccion",
-    "leccion": "leccion",
-    "lección": "leccion",
-    "nuevo patron": "patron",
-    "nuevo patrón": "patron",
-    "recuerda": "preferencia",
-    "recordar": "preferencia",
-    "prefiero": "preferencia",
-    "prefiere": "preferencia",
-    "preferencia": "preferencia",
-    "no me gusta": "anti-patron",
-    "error comun": "error",
-    "error común": "error",
-    "no usar": "anti-patron",
-    "evitar": "anti-patron",
-    "mejor practica": "buena_practica",
-    "mejor práctica": "buena_practica",
-    "solucion": "solucion",
-    "solución": "solucion",
-    "resolver": "solucion",
-    "importante": "importante",
-    "atencion": "importante",
-    "atención": "importante",
-    "clave": "importante",
-    "critico": "importante",
-    "crítico": "importante",
-    "nunca": "anti-patron",
-    "siempre": "regla",
-    "regla": "regla",
-    "conclusion": "leccion",
-    "conclusión": "leccion",
+    "aprendi": "Lesson",
+    "aprendí": "Lesson",
+    "aprendido": "Lesson",
+    "aprender": "Lesson",
+    "leccion": "Lesson",
+    "lección": "Lesson",
+    "nuevo patron": "Architecture",
+    "nuevo patrón": "Architecture",
+    "recuerda": "Personal",
+    "recordar": "Personal",
+    "prefiero": "Personal",
+    "prefiere": "Personal",
+    "preferencia": "Personal",
+    "no me gusta": "Lesson",
+    "error comun": "Lesson",
+    "error común": "Lesson",
+    "no usar": "Lesson",
+    "evitar": "Lesson",
+    "mejor practica": "Principle",
+    "mejor práctica": "Principle",
+    "solucion": "Lesson",
+    "solución": "Lesson",
+    "resolver": "Lesson",
+    "importante": "General",
+    "atencion": "General",
+    "atención": "General",
+    "clave": "General",
+    "critico": "General",
+    "crítico": "General",
+    "nunca": "Lesson",
+    "siempre": "Principle",
+    "regla": "Principle",
+    "conclusion": "Lesson",
+    "conclusión": "Lesson",
 }
 
 
@@ -70,7 +71,7 @@ def _extraer_categoria(texto: str) -> str:
     for palabra, cat in _PALABRAS_CLAVE.items():
         if palabra in texto_lower:
             return cat
-    return "auto"
+    return "General"
 
 
 def _generar_clave(texto: str) -> str | None:
