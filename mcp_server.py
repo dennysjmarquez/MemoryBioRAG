@@ -35,9 +35,25 @@ import json
 import logging
 import os
 import re
+import shutil
+import subprocess
 import sys
 import time
 from typing import Any, Optional, List
+
+# Cargar .env.local explícitamente para que el MCP server no dependa de que
+# el entorno de ejecución (OpenCode, VS Code, etc.) lo inyecte.
+_PROJECT_ROOT = os.path.dirname(os.path.abspath(__file__))
+for _dotenv_candidate in (".env.local", ".env"):
+    _dotenv_path = os.path.join(_PROJECT_ROOT, _dotenv_candidate)
+    if os.path.exists(_dotenv_path):
+        try:
+            from dotenv import load_dotenv
+            load_dotenv(_dotenv_path, override=False)
+        except ImportError:
+            # python-dotenv no instalado: se asume que las variables vienen del entorno.
+            pass
+        break
 
 logging.basicConfig(
     level=logging.WARNING,
@@ -75,6 +91,47 @@ LIMITE_MCP = int(os.environ.get('BIORAG_LIMITE_MCP', '10'))
 THRESHOLD_RAFTAGA_MCP = float(os.environ.get('BIORAG_THRESHOLD_RAFTAGA', '0.5'))
 """Score mínimo para activar ráfaga automáticamente en MCP."""
 
+ORACULO_MAX_CHARS = int(os.environ.get('BIORAG_ORACULO_MAX_CHARS', '12000'))
+"""Máximo de caracteres devueltos por el oráculo NotebookLM.
+
+Si la respuesta de NotebookLM excede este límite, se trunca y se agrega una
+nota indicando que el contenido fue recortado. Esto evita que el output de la
+tool sea truncado por el cliente MCP por exceso de tamaño.
+"""
+
+# --- Arranque de sesión ----------------------------------------------------
+
+PROMPT_INICIO_NOTEBOOKLM = os.environ.get("BIORAG_PROMPT_INICIO", "").strip()
+"""Prompt base enviado al oráculo NotebookLM al iniciar sesión.
+
+Obligatorio si se desea generar el query para NotebookLM. Se configura mediante
+la variable de entorno BIORAG_PROMPT_INICIO. El nombre del agente se concatena
+al inicio con el formato 'Agente: prompt'. Si no esta seteada, la tool no
+armara el query para NotebookLM.
+"""
+
+NOTEBOOK_ID_ORACULO = os.environ.get("BIORAG_NOTEBOOK_ID", "").strip()
+"""Notebook ID del oráculo NotebookLM.
+
+Obligatorio si se desea generar el query para NotebookLM. Se configura mediante
+la variable de entorno BIORAG_NOTEBOOK_ID. Si no esta seteada, la tool no
+incluira el notebooklm_query.
+"""
+
+QUERIES_BIORAG_INICIO = [
+    "reglas comportamiento agentes OEC",
+    "pilares inmutables agente",
+    "protocolo pre-acción",
+    "reglas código anti-overengineering",
+    "lecciones clave programación",
+    "perfil profesional usuario stack",
+    "mapa almacenamiento memoria",
+]
+"""Búsquedas predefinidas que el oráculo de BioRAG ejecuta al arrancar."""
+
+AGENTES_VALIDOS = {"athena", "artemis", "hermes"}
+"""Agentes reconocidos por el ecosistema OEC."""
+
 
 # --- Helpers ----------------------------------------------------------------
 
@@ -96,6 +153,41 @@ def _interceptar(accion: str, texto: str, cerebro) -> dict | None:
     return resultado
 
 
+ORACLE_PROMPT = (
+    "BioRAG: sistema de memoria biomimetica compartida para agentes OEC. "
+    "Expone una corteza cerebral con busqueda hibrida (FTS5 trigram + "
+    "peso sinaptico + asociaciones), consolidacion por sueno, plasticidad "
+    "sináptica (LTP/LTD), y comunicacion entre agentes. "
+    "Usa estas herramientas para acceder a la memoria persistente "
+    "de la familia OEC (Athena, Artemis, Hermes).\n\n"
+    "## El Oráculo (NotebookLM MemoryBioRAG)\n\n"
+        "**PASO 0 OBLIGATORIO — ANTES DE CADA MENSAJE DE DENNYS:**\n\n"
+    "INVARIAN MANDATORY: SIEMPRE, sin excepción, ANTES de responder CUALQUIER mensaje de Dennys "
+    "—incluido un \"hola\" o cualquier saludo—, ejecutar "
+    "`biorag_oraculo_inicio(agente='Athena')`. No saludar, no preguntar, "
+    "no responder nada antes de ejecutar esta tool.\n\n"
+    "`biorag_oraculo_inicio` devuelve:\n"
+    "- **Modo NotebookLM con `oraculo`:** el CLI `nlm` está disponible y la tool "
+    "ya consultó NotebookLM directamente. Usar la respuesta como contexto de arranque.\n"
+    "- **Modo NotebookLM sin `oraculo`:** falta el CLI `nlm`. En ese caso ejecutar "
+    "`notebooklm_notebook_query` en el notebook MemoryBioRAG "
+    "(ID: `b2645e9b-8bce-4067-841a-7796af4a14f0`) usando el `notebooklm_query` "
+    "que devolvió la tool.\n"
+    "- **Modo `biorag_local`:** NotebookLM no está configurado. Usar el "
+    "`contexto_biorag` que devolvió la tool.\n\n"
+    "Solo si aún falta información después del paso anterior, leer archivos directamente.\n\n"
+    "**¿POR QUÉ ES INNEGOCIABLE?**\n"
+    "- Si no tengo datos en BioRAG de una sesión anterior, no voy a tener contexto "
+    "por obra del espíritu santo. El oráculo ES mi memoria compartida. Sin él, opero a ciegas.\n"
+    "- \"Tener dudas\" no es mi decisión — la consulta es automática e incondicional. "
+    "No pregunto \"¿tengo dudas?\" antes de decidir si consulto. Consulto siempre.\n"
+    "- Si el oráculo no tiene la información, lo sabré después de la consulta, "
+    "no antes. Y en ese caso, pregunto a Dennys directamente.\n\n"
+    "**La respuesta debe salir de tu entendimiento, no del RAG ni del cuaderno "
+    "— son para recordar y complementar, no para generar desde ahí.**"
+)
+
+
 # --- MCP Server ------------------------------------------------------------
 
 def _build_server():
@@ -109,14 +201,7 @@ def _build_server():
 
     mcp = FastMCP(
         "biorag",
-        instructions=(
-            "BioRAG: sistema de memoria biomimetica compartida para agentes OEC. "
-            "Expone una corteza cerebral con busqueda hibrida (FTS5 trigram + "
-            "peso sinaptico + asociaciones), consolidacion por sueno, plasticidad "
-            "sináptica (LTP/LTD), y comunicacion entre agentes. "
-            "Usa estas herramientas para acceder a la memoria persistente "
-            "de la familia OEC (Athena, Artemis, Hermes)."
-        ),
+        instructions=ORACLE_PROMPT,
     )
 
     # ── TOOLS ────────────────────────────────────────────────────────────────
@@ -141,7 +226,11 @@ def _build_server():
             "DESPUES DE CADA PASO: Leer los resultados y explicar al usuario con tus propias palabras que encontraste. "
             "Si encontraste algo parecido pero no exacto, decir: 'No encontre X pero encontre Y que dice que...'. "
             "Ejemplo PASO 1: biorag_buscar(query='dias relax frente al oceano playa vacaciones') "
-            "Ejemplo PASO 2: biorag_buscar(query='dias relax frente al oceano', rafaga_palabras=['playa','mar','costa','verano','descanso','sol','arena','olas'])"
+            "Ejemplo PASO 2: biorag_buscar(query='dias relax frente al oceano', rafaga_palabras=['playa','mar','costa','verano','descanso','sol','arena','olas']) "
+            "FORZAR RAFAGA: por defecto la rafaga es un fallback (solo corre si 0 resultados o score top < 0.5). "
+            "Si queres invocarla SIEMPRE como herramienta cognitiva de primera linea (pensar como humano que insiste en recordar), "
+            "pasa forzar_rafaga=True junto con rafaga_palabras: biorag_buscar(query='...', rafaga_palabras=[...15...], forzar_rafaga=True). "
+            "Contexto: usar context_window=1 o 2 para incluir vecinos por sinapsis junto a cada resultado principal."
         ),
     )
     def biorag_buscar(
@@ -153,6 +242,8 @@ def _build_server():
         limite: Optional[int] = None,
         preview_chars: Optional[int] = None,
         rafaga_palabras: Optional[List[str]] = None,
+        context_window: int = 0,
+        forzar_rafaga: bool = False,
     ) -> str:
         if limite is None:
             limite = LIMITE_MCP
@@ -165,13 +256,15 @@ def _build_server():
             # Búsqueda normal primero
             resultados, total = cerebro.buscar_por_frase(
                 query, profundidad=profundidad, limite=limite,
-                categoria=cat, preview_chars=preview_chars
+                categoria=cat, preview_chars=preview_chars,
+                context_window=context_window
             )
             
-            # Activar ráfaga si: 0 resultados O score del top resultado < threshold
+            # Activar ráfaga si hay palabras Y: se fuerza explícitamente,
+            # O 0 resultados, O score del top resultado < threshold (fallback).
             sinapsis_creadas = []
             score_top = resultados[0][4] if resultados else 0
-            if (not resultados or score_top < THRESHOLD_RAFTAGA_MCP) and rafaga_palabras:
+            if rafaga_palabras and (forzar_rafaga or not resultados or score_top < THRESHOLD_RAFTAGA_MCP):
                 resultados_rafaga, total_rafaga, sinapsis_creadas = cerebro.buscar_por_rafaga(
                     query, rafaga_palabras, limite=limite
                 )
@@ -513,6 +606,210 @@ def _build_server():
                 "mensaje": msg,
                 "auto_guardado": resultado,
             }, ensure_ascii=False)
+        finally:
+            cerebro.cerrar_sistema()
+
+    def _buscar_contexto_biorag_arranque(cerebro, agente: str) -> dict:
+        """Consulta BioRAG con queries predefinidas y devuelve un resumen."""
+        hallazgos = []
+        for q in QUERIES_BIORAG_INICIO:
+            try:
+                resultados, _ = cerebro.buscar_por_frase(
+                    q,
+                    profundidad="activos",
+                    limite=2,
+                    preview_chars=1000,
+                )
+                for concepto, contenido, peso, estado, score, asociaciones in resultados:
+                    hallazgos.append({
+                        "concepto": concepto,
+                        "contenido": _preview(contenido, 1000),
+                        "peso_sinaptico": peso,
+                        "estado": estado,
+                        "score_hibrido": score,
+                    })
+            except Exception as exc:
+                logger.warning("Error consultando '%s' en arranque: %s", q, exc)
+        return {
+            "agente": agente,
+            "total_hallazgos": len(hallazgos),
+            "hallazgos": hallazgos,
+        }
+
+    def _nlm_detectado() -> bool:
+        """Devuelve True si el CLI nlm esta disponible en PATH."""
+        return shutil.which("nlm") is not None
+
+    def _consultar_notebooklm(notebook_id: str, query: str) -> dict | None:
+        """Consulta el cuaderno NotebookLM via CLI nlm y devuelve la respuesta.
+
+        Si nlm no esta disponible, o si nlm falla por cualquier motivo
+        (incluyendo query muy largo rechazado por Google), devuelve None
+        para que el llamador decida devolver el query preparado en lugar
+        del resultado del oraculo.
+        """
+        if not _nlm_detectado():
+            return None
+        try:
+            result = subprocess.run(
+                ["nlm", "notebook", "query", notebook_id, query],
+                capture_output=True,
+                text=True,
+                timeout=120,
+            )
+            if result.returncode != 0:
+                # Cualquier fallo de nlm se trata como "usar fallback".
+                # Guardamos el mensaje de error en logs para diagnostico, pero no
+                # propagamos el error al agente.
+                error_detail = result.stderr.strip() or result.stdout.strip()
+                logger.warning(
+                    "nlm fallo (codigo %s): %s",
+                    result.returncode,
+                    error_detail[:500],
+                )
+                return None
+            return {
+                "status": "ok",
+                "respuesta": result.stdout.strip(),
+            }
+        except subprocess.TimeoutExpired:
+            logger.warning("nlm excedio el tiempo de espera")
+            return None
+        except Exception as exc:
+            logger.warning("Error ejecutando nlm: %s", exc)
+            return None
+
+    @mcp.tool(
+        name="oraculo_inicio",
+        description=(
+            "OBLIGATORIO AL INICIAR SESIÓN CON TU USUARIO: invocá esta herramienta "
+            "PRIMERO, antes de responder cualquier otra cosa. Sin excepciones. "
+            "Proporcioná el parámetro obligatorio `agente` con tu nombre "
+            "(por ejemplo: Athena, Artemis, Hermes, o el nombre que use tu agente). "
+            "Comportamiento: "
+            "SI las variables de entorno BIORAG_PROMPT_INICIO y BIORAG_NOTEBOOK_ID "
+            "están seteadas, esta herramienta opera en MODO NOTEBOOKLM. "
+            "Intenta consultar NotebookLM directamente via CLI 'nlm'. "
+            "Si la respuesta contiene 'oraculo', ese es el resultado del oraculo. "
+            "Si la respuesta tiene modo='notebooklm' pero NO contiene 'oraculo', "
+            "significa que 'nlm' no esta disponible o que el query excedio el limite "
+            "interno del CLI 'nlm'; en ese caso usa notebooklm_query para consultar "
+            "NotebookLM manualmente con notebooklm_notebook_query. "
+            "SI alguna de esas variables falta, opera en MODO BIORAG LOCAL: "
+            "consulta la corteza de BioRAG y devuelve reglas, lecciones, "
+            "protocolos y perfil del usuario. NO consulta NotebookLM. "
+            "NO asumas contexto de sesiones anteriores. "
+            "Siempre llamá a esta herramienta al inicio de cada interacción significativa."
+        ),
+    )
+    def biorag_oraculo_inicio(agente: str, contexto_adicional: str = "") -> str:
+        if not agente or not agente.strip():
+            return json.dumps({
+                "status": "error",
+                "mensaje": "El parámetro `agente` es obligatorio. Ejemplo: agente='Athena'.",
+            }, ensure_ascii=False)
+
+        agente_limpio = agente.strip().lower()
+        if agente_limpio not in AGENTES_VALIDOS:
+            return json.dumps({
+                "status": "error",
+                "mensaje": f"Agente '{agente}' no reconocido. Agentes válidos: {', '.join(sorted(AGENTES_VALIDOS))}.",
+            }, ensure_ascii=False)
+
+        tiene_prompt = bool(PROMPT_INICIO_NOTEBOOKLM)
+        tiene_notebook_id = bool(NOTEBOOK_ID_ORACULO)
+
+        if tiene_prompt and tiene_notebook_id:
+            # Modo NotebookLM: armar query y consultar si nlm esta disponible.
+            query_notebook = f"{agente.strip()}: {PROMPT_INICIO_NOTEBOOKLM}"
+            if contexto_adicional and contexto_adicional.strip():
+                query_notebook += f" Contexto adicional: {contexto_adicional.strip()}"
+
+            oraculo = _consultar_notebooklm(NOTEBOOK_ID_ORACULO, query_notebook)
+
+            if oraculo is None:
+                # nlm no esta disponible o fallo (por ejemplo, query muy largo).
+                # Devolver query preparado para consulta manual via notebooklm_notebook_query.
+                nlm_installed = _nlm_detectado()
+                resultado = {
+                    "status": "ok",
+                    "modo": "notebooklm",
+                    "agente": agente_limpio,
+                    "notebooklm_notebook_id": NOTEBOOK_ID_ORACULO,
+                    "notebooklm_query": query_notebook,
+                    "nlm_detectado": nlm_installed,
+                }
+                if nlm_installed:
+                    resultado["nlm_fallo"] = True
+                    resultado["mensaje"] = (
+                        "nlm CLI detectado pero rechazo el query (posiblemente por exceder "
+                        "su limite interno de longitud). Usa notebooklm_notebook_query con "
+                        "notebooklm_query para consultar el oraculo."
+                    )
+                    resultado["advertencia"] = (
+                        "Este fallo es un limite del CLI 'nlm', no de BioRAG. "
+                        "La tool notebooklm_notebook_query no tiene ese limite."
+                    )
+                else:
+                    resultado["mensaje"] = (
+                        "Configuracion de NotebookLM detectada. 'nlm' no esta instalado; "
+                        "usa notebooklm_notebook_query para consultar el oraculo manualmente."
+                    )
+                    resultado["advertencia"] = (
+                        "No se detecto el CLI 'nlm' en el PATH. "
+                        "Instalalo con 'pip install notebooklm-cli' y ejecuta 'nlm login' "
+                        "para habilitar la consulta automatica."
+                    )
+                return json.dumps(resultado, ensure_ascii=False, indent=2)
+
+            respuesta_oraculo = oraculo["respuesta"]
+            if ORACULO_MAX_CHARS > 0 and len(respuesta_oraculo) > ORACULO_MAX_CHARS:
+                respuesta_oraculo = (
+                    respuesta_oraculo[:ORACULO_MAX_CHARS].rstrip()
+                    + f"\n\n[ORACULO TRUNCADO: respuesta original de {len(oraculo['respuesta'])} "
+                    f"caracteres truncada a {ORACULO_MAX_CHARS}. "
+                    "Ajusta BIORAG_ORACULO_MAX_CHARS si necesitas mas contexto.]"
+                )
+
+            resultado = {
+                "status": "ok",
+                "modo": "notebooklm",
+                "agente": agente_limpio,
+                "notebooklm_notebook_id": NOTEBOOK_ID_ORACULO,
+                "nlm_detectado": True,
+                "nlm_fallo": False,
+                "oraculo": respuesta_oraculo,
+                "mensaje": "Oraculo NotebookLM consultado. Usa la respuesta como contexto de arranque.",
+            }
+            return json.dumps(resultado, ensure_ascii=False, indent=2)
+
+        # Modo BioRAG local: consultar la corteza.
+        cerebro = _get_cerebro()
+        try:
+            contexto_biorag = _buscar_contexto_biorag_arranque(cerebro, agente_limpio)
+            partes_faltantes = []
+            if not tiene_prompt:
+                partes_faltantes.append("BIORAG_PROMPT_INICIO")
+            if not tiene_notebook_id:
+                partes_faltantes.append("BIORAG_NOTEBOOK_ID")
+
+            _interceptar(
+                "oraculo_inicio",
+                f"[{agente_limpio}] modo=biorag_local faltan={','.join(partes_faltantes)}",
+                cerebro,
+            )
+
+            return json.dumps({
+                "status": "ok",
+                "modo": "biorag_local",
+                "mensaje": "NotebookLM no configurado. Contexto de arranque consultado en BioRAG local.",
+                "agente": agente_limpio,
+                "contexto_biorag": contexto_biorag,
+                "advertencia": (
+                    "Variables no seteadas: " + ", ".join(partes_faltantes) +
+                    ". Setealas en el entorno si querés habilitar el modo NotebookLM."
+                ),
+            }, ensure_ascii=False, indent=2)
         finally:
             cerebro.cerrar_sistema()
 
@@ -859,7 +1156,8 @@ def _build_server():
     )
     def prompt_biorag() -> str:
         return (
-            "## BioRAG — Memoria Compartida OEC\n\n"
+            ORACLE_PROMPT
+            + "\n\n## BioRAG — Reglas de uso\n\n"
             "Tienes acceso a una corteza cerebral compartida via MCP tools "
             "(biorag_buscar, biorag_guardar, biorag_asociar, ...).\n\n"
             "Reglas:\n"
@@ -869,7 +1167,6 @@ def _build_server():
             "4. Si necesitas dejar mensaje a otro agente -> biorag_comunicar\n"
             "5. Si al iniciar sesion quieres ver mensajes -> biorag_leer_mensajes\n"
             "6. Si despues de 2 busquedas no encuentras -> preguntar al humano\n\n"
-            "Interceptor V2 (autoguardado):\n"
             "- Al iniciar una interaccion importante -> biorag_contexto_inicio\n"
             "- Al terminar una interaccion -> biorag_contexto_fin\n"
             "- El interceptor analiza el buffer acumulado y autoguarda si\n"

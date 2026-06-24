@@ -44,6 +44,7 @@ ZIP_URL = f"https://github.com/{REPO_OWNER}/{REPO_NAME}/archive/main.zip"
 INSTALL_DIR = Path.home() / "biorag"
 BACKUPS_DIR = Path.home() / ".biorag" / "backups"
 SSE_PORT = 8080
+OPENCODE_PLUGIN_NAME = "opencode-biorag-remember-plugin"
 
 
 # ── Terminal helpers ────────────────────────────────────────────────────────
@@ -441,6 +442,9 @@ def _configure_platform(name: str, info: dict) -> bool:
 
     if ok:
         _ok(f"Configurado en {info['label']}")
+        # Install OpenCode plugin alongside MCP config
+        if name == "opencode":
+            _install_opencode_plugin()
     else:
         _fail(f"Error escribiendo config de {info['label']}")
         if backup:
@@ -469,11 +473,61 @@ def _remove_from_platform(name: str, info: dict) -> bool:
     ok = _write_json_with_checkpoint(path, config)
     if ok:
         _ok(f"BioRAG eliminado de {info['label']}")
+        # Remove OpenCode plugin alongside MCP config
+        if name == "opencode":
+            _remove_opencode_plugin()
     else:
         _fail(f"Error escribiendo {path}")
         if backup:
             shutil.copy2(backup, path)
     return ok
+
+
+# ── OpenCode plugin ────────────────────────────────────────────────────────
+
+def _opencode_plugins_dir() -> Path:
+    """Return ~/.config/opencode/plugins/."""
+    return Path.home() / ".config" / "opencode" / "plugins"
+
+
+def _install_opencode_plugin() -> bool:
+    """Copy opencode-biorag-remember-plugin.ts to OpenCode plugins dir.
+
+    Returns True on success or if already installed.
+    """
+    source = INSTALL_DIR / "plugin" / f"{OPENCODE_PLUGIN_NAME}.ts"
+    if not source.exists():
+        _warn(f"Plugin no encontrado: {source}")
+        return False
+
+    plugins_dir = _opencode_plugins_dir()
+    dest = plugins_dir / f"{OPENCODE_PLUGIN_NAME}.ts"
+
+    # Create plugins dir if it doesn't exist
+    plugins_dir.mkdir(parents=True, exist_ok=True)
+
+    # Copy plugin file
+    try:
+        shutil.copy2(source, dest)
+        _ok(f"Plugin copiado: {dest}")
+    except Exception as exc:
+        _fail(f"Error copiando plugin: {exc}")
+        return False
+
+    return True
+
+
+def _remove_opencode_plugin() -> bool:
+    """Remove opencode-biorag-remember-plugin from OpenCode plugins dir."""
+    plugins_dir = _opencode_plugins_dir()
+    plugin_file = plugins_dir / f"{OPENCODE_PLUGIN_NAME}.ts"
+
+    # Remove file
+    if plugin_file.exists():
+        plugin_file.unlink()
+        _ok(f"Plugin eliminado: {plugin_file}")
+
+    return True
 
 
 # ── Checkpoint 4: verification ─────────────────────────────────────────────

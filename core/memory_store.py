@@ -67,6 +67,13 @@ class SQLiteMemoryBioRAG:
                 return 0
             return 1 if re.search(r'\b' + re.escape(token.lower()) + r'\b', texto.lower()) else 0
         self.conn.create_function("PALABRA_COMPLETA", 2, palabra_completa)
+
+        # Función personalizada: prefix word boundary check del lado de la DB
+        def palabra_prefijo(token, texto):
+            if not token or not texto:
+                return 0
+            return 1 if re.search(r'\b' + re.escape(token.lower()), texto.lower()) else 0
+        self.conn.create_function("PALABRA_PREFIJO", 2, palabra_prefijo)
         self._cat_cache = {}
         self._crear_estructura_cerebral()
         self.conn.execute("PRAGMA foreign_keys = ON")
@@ -988,6 +995,10 @@ class SQLiteMemoryBioRAG:
         ))
         # Optimizar FTS después de consolidation para reducir fragmentación
         self.cursor.execute("INSERT INTO largo_plazo_fts(largo_plazo_fts) VALUES('optimize')")
+        try:
+            self.cursor.execute("INSERT INTO largo_plazo_fts_unicode(largo_plazo_fts_unicode) VALUES('optimize')")
+        except sqlite3.OperationalError:
+            pass
         self.conn.commit()
 
         print("[MemoryBioRAG] Proceso de consolidación y equilibrio sináptico completado con éxito.")
@@ -1076,7 +1087,8 @@ class SQLiteMemoryBioRAG:
     # ─── FULL-TEXT SEARCH (FTS5) ─────────────────────────────────
 
     def _crear_tabla_fts(self):
-        """Crea tabla virtual FTS5 con tokenizer trigram y columna sinonimos."""
+        """Crea tablas virtuales FTS5: trigram (typos/substrings) y unicode61 (prefix matching)."""
+        # ─── FTS5 trigram ───
         # Verificar si la tabla FTS ya existe con el tokenizer correcto
         self.cursor.execute("SELECT COUNT(*) FROM sqlite_master WHERE type='table' AND name='largo_plazo_fts'")
         fts_existe = self.cursor.fetchone()[0] > 0
@@ -1134,6 +1146,52 @@ class SQLiteMemoryBioRAG:
             CREATE TRIGGER largo_plazo_au AFTER UPDATE ON largo_plazo BEGIN
                 DELETE FROM largo_plazo_fts WHERE rowid = old.rowid;
                 INSERT INTO largo_plazo_fts(rowid, concepto, contenido, sinonimos)
+                VALUES (new.rowid, new.concepto, new.contenido, new.sinonimos);
+            END
+        """)
+
+        # ─── FTS5 unicode61 (para prefix matching: react -> reactive) ───
+        self.cursor.execute("SELECT COUNT(*) FROM sqlite_master WHERE type='table' AND name='largo_plazo_fts_unicode'")
+        unicode_existe = self.cursor.fetchone()[0] > 0
+        if unicode_existe:
+            try:
+                self.cursor.execute("SELECT sinonimos FROM largo_plazo_fts_unicode LIMIT 0")
+            except sqlite3.OperationalError:
+                unicode_existe = False
+
+        if not unicode_existe:
+            self.cursor.execute("DROP TABLE IF EXISTS largo_plazo_fts_unicode")
+            self.cursor.execute("DROP TRIGGER IF EXISTS largo_plazo_unicode_ai")
+            self.cursor.execute("DROP TRIGGER IF EXISTS largo_plazo_unicode_ad")
+            self.cursor.execute("DROP TRIGGER IF EXISTS largo_plazo_unicode_au")
+            self.cursor.execute("""
+                CREATE VIRTUAL TABLE largo_plazo_fts_unicode USING fts5(
+                    concepto,
+                    contenido,
+                    sinonimos,
+                    tokenize='unicode61'
+                )
+            """)
+            self._poblar_fts_unicode()
+
+        self.cursor.execute("DROP TRIGGER IF EXISTS largo_plazo_unicode_ai")
+        self.cursor.execute("DROP TRIGGER IF EXISTS largo_plazo_unicode_ad")
+        self.cursor.execute("DROP TRIGGER IF EXISTS largo_plazo_unicode_au")
+        self.cursor.execute("""
+            CREATE TRIGGER largo_plazo_unicode_ai AFTER INSERT ON largo_plazo BEGIN
+                INSERT INTO largo_plazo_fts_unicode(rowid, concepto, contenido, sinonimos)
+                VALUES (new.rowid, new.concepto, new.contenido, new.sinonimos);
+            END
+        """)
+        self.cursor.execute("""
+            CREATE TRIGGER largo_plazo_unicode_ad AFTER DELETE ON largo_plazo BEGIN
+                DELETE FROM largo_plazo_fts_unicode WHERE rowid = old.rowid;
+            END
+        """)
+        self.cursor.execute("""
+            CREATE TRIGGER largo_plazo_unicode_au AFTER UPDATE ON largo_plazo BEGIN
+                DELETE FROM largo_plazo_fts_unicode WHERE rowid = old.rowid;
+                INSERT INTO largo_plazo_fts_unicode(rowid, concepto, contenido, sinonimos)
                 VALUES (new.rowid, new.concepto, new.contenido, new.sinonimos);
             END
         """)
@@ -1207,6 +1265,24 @@ class SQLiteMemoryBioRAG:
             )
         self.conn.commit()
 
+    def _poblar_fts_unicode(self):
+        """Puebla la FTS unicode61 desde datos existentes, incluyendo sinonimos."""
+        self.cursor.execute("SELECT COUNT(*) FROM largo_plazo_fts_unicode")
+        if self.cursor.fetchone()[0] > 0:
+            return
+        try:
+            self.cursor.execute("SELECT rowid, concepto, contenido, sinonimos FROM largo_plazo")
+        except sqlite3.OperationalError:
+            self.cursor.execute("SELECT rowid, concepto, contenido, '' as sinonimos FROM largo_plazo")
+        for row in self.cursor.fetchall():
+            rowid, concepto, contenido = row[0], row[1], row[2]
+            sinonimos = row[3] if len(row) > 3 else ""
+            self.cursor.execute(
+                "INSERT INTO largo_plazo_fts_unicode(rowid, concepto, contenido, sinonimos) VALUES (?, ?, ?, ?)",
+                (rowid, concepto or "", contenido or "", sinonimos or "")
+            )
+        self.conn.commit()
+
     def _crear_tabla_metricas(self):
         """Crea tabla de metricas de rendimiento para auto-evaluacion del sistema."""
         self.cursor.execute("""
@@ -1234,6 +1310,28 @@ class SQLiteMemoryBioRAG:
             )
         """)
         self.conn.commit()
+
+    def _agregar_prefix_wildcards(self, query):
+        """Agrega '*' al final de cada término para prefix matching en FTS5 unicode61.
+
+        Preserva frases entre comillas: "react native" -> "react* native*".
+        No duplica wildcards si ya existen. Términos cortos (<3 chars) no reciben
+        wildcard para evitar ruido (ej: "el*" matchearía demasiadas palabras).
+        """
+        terms = re.findall(r'"[^"]*"|\S+', query)
+        result = []
+        for t in terms:
+            if t.startswith('"') and t.endswith('"'):
+                inner = t[1:-1]
+                if len(inner) < 3:
+                    result.append(t)
+                else:
+                    result.append(f'"{inner}*"')
+            elif len(t) < 3 or t.endswith('*'):
+                result.append(t)
+            else:
+                result.append(t + '*')
+        return ' '.join(result)
 
     def _pesar_tokens_query(self, frase):
         """Calcula el peso de cada token según su centralidad en la red sináptica.
@@ -1385,7 +1483,7 @@ class SQLiteMemoryBioRAG:
 
         return round(0.60 * score_texto + 0.25 * peso_normalizado + 0.15 * score_asoc + score_temporal, 4)
 
-    def buscar_por_frase(self, frase, profundidad="activos", pagina=1, limite=None, categoria=None, preview_chars=1500, historial_fallos=None):
+    def buscar_por_frase(self, frase, profundidad="activos", pagina=1, limite=None, categoria=None, preview_chars=1500, historial_fallos=None, context_window=0):
         """Busqueda hibrida: FTS5 trigram + peso sinaptico + asociaciones.
 
         frase: texto en lenguaje natural. Trigrams nativos de FTS5 manejan
@@ -1397,6 +1495,9 @@ class SQLiteMemoryBioRAG:
                        El motor trunca en vez del CLI (ahorra RAM).
         historial_fallos: lista de queries anteriores que no dieron resultado.
                           Se usa para generar variaciones en caso de fallo.
+        context_window: numero de vecinos por resultado a incluir como contexto.
+                        0 = solo resultados principales (default).
+                        Maximo 3. Vecinos se obtienen de sinapsis por peso.
         Retorna (resultados, total) donde resultados es lista de
         (concepto, contenido, peso, estado, score, asociaciones)
         """
@@ -1486,6 +1587,30 @@ class SQLiteMemoryBioRAG:
                 except sqlite3.OperationalError:
                     pass
 
+        # Fallback 1.4: FTS5 unicode61 con prefix wildcards
+        # Mejora recall para palabras que comparten prefijo (react -> reactive, forms -> formularios).
+        # Se ejecuta siempre que haya al menos un término buscable para enriquecer resultados.
+        try:
+            query_wild = self._agregar_prefix_wildcards(query)
+            sql_unicode = """
+                SELECT l.rowid, l.concepto, l.contenido, l.peso_sinaptico,
+                       l.estado, l.asociaciones
+                FROM largo_plazo_fts_unicode f
+                JOIN largo_plazo l ON l.rowid = f.rowid
+                WHERE largo_plazo_fts_unicode MATCH ?{filtro}
+                ORDER BY bm25(largo_plazo_fts_unicode)
+                LIMIT ?
+            """.format(filtro=clause)
+            self.cursor.execute(sql_unicode, (query_wild,) + (max(limite * 3, 10),))
+            uni_results = self.cursor.fetchall()
+            seen_rowids = {r[0] for r in todos}
+            for r in uni_results:
+                if r[0] not in seen_rowids:
+                    todos.append(r)
+                    origen_scores[r[1]] = ("literal", 0.0)
+        except sqlite3.OperationalError:
+            pass
+
         # Fallback 1.5: Expansión semántica
         # NO aplica PALABRA_COMPLETA: las equivalentes son palabras distintas por diseño.
         # "auto" → "vehículo" debe funcionar aunque "vehículo" no aparezca en el texto.
@@ -1523,12 +1648,19 @@ class SQLiteMemoryBioRAG:
                     if filtrar:
                         fts_tokens = [f'"{t}"' for t in filtrar]
                         fts_q = " OR ".join(fts_tokens)
+                        # Filtro PALABRA_COMPLETA en puentes: evita falsos positivos de trigram
+                        # (ej: "culo" en "oráculo" contaminando la similitud conceptual)
+                        pc_bridge_clause = " AND (" + " OR ".join(
+                            ["(PALABRA_COMPLETA(?, l.contenido) = 1 OR PALABRA_COMPLETA(?, l.concepto) = 1 OR PALABRA_COMPLETA(?, COALESCE(l.sinonimos, '')) = 1)"] * len(filtrar)
+                        ) + ")"
+                        pc_bridge_params = tuple(p for t in filtrar for p in (t, t, t))
                         try:
                             self.cursor.execute(
                                 "SELECT DISTINCT l.concepto FROM largo_plazo_fts f "
                                 "JOIN largo_plazo l ON l.rowid = f.rowid "
-                                "WHERE largo_plazo_fts MATCH ? AND l.estado = 'activo' LIMIT 50",
-                                (fts_q,)
+                                "WHERE largo_plazo_fts MATCH ? AND l.estado = 'activo' "
+                                + pc_bridge_clause + " LIMIT 50",
+                                (fts_q,) + pc_bridge_params
                             )
                             nodos_cache = {row[0] for row in self.cursor.fetchall()}
                         except sqlite3.OperationalError:
@@ -1633,7 +1765,10 @@ class SQLiteMemoryBioRAG:
                                 continue
                         candidatos.append((avg_score, row))
                 candidatos.sort(key=lambda x: x[0], reverse=True)
-                todos = [r[1] for r in candidatos[:max(limite * 3, 10)]]
+                for score_typo, row in candidatos[:max(limite * 3, 10)]:
+                    todos.append(row)
+                    if row[1] not in origen_scores:
+                        origen_scores[row[1]] = ("typo", score_typo)
             except sqlite3.OperationalError:
                 pass
 
@@ -1714,30 +1849,34 @@ class SQLiteMemoryBioRAG:
         # Reordenar por score hibrido descendente
         resultados_con_hibrido.sort(key=lambda r: r[4], reverse=True)
 
-        # Filtro final con PALABRA_COMPLETA: para queries de una palabra, 
-        # exigir que aparezca como palabra completa en contenido (del lado de la DB)
+        # Filtro final con PALABRA_PREFIJO: para queries de una palabra,
+        # exigir que aparezca como prefijo de palabra en contenido (del lado de la DB).
+        # Esto permite "react" -> "reactive" mientras sigue bloqueando falsos positivos de substring
+        # ("culo" no es prefijo de "artículos").
+        # Solo aplica a resultados de capas literales (AND/OR/NEAR/unicode/snap/substring).
+        # Resultados de capas no literales (typo, expansión, latente, cadena) se preservan
+        # para no romper tolerancia a typos ni búsqueda semántica/conceptual.
         query_words = re.findall(r'\w{3,}', query.lower())
         if len(query_words) == 1 and resultados_con_hibrido:
             token = query_words[0]
-            rowids = [r[0] for r in resultados_con_hibrido if r[0] is not None]
-            if rowids:
-                placeholders = ",".join("?" * len(rowids))
+            literal_results = [
+                r for r in resultados_con_hibrido
+                if origen_scores.get(r[0], ("literal", 0.0))[0] == "literal"
+            ]
+            non_literal_results = [r for r in resultados_con_hibrido if r not in literal_results]
+            if literal_results:
+                conceptos_literal = [r[0] for r in literal_results if r[0] is not None]
+                placeholders = ",".join("?" * len(conceptos_literal))
                 self.cursor.execute(
-                    f"SELECT rowid FROM largo_plazo WHERE PALABRA_COMPLETA(?, contenido) = 1 AND rowid IN ({placeholders})",
-                    (token,) + tuple(rowids)
+                    f"SELECT concepto FROM largo_plazo WHERE "
+                    f"(PALABRA_PREFIJO(?, concepto) = 1 OR PALABRA_PREFIJO(?, contenido) = 1 OR PALABRA_PREFIJO(?, COALESCE(sinonimos, '')) = 1) "
+                    f"AND concepto IN ({placeholders})",
+                    (token, token, token) + tuple(conceptos_literal)
                 )
                 validos = {row[0] for row in self.cursor.fetchall()}
-                if validos:
-                    resultados_con_hibrido = [r for r in resultados_con_hibrido if r[0] in validos]
+                resultados_con_hibrido = [r for r in literal_results if r[0] in validos] + non_literal_results
 
-        # Truncar preview a nivel de motor (ahorra RAM en CLI/MCP)
-        if preview_chars and preview_chars > 0:
-            resultados_con_hibrido = [
-                (r[0], (r[1] or "")[:preview_chars] + ("..." if len(r[1] or "") > preview_chars else ""), r[2], r[3], r[4], r[5])
-                for r in resultados_con_hibrido
-            ]
-
-        # Paginar
+        # Paginar (sin truncar aun; se necesita contenido completo para context window)
         inicio = (pagina - 1) * limite
         pagina_resultados = resultados_con_hibrido[inicio:inicio + limite]
 
@@ -1750,13 +1889,55 @@ class SQLiteMemoryBioRAG:
                     )
             self.conn.commit()
 
+        # Context window: expandir cada resultado con vecinos por sinapsis
+        if context_window and context_window > 0 and pagina_resultados:
+            context_window = min(int(context_window), 3)
+            expandidos = list(pagina_resultados)
+            vistos = {r[0] for r in pagina_resultados}
+            contextos = []
+            filtro_estado = " AND l.estado = 'activo'" if profundidad != "profundo" else ""
+            for r in pagina_resultados:
+                concepto = r[0]
+                score_principal = r[4]
+                self.cursor.execute(f"""
+                    SELECT l.concepto, l.contenido, l.peso_sinaptico, l.estado, l.asociaciones, s.peso
+                    FROM sinapsis s
+                    JOIN largo_plazo l ON l.concepto = s.destino
+                    WHERE s.origen = ?{filtro_estado}
+                    UNION
+                    SELECT l.concepto, l.contenido, l.peso_sinaptico, l.estado, l.asociaciones, s.peso
+                    FROM sinapsis s
+                    JOIN largo_plazo l ON l.concepto = s.origen
+                    WHERE s.destino = ?{filtro_estado}
+                    ORDER BY s.peso DESC
+                """, (concepto, concepto))
+                agregados = 0
+                for row in self.cursor.fetchall():
+                    if agregados >= context_window:
+                        break
+                    if row[0] in vistos:
+                        continue
+                    score_contexto = round(min(1.0, score_principal * 0.6 + min(row[5], 1.0) * 0.2), 4)
+                    contextos.append((row[0], row[1], row[2], row[3], score_contexto, row[4]))
+                    vistos.add(row[0])
+                    agregados += 1
+            contextos.sort(key=lambda x: x[4], reverse=True)
+            pagina_resultados = expandidos + contextos
+
+        # Truncar preview a nivel de motor (ahorra RAM en CLI/MCP)
+        if preview_chars and preview_chars > 0:
+            pagina_resultados = [
+                (r[0], (r[1] or "")[:preview_chars] + ("..." if len(r[1] or "") > preview_chars else ""), r[2], r[3], r[4], r[5])
+                for r in pagina_resultados
+            ]
+
         # Búsqueda iterativa: si no hay resultados y hay historial, generar variaciones
         if not pagina_resultados and historial_fallos is not None:
             variaciones = self._generar_variaciones(query, historial_fallos)
             for var in variaciones:
                 resultados_var, total_var = self.buscar_por_frase(
                     var, profundidad, pagina, limite, categoria, preview_chars,
-                    historial_fallos=None
+                    historial_fallos=None, context_window=context_window
                 )
                 if resultados_var:
                     return resultados_var, total_var

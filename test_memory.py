@@ -984,7 +984,7 @@ def test_sistema():
     resultados_full, total_full = cerebro.buscar_por_frase("cadena nodo inicial")
     print(f"  Pipeline completo: {total_full} resultado(s)")
     assert total_full > 0, "Error: pipeline completo no devolvió resultados"
-    print(f"  OK: pipeline con 8 capas funciona")
+    print(f"  OK: pipeline con 9 capas funciona")
     print("--- Pipeline completo OK ---")
 
     # 62. PALABRA_COMPLETA: word boundary filtra en DB (no en Python)
@@ -1050,6 +1050,85 @@ def test_sistema():
         assert peso_a < 0.8, f"Error: peso debería haber decaído (peso={peso_a})"
     print(f"  OK: poda funciona correctamente")
     print("--- Poda del Tesauro OK ---")
+
+    # 65. FTS5 unicode61: tabla existe y sincronizada
+    print("\n--- 65. Probando tabla FTS5 unicode61 ---")
+    cerebro.cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='largo_plazo_fts_unicode'")
+    assert cerebro.cursor.fetchone(), "Error: tabla largo_plazo_fts_unicode no existe"
+    cerebro.cursor.execute("SELECT COUNT(*) FROM largo_plazo_fts_unicode")
+    count_unicode = cerebro.cursor.fetchone()[0]
+    cerebro.cursor.execute("SELECT COUNT(*) FROM largo_plazo_fts")
+    count_trigram = cerebro.cursor.fetchone()[0]
+    assert count_unicode == count_trigram, \
+        f"Error: unicode FTS ({count_unicode}) no coincide con trigram FTS ({count_trigram})"
+    print(f"OK: largo_plazo_fts_unicode existe y sincronizada ({count_unicode} filas)")
+    print("--- FTS5 unicode61 OK ---")
+
+    # 66. Prefix wildcards: buscar "react" debe encontrar "reactive forms"
+    print("\n--- 66. Probando prefix wildcards (unicode61) ---")
+    cerebro.percibir_corto_plazo("reactivo_forms", "Reactive forms en Angular con validación dinámica", "angular,forms", "Project")
+    cerebro.ciclo_sueno_consolidacion()
+    resultados_react, total_react = cerebro.buscar_por_frase("react")
+    conceptos_react = [r[0] for r in resultados_react]
+    print(f"  Buscar 'react': {total_react} resultado(s) -> {conceptos_react}")
+    assert "reactivo_forms" in conceptos_react, \
+        f"Error: 'react' debería encontrar 'reactivo_forms' via prefix wildcard, obtuvo {conceptos_react}"
+    # Verificar que "culo" sigue sin matchear "artículos" (PALABRA_PREFIJO no es substring)
+    resultados_culo, total_culo = cerebro.buscar_por_frase("culo")
+    conceptos_culo = [r[0] for r in resultados_culo]
+    assert "test_articulos_62" not in conceptos_culo, \
+        f"Error: 'culo' no debería matchear 'artículos' via prefix, obtuvo {conceptos_culo}"
+    print("OK: prefix wildcards funcionan y mantienen filtro anti-substring")
+    print("--- Prefix wildcards OK ---")
+
+    # 67. Context window: resultados principales + vecinos por sinapsis
+    print("\n--- 67. Probando Context Window ---")
+    cerebro.percibir_corto_plazo("ctx_nucleo", "Nodo central para prueba de context window", "test,context", "Project")
+    cerebro.percibir_corto_plazo("ctx_vecino_a", "Primer vecino conectado al central", "test,context", "Project")
+    cerebro.percibir_corto_plazo("ctx_vecino_b", "Segundo vecino conectado al central", "test,context", "Project")
+    cerebro.establecer_asociacion("ctx_nucleo", "ctx_vecino_a")
+    cerebro.establecer_asociacion("ctx_nucleo", "ctx_vecino_b")
+    cerebro.ciclo_sueno_consolidacion()
+    res_ctx, total_ctx = cerebro.buscar_por_frase("central context window", limite=1, context_window=1)
+    conceptos_ctx = [r[0] for r in res_ctx]
+    print(f"  Buscar 'central context window' (limite=1, context_window=1): {conceptos_ctx}")
+    assert "ctx_nucleo" in conceptos_ctx, f"Error: debería incluir nodo principal, obtuvo {conceptos_ctx}"
+    assert ("ctx_vecino_a" in conceptos_ctx or "ctx_vecino_b" in conceptos_ctx), \
+        f"Error: debería incluir al menos un vecino, obtuvo {conceptos_ctx}"
+    # context_window=0 no debe traer vecinos
+    res_no_ctx, _ = cerebro.buscar_por_frase("central context window", limite=1, context_window=0)
+    conceptos_no_ctx = [r[0] for r in res_no_ctx]
+    assert conceptos_no_ctx == ["ctx_nucleo"], \
+        f"Error: sin context_window solo debe venir principal, obtuvo {conceptos_no_ctx}"
+    print("OK: context window expande con vecinos y respeta context_window=0")
+    print("--- Context Window OK ---")
+
+    # 68. Context window: deduplicación de vecinos compartidos
+    print("\n--- 68. Probando deduplicación de context window ---")
+    cerebro.percibir_corto_plazo("ctx_x", "Nodo X en triangulo de contexto", "test,triangulo", "Project")
+    cerebro.percibir_corto_plazo("ctx_y", "Nodo Y en triangulo de contexto", "test,triangulo", "Project")
+    cerebro.percibir_corto_plazo("ctx_z", "Nodo conectado pero sin terminos de busqueda directa", "test,conexion", "Project")
+    cerebro.establecer_asociacion("ctx_x", "ctx_z")
+    cerebro.establecer_asociacion("ctx_y", "ctx_z")
+    cerebro.ciclo_sueno_consolidacion()
+    # Forzar peso alto en las aristas manuales para que Z supere a vecinos auto-generados
+    cerebro.cursor.execute("""
+        UPDATE sinapsis SET peso = 1.0
+        WHERE (origen = 'ctx_x' AND destino = 'ctx_z')
+           OR (origen = 'ctx_z' AND destino = 'ctx_x')
+           OR (origen = 'ctx_y' AND destino = 'ctx_z')
+           OR (origen = 'ctx_z' AND destino = 'ctx_y')
+    """)
+    cerebro.conn.commit()
+    res_tri, _ = cerebro.buscar_por_frase("triangulo contexto", limite=2, context_window=1)
+    conceptos_tri = [r[0] for r in res_tri]
+    print(f"  Buscar 'triangulo contexto' (limite=2, context_window=1): {conceptos_tri}")
+    assert "ctx_z" in conceptos_tri, \
+        f"Error: ctx_z debería aparecer como contexto compartido, obtuvo {conceptos_tri}"
+    assert conceptos_tri.count("ctx_z") == 1, \
+        f"Error: vecino compartido debe aparecer una sola vez, obtuvo {conceptos_tri}"
+    print("OK: context window deduplica vecinos compartidos")
+    print("--- Deduplicación Context Window OK ---")
 
     cerebro.cerrar_sistema()
     print("\n--- ¡Todas las pruebas biologicas completadas con exito! ---\n\n")

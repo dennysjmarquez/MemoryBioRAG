@@ -106,20 +106,28 @@ El LLM puede generar cualquier ráfaga que se le ocurra, sin limitarse a embeddi
 - El Protocolo de 3 pasos es "exactamente el proceso humano: intentas recordar → lanzas asociaciones → preguntas a alguien"
 - "Memoria que aprende mientras recuerda — cada búsqueda exitosa deja conexiones nuevas"
 
-**Números de crecimiento v7 → v8.1:** Sinapsis +154%, Activos +347%, Energía sináptica +358%
+**Números de crecimiento v7 → v8.3:** Sinapsis +154%, Activos +347%, Energía sináptica +358%
 
 > *"Esto es lo que queríamos construir desde el principio."*
 
 ---
 
-## Lo que logramos hoy (Resumen de v8.1)
+## Lo que logramos hoy (Resumen de v8.3)
 
-### Nuevos en v8.1:
+### Nuevos en v8.3:
+14. **Context Window en resultados** — Cada resultado principal se expande con 1-3 vecinos por sinapsis. El LLM ve el recuerdo y su contexto asociado, como Hermes muestra 1 mensaje antes/después.
+15. **Deduplicación de contexto** — Un vecino compartido por varios resultados principales aparece una sola vez.
+
+### Los componentes de v8.2 se mantienen:
+13. **FTS5 unicode61 + prefix wildcards** — Segunda tabla FTS5 con tokenizer unicode61 para prefix matching. "react" ahora encuentra "reactive", "reactivity", "react hooks"
+14. **PALABRA_PREFIJO** — Filtro de word boundary por prefijo que permite prefix matching sin reactivar falsos positivos tipo "culo" → "artículos"
+
+### Los 13 componentes de v8.1 se mantienen:
 11. **Batch FTS5 optimization** — Pre-carga puentes FTS5 una sola vez (1 query SQL en vez de N), reduce latencia de 56ms a 12ms
 12. **Calidad preservada** — Mismos resultados que legacy (100% overlap), sin degradación por substring matching
 13. **Configuración por entorno** — `.env.local` auto-cargado, 12 parámetros configurables
 
-### Los 10 componentes de v8.0 se mantienen:
+### Los 13 componentes de v8.1 se mantienen:
 1. **Dynamic Multiplicator** — Cuando FTS5 falla, Jaccard toma el control con fórmula 70/20/10
 2. **Anclaje Temporal** — +0.15 score si nodo accedido <7 días, +0.08 si <30 días
 3. **Ráfaga de Reminiscencia** — LLM genera 10-15 términos, script ejecuta en SQLite
@@ -130,28 +138,25 @@ El LLM puede generar cualquier ráfaga que se le ocurra, sin limitarse a embeddi
 8. **Contexto motivacional** — Guarda el "porqué" detrás de las enseñanzas
 9. **Instrucción de 5 niveles** — Guía para generar mejores palabras de ráfaga
 10. **Ráfaga se activa con score < 0.5** — No solo con 0 resultados
+11. **Batch FTS5 optimization** — Pre-carga puentes FTS5 una sola vez
+12. **Calidad preservada** — Mismos resultados que legacy (100% overlap)
+13. **Configuración por entorno** — `.env.local` auto-cargado, 12 parámetros configurables
 
 ### Nuevos componentes implementados:
-1. **Dynamic Multiplicator** — Cuando FTS5 falla, Jaccard toma el control con fórmula 70/20/10
-2. **Anclaje Temporal** — +0.15 score si nodo accedido <7 días, +0.08 si <30 días
-3. **Ráfaga de Reminiscencia** — LLM genera 10-15 términos, script ejecuta en SQLite
-4. **Co-ocurrencia automática en sueño** — Sinapsis por co-ocurrencia de conceptos
-5. **PALABRA_COMPLETA en todas las capas FTS5** — Previenes falsos positivos de trigram
-6. **Protocolo de 3 pasos** — Enriquecimiento → Ráfaga → Contingencia
-7. **Auto-aprendizaje de errores** — Registra interpretaciones erróneas, excluye en próxima búsqueda
-8. **Contexto motivacional** — Guarda el "porqué" detrás de las enseñanzas
-9. **Instrucción de 5 niveles** — Guía para generar mejores palabras de ráfaga
-10. **Ráfaga se activa con score < 0.5** — No solo con 0 resultados
+1. **Context Window** — Expansión de resultados con vecinos por sinapsis (`context_window` en `buscar_por_frase` y MCP)
+2. **Deduplicación de contexto** — Vecinos compartidos por múltiples resultados principales se retornan una sola vez
+3. **FTS5 unicode61 + prefix wildcards** — Segunda tabla FTS5 para prefix matching nativo
+4. **PALABRA_PREFIJO** — Word boundary por prefijo sin falsos positivos de substring
 
 ### Métricas del sistema:
 - 135 nodos activos, 58 dormidos, 1,474 sinapsis, 1,734 equivalencias
-- 64/64 tests pasando
+- 68/68 tests pasando
 - 16/16 pruebas de regresión pasando
 - 0 dependencias externas
 
 ---
 
-## Código Fuente: v8.1 Deep Dive
+## Código Fuente: v8.3 Deep Dive
 
 ### 1. MCP Server — Tool `biorag_buscar`
 
@@ -184,6 +189,7 @@ def biorag_buscar(
     limite: int = 10,
     preview_chars: Optional[int] = None,
     rafaga_palabras: Optional[List[str]] = None,
+    context_window: int = 0,
 ) -> str:
     cerebro = _get_cerebro()
     try:
@@ -193,7 +199,8 @@ def biorag_buscar(
         
         resultados, total = cerebro.buscar_por_frase(
             query, profundidad=profundidad, limite=limite,
-            categoria=cat, preview_chars=preview_chars
+            categoria=cat, preview_chars=preview_chars,
+            context_window=context_window
         )
         
         sinapsis_creadas = []
@@ -500,10 +507,13 @@ for concepto, contenido, _, _ in recuerdos_sesion:
 self._auto_generar_co_ocurrencia(recuerdos_sesion)
 ```
 
-### Resumen de Cambios v8.1
+### Resumen de Cambios v8.2
 
 | Componente | Qué hace | Archivo |
 |---|---|---|
+| FTS5 unicode61 | Segunda tabla FTS5 con tokenizer unicode61 | `_crear_tabla_fts()` |
+| Prefix wildcards | "react" → "react*" para encontrar "reactive" | `_agregar_prefix_wildcards()` |
+| PALABRA_PREFIJO | Filtro DB-side que permite prefijos sin falsos positivos | `__init__()` + `buscar_por_frase()` |
 | Batch FTS5 | Pre-carga puentes con 1 query (82% más rápido) | `_similitud_red()` |
 | Dynamic Multiplicator | Fórmula 70/20/10 cuando FTS5 falla | `_calcular_score_hibrido()` |
 | Side channel origen_scores | Rastrea origen de cada nodo | `buscar_por_frase()` |
@@ -541,7 +551,7 @@ Para el caso de uso de **memoria persistente de un agente**, BioRAG no solo es a
 
 ---
 
-## Logros Técnicos (v8.1)
+## Logros Técnicos (v8.2)
 
 - **0 dependencias externas de ML**: ni numpy, ni vectores, ni GPU — SQLite puro con FTS5 trigram
 - **Batch FTS5 optimization**: pre-carga puentes FTS5 una sola vez (1 query SQL en vez de N), reduce latencia de 56ms a 12ms (82% más rápido)
@@ -562,11 +572,51 @@ Para el caso de uso de **memoria persistente de un agente**, BioRAG no solo es a
 - **Explicar con propias palabras**: el agente lee los resultados y redacta respuestas claras (no JSON crudo)
 - **Similitud conceptual latente**: Jaccard sobre vecinos compartidos + tokens en contenido (60% red + 40% contenido)
 - **Expansión semántica por tesauro**: tabla `semantica` bidireccional con auto-aprendizaje
-- **Pipeline de búsqueda de 8 capas**: FTS5 AND → OR → Semántica → Conceptual → Snap → Cadena → Substring → Trigram
+- **Pipeline de búsqueda de 9 capas**: FTS5 AND → OR → Prefix (unicode61) → Semántica → Conceptual → Snap → Cadena → Substring → Trigram
+- **Prefix matching nativo**: integración FTS5 unicode61 + función custom `PALABRA_PREFIJO` para matches de prefijo sin falsos positivos de substring
+- **Context Window en búsquedas**: resultados incluyen vecinos sinápticos con deduplicación automática para contexto enriquecido
+- **Oráculo externo (NotebookLM)**: `biorag_oraculo_inicio` consulta NotebookLM o fallback a BioRAG local para contexto de arranque del agente
 - **Decay diferenciado por categoría**: Profile=0.05, Principle=0.2, Project=1.5
 - **Métricas cognitivas históricas**: tabla `metricas_cognitivas` con detección de tendencias
 - **MCP nativo**: 16 herramientas para OpenCode, VS Code, Cursor, Cline, Antigravity, Claude Code
-- **64 tests automatizados**: cobertura completa del motor, sinapsis, semántica, similitud y ráfaga
+- **Plugin OpenCode**: inyección invisible de recordatorios BioRAG + toast visual al agente
+- **68 tests automatizados**: cobertura completa del motor, sinapsis, semántica, similitud, ráfaga, prefix wildcards, context window y unicode FTS5
+
+---
+
+## Plugin OpenCode (opencode-biorag-remember-plugin)
+
+Plugin que se auto-carga en OpenCode desde `~/.config/opencode/plugins/`. No requiere registro en `opencode.json`.
+
+### Qué hace
+
+1. **Recordatorio invisible**: inyecta un `<system-reminder>` en cada turno del usuario, recordándole al agente que guarde datos en BioRAG si产生 conocimiento durable
+2. **Toast visual**: muestra un aviso "Auto-save: recordatorio BioRAG enviado" cuando la sesión queda idle
+
+### Cómo funciona
+
+- Hook `chat.message`: agrega un part `synthetic: true` con ID `prt_biorag_*` al mensaje de usuario. El TUI no lo renderiza (invisible para el humano), pero el modelo lo recibe como contexto
+- Hook `event` (`session.idle`): ejecuta `client.tui.showToast()` para el aviso visual
+- El `<system-reminder>` contiene autorización para usar herramientas BioRAG incluso en Plan Mode, y reglas de guardado selectivo
+
+### Instalación
+
+El instalador (`install.py`) copia el plugin automáticamente a `~/.config/opencode/plugins/`:
+
+```bash
+python3 install.py
+```
+
+### Instalación manual
+
+```bash
+cp plugin/opencode-biorag-remember-plugin.ts ~/.config/opencode/plugins/
+```
+
+### Requisitos
+
+- OpenCode con soporte de plugins (`plugins/` directory auto-load)
+- MCP de BioRAG configurado (las herramientas `biorag_guardar`, `biorag_buscar`, etc. deben estar disponibles)
 
 ---
 
@@ -641,6 +691,11 @@ progresivas. Si la primera no da resultados, pasa a la siguiente:
           No
           ▼
   CAPA 2: Búsqueda flexible (FTS5 OR)
+          │ Encontró? ── Sí ──► Resultados
+          │
+          No
+          ▼
+  CAPA 2.5: Prefix matching (FTS5 unicode61: "react" → "reactive")
           │ Encontró? ── Sí ──► Resultados
           │
           No
@@ -783,6 +838,37 @@ El agente sigue este flujo obligatorio al buscar:
 ---
 
 ## Versiones Destacadas
+
+### v9.0 — Plugin OpenCode, Oráculo NotebookLM y Context Window Cognitivo (Junio 2026)
+
+**BioRAG cruza el límite del agente: ahora no solo responde herramientas MCP, también inyecta contexto directamente en la conversación.**
+
+- **Plugin OpenCode (`opencode-biorag-remember-plugin`)**: inyección invisible de un `<system-reminder>` en cada turno del usuario vía `synthetic: true`. El TUI no lo renderiza, pero el modelo lo recibe. Incluye toast visual en sesión idle. No requiere registro en `opencode.json` — opencode auto-carga los `.ts` del directorio `plugins/`. Instalación automática via `install.py`.
+- **Oráculo de sesión (`biorag_oraculo_inicio`)**: nueva herramienta MCP que proporciona contexto de arranque al agente. Consulta NotebookLM externo (via `nlm` CLI o query directa) o fallback a BioRAG local si el oráculo no está configurado. Configurable via `BIORAG_PROMPT_INICIO` y `BIORAG_NOTEBOOK_ID`.
+- **Context Window en búsquedas**: `context_window=N` en `buscar_por_frase` expande resultados con vecinos sinápticos. Deduplicación automática y score atenuado (`score_principal * 0.6 + peso_sinaptico * 0.2`). El LLM recupera memorias con su contexto asociado.
+- **Prefix Matching nativo**: integración FTS5 unicode61 + función `PALABRA_PREFIJO` para prefix wildcards. `react` encuentra `reactive` sin que `culo` encuentre `artículos`. Pipeline de búsqueda expandido a 9 capas.
+- **Configuración mejorada de `.env.local`**: parseo multi-línea con soporte de secuencias de escape para prompts complejos.
+- **Instalador actualizado**: `install.py` busca el plugin en `plugin/` en vez de la raíz del repo. Eliminado registro redundante en `opencode.json`.
+- **Archivos modificados**: `plugin/opencode-biorag-remember-plugin.ts` (nuevo), `install.py` (ruta + registro), `mcp_server.py` (oráculo), `core/memory_store.py` (context window, prefix), `config/prompts.py`, `README.md`
+- **Tests**: 68/68 pasando
+
+### v8.2 — FTS5 unicode61, Prefix Wildcards y Context Window (Junio 2026)
+
+**Mejora de recall sin perder precisión: prefix matching nativo + contexto asociado en búsquedas.**
+
+- **FTS5 unicode61**: segunda tabla FTS5 con tokenizer unicode61 para búsquedas de palabras completas y prefix matching. Complementa la tabla trigram existente (typos/substrings).
+- **Prefix wildcards automáticos**: cada término de búsqueda se expande con `*` (`react` → `react*`), permitiendo encontrar "reactive", "reactivity", "react hooks".
+- **PALABRA_PREFIJO**: nueva función SQLite que filtra por prefijo de palabra. Permite `react` → `reactive` pero sigue bloqueando falsos positivos de substring como `culo` → `artículos`.
+- **Pipeline enriquecido**: la nueva capa 2.5 (unicode61 prefix) se ejecuta junto a las capas FTS5 AND/OR, aumentando recall sin degradar velocidad.
+- **Migración segura**: la tabla unicode61 se crea y puebla automáticamente al inicializar. Triggers mantienen sincronización en INSERT/UPDATE/DELETE.
+- **Context window en `buscar_por_frase`**: nuevo parámetro `context_window=N` que expande cada resultado principal con hasta N vecinos obtenidos de la tabla `sinapsis` ordenados por peso.
+- **Deduplicación automática**: un vecino compartido por varios resultados principales aparece una sola vez en la respuesta.
+- **Score de contexto atenuado**: los nodos de contexto reciben un score menor que los resultados principales (`score_principal * 0.6 + peso_sinaptico * 0.2`), preservando la jerarquía visual.
+- **Exposición en MCP**: `biorag_buscar` ahora acepta `context_window` para que el LLM pida contexto explícitamente.
+- **Archivos modificados**: `core/memory_store.py` (`buscar_por_frase`, `_crear_tabla_fts`, `_poblar_fts_unicode`), `mcp_server.py` (`biorag_buscar`)
+- **Tests**: 68/68 pasando
+
+### v8.1 — Batch FTS5 Optimization (Junio 2026)
 
 ### v8.1 — Batch FTS5 Optimization (Junio 2026)
 
@@ -963,7 +1049,7 @@ MemoryBioRAG/
   │    └── migrar_sinonimos_v2.0.py
   ├── MemoryBioRAG_Data/        # Bases de datos SQLite (auto-creado)
   ├── db_architecture_export.txt  # Blueprint generado
-  ├── test_memory.py            # 64 tests automatizados
+  ├── test_memory.py            # 66 tests automatizados
   └── README.md                 # Este archivo
 ```
 
@@ -1067,7 +1153,7 @@ cp .env.example .env.local
 
 ---
 
-## Producción (v8.1)
+## Producción (v8.2)
 
 | Métrica | Valor |
 |---|---|
@@ -1075,7 +1161,21 @@ cp .env.example .env.local
 | Nodos dormidos | 58 |
 | Sinapsis | 1,474 |
 | Equivalencias | 1,734 |
-| Tests | 64/64 pasando |
+| Tests | 66/66 pasando |
+| Dependencias externas | 0 |
+| Tamaño DB | ~4 MB |
+
+---
+
+## Producción (v9.0)
+
+| Métrica | Valor |
+|---|---|
+| Nodos activos | 135+ |
+| Nodos dormidos | 58+ |
+| Sinapsis | 1,474+ |
+| Equivalencias | 1,734+ |
+| Tests | 68/68 pasando |
 | Dependencias externas | 0 |
 | Tamaño DB | ~4 MB |
 

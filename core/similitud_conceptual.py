@@ -214,16 +214,23 @@ def buscar_por_similitud_latente(cursor, frase, limite=None, umbral=None):
     scored = []
     grafo = _cargar_grafo(cursor)
     # Pre-fetch puentes FTS5 una vez (batch optimization)
+    # Filtro PALABRA_COMPLETA: evita que trigramas falsos (ej: "culo" en "oráculo")
+    # contaminen los puentes de similitud conceptual.
     try:
         filtrar = [t for t in query_tokens if len(t) >= 3]
         if filtrar:
             fts_tokens = [f'"{t}"' for t in filtrar]
             fts_q = " OR ".join(fts_tokens)
+            pc_clause = " AND (" + " OR ".join(
+                ["(PALABRA_COMPLETA(?, l.contenido) = 1 OR PALABRA_COMPLETA(?, l.concepto) = 1 OR PALABRA_COMPLETA(?, COALESCE(l.sinonimos, '')) = 1)"] * len(filtrar)
+            ) + ")"
+            pc_params = tuple(p for t in filtrar for p in (t, t, t))
             cursor.execute(
                 "SELECT DISTINCT l.concepto FROM largo_plazo_fts f "
                 "JOIN largo_plazo l ON l.rowid = f.rowid "
-                "WHERE largo_plazo_fts MATCH ? AND l.estado = 'activo' LIMIT 50",
-                (fts_q,)
+                "WHERE largo_plazo_fts MATCH ? AND l.estado = 'activo' "
+                + pc_clause + " LIMIT 50",
+                (fts_q,) + pc_params
             )
             nodos_cache = {row[0] for row in cursor.fetchall()}
         else:
