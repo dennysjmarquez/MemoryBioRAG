@@ -371,6 +371,73 @@ def _install_mcp() -> None:
     _ok(f"mcp instalado ({version})")
 
 
+def _install_skill() -> None:
+    """Copy skills from repo to agent skill directories.
+
+    Scans INSTALL_DIR/skills/ for folders containing SKILL.md
+    and copies each to the skills directory of detected agents.
+    Silently skips if no skills found or no agent directories exist.
+    """
+    skills_src = INSTALL_DIR / "skills"
+    if not skills_src.exists():
+        _info("No se encontro carpeta skills/ en repo, saltando")
+        return
+
+    skill_folders = [
+        d for d in skills_src.iterdir()
+        if d.is_dir() and (d / "SKILL.md").exists()
+    ]
+    if not skill_folders:
+        _info("No se encontraron skills con SKILL.md en repo")
+        return
+
+    skill_dirs = [
+        Path.home() / ".claude" / "skills",
+        Path.home() / ".config" / "opencode" / "skills",
+        Path.home() / ".agents" / "skills",
+    ]
+    skill_dirs = [d for d in skill_dirs if d.exists()]
+
+    if not skill_dirs:
+        _info("No se detectaron carpetas de skills de agentes")
+        return
+
+    installed = 0
+    for skill_folder in skill_folders:
+        skill_name = skill_folder.name
+        for target_base in skill_dirs:
+            dest = target_base / skill_name / "SKILL.md"
+            dest.parent.mkdir(parents=True, exist_ok=True)
+            if dest.exists():
+                _backup_file(dest)
+            shutil.copy2(skill_folder / "SKILL.md", dest)
+            _ok(f"Skill '{skill_name}' instalado en {dest.parent}")
+            installed += 1
+
+    _info(f"{len(skill_folders)} skill(s) instalado(s) en {installed} destino(s)")
+
+
+def _remove_skill() -> None:
+    """Remove installed skills from agent directories during uninstall."""
+    skill_dirs = [
+        Path.home() / ".claude" / "skills",
+        Path.home() / ".config" / "opencode" / "skills",
+        Path.home() / ".agents" / "skills",
+    ]
+    removed = 0
+    for d in skill_dirs:
+        if not d.exists():
+            continue
+        for skill_folder in d.iterdir():
+            if skill_folder.is_dir() and (skill_folder / "SKILL.md").exists():
+                skill_folder_name = skill_folder.name
+                shutil.rmtree(skill_folder)
+                _ok(f"Skill '{skill_folder_name}' eliminado de {d}")
+                removed += 1
+    if removed == 0:
+        _info("No se encontraron skills instalados para eliminar")
+
+
 def _checkpoint2() -> None:
     """Verify the installation directory is valid after download."""
     script = _script_path()
@@ -793,6 +860,9 @@ def install() -> None:
     # 3. Install mcp package
     _install_mcp()
 
+    # 3b. Install skills
+    _install_skill()
+
     # Checkpoint 2
     _step("Checkpoint 2 — verificando instalación...")
     _checkpoint2()
@@ -867,6 +937,9 @@ def uninstall() -> None:
                 if not ok:
                     continue
             _remove_from_platform(name, info)
+
+    _step("Eliminando skills instalados")
+    _remove_skill()
 
     _step("Datos locales")
     if INSTALL_DIR.exists() and _confirm("¿Eliminar ~/biorag (incluye base de datos)?", default=False):
