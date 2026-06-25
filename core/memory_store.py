@@ -2009,46 +2009,68 @@ class SQLiteMemoryBioRAG:
         
         todos = []
         palabra_ganadora = None
-        
-        for palabra in rafaga_limpia:
-            if len(palabra) < 3:
-                continue
-            
-            # Buscar en activos
-            try:
-                self.cursor.execute(
-                    "SELECT l.rowid, l.concepto, l.contenido, l.peso_sinaptico, "
-                    "l.estado, l.asociaciones "
-                    "FROM largo_plazo_fts f JOIN largo_plazo l ON l.rowid = f.rowid "
-                    "WHERE largo_plazo_fts MATCH ? AND l.estado = 'activo' LIMIT ?",
-                    (f'"{palabra}"', limite)
-                )
-                resultados = self.cursor.fetchall()
-                if resultados:
-                    todos.extend(resultados)
-                    if not palabra_ganadora:
-                        palabra_ganadora = palabra
-                        nodo_ganador = resultados[0]
-            except sqlite3.OperationalError:
-                pass
-            
-            # SIEMPRE buscar en dormidos también (la ráfaga rescata del olvido)
-            try:
-                self.cursor.execute(
-                    "SELECT l.rowid, l.concepto, l.contenido, l.peso_sinaptico, "
-                    "l.estado, l.asociaciones "
-                    "FROM largo_plazo_fts f JOIN largo_plazo l ON l.rowid = f.rowid "
-                    "WHERE largo_plazo_fts MATCH ? AND l.estado = 'dormido' LIMIT ?",
-                    (f'"{palabra}"', limite)
-                )
-                resultados = self.cursor.fetchall()
-                if resultados:
-                    todos.extend(resultados)
-                    if not palabra_ganadora:
-                        palabra_ganadora = palabra
-                        nodo_ganador = resultados[0]
-            except sqlite3.OperationalError:
-                pass
+        seen_rowids = set()
+
+        # Filtrar palabras válidas (>= 3 chars, sin comillas dobles)
+        palabras_validas = [p for p in rafaga_limpia if len(p) >= 3 and '"' not in p]
+        if not palabras_validas:
+            return [], 0, []
+
+        # Construir query FTS5 con OR — un solo MATCH para todas las palabras.
+        # Esto elimina el cuello de botella de variables SQL y permite
+        # cantidad ilimitada de términos en la ráfaga.
+        fts_terms = " OR ".join(f'"{p}"' for p in palabras_validas)
+        limite_batch = max(limite * len(palabras_validas), 50)
+
+        # Buscar en activos — query único
+        try:
+            self.cursor.execute(
+                "SELECT l.rowid, l.concepto, l.contenido, l.peso_sinaptico, "
+                "l.estado, l.asociaciones "
+                "FROM largo_plazo_fts f JOIN largo_plazo l ON l.rowid = f.rowid "
+                "WHERE largo_plazo_fts MATCH ? AND l.estado = 'activo' LIMIT ?",
+                (fts_terms, limite_batch)
+            )
+            resultados = self.cursor.fetchall()
+            for r in resultados:
+                if r[0] not in seen_rowids:
+                    todos.append(r)
+                    seen_rowids.add(r[0])
+            if resultados and not palabra_ganadora:
+                texto = f"{resultados[0][1] or ''} {resultados[0][2] or ''}".lower()
+                for p in palabras_validas:
+                    if p.lower() in texto:
+                        palabra_ganadora = p
+                        break
+                if not palabra_ganadora:
+                    palabra_ganadora = palabras_validas[0]
+        except sqlite3.OperationalError:
+            pass
+
+        # SIEMPRE buscar en dormidos también (la ráfaga rescata del olvido)
+        try:
+            self.cursor.execute(
+                "SELECT l.rowid, l.concepto, l.contenido, l.peso_sinaptico, "
+                "l.estado, l.asociaciones "
+                "FROM largo_plazo_fts f JOIN largo_plazo l ON l.rowid = f.rowid "
+                "WHERE largo_plazo_fts MATCH ? AND l.estado = 'dormido' LIMIT ?",
+                (fts_terms, limite_batch)
+            )
+            resultados = self.cursor.fetchall()
+            for r in resultados:
+                if r[0] not in seen_rowids:
+                    todos.append(r)
+                    seen_rowids.add(r[0])
+            if resultados and not palabra_ganadora:
+                texto = f"{resultados[0][1] or ''} {resultados[0][2] or ''}".lower()
+                for p in palabras_validas:
+                    if p.lower() in texto:
+                        palabra_ganadora = p
+                        break
+                if not palabra_ganadora:
+                    palabra_ganadora = palabras_validas[0]
+        except sqlite3.OperationalError:
+            pass
         
         if not todos:
             return [], 0, []
@@ -2110,11 +2132,12 @@ class SQLiteMemoryBioRAG:
         self.conn.commit()
         
         # Fase 4: Métricas de ráfaga
+        import sys
         if sinapsis_creadas:
-            print(f"[Ráfaga] Palabra ganadora: '{palabra_ganadora}'")
-            print(f"[Ráfaga] Sinapsis creadas: {len(sinapsis_creadas)}")
+            print(f"[Ráfaga] Palabra ganadora: '{palabra_ganadora}'", file=sys.stderr)
+            print(f"[Ráfaga] Sinapsis creadas: {len(sinapsis_creadas)}", file=sys.stderr)
             for origen, destino, peso in sinapsis_creadas:
-                print(f"  {origen} → {destino} (peso: {peso})")
+                print(f"  {origen} → {destino} (peso: {peso})", file=sys.stderr)
         
         return scored[:limite], len(scored), sinapsis_creadas
 
