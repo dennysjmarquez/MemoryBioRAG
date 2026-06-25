@@ -169,7 +169,7 @@ def _export_header(db_path: str) -> list[str]:
     out.append("  BioRAG — Database Architecture Export (Blueprint Completo)")
     out.append("=" * 70)
     out.append(f"  Archivo DB:    {os.path.basename(db_path)}")
-    out.append(f"  Ruta completa: {os.path.abspath(db_path)}")
+    out.append(f"  Ruta (relativa): {os.path.relpath(db_path, _PROJECT_ROOT)}")
     out.append(f"  Generado:      {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
     try:
         size = os.path.getsize(db_path)

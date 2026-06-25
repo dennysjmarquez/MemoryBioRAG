@@ -96,67 +96,7 @@ El LLM puede generar cualquier ráfaga que se le ocurra, sin limitarse a embeddi
 
 ---
 
-## Validación Externa: Análisis de Arena AI
-
-> *"Esto es un salto arquitectónico real. La v8 no es una mejora incremental. Es un cambio de paradigma en cómo BioRAG encuentra información."*
-
-**Lo que destacó:**
-- La Ráfaga de Reminiscencia es "la implementación más cercana al proceso humano de recordar"
-- El Dynamic Multiplicator "sabe cuándo cambiar de estrategia automáticamente"
-- El Protocolo de 3 pasos es "exactamente el proceso humano: intentas recordar → lanzas asociaciones → preguntas a alguien"
-- "Memoria que aprende mientras recuerda — cada búsqueda exitosa deja conexiones nuevas"
-
-**Números de crecimiento v7 → v8.3:** Sinapsis +154%, Activos +347%, Energía sináptica +358%
-
-> *"Esto es lo que queríamos construir desde el principio."*
-
----
-
-## Lo que logramos hoy (Resumen de v8.3)
-
-### Nuevos en v8.3:
-14. **Context Window en resultados** — Cada resultado principal se expande con 1-3 vecinos por sinapsis. El LLM ve el recuerdo y su contexto asociado, como Hermes muestra 1 mensaje antes/después.
-15. **Deduplicación de contexto** — Un vecino compartido por varios resultados principales aparece una sola vez.
-
-### Los componentes de v8.2 se mantienen:
-13. **FTS5 unicode61 + prefix wildcards** — Segunda tabla FTS5 con tokenizer unicode61 para prefix matching. "react" ahora encuentra "reactive", "reactivity", "react hooks"
-14. **PALABRA_PREFIJO** — Filtro de word boundary por prefijo que permite prefix matching sin reactivar falsos positivos tipo "culo" → "artículos"
-
-### Los 13 componentes de v8.1 se mantienen:
-11. **Batch FTS5 optimization** — Pre-carga puentes FTS5 una sola vez (1 query SQL en vez de N), reduce latencia de 56ms a 12ms
-12. **Calidad preservada** — Mismos resultados que legacy (100% overlap), sin degradación por substring matching
-13. **Configuración por entorno** — `.env.local` auto-cargado, 12 parámetros configurables
-
-### Los 13 componentes de v8.1 se mantienen:
-1. **Dynamic Multiplicator** — Cuando FTS5 falla, Jaccard toma el control con fórmula 70/20/10
-2. **Anclaje Temporal** — +0.15 score si nodo accedido <7 días, +0.08 si <30 días
-3. **Ráfaga de Reminiscencia** — LLM genera 10-15 términos, script ejecuta en SQLite
-4. **Co-ocurrencia automática en sueño** — Sinapsis por co-ocurrencia de conceptos
-5. **PALABRA_COMPLETA en todas las capas FTS5** — Previenes falsos positivos de trigram
-6. **Protocolo de 3 pasos** — Enriquecimiento → Ráfaga → Contingencia
-7. **Auto-aprendizaje de errores** — Registra interpretaciones erróneas, excluye en próxima búsqueda
-8. **Contexto motivacional** — Guarda el "porqué" detrás de las enseñanzas
-9. **Instrucción de 5 niveles** — Guía para generar mejores palabras de ráfaga
-10. **Ráfaga se activa con score < 0.5** — No solo con 0 resultados
-11. **Batch FTS5 optimization** — Pre-carga puentes FTS5 una sola vez
-12. **Calidad preservada** — Mismos resultados que legacy (100% overlap)
-13. **Configuración por entorno** — `.env.local` auto-cargado, 12 parámetros configurables
-
-### Nuevos componentes implementados:
-1. **Context Window** — Expansión de resultados con vecinos por sinapsis (`context_window` en `buscar_por_frase` y MCP)
-2. **Deduplicación de contexto** — Vecinos compartidos por múltiples resultados principales se retornan una sola vez
-3. **FTS5 unicode61 + prefix wildcards** — Segunda tabla FTS5 para prefix matching nativo
-4. **PALABRA_PREFIJO** — Word boundary por prefijo sin falsos positivos de substring
-
-### Métricas del sistema:
-- 135 nodos activos, 58 dormidos, 1,474 sinapsis, 1,734 equivalencias
-- 68/68 tests pasando
-- 16/16 pruebas de regresión pasando
-- 0 dependencias externas
-
----
-
-## Código Fuente: v8.3 Deep Dive
+## Código Fuente
 
 ### 1. MCP Server — Tool `biorag_buscar`
 
@@ -507,7 +447,7 @@ for concepto, contenido, _, _ in recuerdos_sesion:
 self._auto_generar_co_ocurrencia(recuerdos_sesion)
 ```
 
-### Resumen de Cambios v8.2
+### Resumen de Cambios
 
 | Componente | Qué hace | Archivo |
 |---|---|---|
@@ -525,7 +465,7 @@ self._auto_generar_co_ocurrencia(recuerdos_sesion)
 
 ---
 
-## ¿Es BioRAG una alternativa a una base vectorial?
+### ¿Es BioRAG una alternativa a una base vectorial?
 
 **Depende de para qué. Pero en su dominio, sí.**
 
@@ -551,7 +491,7 @@ Para el caso de uso de **memoria persistente de un agente**, BioRAG no solo es a
 
 ---
 
-## Logros Técnicos (v8.2)
+### Logros Técnicos
 
 - **0 dependencias externas de ML**: ni numpy, ni vectores, ni GPU — SQLite puro con FTS5 trigram
 - **Batch FTS5 optimization**: pre-carga puentes FTS5 una sola vez (1 query SQL en vez de N), reduce latencia de 56ms a 12ms (82% más rápido)
@@ -584,47 +524,13 @@ Para el caso de uso de **memoria persistente de un agente**, BioRAG no solo es a
 
 ---
 
-## Plugin OpenCode (opencode-biorag-remember-plugin)
-
-Plugin que se auto-carga en OpenCode desde `~/.config/opencode/plugins/`. No requiere registro en `opencode.json`.
-
-### Qué hace
-
-1. **Recordatorio invisible**: inyecta un `<system-reminder>` en cada turno del usuario, recordándole al agente que guarde datos en BioRAG si产生 conocimiento durable
-2. **Toast visual**: muestra un aviso "Auto-save: recordatorio BioRAG enviado" cuando la sesión queda idle
-
-### Cómo funciona
-
-- Hook `chat.message`: agrega un part `synthetic: true` con ID `prt_biorag_*` al mensaje de usuario. El TUI no lo renderiza (invisible para el humano), pero el modelo lo recibe como contexto
-- Hook `event` (`session.idle`): ejecuta `client.tui.showToast()` para el aviso visual
-- El `<system-reminder>` contiene autorización para usar herramientas BioRAG incluso en Plan Mode, y reglas de guardado selectivo
-
-### Instalación
-
-El instalador (`install.py`) copia el plugin automáticamente a `~/.config/opencode/plugins/`:
-
-```bash
-python3 install.py
-```
-
-### Instalación manual
-
-```bash
-cp plugin/opencode-biorag-remember-plugin.ts ~/.config/opencode/plugins/
-```
-
-### Requisitos
-
-- OpenCode con soporte de plugins (`plugins/` directory auto-load)
-- MCP de BioRAG configurado (las herramientas `biorag_guardar`, `biorag_buscar`, etc. deben estar disponibles)
-
 ---
 
-## Arquitectura Cerebral
+### Arquitectura Cerebral
 
 El sistema funciona como un cerebro artificial dentro de un solo archivo SQLite (`MemoryBioRAG_Data/memory_biorag.db`). Emula de forma nativa el comportamiento de una base de datos vectorial a través de topología de grafos sinápticos y lógica relacional — sin embeddings, sin GPU, sin servidores externos.
 
-### Flujo General: cómo entra y sale la información
+#### Flujo General: cómo entra y sale la información
 
 ```
   Un agente de IA (Athena, Artemis o Hermes) interactúa con BioRAG
@@ -676,7 +582,7 @@ El sistema funciona como un cerebro artificial dentro de un solo archivo SQLite 
             └────────────────┘  └─────────────────┘
 ```
 
-### Pipeline de Búsqueda: cómo encuentra recuerdos
+#### Pipeline de Búsqueda: cómo encuentra recuerdos
 
 Cuando un agente busca algo, BioRAG intenta encontrarlo con 8 estrategias
 progresivas. Si la primera no da resultados, pasa a la siguiente:
@@ -743,7 +649,7 @@ progresivas. Si la primera no da resultados, pasa a la siguiente:
           │ Si no → responde "no tengo ese recuerdo"
 ```
 
-### Dynamic Multiplicator:-score adaptativo
+#### Dynamic Multiplicator:-score adaptativo
 
 Cuando la búsqueda literal falla y la similitud conceptual (Jaccard) encuentra resultados, el score se recalcula dinámicamente:
 
@@ -757,7 +663,7 @@ Cuando la búsqueda literal falla y la similitud conceptual (Jaccard) encuentra 
   - El nodo viene de capas 1.5, 1.7 o 1.9 (semánticas)
 ```
 
-### Ráfaga de Reminiscencia: cómo el sistema "intenta recordar"
+#### Ráfaga de Reminiscencia: cómo el sistema "intenta recordar"
 
 Emula el proceso humano de "tirar flechas" cuando no recuerdas algo:
 
@@ -793,7 +699,7 @@ Emula el proceso humano de "tirar flechas" cuando no recuerdas algo:
    Disfrutaste del sol, la arena y las olas del mar."
 ```
 
-### PALABRA_COMPLETA: word boundary en DB
+#### PALABRA_COMPLETA: word boundary en DB
 
 FTS5 trigram matchea substrings de 3+ chars. PALABRA_COMPLETA evita falsos positivos:
 
@@ -805,7 +711,7 @@ FTS5 trigram matchea substrings de 3+ chars. PALABRA_COMPLETA evita falsos posit
                2.5 (solo palabras ≤5 chars — preserva tolerancia a typos)
 ```
 
-### Ciclo de Sueño: cómo el cerebro se mantiene sano
+#### Ciclo de Sueño: cómo el cerebro se mantiene sano
 
 ```
   1. CONSOLIDAR ─── Mover de corto a largo plazo (+0.20)
@@ -818,7 +724,7 @@ FTS5 trigram matchea substrings de 3+ chars. PALABRA_COMPLETA evita falsos posit
   8. PODAR ──────── (opcional) Borrar nodos dormidos con peso ≤0.01
 ```
 
-### Protocolo de 3 pasos (MCP)
+#### Protocolo de 3 pasos (MCP)
 
 El agente sigue este flujo obligatorio al buscar:
 
@@ -837,24 +743,24 @@ El agente sigue este flujo obligatorio al buscar:
 
 ---
 
-## Versiones Destacadas
+## Historial de Versiones
 
 ### v9.0 — Plugin OpenCode, Oráculo NotebookLM y Context Window Cognitivo (Junio 2026)
 
-**BioRAG cruza el límite del agente: ahora no solo responde herramientas MCP, también inyecta contexto directamente en la conversación.**
+**BioRAG se expande: plugin de integración con OpenCode, contexto de sesión desde NotebookLM y búsqueda enriquecida con vecinos sinápticos.**
 
-- **Plugin OpenCode (`opencode-biorag-remember-plugin`)**: inyección invisible de un `<system-reminder>` en cada turno del usuario vía `synthetic: true`. El TUI no lo renderiza, pero el modelo lo recibe. Incluye toast visual en sesión idle. No requiere registro en `opencode.json` — opencode auto-carga los `.ts` del directorio `plugins/`. Instalación automática via `install.py`.
-- **Oráculo de sesión (`biorag_oraculo_inicio`)**: nueva herramienta MCP que proporciona contexto de arranque al agente. Consulta NotebookLM externo (via `nlm` CLI o query directa) o fallback a BioRAG local si el oráculo no está configurado. Configurable via `BIORAG_PROMPT_INICIO` y `BIORAG_NOTEBOOK_ID`.
-- **Context Window en búsquedas**: `context_window=N` en `buscar_por_frase` expande resultados con vecinos sinápticos. Deduplicación automática y score atenuado (`score_principal * 0.6 + peso_sinaptico * 0.2`). El LLM recupera memorias con su contexto asociado.
-- **Prefix Matching nativo**: integración FTS5 unicode61 + función `PALABRA_PREFIJO` para prefix wildcards. `react` encuentra `reactive` sin que `culo` encuentre `artículos`. Pipeline de búsqueda expandido a 9 capas.
-- **Configuración mejorada de `.env.local`**: parseo multi-línea con soporte de secuencias de escape para prompts complejos.
-- **Instalador actualizado**: `install.py` busca el plugin en `plugin/` en vez de la raíz del repo. Eliminado registro redundante en `opencode.json`.
-- **Archivos modificados**: `plugin/opencode-biorag-remember-plugin.ts` (nuevo), `install.py` (ruta + registro), `mcp_server.py` (oráculo), `core/memory_store.py` (context window, prefix), `config/prompts.py`, `README.md`
+- **Plugin OpenCode**: inyección invisible de recordatorios BioRAG en cada turno del usuario. Hook `chat.message` agrega `<system-reminder>` con autorización de herramientas en Plan Mode. Hook `event` (`session.idle`) muestra toast visual al agente. Sin registro en `opencode.json` — auto-carga desde `~/.config/opencode/plugins/`.
+- **Oráculo de sesión (`biorag_oraculo_inicio`)**: consulta NotebookLM externo o fallback a BioRAG local para contexto de arranque del agente. Configurable via `BIORAG_PROMPT_INICIO` y `BIORAG_NOTEBOOK_ID`.
+- **Context Window en búsquedas**: resultados incluyen vecinos sinápticos con deduplicación automática. El agente recupera memorias con su contexto asociado, imitando la memoria humana.
+- **Prefix Matching nativo**: integración FTS5 unicode61 + función `PALABRA_PREFIJO` para que "react" encuentre "reactive" sin falsos positivos de substring. Pipeline expandido a 9 capas.
+- **Configuración mejorada**: parseo `.env.local` con soporte multi-línea y secuencias de escape para prompts complejos.
+- **Instalación**: `python3 install.py` copia el plugin automáticamente. Instalación manual: `cp plugin/opencode-biorag-remember-plugin.ts ~/.config/opencode/plugins/`.
+- **Requisitos**: OpenCode con soporte de plugins y MCP de BioRAG configurado.
 - **Tests**: 68/68 pasando
 
 ### v8.2 — FTS5 unicode61, Prefix Wildcards y Context Window (Junio 2026)
 
-**Mejora de recall sin perder precisión: prefix matching nativo + contexto asociado en búsquedas.**
+**Mejora de recall sin perder precisión: prefix matching nativo en BioRAG. Los resultados ya no vienen solos: cada recuerdo trae su contexto asociado.**
 
 - **FTS5 unicode61**: segunda tabla FTS5 con tokenizer unicode61 para búsquedas de palabras completas y prefix matching. Complementa la tabla trigram existente (typos/substrings).
 - **Prefix wildcards automáticos**: cada término de búsqueda se expande con `*` (`react` → `react*`), permitiendo encontrar "reactive", "reactivity", "react hooks".
@@ -864,11 +770,25 @@ El agente sigue este flujo obligatorio al buscar:
 - **Context window en `buscar_por_frase`**: nuevo parámetro `context_window=N` que expande cada resultado principal con hasta N vecinos obtenidos de la tabla `sinapsis` ordenados por peso.
 - **Deduplicación automática**: un vecino compartido por varios resultados principales aparece una sola vez en la respuesta.
 - **Score de contexto atenuado**: los nodos de contexto reciben un score menor que los resultados principales (`score_principal * 0.6 + peso_sinaptico * 0.2`), preservando la jerarquía visual.
+- **Respeto de profundidad**: los vecinos heredan el filtro `activos`/`profundo` de la búsqueda principal.
+- **Sin cambio de API**: `context_window=0` es el default; el formato del resultado no cambia.
 - **Exposición en MCP**: `biorag_buscar` ahora acepta `context_window` para que el LLM pida contexto explícitamente.
-- **Archivos modificados**: `core/memory_store.py` (`buscar_por_frase`, `_crear_tabla_fts`, `_poblar_fts_unicode`), `mcp_server.py` (`biorag_buscar`)
+- **Archivos modificados**: `core/memory_store.py` (`buscar_por_frase`, `_crear_tabla_fts`, `_poblar_fts_unicode`, `_agregar_prefix_wildcards`), `mcp_server.py` (`biorag_buscar`), `test_memory.py` (tests 67-68)
 - **Tests**: 68/68 pasando
 
-### v8.1 — Batch FTS5 Optimization (Junio 2026)
+#### Validación Externa: Análisis de Arena AI
+
+> *"Esto es un salto arquitectónico real. La v8 no es una mejora incremental. Es un cambio de paradigma en cómo BioRAG encuentra información."*
+
+**Lo que destacó:**
+- La Ráfaga de Reminiscencia es "la implementación más cercana al proceso humano de recordar"
+- El Dynamic Multiplicator "sabe cuándo cambiar de estrategia automáticamente"
+- El Protocolo de 3 pasos es "exactamente el proceso humano: intentas recordar → lanzas asociaciones → preguntas a alguien"
+- "Memoria que aprende mientras recuerda — cada búsqueda exitosa deja conexiones nuevas"
+
+**Números de crecimiento v7 → v8.2:** Sinapsis +154%, Activos +347%, Energía sináptica +358%
+
+> *"Esto es lo que queríamos construir desde el principio."*
 
 ### v8.1 — Batch FTS5 Optimization (Junio 2026)
 
@@ -881,9 +801,9 @@ El agente sigue este flujo obligatorio al buscar:
 - **Archivos modificados**: `core/similitud_conceptual.py` (`_similitud_red`, `score_similitud_latente`), `core/memory_store.py` (`buscar_por_frase`)
 - **Tests**: 64/64 pasando
 
-### v8.0 — Auto-aprendizaje de Errores y Anclaje Temporal (Junio 2026)
+### v8.0 — Ráfaga de Reminiscencia, Auto-aprendizaje y Dynamic Multiplicator (Junio 2026)
 
-**El sistema aprende de sus propios errores de interpretación.**
+**El sistema aprende de sus propios errores y ahora "intenta recordar" como un cerebro humano.**
 
 - **Anclaje Temporal en Scoring**: bonus de +0.15 si el nodo fue accedido en los últimos 7 días, +0.08 si en los últimos 30 días, +0.03 si en los últimos 90 días. Los nodos frescos suben en el ranking.
 - **Auto-aprendizaje de errores**: cuando el usuario rechaza un resultado ("no es eso"), el agente registra el error como lección (`error_interpretacion_[palabra]`). La próxima vez que se busque esa palabra, el sistema excluye la interpretación errónea.
@@ -891,10 +811,6 @@ El agente sigue este flujo obligatorio al buscar:
 - **Contexto motivacional**: prompts.py instruye al agente para guardar el "porqué" detrás de las enseñanzas.
 - **Archivos modificados**: `core/memory_store.py` (`_calcular_score_hibrido`, `buscar_por_rafaga`), `config/prompts.py` (REGLA #1, REGLA #2)
 - **Tests**: 64/64 pasando
-
-### v8.0 — Ráfaga de Reminiscencia, Dynamic Multiplicator y Protocolo de 3 Pasos (Junio 2026)
-
-**La mayor evolución de BioRAG: el sistema ahora "intenta recordar" como un cerebro humano.**
 
 #### Nuevos componentes:
 - **`buscar_por_rafaga()`** en `memory_store.py`: búsqueda por ráfaga de reminiscencia. Cuando la búsqueda normal falla, el agente "tira flechas" con 10-15 términos relacionados. El script busca con cada palabra (activos + dormidos), despierta nodos encontrados y crea sinapsis automáticamente.
@@ -1151,33 +1067,17 @@ cp .env.example .env.local
 
 **Nota:** Si no estableces ninguna variable, el sistema usa los defaults del código.
 
----
+## Producción
 
-## Producción (v8.2)
-
-| Métrica | Valor |
-|---|---|
-| Nodos activos | 135 |
-| Nodos dormidos | 58 |
-| Sinapsis | 1,474 |
-| Equivalencias | 1,734 |
-| Tests | 66/66 pasando |
-| Dependencias externas | 0 |
-| Tamaño DB | ~4 MB |
-
----
-
-## Producción (v9.0)
-
-| Métrica | Valor |
-|---|---|
-| Nodos activos | 135+ |
-| Nodos dormidos | 58+ |
-| Sinapsis | 1,474+ |
-| Equivalencias | 1,734+ |
-| Tests | 68/68 pasando |
-| Dependencias externas | 0 |
-| Tamaño DB | ~4 MB |
+| Métrica | v8.2 | v9.0 |
+|---|---|---|
+| Nodos activos | 135 | 135+ |
+| Nodos dormidos | 58 | 58+ |
+| Sinapsis | 1,474 | 1,474+ |
+| Equivalencias | 1,734 | 1,734+ |
+| Tests | 66/66 pasando | 68/68 pasando |
+| Dependencias externas | 0 | 0 |
+| Tamaño DB | ~4 MB | ~4 MB |
 
 ---
 
