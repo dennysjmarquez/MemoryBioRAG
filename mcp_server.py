@@ -207,7 +207,7 @@ def _build_server():
     # ── TOOLS ────────────────────────────────────────────────────────────────
 
     @mcp.tool(
-        name="biorag_buscar",
+        name="buscar",
         description=(
             "Busca recuerdos en la corteza compartida. "
             "FLUJO OBLIGATORIO EN 3 PASOS: "
@@ -226,10 +226,12 @@ def _build_server():
             "DESPUES DE CADA PASO: Leer los resultados y explicar al usuario con tus propias palabras que encontraste. "
             "Si encontraste algo parecido pero no exacto, decir: 'No encontre X pero encontre Y que dice que...'. "
             "Ejemplo PASO 1: biorag_buscar(query='dias relax frente al oceano playa vacaciones') "
-            "Ejemplo PASO 2: biorag_buscar(query='dias relax frente al oceano', rafaga_palabras=['playa','mar','costa','verano','descanso','sol','arena','olas']) "
+            "Ejemplo PASO 2: biorag_buscar(query='dias relax frente al oceano', rafaga_palabras='playa,mar,costa,verano,descanso,sol,arena,olas') "
             "FORZAR RAFAGA: por defecto la rafaga es un fallback (solo corre si 0 resultados o score top < 0.5). "
             "Si queres invocarla SIEMPRE como herramienta cognitiva de primera linea (pensar como humano que insiste en recordar), "
-            "pasa forzar_rafaga=True junto con rafaga_palabras: biorag_buscar(query='...', rafaga_palabras=[...15...], forzar_rafaga=True). "
+            "pasa forzar_rafaga=True junto con rafaga_palabras = 'termino1,termino2,...' (string separado por comas). "
+            "IMPORTANTE: forzar_rafaga=True SIN rafaga_palabras devuelve ERROR. Siempre pasar ambos juntos. "
+            "Ejemplo: biorag_buscar(query='...', rafaga_palabras='termino1,termino2', forzar_rafaga=True). "
             "Contexto: usar context_window=1 o 2 para incluir vecinos por sinapsis junto a cada resultado principal."
         ),
     )
@@ -241,9 +243,9 @@ def _build_server():
         asociados: bool = False,
         limite: Optional[int] = None,
         preview_chars: Optional[int] = None,
-        rafaga_palabras: Optional[List[str]] = None,
         context_window: int = 0,
         forzar_rafaga: bool = False,
+        rafaga_palabras: Optional[str] = None,
     ) -> str:
         if limite is None:
             limite = LIMITE_MCP
@@ -251,6 +253,15 @@ def _build_server():
         try:
             if preview_chars is None:
                 preview_chars = 0 if completo else 1500
+
+            rafaga_list = [w.strip() for w in rafaga_palabras.split(",")] if rafaga_palabras else None
+
+            if forzar_rafaga and not rafaga_palabras:
+                return json.dumps({
+                    "status": "error",
+                    "mensaje": "forzar_rafaga=True requiere rafaga_palabras. Pasa terminos separados por coma.",
+                }, ensure_ascii=False)
+
             profundidad = "profundo" if deep else "activos"
             
             # Búsqueda normal primero
@@ -264,9 +275,9 @@ def _build_server():
             # O 0 resultados, O score del top resultado < threshold (fallback).
             sinapsis_creadas = []
             score_top = resultados[0][4] if resultados else 0
-            if rafaga_palabras and (forzar_rafaga or not resultados or score_top < THRESHOLD_RAFTAGA_MCP):
+            if rafaga_list and (forzar_rafaga or not resultados or score_top < THRESHOLD_RAFTAGA_MCP):
                 resultados_rafaga, total_rafaga, sinapsis_creadas = cerebro.buscar_por_rafaga(
-                    query, rafaga_palabras, limite=limite
+                    query, rafaga_list, limite=limite
                 )
                 # Combinar resultados: ráfaga + originales (sin duplicados)
                 if resultados_rafaga:
@@ -312,7 +323,7 @@ def _build_server():
             cerebro.cerrar_sistema()
 
     @mcp.tool(
-        name="biorag_guardar",
+        name="guardar",
         description=(
             "Guarda un recuerdo en la memoria de corto plazo. "
             "Cat validas: System, Architecture, Project, Lesson, Profile, "
@@ -366,7 +377,7 @@ def _build_server():
             cerebro.cerrar_sistema()
 
     @mcp.tool(
-        name="biorag_asociar",
+        name="asociar",
         description="Crea un enlace sinaptico bidireccional entre dos conceptos.",
     )
     def biorag_asociar(a: str, b: str) -> str:
@@ -382,7 +393,7 @@ def _build_server():
             cerebro.cerrar_sistema()
 
     @mcp.tool(
-        name="biorag_comunicar",
+        name="comunicar",
         description=(
             "Envia un mensaje a otro agente OEC (athena, artemis, hermes, todos). "
             "Identificate con AGENT_NAME."
@@ -402,7 +413,7 @@ def _build_server():
             cerebro.cerrar_sistema()
 
     @mcp.tool(
-        name="biorag_leer_mensajes",
+        name="leer_mensajes",
         description="Lee mensajes del canal compartido entre agentes OEC.",
     )
     def biorag_leer_mensajes(
@@ -444,7 +455,7 @@ def _build_server():
             cerebro.cerrar_sistema()
 
     @mcp.tool(
-        name="biorag_sueno",
+        name="sueno",
         description=(
             "Consolida la memoria de corto plazo a largo plazo. "
             "Aplica LTP a nuevos recuerdos, LTD por decaimiento, "
@@ -472,7 +483,7 @@ def _build_server():
             cerebro.cerrar_sistema()
 
     @mcp.tool(
-        name="biorag_estado",
+        name="estado",
         description="Muestra estadisticas de la corteza: nodos activos, dormidos, energia sinaptica.",
     )
     def biorag_estado() -> str:
@@ -504,7 +515,7 @@ def _build_server():
             cerebro.cerrar_sistema()
 
     @mcp.tool(
-        name="biorag_corteza",
+        name="corteza",
         description="Lista todos los nodos de la corteza permanente (activos y dormidos).",
     )
     def biorag_corteza() -> str:
@@ -532,7 +543,7 @@ def _build_server():
             cerebro.cerrar_sistema()
 
     @mcp.tool(
-        name="biorag_listar_categorias",
+        name="listar_categorias",
         description=(
             "Lista las categorias validas para guardar recuerdos. "
             " Retorna id, nombre y descripcion de cada categoria. "
@@ -551,7 +562,7 @@ def _build_server():
     # ── TOOLS (Interceptor V2) ──────────────────────────────────────────────
 
     @mcp.tool(
-        name="biorag_contexto_inicio",
+        name="contexto_inicio",
         description=(
             "Anuncia el inicio de una interaccion significativa. "
             "Almacena el contexto en el buffer de sesion para que el "
@@ -567,7 +578,7 @@ def _build_server():
             cerebro.cerrar_sistema()
 
     @mcp.tool(
-        name="biorag_contexto_fin",
+        name="contexto_fin",
         description=(
             "Anuncia el fin de una interaccion. Fuerza el analisis del "
             "buffer de sesion acumulado y autoguarda si detecta algo nuevo."
@@ -816,7 +827,7 @@ def _build_server():
     # ── SYNC TOOLS ──────────────────────────────────────────────────────────
 
     @mcp.tool(
-        name="biorag_sync_status",
+        name="sync_status",
         description="Muestra categorías pendientes de sincronizar a NotebookLM.",
     )
     def biorag_sync_status() -> str:
@@ -840,7 +851,7 @@ def _build_server():
             cerebro.cerrar_sistema()
 
     @mcp.tool(
-        name="biorag_export_sync",
+        name="export_sync",
         description=(
             "Exporta SOLO categorías pendientes a .jsonl.txt en db/. "
             "Lee sync_log y genera archivos para subir a NotebookLM. "
@@ -875,7 +886,7 @@ def _build_server():
             }, ensure_ascii=False)
 
     @mcp.tool(
-        name="biorag_export_full",
+        name="export_full",
         description=(
             "Export completo: genera .jsonl.txt de TODAS las categorías. "
             "Fallback para volcado completo. Retorna lista de archivos generados."
@@ -909,7 +920,7 @@ def _build_server():
             }, ensure_ascii=False)
 
     @mcp.tool(
-        name="biorag_metricas_historial",
+        name="metricas_historial",
         description=(
             "Retorna los últimos N ciclos de sueño con tendencias: "
             "consolidación promedio, olvido promedio, categoría dominante, "
@@ -999,7 +1010,7 @@ def _build_server():
             cerebro.cerrar_sistema()
 
     @mcp.tool(
-        name="biorag_semantica_admin",
+        name="semantica_admin",
         description=(
             "Administra el vocabulario semántico: listar equivalencias, "
             "agregar/eliminar pares, cargar vocabulario desde JSON. "

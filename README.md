@@ -106,7 +106,7 @@ El LLM puede generar cualquier ráfaga que se le ocurra, sin limitarse a embeddi
 from typing import Any, Optional, List
 
 @mcp.tool(
-    name="biorag_buscar",
+    name="buscar",
     description=(
         "Busca recuerdos en la corteza compartida. "
         "FLUJO OBLIGATORIO EN 3 PASOS: "
