@@ -109,5 +109,5 @@ def inyectar_contexto_familiaridad(user_input, cerebro):
     for c in conceptos:
         notas.append(f'[Nota de Familiaridad: Te resulta familiar el concepto "{c}"]')
     
-    prefijo = "\n".join(notes for notes in notas)
+    prefijo = "\n".join(notas)
     return f"{prefijo}\n\n{user_input}"

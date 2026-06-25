@@ -1130,8 +1130,116 @@ def test_sistema():
     print("OK: context window deduplica vecinos compartidos")
     print("--- Deduplicación Context Window OK ---")
 
+    # ─────────────────────────────────────────────────────────────
+    # Paginación, Límites y Blindaje del Core y MCP
+    # ─────────────────────────────────────────────────────────────
+    print("\n--- 69. Probando Paginación y Límites Estrictos ---")
+    import json
+
+    # Insertar registros controlados para pruebas de paginación
+    for i in range(1, 6):
+        cerebro.percibir_corto_plazo(
+            f"test_pag_{i}",
+            f"Contenido de paginacion numero {i} con Angular ngx",
+            "angular,ngx,pag",
+            "Project"
+        )
+    cerebro.ciclo_sueno_consolidacion()
+
+    # Test 69a: Límite estricto en buscar_por_frase
+    res_frase, total_frase = cerebro.buscar_por_frase("paginacion angular", limite=3)
+    print(f"  buscar_por_frase limite=3: {len(res_frase)} de total {total_frase}")
+    assert len(res_frase) <= 3, f"Error: se esperaban <= 3 resultados, se obtuvieron {len(res_frase)}"
+    assert total_frase >= 5, f"Error: total de la consulta debería ser >= 5, se obtuvo {total_frase}"
+
+    # Test 69b: Paginación real en buscar_por_frase
+    p1, _ = cerebro.buscar_por_frase("paginacion angular", pagina=1, limite=2)
+    p2, _ = cerebro.buscar_por_frase("paginacion angular", pagina=2, limite=2)
+    conceptos_p1 = {r[0] for r in p1}
+    conceptos_p2 = {r[0] for r in p2}
+    print(f"  Pagina 1: {conceptos_p1}, Pagina 2: {conceptos_p2}")
+    assert len(p1) == 2, f"Error: Pagina 1 debería tener 2 resultados, tiene {len(p1)}"
+    assert len(p2) == 2, f"Error: Pagina 2 debería tener 2 resultados, tiene {len(p2)}"
+    assert conceptos_p1.isdisjoint(conceptos_p2), f"Error: Página 1 y 2 tienen duplicados: {conceptos_p1 & conceptos_p2}"
+
+    # Test 69c: Límite estricto en buscar_por_rafaga
+    palabras_rafaga = ["angular", "ngx", "pag"]
+    res_raf, total_raf, _ = cerebro.buscar_por_rafaga("paginacion", palabras_rafaga, limite=3)
+    print(f"  buscar_por_rafaga limite=3: {len(res_raf)} de total {total_raf}")
+    assert len(res_raf) <= 3, f"Error: ráfaga esperaba <= 3, obtuvo {len(res_raf)}"
+    assert total_raf >= 5, f"Error: total ráfaga esperado >= 5, obtuvo {total_raf}"
+
+    # Test 69d: Paginación real en buscar_por_rafaga
+    rp1, _, _ = cerebro.buscar_por_rafaga("paginacion", palabras_rafaga, pagina=1, limite=2)
+    rp2, _, _ = cerebro.buscar_por_rafaga("paginacion", palabras_rafaga, pagina=2, limite=2)
+    c_rp1 = {r[1] for r in rp1}
+    c_rp2 = {r[1] for r in rp2}
+    print(f"  Ráfaga Pagina 1: {c_rp1}, Ráfaga Pagina 2: {c_rp2}")
+    assert len(rp1) == 2, f"Error: ráfaga Pagina 1 debería tener 2, tiene {len(rp1)}"
+    assert len(rp2) == 2, f"Error: ráfaga Pagina 2 debería tener 2, tiene {len(rp2)}"
+    assert c_rp1.isdisjoint(c_rp2), f"Error: ráfaga Página 1 y 2 tienen duplicados: {c_rp1 & c_rp2}"
+
+    # Test 69e: Página fuera de rango (graceful)
+    p_far, _ = cerebro.buscar_por_frase("paginacion", pagina=9999, limite=5)
+    assert len(p_far) == 0, f"Error: pagina=9999 debería retornar lista vacía, retornó {len(p_far)}"
+    rp_far, _, _ = cerebro.buscar_por_rafaga("paginacion", palabras_rafaga, pagina=9999, limite=5)
+    assert len(rp_far) == 0, f"Error: ráfaga pagina=9999 debería retornar vacía, obtuvo {len(rp_far)}"
+
+    # Test 69f: Compatibilidad retroactiva (llamada sin pagina)
+    res_compat, _ = cerebro.buscar_por_frase("paginacion", limite=3)
+    assert len(res_compat) > 0, f"Error: llamada sin pagina debería usar default=1"
+    res_raf_compat, _, _ = cerebro.buscar_por_rafaga("paginacion", palabras_rafaga, limite=3)
+    assert len(res_raf_compat) > 0, f"Error: ráfaga sin pagina debería usar default=1"
+
+    # Test 69g: Blindaje de paginación extrema en base de datos
+    res_p0, _ = cerebro.buscar_por_frase("paginacion", pagina=0, limite=3)
+    res_pneg, _ = cerebro.buscar_por_frase("paginacion", pagina=-10, limite=3)
+    assert [r[0] for r in res_frase] == [r[0] for r in res_p0], "Error: pagina=0 no equivale a pagina=1"
+    assert [r[0] for r in res_frase] == [r[0] for r in res_pneg], "Error: pagina=-10 no equivale a pagina=1"
+    print("  OK: blindaje contra paginación <= 0 verificado exitosamente")
+
+    # Test 69h: Integración con biorag_recordar del servidor MCP apuntando a la DB temporal
+    orig_biorag_path = os.environ.get("BIORAG_PATH")
+    try:
+        os.environ["BIORAG_PATH"] = db_test_path
+        from mcp_server import _build_server
+        server_mcp = _build_server()
+        biorag_recordar = next(t.fn for t in server_mcp._tool_manager.list_tools() if t.name == "recordar")
+
+        # Testear JSON structure y paginación a nivel de MCP
+        mcp_json = biorag_recordar("paginacion angular", limite=2, pagina=1)
+        mcp_data = json.loads(mcp_json)
+        assert "total" in mcp_data, "Error: JSON sin total"
+        assert "resultados" in mcp_data, "Error: JSON sin resultados"
+        assert "pagina_actual" in mcp_data, "Error: JSON sin pagina_actual"
+        assert "paginas_totales" in mcp_data, "Error: JSON sin paginas_totales"
+        assert mcp_data["pagina_actual"] == 1, f"Error: pagina_actual incorrecto"
+        assert mcp_data["paginas_totales"] == 3, f"Error: paginas_totales incorrecto, se esperaba 3, obtuvo {mcp_data['paginas_totales']}"
+        assert len(mcp_data["resultados"]) <= 2, f"Error: limite excedido en MCP"
+        print(f"  biorag_recordar JSON: total={mcp_data['total']}, pagina={mcp_data['pagina_actual']}/{mcp_data['paginas_totales']}, resultados={len(mcp_data['resultados'])}")
+
+        # Testear ráfaga forzada y error handling
+        mcp_raf_json = biorag_recordar("paginacion", limite=3, pagina=1, forzar_rafaga=True, rafaga_palabras="angular,ngx,pag")
+        mcp_raf_data = json.loads(mcp_raf_json)
+        assert "resultados" in mcp_raf_data, "Error: JSON ráfaga sin resultados"
+        assert len(mcp_raf_data["resultados"]) <= 3, f"Error: limite ráfaga excedido en MCP"
+
+        # Testear error por falta de parámetros
+        err_json = biorag_recordar("paginacion", forzar_rafaga=True, rafaga_palabras=None)
+        err_data = json.loads(err_json)
+        assert err_data.get("status") == "error", "Error: no reportó error al faltar parámetros"
+        print("  OK: Integración con el servidor MCP y serialización JSON verificada con éxito")
+    finally:
+        if orig_biorag_path:
+            os.environ["BIORAG_PATH"] = orig_biorag_path
+        else:
+            del os.environ["BIORAG_PATH"]
+
+    print("--- Paginación, Límites y Blindaje OK ---")
+
     cerebro.cerrar_sistema()
     print("\n--- ¡Todas las pruebas biologicas completadas con exito! ---\n\n")
+
 
 if __name__ == "__main__":
     test_sistema()

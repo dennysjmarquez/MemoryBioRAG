@@ -31,8 +31,11 @@ Para conectar desde VS Code, anadir a .vscode/mcp.json:
 
 from __future__ import annotations
 
+from datetime import datetime
+import io
 import json
 import logging
+import math
 import os
 import re
 import shutil
@@ -227,6 +230,7 @@ def _build_server():
         context_window: int = 0,
         forzar_rafaga: bool = False,
         rafaga_palabras: Optional[str] = None,
+        pagina: int = 1,
     ) -> str:
         if limite is None:
             limite = LIMITE_MCP
@@ -247,7 +251,7 @@ def _build_server():
             
             # Búsqueda normal primero
             resultados, total = cerebro.buscar_por_frase(
-                query, profundidad=profundidad, limite=limite,
+                query, profundidad=profundidad, pagina=pagina, limite=limite,
                 categoria=cat, preview_chars=preview_chars,
                 context_window=context_window
             )
@@ -258,7 +262,7 @@ def _build_server():
             score_top = resultados[0][4] if resultados else 0
             if rafaga_list and (forzar_rafaga or not resultados or score_top < THRESHOLD_RAFTAGA_MCP):
                 resultados_rafaga, total_rafaga, sinapsis_creadas = cerebro.buscar_por_rafaga(
-                    query, rafaga_list, limite=limite
+                    query, rafaga_list, pagina=pagina, limite=limite
                 )
                 # Combinar resultados: ráfaga + originales (sin duplicados)
                 if resultados_rafaga:
@@ -267,7 +271,11 @@ def _build_server():
                         if r[1] not in seen:
                             resultados.append(r)
                             seen.add(r[1])
-                    total = len(resultados)
+                    total = total + total_rafaga
+                
+                # Re-ordenar por score híbrido y aplicar recorte estricto a limite
+                resultados.sort(key=lambda r: r[4], reverse=True)
+                resultados = resultados[:limite]
             
             if not resultados:
                 cerebro.cerrar_sistema()
@@ -292,8 +300,13 @@ def _build_server():
                     ] if asociados and asociaciones else [],
                 })
 
+            limite_den = limite if (limite and limite > 0) else 1
+            paginas_totales = math.ceil(total / limite_den)
+
             resultado = json.dumps({
                 "total": total,
+                "pagina_actual": pagina,
+                "paginas_totales": paginas_totales,
                 "resultados": items,
                 "sinapsis_creadas": [{"origen": o, "destino": d, "peso": p} for o, d, p in sinapsis_creadas] if sinapsis_creadas else [],
                 "profundidad": profundidad,
@@ -345,8 +358,9 @@ def _build_server():
         context_window: int = 0,
         forzar_rafaga: bool = False,
         rafaga_palabras: Optional[str] = None,
+        pagina: int = 1,
     ) -> str:
-        return _recordar_impl(query, deep, cat, completo, asociados, limite, preview_chars, context_window, forzar_rafaga, rafaga_palabras)
+        return _recordar_impl(query, deep, cat, completo, asociados, limite, preview_chars, context_window, forzar_rafaga, rafaga_palabras, pagina)
 
     @mcp.tool(
         name="buscar",
@@ -363,8 +377,9 @@ def _build_server():
         context_window: int = 0,
         forzar_rafaga: bool = False,
         rafaga_palabras: Optional[str] = None,
+        pagina: int = 1,
     ) -> str:
-        return _recordar_impl(query, deep, cat, completo, asociados, limite, preview_chars, context_window, forzar_rafaga, rafaga_palabras)
+        return _recordar_impl(query, deep, cat, completo, asociados, limite, preview_chars, context_window, forzar_rafaga, rafaga_palabras, pagina)
 
     @mcp.tool(
         name="aprender",
@@ -466,16 +481,7 @@ def _build_server():
         description="(legado) Asocia dos conceptos — prefiere 'vincular' para identificar la operación cognitiva.",
     )
     def biorag_asociar(a: str, b: str) -> str:
-        cerebro = _get_cerebro()
-        try:
-            cerebro.establecer_asociacion(a, b)
-            _interceptar("vincular", f"{a} <--> {b}", cerebro)
-            return json.dumps({
-                "status": "ok",
-                "mensaje": f"Sinapsis: '{a}' <--> '{b}'",
-            }, ensure_ascii=False)
-        finally:
-            cerebro.cerrar_sistema()
+        return biorag_vincular(a, b)
 
     @mcp.tool(
         name="comunicar",
@@ -553,7 +559,6 @@ def _build_server():
     def biorag_consolidar(limite_energia: Optional[float] = None) -> str:
         cerebro = _get_cerebro()
         try:
-            import io
             old_stdout = sys.stdout
             sys.stdout = captured = io.StringIO()
             try:
@@ -719,7 +724,6 @@ def _build_server():
             cerebro.cursor.execute("SELECT COUNT(*) FROM corto_plazo")
             n_corto = cerebro.cursor.fetchone()[0]
             if n_corto > 0:
-                import io
                 old_stdout = sys.stdout
                 sys.stdout = captured = io.StringIO()
                 try:
@@ -976,7 +980,6 @@ def _build_server():
         ),
     )
     def biorag_export_sync() -> str:
-        import subprocess
         script_path = os.path.join(
             os.path.dirname(os.path.abspath(__file__)),
             "..", "MemoryBioRAG_NOTEBOOK_NCP", "scripts", "export_pending.py"
@@ -1010,7 +1013,6 @@ def _build_server():
         ),
     )
     def biorag_export_full() -> str:
-        import subprocess
         script_path = os.path.join(
             os.path.dirname(os.path.abspath(__file__)),
             "..", "MemoryBioRAG_NOTEBOOK_NCP", "scripts", "export_full.py"
@@ -1047,8 +1049,6 @@ def _build_server():
     def biorag_metricas_historial(n: int = 10) -> str:
         cerebro = _get_cerebro()
         try:
-            from datetime import datetime
-
             cur = cerebro.cursor
             cur.execute("SELECT COUNT(*) FROM metricas_cognitivas")
             total = cur.fetchone()[0]

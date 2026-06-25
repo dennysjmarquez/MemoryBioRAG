@@ -27,7 +27,7 @@ LIMITE_SIMILITUD = int(os.environ.get('BIORAG_LIMITE_SIMILITUD', '5'))
 _STOPWORDS_QUERY = {
     'de', 'la', 'el', 'en', 'con', 'por', 'para', 'un', 'una',
     'y', 'o', 'que', 'es', 'se', 'al', 'lo', 'como', 'mas',
-    'su', 'los', 'las', 'del', 'las', 'les', 'por', 'sin',
+    'su', 'los', 'las', 'del', 'les', 'sin',
 }
 
 _TOKEN_PATTERN = re.compile(r'\b[a-zA-Z\u00e1\u00e9\u00ed\u00f3\u00fa\u00f1]{3,}\b')

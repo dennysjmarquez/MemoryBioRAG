@@ -7,8 +7,8 @@ STOPWORDS_ES = {
     'pero', 'esta', 'este', 'entre', 'todo', 'tiene', 'cada', 'muy',
     'era', 'han', 'sin', 'sobre', 'tambien', 'desde', 'hasta', 'cuando',
     'donde', 'ello', 'ella', 'cual', 'dicho', 'sido', 'sea', 'tanto',
-    'otro', 'otros', 'ante', 'segun', 'una', 'una', 'unas', 'unos',
-    'porque', 'pues', 'contra', 'durante', 'mediante', 'segun',
+    'otro', 'otros', 'ante', 'segun', 'una', 'unas', 'unos',
+    'porque', 'pues', 'contra', 'durante', 'mediante',
     'parte', 'forma', 'tipo', 'tema', 'vez', 'caso', 'dentro',
     'tras', 'aquel', 'aquella', 'aquellos', 'aquellas', 'estos',
 }
@@ -131,7 +131,6 @@ def buscar_vecinos(cerebro, concepto, profundo=False, max_vecinos=5):
     rows = cerebro.cursor.fetchall()
 
     # Actualizar ultimo_uso de las sinapsis consultadas
-    import time
     ahora = time.time()
     cerebro.cursor.execute(
         "UPDATE sinapsis SET ultimo_uso = ? WHERE origen = ? OR destino = ?",

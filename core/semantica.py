@@ -124,7 +124,7 @@ def cargar_vocabulario_desde_archivo(cursor, ruta_archivo):
     return cargar_vocabulario(cursor, vocabulario)
 
 
-def auto_aprender_desde_sononimos(cursor, concepto, sinonimos):
+def auto_aprender_desde_sinonimos(cursor, concepto, sinonimos):
     """
     Aprende equivalencias semánticas desde los sinónimos de un nodo.
     Llamar cuando se guarda un nodo con sinónimos explícitos.
@@ -151,8 +151,6 @@ def poda_tesauro_confianza(cursor, ciclos_sin_uso=3, peso_minimo=0.1):
     
     Retorna (eliminadas, decadas) como tupla.
     """
-    import time
-    
     init_semantica_table(cursor)
     
     # Buscar todas las equivalencias

@@ -741,8 +741,8 @@ class SQLiteMemoryBioRAG:
 
         # Auto-aprendizaje semántico: si hay sinónimos, crear equivalencias
         if sinonimos_final:
-            from core.semantica import auto_aprender_desde_sononimos
-            auto_aprender_desde_sononimos(self.cursor, key, sinonimos_final)
+            from core.semantica import auto_aprender_desde_sinonimos
+            auto_aprender_desde_sinonimos(self.cursor, key, sinonimos_final)
 
     def consolidar_concepto(self, concepto):
         """Mueve un concepto de corto a largo plazo directamente.
@@ -1501,6 +1501,8 @@ class SQLiteMemoryBioRAG:
         Retorna (resultados, total) donde resultados es lista de
         (concepto, contenido, peso, estado, score, asociaciones)
         """
+        if pagina < 1:
+            pagina = 1
         if limite is None:
             limite = LIMITE_DEFAULT
         if not frase.strip():
@@ -1971,7 +1973,7 @@ class SQLiteMemoryBioRAG:
         validadas.sort(key=lambda x: x[1], reverse=True)
         return [palabra for palabra, _ in validadas]
 
-    def buscar_por_rafaga(self, query, rafaga_palabras, limite=None):
+    def buscar_por_rafaga(self, query, rafaga_palabras, pagina=1, limite=None):
         """Búsqueda por ráfaga de reminiscencia: emula el proceso humano de recordar.
         
         Cuando la búsqueda normal falla, usa palabras asociadas al azar para encontrar
@@ -1980,6 +1982,8 @@ class SQLiteMemoryBioRAG:
         
         Retorna (resultados, total) y lista de sinapsis creadas.
         """
+        if pagina < 1:
+            pagina = 1
         if limite is None:
             limite = LIMITE_RAFTAGA
         import re
@@ -2139,7 +2143,8 @@ class SQLiteMemoryBioRAG:
             for origen, destino, peso in sinapsis_creadas:
                 print(f"  {origen} → {destino} (peso: {peso})", file=sys.stderr)
         
-        return scored[:limite], len(scored), sinapsis_creadas
+        inicio = (pagina - 1) * limite
+        return scored[inicio:inicio + limite], len(scored), sinapsis_creadas
 
     # ─── AUTO-MANTENIMIENTO Y EVICCION ──────────────────────────
 
