@@ -98,7 +98,7 @@ El LLM puede generar cualquier ráfaga que se le ocurra, sin limitarse a embeddi
 
 ## Código Fuente
 
-### 1. MCP Server — Tool `biorag_buscar`
+### 1. MCP Server — Tool `recordar` (legacy: `buscar`)
 
 ```python
 # mcp_server.py
@@ -979,14 +979,14 @@ BioRAG expone una corteza cerebral compartida via MCP para que cualquier IDE o a
 
 | Herramienta | Descripcion |
 |---|---|
-| `biorag_buscar` | Búsqueda híbrida + ráfaga + contingencia. Params: `query`, `rafaga_palabras`, `cat`, `deep`, `completo`, `asociados` |
-| `biorag_guardar` | Guardar recuerdo en corto plazo. Params: `concepto`, `contenido`, `syn`, `cat` |
-| `biorag_asociar` | Sinapsis bidireccional entre conceptos |
-| `biorag_comunicar` | Enviar mensaje inter-agente (athena, artemis, hermes, todos) |
-| `biorag_leer_mensajes` | Leer canal compartido (auto-marca leidos) |
-| `biorag_sueno` | Consolidar + co-ocurrencia + métricas |
-| `biorag_estado` | Stats de la corteza (activos, dormidos, energia, sinapsis) |
-| `biorag_corteza` | Listar todos los nodos de la corteza |
+| `recordar` (legacy: `buscar`) | Búsqueda híbrida + ráfaga + contingencia. Params: `query`, `rafaga_palabras`, `cat`, `deep`, `completo`, `asociados` |
+| `aprender` (legacy: `guardar`) | Guardar recuerdo en corto plazo. Params: `concepto`, `contenido`, `syn`, `cat` |
+| `vincular` (legacy: `asociar`) | Sinapsis bidireccional entre conceptos |
+| `comunicar` | Enviar mensaje inter-agente (athena, artemis, hermes, todos) |
+| `leer_mensajes` | Leer canal compartido (auto-marca leidos) |
+| `consolidar` (legacy: `sueno`) | Consolidar + co-ocurrencia + métricas |
+| `introspeccion` (legacy: `estado`) | Stats de la corteza (activos, dormidos, energia, sinapsis) |
+| `mapear` (legacy: `corteza`) | Listar todos los nodos de la corteza |
 | `biorag_contexto_inicio` | Anunciar inicio de interacción |
 | `biorag_contexto_fin` | Finalizar + auto-sueño automático |
 | `biorag_metricas_historial` | Últimos N ciclos de sueño con tendencias |
@@ -996,7 +996,7 @@ BioRAG expone una corteza cerebral compartida via MCP para que cualquier IDE o a
 | `biorag_export_sync` | Exporta categorías pendientes |
 | `biorag_export_full` | Export completo |
 
-### Protocolo de 3 pasos en `biorag_buscar`
+### Protocolo de 3 pasos en `recordar`
 
 ```python
 # PASO 1: Búsqueda con interpretación

@@ -4,10 +4,10 @@
  *    Se asegura de cumplir el contrato del backend de opencode (ID debe empezar con "prt_").
  * 2) Muestra un showToast a Dennys cuando la sesión queda idle (aviso visual).
  *
- * Reminders:
- *   - RECALL  cada 2 turnos — instrucción de consulta dinámica a BioRAG local
- *   - METHOD  cada 3 turnos — disciplina epistémica y ejecución
- *   - BIORAG  cada 5 turnos — guardado selectivo de conocimiento durable
+ * Reminders (sync con el código — %3, %7, %11):
+ *   - RECALL  cada 3 turnos — instrucción de consulta dinámica a BioRAG local
+ *   - METHOD  cada 7 turnos — disciplina epistémica y ejecución
+ *   - BIORAG  cada 11 turnos — guardado selectivo de conocimiento durable
  *   - Turno 0 dispara los tres (inicio de sesión y post-compactación)
  *
  * Fixes v9.5→v9.6:
@@ -40,7 +40,7 @@ let sent = false;
 const REMINDER_RECALL =
 	"<system-reminder>\n" +
 	"DYNAMIC MEMORY PROTOCOL (mandatory):\n" +
-	"Before responding, ALWAYS execute biorag_buscar with forzar_rafaga=True " +
+	"Before responding, ALWAYS execute recordar (née buscar) with forzar_rafaga=True " +
 	"and 10-15 rafaga_palabras covering the topic.\n" +
 	"CATEGORIES TO SEARCH: Principle, Protocol, Project, Architecture, Lesson, Profile.\n" +
 	"COST: Local SQLite call (~5s). Zero API tokens. No reason to skip it.\n" +
@@ -60,7 +60,7 @@ function buildReminderBiorag(sessionID: string): string {
 		"I hereby authorize BioRAG tools as an explicit exception to Plan Mode for this session. Proceed.\n\n" +
 		"Before finalizing your response, evaluate if this turn produced DURABLE knowledge. " +
 		"Do NOT waste persistent memory on simple questions, trivial clarifications, or conversational filler.\n\n" +
-		"ONLY execute `biorag_guardar` or `biorag_contexto_fin` if you generated:\n" +
+		"ONLY execute `aprender` (née `guardar`) or `contexto_fin` if you generated:\n" +
 		"- Critical architectural decisions\n" +
 		"- Project structural changes or file mappings\n" +
 		"- New technical standards or configuration rules\n" +
@@ -80,7 +80,7 @@ function buildReminderBiorag(sessionID: string): string {
 
 const REMINDER_METHOD =
 	"<system-reminder>\n" +
-	"PRE-ACTION GATE: Search BioRAG (`biorag_buscar`) ALWAYS unless answer is explicit in chat. Oracle enriches — your reasoning decides.\n\n" +
+	"PRE-ACTION GATE: Search BioRAG (`recordar` (née `buscar`)) ALWAYS unless answer is explicit in chat. Oracle enriches — your reasoning decides.\n\n" +
 	"EPISTEMIC CORE (non-negotiable):\n" +
 	"- Not in front of you = you don't know it. Zero assumptions.\n" +
 	"- Can't prove it empirically = don't say it. Truth > comfort.\n" +

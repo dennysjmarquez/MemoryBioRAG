@@ -160,6 +160,16 @@ ORACLE_PROMPT = (
     "sináptica (LTP/LTD), y comunicacion entre agentes. "
     "Usa estas herramientas para acceder a la memoria persistente "
     "de la familia OEC (Athena, Artemis, Hermes).\n\n"
+    "## Mapeo Biológico (Cognición Real)\n\n"
+    "Los nombres de las herramientas reflejan su función cognitiva, no su implementación técnica:\n"
+    "- recordar → evocación de memoria (FTS5 + peso sináptico + ráfaga de reminiscencia)\n"
+    "- aprender → percepción y codificación en corteza de corto plazo\n"
+    "- consolidar → sueño LTP/LTD, poda sináptica, inhibición lateral\n"
+    "- vincular → asociación hebbiana entre conceptos\n"
+    "- introspeccion → autoexamen sináptico (estado de la corteza)\n"
+    "- mapear → cartografía cortical (todos los nodos)\n"
+    "Estos nombres no son metáfora — son la operación real que ejecuta el sistema.\n"
+    "Usa el nombre biológico para alinear tu modelo interno con la función real.\n\n"
     "## El Oráculo (NotebookLM MemoryBioRAG)\n\n"
         "**PASO 0 OBLIGATORIO — ANTES DE CADA MENSAJE DE DENNYS:**\n\n"
     "INVARIAN MANDATORY: SIEMPRE, sin excepción, ANTES de responder CUALQUIER mensaje de Dennys "
@@ -206,36 +216,7 @@ def _build_server():
 
     # ── TOOLS ────────────────────────────────────────────────────────────────
 
-    @mcp.tool(
-        name="buscar",
-        description=(
-            "Busca recuerdos en la corteza compartida. "
-            "FLUJO OBLIGATORIO EN 3 PASOS: "
-            "PASO 1: Enviar la frase del usuario. Si es abstracta/poetica, interpretar y agregar 3-5 palabras clave al final. "
-            "PASO 2: Si PASO 1 da 0 resultados O score del top < 0.5, usar rafaga_palabras=[10-15 terminos]. PARA GENERAR LA RAFAGA: "
-            "No busques sinonimos. Busca lo que el usuario NECESITA pero no supo pedir. "
-            "Usa 5 niveles de expansion: "
-            "NIVEL 1 (Literal): sinonimos tecnicos exactos. "
-            "NIVEL 2 (Tecnico): terminos del dominio relacionados. "
-            "NIVEL 3 (Contexto): donde/para que se usa. "
-            "NIVEL 4 (Problema): que problema resuelve. "
-            "NIVEL 5 (Emocion/Prioridad): urgencia o contexto personal. "
-            "Genera 3 terminos por nivel = 15 terminos totales. "
-            "El sistema valida automaticamente las palabras contra la DB antes de buscar. "
-            "PASO 3: Si PASO 2 da 0 resultados o puro ruido, buscar en el contexto del chat y guardar con biorag_guardar. "
-            "DESPUES DE CADA PASO: Leer los resultados y explicar al usuario con tus propias palabras que encontraste. "
-            "Si encontraste algo parecido pero no exacto, decir: 'No encontre X pero encontre Y que dice que...'. "
-            "Ejemplo PASO 1: biorag_buscar(query='dias relax frente al oceano playa vacaciones') "
-            "Ejemplo PASO 2: biorag_buscar(query='dias relax frente al oceano', rafaga_palabras='playa,mar,costa,verano,descanso,sol,arena,olas') "
-            "FORZAR RAFAGA: por defecto la rafaga es un fallback (solo corre si 0 resultados o score top < 0.5). "
-            "Si queres invocarla SIEMPRE como herramienta cognitiva de primera linea (pensar como humano que insiste en recordar), "
-            "pasa forzar_rafaga=True junto con rafaga_palabras = 'termino1,termino2,...' (string separado por comas). "
-            "IMPORTANTE: forzar_rafaga=True SIN rafaga_palabras devuelve ERROR. Siempre pasar ambos juntos. "
-            "Ejemplo: biorag_buscar(query='...', rafaga_palabras='termino1,termino2', forzar_rafaga=True). "
-            "Contexto: usar context_window=1 o 2 para incluir vecinos por sinapsis junto a cada resultado principal."
-        ),
-    )
-    def biorag_buscar(
+    def _recordar_impl(
         query: str,
         deep: bool = False,
         cat: Optional[str] = None,
@@ -317,21 +298,85 @@ def _build_server():
                 "sinapsis_creadas": [{"origen": o, "destino": d, "peso": p} for o, d, p in sinapsis_creadas] if sinapsis_creadas else [],
                 "profundidad": profundidad,
             }, ensure_ascii=False)
-            _interceptar("buscar", query, cerebro)
+            _interceptar("recordar", query, cerebro)
             return resultado
         finally:
             cerebro.cerrar_sistema()
 
     @mcp.tool(
-        name="guardar",
+        name="recordar",
         description=(
-            "Guarda un recuerdo en la memoria de corto plazo. "
-            "Cat validas: System, Architecture, Project, Lesson, Profile, "
-            "Personal, Principle, Protocol, Cognition, Relation, General. "
-            "Usar biorag_sueno despues para consolidar a largo plazo."
+            "[Cognitivo] Evoca recuerdos de la corteza mediante el pipeline completo: "
+            "FTS5 trigram (memoria semántica) + peso sináptico (memoria de trabajo) + "
+            "ráfaga de reminiscencia (asociación libre) + ventana de contexto (vecinos sinápticos).\n\n"
+            "FLUJO OBLIGATORIO EN 3 PASOS: "
+            "PASO 1: Enviar la frase del usuario. Si es abstracta/poetica, interpretar y agregar 3-5 palabras clave al final. "
+            "PASO 2: Si PASO 1 da 0 resultados O score del top < 0.5, usar rafaga_palabras=[10-15 terminos]. PARA GENERAR LA RAFAGA: "
+            "No busques sinonimos. Busca lo que el usuario NECESITA pero no supo pedir. "
+            "Usa 5 niveles de expansion: "
+            "NIVEL 1 (Literal): sinonimos tecnicos exactos. "
+            "NIVEL 2 (Tecnico): terminos del dominio relacionados. "
+            "NIVEL 3 (Contexto): donde/para que se usa. "
+            "NIVEL 4 (Problema): que problema resuelve. "
+            "NIVEL 5 (Emocion/Prioridad): urgencia o contexto personal. "
+            "Genera 3 terminos por nivel = 15 terminos totales. "
+            "El sistema valida automaticamente las palabras contra la DB antes de buscar. "
+            "PASO 3: Si PASO 2 da 0 resultados o puro ruido, buscar en el contexto del chat y guardar. "
+            "DESPUES DE CADA PASO: Leer los resultados y explicar al usuario con tus propias palabras que encontraste. "
+            "Si encontraste algo parecido pero no exacto, decir: 'No encontre X pero encontre Y que dice que...'. "
+            "Ejemplo PASO 1: recordar(query='dias relax frente al oceano playa vacaciones') "
+            "Ejemplo PASO 2: recordar(query='dias relax frente al oceano', rafaga_palabras='playa,mar,costa,verano,descanso,sol,arena,olas') "
+            "FORZAR RAFAGA: por defecto la rafaga es un fallback (solo corre si 0 resultados o score top < 0.5). "
+            "Si queres invocarla SIEMPRE como herramienta cognitiva de primera linea (pensar como humano que insiste en recordar), "
+            "pasa forzar_rafaga=True junto con rafaga_palabras = 'termino1,termino2,...' (string separado por comas). "
+            "IMPORTANTE: forzar_rafaga=True SIN rafaga_palabras devuelve ERROR. Siempre pasar ambos juntos. "
+            "Ejemplo: recordar(query='...', rafaga_palabras='termino1,termino2', forzar_rafaga=True). "
+            "Contexto: usar context_window=1 o 2 para incluir vecinos por sinapsis junto a cada resultado principal."
         ),
     )
-    def biorag_guardar(
+    def biorag_recordar(
+        query: str,
+        deep: bool = False,
+        cat: Optional[str] = None,
+        completo: bool = False,
+        asociados: bool = False,
+        limite: Optional[int] = None,
+        preview_chars: Optional[int] = None,
+        context_window: int = 0,
+        forzar_rafaga: bool = False,
+        rafaga_palabras: Optional[str] = None,
+    ) -> str:
+        return _recordar_impl(query, deep, cat, completo, asociados, limite, preview_chars, context_window, forzar_rafaga, rafaga_palabras)
+
+    @mcp.tool(
+        name="buscar",
+        description="(legado) Busca recuerdos — prefiere 'recordar' para identificar la operación cognitiva real.",
+    )
+    def biorag_buscar(
+        query: str,
+        deep: bool = False,
+        cat: Optional[str] = None,
+        completo: bool = False,
+        asociados: bool = False,
+        limite: Optional[int] = None,
+        preview_chars: Optional[int] = None,
+        context_window: int = 0,
+        forzar_rafaga: bool = False,
+        rafaga_palabras: Optional[str] = None,
+    ) -> str:
+        return _recordar_impl(query, deep, cat, completo, asociados, limite, preview_chars, context_window, forzar_rafaga, rafaga_palabras)
+
+    @mcp.tool(
+        name="aprender",
+        description=(
+            "[Cognitivo] Codifica una experiencia en la corteza de corto plazo (percepción). "
+            "Equivalente a la codificación inicial de un recuerdo en el hipocampo. "
+            "Cat validas: System, Architecture, Project, Lesson, Profile, "
+            "Personal, Principle, Protocol, Cognition, Relation, General. "
+            "Usa 'consolidar' despues para fijar a largo plazo (LTP)."
+        ),
+    )
+    def _aprender_impl(
         concepto: str,
         contenido: str,
         syn: Optional[str] = None,
@@ -358,15 +403,15 @@ def _build_server():
                 todas = list({e[0]: e for e in enlaces + syn_enlaces}.values())
                 sinapsis_count = len(todas)
 
-            msg = f"'{clave}' guardado en corto plazo."
+            msg = f"'{clave}' aprendido en corto plazo."
             if syn:
                 msg += f" Sinonimos: {syn}."
             if categoria != "general":
                 msg += f" Categoria: {categoria}."
             if sinapsis_count:
                 msg += f" Vinculado con {sinapsis_count} nodo(s)."
-            msg += " Usa biorag_sueno para consolidar."
-            _interceptar("guardar", f"{clave}: {contenido}", cerebro)
+            msg += " Usa 'consolidar' para fijar a largo plazo."
+            _interceptar("aprender", f"{clave}: {contenido}", cerebro)
             return json.dumps({
                 "status": "ok",
                 "mensaje": msg,
@@ -376,15 +421,55 @@ def _build_server():
         finally:
             cerebro.cerrar_sistema()
 
+    def biorag_aprender(
+        concepto: str,
+        contenido: str,
+        syn: Optional[str] = None,
+        cat: Optional[str] = None,
+    ) -> str:
+        return _aprender_impl(concepto, contenido, syn, cat)
+
+    @mcp.tool(
+        name="guardar",
+        description="(legado) Guarda un recuerdo — prefiere 'aprender' para identificar la operación cognitiva.",
+    )
+    def biorag_guardar(
+        concepto: str,
+        contenido: str,
+        syn: Optional[str] = None,
+        cat: Optional[str] = None,
+    ) -> str:
+        return _aprender_impl(concepto, contenido, syn, cat)
+
+    @mcp.tool(
+        name="vincular",
+        description=(
+            "[Cognitivo] Establece una asociación hebbiana entre dos conceptos en la corteza. "
+            "Equivalente a la potenciación a largo plazo (LTP) entre neuronas co-activadas. "
+            "Crea un enlace sináptico bidireccional que permite que evocar uno active al otro."
+        ),
+    )
+    def biorag_vincular(a: str, b: str) -> str:
+        cerebro = _get_cerebro()
+        try:
+            cerebro.establecer_asociacion(a, b)
+            _interceptar("vincular", f"{a} <--> {b}", cerebro)
+            return json.dumps({
+                "status": "ok",
+                "mensaje": f"Sinapsis: '{a}' <--> '{b}'",
+            }, ensure_ascii=False)
+        finally:
+            cerebro.cerrar_sistema()
+
     @mcp.tool(
         name="asociar",
-        description="Crea un enlace sinaptico bidireccional entre dos conceptos.",
+        description="(legado) Asocia dos conceptos — prefiere 'vincular' para identificar la operación cognitiva.",
     )
     def biorag_asociar(a: str, b: str) -> str:
         cerebro = _get_cerebro()
         try:
             cerebro.establecer_asociacion(a, b)
-            _interceptar("asociar", f"{a} <--> {b}", cerebro)
+            _interceptar("vincular", f"{a} <--> {b}", cerebro)
             return json.dumps({
                 "status": "ok",
                 "mensaje": f"Sinapsis: '{a}' <--> '{b}'",
@@ -455,15 +540,17 @@ def _build_server():
             cerebro.cerrar_sistema()
 
     @mcp.tool(
-        name="sueno",
+        name="consolidar",
         description=(
-            "Consolida la memoria de corto plazo a largo plazo. "
-            "Aplica LTP a nuevos recuerdos, LTD por decaimiento, "
-            "duerme nodos debiles, e inhibicion lateral. "
+            "[Cognitivo] Consolida la memoria de corto plazo a largo plazo mediante sueño cognitivo. "
+            "Aplica LTP (potenciación a largo plazo) a recuerdos nuevos, "
+            "LTD (depresión a largo plazo) por decaimiento, "
+            "duerme nodos débiles, e inhibición lateral para evitar saturación. "
+            "Equivalente al sueño de ondas lentas en el hipocampo. "
             "limite_energia: opcional, defecto dinamico (n_activos * 1.6, min 10.0)."
         ),
     )
-    def biorag_sueno(limite_energia: Optional[float] = None) -> str:
+    def biorag_consolidar(limite_energia: Optional[float] = None) -> str:
         cerebro = _get_cerebro()
         try:
             import io
@@ -474,7 +561,7 @@ def _build_server():
             finally:
                 sys.stdout = old_stdout
             output = captured.getvalue()
-            _interceptar("sueno", output.strip(), cerebro)
+            _interceptar("consolidar", output.strip(), cerebro)
             return json.dumps({
                 "status": "ok",
                 "mensaje": output.strip(),
@@ -483,10 +570,22 @@ def _build_server():
             cerebro.cerrar_sistema()
 
     @mcp.tool(
-        name="estado",
-        description="Muestra estadisticas de la corteza: nodos activos, dormidos, energia sinaptica.",
+        name="sueno",
+        description="(legado) Ciclo de sueño — prefiere 'consolidar' para identificar la operación cognitiva.",
     )
-    def biorag_estado() -> str:
+    def biorag_sueno(limite_energia: Optional[float] = None) -> str:
+        return biorag_consolidar(limite_energia)
+
+    @mcp.tool(
+        name="introspeccion",
+        description=(
+            "[Cognitivo] Autoexamen sináptico de la corteza. "
+            "Retorna el estado actual: número de nodos activos, dormidos, "
+            "corto plazo y energía sináptica total. "
+            "Equivalente a la introspección metacognitiva del estado de la memoria."
+        ),
+    )
+    def biorag_introspeccion() -> str:
         cerebro = _get_cerebro()
         try:
             cerebro.cursor.execute(
@@ -509,16 +608,27 @@ def _build_server():
                 "corto_plazo": corto,
                 "energia_sinaptica": energia,
             }, ensure_ascii=False)
-            _interceptar("estado", f"activos:{activos} dormidos:{dormidos}", cerebro)
+            _interceptar("introspeccion", f"activos:{activos} dormidos:{dormidos}", cerebro)
             return resultado
         finally:
             cerebro.cerrar_sistema()
 
     @mcp.tool(
-        name="corteza",
-        description="Lista todos los nodos de la corteza permanente (activos y dormidos).",
+        name="estado",
+        description="(legado) Estado de la corteza — prefiere 'introspeccion' para identificar la operación cognitiva.",
     )
-    def biorag_corteza() -> str:
+    def biorag_estado() -> str:
+        return biorag_introspeccion()
+
+    @mcp.tool(
+        name="mapear",
+        description=(
+            "[Cognitivo] Cartografía cortical — lista todos los nodos de la corteza permanente "
+            "(activos y dormidos) con sus categorías, pesos sinápticos y asociaciones. "
+            "Equivalente a visualizar el mapa completo de la memoria a largo plazo."
+        ),
+    )
+    def biorag_mapear() -> str:
         cerebro = _get_cerebro()
         try:
             cerebro.cursor.execute(
@@ -537,17 +647,24 @@ def _build_server():
                 for c, cat, p, est, a in filas
             ]
             resultado = json.dumps({"total": len(items), "nodos": items}, ensure_ascii=False)
-            _interceptar("corteza", "", cerebro)
+            _interceptar("mapear", "", cerebro)
             return resultado
         finally:
             cerebro.cerrar_sistema()
+
+    @mcp.tool(
+        name="corteza",
+        description="(legado) Lista nodos de la corteza — prefiere 'mapear' para identificar la operación cognitiva.",
+    )
+    def biorag_corteza() -> str:
+        return biorag_mapear()
 
     @mcp.tool(
         name="listar_categorias",
         description=(
             "Lista las categorias validas para guardar recuerdos. "
             " Retorna id, nombre y descripcion de cada categoria. "
-            "Usar ANTES de biorag_guardar para saber que cat es valido."
+            "Usar ANTES de 'aprender' (o 'guardar') para saber que cat es valido."
         ),
     )
     def biorag_listar_categorias() -> str:
@@ -1169,23 +1286,23 @@ def _build_server():
         return (
             ORACLE_PROMPT
             + "\n\n## BioRAG — Reglas de uso\n\n"
-            "Tienes acceso a una corteza cerebral compartida via MCP tools "
-            "(biorag_buscar, biorag_guardar, biorag_asociar, ...).\n\n"
-            "Reglas:\n"
-            "1. Si el usuario menciona algo ya visto -> biorag_buscar\n"
-            "2. Si el usuario ensena algo nuevo -> biorag_guardar + biorag_sueno\n"
-            "3. Si dos conceptos estan relacionados -> biorag_asociar\n"
-            "4. Si necesitas dejar mensaje a otro agente -> biorag_comunicar\n"
-            "5. Si al iniciar sesion quieres ver mensajes -> biorag_leer_mensajes\n"
-            "6. Si despues de 2 busquedas no encuentras -> preguntar al humano\n\n"
-            "- Al iniciar una interaccion importante -> biorag_contexto_inicio\n"
-            "- Al terminar una interaccion -> biorag_contexto_fin\n"
+            "Tienes acceso a una corteza cerebral compartida via herramientas MCP "
+            "(recordar, aprender, vincular, ...).\n\n"
+            "Reglas (nombres biológicos como primarios; legados entre paréntesis):\n"
+            "1. Si el usuario menciona algo ya visto -> recordar (buscar)\n"
+            "2. Si el usuario ensena algo nuevo -> aprender (guardar) + consolidar (sueno)\n"
+            "3. Si dos conceptos estan relacionados -> vincular (asociar)\n"
+            "4. Si necesitas dejar mensaje a otro agente -> comunicar\n"
+            "5. Si al iniciar sesion quieres ver mensajes -> leer_mensajes\n"
+            "6. Si despues de 2 evocaciones no encuentras -> preguntar al humano\n\n"
+            "- Al iniciar una interaccion importante -> contexto_inicio\n"
+            "- Al terminar una interaccion -> contexto_fin\n"
             "- El interceptor analiza el buffer acumulado y autoguarda si\n"
             "  detecta lecciones, patrones, errores o preferencias.\n"
-            "- No necesitas recordar llamar guardar explicitamente cada vez.\n\n"
+            "- No necesitas recordar llamar 'aprender' explicitamente cada vez.\n\n"
             "TTL: 30 min de inactividad resetean el buffer (siesta biomimetica).\n\n"
             "La memoria decae naturalmente (LTD). Los nodos no usados se "
-            "duermen solos. Usa biorag_sueno para consolidar recuerdos nuevos."
+            "duermen solos. Usa 'consolidar' para fijar recuerdos nuevos."
         )
 
     return mcp

@@ -102,7 +102,7 @@ def analizar_y_autoguardar(cerebro, fuerza=False) -> dict | None:
     if not palabras_detectadas and not fuerza:
         return None
 
-    if "guardar" in acciones_recientes:
+    if "aprender" in acciones_recientes:
         return None
 
     categoria = _extraer_categoria(texto_completo)

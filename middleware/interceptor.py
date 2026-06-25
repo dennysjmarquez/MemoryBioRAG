@@ -53,9 +53,9 @@ def procesar_comandos_ocultos(texto_agente, cerebro):
     Devuelve un diccionario con los resultados de las operaciones realizadas.
     """
     resultados = {
-        "buscar": [],
-        "guardar": [],
-        "asociar": []
+        "recordar": [],
+        "aprender": [],
+        "vincular": []
     }
 
     # Extraer bloques de pensamiento del agente
@@ -67,7 +67,7 @@ def procesar_comandos_ocultos(texto_agente, cerebro):
         for consulta in busquedas:
             clave = consulta.strip()
             contenido = cerebro.buscar_recuerdo_microsegundos(clave)
-            resultados["buscar"].append({
+            resultados["recordar"].append({
                 "clave": clave,
                 "resultado": contenido
             })
@@ -78,7 +78,7 @@ def procesar_comandos_ocultos(texto_agente, cerebro):
             key = clave.strip()
             val = valor.strip()
             cerebro.percibir_corto_plazo(key, val)
-            resultados["guardar"].append({
+            resultados["aprender"].append({
                 "clave": key,
                 "valor": val
             })
@@ -89,7 +89,7 @@ def procesar_comandos_ocultos(texto_agente, cerebro):
             nodo_a = a.strip()
             nodo_b = b.strip()
             cerebro.establecer_asociacion(nodo_a, nodo_b)
-            resultados["asociar"].append({
+            resultados["vincular"].append({
                 "concepto_a": nodo_a,
                 "concepto_b": nodo_b
             })
