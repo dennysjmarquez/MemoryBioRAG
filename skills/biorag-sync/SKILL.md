@@ -27,7 +27,7 @@ description: |-
 | Total categorias madre | 11 (unificadas desde 39 originales) |
 | Total fuentes NB | 30 (14 únicas + 16 duplicados por re-uploads) |
 | Formato archivo | `.jsonl.txt` (JSON Lines con extensión .txt para NotebookLM) |
-| Version actual | v9.4 — 23 herramientas MCP, EVALUAR VÍNCULO en SAVE/EDIT FLOW, instalador de skills |
+| Version actual | v9.5 — Protocolo de 4 Pasos (Síntesis de Espectro post-recuperación), 23 herramientas MCP, EVALUAR VÍNCULO en SAVE/EDIT FLOW, instalador de skills |
 
 ## 2. Principio Fundamental
 
@@ -70,10 +70,58 @@ Si el usuario rechaza un resultado, se guarda como lección y se excluye en la p
 ### Co-ocurrencia automática en sueño
 El ciclo de sueño crea sinapsis basándose en co-ocurrencia de conceptos en la misma sesión.
 
-### Protocolo de 3 Pasos
-1. Enriquecimiento (interpretar + agregar palabras clave)
-2. Ráfaga (si score < 0.5 o 0 resultados)
-3. Contingencia (buscar en contexto del chat)
+### Protocolo de 4 Pasos (Buscar + Sintetizar)
+
+```
+Paso 1 — ENRIQUECIMIENTO:
+    Interpretar la query y agregar palabras clave del dominio.
+    Aplicar Empatía Sintáctica: raíces morfológicas, patrones repetitivos,
+    nomenclaturas técnicas, sustantivos de alto peso.
+
+Paso 2 — RÁFAGA:
+    Si score < 0.5 o 0 resultados. 10-15 términos con la instrucción
+    de 5 niveles (Literal, Técnico, Contexto, Problema, Emoción).
+
+Paso 3 — CONTINGENCIA:
+    Si aún sin resultados, buscar en contexto del chat actual.
+
+Paso 4 — SÍNTESIS DE ESPECTRO (POST-RECUPERACIÓN):
+    OBLIGATORIO después de cualquier recuperación con 2+ resultados.
+    No responder al primer match. Extraer el espectro completo.
+
+    Sub-pasos:
+    a) RECOLECTAR: Escanear TODOS los resultados en busca de TODAS
+       las instancias del patrón buscado (versiones vX.Y, fechas,
+       cantidades, nombres de archivos, etc.). NO limitarse al
+       primer resultado ni al contenido del primer nodo.
+
+    b) CONSOLIDAR: Reunir todas las instancias en un conjunto único.
+       Si el patrón es versionado (vX.Y), extraer SOLO los números
+       y compararlos con semver. Si son fechas, ordenar cronológicamente.
+       Si son valores discretos, deducir el extremo (mayor/menor,
+       primero/último) mediante comparación directa.
+
+    c) CONTRADICCIONES: Si dos nodos contienen información
+       contradictoria sobre el mismo tema (ej. uno dice v5.1 y
+       otro dice v9.4), NO elegir por inercia. Señalar la
+       contradicción explícitamente y determinar cuál nodo tiene
+       el registro más reciente o la fuente más autorizada.
+
+    d) RESPONDER: Solo después de a+b+c. La respuesta debe reflejar
+       el espectro completo, no el primer match.
+
+    EJEMPLO (fallo corregido):
+      Query: "última versión de BioRAG"
+      Resultados: nodo_A="v5.1", nodo_B="v9.3 (Artemis)", nodo_C="v9.4"
+      (Antes) → Responder "v5.1" (primer match en lección_versionado_biorag)
+      (Ahora)  → v9.4 > v9.3 > v5.1 → Responder "v9.4", señalando
+                 que hay un nodo más antiguo con v5.1 y uno intermedio
+                 con v9.3, pero el overview consolidado dice v9.4
+				 
+	INVARIANT INVARIANT: Aplicar en las búsquedas y en los resultados el Principio de Razonamiento Analítico-Comparativo en Búsquedas RAG.
+    Este enfoque sustituye la 'recuperación ciega' por una Deducción Activa, donde el agente actúa como un analista racional que infiere el estado del sistema.
+				 
+```
 
 ## 4. Prioridad de Consulta (Query Chain)
 
@@ -334,7 +382,7 @@ No se sincroniza automaticamente.
 
 | Herramienta | Alias | Parametros | Descripcion |
 |---|---|---|---|
-| `recordar` | `buscar` | `query, deep, cat, completo, asociados, limite, preview_chars, context_window, forzar_rafaga, rafaga_palabras, pagina` | Evocacion con pipeline 9 capas + rafaga de reminiscencia. Flujo obligatorio: evaluar query → disparar rafaga si score<0.5 o 0 resultados → contingencia. |
+| `recordar` | `buscar` | `query, deep, cat, completo, asociados, limite, preview_chars, context_window, forzar_rafaga, rafaga_palabras, pagina` | Evocacion con pipeline 9 capas + rafaga de reminiscencia. Flujo obligatorio: Enriquecimiento → Rafaga si score<0.5 → Contingencia → Sintesis de Espectro (Paso 4 del protocolo). |
 | `aprender` | `guardar` | `concepto, contenido, syn, cat` | Codifica en corto plazo. auto_vincular se ejecuta internamente (pre-filtro FTS5 umbral 0.3). Usar `consolidar` despues. |
 | `vincular` | `asociar` | `a, b` | Asociacion hebbiana manual entre dos conceptos. Para vinculos semanticos adicionales que el motor no infiere. |
 | `consolidar` | `sueno` | `limite_energia` | Sueño cognitivo LTP/LTD. Fija corto plazo a largo plazo. |
