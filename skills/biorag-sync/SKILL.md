@@ -27,7 +27,7 @@ description: |-
 | Total categorias madre | 11 (unificadas desde 39 originales) |
 | Total fuentes NB | 30 (14 únicas + 16 duplicados por re-uploads) |
 | Formato archivo | `.jsonl.txt` (JSON Lines con extensión .txt para NotebookLM) |
-| Version actual | v8.3 — Ráfaga, Dynamic Multiplicator, Co-ocurrencia, PALABRA_COMPLETA, PALABRA_PREFIJO, Anclaje Temporal, Auto-aprendizaje de errores, FTS5 unicode61 + prefix wildcards, Context Window por sinapsis |
+| Version actual | v9.4 — 23 herramientas MCP, EVALUAR VÍNCULO en SAVE/EDIT FLOW, instalador de skills |
 
 ## 2. Principio Fundamental
 
@@ -479,5 +479,3 @@ Los invariantes en CLAUDE.md garantizan el funcionamiento:
 1. **Sincronizacion Simbiotica:** leer canal Artemis antes de operar
 2. **Auto-Consulta en Cadena:** BioRAG (1°) → NotebookLM (2°) → Filesystem (3°)
 3. **NotebookLM Sync Protocol:** sincronizar automaticamente al guardar/editar/borrar
-
-Ver: `/home/dennys/.claude/CLAUDE.md`
