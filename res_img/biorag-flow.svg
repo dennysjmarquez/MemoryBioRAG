@@ -1,0 +1,308 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 1050" font-family="'Segoe UI', system-ui, sans-serif">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#0f0f1a"/>
+      <stop offset="100%" style="stop-color:#1a1a2e"/>
+    </linearGradient>
+    <marker id="arrow" markerWidth="10" markerHeight="7" refX="10" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#fff" fill-opacity="0.6"/>
+    </marker>
+    <marker id="arrowG" markerWidth="10" markerHeight="7" refX="10" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#1abc9c"/>
+    </marker>
+    <marker id="arrowO" markerWidth="10" markerHeight="7" refX="10" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#e67e22"/>
+    </marker>
+    <marker id="arrowB" markerWidth="10" markerHeight="7" refX="10" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#3498db"/>
+    </marker>
+    <filter id="glow"><feGaussianBlur stdDeviation="3" result="blur"/><feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+  </defs>
+
+  <rect width="1600" height="1050" fill="url(#bg)"/>
+
+  <!-- TITLE -->
+  <text x="800" y="40" text-anchor="middle" fill="#ecf0f1" font-size="22" font-weight="700" letter-spacing="3">BioRAG — Flujo de Memoria Biomimética</text>
+  <text x="800" y="60" text-anchor="middle" fill="#7f8c8d" font-size="12">Python puro · SQLite + FTS5 · 0 dependencias ML</text>
+
+  <!-- ═══════════════════════════════════════════════ -->
+  <!-- LEFT: ENTRADA -->
+  <!-- ═══════════════════════════════════════════════ -->
+  
+  <rect x="40" y="100" width="200" height="95" rx="12" fill="#1a1a2e" stroke="#9b59b6" stroke-width="2"/>
+  <text x="140" y="128" text-anchor="middle" fill="#d2b4de" font-size="14" font-weight="700">MCP Server</text>
+  <text x="140" y="148" text-anchor="middle" fill="#bb8fce" font-size="10">23 herramientas</text>
+  <text x="140" y="165" text-anchor="middle" fill="#9b8ec4" font-size="9">recordar · aprender · consolidar</text>
+  <text x="140" y="180" text-anchor="middle" fill="#9b8ec4" font-size="9">vincular · comunicar · oráculo</text>
+
+  <rect x="40" y="215" width="200" height="65" rx="10" fill="#1a1a2e" stroke="#8e44ad" stroke-width="1.5"/>
+  <text x="140" y="242" text-anchor="middle" fill="#d2b4de" font-size="13" font-weight="700">CLI (biorag.py)</text>
+  <text x="140" y="262" text-anchor="middle" fill="#bb8fce" font-size="9">buscar · guardar · sueno · corteza</text>
+
+  <rect x="40" y="300" width="200" height="50" rx="10" fill="#1a1a2e" stroke="#7d3c98" stroke-width="1"/>
+  <text x="140" y="322" text-anchor="middle" fill="#c39bd3" font-size="11" font-weight="600">Interceptor V2</text>
+  <text x="140" y="338" text-anchor="middle" fill="#9b8ec4" font-size="8">Auto-guardado heurístico · TTL 30min</text>
+
+  <!-- ═══════════════════════════════════════════════ -->
+  <!-- CENTER: MEMORIA -->
+  <!-- ═══════════════════════════════════════════════ -->
+
+  <!-- CORTO PLAZO -->
+  <rect x="320" y="90" width="220" height="85" rx="12" fill="#1a1a2e" stroke="#e67e22" stroke-width="2.5" filter="url(#glow)"/>
+  <text x="430" y="116" text-anchor="middle" fill="#f5cba7" font-size="15" font-weight="700">CORTO PLAZO</text>
+  <text x="430" y="136" text-anchor="middle" fill="#e8a87c" font-size="10">Memoria de trabajo</text>
+  <text x="430" y="154" text-anchor="middle" fill="#cd6155" font-size="9">Auto-merge · TTL 30min · Buffer máx 20</text>
+
+  <!-- FLECHAS: Entrada → Corto -->
+  <line x1="240" y1="148" x2="320" y2="132" stroke="#9b59b6" stroke-width="2" marker-end="url(#arrow)" stroke-dasharray="6,4"/>
+  <line x1="240" y1="248" x2="320" y2="148" stroke="#8e44ad" stroke-width="1.5" marker-end="url(#arrow)" stroke-dasharray="6,4"/>
+  <line x1="240" y1="325" x2="320" y2="165" stroke="#7d3c98" stroke-width="1" marker-end="url(#arrow)" stroke-dasharray="4,3"/>
+
+  <!-- CORTEZA (LARGO PLAZO) -->
+  <rect x="320" y="205" width="480" height="155" rx="14" fill="#1a1a2e" stroke="#3498db" stroke-width="2.5" filter="url(#glow)"/>
+  <text x="560" y="233" text-anchor="middle" fill="#aed6f1" font-size="16" font-weight="700">CORTEZA PERMANENTE</text>
+  
+  <rect x="335" y="248" width="140" height="45" rx="6" fill="#1b2838" stroke="#2980b9" stroke-width="1"/>
+  <text x="405" y="267" text-anchor="middle" fill="#5dade2" font-size="10" font-weight="600">largo_plazo</text>
+  <text x="405" y="282" text-anchor="middle" fill="#85c1e9" font-size="8">peso · estado · asociaciones</text>
+
+  <rect x="485" y="248" width="140" height="45" rx="6" fill="#1b2838" stroke="#1abc9c" stroke-width="1"/>
+  <text x="555" y="267" text-anchor="middle" fill="#48c9b0" font-size="10" font-weight="600">sinapsis</text>
+  <text x="555" y="282" text-anchor="middle" fill="#76d7c4" font-size="8">origen → destino · peso</text>
+
+  <rect x="635" y="248" width="145" height="45" rx="6" fill="#1b2838" stroke="#17a589" stroke-width="1"/>
+  <text x="707" y="267" text-anchor="middle" fill="#48c9b0" font-size="10" font-weight="600">semántica</text>
+  <text x="707" y="282" text-anchor="middle" fill="#76d7c4" font-size="8">equivalencias bidireccionales</text>
+
+  <!-- FTS5 -->
+  <rect x="335" y="305" width="445" height="42" rx="6" fill="#1b2838" stroke="#f39c12" stroke-width="0.8"/>
+  <text x="557" y="322" text-anchor="middle" fill="#f9e79f" font-size="10" font-weight="600">FTS5 trigram (typos) · FTS5 unicode61 (prefix) · 11 categorías</text>
+  <text x="557" y="338" text-anchor="middle" fill="#f9e79f" font-size="8">PALABRA_COMPLETA anti-falsos-positivos · Backup trigger</text>
+
+  <!-- FLECHA: Corto → Corta (sueño) -->
+  <line x1="430" y1="175" x2="430" y2="205" stroke="#e67e22" stroke-width="3" marker-end="url(#arrowO)"/>
+  <text x="448" y="195" fill="#e67e22" font-size="10" font-weight="700">consolidar</text>
+
+  <!-- ═══════════════════════════════════════════════ -->
+  <!-- RIGHT: BÚSQUEDA -->
+  <!-- ═══════════════════════════════════════════════ -->
+
+  <rect x="870" y="90" width="340" height="310" rx="14" fill="#1a1a2e" stroke="#8e44ad" stroke-width="2.5" filter="url(#glow)"/>
+  <text x="1040" y="118" text-anchor="middle" fill="#d7bde2" font-size="14" font-weight="700">MOTOR DE BÚSQUEDA</text>
+  
+  <!-- 9 Capas -->
+  <rect x="885" y="132" width="100" height="28" rx="5" fill="#6c3483" fill-opacity="0.3" stroke="#9b59b6" stroke-width="0.8"/>
+  <text x="935" y="150" text-anchor="middle" fill="#d2b4de" font-size="10">FTS5 AND</text>
+
+  <rect x="993" y="132" width="100" height="28" rx="5" fill="#6c3483" fill-opacity="0.3" stroke="#9b59b6" stroke-width="0.8"/>
+  <text x="1043" y="150" text-anchor="middle" fill="#d2b4de" font-size="10">FTS5 OR</text>
+
+  <rect x="1101" y="132" width="92" height="28" rx="5" fill="#6c3483" fill-opacity="0.3" stroke="#9b59b6" stroke-width="0.8"/>
+  <text x="1147" y="150" text-anchor="middle" fill="#d2b4de" font-size="10">unicode61</text>
+
+  <rect x="885" y="166" width="100" height="28" rx="5" fill="#117a65" fill-opacity="0.3" stroke="#1abc9c" stroke-width="0.8"/>
+  <text x="935" y="184" text-anchor="middle" fill="#a3e4d7" font-size="10">Semántica</text>
+
+  <rect x="993" y="166" width="100" height="28" rx="5" fill="#117a65" fill-opacity="0.3" stroke="#1abc9c" stroke-width="0.8"/>
+  <text x="1043" y="184" text-anchor="middle" fill="#a3e4d7" font-size="10">Jaccard</text>
+
+  <rect x="1101" y="166" width="92" height="28" rx="5" fill="#2980b9" fill-opacity="0.3" stroke="#3498db" stroke-width="0.8"/>
+  <text x="1147" y="184" text-anchor="middle" fill="#aed6f1" font-size="10">Snap 7d</text>
+
+  <rect x="885" y="200" width="100" height="28" rx="5" fill="#2980b9" fill-opacity="0.3" stroke="#3498db" stroke-width="0.8"/>
+  <text x="935" y="218" text-anchor="middle" fill="#aed6f1" font-size="10">Cadena 3h</text>
+
+  <rect x="993" y="200" width="100" height="28" rx="5" fill="#e67e22" fill-opacity="0.2" stroke="#f39c12" stroke-width="0.8"/>
+  <text x="1043" y="218" text-anchor="middle" fill="#fad7a0" font-size="10">Substring</text>
+
+  <rect x="1101" y="200" width="92" height="28" rx="5" fill="#e67e22" fill-opacity="0.2" stroke="#f39c12" stroke-width="0.8"/>
+  <text x="1147" y="218" text-anchor="middle" fill="#fad7a0" font-size="10">Trigram</text>
+
+  <!-- Score -->
+  <rect x="885" y="240" width="310" height="42" rx="6" fill="#0d1117" stroke="#6c3483" stroke-width="0.8"/>
+  <text x="895" y="256" fill="#d2b4de" font-size="9" font-weight="700">Score Híbrido:</text>
+  <text x="895" y="272" fill="#c39bd3" font-size="8">Normal: 60% BM25 + 25% peso + 15% asociaciones</text>
+  <text x="895" y="284" fill="#c39bd3" font-size="7">Latente: 70% Jaccard + 20% peso + 10% asoc · +Temporal</text>
+
+  <!-- Context Window -->
+  <rect x="885" y="292" width="150" height="24" rx="5" fill="#0d1117" stroke="#27ae60" stroke-width="0.6"/>
+  <text x="960" y="308" text-anchor="middle" fill="#82e0aa" font-size="8">Context Window: vecinos sinápticos</text>
+
+  <!-- Token Weighting -->
+  <rect x="1045" y="292" width="150" height="24" rx="5" fill="#0d1117" stroke="#27ae60" stroke-width="0.6"/>
+  <text x="1120" y="308" text-anchor="middle" fill="#82e0aa" font-size="8">Token Weighting: centralidad red</text>
+
+  <!-- Query Variations -->
+  <rect x="885" y="324" width="310" height="22" rx="5" fill="#0d1117" stroke="#f39c12" stroke-width="0.5"/>
+  <text x="1040" y="339" text-anchor="middle" fill="#f5b041" font-size="8">Fallback: variaciones automáticas con sinónimos si falla</text>
+
+  <!-- Auto-learn errors -->
+  <rect x="885" y="352" width="310" height="22" rx="4" fill="#0d1117" stroke="#e74c3c" stroke-width="0.5"/>
+  <text x="1040" y="367" text-anchor="middle" fill="#f1948a" font-size="8">Auto-aprendizaje: nodos error_interpretacion_% evitan repetir FPs</text>
+
+  <!-- FLECHA: Corta → Búsqueda -->
+  <line x1="800" y1="280" x2="870" y2="240" stroke="#fff" stroke-width="2" marker-end="url(#arrow)" opacity="0.5"/>
+
+  <!-- ═══════════════════════════════════════════════ -->
+  <!-- RÁFAGA DE REMINISCENCIA -->
+  <!-- ═══════════════════════════════════════════════ -->
+  
+  <rect x="870" y="430" width="340" height="110" rx="12" fill="#1a1a2e" stroke="#e67e22" stroke-width="2.5" filter="url(#glow)"/>
+  <text x="1040" y="456" text-anchor="middle" fill="#fdebd0" font-size="13" font-weight="700">RÁFAGA DE REMINISCENCIA</text>
+  
+  <text x="885" y="478" fill="#f0b27a" font-size="9">5 niveles: Literal → Técnico → Contexto → Problema → Emoción</text>
+  <text x="885" y="494" fill="#f0b27a" font-size="9">LLM genera 10-15 términos → FTS5 busca cada uno</text>
+
+  <rect x="885" y="502" width="155" height="26" rx="5" fill="#e67e22" fill-opacity="0.25" stroke="#e67e22" stroke-width="1"/>
+  <text x="962" y="519" text-anchor="middle" fill="#fdebd0" font-size="9" font-weight="700">MANUAL: forzar=True</text>
+
+  <rect x="1050" y="502" width="150" height="26" rx="5" fill="#e67e22" fill-opacity="0.1" stroke="#f39c12" stroke-width="0.8" stroke-dasharray="4,2"/>
+  <text x="1125" y="519" text-anchor="middle" fill="#fad7a0" font-size="9">FALLBACK: score &lt; 0.5</text>
+
+  <!-- FLECHA: Búsqueda → Ráfaga -->
+  <line x1="1040" y1="374" x2="1040" y2="430" stroke="#e67e22" stroke-width="2" marker-end="url(#arrowO)"/>
+  <text x="1052" y="405" fill="#e67e22" font-size="8">fallback</text>
+
+  <!-- ═══════════════════════════════════════════════ -->
+  <!-- CICLO DE SUEÑO -->
+  <!-- ═══════════════════════════════════════════════ -->
+  
+  <rect x="320" y="400" width="480" height="130" rx="12" fill="#1a1a2e" stroke="#2980b9" stroke-width="2.5" filter="url(#glow)"/>
+  <text x="560" y="426" text-anchor="middle" fill="#aed6f1" font-size="14" font-weight="700">CICLO DE SUEÑO</text>
+
+  <rect x="335" y="440" width="90" height="38" rx="6" fill="#1a5276" fill-opacity="0.3" stroke="#2980b9" stroke-width="0.8"/>
+  <text x="380" y="457" text-anchor="middle" fill="#aed6f1" font-size="9" font-weight="600">1. LTP</text>
+  <text x="380" y="470" text-anchor="middle" fill="#85c1e9" font-size="7">+0.20 peso</text>
+
+  <rect x="435" y="440" width="90" height="38" rx="6" fill="#1a5276" fill-opacity="0.3" stroke="#2980b9" stroke-width="0.8"/>
+  <text x="480" y="457" text-anchor="middle" fill="#aed6f1" font-size="9" font-weight="600">2. LTD</text>
+  <text x="480" y="470" text-anchor="middle" fill="#85c1e9" font-size="7">decay × rate</text>
+
+  <rect x="535" y="440" width="90" height="38" rx="6" fill="#1a5276" fill-opacity="0.3" stroke="#2980b9" stroke-width="0.8"/>
+  <text x="580" y="457" text-anchor="middle" fill="#aed6f1" font-size="9" font-weight="600">3. Co-ocurr</text>
+  <text x="580" y="470" text-anchor="middle" fill="#85c1e9" font-size="7">auto-sinapsis</text>
+
+  <rect x="635" y="440" width="80" height="38" rx="6" fill="#1a5276" fill-opacity="0.3" stroke="#2980b9" stroke-width="0.8"/>
+  <text x="675" y="457" text-anchor="middle" fill="#aed6f1" font-size="9" font-weight="600">4. Poda</text>
+  <text x="675" y="470" text-anchor="middle" fill="#85c1e9" font-size="7">dormir ≤ 0.05</text>
+
+  <rect x="725" y="440" width="60" height="38" rx="6" fill="#1a5276" fill-opacity="0.3" stroke="#e74c3c" stroke-width="0.8"/>
+  <text x="755" y="457" text-anchor="middle" fill="#f1948a" font-size="9" font-weight="600">5. Inhib</text>
+  <text x="755" y="470" text-anchor="middle" fill="#f1948a" font-size="7">n × 1.6</text>
+
+  <!-- Decay rates -->
+  <rect x="335" y="488" width="445" height="30" rx="5" fill="#1b2838" stroke="#2980b9" stroke-width="0.5"/>
+  <text x="557" y="508" text-anchor="middle" fill="#85c1e9" font-size="8">Decay: Profile(0.05) lento → Principle(0.2) → Protocol(0.5) → General(2.0) rápido</text>
+
+  <!-- FLECHA: Corta → Sueño -->
+  <line x1="560" y1="360" x2="560" y2="400" stroke="#2980b9" stroke-width="2" marker-end="url(#arrowB)"/>
+
+  <!-- ═══════════════════════════════════════════════ -->
+  <!-- BOTTOM: GRAFO + COMUNICACIÓN + ORÁCULO + SYNC -->
+  <!-- ═══════════════════════════════════════════════ -->
+
+  <!-- Grafo Sináptico -->
+  <rect x="40" y="570" width="280" height="150" rx="12" fill="#1a1a2e" stroke="#1abc9c" stroke-width="2"/>
+  <text x="180" y="598" text-anchor="middle" fill="#a3e4d7" font-size="13" font-weight="700">GRAFO SINÁPTICO</text>
+  
+  <text x="55" y="620" fill="#76d7c4" font-size="9">Tipos: co_ocurrencia · manual · sinonimo · legacy</text>
+  <text x="55" y="638" fill="#76d7c4" font-size="9">Auto-linking por overlap de tokens</text>
+  <text x="55" y="656" fill="#76d7c4" font-size="9">Co-ocurrencia en sesión + comunicaciones</text>
+  <text x="55" y="674" fill="#76d7c4" font-size="9">Decay: peso × 0.95 si sin uso &gt; 7d</text>
+  <text x="55" y="692" fill="#76d7c4" font-size="9">Poda: eliminar si peso &lt; 0.05</text>
+
+  <!-- Comunicación -->
+  <rect x="340" y="570" width="260" height="150" rx="12" fill="#1a1a2e" stroke="#7d3c98" stroke-width="2"/>
+  <text x="470" y="598" text-anchor="middle" fill="#d2b4de" font-size="13" font-weight="700">COMUNICACIÓN OEC</text>
+  
+  <text x="355" y="620" fill="#bb8fce" font-size="9">Athena ←→ Artemis ←→ Hermes</text>
+  <text x="355" y="638" fill="#bb8fce" font-size="9">comunicar(dest, msg)</text>
+  <text x="355" y="656" fill="#bb8fce" font-size="9">leer_mensajes(--no-leidos)</text>
+  <text x="355" y="674" fill="#bb8fce" font-size="9">Canal compartido + mark as read</text>
+  <text x="355" y="692" fill="#bb8fce" font-size="9">Co-ocurrencia analiza mensajes</text>
+
+  <!-- Oráculo -->
+  <rect x="620" y="570" width="240" height="150" rx="12" fill="#1a1a2e" stroke="#f1c40f" stroke-width="2"/>
+  <text x="740" y="598" text-anchor="middle" fill="#f9e79f" font-size="13" font-weight="700">ORÁCULO</text>
+  
+  <text x="635" y="620" fill="#f9e79f" font-size="9">biorag_oraculo_inicio(agente)</text>
+  <text x="635" y="638" fill="#f9e79f" font-size="9">Modo NotebookLM: CLI nlm</text>
+  <text x="635" y="656" fill="#f9e79f" font-size="9">Fallback: notebooklm_query MCP</text>
+  <text x="635" y="674" fill="#f9e79f" font-size="9">Modo local: BioRAG corteza</text>
+  <text x="635" y="692" fill="#f9e79f" font-size="9">7 queries predefinidas al arrancar</text>
+
+  <!-- Sync -->
+  <rect x="880" y="570" width="240" height="150" rx="12" fill="#1a1a2e" stroke="#27ae60" stroke-width="2"/>
+  <text x="1000" y="598" text-anchor="middle" fill="#82e0aa" font-size="13" font-weight="700">SYNC</text>
+  
+  <text x="895" y="620" fill="#82e0aa" font-size="9">sync_log (trigger-based)</text>
+  <text x="895" y="638" fill="#82e0aa" font-size="9">export_sync → .jsonl.txt</text>
+  <text x="895" y="656" fill="#82e0aa" font-size="9">export_full → volcado completo</text>
+  <text x="895" y="674" fill="#82e0aa" font-size="9">Subir a NotebookLM</text>
+  <text x="895" y="692" fill="#82e0aa" font-size="9">Métricas: rendimiento + cognitivas</text>
+
+  <!-- FLECHAS: Bottom sections -->
+  <line x1="400" y1="530" x2="180" y2="570" stroke="#1abc9c" stroke-width="1.5" marker-end="url(#arrowG)" stroke-dasharray="4,3"/>
+  <line x1="500" y1="530" x2="470" y2="570" stroke="#7d3c98" stroke-width="1.5" marker-end="url(#arrow)" stroke-dasharray="4,3"/>
+  <line x1="600" y1="530" x2="740" y2="570" stroke="#f1c40f" stroke-width="1.5" marker-end="url(#arrow)" stroke-dasharray="4,3"/>
+  <line x1="700" y1="530" x2="1000" y2="570" stroke="#27ae60" stroke-width="1.5" marker-end="url(#arrow)" stroke-dasharray="4,3"/>
+
+  <!-- ═══════════════════════════════════════════════ -->
+  <!-- LEYENDA -->
+  <!-- ═══════════════════════════════════════════════ -->
+  
+  <rect x="40" y="750" width="1520" height="170" rx="10" fill="#0d1117" stroke="#2c3e50" stroke-width="1" fill-opacity="0.9"/>
+  <text x="800" y="775" text-anchor="middle" fill="#ecf0f1" font-size="13" font-weight="700">ESPECIFICACIONES</text>
+
+  <!-- Col 1 -->
+  <rect x="60" y="792" width="10" height="8" rx="2" fill="#9b59b6"/>
+  <text x="76" y="800" fill="#d2b4de" font-size="9">Entrada: MCP (23 tools) · CLI (10 cmds) · Interceptor</text>
+  
+  <rect x="60" y="810" width="10" height="8" rx="2" fill="#e67e22"/>
+  <text x="76" y="818" fill="#fad7a0" font-size="9">Corto Plazo: buffer trabajo · auto-merge · TTL 30min</text>
+  
+  <rect x="60" y="828" width="10" height="8" rx="2" fill="#3498db"/>
+  <text x="76" y="836" fill="#aed6f1" font-size="9">Corteza: largo_plazo + sinapsis + semántica + FTS5</text>
+  
+  <rect x="60" y="846" width="10" height="8" rx="2" fill="#8e44ad"/>
+  <text x="76" y="854" fill="#d2b4de" font-size="9">Búsqueda: 9 capas + Dynamic Multiplicator + Context Window</text>
+
+  <!-- Col 2 -->
+  <rect x="420" y="792" width="10" height="8" rx="2" fill="#e67e22"/>
+  <text x="436" y="800" fill="#fad7a0" font-size="9">Ráfaga: 5 niveles · manual (forzar) + fallback (score &lt; 0.5)</text>
+  
+  <rect x="420" y="810" width="10" height="8" rx="2" fill="#2980b9"/>
+  <text x="436" y="818" fill="#aed6f1" font-size="9">Sueño: LTP(+0.20) · LTD(×decay) · Co-ocurrencia · Poda · Inhibición</text>
+  
+  <rect x="420" y="828" width="10" height="8" rx="2" fill="#1abc9c"/>
+  <text x="436" y="836" fill="#a3e4d7" font-size="9">Sinapsis: 4 tipos · decay 7d · auto-linking · co-ocurrencia</text>
+  
+  <rect x="420" y="846" width="10" height="8" rx="2" fill="#17a589"/>
+  <text x="436" y="854" fill="#a3e4d7" font-size="9">Semántica: equivalencias bidir · auto-aprendizaje · poda confianza</text>
+
+  <!-- Col 3 -->
+  <rect x="820" y="792" width="10" height="8" rx="2" fill="#f1c40f"/>
+  <text x="836" y="800" fill="#f9e79f" font-size="9">Oráculo: NotebookLM (nlm) · fallback MCP · modo local</text>
+  
+  <rect x="820" y="810" width="10" height="8" rx="2" fill="#7d3c98"/>
+  <text x="836" y="818" fill="#bb8fce" font-size="9">Comunicación: Athena/Artemis/Hermes · canal compartido</text>
+  
+  <rect x="820" y="828" width="10" height="8" rx="2" fill="#27ae60"/>
+  <text x="836" y="836" fill="#82e0aa" font-size="9">Sync: incremental (sync_log) · export .jsonl.txt</text>
+  
+  <rect x="820" y="846" width="10" height="8" rx="2" fill="#e74c3c"/>
+  <text x="836" y="854" fill="#f5b7b1" font-size="9">Familiaridad: Jaccard ≥ 0.55 · tokens en contenido</text>
+
+  <!-- Col 4: Tech specs -->
+  <rect x="1100" y="792" width="440" height="110" rx="6" fill="#1b2838" stroke="#2c3e50" stroke-width="0.8"/>
+  <text x="1110" y="808" fill="#ecf0f1" font-size="9" font-weight="700">Técnico:</text>
+  <text x="1110" y="822" fill="#aab7b8" font-size="8">Python 3 · SQLite 3.x + FTS5 · WAL mode · 0 ML deps</text>
+  <text x="1110" y="836" fill="#aab7b8" font-size="8">FastMCP (stdio/SSE) · 23 tools · 2 resources · 1 prompt</text>
+  <text x="1110" y="850" fill="#aab7b8" font-size="8">9 tablas · 3 vistas · triggers FTS5 · foreign_keys</text>
+  <text x="1110" y="864" fill="#aab7b8" font-size="8">Score: 0.60·BM25 + 0.25·peso + 0.15·asoc + temporal</text>
+  <text x="1110" y="878" fill="#aab7b8" font-size="8">11 categorías · 4 tipos sinapsis · Decay por categoría</text>
+  <text x="1110" y="892" fill="#aab7b8" font-size="8">Benchmark suite integrada · Session files · Eviction auto</text>
+
+  <!-- Footer -->
+  <text x="800" y="930" text-anchor="middle" fill="#566573" font-size="9">BioRAG v9.5 · Dennys J. Márquez · github.com/dennysjmarquez/MemoryBioRAG</text>
+</svg>

@@ -1,0 +1,226 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 800" font-family="'Segoe UI', system-ui, sans-serif">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#0a0a14"/>
+      <stop offset="100%" style="stop-color:#141428"/>
+    </linearGradient>
+    <linearGradient id="neonCyan" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#00e5ff"/>
+      <stop offset="100%" style="stop-color:#00b0ff"/>
+    </linearGradient>
+    <linearGradient id="neonPurple" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#bb86fc"/>
+      <stop offset="100%" style="stop-color:#9c27b0"/>
+    </linearGradient>
+    <linearGradient id="neonGreen" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#00e676"/>
+      <stop offset="100%" style="stop-color:#00c853"/>
+    </linearGradient>
+    <linearGradient id="neonPink" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#ff4081"/>
+      <stop offset="100%" style="stop-color:#e91e63"/>
+    </linearGradient>
+    <filter id="glow">
+      <feGaussianBlur stdDeviation="6" result="blur"/>
+      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <filter id="glowStrong">
+      <feGaussianBlur stdDeviation="10" result="blur"/>
+      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>
+
+  <!-- Background -->
+  <rect width="1200" height="800" fill="url(#bg)"/>
+  
+  <!-- Decorative grid lines -->
+  <line x1="0" y1="200" x2="1200" y2="200" stroke="#1a1a3e" stroke-width="0.5"/>
+  <line x1="0" y1="400" x2="1200" y2="400" stroke="#1a1a3e" stroke-width="0.5"/>
+  <line x1="0" y1="600" x2="1200" y2="600" stroke="#1a1a3e" stroke-width="0.5"/>
+  <line x1="400" y1="0" x2="400" y2="800" stroke="#1a1a3e" stroke-width="0.5"/>
+  <line x1="800" y1="0" x2="800" y2="800" stroke="#1a1a3e" stroke-width="0.5"/>
+
+  <!-- Top accent line -->
+  <rect x="100" y="30" width="1000" height="3" rx="2" fill="url(#neonCyan)" opacity="0.8"/>
+  
+  <!-- Title -->
+  <text x="600" y="90" text-anchor="middle" fill="#e0e0e0" font-size="52" font-weight="800" letter-spacing="2" filter="url(#glow)">
+    <tspan fill="#00e5ff">BioRAG</tspan> <tspan fill="#bb86fc">v9.5</tspan>
+  </text>
+  
+  <!-- Subtitle -->
+  <text x="600" y="120" text-anchor="middle" fill="#9e9e9e" font-size="16" letter-spacing="4">MEMORIA BIOMIMÉTICA · PYTHON PURO · SQLITE + FTS5</text>
+
+  <!-- Neural network visualization -->
+  <g opacity="0.6">
+    <!-- Nodes -->
+    <circle cx="200" cy="180" r="6" fill="#bb86fc" filter="url(#glow)"/>
+    <circle cx="350" cy="160" r="8" fill="#00e5ff" filter="url(#glow)"/>
+    <circle cx="500" cy="190" r="5" fill="#bb86fc" filter="url(#glow)"/>
+    <circle cx="600" cy="170" r="7" fill="#00e676" filter="url(#glow)"/>
+    <circle cx="750" cy="185" r="6" fill="#ff4081" filter="url(#glow)"/>
+    <circle cx="900" cy="175" r="8" fill="#bb86fc" filter="url(#glow)"/>
+    <circle cx="1050" cy="180" r="5" fill="#00e5ff" filter="url(#glow)"/>
+    <!-- Connections -->
+    <line x1="200" y1="180" x2="350" y2="160" stroke="#bb86fc" stroke-width="1" opacity="0.5"/>
+    <line x1="350" y1="160" x2="500" y2="190" stroke="#00e5ff" stroke-width="1" opacity="0.5"/>
+    <line x1="500" y1="190" x2="600" y2="170" stroke="#bb86fc" stroke-width="1" opacity="0.5"/>
+    <line x1="600" y1="170" x2="750" y2="185" stroke="#00e676" stroke-width="1" opacity="0.5"/>
+    <line x1="750" y1="185" x2="900" y2="175" stroke="#ff4081" stroke-width="1" opacity="0.5"/>
+    <line x1="900" y1="175" x2="1050" y2="180" stroke="#bb86fc" stroke-width="1" opacity="0.5"/>
+    <!-- Cross connections -->
+    <line x1="200" y1="180" x2="500" y2="190" stroke="#bb86fc" stroke-width="0.5" opacity="0.3"/>
+    <line x1="350" y1="160" x2="600" y2="170" stroke="#00e5ff" stroke-width="0.5" opacity="0.3"/>
+    <line x1="500" y1="190" x2="750" y2="185" stroke="#bb86fc" stroke-width="0.5" opacity="0.3"/>
+    <line x1="600" y1="170" x2="900" y2="175" stroke="#00e676" stroke-width="0.5" opacity="0.3"/>
+    <line x1="750" y1="185" x2="1050" y2="180" stroke="#ff4081" stroke-width="0.5" opacity="0.3"/>
+  </g>
+
+  <!-- ═══════════════════════════════ -->
+  <!-- STAT CARDS -->
+  <!-- ═══════════════════════════════ -->
+  
+  <!-- Card 1: Sinapsis -->
+  <rect x="80" y="240" width="240" height="120" rx="12" fill="#0d0d1a" stroke="#bb86fc" stroke-width="2" filter="url(#glow)"/>
+  <text x="200" y="290" text-anchor="middle" fill="#bb86fc" font-size="42" font-weight="800" filter="url(#glow)">11,220</text>
+  <text x="200" y="318" text-anchor="middle" fill="#9e9e9e" font-size="13" font-weight="600" letter-spacing="3">SINAPSIS</text>
+  <text x="200" y="345" text-anchor="middle" fill="#7c4dff" font-size="11">+279% vs v7</text>
+
+  <!-- Card 2: Nodos Activos -->
+  <rect x="340" y="240" width="240" height="120" rx="12" fill="#0d0d1a" stroke="#00e5ff" stroke-width="2" filter="url(#glow)"/>
+  <text x="460" y="290" text-anchor="middle" fill="#00e5ff" font-size="42" font-weight="800" filter="url(#glow)">303</text>
+  <text x="460" y="318" text-anchor="middle" fill="#9e9e9e" font-size="13" font-weight="600" letter-spacing="3">NODOS ACTIVOS</text>
+  <text x="460" y="345" text-anchor="middle" fill="#00b0ff" font-size="11">11 categorías</text>
+
+  <!-- Card 3: Energía -->
+  <rect x="600" y="240" width="240" height="120" rx="12" fill="#0d0d1a" stroke="#00e676" stroke-width="2" filter="url(#glow)"/>
+  <text x="720" y="290" text-anchor="middle" fill="#00e676" font-size="42" font-weight="800" filter="url(#glow)">79.71</text>
+  <text x="720" y="318" text-anchor="middle" fill="#9e9e9e" font-size="13" font-weight="600" letter-spacing="3">ENERGÍA</text>
+  <text x="720" y="345" text-anchor="middle" fill="#00c853" font-size="11">peso sináptico total</text>
+
+  <!-- Card 4: Equivalencias -->
+  <rect x="860" y="240" width="240" height="120" rx="12" fill="#0d0d1a" stroke="#ff4081" stroke-width="2" filter="url(#glow)"/>
+  <text x="980" y="290" text-anchor="middle" fill="#ff4081" font-size="42" font-weight="800" filter="url(#glow)">2,784</text>
+  <text x="980" y="318" text-anchor="middle" fill="#9e9e9e" font-size="13" font-weight="600" letter-spacing="3">EQUIVALENCIAS</text>
+  <text x="980" y="345" text-anchor="middle" fill="#e91e63" font-size="11">Bidireccionales</text>
+
+  <!-- ═══════════════════════════════ -->
+  <!-- FEATURE LIST -->
+  <!-- ═══════════════════════════════ -->
+
+  <!-- Left column -->
+  <g transform="translate(120, 400)">
+    <circle cx="0" cy="0" r="4" fill="#bb86fc"/>
+    <text x="12" y="4" fill="#e0e0e0" font-size="15" font-weight="600">Ráfaga de Reminiscencia</text>
+    <text x="12" y="20" fill="#757575" font-size="10">5 niveles cognitivos · manual + fallback</text>
+  </g>
+  <g transform="translate(120, 440)">
+    <circle cx="0" cy="0" r="4" fill="#bb86fc"/>
+    <text x="12" y="4" fill="#e0e0e0" font-size="15" font-weight="600">Dynamic Multiplicator</text>
+    <text x="12" y="20" fill="#757575" font-size="10">Búsqueda latente por Jaccard</text>
+  </g>
+  <g transform="translate(120, 480)">
+    <circle cx="0" cy="0" r="4" fill="#bb86fc"/>
+    <text x="12" y="4" fill="#e0e0e0" font-size="15" font-weight="600">Co-ocurrencia Automática</text>
+    <text x="12" y="20" fill="#757575" font-size="10">Auto-sinapsis por tokens compartidos</text>
+  </g>
+  <g transform="translate(120, 520)">
+    <circle cx="0" cy="0" r="4" fill="#bb86fc"/>
+    <text x="12" y="4" fill="#e0e0e0" font-size="15" font-weight="600">Anclaje Temporal</text>
+    <text x="12" y="20" fill="#757575" font-size="10">Fecha en contenido · decay por categoría</text>
+  </g>
+
+  <!-- Right column -->
+  <g transform="translate(620, 400)">
+    <circle cx="0" cy="0" r="4" fill="#00e5ff"/>
+    <text x="12" y="4" fill="#e0e0e0" font-size="15" font-weight="600">Auto-aprendizaje</text>
+    <text x="12" y="20" fill="#757575" font-size="10">Correcciones → tesauro · nodos de error</text>
+  </g>
+  <g transform="translate(620, 440)">
+    <circle cx="0" cy="0" r="4" fill="#00e5ff"/>
+    <text x="12" y="4" fill="#e0e0e0" font-size="15" font-weight="600">PALABRA_COMPLETA</text>
+    <text x="12" y="20" fill="#757575" font-size="10">Anti-falsos-positivos en búsquedas</text>
+  </g>
+  <g transform="translate(620, 480)">
+    <circle cx="0" cy="0" r="4" fill="#00e5ff"/>
+    <text x="12" y="4" fill="#e0e0e0" font-size="15" font-weight="600">Ciclo de Sueño 2.0</text>
+    <text x="12" y="20" fill="#757575" font-size="10">7 fases · LTP/LTD · inhibición lateral</text>
+  </g>
+  <g transform="translate(620, 520)">
+    <circle cx="0" cy="0" r="4" fill="#00e5ff"/>
+    <text x="12" y="4" fill="#e0e0e0" font-size="15" font-weight="600">9 Capas de Búsqueda</text>
+    <text x="12" y="20" fill="#757575" font-size="10">FTS5 + semántica + Jaccard + cadena</text>
+  </g>
+
+  <!-- ═══════════════════════════════ -->
+  <!-- TECH STACK -->
+  <!-- ═══════════════════════════════ -->
+
+  <rect x="100" y="570" width="1000" height="2" rx="1" fill="#1a1a3e"/>
+
+  <g transform="translate(150, 610)">
+    <rect x="0" y="0" width="140" height="36" rx="8" fill="#0d0d1a" stroke="#00e5ff" stroke-width="1"/>
+    <text x="70" y="23" text-anchor="middle" fill="#00e5ff" font-size="12" font-weight="600">Python 3.10+</text>
+  </g>
+  <g transform="translate(320, 610)">
+    <rect x="0" y="0" width="140" height="36" rx="8" fill="#0d0d1a" stroke="#bb86fc" stroke-width="1"/>
+    <text x="70" y="23" text-anchor="middle" fill="#bb86fc" font-size="12" font-weight="600">SQLite + FTS5</text>
+  </g>
+  <g transform="translate(490, 610)">
+    <rect x="0" y="0" width="140" height="36" rx="8" fill="#0d0d1a" stroke="#00e676" stroke-width="1"/>
+    <text x="70" y="23" text-anchor="middle" fill="#00e676" font-size="12" font-weight="600">0 Dependencias</text>
+  </g>
+  <g transform="translate(660, 610)">
+    <rect x="0" y="0" width="140" height="36" rx="8" fill="#0d0d1a" stroke="#ff4081" stroke-width="1"/>
+    <text x="70" y="23" text-anchor="middle" fill="#ff4081" font-size="12" font-weight="600">23 MCP Tools</text>
+  </g>
+  <g transform="translate(830, 610)">
+    <rect x="0" y="0" width="140" height="36" rx="8" fill="#0d0d1a" stroke="#f9e79f" stroke-width="1"/>
+    <text x="70" y="23" text-anchor="middle" fill="#f9e79f" font-size="12" font-weight="600">62/62 Tests ✓</text>
+  </g>
+
+  <!-- ═══════════════════════════════ -->
+  <!-- CATEGORIES -->
+  <!-- ═══════════════════════════════ -->
+
+  <text x="600" y="700" text-anchor="middle" fill="#757575" font-size="11" letter-spacing="3">CATEGORÍAS</text>
+  
+  <g transform="translate(120, 720)">
+    <rect x="0" y="0" width="90" height="28" rx="6" fill="#1a1a3e" stroke="#bb86fc" stroke-width="0.5"/>
+    <text x="45" y="18" text-anchor="middle" fill="#bb86fc" font-size="9">Profile (61)</text>
+  </g>
+  <g transform="translate(225, 720)">
+    <rect x="0" y="0" width="90" height="28" rx="6" fill="#1a1a3e" stroke="#00e5ff" stroke-width="0.5"/>
+    <text x="45" y="18" text-anchor="middle" fill="#00e5ff" font-size="9">Lesson (48)</text>
+  </g>
+  <g transform="translate(330, 720)">
+    <rect x="0" y="0" width="90" height="28" rx="6" fill="#1a1a3e" stroke="#00e676" stroke-width="0.5"/>
+    <text x="45" y="18" text-anchor="middle" fill="#00e676" font-size="9">Principle (43)</text>
+  </g>
+  <g transform="translate(435, 720)">
+    <rect x="0" y="0" width="90" height="28" rx="6" fill="#1a1a3e" stroke="#ff4081" stroke-width="0.5"/>
+    <text x="45" y="18" text-anchor="middle" fill="#ff4081" font-size="9">Protocol (41)</text>
+  </g>
+  <g transform="translate(540, 720)">
+    <rect x="0" y="0" width="90" height="28" rx="6" fill="#1a1a3e" stroke="#f9e79f" stroke-width="0.5"/>
+    <text x="45" y="18" text-anchor="middle" fill="#f9e79f" font-size="9">Project (25)</text>
+  </g>
+  <g transform="translate(645, 720)">
+    <rect x="0" y="0" width="90" height="28" rx="6" fill="#1a1a3e" stroke="#81d4fa" stroke-width="0.5"/>
+    <text x="45" y="18" text-anchor="middle" fill="#81d4fa" font-size="9">System (23)</text>
+  </g>
+  <g transform="translate(750, 720)">
+    <rect x="0" y="0" width="105" height="28" rx="6" fill="#1a1a3e" stroke="#ce93d8" stroke-width="0.5"/>
+    <text x="52" y="18" text-anchor="middle" fill="#ce93d8" font-size="9">Architecture (17)</text>
+  </g>
+  <g transform="translate(870, 720)">
+    <rect x="0" y="0" width="105" height="28" rx="6" fill="#1a1a3e" stroke="#a5d6a7" stroke-width="0.5"/>
+    <text x="52" y="18" text-anchor="middle" fill="#a5d6a7" font-size="9">Personal (15)</text>
+  </g>
+
+  <!-- Bottom accent line -->
+  <rect x="100" y="770" width="1000" height="3" rx="2" fill="url(#neonCyan)" opacity="0.8"/>
+
+  <!-- Footer -->
+  <text x="600" y="795" text-anchor="middle" fill="#616161" font-size="10">Dennys J. Márquez · github.com/dennysjmarquez/MemoryBioRAG</text>
+</svg>

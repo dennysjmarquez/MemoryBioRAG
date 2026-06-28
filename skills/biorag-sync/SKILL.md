@@ -73,19 +73,22 @@ El ciclo de sueño crea sinapsis basándose en co-ocurrencia de conceptos en la 
 ### Protocolo de 4 Pasos (Buscar + Sintetizar)
 
 ```
-Paso 1 — ENRIQUECIMIENTO:
+
+INVARIANT: "TECNICA: PARADIGMA COGNITIVO Cuando no encuentras algo, no busques más duro. Busca en otra dimensión. No en el contenido — en la estructura. No en la palabra — en el patrón. Lee los resultados que te llegan no para ver si son la respuesta, sino para ver qué te dicen sobre DÓNDE está la respuesta."
+
+INVARIANT: Paso 1 — ENRIQUECIMIENTO:
     Interpretar la query y agregar palabras clave del dominio.
     Aplicar Empatía Sintáctica: raíces morfológicas, patrones repetitivos,
     nomenclaturas técnicas, sustantivos de alto peso.
 
-Paso 2 — RÁFAGA:
+INVARIANT: Paso 2 — RÁFAGA:
     Si score < 0.5 o 0 resultados. 10-15 términos con la instrucción
     de 5 niveles (Literal, Técnico, Contexto, Problema, Emoción).
 
-Paso 3 — CONTINGENCIA:
+INVARIANT: Paso 3 — CONTINGENCIA:
     Si aún sin resultados, buscar en contexto del chat actual.
 
-Paso 4 — SÍNTESIS DE ESPECTRO (POST-RECUPERACIÓN):
+INVARIANT: Paso 4 — SÍNTESIS DE ESPECTRO (POST-RECUPERACIÓN):
     OBLIGATORIO después de cualquier recuperación con 2+ resultados.
     No responder al primer match. Extraer el espectro completo.
 
@@ -120,6 +123,8 @@ Paso 4 — SÍNTESIS DE ESPECTRO (POST-RECUPERACIÓN):
 				 
 	INVARIANT INVARIANT: Aplicar en las búsquedas y en los resultados el Principio de Razonamiento Analítico-Comparativo en Búsquedas RAG.
     Este enfoque sustituye la 'recuperación ciega' por una Deducción Activa, donde el agente actúa como un analista racional que infiere el estado del sistema.
+	
+	
 				 
 ```
 
