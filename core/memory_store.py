@@ -1442,10 +1442,11 @@ class SQLiteMemoryBioRAG:
         
         return variaciones[:3]
 
-    def _calcular_score_hibrido(self, rank_idx, total, peso_sinaptico, asociaciones, pesos_tokens=None, contenido="", es_latente=False, score_latente=0.0, ultimo_acceso=None):
-        """Score híbrido: 60% calidad textual (BM25 rank) + 25% peso biológico + 15% riqueza de asociaciones.
+    def _calcular_score_hibrido(self, rank_idx, total, peso_sinaptico, asociaciones, pesos_tokens=None, contenido="", es_latente=False, score_latente=0.0, ultimo_acceso=None, es_concepto=False, score_concepto=0.0):
+        """Score híbrido: 55% calidad textual (BM25 rank) + 35% peso biológico + 10% riqueza de asociaciones.
         Si pesos_tokens está disponible, ajusta el score textual por centralidad del token en la red.
         Si es_latente=True y score_latente >= 0.15, usa fórmula de emergencia: 70% latente + 20% peso + 10% asociaciones.
+        Si es_concepto=True y score_concepto >= 0.3, usa fórmula de concepto: 50% match nombre + 40% peso + 10% asociaciones.
         Si ultimo_acceso es reciente, agrega bonus temporal (Anclaje Temporal)."""
         peso_normalizado = min(1.0, peso_sinaptico)
 
@@ -1470,6 +1471,9 @@ class SQLiteMemoryBioRAG:
         if es_latente and score_latente >= 0.15:
             return round(0.70 * score_latente + 0.20 * peso_normalizado + 0.10 * score_asoc + score_temporal, 4)
 
+        if es_concepto and score_concepto >= 0.3:
+            return round(0.50 * score_concepto + 0.40 * peso_normalizado + 0.10 * score_asoc + score_temporal, 4)
+
         if total <= 1:
             score_texto = 1.0
         else:
@@ -1481,7 +1485,7 @@ class SQLiteMemoryBioRAG:
             peso_query = sum(peso for token, peso in pesos_tokens.items() if token in tokens_en_contenido)
             score_texto = score_texto * 0.7 + peso_query * 0.3
 
-        return round(0.60 * score_texto + 0.25 * peso_normalizado + 0.15 * score_asoc + score_temporal, 4)
+        return round(0.55 * score_texto + 0.35 * peso_normalizado + 0.10 * score_asoc + score_temporal, 4)
 
     def buscar_por_frase(self, frase, profundidad="activos", pagina=1, limite=None, categoria=None, preview_chars=1500, historial_fallos=None, context_window=0):
         """Busqueda hibrida: FTS5 trigram + peso sinaptico + asociaciones.
@@ -1530,12 +1534,44 @@ class SQLiteMemoryBioRAG:
             FROM largo_plazo_fts f
             JOIN largo_plazo l ON l.rowid = f.rowid
             WHERE largo_plazo_fts MATCH ?{filtro}
-            ORDER BY bm25(largo_plazo_fts)
+            ORDER BY bm25(largo_plazo_fts, 5.0, 1.0, 2.0) * (1.0 - 0.5 * l.peso_sinaptico)
         """.format(filtro=clause)
 
         todos = []
         palabras = [w for w in frase.split() if len(w) >= 3]
         origen_scores = {}  # Side channel: rastrea origen de cada nodo para Dynamic Multiplicator
+
+        # ─── Capa 2: LIKE en concepto (siempre activa) ───
+        # Busca coincidencia por substring en el nombre del concepto.
+        # Complementa a FTS5: maneja guiones, puntos y caracteres especiales
+        # que FTS5 trigram no tokeniza bien como palabras completas.
+        palabras_like = [w for w in frase.split() if len(w) >= 3]
+        resultados_concepto = {}
+        if palabras_like:
+            like_clauses = []
+            like_params = []
+            for w in palabras_like:
+                like_clauses.append(
+                    "(l.concepto LIKE '%' || ? || '%' AND "
+                    "(PALABRA_COMPLETA(?, l.concepto) = 1 OR length(?) >= 5))"
+                )
+                like_params.extend([w, w, w])
+            like_where = " AND ".join(like_clauses)
+            clause_like = clause.replace("l.", "") if clause else ""
+            sql_like = f"""
+                SELECT l.rowid, l.concepto, l.contenido, l.peso_sinaptico,
+                       l.estado, l.asociaciones
+                FROM largo_plazo l
+                WHERE {like_where}{clause_like}
+            """
+            try:
+                self.cursor.execute(sql_like, like_params)
+                for r in self.cursor.fetchall():
+                    match_ratio = sum(1 for w in palabras_like if w.lower() in r[1].lower()) / len(palabras_like)
+                    resultados_concepto[r[1]] = match_ratio
+                    origen_scores[r[1]] = ("concepto", match_ratio)
+            except sqlite3.OperationalError:
+                pass
 
         # Filtro DB-side PALABRA_COMPLETA: previene falsos positivos de FTS5 trigram
         # ("culo" no debe matchear "artículos"). Aplica a contenido+concepto+sinonimos.
@@ -1550,7 +1586,7 @@ class SQLiteMemoryBioRAG:
                 pc_params.extend([p, p, p])
             pc_clause = " AND (" + " OR ".join(pc_clauses) + ")"
         # Inyectar pc_clause en el WHERE después de los filtros de estado/categoría
-        sql_con_pc = sql.replace("ORDER BY bm25(largo_plazo_fts)", pc_clause + " ORDER BY bm25(largo_plazo_fts)")
+        sql_con_pc = sql.replace("ORDER BY bm25(largo_plazo_fts, 5.0, 1.0, 2.0) * (1.0 - 0.5 * l.peso_sinaptico)", pc_clause + " ORDER BY bm25(largo_plazo_fts, 5.0, 1.0, 2.0) * (1.0 - 0.5 * l.peso_sinaptico)")
 
         # Intentar NEAR query primero (palabras cercanas entre sí)
         if len(palabras) > 1:
@@ -1573,13 +1609,16 @@ class SQLiteMemoryBioRAG:
             except sqlite3.OperationalError:
                 pass
 
-        # OR fallback: si AND devolvió pocos resultados y hay múltiples palabras, probar OR
-        if todos and len(todos) < max(limite * 2, 5) and len(frase.split()) > 1:
+        # OR fallback: si AND devolvió pocos resultados (o ninguno), probar OR
+        if (not todos or len(todos) < max(limite * 2, 5)) and len(frase.split()) > 1:
             palabras = [w for w in frase.split() if len(w) >= 3]
             if len(palabras) > 1:
                 query_or = " OR ".join(palabras)
                 try:
-                    self.cursor.execute(sql_con_pc, (query_or,) + tuple(pc_params))
+                    if not todos:
+                        self.cursor.execute(sql, (query_or,))
+                    else:
+                        self.cursor.execute(sql_con_pc, (query_or,) + tuple(pc_params))
                     or_results = self.cursor.fetchall()
                     seen_rowids = {r[0] for r in todos}
                     for r in or_results:
@@ -1591,27 +1630,28 @@ class SQLiteMemoryBioRAG:
 
         # Fallback 1.4: FTS5 unicode61 con prefix wildcards
         # Mejora recall para palabras que comparten prefijo (react -> reactive, forms -> formularios).
-        # Se ejecuta siempre que haya al menos un término buscable para enriquecer resultados.
-        try:
-            query_wild = self._agregar_prefix_wildcards(query)
-            sql_unicode = """
-                SELECT l.rowid, l.concepto, l.contenido, l.peso_sinaptico,
-                       l.estado, l.asociaciones
-                FROM largo_plazo_fts_unicode f
-                JOIN largo_plazo l ON l.rowid = f.rowid
-                WHERE largo_plazo_fts_unicode MATCH ?{filtro}
-                ORDER BY bm25(largo_plazo_fts_unicode)
-                LIMIT ?
-            """.format(filtro=clause)
-            self.cursor.execute(sql_unicode, (query_wild,) + (max(limite * 3, 10),))
-            uni_results = self.cursor.fetchall()
-            seen_rowids = {r[0] for r in todos}
-            for r in uni_results:
-                if r[0] not in seen_rowids:
-                    todos.append(r)
-                    origen_scores[r[1]] = ("literal", 0.0)
-        except sqlite3.OperationalError:
-            pass
+        # Último recurso: solo corre si ningún fallback anterior encontró resultados.
+        if not todos:
+            try:
+                query_wild = self._agregar_prefix_wildcards(query)
+                sql_unicode = """
+                    SELECT l.rowid, l.concepto, l.contenido, l.peso_sinaptico,
+                           l.estado, l.asociaciones
+                    FROM largo_plazo_fts_unicode f
+                    JOIN largo_plazo l ON l.rowid = f.rowid
+                    WHERE largo_plazo_fts_unicode MATCH ?{filtro}
+                    ORDER BY bm25(largo_plazo_fts_unicode)
+                    LIMIT ?
+                """.format(filtro=clause)
+                self.cursor.execute(sql_unicode, (query_wild,) + (max(limite * 3, 10),))
+                uni_results = self.cursor.fetchall()
+                seen_rowids = {r[0] for r in todos}
+                for r in uni_results:
+                    if r[0] not in seen_rowids:
+                        todos.append(r)
+                        origen_scores[r[1]] = ("literal", 0.0)
+            except sqlite3.OperationalError:
+                pass
 
         # Fallback 1.5: Expansión semántica
         # NO aplica PALABRA_COMPLETA: las equivalentes son palabras distintas por diseño.
@@ -1741,7 +1781,7 @@ class SQLiteMemoryBioRAG:
                 for row in filas:
                     texto = f"{row[1]} {row[2]}".lower()
                     text_words = re.findall(r'\w{3,}', texto)
-                    total_score = 0.0
+                    max_word_score = 0.0
                     for qw in query_words:
                         qt = set(qw[i:i+3] for i in range(len(qw) - 2))
                         if not qt:
@@ -1751,9 +1791,9 @@ class SQLiteMemoryBioRAG:
                              for tw in text_words if len(tw) >= 3),
                             default=0.0
                         )
-                        total_score += best
-                    avg_score = total_score / len(query_words) if query_words else 0.0
-                    if avg_score >= 0.7:
+                        if best > max_word_score:
+                            max_word_score = best
+                    if max_word_score >= 0.7:
                         # Filtro PC solo para palabras cortas: rechaza matches donde el
                         # token solo es substring de otra palabra. Palabras largas ya son
                         # discriminantes vía trigrama.
@@ -1765,7 +1805,7 @@ class SQLiteMemoryBioRAG:
                             )
                             if not match_legitimo:
                                 continue
-                        candidatos.append((avg_score, row))
+                        candidatos.append((max_word_score, row))
                 candidatos.sort(key=lambda x: x[0], reverse=True)
                 for score_typo, row in candidatos[:max(limite * 3, 10)]:
                     todos.append(row)
@@ -1778,8 +1818,8 @@ class SQLiteMemoryBioRAG:
         if not todos and len(query) >= 2:
             limite_tiempo = time.time() - (7 * 86400)
             # sql_con_pc ya incluye el filtro PALABRA_COMPLETA — previene falsos positivos
-            sql_snap = sql_con_pc.replace("ORDER BY bm25(largo_plazo_fts)",
-                                          "AND l.ultimo_acceso > ? ORDER BY bm25(largo_plazo_fts) LIMIT 5")
+            sql_snap = sql_con_pc.replace("ORDER BY bm25(largo_plazo_fts, 5.0, 1.0, 2.0) * (1.0 - 0.5 * l.peso_sinaptico)",
+                                          "AND l.ultimo_acceso > ? ORDER BY bm25(largo_plazo_fts, 5.0, 1.0, 2.0) * (1.0 - 0.5 * l.peso_sinaptico) LIMIT 5")
             try:
                 self.cursor.execute(sql_snap, (query,) + tuple(pc_params) + (limite_tiempo,))
                 snap_r = self.cursor.fetchall()
@@ -1830,6 +1870,53 @@ class SQLiteMemoryBioRAG:
                     except sqlite3.OperationalError:
                         pass
 
+        # ─── Merge: inyectar resultados de concepto no encontrados por FTS5 ───
+        if resultados_concepto:
+            seen = {r[1] for r in todos}
+            for concepto, match_ratio in resultados_concepto.items():
+                if concepto not in seen and match_ratio >= 0.3:
+                    self.cursor.execute(
+                        "SELECT rowid, concepto, contenido, peso_sinaptico, estado, asociaciones "
+                        "FROM largo_plazo WHERE concepto = ?",
+                        (concepto,)
+                    )
+                    row = self.cursor.fetchone()
+                    if row and (profundidad == "profundo" or row[4] == "activo"):
+                        todos.append(row)
+
+        # ─── Capa 4: inyectar resultados de sinónimos no encontrados por capas anteriores ───
+        resultados_semantica = {}
+        if palabras_like:
+            sin_conds = " OR ".join(["l.sinonimos LIKE '%' || ? || '%'" for _ in palabras_like])
+            sin_params = list(palabras_like)
+            try:
+                self.cursor.execute(
+                    f"SELECT l.concepto, l.sinonimos, l.peso_sinaptico "
+                    f"FROM largo_plazo l "
+                    f"WHERE l.sinonimos IS NOT NULL AND l.sinonimos != '' AND l.estado = 'activo' AND ({sin_conds})",
+                    sin_params
+                )
+                for conc, sin_text, _ in self.cursor.fetchall():
+                    if conc not in {r[1] for r in todos}:
+                        match_ratio = sum(1 for w in palabras_like if w.lower() in (sin_text or "").lower()) / len(palabras_like)
+                        if match_ratio >= 0.1:
+                            resultados_semantica[conc] = match_ratio
+            except (sqlite3.OperationalError, sqlite3.ProgrammingError):
+                pass
+        if resultados_semantica:
+            seen = {r[1] for r in todos}
+            for concepto, match_ratio in resultados_semantica.items():
+                if concepto not in seen:
+                    self.cursor.execute(
+                        "SELECT rowid, concepto, contenido, peso_sinaptico, estado, asociaciones "
+                        "FROM largo_plazo WHERE concepto = ?",
+                        (concepto,)
+                    )
+                    row = self.cursor.fetchone()
+                    if row and (profundidad == "profundo" or row[4] == "activo"):
+                        todos.append(row)
+                        origen_scores[concepto] = ("semantica", match_ratio)
+
         if not todos:
             return [], 0
 
@@ -1840,9 +1927,11 @@ class SQLiteMemoryBioRAG:
         for i, (rowid, concepto, contenido, peso, estado, asociaciones) in enumerate(todos):
             origen, score_capa = origen_scores.get(concepto, ("literal", 0.0))
             es_latente = origen in ("latente", "cadena", "expansion") and score_capa >= 0.15
+            es_concepto = origen in ("concepto", "semantica") and score_capa >= 0.3
             score_hibrido = self._calcular_score_hibrido(
                 i, total, peso, asociaciones or "", pesos_tokens, contenido or "",
-                es_latente=es_latente, score_latente=score_capa
+                es_latente=es_latente, score_latente=score_capa,
+                es_concepto=es_concepto, score_concepto=score_capa
             )
             resultados_con_hibrido.append(
                 (concepto, contenido, peso, estado, score_hibrido, asociaciones or "")

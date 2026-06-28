@@ -72,7 +72,7 @@ def auto_vincular(cerebro, concepto, contenido, umbral=0.3):
                 "SELECT DISTINCT l.concepto, l.contenido "
                 "FROM largo_plazo_fts f JOIN largo_plazo l ON l.rowid = f.rowid "
                 "WHERE largo_plazo_fts MATCH ? AND l.estado = 'activo' AND l.concepto != ? "
-                "ORDER BY bm25(largo_plazo_fts) LIMIT 500",
+                "ORDER BY bm25(largo_plazo_fts, 5.0, 1.0, 2.0) * (1.0 - 0.5 * l.peso_sinaptico) LIMIT 500",
                 (fts_query, concepto)
             )
             existentes = cerebro.cursor.fetchall()
@@ -107,6 +107,91 @@ def auto_vincular(cerebro, concepto, contenido, umbral=0.3):
 
     if vinculados:
         cerebro.cursor.connection.commit()
+
+    # ─── Pasada 2: vincular por nombre de concepto (LIKE + PALABRA_COMPLETA) ───
+    # Conecta nodos que comparten palabras clave en el nombre aunque su
+    # contenido use vocabulario distinto. No requiere FTS5 — usa LIKE directo.
+    # Usamos OR para capturar cualquier candidato que comparta al menos una
+    # palabra, luego filtramos por overlap ≥ 30% en Python.
+    palabras_nombre = [w for w in re.findall(r'[a-zA-Záéíóúñ]{4,}', concepto.lower().replace('_', ' ').replace('-', ' ')) if w not in STOPWORDS_ES]
+    if len(palabras_nombre) >= 2:
+        ya_vinculados = {v[0] for v in vinculados}
+        like_conds = " OR ".join([
+            "(l.concepto LIKE '%' || ? || '%' AND "
+            "(PALABRA_COMPLETA(?, l.concepto) = 1 OR length(?) >= 5))"
+            for _ in palabras_nombre
+        ])
+        like_params = []
+        for w in palabras_nombre:
+            like_params.extend([w, w, w])
+        try:
+            cerebro.cursor.execute(
+                f"SELECT l.concepto, l.contenido, l.peso_sinaptico "
+                f"FROM largo_plazo l "
+                f"WHERE l.estado = 'activo' AND l.concepto != ? AND ({like_conds})",
+                (concepto,) + tuple(like_params)
+            )
+            for conc_exist, cont_exist, peso_exist in cerebro.cursor.fetchall():
+                if conc_exist in ya_vinculados:
+                    continue
+                nombre_overlap = sum(1 for w in palabras_nombre if w in conc_exist.lower()) / len(palabras_nombre)
+                if nombre_overlap >= 0.3:
+                    peso_link = round(min(1.0, nombre_overlap * 0.7 + peso_exist * 0.3), 2)
+                    cerebro.cursor.execute(
+                        "INSERT OR REPLACE INTO sinapsis (origen, destino, peso, tipo, creado_en) "
+                        "VALUES (?, ?, ?, 'co_nombre', ?)",
+                        (concepto, conc_exist, peso_link, time.time())
+                    )
+                    vinculados.append((conc_exist, peso_link))
+            if any(v not in ya_vinculados for v in vinculados):
+                cerebro.cursor.connection.commit()
+        except sqlite3.OperationalError:
+            pass
+
+    # ─── Pasada 3: vincular por sinónimos (co_semantica) ───
+    # Lee sinónimos del nodo activo desde la BD (columna que ya existe) y busca
+    # nodos cuyos sinónimos contengan solapamiento léxico. Conecta nodos que
+    # hablan del mismo tema con vocabulario distinto en contenido y nombre.
+    try:
+        cerebro.cursor.execute("SELECT sinonimos FROM largo_plazo WHERE concepto = ?", (concepto,))
+        fila_sin = cerebro.cursor.fetchone()
+    except sqlite3.OperationalError:
+        fila_sin = None
+
+    if fila_sin and fila_sin[0]:
+        tokens_sin = _tokenizar(fila_sin[0])
+        if len(tokens_sin) >= 1:
+            ya_vinculados = {v[0] for v in vinculados}
+            sin_conds = " OR ".join(["l.sinonimos LIKE '%' || ? || '%'" for _ in tokens_sin])
+            sin_params = list(tokens_sin)
+            try:
+                cerebro.cursor.execute(
+                    f"SELECT l.concepto, l.sinonimos, l.peso_sinaptico "
+                    f"FROM largo_plazo l "
+                    f"WHERE l.estado = 'activo' AND l.concepto != ? AND ({sin_conds})",
+                    (concepto,) + tuple(sin_params)
+                )
+                for conc_exist, sin_exist, peso_exist in cerebro.cursor.fetchall():
+                    if conc_exist in ya_vinculados:
+                        continue
+                    tokens_exist_sin = _tokenizar(sin_exist or "")
+                    if not tokens_exist_sin:
+                        continue
+                    inter = tokens_sin & tokens_exist_sin
+                    if len(inter) >= 1:
+                        overlap = len(inter) / min(len(tokens_sin), len(tokens_exist_sin))
+                        if overlap >= umbral:
+                            peso_link = round(min(1.0, overlap * 0.6 + peso_exist * 0.4), 2)
+                            cerebro.cursor.execute(
+                                "INSERT OR REPLACE INTO sinapsis (origen, destino, peso, tipo, creado_en) "
+                                "VALUES (?, ?, ?, 'co_semantica', ?)",
+                                (concepto, conc_exist, peso_link, time.time())
+                            )
+                            vinculados.append((conc_exist, peso_link))
+                if any(v not in ya_vinculados for v in vinculados):
+                    cerebro.cursor.connection.commit()
+            except sqlite3.OperationalError:
+                pass
 
     return vinculados
 
