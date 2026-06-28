@@ -1534,7 +1534,7 @@ class SQLiteMemoryBioRAG:
             FROM largo_plazo_fts f
             JOIN largo_plazo l ON l.rowid = f.rowid
             WHERE largo_plazo_fts MATCH ?{filtro}
-            ORDER BY bm25(largo_plazo_fts, 5.0, 1.0, 2.0) * (1.0 - 0.5 * l.peso_sinaptico)
+            ORDER BY bm25(largo_plazo_fts, 5.0, 1.0, 2.0) * (0.5 + 0.5 * l.peso_sinaptico)
         """.format(filtro=clause)
 
         todos = []
@@ -1586,7 +1586,7 @@ class SQLiteMemoryBioRAG:
                 pc_params.extend([p, p, p])
             pc_clause = " AND (" + " OR ".join(pc_clauses) + ")"
         # Inyectar pc_clause en el WHERE después de los filtros de estado/categoría
-        sql_con_pc = sql.replace("ORDER BY bm25(largo_plazo_fts, 5.0, 1.0, 2.0) * (1.0 - 0.5 * l.peso_sinaptico)", pc_clause + " ORDER BY bm25(largo_plazo_fts, 5.0, 1.0, 2.0) * (1.0 - 0.5 * l.peso_sinaptico)")
+        sql_con_pc = sql.replace("ORDER BY bm25(largo_plazo_fts, 5.0, 1.0, 2.0) * (0.5 + 0.5 * l.peso_sinaptico)", pc_clause + " ORDER BY bm25(largo_plazo_fts, 5.0, 1.0, 2.0) * (0.5 + 0.5 * l.peso_sinaptico)")
 
         # Intentar NEAR query primero (palabras cercanas entre sí)
         if len(palabras) > 1:
@@ -1818,8 +1818,8 @@ class SQLiteMemoryBioRAG:
         if not todos and len(query) >= 2:
             limite_tiempo = time.time() - (7 * 86400)
             # sql_con_pc ya incluye el filtro PALABRA_COMPLETA — previene falsos positivos
-            sql_snap = sql_con_pc.replace("ORDER BY bm25(largo_plazo_fts, 5.0, 1.0, 2.0) * (1.0 - 0.5 * l.peso_sinaptico)",
-                                          "AND l.ultimo_acceso > ? ORDER BY bm25(largo_plazo_fts, 5.0, 1.0, 2.0) * (1.0 - 0.5 * l.peso_sinaptico) LIMIT 5")
+            sql_snap = sql_con_pc.replace("ORDER BY bm25(largo_plazo_fts, 5.0, 1.0, 2.0) * (0.5 + 0.5 * l.peso_sinaptico)",
+                                          "AND l.ultimo_acceso > ? ORDER BY bm25(largo_plazo_fts, 5.0, 1.0, 2.0) * (0.5 + 0.5 * l.peso_sinaptico) LIMIT 5")
             try:
                 self.cursor.execute(sql_snap, (query,) + tuple(pc_params) + (limite_tiempo,))
                 snap_r = self.cursor.fetchall()
@@ -2325,6 +2325,64 @@ class SQLiteMemoryBioRAG:
         )
         fila = self.cursor.fetchone()
         return fila[0] if fila else None
+
+    def poblar_sinonimos_desde_contenido(self, peso_minimo=0.5):
+        """Extrae palabras clave del contenido de nodos con peso >= peso_minimo
+        y las guarda en la columna sinonimos para mejorar recall semántico.
+
+        Los triggers AFTER UPDATE en FTS se encargan de reindexar automáticamente.
+        Idempotente: ejecución múltiple es segura (actualiza sin duplicar lógica).
+        Retorna la cantidad de nodos actualizados.
+        """
+        self.cursor.execute(
+            "SELECT concepto, contenido FROM largo_plazo WHERE peso_sinaptico >= ? AND estado = 'activo'",
+            (peso_minimo,)
+        )
+        nodos = self.cursor.fetchall()
+        contador = 0
+        re_token = re.compile(r'\b[a-záéíóúñü0-9]{3,}\b')
+        stopwords = {
+            'para', 'como', 'con', 'por', 'que', 'del', 'las', 'los', 'mas',
+            'pero', 'esta', 'este', 'entre', 'todo', 'tiene', 'cada', 'muy',
+            'era', 'han', 'sin', 'sobre', 'tambien', 'desde', 'hasta', 'cuando',
+            'donde', 'ello', 'ella', 'cual', 'dicho', 'sido', 'sea', 'tanto',
+            'otro', 'otros', 'ante', 'segun', 'una', 'unas', 'unos',
+            'porque', 'pues', 'contra', 'durante', 'mediante',
+            'parte', 'forma', 'tipo', 'tema', 'vez', 'caso', 'dentro',
+            'tras', 'aquel', 'aquella', 'aquellos', 'aquellas', 'estos',
+        }
+        tecnicos_cortos = {'dsl', 'api', 'mcp', 'rag', 'cpu', 'ram', 'gpu', 'cli', 'db', 'ui', 'ux', 'os', 'ai', 'vm'}
+
+        for concepto, contenido in nodos:
+            if not contenido:
+                continue
+
+            tokens = set()
+            palabra_baja = contenido.lower()
+
+            for m in re_token.finditer(palabra_baja):
+                p = m.group()
+                if len(p) >= 4 and p not in stopwords:
+                    tokens.add(p)
+
+            for m in re_token.finditer(palabra_baja):
+                p = m.group()
+                if len(p) in (2, 3) and p in tecnicos_cortos:
+                    tokens.add(p)
+
+            for p in concepto.lower().replace('-', ' ').replace('_', ' ').split():
+                if len(p) >= 3 and p not in stopwords:
+                    tokens.add(p)
+
+            sinonimos_str = ",".join(sorted(tokens))
+            self.cursor.execute(
+                "UPDATE largo_plazo SET sinonimos = ? WHERE concepto = ?",
+                (sinonimos_str, concepto)
+            )
+            contador += 1
+
+        self.conn.commit()
+        return contador
 
     def cerrar_sistema(self):
         """Cierra de forma segura la conexión con la base de datos SQLite."""

@@ -7,6 +7,30 @@ Tabla semantica bidireccional con peso y límite de expansión.
 
 import json
 import os
+import re
+
+STOPWORDS_ES = {
+    'para', 'como', 'con', 'por', 'que', 'del', 'las', 'los', 'mas',
+    'pero', 'esta', 'este', 'entre', 'todo', 'tiene', 'cada', 'muy',
+    'era', 'han', 'sin', 'sobre', 'tambien', 'desde', 'hasta', 'cuando',
+    'donde', 'ello', 'ella', 'cual', 'dicho', 'sido', 'sea', 'tanto',
+    'otro', 'otros', 'ante', 'segun', 'una', 'unas', 'unos',
+    'porque', 'pues', 'contra', 'durante', 'mediante',
+    'parte', 'forma', 'tipo', 'tema', 'vez', 'caso', 'dentro',
+    'tras', 'aquel', 'aquella', 'aquellos', 'aquellas', 'estos',
+}
+
+_TECNICOS_CORTOS = {'dsl', 'api', 'mcp', 'rag', 'cpu', 'ram', 'gpu', 'cli', 'db', 'ui', 'ux', 'os', 'ai', 'vm'}
+
+_TOKEN_PATTERN = re.compile(r'\b[a-zA-Z\u00e1\u00e9\u00ed\u00f3\u00fa\u00f1]{4,}\b')
+_CORTO_PATTERN = re.compile(r'\b[a-z]{2,3}\b')
+
+
+def _tokenizar(texto):
+    texto = texto.replace('_', ' ')
+    tokens = set(_TOKEN_PATTERN.findall(texto.lower()))
+    tokens |= _TECNICOS_CORTOS & set(_CORTO_PATTERN.findall(texto.lower()))
+    return tokens - STOPWORDS_ES
 
 
 def init_semantica_table(cursor):
@@ -140,6 +164,99 @@ def auto_aprender_desde_sinonimos(cursor, concepto, sinonimos):
             agregar_equivalencia(cursor, concepto, sinonimo, 0.85)
             count += 1
     return count
+
+
+def inferir_equivalencias_desde_sinapsis(
+    cursor,
+    umbral_sinapsis=0.6,
+    umbral_jaccard=0.5,
+    frecuencia_minima=2,
+    peso_base=0.3,
+    auto_guardar=False,
+):
+    """
+    Infiere candidatos de equivalencia semántica leyendo pares sinápticos fuertes.
+
+    Lee pares de nodos con sinapsis >= umbral_sinapsis. Tokeniza el contenido
+    de ambos nodos. Si comparten suficiente vocabulario (Jaccard >=
+    umbral_jaccard), infiere que los tokens exclusivos de cada nodo son
+    posibles equivalentes.
+
+    Los pares de tokens que co-ocurren en >= frecuencia_minima pares
+    sinápticos distintos se retornan como candidatos.
+
+    Si auto_guardar=True, guarda directamente en tabla semantica.
+    Si auto_guardar=False (default), solo retorna la lista de candidatos
+    para revisión manual — no modifica la BD.
+
+    Retorna dict con:
+      - candidatos: lista de (token_a, token_b, freq_co_ocurrencia, peso_inferido)
+      - total_candidatos: int
+      - pares_procesados: int
+      - guardados: int (0 si auto_guardar=False)
+    """
+    init_semantica_table(cursor)
+
+    cursor.execute(
+        "SELECT s.origen, s.destino, l1.contenido, l2.contenido "
+        "FROM sinapsis s "
+        "JOIN largo_plazo l1 ON l1.concepto = s.origen "
+        "JOIN largo_plazo l2 ON l2.concepto = s.destino "
+        "WHERE s.peso >= ? AND l1.estado = 'activo' AND l2.estado = 'activo'",
+        (umbral_sinapsis,)
+    )
+    pares = cursor.fetchall()
+    total_pares = len(pares)
+
+    if not pares:
+        return {
+            "candidatos": [],
+            "total_candidatos": 0,
+            "pares_procesados": 0,
+            "guardados": 0,
+        }
+
+    co_ocurrencias = {}
+
+    for origen, destino, cont_a, cont_b in pares:
+        tokens_a = _tokenizar(origen + " " + (cont_a or ""))
+        tokens_b = _tokenizar(destino + " " + (cont_b or ""))
+
+        if not tokens_a or not tokens_b:
+            continue
+
+        compartidos = tokens_a & tokens_b
+        if len(compartidos) / min(len(tokens_a), len(tokens_b)) < umbral_jaccard:
+            continue
+
+        exclusivos_a = tokens_a - tokens_b
+        exclusivos_b = tokens_b - tokens_a
+
+        for ta in exclusivos_a:
+            for tb in exclusivos_b:
+                key = tuple(sorted([ta, tb]))
+                co_ocurrencias[key] = co_ocurrencias.get(key, 0) + 1
+
+    candidatos_ordenados = []
+    for (ta, tb), freq in co_ocurrencias.items():
+        peso = round(min(peso_base + 0.1 * freq, 0.7), 3)
+        candidatos_ordenados.append((ta, tb, freq, peso))
+
+    candidatos_ordenados.sort(key=lambda x: x[3], reverse=True)
+
+    guardados = 0
+    if auto_guardar:
+        for ta, tb, freq, peso in candidatos_ordenados:
+            if freq >= frecuencia_minima:
+                agregar_equivalencia(cursor, ta, tb, peso)
+                guardados += 1
+
+    return {
+        "candidatos": candidatos_ordenados,
+        "total_candidatos": len(candidatos_ordenados),
+        "pares_procesados": total_pares,
+        "guardados": guardados,
+    }
 
 
 def poda_tesauro_confianza(cursor, ciclos_sin_uso=3, peso_minimo=0.1):

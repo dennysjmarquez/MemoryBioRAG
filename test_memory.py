@@ -1237,6 +1237,30 @@ def test_sistema():
 
     print("--- Paginación, Límites y Blindaje OK ---")
 
+    # 70. ORDER BY con boost sináptico + garbled query
+    print("\n--- 70. Probando ORDER BY con boost sináptico y garbled query ---")
+    cerebro.cursor.execute("""
+        INSERT OR REPLACE INTO largo_plazo (concepto, contenido, peso_sinaptico, estado, ultimo_acceso)
+        VALUES (?, ?, ?, 'activo', ?)
+    """, ("test_pesado", "principio fundamental de la memoria distribuida en sistemas de inteligencia artificial", 0.95, time.time()))
+    cerebro.cursor.execute("""
+        INSERT OR REPLACE INTO largo_plazo (concepto, contenido, peso_sinaptico, estado, ultimo_acceso)
+        VALUES (?, ?, ?, 'activo', ?)
+    """, ("test_ligero", "principio fundamental de la memoria distribuida en sistemas de inteligencia artificial", 0.1, time.time()))
+    cerebro.conn.commit()
+    resultados, total = cerebro.buscar_por_frase("principio memoria distribuida inteligencia", limite=5)
+    orden = [(r[0], r[2]) for r in resultados if r[0] in ("test_pesado", "test_ligero")]
+    print(f"  Orden: {orden}")
+    assert len(orden) >= 2, f"Error: ambos nodos deberían aparecer, obtuvo {orden}"
+    assert orden[0][0] == "test_pesado", \
+        f"Error: test_pesado (0.95) debería estar antes que test_ligero (0.1), orden={orden}"
+    print("  OK: nodo con mayor peso sináptico aparece primero (ORDER BY corregido)")
+    resultados_g, total_g = cerebro.buscar_por_frase("ahsjkd laksjd qwiuey mnbvc zxpoi", limite=5)
+    print(f"  Garbled query extrema: {total_g} resultados (no debe fallar)")
+    assert total_g is not None, "Error: garbled query no debe lanzar excepción"
+    print("  OK: garbled query no falla")
+    print("--- 70. Boost sináptico y garbled query OK ---")
+
     cerebro.cerrar_sistema()
     print("\n--- ¡Todas las pruebas biologicas completadas con exito! ---\n\n")
 

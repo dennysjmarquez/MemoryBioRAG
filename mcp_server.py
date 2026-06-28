@@ -94,6 +94,10 @@ LIMITE_MCP = int(os.environ.get('BIORAG_LIMITE_MCP', '10'))
 THRESHOLD_RAFTAGA_MCP = float(os.environ.get('BIORAG_THRESHOLD_RAFTAGA', '0.5'))
 """Score mínimo para activar ráfaga automáticamente en MCP."""
 
+PARAFRASIS_PENALTY = 0.95
+"""Factor multiplicativo aplicado a resultados de variantes no exactas (paráfrasis).
+El query original (i==0) mantiene factor 1.0; variantes penalizan ×0.95."""
+
 ORACULO_MAX_CHARS = int(os.environ.get('BIORAG_ORACULO_MAX_CHARS', '12000'))
 """Máximo de caracteres devueltos por el oráculo NotebookLM.
 
@@ -231,6 +235,7 @@ def _build_server():
         forzar_rafaga: bool = False,
         rafaga_palabras: Optional[str] = None,
         pagina: int = 1,
+        parafrasis: Optional[str] = None,
     ) -> str:
         if limite is None:
             limite = LIMITE_MCP
@@ -248,16 +253,57 @@ def _build_server():
                 }, ensure_ascii=False)
 
             profundidad = "profundo" if deep else "activos"
-            
-            # Búsqueda normal primero
+
+            if parafrasis is not None and not parafrasis.strip():
+                return json.dumps({
+                    "status": "error",
+                    "mensaje": "parafrasis es OBLIGATORIO y no puede estar vacío. "
+                               "Genera 3-5 reformulaciones separadas por coma.",
+                    "ejemplo": "parafrasis='el felino descansó,el minino reposó'",
+                }, ensure_ascii=False)
+
+            if parafrasis:
+                if not parafrasis.strip():
+                    return json.dumps({
+                        "status": "error",
+                        "mensaje": "parafrasis es OBLIGATORIO. Genera reformulaciones separadas por coma.",
+                        "ejemplo": "parafrasis='el felino descansó,el minino reposó'",
+                    }, ensure_ascii=False)
+                parafrasis_list = [p.strip() for p in parafrasis.split(",") if p.strip()]
+                if not parafrasis_list:
+                    return json.dumps({
+                        "status": "error",
+                        "mensaje": "parafrasis es OBLIGATORIO. Genera reformulaciones separadas por coma.",
+                        "ejemplo": "parafrasis='el felino descansó,el minino reposó'",
+                    }, ensure_ascii=False)
+
+            # Búsqueda normal PRIMERO — necesario para inicializar el merge
             resultados, total = cerebro.buscar_por_frase(
                 query, profundidad=profundidad, pagina=pagina, limite=limite,
                 categoria=cat, preview_chars=preview_chars,
                 context_window=context_window
             )
+            score_top = resultados[0][4] if resultados else 0
+
+            # Parafrasis SIEMPRE — el agente piensa, el sistema busca
+            if parafrasis:
+                queries = [query] + parafrasis_list
+                merged = {r[0]: r for r in resultados}
+                for i, q in enumerate(queries):
+                    q_res, q_tot = cerebro.buscar_por_frase(
+                        q, profundidad=profundidad, pagina=pagina, limite=limite,
+                        categoria=cat, preview_chars=preview_chars,
+                        context_window=0
+                    )
+                    factor = 1.0 if i == 0 else PARAFRASIS_PENALTY
+                    for r in q_res:
+                        conc = r[0]
+                        rp = (r[0], r[1], r[2], r[3], r[4] * factor, r[5])
+                        if conc not in merged or rp[4] > merged[conc][4]:
+                            merged[conc] = rp
+                resultados = sorted(merged.values(), key=lambda r: r[4], reverse=True)[:limite]
+                total = len(resultados)
             
-            # Activar ráfaga si hay palabras Y: se fuerza explícitamente,
-            # O 0 resultados, O score del top resultado < threshold (fallback).
             sinapsis_creadas = []
             score_top = resultados[0][4] if resultados else 0
             if rafaga_list and (forzar_rafaga or not resultados or score_top < THRESHOLD_RAFTAGA_MCP):
@@ -353,6 +399,33 @@ def _build_server():
             "pasa forzar_rafaga=True junto con rafaga_palabras = 'termino1,termino2,...' (string separado por comas).\n"
             "IMPORTANTE: forzar_rafaga=True SIN rafaga_palabras devuelve ERROR. Siempre pasar ambos juntos.\n"
             "Ejemplo: recordar(query='...', rafaga_palabras='termino1,termino2', forzar_rafaga=True).\n"
+            "PARAFRASIS: mecanismo de búsqueda con variantes de vocabulario para cerrar gaps semánticos.\n"
+            "POR QUÉ EXISTE: FTS5 trigram busca por similaridad de caracteres, NO por significado. "
+            "Si el query dice 'el gato se sentó' pero el nodo dice 'el felino reposó', no hay match "
+            "porque no comparten tokens de 3+ caracteres. Parafrasis cierra ese gap.\n"
+            "QUÉ HACE EL AGENTE: Antes de llamar a recordar, genera 3-5 reformulaciones de la misma idea "
+            "con vocabulario diferente. Formato: string separado por comas.\n"
+            "PIPELINE DEL SISTEMA:\n"
+            "  1. Buscar query original → score normal\n"
+            "  2. Buscar cada variante → score × 0.95 (penalización por no ser el original)\n"
+            "  3. Merge por concepto: si el mismo nodo aparece en múltiples búsquedas, el mejor score gana\n"
+            "  4. Si una variante no existe en la BD → se ignora sin error\n"
+            "  5. Si una variante encuentra algo que el original no → gap de vocabulario detectado\n"
+            "RIESGO: parafrasis irrelevantes pueden degradar resultados — una variante con score alto × 0.95 "
+            "podría desplazar resultados legítimos del original. Generar solo reformulaciones fieles al concepto.\n"
+            "FUNCIÓN REAL (3 propósitos):\n"
+            "  1. Forzar al agente a pensar — 'detente y reformula antes de buscar'\n"
+            "  2. Validación — si parafrasis encuentra algo que el original no encontró, había un gap de vocabulario\n"
+            "  3. Desbloqueo — cuando el camino normal no rindió, intentar otro ángulo\n"
+            "CUÁNDO USAR: cuando el vocabulario del query puede no coincidir con cómo está escrito el nodo.\n"
+            "MODO COMBINADO (EVOCACIÓN PROFUNDA): Para búsquedas críticas de conceptos técnicos, antiguos o potencialmente "
+            "dormidos que sospechas que usan diferente vocabulario, combina ambos mecanismos en la misma llamada: "
+            "pasa `query` + `parafrasis` (para equivalencia semántica de frases en RAM) + `rafaga_palabras` (con morfemas, "
+            "extensiones y prefijos técnicos para enganchar el grafo) y, de ser necesario, `forzar_rafaga=True` para despertar "
+            "nodos del letargo. Esto cierra el gap semántico en RAM mientras asocia físicamente los términos en disco.\n"
+            "Ejemplo Combinado: recordar(query='como el sistema de memoria maneja la veracidad del conocimiento', "
+            "parafrasis='integridad de datos en corteza,contradiccion de registros con evidencia,no fabricar informacion', "
+            "rafaga_palabras='biorag,mcp,sync,sqlite,factual', forzar_rafaga=True).\n"
             "Contexto: usar context_window=1 o 2 para incluir vecinos por sinapsis junto a cada resultado principal."
         ),
     )
@@ -368,8 +441,9 @@ def _build_server():
         forzar_rafaga: bool = False,
         rafaga_palabras: Optional[str] = None,
         pagina: int = 1,
+        parafrasis: Optional[str] = None,
     ) -> str:
-        return _recordar_impl(query, deep, cat, completo, asociados, limite, preview_chars, context_window, forzar_rafaga, rafaga_palabras, pagina)
+        return _recordar_impl(query, deep, cat, completo, asociados, limite, preview_chars, context_window, forzar_rafaga, rafaga_palabras, pagina, parafrasis)
 
     @mcp.tool(
         name="buscar",
@@ -387,8 +461,9 @@ def _build_server():
         forzar_rafaga: bool = False,
         rafaga_palabras: Optional[str] = None,
         pagina: int = 1,
+        parafrasis: Optional[str] = None,
     ) -> str:
-        return _recordar_impl(query, deep, cat, completo, asociados, limite, preview_chars, context_window, forzar_rafaga, rafaga_palabras, pagina)
+        return _recordar_impl(query, deep, cat, completo, asociados, limite, preview_chars, context_window, forzar_rafaga, rafaga_palabras, pagina, parafrasis)
 
     @mcp.tool(
         name="aprender",
@@ -1139,8 +1214,9 @@ def _build_server():
         name="semantica_admin",
         description=(
             "Administra el vocabulario semántico: listar equivalencias, "
-            "agregar/eliminar pares, cargar vocabulario desde JSON. "
-            "Permite que 'auto' encuentre 'vehículo' sin embeddings."
+            "agregar/eliminar pares manualmente, cargar vocabulario desde JSON, "
+            "inferir candidatos de equivalencia desde sinapsis (modo sugerencia, "
+            "no guarda automáticamente — revisa candidatos antes de agregar)."
         ),
     )
     def biorag_semantica_admin(
@@ -1155,7 +1231,7 @@ def _build_server():
             from core.semantica import (
                 init_semantica_table, expandir_query, agregar_equivalencia,
                 eliminar_equivalencia, listar_equivalencias, cargar_vocabulario,
-                tabla_vacia
+                tabla_vacia, inferir_equivalencias_desde_sinapsis
             )
             init_semantica_table(cerebro.cursor)
 
@@ -1207,6 +1283,28 @@ def _build_server():
                     "status": "ok",
                     "termino": termino,
                     "equivalentes": eqs,
+                }, ensure_ascii=False)
+
+            elif accion == "inferir":
+                resultado = inferir_equivalencias_desde_sinapsis(
+                    cerebro.cursor,
+                    umbral_sinapsis=0.6,
+                    umbral_jaccard=0.5,
+                    frecuencia_minima=2,
+                    peso_base=0.3,
+                    auto_guardar=False,
+                )
+                candidatos = resultado["candidatos"]
+                return json.dumps({
+                    "status": "ok",
+                    "pares_procesados": resultado["pares_procesados"],
+                    "total_candidatos": resultado["total_candidatos"],
+                    "candidatos": [
+                        {"token_a": c[0], "token_b": c[1], "co_ocurrencias": c[2], "peso_inferido": c[3]}
+                        for c in candidatos[:50]
+                    ],
+                    "mensaje": "auto_guardar=False — candidates listed only, not saved. "
+                               "Review candidates and use accion=agregar to save manually.",
                 }, ensure_ascii=False)
 
             elif accion == "stats":

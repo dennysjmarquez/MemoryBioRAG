@@ -72,7 +72,7 @@ def auto_vincular(cerebro, concepto, contenido, umbral=0.3):
                 "SELECT DISTINCT l.concepto, l.contenido "
                 "FROM largo_plazo_fts f JOIN largo_plazo l ON l.rowid = f.rowid "
                 "WHERE largo_plazo_fts MATCH ? AND l.estado = 'activo' AND l.concepto != ? "
-                "ORDER BY bm25(largo_plazo_fts, 5.0, 1.0, 2.0) * (1.0 - 0.5 * l.peso_sinaptico) LIMIT 500",
+                "ORDER BY bm25(largo_plazo_fts, 5.0, 1.0, 2.0) * (0.5 + 0.5 * l.peso_sinaptico) LIMIT 500",
                 (fts_query, concepto)
             )
             existentes = cerebro.cursor.fetchall()
