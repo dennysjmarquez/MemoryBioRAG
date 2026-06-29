@@ -66,6 +66,48 @@ def expandir_query(cursor, termino, max_equivalentes=5):
     return [row[0] for row in cursor.fetchall()]
 
 
+def expandir_query_por_tokens(cursor, query, max_equivalentes=3):
+    """
+    Tokeniza la query y expande cada token individual a sus equivalentes semánticos.
+    Une las expansiones de cada token con AND.
+    Ej: "modo dios" -> "(modo OR nivel OR forma) AND (dios)"
+    Retorna la query de FTS5 construida, o None si no hay expansiones viables.
+    """
+    init_semantica_table(cursor)
+    tokens = list(_tokenizar(query))
+    if not tokens:
+        return None
+    
+    parts = []
+    has_expansion = False
+    
+    for token in tokens:
+        # Buscar equivalentes para este token
+        cursor.execute(
+            "SELECT equivalente, peso FROM semantica WHERE termino = ? "
+            "UNION "
+            "SELECT termino, peso FROM semantica WHERE equivalente = ? "
+            "ORDER BY peso DESC LIMIT ?",
+            (token, token, max_equivalentes)
+        )
+        equivalentes = [row[0] for row in cursor.fetchall()]
+        
+        if equivalentes:
+            has_expansion = True
+            # Formar el subgrupo con el token original más sus equivalentes
+            opciones = [token] + [eq.strip() for eq in equivalentes if eq.strip() and eq.strip() != token]
+            parts.append(f"({' OR '.join(opciones)})")
+        else:
+            parts.append(f"({token})")
+            
+    # Solo retornamos si al menos un token fue expandido
+    if not has_expansion:
+        return None
+        
+    return " AND ".join(parts)
+
+
+
 def agregar_equivalencia(cursor, termino, equivalente, peso=0.8):
     """
     Agrega una equivalencia semántica bidireccional.
@@ -257,54 +299,3 @@ def inferir_equivalencias_desde_sinapsis(
         "pares_procesados": total_pares,
         "guardados": guardados,
     }
-
-
-def poda_tesauro_confianza(cursor, ciclos_sin_uso=3, peso_minimo=0.1):
-    """
-    Poda equivalencias no usadas en N ciclos de sueño.
-    
-    Decae el peso de cada equivalencia en 10% por cada ciclo sin uso.
-    Elimina equivalencias con peso < peso_minimo.
-    
-    Retorna (eliminadas, decadas) como tupla.
-    """
-    init_semantica_table(cursor)
-    
-    # Buscar todas las equivalencias
-    cursor.execute("SELECT termino, equivalente, peso FROM semantica")
-    equivalencias = cursor.fetchall()
-    
-    eliminadas = 0
-    decadas = 0
-    
-    for termino, equivalente, peso in equivalencias:
-        # Verificar si la equivalencia fue usada recientemente
-        # (buscar en sinapsis de co_ocurrencia o en búsquedas)
-        cursor.execute("""
-            SELECT COUNT(*) FROM sinapsis 
-            WHERE tipo = 'co_ocurrencia' 
-            AND (origen = ? OR destino = ? OR origen = ? OR destino = ?)
-            AND ultimo_uso > strftime('%s', 'now') - (604800 * ?)
-        """, (termino, termino, equivalente, equivalente, ciclos_sin_uso))
-        usos_recientes = cursor.fetchone()[0]
-        
-        if usos_recientes == 0:
-            # No se usó en los últimos N ciclos → decayer
-            nuevo_peso = round(peso * 0.9, 3)
-            if nuevo_peso < peso_minimo:
-                # Eliminar equivalencia débil
-                cursor.execute(
-                    "DELETE FROM semantica WHERE (termino = ? AND equivalente = ?) OR (termino = ? AND equivalente = ?)",
-                    (termino, equivalente, equivalente, termino)
-                )
-                eliminadas += 1
-            else:
-                # Decayer peso
-                cursor.execute(
-                    "UPDATE semantica SET peso = ? WHERE (termino = ? AND equivalente = ?) OR (termino = ? AND equivalente = ?)",
-                    (nuevo_peso, termino, equivalente, equivalente, termino)
-                )
-                decadas += 1
-    
-    cursor.connection.commit()
-    return eliminadas, decadas

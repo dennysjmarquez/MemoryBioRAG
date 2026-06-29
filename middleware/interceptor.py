@@ -3,6 +3,7 @@ import time
 
 def escanear_familiaridad(user_input, cerebro):
     """
+    # ponytail: escaneo O(N) secuencial en memoria, usar FTS5 MATCH si el crecimiento de conceptos activos penaliza el chat.
     Escanea la entrada del usuario en busca de conceptos familiares en largo plazo.
     Busca en clave y en contenido. Utiliza coincidencia exacta de tokens, similitud
     difusa por Jaccard y coincidencia en contenido.

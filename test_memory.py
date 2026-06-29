@@ -6,7 +6,7 @@ import time
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
 from core.memory_store import SQLiteMemoryBioRAG
-from core.sinapsis import init_sinapsis_table, auto_vincular, buscar_vecinos, vincular_por_sinonimos, migrar_desde_csv
+from core.sinapsis import init_sinapsis_table, auto_vincular, buscar_vecinos, vincular_por_sinonimos
 from core.categorizador import inferir_categoria, auto_categorizar_existentes
 
 def test_sistema():
@@ -445,21 +445,6 @@ def test_sistema():
         "Error: deberia vincular 'react_hooks' con 'angular_forms' via sinonimo 'forms'"
     print("OK: vincular_por_sinonimos conecta via terminos compartidos en contenido")
 
-    # 31. migrar_desde_csv (legacy asociaciones)
-    print("\n--- 31. Probando migrar_desde_csv (asociaciones legacy) ---")
-    # Escribir directamente en el campo legacy (asociaciones TEXT)
-    cerebro.cursor.execute(
-        "UPDATE largo_plazo SET asociaciones = 'react_hooks' WHERE concepto = 'angular_forms'"
-    )
-    cerebro.conn.commit()
-    count = migrar_desde_csv(cerebro)
-    print(f"  Aristas migradas desde campo 'asociaciones': {count}")
-    assert count > 0, "Error: deberia migrar al menos 1 arista desde asociaciones CSV"
-    cerebro.cursor.execute("SELECT COUNT(*) FROM sinapsis WHERE tipo = 'legacy_csv'")
-    csv_count = cerebro.cursor.fetchone()[0]
-    assert csv_count > 0, "Error: deberian haber aristas con tipo 'legacy_csv'"
-    print(f"  Aristas legacy_csv: {csv_count}")
-    print("OK: migracion desde CSV legacy funciona sin borrar datos existentes")
 
     # 32. vincular_nuevo_si_existe
     print("\n--- 32. Probando vincular_nuevo_si_existe ---")
@@ -813,9 +798,9 @@ def test_sistema():
 
     # 51. jaccard_vecinos con nodos que comparten pocos vecinos vs muchos
     print("\n--- 51. Probando jaccard_vecinos diferencias ---")
-    cerebro.percibir_corto_plazo('test_jaccard_aislado', 'Nodo aislado con contenido unico sin relacion', '', 'General')
+    cerebro.percibir_corto_plazo('manzanas_rojas', 'Manzanas rojas y peras verdes en la fruteria', '', 'General')
     cerebro.ciclo_sueno_consolidacion()
-    j_aislado = jaccard_vecinos(cerebro.cursor, 'test_jaccard_a', 'test_jaccard_aislado')
+    j_aislado = jaccard_vecinos(cerebro.cursor, 'test_jaccard_a', 'manzanas_rojas')
     j_muchos = jaccard_vecinos(cerebro.cursor, 'test_jaccard_a', 'test_jaccard_b')
     # El nodo con más vecinos compartidos debe tener mayor Jaccard
     assert j_muchos > j_aislado, f"Error: jaccard(a,b)={j_muchos:.3f} debería ser > jaccard(a,aislado)={j_aislado:.3f}"
@@ -1021,35 +1006,6 @@ def test_sistema():
     assert "falso_abc" not in validadas, "Error: 'falso_abc' no debería estar"
     print(f"  OK: {len(validadas)}/{len(rafaga)} palabras validadas correctamente")
     print("--- Validador de Ráfaga OK ---")
-
-    # 64. Poda del Tesauro: decay de equivalencias no usadas
-    print("\n--- 64. Probando Poda del Tesauro ---")
-    from core.semantica import agregar_equivalencia, poda_tesauro_confianza, init_semantica_table
-    init_semantica_table(cerebro.cursor)
-    # Crear equivalencias de prueba
-    agregar_equivalencia(cerebro.cursor, "test_term_a", "test_term_b", 0.8)
-    agregar_equivalencia(cerebro.cursor, "test_term_c", "test_term_d", 0.09)  # Peso muy bajo para que se elimine en 1 ciclo
-    # Verificar que las equivalencias existen
-    cerebro.cursor.execute("SELECT COUNT(*) FROM semantica WHERE termino = 'test_term_a'")
-    assert cerebro.cursor.fetchone()[0] > 0, "Error: equivalencia test_term_a no creada"
-    cerebro.cursor.execute("SELECT COUNT(*) FROM semantica WHERE termino = 'test_term_c'")
-    assert cerebro.cursor.fetchone()[0] > 0, "Error: equivalencia test_term_c no creada"
-    # Ejecutar poda (sin sinapsis de uso, así que todas deberían decaer)
-    elim, dec = poda_tesauro_confianza(cerebro.cursor, ciclos_sin_uso=0, peso_minimo=0.1)
-    print(f"  Eliminadas: {elim}, Decaídas: {dec}")
-    # Verificar que la equivalencia débil fue eliminada
-    cerebro.cursor.execute("SELECT COUNT(*) FROM semantica WHERE termino = 'test_term_c'")
-    count_c = cerebro.cursor.fetchone()[0]
-    assert count_c == 0, f"Error: equivalencia débil (0.09) debería haber sido eliminada (count={count_c})"
-    # Verificar que la equivalencia fuerte fue decaída
-    cerebro.cursor.execute("SELECT peso FROM semantica WHERE termino = 'test_term_a' AND equivalente = 'test_term_b'")
-    fila = cerebro.cursor.fetchone()
-    if fila:
-        peso_a = fila[0]
-        print(f"  Peso de test_term_a: {peso_a} (debería ser < 0.8)")
-        assert peso_a < 0.8, f"Error: peso debería haber decaído (peso={peso_a})"
-    print(f"  OK: poda funciona correctamente")
-    print("--- Poda del Tesauro OK ---")
 
     # 65. FTS5 unicode61: tabla existe y sincronizada
     print("\n--- 65. Probando tabla FTS5 unicode61 ---")

@@ -74,57 +74,65 @@ El ciclo de sueño crea sinapsis basándose en co-ocurrencia de conceptos en la 
 
 ```
 
-INVARIANT: "TECNICA: PARADIGMA COGNITIVO Cuando no encuentras algo, no busques más duro. Busca en otra dimensión. No en el contenido — en la estructura. No en la palabra — en el patrón. Lee los resultados que te llegan no para ver si son la respuesta, sino para ver qué te dicen sobre DÓNDE está la respuesta."
+INVARIANT: "TECNICA: PARADIGMA COGNITIVO Cuando no encuentras algo, no busques más duro.
+Busca en otra dimensión. No en el contenido — en la estructura. No en la palabra — en el patrón.
+Lee los resultados que te llegan no para ver si son la respuesta, sino para ver qué te dicen
+sobre DÓNDE está la respuesta."
 
-INVARIANT: Paso 1 — ENRIQUECIMIENTO:
-    Interpretar la query y agregar palabras clave del dominio.
-    Aplicar Empatía Sintáctica: raíces morfológicas, patrones repetitivos,
-    nomenclaturas técnicas, sustantivos de alto peso.
+INVARIANT: Paso 1 — QUERY DIRECTO:
+    recordar(query='X')
+    ¿Resultado bueno? → ir a SÍNTESIS
+    ¿Resultado malo/vacío? → PASO 2
 
-INVARIANT: Paso 2 — RÁFAGA:
-    Si score < 0.5 o 0 resultados. 10-15 términos con la instrucción
-    de 5 niveles (Literal, Técnico, Contexto, Problema, Emoción).
+INVARIANT: Paso 2 — PARÁFRASIS:
+    recordar(query='X', parafrasis='var1,var2,var3')
+    Generar 3-5 reformulaciones con vocabulario diferente antes de llamar.
+    NUNCA adjetivos abstractos (supremo, elevado, importante).
+    SIEMPRE sustantivos literales del dominio (nivel, sync, biorag, sqlite).
+    ¿Resultado bueno? → ir a SÍNTESIS
+    ¿Resultado malo/vacío? → PASO 3
 
-INVARIANT: Paso 3 — CONTINGENCIA:
-    Si aún sin resultados, buscar en contexto del chat actual.
+INVARIANT: Paso 3 — RÁFAGA:
+    recordar(query='X', rafaga_palabras='t1,t2,t3', forzar_rafaga=True)
+    Usar instrucción de 5 niveles para generar 10-15 términos.
+    REGLA: sustantivos literales del dominio, no adjetivos abstractos.
+    ¿Resultado bueno? → ir a SÍNTESIS
+    ¿Resultado malo/vacío? → PASO 4
 
-INVARIANT: Paso 4 — SÍNTESIS DE ESPECTRO (POST-RECUPERACIÓN):
+INVARIANT: Paso 4 — MODO DIOS (parafrasis + ráfaga juntos):
+    recordar(query='X', parafrasis='var1,var2,var3',
+             rafaga_palabras='t1,t2,t3', forzar_rafaga=True)
+    ¿Resultado bueno? → ir a SÍNTESIS
+    ¿Resultado malo/vacío? → CONTINGENCIA (buscar en contexto del chat)
+
+INVARIANT: SÍNTESIS DE ESPECTRO (POST-RECUPERACIÓN):
     OBLIGATORIO después de cualquier recuperación con 2+ resultados.
     No responder al primer match. Extraer el espectro completo.
 
-    Sub-pasos:
     a) RECOLECTAR: Escanear TODOS los resultados en busca de TODAS
        las instancias del patrón buscado (versiones vX.Y, fechas,
-       cantidades, nombres de archivos, etc.). NO limitarse al
-       primer resultado ni al contenido del primer nodo.
+       cantidades, nombres de archivos, etc.).
 
     b) CONSOLIDAR: Reunir todas las instancias en un conjunto único.
-       Si el patrón es versionado (vX.Y), extraer SOLO los números
-       y compararlos con semver. Si son fechas, ordenar cronológicamente.
-       Si son valores discretos, deducir el extremo (mayor/menor,
-       primero/último) mediante comparación directa.
+       Si el patrón es versionado (vX.Y), comparar con semver.
+       Si son fechas, ordenar cronológicamente.
 
-    c) CONTRADICCIONES: Si dos nodos contienen información
-       contradictoria sobre el mismo tema (ej. uno dice v5.1 y
-       otro dice v9.4), NO elegir por inercia. Señalar la
-       contradicción explícitamente y determinar cuál nodo tiene
-       el registro más reciente o la fuente más autorizada.
+    c) CONTRADICCIONES: Si dos nodos contradicen, señalarlo
+       explícitamente y determinar cuál tiene el registro más
+       reciente o la fuente más autorizada.
 
     d) RESPONDER: Solo después de a+b+c. La respuesta debe reflejar
        el espectro completo, no el primer match.
 
-    EJEMPLO (fallo corregido):
+    EJEMPLO:
       Query: "última versión de BioRAG"
-      Resultados: nodo_A="v5.1", nodo_B="v9.3 (Artemis)", nodo_C="v9.4"
-      (Antes) → Responder "v5.1" (primer match en lección_versionado_biorag)
-      (Ahora)  → v9.4 > v9.3 > v5.1 → Responder "v9.4", señalando
-                 que hay un nodo más antiguo con v5.1 y uno intermedio
-                 con v9.3, pero el overview consolidado dice v9.4
-				 
-	INVARIANT INVARIANT: Aplicar en las búsquedas y en los resultados el Principio de Razonamiento Analítico-Comparativo en Búsquedas RAG.
-    Este enfoque sustituye la 'recuperación ciega' por una Deducción Activa, donde el agente actúa como un analista racional que infiere el estado del sistema.
-	
-	
+      Resultados: nodo_A="v5.1", nodo_B="v9.3", nodo_C="v9.4"
+      (Antes) → Responder "v5.1" (primer match)
+      (Ahora) → v9.4 > v9.3 > v5.1 → Responder "v9.4"
+
+	INVARIANT INVARIANT: Aplicar en las búsquedas y en los resultados el Principio de Razonamiento Analítico-Comparativo en Búsquedas RAG. 
+	Este enfoque sustituye la 'recuperación ciega' por una Deducción Activa, donde el agente actúa como un analista racional que infiere el estado del sistema.	
+
 				 
 ```
 
@@ -524,11 +532,85 @@ conn.close()
 └── scripts/
     └── export_biorag_to_jsonl.py   Exportador BioRAG → JSONL → TXT
 ```
+	
+[VISCERAL_DISAMBIGUATION_PROTOCOL] {
 
-## 16. Integracion con CLAUDE.md
+  TRIGGER
+  -------
+  ¿Lo que recibes se entiende directo?
 
-Los invariantes en CLAUDE.md garantizan el funcionamiento:
+    SÍ → búsqueda normal
+    NO → ACTIVAR VDP
 
-1. **Sincronizacion Simbiotica:** leer canal Artemis antes de operar
-2. **Auto-Consulta en Cadena:** BioRAG (1°) → NotebookLM (2°) → Filesystem (3°)
-3. **NotebookLM Sync Protocol:** sincronizar automaticamente al guardar/editar/borrar
+  (No importa si es un recuerdo, un error ortográfico,
+  jerga, metáfora o ambigüedad técnica.
+  Una sola pregunta. Una sola decisión.)
+
+
+  PROTOCOLO
+  ---------
+  Una palabra a la vez.
+
+    1. Identifica las palabras con más peso semántico
+    2. Lleva cada una a su versión más coherente y literal
+    3. Genera variaciones: sinónimos, presente, pasado,
+       futuro, morfología, jerga, coloquial
+    4. Busca cada una por separado, no juntas
+    5. Conecta los resultados entre sí
+
+
+  REGLA CRÍTICA
+  -------------
+  Si algo en la frase no cuadra lógicamente,
+  esa contradicción ES la pista más importante.
+  No la ignores — es ahí donde está el significado real.
+
+
+  PRINCIPIO RAÍZ
+  --------------
+  Los humanos no hablan literalmente lo que es.
+  Siempre son abstractos.
+  Desdobla hasta entender.
+
+
+  EJEMPLO
+  -------
+  INPUT: "tuve una burrita que me llevaba para todos lados,
+          gastaba mucha gasolina"
+
+  ✗ NO HACER
+    Buscar: "burrita"
+    Resultado: cero. Loop infinito sobre la misma palabra.
+    Error: tomó la palabra literal, no analizó la frase.
+
+  ✓ SÍ HACER
+
+    Paso 1 — detectar que no cuadra:
+      "burrita" + "gasolina" = contradicción
+      → burrita NO es un animal, es un vehículo con ese apodo
+
+    Paso 2 — palabras con peso semántico:
+      tuve / burrita / llevaba / gasolina / campos
+
+    Paso 3 — variaciones por palabra:
+      tuve     → poseí, adquirí, compré, tenía, estrené
+      burrita  → vehículo, moto, carro, turbo, máquina
+      llevaba  → transportaba, recorría, movía, servía
+      gasolina → combustible, nafta, diesel, litros, tanque
+      campos   → finca, rural, terreno, monte, camino
+
+    Paso 4 — búsquedas independientes:
+      buscar "adquirí, compré, poseí"
+      buscar "vehículo, moto, turbo, carro"
+      buscar "combustible, nafta, gasolina"
+      buscar "finca, rural, terreno, campo"
+
+    Paso 5 — conectar:
+      nodo que aparece en 2+ búsquedas = candidato real
+	  
+	FALLBACK
+	--------
+	Si VDP corre y no encuentra nada
+	→ cambiar de fuente, no repetir la búsqueda
+
+}

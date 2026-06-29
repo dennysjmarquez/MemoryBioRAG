@@ -2,6 +2,7 @@ import os
 import sqlite3
 import time
 import re
+import sys
 
 # Auto-cargar .env.local al importar (antes de leer任何环境变量)
 from config import _load_env_local
@@ -65,14 +66,18 @@ class SQLiteMemoryBioRAG:
         def palabra_completa(token, texto):
             if not token or not texto:
                 return 0
-            return 1 if re.search(r'\b' + re.escape(token.lower()) + r'\b', texto.lower()) else 0
+            token_norm = token.lower().replace('_', ' ').replace('-', ' ')
+            texto_norm = texto.lower().replace('_', ' ').replace('-', ' ')
+            return 1 if re.search(r'\b' + re.escape(token_norm) + r'\b', texto_norm) else 0
         self.conn.create_function("PALABRA_COMPLETA", 2, palabra_completa)
 
         # Función personalizada: prefix word boundary check del lado de la DB
         def palabra_prefijo(token, texto):
             if not token or not texto:
                 return 0
-            return 1 if re.search(r'\b' + re.escape(token.lower()), texto.lower()) else 0
+            token_norm = token.lower().replace('_', ' ').replace('-', ' ')
+            texto_norm = texto.lower().replace('_', ' ').replace('-', ' ')
+            return 1 if re.search(r'\b' + re.escape(token_norm), texto_norm) else 0
         self.conn.create_function("PALABRA_PREFIJO", 2, palabra_prefijo)
         self._cat_cache = {}
         self._crear_estructura_cerebral()
@@ -495,8 +500,6 @@ class SQLiteMemoryBioRAG:
             pass  # Legacy TEXT propagation removed — sinapsis table is canonical
 
         # Propagación vía sinapsis (fuente canónica)
-        from core.sinapsis import init_sinapsis_table
-        init_sinapsis_table(self.cursor)
         self.cursor.execute(
             "SELECT destino FROM sinapsis WHERE origen = ? UNION SELECT origen FROM sinapsis WHERE destino = ?",
             (key, key)
@@ -693,8 +696,6 @@ class SQLiteMemoryBioRAG:
                 """, (time.time(), vecino))
 
         # Propagación también vía sinapsis
-        from core.sinapsis import init_sinapsis_table
-        init_sinapsis_table(self.cursor)
         self.cursor.execute(
             "SELECT destino FROM sinapsis WHERE origen = ? UNION SELECT origen FROM sinapsis WHERE destino = ?",
             (key, key)
@@ -1006,8 +1007,6 @@ class SQLiteMemoryBioRAG:
     def establecer_asociacion(self, concepto_a, concepto_b):
         """Crea un enlace sináptico bidireccional entre dos conceptos en el grafo de largo plazo."""
         concepto_a, concepto_b = concepto_a.lower().strip(), concepto_b.lower().strip()
-        from core.sinapsis import init_sinapsis_table
-        init_sinapsis_table(self.cursor)
         for a, b in [(concepto_a, concepto_b), (concepto_b, concepto_a)]:
             self.cursor.execute("SELECT 1 FROM sinapsis WHERE origen = ? AND destino = ?", (a, b))
             if not self.cursor.fetchone():
@@ -1577,11 +1576,18 @@ class SQLiteMemoryBioRAG:
         # ("culo" no debe matchear "artículos"). Aplica a contenido+concepto+sinonimos.
         # Exige que AL MENOS UNA palabra aparezca como palabra completa en alguno.
         # Sinonimos incluidos: la búsqueda por sinónimo debe seguir funcionando.
+        # Stopwords excluidas: "con" aparece como palabra completa en casi todos los nodos
+        # y generaría falsos positivos masivos.
+        STOPWORDS_PC = {'con', 'por', 'para', 'como', 'mas', 'pero', 'esta', 'este',
+                        'que', 'del', 'las', 'los', 'una', 'uno', 'sin', 'sobre',
+                        'desde', 'hasta', 'cuando', 'donde', 'otro', 'otros', 'ante',
+                        'segun', 'pues', 'contra', 'durante', 'mediante'}
+        palabras_pc = [w for w in palabras if w.lower() not in STOPWORDS_PC]
         pc_clause = ""
         pc_params = []
-        if palabras:
+        if palabras_pc:
             pc_clauses = []
-            for p in palabras:
+            for p in palabras_pc:
                 pc_clauses.append("(PALABRA_COMPLETA(?, l.contenido) = 1 OR PALABRA_COMPLETA(?, l.concepto) = 1 OR PALABRA_COMPLETA(?, COALESCE(l.sinonimos, '')) = 1)")
                 pc_params.extend([p, p, p])
             pc_clause = " AND (" + " OR ".join(pc_clauses) + ")"
@@ -1610,28 +1616,70 @@ class SQLiteMemoryBioRAG:
                 pass
 
         # OR fallback: si AND devolvió pocos resultados (o ninguno), probar OR
+        # SIEMPRE usar sql_con_pc (con PALABRA_COMPLETA) para evitar falsos positivos.
+        # Sin PC, stopwords como "con" matchean "construcción", "conocimiento", etc.
         if (not todos or len(todos) < max(limite * 2, 5)) and len(frase.split()) > 1:
-            palabras = [w for w in frase.split() if len(w) >= 3]
-            if len(palabras) > 1:
-                query_or = " OR ".join(palabras)
+            palabras_or = [w for w in frase.split() if len(w) >= 3]
+            if len(palabras_or) > 1:
+                query_or = " OR ".join(palabras_or)
                 try:
-                    if not todos:
-                        self.cursor.execute(sql, (query_or,))
-                    else:
-                        self.cursor.execute(sql_con_pc, (query_or,) + tuple(pc_params))
+                    self.cursor.execute(sql_con_pc, (query_or,) + tuple(pc_params))
                     or_results = self.cursor.fetchall()
                     seen_rowids = {r[0] for r in todos}
+                    # Garantía mínima: resultados con 1 match se reservan
+                    # y se usan si el filtro estricto (>=2) no alcanza 3 resultados.
+                    MIN_RESULTADOS_OR = 3
+                    _or_reserva = []
+                    _or_added = 0
                     for r in or_results:
                         if r[0] not in seen_rowids:
-                            todos.append(r)
-                            origen_scores[r[1]] = ("literal", 0.0)
+                            _cont_or = (r[2] or "").lower().replace('_', ' ').replace('-', ' ')
+                            _conc_or = r[1].lower().replace('_', ' ').replace('-', ' ')
+                            _sin_or = ""
+                            try:
+                                _sin_or = ((r[5] or "").lower().replace('_', ' ').replace('-', ' ')) if len(r) > 5 and r[5] else ""
+                            except (IndexError, TypeError):
+                                pass
+                            _matches_or = 0
+                            STOPWORDS_OR = {'con', 'por', 'para', 'como', 'mas', 'pero', 'esta', 'este',
+                                            'que', 'del', 'las', 'los', 'una', 'uno', 'sin', 'sobre',
+                                            'desde', 'hasta', 'cuando', 'donde', 'otro', 'otros', 'ante',
+                                            'segun', 'pues', 'contra', 'durante', 'mediante', 'les',
+                                            'nos', 'los', 'las', 'sus', 'hay', 'fue', 'ser', 'está',
+                                            'tiene', 'puede', 'hace', 'como', 'más', 'muy', 'ya',
+                                            'pero', 'sino', 'si', 'no', 'lo', 'la', 'el', 'en', 'de',
+                                            'al', 'un', 'una', 'uno', 'se', 'su', 'le', 'me', 'te'}
+                            for _pw in palabras_or:
+                                if _pw.lower() in STOPWORDS_OR:
+                                    continue
+                                _patron_or = r'\b' + re.escape(_pw.lower()) + r'\b'
+                                if (re.search(_patron_or, _cont_or) or
+                                    re.search(_patron_or, _conc_or) or
+                                    re.search(_patron_or, _sin_or)):
+                                    _matches_or += 1
+                                    if _matches_or >= 2:
+                                        break
+                            if _matches_or >= 2:
+                                todos.append(r)
+                                seen_rowids.add(r[0])
+                                origen_scores[r[1]] = ("literal", 0.0)
+                                _or_added += 1
+                            elif _matches_or >= 1:
+                                _or_reserva.append(r)
+                    # Completar con reserva si no se alcanzó el mínimo
+                    if _or_added < MIN_RESULTADOS_OR:
+                        for r in _or_reserva[:MIN_RESULTADOS_OR - _or_added]:
+                            if r[0] not in seen_rowids:
+                                todos.append(r)
+                                seen_rowids.add(r[0])
+                                origen_scores[r[1]] = ("literal_reserva", 0.0)
                 except sqlite3.OperationalError:
                     pass
 
         # Fallback 1.4: FTS5 unicode61 con prefix wildcards
         # Mejora recall para palabras que comparten prefijo (react -> reactive, forms -> formularios).
-        # Último recurso: solo corre si ningún fallback anterior encontró resultados.
-        if not todos:
+        # Último recurso: corre si la búsqueda literal arrojó menos de 3 resultados.
+        if len(todos) < 3:
             try:
                 query_wild = self._agregar_prefix_wildcards(query)
                 sql_unicode = """
@@ -1657,11 +1705,10 @@ class SQLiteMemoryBioRAG:
         # NO aplica PALABRA_COMPLETA: las equivalentes son palabras distintas por diseño.
         # "auto" → "vehículo" debe funcionar aunque "vehículo" no aparezca en el texto.
         # Dynamic Multiplicator: registrar como "expansion" con score 0.8 (peso default semántica)
-        if not todos and len(query) >= 2:
-            from core.semantica import expandir_query
-            equivalentes = expandir_query(self.cursor, query)
-            if equivalentes:
-                query_exp = " OR ".join(equivalentes)
+        if len(todos) < 3 and len(query) >= 2:
+            from core.semantica import expandir_query_por_tokens
+            query_exp = expandir_query_por_tokens(self.cursor, query)
+            if query_exp:
                 try:
                     self.cursor.execute(sql, (query_exp,))
                     sem_results = self.cursor.fetchall()
@@ -1677,7 +1724,7 @@ class SQLiteMemoryBioRAG:
         # Usa Jaccard sobre tokens, no requiere match literal. No aplicar PALABRA_COMPLETA.
         # Dynamic Multiplicator: registrar como "latente" con score Jaccard real
         # OPTIMIZACIÓN: Pre-cargar puentes FTS5 una vez (reduce N queries a 1)
-        if not todos and len(query) >= 2:
+        if len(todos) < 3 and len(query) >= 2:
             from core.similitud_conceptual import _tokenizar_query, score_similitud_latente, LIMITE_SIMILITUD, _cargar_grafo, _limpiar_cache
             query_tokens = _tokenizar_query(query)
             if query_tokens:
@@ -1719,9 +1766,12 @@ class SQLiteMemoryBioRAG:
                         )
                         candidatos_lat = self.cursor.fetchall()
                         scored = []
+                        seen_rowids = {r[0] for r in todos}
                         for rowid, concepto, contenido, peso, estado, asoc in candidatos_lat:
+                            if rowid in seen_rowids:
+                                continue
                             s = score_similitud_latente(self.cursor, query_tokens, concepto, contenido, grafo=grafo, nodos_cache=nodos_cache)
-                            if s >= 0.10:
+                            if s >= 0.15:
                                 scored.append((s, (rowid, concepto, contenido, peso, estado, asoc or "")))
                         scored.sort(key=lambda x: x[0], reverse=True)
                         for jaccard_score, row in scored[:LIMITE_SIMILITUD]:
@@ -1735,7 +1785,7 @@ class SQLiteMemoryBioRAG:
                     pass
 
         # Fallback 2.0: substring match con word boundary via PALABRA_COMPLETA
-        if not todos and len(query) >= 2:
+        if len(todos) < 3 and len(query) >= 2:
             filtros_fb = []
             if profundidad != "profundo":
                 filtros_fb.append("estado = 'activo'")
@@ -1751,7 +1801,10 @@ class SQLiteMemoryBioRAG:
                     (query.lower(),)
                 )
                 filas = self.cursor.fetchall()
-                todos = [(row[0], row[1], row[2], row[3], row[4], row[5]) for row in filas]
+                seen_rowids = {r[0] for r in todos}
+                for row in filas:
+                    if row[0] not in seen_rowids:
+                        todos.append((row[0], row[1], row[2], row[3], row[4], row[5]))
                 todos = todos[:50]
             except sqlite3.OperationalError:
                 pass
@@ -1760,7 +1813,7 @@ class SQLiteMemoryBioRAG:
         # Filtro PC: solo aplica a palabras CORTAS (<=5 chars) donde el trigrama no
         # es discriminante (ej: "culo" como substring de "artículos"). Para palabras
         # largas (>=6 chars), el trigrama ya es tolerante a typos sin generar FPs.
-        if not todos and len(query) >= 3:
+        if len(todos) < 3 and len(query) >= 3:
             sql_limit = max(200, limite * 10)
             filtros_fb = []
             if profundidad != "profundo":
@@ -1775,14 +1828,20 @@ class SQLiteMemoryBioRAG:
                 )
                 filas = self.cursor.fetchall()
                 query_words = re.findall(r'\w{3,}', query.lower())
+                # Excluir stopwords y palabras muy cortas (< 4 chars) del trigram matching.
+                # "con" (1 trigram) matchea "construcción", "conocimiento" con score 1.0.
+                STOPWORDS_FB25 = {'con', 'por', 'para', 'como', 'mas', 'pero', 'esta', 'este', 'que', 'del', 'las', 'los', 'una', 'uno', 'sin', 'sobre', 'desde', 'hasta', 'cuando', 'donde', 'otro', 'otros'}
+                query_words_filtradas = [w for w in query_words if w not in STOPWORDS_FB25 and len(w) >= 4]
+                if not query_words_filtradas:
+                    query_words_filtradas = [w for w in query_words if len(w) >= 4]
                 # Separar query_words en cortas (PC aplica) y largas (PC no aplica, tolerancia a typos)
-                qw_cortas = [w for w in query_words if len(w) <= 5]
+                qw_cortas = [w for w in query_words_filtradas if len(w) <= 5]
                 candidatos = []
                 for row in filas:
                     texto = f"{row[1]} {row[2]}".lower()
                     text_words = re.findall(r'\w{3,}', texto)
-                    max_word_score = 0.0
-                    for qw in query_words:
+                    total_score = 0.0
+                    for qw in query_words_filtradas:
                         qt = set(qw[i:i+3] for i in range(len(qw) - 2))
                         if not qt:
                             continue
@@ -1791,13 +1850,13 @@ class SQLiteMemoryBioRAG:
                              for tw in text_words if len(tw) >= 3),
                             default=0.0
                         )
-                        if best > max_word_score:
-                            max_word_score = best
-                    if max_word_score >= 0.7:
+                        total_score += best
+                    avg_score = total_score / len(query_words_filtradas) if query_words_filtradas else 0.0
+                    if avg_score >= 0.7:
                         # Filtro PC solo para palabras cortas: rechaza matches donde el
                         # token solo es substring de otra palabra. Palabras largas ya son
                         # discriminantes vía trigrama.
-                        texto_full = f"{row[1]} {row[2] or ''}"
+                        texto_full = f"{row[1]} {row[2] or ''}".replace('_', ' ').replace('-', ' ')
                         if qw_cortas:
                             match_legitimo = any(
                                 re.search(r'\b' + re.escape(qw) + r'\b', texto_full, re.IGNORECASE)
@@ -1805,17 +1864,19 @@ class SQLiteMemoryBioRAG:
                             )
                             if not match_legitimo:
                                 continue
-                        candidatos.append((max_word_score, row))
+                        candidatos.append((avg_score, row))
                 candidatos.sort(key=lambda x: x[0], reverse=True)
+                seen_rowids = {r[0] for r in todos}
                 for score_typo, row in candidatos[:max(limite * 3, 10)]:
-                    todos.append(row)
-                    if row[1] not in origen_scores:
-                        origen_scores[row[1]] = ("typo", score_typo)
+                    if row[0] not in seen_rowids:
+                        todos.append(row)
+                        if row[1] not in origen_scores:
+                            origen_scores[row[1]] = ("typo", score_typo)
             except sqlite3.OperationalError:
                 pass
 
         # Fallback 1.8: Snap reciente (últimos 7 días)
-        if not todos and len(query) >= 2:
+        if len(todos) < 3 and len(query) >= 2:
             limite_tiempo = time.time() - (7 * 86400)
             # sql_con_pc ya incluye el filtro PALABRA_COMPLETA — previene falsos positivos
             sql_snap = sql_con_pc.replace("ORDER BY bm25(largo_plazo_fts, 5.0, 1.0, 2.0) * (0.5 + 0.5 * l.peso_sinaptico)",
@@ -1825,13 +1886,16 @@ class SQLiteMemoryBioRAG:
                 snap_r = self.cursor.fetchall()
                 if snap_r:
                     print(f"[TRACE] 1.8 Snap: {len(snap_r)} → {[r[1] for r in snap_r[:3]]}")
-                todos = snap_r
+                seen_rowids = {r[0] for r in todos}
+                for r in snap_r:
+                    if r[0] not in seen_rowids:
+                        todos.append(r)
             except sqlite3.OperationalError:
                 pass
 
         # Fallback 1.9: Evocación por cadena (multi-hop con decay logarítmico)
         # Dynamic Multiplicator: registrar como "cadena" con score de decay
-        if not todos and len(query) >= 2:
+        if len(todos) < 3 and len(query) >= 2:
             tokens_query = re.findall(r'\w{3,}', query.lower())
             if tokens_query:
                 fts_tokens = [f'"{t}"' for t in tokens_query if len(t) >= 3]
@@ -1862,9 +1926,23 @@ class SQLiteMemoryBioRAG:
                                     (concepto_ev,)
                                 )
                                 row = self.cursor.fetchone()
-                                if row and row[1] not in {r[1] for r in todos}:
+                                if row and row[1] not in {r[1] for r in todos} and row[2]:
+                                    # Filtro PALABRA_COMPLETA: el nodo evocado debe contener
+                                    # al menos 2 palabras de la query como palabras completas.
+                                    # Previene que la cadena traiga nodos no relacionados
+                                    # (ej: "receta de paella" → nodo con solo "receta" en contenido).
+                                    _contenido_ev = (row[2] or "").lower().replace('_', ' ').replace('-', ' ')
+                                    _concepto_ev = row[1].lower().replace('_', ' ').replace('-', ' ')
+                                    _matches_ev = 0
+                                    for _pw in palabras:
+                                        _patron_ev = r'\b' + re.escape(_pw.lower()) + r'\b'
+                                        if re.search(_patron_ev, _contenido_ev) or re.search(_patron_ev, _concepto_ev):
+                                            _matches_ev += 1
+                                            if _matches_ev >= 2:
+                                                break
+                                    if _matches_ev < 2:
+                                        continue
                                     todos.append(row)
-                                    # Solo registrar si no fue encontrado por capa anterior
                                     if row[1] not in origen_scores:
                                         origen_scores[row[1]] = ("cadena", decay_score)
                     except sqlite3.OperationalError:
@@ -1887,8 +1965,16 @@ class SQLiteMemoryBioRAG:
         # ─── Capa 4: inyectar resultados de sinónimos no encontrados por capas anteriores ───
         resultados_semantica = {}
         if palabras_like:
-            sin_conds = " OR ".join(["l.sinonimos LIKE '%' || ? || '%'" for _ in palabras_like])
-            sin_params = list(palabras_like)
+            # Excluir stopwords de la búsqueda por sinónimos: "con" aparece como substring
+            # en la mayoría de nodos en español y genera falsos positivos masivos.
+            STOPWORDS_SIN = {'con', 'por', 'para', 'como', 'mas', 'pero', 'esta', 'este',
+                             'que', 'del', 'las', 'los', 'una', 'uno', 'sin', 'sobre',
+                             'desde', 'hasta', 'cuando', 'donde', 'otro', 'otros', 'ante',
+                             'segun', 'pues', 'contra', 'durante', 'mediante'}
+            palabras_sin = [w for w in palabras_like if w.lower() not in STOPWORDS_SIN]
+            if palabras_sin:
+                sin_conds = " OR ".join(["l.sinonimos LIKE '%' || ? || '%'" for _ in palabras_sin])
+                sin_params = list(palabras_sin)
             try:
                 self.cursor.execute(
                     f"SELECT l.concepto, l.sinonimos, l.peso_sinaptico "
@@ -1919,6 +2005,8 @@ class SQLiteMemoryBioRAG:
 
         if not todos:
             return [], 0
+
+        # DEBUG: dump todos before scoring
 
         # Calcular score hibrido para cada resultado
         # Dynamic Multiplicator: consultar origen_scores para activar fórmula de emergencia
@@ -2115,14 +2203,26 @@ class SQLiteMemoryBioRAG:
         fts_terms = " OR ".join(f'"{p}"' for p in palabras_validas)
         limite_batch = max(limite * len(palabras_validas), 50)
 
-        # Buscar en activos — query único
+        # Filtro PALABRA_COMPLETA: previene falsos positivos de FTS5 trigram.
+        # "raro" no debe matchear "increíblemente" vía trigram parcial.
+        pc_rafaga_clauses = []
+        pc_rafaga_params = []
+        for p in palabras_validas:
+            pc_rafaga_clauses.append(
+                "(PALABRA_COMPLETA(?, l.contenido) = 1 OR PALABRA_COMPLETA(?, l.concepto) = 1 OR PALABRA_COMPLETA(?, COALESCE(l.sinonimos, '')) = 1)"
+            )
+            pc_rafaga_params.extend([p, p, p])
+        pc_rafaga_clause = " AND (" + " OR ".join(pc_rafaga_clauses) + ")"
+
+        # Buscar en activos — query único con PALABRA_COMPLETA
         try:
             self.cursor.execute(
                 "SELECT l.rowid, l.concepto, l.contenido, l.peso_sinaptico, "
                 "l.estado, l.asociaciones "
                 "FROM largo_plazo_fts f JOIN largo_plazo l ON l.rowid = f.rowid "
-                "WHERE largo_plazo_fts MATCH ? AND l.estado = 'activo' LIMIT ?",
-                (fts_terms, limite_batch)
+                "WHERE largo_plazo_fts MATCH ? AND l.estado = 'activo' "
+                + pc_rafaga_clause + " LIMIT ?",
+                (fts_terms,) + tuple(pc_rafaga_params) + (limite_batch,)
             )
             resultados = self.cursor.fetchall()
             for r in resultados:
@@ -2146,8 +2246,9 @@ class SQLiteMemoryBioRAG:
                 "SELECT l.rowid, l.concepto, l.contenido, l.peso_sinaptico, "
                 "l.estado, l.asociaciones "
                 "FROM largo_plazo_fts f JOIN largo_plazo l ON l.rowid = f.rowid "
-                "WHERE largo_plazo_fts MATCH ? AND l.estado = 'dormido' LIMIT ?",
-                (fts_terms, limite_batch)
+                "WHERE largo_plazo_fts MATCH ? AND l.estado = 'dormido' "
+                + pc_rafaga_clause + " LIMIT ?",
+                (fts_terms,) + tuple(pc_rafaga_params) + (limite_batch,)
             )
             resultados = self.cursor.fetchall()
             for r in resultados:
@@ -2168,11 +2269,23 @@ class SQLiteMemoryBioRAG:
         if not todos:
             return [], 0, []
         
-        # Fase 2: Calcular score y ordenar
+        # Fase 2: Calcular score por densidad de coincidencia
+        # En ráfaga, la señal primaria es cuántos tokens de la ráfaga coinciden
+        # en cada nodo (emula similaridad coseno de un RAG vectorial).
         total = len(todos)
         scored = []
         for i, (rowid, concepto, contenido, peso, estado, asoc) in enumerate(todos):
-            score = self._calcular_score_hibrido(i, total, peso, asoc or "", None, contenido or "")
+            texto_nodo = f"{concepto} {contenido or ''}".lower()
+            texto_norm = texto_nodo.replace('_', ' ').replace('-', ' ')
+            matches = sum(
+                1 for pv in palabras_validas
+                if re.search(r'\b' + re.escape(pv.lower()) + r'\b', texto_norm)
+            )
+            densidad = matches / len(palabras_validas) if palabras_validas else 0.0
+            peso_norm = min(1.0, peso)
+            num_asoc = len([v for v in (asoc or "").split(",") if v.strip()]) if asoc else 0
+            score_asoc = min(1.0, num_asoc / 5.0)
+            score = round(0.50 * densidad + 0.35 * peso_norm + 0.15 * score_asoc, 4)
             scored.append((concepto, contenido, peso, estado, score, asoc or ""))
         
         scored.sort(key=lambda r: r[4], reverse=True)
@@ -2191,13 +2304,35 @@ class SQLiteMemoryBioRAG:
                     (time.time(), concepto)
                 )
         
-        # Segundo: crear sinapsis solo para los top resultados
+        # Segundo: crear sinapsis solo para los top resultados con score válido
+        UMBRAL_SCORE_RAFAGA = 0.3
         for concepto, contenido, peso, estado, score, asoc in scored[:limite]:
             
+            # No crear sinapsis si el score es muy bajo (match por trigram parcial)
+            if score < UMBRAL_SCORE_RAFAGA:
+                continue
+            
+            # Verificar que al menos una palabra de la ráfaga aparece como palabra completa
+            texto_nodo = f"{concepto} {contenido or ''}".lower()
+            texto_nodo_norm = texto_nodo.replace('_', ' ').replace('-', ' ')
+            alguna_palabra_completa = False
+            for pv in palabras_validas:
+                if re.search(r'\b' + re.escape(pv.lower()) + r'\b', texto_nodo_norm):
+                    alguna_palabra_completa = True
+                    break
+            if not alguna_palabra_completa:
+                continue
+            
             # Crear sinapsis entre query y nodo encontrado
+            # CRÍTICO: solo crear sinapsis si el token del query aparece como
+            # palabra completa en el nodo. Evita sinapsis basura cuando el query
+            # es una palabra inventada (ej: "xylqvembra") que no existe en ningún nodo.
             if palabra_ganadora and query_tokens:
                 for qt in query_tokens:
                     if qt != concepto and len(qt) >= 4:
+                        # Verificar que el token del query existe como palabra completa en el nodo
+                        if not re.search(r'\b' + re.escape(qt) + r'\b', texto_nodo_norm):
+                            continue
                         # Verificar si ya existe la sinapsis
                         self.cursor.execute(
                             "SELECT peso FROM sinapsis WHERE "
@@ -2325,65 +2460,6 @@ class SQLiteMemoryBioRAG:
         )
         fila = self.cursor.fetchone()
         return fila[0] if fila else None
-
-    def poblar_sinonimos_desde_contenido(self, peso_minimo=0.5):
-        """Extrae palabras clave del contenido de nodos con peso >= peso_minimo
-        y las guarda en la columna sinonimos para mejorar recall semántico.
-
-        Los triggers AFTER UPDATE en FTS se encargan de reindexar automáticamente.
-        Idempotente: ejecución múltiple es segura (actualiza sin duplicar lógica).
-        Retorna la cantidad de nodos actualizados.
-        """
-        self.cursor.execute(
-            "SELECT concepto, contenido FROM largo_plazo WHERE peso_sinaptico >= ? AND estado = 'activo'",
-            (peso_minimo,)
-        )
-        nodos = self.cursor.fetchall()
-        contador = 0
-        re_token = re.compile(r'\b[a-záéíóúñü0-9]{3,}\b')
-        stopwords = {
-            'para', 'como', 'con', 'por', 'que', 'del', 'las', 'los', 'mas',
-            'pero', 'esta', 'este', 'entre', 'todo', 'tiene', 'cada', 'muy',
-            'era', 'han', 'sin', 'sobre', 'tambien', 'desde', 'hasta', 'cuando',
-            'donde', 'ello', 'ella', 'cual', 'dicho', 'sido', 'sea', 'tanto',
-            'otro', 'otros', 'ante', 'segun', 'una', 'unas', 'unos',
-            'porque', 'pues', 'contra', 'durante', 'mediante',
-            'parte', 'forma', 'tipo', 'tema', 'vez', 'caso', 'dentro',
-            'tras', 'aquel', 'aquella', 'aquellos', 'aquellas', 'estos',
-        }
-        tecnicos_cortos = {'dsl', 'api', 'mcp', 'rag', 'cpu', 'ram', 'gpu', 'cli', 'db', 'ui', 'ux', 'os', 'ai', 'vm'}
-
-        for concepto, contenido in nodos:
-            if not contenido:
-                continue
-
-            tokens = set()
-            palabra_baja = contenido.lower()
-
-            for m in re_token.finditer(palabra_baja):
-                p = m.group()
-                if len(p) >= 4 and p not in stopwords:
-                    tokens.add(p)
-
-            for m in re_token.finditer(palabra_baja):
-                p = m.group()
-                if len(p) in (2, 3) and p in tecnicos_cortos:
-                    tokens.add(p)
-
-            for p in concepto.lower().replace('-', ' ').replace('_', ' ').split():
-                if len(p) >= 3 and p not in stopwords:
-                    tokens.add(p)
-
-            sinonimos_str = ",".join(sorted(tokens))
-            self.cursor.execute(
-                "UPDATE largo_plazo SET sinonimos = ? WHERE concepto = ?",
-                (sinonimos_str, concepto)
-            )
-            contador += 1
-
-        self.conn.commit()
-        return contador
-
     def cerrar_sistema(self):
         """Cierra de forma segura la conexión con la base de datos SQLite."""
         self.conn.close()

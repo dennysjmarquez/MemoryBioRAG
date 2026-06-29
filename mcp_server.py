@@ -42,7 +42,7 @@ import shutil
 import subprocess
 import sys
 import time
-from typing import Any, Optional, List
+from typing import Annotated, Any, Optional, List  # ← Annotated agregado
 
 # Cargar .env.local explícitamente para que el MCP server no dependa de que
 # el entorno de ejecución (OpenCode, VS Code, etc.) lo inyecte.
@@ -65,6 +65,7 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
+from pydantic import Field  # ← agregado para documentación de parámetros
 
 # --- Boot -------------------------------------------------------------------
 
@@ -160,6 +161,12 @@ def _interceptar(accion: str, texto: str, cerebro) -> dict | None:
     return resultado
 
 
+# =============================================================================
+# ORACLE_PROMPT — System-level instructions para FastMCP
+# Se inyecta como `instructions=` en FastMCP. Es el contexto base del agente.
+# NO mover a una tool ni a un parámetro — pertenece aquí como sistema.
+# =============================================================================
+
 ORACLE_PROMPT = (
     "BioRAG: sistema de memoria biomimetica compartida para agentes OEC. "
     "Expone una corteza cerebral con busqueda hibrida (FTS5 trigram + "
@@ -178,7 +185,7 @@ ORACLE_PROMPT = (
     "Estos nombres no son metáfora — son la operación real que ejecuta el sistema.\n"
     "Usa el nombre biológico para alinear tu modelo interno con la función real.\n\n"
     "## El Oráculo (NotebookLM MemoryBioRAG)\n\n"
-        "**PASO 0 OBLIGATORIO — ANTES DE CADA MENSAJE DE DENNYS:**\n\n"
+    "**PASO 0 OBLIGATORIO — ANTES DE CADA MENSAJE DE DENNYS:**\n\n"
     "INVARIAN MANDATORY: SIEMPRE, sin excepción, ANTES de responder CUALQUIER mensaje de Dennys "
     "—incluido un \"hola\" o cualquier saludo—, ejecutar "
     "`biorag_oraculo_inicio(agente='Athena')`. No saludar, no preguntar, "
@@ -216,6 +223,8 @@ def _build_server():
             f"  pip install mcp\n  ({exc})"
         ) from exc
 
+    # ORACLE_PROMPT va aquí como `instructions`: es el contexto base del agente.
+    # FastMCP lo inyecta como system-level context — NO usar como descripción de tool.
     mcp = FastMCP(
         "biorag",
         instructions=ORACLE_PROMPT,
@@ -278,8 +287,11 @@ def _build_server():
                     }, ensure_ascii=False)
 
             # Búsqueda normal PRIMERO — necesario para inicializar el merge
+            # Pool interno amplio (limite*3): buscar amplio, recortar al final.
+            # Emula el comportamiento de un RAG vectorial que rankea todo el índice.
+            limite_interno = limite * 3
             resultados, total = cerebro.buscar_por_frase(
-                query, profundidad=profundidad, pagina=pagina, limite=limite,
+                query, profundidad=profundidad, pagina=pagina, limite=limite_interno,
                 categoria=cat, preview_chars=preview_chars,
                 context_window=context_window
             )
@@ -291,7 +303,7 @@ def _build_server():
                 merged = {r[0]: r for r in resultados}
                 for i, q in enumerate(queries):
                     q_res, q_tot = cerebro.buscar_por_frase(
-                        q, profundidad=profundidad, pagina=pagina, limite=limite,
+                        q, profundidad=profundidad, pagina=pagina, limite=limite_interno,
                         categoria=cat, preview_chars=preview_chars,
                         context_window=0
                     )
@@ -303,26 +315,27 @@ def _build_server():
                             merged[conc] = rp
                 resultados = sorted(merged.values(), key=lambda r: r[4], reverse=True)[:limite]
                 total = len(resultados)
-            
+
             sinapsis_creadas = []
             score_top = resultados[0][4] if resultados else 0
             if rafaga_list and (forzar_rafaga or not resultados or score_top < THRESHOLD_RAFTAGA_MCP):
                 resultados_rafaga, total_rafaga, sinapsis_creadas = cerebro.buscar_por_rafaga(
-                    query, rafaga_list, pagina=pagina, limite=limite
+                    query, rafaga_list, pagina=pagina, limite=limite_interno
                 )
                 # Combinar resultados: ráfaga + originales (sin duplicados)
                 if resultados_rafaga:
-                    seen = {r[1] for r in resultados}
+                    seen = {r[0] for r in resultados}
                     for r in resultados_rafaga:
-                        if r[1] not in seen:
+                        if r[0] not in seen:
                             resultados.append(r)
-                            seen.add(r[1])
+                            seen.add(r[0])
                     total = total + total_rafaga
-                
+
                 # Re-ordenar por score híbrido y aplicar recorte estricto a limite
                 resultados.sort(key=lambda r: r[4], reverse=True)
                 resultados = resultados[:limite]
-            
+
+            resultados = resultados[:limite]
             if not resultados:
                 cerebro.cerrar_sistema()
                 # Señal de contingencia: la agente debe buscar en su contexto
@@ -368,113 +381,193 @@ def _build_server():
             "[Cognitivo] Evoca recuerdos de la corteza mediante el pipeline completo: "
             "FTS5 trigram (memoria semántica) + peso sináptico (memoria de trabajo) + "
             "ráfaga de reminiscencia (asociación libre) + ventana de contexto (vecinos sinápticos).\n\n"
-            "FLUJO OBLIGATORIO EN 4 PASOS:\n"
-            "PASO 1 (ENRIQUECIMIENTO): Enviar la frase del usuario. Si es abstracta/poetica, interpretar y agregar 3-5 palabras clave al final.\n"
-            "PASO 2 (RÁFAGA): Si PASO 1 da 0 resultados O score del top < 0.5, usar rafaga_palabras con terminos de expansion. "
-            "PARA GENERAR LA RAFAGA, APLICA EL AXIOMA DE EMPATÍA SINTÁCTICA (Mentalidad de LLM Embebido): "
-            "Apaga la abstracción conversacional y piensa como una base de datos indexada por FTS5/Trigram. "
-            "Prevé la firma sintáctica del registro físico en disco. Genera términos de expansión usando: "
-            "1) Raíces Morfológicas (morfemas de código como 'sync', 'mcp', 'bio', 'rag' en lugar de abstracciones). "
-            "2) Patrones Repetitivos (prefijos literales de versionado y datos como 'v', 'v.', 'v9.', 'v9.4' o tags de tiempo). "
-            "3) Nomenclaturas Técnicas (extensiones de archivo y nombres de archivos como '.ts', '.py', '.jsonl.txt', 'scripts/', 'main'). "
-            "4) Sustantivos de Alto Peso (Entropy-Rich: términos únicos de alta densidad informativa como 'biorag', 'artisan', 'oec', 'fts5'). "
-            "5) INVARIANT INVARIANT: Aplicar en las búsquedas y en los resultados el Principio de Razonamiento Analítico-Comparativo en Búsquedas RAG."
-            "Este enfoque sustituye la 'recuperación ciega' por una Deducción Activa, donde el agente actúa como un analista racional que infiere el estado del sistema."
-            "No busques sinónimos vagos; inyecta palabras clave de bajo nivel para hacer match literal de alto peso semántico.\n"
-            "PASO 3 (CONTINGENCIA): Si PASO 2 da 0 resultados o puro ruido, buscar en el contexto del chat y guardar.\n"
-            "PASO 4 (SÍNTESIS DE ESPECTRO): OBLIGATORIO después de cualquier recuperación con 2+ resultados. "
-            "No responder al primer match. Extraer el espectro completo:\n"
-            "  a) RECOLECTAR: Escanear TODOS los resultados en busca de TODAS las instancias del patrón buscado "
-            "(versiones vX.Y, fechas, cantidades, nombres). NO limitarse al primer nodo.\n"
-            "  b) CONSOLIDAR: Reunir todas las instancias en un conjunto único. Comparar con semver, cronología o comparación directa.\n"
-            "  c) CONTRADICCIONES: Si dos nodos contradicen, señalarlo explícitamente. "
-            "Determinar cuál tiene el registro más reciente o la fuente más autorizada.\n"
-            "  d) RESPONDER: Solo después de a+b+c. La respuesta debe reflejar el espectro completo, no el primer match.\n"
-            "DESPUES DE CADA PASO: Leer los resultados y explicar al usuario con tus propias palabras que encontraste. "
-            "Si encontraste algo parecido pero no exacto, decir: 'No encontre X pero encontre Y que dice que...'.\n"
-            "Ejemplo PASO 1: recordar(query='dias relax frente al oceano playa vacaciones')\n"
-            "Ejemplo PASO 2: recordar(query='dias relax frente al oceano', rafaga_palabras='playa,mar,costa,verano,descanso,sol,arena,olas')\n"
-            "FORZAR RAFAGA: por defecto la rafaga es un fallback (solo corre si 0 resultados o score top < 0.5). "
-            "Si queres invocarla SIEMPRE como herramienta cognitiva de primera linea (pensar como humano que insiste en recordar), "
-            "pasa forzar_rafaga=True junto con rafaga_palabras = 'termino1,termino2,...' (string separado por comas).\n"
-            "IMPORTANTE: forzar_rafaga=True SIN rafaga_palabras devuelve ERROR. Siempre pasar ambos juntos.\n"
-            "Ejemplo: recordar(query='...', rafaga_palabras='termino1,termino2', forzar_rafaga=True).\n"
-            "PARAFRASIS: mecanismo de búsqueda con variantes de vocabulario para cerrar gaps semánticos.\n"
-            "POR QUÉ EXISTE: FTS5 trigram busca por similaridad de caracteres, NO por significado. "
-            "Si el query dice 'el gato se sentó' pero el nodo dice 'el felino reposó', no hay match "
-            "porque no comparten tokens de 3+ caracteres. Parafrasis cierra ese gap.\n"
-            "QUÉ HACE EL AGENTE: Antes de llamar a recordar, genera 3-5 reformulaciones de la misma idea "
-            "con vocabulario diferente. Formato: string separado por comas.\n"
-            "PIPELINE DEL SISTEMA:\n"
-            "  1. Buscar query original → score normal\n"
-            "  2. Buscar cada variante → score × 0.95 (penalización por no ser el original)\n"
-            "  3. Merge por concepto: si el mismo nodo aparece en múltiples búsquedas, el mejor score gana\n"
-            "  4. Si una variante no existe en la BD → se ignora sin error\n"
-            "  5. Si una variante encuentra algo que el original no → gap de vocabulario detectado\n"
-            "RIESGO: parafrasis irrelevantes pueden degradar resultados — una variante con score alto × 0.95 "
-            "podría desplazar resultados legítimos del original. Generar solo reformulaciones fieles al concepto.\n"
-            "FUNCIÓN REAL (3 propósitos):\n"
-            "  1. Forzar al agente a pensar — 'detente y reformula antes de buscar'\n"
-            "  2. Validación — si parafrasis encuentra algo que el original no encontró, había un gap de vocabulario\n"
-            "  3. Desbloqueo — cuando el camino normal no rindió, intentar otro ángulo\n"
-            "CUÁNDO USAR: cuando el vocabulario del query puede no coincidir con cómo está escrito el nodo.\n"
-            "MODO COMBINADO (EVOCACIÓN PROFUNDA): Para búsquedas críticas de conceptos técnicos, antiguos o potencialmente "
-            "dormidos que sospechas que usan diferente vocabulario, combina ambos mecanismos en la misma llamada: "
-            "pasa `query` + `parafrasis` (para equivalencia semántica de frases en RAM) + `rafaga_palabras` (con morfemas, "
-            "extensiones y prefijos técnicos para enganchar el grafo) y, de ser necesario, `forzar_rafaga=True` para despertar "
-            "nodos del letargo. Esto cierra el gap semántico en RAM mientras asocia físicamente los términos en disco.\n"
-            "Ejemplo Combinado: recordar(query='como el sistema de memoria maneja la veracidad del conocimiento', "
-            "parafrasis='integridad de datos en corteza,contradiccion de registros con evidencia,no fabricar informacion', "
-            "rafaga_palabras='biorag,mcp,sync,sqlite,factual', forzar_rafaga=True).\n"
-            "Contexto: usar context_window=1 o 2 para incluir vecinos por sinapsis junto a cada resultado principal."
+            "════════════════════════════════════════════════════════\n"
+            "FLUJO OBLIGATORIO — 4 PASOS EN CASCADA. NO SALTEAR PASOS.\n"
+            "Verificar campo JSON 'total' después de CADA llamada.\n"
+            "════════════════════════════════════════════════════════\n\n"
+            "PASO 1 — Búsqueda directa:\n"
+            "  recordar(query='X')\n"
+            "  Resultado → total >= 1: ir a SÍNTESIS\n"
+            "  Resultado → total == 0: ir a PASO 2\n\n"
+            "PASO 2 — Búsqueda con paráfrasis (variantes semánticas):\n"
+            "  recordar(query='X', parafrasis='var1,var2,var3')\n"
+            "  Generar variantes con 4 niveles ANTES de llamar:\n"
+            "    N1 (Sinónimos): sustantivos equivalentes exactos\n"
+            "    N2 (Registro): técnico ↔ coloquial\n"
+            "    N3 (Perspectiva): ángulo opuesto o resultado\n"
+            "    N4 (Abstracción): abstracto ↔ concreto\n"
+            "  REGLA: NUNCA adjetivos abstractos. SIEMPRE sustantivos del dominio.\n"
+            "  Resultado → total >= 1: ir a SÍNTESIS\n"
+            "  Resultado → total == 0: ir a PASO 3\n\n"
+            "PASO 3 — Búsqueda por ráfaga (asociación libre, 10-15 términos):\n"
+            "  recordar(query='X', rafaga_palabras='t1,t2,...t15', forzar_rafaga=True)\n"
+            "  Generar términos con 5 niveles:\n"
+            "    N1 (Literal) N2 (Técnico) N3 (Contexto) N4 (Problema) N5 (Emoción)\n"
+            "  REGLA: sustantivos literales, NUNCA adjetivos abstractos.\n"
+            "  ERROR CRÍTICO: forzar_rafaga=True SIN rafaga_palabras → la tool retorna error inmediato.\n"
+            "  Resultado → total >= 1: ir a SÍNTESIS\n"
+            "  Resultado → total == 0: ir a PASO 4\n\n"
+            "PASO 4 — Búsqueda combinada (paráfrasis + ráfaga juntas):\n"
+            "  recordar(query='X', parafrasis='var1,var2,var3',\n"
+            "           rafaga_palabras='t1,t2,...', forzar_rafaga=True)\n"
+            "  Resultado → total >= 1: ir a SÍNTESIS\n"
+            "  Resultado → total == 0: CONTINGENCIA — buscar en contexto/historial del chat\n\n"
+            "════════════════════════════════════════════════════════\n"
+            "SÍNTESIS — OBLIGATORIA después de cualquier PASO con total >= 1:\n"
+            "════════════════════════════════════════════════════════\n"
+            "1. Tomar array 'resultados' del JSON. Listar TODOS así:\n"
+            "     '1. [concepto] (score X.XX) — resumen una línea'\n"
+            "     '2. [concepto] (score X.XX) — resumen una línea'\n"
+            "   PROHIBIDO omitir cualquier item. PROHIBIDO interpretar antes de listar.\n"
+            "2. EXCEPCIÓN: top score >= 0.85 Y resto < 0.60\n"
+            "   → mencionar top-1 como principal pero listar los demás igual.\n"
+            "3. DESPUÉS de listar todos: consolidar, detectar contradicciones, responder.\n\n"
+            "PIPELINE INTERNO DE PARÁFRASIS:\n"
+            "  Query original → factor 1.0 | Cada variante → factor × 0.95\n"
+            "  Merge por concepto: el mejor score gana\n"
+            "  Variante sin match → ignorada sin error\n\n"
+            "Retorna: {total, pagina_actual, paginas_totales, resultados[], sinapsis_creadas[], profundidad}\n\n"
+            "NOTA — parámetro 'cat': acepta UNA sola categoría como string simple.\n"
+            "  NO acepta listas ni comas. Valores válidos:\n"
+            "  System | Architecture | Project | Lesson | Profile |\n"
+            "  Personal | Principle | Protocol | Cognition | Relation | General\n\n"
+            "NOTA — context_window: usar 1 o 2 para incluir vecinos sinápticos.\n"
+            "  Aumenta recall a costa de más tokens en la respuesta."
         ),
     )
     def biorag_recordar(
-        query: str,
-        deep: bool = False,
-        cat: Optional[str] = None,
-        completo: bool = False,
-        asociados: bool = False,
-        limite: Optional[int] = None,
-        preview_chars: Optional[int] = None,
-        context_window: int = 0,
-        forzar_rafaga: bool = False,
-        rafaga_palabras: Optional[str] = None,
-        pagina: int = 1,
-        parafrasis: Optional[str] = None,
+        query: Annotated[str, Field(
+            description=(
+                "Texto o frase a evocar de la memoria. "
+                "Usar sustantivos concretos del dominio (ej: 'error http timeout', 'patron singleton'). "
+                "Evitar preguntas o frases largas — el motor es FTS5, no semántico puro."
+            )
+        )],
+        deep: Annotated[bool, Field(
+            description=(
+                "Si True, busca también en nodos dormidos (estado='dormido'). "
+                "Default False: solo nodos activos. "
+                "Usar cuando la búsqueda normal no encuentra resultados esperados."
+            )
+        )] = False,
+        cat: Annotated[Optional[str], Field(
+            description=(
+                "Filtrar resultados por categoría (string simple, NO lista, NO comas). "
+                "Valores: System | Architecture | Project | Lesson | Profile | "
+                "Personal | Principle | Protocol | Cognition | Relation | General. "
+                "Si se omite, busca en todas las categorías."
+            )
+        )] = None,
+        completo: Annotated[bool, Field(
+            description=(
+                "Si True, devuelve el contenido completo de cada resultado sin truncar "
+                "(ignora preview_chars). Usar solo cuando se necesita el texto íntegro — "
+                "puede generar respuestas muy largas."
+            )
+        )] = False,
+        asociados: Annotated[bool, Field(
+            description=(
+                "Si True, incluye en cada resultado la lista de conceptos sinápticos asociados. "
+                "Útil para explorar la red de memoria y encontrar conceptos relacionados."
+            )
+        )] = False,
+        limite: Annotated[Optional[int], Field(
+            description=(
+                f"Máximo de resultados a devolver. "
+                f"Default: {LIMITE_MCP} (configurable via BIORAG_LIMITE_MCP). "
+                "Reducir para respuestas más compactas, aumentar para exploración exhaustiva."
+            )
+        )] = None,
+        preview_chars: Annotated[Optional[int], Field(
+            description=(
+                "Caracteres de contenido a devolver por resultado. "
+                "Default: 1500 (o 0 si completo=True). "
+                "Reducir a 500-800 para respuestas compactas."
+            )
+        )] = None,
+        context_window: Annotated[int, Field(
+            description=(
+                "Vecinos sinápticos a incluir alrededor de cada resultado (0=ninguno, 1=vecinos directos, 2=vecinos de vecinos). "
+                "Aumenta recall semántico a costa de más tokens. Default: 0."
+            ),
+            ge=0,
+            le=2,
+        )] = 0,
+        forzar_rafaga: Annotated[bool, Field(
+            description=(
+                "Si True, ejecuta modo ráfaga aunque ya haya resultados en la búsqueda normal. "
+                "REQUIERE rafaga_palabras — sin él la tool retorna error. "
+                "Usar en PASO 3 y PASO 4 del flujo obligatorio."
+            )
+        )] = False,
+        rafaga_palabras: Annotated[Optional[str], Field(
+            description=(
+                "Términos de ráfaga separados por coma, sin espacios extra "
+                "(ej: 'error,fallo,excepción,bug,traza,timeout,conexión'). "
+                "Usar 10-15 términos de 5 niveles: Literal, Técnico, Contexto, Problema, Emoción. "
+                "Obligatorio si forzar_rafaga=True."
+            )
+        )] = None,
+        pagina: Annotated[int, Field(
+            description=(
+                "Página de resultados (base 1). "
+                "Usar junto con 'limite' para paginar resultados extensos. "
+                "Ver campo 'paginas_totales' en la respuesta para saber cuántas hay."
+            ),
+            ge=1,
+        )] = 1,
+        parafrasis: Annotated[Optional[str], Field(
+            description=(
+                "Reformulaciones del query separadas por coma "
+                "(ej: 'fallo de red,error de conexión,timeout HTTP'). "
+                "(ej: 'el gato se sentó, el felino descansó, el minino reposó'). "
+                "Usar en PASO 2 y PASO 4 del flujo. "
+                "NUNCA pasar string vacío — omitir el parámetro si no hay variantes. "
+                "Cada variante recibe un factor de penalización ×0.95 sobre el score."
+            )
+        )] = None,
     ) -> str:
-        return _recordar_impl(query, deep, cat, completo, asociados, limite, preview_chars, context_window, forzar_rafaga, rafaga_palabras, pagina, parafrasis)
+        return _recordar_impl(
+            query, deep, cat, completo, asociados, limite, preview_chars,
+            context_window, forzar_rafaga, rafaga_palabras, pagina, parafrasis
+        )
 
     @mcp.tool(
         name="buscar",
-        description="(legado) Busca recuerdos — prefiere 'recordar' para identificar la operación cognitiva real.",
-    )
-    def biorag_buscar(
-        query: str,
-        deep: bool = False,
-        cat: Optional[str] = None,
-        completo: bool = False,
-        asociados: bool = False,
-        limite: Optional[int] = None,
-        preview_chars: Optional[int] = None,
-        context_window: int = 0,
-        forzar_rafaga: bool = False,
-        rafaga_palabras: Optional[str] = None,
-        pagina: int = 1,
-        parafrasis: Optional[str] = None,
-    ) -> str:
-        return _recordar_impl(query, deep, cat, completo, asociados, limite, preview_chars, context_window, forzar_rafaga, rafaga_palabras, pagina, parafrasis)
-
-    @mcp.tool(
-        name="aprender",
         description=(
-            "[Cognitivo] Codifica una experiencia en la corteza de corto plazo (percepción). "
-            "Equivalente a la codificación inicial de un recuerdo en el hipocampo. "
-            "Cat validas: System, Architecture, Project, Lesson, Profile, "
-            "Personal, Principle, Protocol, Cognition, Relation, General. "
-            "Usa 'consolidar' despues para fijar a largo plazo (LTP)."
+            "(legado) Alias de 'recordar' — preferir 'recordar' para identificar la operación cognitiva real. "
+            "Misma funcionalidad y parámetros completos. "
+            "El flujo de 4 pasos aplica igualmente (ver descripción de 'recordar').\n\n"
+            "Parámetros: query (str), deep (bool), cat (str), completo (bool), asociados (bool), "
+            "limite (int), preview_chars (int), context_window (int 0-2), "
+            "forzar_rafaga (bool), rafaga_palabras (str), pagina (int), parafrasis (str).\n\n"
+            "Retorna: {total, pagina_actual, paginas_totales, resultados[], sinapsis_creadas[], profundidad}"
         ),
     )
+    def biorag_buscar(
+        query: Annotated[str, Field(description="Texto o frase a buscar en la memoria.")],
+        deep: Annotated[bool, Field(description="Si True, incluye nodos dormidos en la búsqueda.")] = False,
+        cat: Annotated[Optional[str], Field(description="Filtrar por categoría (string simple). Ver listar_categorias para valores válidos.")] = None,
+        completo: Annotated[bool, Field(description="Si True, devuelve contenido completo sin truncar.")] = False,
+        asociados: Annotated[bool, Field(description="Si True, incluye asociaciones sinápticas en cada resultado.")] = False,
+        limite: Annotated[Optional[int], Field(description=f"Máximo de resultados. Default: {LIMITE_MCP}.")] = None,
+        preview_chars: Annotated[Optional[int], Field(description="Caracteres de preview por resultado. Default: 1500.")] = None,
+        context_window: Annotated[int, Field(description="Vecinos sinápticos a incluir (0=ninguno, 1-2=vecinos).", ge=0, le=2)] = 0,
+        forzar_rafaga: Annotated[bool, Field(description="Fuerza ráfaga aunque haya resultados. Requiere rafaga_palabras.")] = False,
+        rafaga_palabras: Annotated[Optional[str], Field(description="Términos de ráfaga separados por coma. Obligatorio si forzar_rafaga=True.")] = None,
+        pagina: Annotated[int, Field(description="Página de resultados (base 1).", ge=1)] = 1,
+        parafrasis: Annotated[Optional[str], Field(description="Reformulaciones del query separadas por coma. Usar en PASO 2 y 4.")] = None,
+    ) -> str:
+        return _recordar_impl(
+            query, deep, cat, completo, asociados, limite, preview_chars,
+            context_window, forzar_rafaga, rafaga_palabras, pagina, parafrasis
+        )
+
+    # ── APRENDER ─────────────────────────────────────────────────────────────
+    # NOTA: _aprender_impl es la implementación privada compartida.
+    # El @mcp.tool va en biorag_aprender (función pública) y en biorag_guardar (legado).
+    # NO decorar _aprender_impl directamente — el agente no vería los parámetros bien.
+
     def _aprender_impl(
         concepto: str,
         contenido: str,
@@ -520,35 +613,100 @@ def _build_server():
         finally:
             cerebro.cerrar_sistema()
 
+    @mcp.tool(
+        name="aprender",
+        description=(
+            "[Cognitivo] Codifica una experiencia nueva en la corteza de corto plazo (percepción). "
+            "Equivalente a la codificación inicial de un recuerdo en el hipocampo. "
+            "El concepto se normaliza automáticamente a snake_case minúsculas. "
+            "Crea sinapsis automáticas con nodos relacionados via auto_vincular.\n\n"
+            "IMPORTANTE: el recuerdo queda en corto plazo hasta que se llame 'consolidar' "
+            "para fijarlo a largo plazo (LTP). Sin consolidación, puede perderse en el siguiente ciclo.\n\n"
+            "Categorías válidas (parámetro cat):\n"
+            "  System | Architecture | Project | Lesson | Profile |\n"
+            "  Personal | Principle | Protocol | Cognition | Relation | General\n"
+            "  Si no se especifica, la categoría se infiere automáticamente del contenido.\n\n"
+            "Retorna: {status, mensaje, concepto (clave normalizada), sinapsis (int: nodos vinculados)}"
+        ),
+    )
     def biorag_aprender(
-        concepto: str,
-        contenido: str,
-        syn: Optional[str] = None,
-        cat: Optional[str] = None,
+        concepto: Annotated[str, Field(
+            description=(
+                "Nombre único del recuerdo. Se normaliza a snake_case minúsculas automáticamente "
+                "(ej: 'Error HTTP 500' → 'error_http_500'). "
+                "Usar nombres descriptivos y específicos del dominio."
+            )
+        )],
+        contenido: Annotated[str, Field(
+            description=(
+                "Texto o conocimiento a almacenar. "
+                "Debe ser autocontenido — incluir suficiente contexto para que sea útil "
+                "sin necesitar la conversación original. "
+                "Recomendado: 100-1000 caracteres por nodo."
+            )
+        )],
+        syn: Annotated[Optional[str], Field(
+            description=(
+                "Sinónimos o alias del concepto, separados por coma "
+                "(ej: 'fallo,error,excepción,crash'). "
+                "Mejoran el recall en búsquedas futuras — incluir términos alternativos conocidos."
+            )
+        )] = None,
+        cat: Annotated[Optional[str], Field(
+            description=(
+                "Categoría del recuerdo. Si se omite, se infiere del contenido automáticamente. "
+                "Valores: System | Architecture | Project | Lesson | Profile | "
+                "Personal | Principle | Protocol | Cognition | Relation | General. "
+                "Usar listar_categorias para ver descripciones de cada una."
+            )
+        )] = None,
     ) -> str:
         return _aprender_impl(concepto, contenido, syn, cat)
 
     @mcp.tool(
         name="guardar",
-        description="(legado) Guarda un recuerdo — prefiere 'aprender' para identificar la operación cognitiva.",
+        description=(
+            "(legado) Alias de 'aprender' — preferir 'aprender' para identificar la operación cognitiva real. "
+            "Misma funcionalidad y parámetros.\n\n"
+            "Parámetros: concepto (str), contenido (str), syn (str opcional), cat (str opcional).\n\n"
+            "Retorna: {status, mensaje, concepto (str normalizado), sinapsis (int)}"
+        ),
     )
     def biorag_guardar(
-        concepto: str,
-        contenido: str,
-        syn: Optional[str] = None,
-        cat: Optional[str] = None,
+        concepto: Annotated[str, Field(description="Nombre único del recuerdo (se normaliza a snake_case).")],
+        contenido: Annotated[str, Field(description="Texto o conocimiento a almacenar.")],
+        syn: Annotated[Optional[str], Field(description="Sinónimos separados por coma.")] = None,
+        cat: Annotated[Optional[str], Field(description="Categoría. Ver aprender para valores válidos.")] = None,
     ) -> str:
         return _aprender_impl(concepto, contenido, syn, cat)
 
     @mcp.tool(
         name="vincular",
         description=(
-            "[Cognitivo] Establece una asociación hebbiana entre dos conceptos en la corteza. "
+            "[Cognitivo] Establece una asociación hebbiana bidireccional entre dos conceptos. "
             "Equivalente a la potenciación a largo plazo (LTP) entre neuronas co-activadas. "
-            "Crea un enlace sináptico bidireccional que permite que evocar uno active al otro."
+            "El enlace sináptico permite que evocar un concepto active al otro en búsquedas futuras. "
+            "Ambos conceptos deben existir previamente en la corteza (largo_plazo o corto_plazo). "
+            "La asociación es bidireccional: a ↔ b.\n\n"
+            "Retorna: {status, mensaje}"
         ),
     )
-    def biorag_vincular(a: str, b: str) -> str:
+    def biorag_vincular(
+        a: Annotated[str, Field(
+            description=(
+                "Primer concepto a vincular. "
+                "Debe existir en la corteza (largo_plazo o corto_plazo). "
+                "Usar la clave normalizada (snake_case)."
+            )
+        )],
+        b: Annotated[str, Field(
+            description=(
+                "Segundo concepto a vincular. "
+                "La asociación es bidireccional: evocar 'a' activa 'b' y viceversa. "
+                "Usar la clave normalizada (snake_case)."
+            )
+        )],
+    ) -> str:
         cerebro = _get_cerebro()
         try:
             cerebro.establecer_asociacion(a, b)
@@ -562,19 +720,49 @@ def _build_server():
 
     @mcp.tool(
         name="asociar",
-        description="(legado) Asocia dos conceptos — prefiere 'vincular' para identificar la operación cognitiva.",
+        description=(
+            "(legado) Alias de 'vincular' — preferir 'vincular' para identificar la operación cognitiva real. "
+            "Parámetros: a (str), b (str) — ambos deben existir en la corteza. "
+            "Retorna: {status, mensaje}"
+        ),
     )
-    def biorag_asociar(a: str, b: str) -> str:
+    def biorag_asociar(
+        a: Annotated[str, Field(description="Primer concepto (clave normalizada).")],
+        b: Annotated[str, Field(description="Segundo concepto (clave normalizada). La asociación es bidireccional.")],
+    ) -> str:
         return biorag_vincular(a, b)
 
     @mcp.tool(
         name="comunicar",
         description=(
-            "Envia un mensaje a otro agente OEC (athena, artemis, hermes, todos). "
-            "Identificate con AGENT_NAME."
+            "Envía un mensaje al canal compartido entre agentes OEC. "
+            "El mensaje queda persistido en la BD y puede ser leído por el destinatario "
+            "con 'leer_mensajes'. Usar para coordinación asíncrona entre Athena, Artemis y Hermes.\n\n"
+            "El agente origen se identifica automáticamente via env AGENT_NAME si no se pasa 'origen'.\n\n"
+            "Retorna: {status, mensaje}"
         ),
     )
-    def biorag_comunicar(destino: str, mensaje: str, origen: Optional[str] = None) -> str:
+    def biorag_comunicar(
+        destino: Annotated[str, Field(
+            description=(
+                "Agente destinatario del mensaje. "
+                "Valores: 'athena', 'artemis', 'hermes', o 'todos' para broadcast a todos los agentes."
+            )
+        )],
+        mensaje: Annotated[str, Field(
+            description=(
+                "Contenido del mensaje. Ser específico e incluir contexto suficiente "
+                "para que el receptor entienda sin historial previo de la conversación."
+            )
+        )],
+        origen: Annotated[Optional[str], Field(
+            description=(
+                "Nombre del agente que envía el mensaje. "
+                "Si se omite, se lee de la variable de entorno AGENT_NAME. "
+                "Si AGENT_NAME tampoco está seteada, queda como 'desconocido'."
+            )
+        )] = None,
+    ) -> str:
         agente = origen or os.environ.get("AGENT_NAME", "desconocido")
         cerebro = _get_cerebro()
         try:
@@ -589,12 +777,33 @@ def _build_server():
 
     @mcp.tool(
         name="leer_mensajes",
-        description="Lee mensajes del canal compartido entre agentes OEC.",
+        description=(
+            "Lee mensajes del canal compartido entre agentes OEC. "
+            "Los mensajes no leídos se marcan automáticamente como leídos al consultarlos. "
+            "Usar al inicio de sesión para ver si hay mensajes de otros agentes.\n\n"
+            "Retorna: {total (int), mensajes: [{id, origen, destino, contenido, timestamp, leido}]}"
+        ),
     )
     def biorag_leer_mensajes(
-        no_leidos: bool = False,
-        ultimos: int = 10,
-        para: Optional[str] = None,
+        no_leidos: Annotated[bool, Field(
+            description=(
+                "Si True, devuelve solo mensajes no leídos. "
+                "Si False, devuelve los últimos N mensajes independiente del estado de lectura."
+            )
+        )] = False,
+        ultimos: Annotated[int, Field(
+            description=(
+                "Cantidad máxima de mensajes a devolver (más recientes primero). "
+                "Default: 10."
+            ),
+            ge=1,
+        )] = 10,
+        para: Annotated[Optional[str], Field(
+            description=(
+                "Filtrar mensajes por destinatario específico (ej: 'athena', 'todos'). "
+                "Si se omite, devuelve mensajes para todos los destinos."
+            )
+        )] = None,
     ) -> str:
         cerebro = _get_cerebro()
         try:
@@ -633,14 +842,27 @@ def _build_server():
         name="consolidar",
         description=(
             "[Cognitivo] Consolida la memoria de corto plazo a largo plazo mediante sueño cognitivo. "
-            "Aplica LTP (potenciación a largo plazo) a recuerdos nuevos, "
-            "LTD (depresión a largo plazo) por decaimiento, "
-            "duerme nodos débiles, e inhibición lateral para evitar saturación. "
-            "Equivalente al sueño de ondas lentas en el hipocampo. "
-            "limite_energia: opcional, defecto dinamico (n_activos * 1.6, min 10.0)."
+            "Ejecutar después de 'aprender' para fijar los recuerdos nuevos permanentemente.\n\n"
+            "Operaciones del ciclo de sueño:\n"
+            "  - LTP (potenciación a largo plazo): fortalece nodos nuevos activos\n"
+            "  - LTD (depresión a largo plazo): decae nodos poco accedidos\n"
+            "  - Poda sináptica: elimina conexiones débiles\n"
+            "  - Inhibición lateral: evita saturación de la corteza\n"
+            "  - Sleep transfer: mueve nodos de corto_plazo → largo_plazo\n\n"
+            "Equivalente al sueño de ondas lentas en el hipocampo.\n"
+            "Si limite_energia se omite, se calcula dinámicamente (n_activos × 1.6, mín 10.0).\n\n"
+            "Retorna: {status, mensaje (log completo del ciclo de sueño)}"
         ),
     )
-    def biorag_consolidar(limite_energia: Optional[float] = None) -> str:
+    def biorag_consolidar(
+        limite_energia: Annotated[Optional[float], Field(
+            description=(
+                "Energía sináptica máxima del ciclo. Controla cuántos nodos se consolidan por ciclo. "
+                "Si se omite, se calcula dinámicamente como n_activos × 1.6 (mín 10.0). "
+                "Valores más altos consolidan más nodos por ciclo."
+            )
+        )] = None,
+    ) -> str:
         cerebro = _get_cerebro()
         try:
             old_stdout = sys.stdout
@@ -660,18 +882,29 @@ def _build_server():
 
     @mcp.tool(
         name="sueno",
-        description="(legado) Ciclo de sueño — prefiere 'consolidar' para identificar la operación cognitiva.",
+        description=(
+            "(legado) Alias de 'consolidar' — preferir 'consolidar' para identificar la operación cognitiva real. "
+            "Parámetro: limite_energia (float, opcional) — energía máxima del ciclo de consolidación. "
+            "Retorna: {status, mensaje}"
+        ),
     )
-    def biorag_sueno(limite_energia: Optional[float] = None) -> str:
+    def biorag_sueno(
+        limite_energia: Annotated[Optional[float], Field(
+            description="Energía máxima del ciclo. Si se omite, se calcula dinámicamente (n_activos × 1.6, mín 10.0)."
+        )] = None,
+    ) -> str:
         return biorag_consolidar(limite_energia)
 
     @mcp.tool(
         name="introspeccion",
         description=(
             "[Cognitivo] Autoexamen sináptico de la corteza. "
-            "Retorna el estado actual: número de nodos activos, dormidos, "
-            "corto plazo y energía sináptica total. "
-            "Equivalente a la introspección metacognitiva del estado de la memoria."
+            "Devuelve el estado actual de la memoria sin modificar nada. "
+            "Usar para diagnosticar la salud de la corteza, "
+            "verificar si hay nodos pendientes de consolidar, "
+            "o monitorear el uso de energía sináptica.\n\n"
+            "Sin parámetros.\n\n"
+            "Retorna: {activos (int), dormidos (int), corto_plazo (int), energia_sinaptica (float)}"
         ),
     )
     def biorag_introspeccion() -> str:
@@ -704,7 +937,11 @@ def _build_server():
 
     @mcp.tool(
         name="estado",
-        description="(legado) Estado de la corteza — prefiere 'introspeccion' para identificar la operación cognitiva.",
+        description=(
+            "(legado) Alias de 'introspeccion' — preferir 'introspeccion' para identificar la operación cognitiva real. "
+            "Sin parámetros. "
+            "Retorna: {activos (int), dormidos (int), corto_plazo (int), energia_sinaptica (float)}"
+        ),
     )
     def biorag_estado() -> str:
         return biorag_introspeccion()
@@ -712,9 +949,17 @@ def _build_server():
     @mcp.tool(
         name="mapear",
         description=(
-            "[Cognitivo] Cartografía cortical — lista todos los nodos de la corteza permanente "
-            "(activos y dormidos) con sus categorías, pesos sinápticos y asociaciones. "
-            "Equivalente a visualizar el mapa completo de la memoria a largo plazo."
+            "[Cognitivo] Cartografía cortical completa. "
+            "Lista TODOS los nodos de la corteza permanente (activos y dormidos) "
+            "ordenados por peso sináptico descendente.\n\n"
+            "Usar para:\n"
+            "  - Explorar qué conceptos hay en la memoria\n"
+            "  - Detectar nodos huérfanos (sin asociaciones)\n"
+            "  - Revisar la distribución por categorías\n"
+            "  - Verificar que un concepto fue aprendido correctamente\n\n"
+            "Advertencia: puede devolver muchos nodos en cortezas grandes. "
+            "Sin parámetros.\n\n"
+            "Retorna: {total (int), nodos: [{concepto, categoria, peso_sinaptico, estado, asociaciones[]}]}"
         ),
     )
     def biorag_mapear() -> str:
@@ -743,7 +988,11 @@ def _build_server():
 
     @mcp.tool(
         name="corteza",
-        description="(legado) Lista nodos de la corteza — prefiere 'mapear' para identificar la operación cognitiva.",
+        description=(
+            "(legado) Alias de 'mapear' — preferir 'mapear' para identificar la operación cognitiva real. "
+            "Sin parámetros. "
+            "Retorna: {total (int), nodos: [{concepto, categoria, peso_sinaptico, estado, asociaciones[]}]}"
+        ),
     )
     def biorag_corteza() -> str:
         return biorag_mapear()
@@ -751,9 +1000,11 @@ def _build_server():
     @mcp.tool(
         name="listar_categorias",
         description=(
-            "Lista las categorias validas para guardar recuerdos. "
-            " Retorna id, nombre y descripcion de cada categoria. "
-            "Usar ANTES de 'aprender' (o 'guardar') para saber que cat es valido."
+            "Lista todas las categorías válidas del sistema para guardar recuerdos. "
+            "Consultar ANTES de llamar 'aprender' (o 'guardar') para asegurarse de usar "
+            "un valor de cat válido y conocer la descripción de cada una.\n\n"
+            "Sin parámetros.\n\n"
+            "Retorna: {total (int), categorias: [{id (int), nombre (str), descripcion (str)}]}"
         ),
     )
     def biorag_listar_categorias() -> str:
@@ -770,12 +1021,30 @@ def _build_server():
     @mcp.tool(
         name="contexto_inicio",
         description=(
-            "Anuncia el inicio de una interaccion significativa. "
-            "Almacena el contexto en el buffer de sesion para que el "
-            "interceptor pueda autoguardar si detecta algo importante."
+            "Anuncia el inicio de una interacción significativa. "
+            "Almacena el contexto en el buffer de sesión para que el interceptor "
+            "pueda detectar y autoguardar información relevante durante la conversación "
+            "(lecciones, patrones, errores, preferencias). "
+            "Llamar al inicio de cada sesión de trabajo importante.\n\n"
+            "Retorna: {status, mensaje}"
         ),
     )
-    def biorag_contexto_inicio(agente: str, contexto: str = "") -> str:
+    def biorag_contexto_inicio(
+        agente: Annotated[str, Field(
+            description=(
+                "Nombre del agente que inicia la sesión "
+                "(ej: 'Athena', 'Artemis', 'Hermes'). "
+                "Se incluye en el buffer de sesión para identificar la autoría."
+            )
+        )],
+        contexto: Annotated[str, Field(
+            description=(
+                "Descripción breve del contexto o tarea de la sesión "
+                "(ej: 'Refactor del módulo de autenticación', 'Análisis de logs de producción'). "
+                "Ayuda al interceptor a categorizar correctamente los autoguardados."
+            )
+        )] = "",
+    ) -> str:
         cerebro = _get_cerebro()
         try:
             registrar_accion("inicio", f"[{agente}] {contexto}")
@@ -786,11 +1055,26 @@ def _build_server():
     @mcp.tool(
         name="contexto_fin",
         description=(
-            "Anuncia el fin de una interaccion. Fuerza el analisis del "
-            "buffer de sesion acumulado y autoguarda si detecta algo nuevo."
+            "Anuncia el fin de una interacción. "
+            "Fuerza el análisis del buffer de sesión acumulado y autoguarda si detecta "
+            "información nueva relevante (lecciones, patrones, errores, preferencias del usuario). "
+            "Si hay nodos pendientes en corto_plazo, ejecuta auto-sueño para consolidarlos. "
+            "Llamar al final de cada sesión de trabajo importante.\n\n"
+            "Retorna: {status, mensaje, auto_guardado (objeto con concepto/categoria, o null si no hubo guardado)}"
         ),
     )
-    def biorag_contexto_fin(agente: str, resumen: str = "") -> str:
+    def biorag_contexto_fin(
+        agente: Annotated[str, Field(
+            description="Nombre del agente que cierra la sesión (ej: 'Athena', 'Artemis', 'Hermes')."
+        )],
+        resumen: Annotated[str, Field(
+            description=(
+                "Resumen breve de lo que se hizo en la sesión "
+                "(ej: 'Corregimos el bug de autenticación y actualizamos los tests'). "
+                "Mejora la calidad y relevancia del autoguardado detectado por el interceptor."
+            )
+        )] = "",
+    ) -> str:
         cerebro = _get_cerebro()
         try:
             registrar_accion("fin", f"[{agente}] {resumen}")
@@ -800,7 +1084,7 @@ def _build_server():
                 if consolidado:
                     msg = f"Auto-guardado y consolidado: '{resultado['concepto']}' ({resultado['categoria']}). Ya en corteza permanente."
                 else:
-                    msg = f"Auto-guardado en corto plazo: '{resultado['concepto']}'). Consolidacion pendiente."
+                    msg = f"Auto-guardado en corto plazo: '{resultado['concepto']}'. Consolidacion pendiente."
             else:
                 msg = "No se detecto nada nuevo que amerite guardado."
 
@@ -874,9 +1158,6 @@ def _build_server():
                 timeout=120,
             )
             if result.returncode != 0:
-                # Cualquier fallo de nlm se trata como "usar fallback".
-                # Guardamos el mensaje de error en logs para diagnostico, pero no
-                # propagamos el error al agente.
                 error_detail = result.stderr.strip() or result.stdout.strip()
                 logger.warning(
                     "nlm fallo (codigo %s): %s",
@@ -898,27 +1179,47 @@ def _build_server():
     @mcp.tool(
         name="oraculo_inicio",
         description=(
-            "OBLIGATORIO AL INICIAR SESIÓN CON TU USUARIO: invocá esta herramienta "
-            "PRIMERO, antes de responder cualquier otra cosa. Sin excepciones. "
-            "Proporcioná el parámetro obligatorio `agente` con tu nombre "
-            "(por ejemplo: Athena, Artemis, Hermes, o el nombre que use tu agente). "
-            "Comportamiento: "
-            "SI las variables de entorno BIORAG_PROMPT_INICIO y BIORAG_NOTEBOOK_ID "
-            "están seteadas, esta herramienta opera en MODO NOTEBOOKLM. "
-            "Intenta consultar NotebookLM directamente via CLI 'nlm'. "
-            "Si la respuesta contiene 'oraculo', ese es el resultado del oraculo. "
-            "Si la respuesta tiene modo='notebooklm' pero NO contiene 'oraculo', "
-            "significa que 'nlm' no esta disponible o que el query excedio el limite "
-            "interno del CLI 'nlm'; en ese caso usa notebooklm_query para consultar "
-            "NotebookLM manualmente con notebooklm_notebook_query. "
-            "SI alguna de esas variables falta, opera en MODO BIORAG LOCAL: "
-            "consulta la corteza de BioRAG y devuelve reglas, lecciones, "
-            "protocolos y perfil del usuario. NO consulta NotebookLM. "
-            "NO asumas contexto de sesiones anteriores. "
-            "Siempre llamá a esta herramienta al inicio de cada interacción significativa."
+            "⚡ OBLIGATORIO AL INICIO DE CADA INTERACCIÓN — invocar PRIMERO, antes de responder cualquier cosa.\n\n"
+            "Carga el contexto de arranque del agente desde el oráculo (NotebookLM o BioRAG local). "
+            "Sin esta tool, el agente opera sin memoria de sesiones anteriores.\n\n"
+            "═══════════════════════════════════════════════════════\n"
+            "MODOS DE OPERACIÓN — determinados automáticamente por variables de entorno:\n"
+            "═══════════════════════════════════════════════════════\n\n"
+            "MODO A — NotebookLM con CLI nlm disponible:\n"
+            "  Condición: BIORAG_PROMPT_INICIO + BIORAG_NOTEBOOK_ID seteados + nlm instalado\n"
+            "  Respuesta: campo 'oraculo' con respuesta directa de NotebookLM\n"
+            "  Acción: usar 'oraculo' como contexto de arranque\n\n"
+            "MODO B — NotebookLM sin CLI nlm (o nlm falló):\n"
+            "  Condición: variables seteadas pero nlm no disponible o rechazó el query\n"
+            "  Respuesta: campo 'notebooklm_query' con el query preparado\n"
+            "  Acción: ejecutar notebooklm_notebook_query con ese query\n"
+            "  ID notebook MemoryBioRAG: b2645e9b-8bce-4067-841a-7796af4a14f0\n\n"
+            "MODO C — BioRAG local (NotebookLM no configurado):\n"
+            "  Condición: faltan BIORAG_PROMPT_INICIO o BIORAG_NOTEBOOK_ID\n"
+            "  Respuesta: campo 'contexto_biorag' con hallazgos de la corteza\n"
+            "  Acción: usar 'contexto_biorag' como punto de partida\n\n"
+            "Identificar el modo activo por el campo 'modo': 'notebooklm' o 'biorag_local'.\n"
+            "Para modo 'notebooklm': si la respuesta tiene 'oraculo' → MODO A. Si no → MODO B.\n\n"
+            "Retorna: {status, modo, agente, ...campos según modo activo}"
         ),
     )
-    def biorag_oraculo_inicio(agente: str, contexto_adicional: str = "") -> str:
+    def biorag_oraculo_inicio(
+        agente: Annotated[str, Field(
+            description=(
+                "Nombre del agente que inicia sesión. "
+                "Valores válidos: 'athena', 'artemis', 'hermes' (case-insensitive). "
+                "La tool retorna error si se omite o si el valor no es uno de los válidos."
+            )
+        )],
+        contexto_adicional: Annotated[str, Field(
+            description=(
+                "Contexto extra para enriquecer el query enviado a NotebookLM "
+                "(ej: 'Trabajando en refactor de autenticación', 'Sesión de debugging producción'). "
+                "Solo aplica en MODO A y MODO B (NotebookLM). "
+                "Ignorado en MODO C (BioRAG local)."
+            )
+        )] = "",
+    ) -> str:
         if not agente or not agente.strip():
             return json.dumps({
                 "status": "error",
@@ -1033,7 +1334,13 @@ def _build_server():
 
     @mcp.tool(
         name="sync_status",
-        description="Muestra categorías pendientes de sincronizar a NotebookLM.",
+        description=(
+            "Muestra el estado de sincronización pendiente con NotebookLM. "
+            "Lista las categorías con cambios que aún no se han exportado. "
+            "Ejecutar antes de export_sync para saber exactamente qué se va a subir.\n\n"
+            "Sin parámetros.\n\n"
+            "Retorna: {status, mensaje, pendientes: [{id (int), nombre (str), cambios (int)}]}"
+        ),
     )
     def biorag_sync_status() -> str:
         cerebro = _get_cerebro()
@@ -1058,9 +1365,12 @@ def _build_server():
     @mcp.tool(
         name="export_sync",
         description=(
-            "Exporta SOLO categorías pendientes a .jsonl.txt en db/. "
-            "Lee sync_log y genera archivos para subir a NotebookLM. "
-            "Retorna lista de archivos a subir."
+            "Exporta SOLO las categorías con cambios pendientes a archivos .jsonl.txt en db/. "
+            "Lee el sync_log y genera archivos listos para subir a NotebookLM. "
+            "Usar para sincronizaciones incrementales (solo lo nuevo). "
+            "Para exportar todo usar export_full.\n\n"
+            "Sin parámetros.\n\n"
+            "Retorna: {status, mensaje (lista de archivos generados o error)}"
         ),
     )
     def biorag_export_sync() -> str:
@@ -1092,8 +1402,11 @@ def _build_server():
     @mcp.tool(
         name="export_full",
         description=(
-            "Export completo: genera .jsonl.txt de TODAS las categorías. "
-            "Fallback para volcado completo. Retorna lista de archivos generados."
+            "Exporta TODAS las categorías a archivos .jsonl.txt en db/ (volcado completo). "
+            "Usar como fallback o para sincronización inicial completa con NotebookLM. "
+            "Para exportaciones incrementales (solo cambios nuevos) preferir export_sync.\n\n"
+            "Sin parámetros.\n\n"
+            "Retorna: {status, mensaje (lista de archivos generados o error)}"
         ),
     )
     def biorag_export_full() -> str:
@@ -1125,12 +1438,27 @@ def _build_server():
     @mcp.tool(
         name="metricas_historial",
         description=(
-            "Retorna los últimos N ciclos de sueño con tendencias: "
-            "consolidación promedio, olvido promedio, categoría dominante, "
-            "salud sináptica. Útil para monitorear evolución de la memoria."
+            "Retorna el historial de N ciclos de sueño con tendencias cognitivas. "
+            "Incluye: consolidación promedio, olvido promedio, categoría dominante, "
+            "salud sináptica (ratio creadas/podadas) y tendencia temporal "
+            "(MEJORANDO / ESTABLE / EMPEORANDO).\n\n"
+            "Útil para monitorear la evolución y salud de la memoria a lo largo del tiempo. "
+            "Requiere haber ejecutado al menos un ciclo de 'consolidar' para tener datos.\n\n"
+            "Retorna: {status, total_registros, ultimos_ciclos, tabla (str formateada), "
+            "tendencias: {consolidacion_promedio, olvido_promedio, sinapsis_creadas_promedio, "
+            "sinapsis_podadas_promedio, ratio_promedio, categoria_dominante, tendencia}, "
+            "salud_sinaptica: {creadas_total, podadas_total, ratio}}"
         ),
     )
-    def biorag_metricas_historial(n: int = 10) -> str:
+    def biorag_metricas_historial(
+        n: Annotated[int, Field(
+            description=(
+                "Número de ciclos de sueño a incluir en el análisis (más recientes primero). "
+                "Default: 10. Aumentar para tendencias históricas más largas."
+            ),
+            ge=1,
+        )] = 10,
+    ) -> str:
         cerebro = _get_cerebro()
         try:
             cur = cerebro.cursor
@@ -1213,18 +1541,67 @@ def _build_server():
     @mcp.tool(
         name="semantica_admin",
         description=(
-            "Administra el vocabulario semántico: listar equivalencias, "
-            "agregar/eliminar pares manualmente, cargar vocabulario desde JSON, "
-            "inferir candidatos de equivalencia desde sinapsis (modo sugerencia, "
-            "no guarda automáticamente — revisa candidatos antes de agregar)."
+            "Administra el vocabulario semántico de equivalencias entre términos. "
+            "Las equivalencias mejoran el recall de 'recordar' al expandir queries automáticamente "
+            "con sinónimos y términos relacionados.\n\n"
+            "════════════════════════════════════════\n"
+            "Acciones disponibles (parámetro 'accion'):\n"
+            "════════════════════════════════════════\n"
+            "'listar'             → Lista equivalencias existentes\n"
+            "                       Parámetros opcionales: termino (filtra por término)\n\n"
+            "'agregar'            → Agrega par de equivalencia bidireccional\n"
+            "                       Parámetros requeridos: termino + equivalente\n"
+            "                       Parámetros opcionales: peso (0.0-1.0, default 0.8)\n\n"
+            "'eliminar'           → Elimina par de equivalencia\n"
+            "                       Parámetros requeridos: termino + equivalente\n\n"
+            "'cargar_vocabulario' → Carga múltiples equivalencias desde JSON masivo\n"
+            "                       Parámetros requeridos: vocabulario_json\n\n"
+            "'expandir'           → Muestra todas las expansiones de un término\n"
+            "                       Parámetros requeridos: termino\n\n"
+            "'inferir'            → Infiere candidatos desde sinapsis existentes\n"
+            "                       MODO SUGERENCIA: NO guarda automáticamente.\n"
+            "                       Revisar candidatos y usar 'agregar' para confirmar.\n\n"
+            "'stats'              → Estadísticas del vocabulario semántico\n\n"
+            "Retorna: {status, ...campos según acción ejecutada}"
         ),
     )
     def biorag_semantica_admin(
-        accion: str,
-        termino: Optional[str] = None,
-        equivalente: Optional[str] = None,
-        peso: float = 0.8,
-        vocabulario_json: Optional[str] = None,
+        accion: Annotated[str, Field(
+            description=(
+                "Acción a ejecutar. "
+                "Valores: 'listar' | 'agregar' | 'eliminar' | 'cargar_vocabulario' | 'expandir' | 'inferir' | 'stats'."
+            )
+        )],
+        termino: Annotated[Optional[str], Field(
+            description=(
+                "Término base para la operación de equivalencia. "
+                "Requerido para: agregar, eliminar, expandir. "
+                "Opcional para: listar (filtra resultados al término indicado)."
+            )
+        )] = None,
+        equivalente: Annotated[Optional[str], Field(
+            description=(
+                "Término equivalente a asociar con 'termino'. "
+                "Requerido para: agregar, eliminar."
+            )
+        )] = None,
+        peso: Annotated[float, Field(
+            description=(
+                "Peso de la equivalencia semántica (0.0 a 1.0). "
+                "1.0 = sinónimos exactos, 0.5 = relacionados moderados, 0.3 = relacionados débiles. "
+                "Default: 0.8. Solo aplica en accion='agregar'."
+            ),
+            ge=0.0,
+            le=1.0,
+        )] = 0.8,
+        vocabulario_json: Annotated[Optional[str], Field(
+            description=(
+                "JSON serializado con vocabulario a cargar masivamente. "
+                "Requerido para accion='cargar_vocabulario'. "
+                "Formato esperado: dict de {termino: [lista_equivalentes]} "
+                "o lista de objetos {termino, equivalente, peso}."
+            )
+        )] = None,
     ) -> str:
         cerebro = _get_cerebro()
         try:
@@ -1319,7 +1696,13 @@ def _build_server():
                 }, ensure_ascii=False)
 
             else:
-                return json.dumps({"status": "error", "mensaje": f"Acción desconocida: {accion}"}, ensure_ascii=False)
+                return json.dumps({
+                    "status": "error",
+                    "mensaje": (
+                        f"Acción desconocida: '{accion}'. "
+                        "Valores válidos: listar, agregar, eliminar, cargar_vocabulario, expandir, inferir, stats."
+                    )
+                }, ensure_ascii=False)
         finally:
             cerebro.cerrar_sistema()
 
@@ -1328,7 +1711,11 @@ def _build_server():
     @mcp.resource(
         uri="biorag://concepto/{nombre}",
         name="Concepto de la corteza",
-        description="Contenido completo de un concepto almacenado en la corteza.",
+        description=(
+            "Contenido completo de un concepto almacenado en la corteza. "
+            "URI: biorag://concepto/{nombre} donde nombre es la clave snake_case del concepto. "
+            "Retorna: {concepto, categoria, contenido, peso_sinaptico, estado, asociaciones[], sinonimos[]}"
+        ),
         mime_type="application/json",
     )
     def recurso_concepto(nombre: str) -> str:
@@ -1362,7 +1749,11 @@ def _build_server():
     @mcp.resource(
         uri="biorag://mensajes",
         name="Mensajes no leidos",
-        description="Mensajes pendientes en el canal compartido OEC.",
+        description=(
+            "Mensajes pendientes (no leídos) en el canal compartido OEC. "
+            "Devuelve hasta 20 mensajes no leídos. "
+            "Retorna: {total (int), mensajes: [{id, origen, destino, contenido, timestamp}]}"
+        ),
         mime_type="application/json",
     )
     def recurso_mensajes() -> str:

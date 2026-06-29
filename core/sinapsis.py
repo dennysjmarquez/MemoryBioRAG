@@ -54,8 +54,6 @@ def auto_vincular(cerebro, concepto, contenido, umbral=0.3):
     if not concepto and not contenido:
         return []
 
-    init_sinapsis_table(cerebro.cursor)
-
     tokens_nuevos = _tokenizar(concepto + " " + contenido)
     if not tokens_nuevos or len(tokens_nuevos) < 2:
         return []
@@ -197,8 +195,6 @@ def auto_vincular(cerebro, concepto, contenido, umbral=0.3):
 
 
 def buscar_vecinos(cerebro, concepto, profundo=False, max_vecinos=5):
-    init_sinapsis_table(cerebro.cursor)
-
     if profundo:
         resultado = cerebro.buscar_recuerdo_profundo(concepto)
     else:
@@ -241,7 +237,6 @@ def buscar_vecinos(cerebro, concepto, profundo=False, max_vecinos=5):
 
 
 def vincular_nuevo_si_existe(cerebro, concepto):
-    init_sinapsis_table(cerebro.cursor)
     cerebro.cursor.execute(
         "SELECT contenido FROM largo_plazo WHERE concepto = ? AND estado = 'activo'",
         (concepto,)
@@ -254,8 +249,6 @@ def vincular_nuevo_si_existe(cerebro, concepto):
 
 def vincular_por_sinonimos(cerebro, concepto, sinonimos, peso=0.9):
     """Crea aristas en sinapsis para sinonimos explicitos declarados por el usuario."""
-    init_sinapsis_table(cerebro.cursor)
-
     terminos = [s.strip().lower() for s in sinonimos.split(",") if s.strip()]
     if not terminos:
         return []
@@ -278,45 +271,3 @@ def vincular_por_sinonimos(cerebro, concepto, sinonimos, peso=0.9):
     if vinculados:
         cerebro.cursor.connection.commit()
     return vinculados
-
-
-def vincular_existentes(cerebro, umbral=0.3):
-    """Ejecuta auto-linking retroactivo entre todos los pares de nodos existentes en largo_plazo.
-    Puebla el grafo sináptico con aristas faltantes. Se ejecuta una sola vez como migración."""
-    init_sinapsis_table(cerebro.cursor)
-    cerebro.cursor.execute(
-        "SELECT concepto, contenido FROM largo_plazo WHERE estado = 'activo'"
-    )
-    todos = cerebro.cursor.fetchall()
-    total_enlaces = 0
-    for concepto, contenido in todos:
-        enlaces = auto_vincular(cerebro, concepto, contenido, umbral)
-        total_enlaces += len(enlaces)
-    return total_enlaces
-
-
-def migrar_desde_csv(cerebro):
-    init_sinapsis_table(cerebro.cursor)
-
-    cerebro.cursor.execute(
-        "SELECT concepto, asociaciones FROM largo_plazo "
-        "WHERE asociaciones IS NOT NULL AND asociaciones != ''"
-    )
-    nodos_con_asociaciones = cerebro.cursor.fetchall()
-
-    contador = 0
-    for concepto, csv_asoc in nodos_con_asociaciones:
-        for destino in csv_asoc.split(","):
-            destino = destino.strip()
-            if not destino:
-                continue
-            cerebro.cursor.execute(
-                "INSERT OR IGNORE INTO sinapsis (origen, destino, peso, tipo, creado_en) "
-                "VALUES (?, ?, 0.8, 'legacy_csv', ?)",
-                (concepto, destino, time.time())
-            )
-            contador += 1
-
-    if contador:
-        cerebro.cursor.connection.commit()
-    return contador
