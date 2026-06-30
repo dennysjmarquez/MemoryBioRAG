@@ -746,7 +746,7 @@ El agente sigue este flujo obligatorio al buscar:
 
 ## Historial de Versiones
 
-### v10.4 — Etiquetado Emocional e Indexación Semántica (Junio 2026)
+### v11.1 — Etiquetado Emocional e Indexación Semántica (Junio 2026)
 
 **Mapeo de estados de ánimo y boosting de relevancia conceptual en el ranking híbrido.**
 
@@ -764,7 +764,7 @@ El agente sigue este flujo obligatorio al buscar:
 - **Tests**: 72/72 pasando
 - **Producción**: 340 nodos, 15,521 sinapsis, 3,004 equivalencias, 58 grupos semánticos, 1,292 términos mapeados
 
-### v10.3 — Scoring por Densidad de Coincidencia (Junio 2026)
+### v11.0 — Scoring por Densidad de Coincidencia (Junio 2026)
 
 **El scoring de ráfaga ahora emula similitud coseno usando densidad de coincidencia.**
 
@@ -1146,7 +1146,7 @@ cp .env.example .env.local
 
 ## Producción
 
-| Métrica | v9.0 | v10.4 |
+| Métrica | v9.0 | v11.1 |
 |---|---|---|
 | Nodos activos | 135+ | 340 |
 | Nodos dormidos | 58+ | — |

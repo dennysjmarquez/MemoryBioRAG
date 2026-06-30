@@ -1,6 +1,6 @@
 # BioRAG Changelog
 
-## v10.4 (2026-06-29)
+## v11.1 (2026-06-29)
 
 ### Features
 - **Etiquetado Emocional y Cognitivo (Opción B)**: Integración nativa de etiquetas sinápticas estandarizadas (`emocion_afecto`, `emocion_frustracion`, `emocion_preocupacion`, `emocion_satisfaccion`) a través de la columna existente `sinonimos`.
@@ -13,7 +13,7 @@
 
 ---
 
-## v10.3 (2026-06-29)
+## v11.0 (2026-06-29)
 
 ### Features
 - **Indexación de concept_ids**: Indexación persistente de identificadores conceptuales únicos (`conceptos_ids`) basados en grupos conexos (Union-Find) de equivalencias semánticas.
