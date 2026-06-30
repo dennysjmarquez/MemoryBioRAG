@@ -3,8 +3,8 @@
 ======================================================================
   Archivo DB:    memory_biorag.db
   Ruta (relativa): MemoryBioRAG_Data/memory_biorag.db
-  Generado:      2026-06-25 11:10:49
-  Tamaño DB:     8,237,056 bytes (8044.0 KB)
+  Generado:      2026-06-29 18:57:43
+  Tamaño DB:     12,206,080 bytes (11920.0 KB)
 ======================================================================
 
 Este archivo es un blueprint autodescriptivo generado automáticamente por
@@ -32,7 +32,7 @@ CREATE TABLE categories (
                 description TEXT DEFAULT ''
             , decay_rate REAL DEFAULT 1.0);
 
--- comunicaciones (74 filas)
+-- comunicaciones (75 filas)
 CREATE TABLE comunicaciones (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 origen TEXT NOT NULL,
@@ -52,7 +52,7 @@ CREATE TABLE corto_plazo (
                 categoria INTEGER DEFAULT 1
             );
 
--- largo_plazo (287 filas)
+-- largo_plazo (340 filas)
 CREATE TABLE largo_plazo (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 concepto TEXT UNIQUE NOT NULL,
@@ -79,7 +79,7 @@ CREATE TABLE largo_plazo_backup (
                 deleted_at REAL DEFAULT (strftime('%s','now'))
             );
 
--- largo_plazo_fts (287 filas)
+-- largo_plazo_fts (340 filas)
 CREATE VIRTUAL TABLE largo_plazo_fts USING fts5(
                     concepto,
                     contenido,
@@ -90,19 +90,19 @@ CREATE VIRTUAL TABLE largo_plazo_fts USING fts5(
 -- largo_plazo_fts_config (1 filas)
 CREATE TABLE 'largo_plazo_fts_config'(k PRIMARY KEY, v) WITHOUT ROWID;
 
--- largo_plazo_fts_content (287 filas)
+-- largo_plazo_fts_content (340 filas)
 CREATE TABLE 'largo_plazo_fts_content'(id INTEGER PRIMARY KEY, c0, c1, c2);
 
--- largo_plazo_fts_data (306 filas)
+-- largo_plazo_fts_data (439 filas)
 CREATE TABLE 'largo_plazo_fts_data'(id INTEGER PRIMARY KEY, block BLOB);
 
--- largo_plazo_fts_docsize (287 filas)
+-- largo_plazo_fts_docsize (340 filas)
 CREATE TABLE 'largo_plazo_fts_docsize'(id INTEGER PRIMARY KEY, sz BLOB);
 
--- largo_plazo_fts_idx (304 filas)
+-- largo_plazo_fts_idx (436 filas)
 CREATE TABLE 'largo_plazo_fts_idx'(segid, term, pgno, PRIMARY KEY(segid, term)) WITHOUT ROWID;
 
--- largo_plazo_fts_unicode (287 filas)
+-- largo_plazo_fts_unicode (340 filas)
 CREATE VIRTUAL TABLE largo_plazo_fts_unicode USING fts5(
                     concepto,
                     contenido,
@@ -113,19 +113,19 @@ CREATE VIRTUAL TABLE largo_plazo_fts_unicode USING fts5(
 -- largo_plazo_fts_unicode_config (1 filas)
 CREATE TABLE 'largo_plazo_fts_unicode_config'(k PRIMARY KEY, v) WITHOUT ROWID;
 
--- largo_plazo_fts_unicode_content (287 filas)
+-- largo_plazo_fts_unicode_content (340 filas)
 CREATE TABLE 'largo_plazo_fts_unicode_content'(id INTEGER PRIMARY KEY, c0, c1, c2);
 
--- largo_plazo_fts_unicode_data (53 filas)
+-- largo_plazo_fts_unicode_data (79 filas)
 CREATE TABLE 'largo_plazo_fts_unicode_data'(id INTEGER PRIMARY KEY, block BLOB);
 
--- largo_plazo_fts_unicode_docsize (287 filas)
+-- largo_plazo_fts_unicode_docsize (340 filas)
 CREATE TABLE 'largo_plazo_fts_unicode_docsize'(id INTEGER PRIMARY KEY, sz BLOB);
 
--- largo_plazo_fts_unicode_idx (51 filas)
+-- largo_plazo_fts_unicode_idx (77 filas)
 CREATE TABLE 'largo_plazo_fts_unicode_idx'(segid, term, pgno, PRIMARY KEY(segid, term)) WITHOUT ROWID;
 
--- metricas_cognitivas (94 filas)
+-- metricas_cognitivas (129 filas)
 CREATE TABLE metricas_cognitivas (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 timestamp REAL NOT NULL,
@@ -137,7 +137,7 @@ CREATE TABLE metricas_cognitivas (
                 ratio_consolidacion REAL
             );
 
--- metricas_rendimiento (115 filas)
+-- metricas_rendimiento (150 filas)
 CREATE TABLE metricas_rendimiento (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 timestamp REAL NOT NULL,
@@ -149,7 +149,7 @@ CREATE TABLE metricas_rendimiento (
                 energia_sinaptica REAL NOT NULL
             );
 
--- semantica (2728 filas)
+-- semantica (3004 filas)
 CREATE TABLE semantica (
             termino TEXT NOT NULL,
             equivalente TEXT NOT NULL,
@@ -157,7 +157,7 @@ CREATE TABLE semantica (
             PRIMARY KEY (termino, equivalente)
         );
 
--- sinapsis (6432 filas)
+-- sinapsis (15521 filas)
 CREATE TABLE sinapsis (
             origen TEXT NOT NULL,
             destino TEXT NOT NULL,
@@ -315,32 +315,32 @@ ID   Nombre          Decay   Descripción
   ESTADÍSTICAS ACTUALES
 ======================================================================
 
-  Nodos totales:          287
-  Nodos activos:          193
-  Nodos dormidos:         94
-  Energía sináptica:      69.73
-  Aristas sinápticas:     6432
-  Equivalencias semánt.:  2728 (1175 términos únicos)
+  Nodos totales:          340
+  Nodos activos:          311
+  Nodos dormidos:         29
+  Energía sináptica:      119.88
+  Aristas sinápticas:     15521
+  Equivalencias semánt.:  3004 (1291 términos únicos)
   Entradas de backup:     1
   En corto plazo (pend.): 0
-  Comunicaciones totales: 74
+  Comunicaciones totales: 75
 
 
 --- DISTRIBUCIÓN POR CATEGORÍA ---
 
 Categoría       Total    Activos  Dormidos Peso Prom.
 -------------------------------------------------------
-Principle       57       57       0        0.43      
-Lesson          48       36       12       0.21      
-System          42       24       18       0.19      
-Project         36       17       19       0.18      
-Cognition       24       11       13       0.16      
-Architecture    20       11       9        0.24      
-Protocol        16       16       0        0.33      
-General         15       2        13       0.04      
-Relation        13       6        7        0.17      
-Profile         12       12       0        0.63      
-Personal        4        1        3        0.07      
+Principle       70       70       0        0.59      
+Lesson          56       53       3        0.3       
+System          47       38       9        0.27      
+Project         46       40       6        0.26      
+Architecture    29       29       0        0.33      
+Cognition       25       22       3        0.24      
+Protocol        19       19       0        0.31      
+General         16       14       2        0.1       
+Profile         14       14       0        0.87      
+Relation        13       10       3        0.2       
+Personal        5        2        3        0.14      
 
 
 ======================================================================
@@ -352,16 +352,18 @@ Personal        4        1        3        0.07
 
 Tipo                   Cantidad   Peso Prom.   Mín      Máx     
 ------------------------------------------------------------
-sinonimo_explicito     2558       0.9          0.9      0.9     
-co_ocurrencia          2099       0.677        0.3      1.0     
-rafaga_rememb          1678       0.642        0.57     0.95    
-legacy_csv             47         0.5          0.5      0.5     
-memoria_refleja        18         0.738        0.6      0.9     
-manual_v7              18         0.722        0.7      0.9     
-manual                 14         0.536        0.5      0.6     
+rafaga_rememb          9158       0.635        0.094    0.95    
+sinonimo_explicito     3068       0.9          0.9      0.95    
+co_ocurrencia          2941       0.592        0.075    1.0     
+co_nombre              225        0.416        0.27     0.9     
+manual                 33         0.457        0.215    0.5     
+legacy_csv             33         0.5          0.5      0.5     
+co_semantica           27         0.426        0.23     0.72    
+memoria_refleja        18         0.625        0.135    0.9     
+manual_v7              18         0.69         0.321    0.9     
 
-  Nodos origen únicos:  413
-  Nodos destino únicos: 287
+  Nodos origen únicos:  986
+  Nodos destino únicos: 343
 
 
 ======================================================================
@@ -370,20 +372,20 @@ manual                 14         0.536        0.5      0.6
 
 Fecha                  Consolid.  Dormidos   Sin.Crea.  Sin.Pod.   Cat.Dom.     Ratio   
 ----------------------------------------------------------------------------------
-2026-06-25 11:01       3          21         4          0          Principle    0.01    
-2026-06-25 10:57       2          19         29         0          Principle    0.01    
-2026-06-25 10:53       1          64         0          0          Principle    0.0     
-2026-06-25 09:46       1          6          0          0          Principle    0.0     
-2026-06-25 08:57       1          27         23         0          Principle    0.0     
+2026-06-29 16:51       1          40         2          0          Principle    0.0     
+2026-06-29 16:49       3          13         5          0          Principle    0.01    
+2026-06-29 16:31       2          91         5          0          Principle    0.01    
+2026-06-29 16:29       1          8          3          0          Principle    0.0     
+2026-06-29 15:32       2          20         4          0          Principle    0.01    
 
 
 --- MÉTRICAS DE RENDIMIENTO (últimas mediciones) ---
 
 Fecha                  Nodos   Act.   Dorm.   Latencia   DB Size      Energía 
 ------------------------------------------------------------------------
-2026-06-25 11:01       287     193    94      0.09       8044 KB      69.73   
-2026-06-25 10:57       286     213    73      0.12       8044 KB      77.49   
-2026-06-25 10:53       284     220    64      0.23       8044 KB      82.28   
+2026-06-29 16:51       340     277    63      0.09       11920 KB     108.18  
+2026-06-29 16:49       339     304    35      0.17       11920 KB     118.72  
+2026-06-29 16:31       336     219    117     0.20       11920 KB     97.43   
 
 
 ======================================================================

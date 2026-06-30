@@ -93,6 +93,29 @@ class SQLiteMemoryBioRAG:
             raise ValueError(f"Categoria '{nombre}' no existe. Validas: {validas}")
         return self._cat_cache[nombre]
 
+    def _obtener_conceptos_ids(self, concepto, contenido, sinonimos):
+        """ponytail: extracts tokens and returns space-separated concept group IDs"""
+        from core.semantica import _tokenizar
+        tokens = _tokenizar(f"{concepto} {contenido or ''} {sinonimos or ''}")
+        if not tokens:
+            return ""
+        placeholders = ",".join("?" * len(tokens))
+        self.cursor.execute(
+            f"SELECT DISTINCT grupo_id FROM grupo_terminos WHERE termino IN ({placeholders})",
+            tuple(tokens)
+        )
+        ids = sorted(row[0] for row in self.cursor.fetchall())
+        return " ".join(map(str, ids))
+
+    def regenerar_todos_conceptos_ids(self):
+        """ponytail: recalculates and updates conceptos_ids for all memories in largo_plazo"""
+        self.cursor.execute("SELECT concepto, contenido, sinonimos FROM largo_plazo")
+        rows = self.cursor.fetchall()
+        for concepto, contenido, sinonimos in rows:
+            c_ids = self._obtener_conceptos_ids(concepto, contenido, sinonimos)
+            self.cursor.execute("UPDATE largo_plazo SET conceptos_ids = ? WHERE concepto = ?", (c_ids, concepto))
+        self.conn.commit()
+
     def listar_categorias(self):
         self.cursor.execute("SELECT id, name, description FROM categories ORDER BY id")
         return self.cursor.fetchall()
@@ -174,6 +197,7 @@ class SQLiteMemoryBioRAG:
                 asociaciones TEXT DEFAULT '',
                 ultimo_acceso REAL,
                 sinonimos TEXT DEFAULT '',
+                conceptos_ids TEXT DEFAULT '',
                 FOREIGN KEY (categoria) REFERENCES categories(id)
             )
         """)
@@ -193,15 +217,16 @@ class SQLiteMemoryBioRAG:
                     estado TEXT DEFAULT 'activo',
                     asociaciones TEXT DEFAULT '',
                     ultimo_acceso REAL,
-                    sinonimos TEXT DEFAULT ''
+                    sinonimos TEXT DEFAULT '',
+                    conceptos_ids TEXT DEFAULT ''
                 )
             """)
             self.cursor.execute("""
-                INSERT INTO largo_plazo (concepto, categoria, contenido, peso_sinaptico, estado, asociaciones, ultimo_acceso, sinonimos)
+                INSERT INTO largo_plazo (concepto, categoria, contenido, peso_sinaptico, estado, asociaciones, ultimo_acceso, sinonimos, conceptos_ids)
                 SELECT concepto, COALESCE(categoria, 'general'), contenido,
                        COALESCE(peso_sinaptico, 1.0), COALESCE(estado, 'activo'),
                        COALESCE(asociaciones, ''), COALESCE(ultimo_acceso, 0),
-                       COALESCE(sinonimos, '')
+                       COALESCE(sinonimos, ''), ''
                 FROM largo_plazo_old
             """)
             self.cursor.execute("DROP TABLE largo_plazo_old")
@@ -211,6 +236,11 @@ class SQLiteMemoryBioRAG:
             # Migración segura: agregar columna sinonimos si la tabla existía sin ella
             try:
                 self.cursor.execute("ALTER TABLE largo_plazo ADD COLUMN sinonimos TEXT DEFAULT ''")
+            except sqlite3.OperationalError:
+                pass
+            # Migración segura: agregar columna conceptos_ids si la tabla existía sin ella
+            try:
+                self.cursor.execute("ALTER TABLE largo_plazo ADD COLUMN conceptos_ids TEXT DEFAULT ''")
             except sqlite3.OperationalError:
                 pass
 
@@ -328,17 +358,20 @@ class SQLiteMemoryBioRAG:
                     asociaciones TEXT DEFAULT '',
                     ultimo_acceso REAL,
                     sinonimos TEXT DEFAULT '',
+                    conceptos_ids TEXT DEFAULT '',
                     FOREIGN KEY (categoria) REFERENCES categories(id)
                 )
             """)
-            cur.execute("""
-                INSERT INTO largo_plazo (id, concepto, categoria, contenido, peso_sinaptico, estado, asociaciones, ultimo_acceso, sinonimos)
+            old_has_concept_ids = 'conceptos_ids' in lp_cols
+            select_concept_ids = "COALESCE(conceptos_ids, '')" if old_has_concept_ids else "''"
+            cur.execute(f"""
+                INSERT INTO largo_plazo (id, concepto, categoria, contenido, peso_sinaptico, estado, asociaciones, ultimo_acceso, sinonimos, conceptos_ids)
                 SELECT id, concepto,
                        COALESCE((SELECT id FROM categories WHERE name = largo_plazo_old.categoria), 1),
                        contenido,
                        COALESCE(peso_sinaptico, 1.0), COALESCE(estado, 'activo'),
                        COALESCE(asociaciones, ''), COALESCE(ultimo_acceso, 0),
-                       COALESCE(sinonimos, '')
+                       COALESCE(sinonimos, ''), {select_concept_ids}
                 FROM largo_plazo_old
             """)
             cur.execute("DROP TABLE largo_plazo_old")
@@ -348,15 +381,25 @@ class SQLiteMemoryBioRAG:
         self._crear_tabla_comunicaciones()
         self._crear_tabla_fts()
         self._crear_tabla_metricas()
-        # Vistas para visualización con nombre de categoría
+        
+        # Self-healing: regenerar conceptos_ids si hay alguno vacío y tenemos semántica
+        cur.execute("SELECT COUNT(*) FROM largo_plazo WHERE conceptos_ids IS NULL OR conceptos_ids = ''")
+        if cur.fetchone()[0] > 0:
+            cur.execute("SELECT COUNT(*) FROM semantica")
+            if cur.fetchone()[0] > 0:
+                self.regenerar_todos_conceptos_ids()
+
+        # Vistas para visualización con nombre de categoría (drop & recreate para reflejar cambios de esquema)
+        self.cursor.execute("DROP VIEW IF EXISTS vista_largo_plazo")
         self.cursor.execute("""
-            CREATE VIEW IF NOT EXISTS vista_largo_plazo AS
+            CREATE VIEW vista_largo_plazo AS
             SELECT l.*, c.name AS categoria_name
             FROM largo_plazo l
             LEFT JOIN categories c ON l.categoria = c.id
         """)
+        self.cursor.execute("DROP VIEW IF EXISTS vista_corto_plazo")
         self.cursor.execute("""
-            CREATE VIEW IF NOT EXISTS vista_corto_plazo AS
+            CREATE VIEW vista_corto_plazo AS
             SELECT cp.*, c.name AS categoria_name
             FROM corto_plazo cp
             LEFT JOIN categories c ON cp.categoria = c.id
@@ -758,11 +801,15 @@ class SQLiteMemoryBioRAG:
         if not fila:
             return False
         contenido, sinonimos, cat_id = fila
+        
+        # Calculate concept group IDs
+        conceptos_ids = self._obtener_conceptos_ids(key, contenido, sinonimos)
+        
         self.cursor.execute(
             "INSERT OR REPLACE INTO largo_plazo "
-            "(concepto, categoria, contenido, peso_sinaptico, estado, sinonimos) "
-            "VALUES (?, ?, ?, 1.0, 'activo', ?)",
-            (key, cat_id, contenido, sinonimos or ""),
+            "(concepto, categoria, contenido, peso_sinaptico, estado, sinonimos, conceptos_ids) "
+            "VALUES (?, ?, ?, 1.0, 'activo', ?, ?)",
+            (key, cat_id, contenido, sinonimos or "", conceptos_ids),
         )
         self.cursor.execute("DELETE FROM corto_plazo WHERE concepto = ?", (key,))
         self.conn.commit()
@@ -886,17 +933,22 @@ class SQLiteMemoryBioRAG:
                 sinonimos_nuevos = [s.strip() for s in (sinonimos or "").split(",") if s.strip() and s.strip() not in sinonimos_exist]
                 sinonimos_final = ",".join(sinonimos_exist + sinonimos_nuevos)
                 cat_id = existente[4] or cat_id
+                
+                # Calculate concept group IDs
+                conceptos_ids = self._obtener_conceptos_ids(concepto, nuevo_contenido, sinonimos_final)
+                
                 self.cursor.execute("""
                     UPDATE largo_plazo 
-                    SET contenido = ?, peso_sinaptico = ?, estado = 'activo', ultimo_acceso = ?, sinonimos = ?, categoria = ?
+                    SET contenido = ?, peso_sinaptico = ?, estado = 'activo', ultimo_acceso = ?, sinonimos = ?, categoria = ?, conceptos_ids = ?
                     WHERE concepto = ?
-                """, (nuevo_contenido, nuevo_peso, time.time(), sinonimos_final, cat_id, concepto))
+                """, (nuevo_contenido, nuevo_peso, time.time(), sinonimos_final, cat_id, conceptos_ids, concepto))
             else:
                 # Creación de un nuevo nodo en el grafo con peso inicial máximo
+                conceptos_ids = self._obtener_conceptos_ids(concepto, contenido, sinonimos)
                 self.cursor.execute("""
-                    INSERT INTO largo_plazo (concepto, categoria, contenido, peso_sinaptico, estado, asociaciones, ultimo_acceso, sinonimos)
-                    VALUES (?, ?, ?, 1.0, 'activo', '', ?, ?)
-                """, (concepto, cat_id or 1, contenido, time.time(), sinonimos or ""))
+                    INSERT INTO largo_plazo (concepto, categoria, contenido, peso_sinaptico, estado, asociaciones, ultimo_acceso, sinonimos, conceptos_ids)
+                    VALUES (?, ?, ?, 1.0, 'activo', '', ?, ?, ?)
+                """, (concepto, cat_id or 1, contenido, time.time(), sinonimos or "", conceptos_ids))
 
             # Borrar de corto_plazo después de consolidar (para que LTD lo incluya)
             self.cursor.execute("DELETE FROM corto_plazo WHERE concepto = ?", (concepto,))
@@ -1511,6 +1563,18 @@ class SQLiteMemoryBioRAG:
         if not frase.strip():
             return [], 0
 
+        # Obtener conceptos_ids de la frase de búsqueda para aplicar el multiplicador dinámico
+        from core.semantica import _tokenizar
+        q_tokens = _tokenizar(frase)
+        query_conceptos_ids = set()
+        if q_tokens:
+            placeholders = ",".join("?" * len(q_tokens))
+            self.cursor.execute(
+                f"SELECT DISTINCT grupo_id FROM grupo_terminos WHERE termino IN ({placeholders})",
+                tuple(q_tokens)
+            )
+            query_conceptos_ids = {row[0] for row in self.cursor.fetchall()}
+
         # Limpiar la frase para FTS5 trigram
         query = frase.strip()
 
@@ -1529,7 +1593,7 @@ class SQLiteMemoryBioRAG:
         # Construir consulta desde la frase limpia
         sql = """
             SELECT l.rowid, l.concepto, l.contenido, l.peso_sinaptico,
-                   l.estado, l.asociaciones
+                   l.estado, l.asociaciones, l.conceptos_ids
             FROM largo_plazo_fts f
             JOIN largo_plazo l ON l.rowid = f.rowid
             WHERE largo_plazo_fts MATCH ?{filtro}
@@ -1559,7 +1623,7 @@ class SQLiteMemoryBioRAG:
             clause_like = clause.replace("l.", "") if clause else ""
             sql_like = f"""
                 SELECT l.rowid, l.concepto, l.contenido, l.peso_sinaptico,
-                       l.estado, l.asociaciones
+                       l.estado, l.asociaciones, l.conceptos_ids
                 FROM largo_plazo l
                 WHERE {like_where}{clause_like}
             """
@@ -1684,7 +1748,7 @@ class SQLiteMemoryBioRAG:
                 query_wild = self._agregar_prefix_wildcards(query)
                 sql_unicode = """
                     SELECT l.rowid, l.concepto, l.contenido, l.peso_sinaptico,
-                           l.estado, l.asociaciones
+                           l.estado, l.asociaciones, l.conceptos_ids
                     FROM largo_plazo_fts_unicode f
                     JOIN largo_plazo l ON l.rowid = f.rowid
                     WHERE largo_plazo_fts_unicode MATCH ?{filtro}
@@ -1759,7 +1823,7 @@ class SQLiteMemoryBioRAG:
                         fts_q = " OR ".join(fts_tokens)
                         self.cursor.execute(
                             "SELECT l.rowid, l.concepto, l.contenido, l.peso_sinaptico, "
-                            "l.estado, l.asociaciones "
+                            "l.estado, l.asociaciones, l.conceptos_ids "
                             "FROM largo_plazo_fts f JOIN largo_plazo l ON l.rowid = f.rowid "
                             "WHERE largo_plazo_fts MATCH ? AND l.estado = 'activo' LIMIT ?",
                             (fts_q, CANDIDATOS_SIMILITUD)
@@ -1767,12 +1831,12 @@ class SQLiteMemoryBioRAG:
                         candidatos_lat = self.cursor.fetchall()
                         scored = []
                         seen_rowids = {r[0] for r in todos}
-                        for rowid, concepto, contenido, peso, estado, asoc in candidatos_lat:
+                        for rowid, concepto, contenido, peso, estado, asoc, conceptos_ids in candidatos_lat:
                             if rowid in seen_rowids:
                                 continue
                             s = score_similitud_latente(self.cursor, query_tokens, concepto, contenido, grafo=grafo, nodos_cache=nodos_cache)
                             if s >= 0.15:
-                                scored.append((s, (rowid, concepto, contenido, peso, estado, asoc or "")))
+                                scored.append((s, (rowid, concepto, contenido, peso, estado, asoc or "", conceptos_ids)))
                         scored.sort(key=lambda x: x[0], reverse=True)
                         for jaccard_score, row in scored[:LIMITE_SIMILITUD]:
                             todos.append(row)
@@ -1797,14 +1861,14 @@ class SQLiteMemoryBioRAG:
             where_fb = "WHERE " + " AND ".join(filtros_fb)
             try:
                 self.cursor.execute(
-                    f"SELECT rowid, concepto, contenido, peso_sinaptico, estado, asociaciones FROM largo_plazo {where_fb}",
+                    f"SELECT rowid, concepto, contenido, peso_sinaptico, estado, asociaciones, conceptos_ids FROM largo_plazo {where_fb}",
                     (query.lower(),)
                 )
                 filas = self.cursor.fetchall()
                 seen_rowids = {r[0] for r in todos}
                 for row in filas:
                     if row[0] not in seen_rowids:
-                        todos.append((row[0], row[1], row[2], row[3], row[4], row[5]))
+                        todos.append(row)
                 todos = todos[:50]
             except sqlite3.OperationalError:
                 pass
@@ -1824,7 +1888,7 @@ class SQLiteMemoryBioRAG:
             where_fb = ("WHERE " + " AND ".join(filtros_fb)) if filtros_fb else ""
             try:
                 self.cursor.execute(
-                    f"SELECT rowid, concepto, contenido, peso_sinaptico, estado, asociaciones FROM largo_plazo {where_fb} LIMIT {sql_limit}"
+                    f"SELECT rowid, concepto, contenido, peso_sinaptico, estado, asociaciones, conceptos_ids FROM largo_plazo {where_fb} LIMIT {sql_limit}"
                 )
                 filas = self.cursor.fetchall()
                 query_words = re.findall(r'\w{3,}', query.lower())
@@ -1921,7 +1985,7 @@ class SQLiteMemoryBioRAG:
                             for concepto_ev, decay_score, _ in evocados:
                                 self.cursor.execute(
                                     "SELECT rowid, concepto, contenido, peso_sinaptico, "
-                                    "estado, asociaciones FROM largo_plazo "
+                                    "estado, asociaciones, conceptos_ids FROM largo_plazo "
                                     "WHERE concepto = ? AND estado = 'activo'",
                                     (concepto_ev,)
                                 )
@@ -1954,7 +2018,7 @@ class SQLiteMemoryBioRAG:
             for concepto, match_ratio in resultados_concepto.items():
                 if concepto not in seen and match_ratio >= 0.3:
                     self.cursor.execute(
-                        "SELECT rowid, concepto, contenido, peso_sinaptico, estado, asociaciones "
+                        "SELECT rowid, concepto, contenido, peso_sinaptico, estado, asociaciones, conceptos_ids "
                         "FROM largo_plazo WHERE concepto = ?",
                         (concepto,)
                     )
@@ -1994,7 +2058,7 @@ class SQLiteMemoryBioRAG:
             for concepto, match_ratio in resultados_semantica.items():
                 if concepto not in seen:
                     self.cursor.execute(
-                        "SELECT rowid, concepto, contenido, peso_sinaptico, estado, asociaciones "
+                        "SELECT rowid, concepto, contenido, peso_sinaptico, estado, asociaciones, conceptos_ids "
                         "FROM largo_plazo WHERE concepto = ?",
                         (concepto,)
                     )
@@ -2012,7 +2076,7 @@ class SQLiteMemoryBioRAG:
         # Dynamic Multiplicator: consultar origen_scores para activar fórmula de emergencia
         total = len(todos)
         resultados_con_hibrido = []
-        for i, (rowid, concepto, contenido, peso, estado, asociaciones) in enumerate(todos):
+        for i, (rowid, concepto, contenido, peso, estado, asociaciones, conceptos_ids) in enumerate(todos):
             origen, score_capa = origen_scores.get(concepto, ("literal", 0.0))
             es_latente = origen in ("latente", "cadena", "expansion") and score_capa >= 0.15
             es_concepto = origen in ("concepto", "semantica") and score_capa >= 0.3
@@ -2021,6 +2085,12 @@ class SQLiteMemoryBioRAG:
                 es_latente=es_latente, score_latente=score_capa,
                 es_concepto=es_concepto, score_concepto=score_capa
             )
+            # Aplicar boost dinámico (1.2x) si hay solape de conceptos_ids
+            if query_conceptos_ids and conceptos_ids:
+                record_conceptos = set(map(int, conceptos_ids.split()))
+                if query_conceptos_ids & record_conceptos:
+                    score_hibrido = round(score_hibrido * 1.2, 4)
+
             resultados_con_hibrido.append(
                 (concepto, contenido, peso, estado, score_hibrido, asociaciones or "")
             )

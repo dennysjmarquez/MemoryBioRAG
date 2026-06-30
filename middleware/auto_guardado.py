@@ -41,6 +41,41 @@ _PALABRAS_CLAVE = {
 }
 
 
+_EMOCIONES_CLAVE = {
+    "te quiero": "emocion_afecto",
+    "cariño": "emocion_afecto",
+    "afecto": "emocion_afecto",
+    "aprecio": "emocion_afecto",
+    "amor": "emocion_afecto",
+    "estimación": "emocion_afecto",
+    "estimacion": "emocion_afecto",
+    
+    "error": "emocion_frustracion",
+    "fallo": "emocion_frustracion",
+    "problema": "emocion_frustracion",
+    "mal": "emocion_frustracion",
+    "molesto": "emocion_frustracion",
+    "enojo": "emocion_frustracion",
+    "rabia": "emocion_frustracion",
+    "frustrado": "emocion_frustracion",
+    "frustracion": "emocion_frustracion",
+    
+    "excelente": "emocion_satisfaccion",
+    "logro": "emocion_satisfaccion",
+    "satisfaccion": "emocion_satisfaccion",
+    "alegria": "emocion_satisfaccion",
+    "exito": "emocion_satisfaccion",
+    "bien": "emocion_satisfaccion",
+    "genial": "emocion_satisfaccion",
+    
+    "duda": "emocion_preocupacion",
+    "preocupado": "emocion_preocupacion",
+    "preocupación": "emocion_preocupacion",
+    "riesgo": "emocion_preocupacion",
+    "alerta": "emocion_preocupacion",
+}
+
+
 class SesionBuffer:
     def __init__(self, ttl=TTL):
         self._ttl = ttl
@@ -98,8 +133,9 @@ def analizar_y_autoguardar(cerebro, fuerza=False) -> dict | None:
 
     textual = texto_completo.lower()
     palabras_detectadas = {p for p in _PALABRAS_CLAVE if p in textual}
+    emociones_detectadas = {val for key, val in _EMOCIONES_CLAVE.items() if key in textual}
 
-    if not palabras_detectadas and not fuerza:
+    if not palabras_detectadas and not emociones_detectadas and not fuerza:
         return None
 
     if "aprender" in acciones_recientes:
@@ -114,7 +150,8 @@ def analizar_y_autoguardar(cerebro, fuerza=False) -> dict | None:
     if existentes:
         return None
 
-    sinonimos = ",".join(palabras_detectadas) if palabras_detectadas else categoria
+    sinonimos_list = list(palabras_detectadas) + list(emociones_detectadas)
+    sinonimos = ",".join(sinonimos_list) if sinonimos_list else categoria
     cerebro.percibir_corto_plazo(
         concepto=clave,
         contenido=texto_completo[:1200].strip(),
@@ -124,6 +161,7 @@ def analizar_y_autoguardar(cerebro, fuerza=False) -> dict | None:
 
     buffer_global.limpiar()
     return {"concepto": clave, "categoria": categoria, "sinonimos": sinonimos}
+
 
 
 def registrar_accion(accion: str, texto: str = ""):

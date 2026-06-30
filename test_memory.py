@@ -1217,8 +1217,108 @@ def test_sistema():
     print("  OK: garbled query no falla")
     print("--- 70. Boost sináptico y garbled query OK ---")
 
+    # 71. Indexación de conceptos_ids y boosting de relevancia
+    print("\n--- 71. Probando indexación de concept_ids y boosting de relevancia ---")
+    from core.semantica import agregar_equivalencia
+    # Agregar equivalencia semántica
+    agregar_equivalencia(cerebro.cursor, "computadora", "ordenador", 1.0)
+    
+    # Percibir un nuevo concepto que contiene una de las palabras
+    cerebro.percibir_corto_plazo("test_concept_boost", "Mi ordenador de prueba de escritorio", "", "General")
+    cerebro.ciclo_sueno_consolidacion()
+    
+    # Verificar que el concepto_ids fue indexado y no está vacío
+    cerebro.cursor.execute("SELECT conceptos_ids, peso_sinaptico FROM largo_plazo WHERE concepto = 'test_concept_boost'")
+    c_ids_row = cerebro.cursor.fetchone()
+    assert c_ids_row is not None, "Error: El nodo test_concept_boost no fue consolidado"
+    c_ids, peso_sinaptico = c_ids_row
+    print(f"  Concept IDs indexados para test_concept_boost: '{c_ids}', Peso sináptico: {peso_sinaptico}")
+    assert c_ids != "", "Error: conceptos_ids no debería estar vacío"
+    
+    # Buscar por la otra palabra de la equivalencia ("computadora")
+    res_boost, total_boost = cerebro.buscar_por_frase("computadora")
+    assert total_boost > 0, "Error: la búsqueda semántica falló"
+    
+    # Obtener el score híbrido con boost
+    c_score_boosted = next(r[4] for r in res_boost if r[0] == 'test_concept_boost')
+    print(f"  Score híbrido con boost conceptual para 'test_concept_boost': {c_score_boosted}")
+    
+    # Calcular el score base esperado sin el boost 1.2
+    # El origen de la coincidencia para "computadora" -> "test_concept_boost" es "semantica" / "expansion" (score_capa = 0.8).
+    # Entonces es_latente=True y score_latente=0.8.
+    # Calculamos el score híbrido base usando _calcular_score_hibrido:
+    total_resultados = len(res_boost)
+    pesos_tokens = {"computadora": 1.0}
+    score_sin_boost = cerebro._calcular_score_hibrido(
+        0, total_resultados, peso_sinaptico, "", pesos_tokens, "Mi ordenador de prueba de escritorio",
+        es_latente=True, score_latente=0.8,
+        es_concepto=False, score_concepto=0.0
+    )
+    score_esperado_con_boost = round(score_sin_boost * 1.2, 4)
+    print(f"  Score sin boost calculado: {score_sin_boost}, con boost esperado: {score_esperado_con_boost}")
+    
+    assert abs(c_score_boosted - score_esperado_con_boost) < 0.001, \
+        f"Error: score con boost {c_score_boosted} no coincide con el esperado {score_esperado_con_boost}"
+        
+    print("  OK: el boosting de relevancia conceptual funciona y se aplica correctamente")
+    print("--- 71. Indexación y boosting de relevancia OK ---")
+
+    cerebro.cerrar_sistema()
+
+    # 72. Estados emocionales y cognitivos (Etiquetas Sinápticas)
+    print("\n--- 72. Probando estados emocionales y cognitivos (Opción B) ---")
+    cerebro = SQLiteMemoryBioRAG(db_path=db_test_path)
+
+    
+    # Percibir un recuerdo con etiqueta de frustración en los sinónimos
+    cerebro.percibir_corto_plazo(
+        concepto="error_servidor_db",
+        contenido="El servidor de base de datos se cayó y me causó problemas de conexión",
+        sinonimos="emocion_frustracion",
+        categoria="System"
+    )
+    cerebro.ciclo_sueno_consolidacion()
+    
+    # Buscar usando una palabra emocional no explícita en el contenido: "molesto"
+    res_emocion, total_emocion = cerebro.buscar_por_frase("molesto")
+    assert total_emocion > 0, "Error: la búsqueda por emoción falló"
+    conceptos_retornados = [r[0] for r in res_emocion]
+    print(f"  Conceptos retornados al buscar 'molesto': {conceptos_retornados}")
+    assert "error_servidor_db" in conceptos_retornados, "Error: no se recuperó el recuerdo mediante el tag emocional"
+    
+    # Guardar otro recuerdo con afecto
+    cerebro.percibir_corto_plazo(
+        concepto="charla_creador",
+        contenido="Dennys me dijo que aprecia mi trabajo y me tiene mucho cariño",
+        sinonimos="emocion_afecto",
+        categoria="Personal"
+    )
+    cerebro.ciclo_sueno_consolidacion()
+    
+    # Buscar por "te quiero" (debe mapear a emocion_afecto)
+    res_afecto, total_afecto = cerebro.buscar_por_frase("te quiero")
+    assert total_afecto > 0, "Error: la búsqueda por afecto falló"
+    conceptos_retornados_afecto = [r[0] for r in res_afecto]
+    print(f"  Conceptos retornados al buscar 'te quiero': {conceptos_retornados_afecto}")
+    assert "charla_creador" in conceptos_retornados_afecto, "Error: no se recuperó el recuerdo de afecto"
+    
+    # Verificar el middleware de auto_guardado con emociones
+    from middleware.auto_guardado import registrar_accion, analizar_y_autoguardar, buffer_global
+    buffer_global.limpiar()
+    
+    # Registrar un texto con tono preocupado/riesgo
+    registrar_accion("pensar", "Tengo mucha duda sobre el despliegue a producción, es un gran riesgo")
+    guardado = analizar_y_autoguardar(cerebro, fuerza=True)
+    assert guardado is not None, "Error: auto_guardado debería activarse con emociones"
+    print(f"  Recuerdo autoguardado emocionalmente: {guardado}")
+    assert "emocion_preocupacion" in guardado["sinonimos"], "Error: no se asignó la etiqueta de emoción en sinonimos"
+    
+    print("  OK: el sistema de estados emocionales y cognitivos (Opción B) funciona correctamente")
+    print("--- 72. Estados emocionales y cognitivos OK ---")
+
     cerebro.cerrar_sistema()
     print("\n--- ¡Todas las pruebas biologicas completadas con exito! ---\n\n")
+
 
 
 if __name__ == "__main__":

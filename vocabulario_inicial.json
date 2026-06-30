@@ -82,5 +82,23 @@
     "archivo": ["documento", "fichero", "registro"],
     "buscar": ["encontrar", "localizar", "hallar"],
     "guardar": ["almacenar", "grabar", "salvar"]
+  },
+  "emociones": {
+    "cariño": ["afecto", "aprecio", "amor", "emocion_afecto"],
+    "afecto": ["cariño", "aprecio", "amor", "emocion_afecto"],
+    "aprecio": ["cariño", "afecto", "amor", "emocion_afecto"],
+    "amor": ["cariño", "afecto", "aprecio", "emocion_afecto"],
+    "frustracion": ["enojo", "molesto", "rabia", "frustrado", "emocion_frustracion"],
+    "frustrado": ["enojo", "molesto", "rabia", "frustracion", "emocion_frustracion"],
+    "molesto": ["enojo", "frustrado", "rabia", "frustracion", "emocion_frustracion"],
+    "enojo": ["molesto", "frustrado", "rabia", "frustracion", "emocion_frustracion"],
+    "rabia": ["molesto", "frustrado", "enojo", "frustracion", "emocion_frustracion"],
+    "satisfaccion": ["alegria", "exito", "bien", "genial", "emocion_satisfaccion"],
+    "alegria": ["satisfaccion", "exito", "bien", "genial", "emocion_satisfaccion"],
+    "exito": ["satisfaccion", "alegria", "bien", "genial", "emocion_satisfaccion"],
+    "preocupacion": ["duda", "riesgo", "alerta", "preocupado", "emocion_preocupacion"],
+    "preocupado": ["preocupacion", "duda", "riesgo", "alerta", "emocion_preocupacion"],
+    "duda": ["preocupacion", "preocupado", "riesgo", "alerta", "emocion_preocupacion"]
   }
 }
+

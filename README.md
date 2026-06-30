@@ -496,8 +496,10 @@ Para el caso de uso de **memoria persistente de un agente**, BioRAG no solo es a
 - **0 dependencias externas de ML**: ni numpy, ni vectores, ni GPU — SQLite puro con FTS5 trigram
 - **Batch FTS5 optimization**: pre-carga puentes FTS5 una sola vez (1 query SQL en vez de N), reduce latencia de 56ms a 12ms (82% más rápido)
 - **Calidad preservada**: 100% overlap con búsqueda legacy — el batch FTS5 usa la misma query que el modo legacy
-- **Red sináptica de 1,474 aristas**: 135 nodos activos conectados por auto-linking biomimético + co-ocurrencia automática
-- **1,734 equivalencias semánticas**: tesauro bidireccional auto-construido desde vocabulario cargado + sinónimos
+- **Red sináptica de 15,521 aristas**: 340 nodos conectados por auto-linking biomimético + co-ocurrencia automática
+- **3,004 equivalencias semánticas**: tesauro bidireccional auto-construido desde vocabulario cargado + sinónimos
+- **58 grupos semánticos disjuntos**: Union-Find agrupa 1,292 términos equivalentes para boosting de relevancia
+- **Boosting conceptual 1.2x**: resultados que comparten grupo semántico con el query reciben boost dinámico en el score
 - **Dynamic Multiplicator**: cuando FTS5 falla, Jaccard toma el control con fórmula 70/20/10
 - **Anclaje Temporal**: +0.15 score si nodo accedido <7 días, +0.08 si <30 días, +0.03 si <90 días
 - **Ráfaga de Reminiscencia**: `rafaga_palabras` en MCP — emula el proceso humano de "tirar flechas" para recordar
@@ -505,11 +507,10 @@ Para el caso de uso de **memoria persistente de un agente**, BioRAG no solo es a
 - **Instrucción de 5 niveles**: guía para generar mejores palabras de ráfaga (literal → técnico → contexto → problema → emoción)
 - **Co-ocurrencia automática en sueño**: el ciclo de sueño crea sinapsis basándose en co-ocurrencia de conceptos
 - **PALABRA_COMPLETA en todas las capas FTS5**: previene falsos positivos de trigram ("culo" ≠ "artículos")
-- **Protocolo de 3 pasos**: enriquecimiento → ráfaga → contingencia (buscar en contexto del chat)
+- **Protocolo de 4 pasos**: directa → paráfrasis → ráfaga → combinada → contingencia
+- **Paráfrasis obligatorio**: variantes semánticas con 4 niveles (sinónimos, registro, perspectiva, abstracción) con penalización ×0.95
+- **Scoring por Densidad de Coincidencia**: fórmula 50% densidad + 35% peso sináptico + 15% asociaciones en ráfaga
 - **Auto-aprendizaje de errores**: registra interpretaciones erróneas, excluye en próxima búsqueda
-- **Contexto motivacional**: guarda el "porqué" detrás de las enseñanzas
-- **Glosario Cultural**: Principle en BioRAG con mapa de traducción de metáforas del usuario
-- **Explicar con propias palabras**: el agente lee los resultados y redacta respuestas claras (no JSON crudo)
 - **Similitud conceptual latente**: Jaccard sobre vecinos compartidos + tokens en contenido (60% red + 40% contenido)
 - **Expansión semántica por tesauro**: tabla `semantica` bidireccional con auto-aprendizaje
 - **Pipeline de búsqueda de 9 capas**: FTS5 AND → OR → Prefix (unicode61) → Semántica → Conceptual → Snap → Cadena → Substring → Trigram
@@ -518,9 +519,9 @@ Para el caso de uso de **memoria persistente de un agente**, BioRAG no solo es a
 - **Oráculo externo (NotebookLM)**: `biorag_oraculo_inicio` consulta NotebookLM o fallback a BioRAG local para contexto de arranque del agente
 - **Decay diferenciado por categoría**: Profile=0.05, Principle=0.2, Project=1.5
 - **Métricas cognitivas históricas**: tabla `metricas_cognitivas` con detección de tendencias
-- **MCP nativo**: 16 herramientas para OpenCode, VS Code, Cursor, Cline, Antigravity, Claude Code
+- **MCP nativo**: 23 herramientas para OpenCode, VS Code, Cursor, Cline, Antigravity, Claude Code
 - **Plugin OpenCode**: inyección invisible de recordatorios BioRAG + toast visual al agente
-- **68 tests automatizados**: cobertura completa del motor, sinapsis, semántica, similitud, ráfaga, prefix wildcards, context window y unicode FTS5
+- **71 tests automatizados**: cobertura completa del motor, sinapsis, semántica, similitud, ráfaga, prefix wildcards, context window, unicode FTS5 y boosting conceptual
 
 ---
 
@@ -745,6 +746,79 @@ El agente sigue este flujo obligatorio al buscar:
 
 ## Historial de Versiones
 
+### v10.4 — Etiquetado Emocional e Indexación Semántica (Junio 2026)
+
+**Mapeo de estados de ánimo y boosting de relevancia conceptual en el ranking híbrido.**
+
+**Etiquetado Emocional y Cognitivo (Opción B):**
+- **Clasificación emocional integrada**: El middleware de autoguardado extrae expresiones sentimentales cotidianas y las guarda con etiquetas sinápticas estandarizadas (`emocion_afecto`, `emocion_frustracion`, `emocion_preocupacion`, `emocion_satisfaccion`) en la columna `sinonimos`.
+- **Diccionario semántico auto-sustentable**: Mapeo de términos cotidianos (ej. `"te quiero"`, `"molesto"`) en tiempo de inicio para que búsquedas abstractas evoquen el recuerdo correcto mediante FTS5.
+- **Test 72**: Cobertura de evocado por emoción y validación del interceptor.
+
+**Indexación Semántica y Boosting por Grupos Disjuntos:**
+- **`grupos_semanticos` y `grupo_terminos`**: Algoritmo Union-Find que agrupa equivalencias en clusters disjuntos.
+- **Nueva columna `conceptos_ids`**: Almacena los IDs de grupos semánticos presentes en el contenido.
+- **Boost dinámico 1.2x**: Multiplica por 1.2 el score híbrido para coincidencias del mismo clúster conceptual.
+
+- **Archivos modificados**: `core/semantica.py`, `core/memory_store.py`, `middleware/auto_guardado.py`, `test_memory.py`, `vocabulario_inicial.json`
+- **Tests**: 72/72 pasando
+- **Producción**: 340 nodos, 15,521 sinapsis, 3,004 equivalencias, 58 grupos semánticos, 1,292 términos mapeados
+
+### v10.3 — Scoring por Densidad de Coincidencia (Junio 2026)
+
+**El scoring de ráfaga ahora emula similitud coseno usando densidad de coincidencia.**
+
+- **Reemplazo del scoring híbrido en `buscar_por_rafaga`**: fórmula de Densidad de Coincidencia (50% densidad, 35% peso sináptico, 15% asociaciones)
+- **Corrección del error de regex boundary (`\b`)**: normalización de guiones a espacios en 6 puntos del pipeline para conceptos snake_case
+- **Fix deduplicación en merge** (`mcp_server.py` L324): clave de concepto en lugar de contenido
+- **Verificación de recall exitosa**: todas las vías (ráfaga, paráfrasis, combinación) con convergencia estable
+- **Tests**: 70/70 pasando
+
+### v10.2 — Paráfrasis Obligatorio y Semántica Inferida (Junio 2026)
+
+**Tres capas de recall semántico: paráfrasis, ráfaga sináptica e inferencia.**
+
+- **Paráfrasis obligatorio**: `str` comma-separated con penalización ×0.95 por variante
+- **Ráfaga sináptica**: rescata nodos con palabras clave cuando paráfrasis falla
+- **Inferencia como sugerencia**: `auto_guardar=False` por defecto — el agente decide si guardar
+- **ORDER BY corregido**: fórmula `0.5 + 0.5 * peso` para scoring consistente
+- **Tests**: 70/70 pasando
+
+### v10.0 — Capas Conceptual y Semántica para Recall Mejorado (Junio 2026)
+
+- **Capa conceptual**: matching por nombre de concepto con Jaccard sobre tokens
+- **Capa semántica**: expansión por tesauro con matching bidireccional
+- **Side channel `origen_scores`**: rastrea origen de cada resultado para Dynamic Multiplicator
+- **Tests**: 70/70 pasando
+
+### v9.5 — Síntesis de Espectro para Recall Comprehensivo (Junio 2026)
+
+- **Spectrum synthesis**: combina resultados de múltiples capas del pipeline
+- **Prueba final**: 33 queries, 94% success rate (15/15 FTS5 directo, 4/4 sinónimos, 3/3 inglés)
+- **Tests**: 70/70 pasando
+
+### v9.4 — Empatía Sintáctica en Ráfaga (Junio 2026)
+
+- **Syntactic empathy**: la ráfaga de reminiscencia tolera variaciones morfológicas
+- **Tests**: 70/70 pasando
+
+### v9.3 — Paginación de Resultados (Junio 2026)
+
+- **Paginación**: parámetros `pagina` y `limite` en `recordar`/`buscar`
+- **Tests**: 68/68 pasando
+
+### v9.2 — Ráfaga Optimizada y Sin Límite de Términos (Junio 2026)
+
+- **Ráfaga ilimitada**: sin límite en cantidad de `rafaga_palabras`
+- **Optimización de performance**: reducción de queries redundantes
+- **Tests**: 68/68 pasando
+
+### v9.1 — Renombre Cognitivo de Herramientas (Junio 2026)
+
+- **Herramientas renombradas**: `buscar`→`recordar`, `guardar`→`aprender`, `asociar`→`vincular`, `sueno`→`consolidar`, `estado`→`introspeccion`, `corteza`→`mapear`
+- **Aliases legacy**: las herramientas antiguas siguen funcionando
+- **Tests**: 68/68 pasando
+
 ### v9.0 — Plugin OpenCode, Oráculo NotebookLM y Context Window Cognitivo (Junio 2026)
 
 **BioRAG se expande: plugin de integración con OpenCode, contexto de sesión desde NotebookLM y búsqueda enriquecida con vecinos sinápticos.**
@@ -939,17 +1013,20 @@ Ejecuta `python3 benchmark.py` para comparar BioRAG con LangChain+Chroma en tu m
 ```
 MemoryBioRAG/
   ├── biorag.py                 # CLI bridge (buscar, guardar, asociar, sueno, corteza, comunicar)
-  ├── mcp_server.py             # Servidor MCP: 16 herramientas + ráfaga + contingencia
+  ├── mcp_server.py             # Servidor MCP: 23 herramientas + ráfaga + contingencia
   ├── install.py                # Instalador cross-platform para 7 plataformas
   ├── sleep_cycle.py            # Script autónomo de consolidación/sueño
   ├── benchmark.py              # Script de benchmarks vs LangChain+Chroma
   ├── requirements.txt          # Dependencias: mcp (servidor MCP)
   ├── vocabulario_inicial.json  # 239 términos del dominio para expansión semántica
+  ├── VERSION                   # Versión actual del sistema
   ├── core/
-  │    ├── memory_store.py      # Motor: LTP/LTD, 8 capas, Dynamic Multiplicator,
-  │    │                        #   co-ocurrencia, ráfaga, PALABRA_COMPLETA
+  │    ├── memory_store.py      # Motor: LTP/LTD, 9 capas, Dynamic Multiplicator,
+  │    │                        #   co-ocurrencia, ráfaga, PALABRA_COMPLETA,
+  │    │                        #   boosting conceptual 1.2x
   │    ├── sinapsis.py          # Grafo: auto-linking, overlap coefficient, decay
-  │    ├── semantica.py         # Tesauro: bidireccional, auto-aprendizaje
+  │    ├── semantica.py         # Tesauro: bidireccional, auto-aprendizaje,
+  │    │                        #   Union-Find para grupos semánticos disjuntos
   │    ├── similitud_conceptual.py  # Jaccard vecinos + contenido, score 60/40
   │    └── categorizador.py     # Inferencia de categoría por palabras clave
   ├── middleware/
@@ -958,14 +1035,14 @@ MemoryBioRAG/
   │    └── auto_guardado.py     # Buffer de sesión + autoguardado heurístico
   ├── config/
   │    ├── __init__.py
-  │    └── prompts.py           # System prompts con protocolo de 3 pasos
+  │    └── prompts.py           # System prompts con protocolo de 4 pasos
   ├── scripts/
   │    ├── export_architecture.py  # Exporta blueprint completo de la DB
   │    ├── migrar_sinapsis.py     # Migración de CSV legacy a tabla sinapsis
   │    └── migrar_sinonimos_v2.0.py
   ├── MemoryBioRAG_Data/        # Bases de datos SQLite (auto-creado)
   ├── db_architecture_export.txt  # Blueprint generado
-  ├── test_memory.py            # 66 tests automatizados
+  ├── test_memory.py            # 71 tests automatizados
   └── README.md                 # Este archivo
 ```
 
@@ -1069,15 +1146,17 @@ cp .env.example .env.local
 
 ## Producción
 
-| Métrica | v8.2 | v9.0 |
+| Métrica | v9.0 | v10.4 |
 |---|---|---|
-| Nodos activos | 135 | 135+ |
-| Nodos dormidos | 58 | 58+ |
-| Sinapsis | 1,474 | 1,474+ |
-| Equivalencias | 1,734 | 1,734+ |
-| Tests | 66/66 pasando | 68/68 pasando |
+| Nodos activos | 135+ | 340 |
+| Nodos dormidos | 58+ | — |
+| Sinapsis | 1,474+ | 15,521 |
+| Equivalencias | 1,734+ | 3,004 |
+| Grupos semánticos | — | 58 |
+| Términos mapeados | — | 1,292 |
+| Tests | 68/68 pasando | 72/72 pasando |
 | Dependencias externas | 0 | 0 |
-| Tamaño DB | ~4 MB | ~4 MB |
+| Tamaño DB | ~4 MB | ~12 MB |
 
 ---
 
