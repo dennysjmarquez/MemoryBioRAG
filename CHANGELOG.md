@@ -21,6 +21,11 @@
 - **Ráfaga creaba sinapsis con tokens sueltos**: Ahora solo crea sinapsis si el token existe como concepto activo en `largo_plazo`. Previene hiperconectividad (ej: nodo "flor" con 59 sinapsis irrelevantes).
 - **`vincular_por_sinonimos` buscaba en contenido**: Ahora solo busca en `concepto` y `sinonimos`, NO en `contenido`. Previene conexiones espurias por mención incidental.
 - **`asociaciones` CSV desincronizado**: `_sincronizar_asociaciones()` se ejecuta en las 4 rutas de escritura (auto_vincular, vincular_por_sinonimos, desvincular, establecer_asociacion). CSV siempre refleja el estado real de sinapsis.
+- **Filtros temporales post-truncado**: `dias/desde/hasta/autor` ahora se aplican ANTES del truncado, no después. Previene 0 resultados cuando los top-score no coinciden con el filtro temporal.
+- **`parafrasis_list` desconectado en `buscar_por_frase`**: `fts_match` se calculaba pero nunca se usaba. Ahora se conecta directamente a las queries FTS5. Eliminado el hack de `mcp_server.py` que pasaba el string OR como texto natural.
+- **`biorag_buscar` sin `dimensiones=None`**: Alias legado ahora acepta `dimensiones` como opcional, consistente con `biorag_recordar`.
+- **`dim_dict` → `dimensiones_dict`**: Refactor de `_resolver_dimensiones` como helper compartido. Fix de `NameError` en `_aprender_impl`.
+- **`dimensiones_invalidas` no definida**: Fix de `NameError` post-refactor. Variable restaurada después del helper.
 
 ### Architecture
 - **Pipeline colapsado a 2 pasos**: PASO 1 obligatorio (paráfrasis+dimensiones), PASO 2 fallback (ráfaga). De 4 pasos a 2.
@@ -28,6 +33,8 @@
 - **Fórmula ráfaga con dimensiones**: 0.40 densidad + 0.25 peso + 0.10 asoc + 0.25 dim_score.
 - **Paráfrasis optimizado**: 1 query FTS5 OR en vez de N queries separadas. Penalización ×0.95 en Python.
 - **Homeostasis sináptica**: `sinapsis` y `largo_plazo.asociaciones` siempre sincronizados.
+- **Reordenar fallbacks**: Typo (trigram) ahora corre ANTES de latente (Jaccard). Un typo match es más confiable que similitud latente. Benchmark: promedio 186ms → 58.8ms.
+- **Helpers compartidos**: `_resolver_dimensiones()` y `_parsear_fechas()` extraídos para eliminar duplicación entre `_recordar_impl` y `_aprender_impl`.
 
 ### Data Cleanup
 - 681 sinapsis espurias eliminadas (477 rafaga_rememb huérfanas + 204 sinonimo_explicito de arquitectura_busqueda_dimensional)

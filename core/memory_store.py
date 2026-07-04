@@ -906,13 +906,19 @@ class SQLiteMemoryBioRAG:
         """, (key, contenido_final, time.time(), sinonimos_final, cat_id))
 
         # Insertar dimensiones en tabla puente
+        # Si dimensiones ya es dict de IDs (de _resolver_dimensiones), usar directamente
+        # Si es dict de nombres (legacy), resolver IDs
         dim_dict = dimensiones or {}
         for tipo_nombre, valores in dim_dict.items():
             if not valores:
                 continue
-            ids_validos, _ = self._resolver_dimension_ids(
-                tipo_nombre, ",".join(valores) if isinstance(valores, list) else valores
-            )
+            # Si los valores son ints, ya son IDs resueltos
+            if isinstance(valores[0], int):
+                ids_validos = valores
+            else:
+                ids_validos, _ = self._resolver_dimension_ids(
+                    tipo_nombre, ",".join(valores) if isinstance(valores, list) else valores
+                )
             for eid in ids_validos:
                 self.cursor.execute(
                     "INSERT OR IGNORE INTO corto_plazo_dimensiones (concepto, dimension_id) VALUES (?, ?)",
@@ -1963,7 +1969,67 @@ class SQLiteMemoryBioRAG:
                 except sqlite3.OperationalError:
                     pass
 
-        # Fallback 1.7: Similitud conceptual latente (Jaccard vecinos + contenido)
+        # Fallback 1.7: best-word trigram similarity (typo + word-match tolerance)
+        # Filtro PC: solo aplica a palabras CORTAS (<=5 chars) donde el trigrama no
+        # es discriminante (ej: "culo" como substring de "artículos"). Para palabras
+        # largas (>=6 chars), el trigrama ya es tolerante a typos sin generar FPs.
+        if len(todos) < 3 and len(query) >= 3:
+            sql_limit = max(200, limite * 10)
+            filtros_fb = []
+            if profundidad != "profundo":
+                filtros_fb.append("estado = 'activo'")
+            if categoria:
+                cat_id_fb2 = self._resolver_categoria_id(categoria)
+                filtros_fb.append(f"categoria = {cat_id_fb2}")
+            where_fb = ("WHERE " + " AND ".join(filtros_fb)) if filtros_fb else ""
+            try:
+                self.cursor.execute(
+                    f"SELECT rowid, concepto, contenido, peso_sinaptico, estado, asociaciones FROM largo_plazo {where_fb} LIMIT {sql_limit}"
+                )
+                filas = self.cursor.fetchall()
+                query_words = re.findall(r'\w{3,}', query.lower())
+                STOPWORDS_FB25 = {'con', 'por', 'para', 'como', 'mas', 'pero', 'esta', 'este', 'que', 'del', 'las', 'los', 'una', 'uno', 'sin', 'sobre', 'desde', 'hasta', 'cuando', 'donde', 'otro', 'otros'}
+                query_words_filtradas = [w for w in query_words if w not in STOPWORDS_FB25 and len(w) >= 4]
+                if not query_words_filtradas:
+                    query_words_filtradas = [w for w in query_words if len(w) >= 4]
+                qw_cortas = [w for w in query_words_filtradas if len(w) <= 5]
+                candidatos = []
+                for row in filas:
+                    texto = f"{row[1]} {row[2]}".lower()
+                    text_words = re.findall(r'\w{3,}', texto)
+                    total_score = 0.0
+                    for qw in query_words_filtradas:
+                        qt = set(qw[i:i+3] for i in range(len(qw) - 2))
+                        if not qt:
+                            continue
+                        best = max(
+                            (len(qt & set(tw[i:i+3] for i in range(len(tw) - 2))) / len(qt)
+                             for tw in text_words if len(tw) >= 3),
+                            default=0.0
+                        )
+                        total_score += best
+                    avg_score = total_score / len(query_words_filtradas) if query_words_filtradas else 0.0
+                    if avg_score >= 0.7:
+                        texto_full = f"{row[1]} {row[2] or ''}".replace('_', ' ').replace('-', ' ')
+                        if qw_cortas:
+                            match_legitimo = any(
+                                re.search(r'\b' + re.escape(qw) + r'\b', texto_full, re.IGNORECASE)
+                                for qw in qw_cortas
+                            )
+                            if not match_legitimo:
+                                continue
+                        candidatos.append((avg_score, row))
+                candidatos.sort(key=lambda x: x[0], reverse=True)
+                seen_rowids = {r[0] for r in todos}
+                for score_typo, row in candidatos[:max(limite * 3, 10)]:
+                    if row[0] not in seen_rowids:
+                        todos.append(row)
+                        if row[1] not in origen_scores:
+                            origen_scores[row[1]] = ("typo", score_typo)
+            except sqlite3.OperationalError:
+                pass
+
+        # Fallback 1.8: Similitud conceptual latente (Jaccard vecinos + contenido)
         # Usa Jaccard sobre tokens, no requiere match literal. No aplicar PALABRA_COMPLETA.
         # Dynamic Multiplicator: registrar como "latente" con score Jaccard real
         # OPTIMIZACIÓN: Pre-cargar puentes FTS5 una vez (reduce N queries a 1)
@@ -2051,72 +2117,6 @@ class SQLiteMemoryBioRAG:
                     if row[0] not in seen_rowids:
                         todos.append(row)
                 todos = todos[:50]
-            except sqlite3.OperationalError:
-                pass
-
-        # Fallback 2.5: best-word trigram similarity (typo + word-match tolerance)
-        # Filtro PC: solo aplica a palabras CORTAS (<=5 chars) donde el trigrama no
-        # es discriminante (ej: "culo" como substring de "artículos"). Para palabras
-        # largas (>=6 chars), el trigrama ya es tolerante a typos sin generar FPs.
-        if len(todos) < 3 and len(query) >= 3:
-            sql_limit = max(200, limite * 10)
-            filtros_fb = []
-            if profundidad != "profundo":
-                filtros_fb.append("estado = 'activo'")
-            if categoria:
-                cat_id_fb2 = self._resolver_categoria_id(categoria)
-                filtros_fb.append(f"categoria = {cat_id_fb2}")
-            where_fb = ("WHERE " + " AND ".join(filtros_fb)) if filtros_fb else ""
-            try:
-                self.cursor.execute(
-                    f"SELECT rowid, concepto, contenido, peso_sinaptico, estado, asociaciones FROM largo_plazo {where_fb} LIMIT {sql_limit}"
-                )
-                filas = self.cursor.fetchall()
-                query_words = re.findall(r'\w{3,}', query.lower())
-                # Excluir stopwords y palabras muy cortas (< 4 chars) del trigram matching.
-                # "con" (1 trigram) matchea "construcción", "conocimiento" con score 1.0.
-                STOPWORDS_FB25 = {'con', 'por', 'para', 'como', 'mas', 'pero', 'esta', 'este', 'que', 'del', 'las', 'los', 'una', 'uno', 'sin', 'sobre', 'desde', 'hasta', 'cuando', 'donde', 'otro', 'otros'}
-                query_words_filtradas = [w for w in query_words if w not in STOPWORDS_FB25 and len(w) >= 4]
-                if not query_words_filtradas:
-                    query_words_filtradas = [w for w in query_words if len(w) >= 4]
-                # Separar query_words en cortas (PC aplica) y largas (PC no aplica, tolerancia a typos)
-                qw_cortas = [w for w in query_words_filtradas if len(w) <= 5]
-                candidatos = []
-                for row in filas:
-                    texto = f"{row[1]} {row[2]}".lower()
-                    text_words = re.findall(r'\w{3,}', texto)
-                    total_score = 0.0
-                    for qw in query_words_filtradas:
-                        qt = set(qw[i:i+3] for i in range(len(qw) - 2))
-                        if not qt:
-                            continue
-                        best = max(
-                            (len(qt & set(tw[i:i+3] for i in range(len(tw) - 2))) / len(qt)
-                             for tw in text_words if len(tw) >= 3),
-                            default=0.0
-                        )
-                        total_score += best
-                    avg_score = total_score / len(query_words_filtradas) if query_words_filtradas else 0.0
-                    if avg_score >= 0.7:
-                        # Filtro PC solo para palabras cortas: rechaza matches donde el
-                        # token solo es substring de otra palabra. Palabras largas ya son
-                        # discriminantes vía trigrama.
-                        texto_full = f"{row[1]} {row[2] or ''}".replace('_', ' ').replace('-', ' ')
-                        if qw_cortas:
-                            match_legitimo = any(
-                                re.search(r'\b' + re.escape(qw) + r'\b', texto_full, re.IGNORECASE)
-                                for qw in qw_cortas
-                            )
-                            if not match_legitimo:
-                                continue
-                        candidatos.append((avg_score, row))
-                candidatos.sort(key=lambda x: x[0], reverse=True)
-                seen_rowids = {r[0] for r in todos}
-                for score_typo, row in candidatos[:max(limite * 3, 10)]:
-                    if row[0] not in seen_rowids:
-                        todos.append(row)
-                        if row[1] not in origen_scores:
-                            origen_scores[row[1]] = ("typo", score_typo)
             except sqlite3.OperationalError:
                 pass
 
@@ -2491,7 +2491,7 @@ class SQLiteMemoryBioRAG:
                     if palabra in (contenido or ""):
                         errores_previos.add(palabra)
         except Exception:
-            pass
+            pass  # ponytail: historial_fallos puede estar vacío o malformado
         
         rafaga_limpia = [p for p in rafaga_palabras if p not in errores_previos]
         
@@ -2610,7 +2610,7 @@ class SQLiteMemoryBioRAG:
                         if shared > 0:
                             dim_scores_map[concepto] = shared / math.sqrt(query_len * len(doc_set))
                 except Exception:
-                    dim_scores_map = {}
+                    dim_scores_map = {}  # ponytail: fallback a scores vacíos si falla el batch dimensional
 
         total = len(todos)
         scored = []

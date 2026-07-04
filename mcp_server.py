@@ -268,6 +268,72 @@ ORACLE_PROMPT = (
 )
 
 
+# --- Helpers compartidos ----------------------------------------------------
+
+def _resolver_dimensiones(cerebro, dimensiones):
+    """Parsea JSON de dimensiones, resuelve IDs, retorna (dict, ids_list, error_json).
+    Si hay error, error_json es un string JSON listo para retornar. Si no, es None."""
+    if not dimensiones:
+        return None, [], None
+    try:
+        dim_raw = json.loads(dimensiones) if isinstance(dimensiones, str) else dimensiones
+    except json.JSONDecodeError:
+        return None, [], json.dumps({
+            "status": "error",
+            "mensaje": f"dimensiones debe ser JSON válido. Ejemplo: {json.dumps({'emocion': ['afecto'], 'entidad': ['identidad_artificial']})}",
+        }, ensure_ascii=False)
+    dimensiones_dict = {}
+    dimensiones_ids = []
+    dimensiones_invalidas = {}
+    for eje, valores in dim_raw.items():
+        if not isinstance(valores, list):
+            dimensiones_invalidas[eje] = "debe ser lista"
+            continue
+        ids, invalidos = cerebro._resolver_dimension_ids(eje, ",".join(valores))
+        if invalidos:
+            dimensiones_invalidas[eje] = invalidos
+        if ids:
+            dimensiones_dict[eje] = ids
+            dimensiones_ids.extend(ids)
+    if dimensiones_invalidas:
+        return None, [], json.dumps({
+            "status": "error",
+            "mensaje": f"Dimensiones inválidas: {json.dumps(dimensiones_invalidas, ensure_ascii=False)}. "
+                       "Llamá `listar_dimensiones` para ver valores válidos.",
+            "dimensiones_invalidas": dimensiones_invalidas,
+        }, ensure_ascii=False)
+    return dimensiones_dict, dimensiones_ids, None
+
+
+def _parsear_fechas(dias, desde, hasta):
+    """Parsea parámetros temporales y retorna (desde_ts, hasta_ts, error_json).
+    Si hay error, error_json es un string JSON listo para retornar."""
+    ahora = time.time()
+    hasta_ts = ahora + 86400
+    desde_ts = 0
+    if dias:
+        desde_ts = ahora - (dias * 86400)
+    elif desde:
+        try:
+            from datetime import datetime
+            desde_ts = datetime.strptime(desde, "%Y-%m-%d").timestamp()
+        except ValueError:
+            return 0, 0, json.dumps({
+                "status": "error",
+                "mensaje": f"Fecha 'desde' inválida: '{desde}'. Formato: YYYY-MM-DD",
+            }, ensure_ascii=False)
+    if hasta:
+        try:
+            from datetime import datetime
+            hasta_ts = datetime.strptime(hasta, "%Y-%m-%d").timestamp() + 86400
+        except ValueError:
+            return 0, 0, json.dumps({
+                "status": "error",
+                "mensaje": f"Fecha 'hasta' inválida: '{hasta}'. Formato: YYYY-MM-DD",
+            }, ensure_ascii=False)
+    return desde_ts, hasta_ts, None
+
+
 # --- MCP Server ------------------------------------------------------------
 
 def _build_server():
@@ -316,17 +382,9 @@ def _build_server():
 
             # Sin query → log cronológico puro por creado_en
             if query is None:
-                ahora = time.time()
-                desde_ts = 0
-                hasta_ts = ahora + 86400
-                if dias:
-                    desde_ts = ahora - (dias * 86400)
-                elif desde:
-                    from datetime import datetime
-                    desde_ts = datetime.strptime(desde, "%Y-%m-%d").timestamp()
-                if hasta:
-                    from datetime import datetime
-                    hasta_ts = datetime.strptime(hasta, "%Y-%m-%d").timestamp() + 86400
+                desde_ts, hasta_ts, fechas_error = _parsear_fechas(dias, desde, hasta)
+                if fechas_error:
+                    return fechas_error
 
                 sql = "SELECT concepto, contenido, peso_sinaptico, estado, asociaciones FROM largo_plazo WHERE creado_en >= ? AND creado_en <= ?"
                 params = [desde_ts, hasta_ts]
@@ -359,40 +417,10 @@ def _build_server():
 
             rafaga_list = [w.strip() for w in rafaga_palabras.split(",")] if rafaga_palabras else None
 
-            # Parsear dimensiones: JSON string → dict de eje → lista de IDs
-            dimensiones_dict = None
-            dimensiones_ids = []
-            if dimensiones:
-                try:
-                    dim_raw = json.loads(dimensiones) if isinstance(dimensiones, str) else dimensiones
-                except json.JSONDecodeError:
-                    return json.dumps({
-                        "status": "error",
-                        "mensaje": f"dimensiones debe ser JSON válido. Ejemplo: {json.dumps({'emocion': ['afecto'], 'entidad': ['identidad_artificial']})}",
-                    }, ensure_ascii=False)
-                # Resolver IDs para cada eje
-                dimensiones_dict = {}
-                dimensiones_invalidas = {}
-                for eje, valores in dim_raw.items():
-                    if not isinstance(valores, list):
-                        dimensiones_invalidas[eje] = "debe ser lista"
-                        continue
-                    ids, invalidos = cerebro._resolver_dimension_ids(eje, ",".join(valores))
-                    if invalidos:
-                        dimensiones_invalidas[eje] = invalidos
-                    if ids:
-                        dimensiones_dict[eje] = ids
-                        dimensiones_ids.extend(ids)
-
-                # BLOQUEAR búsqueda si hay dimensiones inválidas
-                if dimensiones_invalidas:
-                    cerebro.cerrar_sistema()
-                    return json.dumps({
-                        "status": "error",
-                        "mensaje": f"Dimensiones inválidas: {json.dumps(dimensiones_invalidas, ensure_ascii=False)}. "
-                                   "Llamá `listar_dimensiones` para ver valores válidos.",
-                        "dimensiones_invalidas": dimensiones_invalidas,
-                    }, ensure_ascii=False)
+            # Parsear dimensiones via helper compartido
+            dimensiones_dict, dimensiones_ids, dim_error = _resolver_dimensiones(cerebro, dimensiones)
+            if dim_error:
+                return dim_error
 
             if forzar_rafaga and not rafaga_palabras:
                 return json.dumps({
@@ -477,18 +505,9 @@ def _build_server():
 
             # Filtro temporal: dias/desde/hasta sobre creado_en (ANTES de truncar)
             if (dias or desde or hasta) and resultados:
-                ahora = time.time()
-                if dias:
-                    desde_ts = ahora - (dias * 86400)
-                elif desde:
-                    from datetime import datetime
-                    desde_ts = datetime.strptime(desde, "%Y-%m-%d").timestamp()
-                else:
-                    desde_ts = 0
-                hasta_ts = time.time()
-                if hasta:
-                    from datetime import datetime
-                    hasta_ts = datetime.strptime(hasta, "%Y-%m-%d").timestamp() + 86400
+                desde_ts, hasta_ts, fechas_error = _parsear_fechas(dias, desde, hasta)
+                if fechas_error:
+                    return fechas_error
 
                 # Traer creado_en de DB para cada resultado
                 conceptos = [r[0] for r in resultados]
@@ -909,36 +928,13 @@ def _build_server():
                     "mensaje": str(e),
                 }, ensure_ascii=False)
 
-            # Parsear dimensiones desde JSON string
-            dim_dict = {}
-            dimensiones_invalidas = {}
-            if dimensiones:
-                try:
-                    dim_dict = json.loads(dimensiones) if isinstance(dimensiones, str) else dimensiones
-                except json.JSONDecodeError:
-                    return json.dumps({
-                        "status": "error",
-                        "mensaje": f"dimensiones debe ser JSON válido. Ejemplo: {json.dumps({'emocion': ['preocupacion'], 'entidad': ['identidad_artificial']})}",
-                    }, ensure_ascii=False)
-                # Validar que cada eje tenga valores
-                for eje, valores in dim_dict.items():
-                    if not isinstance(valores, list):
-                        dimensiones_invalidas[eje] = "debe ser lista"
-                    else:
-                        ids, invalidos = cerebro._resolver_dimension_ids(eje, ",".join(valores))
-                        if invalidos:
-                            dimensiones_invalidas[eje] = invalidos
+            # Parsear dimensiones via helper compartido
+            dimensiones_dict, _, dim_error = _resolver_dimensiones(cerebro, dimensiones)
+            if dim_error:
+                return dim_error
+            dimensiones_invalidas = {}  # ya validado por _resolver_dimensiones
 
-            # BLOQUEAR guardado si hay dimensiones inválidas
-            if dimensiones_invalidas:
-                return json.dumps({
-                    "status": "error",
-                    "mensaje": f"Dimensiones inválidas: {json.dumps(dimensiones_invalidas, ensure_ascii=False)}. "
-                               "Llamá `listar_dimensiones` para ver valores válidos. NO se guardó nada.",
-                    "dimensiones_invalidas": dimensiones_invalidas,
-                }, ensure_ascii=False)
-
-            cerebro.percibir_corto_plazo(clave, contenido, syn or "", categoria, dim_dict)
+            cerebro.percibir_corto_plazo(clave, contenido, syn or "", categoria, dimensiones_dict)
 
             enlaces = auto_vincular(cerebro, clave, contenido)
             sinapsis_count = len(enlaces)
