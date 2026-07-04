@@ -1676,10 +1676,10 @@ class SQLiteMemoryBioRAG:
                 score_temporal = 0.03
 
         if es_latente and score_latente >= 0.15:
-            return round(0.70 * score_latente + 0.20 * peso_normalizado + 0.10 * score_asoc + score_temporal, 4)
+            return round((0.70 * score_latente + 0.20 * peso_normalizado + 0.10 * score_asoc + score_temporal) * (1.0 + 0.10 * dim_score), 4)
 
         if es_concepto and score_concepto >= 0.3:
-            return round(0.50 * score_concepto + 0.40 * peso_normalizado + 0.10 * score_asoc + score_temporal, 4)
+            return round((0.50 * score_concepto + 0.40 * peso_normalizado + 0.10 * score_asoc + score_temporal) * (1.0 + 0.10 * dim_score), 4)
 
         if total <= 1:
             score_texto = 1.0
@@ -1692,7 +1692,9 @@ class SQLiteMemoryBioRAG:
             peso_query = sum(peso for token, peso in pesos_tokens.items() if token in tokens_en_contenido)
             score_texto = score_texto * 0.7 + peso_query * 0.3
 
-        score_final = round(0.55 * score_texto + 0.25 * peso_normalizado + 0.10 * score_asoc + 0.10 * dim_score + score_temporal, 4)
+        # ponytail: dim_score como multiplicador — dimensiones SOLO suben, nunca bajan
+        base_score = 0.55 * score_texto + 0.25 * peso_normalizado + 0.10 * score_asoc + score_temporal
+        score_final = round(base_score * (1.0 + 0.10 * dim_score), 4)
 
         # Multiplicador match exacto: preserva precisión de búsquedas por UUID/nombre exacto
         if match_exacto:
