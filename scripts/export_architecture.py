@@ -134,7 +134,9 @@ existe "vehículo"→"auto". Esto permite expansión de queries sin embeddings.
 """
 
 _DOC_MCP_TOOLS = """\
-biorag_guardar(concepto, contenido, cat, syn)    — Guardar en corto plazo
+biorag_aprender(concepto, contenido, dimensiones, cat, syn) — Codificar en corto plazo (requiere dimensiones JSON)
+biorag_guardar(concepto, contenido, cat, syn, dimensiones)  — Legacy: alias de aprender (usa dimensiones JSON)
+biorag_listar_dimensiones()                               — Catálogo 39 dimensiones en 5 ejes
 biorag_buscar(query, cat, limite, deep, completo, asociados) — Búsqueda 8 capas
 biorag_sueno(limite_energia)                     — Ciclo de consolidación
 biorag_estado()                                  — Estadísticas de la corteza

@@ -45,28 +45,7 @@ def init_semantica_table(cursor):
     """)
     cursor.execute("CREATE INDEX IF NOT EXISTS idx_sem_term ON semantica(termino)")
     cursor.execute("CREATE INDEX IF NOT EXISTS idx_sem_equiv ON semantica(equivalente)")
-    cursor.execute("""
-        CREATE TABLE IF NOT EXISTS grupos_semanticos (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            raiz TEXT UNIQUE NOT NULL
-        )
-    """)
-    cursor.execute("""
-        CREATE TABLE IF NOT EXISTS grupo_terminos (
-            termino TEXT PRIMARY KEY,
-            grupo_id INTEGER NOT NULL,
-            FOREIGN KEY (grupo_id) REFERENCES grupos_semanticos(id) ON DELETE CASCADE
-        )
-    """)
-    cursor.execute("CREATE INDEX IF NOT EXISTS idx_gr_term_grupo ON grupo_terminos(grupo_id)")
     cursor.connection.commit()
-    
-    # Auto-inicializar si las tablas de grupos están vacías pero la semántica no
-    cursor.execute("SELECT COUNT(*) FROM grupos_semanticos")
-    if cursor.fetchone()[0] == 0:
-        cursor.execute("SELECT COUNT(*) FROM semantica")
-        if cursor.fetchone()[0] > 0:
-            reconstruir_grupos_semanticos(cursor)
 
     # Sembrar equivalencias emocionales iniciales si no existen
     cursor.execute("SELECT COUNT(*) FROM semantica WHERE equivalente = 'emocion_afecto' AND termino = 'quiero'")
@@ -117,7 +96,6 @@ def init_semantica_table(cursor):
                         (equiv_val, term_val)
                     )
         cursor.connection.commit()
-        reconstruir_grupos_semanticos(cursor)
 
 
 
@@ -200,7 +178,6 @@ def agregar_equivalencia(cursor, termino, equivalente, peso=0.8):
         (equivalente, termino, peso)
     )
     cursor.connection.commit()
-    reconstruir_grupos_semanticos(cursor)
 
 
 def eliminar_equivalencia(cursor, termino, equivalente):
@@ -213,7 +190,6 @@ def eliminar_equivalencia(cursor, termino, equivalente):
         (termino, equivalente, equivalente, termino)
     )
     cursor.connection.commit()
-    reconstruir_grupos_semanticos(cursor)
 
 
 def listar_equivalencias(cursor, termino=None):
@@ -264,7 +240,6 @@ def cargar_vocabulario(cursor, vocabulario_dict):
                     )
                     count += 1
     cursor.connection.commit()
-    reconstruir_grupos_semanticos(cursor)
     return count
 
 
@@ -301,7 +276,6 @@ def auto_aprender_desde_sinonimos(cursor, concepto, sinonimos):
             count += 1
     if count > 0:
         cursor.connection.commit()
-        reconstruir_grupos_semanticos(cursor)
     return count
 
 
@@ -398,7 +372,6 @@ def inferir_equivalencias_desde_sinapsis(
                 guardados += 1
         if guardados > 0:
             cursor.connection.commit()
-            reconstruir_grupos_semanticos(cursor)
 
     return {
         "candidatos": candidatos_ordenados,
@@ -406,53 +379,3 @@ def inferir_equivalencias_desde_sinapsis(
         "pares_procesados": total_pares,
         "guardados": guardados,
     }
-
-
-def reconstruir_grupos_semanticos(cursor):
-    """Reconstruye los grupos semánticos disjuntos usando Union-Find."""
-    cursor.execute("SELECT termino, equivalente FROM semantica")
-    filas = cursor.fetchall()
-    
-    parent = {}
-    
-    def find(i):
-        path = []
-        while parent[i] != i:
-            path.append(i)
-            i = parent[i]
-        for node in path:
-            parent[node] = i
-        return i
-        
-    def union(i, j):
-        root_i = find(i)
-        root_j = find(j)
-        if root_i != root_j:
-            parent[root_j] = root_i
-
-    for term, equiv in filas:
-        if term not in parent:
-            parent[term] = term
-        if equiv not in parent:
-            parent[equiv] = equiv
-            
-    for term, equiv in filas:
-        union(term, equiv)
-        
-    grupos = {}
-    for term in parent:
-        raiz = find(term)
-        grupos.setdefault(raiz, set()).add(term)
-        
-    cursor.execute("DELETE FROM grupo_terminos")
-    cursor.execute("DELETE FROM grupos_semanticos")
-    
-    for raiz, terminos in grupos.items():
-        cursor.execute("INSERT INTO grupos_semanticos (raiz) VALUES (?)", (raiz,))
-        grupo_id = cursor.lastrowid
-        cursor.executemany(
-            "INSERT OR REPLACE INTO grupo_terminos (termino, grupo_id) VALUES (?, ?)",
-            [(t, grupo_id) for t in terminos]
-        )
-            
-    cursor.connection.commit()

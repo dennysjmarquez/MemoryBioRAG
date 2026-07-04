@@ -93,32 +93,51 @@ class SQLiteMemoryBioRAG:
             raise ValueError(f"Categoria '{nombre}' no existe. Validas: {validas}")
         return self._cat_cache[nombre]
 
-    def _obtener_conceptos_ids(self, concepto, contenido, sinonimos):
-        """ponytail: extracts tokens and returns space-separated concept group IDs"""
-        from core.semantica import _tokenizar
-        tokens = _tokenizar(f"{concepto} {contenido or ''} {sinonimos or ''}")
-        if not tokens:
-            return ""
-        placeholders = ",".join("?" * len(tokens))
-        self.cursor.execute(
-            f"SELECT DISTINCT grupo_id FROM grupo_terminos WHERE termino IN ({placeholders})",
-            tuple(tokens)
-        )
-        ids = sorted(row[0] for row in self.cursor.fetchall())
-        return " ".join(map(str, ids))
-
-    def regenerar_todos_conceptos_ids(self):
-        """ponytail: recalculates and updates conceptos_ids for all memories in largo_plazo"""
-        self.cursor.execute("SELECT concepto, contenido, sinonimos FROM largo_plazo")
-        rows = self.cursor.fetchall()
-        for concepto, contenido, sinonimos in rows:
-            c_ids = self._obtener_conceptos_ids(concepto, contenido, sinonimos)
-            self.cursor.execute("UPDATE largo_plazo SET conceptos_ids = ? WHERE concepto = ?", (c_ids, concepto))
-        self.conn.commit()
-
     def listar_categorias(self):
         self.cursor.execute("SELECT id, name, description FROM categories ORDER BY id")
         return self.cursor.fetchall()
+
+    def _resolver_dimension_ids(self, tipo_nombre, valores_str):
+        """Convierte nombres de dimensiones de un eje específico a lista de IDs.
+        Retorna (ids_validos, nombres_invalidos)."""
+        nombres = [v.strip().lower() for v in valores_str.split(",") if v.strip()]
+        if not nombres:
+            return [], []
+        ph = ",".join("?" * len(nombres))
+        self.cursor.execute(
+            f"SELECT id, name FROM dimensiones_semanticas "
+            f"WHERE tipo_id = (SELECT id FROM tipos_dimension WHERE nombre = ?) "
+            f"AND name IN ({ph})",
+            [tipo_nombre] + nombres,
+        )
+        rows = self.cursor.fetchall()
+        encontrados = {row[1]: row[0] for row in rows}
+        ids_validos = [encontrados[n] for n in nombres if n in encontrados]
+        invalidos = [n for n in nombres if n not in encontrados]
+        return ids_validos, invalidos
+
+    def _obtener_arbol_dimensiones(self):
+        """Retorna el catálogo completo de dimensiones formateado como string.
+        Se usa para inyectar el catálogo vivo en la descripción de la tool aprender."""
+        self.cursor.execute("""
+            SELECT t.nombre, t.description, d.name, d.description
+            FROM tipos_dimension t
+            LEFT JOIN dimensiones_semanticas d ON d.tipo_id = t.id
+            ORDER BY t.id, d.id
+        """)
+        filas = self.cursor.fetchall()
+        arbol = {}
+        for tipo_nombre, tipo_desc, dim_nombre, dim_desc in filas:
+            if tipo_nombre not in arbol:
+                arbol[tipo_nombre] = {"desc": tipo_desc, "dims": []}
+            if dim_nombre:
+                arbol[tipo_nombre]["dims"].append(f"{dim_nombre}: {dim_desc or '(sin descripción)'}")
+
+        lineas = []
+        for tipo_nombre, data in arbol.items():
+            dims_str = "; ".join(data["dims"]) if data["dims"] else "(vacío)"
+            lineas.append(f"  {tipo_nombre}: {dims_str}")
+        return "\n".join(lineas)
 
     def sync_status(self):
         """Retorna categorías pendientes de sincronizar."""
@@ -197,7 +216,6 @@ class SQLiteMemoryBioRAG:
                 asociaciones TEXT DEFAULT '',
                 ultimo_acceso REAL,
                 sinonimos TEXT DEFAULT '',
-                conceptos_ids TEXT DEFAULT '',
                 FOREIGN KEY (categoria) REFERENCES categories(id)
             )
         """)
@@ -217,16 +235,15 @@ class SQLiteMemoryBioRAG:
                     estado TEXT DEFAULT 'activo',
                     asociaciones TEXT DEFAULT '',
                     ultimo_acceso REAL,
-                    sinonimos TEXT DEFAULT '',
-                    conceptos_ids TEXT DEFAULT ''
+                    sinonimos TEXT DEFAULT ''
                 )
             """)
             self.cursor.execute("""
-                INSERT INTO largo_plazo (concepto, categoria, contenido, peso_sinaptico, estado, asociaciones, ultimo_acceso, sinonimos, conceptos_ids)
+                INSERT INTO largo_plazo (concepto, categoria, contenido, peso_sinaptico, estado, asociaciones, ultimo_acceso, sinonimos)
                 SELECT concepto, COALESCE(categoria, 'general'), contenido,
                        COALESCE(peso_sinaptico, 1.0), COALESCE(estado, 'activo'),
                        COALESCE(asociaciones, ''), COALESCE(ultimo_acceso, 0),
-                       COALESCE(sinonimos, ''), ''
+                       COALESCE(sinonimos, '')
                 FROM largo_plazo_old
             """)
             self.cursor.execute("DROP TABLE largo_plazo_old")
@@ -236,11 +253,6 @@ class SQLiteMemoryBioRAG:
             # Migración segura: agregar columna sinonimos si la tabla existía sin ella
             try:
                 self.cursor.execute("ALTER TABLE largo_plazo ADD COLUMN sinonimos TEXT DEFAULT ''")
-            except sqlite3.OperationalError:
-                pass
-            # Migración segura: agregar columna conceptos_ids si la tabla existía sin ella
-            try:
-                self.cursor.execute("ALTER TABLE largo_plazo ADD COLUMN conceptos_ids TEXT DEFAULT ''")
             except sqlite3.OperationalError:
                 pass
 
@@ -295,6 +307,108 @@ class SQLiteMemoryBioRAG:
         # 3b. Tabla semántica para expansión de queries
         from core.semantica import init_semantica_table
         init_semantica_table(self.cursor)
+
+        # 3c. Catálogo de tipos de dimensión (5 ejes)
+        self.cursor.execute("""
+            CREATE TABLE IF NOT EXISTS tipos_dimension (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                nombre TEXT UNIQUE NOT NULL,
+                description TEXT DEFAULT ''
+            )
+        """)
+        self.cursor.execute("""
+            INSERT OR IGNORE INTO tipos_dimension (id, nombre, description) VALUES
+                (1, 'emocion', '(El "Sentir"): La carga emocional o la reacción subjetiva ante la experiencia'),
+                (2, 'entidad', '(El "Qué"): Cualquier tipo de ente, objeto o concepto que existe como unidad identificable'),
+                (3, 'accion', '(El "Hacer" o "Estar"): Verbos, transiciones, procesos físicos y cognitivos'),
+                (4, 'cualidad', '(El "Cómo"): Propiedades, descripciones, tamaños y valoraciones de las cosas'),
+                (5, 'coordenada', '(Espacio y Tiempo): La ubicación física, las relaciones de distancia y la cronología')
+        """)
+
+        # 3d. Tabla de dimensiones semánticas (39 valores en 5 ejes)
+        self.cursor.execute("""
+            CREATE TABLE IF NOT EXISTS dimensiones_semanticas (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                name TEXT UNIQUE NOT NULL,
+                description TEXT DEFAULT '',
+                tipo_id INTEGER NOT NULL,
+                FOREIGN KEY (tipo_id) REFERENCES tipos_dimension(id)
+            )
+        """)
+        self.cursor.execute("""
+            INSERT OR IGNORE INTO dimensiones_semanticas (name, description, tipo_id) VALUES
+                -- emocion (tipo_id=1)
+                ('afecto', 'Cariño, aprecio, gratitud, amor hacia personas o agentes', 1),
+                ('alegria', 'Satisfacción, logro, orgullo, entusiasmo', 1),
+                ('frustracion', 'Molestia, rabia, arrechera, enojo con algo o alguien', 1),
+                ('tristeza', 'Pérdida, decepción, nostalgia', 1),
+                ('preocupacion', 'Duda, alerta, ansiedad, incertidumbre', 1),
+                ('confusion', 'Desorientación, falta de claridad, no entender', 1),
+                ('sorpresa', 'Asombro, descubrimiento inesperado, impacto', 1),
+                ('miedo', 'Temor, susto, sensación de amenaza o peligro ante algo', 1),
+                -- entidad (tipo_id=2)
+                ('identidad_individual', 'El ser humano en su plano personal, biológico y psicológico', 2),
+                ('identidad_social_legal', 'Vinculación de personas a nivel de cultura, idioma, etnia y estatus legal', 2),
+                ('identidad_organizacional', 'Colectivos, instituciones o agrupaciones de personas estructuradas bajo un fin', 2),
+                ('identidad_digital', 'El rastro, cuentas de usuario, correos electrónicos y representaciones virtuales', 2),
+                ('identidad_artificial', 'Elementos lógicos y de software autónomos, agentes inteligentes de IA, algoritmos', 2),
+                ('identidad_fisica_hardware', 'Dispositivos computacionales físicos, servidores, infraestructura de red', 2),
+                ('identidad_natural', 'Organismos biológicos no humanos, animales, plantas, microorganismos', 2),
+                -- accion (tipo_id=3)
+                ('accion_fisica', 'Movimientos y desplazamientos del cuerpo o de objetos en el espacio', 3),
+                ('accion_transformacion_material', 'Construir, destruir, modificar o alterar objetos físicos o materiales', 3),
+                ('accion_persistencia_computacion', 'Guardar, procesar, consultar o transmitir información digital', 3),
+                ('accion_rutina_automatica', 'Procesos cíclicos, repetitivos o automatizados sin intervención activa', 3),
+                ('accion_comunicacion', 'Enviar, informar, reportar o transferir información entre agentes', 3),
+                ('accion_interaccion_social', 'Acciones entre personas o agentes con propósito relacional', 3),
+                ('accion_cognitiva', 'Procesos de pensamiento, aprendizaje, decisión o inferencia', 3),
+                ('accion_estado_ser', 'Estados de existencia o permanencia sin acción activa', 3),
+                -- cualidad (tipo_id=4)
+                ('cualidad_dimension_fisica', 'Tamaño, forma, cantidad, peso, medida', 4),
+                ('cualidad_estado_condicion', 'Condición física o funcional de algo, íntegro o dañado', 4),
+                ('cualidad_valoracion', 'Juicio de calidad o mérito, bueno/malo, correcto/incorrecto', 4),
+                ('cualidad_sensorial', 'Percepciones captadas por los sentidos: color, textura, sonido, sabor', 4),
+                ('cualidad_material_composicion', 'De qué está hecho o compuesto algo: metálico, digital, orgánico', 4),
+                ('cualidad_temporal_duracion', 'Propiedades de duración o permanencia de algo', 4),
+                ('cualidad_relacional_comparativa', 'Propiedades que solo existen en comparación con otra cosa', 4),
+                ('cualidad_abstracta_conceptual', 'Propiedades no físicas de ideas o sistemas: complejo, simple, lógico', 4),
+                -- coordenada (tipo_id=5)
+                ('coordenada_cronologia_absoluta', 'Fechas o momentos específicos y objetivos', 5),
+                ('coordenada_anclaje_deictico', 'Referencias temporales relativas al momento del habla', 5),
+                ('coordenada_secuencia_relativa', 'Orden entre eventos, sin fecha fija', 5),
+                ('coordenada_ciclo_periodico', 'Repetición regular en el tiempo: diario, semanal, anual', 5),
+                ('coordenada_inclusion_topologica', 'Contención o pertenencia a un espacio', 5),
+                ('coordenada_distancia_proximal', 'Cercanía o lejanía entre puntos', 5),
+                ('coordenada_vector_direccional', 'Dirección u orientación: arriba, abajo, norte', 5),
+                ('coordenada_trayectoria_limite', 'Movimiento entre puntos o fronteras: desde, hacia, a través de', 5)
+        """)
+
+        # 3e. Tablas puente para dimensiones en corto y largo plazo
+        self.cursor.execute("""
+            CREATE TABLE IF NOT EXISTS corto_plazo_dimensiones (
+                concepto     TEXT    NOT NULL,
+                dimension_id INTEGER NOT NULL,
+                PRIMARY KEY (concepto, dimension_id),
+                FOREIGN KEY (concepto)     REFERENCES corto_plazo(concepto) ON DELETE CASCADE,
+                FOREIGN KEY (dimension_id) REFERENCES dimensiones_semanticas(id)
+            )
+        """)
+        self.cursor.execute(
+            "CREATE INDEX IF NOT EXISTS idx_cpd_dimension ON corto_plazo_dimensiones(dimension_id)"
+        )
+        self.cursor.execute("""
+            CREATE TABLE IF NOT EXISTS largo_plazo_dimensiones (
+                concepto     TEXT    NOT NULL,
+                dimension_id INTEGER NOT NULL,
+                PRIMARY KEY (concepto, dimension_id),
+                FOREIGN KEY (concepto)     REFERENCES largo_plazo(concepto) ON DELETE CASCADE,
+                FOREIGN KEY (dimension_id) REFERENCES dimensiones_semanticas(id)
+            )
+        """)
+        self.cursor.execute(
+            "CREATE INDEX IF NOT EXISTS idx_lpd_dimension ON largo_plazo_dimensiones(dimension_id)"
+        )
+        self.conn.commit()
 
         # 4. Migración FK: eliminar categoria_id si existe, agregar FK en categoria→categories.name
         cur = self.cursor
@@ -358,20 +472,17 @@ class SQLiteMemoryBioRAG:
                     asociaciones TEXT DEFAULT '',
                     ultimo_acceso REAL,
                     sinonimos TEXT DEFAULT '',
-                    conceptos_ids TEXT DEFAULT '',
                     FOREIGN KEY (categoria) REFERENCES categories(id)
                 )
             """)
-            old_has_concept_ids = 'conceptos_ids' in lp_cols
-            select_concept_ids = "COALESCE(conceptos_ids, '')" if old_has_concept_ids else "''"
             cur.execute(f"""
-                INSERT INTO largo_plazo (id, concepto, categoria, contenido, peso_sinaptico, estado, asociaciones, ultimo_acceso, sinonimos, conceptos_ids)
+                INSERT INTO largo_plazo (id, concepto, categoria, contenido, peso_sinaptico, estado, asociaciones, ultimo_acceso, sinonimos)
                 SELECT id, concepto,
                        COALESCE((SELECT id FROM categories WHERE name = largo_plazo_old.categoria), 1),
                        contenido,
                        COALESCE(peso_sinaptico, 1.0), COALESCE(estado, 'activo'),
                        COALESCE(asociaciones, ''), COALESCE(ultimo_acceso, 0),
-                       COALESCE(sinonimos, ''), {select_concept_ids}
+                       COALESCE(sinonimos, '')
                 FROM largo_plazo_old
             """)
             cur.execute("DROP TABLE largo_plazo_old")
@@ -381,13 +492,6 @@ class SQLiteMemoryBioRAG:
         self._crear_tabla_comunicaciones()
         self._crear_tabla_fts()
         self._crear_tabla_metricas()
-        
-        # Self-healing: regenerar conceptos_ids si hay alguno vacío y tenemos semántica
-        cur.execute("SELECT COUNT(*) FROM largo_plazo WHERE conceptos_ids IS NULL OR conceptos_ids = ''")
-        if cur.fetchone()[0] > 0:
-            cur.execute("SELECT COUNT(*) FROM semantica")
-            if cur.fetchone()[0] > 0:
-                self.regenerar_todos_conceptos_ids()
 
         # Vistas para visualización con nombre de categoría (drop & recreate para reflejar cambios de esquema)
         self.cursor.execute("DROP VIEW IF EXISTS vista_largo_plazo")
@@ -761,9 +865,10 @@ class SQLiteMemoryBioRAG:
         print(f"[MemoryBioRAG] Evocado exitosamente '{key}' en {(fin - inicio) * 1000000:.2f} microsegundos.")
         return contenido
 
-    def percibir_corto_plazo(self, concepto, contenido, sinonimos="", categoria="General"):
+    def percibir_corto_plazo(self, concepto, contenido, sinonimos="", categoria="General", dimensiones=None):
         """Almacena temporalmente una percepción o hecho en la memoria de trabajo (Corto Plazo).
-        Si el concepto ya existe en corto plazo, concatena contenido y mergea sinónimos."""
+        Si el concepto ya existe en corto plazo, concatena contenido y mergea sinónimos.
+        dimensiones: dict {tipo_nombre: [valores]} para indexación de 5 ejes."""
         key = concepto.lower().strip()
         cat_id = self._resolver_categoria_id(categoria)
         self.cursor.execute("SELECT contenido, sinonimos, categoria FROM corto_plazo WHERE concepto = ?", (key,))
@@ -777,11 +882,25 @@ class SQLiteMemoryBioRAG:
         else:
             contenido_final = contenido
             sinonimos_final = sinonimos
+
         self.cursor.execute("""
             INSERT OR REPLACE INTO corto_plazo (concepto, contenido, timestamp, sinonimos, categoria)
             VALUES (?, ?, ?, ?, ?)
         """, (key, contenido_final, time.time(), sinonimos_final, cat_id))
-        self.conn.commit()
+
+        # Insertar dimensiones en tabla puente
+        dim_dict = dimensiones or {}
+        for tipo_nombre, valores in dim_dict.items():
+            if not valores:
+                continue
+            ids_validos, _ = self._resolver_dimension_ids(
+                tipo_nombre, ",".join(valores) if isinstance(valores, list) else valores
+            )
+            for eid in ids_validos:
+                self.cursor.execute(
+                    "INSERT OR IGNORE INTO corto_plazo_dimensiones (concepto, dimension_id) VALUES (?, ?)",
+                    (key, eid)
+                )
 
         # Auto-aprendizaje semántico: si hay sinónimos, crear equivalencias
         if sinonimos_final:
@@ -802,14 +921,19 @@ class SQLiteMemoryBioRAG:
             return False
         contenido, sinonimos, cat_id = fila
         
-        # Calculate concept group IDs
-        conceptos_ids = self._obtener_conceptos_ids(key, contenido, sinonimos)
-        
         self.cursor.execute(
             "INSERT OR REPLACE INTO largo_plazo "
-            "(concepto, categoria, contenido, peso_sinaptico, estado, sinonimos, conceptos_ids) "
-            "VALUES (?, ?, ?, 1.0, 'activo', ?, ?)",
-            (key, cat_id, contenido, sinonimos or "", conceptos_ids),
+            "(concepto, categoria, contenido, peso_sinaptico, estado, sinonimos) "
+            "VALUES (?, ?, ?, 1.0, 'activo', ?)",
+            (key, cat_id, contenido, sinonimos or ""),
+        )
+        # Propagar dimensiones de corto → largo plazo
+        self.cursor.execute("""
+            INSERT OR IGNORE INTO largo_plazo_dimensiones (concepto, dimension_id)
+            SELECT concepto, dimension_id FROM corto_plazo_dimensiones WHERE concepto = ?
+        """, (key,))
+        self.cursor.execute(
+            "DELETE FROM corto_plazo_dimensiones WHERE concepto = ?", (key,)
         )
         self.cursor.execute("DELETE FROM corto_plazo WHERE concepto = ?", (key,))
         self.conn.commit()
@@ -934,24 +1058,26 @@ class SQLiteMemoryBioRAG:
                 sinonimos_final = ",".join(sinonimos_exist + sinonimos_nuevos)
                 cat_id = existente[4] or cat_id
                 
-                # Calculate concept group IDs
-                conceptos_ids = self._obtener_conceptos_ids(concepto, nuevo_contenido, sinonimos_final)
-                
                 self.cursor.execute("""
                     UPDATE largo_plazo 
-                    SET contenido = ?, peso_sinaptico = ?, estado = 'activo', ultimo_acceso = ?, sinonimos = ?, categoria = ?, conceptos_ids = ?
+                    SET contenido = ?, peso_sinaptico = ?, estado = 'activo', ultimo_acceso = ?, sinonimos = ?, categoria = ?
                     WHERE concepto = ?
-                """, (nuevo_contenido, nuevo_peso, time.time(), sinonimos_final, cat_id, conceptos_ids, concepto))
+                """, (nuevo_contenido, nuevo_peso, time.time(), sinonimos_final, cat_id, concepto))
             else:
                 # Creación de un nuevo nodo en el grafo con peso inicial máximo
-                conceptos_ids = self._obtener_conceptos_ids(concepto, contenido, sinonimos)
                 self.cursor.execute("""
-                    INSERT INTO largo_plazo (concepto, categoria, contenido, peso_sinaptico, estado, asociaciones, ultimo_acceso, sinonimos, conceptos_ids)
-                    VALUES (?, ?, ?, 1.0, 'activo', '', ?, ?, ?)
-                """, (concepto, cat_id or 1, contenido, time.time(), sinonimos or "", conceptos_ids))
+                    INSERT INTO largo_plazo (concepto, categoria, contenido, peso_sinaptico, estado, asociaciones, ultimo_acceso, sinonimos)
+                    VALUES (?, ?, ?, 1.0, 'activo', '', ?, ?)
+                """, (concepto, cat_id or 1, contenido, time.time(), sinonimos or ""))
 
-            # Borrar de corto_plazo después de consolidar (para que LTD lo incluya)
-            self.cursor.execute("DELETE FROM corto_plazo WHERE concepto = ?", (concepto,))
+            # Propagar dimensiones de corto → largo plazo
+            self.cursor.execute("""
+                INSERT OR IGNORE INTO largo_plazo_dimensiones (concepto, dimension_id)
+                SELECT concepto, dimension_id FROM corto_plazo_dimensiones WHERE concepto = ?
+            """, (concepto,))
+            self.cursor.execute(
+                "DELETE FROM corto_plazo_dimensiones WHERE concepto = ?", (concepto,)
+            )
 
         # Auto-vincular cada concepto consolidado (aristas por solapamiento de tokens)
         from core.sinapsis import auto_vincular
@@ -1538,7 +1664,7 @@ class SQLiteMemoryBioRAG:
 
         return round(0.55 * score_texto + 0.35 * peso_normalizado + 0.10 * score_asoc + score_temporal, 4)
 
-    def buscar_por_frase(self, frase, profundidad="activos", pagina=1, limite=None, categoria=None, preview_chars=1500, historial_fallos=None, context_window=0):
+    def buscar_por_frase(self, frase, profundidad="activos", pagina=1, limite=None, categoria=None, preview_chars=1500, historial_fallos=None, context_window=0, emocion_sql_filter=None):
         """Busqueda hibrida: FTS5 trigram + peso sinaptico + asociaciones.
 
         frase: texto en lenguaje natural. Trigrams nativos de FTS5 manejan
@@ -1553,6 +1679,9 @@ class SQLiteMemoryBioRAG:
         context_window: numero de vecinos por resultado a incluir como contexto.
                         0 = solo resultados principales (default).
                         Maximo 3. Vecinos se obtienen de sinapsis por peso.
+        emocion_sql_filter: string SQL opcional para filtrar por emociones.
+                            Se inyecta en filtros[] y filtros_fb[] (DB-side).
+                            Ej: "l.concepto IN (SELECT concepto FROM largo_plazo_dimensiones WHERE dimension_id IN (1,3))"
         Retorna (resultados, total) donde resultados es lista de
         (concepto, contenido, peso, estado, score, asociaciones)
         """
@@ -1562,18 +1691,6 @@ class SQLiteMemoryBioRAG:
             limite = LIMITE_DEFAULT
         if not frase.strip():
             return [], 0
-
-        # Obtener conceptos_ids de la frase de búsqueda para aplicar el multiplicador dinámico
-        from core.semantica import _tokenizar
-        q_tokens = _tokenizar(frase)
-        query_conceptos_ids = set()
-        if q_tokens:
-            placeholders = ",".join("?" * len(q_tokens))
-            self.cursor.execute(
-                f"SELECT DISTINCT grupo_id FROM grupo_terminos WHERE termino IN ({placeholders})",
-                tuple(q_tokens)
-            )
-            query_conceptos_ids = {row[0] for row in self.cursor.fetchall()}
 
         # Limpiar la frase para FTS5 trigram
         query = frase.strip()
@@ -1588,12 +1705,14 @@ class SQLiteMemoryBioRAG:
         if categoria:
             cat_id = self._resolver_categoria_id(categoria)
             filtros.append(f"l.categoria = {cat_id}")
+        if emocion_sql_filter:
+            filtros.append(f"l.{emocion_sql_filter}")
         clause = (" AND " + " AND ".join(filtros)) if filtros else ""
 
         # Construir consulta desde la frase limpia
         sql = """
             SELECT l.rowid, l.concepto, l.contenido, l.peso_sinaptico,
-                   l.estado, l.asociaciones, l.conceptos_ids
+                   l.estado, l.asociaciones
             FROM largo_plazo_fts f
             JOIN largo_plazo l ON l.rowid = f.rowid
             WHERE largo_plazo_fts MATCH ?{filtro}
@@ -1623,7 +1742,7 @@ class SQLiteMemoryBioRAG:
             clause_like = clause.replace("l.", "") if clause else ""
             sql_like = f"""
                 SELECT l.rowid, l.concepto, l.contenido, l.peso_sinaptico,
-                       l.estado, l.asociaciones, l.conceptos_ids
+                       l.estado, l.asociaciones
                 FROM largo_plazo l
                 WHERE {like_where}{clause_like}
             """
@@ -1748,7 +1867,7 @@ class SQLiteMemoryBioRAG:
                 query_wild = self._agregar_prefix_wildcards(query)
                 sql_unicode = """
                     SELECT l.rowid, l.concepto, l.contenido, l.peso_sinaptico,
-                           l.estado, l.asociaciones, l.conceptos_ids
+                           l.estado, l.asociaciones
                     FROM largo_plazo_fts_unicode f
                     JOIN largo_plazo l ON l.rowid = f.rowid
                     WHERE largo_plazo_fts_unicode MATCH ?{filtro}
@@ -1808,10 +1927,13 @@ class SQLiteMemoryBioRAG:
                         ) + ")"
                         pc_bridge_params = tuple(p for t in filtrar for p in (t, t, t))
                         try:
+                            bridge_filter = " AND l.estado = 'activo'"
+                            if emocion_sql_filter:
+                                bridge_filter += f" AND l.{emocion_sql_filter}"
                             self.cursor.execute(
                                 "SELECT DISTINCT l.concepto FROM largo_plazo_fts f "
                                 "JOIN largo_plazo l ON l.rowid = f.rowid "
-                                "WHERE largo_plazo_fts MATCH ? AND l.estado = 'activo' "
+                                "WHERE largo_plazo_fts MATCH ? " + bridge_filter
                                 + pc_bridge_clause + " LIMIT 50",
                                 (fts_q,) + pc_bridge_params
                             )
@@ -1821,22 +1943,25 @@ class SQLiteMemoryBioRAG:
                     fts_tokens = [f'"{t}"' for t in query_tokens if len(t) >= 3]
                     if fts_tokens:
                         fts_q = " OR ".join(fts_tokens)
+                        lat_clause = " AND l.estado = 'activo'"
+                        if emocion_sql_filter:
+                            lat_clause += f" AND l.{emocion_sql_filter}"
                         self.cursor.execute(
                             "SELECT l.rowid, l.concepto, l.contenido, l.peso_sinaptico, "
-                            "l.estado, l.asociaciones, l.conceptos_ids "
+                            "l.estado, l.asociaciones "
                             "FROM largo_plazo_fts f JOIN largo_plazo l ON l.rowid = f.rowid "
-                            "WHERE largo_plazo_fts MATCH ? AND l.estado = 'activo' LIMIT ?",
+                            "WHERE largo_plazo_fts MATCH ?" + lat_clause + " LIMIT ?",
                             (fts_q, CANDIDATOS_SIMILITUD)
                         )
                         candidatos_lat = self.cursor.fetchall()
                         scored = []
                         seen_rowids = {r[0] for r in todos}
-                        for rowid, concepto, contenido, peso, estado, asoc, conceptos_ids in candidatos_lat:
+                        for rowid, concepto, contenido, peso, estado, asoc in candidatos_lat:
                             if rowid in seen_rowids:
                                 continue
                             s = score_similitud_latente(self.cursor, query_tokens, concepto, contenido, grafo=grafo, nodos_cache=nodos_cache)
                             if s >= 0.15:
-                                scored.append((s, (rowid, concepto, contenido, peso, estado, asoc or "", conceptos_ids)))
+                                scored.append((s, (rowid, concepto, contenido, peso, estado, asoc or "")))
                         scored.sort(key=lambda x: x[0], reverse=True)
                         for jaccard_score, row in scored[:LIMITE_SIMILITUD]:
                             todos.append(row)
@@ -1856,12 +1981,14 @@ class SQLiteMemoryBioRAG:
             if categoria:
                 cat_id_fb = self._resolver_categoria_id(categoria)
                 filtros_fb.append(f"categoria = {cat_id_fb}")
+            if emocion_sql_filter:
+                filtros_fb.append(emocion_sql_filter)
             # PALABRA_COMPLETA filtra en DB: "culo" no matchea "artículo"
             filtros_fb.append("PALABRA_COMPLETA(?, contenido) = 1")
             where_fb = "WHERE " + " AND ".join(filtros_fb)
             try:
                 self.cursor.execute(
-                    f"SELECT rowid, concepto, contenido, peso_sinaptico, estado, asociaciones, conceptos_ids FROM largo_plazo {where_fb}",
+                    f"SELECT rowid, concepto, contenido, peso_sinaptico, estado, asociaciones FROM largo_plazo {where_fb}",
                     (query.lower(),)
                 )
                 filas = self.cursor.fetchall()
@@ -1885,10 +2012,12 @@ class SQLiteMemoryBioRAG:
             if categoria:
                 cat_id_fb2 = self._resolver_categoria_id(categoria)
                 filtros_fb.append(f"categoria = {cat_id_fb2}")
+            if emocion_sql_filter:
+                filtros_fb.append(emocion_sql_filter)
             where_fb = ("WHERE " + " AND ".join(filtros_fb)) if filtros_fb else ""
             try:
                 self.cursor.execute(
-                    f"SELECT rowid, concepto, contenido, peso_sinaptico, estado, asociaciones, conceptos_ids FROM largo_plazo {where_fb} LIMIT {sql_limit}"
+                    f"SELECT rowid, concepto, contenido, peso_sinaptico, estado, asociaciones FROM largo_plazo {where_fb} LIMIT {sql_limit}"
                 )
                 filas = self.cursor.fetchall()
                 query_words = re.findall(r'\w{3,}', query.lower())
@@ -1983,12 +2112,14 @@ class SQLiteMemoryBioRAG:
                         if semillas:
                             evocados = self._evocacion_por_cadena(semillas)
                             for concepto_ev, decay_score, _ in evocados:
-                                self.cursor.execute(
+                                ev_sql = (
                                     "SELECT rowid, concepto, contenido, peso_sinaptico, "
-                                    "estado, asociaciones, conceptos_ids FROM largo_plazo "
-                                    "WHERE concepto = ? AND estado = 'activo'",
-                                    (concepto_ev,)
+                                    "estado, asociaciones FROM largo_plazo "
+                                    "WHERE concepto = ? AND estado = 'activo'"
                                 )
+                                if emocion_sql_filter:
+                                    ev_sql += f" AND {emocion_sql_filter}"
+                                self.cursor.execute(ev_sql, (concepto_ev,))
                                 row = self.cursor.fetchone()
                                 if row and row[1] not in {r[1] for r in todos} and row[2]:
                                     # Filtro PALABRA_COMPLETA: el nodo evocado debe contener
@@ -2017,11 +2148,13 @@ class SQLiteMemoryBioRAG:
             seen = {r[1] for r in todos}
             for concepto, match_ratio in resultados_concepto.items():
                 if concepto not in seen and match_ratio >= 0.3:
-                    self.cursor.execute(
-                        "SELECT rowid, concepto, contenido, peso_sinaptico, estado, asociaciones, conceptos_ids "
-                        "FROM largo_plazo WHERE concepto = ?",
-                        (concepto,)
+                    merge_sql = (
+                        "SELECT rowid, concepto, contenido, peso_sinaptico, estado, asociaciones "
+                        "FROM largo_plazo WHERE concepto = ?"
                     )
+                    if emocion_sql_filter:
+                        merge_sql += f" AND {emocion_sql_filter}"
+                    self.cursor.execute(merge_sql, (concepto,))
                     row = self.cursor.fetchone()
                     if row and (profundidad == "profundo" or row[4] == "activo"):
                         todos.append(row)
@@ -2040,10 +2173,13 @@ class SQLiteMemoryBioRAG:
                 sin_conds = " OR ".join(["l.sinonimos LIKE '%' || ? || '%'" for _ in palabras_sin])
                 sin_params = list(palabras_sin)
             try:
+                sin_where = f"l.sinonimos IS NOT NULL AND l.sinonimos != '' AND l.estado = 'activo' AND ({sin_conds})"
+                if emocion_sql_filter:
+                    sin_where += f" AND l.{emocion_sql_filter}"
                 self.cursor.execute(
                     f"SELECT l.concepto, l.sinonimos, l.peso_sinaptico "
                     f"FROM largo_plazo l "
-                    f"WHERE l.sinonimos IS NOT NULL AND l.sinonimos != '' AND l.estado = 'activo' AND ({sin_conds})",
+                    f"WHERE {sin_where}",
                     sin_params
                 )
                 for conc, sin_text, _ in self.cursor.fetchall():
@@ -2057,11 +2193,13 @@ class SQLiteMemoryBioRAG:
             seen = {r[1] for r in todos}
             for concepto, match_ratio in resultados_semantica.items():
                 if concepto not in seen:
-                    self.cursor.execute(
-                        "SELECT rowid, concepto, contenido, peso_sinaptico, estado, asociaciones, conceptos_ids "
-                        "FROM largo_plazo WHERE concepto = ?",
-                        (concepto,)
+                    merge_sql = (
+                        "SELECT rowid, concepto, contenido, peso_sinaptico, estado, asociaciones "
+                        "FROM largo_plazo WHERE concepto = ?"
                     )
+                    if emocion_sql_filter:
+                        merge_sql += f" AND {emocion_sql_filter}"
+                    self.cursor.execute(merge_sql, (concepto,))
                     row = self.cursor.fetchone()
                     if row and (profundidad == "profundo" or row[4] == "activo"):
                         todos.append(row)
@@ -2070,26 +2208,21 @@ class SQLiteMemoryBioRAG:
         if not todos:
             return [], 0
 
-        # DEBUG: dump todos before scoring
+
 
         # Calcular score hibrido para cada resultado
         # Dynamic Multiplicator: consultar origen_scores para activar fórmula de emergencia
         total = len(todos)
         resultados_con_hibrido = []
-        for i, (rowid, concepto, contenido, peso, estado, asociaciones, conceptos_ids) in enumerate(todos):
+        for i, (rowid, concepto, contenido, peso, estado, asociaciones) in enumerate(todos):
             origen, score_capa = origen_scores.get(concepto, ("literal", 0.0))
             es_latente = origen in ("latente", "cadena", "expansion") and score_capa >= 0.15
             es_concepto = origen in ("concepto", "semantica") and score_capa >= 0.3
             score_hibrido = self._calcular_score_hibrido(
-                i, total, peso, asociaciones or "", pesos_tokens, contenido or "",
+                i, total, peso, asociaciones or "", contenido or "",
                 es_latente=es_latente, score_latente=score_capa,
                 es_concepto=es_concepto, score_concepto=score_capa
             )
-            # Aplicar boost dinámico (1.2x) si hay solape de conceptos_ids
-            if query_conceptos_ids and conceptos_ids:
-                record_conceptos = set(map(int, conceptos_ids.split()))
-                if query_conceptos_ids & record_conceptos:
-                    score_hibrido = round(score_hibrido * 1.2, 4)
 
             resultados_con_hibrido.append(
                 (concepto, contenido, peso, estado, score_hibrido, asociaciones or "")

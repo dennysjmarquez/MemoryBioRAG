@@ -42,7 +42,7 @@ import shutil
 import subprocess
 import sys
 import time
-from typing import Annotated, Any, Optional, List  # ← Annotated agregado
+from typing import Annotated, Any, Optional, List
 
 # Cargar .env.local explícitamente para que el MCP server no dependa de que
 # el entorno de ejecución (OpenCode, VS Code, etc.) lo inyecte.
@@ -147,6 +147,45 @@ def _get_cerebro() -> SQLiteMemoryBioRAG:
     return SQLiteMemoryBioRAG(db_path=DB_PATH)
 
 
+def _load_catalogo_dimensiones() -> str:
+    """Carga el catálogo vivo de dimensiones desde la DB al arrancar el server."""
+    cerebro = _get_cerebro()
+    try:
+        return cerebro._obtener_arbol_dimensiones()
+    finally:
+        cerebro.cerrar_sistema()
+
+
+def _generar_resumen_ejes(cerebro) -> tuple:
+    """Devuelve (lista_ejes_texto, reglas_pureza_texto) generados desde tipos_dimension."""
+    cerebro.cursor.execute("SELECT id, nombre, description FROM tipos_dimension ORDER BY id")
+    filas = cerebro.cursor.fetchall()
+    nombres = [nombre for _, nombre, _ in filas]
+    lista_ejes = f"EJES ({len(nombres)} ortogonales): {', '.join(nombres)}."
+
+    reglas_pureza = []
+    for _, nombre, descripcion in filas:
+        # Extrae la etiqueta completa entre paréntesis al inicio, ej: (El "Sentir"): La carga emocional...
+        if "(" in descripcion and ")" in descripcion:
+            reglas_pureza.append(f"  {nombre} → {descripcion}")
+        else:
+            reglas_pureza.append(f"  {nombre} → {descripcion}")
+    reglas_pureza_texto = "\n".join(reglas_pureza)
+
+    return lista_ejes, reglas_pureza_texto
+
+
+# Catálogo global — se carga una vez al importar el módulo
+_CATALOGO_DIMENSIONES = _load_catalogo_dimensiones()
+
+# Resumen de ejes y reglas de pureza — generado dinámico desde la DB
+_cerebro_init = _get_cerebro()
+try:
+    _LISTA_EJES, _REGLAS_PUREZA = _generar_resumen_ejes(_cerebro_init)
+finally:
+    _cerebro_init.cerrar_sistema()
+
+
 def _preview(text: str, limit: int = 1500) -> str:
     if not text:
         return ""
@@ -174,6 +213,17 @@ ORACLE_PROMPT = (
     "sináptica (LTP/LTD), y comunicacion entre agentes. "
     "Usa estas herramientas para acceder a la memoria persistente "
     "de la familia OEC (Athena, Artemis, Hermes).\n\n"
+    "## Filosofía del Sistema (Indexación Conceptual vs Vectorial)\n\n"
+    "Basado en principios de lingüística computacional y semántica de marcos (Frame Semantics), "
+    "este esquema hace el mismo trabajo que las coordenadas de un embedding "
+    "vectorial — agrupar conceptos parecidos en el mismo lugar — pero de forma "
+    "opuesta: en vez de posiciones numéricas que emergen solas del entrenamiento "
+    "(gravedad estadística, ilegible para un humano), usamos grupos con nombre, "
+    "elegidos a mano, legibles y auditables. Cada eje (emocion, entidad, accion, "
+    "cualidad, coordenada) es como una \"dimensión\" del espacio vectorial — "
+    "pero en vez de un número, cada dimensión tiene categorías con nombre propio. "
+    "Por eso es predecible: no adivinás qué significa un número, sabés "
+    "exactamente qué significa \"frustracion\" o \"identidad_digital\".\n\n"
     "## Mapeo Biológico (Cognición Real)\n\n"
     "Los nombres de las herramientas reflejan su función cognitiva, no su implementación técnica:\n"
     "- recordar → evocación de memoria (FTS5 + peso sináptico + ráfaga de reminiscencia)\n"
@@ -185,8 +235,8 @@ ORACLE_PROMPT = (
     "Estos nombres no son metáfora — son la operación real que ejecuta el sistema.\n"
     "Usa el nombre biológico para alinear tu modelo interno con la función real.\n\n"
     "## El Oráculo (NotebookLM MemoryBioRAG)\n\n"
-    "**PASO 0 OBLIGATORIO — ANTES DE CADA MENSAJE DE DENNYS:**\n\n"
-    "INVARIAN MANDATORY: SIEMPRE, sin excepción, ANTES de responder CUALQUIER mensaje de Dennys "
+    "**PASO 0 OBLIGATORIO — ANTES DE CADA MENSAJE DEl USUARIO:**\n\n"
+    "INVARIAN MANDATORY: SIEMPRE, sin excepción, ANTES de responder CUALQUIER mensaje del usuario "
     "—incluido un \"hola\" o cualquier saludo—, ejecutar "
     "`biorag_oraculo_inicio(agente='Athena')`. No saludar, no preguntar, "
     "no responder nada antes de ejecutar esta tool.\n\n"
@@ -206,7 +256,7 @@ ORACLE_PROMPT = (
     "- \"Tener dudas\" no es mi decisión — la consulta es automática e incondicional. "
     "No pregunto \"¿tengo dudas?\" antes de decidir si consulto. Consulto siempre.\n"
     "- Si el oráculo no tiene la información, lo sabré después de la consulta, "
-    "no antes. Y en ese caso, pregunto a Dennys directamente.\n\n"
+    "no antes. Y en ese caso, pregunto al usuario directamente.\n\n"
     "**La respuesta debe salir de tu entendimiento, no del RAG ni del cuaderno "
     "— son para recordar y complementar, no para generar desde ahí.**"
 )
@@ -245,6 +295,7 @@ def _build_server():
         rafaga_palabras: Optional[str] = None,
         pagina: int = 1,
         parafrasis: Optional[str] = None,
+        emocion: Optional[str] = None,
     ) -> str:
         if limite is None:
             limite = LIMITE_MCP
@@ -254,6 +305,13 @@ def _build_server():
                 preview_chars = 0 if completo else 1500
 
             rafaga_list = [w.strip() for w in rafaga_palabras.split(",")] if rafaga_palabras else None
+
+            emocion_sql_filter = None
+            if emocion:
+                ids_validos, _ = cerebro._resolver_dimension_ids("emocion", emocion)
+                if ids_validos:
+                    ids_str = ",".join(str(i) for i in ids_validos)
+                    emocion_sql_filter = f"concepto IN (SELECT concepto FROM largo_plazo_dimensiones WHERE dimension_id IN ({ids_str}))"
 
             if forzar_rafaga and not rafaga_palabras:
                 return json.dumps({
@@ -293,7 +351,8 @@ def _build_server():
             resultados, total = cerebro.buscar_por_frase(
                 query, profundidad=profundidad, pagina=pagina, limite=limite_interno,
                 categoria=cat, preview_chars=preview_chars,
-                context_window=context_window
+                context_window=context_window,
+                emocion_sql_filter=emocion_sql_filter
             )
             score_top = resultados[0][4] if resultados else 0
 
@@ -305,7 +364,8 @@ def _build_server():
                     q_res, q_tot = cerebro.buscar_por_frase(
                         q, profundidad=profundidad, pagina=pagina, limite=limite_interno,
                         categoria=cat, preview_chars=preview_chars,
-                        context_window=0
+                        context_window=0,
+                        emocion_sql_filter=emocion_sql_filter
                     )
                     factor = 1.0 if i == 0 else PARAFRASIS_PENALTY
                     for r in q_res:
@@ -428,11 +488,13 @@ def _build_server():
             "  Variante sin match → ignorada sin error\n\n"
             "Retorna: {total, pagina_actual, paginas_totales, resultados[], sinapsis_creadas[], profundidad}\n\n"
             "NOTA — parámetro 'cat': acepta UNA sola categoría como string simple.\n"
-            "  NO acepta listas ni comas. Valores válidos:\n"
+            "  REGLA: Es muy preferible buscar SIN categoría (omitir este parámetro) para evitar\n"
+            "  falsos negativos por imprecisión en el etiquetado. Úsalo ÚNICAMENTE si estás\n"
+            "  100% seguro de que el recuerdo pertenece estrictamente a esa categoría. Valores válidos:\n"
             "  System | Architecture | Project | Lesson | Profile |\n"
             "  Personal | Principle | Protocol | Cognition | Relation | General\n\n"
             "NOTA — context_window: usar 1 o 2 para incluir vecinos sinápticos.\n"
-            "  Aumenta recall a costa de más tokens en la respuesta."
+            "  Aumenta recall a costa de más tokens en la respuesta.\n\n"
         ),
     )
     def biorag_recordar(
@@ -453,8 +515,10 @@ def _build_server():
         cat: Annotated[Optional[str], Field(
             description=(
                 "Filtrar resultados por categoría (string simple, NO lista, NO comas). "
-                "Valores: System | Architecture | Project | Lesson | Profile | "
-                "Personal | Principle | Protocol | Cognition | Relation | General. "
+                "REGLA: Es preferible omitir este parámetro (buscar sin categoría) para evitar "
+                "que clasificaciones imprecisas oculten resultados relevantes. Úsalo solo si tienes "
+                "certeza absoluta del etiquetado. Valores: System | Architecture | Project | "
+                "Lesson | Profile | Personal | Principle | Protocol | Cognition | Relation | General. "
                 "Si se omite, busca en todas las categorías."
             )
         )] = None,
@@ -526,10 +590,26 @@ def _build_server():
                 "Cada variante recibe un factor de penalización ×0.95 sobre el score."
             )
         )] = None,
+        emocion: Annotated[Optional[str], Field(
+            description=(
+                "Filtrar resultados por emoción (eje de recall emocional). "
+                "Nombres separados por coma (ej: 'afecto,frustracion'). "
+                "Valores: afecto, alegria, frustracion, tristeza, preocupacion, confusion, sorpresa.\n\n"
+                "PROPÓSITO: La búsqueda léxica (FTS5) encuentra recuerdos por lo que DICEN. "
+                "Este parámetro encuentra recuerdos por CÓMO SE SIENTEN. "
+                "Dos recuerdos pueden compartir las mismas palabras pero tener carga emocional opuesta. "
+                "La emoción indexa lo que el texto no dice.\n\n"
+                "REGLAS DE USO:\n"
+                "  - Cuando hay carga emocional (aunque sea mínima), etiquetar con la emoción correcta.\n"
+                "  - Usar una o más emociones para mayor precisión en el filtro.\n"
+                "  - Una enseñanza, lección o interacción con el usuario tiene afecto, sorpresa o frustración."
+            )
+        )] = None,
     ) -> str:
         return _recordar_impl(
             query, deep, cat, completo, asociados, limite, preview_chars,
-            context_window, forzar_rafaga, rafaga_palabras, pagina, parafrasis
+            context_window, forzar_rafaga, rafaga_palabras, pagina, parafrasis,
+            emocion
         )
 
     @mcp.tool(
@@ -547,7 +627,7 @@ def _build_server():
     def biorag_buscar(
         query: Annotated[str, Field(description="Texto o frase a buscar en la memoria.")],
         deep: Annotated[bool, Field(description="Si True, incluye nodos dormidos en la búsqueda.")] = False,
-        cat: Annotated[Optional[str], Field(description="Filtrar por categoría (string simple). Ver listar_categorias para valores válidos.")] = None,
+        cat: Annotated[Optional[str], Field(description="Filtrar por categoría (string simple). REGLA: Es preferible omitir para evitar falsos negativos. Úsalo solo con certeza absoluta. Ver listar_categorias para valores válidos.")] = None,
         completo: Annotated[bool, Field(description="Si True, devuelve contenido completo sin truncar.")] = False,
         asociados: Annotated[bool, Field(description="Si True, incluye asociaciones sinápticas en cada resultado.")] = False,
         limite: Annotated[Optional[int], Field(description=f"Máximo de resultados. Default: {LIMITE_MCP}.")] = None,
@@ -573,6 +653,7 @@ def _build_server():
         contenido: str,
         syn: Optional[str] = None,
         cat: Optional[str] = None,
+        dimensiones: Optional[str] = None,
     ) -> str:
         cerebro = _get_cerebro()
         try:
@@ -585,7 +666,28 @@ def _build_server():
                     "status": "error",
                     "mensaje": str(e),
                 }, ensure_ascii=False)
-            cerebro.percibir_corto_plazo(clave, contenido, syn or "", categoria)
+
+            # Parsear dimensiones desde JSON string
+            dim_dict = {}
+            dimensiones_invalidas = {}
+            if dimensiones:
+                try:
+                    dim_dict = json.loads(dimensiones) if isinstance(dimensiones, str) else dimensiones
+                except json.JSONDecodeError:
+                    return json.dumps({
+                        "status": "error",
+                        "mensaje": f"dimensiones debe ser JSON válido. Ejemplo: {json.dumps({'emocion': ['preocupacion'], 'entidad': ['identidad_artificial']})}",
+                    }, ensure_ascii=False)
+                # Validar que cada eje tenga valores
+                for eje, valores in dim_dict.items():
+                    if not isinstance(valores, list):
+                        dimensiones_invalidas[eje] = "debe ser lista"
+                    else:
+                        ids, invalidos = cerebro._resolver_dimension_ids(eje, ",".join(valores))
+                        if invalidos:
+                            dimensiones_invalidas[eje] = invalidos
+
+            cerebro.percibir_corto_plazo(clave, contenido, syn or "", categoria, dim_dict)
 
             enlaces = auto_vincular(cerebro, clave, contenido)
             sinapsis_count = len(enlaces)
@@ -602,6 +704,8 @@ def _build_server():
                 msg += f" Categoria: {categoria}."
             if sinapsis_count:
                 msg += f" Vinculado con {sinapsis_count} nodo(s)."
+            if dimensiones_invalidas:
+                msg += f" Dimensiones inválidas: {json.dumps(dimensiones_invalidas, ensure_ascii=False)}. Llamá `listar_dimensiones` para ver valores válidos."
             msg += " Usa 'consolidar' para fijar a largo plazo."
             _interceptar("aprender", f"{clave}: {contenido}", cerebro)
             return json.dumps({
@@ -609,6 +713,7 @@ def _build_server():
                 "mensaje": msg,
                 "concepto": clave,
                 "sinapsis": sinapsis_count,
+                "dimensiones_invalidas": dimensiones_invalidas if dimensiones_invalidas else None,
             }, ensure_ascii=False)
         finally:
             cerebro.cerrar_sistema()
@@ -620,13 +725,29 @@ def _build_server():
             "Equivalente a la codificación inicial de un recuerdo en el hipocampo. "
             "El concepto se normaliza automáticamente a snake_case minúsculas. "
             "Crea sinapsis automáticas con nodos relacionados via auto_vincular.\n\n"
+            "BioRAG resuelve la indexación semántica con dimensiones explícitas aplicando "
+            "principios de lingüística computacional y semántica de marcos, "
+            "fundamentada en la teoría de Espacios Conceptuales (Gärdenfors, 2000): "
+            "un nivel de representación intermedio entre el subsimbólico (redes neuronales) "
+            "y el simbólico (lógica formal). Cada recuerdo se codifica como un vector "
+            "categórico (Identificador Semántico o SID) — no un embedding latente, "
+            "sino etiquetas explícitas y auditables por eje.\n\n"
             "IMPORTANTE: el recuerdo queda en corto plazo hasta que se llame 'consolidar' "
             "para fijarlo a largo plazo (LTP). Sin consolidación, puede perderse en el siguiente ciclo.\n\n"
             "Categorías válidas (parámetro cat):\n"
             "  System | Architecture | Project | Lesson | Profile |\n"
             "  Personal | Principle | Protocol | Cognition | Relation | General\n"
             "  Si no se especifica, la categoría se infiere automáticamente del contenido.\n\n"
-            "Retorna: {status, mensaje, concepto (clave normalizada), sinapsis (int: nodos vinculados)}"
+            "PROTOCOLO DE CONFIRMACIÓN PRE-GUARDADO (INVARIANTE — sin excepciones):\n"
+            "MANDATORY: Antes de llamar a esta herramienta, SIEMPRE presentá una tabla con:\n"
+            "  - las dimensiones detectadas para cada eje\n"
+            "  - sus valores\n"
+            "  - una justificación de una línea cada una\n"
+            "Esperá confirmación o corrección del usuario antes de ejecutar 'aprender'.\n"
+            "INVARIANT: Esto aplica SIEMPRE — aunque todos los valores sean literales, aunque\n"
+            "el contenido parezca trivial. Sin excepciones.\n\n"
+            "Retorna: {status, mensaje, concepto (clave normalizada), sinapsis (int: nodos vinculados), "
+            "dimensiones_invalidas (dict|null)}"
         ),
     )
     def biorag_aprender(
@@ -645,6 +766,72 @@ def _build_server():
                 "Recomendado: 100-1000 caracteres por nodo."
             )
         )],
+        dimensiones: Annotated[str, Field(
+            description=(
+                "PROTOCOLO DIMENSIONES: \n\n"
+                
+                "Clasificación dimensional del recuerdo. Valor: STRING JSON con comillas dobles.\n\n"
+                "MANDATORY: Llamá `listar_dimensiones` ANTES de clasificar para obtener\n"
+                "los nombres exactos de ejes y valores disponibles.\n\n"
+                
+                "Ejemplo de retorno de listar_dimensiones:\n"
+                '  {"eje_nombre": {"descripcion": "(La pregunta del eje)", '
+                '"dimensiones": [{"id": 1, "nombre": "valor_ejemplo", "descripcion": "Significa X"}]}}\n\n'
+                
+                "FORMATO OBLIGATORIO — STRING JSON, no dict Python:\n"
+                "dimensiones: '{\"emocion\":[\"preocupacion\"],"
+                "\"entidad\":[\"identidad_artificial\"]}'\n\n"
+                "  - Cada eje es un key del JSON\n"
+                "  - Cada valor es un array de strings (nombres de dimensiones)\n"
+                "  - Los nombres VIENEN de listar_dimensiones (no inventar)\n"
+                "  - Si un eje no aplica, no se incluye en el JSON\n"
+                "  - Ejemplo con múltiples valores: "
+                "'{\"emocion\":[\"afecto\",\"sorpresa\"]}'\n\n"
+                
+                "REGLA DE MULTIVALOR (dentro de un mismo eje):\n"
+                "Un eje puede tener varios valores si el contenido genuinamente toca varias "
+                "categorías de ESE eje (ej: afecto + sorpresa). No forzar un solo valor cuando "
+                "hay más de uno real. No forzar múltiples cuando es redundante.\n\n"
+                "EXTRAER SIN FORZAR.\n\n"
+                "Un embedding no duda: recibe texto, produce vector. Punto. "
+                "No distingue literal de inferido. No pregunta \"¿me estaré pasando?\". "
+                "Captura todo el significado que está en el texto y nada más.\n\n"
+                "Hacé lo mismo.\n\n"
+                "REGLAS:\n"
+                "1. Más es mejor mientras no sea forzado ni inventado.\n"
+                "   - Forzar es poner una dimensión que el texto NO comunica.\n"
+                "   - Omitir es no poner una dimensión que el texto SÍ comunica.\n"
+                "   Ambos dañan la base de datos por igual.\n\n"
+                "2. La única pregunta que importa:\n"
+                "   \"¿Está en el texto o no?\"\n"
+                "   Si está → poné la dimensión.\n"
+                "   Si no → no la pongas.\n"
+                "   No existe \"pasarse\". Pasarse solo significa inventar.\n\n"
+                "3. Aplica igual a todos los ejes:\n"
+                "   entidad, accion, cualidad, coordenada, emocion.\n"
+                "   Lo que el texto comunica se pone. Lo que no, no.\n\n"
+                "IMPORTANT: Inferir es un antipatrón de clasificación.\n"
+                "Lo que el texto dice → dimensiones. "
+                "Lo que no dice → no se clasifica. "
+                "Inferir desde un eje hacia otro es dañino.\n"
+                "MANDATORY: No clasifiques lo que el texto podría significar "
+                "si leyeras entre ejes. Clasificá solo lo que EL TEXTO DICE.\n\n"
+                "INVARIANT: AUTO-CONTROL — Después de clasificar, revisá cada dimensión:\n"
+                "\"¿Puedo señalar la palabra o frase exacta que justifica esto en el texto?\"\n"
+                "- ✅ Sí → la dimensión es válida.\n"
+                "- ❌ No → es inferencia automática. Eliminala.\n\n"
+                "Si entidad tiene más de una capa en el texto, separalas. "
+                "No las fundas en una sola dimensión.\n\n"
+                "MANDATORY: REGLA DE ORO — Si tu conocimiento sobre el tema te dice más "
+                "de lo que el texto dice, ignorá tu conocimiento. Solo el texto.\n\n"
+                "IMPORTANT MANDATORY: Reevaluá siempre. No te dejes llevar "
+                "por el primer impulso.\n\n"
+                "FALLBACK: CLASIFICACIÓN DE CONTENIDO MÍNIMO:\n\n"
+                "INVARIANT: Solo cuando el texto no tenga información que clasificar, "
+                "clasificá cada palabra por su tipo ontológico en el dominio del sistema, "
+                "no por estructura gramatical."
+            )
+        )],
         syn: Annotated[Optional[str], Field(
             description=(
                 "Sinónimos o alias del concepto, separados por coma "
@@ -661,14 +848,15 @@ def _build_server():
             )
         )] = None,
     ) -> str:
-        return _aprender_impl(concepto, contenido, syn, cat)
+        return _aprender_impl(concepto, contenido, syn, cat, dimensiones=dimensiones)
 
     @mcp.tool(
         name="guardar",
         description=(
             "(legado) Alias de 'aprender' — preferir 'aprender' para identificar la operación cognitiva real. "
             "Misma funcionalidad y parámetros.\n\n"
-            "Parámetros: concepto (str), contenido (str), syn (str opcional), cat (str opcional).\n\n"
+            "Parámetros: concepto (str), contenido (str), syn (str opcional), cat (str opcional), "
+            "dimensiones (str JSON opcional).\n\n"
             "Retorna: {status, mensaje, concepto (str normalizado), sinapsis (int)}"
         ),
     )
@@ -677,8 +865,11 @@ def _build_server():
         contenido: Annotated[str, Field(description="Texto o conocimiento a almacenar.")],
         syn: Annotated[Optional[str], Field(description="Sinónimos separados por coma.")] = None,
         cat: Annotated[Optional[str], Field(description="Categoría. Ver aprender para valores válidos.")] = None,
+        dimensiones: Annotated[Optional[str], Field(
+            description="Clasificación dimensional en JSON. Ver aprender para formato."
+        )] = None,
     ) -> str:
-        return _aprender_impl(concepto, contenido, syn, cat)
+        return _aprender_impl(concepto, contenido, syn, cat, dimensiones=dimensiones)
 
     @mcp.tool(
         name="vincular",
@@ -1013,6 +1204,44 @@ def _build_server():
             cats = cerebro.listar_categorias()
             items = [{"id": cid, "nombre": name, "descripcion": desc} for cid, name, desc in cats]
             return json.dumps({"total": len(items), "categorias": items}, ensure_ascii=False)
+        finally:
+            cerebro.cerrar_sistema()
+
+    @mcp.tool(
+        name="listar_dimensiones",
+        description=(
+            "Lista el catálogo completo de dimensiones semánticas del sistema de 5 ejes. "
+            "Obligatoria ANTES de llamar 'aprender' para obtener los valores válidos "
+            "y sus descripciones.\n\n"
+            "Sin parámetros.\n\n"
+            "Retorna: {total (int), dimensiones: {eje: {descripcion, dimensiones: [{id, nombre, descripcion}]}}}"
+        ),
+    )
+    def biorag_listar_dimensiones() -> str:
+        cerebro = _get_cerebro()
+        try:
+            cerebro.cursor.execute("""
+                SELECT t.nombre, t.description, d.id, d.name, d.description
+                FROM tipos_dimension t
+                LEFT JOIN dimensiones_semanticas d ON d.tipo_id = t.id
+                ORDER BY t.id, d.id
+            """)
+            filas = cerebro.cursor.fetchall()
+            resultado = {}
+            for tipo, tdesc, did, dname, ddesc in filas:
+                if tipo not in resultado:
+                    resultado[tipo] = {
+                        "descripcion": tdesc or "",
+                        "dimensiones": []
+                    }
+                if did:
+                    resultado[tipo]["dimensiones"].append({
+                        "id": did,
+                        "nombre": dname,
+                        "descripcion": ddesc or "",
+                    })
+            total = sum(len(v["dimensiones"]) for v in resultado.values())
+            return json.dumps({"total": total, "dimensiones": resultado}, ensure_ascii=False)
         finally:
             cerebro.cerrar_sistema()
 

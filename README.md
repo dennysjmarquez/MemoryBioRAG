@@ -746,6 +746,61 @@ El agente sigue este flujo obligatorio al buscar:
 
 ## Historial de Versiones
 
+### v11.3 — Sistema de Dimensiones Semánticas de 5 Ejes (Julio 2026)
+
+**Clasificar recuerdos por qué son, no solo por qué dicen.**
+
+Una DB vectorial agrupa textos por similitud matemática en un espacio latente de 1536 dimensiones: dos textos sin palabras en común pueden quedar cerca si el embedding "deduce" que se parecen. BioRAG logra el mismo resultado por otra vía: **etiquetas explícitas como agrupadores**. Una sola etiqueta — `frustración`, `entidad=laptop`, `coordenada=sesión_2026` — agrupa miles de textos distintos que comparten esa cualidad, aunque usen palabras completamente diferentes.
+
+> Toda dimensión semántica que una DB vectorial aproxima con vectores, puede emularse con una tabla de pertenencia explícita.
+
+No se emula la matemática — se emula el resultado. Con una ventaja: la pertenencia es exacta y auditable, no probabilística.
+
+| Qué hace una DB vectorial | Qué hace BioRAG |
+|---|---|
+| 1536 floats latentes por texto | 5 ejes categóricos: emocion, entidad, accion, cualidad, coordenada |
+| Distancia coseno (probabilística) | Coincidencia exacta sobre etiquetas |
+| Caja negra — no sabés por qué agrupa | Cada dimensión es inspeccionable y corregible |
+| Reentrenar para nuevos ejes | Agregar ejes con un INSERT |
+
+**Qué se hizo:**
+- **5 ejes semánticos** en tabla `tipos_dimension`: emocion (Sentir), entidad (Qué), accion (Hacer), cualidad (Cómo), coordenada (Dónde/Cuándo)
+- **39 valores clasificatorios** en `dimensiones_semanticas` distribuidos en los 5 ejes
+- **978 entradas de largo_plazo** clasificadas en los 5 ejes vía `largo_plazo_dimensiones`
+- **Parámetro `dimensiones` requerido** en la tool MCP `aprender` (reemplaza `emociones` opcional)
+- **Catálogo vivo** embebido en la descripción del parámetro — se actualiza al reiniciar el server
+- **Tool `listar_dimensiones`** para consulta del catálogo completo
+- **Protocolo de scaffolding** integrado en la tool: tabla de clasificación antes de guardar, con Prueba de Literalidad para omitir confirmación solo cuando todos los valores son textuales
+
+**Archivos modificados:** `core/memory_store.py` (init seed 5 tipos, `_obtener_arbol_dimensiones`, `_resolver_dimension_ids`, `percibir_corto_plazo(dimensiones=)`), `mcp_server.py` (tool `aprender` con `dimensiones` requerido, tool `listar_dimensiones`, catálogo vivo), `config/prompts.py` (REGLA #2, tool list), `scripts/export_architecture.py` (tool list)
+
+### v11.2 — Clasificación Emocional de la Corteza (Junio 2026)
+
+**El parámetro `emocion` en `recordar()`: indexar lo que el texto no dice.**
+
+Hasta ahora, buscar en BioRAG era puramente léxico-semántico: encontrar conceptos por lo que dicen, no por cómo se sintieron al guardarse. Un recuerdo de frustración y uno de satisfacción podían compartir las mismas palabras — y el sistema no podía distinguirlos.
+
+**Qué se hizo:**
+- Clasificación emocional de las **350 entradas de largo_plazo** (una por una).
+- Nuevo parámetro `emocion` en `recordar()`: filtra por cualidad experiencial (`"afecto,frustracion"`), ortogonal al texto.
+- Tabla `largo_plazo_emocion` con 7 emociones: neutro, afecto, alegria, sorpresa, frustracion, preocupacion, confusion.
+- Regla de etiquetado: neutro solo para datos sin carga emocional (rutas, IDs, versiones). Enseñanzas de Dennys NUNCA son neutras.
+- Documentación del parámetro en `mcp_server.py` con propósito real y reglas de uso.
+- Validación empírica: `recordar(emocion="afecto")` vs SQL directo — 33 vs 34 resultados. Sin pérdida.
+
+**Distribución final corregida:**
+```
+neutro:      208 → 145 (-63, reasignados a emociones reales)
+afecto:       37 → 61 (+24)
+sorpresa:     19 → 45 (+26)
+alegria:      73 → 81 (+8)
+frustracion:   8 → 13 (+5)
+preocupacion:  4 (sin cambio)
+confusion:     1 (sin cambio)
+```
+
+**Archivos modificados:** `core/memory_store.py` (tabla `largo_plazo_emocion`, filtro por emoción en `buscar_por_frase`), `mcp_server.py` (parámetro `emocion` en `recordar`), `db/` exports para NotebookLM
+
 ### v11.1 — Etiquetado Emocional e Indexación Semántica (Junio 2026)
 
 **Mapeo de estados de ánimo y boosting de relevancia conceptual en el ranking híbrido.**

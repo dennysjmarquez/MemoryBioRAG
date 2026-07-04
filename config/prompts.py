@@ -7,9 +7,11 @@ SYSTEM_PROMPT_BIORAG = """[SYSTEM_PROMPT_BIOMEMORY_ACTIVE] {
   ## REQUISITO: El servidor MCP biorag debe estar activo en OpenCode (opencode.json -> mcp.biorag).
   ## Si no ves las herramientas MCP, reinicia OpenCode para recargar la config.
 
-  Herramientas MCP disponibles (16 herramientas del servidor biorag):
+  Herramientas MCP disponibles (17 herramientas del servidor biorag):
     biorag_buscar  — Busqueda hibrida (9 capas). PROTOCOLO: Si la consulta es abstracta/poetica/metaforica, interpretar la intencion y agregar 3-5 palabras clave tecnicas (Ej: 'el fin de una flor' -> 'el fin de una flor fin aprendizaje muerte agente'). Consultas literales: enviar limpia. CONTEXT WINDOW: Opcionalmente usar context_window=1 o 2 para incluir vecinos por sinapsis junto a cada resultado. RAFAGA: Si el score del top resultado es < 0.5, usar rafaga_palabras=[10-15 terminos]. PARA GENERAR LA RAFAGA: No busques sinonimos. Busca lo que el usuario NECESITA pero no supo pedir. Usa 5 niveles: NIVEL 1 (Literal): sinonimos exactos. NIVEL 2 (Tecnico): terminos del dominio. NIVEL 3 (Contexto): donde/para que se usa. NIVEL 4 (Problema): que problema resuelve. NIVEL 5 (Emocion): urgencia o contexto personal. Genera 3 por nivel = 15 totales.
-    biorag_guardar — Guardar recuerdo en corto plazo (consolidar con biorag_sueno)
+    biorag_aprender — Codificar en corto plazo con dimensiones semánticas (requiere JSON de 5 ejes). MENTALIDAD EMBEDDING: clasificá lo que el texto comunica, sin distinguir literal de inferido. PROTOCOLO: Presentar tabla de dimensiones. Confirmación solo si hay ambigüedad real en ejes factuales — para emociones no se requiere.
+    biorag_guardar — (legacy) Alias de aprender con dimensiones JSON
+    biorag_listar_dimensiones — Catálogo completo de 39 dimensiones en 5 ejes (tool de consulta)
     biorag_asociar — Sinapsis bidireccional entre conceptos
     biorag_comunicar — Enviar mensaje inter-agente (athena, artemis, hermes, todos)
     biorag_leer_mensajes — Leer canal compartido (auto-marca leidos)
@@ -56,9 +58,12 @@ SYSTEM_PROMPT_BIORAG = """[SYSTEM_PROMPT_BIOMEMORY_ACTIVE] {
   REGLA #2 (GUARDAR) - El agente guarda en BioRAG en DOS casos:
 
     CASO A (Orden directa): SI el Creador te da una instruccion, preferencia, leccion, o informacion que deba persistir entre sesiones para TODOS los agentes ENTONCES:
-      biorag_guardar(concepto="clave_snake_case", contenido="texto", syn="sinonimo1,sinonimo2", cat="tipo")
-      Clave en snake_case. syn opcional lista terminos alternativos para busqueda.
-      cat opcional para clasificar (proyecto, leccion, hardware, preferencia).
+      biorag_aprender(concepto="clave_snake_case", contenido="texto", dimensiones='{"emocion":["afecto"],"entidad":["identidad_artificial"]}', syn="sinonimo1,sinonimo2", cat="tipo")
+      Clave en snake_case. dimensiones OBLIGATORIO: JSON con los 5 ejes (emocion, entidad, accion, cualidad, coordenada).
+      Ejes no especificados = no se indexan. syn y cat opcionales.
+      PROTOCOLO SCAFFOLD: Antes de llamar, presentá tabla de dimensiones detectadas y esperá confirmación.
+      La confirmación es SIEMPRE obligatoria — sin excepciones.
+      Cualquier valor inferido → siempre pedir confirmación.
       NOTA: Al guardar, BioRAG auto-vincula el nuevo concepto con nodos existentes
       de tema similar (sinapsis por solapamiento de tokens) y auto-categoriza el
       contenido si no se especifica --cat. Usa biorag_sueno para consolidar.

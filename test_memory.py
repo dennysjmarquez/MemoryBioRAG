@@ -1217,52 +1217,6 @@ def test_sistema():
     print("  OK: garbled query no falla")
     print("--- 70. Boost sináptico y garbled query OK ---")
 
-    # 71. Indexación de conceptos_ids y boosting de relevancia
-    print("\n--- 71. Probando indexación de concept_ids y boosting de relevancia ---")
-    from core.semantica import agregar_equivalencia
-    # Agregar equivalencia semántica
-    agregar_equivalencia(cerebro.cursor, "computadora", "ordenador", 1.0)
-    
-    # Percibir un nuevo concepto que contiene una de las palabras
-    cerebro.percibir_corto_plazo("test_concept_boost", "Mi ordenador de prueba de escritorio", "", "General")
-    cerebro.ciclo_sueno_consolidacion()
-    
-    # Verificar que el concepto_ids fue indexado y no está vacío
-    cerebro.cursor.execute("SELECT conceptos_ids, peso_sinaptico FROM largo_plazo WHERE concepto = 'test_concept_boost'")
-    c_ids_row = cerebro.cursor.fetchone()
-    assert c_ids_row is not None, "Error: El nodo test_concept_boost no fue consolidado"
-    c_ids, peso_sinaptico = c_ids_row
-    print(f"  Concept IDs indexados para test_concept_boost: '{c_ids}', Peso sináptico: {peso_sinaptico}")
-    assert c_ids != "", "Error: conceptos_ids no debería estar vacío"
-    
-    # Buscar por la otra palabra de la equivalencia ("computadora")
-    res_boost, total_boost = cerebro.buscar_por_frase("computadora")
-    assert total_boost > 0, "Error: la búsqueda semántica falló"
-    
-    # Obtener el score híbrido con boost
-    c_score_boosted = next(r[4] for r in res_boost if r[0] == 'test_concept_boost')
-    print(f"  Score híbrido con boost conceptual para 'test_concept_boost': {c_score_boosted}")
-    
-    # Calcular el score base esperado sin el boost 1.2
-    # El origen de la coincidencia para "computadora" -> "test_concept_boost" es "semantica" / "expansion" (score_capa = 0.8).
-    # Entonces es_latente=True y score_latente=0.8.
-    # Calculamos el score híbrido base usando _calcular_score_hibrido:
-    total_resultados = len(res_boost)
-    pesos_tokens = {"computadora": 1.0}
-    score_sin_boost = cerebro._calcular_score_hibrido(
-        0, total_resultados, peso_sinaptico, "", pesos_tokens, "Mi ordenador de prueba de escritorio",
-        es_latente=True, score_latente=0.8,
-        es_concepto=False, score_concepto=0.0
-    )
-    score_esperado_con_boost = round(score_sin_boost * 1.2, 4)
-    print(f"  Score sin boost calculado: {score_sin_boost}, con boost esperado: {score_esperado_con_boost}")
-    
-    assert abs(c_score_boosted - score_esperado_con_boost) < 0.001, \
-        f"Error: score con boost {c_score_boosted} no coincide con el esperado {score_esperado_con_boost}"
-        
-    print("  OK: el boosting de relevancia conceptual funciona y se aplica correctamente")
-    print("--- 71. Indexación y boosting de relevancia OK ---")
-
     cerebro.cerrar_sistema()
 
     # 72. Estados emocionales y cognitivos (Etiquetas Sinápticas)
