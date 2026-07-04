@@ -403,7 +403,7 @@ def _build_server():
                 total = len(resultados)
                 items = [
                     {"concepto": r[0], "contenido": r[1], "peso_sinaptico": r[2],
-                     "estado": r[3], "score_hibrido": 0.0,
+                     "estado": r[3], "score_hibrido": min(1.0, r[2]),
                      "asociaciones": [v.strip() for v in (r[5] or "").split(",") if v.strip()] if asociados and r[5] else []}
                     for r in resultados
                 ]

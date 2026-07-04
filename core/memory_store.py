@@ -2347,7 +2347,8 @@ class SQLiteMemoryBioRAG:
             _c_norm = (concepto or "").lower().replace(" ", "_").replace("-", "_")
             match_exacto = (_q_norm == _c_norm)
             score_hibrido = self._calcular_score_hibrido(
-                i, total, peso, asociaciones or "", contenido or "",
+                i, total, peso, asociaciones or "",
+                contenido=contenido or "",
                 es_latente=es_latente, score_latente=score_capa,
                 es_concepto=es_concepto, score_concepto=score_capa,
                 dim_score=dim_score, match_exacto=match_exacto

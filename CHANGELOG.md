@@ -26,6 +26,8 @@
 - **`biorag_buscar` sin `dimensiones=None`**: Alias legado ahora acepta `dimensiones` como opcional, consistente con `biorag_recordar`.
 - **`dim_dict` → `dimensiones_dict`**: Refactor de `_resolver_dimensiones` como helper compartido. Fix de `NameError` en `_aprender_impl`.
 - **`dimensiones_invalidas` no definida**: Fix de `NameError` post-refactor. Variable restaurada después del helper.
+- **Bug argumentos posicionales en scoring**: `_calcular_score_hibrido` recibía `contenido` en el parámetro `pesos_tokens`. Fix: usar keyword argument `contenido=contenido`. El scoring ahora ajusta correctamente por centralidad del token.
+- **score_hibrido 0.0 en modo cronológico**: Ahora retorna `min(1.0, peso_sinaptico)` en vez de 0.0. Los resultados cronológicos muestran relevancia real.
 
 ### Architecture
 - **Pipeline colapsado a 2 pasos**: PASO 1 obligatorio (paráfrasis+dimensiones), PASO 2 fallback (ráfaga). De 4 pasos a 2.
