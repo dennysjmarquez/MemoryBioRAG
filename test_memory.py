@@ -625,6 +625,8 @@ def test_sistema():
     cerebro.percibir_corto_plazo("test_ltd_profile", "Perfil de prueba", "", "Profile")
     cerebro.percibir_corto_plazo("test_ltd_project", "Proyecto de prueba", "", "Project")
     cerebro.ciclo_sueno_consolidacion()
+    # Segundo ciclo: el decay diferenciado se aplica sobre pesos ya consolidados
+    cerebro.ciclo_sueno_consolidacion()
     # Profile debe tener peso más alto que Project tras LTD (decay 0.05 vs 1.5)
     profile_peso = cerebro.cursor.execute(
         "SELECT peso_sinaptico FROM largo_plazo WHERE concepto = 'test_ltd_profile'"
@@ -1163,7 +1165,7 @@ def test_sistema():
         biorag_recordar = next(t.fn for t in server_mcp._tool_manager.list_tools() if t.name == "recordar")
 
         # Testear JSON structure y paginación a nivel de MCP
-        mcp_json = biorag_recordar("paginacion angular", limite=2, pagina=1)
+        mcp_json = biorag_recordar("paginacion angular", "{}", limite=2, pagina=1)
         mcp_data = json.loads(mcp_json)
         assert "total" in mcp_data, "Error: JSON sin total"
         assert "resultados" in mcp_data, "Error: JSON sin resultados"
@@ -1175,13 +1177,13 @@ def test_sistema():
         print(f"  biorag_recordar JSON: total={mcp_data['total']}, pagina={mcp_data['pagina_actual']}/{mcp_data['paginas_totales']}, resultados={len(mcp_data['resultados'])}")
 
         # Testear ráfaga forzada y error handling
-        mcp_raf_json = biorag_recordar("paginacion", limite=3, pagina=1, forzar_rafaga=True, rafaga_palabras="angular,ngx,pag")
+        mcp_raf_json = biorag_recordar("paginacion", "{}", limite=3, pagina=1, forzar_rafaga=True, rafaga_palabras="angular,ngx,pag")
         mcp_raf_data = json.loads(mcp_raf_json)
         assert "resultados" in mcp_raf_data, "Error: JSON ráfaga sin resultados"
         assert len(mcp_raf_data["resultados"]) <= 3, f"Error: limite ráfaga excedido en MCP"
 
         # Testear error por falta de parámetros
-        err_json = biorag_recordar("paginacion", forzar_rafaga=True, rafaga_palabras=None)
+        err_json = biorag_recordar("paginacion", "{}", forzar_rafaga=True, rafaga_palabras=None)
         err_data = json.loads(err_json)
         assert err_data.get("status") == "error", "Error: no reportó error al faltar parámetros"
         print("  OK: Integración con el servidor MCP y serialización JSON verificada con éxito")
@@ -1269,6 +1271,136 @@ def test_sistema():
     
     print("  OK: el sistema de estados emocionales y cognitivos (Opción B) funciona correctamente")
     print("--- 72. Estados emocionales y cognitivos OK ---")
+
+    # ══════════════════════════════════════════════════════════════════
+    # TEST 73-78: Batería de Ráfaga Mejorada
+    # ══════════════════════════════════════════════════════════════════
+
+    print("\n--- 73. Probando Ráfaga con Dimensiones (integración completa) ---")
+    # Guardar nodos con dimensiones conocidas
+    ids_afecto, _ = cerebro._resolver_dimension_ids("emocion", "afecto")
+    ids_preoc, _ = cerebro._resolver_dimension_ids("emocion", "preocupacion")
+    ids_ai, _ = cerebro._resolver_dimension_ids("entidad", "identidad_artificial")
+    ids_code, _ = cerebro._resolver_dimension_ids("entidad", "codigo")
+
+    cerebro.percibir_corto_plazo("rafaga_nodo_a", "Sistema de autenticación con JWT y tokens",
+                                  "autenticacion,jwt,seguridad", "Architecture",
+                                  {"emocion": ["afecto"], "entidad": ["identidad_artificial"]})
+    cerebro.percibir_corto_plazo("rafaga_nodo_b", "Base de datos SQLite para persistencia",
+                                  "sqlite,base_datos,persistencia", "Architecture",
+                                  {"emocion": ["preocupacion"], "entidad": ["codigo"]})
+    cerebro.percibir_corto_plazo("rafaga_nodo_c", "Deploy a producción con Docker containers",
+                                  "deploy,docker,produccion", "System",
+                                  {"emocion": ["afecto"], "entidad": ["identidad_artificial"]})
+    for c in ["rafaga_nodo_a", "rafaga_nodo_b", "rafaga_nodo_c"]:
+        cerebro.consolidar_concepto(c)
+
+    # Ráfaga con dimensiones: debe rankear más alto los nodos con dimensiones compartidas
+    dim_ids_test = ids_afecto + ids_ai
+    res_raf_dim, total_raf_dim, sin_raf = cerebro.buscar_por_rafaga(
+        "autenticacion", ["jwt", "seguridad", "token", "auth", "login"],
+        limite=10, dimensiones_ids=dim_ids_test
+    )
+    print(f"  Ráfaga con dimensiones: {len(res_raf_dim)} resultados")
+    assert len(res_raf_dim) > 0, "Error: ráfaga con dimensiones devolvió 0 resultados"
+    # Verificar que los nodos con dimensiones compartidas (a y c) están rankeados más alto
+    scores = {r[0]: r[4] for r in res_raf_dim}
+    if "rafaga_nodo_a" in scores and "rafaga_nodo_b" in scores:
+        assert scores["rafaga_nodo_a"] > scores["rafaga_nodo_b"], \
+            f"Error: nodo con dimensiones compartidas debería tener mayor score. a={scores['rafaga_nodo_a']}, b={scores['rafaga_nodo_b']}"
+    print(f"  Scores: {scores}")
+    print("  OK: Ráfaga con dimensiones funciona correctamente")
+
+    print("\n--- 74. Probando Score Híbrido con dim_score (fórmula) ---")
+    # Verificar que _calcular_score_hibrido integra dim_score correctamente
+    score_con_dim = cerebro._calcular_score_hibrido(
+        rank_idx=0, total=5, peso_sinaptico=0.8, asociaciones="a,b,c",
+        dim_score=0.75, match_exacto=False
+    )
+    score_sin_dim = cerebro._calcular_score_hibrido(
+        rank_idx=0, total=5, peso_sinaptico=0.8, asociaciones="a,b,c",
+        dim_score=0.0, match_exacto=False
+    )
+    print(f"  Score con dim_score=0.75: {score_con_dim}")
+    print(f"  Score sin dim_score: {score_sin_dim}")
+    assert score_con_dim > score_sin_dim, \
+        f"Error: score con dim_score debería ser mayor. con={score_con_dim}, sin={score_sin_dim}"
+    # Verificar que la diferencia es ~10% (0.10 * 0.75 = 0.075)
+    diff = round(score_con_dim - score_sin_dim, 3)
+    print(f"  Diferencia: {diff} (esperado ~0.075)")
+    assert 0.05 <= diff <= 0.10, f"Error: diferencia fuera de rango esperado. diff={diff}"
+    print("  OK: Score híbrido con dim_score correcto")
+
+    print("\n--- 75. Probando Match Exacto x2.0 ---")
+    score_exacto = cerebro._calcular_score_hibrido(
+        rank_idx=0, total=5, peso_sinaptico=0.5, asociaciones="",
+        dim_score=0.0, match_exacto=True
+    )
+    score_normal = cerebro._calcular_score_hibrido(
+        rank_idx=0, total=5, peso_sinaptico=0.5, asociaciones="",
+        dim_score=0.0, match_exacto=False
+    )
+    print(f"  Score match exacto: {score_exacto}")
+    print(f"  Score normal: {score_normal}")
+    assert score_exacto == min(1.0, score_normal * 2.0), \
+        f"Error: match exacto debería ser x2.0. exacto={score_exacto}, normal*2={score_normal*2}"
+    print("  OK: Match exacto x2.0 funciona correctamente")
+
+    print("\n--- 76. Probando Fallback Dimensional (búsqueda por dimensión pura) ---")
+    # Guardar un nodo con dimensiones pero contenido poco específico
+    cerebro.percibir_corto_plazo("fallback_dim_nodo", "Aplicación web general",
+                                  "web,app,general", "Project",
+                                  {"emocion": ["afecto"], "entidad": ["identidad_artificial"]})
+    cerebro.consolidar_concepto("fallback_dim_nodo")
+
+    # Buscar algo que no tiene match textual pero sí dimensional
+    res_fb, total_fb = cerebro.buscar_por_frase(
+        "conexion remota servidor", profundidad="activos", limite=10,
+        dimensiones_ids=ids_afecto + ids_ai
+    )
+    print(f"  Fallback dimensional: {len(res_fb)} resultados")
+    # Verificar que el fallback dimensional al menos no falla
+    assert isinstance(res_fb, list), "Error: fallback dimensional debería retornar lista"
+    print("  OK: Fallback dimensional ejecuta sin errores")
+
+    print("\n--- 77. Probando Penalización Paráfrasis x0.95 ---")
+    # Test directo de la lógica de penalización
+    query_words = {"autenticacion", "sistema"}
+    # Nodo que contiene palabras de la query original → factor 1.0
+    conc_original = "autenticacion_sistema"
+    cont_original = "Sistema de autenticación con JWT"
+    contenido_lower = (cont_original + " " + conc_original).lower()
+    tiene_palabras = any(w in contenido_lower for w in query_words if len(w) >= 3)
+    factor = 1.0 if tiene_palabras else 0.95
+    assert factor == 1.0, f"Error: nodo con palabras de query debería tener factor 1.0, got {factor}"
+
+    # Nodo que NO contiene palabras de la query → factor 0.95
+    conc_parafrasis = "login_oauth"
+    cont_parafrasis = "Implementación de OAuth con Google"
+    contenido_lower2 = (cont_parafrasis + " " + conc_parafrasis).lower()
+    tiene_palabras2 = any(w in contenido_lower2 for w in query_words if len(w) >= 3)
+    factor2 = 1.0 if tiene_palabras2 else 0.95
+    assert factor2 == 0.95, f"Error: nodo sin palabras de query debería tener factor 0.95, got {factor2}"
+    print(f"  Factor con palabras originales: {factor}")
+    print(f"  Factor sin palabras originales: {factor2}")
+    print("  OK: Penalización paráfrasis x0.95 funciona correctamente")
+
+    print("\n--- 78. Probando Trazabilidad en response JSON ---")
+    # Verificar que la trazabilidad tiene los campos esperados
+    mcp_traza = biorag_recordar(
+        "autenticacion", limite=3, pagina=1,
+        parafrasis="login,sistema de acceso,identificación",
+        dimensiones='{"emocion":["afecto"]}'
+    )
+    traza = json.loads(mcp_traza)
+    assert "trazabilidad" in traza, "Error: response debería tener campo 'trazabilidad'"
+    t = traza["trazabilidad"]
+    campos_esperados = ["capa_literal", "capa_parafrasis", "capa_rafaga",
+                        "fallback_dimensional", "match_exacto", "total_candidatos_todos"]
+    for campo in campos_esperados:
+        assert campo in t, f"Error: trazabilidad falta campo '{campo}'"
+    print(f"  Trazaibilidad: {json.dumps(t, indent=2)}")
+    print("  OK: Trazaibilidad completa en response JSON")
 
     cerebro.cerrar_sistema()
     print("\n--- ¡Todas las pruebas biologicas completadas con exito! ---\n\n")

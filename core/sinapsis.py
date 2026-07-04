@@ -191,6 +191,12 @@ def auto_vincular(cerebro, concepto, contenido, umbral=0.3):
             except sqlite3.OperationalError:
                 pass
 
+    if vinculados:
+        _sincronizar_asociaciones(cerebro, concepto)
+        for conc_exist, _ in vinculados:
+            _sincronizar_asociaciones(cerebro, conc_exist)
+        cerebro.cursor.connection.commit()
+
     return vinculados
 
 
@@ -255,12 +261,14 @@ def vincular_por_sinonimos(cerebro, concepto, sinonimos, peso=0.9):
 
     vinculados = []
     for termino in terminos:
+        # ponytail: solo buscar en concepto y sinonimos, NO en contenido
+        # Evita falsos positivos cuando el término aparece de pasada en el contenido
         cerebro.cursor.execute(
-            "SELECT concepto, contenido FROM largo_plazo WHERE estado = 'activo' AND concepto != ? "
-            "AND (concepto LIKE ? OR contenido LIKE ?)",
+            "SELECT concepto FROM largo_plazo WHERE estado = 'activo' AND concepto != ? "
+            "AND (concepto LIKE ? OR sinonimos LIKE ?)",
             (concepto, f"%{termino}%", f"%{termino}%")
         )
-        for conc_exist, cont_exist in cerebro.cursor.fetchall():
+        for (conc_exist,) in cerebro.cursor.fetchall():
             cerebro.cursor.execute(
                 "INSERT OR REPLACE INTO sinapsis (origen, destino, peso, tipo, creado_en) "
                 "VALUES (?, ?, ?, 'sinonimo_explicito', ?)",
@@ -269,5 +277,37 @@ def vincular_por_sinonimos(cerebro, concepto, sinonimos, peso=0.9):
             vinculados.append((conc_exist, peso))
 
     if vinculados:
+        _sincronizar_asociaciones(cerebro, concepto)
+        for conc_exist, _ in vinculados:
+            _sincronizar_asociaciones(cerebro, conc_exist)
         cerebro.cursor.connection.commit()
     return vinculados
+
+
+def _sincronizar_asociaciones(cerebro, concepto):
+    """Sincroniza el campo CSV 'asociaciones' en largo_plazo con el estado real de sinapsis."""
+    cerebro.cursor.execute(
+        "SELECT destino FROM sinapsis WHERE origen = ? "
+        "UNION SELECT origen FROM sinapsis WHERE destino = ?",
+        (concepto, concepto)
+    )
+    vecinos = [r[0] for r in cerebro.cursor.fetchall()]
+    cerebro.cursor.execute(
+        "UPDATE largo_plazo SET asociaciones = ? WHERE concepto = ?",
+        (",".join(vecinos), concepto)
+    )
+
+
+def desvincular(cerebro, a, b):
+    """Elimina la sinapsis bidireccional entre dos conceptos.
+    Plasticidad negativa: cuando un falso positivo aparece, se borra la conexión
+    para que no vuelva a traerse en búsquedas futuras."""
+    cerebro.cursor.execute(
+        "DELETE FROM sinapsis WHERE (origen = ? AND destino = ?) OR (origen = ? AND destino = ?)",
+        (a, b, b, a)
+    )
+    eliminadas = cerebro.cursor.rowcount
+    _sincronizar_asociaciones(cerebro, a)
+    _sincronizar_asociaciones(cerebro, b)
+    cerebro.cursor.connection.commit()
+    return eliminadas

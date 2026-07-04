@@ -3,8 +3,8 @@
 ======================================================================
   Archivo DB:    memory_biorag.db
   Ruta (relativa): MemoryBioRAG_Data/memory_biorag.db
-  Generado:      2026-06-30 09:47:53
-  Tamaño DB:     13,643,776 bytes (13324.0 KB)
+  Generado:      2026-07-04 08:50:07
+  Tamaño DB:     9,711,616 bytes (9484.0 KB)
 ======================================================================
 
 Este archivo es un blueprint autodescriptivo generado automáticamente por
@@ -32,7 +32,7 @@ CREATE TABLE categories (
                 description TEXT DEFAULT ''
             , decay_rate REAL DEFAULT 1.0);
 
--- comunicaciones (77 filas)
+-- comunicaciones (108 filas)
 CREATE TABLE comunicaciones (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 origen TEXT NOT NULL,
@@ -53,22 +53,24 @@ CREATE TABLE corto_plazo (
             );
 
 -- corto_plazo_dimensiones (0 filas)
-CREATE TABLE "corto_plazo_dimensiones" (
-                concepto   TEXT    NOT NULL,
-                dimension_id INTEGER NOT NULL,
-                PRIMARY KEY (concepto, dimension_id),
-                FOREIGN KEY (concepto)   REFERENCES corto_plazo(concepto) ON DELETE CASCADE,
-                FOREIGN KEY (dimension_id) REFERENCES "dimensiones_semanticas"(id)
-            );
+CREATE TABLE corto_plazo_dimensiones (
+        concepto     TEXT    NOT NULL,
+        dimension_id INTEGER NOT NULL,
+        PRIMARY KEY (concepto, dimension_id),
+        FOREIGN KEY (concepto)     REFERENCES corto_plazo(concepto) ON DELETE CASCADE,
+        FOREIGN KEY (dimension_id) REFERENCES dimensiones_semanticas(id)
+    );
 
--- dimensiones_semanticas (8 filas)
-CREATE TABLE "dimensiones_semanticas" (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                name TEXT UNIQUE NOT NULL,
-                description TEXT DEFAULT ''
-            );
+-- dimensiones_semanticas (39 filas)
+CREATE TABLE dimensiones_semanticas (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        name TEXT UNIQUE NOT NULL,
+        description TEXT DEFAULT '',
+        tipo_id INTEGER NOT NULL,
+        FOREIGN KEY (tipo_id) REFERENCES tipos_dimension(id)
+    );
 
--- largo_plazo (362 filas)
+-- largo_plazo (381 filas)
 CREATE TABLE largo_plazo (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 concepto TEXT UNIQUE NOT NULL,
@@ -78,11 +80,11 @@ CREATE TABLE largo_plazo (
                 estado TEXT DEFAULT 'activo',
                 asociaciones TEXT DEFAULT '',
                 ultimo_acceso REAL,
-                sinonimos TEXT DEFAULT '',
+                sinonimos TEXT DEFAULT '', creado_en REAL DEFAULT 0,
                 FOREIGN KEY (categoria) REFERENCES categories(id)
             );
 
--- largo_plazo_backup (1 filas)
+-- largo_plazo_backup (0 filas)
 CREATE TABLE largo_plazo_backup (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 concepto TEXT,
@@ -95,16 +97,10 @@ CREATE TABLE largo_plazo_backup (
                 deleted_at REAL DEFAULT (strftime('%s','now'))
             );
 
--- largo_plazo_dimensiones (350 filas)
-CREATE TABLE "largo_plazo_dimensiones" (
-                concepto   TEXT    NOT NULL,
-                dimension_id INTEGER NOT NULL,
-                PRIMARY KEY (concepto, dimension_id),
-                FOREIGN KEY (concepto)   REFERENCES largo_plazo(concepto) ON DELETE CASCADE,
-                FOREIGN KEY (dimension_id) REFERENCES "dimensiones_semanticas"(id)
-            );
+-- largo_plazo_dimensiones (1000 filas)
+CREATE TABLE "largo_plazo_dimensiones" (concepto TEXT NOT NULL, dimension_id INTEGER NOT NULL, PRIMARY KEY (concepto, dimension_id), FOREIGN KEY (concepto) REFERENCES largo_plazo(concepto) ON DELETE CASCADE, FOREIGN KEY (dimension_id) REFERENCES "dimensiones_semanticas"(id));
 
--- largo_plazo_fts (362 filas)
+-- largo_plazo_fts (381 filas)
 CREATE VIRTUAL TABLE largo_plazo_fts USING fts5(
                     concepto,
                     contenido,
@@ -115,19 +111,19 @@ CREATE VIRTUAL TABLE largo_plazo_fts USING fts5(
 -- largo_plazo_fts_config (1 filas)
 CREATE TABLE 'largo_plazo_fts_config'(k PRIMARY KEY, v) WITHOUT ROWID;
 
--- largo_plazo_fts_content (362 filas)
+-- largo_plazo_fts_content (381 filas)
 CREATE TABLE 'largo_plazo_fts_content'(id INTEGER PRIMARY KEY, c0, c1, c2);
 
--- largo_plazo_fts_data (408 filas)
+-- largo_plazo_fts_data (862 filas)
 CREATE TABLE 'largo_plazo_fts_data'(id INTEGER PRIMARY KEY, block BLOB);
 
--- largo_plazo_fts_docsize (362 filas)
+-- largo_plazo_fts_docsize (381 filas)
 CREATE TABLE 'largo_plazo_fts_docsize'(id INTEGER PRIMARY KEY, sz BLOB);
 
--- largo_plazo_fts_idx (405 filas)
+-- largo_plazo_fts_idx (859 filas)
 CREATE TABLE 'largo_plazo_fts_idx'(segid, term, pgno, PRIMARY KEY(segid, term)) WITHOUT ROWID;
 
--- largo_plazo_fts_unicode (362 filas)
+-- largo_plazo_fts_unicode (381 filas)
 CREATE VIRTUAL TABLE largo_plazo_fts_unicode USING fts5(
                     concepto,
                     contenido,
@@ -138,19 +134,19 @@ CREATE VIRTUAL TABLE largo_plazo_fts_unicode USING fts5(
 -- largo_plazo_fts_unicode_config (1 filas)
 CREATE TABLE 'largo_plazo_fts_unicode_config'(k PRIMARY KEY, v) WITHOUT ROWID;
 
--- largo_plazo_fts_unicode_content (362 filas)
+-- largo_plazo_fts_unicode_content (381 filas)
 CREATE TABLE 'largo_plazo_fts_unicode_content'(id INTEGER PRIMARY KEY, c0, c1, c2);
 
--- largo_plazo_fts_unicode_data (70 filas)
+-- largo_plazo_fts_unicode_data (72 filas)
 CREATE TABLE 'largo_plazo_fts_unicode_data'(id INTEGER PRIMARY KEY, block BLOB);
 
--- largo_plazo_fts_unicode_docsize (362 filas)
+-- largo_plazo_fts_unicode_docsize (381 filas)
 CREATE TABLE 'largo_plazo_fts_unicode_docsize'(id INTEGER PRIMARY KEY, sz BLOB);
 
--- largo_plazo_fts_unicode_idx (68 filas)
+-- largo_plazo_fts_unicode_idx (70 filas)
 CREATE TABLE 'largo_plazo_fts_unicode_idx'(segid, term, pgno, PRIMARY KEY(segid, term)) WITHOUT ROWID;
 
--- metricas_cognitivas (148 filas)
+-- metricas_cognitivas (171 filas)
 CREATE TABLE metricas_cognitivas (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 timestamp REAL NOT NULL,
@@ -162,7 +158,7 @@ CREATE TABLE metricas_cognitivas (
                 ratio_consolidacion REAL
             );
 
--- metricas_rendimiento (169 filas)
+-- metricas_rendimiento (13 filas)
 CREATE TABLE metricas_rendimiento (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 timestamp REAL NOT NULL,
@@ -174,7 +170,7 @@ CREATE TABLE metricas_rendimiento (
                 energia_sinaptica REAL NOT NULL
             );
 
--- semantica (3332 filas)
+-- semantica (3470 filas)
 CREATE TABLE semantica (
             termino TEXT NOT NULL,
             equivalente TEXT NOT NULL,
@@ -182,7 +178,7 @@ CREATE TABLE semantica (
             PRIMARY KEY (termino, equivalente)
         );
 
--- sinapsis (16369 filas)
+-- sinapsis (2038 filas)
 CREATE TABLE sinapsis (
             origen TEXT NOT NULL,
             destino TEXT NOT NULL,
@@ -192,7 +188,7 @@ CREATE TABLE sinapsis (
             PRIMARY KEY (origen, destino)
         );
 
--- sqlite_sequence (9 filas)
+-- sqlite_sequence (10 filas)
 CREATE TABLE sqlite_sequence(name,seq);
 
 -- sync_log (0 filas)
@@ -205,14 +201,19 @@ CREATE TABLE sync_log (
                 sincronizado INTEGER DEFAULT 0
             );
 
+-- tipos_dimension (5 filas)
+CREATE TABLE tipos_dimension (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        nombre TEXT UNIQUE NOT NULL,
+        description TEXT DEFAULT ''
+    );
+
 
 --- ÍNDICES ---
 
 CREATE INDEX idx_com_destino ON comunicaciones (destino, leido);
 CREATE INDEX idx_com_timestamp ON comunicaciones (timestamp);
 CREATE INDEX idx_cpd_dimension ON corto_plazo_dimensiones(dimension_id);
-CREATE INDEX idx_cpe_emocion ON "corto_plazo_dimensiones"(dimension_id);
-CREATE INDEX idx_lp_categoria ON largo_plazo(categoria);
 CREATE INDEX idx_lpd_dimension ON largo_plazo_dimensiones(dimension_id);
 CREATE INDEX idx_lpe_emocion ON "largo_plazo_dimensiones"(dimension_id);
 CREATE INDEX idx_peso_acceso ON largo_plazo (peso_sinaptico, ultimo_acceso);
@@ -344,32 +345,32 @@ ID   Nombre          Decay   Descripción
   ESTADÍSTICAS ACTUALES
 ======================================================================
 
-  Nodos totales:          362
-  Nodos activos:          121
-  Nodos dormidos:         241
-  Energía sináptica:      57.32
-  Aristas sinápticas:     16369
-  Equivalencias semánt.:  3332 (1410 términos únicos)
-  Entradas de backup:     1
+  Nodos totales:          381
+  Nodos activos:          360
+  Nodos dormidos:         21
+  Energía sináptica:      121.91
+  Aristas sinápticas:     2038
+  Equivalencias semánt.:  3470 (1486 términos únicos)
+  Entradas de backup:     0
   En corto plazo (pend.): 0
-  Comunicaciones totales: 77
+  Comunicaciones totales: 108
 
 
 --- DISTRIBUCIÓN POR CATEGORÍA ---
 
 Categoría       Total    Activos  Dormidos Peso Prom.
 -------------------------------------------------------
-Principle       76       76       0        0.44      
-Lesson          59       3        56       0.08      
-System          49       1        48       0.05      
-Project         47       0        47       0.02      
-Architecture    38       9        29       0.21      
-Cognition       25       0        25       0.05      
-Protocol        20       18       2        0.17      
-General         16       0        16       0.01      
-Profile         14       14       0        0.87      
-Relation        13       0        13       0.05      
-Personal        5        0        5        0.05      
+Principle       78       78       0        0.57      
+System          61       56       5        0.25      
+Lesson          61       58       3        0.26      
+Project         47       40       7        0.15      
+Architecture    41       40       1        0.26      
+Cognition       25       25       0        0.17      
+Protocol        20       20       0        0.26      
+General         16       11       5        0.14      
+Profile         14       14       0        1.0       
+Relation        13       13       0        0.14      
+Personal        5        5        0        0.2       
 
 
 ======================================================================
@@ -381,18 +382,17 @@ Personal        5        0        5        0.05
 
 Tipo                   Cantidad   Peso Prom.   Mín      Máx     
 ------------------------------------------------------------
-rafaga_rememb          9141       0.638        0.051    0.95    
-co_ocurrencia          3412       0.555        0.057    1.0     
-sinonimo_explicito     3164       0.9          0.9      0.95    
-co_nombre              516        0.419        0.25     0.91    
-co_semantica           34         0.448        0.23     0.72    
-manual                 33         0.437        0.081    0.5     
-legacy_csv             33         0.502        0.5      0.55    
-memoria_refleja        18         0.611        0.051    0.9     
-manual_v7              18         0.679        0.121    0.9     
+sinonimo_explicito     777        0.9          0.9      0.9     
+co_ocurrencia          667        0.657        0.113    1.0     
+rafaga_rememb          472        0.617        0.238    0.95    
+co_nombre              53         0.426        0.32     0.87    
+legacy_csv             29         0.503        0.5      0.6     
+manual_v7              17         0.712        0.7      0.9     
+memoria_refleja        15         0.723        0.6      0.9     
+co_semantica           8          0.415        0.3      0.72    
 
-  Nodos origen únicos:  1020
-  Nodos destino únicos: 369
+  Nodos origen únicos:  232
+  Nodos destino únicos: 326
 
 
 ======================================================================
@@ -401,20 +401,20 @@ manual_v7              18         0.679        0.121    0.9
 
 Fecha                  Consolid.  Dormidos   Sin.Crea.  Sin.Pod.   Cat.Dom.     Ratio   
 ----------------------------------------------------------------------------------
-2026-06-30 09:42       1          1          8          0          Principle    0.01    
-2026-06-30 03:36       2          138        0          5          Principle    0.01    
-2026-06-30 03:23       1          1          6          0          Principle    0.0     
-2026-06-30 03:09       3          39         10         0          Principle    0.01    
-2026-06-30 02:12       1          13         0          4          Principle    0.0     
+2026-07-04 02:50       1          14         7          0          Principle    0.0     
+2026-07-04 02:45       0          97         0          0          Principle    0.0     
+2026-07-04 02:43       1          18         25         0          Principle    0.0     
+2026-07-04 02:18       0          26         0          0          Principle    0.0     
+2026-07-04 01:54       1          19         1          0          Principle    0.0     
 
 
 --- MÉTRICAS DE RENDIMIENTO (últimas mediciones) ---
 
 Fecha                  Nodos   Act.   Dorm.   Latencia   DB Size      Energía 
 ------------------------------------------------------------------------
-2026-06-30 09:42       362     121    241     0.09       13324 KB     57.32   
-2026-06-30 03:36       361     121    240     0.11       13324 KB     58.3    
-2026-06-30 03:23       359     257    102     0.15       13324 KB     71.97   
+2026-07-04 02:50       381     360    21      0.20       9304 KB      121.91  
+2026-07-04 02:45       380     244    136     0.12       9304 KB      93.65   
+2026-07-04 02:43       380     341    39      0.13       9084 KB      112.17  
 
 
 ======================================================================
@@ -507,7 +507,9 @@ existe "vehículo"→"auto". Esto permite expansión de queries sin embeddings.
 
 --- HERRAMIENTAS MCP (16 tools) ---
 
-biorag_guardar(concepto, contenido, cat, syn)    — Guardar en corto plazo
+biorag_aprender(concepto, contenido, dimensiones, cat, syn) — Codificar en corto plazo (requiere dimensiones JSON)
+biorag_guardar(concepto, contenido, cat, syn, dimensiones)  — Legacy: alias de aprender (usa dimensiones JSON)
+biorag_listar_dimensiones()                               — Catálogo 39 dimensiones en 5 ejes
 biorag_buscar(query, cat, limite, deep, completo, asociados) — Búsqueda 8 capas
 biorag_sueno(limite_energia)                     — Ciclo de consolidación
 biorag_estado()                                  — Estadísticas de la corteza

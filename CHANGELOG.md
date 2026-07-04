@@ -1,5 +1,49 @@
 # BioRAG Changelog
 
+## v12.0 (2026-07-04)
+
+### Features
+- **`creado_en` en largo_plazo**: Columna temporal que registra cuándo se consolidó cada concepto. Registros antiguos heredan `ultimo_acceso`. Permite filtros temporales en búsquedas.
+- **Filtros temporales en `recordar`**: Nuevos parámetros `dias`, `desde`, `hasta` para buscar por rango de fechas. Ejemplo: `recordar(query='error', dias=5)` trae errores de los últimos 5 días.
+- **Filtro por autor**: Nuevo parámetro `autor` en `recordar` para filtrar por nombre del agente en memoria compartida. Ejemplo: `recordar(query='lesson', autor='athena')`.
+- **`query` opcional en `recordar`**: Si se omite `query`, `recordar` funciona como log cronológico puro — trae los N recuerdos más recientes ordenados por `creado_en DESC`. Combina con `dias`/`desde`/`hasta`/`autor`.
+- **`desvincular(a, b)`**: Tool de plasticidad negativa interactiva. Elimina la sinapsis bidireccional entre dos conceptos cuando aparece un falso positivo. El cerebro mejora con cada corrección.
+- **Ráfaga con dimensiones**: `buscar_por_rafaga` ahora acepta `dimensiones_ids` para scoring dimensional (25% del score híbrido). Coseno binario discreto.
+- **Match exacto ×2.0**: Concepto normalizado == query normalizado recibe multiplicador de score ×2.0.
+- **Degradación progresiva 3 niveles**: FTS5 → fuzzy → sinonimos cuando la query no tiene resultados.
+- **Trazaabilidad completa**: Response JSON incluye scores por capa (`capa_literal`, `capa_parafrasis`, `capa_rafaga`), `match_exacto`, `total_candidatos_todos`, y `dimensiones_solicitadas`.
+- **Directiva de Higiene de Falsos Positivos**: Cuando un agente detecta un falso positivo que llegó por sinapsis, ejecuta `desvincular` automáticamente para limpiar el grafo.
+
+### Bug Fixes
+- **Validación de dimensiones simétrica**: `_recordar_impl` ahora BLOQUEA búsqueda si recibe dimensiones inválidas (antes las ignoraba silenciosamente). Consistente con `_aprender_impl`.
+- **`score_parafrasis_best` siempre 0.0**: Corregido — ahora trackea correctamente el mejor score de paráfrasis.
+- **`NameError` en trazabilidad**: `self.last_todos` y `self.last_origen_scores` ahora se inicializan correctamente.
+- **Ráfaga creaba sinapsis con tokens sueltos**: Ahora solo crea sinapsis si el token existe como concepto activo en `largo_plazo`. Previene hiperconectividad (ej: nodo "flor" con 59 sinapsis irrelevantes).
+- **`vincular_por_sinonimos` buscaba en contenido**: Ahora solo busca en `concepto` y `sinonimos`, NO en `contenido`. Previene conexiones espurias por mención incidental.
+- **`asociaciones` CSV desincronizado**: `_sincronizar_asociaciones()` se ejecuta en las 4 rutas de escritura (auto_vincular, vincular_por_sinonimos, desvincular, establecer_asociacion). CSV siempre refleja el estado real de sinapsis.
+
+### Architecture
+- **Pipeline colapsado a 2 pasos**: PASO 1 obligatorio (paráfrasis+dimensiones), PASO 2 fallback (ráfaga). De 4 pasos a 2.
+- **Fórmula score híbrido**: 55% BM25 + 25% peso_sináptico + 10% asociaciones + 10% dim_score.
+- **Fórmula ráfaga con dimensiones**: 0.40 densidad + 0.25 peso + 0.10 asoc + 0.25 dim_score.
+- **Paráfrasis optimizado**: 1 query FTS5 OR en vez de N queries separadas. Penalización ×0.95 en Python.
+- **Homeostasis sináptica**: `sinapsis` y `largo_plazo.asociaciones` siempre sincronizados.
+
+### Data Cleanup
+- 681 sinapsis espurias eliminadas (477 rafaga_rememb huérfanas + 204 sinonimo_explicito de arquitectura_busqueda_dimensional)
+- 362 nodos activos sincronizados
+
+### Tests
+- Tests 73-78: ráfaga con dimensiones, score con dim_score, match exacto ×2.0, fallback dimensional, penalización paráfrasis ×0.95, trazabilidad.
+- 78/78 tests verdes
+
+### Coordinación Athena ↔ Artemis
+- Canal simbiótico: diseño colaborativo de created_en, desvincular, higiene de falsos positivos
+- Artemis detectó bug de `asociaciones` desincronizado y ejecutó fix completo
+- Protocolo de memoria compartida documentado en docstring de `recordar`
+
+---
+
 ## v11.1 (2026-06-29)
 
 ### Features

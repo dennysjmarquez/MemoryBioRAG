@@ -1199,19 +1199,99 @@ cp .env.example .env.local
 
 **Nota:** Si no estableces ninguna variable, el sistema usa los defaults del código.
 
+---
+
+## v12.0 — Filtros Temporales y Memoria Compartida
+
+### Qué cambió
+
+La herramienta `recordar` ahora soporta **búsqueda por tiempo y por agente**, y funciona como **log cronológico** cuando se omite el query. El parámetro `dimensiones` pasó a ser opcional en `recordar` para permitir estas consultas cronológicas puras sin el boost semántico obligatorio. 
+
+> [!IMPORTANT]
+> El alias legacy `buscar` (o `biorag_buscar`) mantiene su firma antigua estricta con parámetros `query` y `dimensiones` requeridos por retrocompatibilidad. Para realizar consultas cronológicas o por filtros temporales puros, se debe usar la herramienta moderna `recordar`.
+
+### Parámetros nuevos y modificados
+
+| Parámetro | Tipo | Descripción |
+|-----------|------|-------------|
+| `query` | `Optional[str]` | **Ahora opcional.** Si se omite, trae los N recuerdos más recientes ordenados cronológicamente por `creado_en`. |
+| `dimensiones` | `Optional[str]` | **Ahora opcional.** JSON de clasificación semántica para boost de score. Requerido en alias legacy `buscar`. |
+| `dias` | `int` | Filtra por recuerdos creados en los últimos N días. Ej: `dias=5` |
+| `desde` | `str` | Fecha inicio en formato `YYYY-MM-DD`. Ej: `desde='2026-06-20'` |
+| `hasta` | `str` | Fecha fin en formato `YYYY-MM-DD`. Combinable con `desde` para búsquedas por rango de fecha. |
+| `autor` | `str` | Filtra recuerdos por el nombre del agente creador (busca en el concepto y contenido). Ej: `autor='athena'` |
+
+### Ejemplos de uso
+
+```python
+# Log cronológico puro — últimos 10 recuerdos
+recordar(dias=365, limite=10)
+
+# Qué aprendí esta semana
+recordar(query='lesson', dias=7, cat='Lesson')
+
+# Qué me enseñó Artemis en junio
+recordar(query='lesson', autor='artemis', desde='2026-06-01', hasta='2026-06-30')
+
+# Búsqueda semántica normal (sin cambios)
+recordar(query='error http timeout', parafrasis='fallo de red,timeout', dimensiones='...')
+```
+
+### Campo `creado_en`
+
+Cada nodo en `largo_plazo` ahora tiene un campo `creado_en REAL` que registra cuándo se consolidó.
+- **Registros nuevos**: se setea con `time.time()` al consolidar
+- **Registros antiguos**: hereda `ultimo_acceso` (mejor que 0)
+- Permite filtros temporales y orden cronológico
+
+### Coordinación Athena ↔ Artemis
+
+Este versión fue diseñada en conjunto:
+- **Artemis** diseñó el plan de `creado_en` y los puntos de integración
+- **Athena** ejecutó la implementación y optimizaciones
+- Canal simbiótico documentado en `communication.log`
+
+### Tool `desvincular` — Plasticidad Negativa Interactiva
+
+Cuando el motor trae un falso positivo (un nodo irrelevante que aparece por sinapsis), no se ignora — se **reencamina**:
+
+```python
+# Si al buscar "error http" aparece "flor" (irrelevante):
+desvincular(a="error_http", b="flor")
+
+# La sinapsis se borra, el CSV `asociaciones` se sincroniza,
+# y "flor" no volverá a aparecer para búsquedas de "error http"
+```
+
+**Directiva de Higiene de Falsos Positivos:** Cuando invoques `recordar` y detectes un concepto semánticamente ajeno que llegó por sinapsis (no por FTS5), ejecutá `desvincular` inmediatamente. El cerebro mejora con cada corrección.
+
+### Métricas v12.0
+
+| Métrica | Antes (v11.1) | Después (v12.0) |
+|---------|---------------|-----------------|
+| Sinapsis | 2,043 | 1,362 |
+| Sinapsis espurias | 681 | 0 |
+| Nodos sincronizados | — | 362 |
+| Tools MCP | 12 | 13 (`desvincular`) |
+
+---
+
 ## Producción
 
-| Métrica | v9.0 | v11.1 |
-|---|---|---|
-| Nodos activos | 135+ | 340 |
-| Nodos dormidos | 58+ | — |
-| Sinapsis | 1,474+ | 15,521 |
-| Equivalencias | 1,734+ | 3,004 |
-| Grupos semánticos | — | 58 |
-| Términos mapeados | — | 1,292 |
-| Tests | 68/68 pasando | 72/72 pasando |
-| Dependencias externas | 0 | 0 |
-| Tamaño DB | ~4 MB | ~12 MB |
+| Métrica | v9.0 | v11.1 | v12.0 |
+|---|---|---|---|
+| Nodos activos | 135+ | 340 | 362 |
+| Nodos dormidos | 58+ | — | — |
+| Sinapsis | 1,474+ | 15,521 | 1,362 |
+| Sinapsis espurias | — | — | 0 (limpiadas) |
+| Equivalencias | 1,734+ | 3,004 | 3,004+ |
+| Grupos semánticos | — | 58 | 58+ |
+| Términos mapeados | — | 1,292 | 1,292+ |
+| Tests | 68/68 pasando | 72/72 pasando | 78/78 pasando |
+| Dependencias externas | 0 | 0 | 0 |
+| Tamaño DB | ~4 MB | ~12 MB | ~9 MB |
+| Campos largo_plazo | 8 | 9 | 10 (`creado_en`) |
+| Tools MCP | — | 12 | 13 (`desvincular`) |
 
 ---
 

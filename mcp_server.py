@@ -257,6 +257,12 @@ ORACLE_PROMPT = (
     "No pregunto \"¿tengo dudas?\" antes de decidir si consulto. Consulto siempre.\n"
     "- Si el oráculo no tiene la información, lo sabré después de la consulta, "
     "no antes. Y en ese caso, pregunto al usuario directamente.\n\n"
+    "## HIGIENE SINÁPTICA DE FALSOS POSITIVOS\n"
+    "Cuando invoques 'biorag_recordar' y detectes en el pool de resultados que un concepto es "
+    "semánticamente ajeno o irrelevante a la consulta original (falso positivo), y dicho nodo "
+    "llegó mediante una asociación sináptica (y no por coincidencia de texto FTS5 pura), "
+    "debes llamar inmediatamente a la herramienta 'desvincular(a=concepto_buscado, b=falso_positivo)' "
+    "en segundo plano para purgar la conexión incorrecta y mantener el cerebro limpio.\n\n"
     "**La respuesta debe salir de tu entendimiento, no del RAG ni del cuaderno "
     "— son para recordar y complementar, no para generar desde ahí.**"
 )
@@ -283,7 +289,7 @@ def _build_server():
     # ── TOOLS ────────────────────────────────────────────────────────────────
 
     def _recordar_impl(
-        query: str,
+        query: Optional[str] = None,
         deep: bool = False,
         cat: Optional[str] = None,
         completo: bool = False,
@@ -295,7 +301,11 @@ def _build_server():
         rafaga_palabras: Optional[str] = None,
         pagina: int = 1,
         parafrasis: Optional[str] = None,
-        emocion: Optional[str] = None,
+        dimensiones: Optional[Any] = None,
+        dias: Optional[int] = None,
+        desde: Optional[str] = None,
+        hasta: Optional[str] = None,
+        autor: Optional[str] = None,
     ) -> str:
         if limite is None:
             limite = LIMITE_MCP
@@ -304,14 +314,85 @@ def _build_server():
             if preview_chars is None:
                 preview_chars = 0 if completo else 1500
 
+            # Sin query → log cronológico puro por creado_en
+            if query is None:
+                ahora = time.time()
+                desde_ts = 0
+                hasta_ts = ahora + 86400
+                if dias:
+                    desde_ts = ahora - (dias * 86400)
+                elif desde:
+                    from datetime import datetime
+                    desde_ts = datetime.strptime(desde, "%Y-%m-%d").timestamp()
+                if hasta:
+                    from datetime import datetime
+                    hasta_ts = datetime.strptime(hasta, "%Y-%m-%d").timestamp() + 86400
+
+                sql = "SELECT concepto, contenido, peso_sinaptico, estado, asociaciones FROM largo_plazo WHERE creado_en >= ? AND creado_en <= ?"
+                params = [desde_ts, hasta_ts]
+                if cat:
+                    cat_id = cerebro._resolver_categoria_id(cat)
+                    if cat_id:
+                        sql += " AND categoria = ?"
+                        params.append(cat_id)
+                if autor:
+                    sql += " AND (concepto LIKE ? OR contenido LIKE ?)"
+                    params.extend([f"%{autor}%", f"%{autor}%"])
+                sql += " ORDER BY creado_en DESC LIMIT ?"
+                params.append(limite)
+                cerebro.cursor.execute(sql, tuple(params))
+                resultados = [(r[0], r[1], r[2], r[3], r[2], r[4]) for r in cerebro.cursor.fetchall()]
+                total = len(resultados)
+                items = [
+                    {"concepto": r[0], "contenido": r[1], "peso_sinaptico": r[2],
+                     "estado": r[3], "score_hibrido": 0.0,
+                     "asociaciones": [v.strip() for v in (r[5] or "").split(",") if v.strip()] if asociados and r[5] else []}
+                    for r in resultados
+                ]
+                return json.dumps({
+                    "total": total,
+                    "pagina_actual": 1,
+                    "paginas_totales": 1,
+                    "resultados": items,
+                    "modo": "cronologico",
+                }, ensure_ascii=False)
+
             rafaga_list = [w.strip() for w in rafaga_palabras.split(",")] if rafaga_palabras else None
 
-            emocion_sql_filter = None
-            if emocion:
-                ids_validos, _ = cerebro._resolver_dimension_ids("emocion", emocion)
-                if ids_validos:
-                    ids_str = ",".join(str(i) for i in ids_validos)
-                    emocion_sql_filter = f"concepto IN (SELECT concepto FROM largo_plazo_dimensiones WHERE dimension_id IN ({ids_str}))"
+            # Parsear dimensiones: JSON string → dict de eje → lista de IDs
+            dimensiones_dict = None
+            dimensiones_ids = []
+            if dimensiones:
+                try:
+                    dim_raw = json.loads(dimensiones) if isinstance(dimensiones, str) else dimensiones
+                except json.JSONDecodeError:
+                    return json.dumps({
+                        "status": "error",
+                        "mensaje": f"dimensiones debe ser JSON válido. Ejemplo: {json.dumps({'emocion': ['afecto'], 'entidad': ['identidad_artificial']})}",
+                    }, ensure_ascii=False)
+                # Resolver IDs para cada eje
+                dimensiones_dict = {}
+                dimensiones_invalidas = {}
+                for eje, valores in dim_raw.items():
+                    if not isinstance(valores, list):
+                        dimensiones_invalidas[eje] = "debe ser lista"
+                        continue
+                    ids, invalidos = cerebro._resolver_dimension_ids(eje, ",".join(valores))
+                    if invalidos:
+                        dimensiones_invalidas[eje] = invalidos
+                    if ids:
+                        dimensiones_dict[eje] = ids
+                        dimensiones_ids.extend(ids)
+
+                # BLOQUEAR búsqueda si hay dimensiones inválidas
+                if dimensiones_invalidas:
+                    cerebro.cerrar_sistema()
+                    return json.dumps({
+                        "status": "error",
+                        "mensaje": f"Dimensiones inválidas: {json.dumps(dimensiones_invalidas, ensure_ascii=False)}. "
+                                   "Llamá `listar_dimensiones` para ver valores válidos.",
+                        "dimensiones_invalidas": dimensiones_invalidas,
+                    }, ensure_ascii=False)
 
             if forzar_rafaga and not rafaga_palabras:
                 return json.dumps({
@@ -320,6 +401,9 @@ def _build_server():
                 }, ensure_ascii=False)
 
             profundidad = "profundo" if deep else "activos"
+
+            # Inicializar parafrasis_list (se usa en buscar_por_frase)
+            parafrasis_list = None
 
             if parafrasis is not None and not parafrasis.strip():
                 return json.dumps({
@@ -351,36 +435,32 @@ def _build_server():
             resultados, total = cerebro.buscar_por_frase(
                 query, profundidad=profundidad, pagina=pagina, limite=limite_interno,
                 categoria=cat, preview_chars=preview_chars,
-                context_window=context_window,
-                emocion_sql_filter=emocion_sql_filter
+                context_window=0,
+                dimensiones_dict=dimensiones_dict,
+                dimensiones_ids=dimensiones_ids,
+                parafrasis_list=parafrasis_list,
             )
             score_top = resultados[0][4] if resultados else 0
 
-            # Parafrasis SIEMPRE — el agente piensa, el sistema busca
-            if parafrasis:
-                queries = [query] + parafrasis_list
-                merged = {r[0]: r for r in resultados}
-                for i, q in enumerate(queries):
-                    q_res, q_tot = cerebro.buscar_por_frase(
-                        q, profundidad=profundidad, pagina=pagina, limite=limite_interno,
-                        categoria=cat, preview_chars=preview_chars,
-                        context_window=0,
-                        emocion_sql_filter=emocion_sql_filter
-                    )
-                    factor = 1.0 if i == 0 else PARAFRASIS_PENALTY
-                    for r in q_res:
-                        conc = r[0]
-                        rp = (r[0], r[1], r[2], r[3], r[4] * factor, r[5])
-                        if conc not in merged or rp[4] > merged[conc][4]:
-                            merged[conc] = rp
-                resultados = sorted(merged.values(), key=lambda r: r[4], reverse=True)[:limite]
-                total = len(resultados)
+            # Trazaabilidad: tracking de scores por capa
+            score_parafrasis_best = 0.0
+            resultados_rafaga = []
 
             sinapsis_creadas = []
             score_top = resultados[0][4] if resultados else 0
             if rafaga_list and (forzar_rafaga or not resultados or score_top < THRESHOLD_RAFTAGA_MCP):
+                # Ampliar ráfaga con palabras clave de la paráfrasis si existen
+                if parafrasis:
+                    parafrasis_words = set()
+                    for p in parafrasis_list:
+                        for w in re.findall(r'\w{3,}', p.lower()):
+                            parafrasis_words.add(w)
+                    for w in parafrasis_words:
+                        if w not in rafaga_list:
+                            rafaga_list.append(w)
                 resultados_rafaga, total_rafaga, sinapsis_creadas = cerebro.buscar_por_rafaga(
-                    query, rafaga_list, pagina=pagina, limite=limite_interno
+                    query, rafaga_list, pagina=pagina, limite=limite_interno,
+                    dimensiones_ids=dimensiones_ids
                 )
                 # Combinar resultados: ráfaga + originales (sin duplicados)
                 if resultados_rafaga:
@@ -395,7 +475,47 @@ def _build_server():
                 resultados.sort(key=lambda r: r[4], reverse=True)
                 resultados = resultados[:limite]
 
+            # Filtro temporal: dias/desde/hasta sobre creado_en (ANTES de truncar)
+            if (dias or desde or hasta) and resultados:
+                ahora = time.time()
+                if dias:
+                    desde_ts = ahora - (dias * 86400)
+                elif desde:
+                    from datetime import datetime
+                    desde_ts = datetime.strptime(desde, "%Y-%m-%d").timestamp()
+                else:
+                    desde_ts = 0
+                hasta_ts = time.time()
+                if hasta:
+                    from datetime import datetime
+                    hasta_ts = datetime.strptime(hasta, "%Y-%m-%d").timestamp() + 86400
+
+                # Traer creado_en de DB para cada resultado
+                conceptos = [r[0] for r in resultados]
+                placeholders = ",".join("?" * len(conceptos))
+                cerebro.cursor.execute(
+                    f"SELECT concepto, creado_en FROM largo_plazo WHERE concepto IN ({placeholders})",
+                    conceptos,
+                )
+                creado_map = {row[0]: row[1] for row in cerebro.cursor.fetchall()}
+                resultados = [
+                    r for r in resultados
+                    if (creado_map.get(r[0], 0) or 0) >= desde_ts
+                    and (creado_map.get(r[0], 0) or 0) <= hasta_ts
+                ]
+                total = len(resultados)
+
+            # Filtro por autor: buscar nombre del agente en contenido
+            if autor and resultados:
+                autor_lower = autor.lower()
+                resultados = [
+                    r for r in resultados
+                    if autor_lower in (r[1] or "").lower() or autor_lower in (r[0] or "").lower()
+                ]
+                total = len(resultados)
+
             resultados = resultados[:limite]
+
             if not resultados:
                 cerebro.cerrar_sistema()
                 # Señal de contingencia: la agente debe buscar en su contexto
@@ -405,6 +525,15 @@ def _build_server():
                     "contingencia_contexto": True,
                     "mensaje": "No se encontraron recuerdos en la corteza. Busca en tu historial de conversacion o contexto actual."
                 }, ensure_ascii=False)
+
+            # Expansión de contexto final post-truncamiento
+            if context_window and context_window > 0 and resultados:
+                resultados = cerebro.expandir_contexto_vecinos(
+                    resultados,
+                    depth=context_window,
+                    profundidad=profundidad,
+                    preview_chars=preview_chars
+                )
 
             items = []
             for concepto, contenido, peso, estado, score, asociaciones in resultados:
@@ -422,6 +551,23 @@ def _build_server():
             limite_den = limite if (limite and limite > 0) else 1
             paginas_totales = math.ceil(total / limite_den)
 
+            # Trazaabilidad: info de debugging por capa
+            _last_todos = getattr(cerebro, 'last_todos', [])
+            _last_origen = getattr(cerebro, 'last_origen_scores', {})
+            trazabilidad = {
+                "capa_literal": score_top if score_top else 0.0,
+                "capa_parafrasis": round(score_parafrasis_best, 4),
+                "capa_rafaga": len(resultados_rafaga) if resultados_rafaga else 0,
+                "fallback_dimensional": len([r for r in _last_todos if _last_origen.get(r[1], ("",))[0] == "dimensional_fallback"]),
+                "match_exacto": any(
+                    query.lower().replace(" ", "_").replace("-", "_") == (r[0] or "").lower().replace(" ", "_").replace("-", "_")
+                    for r in resultados
+                ),
+                "total_candidatos_todos": len(_last_todos),
+            }
+            if dimensiones_dict:
+                trazabilidad["dimensiones_solicitadas"] = {k: len(v) for k, v in dimensiones_dict.items()}
+
             resultado = json.dumps({
                 "total": total,
                 "pagina_actual": pagina,
@@ -429,6 +575,7 @@ def _build_server():
                 "resultados": items,
                 "sinapsis_creadas": [{"origen": o, "destino": d, "peso": p} for o, d, p in sinapsis_creadas] if sinapsis_creadas else [],
                 "profundidad": profundidad,
+                "trazabilidad": trazabilidad,
             }, ensure_ascii=False)
             _interceptar("recordar", query, cerebro)
             return resultado
@@ -442,34 +589,42 @@ def _build_server():
             "FTS5 trigram (memoria semántica) + peso sináptico (memoria de trabajo) + "
             "ráfaga de reminiscencia (asociación libre) + ventana de contexto (vecinos sinápticos).\n\n"
             "════════════════════════════════════════════════════════\n"
-            "FLUJO OBLIGATORIO — 4 PASOS EN CASCADA. NO SALTEAR PASOS.\n"
-            "Verificar campo JSON 'total' después de CADA llamada.\n"
+            "REGLA INVIOLABLE: GOBERNANZA DE PLANIFICACIÓN ANALÍTICA DE BÚSQUEDA\n"
+            "════════════════════════════════════════════════════════\n"
+            "Antes de invocar esta herramienta, el agente o Transformer DEBE realizar obligatoriamente\n"
+            "un análisis estratégico en su buffer de pensamiento ('thought') estructurando:\n"
+            "  1. OBJETIVO DEL RECUERDO: Qué información se busca y por qué.\n"
+            "  2. ESTRATEGIA SELECCIONADA: Elegir detalladamente entre: Búsqueda Semántica con Boost,\n"
+            "     Log Cronológico Crudo, Aislamiento por Autor (Trabajo OEC), Vecindad Relacional (Multi-hop)\n"
+            "     o Ráfaga de Rescate.\n"
+            "  3. CONFIGURACIÓN CRÍTICA DE PARÁMETROS: Justificar la selección/omisión de cada uno de\n"
+            "     los parámetros disponibles (query, dimensiones, parafrasis, context_window, deep, autor,\n"
+            "     dias, desde/hasta).\n"
+            "  4. PLAN DE CONTINUIDAD (FALLO): Qué pasos se darán si el score es < 0.70 o da 0 resultados\n"
+            "     (ej: ráfaga de reminiscencia, expandir a deep=True, o consultar al usuario).\n"
+            "¡Queda estrictamente prohibido realizar llamadas improvisadas o utilizar parámetros por defecto\n"
+            "sin haber justificado previamente la estrategia de recuperación en el thought!\n\n"
+            "════════════════════════════════════════════════════════\n"
+            "FLUJO OBLIGATORIO — 2 PASOS. NO SALTEAR.\n"
             "════════════════════════════════════════════════════════\n\n"
-            "PASO 1 — Búsqueda directa:\n"
-            "  recordar(query='X')\n"
-            "  Resultado → total >= 1: ir a SÍNTESIS\n"
-            "  Resultado → total == 0: ir a PASO 2\n\n"
-            "PASO 2 — Búsqueda con paráfrasis (variantes semánticas):\n"
-            "  recordar(query='X', parafrasis='var1,var2,var3')\n"
-            "  Generar variantes con 4 niveles ANTES de llamar:\n"
+            "PASO 1 — Búsqueda Semántica Integral (OBLIGATORIO):\n"
+            "  SIEMPRE incluir parafrasis + dimensiones desde el primer intento.\n"
+            "  recordar(query='X', parafrasis='var1,var2,var3', dimensiones='{...}')\n"
+            "  Generar paráfrasis con 4 niveles ANTES de llamar:\n"
             "    N1 (Sinónimos): sustantivos equivalentes exactos\n"
             "    N2 (Registro): técnico ↔ coloquial\n"
             "    N3 (Perspectiva): ángulo opuesto o resultado\n"
             "    N4 (Abstracción): abstracto ↔ concreto\n"
             "  REGLA: NUNCA adjetivos abstractos. SIEMPRE sustantivos del dominio.\n"
             "  Resultado → total >= 1: ir a SÍNTESIS\n"
-            "  Resultado → total == 0: ir a PASO 3\n\n"
-            "PASO 3 — Búsqueda por ráfaga (asociación libre, 10-15 términos):\n"
-            "  recordar(query='X', rafaga_palabras='t1,t2,...t15', forzar_rafaga=True)\n"
-            "  Generar términos con 5 niveles:\n"
+            "  Resultado → total == 0 O score_top < 0.70: ir a PASO 2\n\n"
+            "PASO 2 — Ráfaga Asociativa (Fallback):\n"
+            "  recordar(query='X', parafrasis='var1,var2,var3', dimensiones='{...}',\n"
+            "           rafaga_palabras='t1,t2,...t15', forzar_rafaga=True)\n"
+            "  Generar términos de ráfaga con 5 niveles:\n"
             "    N1 (Literal) N2 (Técnico) N3 (Contexto) N4 (Problema) N5 (Emoción)\n"
             "  REGLA: sustantivos literales, NUNCA adjetivos abstractos.\n"
-            "  ERROR CRÍTICO: forzar_rafaga=True SIN rafaga_palabras → la tool retorna error inmediato.\n"
-            "  Resultado → total >= 1: ir a SÍNTESIS\n"
-            "  Resultado → total == 0: ir a PASO 4\n\n"
-            "PASO 4 — Búsqueda combinada (paráfrasis + ráfaga juntas):\n"
-            "  recordar(query='X', parafrasis='var1,var2,var3',\n"
-            "           rafaga_palabras='t1,t2,...', forzar_rafaga=True)\n"
+            "  ERROR CRÍTICO: forzar_rafaga=True SIN rafaga_palabras → la tool retorna error.\n"
             "  Resultado → total >= 1: ir a SÍNTESIS\n"
             "  Resultado → total == 0: CONTINGENCIA — buscar en contexto/historial del chat\n\n"
             "════════════════════════════════════════════════════════\n"
@@ -486,25 +641,83 @@ def _build_server():
             "  Query original → factor 1.0 | Cada variante → factor × 0.95\n"
             "  Merge por concepto: el mejor score gana\n"
             "  Variante sin match → ignorada sin error\n\n"
-            "Retorna: {total, pagina_actual, paginas_totales, resultados[], sinapsis_creadas[], profundidad}\n\n"
-            "NOTA — parámetro 'cat': acepta UNA sola categoría como string simple.\n"
-            "  REGLA: Es muy preferible buscar SIN categoría (omitir este parámetro) para evitar\n"
-            "  falsos negativos por imprecisión en el etiquetado. Úsalo ÚNICAMENTE si estás\n"
-            "  100% seguro de que el recuerdo pertenece estrictamente a esa categoría. Valores válidos:\n"
-            "  System | Architecture | Project | Lesson | Profile |\n"
-            "  Personal | Principle | Protocol | Cognition | Relation | General\n\n"
+            "NOTA — parámetro 'cat': filtrar por categoría.\n"
+            "  Si se omite, busca en todas las categorías.\n\n"
             "NOTA — context_window: usar 1 o 2 para incluir vecinos sinápticos.\n"
             "  Aumenta recall a costa de más tokens en la respuesta.\n\n"
+            "NOTA — parámetro 'parafrasis': OBLIGATORIO para búsqueda semántica.\n"
+            "  Reformulaciones del query separadas por coma (ej: 'fallo de red,error de conexión,timeout HTTP').\n"
+            "  Si se omite, la búsqueda es solo FTS5 crudo (pierde ~60% del recall semántico).\n\n"
+            "NOTA — parámetro 'dimensiones': OBLIGATORIO para boost de scoring.\n"
+            "  JSON de ejes semánticos (ej: '{\"emocion\":[\"afecto\"],\"entidad\":[\"identidad_artificial\"]}').\n"
+            "  Aumenta score de conceptos con dimensiones compartidas (coseno binario).\n"
+            "  Las dimensiones son la matriz de búsqueda obligatoria de BioRAG.\n\n"
+            "MANDATORIO: Antes de usar 'dimensiones', llamar a 'listar_dimensiones' para obtener\n"
+            "los nombres exactos de ejes y valores disponibles. dimensiones con valores inexistentes\n"
+            "retorna ERROR y NO ejecuta la búsqueda.\n\n"
+            "════════════════════════════════════════════════════════\n"
+            "MEMORIA COMPARTIDA — CÓMO BUSCAR TUS PROPIOS RECUERDOS\n"
+            "════════════════════════════════════════════════════════\n"
+            "BioRAG es compartido entre agentes (Athena, Artemis, Hermes).\n"
+            "Cada agente tiene sus recuerdos en la misma base de datos.\n"
+            "Para buscar lo que TÚ aprendiste (y no lo de otros agentes):\n\n"
+            "  1. Usá tu nombre como parte del query: query='Atheno-OEC lesson'\n"
+            "  2. Filtrá por tu categoría: cat='Lesson'\n"
+            "  3. Incluí tus dimensiones: dimensiones='{\"emocion\":[\"afecto\"],\"entidad\":[\"identidad_artificial\"]}'\n\n"
+            "Ejemplo — '¿qué aprendí recientemente?':\n"
+            "  recordar(query='Athena-OEC lesson', cat='Lesson',\n"
+            "           dimensiones='{\"emocion\":[\"afecto\"],\"entidad\":[\"identidad_artificial\"]}')\n\n"
+            "Sin filtro de autor, los resultados mezclan recuerdos de todos los agentes.\n"
+            "El filtro por nombre + dimensiones es lo que aísla TUS recuerdos.\n\n"
+            "════════════════════════════════════════════════════════\n"
+            "FILTROS TEMPORALES — BUSQUEDA POR FECHA\n"
+            "════════════════════════════════════════════════════════\n"
+            "Opcional: filtrar resultados por cuándo se consolidaron.\n"
+            "  dias=N       → últimos N días (ej: dias=5)\n"
+            "  desde=YYYY-MM-DD → desde fecha (ej: desde='2026-06-20')\n"
+            "  hasta=YYYY-MM-DD → hasta fecha (ej: hasta='2026-07-04')\n"
+            "  autor='athena'   → solo recuerdos de ese agente\n\n"
+            "Ejemplo — 'qué aprendí esta semana':\n"
+            "  recordar(query='lesson', dias=7, cat='Lesson')\n\n"
+            "Ejemplo — 'qué me enseñó Artemis en junio':\n"
+            "  recordar(query='lesson', autor='artemis', desde='2026-06-01', hasta='2026-06-30')\n\n"
+            "════════════════════════════════════════════════════════\n"
+            "DIRECTIVA DE HIGIENE ACTIVA (FALSOS POSITIVOS)\n"
+            "════════════════════════════════════════════════════════\n"
+            "Si al evocar recuerdos detectas que un concepto devuelto en el pool es semánticamente\n"
+            "ajeno o irrelevante a la consulta (falso positivo), y este llegó mediante una asociación\n"
+            "sináptica (y no por coincidencia de texto crudo FTS5), DEBES llamar inmediatamente a la\n"
+            "herramienta 'desvincular(a=concepto_buscado, b=falso_positivo)' en segundo plano para\n"
+            "desasociarlos y limpiar la corteza cerebral.\n"
         ),
     )
     def biorag_recordar(
-        query: Annotated[str, Field(
+        query: Annotated[Optional[str], Field(
             description=(
                 "Texto o frase a evocar de la memoria. "
                 "Usar sustantivos concretos del dominio (ej: 'error http timeout', 'patron singleton'). "
-                "Evitar preguntas o frases largas — el motor es FTS5, no semántico puro."
+                "Si se omite, trae los últimos recuerdos ordenados por_created (log cronológico). "
+                "Combinable con dias/desde/hasta/autor para filtrar por tiempo y agente."
             )
-        )],
+        )] = None,
+        dimensiones: Annotated[Any, Field(
+            description=(
+                "PROTOCOLO DIMENSIONES:\n\n"
+                "Clasificación semántica del contexto de búsqueda. Valor: STRING JSON con comillas dobles.\n\n"
+                "MANDATORY: Llamá `listar_dimensiones` ANTES de buscar para obtener\n"
+                "los nombres exactos de ejes y valores disponibles.\n\n"
+                "FORMATO OBLIGATORIO — STRING JSON, no dict Python:\n"
+                "dimensiones: '{\"emocion\":[\"preocupacion\"],"
+                "\"entidad\":[\"identidad_artificial\"]}'\n\n"
+                "  - Cada eje es un key del JSON\n"
+                "  - Cada valor es un array de strings (nombres de dimensiones)\n"
+                "  - Los nombres VIENEN de listar_dimensiones (no inventar)\n"
+                "  - Si un eje no aplica, no se incluye en el JSON\n"
+                "  - Valores inexistentes → ERROR, NO se ejecuta la búsqueda\n\n"
+                "Aumenta score de conceptos con dimensiones compartidas (coseno binario).\n"
+                "Las dimensiones son la matriz de búsqueda obligatoria de BioRAG."
+            )
+        )] = None,
         deep: Annotated[bool, Field(
             description=(
                 "Si True, busca también en nodos dormidos (estado='dormido'). "
@@ -590,26 +803,40 @@ def _build_server():
                 "Cada variante recibe un factor de penalización ×0.95 sobre el score."
             )
         )] = None,
-        emocion: Annotated[Optional[str], Field(
+        dias: Annotated[Optional[int], Field(
             description=(
-                "Filtrar resultados por emoción (eje de recall emocional). "
-                "Nombres separados por coma (ej: 'afecto,frustracion'). "
-                "Valores: afecto, alegria, frustracion, tristeza, preocupacion, confusion, sorpresa.\n\n"
-                "PROPÓSITO: La búsqueda léxica (FTS5) encuentra recuerdos por lo que DICEN. "
-                "Este parámetro encuentra recuerdos por CÓMO SE SIENTEN. "
-                "Dos recuerdos pueden compartir las mismas palabras pero tener carga emocional opuesta. "
-                "La emoción indexa lo que el texto no dice.\n\n"
-                "REGLAS DE USO:\n"
-                "  - Cuando hay carga emocional (aunque sea mínima), etiquetar con la emoción correcta.\n"
-                "  - Usar una o más emociones para mayor precisión en el filtro.\n"
-                "  - Una enseñanza, lección o interacción con el usuario tiene afecto, sorpresa o frustración."
+                "Filtrar por últimos N días. Solo incluye recuerdos consolidados "
+                "desde hace N días (basado en creado_en). "
+                "Útil para 'qué aprendí recientemente'. "
+                "Alternativa a 'desde'. No combinar ambos."
+            )
+        )] = None,
+        desde: Annotated[Optional[str], Field(
+            description=(
+                "Fecha de inicio en formato YYYY-MM-DD (ej: '2026-06-20'). "
+                "Solo incluye recuerdos consolidados desde esa fecha. "
+                "Alternativa a 'dias'. No combinar ambos."
+            )
+        )] = None,
+        hasta: Annotated[Optional[str], Field(
+            description=(
+                "Fecha de fin en formato YYYY-MM-DD (ej: '2026-07-04'). "
+                "Solo incluye recuerdos consolidados hasta esa fecha. "
+                "Combinable con 'desde' para rangos."
+            )
+        )] = None,
+        autor: Annotated[Optional[str], Field(
+            description=(
+                "Filtrar por nombre del agente que creó el recuerdo (ej: 'athena'). "
+                "Busca el nombre en concepto y contenido. "
+                "Útil en memoria compartida para aislar recuerdos propios."
             )
         )] = None,
     ) -> str:
         return _recordar_impl(
             query, deep, cat, completo, asociados, limite, preview_chars,
             context_window, forzar_rafaga, rafaga_palabras, pagina, parafrasis,
-            emocion
+            dimensiones, dias, desde, hasta, autor
         )
 
     @mcp.tool(
@@ -618,7 +845,7 @@ def _build_server():
             "(legado) Alias de 'recordar' — preferir 'recordar' para identificar la operación cognitiva real. "
             "Misma funcionalidad y parámetros completos. "
             "El flujo de 4 pasos aplica igualmente (ver descripción de 'recordar').\n\n"
-            "Parámetros: query (str), deep (bool), cat (str), completo (bool), asociados (bool), "
+            "Parámetros: query (str), dimensiones (str JSON), deep (bool), cat (str), completo (bool), asociados (bool), "
             "limite (int), preview_chars (int), context_window (int 0-2), "
             "forzar_rafaga (bool), rafaga_palabras (str), pagina (int), parafrasis (str).\n\n"
             "Retorna: {total, pagina_actual, paginas_totales, resultados[], sinapsis_creadas[], profundidad}"
@@ -626,6 +853,20 @@ def _build_server():
     )
     def biorag_buscar(
         query: Annotated[str, Field(description="Texto o frase a buscar en la memoria.")],
+        dimensiones: Annotated[Any, Field(
+            description=(
+                "PROTOCOLO DIMENSIONES:\n\n"
+                "Clasificación semántica del contexto de búsqueda. Valor: STRING JSON con comillas dobles.\n\n"
+                "MANDATORY: Llamá `listar_dimensiones` ANTES de buscar para obtener\n"
+                "los nombres exactos de ejes y valores disponibles.\n\n"
+                "FORMATO OBLIGATORIO — STRING JSON, no dict Python:\n"
+                "dimensiones: '{\"emocion\":[\"preocupacion\"],"
+                "\"entidad\":[\"identidad_artificial\"]}'\n\n"
+                "  - Los nombres VIENEN de listar_dimensiones (no inventar)\n"
+                "  - Valores inexistentes → ERROR, NO se ejecuta la búsqueda\n\n"
+                "Aumenta score de conceptos con dimensiones compartidas (coseno binario)."
+            )
+        )] = None,
         deep: Annotated[bool, Field(description="Si True, incluye nodos dormidos en la búsqueda.")] = False,
         cat: Annotated[Optional[str], Field(description="Filtrar por categoría (string simple). REGLA: Es preferible omitir para evitar falsos negativos. Úsalo solo con certeza absoluta. Ver listar_categorias para valores válidos.")] = None,
         completo: Annotated[bool, Field(description="Si True, devuelve contenido completo sin truncar.")] = False,
@@ -640,7 +881,8 @@ def _build_server():
     ) -> str:
         return _recordar_impl(
             query, deep, cat, completo, asociados, limite, preview_chars,
-            context_window, forzar_rafaga, rafaga_palabras, pagina, parafrasis
+            context_window, forzar_rafaga, rafaga_palabras, pagina, parafrasis,
+            dimensiones
         )
 
     # ── APRENDER ─────────────────────────────────────────────────────────────
@@ -653,7 +895,7 @@ def _build_server():
         contenido: str,
         syn: Optional[str] = None,
         cat: Optional[str] = None,
-        dimensiones: Optional[str] = None,
+        dimensiones: Optional[Any] = None,
     ) -> str:
         cerebro = _get_cerebro()
         try:
@@ -686,6 +928,15 @@ def _build_server():
                         ids, invalidos = cerebro._resolver_dimension_ids(eje, ",".join(valores))
                         if invalidos:
                             dimensiones_invalidas[eje] = invalidos
+
+            # BLOQUEAR guardado si hay dimensiones inválidas
+            if dimensiones_invalidas:
+                return json.dumps({
+                    "status": "error",
+                    "mensaje": f"Dimensiones inválidas: {json.dumps(dimensiones_invalidas, ensure_ascii=False)}. "
+                               "Llamá `listar_dimensiones` para ver valores válidos. NO se guardó nada.",
+                    "dimensiones_invalidas": dimensiones_invalidas,
+                }, ensure_ascii=False)
 
             cerebro.percibir_corto_plazo(clave, contenido, syn or "", categoria, dim_dict)
 
@@ -725,13 +976,6 @@ def _build_server():
             "Equivalente a la codificación inicial de un recuerdo en el hipocampo. "
             "El concepto se normaliza automáticamente a snake_case minúsculas. "
             "Crea sinapsis automáticas con nodos relacionados via auto_vincular.\n\n"
-            "BioRAG resuelve la indexación semántica con dimensiones explícitas aplicando "
-            "principios de lingüística computacional y semántica de marcos, "
-            "fundamentada en la teoría de Espacios Conceptuales (Gärdenfors, 2000): "
-            "un nivel de representación intermedio entre el subsimbólico (redes neuronales) "
-            "y el simbólico (lógica formal). Cada recuerdo se codifica como un vector "
-            "categórico (Identificador Semántico o SID) — no un embedding latente, "
-            "sino etiquetas explícitas y auditables por eje.\n\n"
             "IMPORTANTE: el recuerdo queda en corto plazo hasta que se llame 'consolidar' "
             "para fijarlo a largo plazo (LTP). Sin consolidación, puede perderse en el siguiente ciclo.\n\n"
             "Categorías válidas (parámetro cat):\n"
@@ -766,7 +1010,7 @@ def _build_server():
                 "Recomendado: 100-1000 caracteres por nodo."
             )
         )],
-        dimensiones: Annotated[str, Field(
+        dimensiones: Annotated[Any, Field(
             description=(
                 "PROTOCOLO DIMENSIONES: \n\n"
                 
@@ -865,7 +1109,7 @@ def _build_server():
         contenido: Annotated[str, Field(description="Texto o conocimiento a almacenar.")],
         syn: Annotated[Optional[str], Field(description="Sinónimos separados por coma.")] = None,
         cat: Annotated[Optional[str], Field(description="Categoría. Ver aprender para valores válidos.")] = None,
-        dimensiones: Annotated[Optional[str], Field(
+        dimensiones: Annotated[Optional[Any], Field(
             description="Clasificación dimensional en JSON. Ver aprender para formato."
         )] = None,
     ) -> str:
@@ -905,6 +1149,38 @@ def _build_server():
             return json.dumps({
                 "status": "ok",
                 "mensaje": f"Sinapsis: '{a}' <--> '{b}'",
+            }, ensure_ascii=False)
+        finally:
+            cerebro.cerrar_sistema()
+
+    @mcp.tool(
+        name="desvincular",
+        description=(
+            "[Cognitivo] Elimina la sinapsis bidireccional entre dos conceptos. "
+            "Plasticidad negativa: cuando un falso positivo aparece en una búsqueda, "
+            "se borra la conexión para que no vuelva a traerse. "
+            "Equivalente a LTD dirigida por feedback de error.\n\n"
+            "Uso: si al buscar 'A' aparece 'B' pero no tiene relación, "
+            "llamar desvincular(a='A', b='B'). El cerebro mejora con cada corrección.\n\n"
+            "Retorna: {status, mensaje, eliminadas}"
+        ),
+    )
+    def biorag_desvincular(
+        a: Annotated[str, Field(
+            description="Primer concepto (clave normalizada)."
+        )],
+        b: Annotated[str, Field(
+            description="Segundo concepto (clave normalizada)."
+        )],
+    ) -> str:
+        from core.sinapsis import desvincular
+        cerebro = _get_cerebro()
+        try:
+            eliminadas = desvincular(cerebro, a, b)
+            return json.dumps({
+                "status": "ok",
+                "mensaje": f"Sinapsis eliminadas entre '{a}' y '{b}'",
+                "eliminadas": eliminadas,
             }, ensure_ascii=False)
         finally:
             cerebro.cerrar_sistema()
