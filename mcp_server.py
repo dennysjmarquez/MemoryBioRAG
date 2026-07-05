@@ -144,52 +144,19 @@ AGENTES_VALIDOS = {"athena", "artemis", "hermes"}
 # --- Helpers ----------------------------------------------------------------
 
 def _get_cerebro() -> SQLiteMemoryBioRAG:
-    return SQLiteMemoryBioRAG(db_path=DB_PATH)
+    return SQLiteMemoryBioRAG(db_path=os.environ.get("BIORAG_PATH") or _DEFAULT_DB)
 
 
-def _load_catalogo_dimensiones() -> str:
-    """Carga el catálogo vivo de dimensiones desde la DB al arrancar el server."""
-    cerebro = _get_cerebro()
-    try:
-        return cerebro._obtener_arbol_dimensiones()
-    finally:
-        cerebro.cerrar_sistema()
-
-
-def _generar_resumen_ejes(cerebro) -> tuple:
-    """Devuelve (lista_ejes_texto, reglas_pureza_texto) generados desde tipos_dimension."""
-    cerebro.cursor.execute("SELECT id, nombre, description FROM tipos_dimension ORDER BY id")
-    filas = cerebro.cursor.fetchall()
-    nombres = [nombre for _, nombre, _ in filas]
-    lista_ejes = f"EJES ({len(nombres)} ortogonales): {', '.join(nombres)}."
-
-    reglas_pureza = []
-    for _, nombre, descripcion in filas:
-        # Extrae la etiqueta completa entre paréntesis al inicio, ej: (El "Sentir"): La carga emocional...
-        if "(" in descripcion and ")" in descripcion:
-            reglas_pureza.append(f"  {nombre} → {descripcion}")
-        else:
-            reglas_pureza.append(f"  {nombre} → {descripcion}")
-    reglas_pureza_texto = "\n".join(reglas_pureza)
-
-    return lista_ejes, reglas_pureza_texto
-
-
-# Catálogo global — se carga una vez al importar el módulo
-_CATALOGO_DIMENSIONES = _load_catalogo_dimensiones()
-
-# Resumen de ejes y reglas de pureza — generado dinámico desde la DB
-_cerebro_init = _get_cerebro()
-try:
-    _LISTA_EJES, _REGLAS_PUREZA = _generar_resumen_ejes(_cerebro_init)
-finally:
-    _cerebro_init.cerrar_sistema()
+# _load_catalogo_dimensiones, _CATALOGO_DIMENSIONES, _ensure_catalogo_loaded
+# eliminados — se computaban al importar pero nunca se usaban
 
 
 def _preview(text: str, limit: int = 1500) -> str:
     if not text:
         return ""
     return text[:limit] + ("..." if len(text) > limit else "")
+
+
 
 
 def _interceptar(accion: str, texto: str, cerebro) -> dict | None:
@@ -634,6 +601,7 @@ def _build_server():
             "    N2 (Registro): técnico ↔ coloquial\n"
             "    N3 (Perspectiva): ángulo opuesto o resultado\n"
             "    N4 (Abstracción): abstracto ↔ concreto\n"
+            "    N5 (Emoción/Contexto): situación con carga emocional o contextual implícita\n"
             "  REGLA: NUNCA adjetivos abstractos. SIEMPRE sustantivos del dominio.\n"
             "  Resultado → total >= 1: ir a SÍNTESIS\n"
             "  Resultado → total == 0 O score_top < 0.70: ir a PASO 2\n\n"
@@ -1010,6 +978,9 @@ def _build_server():
             description=(
                 "PROTOCOLO DIMENSIONES: \n\n"
                 
+                "El modelo no analiza el texto de forma 'emocional' humana, pero sí captura el tono, el contexto y la intención de manera matemática. es Descomposición Semántica Guiada. "
+                "El Texto se Descompone, no se Generaliza."
+                
                 "Clasificación dimensional del recuerdo. Valor: STRING JSON con comillas dobles.\n\n"
                 "MANDATORY: Llamá `listar_dimensiones` ANTES de clasificar para obtener\n"
                 "los nombres exactos de ejes y valores disponibles.\n\n"
@@ -1076,7 +1047,10 @@ def _build_server():
             description=(
                 "Sinónimos o alias del concepto, separados por coma "
                 "(ej: 'fallo,error,excepción,crash'). "
-                "Mejoran el recall en búsquedas futuras — incluir términos alternativos conocidos."
+                "Pensá en cómo alguien podría preguntar por esto en el futuro — con qué "
+                "otras palabras, registro (técnico/coloquial), o términos relacionados. "
+                "Mejora el recall en búsquedas futuras. (A diferencia de 'dimensiones', "
+                "acá SÍ vale anticipar cómo se preguntará — no tiene que ser literal del texto.)"
             )
         )] = None,
         cat: Annotated[Optional[str], Field(
@@ -1168,11 +1142,17 @@ def _build_server():
         b: Annotated[str, Field(
             description="Segundo concepto (clave normalizada)."
         )],
+        autor: Annotated[Optional[str], Field(
+            description="Nombre del agente que reporta el falso positivo (para trazabilidad)."
+        )] = None,
+        query: Annotated[Optional[str], Field(
+            description="Query que generó el falso positivo (para trazabilidad)."
+        )] = None,
     ) -> str:
         from core.sinapsis import desvincular
         cerebro = _get_cerebro()
         try:
-            eliminadas = desvincular(cerebro, a, b)
+            eliminadas = desvincular(cerebro, a, b, autor=autor, query=query)
             return json.dumps({
                 "status": "ok",
                 "mensaje": f"Sinapsis eliminadas entre '{a}' y '{b}'",
