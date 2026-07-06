@@ -159,15 +159,23 @@ def expandir_query_por_tokens(cursor, query, max_equivalentes=3):
 
 
 
+def _es_limpio(valor):
+    """Valida que un término no sea ID de nodo ni basura."""
+    return len(valor) <= 15 and valor.count('_') < 2
+
+
 def agregar_equivalencia(cursor, termino, equivalente, peso=0.8):
     """
     Agrega una equivalencia semántica bidireccional.
     Inserta ambos sentidos: termino→equivalente y equivalente→termino.
+    Rechaza entradas donde uno de los lados parece ID de nodo.
     """
     init_semantica_table(cursor)
     termino = termino.lower().strip()
     equivalente = equivalente.lower().strip()
     if termino == equivalente:
+        return
+    if not _es_limpio(termino) or not _es_limpio(equivalente):
         return
     cursor.execute(
         "INSERT OR REPLACE INTO semantica (termino, equivalente, peso) VALUES (?, ?, ?)",
@@ -220,7 +228,7 @@ def cargar_vocabulario(cursor, vocabulario_dict):
     """
     Carga vocabulario desde un diccionario.
     Estructura: {"categoria": {"term": ["equiv1", "equiv2"], ...}}
-    Inserta bidireccionalmente.
+    Inserta bidireccionalmente. Rechaza IDs de nodos.
     """
     init_semantica_table(cursor)
     count = 0
@@ -229,7 +237,7 @@ def cargar_vocabulario(cursor, vocabulario_dict):
             for equiv in equivalentes:
                 term_val = term.lower().strip()
                 equiv_val = equiv.lower().strip()
-                if term_val != equiv_val:
+                if term_val != equiv_val and _es_limpio(term_val) and _es_limpio(equiv_val):
                     cursor.execute(
                         "INSERT OR REPLACE INTO semantica (termino, equivalente, peso) VALUES (?, ?, 0.85)",
                         (term_val, equiv_val)
@@ -378,4 +386,77 @@ def inferir_equivalencias_desde_sinapsis(
         "total_candidatos": len(candidatos_ordenados),
         "pares_procesados": total_pares,
         "guardados": guardados,
+    }
+
+
+def detectar_ruido_semantica(cursor):
+    """
+    Detecta si la tabla semántica tiene contaminación (IDs de nodos).
+    Retorna dict con estadísticas y si necesita limpieza.
+    """
+    cursor.execute("SELECT COUNT(*) FROM semantica")
+    total = cursor.fetchone()[0]
+    if total == 0:
+        return {"total": 0, "contaminadas": 0, "necesita_limpieza": False, "porcentaje": 0.0}
+
+    cursor.execute('''
+        SELECT COUNT(*) FROM semantica
+        WHERE length(termino) > 15 OR length(equivalente) > 15
+           OR (length(termino) - length(replace(termino, '_', ''))) >= 2
+           OR (length(equivalente) - length(replace(equivalente, '_', ''))) >= 2
+    ''')
+    contaminadas = cursor.fetchone()[0]
+    porcentaje = contaminadas / total if total > 0 else 0.0
+
+    return {
+        "total": total,
+        "contaminadas": contaminadas,
+        "porcentaje": round(porcentaje, 3),
+        "necesita_limpieza": porcentaje > 0.05,
+    }
+
+
+def limpiar_ruido_semantica(cursor):
+    """
+    Elimina entradas contaminadas (IDs de nodos) de la tabla semántica.
+    Retorna cantidad eliminadas.
+    """
+    cursor.execute('''
+        DELETE FROM semantica
+        WHERE length(termino) > 15 OR length(equivalente) > 15
+           OR (length(termino) - length(replace(termino, '_', ''))) >= 2
+           OR (length(equivalente) - length(replace(equivalente, '_', ''))) >= 2
+    ''')
+    eliminadas = cursor.rowcount
+    if eliminadas > 0:
+        cursor.connection.commit()
+    return eliminadas
+
+
+def inferir_y_guardar_seguro(cursor, frecuencia_minima=3):
+    """
+    Infiere equivalencias desde sinapsis y las guarda automáticamente.
+    Incluye detección de ruido y limpieza previa.
+    Retorna dict con resultado.
+    """
+    ruido = detectar_ruido_semantica(cursor)
+    limpiadas = 0
+    if ruido["necesita_limpieza"]:
+        limpiadas = limpiar_ruido_semantica(cursor)
+
+    resultado = inferir_equivalencias_desde_sinapsis(
+        cursor,
+        umbral_sinapsis=0.6,
+        umbral_jaccard=0.5,
+        frecuencia_minima=frecuencia_minima,
+        peso_base=0.3,
+        auto_guardar=True,
+    )
+
+    return {
+        "ruido_previo": ruido,
+        "limpiadas": limpiadas,
+        "pares_procesados": resultado["pares_procesados"],
+        "candidatos": resultado["total_candidatos"],
+        "guardados": resultado["guardados"],
     }

@@ -1,10 +1,29 @@
 # BioRAG: Sistema de Memoria Cognitiva Biomimética para Agentes de IA
 
-**BioRAG** es un motor de memoria persistente para agentes de inteligencia artificial. Resuelve el problema fundamental de que los LLMs olvidan todo entre sesiones — sin depender de vectores, embeddings ni infraestructura externa. **El sistema emula de forma nativa el comportamiento y las capacidades de una base de datos vectorial** a través de topología de grafos y lógica relacional, eliminando la necesidad de modelos de embedding costosos o servidores dedicados.
+**BioRAG** es un motor de memoria persistente para agentes de inteligencia artificial que opera bajo el paradigma de **Semántica Determinista y Discreta**. Resuelve el problema fundamental de que los LLMs olvidan todo entre sesiones — sin depender de vectores, embeddings ni infraestructura externa. **El sistema emula de forma nativa el comportamiento y las capacidades de una base de datos vectorial** a través de topología de grafos, lógica relacional y una matriz de 7 dimensiones × 73 sub-valores semánticos explícitos y auditable.
 
 Desarrollado en **Python puro con SQLite + FTS5**. Cero dependencias de librerías ML (ni numpy, ni sentence-transformers, ni redes vectoriales). Corre en cualquier lado.
 
-Emula la biología del cerebro humano: **plasticidad sináptica (LTP/LTD)**, **familiaridad difusa**, **inhibición lateral** y **propagación asociativa de recuerdos**. El motor de búsqueda combina coincidencia textual, peso biológico y conectividad del grafo en un score híbrido.
+### Semántica Determinista y Discreta
+
+BioRAG no es una alternativa a bases vectoriales — es un **paradigma propio**. La comparación con Pinecone o vectores densos es incorrecta porque sus naturalezas y objetivos son opuestos:
+
+| | Base Vectorial (Pinecone, Qdrant) | BioRAG |
+|--|-------------------------------------|--------|
+| **Qué calcula** | Proximidad estadística difusa en espacio continuo de 1536 dimensiones | Cruce de IDs discretos + BM25 léxico |
+| **Naturaleza** | Espacio continuo, probabilístico, opaco | Espacio discreto, determinista, auditable |
+| **Resultado** | "Esto se parece matemáticamente" | "Esto tiene las mismas coordenadas conceptuales" |
+| **Control** | Ninguno (caja negra, reentrenar para cambiar) | Total (INSERT/DELETE en milisegundos) |
+
+Una base vectorial calcula una **proximidad estadística difusa** en un espacio continuo de alta dimensionalidad. BioRAG opera en un **espacio discreto y auditable**: cruza la precisión matemática de los IDs discretos (las coordenadas conceptuales que tú definiste) con la fuerza de recuperación de texto del algoritmo BM25 léxico.
+
+**Lo que BioRAG resuelve de los vectores en búsqueda episódica:**
+
+- **Determinismo absoluto:** Si un nodo tiene el ID 98 (Falla), sabés con certeza matemática que hay un error registrado allí. No dependés de la "suerte" de un cálculo de similitud coseno.
+- **Control quirúrgico en caliente:** Podés alterar, insertar o eliminar un ID de la matriz en milisegundos desde Python y el comportamiento de la recuperación cambia de inmediato, sin reindexar colecciones costosas.
+- **Explicabilidad:** Sabés exactamente por qué tu sinapsis priorizó un fragmento sobre otro analizando la intersección de los 7 ejes y la frecuencia léxica.
+
+Es un **paradigma propio, exacto y diseñado para gobernar el contexto**.
 
 ---
 
@@ -451,6 +470,11 @@ self._auto_generar_co_ocurrencia(recuerdos_sesion)
 
 | Componente | Qué hace | Archivo |
 |---|---|---|
+| **7 dimensiones × 73 sub-valores** | **Semántica Determinista y Discreta — IDs explícitos vs embeddings opacos** | `core/memory_store.py` |
+| **Score aditivo dimensional** | `base + (0.30 × dim_score)` — dimensiones SIEMPRE suman | `core/memory_store.py` |
+| **Fallback dimensional con umbral 3** | Nodos sin match de texto solo aparecen si comparten ≥3 dimensiones | `core/memory_store.py` |
+| **`listar_tipos_dimension`** | Retorna 7 tipos con `num_dimensiones` | `mcp_server.py` |
+| **`listar_dimensiones_por_tipo`** | Retorna sub-valores de un tipo con descripciones | `mcp_server.py` |
 | FTS5 unicode61 | Segunda tabla FTS5 con tokenizer unicode61 | `_crear_tabla_fts()` |
 | Prefix wildcards | "react" → "react*" para encontrar "reactive" | `_agregar_prefix_wildcards()` |
 | PALABRA_PREFIJO | Filtro DB-side que permite prefijos sin falsos positivos | `__init__()` + `buscar_por_frase()` |
@@ -467,12 +491,15 @@ self._auto_generar_co_ocurrencia(recuerdos_sesion)
 
 ### ¿Es BioRAG una alternativa a una base vectorial?
 
-**Depende de para qué. Pero en su dominio, sí.**
+**No es una alternativa — es un paradigma propio.**
 
-Para el caso de uso de **memoria persistente de un agente**, BioRAG no solo es alternativa — es **superior** en estas dimensiones:
+BioRAG no intenta replicar Pinecone o Qdrant. Resuelve un problema diferente: **memoria persistente de agente con determinismo y control total**. En ese dominio, es superior:
 
 | Dimensión | Vector DB | BioRAG |
 |---|---|---|
+| **Determinismo** | Probabilístico (puede fallar) | Absoluto (IDs discretos) |
+| **Explicabilidad** | Caja negra | Cada dimensión es auditable |
+| **Control en caliente** | Reentrenar | INSERT/DELETE en milisegundos |
 | Olvido selectivo | No existe | Decay_rate por categoría |
 | Ciclo de vida | Insert → Query | Corto plazo → Sueño → Largo plazo → Olvido |
 | Introspección | No | Métricas cognitivas + tendencias |
@@ -482,17 +509,15 @@ Para el caso de uso de **memoria persistente de un agente**, BioRAG no solo es a
 | Portabilidad | Atado a infraestructura | Un archivo .db |
 | **Ráfaga de reminiscencia** | **No** | **LLM genera 10-15 términos, script ejecuta** |
 | **Auto-aprendizaje** | **No** | **Co-ocurrencia + sinapsis automáticas** |
-| **Entiende metáforas** | **Depende del embedding** | **Glosario cultural + ráfaga** |
-| **Rescata nodos dormidos** | **No** | **La ráfaga los despierta en caliente** |
 | **Funciona offline** | **No** | **Sí** |
-| **Costo por query** | **Miles de tokens** | **~15 tokens (ráfaga)** |
 
-> **BioRAG no es una alternativa genérica a una vector DB. Es una alternativa específica para memoria de agente, y en ese dominio es mejor que cualquier vector DB.**
+> **BioRAG no es una alternativa genérica a una vector DB. Es un paradigma propio de Semántica Determinista y Discreta, diseñado para gobernar el contexto de agentes de IA con determinismo, control y explicabilidad total.**
 
 ---
 
 ### Logros Técnicos
 
+- **Paradigma propio de Semántica Determinista y Discreta**: 7 dimensiones × 73 sub-valores explícitos y auditable, sin embeddings opacos
 - **0 dependencias externas de ML**: ni numpy, ni vectores, ni GPU — SQLite puro con FTS5 trigram
 - **Batch FTS5 optimization**: pre-carga puentes FTS5 una sola vez (1 query SQL en vez de N), reduce latencia de 56ms a 12ms (82% más rápido)
 - **Calidad preservada**: 100% overlap con búsqueda legacy — el batch FTS5 usa la misma query que el modo legacy
@@ -1019,18 +1044,22 @@ confusion:     1 (sin cambio)
 
 ## BioRAG vs. Bases de Datos Vectoriales
 
+BioRAG no replica lo que hacen las bases vectoriales. Lo que hace es **otra cosa** — un paradigma propio de Semántica Determinista y Discreta:
+
 | Capacidad | Base de Datos Vectorial | BioRAG |
 |---|---|---|
-| **Similitud semántica** | Embeddings (768-1536 dims) | Jaccard + co-ocurrencia + ráfaga |
+| **Naturaleza** | Espacio continuo, probabilístico, opaco | Espacio discreto, determinista, auditable |
+| **Similitud semántica** | Embeddings (768-1536 floats opacos) | 7 dimensiones × 73 IDs discretos + BM25 léxico |
+| **Cómo sabe qué es similar** | Entrenamiento masivo (aprende de internet) | Tú definís las dimensiones (explícito, auditable) |
+| **Resultado** | "Esto se parece matemáticamente" | "Esto tiene las mismas coordenadas conceptuales" |
 | **Tolerancia a typos** | Depende del modelo | FTS5 trigram nativo |
 | **Expansión de queries** | Embeddings implícitos | Tesauro explícito + ráfaga del agente |
-| **Ranking** | Distancia coseno | Score híbrido + Dynamic Multiplicator |
+| **Ranking** | Distancia coseno | Score híbrido + Dynamic Multiplicator + score aditivo dimensional |
+| **Explicabilidad** | Caja negra — no sabés por qué agrupa | Cada dimensión es inspeccionable y corregible |
+| **Control en caliente** | Reentrenar para nuevos ejes | Agregar ejes con un INSERT |
 | **Dependencias** | numpy, sentence-transformers, GPU | Cero. SQLite puro |
 | **Latencia** | 2-100ms (con embeddings reales) | 2.84ms promedio |
 | **Memoria RAM** | 100-500MB | **18.7MB** (7x menos) |
-| **Memoria adaptativa** | Estática | Dinámica: LTP/LTD, co-ocurrencia, ráfaga |
-| **Auto-aprendizaje** | No | Co-ocurrencia + sinapsis automáticas |
-| **Entiende metáforas** | Depende del embedding | Glosario cultural + ráfaga |
 | **Funciona offline** | No | Sí |
 
 ---
@@ -1367,23 +1396,223 @@ Nuevo nodo `principio_gestion_memoria_agente` con 7 reglas innegociables:
 
 ---
 
+## v13.0 — Filtro Temporal PRE-hoc y Índices (Julio 2026)
+
+**El filtro de fecha ahora se aplica DURANTE la búsqueda, no después.**
+
+### Problema
+
+Cuando buscabas con filtro temporal (`desde`/`hasta`), el sistema hacía la búsqueda completa FTS5 y DESPUÉS descartaba resultados fuera del rango. Desperdicio de cómputo.
+
+### Solución: Filtro temporal en SQL
+
+`desde_ts`/`hasta_ts` como parámetros de `buscar_por_frase`. El filtro `creado_en` se aplica en el WHERE de FTS5, no post-hoc. Los `temporal_params` se inyectan en 6 execute calls (NEAR, AND, OR, unicode61, expansión semántica, Snap).
+
+### Índices SQL
+
+```sql
+CREATE INDEX IF NOT EXISTS idx_estado ON largo_plazo (estado)
+CREATE INDEX IF NOT EXISTS idx_creado_en ON largo_plazo (creado_en)
+```
+
+Queries por estado y fecha usan índice en vez de full scan.
+
+### Bug fixes
+
+- `score_parafrasis_best` siempre 0.0 → ahora calcula desde `last_origen_scores`
+- Doble asignación `score_top` eliminada
+- LIKE concepto no pasaba `temporal_params` → crasheaba con filtro temporal
+- unicode61 y expansión semántica no pasaban `temporal_params`
+- Tests JSON parsing maneja warnings prependidos
+
+### Archivos modificados
+
+- `core/memory_store.py`: `desde_ts`/`hasta_ts` en `buscar_por_frase`, `temporal_params` en 6 execute calls, índices SQL
+- `mcp_server.py`: fechas se parsean ANTES de buscar, safety net post-hoc
+- `test_memory.py`: JSON parsing con warnings
+
+### Métricas v13.0
+
+| Métrica | v12.0 | v13.0 |
+|---------|-------|-------|
+| Filtro temporal | POST-hoc | PRE-hoc (SQL) |
+| Índices estado/creado_en | ❌ | ✅ |
+| score_parafrasis_best | siempre 0.0 | calculado |
+| Tests | 78/78 | 78/78 |
+
+---
+
+## v13.4 — Expansión Dimensional: 7 Dimensiones con 73 Sub-Valores (Julio 2026)
+
+**Las dimensiones semánticas de BioRAG son ortogonales al texto. Indexan lo que el texto NO dice.**
+
+### Concepto clave: Dimensiones ≠ Sub-valores
+
+- **7 dimensiones** (tipos de eje semántico): emoción, entidad, acción, cualidad, coordenada, intención, dominio
+- **73 sub-valores** (valores específicos dentro de cada dimensión)
+- Las 7 dimensiones cubren todo el espectro de la experiencia humana y computacional
+
+> Toda dimensión semántica que una DB vectorial aproxima con vectores de 1536 floats, puede emularse con una tabla de pertenencia explícita de 73 valores. La pertenencia es exacta y auditable, no probabilística.
+
+### Las 7 Dimensiones
+
+| ID | Dimensión | Qué captura | Sub-valores |
+|----|-----------|-------------|-------------|
+| 1 | emoción | El "Sentir" — carga emocional o reacción subjetiva | 12 (afecto, alegría, frustración, tristeza, preocupación, confusión, sorpresa, miedo, alivio, apatía, culpa, satisfacción) |
+| 2 | entidad | El "Qué" — entes, objetos, conceptos identificables | 11 (identidad_individual, social_legal, organizacional, digital, artificial, física_hardware, natural, concepto, institución, evento, vínculo) |
+| 3 | acción | El "Hacer/Estar" — verbos, transiciones, procesos | 11 (física, transformación_material, persistencia_computación, rutina_automática, comunicación, interacción_social, cognitiva, estado_ser, evaluar, observar, fallar) |
+| 4 | cualidad | El "Cómo" — propiedades, descripciones, valoraciones | 11 (dimensión_física, estado_condición, valoración, sensorial, material_composición, temporal_duración, relacional_comparativa, abstracta_conceptual, económica, urgente, auténtica) |
+| 5 | coordenada | Espacio y Tiempo — ubicación, cronología, secuencia | 10 (cronología_absoluta, anclaje_deictico, secuencia_relativa, ciclo_periódico, inclusión_topológica, distancia_proximal, vector_direccional, trayectoria_límite, etapa, hito) |
+| 6 | intención | El "Por Qué" — propósito al guardar el nodo | 8 (aprender, decidir, reflexionar, resolver, solucionar, documentar, desahogar, registrar) |
+| 7 | dominio | El "Dónde" — área de vida o campo de aplicación | 10 (técnico, personal, profesional, académico, salud, finanzas, ambiental, social, creativo, espiritual) |
+
+### Score aditivo (no multiplicativo)
+
+```
+Score = base_BM25 + (0.30 × dim_score)
+```
+
+Las dimensiones SIEMPRE suman, incluso con cero match de texto. Esto permite "buscar sin palabras" — si un nodo comparte 3+ dimensiones con la query, aparece aunque no tenga ninguna palabra en común.
+
+### Umbral dimensional: 3 dimensiones compartidas
+
+El fallback dimensional solo trae nodos sin match de texto si comparten **≥3 dimensiones** (de 7 posibles) con la query. Previene resultados irrelevantes.
+
+### Herramientas MCP nuevas
+
+| Herramienta | Qué hace |
+|-------------|----------|
+| `listar_tipos_dimension` | Retorna los 7 tipos con `num_dimensiones` |
+| `listar_dimensiones_por_tipo(tipo)` | Retorna sub-valores de uno o más tipos específicos con descripciones. Acepta múltiples tipos separados por coma: `"emocion,dominio"` |
+
+**Flujo del LLM (2 opciones):**
+
+**Opción 1 (todo de una):**
+`listar_dimensiones` → ver las 73 sub-valores → clasificar
+
+**Opción 2 (incremental):**
+`listar_tipos_dimension` → ver 7 tipos → `listar_dimensiones_por_tipo("emocion,dominio")` → ver 22 sub-valores → clasificar
+
+**Ejemplos:**
+```python
+# Single type
+listar_dimensiones_por_tipo(tipo="intencion")  # → 8 sub-valores
+
+# Multiple types
+listar_dimensiones_por_tipo(tipo="emocion,dominio")  # → 22 sub-valores
+```
+
+### Base de datos de producción
+
+- **73 dimensiones** en 7 tipos (actualizado via SQL de expansión)
+- **438 nodos** en largo_plazo
+- **Seed data** en `memory_store.py` L355-421 con IDs explícitos para persistir entre recreaciones de DB
+
+### Cuándo usar dimensiones en búsquedas
+
+**USAR dimensiones cuando:**
+- Busques por propiedades ontológicas: "Qué tengo sobre X dominio", "Qué aprendí sobre Y"
+- La query sea abstracta o no tenga buenas palabras clave
+- Quieras boost semántico para resultados que comparten propiedades
+- Busques "sin palabras" (query como "xyzzy flurbot" + dimensión)
+
+**NO usar dimensiones cuando:**
+- Busques por nombre exacto: `recordar(query='error_http_500')`
+- Tengas keywords claras: `recordar(query='v13.4 dimensiones')`
+- FTS5 ya dé buenos resultados
+
+**Warning automático:** Si no pasás dimensiones, aparece: "⚠️ dimensiones=None — Sin boost semántico."
+
+**Ejemplo de uso correcto:**
+```python
+# Buscar por dominio
+recordar(query='programación', dimensiones='{"dominio": ["dominio_tecnico"]}')
+
+# Buscar por intención
+recordar(query='qué aprendí', dimensiones='{"intencion": ["intencion_aprender"]}')
+
+# Combinar con otros filtros
+recordar(query='error', dimensiones='{"emocion": ["frustracion"]}', dias=7)
+```
+
+### Investigación académica que respalda el diseño
+
+| Fuente | Qué aporta |
+|--------|------------|
+| ZPT (Zoom-Pan-Tilt) | 3 dimensiones ortogonales para navegación semántica |
+| SKGE (5 categorías ontología) | Estructura de ontologías para dominios específicos |
+| Loci (aspects) | Project-scoped interpretation de aspectos |
+| Semantic Units Framework (Nature 2026) | Unidades semánticas como base de comprensión |
+| Hourglass of Emotions | Modelo de emociones con intensidad |
+
+### Terminología corregida
+
+- **"73 dimensiones"** → ERROR. Son **7 dimensiones** con **73 sub-valores**
+- Cada dimensión es un eje ortogonal al texto
+- Los sub-valores son los puntos específicos dentro de cada eje
+
+### Archivos modificados
+
+- `core/memory_store.py`: seed data 7 tipos, 73 sub-valores, fallback dimensional con umbral 3, score aditivo
+- `mcp_server.py`: `listar_tipos_dimension`, `listar_dimensiones_por_tipo` (ahora acepta múltiples tipos separados por coma), `listar_dimensiones` existente, warning `dimensiones=None`
+- `scripts/expand_dimensions_v13_4.sql`: SQL de expansión (referencia, ya ejecutado)
+- `VERSION`: v13.4
+
+### Notebooks sincronizados
+
+- **MemoryBioRAG** (NotebookLM): 11 archivos JSONL re-exportados y re-subidos con 438 nodos (100% clasificados con intención + dominio)
+
+---
+
 ## Producción
 
-| Métrica | v9.0 | v11.1 | v12.0 |
-|---|---|---|---|
-| Nodos activos | 135+ | 340 | 421 |
-| Nodos dormidos | 58+ | — | 6 |
-| Sinapsis | 1,474+ | 15,521 | 1,362+ |
-| Sinapsis espurias | — | — | 0 (limpiadas) |
-| Equivalencias | 1,734+ | 3,004 | 3,004+ |
-| Grupos semánticos | — | 58 | 58+ |
-| Términos mapeados | — | 1,292 | 1,292+ |
-| Tests | 68/68 pasando | 72/72 pasando | 78/78 pasando |
-| Dependencias externas | 0 | 0 | 0 |
-| Tamaño DB | ~4 MB | ~12 MB | ~9 MB |
-| Campos largo_plazo | 8 | 9 | 10 (`creado_en`) |
-| Tools MCP | — | 12 | 13 |
-| Warnings automáticos | — | — | 6 |
+| Métrica | v9.0 | v11.1 | v12.0 | v13.0 | v13.4 |
+|---|---|---|---|---|---|
+| Nodos activos | 135+ | 340 | 421 | 255 | 438 |
+| Nodos dormidos | 58+ | — | 6 | 166 | — |
+| Sinapsis | 1,474+ | 15,521 | 1,362+ | 1,362+ | — |
+| Sinapsis espurias | — | — | 0 (limpiadas) | 0 | 0 |
+| Equivalencias | 1,734+ | 3,004 | 3,004+ | 3,004+ | 1,438 |
+| Grupos semánticos | — | 58 | 58+ | 58+ | — |
+| Términos mapeados | — | 1,292 | 1,292+ | 1,292+ | — |
+| **Dimensiones semánticas** | — | **5** | **5** | **5** | **7** (tipos) |
+| **Sub-valores semánticos** | — | **39** | **39** | **39** | **73** |
+| Tests | 68/68 pasando | 72/72 pasando | 78/78 pasando | 78/78 pasando | 78/78 pasando |
+| Dependencias externas | 0 | 0 | 0 | 0 | 0 |
+| Tamaño DB | ~4 MB | ~12 MB | ~9 MB | ~9 MB | ~9 MB |
+| Campos largo_plazo | 8 | 9 | 10 (`creado_en`) | 10 | 10 |
+| Tools MCP | — | 12 | 13 | 13 | 15 (+`listar_tipos_dimension`, `listar_dimensiones_por_tipo`) |
+| Warnings automáticos | — | — | 6 | 6 | 7 (+`dimensiones=None`) |
+| Índices SQL | — | — | 2 (`peso_acceso`) | 4 (+`estado`, `creado_en`) | 4 |
+| Filtro temporal | — | — | POST-hoc | PRE-hoc (SQL) | PRE-hoc (SQL) |
+| Fallback dimensional | — | — | — | — | Con umbral 3 |
+
+---
+
+## Sesión Julio 2026 — Resumen de cambios
+
+### Clasificación dimensional completa
+- **438 nodos** clasificados con intención + dominio (100%)
+- Distribución intención: documentar (378), registrar (25), reflexionar (19), solucionar (11), aprender (5)
+- Distribución dominio: técnico (231), profesional (200), personal (7)
+
+### Nuevas herramientas MCP
+- `listar_dimensiones_por_tipo` ahora acepta múltiples tipos separados por coma
+- Warning automático `dimensiones=None` para recordar usar dimensiones
+
+### Limpieza de tabla semántica
+- Eliminadas 6 entradas contaminadas (IDs de nodos)
+- 1438 equivalencias limpias (0% contaminación)
+
+### Nuevos nodos guardados
+- `naturaleza_sistema_oec_cerebro_memoria`: Agentes = cerebro, BioRAG = memoria
+- `cuando_usar_dimensiones_biorag`: Guía de uso de dimensiones
+- `listar_dimensiones_por_tipo_multi_tipo`: Documentación del cambio multi-tipo
+- `limpieza_tabla_semantica_contaminacion_julio_2026`: Lección de limpieza
+- `patron_mas_mas_mas_dennys`: Patrón de perfeccionismo
+
+### Insight profundo
+"La semántica no está en la base de datos — está en la DECISIÓN del agente de clasificar con dimensiones. Esto es más cercano a cognición humana que un embedding probabilístico."
 
 ---
 

@@ -1,3 +1,12 @@
-v12.0
+v13.4
 
 La memoria siempre es la fuente de verdad (BioRAG)
+
+Cambios v13.4:
+- 7 dimensiones semánticas (emoción, entidad, acción, cualidad, coordenada, intención, dominio)
+- 73 sub-values con descripciones completas
+- MCP: listar_tipos_dimension, listar_dimensiones_por_tipo (ahora acepta múltiples tipos)
+- Fallback dimensional con umbral 3 (buscar sin palabras)
+- Warning automático dimensiones=None
+- Clasificación completa: 438 nodos con intención + dominio (100%)
+- Tabla semántica limpia: 1438 equivalencias (0% contaminación)

@@ -1,5 +1,28 @@
 # BioRAG Changelog
 
+## v13.0 (2026-07-05)
+
+### Features
+- **Filtro temporal PRE-hoc**: `desde_ts`/`hasta_ts` como parámetros de `buscar_por_frase`. El filtro `creado_en` se aplica en SQL FTS5 durante la búsqueda, no post-hoc. Elimina desperdicio de cómputo en búsquedas con filtro de fecha.
+- **Índices SQL `estado` y `creado_en`**: `idx_estado` y `idx_creado_en` en `largo_plazo`. Queries temporales y por estado usan índice en vez de full scan.
+
+### Bug Fixes
+- **`score_parafrasis_best` siempre 0.0**: Corregido (de verdad esta vez). Ahora calcula el mejor score desde `last_origen_scores` cuando el origen es "parafrasis".
+- **Doble asignación `score_top`**: Eliminada línea duplicada en `_recordar_impl`.
+- **LIKE concepto sin `temporal_params`**: La búsqueda LIKE en concepto (Capa 2) inyectaba `clause` con `?` temporales pero no pasaba los parámetros. Crasheaba con "Incorrect number of bindings" cuando se usaba filtro temporal.
+- **`sql_unicode` sin `temporal_params`**: Fallback unicode61 prefix no pasaba parámetros temporales.
+- **`sql` (expansión semántica) sin `temporal_params`**: Fallback de expansión semántica no pasaba parámetros temporales.
+- **Tests JSON parsing**: Tests 69h, 69i y 78 ahora manejan warnings prependidos al JSON.
+
+### Architecture
+- **Filtro temporal en 6 execute calls**: `temporal_params` inyectado en NEAR, FTS5 AND, FTS5 OR, unicode61, expansión semántica, y Snap reciente.
+- **Safety net post-hoc**: Fallbacks no-FTS5 (LIKE, trigram, latente) mantienen filtro post-hoc como respaldo, ahora acelerado por `idx_creado_en`.
+
+### Tests
+- 78/78 tests verdes
+
+---
+
 ## v12.0 (2026-07-04)
 
 ### Features

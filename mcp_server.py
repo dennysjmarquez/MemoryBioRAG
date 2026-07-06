@@ -303,9 +303,17 @@ def _build_server():
                     _warnings.append("⚠️ dias=None, desde=None — Sin filtro temporal, traés TODO incluyendo cosas viejas.")
                 if not asociados:
                     _warnings.append("⚠️ asociados=False — No ves las conexiones de los nodos. Usá asociados=True.")
+                if dimensiones is None or (isinstance(dimensiones, str) and not dimensiones.strip()):
+                    _warnings.append(
+                        "⚠️ dimensiones=None — Sin boost semántico. "
+                        "Usá dimensiones cuando busques por propiedades ontológicas "
+                        "(emoción, intención, dominio, entidad, acción, cualidad, coordenada). "
+                        "Ejemplo: dimensiones='intencion_aprender' o dimensiones='dominio_tecnico'"
+                    )
 
             # Sin query → log cronológico puro por creado_en
-            if query is None or (isinstance(query, str) and not query.strip()):
+            # PERO si hay dimensiones, saltar al flujo dimensional (no cronológico)
+            if (query is None or (isinstance(query, str) and not query.strip())) and not dimensiones:
                 desde_ts, hasta_ts, fechas_error = _parsear_fechas(dias, desde, hasta)
                 if fechas_error:
                     return fechas_error
@@ -380,17 +388,29 @@ def _build_server():
                         "ejemplo": "parafrasis='el felino descansó,el minino reposó'",
                     }, ensure_ascii=False)
 
+            # v13: parsear fechas ANTES de buscar (filtro temporal PRE-hoc)
+            desde_ts = None
+            hasta_ts = None
+            if dias or desde or hasta:
+                desde_ts, hasta_ts, fechas_error = _parsear_fechas(dias, desde, hasta)
+                if fechas_error:
+                    return fechas_error
+
             # Búsqueda normal PRIMERO — necesario para inicializar el merge
             # Pool interno amplio (limite*3): buscar amplio, recortar al final.
             # Emula el comportamiento de un RAG vectorial que rankea todo el índice.
+            # Si no hay query pero hay dimensiones, usar string vacío para que buscar_por_frase no falle
+            frase_para_buscar = query if query else ""
             limite_interno = limite * 3
             resultados, total = cerebro.buscar_por_frase(
-                query, profundidad=profundidad, pagina=pagina, limite=limite_interno,
+                frase_para_buscar, profundidad=profundidad, pagina=pagina, limite=limite_interno,
                 categoria=cat, preview_chars=preview_chars,
                 context_window=0,
                 dimensiones_dict=dimensiones_dict,
                 dimensiones_ids=dimensiones_ids,
                 parafrasis_list=parafrasis_list,
+                desde_ts=desde_ts,
+                hasta_ts=hasta_ts,
             )
             score_top = resultados[0][4] if resultados else 0
 
@@ -398,8 +418,15 @@ def _build_server():
             score_parafrasis_best = 0.0
             resultados_rafaga = []
 
+            # Calcular mejor score de paráfrasis desde origen_scores
+            if parafrasis_list:
+                _origen = getattr(cerebro, 'last_origen_scores', {})
+                for r in resultados:
+                    origen_info = _origen.get(r[0], ("", 0.0))
+                    if origen_info[0] == "parafrasis" and r[4] > score_parafrasis_best:
+                        score_parafrasis_best = r[4]
+
             sinapsis_creadas = []
-            score_top = resultados[0][4] if resultados else 0
             if rafaga_list and (forzar_rafaga or not resultados or score_top < THRESHOLD_RAFTAGA_MCP):
                 # Ampliar ráfaga con palabras clave de la paráfrasis si existen
                 if parafrasis:
@@ -427,13 +454,9 @@ def _build_server():
                 resultados.sort(key=lambda r: r[4], reverse=True)
                 resultados = resultados[:limite]
 
-            # Filtro temporal: dias/desde/hasta sobre creado_en (ANTES de truncar)
-            if (dias or desde or hasta) and resultados:
-                desde_ts, hasta_ts, fechas_error = _parsear_fechas(dias, desde, hasta)
-                if fechas_error:
-                    return fechas_error
-
-                # Traer creado_en de DB para cada resultado
+            # Filtro temporal safety net: cubre fallbacks no-FTS5 (LIKE, trigram, etc.)
+            # v13: los timestamps ya fueron parseados arriba; el índice idx_creado_en acelera esto
+            if (desde_ts is not None or hasta_ts is not None) and resultados:
                 conceptos = [r[0] for r in resultados]
                 placeholders = ",".join("?" * len(conceptos))
                 cerebro.cursor.execute(
@@ -443,8 +466,8 @@ def _build_server():
                 creado_map = {row[0]: row[1] for row in cerebro.cursor.fetchall()}
                 resultados = [
                     r for r in resultados
-                    if (creado_map.get(r[0], 0) or 0) >= desde_ts
-                    and (creado_map.get(r[0], 0) or 0) <= hasta_ts
+                    if (creado_map.get(r[0], 0) or 0) >= (desde_ts or 0)
+                    and (creado_map.get(r[0], 0) or 0) <= (hasta_ts or float('inf'))
                 ]
                 total = len(resultados)
 
@@ -506,7 +529,7 @@ def _build_server():
                 "capa_rafaga": len(resultados_rafaga) if resultados_rafaga else 0,
                 "fallback_dimensional": len([r for r in _last_todos if _last_origen.get(r[1], ("",))[0] == "dimensional_fallback"]),
                 "match_exacto": any(
-                    query.lower().replace(" ", "_").replace("-", "_") == (r[0] or "").lower().replace(" ", "_").replace("-", "_")
+                    (query or "").lower().replace(" ", "_").replace("-", "_") == (r[0] or "").lower().replace(" ", "_").replace("-", "_")
                     for r in resultados
                 ),
                 "total_candidatos_todos": len(_last_todos),
@@ -556,7 +579,10 @@ def _build_server():
             "FLUJO — 2 PASOS. NO SALTEAR.\n"
             "═══════════════════════════════════════════════════════\n\n"
             "PASO 1 — Búsqueda Semántica:\n"
-            "  SIEMPRE incluir parafrasis + dimensiones desde el primer intento.\n"
+            "  SIEMPRE incluir parafrasis desde el primer intento.\n"
+            "  dimensiones: INCLUIR cuando la query busca propiedades ontológicas\n"
+            "    (emoción, intención, dominio, entidad, acción, cualidad, coordenada).\n"
+            "    OMITIR cuando busques por nombre exacto o keywords claras.\n"
             "  Generar paráfrasis con 5 niveles:\n"
             "    N1 (Sinónimos) N2 (Técnico/coloquial) N3 (Perspectiva opuesta)\n"
             "    N4 (Abstracto/concreto) N5 (Emoción/contexto)\n"
@@ -582,9 +608,18 @@ def _build_server():
             "═══════════════════════════════════════════════════════\n"
             "- parafrasis: OBLIGATORIO. Reformulaciones separadas por coma.\n"
             "  Sin parafrasis = solo FTS5 crudo (pierde ~60% recall semántico).\n"
-            "- dimensiones: OBLIGATORIO para boost de scoring.\n"
+            "- dimensiones: Boost semántico por propiedades ontológicas.\n"
             "  ANTES de usar, llamá a listar_dimensiones para obtener nombres válidos.\n"
             "  Valores inexistentes = ERROR.\n"
+            "  ¿Cuándo USAR? Cuando busques por propiedades:\n"
+            "    - 'Qué tengo sobre X dominio' → dimensiones='{\"dominio\":[\"dominio_tecnico\"]}'\n"
+            "    - 'Qué aprendí sobre Y' → dimensiones='{\"intencion\":[\"intencion_aprender\"]}'\n"
+            "    - 'Qué me frustra' → dimensiones='{\"emocion\":[\"frustracion\"]}'\n"
+            "    - 'Búsqueda sin palabras' (query abstracta) → dimensiones obligatoria\n"
+            "  ¿Cuándo NO usar? Cuando busques por nombre exacto o keywords claras:\n"
+            "    - recordar(query='error_http_500') → NO necesita dimensiones\n"
+            "    - recordar(query='v13.4 dimensiones') → NO necesita dimensiones\n"
+            "  Sin dimensiones = score solo por texto (funciona, pero sin boost semántico).\n"
             "- cat: filtrar por categoría (opcional). Sin filtro = todas.\n"
             "- context_window: 1-2 para incluir vecinos sinápticos.\n"
             "- deep: True para incluir nodos dormidos.\n"
@@ -1341,6 +1376,120 @@ def _build_server():
                     })
             total = sum(len(v["dimensiones"]) for v in resultado.values())
             return json.dumps({"total": total, "dimensiones": resultado}, ensure_ascii=False)
+        finally:
+            cerebro.cerrar_sistema()
+
+    @mcp.tool(
+        name="listar_tipos_dimension",
+        description=(
+            "Mostrá los 7 tipos de dimensión semántica (emoción, entidad, acción, cualidad, coordenada, intención, dominio) "
+            "con sus descripciones. Llamá esto PRIMERO para ver qué categorías existen. "
+            "Después usá listar_dimensiones_por_tipo para traer los sub-values de una categoría específica. Sin parámetros."
+        ),
+    )
+    def biorag_listar_tipos_dimension() -> str:
+        """Retorna los 7 tipos de dimensión con sus descripciones."""
+        cerebro = _get_cerebro()
+        try:
+            cerebro.cursor.execute("""
+                SELECT id, nombre, description
+                FROM tipos_dimension
+                ORDER BY id
+            """)
+            tipos = []
+            for tid, nombre, desc in cerebro.cursor.fetchall():
+                # Contar dimensiones de este tipo
+                cerebro.cursor.execute(
+                    "SELECT COUNT(*) FROM dimensiones_semanticas WHERE tipo_id = ?",
+                    (tid,)
+                )
+                count = cerebro.cursor.fetchone()[0]
+                tipos.append({
+                    "id": tid,
+                    "nombre": nombre,
+                    "descripcion": desc or "",
+                    "num_dimensiones": count,
+                })
+            return json.dumps({"total": len(tipos), "tipos": tipos}, ensure_ascii=False)
+        finally:
+            cerebro.cerrar_sistema()
+
+    @mcp.tool(
+        name="listar_dimensiones_por_tipo",
+        description=(
+            "Trae las dimensiones semánticas de UNO O MÁS tipos específicos (emoción, entidad, acción, cualidad, coordenada, intención, dominio). "
+            "Llamá esto después de listar_tipos_dimension para ver los valores disponibles. "
+            "Acepta múltiples tipos separados por coma (ej: 'emocion,dominio'). "
+            "Úsalo para clasificar nodos con precisión sin traer las 73 dimensiones de golpe."
+        ),
+    )
+    def biorag_listar_dimensiones_por_tipo(
+        tipo: Annotated[str, Field(
+            description="Nombre del tipo o tipos separados por coma: emocion, entidad, accion, cualidad, coordenada, intencion, dominio. Ej: 'emocion' o 'emocion,dominio'"
+        )],
+    ) -> str:
+        """Retorna las dimensiones de uno o más tipos específicos con IDs y descripciones."""
+        cerebro = _get_cerebro()
+        try:
+            # Soporte para múltiples tipos separados por coma
+            tipos_nombres = [t.strip().lower() for t in tipo.split(",") if t.strip()]
+            
+            # Buscar cada tipo por nombre o ID
+            tipos_encontrados = []
+            for t in tipos_nombres:
+                cerebro.cursor.execute(
+                    "SELECT id, nombre, description FROM tipos_dimension WHERE nombre = ? OR nombre LIKE ?",
+                    (t, f"%{t}%")
+                )
+                tipo_row = cerebro.cursor.fetchone()
+                if not tipo_row:
+                    # Intentar por ID numérico
+                    try:
+                        tipo_id = int(t)
+                        cerebro.cursor.execute(
+                            "SELECT id, nombre, description FROM tipos_dimension WHERE id = ?",
+                            (tipo_id,)
+                        )
+                        tipo_row = cerebro.cursor.fetchone()
+                    except (ValueError, TypeError):
+                        pass
+                if tipo_row:
+                    tipos_encontrados.append(tipo_row)
+            
+            if not tipos_encontrados:
+                return json.dumps({
+                    "error": f"Ninguno de los tipos '{tipo}' fue encontrado. Tipos válidos: emocion, entidad, accion, cualidad, coordenada, intencion, dominio"
+                }, ensure_ascii=False)
+            
+            # Recopilar IDs y descripciones de los tipos encontrados
+            tipo_ids = []
+            tipos_info = []
+            for tid, tnombre, tdesc in tipos_encontrados:
+                tipo_ids.append(tid)
+                tipos_info.append({"nombre": tnombre, "descripcion": tdesc or ""})
+            
+            # Consultar dimensiones de todos los tipos encontrados
+            placeholders = ",".join("?" * len(tipo_ids))
+            cerebro.cursor.execute(
+                f"SELECT id, name, description, tipo_id FROM dimensiones_semanticas WHERE tipo_id IN ({placeholders}) ORDER BY tipo_id, id",
+                tipo_ids
+            )
+            dimensiones = []
+            for did, dname, ddesc, dtipo_id in cerebro.cursor.fetchall():
+                dimensiones.append({
+                    "id": did,
+                    "nombre": dname,
+                    "descripcion": ddesc or "",
+                    "tipo": next((ti["nombre"] for ti in tipos_info if ti["nombre"]), ""),
+                })
+            
+            # Construir respuesta
+            resultado = {
+                "tipos_consultados": [ti["nombre"] for ti in tipos_info],
+                "total": len(dimensiones),
+                "dimensiones": dimensiones,
+            }
+            return json.dumps(resultado, ensure_ascii=False)
         finally:
             cerebro.cerrar_sistema()
 

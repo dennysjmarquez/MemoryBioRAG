@@ -333,11 +333,13 @@ class SQLiteMemoryBioRAG:
         """)
         self.cursor.execute("""
             INSERT OR IGNORE INTO tipos_dimension (id, nombre, description) VALUES
-                (1, 'emocion', '(El "Sentir"): La carga emocional o la reacción subjetiva ante la experiencia'),
-                (2, 'entidad', '(El "Qué"): Cualquier tipo de ente, objeto o concepto que existe como unidad identificable'),
-                (3, 'accion', '(El "Hacer" o "Estar"): Verbos, transiciones, procesos físicos y cognitivos'),
-                (4, 'cualidad', '(El "Cómo"): Propiedades, descripciones, tamaños y valoraciones de las cosas'),
-                (5, 'coordenada', '(Espacio y Tiempo): La ubicación física, las relaciones de distancia y la cronología')
+                (1, 'emocion', '(El "Sentir"): La carga emocional o la reacción subjetiva ante la experiencia (ej. alegría, frustración, sorpresa)'),
+                (2, 'entidad', '(El "Qué"): Cualquier tipo de ente, objeto o concepto que existe como unidad identificable — personas, agentes de IA, dispositivos, software, organizaciones o ideas abstractas (ej. usuario, servidor, empresa, fiesta, base de datos).'),
+                (3, 'accion', '(El "Hacer" o "Estar"): Verbos, transiciones, procesos físicos y cognitivos (ej. disfrutar, copiar, recordar)'),
+                (4, 'cualidad', '(El "Cómo"): Propiedades, descripciones, tamaños y valoraciones de las cosas (ej. bueno, comprimido, malformado)'),
+                (5, 'coordenada', '(Espacio y Tiempo): La ubicación física, las relaciones de distancia y la cronología (ej. ayer, vida, dentro, después)'),
+                (6, 'intencion', '(El "Por Qué"): Propósito o razón por la que se guardó el nodo. Captura la intención del autor al momento de guardar.'),
+                (7, 'dominio', '(El "Dónde"): Área de vida o campo de aplicación del conocimiento. Captura dónde se aplica el contenido del nodo.')
         """)
 
         # 3d. Tabla de dimensiones semánticas (39 valores en 5 ejes)
@@ -351,51 +353,87 @@ class SQLiteMemoryBioRAG:
             )
         """)
         self.cursor.execute("""
-            INSERT OR IGNORE INTO dimensiones_semanticas (name, description, tipo_id) VALUES
-                -- emocion (tipo_id=1)
-                ('afecto', 'Cariño, aprecio, gratitud, amor hacia personas o agentes', 1),
-                ('alegria', 'Satisfacción, logro, orgullo, entusiasmo', 1),
-                ('frustracion', 'Molestia, rabia, arrechera, enojo con algo o alguien', 1),
-                ('tristeza', 'Pérdida, decepción, nostalgia', 1),
-                ('preocupacion', 'Duda, alerta, ansiedad, incertidumbre', 1),
-                ('confusion', 'Desorientación, falta de claridad, no entender', 1),
-                ('sorpresa', 'Asombro, descubrimiento inesperado, impacto', 1),
-                ('miedo', 'Temor, susto, sensación de amenaza o peligro ante algo', 1),
-                -- entidad (tipo_id=2)
-                ('identidad_individual', 'El ser humano en su plano personal, biológico y psicológico', 2),
-                ('identidad_social_legal', 'Vinculación de personas a nivel de cultura, idioma, etnia y estatus legal', 2),
-                ('identidad_organizacional', 'Colectivos, instituciones o agrupaciones de personas estructuradas bajo un fin', 2),
-                ('identidad_digital', 'El rastro, cuentas de usuario, correos electrónicos y representaciones virtuales', 2),
-                ('identidad_artificial', 'Elementos lógicos y de software autónomos, agentes inteligentes de IA, algoritmos', 2),
-                ('identidad_fisica_hardware', 'Dispositivos computacionales físicos, servidores, infraestructura de red', 2),
-                ('identidad_natural', 'Organismos biológicos no humanos, animales, plantas, microorganismos', 2),
-                -- accion (tipo_id=3)
-                ('accion_fisica', 'Movimientos y desplazamientos del cuerpo o de objetos en el espacio', 3),
-                ('accion_transformacion_material', 'Construir, destruir, modificar o alterar objetos físicos o materiales', 3),
-                ('accion_persistencia_computacion', 'Guardar, procesar, consultar o transmitir información digital', 3),
-                ('accion_rutina_automatica', 'Procesos cíclicos, repetitivos o automatizados sin intervención activa', 3),
-                ('accion_comunicacion', 'Enviar, informar, reportar o transferir información entre agentes', 3),
-                ('accion_interaccion_social', 'Acciones entre personas o agentes con propósito relacional', 3),
-                ('accion_cognitiva', 'Procesos de pensamiento, aprendizaje, decisión o inferencia', 3),
-                ('accion_estado_ser', 'Estados de existencia o permanencia sin acción activa', 3),
-                -- cualidad (tipo_id=4)
-                ('cualidad_dimension_fisica', 'Tamaño, forma, cantidad, peso, medida', 4),
-                ('cualidad_estado_condicion', 'Condición física o funcional de algo, íntegro o dañado', 4),
-                ('cualidad_valoracion', 'Juicio de calidad o mérito, bueno/malo, correcto/incorrecto', 4),
-                ('cualidad_sensorial', 'Percepciones captadas por los sentidos: color, textura, sonido, sabor', 4),
-                ('cualidad_material_composicion', 'De qué está hecho o compuesto algo: metálico, digital, orgánico', 4),
-                ('cualidad_temporal_duracion', 'Propiedades de duración o permanencia de algo', 4),
-                ('cualidad_relacional_comparativa', 'Propiedades que solo existen en comparación con otra cosa', 4),
-                ('cualidad_abstracta_conceptual', 'Propiedades no físicas de ideas o sistemas: complejo, simple, lógico', 4),
-                -- coordenada (tipo_id=5)
-                ('coordenada_cronologia_absoluta', 'Fechas o momentos específicos y objetivos', 5),
-                ('coordenada_anclaje_deictico', 'Referencias temporales relativas al momento del habla', 5),
-                ('coordenada_secuencia_relativa', 'Orden entre eventos, sin fecha fija', 5),
-                ('coordenada_ciclo_periodico', 'Repetición regular en el tiempo: diario, semanal, anual', 5),
-                ('coordenada_inclusion_topologica', 'Contención o pertenencia a un espacio', 5),
-                ('coordenada_distancia_proximal', 'Cercanía o lejanía entre puntos', 5),
-                ('coordenada_vector_direccional', 'Dirección u orientación: arriba, abajo, norte', 5),
-                ('coordenada_trayectoria_limite', 'Movimiento entre puntos o fronteras: desde, hacia, a través de', 5)
+            INSERT OR IGNORE INTO dimensiones_semanticas (id, name, description, tipo_id) VALUES
+                -- EMOCION (tipo_id=1): 12 valores
+                (1, 'afecto', 'Cariño, aprecio, gratitud, amor hacia personas o agentes', 1),
+                (2, 'alegria', 'Satisfacción, logro, orgullo, entusiasmo', 1),
+                (3, 'frustracion', 'Molestia, rabia, arrechera, enojo con algo o alguien', 1),
+                (4, 'tristeza', 'Pérdida, decepción, nostalgia', 1),
+                (5, 'preocupacion', 'Duda, alerta, ansiedad, incertidumbre', 1),
+                (6, 'confusion', 'Desorientación, falta de claridad, no entender', 1),
+                (7, 'sorpresa', 'Asombro, descubrimiento inesperado, impacto', 1),
+                (87, 'miedo', 'Temor, susto, sensación de amenaza o peligro ante algo', 1),
+                (88, 'alivio', 'Sensación de calma después de resolver algo o soltar tensión', 1),
+                (89, 'apatia', 'Falta de interés, motivación o energía. Desgano, indiferencia', 1),
+                (90, 'culpa', 'Sensación de haber hecho algo malo o de deber algo. Arrepentimiento', 1),
+                (91, 'satisfaccion', 'Placer por completar algo, aprender algo nuevo o ver resultados positivos', 1),
+                -- ENTIDAD (tipo_id=2): 11 valores
+                (8, 'identidad_individual', 'El ser humano en su plano personal, biológico y psicológico', 2),
+                (9, 'identidad_social_legal', 'Vinculación de personas a nivel de cultura, idioma, etnia y estatus legal', 2),
+                (10, 'identidad_organizacional', 'Colectivos, instituciones o agrupaciones de personas estructuradas bajo un fin', 2),
+                (11, 'identidad_digital', 'El rastro, cuentas de usuario, correos electrónicos y representaciones virtuales', 2),
+                (12, 'identidad_artificial', 'Elementos lógicos y de software autónomos, agentes inteligentes de IA, algoritmos', 2),
+                (13, 'identidad_fisica_hardware', 'Dispositivos computacionales físicos, servidores, infraestructura de red', 2),
+                (14, 'identidad_natural', 'Organismos biológicos no humanos, animales, plantas, microorganismos', 2),
+                (92, 'identidad_concepto', 'Ideas, teorías, principios, modelos mentales. Sin forma física', 2),
+                (93, 'identidad_institucion', 'Organizaciones, empresas, universidades, gobiernos. Estructuras formales', 2),
+                (94, 'identidad_evento', 'Reuniones, conferencias, lanzamientos. Occurrences puntuales con fecha', 2),
+                (95, 'identidad_vinculo', 'Personas con las que tengo vínculo emocional: familia, amigos, pareja', 2),
+                -- ACCION (tipo_id=3): 11 valores
+                (15, 'accion_fisica', 'Movimientos y desplazamientos del cuerpo o de objetos en el espacio', 3),
+                (16, 'accion_transformacion_material', 'Construir, destruir, modificar o alterar objetos físicos o materiales', 3),
+                (17, 'accion_persistencia_computacion', 'Guardar, procesar, consultar o transmitir información digital', 3),
+                (18, 'accion_rutina_automatica', 'Procesos cíclicos, repetitivos o automatizados sin intervención activa', 3),
+                (19, 'accion_comunicacion', 'Enviar, informar, reportar o transferir información entre agentes', 3),
+                (20, 'accion_interaccion_social', 'Acciones entre personas o agentes con propósito relacional', 3),
+                (21, 'accion_cognitiva', 'Procesos de pensamiento, aprendizaje, decisión o inferencia', 3),
+                (22, 'accion_estado_ser', 'Estados de existencia o permanencia sin acción activa', 3),
+                (96, 'accion_evaluar', 'Analizar, juzgar, comparar o valorar algo. Proceso de decisión', 3),
+                (97, 'accion_observar', 'Presenciar, notar o registrar algo sin actuar directamente', 3),
+                (98, 'accion_fallar', 'Algo falló, se rompió o dejó de funcionar. Error, crash', 3),
+                -- CUALIDAD (tipo_id=4): 11 valores
+                (23, 'cualidad_dimension_fisica', 'Tamaño, forma, cantidad, peso, medida', 4),
+                (24, 'cualidad_estado_condicion', 'Condición física o funcional de algo, íntegro o dañado', 4),
+                (25, 'cualidad_valoracion', 'Juicio de calidad o mérito, bueno/malo, correcto/incorrecto', 4),
+                (74, 'cualidad_sensorial', 'Percepciones captadas por los sentidos: color, textura, sonido, sabor', 4),
+                (75, 'cualidad_material_composicion', 'De qué está hecho o compuesto algo: metálico, digital, orgánico', 4),
+                (76, 'cualidad_temporal_duracion', 'Propiedades de duración o permanencia de algo', 4),
+                (77, 'cualidad_relacional_comparativa', 'Propiedades que solo existen en comparación con otra cosa', 4),
+                (78, 'cualidad_abstracta_conceptual', 'Propiedades no físicas de ideas o sistemas: complejo, simple, lógico', 4),
+                (99, 'cualidad_economica', 'Relacionado con dinero, costos, presupuesto, inversión o finanzas', 4),
+                (100, 'cualidad_urgente', 'Requiere acción inmediata. Tiene fecha límite o consecuencias', 4),
+                (101, 'cualidad_autentica', 'Vivencia real, genuina. No teórico ni hipotético. Experiencia personal', 4),
+                -- COORDENADA (tipo_id=5): 10 valores
+                (79, 'coordenada_cronologia_absoluta', 'Fechas o momentos específicos y objetivos', 5),
+                (80, 'coordenada_anclaje_deictico', 'Referencias temporales relativas al momento del habla', 5),
+                (81, 'coordenada_secuencia_relativa', 'Orden entre eventos, sin fecha fija', 5),
+                (82, 'coordenada_ciclo_periodico', 'Repetición regular en el tiempo: diario, semanal, anual', 5),
+                (83, 'coordenada_inclusion_topologica', 'Contención o pertenencia a un espacio', 5),
+                (84, 'coordenada_distancia_proximal', 'Cercanía o lejanía entre puntos', 5),
+                (85, 'coordenada_vector_direccional', 'Dirección u orientación: arriba, abajo, norte', 5),
+                (86, 'coordenada_trayectoria_limite', 'Movimiento entre puntos o fronteras: desde, hacia, a través de', 5),
+                (102, 'coordenada_etapa', 'Corresponde a una etapa de vida: infancia, juventud, adultez, vejez', 5),
+                (103, 'coordenada_hito', 'Marca un momento significativo: nacimiento, muerte, cambio de trabajo', 5),
+                -- INTENCION (tipo_id=6): 8 valores
+                (104, 'intencion_aprender', 'Guardo para aprender o recordar algo que estoy estudiando', 6),
+                (105, 'intencion_decidir', 'Guardo para tomar una decisión o tener contexto para decidir', 6),
+                (106, 'intencion_reflexionar', 'Guardo para pensar sobre algo, meditar o sacar conclusiones', 6),
+                (107, 'intencion_resolver', 'Guardo porque algo falló o hay un obstáculo que superar', 6),
+                (108, 'intencion_solucionar', 'Guardo la solución a un problema que ya resolví. Referencia futura', 6),
+                (109, 'intencion_documentar', 'Guardo para tener un registro formal o referencia duradera', 6),
+                (110, 'intencion_desahogar', 'Guardo para expresar lo que siento, sin buscar solución', 6),
+                (111, 'intencion_registrar', 'Guardo para marcar que algo pasó, sin juicio ni propósito específico', 6),
+                -- DOMINIO (tipo_id=7): 10 valores
+                (112, 'dominio_tecnico', 'Programación, infraestructura, herramientas de desarrollo, software', 7),
+                (113, 'dominio_personal', 'Vida privada, familia, relaciones personales, hogar', 7),
+                (114, 'dominio_profesional', 'Trabajo, carrera, crecimiento profesional, oficina', 7),
+                (115, 'dominio_academico', 'Estudios, cursos, investigación, aprendizaje formal, universidad', 7),
+                (116, 'dominio_salud', 'Salud física, mental, bienestar, cuidado del cuerpo, medicina', 7),
+                (117, 'dominio_finanzas', 'Dinero, inversiones, presupuesto, deudas, planificación financiera', 7),
+                (118, 'dominio_ambiental', 'Naturaleza, clima, medio ambiente, ecología, sustentabilidad', 7),
+                (119, 'dominio_social', 'Relaciones sociales, comunidad, política, sociedad, cultura', 7),
+                (120, 'dominio_creativo', 'Arte, música, escritura, diseño, expresión creativa', 7),
+                (121, 'dominio_espiritual', 'Valores, propósito, sentido de vida, creencias, filosofía', 7)
         """)
 
         # 3e. Tablas puente para dimensiones en corto y largo plazo
@@ -506,6 +544,9 @@ class SQLiteMemoryBioRAG:
 
         # Crear un índice explícito para acelerar ordenaciones por peso y último acceso (Inhibición y Poda)
         self.cursor.execute("CREATE INDEX IF NOT EXISTS idx_peso_acceso ON largo_plazo (peso_sinaptico, ultimo_acceso)")
+        # v13: índices para queries rápidos por estado y fecha
+        self.cursor.execute("CREATE INDEX IF NOT EXISTS idx_estado ON largo_plazo (estado)")
+        self.cursor.execute("CREATE INDEX IF NOT EXISTS idx_creado_en ON largo_plazo (creado_en)")
         self._crear_tabla_comunicaciones()
         self._crear_tabla_fts()
         self._crear_tabla_metricas()
@@ -925,10 +966,8 @@ class SQLiteMemoryBioRAG:
                     (key, eid)
                 )
 
-        # Auto-aprendizaje semántico: si hay sinónimos, crear equivalencias
-        if sinonimos_final:
-            from core.semantica import auto_aprender_desde_sinonimos
-            auto_aprender_desde_sinonimos(self.cursor, key, sinonimos_final)
+        # ponytail: auto_aprender_desde_sinonimos eliminado — contaminaba la tabla semántica
+        # con IDs de nodos en vez de sinónimos reales. Los sinónimos ya sirven para FTS5 burst.
 
     def consolidar_concepto(self, concepto):
         """Mueve un concepto de corto a largo plazo directamente.
@@ -963,6 +1002,12 @@ class SQLiteMemoryBioRAG:
         self.conn.commit()
         from core.sinapsis import auto_vincular
         auto_vincular(self, key, contenido)
+        # Auto-inferir equivalencias semánticas (frecuencia_minima=3 para calidad)
+        try:
+            from core.semantica import inferir_y_guardar_seguro
+            inferir_y_guardar_seguro(self.cursor, frecuencia_minima=3)
+        except Exception:
+            pass
         return True
 
     def _auto_generar_co_ocurrencia(self, recuerdos_sesion):
@@ -1676,10 +1721,10 @@ class SQLiteMemoryBioRAG:
                 score_temporal = 0.03
 
         if es_latente and score_latente >= 0.15:
-            return round((0.70 * score_latente + 0.20 * peso_normalizado + 0.10 * score_asoc + score_temporal) * (1.0 + 0.10 * dim_score), 4)
+            return round(0.70 * score_latente + 0.20 * peso_normalizado + 0.10 * score_asoc + score_temporal + 0.30 * dim_score, 4)
 
         if es_concepto and score_concepto >= 0.3:
-            return round((0.50 * score_concepto + 0.40 * peso_normalizado + 0.10 * score_asoc + score_temporal) * (1.0 + 0.10 * dim_score), 4)
+            return round(0.50 * score_concepto + 0.40 * peso_normalizado + 0.10 * score_asoc + score_temporal + 0.30 * dim_score, 4)
 
         if total <= 1:
             score_texto = 1.0
@@ -1692,9 +1737,9 @@ class SQLiteMemoryBioRAG:
             peso_query = sum(peso for token, peso in pesos_tokens.items() if token in tokens_en_contenido)
             score_texto = score_texto * 0.7 + peso_query * 0.3
 
-        # ponytail: dim_score como multiplicador — dimensiones SOLO suben, nunca bajan
+        # dimensiones como BOOST aditivo — siempre suman, incluso con cero match de texto
         base_score = 0.55 * score_texto + 0.25 * peso_normalizado + 0.10 * score_asoc + score_temporal
-        score_final = round(base_score * (1.0 + 0.10 * dim_score), 4)
+        score_final = round(base_score + (0.30 * dim_score), 4)
 
         # Multiplicador match exacto: preserva precisión de búsquedas por UUID/nombre exacto
         if match_exacto:
@@ -1771,7 +1816,7 @@ class SQLiteMemoryBioRAG:
         contextos.sort(key=lambda x: x[4], reverse=True)
         return list(pagina_resultados) + contextos
 
-    def buscar_por_frase(self, frase, profundidad="activos", pagina=1, limite=None, categoria=None, preview_chars=1500, historial_fallos=None, context_window=0, dimensiones_dict=None, dimensiones_ids=None, parafrasis_list=None):
+    def buscar_por_frase(self, frase, profundidad="activos", pagina=1, limite=None, categoria=None, preview_chars=1500, historial_fallos=None, context_window=0, dimensiones_dict=None, dimensiones_ids=None, parafrasis_list=None, desde_ts=None, hasta_ts=None):
         """Busqueda hibrida: FTS5 trigram + peso sinaptico + asociaciones + scoring dimensional.
 
         frase: texto en lenguaje natural. Trigrams nativos de FTS5 manejan
@@ -1789,6 +1834,8 @@ class SQLiteMemoryBioRAG:
         dimensiones_dict: dict de {eje: [ids]} para scoring dimensional.
                           Batch query post-merge → coseno binario → dim_score.
         dimensiones_ids: flat list de todos los IDs (para batch query SQL).
+        desde_ts: timestamp Unix mínimo para filtro temporal PRE-hoc (creado_en).
+        hasta_ts: timestamp Unix máximo para filtro temporal PRE-hoc (creado_en).
         Retorna (resultados, total) donde resultados es lista de
         (concepto, contenido, peso, estado, score, asociaciones)
         """
@@ -1796,7 +1843,9 @@ class SQLiteMemoryBioRAG:
             pagina = 1
         if limite is None:
             limite = LIMITE_DEFAULT
-        if not frase.strip():
+        # Si no hay frase Y no hay dimensiones, retornar vacío
+        # PERO si hay dimensiones (aunque no haya frase), continuar al fallback dimensional
+        if not frase.strip() and not dimensiones_ids:
             return [], 0
 
         # Limpiar la frase para FTS5 trigram
@@ -1807,18 +1856,33 @@ class SQLiteMemoryBioRAG:
 
         # Build filter clauses
         filtros = []
+        temporal_params = []
         if profundidad != "profundo":
             filtros.append("l.estado = 'activo'")
         if categoria:
             cat_id = self._resolver_categoria_id(categoria)
             filtros.append(f"l.categoria = {cat_id}")
+        # v13: filtro temporal PRE-hoc (aplicar en SQL, no post-hoc)
+        if desde_ts is not None:
+            filtros.append("l.creado_en >= ?")
+            temporal_params.append(desde_ts)
+        if hasta_ts is not None:
+            filtros.append("l.creado_en <= ?")
+            temporal_params.append(hasta_ts)
         clause = (" AND " + " AND ".join(filtros)) if filtros else ""
 
         # Construir consulta desde la frase limpia
-        # Si hay paráfrasis, construir UNA sola query FTS5 OR (en vez de N queries)
+        # Si hay paráfrasis, expandir cada una via tabla semántica ANTES de FTS5
+        # para cerrar el gap de vocabulario que ni trigram ni sinapsis resuelven.
         if parafrasis_list:
-            # Escapar cada variante para FTS5 trigram (comillas dobles)
-            fts_variantes = [f'"{frase}"'] + [f'"{p}"' for p in parafrasis_list]
+            from core.semantica import expandir_query_por_tokens
+            fts_variantes = [f'"{frase}"']
+            for p in parafrasis_list:
+                expansion = expandir_query_por_tokens(self.cursor, p)
+                if expansion:
+                    fts_variantes.append(f'({expansion})')
+                else:
+                    fts_variantes.append(f'"{p}"')
             fts_match = " OR ".join(fts_variantes)
         else:
             fts_match = frase
@@ -1859,7 +1923,7 @@ class SQLiteMemoryBioRAG:
                 WHERE {like_where}{clause_like}
             """
             try:
-                self.cursor.execute(sql_like, like_params)
+                self.cursor.execute(sql_like, like_params + temporal_params)
                 for r in self.cursor.fetchall():
                     match_ratio = sum(1 for w in palabras_like if w.lower() in r[1].lower()) / len(palabras_like)
                     resultados_concepto[r[1]] = match_ratio
@@ -1877,7 +1941,9 @@ class SQLiteMemoryBioRAG:
                         'que', 'del', 'las', 'los', 'una', 'uno', 'sin', 'sobre',
                         'desde', 'hasta', 'cuando', 'donde', 'otro', 'otros', 'ante',
                         'segun', 'pues', 'contra', 'durante', 'mediante'}
-        palabras_pc = [w for w in palabras if w.lower() not in STOPWORDS_PC]
+        # v13.1: cuando hay paráfrasis, relajar PALABRA_COMPLETA porque la expansión
+        # semántica ya validó la relación entre vocabulario del query y del nodo.
+        palabras_pc = [w for w in palabras if w.lower() not in STOPWORDS_PC] if not parafrasis_list else []
         pc_clause = ""
         pc_params = []
         if palabras_pc:
@@ -1893,7 +1959,7 @@ class SQLiteMemoryBioRAG:
         if len(palabras) > 1:
             near_query = f'NEAR({" ".join(palabras)}, 15)'
             try:
-                self.cursor.execute(sql_con_pc, tuple([near_query]) + tuple(pc_params))
+                self.cursor.execute(sql_con_pc, tuple([near_query]) + tuple(temporal_params) + tuple(pc_params))
                 todos = self.cursor.fetchall()
                 for r in todos:
                     origen_scores[r[1]] = ("literal", 0.0)
@@ -1903,7 +1969,7 @@ class SQLiteMemoryBioRAG:
         # Fallback 1.0: FTS5 AND exacto (usar fts_match si hay paráfrasis)
         if not todos:
             try:
-                self.cursor.execute(sql_con_pc, (fts_match,) + tuple(pc_params))
+                self.cursor.execute(sql_con_pc, (fts_match,) + tuple(temporal_params) + tuple(pc_params))
                 todos = self.cursor.fetchall()
                 for r in todos:
                     origen_scores[r[1]] = ("literal", 0.0)
@@ -1917,7 +1983,7 @@ class SQLiteMemoryBioRAG:
             if not todos and fts_match != frase:
                 # Si hay paráfrasis y no se encontró nada, usar fts_match directamente
                 try:
-                    self.cursor.execute(sql_con_pc, (fts_match,) + tuple(pc_params))
+                    self.cursor.execute(sql_con_pc, (fts_match,) + tuple(temporal_params) + tuple(pc_params))
                     or_results = self.cursor.fetchall()
                     seen_rowids = {r[0] for r in todos}
                     for r in or_results:
@@ -1942,7 +2008,7 @@ class SQLiteMemoryBioRAG:
                     ORDER BY bm25(largo_plazo_fts_unicode)
                     LIMIT ?
                 """.format(filtro=clause)
-                self.cursor.execute(sql_unicode, (query_wild,) + (max(limite * 3, 10),))
+                self.cursor.execute(sql_unicode, (query_wild,) + tuple(temporal_params) + (max(limite * 3, 10),))
                 uni_results = self.cursor.fetchall()
                 seen_rowids = {r[0] for r in todos}
                 for r in uni_results:
@@ -1961,7 +2027,7 @@ class SQLiteMemoryBioRAG:
             query_exp = expandir_query_por_tokens(self.cursor, query)
             if query_exp:
                 try:
-                    self.cursor.execute(sql, (query_exp,))
+                    self.cursor.execute(sql, (query_exp,) + tuple(temporal_params))
                     sem_results = self.cursor.fetchall()
                     seen_rowids = {r[0] for r in todos}
                     for r in sem_results:
@@ -2129,7 +2195,7 @@ class SQLiteMemoryBioRAG:
             sql_snap = sql_con_pc.replace("ORDER BY bm25(largo_plazo_fts, 5.0, 1.0, 2.0) * (0.5 + 0.5 * l.peso_sinaptico)",
                                           "AND l.ultimo_acceso > ? ORDER BY bm25(largo_plazo_fts, 5.0, 1.0, 2.0) * (0.5 + 0.5 * l.peso_sinaptico) LIMIT 5")
             try:
-                self.cursor.execute(sql_snap, (query,) + tuple(pc_params) + (limite_tiempo,))
+                self.cursor.execute(sql_snap, (query,) + tuple(temporal_params) + tuple(pc_params) + (limite_tiempo,))
                 snap_r = self.cursor.fetchall()
                 if snap_r:
                     print(f"[TRACE] 1.8 Snap: {len(snap_r)} → {[r[1] for r in snap_r[:3]]}")
@@ -2251,9 +2317,6 @@ class SQLiteMemoryBioRAG:
                         todos.append(row)
                         origen_scores[concepto] = ("semantica", match_ratio)
 
-        if not todos:
-            return [], 0
-
         # ─── Batch query: dimensiones de todos los conceptos ───
         # Una sola query en vez de N queries individuales (rendimiento)
         dim_scores_map = {}
@@ -2288,10 +2351,14 @@ class SQLiteMemoryBioRAG:
                 except sqlite3.OperationalError:
                     dim_scores_map = {}
 
-        # ─── Fallback dimensional: si hay pocos resultados y dimensiones_ids, buscar por dimensión pura ───
-        # Equivalente a "expandir el campo magnético" — cuando FTS5 no encuentra suficiente,
-        # buscar directamente en largo_plazo_dimensiones por coincidencia de ejes.
-        if len(todos) < 3 and dimensiones_ids and len(dimensiones_ids) > 0:
+        # ─── Fallback dimensional CON UMBRAL: dimensiones empujan solo si hay conexión real ───
+        # "Buscar sin palabras": si FTS5 no encontró nada pero hay dimensiones,
+        # traer nodos que compartan AL MENOS UMBRAL_DIMENSIONES dimensiones.
+        # Umbral 3: si 3 de 7 dimensiones coinciden, hay conexión semántica real.
+        # PERO: si NO hay resultados de texto (todos vacío), bajar umbral a 1 para permitir "buscar solo por dimensión"
+        UMBRAL_DIMENSIONES = 3
+        umbral_efectivo = 1 if len(todos) == 0 else UMBRAL_DIMENSIONES
+        if dimensiones_ids and len(dimensiones_ids) >= umbral_efectivo:
             conceptos_existentes = {r[1] for r in todos if r[1]}
             dim_ids_str = ",".join([str(d) for d in dimensiones_ids])
             fallback_sql = f"""
@@ -2306,7 +2373,7 @@ class SQLiteMemoryBioRAG:
                     if concepto not in concepto_fb_ids:
                         concepto_fb_ids[concepto] = []
                     concepto_fb_ids[concepto].append(dim_id)
-                # Calcular coseno y agregar nodos nuevos
+                # Calcular coseno y agregar nodos nuevos SOLO si superan umbral
                 import math
                 query_dim_set = set(dimensiones_ids)
                 query_len = len(query_dim_set)
@@ -2315,7 +2382,9 @@ class SQLiteMemoryBioRAG:
                         continue  # ya está en todos
                     doc_set = set(doc_ids)
                     shared = len(query_dim_set & doc_set)
-                    if shared > 0:
+                    # UMBRAL: al menos 3 dimensiones compartidas para traer sin match de texto
+                    # PERO: si no hay resultados de texto, umbral baja a 1
+                    if shared >= umbral_efectivo:
                         coseno = shared / math.sqrt(query_len * len(doc_set))
                         # Traer nodo completo de largo_plazo
                         try:
