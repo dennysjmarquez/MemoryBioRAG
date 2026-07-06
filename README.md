@@ -1276,13 +1276,104 @@ desvincular(a="error_http", b="flor")
 
 ---
 
+## v12.0 — Usabilidad y Higiene de Memoria (Julio 2026)
+
+**Los agentes ahora ven cuándo están haciendo algo mal — no tienen que leer descripciones largas.**
+
+### Problema
+
+Los agentes no leen las descripciones de las herramientas MCP. Las reglas comportamentales estaban en la descripción de `recordar` y `aprender`, pero se ignoraban. Resultado: nodos huérfanos, búsquedas sin fecha, falsos positivos sin desvincular.
+
+### Solución: Warnings automáticos en el output
+
+En lugar de poner las reglas en la descripción (que nadie lee), los warnings aparecen **en el output de la herramienta** como texto plano antes del JSON. Imposibles de ignorar.
+
+#### En `aprender` (3 warnings):
+
+```
+⚠️ sinapsis=0 — 'nuevo_nodo' no tiene conexiones. ¿Hay nodos relacionados? Vinculalos con biorag_vincular().
+⚠️ ¿'nuevo_nodo' tiene relación con estos nodos? Si sí, vinculalos: nodo1, nodo2, nodo3
+⚠️ ¿Pensaste en cómo se va a buscar este nodo? Usá palabras clave fuertes en 'concepto' y 'syn'.
+```
+
+#### En `recordar` (3 warnings + score bajo):
+
+```
+⚠️ parafrasis=None — Sin parafrasis, el recall es ~40%. Generá 3-5 reformulaciones.
+⚠️ dias=None, desde=None — Sin filtro temporal, traés TODO incluyendo cosas viejas.
+⚠️ asociados=False — No ves las conexiones de los nodos. Usá asociados=True.
+⚠️ 'concepto' tiene score bajo (0.3). ¿Es un falso positivo por sinapsis? Si no tiene que ver con 'query', desvinculalo con biorag_desvincular().
+```
+
+### Fix: Búsqueda por fecha sin query
+
+**Problema:** `recordar(desde='2026-07-05', hasta='2026-07-05')` devolvía 0 resultados porque `buscar_por_frase("")` retornaba `[]` inmediatamente.
+
+**Solución:** Cambió la condición de `if query is None:` a `if query is None or (isinstance(query, str) and not query.strip()):` para manejar strings vacíos.
+
+**Resultado:** `recordar(dias=1)` ahora devuelve todos los nodos del día sin necesidad de query.
+
+### Mejora: Sugerencias de vinculación específicas
+
+El warning de vinculación ahora busca nodos que compartan tokens con el concepto y los sugiere específicamente:
+
+```
+⚠️ ¿'cv_seccion_d' tiene relación con estos nodos? Si sí, vinculalos: cv_dennys_secciones_ab_finales_2026, cv_seccion_d_arquitectura_frontend_estado
+```
+
+### Documentación actualizada
+
+- **query parameter**: "OPCIONAL con fechas: Podés omitir query y usar solo dias/desde/hasta"
+- **FILTROS TEMPORALES**: Ejemplos ❌/✅ para cada regla
+- **ORÁCULO**: "PRIMERO busca local, DESPUÉS oráculo"
+- **ASOCIADOS**: "SIEMPRE usar asociados=True cuando buscas nodos relacionados"
+
+### Lección de higiene de memoria
+
+Nuevo nodo `principio_gestion_memoria_agente` con 7 reglas innegociables:
+1. ANTES de guardar → vincular si hay relación
+2. AL guardar → palabras clave compartidas
+3. AL buscar → parafrasis + ráfaga + filtros
+4. "hoy" → SIEMPRE dias=1
+5. PRIMERO local, DESPUÉS oráculo
+6. SIEMPRE asociados=True
+7. Falsos positivos → desvincular INMEDIATAMENTE
+
+### Issue conocido: Sin telemetría
+
+**Problema:** No se sabe cuántas búsquedas fallan ni por qué. No hay métricas de:
+- Búsquedas con 0 resultados
+- Búsquedas que activan ráfaga
+- Warnings ignorados por el agente
+- Falsos positivos detectados
+
+**Impacto:** Sin telemetría, no se puede medir la calidad de la memoria ni priorizar mejoras.
+
+**Solución propuesta:** Agregar tabla `telemetria_busquedas` con campos: `query`, `total_resultados`, `rafaga_activa`, `warnings_generados`, `timestamp`. Analítica batch en ciclo de sueño.
+
+### Archivos modificados
+
+- `mcp_server.py`: warnings en `aprender` y `recordar`, fix fecha sin query, sugerencias de vinculación
+- `README.md`: documentación v12.0
+
+### Métricas v12.0 (usabilidad)
+
+| Métrica | Antes | Después |
+|---------|-------|-------|
+| Warnings automáticos | 0 | 6 (3 aprender + 3 recordar) |
+| Búsqueda fecha sin query | ❌ | ✅ |
+| Sugerencias vinculación | ❌ | ✅ (por tokens) |
+| Documentación ejemplos | ❌ | ✅ (❌/✅) |
+
+---
+
 ## Producción
 
 | Métrica | v9.0 | v11.1 | v12.0 |
 |---|---|---|---|
-| Nodos activos | 135+ | 340 | 362 |
-| Nodos dormidos | 58+ | — | — |
-| Sinapsis | 1,474+ | 15,521 | 1,362 |
+| Nodos activos | 135+ | 340 | 421 |
+| Nodos dormidos | 58+ | — | 6 |
+| Sinapsis | 1,474+ | 15,521 | 1,362+ |
 | Sinapsis espurias | — | — | 0 (limpiadas) |
 | Equivalencias | 1,734+ | 3,004 | 3,004+ |
 | Grupos semánticos | — | 58 | 58+ |
@@ -1291,7 +1382,8 @@ desvincular(a="error_http", b="flor")
 | Dependencias externas | 0 | 0 | 0 |
 | Tamaño DB | ~4 MB | ~12 MB | ~9 MB |
 | Campos largo_plazo | 8 | 9 | 10 (`creado_en`) |
-| Tools MCP | — | 12 | 13 (`desvincular`) |
+| Tools MCP | — | 12 | 13 |
+| Warnings automáticos | — | — | 6 |
 
 ---
 

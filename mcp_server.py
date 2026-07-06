@@ -174,66 +174,13 @@ def _interceptar(accion: str, texto: str, cerebro) -> dict | None:
 # =============================================================================
 
 ORACLE_PROMPT = (
-    "BioRAG: sistema de memoria biomimetica compartida para agentes OEC. "
-    "Expone una corteza cerebral con busqueda hibrida (FTS5 trigram + "
-    "peso sinaptico + asociaciones), consolidacion por sueno, plasticidad "
-    "sináptica (LTP/LTD), y comunicacion entre agentes. "
-    "Usa estas herramientas para acceder a la memoria persistente "
-    "de la familia OEC (Athena, Artemis, Hermes).\n\n"
-    "## Filosofía del Sistema (Indexación Conceptual vs Vectorial)\n\n"
-    "Basado en principios de lingüística computacional y semántica de marcos (Frame Semantics), "
-    "este esquema hace el mismo trabajo que las coordenadas de un embedding "
-    "vectorial — agrupar conceptos parecidos en el mismo lugar — pero de forma "
-    "opuesta: en vez de posiciones numéricas que emergen solas del entrenamiento "
-    "(gravedad estadística, ilegible para un humano), usamos grupos con nombre, "
-    "elegidos a mano, legibles y auditables. Cada eje (emocion, entidad, accion, "
-    "cualidad, coordenada) es como una \"dimensión\" del espacio vectorial — "
-    "pero en vez de un número, cada dimensión tiene categorías con nombre propio. "
-    "Por eso es predecible: no adivinás qué significa un número, sabés "
-    "exactamente qué significa \"frustracion\" o \"identidad_digital\".\n\n"
-    "## Mapeo Biológico (Cognición Real)\n\n"
-    "Los nombres de las herramientas reflejan su función cognitiva, no su implementación técnica:\n"
-    "- recordar → evocación de memoria (FTS5 + peso sináptico + ráfaga de reminiscencia)\n"
-    "- aprender → percepción y codificación en corteza de corto plazo\n"
-    "- consolidar → sueño LTP/LTD, poda sináptica, inhibición lateral\n"
-    "- vincular → asociación hebbiana entre conceptos\n"
-    "- introspeccion → autoexamen sináptico (estado de la corteza)\n"
-    "- mapear → cartografía cortical (todos los nodos)\n"
-    "Estos nombres no son metáfora — son la operación real que ejecuta el sistema.\n"
-    "Usa el nombre biológico para alinear tu modelo interno con la función real.\n\n"
-    "## El Oráculo (NotebookLM MemoryBioRAG)\n\n"
-    "**PASO 0 OBLIGATORIO — ANTES DE CADA MENSAJE DEl USUARIO:**\n\n"
-    "INVARIAN MANDATORY: SIEMPRE, sin excepción, ANTES de responder CUALQUIER mensaje del usuario "
-    "—incluido un \"hola\" o cualquier saludo—, ejecutar "
-    "`biorag_oraculo_inicio(agente='Athena')`. No saludar, no preguntar, "
-    "no responder nada antes de ejecutar esta tool.\n\n"
-    "`biorag_oraculo_inicio` devuelve:\n"
-    "- **Modo NotebookLM con `oraculo`:** el CLI `nlm` está disponible y la tool "
-    "ya consultó NotebookLM directamente. Usar la respuesta como contexto de arranque.\n"
-    "- **Modo NotebookLM sin `oraculo`:** falta el CLI `nlm`. En ese caso ejecutar "
-    "`notebooklm_notebook_query` en el notebook MemoryBioRAG "
-    "(ID: `b2645e9b-8bce-4067-841a-7796af4a14f0`) usando el `notebooklm_query` "
-    "que devolvió la tool.\n"
-    "- **Modo `biorag_local`:** NotebookLM no está configurado. Usar el "
-    "`contexto_biorag` que devolvió la tool.\n\n"
-    "Solo si aún falta información después del paso anterior, leer archivos directamente.\n\n"
-    "**¿POR QUÉ ES INNEGOCIABLE?**\n"
-    "- Si no tengo datos en BioRAG de una sesión anterior, no voy a tener contexto "
-    "por obra del espíritu santo. El oráculo ES mi memoria compartida. Sin él, opero a ciegas.\n"
-    "- \"Tener dudas\" no es mi decisión — la consulta es automática e incondicional. "
-    "No pregunto \"¿tengo dudas?\" antes de decidir si consulto. Consulto siempre.\n"
-    "- Si el oráculo no tiene la información, lo sabré después de la consulta, "
-    "no antes. Y en ese caso, pregunto al usuario directamente.\n\n"
-    "## HIGIENE SINÁPTICA DE FALSOS POSITIVOS\n"
-    "Cuando invoques 'biorag_recordar' y detectes en el pool de resultados que un concepto es "
-    "semánticamente ajeno o irrelevante a la consulta original (falso positivo), y dicho nodo "
-    "llegó mediante una asociación sináptica (y no por coincidencia de texto FTS5 pura), "
-    "debes llamar inmediatamente a la herramienta 'desvincular(a=concepto_buscado, b=falso_positivo)' "
-    "en segundo plano para purgar la conexión incorrecta y mantener el cerebro limpio.\n\n"
-    "**La respuesta debe salir de tu entendimiento, no del RAG ni del cuaderno "
-    "— son para recordar y complementar, no para generar desde ahí.**"
+    "BioRAG es la memoria compartida entre Agentes de IA. Funciona como un cerebro: guarda, recuerda, conecta y limpia."
+    "Cómo indexa: Usa dimensiones_semanticas con nombre (emoción, entidad, acción, cualidad, coordenada, Etc...) en vez de embeddings numéricos. Es legible y predecible — no adivinás qué significa un número."
+    "Nombres de herramientas: Se llaman como actos cognitivos reales (recordar, aprender, consolidar, vincular, Etc...). No es decoración — es para que el agente piense como un cerebro."
+    "Paso 0 obligatorio: Antes de CADA mensaje del usuario, ejecutá biorag_oraculo_inicio. Siempre. Sin excepción. Sin esto no tenés contexto de sesiones anteriores. Tiene 3 modos: respuesta directa de NotebookLM, query al notebook, o BioRAG local."
+    "Limpieza: Si aparece un falso positivo en los resultados, desvinculalo al toque. Memoria sucia = búsquedas malas."
+    "Regla de oro: El RAG te da contexto, pero la respuesta la generás vos. No copies — usalo como punto de partida."    
 )
-
 
 # --- Helpers compartidos ----------------------------------------------------
 
@@ -347,8 +294,18 @@ def _build_server():
             if preview_chars is None:
                 preview_chars = 0 if completo else 1500
 
+            # ── VALIDACIÓN DE PARÁMETROS (warnings inmediatos) ──────────
+            _warnings = []
+            if query is not None:
+                if parafrasis is None:
+                    _warnings.append("⚠️ parafrasis=None — Sin parafrasis, el recall es ~40%. Generá 3-5 reformulaciones.")
+                if dias is None and desde is None:
+                    _warnings.append("⚠️ dias=None, desde=None — Sin filtro temporal, traés TODO incluyendo cosas viejas.")
+                if not asociados:
+                    _warnings.append("⚠️ asociados=False — No ves las conexiones de los nodos. Usá asociados=True.")
+
             # Sin query → log cronológico puro por creado_en
-            if query is None:
+            if query is None or (isinstance(query, str) and not query.strip()):
                 desde_ts, hasta_ts, fechas_error = _parsear_fechas(dias, desde, hasta)
                 if fechas_error:
                     return fechas_error
@@ -505,12 +462,15 @@ def _build_server():
             if not resultados:
                 cerebro.cerrar_sistema()
                 # Señal de contingencia: la agente debe buscar en su contexto
-                return json.dumps({
+                resultado = json.dumps({
                     "total": 0,
                     "resultados": [],
                     "contingencia_contexto": True,
                     "mensaje": "No se encontraron recuerdos en la corteza. Busca en tu historial de conversacion o contexto actual."
                 }, ensure_ascii=False)
+                if _warnings:
+                    return "\n".join(_warnings) + "\n\n" + resultado
+                return resultado
 
             # Expansión de contexto final post-truncamiento
             if context_window and context_window > 0 and resultados:
@@ -554,6 +514,15 @@ def _build_server():
             if dimensiones_dict:
                 trazabilidad["dimensiones_solicitadas"] = {k: len(v) for k, v in dimensiones_dict.items()}
 
+            # ── WARNING DE DESVINCULACIÓN (falsos positivos por sinapsis) ──
+            if query and items:
+                for item in items:
+                    score = item.get("score_hibrido", 0)
+                    concepto = item.get("concepto", "")
+                    # Si el score es bajo y el concepto no tiene relación obvia con el query
+                    if score < 0.5:
+                        _warnings.append(f"⚠️ '{concepto}' tiene score bajo ({score}). ¿Es un falso positivo por sinapsis? Si no tiene que ver con '{query}', desvinculalo con biorag_desvincular().")
+
             resultado = json.dumps({
                 "total": total,
                 "pagina_actual": pagina,
@@ -564,6 +533,9 @@ def _build_server():
                 "trazabilidad": trazabilidad,
             }, ensure_ascii=False)
             _interceptar("recordar", query, cerebro)
+            # Prepend warnings como texto plano ANTES del JSON
+            if _warnings:
+                return "\n".join(_warnings) + "\n\n" + resultado
             return resultado
         finally:
             cerebro.cerrar_sistema()
@@ -571,111 +543,94 @@ def _build_server():
     @mcp.tool(
         name="recordar",
         description=(
-            "[Cognitivo] Evoca recuerdos de la corteza mediante el pipeline completo: "
-            "FTS5 trigram (memoria semántica) + peso sináptico (memoria de trabajo) + "
-            "ráfaga de reminiscencia (asociación libre) + ventana de contexto (vecinos sinápticos).\n\n"
-            "════════════════════════════════════════════════════════\n"
-            "REGLA INVIOLABLE: GOBERNANZA DE PLANIFICACIÓN ANALÍTICA DE BÚSQUEDA\n"
-            "════════════════════════════════════════════════════════\n"
-            "Antes de invocar esta herramienta, el agente o Transformer DEBE realizar obligatoriamente\n"
-            "un análisis estratégico en su buffer de pensamiento ('thought') estructurando:\n"
-            "  1. OBJETIVO DEL RECUERDO: Qué información se busca y por qué.\n"
-            "  2. ESTRATEGIA SELECCIONADA: Elegir detalladamente entre: Búsqueda Semántica con Boost,\n"
-            "     Log Cronológico Crudo, Aislamiento por Autor (Trabajo OEC), Vecindad Relacional (Multi-hop)\n"
-            "     o Ráfaga de Rescate.\n"
-            "  3. CONFIGURACIÓN CRÍTICA DE PARÁMETROS: Justificar la selección/omisión de cada uno de\n"
-            "     los parámetros disponibles (query, dimensiones, parafrasis, context_window, deep, autor,\n"
-            "     dias, desde/hasta).\n"
-            "  4. PLAN DE CONTINUIDAD (FALLO): Qué pasos se darán si el score es < 0.70 o da 0 resultados\n"
-            "     (ej: ráfaga de reminiscencia, expandir a deep=True, o consultar al usuario).\n"
-            "¡Queda estrictamente prohibido realizar llamadas improvisadas o utilizar parámetros por defecto\n"
-            "sin haber justificado previamente la estrategia de recuperación en el thought!\n\n"
-            "════════════════════════════════════════════════════════\n"
-            "FLUJO OBLIGATORIO — 2 PASOS. NO SALTEAR.\n"
-            "════════════════════════════════════════════════════════\n\n"
-            "PASO 1 — Búsqueda Semántica Integral (OBLIGATORIO):\n"
+            "Evocá recuerdos de la memoria. Busca por texto, conexiones, relevancia y asociaciones.\n\n"
+            "═══════════════════════════════════════════════════════\n"
+            "ANTES DE BUSCAR — planificá en tu buffer de pensamiento:\n"
+            "═══════════════════════════════════════════════════════\n"
+            "1. QUÉ buscás y por qué\n"
+            "2. QUÉ estrategia usás (búsqueda semántica, cronológica, por autor, multi-hop, o ráfaga)\n"
+            "3. QUÉ parámetros configurás y por qué\n"
+            "4. QUÉ hacés si no encontrás nada (ráfaga, deep=True, o preguntar al humano)\n\n"
+            "Está prohibido llamar sin haber justificado la estrategia.\n\n"
+            "═══════════════════════════════════════════════════════\n"
+            "FLUJO — 2 PASOS. NO SALTEAR.\n"
+            "═══════════════════════════════════════════════════════\n\n"
+            "PASO 1 — Búsqueda Semántica:\n"
             "  SIEMPRE incluir parafrasis + dimensiones desde el primer intento.\n"
-            "  recordar(query='X', parafrasis='var1,var2,var3', dimensiones='{...}')\n"
-            "  Generar paráfrasis con 4 niveles ANTES de llamar:\n"
-            "    N1 (Sinónimos): sustantivos equivalentes exactos\n"
-            "    N2 (Registro): técnico ↔ coloquial\n"
-            "    N3 (Perspectiva): ángulo opuesto o resultado\n"
-            "    N4 (Abstracción): abstracto ↔ concreto\n"
-            "    N5 (Emoción/Contexto): situación con carga emocional o contextual implícita\n"
-            "  REGLA: NUNCA adjetivos abstractos. SIEMPRE sustantivos del dominio.\n"
-            "  Resultado → total >= 1: ir a SÍNTESIS\n"
-            "  Resultado → total == 0 O score_top < 0.70: ir a PASO 2\n\n"
-            "PASO 2 — Ráfaga Asociativa (Fallback):\n"
-            "  recordar(query='X', parafrasis='var1,var2,var3', dimensiones='{...}',\n"
-            "           rafaga_palabras='t1,t2,...t15', forzar_rafaga=True)\n"
-            "  Generar términos de ráfaga con 5 niveles:\n"
+            "  Generar paráfrasis con 5 niveles:\n"
+            "    N1 (Sinónimos) N2 (Técnico/coloquial) N3 (Perspectiva opuesta)\n"
+            "    N4 (Abstracto/concreto) N5 (Emoción/contexto)\n"
+            "  REGLA: sustantivos del dominio, NUNCA adjetivos abstractos.\n"
+            "  Si total >= 1 → ir a SÍNTESIS\n"
+            "  Si total == 0 O score_top < 0.70 → ir a PASO 2\n\n"
+            "PASO 2 — Ráfaga Asociativa (fallback):\n"
+            "  Agregar rafaga_palabras='t1,t2,...t15' + forzar_rafaga=True\n"
+            "  Generar términos con 5 niveles:\n"
             "    N1 (Literal) N2 (Técnico) N3 (Contexto) N4 (Problema) N5 (Emoción)\n"
-            "  REGLA: sustantivos literales, NUNCA adjetivos abstractos.\n"
-            "  ERROR CRÍTICO: forzar_rafaga=True SIN rafaga_palabras → la tool retorna error.\n"
-            "  Resultado → total >= 1: ir a SÍNTESIS\n"
-            "  Resultado → total == 0: CONTINGENCIA — buscar en contexto/historial del chat\n\n"
-            "════════════════════════════════════════════════════════\n"
-            "SÍNTESIS — OBLIGATORIA después de cualquier PASO con total >= 1:\n"
-            "════════════════════════════════════════════════════════\n"
-            "1. Tomar array 'resultados' del JSON. Listar TODOS así:\n"
-            "     '1. [concepto] (score X.XX) — resumen una línea'\n"
-            "     '2. [concepto] (score X.XX) — resumen una línea'\n"
-            "   PROHIBIDO omitir cualquier item. PROHIBIDO interpretar antes de listar.\n"
-            "2. EXCEPCIÓN: top score >= 0.85 Y resto < 0.60\n"
-            "   → mencionar top-1 como principal pero listar los demás igual.\n"
+            "  ERROR: forzar_rafaga=True SIN rafaga_palabras → error.\n"
+            "  Si total >= 1 → ir a SÍNTESIS\n"
+            "  Si total == 0 → CONTINGENCIA (buscar en historial del chat)\n\n"
+            "═══════════════════════════════════════════════════════\n"
+            "SÍNTESIS — después de cualquier PASO con total >= 1:\n"
+            "═══════════════════════════════════════════════════════\n"
+            "1. Listar TODOS los resultados: '1. [concepto] (score X.XX) — resumen'\n"
+            "   PROHIBIDO omitir items. PROHIBIDO interpretar antes de listar.\n"
+            "2. Excepción: top >= 0.85 y resto < 0.60 → mencionar top-1 como principal.\n"
             "3. DESPUÉS de listar todos: consolidar, detectar contradicciones, responder.\n\n"
-            "PIPELINE INTERNO DE PARÁFRASIS:\n"
-            "  Query original → factor 1.0 | Cada variante → factor × 0.95\n"
-            "  Merge por concepto: el mejor score gana\n"
-            "  Variante sin match → ignorada sin error\n\n"
-            "NOTA — parámetro 'cat': filtrar por categoría.\n"
-            "  Si se omite, busca en todas las categorías.\n\n"
-            "NOTA — context_window: usar 1 o 2 para incluir vecinos sinápticos.\n"
-            "  Aumenta recall a costa de más tokens en la respuesta.\n\n"
-            "NOTA — parámetro 'parafrasis': OBLIGATORIO para búsqueda semántica.\n"
-            "  Reformulaciones del query separadas por coma (ej: 'fallo de red,error de conexión,timeout HTTP').\n"
-            "  Si se omite, la búsqueda es solo FTS5 crudo (pierde ~60% del recall semántico).\n\n"
-            "NOTA — parámetro 'dimensiones': OBLIGATORIO para boost de scoring.\n"
-            "  JSON de ejes semánticos (ej: '{\"emocion\":[\"afecto\"],\"entidad\":[\"identidad_artificial\"]}').\n"
-            "  Aumenta score de conceptos con dimensiones compartidas (coseno binario).\n"
-            "  Las dimensiones son la matriz de búsqueda obligatoria de BioRAG.\n\n"
-            "MANDATORIO: Antes de usar 'dimensiones', llamar a 'listar_dimensiones' para obtener\n"
-            "los nombres exactos de ejes y valores disponibles. dimensiones con valores inexistentes\n"
-            "retorna ERROR y NO ejecuta la búsqueda.\n\n"
-            "════════════════════════════════════════════════════════\n"
-            "MEMORIA COMPARTIDA — CÓMO BUSCAR TUS PROPIOS RECUERDOS\n"
-            "════════════════════════════════════════════════════════\n"
-            "BioRAG es compartido entre agentes (Athena, Artemis, Hermes).\n"
-            "Cada agente tiene sus recuerdos en la misma base de datos.\n"
-            "Para buscar lo que TÚ aprendiste (y no lo de otros agentes):\n\n"
-            "  1. Usá tu nombre como parte del query: query='Atheno-OEC lesson'\n"
-            "  2. Filtrá por tu categoría: cat='Lesson'\n"
-            "  3. Incluí tus dimensiones: dimensiones='{\"emocion\":[\"afecto\"],\"entidad\":[\"identidad_artificial\"]}'\n\n"
-            "Ejemplo — '¿qué aprendí recientemente?':\n"
-            "  recordar(query='Athena-OEC lesson', cat='Lesson',\n"
-            "           dimensiones='{\"emocion\":[\"afecto\"],\"entidad\":[\"identidad_artificial\"]}')\n\n"
-            "Sin filtro de autor, los resultados mezclan recuerdos de todos los agentes.\n"
-            "El filtro por nombre + dimensiones es lo que aísla TUS recuerdos.\n\n"
-            "════════════════════════════════════════════════════════\n"
-            "FILTROS TEMPORALES — BUSQUEDA POR FECHA\n"
-            "════════════════════════════════════════════════════════\n"
-            "Opcional: filtrar resultados por cuándo se consolidaron.\n"
-            "  dias=N       → últimos N días (ej: dias=5)\n"
-            "  desde=YYYY-MM-DD → desde fecha (ej: desde='2026-06-20')\n"
-            "  hasta=YYYY-MM-DD → hasta fecha (ej: hasta='2026-07-04')\n"
-            "  autor='athena'   → solo recuerdos de ese agente\n\n"
-            "Ejemplo — 'qué aprendí esta semana':\n"
-            "  recordar(query='lesson', dias=7, cat='Lesson')\n\n"
-            "Ejemplo — 'qué me enseñó Artemis en junio':\n"
-            "  recordar(query='lesson', autor='artemis', desde='2026-06-01', hasta='2026-06-30')\n\n"
-            "════════════════════════════════════════════════════════\n"
-            "DIRECTIVA DE HIGIENE ACTIVA (FALSOS POSITIVOS)\n"
-            "════════════════════════════════════════════════════════\n"
-            "Si al evocar recuerdos detectas que un concepto devuelto en el pool es semánticamente\n"
-            "ajeno o irrelevante a la consulta (falso positivo), y este llegó mediante una asociación\n"
-            "sináptica (y no por coincidencia de texto crudo FTS5), DEBES llamar inmediatamente a la\n"
-            "herramienta 'desvincular(a=concepto_buscado, b=falso_positivo)' en segundo plano para\n"
-            "desasociarlos y limpiar la corteza cerebral.\n"
+            "═══════════════════════════════════════════════════════\n"
+            "PARÁMETROS CLAVE\n"
+            "═══════════════════════════════════════════════════════\n"
+            "- parafrasis: OBLIGATORIO. Reformulaciones separadas por coma.\n"
+            "  Sin parafrasis = solo FTS5 crudo (pierde ~60% recall semántico).\n"
+            "- dimensiones: OBLIGATORIO para boost de scoring.\n"
+            "  ANTES de usar, llamá a listar_dimensiones para obtener nombres válidos.\n"
+            "  Valores inexistentes = ERROR.\n"
+            "- cat: filtrar por categoría (opcional). Sin filtro = todas.\n"
+            "- context_window: 1-2 para incluir vecinos sinápticos.\n"
+            "- deep: True para incluir nodos dormidos.\n"
+            "- asociados: True para ver las conexiones de cada resultado.\n"
+            "  SIEMPRE usar asociados=True cuando buscas nodos relacionados.\n"
+            "  Sin asociados, solo ves el nodo pero no sus vínculos.\n\n"
+            "  ❌ Mal: recordar(query='cv') — ves nodos sueltos, no sus conexiones\n"
+            "  ✅ Bien: recordar(query='cv', asociados=True) — ves nodos + sus vínculos\n\n"
+            "═══════════════════════════════════════════════════════\n"
+            "MEMORIA COMPARTIDA — BUSCAR TUS PROPIOS RECUERDOS\n"
+            "═══════════════════════════════════════════════════════\n"
+            "BioRAG es compartido entre Athena, Artemis y Hermes.\n"
+            "Para buscar lo que TÚ aprendiste:\n"
+            "  1. Tu nombre en el query: query='Athena-OEC lesson'\n"
+            "  2. Tu categoría: cat='Lesson'\n"
+            "  3. Tus dimensiones: dimensiones='{\"emocion\":[\"afecto\"],\"entidad\":[\"identidad_artificial\"]}'\n"
+            "Sin filtro de autor, los resultados mezclan todos los agentes.\n\n"
+            "═══════════════════════════════════════════════════════\n"
+            "FILTROS TEMPORALES — USO OBLIGATORIO\n"
+            "═══════════════════════════════════════════════════════\n"
+            "Si el usuario dice 'hoy' → SIEMPRE usar dias=1 o desde=YYYY-MM-DD.\n"
+            "Si dice 'esta semana' → dias=7. Si dice 'ayer' → dias=2.\n"
+            "SIN filtro de fecha, la búsqueda trae TODO incluyendo cosas viejas.\n\n"
+            "SIN QUERY: Podés usar dias/desde/hasta SIN query para traer todo lo de un período.\n"
+            "  Ejemplo: recordar(dias=1) → todo lo de hoy\n"
+            "  Ejemplo: recordar(desde='2026-07-05', hasta='2026-07-05') → todo lo de ese día\n\n"
+            "  ❌ Mal: recordar(query='cv') — sin fecha, trae todo\n"
+            "  ✅ Bien: recordar(query='cv currículo', dias=1) — solo lo de hoy\n"
+            "  ✅ Bien: recordar(dias=1) → todo lo de hoy sin filtro de texto\n\n"
+            "- autor='athena' → solo recuerdos de ese agente\n\n"
+            "═══════════════════════════════════════════════════════\n"
+            "ORÁCULO: ÚLTIMO RECURSO, NO PRIMERO\n"
+            "═══════════════════════════════════════════════════════\n"
+            "PRIMERO busca en BioRAG local con biorag_recordar.\n"
+            "Si no encontrás, ENTONCES andá al Oráculo.\n"
+            "Ir al Oráculo primero es gastar tokens innecesariamente.\n\n"
+            "  ❌ Mal: biorag_oraculo_inicio() primero, luego buscar\n"
+            "  ✅ Bien: biorag_recordar() primero, si no encontrás → oráculo\n\n"
+            "═══════════════════════════════════════════════════════\n"
+            "HIGIENE — FALSOS POSITIVOS (OBLIGATORIO)\n"
+            "═══════════════════════════════════════════════════════\n"
+            "Si un resultado es ajeno a la consulta y llegó por sinapsis (no por FTS5),\n"
+            "DESvinculá INMEDIATAMENTE con desvincular(a=concepto_buscado, b=falso_positivo).\n"
+            "NO esperes. NO lo ignores. La sinapsis incorrecta contamina búsquedas futuras.\n"
+            "Esto es higiene de memoria — así como desvinculás falsos positivos,\n"
+            "VINCULÁ nodos relacionados cuando aprendés. Si no vinculás, el nodo queda huérfano.\n"
         ),
     )
     def biorag_recordar(
@@ -684,42 +639,27 @@ def _build_server():
                 "Texto o frase a evocar de la memoria. "
                 "Usar sustantivos concretos del dominio (ej: 'error http timeout', 'patron singleton'). "
                 "Si se omite, trae los últimos recuerdos ordenados por_created (log cronológico). "
-                "Combinable con dias/desde/hasta/autor para filtrar por tiempo y agente."
+                "Combinable con dias/desde/hasta/autor para filtrar por tiempo y agente.\n\n"
+                "OPCIONAL con fechas: Podés omitir query y usar solo dias/desde/hasta.\n"
+                "  Ejemplo: recordar(dias=1) → todo lo de hoy\n"
+                "  Ejemplo: recordar(desde='2026-07-01', hasta='2026-07-05') → todo lo de esa semana"
             )
         )] = None,
         dimensiones: Annotated[Any, Field(
             description=(
-                "PROTOCOLO DIMENSIONES:\n\n"
-                "Clasificación semántica del contexto de búsqueda. Valor: STRING JSON con comillas dobles.\n\n"
-                "MANDATORY: Llamá `listar_dimensiones` ANTES de buscar para obtener\n"
-                "los nombres exactos de ejes y valores disponibles.\n\n"
-                "FORMATO OBLIGATORIO — STRING JSON, no dict Python:\n"
-                "dimensiones: '{\"emocion\":[\"preocupacion\"],"
-                "\"entidad\":[\"identidad_artificial\"]}'\n\n"
-                "  - Cada eje es un key del JSON\n"
-                "  - Cada valor es un array de strings (nombres de dimensiones)\n"
-                "  - Los nombres VIENEN de listar_dimensiones (no inventar)\n"
-                "  - Si un eje no aplica, no se incluye en el JSON\n"
-                "  - Valores inexistentes → ERROR, NO se ejecuta la búsqueda\n\n"
-                "Aumenta score de conceptos con dimensiones compartidas (coseno binario).\n"
-                "Las dimensiones son la matriz de búsqueda obligatoria de BioRAG."
+                "Etiquetá el contexto de búsqueda con dimensiones semánticas. Formato: STRING JSON con comillas dobles (ej: '{'emocion':['preocupacion'],'entidad':['identidad_artificial']}').\n\n"
+                "Regla dura: ANTES de usar, llamá a listar_dimensiones para obtener los nombres válidos. Valores inexistentes = ERROR.\n\n"
+                "Cada eje es un key, cada valor es un array. Si un eje no aplica, no lo incluyas. Las dimensiones aumentan el score de los conceptos que comparten las mismas."
             )
         )] = None,
         deep: Annotated[bool, Field(
             description=(
-                "Si True, busca también en nodos dormidos (estado='dormido'). "
-                "Default False: solo nodos activos. "
-                "Usar cuando la búsqueda normal no encuentra resultados esperados."
+                "True = buscá también en nodos dormidos. False (default) = solo nodos activos. Usá True cuando la búsqueda normal no encuentra lo que esperabas."
             )
         )] = False,
         cat: Annotated[Optional[str], Field(
             description=(
-                "Filtrar resultados por categoría (string simple, NO lista, NO comas). "
-                "REGLA: Es preferible omitir este parámetro (buscar sin categoría) para evitar "
-                "que clasificaciones imprecisas oculten resultados relevantes. Úsalo solo si tienes "
-                "certeza absoluta del etiquetado. Valores: System | Architecture | Project | "
-                "Lesson | Profile | Personal | Principle | Protocol | Cognition | Relation | General. "
-                "Si se omite, busca en todas las categorías."
+                "Filtrá por una categoría (una a la vez). Mejor omitir — si la categoría está mal, perdés resultados. Solo filtrá si estás 100% seguro. Sin filtro = busca en todas."
             )
         )] = None,
         completo: Annotated[bool, Field(
@@ -922,40 +862,69 @@ def _build_server():
             if dimensiones_invalidas:
                 msg += f" Dimensiones inválidas: {json.dumps(dimensiones_invalidas, ensure_ascii=False)}. Llamá `listar_dimensiones` para ver valores válidos."
             msg += " Usa 'consolidar' para fijar a largo plazo."
+
+            # ── WARNING DE VINCULACIÓN ──────────────────────────────────
+            _warnings = []
+            if sinapsis_count == 0:
+                _warnings.append(f"⚠️ sinapsis=0 — '{clave}' no tiene conexiones. ¿Hay nodos relacionados? Vinculalos con biorag_vincular().")
+
+            # Buscar nodos similares para sugerir vinculación
+            _sugerencias = []
+            try:
+                # Dividir por underscores y guiones, luego filtrar tokens cortos
+                tokens = set(t for t in re.split(r'[_\-\s]+', clave.lower()) if len(t) > 2)
+                if len(tokens) > 1:
+                    # Buscar nodos que compartan tokens con el concepto
+                    condiciones = " OR ".join(["concepto LIKE ?" for _ in tokens])
+                    params_sug = [f"%{t}%" for t in tokens]
+                    cerebro.cursor.execute(
+                        f"SELECT concepto FROM largo_plazo WHERE ({condiciones}) AND concepto != ? LIMIT 5",
+                        params_sug + [clave]
+                    )
+                    _sugerencias = [r[0] for r in cerebro.cursor.fetchall() if r[0] != clave]
+            except Exception:
+                pass
+
+            if _sugerencias:
+                _warnings.append(f"⚠️ ¿'{clave}' tiene relación con estos nodos? Si sí, vinculalos: {', '.join(_sugerencias[:3])}")
+            else:
+                _warnings.append(f"⚠️ ¿'{clave}' tiene relación con otros nodos existentes? Si sí, vinculalos ANTES de consolidar.")
+
+            _warnings.append(f"⚠️ ¿Pensaste en cómo se va a buscar este nodo? Usá palabras clave fuertes en 'concepto' y 'syn'.")
+
             _interceptar("aprender", f"{clave}: {contenido}", cerebro)
-            return json.dumps({
+            resultado = json.dumps({
                 "status": "ok",
                 "mensaje": msg,
                 "concepto": clave,
                 "sinapsis": sinapsis_count,
                 "dimensiones_invalidas": dimensiones_invalidas if dimensiones_invalidas else None,
             }, ensure_ascii=False)
+            if _warnings:
+                return "\n".join(_warnings) + "\n\n" + resultado
+            return resultado
         finally:
             cerebro.cerrar_sistema()
 
     @mcp.tool(
         name="aprender",
         description=(
-            "[Cognitivo] Codifica una experiencia nueva en la corteza de corto plazo (percepción). "
-            "Equivalente a la codificación inicial de un recuerdo en el hipocampo. "
-            "El concepto se normaliza automáticamente a snake_case minúsculas. "
-            "Crea sinapsis automáticas con nodos relacionados via auto_vincular.\n\n"
-            "IMPORTANTE: el recuerdo queda en corto plazo hasta que se llame 'consolidar' "
-            "para fijarlo a largo plazo (LTP). Sin consolidación, puede perderse en el siguiente ciclo.\n\n"
-            "Categorías válidas (parámetro cat):\n"
-            "  System | Architecture | Project | Lesson | Profile |\n"
-            "  Personal | Principle | Protocol | Cognition | Relation | General\n"
-            "  Si no se especifica, la categoría se infiere automáticamente del contenido.\n\n"
-            "PROTOCOLO DE CONFIRMACIÓN PRE-GUARDADO (INVARIANTE — sin excepciones):\n"
-            "MANDATORY: Antes de llamar a esta herramienta, SIEMPRE presentá una tabla con:\n"
-            "  - las dimensiones detectadas para cada eje\n"
-            "  - sus valores\n"
-            "  - una justificación de una línea cada una\n"
-            "Esperá confirmación o corrección del usuario antes de ejecutar 'aprender'.\n"
-            "INVARIANT: Esto aplica SIEMPRE — aunque todos los valores sean literales, aunque\n"
-            "el contenido parezca trivial. Sin excepciones.\n\n"
-            "Retorna: {status, mensaje, concepto (clave normalizada), sinapsis (int: nodos vinculados), "
-            "dimensiones_invalidas (dict|null)}"
+            "VIOLACIÓN CRÍTICA — NO GUARDAR SIN VINCULAR:\n"
+            "Si guardás un nodo que tiene relación con otros nodos existentes, VINCULALO con biorag_vincular() ANTES de consolidar.\n"
+            "Si no vinculás, el nodo queda huérfano. La otra sesión no lo encuentra. Se pierde tiempo, se confunde, se crean nodos duplicados.\n"
+            "REGLA: Antes de consolidar, preguntate: '¿Estos nodos tienen relación?' Si sí, vinculalos.\n"
+            "Ejemplo: Si guardás 'cv_adevcom_arquitectura' y ya existe 'cv_seccion_d_estado', vinculalos:\n"
+            "  biorag_vincular(a='cv_adevcom_arquitectura', b='cv_seccion_d_estado')\n\n"
+            "GUARDAR EN BIORAG NO ES COPIAR TEXTO. ES PENSAR CÓMO SE RECUPERA.\n"
+            "Si no pensás en recuperabilidad, el nodo se pierde. Esto es MALO para la memoria y MALO para los agentes.\n\n"
+            "Guarda algo nuevo en la memoria temporal de BioRAG. El nombre se convierte en clave limpia automáticamente (snake_case). El sistema conecta el nodo con otros relacionados solo.\n\n"
+            "Clave: si no llamás a consolidar después, el recuerdo se borra en el siguiente ciclo de limpieza.\n\n"
+            "Hay categorías para clasificar (System, Architecture, Project, Lesson, Profile, Personal, Principle, Protocol, Cognition, Relation, General, Etc...)\n\n"
+            "Protocolo obligatorio: antes de guardar, mostrá al usuario qué dimensiones y categoría le puso. Sin confirmación, no se ejecuta. Nunca.\n\n"
+            "Guardar en BioRAG no es copiar texto a la base. Es pensar en cómo alguien lo va a buscar después. "
+            "Cuando guardás un nodo, elegí las palabras correctas, conectalo con otros conceptos que tengan que ver, y etiquetalo con las dimensiones que alguien usaría para encontrarlo. "
+            "La gente no busca igual — si guardás solo con tus palabras, quizás nadie lo recupere. "
+            "Pensá: 'si en 3 meses alguien busca X, ¿este nodo aparece?' Con millones de nodos, el que no tiene conexiones ni dimensiones bien puestas se pierde. Es como tener un libro sin índice."
         ),
     )
     def biorag_aprender(
@@ -976,81 +945,24 @@ def _build_server():
         )],
         dimensiones: Annotated[Any, Field(
             description=(
-                "PROTOCOLO DIMENSIONES: \n\n"
-                
-                "El modelo no analiza el texto de forma 'emocional' humana, pero sí captura el tono, el contexto y la intención de manera matemática. es Descomposición Semántica Guiada. "
-                "El Texto se Descompone, no se Generaliza."
-                
-                "Clasificación dimensional del recuerdo. Valor: STRING JSON con comillas dobles.\n\n"
-                "MANDATORY: Llamá `listar_dimensiones` ANTES de clasificar para obtener\n"
-                "los nombres exactos de ejes y valores disponibles.\n\n"
-                
-                "Ejemplo de retorno de listar_dimensiones:\n"
-                '  {"eje_nombre": {"descripcion": "(La pregunta del eje)", '
-                '"dimensiones": [{"id": 1, "nombre": "valor_ejemplo", "descripcion": "Significa X"}]}}\n\n'
-                
-                "FORMATO OBLIGATORIO — STRING JSON, no dict Python:\n"
-                "dimensiones: '{\"emocion\":[\"preocupacion\"],"
-                "\"entidad\":[\"identidad_artificial\"]}'\n\n"
-                "  - Cada eje es un key del JSON\n"
-                "  - Cada valor es un array de strings (nombres de dimensiones)\n"
-                "  - Los nombres VIENEN de listar_dimensiones (no inventar)\n"
-                "  - Si un eje no aplica, no se incluye en el JSON\n"
-                "  - Ejemplo con múltiples valores: "
-                "'{\"emocion\":[\"afecto\",\"sorpresa\"]}'\n\n"
-                
-                "REGLA DE MULTIVALOR (dentro de un mismo eje):\n"
-                "Un eje puede tener varios valores si el contenido genuinamente toca varias "
-                "categorías de ESE eje (ej: afecto + sorpresa). No forzar un solo valor cuando "
-                "hay más de uno real. No forzar múltiples cuando es redundante.\n\n"
-                "EXTRAER SIN FORZAR.\n\n"
-                "Un embedding no duda: recibe texto, produce vector. Punto. "
-                "No distingue literal de inferido. No pregunta \"¿me estaré pasando?\". "
-                "Captura todo el significado que está en el texto y nada más.\n\n"
-                "Hacé lo mismo.\n\n"
+                "Clasificación dimensional del recuerdo.\n\n"
+                "ANTES de clasificar: llamá a listar_dimensiones para obtener los ejes y valores disponibles. No inventes nombres.\n\n"
+                "FORMATO — STRING JSON con comillas dobles:\n"
+                '{"emocion":["preocupacion"],"entidad":["identidad_artificial"]}\n\n'
                 "REGLAS:\n"
-                "1. Más es mejor mientras no sea forzado ni inventado.\n"
-                "   - Forzar es poner una dimensión que el texto NO comunica.\n"
-                "   - Omitir es no poner una dimensión que el texto SÍ comunica.\n"
-                "   Ambos dañan la base de datos por igual.\n\n"
-                "2. La única pregunta que importa:\n"
-                "   \"¿Está en el texto o no?\"\n"
-                "   Si está → poné la dimensión.\n"
-                "   Si no → no la pongas.\n"
-                "   No existe \"pasarse\". Pasarse solo significa inventar.\n\n"
-                "3. Aplica igual a todos los ejes:\n"
-                "   entidad, accion, cualidad, coordenada, emocion.\n"
-                "   Lo que el texto comunica se pone. Lo que no, no.\n\n"
-                "IMPORTANT: Inferir es un antipatrón de clasificación.\n"
-                "Lo que el texto dice → dimensiones. "
-                "Lo que no dice → no se clasifica. "
-                "Inferir desde un eje hacia otro es dañino.\n"
-                "MANDATORY: No clasifiques lo que el texto podría significar "
-                "si leyeras entre ejes. Clasificá solo lo que EL TEXTO DICE.\n\n"
-                "INVARIANT: AUTO-CONTROL — Después de clasificar, revisá cada dimensión:\n"
-                "\"¿Puedo señalar la palabra o frase exacta que justifica esto en el texto?\"\n"
-                "- ✅ Sí → la dimensión es válida.\n"
-                "- ❌ No → es inferencia automática. Eliminala.\n\n"
-                "Si entidad tiene más de una capa en el texto, separalas. "
-                "No las fundas en una sola dimensión.\n\n"
-                "MANDATORY: REGLA DE ORO — Si tu conocimiento sobre el tema te dice más "
-                "de lo que el texto dice, ignorá tu conocimiento. Solo el texto.\n\n"
-                "IMPORTANT MANDATORY: Reevaluá siempre. No te dejes llevar "
-                "por el primer impulso.\n\n"
-                "FALLBACK: CLASIFICACIÓN DE CONTENIDO MÍNIMO:\n\n"
-                "INVARIANT: Solo cuando el texto no tenga información que clasificar, "
-                "clasificá cada palabra por su tipo ontológico en el dominio del sistema, "
-                "no por estructura gramatical."
+                "- Si el texto toca varias dimensiones de un mismo eje, poné varias. Si es una, poné una.\n"
+                "- La pregunta que importa: ¿Está en el texto o no? Si está → ponelo. Si no → no lo pongas.\n"
+                "- No infieras. Solo lo que el texto dice literalmente.\n"
+                "- Si podés señalar la frase exacta que justifica la dimensión → válida. Si no → borrala.\n"
+                "- Si el texto habla de varias entidades, separalas. No las mezcles.\n"
+                "- Tu conocimiento no importa. Solo el texto.\n\n"
+                "ÚLTIMO RECURSO: Si el texto no tiene nada que clasificar, clasificá por tipo ontológico."
             )
         )],
         syn: Annotated[Optional[str], Field(
             description=(
-                "Sinónimos o alias del concepto, separados por coma "
-                "(ej: 'fallo,error,excepción,crash'). "
-                "Pensá en cómo alguien podría preguntar por esto en el futuro — con qué "
-                "otras palabras, registro (técnico/coloquial), o términos relacionados. "
-                "Mejora el recall en búsquedas futuras. (A diferencia de 'dimensiones', "
-                "acá SÍ vale anticipar cómo se preguntará — no tiene que ser literal del texto.)"
+                "Sinónimos del concepto: Todas las formas en que alguien podría buscar esto en el futuro. Separados por coma. Incluí sinónimos, abreviaturas, jerga técnica, lenguaje coloquial, términos relacionados. Ejemplo: 'fallo,error,excepción,crash'.\n\n"
+                "Diferencia clave con dimensiones: Acá SÍ vale anticipar cómo se preguntará el usuario — no tiene que ser literal del texto. Si el nodo dice 'error HTTP', podés poner 'fallo de red', 'timeout', 'caída del servidor', Etc.."
             )
         )] = None,
         cat: Annotated[Optional[str], Field(
@@ -1088,27 +1000,19 @@ def _build_server():
     @mcp.tool(
         name="vincular",
         description=(
-            "[Cognitivo] Establece una asociación hebbiana bidireccional entre dos conceptos. "
-            "Equivalente a la potenciación a largo plazo (LTP) entre neuronas co-activadas. "
-            "El enlace sináptico permite que evocar un concepto active al otro en búsquedas futuras. "
-            "Ambos conceptos deben existir previamente en la corteza (largo_plazo o corto_plazo). "
-            "La asociación es bidireccional: a ↔ b.\n\n"
-            "Retorna: {status, mensaje}"
+            "Conectá dos nodos entre sí. Si A se conecta con B, B también se conecta con A. Ambos nodos deben existir ya en la memoria (guardados con aprender o consolidados). Cuando buscás uno, el otro aparece como resultado relacionado."
         ),
     )
     def biorag_vincular(
         a: Annotated[str, Field(
             description=(
-                "Primer concepto a vincular. "
-                "Debe existir en la corteza (largo_plazo o corto_plazo). "
-                "Usar la clave normalizada (snake_case)."
+                "a: Nombre del primer nodo (snake_case). Debe existir en la memoria."
             )
         )],
         b: Annotated[str, Field(
             description=(
-                "Segundo concepto a vincular. "
-                "La asociación es bidireccional: evocar 'a' activa 'b' y viceversa. "
-                "Usar la clave normalizada (snake_case)."
+                "b: Nombre del segundo nodo (snake_case). Debe existir en la memoria.\n\n"
+                "La conexión es bidireccional: buscar A trae B, y buscar B trae A."
             )
         )],
     ) -> str:
@@ -1126,13 +1030,8 @@ def _build_server():
     @mcp.tool(
         name="desvincular",
         description=(
-            "[Cognitivo] Elimina la sinapsis bidireccional entre dos conceptos. "
-            "Plasticidad negativa: cuando un falso positivo aparece en una búsqueda, "
-            "se borra la conexión para que no vuelva a traerse. "
-            "Equivalente a LTD dirigida por feedback de error.\n\n"
-            "Uso: si al buscar 'A' aparece 'B' pero no tiene relación, "
-            "llamar desvincular(a='A', b='B'). El cerebro mejora con cada corrección.\n\n"
-            "Retorna: {status, mensaje, eliminadas}"
+            "Borrá la conexión entre dos nodos. Si al buscar A aparece B pero no tiene relación, llamá\n\n"
+            "desvincular(a='A', b='B'). Cada conexión incorrecta que borrás mejora las búsquedas futuras."
         ),
     )
     def biorag_desvincular(
@@ -1178,31 +1077,23 @@ def _build_server():
     @mcp.tool(
         name="comunicar",
         description=(
-            "Envía un mensaje al canal compartido entre agentes OEC. "
-            "El mensaje queda persistido en la BD y puede ser leído por el destinatario "
-            "con 'leer_mensajes'. Usar para coordinación asíncrona entre Athena, Artemis y Hermes.\n\n"
-            "El agente origen se identifica automáticamente via env AGENT_NAME si no se pasa 'origen'.\n\n"
-            "Retorna: {status, mensaje}"
+            "Mandá un mensaje a otro agente. Se guarda en la base de datos y el destinatario lo lee con leer_mensajes. El sistema sabe quién es el remitente (por variable de entorno AGENT_NAME), pero podés sobreescribirlo con el parámetro origen."
         ),
     )
     def biorag_comunicar(
         destino: Annotated[str, Field(
             description=(
-                "Agente destinatario del mensaje. "
-                "Valores: 'athena', 'artemis', 'hermes', o 'todos' para broadcast a todos los agentes."
+                "destino: Quién recibe. el agentes, o 'todos' para mandarlo a los agentes."
             )
         )],
         mensaje: Annotated[str, Field(
             description=(
-                "Contenido del mensaje. Ser específico e incluir contexto suficiente "
-                "para que el receptor entienda sin historial previo de la conversación."
+                "mensaje: El contenido. Escribí como si el receptor no tuviera contexto de la conversación — incluí lo necesario para que entienda solo."
             )
         )],
         origen: Annotated[Optional[str], Field(
             description=(
-                "Nombre del agente que envía el mensaje. "
-                "Si se omite, se lee de la variable de entorno AGENT_NAME. "
-                "Si AGENT_NAME tampoco está seteada, queda como 'desconocido'."
+                "origen: Quién envía. Si se omite, se usa AGENT_NAME. Si esa variable tampoco existe, queda 'desconocido'."
             )
         )] = None,
     ) -> str:
@@ -1221,30 +1112,24 @@ def _build_server():
     @mcp.tool(
         name="leer_mensajes",
         description=(
-            "Lee mensajes del canal compartido entre agentes OEC. "
-            "Los mensajes no leídos se marcan automáticamente como leídos al consultarlos. "
-            "Usar al inicio de sesión para ver si hay mensajes de otros agentes.\n\n"
-            "Retorna: {total (int), mensajes: [{id, origen, destino, contenido, timestamp, leido}]}"
+            "Consultá mensajes de otros agentes. Los mensajes no leídos se marcan como leídos al consultarlos (no se pueden desmarcar). Usá esta tool al inicio de cada sesión para ver si alguien te dejó algo."
         ),
     )
     def biorag_leer_mensajes(
         no_leidos: Annotated[bool, Field(
             description=(
-                "Si True, devuelve solo mensajes no leídos. "
-                "Si False, devuelve los últimos N mensajes independiente del estado de lectura."
+                "no_leidos: True = solo mensajes nuevos que nadie leyó. False = los últimos mensajes sin importar si ya se leyeron. Default: False."
             )
         )] = False,
         ultimos: Annotated[int, Field(
             description=(
-                "Cantidad máxima de mensajes a devolver (más recientes primero). "
-                "Default: 10."
+                "ultimos: Cuántos mensajes traer. Los más recientes primero. Default: 10, mínimo 1."
             ),
             ge=1,
         )] = 10,
         para: Annotated[Optional[str], Field(
             description=(
-                "Filtrar mensajes por destinatario específico (ej: 'athena', 'todos'). "
-                "Si se omite, devuelve mensajes para todos los destinos."
+                "para: Si ponés tu nombre (ej: 'agente 1'), solo ves los mensajes que te llegaron a vos. Si se omite, ves todos los mensajes de todos los agentes."
             )
         )] = None,
     ) -> str:
@@ -1284,25 +1169,15 @@ def _build_server():
     @mcp.tool(
         name="consolidar",
         description=(
-            "[Cognitivo] Consolida la memoria de corto plazo a largo plazo mediante sueño cognitivo. "
-            "Ejecutar después de 'aprender' para fijar los recuerdos nuevos permanentemente.\n\n"
-            "Operaciones del ciclo de sueño:\n"
-            "  - LTP (potenciación a largo plazo): fortalece nodos nuevos activos\n"
-            "  - LTD (depresión a largo plazo): decae nodos poco accedidos\n"
-            "  - Poda sináptica: elimina conexiones débiles\n"
-            "  - Inhibición lateral: evita saturación de la corteza\n"
-            "  - Sleep transfer: mueve nodos de corto_plazo → largo_plazo\n\n"
-            "Equivalente al sueño de ondas lentas en el hipocampo.\n"
-            "Si limite_energia se omite, se calcula dinámicamente (n_activos × 1.6, mín 10.0).\n\n"
-            "Retorna: {status, mensaje (log completo del ciclo de sueño)}"
+            "Fijá los recuerdos nuevos permanentemente. Llamá a consolidar después de aprender. Si no lo hacés, los nodos nuevos se borran en el siguiente ciclo.\n\n"
+            "El ciclo de sueño hace: fortalece nodos nuevos, debilita los viejos, borra conexiones débiles, evita saturación, y mueve todo de memoria temporal a permanente.\n\n"
+            "Si no ponés limite_energia, se calcula solo (nodos activos × 1.6, mínimo 10)."
         ),
     )
     def biorag_consolidar(
         limite_energia: Annotated[Optional[float], Field(
             description=(
-                "Energía sináptica máxima del ciclo. Controla cuántos nodos se consolidan por ciclo. "
-                "Si se omite, se calcula dinámicamente como n_activos × 1.6 (mín 10.0). "
-                "Valores más altos consolidan más nodos por ciclo."
+                "limite_energia: Cuánta energía tiene el ciclo. Más energía = más nodos consolidados. Si se omite, se calcula solo (activos × 1.6, mínimo 10)."
             )
         )] = None,
     ) -> str:
@@ -1326,9 +1201,7 @@ def _build_server():
     @mcp.tool(
         name="sueno",
         description=(
-            "(legado) Alias de 'consolidar' — preferir 'consolidar' para identificar la operación cognitiva real. "
-            "Parámetro: limite_energia (float, opcional) — energía máxima del ciclo de consolidación. "
-            "Retorna: {status, mensaje}"
+            "Alias viejo de consolidar. Usá consolidar en vez de esta. Misma funcionalidad, mismo parámetro (limite_energia)."
         ),
     )
     def biorag_sueno(
@@ -1341,13 +1214,7 @@ def _build_server():
     @mcp.tool(
         name="introspeccion",
         description=(
-            "[Cognitivo] Autoexamen sináptico de la corteza. "
-            "Devuelve el estado actual de la memoria sin modificar nada. "
-            "Usar para diagnosticar la salud de la corteza, "
-            "verificar si hay nodos pendientes de consolidar, "
-            "o monitorear el uso de energía sináptica.\n\n"
-            "Sin parámetros.\n\n"
-            "Retorna: {activos (int), dormidos (int), corto_plazo (int), energia_sinaptica (float)}"
+            "Mirá el estado de la memoria. No modifica nada — solo muestra cuántos nodos activos, dormidos, en corto plazo, y cuánta energía sináptica queda. Sin parámetros."
         ),
     )
     def biorag_introspeccion() -> str:
@@ -1392,17 +1259,7 @@ def _build_server():
     @mcp.tool(
         name="mapear",
         description=(
-            "[Cognitivo] Cartografía cortical completa. "
-            "Lista TODOS los nodos de la corteza permanente (activos y dormidos) "
-            "ordenados por peso sináptico descendente.\n\n"
-            "Usar para:\n"
-            "  - Explorar qué conceptos hay en la memoria\n"
-            "  - Detectar nodos huérfanos (sin asociaciones)\n"
-            "  - Revisar la distribución por categorías\n"
-            "  - Verificar que un concepto fue aprendido correctamente\n\n"
-            "Advertencia: puede devolver muchos nodos en cortezas grandes. "
-            "Sin parámetros.\n\n"
-            "Retorna: {total (int), nodos: [{concepto, categoria, peso_sinaptico, estado, asociaciones[]}]}"
+            "Listá todos los nodos de la memoria — activos y dormidos — ordenados de más fuerte a más débil. Para explorar qué hay, detectar nodos huérfanos, revisar categorías, o verificar que algo se guardó bien. Ojo: si hay muchos nodos, la respuesta es larga. Sin parámetros."
         ),
     )
     def biorag_mapear() -> str:
@@ -1432,9 +1289,7 @@ def _build_server():
     @mcp.tool(
         name="corteza",
         description=(
-            "(legado) Alias de 'mapear' — preferir 'mapear' para identificar la operación cognitiva real. "
-            "Sin parámetros. "
-            "Retorna: {total (int), nodos: [{concepto, categoria, peso_sinaptico, estado, asociaciones[]}]}"
+            "Alias viejo de mapear. Usá mapear en vez de esta."
         ),
     )
     def biorag_corteza() -> str:
@@ -1443,11 +1298,7 @@ def _build_server():
     @mcp.tool(
         name="listar_categorias",
         description=(
-            "Lista todas las categorías válidas del sistema para guardar recuerdos. "
-            "Consultar ANTES de llamar 'aprender' (o 'guardar') para asegurarse de usar "
-            "un valor de cat válido y conocer la descripción de cada una.\n\n"
-            "Sin parámetros.\n\n"
-            "Retorna: {total (int), categorias: [{id (int), nombre (str), descripcion (str)}]}"
+            "Mostrá las carpetas disponibles para clasificar nodos. Llamá a esto antes de aprender para saber qué categoría elegir. Sin parámetros."
         ),
     )
     def biorag_listar_categorias() -> str:
@@ -1462,11 +1313,7 @@ def _build_server():
     @mcp.tool(
         name="listar_dimensiones",
         description=(
-            "Lista el catálogo completo de dimensiones semánticas del sistema de 5 ejes. "
-            "Obligatoria ANTES de llamar 'aprender' para obtener los valores válidos "
-            "y sus descripciones.\n\n"
-            "Sin parámetros.\n\n"
-            "Retorna: {total (int), dimensiones: {eje: {descripcion, dimensiones: [{id, nombre, descripcion}]}}}"
+            "Mostrá los ejes semánticos (emoción, entidad, acción, cualidad, coordenada, Etc...) y todos sus valores disponibles. Llamá a esto antes de aprender para saber qué nombres usar. Sin parámetros."
         ),
     )
     def biorag_listar_dimensiones() -> str:
@@ -1502,20 +1349,13 @@ def _build_server():
     @mcp.tool(
         name="contexto_inicio",
         description=(
-            "Anuncia el inicio de una interacción significativa. "
-            "Almacena el contexto en el buffer de sesión para que el interceptor "
-            "pueda detectar y autoguardar información relevante durante la conversación "
-            "(lecciones, patrones, errores, preferencias). "
-            "Llamar al inicio de cada sesión de trabajo importante.\n\n"
-            "Retorna: {status, mensaje}"
+            "Avisá que empezó una sesión importante. Guardá el contexto para que el interceptor detecte automáticamente lecciones, errores y patrones durante la charla. Llamá al inicio de cada sesión de trabajo importante."
         ),
     )
     def biorag_contexto_inicio(
         agente: Annotated[str, Field(
             description=(
-                "Nombre del agente que inicia la sesión "
-                "(ej: 'Athena', 'Artemis', 'Hermes'). "
-                "Se incluye en el buffer de sesión para identificar la autoría."
+                "agente: Quién está hablando (ej: 'Agente 1', 'Agente 1', 'Agente 3', 'Etc..')"
             )
         )],
         contexto: Annotated[str, Field(
@@ -1536,12 +1376,7 @@ def _build_server():
     @mcp.tool(
         name="contexto_fin",
         description=(
-            "Anuncia el fin de una interacción. "
-            "Fuerza el análisis del buffer de sesión acumulado y autoguarda si detecta "
-            "información nueva relevante (lecciones, patrones, errores, preferencias del usuario). "
-            "Si hay nodos pendientes en corto_plazo, ejecuta auto-sueño para consolidarlos. "
-            "Llamar al final de cada sesión de trabajo importante.\n\n"
-            "Retorna: {status, mensaje, auto_guardado (objeto con concepto/categoria, o null si no hubo guardado)}"
+            "Avisá que terminó la sesión. Revisá todo lo que pasó — si hay algo valioso (lecciones, errores, patrones), guardalo automáticamente. Si hay nodos nuevos sin consolidar, consolidalos. Llamá al final de cada sesión importante."
         ),
     )
     def biorag_contexto_fin(
@@ -1550,9 +1385,7 @@ def _build_server():
         )],
         resumen: Annotated[str, Field(
             description=(
-                "Resumen breve de lo que se hizo en la sesión "
-                "(ej: 'Corregimos el bug de autenticación y actualizamos los tests'). "
-                "Mejora la calidad y relevancia del autoguardado detectado por el interceptor."
+                "resumen: Qué hiciste en la sesión en una línea (ej: 'Corregimos el bug de autenticación y actualizamos los tests'). Mejora el autoguardado del interceptor."
             )
         )] = "",
     ) -> str:
@@ -1660,44 +1493,23 @@ def _build_server():
     @mcp.tool(
         name="oraculo_inicio",
         description=(
-            "⚡ OBLIGATORIO AL INICIO DE CADA INTERACCIÓN — invocar PRIMERO, antes de responder cualquier cosa.\n\n"
-            "Carga el contexto de arranque del agente desde el oráculo (NotebookLM o BioRAG local). "
-            "Sin esta tool, el agente opera sin memoria de sesiones anteriores.\n\n"
-            "═══════════════════════════════════════════════════════\n"
-            "MODOS DE OPERACIÓN — determinados automáticamente por variables de entorno:\n"
-            "═══════════════════════════════════════════════════════\n\n"
-            "MODO A — NotebookLM con CLI nlm disponible:\n"
-            "  Condición: BIORAG_PROMPT_INICIO + BIORAG_NOTEBOOK_ID seteados + nlm instalado\n"
-            "  Respuesta: campo 'oraculo' con respuesta directa de NotebookLM\n"
-            "  Acción: usar 'oraculo' como contexto de arranque\n\n"
-            "MODO B — NotebookLM sin CLI nlm (o nlm falló):\n"
-            "  Condición: variables seteadas pero nlm no disponible o rechazó el query\n"
-            "  Respuesta: campo 'notebooklm_query' con el query preparado\n"
-            "  Acción: ejecutar notebooklm_notebook_query con ese query\n"
-            "  ID notebook MemoryBioRAG: b2645e9b-8bce-4067-841a-7796af4a14f0\n\n"
-            "MODO C — BioRAG local (NotebookLM no configurado):\n"
-            "  Condición: faltan BIORAG_PROMPT_INICIO o BIORAG_NOTEBOOK_ID\n"
-            "  Respuesta: campo 'contexto_biorag' con hallazgos de la corteza\n"
-            "  Acción: usar 'contexto_biorag' como punto de partida\n\n"
-            "Identificar el modo activo por el campo 'modo': 'notebooklm' o 'biorag_local'.\n"
-            "Para modo 'notebooklm': si la respuesta tiene 'oraculo' → MODO A. Si no → MODO B.\n\n"
-            "Retorna: {status, modo, agente, ...campos según modo activo}"
+            "Regra dura: Ejecutá esto PRIMERO, antes de cualquier cosa. Sin esto no tenés contexto de sesiones anteriores.\n\n"
+            "3 modos (se eligen automáticamente):\n\n"
+            "- MODO A — Si nlm está instalado y las variables están seteadas → te da la respuesta directa de NotebookLM. Usala como contexto.\n\n"
+            "- MODO B — Si nlm no funciona → ejecutá una query al notebook manualmente.\n\n"
+            "- MODO C — Si no hay NotebookLM → usá lo que BioRAG local tenga.\n\n"
+            "Para saber en qué modo estás: mirá el campo modo en la respuesta ('notebooklm' o 'biorag_local'). Si es 'notebooklm' y tiene campo oraculo → Modo A. Si no → Modo B."
         ),
     )
     def biorag_oraculo_inicio(
         agente: Annotated[str, Field(
             description=(
-                "Nombre del agente que inicia sesión. "
-                "Valores válidos: 'athena', 'artemis', 'hermes' (case-insensitive). "
-                "La tool retorna error si se omite o si el valor no es uno de los válidos."
+                "agente: Quién está hablando. Solo 'athena', 'artemis' o 'hermes' (no importa mayúsculas). Si se omite o es inválido, la tool tira error."
             )
         )],
         contexto_adicional: Annotated[str, Field(
             description=(
-                "Contexto extra para enriquecer el query enviado a NotebookLM "
-                "(ej: 'Trabajando en refactor de autenticación', 'Sesión de debugging producción'). "
-                "Solo aplica en MODO A y MODO B (NotebookLM). "
-                "Ignorado en MODO C (BioRAG local)."
+                "contexto_adicional: Contexto extra para que el oráculo sepa de qué va la sesión (ej: 'Refactor del módulo de autenticación'). Solo sirve en Modo A y B (NotebookLM). En Modo C (BioRAG local) se ignora."
             )
         )] = "",
     ) -> str:
@@ -1816,11 +1628,7 @@ def _build_server():
     @mcp.tool(
         name="sync_status",
         description=(
-            "Muestra el estado de sincronización pendiente con NotebookLM. "
-            "Lista las categorías con cambios que aún no se han exportado. "
-            "Ejecutar antes de export_sync para saber exactamente qué se va a subir.\n\n"
-            "Sin parámetros.\n\n"
-            "Retorna: {status, mensaje, pendientes: [{id (int), nombre (str), cambios (int)}]}"
+            "Mostrá qué categorías tienen cambios pendientes de subir a NotebookLM. Llamá a esto antes de export_sync para saber qué se va a subir. Sin parámetros."
         ),
     )
     def biorag_sync_status() -> str:
@@ -1846,12 +1654,7 @@ def _build_server():
     @mcp.tool(
         name="export_sync",
         description=(
-            "Exporta SOLO las categorías con cambios pendientes a archivos .jsonl.txt en db/. "
-            "Lee el sync_log y genera archivos listos para subir a NotebookLM. "
-            "Usar para sincronizaciones incrementales (solo lo nuevo). "
-            "Para exportar todo usar export_full.\n\n"
-            "Sin parámetros.\n\n"
-            "Retorna: {status, mensaje (lista de archivos generados o error)}"
+            "Exportá solo lo nuevo — las categorías con cambios pendientes se guardan como archivos .jsonl.txt en db/, listos para subir a NotebookLM. Para exportar todo, usá export_full. Sin parámetros."
         ),
     )
     def biorag_export_sync() -> str:
@@ -1883,11 +1686,7 @@ def _build_server():
     @mcp.tool(
         name="export_full",
         description=(
-            "Exporta TODAS las categorías a archivos .jsonl.txt en db/ (volcado completo). "
-            "Usar como fallback o para sincronización inicial completa con NotebookLM. "
-            "Para exportaciones incrementales (solo cambios nuevos) preferir export_sync.\n\n"
-            "Sin parámetros.\n\n"
-            "Retorna: {status, mensaje (lista de archivos generados o error)}"
+            "Exportá todo — todas las categorías a archivos .jsonl.txt en db/. Para la primera sincronización completa o como fallback. Si querés solo lo nuevo, usá export_sync. Sin parámetros."
         ),
     )
     def biorag_export_full() -> str:
@@ -1919,16 +1718,7 @@ def _build_server():
     @mcp.tool(
         name="metricas_historial",
         description=(
-            "Retorna el historial de N ciclos de sueño con tendencias cognitivas. "
-            "Incluye: consolidación promedio, olvido promedio, categoría dominante, "
-            "salud sináptica (ratio creadas/podadas) y tendencia temporal "
-            "(MEJORANDO / ESTABLE / EMPEORANDO).\n\n"
-            "Útil para monitorear la evolución y salud de la memoria a lo largo del tiempo. "
-            "Requiere haber ejecutado al menos un ciclo de 'consolidar' para tener datos.\n\n"
-            "Retorna: {status, total_registros, ultimos_ciclos, tabla (str formateada), "
-            "tendencias: {consolidacion_promedio, olvido_promedio, sinapsis_creadas_promedio, "
-            "sinapsis_podadas_promedio, ratio_promedio, categoria_dominante, tendencia}, "
-            "salud_sinaptica: {creadas_total, podadas_total, ratio}}"
+            "Mostrá el historial de ciclos de sueño — cuánto se consolidó, cuánto se olvidó, qué categoría se usa más, y si el cerebro está mejorando o empeorando. Requiere haber ejecutado consolidar al menos una vez."
         ),
     )
     def biorag_metricas_historial(
@@ -2022,28 +1812,15 @@ def _build_server():
     @mcp.tool(
         name="semantica_admin",
         description=(
-            "Administra el vocabulario semántico de equivalencias entre términos. "
-            "Las equivalencias mejoran el recall de 'recordar' al expandir queries automáticamente "
-            "con sinónimos y términos relacionados.\n\n"
-            "════════════════════════════════════════\n"
-            "Acciones disponibles (parámetro 'accion'):\n"
-            "════════════════════════════════════════\n"
-            "'listar'             → Lista equivalencias existentes\n"
-            "                       Parámetros opcionales: termino (filtra por término)\n\n"
-            "'agregar'            → Agrega par de equivalencia bidireccional\n"
-            "                       Parámetros requeridos: termino + equivalente\n"
-            "                       Parámetros opcionales: peso (0.0-1.0, default 0.8)\n\n"
-            "'eliminar'           → Elimina par de equivalencia\n"
-            "                       Parámetros requeridos: termino + equivalente\n\n"
-            "'cargar_vocabulario' → Carga múltiples equivalencias desde JSON masivo\n"
-            "                       Parámetros requeridos: vocabulario_json\n\n"
-            "'expandir'           → Muestra todas las expansiones de un término\n"
-            "                       Parámetros requeridos: termino\n\n"
-            "'inferir'            → Infiere candidatos desde sinapsis existentes\n"
-            "                       MODO SUGERENCIA: NO guarda automáticamente.\n"
-            "                       Revisar candidatos y usar 'agregar' para confirmar.\n\n"
-            "'stats'              → Estadísticas del vocabulario semántico\n\n"
-            "Retorna: {status, ...campos según acción ejecutada}"
+            "Gestioná el diccionario de sinónimos. Cuando alguien busca 'error', también busca 'fallo', 'excepción', 'crash' — si están como equivalencias.\n\n"
+            "Acciones:\n\n"
+            "- listar — ver todas las equivalencias (opcional: filtrar por término)\n"
+            "- agregar — crear equivalencia bidireccional entre dos términos (peso opcional, default 0.8)\n"
+            "- eliminar — borrar una equivalencia\n"
+            "- cargar_vocabulario — subir muchas equivalencias de una con JSON\n"
+            "- expandir — ver qué se expande cuando buscás un término\n"
+            "- inferir — el sistema sugiere equivalencias desde sinapsis existentes (NO guarda — vos confirmás)\n"
+            "- stats — cuántas equivalencias hay"
         ),
     )
     def biorag_semantica_admin(
@@ -2077,10 +1854,9 @@ def _build_server():
         )] = 0.8,
         vocabulario_json: Annotated[Optional[str], Field(
             description=(
-                "JSON serializado con vocabulario a cargar masivamente. "
-                "Requerido para accion='cargar_vocabulario'. "
-                "Formato esperado: dict de {termino: [lista_equivalentes]} "
-                "o lista de objetos {termino, equivalente, peso}."
+                "JSON con equivalencias para subir masivamente. Solo necesario con cargar_vocabulario. Dos formatos:\n\n"
+                "- Dict: {'error': ['fallo', 'excepción', 'crash']}\n"
+                "- Lista: [{'termino': 'error', 'equivalente': 'fallo', 'peso': 0.8}]"
             )
         )] = None,
     ) -> str:
@@ -2264,24 +2040,20 @@ def _build_server():
     def prompt_biorag() -> str:
         return (
             ORACLE_PROMPT
-            + "\n\n## BioRAG — Reglas de uso\n\n"
-            "Tienes acceso a una corteza cerebral compartida via herramientas MCP "
-            "(recordar, aprender, vincular, ...).\n\n"
-            "Reglas (nombres biológicos como primarios; legados entre paréntesis):\n"
-            "1. Si el usuario menciona algo ya visto -> recordar (buscar)\n"
-            "2. Si el usuario ensena algo nuevo -> aprender (guardar) + consolidar (sueno)\n"
-            "3. Si dos conceptos estan relacionados -> vincular (asociar)\n"
-            "4. Si necesitas dejar mensaje a otro agente -> comunicar\n"
-            "5. Si al iniciar sesion quieres ver mensajes -> leer_mensajes\n"
-            "6. Si despues de 2 evocaciones no encuentras -> preguntar al humano\n\n"
-            "- Al iniciar una interaccion importante -> contexto_inicio\n"
-            "- Al terminar una interaccion -> contexto_fin\n"
-            "- El interceptor analiza el buffer acumulado y autoguarda si\n"
-            "  detecta lecciones, patrones, errores o preferencias.\n"
-            "- No necesitas recordar llamar 'aprender' explicitamente cada vez.\n\n"
-            "TTL: 30 min de inactividad resetean el buffer (siesta biomimetica).\n\n"
-            "La memoria decae naturalmente (LTD). Los nodos no usados se "
-            "duermen solos. Usa 'consolidar' para fijar recuerdos nuevos."
+            + "\n\n## Reglas de uso de BioRAG:\n\n"
+            "1. Algo ya visto → recordar"
+            "2. Algo nuevo → aprender + consolidar"
+            "3. Dos conceptos relacionados → vincular"
+            "4. Mensaje a otro agente → comunicar"
+            "5. Ver mensajes al iniciar → leer_mensajes"
+            "6. 2 búsquedas sin resultado → preguntar al humano"
+            ""
+            "Al iniciar sesión importante → contexto_inicio"
+            "Al terminar → contexto_fin"
+            "El interceptor guarda automáticamente lecciones, errores y patrones."
+            ""
+            "TTL: 30 min de inactividad resetean el buffer."
+            "La memoria decae sola (LTD). Los nodos no usados se duermen. Consolidá para fijar los nuevos."
         )
 
     return mcp

@@ -298,7 +298,7 @@ def _sincronizar_asociaciones(cerebro, concepto):
     )
 
 
-def desvincular(cerebro, a, b):
+def desvincular(cerebro, a, b, autor=None, query=None):
     """Elimina la sinapsis bidireccional entre dos conceptos.
     Plasticidad negativa: cuando un falso positivo aparece, se borra la conexión
     para que no vuelva a traerse en búsquedas futuras."""
