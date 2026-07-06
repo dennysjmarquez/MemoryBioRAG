@@ -966,8 +966,13 @@ class SQLiteMemoryBioRAG:
                     (key, eid)
                 )
 
-        # ponytail: auto_aprender_desde_sinonimos eliminado — contaminaba la tabla semántica
-        # con IDs de nodos en vez de sinónimos reales. Los sinónimos ya sirven para FTS5 burst.
+        # Auto-aprendizaje léxico: mapea los sinónimos entre sí (evita IDs de nodo)
+        if sinonimos_final:
+            try:
+                from core.semantica import auto_aprender_desde_sinonimos
+                auto_aprender_desde_sinonimos(self.cursor, sinonimos_final)
+            except Exception as e:
+                print(f"[MemoryBioRAG] Error en auto-aprendizaje semántico: {e}")
 
     def consolidar_concepto(self, concepto):
         """Mueve un concepto de corto a largo plazo directamente.

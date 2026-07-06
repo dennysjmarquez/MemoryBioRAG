@@ -161,7 +161,7 @@ def expandir_query_por_tokens(cursor, query, max_equivalentes=3):
 
 def _es_limpio(valor):
     """Valida que un término no sea ID de nodo ni basura."""
-    return len(valor) <= 15 and valor.count('_') < 2
+    return len(valor) <= 35 and valor.count('_') < 2
 
 
 def agregar_equivalencia(cursor, termino, equivalente, peso=0.8):
@@ -260,28 +260,34 @@ def cargar_vocabulario_desde_archivo(cursor, ruta_archivo):
     return cargar_vocabulario(cursor, vocabulario)
 
 
-def auto_aprender_desde_sinonimos(cursor, concepto, sinonimos):
+def auto_aprender_desde_sinonimos(cursor, sinonimos):
     """
-    Aprende equivalencias semánticas desde los sinónimos de un nodo.
+    Aprende equivalencias semánticas cruzando los sinónimos explícitos entre sí.
+    Ignora el ID del concepto para no contaminar el tesauro con IDs de base de datos.
     Llamar cuando se guarda un nodo con sinónimos explícitos.
     """
     if not sinonimos:
         return 0
     init_semantica_table(cursor)
-    concepto = concepto.lower().strip()
-    sinonimos_list = [s.strip().lower() for s in sinonimos.split(",") if s.strip()]
+    
+    import itertools
+    sinonimos_list = [s.strip().lower() for s in sinonimos.split(",") if s.strip() and _es_limpio(s.strip().lower())]
+    if len(sinonimos_list) < 2:
+        return 0
+        
     count = 0
-    for sinonimo in sinonimos_list:
-        if sinonimo != concepto and len(sinonimo) >= 2:
+    for term1, term2 in itertools.combinations(sinonimos_list, 2):
+        if term1 != term2:
             cursor.execute(
                 "INSERT OR REPLACE INTO semantica (termino, equivalente, peso) VALUES (?, ?, 0.85)",
-                (concepto, sinonimo)
+                (term1, term2)
             )
             cursor.execute(
                 "INSERT OR REPLACE INTO semantica (termino, equivalente, peso) VALUES (?, ?, 0.85)",
-                (sinonimo, concepto)
+                (term2, term1)
             )
             count += 1
+            
     if count > 0:
         cursor.connection.commit()
     return count

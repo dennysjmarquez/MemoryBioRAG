@@ -771,6 +771,19 @@ El agente sigue este flujo obligatorio al buscar:
 
 ## Historial de Versiones
 
+### v13.5 — Auto-Aprendizaje Léxico y Expansión Semántica Orgánica (Julio 2026)
+
+**El tesauro crece solo: de intervención manual a automatización orgánica.**
+
+El problema estructural que impedía el uso óptimo del "Soft-AND" y las ráfagas FTS5 ha sido solucionado. Anteriormente, la tabla de `semantica` (tesauro bidireccional) dependía de la herramienta MCP `semantica_admin`, la cual rara vez era invocada por los agentes. El parche legado (Ponytail) intentó automatizarlo pero contaminaba la tabla asignando las palabras clave al ID interno del nodo.
+
+**Qué se hizo:**
+- **Reingeniería de `auto_aprender_desde_sinonimos`**: El sistema ahora intercepta el parámetro `syn` en tiempo real (cuando el agente invoca `biorag_aprender`). Extrae los sinónimos y los cruza **todos contra todos bidireccionalmente** (usando `itertools.combinations`).
+- **Limpieza de Ruido**: Se abandonó la práctica de asociar los sinónimos al concepto ID, previniendo para siempre la contaminación con identificadores de base de datos (`cv_dennys_2026` = `portfolio`).
+- **Soporte para Frases Compuestas**: Se amplió el límite de la función de validación de higiene `_es_limpio` de **15 a 35 caracteres**, permitiendo la asociación de frases multipalabra como *"mantenimiento de servidores"* y *"arquitectura de software"*.
+
+**Impacto:** Cada vez que un agente guarda información, el sistema incrementa pasivamente su comprensión léxica de los dominios sin necesidad de mantenimiento, expandiendo orgánicamente el puente semántico (grafo léxico) para futuras búsquedas donde las palabras no coincidan de forma literal.
+
 ### v11.3 — Sistema de Dimensiones Semánticas de 5 Ejes (Julio 2026)
 
 **Clasificar recuerdos por qué son, no solo por qué dicen.**
