@@ -287,6 +287,7 @@ def _build_server():
         desde: Optional[str] = None,
         hasta: Optional[str] = None,
         autor: Optional[str] = None,
+        modo_estricto: bool = False,
     ) -> str:
         if limite is None:
             limite = LIMITE_MCP
@@ -412,6 +413,7 @@ def _build_server():
                 parafrasis_list=parafrasis_list,
                 desde_ts=desde_ts,
                 hasta_ts=hasta_ts,
+                modo_estricto=modo_estricto,
             )
             score_top = resultados[0][4] if resultados else 0
 
@@ -821,11 +823,21 @@ def _build_server():
                 "Útil en memoria compartida para aislar recuerdos propios."
             )
         )] = None,
+        modo_estricto: Annotated[bool, Field(
+            description=(
+                "Si True, exige que TODAS las palabras de la búsqueda estén presentes "
+                "en el resultado (búsqueda AND estricta). Default False = con al menos "
+                "una palabra coincidiendo ya puede aparecer en resultados (OR, más "
+                "recall). Usar True cuando se necesita precisión exacta y se sabe que "
+                "todas las palabras deben estar juntas; usar False (default) para "
+                "búsquedas exploratorias."
+            )
+        )] = False,
     ) -> str:
         return _recordar_impl(
             query, deep, cat, completo, asociados, limite, preview_chars,
             context_window, forzar_rafaga, rafaga_palabras, pagina, parafrasis,
-            dimensiones, dias, desde, hasta, autor
+            dimensiones, dias, desde, hasta, autor, modo_estricto
         )
 
     @mcp.tool(
@@ -867,11 +879,21 @@ def _build_server():
         rafaga_palabras: Annotated[Optional[str], Field(description="Términos de ráfaga separados por coma. Obligatorio si forzar_rafaga=True.")] = None,
         pagina: Annotated[int, Field(description="Página de resultados (base 1).", ge=1)] = 1,
         parafrasis: Annotated[Optional[str], Field(description="Reformulaciones del query separadas por coma. Usar en PASO 2 y 4.")] = None,
+        modo_estricto: Annotated[bool, Field(
+            description=(
+                "Si True, exige que TODAS las palabras de la búsqueda estén presentes "
+                "en el resultado (búsqueda AND estricta). Default False = con al menos "
+                "una palabra coincidiendo ya puede aparecer en resultados (OR, más "
+                "recall). Usar True cuando se necesita precisión exacta y se sabe que "
+                "todas las palabras deben estar juntas; usar False (default) para "
+                "búsquedas exploratorias."
+            )
+        )] = False,
     ) -> str:
         return _recordar_impl(
             query, deep, cat, completo, asociados, limite, preview_chars,
             context_window, forzar_rafaga, rafaga_palabras, pagina, parafrasis,
-            dimensiones
+            dimensiones, modo_estricto=modo_estricto
         )
 
     # ── APRENDER ─────────────────────────────────────────────────────────────
@@ -952,7 +974,40 @@ def _build_server():
             else:
                 _warnings.append(f"⚠️ ¿'{clave}' tiene relación con otros nodos existentes? Si sí, vinculalos ANTES de consolidar.")
 
-            _warnings.append(f"⚠️ ¿Pensaste en cómo se va a buscar este nodo? Usá palabras clave fuertes en 'concepto' y 'syn'.")
+            # ── WARNING DE SYN (sin sinónimos el nodo es invisible) ─────
+            if not syn:
+                _warnings.append(
+                    f"⚠️ syn=None — Sin sinónimos, '{clave}' solo es visible por nombre exacto. "
+                    "Nadie que busque con otras palabras lo encontrará. "
+                    "Si consolidás sin syn, el nodo queda enterrado. "
+                    "Poné mínimo 5 sinónimos cubriendo: literal, relacionado, abstracto."
+                )
+                _warnings.append(
+                    "  Ejemplo de syn para este nodo:\n"
+                    "    syn='versión actual,latest,changelog,novedades,release notes'"
+                )
+            else:
+                syn_terms = [s.strip() for s in syn.split(",") if s.strip()]
+                syn_capas = {"literal": set(), "relacionado": set(), "abstracto": set()}
+                for t in syn_terms:
+                    if any(kw in t.lower() for kw in [clave.lower().split("_")[0]]):
+                        syn_capas["literal"].add(t)
+                if len(syn_terms) == 0:
+                    _warnings.append(
+                        f"⚠️ syn vacío — '{clave}' tiene syn pero sin términos. "
+                        "Poné mínimo 5 sinónimos separados por coma."
+                    )
+                elif len(syn_terms) < 3:
+                    _warnings.append(
+                        f"⚠️ syn insuficiente ({len(syn_terms)} términos) — "
+                        "mínimo 5. Sin suficientes sinónimos, "
+                        "el nodo difícilmente aparecerá en búsquedas con otras palabras."
+                    )
+                elif len(syn_terms) < 5:
+                    _warnings.append(
+                        f"⚠️ syn bajo ({len(syn_terms)} términos) — "
+                        "ideal mínimo 5. Agregá más formas de buscar este nodo."
+                    )
 
             _interceptar("aprender", f"{clave}: {contenido}", cerebro)
             resultado = json.dumps({
@@ -986,7 +1041,11 @@ def _build_server():
             "Guardar en BioRAG no es copiar texto a la base. Es pensar en cómo alguien lo va a buscar después. "
             "Cuando guardás un nodo, elegí las palabras correctas, conectalo con otros conceptos que tengan que ver, y etiquetalo con las dimensiones que alguien usaría para encontrarlo. "
             "La gente no busca igual — si guardás solo con tus palabras, quizás nadie lo recupere. "
-            "Pensá: 'si en 3 meses alguien busca X, ¿este nodo aparece?' Con millones de nodos, el que no tiene conexiones ni dimensiones bien puestas se pierde. Es como tener un libro sin índice."
+            "Pensá: 'si en 3 meses alguien busca X, ¿este nodo aparece?' Con millones de nodos, el que no tiene conexiones ni dimensiones bien puestas se pierde. Es como tener un libro sin índice.\n\n"
+            "REGLA CRÍTICA — syn (sinónimos): Mínimo 5. Sin syn, el nodo solo es visible "
+            "por nombre exacto. Nadie que busque con otras palabras lo encuentra. "
+            "Cubrí tres capas: literal, relacionado, abstracto. "
+            "La tool lanza warning si no ponés syn o es insuficiente."
         ),
     )
     def biorag_aprender(
@@ -1023,8 +1082,18 @@ def _build_server():
         )],
         syn: Annotated[Optional[str], Field(
             description=(
-                "Sinónimos del concepto: Todas las formas en que alguien podría buscar esto en el futuro. Separados por coma. Incluí sinónimos, abreviaturas, jerga técnica, lenguaje coloquial, términos relacionados. Ejemplo: 'fallo,error,excepción,crash'.\n\n"
-                "Diferencia clave con dimensiones: Acá SÍ vale anticipar cómo se preguntará el usuario — no tiene que ser literal del texto. Si el nodo dice 'error HTTP', podés poner 'fallo de red', 'timeout', 'caída del servidor', Etc.."
+                "Los sinónimos hacen que el nodo sea encontrable. Sin al menos 5, solo alguien que sepa el nombre exacto que elegiste puede dar con él. Tienes que cubrir 3 capas: el nombre exacto y sus abreviaturas, las cosas relacionadas que alguien asociaría al concepto, y cómo lo buscaría alguien que ni sabe que el nodo existe. Si no te salen 5 sinónimos, el concepto que elegiste no sirve como clave de búsqueda.\n\n"
+                "REGLAS DURAS:\n"
+                "1. Sin syn → nodo invisible para cualquiera que no sepa el nombre exacto\n"
+                "2. Cubrí TRES capas de búsqueda:\n"
+                "   - LITERAL: nombre exacto, abreviaturas, siglas (v14, fourteen, v14.0)\n"
+                "   - RELACIONADO: objetos vinculados (changelog, release notes)\n"
+                "   - ABSTRACTO: cómo lo busca alguien que ni sabe que existe (última versión, novedades)\n"
+                "3. Mínimo 5. Si no te salen, repensá el concepto.\n\n"
+                "Diferencia con dimensiones: dimensiones clasifica el CONTENIDO (qué ES).\n"
+                "syn anticipa la BÚSQUEDA (cómo se PREGUNTA). Acá sí vale adelantarse.\n\n"
+                "Ejemplo para 'biorag_v14_0_estado':\n"
+                "latest version,última versión,v14,changelog,novedades,release notes,estado actual,current state"
             )
         )] = None,
         cat: Annotated[Optional[str], Field(
@@ -1051,7 +1120,12 @@ def _build_server():
     def biorag_guardar(
         concepto: Annotated[str, Field(description="Nombre único del recuerdo (se normaliza a snake_case).")],
         contenido: Annotated[str, Field(description="Texto o conocimiento a almacenar.")],
-        syn: Annotated[Optional[str], Field(description="Sinónimos separados por coma.")] = None,
+        syn: Annotated[Optional[str], Field(
+            description=(
+                "Sinónimos separados por coma. Ver descripción en `aprender` para reglas y ejemplos. "
+                "Ojo: sin syn el nodo queda invisible — mínimo 5 sinónimos."
+            )
+        )] = None,
         cat: Annotated[Optional[str], Field(description="Categoría. Ver aprender para valores válidos.")] = None,
         dimensiones: Annotated[Optional[Any], Field(
             description="Clasificación dimensional en JSON. Ver aprender para formato."

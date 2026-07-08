@@ -1823,11 +1823,18 @@ class SQLiteMemoryBioRAG:
         clause = (" AND " + " AND ".join(filtros)) if filtros else ""
 
         # ponytail: no semantic expansion table — agent passes synonyms as parafrasis_list directly
-        if modo_estricto and not parafrasis_list and len(frase.split()) > 1:
-            fts_match = " ".join("+" + w for w in frase.split())
+        if modo_estricto:
+            if parafrasis_list:
+                fts_match = " OR ".join(f"({' AND '.join(v.split())})" for v in [frase] + parafrasis_list)
+            elif len(frase.split()) > 1:
+                fts_match = " AND ".join(frase.split())
+            else:
+                fts_match = frase
         elif parafrasis_list:
             fts_variantes = [f'"{frase}"'] + [f'"{p}"' for p in parafrasis_list]
             fts_match = " OR ".join(fts_variantes)
+        elif len(frase.split()) > 1:
+            fts_match = " OR ".join(frase.split())
         else:
             fts_match = frase
         sql = """
@@ -2229,7 +2236,8 @@ class SQLiteMemoryBioRAG:
         if resultados_concepto:
             seen = {r[1] for r in todos}
             for concepto, match_ratio in resultados_concepto.items():
-                if concepto not in seen and match_ratio >= 0.3:
+                umbral_ratio = 1.0 if modo_estricto else 0.3
+                if concepto not in seen and match_ratio >= umbral_ratio:
                     merge_sql = (
                         "SELECT rowid, concepto, contenido, peso_sinaptico, estado, asociaciones "
                         "FROM largo_plazo WHERE concepto = ?"
@@ -2257,7 +2265,8 @@ class SQLiteMemoryBioRAG:
                 for conc, sin_text, _ in self.cursor.fetchall():
                     if conc not in {r[1] for r in todos}:
                         match_ratio = sum(1 for w in palabras_like if w.lower() in (sin_text or "").lower()) / len(palabras_like)
-                        if match_ratio >= 0.1:
+                        umbral_sin = 1.0 if modo_estricto else 0.1
+                        if match_ratio >= umbral_sin:
                             resultados_semantica[conc] = match_ratio
             except (sqlite3.OperationalError, sqlite3.ProgrammingError):
                 pass
