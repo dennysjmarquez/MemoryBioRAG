@@ -151,7 +151,6 @@ biorag_export_full()                             — Export completo
 biorag_contexto_inicio(agente, contexto)         — Inicia sesión (buffer)
 biorag_contexto_fin(agente, resumen)             — Fin sesión + auto-sueño
 biorag_metricas_historial(n=10)                  — Últimos N ciclos + tendencias
-biorag_semantica_admin(accion, ...)              — CRUD tabla semántica
 """
 
 

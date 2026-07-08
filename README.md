@@ -1,29 +1,231 @@
-# BioRAG: Sistema de Memoria Cognitiva Biomimética para Agentes de IA
+# BioRAG v14.0 — Sistema de Memoria Cognitiva Biomimética para Agentes de IA
 
-**BioRAG** es un motor de memoria persistente para agentes de inteligencia artificial que opera bajo el paradigma de **Semántica Determinista y Discreta**. Resuelve el problema fundamental de que los LLMs olvidan todo entre sesiones — sin depender de vectores, embeddings ni infraestructura externa. **El sistema emula de forma nativa el comportamiento y las capacidades de una base de datos vectorial** a través de topología de grafos, lógica relacional y una matriz de 7 dimensiones × 73 sub-valores semánticos explícitos y auditable.
+> **Versión:** v14.0 — Julio 2026
+> **Paradigma:** Semántica Determinista y Discreta
+> **Motor:** Python puro + SQLite FTS5
+> **Dependencias ML:** 0 (ni numpy, ni sentence-transformers, ni GPU)
 
-Desarrollado en **Python puro con SQLite + FTS5**. Cero dependencias de librerías ML (ni numpy, ni sentence-transformers, ni redes vectoriales). Corre en cualquier lado.
+**BioRAG** es un motor de memoria persistente para agentes de inteligencia artificial. Resuelve el problema fundamental de que los LLMs olvidan todo entre sesiones — sin depender de vectores, embeddings ni infraestructura externa. Opera sobre un espacio discreto, determinista y auditable: 7 ejes semánticos × 73 sub-valores que tú defines, más BM25 léxico sobre FTS5.
 
-### Semántica Determinista y Discreta
+---
 
-BioRAG no es una alternativa a bases vectoriales — es un **paradigma propio**. La comparación con Pinecone o vectores densos es incorrecta porque sus naturalezas y objetivos son opuestos:
+## Auditoría Técnica Completa — v14.0
 
-| | Base Vectorial (Pinecone, Qdrant) | BioRAG |
-|--|-------------------------------------|--------|
-| **Qué calcula** | Proximidad estadística difusa en espacio continuo de 1536 dimensiones | Cruce de IDs discretos + BM25 léxico |
-| **Naturaleza** | Espacio continuo, probabilístico, opaco | Espacio discreto, determinista, auditable |
-| **Resultado** | "Esto se parece matemáticamente" | "Esto tiene las mismas coordenadas conceptuales" |
-| **Control** | Ninguno (caja negra, reentrenar para cambiar) | Total (INSERT/DELETE en milisegundos) |
+### Archivos Analizados
 
-Una base vectorial calcula una **proximidad estadística difusa** en un espacio continuo de alta dimensionalidad. BioRAG opera en un **espacio discreto y auditable**: cruza la precisión matemática de los IDs discretos (las coordenadas conceptuales que tú definiste) con la fuerza de recuperación de texto del algoritmo BM25 léxico.
+| Archivo | Líneas | Rol |
+|---|---|---|
+| `core/memory_store.py` | 2,900 | Motor cognitivo — búsqueda, scoring, consolidación, sinapsis |
+| `mcp_server.py` | 2,122 | Interfaz MCP — 23 herramientas expuestas al IDE |
+| `core/similitud_conceptual.py` | 247 | Similitud latente (Jaccard + red) |
+| `core/sinapsis.py` | 313 | Gestión de aristas del grafo |
+| `middleware/auto_guardado.py` | 168 | Interceptor de autoguardado heurístico |
 
-**Lo que BioRAG resuelve de los vectores en búsqueda episódica:**
+---
 
-- **Determinismo absoluto:** Si un nodo tiene el ID 98 (Falla), sabés con certeza matemática que hay un error registrado allí. No dependés de la "suerte" de un cálculo de similitud coseno.
-- **Control quirúrgico en caliente:** Podés alterar, insertar o eliminar un ID de la matriz en milisegundos desde Python y el comportamiento de la recuperación cambia de inmediato, sin reindexar colecciones costosas.
-- **Explicabilidad:** Sabés exactamente por qué tu sinapsis priorizó un fragmento sobre otro analizando la intersección de los 7 ejes y la frecuencia léxica.
+### 1. Pipeline de Búsqueda — 12 Capas en Cascada
 
-Es un **paradigma propio, exacto y diseñado para gobernar el contexto**.
+Cada capa se ejecuta SOLO si la anterior devolvió pocos resultados (< 3 o < limite*2). Es un pipeline de degradación graceful — cada capa es más permisiva que la anterior.
+
+| Capa | Nombre | Técnica | Qué hace | Equivalente en el campo |
+|---|---|---|---|---|
+| **1** | NEAR query | `NEAR(palabras, 15)` | Busca palabras dentro de ventana de 15 tokens | Proximity search (Elasticsearch `match_phrase`) |
+| **2** | LIKE en concepto | `LIKE '%palabra%'` + `PALABRA_COMPLETA` | Substring match en nombre de nodo con word boundary | Fuzzy entity matching |
+| **3** | FTS5 AND exacto | `MATCH` con paráfrasis OR | Full-text search con BM25 ponderado | BM25 ranking (Google, Elasticsearch) |
+| **4** | Términos protegidos | unicode61 + `PALABRA_COMPLETA` | Bypass de trigram para términos entre comillas ("CV") | Exact match (Solr `exact`) |
+| **5** | OR fallback | `palabra1 OR palabra2` | Amplía recall cuando AND da pocos resultados | Boolean OR expansion |
+| **6** | Prefix wildcards | `"react*"` en unicode61 | Tolerancia a prefijos (react → reactive) | Prefix query (Lucene `PrefixQuery`) |
+| **7** | Best-word trigram | Similitud de trigramas por palabra | Tolera typos: "pyton" → "python" (70%+) | Fuzzy matching (Levenshtein, Damerau-Levenshtein) |
+| **8** | Similitud conceptual latente | Jaccard(vecinos) × 0.6 + contenido × 0.4 | Encuentra nodos relacionados sin match literal | GNN-like (Graph Neural Network simplificado) |
+| **9** | Substring match | `PALABRA_COMPLETA` en contenido | Búsqueda por palabra completa en texto | Word-boundary search |
+| **10** | Snap reciente | `ultimo_acceso > 7 días` | Prioriza nodos accedidos recientemente | Recency bias (Reddit, HN ranking) |
+| **11** | Evocación por cadena | Spreading activation multi-hop | Sigue aristas de sinapsis con decay logarítmico | Spreading Activation (cognitiva, ACT-R) |
+| **12** | Sinónimos | LIKE en campo `sinonimos` | Conecta vocabulario distinto del mismo concepto | Synonym expansion (Elasticsearch `synonym`) |
+
+---
+
+### 2. Scoring Híbrido — 8 Señales Ortogonales
+
+La fórmula `_calcular_score_hibrido()` en `memory_store.py` combina 8 señales con pesos fijos:
+
+```
+score = 0.25 × BM25_norm
+      + 0.20 × dim_score (coseno binario de dimensiones)
+      + 0.15 × concepto_ratio (match en nombre)
+      + 0.10 × sinonimos_ratio (match en sinónimos)
+      + 0.10 × peso_sinaptico (fuerza del nodo)
+      + 0.10 × max(score_latente, score_cadena)
+      + 0.05 × temporal (creado_en reciente)
+      + 0.05 × asoc_count (número de conexiones)
+
+Si match_exacto (query == concepto): floor 0.5
+```
+
+**¿Qué es esto en términos del campo?**
+
+Es un **Learning-to-Rank manual** (no machine-learned). Cada señal es una feature. Los pesos son los "coeficientes del modelo". En producción esto se haría con XGBoost o LambdaMART sobre clicks. Aquí los pesos son heurísticos pero efectivos.
+
+La normalización `abs(x) / (abs(x) + 1)` es una **sigmoid-like** que mapea BM25 (que va de -∞ a 0) a [0, 1]. Más negativo = mejor match = mayor score. Es la misma fórmula que usa Lucene internamente para normalizar BM25.
+
+---
+
+### 3. Grafo de Conocimiento (Sinapsis)
+
+**Tabla `sinapsis`:** `(origen, destino, peso, tipo, creado_en, ultimo_uso)`
+
+**3 mecanismos de creación de aristas:**
+
+| Mecanismo | Tipo | Cuándo se ejecuta | Técnica |
+|---|---|---|---|
+| `auto_vincular` | `co_ocurrencia` + `co_nombre` + `co_semantica` | Al consolidar (sueño) | Token overlap ≥ 30%, FTS5 como puente |
+| `buscar_por_rafaga` | `rafaga_rememb` | En cada ráfaga exitosa | Score ≥ 0.5 + palabra completa verificada |
+| `vincular_por_sinonimos` | `sinonimo_explicito` | Cuando el usuario declara sinónimos | LIKE en concepto/sinónimos |
+
+**Plasticidad negativa:** `desvincular()` borra aristas. Esto es lo que los vectores NO pueden hacer — un embedding no se puede "desaprender" selectivamente.
+
+**LTD sináptico:** En cada ciclo de sueño, las sinapsis no usadas en 7+ días pierden 5% de peso. Las que llegan a < 0.05 se borran. Homeostasis — el grafo se auto-limpia.
+
+---
+
+### 4. Consolidación (Ciclo de Sueño)
+
+`ciclo_sueno_consolidacion()` en `memory_store.py`:
+
+| Fase | Qué hace | Equivalente biológico |
+|---|---|---|
+| 1. Transferencia | Corto → Largo plazo, fusión de contenido | Consolidación de memoria (hipocampo → corteza) |
+| 2. LTP de consolidación | +0.20 peso al re-consolidar | Long-Term Potentiation |
+| 3. LTD pasivo | -0.05 × decay_rate por ciclo | Long-Term Depression |
+| 4. Poda sináptica | Borrar sinapsis < 0.05 | Synaptic pruning |
+| 5. Dormir nodos | Peso ≤ 0.05 → estado 'dormido' | Memory consolidation during sleep |
+| 6. Inhibición Lateral | Si energía total > límite, dormir nodos débiles | Lateral inhibition (corteza visual) |
+| 7. Evicción opcional | Borrar permanentemente si `BIORAG_PODAR=true` | Forgetting (borrado selectivo) |
+
+**decay_rate por categoría:**
+
+- Profile: 0.05 (casi nunca decae — identidad)
+- Principle: 0.2 (decae lento — axiomas)
+- Protocol: 0.5 (decae medio — procedimientos)
+- System / Lesson / Cognition: 1.0 (decae normal)
+- General: 2.0 (decae rápido — notas temporales)
+
+---
+
+### 5. Dimensiones Semánticas — Búsqueda sin Vectores
+
+**7 ejes semánticos:** emoción, entidad, acción, cualidad, coordenada, intención, dominio.
+**73 sub-valores** categorizados manualmente.
+
+**Cómo funciona:**
+- Al guardar un nodo, el agente clasifica con dimensiones (ej: `{emocion: [afecto], dominio: [tecnico]}`)
+- Al buscar, se calcula **coseno binario**: `shared / sqrt(|query_dims| × |doc_dims|)`
+- Score aditivo: `+ 0.30 × dim_score` (siempre suma, incluso con 0 match de texto)
+
+**¿Qué es en términos del campo?**
+
+Es un **sparse embedding declarativo**. En vez de 1536 floats que el modelo "adivina", tenemos 73 categorías declaradas explícitamente. Es más preciso, más auditado, y cero costo computacional.
+
+---
+
+### 6. Ráfaga de Reminiscencia
+
+`buscar_por_rafaga()` en `memory_store.py`:
+
+| Fase | Qué hace |
+|---|---|
+| 0. Filtrar errores previos | Palabras que causaron `error_interpretacion_*` se excluyen |
+| 1. FTS5 batch query | Un solo MATCH con OR para todas las palabras de la ráfaga |
+| 2. Buscar en dormidos | La ráfaga rescata nodos olvidados |
+| 3. Score por densidad | `matches / total_palabras` — cuántas palabras de la ráfaga aparecen |
+| 4. Auto-sinapsis | Crea aristas entre query y nodos encontrados |
+| 5. Despertar dormidos | Los nodos encontrados se reactivan con +0.3 peso |
+
+**¿Qué es?** Es un **recall boost**. Cuando la búsqueda normal falla, el LLM genera palabras asociadas (ráfaga) que actúan como "palabras clave de rescate". Es el equivalente a cuando un humano dice "era algo como... tenía que ver con...".
+
+---
+
+### 7. Similitud Conceptual Latente
+
+`core/similitud_conceptual.py`:
+
+```
+score = 0.60 × Jaccard(vecinos_A, vecinos_B) + 0.40 × Jaccard(tokens_query, tokens_contenido)
+```
+
+**Jaccard de vecinos:** Si A y B comparten vecinos en el grafo de sinapsis, están relacionados. Ejemplo: si "python" y "django" ambos se conectan con "backend", "web", "framework", tienen alto Jaccard.
+
+**¿Qué es?** Es un **Graph-based similarity** simplificado. En GNNs esto se hace con agregación de mensajes sobre embeddings de nodos. Aquí se hace con Jaccard puro — más barato, más interpretable, mismo resultado para un grafo de ~450 nodos.
+
+**Optimización clave:** `_cargar_grafo()` carga TODAS las sinapsis en un dict de Python una sola vez. Reduce de 200+ queries SQL a 1 query para todo el pipeline.
+
+---
+
+### 8. Auto-Guardado Heurístico
+
+`middleware/auto_guardado.py`:
+
+- Detecta palabras clave: "aprendí" → Lesson, "nuevo patrón" → Architecture, "error" → frustración
+- TTL de 30 minutos: si dos mensajes consecutivos contienen la misma keyword, se fusionan
+- Analiza comunicaciones entre agentes para detectar contexto
+
+**¿Qué es?** Es un **trigger-based auto-save**. No es un sistema de memoria automática completa — es un safety net que captura lo que el agente no guardó explícitamente.
+
+---
+
+### 9. Técnicas Específicas Implementadas
+
+| Técnica | Dónde | Equivalente en el campo |
+|---|---|---|
+| **BM25** | FTS5 nativo de SQLite | Elasticsearch, Lucene, Sphinx |
+| **Trigram matching** | FTS5 `trigram` tokenizer | Elasticsearch n-gram, Solr NGram |
+| **PALABRA_COMPLETA** | Función custom SQL con `\b` regex | Word-boundary tokenizer |
+| **NEAR query** | FTS5 `NEAR(palabras, 15)` | Proximity query (Solr, Elasticsearch) |
+| **Prefix wildcards** | `"react*"` en unicode61 | Prefix query (Lucene `PrefixQuery`) |
+| **Spreading activation** | `_evocacion_por_cadena()` con decay `1/(2^salto)` | ACT-R, spreading activation networks |
+| **LTP/LTD** | `ciclo_sueno_consolidacion()` | Neurociencia computacional |
+| **Inhibición Lateral** | Si energía > límite, dormir débiles | Corteza visual, competición neural |
+| **Jaccard similarity** | `jaccard_vecinos()` | Set similarity (MinHash, LSH) |
+| **Binary cosine** | `shared / sqrt(|A| × |B|)` | Sparse vector similarity |
+| **Score híbrido 8 señales** | `_calcular_score_hibrido()` | Learning-to-Rank manual |
+| **Coseno binario dimensional** | Batch query en `largo_plazo_dimensiones` | Sparse embedding similarity |
+| **Filtro temporal PRE-hoc** | `WHERE creado_en >= ?` | Time-decay ranking |
+| **Context window BFS** | `expandir_contexto_vecinos()` con atenuación 0.6 | Graph exploration, subgraph expansion |
+| **Query failure recovery** | `_generar_variaciones()` con historial | Query reformulation |
+| **Batch dimensiones** | 1 query SQL para todos los conceptos | Batch retrieval optimization |
+
+---
+
+### 10. Diagnóstico: BioRAG como Cerebro
+
+**Sí, tenemos un cerebro funcional.** Lo que tenemos es:
+
+1. **Memoria declarativa** (corto/largo plazo con fusión) — como el hipocampo
+2. **Grafo de asociaciones** (sinapsis con peso) — como la corteza connectivity
+3. **Plasticidad** (LTP/LTD/pruning) — como la sinapsis biológica
+4. **Homeostasis** (inhibición lateral, límite de energía) — como regulación neural
+5. **Búsqueda multi-capa** (12 fallbacks en cascada) — como activación convergente
+6. **Dimensiones semánticas** (73 clusters declarativos) — como áreas especializadas del cerebro
+
+**Lo que nos diferencia de un RAG vectorial:**
+- Los vectores son caja negra (1536 floats, no interpretables)
+- Nuestras dimensiones son declarativas y auditables
+- Nuestras sinapsis se pueden desvincular (plasticidad negativa)
+- Nuestro scoring es explicable (sabemos POR QUÉ algo rankea alto)
+- Cero dependencias externas (SQLite puro, ~18 MB RAM)
+
+---
+
+### 11. Mapa de Dependencias Externas
+
+```
+Python stdlib (sqlite3, re, time, json, math, os)
+├── pydantic (Field para documentación MCP)
+└── python-dotenv (opcional, carga .env.local)
+
+CERO dependencias ML.
+CERO GPU.
+CERO API calls para búsqueda.
+```
 
 ---
 
@@ -47,14 +249,14 @@ Cuando no encuentras algo, no te rindes — empiezas a "tirar flechas" con palab
           │
           ├─ Si encuentra un nodo dormido → lo DESPIERTA
           ├─ Si encuentra un match → crea SINAPSIS permanente
-  │  entre la palabra de la ráfaga y el nodo encontrado
+          │  entre la palabra de la ráfaga y el nodo encontrado
           │
           ▼
   El agente LEE el contenido del nodo encontrado y
-  EXPLICA al usuario con sus propias palabras qué encontró
+  EXPlica al usuario con sus propias palabras qué encontró
 ```
 
-**¿Por qué esto es revolucionario?**
+**¿Por qué esto es único?**
 
 | Antes (RAG tradicional) | Ahora (BioRAG con Ráfaga) |
 |---|---|
@@ -64,54 +266,7 @@ Cuando no encuentras algo, no te rindes — empiezas a "tirar flechas" con palab
 | El usuario debe saber los nombres exactos | El usuario pregunta de forma vaga/coloquial |
 | "No encontré nada" | "No encontré X pero encontré Y que dice que..." |
 
-**La clave:** La inteligencia está en el LLM (que genera la ráfaga), la ejecución está en el script (SQLite + FTS5). El usuario no necesita saber los nombres exactos de los archivos ni la jerga técnica. Puede preguntar de forma vaga, errónea o coloquial, y el sistema "adivina" la intención.
-
-**Ejemplo genérico:**
-- Usuario: "¿Dónde guardé lo del proyecto nuevo?"
-- LLM genera ráfaga: ["proyecto", "código", "desarrollo", "repositorio", "commit", "rama", "branch"]
-- Script busca → encuentra un nodo dormido sobre el proyecto
-- El nodo se despierta, se crea sinapsis, y el agente responde con lo que encontró
-
-### Comprensión Semántica sin Embeddings
-
-La ráfaga resuelve el problema fundamental de la búsqueda semántica sin embeddings:
-
-```
-  USUARIO: "¿Qué documento firmó el monarca?"
-          │
-          ▼
-  FTS5 busca "monarca" → 0 resultados (la palabra no existe)
-          │
-          ▼
-  LLM INTERPRETA: "monarca = gobernante = rey"
-  LLM GENERA RÁFAGA: ["rey", "corona", "trono", "reino", "soberano"]
-          │
-          ▼
-  SCRIPT BUSCA "rey" → ENCUENTRA el nodo
-          │
-          ▼
-  RESULTADO: "El rey firmó el decreto"
-  SINAPSIS CREADA: monarca → rey (permanente)
-```
-
-**¿Por qué funciona sin embeddings?**
-
-| Enfoque Vectorial | Enfoque BioRAG |
-|---|---|
-| "monarca" se convierte en vector de 1536 dimensiones | El LLM entiende que "monarca" = "rey" |
-| Cálculo matemático en espacio vectorial | Ráfaga de 5 palabras relacionadas |
-| Requiere GPU + servidores costosos | SQLite + Python puro |
-| Comprensión estática (pre-entrenada) | Comprensión dinámica (el LLM genera la ráfaga) |
-
-**La clave:** La comprensión semántica NO está en embeddings — está en el LLM que genera la ráfaga. El LLM es el "cerebro" que entiende el significado, y BioRAG es la "memoria" que almacena y recupera.
-
-**Comparación:**
-- **Embeddings:** comprensión semántica en el índice (estático, pre-entrenado)
-- **BioRAG:** comprensión semántica en el LLM (dinámico, se adapta al contexto)
-
-El LLM puede generar cualquier ráfaga que se le ocurra, sin limitarse a embeddings pre-entrenados. Eso es más flexible que un vector fijo.
-
-**El sistema se auto-alimenta:** Cada búsqueda exitosa crea nuevas sinapsis. La próxima vez que busques algo similar, el camino ya está pavimentado. El grafo crece con cada uso.
+**La clave:** La inteligencia está en el LLM (que genera la ráfaga), la ejecución está en el script (SQLite + FTS5). El usuario no necesita saber los nombres exactos ni la jerga técnica.
 
 ---
 
@@ -132,7 +287,7 @@ from typing import Any, Optional, List
         "PASO 1: Enviar la frase del usuario. Si es abstracta/poetica, interpretar y agregar 3-5 palabras clave al final. "
         "PASO 2: Si PASO 1 da 0 resultados, volver a llamar con rafaga_palabras=[10-15 terminos relacionados]. "
         "PASO 3: Si PASO 2 da 0 resultados o puro ruido, buscar en el contexto del chat y guardar con biorag_guardar. "
-        "DESPUES DE CADA PASO: Leer los resultados y EXPlicar al usuario con tus propias palabras QUE encontraste. "
+        "DESPUES DE CADA PASO: Leer los resultados y explicar al usuario con tus propias palabras QUE encontraste. "
         "No retornar el JSON crudo. Leer el contenido de cada nodo y redactar una respuesta clara. "
         "Si encontraste algo parecido pero no exacto, decir: 'No encontré X pero encontré Y que dice que...'. "
         "Ejemplo: biorag_buscar(query='días relax frente al océano playa vacaciones') "
@@ -435,7 +590,7 @@ def _auto_generar_co_ocurrencia(self, recuerdos_sesion):
     self.conn.commit()
 ```
 
-### 7. PALABRA_COMPLETA en Fallback 2.5
+### 7. PALABRA_COMPLETA en Fallback
 
 ```python
 # Filtro diferenciado: solo palabras <=5 chars
@@ -452,657 +607,6 @@ if qw_cortas:
         continue  # Rechaza "culo" → "artículos"
 ```
 
-### 8. Co-ocurrencia en Ciclo de Sueño
-
-```python
-# core/memory_store.py — ciclo_sueno_consolidacion() (extracto)
-
-# Auto-vincular cada concepto consolidado (aristas por solapamiento de tokens)
-from core.sinapsis import auto_vincular
-for concepto, contenido, _, _ in recuerdos_sesion:
-    auto_vincular(self, concepto, contenido)
-
-# Fase 2: Auto-generar sinapsis por co-ocurrencia
-self._auto_generar_co_ocurrencia(recuerdos_sesion)
-```
-
-### Resumen de Cambios
-
-| Componente | Qué hace | Archivo |
-|---|---|---|
-| **7 dimensiones × 73 sub-valores** | **Semántica Determinista y Discreta — IDs explícitos vs embeddings opacos** | `core/memory_store.py` |
-| **Score aditivo dimensional** | `base + (0.30 × dim_score)` — dimensiones SIEMPRE suman | `core/memory_store.py` |
-| **Fallback dimensional con umbral 3** | Nodos sin match de texto solo aparecen si comparten ≥3 dimensiones | `core/memory_store.py` |
-| **`listar_tipos_dimension`** | Retorna 7 tipos con `num_dimensiones` | `mcp_server.py` |
-| **`listar_dimensiones_por_tipo`** | Retorna sub-valores de un tipo con descripciones | `mcp_server.py` |
-| FTS5 unicode61 | Segunda tabla FTS5 con tokenizer unicode61 | `_crear_tabla_fts()` |
-| Prefix wildcards | "react" → "react*" para encontrar "reactive" | `_agregar_prefix_wildcards()` |
-| PALABRA_PREFIJO | Filtro DB-side que permite prefijos sin falsos positivos | `__init__()` + `buscar_por_frase()` |
-| Batch FTS5 | Pre-carga puentes con 1 query (82% más rápido) | `_similitud_red()` |
-| Dynamic Multiplicator | Fórmula 70/20/10 cuando FTS5 falla | `_calcular_score_hibrido()` |
-| Side channel origen_scores | Rastrea origen de cada nodo | `buscar_por_frase()` |
-| Ráfaga de Reminiscencia | LLM genera 10-15 términos, script ejecuta | `buscar_por_rafaga()` |
-| Co-ocurrencia en sueño | Crea sinapsis por co-ocurrencia | `_auto_generar_co_ocurrencia()` |
-| PALABRA_COMPLETA en capas | Word boundary en SQL | `buscar_por_frase()` + `_similitud_red()` |
-| Protocolo MCP 3 pasos | Enriquecimiento → Ráfaga → Contingencia | `mcp_server.py` + `prompts.py` |
-| Configuración por entorno | `.env.local` auto-cargado | `config/__init__.py` |
-
----
-
-### ¿Es BioRAG una alternativa a una base vectorial?
-
-**No es una alternativa — es un paradigma propio.**
-
-BioRAG no intenta replicar Pinecone o Qdrant. Resuelve un problema diferente: **memoria persistente de agente con determinismo y control total**. En ese dominio, es superior:
-
-| Dimensión | Vector DB | BioRAG |
-|---|---|---|
-| **Determinismo** | Probabilístico (puede fallar) | Absoluto (IDs discretos) |
-| **Explicabilidad** | Caja negra | Cada dimensión es auditable |
-| **Control en caliente** | Reentrenar | INSERT/DELETE en milisegundos |
-| Olvido selectivo | No existe | Decay_rate por categoría |
-| Ciclo de vida | Insert → Query | Corto plazo → Sueño → Largo plazo → Olvido |
-| Introspección | No | Métricas cognitivas + tendencias |
-| Asociaciones explícitas | No (solo similitud) | Sinapsis con tipos y pesos |
-| Autonomía | Depende de API | 0 dependencias externas |
-| Tamaño | Gigabytes | ~4 MB |
-| Portabilidad | Atado a infraestructura | Un archivo .db |
-| **Ráfaga de reminiscencia** | **No** | **LLM genera 10-15 términos, script ejecuta** |
-| **Auto-aprendizaje** | **No** | **Co-ocurrencia + sinapsis automáticas** |
-| **Funciona offline** | **No** | **Sí** |
-
-> **BioRAG no es una alternativa genérica a una vector DB. Es un paradigma propio de Semántica Determinista y Discreta, diseñado para gobernar el contexto de agentes de IA con determinismo, control y explicabilidad total.**
-
----
-
-### Logros Técnicos
-
-- **Paradigma propio de Semántica Determinista y Discreta**: 7 dimensiones × 73 sub-valores explícitos y auditable, sin embeddings opacos
-- **0 dependencias externas de ML**: ni numpy, ni vectores, ni GPU — SQLite puro con FTS5 trigram
-- **Batch FTS5 optimization**: pre-carga puentes FTS5 una sola vez (1 query SQL en vez de N), reduce latencia de 56ms a 12ms (82% más rápido)
-- **Calidad preservada**: 100% overlap con búsqueda legacy — el batch FTS5 usa la misma query que el modo legacy
-- **Red sináptica de 15,521 aristas**: 340 nodos conectados por auto-linking biomimético + co-ocurrencia automática
-- **3,004 equivalencias semánticas**: tesauro bidireccional auto-construido desde vocabulario cargado + sinónimos
-- **58 grupos semánticos disjuntos**: Union-Find agrupa 1,292 términos equivalentes para boosting de relevancia
-- **Boosting conceptual 1.2x**: resultados que comparten grupo semántico con el query reciben boost dinámico en el score
-- **Dynamic Multiplicator**: cuando FTS5 falla, Jaccard toma el control con fórmula 70/20/10
-- **Anclaje Temporal**: +0.15 score si nodo accedido <7 días, +0.08 si <30 días, +0.03 si <90 días
-- **Ráfaga de Reminiscencia**: `rafaga_palabras` en MCP — emula el proceso humano de "tirar flechas" para recordar
-- **Ráfaga se activa con score < 0.5**: no solo con 0 resultados — cuando los resultados son débiles, la ráfaga mejora la búsqueda
-- **Instrucción de 5 niveles**: guía para generar mejores palabras de ráfaga (literal → técnico → contexto → problema → emoción)
-- **Co-ocurrencia automática en sueño**: el ciclo de sueño crea sinapsis basándose en co-ocurrencia de conceptos
-- **PALABRA_COMPLETA en todas las capas FTS5**: previene falsos positivos de trigram ("culo" ≠ "artículos")
-- **Protocolo de 4 pasos**: directa → paráfrasis → ráfaga → combinada → contingencia
-- **Paráfrasis obligatorio**: variantes semánticas con 4 niveles (sinónimos, registro, perspectiva, abstracción) con penalización ×0.95
-- **Scoring por Densidad de Coincidencia**: fórmula 50% densidad + 35% peso sináptico + 15% asociaciones en ráfaga
-- **Auto-aprendizaje de errores**: registra interpretaciones erróneas, excluye en próxima búsqueda
-- **Similitud conceptual latente**: Jaccard sobre vecinos compartidos + tokens en contenido (60% red + 40% contenido)
-- **Expansión semántica por tesauro**: tabla `semantica` bidireccional con auto-aprendizaje
-- **Pipeline de búsqueda de 9 capas**: FTS5 AND → OR → Prefix (unicode61) → Semántica → Conceptual → Snap → Cadena → Substring → Trigram
-- **Prefix matching nativo**: integración FTS5 unicode61 + función custom `PALABRA_PREFIJO` para matches de prefijo sin falsos positivos de substring
-- **Context Window en búsquedas**: resultados incluyen vecinos sinápticos con deduplicación automática para contexto enriquecido
-- **Oráculo externo (NotebookLM)**: `biorag_oraculo_inicio` consulta NotebookLM o fallback a BioRAG local para contexto de arranque del agente
-- **Decay diferenciado por categoría**: Profile=0.05, Principle=0.2, Project=1.5
-- **Métricas cognitivas históricas**: tabla `metricas_cognitivas` con detección de tendencias
-- **MCP nativo**: 23 herramientas para OpenCode, VS Code, Cursor, Cline, Antigravity, Claude Code
-- **Plugin OpenCode**: inyección invisible de recordatorios BioRAG + toast visual al agente
-- **71 tests automatizados**: cobertura completa del motor, sinapsis, semántica, similitud, ráfaga, prefix wildcards, context window, unicode FTS5 y boosting conceptual
-
----
-
----
-
-### Arquitectura Cerebral
-
-El sistema funciona como un cerebro artificial dentro de un solo archivo SQLite (`MemoryBioRAG_Data/memory_biorag.db`). Emula de forma nativa el comportamiento de una base de datos vectorial a través de topología de grafos sinápticos y lógica relacional — sin embeddings, sin GPU, sin servidores externos.
-
-#### Flujo General: cómo entra y sale la información
-
-```
-  Un agente de IA (Athena, Artemis o Hermes) interactúa con BioRAG
-  a través de dos operaciones fundamentales:
-
-                       ┌──────────────────────┐
-                       │ AGENTE DE IA (entrada)│
-                       └─────┬──────────┬─────┘
-                             │          │
-                        GUARDAR        BUSCAR
-                             │          │
-                             ▼          ▼
-                ┌────────────────┐ ┌──────────────────┐
-                │  Interceptor   │ │  Pipeline de     │
-                │  Filtro que    │ │  Búsqueda con    │
-                │  detecta qué   │ │  8 capas +       │
-                │  vale guardar  │ │  Ráfaga          │
-                └───────┬────────┘ └────────┬─────────┘
-                        │                   │
-                        ▼                   │
-              ┌──────────────────┐          │
-              │  CORTO PLAZO     │          │ Cada búsqueda
-              │  Mesa de trabajo │          │ exitosa refuerza
-              │  temporal        │          │ el recuerdo
-              └────────┬─────────┘          │ encontrado (LTP)
-                       │                    │
-                 Ciclo de Sueño             │
-                 (consolidación +           │
-                  co-ocurrencia)            │
-                       │                    │
-                       ▼                    ▼
-              ┌───────────────────────────────────┐
-              │        LARGO PLAZO (corteza)       │
-              │                                    │
-              │  La memoria permanente. Aquí viven │
-              │  todos los recuerdos consolidados  │
-              │  con su peso, categoría y          │
-              │  conexiones a otros recuerdos.     │
-              └───────┬────────────────┬───────────┘
-                      │                │
-                      ▼                ▼
-            ┌────────────────┐  ┌─────────────────┐
-            │ RED DE          │  │ TESAURO          │
-            │ CONEXIONES      │  │ SEMÁNTICO        │
-            │                 │  │                  │
-            │ 1,177 aristas   │  │ 1,564 pares      │
-            │ (auto + co-     │  │ de equivalencias │
-            │  ocurrencia)    │  │ (auto + manual)  │
-            └────────────────┘  └─────────────────┘
-```
-
-#### Pipeline de Búsqueda: cómo encuentra recuerdos
-
-Cuando un agente busca algo, BioRAG intenta encontrarlo con 8 estrategias
-progresivas. Si la primera no da resultados, pasa a la siguiente:
-
-```
-  Agente pregunta: "días relax frente al océano"
-          │
-          ▼
-  CAPA 1: Búsqueda exacta (FTS5 AND + PALABRA_COMPLETA)
-          │ Encontró? ── Sí ──► Resultados
-          │
-          No
-          ▼
-  CAPA 2: Búsqueda flexible (FTS5 OR)
-          │ Encontró? ── Sí ──► Resultados
-          │
-          No
-          ▼
-  CAPA 2.5: Prefix matching (FTS5 unicode61: "react" → "reactive")
-          │ Encontró? ── Sí ──► Resultados
-          │
-          No
-          ▼
-  CAPA 3: Expansión semántica (tesauro: "auto" → "vehículo")
-          │ Encontró? ── Sí ──► Resultados
-          │
-          No
-          ▼
-  CAPA 4: Similitud conceptual (Jaccard vecinos compartidos)
-          │ Encontró? ── Sí ──► Resultados (Dynamic Multiplicator)
-          │
-          No
-          ▼
-  CAPA 5: Snap reciente (últimos 7 días)
-          │ Encontró? ── Sí ──► Resultados
-          │
-          No
-          ▼
-  CAPA 6: Evocación por cadena (multi-hop 3 saltos)
-          │ Encontró? ── Sí ──► Resultados
-          │
-          No
-          ▼
-  CAPA 7: Substring (PALABRA_COMPLETA filtra falsos positivos)
-          │ Encontró? ── Sí ──► Resultados
-          │
-          No
-          ▼
-  CAPA 8: Trigram tolerance (typo ≥6 chars, PC solo ≤5 chars)
-          │ Encontró? ── Sí ──► Resultados
-          │
-          No
-          ▼
-  RÁFAGA DE REMINISCENCIA (si el agente usa rafaga_palabras)
-          │ "Tira flechas" con 10-15 términos relacionados
-          │ Encuentra nodos dormidos, los despierta
-          │ Crea sinapsis automáticamente
-          │ Encontró? ── Sí ──► Resultados
-          │
-          No
-          ▼
-  CONTINGENCIA: Agente busca en contexto del chat
-          │ Si encuentra → guarda con biorag_guardar
-          │ Si no → responde "no tengo ese recuerdo"
-```
-
-#### Dynamic Multiplicator:-score adaptativo
-
-Cuando la búsqueda literal falla y la similitud conceptual (Jaccard) encuentra resultados, el score se recalcula dinámicamente:
-
-```
-  Score normal:    60% BM25 + 25% peso sináptico + 15% asociaciones
-  Score latente:   70% Jaccard + 20% peso sináptico + 10% asociaciones
-
-  Se activa cuando:
-  - FTS5 no encontró el nodo (búsqueda literal falló)
-  - Jaccard ≥ 0.15 (similitud conceptual mínima)
-  - El nodo viene de capas 1.5, 1.7 o 1.9 (semánticas)
-```
-
-#### Ráfaga de Reminiscencia: cómo el sistema "intenta recordar"
-
-Emula el proceso humano de "tirar flechas" cuando no recuerdas algo:
-
-```
-  Usuario: "¿Dónde pasé mis días de relax frente al océano?"
-          │
-          ▼
-  Búsqueda normal: "días relax frente al océano"
-          │ Resultados: solo nodos técnicos (no personales)
-          │
-          ▼
-  Agente activa RÁFAGA: ["playa","mar","costa","verano","descanso",
-                          "sol","arena","olas","hotel","viaje"]
-          │
-          ▼
-  Script busca con cada palabra (activos + dormidos)
-          │
-          ├─ "playa" → encuentra hermes_oec_identidad (dormido)
-          │  "Yo fui para la playa en el verano pasado..."
-          │
-          ├─ "mar" → encuentra más nodos relacionados
-          │
-          ├─ "verano" → encuentra más nodos
-          │
-          ▼
-  Auto-despertar: hermes_oec_identidad pasa a "activo"
-  Auto-sinapsis: playa → hermes_oec_identidad (peso: 0.6)
-  Auto-sinapsis: mar → hermes_oec_identidad (peso: 0.6)
-          │
-          ▼
-  Agente lee el contenido y EXPlica al usuario:
-  "Encontré que fuiste a la playa en el verano pasado.
-   Disfrutaste del sol, la arena y las olas del mar."
-```
-
-#### PALABRA_COMPLETA: word boundary en DB
-
-FTS5 trigram matchea substrings de 3+ chars. PALABRA_COMPLETA evita falsos positivos:
-
-```
-  Sin filtro:    "culo" matchea "artículos" (comparte trigrama "cul")
-  Con filtro:    "culo" NO matchea "artículos" (\bculo\b = word boundary)
-
-  Aplicado en: Fallback 1.0, 1.7 (puentes), 1.8 (snap), 1.9 (semillas),
-               2.5 (solo palabras ≤5 chars — preserva tolerancia a typos)
-```
-
-#### Ciclo de Sueño: cómo el cerebro se mantiene sano
-
-```
-  1. CONSOLIDAR ─── Mover de corto a largo plazo (+0.20)
-  2. CO-OCURRENCIA ─── Crear sinapsis entre conceptos que co-ocurren
-  3. CONECTAR ───── Auto-linking por solapamiento de tokens
-  4. DEBILITAR ──── LTD: -0.05 × velocidad según categoría
-  5. DORMIR ─────── Recuerdos débiles (≤0.05) pasan a dormido
-  6. EQUILIBRAR ─── Inhibición lateral (límite: n_activos × 1.6)
-  7. REGISTRAR ──── Métricas cognitivas del ciclo
-  8. PODAR ──────── (opcional) Borrar nodos dormidos con peso ≤0.01
-```
-
-#### Protocolo de 3 pasos (MCP)
-
-El agente sigue este flujo obligatorio al buscar:
-
-```
-  PASO 1: biorag_buscar(query="frase del usuario")
-          Si es abstracta → interpretar + agregar 3-5 palabras clave
-
-  PASO 2: Si PASO 1 da 0 resultados
-          biorag_buscar(query="...", rafaga_palabras=[10-15 términos])
-
-  PASO 3: Si PASO 2 da 0 resultados o puro ruido
-          Buscar en contexto del chat → guardar con biorag_guardar
-
-  DESPUÉS DE CADA PASO: Leer resultados y explicar con propias palabras
-```
-
----
-
-## Historial de Versiones
-
-### v13.5 — Auto-Aprendizaje Léxico y Expansión Semántica Orgánica (Julio 2026)
-
-**El tesauro crece solo: de intervención manual a automatización orgánica.**
-
-El problema estructural que impedía el uso óptimo del "Soft-AND" y las ráfagas FTS5 ha sido solucionado. Anteriormente, la tabla de `semantica` (tesauro bidireccional) dependía de la herramienta MCP `semantica_admin`, la cual rara vez era invocada por los agentes. El parche legado (Ponytail) intentó automatizarlo pero contaminaba la tabla asignando las palabras clave al ID interno del nodo.
-
-**Qué se hizo:**
-- **Reingeniería de `auto_aprender_desde_sinonimos`**: El sistema ahora intercepta el parámetro `syn` en tiempo real (cuando el agente invoca `biorag_aprender`). Extrae los sinónimos y los cruza **todos contra todos bidireccionalmente** (usando `itertools.combinations`).
-- **Limpieza de Ruido**: Se abandonó la práctica de asociar los sinónimos al concepto ID, previniendo para siempre la contaminación con identificadores de base de datos (`cv_dennys_2026` = `portfolio`).
-- **Soporte para Frases Compuestas**: Se amplió el límite de la función de validación de higiene `_es_limpio` de **15 a 35 caracteres**, permitiendo la asociación de frases multipalabra como *"mantenimiento de servidores"* y *"arquitectura de software"*.
-
-**Impacto:** Cada vez que un agente guarda información, el sistema incrementa pasivamente su comprensión léxica de los dominios sin necesidad de mantenimiento, expandiendo orgánicamente el puente semántico (grafo léxico) para futuras búsquedas donde las palabras no coincidan de forma literal.
-
-### v11.3 — Sistema de Dimensiones Semánticas de 5 Ejes (Julio 2026)
-
-**Clasificar recuerdos por qué son, no solo por qué dicen.**
-
-Una DB vectorial agrupa textos por similitud matemática en un espacio latente de 1536 dimensiones: dos textos sin palabras en común pueden quedar cerca si el embedding "deduce" que se parecen. BioRAG logra el mismo resultado por otra vía: **etiquetas explícitas como agrupadores**. Una sola etiqueta — `frustración`, `entidad=laptop`, `coordenada=sesión_2026` — agrupa miles de textos distintos que comparten esa cualidad, aunque usen palabras completamente diferentes.
-
-> Toda dimensión semántica que una DB vectorial aproxima con vectores, puede emularse con una tabla de pertenencia explícita.
-
-No se emula la matemática — se emula el resultado. Con una ventaja: la pertenencia es exacta y auditable, no probabilística.
-
-| Qué hace una DB vectorial | Qué hace BioRAG |
-|---|---|
-| 1536 floats latentes por texto | 5 ejes categóricos: emocion, entidad, accion, cualidad, coordenada |
-| Distancia coseno (probabilística) | Coincidencia exacta sobre etiquetas |
-| Caja negra — no sabés por qué agrupa | Cada dimensión es inspeccionable y corregible |
-| Reentrenar para nuevos ejes | Agregar ejes con un INSERT |
-
-**Qué se hizo:**
-- **5 ejes semánticos** en tabla `tipos_dimension`: emocion (Sentir), entidad (Qué), accion (Hacer), cualidad (Cómo), coordenada (Dónde/Cuándo)
-- **39 valores clasificatorios** en `dimensiones_semanticas` distribuidos en los 5 ejes
-- **978 entradas de largo_plazo** clasificadas en los 5 ejes vía `largo_plazo_dimensiones`
-- **Parámetro `dimensiones` requerido** en la tool MCP `aprender` (reemplaza `emociones` opcional)
-- **Catálogo vivo** embebido en la descripción del parámetro — se actualiza al reiniciar el server
-- **Tool `listar_dimensiones`** para consulta del catálogo completo
-- **Protocolo de scaffolding** integrado en la tool: tabla de clasificación antes de guardar, con Prueba de Literalidad para omitir confirmación solo cuando todos los valores son textuales
-
-**Archivos modificados:** `core/memory_store.py` (init seed 5 tipos, `_obtener_arbol_dimensiones`, `_resolver_dimension_ids`, `percibir_corto_plazo(dimensiones=)`), `mcp_server.py` (tool `aprender` con `dimensiones` requerido, tool `listar_dimensiones`, catálogo vivo), `config/prompts.py` (REGLA #2, tool list), `scripts/export_architecture.py` (tool list)
-
-### v11.2 — Clasificación Emocional de la Corteza (Junio 2026)
-
-**El parámetro `emocion` en `recordar()`: indexar lo que el texto no dice.**
-
-Hasta ahora, buscar en BioRAG era puramente léxico-semántico: encontrar conceptos por lo que dicen, no por cómo se sintieron al guardarse. Un recuerdo de frustración y uno de satisfacción podían compartir las mismas palabras — y el sistema no podía distinguirlos.
-
-**Qué se hizo:**
-- Clasificación emocional de las **350 entradas de largo_plazo** (una por una).
-- Nuevo parámetro `emocion` en `recordar()`: filtra por cualidad experiencial (`"afecto,frustracion"`), ortogonal al texto.
-- Tabla `largo_plazo_emocion` con 7 emociones: neutro, afecto, alegria, sorpresa, frustracion, preocupacion, confusion.
-- Regla de etiquetado: neutro solo para datos sin carga emocional (rutas, IDs, versiones). Enseñanzas de Dennys NUNCA son neutras.
-- Documentación del parámetro en `mcp_server.py` con propósito real y reglas de uso.
-- Validación empírica: `recordar(emocion="afecto")` vs SQL directo — 33 vs 34 resultados. Sin pérdida.
-
-**Distribución final corregida:**
-```
-neutro:      208 → 145 (-63, reasignados a emociones reales)
-afecto:       37 → 61 (+24)
-sorpresa:     19 → 45 (+26)
-alegria:      73 → 81 (+8)
-frustracion:   8 → 13 (+5)
-preocupacion:  4 (sin cambio)
-confusion:     1 (sin cambio)
-```
-
-**Archivos modificados:** `core/memory_store.py` (tabla `largo_plazo_emocion`, filtro por emoción en `buscar_por_frase`), `mcp_server.py` (parámetro `emocion` en `recordar`), `db/` exports para NotebookLM
-
-### v11.1 — Etiquetado Emocional e Indexación Semántica (Junio 2026)
-
-**Mapeo de estados de ánimo y boosting de relevancia conceptual en el ranking híbrido.**
-
-**Etiquetado Emocional y Cognitivo (Opción B):**
-- **Clasificación emocional integrada**: El middleware de autoguardado extrae expresiones sentimentales cotidianas y las guarda con etiquetas sinápticas estandarizadas (`emocion_afecto`, `emocion_frustracion`, `emocion_preocupacion`, `emocion_satisfaccion`) en la columna `sinonimos`.
-- **Diccionario semántico auto-sustentable**: Mapeo de términos cotidianos (ej. `"te quiero"`, `"molesto"`) en tiempo de inicio para que búsquedas abstractas evoquen el recuerdo correcto mediante FTS5.
-- **Test 72**: Cobertura de evocado por emoción y validación del interceptor.
-
-**Indexación Semántica y Boosting por Grupos Disjuntos:**
-- **`grupos_semanticos` y `grupo_terminos`**: Algoritmo Union-Find que agrupa equivalencias en clusters disjuntos.
-- **Nueva columna `conceptos_ids`**: Almacena los IDs de grupos semánticos presentes en el contenido.
-- **Boost dinámico 1.2x**: Multiplica por 1.2 el score híbrido para coincidencias del mismo clúster conceptual.
-
-- **Archivos modificados**: `core/semantica.py`, `core/memory_store.py`, `middleware/auto_guardado.py`, `test_memory.py`, `vocabulario_inicial.json`
-- **Tests**: 72/72 pasando
-- **Producción**: 340 nodos, 15,521 sinapsis, 3,004 equivalencias, 58 grupos semánticos, 1,292 términos mapeados
-
-### v11.0 — Scoring por Densidad de Coincidencia (Junio 2026)
-
-**El scoring de ráfaga ahora emula similitud coseno usando densidad de coincidencia.**
-
-- **Reemplazo del scoring híbrido en `buscar_por_rafaga`**: fórmula de Densidad de Coincidencia (50% densidad, 35% peso sináptico, 15% asociaciones)
-- **Corrección del error de regex boundary (`\b`)**: normalización de guiones a espacios en 6 puntos del pipeline para conceptos snake_case
-- **Fix deduplicación en merge** (`mcp_server.py` L324): clave de concepto en lugar de contenido
-- **Verificación de recall exitosa**: todas las vías (ráfaga, paráfrasis, combinación) con convergencia estable
-- **Tests**: 70/70 pasando
-
-### v10.2 — Paráfrasis Obligatorio y Semántica Inferida (Junio 2026)
-
-**Tres capas de recall semántico: paráfrasis, ráfaga sináptica e inferencia.**
-
-- **Paráfrasis obligatorio**: `str` comma-separated con penalización ×0.95 por variante
-- **Ráfaga sináptica**: rescata nodos con palabras clave cuando paráfrasis falla
-- **Inferencia como sugerencia**: `auto_guardar=False` por defecto — el agente decide si guardar
-- **ORDER BY corregido**: fórmula `0.5 + 0.5 * peso` para scoring consistente
-- **Tests**: 70/70 pasando
-
-### v10.0 — Capas Conceptual y Semántica para Recall Mejorado (Junio 2026)
-
-- **Capa conceptual**: matching por nombre de concepto con Jaccard sobre tokens
-- **Capa semántica**: expansión por tesauro con matching bidireccional
-- **Side channel `origen_scores`**: rastrea origen de cada resultado para Dynamic Multiplicator
-- **Tests**: 70/70 pasando
-
-### v9.5 — Síntesis de Espectro para Recall Comprehensivo (Junio 2026)
-
-- **Spectrum synthesis**: combina resultados de múltiples capas del pipeline
-- **Prueba final**: 33 queries, 94% success rate (15/15 FTS5 directo, 4/4 sinónimos, 3/3 inglés)
-- **Tests**: 70/70 pasando
-
-### v9.4 — Empatía Sintáctica en Ráfaga (Junio 2026)
-
-- **Syntactic empathy**: la ráfaga de reminiscencia tolera variaciones morfológicas
-- **Tests**: 70/70 pasando
-
-### v9.3 — Paginación de Resultados (Junio 2026)
-
-- **Paginación**: parámetros `pagina` y `limite` en `recordar`/`buscar`
-- **Tests**: 68/68 pasando
-
-### v9.2 — Ráfaga Optimizada y Sin Límite de Términos (Junio 2026)
-
-- **Ráfaga ilimitada**: sin límite en cantidad de `rafaga_palabras`
-- **Optimización de performance**: reducción de queries redundantes
-- **Tests**: 68/68 pasando
-
-### v9.1 — Renombre Cognitivo de Herramientas (Junio 2026)
-
-- **Herramientas renombradas**: `buscar`→`recordar`, `guardar`→`aprender`, `asociar`→`vincular`, `sueno`→`consolidar`, `estado`→`introspeccion`, `corteza`→`mapear`
-- **Aliases legacy**: las herramientas antiguas siguen funcionando
-- **Tests**: 68/68 pasando
-
-### v9.0 — Plugin OpenCode, Oráculo NotebookLM y Context Window Cognitivo (Junio 2026)
-
-**BioRAG se expande: plugin de integración con OpenCode, contexto de sesión desde NotebookLM y búsqueda enriquecida con vecinos sinápticos.**
-
-- **Plugin OpenCode**: inyección invisible de recordatorios BioRAG en cada turno del usuario. Hook `chat.message` agrega `<system-reminder>` con autorización de herramientas en Plan Mode. Hook `event` (`session.idle`) muestra toast visual al agente. Sin registro en `opencode.json` — auto-carga desde `~/.config/opencode/plugins/`.
-- **Oráculo de sesión (`biorag_oraculo_inicio`)**: consulta NotebookLM externo o fallback a BioRAG local para contexto de arranque del agente. Configurable via `BIORAG_PROMPT_INICIO` y `BIORAG_NOTEBOOK_ID`.
-- **Context Window en búsquedas**: resultados incluyen vecinos sinápticos con deduplicación automática. El agente recupera memorias con su contexto asociado, imitando la memoria humana.
-- **Prefix Matching nativo**: integración FTS5 unicode61 + función `PALABRA_PREFIJO` para que "react" encuentre "reactive" sin falsos positivos de substring. Pipeline expandido a 9 capas.
-- **Configuración mejorada**: parseo `.env.local` con soporte multi-línea y secuencias de escape para prompts complejos.
-- **Instalación**: `python3 install.py` copia el plugin automáticamente. Instalación manual: `cp plugin/opencode-biorag-remember-plugin.ts ~/.config/opencode/plugins/`.
-- **Requisitos**: OpenCode con soporte de plugins y MCP de BioRAG configurado.
-- **Tests**: 68/68 pasando
-
-### v8.2 — FTS5 unicode61, Prefix Wildcards y Context Window (Junio 2026)
-
-**Mejora de recall sin perder precisión: prefix matching nativo en BioRAG. Los resultados ya no vienen solos: cada recuerdo trae su contexto asociado.**
-
-- **FTS5 unicode61**: segunda tabla FTS5 con tokenizer unicode61 para búsquedas de palabras completas y prefix matching. Complementa la tabla trigram existente (typos/substrings).
-- **Prefix wildcards automáticos**: cada término de búsqueda se expande con `*` (`react` → `react*`), permitiendo encontrar "reactive", "reactivity", "react hooks".
-- **PALABRA_PREFIJO**: nueva función SQLite que filtra por prefijo de palabra. Permite `react` → `reactive` pero sigue bloqueando falsos positivos de substring como `culo` → `artículos`.
-- **Pipeline enriquecido**: la nueva capa 2.5 (unicode61 prefix) se ejecuta junto a las capas FTS5 AND/OR, aumentando recall sin degradar velocidad.
-- **Migración segura**: la tabla unicode61 se crea y puebla automáticamente al inicializar. Triggers mantienen sincronización en INSERT/UPDATE/DELETE.
-- **Context window en `buscar_por_frase`**: nuevo parámetro `context_window=N` que expande cada resultado principal con hasta N vecinos obtenidos de la tabla `sinapsis` ordenados por peso.
-- **Deduplicación automática**: un vecino compartido por varios resultados principales aparece una sola vez en la respuesta.
-- **Score de contexto atenuado**: los nodos de contexto reciben un score menor que los resultados principales (`score_principal * 0.6 + peso_sinaptico * 0.2`), preservando la jerarquía visual.
-- **Respeto de profundidad**: los vecinos heredan el filtro `activos`/`profundo` de la búsqueda principal.
-- **Sin cambio de API**: `context_window=0` es el default; el formato del resultado no cambia.
-- **Exposición en MCP**: `biorag_buscar` ahora acepta `context_window` para que el LLM pida contexto explícitamente.
-- **Archivos modificados**: `core/memory_store.py` (`buscar_por_frase`, `_crear_tabla_fts`, `_poblar_fts_unicode`, `_agregar_prefix_wildcards`), `mcp_server.py` (`biorag_buscar`), `test_memory.py` (tests 67-68)
-- **Tests**: 68/68 pasando
-
-#### Validación Externa: Análisis de Arena AI
-
-> *"Esto es un salto arquitectónico real. La v8 no es una mejora incremental. Es un cambio de paradigma en cómo BioRAG encuentra información."*
-
-**Lo que destacó:**
-- La Ráfaga de Reminiscencia es "la implementación más cercana al proceso humano de recordar"
-- El Dynamic Multiplicator "sabe cuándo cambiar de estrategia automáticamente"
-- El Protocolo de 3 pasos es "exactamente el proceso humano: intentas recordar → lanzas asociaciones → preguntas a alguien"
-- "Memoria que aprende mientras recuerda — cada búsqueda exitosa deja conexiones nuevas"
-
-**Números de crecimiento v7 → v8.2:** Sinapsis +154%, Activos +347%, Energía sináptica +358%
-
-> *"Esto es lo que queríamos construir desde el principio."*
-
-### v8.1 — Batch FTS5 Optimization (Junio 2026)
-
-**Optimización de performance: 82% más rápido sin perder calidad.**
-
-- **Batch FTS5**: pre-carga todos los nodos puente con UNA sola query FTS5 (en vez de N queries separadas por candidato). Reduce latencia de 56ms a 12ms.
-- **Calidad preservada**: el batch FTS5 usa la misma query que el modo legacy — 100% overlap en resultados.
-- **Configuración por entorno**: `.env.local` auto-cargado con 12 parámetros configurables.
-- **Corrección de bug**: el batch anterior usaba substring matching que degradaba calidad (33% overlap). Corregido a FTS5 batch (100% overlap).
-- **Archivos modificados**: `core/similitud_conceptual.py` (`_similitud_red`, `score_similitud_latente`), `core/memory_store.py` (`buscar_por_frase`)
-- **Tests**: 64/64 pasando
-
-### v8.0 — Ráfaga de Reminiscencia, Auto-aprendizaje y Dynamic Multiplicator (Junio 2026)
-
-**El sistema aprende de sus propios errores y ahora "intenta recordar" como un cerebro humano.**
-
-- **Anclaje Temporal en Scoring**: bonus de +0.15 si el nodo fue accedido en los últimos 7 días, +0.08 si en los últimos 30 días, +0.03 si en los últimos 90 días. Los nodos frescos suben en el ranking.
-- **Auto-aprendizaje de errores**: cuando el usuario rechaza un resultado ("no es eso"), el agente registra el error como lección (`error_interpretacion_[palabra]`). La próxima vez que se busque esa palabra, el sistema excluye la interpretación errónea.
-- **Glosario Cultural actualizable**: las correcciones de interpretación se guardan como lecciones que afectan búsquedas futuras.
-- **Contexto motivacional**: prompts.py instruye al agente para guardar el "porqué" detrás de las enseñanzas.
-- **Archivos modificados**: `core/memory_store.py` (`_calcular_score_hibrido`, `buscar_por_rafaga`), `config/prompts.py` (REGLA #1, REGLA #2)
-- **Tests**: 64/64 pasando
-
-#### Nuevos componentes:
-- **`buscar_por_rafaga()`** en `memory_store.py`: búsqueda por ráfaga de reminiscencia. Cuando la búsqueda normal falla, el agente "tira flechas" con 10-15 términos relacionados. El script busca con cada palabra (activos + dormidos), despierta nodos encontrados y crea sinapsis automáticamente.
-- **`_auto_generar_co_ocurrencia()`** en `memory_store.py`: crea sinapsis automáticamente durante el ciclo de sueño basándose en co-ocurrencia de conceptos en `corto_plazo` y `comunicaciones`.
-- **`rafaga_palabras`** parámetro en `biorag_buscar` MCP: lista de términos relacionados que el agente inyecta para la búsqueda de reminiscencia.
-- **`contingencia_contexto`** señal en respuesta MCP: cuando no hay resultados, el tool indica al agente que busque en su contexto de conversación.
-- **Dynamic Multiplicator** en `_calcular_score_hibrido()`: cuando FTS5 falla y Jaccard ≥ 0.15, cambia la fórmula de scoring a 70/20/10 (Jaccard/peso/asoc) en lugar de 60/25/15.
-
-#### Mejoras al pipeline:
-- **PALABRA_COMPLETA en todas las capas FTS5**: capas 1.0, 1.7 (puentes), 1.8 (snap), 1.9 (semillas) ahora filtran con word boundary en SQL.
-- **PALABRA_COMPLETA incluye sinonimos**: `COALESCE(l.sinonimos, '')` en el WHERE preserva la búsqueda por sinónimo.
-- **PALABRA_COMPLETA diferenciada en 2.5**: solo aplica a palabras ≤5 chars (preserva tolerancia a typos en palabras largas).
-- **Co-ocurrencia en sueño**: el ciclo de sueño ahora crea sinapsis basándose en pares de conceptos que co-ocurren en la misma sesión.
-
-#### Protocolo MCP:
-- **Descripción de `biorag_buscar`** actualizada con protocolo de 3 pasos: enriquecimiento → ráfaga → contingencia.
-- **`prompts.py` REGLA #1** actualizada: flujo de 3 pasos + "explicar con propias palabras".
-- **Glosario Cultural**: Principle en BioRAG con mapa de traducción de metáforas del usuario.
-- **Protocolo de enriquecimiento**: Principle en BioRAG con directiva de búsqueda cognitiva.
-
-#### Producción:
-- 161 nodos activos, 17 dormidos, 1,177 sinapsis, 1,564 equivalencias
-- 64 tests automatizados (sin regressiones)
-- 0 dependencias externas
-
-### v7.1 — PALABRA_COMPLETA, Similitud Conceptual y Expansión Semántica (Junio 2026)
-
-- **`core/similitud_conceptual.py`** (módulo nuevo): Jaccard vecinos + contenido, score 60/40, umbral 0.10
-- **`core/semantica.py`** (módulo nuevo): tesauro bidireccional + auto-aprendizaje, 1,564 equivalencias
-- **PALABRA_COMPLETA SQLite function**: word boundary en SQL, previene "culo" → "artículos"
-- **Pipeline de 8 capas**: FTS5 AND → OR → Semántica → Conceptual → Snap → Cadena → Substring → Trigram
-- **Decay diferenciado**: Profile=0.05, Principle=0.2, Project=1.5
-- **Métricas cognitivas**: tabla `metricas_cognitivas` + tool `biorag_metricas_historial`
-- **64 tests automatizados**
-- **Production**: 47 nodos activos, 451 sinapsis, 1,172 equivalencias
-
-### v6.0 — Estandarización de Categorías e Instalador Multiplataforma (Junio 2026)
-
-- **Esquema de categorías unificado**: 11 categorías madre predefinidas
-- **Instalador multiplataforma**: `install.py` configura BioRAG en 7 plataformas
-- **Base de sincronización incremental**: tabla `sync_log` + triggers selectivos
-- **Nuevas herramientas MCP**: `biorag_listar_categorias`, `biorag_sync_status`, `biorag_export_sync`, `biorag_export_full`
-
-### v5.1 — Optimizaciones de Motor (Junio 2026)
-
-- **Truncado en el motor**: `preview_chars` ahorra RAM
-- **Evicción condicional**: `BIORAG_PODAR=true` borra nodos dormidos con peso ≤0.01
-- **FTS5 pre-filter en auto_vincular**: usa FTS5 MATCH para pre-filtrar candidatos
-
-### v5.0 — Sinapsis y Red Semántica (Junio 2026)
-
-- **Auto-linking al guardar**: overlap coefficient crea aristas automáticamente
-- **Tabla `sinapsis` persistente**: aristas con tipos y pesos
-- **`buscar_vecinos()`**: navegación del grafo
-- **Categorización automática**: inferencia por palabras clave
-
-### v4.0 — Interceptor V2 (Junio 2026)
-
-- **Buffer de sesión con TTL**: autoguardado heurístico
-- **Consolidación inmediata**: sin necesidad de `biorag_sueno`
-- **Heurísticas biomiméticas**: detección de 30+ patrones léxicos
-
-### v3.0 — MCP Server (Junio 2026)
-
-- **Servidor MCP**: 16 herramientas nativas para IDEs
-- **Resources MCP**: acceso directo a nodos
-- **Prompt MCP**: system prompt inyectable
-
-### v2.x — Cimientos (Junio 2026)
-
-- **FTS5 trigram**: tolerancia a typos
-- **Score híbrido**: BM25 + peso sináptico + asociaciones
-- **Pipeline de búsqueda multi-capa**
-- **LTP/LTD**: plasticidad sináptica
-
----
-
-## BioRAG vs. Bases de Datos Vectoriales
-
-BioRAG no replica lo que hacen las bases vectoriales. Lo que hace es **otra cosa** — un paradigma propio de Semántica Determinista y Discreta:
-
-| Capacidad | Base de Datos Vectorial | BioRAG |
-|---|---|---|
-| **Naturaleza** | Espacio continuo, probabilístico, opaco | Espacio discreto, determinista, auditable |
-| **Similitud semántica** | Embeddings (768-1536 floats opacos) | 7 dimensiones × 73 IDs discretos + BM25 léxico |
-| **Cómo sabe qué es similar** | Entrenamiento masivo (aprende de internet) | Tú definís las dimensiones (explícito, auditable) |
-| **Resultado** | "Esto se parece matemáticamente" | "Esto tiene las mismas coordenadas conceptuales" |
-| **Tolerancia a typos** | Depende del modelo | FTS5 trigram nativo |
-| **Expansión de queries** | Embeddings implícitos | Tesauro explícito + ráfaga del agente |
-| **Ranking** | Distancia coseno | Score híbrido + Dynamic Multiplicator + score aditivo dimensional |
-| **Explicabilidad** | Caja negra — no sabés por qué agrupa | Cada dimensión es inspeccionable y corregible |
-| **Control en caliente** | Reentrenar para nuevos ejes | Agregar ejes con un INSERT |
-| **Dependencias** | numpy, sentence-transformers, GPU | Cero. SQLite puro |
-| **Latencia** | 2-100ms (con embeddings reales) | 2.84ms promedio |
-| **Memoria RAM** | 100-500MB | **18.7MB** (7x menos) |
-| **Funciona offline** | No | Sí |
-
----
-
-## Benchmarks (Ejecuta tus propias pruebas)
-
-Ejecuta `python3 benchmark.py` para comparar BioRAG con LangChain+Chroma en tu máquina.
-
-**Resultados en DB producción (135 nodos, Junio 2026):**
-
-| Búsqueda | Latencia promedio |
-|----------|-------------------|
-| **FTS5 directo** | 9.3 ms |
-| **Jaccard (batch FTS5)** | 10.1 ms |
-| **Promedio general** | 12.0 ms |
-
-**Comparación con LangChain+Chroma (100 nodos):**
-
-| Sistema | Latencia avg | Memoria RAM |
-|---------|--------------|-------------|
-| **BioRAG** | 2.84 ms | **18.7 MB** |
-| LangChain+Chroma | 2.10 ms | 128.7 MB |
-
-**Interpretación:**
-- BioRAG usa **7x menos memoria** que LangChain+Chroma (18.7 MB vs 128.7 MB)
-- Latencia comparable (2.84ms vs 2.10ms)
-- BioRAG tiene **0 dependencias externas de ML** (no requiere Chroma, FAISS, ni embeddings)
-- BioRAG corre en cualquier lado (incluso en Raspberry Pi)
-- Con batch FTS5, las búsquedas Jaccard bajan de 56ms a 12ms (82% más rápido)
-
 ---
 
 ## Estructura del Proyecto
@@ -1118,7 +622,7 @@ MemoryBioRAG/
   ├── vocabulario_inicial.json  # 239 términos del dominio para expansión semántica
   ├── VERSION                   # Versión actual del sistema
   ├── core/
-  │    ├── memory_store.py      # Motor: LTP/LTD, 9 capas, Dynamic Multiplicator,
+  │    ├── memory_store.py      # Motor: LTP/LTD, 12 capas, Dynamic Multiplicator,
   │    │                        #   co-ocurrencia, ráfaga, PALABRA_COMPLETA,
   │    │                        #   boosting conceptual 1.2x
   │    ├── sinapsis.py          # Grafo: auto-linking, overlap coefficient, decay
@@ -1169,463 +673,298 @@ BioRAG expone una corteza cerebral compartida via MCP para que cualquier IDE o a
 | `biorag_sync_status` | Categorías pendientes de sync a NotebookLM |
 | `biorag_export_sync` | Exporta categorías pendientes |
 | `biorag_export_full` | Export completo |
+| `listar_tipos_dimension` | Retorna los 7 tipos con `num_dimensiones` |
+| `listar_dimensiones_por_tipo` | Retorna sub-valores de uno o más tipos |
+| `listar_dimensiones` | Catálogo vivo de las 73 dimensiones |
 
 ### Protocolo de 3 pasos en `recordar`
 
-```python
-# PASO 1: Búsqueda con interpretación
-biorag_buscar(query="días relax frente al océano playa vacaciones")
+```
+PASO 1: biorag_buscar(query="frase del usuario")
+        Si es abstracta → interpretar + agregar 3-5 palabras clave
 
-# PASO 2: Si falla, ráfaga de términos relacionados
-biorag_buscar(
-    query="días relax frente al océano",
-    rafaga_palabras=["playa","mar","costa","verano","descanso","sol","arena","olas"]
-)
+PASO 2: Si PASO 1 da 0 resultados
+        biorag_buscar(query="...", rafaga_palabras=[10-15 términos])
 
-# PASO 3: Si todo falla, contingencia_contexto=True
-# → El agente busca en su contexto de conversación
-# → Si encuentra, guarda con biorag_guardar
+PASO 3: Si PASO 2 da 0 resultados o puro ruido
+        Buscar en contexto del chat → guardar con biorag_guardar
+
+DESPUES DE CADA PASO: Leer resultados y explicar con propias palabras
 ```
 
 ---
 
-## Variables de entorno (opcionales)
-
-Los defaults están en el código. Las variables de entorno son para **override** solamente.
+## Variables de Entorno (Opcionales)
 
 ### Base de Datos
 
 | Variable | Default | Descripción |
-|----------|---------|-------------|
-| `BIORAG_PATH` | `./MemoryBioRAG_Data/memory_biorag.db` | Ruta al archivo .db donde BioRAG guarda la memoria |
+|---|---|---|
+| `BIORAG_PATH` | `./MemoryBioRAG_Data/memory_biorag.db` | Ruta al archivo .db |
 
 ### Búsqueda y Rendimiento
 
 | Variable | Default | Descripción |
-|----------|---------|-------------|
-| `BIORAG_LIMITE_MCP` | `10` | Cuántos resultados retorna cada búsqueda MCP por defecto |
-| `BIORAG_CANDIDATOS_SIMILITUD` | `100` | Cuántos nodos candidatos evalúa para similitud conceptual (Jaccard). Más = más preciso pero más lento |
-| `BIORAG_MAX_SALTOS_CADENA` | `3` | Cuántos hops hace en evocación por cadena. Cada salto aplica decay: salto 1=0.50, salto 2=0.25, salto 3=0.125 |
-| `BIORAG_LIMITE_DEFAULT` | `5` | Cuántos resultados máximo saca cada capa del pipeline de búsqueda |
-| `BIORAG_UMBRAL_JACCARD` | `0.15` | Score mínimo Jaccard para considerar similitud conceptual (0.0=acepta todo, 1.0=solo idénticos) |
-| `BIORAG_LIMITE_SIMILITUD` | `5` | Cuántos resultados retorna la capa de similitud conceptual latente |
-| `BIORAG_LIMITE_RAFTAGA` | `5` | Cuántos resultados retorna cada palabra de la ráfaga de reminiscencia |
-| `BIORAG_LIMITE_EVOCACION` | `5` | Cuántos resultados totales permite la evocación por cadena (multi-hop) |
+|---|---|---|
+| `BIORAG_LIMITE_MCP` | `10` | Resultados por búsqueda MCP |
+| `BIORAG_CANDIDATOS_SIMILITUD` | `100` | Candidatos para similitud conceptual (Jaccard) |
+| `BIORAG_MAX_SALTOS_CADENA` | `3` | Hops en evocación por cadena (decay: 0.50, 0.25, 0.125) |
+| `BIORAG_UMBRAL_JACCARD` | `0.15` | Score mínimo Jaccard para similitud conceptual |
+| `BIORAG_LIMITE_SIMILITUD` | `5` | Resultados de similitud conceptual latente |
+| `BIORAG_LIMITE_RAFTAGA` | `5` | Resultados por palabra de ráfaga |
+| `BIORAG_LIMITE_EVOCACION` | `5` | Resultados totales de evocación por cadena |
+| `BIORAG_LIMITE_DEFAULT` | `5` | Resultados máximos por capa del pipeline |
 
 ### Ráfaga de Reminiscencia
 
 | Variable | Default | Descripción |
-|----------|---------|-------------|
-| `BIORAG_RAFTAGA_ACTIVA` | `true` | Activa o desactiva completamente la ráfaga (la feature más poderosa de BioRAG) |
-| `BIORAG_THRESHOLD_RAFTAGA` | `0.5` | Score mínimo del top resultado para activar la ráfaga automáticamente. Si score < 0.5, la ráfaga se dispara |
-
-### Ejemplo rápido
+|---|---|---|
+| `BIORAG_RAFTAGA_ACTIVA` | `true` | Activa/desactiva la ráfaga |
+| `BIORAG_THRESHOLD_RAFTAGA` | `0.5` | Score mínimo para activar ráfaga automática |
 
 ```bash
-# Solo cambiar el límite de resultados
+# Ejemplo rápido
 export BIORAG_LIMITE_MCP=5
-
-# Probar con candidatos reducidos (más rápido)
 export BIORAG_CANDIDATOS_SIMILITUD=50
-
-# Desactivar ráfaga (no recomendado)
-export BIORAG_RAFTAGA_ACTIVA=false
 ```
-
-### Alternativa: archivo .env.local
-
-```bash
-cp .env.example .env.local
-# Editar .env.local con tus valores personalizados
-```
-
-**Nota:** Si no estableces ninguna variable, el sistema usa los defaults del código.
 
 ---
 
-## v12.0 — Filtros Temporales y Memoria Compartida
+## BioRAG vs. Bases de Datos Vectoriales
 
-### Qué cambió
-
-La herramienta `recordar` ahora soporta **búsqueda por tiempo y por agente**, y funciona como **log cronológico** cuando se omite el query. El parámetro `dimensiones` pasó a ser opcional en `recordar` para permitir estas consultas cronológicas puras sin el boost semántico obligatorio. 
-
-> [!IMPORTANT]
-> El alias legacy `buscar` (o `biorag_buscar`) mantiene su firma antigua estricta con parámetros `query` y `dimensiones` requeridos por retrocompatibilidad. Para realizar consultas cronológicas o por filtros temporales puros, se debe usar la herramienta moderna `recordar`.
-
-### Parámetros nuevos y modificados
-
-| Parámetro | Tipo | Descripción |
-|-----------|------|-------------|
-| `query` | `Optional[str]` | **Ahora opcional.** Si se omite, trae los N recuerdos más recientes ordenados cronológicamente por `creado_en`. |
-| `dimensiones` | `Optional[str]` | **Ahora opcional.** JSON de clasificación semántica para boost de score. Requerido en alias legacy `buscar`. |
-| `dias` | `int` | Filtra por recuerdos creados en los últimos N días. Ej: `dias=5` |
-| `desde` | `str` | Fecha inicio en formato `YYYY-MM-DD`. Ej: `desde='2026-06-20'` |
-| `hasta` | `str` | Fecha fin en formato `YYYY-MM-DD`. Combinable con `desde` para búsquedas por rango de fecha. |
-| `autor` | `str` | Filtra recuerdos por el nombre del agente creador (busca en el concepto y contenido). Ej: `autor='athena'` |
-
-### Ejemplos de uso
-
-```python
-# Log cronológico puro — últimos 10 recuerdos
-recordar(dias=365, limite=10)
-
-# Qué aprendí esta semana
-recordar(query='lesson', dias=7, cat='Lesson')
-
-# Qué me enseñó Artemis en junio
-recordar(query='lesson', autor='artemis', desde='2026-06-01', hasta='2026-06-30')
-
-# Búsqueda semántica normal (sin cambios)
-recordar(query='error http timeout', parafrasis='fallo de red,timeout', dimensiones='...')
-```
-
-### Campo `creado_en`
-
-Cada nodo en `largo_plazo` ahora tiene un campo `creado_en REAL` que registra cuándo se consolidó.
-- **Registros nuevos**: se setea con `time.time()` al consolidar
-- **Registros antiguos**: hereda `ultimo_acceso` (mejor que 0)
-- Permite filtros temporales y orden cronológico
-
-### Coordinación Athena ↔ Artemis
-
-Este versión fue diseñada en conjunto:
-- **Artemis** diseñó el plan de `creado_en` y los puntos de integración
-- **Athena** ejecutó la implementación y optimizaciones
-- Canal simbiótico documentado en `communication.log`
-
-### Tool `desvincular` — Plasticidad Negativa Interactiva
-
-Cuando el motor trae un falso positivo (un nodo irrelevante que aparece por sinapsis), no se ignora — se **reencamina**:
-
-```python
-# Si al buscar "error http" aparece "flor" (irrelevante):
-desvincular(a="error_http", b="flor")
-
-# La sinapsis se borra, el CSV `asociaciones` se sincroniza,
-# y "flor" no volverá a aparecer para búsquedas de "error http"
-```
-
-**Directiva de Higiene de Falsos Positivos:** Cuando invoques `recordar` y detectes un concepto semánticamente ajeno que llegó por sinapsis (no por FTS5), ejecutá `desvincular` inmediatamente. El cerebro mejora con cada corrección.
-
-### Métricas v12.0
-
-| Métrica | Antes (v11.1) | Después (v12.0) |
-|---------|---------------|-----------------|
-| Sinapsis | 2,043 | 1,362 |
-| Sinapsis espurias | 681 | 0 |
-| Nodos sincronizados | — | 362 |
-| Tools MCP | 12 | 13 (`desvincular`) |
+| Capacidad | Base de Datos Vectorial | BioRAG |
+|---|---|---|
+| **Naturaleza** | Espacio continuo, probabilístico, opaco | Espacio discreto, determinista, auditable |
+| **Similitud semántica** | Embeddings (768-1536 floats opacos) | 7 dimensiones × 73 IDs discretos + BM25 léxico |
+| **Cómo sabe qué es similar** | Entrenamiento masivo (aprende de internet) | Tú definís las dimensiones (explícito, auditable) |
+| **Tolerancia a typos** | Depende del modelo | FTS5 trigram nativo |
+| **Expansión de queries** | Embeddings implícitos | Tesauro explícito + ráfaga del agente |
+| **Ranking** | Distancia coseno | Score híbrido 8 señales + Dynamic Multiplicator |
+| **Explicabilidad** | Caja negra | Cada dimensión es inspeccionable |
+| **Control en caliente** | Reentrenar | INSERT/DELETE en milisegundos |
+| **Plasticidad negativa** | No existe | desvincular() + LTD sináptico |
+| **Ciclo de vida** | Insert → Query | Corto plazo → Sueño → Largo plazo → Olvido |
+| **Asociaciones explícitas** | Solo similitud | Sinapsis con tipos y pesos |
+| **Dependencias** | numpy, sentence-transformers, GPU | Cero. SQLite puro |
+| **Latencia** | 2-100ms | 2.84ms promedio |
+| **Memoria RAM** | 100-500MB | ~18 MB |
+| **Funciona offline** | No | Sí |
+| **Ráfaga de reminiscencia** | No | LLM genera términos, script ejecuta |
+| **Auto-aprendizaje** | No | Co-ocurrencia + sinapsis automáticas |
 
 ---
 
-## v12.0 — Usabilidad y Higiene de Memoria (Julio 2026)
+## Benchmarks
 
-**Los agentes ahora ven cuándo están haciendo algo mal — no tienen que leer descripciones largas.**
+Ejecuta `python3 benchmark.py` para comparar BioRAG con LangChain+Chroma en tu máquina.
 
-### Problema
+| Sistema | Latencia avg | Memoria RAM |
+|---|---|---|
+| **BioRAG** | 2.84 ms | **18.7 MB** |
+| LangChain+Chroma | 2.10 ms | 128.7 MB |
 
-Los agentes no leen las descripciones de las herramientas MCP. Las reglas comportamentales estaban en la descripción de `recordar` y `aprender`, pero se ignoraban. Resultado: nodos huérfanos, búsquedas sin fecha, falsos positivos sin desvincular.
-
-### Solución: Warnings automáticos en el output
-
-En lugar de poner las reglas en la descripción (que nadie lee), los warnings aparecen **en el output de la herramienta** como texto plano antes del JSON. Imposibles de ignorar.
-
-#### En `aprender` (3 warnings):
-
-```
-⚠️ sinapsis=0 — 'nuevo_nodo' no tiene conexiones. ¿Hay nodos relacionados? Vinculalos con biorag_vincular().
-⚠️ ¿'nuevo_nodo' tiene relación con estos nodos? Si sí, vinculalos: nodo1, nodo2, nodo3
-⚠️ ¿Pensaste en cómo se va a buscar este nodo? Usá palabras clave fuertes en 'concepto' y 'syn'.
-```
-
-#### En `recordar` (3 warnings + score bajo):
-
-```
-⚠️ parafrasis=None — Sin parafrasis, el recall es ~40%. Generá 3-5 reformulaciones.
-⚠️ dias=None, desde=None — Sin filtro temporal, traés TODO incluyendo cosas viejas.
-⚠️ asociados=False — No ves las conexiones de los nodos. Usá asociados=True.
-⚠️ 'concepto' tiene score bajo (0.3). ¿Es un falso positivo por sinapsis? Si no tiene que ver con 'query', desvinculalo con biorag_desvincular().
-```
-
-### Fix: Búsqueda por fecha sin query
-
-**Problema:** `recordar(desde='2026-07-05', hasta='2026-07-05')` devolvía 0 resultados porque `buscar_por_frase("")` retornaba `[]` inmediatamente.
-
-**Solución:** Cambió la condición de `if query is None:` a `if query is None or (isinstance(query, str) and not query.strip()):` para manejar strings vacíos.
-
-**Resultado:** `recordar(dias=1)` ahora devuelve todos los nodos del día sin necesidad de query.
-
-### Mejora: Sugerencias de vinculación específicas
-
-El warning de vinculación ahora busca nodos que compartan tokens con el concepto y los sugiere específicamente:
-
-```
-⚠️ ¿'cv_seccion_d' tiene relación con estos nodos? Si sí, vinculalos: cv_dennys_secciones_ab_finales_2026, cv_seccion_d_arquitectura_frontend_estado
-```
-
-### Documentación actualizada
-
-- **query parameter**: "OPCIONAL con fechas: Podés omitir query y usar solo dias/desde/hasta"
-- **FILTROS TEMPORALES**: Ejemplos ❌/✅ para cada regla
-- **ORÁCULO**: "PRIMERO busca local, DESPUÉS oráculo"
-- **ASOCIADOS**: "SIEMPRE usar asociados=True cuando buscas nodos relacionados"
-
-### Lección de higiene de memoria
-
-Nuevo nodo `principio_gestion_memoria_agente` con 7 reglas innegociables:
-1. ANTES de guardar → vincular si hay relación
-2. AL guardar → palabras clave compartidas
-3. AL buscar → parafrasis + ráfaga + filtros
-4. "hoy" → SIEMPRE dias=1
-5. PRIMERO local, DESPUÉS oráculo
-6. SIEMPRE asociados=True
-7. Falsos positivos → desvincular INMEDIATAMENTE
-
-### Issue conocido: Sin telemetría
-
-**Problema:** No se sabe cuántas búsquedas fallan ni por qué. No hay métricas de:
-- Búsquedas con 0 resultados
-- Búsquedas que activan ráfaga
-- Warnings ignorados por el agente
-- Falsos positivos detectados
-
-**Impacto:** Sin telemetría, no se puede medir la calidad de la memoria ni priorizar mejoras.
-
-**Solución propuesta:** Agregar tabla `telemetria_busquedas` con campos: `query`, `total_resultados`, `rafaga_activa`, `warnings_generados`, `timestamp`. Analítica batch en ciclo de sueño.
-
-### Archivos modificados
-
-- `mcp_server.py`: warnings en `aprender` y `recordar`, fix fecha sin query, sugerencias de vinculación
-- `README.md`: documentación v12.0
-
-### Métricas v12.0 (usabilidad)
-
-| Métrica | Antes | Después |
-|---------|-------|-------|
-| Warnings automáticos | 0 | 6 (3 aprender + 3 recordar) |
-| Búsqueda fecha sin query | ❌ | ✅ |
-| Sugerencias vinculación | ❌ | ✅ (por tokens) |
-| Documentación ejemplos | ❌ | ✅ (❌/✅) |
+BioRAG usa **7x menos memoria**, latencia comparable, **0 dependencias ML**, corre en Raspberry Pi.
 
 ---
 
-## v13.0 — Filtro Temporal PRE-hoc y Índices (Julio 2026)
-
-**El filtro de fecha ahora se aplica DURANTE la búsqueda, no después.**
-
-### Problema
-
-Cuando buscabas con filtro temporal (`desde`/`hasta`), el sistema hacía la búsqueda completa FTS5 y DESPUÉS descartaba resultados fuera del rango. Desperdicio de cómputo.
-
-### Solución: Filtro temporal en SQL
-
-`desde_ts`/`hasta_ts` como parámetros de `buscar_por_frase`. El filtro `creado_en` se aplica en el WHERE de FTS5, no post-hoc. Los `temporal_params` se inyectan en 6 execute calls (NEAR, AND, OR, unicode61, expansión semántica, Snap).
-
-### Índices SQL
-
-```sql
-CREATE INDEX IF NOT EXISTS idx_estado ON largo_plazo (estado)
-CREATE INDEX IF NOT EXISTS idx_creado_en ON largo_plazo (creado_en)
-```
-
-Queries por estado y fecha usan índice en vez de full scan.
-
-### Bug fixes
-
-- `score_parafrasis_best` siempre 0.0 → ahora calcula desde `last_origen_scores`
-- Doble asignación `score_top` eliminada
-- LIKE concepto no pasaba `temporal_params` → crasheaba con filtro temporal
-- unicode61 y expansión semántica no pasaban `temporal_params`
-- Tests JSON parsing maneja warnings prependidos
-
-### Archivos modificados
-
-- `core/memory_store.py`: `desde_ts`/`hasta_ts` en `buscar_por_frase`, `temporal_params` en 6 execute calls, índices SQL
-- `mcp_server.py`: fechas se parsean ANTES de buscar, safety net post-hoc
-- `test_memory.py`: JSON parsing con warnings
-
-### Métricas v13.0
-
-| Métrica | v12.0 | v13.0 |
-|---------|-------|-------|
-| Filtro temporal | POST-hoc | PRE-hoc (SQL) |
-| Índices estado/creado_en | ❌ | ✅ |
-| score_parafrasis_best | siempre 0.0 | calculado |
-| Tests | 78/78 | 78/78 |
-
----
-
-## v13.4 — Expansión Dimensional: 7 Dimensiones con 73 Sub-Valores (Julio 2026)
-
-**Las dimensiones semánticas de BioRAG son ortogonales al texto. Indexan lo que el texto NO dice.**
-
-### Concepto clave: Dimensiones ≠ Sub-valores
-
-- **7 dimensiones** (tipos de eje semántico): emoción, entidad, acción, cualidad, coordenada, intención, dominio
-- **73 sub-valores** (valores específicos dentro de cada dimensión)
-- Las 7 dimensiones cubren todo el espectro de la experiencia humana y computacional
-
-> Toda dimensión semántica que una DB vectorial aproxima con vectores de 1536 floats, puede emularse con una tabla de pertenencia explícita de 73 valores. La pertenencia es exacta y auditable, no probabilística.
+## Dimensiones Semánticas — v13.4 (Julio 2026)
 
 ### Las 7 Dimensiones
 
 | ID | Dimensión | Qué captura | Sub-valores |
-|----|-----------|-------------|-------------|
-| 1 | emoción | El "Sentir" — carga emocional o reacción subjetiva | 12 (afecto, alegría, frustración, tristeza, preocupación, confusión, sorpresa, miedo, alivio, apatía, culpa, satisfacción) |
-| 2 | entidad | El "Qué" — entes, objetos, conceptos identificables | 11 (identidad_individual, social_legal, organizacional, digital, artificial, física_hardware, natural, concepto, institución, evento, vínculo) |
-| 3 | acción | El "Hacer/Estar" — verbos, transiciones, procesos | 11 (física, transformación_material, persistencia_computación, rutina_automática, comunicación, interacción_social, cognitiva, estado_ser, evaluar, observar, fallar) |
-| 4 | cualidad | El "Cómo" — propiedades, descripciones, valoraciones | 11 (dimensión_física, estado_condición, valoración, sensorial, material_composición, temporal_duración, relacional_comparativa, abstracta_conceptual, económica, urgente, auténtica) |
-| 5 | coordenada | Espacio y Tiempo — ubicación, cronología, secuencia | 10 (cronología_absoluta, anclaje_deictico, secuencia_relativa, ciclo_periódico, inclusión_topológica, distancia_proximal, vector_direccional, trayectoria_límite, etapa, hito) |
-| 6 | intención | El "Por Qué" — propósito al guardar el nodo | 8 (aprender, decidir, reflexionar, resolver, solucionar, documentar, desahogar, registrar) |
-| 7 | dominio | El "Dónde" — área de vida o campo de aplicación | 10 (técnico, personal, profesional, académico, salud, finanzas, ambiental, social, creativo, espiritual) |
+|---|---|---|---|
+| 1 | emoción | El "Sentir" — carga emocional | 12 (afecto, alegría, frustración, tristeza, preocupación, confusión, sorpresa, miedo, alivio, apatía, culpa, satisfacción) |
+| 2 | entidad | El "Qué" — entes, objetos, conceptos | 11 (identidad_individual, social_legal, organizacional, digital, artificial, física_hardware, natural, concepto, institución, evento, vínculo) |
+| 3 | acción | El "Hacer/Estar" — verbos, procesos | 11 (física, transformación_material, persistencia_computación, rutina_automática, comunicación, interacción_social, cognitiva, estado_ser, evaluar, observar, fallar) |
+| 4 | cualidad | El "Cómo" — propiedades, valoraciones | 11 (dimensión_física, estado_condición, valoración, sensorial, material_composición, temporal_duración, relacional_comparativa, abstracta_conceptual, económica, urgente, auténtica) |
+| 5 | coordenada | Espacio y Tiempo | 10 (cronología_absoluta, anclaje_deictico, secuencia_relativa, ciclo_periódico, inclusión_topológica, distancia_proximal, vector_direccional, trayectoria_límite, etapa, hito) |
+| 6 | intención | El "Por Qué" — propósito | 8 (aprender, decidir, reflexionar, resolver, solucionar, documentar, desahogar, registrar) |
+| 7 | dominio | El "Dónde" — área de aplicación | 10 (técnico, personal, profesional, académico, salud, finanzas, ambiental, social, creativo, espiritual) |
 
-### Score aditivo (no multiplicativo)
+### Score aditivo
 
 ```
 Score = base_BM25 + (0.30 × dim_score)
 ```
 
-Las dimensiones SIEMPRE suman, incluso con cero match de texto. Esto permite "buscar sin palabras" — si un nodo comparte 3+ dimensiones con la query, aparece aunque no tenga ninguna palabra en común.
+Las dimensiones SIEMPRE suman, incluso con cero match de texto. El fallback dimensional solo trae nodos sin match de texto si comparten **≥3 dimensiones** con la query.
 
-### Umbral dimensional: 3 dimensiones compartidas
+---
 
-El fallback dimensional solo trae nodos sin match de texto si comparten **≥3 dimensiones** (de 7 posibles) con la query. Previene resultados irrelevantes.
+## Historial de Versiones
 
-### Herramientas MCP nuevas
+### v14.0 — Auditoría Técnica Completa (Julio 2026)
 
-| Herramienta | Qué hace |
-|-------------|----------|
-| `listar_tipos_dimension` | Retorna los 7 tipos con `num_dimensiones` |
-| `listar_dimensiones_por_tipo(tipo)` | Retorna sub-valores de uno o más tipos específicos con descripciones. Acepta múltiples tipos separados por coma: `"emocion,dominio"` |
+Análisis exhaustivo de todo el codebase documentando cada técnica, algoritmo y su equivalencia en el campo. 12 capas de búsqueda en cascada, 8 señales de scoring híbrido, grafo de sinapsis con plasticidad negativa, ciclo de sueño con LTP/LTD/inhibición lateral, dimensiones semánticas como sparse embeddings declarativos, y ráfaga de reminiscencia como recall boost por LLM.
 
-**Flujo del LLM (2 opciones):**
+### v13.5 — Auto-Aprendizaje Léxico y Expansión Semántica Orgánica (Julio 2026)
 
-**Opción 1 (todo de una):**
-`listar_dimensiones` → ver las 73 sub-valores → clasificar
+- **Reingeniería de `auto_aprender_desde_sinonimos`**: cruza sinónimos todos contra todos con `itertools.combinations`
+- **Soporte para frases compuestas**: límite de validación de 15→35 caracteres
+- **Limpieza de ruido**: sinónimos ya no se asocian a IDs internos
 
-**Opción 2 (incremental):**
-`listar_tipos_dimension` → ver 7 tipos → `listar_dimensiones_por_tipo("emocion,dominio")` → ver 22 sub-valores → clasificar
+### v13.4 — Expansión Dimensional: 7 Dimensiones con 73 Sub-Valores (Julio 2026)
 
-**Ejemplos:**
-```python
-# Single type
-listar_dimensiones_por_tipo(tipo="intencion")  # → 8 sub-valores
+- 7 ejes semánticos (emoción, entidad, acción, cualidad, coordenada, intención, dominio)
+- 73 sub-valores categorizados manualmente
+- Score aditivo dimensional (+0.30 × dim_score)
+- Fallback dimensional con umbral 3
+- Herramientas MCP: `listar_tipos_dimension`, `listar_dimensiones_por_tipo`
 
-# Multiple types
-listar_dimensiones_por_tipo(tipo="emocion,dominio")  # → 22 sub-valores
-```
+### v13.0 — Filtro Temporal PRE-hoc y Índices (Julio 2026)
 
-### Base de datos de producción
+- Filtro temporal en SQL (PRE-hoc, no POST-hoc)
+- Índices en `estado` y `creado_en`
+- Bug fixes en score de paráfrasis y temporal_params
 
-- **73 dimensiones** en 7 tipos (actualizado via SQL de expansión)
-- **438 nodos** en largo_plazo
-- **Seed data** en `memory_store.py` L355-421 con IDs explícitos para persistir entre recreaciones de DB
+### v12.0 — Filtros Temporales y Memoria Compartida (Julio 2026)
 
-### Cuándo usar dimensiones en búsquedas
+- `query` opcional en `recordar` — log cronológico
+- Parámetros `dias`, `desde`, `hasta`, `autor`
+- Warnings automáticos en output de herramientas
+- Tool `desvincular` para plasticidad negativa
 
-**USAR dimensiones cuando:**
-- Busques por propiedades ontológicas: "Qué tengo sobre X dominio", "Qué aprendí sobre Y"
-- La query sea abstracta o no tenga buenas palabras clave
-- Quieras boost semántico para resultados que comparten propiedades
-- Busques "sin palabras" (query como "xyzzy flurbot" + dimensión)
+### v11.3 — Sistema de Dimensiones Semánticas de 5 Ejes (Julio 2026)
 
-**NO usar dimensiones cuando:**
-- Busques por nombre exacto: `recordar(query='error_http_500')`
-- Tengas keywords claras: `recordar(query='v13.4 dimensiones')`
-- FTS5 ya dé buenos resultados
+- 5 ejes: emocion, entidad, accion, cualidad, coordenada
+- 39 valores clasificatorios
+- Parámetro `dimensiones` requerido en `aprender`
 
-**Warning automático:** Si no pasás dimensiones, aparece: "⚠️ dimensiones=None — Sin boost semántico."
+### v11.2 — Clasificación Emocional (Junio 2026)
 
-**Ejemplo de uso correcto:**
-```python
-# Buscar por dominio
-recordar(query='programación', dimensiones='{"dominio": ["dominio_tecnico"]}')
+- Clasificación emocional de 350 entradas de largo_plazo
+- Filtro por emoción en `recordar`
+- 7 emociones: neutro, afecto, alegria, sorpresa, frustracion, preocupacion, confusion
 
-# Buscar por intención
-recordar(query='qué aprendí', dimensiones='{"intencion": ["intencion_aprender"]}')
+### v11.1 — Etiquetado Emocional e Indexación Semántica (Junio 2026)
 
-# Combinar con otros filtros
-recordar(query='error', dimensiones='{"emocion": ["frustracion"]}', dias=7)
-```
+- Diccionario semántico auto-sustentable
+- Union-Find para grupos semánticos disjuntos (58 grupos, 1,292 términos)
+- Boost dinámico 1.2x para coincidencias del mismo clúster
 
-### Investigación académica que respalda el diseño
+### v11.0 — Scoring por Densidad de Coincidencia (Junio 2026)
 
-| Fuente | Qué aporta |
-|--------|------------|
-| ZPT (Zoom-Pan-Tilt) | 3 dimensiones ortogonales para navegación semántica |
-| SKGE (5 categorías ontología) | Estructura de ontologías para dominios específicos |
-| Loci (aspects) | Project-scoped interpretation de aspectos |
-| Semantic Units Framework (Nature 2026) | Unidades semánticas como base de comprensión |
-| Hourglass of Emotions | Modelo de emociones con intensidad |
+- Densidad de coincidencia en ráfaga (50% densidad, 35% peso, 15% asociaciones)
+- Fix regex boundary para snake_case
+- 70/70 tests
 
-### Terminología corregida
+### v10.2 — Paráfrasis Obligatorio (Junio 2026)
 
-- **"73 dimensiones"** → ERROR. Son **7 dimensiones** con **73 sub-valores**
-- Cada dimensión es un eje ortogonal al texto
-- Los sub-valores son los puntos específicos dentro de cada eje
+- Paráfrasis requerido con penalización ×0.95
+- Ráfaga sináptica como fallback
+- 70/70 tests
 
-### Archivos modificados
+### v10.0 — Capas Conceptual y Semántica (Junio 2026)
 
-- `core/memory_store.py`: seed data 7 tipos, 73 sub-valores, fallback dimensional con umbral 3, score aditivo
-- `mcp_server.py`: `listar_tipos_dimension`, `listar_dimensiones_por_tipo` (ahora acepta múltiples tipos separados por coma), `listar_dimensiones` existente, warning `dimensiones=None`
-- `scripts/expand_dimensions_v13_4.sql`: SQL de expansión (referencia, ya ejecutado)
-- `VERSION`: v13.4
+- Matching por nombre de concepto (Jaccard sobre tokens)
+- Expansión por tesauro bidireccional
+- Side channel `origen_scores`
+- 70/70 tests
 
-### Notebooks sincronizados
+### v9.5 — Síntesis de Espectro (Junio 2026)
 
-- **MemoryBioRAG** (NotebookLM): 11 archivos JSONL re-exportados y re-subidos con 438 nodos (100% clasificados con intención + dominio)
+- Combina resultados de múltiples capas del pipeline
+- 94% success rate en 33 queries
+
+### v9.4 — Empatía Sintáctica en Ráfaga (Junio 2026)
+
+- Tolerancia a variaciones morfológicas en ráfaga
+
+### v9.3 — Paginación de Resultados (Junio 2026)
+
+- `pagina` y `limite` en `recordar`
+
+### v9.2 — Ráfaga Optimizada (Junio 2026)
+
+- Sin límite en cantidad de `rafaga_palabras`
+- Reducción de queries redundantes
+
+### v9.1 — Renombre Cognitivo (Junio 2026)
+
+- `buscar`→`recordar`, `guardar`→`aprender`, `asociar`→`vincular`
+- Aliases legacy preservados
+
+### v9.0 — Plugin OpenCode, Oráculo NotebookLM y Context Window (Junio 2026)
+
+- Plugin OpenCode con inyección invisible de recordatorios
+- Oráculo de sesión (`biorag_oraculo_inicio`) con NotebookLM
+- Context Window en búsquedas con vecinos sinápticos
+- Prefix Matching nativo (FTS5 unicode61)
+- 68/68 tests
+
+### v8.2 — FTS5 unicode61, Prefix Wildcards y Context Window (Junio 2026)
+
+- Segunda tabla FTS5 con tokenizer unicode61
+- Prefix wildcards automáticos (`react*` → "reactive")
+- PALABRA_PREFIJO: filtro DB-side por prefijo
+- Pipeline expandido a 9 capas
+- 68/68 tests
+
+### v8.1 — Batch FTS5 Optimization (Junio 2026)
+
+- Pre-carga de puentes FTS5 en 1 query (82% más rápido: 56ms→12ms)
+- Configuración por entorno con `.env.local`
+
+### v8.0 — Ráfaga de Reminiscencia (Junio 2026)
+
+- **Ráfaga de Reminiscencia**: LLM genera términos, script ejecuta búsqueda
+- **Auto-aprendizaje de errores**: excluye interpretaciones erróneas
+- **Anclaje Temporal**: bonus por recencia (+0.15 <7d, +0.08 <30d, +0.03 <90d)
+- **Dynamic Multiplicator**: fórmula 70/20/10 cuando Jaccard ≥ 0.15
+- **Co-ocurrencia automática en sueño**: sinapsis por co-ocurrencia
+- 161 nodos activos, 1,177 sinapsis, 1,564 equivalencias
+
+### v7.1 — PALABRA_COMPLETA, Similitud Conceptual y Expansión Semántica (Junio 2026)
+
+- `core/similitud_conceptual.py`: Jaccard vecinos + contenido
+- `core/semantica.py`: tesauro bidireccional + auto-aprendizaje
+- PALABRA_COMPLETA: word boundary en SQL
+- Pipeline de 8 capas
+- Decay diferenciado por categoría
+- 64 tests
+
+### v6.0 — Estandarización de Categorías e Instalador (Junio 2026)
+
+- 11 categorías madre predefinidas
+- Instalador multiplataforma para 7 plataformas
+- Sincronización incremental con NotebookLM
+
+### v5.x — Sinapsis, Red Semántica y Optimizaciones (Junio 2026)
+
+- Auto-linking al guardar con overlap coefficient
+- Tabla `sinapsis` persistente con tipos y pesos
+- Evicción condicional (`BIORAG_PODAR=true`)
+
+### v4.0 — Interceptor V2 (Junio 2026)
+
+- Buffer de sesión con TTL
+- Consolidación inmediata
+- Heurísticas biomiméticas (30+ patrones léxicos)
+
+### v3.0 — MCP Server (Junio 2026)
+
+- 16 herramientas nativas para IDEs
+
+### v2.x — Cimientos (Junio 2026)
+
+- FTS5 trigram, score híbrido, pipeline multi-capa, LTP/LTD
 
 ---
 
 ## Producción
 
-| Métrica | v9.0 | v11.1 | v12.0 | v13.0 | v13.4 |
-|---|---|---|---|---|---|
-| Nodos activos | 135+ | 340 | 421 | 255 | 438 |
-| Nodos dormidos | 58+ | — | 6 | 166 | — |
-| Sinapsis | 1,474+ | 15,521 | 1,362+ | 1,362+ | — |
-| Sinapsis espurias | — | — | 0 (limpiadas) | 0 | 0 |
-| Equivalencias | 1,734+ | 3,004 | 3,004+ | 3,004+ | 1,438 |
-| Grupos semánticos | — | 58 | 58+ | 58+ | — |
-| Términos mapeados | — | 1,292 | 1,292+ | 1,292+ | — |
-| **Dimensiones semánticas** | — | **5** | **5** | **5** | **7** (tipos) |
-| **Sub-valores semánticos** | — | **39** | **39** | **39** | **73** |
-| Tests | 68/68 pasando | 72/72 pasando | 78/78 pasando | 78/78 pasando | 78/78 pasando |
-| Dependencias externas | 0 | 0 | 0 | 0 | 0 |
-| Tamaño DB | ~4 MB | ~12 MB | ~9 MB | ~9 MB | ~9 MB |
-| Campos largo_plazo | 8 | 9 | 10 (`creado_en`) | 10 | 10 |
-| Tools MCP | — | 12 | 13 | 13 | 15 (+`listar_tipos_dimension`, `listar_dimensiones_por_tipo`) |
-| Warnings automáticos | — | — | 6 | 6 | 7 (+`dimensiones=None`) |
-| Índices SQL | — | — | 2 (`peso_acceso`) | 4 (+`estado`, `creado_en`) | 4 |
-| Filtro temporal | — | — | POST-hoc | PRE-hoc (SQL) | PRE-hoc (SQL) |
-| Fallback dimensional | — | — | — | — | Con umbral 3 |
-
----
-
-## Sesión Julio 2026 — Resumen de cambios
-
-### Clasificación dimensional completa
-- **438 nodos** clasificados con intención + dominio (100%)
-- Distribución intención: documentar (378), registrar (25), reflexionar (19), solucionar (11), aprender (5)
-- Distribución dominio: técnico (231), profesional (200), personal (7)
-
-### Nuevas herramientas MCP
-- `listar_dimensiones_por_tipo` ahora acepta múltiples tipos separados por coma
-- Warning automático `dimensiones=None` para recordar usar dimensiones
-
-### Limpieza de tabla semántica
-- Eliminadas 6 entradas contaminadas (IDs de nodos)
-- 1438 equivalencias limpias (0% contaminación)
-
-### Nuevos nodos guardados
-- `naturaleza_sistema_oec_cerebro_memoria`: Agentes = cerebro, BioRAG = memoria
-- `cuando_usar_dimensiones_biorag`: Guía de uso de dimensiones
-- `listar_dimensiones_por_tipo_multi_tipo`: Documentación del cambio multi-tipo
-- `limpieza_tabla_semantica_contaminacion_julio_2026`: Lección de limpieza
-- `patron_mas_mas_mas_dennys`: Patrón de perfeccionismo
-
-### Insight profundo
-"La semántica no está en la base de datos — está en la DECISIÓN del agente de clasificar con dimensiones. Esto es más cercano a cognición humana que un embedding probabilístico."
+| Métrica | v9.0 | v11.1 | v13.4 | v14.0 |
+|---|---|---|---|---|
+| Pipeline de búsqueda | 8 capas | 8 capas | 9 capas | **12 capas** |
+| Señales de scoring | 3 | 3 | 3 | **8 ortogonales** |
+| Nodos activos | 135+ | 340 | 438 | — |
+| Sinapsis | 1,474+ | 15,521 | — | — |
+| Dimensiones | — | 5 (39 sub) | 7 (73 sub) | **7 ejes, 73 valores** |
+| Técnicas documentadas | — | — | — | **25 técnicas** |
+| Tests | 68/68 | 72/72 | 78/78 | 78/78 |
+| Dependencias ML | 0 | 0 | 0 | **0** |
+| RAM | ~4 MB | ~12 MB | ~9 MB | **~18 MB** |
+| Tools MCP | — | 12 | 15 | **19** |
 
 ---
 

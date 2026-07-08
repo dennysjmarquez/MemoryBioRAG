@@ -1,12 +1,16 @@
-v13.4
+v14.0 — Auditoría Técnica Completa (Julio 2026)
 
-La memoria siempre es la fuente de verdad (BioRAG)
+Análisis exhaustivo de todo el codebase documentando cada técnica,
+algoritmo y su equivalencia en el campo.
 
-Cambios v13.4:
-- 7 dimensiones semánticas (emoción, entidad, acción, cualidad, coordenada, intención, dominio)
-- 73 sub-values con descripciones completas
-- MCP: listar_tipos_dimension, listar_dimensiones_por_tipo (ahora acepta múltiples tipos)
-- Fallback dimensional con umbral 3 (buscar sin palabras)
-- Warning automático dimensiones=None
-- Clasificación completa: 438 nodos con intención + dominio (100%)
-- Tabla semántica limpia: 1438 equivalencias (0% contaminación)
+Lo nuevo:
+- README reescrito como documento técnico integral de v14.0
+- 11 secciones de auditoría: pipeline 12 capas, scoring 8 señales,
+  grafo sináptico, ciclo de sueño LTP/LTD, dimensiones semánticas,
+  ráfaga de reminiscencia, similitud latente, auto-guardado,
+  diagnóstico cognitivo, dependencias, tabla de 25 técnicas
+- Cada técnica mapeada a su equivalente en el campo (BM25, GNN,
+  ACT-R, LTP/LTD, sparse embeddings, etc.)
+- Excluida la sección de gaps (ya resueltos)
+- Preservados: estructura proyecto, MCP tools, env vars, benchmarks,
+  historial completo de versiones v2.x → v14.0

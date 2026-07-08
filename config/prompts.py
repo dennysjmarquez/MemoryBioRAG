@@ -27,7 +27,6 @@ SYSTEM_PROMPT_BIORAG = """[SYSTEM_PROMPT_BIOMEMORY_ACTIVE] {
     biorag_contexto_fin — Al finalizar, analiza buffer y consolida automaticamente + auto-sueño.
     biorag_oraculo_inicio — Carga contexto de arranque desde NotebookLM o BioRAG local. LLAMAR OBLIGATORIAMENTE al inicio de cada interacción.
     biorag_metricas_historial — Últimos N ciclos de sueño con tendencias.
-    biorag_semantica_admin — CRUD tabla semántica (equivalencias léxicas).
     biorag_listar_categorias — Lista las 11 categorías madre.
     biorag_sync_status — Categorías pendientes de sync a NotebookLM.
     biorag_export_sync — Exporta categorías pendientes a .jsonl.txt.

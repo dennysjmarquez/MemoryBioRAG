@@ -37,6 +37,7 @@ import json
 import logging
 import math
 import os
+import sqlite3
 import re
 import shutil
 import subprocess
@@ -516,6 +517,32 @@ def _build_server():
                         v.strip() for v in (asociaciones or "").split(",") if v.strip()
                     ] if asociados and asociaciones else [],
                 })
+
+            # Batch query: adjuntar dimensiones semánticas a cada resultado
+            if items:
+                conceptos_dim = [item["concepto"] for item in items if item["concepto"]]
+                if conceptos_dim:
+                    ph = ",".join("?" * len(conceptos_dim))
+                    try:
+                        cerebro.cursor.execute(f"""
+                            SELECT lpd.concepto, tn.nombre AS tipo, ds.name AS dim_name
+                            FROM largo_plazo_dimensiones lpd
+                            JOIN dimensiones_semanticas ds ON ds.id = lpd.dimension_id
+                            JOIN tipos_dimension tn ON tn.id = ds.tipo_id
+                            WHERE lpd.concepto IN ({ph})
+                        """, conceptos_dim)
+                        dim_map = {}
+                        for concepto, tipo, dim_name in cerebro.cursor.fetchall():
+                            if concepto not in dim_map:
+                                dim_map[concepto] = {}
+                            if tipo not in dim_map[concepto]:
+                                dim_map[concepto][tipo] = []
+                            dim_map[concepto][tipo].append(dim_name)
+                        for item in items:
+                            if item["concepto"] in dim_map:
+                                item["dimensiones_semanticas"] = dim_map[item["concepto"]]
+                    except sqlite3.OperationalError:
+                        pass
 
             limite_den = limite if (limite and limite > 0) else 1
             paginas_totales = math.ceil(total / limite_den)
@@ -1958,159 +1985,7 @@ def _build_server():
         finally:
             cerebro.cerrar_sistema()
 
-    @mcp.tool(
-        name="semantica_admin",
-        description=(
-            "Gestioná el diccionario de sinónimos. Cuando alguien busca 'error', también busca 'fallo', 'excepción', 'crash' — si están como equivalencias.\n\n"
-            "Acciones:\n\n"
-            "- listar — ver todas las equivalencias (opcional: filtrar por término)\n"
-            "- agregar — crear equivalencia bidireccional entre dos términos (peso opcional, default 0.8)\n"
-            "- eliminar — borrar una equivalencia\n"
-            "- cargar_vocabulario — subir muchas equivalencias de una con JSON\n"
-            "- expandir — ver qué se expande cuando buscás un término\n"
-            "- inferir — el sistema sugiere equivalencias desde sinapsis existentes (NO guarda — vos confirmás)\n"
-            "- stats — cuántas equivalencias hay"
-        ),
-    )
-    def biorag_semantica_admin(
-        accion: Annotated[str, Field(
-            description=(
-                "Acción a ejecutar. "
-                "Valores: 'listar' | 'agregar' | 'eliminar' | 'cargar_vocabulario' | 'expandir' | 'inferir' | 'stats'."
-            )
-        )],
-        termino: Annotated[Optional[str], Field(
-            description=(
-                "Término base para la operación de equivalencia. "
-                "Requerido para: agregar, eliminar, expandir. "
-                "Opcional para: listar (filtra resultados al término indicado)."
-            )
-        )] = None,
-        equivalente: Annotated[Optional[str], Field(
-            description=(
-                "Término equivalente a asociar con 'termino'. "
-                "Requerido para: agregar, eliminar."
-            )
-        )] = None,
-        peso: Annotated[float, Field(
-            description=(
-                "Peso de la equivalencia semántica (0.0 a 1.0). "
-                "1.0 = sinónimos exactos, 0.5 = relacionados moderados, 0.3 = relacionados débiles. "
-                "Default: 0.8. Solo aplica en accion='agregar'."
-            ),
-            ge=0.0,
-            le=1.0,
-        )] = 0.8,
-        vocabulario_json: Annotated[Optional[str], Field(
-            description=(
-                "JSON con equivalencias para subir masivamente. Solo necesario con cargar_vocabulario. Dos formatos:\n\n"
-                "- Dict: {'error': ['fallo', 'excepción', 'crash']}\n"
-                "- Lista: [{'termino': 'error', 'equivalente': 'fallo', 'peso': 0.8}]"
-            )
-        )] = None,
-    ) -> str:
-        cerebro = _get_cerebro()
-        try:
-            from core.semantica import (
-                init_semantica_table, expandir_query, agregar_equivalencia,
-                eliminar_equivalencia, listar_equivalencias, cargar_vocabulario,
-                tabla_vacia, inferir_equivalencias_desde_sinapsis
-            )
-            init_semantica_table(cerebro.cursor)
-
-            if accion == "listar":
-                eqs = listar_equivalencias(cerebro.cursor, termino)
-                items = [{"termino": e[0], "equivalente": e[1], "peso": e[2]} for e in eqs]
-                return json.dumps({
-                    "status": "ok",
-                    "total": len(items),
-                    "equivalencias": items,
-                }, ensure_ascii=False)
-
-            elif accion == "agregar":
-                if not termino or not equivalente:
-                    return json.dumps({"status": "error", "mensaje": "Se requieren termino y equivalente"}, ensure_ascii=False)
-                agregar_equivalencia(cerebro.cursor, termino, equivalente, peso)
-                return json.dumps({
-                    "status": "ok",
-                    "mensaje": f"'{termino}' ↔ '{equivalente}' (peso={peso}) agregado",
-                }, ensure_ascii=False)
-
-            elif accion == "eliminar":
-                if not termino or not equivalente:
-                    return json.dumps({"status": "error", "mensaje": "Se requieren termino y equivalente"}, ensure_ascii=False)
-                eliminar_equivalencia(cerebro.cursor, termino, equivalente)
-                return json.dumps({
-                    "status": "ok",
-                    "mensaje": f"'{termino}' ↔ '{equivalente}' eliminado",
-                }, ensure_ascii=False)
-
-            elif accion == "cargar_vocabulario":
-                if not vocabulario_json:
-                    return json.dumps({"status": "error", "mensaje": "Se requiere vocabulario_json"}, ensure_ascii=False)
-                try:
-                    vocab = json.loads(vocabulario_json)
-                except json.JSONDecodeError:
-                    return json.dumps({"status": "error", "mensaje": "JSON inválido"}, ensure_ascii=False)
-                count = cargar_vocabulario(cerebro.cursor, vocab)
-                return json.dumps({
-                    "status": "ok",
-                    "mensaje": f"{count} equivalencias cargadas",
-                }, ensure_ascii=False)
-
-            elif accion == "expandir":
-                if not termino:
-                    return json.dumps({"status": "error", "mensaje": "Se requiere termino"}, ensure_ascii=False)
-                eqs = expandir_query(cerebro.cursor, termino)
-                return json.dumps({
-                    "status": "ok",
-                    "termino": termino,
-                    "equivalentes": eqs,
-                }, ensure_ascii=False)
-
-            elif accion == "inferir":
-                resultado = inferir_equivalencias_desde_sinapsis(
-                    cerebro.cursor,
-                    umbral_sinapsis=0.6,
-                    umbral_jaccard=0.5,
-                    frecuencia_minima=2,
-                    peso_base=0.3,
-                    auto_guardar=False,
-                )
-                candidatos = resultado["candidatos"]
-                return json.dumps({
-                    "status": "ok",
-                    "pares_procesados": resultado["pares_procesados"],
-                    "total_candidatos": resultado["total_candidatos"],
-                    "candidatos": [
-                        {"token_a": c[0], "token_b": c[1], "co_ocurrencias": c[2], "peso_inferido": c[3]}
-                        for c in candidatos[:50]
-                    ],
-                    "mensaje": "auto_guardar=False — candidates listed only, not saved. "
-                               "Review candidates and use accion=agregar to save manually.",
-                }, ensure_ascii=False)
-
-            elif accion == "stats":
-                cerebro.cursor.execute("SELECT COUNT(*) FROM semantica")
-                total = cerebro.cursor.fetchone()[0]
-                cerebro.cursor.execute("SELECT COUNT(DISTINCT termino) FROM semantica")
-                terminos = cerebro.cursor.fetchone()[0]
-                return json.dumps({
-                    "status": "ok",
-                    "total_equivalencias": total,
-                    "terminos_unicos": terminos,
-                }, ensure_ascii=False)
-
-            else:
-                return json.dumps({
-                    "status": "error",
-                    "mensaje": (
-                        f"Acción desconocida: '{accion}'. "
-                        "Valores válidos: listar, agregar, eliminar, cargar_vocabulario, expandir, inferir, stats."
-                    )
-                }, ensure_ascii=False)
-        finally:
-            cerebro.cerrar_sistema()
+    # ponytail: removed semantica_admin tool — semantic table was unreliable, agent passes synonyms directly
 
     # ── RESOURCES ────────────────────────────────────────────────────────────
 
