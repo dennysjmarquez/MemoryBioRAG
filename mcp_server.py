@@ -274,7 +274,7 @@ def _build_server():
         deep: bool = False,
         cat: Optional[str] = None,
         completo: bool = False,
-        asociados: bool = False,
+        asociados: bool = True,
         limite: Optional[int] = None,
         preview_chars: Optional[int] = None,
         context_window: int = 0,
@@ -701,7 +701,12 @@ def _build_server():
         query: Annotated[Optional[str], Field(
             description=(
                 "Texto o frase a evocar de la memoria. "
-                "Usar sustantivos concretos del dominio (ej: 'error http timeout', 'patron singleton'). "
+                "Usar sustantivos concretos del dominio (ej: 'error http timeout', 'patron singleton').\n\n"
+                "CRÍTICO: Extraé de la consulta del usuario el concepto o intención técnica concreta que buscás. "
+                "NUNCA uses preguntas humanas, títulos largos o frases conversacionales completas "
+                "como 'análisis comparativo BioRAG vs Obsidian memoria agentes grafos tokens eficiencia', "
+                "ya que esto saturará el motor de búsqueda y causará falsos positivos o fallos. "
+                "BioRAG es un motor, no un chat directo; busca por términos concretos.\n\n"
                 "Si se omite, trae los últimos recuerdos ordenados por_created (log cronológico). "
                 "Combinable con dias/desde/hasta/autor para filtrar por tiempo y agente.\n\n"
                 "OPCIONAL con fechas: Podés omitir query y usar solo dias/desde/hasta.\n"
@@ -738,7 +743,7 @@ def _build_server():
                 "Si True, incluye en cada resultado la lista de conceptos sinápticos asociados. "
                 "Útil para explorar la red de memoria y encontrar conceptos relacionados."
             )
-        )] = False,
+        )] = True,
         limite: Annotated[Optional[int], Field(
             description=(
                 f"Máximo de resultados a devolver. "
@@ -831,6 +836,11 @@ def _build_server():
                 "recall). Usar True cuando se necesita precisión exacta y se sabe que "
                 "todas las palabras deben estar juntas; usar False (default) para "
                 "búsquedas exploratorias."
+                "Activar también cuando una búsqueda normal (modo_estricto=False) ya trajo "
+                "resultados pero con mucho ruido — score bajo y poca relación con lo buscado. "
+                "No activar por defecto en la primera búsqueda: es exigente con la forma exacta "
+                "de las palabras (p. ej. 'implementación' y 'implementamos' no matchean igual), "
+                "así que puede tapar resultados válidos si se usa de entrada."                
             )
         )] = False,
     ) -> str:
@@ -853,7 +863,17 @@ def _build_server():
         ),
     )
     def biorag_buscar(
-        query: Annotated[str, Field(description="Texto o frase a buscar en la memoria.")],
+        query: Annotated[str, Field(
+            description=(
+                "Texto o frase a buscar en la memoria. "
+                "Usar sustantivos concretos del dominio.\n\n"
+                "CRÍTICO: Extraé de la consulta del usuario el concepto o intención técnica concreta que buscás. "
+                "NUNCA uses preguntas humanas, títulos largos o frases conversacionales completas "
+                "como 'análisis comparativo BioRAG vs Obsidian memoria agentes grafos tokens eficiencia', "
+                "ya que esto saturará el motor de búsqueda y causará falsos positivos o fallos. "
+                "BioRAG es un motor, no un chat directo; busca por términos concretos."
+            )
+        )],
         dimensiones: Annotated[Any, Field(
             description=(
                 "PROTOCOLO DIMENSIONES:\n\n"
@@ -871,7 +891,7 @@ def _build_server():
         deep: Annotated[bool, Field(description="Si True, incluye nodos dormidos en la búsqueda.")] = False,
         cat: Annotated[Optional[str], Field(description="Filtrar por categoría (string simple). REGLA: Es preferible omitir para evitar falsos negativos. Úsalo solo con certeza absoluta. Ver listar_categorias para valores válidos.")] = None,
         completo: Annotated[bool, Field(description="Si True, devuelve contenido completo sin truncar.")] = False,
-        asociados: Annotated[bool, Field(description="Si True, incluye asociaciones sinápticas en cada resultado.")] = False,
+        asociados: Annotated[bool, Field(description="Si True, incluye asociaciones sinápticas en cada resultado.")] = True,
         limite: Annotated[Optional[int], Field(description=f"Máximo de resultados. Default: {LIMITE_MCP}.")] = None,
         preview_chars: Annotated[Optional[int], Field(description="Caracteres de preview por resultado. Default: 1500.")] = None,
         context_window: Annotated[int, Field(description="Vecinos sinápticos a incluir (0=ninguno, 1-2=vecinos).", ge=0, le=2)] = 0,
