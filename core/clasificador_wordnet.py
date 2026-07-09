@@ -26,12 +26,14 @@ _cache_lexnames = {}
 def clasificar_palabra(palabra):
     """Retorna set de lexnames para una palabra.
     Ej: 'error' → {'noun.act', 'noun.attribute', 'noun.cognition'}
-    Si WordNet no reconoce la palabra, retorna set vacío."""
+    Si WordNet no reconoce la palabra, retorna set vacío.
+    Bilingüe: busca en español primero, fallback a inglés."""
     key = palabra.lower().strip()
     if key in _cache_lexnames:
         return _cache_lexnames[key]
 
-    synsets = wn.synsets(key)
+    # Bilingüe: español primero, fallback inglés
+    synsets = wn.synsets(key, lang='spa') or wn.synsets(key)
     lexnames = set(s.lexname() for s in synsets)
     _cache_lexnames[key] = lexnames
     return lexnames

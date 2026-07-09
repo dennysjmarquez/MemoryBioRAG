@@ -835,7 +835,7 @@ def _build_server():
                 "una palabra coincidiendo ya puede aparecer en resultados (OR, más "
                 "recall). Usar True cuando se necesita precisión exacta y se sabe que "
                 "todas las palabras deben estar juntas; usar False (default) para "
-                "búsquedas exploratorias."
+                "búsquedas exploratorias. "
                 "Activar también cuando una búsqueda normal (modo_estricto=False) ya trajo "
                 "resultados pero con mucho ruido — score bajo y poca relación con lo buscado. "
                 "No activar por defecto en la primera búsqueda: es exigente con la forma exacta "
@@ -906,7 +906,12 @@ def _build_server():
                 "una palabra coincidiendo ya puede aparecer en resultados (OR, más "
                 "recall). Usar True cuando se necesita precisión exacta y se sabe que "
                 "todas las palabras deben estar juntas; usar False (default) para "
-                "búsquedas exploratorias."
+                "búsquedas exploratorias. "
+                "Activar también cuando una búsqueda normal (modo_estricto=False) ya trajo "
+                "resultados pero con mucho ruido — score bajo y poca relación con lo buscado. "
+                "No activar por defecto en la primera búsqueda: es exigente con la forma exacta "
+                "de las palabras (p. ej. 'implementación' y 'implementamos' no matchean igual), "
+                "así que puede tapar resultados válidos si se usa de entrada."
             )
         )] = False,
     ) -> str:
