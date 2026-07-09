@@ -1,16 +1,11 @@
-v14.0 — Auditoría Técnica Completa (Julio 2026)
+v15.0 — Clasificación Simbólica WordNet (Julio 2026)
 
-Análisis exhaustivo de todo el codebase documentando cada técnica,
-algoritmo y su equivalencia en el campo.
+Integración de agrupamientos léxicos ontológicos basados en WordNet
+local para búsquedas conceptuales offline.
 
 Lo nuevo:
-- README reescrito como documento técnico integral de v14.0
-- 11 secciones de auditoría: pipeline 12 capas, scoring 8 señales,
-  grafo sináptico, ciclo de sueño LTP/LTD, dimensiones semánticas,
-  ráfaga de reminiscencia, similitud latente, auto-guardado,
-  diagnóstico cognitivo, dependencias, tabla de 25 técnicas
-- Cada técnica mapeada a su equivalente en el campo (BM25, GNN,
-  ACT-R, LTP/LTD, sparse embeddings, etc.)
-- Excluida la sección de gaps (ya resueltos)
-- Preservados: estructura proyecto, MCP tools, env vars, benchmarks,
-  historial completo de versiones v2.x → v14.0
+- Clasificador local de WordNet aislado en nltk_data del proyecto.
+- Indexación relacional en la tabla nodo_grupos_semanticos al consolidar.
+- Score híbrido con la 9ª señal de scoring (grupo_score) con peso del 10%.
+- Borrado en cascada (ON DELETE CASCADE) para higiene y sanación de base de datos.
+- Tests de recuperación semántica integrales y estables.

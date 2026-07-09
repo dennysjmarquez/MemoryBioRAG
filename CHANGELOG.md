@@ -1,5 +1,27 @@
 # BioRAG Changelog
 
+## v15.0 (2026-07-09)
+
+### Features
+- **Clasificación Simbólica WordNet**: Mapeo léxico-semántico de conceptos y sinónimos a las 45 categorías ontológicas de WordNet (lexnames).
+- **nltk_data Local y Aislada**: Descarga e inicialización de WordNet en la ruta del proyecto `MemoryBioRAG_Data/nltk_data` para garantizar la autonomía y soporte 100% offline.
+- **Score Híbrido de 9 Señales**: Incorporación del `grupo_score` como la 9ª señal de relevancia con un 10% de peso en la fórmula del score híbrido.
+- **Cascaded Node Deletion**: Soporte de borrado en cascada (`ON DELETE CASCADE`) para remover automáticamente registros en la tabla puente `nodo_grupos_semanticos` cuando se elimina un concepto de largo plazo.
+
+### Database Changes
+- **`grupos_semanticos`**: Tabla de catálogo que indexa las categorías lexicográficas fijas de WordNet.
+- **`nodo_grupos_semanticos`**: Tabla puente relacional que asocia conceptos con sus respectivos grupos semánticos, con restricciones de clave foránea en cascada.
+
+---
+
+## v14.0 (2026-07-08)
+
+### Features
+- **Auditoría Técnica Completa**: Mapeo de 25 técnicas y algoritmos biológicos frente a sus equivalentes de la industria (Elasticsearch, Lucene, ACT-R, etc.).
+- **Optimización y Estabilidad**: Refactor del pipeline de búsqueda de 12 capas en cascada, auto-guardado en sesiones y ráfaga de reminiscencia integrada.
+
+---
+
 ## v13.0 (2026-07-05)
 
 ### Features

@@ -457,6 +457,33 @@ class SQLiteMemoryBioRAG:
         self.cursor.execute(
             "CREATE INDEX IF NOT EXISTS idx_lpd_dimension ON largo_plazo_dimensiones(dimension_id)"
         )
+
+        # 3f. Tablas de clasificación simbólica WordNet (lexnames)
+        self.cursor.execute("""
+            CREATE TABLE IF NOT EXISTS grupos_semanticos (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                nombre TEXT UNIQUE NOT NULL,
+                fuente TEXT DEFAULT 'wordnet',
+                descripcion TEXT DEFAULT ''
+            )
+        """)
+        self.cursor.execute("""
+            CREATE TABLE IF NOT EXISTS nodo_grupos_semanticos (
+                concepto TEXT NOT NULL,
+                palabra TEXT NOT NULL,
+                grupo_id INTEGER NOT NULL,
+                PRIMARY KEY (concepto, palabra, grupo_id),
+                FOREIGN KEY (grupo_id) REFERENCES grupos_semanticos(id),
+                FOREIGN KEY (concepto) REFERENCES largo_plazo(concepto) ON DELETE CASCADE
+            )
+        """)
+        self.cursor.execute(
+            "CREATE INDEX IF NOT EXISTS idx_ngs_grupo ON nodo_grupos_semanticos(grupo_id)"
+        )
+        self.cursor.execute(
+            "CREATE INDEX IF NOT EXISTS idx_ngs_concepto ON nodo_grupos_semanticos(concepto)"
+        )
+
         self.conn.commit()
 
         # 4. Migración FK: eliminar categoria_id si existe, agregar FK en categoria→categories.name
@@ -997,6 +1024,8 @@ class SQLiteMemoryBioRAG:
         self.conn.commit()
         from core.sinapsis import auto_vincular
         auto_vincular(self, key, contenido)
+        # Clasificación simbólica: WordNet lexnames
+        self._clasificar_nodo_wordnet(key, contenido, sinonimos or "")
         # ponytail: removed semantic inference — agent provides synonyms directly
         return True
 
@@ -1078,6 +1107,39 @@ class SQLiteMemoryBioRAG:
         
         self.conn.commit()
 
+    def _clasificar_nodo_wordnet(self, concepto, contenido, sinonimos=""):
+        """Clasifica las palabras del nodo por grupo semántico WordNet.
+        Almacena en tabla puente nodo_grupos_semanticos."""
+        try:
+            from core.clasificador_wordnet import clasificar_texto
+        except ImportError:
+            return  # WordNet no disponible — fallback silencioso
+
+        texto = f"{concepto} {contenido} {sinonimos}".replace("_", " ")
+        clasificado = clasificar_texto(texto)
+
+        for palabra, lexnames in clasificado.items():
+            for ln in lexnames:
+                # Obtener o crear grupo
+                self.cursor.execute(
+                    "SELECT id FROM grupos_semanticos WHERE nombre = ?", (ln,)
+                )
+                row = self.cursor.fetchone()
+                if row:
+                    grupo_id = row[0]
+                else:
+                    self.cursor.execute(
+                        "INSERT INTO grupos_semanticos (nombre) VALUES (?)", (ln,)
+                    )
+                    grupo_id = self.cursor.lastrowid
+
+                self.cursor.execute(
+                    "INSERT OR IGNORE INTO nodo_grupos_semanticos "
+                    "(concepto, palabra, grupo_id) VALUES (?, ?, ?)",
+                    (concepto, palabra, grupo_id)
+                )
+        self.conn.commit()
+
     def ciclo_sueno_consolidacion(self, limite_energia=None):
         """
         Consolida las experiencias de Corto Plazo a Largo Plazo (Corteza Permanente).
@@ -1143,6 +1205,10 @@ class SQLiteMemoryBioRAG:
         from core.sinapsis import auto_vincular
         for concepto, contenido, _, _ in recuerdos_sesion:
             auto_vincular(self, concepto, contenido)
+
+        # Clasificación simbólica: WordNet lexnames para cada nodo consolidado
+        for concepto, contenido, sinonimos, _ in recuerdos_sesion:
+            self._clasificar_nodo_wordnet(concepto, contenido, sinonimos or "")
 
         # Fase 2: Auto-generar sinapsis por co-ocurrencia
         # Si dos conceptos aparecieron en la misma sesión (corto_plazo), co-ocurren.
@@ -1670,22 +1736,24 @@ class SQLiteMemoryBioRAG:
                                 peso_sinaptico=0.0, concepto_ratio=0.0,
                                 sinonimos_ratio=0.0, score_latente=0.0,
                                 score_cadena=0.0, temporal=0.0,
-                                asoc_count=0, match_exacto=False):
-        """Score híbrido unificado: 8 señales ortogonales que suman 1.0.
-        Emula ranking de vector DB sin usar embeddings.
+                                asoc_count=0, match_exacto=False,
+                                grupo_score=0.0):
+        """Score híbrido unificado: 9 señales ortogonales que suman 1.0.
+        grupo_score: similitud por grupo semántico WordNet (coseno binario).
         match_exacto: preserva precisión en búsquedas por nombre exacto (floor 0.5)."""
         asoc_norm = min(1.0, asoc_count / 20.0)
         peso_norm = min(1.0, peso_sinaptico)
 
         score = (
-            0.25 * bm25_norm +
-            0.20 * dim_score +
-            0.15 * concepto_ratio +
-            0.10 * sinonimos_ratio +
-            0.10 * peso_norm +
-            0.10 * max(score_latente, score_cadena) +
-            0.05 * temporal +
-            0.05 * asoc_norm
+            0.20 * bm25_norm +          # FTS5 BM25 (was 0.25)
+            0.15 * dim_score +           # Dimensiones semánticas (was 0.20)
+            0.15 * concepto_ratio +      # Match en concepto
+            0.10 * sinonimos_ratio +     # Match en sinónimos
+            0.10 * peso_norm +           # Peso sináptico
+            0.10 * max(score_latente, score_cadena) +  # Jaccard/cadena
+            0.10 * grupo_score +         # Grupo semántico WordNet
+            0.05 * temporal +            # Recencia
+            0.05 * asoc_norm             # Asociaciones
         )
 
         if match_exacto:
@@ -2393,7 +2461,48 @@ class SQLiteMemoryBioRAG:
         for concepto, raw_bm25 in bm25_raw.items():
             bm25_norm_map[concepto] = abs(raw_bm25) / (abs(raw_bm25) + 1.0)
 
-        # Calcular score hibrido para cada resultado (fórmula única 8 señales)
+        # ─── Capa 5: Score por grupo semántico (WordNet lexnames) ───
+        grupo_scores_map = {}
+        try:
+            from core.clasificador_wordnet import obtener_lexnames_query
+            query_lexnames = obtener_lexnames_query(frase, parafrasis_list)
+            if query_lexnames:
+                # Obtener IDs de los grupos del query
+                placeholders_ln = ",".join("?" * len(query_lexnames))
+                self.cursor.execute(
+                    f"SELECT id FROM grupos_semanticos WHERE nombre IN ({placeholders_ln})",
+                    tuple(query_lexnames)
+                )
+                query_grupo_ids = set(r[0] for r in self.cursor.fetchall())
+
+                if query_grupo_ids:
+                    conceptos_todos = [r[1] for r in todos if r[1]]
+                    if conceptos_todos:
+                        ph_conceptos = ",".join("?" * len(conceptos_todos))
+                        ph_grupos = ",".join(str(g) for g in query_grupo_ids)
+                        self.cursor.execute(
+                            f"SELECT concepto, grupo_id FROM nodo_grupos_semanticos "
+                            f"WHERE concepto IN ({ph_conceptos}) "
+                            f"AND grupo_id IN ({ph_grupos})",
+                            tuple(conceptos_todos)
+                        )
+                        # Coseno binario: shared / sqrt(|query| × |doc|)
+                        import math
+                        concepto_grupo_ids = {}
+                        for concepto, gid in self.cursor.fetchall():
+                            concepto_grupo_ids.setdefault(concepto, set()).add(gid)
+
+                        q_len = len(query_grupo_ids)
+                        for concepto, doc_gids in concepto_grupo_ids.items():
+                            shared = len(query_grupo_ids & doc_gids)
+                            if shared > 0:
+                                grupo_scores_map[concepto] = shared / math.sqrt(
+                                    q_len * len(doc_gids)
+                                )
+        except ImportError:
+            pass  # WordNet no disponible
+
+        # Calcular score hibrido para cada resultado (fórmula única 9 señales)
         total = len(todos)
         resultados_con_hibrido = []
         for _, (rowid, concepto, contenido, peso, estado, asociaciones) in enumerate(todos):
@@ -2415,7 +2524,8 @@ class SQLiteMemoryBioRAG:
                 score_latente=score_latente,
                 score_cadena=score_cadena,
                 asoc_count=len([v for v in (asociaciones or "").split(",") if v.strip()]),
-                match_exacto=match_exacto
+                match_exacto=match_exacto,
+                grupo_score=grupo_scores_map.get(concepto, 0.0)
             )
 
             resultados_con_hibrido.append(

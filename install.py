@@ -347,18 +347,18 @@ def _download_repo() -> None:
 
 
 def _install_mcp() -> None:
-    """Install the 'mcp' package using the same Python."""
-    _step("Instalando dependencia MCP...")
+    """Install the 'mcp' and 'nltk' packages using the same Python."""
+    _step("Instalando dependencias (mcp + nltk)...")
     try:
         subprocess.run(
-            [_python(), "-m", "pip", "install", "mcp"],
+            [_python(), "-m", "pip", "install", "mcp", "nltk>=3.5"],
             check=True, capture_output=True, text=True,
         )
     except subprocess.CalledProcessError as exc:
-        _fail(f"pip install mcp falló: {exc.stderr.strip()}")
+        _fail(f"pip install falló: {exc.stderr.strip()}")
         sys.exit(1)
 
-    # Verify
+    # Verify mcp
     result = subprocess.run(
         [_python(), "-m", "pip", "show", "mcp"],
         capture_output=True, text=True,
@@ -369,6 +369,50 @@ def _install_mcp() -> None:
     version_line = result.stdout.strip().splitlines()
     version = version_line[1] if len(version_line) > 1 else "ok"
     _ok(f"mcp instalado ({version})")
+
+    # Verify nltk
+    result = subprocess.run(
+        [_python(), "-m", "pip", "show", "nltk"],
+        capture_output=True, text=True,
+    )
+    if result.returncode != 0:
+        _fail("nltk no se instaló correctamente")
+        sys.exit(1)
+    _ok("nltk instalado")
+
+
+def _install_wordnet() -> None:
+    """Download WordNet data to local nltk_data directory."""
+    _step("Descargando WordNet (clasificación léxica)...")
+    nltk_data_dir = INSTALL_DIR / "MemoryBioRAG_Data" / "nltk_data"
+    nltk_data_dir.mkdir(parents=True, exist_ok=True)
+
+    try:
+        result = subprocess.run(
+            [_python(), "-c", f"""
+import nltk
+import os
+nltk.data.path.insert(0, '{nltk_data_dir}')
+nltk.download('wordnet', download_dir='{nltk_data_dir}', quiet=True)
+nltk.download('omw-1.4', download_dir='{nltk_data_dir}', quiet=True)
+from nltk.corpus import wordnet as wn
+# Verify it works
+synsets = wn.synsets('error')
+print(f'WordNet OK: {{len(synsets)}} synsets for "error"')
+"""],
+            capture_output=True, text=True, timeout=60,
+        )
+        if result.returncode != 0:
+            _warn(f"WordNet download tuvo problemas: {result.stderr.strip()[:200]}")
+            _info("La clasificación léxica funcionará cuando nltk esté disponible")
+        else:
+            _ok("WordNet descargado y verificado")
+    except subprocess.TimeoutExpired:
+        _warn("WordNet download tardó demasiado (60s)")
+        _info("Se descargará automáticamente en el primer uso")
+    except Exception as exc:
+        _warn(f"Error descargando WordNet: {exc}")
+        _info("Se descargará automáticamente en el primer uso")
 
 
 def _install_skill() -> None:
@@ -857,10 +901,13 @@ def install() -> None:
     # 2. Download
     _download_repo()
 
-    # 3. Install mcp package
+    # 3. Install mcp + nltk packages
     _install_mcp()
 
-    # 3b. Install skills
+    # 3b. Install WordNet data
+    _install_wordnet()
+
+    # 3c. Install skills
     _install_skill()
 
     # Checkpoint 2

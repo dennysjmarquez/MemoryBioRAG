@@ -1,2 +1,3 @@
 # BioRAG MCP Server dependencies
 mcp>=1.0.0
+nltk>=3.5

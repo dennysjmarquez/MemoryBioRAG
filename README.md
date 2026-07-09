@@ -1,9 +1,9 @@
-# BioRAG v14.0 — Sistema de Memoria Cognitiva Biomimética para Agentes de IA
+# BioRAG v15.0 — Sistema de Memoria Cognitiva Biomimética para Agentes de IA
 
-> **Versión:** v14.0 — Julio 2026
+> **Versión:** v15.0 — Julio 2026
 > **Paradigma:** Semántica Determinista y Discreta
 > **Motor:** Python puro + SQLite FTS5
-> **Dependencias ML:** 0 (ni numpy, ni sentence-transformers, ni GPU)
+> **Dependencias ML:** 0 (mcp + nltk para WordNet, sin numpy ni sentence-transformers)
 
 **BioRAG** es un motor de memoria persistente para agentes de inteligencia artificial. Resuelve el problema fundamental de que los LLMs olvidan todo entre sesiones — sin depender de vectores, embeddings ni infraestructura externa. Opera sobre un espacio discreto, determinista y auditable: 7 ejes semánticos × 73 sub-valores que tú defines, más BM25 léxico sobre FTS5.
 
@@ -20,6 +20,34 @@
 | `core/similitud_conceptual.py` | 247 | Similitud latente (Jaccard + red) |
 | `core/sinapsis.py` | 313 | Gestión de aristas del grafo |
 | `middleware/auto_guardado.py` | 168 | Interceptor de autoguardado heurístico |
+
+## Clasificación Simbólica WordNet — v15.0
+
+Para la versión v15.0 de BioRAG, diseñamos e implementamos una extensión ontológica basada en **WordNet** que proporciona similitud conceptual discreta y determinista, 100% offline y sin depender de bases de datos vectoriales ni de modelos de embeddings pesados.
+
+### ¿Por qué esta técnica?
+
+* **Superación de la limitación léxica**: En sistemas de búsqueda basados puramente en texto, buscar `"decodificar jerga"` no arroja resultados para un nodo guardado como `"traducir lenguaje críptico"`. WordNet resuelve esto asociando ambas acciones al mismo grupo léxico ontológico (`verb.communication`).
+* **Eficiencia extrema y 0 GPU**: Las bases de datos vectoriales tradicionales requieren cientos de megabytes de RAM, GPU para inferencia rápida, y dependencias pesadas como PyTorch o `sentence-transformers`. BioRAG mantiene su huella en ~20 MB de RAM y corre con latencia de ~2.8 ms en cualquier CPU.
+* **Autonomía y aislamiento local**: Para garantizar que la herramienta funcione en cualquier laptop o servidor sin requerir conexión a internet, empaquetamos y aislamos `nltk_data/corpora/wordnet` localmente en la ruta del proyecto (`MemoryBioRAG_Data/nltk_data`).
+
+### Arquitectura de Base de Datos y Cascada
+
+Para estructurar esta similitud simbólica sin saturar la tabla principal `largo_plazo`, creamos dos tablas relacionales especializadas con restricciones de integridad referencial rígidas:
+
+1. **`grupos_semanticos`**: Catálogo estático que indexa los 45 grupos lexicográficos oficiales de WordNet (lexnames), tales como `noun.person`, `verb.cognition`, `noun.act`, etc.
+2. **`nodo_grupos_semanticos`**: Tabla puente relacional que conecta cada concepto de largo plazo con uno o varios grupos semánticos correspondientes a sus palabras y sinónimos.
+   * Cuenta con claves foráneas hacia `grupos_semanticos(id)` y `largo_plazo(concepto)`.
+   * **`ON DELETE CASCADE`**: Para garantizar una higiene absoluta del grafo, configuramos el borrado en cascada en la clave foránea hacia la tabla `largo_plazo`. Si un concepto es eliminado de la memoria a largo plazo (por sanación o limpieza activa), sus registros de grupos semánticos asociados se eliminan de forma atómica y transparente, evitando la creación de registros huérfanos.
+
+### Cómo funciona el Algoritmo en Búsqueda y Escritura
+
+* **En Escritura (Write-Time)**: Al consolidar un concepto (ciclo de sueño), el sistema tokeniza el contenido y los sinónimos del nodo, consulta el WordNet local en milisegundos y asocia el concepto a las categorías semánticas encontradas en la tabla puente.
+* **En Lectura (Read-Time)**: Cuando el usuario realiza una búsqueda:
+  1. Se extraen y tokenizan las palabras clave de la consulta.
+  2. Se obtienen sus lexnames desde WordNet en caliente.
+  3. Se calcula la intersección de grupos semánticos usando un coseno binario o coeficiente de Jaccard (`grupo_score`).
+  4. Se inyecta este score como la **9ª señal de relevancia** con un peso del 10% en la fórmula final de ordenamiento híbrido, dando un boost semántico a conceptos relacionados aunque no compartan caracteres exactos.
 
 ---
 
@@ -44,13 +72,14 @@ Cada capa se ejecuta SOLO si la anterior devolvió pocos resultados (< 3 o < lim
 
 ---
 
-### 2. Scoring Híbrido — 8 Señales Ortogonales
+### 2. Scoring Híbrido — 9 Señales Híbridas
 
-La fórmula `_calcular_score_hibrido()` en `memory_store.py` combina 8 señales con pesos fijos:
+La fórmula `_calcular_score_hibrido()` en `memory_store.py` combina 9 señales con pesos fijos:
 
 ```
-score = 0.25 × BM25_norm
-      + 0.20 × dim_score (coseno binario de dimensiones)
+score = 0.20 × BM25_norm
+      + 0.15 × dim_score (coseno binario de dimensiones)
+      + 0.10 × grupo_score (similitud léxico-semántica WordNet)
       + 0.15 × concepto_ratio (match en nombre)
       + 0.10 × sinonimos_ratio (match en sinónimos)
       + 0.10 × peso_sinaptico (fuerza del nodo)
@@ -60,6 +89,9 @@ score = 0.25 × BM25_norm
 
 Si match_exacto (query == concepto): floor 0.5
 ```
+
+**¿Qué es el `grupo_score`?**
+Es una señal de similitud simbólica. Mide la coincidencia conceptual mediante un coseno binario o coeficiente de Jaccard entre las categorías léxicas de WordNet de las palabras de la consulta y las del nodo almacenado. Si compartes categorías como `verb.communication` o `noun.act`, se añade un boost semántico independiente del texto exacto.
 
 **¿Qué es esto en términos del campo?**
 
@@ -186,7 +218,7 @@ score = 0.60 × Jaccard(vecinos_A, vecinos_B) + 0.40 × Jaccard(tokens_query, to
 | **Inhibición Lateral** | Si energía > límite, dormir débiles | Corteza visual, competición neural |
 | **Jaccard similarity** | `jaccard_vecinos()` | Set similarity (MinHash, LSH) |
 | **Binary cosine** | `shared / sqrt(|A| × |B|)` | Sparse vector similarity |
-| **Score híbrido 8 señales** | `_calcular_score_hibrido()` | Learning-to-Rank manual |
+| **Score híbrido 9 señales** | `_calcular_score_hibrido()` | Learning-to-Rank manual |
 | **Coseno binario dimensional** | Batch query en `largo_plazo_dimensiones` | Sparse embedding similarity |
 | **Filtro temporal PRE-hoc** | `WHERE creado_en >= ?` | Time-decay ranking |
 | **Context window BFS** | `expandir_contexto_vecinos()` con atenuación 0.6 | Graph exploration, subgraph expansion |
@@ -219,7 +251,8 @@ score = 0.60 × Jaccard(vecinos_A, vecinos_B) + 0.40 × Jaccard(tokens_query, to
 
 ```
 Python stdlib (sqlite3, re, time, json, math, os)
-├── pydantic (Field para documentación MCP)
+├── mcp (servidor MCP)
+├── nltk>=3.5 (clasificación léxica WordNet)
 └── python-dotenv (opcional, carga .env.local)
 
 CERO dependencias ML.
@@ -614,22 +647,21 @@ if qw_cortas:
 ```
 MemoryBioRAG/
   ├── biorag.py                 # CLI bridge (buscar, guardar, asociar, sueno, corteza, comunicar)
-  ├── mcp_server.py             # Servidor MCP: 23 herramientas + ráfaga + contingencia
+   ├── mcp_server.py             # Servidor MCP: 26 herramientas + ráfaga + contingencia
   ├── install.py                # Instalador cross-platform para 7 plataformas
   ├── sleep_cycle.py            # Script autónomo de consolidación/sueño
   ├── benchmark.py              # Script de benchmarks vs LangChain+Chroma
-  ├── requirements.txt          # Dependencias: mcp (servidor MCP)
+   ├── requirements.txt          # Dependencias: mcp, nltk (clasificación léxica)
   ├── vocabulario_inicial.json  # 239 términos del dominio para expansión semántica
   ├── VERSION                   # Versión actual del sistema
-  ├── core/
-  │    ├── memory_store.py      # Motor: LTP/LTD, 12 capas, Dynamic Multiplicator,
-  │    │                        #   co-ocurrencia, ráfaga, PALABRA_COMPLETA,
-  │    │                        #   boosting conceptual 1.2x
-  │    ├── sinapsis.py          # Grafo: auto-linking, overlap coefficient, decay
-  │    ├── semantica.py         # Tesauro: bidireccional, auto-aprendizaje,
-  │    │                        #   Union-Find para grupos semánticos disjuntos
-  │    ├── similitud_conceptual.py  # Jaccard vecinos + contenido, score 60/40
-  │    └── categorizador.py     # Inferencia de categoría por palabras clave
+   ├── core/
+   │    ├── memory_store.py      # Motor: LTP/LTD, 12 capas, Dynamic Multiplicator,
+   │    │                        #   co-ocurrencia, ráfaga, PALABRA_COMPLETA,
+   │    │                        #   boosting conceptual 1.2x, 9 señales de scoring
+   │    ├── clasificador_wordnet.py  # Clasificador léxico WordNet (offline)
+   │    ├── sinapsis.py          # Grafo: auto-linking, overlap coefficient, decay
+   │    ├── similitud_conceptual.py  # Jaccard vecinos + contenido, score 60/40
+   │    └── categorizador.py     # Inferencia de categoría por palabras clave
   ├── middleware/
   │    ├── __init__.py
   │    ├── interceptor.py       # Escaneo de familiaridad difusa
@@ -637,14 +669,16 @@ MemoryBioRAG/
   ├── config/
   │    ├── __init__.py
   │    └── prompts.py           # System prompts con protocolo de 4 pasos
-  ├── scripts/
-  │    ├── export_architecture.py  # Exporta blueprint completo de la DB
-  │    ├── migrar_sinapsis.py     # Migración de CSV legacy a tabla sinapsis
-  │    └── migrar_sinonimos_v2.0.py
-  ├── MemoryBioRAG_Data/        # Bases de datos SQLite (auto-creado)
-  ├── db_architecture_export.txt  # Blueprint generado
-  ├── test_memory.py            # 71 tests automatizados
-  └── README.md                 # Este archivo
+   ├── scripts/
+   │    ├── export_architecture.py  # Exporta blueprint completo de la DB
+   │    ├── migrar_clasificacion.py  # Migración de nodos existentes a WordNet
+   │    ├── migrar_sinapsis.py     # Migración de CSV legacy a tabla sinapsis
+   │    └── migrar_sinonimos_v2.0.py
+   ├── MemoryBioRAG_Data/        # Bases de datos SQLite (auto-creado)
+   │    └── nltk_data/           # WordNet local offline (nltk)
+   ├── db_architecture_export.txt  # Blueprint generado
+   ├── test_memory.py            # Tests automatizados
+   └── README.md                 # Este archivo
 ```
 
 ---
@@ -735,19 +769,19 @@ export BIORAG_CANDIDATOS_SIMILITUD=50
 | Capacidad | Base de Datos Vectorial | BioRAG |
 |---|---|---|
 | **Naturaleza** | Espacio continuo, probabilístico, opaco | Espacio discreto, determinista, auditable |
-| **Similitud semántica** | Embeddings (768-1536 floats opacos) | 7 dimensiones × 73 IDs discretos + BM25 léxico |
-| **Cómo sabe qué es similar** | Entrenamiento masivo (aprende de internet) | Tú definís las dimensiones (explícito, auditable) |
+| **Similitud semántica** | Embeddings (768-1536 floats opacos) | 7 dimensiones × 73 IDs discretos + 45 grupos WordNet |
+| **Cómo sabe qué es similar** | Entrenamiento masivo (aprende de internet) | Tú definís las dimensiones y WordNet local (discreto, 100% offline) |
 | **Tolerancia a typos** | Depende del modelo | FTS5 trigram nativo |
 | **Expansión de queries** | Embeddings implícitos | Tesauro explícito + ráfaga del agente |
-| **Ranking** | Distancia coseno | Score híbrido 8 señales + Dynamic Multiplicator |
-| **Explicabilidad** | Caja negra | Cada dimensión es inspeccionable |
+| **Ranking** | Distancia coseno | Score híbrido 9 señales + Dynamic Multiplicator |
+| **Explicabilidad** | Caja negra | Cada dimensión y grupo semántico es inspeccionable |
 | **Control en caliente** | Reentrenar | INSERT/DELETE en milisegundos |
 | **Plasticidad negativa** | No existe | desvincular() + LTD sináptico |
 | **Ciclo de vida** | Insert → Query | Corto plazo → Sueño → Largo plazo → Olvido |
 | **Asociaciones explícitas** | Solo similitud | Sinapsis con tipos y pesos |
-| **Dependencias** | numpy, sentence-transformers, GPU | Cero. SQLite puro |
+| **Dependencias** | numpy, sentence-transformers, GPU | Cero ML/GPU. SQLite + nltk (WordNet aislado local) |
 | **Latencia** | 2-100ms | 2.84ms promedio |
-| **Memoria RAM** | 100-500MB | ~18 MB |
+| **Memoria RAM** | 100-500MB | ~20 MB |
 | **Funciona offline** | No | Sí |
 | **Ráfaga de reminiscencia** | No | LLM genera términos, script ejecuta |
 | **Auto-aprendizaje** | No | Co-ocurrencia + sinapsis automáticas |
@@ -760,10 +794,10 @@ Ejecuta `python3 benchmark.py` para comparar BioRAG con LangChain+Chroma en tu m
 
 | Sistema | Latencia avg | Memoria RAM |
 |---|---|---|
-| **BioRAG** | 2.84 ms | **18.7 MB** |
+| **BioRAG** | 2.84 ms | **~20 MB** |
 | LangChain+Chroma | 2.10 ms | 128.7 MB |
 
-BioRAG usa **7x menos memoria**, latencia comparable, **0 dependencias ML**, corre en Raspberry Pi.
+BioRAG usa **6x menos memoria**, latencia comparable, **0 dependencias ML de peso (WordNet local)**, corre en Raspberry Pi.
 
 ---
 
@@ -792,6 +826,10 @@ Las dimensiones SIEMPRE suman, incluso con cero match de texto. El fallback dime
 ---
 
 ## Historial de Versiones
+
+### v15.0 — Clasificación Simbólica WordNet y Borrado en Cascada (Julio 2026)
+
+Integración de WordNet como clasificador léxico local para agrupamiento semántico discreto offline. Indexación en write-time a la tabla puente `nodo_grupos_semanticos`, cálculo de score híbrido con la 9ª señal de relevancia `grupo_score` (10% de peso), y borrado en cascada (`ON DELETE CASCADE`) para mantener la higiene referencial de la corteza.
 
 ### v14.0 — Auditoría Técnica Completa (Julio 2026)
 
@@ -953,18 +991,18 @@ Análisis exhaustivo de todo el codebase documentando cada técnica, algoritmo y
 
 ## Producción
 
-| Métrica | v9.0 | v11.1 | v13.4 | v14.0 |
-|---|---|---|---|---|
-| Pipeline de búsqueda | 8 capas | 8 capas | 9 capas | **12 capas** |
-| Señales de scoring | 3 | 3 | 3 | **8 ortogonales** |
-| Nodos activos | 135+ | 340 | 438 | — |
-| Sinapsis | 1,474+ | 15,521 | — | — |
-| Dimensiones | — | 5 (39 sub) | 7 (73 sub) | **7 ejes, 73 valores** |
-| Técnicas documentadas | — | — | — | **25 técnicas** |
-| Tests | 68/68 | 72/72 | 78/78 | 78/78 |
-| Dependencias ML | 0 | 0 | 0 | **0** |
-| RAM | ~4 MB | ~12 MB | ~9 MB | **~18 MB** |
-| Tools MCP | — | 12 | 15 | **19** |
+| Métrica | v9.0 | v11.1 | v13.4 | v14.0 | v15.0 |
+|---|---|---|---|---|---|
+| Pipeline de búsqueda | 8 capas | 8 capas | 9 capas | 12 capas | **12 capas + WordNet** |
+| Señales de scoring | 3 | 3 | 3 | 8 ortogonales | **9 señales híbridas** |
+| Nodos activos | 135+ | 340 | 438 | — | **415** |
+| Sinapsis | 1,474+ | 15,521 | — | — | **4,646** |
+| Dimensiones | — | 5 (39 sub) | 7 (73 sub) | 7 ejes, 73 valores | **7 ejes, 73 val + 45 grupos** |
+| Técnicas documentadas | — | — | — | 25 técnicas | **28 técnicas** |
+| Tests | 68/68 | 72/72 | 78/78 | 78/78 | **(pendiente verificación)** |
+| Dependencias ML | 0 | 0 | 0 | 0 | **0 (mcp + nltk)** |
+| RAM | ~4 MB | ~12 MB | ~9 MB | ~18 MB | **~20 MB** |
+| Tools MCP | — | 12 | 15 | 19 | **26** |
 
 ---
 
