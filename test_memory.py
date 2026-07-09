@@ -1362,6 +1362,70 @@ def test_sistema():
         print(f"  Trazaibilidad: {json.dumps(t, indent=2)}")
     print("  OK: Trazaibilidad completa en response JSON")
 
+    print("\n--- 79. Probando Despertar y Scoring Coherente de Nodos Dormidos ---")
+    # Limpiar posibles restos
+    cerebro.cursor.execute("DELETE FROM largo_plazo WHERE concepto = 'nodo_test_dormido'")
+    # Insertar un nodo dormido de prueba
+    cerebro.cursor.execute(
+        "INSERT INTO largo_plazo (concepto, contenido, peso_sinaptico, estado, creado_en) "
+        "VALUES ('nodo_test_dormido', 'Este es un contenido de prueba para despertar', 0.20, 'dormido', ?)",
+        (time.time(),)
+    )
+    # Registrar en FTS5 para buscar_por_frase
+    cerebro.cursor.execute(
+        "INSERT OR REPLACE INTO largo_plazo_fts (rowid, concepto, contenido) "
+        "VALUES ((SELECT rowid FROM largo_plazo WHERE concepto = 'nodo_test_dormido'), 'nodo_test_dormido', 'Este es un contenido de prueba para despertar')"
+    )
+    cerebro.conn.commit()
+
+    # A) Test de buscar_por_tokens
+    resultados_tokens, _ = cerebro.buscar_por_tokens(["despertar"], profundidad="profundo", limite=1)
+    assert len(resultados_tokens) > 0, "Error: buscar_por_tokens debería haber encontrado el nodo de prueba"
+    match_tokens = next((r for r in resultados_tokens if r[0] == "nodo_test_dormido"), None)
+    assert match_tokens is not None, "Error: el nodo de prueba no está en los resultados de tokens"
+    assert match_tokens[3] == "activo", f"Error tokens: estado retornado debería ser 'activo', got {match_tokens[3]}"
+    assert abs(match_tokens[2] - 0.35) < 1e-5, f"Error tokens: peso retornado debería ser 0.35, got {match_tokens[2]}"
+    print("  A) buscar_por_tokens despertó y actualizó tupla correctamente")
+
+    # B) Test de buscar_por_frase
+    # Volver a dormir el nodo
+    cerebro.cursor.execute("UPDATE largo_plazo SET estado = 'dormido', peso_sinaptico = 0.20 WHERE concepto = 'nodo_test_dormido'")
+    cerebro.conn.commit()
+
+    resultados_frase, _ = cerebro.buscar_por_frase("despertar", profundidad="profundo", limite=1, preview_chars=None)
+    assert len(resultados_frase) > 0, "Error: buscar_por_frase debería haber encontrado el nodo"
+    match_frase = next((r for r in resultados_frase if r[0] == "nodo_test_dormido"), None)
+    assert match_frase is not None, "Error: el nodo de prueba no está en los resultados de frase"
+    assert match_frase[3] == "activo", f"Error frase: estado retornado debería ser 'activo', got {match_frase[3]}"
+    assert abs(match_frase[2] - 0.35) < 1e-5, f"Error frase: peso retornado debería ser 0.35, got {match_frase[2]}"
+    print(f"  B) buscar_por_frase despertó y actualizó tupla correctamente (score: {match_frase[4]})")
+
+    # C) Test de buscar_por_rafaga
+    # Volver a dormir el nodo
+    cerebro.cursor.execute("UPDATE largo_plazo SET estado = 'dormido', peso_sinaptico = 0.20 WHERE concepto = 'nodo_test_dormido'")
+    cerebro.conn.commit()
+
+    # Busquemos usando ráfaga de reminiscencia
+    resultados_rafaga, _, _ = cerebro.buscar_por_rafaga("despertar", ["despertar"], limite=10)
+    assert len(resultados_rafaga) > 0, "Error: buscar_por_rafaga no encontró el nodo de prueba"
+    match_rafaga = next((r for r in resultados_rafaga if r[0] == "nodo_test_dormido"), None)
+    assert match_rafaga is not None, "Error: el nodo de prueba no está en los resultados de ráfaga"
+    assert match_rafaga[3] == "activo", f"Error ráfaga: estado retornado debería ser 'activo', got {match_rafaga[3]}"
+    # El peso sináptico en ráfaga se incrementa en +0.3
+    assert abs(match_rafaga[2] - 0.50) < 1e-5, f"Error ráfaga: peso retornado debería ser 0.50, got {match_rafaga[2]}"
+    
+    # Verificar en base de datos que el peso no subió más de una vez (+0.30)
+    cerebro.cursor.execute("SELECT peso_sinaptico FROM largo_plazo WHERE concepto = 'nodo_test_dormido'")
+    peso_db = cerebro.cursor.fetchone()[0]
+    assert abs(peso_db - 0.50) < 1e-5, f"Error: El nodo recibió múltiples incrementos de peso, peso en DB: {peso_db}"
+    print("  C) buscar_por_rafaga despertó tempranamente y calculó score coherente (y peso en DB es exactamente 0.50)")
+
+    # Limpieza final
+    cerebro.cursor.execute("DELETE FROM largo_plazo WHERE concepto = 'nodo_test_dormido'")
+    cerebro.cursor.execute("DELETE FROM largo_plazo_fts WHERE concepto = 'nodo_test_dormido'")
+    cerebro.conn.commit()
+    print("  OK: Todos los tests de despertar coherente pasaron con éxito")
+
     cerebro.cerrar_sistema()
     print("\n--- ¡Todas las pruebas biologicas completadas con exito! ---\n\n")
 

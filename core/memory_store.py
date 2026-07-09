@@ -847,6 +847,7 @@ class SQLiteMemoryBioRAG:
         pagina_resultados = resultados_con_score[inicio:fin]
 
         if profundidad == "profundo":
+            pagina_resultados_actualizada = []
             for r in pagina_resultados:
                 if r[3] == "dormido":
                     nuevo_peso = min(1.0, r[2] + 0.15)
@@ -854,8 +855,16 @@ class SQLiteMemoryBioRAG:
                         "UPDATE largo_plazo SET estado = 'activo', peso_sinaptico = ?, ultimo_acceso = ? WHERE concepto = ?",
                         (nuevo_peso, time.time(), r[0]),
                     )
-
-        self.conn.commit()
+                    pagina_resultados_actualizada.append(
+                        (r[0], r[1], nuevo_peso, "activo", r[4], r[5])
+                    )
+                else:
+                    pagina_resultados_actualizada.append(r)
+            pagina_resultados = pagina_resultados_actualizada
+            self.conn.commit()
+            pagina_resultados.sort(key=lambda r: (r[4], r[2]), reverse=True)
+        else:
+            self.conn.commit()
         return pagina_resultados, len(resultados_con_score)
 
     def buscar_recuerdo_profundo(self, concepto):
@@ -2567,13 +2576,23 @@ class SQLiteMemoryBioRAG:
         pagina_resultados = resultados_con_hibrido[inicio:inicio + limite]
 
         if profundidad == "profundo":
+            pagina_resultados_actualizada = []
             for r in pagina_resultados:
                 if r[3] == "dormido":
+                    nuevo_peso = min(1.0, r[2] + 0.15)
                     self.cursor.execute(
-                        "UPDATE largo_plazo SET estado = 'activo', peso_sinaptico = MIN(1.0, peso_sinaptico + 0.15), ultimo_acceso = ? WHERE concepto = ?",
-                        (time.time(), r[0]),
+                        "UPDATE largo_plazo SET estado = 'activo', peso_sinaptico = ?, ultimo_acceso = ? WHERE concepto = ?",
+                        (nuevo_peso, time.time(), r[0]),
                     )
+                    score_nuevo = round(min(1.0, r[4] + 0.10 * (nuevo_peso - r[2])), 4)
+                    pagina_resultados_actualizada.append(
+                        (r[0], r[1], nuevo_peso, "activo", score_nuevo, r[5])
+                    )
+                else:
+                    pagina_resultados_actualizada.append(r)
+            pagina_resultados = pagina_resultados_actualizada
             self.conn.commit()
+            pagina_resultados.sort(key=lambda r: r[4], reverse=True)
 
         # Context window: expandir cada resultado con vecinos por sinapsis
         if context_window and context_window > 0 and pagina_resultados:
@@ -2789,6 +2808,26 @@ class SQLiteMemoryBioRAG:
                 except Exception:
                     dim_scores_map = {}  # ponytail: fallback a scores vacíos si falla el batch dimensional
 
+        # Fase 1.5: Despertar temprano de nodos dormidos en la ráfaga
+        todos_actualizados = []
+        nodos_despertados = False
+        for r in todos:
+            rowid, concepto, contenido, peso, estado, asoc, *bm25_rest = r
+            if estado == 'dormido':
+                nuevo_peso = min(1.0, peso + 0.3)
+                self.cursor.execute(
+                    "UPDATE largo_plazo SET estado = 'activo', peso_sinaptico = ?, ultimo_acceso = ? WHERE concepto = ?",
+                    (nuevo_peso, time.time(), concepto)
+                )
+                nodos_despertados = True
+                todos_actualizados.append((rowid, concepto, contenido, nuevo_peso, 'activo', asoc) + tuple(bm25_rest))
+            else:
+                todos_actualizados.append(r)
+        
+        if nodos_despertados:
+            self.conn.commit()
+        todos = todos_actualizados
+
         total = len(todos)
 
         # Normalizar BM25 con fórmula estable para pool pequeño (ráfaga típicamente 1-5 candidatos)
@@ -2841,15 +2880,7 @@ class SQLiteMemoryBioRAG:
         sinapsis_creadas = []
         query_tokens = set(re.findall(r'\w{4,}', query.lower()))
         
-        # Primero: despertar TODOS los nodos dormidos (sin límite)
-        for concepto, contenido, peso, estado, score, asoc in scored:
-            if estado == 'dormido':
-                self.cursor.execute(
-                    "UPDATE largo_plazo SET estado = 'activo', "
-                    "peso_sinaptico = MIN(1.0, peso_sinaptico + 0.3), "
-                    "ultimo_acceso = ? WHERE concepto = ?",
-                    (time.time(), concepto)
-                )
+        # Primero: despertar TODOS los nodos dormidos (ya realizado en Fase 1.5, bucle omitido)
         
         # Segundo: crear sinapsis solo para los top resultados con score válido
         UMBRAL_SCORE_RAFAGA = 0.5
