@@ -1,6 +1,6 @@
-# BioRAG v15.0 — Sistema de Memoria Cognitiva Biomimética para Agentes de IA
+# BioRAG v16.0 — Sistema de Memoria Cognitiva Biomimética para Agentes de IA
 
-> **Versión:** v15.0 — Julio 2026
+> **Versión:** v16.0 — Julio 2026
 > **Paradigma:** Semántica Determinista y Discreta
 > **Motor:** Python puro + SQLite FTS5
 > **Dependencias ML:** 0 (mcp + nltk para WordNet, sin numpy ni sentence-transformers)
@@ -48,6 +48,26 @@ Para estructurar esta similitud simbólica sin saturar la tabla principal `largo
   2. Se obtienen sus lexnames desde WordNet en caliente.
   3. Se calcula la intersección de grupos semánticos usando un coseno binario o coeficiente de Jaccard (`grupo_score`).
   4. Se inyecta este score como la **9ª señal de relevancia** con un peso del 10% en la fórmula final de ordenamiento híbrido, dando un boost semántico a conceptos relacionados aunque no compartan caracteres exactos.
+
+---
+
+## Comprensión Semántica Profunda — v16.0
+
+Para la versión v16.0 de BioRAG, incorporamos tres pilares fundamentales que dotan al sistema de una verdadera comprensión semántica a nivel relacional, lógico y estructural sin sacrificar el paradigma determinista y discreto (cero dependencias de GPU o modelos vectoriales pesados):
+
+### 1. Etiquetado de Roles Semánticos (Semantic Role Labeling - SRL)
+* **De tokens a relaciones**: En lugar de indexar palabras sueltas e independientes, SRL asocia los conceptos a estructuras semánticas de rol: **Sujeto, Acción, Objeto y Contexto** (ej: `"Dennys desarrolla BioRAG en la oficina"`; Sujeto: Dennys, Acción: desarrollar, Objeto: BioRAG, Contexto: oficina).
+* **Búsquedas Estructuradas**: El parámetro `buscar_por_rol` permite realizar consultas relacionales específicas (ej: `"sujeto:Dennys,accion:desarrollar"`), reduciendo a cero el ruido de co-ocurrencia léxica accidental.
+
+### 2. Inferencia y Transitividad en Grafos (Fuzzy Reasoning)
+* **Sinapsis Latentes**: Permite al sistema deducir relaciones indirectas implícitas en el grafo de conocimiento. Si el nodo A está conectado a B y B está conectado a C, el motor infiere de manera lógica que A tiene una conexión latente con C.
+* **Atenuación con Poda Temprana**: El peso de las sinapsis latentes decae proporcionalmente a la distancia (saltos) usando la fórmula:
+  $$\text{peso\_latente} = \prod (\text{pesos\_camino}) \times \text{FACTOR\_DECAY}^{\text{saltos}}$$
+  con $\text{FACTOR\_DECAY} = 0.7$ y un cap de 3 saltos. Implementado mediante CTEs recursivas nativas de SQLite para máxima eficiencia y prevención de bucles infinitos.
+
+### 3. Autogeneración de Dimensiones Emergentes (Auto-Clustering)
+* **Label Propagation Algorithm (LPA)**: El motor analiza el grafo de sinapsis durante el ciclo de sueño y agrupa de manera autónoma los conceptos en comunidades densas (cliques de tamaño $\ge 5$ y densidad interna $\ge 0.3$).
+* **Dimensiones Temáticas Dinámicas**: Cada comunidad detectada genera una dimensión emergente (`auto_TOKEN1_TOKEN2_TOKEN3`) nombrada mediante los tokens más frecuentes de sus contenidos (excluyendo stopwords). Los nodos correspondientes se asocian de forma automática a este nuevo eje dimensional, permitiendo búsquedas dimensionales ponderadas por confianza.
 
 ---
 
@@ -827,6 +847,10 @@ Las dimensiones SIEMPRE suman, incluso con cero match de texto. El fallback dime
 
 ## Historial de Versiones
 
+### v16.0 — Comprensión Semántica Profunda: SRL, Inferencia y Auto-Clustering (Julio 2026)
+
+Integración de estructura relacional (SRL) mediante almacenamiento de Sujeto-Verbo-Objeto-Contexto para consultas por rol relacional (`buscar_por_rol`). Implementación de Inferencia Transitiva en el grafo mediante caminos multi-hop con decaimiento amortiguado (decay 0.7) calculado con una CTE recursiva en SQLite. Auto-Clustering de dimensiones emergentes mediante Label Propagation Algorithm (LPA) ejecutado en el ciclo de sueño para agrupar nodos activos en comunidades y asociarlos de forma automática a nuevas dimensiones autogeneradas ponderadas.
+
 ### v15.0 — Clasificación Simbólica WordNet y Borrado en Cascada (Julio 2026)
 
 Integración de WordNet como clasificador léxico local para agrupamiento semántico discreto offline. Indexación en write-time a la tabla puente `nodo_grupos_semanticos`, cálculo de score híbrido con la 9ª señal de relevancia `grupo_score` (10% de peso), y borrado en cascada (`ON DELETE CASCADE`) para mantener la higiene referencial de la corteza.
@@ -991,18 +1015,18 @@ Análisis exhaustivo de todo el codebase documentando cada técnica, algoritmo y
 
 ## Producción
 
-| Métrica | v9.0 | v11.1 | v13.4 | v14.0 | v15.0 |
-|---|---|---|---|---|---|
-| Pipeline de búsqueda | 8 capas | 8 capas | 9 capas | 12 capas | **12 capas + WordNet** |
-| Señales de scoring | 3 | 3 | 3 | 8 ortogonales | **9 señales híbridas** |
-| Nodos activos | 135+ | 340 | 438 | — | **415** |
-| Sinapsis | 1,474+ | 15,521 | — | — | **4,646** |
-| Dimensiones | — | 5 (39 sub) | 7 (73 sub) | 7 ejes, 73 valores | **7 ejes, 73 val + 45 grupos** |
-| Técnicas documentadas | — | — | — | 25 técnicas | **28 técnicas** |
-| Tests | 68/68 | 72/72 | 78/78 | 78/78 | **(pendiente verificación)** |
-| Dependencias ML | 0 | 0 | 0 | 0 | **0 (mcp + nltk)** |
-| RAM | ~4 MB | ~12 MB | ~9 MB | ~18 MB | **~20 MB** |
-| Tools MCP | — | 12 | 15 | 19 | **26** |
+| Métrica | v9.0 | v11.1 | v13.4 | v14.0 | v15.0 | v16.0 |
+|---|---|---|---|---|---|---|
+| Pipeline de búsqueda | 8 capas | 8 capas | 9 capas | 12 capas | 12 capas + WordNet | **12 capas + SRL + Inferencia** |
+| Señales de scoring | 3 | 3 | 3 | 8 ortogonales | 9 señales híbridas | **9 señales + SRL + Inferencia** |
+| Nodos activos | 135+ | 340 | 438 | — | 415 | **415+** |
+| Sinapsis | 1,474+ | 15,521 | — | — | 4,646 | **4,646+ (y latentes)** |
+| Dimensiones | — | 5 (39 sub) | 7 (73 sub) | 7 ejes, 73 valores | 7 ejes, 73 val + 45 grupos | **7 ejes, 73 val + 45 grupos + auto-generadas** |
+| Técnicas documentadas | — | — | — | 25 técnicas | 28 técnicas | **31 técnicas** |
+| Tests | 68/68 | 72/72 | 78/78 | 78/78 | 79/79 | **86 checkpoints** |
+| Dependencias ML | 0 | 0 | 0 | 0 | 0 (mcp + nltk) | **0 (mcp + nltk)** |
+| RAM | ~4 MB | ~12 MB | ~9 MB | ~18 MB | ~20 MB | **~20 MB** |
+| Tools MCP | — | 12 | 15 | 19 | 26 | **26** |
 
 ---
 

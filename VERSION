@@ -1,11 +1,11 @@
-v15.0 — Clasificación Simbólica WordNet (Julio 2026)
+v16.0 — Comprensión Semántica Profunda: SRL, Inferencia y Auto-Clustering (Julio 2026)
 
-Integración de agrupamientos léxicos ontológicos basados en WordNet
-local para búsquedas conceptuales offline.
+Integración de estructura relacional (SRL), inferencia transitiva
+por grafos y clustering automático para el descubrimiento de dimensiones emergentes.
 
 Lo nuevo:
-- Clasificador local de WordNet aislado en nltk_data del proyecto.
-- Indexación relacional en la tabla nodo_grupos_semanticos al consolidar.
-- Score híbrido con la 9ª señal de scoring (grupo_score) con peso del 10%.
-- Borrado en cascada (ON DELETE CASCADE) para higiene y sanación de base de datos.
-- Tests de recuperación semántica integrales y estables.
+- Etiquetado de Roles Semánticos (SRL): almacenamiento de sujeto, accion, objeto y contexto en predicados.
+- Inferencia Transitiva en Grafos: CTEs recursivas para calcular caminos multi-hop con atenuación (decay 0.7).
+- Auto-Clustering de Dimensiones: Label Propagation en Python puro para detectar comunidades semánticas emergentes.
+- Búsqueda por roles relacionales ("sujeto:Dennys") y boost por confianza dimensional.
+- Suite de pruebas de la versión v16.0 (Tests 80-86) exitosa y validada.

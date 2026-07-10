@@ -288,6 +288,8 @@ def _build_server():
         hasta: Optional[str] = None,
         autor: Optional[str] = None,
         modo_estricto: bool = False,
+        buscar_por_rol: Optional[str] = None,
+        usar_inferencia: bool = True,
     ) -> str:
         if limite is None:
             limite = LIMITE_MCP
@@ -402,19 +404,44 @@ def _build_server():
             # Pool interno amplio (limite*3): buscar amplio, recortar al final.
             # Emula el comportamiento de un RAG vectorial que rankea todo el índice.
             # Si no hay query pero hay dimensiones, usar string vacío para que buscar_por_frase no falle
-            frase_para_buscar = query if query else ""
             limite_interno = limite * 3
-            resultados, total = cerebro.buscar_por_frase(
-                frase_para_buscar, profundidad=profundidad, pagina=pagina, limite=limite_interno,
-                categoria=cat, preview_chars=preview_chars,
-                context_window=0,
-                dimensiones_dict=dimensiones_dict,
-                dimensiones_ids=dimensiones_ids,
-                parafrasis_list=parafrasis_list,
-                desde_ts=desde_ts,
-                hasta_ts=hasta_ts,
-                modo_estricto=modo_estricto,
-            )
+            if buscar_por_rol:
+                # Parsear buscar_por_rol (formato: "sujeto:Dennys,accion:corregir")
+                sujeto = None
+                accion = None
+                objeto = None
+                contexto = None
+                for parte in buscar_por_rol.split(","):
+                    if ":" in parte:
+                        k, v = parte.split(":", 1)
+                        k = k.strip().lower()
+                        v = v.strip()
+                        if k == "sujeto":
+                            sujeto = v
+                        elif k in ("accion", "acción"):
+                            accion = v
+                        elif k == "objeto":
+                            objeto = v
+                        elif k == "contexto":
+                            contexto = v
+                resultados = cerebro.buscar_por_predicados(
+                    sujeto=sujeto, accion=accion, objeto=objeto, contexto=contexto, limite=limite_interno
+                )
+                total = len(resultados)
+            else:
+                frase_para_buscar = query if query else ""
+                resultados, total = cerebro.buscar_por_frase(
+                    frase_para_buscar, profundidad=profundidad, pagina=pagina, limite=limite_interno,
+                    categoria=cat, preview_chars=preview_chars,
+                    context_window=0,
+                    dimensiones_dict=dimensiones_dict,
+                    dimensiones_ids=dimensiones_ids,
+                    parafrasis_list=parafrasis_list,
+                    desde_ts=desde_ts,
+                    hasta_ts=hasta_ts,
+                    modo_estricto=modo_estricto,
+                    usar_inferencia=usar_inferencia,
+                )
             score_top = resultados[0][4] if resultados else 0
 
             # Trazaabilidad: tracking de scores por capa
@@ -843,11 +870,18 @@ def _build_server():
                 "así que puede tapar resultados válidos si se usa de entrada."                
             )
         )] = False,
+        buscar_por_rol: Annotated[Optional[str], Field(
+            description="Búsqueda por roles semánticos SRL (v16.0). Formato: 'sujeto:valor,accion:valor,objeto:valor,contexto:valor'."
+        )] = None,
+        usar_inferencia: Annotated[bool, Field(
+            description="Si True, utiliza inferencia transitiva sobre sinapsis latentes para aumentar recall semántico."
+        )] = True,
     ) -> str:
         return _recordar_impl(
             query, deep, cat, completo, asociados, limite, preview_chars,
             context_window, forzar_rafaga, rafaga_palabras, pagina, parafrasis,
-            dimensiones, dias, desde, hasta, autor, modo_estricto
+            dimensiones, dias, desde, hasta, autor, modo_estricto,
+            buscar_por_rol=buscar_por_rol, usar_inferencia=usar_inferencia
         )
 
     @mcp.tool(
@@ -914,11 +948,18 @@ def _build_server():
                 "así que puede tapar resultados válidos si se usa de entrada."
             )
         )] = False,
+        buscar_por_rol: Annotated[Optional[str], Field(
+            description="Búsqueda por roles semánticos SRL (v16.0). Formato: 'sujeto:valor,accion:valor,objeto:valor,contexto:valor'."
+        )] = None,
+        usar_inferencia: Annotated[bool, Field(
+            description="Si True, utiliza inferencia transitiva sobre sinapsis latentes."
+        )] = True,
     ) -> str:
         return _recordar_impl(
             query, deep, cat, completo, asociados, limite, preview_chars,
             context_window, forzar_rafaga, rafaga_palabras, pagina, parafrasis,
-            dimensiones, modo_estricto=modo_estricto
+            dimensiones, modo_estricto=modo_estricto,
+            buscar_por_rol=buscar_por_rol, usar_inferencia=usar_inferencia
         )
 
     # ── APRENDER ─────────────────────────────────────────────────────────────
@@ -932,6 +973,7 @@ def _build_server():
         syn: Optional[str] = None,
         cat: Optional[str] = None,
         dimensiones: Optional[Any] = None,
+        predicados: Optional[Any] = None,
     ) -> str:
         cerebro = _get_cerebro()
         try:
@@ -951,7 +993,22 @@ def _build_server():
                 return dim_error
             dimensiones_invalidas = {}  # ya validado por _resolver_dimensiones
 
-            cerebro.percibir_corto_plazo(clave, contenido, syn or "", categoria, dimensiones_dict)
+            # Parsear predicados SRL v16.0
+            predicados_list = None
+            if predicados:
+                try:
+                    predicados_list = json.loads(predicados) if isinstance(predicados, str) else predicados
+                    if isinstance(predicados_list, str):
+                        try:
+                            predicados_list = json.loads(predicados_list)
+                        except Exception:
+                            pass
+                    if not isinstance(predicados_list, list):
+                        predicados_list = [predicados_list]
+                except (json.JSONDecodeError, TypeError):
+                    predicados_list = None
+
+            cerebro.percibir_corto_plazo(clave, contenido, syn or "", categoria, dimensiones_dict, predicados=predicados_list)
 
             enlaces = auto_vincular(cerebro, clave, contenido)
             sinapsis_count = len(enlaces)
@@ -1129,8 +1186,11 @@ def _build_server():
                 "Usar listar_categorias para ver descripciones de cada una."
             )
         )] = None,
+        predicados: Annotated[Optional[Any], Field(
+            description="Estructura SRL (JSON o diccionario) de predicados: [{'sujeto': '...', 'accion': '...', 'objeto': '...', 'contexto': '...'}]"
+        )] = None,
     ) -> str:
-        return _aprender_impl(concepto, contenido, syn, cat, dimensiones=dimensiones)
+        return _aprender_impl(concepto, contenido, syn, cat, dimensiones=dimensiones, predicados=predicados)
 
     @mcp.tool(
         name="guardar",
@@ -1143,7 +1203,7 @@ def _build_server():
         ),
     )
     def biorag_guardar(
-        concepto: Annotated[str, Field(description="Nombre único del recuerdo (se normaliza a snake_case).")],
+        concepto: Annotated[str, Field(description="Nombre unique del recuerdo (se normaliza a snake_case).")],
         contenido: Annotated[str, Field(description="Texto o conocimiento a almacenar.")],
         syn: Annotated[Optional[str], Field(
             description=(
@@ -1155,8 +1215,11 @@ def _build_server():
         dimensiones: Annotated[Optional[Any], Field(
             description="Clasificación dimensional en JSON. Ver aprender para formato."
         )] = None,
+        predicados: Annotated[Optional[Any], Field(
+            description="Estructura SRL de predicados JSON."
+        )] = None,
     ) -> str:
-        return _aprender_impl(concepto, contenido, syn, cat, dimensiones=dimensiones)
+        return _aprender_impl(concepto, contenido, syn, cat, dimensiones=dimensiones, predicados=predicados)
 
     @mcp.tool(
         name="vincular",
@@ -1481,14 +1544,15 @@ def _build_server():
         cerebro = _get_cerebro()
         try:
             cerebro.cursor.execute("""
-                SELECT t.nombre, t.description, d.id, d.name, d.description
+                SELECT t.nombre, t.description, d.id, d.name, d.description,
+                       COALESCE(d.auto_generada, 0), COALESCE(d.confianza, 1.0)
                 FROM tipos_dimension t
                 LEFT JOIN dimensiones_semanticas d ON d.tipo_id = t.id
                 ORDER BY t.id, d.id
             """)
             filas = cerebro.cursor.fetchall()
             resultado = {}
-            for tipo, tdesc, did, dname, ddesc in filas:
+            for tipo, tdesc, did, dname, ddesc, auto_gen, conf in filas:
                 if tipo not in resultado:
                     resultado[tipo] = {
                         "descripcion": tdesc or "",
@@ -1499,6 +1563,8 @@ def _build_server():
                         "id": did,
                         "nombre": dname,
                         "descripcion": ddesc or "",
+                        "auto_generada": bool(auto_gen),
+                        "confianza": conf
                     })
             total = sum(len(v["dimensiones"]) for v in resultado.values())
             return json.dumps({"total": total, "dimensiones": resultado}, ensure_ascii=False)
@@ -1597,16 +1663,19 @@ def _build_server():
             # Consultar dimensiones de todos los tipos encontrados
             placeholders = ",".join("?" * len(tipo_ids))
             cerebro.cursor.execute(
-                f"SELECT id, name, description, tipo_id FROM dimensiones_semanticas WHERE tipo_id IN ({placeholders}) ORDER BY tipo_id, id",
+                f"SELECT id, name, description, tipo_id, COALESCE(auto_generada, 0), COALESCE(confianza, 1.0) "
+                f"FROM dimensiones_semanticas WHERE tipo_id IN ({placeholders}) ORDER BY tipo_id, id",
                 tipo_ids
             )
             dimensiones = []
-            for did, dname, ddesc, dtipo_id in cerebro.cursor.fetchall():
+            for did, dname, ddesc, dtipo_id, auto_gen, conf in cerebro.cursor.fetchall():
                 dimensiones.append({
                     "id": did,
                     "nombre": dname,
                     "descripcion": ddesc or "",
                     "tipo": next((ti["nombre"] for ti in tipos_info if ti["nombre"]), ""),
+                    "auto_generada": bool(auto_gen),
+                    "confianza": conf,
                 })
             
             # Construir respuesta

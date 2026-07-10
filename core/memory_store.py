@@ -484,10 +484,80 @@ class SQLiteMemoryBioRAG:
             "CREATE INDEX IF NOT EXISTS idx_ngs_concepto ON nodo_grupos_semanticos(concepto)"
         )
 
+        # 3g. Tabla de sinapsis latentes (caché de inferencia transitiva v16.0)
+        self.cursor.execute("""
+            CREATE TABLE IF NOT EXISTS sinapsis_latentes (
+                origen TEXT NOT NULL,
+                destino TEXT NOT NULL,
+                peso_atenuado REAL NOT NULL,
+                saltos INTEGER NOT NULL,
+                calculado_en REAL NOT NULL,
+                PRIMARY KEY (origen, destino)
+            )
+        """)
+        self.cursor.execute(
+            "CREATE INDEX IF NOT EXISTS idx_sl_origen ON sinapsis_latentes(origen)"
+        )
+        self.cursor.execute(
+            "CREATE INDEX IF NOT EXISTS idx_sl_destino ON sinapsis_latentes(destino)"
+        )
+
+        # 3h. Tabla de predicados SRL (Etiquetado de Roles Semánticos v16.0)
+        self.cursor.execute("""
+            CREATE TABLE IF NOT EXISTS predicados (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                concepto TEXT NOT NULL,
+                sujeto TEXT,
+                accion TEXT,
+                objeto TEXT,
+                contexto TEXT,
+                creado_en REAL,
+                FOREIGN KEY (concepto) REFERENCES largo_plazo(concepto) ON DELETE CASCADE
+            )
+        """)
+        self.cursor.execute(
+            "CREATE INDEX IF NOT EXISTS idx_pred_concepto ON predicados(concepto)"
+        )
+        self.cursor.execute(
+            "CREATE INDEX IF NOT EXISTS idx_pred_sujeto ON predicados(sujeto)"
+        )
+        self.cursor.execute(
+            "CREATE INDEX IF NOT EXISTS idx_pred_accion ON predicados(accion)"
+        )
+        self.cursor.execute(
+            "CREATE INDEX IF NOT EXISTS idx_pred_objeto ON predicados(objeto)"
+        )
+
+        self.cursor.execute("""
+            CREATE TABLE IF NOT EXISTS corto_plazo_predicados (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                concepto TEXT NOT NULL,
+                sujeto TEXT,
+                accion TEXT,
+                objeto TEXT,
+                contexto TEXT,
+                creado_en REAL,
+                FOREIGN KEY (concepto) REFERENCES corto_plazo(concepto) ON DELETE CASCADE
+            )
+        """)
+        self.cursor.execute(
+            "CREATE INDEX IF NOT EXISTS idx_cp_pred_concepto ON corto_plazo_predicados(concepto)"
+        )
+
         self.conn.commit()
 
         # 4. Migración FK: eliminar categoria_id si existe, agregar FK en categoria→categories.name
         cur = self.cursor
+
+        # --- dimensiones_semanticas (v16.0 auto-clustering) ---
+        cur.execute("PRAGMA table_info(dimensiones_semanticas)")
+        ds_cols = [row[1] for row in cur.fetchall()]
+        if 'auto_generada' not in ds_cols:
+            cur.execute("ALTER TABLE dimensiones_semanticas ADD COLUMN auto_generada INTEGER DEFAULT 0")
+        if 'confianza' not in ds_cols:
+            cur.execute("ALTER TABLE dimensiones_semanticas ADD COLUMN confianza REAL DEFAULT 1.0")
+        if 'generado_en' not in ds_cols:
+            cur.execute("ALTER TABLE dimensiones_semanticas ADD COLUMN generado_en REAL")
 
         # --- corto_plazo ---
         cur.execute("PRAGMA table_info(corto_plazo)")
@@ -784,6 +854,42 @@ class SQLiteMemoryBioRAG:
         resultados.sort(key=lambda r: r[4], reverse=True)
         return resultados
 
+    def buscar_por_predicados(self, sujeto=None, accion=None, objeto=None, contexto=None, limite=10):
+        """Búsqueda por roles semánticos (SRL v16.0).
+        Filtra la tabla predicados por sujeto, acción, objeto y/o contexto.
+        Retorna lista de (concepto, contenido, peso, estado, score, asociaciones)."""
+        condiciones = []
+        params = []
+        if sujeto:
+            condiciones.append("p.sujeto LIKE ?")
+            params.append(f"%{sujeto}%")
+        if accion:
+            condiciones.append("p.accion LIKE ?")
+            params.append(f"%{accion}%")
+        if objeto:
+            condiciones.append("p.objeto LIKE ?")
+            params.append(f"%{objeto}%")
+        if contexto:
+            condiciones.append("p.contexto LIKE ?")
+            params.append(f"%{contexto}%")
+
+        if not condiciones:
+            return []
+
+        where = " AND ".join(condiciones)
+        params.append(limite)
+        self.cursor.execute(f"""
+            SELECT DISTINCT l.concepto, l.contenido, l.peso_sinaptico, l.estado,
+                   l.peso_sinaptico AS score, l.asociaciones
+            FROM predicados p
+            JOIN largo_plazo l ON l.concepto = p.concepto
+            WHERE {where} AND l.estado = 'activo'
+            ORDER BY l.peso_sinaptico DESC
+            LIMIT ?
+        """, tuple(params))
+
+        return [(r[0], r[1], r[2], r[3], r[4], r[5] or "") for r in self.cursor.fetchall()]
+
     def buscar_por_tokens(self, tokens, modo="relaxed", profundidad="activos", limite=3, pagina=1):
         """Busqueda multi-token con Soft AND.
 
@@ -955,10 +1061,11 @@ class SQLiteMemoryBioRAG:
         print(f"[MemoryBioRAG] Evocado exitosamente '{key}' en {(fin - inicio) * 1000000:.2f} microsegundos.")
         return contenido
 
-    def percibir_corto_plazo(self, concepto, contenido, sinonimos="", categoria="General", dimensiones=None):
+    def percibir_corto_plazo(self, concepto, contenido, sinonimos="", categoria="General", dimensiones=None, predicados=None):
         """Almacena temporalmente una percepción o hecho en la memoria de trabajo (Corto Plazo).
         Si el concepto ya existe en corto plazo, concatena contenido y mergea sinónimos.
-        dimensiones: dict {tipo_nombre: [valores]} para indexación de 5 ejes."""
+        dimensiones: dict {tipo_nombre: [valores]} para indexación de 5 ejes.
+        predicados: list[dict] con {sujeto, accion, objeto, contexto} para SRL v16.0."""
         key = concepto.lower().strip()
         cat_id = self._resolver_categoria_id(categoria)
         self.cursor.execute("SELECT contenido, sinonimos, categoria FROM corto_plazo WHERE concepto = ?", (key,))
@@ -977,6 +1084,19 @@ class SQLiteMemoryBioRAG:
             INSERT OR REPLACE INTO corto_plazo (concepto, contenido, timestamp, sinonimos, categoria)
             VALUES (?, ?, ?, ?, ?)
         """, (key, contenido_final, time.time(), sinonimos_final, cat_id))
+
+        # SRL v16.0: Almacenar predicados en corto_plazo_predicados (se propagan al consolidar)
+        if predicados:
+            ahora = time.time()
+            for pred in predicados:
+                if not isinstance(pred, dict):
+                    continue
+                self.cursor.execute(
+                    "INSERT INTO corto_plazo_predicados (concepto, sujeto, accion, objeto, contexto, creado_en) "
+                    "VALUES (?, ?, ?, ?, ?, ?)",
+                    (key, pred.get('sujeto'), pred.get('accion'),
+                     pred.get('objeto'), pred.get('contexto'), ahora)
+                )
 
         # Insertar dimensiones en tabla puente
         # Si dimensiones ya es dict de IDs (de _resolver_dimensiones), usar directamente
@@ -1035,7 +1155,14 @@ class SQLiteMemoryBioRAG:
         auto_vincular(self, key, contenido)
         # Clasificación simbólica: WordNet lexnames
         self._clasificar_nodo_wordnet(key, contenido, sinonimos or "")
-        # ponytail: removed semantic inference — agent provides synonyms directly
+        # SRL v16.0: Propagar predicados de corto → largo plazo
+        self.cursor.execute("""
+            INSERT INTO predicados (concepto, sujeto, accion, objeto, contexto, creado_en)
+            SELECT concepto, sujeto, accion, objeto, contexto, creado_en FROM corto_plazo_predicados WHERE concepto = ?
+        """, (key,))
+        self.cursor.execute(
+            "DELETE FROM corto_plazo_predicados WHERE concepto = ?", (key,)
+        )
         return True
 
     def _auto_generar_co_ocurrencia(self, recuerdos_sesion):
@@ -1209,6 +1336,15 @@ class SQLiteMemoryBioRAG:
             self.cursor.execute(
                 "DELETE FROM corto_plazo_dimensiones WHERE concepto = ?", (concepto,)
             )
+            
+            # SRL v16.0: Propagar predicados de corto → largo plazo
+            self.cursor.execute("""
+                INSERT INTO predicados (concepto, sujeto, accion, objeto, contexto, creado_en)
+                SELECT concepto, sujeto, accion, objeto, contexto, creado_en FROM corto_plazo_predicados WHERE concepto = ?
+            """, (concepto,))
+            self.cursor.execute(
+                "DELETE FROM corto_plazo_predicados WHERE concepto = ?", (concepto,)
+            )
 
         # Auto-vincular cada concepto consolidado (aristas por solapamiento de tokens)
         from core.sinapsis import auto_vincular
@@ -1223,6 +1359,15 @@ class SQLiteMemoryBioRAG:
         # Si dos conceptos aparecieron en la misma sesión (corto_plazo), co-ocurren.
         # También analiza comunicaciones para detectar co-ocurrencia en mensajes.
         self._auto_generar_co_ocurrencia(recuerdos_sesion)
+
+        # Inferencia transitiva: recalcular sinapsis latentes (v16.0)
+        try:
+            from core.inferencia_transitiva import calcular_sinapsis_latentes
+            n_latentes = calcular_sinapsis_latentes(self)
+            if n_latentes:
+                print(f"[Inferencia Transitiva] {n_latentes} sinapsis latentes calculadas.")
+        except Exception as e:
+            print(f"[Inferencia Transitiva] Fallback silencioso: {e}")
 
         # 2. Decaimiento Pasivo (LTD): Reducir peso según decay_rate de la categoría
         # Profile/Principle decaen lento, Project/General decaen rápido
@@ -1273,6 +1418,16 @@ class SQLiteMemoryBioRAG:
                 self.cursor.execute("UPDATE largo_plazo SET estado = 'dormido' WHERE concepto = ?", (concepto,))
                 exceso -= peso
                 print(f"[Inhibición Lateral] Recuerdo '{concepto}' puesto a dormir forzadamente para balancear la carga cortical.")
+
+        # Auto-clustering (v16.0)
+        try:
+            from core.auto_clustering import detectar_comunidades, asignar_dimensiones_emergentes
+            comunidades = detectar_comunidades(self)
+            if comunidades:
+                asignar_dimensiones_emergentes(self, comunidades)
+                print(f"[Auto-Clustering] Detectadas y asignadas {len(comunidades)} dimensiones emergentes.")
+        except Exception as e:
+            print(f"[Auto-Clustering] Fallback silencioso: {e}")
 
         # 5. Vaciar la memoria de corto plazo (La mente amanece despejada)
         self.cursor.execute("DELETE FROM corto_plazo")
@@ -1839,7 +1994,7 @@ class SQLiteMemoryBioRAG:
         contextos.sort(key=lambda x: x[4], reverse=True)
         return list(pagina_resultados) + contextos
 
-    def buscar_por_frase(self, frase, profundidad="activos", pagina=1, limite=None, categoria=None, preview_chars=1500, historial_fallos=None, context_window=0, dimensiones_dict=None, dimensiones_ids=None, parafrasis_list=None, desde_ts=None, hasta_ts=None, modo_estricto=False):
+    def buscar_por_frase(self, frase, profundidad="activos", pagina=1, limite=None, categoria=None, preview_chars=1500, historial_fallos=None, context_window=0, dimensiones_dict=None, dimensiones_ids=None, parafrasis_list=None, desde_ts=None, hasta_ts=None, modo_estricto=False, usar_inferencia=True, buscar_por_rol=None):
         """Busqueda hibrida: FTS5 trigram + peso sinaptico + asociaciones + scoring dimensional.
 
         frase: texto en lenguaje natural. Trigrams nativos de FTS5 manejan
@@ -1859,16 +2014,47 @@ class SQLiteMemoryBioRAG:
         dimensiones_ids: flat list de todos los IDs (para batch query SQL).
         desde_ts: timestamp Unix mínimo para filtro temporal PRE-hoc (creado_en).
         hasta_ts: timestamp Unix máximo para filtro temporal PRE-hoc (creado_en).
+        buscar_por_rol: string con filtro por roles semánticos (ej: 'sujeto:Dennys')
         Retorna (resultados, total) donde resultados es lista de
         (concepto, contenido, peso, estado, score, asociaciones)
         """
+        # SRL v16.0: Filtrado por roles semánticos (buscar_por_rol)
+        conceptos_validos_rol = None
+        if buscar_por_rol:
+            filtros_rol = {}
+            for parte in buscar_por_rol.split(","):
+                if ":" in parte:
+                    k, v = parte.split(":", 1)
+                    k = k.strip().lower()
+                    v = v.strip()
+                    if k in ("sujeto", "accion", "objeto", "contexto"):
+                        filtros_rol[k] = v
+            if filtros_rol:
+                conceptos_validos_rol = set()
+                # Consultar predicados en largo plazo
+                sql_rol = "SELECT DISTINCT concepto FROM predicados WHERE 1=1"
+                params_rol = []
+                for col, val in filtros_rol.items():
+                    sql_rol += f" AND {col} = ?"
+                    params_rol.append(val)
+                self.cursor.execute(sql_rol, tuple(params_rol))
+                for row in self.cursor.fetchall():
+                    conceptos_validos_rol.add(row[0].lower().strip())
+                # Consultar predicados en corto plazo
+                sql_rol_cp = "SELECT DISTINCT concepto FROM corto_plazo_predicados WHERE 1=1"
+                for col in filtros_rol.keys():
+                    sql_rol_cp += f" AND {col} = ?"
+                self.cursor.execute(sql_rol_cp, tuple(params_rol))
+                for row in self.cursor.fetchall():
+                    conceptos_validos_rol.add(row[0].lower().strip())
+
         if pagina < 1:
             pagina = 1
         if limite is None:
             limite = LIMITE_DEFAULT
-        # Si no hay frase Y no hay dimensiones, retornar vacío
-        # PERO si hay dimensiones (aunque no haya frase), continuar al fallback dimensional
-        if not frase.strip() and not dimensiones_ids:
+        # Si no hay frase Y no hay dimensiones Y no hay rol, retornar vacío
+        # PERO si hay dimensiones o rol (aunque no haya frase), continuar
+        if not frase.strip() and not dimensiones_ids and not buscar_por_rol:
             return [], 0
 
         # Parsear términos entre comillas dobles ("CV", "IA") para bypass de trigram
@@ -1928,6 +2114,32 @@ class SQLiteMemoryBioRAG:
         bm25_raw = {}  # concepto -> raw BM25 from FTS5
         palabras = [w for w in frase.split() if len(w) >= 3]
         origen_scores = {}  # Side channel: rastrea origen de cada nodo para Dynamic Multiplicator
+
+        # SRL v16.0: si no hay frase pero hay roles, popular todos directamente
+        if not frase.strip() and conceptos_validos_rol:
+            placeholders = ",".join(["?" for _ in conceptos_validos_rol])
+            sql_rol_all = f"""
+                SELECT rowid, concepto, contenido, peso_sinaptico, estado, asociaciones
+                FROM largo_plazo
+                WHERE concepto IN ({placeholders})
+            """
+            fb_rol_filtros = []
+            fb_rol_params = list(conceptos_validos_rol)
+            if profundidad != "profundo":
+                fb_rol_filtros.append("estado = 'activo'")
+            if categoria:
+                cat_id = self._resolver_categoria_id(categoria)
+                fb_rol_filtros.append(f"categoria = {cat_id}")
+            if fb_rol_filtros:
+                sql_rol_all += " AND " + " AND ".join(fb_rol_filtros)
+            
+            try:
+                self.cursor.execute(sql_rol_all, tuple(fb_rol_params))
+                for row in self.cursor.fetchall():
+                    todos.append(row)
+                    origen_scores[row[1]] = ("literal", 0.0)
+            except sqlite3.OperationalError:
+                pass
 
         # ─── Capa 2: LIKE en concepto (siempre activa) ───
         # Busca coincidencia por substring en el nombre del concepto.
@@ -2383,15 +2595,28 @@ class SQLiteMemoryBioRAG:
                         if concepto not in concepto_dim_ids:
                             concepto_dim_ids[concepto] = []
                         concepto_dim_ids[concepto].append(dim_id)
-                    # Coseno binario: shared / sqrt(|query| × |doc|)
+                    # Coseno binario / ponderado (v16.0 auto-clustering)
                     import math
                     query_dim_set = set(dimensiones_ids)
-                    query_len = len(query_dim_set)
+                    
+                    # Cargar pesos (confianzas) de las dimensiones de la query
+                    w_map = {}
+                    try:
+                        self.cursor.execute(f"SELECT id, auto_generada, confianza FROM dimensiones_semanticas WHERE id IN ({dim_ids_str})")
+                        for d_id, auto_gen, conf in self.cursor.fetchall():
+                            w_map[d_id] = conf if auto_gen else 1.0
+                    except Exception:
+                        pass
+                    for d_id in query_dim_set:
+                        if d_id not in w_map:
+                            w_map[d_id] = 1.0
+                            
+                    sum_q2 = sum(w_map[d_id]**2 for d_id in query_dim_set)
                     for concepto, doc_ids in concepto_dim_ids.items():
                         doc_set = set(doc_ids)
-                        shared = len(query_dim_set & doc_set)
-                        if shared > 0:
-                            dim_scores_map[concepto] = shared / math.sqrt(query_len * len(doc_set))
+                        sum_d2 = sum(w_map[d_id]**2 for d_id in doc_set if d_id in w_map)
+                        if sum_d2 > 0 and sum_q2 > 0:
+                            dim_scores_map[concepto] = math.sqrt(sum_d2) / math.sqrt(sum_q2)
                 except sqlite3.OperationalError:
                     dim_scores_map = {}
 
@@ -2434,17 +2659,31 @@ class SQLiteMemoryBioRAG:
                     dim_counts = Counter({c: len(ds) for c, ds in concepto_fb_ids.items()})
                     top = dict(dim_counts.most_common(50))
                     concepto_fb_ids = {c: concepto_fb_ids[c] for c in top}
-                # Calcular coseno y agregar nodos nuevos SOLO si superan umbral
+                # Calcular coseno ponderado y agregar nodos nuevos SOLO si superan umbral
                 import math
                 query_dim_set = set(dimensiones_ids)
-                query_len = len(query_dim_set)
+                
+                # Cargar pesos para fallback
+                w_map_fb = {}
+                try:
+                    self.cursor.execute(f"SELECT id, auto_generada, confianza FROM dimensiones_semanticas WHERE id IN ({dim_ids_str})")
+                    for d_id, auto_gen, conf in self.cursor.fetchall():
+                        w_map_fb[d_id] = conf if auto_gen else 1.0
+                except Exception:
+                    pass
+                for d_id in query_dim_set:
+                    if d_id not in w_map_fb:
+                        w_map_fb[d_id] = 1.0
+                sum_q2_fb = sum(w_map_fb[d_id]**2 for d_id in query_dim_set)
+                
                 for concepto, doc_ids in concepto_fb_ids.items():
                     if concepto in conceptos_existentes:
                         continue
                     doc_set = set(doc_ids)
                     shared = len(query_dim_set & doc_set)
                     if shared >= umbral_efectivo:
-                        coseno = shared / math.sqrt(query_len * len(doc_set))
+                        sum_d2 = sum(w_map_fb[d_id]**2 for d_id in doc_set if d_id in w_map_fb)
+                        coseno = math.sqrt(sum_d2) / math.sqrt(sum_q2_fb) if sum_q2_fb > 0 else 0.0
                         try:
                             self.cursor.execute(
                                 "SELECT rowid, concepto, contenido, peso_sinaptico, estado, asociaciones "
@@ -2511,6 +2750,10 @@ class SQLiteMemoryBioRAG:
         except ImportError:
             pass  # WordNet no disponible
 
+        # SRL v16.0: Filtrar todos los candidatos por roles semánticos si se especificó buscar_por_rol
+        if conceptos_validos_rol is not None:
+            todos = [r for r in todos if r[1].lower().strip() in conceptos_validos_rol]
+
         # Calcular score hibrido para cada resultado (fórmula única 9 señales)
         total = len(todos)
         resultados_con_hibrido = []
@@ -2521,6 +2764,18 @@ class SQLiteMemoryBioRAG:
             _c_norm = (concepto or "").lower().replace(" ", "_").replace("-", "_")
             match_exacto = (_q_norm == _c_norm)
             score_latente = score_capa if origen in ("latente", "expansion") else 0.0
+            # v16.0: Boost por inferencia transitiva (sinapsis latentes)
+            if usar_inferencia:
+                try:
+                    self.cursor.execute("""
+                        SELECT MAX(peso_atenuado) FROM sinapsis_latentes
+                        WHERE (origen = ? OR destino = ?)
+                    """, (concepto, concepto))
+                    row_lat = self.cursor.fetchone()
+                    if row_lat and row_lat[0] and row_lat[0] > score_latente:
+                        score_latente = max(score_latente, row_lat[0])
+                except Exception:
+                    pass
             score_cadena = score_capa if origen == "cadena" else 0.0
             concepto_ratio = resultados_concepto.get(concepto, 0.0)
             sinonimos_ratio = resultados_semantica.get(concepto, 0.0)

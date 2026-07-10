@@ -1426,9 +1426,165 @@ def test_sistema():
     cerebro.conn.commit()
     print("  OK: Todos los tests de despertar coherente pasaron con éxito")
 
-    cerebro.cerrar_sistema()
-    print("\n--- ¡Todas las pruebas biologicas completadas con exito! ---\n\n")
+    print("\n--- 80. Probando Inferencia Transitiva (Multi-hop) ---")
+    # Limpiar tablas
+    cerebro.cursor.execute("DELETE FROM sinapsis")
+    cerebro.cursor.execute("DELETE FROM sinapsis_latentes")
+    cerebro.cursor.execute("DELETE FROM largo_plazo")
+    
+    # Crear nodos activos A, B, C, D
+    for c in ['node_a', 'node_b', 'node_c', 'node_d']:
+        cerebro.cursor.execute(
+            "INSERT INTO largo_plazo (concepto, contenido, peso_sinaptico, estado, creado_en) VALUES (?, 'contenido', 1.0, 'activo', ?)",
+            (c, time.time())
+        )
+    # Crear sinapsis directas: A -> B (1.0), B -> C (1.0), C -> D (1.0)
+    cerebro.cursor.execute("INSERT INTO sinapsis (origen, destino, peso, creado_en) VALUES ('node_a', 'node_b', 1.0, ?)", (time.time(),))
+    cerebro.cursor.execute("INSERT INTO sinapsis (origen, destino, peso, creado_en) VALUES ('node_b', 'node_c', 1.0, ?)", (time.time(),))
+    cerebro.cursor.execute("INSERT INTO sinapsis (origen, destino, peso, creado_en) VALUES ('node_c', 'node_d', 1.0, ?)", (time.time(),))
+    cerebro.conn.commit()
+    
+    from core.inferencia_transitiva import calcular_sinapsis_latentes, obtener_vecinos_latentes
+    num_latentes = calcular_sinapsis_latentes(cerebro, max_saltos=3, factor_decay=0.7, umbral=0.05)
+    
+    # A -> C tiene 2 saltos: weight = 1.0 * 0.7 * 1.0 * 0.7 = 0.49
+    cerebro.cursor.execute("SELECT peso_atenuado, saltos FROM sinapsis_latentes WHERE origen = 'node_a' AND destino = 'node_c'")
+    res_ac = cerebro.cursor.fetchone()
+    assert res_ac is not None, "Error: Debería existir sinapsis latente de node_a a node_c"
+    assert abs(res_ac[0] - 0.49) < 1e-4, f"Error: peso latente A->C debería ser ~0.49, got {res_ac[0]}"
+    assert res_ac[1] == 2, f"Error: saltos de A->C debería ser 2, got {res_ac[1]}"
 
+    # A -> D tiene 3 saltos: weight = 0.49 * 1.0 * 0.7 = 0.343
+    cerebro.cursor.execute("SELECT peso_atenuado, saltos FROM sinapsis_latentes WHERE origen = 'node_a' AND destino = 'node_d'")
+    res_ad = cerebro.cursor.fetchone()
+    assert res_ad is not None, "Error: Debería existir sinapsis latente de node_a a node_d"
+    assert abs(res_ad[0] - 0.343) < 1e-4, f"Error: peso latente A->D debería ser ~0.343, got {res_ad[0]}"
+    assert res_ad[1] == 3, f"Error: saltos de A->D debería ser 3, got {res_ad[1]}"
+    print("  OK: Inferencia transitiva con pesos correctos")
+
+    print("\n--- 81. Probando Prevención de Bucles en Inferencia Transitiva ---")
+    # Agregar sinapsis de retorno D -> A (1.0) formando un ciclo A -> B -> C -> D -> A
+    cerebro.cursor.execute("INSERT INTO sinapsis (origen, destino, peso, creado_en) VALUES ('node_d', 'node_a', 1.0, ?)", (time.time(),))
+    cerebro.conn.commit()
+    
+    # Calcular y verificar que no hay loops infinitos y la recursión se detiene correctamente
+    num_latentes_ciclo = calcular_sinapsis_latentes(cerebro, max_saltos=3, factor_decay=0.7, umbral=0.05)
+    # No debería haber una sinapsis latente A -> A (ya que se filtra origen != destino)
+    cerebro.cursor.execute("SELECT count(*) FROM sinapsis_latentes WHERE origen = destino")
+    self_loops = cerebro.cursor.fetchone()[0]
+    assert self_loops == 0, "Error: Se generaron self-loops en sinapsis_latentes"
+    print("  OK: Prevención de bucles exitosa")
+
+    print("\n--- 82. Probando SRL y Almacenamiento de Predicados ---")
+    # Limpiar predicados
+    cerebro.cursor.execute("DELETE FROM predicados")
+    cerebro.cursor.execute("DELETE FROM corto_plazo_predicados")
+    cerebro.conn.commit()
+    
+    # Aprender un concepto con predicados
+    concepto_srl = "doc_test_srl"
+    contenido_srl = "Dennys desarrolla BioRAG en la oficina"
+    predicados_data = [{
+        "sujeto": "Dennys",
+        "accion": "desarrollar",
+        "objeto": "BioRAG",
+        "contexto": "oficina"
+    }]
+    
+    cerebro.percibir_corto_plazo(
+        concepto=concepto_srl,
+        contenido=contenido_srl,
+        predicados=predicados_data
+    )
+    
+    # Verificar almacenamiento en corto plazo
+    cerebro.cursor.execute("SELECT sujeto, accion, objeto, contexto FROM corto_plazo_predicados WHERE concepto = ?", (concepto_srl,))
+    row_cp = cerebro.cursor.fetchone()
+    assert row_cp is not None, "Error: Predicado no guardado en corto plazo"
+    assert row_cp[0] == "Dennys" and row_cp[1] == "desarrollar" and row_cp[2] == "BioRAG", "Error en valores de corto plazo"
+    print("  OK: Predicados guardados en corto plazo")
+
+    print("\n--- 83. Probando Consolidación de Predicados y Búsqueda por Roles ---")
+    # Consolidar (ciclo de sueño)
+    cerebro.ciclo_sueno_consolidacion()
+    
+    # Verificar almacenamiento en largo plazo (tabla predicados)
+    cerebro.cursor.execute("SELECT sujeto, accion, objeto, contexto FROM predicados WHERE concepto = ?", (concepto_srl,))
+    row_lp = cerebro.cursor.fetchone()
+    assert row_lp is not None, "Error: Predicado no consolidado en predicados largo plazo"
+    assert row_lp[0] == "Dennys" and row_lp[1] == "desarrollar", "Error en valores de predicados"
+    
+    # Probar búsqueda por rol en buscar_por_frase: buscar por rol sujeto:Dennys
+    res_busca, _ = cerebro.buscar_por_frase("BioRAG", buscar_por_rol="sujeto:Dennys")
+    assert len(res_busca) > 0, "Error: buscar_por_frase no filtró por rol"
+    match_busca = next((r for r in res_busca if r[0] == concepto_srl), None)
+    assert match_busca is not None, "Error: concepto con predicado no devuelto al buscar por rol"
+    
+    # Probar búsqueda con rol inválido/no coincidente
+    res_busca_no, _ = cerebro.buscar_por_frase("BioRAG", buscar_por_rol="sujeto:Artemis")
+    match_busca_no = next((r for r in res_busca_no if r[0] == concepto_srl), None)
+    assert match_busca_no is None, "Error: concepto devuelto con rol no coincidente"
+    print("  OK: Consolidación y búsqueda por roles")
+
+    print("\n--- 84. Probando Auto-Clustering y Detección de Dimensiones Emergentes ---")
+    # Limpiar tablas
+    cerebro.cursor.execute("DELETE FROM largo_plazo")
+    cerebro.cursor.execute("DELETE FROM sinapsis")
+    cerebro.cursor.execute("DELETE FROM dimensiones_semanticas")
+    cerebro.cursor.execute("DELETE FROM largo_plazo_dimensiones")
+    cerebro.conn.commit()
+    
+    # Crear 6 nodos con tokens relacionados con 'programacion' y conectarlos denso (clique)
+    conceptos_cluster = [f"node_cluster_{i}" for i in range(6)]
+    for c in conceptos_cluster:
+        cerebro.cursor.execute(
+            "INSERT INTO largo_plazo (concepto, contenido, peso_sinaptico, estado, creado_en) VALUES (?, 'programacion codigo software desarrollo', 1.0, 'activo', ?)",
+            (c, time.time())
+        )
+    # Crear conexiones bidireccionales completas (clique) entre los 6 nodos
+    for i in range(len(conceptos_cluster)):
+        for j in range(i + 1, len(conceptos_cluster)):
+            c1, c2 = conceptos_cluster[i], conceptos_cluster[j]
+            cerebro.cursor.execute("INSERT INTO sinapsis (origen, destino, peso, creado_en) VALUES (?, ?, 1.0, ?)", (c1, c2, time.time()))
+            cerebro.cursor.execute("INSERT INTO sinapsis (origen, destino, peso, creado_en) VALUES (?, ?, 1.0, ?)", (c2, c1, time.time()))
+    cerebro.conn.commit()
+    
+    # Ejecutar detectar_comunidades y asignar_dimensiones_emergentes directamente
+    from core.auto_clustering import detectar_comunidades, asignar_dimensiones_emergentes
+    comunidades = detectar_comunidades(cerebro, min_nodos=4)
+    assert len(comunidades) > 0, "Error: Auto-clustering no detectó ninguna comunidad en clique densa"
+    
+    # Asignar dimensiones emergentes
+    asignar_dimensiones_emergentes(cerebro, comunidades)
+    
+    # Verificar que se insertó una dimensión auto-generada
+    cerebro.cursor.execute("SELECT id, name, auto_generada, confianza FROM dimensiones_semanticas WHERE auto_generada = 1")
+    dim_generadas = cerebro.cursor.fetchall()
+    assert len(dim_generadas) > 0, "Error: No se guardó ninguna dimensión auto-generada"
+    print(f"  Comunidades detectadas: {comunidades}")
+    print(f"  Dimensiones auto-generadas en DB: {dim_generadas}")
+    print("  OK: Auto-clustering y asignación de dimensiones exitosa")
+
+    print("\n--- 85. Probando Búsqueda Dimensional con Coseno Ponderado ---")
+    # Obtener ID de la dimensión auto-generada
+    dim_id = dim_generadas[0][0]
+    
+    # Verificar que los nodos del cluster están vinculados a esta dimensión
+    cerebro.cursor.execute("SELECT count(*) FROM largo_plazo_dimensiones WHERE dimension_id = ?", (dim_id,))
+    vinculos = cerebro.cursor.fetchone()[0]
+    assert vinculos >= 4, f"Error: Deberían estar vinculados al menos 4 nodos, got {vinculos}"
+    
+    # Ejecutar una búsqueda usando solo esta dimensión
+    resultados_dim, _ = cerebro.buscar_por_frase("", dimensiones_ids=[dim_id], profundidad="profundo")
+    assert len(resultados_dim) > 0, "Error: Búsqueda dimensional no retornó resultados"
+    print(f"  Resultados de búsqueda por dimensión: {resultados_dim}")
+    print("  OK: Coseno ponderado y listado de dimensiones emergentes")
+
+    print("\n--- 86. Ejecución de Regresión y Cierre del Sistema ---")
+    cerebro.cerrar_sistema()
+    print("  OK: Pruebas de regresión finalizadas correctamente")
+
+    print("\n--- ¡Todas las pruebas biologicas completadas con exito! ---\n\n")
 
 
 if __name__ == "__main__":

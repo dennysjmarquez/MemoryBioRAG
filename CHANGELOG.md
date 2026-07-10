@@ -1,5 +1,23 @@
 # BioRAG Changelog
 
+## v16.0 (2026-07-09)
+
+### Features
+- **Etiquetado de Roles Semánticos (SRL)**: Soporte para análisis de estructura relacional (Sujeto-Verbo-Objeto-Contexto). Almacenamiento persistente e indexación de roles en SQLite para búsquedas por roles relacionales.
+- **Inferencia Transitiva en Grafos (Fuzzy Reasoning)**: Descubrimiento de relaciones conceptuales indirectas. Cálculo por caminos multi-hop con atenuación matemática (decay 0.7) y prevención de bucles infinitos usando CTE recursiva en SQLite.
+- **Auto-Clustering de Dimensiones Emergentes**: Detección autónoma de comunidades temáticas mediante el algoritmo de Label Propagation (LPA) sobre el grafo de sinapsis. Creación e indexación de dimensiones dinámicas emergentes (`auto_`) asociadas a los nodos de forma nativa en Python.
+- **Búsqueda por Rol y Boost de Confianza**: Parámetro `buscar_por_rol` y scoring híbrido mejorado mediante la adición de dimensiones autogeneradas multiplicadas por su confianza.
+
+### Database Changes
+- **`predicados` y `corto_plazo_predicados`**: Nuevas tablas para almacenar estructura de roles SRL.
+- **`sinapsis_latentes`**: Tabla caché de sinapsis transitivas indirectas con índices por origen y destino.
+- **`dimensiones_semanticas`**: Columnas añadidas: `auto_generada` (INTEGER), `confianza` (REAL) y `generado_en` (REAL).
+
+### Tests
+- **Tests 80-86**: Verificación completa del pipeline de inferencia transitiva, prevención de bucles, almacenamiento SRL, búsqueda por rol, auto-clustering LPA, coseno ponderado y regresión.
+
+---
+
 ## v15.0 (2026-07-09)
 
 ### Features
