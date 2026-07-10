@@ -122,10 +122,22 @@ def test_sistema():
 
     # Marcar como leido y verificar
     ids = [m[0] for m in no_leidos]
-    cerebro.marcar_como_leido(ids)
+    cerebro.marcar_como_leido(ids, "athena")
     no_leidos_despues = cerebro.leer_comunicados(destino="athena", solo_no_leidos=True, ultimos=10)
-    assert len(no_leidos_despues) == 0, f"Error: deberian quedar 0 no leidos, hay {len(no_leidos_despues)}"
-    print(f"No leidos tras marcar: {len(no_leidos_despues)}")
+    assert len(no_leidos_despues) == 0, f"Error: deberian quedar 0 no leidos para Athena, hay {len(no_leidos_despues)}"
+    print(f"No leidos tras marcar para Athena: {len(no_leidos_despues)}")
+
+    # Verificar que para Hermes los mensajes siguen estando aislados y correctos
+    no_leidos_hermes = cerebro.leer_comunicados(destino="hermes", solo_no_leidos=True, ultimos=10)
+    # Hermes debería tener: Athena a Hermes (personal) y Artemis a todos (broadcast, que Athena leyó pero Hermes no)
+    assert len(no_leidos_hermes) == 2, f"Error: Hermes debería tener 2 no leídos, tiene {len(no_leidos_hermes)}"
+    
+    # Hermes lee sus mensajes
+    ids_hermes = [m[0] for m in no_leidos_hermes]
+    cerebro.marcar_como_leido(ids_hermes, "hermes")
+    no_leidos_hermes_despues = cerebro.leer_comunicados(destino="hermes", solo_no_leidos=True, ultimos=10)
+    assert len(no_leidos_hermes_despues) == 0, f"Error: deberian quedar 0 no leidos para Hermes, hay {len(no_leidos_hermes_despues)}"
+    print(f"No leidos tras marcar para Hermes: {len(no_leidos_hermes_despues)}")
     print("--- Comunicacion entre agentes OK ---")
 
     # 9. Busqueda multi-token (Soft AND)

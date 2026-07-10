@@ -535,21 +535,30 @@ def cmd_leer_mensajes(cerebro, args):
                 pass
         if a == "--para" and i + 1 < len(args_limpios):
             destino = args_limpios[i + 1]
-    mensajes = cerebro.leer_comunicados(destino=destino, solo_no_leidos=solo_no_leidos, ultimos=ultimos)
+    
+    agente = os.environ.get('AGENT_NAME', 'desconocido')
+    mensajes = cerebro.leer_comunicados(destino=destino, solo_no_leidos=solo_no_leidos, ultimos=ultimos, agente=agente)
     if not mensajes:
         print("No hay mensajes.")
         return 0
     ids_a_marcar = []
-    for msg_id, origen, dest, contenido, ts, leido in reversed(mensajes):
-        marca = "[NO LEIDO]" if not leido else "          "
+    for msg_id, origen, dest, contenido, ts, leido, leido_por in reversed(mensajes):
+        # Para mensajes "todos", verificar si agente está en leido_por
+        if dest == 'todos':
+            leido_agente = f",{agente}," in (leido_por or '')
+        else:
+            leido_agente = bool(leido)
+        marca = "[NO LEIDO]" if not leido_agente else "          "
         fecha = time.strftime("%Y-%m-%d %H:%M", time.localtime(ts))
         print(f"{marca} #{msg_id} {fecha} | {origen} -> {dest}")
         print(f"         {contenido}")
+        if dest == 'todos' and leido_por:
+            print(f"         Leído por: {leido_por.strip(',').replace(',', ', ')}")
         print()
-        if not leido:
+        if not leido_agente:
             ids_a_marcar.append(msg_id)
     if ids_a_marcar:
-        cerebro.marcar_como_leido(ids_a_marcar)
+        cerebro.marcar_como_leido(ids_a_marcar, agente)
     return 0
 
 

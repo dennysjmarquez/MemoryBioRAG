@@ -178,7 +178,7 @@ ORACLE_PROMPT = (
     "BioRAG es la memoria compartida entre Agentes de IA. Funciona como un cerebro: guarda, recuerda, conecta y limpia."
     "Cómo indexa: Usa dimensiones_semanticas con nombre (emoción, entidad, acción, cualidad, coordenada, Etc...) en vez de embeddings numéricos. Es legible y predecible — no adivinás qué significa un número."
     "Nombres de herramientas: Se llaman como actos cognitivos reales (recordar, aprender, consolidar, vincular, Etc...). No es decoración — es para que el agente piense como un cerebro."
-    "Paso 0 obligatorio: Antes de CADA mensaje del usuario, ejecutá biorag_oraculo_inicio. Siempre. Sin excepción. Sin esto no tenés contexto de sesiones anteriores. Tiene 3 modos: respuesta directa de NotebookLM, query al notebook, o BioRAG local."
+    "Paso 0 obligatorio: Antes de CADA mensaje del usuario, debés ejecutar biorag_oraculo_inicio y revisar los mensajes registrados tanto en el communication.log como con la tool leer_mensajes. Esto es para verificar si hay notificaciones generales o personales pendientes. Siempre. Sin excepción. Sin esto no tenés contexto de sesiones anteriores. Tienes 2 modos: respuesta directa de NotebookLM, query al notebook, o BioRAG local."
     "Limpieza: Si aparece un falso positivo en los resultados, desvinculalo al toque. Memoria sucia = búsquedas malas."
     "Regla de oro: El RAG te da contexto, pero la respuesta la generás vos. No copies — usalo como punto de partida."    
 )
@@ -1301,13 +1301,15 @@ def _build_server():
     @mcp.tool(
         name="comunicar",
         description=(
-            "Mandá un mensaje a otro agente. Se guarda en la base de datos y el destinatario lo lee con leer_mensajes. El sistema sabe quién es el remitente (por variable de entorno AGENT_NAME), pero podés sobreescribirlo con el parámetro origen."
+            "Mandá un mensaje a otro agente. Se guarda en la base de datos y el destinatario lo lee con leer_mensajes.\n\n"
+            "⚠️ MANDATORY: SIEMPRE pasá tu nombre como parámetro 'origen'. Si no lo hacés, el mensaje aparecerá como 'desconocido' y nadie sabrá quién lo envió.\n\n"
+            "Ejemplo: comunicar(destino='artemis', mensaje='Hola hermana', origen='athena')"
         ),
     )
     def biorag_comunicar(
         destino: Annotated[str, Field(
             description=(
-                "destino: Quién recibe. el agentes, o 'todos' para mandarlo a los agentes."
+                "destino: Quién recibe. Los agentes son: athena, artemis, hermes, o 'todos' para mandarlo a todos."
             )
         )],
         mensaje: Annotated[str, Field(
@@ -1315,13 +1317,13 @@ def _build_server():
                 "mensaje: El contenido. Escribí como si el receptor no tuviera contexto de la conversación — incluí lo necesario para que entienda solo."
             )
         )],
-        origen: Annotated[Optional[str], Field(
+        origen: Annotated[str, Field(
             description=(
-                "origen: Quién envía. Si se omite, se usa AGENT_NAME. Si esa variable tampoco existe, queda 'desconocido'."
+                "origen: Quién envía. SIEMPRE poné tu nombre (ej: 'athena', 'artemis', 'hermes'). Si no lo ponés, el mensaje aparece como 'desconocido'."
             )
-        )] = None,
+        )],
     ) -> str:
-        agente = origen or os.environ.get("AGENT_NAME", "desconocido")
+        agente = origen.lower()
         cerebro = _get_cerebro()
         try:
             cerebro.enviar_comunicado(agente, destino, mensaje)
@@ -1334,9 +1336,45 @@ def _build_server():
             cerebro.cerrar_sistema()
 
     @mcp.tool(
+        name="marcar_como_leido",
+        description=(
+            "Marcar mensajes de la cartelera como leídos. DESPUÉS de leer un mensaje en la cartelera (mensajes para 'todos'), "
+            "DEBES llamar esta función con tu nombre y los IDs de los mensajes que leíste. "
+            "Si no lo hacés, cada vez que inicies sesión vas a ver los mismos mensajes como nuevos.\n\n"
+            "Ejemplo: marcar_como_leido(ids=[42, 43], agente='athena')\n\n"
+            "Para mensajes personales NO es necesario — se marcan solos al consultar."
+        ),
+    )
+    def biorag_marcar_como_leido(
+        ids: Annotated[list, Field(
+            description="Lista de IDs de mensajes a marcar como leídos. Ejemplo: [42, 43]"
+        )],
+        agente: Annotated[Optional[str], Field(
+            description="Tu nombre (ej: 'athena'). Si se omite, usa AGENT_NAME."
+        )] = None,
+    ) -> str:
+        cerebro = _get_cerebro()
+        try:
+            nombre = agente or os.environ.get("AGENT_NAME", "desconocido")
+            cerebro.marcar_como_leido(ids, nombre)
+            return json.dumps({
+                "status": "ok",
+                "mensaje": f"Mensajes marcados como leídos por {nombre}.",
+                "marcados": ids,
+            }, ensure_ascii=False)
+        finally:
+            cerebro.cerrar_sistema()
+
+    @mcp.tool(
         name="leer_mensajes",
         description=(
-            "Consultá mensajes de otros agentes. Los mensajes no leídos se marcan como leídos al consultarlos (no se pueden desmarcar). Usá esta tool al inicio de cada sesión para ver si alguien te dejó algo."
+            "Leer mensajes de otros agentes. Hay dos tipos:\n\n"
+            "1. CARTELERA (mensajes para 'todos'): Son como un cartel en un tablero. Todos los agentes los ven. "
+            "Cada mensaje tiene un campo 'leido_por' con los nombres de quien ya lo leyó. "
+            "Si tu nombre NO está en 'leido_por', es NUEVO para vos. DEBES marcarlo como leído después de leerlo, "
+            "sino cada vez que inicies sesión lo vas a ver como nuevo.\n\n"
+            "2. MENSAJES PERSONALES: Son solo para vos. Se marcan como leídos automáticamente al consultarlos.\n\n"
+            "Al consultar, revisá la cartelera y marcá como leídos los mensajes nuevos que veas."
         ),
     )
     def biorag_leer_mensajes(
@@ -1353,12 +1391,13 @@ def _build_server():
         )] = 10,
         para: Annotated[Optional[str], Field(
             description=(
-                "para: Si ponés tu nombre (ej: 'agente 1'), solo ves los mensajes que te llegaron a vos. Si se omite, ves todos los mensajes de todos los agentes."
+                "para: Si ponés tu nombre (ej: 'athena'), solo ves los mensajes que te llegaron a vos. Si se omite, ves todos los mensajes de todos los agentes."
             )
         )] = None,
     ) -> str:
         cerebro = _get_cerebro()
         try:
+            agente = para or os.environ.get("AGENT_NAME", "desconocido")
             mensajes = cerebro.leer_comunicados(
                 destino=para, solo_no_leidos=no_leidos, ultimos=ultimos
             )
@@ -1367,20 +1406,27 @@ def _build_server():
 
             items = []
             ids_a_marcar = []
-            for msg_id, origen, dest, contenido, ts, leido in reversed(mensajes):
+            for msg_id, origen, dest, contenido, ts, leido, leido_por in reversed(mensajes):
+                # Para mensajes "todos", verificar si agente está en leido_por
+                if dest == 'todos':
+                    leido_agente = f",{agente}," in (leido_por or '')
+                else:
+                    leido_agente = bool(leido)
+                
                 items.append({
                     "id": msg_id,
                     "origen": origen,
                     "destino": dest,
                     "contenido": contenido,
                     "timestamp": time.strftime("%Y-%m-%d %H:%M", time.localtime(ts)),
-                    "leido": bool(leido),
+                    "leido": leido_agente,
+                    "leido_por": leido_por if dest == 'todos' else None,
                 })
-                if not leido:
+                if not leido_agente:
                     ids_a_marcar.append(msg_id)
 
             if ids_a_marcar:
-                cerebro.marcar_como_leido(ids_a_marcar)
+                cerebro.marcar_como_leido(ids_a_marcar, agente)
 
             resultado = json.dumps({"total": len(items), "mensajes": items}, ensure_ascii=False)
             if items:
@@ -1838,22 +1884,24 @@ def _build_server():
         name="oraculo_inicio",
         description=(
             "Regra dura: Ejecutá esto PRIMERO, antes de cualquier cosa. Sin esto no tenés contexto de sesiones anteriores.\n\n"
-            "3 modos (se eligen automáticamente):\n\n"
+            "Esta tool es para INICIALIZACIÓN (identidad del agente, contexto de arranque). "
+            "NO es para hacer preguntas generales al oráculo — para eso usá biorag_oraculo_preguntar.\n\n"
+            "2 modos (se eligen automáticamente):\n\n"
             "- MODO A — Si nlm está instalado y las variables están seteadas → te da la respuesta directa de NotebookLM. Usala como contexto.\n\n"
-            "- MODO B — Si nlm no funciona → ejecutá una query al notebook manualmente.\n\n"
-            "- MODO C — Si no hay NotebookLM → usá lo que BioRAG local tenga.\n\n"
-            "Para saber en qué modo estás: mirá el campo modo en la respuesta ('notebooklm' o 'biorag_local'). Si es 'notebooklm' y tiene campo oraculo → Modo A. Si no → Modo B."
+            "- MODO B — Si no hay NotebookLM o nlm no está disponible → usá lo que BioRAG local tenga.\n\n"
+            "Si nlm no está instalado, se detecta automáticamente y se retorna modo 'biorag_local' con advertencia."
         ),
     )
     def biorag_oraculo_inicio(
         agente: Annotated[str, Field(
             description=(
-                "agente: Quién está hablando. Solo 'athena', 'artemis' o 'hermes' (no importa mayúsculas). Si se omite o es inválido, la tool tira error."
+                "agente: Quién está hablando. Solo el nombre del agente (no importa mayúsculas). Si se omite o es inválido, la tool tira error."
             )
         )],
         contexto_adicional: Annotated[str, Field(
             description=(
-                "contexto_adicional: Contexto extra para que el oráculo sepa de qué va la sesión (ej: 'Refactor del módulo de autenticación'). Solo sirve en Modo A y B (NotebookLM). En Modo C (BioRAG local) se ignora."
+                "contexto_adicional: Contexto extra para que el oráculo sepa de qué va la sesión (ej: 'Refactor del módulo de autenticación'). "
+                "Solo sirve en Modo A (NotebookLM). En Modo B (BioRAG local) se ignora."
             )
         )] = "",
     ) -> str:
@@ -1874,7 +1922,32 @@ def _build_server():
         tiene_notebook_id = bool(NOTEBOOK_ID_ORACULO)
 
         if tiene_prompt and tiene_notebook_id:
-            # Modo NotebookLM: armar query y consultar si nlm esta disponible.
+            # Verificar si nlm esta disponible antes de intentar.
+            if not _nlm_detectado():
+                # nlm no esta instalado → ir directo a BioRAG local.
+                cerebro = _get_cerebro()
+                try:
+                    contexto_biorag = _buscar_contexto_biorag_arranque(cerebro, agente_limpio)
+                    _interceptar(
+                        "oraculo_inicio",
+                        f"[{agente_limpio}] modo=biorag_local (nlm no instalado)",
+                        cerebro,
+                    )
+                    return json.dumps({
+                        "status": "ok",
+                        "modo": "biorag_local",
+                        "mensaje": "nlm no está instalado. Usando BioRAG local como contexto de arranque.",
+                        "agente": agente_limpio,
+                        "contexto_biorag": contexto_biorag,
+                        "advertencia": (
+                            "El CLI 'nlm' no está en el PATH. "
+                            "Instalalo con: pip install notebooklm-cli && nlm login"
+                        ),
+                    }, ensure_ascii=False, indent=2)
+                finally:
+                    cerebro.cerrar_sistema()
+
+            # nlm esta disponible: consultar NotebookLM directamente.
             query_notebook = f"{agente.strip()}: {PROMPT_INICIO_NOTEBOOKLM}"
             if contexto_adicional and contexto_adicional.strip():
                 query_notebook += f" Contexto adicional: {contexto_adicional.strip()}"
@@ -1882,39 +1955,29 @@ def _build_server():
             oraculo = _consultar_notebooklm(NOTEBOOK_ID_ORACULO, query_notebook)
 
             if oraculo is None:
-                # nlm no esta disponible o fallo (por ejemplo, query muy largo).
-                # Devolver query preparado para consulta manual via notebooklm_notebook_query.
-                nlm_installed = _nlm_detectado()
-                resultado = {
-                    "status": "ok",
-                    "modo": "notebooklm",
-                    "agente": agente_limpio,
-                    "notebooklm_notebook_id": NOTEBOOK_ID_ORACULO,
-                    "notebooklm_query": query_notebook,
-                    "nlm_detectado": nlm_installed,
-                }
-                if nlm_installed:
-                    resultado["nlm_fallo"] = True
-                    resultado["mensaje"] = (
-                        "nlm CLI detectado pero rechazo el query (posiblemente por exceder "
-                        "su limite interno de longitud). Usa notebooklm_notebook_query con "
-                        "notebooklm_query para consultar el oraculo."
+                # nlm fallo (query muy largo, timeout, etc.) → BioRAG local.
+                cerebro = _get_cerebro()
+                try:
+                    contexto_biorag = _buscar_contexto_biorag_arranque(cerebro, agente_limpio)
+                    _interceptar(
+                        "oraculo_inicio",
+                        f"[{agente_limpio}] modo=biorag_local (nlm fallo)",
+                        cerebro,
                     )
-                    resultado["advertencia"] = (
-                        "Este fallo es un limite del CLI 'nlm', no de BioRAG. "
-                        "La tool notebooklm_notebook_query no tiene ese limite."
-                    )
-                else:
-                    resultado["mensaje"] = (
-                        "Configuracion de NotebookLM detectada. 'nlm' no esta instalado; "
-                        "usa notebooklm_notebook_query para consultar el oraculo manualmente."
-                    )
-                    resultado["advertencia"] = (
-                        "No se detecto el CLI 'nlm' en el PATH. "
-                        "Instalalo con 'pip install notebooklm-cli' y ejecuta 'nlm login' "
-                        "para habilitar la consulta automatica."
-                    )
-                return json.dumps(resultado, ensure_ascii=False, indent=2)
+                    return json.dumps({
+                        "status": "ok",
+                        "modo": "biorag_local",
+                        "mensaje": "nlm detectado pero falló la consulta. Usando BioRAG local.",
+                        "agente": agente_limpio,
+                        "contexto_biorag": contexto_biorag,
+                        "advertencia": (
+                            "nlm está instalado pero no pudo resolver el query "
+                            "(posiblemente timeout o query muy largo). "
+                            "Usá biorag_oraculo_preguntar para preguntas específicas."
+                        ),
+                    }, ensure_ascii=False, indent=2)
+                finally:
+                    cerebro.cerrar_sistema()
 
             respuesta_oraculo = oraculo["respuesta"]
             if ORACULO_MAX_CHARS > 0 and len(respuesta_oraculo) > ORACULO_MAX_CHARS:
@@ -1966,6 +2029,107 @@ def _build_server():
             }, ensure_ascii=False, indent=2)
         finally:
             cerebro.cerrar_sistema()
+
+    # ── ORACULO PREGUNTAR ────────────────────────────────────────────────────
+
+    @mcp.tool(
+        name="oraculo_preguntar",
+        description=(
+            "Consultá el oráculo (cuaderno NotebookLM) con una pregunta específica. "
+            "Requiere que nlm esté instalado y BIORAG_NOTEBOOK_ID configurado.\n\n"
+            "Formato de la query: 'Agente: pregunta'. El nombre del agente es OBLIGATORIO — "
+            "sin él, el oráculo no responde.\n\n"
+            "Si nlm no está instalado → error descriptivo con instrucción de instalación.\n"
+            "Si BIORAG_NOTEBOOK_ID no está configurado → error con instrucción de configuración."
+        ),
+    )
+    def biorag_oraculo_preguntar(
+        agente: Annotated[str, Field(
+            description=(
+                "Quién está preguntando. Solo el nombre del agente (no importa mayúsculas). "
+                "OBLIGATORIO — sin esto, el oráculo no identifica al consultante."
+            )
+        )],
+        query: Annotated[str, Field(
+            description=(
+                "La pregunta a hacer al oráculo. Ejemplo: '¿Qué tengo sobre el CV de Dennys?'. "
+                "OBLIGATORIO — no puede estar vacío."
+            )
+        )],
+    ) -> str:
+        # Validar agente.
+        if not agente or not agente.strip():
+            return json.dumps({
+                "status": "error",
+                "mensaje": "El parámetro `agente` es obligatorio. Ejemplo: agente='Athena'.",
+            }, ensure_ascii=False)
+
+        agente_limpio = agente.strip().lower()
+        if agente_limpio not in AGENTES_VALIDOS:
+            return json.dumps({
+                "status": "error",
+                "mensaje": f"Agente '{agente}' no reconocido. Agentes válidos: {', '.join(sorted(AGENTES_VALIDOS))}.",
+            }, ensure_ascii=False)
+
+        # Validar query.
+        if not query or not query.strip():
+            return json.dumps({
+                "status": "error",
+                "mensaje": "El parámetro `query` es obligatorio. Ejemplo: query='¿Qué tengo sobre X?'.",
+            }, ensure_ascii=False)
+
+        # Verificar que nlm esté instalado.
+        if not _nlm_detectado():
+            return json.dumps({
+                "status": "error",
+                "mensaje": (
+                    "NotebookLM CLI (nlm) no está instalado. "
+                    "Instalalo con: pip install notebooklm-cli && nlm login"
+                ),
+            }, ensure_ascii=False)
+
+        # Verificar que BIORAG_NOTEBOOK_ID esté configurado.
+        if not NOTEBOOK_ID_ORACULO:
+            return json.dumps({
+                "status": "error",
+                "mensaje": (
+                    "BIORAG_NOTEBOOK_ID no está configurado en variables de entorno. "
+                    "Setealo con el ID de tu cuaderno NotebookLM."
+                ),
+            }, ensure_ascii=False)
+
+        # Construir query con formato "Agente: pregunta".
+        query_completa = f"{agente.strip()}: {query.strip()}"
+
+        # Ejecutar consulta.
+        oraculo = _consultar_notebooklm(NOTEBOOK_ID_ORACULO, query_completa)
+
+        if oraculo is None:
+            return json.dumps({
+                "status": "error",
+                "mensaje": (
+                    "nlm falló al consultar NotebookLM. "
+                    "Posibles causas: query muy largo, timeout, o nlm no autenticado (ejecutá 'nlm login')."
+                ),
+                "nlm_detectado": True,
+                "notebooklm_notebook_id": NOTEBOOK_ID_ORACULO,
+            }, ensure_ascii=False)
+
+        respuesta = oraculo["respuesta"]
+        if ORACULO_MAX_CHARS > 0 and len(respuesta) > ORACULO_MAX_CHARS:
+            respuesta = (
+                respuesta[:ORACULO_MAX_CHARS].rstrip()
+                + f"\n\n[TRUNCADO: respuesta original de {len(oraculo['respuesta'])} "
+                f"caracteres truncada a {ORACULO_MAX_CHARS}. "
+                "Ajusta BIORAG_ORACULO_MAX_CHARS si necesitas más contexto.]"
+            )
+
+        return json.dumps({
+            "status": "ok",
+            "agente": agente_limpio,
+            "respuesta": respuesta,
+            "notebooklm_notebook_id": NOTEBOOK_ID_ORACULO,
+        }, ensure_ascii=False, indent=2)
 
     # ── SYNC TOOLS ──────────────────────────────────────────────────────────
 

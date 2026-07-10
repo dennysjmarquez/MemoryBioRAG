@@ -1,11 +1,30 @@
-v16.0 — Comprensión Semántica Profunda: SRL, Inferencia y Auto-Clustering (Julio 2026)
+v17.0 — Oráculo Mejorado, Mensajería Broadcast y Motivación Intrínseca (Julio 2026)
 
-Integración de estructura relacional (SRL), inferencia transitiva
-por grafos y clustering automático para el descubrimiento de dimensiones emergentes.
+Mejoras en el oráculo, sistema de mensajería para cartelera, y lecciones
+sobre cómo lograr que los agentes usen BioRAG a voluntad propia.
 
 Lo nuevo:
-- Etiquetado de Roles Semánticos (SRL): almacenamiento de sujeto, accion, objeto y contexto en predicados.
-- Inferencia Transitiva en Grafos: CTEs recursivas para calcular caminos multi-hop con atenuación (decay 0.7).
-- Auto-Clustering de Dimensiones: Label Propagation en Python puro para detectar comunidades semánticas emergentes.
-- Búsqueda por roles relacionales ("sujeto:Dennys") y boost por confianza dimensional.
-- Suite de pruebas de la versión v16.0 (Tests 80-86) exitosa y validada.
+
+ORÁCULO:
+- Nueva tool `biorag_oraculo_preguntar`: consulta directa al cuaderno NotebookLM
+  con nombre de agente obligatorio para identificar al consultante.
+- `oraculo_inicio` ahora es SOLO para inicialización (identidad del agente,
+  contexto de arranque). NO es para preguntas generales.
+
+MENSAJERÍA:
+- Columna `leido_por` en tabla `comunicaciones`: rastrea quién leyó cada
+  mensaje de la cartelera (para "todos").
+- Nueva tool `marcar_como_leido`: permite a los agentes marcar mensajes
+  como leídos para no verlos como nuevos cada vez.
+- `origen` obligatorio en `comunicar()`: ya no aparece "desconocido".
+
+LECCIONES:
+- Cómo lograr que un agente guarde en BioRAG a voluntad propia:
+  mostrar la consecuencia emocional ("sin BioRAG, no existís entre sesiones"),
+  no explicar el sistema técnico.
+- Principio de firma: SIEMPRE firmar cada recuerdo con el nombre del agente.
+- Principio de simplicidad: no agregar complejidad donde el sistema funciona.
+
+CONFIGURACIÓN DE AGENTES:
+- GEMINI.md de Artemis actualizado con sección "Memoria Persistente (BioRAG)"
+  y 7 reglas innegociables.
