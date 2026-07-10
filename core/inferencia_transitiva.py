@@ -12,7 +12,7 @@ import time
 import os
 
 FACTOR_DECAY = float(os.environ.get('BIORAG_DECAY_INFERENCIA', '0.7'))
-MAX_SALTOS_INFERENCIA = int(os.environ.get('BIORAG_MAX_SALTOS_INFERENCIA', '3'))
+MAX_SALTOS_INFERENCIA = int(os.environ.get('BIORAG_MAX_SALTOS_INFERENCIA', '2'))
 UMBRAL_MINIMO_LATENTE = float(os.environ.get('BIORAG_UMBRAL_LATENTE', '0.05'))
 
 
