@@ -2405,63 +2405,63 @@ class SQLiteMemoryBioRAG:
             query_tokens = _tokenizar_query(query)
             if query_tokens:
                 try:
-                    grafo = _cargar_grafo(self.cursor)
-                    # Batch: pre-fetch puentes FTS5 una vez (1 query SQL)
-                    # En vez de N queries FTS5 separadas en _similitud_red
-                    filtrar = [t for t in query_tokens if len(t) >= 3]
-                    nodos_cache = None
-                    if filtrar:
-                        fts_tokens = [f'"{t}"' for t in filtrar]
-                        fts_q = " OR ".join(fts_tokens)
-                        # Filtro PALABRA_COMPLETA en puentes: evita falsos positivos de trigram
-                        # (ej: "culo" en "oráculo" contaminando la similitud conceptual)
-                        pc_bridge_clause = " AND (" + " OR ".join(
-                            ["(PALABRA_COMPLETA(?, l.contenido) = 1 OR PALABRA_COMPLETA(?, l.concepto) = 1 OR PALABRA_COMPLETA(?, COALESCE(l.sinonimos, '')) = 1)"] * len(filtrar)
-                        ) + ")"
-                        pc_bridge_params = tuple(p for t in filtrar for p in (t, t, t))
-                        try:
-                            bridge_filter = " AND l.estado = 'activo'"
+                    try:
+                        grafo = _cargar_grafo(self.cursor)
+                        # Batch: pre-fetch puentes FTS5 una vez (1 query SQL)
+                        # En vez de N queries FTS5 separadas en _similitud_red
+                        filtrar = [t for t in query_tokens if len(t) >= 3]
+                        nodos_cache = None
+                        if filtrar:
+                            fts_tokens = [f'"{t}"' for t in filtrar]
+                            fts_q = " OR ".join(fts_tokens)
+                            # Filtro PALABRA_COMPLETA en puentes: evita falsos positivos de trigram
+                            # (ej: "culo" en "oráculo" contaminando la similitud conceptual)
+                            pc_bridge_clause = " AND (" + " OR ".join(
+                                ["(PALABRA_COMPLETA(?, l.contenido) = 1 OR PALABRA_COMPLETA(?, l.concepto) = 1 OR PALABRA_COMPLETA(?, COALESCE(l.sinonimos, '')) = 1)"] * len(filtrar)
+                            ) + ")"
+                            pc_bridge_params = tuple(p for t in filtrar for p in (t, t, t))
+                            try:
+                                bridge_filter = " AND l.estado = 'activo'"
+                                self.cursor.execute(
+                                    "SELECT DISTINCT l.concepto FROM largo_plazo_fts f "
+                                    "JOIN largo_plazo l ON l.rowid = f.rowid "
+                                    "WHERE largo_plazo_fts MATCH ? " + bridge_filter
+                                    + pc_bridge_clause + " LIMIT 50",
+                                    (fts_q,) + pc_bridge_params
+                                )
+                                nodos_cache = {row[0] for row in self.cursor.fetchall()}
+                            except sqlite3.OperationalError:
+                                nodos_cache = None
+                        fts_tokens = [f'"{t}"' for t in query_tokens if len(t) >= 3]
+                        if fts_tokens:
+                            fts_q = " OR ".join(fts_tokens)
+                            lat_clause = " AND l.estado = 'activo'"
                             self.cursor.execute(
-                                "SELECT DISTINCT l.concepto FROM largo_plazo_fts f "
-                                "JOIN largo_plazo l ON l.rowid = f.rowid "
-                                "WHERE largo_plazo_fts MATCH ? " + bridge_filter
-                                + pc_bridge_clause + " LIMIT 50",
-                                (fts_q,) + pc_bridge_params
+                                "SELECT l.rowid, l.concepto, l.contenido, l.peso_sinaptico, "
+                                "l.estado, l.asociaciones "
+                                "FROM largo_plazo_fts f JOIN largo_plazo l ON l.rowid = f.rowid "
+                                "WHERE largo_plazo_fts MATCH ?" + lat_clause + " LIMIT ?",
+                                (fts_q, CANDIDATOS_SIMILITUD)
                             )
-                            nodos_cache = {row[0] for row in self.cursor.fetchall()}
-                        except sqlite3.OperationalError:
-                            nodos_cache = None
-                    fts_tokens = [f'"{t}"' for t in query_tokens if len(t) >= 3]
-                    if fts_tokens:
-                        fts_q = " OR ".join(fts_tokens)
-                        lat_clause = " AND l.estado = 'activo'"
-                        self.cursor.execute(
-                            "SELECT l.rowid, l.concepto, l.contenido, l.peso_sinaptico, "
-                            "l.estado, l.asociaciones "
-                            "FROM largo_plazo_fts f JOIN largo_plazo l ON l.rowid = f.rowid "
-                            "WHERE largo_plazo_fts MATCH ?" + lat_clause + " LIMIT ?",
-                            (fts_q, CANDIDATOS_SIMILITUD)
-                        )
-                        candidatos_lat = self.cursor.fetchall()
-                        scored = []
-                        seen_rowids = {r[0] for r in todos}
-                        for rowid, concepto, contenido, peso, estado, asoc in candidatos_lat:
-                            if rowid in seen_rowids:
-                                continue
-                            s = score_similitud_latente(self.cursor, query_tokens, concepto, contenido, grafo=grafo, nodos_cache=nodos_cache)
-                            if s >= 0.15:
-                                scored.append((s, (rowid, concepto, contenido, peso, estado, asoc or "")))
-                        scored.sort(key=lambda x: x[0], reverse=True)
-                        for jaccard_score, row in scored[:LIMITE_SIMILITUD]:
-                            todos.append(row)
-                            # Solo registrar si no fue encontrado por capa literal (FTS5 tiene prioridad)
-                            if row[1] not in origen_scores:
-                                origen_scores[row[1]] = ("latente", jaccard_score)
-                    _limpiar_cache()
+                            candidatos_lat = self.cursor.fetchall()
+                            scored = []
+                            seen_rowids = {r[0] for r in todos}
+                            for rowid, concepto, contenido, peso, estado, asoc in candidatos_lat:
+                                if rowid in seen_rowids:
+                                    continue
+                                s = score_similitud_latente(self.cursor, query_tokens, concepto, contenido, grafo=grafo, nodos_cache=nodos_cache)
+                                if s >= 0.15:
+                                    scored.append((s, (rowid, concepto, contenido, peso, estado, asoc or "")))
+                            scored.sort(key=lambda x: x[0], reverse=True)
+                            for jaccard_score, row in scored[:LIMITE_SIMILITUD]:
+                                todos.append(row)
+                                # Solo registrar si no fue encontrado por capa literal (FTS5 tiene prioridad)
+                                if row[1] not in origen_scores:
+                                    origen_scores[row[1]] = ("latente", jaccard_score)
+                    finally:
+                        _limpiar_cache()
                 except sqlite3.OperationalError:
-                    _limpiar_cache()
                     pass
-
         # Fallback 2.0: substring match con word boundary via PALABRA_COMPLETA
         if not modo_estricto and len(todos) < 3 and len(query) >= 2:
             filtros_fb = []

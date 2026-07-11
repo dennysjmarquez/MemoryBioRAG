@@ -656,10 +656,10 @@ def test_sistema():
 
     # 40. Sinapsis table con ultimo_uso
     print("\n--- 40. Probando sinapsis con ultimo_uso ---")
-    cerebro.cursor.execute("SELECT ultimo_uso FROM sinapsis LIMIT 1")
-    ultimo_uso_row = cerebro.cursor.fetchone()
-    assert ultimo_uso_row is not None, "Error: sinapsis no tiene columna ultimo_uso"
-    print(f"OK: ultimo_uso existe en sinapsis (valor: {ultimo_uso_row[0]})")
+    cerebro.cursor.execute("PRAGMA table_info(sinapsis)")
+    cols_sin = [row[1] for row in cerebro.cursor.fetchall()]
+    assert 'ultimo_uso' in cols_sin, "Error: sinapsis no tiene columna ultimo_uso"
+    print("OK: ultimo_uso existe en sinapsis")
     print("--- Sinapsis ultimo_uso OK ---")
 
     # 41. Métricas de cambio
@@ -1593,11 +1593,181 @@ def test_sistema():
     print("  OK: Coseno ponderado y listado de dimensiones emergentes")
 
     print("\n--- 86. Ejecución de Regresión y Cierre del Sistema ---")
-    cerebro.cerrar_sistema()
     print("  OK: Pruebas de regresión finalizadas correctamente")
+
+    print("\n--- 87. Probando Weighted Jaccard vs Overlap Coefficient y Optimización de IDF ---")
+    # Limpiar tablas para un entorno controlado
+    cerebro.cursor.execute("DELETE FROM largo_plazo")
+    cerebro.cursor.execute("DELETE FROM sinapsis")
+    cerebro.conn.commit()
+
+    # Nodo A (muy corto) y Nodo B (largo) que contiene a A
+    # Con Overlap Coefficient, la similitud sería 1.0 (ya que A está 100% contenido en B)
+    # Con Jaccard, la similitud debe ser mucho menor, reflejando el verdadero solapamiento
+    cerebro.cursor.execute(
+        "INSERT INTO largo_plazo (concepto, contenido, peso_sinaptico, estado, creado_en) VALUES (?, ?, 1.0, 'activo', ?)",
+        ("biorag", "sistema de memoria", time.time())
+    )
+    cerebro.cursor.execute(
+        "INSERT INTO largo_plazo (concepto, contenido, peso_sinaptico, estado, creado_en) VALUES (?, ?, 1.0, 'activo', ?)",
+        ("biorag_engine", "biorag es un motor de memoria persistente para agentes desarrollado por Dennys Marquez", time.time())
+    )
+    cerebro.cursor.execute(
+        "INSERT INTO largo_plazo (concepto, contenido, peso_sinaptico, estado, creado_en) VALUES (?, ?, 1.0, 'activo', ?)",
+        ("python", "lenguaje de programacion y desarrollo de software limpio y elegante", time.time())
+    )
+    cerebro.conn.commit()
+
+    from core.sinapsis import calcular_idf_corpus, recalcular_similitud_sinapsis
+
+    # 1. Probar calcular_idf_corpus
+    idf_map = calcular_idf_corpus(cerebro)
+    assert isinstance(idf_map, dict), "Error: calcular_idf_corpus debe devolver un diccionario"
+    assert "biorag" in idf_map, "Error: 'biorag' debería estar en el idf_map"
+    print(f"  OK: idf_map precalculado correctamente. Tokens totales: {len(idf_map)}")
+
+    # 2. Probar recalcular_similitud_sinapsis con idf_map
+    sim_jaccard = recalcular_similitud_sinapsis(cerebro, "biorag", "biorag_engine", idf_map=idf_map)
+    print(f"  Similitud Jaccard calculada: {sim_jaccard}")
+    # Jaccard debe ser significativamente menor que 1.0 (Overlap Coefficient daría 1.0)
+    assert sim_jaccard < 0.9, f"Error: Similitud Jaccard ({sim_jaccard}) no debería ser tan alta"
+    assert sim_jaccard > 0.0, f"Error: Similitud Jaccard ({sim_jaccard}) no debería ser 0.0"
+
+    # 3. Probar que auto_vincular no lanza errores y funciona con el nuevo _peso_similitud
+    # Insertar en corto plazo para que auto_vincular tenga algo que procesar
+    cerebro.percibir_corto_plazo("nuevo_nodo", "biorag sistema de memoria para agentes", "", "General")
+    # auto_vincular no debería lanzar OperationalError porque ya no hace queries locales de IDF
+    enlaces = auto_vincular(cerebro, "nuevo_nodo", "biorag sistema de memoria para agentes")
+    print(f"  Enlaces creados por auto_vincular: {enlaces}")
+    print("  OK: auto_vincular ejecutado con éxito sin queries de IDF locales")
+
+    # 4. Probar auto-clustering, desambiguación y saneamiento de membresías/dimensiones obsoletas
+    print("\n--- 14. Probando Auto-Clustering, Desambiguación y Saneamiento ---")
+    from core.auto_clustering import asignar_dimensiones_emergentes
+
+    # Insertar dimensión auto_generada legacy para verificar que se elimina con la migración
+    cerebro.cursor.execute("""
+        INSERT INTO dimensiones_semanticas (name, description, tipo_id, auto_generada, confianza, generado_en)
+        VALUES ('auto_legacy_dim', 'Legacy auto-generated cluster', 7, 1, 0.8, ?)
+    """, (time.time(),))
+    cerebro.conn.commit()
+
+    # Comprobar que existe
+    cerebro.cursor.execute("SELECT COUNT(*) FROM dimensiones_semanticas WHERE name = 'auto_legacy_dim'")
+    assert cerebro.cursor.fetchone()[0] == 1, "Error: la dimensión legacy debería existir antes de la migración"
+
+    # Ejecutar asignar_dimensiones_emergentes por primera vez con una comunidad ficticia
+    comunidades_test_1 = [{
+        "nodos": ["biorag", "biorag_engine"],
+        "nombre": "auto_test_cluster",
+        "confianza": 0.95
+    }]
+    asignar_dimensiones_emergentes(cerebro, comunidades_test_1)
+
+    # Verificar migración inicial: la dimensión legacy debería estar borrada,
+    # y la dimensión de migración 'migration_autoclustering_v1' debería existir.
+    cerebro.cursor.execute("SELECT COUNT(*) FROM dimensiones_semanticas WHERE name = 'auto_legacy_dim'")
+    assert cerebro.cursor.fetchone()[0] == 0, "Error: la dimensión legacy debería haber sido borrada por la migración"
+
+    cerebro.cursor.execute("SELECT COUNT(*) FROM dimensiones_semanticas WHERE name = 'migration_autoclustering_v1'")
+    assert cerebro.cursor.fetchone()[0] == 1, "Error: la dimensión de marcador de migración debería existir"
+
+    # Verificar que se creó la dimensión de la primera comunidad
+    cerebro.cursor.execute("SELECT id FROM dimensiones_semanticas WHERE name = 'auto_test_cluster'")
+    row_dim = cerebro.cursor.fetchone()
+    assert row_dim is not None, "Error: la dimensión auto_test_cluster debería haber sido creada"
+    dim_id_1 = row_dim[0]
+
+    # Verificar miembros asociados en la bridge table largo_plazo_dimensiones
+    cerebro.cursor.execute("SELECT concepto FROM largo_plazo_dimensiones WHERE dimension_id = ?", (dim_id_1,))
+    miembros = {r[0] for r in cerebro.cursor.fetchall()}
+    assert miembros == {"biorag", "biorag_engine"}, f"Error: miembros incorrectos para auto_test_cluster: {miembros}"
+
+    # Test 4a: Evolución de comunidad con overlap Jaccard > 0.5 (debería REUTILIZAR el mismo nombre)
+    comunidades_test_2 = [{
+        "nodos": ["biorag", "biorag_engine", "python"], # 2 de 3 son coincidentes (Jaccard = 2/3 = 0.67 > 0.5)
+        "nombre": "auto_test_cluster",
+        "confianza": 0.96
+    }]
+    asignar_dimensiones_emergentes(cerebro, comunidades_test_2)
+
+    # El nombre no debería tener sufijo y se mantiene 'auto_test_cluster'
+    cerebro.cursor.execute("SELECT id FROM dimensiones_semanticas WHERE name = 'auto_test_cluster'")
+    assert cerebro.cursor.fetchone() is not None, "Error: auto_test_cluster debería seguir existiendo"
+    cerebro.cursor.execute("SELECT id FROM dimensiones_semanticas WHERE name = 'auto_test_cluster_2'")
+    assert cerebro.cursor.fetchone() is None, "Error: no debería haberse creado auto_test_cluster_2"
+
+    # Verificar nuevos miembros asociados (python se agregó)
+    cerebro.cursor.execute("SELECT concepto FROM largo_plazo_dimensiones WHERE dimension_id = ?", (dim_id_1,))
+    miembros_evolucionados = {r[0] for r in cerebro.cursor.fetchall()}
+    assert miembros_evolucionados == {"biorag", "biorag_engine", "python"}, f"Error: python debería haberse añadido"
+
+    # Test 4b: Desambiguación/Colisión con overlap Jaccard <= 0.5 (debería CREAR una nueva con sufijo _2)
+    # Creamos un cluster con el mismo nombre sugerido pero con nodos totalmente distintos (Jaccard overlap = 0.0)
+    comunidades_test_3 = [{
+        # Mantener el primer cluster para que no sea borrado por la limpieza global
+        "nodos": ["biorag", "biorag_engine", "python"],
+        "nombre": "auto_test_cluster",
+        "confianza": 0.96
+    }, {
+        "nodos": ["python"],
+        "nombre": "auto_test_cluster",
+        "confianza": 0.90
+    }]
+    asignar_dimensiones_emergentes(cerebro, comunidades_test_3)
+
+    # Ahora sí debería existir auto_test_cluster_2
+    cerebro.cursor.execute("SELECT id FROM dimensiones_semanticas WHERE name = 'auto_test_cluster_2'")
+    row_dim_2 = cerebro.cursor.fetchone()
+    assert row_dim_2 is not None, "Error: debería existir auto_test_cluster_2 tras colisión sin solapamiento"
+    dim_id_2 = row_dim_2[0]
+
+    # Verificar que los miembros de auto_test_cluster_2 son sólo python
+    cerebro.cursor.execute("SELECT concepto FROM largo_plazo_dimensiones WHERE dimension_id = ?", (dim_id_2,))
+    miembros_colision = {r[0] for r in cerebro.cursor.fetchall()}
+    assert miembros_colision == {"python"}, f"Error: miembros incorrectos para auto_test_cluster_2: {miembros_colision}"
+
+    # Test 4c: Limpieza de miembros obsoletos locales
+    comunidades_test_4 = [{
+        "nodos": ["biorag", "biorag_engine"],
+        "nombre": "auto_test_cluster",
+        "confianza": 0.95
+    }, {
+        # Mantener auto_test_cluster_2 activo para que no sea purgado globalmente
+        "nodos": ["python"],
+        "nombre": "auto_test_cluster_2",
+        "confianza": 0.90
+    }]
+    asignar_dimensiones_emergentes(cerebro, comunidades_test_4)
+
+    # Verificar que python ya NO está asociado a auto_test_cluster
+    cerebro.cursor.execute("SELECT concepto FROM largo_plazo_dimensiones WHERE dimension_id = ?", (dim_id_1,))
+    miembros_limpios = {r[0] for r in cerebro.cursor.fetchall()}
+    assert miembros_limpios == {"biorag", "biorag_engine"}, f"Error: python no debería estar en auto_test_cluster: {miembros_limpios}"
+
+    # Test 4d: Limpieza global de dimensiones obsoletas
+    # Si ejecutamos asignar_dimensiones_emergentes indicando que sólo queda auto_test_cluster, auto_test_cluster_2 debería borrarse globalmente
+    comunidades_test_5 = [{
+        "nodos": ["biorag", "biorag_engine"],
+        "nombre": "auto_test_cluster",
+        "confianza": 0.95
+    }]
+    asignar_dimensiones_emergentes(cerebro, comunidades_test_5)
+
+    # auto_test_cluster_2 y sus membresías deberían ser purgadas de la base de datos
+    cerebro.cursor.execute("SELECT COUNT(*) FROM dimensiones_semanticas WHERE name = 'auto_test_cluster_2'")
+    assert cerebro.cursor.fetchone()[0] == 0, "Error: auto_test_cluster_2 debería haber sido purgado globalmente"
+    cerebro.cursor.execute("SELECT COUNT(*) FROM largo_plazo_dimensiones WHERE dimension_id = ?", (dim_id_2,))
+    assert cerebro.cursor.fetchone()[0] == 0, "Error: las membresías de auto_test_cluster_2 deberían haber sido purgadas"
+
+    print("  OK: Auto-clustering, desambiguación y saneamiento de membresías/dimensiones comprobados con éxito.")
+
+    # Finalizar
+    cerebro.cerrar_sistema()
 
     print("\n--- ¡Todas las pruebas biologicas completadas con exito! ---\n\n")
 
 
 if __name__ == "__main__":
     test_sistema()
+

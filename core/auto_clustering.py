@@ -1,6 +1,7 @@
 import re
 import time
 import random
+import os
 from collections import Counter
 
 # Lista extendida de stopwords en español e inglés
@@ -156,10 +157,62 @@ def detectar_comunidades(cerebro, min_densidad=0.3, min_nodos=5):
 def asignar_dimensiones_emergentes(cerebro, comunidades):
     """Inserta las dimensiones auto-generadas e indexa los nodos correspondientes en largo_plazo_dimensiones."""
     ahora = time.time()
+    
+    # 0. Migración de Limpieza Única (One-time cleanup)
+    cerebro.cursor.execute("SELECT id FROM dimensiones_semanticas WHERE name = 'migration_autoclustering_v1'")
+    if not cerebro.cursor.fetchone():
+        # Purgar todas las dimensiones auto-generadas legacy y sus asociaciones
+        cerebro.cursor.execute("""
+            DELETE FROM largo_plazo_dimensiones 
+            WHERE dimension_id IN (SELECT id FROM dimensiones_semanticas WHERE auto_generada = 1)
+        """)
+        cerebro.cursor.execute("DELETE FROM dimensiones_semanticas WHERE auto_generada = 1")
+        # Registrar la migración (tipo_id = 7: dominio, auto_generada = 0 para que no sea purgada)
+        cerebro.cursor.execute("""
+            INSERT INTO dimensiones_semanticas (name, description, tipo_id, auto_generada, confianza, generado_en)
+            VALUES ('migration_autoclustering_v1', 'Marcador de migración de limpieza de auto-clustering.', 7, 0, 1.0, ?)
+        """, (ahora,))
+        cerebro.conn.commit()
+
+    umbral_solapamiento = float(os.environ.get("BIORAG_UMBRAL_SOLAPAMIENTO_CLUSTER", "0.5"))
+    dim_ids_actuales = set()
+
     for comm in comunidades:
         nombre = comm["nombre"]
         conf = comm["confianza"]
         nodos = comm["nodos"]
+        
+        # Desambiguación de colisiones de nombres de dimensiones
+        nombre_final = nombre
+        sufijo = 1
+        while sufijo < 50:
+            cerebro.cursor.execute("SELECT id FROM dimensiones_semanticas WHERE name = ?", (nombre_final,))
+            row_dim = cerebro.cursor.fetchone()
+            if not row_dim:
+                # El nombre no existe, se puede usar
+                break
+            dim_id = row_dim[0]
+            # Obtener miembros actuales de esta dimensión en la DB
+            cerebro.cursor.execute("SELECT concepto FROM largo_plazo_dimensiones WHERE dimension_id = ?", (dim_id,))
+            miembros_existentes = {r[0] for r in cerebro.cursor.fetchall()}
+            if not miembros_existentes:
+                # Si la dimensión existe pero no tiene miembros vinculados, la reutilizamos
+                break
+            
+            # Calcular Jaccard de solapamiento
+            set_nuevos = set(nodos)
+            union = set_nuevos | miembros_existentes
+            overlap = len(set_nuevos & miembros_existentes) / len(union) if union else 0.0
+            
+            if overlap >= umbral_solapamiento:
+                # Es la misma comunidad en evolución, reutilizamos el nombre
+                break
+            
+            # Colisión: intentar con un nuevo sufijo
+            sufijo += 1
+            nombre_final = f"{nombre}_{sufijo}"
+        
+        nombre = nombre_final
         
         # 1. Asegurar la creación de la dimensión semántica auto-generada (tipo_id = 7: dominio)
         cerebro.cursor.execute("""
@@ -177,6 +230,7 @@ def asignar_dimensiones_emergentes(cerebro, comunidades):
         # Obtener el ID de la dimensión
         cerebro.cursor.execute("SELECT id FROM dimensiones_semanticas WHERE name = ?", (nombre,))
         dim_id = cerebro.cursor.fetchone()[0]
+        dim_ids_actuales.add(dim_id)
         
         # 2. Asociar los nodos del cluster a esta dimensión
         for nodo in nodos:
@@ -185,4 +239,37 @@ def asignar_dimensiones_emergentes(cerebro, comunidades):
                 VALUES (?, ?)
             """, (nodo, dim_id))
             
+        # Limpiar miembros obsoletos que ya no están en esta comunidad
+        nodos_placeholder = ",".join(["?"] * len(nodos))
+        cerebro.cursor.execute(f"""
+            DELETE FROM largo_plazo_dimensiones
+            WHERE dimension_id = ? AND concepto NOT IN ({nodos_placeholder})
+        """, [dim_id] + list(nodos))
+            
+    # 3. Limpieza global de dimensiones auto-generadas desaparecidas
+    if dim_ids_actuales:
+        placeholders = ",".join(["?"] * len(dim_ids_actuales))
+        # Eliminar membresías de dimensiones auto-generadas desaparecidas
+        cerebro.cursor.execute(f"""
+            DELETE FROM largo_plazo_dimensiones
+            WHERE dimension_id IN (
+                SELECT id FROM dimensiones_semanticas 
+                WHERE auto_generada = 1 AND id NOT IN ({placeholders})
+            )
+        """, list(dim_ids_actuales))
+        # Eliminar las dimensiones auto-generadas desaparecidas en sí
+        cerebro.cursor.execute(f"""
+            DELETE FROM dimensiones_semanticas
+            WHERE auto_generada = 1 AND id NOT IN ({placeholders})
+        """, list(dim_ids_actuales))
+    else:
+        # Si no se detectó ninguna comunidad en este ciclo, eliminar todas las auto-generadas
+        cerebro.cursor.execute("""
+            DELETE FROM largo_plazo_dimensiones
+            WHERE dimension_id IN (
+                SELECT id FROM dimensiones_semanticas WHERE auto_generada = 1
+            )
+        """)
+        cerebro.cursor.execute("DELETE FROM dimensiones_semanticas WHERE auto_generada = 1")
+
     cerebro.conn.commit()

@@ -847,6 +847,14 @@ Las dimensiones SIEMPRE suman, incluso con cero match de texto. El fallback dime
 
 ## Historial de Versiones
 
+### v17.1 — Auto-Clustering Robusto, Desambiguación Jaccard y Similitud Conceptual Stateless (Julio 2026)
+
+Implementación de una migración de limpieza única (`migration_autoclustering_v1`) para remover dimensiones auto-generadas legacy inactivas. Desambiguación dinámica de nombres de clusters mediante el cálculo de solapamiento Jaccard contra miembros de dimensiones existentes en la base de datos (con umbral de reutilización >= 0.5). Saneamiento automático de miembros obsoletos locales al reutilizar dimensiones y purga global de dimensiones auto-generadas sin miembros. Remoción del diccionario mutable global `_grafo_cache` en `core/similitud_conceptual.py` para garantizar la seguridad de hilos frente a accesos concurrentes de múltiples agentes.
+
+### v17.0 — Oráculo de NotebookLM Mejorado, Mensajería Broadcast y Motivación Intrínseca (Julio 2026)
+
+Mejoras de usabilidad y comunicación en BioRAG. Nueva herramienta `biorag_oraculo_preguntar` para realizar consultas cruzadas directas al oráculo con el nombre del agente solicitante obligatorio. Implementación de mensajería inter-agente broadcast con la columna `leido_por` para rastreo individual de lectura y la herramienta `marcar_como_leido` para higiene de notificaciones. Nuevas directrices de persistencia, autoria y firma obligatoria (`Artemis-OEC: [contenido]`, etc.) en BioRAG.
+
 ### v16.0 — Comprensión Semántica Profunda: SRL, Inferencia y Auto-Clustering (Julio 2026)
 
 Integración de estructura relacional (SRL) mediante almacenamiento de Sujeto-Verbo-Objeto-Contexto para consultas por rol relacional (`buscar_por_rol`). Implementación de Inferencia Transitiva en el grafo mediante caminos multi-hop con decaimiento amortiguado (decay 0.7) calculado con una CTE recursiva en SQLite. Auto-Clustering de dimensiones emergentes mediante Label Propagation Algorithm (LPA) ejecutado en el ciclo de sueño para agrupar nodos activos en comunidades y asociarlos de forma automática a nuevas dimensiones autogeneradas ponderadas.
@@ -1015,18 +1023,18 @@ Análisis exhaustivo de todo el codebase documentando cada técnica, algoritmo y
 
 ## Producción
 
-| Métrica | v9.0 | v11.1 | v13.4 | v14.0 | v15.0 | v16.0 |
-|---|---|---|---|---|---|---|
-| Pipeline de búsqueda | 8 capas | 8 capas | 9 capas | 12 capas | 12 capas + WordNet | **12 capas + SRL + Inferencia** |
-| Señales de scoring | 3 | 3 | 3 | 8 ortogonales | 9 señales híbridas | **9 señales + SRL + Inferencia** |
-| Nodos activos | 135+ | 340 | 438 | — | 415 | **415+** |
-| Sinapsis | 1,474+ | 15,521 | — | — | 4,646 | **4,646+ (y latentes)** |
-| Dimensiones | — | 5 (39 sub) | 7 (73 sub) | 7 ejes, 73 valores | 7 ejes, 73 val + 45 grupos | **7 ejes, 73 val + 45 grupos + auto-generadas** |
-| Técnicas documentadas | — | — | — | 25 técnicas | 28 técnicas | **31 técnicas** |
-| Tests | 68/68 | 72/72 | 78/78 | 78/78 | 79/79 | **86 checkpoints** |
-| Dependencias ML | 0 | 0 | 0 | 0 | 0 (mcp + nltk) | **0 (mcp + nltk)** |
-| RAM | ~4 MB | ~12 MB | ~9 MB | ~18 MB | ~20 MB | **~20 MB** |
-| Tools MCP | — | 12 | 15 | 19 | 26 | **26** |
+| Métrica | v9.0 | v11.1 | v13.4 | v14.0 | v15.0 | v16.0 | v17.0 | v17.1 |
+|---|---|---|---|---|---|---|---|---|
+| Pipeline de búsqueda | 8 capas | 8 capas | 9 capas | 12 capas | 12 capas + WordNet | 12 capas + SRL + Inferencia | 12 capas + SRL + Inferencia | **12 capas + SRL + Inferencia** |
+| Señales de scoring | 3 | 3 | 3 | 8 ortogonales | 9 señales híbridas | 9 señales + SRL + Inferencia | 9 señales + SRL + Inferencia | **9 señales + SRL + Inferencia** |
+| Nodos activos | 135+ | 340 | 438 | — | 415 | 415+ | 415+ | **415+** |
+| Sinapsis | 1,474+ | 15,521 | — | — | 4,646 | 4,646+ (y latentes) | 4,646+ (y latentes) | **4,646+ (y latentes)** |
+| Dimensiones | — | 5 (39 sub) | 7 (73 sub) | 7 ejes, 73 valores | 7 ejes, 73 val + 45 grupos | 7 ejes, 73 val + 45 grupos + auto-generadas | 7 ejes, 73 val + 45 grupos + auto-generadas | **7 ejes, 73 val + 45 grupos + auto-generadas** |
+| Técnicas documentadas | — | — | — | 25 técnicas | 28 técnicas | 31 técnicas | 31 técnicas | **31 técnicas** |
+| Tests | 68/68 | 72/72 | 78/78 | 78/78 | 79/79 | 86 checkpoints | 87 checkpoints | **88 checkpoints** |
+| Dependencias ML | 0 | 0 | 0 | 0 | 0 (mcp + nltk) | 0 (mcp + nltk) | 0 (mcp + nltk) | **0 (mcp + nltk)** |
+| RAM | ~4 MB | ~12 MB | ~9 MB | ~18 MB | ~20 MB | ~20 MB | ~20 MB | **~20 MB** |
+| Tools MCP | — | 12 | 15 | 19 | 26 | 26 | 28 | **28** |
 
 ---
 

@@ -32,16 +32,9 @@ _STOPWORDS_QUERY = {
 
 _TOKEN_PATTERN = re.compile(r'\b[a-zA-Z\u00e1\u00e9\u00ed\u00f3\u00fa\u00f1]{3,}\b')
 
-# Cache global de sinapsis (se carga una vez por búsqueda)
-_grafo_cache = None
-
-
 def _cargar_grafo(cursor):
     """Carga todas las sinapsis en un dict de Python (una sola query SQL).
-    Reduce de 200+ queries a 1 query para todo el pipeline Jaccard."""
-    global _grafo_cache
-    if _grafo_cache is not None:
-        return _grafo_cache
+    Función pura y stateless para evitar concurrencia."""
     grafo = {}
     try:
         cursor.execute("SELECT origen, destino FROM sinapsis")
@@ -52,16 +45,14 @@ def _cargar_grafo(cursor):
             if destino not in grafo:
                 grafo[destino] = set()
             grafo[destino].add(origen)
-    except sqlite3.OperationalError:
-        grafo = {}
-    _grafo_cache = grafo
+    except Exception:
+        pass
     return grafo
 
 
-def _limpiar_cache():
-    """Limpia el cache de sinapsis. Llamar al final de cada búsqueda."""
-    global _grafo_cache
-    _grafo_cache = None
+def _limpiar_cache(*args, **kwargs):
+    """No-op. El caché es stateless y se maneja localmente."""
+    pass
 
 
 def _tokenizar_query(texto):
@@ -237,11 +228,13 @@ def buscar_por_similitud_latente(cursor, frase, limite=None, umbral=None):
             nodos_cache = None
     except sqlite3.OperationalError:
         nodos_cache = None
-    for rowid, concepto, contenido, peso, estado, asoc in candidatos:
-        s = score_similitud_latente(cursor, query_tokens, concepto, contenido, grafo=grafo, nodos_cache=nodos_cache)
-        if s >= umbral:
-            scored.append((s, (rowid, concepto, contenido, peso, estado, asoc or "")))
-    _limpiar_cache()
+    try:
+        for rowid, concepto, contenido, peso, estado, asoc in candidatos:
+            s = score_similitud_latente(cursor, query_tokens, concepto, contenido, grafo=grafo, nodos_cache=nodos_cache)
+            if s >= umbral:
+                scored.append((s, (rowid, concepto, contenido, peso, estado, asoc or "")))
+    finally:
+        _limpiar_cache()
 
     scored.sort(key=lambda x: x[0], reverse=True)
     return [row for _, row in scored[:limite]]

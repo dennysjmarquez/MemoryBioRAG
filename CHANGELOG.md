@@ -1,5 +1,26 @@
 # BioRAG Changelog
 
+## v17.1 (2026-07-11)
+
+### Features & Robustness
+- **Auto-Clustering Robusto**: Implementación de una migración única (`migration_autoclustering_v1`) para limpiar dimensiones auto-generadas legacy inactivas.
+- **Desambiguación Dinámica Jaccard**: Reutilización inteligente de nombres de dimensiones mediante el cálculo del solapamiento Jaccard contra miembros de clusters existentes (con umbral de coincidencia >= 0.5).
+- **Saneamiento de Miembros Locales**: Eliminación automática de miembros obsoletos locales al reutilizar y renombrar una dimensión existente.
+- **Purga Global Inactiva**: Eliminación definitiva de dimensiones auto-generadas inactivas que no tengan miembros asociados al final del ciclo de consolidación.
+- **Similitud Conceptual Stateless**: Remoción del diccionario mutable global `_grafo_cache` en `core/similitud_conceptual.py` para garantizar la seguridad de hilos frente a accesos concurrentes de múltiples agentes.
+
+---
+
+## v17.0 (2026-07-10)
+
+### Features
+- **Oráculo de NotebookLM Mejorado**: Nueva herramienta `biorag_oraculo_preguntar` para realizar consultas cruzadas directas con el nombre obligatorio del agente. Redefinición de `oraculo_inicio` para tareas exclusivas de arranque.
+- **Mensajería Broadcast**: Rastreo de lectura individual en el canal compartido por medio de la columna `leido_por` en la tabla `comunicaciones`.
+- **Higiene de Mensajería**: Nueva herramienta `marcar_como_leido` para evitar el re-procesamiento de notificaciones de cartelera, y obligatoriedad del parámetro `origen` en las comunicaciones.
+- **Configuración de Agentes**: Actualización de la documentación interna y directrices de persistencia/firma en BioRAG.
+
+---
+
 ## v16.0 (2026-07-09)
 
 ### Features

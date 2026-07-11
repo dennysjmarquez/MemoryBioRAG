@@ -26,11 +26,16 @@ def _tokenizar(texto):
     return tokens - STOPWORDS_ES
 
 
-def _peso_similitud(tokens_nuevos, tokens_exist):
+def _peso_similitud(tokens_nuevos, tokens_exist, idf_map=None):
     if not tokens_nuevos or not tokens_exist:
         return 0.0
     inter = tokens_nuevos & tokens_exist
-    return len(inter) / min(len(tokens_nuevos), len(tokens_exist))
+    if not inter:
+        return 0.0
+    idf = idf_map or {}
+    peso_inter = sum(idf.get(t, 0.5) for t in inter)
+    peso_union = sum(idf.get(t, 0.5) for t in tokens_nuevos | tokens_exist)
+    return round(peso_inter / peso_union if peso_union > 0 else 0.0, 2)
 
 
 def init_sinapsis_table(cursor):
@@ -50,7 +55,7 @@ def init_sinapsis_table(cursor):
     cursor.connection.commit()
 
 
-def auto_vincular(cerebro, concepto, contenido, umbral=0.3):
+def auto_vincular(cerebro, concepto, contenido, umbral=0.4):
     if not concepto and not contenido:
         return []
 
@@ -86,19 +91,28 @@ def auto_vincular(cerebro, concepto, contenido, umbral=0.3):
         )
         existentes = cerebro.cursor.fetchall()
 
+    MAX_FANOUT = 30  # Límite de sinapsis por nodo en una sola pasada
     vinculados = []
     for conc_exist, cont_exist in existentes:
+        if len(vinculados) >= MAX_FANOUT:
+            break
         tokens_exist = _tokenizar(conc_exist + " " + (cont_exist or ""))
         if not tokens_exist:
             continue
 
-        sim = _peso_similitud(tokens_nuevos, tokens_exist)
+        # Similitud Jaccard ponderada por IDF (con fallback uniforme a 0.5):
+        # auto_vincular llama a _peso_similitud con idf_map=None para evitar escanear la base de datos
+        sim = _peso_similitud(tokens_nuevos, tokens_exist, idf_map=None)
 
         if sim >= umbral:
-            peso = round(sim, 2)
+            peso = sim
             cerebro.cursor.execute(
-                "INSERT OR REPLACE INTO sinapsis (origen, destino, peso, tipo, creado_en) "
-                "VALUES (?, ?, ?, 'co_ocurrencia', ?)",
+                "INSERT INTO sinapsis (origen, destino, peso, tipo, creado_en) "
+                "VALUES (?, ?, ?, 'co_ocurrencia', ?) "
+                "ON CONFLICT(origen, destino) DO UPDATE SET "
+                "peso = MAX(sinapsis.peso, excluded.peso), "
+                "tipo = CASE WHEN sinapsis.tipo IN ('manual', 'manual_v7', 'sinonimo_explicito', 'test') THEN sinapsis.tipo ELSE excluded.tipo END, "
+                "ultimo_uso = COALESCE(sinapsis.ultimo_uso, excluded.creado_en)",
                 (concepto, conc_exist, peso, time.time())
             )
             vinculados.append((conc_exist, peso))
@@ -136,8 +150,12 @@ def auto_vincular(cerebro, concepto, contenido, umbral=0.3):
                 if nombre_overlap >= 0.3:
                     peso_link = round(min(1.0, nombre_overlap * 0.7 + peso_exist * 0.3), 2)
                     cerebro.cursor.execute(
-                        "INSERT OR REPLACE INTO sinapsis (origen, destino, peso, tipo, creado_en) "
-                        "VALUES (?, ?, ?, 'co_nombre', ?)",
+                        "INSERT INTO sinapsis (origen, destino, peso, tipo, creado_en) "
+                        "VALUES (?, ?, ?, 'co_nombre', ?) "
+                        "ON CONFLICT(origen, destino) DO UPDATE SET "
+                        "peso = MAX(sinapsis.peso, excluded.peso), "
+                        "tipo = CASE WHEN sinapsis.tipo IN ('manual', 'manual_v7', 'sinonimo_explicito', 'test') THEN sinapsis.tipo ELSE excluded.tipo END, "
+                        "ultimo_uso = COALESCE(sinapsis.ultimo_uso, excluded.creado_en)",
                         (concepto, conc_exist, peso_link, time.time())
                     )
                     vinculados.append((conc_exist, peso_link))
@@ -181,8 +199,12 @@ def auto_vincular(cerebro, concepto, contenido, umbral=0.3):
                         if overlap >= umbral:
                             peso_link = round(min(1.0, overlap * 0.6 + peso_exist * 0.4), 2)
                             cerebro.cursor.execute(
-                                "INSERT OR REPLACE INTO sinapsis (origen, destino, peso, tipo, creado_en) "
-                                "VALUES (?, ?, ?, 'co_semantica', ?)",
+                                "INSERT INTO sinapsis (origen, destino, peso, tipo, creado_en) "
+                                "VALUES (?, ?, ?, 'co_semantica', ?) "
+                                "ON CONFLICT(origen, destino) DO UPDATE SET "
+                                "peso = MAX(sinapsis.peso, excluded.peso), "
+                                "tipo = CASE WHEN sinapsis.tipo IN ('manual', 'manual_v7', 'sinonimo_explicito', 'test') THEN sinapsis.tipo ELSE excluded.tipo END, "
+                                "ultimo_uso = COALESCE(sinapsis.ultimo_uso, excluded.creado_en)",
                                 (concepto, conc_exist, peso_link, time.time())
                             )
                             vinculados.append((conc_exist, peso_link))
@@ -270,8 +292,12 @@ def vincular_por_sinonimos(cerebro, concepto, sinonimos, peso=0.9):
         )
         for (conc_exist,) in cerebro.cursor.fetchall():
             cerebro.cursor.execute(
-                "INSERT OR REPLACE INTO sinapsis (origen, destino, peso, tipo, creado_en) "
-                "VALUES (?, ?, ?, 'sinonimo_explicito', ?)",
+                "INSERT INTO sinapsis (origen, destino, peso, tipo, creado_en) "
+                "VALUES (?, ?, ?, 'sinonimo_explicito', ?) "
+                "ON CONFLICT(origen, destino) DO UPDATE SET "
+                "peso = MAX(sinapsis.peso, excluded.peso), "
+                "tipo = CASE WHEN sinapsis.tipo IN ('manual', 'manual_v7', 'sinonimo_explicito', 'test') THEN sinapsis.tipo ELSE excluded.tipo END, "
+                "ultimo_uso = COALESCE(sinapsis.ultimo_uso, excluded.creado_en)",
                 (concepto, conc_exist, peso, time.time())
             )
             vinculados.append((conc_exist, peso))
@@ -311,3 +337,62 @@ def desvincular(cerebro, a, b, autor=None, query=None):
     _sincronizar_asociaciones(cerebro, b)
     cerebro.cursor.connection.commit()
     return eliminadas
+
+
+def calcular_idf_corpus(cerebro):
+    """Calcula el IDF de todos los tokens relevantes del corpus activo, UNA sola vez.
+    Retorna un dict {token: idf_normalizado}. Usar una vez por ciclo de consolidación,
+    no una vez por par de sinapsis."""
+    import math
+    cerebro.cursor.execute("SELECT concepto, contenido FROM largo_plazo WHERE estado = 'activo'")
+    filas = cerebro.cursor.fetchall()
+    total_nodos = max(1, len(filas))
+
+    doc_freq = {}
+    for concepto, contenido in filas:
+        tokens_nodo = _tokenizar((concepto or "") + " " + (contenido or ""))
+        for t in tokens_nodo:
+            doc_freq[t] = doc_freq.get(t, 0) + 1
+
+    idf_map = {}
+    for token, df in doc_freq.items():
+        if len(token) < 3:
+            idf_map[token] = 1.0
+            continue
+        idf_map[token] = min(1.0, math.log(total_nodos / max(1, df)) / math.log(max(total_nodos, 2)))
+    return idf_map
+
+
+def recalcular_similitud_sinapsis(cerebro, a, b, idf_map=None):
+    """Recalcula la similitud Jaccard ponderada por IDF entre dos conceptos.
+    Útil para auditoría y depuración (pruning) de sinapsis stale/heredadas.
+    idf_map: dict precalculado por calcular_idf_corpus(). Si no se provee,
+    se usa peso uniforme 0.5 para todos los tokens."""
+    cerebro.cursor.execute(
+        "SELECT tipo, peso FROM sinapsis WHERE (origen = ? AND destino = ?) OR (origen = ? AND destino = ?)",
+        (a, b, b, a)
+    )
+    row = cerebro.cursor.fetchone()
+    if row and row[0] in ('manual', 'manual_v7', 'sinonimo_explicito', 'test'):
+        return row[1]
+
+    cerebro.cursor.execute("SELECT contenido FROM largo_plazo WHERE concepto = ? AND estado = 'activo'", (a,))
+    res_a = cerebro.cursor.fetchone()
+    cerebro.cursor.execute("SELECT contenido FROM largo_plazo WHERE concepto = ? AND estado = 'activo'", (b,))
+    res_b = cerebro.cursor.fetchone()
+    if not res_a or not res_b:
+        return 0.0
+
+    t_a = _tokenizar(a + " " + (res_a[0] or ""))
+    t_b = _tokenizar(b + " " + (res_b[0] or ""))
+
+    inter = t_a & t_b
+    if not inter:
+        return 0.0
+
+    idf = idf_map or {}
+    peso_inter = sum(idf.get(t, 0.5) for t in inter)
+    peso_union = sum(idf.get(t, 0.5) for t in t_a | t_b)
+
+    return round(peso_inter / peso_union if peso_union > 0 else 0.0, 2)
+
