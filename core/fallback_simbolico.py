@@ -7,10 +7,15 @@ Agnóstico al dominio del usuario y bilingüe real (ES + EN) con graceful degrad
 """
 
 from __future__ import annotations
+import os
 import re
 import unicodedata
 from functools import lru_cache
 from typing import Optional
+
+# Traducción externa desactivada por defecto (local-only).
+# Activar con: export BIORAG_TRADUCCION_ACTIVA=1
+_TRADUCCION_ACTIVA = os.environ.get("BIORAG_TRADUCCION_ACTIVA", "0") == "1"
 
 # ═══════════════════════════════════════════════════════════
 # CAPA 0: Normalización (base de todo)
@@ -202,14 +207,15 @@ def _traducir_token(token: str) -> Optional[str]:
 def expandir_con_traduccion(tokens: set[str]) -> set[str]:
     """
     Traduce los tokens y busca sus sinónimos en el WordNet inglés para aumentar recall.
+    Solo se ejecuta si BIORAG_TRADUCCION_ACTIVA=1 (off por defecto).
     """
+    if not _TRADUCCION_ACTIVA:
+        return set()
     expansiones: set[str] = set()
     for token in tokens:
         trad = _traducir_token(token)
         if trad and trad != token:
-            # Añadir el token traducido
             expansiones.add(trad)
-            # Y buscar sus sinónimos en inglés
             expansiones.update(expandir_palabra_wordnet(trad))
     return expansiones - tokens
 
