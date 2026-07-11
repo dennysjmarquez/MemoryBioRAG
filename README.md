@@ -1,11 +1,32 @@
-# BioRAG v18.0 — Sistema de Memoria Cognitiva Biomimética para Agentes de IA
+# BioRAG v18.0 — Arquitectura de Memoria Cognitiva Simbólica para Agentes de IA
 
 > **Versión:** v18.0 — Julio 2026
-> **Paradigma:** Semántica Determinista y Discreta
+> **Paradigma:** Semántica Determinista, Discreta y Simbólica
 > **Motor:** Python puro + SQLite FTS5
 > **Dependencias ML:** 0 (mcp + nltk para WordNet, sin numpy ni sentence-transformers)
+> **Idiomas:** Español + Inglés (expansión bilingüe vía WordNet)
+> **Tests:** 95/95 ✓
 
-**BioRAG** es un motor de memoria persistente para agentes de inteligencia artificial. Resuelve el problema fundamental de que los LLMs olvidan todo entre sesiones — sin depender de vectores, embeddings ni infraestructura externa. Opera sobre un espacio discreto, determinista y auditable: 7 ejes semánticos × 73 sub-valores que tú defines, más BM25 léxico sobre FTS5.
+**BioRAG** es una arquitectura de memoria cognitiva simbólica y persistente para agentes de inteligencia artificial. Resuelve el problema fundamental de que los LLMs olvidan todo entre sesiones — sin depender de vectores, embeddings, GPU ni infraestructura externa. Opera sobre un espacio discreto, determinista y auditable: 7 ejes semánticos × 73 sub-valores declarativos, 45 grupos léxicos WordNet, un pipeline de recuperación de 13 capas en cascada con expansión simbólica bilingüe (Levenshtein + WordNet ES/EN), y un grafo de conocimiento dinámico con plasticidad negativa.
+
+---
+
+## Qué es BioRAG (y qué NO es)
+
+BioRAG se ubica en la intersección de cuatro disciplinas científicas:
+
+| Disciplina | Rol en BioRAG |
+|---|---|
+| **Information Retrieval** | Pipeline de cascade ranking de 13 capas con 9 señales de scoring híbrido (Learning-to-Rank manual) |
+| **Knowledge Graphs** | Grafo de sinapsis tipadas y pesadas con plasticidad negativa, inferencia transitiva y auto-clustering |
+| **Cognitive Architecture** | Ciclos de sueño, LTP/LTD, spreading activation, poda sináptica, inhibición lateral (ACT-R, Hebb, Marr) |
+| **Symbolic NLP** | Expansión semántica sin embeddings: Levenshtein normalizado + WordNet bilingüe + traducción opcional |
+
+**BioRAG NO es:**
+- **No es un RAG** — RAG (Retrieval-Augmented Generation) usa embeddings vectoriales para recuperar chunks de texto. BioRAG no usa embeddings.
+- **No es una base de datos vectorial** — No hay vectores densos. Los 73 ejes dimensionales son un sparse embedding declarativo: la misma idea que un vector, pero con valores que un humano define, inspecciona y audita.
+- **No es un LLM** — BioRAG no genera texto. Es el sistema de memoria que un LLM usa para recordar entre sesiones.
+- **No es un prototipo académico** — Es un sistema de producción con 95 tests automatizados, ~20 MB RAM, latencia de 2.84ms.
 
 ---
 
@@ -225,13 +246,14 @@ score = 0.60 × Jaccard(vecinos_A, vecinos_B) + 0.40 × Jaccard(tokens_query, to
 
 ---
 
-### 9. Técnicas Específicas Implementadas
+### 9. Técnicas Específicas Implementadas (34 técnicas)
 
 | Técnica | Dónde | Equivalente en el campo |
 |---|---|---|
 | **BM25** | FTS5 nativo de SQLite | Elasticsearch, Lucene, Sphinx |
 | **Trigram matching** | FTS5 `trigram` tokenizer | Elasticsearch n-gram, Solr NGram |
 | **PALABRA_COMPLETA** | Función custom SQL con `\b` regex | Word-boundary tokenizer |
+| **PALABRA_PREFIJO** | Función custom SQL post-filtro | Prefix validation (Solr `edismax`) |
 | **NEAR query** | FTS5 `NEAR(palabras, 15)` | Proximity query (Solr, Elasticsearch) |
 | **Prefix wildcards** | `"react*"` en unicode61 | Prefix query (Lucene `PrefixQuery`) |
 | **Spreading activation** | `_evocacion_por_cadena()` con decay `1/(2^salto)` | ACT-R, spreading activation networks |
@@ -245,6 +267,11 @@ score = 0.60 × Jaccard(vecinos_A, vecinos_B) + 0.40 × Jaccard(tokens_query, to
 | **Context window BFS** | `expandir_contexto_vecinos()` con atenuación 0.6 | Graph exploration, subgraph expansion |
 | **Query failure recovery** | `_generar_variaciones()` con historial | Query reformulation |
 | **Batch dimensiones** | 1 query SQL para todos los conceptos | Batch retrieval optimization |
+| **Levenshtein normalizado** | `fallback_simbolico.py` — normalización de acentos + distancia de edición | Edit distance (Levenshtein, 1966) |
+| **WordNet bilingüe** | `expandir_palabra_wordnet()` — ES + EN con lemas cruzados | Multilingual WordNet (Miller, 1995) |
+| **Puente de traducción** | `expandir_con_traduccion()` — ES→EN→WordNet→ES (opt-in) | Cross-lingual query expansion |
+| **Clasificación de orígenes** | `_ORIGENES_NO_LITERALES` — bypass selectivo de post-filtros | Origin-aware result routing |
+| **Boost simbólico** | Blend 50/50 con `score_simbolico` cuando Jaccard < 0.15 | Symbolic score fusion |
 
 ---
 
@@ -287,20 +314,23 @@ El Fallback 2.1 resuelve la brecha de sinonimia y variaciones morfológicas sin 
 | **Auditoría** | Caja negra matemática | Explicabilidad total (score descompuesto en 9 señales) |
 | **Homeostasis** | Estático tras la indexación | Ciclos de sueño con atenuación y consolidación activa |
 | **Tolerancia a Fallos** | Rate limits de APIs externas, dependencias ML | Graceful degradation en 13 capas 100% locales |
+| **Idiomas** | Depende del modelo de embeddings | ES + EN nativos (WordNet bilingüe, expansión cruzada) |
 
 ---
 
-### 11. Mapa de Dependencias Externas
+### 12. Mapa de Dependencias Externas
 
 ```
-Python stdlib (sqlite3, re, time, json, math, os)
+Python stdlib (sqlite3, re, time, json, math, os, unicodedata)
 ├── mcp (servidor MCP)
-├── nltk>=3.5 (clasificación léxica WordNet)
-└── python-dotenv (opcional, carga .env.local)
+├── nltk>=3.5 (clasificación léxica WordNet — local, offline)
+├── python-dotenv (opcional, carga .env.local)
+└── deep-translator (OPCIONAL, desactivado por defecto — BIORAG_TRADUCCION_ACTIVA=1)
 
 CERO dependencias ML.
 CERO GPU.
-CERO API calls para búsqueda.
+CERO API calls para búsqueda (por defecto).
+3 capas locales garantizadas + 1 capa de traducción externa opcional con degradación elegante.
 ```
 
 ---
@@ -800,10 +830,18 @@ DESPUES DE CADA PASO: Leer resultados y explicar con propias palabras
 | `BIORAG_RAFTAGA_ACTIVA` | `true` | Activa/desactiva la ráfaga |
 | `BIORAG_THRESHOLD_RAFTAGA` | `0.5` | Score mínimo para activar ráfaga automática |
 
+### Fallback Simbólico (v18.0)
+
+| Variable | Default | Descripción |
+|---|---|---|
+| `BIORAG_TRADUCCION_ACTIVA` | `0` | Activa la capa de traducción externa (ES↔EN). `0` = 100% local (Levenshtein + WordNet). `1` = habilita deep-translator para expansión cruzada |
+
 ```bash
 # Ejemplo rápido
 export BIORAG_LIMITE_MCP=5
 export BIORAG_CANDIDATOS_SIMILITUD=50
+# Activar traducción externa (opcional, requiere internet)
+export BIORAG_TRADUCCION_ACTIVA=1
 ```
 
 ---
