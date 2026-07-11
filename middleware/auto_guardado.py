@@ -146,7 +146,7 @@ def analizar_y_autoguardar(cerebro, fuerza=False) -> dict | None:
     if not clave:
         return None
 
-    existentes, _ = cerebro.buscar_por_frase(clave, limite=1)
+    existentes, _ = cerebro.buscar_por_frase(clave, limite=1, modo_estricto=True)
     if existentes:
         return None
 

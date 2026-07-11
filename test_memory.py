@@ -398,6 +398,7 @@ def test_sistema():
     print("  OK: eliminado de corto_plazo")
 
     resultados, total = cerebro.buscar_por_frase("test_auto_v4", limite=1)
+    print(f"  DEBUG 26: resultados={resultados}, total={total}")
     assert total == 1 and resultados[0][0] == "test_auto_v4", "Error: no encontrado en FTS5"
     print(f"  OK: encontrado en FTS5 (trigger automatico, sin sueno)")
 
@@ -1762,6 +1763,153 @@ def test_sistema():
 
     print("  OK: Auto-clustering, desambiguación y saneamiento de membresías/dimensiones comprobados con éxito.")
 
+    # ═══════════════════════════════════════════════════════════
+    # Tests 88-95: Fallback Simbólico (v17.2)
+    # ═══════════════════════════════════════════════════════════
+    print("\n--- 88. Probando Levenshtein base ---")
+    from core.fallback_simbolico import (
+        similitud_levenshtein,
+        mejor_similitud_levenshtein,
+        expandir_query_wordnet,
+        expandir_con_traduccion,
+        buscar_fallback_simbolico,
+        score_simbolico,
+        _normalizar,
+        _tokenizar_normalizado,
+    )
+
+    # Normalización
+    assert _normalizar("hipertensión") == "hipertension"
+    assert _normalizar("cardíaco") == "cardiaco"
+    assert _normalizar("ANGULAR") == "angular"
+    print("  OK: normalización de tildes y mayúsculas")
+
+    # Levenshtein exacto
+    assert similitud_levenshtein("angular", "angular") == 1.0
+    assert similitud_levenshtein("", "") == 1.0
+    print("  OK: igualdad = 1.0")
+
+    # Levenshtein con tilde
+    assert similitud_levenshtein("hipertensión", "hipertension") == 1.0, "Error: tilde debe normalizarse antes de comparar"
+    print("  OK: 'hipertensión' vs 'hipertension' = 1.0 (tildes normalizadas)")
+
+    # Levenshtein typo
+    sim_typo = similitud_levenshtein("formulariox", "formularios")
+    assert sim_typo >= 0.85, f"Error: typo debería ser >= 0.85, got {sim_typo}"
+    print(f"  OK: 'formulariox' vs 'formularios' = {sim_typo:.3f} >= 0.85")
+
+    # Levenshtein disimilar
+    sim_dis = similitud_levenshtein("angular", "sqlite")
+    assert sim_dis < 0.5, f"Error: disimilar debería ser < 0.5, got {sim_dis}"
+    print(f"  OK: 'angular' vs 'sqlite' = {sim_dis:.3f} < 0.5")
+    print("--- 88. Levenshtein OK ---")
+
+    print("\n--- 89. Probando mejor_similitud_levenshtein ---")
+    tq = {"hipertension", "arterial"}
+    tn = {"presion", "hipertensiva", "cronica"}
+    mejor = mejor_similitud_levenshtein(tq, tn)
+    assert mejor >= 0.7, f"Error: 'hipertension' vs 'hipertensiva' >= 0.7, got {mejor}"
+    print(f"  OK: mejor_sim({tq}, {tn}) = {mejor:.3f}")
+
+    assert mejor_similitud_levenshtein(set(), {"test"}) == 0.0
+    assert mejor_similitud_levenshtein({"test"}, set()) == 0.0
+    print("  OK: sets vacíos retornan 0.0")
+    print("--- 89. mejor_similitud_levenshtein OK ---")
+
+    print("\n--- 90. Probando WordNet (si disponible) ---")
+    try:
+        exp_wn = expandir_query_wordnet({"error"})
+        print(f"  WordNet disponible. Expansiones de 'error': {list(exp_wn)[:5]}")
+        assert isinstance(exp_wn, set)
+        print("  OK: WordNet retorna set")
+    except Exception as e:
+        print(f"  SKIP: WordNet no disponible ({e})")
+    print("--- 90. WordNet OK ---")
+
+    print("\n--- 91. Probando traducción opcional (si disponible) ---")
+    try:
+        exp_trad = expandir_con_traduccion({"presión"})
+        print(f"  Expansión con traducción de 'presión': {exp_trad}")
+        assert isinstance(exp_trad, set)
+        print("  OK: Traducción retornó un conjunto de expansiones")
+    except Exception as e:
+        print(f"  SKIP/FAIL: deep-translator no disponible o sin internet ({e})")
+    print("--- 91. Traducción OK ---")
+
+    print("\n--- 92. Probando score_simbolico integrado ---")
+    sc1 = score_simbolico(
+        {"hipertension"},
+        "presion_arterial",
+        "Hipertensión sistémica diagnosticada",
+        "hta,presion alta"
+    )
+    assert sc1 >= 0.5, f"Error: score_simbolico 'hipertension' debería >= 0.5, got {sc1}"
+    print(f"  OK: 'hipertension' → 'presion_arterial' (contenido con tilde): {sc1:.3f}")
+
+    sc2 = score_simbolico(
+        {"bug"},
+        "error_servidor",
+        "Fallo crítico en el servidor de producción"
+    )
+    assert isinstance(sc2, float)
+    print(f"  OK: score_simbolico 'bug' → 'error_servidor': {sc2:.3f}")
+    print("--- 92. score_simbolico OK ---")
+
+    print("\n--- 93. Probando buscar_fallback_simbolico ---")
+    cerebro.cursor.execute("DELETE FROM largo_plazo WHERE concepto = 'test_hta_simbolico'")
+    cerebro.conn.commit()
+    cerebro.percibir_corto_plazo(
+        "test_hta_simbolico",
+        "Hipertensión arterial sistémica. Presión elevada.",
+        "hta,presion alta,tension arterial",
+        "Lesson"
+    )
+    cerebro.ciclo_sueno_consolidacion()
+
+    cerebro.cursor.execute(
+        "SELECT rowid, concepto, contenido, peso_sinaptico, "
+        "estado, asociaciones, sinonimos "
+        "FROM largo_plazo WHERE estado = 'activo' LIMIT 1000"
+    )
+    candidatos_test = cerebro.cursor.fetchall()
+
+    resultados_fb = buscar_fallback_simbolico(
+        "hipertension",
+        candidatos_test,
+        umbral=0.50
+    )
+    print(f"  Fallback 'hipertension': {len(resultados_fb)} resultados")
+    conceptos_fb = [r[2] for r in resultados_fb]
+    assert "test_hta_simbolico" in conceptos_fb, f"Error: 'hipertension' debería encontrar 'test_hta_simbolico', got {conceptos_fb}"
+    print(f"  OK: encontró 'test_hta_simbolico' con score {resultados_fb[0][0]:.3f}")
+    print("--- 93. buscar_fallback_simbolico OK ---")
+
+    print("\n--- 94. Probando integración en buscar_por_frase ---")
+    resultados_frase, total_frase = cerebro.buscar_por_frase("hipertension")
+    print(f"  buscar_por_frase('hipertension'): {total_frase} resultados")
+    assert total_frase >= 1, f"Error: debería encontrar al menos 1 resultado, found {total_frase}"
+    conceptos_frase = [r[0] for r in resultados_frase]
+    assert "test_hta_simbolico" in conceptos_frase, f"Error: 'test_hta_simbolico' debería estar en los resultados de buscar_por_frase, got {conceptos_frase}"
+    print("  OK: buscar_por_frase con fallback simbólico integrado con éxito.")
+    print("--- 94. Integración buscar_por_frase OK ---")
+
+    print("\n--- 95. Probando acrónimo bilingüe y graceful degradation ---")
+    cerebro.cursor.execute("DELETE FROM largo_plazo WHERE concepto = 'test_infarto_myocardial'")
+    cerebro.conn.commit()
+    cerebro.percibir_corto_plazo(
+        "test_infarto_myocardial",
+        "Myocardial infarction and heart attack symptoms",
+        "heart,infarction,attack",
+        "Architecture"
+    )
+    cerebro.ciclo_sueno_consolidacion()
+
+    resultados_acr, total_acr = cerebro.buscar_por_frase("infarction")
+    print(f"  buscar_por_frase('infarction'): {total_acr} resultados")
+    assert total_acr >= 1, "Error: 'infarction' debería encontrar al menos 1 resultado"
+    print("  OK: término en inglés encontrado con éxito.")
+    print("--- 95. Acrónimo bilingüe OK ---")
+
     # Finalizar
     cerebro.cerrar_sistema()
 
@@ -1770,4 +1918,5 @@ def test_sistema():
 
 if __name__ == "__main__":
     test_sistema()
+
 

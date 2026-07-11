@@ -2331,7 +2331,7 @@ class SQLiteMemoryBioRAG:
                     if r[0] not in seen_rowids:
                         todos.append(r[:6])
                         bm25_raw[r[1]] = r[6]
-                        origen_scores[r[1]] = ("literal", 0.0)
+                        origen_scores[r[1]] = ("unicode", 0.0)
             except sqlite3.OperationalError:
                 pass
 
@@ -2436,12 +2436,22 @@ class SQLiteMemoryBioRAG:
                         if fts_tokens:
                             fts_q = " OR ".join(fts_tokens)
                             lat_clause = " AND l.estado = 'activo'"
+                            # Filtro PALABRA_COMPLETA en candidatos: evita falsos positivos de trigram
+                            # (ej: "auto" como substring de "autoridad" no debe ser candidato)
+                            pc_lat_clause = ""
+                            pc_lat_params = ()
+                            filtrar_lat = [t for t in query_tokens if len(t) >= 3]
+                            if filtrar_lat:
+                                pc_lat_clause = " AND (" + " OR ".join(
+                                    ["(PALABRA_COMPLETA(?, l.contenido) = 1 OR PALABRA_COMPLETA(?, l.concepto) = 1 OR PALABRA_COMPLETA(?, COALESCE(l.sinonimos, '')) = 1)"] * len(filtrar_lat)
+                                ) + ")"
+                                pc_lat_params = tuple(p for t in filtrar_lat for p in (t, t, t))
                             self.cursor.execute(
                                 "SELECT l.rowid, l.concepto, l.contenido, l.peso_sinaptico, "
                                 "l.estado, l.asociaciones "
                                 "FROM largo_plazo_fts f JOIN largo_plazo l ON l.rowid = f.rowid "
-                                "WHERE largo_plazo_fts MATCH ?" + lat_clause + " LIMIT ?",
-                                (fts_q, CANDIDATOS_SIMILITUD)
+                                "WHERE largo_plazo_fts MATCH ?" + lat_clause + pc_lat_clause + " LIMIT ?",
+                                (fts_q,) + pc_lat_params + (CANDIDATOS_SIMILITUD,)
                             )
                             candidatos_lat = self.cursor.fetchall()
                             scored = []
@@ -2561,7 +2571,45 @@ class SQLiteMemoryBioRAG:
                     except sqlite3.OperationalError:
                         pass
 
+        # ─── Fallback 2.1: Simbólico (Levenshtein + WordNet + Traducción) ───
+        # Solo cuando todas las capas anteriores devuelven < 3 resultados y no es modo_estricto.
+        if not modo_estricto and len(todos) < 3 and len(query) >= 3:
+            try:
+                from core.fallback_simbolico import buscar_fallback_simbolico
+                estado_filter = "WHERE estado = 'activo'" if profundidad != "profundo" else ""
+                cat_filter = ""
+                if categoria:
+                    cat_id_fb = self._resolver_categoria_id(categoria)
+                    cat_filter = f" AND categoria = {cat_id_fb}" if estado_filter else f"WHERE categoria = {cat_id_fb}"
+                
+                self.cursor.execute(
+                    f"SELECT rowid, concepto, contenido, peso_sinaptico, "
+                    f"estado, asociaciones, sinonimos "
+                    f"FROM largo_plazo {estado_filter}{cat_filter} "
+                    f"LIMIT 1000"
+                )
+                candidatos_fb = self.cursor.fetchall()
+                if candidatos_fb:
+                    fb_results = buscar_fallback_simbolico(
+                        query,
+                        candidatos_fb,
+                        umbral=0.60,
+                        top_k=10
+                    )
+                    seen_rowids = {r[0] for r in todos}
+                    for score_fb, rowid, conc, cont, peso, est, asoc in fb_results:
+                        if rowid not in seen_rowids:
+                            todos.append((rowid, conc, cont, peso, est, asoc or ""))
+                            seen_rowids.add(rowid)
+                            if conc not in origen_scores:
+                                origen_scores[conc] = ("simbolico", score_fb)
+            except ImportError:
+                pass
+            except Exception:
+                pass
+
         # ─── Merge: inyectar resultados de concepto no encontrados por FTS5 ───
+
         if resultados_concepto:
             seen = {r[1] for r in todos}
             for concepto, match_ratio in resultados_concepto.items():
@@ -2844,14 +2892,15 @@ class SQLiteMemoryBioRAG:
         # Esto permite "react" -> "reactive" mientras sigue bloqueando falsos positivos de substring
         # ("culo" no es prefijo de "artículos").
         # Solo aplica a resultados de capas literales (AND/OR/NEAR/unicode/snap/substring).
-        # Resultados de capas no literales (typo, expansión, latente, cadena) se preservan
-        # para no romper tolerancia a typos ni búsqueda semántica/conceptual.
+        # Resultados de capas no literales se preservan para no romper tolerancia a typos,
+        # búsqueda semántica/conceptual, ni el fallback simbólico (que normaliza acentos).
+        _ORIGENES_NO_LITERALES = {"typo", "expansion", "latente", "cadena", "simbolico", "dimensional_fallback", "semantica", "unicode"}
         query_words = re.findall(r'\w{3,}', query.lower())
         if len(query_words) == 1 and resultados_con_hibrido:
             token = query_words[0]
             literal_results = [
                 r for r in resultados_con_hibrido
-                if origen_scores.get(r[0], ("literal", 0.0))[0] == "literal"
+                if origen_scores.get(r[0], ("literal", 0.0))[0] not in _ORIGENES_NO_LITERALES
             ]
             non_literal_results = [r for r in resultados_con_hibrido if r not in literal_results]
             if literal_results:

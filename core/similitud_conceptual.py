@@ -174,7 +174,23 @@ def score_similitud_latente(cursor, query_tokens, nodo_concepto, nodo_contenido,
     contenido_tokens = _tokenizar_contenido(nodo_contenido)
     score_texto = similitud_por_contenido(query_tokens, contenido_tokens)
 
-    return score_red * 0.60 + score_texto * 0.40
+    score_base = score_red * 0.60 + score_texto * 0.40
+
+    # Boost simbólico cuando score_base es bajo (por ejemplo, por problemas ortográficos o ligeros sinónimos)
+    if score_base < 0.15:
+        try:
+            from core.fallback_simbolico import score_simbolico
+            score_sym = score_simbolico(
+                query_tokens,
+                nodo_concepto,
+                nodo_contenido or ""
+            )
+            if score_sym > score_base:
+                return score_sym * 0.5 + score_base * 0.5
+        except ImportError:
+            pass
+
+    return score_base
 
 
 def buscar_por_similitud_latente(cursor, frase, limite=None, umbral=None):
