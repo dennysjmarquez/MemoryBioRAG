@@ -1,6 +1,6 @@
-# BioRAG v16.0 — Sistema de Memoria Cognitiva Biomimética para Agentes de IA
+# BioRAG v18.0 — Sistema de Memoria Cognitiva Biomimética para Agentes de IA
 
-> **Versión:** v16.0 — Julio 2026
+> **Versión:** v18.0 — Julio 2026
 > **Paradigma:** Semántica Determinista y Discreta
 > **Motor:** Python puro + SQLite FTS5
 > **Dependencias ML:** 0 (mcp + nltk para WordNet, sin numpy ni sentence-transformers)
@@ -71,7 +71,7 @@ Para la versión v16.0 de BioRAG, incorporamos tres pilares fundamentales que do
 
 ---
 
-### 1. Pipeline de Búsqueda — 12 Capas en Cascada
+### 1. Pipeline de Búsqueda — 13 Capas en Cascada
 
 Cada capa se ejecuta SOLO si la anterior devolvió pocos resultados (< 3 o < limite*2). Es un pipeline de degradación graceful — cada capa es más permisiva que la anterior.
 
@@ -89,6 +89,7 @@ Cada capa se ejecuta SOLO si la anterior devolvió pocos resultados (< 3 o < lim
 | **10** | Snap reciente | `ultimo_acceso > 7 días` | Prioriza nodos accedidos recientemente | Recency bias (Reddit, HN ranking) |
 | **11** | Evocación por cadena | Spreading activation multi-hop | Sigue aristas de sinapsis con decay logarítmico | Spreading Activation (cognitiva, ACT-R) |
 | **12** | Sinónimos | LIKE en campo `sinonimos` | Conecta vocabulario distinto del mismo concepto | Synonym expansion (Elasticsearch `synonym`) |
+| **13** | **Fallback simbólico** | Levenshtein + WordNet bilingüe + Traducción | Cierra el hueco semántico sin embeddings: "hipertension" → "presión arterial" | **Symbolic NLP (zero-vector semantic expansion)** |
 
 ---
 
@@ -681,6 +682,7 @@ MemoryBioRAG/
    │    ├── clasificador_wordnet.py  # Clasificador léxico WordNet (offline)
    │    ├── sinapsis.py          # Grafo: auto-linking, overlap coefficient, decay
    │    ├── similitud_conceptual.py  # Jaccard vecinos + contenido, score 60/40
+   │    ├── fallback_simbolico.py  # Fallback 2.1: Levenshtein + WordNet bilingüe + traducción
    │    └── categorizador.py     # Inferencia de categoría por palabras clave
   ├── middleware/
   │    ├── __init__.py
@@ -846,6 +848,36 @@ Las dimensiones SIEMPRE suman, incluso con cero match de texto. El fallback dime
 ---
 
 ## Historial de Versiones
+
+### v18.0 — Fallback 2.1 Simbólico: Levenshtein + WordNet Bilingüe + Traducción (Julio 2026)
+
+Capa final de búsqueda semántica **sin embeddings ni vectores**. Cierra el último hueco del pipeline: cuando todas las 12 capas anteriores fallan, el Fallback 2.1 activa expansión simbólica pura.
+
+**Arquitectura de 3 sub-capas con graceful degradation:**
+
+| Sub-capa | Técnica | Ejemplo | Disponibilidad |
+|---|---|---|---|
+| 1. Levenshtein normalizado | Distancia de edición con normalización de acentos/mayúsculas | `"hipertensión"` ↔ `"hipertension"` (score 1.0) | Siempre (0 deps) |
+| 2. WordNet bilingüe | Expansión ES+EN via `nltk.corpus.wordnet` local | `"error"` → `{fallo, mistake, fault, equivocacion}` | Si nltk disponible |
+| 3. Puente de traducción | `deep-translator` (ES→EN→WordNet→ES) | `"presión"` → `"pressure"` → synsets ingleses | Opcional (graceful fail) |
+
+**Correcciones de integridad del pipeline:**
+- **Test 26 fix**: Filtro `PALABRA_COMPLETA` inyectado en candidatos FTS5 de Capa 1.8. Previene que trigramas como `"auto"` matcheen `"autoridad"` por substring.
+- **Test 72 fix**: `auto_guardado.py` usa `modo_estricto=True` para verificación de duplicados. Elimina falsos positivos de score bajo (0.102) que bloqueaban el autoguardado emocional.
+- **Test 94 fix**: Resultados de unicode61 (Fallback 1.4) re-etiquetados como origen `"unicode"` en vez de `"literal"`. El filtro `PALABRA_PREFIJO` no normaliza acentos — resultados de unicode61 (que sí normaliza) se preservan del post-filtro.
+- **Clasificación de orígenes**: Set explícito `_ORIGENES_NO_LITERALES` para bypass del filtro `PALABRA_PREFIJO` en queries de una palabra.
+
+**Archivos modificados:**
+
+| Archivo | Cambio |
+|---|---|
+| `core/fallback_simbolico.py` | **[NUEVO]** Módulo completo: Levenshtein, WordNet bilingüe, traducción, `score_simbolico`, `buscar_fallback_simbolico` |
+| `core/memory_store.py` | Integración Fallback 2.1, fix PALABRA_COMPLETA en Capa 1.8, retag unicode61, `_ORIGENES_NO_LITERALES` |
+| `core/similitud_conceptual.py` | Boost simbólico: blend 50/50 con `score_simbolico` cuando Jaccard < 0.15 |
+| `middleware/auto_guardado.py` | `modo_estricto=True` en verificación de duplicados |
+| `test_memory.py` | Tests 88-95: Levenshtein, WordNet, traducción, integración buscar_por_frase, acrónimo bilingüe |
+
+**95/95 tests. Exit code 0.**
 
 ### v17.1 — Auto-Clustering Robusto, Desambiguación Jaccard y Similitud Conceptual Stateless (Julio 2026)
 
@@ -1023,18 +1055,18 @@ Análisis exhaustivo de todo el codebase documentando cada técnica, algoritmo y
 
 ## Producción
 
-| Métrica | v9.0 | v11.1 | v13.4 | v14.0 | v15.0 | v16.0 | v17.0 | v17.1 |
-|---|---|---|---|---|---|---|---|---|
-| Pipeline de búsqueda | 8 capas | 8 capas | 9 capas | 12 capas | 12 capas + WordNet | 12 capas + SRL + Inferencia | 12 capas + SRL + Inferencia | **12 capas + SRL + Inferencia** |
-| Señales de scoring | 3 | 3 | 3 | 8 ortogonales | 9 señales híbridas | 9 señales + SRL + Inferencia | 9 señales + SRL + Inferencia | **9 señales + SRL + Inferencia** |
-| Nodos activos | 135+ | 340 | 438 | — | 415 | 415+ | 415+ | **415+** |
-| Sinapsis | 1,474+ | 15,521 | — | — | 4,646 | 4,646+ (y latentes) | 4,646+ (y latentes) | **4,646+ (y latentes)** |
-| Dimensiones | — | 5 (39 sub) | 7 (73 sub) | 7 ejes, 73 valores | 7 ejes, 73 val + 45 grupos | 7 ejes, 73 val + 45 grupos + auto-generadas | 7 ejes, 73 val + 45 grupos + auto-generadas | **7 ejes, 73 val + 45 grupos + auto-generadas** |
-| Técnicas documentadas | — | — | — | 25 técnicas | 28 técnicas | 31 técnicas | 31 técnicas | **31 técnicas** |
-| Tests | 68/68 | 72/72 | 78/78 | 78/78 | 79/79 | 86 checkpoints | 87 checkpoints | **88 checkpoints** |
-| Dependencias ML | 0 | 0 | 0 | 0 | 0 (mcp + nltk) | 0 (mcp + nltk) | 0 (mcp + nltk) | **0 (mcp + nltk)** |
-| RAM | ~4 MB | ~12 MB | ~9 MB | ~18 MB | ~20 MB | ~20 MB | ~20 MB | **~20 MB** |
-| Tools MCP | — | 12 | 15 | 19 | 26 | 26 | 28 | **28** |
+| Métrica | v9.0 | v11.1 | v13.4 | v14.0 | v15.0 | v16.0 | v17.0 | v17.1 | v18.0 |
+|---|---|---|---|---|---|---|---|---|---|
+| Pipeline de búsqueda | 8 capas | 8 capas | 9 capas | 12 capas | 12 capas + WordNet | 12 capas + SRL + Inferencia | 12 capas + SRL + Inferencia | 12 capas + SRL + Inferencia | **13 capas + Fallback Simbólico** |
+| Señales de scoring | 3 | 3 | 3 | 8 ortogonales | 9 señales híbridas | 9 señales + SRL + Inferencia | 9 señales + SRL + Inferencia | 9 señales + SRL + Inferencia | **9 señales + SRL + Simbólico** |
+| Nodos activos | 135+ | 340 | 438 | — | 415 | 415+ | 415+ | 415+ | **415+** |
+| Sinapsis | 1,474+ | 15,521 | — | — | 4,646 | 4,646+ (y latentes) | 4,646+ (y latentes) | 4,646+ (y latentes) | **4,646+ (y latentes)** |
+| Dimensiones | — | 5 (39 sub) | 7 (73 sub) | 7 ejes, 73 valores | 7 ejes, 73 val + 45 grupos | 7 ejes, 73 val + 45 grupos + auto-generadas | 7 ejes, 73 val + 45 grupos + auto-generadas | 7 ejes, 73 val + 45 grupos + auto-generadas | **7 ejes, 73 val + 45 grupos + auto** |
+| Técnicas documentadas | — | — | — | 25 técnicas | 28 técnicas | 31 técnicas | 31 técnicas | 31 técnicas | **34 técnicas** |
+| Tests | 68/68 | 72/72 | 78/78 | 78/78 | 79/79 | 86 checkpoints | 87 checkpoints | 88 checkpoints | **95/95** |
+| Dependencias ML | 0 | 0 | 0 | 0 | 0 (mcp + nltk) | 0 (mcp + nltk) | 0 (mcp + nltk) | 0 (mcp + nltk) | **0 (mcp + nltk)** |
+| RAM | ~4 MB | ~12 MB | ~9 MB | ~18 MB | ~20 MB | ~20 MB | ~20 MB | ~20 MB | **~20 MB** |
+| Tools MCP | — | 12 | 15 | 19 | 26 | 26 | 28 | 28 | **28** |
 
 ---
 
