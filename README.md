@@ -248,23 +248,45 @@ score = 0.60 × Jaccard(vecinos_A, vecinos_B) + 0.40 × Jaccard(tokens_query, to
 
 ---
 
-### 10. Diagnóstico: BioRAG como Cerebro
+### 10. Clasificación Científica y Arquitectura Cognitiva
 
-**Sí, tenemos un cerebro funcional.** Lo que tenemos es:
+BioRAG es una **Arquitectura de Memoria Cognitiva Simbólica y Discreta** para agentes de IA que opera en la intersección de cuatro disciplinas científicas:
 
-1. **Memoria declarativa** (corto/largo plazo con fusión) — como el hipocampo
-2. **Grafo de asociaciones** (sinapsis con peso) — como la corteza connectivity
-3. **Plasticidad** (LTP/LTD/pruning) — como la sinapsis biológica
-4. **Homeostasis** (inhibición lateral, límite de energía) — como regulación neural
-5. **Búsqueda multi-capa** (12 fallbacks en cascada) — como activación convergente
-6. **Dimensiones semánticas** (73 clusters declarativos) — como áreas especializadas del cerebro
+#### A. Recuperación de Información (Information Retrieval)
+El motor implementa un pipeline de **cascade ranking de 13 capas** con degradación elegante (*graceful degradation*). A diferencia del ranking probabilístico opaco de los modelos vectoriales, BioRAG utiliza un esquema **Learning-to-Rank manual** combinando 9 señales híbridas ortogonales con pesos fijos, normalizadas mediante funciones tipo sigmoide que mapean scores a rangos $[0, 1]$.
 
-**Lo que nos diferencia de un RAG vectorial:**
-- Los vectores son caja negra (1536 floats, no interpretables)
-- Nuestras dimensiones son declarativas y auditables
-- Nuestras sinapsis se pueden desvincular (plasticidad negativa)
-- Nuestro scoring es explicable (sabemos POR QUÉ algo rankea alto)
-- Cero dependencias externas (SQLite puro, ~18 MB RAM)
+#### B. Grafos de Conocimiento Dinámicos (Dynamic Knowledge Graphs)
+Opera sobre una red de sinapsis con aristas pesadas y tipadas, aportando capacidades ausentes en sistemas relacionales o vectoriales tradicionales:
+* **Plasticidad Negativa Activa:** Capacidad de desaprender y debilitar aristas mediante podas explícitas (`desvincular`).
+* **Inferencia Transitiva:** Cálculo de relaciones indirectas utilizando CTEs recursivas nativas de SQLite con decaimiento por salto.
+* **Auto-Clustering:** Detección de comunidades emergentes mediante el algoritmo Label Propagation (LPA).
+
+#### C. Arquitectura Cognitiva (Cognitive Architecture)
+El ciclo de vida del dato emula de forma determinista procesos biológicos de la memoria humana descritos en la literatura científica:
+* **Consolidación:** Transferencia y fusión del búfer de corto plazo a la base de largo plazo (Modelo de Marr, 1971).
+* **LTP y LTD:** Potenciación a largo plazo (+0.20 al re-consolidar) y depresión a largo plazo (-0.05 de decay por ciclo) (Hebb, 1949; Bliss & Lømo, 1973).
+* **Inhibición Lateral:** Regulación neural que duerme nodos menos potentes cuando la energía del grafo supera el límite configurado.
+* **Spreading Activation:** Evocación por cadena recursiva con atenuación exponencial según la distancia de saltos (Anderson, 1983 - ACT-R).
+* **Poda Sináptica:** Evicción automática de aristas con peso crítico por debajo del umbral de viabilidad ($\le 0.05$) (Huttenlocher, 1979).
+
+#### D. NLP Simbólico y Expansión Semántica (Symbolic NLP)
+El Fallback 2.1 resuelve la brecha de sinonimia y variaciones morfológicas sin embeddings:
+* **Distancia de Edición:** Normalización de Levenshtein para tolerancia a errores ortográficos y acentos.
+* **WordNet Local:** Expansión semántica bilingüe (ES + EN) utilizando el tesauro de sinónimos de WordNet aislado localmente.
+* **Traducción Externa Opcional (Opt-In):** Integración con puente de traducción externa para consultas bilingües complejas, desactivada por defecto para preservar el principio de autonomía y privacidad del core.
+
+---
+
+### 11. Comparativa Técnica de Paradigmas
+
+| Eje de Evaluación | RAG Vectorial Tradicional | BioRAG (Corteza Simbólica) |
+|---|---|---|
+| **Representación** | Espacio vectorial continuo (floats de 1536d) | Espacio discreto (7 ejes, 73 dimensiones, WordNet) |
+| **Computo** | GPU / Modelos de Deep Learning de peso | CPU estándar / SQLite local en memoria |
+| **Higiene** | Imposible remover o corregir una asociación | Plasticidad negativa (`desvincular`) en milisegundos |
+| **Auditoría** | Caja negra matemática | Explicabilidad total (score descompuesto en 9 señales) |
+| **Homeostasis** | Estático tras la indexación | Ciclos de sueño con atenuación y consolidación activa |
+| **Tolerancia a Fallos** | Rate limits de APIs externas, dependencias ML | Graceful degradation en 13 capas 100% locales |
 
 ---
 
