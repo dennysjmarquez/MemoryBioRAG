@@ -177,7 +177,7 @@ def score_similitud_latente(cursor, query_tokens, nodo_concepto, nodo_contenido,
     score_base = score_red * 0.60 + score_texto * 0.40
 
     # Boost simbólico cuando score_base es bajo (por ejemplo, por problemas ortográficos o ligeros sinónimos)
-    if score_base < 0.15:
+    if score_base < UMBRAL_JACCARD:
         try:
             from core.fallback_simbolico import score_simbolico
             score_sym = score_simbolico(
