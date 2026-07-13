@@ -1251,7 +1251,7 @@ La suite y herramientas asociadas se encuentran en el directorio `scripts/` (exc
 | Sinapsis | 1,474+ | 15,521 | — | — | 4,646 | 4,646+ (y latentes) | 4,646+ (y latentes) | 4,646+ (y latentes) | **4,646+ (y latentes)** |
 | Dimensiones | — | 5 (39 sub) | 7 (73 sub) | 7 ejes, 73 valores | 7 ejes, 73 val + 45 grupos | 7 ejes, 73 val + 45 grupos + auto-generadas | 7 ejes, 73 val + 45 grupos + auto-generadas | 7 ejes, 73 val + 45 grupos + auto-generadas | **7 ejes, 73 val + 45 grupos + auto** |
 | Técnicas documentadas | — | — | — | 25 técnicas | 28 técnicas | 31 técnicas | 31 técnicas | 31 técnicas | **34 técnicas** |
-| Tests | 68/68 | 72/72 | 78/78 | 78/78 | 79/79 | 86 checkpoints | 87 checkpoints | 88 checkpoints | **95/95** |
+| Tests | 68/68 | 72/72 | 78/78 | 78/78 | 79/79 | 86 checkpoints | 87 checkpoints | 88 checkpoints | **95/95 + Suite QA (Fase 1 y 2)** |
 | Dependencias ML | 0 | 0 | 0 | 0 | 0 (mcp + nltk) | 0 (mcp + nltk) | 0 (mcp + nltk) | 0 (mcp + nltk) | **0 (mcp + nltk)** |
 | RAM | ~4 MB | ~12 MB | ~9 MB | ~18 MB | ~20 MB | ~20 MB | ~20 MB | ~20 MB | **~20 MB** |
 | Tools MCP | — | 12 | 15 | 19 | 26 | 26 | 28 | 28 | **28** |
