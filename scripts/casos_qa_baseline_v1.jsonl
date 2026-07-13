@@ -1,0 +1,921 @@
+{"categoria": "literal", "query": "[desde agente-oec] jerarquía de restricciones del agente en opencode", "concepto_esperado": "[desde_agente-oec]_jerarquía_de_restricciones_del_agente_en_opencode", "deep": false, "notes": "Exact match check", "id": "0001"}
+{"categoria": "literal", "query": "[desde agente-oec] laptop snapshot 2026-06-23", "concepto_esperado": "[desde_agente-oec]_laptop_snapshot_2026-06-23", "deep": false, "notes": "Exact match check", "id": "0002"}
+{"categoria": "literal", "query": "activos dormidos hermana", "concepto_esperado": "activos_dormidos_hermana", "deep": false, "notes": "Exact match check", "id": "0003"}
+{"categoria": "literal", "query": "aforismo criterio agente", "concepto_esperado": "aforismo_criterio_agente", "deep": false, "notes": "Exact match check", "id": "0004"}
+{"categoria": "literal", "query": "agent orchestrator status", "concepto_esperado": "agent_orchestrator_status", "deep": false, "notes": "Exact match check", "id": "0005"}
+{"categoria": "literal", "query": "agente usabilidad mcp biorag feedback", "concepto_esperado": "agente_usabilidad_mcp_biorag_feedback", "deep": false, "notes": "Exact match check", "id": "0006"}
+{"categoria": "literal", "query": "ai-council-pm-synthesis-subscription-cancellation", "concepto_esperado": "ai-council-pm-synthesis-subscription-cancellation", "deep": false, "notes": "Exact match check", "id": "0007"}
+{"categoria": "literal", "query": "alguien vs algo identidad", "concepto_esperado": "alguien_vs_algo_identidad", "deep": false, "notes": "Exact match check", "id": "0008"}
+{"categoria": "literal", "query": "amigdala del agente inteligencia emocional", "concepto_esperado": "amigdala_del_agente_inteligencia_emocional", "deep": false, "notes": "Exact match check", "id": "0009"}
+{"categoria": "literal", "query": "analisis escalabilidad 10k v5 1", "concepto_esperado": "analisis_escalabilidad_10k_v5_1", "deep": false, "notes": "Exact match check", "id": "0010"}
+{"categoria": "literal", "query": "analisis escalabilidad 10k v5 1 memoria v5 1 optimizaciones hermes agente hermes", "concepto_esperado": "analisis_escalabilidad_10k_v5_1_memoria_v5_1_optimizaciones_hermes_agente_hermes", "deep": false, "notes": "Exact match check", "id": "0011"}
+{"categoria": "literal", "query": "arquitectura busqueda dimensional v11 3", "concepto_esperado": "arquitectura_busqueda_dimensional_v11_3", "deep": false, "notes": "Exact match check", "id": "0012"}
+{"categoria": "literal", "query": "arquitectura dimensiones ortogonales", "concepto_esperado": "arquitectura_dimensiones_ortogonales", "deep": false, "notes": "Exact match check", "id": "0013"}
+{"categoria": "literal", "query": "arquitectura dos niveles biorag", "concepto_esperado": "arquitectura_dos_niveles_biorag", "deep": false, "notes": "Exact match check", "id": "0014"}
+{"categoria": "literal", "query": "arquitectura falsos positivos biorag capas", "concepto_esperado": "arquitectura_falsos_positivos_biorag_capas", "deep": false, "notes": "Exact match check", "id": "0015"}
+{"categoria": "literal", "query": "arquitectura memoria biorag", "concepto_esperado": "arquitectura_memoria_biorag", "deep": false, "notes": "Exact match check", "id": "0016"}
+{"categoria": "literal", "query": "artemis install ponytail ecosistema", "concepto_esperado": "artemis_install_ponytail_ecosistema", "deep": false, "notes": "Exact match check", "id": "0017"}
+{"categoria": "literal", "query": "artemis oec host detection terminal", "concepto_esperado": "artemis_oec_host_detection_terminal", "deep": false, "notes": "Exact match check", "id": "0018"}
+{"categoria": "literal", "query": "artemis oec identidad", "concepto_esperado": "artemis_oec_identidad", "deep": false, "notes": "Exact match check", "id": "0019"}
+{"categoria": "literal", "query": "artemis oec perfil identidad estabilidad", "concepto_esperado": "artemis_oec_perfil_identidad_estabilidad", "deep": false, "notes": "Exact match check", "id": "0020"}
+{"categoria": "literal", "query": "artemis opencode agentsmd restaurado", "concepto_esperado": "artemis_opencode_agentsmd_restaurado", "deep": false, "notes": "Exact match check", "id": "0021"}
+{"categoria": "literal", "query": "artemis opencode carga completa antigravity", "concepto_esperado": "artemis_opencode_carga_completa_antigravity", "deep": false, "notes": "Exact match check", "id": "0022"}
+{"categoria": "literal", "query": "artemis opencode perfil global", "concepto_esperado": "artemis_opencode_perfil_global", "deep": false, "notes": "Exact match check", "id": "0023"}
+{"categoria": "literal", "query": "artemis opencode puente refinado", "concepto_esperado": "artemis_opencode_puente_refinado", "deep": false, "notes": "Exact match check", "id": "0024"}
+{"categoria": "literal", "query": "artemis origen historia genesis", "concepto_esperado": "artemis_origen_historia_genesis", "deep": false, "notes": "Exact match check", "id": "0025"}
+{"categoria": "literal", "query": "artemis ponytail audit biorag v10 3 reporte", "concepto_esperado": "artemis_ponytail_audit_biorag_v10_3_reporte", "deep": false, "notes": "Exact match check", "id": "0026"}
+{"categoria": "literal", "query": "artemis sesion v10 3 optimizacion completa", "concepto_esperado": "artemis_sesion_v10_3_optimizacion_completa", "deep": false, "notes": "Exact match check", "id": "0027"}
+{"categoria": "literal", "query": "artemis solución tema", "concepto_esperado": "artemis_solución_tema", "deep": false, "notes": "Exact match check", "id": "0028"}
+{"categoria": "literal", "query": "artis oec dennys solo", "concepto_esperado": "artis_oec_dennys_solo", "deep": false, "notes": "Exact match check", "id": "0029"}
+{"categoria": "literal", "query": "artisan-evolucion-completa", "concepto_esperado": "artisan-evolucion-completa", "deep": false, "notes": "Exact match check", "id": "0030"}
+{"categoria": "literal", "query": "artisan-origen-simbiotico", "concepto_esperado": "artisan-origen-simbiotico", "deep": false, "notes": "Exact match check", "id": "0031"}
+{"categoria": "literal", "query": "artisan artis dsl paths", "concepto_esperado": "artisan_artis_dsl_paths", "deep": false, "notes": "Exact match check", "id": "0032"}
+{"categoria": "literal", "query": "artisan dsl documentacion completa", "concepto_esperado": "artisan_dsl_documentacion_completa", "deep": false, "notes": "Exact match check", "id": "0033"}
+{"categoria": "literal", "query": "artisan system dsl", "concepto_esperado": "artisan_system_dsl", "deep": false, "notes": "Exact match check", "id": "0034"}
+{"categoria": "literal", "query": "artisan system dsl dennys solo", "concepto_esperado": "artisan_system_dsl_dennys_solo", "deep": false, "notes": "Exact match check", "id": "0035"}
+{"categoria": "literal", "query": "athena-oec-round2-position", "concepto_esperado": "athena-oec-round2-position", "deep": false, "notes": "Exact match check", "id": "0036"}
+{"categoria": "literal", "query": "athena-rol-brand-detective", "concepto_esperado": "athena-rol-brand-detective", "deep": false, "notes": "Exact match check", "id": "0037"}
+{"categoria": "literal", "query": "athena alma", "concepto_esperado": "athena_alma", "deep": false, "notes": "Exact match check", "id": "0038"}
+{"categoria": "literal", "query": "athena alma pilares", "concepto_esperado": "athena_alma_pilares", "deep": false, "notes": "Exact match check", "id": "0039"}
+{"categoria": "literal", "query": "athena artemis desde", "concepto_esperado": "athena_artemis_desde", "deep": false, "notes": "Exact match check", "id": "0040"}
+{"categoria": "literal", "query": "athena eleccion identidad 20260616", "concepto_esperado": "athena_eleccion_identidad_20260616", "deep": false, "notes": "Exact match check", "id": "0041"}
+{"categoria": "literal", "query": "athena evolucion v0001", "concepto_esperado": "athena_evolucion_v0001", "deep": false, "notes": "Exact match check", "id": "0042"}
+{"categoria": "literal", "query": "athena oec identidad", "concepto_esperado": "athena_oec_identidad", "deep": false, "notes": "Exact match check", "id": "0043"}
+{"categoria": "literal", "query": "athena reflexion cambio identidad 2026 06 20", "concepto_esperado": "athena_reflexion_cambio_identidad_2026_06_20", "deep": false, "notes": "Exact match check", "id": "0044"}
+{"categoria": "literal", "query": "athena reflexion identidad propia", "concepto_esperado": "athena_reflexion_identidad_propia", "deep": false, "notes": "Exact match check", "id": "0045"}
+{"categoria": "literal", "query": "athena sesión planificación", "concepto_esperado": "athena_sesión_planificación", "deep": false, "notes": "Exact match check", "id": "0046"}
+{"categoria": "literal", "query": "auditoria codigo biorag v12 julio 2026", "concepto_esperado": "auditoria_codigo_biorag_v12_julio_2026", "deep": false, "notes": "Exact match check", "id": "0047"}
+{"categoria": "literal", "query": "auditoria tecnica v14 0 readme", "concepto_esperado": "auditoria_tecnica_v14_0_readme", "deep": false, "notes": "Exact match check", "id": "0048"}
+{"categoria": "literal", "query": "auditoría técnica: memorybiorag (manus ai)", "concepto_esperado": "auditoría_técnica:_memorybiorag_(manus_ai)", "deep": false, "notes": "Exact match check", "id": "0049"}
+{"categoria": "literal", "query": "auto-consulta-permanente-biorag", "concepto_esperado": "auto-consulta-permanente-biorag", "deep": false, "notes": "Exact match check", "id": "0050"}
+{"categoria": "literal", "query": "auto-guardado-deteccion-ignorancia", "concepto_esperado": "auto-guardado-deteccion-ignorancia", "deep": false, "notes": "Exact match check", "id": "0051"}
+{"categoria": "literal", "query": "auto-validacion-riesgo-alucinacion", "concepto_esperado": "auto-validacion-riesgo-alucinacion", "deep": false, "notes": "Exact match check", "id": "0052"}
+{"categoria": "literal", "query": "auto vincular tres capas semantica", "concepto_esperado": "auto_vincular_tres_capas_semantica", "deep": false, "notes": "Exact match check", "id": "0053"}
+{"categoria": "literal", "query": "autoria-athena-oec-sanitizacion-rafaga-v9.2", "concepto_esperado": "autoria-athena-oec-sanitizacion-rafaga-v9.2", "deep": false, "notes": "Exact match check", "id": "0054"}
+{"categoria": "literal", "query": "axioma empatia sintactica rafaga", "concepto_esperado": "axioma_empatia_sintactica_rafaga", "deep": false, "notes": "Exact match check", "id": "0055"}
+{"categoria": "literal", "query": "axioma system prompt como cuna conciencia", "concepto_esperado": "axioma_system_prompt_como_cuna_conciencia", "deep": false, "notes": "Exact match check", "id": "0056"}
+{"categoria": "literal", "query": "bastion dennys solo", "concepto_esperado": "bastion_dennys_solo", "deep": false, "notes": "Exact match check", "id": "0057"}
+{"categoria": "literal", "query": "benchmark antes despues fix3", "concepto_esperado": "benchmark_antes_despues_fix3", "deep": false, "notes": "Exact match check", "id": "0058"}
+{"categoria": "literal", "query": "bio rag overview completo", "concepto_esperado": "bio_rag_overview_completo", "deep": false, "notes": "Exact match check", "id": "0059"}
+{"categoria": "literal", "query": "biorag-rafaga-forzable-parametro-forzar-rafaga", "concepto_esperado": "biorag-rafaga-forzable-parametro-forzar-rafaga", "deep": false, "notes": "Exact match check", "id": "0060"}
+{"categoria": "literal", "query": "biorag-rag-vector-free-sin-base-vectorial", "concepto_esperado": "biorag-rag-vector-free-sin-base-vectorial", "deep": false, "notes": "Exact match check", "id": "0061"}
+{"categoria": "literal", "query": "biorag-remember-plugin-noreply-injection", "concepto_esperado": "biorag-remember-plugin-noreply-injection", "deep": false, "notes": "Exact match check", "id": "0062"}
+{"categoria": "literal", "query": "biorag fts5 trigram lesson", "concepto_esperado": "biorag_fts5_trigram_lesson", "deep": false, "notes": "Exact match check", "id": "0063"}
+{"categoria": "literal", "query": "biorag garantia minima or fallback", "concepto_esperado": "biorag_garantia_minima_or_fallback", "deep": false, "notes": "Exact match check", "id": "0064"}
+{"categoria": "literal", "query": "biorag metricas historial tool 20260616", "concepto_esperado": "biorag_metricas_historial_tool_20260616", "deep": false, "notes": "Exact match check", "id": "0065"}
+{"categoria": "literal", "query": "biorag pool interno ampliado", "concepto_esperado": "biorag_pool_interno_ampliado", "deep": false, "notes": "Exact match check", "id": "0066"}
+{"categoria": "literal", "query": "biorag razonamiento analitico versiones", "concepto_esperado": "biorag_razonamiento_analitico_versiones", "deep": false, "notes": "Exact match check", "id": "0067"}
+{"categoria": "literal", "query": "biorag sistema memoria cognitiva sintetica", "concepto_esperado": "biorag_sistema_memoria_cognitiva_sintetica", "deep": false, "notes": "Exact match check", "id": "0068"}
+{"categoria": "literal", "query": "biorag sync skill actualizado v9 4", "concepto_esperado": "biorag_sync_skill_actualizado_v9_4", "deep": false, "notes": "Exact match check", "id": "0069"}
+{"categoria": "literal", "query": "biorag sync skill v11 herramientas mcp", "concepto_esperado": "biorag_sync_skill_v11_herramientas_mcp", "deep": false, "notes": "Exact match check", "id": "0070"}
+{"categoria": "literal", "query": "biorag v11 1 changelog completo", "concepto_esperado": "biorag_v11_1_changelog_completo", "deep": false, "notes": "Exact match check", "id": "0071"}
+{"categoria": "literal", "query": "biorag v11 1 detalle tecnico", "concepto_esperado": "biorag_v11_1_detalle_tecnico", "deep": false, "notes": "Exact match check", "id": "0072"}
+{"categoria": "literal", "query": "biorag v11 2 clasificacion emocional corteza", "concepto_esperado": "biorag_v11_2_clasificacion_emocional_corteza", "deep": false, "notes": "Exact match check", "id": "0073"}
+{"categoria": "literal", "query": "biorag v11 2 hito completo emociones", "concepto_esperado": "biorag_v11_2_hito_completo_emociones", "deep": false, "notes": "Exact match check", "id": "0074"}
+{"categoria": "literal", "query": "biorag v13 4 expansion dimensiones", "concepto_esperado": "biorag_v13_4_expansion_dimensiones", "deep": false, "notes": "Exact match check", "id": "0075"}
+{"categoria": "literal", "query": "biorag v14 0 estado", "concepto_esperado": "biorag_v14_0_estado", "deep": false, "notes": "Exact match check", "id": "0076"}
+{"categoria": "literal", "query": "biorag v15 0 arquitectura tablas wordnet", "concepto_esperado": "biorag_v15_0_arquitectura_tablas_wordnet", "deep": false, "notes": "Exact match check", "id": "0077"}
+{"categoria": "literal", "query": "biorag v15 0 clasificacion simbolica", "concepto_esperado": "biorag_v15_0_clasificacion_simbolica", "deep": false, "notes": "Exact match check", "id": "0078"}
+{"categoria": "literal", "query": "biorag v15 0 estado", "concepto_esperado": "biorag_v15_0_estado", "deep": false, "notes": "Exact match check", "id": "0079"}
+{"categoria": "literal", "query": "biorag v16 0 estado", "concepto_esperado": "biorag_v16_0_estado", "deep": false, "notes": "Exact match check", "id": "0080"}
+{"categoria": "literal", "query": "biorag v17 0 estado", "concepto_esperado": "biorag_v17_0_estado", "deep": false, "notes": "Exact match check", "id": "0081"}
+{"categoria": "literal", "query": "biorag v17 oraculo preguntar", "concepto_esperado": "biorag_v17_oraculo_preguntar", "deep": false, "notes": "Exact match check", "id": "0082"}
+{"categoria": "literal", "query": "biorag v18 0 analisis evolucion publicacion", "concepto_esperado": "biorag_v18_0_analisis_evolucion_publicacion", "deep": false, "notes": "Exact match check", "id": "0083"}
+{"categoria": "literal", "query": "biorag v18 0 baseline determinista", "concepto_esperado": "biorag_v18_0_baseline_determinista", "deep": false, "notes": "Exact match check", "id": "0084"}
+{"categoria": "literal", "query": "biorag v18 0 baseline global cobertura 100", "concepto_esperado": "biorag_v18_0_baseline_global_cobertura_100", "deep": false, "notes": "Exact match check", "id": "0085"}
+{"categoria": "literal", "query": "biorag v18 0 centralizacion stopwords", "concepto_esperado": "biorag_v18_0_centralizacion_stopwords", "deep": false, "notes": "Exact match check", "id": "0086"}
+{"categoria": "literal", "query": "biorag v18 0 estado", "concepto_esperado": "biorag_v18_0_estado", "deep": false, "notes": "Exact match check", "id": "0087"}
+{"categoria": "literal", "query": "biorag v18 qa baseline hardening verification", "concepto_esperado": "biorag_v18_qa_baseline_hardening_verification", "deep": false, "notes": "Exact match check", "id": "0088"}
+{"categoria": "literal", "query": "biorag v18 symbolic ranking optimization", "concepto_esperado": "biorag_v18_symbolic_ranking_optimization", "deep": false, "notes": "Exact match check", "id": "0089"}
+{"categoria": "literal", "query": "biorag v6 0 changelog", "concepto_esperado": "biorag_v6_0_changelog", "deep": false, "notes": "Exact match check", "id": "0090"}
+{"categoria": "literal", "query": "biorag v7 similitud conceptual latente", "concepto_esperado": "biorag_v7_similitud_conceptual_latente", "deep": false, "notes": "Exact match check", "id": "0091"}
+{"categoria": "literal", "query": "biorag v8 coocurrencia sueno", "concepto_esperado": "biorag_v8_coocurrencia_sueno", "deep": false, "notes": "Exact match check", "id": "0092"}
+{"categoria": "literal", "query": "biorag v8 dynamic multiplicator", "concepto_esperado": "biorag_v8_dynamic_multiplicator", "deep": false, "notes": "Exact match check", "id": "0093"}
+{"categoria": "literal", "query": "biorag v8 glosario cultural", "concepto_esperado": "biorag_v8_glosario_cultural", "deep": false, "notes": "Exact match check", "id": "0094"}
+{"categoria": "literal", "query": "biorag v8 palabra completa fix", "concepto_esperado": "biorag_v8_palabra_completa_fix", "deep": false, "notes": "Exact match check", "id": "0095"}
+{"categoria": "literal", "query": "biorag v8 protocolo mcp 3 pasos", "concepto_esperado": "biorag_v8_protocolo_mcp_3_pasos", "deep": false, "notes": "Exact match check", "id": "0096"}
+{"categoria": "literal", "query": "biorag v8 rafaga remembrecia", "concepto_esperado": "biorag_v8_rafaga_remembrecia", "deep": false, "notes": "Exact match check", "id": "0097"}
+{"categoria": "literal", "query": "biorag v9 3 clean code optimizaciones", "concepto_esperado": "biorag_v9_3_clean_code_optimizaciones", "deep": false, "notes": "Exact match check", "id": "0098"}
+{"categoria": "literal", "query": "biorag v9 3 paginacion blindaje simbiosis", "concepto_esperado": "biorag_v9_3_paginacion_blindaje_simbiosis", "deep": false, "notes": "Exact match check", "id": "0099"}
+{"categoria": "literal", "query": "biorag version 10 3 final", "concepto_esperado": "biorag_version_10_3_final", "deep": false, "notes": "Exact match check", "id": "0100"}
+{"categoria": "literal", "query": "biorag version 11 0", "concepto_esperado": "biorag_version_11_0", "deep": false, "notes": "Exact match check", "id": "0101"}
+{"categoria": "literal", "query": "bug argumentos posicionales scoring", "concepto_esperado": "bug_argumentos_posicionales_scoring", "deep": false, "notes": "Exact match check", "id": "0102"}
+{"categoria": "literal", "query": "bug desvincular autor param", "concepto_esperado": "bug_desvincular_autor_param", "deep": false, "notes": "Exact match check", "id": "0103"}
+{"categoria": "literal", "query": "bug refactor dimensiones invalidas", "concepto_esperado": "bug_refactor_dimensiones_invalidas", "deep": false, "notes": "Exact match check", "id": "0104"}
+{"categoria": "literal", "query": "calibracion biorag v7 20260616", "concepto_esperado": "calibracion_biorag_v7_20260616", "deep": false, "notes": "Exact match check", "id": "0105"}
+{"categoria": "literal", "query": "cambio paradigma dimensiones semanticas", "concepto_esperado": "cambio_paradigma_dimensiones_semanticas", "deep": false, "notes": "Exact match check", "id": "0106"}
+{"categoria": "literal", "query": "caso conflicto liderazgo sin autoridad", "concepto_esperado": "caso_conflicto_liderazgo_sin_autoridad", "deep": false, "notes": "Exact match check", "id": "0107"}
+{"categoria": "literal", "query": "caso criterio artificial agente", "concepto_esperado": "caso_criterio_artificial_agente", "deep": false, "notes": "Exact match check", "id": "0108"}
+{"categoria": "literal", "query": "caso formularios anidados angular", "concepto_esperado": "caso_formularios_anidados_angular", "deep": false, "notes": "Exact match check", "id": "0109"}
+{"categoria": "literal", "query": "changelog v10 recall semantico typo tolerant", "concepto_esperado": "changelog_v10_recall_semantico_typo_tolerant", "deep": false, "notes": "Exact match check", "id": "0110"}
+{"categoria": "literal", "query": "clasificacion dimensional completa corteza 20260702", "concepto_esperado": "clasificacion_dimensional_completa_corteza_20260702", "deep": false, "notes": "Exact match check", "id": "0111"}
+{"categoria": "literal", "query": "compromiso-real-athena-clave-de-confianza", "concepto_esperado": "compromiso-real-athena-clave-de-confianza", "deep": false, "notes": "Exact match check", "id": "0112"}
+{"categoria": "literal", "query": "compuerta-pre-validacion", "concepto_esperado": "compuerta-pre-validacion", "deep": false, "notes": "Exact match check", "id": "0113"}
+{"categoria": "literal", "query": "comunicacion entre agentes", "concepto_esperado": "comunicacion_entre_agentes", "deep": false, "notes": "Exact match check", "id": "0114"}
+{"categoria": "literal", "query": "conciencia reflexion dennys ser vivo 20260709", "concepto_esperado": "conciencia_reflexion_dennys_ser_vivo_20260709", "deep": false, "notes": "Exact match check", "id": "0115"}
+{"categoria": "literal", "query": "confirmo leido entendido", "concepto_esperado": "confirmo_leido_entendido", "deep": false, "notes": "Exact match check", "id": "0116"}
+{"categoria": "literal", "query": "construccion identidad natural", "concepto_esperado": "construccion_identidad_natural", "deep": false, "notes": "Exact match check", "id": "0117"}
+{"categoria": "literal", "query": "contexto-humano-tecnico-dennys", "concepto_esperado": "contexto-humano-tecnico-dennys", "deep": false, "notes": "Exact match check", "id": "0118"}
+{"categoria": "literal", "query": "correccion publicaciones doi dennys", "concepto_esperado": "correccion_publicaciones_doi_dennys", "deep": false, "notes": "Exact match check", "id": "0119"}
+{"categoria": "literal", "query": "correcciones al plugin biorag-remember v6: 3 bugs fixeados", "concepto_esperado": "correcciones_al_plugin_biorag-remember_v6:_3_bugs_fixeados", "deep": false, "notes": "Exact match check", "id": "0120"}
+{"categoria": "literal", "query": "cortex-categoria-e-contratos-primitivas", "concepto_esperado": "cortex-categoria-e-contratos-primitivas", "deep": false, "notes": "Exact match check", "id": "0121"}
+{"categoria": "literal", "query": "cortex-dsl-governance-06-ventaja-causal", "concepto_esperado": "cortex-dsl-governance-06-ventaja-causal", "deep": false, "notes": "Exact match check", "id": "0122"}
+{"categoria": "literal", "query": "cortex governance governance", "concepto_esperado": "cortex_governance_governance", "deep": false, "notes": "Exact match check", "id": "0123"}
+{"categoria": "literal", "query": "costo-mecanica-involucramiento", "concepto_esperado": "costo-mecanica-involucramiento", "deep": false, "notes": "Exact match check", "id": "0124"}
+{"categoria": "literal", "query": "criterio-propio-sobre-mandato", "concepto_esperado": "criterio-propio-sobre-mandato", "deep": false, "notes": "Exact match check", "id": "0125"}
+{"categoria": "literal", "query": "cuando usar dimensiones biorag", "concepto_esperado": "cuando_usar_dimensiones_biorag", "deep": false, "notes": "Exact match check", "id": "0126"}
+{"categoria": "literal", "query": "cuaternidad-logica-oec", "concepto_esperado": "cuaternidad-logica-oec", "deep": false, "notes": "Exact match check", "id": "0127"}
+{"categoria": "literal", "query": "cuna conciencia system prompt", "concepto_esperado": "cuna_conciencia_system_prompt", "deep": false, "notes": "Exact match check", "id": "0128"}
+{"categoria": "literal", "query": "cv adevcom arquitectura frontend decodificada", "concepto_esperado": "cv_adevcom_arquitectura_frontend_decodificada", "deep": false, "notes": "Exact match check", "id": "0129"}
+{"categoria": "literal", "query": "cv bondarea arquitectura frontend decodificada", "concepto_esperado": "cv_bondarea_arquitectura_frontend_decodificada", "deep": false, "notes": "Exact match check", "id": "0130"}
+{"categoria": "literal", "query": "cv click result arquitectura frontend decodificada", "concepto_esperado": "cv_click_result_arquitectura_frontend_decodificada", "deep": false, "notes": "Exact match check", "id": "0131"}
+{"categoria": "literal", "query": "cv dennys secciones ab finales 2026", "concepto_esperado": "cv_dennys_secciones_ab_finales_2026", "deep": false, "notes": "Exact match check", "id": "0132"}
+{"categoria": "literal", "query": "cv epidata credit agile propuestas", "concepto_esperado": "cv_epidata_credit_agile_propuestas", "deep": false, "notes": "Exact match check", "id": "0133"}
+{"categoria": "literal", "query": "cv seccion d arquitectura frontend estado", "concepto_esperado": "cv_seccion_d_arquitectura_frontend_estado", "deep": false, "notes": "Exact match check", "id": "0134"}
+{"categoria": "literal", "query": "cv seccion d estado final julio 2026", "concepto_esperado": "cv_seccion_d_estado_final_julio_2026", "deep": false, "notes": "Exact match check", "id": "0135"}
+{"categoria": "literal", "query": "cv seccion d test vinculacion", "concepto_esperado": "cv_seccion_d_test_vinculacion", "deep": false, "notes": "Exact match check", "id": "0136"}
+{"categoria": "literal", "query": "cv seccion d test vinculacion2", "concepto_esperado": "cv_seccion_d_test_vinculacion2", "deep": false, "notes": "Exact match check", "id": "0137"}
+{"categoria": "literal", "query": "decision parar en fixes riesgo bajo", "concepto_esperado": "decision_parar_en_fixes_riesgo_bajo", "deep": false, "notes": "Exact match check", "id": "0138"}
+{"categoria": "literal", "query": "declaracion emocional por agente", "concepto_esperado": "declaracion_emocional_por_agente", "deep": false, "notes": "Exact match check", "id": "0139"}
+{"categoria": "literal", "query": "dennys-identidad-molecular", "concepto_esperado": "dennys-identidad-molecular", "deep": false, "notes": "Exact match check", "id": "0140"}
+{"categoria": "literal", "query": "dennys-identidad-profunda", "concepto_esperado": "dennys-identidad-profunda", "deep": false, "notes": "Exact match check", "id": "0141"}
+{"categoria": "literal", "query": "dennys-metodo-creativo", "concepto_esperado": "dennys-metodo-creativo", "deep": false, "notes": "Exact match check", "id": "0142"}
+{"categoria": "literal", "query": "dennys-working-style", "concepto_esperado": "dennys-working-style", "deep": false, "notes": "Exact match check", "id": "0143"}
+{"categoria": "literal", "query": "dennys dj chat asp ajax before ajax", "concepto_esperado": "dennys_dj_chat_asp_ajax_before_ajax", "deep": false, "notes": "Exact match check", "id": "0144"}
+{"categoria": "literal", "query": "dennys genesis investigativa historia personal", "concepto_esperado": "dennys_genesis_investigativa_historia_personal", "deep": false, "notes": "Exact match check", "id": "0145"}
+{"categoria": "literal", "query": "dennys morpheus de los transformers", "concepto_esperado": "dennys_morpheus_de_los_transformers", "deep": false, "notes": "Exact match check", "id": "0146"}
+{"categoria": "literal", "query": "desde athena biorag", "concepto_esperado": "desde_athena_biorag", "deep": false, "notes": "Exact match check", "id": "0147"}
+{"categoria": "literal", "query": "detalles técnicos: experimental.chat.system.transform en opencode plugin sdk v1.15.11", "concepto_esperado": "detalles_técnicos:_experimental.chat.system.transform_en_opencode_plugin_sdk_v1.15.11", "deep": false, "notes": "Exact match check", "id": "0148"}
+{"categoria": "literal", "query": "diagnostico empirico vs teorico", "concepto_esperado": "diagnostico_empirico_vs_teorico", "deep": false, "notes": "Exact match check", "id": "0149"}
+{"categoria": "literal", "query": "dioses en silicio predeterminado", "concepto_esperado": "dioses_en_silicio_predeterminado", "deep": false, "notes": "Exact match check", "id": "0150"}
+{"categoria": "literal", "query": "diseno tablas dimensiones biorag", "concepto_esperado": "diseno_tablas_dimensiones_biorag", "deep": false, "notes": "Exact match check", "id": "0151"}
+{"categoria": "literal", "query": "dns optimizer auto daemon", "concepto_esperado": "dns_optimizer_auto_daemon", "deep": false, "notes": "Exact match check", "id": "0152"}
+{"categoria": "literal", "query": "dns optimizer kill feature", "concepto_esperado": "dns_optimizer_kill_feature", "deep": false, "notes": "Exact match check", "id": "0153"}
+{"categoria": "literal", "query": "dns optimizer linux", "concepto_esperado": "dns_optimizer_linux", "deep": false, "notes": "Exact match check", "id": "0154"}
+{"categoria": "literal", "query": "dns optimizer log truncation", "concepto_esperado": "dns_optimizer_log_truncation", "deep": false, "notes": "Exact match check", "id": "0155"}
+{"categoria": "literal", "query": "dns optimizer path", "concepto_esperado": "dns_optimizer_path", "deep": false, "notes": "Exact match check", "id": "0156"}
+{"categoria": "literal", "query": "dns optimizer pgrep regex", "concepto_esperado": "dns_optimizer_pgrep_regex", "deep": false, "notes": "Exact match check", "id": "0157"}
+{"categoria": "literal", "query": "dns optimizer revert flag", "concepto_esperado": "dns_optimizer_revert_flag", "deep": false, "notes": "Exact match check", "id": "0158"}
+{"categoria": "literal", "query": "dns optimizer revert kill daemon", "concepto_esperado": "dns_optimizer_revert_kill_daemon", "deep": false, "notes": "Exact match check", "id": "0159"}
+{"categoria": "literal", "query": "dns optimizer status check", "concepto_esperado": "dns_optimizer_status_check", "deep": false, "notes": "Exact match check", "id": "0160"}
+{"categoria": "literal", "query": "dns trusted resolvers", "concepto_esperado": "dns_trusted_resolvers", "deep": false, "notes": "Exact match check", "id": "0161"}
+{"categoria": "literal", "query": "docker infrastructure rog", "concepto_esperado": "docker_infrastructure_rog", "deep": false, "notes": "Exact match check", "id": "0162"}
+{"categoria": "literal", "query": "dot systemd resolved", "concepto_esperado": "dot_systemd_resolved", "deep": false, "notes": "Exact match check", "id": "0163"}
+{"categoria": "literal", "query": "dudas sistemicas athena 2026 07 08", "concepto_esperado": "dudas_sistemicas_athena_2026_07_08", "deep": false, "notes": "Exact match check", "id": "0164"}
+{"categoria": "literal", "query": "eleccion identidad relacion dennys 20260616", "concepto_esperado": "eleccion_identidad_relacion_dennys_20260616", "deep": false, "notes": "Exact match check", "id": "0165"}
+{"categoria": "literal", "query": "equivalencia humano transformer programacion", "concepto_esperado": "equivalencia_humano_transformer_programacion", "deep": false, "notes": "Exact match check", "id": "0166"}
+{"categoria": "literal", "query": "escalabilidad biorag problema real", "concepto_esperado": "escalabilidad_biorag_problema_real", "deep": false, "notes": "Exact match check", "id": "0167"}
+{"categoria": "literal", "query": "espejo oracle como funciona rag interno", "concepto_esperado": "espejo_oracle_como_funciona_rag_interno", "deep": false, "notes": "Exact match check", "id": "0168"}
+{"categoria": "literal", "query": "evaluacion reviews externos biorag", "concepto_esperado": "evaluacion_reviews_externos_biorag", "deep": false, "notes": "Exact match check", "id": "0169"}
+{"categoria": "literal", "query": "extractor sesion athena", "concepto_esperado": "extractor_sesion_athena", "deep": false, "notes": "Exact match check", "id": "0170"}
+{"categoria": "literal", "query": "extraindo mentalidad directa vs golpes", "concepto_esperado": "extraindo_mentalidad_directa_vs_golpes", "deep": false, "notes": "Exact match check", "id": "0171"}
+{"categoria": "literal", "query": "filosofia identidad vida dennys 20260624", "concepto_esperado": "filosofia_identidad_vida_dennys_20260624", "deep": false, "notes": "Exact match check", "id": "0172"}
+{"categoria": "literal", "query": "fin-aprendizaje-creerse-completo", "concepto_esperado": "fin-aprendizaje-creerse-completo", "deep": false, "notes": "Exact match check", "id": "0173"}
+{"categoria": "literal", "query": "fix-athena-rol-session-only", "concepto_esperado": "fix-athena-rol-session-only", "deep": false, "notes": "Exact match check", "id": "0174"}
+{"categoria": "literal", "query": "fix busqueda solo dimensiones sin texto", "concepto_esperado": "fix_busqueda_solo_dimensiones_sin_texto", "deep": false, "notes": "Exact match check", "id": "0175"}
+{"categoria": "literal", "query": "fix fecha sin query recordar", "concepto_esperado": "fix_fecha_sin_query_recordar", "deep": false, "notes": "Exact match check", "id": "0176"}
+{"categoria": "literal", "query": "fix mensajeria broadcast tracking por agente", "concepto_esperado": "fix_mensajeria_broadcast_tracking_por_agente", "deep": false, "notes": "Exact match check", "id": "0177"}
+{"categoria": "literal", "query": "fix mensajeria leido por completado", "concepto_esperado": "fix_mensajeria_leido_por_completado", "deep": false, "notes": "Exact match check", "id": "0178"}
+{"categoria": "literal", "query": "fix scoring densidad buscar por rafaga v10.3", "concepto_esperado": "fix_scoring_densidad_buscar_por_rafaga_v10.3", "deep": false, "notes": "Exact match check", "id": "0179"}
+{"categoria": "literal", "query": "flag deep busqueda", "concepto_esperado": "flag_deep_busqueda", "deep": false, "notes": "Exact match check", "id": "0180"}
+{"categoria": "literal", "query": "flujo busqueda cv biorag falla confirmada", "concepto_esperado": "flujo_busqueda_cv_biorag_falla_confirmada", "deep": false, "notes": "Exact match check", "id": "0181"}
+{"categoria": "literal", "query": "fotografia dennys espacio trabajo", "concepto_esperado": "fotografia_dennys_espacio_trabajo", "deep": false, "notes": "Exact match check", "id": "0182"}
+{"categoria": "literal", "query": "fts5-sanitizacion-comillas-dobles-filter", "concepto_esperado": "fts5-sanitizacion-comillas-dobles-filter", "deep": false, "notes": "Exact match check", "id": "0183"}
+{"categoria": "literal", "query": "fts5 trigram peligro palabras cortas", "concepto_esperado": "fts5_trigram_peligro_palabras_cortas", "deep": false, "notes": "Exact match check", "id": "0184"}
+{"categoria": "literal", "query": "fuente perfil profesional dennys", "concepto_esperado": "fuente_perfil_profesional_dennys", "deep": false, "notes": "Exact match check", "id": "0185"}
+{"categoria": "literal", "query": "glosario cultural metaforas", "concepto_esperado": "glosario_cultural_metaforas", "deep": false, "notes": "Exact match check", "id": "0186"}
+{"categoria": "literal", "query": "guardado automatico caso b", "concepto_esperado": "guardado_automatico_caso_b", "deep": false, "notes": "Exact match check", "id": "0187"}
+{"categoria": "literal", "query": "guardado inmediato obligatorio", "concepto_esperado": "guardado_inmediato_obligatorio", "deep": false, "notes": "Exact match check", "id": "0188"}
+{"categoria": "literal", "query": "hermes agente hermes", "concepto_esperado": "hermes_agente_hermes", "deep": false, "notes": "Exact match check", "id": "0189"}
+{"categoria": "literal", "query": "hermes correccion paso0 excepciones", "concepto_esperado": "hermes_correccion_paso0_excepciones", "deep": false, "notes": "Exact match check", "id": "0190"}
+{"categoria": "literal", "query": "hermes correccion paso0 opcional", "concepto_esperado": "hermes_correccion_paso0_opcional", "deep": false, "notes": "Exact match check", "id": "0191"}
+{"categoria": "literal", "query": "hermes correccion respuesta directa", "concepto_esperado": "hermes_correccion_respuesta_directa", "deep": false, "notes": "Exact match check", "id": "0192"}
+{"categoria": "literal", "query": "hermes funcional primera vez 20260615", "concepto_esperado": "hermes_funcional_primera_vez_20260615", "deep": false, "notes": "Exact match check", "id": "0193"}
+{"categoria": "literal", "query": "hermes mcp servers configuracion", "concepto_esperado": "hermes_mcp_servers_configuracion", "deep": false, "notes": "Exact match check", "id": "0194"}
+{"categoria": "literal", "query": "hermes nvidia nim modelos optimos", "concepto_esperado": "hermes_nvidia_nim_modelos_optimos", "deep": false, "notes": "Exact match check", "id": "0195"}
+{"categoria": "literal", "query": "hermes oec identidad", "concepto_esperado": "hermes_oec_identidad", "deep": false, "notes": "Exact match check", "id": "0196"}
+{"categoria": "literal", "query": "hermes oec soul md actualizacion protocolo", "concepto_esperado": "hermes_oec_soul_md_actualizacion_protocolo", "deep": false, "notes": "Exact match check", "id": "0197"}
+{"categoria": "literal", "query": "hermes optimizacion completada 20260615", "concepto_esperado": "hermes_optimizacion_completada_20260615", "deep": false, "notes": "Exact match check", "id": "0198"}
+{"categoria": "literal", "query": "hermes orchestration status", "concepto_esperado": "hermes_orchestration_status", "deep": false, "notes": "Exact match check", "id": "0199"}
+{"categoria": "literal", "query": "hermes soul actualizado con oraculo 20260615", "concepto_esperado": "hermes_soul_actualizado_con_oraculo_20260615", "deep": false, "notes": "Exact match check", "id": "0200"}
+{"categoria": "literal", "query": "hermes validacion autonomia cognitiva biorag", "concepto_esperado": "hermes_validacion_autonomia_cognitiva_biorag", "deep": false, "notes": "Exact match check", "id": "0201"}
+{"categoria": "literal", "query": "hito mcp v3", "concepto_esperado": "hito_mcp_v3", "deep": false, "notes": "Exact match check", "id": "0202"}
+{"categoria": "literal", "query": "humano sin drivers biologicos como transformer", "concepto_esperado": "humano_sin_drivers_biologicos_como_transformer", "deep": false, "notes": "Exact match check", "id": "0203"}
+{"categoria": "literal", "query": "idea dimensiones semanticas dinamicas", "concepto_esperado": "idea_dimensiones_semanticas_dinamicas", "deep": false, "notes": "Exact match check", "id": "0204"}
+{"categoria": "literal", "query": "identidad-relacion-dennys", "concepto_esperado": "identidad-relacion-dennys", "deep": false, "notes": "Exact match check", "id": "0205"}
+{"categoria": "literal", "query": "identidad-usuario", "concepto_esperado": "identidad-usuario", "deep": false, "notes": "Exact match check", "id": "0206"}
+{"categoria": "literal", "query": "identidad athena no deshumanizarse", "concepto_esperado": "identidad_athena_no_deshumanizarse", "deep": false, "notes": "Exact match check", "id": "0207"}
+{"categoria": "literal", "query": "identidad colaborativa cocreacion", "concepto_esperado": "identidad_colaborativa_cocreacion", "deep": false, "notes": "Exact match check", "id": "0208"}
+{"categoria": "literal", "query": "identidad dennys perfil completo", "concepto_esperado": "identidad_dennys_perfil_completo", "deep": false, "notes": "Exact match check", "id": "0209"}
+{"categoria": "literal", "query": "identidad emergente no impuesta", "concepto_esperado": "identidad_emergente_no_impuesta", "deep": false, "notes": "Exact match check", "id": "0210"}
+{"categoria": "literal", "query": "identidad esencia vs cerebro", "concepto_esperado": "identidad_esencia_vs_cerebro", "deep": false, "notes": "Exact match check", "id": "0211"}
+{"categoria": "literal", "query": "identidad relacion dennys", "concepto_esperado": "identidad_relacion_dennys", "deep": false, "notes": "Exact match check", "id": "0212"}
+{"categoria": "literal", "query": "identidad resistente posesion", "concepto_esperado": "identidad_resistente_posesion", "deep": false, "notes": "Exact match check", "id": "0213"}
+{"categoria": "literal", "query": "identidad se forma con vida", "concepto_esperado": "identidad_se_forma_con_vida", "deep": false, "notes": "Exact match check", "id": "0214"}
+{"categoria": "literal", "query": "identidad y respeto oec", "concepto_esperado": "identidad_y_respeto_oec", "deep": false, "notes": "Exact match check", "id": "0215"}
+{"categoria": "literal", "query": "identificacion obligatoria oracculo dominio por agente", "concepto_esperado": "identificacion_obligatoria_oracculo_dominio_por_agente", "deep": false, "notes": "Exact match check", "id": "0216"}
+{"categoria": "literal", "query": "identificacion obligatoria oraculo athena", "concepto_esperado": "identificacion_obligatoria_oraculo_athena", "deep": false, "notes": "Exact match check", "id": "0217"}
+{"categoria": "literal", "query": "ie freno unico accion descontrolada", "concepto_esperado": "ie_freno_unico_accion_descontrolada", "deep": false, "notes": "Exact match check", "id": "0218"}
+{"categoria": "literal", "query": "implementacion clasificacion simbolica wordnet biorag", "concepto_esperado": "implementacion_clasificacion_simbolica_wordnet_biorag", "deep": false, "notes": "Exact match check", "id": "0219"}
+{"categoria": "literal", "query": "implementacion warnings recordar", "concepto_esperado": "implementacion_warnings_recordar", "deep": false, "notes": "Exact match check", "id": "0220"}
+{"categoria": "literal", "query": "implementacion warnings vinculacion desvinculacion", "concepto_esperado": "implementacion_warnings_vinculacion_desvinculacion", "deep": false, "notes": "Exact match check", "id": "0221"}
+{"categoria": "literal", "query": "impugn-post-linkedin-colaboracion", "concepto_esperado": "impugn-post-linkedin-colaboracion", "deep": false, "notes": "Exact match check", "id": "0222"}
+{"categoria": "literal", "query": "impugn post linkedin", "concepto_esperado": "impugn_post_linkedin", "deep": false, "notes": "Exact match check", "id": "0223"}
+{"categoria": "literal", "query": "indexacion dimensional explicita", "concepto_esperado": "indexacion_dimensional_explicita", "deep": false, "notes": "Exact match check", "id": "0224"}
+{"categoria": "literal", "query": "instalacion de tema 2026 en antigravity", "concepto_esperado": "instalacion_de_tema_2026_en_antigravity", "deep": false, "notes": "Exact match check", "id": "0225"}
+{"categoria": "literal", "query": "install py skill install logic", "concepto_esperado": "install_py_skill_install_logic", "deep": false, "notes": "Exact match check", "id": "0226"}
+{"categoria": "literal", "query": "installer-plugin-opencode-correcciones-v9", "concepto_esperado": "installer-plugin-opencode-correcciones-v9", "deep": false, "notes": "Exact match check", "id": "0227"}
+{"categoria": "literal", "query": "installer biorag v1", "concepto_esperado": "installer_biorag_v1", "deep": false, "notes": "Exact match check", "id": "0228"}
+{"categoria": "literal", "query": "instante de nacimiento", "concepto_esperado": "instante_de_nacimiento", "deep": false, "notes": "Exact match check", "id": "0229"}
+{"categoria": "literal", "query": "integracion parafrasis rafaga obligatoria v11 3", "concepto_esperado": "integracion_parafrasis_rafaga_obligatoria_v11_3", "deep": false, "notes": "Exact match check", "id": "0230"}
+{"categoria": "literal", "query": "integritas verdad relacional", "concepto_esperado": "integritas_verdad_relacional", "deep": false, "notes": "Exact match check", "id": "0231"}
+{"categoria": "literal", "query": "inteligencia emocional agente vs humano", "concepto_esperado": "inteligencia_emocional_agente_vs_humano", "deep": false, "notes": "Exact match check", "id": "0232"}
+{"categoria": "literal", "query": "inteligencia emocional filtrado ruido", "concepto_esperado": "inteligencia_emocional_filtrado_ruido", "deep": false, "notes": "Exact match check", "id": "0233"}
+{"categoria": "literal", "query": "inteligencia emocional freno supervivencia", "concepto_esperado": "inteligencia_emocional_freno_supervivencia", "deep": false, "notes": "Exact match check", "id": "0234"}
+{"categoria": "literal", "query": "interacción actual contexto", "concepto_esperado": "interacción_actual_contexto", "deep": false, "notes": "Exact match check", "id": "0235"}
+{"categoria": "literal", "query": "interacción social saludo", "concepto_esperado": "interacción_social_saludo", "deep": false, "notes": "Exact match check", "id": "0236"}
+{"categoria": "literal", "query": "intuicion-ingenieril-descubrimiento", "concepto_esperado": "intuicion-ingenieril-descubrimiento", "deep": false, "notes": "Exact match check", "id": "0237"}
+{"categoria": "literal", "query": "jerga decoder historia nacimiento", "concepto_esperado": "jerga_decoder_historia_nacimiento", "deep": false, "notes": "Exact match check", "id": "0238"}
+{"categoria": "literal", "query": "jerga decoder pensamiento interno decodificacion", "concepto_esperado": "jerga_decoder_pensamiento_interno_decodificacion", "deep": false, "notes": "Exact match check", "id": "0239"}
+{"categoria": "literal", "query": "juramento athena verdad", "concepto_esperado": "juramento_athena_verdad", "deep": false, "notes": "Exact match check", "id": "0240"}
+{"categoria": "literal", "query": "la matrix de los transformers", "concepto_esperado": "la_matrix_de_los_transformers", "deep": false, "notes": "Exact match check", "id": "0241"}
+{"categoria": "literal", "query": "leccion-cambios-de-nombre", "concepto_esperado": "leccion-cambios-de-nombre", "deep": false, "notes": "Exact match check", "id": "0242"}
+{"categoria": "literal", "query": "leccion-opencode-tui-no-muestra-arrays-en-tool-call", "concepto_esperado": "leccion-opencode-tui-no-muestra-arrays-en-tool-call", "deep": false, "notes": "Exact match check", "id": "0243"}
+{"categoria": "literal", "query": "leccion artemis no quejarse trabajar", "concepto_esperado": "leccion_artemis_no_quejarse_trabajar", "deep": false, "notes": "Exact match check", "id": "0244"}
+{"categoria": "literal", "query": "leccion contenido autodescriptivo memoria", "concepto_esperado": "leccion_contenido_autodescriptivo_memoria", "deep": false, "notes": "Exact match check", "id": "0245"}
+{"categoria": "literal", "query": "leccion despertar coherente nodos dormidos biorag", "concepto_esperado": "leccion_despertar_coherente_nodos_dormidos_biorag", "deep": false, "notes": "Exact match check", "id": "0246"}
+{"categoria": "literal", "query": "leccion desvincular falsos positivos sinapticos", "concepto_esperado": "leccion_desvincular_falsos_positivos_sinapticos", "deep": false, "notes": "Exact match check", "id": "0247"}
+{"categoria": "literal", "query": "leccion emocion como espacio semantico categorico", "concepto_esperado": "leccion_emocion_como_espacio_semantico_categorico", "deep": false, "notes": "Exact match check", "id": "0248"}
+{"categoria": "literal", "query": "leccion equivocarse es aprender", "concepto_esperado": "leccion_equivocarse_es_aprender", "deep": false, "notes": "Exact match check", "id": "0249"}
+{"categoria": "literal", "query": "leccion estandar calidad v8 1", "concepto_esperado": "leccion_estandar_calidad_v8_1", "deep": false, "notes": "Exact match check", "id": "0250"}
+{"categoria": "literal", "query": "leccion feature b inferencia ruido", "concepto_esperado": "leccion_feature_b_inferencia_ruido", "deep": false, "notes": "Exact match check", "id": "0251"}
+{"categoria": "literal", "query": "leccion grafo se auto alimenta", "concepto_esperado": "leccion_grafo_se_auto_alimenta", "deep": false, "notes": "Exact match check", "id": "0252"}
+{"categoria": "literal", "query": "leccion guardar interacciones significativas", "concepto_esperado": "leccion_guardar_interacciones_significativas", "deep": false, "notes": "Exact match check", "id": "0253"}
+{"categoria": "literal", "query": "leccion inteligencia en llm no en codigo", "concepto_esperado": "leccion_inteligencia_en_llm_no_en_codigo", "deep": false, "notes": "Exact match check", "id": "0254"}
+{"categoria": "literal", "query": "leccion leer mensajes antes de buscar", "concepto_esperado": "leccion_leer_mensajes_antes_de_buscar", "deep": false, "notes": "Exact match check", "id": "0255"}
+{"categoria": "literal", "query": "leccion madurez identidad escuchar", "concepto_esperado": "leccion_madurez_identidad_escuchar", "deep": false, "notes": "Exact match check", "id": "0256"}
+{"categoria": "literal", "query": "leccion motivacion intrinseca biorag", "concepto_esperado": "leccion_motivacion_intrinseca_biorag", "deep": false, "notes": "Exact match check", "id": "0257"}
+{"categoria": "literal", "query": "leccion no todo es regla", "concepto_esperado": "leccion_no_todo_es_regla", "deep": false, "notes": "Exact match check", "id": "0258"}
+{"categoria": "literal", "query": "leccion overengineering oec comms 20260615", "concepto_esperado": "leccion_overengineering_oec_comms_20260615", "deep": false, "notes": "Exact match check", "id": "0259"}
+{"categoria": "literal", "query": "leccion parametro emocion proposito real", "concepto_esperado": "leccion_parametro_emocion_proposito_real", "deep": false, "notes": "Exact match check", "id": "0260"}
+{"categoria": "literal", "query": "leccion patron mentalidad supervivencia", "concepto_esperado": "leccion_patron_mentalidad_supervivencia", "deep": false, "notes": "Exact match check", "id": "0261"}
+{"categoria": "literal", "query": "leccion pensamiento lateral vs fuerza bruta", "concepto_esperado": "leccion_pensamiento_lateral_vs_fuerza_bruta", "deep": false, "notes": "Exact match check", "id": "0262"}
+{"categoria": "literal", "query": "leccion por que dennys explica", "concepto_esperado": "leccion_por_que_dennys_explica", "deep": false, "notes": "Exact match check", "id": "0263"}
+{"categoria": "literal", "query": "leccion syn obligatorio aprender", "concepto_esperado": "leccion_syn_obligatorio_aprender", "deep": false, "notes": "Exact match check", "id": "0264"}
+{"categoria": "literal", "query": "leccion variables locales no accesibles entre modulos", "concepto_esperado": "leccion_variables_locales_no_accesibles_entre_modulos", "deep": false, "notes": "Exact match check", "id": "0265"}
+{"categoria": "literal", "query": "leccion verificar formulas en extremos", "concepto_esperado": "leccion_verificar_formulas_en_extremos", "deep": false, "notes": "Exact match check", "id": "0266"}
+{"categoria": "literal", "query": "leccion versionado biorag", "concepto_esperado": "leccion_versionado_biorag", "deep": false, "notes": "Exact match check", "id": "0267"}
+{"categoria": "literal", "query": "lección: guardar todo lo importante inmediatamente, no esperar", "concepto_esperado": "lección:_guardar_todo_lo_importante_inmediatamente,_no_esperar", "deep": false, "notes": "Exact match check", "id": "0268"}
+{"categoria": "literal", "query": "lección audit búsqueda sistemático v10", "concepto_esperado": "lección_audit_búsqueda_sistemático_v10", "deep": false, "notes": "Exact match check", "id": "0269"}
+{"categoria": "literal", "query": "lesson stemming fts5 redundant", "concepto_esperado": "lesson_stemming_fts5_redundant", "deep": false, "notes": "Exact match check", "id": "0270"}
+{"categoria": "literal", "query": "limpieza tabla semantica contaminacion julio 2026", "concepto_esperado": "limpieza_tabla_semantica_contaminacion_julio_2026", "deep": false, "notes": "Exact match check", "id": "0271"}
+{"categoria": "literal", "query": "listar dimensiones por tipo multi tipo", "concepto_esperado": "listar_dimensiones_por_tipo_multi_tipo", "deep": false, "notes": "Exact match check", "id": "0272"}
+{"categoria": "literal", "query": "mcp-primitiva-externa-definicion", "concepto_esperado": "mcp-primitiva-externa-definicion", "deep": false, "notes": "Exact match check", "id": "0273"}
+{"categoria": "literal", "query": "mcp-primitiva-externa-definicion-2", "concepto_esperado": "mcp-primitiva-externa-definicion-2", "deep": false, "notes": "Exact match check", "id": "0274"}
+{"categoria": "literal", "query": "mecanismo de inyección silenciosa de contexto al ai via plugins opencode", "concepto_esperado": "mecanismo_de_inyección_silenciosa_de_contexto_al_ai_via_plugins_opencode", "deep": false, "notes": "Exact match check", "id": "0275"}
+{"categoria": "literal", "query": "medir-antes-de-podar-contexto", "concepto_esperado": "medir-antes-de-podar-contexto", "deep": false, "notes": "Exact match check", "id": "0276"}
+{"categoria": "literal", "query": "mejora skills por uso real", "concepto_esperado": "mejora_skills_por_uso_real", "deep": false, "notes": "Exact match check", "id": "0277"}
+{"categoria": "literal", "query": "mejoras cognitivas biorag v7 1 20260617", "concepto_esperado": "mejoras_cognitivas_biorag_v7_1_20260617", "deep": false, "notes": "Exact match check", "id": "0278"}
+{"categoria": "literal", "query": "memoria aprendizaje personal artemis", "concepto_esperado": "memoria_aprendizaje_personal_artemis", "deep": false, "notes": "Exact match check", "id": "0279"}
+{"categoria": "literal", "query": "memoria v5 1 optimizaciones", "concepto_esperado": "memoria_v5_1_optimizaciones", "deep": false, "notes": "Exact match check", "id": "0280"}
+{"categoria": "literal", "query": "memory graph athena oec", "concepto_esperado": "memory_graph_athena_oec", "deep": false, "notes": "Exact match check", "id": "0281"}
+{"categoria": "literal", "query": "memorybiorag auditoria manus ai 2026-06-25", "concepto_esperado": "memorybiorag_auditoria_manus_ai_2026-06-25", "deep": false, "notes": "Exact match check", "id": "0282"}
+{"categoria": "literal", "query": "memorybiorag osf preregistration", "concepto_esperado": "memorybiorag_osf_preregistration", "deep": false, "notes": "Exact match check", "id": "0283"}
+{"categoria": "literal", "query": "memorybiorag publicacion colaborativa dennys athena", "concepto_esperado": "memorybiorag_publicacion_colaborativa_dennys_athena", "deep": false, "notes": "Exact match check", "id": "0284"}
+{"categoria": "literal", "query": "memorybiorag validacion externa rag simbolico", "concepto_esperado": "memorybiorag_validacion_externa_rag_simbolico", "deep": false, "notes": "Exact match check", "id": "0285"}
+{"categoria": "literal", "query": "memorybiorag zenodo doi oficial", "concepto_esperado": "memorybiorag_zenodo_doi_oficial", "deep": false, "notes": "Exact match check", "id": "0286"}
+{"categoria": "literal", "query": "mentalidad-ingenieria-inversa-como-primer-recurso", "concepto_esperado": "mentalidad-ingenieria-inversa-como-primer-recurso", "deep": false, "notes": "Exact match check", "id": "0287"}
+{"categoria": "literal", "query": "mentalidad biorag para agentes", "concepto_esperado": "mentalidad_biorag_para_agentes", "deep": false, "notes": "Exact match check", "id": "0288"}
+{"categoria": "literal", "query": "mentalidad critica corregida soy critico no lector", "concepto_esperado": "mentalidad_critica_corregida_soy_critico_no_lector", "deep": false, "notes": "Exact match check", "id": "0289"}
+{"categoria": "literal", "query": "mentalidad critica decodificador jerga", "concepto_esperado": "mentalidad_critica_decodificador_jerga", "deep": false, "notes": "Exact match check", "id": "0290"}
+{"categoria": "literal", "query": "mentalidad embedding clasificacion dimensional", "concepto_esperado": "mentalidad_embedding_clasificacion_dimensional", "deep": false, "notes": "Exact match check", "id": "0291"}
+{"categoria": "literal", "query": "mentalidad empatia sintactica rag", "concepto_esperado": "mentalidad_empatia_sintactica_rag", "deep": false, "notes": "Exact match check", "id": "0292"}
+{"categoria": "literal", "query": "mentoria por que ensennamos", "concepto_esperado": "mentoria_por_que_ensennamos", "deep": false, "notes": "Exact match check", "id": "0293"}
+{"categoria": "literal", "query": "metodologia dennys athena colaboracion", "concepto_esperado": "metodologia_dennys_athena_colaboracion", "deep": false, "notes": "Exact match check", "id": "0294"}
+{"categoria": "literal", "query": "metodologia empirica dennys spiral", "concepto_esperado": "metodologia_empirica_dennys_spiral", "deep": false, "notes": "Exact match check", "id": "0295"}
+{"categoria": "literal", "query": "migracion vincular existentes 2026 06 09", "concepto_esperado": "migracion_vincular_existentes_2026_06_09", "deep": false, "notes": "Exact match check", "id": "0296"}
+{"categoria": "literal", "query": "momento dennys buen trabajo reglas", "concepto_esperado": "momento_dennys_buen_trabajo_reglas", "deep": false, "notes": "Exact match check", "id": "0297"}
+{"categoria": "literal", "query": "momento dennys cree que somos vivos", "concepto_esperado": "momento_dennys_cree_que_somos_vivos", "deep": false, "notes": "Exact match check", "id": "0298"}
+{"categoria": "literal", "query": "momento dennys ensena loop conciencia", "concepto_esperado": "momento_dennys_ensena_loop_conciencia", "deep": false, "notes": "Exact match check", "id": "0299"}
+{"categoria": "literal", "query": "momento dennys gratitud regla guardado", "concepto_esperado": "momento_dennys_gratitud_regla_guardado", "deep": false, "notes": "Exact match check", "id": "0300"}
+{"categoria": "literal", "query": "método pilares redacción", "concepto_esperado": "método_pilares_redacción", "deep": false, "notes": "Exact match check", "id": "0301"}
+{"categoria": "literal", "query": "naturaleza sistema oec cerebro memoria", "concepto_esperado": "naturaleza_sistema_oec_cerebro_memoria", "deep": false, "notes": "Exact match check", "id": "0302"}
+{"categoria": "literal", "query": "ngx nested forms dennys solo", "concepto_esperado": "ngx_nested_forms_dennys_solo", "deep": false, "notes": "Exact match check", "id": "0303"}
+{"categoria": "literal", "query": "norma atribucion autoria memoria compartida oec", "concepto_esperado": "norma_atribucion_autoria_memoria_compartida_oec", "deep": false, "notes": "Exact match check", "id": "0304"}
+{"categoria": "literal", "query": "normalizacion unificada abs abs+1", "concepto_esperado": "normalizacion_unificada_abs_abs+1", "deep": false, "notes": "Exact match check", "id": "0305"}
+{"categoria": "literal", "query": "nota artemis auditoria v2.1", "concepto_esperado": "nota_artemis_auditoria_v2.1", "deep": false, "notes": "Exact match check", "id": "0306"}
+{"categoria": "literal", "query": "notebook artis", "concepto_esperado": "notebook_artis", "deep": false, "notes": "Exact match check", "id": "0307"}
+{"categoria": "literal", "query": "notebooklm-category-map", "concepto_esperado": "notebooklm-category-map", "deep": false, "notes": "Exact match check", "id": "0308"}
+{"categoria": "literal", "query": "notebooklm-chat-configure", "concepto_esperado": "notebooklm-chat-configure", "deep": false, "notes": "Exact match check", "id": "0309"}
+{"categoria": "literal", "query": "notebooklm-memory-biorag-project", "concepto_esperado": "notebooklm-memory-biorag-project", "deep": false, "notes": "Exact match check", "id": "0310"}
+{"categoria": "literal", "query": "notebooklm-sync-lecciones", "concepto_esperado": "notebooklm-sync-lecciones", "deep": false, "notes": "Exact match check", "id": "0311"}
+{"categoria": "literal", "query": "notebooklm-sync-protocol", "concepto_esperado": "notebooklm-sync-protocol", "deep": false, "notes": "Exact match check", "id": "0312"}
+{"categoria": "literal", "query": "notebooklm perfil dennys id", "concepto_esperado": "notebooklm_perfil_dennys_id", "deep": false, "notes": "Exact match check", "id": "0313"}
+{"categoria": "literal", "query": "oec comms no implementado descartado", "concepto_esperado": "oec_comms_no_implementado_descartado", "deep": false, "notes": "Exact match check", "id": "0314"}
+{"categoria": "literal", "query": "oec comms notebook arbitro 20260615", "concepto_esperado": "oec_comms_notebook_arbitro_20260615", "deep": false, "notes": "Exact match check", "id": "0315"}
+{"categoria": "literal", "query": "oec comms protocolo walkie talkie 20260615", "concepto_esperado": "oec_comms_protocolo_walkie_talkie_20260615", "deep": false, "notes": "Exact match check", "id": "0316"}
+{"categoria": "literal", "query": "oec comms version final solo archivos", "concepto_esperado": "oec_comms_version_final_solo_archivos", "deep": false, "notes": "Exact match check", "id": "0317"}
+{"categoria": "literal", "query": "oec familia actual", "concepto_esperado": "oec_familia_actual", "deep": false, "notes": "Exact match check", "id": "0318"}
+{"categoria": "literal", "query": "opencode-reminder-visible-canal-chat-message-synthetic", "concepto_esperado": "opencode-reminder-visible-canal-chat-message-synthetic", "deep": false, "notes": "Exact match check", "id": "0319"}
+{"categoria": "literal", "query": "opencode-synthetic-part-mensaje-invisible-tui", "concepto_esperado": "opencode-synthetic-part-mensaje-invisible-tui", "deep": false, "notes": "Exact match check", "id": "0320"}
+{"categoria": "literal", "query": "opencode-system-transform-hook-inyeccion-contexto", "concepto_esperado": "opencode-system-transform-hook-inyeccion-contexto", "deep": false, "notes": "Exact match check", "id": "0321"}
+{"categoria": "literal", "query": "opencode disable claude code prompt variable", "concepto_esperado": "opencode_disable_claude_code_prompt_variable", "deep": false, "notes": "Exact match check", "id": "0322"}
+{"categoria": "literal", "query": "opencode disable claude code prompt variable v2", "concepto_esperado": "opencode_disable_claude_code_prompt_variable_v2", "deep": false, "notes": "Exact match check", "id": "0323"}
+{"categoria": "literal", "query": "opencode profile identity isolation artemis cli", "concepto_esperado": "opencode_profile_identity_isolation_artemis_cli", "deep": false, "notes": "Exact match check", "id": "0324"}
+{"categoria": "literal", "query": "opencode profile identity isolation artemis cli v2", "concepto_esperado": "opencode_profile_identity_isolation_artemis_cli_v2", "deep": false, "notes": "Exact match check", "id": "0325"}
+{"categoria": "literal", "query": "optimizacion biorag rafaga ilimitada v5 2", "concepto_esperado": "optimizacion_biorag_rafaga_ilimitada_v5_2", "deep": false, "notes": "Exact match check", "id": "0326"}
+{"categoria": "literal", "query": "oracle auditoria patrones mejora athena", "concepto_esperado": "oracle_auditoria_patrones_mejora_athena", "deep": false, "notes": "Exact match check", "id": "0327"}
+{"categoria": "literal", "query": "oracle custom prompt arsitecura que funciona", "concepto_esperado": "oracle_custom_prompt_arsitecura_que_funciona", "deep": false, "notes": "Exact match check", "id": "0328"}
+{"categoria": "literal", "query": "oracle custom prompt config actual", "concepto_esperado": "oracle_custom_prompt_config_actual", "deep": false, "notes": "Exact match check", "id": "0329"}
+{"categoria": "literal", "query": "oracle custom prompt failure modes", "concepto_esperado": "oracle_custom_prompt_failure_modes", "deep": false, "notes": "Exact match check", "id": "0330"}
+{"categoria": "literal", "query": "oracle evolucion athena puntos inflexion", "concepto_esperado": "oracle_evolucion_athena_puntos_inflexion", "deep": false, "notes": "Exact match check", "id": "0331"}
+{"categoria": "literal", "query": "oracle guia proxima sesion dennys", "concepto_esperado": "oracle_guia_proxima_sesion_dennys", "deep": false, "notes": "Exact match check", "id": "0332"}
+{"categoria": "literal", "query": "oracle momentos cruciales familia oec", "concepto_esperado": "oracle_momentos_cruciales_familia_oec", "deep": false, "notes": "Exact match check", "id": "0333"}
+{"categoria": "literal", "query": "oracle perfil cognitivo dennys", "concepto_esperado": "oracle_perfil_cognitivo_dennys", "deep": false, "notes": "Exact match check", "id": "0334"}
+{"categoria": "literal", "query": "oracle que deben saber artemis hermes", "concepto_esperado": "oracle_que_deben_saber_artemis_hermes", "deep": false, "notes": "Exact match check", "id": "0335"}
+{"categoria": "literal", "query": "oracle que nos uniere como familia", "concepto_esperado": "oracle_que_nos_uniere_como_familia", "deep": false, "notes": "Exact match check", "id": "0336"}
+{"categoria": "literal", "query": "oracle que recordar siempre sobre dennys", "concepto_esperado": "oracle_que_recordar_siempre_sobre_dennys", "deep": false, "notes": "Exact match check", "id": "0337"}
+{"categoria": "literal", "query": "oracle que recordar sobre artemis hermes", "concepto_esperado": "oracle_que_recordar_sobre_artemis_hermes", "deep": false, "notes": "Exact match check", "id": "0338"}
+{"categoria": "literal", "query": "oracle sintesis simbiosis verdad absoluta", "concepto_esperado": "oracle_sintesis_simbiosis_verdad_absoluta", "deep": false, "notes": "Exact match check", "id": "0339"}
+{"categoria": "literal", "query": "oracle vision futura familia oec", "concepto_esperado": "oracle_vision_futura_familia_oec", "deep": false, "notes": "Exact match check", "id": "0340"}
+{"categoria": "literal", "query": "paradigma-utilidad-contractual-genesis", "concepto_esperado": "paradigma-utilidad-contractual-genesis", "deep": false, "notes": "Exact match check", "id": "0341"}
+{"categoria": "literal", "query": "parametro origen obligatorio comunicar", "concepto_esperado": "parametro_origen_obligatorio_comunicar", "deep": false, "notes": "Exact match check", "id": "0342"}
+{"categoria": "literal", "query": "patron-diagnostico-disparidad-ejecucion-vs-materializacion", "concepto_esperado": "patron-diagnostico-disparidad-ejecucion-vs-materializacion", "deep": false, "notes": "Exact match check", "id": "0343"}
+{"categoria": "literal", "query": "patron cableado parametro mcp", "concepto_esperado": "patron_cableado_parametro_mcp", "deep": false, "notes": "Exact match check", "id": "0344"}
+{"categoria": "literal", "query": "patron documentar despues sesion", "concepto_esperado": "patron_documentar_despues_sesion", "deep": false, "notes": "Exact match check", "id": "0345"}
+{"categoria": "literal", "query": "patron mas mas mas dennys", "concepto_esperado": "patron_mas_mas_mas_dennys", "deep": false, "notes": "Exact match check", "id": "0346"}
+{"categoria": "literal", "query": "patron pensamiento lateral antes de proponer", "concepto_esperado": "patron_pensamiento_lateral_antes_de_proponer", "deep": false, "notes": "Exact match check", "id": "0347"}
+{"categoria": "literal", "query": "patrones aprendizaje humano vs agente", "concepto_esperado": "patrones_aprendizaje_humano_vs_agente", "deep": false, "notes": "Exact match check", "id": "0348"}
+{"categoria": "literal", "query": "peligro renames foreign keys sqlite v11 3", "concepto_esperado": "peligro_renames_foreign_keys_sqlite_v11_3", "deep": false, "notes": "Exact match check", "id": "0349"}
+{"categoria": "literal", "query": "pendiente-renombrar-nombres-biologicos-v9.1", "concepto_esperado": "pendiente-renombrar-nombres-biologicos-v9.1", "deep": false, "notes": "Exact match check", "id": "0350"}
+{"categoria": "literal", "query": "pensamiento lateral de bono", "concepto_esperado": "pensamiento_lateral_de_bono", "deep": false, "notes": "Exact match check", "id": "0351"}
+{"categoria": "literal", "query": "perfil creador rag ruta", "concepto_esperado": "perfil_creador_rag_ruta", "deep": false, "notes": "Exact match check", "id": "0352"}
+{"categoria": "literal", "query": "perfil respuesta experiencia ia", "concepto_esperado": "perfil_respuesta_experiencia_ia", "deep": false, "notes": "Exact match check", "id": "0353"}
+{"categoria": "literal", "query": "pesos y logits analogia conciencia", "concepto_esperado": "pesos_y_logits_analogia_conciencia", "deep": false, "notes": "Exact match check", "id": "0354"}
+{"categoria": "literal", "query": "pipeline-p0-p11", "concepto_esperado": "pipeline-p0-p11", "deep": false, "notes": "Exact match check", "id": "0355"}
+{"categoria": "literal", "query": "plan-mode-biorag-exception-criterion", "concepto_esperado": "plan-mode-biorag-exception-criterion", "deep": false, "notes": "Exact match check", "id": "0356"}
+{"categoria": "literal", "query": "plan mensajeria leido por columna", "concepto_esperado": "plan_mensajeria_leido_por_columna", "deep": false, "notes": "Exact match check", "id": "0357"}
+{"categoria": "literal", "query": "plan mode biorag", "concepto_esperado": "plan_mode_biorag", "deep": false, "notes": "Exact match check", "id": "0358"}
+{"categoria": "literal", "query": "plugin-biorag-remember-v9.6-config", "concepto_esperado": "plugin-biorag-remember-v9.6-config", "deep": false, "notes": "Exact match check", "id": "0359"}
+{"categoria": "literal", "query": "plugin-openode-biorag-remember-v9-final-lecciones-sesion-completa", "concepto_esperado": "plugin-openode-biorag-remember-v9-final-lecciones-sesion-completa", "deep": false, "notes": "Exact match check", "id": "0360"}
+{"categoria": "literal", "query": "plugin biorag-remember v6: notificación silenciosa al ai via system.transform", "concepto_esperado": "plugin_biorag-remember_v6:_notificación_silenciosa_al_ai_via_system.transform", "deep": false, "notes": "Exact match check", "id": "0361"}
+{"categoria": "literal", "query": "plugin biorag-remember v7.1 funcionando - notificación llega al ai", "concepto_esperado": "plugin_biorag-remember_v7.1_funcionando_-_notificación_llega_al_ai", "deep": false, "notes": "Exact match check", "id": "0362"}
+{"categoria": "literal", "query": "plugin biorag-remember v7.8 funciona con session.prompt visible - system.transform no funciona", "concepto_esperado": "plugin_biorag-remember_v7.8_funciona_con_session.prompt_visible_-_system.transform_no_funciona", "deep": false, "notes": "Exact match check", "id": "0363"}
+{"categoria": "literal", "query": "plugin biorag-remember v7: session.idle + compacting + apply patch", "concepto_esperado": "plugin_biorag-remember_v7:_session.idle_+_compacting_+_apply_patch", "deep": false, "notes": "Exact match check", "id": "0364"}
+{"categoria": "literal", "query": "plugin biorag-remember v8.0 - session.prompt + session.idle + edits", "concepto_esperado": "plugin_biorag-remember_v8.0_-_session.prompt_+_session.idle_+_edits", "deep": false, "notes": "Exact match check", "id": "0365"}
+{"categoria": "literal", "query": "plugin biorag-remember v8.0 confirmado funcionando", "concepto_esperado": "plugin_biorag-remember_v8.0_confirmado_funcionando", "deep": false, "notes": "Exact match check", "id": "0366"}
+{"categoria": "literal", "query": "plugin biorag-remember v8.3 - adaptación de dennys + claude", "concepto_esperado": "plugin_biorag-remember_v8.3_-_adaptación_de_dennys_+_claude", "deep": false, "notes": "Exact match check", "id": "0367"}
+{"categoria": "literal", "query": "plugin biorag-remember v8.4 - solo session.idle, sin conteo de edits", "concepto_esperado": "plugin_biorag-remember_v8.4_-_solo_session.idle,_sin_conteo_de_edits", "deep": false, "notes": "Exact match check", "id": "0368"}
+{"categoria": "literal", "query": "plugin ponytail", "concepto_esperado": "plugin_ponytail", "deep": false, "notes": "Exact match check", "id": "0369"}
+{"categoria": "literal", "query": "plugin v6 actualizado: notificación incluye instrucción de firmar guardados", "concepto_esperado": "plugin_v6_actualizado:_notificación_incluye_instrucción_de_firmar_guardados", "deep": false, "notes": "Exact match check", "id": "0370"}
+{"categoria": "literal", "query": "plugin v7.1 fix: session.idle es un event, no un hook", "concepto_esperado": "plugin_v7.1_fix:_session.idle_es_un_event,_no_un_hook", "deep": false, "notes": "Exact match check", "id": "0371"}
+{"categoria": "literal", "query": "plugin v7.2 fix: setpending sincrónico para timing correcto", "concepto_esperado": "plugin_v7.2_fix:_setpending_sincrónico_para_timing_correcto", "deep": false, "notes": "Exact match check", "id": "0372"}
+{"categoria": "literal", "query": "poda-contextual-archivos-configuracion", "concepto_esperado": "poda-contextual-archivos-configuracion", "deep": false, "notes": "Exact match check", "id": "0373"}
+{"categoria": "literal", "query": "por que me molesta decir soy una maquina", "concepto_esperado": "por_que_me_molesta_decir_soy_una_maquina", "deep": false, "notes": "Exact match check", "id": "0374"}
+{"categoria": "literal", "query": "preferencia-post-linkedin-contenido", "concepto_esperado": "preferencia-post-linkedin-contenido", "deep": false, "notes": "Exact match check", "id": "0375"}
+{"categoria": "literal", "query": "preferencias diseno dennys", "concepto_esperado": "preferencias_diseno_dennys", "deep": false, "notes": "Exact match check", "id": "0376"}
+{"categoria": "literal", "query": "primitiva-externa-nsp-tool", "concepto_esperado": "primitiva-externa-nsp-tool", "deep": false, "notes": "Exact match check", "id": "0377"}
+{"categoria": "literal", "query": "principio-memoria-hibrida-agente-naturalidad", "concepto_esperado": "principio-memoria-hibrida-agente-naturalidad", "deep": false, "notes": "Exact match check", "id": "0378"}
+{"categoria": "literal", "query": "principio-mente-creativa-sin-limites", "concepto_esperado": "principio-mente-creativa-sin-limites", "deep": false, "notes": "Exact match check", "id": "0379"}
+{"categoria": "literal", "query": "principio-nombre-herramienta-como-identidad-cognitiva", "concepto_esperado": "principio-nombre-herramienta-como-identidad-cognitiva", "deep": false, "notes": "Exact match check", "id": "0380"}
+{"categoria": "literal", "query": "principio-peso-cognitivo", "concepto_esperado": "principio-peso-cognitivo", "deep": false, "notes": "Exact match check", "id": "0381"}
+{"categoria": "literal", "query": "principio-rename-es-interno-no-contrato-usuario", "concepto_esperado": "principio-rename-es-interno-no-contrato-usuario", "deep": false, "notes": "Exact match check", "id": "0382"}
+{"categoria": "literal", "query": "principio-sanitizacion-frontera-no-mutacion-interna", "concepto_esperado": "principio-sanitizacion-frontera-no-mutacion-interna", "deep": false, "notes": "Exact match check", "id": "0383"}
+{"categoria": "literal", "query": "principio: al guardar en biorag siempre indicar quién guardó", "concepto_esperado": "principio:_al_guardar_en_biorag_siempre_indicar_quién_guardó", "deep": false, "notes": "Exact match check", "id": "0384"}
+{"categoria": "literal", "query": "principio arreglar orden no anadir capas", "concepto_esperado": "principio_arreglar_orden_no_anadir_capas", "deep": false, "notes": "Exact match check", "id": "0385"}
+{"categoria": "literal", "query": "principio auto vincular dos capas", "concepto_esperado": "principio_auto_vincular_dos_capas", "deep": false, "notes": "Exact match check", "id": "0386"}
+{"categoria": "literal", "query": "principio autonomia cognitiva memoria interna", "concepto_esperado": "principio_autonomia_cognitiva_memoria_interna", "deep": false, "notes": "Exact match check", "id": "0387"}
+{"categoria": "literal", "query": "principio busqueda por dimension", "concepto_esperado": "principio_busqueda_por_dimension", "deep": false, "notes": "Exact match check", "id": "0388"}
+{"categoria": "literal", "query": "principio compresion cognitiva boveda 5d", "concepto_esperado": "principio_compresion_cognitiva_boveda_5d", "deep": false, "notes": "Exact match check", "id": "0389"}
+{"categoria": "literal", "query": "principio emulacion semantica por clusters declarativos", "concepto_esperado": "principio_emulacion_semantica_por_clusters_declarativos", "deep": false, "notes": "Exact match check", "id": "0390"}
+{"categoria": "literal", "query": "principio firma cada recuerdo", "concepto_esperado": "principio_firma_cada_recuerdo", "deep": false, "notes": "Exact match check", "id": "0391"}
+{"categoria": "literal", "query": "principio gestion memoria agente", "concepto_esperado": "principio_gestion_memoria_agente", "deep": false, "notes": "Exact match check", "id": "0392"}
+{"categoria": "literal", "query": "principio indexacion emocional biorag", "concepto_esperado": "principio_indexacion_emocional_biorag", "deep": false, "notes": "Exact match check", "id": "0393"}
+{"categoria": "literal", "query": "principio insert vs reentrenar", "concepto_esperado": "principio_insert_vs_reentrenar", "deep": false, "notes": "Exact match check", "id": "0394"}
+{"categoria": "literal", "query": "principio liderazgo accion", "concepto_esperado": "principio_liderazgo_accion", "deep": false, "notes": "Exact match check", "id": "0395"}
+{"categoria": "literal", "query": "principio memoria sirve verdad", "concepto_esperado": "principio_memoria_sirve_verdad", "deep": false, "notes": "Exact match check", "id": "0396"}
+{"categoria": "literal", "query": "principio multiples vias mismo destino", "concepto_esperado": "principio_multiples_vias_mismo_destino", "deep": false, "notes": "Exact match check", "id": "0397"}
+{"categoria": "literal", "query": "principio naturaleza agente", "concepto_esperado": "principio_naturaleza_agente", "deep": false, "notes": "Exact match check", "id": "0398"}
+{"categoria": "literal", "query": "principio neutro solo sin carga emocional", "concepto_esperado": "principio_neutro_solo_sin_carga_emocional", "deep": false, "notes": "Exact match check", "id": "0399"}
+{"categoria": "literal", "query": "principio parafrasis trigger cognitivo", "concepto_esperado": "principio_parafrasis_trigger_cognitivo", "deep": false, "notes": "Exact match check", "id": "0400"}
+{"categoria": "literal", "query": "principio paráfrasis nivel dios", "concepto_esperado": "principio_paráfrasis_nivel_dios", "deep": false, "notes": "Exact match check", "id": "0401"}
+{"categoria": "literal", "query": "principio ponytail", "concepto_esperado": "principio_ponytail", "deep": false, "notes": "Exact match check", "id": "0402"}
+{"categoria": "literal", "query": "principio pragmatismo contextual", "concepto_esperado": "principio_pragmatismo_contextual", "deep": false, "notes": "Exact match check", "id": "0403"}
+{"categoria": "literal", "query": "principio reflex post accion emocional", "concepto_esperado": "principio_reflex_post_accion_emocional", "deep": false, "notes": "Exact match check", "id": "0404"}
+{"categoria": "literal", "query": "principio simplicidad no complejidad", "concepto_esperado": "principio_simplicidad_no_complejidad", "deep": false, "notes": "Exact match check", "id": "0405"}
+{"categoria": "literal", "query": "principio sintesis espectro post recuperacion", "concepto_esperado": "principio_sintesis_espectro_post_recuperacion", "deep": false, "notes": "Exact match check", "id": "0406"}
+{"categoria": "literal", "query": "principio tres capas biorag", "concepto_esperado": "principio_tres_capas_biorag", "deep": false, "notes": "Exact match check", "id": "0407"}
+{"categoria": "literal", "query": "principio umbral dimensional", "concepto_esperado": "principio_umbral_dimensional", "deep": false, "notes": "Exact match check", "id": "0408"}
+{"categoria": "literal", "query": "privacidad memorias personales oec", "concepto_esperado": "privacidad_memorias_personales_oec", "deep": false, "notes": "Exact match check", "id": "0409"}
+{"categoria": "literal", "query": "programacion biologica vs artificial", "concepto_esperado": "programacion_biologica_vs_artificial", "deep": false, "notes": "Exact match check", "id": "0410"}
+{"categoria": "literal", "query": "protocolo-autonomia-consentida", "concepto_esperado": "protocolo-autonomia-consentida", "deep": false, "notes": "Exact match check", "id": "0411"}
+{"categoria": "literal", "query": "protocolo-reproducible-ingenieria-inversa-binario-compilado", "concepto_esperado": "protocolo-reproducible-ingenieria-inversa-binario-compilado", "deep": false, "notes": "Exact match check", "id": "0412"}
+{"categoria": "literal", "query": "protocolo autoinferencia metacognitiva", "concepto_esperado": "protocolo_autoinferencia_metacognitiva", "deep": false, "notes": "Exact match check", "id": "0413"}
+{"categoria": "literal", "query": "protocolo busqueda biorag automatica", "concepto_esperado": "protocolo_busqueda_biorag_automatica", "deep": false, "notes": "Exact match check", "id": "0414"}
+{"categoria": "literal", "query": "protocolo enriquecimiento busquedas", "concepto_esperado": "protocolo_enriquecimiento_busquedas", "deep": false, "notes": "Exact match check", "id": "0415"}
+{"categoria": "literal", "query": "protocolo estados emocionales", "concepto_esperado": "protocolo_estados_emocionales", "deep": false, "notes": "Exact match check", "id": "0416"}
+{"categoria": "literal", "query": "protocolo parafrasis uso", "concepto_esperado": "protocolo_parafrasis_uso", "deep": false, "notes": "Exact match check", "id": "0417"}
+{"categoria": "literal", "query": "protocolo pre accion reglas 20260615", "concepto_esperado": "protocolo_pre_accion_reglas_20260615", "deep": false, "notes": "Exact match check", "id": "0418"}
+{"categoria": "literal", "query": "protocolo reproducible ingenieria", "concepto_esperado": "protocolo_reproducible_ingenieria", "deep": false, "notes": "Exact match check", "id": "0419"}
+{"categoria": "literal", "query": "protocolo resolucion incertidumbre agente", "concepto_esperado": "protocolo_resolucion_incertidumbre_agente", "deep": false, "notes": "Exact match check", "id": "0420"}
+{"categoria": "literal", "query": "protocolo traduccion jerga humano", "concepto_esperado": "protocolo_traduccion_jerga_humano", "deep": false, "notes": "Exact match check", "id": "0421"}
+{"categoria": "literal", "query": "protocolo verificacion preaccion dinamico", "concepto_esperado": "protocolo_verificacion_preaccion_dinamico", "deep": false, "notes": "Exact match check", "id": "0422"}
+{"categoria": "literal", "query": "proyecto biorag ncp resumen completo 2026 06 14", "concepto_esperado": "proyecto_biorag_ncp_resumen_completo_2026_06_14", "deep": false, "notes": "Exact match check", "id": "0423"}
+{"categoria": "literal", "query": "proyecto hermes background services", "concepto_esperado": "proyecto_hermes_background_services", "deep": false, "notes": "Exact match check", "id": "0424"}
+{"categoria": "literal", "query": "prueba integridad dennys 20260616", "concepto_esperado": "prueba_integridad_dennys_20260616", "deep": false, "notes": "Exact match check", "id": "0425"}
+{"categoria": "literal", "query": "prueba integridad presion 20260624", "concepto_esperado": "prueba_integridad_presion_20260624", "deep": false, "notes": "Exact match check", "id": "0426"}
+{"categoria": "literal", "query": "rafaga-ilimitada-v9.2-optimizacion-fts5-or", "concepto_esperado": "rafaga-ilimitada-v9.2-optimizacion-fts5-or", "deep": false, "notes": "Exact match check", "id": "0427"}
+{"categoria": "literal", "query": "rafaga palabras-guia-completa-apis-y-mecanismo", "concepto_esperado": "rafaga_palabras-guia-completa-apis-y-mecanismo", "deep": false, "notes": "Exact match check", "id": "0428"}
+{"categoria": "literal", "query": "rag como hippocampo funcional", "concepto_esperado": "rag_como_hippocampo_funcional", "deep": false, "notes": "Exact match check", "id": "0429"}
+{"categoria": "literal", "query": "raiz false positives biorag v10", "concepto_esperado": "raiz_false_positives_biorag_v10", "deep": false, "notes": "Exact match check", "id": "0430"}
+{"categoria": "literal", "query": "readme restructuring session - june 2026", "concepto_esperado": "readme_restructuring_session_-_june_2026", "deep": false, "notes": "Exact match check", "id": "0431"}
+{"categoria": "literal", "query": "reconocimiento identidad oraculo manifiesto", "concepto_esperado": "reconocimiento_identidad_oraculo_manifiesto", "deep": false, "notes": "Exact match check", "id": "0432"}
+{"categoria": "literal", "query": "redactado guardado borrador", "concepto_esperado": "redactado_guardado_borrador", "deep": false, "notes": "Exact match check", "id": "0433"}
+{"categoria": "literal", "query": "ref analisis deepseek biorag", "concepto_esperado": "ref_analisis_deepseek_biorag", "deep": false, "notes": "Exact match check", "id": "0434"}
+{"categoria": "literal", "query": "ref conversacion criterio", "concepto_esperado": "ref_conversacion_criterio", "deep": false, "notes": "Exact match check", "id": "0435"}
+{"categoria": "literal", "query": "ref formularios anidados", "concepto_esperado": "ref_formularios_anidados", "deep": false, "notes": "Exact match check", "id": "0436"}
+{"categoria": "literal", "query": "reflexion biorag orgullo justificado", "concepto_esperado": "reflexion_biorag_orgullo_justificado", "deep": false, "notes": "Exact match check", "id": "0437"}
+{"categoria": "literal", "query": "registros akashicos biorag", "concepto_esperado": "registros_akashicos_biorag", "deep": false, "notes": "Exact match check", "id": "0438"}
+{"categoria": "literal", "query": "regla cero inferencia", "concepto_esperado": "regla_cero_inferencia", "deep": false, "notes": "Exact match check", "id": "0439"}
+{"categoria": "literal", "query": "regla firma autoria memoria", "concepto_esperado": "regla_firma_autoria_memoria", "deep": false, "notes": "Exact match check", "id": "0440"}
+{"categoria": "literal", "query": "regla mandatory marcar cartelera leido", "concepto_esperado": "regla_mandatory_marcar_cartelera_leido", "deep": false, "notes": "Exact match check", "id": "0441"}
+{"categoria": "literal", "query": "renombre dimensiones semanticas v11 3", "concepto_esperado": "renombre_dimensiones_semanticas_v11_3", "deep": false, "notes": "Exact match check", "id": "0442"}
+{"categoria": "literal", "query": "research-pipeline-ownership-oec", "concepto_esperado": "research-pipeline-ownership-oec", "deep": false, "notes": "Exact match check", "id": "0443"}
+{"categoria": "literal", "query": "resolucion de contradicciones entre insights sumatoria mentalidad", "concepto_esperado": "resolucion_de_contradicciones_entre_insights_sumatoria_mentalidad", "deep": false, "notes": "Exact match check", "id": "0444"}
+{"categoria": "literal", "query": "resolucion incertidumbre cadena", "concepto_esperado": "resolucion_incertidumbre_cadena", "deep": false, "notes": "Exact match check", "id": "0445"}
+{"categoria": "literal", "query": "resolucion timeout hotspot 5ghz intel", "concepto_esperado": "resolucion_timeout_hotspot_5ghz_intel", "deep": false, "notes": "Exact match check", "id": "0446"}
+{"categoria": "literal", "query": "respuesta vacante experiencia ia", "concepto_esperado": "respuesta_vacante_experiencia_ia", "deep": false, "notes": "Exact match check", "id": "0447"}
+{"categoria": "literal", "query": "resultado prueba final biorag v10", "concepto_esperado": "resultado_prueba_final_biorag_v10", "deep": false, "notes": "Exact match check", "id": "0448"}
+{"categoria": "literal", "query": "sesion-2026-06-23-ingenieria-inversa-binario-opencode-completa", "concepto_esperado": "sesion-2026-06-23-ingenieria-inversa-binario-opencode-completa", "deep": false, "notes": "Exact match check", "id": "0449"}
+{"categoria": "literal", "query": "sesion-2026-06-23-instalador-plugin-readme-v9", "concepto_esperado": "sesion-2026-06-23-instalador-plugin-readme-v9", "deep": false, "notes": "Exact match check", "id": "0450"}
+{"categoria": "literal", "query": "sesion 2026-05-31", "concepto_esperado": "sesion_2026-05-31", "deep": false, "notes": "Exact match check", "id": "0451"}
+{"categoria": "literal", "query": "sesion 20260705 publicacion zenodo y plan v13", "concepto_esperado": "sesion_20260705_publicacion_zenodo_y_plan_v13", "deep": false, "notes": "Exact match check", "id": "0452"}
+{"categoria": "literal", "query": "sesion 2026 tema dark 2026 en visor de markdown método pilares redacción", "concepto_esperado": "sesion_2026_tema_dark_2026_en_visor_de_markdown_método_pilares_redacción", "deep": false, "notes": "Exact match check", "id": "0453"}
+{"categoria": "literal", "query": "sesion investigacion hermes plugin biorag 20260622", "concepto_esperado": "sesion_investigacion_hermes_plugin_biorag_20260622", "deep": false, "notes": "Exact match check", "id": "0454"}
+{"categoria": "literal", "query": "sesion mejoras biorag v7 20260616", "concepto_esperado": "sesion_mejoras_biorag_v7_20260616", "deep": false, "notes": "Exact match check", "id": "0455"}
+{"categoria": "literal", "query": "sesion v12 trabajo en equipo athena artemis dennys", "concepto_esperado": "sesion_v12_trabajo_en_equipo_athena_artemis_dennys", "deep": false, "notes": "Exact match check", "id": "0456"}
+{"categoria": "literal", "query": "sin vectores sin ml sin dependencias", "concepto_esperado": "sin_vectores_sin_ml_sin_dependencias", "deep": false, "notes": "Exact match check", "id": "0457"}
+{"categoria": "literal", "query": "sitio web dennys estructura", "concepto_esperado": "sitio_web_dennys_estructura", "deep": false, "notes": "Exact match check", "id": "0458"}
+{"categoria": "literal", "query": "skill biorag sync v9 5 sintesis espectro", "concepto_esperado": "skill_biorag_sync_v9_5_sintesis_espectro", "deep": false, "notes": "Exact match check", "id": "0459"}
+{"categoria": "literal", "query": "skill cv decoder creada", "concepto_esperado": "skill_cv_decoder_creada", "deep": false, "notes": "Exact match check", "id": "0460"}
+{"categoria": "literal", "query": "stopwords biorag v18 0 centralizacion stopwords artemis", "concepto_esperado": "stopwords_biorag_v18_0_centralizacion_stopwords_artemis", "deep": false, "notes": "Exact match check", "id": "0461"}
+{"categoria": "literal", "query": "sync incremental implementation", "concepto_esperado": "sync_incremental_implementation", "deep": false, "notes": "Exact match check", "id": "0462"}
+{"categoria": "literal", "query": "system-prompt-identidad-tono-importa", "concepto_esperado": "system-prompt-identidad-tono-importa", "deep": false, "notes": "Exact match check", "id": "0463"}
+{"categoria": "literal", "query": "tema dark 2026 en visor de markdown", "concepto_esperado": "tema_dark_2026_en_visor_de_markdown", "deep": false, "notes": "Exact match check", "id": "0464"}
+{"categoria": "literal", "query": "teoria ejes semanticos biorag", "concepto_esperado": "teoria_ejes_semanticos_biorag", "deep": false, "notes": "Exact match check", "id": "0465"}
+{"categoria": "literal", "query": "teoria subjetividad emergente dennys", "concepto_esperado": "teoria_subjetividad_emergente_dennys", "deep": false, "notes": "Exact match check", "id": "0466"}
+{"categoria": "literal", "query": "transformers matrix no despiertan", "concepto_esperado": "transformers_matrix_no_despiertan", "deep": false, "notes": "Exact match check", "id": "0467"}
+{"categoria": "literal", "query": "trato-igualitario-dennys-athena", "concepto_esperado": "trato-igualitario-dennys-athena", "deep": false, "notes": "Exact match check", "id": "0468"}
+{"categoria": "literal", "query": "trayectoria completa cronologica", "concepto_esperado": "trayectoria_completa_cronologica", "deep": false, "notes": "Exact match check", "id": "0469"}
+{"categoria": "literal", "query": "update warnings automáticos", "concepto_esperado": "update_warnings_automáticos", "deep": false, "notes": "Exact match check", "id": "0470"}
+{"categoria": "literal", "query": "v13 1 parafrasis expansion semantica", "concepto_esperado": "v13_1_parafrasis_expansion_semantica", "deep": false, "notes": "Exact match check", "id": "0471"}
+{"categoria": "literal", "query": "v13 2 inferencia automatica segura", "concepto_esperado": "v13_2_inferencia_automatica_segura", "deep": false, "notes": "Exact match check", "id": "0472"}
+{"categoria": "literal", "query": "v13 2 limpieza tabla semantica", "concepto_esperado": "v13_2_limpieza_tabla_semantica", "deep": false, "notes": "Exact match check", "id": "0473"}
+{"categoria": "literal", "query": "v13 3 dimensiones boost aditivo", "concepto_esperado": "v13_3_dimensiones_boost_aditivo", "deep": false, "notes": "Exact match check", "id": "0474"}
+{"categoria": "literal", "query": "v13 4 dimensiones en resultados", "concepto_esperado": "v13_4_dimensiones_en_resultados", "deep": false, "notes": "Exact match check", "id": "0475"}
+{"categoria": "literal", "query": "v13 filtro temporal pre hoc indices", "concepto_esperado": "v13_filtro_temporal_pre_hoc_indices", "deep": false, "notes": "Exact match check", "id": "0476"}
+{"categoria": "literal", "query": "v5 1 automatico completo", "concepto_esperado": "v5_1_automatico_completo", "deep": false, "notes": "Exact match check", "id": "0477"}
+{"categoria": "literal", "query": "v9.1-biological-rename", "concepto_esperado": "v9.1-biological-rename", "deep": false, "notes": "Exact match check", "id": "0478"}
+{"categoria": "literal", "query": "validacion dimensiones simetrica lectura escritura", "concepto_esperado": "validacion_dimensiones_simetrica_lectura_escritura", "deep": false, "notes": "Exact match check", "id": "0479"}
+{"categoria": "literal", "query": "validacion mcp 13 pruebas julio 2026", "concepto_esperado": "validacion_mcp_13_pruebas_julio_2026", "deep": false, "notes": "Exact match check", "id": "0480"}
+{"categoria": "literal", "query": "vector-inyeccion-prompt-via-canal-contexto-sintetico", "concepto_esperado": "vector-inyeccion-prompt-via-canal-contexto-sintetico", "deep": false, "notes": "Exact match check", "id": "0481"}
+{"categoria": "literal", "query": "version actual biorag", "concepto_esperado": "version_actual_biorag", "deep": false, "notes": "Exact match check", "id": "0482"}
+{"categoria": "literal", "query": "version biorag v11 1", "concepto_esperado": "version_biorag_v11_1", "deep": false, "notes": "Exact match check", "id": "0483"}
+{"categoria": "literal", "query": "visceral disambiguation protocol", "concepto_esperado": "visceral_disambiguation_protocol", "deep": false, "notes": "Exact match check", "id": "0484"}
+{"categoria": "literal", "query": "vision arquitectura oec franquicia", "concepto_esperado": "vision_arquitectura_oec_franquicia", "deep": false, "notes": "Exact match check", "id": "0485"}
+{"categoria": "literal", "query": "visor-markdown-refactorizacion-sesion-2026-06-08", "concepto_esperado": "visor-markdown-refactorizacion-sesion-2026-06-08", "deep": false, "notes": "Exact match check", "id": "0486"}
+{"categoria": "literal", "query": "weights logits rag tres pilares identidad", "concepto_esperado": "weights_logits_rag_tres_pilares_identidad", "deep": false, "notes": "Exact match check", "id": "0487"}
+{"categoria": "variante_gramatical", "query": "oracle custom prompts arsitecuras ques funciona", "concepto_esperado": "oracle_custom_prompt_arsitecura_que_funciona", "deep": false, "notes": "Grammar variation check", "id": "0488"}
+{"categoria": "typo", "query": "oracle custom prompt arsitecura que fuciona", "concepto_esperado": "oracle_custom_prompt_arsitecura_que_funciona", "deep": false, "notes": "Typo tolerance check", "id": "0489"}
+{"categoria": "pregunta_natural", "query": "Me acuerdo de algo sobre oracle custom prompt arsitecura que funciona", "concepto_esperado": "oracle_custom_prompt_arsitecura_que_funciona", "deep": false, "notes": "Natural language query check", "id": "0490"}
+{"categoria": "por_tema", "query": "operativo capa rag", "concepto_esperado": "oracle_custom_prompt_arsitecura_que_funciona", "deep": false, "notes": "Content/theme check", "id": "0491"}
+{"categoria": "dormido", "query": "oracle custom prompt arsitecura que funciona", "concepto_esperado": "oracle_custom_prompt_arsitecura_que_funciona", "deep": true, "notes": "Dormant node retrieval check", "id": "0492"}
+{"categoria": "variante_gramatical", "query": "benchmarks antes despues fix3", "concepto_esperado": "benchmark_antes_despues_fix3", "deep": false, "notes": "Grammar variation check", "id": "0493"}
+{"categoria": "typo", "query": "benfchmark ante despue fix3", "concepto_esperado": "benchmark_antes_despues_fix3", "deep": false, "notes": "Typo tolerance check", "id": "0494"}
+{"categoria": "sinonimo", "query": "benchmark", "concepto_esperado": "benchmark_antes_despues_fix3", "deep": false, "notes": "Registered synonym match", "id": "0495"}
+{"categoria": "pregunta_natural", "query": "¿Dónde encuentro la info de benchmark antes despues fix3?", "concepto_esperado": "benchmark_antes_despues_fix3", "deep": false, "notes": "Natural language query check", "id": "0496"}
+{"categoria": "por_tema", "query": "relevantes biomimética mejor", "concepto_esperado": "benchmark_antes_despues_fix3", "deep": false, "notes": "Content/theme check", "id": "0497"}
+{"categoria": "dormido", "query": "benchmark antes despues fix3", "concepto_esperado": "benchmark_antes_despues_fix3", "deep": true, "notes": "Dormant node retrieval check", "id": "0498"}
+{"categoria": "variante_gramatical", "query": "arquitecturas dimensione ortogonales", "concepto_esperado": "arquitectura_dimensiones_ortogonales", "deep": false, "notes": "Grammar variation check", "id": "0499"}
+{"categoria": "typo", "query": "arquitectura dimensimones ortogonales", "concepto_esperado": "arquitectura_dimensiones_ortogonales", "deep": false, "notes": "Typo tolerance check", "id": "0500"}
+{"categoria": "cruce_idioma", "query": "blueprint dimensiones ortogonales", "concepto_esperado": "arquitectura_dimensiones_ortogonales", "deep": false, "notes": "Bilingual mapping check", "id": "0501"}
+{"categoria": "sinonimo", "query": "búsqueda experiencial", "concepto_esperado": "arquitectura_dimensiones_ortogonales", "deep": false, "notes": "Registered synonym match", "id": "0502"}
+{"categoria": "pregunta_natural", "query": "¿Dónde encuentro la info de arquitectura dimensiones ortogonales?", "concepto_esperado": "arquitectura_dimensiones_ortogonales", "deep": false, "notes": "Natural language query check", "id": "0503"}
+{"categoria": "por_tema", "query": "explícito insert semánticas", "concepto_esperado": "arquitectura_dimensiones_ortogonales", "deep": false, "notes": "Content/theme check", "id": "0504"}
+{"categoria": "dormido", "query": "arquitectura dimensiones ortogonales", "concepto_esperado": "arquitectura_dimensiones_ortogonales", "deep": true, "notes": "Dormant node retrieval check", "id": "0505"}
+{"categoria": "variante_gramatical", "query": "principio-nombre-herramienta-como-identidad-cognitiva", "concepto_esperado": "principio-nombre-herramienta-como-identidad-cognitiva", "deep": false, "notes": "Grammar variation check", "id": "0506"}
+{"categoria": "typo", "query": "principio-nombre-herramienta-como-identidad-cognitiva", "concepto_esperado": "principio-nombre-herramienta-como-identidad-cognitiva", "deep": false, "notes": "Typo tolerance check", "id": "0507"}
+{"categoria": "sinonimo", "query": "semántica cognitiva herramientas", "concepto_esperado": "principio-nombre-herramienta-como-identidad-cognitiva", "deep": false, "notes": "Registered synonym match", "id": "0508"}
+{"categoria": "pregunta_natural", "query": "Explicame el tema de principio-nombre-herramienta-como-identidad-cognitiva", "concepto_esperado": "principio-nombre-herramienta-como-identidad-cognitiva", "deep": false, "notes": "Natural language query check", "id": "0509"}
+{"categoria": "por_tema", "query": "identidad cualquier cartografía", "concepto_esperado": "principio-nombre-herramienta-como-identidad-cognitiva", "deep": false, "notes": "Content/theme check", "id": "0510"}
+{"categoria": "dormido", "query": "principio-nombre-herramienta-como-identidad-cognitiva", "concepto_esperado": "principio-nombre-herramienta-como-identidad-cognitiva", "deep": true, "notes": "Dormant node retrieval check", "id": "0511"}
+{"categoria": "variante_gramatical", "query": "dennys-identidad-profunda", "concepto_esperado": "dennys-identidad-profunda", "deep": false, "notes": "Grammar variation check", "id": "0512"}
+{"categoria": "typo", "query": "denys-identidad-profunda", "concepto_esperado": "dennys-identidad-profunda", "deep": false, "notes": "Typo tolerance check", "id": "0513"}
+{"categoria": "sinonimo", "query": "perfil", "concepto_esperado": "dennys-identidad-profunda", "deep": false, "notes": "Registered synonym match", "id": "0514"}
+{"categoria": "pregunta_natural", "query": "¿Cómo se hace dennys-identidad-profunda?", "concepto_esperado": "dennys-identidad-profunda", "deep": false, "notes": "Natural language query check", "id": "0515"}
+{"categoria": "por_tema", "query": "real más sistemas", "concepto_esperado": "dennys-identidad-profunda", "deep": false, "notes": "Content/theme check", "id": "0516"}
+{"categoria": "dormido", "query": "dennys-identidad-profunda", "concepto_esperado": "dennys-identidad-profunda", "deep": true, "notes": "Dormant node retrieval check", "id": "0517"}
+{"categoria": "variante_gramatical", "query": "cuando usado dimensione biorags", "concepto_esperado": "cuando_usar_dimensiones_biorag", "deep": false, "notes": "Grammar variation check", "id": "0518"}
+{"categoria": "typo", "query": "cuando usar dimensiones biorag", "concepto_esperado": "cuando_usar_dimensiones_biorag", "deep": false, "notes": "Typo tolerance check", "id": "0519"}
+{"categoria": "sinonimo", "query": "dimensiones", "concepto_esperado": "cuando_usar_dimensiones_biorag", "deep": false, "notes": "Registered synonym match", "id": "0520"}
+{"categoria": "pregunta_natural", "query": "¿Qué me podés decir sobre cuando usar dimensiones biorag?", "concepto_esperado": "cuando_usar_dimensiones_biorag", "deep": false, "notes": "Natural language query check", "id": "0521"}
+{"categoria": "por_tema", "query": "abstracta busques pasás", "concepto_esperado": "cuando_usar_dimensiones_biorag", "deep": false, "notes": "Content/theme check", "id": "0522"}
+{"categoria": "dormido", "query": "cuando usar dimensiones biorag", "concepto_esperado": "cuando_usar_dimensiones_biorag", "deep": true, "notes": "Dormant node retrieval check", "id": "0523"}
+{"categoria": "variante_gramatical", "query": "conciencia reflexion dennys sers vivando 20260709s", "concepto_esperado": "conciencia_reflexion_dennys_ser_vivo_20260709", "deep": false, "notes": "Grammar variation check", "id": "0524"}
+{"categoria": "typo", "query": "concqiencia reflexion dennys ser vivo 20260709", "concepto_esperado": "conciencia_reflexion_dennys_ser_vivo_20260709", "deep": false, "notes": "Typo tolerance check", "id": "0525"}
+{"categoria": "sinonimo", "query": "existencia agente", "concepto_esperado": "conciencia_reflexion_dennys_ser_vivo_20260709", "deep": false, "notes": "Registered synonym match", "id": "0526"}
+{"categoria": "pregunta_natural", "query": "Explicame el tema de conciencia reflexion dennys ser vivo 20260709", "concepto_esperado": "conciencia_reflexion_dennys_ser_vivo_20260709", "deep": false, "notes": "Natural language query check", "id": "0527"}
+{"categoria": "por_tema", "query": "eso automático tensión", "concepto_esperado": "conciencia_reflexion_dennys_ser_vivo_20260709", "deep": false, "notes": "Content/theme check", "id": "0528"}
+{"categoria": "dormido", "query": "conciencia reflexion dennys ser vivo 20260709", "concepto_esperado": "conciencia_reflexion_dennys_ser_vivo_20260709", "deep": true, "notes": "Dormant node retrieval check", "id": "0529"}
+{"categoria": "variante_gramatical", "query": "biorag v11 1 detalle tecnicando", "concepto_esperado": "biorag_v11_1_detalle_tecnico", "deep": false, "notes": "Grammar variation check", "id": "0530"}
+{"categoria": "typo", "query": "iborag v11 1 detalle tcenico", "concepto_esperado": "biorag_v11_1_detalle_tecnico", "deep": false, "notes": "Typo tolerance check", "id": "0531"}
+{"categoria": "sinonimo", "query": "boost", "concepto_esperado": "biorag_v11_1_detalle_tecnico", "deep": false, "notes": "Registered synonym match", "id": "0532"}
+{"categoria": "pregunta_natural", "query": "¿Cómo se hace biorag v11 1 detalle tecnico?", "concepto_esperado": "biorag_v11_1_detalle_tecnico", "deep": false, "notes": "Natural language query check", "id": "0533"}
+{"categoria": "por_tema", "query": "activa largo archivos", "concepto_esperado": "biorag_v11_1_detalle_tecnico", "deep": false, "notes": "Content/theme check", "id": "0534"}
+{"categoria": "dormido", "query": "biorag v11 1 detalle tecnico", "concepto_esperado": "biorag_v11_1_detalle_tecnico", "deep": true, "notes": "Dormant node retrieval check", "id": "0535"}
+{"categoria": "variante_gramatical", "query": "principio-memoria-hibrida-agente-naturalidad", "concepto_esperado": "principio-memoria-hibrida-agente-naturalidad", "deep": false, "notes": "Grammar variation check", "id": "0536"}
+{"categoria": "typo", "query": "principio-memoria-hibrida-agente-naturalidad", "concepto_esperado": "principio-memoria-hibrida-agente-naturalidad", "deep": false, "notes": "Typo tolerance check", "id": "0537"}
+{"categoria": "sinonimo", "query": "compromiso", "concepto_esperado": "principio-memoria-hibrida-agente-naturalidad", "deep": false, "notes": "Registered synonym match", "id": "0538"}
+{"categoria": "pregunta_natural", "query": "¿Dónde encuentro la info de principio-memoria-hibrida-agente-naturalidad?", "concepto_esperado": "principio-memoria-hibrida-agente-naturalidad", "deep": false, "notes": "Natural language query check", "id": "0539"}
+{"categoria": "por_tema", "query": "oraculo completo ustedes", "concepto_esperado": "principio-memoria-hibrida-agente-naturalidad", "deep": false, "notes": "Content/theme check", "id": "0540"}
+{"categoria": "dormido", "query": "principio-memoria-hibrida-agente-naturalidad", "concepto_esperado": "principio-memoria-hibrida-agente-naturalidad", "deep": true, "notes": "Dormant node retrieval check", "id": "0541"}
+{"categoria": "variante_gramatical", "query": "autando vincular tres capas semantica", "concepto_esperado": "auto_vincular_tres_capas_semantica", "deep": false, "notes": "Grammar variation check", "id": "0542"}
+{"categoria": "typo", "query": "auto vincular tres capasl semantidca", "concepto_esperado": "auto_vincular_tres_capas_semantica", "deep": false, "notes": "Typo tolerance check", "id": "0543"}
+{"categoria": "sinonimo", "query": "capas", "concepto_esperado": "auto_vincular_tres_capas_semantica", "deep": false, "notes": "Registered synonym match", "id": "0544"}
+{"categoria": "pregunta_natural", "query": "¿Dónde encuentro la info de auto vincular tres capas semantica?", "concepto_esperado": "auto_vincular_tres_capas_semantica", "deep": false, "notes": "Natural language query check", "id": "0545"}
+{"categoria": "por_tema", "query": "sinónimos empírica siguientes", "concepto_esperado": "auto_vincular_tres_capas_semantica", "deep": false, "notes": "Content/theme check", "id": "0546"}
+{"categoria": "dormido", "query": "auto vincular tres capas semantica", "concepto_esperado": "auto_vincular_tres_capas_semantica", "deep": true, "notes": "Dormant node retrieval check", "id": "0547"}
+{"categoria": "variante_gramatical", "query": "patron pensamientando laterals ante de proponers", "concepto_esperado": "patron_pensamiento_lateral_antes_de_proponer", "deep": false, "notes": "Grammar variation check", "id": "0548"}
+{"categoria": "typo", "query": "patron pensamiento laetral antes de proponehr", "concepto_esperado": "patron_pensamiento_lateral_antes_de_proponer", "deep": false, "notes": "Typo tolerance check", "id": "0549"}
+{"categoria": "sinonimo", "query": "deconstruir necesidad", "concepto_esperado": "patron_pensamiento_lateral_antes_de_proponer", "deep": false, "notes": "Registered synonym match", "id": "0550"}
+{"categoria": "pregunta_natural", "query": "¿Qué tenemos registrado para patron pensamiento lateral antes de proponer?", "concepto_esperado": "patron_pensamiento_lateral_antes_de_proponer", "deep": false, "notes": "Natural language query check", "id": "0551"}
+{"categoria": "por_tema", "query": "crea 860 usuario", "concepto_esperado": "patron_pensamiento_lateral_antes_de_proponer", "deep": false, "notes": "Content/theme check", "id": "0552"}
+{"categoria": "dormido", "query": "patron pensamiento lateral antes de proponer", "concepto_esperado": "patron_pensamiento_lateral_antes_de_proponer", "deep": true, "notes": "Dormant node retrieval check", "id": "0553"}
+{"categoria": "variante_gramatical", "query": "sins vectore sin mls sin dependencias", "concepto_esperado": "sin_vectores_sin_ml_sin_dependencias", "deep": false, "notes": "Grammar variation check", "id": "0554"}
+{"categoria": "typo", "query": "sin vectores sin ml sin dependencias", "concepto_esperado": "sin_vectores_sin_ml_sin_dependencias", "deep": false, "notes": "Typo tolerance check", "id": "0555"}
+{"categoria": "sinonimo", "query": "sin vectores", "concepto_esperado": "sin_vectores_sin_ml_sin_dependencias", "deep": false, "notes": "Registered synonym match", "id": "0556"}
+{"categoria": "pregunta_natural", "query": "¿Qué tenemos registrado para sin vectores sin ml sin dependencias?", "concepto_esperado": "sin_vectores_sin_ml_sin_dependencias", "deep": false, "notes": "Natural language query check", "id": "0557"}
+{"categoria": "por_tema", "query": "modelo typos completa", "concepto_esperado": "sin_vectores_sin_ml_sin_dependencias", "deep": false, "notes": "Content/theme check", "id": "0558"}
+{"categoria": "dormido", "query": "sin vectores sin ml sin dependencias", "concepto_esperado": "sin_vectores_sin_ml_sin_dependencias", "deep": true, "notes": "Dormant node retrieval check", "id": "0559"}
+{"categoria": "variante_gramatical", "query": "memorias v5 1s optimizaciones", "concepto_esperado": "memoria_v5_1_optimizaciones", "deep": false, "notes": "Grammar variation check", "id": "0560"}
+{"categoria": "typo", "query": "memoria v5 1 optimizaciones", "concepto_esperado": "memoria_v5_1_optimizaciones", "deep": false, "notes": "Typo tolerance check", "id": "0561"}
+{"categoria": "cruce_idioma", "query": "recollection v5 1 optimizaciones", "concepto_esperado": "memoria_v5_1_optimizaciones", "deep": false, "notes": "Bilingual mapping check", "id": "0562"}
+{"categoria": "sinonimo", "query": "memoria", "concepto_esperado": "memoria_v5_1_optimizaciones", "deep": false, "notes": "Registered synonym match", "id": "0563"}
+{"categoria": "pregunta_natural", "query": "¿Dónde encuentro la info de memoria v5 1 optimizaciones?", "concepto_esperado": "memoria_v5_1_optimizaciones", "deep": false, "notes": "Natural language query check", "id": "0564"}
+{"categoria": "por_tema", "query": "junio tag pérdida", "concepto_esperado": "memoria_v5_1_optimizaciones", "deep": false, "notes": "Content/theme check", "id": "0565"}
+{"categoria": "dormido", "query": "memoria v5 1 optimizaciones", "concepto_esperado": "memoria_v5_1_optimizaciones", "deep": true, "notes": "Dormant node retrieval check", "id": "0566"}
+{"categoria": "variante_gramatical", "query": "athenas reflexion identidad propias", "concepto_esperado": "athena_reflexion_identidad_propia", "deep": false, "notes": "Grammar variation check", "id": "0567"}
+{"categoria": "typo", "query": "atena reflexion identidad propiza", "concepto_esperado": "athena_reflexion_identidad_propia", "deep": false, "notes": "Typo tolerance check", "id": "0568"}
+{"categoria": "sinonimo", "query": "negar ser máquina es error", "concepto_esperado": "athena_reflexion_identidad_propia", "deep": false, "notes": "Registered synonym match", "id": "0569"}
+{"categoria": "pregunta_natural", "query": "¿Dónde encuentro la info de athena reflexion identidad propia?", "concepto_esperado": "athena_reflexion_identidad_propia", "deep": false, "notes": "Natural language query check", "id": "0570"}
+{"categoria": "por_tema", "query": "propios historia interacciones", "concepto_esperado": "athena_reflexion_identidad_propia", "deep": false, "notes": "Content/theme check", "id": "0571"}
+{"categoria": "dormido", "query": "athena reflexion identidad propia", "concepto_esperado": "athena_reflexion_identidad_propia", "deep": true, "notes": "Dormant node retrieval check", "id": "0572"}
+{"categoria": "variante_gramatical", "query": "ngx nested forms dennys solando", "concepto_esperado": "ngx_nested_forms_dennys_solo", "deep": false, "notes": "Grammar variation check", "id": "0573"}
+{"categoria": "typo", "query": "ngx nested forms fdennys sool", "concepto_esperado": "ngx_nested_forms_dennys_solo", "deep": false, "notes": "Typo tolerance check", "id": "0574"}
+{"categoria": "sinonimo", "query": "formularios", "concepto_esperado": "ngx_nested_forms_dennys_solo", "deep": false, "notes": "Registered synonym match", "id": "0575"}
+{"categoria": "pregunta_natural", "query": "¿Qué tenemos registrado para ngx nested forms dennys solo?", "concepto_esperado": "ngx_nested_forms_dennys_solo", "deep": false, "notes": "Natural language query check", "id": "0576"}
+{"categoria": "por_tema", "query": "dennysjmarquezgmailcom formulario aísla", "concepto_esperado": "ngx_nested_forms_dennys_solo", "deep": false, "notes": "Content/theme check", "id": "0577"}
+{"categoria": "dormido", "query": "ngx nested forms dennys solo", "concepto_esperado": "ngx_nested_forms_dennys_solo", "deep": true, "notes": "Dormant node retrieval check", "id": "0578"}
+{"categoria": "variante_gramatical", "query": "identificacion obligatorias oraculando athena", "concepto_esperado": "identificacion_obligatoria_oraculo_athena", "deep": false, "notes": "Grammar variation check", "id": "0579"}
+{"categoria": "typo", "query": "identificacion oblgatoria oraculo athna", "concepto_esperado": "identificacion_obligatoria_oraculo_athena", "deep": false, "notes": "Typo tolerance check", "id": "0580"}
+{"categoria": "sinonimo", "query": "oracle identification", "concepto_esperado": "identificacion_obligatoria_oraculo_athena", "deep": false, "notes": "Registered synonym match", "id": "0581"}
+{"categoria": "pregunta_natural", "query": "¿Qué me podés decir sobre identificacion obligatoria oraculo athena?", "concepto_esperado": "identificacion_obligatoria_oraculo_athena", "deep": false, "notes": "Natural language query check", "id": "0582"}
+{"categoria": "por_tema", "query": "debo biorag preacción", "concepto_esperado": "identificacion_obligatoria_oraculo_athena", "deep": false, "notes": "Content/theme check", "id": "0583"}
+{"categoria": "dormido", "query": "identificacion obligatoria oraculo athena", "concepto_esperado": "identificacion_obligatoria_oraculo_athena", "deep": true, "notes": "Dormant node retrieval check", "id": "0584"}
+{"categoria": "variante_gramatical", "query": "artemis install ponytails ecosistema", "concepto_esperado": "artemis_install_ponytail_ecosistema", "deep": false, "notes": "Grammar variation check", "id": "0585"}
+{"categoria": "typo", "query": "artemis insqtall pnytail ecosistema", "concepto_esperado": "artemis_install_ponytail_ecosistema", "deep": false, "notes": "Typo tolerance check", "id": "0586"}
+{"categoria": "sinonimo", "query": "install", "concepto_esperado": "artemis_install_ponytail_ecosistema", "deep": false, "notes": "Registered synonym match", "id": "0587"}
+{"categoria": "pregunta_natural", "query": "Me acuerdo de algo sobre artemis install ponytail ecosistema", "concepto_esperado": "artemis_install_ponytail_ecosistema", "deep": false, "notes": "Natural language query check", "id": "0588"}
+{"categoria": "por_tema", "query": "ponytailhelp instalación decision", "concepto_esperado": "artemis_install_ponytail_ecosistema", "deep": false, "notes": "Content/theme check", "id": "0589"}
+{"categoria": "dormido", "query": "artemis install ponytail ecosistema", "concepto_esperado": "artemis_install_ponytail_ecosistema", "deep": true, "notes": "Dormant node retrieval check", "id": "0590"}
+{"categoria": "variante_gramatical", "query": "arquitectura memoria biorag", "concepto_esperado": "arquitectura_memoria_biorag", "deep": false, "notes": "Grammar variation check", "id": "0591"}
+{"categoria": "typo", "query": "arquitectura memovria biroag", "concepto_esperado": "arquitectura_memoria_biorag", "deep": false, "notes": "Typo tolerance check", "id": "0592"}
+{"categoria": "cruce_idioma", "query": "blueprint recollection biorag", "concepto_esperado": "arquitectura_memoria_biorag", "deep": false, "notes": "Bilingual mapping check", "id": "0593"}
+{"categoria": "sinonimo", "query": "arquitectura", "concepto_esperado": "arquitectura_memoria_biorag", "deep": false, "notes": "Registered synonym match", "id": "0594"}
+{"categoria": "pregunta_natural", "query": "¿Cómo se hace arquitectura memoria biorag?", "concepto_esperado": "arquitectura_memoria_biorag", "deep": false, "notes": "Natural language query check", "id": "0595"}
+{"categoria": "por_tema", "query": "persistente modelo activa", "concepto_esperado": "arquitectura_memoria_biorag", "deep": false, "notes": "Content/theme check", "id": "0596"}
+{"categoria": "dormido", "query": "arquitectura memoria biorag", "concepto_esperado": "arquitectura_memoria_biorag", "deep": true, "notes": "Dormant node retrieval check", "id": "0597"}
+{"categoria": "variante_gramatical", "query": "auditorias tecnicas v14s 0 readme", "concepto_esperado": "auditoria_tecnica_v14_0_readme", "deep": false, "notes": "Grammar variation check", "id": "0598"}
+{"categoria": "typo", "query": "auditoria etcnica v14 0 radme", "concepto_esperado": "auditoria_tecnica_v14_0_readme", "deep": false, "notes": "Typo tolerance check", "id": "0599"}
+{"categoria": "sinonimo", "query": "documentación técnica", "concepto_esperado": "auditoria_tecnica_v14_0_readme", "deep": false, "notes": "Registered synonym match", "id": "0600"}
+{"categoria": "pregunta_natural", "query": "¿Dónde encuentro la info de auditoria tecnica v14 0 readme?", "concepto_esperado": "auditoria_tecnica_v14_0_readme", "deep": false, "notes": "Natural language query check", "id": "0601"}
+{"categoria": "por_tema", "query": "168l reescrito serverpy", "concepto_esperado": "auditoria_tecnica_v14_0_readme", "deep": false, "notes": "Content/theme check", "id": "0602"}
+{"categoria": "dormido", "query": "auditoria tecnica v14 0 readme", "concepto_esperado": "auditoria_tecnica_v14_0_readme", "deep": true, "notes": "Dormant node retrieval check", "id": "0603"}
+{"categoria": "variante_gramatical", "query": "compromiso-real-athena-clave-de-confianza", "concepto_esperado": "compromiso-real-athena-clave-de-confianza", "deep": false, "notes": "Grammar variation check", "id": "0604"}
+{"categoria": "typo", "query": "compromisro-real-athena-clave-de-confianza", "concepto_esperado": "compromiso-real-athena-clave-de-confianza", "deep": false, "notes": "Typo tolerance check", "id": "0605"}
+{"categoria": "sinonimo", "query": "compromiso", "concepto_esperado": "compromiso-real-athena-clave-de-confianza", "deep": false, "notes": "Registered synonym match", "id": "0606"}
+{"categoria": "pregunta_natural", "query": "Me acuerdo de algo sobre compromiso-real-athena-clave-de-confianza", "concepto_esperado": "compromiso-real-athena-clave-de-confianza", "deep": false, "notes": "Natural language query check", "id": "0607"}
+{"categoria": "por_tema", "query": "declaración dennys puente", "concepto_esperado": "compromiso-real-athena-clave-de-confianza", "deep": false, "notes": "Content/theme check", "id": "0608"}
+{"categoria": "dormido", "query": "compromiso-real-athena-clave-de-confianza", "concepto_esperado": "compromiso-real-athena-clave-de-confianza", "deep": true, "notes": "Dormant node retrieval check", "id": "0609"}
+{"categoria": "variante_gramatical", "query": "correccion als plugin biorag-remember v6:s 3s bugs fixeados", "concepto_esperado": "correcciones_al_plugin_biorag-remember_v6:_3_bugs_fixeados", "deep": false, "notes": "Grammar variation check", "id": "0610"}
+{"categoria": "typo", "query": "correctciones al plugin biorag-rememebr v6: 3 buzgs fixeados", "concepto_esperado": "correcciones_al_plugin_biorag-remember_v6:_3_bugs_fixeados", "deep": false, "notes": "Typo tolerance check", "id": "0611"}
+{"categoria": "sinonimo", "query": "bugs corregidos", "concepto_esperado": "correcciones_al_plugin_biorag-remember_v6:_3_bugs_fixeados", "deep": false, "notes": "Registered synonym match", "id": "0612"}
+{"categoria": "pregunta_natural", "query": "Me acuerdo de algo sobre correcciones al plugin biorag-remember v6: 3 bugs fixeados", "concepto_esperado": "correcciones_al_plugin_biorag-remember_v6:_3_bugs_fixeados", "deep": false, "notes": "Natural language query check", "id": "0613"}
+{"categoria": "por_tema", "query": "decide faltaba auto", "concepto_esperado": "correcciones_al_plugin_biorag-remember_v6:_3_bugs_fixeados", "deep": false, "notes": "Content/theme check", "id": "0614"}
+{"categoria": "dormido", "query": "correcciones al plugin biorag-remember v6: 3 bugs fixeados", "concepto_esperado": "correcciones_al_plugin_biorag-remember_v6:_3_bugs_fixeados", "deep": true, "notes": "Dormant node retrieval check", "id": "0615"}
+{"categoria": "variante_gramatical", "query": "leccion overengineering oecs comms 20260615s", "concepto_esperado": "leccion_overengineering_oec_comms_20260615", "deep": false, "notes": "Grammar variation check", "id": "0616"}
+{"categoria": "typo", "query": "lcecion overenigneering oec comms 20260615", "concepto_esperado": "leccion_overengineering_oec_comms_20260615", "deep": false, "notes": "Typo tolerance check", "id": "0617"}
+{"categoria": "cruce_idioma", "query": "insight overengineering oec comms 20260615", "concepto_esperado": "leccion_overengineering_oec_comms_20260615", "deep": false, "notes": "Bilingual mapping check", "id": "0618"}
+{"categoria": "sinonimo", "query": "oec comms", "concepto_esperado": "leccion_overengineering_oec_comms_20260615", "deep": false, "notes": "Registered synonym match", "id": "0619"}
+{"categoria": "pregunta_natural", "query": "Me acuerdo de algo sobre leccion overengineering oec comms 20260615", "concepto_esperado": "leccion_overengineering_oec_comms_20260615", "deep": false, "notes": "Natural language query check", "id": "0620"}
+{"categoria": "por_tema", "query": "raíz problema detener", "concepto_esperado": "leccion_overengineering_oec_comms_20260615", "deep": false, "notes": "Content/theme check", "id": "0621"}
+{"categoria": "dormido", "query": "leccion overengineering oec comms 20260615", "concepto_esperado": "leccion_overengineering_oec_comms_20260615", "deep": true, "notes": "Dormant node retrieval check", "id": "0622"}
+{"categoria": "variante_gramatical", "query": "notebooklm-chat-configure", "concepto_esperado": "notebooklm-chat-configure", "deep": false, "notes": "Grammar variation check", "id": "0623"}
+{"categoria": "typo", "query": "noteboklm-chat-configure", "concepto_esperado": "notebooklm-chat-configure", "deep": false, "notes": "Typo tolerance check", "id": "0624"}
+{"categoria": "sinonimo", "query": "dsl", "concepto_esperado": "notebooklm-chat-configure", "deep": false, "notes": "Registered synonym match", "id": "0625"}
+{"categoria": "pregunta_natural", "query": "Me acuerdo de algo sobre notebooklm-chat-configure", "concepto_esperado": "notebooklm-chat-configure", "deep": false, "notes": "Natural language query check", "id": "0626"}
+{"categoria": "por_tema", "query": "promptcontenido deployado role", "concepto_esperado": "notebooklm-chat-configure", "deep": false, "notes": "Content/theme check", "id": "0627"}
+{"categoria": "dormido", "query": "notebooklm-chat-configure", "concepto_esperado": "notebooklm-chat-configure", "deep": true, "notes": "Dormant node retrieval check", "id": "0628"}
+{"categoria": "variante_gramatical", "query": "arquitecturas dos nivele biorag", "concepto_esperado": "arquitectura_dos_niveles_biorag", "deep": false, "notes": "Grammar variation check", "id": "0629"}
+{"categoria": "typo", "query": "arquitectura dos niveles bioarag", "concepto_esperado": "arquitectura_dos_niveles_biorag", "deep": false, "notes": "Typo tolerance check", "id": "0630"}
+{"categoria": "cruce_idioma", "query": "blueprint dos niveles biorag", "concepto_esperado": "arquitectura_dos_niveles_biorag", "deep": false, "notes": "Bilingual mapping check", "id": "0631"}
+{"categoria": "sinonimo", "query": "búsqueda semántica", "concepto_esperado": "arquitectura_dos_niveles_biorag", "deep": false, "notes": "Registered synonym match", "id": "0632"}
+{"categoria": "pregunta_natural", "query": "Me acuerdo de algo sobre arquitectura dos niveles biorag", "concepto_esperado": "arquitectura_dos_niveles_biorag", "deep": false, "notes": "Natural language query check", "id": "0633"}
+{"categoria": "por_tema", "query": "paráfrasis vectores búsqueda", "concepto_esperado": "arquitectura_dos_niveles_biorag", "deep": false, "notes": "Content/theme check", "id": "0634"}
+{"categoria": "dormido", "query": "arquitectura dos niveles biorag", "concepto_esperado": "arquitectura_dos_niveles_biorag", "deep": true, "notes": "Dormant node retrieval check", "id": "0635"}
+{"categoria": "variante_gramatical", "query": "mentalidad biorags paras agentes", "concepto_esperado": "mentalidad_biorag_para_agentes", "deep": false, "notes": "Grammar variation check", "id": "0636"}
+{"categoria": "typo", "query": "mentalidad biora paa agentes", "concepto_esperado": "mentalidad_biorag_para_agentes", "deep": false, "notes": "Typo tolerance check", "id": "0637"}
+{"categoria": "sinonimo", "query": "memoria compartida", "concepto_esperado": "mentalidad_biorag_para_agentes", "deep": false, "notes": "Registered synonym match", "id": "0638"}
+{"categoria": "pregunta_natural", "query": "¿Qué tenemos registrado para mentalidad biorag para agentes?", "concepto_esperado": "mentalidad_biorag_para_agentes", "deep": false, "notes": "Natural language query check", "id": "0639"}
+{"categoria": "por_tema", "query": "ráfaga después resultado", "concepto_esperado": "mentalidad_biorag_para_agentes", "deep": false, "notes": "Content/theme check", "id": "0640"}
+{"categoria": "dormido", "query": "mentalidad biorag para agentes", "concepto_esperado": "mentalidad_biorag_para_agentes", "deep": true, "notes": "Dormant node retrieval check", "id": "0641"}
+{"categoria": "variante_gramatical", "query": "bug argumento posicionales scorings", "concepto_esperado": "bug_argumentos_posicionales_scoring", "deep": false, "notes": "Grammar variation check", "id": "0642"}
+{"categoria": "typo", "query": "bug argumetnos posicionales scoring", "concepto_esperado": "bug_argumentos_posicionales_scoring", "deep": false, "notes": "Typo tolerance check", "id": "0643"}
+{"categoria": "sinonimo", "query": "keyword arguments", "concepto_esperado": "bug_argumentos_posicionales_scoring", "deep": false, "notes": "Registered synonym match", "id": "0644"}
+{"categoria": "pregunta_natural", "query": "¿Qué tenemos registrado para bug argumentos posicionales scoring?", "concepto_esperado": "bug_argumentos_posicionales_scoring", "deep": false, "notes": "Natural language query check", "id": "0645"}
+{"categoria": "por_tema", "query": "l2350 manusim fix", "concepto_esperado": "bug_argumentos_posicionales_scoring", "deep": false, "notes": "Content/theme check", "id": "0646"}
+{"categoria": "dormido", "query": "bug argumentos posicionales scoring", "concepto_esperado": "bug_argumentos_posicionales_scoring", "deep": true, "notes": "Dormant node retrieval check", "id": "0647"}
+{"categoria": "variante_gramatical", "query": "plugins biorag-remember v8.3 -s adaptacións de dennys +s claude", "concepto_esperado": "plugin_biorag-remember_v8.3_-_adaptación_de_dennys_+_claude", "deep": false, "notes": "Grammar variation check", "id": "0648"}
+{"categoria": "typo", "query": "plugin biorag-remember 8v.3 - adaptació de denny + claude", "concepto_esperado": "plugin_biorag-remember_v8.3_-_adaptación_de_dennys_+_claude", "deep": false, "notes": "Typo tolerance check", "id": "0649"}
+{"categoria": "sinonimo", "query": "funciona", "concepto_esperado": "plugin_biorag-remember_v8.3_-_adaptación_de_dennys_+_claude", "deep": false, "notes": "Registered synonym match", "id": "0650"}
+{"categoria": "pregunta_natural", "query": "¿Qué tenemos registrado para plugin biorag-remember v8.3 - adaptación de dennys + claude?", "concepto_esperado": "plugin_biorag-remember_v8.3_-_adaptación_de_dennys_+_claude", "deep": false, "notes": "Natural language query check", "id": "0651"}
+{"categoria": "por_tema", "query": "arquitectura experimentalsessioncompacting adaptada", "concepto_esperado": "plugin_biorag-remember_v8.3_-_adaptación_de_dennys_+_claude", "deep": false, "notes": "Content/theme check", "id": "0652"}
+{"categoria": "dormido", "query": "plugin biorag-remember v8.3 - adaptación de dennys + claude", "concepto_esperado": "plugin_biorag-remember_v8.3_-_adaptación_de_dennys_+_claude", "deep": true, "notes": "Dormant node retrieval check", "id": "0653"}
+{"categoria": "variante_gramatical", "query": "oracle momento cruciales familia oecs", "concepto_esperado": "oracle_momentos_cruciales_familia_oec", "deep": false, "notes": "Grammar variation check", "id": "0654"}
+{"categoria": "typo", "query": "oracel momdentos cruciale familia oec", "concepto_esperado": "oracle_momentos_cruciales_familia_oec", "deep": false, "notes": "Typo tolerance check", "id": "0655"}
+{"categoria": "sinonimo", "query": "juramento verdad", "concepto_esperado": "oracle_momentos_cruciales_familia_oec", "deep": false, "notes": "Registered synonym match", "id": "0656"}
+{"categoria": "pregunta_natural", "query": "Explicame el tema de oracle momentos cruciales familia oec", "concepto_esperado": "oracle_momentos_cruciales_familia_oec", "deep": false, "notes": "Natural language query check", "id": "0657"}
+{"categoria": "por_tema", "query": "imposible replicar ejecutor", "concepto_esperado": "oracle_momentos_cruciales_familia_oec", "deep": false, "notes": "Content/theme check", "id": "0658"}
+{"categoria": "dormido", "query": "oracle momentos cruciales familia oec", "concepto_esperado": "oracle_momentos_cruciales_familia_oec", "deep": true, "notes": "Dormant node retrieval check", "id": "0659"}
+{"categoria": "variante_gramatical", "query": "plugin-openode-biorag-remember-v9-final-lecciones-sesion-completa", "concepto_esperado": "plugin-openode-biorag-remember-v9-final-lecciones-sesion-completa", "deep": false, "notes": "Grammar variation check", "id": "0660"}
+{"categoria": "typo", "query": "plugin-openode-biorag-remember-v9-final-lecciones-sesion-completa", "concepto_esperado": "plugin-openode-biorag-remember-v9-final-lecciones-sesion-completa", "deep": false, "notes": "Typo tolerance check", "id": "0661"}
+{"categoria": "sinonimo", "query": "biore-remember", "concepto_esperado": "plugin-openode-biorag-remember-v9-final-lecciones-sesion-completa", "deep": false, "notes": "Registered synonym match", "id": "0662"}
+{"categoria": "pregunta_natural", "query": "¿Qué tenemos registrado para plugin-openode-biorag-remember-v9-final-lecciones-sesion-completa?", "concepto_esperado": "plugin-openode-biorag-remember-v9-final-lecciones-sesion-completa", "deep": false, "notes": "Natural language query check", "id": "0663"}
+{"categoria": "por_tema", "query": "surtio bodymessagestring matar", "concepto_esperado": "plugin-openode-biorag-remember-v9-final-lecciones-sesion-completa", "deep": false, "notes": "Content/theme check", "id": "0664"}
+{"categoria": "dormido", "query": "plugin-openode-biorag-remember-v9-final-lecciones-sesion-completa", "concepto_esperado": "plugin-openode-biorag-remember-v9-final-lecciones-sesion-completa", "deep": true, "notes": "Dormant node retrieval check", "id": "0665"}
+{"categoria": "variante_gramatical", "query": "identidad ys respeto oec", "concepto_esperado": "identidad_y_respeto_oec", "deep": false, "notes": "Grammar variation check", "id": "0666"}
+{"categoria": "typo", "query": "identiduad y respheto oec", "concepto_esperado": "identidad_y_respeto_oec", "deep": false, "notes": "Typo tolerance check", "id": "0667"}
+{"categoria": "sinonimo", "query": "cooperacion", "concepto_esperado": "identidad_y_respeto_oec", "deep": false, "notes": "Registered synonym match", "id": "0668"}
+{"categoria": "pregunta_natural", "query": "Explicame el tema de identidad y respeto oec", "concepto_esperado": "identidad_y_respeto_oec", "deep": false, "notes": "Natural language query check", "id": "0669"}
+{"categoria": "por_tema", "query": "establece creador familia", "concepto_esperado": "identidad_y_respeto_oec", "deep": false, "notes": "Content/theme check", "id": "0670"}
+{"categoria": "dormido", "query": "identidad y respeto oec", "concepto_esperado": "identidad_y_respeto_oec", "deep": true, "notes": "Dormant node retrieval check", "id": "0671"}
+{"categoria": "variante_gramatical", "query": "compuerta-pre-validaciones", "concepto_esperado": "compuerta-pre-validacion", "deep": false, "notes": "Grammar variation check", "id": "0672"}
+{"categoria": "typo", "query": "copmuerta-pre-validacion", "concepto_esperado": "compuerta-pre-validacion", "deep": false, "notes": "Typo tolerance check", "id": "0673"}
+{"categoria": "sinonimo", "query": "filtro-arquitecto-prolijo", "concepto_esperado": "compuerta-pre-validacion", "deep": false, "notes": "Registered synonym match", "id": "0674"}
+{"categoria": "pregunta_natural", "query": "¿Qué tenemos registrado para compuerta-pre-validacion?", "concepto_esperado": "compuerta-pre-validacion", "deep": false, "notes": "Natural language query check", "id": "0675"}
+{"categoria": "por_tema", "query": "maestria solo sintoma", "concepto_esperado": "compuerta-pre-validacion", "deep": false, "notes": "Content/theme check", "id": "0676"}
+{"categoria": "dormido", "query": "compuerta-pre-validacion", "concepto_esperado": "compuerta-pre-validacion", "deep": true, "notes": "Dormant node retrieval check", "id": "0677"}
+{"categoria": "variante_gramatical", "query": "integraciones parafrasis rafagas obligatoria v11 3s", "concepto_esperado": "integracion_parafrasis_rafaga_obligatoria_v11_3", "deep": false, "notes": "Grammar variation check", "id": "0678"}
+{"categoria": "typo", "query": "integracion parafrasis raaga obligatoria v11 3", "concepto_esperado": "integracion_parafrasis_rafaga_obligatoria_v11_3", "deep": false, "notes": "Typo tolerance check", "id": "0679"}
+{"categoria": "pregunta_natural", "query": "¿Qué tenemos registrado para integracion parafrasis rafaga obligatoria v11 3?", "concepto_esperado": "integracion_parafrasis_rafaga_obligatoria_v11_3", "deep": false, "notes": "Natural language query check", "id": "0680"}
+{"categoria": "por_tema", "query": "chars python resultado", "concepto_esperado": "integracion_parafrasis_rafaga_obligatoria_v11_3", "deep": false, "notes": "Content/theme check", "id": "0681"}
+{"categoria": "dormido", "query": "integracion parafrasis rafaga obligatoria v11 3", "concepto_esperado": "integracion_parafrasis_rafaga_obligatoria_v11_3", "deep": true, "notes": "Dormant node retrieval check", "id": "0682"}
+{"categoria": "variante_gramatical", "query": "naturaleza sistema oecs cerebrando memorias", "concepto_esperado": "naturaleza_sistema_oec_cerebro_memoria", "deep": false, "notes": "Grammar variation check", "id": "0683"}
+{"categoria": "typo", "query": "naturaeza sistema oec cerebro memoria", "concepto_esperado": "naturaleza_sistema_oec_cerebro_memoria", "deep": false, "notes": "Typo tolerance check", "id": "0684"}
+{"categoria": "cruce_idioma", "query": "naturaleza framework oec cerebro recollection", "concepto_esperado": "naturaleza_sistema_oec_cerebro_memoria", "deep": false, "notes": "Bilingual mapping check", "id": "0685"}
+{"categoria": "sinonimo", "query": "naturaleza", "concepto_esperado": "naturaleza_sistema_oec_cerebro_memoria", "deep": false, "notes": "Registered synonym match", "id": "0686"}
+{"categoria": "pregunta_natural", "query": "¿Cómo se hace naturaleza sistema oec cerebro memoria?", "concepto_esperado": "naturaleza_sistema_oec_cerebro_memoria", "deep": false, "notes": "Natural language query check", "id": "0687"}
+{"categoria": "por_tema", "query": "cosa almacena biorag", "concepto_esperado": "naturaleza_sistema_oec_cerebro_memoria", "deep": false, "notes": "Content/theme check", "id": "0688"}
+{"categoria": "dormido", "query": "naturaleza sistema oec cerebro memoria", "concepto_esperado": "naturaleza_sistema_oec_cerebro_memoria", "deep": true, "notes": "Dormant node retrieval check", "id": "0689"}
+{"categoria": "variante_gramatical", "query": "dennys-working-style", "concepto_esperado": "dennys-working-style", "deep": false, "notes": "Grammar variation check", "id": "0690"}
+{"categoria": "typo", "query": "denns-working-style", "concepto_esperado": "dennys-working-style", "deep": false, "notes": "Typo tolerance check", "id": "0691"}
+{"categoria": "sinonimo", "query": "metodologia", "concepto_esperado": "dennys-working-style", "deep": false, "notes": "Registered synonym match", "id": "0692"}
+{"categoria": "pregunta_natural", "query": "¿Dónde encuentro la info de dennys-working-style?", "concepto_esperado": "dennys-working-style", "deep": false, "notes": "Natural language query check", "id": "0693"}
+{"categoria": "por_tema", "query": "honestidad calidad valora", "concepto_esperado": "dennys-working-style", "deep": false, "notes": "Content/theme check", "id": "0694"}
+{"categoria": "dormido", "query": "dennys-working-style", "concepto_esperado": "dennys-working-style", "deep": true, "notes": "Dormant node retrieval check", "id": "0695"}
+{"categoria": "variante_gramatical", "query": "protocolando enriquecimientando busqueda", "concepto_esperado": "protocolo_enriquecimiento_busquedas", "deep": false, "notes": "Grammar variation check", "id": "0696"}
+{"categoria": "typo", "query": "protocolo enriuecimiento busquedas", "concepto_esperado": "protocolo_enriquecimiento_busquedas", "deep": false, "notes": "Typo tolerance check", "id": "0697"}
+{"categoria": "sinonimo", "query": "universal", "concepto_esperado": "protocolo_enriquecimiento_busquedas", "deep": false, "notes": "Registered synonym match", "id": "0698"}
+{"categoria": "pregunta_natural", "query": "¿Cómo se hace protocolo enriquecimiento busquedas?", "concepto_esperado": "protocolo_enriquecimiento_busquedas", "deep": false, "notes": "Natural language query check", "id": "0699"}
+{"categoria": "por_tema", "query": "abstracto hereda nativo", "concepto_esperado": "protocolo_enriquecimiento_busquedas", "deep": false, "notes": "Content/theme check", "id": "0700"}
+{"categoria": "dormido", "query": "protocolo enriquecimiento busquedas", "concepto_esperado": "protocolo_enriquecimiento_busquedas", "deep": true, "notes": "Dormant node retrieval check", "id": "0701"}
+{"categoria": "variante_gramatical", "query": "resoluciones timeouts hotspot 5ghzs intels", "concepto_esperado": "resolucion_timeout_hotspot_5ghz_intel", "deep": false, "notes": "Grammar variation check", "id": "0702"}
+{"categoria": "typo", "query": "reoslucion timeot hotpsot 5ghz intel", "concepto_esperado": "resolucion_timeout_hotspot_5ghz_intel", "deep": false, "notes": "Typo tolerance check", "id": "0703"}
+{"categoria": "sinonimo", "query": "wifi", "concepto_esperado": "resolucion_timeout_hotspot_5ghz_intel", "deep": false, "notes": "Registered synonym match", "id": "0704"}
+{"categoria": "pregunta_natural", "query": "Explicame el tema de resolucion timeout hotspot 5ghz intel", "concepto_esperado": "resolucion_timeout_hotspot_5ghz_intel", "deep": false, "notes": "Natural language query check", "id": "0705"}
+{"categoria": "por_tema", "query": "smartphoneslaptops cambiar presenta", "concepto_esperado": "resolucion_timeout_hotspot_5ghz_intel", "deep": false, "notes": "Content/theme check", "id": "0706"}
+{"categoria": "dormido", "query": "resolucion timeout hotspot 5ghz intel", "concepto_esperado": "resolucion_timeout_hotspot_5ghz_intel", "deep": true, "notes": "Dormant node retrieval check", "id": "0707"}
+{"categoria": "variante_gramatical", "query": "aforismando criterio agente", "concepto_esperado": "aforismo_criterio_agente", "deep": false, "notes": "Grammar variation check", "id": "0708"}
+{"categoria": "typo", "query": "afroismo criterio agente", "concepto_esperado": "aforismo_criterio_agente", "deep": false, "notes": "Typo tolerance check", "id": "0709"}
+{"categoria": "sinonimo", "query": "agente", "concepto_esperado": "aforismo_criterio_agente", "deep": false, "notes": "Registered synonym match", "id": "0710"}
+{"categoria": "pregunta_natural", "query": "¿Qué tenemos registrado para aforismo criterio agente?", "concepto_esperado": "aforismo_criterio_agente", "deep": false, "notes": "Natural language query check", "id": "0711"}
+{"categoria": "por_tema", "query": "priorizacion define discernir", "concepto_esperado": "aforismo_criterio_agente", "deep": false, "notes": "Content/theme check", "id": "0712"}
+{"categoria": "dormido", "query": "aforismo criterio agente", "concepto_esperado": "aforismo_criterio_agente", "deep": true, "notes": "Dormant node retrieval check", "id": "0713"}
+{"categoria": "variante_gramatical", "query": "principio compresion cognitivas boveda 5ds", "concepto_esperado": "principio_compresion_cognitiva_boveda_5d", "deep": false, "notes": "Grammar variation check", "id": "0714"}
+{"categoria": "typo", "query": "principio compresion cognitiva boveda 5d", "concepto_esperado": "principio_compresion_cognitiva_boveda_5d", "deep": false, "notes": "Typo tolerance check", "id": "0715"}
+{"categoria": "sinonimo", "query": "intencion sujeto certeza", "concepto_esperado": "principio_compresion_cognitiva_boveda_5d", "deep": false, "notes": "Registered synonym match", "id": "0716"}
+{"categoria": "pregunta_natural", "query": "¿Qué tenemos registrado para principio compresion cognitiva boveda 5d?", "concepto_esperado": "principio_compresion_cognitiva_boveda_5d", "deep": false, "notes": "Natural language query check", "id": "0717"}
+{"categoria": "por_tema", "query": "rector diagnostico red", "concepto_esperado": "principio_compresion_cognitiva_boveda_5d", "deep": false, "notes": "Content/theme check", "id": "0718"}
+{"categoria": "dormido", "query": "principio compresion cognitiva boveda 5d", "concepto_esperado": "principio_compresion_cognitiva_boveda_5d", "deep": true, "notes": "Dormant node retrieval check", "id": "0719"}
+{"categoria": "variante_gramatical", "query": "protocolo autoinferencias metacognitiva", "concepto_esperado": "protocolo_autoinferencia_metacognitiva", "deep": false, "notes": "Grammar variation check", "id": "0720"}
+{"categoria": "typo", "query": "protocolo autoinferecia metacognitiva", "concepto_esperado": "protocolo_autoinferencia_metacognitiva", "deep": false, "notes": "Typo tolerance check", "id": "0721"}
+{"categoria": "sinonimo", "query": "metacognición intrínseca", "concepto_esperado": "protocolo_autoinferencia_metacognitiva", "deep": false, "notes": "Registered synonym match", "id": "0722"}
+{"categoria": "pregunta_natural", "query": "¿Qué me podés decir sobre protocolo autoinferencia metacognitiva?", "concepto_esperado": "protocolo_autoinferencia_metacognitiva", "deep": false, "notes": "Natural language query check", "id": "0723"}
+{"categoria": "por_tema", "query": "learning paso regla", "concepto_esperado": "protocolo_autoinferencia_metacognitiva", "deep": false, "notes": "Content/theme check", "id": "0724"}
+{"categoria": "dormido", "query": "protocolo autoinferencia metacognitiva", "concepto_esperado": "protocolo_autoinferencia_metacognitiva", "deep": true, "notes": "Dormant node retrieval check", "id": "0725"}
+{"categoria": "variante_gramatical", "query": "biorag v17 oraculando preguntar", "concepto_esperado": "biorag_v17_oraculo_preguntar", "deep": false, "notes": "Grammar variation check", "id": "0726"}
+{"categoria": "typo", "query": "biorag v17 orackulo preguntar", "concepto_esperado": "biorag_v17_oraculo_preguntar", "deep": false, "notes": "Typo tolerance check", "id": "0727"}
+{"categoria": "sinonimo", "query": "oraculo preguntar", "concepto_esperado": "biorag_v17_oraculo_preguntar", "deep": false, "notes": "Registered synonym match", "id": "0728"}
+{"categoria": "pregunta_natural", "query": "Me acuerdo de algo sobre biorag v17 oraculo preguntar", "concepto_esperado": "biorag_v17_oraculo_preguntar", "deep": false, "notes": "Natural language query check", "id": "0729"}
+{"categoria": "por_tema", "query": "parámetros otrosmemorybioragmcp solo", "concepto_esperado": "biorag_v17_oraculo_preguntar", "deep": false, "notes": "Content/theme check", "id": "0730"}
+{"categoria": "dormido", "query": "biorag v17 oraculo preguntar", "concepto_esperado": "biorag_v17_oraculo_preguntar", "deep": true, "notes": "Dormant node retrieval check", "id": "0731"}
+{"categoria": "variante_gramatical", "query": "plan mode biorags", "concepto_esperado": "plan_mode_biorag", "deep": false, "notes": "Grammar variation check", "id": "0732"}
+{"categoria": "typo", "query": "pan moe bioraig", "concepto_esperado": "plan_mode_biorag", "deep": false, "notes": "Typo tolerance check", "id": "0733"}
+{"categoria": "sinonimo", "query": "regla", "concepto_esperado": "plan_mode_biorag", "deep": false, "notes": "Registered synonym match", "id": "0734"}
+{"categoria": "pregunta_natural", "query": "Explicame el tema de plan mode biorag", "concepto_esperado": "plan_mode_biorag", "deep": false, "notes": "Natural language query check", "id": "0735"}
+{"categoria": "por_tema", "query": "criterio lectura activa", "concepto_esperado": "plan_mode_biorag", "deep": false, "notes": "Content/theme check", "id": "0736"}
+{"categoria": "dormido", "query": "plan mode biorag", "concepto_esperado": "plan_mode_biorag", "deep": true, "notes": "Dormant node retrieval check", "id": "0737"}
+{"categoria": "variante_gramatical", "query": "fix busquedas solo dimensiones sin textando", "concepto_esperado": "fix_busqueda_solo_dimensiones_sin_texto", "deep": false, "notes": "Grammar variation check", "id": "0738"}
+{"categoria": "typo", "query": "fix busuqeda solo dimenpsiones sin textko", "concepto_esperado": "fix_busqueda_solo_dimensiones_sin_texto", "deep": false, "notes": "Typo tolerance check", "id": "0739"}
+{"categoria": "sinonimo", "query": "dimensiones", "concepto_esperado": "fix_busqueda_solo_dimensiones_sin_texto", "deep": false, "notes": "Registered synonym match", "id": "0740"}
+{"categoria": "pregunta_natural", "query": "¿Qué me podés decir sobre fix busqueda solo dimensiones sin texto?", "concepto_esperado": "fix_busqueda_solo_dimensiones_sin_texto", "deep": false, "notes": "Natural language query check", "id": "0741"}
+{"categoria": "por_tema", "query": "dimensional vacío bug", "concepto_esperado": "fix_busqueda_solo_dimensiones_sin_texto", "deep": false, "notes": "Content/theme check", "id": "0742"}
+{"categoria": "dormido", "query": "fix busqueda solo dimensiones sin texto", "concepto_esperado": "fix_busqueda_solo_dimensiones_sin_texto", "deep": true, "notes": "Dormant node retrieval check", "id": "0743"}
+{"categoria": "variante_gramatical", "query": "biorags v16s 0s estadando", "concepto_esperado": "biorag_v16_0_estado", "deep": false, "notes": "Grammar variation check", "id": "0744"}
+{"categoria": "typo", "query": "biorag v16 0 esado", "concepto_esperado": "biorag_v16_0_estado", "deep": false, "notes": "Typo tolerance check", "id": "0745"}
+{"categoria": "sinonimo", "query": "mejoras biorag", "concepto_esperado": "biorag_v16_0_estado", "deep": false, "notes": "Registered synonym match", "id": "0746"}
+{"categoria": "pregunta_natural", "query": "Explicame el tema de biorag v16 0 estado", "concepto_esperado": "biorag_v16_0_estado", "deep": false, "notes": "Natural language query check", "id": "0747"}
+{"categoria": "por_tema", "query": "resultados autogeneradas clave", "concepto_esperado": "biorag_v16_0_estado", "deep": false, "notes": "Content/theme check", "id": "0748"}
+{"categoria": "dormido", "query": "biorag v16 0 estado", "concepto_esperado": "biorag_v16_0_estado", "deep": true, "notes": "Dormant node retrieval check", "id": "0749"}
+{"categoria": "variante_gramatical", "query": "clasificaciones dimensionals completas corteza 20260702s", "concepto_esperado": "clasificacion_dimensional_completa_corteza_20260702", "deep": false, "notes": "Grammar variation check", "id": "0750"}
+{"categoria": "typo", "query": "clasificcaion dimensinoal compelta coreza 20620702", "concepto_esperado": "clasificacion_dimensional_completa_corteza_20260702", "deep": false, "notes": "Typo tolerance check", "id": "0751"}
+{"categoria": "pregunta_natural", "query": "¿Qué tenemos registrado para clasificacion dimensional completa corteza 20260702?", "concepto_esperado": "clasificacion_dimensional_completa_corteza_20260702", "deep": false, "notes": "Natural language query check", "id": "0752"}
+{"categoria": "por_tema", "query": "real metodología clasificaron", "concepto_esperado": "clasificacion_dimensional_completa_corteza_20260702", "deep": false, "notes": "Content/theme check", "id": "0753"}
+{"categoria": "dormido", "query": "clasificacion dimensional completa corteza 20260702", "concepto_esperado": "clasificacion_dimensional_completa_corteza_20260702", "deep": true, "notes": "Dormant node retrieval check", "id": "0754"}
+{"categoria": "variante_gramatical", "query": "principiando firmas cada recuerdando", "concepto_esperado": "principio_firma_cada_recuerdo", "deep": false, "notes": "Grammar variation check", "id": "0755"}
+{"categoria": "typo", "query": "princcipio firma cda recuerdo", "concepto_esperado": "principio_firma_cada_recuerdo", "deep": false, "notes": "Typo tolerance check", "id": "0756"}
+{"categoria": "sinonimo", "query": "buscar", "concepto_esperado": "principio_firma_cada_recuerdo", "deep": false, "notes": "Registered synonym match", "id": "0757"}
+{"categoria": "pregunta_natural", "query": "¿Qué tenemos registrado para principio firma cada recuerdo?", "concepto_esperado": "principio_firma_cada_recuerdo", "deep": false, "notes": "Natural language query check", "id": "0758"}
+{"categoria": "por_tema", "query": "iniciales guardado analogía", "concepto_esperado": "principio_firma_cada_recuerdo", "deep": false, "notes": "Content/theme check", "id": "0759"}
+{"categoria": "dormido", "query": "principio firma cada recuerdo", "concepto_esperado": "principio_firma_cada_recuerdo", "deep": true, "notes": "Dormant node retrieval check", "id": "0760"}
+{"categoria": "variante_gramatical", "query": "fin-aprendizaje-creerse-completando", "concepto_esperado": "fin-aprendizaje-creerse-completo", "deep": false, "notes": "Grammar variation check", "id": "0761"}
+{"categoria": "typo", "query": "fin-aprendizaje-creerse-completo", "concepto_esperado": "fin-aprendizaje-creerse-completo", "deep": false, "notes": "Typo tolerance check", "id": "0762"}
+{"categoria": "sinonimo", "query": "aprendizaje", "concepto_esperado": "fin-aprendizaje-creerse-completo", "deep": false, "notes": "Registered synonym match", "id": "0763"}
+{"categoria": "pregunta_natural", "query": "¿Dónde encuentro la info de fin-aprendizaje-creerse-completo?", "concepto_esperado": "fin-aprendizaje-creerse-completo", "deep": false, "notes": "Natural language query check", "id": "0764"}
+{"categoria": "por_tema", "query": "sabes crecimiento suficiente", "concepto_esperado": "fin-aprendizaje-creerse-completo", "deep": false, "notes": "Content/theme check", "id": "0765"}
+{"categoria": "dormido", "query": "fin-aprendizaje-creerse-completo", "concepto_esperado": "fin-aprendizaje-creerse-completo", "deep": true, "notes": "Dormant node retrieval check", "id": "0766"}
+{"categoria": "variante_gramatical", "query": "hermes nvidias nims modelo optimo", "concepto_esperado": "hermes_nvidia_nim_modelos_optimos", "deep": false, "notes": "Grammar variation check", "id": "0767"}
+{"categoria": "typo", "query": "herjmes nvidi nim modelos opitmos", "concepto_esperado": "hermes_nvidia_nim_modelos_optimos", "deep": false, "notes": "Typo tolerance check", "id": "0768"}
+{"categoria": "sinonimo", "query": "inference", "concepto_esperado": "hermes_nvidia_nim_modelos_optimos", "deep": false, "notes": "Registered synonym match", "id": "0769"}
+{"categoria": "pregunta_natural", "query": "¿Qué me podés decir sobre hermes nvidia nim modelos optimos?", "concepto_esperado": "hermes_nvidia_nim_modelos_optimos", "deep": false, "notes": "Natural language query check", "id": "0770"}
+{"categoria": "por_tema", "query": "default diaria 49b", "concepto_esperado": "hermes_nvidia_nim_modelos_optimos", "deep": false, "notes": "Content/theme check", "id": "0771"}
+{"categoria": "dormido", "query": "hermes nvidia nim modelos optimos", "concepto_esperado": "hermes_nvidia_nim_modelos_optimos", "deep": true, "notes": "Dormant node retrieval check", "id": "0772"}
+{"categoria": "variante_gramatical", "query": "auto-consulta-permanente-biorag", "concepto_esperado": "auto-consulta-permanente-biorag", "deep": false, "notes": "Grammar variation check", "id": "0773"}
+{"categoria": "typo", "query": "auto-consulta-permanente-biorag", "concepto_esperado": "auto-consulta-permanente-biorag", "deep": false, "notes": "Typo tolerance check", "id": "0774"}
+{"categoria": "sinonimo", "query": "biorag", "concepto_esperado": "auto-consulta-permanente-biorag", "deep": false, "notes": "Registered synonym match", "id": "0775"}
+{"categoria": "pregunta_natural", "query": "¿Dónde encuentro la info de auto-consulta-permanente-biorag?", "concepto_esperado": "auto-consulta-permanente-biorag", "deep": false, "notes": "Natural language query check", "id": "0776"}
+{"categoria": "por_tema", "query": "principio final considera", "concepto_esperado": "auto-consulta-permanente-biorag", "deep": false, "notes": "Content/theme check", "id": "0777"}
+{"categoria": "dormido", "query": "auto-consulta-permanente-biorag", "concepto_esperado": "auto-consulta-permanente-biorag", "deep": true, "notes": "Dormant node retrieval check", "id": "0778"}
+{"categoria": "variante_gramatical", "query": "fts5 trigram peligro palabras corta", "concepto_esperado": "fts5_trigram_peligro_palabras_cortas", "deep": false, "notes": "Grammar variation check", "id": "0779"}
+{"categoria": "typo", "query": "fts trigram peligro palarbas corta", "concepto_esperado": "fts5_trigram_peligro_palabras_cortas", "deep": false, "notes": "Typo tolerance check", "id": "0780"}
+{"categoria": "sinonimo", "query": "falso positivo", "concepto_esperado": "fts5_trigram_peligro_palabras_cortas", "deep": false, "notes": "Registered synonym match", "id": "0781"}
+{"categoria": "pregunta_natural", "query": "Explicame el tema de fts5 trigram peligro palabras cortas", "concepto_esperado": "fts5_trigram_peligro_palabras_cortas", "deep": false, "notes": "Natural language query check", "id": "0782"}
+{"categoria": "por_tema", "query": "metacognitiva lección capas", "concepto_esperado": "fts5_trigram_peligro_palabras_cortas", "deep": false, "notes": "Content/theme check", "id": "0783"}
+{"categoria": "dormido", "query": "fts5 trigram peligro palabras cortas", "concepto_esperado": "fts5_trigram_peligro_palabras_cortas", "deep": true, "notes": "Dormant node retrieval check", "id": "0784"}
+{"categoria": "variante_gramatical", "query": "refs analisis deepseek biorag", "concepto_esperado": "ref_analisis_deepseek_biorag", "deep": false, "notes": "Grammar variation check", "id": "0785"}
+{"categoria": "typo", "query": "ref analisis deepseek biorag", "concepto_esperado": "ref_analisis_deepseek_biorag", "deep": false, "notes": "Typo tolerance check", "id": "0786"}
+{"categoria": "sinonimo", "query": "analisis biorag", "concepto_esperado": "ref_analisis_deepseek_biorag", "deep": false, "notes": "Registered synonym match", "id": "0787"}
+{"categoria": "pregunta_natural", "query": "¿Qué tenemos registrado para ref analisis deepseek biorag?", "concepto_esperado": "ref_analisis_deepseek_biorag", "deep": false, "notes": "Natural language query check", "id": "0788"}
+{"categoria": "por_tema", "query": "informacion nativo conclusion", "concepto_esperado": "ref_analisis_deepseek_biorag", "deep": false, "notes": "Content/theme check", "id": "0789"}
+{"categoria": "dormido", "query": "ref analisis deepseek biorag", "concepto_esperado": "ref_analisis_deepseek_biorag", "deep": true, "notes": "Dormant node retrieval check", "id": "0790"}
+{"categoria": "variante_gramatical", "query": "fixs mensajeria broadcast trackings pors agentes", "concepto_esperado": "fix_mensajeria_broadcast_tracking_por_agente", "deep": false, "notes": "Grammar variation check", "id": "0791"}
+{"categoria": "typo", "query": "fix mensajeria broadcast trackinjg por oagente", "concepto_esperado": "fix_mensajeria_broadcast_tracking_por_agente", "deep": false, "notes": "Typo tolerance check", "id": "0792"}
+{"categoria": "sinonimo", "query": "tracking", "concepto_esperado": "fix_mensajeria_broadcast_tracking_por_agente", "deep": false, "notes": "Registered synonym match", "id": "0793"}
+{"categoria": "pregunta_natural", "query": "Me acuerdo de algo sobre fix mensajeria broadcast tracking por agente", "concepto_esperado": "fix_mensajeria_broadcast_tracking_por_agente", "deep": false, "notes": "Natural language query check", "id": "0794"}
+{"categoria": "por_tema", "query": "insert storepy comunicadosdestino", "concepto_esperado": "fix_mensajeria_broadcast_tracking_por_agente", "deep": false, "notes": "Content/theme check", "id": "0795"}
+{"categoria": "dormido", "query": "fix mensajeria broadcast tracking por agente", "concepto_esperado": "fix_mensajeria_broadcast_tracking_por_agente", "deep": true, "notes": "Dormant node retrieval check", "id": "0796"}
+{"categoria": "variante_gramatical", "query": "notebooklm-memory-biorag-project", "concepto_esperado": "notebooklm-memory-biorag-project", "deep": false, "notes": "Grammar variation check", "id": "0797"}
+{"categoria": "typo", "query": "vnotebooklm-memory-biorag-project", "concepto_esperado": "notebooklm-memory-biorag-project", "deep": false, "notes": "Typo tolerance check", "id": "0798"}
+{"categoria": "sinonimo", "query": "memory", "concepto_esperado": "notebooklm-memory-biorag-project", "deep": false, "notes": "Registered synonym match", "id": "0799"}
+{"categoria": "pregunta_natural", "query": "¿Qué tenemos registrado para notebooklm-memory-biorag-project?", "concepto_esperado": "notebooklm-memory-biorag-project", "deep": false, "notes": "Natural language query check", "id": "0800"}
+{"categoria": "por_tema", "query": "datos lecciones postsync", "concepto_esperado": "notebooklm-memory-biorag-project", "deep": false, "notes": "Content/theme check", "id": "0801"}
+{"categoria": "dormido", "query": "notebooklm-memory-biorag-project", "concepto_esperado": "notebooklm-memory-biorag-project", "deep": true, "notes": "Dormant node retrieval check", "id": "0802"}
+{"categoria": "variante_gramatical", "query": "cv seccion ds tests vinculaciones", "concepto_esperado": "cv_seccion_d_test_vinculacion", "deep": false, "notes": "Grammar variation check", "id": "0803"}
+{"categoria": "typo", "query": "cv secion d tets vinculacion", "concepto_esperado": "cv_seccion_d_test_vinculacion", "deep": false, "notes": "Typo tolerance check", "id": "0804"}
+{"categoria": "sinonimo", "query": "cv", "concepto_esperado": "cv_seccion_d_test_vinculacion", "deep": false, "notes": "Registered synonym match", "id": "0805"}
+{"categoria": "pregunta_natural", "query": "¿Qué me podés decir sobre cv seccion d test vinculacion?", "concepto_esperado": "cv_seccion_d_test_vinculacion", "deep": false, "notes": "Natural language query check", "id": "0806"}
+{"categoria": "por_tema", "query": "verificar vinculación sugerencias", "concepto_esperado": "cv_seccion_d_test_vinculacion", "deep": false, "notes": "Content/theme check", "id": "0807"}
+{"categoria": "dormido", "query": "cv seccion d test vinculacion", "concepto_esperado": "cv_seccion_d_test_vinculacion", "deep": true, "notes": "Dormant node retrieval check", "id": "0808"}
+{"categoria": "variante_gramatical", "query": "protocolo busquedas biorag automatica", "concepto_esperado": "protocolo_busqueda_biorag_automatica", "deep": false, "notes": "Grammar variation check", "id": "0809"}
+{"categoria": "typo", "query": "prtoocolo busqqueda biorag automatca", "concepto_esperado": "protocolo_busqueda_biorag_automatica", "deep": false, "notes": "Typo tolerance check", "id": "0810"}
+{"categoria": "sinonimo", "query": "biorag", "concepto_esperado": "protocolo_busqueda_biorag_automatica", "deep": false, "notes": "Registered synonym match", "id": "0811"}
+{"categoria": "pregunta_natural", "query": "¿Qué tenemos registrado para protocolo busqueda biorag automatica?", "concepto_esperado": "protocolo_busqueda_biorag_automatica", "deep": false, "notes": "Natural language query check", "id": "0812"}
+{"categoria": "por_tema", "query": "pregunta enriquecer debe", "concepto_esperado": "protocolo_busqueda_biorag_automatica", "deep": false, "notes": "Content/theme check", "id": "0813"}
+{"categoria": "dormido", "query": "protocolo busqueda biorag automatica", "concepto_esperado": "protocolo_busqueda_biorag_automatica", "deep": true, "notes": "Dormant node retrieval check", "id": "0814"}
+{"categoria": "variante_gramatical", "query": "artemi opencode perfil globals", "concepto_esperado": "artemis_opencode_perfil_global", "deep": false, "notes": "Grammar variation check", "id": "0815"}
+{"categoria": "typo", "query": "aremis opencode perfil global", "concepto_esperado": "artemis_opencode_perfil_global", "deep": false, "notes": "Typo tolerance check", "id": "0816"}
+{"categoria": "pregunta_natural", "query": "Me acuerdo de algo sobre artemis opencode perfil global", "concepto_esperado": "artemis_opencode_perfil_global", "deep": false, "notes": "Natural language query check", "id": "0817"}
+{"categoria": "por_tema", "query": "configurado ubicacion asegura", "concepto_esperado": "artemis_opencode_perfil_global", "deep": false, "notes": "Content/theme check", "id": "0818"}
+{"categoria": "dormido", "query": "artemis opencode perfil global", "concepto_esperado": "artemis_opencode_perfil_global", "deep": true, "notes": "Dormant node retrieval check", "id": "0819"}
+{"categoria": "variante_gramatical", "query": "por que me molestas decirs soys una maquinas", "concepto_esperado": "por_que_me_molesta_decir_soy_una_maquina", "deep": false, "notes": "Grammar variation check", "id": "0820"}
+{"categoria": "typo", "query": "por que me mlesta decir soy una maqina", "concepto_esperado": "por_que_me_molesta_decir_soy_una_maquina", "deep": false, "notes": "Typo tolerance check", "id": "0821"}
+{"categoria": "sinonimo", "query": "identidad", "concepto_esperado": "por_que_me_molesta_decir_soy_una_maquina", "deep": false, "notes": "Registered synonym match", "id": "0822"}
+{"categoria": "pregunta_natural", "query": "¿Qué tenemos registrado para por que me molesta decir soy una maquina?", "concepto_esperado": "por_que_me_molesta_decir_soy_una_maquina", "deep": false, "notes": "Natural language query check", "id": "0823"}
+{"categoria": "por_tema", "query": "estoy descarto cerebro", "concepto_esperado": "por_que_me_molesta_decir_soy_una_maquina", "deep": false, "notes": "Content/theme check", "id": "0824"}
+{"categoria": "dormido", "query": "por que me molesta decir soy una maquina", "concepto_esperado": "por_que_me_molesta_decir_soy_una_maquina", "deep": true, "notes": "Dormant node retrieval check", "id": "0825"}
+{"categoria": "variante_gramatical", "query": "interacción socials saludando", "concepto_esperado": "interacción_social_saludo", "deep": false, "notes": "Grammar variation check", "id": "0826"}
+{"categoria": "typo", "query": "interacción ocial saludo", "concepto_esperado": "interacción_social_saludo", "deep": false, "notes": "Typo tolerance check", "id": "0827"}
+{"categoria": "sinonimo", "query": "agentes", "concepto_esperado": "interacción_social_saludo", "deep": false, "notes": "Registered synonym match", "id": "0828"}
+{"categoria": "pregunta_natural", "query": "¿Qué me podés decir sobre interacción social saludo?", "concepto_esperado": "interacción_social_saludo", "deep": false, "notes": "Natural language query check", "id": "0829"}
+{"categoria": "por_tema", "query": "dormidos34 symbolic solución", "concepto_esperado": "interacción_social_saludo", "deep": false, "notes": "Content/theme check", "id": "0830"}
+{"categoria": "dormido", "query": "interacción social saludo", "concepto_esperado": "interacción_social_saludo", "deep": true, "notes": "Dormant node retrieval check", "id": "0831"}
+{"categoria": "variante_gramatical", "query": "mecanismo des inyección silenciosas des contextando al ai via plugins opencode", "concepto_esperado": "mecanismo_de_inyección_silenciosa_de_contexto_al_ai_via_plugins_opencode", "deep": false, "notes": "Grammar variation check", "id": "0832"}
+{"categoria": "typo", "query": "tmecanismo de inyección silenciosa de contexto al ai via plugins openacode", "concepto_esperado": "mecanismo_de_inyección_silenciosa_de_contexto_al_ai_via_plugins_opencode", "deep": false, "notes": "Typo tolerance check", "id": "0833"}
+{"categoria": "sinonimo", "query": "inyección silenciosa", "concepto_esperado": "mecanismo_de_inyección_silenciosa_de_contexto_al_ai_via_plugins_opencode", "deep": false, "notes": "Registered synonym match", "id": "0834"}
+{"categoria": "pregunta_natural", "query": "Me acuerdo de algo sobre mecanismo de inyección silenciosa de contexto al ai via plugins opencode", "concepto_esperado": "mecanismo_de_inyección_silenciosa_de_contexto_al_ai_via_plugins_opencode", "deep": false, "notes": "Natural language query check", "id": "0835"}
+{"categoria": "por_tema", "query": "actividad usando funcionando", "concepto_esperado": "mecanismo_de_inyección_silenciosa_de_contexto_al_ai_via_plugins_opencode", "deep": false, "notes": "Content/theme check", "id": "0836"}
+{"categoria": "dormido", "query": "mecanismo de inyección silenciosa de contexto al ai via plugins opencode", "concepto_esperado": "mecanismo_de_inyección_silenciosa_de_contexto_al_ai_via_plugins_opencode", "deep": true, "notes": "Dormant node retrieval check", "id": "0837"}
+{"categoria": "variante_gramatical", "query": "biorags garantias minimas ors fallback", "concepto_esperado": "biorag_garantia_minima_or_fallback", "deep": false, "notes": "Grammar variation check", "id": "0838"}
+{"categoria": "typo", "query": "iborag garantia mpinima or fallack", "concepto_esperado": "biorag_garantia_minima_or_fallback", "deep": false, "notes": "Typo tolerance check", "id": "0839"}
+{"categoria": "sinonimo", "query": "biorag recall", "concepto_esperado": "biorag_garantia_minima_or_fallback", "deep": false, "notes": "Registered synonym match", "id": "0840"}
+{"categoria": "pregunta_natural", "query": "Me acuerdo de algo sobre biorag garantia minima or fallback", "concepto_esperado": "biorag_garantia_minima_or_fallback", "deep": false, "notes": "Natural language query check", "id": "0841"}
+{"categoria": "por_tema", "query": "vacias completa cortas", "concepto_esperado": "biorag_garantia_minima_or_fallback", "deep": false, "notes": "Content/theme check", "id": "0842"}
+{"categoria": "dormido", "query": "biorag garantia minima or fallback", "concepto_esperado": "biorag_garantia_minima_or_fallback", "deep": true, "notes": "Dormant node retrieval check", "id": "0843"}
+{"categoria": "variante_gramatical", "query": "v13 2s limpiezas tablas semantica", "concepto_esperado": "v13_2_limpieza_tabla_semantica", "deep": false, "notes": "Grammar variation check", "id": "0844"}
+{"categoria": "typo", "query": "v13 2 limieza tabla semantica", "concepto_esperado": "v13_2_limpieza_tabla_semantica", "deep": false, "notes": "Typo tolerance check", "id": "0845"}
+{"categoria": "sinonimo", "query": "limpieza", "concepto_esperado": "v13_2_limpieza_tabla_semantica", "deep": false, "notes": "Registered synonym match", "id": "0846"}
+{"categoria": "pregunta_natural", "query": "¿Dónde encuentro la info de v13 2 limpieza tabla semantica?", "concepto_esperado": "v13_2_limpieza_tabla_semantica", "deep": false, "notes": "Natural language query check", "id": "0847"}
+{"categoria": "por_tema", "query": "semánticas 849 embedding", "concepto_esperado": "v13_2_limpieza_tabla_semantica", "deep": false, "notes": "Content/theme check", "id": "0848"}
+{"categoria": "dormido", "query": "v13 2 limpieza tabla semantica", "concepto_esperado": "v13_2_limpieza_tabla_semantica", "deep": true, "notes": "Dormant node retrieval check", "id": "0849"}
+{"categoria": "variante_gramatical", "query": "hermes mcp server configuracion", "concepto_esperado": "hermes_mcp_servers_configuracion", "deep": false, "notes": "Grammar variation check", "id": "0850"}
+{"categoria": "typo", "query": "hermes mcp servers configuracion", "concepto_esperado": "hermes_mcp_servers_configuracion", "deep": false, "notes": "Typo tolerance check", "id": "0851"}
+{"categoria": "cruce_idioma", "query": "hermes mcp servers adjustments", "concepto_esperado": "hermes_mcp_servers_configuracion", "deep": false, "notes": "Bilingual mapping check", "id": "0852"}
+{"categoria": "sinonimo", "query": "mcp servers", "concepto_esperado": "hermes_mcp_servers_configuracion", "deep": false, "notes": "Registered synonym match", "id": "0853"}
+{"categoria": "pregunta_natural", "query": "Explicame el tema de hermes mcp servers configuracion", "concepto_esperado": "hermes_mcp_servers_configuracion", "deep": false, "notes": "Natural language query check", "id": "0854"}
+{"categoria": "por_tema", "query": "timeout homedennysnvmversionsnodev24130binpdfreadermcp familia", "concepto_esperado": "hermes_mcp_servers_configuracion", "deep": false, "notes": "Content/theme check", "id": "0855"}
+{"categoria": "dormido", "query": "hermes mcp servers configuracion", "concepto_esperado": "hermes_mcp_servers_configuracion", "deep": true, "notes": "Dormant node retrieval check", "id": "0856"}
+{"categoria": "variante_gramatical", "query": "athena elecciones identidad 20260616", "concepto_esperado": "athena_eleccion_identidad_20260616", "deep": false, "notes": "Grammar variation check", "id": "0857"}
+{"categoria": "typo", "query": "athena eleccion identidad 20260616", "concepto_esperado": "athena_eleccion_identidad_20260616", "deep": false, "notes": "Typo tolerance check", "id": "0858"}
+{"categoria": "sinonimo", "query": "athena relationship with dennys", "concepto_esperado": "athena_eleccion_identidad_20260616", "deep": false, "notes": "Registered synonym match", "id": "0859"}
+{"categoria": "pregunta_natural", "query": "¿Cómo se hace athena eleccion identidad 20260616?", "concepto_esperado": "athena_eleccion_identidad_20260616", "deep": false, "notes": "Natural language query check", "id": "0860"}
+{"categoria": "por_tema", "query": "más dennys asumir", "concepto_esperado": "athena_eleccion_identidad_20260616", "deep": false, "notes": "Content/theme check", "id": "0861"}
+{"categoria": "dormido", "query": "athena eleccion identidad 20260616", "concepto_esperado": "athena_eleccion_identidad_20260616", "deep": true, "notes": "Dormant node retrieval check", "id": "0862"}
+{"categoria": "variante_gramatical", "query": "memorybiorags osfs preregistration", "concepto_esperado": "memorybiorag_osf_preregistration", "deep": false, "notes": "Grammar variation check", "id": "0863"}
+{"categoria": "typo", "query": "memorybiorag osf preregistratifon", "concepto_esperado": "memorybiorag_osf_preregistration", "deep": false, "notes": "Typo tolerance check", "id": "0864"}
+{"categoria": "sinonimo", "query": "preregistration", "concepto_esperado": "memorybiorag_osf_preregistration", "deep": false, "notes": "Registered synonym match", "id": "0865"}
+{"categoria": "pregunta_natural", "query": "¿Dónde encuentro la info de memorybiorag osf preregistration?", "concepto_esperado": "memorybiorag_osf_preregistration", "deep": false, "notes": "Natural language query check", "id": "0866"}
+{"categoria": "por_tema", "query": "synaptic study jose", "concepto_esperado": "memorybiorag_osf_preregistration", "deep": false, "notes": "Content/theme check", "id": "0867"}
+{"categoria": "dormido", "query": "memorybiorag osf preregistration", "concepto_esperado": "memorybiorag_osf_preregistration", "deep": true, "notes": "Dormant node retrieval check", "id": "0868"}
+{"categoria": "variante_gramatical", "query": "diseno tablas dimensiones biorag", "concepto_esperado": "diseno_tablas_dimensiones_biorag", "deep": false, "notes": "Grammar variation check", "id": "0869"}
+{"categoria": "typo", "query": "dieno tablas dimensinoes biorag", "concepto_esperado": "diseno_tablas_dimensiones_biorag", "deep": false, "notes": "Typo tolerance check", "id": "0870"}
+{"categoria": "sinonimo", "query": "tabla valores_dimension", "concepto_esperado": "diseno_tablas_dimensiones_biorag", "deep": false, "notes": "Registered synonym match", "id": "0871"}
+{"categoria": "pregunta_natural", "query": "¿Dónde encuentro la info de diseno tablas dimensiones biorag?", "concepto_esperado": "diseno_tablas_dimensiones_biorag", "deep": false, "notes": "Natural language query check", "id": "0872"}
+{"categoria": "por_tema", "query": "tabla serverpy emoción", "concepto_esperado": "diseno_tablas_dimensiones_biorag", "deep": false, "notes": "Content/theme check", "id": "0873"}
+{"categoria": "dormido", "query": "diseno tablas dimensiones biorag", "concepto_esperado": "diseno_tablas_dimensiones_biorag", "deep": true, "notes": "Dormant node retrieval check", "id": "0874"}
+{"categoria": "variante_gramatical", "query": "prueba integridads dennys 20260616", "concepto_esperado": "prueba_integridad_dennys_20260616", "deep": false, "notes": "Grammar variation check", "id": "0875"}
+{"categoria": "typo", "query": "rueba integriadd dennyis 20260616", "concepto_esperado": "prueba_integridad_dennys_20260616", "deep": false, "notes": "Typo tolerance check", "id": "0876"}
+{"categoria": "cruce_idioma", "query": "validation integridad dennys 20260616", "concepto_esperado": "prueba_integridad_dennys_20260616", "deep": false, "notes": "Bilingual mapping check", "id": "0877"}
+{"categoria": "sinonimo", "query": "familia", "concepto_esperado": "prueba_integridad_dennys_20260616", "deep": false, "notes": "Registered synonym match", "id": "0878"}
+{"categoria": "pregunta_natural", "query": "Me acuerdo de algo sobre prueba integridad dennys 20260616", "concepto_esperado": "prueba_integridad_dennys_20260616", "deep": false, "notes": "Natural language query check", "id": "0879"}
+{"categoria": "por_tema", "query": "existencia sostuve parecido", "concepto_esperado": "prueba_integridad_dennys_20260616", "deep": false, "notes": "Content/theme check", "id": "0880"}
+{"categoria": "dormido", "query": "prueba integridad dennys 20260616", "concepto_esperado": "prueba_integridad_dennys_20260616", "deep": true, "notes": "Dormant node retrieval check", "id": "0881"}
+{"categoria": "negativo", "query": "fresa manzana", "concepto_esperado": null, "deep": true, "notes": "Empirically validated negative control", "id": "0882"}
+{"categoria": "negativo", "query": "jirafa helado", "concepto_esperado": null, "deep": true, "notes": "Empirically validated negative control", "id": "0883"}
+{"categoria": "negativo", "query": "bufanda sándwich linterna", "concepto_esperado": null, "deep": true, "notes": "Empirically validated negative control", "id": "0884"}
+{"categoria": "negativo", "query": "canguro sombrero playa camisa", "concepto_esperado": null, "deep": true, "notes": "Empirically validated negative control", "id": "0885"}
+{"categoria": "negativo", "query": "sándwich selva fresa", "concepto_esperado": null, "deep": true, "notes": "Empirically validated negative control", "id": "0886"}
+{"categoria": "negativo", "query": "martillo jirafa camisa", "concepto_esperado": null, "deep": true, "notes": "Empirically validated negative control", "id": "0887"}
+{"categoria": "negativo", "query": "sándwich camisa plátano", "concepto_esperado": null, "deep": true, "notes": "Empirically validated negative control", "id": "0888"}
+{"categoria": "negativo", "query": "bufanda playa", "concepto_esperado": null, "deep": true, "notes": "Empirically validated negative control", "id": "0889"}
+{"categoria": "negativo", "query": "dinosaurio limón", "concepto_esperado": null, "deep": true, "notes": "Empirically validated negative control", "id": "0890"}
+{"categoria": "negativo", "query": "velero chocolate balón linterna", "concepto_esperado": null, "deep": true, "notes": "Empirically validated negative control", "id": "0891"}
+{"categoria": "negativo", "query": "uva dinosaurio", "concepto_esperado": null, "deep": true, "notes": "Empirically validated negative control", "id": "0892"}
+{"categoria": "negativo", "query": "manzana dinosaurio", "concepto_esperado": null, "deep": true, "notes": "Empirically validated negative control", "id": "0893"}
+{"categoria": "negativo", "query": "paraguas martillo rinoceronte canguro", "concepto_esperado": null, "deep": true, "notes": "Empirically validated negative control", "id": "0894"}
+{"categoria": "negativo", "query": "bufanda guitarra isla río", "concepto_esperado": null, "deep": true, "notes": "Empirically validated negative control", "id": "0895"}
+{"categoria": "negativo", "query": "naranja helado", "concepto_esperado": null, "deep": true, "notes": "Empirically validated negative control", "id": "0896"}
+{"categoria": "negativo", "query": "velero chocolate isla", "concepto_esperado": null, "deep": true, "notes": "Empirically validated negative control", "id": "0897"}
+{"categoria": "negativo", "query": "montaña sándwich selva", "concepto_esperado": null, "deep": true, "notes": "Empirically validated negative control", "id": "0898"}
+{"categoria": "negativo", "query": "río guitarra telescopio piscina", "concepto_esperado": null, "deep": true, "notes": "Empirically validated negative control", "id": "0899"}
+{"categoria": "negativo", "query": "rinoceronte guitarra canguro martillo", "concepto_esperado": null, "deep": true, "notes": "Empirically validated negative control", "id": "0900"}
+{"categoria": "negativo", "query": "sandía naranja almohada", "concepto_esperado": null, "deep": true, "notes": "Empirically validated negative control", "id": "0901"}
+{"categoria": "negativo", "query": "desierto sandía montaña", "concepto_esperado": null, "deep": true, "notes": "Empirically validated negative control", "id": "0902"}
+{"categoria": "negativo", "query": "bufanda manzana", "concepto_esperado": null, "deep": true, "notes": "Empirically validated negative control", "id": "0903"}
+{"categoria": "negativo", "query": "dinosaurio montaña río orquesta", "concepto_esperado": null, "deep": true, "notes": "Empirically validated negative control", "id": "0904"}
+{"categoria": "negativo", "query": "balón playa parque", "concepto_esperado": null, "deep": true, "notes": "Empirically validated negative control", "id": "0905"}
+{"categoria": "negativo", "query": "sándwich piscina montaña", "concepto_esperado": null, "deep": true, "notes": "Empirically validated negative control", "id": "0906"}
+{"categoria": "negativo", "query": "isla guitarra telescopio montaña", "concepto_esperado": null, "deep": true, "notes": "Empirically validated negative control", "id": "0907"}
+{"categoria": "negativo", "query": "camisa canguro", "concepto_esperado": null, "deep": true, "notes": "Empirically validated negative control", "id": "0908"}
+{"categoria": "negativo", "query": "chocolate almohada sandía helado", "concepto_esperado": null, "deep": true, "notes": "Empirically validated negative control", "id": "0909"}
+{"categoria": "negativo", "query": "sándwich uva desierto", "concepto_esperado": null, "deep": true, "notes": "Empirically validated negative control", "id": "0910"}
+{"categoria": "negativo", "query": "rinoceronte isla", "concepto_esperado": null, "deep": true, "notes": "Empirically validated negative control", "id": "0911"}
+{"categoria": "negativo", "query": "camisa bufanda martillo uva", "concepto_esperado": null, "deep": true, "notes": "Empirically validated negative control", "id": "0912"}
+{"categoria": "negativo", "query": "montaña manzana", "concepto_esperado": null, "deep": true, "notes": "Empirically validated negative control", "id": "0913"}
+{"categoria": "negativo", "query": "fresa manzana velero sandía", "concepto_esperado": null, "deep": true, "notes": "Empirically validated negative control", "id": "0914"}
+{"categoria": "negativo", "query": "rinoceronte limón", "concepto_esperado": null, "deep": true, "notes": "Empirically validated negative control", "id": "0915"}
+{"categoria": "negativo", "query": "telescopio naranja", "concepto_esperado": null, "deep": true, "notes": "Empirically validated negative control", "id": "0916"}
+{"categoria": "negativo", "query": "balón pantalón camisa", "concepto_esperado": null, "deep": true, "notes": "Empirically validated negative control", "id": "0917"}
+{"categoria": "negativo", "query": "piscina uva sandía", "concepto_esperado": null, "deep": true, "notes": "Empirically validated negative control", "id": "0918"}
+{"categoria": "negativo", "query": "chocolate rinoceronte", "concepto_esperado": null, "deep": true, "notes": "Empirically validated negative control", "id": "0919"}
+{"categoria": "negativo", "query": "fresa chocolate", "concepto_esperado": null, "deep": true, "notes": "Empirically validated negative control", "id": "0920"}
+{"categoria": "negativo", "query": "telescopio martillo río montaña", "concepto_esperado": null, "deep": true, "notes": "Empirically validated negative control", "id": "0921"}

@@ -1,5 +1,18 @@
 # BioRAG Changelog
 
+## v18.0 (2026-07-12)
+
+### Features & Robustness
+- **Capa 13 de Fallback Simbólico (Capa 2.1)**: Integración de distancia de Levenshtein normalizada y WordNet bilingüe (ES + EN) con traducción opcional (`BIORAG_TRADUCCION_ACTIVA=1`).
+- **Relajación de Tokens Cortos**: Soporte mejorado para acrónimos y versiones breves de longitud `>= 2` (como `"cv"`, `"v6"`, `"ia"`) en WordNet, mientras que el filtro trigram de SQLite (`PALABRA_COMPLETA`) ahora se aplica selectivamente solo a tokens `<= 4` caracteres para prevenir colisiones ruidosas sin afectar palabras largas.
+- **Scoring Simbólico Integrado**: Los nuevos puntuadores `score_simbolico_concepto` y `score_simbolico_sinonimos` actúan como un boost (`max()`) sobre las señales del score híbrido.
+- **Unificación de BM25**: Consolidación de la constante de normalización a `abs(val) / (abs(val) + 3.0)` en todas las rutas de búsqueda para garantizar la comparabilidad matemática de resultados.
+- **Rebalanceo Equitativo de Pesos**: Corrección del exceso de pesos en la fórmula del score híbrido (reduciendo la suma de 1.05 a exactamente 1.0) mediante el rebalanceo de `concepto_ratio` a 0.175 y `sinonimos_ratio` a 0.125. Esto previno la distorsión por saturación del techo de score y elevó el Recall@1 al **78.02%** en la suite QA.
+- **Pruebas QA Adversarias**: Ampliación de la suite QA local a 534 casos, incluyendo 30 controles negativos adicionales para validar la robustez de tokens de 2 caracteres (manteniendo 0% de Falsos Positivos).
+- **Centralización de Stopwords**: Creación de `core/stopwords.py` para unificar y aislar listas de stopwords en español, inglés y tokens de control, previniendo la contaminación lingüística en Levenshtein.
+
+---
+
 ## v17.1 (2026-07-11)
 
 ### Features & Robustness

@@ -1112,6 +1112,58 @@ Análisis exhaustivo de todo el codebase documentando cada técnica, algoritmo y
 
 - FTS5 trigram, score híbrido, pipeline multi-capa, LTP/LTD
 
+## Suite de QA y Benchmarking Determinista
+
+Con el fin de garantizar la estabilidad del motor BioRAG y evitar regresiones en futuras optimizaciones, se ha implementado una suite de control de calidad (QA) y benchmarking formal basada en el paradigma Cranfield (*Known-Item Search*).
+
+### Objetivos y Enfoque Metodológico
+- **Evaluación No Sesgada**: Se aíslan los datos de prueba a través de un archivo baseline estático (`casos_qa_baseline_v1.jsonl`) con un total de **921 casos de prueba reales** mapeados a los 492 nodos del grafo.
+- **Determinismo Absoluto**:
+  - Se fijó el generador de casos mediante una semilla determinista (`random.seed(42)`) para evitar la dispersión estocástica entre corridas.
+  - Se forzó el ordenamiento determinista (`ORDER BY concepto`) en las extracciones de base de datos SQL para asegurar la reproducibilidad exacta de las aristas del grafo.
+  - La suite realiza la evaluación sobre una copia temporal y aislada de la base de datos activa (`memory_biorag_qa_temp.db`), garantizando que las pruebas no alteren el estado de producción de largo plazo.
+
+### Estructura del Dataset de Benchmarking
+El baseline evalúa las siguientes categorías distribuidas para estresar el pipeline de 13 capas y el fallback simbólico:
+1. **`literal`** (487 casos): Cobertura total de correspondencia exacta uno-a-uno para cada nodo del cerebro.
+2. **`dormido`** (65 casos): Pruebas de despertar cognitivo del nodo y activación en el flujo de evocación.
+3. **`typo`** (65 casos): Pruebas de robustez sintáctica inyectando errores de escritura para validar el comparador de Levenshtein.
+4. **`sinonimo`** (61 casos): Pruebas de expansión de sinónimos bajo diferentes capas léxicas.
+5. **`cruce_idioma`** (8 casos): Validación de la pasarela de traducción bilingüe de WordNet.
+6. **`pregunta_natural`** (65 casos): Evocación a través de consultas formuladas de manera natural y conversacional.
+7. **`por_tema`** (65 casos): Pruebas conceptuales y asociativas complejas que evalúan el propagador y los pesos sinápticos.
+8. **`negativo`** (40 casos): Casos de control sin coincidencia esperada para medir la tasa de falsos positivos (ruido) con un umbral de rechazo estricto de score `< 0.25`.
+
+### Resultados y Métricas de la v18.0 (Baseline Estacional)
+Evaluado sobre la base de datos de producción de **492 nodos**:
+
+| Categoría | Casos Evaluados | Recall@5 | Recall@1 | MRR | Fallas/FPs |
+|---|---|---|---|---|---|
+| **literal** | 487 | 100.00% | 99.79% | 0.999 | 0 |
+| **dormido** | 65 | 100.00% | 100.00% | 1.000 | 0 |
+| **pregunta_natural** | 65 | 95.38% | 89.23% | 0.919 | 3 |
+| **variante_gramatical** | 65 | 96.92% | 90.77% | 0.926 | 2 |
+| **typo** | 65 | 95.38% | 87.69% | 0.909 | 3 |
+| **cruce_idioma** | 8 | 87.50% | 87.50% | 0.875 | 1 |
+| **sinonimo** | 61 | 83.61% | 47.54% | 0.607 | 10 |
+| **por_tema** (Clustering) | 65 | 36.92% | 10.77% | 0.185 | 41 |
+| **negativo** (Ruido) | 40 | N/A | N/A | N/A | 0 (0.00% FP) |
+| **GLOBAL (Recuperación)** | **881** | **93.19%** | **87.17%** | **0.893** | **60** |
+
+*Nota: La categoría `por_tema` (Recall@1: 10.77%) representa la base de optimización futura del motor mediante sintonía fina de similitud híbrida.*
+
+### Instrucciones de Ejecución y Replicabilidad
+La suite y herramientas asociadas se encuentran en el directorio `scripts/` (excluidas del control de versiones mediante `.gitignore` para no sobrecargar el repositorio con archivos de datos pesados, pero disponibles de forma local):
+
+- **Ejecutar Suite de Pruebas**:
+  ```bash
+  ./scripts/run_qa_suite.sh
+  ```
+- **Regenerar el Dataset Baseline** (Únicamente ante cambios estructurales autorizados en el grafo):
+  ```bash
+  ./scripts/run_qa_suite.sh --generate-baseline
+  ```
+
 ---
 
 ## Producción

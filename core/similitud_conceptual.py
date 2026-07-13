@@ -9,6 +9,7 @@ Sin dependencias externas. Funciona desde el día uno con la DB actual.
 import os
 import re
 import sqlite3
+from core.stopwords import _STOPWORDS_QUERY
 
 # =============================================================================
 # Configuración de Usuario (Override con variables de entorno)
@@ -23,12 +24,6 @@ UMBRAL_JACCARD = float(os.environ.get('BIORAG_UMBRAL_JACCARD', '0.15'))
 LIMITE_SIMILITUD = int(os.environ.get('BIORAG_LIMITE_SIMILITUD', '5'))
 """Límite de resultados en similitud conceptual."""
 
-# Stopwords adicionales para queries (complementa STOPWORDS_ES de sinapsis)
-_STOPWORDS_QUERY = {
-    'de', 'la', 'el', 'en', 'con', 'por', 'para', 'un', 'una',
-    'y', 'o', 'que', 'es', 'se', 'al', 'lo', 'como', 'mas',
-    'su', 'los', 'las', 'del', 'les', 'sin',
-}
 
 _TOKEN_PATTERN = re.compile(r'\b[a-zA-Z\u00e1\u00e9\u00ed\u00f3\u00fa\u00f1]{3,}\b')
 

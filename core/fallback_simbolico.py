@@ -12,6 +12,7 @@ import re
 import unicodedata
 from functools import lru_cache
 from typing import Optional
+from core.stopwords import _STOPWORDS_QUERY
 
 # Traducción externa desactivada por defecto (local-only).
 # Activar con: export BIORAG_TRADUCCION_ACTIVA=1
@@ -33,22 +34,28 @@ def _normalizar(texto: str) -> str:
     return ''.join(c for c in nfkd if not unicodedata.combining(c))
 
 
+_STOPWORDS_NORM = {_normalizar(w) for w in _STOPWORDS_QUERY}
+
+
+
 def _tokenizar_normalizado(texto: str) -> set[str]:
-    """Tokeniza y normaliza (sin tildes, sin stopwords cortas)."""
+    """Tokeniza y normaliza (sin tildes, sin stopwords)."""
     if not texto:
         return set()
     texto_norm = _normalizar(texto.replace('_', ' ').replace('-', ' '))
-    return {t for t in re.findall(r'\w{3,}', texto_norm)}
+    tokens = {t for t in re.findall(r'\w{2,}', texto_norm)}
+    return tokens - _STOPWORDS_NORM
 
 
 # ═══════════════════════════════════════════════════════════
 # CAPA 1: Levenshtein (typos y variantes morfológicas)
 # ═══════════════════════════════════════════════════════════
 
+@lru_cache(maxsize=8192)
 def _levenshtein(s1: str, s2: str) -> int:
     """
     Distancia de Levenshtein.
-    Zero dependencias. O(n*m) tiempo, O(min(n,m)) espacio.
+    Zero dependencias. O(n*m) tiempo, O(min(n,m)) espacio. Caged.
     """
     if len(s1) < len(s2):
         return _levenshtein(s2, s1)
@@ -73,8 +80,19 @@ def similitud_levenshtein(s1: str, s2: str) -> float:
     Similitud normalizada [0.0, 1.0].
     Normaliza tildes antes de comparar.
     """
-    s1_norm = _normalizar(s1)
-    s2_norm = _normalizar(s2)
+    if s1 == s2:
+        return 1.0
+    # Quick check: if both are ASCII lowercase (very common for tokenized words)
+    # then they are already normalized!
+    is_norm_1 = s1.islower() and s1.isascii()
+    is_norm_2 = s2.islower() and s2.isascii()
+    
+    s1_norm = s1 if is_norm_1 else _normalizar(s1)
+    s2_norm = s2 if is_norm_2 else _normalizar(s2)
+    
+    if s1_norm == s2_norm:
+        return 1.0
+        
     max_len = max(len(s1_norm), len(s2_norm))
     if max_len == 0:
         return 1.0
@@ -92,12 +110,27 @@ def mejor_similitud_levenshtein(
     if not tokens_query or not tokens_nodo:
         return 0.0
 
+    # O(1) check for exact match of any word in the query.
+    # If there is a common token, the maximum similarity is 1.0.
+    if tokens_query & tokens_nodo:
+        return 1.0
+
     mejor = 0.0
     for qt in tokens_query:
         for nt in tokens_nodo:
             # Solo comparar tokens de longitud similar
-            if abs(len(qt) - len(nt)) > max(len(qt), len(nt)) * 0.5:
+            max_len = max(len(qt), len(nt))
+            if max_len == 0:
                 continue
+            
+            # Si la diferencia de longitud hace matemáticamente imposible superar el mejor score actual, omitir.
+            max_sim_teorica = 1.0 - abs(len(qt) - len(nt)) / max_len
+            if max_sim_teorica <= mejor:
+                continue
+                
+            if abs(len(qt) - len(nt)) > max_len * 0.5:
+                continue
+                
             sim = similitud_levenshtein(qt, nt)
             if sim > mejor:
                 mejor = sim
@@ -158,13 +191,13 @@ def expandir_palabra_wordnet(palabra: str) -> frozenset[str]:
                 for lemma in syn.lemmas(lang='spa'):
                     nombre = _normalizar(lemma.name().replace('_', ' '))
                     for tok in nombre.split():
-                        if len(tok) >= 3:
+                        if len(tok) >= 2:
                             expansiones.add(tok)
                 # Lemas en inglés
                 for lemma in syn.lemmas(lang='eng'):
                     nombre = _normalizar(lemma.name().replace('_', ' '))
                     for tok in nombre.split():
-                        if len(tok) >= 3:
+                        if len(tok) >= 2:
                             expansiones.add(tok)
 
         expansiones.discard(palabra_norm)
@@ -220,7 +253,54 @@ def expandir_con_traduccion(tokens: set[str]) -> set[str]:
     return expansiones - tokens
 
 
+@lru_cache(maxsize=512)
+def _expandir_token_cached(token: str) -> frozenset[str]:
+    """Cachea la expansión de WordNet y traducción para un único token."""
+    expansiones = set([token])
+    expansiones.update(expandir_palabra_wordnet(token))
+    if _TRADUCCION_ACTIVA:
+        trad = _traducir_token(token)
+        if trad and trad != token:
+            expansiones.add(trad)
+            expansiones.update(expandir_palabra_wordnet(trad))
+    return frozenset(expansiones)
+
+
 # ═══════════════════════════════════════════════════════════
+def _calcular_cobertura_fuzzy(tokens_query: set[str], tokens_target: set[str]) -> float:
+    """
+    Calcula la fracción de tokens de la query que coinciden con los tokens destino,
+    permitiendo expansión semántica (WordNet) y coincidencias parciales por Levenshtein.
+    """
+    if not tokens_query or not tokens_target:
+        return 0.0
+        
+    total_coincidencia = 0.0
+    for q_tok in tokens_query:
+        # 1. Coincidencia exacta o semántica (WordNet/Traducción)
+        q_exp = _expandir_token_cached(q_tok)
+        if q_exp & tokens_target:
+            total_coincidencia += 1.0
+            continue
+            
+        # 2. Coincidencia difusa (Levenshtein) con tokens del destino
+        max_sim = 0.0
+        for t_tok in tokens_target:
+            max_len = max(len(q_tok), len(t_tok))
+            if max_len == 0:
+                continue
+            if abs(len(q_tok) - len(t_tok)) > max_len * 0.5:
+                continue
+            sim = similitud_levenshtein(q_tok, t_tok)
+            if sim > max_sim:
+                max_sim = sim
+                
+        if max_sim >= 0.75:
+            total_coincidencia += max_sim
+            
+    return round(total_coincidencia / len(tokens_query), 4)
+
+
 # Score Simbólico Compuesto
 # ═══════════════════════════════════════════════════════════
 
@@ -242,27 +322,13 @@ def score_simbolico(
     if not tokens_nodo:
         return 0.0
 
-    # ── Capa 1: Levenshtein ──
-    score_lev = mejor_similitud_levenshtein(tokens_query, tokens_nodo)
+    # Si es un solo token y tiene un match exacto/levenshtein alto, early-exit
+    if len(tokens_query) == 1:
+        score_lev = mejor_similitud_levenshtein(tokens_query, tokens_nodo)
+        if score_lev >= 0.95:
+            return score_lev
 
-    if score_lev >= 0.95:
-        return score_lev
-
-    # ── Capa 2: WordNet Bilingüe ──
-    expansiones = expandir_query_wordnet(tokens_query)
-    tokens_ampliados = tokens_query | expansiones
-
-    # ── Capa 3: Traducción opcional ──
-    expansiones_trad = expandir_con_traduccion(tokens_query)
-    tokens_ampliados = tokens_ampliados | expansiones_trad
-
-    # ── Overlap conceptual ──
-    inter = tokens_ampliados & tokens_nodo
-    score_overlap = 0.0
-    if inter:
-        score_overlap = len(inter) / len(tokens_ampliados)
-
-    return round(max(score_lev, score_overlap), 4)
+    return _calcular_cobertura_fuzzy(tokens_query, tokens_nodo)
 
 
 # ═══════════════════════════════════════════════════════════
@@ -301,3 +367,37 @@ def buscar_fallback_simbolico(
 
     resultados.sort(key=lambda x: x[0], reverse=True)
     return resultados[:top_k]
+
+
+def score_simbolico_concepto(tokens_query: set[str], concepto: str) -> float:
+    """Calcula la similitud simbólica contra el nombre del concepto."""
+    if not tokens_query or not concepto:
+        return 0.0
+    tokens_c = _tokenizar_normalizado(concepto)
+    if not tokens_c:
+        return 0.0
+    
+    if len(tokens_query) == 1:
+        score_lev = mejor_similitud_levenshtein(tokens_query, tokens_c)
+        if score_lev >= 0.95:
+            return score_lev
+            
+    return _calcular_cobertura_fuzzy(tokens_query, tokens_c)
+
+
+def score_simbolico_sinonimos(tokens_query: set[str], sinonimos: str) -> float:
+    """Calcula la similitud simbólica contra la lista de sinónimos."""
+    if not tokens_query or not sinonimos:
+        return 0.0
+    tokens_s = _tokenizar_normalizado(sinonimos)
+    if not tokens_s:
+        return 0.0
+    
+    if len(tokens_query) == 1:
+        score_lev = mejor_similitud_levenshtein(tokens_query, tokens_s)
+        if score_lev >= 0.95:
+            return score_lev
+            
+    return _calcular_cobertura_fuzzy(tokens_query, tokens_s)
+
+

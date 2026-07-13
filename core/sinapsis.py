@@ -1,17 +1,7 @@
 import re
 import time
 import sqlite3
-
-STOPWORDS_ES = {
-    'para', 'como', 'con', 'por', 'que', 'del', 'las', 'los', 'mas',
-    'pero', 'esta', 'este', 'entre', 'todo', 'tiene', 'cada', 'muy',
-    'era', 'han', 'sin', 'sobre', 'tambien', 'desde', 'hasta', 'cuando',
-    'donde', 'ello', 'ella', 'cual', 'dicho', 'sido', 'sea', 'tanto',
-    'otro', 'otros', 'ante', 'segun', 'una', 'unas', 'unos',
-    'porque', 'pues', 'contra', 'durante', 'mediante',
-    'parte', 'forma', 'tipo', 'tema', 'vez', 'caso', 'dentro',
-    'tras', 'aquel', 'aquella', 'aquellos', 'aquellas', 'estos',
-}
+from core.stopwords import STOPWORDS
 
 TOKENS_TECNICOS_CORTOS = {'dsl', 'api', 'mcp', 'rag', 'cpu', 'ram', 'gpu', 'cli', 'db', 'ui', 'ux', 'os', 'ai', 'vm'}
 
@@ -23,7 +13,7 @@ def _tokenizar(texto):
     texto = texto.replace('_', ' ')
     tokens = set(_TOKEN_PATTERN.findall(texto.lower()))
     tokens |= TOKENS_TECNICOS_CORTOS & set(_CORTO_PATTERN.findall(texto.lower()))
-    return tokens - STOPWORDS_ES
+    return tokens - STOPWORDS
 
 
 def _peso_similitud(tokens_nuevos, tokens_exist, idf_map=None):
@@ -125,7 +115,7 @@ def auto_vincular(cerebro, concepto, contenido, umbral=0.4):
     # contenido use vocabulario distinto. No requiere FTS5 — usa LIKE directo.
     # Usamos OR para capturar cualquier candidato que comparta al menos una
     # palabra, luego filtramos por overlap ≥ 30% en Python.
-    palabras_nombre = [w for w in re.findall(r'[a-zA-Záéíóúñ]{4,}', concepto.lower().replace('_', ' ').replace('-', ' ')) if w not in STOPWORDS_ES]
+    palabras_nombre = [w for w in re.findall(r'[a-zA-Záéíóúñ]{4,}', concepto.lower().replace('_', ' ').replace('-', ' ')) if w not in STOPWORDS]
     if len(palabras_nombre) >= 2:
         ya_vinculados = {v[0] for v in vinculados}
         like_conds = " OR ".join([

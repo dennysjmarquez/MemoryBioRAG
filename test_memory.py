@@ -1301,7 +1301,7 @@ def test_sistema():
     assert 0.10 <= diff <= 0.25, f"Error: diferencia fuera de rango esperado. diff={diff}"
     print("  OK: Score híbrido con dim_score integrado correcto")
 
-    print("\n--- 75. Probando Match Exacto (floor 0.5) ---")
+    print("\n--- 75. Probando Match Exacto (floor 0.95) ---")
     score_exacto = cerebro._calcular_score_hibrido(
         peso_sinaptico=0.25, dim_score=0.0, match_exacto=True
     )
@@ -1310,9 +1310,9 @@ def test_sistema():
     )
     print(f"  Score match exacto: {score_exacto}")
     print(f"  Score normal: {score_normal}")
-    assert score_exacto == max(0.5, score_normal), \
-        f"Error: match exacto debería ser max(0.5, score). exacto={score_exacto}, normal={score_normal}"
-    print("  OK: Match exacto floor 0.5 funciona correctamente")
+    assert score_exacto == max(0.95, score_normal), \
+        f"Error: match exacto debería ser max(0.95, score). exacto={score_exacto}, normal={score_normal}"
+    print("  OK: Match exacto floor 0.95 funciona correctamente")
 
     print("\n--- 76. Probando Fallback Dimensional (búsqueda por dimensión pura) ---")
     # Guardar un nodo con dimensiones pero contenido poco específico

@@ -3,33 +3,8 @@ import time
 import random
 import os
 from collections import Counter
+from core.stopwords import STOPWORDS
 
-# Lista extendida de stopwords en español e inglés
-STOPWORDS = {
-    # Español
-    "el", "la", "los", "las", "un", "una", "unos", "unas", "de", "del", "al", "a", "y", "o", "u", "e", "en", "para", 
-    "por", "con", "sin", "sobre", "tras", "desde", "hasta", "hacia", "como", "que", "es", "son", "este", "esta", 
-    "estos", "estas", "ese", "esa", "esos", "esas", "aquel", "aquella", "aquellos", "aquellas", "mi", "mis", "tu", 
-    "tus", "su", "sus", "nuestro", "nuestra", "nuestros", "nuestras", "yo", "me", "te", "se", "nos", "lo", "le", 
-    "les", "otro", "otra", "otros", "otras", "muy", "mas", "pero", "si", "no", "ni", "ya", "aun", "tambien", 
-    "tampoco", "cuando", "donde", "quien", "quién", "cual", "cuál", "cuyo", "cuya", "cuyos", "cuyas", "todo", 
-    "toda", "todos", "todas", "algun", "alguna", "algunos", "algunas", "ningun", "ninguna", "ninguno", "mismo", 
-    "misma", "mismos", "mismas", "tan", "entonces", "luego", "despues", "antes", "ahora", "hoy", "ayer", "mañana",
-    "este", "esta", "esto", "estos", "estas", "tiene", "tienen", "tenemos", "hacer", "hecho", "puede", "pueden",
-    # Inglés
-    "the", "a", "an", "and", "or", "but", "if", "because", "as", "until", "while", "of", "at", "by", "for", "with",
-    "about", "against", "between", "into", "through", "during", "before", "after", "above", "below", "to", "from",
-    "up", "down", "in", "out", "on", "off", "over", "under", "again", "further", "then", "once", "here", "there",
-    "when", "where", "why", "how", "all", "any", "both", "each", "few", "more", "most", "other", "some", "such",
-    "no", "nor", "not", "only", "own", "same", "so", "than", "too", "very", "s", "t", "can", "will", "just", "don",
-    "should", "now", "this", "that", "these", "those", "is", "are", "was", "were", "be", "been", "being", "have",
-    "has", "had", "having", "do", "does", "did", "doing", "i", "me", "my", "myself", "we", "our", "ours", "ourselves",
-    "you", "your", "yours", "yourself", "yourselves", "he", "him", "his", "himself", "she", "her", "hers", "herself",
-    "it", "its", "itself", "they", "them", "their", "theirs", "themselves", "what", "which", "who", "whom", "am",
-    "are", "is", "was", "were", "be", "been", "being", "have", "has", "had", "do", "does", "did", "will",
-    # Términos comunes de BioRAG a ignorar en nombres de clusters
-    "nodo", "prueba", "test", "recuerdo", "concepto", "contenido", "sistema", "memoria"
-}
 
 def tokenizar_texto(texto):
     """Extrae palabras limpias en minúsculas."""

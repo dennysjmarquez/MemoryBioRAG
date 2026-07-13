@@ -1949,10 +1949,10 @@ class SQLiteMemoryBioRAG:
         peso_norm = min(1.0, peso_sinaptico)
 
         score = (
-            0.20 * bm25_norm +          # FTS5 BM25 (was 0.25)
-            0.15 * dim_score +           # Dimensiones semánticas (was 0.20)
-            0.15 * concepto_ratio +      # Match en concepto
-            0.10 * sinonimos_ratio +     # Match en sinónimos
+            0.15 * bm25_norm +          # FTS5 BM25 (was 0.20)
+            0.15 * dim_score +           # Dimensiones semánticas (remains 0.15)
+            0.175 * concepto_ratio +     # Match en concepto (was 0.15)
+            0.125 * sinonimos_ratio +    # Match en sinónimos (was 0.10)
             0.10 * peso_norm +           # Peso sináptico
             0.10 * max(score_latente, score_cadena) +  # Jaccard/cadena
             0.10 * grupo_score +         # Grupo semántico WordNet
@@ -1961,7 +1961,9 @@ class SQLiteMemoryBioRAG:
         )
 
         if match_exacto:
-            score = max(0.5, score)
+            score = max(0.95, score)
+        elif sinonimos_ratio >= 0.95:
+            score = max(0.65, score)
 
         return round(min(1.0, score), 4)
 
@@ -2103,7 +2105,40 @@ class SQLiteMemoryBioRAG:
         frase_limpia = re.sub(r'\s+', ' ', frase_limpia).strip()
         solo_protegidos = bool(protected_terms) and not frase_limpia
 
-        query = frase_limpia if not solo_protegidos else ""
+        # Filtrar stopwords de la frase_limpia
+        from core.stopwords import _STOPWORDS_QUERY
+        import unicodedata
+
+        def strip_accents(text):
+            return ''.join(c for c in unicodedata.normalize('NFKD', text) if not unicodedata.combining(c))
+
+        stopwords_normalized = {strip_accents(w) for w in _STOPWORDS_QUERY}
+
+        clean_phrase_tokens = []
+        if frase_limpia.strip():
+            clean_p = re.sub(r'[^\w\s_-]', ' ', frase_limpia.lower())
+            for w in clean_p.split():
+                w_clean = strip_accents(w)
+                if w_clean not in stopwords_normalized and len(w) >= 2:
+                    clean_phrase_tokens.append(w)
+
+        if clean_phrase_tokens:
+            frase_limpia_filtrada = " ".join(clean_phrase_tokens)
+        else:
+            frase_limpia_filtrada = re.sub(r'[^\w\s_-]', ' ', frase_limpia.lower()).strip()
+
+        frase = frase_limpia_filtrada
+        query = frase_limpia_filtrada if not solo_protegidos else ""
+
+        # Filtrar stopwords de la lista de paráfrasis
+        parafrasis_filtradas = []
+        if parafrasis_list:
+            for p in parafrasis_list:
+                p_clean = re.sub(r'[^\w\s_-]', ' ', p.lower())
+                p_words = [w for w in p_clean.split() if strip_accents(w) not in stopwords_normalized and len(w) >= 2]
+                if p_words:
+                    parafrasis_filtradas.append(" ".join(p_words))
+            parafrasis_list = parafrasis_filtradas
 
         # Calcular pesos diferenciales de tokens por centralidad en la red
         pesos_tokens = self._pesar_tokens_query(frase)
@@ -2152,7 +2187,7 @@ class SQLiteMemoryBioRAG:
 
         todos = []
         bm25_raw = {}  # concepto -> raw BM25 from FTS5
-        palabras = [w for w in frase.split() if len(w) >= 3]
+        palabras = [w for w in frase.split() if len(w) >= 2]
         origen_scores = {}  # Side channel: rastrea origen de cada nodo para Dynamic Multiplicator
 
         # SRL v16.0: si no hay frase pero hay roles, popular todos directamente
@@ -2185,7 +2220,7 @@ class SQLiteMemoryBioRAG:
         # Busca coincidencia por substring en el nombre del concepto.
         # Complementa a FTS5: maneja guiones, puntos y caracteres especiales
         # que FTS5 trigram no tokeniza bien como palabras completas.
-        palabras_like = [w for w in frase.split() if len(w) >= 3]
+        palabras_like = [w for w in frase.split() if len(w) >= 2]
         resultados_concepto = {}
         if palabras_like:
             like_clauses = []
@@ -2216,7 +2251,8 @@ class SQLiteMemoryBioRAG:
         # Filtro DB-side PALABRA_COMPLETA: previene falsos positivos de FTS5 trigram
         # ("culo" no debe matchear "artículos"). Aplica a contenido+concepto+sinonimos.
         # Exige que AL MENOS UNA palabra aparezca como palabra completa en alguno.
-        palabras_pc = [w for w in palabras]
+        # Relajación: solo se exige PALABRA_COMPLETA para palabras cortas (longitud <= 4).
+        palabras_pc = [w for w in palabras if len(w) <= 4]
         pc_clause = ""
         pc_params = []
         if palabras_pc:
@@ -2409,17 +2445,23 @@ class SQLiteMemoryBioRAG:
                         grafo = _cargar_grafo(self.cursor)
                         # Batch: pre-fetch puentes FTS5 una vez (1 query SQL)
                         # En vez de N queries FTS5 separadas en _similitud_red
-                        filtrar = [t for t in query_tokens if len(t) >= 3]
+                        filtrar = [t for t in query_tokens if len(t) >= 2]
                         nodos_cache = None
                         if filtrar:
                             fts_tokens = [f'"{t}"' for t in filtrar]
                             fts_q = " OR ".join(fts_tokens)
                             # Filtro PALABRA_COMPLETA en puentes: evita falsos positivos de trigram
-                            # (ej: "culo" en "oráculo" contaminando la similitud conceptual)
-                            pc_bridge_clause = " AND (" + " OR ".join(
-                                ["(PALABRA_COMPLETA(?, l.contenido) = 1 OR PALABRA_COMPLETA(?, l.concepto) = 1 OR PALABRA_COMPLETA(?, COALESCE(l.sinonimos, '')) = 1)"] * len(filtrar)
-                            ) + ")"
-                            pc_bridge_params = tuple(p for t in filtrar for p in (t, t, t))
+                            # Relajación: solo se exige PALABRA_COMPLETA para palabras cortas (longitud <= 4)
+                            pc_bridge_conds = []
+                            pc_bridge_params_list = []
+                            for t in filtrar:
+                                if len(t) <= 4:
+                                    pc_bridge_conds.append("(PALABRA_COMPLETA(?, l.contenido) = 1 OR PALABRA_COMPLETA(?, l.concepto) = 1 OR PALABRA_COMPLETA(?, COALESCE(l.sinonimos, '')) = 1)")
+                                    pc_bridge_params_list.extend([t, t, t])
+                                else:
+                                    pc_bridge_conds.append("(1 = 1)")
+                            pc_bridge_clause = " AND (" + " AND ".join(pc_bridge_conds) + ")"
+                            pc_bridge_params = tuple(pc_bridge_params_list)
                             try:
                                 bridge_filter = " AND l.estado = 'activo'"
                                 self.cursor.execute(
@@ -2432,20 +2474,26 @@ class SQLiteMemoryBioRAG:
                                 nodos_cache = {row[0] for row in self.cursor.fetchall()}
                             except sqlite3.OperationalError:
                                 nodos_cache = None
-                        fts_tokens = [f'"{t}"' for t in query_tokens if len(t) >= 3]
+                        fts_tokens = [f'"{t}"' for t in query_tokens if len(t) >= 2]
                         if fts_tokens:
                             fts_q = " OR ".join(fts_tokens)
                             lat_clause = " AND l.estado = 'activo'"
                             # Filtro PALABRA_COMPLETA en candidatos: evita falsos positivos de trigram
-                            # (ej: "auto" como substring de "autoridad" no debe ser candidato)
+                            # Relajación: solo se exige PALABRA_COMPLETA para palabras cortas (longitud <= 4)
                             pc_lat_clause = ""
                             pc_lat_params = ()
-                            filtrar_lat = [t for t in query_tokens if len(t) >= 3]
+                            filtrar_lat = [t for t in query_tokens if len(t) >= 2]
                             if filtrar_lat:
-                                pc_lat_clause = " AND (" + " OR ".join(
-                                    ["(PALABRA_COMPLETA(?, l.contenido) = 1 OR PALABRA_COMPLETA(?, l.concepto) = 1 OR PALABRA_COMPLETA(?, COALESCE(l.sinonimos, '')) = 1)"] * len(filtrar_lat)
-                                ) + ")"
-                                pc_lat_params = tuple(p for t in filtrar_lat for p in (t, t, t))
+                                pc_lat_conds = []
+                                pc_lat_params_list = []
+                                for t in filtrar_lat:
+                                    if len(t) <= 4:
+                                        pc_lat_conds.append("(PALABRA_COMPLETA(?, l.contenido) = 1 OR PALABRA_COMPLETA(?, l.concepto) = 1 OR PALABRA_COMPLETA(?, COALESCE(l.sinonimos, '')) = 1)")
+                                        pc_lat_params_list.extend([t, t, t])
+                                    else:
+                                        pc_lat_conds.append("(1 = 1)")
+                                pc_lat_clause = " AND (" + " AND ".join(pc_lat_conds) + ")"
+                                pc_lat_params = tuple(pc_lat_params_list)
                             self.cursor.execute(
                                 "SELECT l.rowid, l.concepto, l.contenido, l.peso_sinaptico, "
                                 "l.estado, l.asociaciones "
@@ -2525,11 +2573,18 @@ class SQLiteMemoryBioRAG:
                 if fts_tokens:
                     fts_q = " OR ".join(fts_tokens)
                     # Filtro PALABRA_COMPLETA en semillas: evita que la cadena evoque desde
-                    # falsos positivos de trigram (ej: "culo" → "artículos" → cadena contaminada)
-                    pc_seed_clause = " AND (" + " OR ".join(
-                        ["(PALABRA_COMPLETA(?, l.contenido) = 1 OR PALABRA_COMPLETA(?, l.concepto) = 1)"] * len(fts_tokens)
-                    ) + ")"
-                    pc_seed_params = tuple(p for t in fts_tokens for p in (t.strip('"'), t.strip('"')))
+                    # falsos positivos de trigram. Relajación: longitud <= 4.
+                    pc_seed_conds = []
+                    pc_seed_params_list = []
+                    for t in fts_tokens:
+                        clean_t = t.strip('"')
+                        if len(clean_t) <= 4:
+                            pc_seed_conds.append("(PALABRA_COMPLETA(?, l.contenido) = 1 OR PALABRA_COMPLETA(?, l.concepto) = 1)")
+                            pc_seed_params_list.extend([clean_t, clean_t])
+                        else:
+                            pc_seed_conds.append("(1 = 1)")
+                    pc_seed_clause = " AND (" + " AND ".join(pc_seed_conds) + ")"
+                    pc_seed_params = tuple(pc_seed_params_list)
                     try:
                         self.cursor.execute(
                             "SELECT l.concepto FROM largo_plazo_fts f "
@@ -2795,7 +2850,7 @@ class SQLiteMemoryBioRAG:
         # las escalas relativas no son comparables entre sí.
         bm25_norm_map = {}
         for concepto, raw_bm25 in bm25_raw.items():
-            bm25_norm_map[concepto] = abs(raw_bm25) / (abs(raw_bm25) + 1.0)
+            bm25_norm_map[concepto] = abs(raw_bm25) / (abs(raw_bm25) + 3.0)
 
         # ─── Capa 5: Score por grupo semántico (WordNet lexnames) ───
         grupo_scores_map = {}
@@ -2842,6 +2897,25 @@ class SQLiteMemoryBioRAG:
         if conceptos_validos_rol is not None:
             todos = [r for r in todos if r[1].lower().strip() in conceptos_validos_rol]
 
+        # Batch fetch synonyms for all retrieved candidates before the final scoring loop
+        conceptos_todos = [r[1] for r in todos if r[1]]
+        concepto_sinonimos_map = {}
+        if conceptos_todos:
+            placeholders = ",".join(["?" for _ in conceptos_todos])
+            try:
+                self.cursor.execute(
+                    f"SELECT concepto, sinonimos FROM largo_plazo WHERE concepto IN ({placeholders})",
+                    conceptos_todos
+                )
+                for conc, sinonimos in self.cursor.fetchall():
+                    concepto_sinonimos_map[conc] = sinonimos or ""
+            except Exception:
+                pass
+
+        # Prepare normalized query tokens for symbolic scoring
+        from core.fallback_simbolico import _tokenizar_normalizado, score_simbolico_concepto, score_simbolico_sinonimos
+        tokens_query = _tokenizar_normalizado(query)
+
         # Calcular score hibrido para cada resultado (fórmula única 9 señales)
         total = len(todos)
         resultados_con_hibrido = []
@@ -2850,7 +2924,7 @@ class SQLiteMemoryBioRAG:
             dim_score = dim_scores_map.get(concepto, 0.0)
             _q_norm = query.lower().replace(" ", "_").replace("-", "_")
             _c_norm = (concepto or "").lower().replace(" ", "_").replace("-", "_")
-            match_exacto = (_q_norm == _c_norm)
+            match_exacto = (_q_norm == _c_norm) or (bool(tokens_query) and tokens_query == _tokenizar_normalizado(concepto))
             score_latente = score_capa if origen in ("latente", "expansion") else 0.0
             # v16.0: Boost por inferencia transitiva (sinapsis latentes)
             if usar_inferencia:
@@ -2865,8 +2939,15 @@ class SQLiteMemoryBioRAG:
                 except Exception:
                     pass
             score_cadena = score_capa if origen == "cadena" else 0.0
-            concepto_ratio = resultados_concepto.get(concepto, 0.0)
-            sinonimos_ratio = resultados_semantica.get(concepto, 0.0)
+            
+            # Calculate symbolic similarity for concept name and synonyms, and update ratios
+            concepto_s_score = score_simbolico_concepto(tokens_query, concepto)
+            concepto_ratio = max(resultados_concepto.get(concepto, 0.0), concepto_s_score)
+            
+            sinonimos_str = concepto_sinonimos_map.get(concepto, "")
+            sinonimos_s_score = score_simbolico_sinonimos(tokens_query, sinonimos_str)
+            sinonimos_ratio = max(resultados_semantica.get(concepto, 0.0), sinonimos_s_score)
+
             score_hibrido = self._calcular_score_hibrido(
                 bm25_norm=bm25_norm_map.get(concepto, 0.0),
                 dim_score=dim_score,
@@ -3175,13 +3256,13 @@ class SQLiteMemoryBioRAG:
         total = len(todos)
 
         # Normalizar BM25 con fórmula estable para pool pequeño (ráfaga típicamente 1-5 candidatos)
-        # abs(raw) / (abs(raw) + 1.0) es sigmoid-like: más negativo (mejor match) → mayor score en [0,1]
+        # abs(raw) / (abs(raw) + 3.0) es sigmoid-like: más negativo (mejor match) → mayor score en [0,1]
         # No usa min-max porque con pocos candidatos la normalización de rango es inestable.
         bm25_norm_map = {}
         for r in todos:
             _, concepto, _, _, _, _, *bm25_rest = r
             raw = bm25_rest[0] if bm25_rest else 0.0
-            bm25_norm_map[concepto] = abs(raw) / (abs(raw) + 1.0)
+            bm25_norm_map[concepto] = abs(raw) / (abs(raw) + 3.0)
 
         scored = []
         for r in todos:
@@ -3197,10 +3278,15 @@ class SQLiteMemoryBioRAG:
             dim_score = dim_scores_map.get(concepto, 0.0)
 
             match_exacto = False
+            from core.fallback_simbolico import _tokenizar_normalizado
             for pv in palabras_validas:
                 _c_norm = (concepto or "").lower().replace(" ", "_").replace("-", "_")
                 _pv_norm = pv.lower().replace(" ", "_").replace("-", "_")
                 if _pv_norm == _c_norm:
+                    match_exacto = True
+                    break
+                tokens_pv = _tokenizar_normalizado(pv)
+                if tokens_pv and tokens_pv == _tokenizar_normalizado(concepto):
                     match_exacto = True
                     break
 
