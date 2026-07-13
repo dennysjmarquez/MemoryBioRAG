@@ -8,6 +8,13 @@
 - **Scoring Simbólico Integrado**: Los nuevos puntuadores `score_simbolico_concepto` y `score_simbolico_sinonimos` actúan como un boost (`max()`) sobre las señales del score híbrido.
 - **Unificación de BM25**: Consolidación de la constante de normalización a `abs(val) / (abs(val) + 3.0)` en todas las rutas de búsqueda para garantizar la comparabilidad matemática de resultados.
 - **Rebalanceo Equitativo de Pesos**: Corrección del exceso de pesos en la fórmula del score híbrido (reduciendo la suma de 1.05 a exactamente 1.0) mediante el rebalanceo de `concepto_ratio` a 0.175 y `sinonimos_ratio` a 0.125. Esto previno la distorsión por saturación del techo de score y elevó el Recall@1 al **78.02%** en la suite QA.
+- **Optimización de Consultas FTS5 con `CROSS JOIN`**: Reestructuración de 8 consultas clave de búsqueda entre tablas virtuales FTS5 (`largo_plazo_fts`, `largo_plazo_fts_unicode`) y la tabla indexada `largo_plazo` utilizando `CROSS JOIN`. Esto fuerza al planificador de consultas de SQLite a resolver primero el `MATCH` de FTS5, logrando una reducción masiva de latencia de ~500ms a **<10ms** (~100x de aceleración) al evitar escaneos de tablas completas.
+- **Suite de QA Fase 1 (Precisión Semántica)**: Transición de aserciones unitarias básicas a un dataset estático estandarizado (`casos_qa_baseline_v1.jsonl`) con **921 casos de prueba reales** que evalúan el motor de búsqueda en 8 categorías lingüísticas, logrando un **93.76% de Recall@5** y **87.63% de Recall@1** sin regresiones.
+- **Suite de QA Fase 2 (Estrés, Robustez y Escala)**: Implementación de scripts de diagnóstico avanzados:
+  - `fuzz_qa.py` (Fase 2A): Evalúa la resiliencia ante inyecciones de SQL, desbalanceos y cadenas corruptas (**33/33 casos aprobados**).
+  - `concurrencia_qa.py` (Fase 2B): Valida el aislamiento multi-hilo en SQLite WAL y el transporte asíncrono HTTP SSE de MCP (**0 bloqueos o colisiones**).
+  - `escala_qa.py` (Fase 2C): Benchmarking de latencia en volúmenes crecientes de datos de grafos sintéticos (hasta 50,000 nodos).
+  - Telemetría pasiva (Fase 2D): Logging de búsquedas y retroalimentación interactiva con `biorag_marcar_resultado`.
 - **Pruebas QA Adversarias**: Ampliación de la suite QA local a 534 casos, incluyendo 30 controles negativos adicionales para validar la robustez de tokens de 2 caracteres (manteniendo 0% de Falsos Positivos).
 - **Centralización de Stopwords**: Creación de `core/stopwords.py` para unificar y aislar listas de stopwords en español, inglés y tokens de control, previniendo la contaminación lingüística en Levenshtein.
 
