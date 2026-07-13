@@ -119,17 +119,17 @@ Cada capa se ejecuta SOLO si la anterior devolvió pocos resultados (< 3 o < lim
 La fórmula `_calcular_score_hibrido()` en `memory_store.py` combina 9 señales con pesos fijos:
 
 ```
-score = 0.20 × BM25_norm
+score = 0.15 × BM25_norm
       + 0.15 × dim_score (coseno binario de dimensiones)
       + 0.10 × grupo_score (similitud léxico-semántica WordNet)
-      + 0.15 × concepto_ratio (match en nombre)
-      + 0.10 × sinonimos_ratio (match en sinónimos)
+      + 0.175 × concepto_ratio (match en nombre)
+      + 0.125 × sinonimos_ratio (match en sinónimos)
       + 0.10 × peso_sinaptico (fuerza del nodo)
       + 0.10 × max(score_latente, score_cadena)
       + 0.05 × temporal (creado_en reciente)
-      + 0.05 × asoc_count (número de conexiones)
+      + 0.05 × asoc_count (número de conexiones)f
 
-Si match_exacto (query == concepto): floor 0.5
+Si match_exacto (query == concepto): floor 0.95
 ```
 
 **¿Qué es el `grupo_score`?**
@@ -139,7 +139,7 @@ Es una señal de similitud simbólica. Mide la coincidencia conceptual mediante 
 
 Es un **Learning-to-Rank manual** (no machine-learned). Cada señal es una feature. Los pesos son los "coeficientes del modelo". En producción esto se haría con XGBoost o LambdaMART sobre clicks. Aquí los pesos son heurísticos pero efectivos.
 
-La normalización `abs(x) / (abs(x) + 1)` es una **sigmoid-like** que mapea BM25 (que va de -∞ a 0) a [0, 1]. Más negativo = mejor match = mayor score. Es la misma fórmula que usa Lucene internamente para normalizar BM25.
+La normalización `abs(x) / (abs(x) + 3.0)` es una **sigmoid-like** que mapea BM25 (que va de -∞ a 0) a [0, 1]. Más negativo = mejor match = mayor score. Es la misma fórmula que usa Lucene internamente para normalizar BM25.
 
 ---
 
@@ -228,7 +228,7 @@ score = 0.60 × Jaccard(vecinos_A, vecinos_B) + 0.40 × Jaccard(tokens_query, to
 
 **Jaccard de vecinos:** Si A y B comparten vecinos en el grafo de sinapsis, están relacionados. Ejemplo: si "python" y "django" ambos se conectan con "backend", "web", "framework", tienen alto Jaccard.
 
-**¿Qué es?** Es un **Graph-based similarity** simplificado. En GNNs esto se hace con agregación de mensajes sobre embeddings de nodos. Aquí se hace con Jaccard puro — más barato, más interpretable, mismo resultado para un grafo de ~450 nodos.
+**¿Qué es?** Es un **Graph-based similarity** simplificado. En GNNs esto se hace con agregación de mensajes sobre embeddings de nodos. Aquí se hace con Jaccard puro — más barato, más interpretable, mismo resultado para un grafo de 551+ nodos.
 
 **Optimización clave:** `_cargar_grafo()` carga TODAS las sinapsis en un dict de Python una sola vez. Reduce de 200+ queries SQL a 1 query para todo el pipeline.
 
@@ -1112,12 +1112,32 @@ Análisis exhaustivo de todo el codebase documentando cada técnica, algoritmo y
 
 - FTS5 trigram, score híbrido, pipeline multi-capa, LTP/LTD
 
+## Metodología de Evaluación — Por Qué Este Enfoque
+
+BioRAG se evalúa siguiendo el paradigma **Cranfield** (*known-item search*): el mismo método formal
+que usa la disciplina de recuperación de información desde hace más de 60 años para medir motores de
+búsqueda, desde bibliotecas hasta buscadores modernos. El principio es simple — cada caso de prueba
+tiene una "verdad de referencia" (el concepto exacto que debe recuperarse) definida antes de correr la
+búsqueda, y se mide automáticamente cuántas veces el motor acierta.
+
+### Cobertura frente a la taxonomía estándar de evaluación de sistemas RAG
+
+| Categoría de prueba | Cobertura en BioRAG |
+|---|---|
+| Coincidencia exacta ("known-item") | ✅ `literal` |
+| Variación de forma de la palabra | ✅ `variante_gramatical`, `typo` |
+| Sinónimos / vocabulario distinto | ✅ `sinonimo` |
+| Preguntas en lenguaje natural | ✅ `pregunta_natural` |
+| Multi-idioma | ✅ `cruce_idioma` |
+| Consultas temáticas/conceptuales sin palabras literales | ✅ `por_tema` |
+| Casos negativos (control de falsos positivos) | ✅ `negativo` |
+
 ## Suite de QA y Benchmarking Determinista
 
 Con el fin de garantizar la estabilidad del motor BioRAG y evitar regresiones en futuras optimizaciones, se ha implementado una suite de control de calidad (QA) y benchmarking formal basada en el paradigma Cranfield (*Known-Item Search*).
 
 ### Objetivos y Enfoque Metodológico
-- **Evaluación No Sesgada**: Se aíslan los datos de prueba a través de un archivo baseline estático (`casos_qa_baseline_v1.jsonl`) con un total de **921 casos de prueba reales** mapeados a los 492 nodos del grafo.
+	- **Evaluación No Sesgada**: Se aíslan los datos de prueba a través de un archivo baseline estático (`casos_qa_baseline_v1.jsonl`) con un total de **986 casos de prueba reales** mapeados a los 551 nodos del grafo.
 - **Determinismo Absoluto**:
   - Se fijó el generador de casos mediante una semilla determinista (`random.seed(42)`) para evitar la dispersión estocástica entre corridas.
   - Se forzó el ordenamiento determinista (`ORDER BY concepto`) en las extracciones de base de datos SQL para asegurar la reproducibilidad exacta de las aristas del grafo.
@@ -1125,7 +1145,7 @@ Con el fin de garantizar la estabilidad del motor BioRAG y evitar regresiones en
 
 ### Estructura del Dataset de Benchmarking
 El baseline evalúa las siguientes categorías distribuidas para estresar el pipeline de 13 capas y el fallback simbólico:
-1. **`literal`** (487 casos): Cobertura total de correspondencia exacta uno-a-uno para cada nodo del cerebro.
+1. **`literal`** (551 casos): Cobertura total de correspondencia exacta uno-a-uno para cada nodo del cerebro.s
 2. **`dormido`** (65 casos): Pruebas de despertar cognitivo del nodo y activación en el flujo de evocación.
 3. **`typo`** (65 casos): Pruebas de robustez sintáctica inyectando errores de escritura para validar el comparador de Levenshtein.
 4. **`sinonimo`** (61 casos): Pruebas de expansión de sinónimos bajo diferentes capas léxicas.
@@ -1135,22 +1155,77 @@ El baseline evalúa las siguientes categorías distribuidas para estresar el pip
 8. **`negativo`** (40 casos): Casos de control sin coincidencia esperada para medir la tasa de falsos positivos (ruido) con un umbral de rechazo estricto de score `< 0.25`.
 
 ### Resultados y Métricas de la v18.0 (Baseline Estacional)
-Evaluado sobre la base de datos de producción de **492 nodos**:
+Evaluado sobre la base de datos de producción de **551 nodos**:
 
 | Categoría | Casos Evaluados | Recall@5 | Recall@1 | MRR | Fallas/FPs |
 |---|---|---|---|---|---|
-| **literal** | 487 | 100.00% | 99.79% | 0.999 | 0 |
+| **literal** | 551 | 100.00% | 99.82% | 0.999 | 0 |
 | **dormido** | 65 | 100.00% | 100.00% | 1.000 | 0 |
-| **pregunta_natural** | 65 | 95.38% | 89.23% | 0.919 | 3 |
-| **variante_gramatical** | 65 | 96.92% | 90.77% | 0.926 | 2 |
-| **typo** | 65 | 95.38% | 87.69% | 0.909 | 3 |
-| **cruce_idioma** | 8 | 87.50% | 87.50% | 0.875 | 1 |
-| **sinonimo** | 61 | 83.61% | 47.54% | 0.607 | 10 |
-| **por_tema** (Clustering) | 65 | 36.92% | 10.77% | 0.185 | 41 |
+| **pregunta_natural** | 65 | 95.38% | 89.23% | 0.917 | 3 |
+| **variante_gramatical** | 65 | 92.31% | 83.08% | 0.871 | 5 |
+| **typo** | 65 | 95.38% | 89.23% | 0.909 | 3 |
+| **cruce_idioma** | 8 | 87.50% | 75.00% | 0.812 | 1 |
+| **sinonimo** | 62 | 82.26% | 59.68% | 0.685 | 11 |
+| **por_tema** (Clustering) | 65 | 50.77% | 20.00% | 0.302 | 32 |
 | **negativo** (Ruido) | 40 | N/A | N/A | N/A | 0 (0.00% FP) |
-| **GLOBAL (Recuperación)** | **881** | **93.19%** | **87.17%** | **0.893** | **60** |
+| **GLOBAL (Recuperación)** | **946** | **94.19%** | **88.90%** | **0.908** | **55** |
 
-*Nota: La categoría `por_tema` (Recall@1: 10.77%) representa la base de optimización futura del motor mediante sintonía fina de similitud híbrida.*
+#### Glosario de Métricas de Evaluación
+Para facilitar la interpretación de los resultados del benchmark, se definen las siguientes métricas clave:
+* **Recall@K (Tasa de Recuperación a K)**: Porcentaje de consultas de prueba donde el nodo correcto de base de datos se encuentra dentro de los primeros $K$ resultados sugeridos por el motor de búsqueda.
+  * **Recall@5**: El concepto esperado se ubica entre las primeras 5 opciones (umbral estándar para interfaces que muestran recomendaciones).
+  * **Recall@1**: El concepto esperado es devuelto como la primera opción absoluta de búsqueda.
+* **MRR (Mean Reciprocal Rank)**: Métrica que evalúa la posición donde aparece el resultado correcto. Se calcula como la media de $\frac{1}{\text{posición}}$. Si el resultado correcto está en el puesto 1, el rango es $1.0$; si está en el 2, es $0.5$. Un MRR cercano a $1.0$ indica que el sistema sitúa los aciertos consistentemente al principio.
+* **Fallas / FPs (Falsos Positivos)**:
+  * **Fallas**: Número de consultas donde el concepto esperado no se recuperó dentro del Top-5.
+  * **FPs (Falsos Positivos)**: En la categoría de *negativos* (ruido), representa el porcentaje de consultas irrelevantes o aleatorias que erróneamente superaron el umbral de rechazo de score ($\ge 0.25$) en lugar de ser completamente filtradas. Un $0.00\%$ de FP significa inmunidad total al ruido.
+
+---
+
+### QA Fase 2: Robustez, Concurrencia y Escala (Fase de Estrés)
+La suite estándar de QA (Fase 1) asegura la precisión semántica y la regresión del motor en condiciones ideales. Para certificar la estabilidad en producción frente a cargas adversas, concurrencia de agentes y grandes volúmenes de datos, se implementó y ejecutó la **Fase 2 de QA** (Fuzzing, Concurrencia, Escala y Uso Real).
+
+A continuación se detallan las especificaciones de cada prueba y sus resultados reales obtenidos:
+
+#### 1. Fase 2A: Pruebas Adversariales y Fuzzing (`scripts/fuzz_qa.py`)
+* **Qué prueba**: La resiliencia del motor frente a entradas inesperadas, corruptas o dañinas (basura, inyecciones de SQL, límites de tipo, desbalanceo de caracteres, etc.) sin romperse ni alterar la base de datos de producción.
+* **Casos de prueba evaluados**: 33 variantes distribuidas en 10 categorías (cadenas vacías o con espacios, textos gigantes de 60K caracteres, comillas dobles desbalanceadas, bytes nulos, inyecciones SQL clásicas y lógicas, emojis y caracteres de alfabetos extranjeros como árabe/chino, formatos JSON de dimensiones rotos, valores numéricos fuera de rango y combinaciones extremas).
+* **Criterio de aprobación**: Ningún traceback no controlado (devolución limpia de excepciones manejadas), ejecución por debajo de 5 segundos, y cero mutaciones de estado.
+* **Resultado**: **✅ EXITOSO (33/33 Casos Aprobados | 0 Fallas)**.
+  * *Rendimiento:* La consulta más pesada (Inyección SQL compleja con mezcla de caracteres) se resolvió y validó de forma segura en **1.45s**; el query gigante de 60,000 caracteres se parseó en **0.72s**. El sistema no se corrompió ni arrojó excepciones no controladas.
+
+#### 2. Fase 2B: Pruebas de Concurrencia (`scripts/concurrencia_qa.py`)
+* **Qué prueba**: El comportamiento de lecturas y escrituras simultáneas sobre SQLite (modo WAL) y el transporte asíncrono SSE de MCP para asegurar que no se produzcan bloqueos ni colisiones sinápticas.
+* **Casos de prueba evaluados**:
+  * 20 hilos ejecutando de manera simultánea 40 operaciones de lecturas, escrituras y ciclos de consolidación directo a la base de datos.
+  * 20 clientes concurrentes llamando a través de transporte SSE HTTP (`recordar`, `guardar`, `consolidar`).
+  * Despertares concurrentes de nodos en sueño profundo (`estado = 'dormido'`).
+* **Criterio de aprobación**: Cero excepciones `database is locked`, consistencia de datos recuperados en hilos individuales y atomicidad en los incrementos sinápticos LTP (evitar dobles despertares).
+* **Resultado**: **✅ EXITOSO (0 Colisiones de Escritura | 0 Bloqueos de DB)**.
+  * *Rendimiento:* 20 conexiones HTTP concurrentes atendidas e interconectadas en **2.52s**. El nodo en sueño despertó exitosamente y actualizó su peso sináptico de manera atómica (de `0.04` a `0.19`) sin duplicaciones.
+
+#### 3. Fase 2C: Benchmarking de Escala (`scripts/escala_qa.py`)
+* **Qué prueba**: Los tiempos de respuesta del motor de búsqueda y del ciclo de sueño en volúmenes crecientes de datos de grafos sintéticos.
+* **Resultados de latencia (Segundos por operación en función del volumen)**:
+
+| Operación / Volumen | 1,000 Nodos | 5,000 Nodos | 20,000 Nodos | 50,000 Nodos | Complejidad Estimada |
+|---|---|---|---|---|---|
+| **Búsqueda estándar (BM25)** | 0.2192s | 0.2154s | 0.0840s | 0.3046s | **O(N log N) [Lineal-Logarítmico]** |
+| **Fuzzy / Trigram fallback** | 0.0097s | 0.0171s | 0.0411s | 0.0707s | **O(log N) [Sub-lineal]** |
+| **Similitud latente** | 0.0183s | 0.1083s | 0.7407s | 2.5372s | **O(N log N) [Lineal-Logarítmico]** |
+| **Ciclo de sueño (Consolidación)**| 1.2472s | 10.9085s | 19.8858s | 42.5133s | **O(N) [Lineal]** |
+
+* **Análisis de Complejidad**:
+  * La búsqueda estándar BM25/FTS5 escala de manera excelente, con consultas menores a **0.3s** incluso a 50,000 nodos debido al indexado virtual.
+  * El fallback de trigramas fuzzy mantiene tiempos sumamente controlados (**0.07s** a 50,000 nodos).
+  * La similitud latente e inferencia en Python constituye el cuello de botella teórico a escala, tardando **2.53s** en 50,000 nodos. Para mitigar esto, se acota la inferencia al subgrafo de candidatos pre-seleccionados por base de datos.
+  * El ciclo de sueño (consolidación y análisis de comunidades) a gran escala requiere hasta 42 segundos; no obstante, al ejecutarse en segundo plano (asíncronamente durante la inactividad del agente), no afecta la experiencia del usuario.
+
+#### 4. Fase 2D: Captura de Uso Real en Producción
+* **Qué prueba**: Registro de interacciones reales de los agentes con el fin de recopilar consultas complejas que generen falsos positivos o negativos en producción.
+* **Implementación**: Se añade una tabla `log_busquedas` en SQLite o archivo `.jsonl` local que guarda de forma pasiva la consulta (`query`), cantidad de resultados e id del primer resultado. El comando `biorag_marcar_resultado(query_id, util=False)` permite al usuario retroalimentar el sistema para agregar el caso como regresión de test permanente en futuras iteraciones.
+
+---
 
 ### Instrucciones de Ejecución y Replicabilidad
 La suite y herramientas asociadas se encuentran en el directorio `scripts/` (excluidas del control de versiones mediante `.gitignore` para no sobrecargar el repositorio con archivos de datos pesados, pero disponibles de forma local):

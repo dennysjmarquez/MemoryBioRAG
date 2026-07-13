@@ -130,10 +130,14 @@ def auto_vincular(cerebro, concepto, contenido, umbral=0.4):
             cerebro.cursor.execute(
                 f"SELECT l.concepto, l.contenido, l.peso_sinaptico "
                 f"FROM largo_plazo l "
-                f"WHERE l.estado = 'activo' AND l.concepto != ? AND ({like_conds})",
+                f"WHERE l.estado = 'activo' AND l.concepto != ? AND ({like_conds}) "
+                f"ORDER BY l.peso_sinaptico DESC LIMIT 500",
                 (concepto,) + tuple(like_params)
             )
+            count_name = 0
             for conc_exist, cont_exist, peso_exist in cerebro.cursor.fetchall():
+                if count_name >= 30: # Límite de fan-out para vinculación por nombre
+                    break
                 if conc_exist in ya_vinculados:
                     continue
                 nombre_overlap = sum(1 for w in palabras_nombre if w in conc_exist.lower()) / len(palabras_nombre)
@@ -149,6 +153,7 @@ def auto_vincular(cerebro, concepto, contenido, umbral=0.4):
                         (concepto, conc_exist, peso_link, time.time())
                     )
                     vinculados.append((conc_exist, peso_link))
+                    count_name += 1
             if any(v not in ya_vinculados for v in vinculados):
                 cerebro.cursor.connection.commit()
         except sqlite3.OperationalError:
@@ -174,10 +179,14 @@ def auto_vincular(cerebro, concepto, contenido, umbral=0.4):
                 cerebro.cursor.execute(
                     f"SELECT l.concepto, l.sinonimos, l.peso_sinaptico "
                     f"FROM largo_plazo l "
-                    f"WHERE l.estado = 'activo' AND l.concepto != ? AND ({sin_conds})",
+                    f"WHERE l.estado = 'activo' AND l.concepto != ? AND ({sin_conds}) "
+                    f"ORDER BY l.peso_sinaptico DESC LIMIT 500",
                     (concepto,) + tuple(sin_params)
                 )
+                count_syn = 0
                 for conc_exist, sin_exist, peso_exist in cerebro.cursor.fetchall():
+                    if count_syn >= 30: # Límite de fan-out para vinculación por sinónimos
+                        break
                     if conc_exist in ya_vinculados:
                         continue
                     tokens_exist_sin = _tokenizar(sin_exist or "")
@@ -198,6 +207,7 @@ def auto_vincular(cerebro, concepto, contenido, umbral=0.4):
                                 (concepto, conc_exist, peso_link, time.time())
                             )
                             vinculados.append((conc_exist, peso_link))
+                            count_syn += 1
                 if any(v not in ya_vinculados for v in vinculados):
                     cerebro.cursor.connection.commit()
             except sqlite3.OperationalError:

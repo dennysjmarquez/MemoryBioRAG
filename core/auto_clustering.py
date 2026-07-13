@@ -96,13 +96,17 @@ def detectar_comunidades(cerebro, min_densidad=0.3, min_nodos=5):
         conteo_sinapsis = 0
         
         miembros_set = set(miembros)
-        for i in range(k):
-            for j in range(i + 1, k):
-                n1, n2 = miembros[i], miembros[j]
-                if n2 in adj[n1]:
-                    sinapsis_internas_peso += adj[n1][n2]
+        for n1 in miembros:
+            vecinos = adj.get(n1, {})
+            for n2, peso in vecinos.items():
+                if n2 in miembros_set:
+                    sinapsis_internas_peso += peso
                     conteo_sinapsis += 1
                     
+        # Como es bidireccional, cada arista interna se cuenta dos veces
+        sinapsis_internas_peso /= 2.0
+        conteo_sinapsis = conteo_sinapsis // 2
+        
         densidad = sinapsis_internas_peso / max_posibles_sinapsis if k > 1 else 1.0
         
         # Filtrar comunidades poco densas

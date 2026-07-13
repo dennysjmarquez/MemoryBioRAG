@@ -39,9 +39,9 @@ def calcular_sinapsis_latentes(cerebro, max_saltos=None, factor_decay=None, umbr
 
     # CTE recursiva: encontrar caminos transitivos con poda temprana
     cerebro.cursor.execute(f"""
-        WITH RECURSIVE caminos(origen, destino, peso_acum, saltos, ruta) AS (
+        WITH RECURSIVE caminos(origen, destino, peso_acum, saltos) AS (
             -- Caso base: sinapsis directas con peso significativo
-            SELECT origen, destino, ROUND(peso * {factor_decay}, 4), 1, origen || ',' || destino
+            SELECT origen, destino, ROUND(peso * {factor_decay}, 4), 1
             FROM sinapsis
             WHERE peso >= 0.1
 
@@ -50,23 +50,27 @@ def calcular_sinapsis_latentes(cerebro, max_saltos=None, factor_decay=None, umbr
             -- Caso recursivo: extender caminos
             SELECT c.origen, s.destino,
                    ROUND(c.peso_acum * s.peso * {factor_decay}, 4),
-                   c.saltos + 1,
-                   c.ruta || ',' || s.destino
+                   c.saltos + 1
             FROM caminos c
             JOIN sinapsis s ON s.origen = c.destino
             WHERE c.saltos < {max_saltos}
-              AND c.ruta NOT LIKE '%' || s.destino || '%'
+              AND s.destino != c.origen
               AND c.peso_acum * s.peso * {factor_decay} >= {umbral}
+        ),
+        caminos_unicos AS (
+            SELECT origen, destino, MAX(peso_acum) AS peso_max, MIN(saltos) AS saltos_min
+            FROM caminos
+            WHERE origen != destino
+            GROUP BY origen, destino
         )
         INSERT INTO sinapsis_latentes (origen, destino, peso_atenuado, saltos, calculado_en)
-        SELECT origen, destino, MAX(peso_acum), MIN(saltos), {ahora}
-        FROM caminos
-        WHERE origen != destino
-          AND (origen, destino) NOT IN (SELECT origen, destino FROM sinapsis)
-        GROUP BY origen, destino
+        SELECT cu.origen, cu.destino, cu.peso_max, cu.saltos_min, {ahora}
+        FROM caminos_unicos cu
+        LEFT JOIN sinapsis s ON s.origen = cu.origen AND s.destino = cu.destino
+        WHERE s.origen IS NULL
     """)
 
-    count = cerebro.cursor.rowcount or 0
+    count = cerebro.cursor.execute("SELECT COUNT(*) FROM sinapsis_latentes").fetchone()[0]
     cerebro.conn.commit()
     return count
 

@@ -188,6 +188,97 @@ def score_similitud_latente(cursor, query_tokens, nodo_concepto, nodo_contenido,
     return score_base
 
 
+def _generar_subterminos_fts(token):
+    L = len(token)
+    if L < 4:
+        return [token]
+    edits = L // 4
+    k = edits + 1
+    W = L // k
+    if W < 3:
+        trigramas = [token[i:i+3] for i in range(L - 2)]
+        return trigramas if trigramas else [token]
+    else:
+        parts = []
+        for i in range(k):
+            start = i * W
+            end = (i + 1) * W if i < k - 1 else L
+            parts.append(token[start:end])
+        return parts
+
+
+def _obtener_candidatos_similitud(cursor, query_tokens):
+    import json
+    sub_tokens = []
+    for t in query_tokens:
+        if len(t) >= 3:
+            sub_tokens.extend(_generar_subterminos_fts(t))
+    
+    if not sub_tokens:
+        return []
+        
+    fts_tokens = [f'"{st}"' for st in sub_tokens]
+    fts_q = " OR ".join(fts_tokens)
+    
+    try:
+        cursor.execute(
+            "SELECT concepto FROM largo_plazo "
+            "WHERE estado = 'activo' AND rowid IN ("
+            "  SELECT rowid FROM largo_plazo_fts WHERE largo_plazo_fts MATCH ?"
+            ")",
+            (fts_q,)
+        )
+        bridges = [row[0] for row in cursor.fetchall()]
+    except Exception:
+        bridges = []
+        
+    if not bridges:
+        return []
+
+    cte_query = """
+    WITH puentes AS (
+        SELECT concepto FROM largo_plazo 
+        WHERE concepto IN (SELECT value FROM json_each(?)) AND estado = 'activo'
+    ),
+    vecinos_1 AS (
+        SELECT destino AS concepto FROM sinapsis WHERE origen IN (SELECT concepto FROM puentes)
+        UNION
+        SELECT origen AS concepto FROM sinapsis WHERE destino IN (SELECT concepto FROM puentes)
+    ),
+    vecinos_2 AS (
+        SELECT destino AS concepto FROM sinapsis WHERE origen IN (SELECT concepto FROM vecinos_1)
+        UNION
+        SELECT origen AS concepto FROM sinapsis WHERE destino IN (SELECT concepto FROM vecinos_1)
+    )
+    SELECT rowid, concepto, contenido, peso_sinaptico, estado, asociaciones
+    FROM largo_plazo
+    WHERE estado = 'activo' AND (
+        concepto IN (SELECT concepto FROM puentes) OR
+        concepto IN (SELECT concepto FROM vecinos_2) OR
+        rowid IN (
+            SELECT rowid FROM largo_plazo_fts 
+            WHERE largo_plazo_fts MATCH ?
+        )
+    )
+    """
+    try:
+        cursor.execute(cte_query, (json.dumps(bridges), fts_q))
+        return cursor.fetchall()
+    except Exception:
+        try:
+            cursor.execute(
+                "SELECT rowid, concepto, contenido, peso_sinaptico, estado, asociaciones "
+                "FROM largo_plazo "
+                "WHERE estado = 'activo' AND rowid IN ("
+                "  SELECT rowid FROM largo_plazo_fts WHERE largo_plazo_fts MATCH ?"
+                ")",
+                (fts_q,)
+            )
+            return cursor.fetchall()
+        except Exception:
+            return []
+
+
 def buscar_por_similitud_latente(cursor, frase, limite=None, umbral=None):
     """
     Búsqueda por similitud conceptual latente.
@@ -201,23 +292,12 @@ def buscar_por_similitud_latente(cursor, frase, limite=None, umbral=None):
     if not query_tokens:
         return []
 
-    # Buscar todos los nodos activos
-    try:
-        cursor.execute(
-            "SELECT l.rowid, l.concepto, l.contenido, l.peso_sinaptico, "
-            "l.estado, l.asociaciones "
-            "FROM largo_plazo l "
-            "WHERE l.estado = 'activo'"
-        )
-        candidatos = cursor.fetchall()
-    except sqlite3.OperationalError:
+    candidatos = _obtener_candidatos_similitud(cursor, query_tokens)
+    if not candidatos:
         return []
 
     scored = []
     grafo = _cargar_grafo(cursor)
-    # Pre-fetch puentes FTS5 una vez (batch optimization)
-    # Filtro PALABRA_COMPLETA: evita que trigramas falsos (ej: "culo" en "oráculo")
-    # contaminen los puentes de similitud conceptual.
     try:
         filtrar = [t for t in query_tokens if len(t) >= 3]
         if filtrar:
@@ -228,10 +308,10 @@ def buscar_por_similitud_latente(cursor, frase, limite=None, umbral=None):
             ) + ")"
             pc_params = tuple(p for t in filtrar for p in (t, t, t))
             cursor.execute(
-                "SELECT DISTINCT l.concepto FROM largo_plazo_fts f "
-                "JOIN largo_plazo l ON l.rowid = f.rowid "
-                "WHERE largo_plazo_fts MATCH ? AND l.estado = 'activo' "
-                + pc_clause + " LIMIT 50",
+                "SELECT DISTINCT l.concepto FROM largo_plazo l "
+                "WHERE l.estado = 'activo' AND l.rowid IN ("
+                "  SELECT rowid FROM largo_plazo_fts WHERE largo_plazo_fts MATCH ?"
+                ") " + pc_clause + " LIMIT 50",
                 (fts_q,) + pc_params
             )
             nodos_cache = {row[0] for row in cursor.fetchall()}
@@ -249,3 +329,4 @@ def buscar_por_similitud_latente(cursor, frase, limite=None, umbral=None):
 
     scored.sort(key=lambda x: x[0], reverse=True)
     return [row for _, row in scored[:limite]]
+

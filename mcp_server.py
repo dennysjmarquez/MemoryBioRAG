@@ -228,6 +228,13 @@ def _resolver_dimensiones(cerebro, dimensiones):
             "status": "error",
             "mensaje": f"dimensiones debe ser JSON válido. Ejemplo: {json.dumps({'emocion': ['afecto'], 'entidad': ['identidad_artificial']})}",
         }, ensure_ascii=False)
+    
+    if not isinstance(dim_raw, dict):
+        return None, [], json.dumps({
+            "status": "error",
+            "mensaje": "dimensiones debe ser un objeto JSON (diccionario) con comillas dobles. Ejemplo: {\"emocion\": [\"afecto\"]}",
+        }, ensure_ascii=False)
+
     dimensiones_dict = {}
     dimensiones_ids = []
     dimensiones_invalidas = {}
@@ -235,7 +242,18 @@ def _resolver_dimensiones(cerebro, dimensiones):
         if not isinstance(valores, list):
             dimensiones_invalidas[eje] = "debe ser lista"
             continue
-        ids, invalidos = cerebro._resolver_dimension_ids(eje, ",".join(valores))
+        
+        valores_filtrados = []
+        for val in valores:
+            if isinstance(val, str):
+                valores_filtrados.append(val)
+            else:
+                dimensiones_invalidas[eje] = f"elemento inválido de tipo {type(val).__name__} (debe ser string)"
+        
+        if eje in dimensiones_invalidas:
+            continue
+            
+        ids, invalidos = cerebro._resolver_dimension_ids(eje, ",".join(valores_filtrados))
         if invalidos:
             dimensiones_invalidas[eje] = invalidos
         if ids:
@@ -324,6 +342,87 @@ def _build_server():
     ) -> str:
         if limite is None:
             limite = LIMITE_MCP
+        
+        # ── SANITIZACIÓN Y VALIDACIÓN DE ENTRADAS ADVERSARIALES ──
+        def _sanitizar_string(s):
+            if s is None:
+                return None
+            if not isinstance(s, str):
+                s = str(s)
+            # Limitar longitud total a 500
+            if len(s) > 500:
+                s = s[:500]
+            # Truncar palabras individuales a 64 caracteres
+            palabras = s.split()
+            palabras_sanas = [p[:64] for p in palabras]
+            return " ".join(palabras_sanas)
+
+        if query is not None:
+            query = _sanitizar_string(query)
+                
+        if parafrasis is not None:
+            # En parafrasis, las variantes están separadas por comas, no solo por espacios
+            if not isinstance(parafrasis, str):
+                parafrasis = str(parafrasis)
+            if len(parafrasis) > 500:
+                parafrasis = parafrasis[:500]
+            partes = parafrasis.split(",")
+            parafrasis = ",".join([_sanitizar_string(p.strip()) for p in partes if p.strip()])
+                
+        if rafaga_palabras is not None:
+            # Igual para rafaga_palabras
+            if not isinstance(rafaga_palabras, str):
+                rafaga_palabras = str(rafaga_palabras)
+            if len(rafaga_palabras) > 500:
+                rafaga_palabras = rafaga_palabras[:500]
+            partes = rafaga_palabras.split(",")
+            rafaga_palabras = ",".join([_sanitizar_string(p.strip()) for p in partes if p.strip()])
+
+        # Validaciones de tipos y rangos numéricos
+        if not isinstance(pagina, int):
+            try:
+                pagina = int(pagina)
+            except:
+                pagina = 1
+        if pagina < 1:
+            pagina = 1
+        elif pagina > 1000000:
+            pagina = 1000000
+
+        if not isinstance(limite, int):
+            try:
+                limite = int(limite)
+            except:
+                limite = LIMITE_MCP
+        if limite <= 0:
+            return json.dumps({
+                "status": "error",
+                "mensaje": "El parámetro 'limite' debe ser un entero positivo mayor a 0.",
+            }, ensure_ascii=False)
+
+        if not isinstance(context_window, int):
+            try:
+                context_window = int(context_window)
+            except:
+                context_window = 0
+        if context_window < 0 or context_window > 5:
+            return json.dumps({
+                "status": "error",
+                "mensaje": "El parámetro 'context_window' debe estar en el rango [0, 5].",
+            }, ensure_ascii=False)
+
+        if dias is not None:
+            if not isinstance(dias, int):
+                try:
+                    dias = int(dias)
+                except:
+                    dias = None
+            if dias is not None and dias < 0:
+                return json.dumps({
+                    "status": "error",
+                    "mensaje": "El parámetro 'dias' debe ser un entero positivo.",
+                }, ensure_ascii=False)
+
         cerebro = _get_cerebro()
         try:
             if preview_chars is None:
@@ -2516,7 +2615,8 @@ def main(argv: Optional[list[str]] = None) -> int:
     try:
         if use_sse:
             sys.stderr.write(f"BioRAG MCP iniciado en SSE :{port}\n")
-            server.run(transport="sse", port=port)
+            server.settings.port = port
+            server.run(transport="sse")
         else:
             sys.stderr.write("BioRAG MCP iniciado (stdio)\n")
             server.run(transport="stdio")

@@ -4,9 +4,16 @@ import time
 import re
 import sys
 
-# Auto-cargar .env.local al importar (antes de leer任何环境变量)
+# Auto-cargar .env.local al importar (antes de leer cualquier variable de entorno)
 from config import _load_env_local
 _load_env_local()
+
+# Pre-cargar WordNet al importar para evitar latencia de 3s en primera consulta semántica
+try:
+    from core.clasificador_wordnet import obtener_lexnames_query
+    obtener_lexnames_query("test")  # Trigger NLTK/WordNet lazy load
+except Exception:
+    pass  # WordNet opcional, ignorar si falla
 
 # =============================================================================
 # Configuración de Usuario (Override con variables de entorno)
@@ -59,8 +66,9 @@ class SQLiteMemoryBioRAG:
             )
         os.makedirs(os.path.dirname(self.db_path), exist_ok=True)
         # Conectar a SQLite
-        self.conn = sqlite3.connect(self.db_path, timeout=5)
+        self.conn = sqlite3.connect(self.db_path, timeout=60)
         self.conn.execute("PRAGMA journal_mode=WAL")
+        self.conn.execute("PRAGMA synchronous=NORMAL")
         self.cursor = self.conn.cursor()
         # Función personalizada: word boundary check del lado de la DB
         def palabra_completa(token, texto):
@@ -80,7 +88,13 @@ class SQLiteMemoryBioRAG:
             return 1 if re.search(r'\b' + re.escape(token_norm), texto_norm) else 0
         self.conn.create_function("PALABRA_PREFIJO", 2, palabra_prefijo)
         self._cat_cache = {}
-        self._crear_estructura_cerebral()
+        # Evitar inicialización redundante de DDL si el esquema ya está creado
+        self.cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='largo_plazo'")
+        if not self.cursor.fetchone():
+            self._crear_estructura_cerebral()
+        else:
+            # Schema exists but ensure new tables (like log_busquedas) are created
+            self._crear_tablas_nuevas_si_faltan()
         self.conn.execute("PRAGMA foreign_keys = ON")
         # Trazaabilidad: datos de la última búsqueda para mcp_server.py
         self.last_todos = []
@@ -669,6 +683,31 @@ class SQLiteMemoryBioRAG:
                 concepto TEXT,
                 timestamp REAL DEFAULT (strftime('%s','now')),
                 sincronizado INTEGER DEFAULT 0
+            )
+        """)
+        # 8. Tabla de log de búsquedas (Phase 2D Telemetría)
+        self.cursor.execute("""
+            CREATE TABLE IF NOT EXISTS log_busquedas (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                query TEXT NOT NULL,
+                resultados_count INTEGER NOT NULL,
+                top_score REAL,
+                creado_en REAL NOT NULL,
+                util INTEGER DEFAULT NULL
+            )
+        """)
+        self.conn.commit()
+
+    def _crear_tablas_nuevas_si_faltan(self):
+        """Crea tablas nuevas (Phase 2D) si no existen en esquemas existentes."""
+        self.cursor.execute("""
+            CREATE TABLE IF NOT EXISTS log_busquedas (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                query TEXT NOT NULL,
+                resultados_count INTEGER NOT NULL,
+                top_score REAL,
+                creado_en REAL NOT NULL,
+                util INTEGER DEFAULT NULL
             )
         """)
         self.conn.commit()
@@ -1286,12 +1325,6 @@ class SQLiteMemoryBioRAG:
         """
         print("\n--- Iniciando Ciclo de Consolidación (Sueño) ---")
         
-        # Límite dinámico: n_activos * 1.6, mínimo 10.0
-        if limite_energia is None:
-            self.cursor.execute("SELECT COUNT(*) FROM largo_plazo WHERE estado = 'activo'")
-            n_activos = self.cursor.fetchone()[0] or 0
-            limite_energia = max(10.0, n_activos * 1.6)
-
         # Métricas del ciclo
         nodos_dormidos_antes = self.cursor.execute("SELECT COUNT(*) FROM largo_plazo WHERE estado = 'dormido'").fetchone()[0]
         sinapsis_antes = self.cursor.execute("SELECT COUNT(*) FROM sinapsis").fetchone()[0]
@@ -1397,6 +1430,11 @@ class SQLiteMemoryBioRAG:
         """)
 
         # 4. Inhibición Lateral Activa (Control de Saturación de Energía)
+        if limite_energia is None:
+            self.cursor.execute("SELECT COUNT(*) FROM largo_plazo WHERE estado = 'activo'")
+            n_activos = self.cursor.fetchone()[0] or 0
+            limite_energia = max(10.0, n_activos * 1.6)
+
         self.cursor.execute("SELECT SUM(peso_sinaptico) FROM largo_plazo WHERE estado = 'activo'")
         energia_total = self.cursor.fetchone()[0] or 0.0
 
@@ -1411,13 +1449,24 @@ class SQLiteMemoryBioRAG:
             """)
             nodos_activos = self.cursor.fetchall()
             
+            nodos_a_dormir = []
             for concepto, peso in nodos_activos:
                 if exceso <= 0:
                     break
-                # Forzar el apagado (dormir) del nodo para liberar energía
-                self.cursor.execute("UPDATE largo_plazo SET estado = 'dormido' WHERE concepto = ?", (concepto,))
+                nodos_a_dormir.append(concepto)
                 exceso -= peso
-                print(f"[Inhibición Lateral] Recuerdo '{concepto}' puesto a dormir forzadamente para balancear la carga cortical.")
+            
+            if nodos_a_dormir:
+                for i in range(0, len(nodos_a_dormir), 900):
+                    lote = nodos_a_dormir[i:i+900]
+                    placeholders = ",".join("?" for _ in lote)
+                    self.cursor.execute(f"UPDATE largo_plazo SET estado = 'dormido' WHERE concepto IN ({placeholders})", lote)
+                
+                if len(nodos_a_dormir) <= 10:
+                    for concepto in nodos_a_dormir:
+                        print(f"[Inhibición Lateral] Recuerdo '{concepto}' puesto a dormir forzadamente para balancear la carga cortical.")
+                else:
+                    print(f"[Inhibición Lateral] Puestos a dormir {len(nodos_a_dormir)} recuerdos débiles para liberar energía (Consolidación en lote exitosa).")
 
         # Auto-clustering (v16.0)
         try:
@@ -2130,7 +2179,7 @@ class SQLiteMemoryBioRAG:
         frase = frase_limpia_filtrada
         query = frase_limpia_filtrada if not solo_protegidos else ""
 
-        # Filtrar stopwords de la lista de paráfrasis
+# Filtrar stopwords de la lista de paráfrasis
         parafrasis_filtradas = []
         if parafrasis_list:
             for p in parafrasis_list:
@@ -2138,7 +2187,26 @@ class SQLiteMemoryBioRAG:
                 p_words = [w for w in p_clean.split() if strip_accents(w) not in stopwords_normalized and len(w) >= 2]
                 if p_words:
                     parafrasis_filtradas.append(" ".join(p_words))
-            parafrasis_list = parafrasis_filtradas
+
+        # EARLY-EXIT: Detectar queries adversarias/basura que cascadearían por todos los fallbacks
+        # Si la query limpia no tiene tokens válidos (>=2 chars, no stopwords) Y no hay términos protegidos,
+        # NO entrar en la cascada de fallbacks costosos → retornar vacío inmediato
+        tokens_validos = [w for w in frase.split() if len(w) >= 2 and strip_accents(w) not in stopwords_normalized]
+        tiene_parafrasis_validas = any(len(p.split()) > 0 for p in parafrasis_filtradas)
+        
+        # Query es basura si: no tiene tokens válidos, no tiene términos protegidos, no tiene paráfrasis válidas
+        # Y es muy larga (>200 chars) o tiene alta entropía (solo ruido) → evita DoS por cascada
+        es_basura = (
+            not tokens_validos and 
+            not protected_terms and 
+            not tiene_parafrasis_validas and
+            (len(frase) > 200 or len(set(frase.lower())) > 50)  # largo o alta diversidad de chars = ruido
+        )
+        
+        if es_basura:
+            # Log para auditoría
+            # print(f"[EARLY-EXIT] Query basura detectada, saltando cascada fallbacks: '{frase[:50]}...'")
+            return [], 0
 
         # Calcular pesos diferenciales de tokens por centralidad en la red
         pesos_tokens = self._pesar_tokens_query(frase)
@@ -2180,7 +2248,7 @@ class SQLiteMemoryBioRAG:
                    l.estado, l.asociaciones,
                    bm25(largo_plazo_fts, 5.0, 1.0, 2.0) AS bm25_val
             FROM largo_plazo_fts f
-            JOIN largo_plazo l ON l.rowid = f.rowid
+            CROSS JOIN largo_plazo l ON l.rowid = f.rowid
             WHERE largo_plazo_fts MATCH ?{filtro}
             ORDER BY bm25(largo_plazo_fts, 5.0, 1.0, 2.0) * (0.5 + 0.5 * l.peso_sinaptico)
         """.format(filtro=clause)
@@ -2308,7 +2376,7 @@ class SQLiteMemoryBioRAG:
                     f"l.estado, l.asociaciones, "
                     f"bm25(largo_plazo_fts_unicode) AS bm25_val "
                     f"FROM largo_plazo_fts_unicode f "
-                    f"JOIN largo_plazo l ON l.rowid = f.rowid "
+                    f"CROSS JOIN largo_plazo l ON l.rowid = f.rowid "
                     f"WHERE largo_plazo_fts_unicode MATCH ?"
                     f"{clause}{pc_prot_clause} "
                     f"ORDER BY bm25(largo_plazo_fts_unicode) "
@@ -2355,7 +2423,7 @@ class SQLiteMemoryBioRAG:
                            l.estado, l.asociaciones,
                            bm25(largo_plazo_fts_unicode) AS bm25_val
                     FROM largo_plazo_fts_unicode f
-                    JOIN largo_plazo l ON l.rowid = f.rowid
+                    CROSS JOIN largo_plazo l ON l.rowid = f.rowid
                     WHERE largo_plazo_fts_unicode MATCH ?{filtro}
                     ORDER BY bm25(largo_plazo_fts_unicode)
                     LIMIT ?
@@ -2436,90 +2504,105 @@ class SQLiteMemoryBioRAG:
         # Usa Jaccard sobre tokens, no requiere match literal. No aplicar PALABRA_COMPLETA.
         # Dynamic Multiplicator: registrar como "latente" con score Jaccard real
         # OPTIMIZACIÓN: Pre-cargar puentes FTS5 una vez (reduce N queries a 1)
+        # PROTECCIÓN DoS: Early-exit para queries adversarias + subgraph bounding
         if not modo_estricto and len(todos) < 3 and len(query) >= 2:
-            from core.similitud_conceptual import _tokenizar_query, score_similitud_latente, LIMITE_SIMILITUD, _cargar_grafo, _limpiar_cache
-            query_tokens = _tokenizar_query(query)
-            if query_tokens:
-                try:
+            # Early-exit: queries muy largas o con alta entropía (probablemente basura/adversarial)
+            # no justifican el costo O(N^1.6) de similitud latente
+            if len(query) > 200:
+                pass  # Skip latent similarity for adversarial-length queries
+            else:
+                from core.similitud_conceptual import _tokenizar_query, score_similitud_latente, LIMITE_SIMILITUD, _cargar_grafo, _limpiar_cache
+                query_tokens = _tokenizar_query(query)
+                if query_tokens:
                     try:
-                        grafo = _cargar_grafo(self.cursor)
-                        # Batch: pre-fetch puentes FTS5 una vez (1 query SQL)
-                        # En vez de N queries FTS5 separadas en _similitud_red
-                        filtrar = [t for t in query_tokens if len(t) >= 2]
-                        nodos_cache = None
-                        if filtrar:
-                            fts_tokens = [f'"{t}"' for t in filtrar]
-                            fts_q = " OR ".join(fts_tokens)
-                            # Filtro PALABRA_COMPLETA en puentes: evita falsos positivos de trigram
-                            # Relajación: solo se exige PALABRA_COMPLETA para palabras cortas (longitud <= 4)
-                            pc_bridge_conds = []
-                            pc_bridge_params_list = []
-                            for t in filtrar:
-                                if len(t) <= 4:
-                                    pc_bridge_conds.append("(PALABRA_COMPLETA(?, l.contenido) = 1 OR PALABRA_COMPLETA(?, l.concepto) = 1 OR PALABRA_COMPLETA(?, COALESCE(l.sinonimos, '')) = 1)")
-                                    pc_bridge_params_list.extend([t, t, t])
-                                else:
-                                    pc_bridge_conds.append("(1 = 1)")
-                            pc_bridge_clause = " AND (" + " AND ".join(pc_bridge_conds) + ")"
-                            pc_bridge_params = tuple(pc_bridge_params_list)
-                            try:
-                                bridge_filter = " AND l.estado = 'activo'"
-                                self.cursor.execute(
-                                    "SELECT DISTINCT l.concepto FROM largo_plazo_fts f "
-                                    "JOIN largo_plazo l ON l.rowid = f.rowid "
-                                    "WHERE largo_plazo_fts MATCH ? " + bridge_filter
-                                    + pc_bridge_clause + " LIMIT 50",
-                                    (fts_q,) + pc_bridge_params
-                                )
-                                nodos_cache = {row[0] for row in self.cursor.fetchall()}
-                            except sqlite3.OperationalError:
-                                nodos_cache = None
-                        fts_tokens = [f'"{t}"' for t in query_tokens if len(t) >= 2]
-                        if fts_tokens:
-                            fts_q = " OR ".join(fts_tokens)
-                            lat_clause = " AND l.estado = 'activo'"
-                            # Filtro PALABRA_COMPLETA en candidatos: evita falsos positivos de trigram
-                            # Relajación: solo se exige PALABRA_COMPLETA para palabras cortas (longitud <= 4)
-                            pc_lat_clause = ""
-                            pc_lat_params = ()
-                            filtrar_lat = [t for t in query_tokens if len(t) >= 2]
-                            if filtrar_lat:
-                                pc_lat_conds = []
-                                pc_lat_params_list = []
-                                for t in filtrar_lat:
+                        try:
+                            grafo = _cargar_grafo(self.cursor)
+                            # Batch: pre-fetch puentes FTS5 una vez (1 query SQL)
+                            # En vez de N queries FTS5 separadas en _similitud_red
+                            filtrar = [t for t in query_tokens if len(t) >= 2]
+                            nodos_cache = None
+                            if filtrar:
+                                fts_tokens = [f'"{t}"' for t in filtrar]
+                                fts_q = " OR ".join(fts_tokens)
+                                # Filtro PALABRA_COMPLETA en puentes: evita falsos positivos de trigram
+                                # Relajación: solo se exige PALABRA_COMPLETA para palabras cortas (longitud <= 4)
+                                pc_bridge_conds = []
+                                pc_bridge_params_list = []
+                                for t in filtrar:
                                     if len(t) <= 4:
-                                        pc_lat_conds.append("(PALABRA_COMPLETA(?, l.contenido) = 1 OR PALABRA_COMPLETA(?, l.concepto) = 1 OR PALABRA_COMPLETA(?, COALESCE(l.sinonimos, '')) = 1)")
-                                        pc_lat_params_list.extend([t, t, t])
+                                        pc_bridge_conds.append("(PALABRA_COMPLETA(?, l.contenido) = 1 OR PALABRA_COMPLETA(?, l.concepto) = 1 OR PALABRA_COMPLETA(?, COALESCE(l.sinonimos, '')) = 1)")
+                                        pc_bridge_params_list.extend([t, t, t])
                                     else:
-                                        pc_lat_conds.append("(1 = 1)")
-                                pc_lat_clause = " AND (" + " AND ".join(pc_lat_conds) + ")"
-                                pc_lat_params = tuple(pc_lat_params_list)
-                            self.cursor.execute(
-                                "SELECT l.rowid, l.concepto, l.contenido, l.peso_sinaptico, "
-                                "l.estado, l.asociaciones "
-                                "FROM largo_plazo_fts f JOIN largo_plazo l ON l.rowid = f.rowid "
-                                "WHERE largo_plazo_fts MATCH ?" + lat_clause + pc_lat_clause + " LIMIT ?",
-                                (fts_q,) + pc_lat_params + (CANDIDATOS_SIMILITUD,)
-                            )
-                            candidatos_lat = self.cursor.fetchall()
-                            scored = []
-                            seen_rowids = {r[0] for r in todos}
-                            for rowid, concepto, contenido, peso, estado, asoc in candidatos_lat:
-                                if rowid in seen_rowids:
-                                    continue
-                                s = score_similitud_latente(self.cursor, query_tokens, concepto, contenido, grafo=grafo, nodos_cache=nodos_cache)
-                                if s >= 0.15:
-                                    scored.append((s, (rowid, concepto, contenido, peso, estado, asoc or "")))
-                            scored.sort(key=lambda x: x[0], reverse=True)
-                            for jaccard_score, row in scored[:LIMITE_SIMILITUD]:
-                                todos.append(row)
-                                # Solo registrar si no fue encontrado por capa literal (FTS5 tiene prioridad)
-                                if row[1] not in origen_scores:
-                                    origen_scores[row[1]] = ("latente", jaccard_score)
-                    finally:
-                        _limpiar_cache()
-                except sqlite3.OperationalError:
-                    pass
+                                        pc_bridge_conds.append("(1 = 1)")
+                                pc_bridge_clause = " AND (" + " AND ".join(pc_bridge_conds) + ")"
+                                pc_bridge_params = tuple(pc_bridge_params_list)
+                                try:
+                                    bridge_filter = " AND l.estado = 'activo'"
+                                    self.cursor.execute(
+                                        "SELECT DISTINCT l.concepto FROM largo_plazo_fts f "
+                                        "CROSS JOIN largo_plazo l ON l.rowid = f.rowid "
+                                        "WHERE largo_plazo_fts MATCH ? " + bridge_filter
+                                        + pc_bridge_clause + " LIMIT 50",
+                                        (fts_q,) + pc_bridge_params
+                                    )
+                                    nodos_cache = {row[0] for row in self.cursor.fetchall()}
+                                except sqlite3.OperationalError:
+                                    nodos_cache = None
+                            fts_tokens = [f'"{t}"' for t in query_tokens if len(t) >= 2]
+                            if fts_tokens:
+                                fts_q = " OR ".join(fts_tokens)
+                                lat_clause = " AND l.estado = 'activo'"
+                                # Filtro PALABRA_COMPLETA en candidatos: evita falsos positivos de trigram
+                                # Relajación: solo se exige PALABRA_COMPLETA para palabras cortas (longitud <= 4)
+                                pc_lat_clause = ""
+                                pc_lat_params = ()
+                                filtrar_lat = [t for t in query_tokens if len(t) >= 2]
+                                if filtrar_lat:
+                                    pc_lat_conds = []
+                                    pc_lat_params_list = []
+                                    for t in filtrar_lat:
+                                        if len(t) <= 4:
+                                            pc_lat_conds.append("(PALABRA_COMPLETA(?, l.contenido) = 1 OR PALABRA_COMPLETA(?, l.concepto) = 1 OR PALABRA_COMPLETA(?, COALESCE(l.sinonimos, '')) = 1)")
+                                            pc_lat_params_list.extend([t, t, t])
+                                        else:
+                                            pc_lat_conds.append("(1 = 1)")
+                                    pc_lat_clause = " AND (" + " AND ".join(pc_lat_conds) + ")"
+                                    pc_lat_params = tuple(pc_lat_params_list)
+                                self.cursor.execute(
+                                    "SELECT l.rowid, l.concepto, l.contenido, l.peso_sinaptico, "
+                                    "l.estado, l.asociaciones "
+                                    "FROM largo_plazo_fts f CROSS JOIN largo_plazo l ON l.rowid = f.rowid "
+                                    "WHERE largo_plazo_fts MATCH ?" + lat_clause + pc_lat_clause + " LIMIT ?",
+                                    (fts_q,) + pc_lat_params + (CANDIDATOS_SIMILITUD,)
+                                )
+                                candidatos_lat = self.cursor.fetchall()
+                                
+                                # SUBGRAPH BOUNDING: Solo procesar candidatos con grado mínimo en el grafo
+                                # Evita recorrer nodos aislados que solo añaden ruido y costo
+                                if grafo:
+                                    candidatos_lat = [
+                                        c for c in candidatos_lat
+                                        if len(grafo.get(c[1], {})) >= 2  # min degree = 2
+                                    ]
+                                
+                                scored = []
+                                seen_rowids = {r[0] for r in todos}
+                                for rowid, concepto, contenido, peso, estado, asoc in candidatos_lat:
+                                    if rowid in seen_rowids:
+                                        continue
+                                    s = score_similitud_latente(self.cursor, query_tokens, concepto, contenido, grafo=grafo, nodos_cache=nodos_cache)
+                                    if s >= 0.15:
+                                        scored.append((s, (rowid, concepto, contenido, peso, estado, asoc or "")))
+                                scored.sort(key=lambda x: x[0], reverse=True)
+                                for jaccard_score, row in scored[:LIMITE_SIMILITUD]:
+                                    todos.append(row)
+                                    # Solo registrar si no fue encontrado por capa literal (FTS5 tiene prioridad)
+                                    if row[1] not in origen_scores:
+                                        origen_scores[row[1]] = ("latente", jaccard_score)
+                        finally:
+                            _limpiar_cache()
+                    except sqlite3.OperationalError:
+                        pass
         # Fallback 2.0: substring match con word boundary via PALABRA_COMPLETA
         if not modo_estricto and len(todos) < 3 and len(query) >= 2:
             filtros_fb = []
@@ -2588,7 +2671,7 @@ class SQLiteMemoryBioRAG:
                     try:
                         self.cursor.execute(
                             "SELECT l.concepto FROM largo_plazo_fts f "
-                            "JOIN largo_plazo l ON l.rowid = f.rowid "
+                            "CROSS JOIN largo_plazo l ON l.rowid = f.rowid "
                             "WHERE largo_plazo_fts MATCH ? AND l.estado = 'activo' "
                             + pc_seed_clause + " LIMIT 5",
                             (fts_q,) + pc_seed_params
@@ -2854,44 +2937,47 @@ class SQLiteMemoryBioRAG:
 
         # ─── Capa 5: Score por grupo semántico (WordNet lexnames) ───
         grupo_scores_map = {}
-        try:
-            from core.clasificador_wordnet import obtener_lexnames_query
-            query_lexnames = obtener_lexnames_query(frase, parafrasis_list)
-            if query_lexnames:
-                # Obtener IDs de los grupos del query
-                placeholders_ln = ",".join("?" * len(query_lexnames))
-                self.cursor.execute(
-                    f"SELECT id FROM grupos_semanticos WHERE nombre IN ({placeholders_ln})",
-                    tuple(query_lexnames)
-                )
-                query_grupo_ids = set(r[0] for r in self.cursor.fetchall())
+        # Skip WordNet for very short queries (< 3 chars) or very long (> 100 chars, likely garbage/adversarial)
+        # NLTK load takes ~3s on first run, and long queries are not legitimate semantic queries
+        if 3 <= len(frase) <= 100:
+            try:
+                from core.clasificador_wordnet import obtener_lexnames_query
+                query_lexnames = obtener_lexnames_query(frase, parafrasis_list)
+                if query_lexnames:
+                    # Obtener IDs de los grupos del query
+                    placeholders_ln = ",".join("?" * len(query_lexnames))
+                    self.cursor.execute(
+                        f"SELECT id FROM grupos_semanticos WHERE nombre IN ({placeholders_ln})",
+                        tuple(query_lexnames)
+                    )
+                    query_grupo_ids = set(r[0] for r in self.cursor.fetchall())
 
-                if query_grupo_ids:
-                    conceptos_todos = [r[1] for r in todos if r[1]]
-                    if conceptos_todos:
-                        ph_conceptos = ",".join("?" * len(conceptos_todos))
-                        ph_grupos = ",".join(str(g) for g in query_grupo_ids)
-                        self.cursor.execute(
-                            f"SELECT concepto, grupo_id FROM nodo_grupos_semanticos "
-                            f"WHERE concepto IN ({ph_conceptos}) "
-                            f"AND grupo_id IN ({ph_grupos})",
-                            tuple(conceptos_todos)
-                        )
-                        # Coseno binario: shared / sqrt(|query| × |doc|)
-                        import math
-                        concepto_grupo_ids = {}
-                        for concepto, gid in self.cursor.fetchall():
-                            concepto_grupo_ids.setdefault(concepto, set()).add(gid)
+                    if query_grupo_ids:
+                        conceptos_todos = [r[1] for r in todos if r[1]]
+                        if conceptos_todos:
+                            ph_conceptos = ",".join("?" * len(conceptos_todos))
+                            ph_grupos = ",".join(str(g) for g in query_grupo_ids)
+                            self.cursor.execute(
+                                f"SELECT concepto, grupo_id FROM nodo_grupos_semanticos "
+                                f"WHERE concepto IN ({ph_conceptos}) "
+                                f"AND grupo_id IN ({ph_grupos})",
+                                tuple(conceptos_todos)
+                            )
+                            # Coseno binario: shared / sqrt(|query| × |doc|)
+                            import math
+                            concepto_grupo_ids = {}
+                            for concepto, gid in self.cursor.fetchall():
+                                concepto_grupo_ids.setdefault(concepto, set()).add(gid)
 
-                        q_len = len(query_grupo_ids)
-                        for concepto, doc_gids in concepto_grupo_ids.items():
-                            shared = len(query_grupo_ids & doc_gids)
-                            if shared > 0:
-                                grupo_scores_map[concepto] = shared / math.sqrt(
-                                    q_len * len(doc_gids)
-                                )
-        except ImportError:
-            pass  # WordNet no disponible
+                            q_len = len(query_grupo_ids)
+                            for concepto, doc_gids in concepto_grupo_ids.items():
+                                shared = len(query_grupo_ids & doc_gids)
+                                if shared > 0:
+                                    grupo_scores_map[concepto] = shared / math.sqrt(
+                                        q_len * len(doc_gids)
+                                    )
+            except ImportError:
+                pass  # WordNet no disponible
 
         # SRL v16.0: Filtrar todos los candidatos por roles semánticos si se especificó buscar_por_rol
         if conceptos_validos_rol is not None:
@@ -3050,6 +3136,17 @@ class SQLiteMemoryBioRAG:
         self.last_todos = todos
         self.last_origen_scores = origen_scores
 
+        # Phase 2D: Telemetría de búsquedas (non-blocking)
+        try:
+            top_score = pagina_resultados[0][4] if pagina_resultados else None
+            self.cursor.execute(
+                "INSERT INTO log_busquedas (query, resultados_count, top_score, creado_en) VALUES (?, ?, ?, ?)",
+                (query, total, top_score, time.time())
+            )
+            self.conn.commit()
+        except Exception:
+            pass
+
         return pagina_resultados, total
 
     def validar_rafaga(self, rafaga_palabras):
@@ -3149,7 +3246,7 @@ class SQLiteMemoryBioRAG:
                 "SELECT l.rowid, l.concepto, l.contenido, l.peso_sinaptico, "
                 "l.estado, l.asociaciones, "
                 "bm25(largo_plazo_fts, 5.0, 1.0, 2.0) AS bm25_val "
-                "FROM largo_plazo_fts f JOIN largo_plazo l ON l.rowid = f.rowid "
+                "FROM largo_plazo_fts f CROSS JOIN largo_plazo l ON l.rowid = f.rowid "
                 "WHERE largo_plazo_fts MATCH ? AND l.estado = 'activo' "
                 + pc_rafaga_clause + " LIMIT ?",
                 (fts_terms,) + tuple(pc_rafaga_params) + (limite_batch,)
@@ -3176,7 +3273,7 @@ class SQLiteMemoryBioRAG:
                 "SELECT l.rowid, l.concepto, l.contenido, l.peso_sinaptico, "
                 "l.estado, l.asociaciones, "
                 "bm25(largo_plazo_fts, 5.0, 1.0, 2.0) AS bm25_val "
-                "FROM largo_plazo_fts f JOIN largo_plazo l ON l.rowid = f.rowid "
+                "FROM largo_plazo_fts f CROSS JOIN largo_plazo l ON l.rowid = f.rowid "
                 "WHERE largo_plazo_fts MATCH ? AND l.estado = 'dormido' "
                 + pc_rafaga_clause + " LIMIT ?",
                 (fts_terms,) + tuple(pc_rafaga_params) + (limite_batch,)
