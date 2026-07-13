@@ -1,7 +1,10 @@
 # BioRAG .gitignore
 
 # Generated databases (local data, not code)
-MemoryBioRAG_Data/*.db
+MemoryBioRAG_Data/**/*.db
+MemoryBioRAG_Data/obsolete_and_debug/
+test_memory.db
+
 
 # Python cache
 __pycache__/
