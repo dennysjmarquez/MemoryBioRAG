@@ -1452,9 +1452,9 @@ def test_sistema():
             (c, time.time())
         )
     # Crear sinapsis directas: A -> B (1.0), B -> C (1.0), C -> D (1.0)
-    cerebro.cursor.execute("INSERT INTO sinapsis (origen, destino, peso, creado_en) VALUES ('node_a', 'node_b', 1.0, ?)", (time.time(),))
-    cerebro.cursor.execute("INSERT INTO sinapsis (origen, destino, peso, creado_en) VALUES ('node_b', 'node_c', 1.0, ?)", (time.time(),))
-    cerebro.cursor.execute("INSERT INTO sinapsis (origen, destino, peso, creado_en) VALUES ('node_c', 'node_d', 1.0, ?)", (time.time(),))
+    cerebro.cursor.execute("INSERT INTO sinapsis (origen, destino, peso, tipo, creado_en) VALUES ('node_a', 'node_b', 1.0, 'test', ?)", (time.time(),))
+    cerebro.cursor.execute("INSERT INTO sinapsis (origen, destino, peso, tipo, creado_en) VALUES ('node_b', 'node_c', 1.0, 'test', ?)", (time.time(),))
+    cerebro.cursor.execute("INSERT INTO sinapsis (origen, destino, peso, tipo, creado_en) VALUES ('node_c', 'node_d', 1.0, 'test', ?)", (time.time(),))
     cerebro.conn.commit()
     
     from core.inferencia_transitiva import calcular_sinapsis_latentes, obtener_vecinos_latentes
@@ -1477,7 +1477,7 @@ def test_sistema():
 
     print("\n--- 81. Probando Prevención de Bucles en Inferencia Transitiva ---")
     # Agregar sinapsis de retorno D -> A (1.0) formando un ciclo A -> B -> C -> D -> A
-    cerebro.cursor.execute("INSERT INTO sinapsis (origen, destino, peso, creado_en) VALUES ('node_d', 'node_a', 1.0, ?)", (time.time(),))
+    cerebro.cursor.execute("INSERT INTO sinapsis (origen, destino, peso, tipo, creado_en) VALUES ('node_d', 'node_a', 1.0, 'test', ?)", (time.time(),))
     cerebro.conn.commit()
     
     # Calcular y verificar que no hay loops infinitos y la recursión se detiene correctamente
@@ -1487,6 +1487,50 @@ def test_sistema():
     self_loops = cerebro.cursor.fetchone()[0]
     assert self_loops == 0, "Error: Se generaron self-loops en sinapsis_latentes"
     print("  OK: Prevención de bucles exitosa")
+
+    print("\n--- 81b. Probando Compatibilidad de Tipos de Relación (End-to-End) ---")
+    # Limpiar tablas para un escenario controlado
+    cerebro.cursor.execute("DELETE FROM sinapsis")
+    cerebro.cursor.execute("DELETE FROM sinapsis_latentes")
+    cerebro.cursor.execute("DELETE FROM largo_plazo")
+    
+    # Crear nodos activos de prueba
+    for c in ['node_t1', 'node_t2', 'node_t3', 'node_t4', 'node_t5']:
+        cerebro.cursor.execute(
+            "INSERT INTO largo_plazo (concepto, contenido, peso_sinaptico, estado, creado_en) VALUES (?, 'contenido', 1.0, 'activo', ?)",
+            (c, time.time())
+        )
+        
+    # Definir relaciones:
+    # node_t1 -> node_t2 ('co_ocurrencia', 0.8)
+    # node_t2 -> node_t3 ('co_ocurrencia', 0.8) -> Ruido puro, debe bloquearse t1 -> t3
+    # node_t3 -> node_t4 ('sinonimo_explicito', 0.8) -> Puente de confianza, t2 -> t4 debe permitirse
+    # node_t4 -> node_t5 ('co_ocurrencia', 0.8) -> t3 -> t5 debe permitirse (gracias al puente)
+    cerebro.cursor.execute("INSERT INTO sinapsis (origen, destino, peso, tipo, creado_en) VALUES ('node_t1', 'node_t2', 0.8, 'co_ocurrencia', ?)", (time.time(),))
+    cerebro.cursor.execute("INSERT INTO sinapsis (origen, destino, peso, tipo, creado_en) VALUES ('node_t2', 'node_t3', 0.8, 'co_ocurrencia', ?)", (time.time(),))
+    cerebro.cursor.execute("INSERT INTO sinapsis (origen, destino, peso, tipo, creado_en) VALUES ('node_t3', 'node_t4', 0.8, 'sinonimo_explicito', ?)", (time.time(),))
+    cerebro.cursor.execute("INSERT INTO sinapsis (origen, destino, peso, tipo, creado_en) VALUES ('node_t4', 'node_t5', 0.8, 'co_ocurrencia', ?)", (time.time(),))
+    cerebro.conn.commit()
+    
+    # Ejecutar el cálculo de sinapsis latentes
+    calcular_sinapsis_latentes(cerebro, max_saltos=3, factor_decay=0.7, umbral=0.05)
+    
+    # Verificar que t1 -> t3 no se generó (bloqueado por co_ocurrencia -> co_ocurrencia)
+    cerebro.cursor.execute("SELECT count(*) FROM sinapsis_latentes WHERE origen = 'node_t1' AND destino = 'node_t3'")
+    t1_t3_count = cerebro.cursor.fetchone()[0]
+    assert t1_t3_count == 0, "Error: t1 -> t3 no debería propagarse por ruido puro (co_ocurrencia -> co_ocurrencia)"
+    
+    # Verificar que t2 -> t4 se generó (permitido porque t3 -> t4 es puente de confianza)
+    cerebro.cursor.execute("SELECT count(*) FROM sinapsis_latentes WHERE origen = 'node_t2' AND destino = 'node_t4'")
+    t2_t4_count = cerebro.cursor.fetchone()[0]
+    assert t2_t4_count > 0, "Error: t2 -> t4 debería propagarse a través del puente sinonimo_explicito"
+    
+    # Verificar que t3 -> t5 se generó (permitido porque t3 -> t4 es puente de confianza)
+    cerebro.cursor.execute("SELECT count(*) FROM sinapsis_latentes WHERE origen = 'node_t3' AND destino = 'node_t5'")
+    t3_t5_count = cerebro.cursor.fetchone()[0]
+    assert t3_t5_count > 0, "Error: t3 -> t5 debería propagarse a través del puente sinonimo_explicito"
+    
+    print("  OK: Compatibilidad de tipos verificada de extremo a extremo")
 
     print("\n--- 82. Probando SRL y Almacenamiento de Predicados ---")
     # Limpiar predicados

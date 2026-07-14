@@ -1,5 +1,15 @@
 # BioRAG Changelog
 
+## v18.1 (2026-05-15)
+
+### Features & Robustness
+- **Prevención de Caminos Cíclicos en Inferencia Transitiva**: Implementación del rastreo del camino recorrido (`ruta`) en la CTE recursiva de SQLite para prevenir la acumulación de ciclos fantasma de 3 o más saltos (ej. A -> B -> C -> B).
+- **Filtro de Compatibilidad de Tipos de Relación**: Restricción estricta de la propagación de sinapsis latentes para evitar la acumulación de ruido estadístico casual (`co_ocurrencia -> co_ocurrencia`). Ahora solo se extienden relaciones compatibles semánticamente (`co_semantica`, `co_nombre`) o a través de puentes de alta confianza (`manual`, `sinonimo_explicito`, `test`).
+- **Alineamiento de Timezones en Consultas MCP**: Estandarización de `timezone.utc` en el parseo de filtros de fecha relativa (`desde`/`hasta`) en `mcp_server.py`, garantizando búsquedas e inferencias independientes de la zona horaria local del host.
+- **Suite de Verificación de Inferencia**: Validación de los asserts del grafo en una base de datos en memoria para prevención de ciclos, bloqueo de ruido y propagación por puente de confianza.
+
+---
+
 ## v18.0 (2026-07-12)
 
 ### Features & Robustness

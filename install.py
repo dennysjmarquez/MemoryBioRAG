@@ -383,7 +383,7 @@ def _install_mcp() -> None:
 
 def _install_wordnet() -> None:
     """Download WordNet data to local nltk_data directory."""
-    _step("Descargando WordNet (clasificación léxica)...")
+    _step("Descargando WordNet + omw-2.0 (clasificación léxica)...")
     nltk_data_dir = INSTALL_DIR / "MemoryBioRAG_Data" / "nltk_data"
     nltk_data_dir.mkdir(parents=True, exist_ok=True)
 
@@ -393,12 +393,16 @@ def _install_wordnet() -> None:
 import nltk
 import os
 nltk.data.path.insert(0, '{nltk_data_dir}')
-nltk.download('wordnet', download_dir='{nltk_data_dir}', quiet=True)
-nltk.download('omw-1.4', download_dir='{nltk_data_dir}', quiet=True)
+            nltk.download('wordnet', download_dir='{nltk_data_dir}', quiet=True)
+            nltk.download('omw-1.4', download_dir='{nltk_data_dir}', quiet=True)
+            nltk.download('omw-2.0', download_dir='{nltk_data_dir}', quiet=True)
 from nltk.corpus import wordnet as wn
 # Verify it works
 synsets = wn.synsets('error')
 print(f'WordNet OK: {{len(synsets)}} synsets for "error"')
+# Verify omw-2.0 (multilingual)
+synsets_es = wn.synsets('error', lang='spa')
+print(f'omw-2.0 OK: {{len(synsets_es)}} synsets in Spanish for "error"')
 """],
             capture_output=True, text=True, timeout=60,
         )
@@ -406,7 +410,7 @@ print(f'WordNet OK: {{len(synsets)}} synsets for "error"')
             _warn(f"WordNet download tuvo problemas: {result.stderr.strip()[:200]}")
             _info("La clasificación léxica funcionará cuando nltk esté disponible")
         else:
-            _ok("WordNet descargado y verificado")
+            _ok("WordNet + omw-2.0 descargado y verificado")
     except subprocess.TimeoutExpired:
         _warn("WordNet download tardó demasiado (60s)")
         _info("Se descargará automáticamente en el primer uso")

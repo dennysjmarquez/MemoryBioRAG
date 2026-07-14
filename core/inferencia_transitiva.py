@@ -37,11 +37,12 @@ def calcular_sinapsis_latentes(cerebro, max_saltos=None, factor_decay=None, umbr
     # Vaciar caché anterior
     cerebro.cursor.execute("DELETE FROM sinapsis_latentes")
 
-    # CTE recursiva: encontrar caminos transitivos con poda temprana
+    # CTE recursiva: encontrar caminos transitivos con poda temprana y prevención de ciclos
     cerebro.cursor.execute(f"""
-        WITH RECURSIVE caminos(origen, destino, peso_acum, saltos) AS (
+        WITH RECURSIVE caminos(origen, destino, peso_acum, saltos, ruta, tipo_camino) AS (
             -- Caso base: sinapsis directas con peso significativo
-            SELECT origen, destino, ROUND(peso * {factor_decay}, 4), 1
+            SELECT origen, destino, ROUND(peso * {factor_decay}, 4), 1,
+                   origen || ',' || destino, tipo
             FROM sinapsis
             WHERE peso >= 0.1
 
@@ -50,15 +51,30 @@ def calcular_sinapsis_latentes(cerebro, max_saltos=None, factor_decay=None, umbr
             -- Caso recursivo: extender caminos
             SELECT c.origen, s.destino,
                    ROUND(c.peso_acum * s.peso * {factor_decay}, 4),
-                   c.saltos + 1
+                   c.saltos + 1,
+                   c.ruta || ',' || s.destino,
+                   s.tipo
             FROM caminos c
             JOIN sinapsis s ON s.origen = c.destino
             WHERE c.saltos < {max_saltos}
-              AND s.destino != c.origen
+              AND c.ruta NOT LIKE '%' || s.destino || '%'
+              AND (
+                  -- 1. Puentes de alta confianza (manuales, explícitos, tests)
+                  c.tipo_camino IN ('manual', 'manual_v7', 'sinonimo_explicito', 'test')
+                  OR s.tipo IN ('manual', 'manual_v7', 'sinonimo_explicito', 'test')
+                  
+                  -- 2. Consistencia semántica pura o nominal
+                  OR (c.tipo_camino = 'co_semantica' AND s.tipo = 'co_semantica')
+                  OR (c.tipo_camino = 'co_nombre' AND s.tipo = 'co_nombre')
+                  
+                  -- 3. Cruce semántica-nombre válido
+                  OR (c.tipo_camino = 'co_semantica' AND s.tipo = 'co_nombre')
+                  OR (c.tipo_camino = 'co_nombre' AND s.tipo = 'co_semantica')
+              )
               AND c.peso_acum * s.peso * {factor_decay} >= {umbral}
         ),
-        caminos_unicos AS (
-            SELECT origen, destino, MAX(peso_acum) AS peso_max, MIN(saltos) AS saltos_min
+        caminos_unicos(origen, destino, peso_max, saltos_min) AS (
+            SELECT origen, destino, MAX(peso_acum), MIN(saltos)
             FROM caminos
             WHERE origen != destino
             GROUP BY origen, destino

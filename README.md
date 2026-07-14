@@ -1,6 +1,6 @@
-# BioRAG v18.0 — Arquitectura de Memoria Cognitiva Simbólica para Agentes de IA
+# BioRAG v18.1 — Arquitectura de Memoria Cognitiva Simbólica para Agentes de IA
 
-> **Versión:** v18.0 — Julio 2026
+> **Versión:** v18.1 — Julio 2026
 > **Paradigma:** Semántica Determinista, Discreta y Simbólica
 > **Motor:** Python puro + SQLite FTS5
 > **Dependencias ML:** 0 (mcp + nltk para WordNet, sin numpy ni sentence-transformers)
@@ -909,6 +909,18 @@ Las dimensiones SIEMPRE suman, incluso con cero match de texto. El fallback dime
 
 ## Historial de Versiones
 
+### v18.1 — Higiene del Grafo de Inferencia y Corrección de Zona Horaria (Julio 2026)
+
+Optimizaciones de precisión lógica en la propagación del grafo de inferencia transitiva y estabilidad en búsquedas temporales absolutas.
+
+**Mejoras principales:**
+*   **Prevención de caminos cíclicos (Loop-prevention):** Implementación de tracking de la ruta completa (`ruta`) en la recursión de la CTE en SQLite. Evita la creación de aristas de propagación fantasma sobre loops (ej. A -> B -> C -> B que erróneamente regeneraba A -> B de forma latente).
+*   **Filtro de compatibilidad de tipos de relación:** Restricción estricta de propagación de sinapsis latentes para bloquear la acumulación de ruido estadístico casual (`co_ocurrencia -> co_ocurrencia`). Solo se permite extender relaciones a través de puentes de confianza (`manual`, `sinonimos_explicito`, `test`) y compatibilidades semánticas directas.
+*   **Alineamiento temporal en consultas MCP:** Forzado del uso uniforme de `timezone.utc` al convertir strings temporales absolutos de consultas MCP (`desde`/`hasta`), garantizando una respuesta idéntica sin importar la zona horaria local del host.
+*   **Suite de Verificación Aislada:** Inclusión de pruebas controladas en memoria para comprobar ciclos, bloqueo de ruido y puentes de confianza.
+
+---
+
 ### v18.0 — Fallback 2.1 Simbólico: Levenshtein + WordNet Bilingüe + Traducción (Julio 2026)
 
 Capa final de búsqueda semántica **sin embeddings ni vectores**. Cierra el último hueco del pipeline: cuando todas las 12 capas anteriores fallan, el Fallback 2.1 activa expansión simbólica pura.
@@ -1243,18 +1255,18 @@ La suite y herramientas asociadas se encuentran en el directorio `scripts/` (exc
 
 ## Producción
 
-| Métrica | v9.0 | v11.1 | v13.4 | v14.0 | v15.0 | v16.0 | v17.0 | v17.1 | v18.0 |
-|---|---|---|---|---|---|---|---|---|---|
-| Pipeline de búsqueda | 8 capas | 8 capas | 9 capas | 12 capas | 12 capas + WordNet | 12 capas + SRL + Inferencia | 12 capas + SRL + Inferencia | 12 capas + SRL + Inferencia | **13 capas + Fallback Simbólico** |
-| Señales de scoring | 3 | 3 | 3 | 8 ortogonales | 9 señales híbridas | 9 señales + SRL + Inferencia | 9 señales + SRL + Inferencia | 9 señales + SRL + Inferencia | **9 señales + SRL + Simbólico** |
-| Nodos activos | 135+ | 340 | 438 | — | 415 | 415+ | 415+ | 415+ | **415+** |
-| Sinapsis | 1,474+ | 15,521 | — | — | 4,646 | 4,646+ (y latentes) | 4,646+ (y latentes) | 4,646+ (y latentes) | **4,646+ (y latentes)** |
-| Dimensiones | — | 5 (39 sub) | 7 (73 sub) | 7 ejes, 73 valores | 7 ejes, 73 val + 45 grupos | 7 ejes, 73 val + 45 grupos + auto-generadas | 7 ejes, 73 val + 45 grupos + auto-generadas | 7 ejes, 73 val + 45 grupos + auto-generadas | **7 ejes, 73 val + 45 grupos + auto** |
-| Técnicas documentadas | — | — | — | 25 técnicas | 28 técnicas | 31 técnicas | 31 técnicas | 31 técnicas | **34 técnicas** |
-| Tests | 68/68 | 72/72 | 78/78 | 78/78 | 79/79 | 86 checkpoints | 87 checkpoints | 88 checkpoints | **95/95 + Suite QA (Fase 1 y 2)** |
-| Dependencias ML | 0 | 0 | 0 | 0 | 0 (mcp + nltk) | 0 (mcp + nltk) | 0 (mcp + nltk) | 0 (mcp + nltk) | **0 (mcp + nltk)** |
-| RAM | ~4 MB | ~12 MB | ~9 MB | ~18 MB | ~20 MB | ~20 MB | ~20 MB | ~20 MB | **~20 MB** |
-| Tools MCP | — | 12 | 15 | 19 | 26 | 26 | 28 | 28 | **28** |
+| Métrica | v9.0 | v11.1 | v13.4 | v14.0 | v15.0 | v16.0 | v17.0 | v17.1 | v18.0 | v18.1 |
+|---|---|---|---|---|---|---|---|---|---|---|
+| Pipeline de búsqueda | 8 capas | 8 capas | 9 capas | 12 capas | 12 capas + WordNet | 12 capas + SRL + Inferencia | 12 capas + SRL + Inferencia | 12 capas + SRL + Inferencia | **13 capas + Fallback Simbólico** | **13 capas + Fallback Simbólico** |
+| Señales de scoring | 3 | 3 | 3 | 8 ortogonales | 9 señales híbridas | 9 señales + SRL + Inferencia | 9 señales + SRL + Inferencia | 9 señales + SRL + Inferencia | **9 señales + SRL + Simbólico** | **9 señales + SRL + Simbólico** |
+| Nodos activos | 135+ | 340 | 438 | — | 415 | 415+ | 415+ | 415+ | **415+** | **415+** |
+| Sinapsis | 1,474+ | 15,521 | — | — | 4,646 | 4,646+ (y latentes) | 4,646+ (y latentes) | 4,646+ (y latentes) | **4,646+ (y latentes)** | **4,646+ (y latentes)** |
+| Dimensiones | — | 5 (39 sub) | 7 (73 sub) | 7 ejes, 73 valores | 7 ejes, 73 val + 45 grupos | 7 ejes, 73 val + 45 grupos + auto-generadas | 7 ejes, 73 val + 45 grupos + auto-generadas | 7 ejes, 73 val + 45 grupos + auto-generadas | **7 ejes, 73 val + 45 grupos + auto** | **7 ejes, 73 val + 45 grupos + auto** |
+| Técnicas documentadas | — | — | — | 25 técnicas | 28 técnicas | 31 técnicas | 31 técnicas | 31 técnicas | **34 técnicas** | **34 técnicas** |
+| Tests | 68/68 | 72/72 | 78/78 | 78/78 | 79/79 | 86 checkpoints | 87 checkpoints | 88 checkpoints | **95/95 + Suite QA (Fase 1 y 2)** | **95/95 + Suite QA (Fase 1 y 2)** |
+| Dependencias ML | 0 | 0 | 0 | 0 | 0 (mcp + nltk) | 0 (mcp + nltk) | 0 (mcp + nltk) | 0 (mcp + nltk) | **0 (mcp + nltk)** | **0 (mcp + nltk)** |
+| RAM | ~4 MB | ~12 MB | ~9 MB | ~18 MB | ~20 MB | ~20 MB | ~20 MB | ~20 MB | **~20 MB** | **~20 MB** |
+| Tools MCP | — | 12 | 15 | 19 | 26 | 26 | 28 | 28 | **28** | **28** |
 
 ---
 
