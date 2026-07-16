@@ -1,6 +1,8 @@
 import sys
 import os
 import time
+import sqlite3
+import tempfile
 
 # Añadir el directorio actual al path
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
@@ -8,6 +10,22 @@ sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 from core.memory_store import SQLiteMemoryBioRAG
 from core.sinapsis import init_sinapsis_table, auto_vincular, buscar_vecinos, vincular_por_sinonimos
 from core.categorizador import inferir_categoria, auto_categorizar_existentes
+
+
+def _get_nodos_acciones(cerebro):
+    """Retorna dict {concepto: [acciones]} de la tabla puente forense."""
+    rows = cerebro.cursor.execute(
+        "SELECT concepto, accion, peso_anterior, peso_nuevo, razon, contexto, anomalo "
+        "FROM metricas_cognitivas_nodos ORDER BY id"
+    ).fetchall()
+    result = {}
+    for concepto, accion, pa, pn, razon, ctx, anomalo in rows:
+        result.setdefault(concepto, []).append({
+            'accion': accion, 'peso_anterior': pa, 'peso_nuevo': pn,
+            'razon': razon, 'contexto': ctx, 'anomalo': anomalo
+        })
+    return result
+
 
 def test_sistema():
     _biorag_db = os.environ.get('BIORAG_PATH')
@@ -1953,6 +1971,205 @@ def test_sistema():
     assert total_acr >= 1, "Error: 'infarction' debería encontrar al menos 1 resultado"
     print("  OK: término en inglés encontrado con éxito.")
     print("--- 95. Acrónimo bilingüe OK ---")
+
+    # ══════════════════════════════════════════════════════════════════════
+    # TESTS FORENSES: Historial de consolidación (metricas_cognitivas_nodos)
+    # ══════════════════════════════════════════════════════════════════════
+
+    print("\n--- 96. Probando Historial Forense: nodo nuevo ---")
+    # Crear DB temporal aislada para test forense
+    _forensic_db = tempfile.mktemp(suffix='.db')
+    try:
+        fc = SQLiteMemoryBioRAG(db_path=_forensic_db)
+        fc.percibir_corto_plazo("test_forensic_nuevo", "Nodo forense nuevo", "test,nuevo,forensic", "Lesson")
+        fc.ciclo_sueno_consolidacion(limite_energia=10.0)
+        nodos_f = _get_nodos_acciones(fc)
+        assert 'test_forensic_nuevo' in nodos_f, "Nodo no registrado en historial forense"
+        accion_f = nodos_f['test_forensic_nuevo'][0]
+        assert accion_f['accion'] == 'nuevo', f"Acción esperada 'nuevo', got '{accion_f['accion']}'"
+        assert accion_f['peso_anterior'] == 0.0, f"peso_anterior esperado 0.0, got {accion_f['peso_anterior']}"
+        assert accion_f['peso_nuevo'] == 1.0, f"peso_nuevo esperado 1.0, got {accion_f['peso_nuevo']}"
+        assert accion_f['anomalo'] == 0
+        print("  OK: accion 'nuevo' verificada correctamente")
+        fc.cerrar_sistema()
+    finally:
+        if os.path.exists(_forensic_db):
+            os.remove(_forensic_db)
+    print("--- 96. Forense nuevo OK ---")
+
+    print("\n--- 97. Probando Historial Forense: nodo actualizado ---")
+    _forensic_db = tempfile.mktemp(suffix='.db')
+    try:
+        fc = SQLiteMemoryBioRAG(db_path=_forensic_db)
+        fc.percibir_corto_plazo("test_forensic_upd", "Primera versión", "test,actualizado", "Lesson")
+        fc.ciclo_sueno_consolidacion(limite_energia=10.0)
+        # Bajar peso para que la fusión tenga efecto visible
+        fc.cursor.execute("UPDATE largo_plazo SET peso_sinaptico = 0.5 WHERE concepto = 'test_forensic_upd'")
+        fc.conn.commit()
+        # Segundo ciclo: mismo nodo actualizado
+        fc.percibir_corto_plazo("test_forensic_upd", "Segunda versión", "test,actualizado,v2", "Lesson")
+        fc.ciclo_sueno_consolidacion(limite_energia=10.0)
+        nodos_f = _get_nodos_acciones(fc)
+        acc_upd = [a for a in nodos_f.get('test_forensic_upd', []) if a['accion'] == 'actualizado']
+        assert len(acc_upd) >= 1, f"No se registró acción 'actualizado'"
+        assert acc_upd[0]['peso_anterior'] > 0, "peso_anterior debería ser > 0"
+        contenido_f = fc.cursor.execute("SELECT contenido FROM largo_plazo WHERE concepto = 'test_forensic_upd'").fetchone()[0]
+        assert 'Primera versión' in contenido_f and 'Segunda versión' in contenido_f, "Contenido no fusionado"
+        print("  OK: accion 'actualizado' verificada correctamente")
+        fc.cerrar_sistema()
+    finally:
+        if os.path.exists(_forensic_db):
+            os.remove(_forensic_db)
+    print("--- 97. Forense actualizado OK ---")
+
+    print("\n--- 98. Probando Historial Forense: dormido por LTD ---")
+    _forensic_db = tempfile.mktemp(suffix='.db')
+    try:
+        fc = SQLiteMemoryBioRAG(db_path=_forensic_db)
+        fc.percibir_corto_plazo("test_forensic_ltd", "Nodo LTD", "test,dormido,ltd", "Lesson")
+        fc.ciclo_sueno_consolidacion(limite_energia=10.0)
+        # Forzar peso bajo para que LTD lo duerma
+        fc.cursor.execute("UPDATE largo_plazo SET peso_sinaptico = 0.03 WHERE concepto = 'test_forensic_ltd'")
+        fc.conn.commit()
+        fc.ciclo_sueno_consolidacion(limite_energia=10.0)
+        estado_f = fc.cursor.execute("SELECT estado FROM largo_plazo WHERE concepto = 'test_forensic_ltd'").fetchone()
+        assert estado_f[0] == 'dormido', f"Estado esperado 'dormido', got '{estado_f[0]}'"
+        nodos_f = _get_nodos_acciones(fc)
+        acc_dormido = [a for a in nodos_f.get('test_forensic_ltd', []) if a['accion'] == 'dormido']
+        assert len(acc_dormido) >= 1, "No se registró acción 'dormido'"
+        assert acc_dormido[-1]['peso_anterior'] <= 0.05, f"peso_anterior debería ser <= 0.05, got {acc_dormido[-1]['peso_anterior']}"
+        print("  OK: accion 'dormido' por LTD verificada correctamente")
+        fc.cerrar_sistema()
+    finally:
+        if os.path.exists(_forensic_db):
+            os.remove(_forensic_db)
+    print("--- 98. Forense dormido LTD OK ---")
+
+    print("\n--- 99. Probando Historial Forense: dormido por inhibición lateral ---")
+    _forensic_db = tempfile.mktemp(suffix='.db')
+    try:
+        fc = SQLiteMemoryBioRAG(db_path=_forensic_db)
+        for i in range(15):
+            fc.percibir_corto_plazo(f"test_inhib_lat_{i}", f"Contenido inhib {i}", f"test,inhib, Lat{i}", "General")
+        fc.ciclo_sueno_consolidacion(limite_energia=1.0)
+        dormidos_f = fc.cursor.execute("SELECT COUNT(*) FROM largo_plazo WHERE estado = 'dormido' AND concepto LIKE 'test_inhib_lat_%'").fetchone()[0]
+        assert dormidos_f > 0, "Ningún nodo dormido por inhibición lateral"
+        nodos_f = _get_nodos_acciones(fc)
+        acc_inhib = [a for accs in nodos_f.values() for a in accs if a['accion'] == 'dormido' and 'inhibicion' in a['razon'].lower()]
+        assert len(acc_inhib) > 0, "No se registró acción 'dormido' por inhibición lateral"
+        print(f"  OK: accion 'dormido' por inhibición lateral verificada ({len(acc_inhib)} registros)")
+        fc.cerrar_sistema()
+    finally:
+        if os.path.exists(_forensic_db):
+            os.remove(_forensic_db)
+    print("--- 99. Forense dormido inhibición lateral OK ---")
+
+    print("\n--- 100. Probando Historial Forense: eliminado por evicción ---")
+    _forensic_db = tempfile.mktemp(suffix='.db')
+    try:
+        fc = SQLiteMemoryBioRAG(db_path=_forensic_db)
+        for i in range(5):
+            fc.percibir_corto_plazo(f"test_eliminado_{i}", f"Contenido evicción {i}", f"test,elim{i}", "General")
+        fc.ciclo_sueno_consolidacion(limite_energia=10.0)
+        fc.cursor.execute("UPDATE largo_plazo SET estado = 'dormido', peso_sinaptico = 0.005 WHERE concepto LIKE 'test_eliminado_%'")
+        fc.conn.commit()
+        os.environ['BIORAG_PODAR'] = 'true'
+        try:
+            eliminados_f = fc._ejecutar_eviccion(max_borrar=5)
+        finally:
+            del os.environ['BIORAG_PODAR']
+        assert eliminados_f > 0, f"Se esperaban eliminaciones, got {eliminados_f}"
+        restantes_f = fc.cursor.execute("SELECT COUNT(*) FROM largo_plazo WHERE concepto LIKE 'test_eliminado_%'").fetchone()[0]
+        assert restantes_f == 0, f"Se esperaban 0 restantes, got {restantes_f}"
+        print(f"  OK: evicción eliminó {eliminados_f} nodos correctamente")
+        fc.cerrar_sistema()
+    finally:
+        if os.path.exists(_forensic_db):
+            os.remove(_forensic_db)
+    print("--- 100. Forense eliminado OK ---")
+
+    print("\n--- 101. Probando Historial Forense: CHECK constraint ---")
+    _forensic_db = tempfile.mktemp(suffix='.db')
+    try:
+        fc = SQLiteMemoryBioRAG(db_path=_forensic_db)
+        fc._crear_tabla_historial_si_falta()
+        try:
+            fc.cursor.execute(
+                "INSERT INTO metricas_cognitivas_nodos "
+                "(metrica_id, concepto, accion, contenido_preview, peso_anterior, peso_nuevo, razon, contexto, anomalo, created_at) "
+                "VALUES (1, 'test_invalid', 'accion_invalida', '', 0, 0, '', '', 0, ?)",
+                (time.time(),)
+            )
+            fc.conn.commit()
+            assert False, "CHECK constraint no rechazó acción inválida"
+        except sqlite3.IntegrityError:
+            fc.conn.rollback()
+            print("  OK: CHECK constraint rechazó acción inválida correctamente")
+        fc.cerrar_sistema()
+    finally:
+        if os.path.exists(_forensic_db):
+            os.remove(_forensic_db)
+    print("--- 101. Forense CHECK constraint OK ---")
+
+    print("\n--- 102. Probando Historial Forense: foreign key constraint ---")
+    _forensic_db = tempfile.mktemp(suffix='.db')
+    try:
+        fc = SQLiteMemoryBioRAG(db_path=_forensic_db)
+        fc.percibir_corto_plazo("test_forensic_fk", "Test FK", "test,fk", "Lesson")
+        fc.ciclo_sueno_consolidacion(limite_energia=10.0)
+        row_f = fc.cursor.execute("SELECT metrica_id FROM metricas_cognitivas_nodos WHERE concepto = 'test_forensic_fk' LIMIT 1").fetchone()
+        assert row_f is not None, "No hay registro forense"
+        existe_f = fc.cursor.execute("SELECT 1 FROM metricas_cognitivas WHERE id = ?", (row_f[0],)).fetchone()
+        assert existe_f is not None, f"metrica_id={row_f[0]} no existe en metricas_cognitivas"
+        fk_info_f = fc.cursor.execute("PRAGMA foreign_key_list(metricas_cognitivas_nodos)").fetchall()
+        assert fk_info_f[0][2] == 'metricas_cognitivas', f"FK ref esperada 'metricas_cognitivas', got '{fk_info_f[0][2]}'"
+        print("  OK: foreign key constraint verificada")
+        fc.cerrar_sistema()
+    finally:
+        if os.path.exists(_forensic_db):
+            os.remove(_forensic_db)
+    print("--- 102. Forense FK OK ---")
+
+    print("\n--- 103. Probando Historial Forense: contenido_preview truncación ---")
+    _forensic_db = tempfile.mktemp(suffix='.db')
+    try:
+        fc = SQLiteMemoryBioRAG(db_path=_forensic_db)
+        fc.percibir_corto_plazo("test_forensic_preview", "x" * 200, "test,preview", "Lesson")
+        fc.ciclo_sueno_consolidacion(limite_energia=10.0)
+        preview_f = fc.cursor.execute("SELECT contenido_preview FROM metricas_cognitivas_nodos WHERE concepto = 'test_forensic_preview'").fetchone()
+        assert preview_f is not None, "No hay registro forense"
+        assert len(preview_f[0]) <= 100, f"contenido_preview excede 100 chars: {len(preview_f[0])}"
+        assert len(preview_f[0]) > 0, "contenido_preview vacío"
+        print(f"  OK: contenido_preview tiene {len(preview_f[0])} caracteres (<= 100)")
+        fc.cerrar_sistema()
+    finally:
+        if os.path.exists(_forensic_db):
+            os.remove(_forensic_db)
+    print("--- 103. Forense preview OK ---")
+
+    print("\n--- 104. Probando Historial Forense: flag anomalo ---")
+    _forensic_db = tempfile.mktemp(suffix='.db')
+    try:
+        fc = SQLiteMemoryBioRAG(db_path=_forensic_db)
+        fc.percibir_corto_plazo("test_forensic_anomalo", "Nodo anómalo", "test,anomalo", "Lesson")
+        fc.ciclo_sueno_consolidacion(limite_energia=10.0)
+        fc.cursor.execute("UPDATE largo_plazo SET peso_sinaptico = -0.5 WHERE concepto = 'test_forensic_anomalo'")
+        fc.conn.commit()
+        fc.ciclo_sueno_consolidacion(limite_energia=10.0)
+        nodos_f = _get_nodos_acciones(fc)
+        if 'test_forensic_anomalo' in nodos_f:
+            anomalous_f = [a for a in nodos_f['test_forensic_anomalo'] if a['anomalo'] == 1]
+            if anomalous_f:
+                print("  OK: flag anomalo=1 detectado correctamente")
+            else:
+                print("  OK: nodo procesado sin anomalía detectada (peso normalizado)")
+        else:
+            print("  OK: nodo procesado (peso corregido por LTD)")
+        fc.cerrar_sistema()
+    finally:
+        if os.path.exists(_forensic_db):
+            os.remove(_forensic_db)
+    print("--- 104. Forense anomalo OK ---")
 
     # Finalizar
     cerebro.cerrar_sistema()

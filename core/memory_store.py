@@ -710,6 +710,27 @@ class SQLiteMemoryBioRAG:
                 util INTEGER DEFAULT NULL
             )
         """)
+        # Tabla puente: historial forense de acciones por ciclo de consolidación
+        self.cursor.execute("""
+            CREATE TABLE IF NOT EXISTS metricas_cognitivas_nodos (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                metrica_id INTEGER NOT NULL,
+                concepto TEXT NOT NULL,
+                accion TEXT NOT NULL CHECK(accion IN ('nuevo', 'actualizado', 'dormido', 'eliminado')),
+                contenido_preview TEXT,
+                peso_anterior REAL,
+                peso_nuevo REAL,
+                razon TEXT,
+                contexto TEXT,
+                anomalo INTEGER DEFAULT 0,
+                created_at REAL NOT NULL,
+                FOREIGN KEY (metrica_id) REFERENCES metricas_cognitivas(id) ON DELETE CASCADE
+            )
+        """)
+        self.cursor.execute("CREATE INDEX IF NOT EXISTS idx_mc_nodos_metrica ON metricas_cognitivas_nodos(metrica_id)")
+        self.cursor.execute("CREATE INDEX IF NOT EXISTS idx_mc_nodos_concepto ON metricas_cognitivas_nodos(concepto)")
+        self.cursor.execute("CREATE INDEX IF NOT EXISTS idx_mc_nodos_accion ON metricas_cognitivas_nodos(accion)")
+        self.cursor.execute("CREATE INDEX IF NOT EXISTS idx_mc_nodos_anomalo ON metricas_cognitivas_nodos(anomalo)")
         self.conn.commit()
 
     def _calcular_jaccard(self, str1, str2):
@@ -1315,6 +1336,29 @@ class SQLiteMemoryBioRAG:
                 )
         self.conn.commit()
 
+    def _crear_tabla_historial_si_falta(self):
+        """Crea la tabla de historial forense si no existe (para DBs nuevas o tests)."""
+        self.cursor.execute("""
+            CREATE TABLE IF NOT EXISTS metricas_cognitivas_nodos (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                metrica_id INTEGER NOT NULL,
+                concepto TEXT NOT NULL,
+                accion TEXT NOT NULL CHECK(accion IN ('nuevo', 'actualizado', 'dormido', 'eliminado')),
+                contenido_preview TEXT,
+                peso_anterior REAL,
+                peso_nuevo REAL,
+                razon TEXT,
+                contexto TEXT,
+                anomalo INTEGER DEFAULT 0,
+                created_at REAL NOT NULL,
+                FOREIGN KEY (metrica_id) REFERENCES metricas_cognitivas(id) ON DELETE CASCADE
+            )
+        """)
+        self.cursor.execute("CREATE INDEX IF NOT EXISTS idx_mc_nodos_metrica ON metricas_cognitivas_nodos(metrica_id)")
+        self.cursor.execute("CREATE INDEX IF NOT EXISTS idx_mc_nodos_concepto ON metricas_cognitivas_nodos(concepto)")
+        self.cursor.execute("CREATE INDEX IF NOT EXISTS idx_mc_nodos_accion ON metricas_cognitivas_nodos(accion)")
+        self.cursor.execute("CREATE INDEX IF NOT EXISTS idx_mc_nodos_anomalo ON metricas_cognitivas_nodos(anomalo)")
+
     def ciclo_sueno_consolidacion(self, limite_energia=None):
         """
         Consolida las experiencias de Corto Plazo a Largo Plazo (Corteza Permanente).
@@ -1325,34 +1369,57 @@ class SQLiteMemoryBioRAG:
         """
         print("\n--- Iniciando Ciclo de Consolidación (Sueño) ---")
         
+        # Asegurar que existe la tabla de historial forense
+        self._crear_tabla_historial_si_falta()
+        
+        # ══════════════════════════════════════════════════════════════
+        # SNAPSHOT INICIAL: capturar estado ANTES de cualquier cambio
+        # ══════════════════════════════════════════════════════════════
+        self.cursor.execute("SELECT concepto, peso_sinaptico, estado FROM largo_plazo")
+        snapshot_inicial = {row[0]: {'peso': row[1], 'estado': row[2]} for row in self.cursor.fetchall()}
+        
         # Métricas del ciclo
-        nodos_dormidos_antes = self.cursor.execute("SELECT COUNT(*) FROM largo_plazo WHERE estado = 'dormido'").fetchone()[0]
+        nodos_dormidos_antes = sum(1 for n in snapshot_inicial.values() if n['estado'] == 'dormido')
         sinapsis_antes = self.cursor.execute("SELECT COUNT(*) FROM sinapsis").fetchone()[0]
-        n_activos = self.cursor.execute("SELECT COUNT(*) FROM largo_plazo WHERE estado = 'activo'").fetchone()[0] or 0
+        n_activos = sum(1 for n in snapshot_inicial.values() if n['estado'] == 'activo') or 0
+
+        # Lista para tracking de acciones del ciclo
+        acciones_ciclo = []
 
         # 1. Transferencia y Fusión de Corto a Largo Plazo
         self.cursor.execute("SELECT concepto, contenido, sinonimos, categoria FROM corto_plazo")
         recuerdos_sesion = self.cursor.fetchall()
         
         for concepto, contenido, sinonimos, cat_id in recuerdos_sesion:
-            self.cursor.execute("SELECT contenido, peso_sinaptico, asociaciones, sinonimos, categoria FROM largo_plazo WHERE concepto = ?", (concepto,))
-            existente = self.cursor.fetchone()
+            existente = snapshot_inicial.get(concepto)
             
             if existente:
                 # Fusión de información por adición semántica y subida de peso (LTP de consolidación)
-                nuevo_contenido = existente[0] + f" | Actualización: {contenido}"
-                nuevo_peso = min(1.0, existente[1] + 0.20)
-                # Fusión de sinónimos (no duplicar)
-                sinonimos_exist = [s.strip() for s in (existente[3] or "").split(",") if s.strip()]
+                peso_anterior = existente['peso']
+                nuevo_peso = min(1.0, existente['peso'] + 0.20)
+                
+                self.cursor.execute("SELECT contenido, sinonimos, categoria FROM largo_plazo WHERE concepto = ?", (concepto,))
+                datos_actuales = self.cursor.fetchone()
+                nuevo_contenido = datos_actuales[0] + f" | Actualización: {contenido}"
+                sinonimos_exist = [s.strip() for s in (datos_actuales[1] or "").split(",") if s.strip()]
                 sinonimos_nuevos = [s.strip() for s in (sinonimos or "").split(",") if s.strip() and s.strip() not in sinonimos_exist]
                 sinonimos_final = ",".join(sinonimos_exist + sinonimos_nuevos)
-                cat_id = existente[4] or cat_id
+                cat_id = datos_actuales[2] or cat_id
                 
                 self.cursor.execute("""
                     UPDATE largo_plazo 
                     SET contenido = ?, peso_sinaptico = ?, estado = 'activo', ultimo_acceso = ?, sinonimos = ?, categoria = ?
                     WHERE concepto = ?
                 """, (nuevo_contenido, nuevo_peso, time.time(), sinonimos_final, cat_id, concepto))
+                
+                acciones_ciclo.append({
+                    'concepto': concepto, 'accion': 'actualizado',
+                    'contenido_preview': (contenido or '')[:100],
+                    'peso_anterior': peso_anterior, 'peso_nuevo': nuevo_peso,
+                    'razon': f'Fusion: existia con peso {peso_anterior:.2f}, se actualizo contenido y peso +0.20',
+                    'contexto': f'peso_antes={peso_anterior:.2f}, peso_despues={nuevo_peso:.2f}, estado=activo',
+                    'anomalo': 0
+                })
             else:
                 # Creación de un nuevo nodo en el grafo con peso inicial máximo
                 ahora = time.time()
@@ -1360,6 +1427,15 @@ class SQLiteMemoryBioRAG:
                     INSERT INTO largo_plazo (concepto, categoria, contenido, peso_sinaptico, estado, asociaciones, ultimo_acceso, sinonimos, creado_en)
                     VALUES (?, ?, ?, 1.0, 'activo', '', ?, ?, ?)
                 """, (concepto, cat_id or 1, contenido, ahora, sinonimos or "", ahora))
+                
+                acciones_ciclo.append({
+                    'concepto': concepto, 'accion': 'nuevo',
+                    'contenido_preview': (contenido or '')[:100],
+                    'peso_anterior': 0.0, 'peso_nuevo': 1.0,
+                    'razon': 'Nodo nuevo: no existia en largo_plazo, creado desde corto_plazo',
+                    'contexto': f'categoria={cat_id or 1}, peso_inicial=1.0, estado=activo',
+                    'anomalo': 0
+                })
 
             # Propagar dimensiones de corto → largo plazo
             self.cursor.execute("""
@@ -1423,11 +1499,20 @@ class SQLiteMemoryBioRAG:
         self.cursor.execute("DELETE FROM sinapsis WHERE peso < 0.05")
 
         # 3. Poda selectiva por umbral de fuerza (Dormir recuerdos <= 0.1)
+        # Snapshot ANTES de dormir (para detectar quiénes se duermen)
+        self.cursor.execute("SELECT concepto FROM largo_plazo WHERE estado = 'activo'")
+        activos_antes_dormir = set(row[0] for row in self.cursor.fetchall())
+        
         self.cursor.execute("""
             UPDATE largo_plazo 
             SET estado = 'dormido' 
             WHERE peso_sinaptico <= 0.05 AND estado = 'activo'
         """)
+        
+        # Detectar quiénes se durmieron POR LTD (solo los que estaban activos y ahora son dormidos)
+        self.cursor.execute("SELECT concepto FROM largo_plazo WHERE estado = 'dormido'")
+        dormidos_after_ltd = set(row[0] for row in self.cursor.fetchall())
+        nodos_dormidos_ltd = activos_antes_dormir & dormidos_after_ltd  # intersección: estaban activos Y ahora son dormidos
 
         # 4. Inhibición Lateral Activa (Control de Saturación de Energía)
         if limite_energia is None:
@@ -1438,6 +1523,7 @@ class SQLiteMemoryBioRAG:
         self.cursor.execute("SELECT SUM(peso_sinaptico) FROM largo_plazo WHERE estado = 'activo'")
         energia_total = self.cursor.fetchone()[0] or 0.0
 
+        nodos_inhibicion_lateral = []
         if energia_total > limite_energia:
             exceso = energia_total - limite_energia
             print(f"[Inhibición Lateral] Alerta: Energía sináptica activa ({energia_total:.2f}) excede el límite ({limite_energia}). Aplicando inhibición...")
@@ -1453,20 +1539,47 @@ class SQLiteMemoryBioRAG:
             for concepto, peso in nodos_activos:
                 if exceso <= 0:
                     break
-                nodos_a_dormir.append(concepto)
+                nodos_a_dormir.append((concepto, peso))
                 exceso -= peso
             
             if nodos_a_dormir:
+                nodos_inhibicion_lateral = [n[0] for n in nodos_a_dormir]
                 for i in range(0, len(nodos_a_dormir), 900):
-                    lote = nodos_a_dormir[i:i+900]
+                    lote = [n[0] for n in nodos_a_dormir[i:i+900]]
                     placeholders = ",".join("?" for _ in lote)
                     self.cursor.execute(f"UPDATE largo_plazo SET estado = 'dormido' WHERE concepto IN ({placeholders})", lote)
                 
                 if len(nodos_a_dormir) <= 10:
-                    for concepto in nodos_a_dormir:
+                    for concepto, peso in nodos_a_dormir:
                         print(f"[Inhibición Lateral] Recuerdo '{concepto}' puesto a dormir forzadamente para balancear la carga cortical.")
                 else:
                     print(f"[Inhibición Lateral] Puestos a dormir {len(nodos_a_dormir)} recuerdos débiles para liberar energía (Consolidación en lote exitosa).")
+        
+        # Registrar dormidos (LTD + inhibición lateral)
+        # Obtener pesos REALES de nodos dormidos desde la DB (snapshot_inicial puede estar vacío si nodos venían de corto_plazo)
+        nodos_dormidos_total = nodos_dormidos_ltd | set(nodos_inhibicion_lateral)
+        pesos_dormidos = {}
+        if nodos_dormidos_total:
+            placeholders = ",".join("?" for _ in nodos_dormidos_total)
+            for row in self.cursor.execute(
+                f"SELECT concepto, peso_sinaptico FROM largo_plazo WHERE concepto IN ({placeholders})",
+                list(nodos_dormidos_total)
+            ).fetchall():
+                pesos_dormidos[row[0]] = row[1]
+        
+        for concepto in nodos_dormidos_total:
+            peso = pesos_dormidos.get(concepto, snapshot_inicial.get(concepto, {}).get('peso', 0))
+            if concepto in nodos_dormidos_ltd:
+                razon = f'LTD: peso {peso:.2f} <= umbral 0.05'
+                contexto = f'peso={peso:.2f}, umbral=0.05, razon=ltd_decaimiento'
+            else:
+                razon = f'Inhibicion lateral: energia excedia limite'
+                contexto = f'peso={peso:.2f}, energia_total={energia_total:.2f}, limite={limite_energia:.2f}'
+            acciones_ciclo.append({
+                'concepto': concepto, 'accion': 'dormido',
+                'contenido_preview': '', 'peso_anterior': peso, 'peso_nuevo': 0.0,
+                'razon': razon, 'contexto': contexto, 'anomalo': 0
+            })
 
         # Auto-clustering (v16.0)
         try:
@@ -1486,10 +1599,31 @@ class SQLiteMemoryBioRAG:
         self._benchmark_rendimiento()
 
         # 7. Eviccion opcional (solo si BIORAG_PODAR=true)
+        # Snapshot ANTES de evicción
+        self.cursor.execute("SELECT concepto, contenido, peso_sinaptico FROM largo_plazo WHERE estado = 'dormido'")
+        dormidos_antes_eviccion = {row[0]: {'contenido': row[1], 'peso': row[2]} for row in self.cursor.fetchall()}
+        
+        eliminados_count = 0
         if os.environ.get("BIORAG_PODAR") == "true":
-            eliminados = self._ejecutar_eviccion(max_borrar=10)
-            if eliminados:
-                print(f"[Eviccion] {eliminados} nodos dormidos eliminados permanentemente.")
+            eliminados_count = self._ejecutar_eviccion(max_borrar=10)
+            if eliminados_count:
+                print(f"[Eviccion] {eliminados_count} nodos dormidos eliminados permanentemente.")
+        
+        # Detectar quiénes fueron eliminados
+        self.cursor.execute("SELECT concepto FROM largo_plazo WHERE estado = 'dormido'")
+        dormidos_despues_eviccion = set(row[0] for row in self.cursor.fetchall())
+        nodos_elimidos = dormidos_antes_eviccion.keys() - dormidos_despues_eviccion
+        
+        for concepto in nodos_elimidos:
+            info = dormidos_antes_eviccion[concepto]
+            acciones_ciclo.append({
+                'concepto': concepto, 'accion': 'eliminado',
+                'contenido_preview': (info['contenido'] or '')[:100],
+                'peso_anterior': info['peso'], 'peso_nuevo': 0.0,
+                'razon': f'Eviccion: nodo dormido con peso {info["peso"]:.3f} <= 0.01',
+                'contexto': f'peso={info["peso"]:.3f}, umbral_eviccion=0.01, BIORAG_PODAR=true',
+                'anomalo': 0
+            })
 
         # 8. Registrar métricas cognitivas del ciclo
         nodos_dormidos_despues = self.cursor.execute("SELECT COUNT(*) FROM largo_plazo WHERE estado = 'dormido'").fetchone()[0]
@@ -1511,6 +1645,28 @@ class SQLiteMemoryBioRAG:
             cat_dom[0] if cat_dom else None,
             round(len(recuerdos_sesion) / max(1, n_activos), 2)
         ))
+        
+        # ── Guardar historial forense completo en tabla puente ──
+        metrica_id = self.cursor.lastrowid
+        now = time.time()
+        for accion in acciones_ciclo:
+            self.cursor.execute("""
+                INSERT INTO metricas_cognitivas_nodos 
+                (metrica_id, concepto, accion, contenido_preview, peso_anterior, peso_nuevo, razon, contexto, anomalo, created_at)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            """, (
+                metrica_id,
+                accion['concepto'],
+                accion['accion'],
+                accion['contenido_preview'],
+                accion['peso_anterior'],
+                accion['peso_nuevo'],
+                accion['razon'],
+                accion['contexto'],
+                accion.get('anomalo', 0),
+                now
+            ))
+        
         # Optimizar FTS después de consolidation para reducir fragmentación
         self.cursor.execute("INSERT INTO largo_plazo_fts(largo_plazo_fts) VALUES('optimize')")
         try:
