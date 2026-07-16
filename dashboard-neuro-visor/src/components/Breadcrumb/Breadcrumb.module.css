@@ -1,0 +1,29 @@
+.breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+.link {
+  background: none;
+  border: none;
+  color: var(--text-secondary);
+  font-size: inherit;
+  padding: 0;
+}
+
+.link:hover {
+  color: var(--accent-color);
+}
+
+.current {
+  color: var(--text-primary);
+  font-weight: 500;
+}
+
+.sep {
+  margin: 0 0.15rem;
+  color: var(--text-muted);
+}

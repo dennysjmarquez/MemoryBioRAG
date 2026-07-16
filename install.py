@@ -380,6 +380,19 @@ def _install_mcp() -> None:
         sys.exit(1)
     _ok("nltk instalado")
 
+    # Install project requirements (fastapi, uvicorn, etc.)
+    req_file = INSTALL_DIR / "requirements.txt"
+    if req_file.exists():
+        _info("Instalando deps del proyecto (requirements.txt)...")
+        try:
+            subprocess.run(
+                [_python(), "-m", "pip", "install", "-r", str(req_file)],
+                check=True, capture_output=True, text=True,
+            )
+            _ok("Deps del proyecto instaladas")
+        except subprocess.CalledProcessError as exc:
+            _warn(f"pip install -r requirements.txt falló: {exc.stderr.strip()[:200]}")
+
 
 def _install_wordnet() -> None:
     """Download WordNet data to local nltk_data directory."""
@@ -417,6 +430,53 @@ print(f'omw-2.0 OK: {{len(synsets_es)}} synsets in Spanish for "error"')
     except Exception as exc:
         _warn(f"Error descargando WordNet: {exc}")
         _info("Se descargará automáticamente en el primer uso")
+
+
+def _install_dashboard_deps() -> None:
+    """Install Python + Node dependencies for dashboard-neuro-visor."""
+    _step("Instalando dependencias del dashboard Neuro-Visor...")
+    
+    project_root = INSTALL_DIR
+    dashboard_dir = project_root / "dashboard-neuro-visor"
+    
+    if not dashboard_dir.exists():
+        _warn(f"Dashboard no encontrado en {dashboard_dir}, saltando")
+        return
+    
+    # 1. Python deps (root requirements.txt)
+    req_file = project_root / "requirements.txt"
+    if req_file.exists():
+        _info("Instalando deps Python (fastapi, uvicorn)...")
+        try:
+            subprocess.run(
+                [_python(), "-m", "pip", "install", "-r", str(req_file)],
+                check=True, capture_output=True, text=True,
+            )
+            _ok("Deps Python instaladas")
+        except subprocess.CalledProcessError as exc:
+            _fail(f"pip install -r requirements.txt falló: {exc.stderr.strip()}")
+    else:
+        _warn(f"No se encontró {req_file}")
+    
+    # 2. Node deps (npm ci)
+    if shutil.which("npm") or shutil.which("node"):
+        _info("Instalando deps Node (npm ci)...")
+        try:
+            subprocess.run(
+                ["npm", "ci"],
+                cwd=dashboard_dir,
+                check=True, capture_output=True, text=True,
+            )
+            _ok("Deps Node instaladas")
+        except subprocess.CalledProcessError:
+            _warn("npm ci falló, intentando npm install...")
+            subprocess.run(
+                ["npm", "install"],
+                cwd=dashboard_dir,
+                check=False, capture_output=True, text=True,
+            )
+    else:
+        _warn("Node/npm no disponible — dashboard requerirá 'npm install' manual")
 
 
 def _install_skill() -> None:

@@ -99,6 +99,15 @@ USO DESDE EL AGENTE (cada comando explicado):
     items en memoria de trabajo, energia sinaptica total.
     Ej: biorag.py estado
 
+  python3 biorag.py dashboard
+    Lanza el Neuro-Visor: interfaz web de administración para explorar y visualizar
+    la corteza cerebral de BioRAG (nodos, sinapsis, dimensiones, actividad, comunidades).
+    Incluye: backend API (puerto 8001) + frontend React (puerto 3000).
+    Abre el navegador en http://localhost:3000.
+    Instala dependencias Python (uv/pip) y Node (npm) si faltan.
+    Ctrl+C detiene ambos procesos limpiamente.
+    Ej: biorag.py dashboard
+
 PROTOCOLO PARA EL AGENTE (CUANDO USAR CADA COMANDO):
 
   Regla #1 (BUSCAR):
@@ -577,6 +586,127 @@ def cmd_familiaridad(cerebro, args):
     return 0
 
 
+def cmd_dashboard(cerebro, args):
+    """Lanza el dashboard Neuro-Visor (backend + frontend + abre navegador)."""
+    import subprocess
+    import signal
+    import sys
+    import time
+    import webbrowser
+    from pathlib import Path
+
+    project_root = Path(__file__).parent
+    dashboard_dir = project_root / "dashboard-neuro-visor"
+    backend_dir = dashboard_dir / "backend"
+
+    if not dashboard_dir.exists():
+        print(f"Error: No existe {dashboard_dir}")
+        return 1
+    if not backend_dir.exists():
+        print(f"Error: No existe {backend_dir}")
+        return 1
+
+    print("[Dashboard] Verificando dependencias...")
+
+    # 1. Python deps (uv sync o pip install)
+    try:
+        subprocess.run(["uv", "sync"], cwd=project_root, check=False, capture_output=True)
+    except FileNotFoundError:
+        subprocess.run([sys.executable, "-m", "pip", "install", "-r", "requirements.txt"], cwd=project_root, check=False)
+
+    # 2. Node deps
+    try:
+        subprocess.run(["npm", "ci"], cwd=dashboard_dir, check=True, capture_output=True)
+    except subprocess.CalledProcessError:
+        print("[Dashboard] npm ci falló, intentando npm install...")
+        subprocess.run(["npm", "install"], cwd=dashboard_dir, check=False)
+
+    # 3. Lanzar backend
+    print("[Dashboard] Iniciando backend en http://localhost:8001 ...")
+    backend_proc = subprocess.Popen(
+        [sys.executable, "-m", "uvicorn", "backend.server:app", "--host", "0.0.0.0", "--port", "8001"],
+        cwd=dashboard_dir,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+    )
+
+    # 4. Lanzar frontend
+    print("[Dashboard] Iniciando frontend en http://localhost:3000 ...")
+    frontend_proc = subprocess.Popen(
+        ["npm", "run", "dev", "--", "--port", "3000", "--host"],
+        cwd=dashboard_dir,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+    )
+
+    # 5. Health-check
+    def wait_ready(url, name, timeout=30):
+        import urllib.request
+        start = time.time()
+        while time.time() - start < timeout:
+            try:
+                with urllib.request.urlopen(url, timeout=2) as resp:
+                    if resp.status == 200:
+                        return True
+            except Exception:
+                pass
+            time.sleep(0.5)
+        return False
+
+    print("[Dashboard] Esperando health-checks...")
+    if not wait_ready("http://localhost:8001/api/corteza/estado", "backend"):
+        print("[ERROR] Backend no respondió a tiempo")
+        backend_proc.terminate()
+        frontend_proc.terminate()
+        return 1
+    print("[OK] Backend listo")
+
+    if not wait_ready("http://localhost:3000", "frontend"):
+        print("[ERROR] Frontend no respondió a tiempo")
+        backend_proc.terminate()
+        frontend_proc.terminate()
+        return 1
+    print("[OK] Frontend listo")
+
+    # 6. Abrir navegador
+    print("[Dashboard] Abriendo navegador en http://localhost:3000 ...")
+    webbrowser.open("http://localhost:3000")
+
+    # 7. Manejar Ctrl+C limpio
+    def shutdown(signum, frame):
+        print("\n[Dashboard] Apagando...")
+        backend_proc.terminate()
+        frontend_proc.terminate()
+        try:
+            backend_proc.wait(timeout=5)
+            frontend_proc.wait(timeout=5)
+        except subprocess.TimeoutExpired:
+            backend_proc.kill()
+            frontend_proc.kill()
+        sys.exit(0)
+
+    signal.signal(signal.SIGINT, shutdown)
+    signal.signal(signal.SIGTERM, shutdown)
+
+    # 8. Mantener vivo y mostrar logs
+    print("[Dashboard] Listo. Presiona Ctrl+C para detener.")
+    try:
+        while True:
+            # Leer stdout/stderr no bloqueante
+            for proc, name in [(backend_proc, "backend"), (frontend_proc, "frontend")]:
+                line = proc.stdout.readline()
+                if line:
+                    print(f"[{name}] {line.decode().rstrip()}")
+                err = proc.stderr.readline()
+                if err:
+                    print(f"[{name} ERROR] {err.decode().rstrip()}")
+            time.sleep(0.1)
+    except KeyboardInterrupt:
+        shutdown(None, None)
+
+    return 0
+
+
 def main():
     if len(sys.argv) < 2:
         print(__doc__)
@@ -598,6 +728,7 @@ def main():
         "comunicar": cmd_comunicar,
         "leer_mensajes": cmd_leer_mensajes,
         "listar": cmd_listar,
+        "dashboard": cmd_dashboard,
     }
 
     if comando in ("help", "--help", "-h"):

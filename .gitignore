@@ -17,3 +17,7 @@ __pycache__/
 # OS
 .DS_Store
 Thumbs.db
+
+# React project (subfolder, not tracked in main repo)
+dashboard-neuro-visor/node_modules/
+dashboard-neuro-visor/dist/

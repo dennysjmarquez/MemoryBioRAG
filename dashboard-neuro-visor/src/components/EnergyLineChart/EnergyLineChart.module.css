@@ -1,0 +1,64 @@
+.panel {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  padding: 1.5rem;
+}
+
+.title {
+  margin: 0 0 1rem;
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.chartWrapper {
+  width: 100%;
+  height: 300px;
+}
+
+.empty {
+  padding: 2rem;
+  text-align: center;
+  color: var(--text-muted);
+}
+
+.tooltip {
+  background-color: #0b0f17;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: var(--radius-sm);
+  padding: 10px 14px;
+  min-width: 220px;
+  max-width: 280px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.55);
+}
+
+.tooltipRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 12px;
+  padding: 4px 0 0;
+  white-space: nowrap;
+}
+
+.tooltipLabel {
+  font-size: 13px;
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+
+.tooltipValue {
+  font-size: 17px;
+  color: var(--text-primary);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.tooltipDesc {
+  font-size: 13px;              /* antes 11px */
+  color: var(--text-secondary); /* antes var(--text-muted) + opacity 0.85 → ahora directo, sin atenuar doble */
+  font-style: normal;           /* saco la itálica: es la que más resta legibilidad a este tamaño */
+  padding: 0 0 10px;
+  line-height: 1.4;
+}

@@ -1,0 +1,57 @@
+.card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  padding: 0.75rem;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  text-align: left;
+  transition: border-color 0.15s;
+}
+
+.card:hover {
+  border-color: var(--accent-color);
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.tipo {
+  font-size: 0.65rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 0.15rem 0.4rem;
+  border-radius: var(--radius-sm);
+}
+
+.tipo/manual { background: var(--color-manual); color: #000; }
+.tipo/sinonimo_explicito { background: var(--color-sinonimo); color: #000; }
+.tipo/co_ocurrencia { background: var(--color-co-ocurrencia); color: #000; }
+.tipo/rafaga_rememb { background: var(--color-rafaga); color: #000; }
+.tipo/co_nombre { background: var(--color-co-nombre); color: #000; }
+.tipo/co_semantica { background: var(--color-co-semantica); color: #000; }
+
+.dir {
+  font-size: 0.85rem;
+  font-weight: 700;
+}
+
+.dir.saliente { color: var(--color-saliente); }
+.dir.entrante { color: var(--color-entrante); }
+.dir.bidireccional { color: var(--color-bidireccional); }
+
+.concepto {
+  font-size: 0.8rem;
+  color: var(--text-primary);
+  word-break: break-word;
+}
+
+.peso {
+  font-size: 0.7rem;
+  color: var(--text-muted);
+}
