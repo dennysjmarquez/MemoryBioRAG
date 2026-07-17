@@ -76,6 +76,7 @@ export interface EnergiaHistorial {
   dormidos: number
   activos: number
   latencia_ms: number
+  categoria_dominante?: string
   conceptos: Array<{ concepto: string; contenido: string }>
 }
 
@@ -97,6 +98,18 @@ export interface EnergiaPunto {
   activos: number
   latencia_ms: number
   conceptos: Array<{ concepto: string; contenido: string }>
+  categoria_dominante?: string
+}
+
+export interface EnergyPoint {
+  timestamp: number
+  energia: number
+  total_nodos: number
+  dormidos: number
+  activos: number
+  latencia_ms: number
+  categoria_dominante?: string
+  conceptos?: Array<{ concepto: string; contenido: string }>
 }
 
 export interface Dimension {

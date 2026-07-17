@@ -1,15 +1,17 @@
 import { useEffect, useState } from 'react'
 import { useApi } from '../../hooks/useApi'
 import { getCortezaEstado, getCortezaActividad } from '../../services/api'
-import type { CortezaEstado, CortezaActividad } from '../../types'
+import type { CortezaEstado, CortezaActividad, EnergyPoint } from '../../types'
 import styles from './CortezaPage.module.css'
 import StatCard from '../../components/StatCard/StatCard'
 import BarChart from '../../components/BarChart/BarChart'
 import EnergyLineChart from '../../components/EnergyLineChart/EnergyLineChart'
+import DetallePunto from '../../components/DetallePunto/DetallePunto'
 
 const CortezaPage = () => {
   const [estado, setEstado] = useState<CortezaEstado | null>(null)
   const [actividad, setActividad] = useState<CortezaActividad | null>(null)
+  const [puntoSeleccionado, setPuntoSeleccionado] = useState<EnergyPoint | null>(null)
   const { data: estadoData, loading: estadoLoading, error: estadoError, refetch: refetchEstado } = useApi(() => getCortezaEstado())
   const { data: actividadData, loading: actividadLoading, error: actividadError, refetch: refetchActividad } = useApi(() => getCortezaActividad(7))
 
@@ -20,6 +22,10 @@ const CortezaPage = () => {
   useEffect(() => {
     if (actividadData) setActividad(actividadData)
   }, [actividadData])
+
+  const handlePointClick = (punto: EnergyPoint) => {
+    setPuntoSeleccionado(punto)
+  }
 
   const handleRefresh = () => {
     refetchEstado()
@@ -87,11 +93,19 @@ const CortezaPage = () => {
         </section>
       </div>
 
-      <section className={styles.panel} aria-label="Métricas de ciclos (cada vez que el cerebro se consolida) (7 días)">
-        <h2 className={styles.panelTitle}>Métricas de ciclos (cada vez que el cerebro se consolida) (7 días)</h2>
+      <section className={styles.panel} aria-label="Actividad del cerebro">
+        <h2 className={styles.panelTitle}>Actividad del cerebro (7 días)</h2>
         <EnergyLineChart
-          title="Métricas de ciclos (cada vez que el cerebro se consolida)"
           data={actividad?.energia_historial ?? []}
+          ciclos={actividad?.ciclos ?? []}
+          onPointClick={handlePointClick}
+        />
+      </section>
+
+      <section className={styles.detailPanel} aria-label="Detalle del punto seleccionado">
+        <DetallePunto
+          punto={puntoSeleccionado}
+          onClose={() => setPuntoSeleccionado(null)}
         />
       </section>
     </div>

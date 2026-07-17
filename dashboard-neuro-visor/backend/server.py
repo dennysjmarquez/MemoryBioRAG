@@ -164,16 +164,29 @@ def corteza_actividad(dias: int = 7):
     """, (cutoff,))
     energia_hist = []
     for r in c.fetchall():
-        # Find concepts consolidated around this timestamp (within 5 seconds)
+        # Find concepts consolidated around this timestamp (within 15 seconds)
         c.execute("""
             SELECT concepto, contenido
             FROM largo_plazo
-            WHERE ABS(creado_en - ?) < 5 OR ABS(ultimo_acceso - ?) < 5
+            WHERE ABS(creado_en - ?) < 15 OR ABS(ultimo_acceso - ?) < 15
             ORDER BY peso_sinaptico DESC
             LIMIT 3
         """, (r[0], r[0]))
         conceptos = [{"concepto": row[0], "contenido": (row[1] or "")[:120]} for row in c.fetchall()]
-        
+
+        # Find dominant category from nodes touched near this timestamp
+        c.execute("""
+            SELECT cat.name, COUNT(*) as cnt
+            FROM largo_plazo l
+            JOIN categories cat ON l.categoria = cat.id
+            WHERE ABS(l.creado_en - ?) < 15 OR ABS(l.ultimo_acceso - ?) < 15
+            GROUP BY cat.name
+            ORDER BY cnt DESC
+            LIMIT 1
+        """, (r[0], r[0]))
+        cat_row = c.fetchone()
+        categoria_dominante = cat_row[0] if cat_row else None
+
         energia_hist.append({
             "timestamp": r[0],
             "energia": round(r[1], 2),
@@ -181,7 +194,8 @@ def corteza_actividad(dias: int = 7):
             "dormidos": r[3],
             "activos": r[4],
             "latencia_ms": r[5],
-            "conceptos": conceptos
+            "conceptos": conceptos,
+            "categoria_dominante": categoria_dominante
         })
 
     conn.close()

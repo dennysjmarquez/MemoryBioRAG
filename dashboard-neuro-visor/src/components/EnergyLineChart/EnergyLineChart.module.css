@@ -23,42 +23,144 @@
   color: var(--text-muted);
 }
 
+/* --- Tooltip --- */
 .tooltip {
   background-color: #0b0f17;
   border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: var(--radius-sm);
-  padding: 10px 14px;
+  padding: 12px 14px;
   min-width: 220px;
   max-width: 280px;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.55);
+  font-size: 13px;
+  line-height: 1.4;
 }
 
-.tooltipRow {
+.tooltipHeader {
   display: flex;
   justify-content: space-between;
-  align-items: baseline;
-  gap: 12px;
-  padding: 4px 0 0;
-  white-space: nowrap;
+  align-items: center;
+  gap: 8px;
 }
 
-.tooltipLabel {
-  font-size: 13px;
+.tooltipDate {
   color: var(--text-secondary);
   font-weight: 500;
 }
 
-.tooltipValue {
-  font-size: 17px;
+.tooltipHealth {
+  font-weight: 700;
+  font-size: 12px;
+}
+
+.tooltipDivider {
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  margin: 8px 0;
+}
+
+.tooltipGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px 12px;
+}
+
+.tooltipStat {
+  display: flex;
+  flex-direction: column;
+}
+
+.tooltipStatValue {
   color: var(--text-primary);
   font-weight: 700;
+  font-size: 16px;
   font-variant-numeric: tabular-nums;
 }
 
-.tooltipDesc {
-  font-size: 13px;              /* antes 11px */
-  color: var(--text-secondary); /* antes var(--text-muted) + opacity 0.85 → ahora directo, sin atenuar doble */
-  font-style: normal;           /* saco la itálica: es la que más resta legibilidad a este tamaño */
-  padding: 0 0 10px;
-  line-height: 1.4;
+.tooltipStatLabel {
+  color: var(--text-muted);
+  font-size: 11px;
+}
+
+.tooltipCategory {
+  color: var(--text-secondary);
+  padding-top: 6px;
+}
+
+.tooltipCategory strong {
+  color: var(--accent-color);
+}
+
+.tooltipConceptos {
+  color: var(--text-secondary);
+}
+
+.tooltipConceptosTitle {
+  font-weight: 600;
+  font-size: 12px;
+  color: var(--text-muted);
+  display: block;
+  margin-bottom: 4px;
+}
+
+.tooltipConceptosList {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.tooltipConcepto {
+  color: var(--text-primary);
+  padding: 2px 0;
+  font-size: 12px;
+}
+
+.tooltipConcepto::before {
+  content: "• ";
+  color: var(--accent-color);
+}
+
+.tooltipEmpty {
+  color: var(--text-muted);
+  font-style: italic;
+  font-size: 12px;
+  padding-top: 4px;
+}
+
+/* --- Legend --- */
+.legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 16px;
+  margin-top: 12px;
+  padding: 10px 12px;
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: var(--radius-sm);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.legendItem {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+
+.legendDot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.legendIcon {
+  font-size: 13px;
+  flex-shrink: 0;
+}
+
+.legendDivider {
+  width: 1px;
+  height: 16px;
+  background: rgba(255, 255, 255, 0.1);
+  margin: 0 4px;
 }

@@ -1628,10 +1628,27 @@ class SQLiteMemoryBioRAG:
         # 8. Registrar métricas cognitivas del ciclo
         nodos_dormidos_despues = self.cursor.execute("SELECT COUNT(*) FROM largo_plazo WHERE estado = 'dormido'").fetchone()[0]
         sinapsis_despues = self.cursor.execute("SELECT COUNT(*) FROM sinapsis").fetchone()[0]
-        cat_dom = self.cursor.execute("""
-            SELECT c.name FROM largo_plazo l JOIN categories c ON l.categoria = c.id
-            WHERE l.estado = 'activo' GROUP BY c.name ORDER BY COUNT(*) DESC LIMIT 1
-        """).fetchone()
+        # Contar categorías de nodos consolidados EN ESTE CICLO (no en toda la base)
+        cats_ciclo = {}
+        if recuerdos_sesion:
+            cat_ids_unicos = list(set(cat_id for _, _, _, cat_id in recuerdos_sesion if cat_id))
+            if cat_ids_unicos:
+                placeholders = ",".join("?" for _ in cat_ids_unicos)
+                cats_map = {}
+                for row in self.cursor.execute(
+                    f"SELECT id, name FROM categories WHERE id IN ({placeholders})",
+                    cat_ids_unicos
+                ):
+                    cats_map[row[0]] = row[1]
+                for _, _, _, cat_id in recuerdos_sesion:
+                    if cat_id and cat_id in cats_map:
+                        nombre = cats_map[cat_id]
+                        cats_ciclo[nombre] = cats_ciclo.get(nombre, 0) + 1
+
+        # En caso de empate en cantidad de nodos por categoría, gana la primera
+        # categoría según el orden de iteración de recuerdos_sesion (no es aleatorio,
+        # pero tampoco tiene un criterio de desempate explícito más allá de eso).
+        cat_dom = max(cats_ciclo, key=cats_ciclo.get) if cats_ciclo else None
         self.cursor.execute("""
             INSERT INTO metricas_cognitivas
             (timestamp, nodos_consolidados, nodos_dormidos_ciclo, sinapsis_creadas, sinapsis_podadas, categoria_dominante, ratio_consolidacion)
@@ -1642,7 +1659,7 @@ class SQLiteMemoryBioRAG:
             nodos_dormidos_despues - nodos_dormidos_antes,
             max(0, sinapsis_despues - sinapsis_antes),
             max(0, sinapsis_antes - sinapsis_despues),
-            cat_dom[0] if cat_dom else None,
+            cat_dom,
             round(len(recuerdos_sesion) / max(1, n_activos), 2)
         ))
         
@@ -2024,6 +2041,11 @@ class SQLiteMemoryBioRAG:
                 ratio_consolidacion REAL
             )
         """)
+        # NOTA (2026-07-16): Registros de categoria_dominante anteriores a esta fecha
+        # pueden ser incorrectos (bug: consultaba categoría dominante de TODA la base,
+        # no del ciclo actual). No se puede recalcular retroactivamente para ciclos
+        # sin bridge table (metricas_cognitivas_nodos). Solo ciclos desde el fix en
+        # adelante tienen el valor correcto.
         self.conn.commit()
 
     def _agregar_prefix_wildcards(self, query):

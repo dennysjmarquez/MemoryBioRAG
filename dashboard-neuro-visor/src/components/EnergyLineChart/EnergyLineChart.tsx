@@ -10,20 +10,13 @@ import {
   ResponsiveContainer,
 } from "recharts";
 import styles from "./EnergyLineChart.module.css";
-
-interface EnergyPoint {
-  timestamp: number;
-  energia: number;
-  total_nodos: number;
-  dormidos: number;
-  activos: number;
-  latencia_ms: number;
-}
+import type { CicloActividad, EnergyPoint } from "../../types";
 
 interface EnergyLineChartProps {
-  title: string;
   data: EnergyPoint[];
+  ciclos?: CicloActividad[];
   height?: number;
+  onPointClick?: (punto: EnergyPoint) => void;
 }
 
 const formatDate = (timestamp: number) => {
@@ -36,6 +29,14 @@ const formatDate = (timestamp: number) => {
   });
 };
 
+const getHealthStatus = (activos: number, total: number) => {
+  if (total === 0) return { label: "Sin datos", emoji: "⚪", color: "#6b7280" };
+  const pct = (activos / total) * 100;
+  if (pct > 70) return { label: "Activo", emoji: "🟢", color: "#10b981" };
+  if (pct > 30) return { label: "Normal", emoji: "🟡", color: "#eab308" };
+  return { label: "En reposo", emoji: "🔴", color: "#ef4444" };
+};
+
 const CustomTooltip = ({
   active,
   payload,
@@ -46,77 +47,140 @@ const CustomTooltip = ({
   if (!active || !payload || !payload[0]) return null;
 
   const point = payload[0].payload as EnergyPoint;
+  const health = getHealthStatus(point.activos, point.total_nodos);
 
   return (
     <div className={styles.tooltip}>
-      <div className={styles.tooltipRow}>
-        <span className={styles.tooltipLabel}>📅 Fecha:</span>
-        <span className={styles.tooltipValue}>
-          {formatDate(point.timestamp)}
+      <div className={styles.tooltipHeader}>
+        <span className={styles.tooltipDate}>{formatDate(point.timestamp)}</span>
+        <span className={styles.tooltipHealth} style={{ color: health.color }}>
+          {health.emoji} {health.label}
         </span>
       </div>
-      <div className={styles.tooltipDesc}>Cuándo se tomó esta medición</div>
 
-      <div className={styles.tooltipRow}>
-        <span className={styles.tooltipLabel}>⚡ Fuerza de conexiones:</span>
-        <span className={styles.tooltipValue}>{point.energia.toFixed(2)}</span>
-      </div>
-      <div className={styles.tooltipDesc}>
-        Qué tan fácil le es al cerebro conectar recuerdos entre sí
-      </div>
+      <div className={styles.tooltipDivider} />
 
-      <div className={styles.tooltipRow}>
-        <span className={styles.tooltipLabel}>🧠 Recuerdos activos:</span>
-        <span className={styles.tooltipValue}>{point.activos}</span>
-      </div>
-      <div className={styles.tooltipDesc}>
-        Recuerdos que el cerebro está usando ahora
-      </div>
-
-      <div className={styles.tooltipRow}>
-        <span className={styles.tooltipLabel}>🌙 Recuerdos dormidos:</span>
-        <span className={styles.tooltipValue}>{point.dormidos}</span>
-      </div>
-      <div className={styles.tooltipDesc}>
-        Recuerdos que se apagaron por no usarse
+      <div className={styles.tooltipGrid}>
+        <div className={styles.tooltipStat}>
+          <span className={styles.tooltipStatValue}>{point.energia.toFixed(1)}</span>
+          <span className={styles.tooltipStatLabel}>energía</span>
+        </div>
+        <div className={styles.tooltipStat}>
+          <span className={styles.tooltipStatValue}>{point.activos}</span>
+          <span className={styles.tooltipStatLabel}>activos</span>
+        </div>
+        <div className={styles.tooltipStat}>
+          <span className={styles.tooltipStatValue}>{point.dormidos}</span>
+          <span className={styles.tooltipStatLabel}>dormidos</span>
+        </div>
+        <div className={styles.tooltipStat}>
+          <span className={styles.tooltipStatValue}>{point.total_nodos}</span>
+          <span className={styles.tooltipStatLabel}>total</span>
+        </div>
       </div>
 
-      <div className={styles.tooltipRow}>
-        <span className={styles.tooltipLabel}>📊 Total de recuerdos:</span>
-        <span className={styles.tooltipValue}>{point.total_nodos}</span>
-      </div>
-      <div className={styles.tooltipDesc}>
-        Todo lo que el cerebro tiene guardado
-      </div>
+      {point.categoria_dominante && (
+        <div className={styles.tooltipCategory}>
+          Más fuerte: <strong>{point.categoria_dominante}</strong>
+        </div>
+      )}
 
-      <div className={styles.tooltipRow}>
-        <span className={styles.tooltipLabel}>⏱️ Velocidad de búsqueda:</span>
-        <span className={styles.tooltipValue}>{point.latencia_ms} ms</span>
-      </div>
-      <div className={styles.tooltipDesc}>
-        Cuánto tarda el cerebro en encontrar un recuerdo
-      </div>
+      {point.conceptos && point.conceptos.length > 0 && (
+        <>
+          <div className={styles.tooltipDivider} />
+          <div className={styles.tooltipConceptos}>
+            <span className={styles.tooltipConceptosTitle}>Recuerdos tocados:</span>
+            <ul className={styles.tooltipConceptosList}>
+              {point.conceptos.map((c, i) => (
+                <li key={i} className={styles.tooltipConcepto}>
+                  {c.concepto}
+                </li>
+              ))}
+            </ul>
+          </div>
+        </>
+      )}
+
+      {(!point.conceptos || point.conceptos.length === 0) && (
+        <div className={styles.tooltipEmpty}>
+          Sin actividad nueva en este momento
+        </div>
+      )}
     </div>
   );
 };
 
+const ChartLegend = () => (
+  <div className={styles.legend}>
+    <div className={styles.legendItem}>
+      <span className={styles.legendDot} style={{ background: "#10b981" }} />
+      <span>Activo (más de 70% de recuerdos vivos)</span>
+    </div>
+    <div className={styles.legendItem}>
+      <span className={styles.legendDot} style={{ background: "#eab308" }} />
+      <span>Normal (30-70% de recuerdos vivos)</span>
+    </div>
+    <div className={styles.legendItem}>
+      <span className={styles.legendDot} style={{ background: "#ef4444" }} />
+      <span>En reposo (menos de 30% de recuerdos vivos)</span>
+    </div>
+    <div className={styles.legendDivider} />
+    <div className={styles.legendItem}>
+      <span className={styles.legendIcon}>💡</span>
+      <span>Cada punto es una medición del cerebro</span>
+    </div>
+    <div className={styles.legendItem}>
+      <span className={styles.legendIcon}>🧠</span>
+      <span>Los recuerdos son los nodos tocados en ese momento</span>
+    </div>
+  </div>
+);
+
 export const EnergyLineChart = ({
-  title,
   data,
+  ciclos,
   height = 280,
+  onPointClick,
 }: EnergyLineChartProps) => {
   if (!data || data.length === 0) {
     return <div className={styles.empty}>Sin datos</div>;
   }
 
-  const chartData = useMemo(
-    () =>
-      data.map((d) => ({
+  const chartData = useMemo(() => {
+    if (!ciclos || ciclos.length === 0) {
+      return data.map((d) => ({
         ...d,
         label: formatDate(d.timestamp),
-      })),
-    [data],
-  );
+      }));
+    }
+    return data.map((d) => {
+      const cicloMasCercano = ciclos.reduce(
+        (closest: CicloActividad, c: CicloActividad) => {
+          return Math.abs(c.timestamp - d.timestamp) <
+            Math.abs(closest.timestamp - d.timestamp)
+            ? c
+            : closest;
+        },
+        ciclos[0] as CicloActividad,
+      );
+      return {
+        ...d,
+        label: formatDate(d.timestamp),
+        categoria_dominante: cicloMasCercano?.categoria_dominante ?? d.categoria_dominante ?? "N/A",
+      };
+    });
+  }, [data, ciclos]);
+
+  const handleClick = (state: any) => {
+    if (
+      state?.activeTooltipIndex !== undefined &&
+      state.activeTooltipIndex >= 0 &&
+      onPointClick
+    ) {
+      const point = chartData[state.activeTooltipIndex];
+      onPointClick(point as EnergyPoint);
+    }
+  };
 
   return (
     <div className={styles.chartWrapper}>
@@ -124,6 +188,8 @@ export const EnergyLineChart = ({
         <LineChart
           data={chartData}
           margin={{ top: 5, right: 10, left: 25, bottom: 0 }}
+          cursor="pointer"
+          onClick={handleClick}
         >
           <CartesianGrid
             strokeDasharray="3 3"
@@ -142,7 +208,7 @@ export const EnergyLineChart = ({
             stroke="var(--border-color)"
             width={55}
             label={{
-              value: "Fuerza de conexiones",
+              value: "Energía",
               angle: -90,
               position: "insideLeft",
               offset: 0,
@@ -151,7 +217,6 @@ export const EnergyLineChart = ({
                 fontSize: 14,
                 fontWeight: 500,
                 textAnchor: "middle",
-                strokeWidth: 2,
               },
             }}
           />
@@ -159,17 +224,21 @@ export const EnergyLineChart = ({
           <Tooltip
             content={<CustomTooltip />}
             wrapperStyle={{ zIndex: 100, outline: "none" }}
-            position={{ y: -100 }} // Lo mantiene fijo arriba en el eje Y para que no tape la línea
+            position={{ y: -100 }}
             reverseDirection={{ x: true }}
           />
-          <Legend />
+          <Legend content={<ChartLegend />} />
           <Line
             type="monotone"
             dataKey="energia"
-            name="Puntos de dato"
+            name="Energía"
             stroke="var(--accent-color)"
             strokeWidth={2}
-            dot={{ r: 4, strokeWidth: 2, fill: "var(--accent-color)" }}
+            dot={{
+              r: 4,
+              strokeWidth: 2,
+              fill: "var(--accent-color)",
+            }}
             activeDot={{ r: 6, stroke: "#fff", strokeWidth: 2 }}
             isAnimationActive={false}
           />
