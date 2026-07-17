@@ -1,0 +1,140 @@
+.header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 16px;
+}
+
+.searchContainer {
+  position: relative;
+  flex: 1;
+  max-width: 400px;
+}
+
+.searchInput {
+  width: 100%;
+  padding: 10px 14px;
+  background: var(--bg-input);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  color: var(--text);
+  font-size: 14px;
+  font-family: inherit;
+}
+
+.searchInput:focus {
+  outline: none;
+  border-color: var(--border-focus);
+}
+
+.searchDropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 0 0 var(--radius) var(--radius);
+  max-height: 300px;
+  overflow-y: auto;
+  z-index: 200;
+}
+
+.searchResult {
+  padding: 10px 14px;
+  cursor: pointer;
+  border-bottom: 1px solid var(--border);
+  transition: background 0.1s;
+}
+
+.searchResult:hover,
+.searchResult.selected {
+  background: var(--bg-card-hover);
+}
+
+.searchResult:last-child {
+  border: none;
+}
+
+.searchResultName {
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.searchResultScore {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  color: var(--purple);
+}
+
+.searchResultPreview {
+  font-size: 11px;
+  color: var(--text-muted);
+  margin-top: 2px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.navButtons {
+  display: flex;
+  gap: 4px;
+}
+
+.navBtnSm {
+  width: 32px;
+  height: 32px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  color: var(--text);
+  cursor: pointer;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s;
+}
+
+.navBtnSm:hover:not(:disabled) {
+  border-color: var(--purple);
+  color: var(--purple);
+}
+
+.navBtnSm.disabled {
+  opacity: 0.3;
+  cursor: default;
+}
+
+.breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  color: var(--text-muted);
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.crumb {
+  cursor: pointer;
+  padding: 2px 6px;
+  border-radius: 3px;
+  transition: all 0.15s;
+}
+
+.crumb:hover {
+  background: var(--purple-dim);
+  color: var(--purple);
+}
+
+.crumb.current {
+  color: var(--text);
+  cursor: default;
+}
+
+.crumbSep {
+  color: var(--text-dim);
+}

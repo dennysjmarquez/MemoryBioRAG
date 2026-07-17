@@ -1,4 +1,5 @@
 import type { Nodo, EgoNetwork, CortezaEstado, CortezaActividad, Dimension, BuscarResponse } from '../types'
+import type { EgoGraphResponse, SinapsisCreate, SinapsisDelete, SinapsisResponse } from '../types/explorar'
 
 const API_BASE = '/api'
 
@@ -15,9 +16,29 @@ async function get<T>(path: string): Promise<T> {
   return response.json() as Promise<T>
 }
 
+async function post<T>(path: string, body: unknown): Promise<T> {
+  const response = await fetch(`${API_BASE}${path}`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body),
+  })
+  if (!response.ok) throw new ApiError(response.status, response.statusText)
+  return response.json() as Promise<T>
+}
+
 async function del<T>(path: string, body: unknown): Promise<T> {
   const response = await fetch(`${API_BASE}${path}`, {
     method: 'DELETE',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body),
+  })
+  if (!response.ok) throw new ApiError(response.status, response.statusText)
+  return response.json() as Promise<T>
+}
+
+async function patch<T>(path: string, body: unknown): Promise<T> {
+  const response = await fetch(`${API_BASE}${path}`, {
+    method: 'PATCH',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(body),
   })
@@ -41,6 +62,10 @@ export function getEgo(concepto: string): Promise<EgoNetwork> {
   return get(`/nodo/${encodeParam(concepto)}/ego`)
 }
 
+export function getEgoGraph(concepto: string, limit: number = 50): Promise<EgoGraphResponse> {
+  return get(`/nodo/${encodeParam(concepto)}/ego?limit=${limit}`)
+}
+
 export function getCortezaEstado(): Promise<CortezaEstado> {
   return get('/corteza/estado')
 }
@@ -55,4 +80,32 @@ export function getDimensiones(): Promise<Dimension[]> {
 
 export function desvincular(a: string, b: string): Promise<{ ok: boolean }> {
   return del('/sinapsis', { a, b })
+}
+
+export function crearSinapsis(data: SinapsisCreate): Promise<SinapsisResponse> {
+  return post('/sinapsis', data)
+}
+
+export function eliminarSinapsis(data: SinapsisDelete): Promise<SinapsisResponse> {
+  return del('/sinapsis', data)
+}
+
+export function actualizarSinapsis(data: { origen: string; destino: string; peso?: number; tipo?: string }): Promise<SinapsisResponse> {
+  return patch('/sinapsis', data)
+}
+
+export function dormirNodo(concepto: string): Promise<SinapsisResponse> {
+  return post(`/nodo/${encodeParam(concepto)}/dormir`, {})
+}
+
+export function despertarNodo(concepto: string): Promise<SinapsisResponse> {
+  return post(`/nodo/${encodeParam(concepto)}/despertar`, {})
+}
+
+export function eliminarNodo(concepto: string): Promise<SinapsisResponse> {
+  return del(`/nodo/${encodeParam(concepto)}`, {})
+}
+
+export function consolidarCerebro(): Promise<{ status: string; mensaje: string; resultado: string }> {
+  return post('/consolidar', {})
 }

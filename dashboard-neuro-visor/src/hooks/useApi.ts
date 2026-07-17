@@ -6,7 +6,7 @@ interface ApiState<T> {
   error: string | null
 }
 
-export function useApi<T>(fetcher: () => Promise<T>): ApiState<T> & { refetch: () => void } {
+export function useApi<T>(fetcher: () => Promise<T>, deps?: React.DependencyList): ApiState<T> & { refetch: () => void } {
   const [state, setState] = useState<ApiState<T>>({
     data: null,
     loading: true,
@@ -24,7 +24,7 @@ export function useApi<T>(fetcher: () => Promise<T>): ApiState<T> & { refetch: (
       .catch((err: Error) => setState({ data: null, loading: false, error: err.message }))
   }, [])
 
-  useEffect(() => { execute() }, [execute])
+  useEffect(() => { execute() }, deps ? [...deps, execute] : [execute])
 
   return { ...state, refetch: execute }
 }

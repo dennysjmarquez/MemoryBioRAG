@@ -1,0 +1,180 @@
+.colIzq {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow-y: auto;
+  padding: 16px;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.colHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.stateDot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  display: inline-block;
+  margin-right: 8px;
+  flex-shrink: 0;
+}
+
+.stateDot.activo {
+  background: var(--green);
+  box-shadow: 0 0 6px var(--green);
+}
+
+.stateDot.dormido {
+  background: var(--text-dim);
+}
+
+.nodeTitle {
+  font-size: 15px;
+  font-weight: 600;
+  word-break: break-all;
+  line-height: 1.3;
+  margin: 0;
+}
+
+.nodeBadges {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 12px;
+  flex-wrap: wrap;
+}
+
+.badge {
+  font-size: 10px;
+  padding: 1px 6px;
+  border-radius: 3px;
+  font-weight: 500;
+}
+
+.badgeActivo {
+  background: rgba(16,185,129,0.15);
+  color: #34d399;
+}
+
+.badgeDormido {
+  background: rgba(100,116,139,0.15);
+  color: #94a3b8;
+}
+
+.badgeCat {
+  background: var(--purple-dim);
+  color: var(--purple);
+}
+
+.nodeMetaGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-bottom: 14px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid var(--border);
+}
+
+.metaItem {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.metaLabel {
+  font-size: 10px;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.metaValue {
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.nodeSection {
+  margin-bottom: 14px;
+}
+
+.nodeSection h4 {
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 6px;
+}
+
+.chipList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.chip {
+  font-size: 10px;
+  padding: 2px 7px;
+  background: var(--purple-dim);
+  color: var(--purple);
+  border-radius: 3px;
+  white-space: nowrap;
+}
+
+.chipDim {
+  background: rgba(6,182,212,0.12);
+  color: var(--cyan);
+}
+
+.chipWn {
+  background: rgba(234,179,8,0.12);
+  color: var(--yellow);
+}
+
+.contentBox {
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--text);
+  background: var(--bg-input);
+  border-radius: var(--radius-sm);
+  padding: 10px;
+  max-height: 180px;
+  overflow-y: auto;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.nodeActions {
+  display: flex;
+  gap: 6px;
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid var(--border);
+}
+
+.btnActionSm {
+  padding: 5px 10px;
+  font-size: 11px;
+  background: var(--bg-input);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  color: var(--text);
+  cursor: pointer;
+  transition: all 0.15s;
+  font-family: inherit;
+}
+
+.btnActionSm:hover {
+  border-color: var(--purple);
+  color: var(--purple);
+}
+
+.btnDanger:hover {
+  border-color: var(--red) !important;
+  color: var(--red) !important;
+}
