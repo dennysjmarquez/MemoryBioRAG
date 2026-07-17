@@ -2,12 +2,12 @@
   background: var(--bg-secondary);
   border: 1px solid var(--border-color);
   border-radius: var(--radius-md);
-  padding: 1.5rem;
+  padding: 1.75rem;
 }
 
 .title {
   margin: 0 0 1rem;
-  font-size: 1rem;
+  font-size: 1.3rem;
   font-weight: 600;
   color: var(--text-primary);
 }
@@ -26,13 +26,13 @@
 /* --- Tooltip --- */
 .tooltip {
   background-color: #0b0f17;
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.15);
   border-radius: var(--radius-sm);
-  padding: 12px 14px;
-  min-width: 220px;
-  max-width: 280px;
+  padding: 14px 16px;
+  min-width: 240px;
+  max-width: 300px;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.55);
-  font-size: 13px;
+  font-size: 1rem;
   line-height: 1.4;
 }
 
@@ -44,24 +44,24 @@
 }
 
 .tooltipDate {
-  color: var(--text-secondary);
+  color: var(--text-primary);
   font-weight: 500;
 }
 
 .tooltipHealth {
   font-weight: 700;
-  font-size: 12px;
+  font-size: 0.95rem;
 }
 
 .tooltipDivider {
-  border-top: 1px solid rgba(255, 255, 255, 0.08);
-  margin: 8px 0;
+  border-top: 1px solid rgba(255, 255, 255, 0.12);
+  margin: 10px 0;
 }
 
 .tooltipGrid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 6px 12px;
+  gap: 8px 16px;
 }
 
 .tooltipStat {
@@ -72,18 +72,19 @@
 .tooltipStatValue {
   color: var(--text-primary);
   font-weight: 700;
-  font-size: 16px;
+  font-size: 1.25rem;
   font-variant-numeric: tabular-nums;
 }
 
 .tooltipStatLabel {
-  color: var(--text-muted);
-  font-size: 11px;
+  color: var(--text-secondary);
+  font-size: 0.9rem;
 }
 
 .tooltipCategory {
-  color: var(--text-secondary);
-  padding-top: 6px;
+  color: var(--text-primary);
+  padding-top: 8px;
+  font-size: 0.95rem;
 }
 
 .tooltipCategory strong {
@@ -96,33 +97,15 @@
 
 .tooltipConceptosTitle {
   font-weight: 600;
-  font-size: 12px;
-  color: var(--text-muted);
+  font-size: 1rem;
+  color: var(--text-secondary);
   display: block;
-  margin-bottom: 4px;
-}
-
-.tooltipConceptosList {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-}
-
-.tooltipConcepto {
-  color: var(--text-primary);
-  padding: 2px 0;
-  font-size: 12px;
-}
-
-.tooltipConcepto::before {
-  content: "• ";
-  color: var(--accent-color);
 }
 
 .tooltipEmpty {
   color: var(--text-muted);
   font-style: italic;
-  font-size: 12px;
+  font-size: 0.9rem;
   padding-top: 4px;
 }
 
@@ -142,8 +125,8 @@
   display: flex;
   align-items: center;
   gap: 6px;
-  font-size: 12px;
-  color: var(--text-secondary);
+  font-size: 18px;
+  color: var(--text-primary);
 }
 
 .legendDot {
@@ -154,7 +137,7 @@
 }
 
 .legendIcon {
-  font-size: 13px;
+  font-size: 1rem;
   flex-shrink: 0;
 }
 

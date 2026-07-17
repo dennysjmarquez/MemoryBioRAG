@@ -7,7 +7,7 @@
 
 .title {
   margin: 0 0 1rem;
-  font-size: 1rem;
+  font-size: 1.1rem;
   font-weight: 600;
   color: var(--text-primary);
 }
@@ -22,7 +22,7 @@
   display: flex;
   align-items: center;
   gap: 0.75rem;
-  min-height: 28px;
+  min-height: 32px;
 }
 
 .barWrapper {
@@ -34,22 +34,22 @@
 }
 
 .label {
-  font-size: 0.8rem;
+  font-size: 0.95rem;
   color: var(--text-secondary);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  min-width: 80px;
-  max-width: 150px;
+  min-width: 100px;
+  max-width: 180px;
 }
 
 .barTrack {
   flex: 1;
-  height: 8px;
+  height: 10px;
   background: var(--bg-tertiary);
   border-radius: 4px;
   overflow: hidden;
-  min-width: 100px;
+  min-width: 120px;
 }
 
 .barFill {
@@ -59,10 +59,90 @@
 }
 
 .value {
-  font-size: 0.75rem;
+  font-size: 0.95rem;
   font-weight: 600;
   color: var(--text-primary);
   font-variant-numeric: tabular-nums;
-  min-width: 50px;
+  min-width: 60px;
   text-align: right;
+}
+
+/* --- Column Layout --- */
+.columnsContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.columnsHeader {
+  display: grid;
+  grid-template-columns: 100px 1fr 120px 60px;
+  gap: 1rem;
+  padding: 0.5rem 0;
+  border-bottom: 1px solid var(--border-color);
+  margin-bottom: 0.25rem;
+}
+
+.columnsHeader span {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.columnRow {
+  display: grid;
+  grid-template-columns: 100px 1fr 120px 60px;
+  gap: 1rem;
+  align-items: center;
+  padding: 0.5rem 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+  transition: background 0.15s ease;
+}
+
+.columnRow:hover {
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.columnRow:last-child {
+  border-bottom: none;
+}
+
+.columnEje {
+  font-size: 0.95rem;
+  color: var(--text-primary);
+  white-space: nowrap;
+  opacity: 0.85;
+}
+
+.columnValor {
+  font-size: 1.05rem;
+  color: var(--text-primary);
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.columnBarTrack {
+  height: 8px;
+  background: var(--bg-tertiary);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.columnBarFill {
+  height: 100%;
+  border-radius: 4px;
+  transition: width 0.3s ease;
+}
+
+.columnCount {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--accent-color);
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  text-shadow: 0 0 8px rgba(88, 166, 255, 0.3);
 }

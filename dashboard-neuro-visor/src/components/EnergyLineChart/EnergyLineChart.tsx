@@ -89,14 +89,9 @@ const CustomTooltip = ({
         <>
           <div className={styles.tooltipDivider} />
           <div className={styles.tooltipConceptos}>
-            <span className={styles.tooltipConceptosTitle}>Recuerdos tocados:</span>
-            <ul className={styles.tooltipConceptosList}>
-              {point.conceptos.map((c, i) => (
-                <li key={i} className={styles.tooltipConcepto}>
-                  {c.concepto}
-                </li>
-              ))}
-            </ul>
+            <span className={styles.tooltipConceptosTitle}>
+              {point.conceptos.length} {point.conceptos.length === 1 ? 'recuerdo tocado' : 'recuerdos tocados'}
+            </span>
           </div>
         </>
       )}
@@ -198,14 +193,15 @@ export const EnergyLineChart = ({
           />
           <XAxis
             dataKey="label"
-            tick={{ fill: "var(--text-muted)", fontSize: 13 }}
+            tick={{ fill: "var(--text-muted)", fontSize: 17, dy: 11 }}
             stroke="var(--border-color)"
             interval="preserveStartEnd"
           />
           <YAxis
-            tick={{ fill: "var(--text-muted)", fontSize: 13 }}
+            tick={{ fill: "var(--text-muted)", fontSize: 17 }}
             tickFormatter={(v) => v.toFixed(0)}
             stroke="var(--border-color)"
+            style={{ marginTop: 14 }}
             width={55}
             label={{
               value: "Energía",
@@ -214,7 +210,6 @@ export const EnergyLineChart = ({
               offset: 0,
               style: {
                 fill: "var(--accent-color)",
-                fontSize: 14,
                 fontWeight: 500,
                 textAnchor: "middle",
               },
@@ -227,7 +222,7 @@ export const EnergyLineChart = ({
             position={{ y: -100 }}
             reverseDirection={{ x: true }}
           />
-          <Legend content={<ChartLegend />} />
+          <Legend content={<ChartLegend />} wrapperStyle={{ paddingTop: '20px' }}  />
           <Line
             type="monotone"
             dataKey="energia"

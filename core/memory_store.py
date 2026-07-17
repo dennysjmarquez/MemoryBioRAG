@@ -715,7 +715,7 @@ class SQLiteMemoryBioRAG:
             CREATE TABLE IF NOT EXISTS metricas_cognitivas_nodos (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 metrica_id INTEGER NOT NULL,
-                concepto TEXT NOT NULL,
+                largo_plazo_id INTEGER,
                 accion TEXT NOT NULL CHECK(accion IN ('nuevo', 'actualizado', 'dormido', 'eliminado')),
                 contenido_preview TEXT,
                 peso_anterior REAL,
@@ -724,11 +724,12 @@ class SQLiteMemoryBioRAG:
                 contexto TEXT,
                 anomalo INTEGER DEFAULT 0,
                 created_at REAL NOT NULL,
-                FOREIGN KEY (metrica_id) REFERENCES metricas_cognitivas(id) ON DELETE CASCADE
+                FOREIGN KEY (metrica_id) REFERENCES metricas_cognitivas(id) ON DELETE CASCADE,
+                FOREIGN KEY (largo_plazo_id) REFERENCES largo_plazo(id) ON DELETE CASCADE
             )
         """)
         self.cursor.execute("CREATE INDEX IF NOT EXISTS idx_mc_nodos_metrica ON metricas_cognitivas_nodos(metrica_id)")
-        self.cursor.execute("CREATE INDEX IF NOT EXISTS idx_mc_nodos_concepto ON metricas_cognitivas_nodos(concepto)")
+        self.cursor.execute("CREATE INDEX IF NOT EXISTS idx_mc_nodos_largo_plazo_id ON metricas_cognitivas_nodos(largo_plazo_id)")
         self.cursor.execute("CREATE INDEX IF NOT EXISTS idx_mc_nodos_accion ON metricas_cognitivas_nodos(accion)")
         self.cursor.execute("CREATE INDEX IF NOT EXISTS idx_mc_nodos_anomalo ON metricas_cognitivas_nodos(anomalo)")
         self.conn.commit()
@@ -1342,7 +1343,7 @@ class SQLiteMemoryBioRAG:
             CREATE TABLE IF NOT EXISTS metricas_cognitivas_nodos (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 metrica_id INTEGER NOT NULL,
-                concepto TEXT NOT NULL,
+                largo_plazo_id INTEGER,
                 accion TEXT NOT NULL CHECK(accion IN ('nuevo', 'actualizado', 'dormido', 'eliminado')),
                 contenido_preview TEXT,
                 peso_anterior REAL,
@@ -1351,11 +1352,12 @@ class SQLiteMemoryBioRAG:
                 contexto TEXT,
                 anomalo INTEGER DEFAULT 0,
                 created_at REAL NOT NULL,
-                FOREIGN KEY (metrica_id) REFERENCES metricas_cognitivas(id) ON DELETE CASCADE
+                FOREIGN KEY (metrica_id) REFERENCES metricas_cognitivas(id) ON DELETE CASCADE,
+                FOREIGN KEY (largo_plazo_id) REFERENCES largo_plazo(id) ON DELETE CASCADE
             )
         """)
         self.cursor.execute("CREATE INDEX IF NOT EXISTS idx_mc_nodos_metrica ON metricas_cognitivas_nodos(metrica_id)")
-        self.cursor.execute("CREATE INDEX IF NOT EXISTS idx_mc_nodos_concepto ON metricas_cognitivas_nodos(concepto)")
+        self.cursor.execute("CREATE INDEX IF NOT EXISTS idx_mc_nodos_largo_plazo_id ON metricas_cognitivas_nodos(largo_plazo_id)")
         self.cursor.execute("CREATE INDEX IF NOT EXISTS idx_mc_nodos_accion ON metricas_cognitivas_nodos(accion)")
         self.cursor.execute("CREATE INDEX IF NOT EXISTS idx_mc_nodos_anomalo ON metricas_cognitivas_nodos(anomalo)")
 
@@ -1647,11 +1649,19 @@ class SQLiteMemoryBioRAG:
 
         # En caso de empate en cantidad de nodos por categoría, gana la primera
         # categoría según el orden de iteración de recuerdos_sesion (no es aleatorio,
-        # pero tampoco tiene un criterio de desempate explícito más allá de eso).
-        cat_dom = max(cats_ciclo, key=cats_ciclo.get) if cats_ciclo else None
+        # pero tampoco tiene un criterio de desempate más allá de eso).
+        cat_dom_name = max(cats_ciclo, key=cats_ciclo.get) if cats_ciclo else None
+        
+        # Convertir nombre de categoría a ID para FK
+        cat_dom_id = None
+        if cat_dom_name:
+            self.cursor.execute("SELECT id FROM categories WHERE name = ?", (cat_dom_name,))
+            cat_row = self.cursor.fetchone()
+            cat_dom_id = cat_row[0] if cat_row else None
+        
         self.cursor.execute("""
             INSERT INTO metricas_cognitivas
-            (timestamp, nodos_consolidados, nodos_dormidos_ciclo, sinapsis_creadas, sinapsis_podadas, categoria_dominante, ratio_consolidacion)
+            (timestamp, nodos_consolidados, nodos_dormidos_ciclo, sinapsis_creadas, sinapsis_podadas, categoria_dominante_id, ratio_consolidacion)
             VALUES (?, ?, ?, ?, ?, ?, ?)
         """, (
             time.time(),
@@ -1659,7 +1669,7 @@ class SQLiteMemoryBioRAG:
             nodos_dormidos_despues - nodos_dormidos_antes,
             max(0, sinapsis_despues - sinapsis_antes),
             max(0, sinapsis_antes - sinapsis_despues),
-            cat_dom,
+            cat_dom_id,
             round(len(recuerdos_sesion) / max(1, n_activos), 2)
         ))
         
@@ -1667,13 +1677,18 @@ class SQLiteMemoryBioRAG:
         metrica_id = self.cursor.lastrowid
         now = time.time()
         for accion in acciones_ciclo:
+            # Lookup largo_plazo_id from concepto
+            self.cursor.execute("SELECT id FROM largo_plazo WHERE concepto = ?", (accion['concepto'],))
+            lp_row = self.cursor.fetchone()
+            largo_plazo_id = lp_row[0] if lp_row else None
+            
             self.cursor.execute("""
                 INSERT INTO metricas_cognitivas_nodos 
-                (metrica_id, concepto, accion, contenido_preview, peso_anterior, peso_nuevo, razon, contexto, anomalo, created_at)
+                (metrica_id, largo_plazo_id, accion, contenido_preview, peso_anterior, peso_nuevo, razon, contexto, anomalo, created_at)
                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             """, (
                 metrica_id,
-                accion['concepto'],
+                largo_plazo_id,
                 accion['accion'],
                 accion['contenido_preview'],
                 accion['peso_anterior'],
@@ -1874,6 +1889,15 @@ class SQLiteMemoryBioRAG:
                 DELETE FROM largo_plazo_fts WHERE rowid = old.rowid;
             END
         """)
+        # Cascade delete: cuando se borra un nodo de largo_plazo, limpiar bridge records
+        self.cursor.execute("DROP TRIGGER IF EXISTS trg_cleanup_bridge_after_delete")
+        self.cursor.execute("""
+            CREATE TRIGGER trg_cleanup_bridge_after_delete
+            AFTER DELETE ON largo_plazo
+            BEGIN
+                DELETE FROM metricas_cognitivas_nodos WHERE concepto = OLD.concepto;
+            END
+        """)
         self.cursor.execute("""
             CREATE TRIGGER largo_plazo_au AFTER UPDATE ON largo_plazo BEGIN
                 DELETE FROM largo_plazo_fts WHERE rowid = old.rowid;
@@ -2037,8 +2061,9 @@ class SQLiteMemoryBioRAG:
                 nodos_dormidos_ciclo INTEGER DEFAULT 0,
                 sinapsis_creadas INTEGER DEFAULT 0,
                 sinapsis_podadas INTEGER DEFAULT 0,
-                categoria_dominante TEXT,
-                ratio_consolidacion REAL
+                categoria_dominante_id INTEGER,
+                ratio_consolidacion REAL,
+                FOREIGN KEY (categoria_dominante_id) REFERENCES categories(id) ON DELETE SET NULL
             )
         """)
         # NOTA (2026-07-16): Registros de categoria_dominante anteriores a esta fecha

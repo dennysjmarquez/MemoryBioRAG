@@ -45,6 +45,9 @@ export interface CortezaEstado {
 export interface CategoriaCount {
   nombre: string
   count: number
+  activos: number
+  dormidos: number
+  total: number
 }
 
 export interface DimensionTop {

@@ -1,79 +1,153 @@
-import { useEffect, useState } from 'react'
-import { useApi } from '../../hooks/useApi'
-import { getCortezaEstado, getCortezaActividad } from '../../services/api'
-import type { CortezaEstado, CortezaActividad, EnergyPoint } from '../../types'
-import styles from './CortezaPage.module.css'
-import StatCard from '../../components/StatCard/StatCard'
-import BarChart from '../../components/BarChart/BarChart'
-import EnergyLineChart from '../../components/EnergyLineChart/EnergyLineChart'
-import DetallePunto from '../../components/DetallePunto/DetallePunto'
+import { useEffect, useState } from "react";
+import { useApi } from "../../hooks/useApi";
+import { getCortezaEstado, getCortezaActividad } from "../../services/api";
+import type { CortezaEstado, CortezaActividad, EnergyPoint } from "../../types";
+import styles from "./CortezaPage.module.css";
+import StatCard from "../../components/StatCard/StatCard";
+import BarChart from "../../components/BarChart/BarChart";
+import StackedBarChart from "../../components/StackedBarChart/StackedBarChart";
+import EnergyLineChart from "../../components/EnergyLineChart/EnergyLineChart";
+import DetallePunto from "../../components/DetallePunto/DetallePunto";
 
 const CortezaPage = () => {
-  const [estado, setEstado] = useState<CortezaEstado | null>(null)
-  const [actividad, setActividad] = useState<CortezaActividad | null>(null)
-  const [puntoSeleccionado, setPuntoSeleccionado] = useState<EnergyPoint | null>(null)
-  const { data: estadoData, loading: estadoLoading, error: estadoError, refetch: refetchEstado } = useApi(() => getCortezaEstado())
-  const { data: actividadData, loading: actividadLoading, error: actividadError, refetch: refetchActividad } = useApi(() => getCortezaActividad(7))
+  const [estado, setEstado] = useState<CortezaEstado | null>(null);
+  const [actividad, setActividad] = useState<CortezaActividad | null>(null);
+  const [puntoSeleccionado, setPuntoSeleccionado] =
+    useState<EnergyPoint | null>(null);
+  const {
+    data: estadoData,
+    loading: estadoLoading,
+    error: estadoError,
+    refetch: refetchEstado,
+  } = useApi(() => getCortezaEstado());
+  const {
+    data: actividadData,
+    loading: actividadLoading,
+    error: actividadError,
+    refetch: refetchActividad,
+  } = useApi(() => getCortezaActividad(7));
 
   useEffect(() => {
-    if (estadoData) setEstado(estadoData)
-  }, [estadoData])
+    if (estadoData) setEstado(estadoData);
+  }, [estadoData]);
 
   useEffect(() => {
-    if (actividadData) setActividad(actividadData)
-  }, [actividadData])
+    if (actividadData) setActividad(actividadData);
+  }, [actividadData]);
 
   const handlePointClick = (punto: EnergyPoint) => {
-    setPuntoSeleccionado(punto)
-  }
+    setPuntoSeleccionado(punto);
+  };
 
   const handleRefresh = () => {
-    refetchEstado()
-    refetchActividad()
-  }
+    refetchEstado();
+    refetchActividad();
+  };
 
   if (estadoLoading || actividadLoading) {
-    return <div className={styles.loading}>Cargando corteza...</div>
+    return <div className={styles.loading}>Cargando corteza...</div>;
   }
 
   if (estadoError || actividadError || !estado) {
-    return <div className={styles.error}>Error cargando datos: {estadoError || actividadError || 'Datos incompletos'}</div>
+    return (
+      <div className={styles.error}>
+        Error cargando datos:{" "}
+        {estadoError || actividadError || "Datos incompletos"}
+      </div>
+    );
   }
 
-  const energiaPct = estado.energia_pct ?? Math.min(100, (estado.energia / Math.max(estado.energia_max, 1)) * 100)
+  const energiaPct =
+    estado.energia_pct ??
+    Math.min(100, (estado.energia / Math.max(estado.energia_max, 1)) * 100);
 
   return (
     <div className={styles.page}>
       <header className={styles.header}>
         <h1 className={styles.title}>⚡ Estado de la Corteza</h1>
-        <button className={styles.refreshBtn} onClick={handleRefresh} disabled={estadoLoading || actividadLoading}>
-          {estadoLoading || actividadLoading ? '⟳ Actualizando...' : '🔄 Actualizar'}
+        <button
+          className={styles.refreshBtn}
+          onClick={handleRefresh}
+          disabled={estadoLoading || actividadLoading}
+        >
+          {estadoLoading || actividadLoading
+            ? "⟳ Actualizando..."
+            : "🔄 Actualizar"}
         </button>
       </header>
 
-      <section className={styles.statsGrid} aria-label="Estadísticas principales">
-        <StatCard label="Fuerza de conexiones" value={estado.energia.toFixed(2)} accent progress={energiaPct} progressLabel={`${energiaPct.toFixed(1)}%`} description="Qué tan fácil le es al cerebro conectar recuerdos" />
-        <StatCard label="Recuerdos activos" value={estado.activos} description="Recuerdos que el cerebro está usando ahora" />
-        <StatCard label="Recuerdos dormidos" value={estado.dormidos} description="Recuerdos que se apagaron por no usarse" />
-        <StatCard label="Conexiones directas" value={estado.directas.toLocaleString()} description="Recuerdos que están vinculados entre sí" />
-        <StatCard label="Conexiones sugeridas" value={estado.latentes.toLocaleString()} description="Recuerdos que el cerebro intuya que podrían estar relacionados" />
-        <StatCard label="Última revisión" value={estado.ultimo_sueno} description="Cuándo el cerebro se organizó por última vez" />
-        <StatCard label="Velocidad" value={`${estado.latencia_ms} ms`} description="Cuánto tarda el cerebro en encontrar un recuerdo" />
+      <section
+        className={styles.statsGrid}
+        aria-label="Estadísticas principales"
+      >
+        <StatCard
+          icon="⚡"
+          label="Energía Sináptica"
+          value={estado.energia.toFixed(2)}
+          maxValue={500}
+          color="blue"
+          progress={energiaPct}
+          progressLabel={`${energiaPct.toFixed(1)}% de fuerza`}
+        />
+        <StatCard
+          icon="🧠"
+          label="Activos"
+          value={estado.activos}
+          color="green"
+          description="Recuerdos vivos"
+        />
+        <StatCard
+          icon="😴"
+          label="Dormidos"
+          value={estado.dormidos}
+          color="yellow"
+          description="En reposo"
+        />
+        <StatCard
+          icon="🔗"
+          label="Sinapsis Directas"
+          value={estado.directas.toLocaleString()}
+          color="purple"
+          description="Vinculados entre sí"
+        />
+        <StatCard
+          icon="💫"
+          label="Sinapsis Latentes"
+          value={estado.latentes.toLocaleString()}
+          color="cyan"
+          description="Potencialmente relacionados"
+        />
+        <StatCard
+          icon="⏱"
+          label="Último Sueño"
+          value={estado.ultimo_sueno}
+          color="blue"
+          description="Última organización"
+        />
+        <StatCard
+          icon="📊"
+          label="Latencia Búsqueda"
+          value={`${estado.latencia_ms}ms`}
+          color="green"
+          description="Velocidad de recuperación"
+        />
       </section>
 
       <div className={styles.twoCol}>
-        <section className={styles.panel} aria-label="Distribución por categoría">
+        <section
+          className={styles.panel}
+          aria-label="Distribución por categoría"
+        >
           <h2 className={styles.panelTitle}>Distribución por Categoría</h2>
-          <BarChart
+          <StackedBarChart
             title="Distribución por Categoría"
-            data={estado.categorias
-              .sort((a, b) => b.count - a.count)
-              .map(c => ({
-                label: c.nombre,
-                value: c.count,
-                color: getCategoryColor(c.nombre),
-              }))}
-            showValue
+            data={estado.categorias.map((c) => ({
+              label: c.nombre,
+              activos: c.activos,
+              dormidos: c.dormidos,
+              total: c.total,
+              color: getCategoryColor(c.nombre),
+            }))}
           />
         </section>
 
@@ -83,50 +157,59 @@ const CortezaPage = () => {
             title="Dimensiones Más Activas"
             data={estado.dimensiones_top
               .sort((a, b) => b.count - a.count)
-              .map(d => ({
+              .map((d) => ({
                 label: `${d.eje}.${d.valor}`,
                 value: d.count,
-                color: 'var(--accent-color)',
+                color: "var(--accent-color)",
+                eje: d.eje,
+                valor: d.valor,
               }))}
             showValue
+            showColumns
           />
         </section>
       </div>
 
-      <section className={styles.panel} aria-label="Actividad del cerebro">
-        <h2 className={styles.panelTitle}>Actividad del cerebro (7 días)</h2>
-        <EnergyLineChart
-          data={actividad?.energia_historial ?? []}
-          ciclos={actividad?.ciclos ?? []}
-          onPointClick={handlePointClick}
-        />
-      </section>
-
-      <section className={styles.detailPanel} aria-label="Detalle del punto seleccionado">
-        <DetallePunto
-          punto={puntoSeleccionado}
-          onClose={() => setPuntoSeleccionado(null)}
-        />
-      </section>
+      <div className={styles.twoCol}>
+        <section className={styles.panel} aria-label="Actividad del cerebro">
+          <h2 className={styles.panelTitle}>Actividad del cerebro (7 días)</h2>
+          <EnergyLineChart
+            data={actividad?.energia_historial ?? []}
+            ciclos={actividad?.ciclos ?? []}
+            onPointClick={handlePointClick}
+          />
+        </section>
+      </div>
+      <div className={styles.twoCol}>
+        <section
+          className={styles.detailPanel}
+          aria-label="Detalle del punto seleccionado"
+        >
+          <DetallePunto
+            punto={puntoSeleccionado}
+            onClose={() => setPuntoSeleccionado(null)}
+          />
+        </section>
+      </div>
     </div>
-  )
-}
+  );
+};
 
 function getCategoryColor(nombre: string): string {
   const colors: Record<string, string> = {
-    Principle: '#f97316',
-    Lesson: '#10b981',
-    Architecture: '#3b82f6',
-    Project: '#06b6d4',
-    System: '#a855f7',
-    Protocol: '#eab308',
-    Profile: '#00ffff',
-    Cognition: '#a855f7',
-    Relation: '#f43f5e',
-    Personal: '#14b8a6',
-    General: '#94a3b8',
-  }
-  return colors[nombre] || '#6b7280'
+    Principle: "#f97316",
+    Lesson: "#10b981",
+    Architecture: "#3b82f6",
+    Project: "#06b6d4",
+    System: "#a855f7",
+    Protocol: "#eab308",
+    Profile: "#00ffff",
+    Cognition: "#a855f7",
+    Relation: "#f43f5e",
+    Personal: "#14b8a6",
+    General: "#94a3b8",
+  };
+  return colors[nombre] || "#6b7280";
 }
 
-export default CortezaPage
+export default CortezaPage;

@@ -1,35 +1,65 @@
 .layout {
   min-height: 100vh;
   display: flex;
+}
+
+.sidebar {
+  width: 220px;
+  background: var(--bg-secondary);
+  border-right: 1px solid var(--border-color);
+  display: flex;
+  flex-direction: column;
+  padding: 1.5rem 0;
+  position: fixed;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  z-index: 100;
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0 1.25rem;
+  margin-bottom: 2rem;
+}
+
+.logoIcon {
+  font-size: 1.75rem;
+}
+
+.logoText {
+  display: flex;
   flex-direction: column;
 }
 
-.header {
-  display: flex;
-  align-items: center;
-  gap: 2rem;
-  padding: 0.75rem 1.5rem;
-  background: var(--bg-secondary);
-  border-bottom: 1px solid var(--border-color);
+.logoTitle {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--accent-color);
 }
 
-.title {
-  font-size: 1.1rem;
-  font-weight: 600;
-  color: var(--accent-color);
-  margin: 0;
-  white-space: nowrap;
+.logoVersion {
+  font-size: 0.7rem;
+  color: var(--text-muted);
 }
 
 .nav {
   display: flex;
+  flex-direction: column;
   gap: 0.25rem;
+  padding: 0 0.75rem;
+  flex: 1;
 }
 
 .navLink {
-  padding: 0.4rem 0.75rem;
-  border-radius: 6px;
-  font-size: 0.85rem;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 1rem;
+  border-radius: 8px;
+  font-size: 0.95rem;
   color: var(--text-secondary);
   text-decoration: none;
   transition: all 0.15s ease;
@@ -46,7 +76,48 @@
   font-weight: 500;
 }
 
+.navIcon {
+  font-size: 1.1rem;
+  width: 24px;
+  text-align: center;
+}
+
+.navLabel {
+  flex: 1;
+}
+
+.sidebarFooter {
+  padding: 1rem 1.25rem;
+  border-top: 1px solid var(--border-color);
+  margin-top: auto;
+}
+
+.statusIndicator {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.statusDot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #10b981;
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+.statusText {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
 .main {
   flex: 1;
   padding: 1.5rem;
+  margin-left: 220px;
 }

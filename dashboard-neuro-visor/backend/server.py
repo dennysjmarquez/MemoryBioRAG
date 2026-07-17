@@ -87,14 +87,15 @@ def corteza_estado():
     latencia = round(row[0], 2) if row else 0
 
     c.execute("""
-        SELECT cat.name, COUNT(*) as cnt
+        SELECT cat.name,
+               SUM(CASE WHEN l.estado = 'activo' THEN 1 ELSE 0 END) as activos,
+               SUM(CASE WHEN l.estado = 'dormido' THEN 1 ELSE 0 END) as dormidos
         FROM largo_plazo l
         LEFT JOIN categories cat ON l.categoria = cat.id
-        WHERE l.estado = 'activo'
         GROUP BY cat.name
-        ORDER BY cnt DESC
+        ORDER BY (activos + dormidos) DESC
     """)
-    categorias = [{"nombre": r[0], "count": r[1]} for r in c.fetchall()]
+    categorias = [{"nombre": r[0], "activos": r[1], "dormidos": r[2], "total": r[1] + r[2]} for r in c.fetchall()]
 
     c.execute("""
         SELECT td.nombre as eje, ds.name as valor, COUNT(*) as cnt
@@ -137,11 +138,12 @@ def corteza_actividad(dias: int = 7):
     cutoff = ts_now() - (dias * 86400)
 
     c.execute("""
-        SELECT timestamp, nodos_consolidados, nodos_dormidos_ciclo,
-               sinapsis_creadas, sinapsis_podadas, categoria_dominante, ratio_consolidacion
-        FROM metricas_cognitivas
-        WHERE timestamp >= ?
-        ORDER BY timestamp ASC
+        SELECT mc.timestamp, mc.nodos_consolidados, mc.nodos_dormidos_ciclo,
+               mc.sinapsis_creadas, mc.sinapsis_podadas, cat.name, mc.ratio_consolidacion
+        FROM metricas_cognitivas mc
+        LEFT JOIN categories cat ON mc.categoria_dominante_id = cat.id
+        WHERE mc.timestamp >= ?
+        ORDER BY mc.timestamp ASC
     """, (cutoff,))
     ciclos = []
     for r in c.fetchall():
@@ -162,40 +164,58 @@ def corteza_actividad(dias: int = 7):
         WHERE timestamp >= ?
         ORDER BY timestamp ASC
     """, (cutoff,))
+    # Build sorted list of ciclo timestamps for binary search
+    ciclo_timestamps = sorted([ciclo["timestamp"] for ciclo in ciclos])
+    ciclo_by_ts = {ciclo["timestamp"]: ciclo for ciclo in ciclos}
+
     energia_hist = []
     for r in c.fetchall():
-        # Find concepts consolidated around this timestamp (within 15 seconds)
-        c.execute("""
-            SELECT concepto, contenido
-            FROM largo_plazo
-            WHERE ABS(creado_en - ?) < 15 OR ABS(ultimo_acceso - ?) < 15
-            ORDER BY peso_sinaptico DESC
-            LIMIT 3
-        """, (r[0], r[0]))
-        conceptos = [{"concepto": row[0], "contenido": (row[1] or "")[:120]} for row in c.fetchall()]
+        ts = r[0]
 
-        # Find dominant category from nodes touched near this timestamp
-        c.execute("""
-            SELECT cat.name, COUNT(*) as cnt
-            FROM largo_plazo l
-            JOIN categories cat ON l.categoria = cat.id
-            WHERE ABS(l.creado_en - ?) < 15 OR ABS(l.ultimo_acceso - ?) < 15
-            GROUP BY cat.name
-            ORDER BY cnt DESC
-            LIMIT 1
-        """, (r[0], r[0]))
-        cat_row = c.fetchone()
-        categoria_dominante = cat_row[0] if cat_row else None
+        # Find the most recent ciclo that is <= ts (or closest within 60s)
+        ciclo_match = None
+        for ct in reversed(ciclo_timestamps):
+            if ct <= ts + 1:  # Allow 1 second tolerance
+                ciclo_match = ciclo_by_ts[ct]
+                break
+
+        # Get concepts from bridge table (metricas_cognitivas_nodos)
+        conceptos = []
+        categoria_dominante = None
+        metrica_id = None
+        if ciclo_match:
+            # Find metrica_id for this ciclo
+            c.execute("""
+                SELECT id FROM metricas_cognitivas
+                WHERE ABS(timestamp - ?) < 2
+                LIMIT 1
+            """, (ciclo_match["timestamp"],))
+            mc_row = c.fetchone()
+            if mc_row:
+                metrica_id = mc_row[0]
+                c.execute("""
+                    SELECT l.concepto, l.contenido
+                    FROM metricas_cognitivas_nodos mn
+                    JOIN largo_plazo l ON mn.largo_plazo_id = l.id
+                    WHERE mn.metrica_id = ? AND mn.accion IN ('nuevo', 'actualizado')
+                    ORDER BY mn.peso_nuevo DESC
+                    LIMIT 3
+                """, (metrica_id,))
+                conceptos = [{"concepto": row[0], "contenido": (row[1] or "")[:120]} for row in c.fetchall()]
+
+            # Use precalculated categoria_dominante from metricas_cognitivas
+            categoria_dominante = ciclo_match.get("categoria_dominante")
 
         energia_hist.append({
-            "timestamp": r[0],
+            "timestamp": ts,
             "energia": round(r[1], 2),
             "total_nodos": r[2],
             "dormidos": r[3],
             "activos": r[4],
             "latencia_ms": r[5],
             "conceptos": conceptos,
-            "categoria_dominante": categoria_dominante
+            "categoria_dominante": categoria_dominante,
+            "metrica_id": metrica_id
         })
 
     conn.close()
@@ -900,9 +920,10 @@ def historial_suenos(limite: int = 20):
 
     c.execute("""
         SELECT mc.timestamp, mc.nodos_consolidados, mc.nodos_dormidos_ciclo,
-               mc.sinapsis_creadas, mc.sinapsis_podadas, mc.categoria_dominante,
+               mc.sinapsis_creadas, mc.sinapsis_podadas, cat.name,
                mr.energia_sinaptica, mr.total_nodos, mr.total_dormidos, mr.nodos_activos
         FROM metricas_cognitivas mc
+        LEFT JOIN categories cat ON mc.categoria_dominante_id = cat.id
         LEFT JOIN metricas_rendimiento mr ON abs(mc.timestamp - mr.timestamp) < 5
         ORDER BY mc.timestamp DESC
         LIMIT ?
