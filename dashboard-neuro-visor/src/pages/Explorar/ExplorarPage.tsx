@@ -168,7 +168,7 @@ const ExplorarPage = () => {
 
   if (loading) {
     return (
-      <div className={styles.page}>
+      <>
         <ExplorarHeader
           canGoBack={canGoBack}
           canGoForward={canGoForward}
@@ -179,13 +179,13 @@ const ExplorarPage = () => {
           onJumpToCrumb={jumpToCrumb}
         />
         <div className={styles.loading}>Cargando explorador...</div>
-      </div>
+      </>
     )
   }
 
   if (error || (!node && concepto)) {
     return (
-      <div className={styles.page}>
+      <>
         <ExplorarHeader
           canGoBack={canGoBack}
           canGoForward={canGoForward}
@@ -198,13 +198,13 @@ const ExplorarPage = () => {
         <div className={styles.error}>
           Error cargando nodo: {error || 'Nodo no encontrado'}
         </div>
-      </div>
+      </>
     )
   }
 
   if (!concepto) {
     return (
-      <div className={styles.page}>
+      <>
         <ExplorarHeader
           canGoBack={canGoBack}
           canGoForward={canGoForward}
@@ -219,12 +219,12 @@ const ExplorarPage = () => {
           <p>Buscá un concepto para inspeccionarlo</p>
           <p className={styles.emptySub}>Escribí en el buscador o seleccioná de las categorías</p>
         </div>
-      </div>
+      </>
     )
   }
 
   return (
-    <div className={styles.page}>
+    <>
       <ExplorarHeader
         canGoBack={canGoBack}
         canGoForward={canGoForward}
@@ -252,7 +252,7 @@ const ExplorarPage = () => {
           onNavigate={navigateTo}
         />
       </div>
-    </div>
+    </>
   )
 }
 

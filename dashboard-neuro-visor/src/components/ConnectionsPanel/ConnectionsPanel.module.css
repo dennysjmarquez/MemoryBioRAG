@@ -1,7 +1,7 @@
 .colCentro {
-  background: var(--bg-card);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
   overflow-y: auto;
   padding: 16px;
   height: 100%;
@@ -13,23 +13,23 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 12px;
+  margin-bottom: 16px;
 }
 
 .colHeader h3 {
-  font-size: 14px;
+  font-size: 15px;
   font-weight: 600;
-  color: var(--text-muted);
+  color: var(--text-primary);
   margin: 0;
 }
 
 .btnActionSm {
-  padding: 5px 10px;
-  font-size: 11px;
+  padding: 6px 12px;
+  font-size: 12px;
   background: var(--bg-input);
-  border: 1px solid var(--border);
+  border: 1px solid var(--border-color);
   border-radius: var(--radius-sm);
-  color: var(--text);
+  color: var(--text-primary);
   cursor: pointer;
   transition: all 0.15s;
   font-family: inherit;
@@ -42,25 +42,25 @@
 
 .connFilters {
   display: flex;
-  gap: 8px;
-  margin-bottom: 12px;
+  gap: 10px;
+  margin-bottom: 16px;
 }
 
 .filterSelect {
   flex: 1;
-  padding: 5px 8px;
+  padding: 6px 10px;
   background: var(--bg-input);
-  border: 1px solid var(--border);
+  border: 1px solid var(--border-color);
   border-radius: var(--radius-sm);
-  color: var(--text);
-  font-size: 11px;
+  color: var(--text-primary);
+  font-size: 12px;
   font-family: inherit;
 }
 
 .connectionsList {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 8px;
   flex: 1;
   overflow-y: auto;
 }

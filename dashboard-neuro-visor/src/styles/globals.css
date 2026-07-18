@@ -1,29 +1,45 @@
 :root {
+  /* Paleta Oficial del Cerebro (Basada en Corteza React) */
   --bg-primary: #0d1117;
   --bg-secondary: #161b22;
   --bg-tertiary: #21262d;
+  --bg-input: #0a1020;
+  
   --text-primary: #e6edf3;
   --text-secondary: #8b949e;
-  --text-muted: #484f58;
+  --text-muted: #64748b;
+  --text-dim: #475569;
+  
   --border-color: #30363d;
+  --border-focus: rgba(88, 166, 255, 0.5);
+  
   --accent-color: #58a6ff;
   --accent-hover: #79c0ff;
   --accent-subtle: rgba(88, 166, 255, 0.15);
+  
+  /* Púrpuras y Cyans de Corteza */
+  --purple: #7c3aed;
+  --purple-dim: rgba(124, 58, 237, 0.15);
+  --purple-glow: rgba(124, 58, 237, 0.3);
+  --cyan: #06b6d4;
+  --green: #10b981;
+  --orange: #f97316;
+  --pink: #ec4899;
+  --yellow: #eab308;
+  --red: #ef4444;
+  --blue: #3b82f6;
 
-  --color-manual: #a78bfa;
-  --color-sinonimo: #34d399;
-  --color-co-ocurrencia: #94a3b8;
-  --color-rafaga: #fbbf24;
-  --color-co-nombre: #60a5fa;
-  --color-co-semantica: #22d3ee;
-
-  --color-saliente: #fb923c;
-  --color-entrante: #4ade80;
-  --color-bidireccional: #a78bfa;
-
-  --radius-sm: 4px;
-  --radius-md: 8px;
+  /* Tamaños y bordes consistentes */
+  --radius-sm: 6px;
+  --radius-md: 10px;
   --radius-lg: 12px;
+  
+  --sidebar-w: 240px;
+
+  /* Scrollbars bonitos (Corola) */
+  --scrollbar-bg: var(--bg-secondary);
+  --scrollbar-thumb: var(--text-dim);
+  --scrollbar-thumb-hover: var(--accent-color);
 }
 
 *, *::before, *::after {
@@ -34,15 +50,18 @@
 
 html, body, #root {
   height: 100%;
+  width: 100%;
 }
 
 body {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen,
-    Ubuntu, Cantarell, 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+  font-family: 'Inter', -apple-system, sans-serif;
   font-size: 18px;
   line-height: 1.5;
   color: var(--text-primary);
   background: var(--bg-primary);
+  display: flex;
+  height: 100vh;
+  overflow: hidden;
   -webkit-font-smoothing: antialiased;
 }
 
@@ -60,11 +79,22 @@ button {
   cursor: pointer;
 }
 
-.loading {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  height: 100%;
-  color: var(--text-muted);
-  font-size: 0.9rem;
+/* Custom scrollbars (Corola) aplicados globalmente */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--scrollbar-bg);
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: var(--scrollbar-thumb);
+  border-radius: 4px;
+  border: 2px solid var(--scrollbar-bg);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background-color: var(--scrollbar-thumb-hover);
 }

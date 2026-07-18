@@ -62,7 +62,7 @@ const CortezaPage = () => {
     Math.min(100, (estado.energia / Math.max(estado.energia_max, 1)) * 100);
 
   return (
-    <div className={styles.page}>
+    <>
       <header className={styles.header}>
         <h1 className={styles.title}>⚡ Estado de la Corteza</h1>
         <button
@@ -191,7 +191,7 @@ const CortezaPage = () => {
           />
         </section>
       </div>
-    </div>
+    </>
   );
 };
 

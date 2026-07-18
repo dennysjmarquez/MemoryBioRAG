@@ -3,7 +3,7 @@
   align-items: center;
   gap: 12px;
   padding: 12px 0;
-  border-bottom: 1px solid var(--border);
+  border-bottom: 1px solid var(--border-color);
   margin-bottom: 16px;
 }
 
@@ -17,9 +17,9 @@
   width: 100%;
   padding: 10px 14px;
   background: var(--bg-input);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  color: var(--text);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  color: var(--text-primary);
   font-size: 14px;
   font-family: inherit;
 }
@@ -34,9 +34,9 @@
   top: 100%;
   left: 0;
   right: 0;
-  background: var(--bg-card);
-  border: 1px solid var(--border);
-  border-radius: 0 0 var(--radius) var(--radius);
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: 0 0 var(--radius-md) var(--radius-md);
   max-height: 300px;
   overflow-y: auto;
   z-index: 200;
@@ -45,13 +45,13 @@
 .searchResult {
   padding: 10px 14px;
   cursor: pointer;
-  border-bottom: 1px solid var(--border);
+  border-bottom: 1px solid var(--border-color);
   transition: background 0.1s;
 }
 
 .searchResult:hover,
 .searchResult.selected {
-  background: var(--bg-card-hover);
+  background: var(--bg-tertiary);
 }
 
 .searchResult:last-child {
@@ -59,18 +59,18 @@
 }
 
 .searchResultName {
-  font-size: 13px;
+  font-size: 14px;
   font-weight: 500;
 }
 
 .searchResultScore {
   font-family: 'JetBrains Mono', monospace;
-  font-size: 11px;
+  font-size: 12px;
   color: var(--purple);
 }
 
 .searchResultPreview {
-  font-size: 11px;
+  font-size: 12px;
   color: var(--text-muted);
   margin-top: 2px;
   white-space: nowrap;
@@ -84,14 +84,14 @@
 }
 
 .navBtnSm {
-  width: 32px;
-  height: 32px;
-  background: var(--bg-card);
-  border: 1px solid var(--border);
+  width: 36px;
+  height: 36px;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
   border-radius: var(--radius-sm);
-  color: var(--text);
+  color: var(--text-primary);
   cursor: pointer;
-  font-size: 14px;
+  font-size: 15px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -112,7 +112,7 @@
   display: flex;
   align-items: center;
   gap: 4px;
-  font-size: 12px;
+  font-size: 13px;
   color: var(--text-muted);
   overflow: hidden;
   white-space: nowrap;
@@ -131,7 +131,7 @@
 }
 
 .crumb.current {
-  color: var(--text);
+  color: var(--text-primary);
   cursor: default;
 }
 

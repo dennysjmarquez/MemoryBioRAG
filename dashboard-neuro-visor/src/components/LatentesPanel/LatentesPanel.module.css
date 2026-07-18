@@ -1,7 +1,7 @@
 .colDer {
-  background: var(--bg-card);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
   overflow-y: auto;
   padding: 16px;
   height: 100%;
@@ -13,37 +13,38 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 12px;
+  margin-bottom: 16px;
 }
 
 .colHeader h3 {
-  font-size: 14px;
+  font-size: 15px;
   font-weight: 600;
-  color: var(--text-muted);
+  color: var(--text-primary);
   margin: 0;
 }
 
 .latentesList {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 8px;
   flex: 1;
   overflow-y: auto;
 }
 
 .latCard {
   background: var(--bg-input);
-  border: 1px dashed var(--border);
+  border: 1px dashed var(--border-color);
   border-radius: var(--radius-sm);
-  padding: 8px 10px;
-  font-size: 11px;
+  padding: 10px 12px;
+  font-size: 12px;
 }
 
 .latCardName {
+  font-size: 13px;
   font-weight: 500;
   color: var(--purple);
   cursor: pointer;
-  margin-bottom: 4px;
+  margin-bottom: 6px;
 }
 
 .latCardName:hover {
@@ -55,5 +56,5 @@
   gap: 8px;
   color: var(--text-dim);
   font-family: 'JetBrains Mono', monospace;
-  font-size: 10px;
+  font-size: 11px;
 }

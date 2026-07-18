@@ -1,13 +1,13 @@
-import { NavLink, Outlet } from 'react-router-dom'
-import styles from './DashboardLayout.module.css'
+import { NavLink, Outlet } from "react-router-dom";
+import styles from "./DashboardLayout.module.css";
 
 const NAV_ITEMS = [
-  { to: '/corteza', label: 'Corteza', icon: '⚡' },
-  { to: '/explorar', label: 'Explorar', icon: '🔍' },
-  { to: '/sinapsis', label: 'Sinapsis', icon: '🔗' },
-  { to: '/actividad', label: 'Actividad', icon: '📈' },
-  { to: '/dimensiones', label: 'Dimensiones', icon: '🌐' },
-]
+  { to: "/corteza", label: "Corteza", icon: "⚡" },
+  { to: "/explorar", label: "Explorar", icon: "🔍" },
+  { to: "/sinapsis", label: "Sinapsis", icon: "🔗" },
+  { to: "/actividad", label: "Actividad", icon: "📈" },
+  { to: "/dimensiones", label: "Dimensiones", icon: "🌐" },
+];
 
 export default function DashboardLayout() {
   return (
@@ -22,11 +22,13 @@ export default function DashboardLayout() {
         </div>
 
         <nav className={styles.nav}>
-          {NAV_ITEMS.map(item => (
+          {NAV_ITEMS.map((item) => (
             <NavLink
               key={item.to}
               to={item.to}
-              className={({ isActive }) => `${styles.navLink} ${isActive ? styles.active : ''}`}
+              className={({ isActive }) =>
+                `${styles.navLink} ${isActive ? styles.active : ""}`
+              }
             >
               <span className={styles.navIcon}>{item.icon}</span>
               <span className={styles.navLabel}>{item.label}</span>
@@ -43,8 +45,10 @@ export default function DashboardLayout() {
       </aside>
 
       <main className={styles.main}>
-        <Outlet />
+        <section className={styles.page}>
+          <Outlet />
+        </section>
       </main>
     </div>
-  )
+  );
 }
