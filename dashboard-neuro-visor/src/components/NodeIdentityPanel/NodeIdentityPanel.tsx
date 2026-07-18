@@ -49,6 +49,14 @@ export function NodeIdentityPanel({ node, onSleep, onDelete }: NodeIdentityPanel
           <span className={styles.metaValue}>{timeAgo(node.ultimo_acceso)}</span>
         </div>
       </div>
+
+      <div className={styles.nodeSection}>
+        <h4>📝 Contenido</h4>
+        <div className={styles.contentBox}>
+          {node.contenido || '(vacío)'}
+        </div>
+      </div>
+
       {Object.keys(node.dimensiones).length > 0 && (
         <div className={styles.nodeSection} id="section-dimensiones">
           <h4>🎭 Dimensiones</h4>
@@ -85,12 +93,6 @@ export function NodeIdentityPanel({ node, onSleep, onDelete }: NodeIdentityPanel
           </div>
         </div>
       )}
-      <div className={styles.nodeSection}>
-        <h4>📝 Contenido</h4>
-        <div className={styles.contentBox}>
-          {node.contenido || '(vacío)'}
-        </div>
-      </div>
       <div className={styles.nodeActions}>
         <button className={`${styles.btnActionSm} ${styles.btnSleep}`} onClick={onSleep} title="Dormir nodo">
           😴 Dormir

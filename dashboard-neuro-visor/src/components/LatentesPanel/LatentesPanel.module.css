@@ -37,6 +37,7 @@
   border-radius: var(--radius-sm);
   padding: 10px 12px;
   font-size: 12px;
+  word-wrap: break-word;
 }
 
 .latCardName {

@@ -46,7 +46,7 @@
   grid-template-columns: 280px 1fr 280px;
   gap: 16px;
   flex: 1;
-  min-height: calc(100vh - 140px);
+  height: calc(100vh - 180px);
   overflow: hidden;
 }
 
