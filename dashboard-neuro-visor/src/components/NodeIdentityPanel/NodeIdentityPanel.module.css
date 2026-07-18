@@ -118,7 +118,7 @@
 }
 
 .chip {
-  font-size: 11px;
+  font-size: 12px;
   padding: 3px 9px;
   background: var(--purple-dim);
   color: var(--purple);

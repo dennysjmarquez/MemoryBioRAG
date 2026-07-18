@@ -262,7 +262,7 @@ def nodo_detalle(concepto: str):
         dimensiones[eje].append(valor)
 
     c.execute("""
-        SELECT gs.nombre, gs.fuente
+        SELECT DISTINCT gs.nombre, gs.fuente
         FROM nodo_grupos_semanticos ng
         JOIN grupos_semanticos gs ON ng.grupo_id = gs.id
         WHERE ng.concepto = ?
@@ -334,7 +334,7 @@ def nodo_ego_graph(concepto: str, limit: int = 50):
     center["dimensiones"] = dimensiones
 
     c.execute("""
-        SELECT gs.nombre, gs.fuente
+        SELECT DISTINCT gs.nombre, gs.fuente
         FROM nodo_grupos_semanticos ng
         JOIN grupos_semanticos gs ON ng.grupo_id = gs.id
         WHERE ng.concepto = ?
