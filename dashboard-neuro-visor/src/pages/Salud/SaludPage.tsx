@@ -26,6 +26,20 @@ interface AuditData {
   }
 }
 
+function formatNumber(n: number): string {
+  return n.toLocaleString('es-AR')
+}
+
+function timeAgo(date: Date): string {
+  const seconds = Math.floor((Date.now() - date.getTime()) / 1000)
+  if (seconds < 60) return `hace ${seconds}s`
+  const minutes = Math.floor(seconds / 60)
+  if (minutes < 60) return `hace ${minutes}m`
+  const hours = Math.floor(minutes / 60)
+  if (hours < 24) return `hace ${hours}h`
+  return date.toLocaleDateString('es-AR')
+}
+
 const SaludPage = () => {
   const navigate = useNavigate()
   const [data, setData] = useState<AuditData | null>(null)
@@ -33,6 +47,8 @@ const SaludPage = () => {
   const [error, setError] = useState<string | null>(null)
   const [cleaning, setCleaning] = useState<string | null>(null)
   const [toast, setToast] = useState<string | null>(null)
+  const [lastAudit, setLastAudit] = useState<Date | null>(null)
+  const [expanded, setExpanded] = useState<Record<string, boolean>>({})
 
   const fetchAudit = useCallback(async () => {
     setLoading(true)
@@ -41,6 +57,7 @@ const SaludPage = () => {
       const res = await fetch('/api/salud/audit')
       if (!res.ok) throw new Error(`${res.status} ${res.statusText}`)
       setData(await res.json())
+      setLastAudit(new Date())
     } catch (e: any) {
       setError(e.message || 'Error cargando auditoría')
     } finally {
@@ -70,92 +87,158 @@ const SaludPage = () => {
     }
   }
 
+  const toggle = (key: string) => setExpanded(prev => ({ ...prev, [key]: !prev[key] }))
+
   const totalProblemas = data ? Object.values(data.problemas).reduce((a, b) => a + b, 0) : 0
+  const healthScore = data
+    ? Math.max(0, Math.round(100 - (totalProblemas / Math.max(data.resumen.nodos_total, 1)) * 100))
+    : 100
 
   if (loading) return <div className={styles.loading}>Cargando auditoría...</div>
   if (error) return <div className={styles.error}>Error: {error}</div>
   if (!data) return null
 
+  const maxProblem = Math.max(
+    data.problemas.sinapsis_huerfanas,
+    data.problemas.latentes_huerfanas,
+    data.problemas.dimensiones_huerfanas,
+    data.problemas.latentes_ambos_huerfanos,
+    1
+  )
+
+  const scoreColor = healthScore >= 90 ? 'var(--green)'
+    : healthScore >= 70 ? 'var(--yellow)'
+    : healthScore >= 50 ? 'var(--orange)'
+    : 'var(--red)'
+
+  const circumference = 2 * Math.PI * 34
+  const offset = circumference - (healthScore / 100) * circumference
+
   return (
     <div className={styles.page}>
       <div className={styles.header}>
-        <h1 className={styles.title}>Mantenimiento</h1>
+        <div className={styles.headerLeft}>
+          <h1 className={styles.title}>Mantenimiento</h1>
+          {lastAudit && (
+            <span className={styles.subtitle}>Última auditoría: {timeAgo(lastAudit)}</span>
+          )}
+        </div>
         <button className={styles.refreshBtn} onClick={fetchAudit} disabled={loading}>
           ↻ Refrescar
         </button>
       </div>
 
-      {/* Resumen */}
+      {/* Hero: Health Score + Problem Breakdown */}
+      {totalProblemas > 0 && (
+        <div className={styles.hero}>
+          <div className={styles.heroScore}>
+            <div className={styles.scoreRing}>
+              <svg viewBox="0 0 80 80">
+                <circle className={styles.scoreRingBg} cx="40" cy="40" r="34" />
+                <circle
+                  className={styles.scoreRingFill}
+                  cx="40" cy="40" r="34"
+                  stroke={scoreColor}
+                  strokeDasharray={circumference}
+                  strokeDashoffset={offset}
+                />
+              </svg>
+              <span className={styles.scoreLabel} style={{ color: scoreColor }}>
+                {healthScore}%
+              </span>
+            </div>
+            <span className={styles.scoreText}>Salud</span>
+          </div>
+
+          <div className={styles.heroBreakdown}>
+            <HeroProblemRow
+              name="Sinapsis huérfanas"
+              count={data.problemas.sinapsis_huerfanas}
+              max={maxProblem}
+              severity="red"
+              onClean={() => limpiar('sinapsis_huerfanas')}
+              cleaning={cleaning === 'sinapsis_huerfanas'}
+            />
+            <HeroProblemRow
+              name="Latentes huérfanas"
+              count={data.problemas.latentes_huerfanas}
+              max={maxProblem}
+              severity="red"
+              onClean={() => limpiar('latentes_huerfanas')}
+              cleaning={cleaning === 'latentes_huerfanas'}
+            />
+            <HeroProblemRow
+              name="Dimensiones huérfanas"
+              count={data.problemas.dimensiones_huerfanas}
+              max={maxProblem}
+              severity="orange"
+              onClean={() => limpiar('dimensiones_huerfanas')}
+              cleaning={cleaning === 'dimensiones_huerfanas'}
+            />
+            <HeroProblemRow
+              name="Latentes sin ambos nodos"
+              count={data.problemas.latentes_ambos_huerfanos}
+              max={maxProblem}
+              severity="yellow"
+            />
+          </div>
+
+          <button
+            className={styles.heroCleanAll}
+            onClick={() => limpiar('todo')}
+            disabled={cleaning !== null}
+          >
+            {cleaning === 'todo' ? 'Limpiando...' : 'Limpiar todo'}
+          </button>
+        </div>
+      )}
+
+      {/* All good hero */}
+      {totalProblemas === 0 && (
+        <div className={styles.hero} style={{ justifyContent: 'center' }}>
+          <div className={styles.heroScore}>
+            <div className={styles.scoreRing}>
+              <svg viewBox="0 0 80 80">
+                <circle className={styles.scoreRingBg} cx="40" cy="40" r="34" />
+                <circle
+                  className={styles.scoreRingFill}
+                  cx="40" cy="40" r="34"
+                  stroke="var(--green)"
+                  strokeDasharray={circumference}
+                  strokeDashoffset={offset}
+                />
+              </svg>
+              <span className={styles.scoreLabel} style={{ color: 'var(--green)' }}>100%</span>
+            </div>
+            <span className={styles.scoreText}>Salud</span>
+          </div>
+          <span style={{ color: 'var(--green)', fontWeight: 600, fontSize: 16 }}>
+            Cerebro sano — sin problemas detectados
+          </span>
+        </div>
+      )}
+
+      {/* Stats Grid */}
       <div className={styles.statsGrid}>
         <div className={styles.statCard}>
           <span className={styles.statLabel}>Nodos</span>
-          <span className={styles.statValue}>{data.resumen.nodos_total}</span>
+          <span className={styles.statValue}>{formatNumber(data.resumen.nodos_total)}</span>
         </div>
         <div className={styles.statCard}>
           <span className={styles.statLabel}>Sinapsis</span>
-          <span className={styles.statValue}>{data.resumen.sinapsis_total}</span>
+          <span className={styles.statValue}>{formatNumber(data.resumen.sinapsis_total)}</span>
         </div>
         <div className={styles.statCard}>
           <span className={styles.statLabel}>Latentes</span>
-          <span className={styles.statValue}>{data.resumen.latentes_total}</span>
+          <span className={styles.statValue}>{formatNumber(data.resumen.latentes_total)}</span>
         </div>
         <div className={styles.statCard}>
           <span className={styles.statLabel}>Dimensiones</span>
-          <span className={styles.statValue}>{data.resumen.dimensiones_total}</span>
+          <span className={styles.statValue}>{formatNumber(data.resumen.dimensiones_total)}</span>
         </div>
         <div className={styles.statCard}>
           <span className={styles.statLabel}>WordNet bridge</span>
-          <span className={styles.statValue}>{data.resumen.wordnet_bridge}</span>
-        </div>
-        <div className={styles.statCard}>
-          <span className={styles.statLabel}>Problemas</span>
-          <span className={styles.statValue} style={{ color: totalProblemas > 0 ? 'var(--red)' : 'var(--green)' }}>
-            {totalProblemas}
-          </span>
-        </div>
-      </div>
-
-      {/* Integridad */}
-      <div className={styles.section}>
-        <div className={styles.sectionHeader}>
-          <h2 className={styles.sectionTitle}>Integridad del grafo</h2>
-          {totalProblemas > 0 && (
-            <button
-              className={styles.cleanBtnAll}
-              onClick={() => limpiar('todo')}
-              disabled={cleaning !== null}
-            >
-              {cleaning === 'todo' ? 'Limpiando...' : 'Limpiar todo'}
-            </button>
-          )}
-        </div>
-        <div className={styles.problemList}>
-          <ProblemRow
-            name="Sinapsis huérfanas"
-            count={data.problemas.sinapsis_huerfanas}
-            accent="red"
-            onClean={() => limpiar('sinapsis_huerfanas')}
-            cleaning={cleaning === 'sinapsis_huerfanas'}
-          />
-          <ProblemRow
-            name="Latentes huérfanas"
-            count={data.problemas.latentes_huerfanas}
-            accent="red"
-            onClean={() => limpiar('latentes_huerfanas')}
-            cleaning={cleaning === 'latentes_huerfanas'}
-          />
-          <ProblemRow
-            name="Dimensiones huérfanas"
-            count={data.problemas.dimensiones_huerfanas}
-            accent="orange"
-            onClean={() => limpiar('dimensiones_huerfanas')}
-            cleaning={cleaning === 'dimensiones_huerfanas'}
-          />
-          <ProblemRow
-            name="Latentes sin ambos nodos"
-            count={data.problemas.latentes_ambos_huerfanos}
-            accent="yellow"
-          />
+          <span className={styles.statValue}>{formatNumber(data.resumen.wordnet_bridge)}</span>
         </div>
       </div>
 
@@ -165,68 +248,47 @@ const SaludPage = () => {
           <h2 className={styles.sectionTitle}>Nodos problemáticos</h2>
         </div>
         <div className={styles.problemList}>
-          <ProblemRow name="Nodos aislados (sin conexiones)" count={data.problemas.nodos_aislados} accent="orange" />
-          <ProblemRow name="Contenido vacío" count={data.problemas.contenido_vacio} accent="yellow" />
-          <ProblemRow name="Peso cero/null" count={data.problemas.peso_cero} accent="yellow" />
+          <ProblemRow
+            name="Nodos aislados (sin conexiones)"
+            count={data.problemas.nodos_aislados}
+            accent="orange"
+          />
+          <ProblemRow
+            name="Contenido vacío"
+            count={data.problemas.contenido_vacio}
+            accent="yellow"
+          />
+          <ProblemRow
+            name="Peso cero/null"
+            count={data.problemas.peso_cero}
+            accent="yellow"
+          />
         </div>
 
-        {data.detalles.nodos_aislados.length > 0 && (
-          <div style={{ marginTop: '1rem' }}>
-            <div style={{ fontSize: 13, color: 'var(--text-dim)', marginBottom: '0.5rem' }}>
-              Nodos aislados:
-            </div>
-            <div className={styles.nodeList}>
-              {data.detalles.nodos_aislados.map(n => (
-                <span
-                  key={n}
-                  className={styles.nodeTag}
-                  onClick={() => navigate(`/explorar/${encodeURIComponent(n)}`)}
-                  title={`Inspeccionar ${n}`}
-                >
-                  {n.length > 35 ? n.substring(0, 32) + '...' : n}
-                </span>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {data.detalles.contenido_vacio.length > 0 && (
-          <div style={{ marginTop: '1rem' }}>
-            <div style={{ fontSize: 13, color: 'var(--text-dim)', marginBottom: '0.5rem' }}>
-              Sin contenido:
-            </div>
-            <div className={styles.nodeList}>
-              {data.detalles.contenido_vacio.map(n => (
-                <span
-                  key={n}
-                  className={styles.nodeTag}
-                  onClick={() => navigate(`/explorar/${encodeURIComponent(n)}`)}
-                >
-                  {n}
-                </span>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {data.detalles.peso_cero.length > 0 && (
-          <div style={{ marginTop: '1rem' }}>
-            <div style={{ fontSize: 13, color: 'var(--text-dim)', marginBottom: '0.5rem' }}>
-              Peso cero:
-            </div>
-            <div className={styles.nodeList}>
-              {data.detalles.peso_cero.map(n => (
-                <span
-                  key={n}
-                  className={styles.nodeTag}
-                  onClick={() => navigate(`/explorar/${encodeURIComponent(n)}`)}
-                >
-                  {n}
-                </span>
-              ))}
-            </div>
-          </div>
-        )}
+        {/* Accordion details */}
+        <div className={styles.detailsSection}>
+          <AccordionGroup
+            title="Nodos aislados"
+            items={data.detalles.nodos_aislados}
+            open={!!expanded['aislados']}
+            onToggle={() => toggle('aislados')}
+            onNavigate={navigate}
+          />
+          <AccordionGroup
+            title="Sin contenido"
+            items={data.detalles.contenido_vacio}
+            open={!!expanded['vacios']}
+            onToggle={() => toggle('vacios')}
+            onNavigate={navigate}
+          />
+          <AccordionGroup
+            title="Peso cero"
+            items={data.detalles.peso_cero}
+            open={!!expanded['peso0']}
+            onToggle={() => toggle('peso0')}
+            onNavigate={navigate}
+          />
+        </div>
       </div>
 
       {toast && <div className={styles.toast}>{toast}</div>}
@@ -234,18 +296,67 @@ const SaludPage = () => {
   )
 }
 
+/* ── Sub-components ── */
+
+function HeroProblemRow({
+  name, count, max, severity, onClean, cleaning,
+}: {
+  name: string
+  count: number
+  max: number
+  severity: 'red' | 'orange' | 'yellow'
+  onClean?: () => void
+  cleaning?: boolean
+}) {
+  const dotClass = severity === 'red' ? styles.heroDotRed
+    : severity === 'orange' ? styles.heroDotOrange
+    : styles.heroDotYellow
+
+  const barColor = severity === 'red' ? 'var(--red)'
+    : severity === 'orange' ? 'var(--orange)'
+    : 'var(--yellow)'
+
+  return (
+    <div className={styles.heroProblemRow} data-severity={severity}>
+      <div className={styles.heroProblemLeft}>
+        <span className={`${styles.heroDot} ${dotClass}`} />
+        <span className={styles.heroProblemName}>{name}</span>
+      </div>
+      <div className={styles.heroProblemRight}>
+        <span className={styles.heroProblemCount} style={{ color: count > 0 ? barColor : 'var(--text-dim)' }}>
+          {formatNumber(count)}
+        </span>
+        <div className={styles.heroProblemBar}>
+          <div
+            className={styles.heroProblemBarFill}
+            style={{
+              width: `${max > 0 ? (count / max) * 100 : 0}%`,
+              background: barColor,
+            }}
+          />
+        </div>
+        <div className={styles.heroProblemActions}>
+          {onClean && count > 0 && (
+            <button
+              className={styles.heroCleanBtn}
+              onClick={onClean}
+              disabled={cleaning}
+            >
+              {cleaning ? '...' : '× Limpiar'}
+            </button>
+          )}
+        </div>
+      </div>
+    </div>
+  )
+}
+
 function ProblemRow({
-  name,
-  count,
-  accent,
-  onClean,
-  cleaning,
+  name, count, accent,
 }: {
   name: string
   count: number
   accent: 'red' | 'orange' | 'yellow' | 'green'
-  onClean?: () => void
-  cleaning?: boolean
 }) {
   const dotClass = accent === 'red' ? styles.dotRed
     : accent === 'orange' ? styles.dotOrange
@@ -253,23 +364,56 @@ function ProblemRow({
     : styles.dotGreen
 
   return (
-    <div className={styles.problemRow}>
+    <div className={styles.problemRow} data-severity={accent}>
       <div className={styles.problemInfo}>
         <span className={`${styles.problemDot} ${dotClass}`} />
         <span className={styles.problemName}>{name}</span>
       </div>
       <div className={styles.problemActions}>
-        <span className={styles.problemCount}>{count}</span>
-        {onClean && count > 0 && (
-          <button
-            className={styles.cleanBtn}
-            onClick={onClean}
-            disabled={cleaning}
-          >
-            {cleaning ? '...' : '× Limpiar'}
-          </button>
-        )}
+        <span className={styles.problemCount}>{formatNumber(count)}</span>
       </div>
+    </div>
+  )
+}
+
+function AccordionGroup({
+  title, items, open, onToggle, onNavigate,
+}: {
+  title: string
+  items: string[]
+  open: boolean
+  onToggle: () => void
+  onNavigate: (path: string) => void
+}) {
+  if (items.length === 0) return null
+
+  return (
+    <div className={styles.detailGroup}>
+      <button className={styles.detailHeader} onClick={onToggle}>
+        <div className={styles.detailHeaderLeft}>
+          <span className={`${styles.detailChevron} ${open ? styles.detailChevronOpen : ''}`}>
+            ▶
+          </span>
+          <span>{title}</span>
+        </div>
+        <span className={styles.detailCount}>{items.length}</span>
+      </button>
+      {open && (
+        <div className={styles.detailBody}>
+          <div className={styles.nodeList}>
+            {items.map(n => (
+              <span
+                key={n}
+                className={styles.nodeTag}
+                onClick={() => onNavigate(`/explorar/${encodeURIComponent(n)}`)}
+                title={`Inspeccionar ${n}`}
+              >
+                {n.length > 35 ? n.substring(0, 32) + '...' : n}
+              </span>
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   )
 }

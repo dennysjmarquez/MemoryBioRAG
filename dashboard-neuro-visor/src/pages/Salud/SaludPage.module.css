@@ -2,6 +2,7 @@
   padding: 0;
 }
 
+/* ── Header ── */
 .header {
   display: flex;
   align-items: center;
@@ -11,11 +12,22 @@
   border-bottom: 1px solid var(--border-color);
 }
 
+.headerLeft {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
 .title {
   margin: 0;
   font-size: 1.5rem;
   font-weight: 600;
   color: var(--text-primary);
+}
+
+.subtitle {
+  font-size: 13px;
+  color: var(--text-dim);
 }
 
 .refreshBtn {
@@ -51,12 +63,205 @@
   color: var(--red);
 }
 
-/* Stats grid */
+/* ── Hero: Health Score ── */
+.hero {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+}
+
+.heroScore {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  min-width: 120px;
+}
+
+.scoreRing {
+  position: relative;
+  width: 80px;
+  height: 80px;
+}
+
+.scoreRing svg {
+  transform: rotate(-90deg);
+  width: 80px;
+  height: 80px;
+}
+
+.scoreRingBg {
+  fill: none;
+  stroke: var(--border-color);
+  stroke-width: 6;
+}
+
+.scoreRingFill {
+  fill: none;
+  stroke-width: 6;
+  stroke-linecap: round;
+  transition: stroke-dashoffset 0.8s ease, stroke 0.3s ease;
+}
+
+.scoreLabel {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.25rem;
+  font-weight: 700;
+  font-family: 'JetBrains Mono', monospace;
+}
+
+.scoreText {
+  font-size: 12px;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.heroBreakdown {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.heroProblemRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.5rem 0.75rem;
+  border-radius: var(--radius-sm);
+  font-size: 14px;
+  transition: background 0.15s;
+}
+
+.heroProblemRow[data-severity="red"] {
+  background: rgba(239, 68, 68, 0.08);
+}
+.heroProblemRow[data-severity="orange"] {
+  background: rgba(249, 115, 22, 0.08);
+}
+.heroProblemRow[data-severity="yellow"] {
+  background: rgba(234, 179, 8, 0.08);
+}
+
+.heroProblemLeft {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+}
+
+.heroDot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.heroDotRed { background: var(--red); }
+.heroDotOrange { background: var(--orange); }
+.heroDotYellow { background: var(--yellow); }
+
+.heroProblemName {
+  color: var(--text-primary);
+  font-weight: 500;
+}
+
+.heroProblemRight {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.heroProblemCount {
+  font-family: 'JetBrains Mono', monospace;
+  font-weight: 600;
+  font-size: 14px;
+  min-width: 40px;
+  text-align: right;
+}
+
+.heroProblemBar {
+  width: 80px;
+  height: 4px;
+  background: var(--border-color);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.heroProblemBarFill {
+  height: 100%;
+  border-radius: 2px;
+  transition: width 0.5s ease;
+}
+
+.heroProblemActions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.heroCleanBtn {
+  padding: 0.25rem 0.5rem;
+  font-size: 12px;
+  background: none;
+  border: 1px solid var(--border-color);
+  border-radius: 3px;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: all 0.15s;
+  font-family: inherit;
+  white-space: nowrap;
+}
+
+.heroCleanBtn:hover {
+  border-color: var(--red);
+  color: var(--red);
+}
+
+.heroCleanBtn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.heroCleanAll {
+  align-self: flex-start;
+  padding: 0.5rem 1.25rem;
+  font-size: 14px;
+  font-weight: 600;
+  background: rgba(239, 68, 68, 0.1);
+  border: 1px solid var(--red);
+  border-radius: var(--radius-sm);
+  color: var(--red);
+  cursor: pointer;
+  transition: all 0.15s;
+  font-family: inherit;
+  white-space: nowrap;
+}
+
+.heroCleanAll:hover:not(:disabled) {
+  background: rgba(239, 68, 68, 0.2);
+}
+
+.heroCleanAll:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* ── Stats Grid (5 cards, no problems) ── */
 .statsGrid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  grid-template-columns: repeat(5, 1fr);
   gap: 1rem;
-  margin-bottom: 2rem;
+  margin-bottom: 1.5rem;
 }
 
 .statCard {
@@ -81,9 +286,10 @@
   font-weight: 700;
   color: var(--text-primary);
   line-height: 1.2;
+  font-variant-numeric: tabular-nums;
 }
 
-/* Sections */
+/* ── Sections ── */
 .section {
   background: var(--bg-secondary);
   border: 1px solid var(--border-color);
@@ -106,12 +312,7 @@
   margin: 0;
 }
 
-.sectionCount {
-  font-size: 14px;
-  color: var(--text-dim);
-}
-
-/* Problem rows */
+/* ── Problem Rows ── */
 .problemList {
   display: flex;
   flex-direction: column;
@@ -123,10 +324,24 @@
   align-items: center;
   justify-content: space-between;
   padding: 0.625rem 0.875rem;
-  background: var(--bg-input);
   border: 1px solid var(--border-color);
   border-radius: var(--radius-sm);
   font-size: 14px;
+}
+
+.problemRow[data-severity="red"] {
+  background: rgba(239, 68, 68, 0.06);
+  border-color: rgba(239, 68, 68, 0.2);
+}
+
+.problemRow[data-severity="orange"] {
+  background: rgba(249, 115, 22, 0.06);
+  border-color: rgba(249, 115, 22, 0.2);
+}
+
+.problemRow[data-severity="yellow"] {
+  background: rgba(234, 179, 8, 0.06);
+  border-color: rgba(234, 179, 8, 0.15);
 }
 
 .problemInfo {
@@ -152,18 +367,18 @@
   font-weight: 500;
 }
 
+.problemActions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
 .problemCount {
   color: var(--text-dim);
   font-family: 'JetBrains Mono', monospace;
   font-size: 13px;
   min-width: 40px;
   text-align: right;
-}
-
-.problemActions {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
 }
 
 .cleanBtn {
@@ -188,29 +403,74 @@
   cursor: not-allowed;
 }
 
-.cleanBtnAll {
-  padding: 0.5rem 1rem;
-  font-size: 14px;
-  font-weight: 600;
-  background: rgba(239, 68, 68, 0.1);
-  border: 1px solid var(--red);
+/* ── Accordion Details ── */
+.detailsSection {
+  margin-top: 1rem;
+}
+
+.detailGroup {
+  border: 1px solid var(--border-color);
   border-radius: var(--radius-sm);
-  color: var(--red);
+  overflow: hidden;
+  margin-bottom: 0.5rem;
+}
+
+.detailGroup:last-child {
+  margin-bottom: 0;
+}
+
+.detailHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.625rem 0.875rem;
+  background: var(--bg-input);
   cursor: pointer;
-  transition: all 0.15s;
+  transition: background 0.15s;
+  user-select: none;
+  border: none;
+  width: 100%;
   font-family: inherit;
+  font-size: 14px;
+  color: var(--text-primary);
+  text-align: left;
 }
 
-.cleanBtnAll:hover:not(:disabled) {
-  background: rgba(239, 68, 68, 0.2);
+.detailHeader:hover {
+  background: var(--bg-tertiary);
 }
 
-.cleanBtnAll:disabled {
-  opacity: 0.4;
-  cursor: not-allowed;
+.detailHeaderLeft {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
 }
 
-/* Isolated nodes list */
+.detailChevron {
+  font-size: 12px;
+  color: var(--text-dim);
+  transition: transform 0.2s ease;
+  display: inline-block;
+}
+
+.detailChevronOpen {
+  transform: rotate(90deg);
+}
+
+.detailCount {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  color: var(--text-dim);
+  background: var(--bg-secondary);
+  padding: 0.125rem 0.375rem;
+  border-radius: 3px;
+}
+
+.detailBody {
+  padding: 0.75rem 0.875rem;
+  border-top: 1px solid var(--border-color);
+}
+
 .nodeList {
   display: flex;
   flex-wrap: wrap;
@@ -220,13 +480,14 @@
 .nodeTag {
   font-size: 12px;
   padding: 0.25rem 0.5rem;
-  background: var(--bg-input);
+  background: var(--bg-secondary);
   border: 1px solid var(--border-color);
   border-radius: 3px;
   color: var(--text-secondary);
   cursor: pointer;
   transition: all 0.15s;
   text-decoration: none;
+  font-family: 'JetBrains Mono', monospace;
 }
 
 .nodeTag:hover {
@@ -234,15 +495,7 @@
   color: var(--accent-color);
 }
 
-/* Empty state */
-.empty {
-  color: var(--text-dim);
-  font-size: 14px;
-  padding: 1rem 0;
-  text-align: center;
-}
-
-/* Success toast */
+/* ── Toast ── */
 .toast {
   position: fixed;
   bottom: 1.5rem;
@@ -260,4 +513,12 @@
 @keyframes fadeIn {
   from { opacity: 0; transform: translateY(8px); }
   to { opacity: 1; transform: translateY(0); }
+}
+
+/* ── Empty state ── */
+.empty {
+  color: var(--text-dim);
+  font-size: 14px;
+  padding: 1rem 0;
+  text-align: center;
 }
