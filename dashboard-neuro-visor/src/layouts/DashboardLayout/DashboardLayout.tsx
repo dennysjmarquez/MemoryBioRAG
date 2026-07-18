@@ -7,6 +7,7 @@ const NAV_ITEMS = [
   { to: "/sinapsis", label: "Sinapsis", icon: "🔗" },
   { to: "/actividad", label: "Actividad", icon: "📈" },
   { to: "/dimensiones", label: "Dimensiones", icon: "🌐" },
+  { to: "/salud", label: "Salud", icon: "🩺" },
 ];
 
 export default function DashboardLayout() {

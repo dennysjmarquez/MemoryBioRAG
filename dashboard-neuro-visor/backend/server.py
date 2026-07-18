@@ -1021,5 +1021,167 @@ def consolidar_cerebro():
         raise HTTPException(status_code=500, detail=f"Error al consolidar: {e}")
 
 
+# ============================================================
+# VISTA 5: SALUD / MANTENIMIENTO
+# ============================================================
+
+@app.get("/api/salud/audit")
+def salud_audit():
+    """Auditoría completa de integridad del grafo."""
+    conn = get_db()
+    c = conn.cursor()
+
+    # Counts generales
+    c.execute("SELECT COUNT(*) FROM largo_plazo")
+    nodos_total = c.fetchone()[0]
+    c.execute("SELECT COUNT(*) FROM sinapsis")
+    sinapsis_total = c.fetchone()[0]
+    c.execute("SELECT COUNT(*) FROM sinapsis_latentes")
+    latentes_total = c.fetchone()[0]
+    c.execute("SELECT COUNT(*) FROM largo_plazo_dimensiones")
+    dimensiones_total = c.fetchone()[0]
+    c.execute("SELECT COUNT(*) FROM nodo_grupos_semanticos")
+    wordnet_bridge = c.fetchone()[0]
+
+    # Sinapsis huérfanas
+    c.execute("""
+        SELECT COUNT(*) FROM sinapsis s
+        WHERE NOT EXISTS (SELECT 1 FROM largo_plazo lp WHERE lp.concepto = s.origen)
+           OR NOT EXISTS (SELECT 1 FROM largo_plazo lp WHERE lp.concepto = s.destino)
+    """)
+    sinapsis_huerfanas = c.fetchone()[0]
+
+    # Latentes huérfanas (al menos 1 nodo fantasma)
+    c.execute("""
+        SELECT COUNT(*) FROM sinapsis_latentes sl
+        WHERE NOT EXISTS (SELECT 1 FROM largo_plazo lp WHERE lp.concepto = sl.origen)
+           OR NOT EXISTS (SELECT 1 FROM largo_plazo lp WHERE lp.concepto = sl.destino)
+    """)
+    latentes_huerfanas = c.fetchone()[0]
+
+    # Latentes sin ambos nodos
+    c.execute("""
+        SELECT COUNT(*) FROM sinapsis_latentes sl
+        WHERE NOT EXISTS (SELECT 1 FROM largo_plazo lp WHERE lp.concepto = sl.origen)
+          AND NOT EXISTS (SELECT 1 FROM largo_plazo lp WHERE lp.concepto = sl.destino)
+    """)
+    latentes_ambos = c.fetchone()[0]
+
+    # Dimensiones huérfanas
+    c.execute("""
+        SELECT COUNT(*) FROM largo_plazo_dimensiones ld
+        WHERE NOT EXISTS (SELECT 1 FROM largo_plazo lp WHERE lp.concepto = ld.concepto)
+    """)
+    dimensiones_huerfanas = c.fetchone()[0]
+
+    # Nodos aislados
+    c.execute("""
+        SELECT lp.concepto FROM largo_plazo lp
+        WHERE NOT EXISTS (SELECT 1 FROM sinapsis s WHERE s.origen = lp.concepto OR s.destino = lp.concepto)
+        ORDER BY lp.concepto
+    """)
+    nodos_aislados = [r[0] for r in c.fetchall()]
+
+    # Contenido vacío
+    c.execute("""
+        SELECT concepto FROM largo_plazo
+        WHERE contenido IS NULL OR TRIM(contenido) = ''
+    """)
+    contenido_vacio = [r[0] for r in c.fetchall()]
+
+    # Peso cero/null
+    c.execute("""
+        SELECT concepto FROM largo_plazo
+        WHERE peso_sinaptico IS NULL OR peso_sinaptico = 0
+    """)
+    peso_cero = [r[0] for r in c.fetchall()]
+
+    conn.close()
+
+    return {
+        "resumen": {
+            "nodos_total": nodos_total,
+            "sinapsis_total": sinapsis_total,
+            "latentes_total": latentes_total,
+            "dimensiones_total": dimensiones_total,
+            "wordnet_bridge": wordnet_bridge,
+        },
+        "problemas": {
+            "sinapsis_huerfanas": sinapsis_huerfanas,
+            "latentes_huerfanas": latentes_huerfanas,
+            "latentes_ambos_huerfanos": latentes_ambos,
+            "dimensiones_huerfanas": dimensiones_huerfanas,
+            "nodos_aislados": len(nodos_aislados),
+            "contenido_vacio": len(contenido_vacio),
+            "peso_cero": len(peso_cero),
+        },
+        "detalles": {
+            "nodos_aislados": nodos_aislados,
+            "contenido_vacio": contenido_vacio,
+            "peso_cero": peso_cero,
+        },
+    }
+
+
+@app.post("/api/salud/limpiar")
+def salud_limpiar(data: dict):
+    """Ejecuta limpieza de un tipo de problema."""
+    accion = data.get("accion", "")
+    conn = get_db()
+    c = conn.cursor()
+    eliminados = 0
+
+    if accion == "sinapsis_huerfanas":
+        c.execute("""
+            DELETE FROM sinapsis
+            WHERE origen NOT IN (SELECT concepto FROM largo_plazo)
+               OR destino NOT IN (SELECT concepto FROM largo_plazo)
+        """)
+        eliminados = c.rowcount
+
+    elif accion == "latentes_huerfanas":
+        c.execute("""
+            DELETE FROM sinapsis_latentes
+            WHERE origen NOT IN (SELECT concepto FROM largo_plazo)
+               OR destino NOT IN (SELECT concepto FROM largo_plazo)
+        """)
+        eliminados = c.rowcount
+
+    elif accion == "dimensiones_huerfanas":
+        c.execute("""
+            DELETE FROM largo_plazo_dimensiones
+            WHERE concepto NOT IN (SELECT concepto FROM largo_plazo)
+        """)
+        eliminados = c.rowcount
+
+    elif accion == "todo":
+        c.execute("""
+            DELETE FROM sinapsis
+            WHERE origen NOT IN (SELECT concepto FROM largo_plazo)
+               OR destino NOT IN (SELECT concepto FROM largo_plazo)
+        """)
+        eliminados += c.rowcount
+        c.execute("""
+            DELETE FROM sinapsis_latentes
+            WHERE origen NOT IN (SELECT concepto FROM largo_plazo)
+               OR destino NOT IN (SELECT concepto FROM largo_plazo)
+        """)
+        eliminados += c.rowcount
+        c.execute("""
+            DELETE FROM largo_plazo_dimensiones
+            WHERE concepto NOT IN (SELECT concepto FROM largo_plazo)
+        """)
+        eliminados += c.rowcount
+
+    else:
+        conn.close()
+        raise HTTPException(status_code=400, detail=f"Acción desconocida: {accion}")
+
+    conn.commit()
+    conn.close()
+
+    return {"status": "ok", "accion": accion, "eliminados": eliminados}
+
+
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=DASHBOARD_BACKEND_PORT)

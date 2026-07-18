@@ -7,6 +7,7 @@ const ExplorarPage = lazy(() => import('./pages/Explorar/ExplorarPage'))
 const SinapsisPage = lazy(() => import('./pages/Sinapsis/SinapsisPage'))
 const ActividadPage = lazy(() => import('./pages/Actividad/ActividadPage'))
 const DimensionesPage = lazy(() => import('./pages/Dimensiones/DimensionesPage'))
+const SaludPage = lazy(() => import('./pages/Salud/SaludPage'))
 
 const LazyRoute = ({ children }: { children: ReactNode }) => (
   <Suspense fallback={<div className="loading">Cargando...</div>}>{children}</Suspense>
@@ -22,6 +23,7 @@ const App = () => (
       <Route path="sinapsis" element={<LazyRoute><SinapsisPage /></LazyRoute>} />
       <Route path="actividad" element={<LazyRoute><ActividadPage /></LazyRoute>} />
       <Route path="dimensiones" element={<LazyRoute><DimensionesPage /></LazyRoute>} />
+      <Route path="salud" element={<LazyRoute><SaludPage /></LazyRoute>} />
     </Route>
   </Routes>
 )
