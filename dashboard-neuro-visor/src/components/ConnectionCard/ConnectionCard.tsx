@@ -1,3 +1,5 @@
+import { useState } from 'react'
+import { AlertDialog } from '@radix-ui/themes'
 import styles from './ConnectionCard.module.css'
 
 const TIPO_COLORS: Record<string, string> = {
@@ -45,6 +47,7 @@ export function ConnectionCard({
   onNavigate,
   onUnlink,
 }: ConnectionCardProps) {
+  const [unlinkConfirmOpen, setUnlinkConfirmOpen] = useState(false)
   const tipoClass = TIPO_COLORS[connection.tipo] || 'tipo-default'
   const dirSymbol = DIR_SYMBOLS[connection.direccion] || '?'
   const dirClass = DIR_CLASSES[connection.direccion] || ''
@@ -114,14 +117,46 @@ export function ConnectionCard({
           className={`${styles.btnUnlink} ${styles.btnActionSm}`}
           onClick={(e) => {
             e.stopPropagation()
-            if (confirm(`¿Cortar sinapsis entre '${currentNode}' y '${connection.destino_concepto}'?`)) {
-              onUnlink(currentNode, connection.destino_concepto)
-            }
+            setUnlinkConfirmOpen(true)
           }}
         >
           ✕ Cortar
         </button>
       </div>
+
+      <AlertDialog.Root open={unlinkConfirmOpen} onOpenChange={setUnlinkConfirmOpen}>
+        <AlertDialog.Content style={{ maxWidth: 400 }}>
+          <AlertDialog.Title>Cortar sinapsis</AlertDialog.Title>
+          <AlertDialog.Description size="2">
+            ¿Cortar la sinapsis entre <strong>{currentNode}</strong> y <strong>{connection.destino_concepto}</strong>?
+            <br /><br />
+            La conexión se eliminará permanentemente.
+          </AlertDialog.Description>
+          <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8, marginTop: 20 }}>
+            <AlertDialog.Cancel>
+              <button style={{
+                padding: '6px 12px', fontSize: 12, background: 'var(--bg-input)',
+                border: '1px solid var(--border-color)', borderRadius: 'var(--radius-sm)',
+                color: 'var(--text-primary)', cursor: 'pointer', fontFamily: 'inherit'
+              }}>
+                Cancelar
+              </button>
+            </AlertDialog.Cancel>
+            <AlertDialog.Action>
+              <button
+                onClick={() => onUnlink(currentNode, connection.destino_concepto)}
+                style={{
+                  padding: '6px 12px', fontSize: 12, background: '#ef4444',
+                  color: '#fff', border: 'none', borderRadius: 'var(--radius-sm)',
+                  cursor: 'pointer', fontFamily: 'inherit', fontWeight: 500
+                }}
+              >
+                ✕ Cortar
+              </button>
+            </AlertDialog.Action>
+          </div>
+        </AlertDialog.Content>
+      </AlertDialog.Root>
     </div>
   )
 }

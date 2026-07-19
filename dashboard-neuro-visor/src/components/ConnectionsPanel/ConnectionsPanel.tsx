@@ -34,7 +34,6 @@ interface ConnectionsPanelProps {
   currentNode: string
   onNavigate: (concepto: string) => void
   onUnlink: (a: string, b: string) => void
-  onLink: () => void
 }
 
 export function ConnectionsPanel({
@@ -42,7 +41,6 @@ export function ConnectionsPanel({
   currentNode,
   onNavigate,
   onUnlink,
-  onLink,
 }: ConnectionsPanelProps) {
   const [filterTipo, setFilterTipo] = useState('')
   const [filterOrden, setFilterOrden] = useState<'peso' | 'ultimo_uso' | 'alfabeto'>('peso')
@@ -59,7 +57,6 @@ export function ConnectionsPanel({
     <div className={styles.colCentro}>
       <div className={styles.colHeader}>
         <h3>🔗 Sinapsis Directas (<span id="conn-total">{connections.length}</span>)</h3>
-        <button className={styles.btnActionSm} onClick={onLink}>+ Vincular</button>
       </div>
       <div className={styles.connFilters}>
         <select

@@ -1,11 +1,10 @@
 import { useState, useRef, useEffect } from "react";
+import { Tooltip } from "@radix-ui/themes";
 import styles from "./NodeIdentityPanel.module.css";
 import type { EgoNode } from "@/types/explorar";
 
 interface NodeIdentityPanelProps {
   node: EgoNode | null;
-  onSleep: () => void;
-  onDelete: () => void;
   onSave?: (contenido: string) => void;
 }
 
@@ -20,8 +19,6 @@ const timeAgo = (ts: number): string => {
 
 export function NodeIdentityPanel({
   node,
-  onSleep,
-  onDelete,
   onSave,
 }: NodeIdentityPanelProps) {
   const [editing, setEditing] = useState(false);
@@ -65,18 +62,28 @@ export function NodeIdentityPanel({
 
   return (
     <div className={styles.colIzq}>
-      <div className={styles.colHeader}>
-        <span className={`${styles.stateDot} ${node.estado}`} />
-        <h2 className={styles.nodeTitle}>{node.concepto}</h2>
-      </div>
       <div className={styles.nodeBadges}>
-        <span
-          className={`${styles.badge} ${node.estado === "activo" ? styles.badgeActivo : styles.badgeDormido}`}
-        >
-          {node.estado}
+        <span className={styles.badgeLabel}>
+          ESTADO:
+          <Tooltip content={node.estado === "activo"
+            ? "Activo: participa en búsquedas normales y aparece en resultados"
+            : "Dormido: no aparece en búsquedas normales, pero sigue existiendo en la DB"}>
+            <span
+              className={`${styles.badge} ${node.estado === "activo" ? styles.badgeActivo : styles.badgeDormido}`}
+            >
+              {node.estado}
+            </span>
+          </Tooltip>
         </span>
-        <span className={`${styles.badge} ${styles.badgeCat}`}>
-          {node.categoria}
+        <span className={styles.badgeLabel}>
+          CATEGORÍA:
+          <Tooltip content="Categoría del nodo: Architecture, Cognition, General, Lesson, Personal, Principle, Profile, Project, Protocol, Relation, System">
+            <span
+              className={`${styles.badge} ${styles.badgeCat}`}
+            >
+              {node.categoria}
+            </span>
+          </Tooltip>
         </span>
       </div>
       <div className={styles.nodeMetaGrid}>
@@ -196,22 +203,6 @@ export function NodeIdentityPanel({
           </div>
         </div>
       )}
-      <div className={styles.nodeActions}>
-        <button
-          className={`${styles.btnActionSm} ${styles.btnSleep}`}
-          onClick={onSleep}
-          title="Dormir nodo"
-        >
-          😴 Dormir
-        </button>
-        <button
-          className={`${styles.btnActionSm} ${styles.btnDanger}`}
-          onClick={onDelete}
-          title="Eliminar nodo"
-        >
-          🗑️ Eliminar
-        </button>
-      </div>
     </div>
   );
 }

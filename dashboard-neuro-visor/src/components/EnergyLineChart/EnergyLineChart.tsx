@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useMemo, useCallback } from "react";
 import {
   LineChart,
   Line,
@@ -8,6 +8,7 @@ import {
   Tooltip,
   Legend,
   ResponsiveContainer,
+  ReferenceLine,
 } from "recharts";
 import styles from "./EnergyLineChart.module.css";
 import type { CicloActividad, EnergyPoint } from "../../types";
@@ -17,6 +18,7 @@ interface EnergyLineChartProps {
   ciclos?: CicloActividad[];
   height?: number;
   onPointClick?: (punto: EnergyPoint) => void;
+  selectedPoint?: EnergyPoint | null;
 }
 
 const formatDate = (timestamp: number) => {
@@ -131,17 +133,49 @@ const ChartLegend = () => (
   </div>
 );
 
+/** Custom dot renderer: highlights the selected point */
+const CustomDot = (props: any) => {
+  const { cx, cy, payload, selectedTimestamp } = props;
+  if (cx == null || cy == null) return null;
+
+  const isSelected = selectedTimestamp != null && payload?.timestamp === selectedTimestamp;
+
+  if (isSelected) {
+    return (
+      <g>
+        {/* Outer glow ring */}
+        <circle cx={cx} cy={cy} r={10} fill="rgba(59, 130, 246, 0.2)" stroke="none" />
+        {/* Selected dot */}
+        <circle
+          cx={cx} cy={cy} r={6}
+          fill="#fff"
+          stroke="var(--accent-color)"
+          strokeWidth={3}
+        />
+      </g>
+    );
+  }
+
+  return (
+    <circle
+      cx={cx} cy={cy} r={4}
+      fill="var(--accent-color)"
+      stroke="var(--accent-color)"
+      strokeWidth={2}
+    />
+  );
+};
+
 export const EnergyLineChart = ({
   data,
   ciclos,
   height = 280,
   onPointClick,
+  selectedPoint,
 }: EnergyLineChartProps) => {
-  if (!data || data.length === 0) {
-    return <div className={styles.empty}>Sin datos</div>;
-  }
 
   const chartData = useMemo(() => {
+    if (!data || data.length === 0) return [];
     if (!ciclos || ciclos.length === 0) {
       return data.map((d) => ({
         ...d,
@@ -166,25 +200,34 @@ export const EnergyLineChart = ({
     });
   }, [data, ciclos]);
 
-  const handleClick = (state: any) => {
-    if (
-      state?.activeTooltipIndex !== undefined &&
-      state.activeTooltipIndex >= 0 &&
-      onPointClick
-    ) {
-      const point = chartData[state.activeTooltipIndex];
-      onPointClick(point as EnergyPoint);
-    }
-  };
+  // Use the Recharts onClick on the LineChart, extracting the index
+  // from activeTooltipIndex which is highly reliable.
+  const handleChartClick = useCallback(
+    (state: any) => {
+      if (!onPointClick || !state) return;
+
+      const idx = state?.activeTooltipIndex;
+      if (idx !== undefined && idx >= 0 && idx < chartData.length) {
+        onPointClick(chartData[idx] as EnergyPoint);
+      }
+    },
+    [chartData, onPointClick]
+  );
+
+  const selectedTimestamp = selectedPoint?.timestamp ?? null;
+
+  if (!data || data.length === 0) {
+    return <div className={styles.empty}>Sin datos</div>;
+  }
 
   return (
     <div className={styles.chartWrapper}>
       <ResponsiveContainer width="100%" height={height}>
         <LineChart
           data={chartData}
-          margin={{ top: 5, right: 10, left: 25, bottom: 0 }}
+          margin={{ top: 5, right: 25, left: 25, bottom: 5 }}
           cursor="pointer"
-          onClick={handleClick}
+          onClick={handleChartClick}
         >
           <CartesianGrid
             strokeDasharray="3 3"
@@ -192,7 +235,8 @@ export const EnergyLineChart = ({
             vertical={false}
           />
           <XAxis
-            dataKey="label"
+            dataKey="timestamp"
+            tickFormatter={formatDate}
             tick={{ fill: "var(--text-muted)", fontSize: 17, dy: 11 }}
             stroke="var(--border-color)"
             interval="preserveStartEnd"
@@ -219,9 +263,18 @@ export const EnergyLineChart = ({
           <Tooltip
             content={<CustomTooltip />}
             wrapperStyle={{ zIndex: 100, outline: "none" }}
-            position={{ y: -100 }}
-            reverseDirection={{ x: true }}
           />
+
+          {/* Vertical reference line at the selected point */}
+          {selectedTimestamp && (
+            <ReferenceLine
+              x={selectedTimestamp}
+              stroke="rgba(255,255,255,0.4)"
+              strokeDasharray="4 4"
+              strokeWidth={1}
+            />
+          )}
+
           <Legend content={<ChartLegend />} wrapperStyle={{ paddingTop: '20px' }}  />
           <Line
             type="monotone"
@@ -229,12 +282,8 @@ export const EnergyLineChart = ({
             name="Energía"
             stroke="var(--accent-color)"
             strokeWidth={2}
-            dot={{
-              r: 4,
-              strokeWidth: 2,
-              fill: "var(--accent-color)",
-            }}
-            activeDot={{ r: 6, stroke: "#fff", strokeWidth: 2 }}
+            dot={<CustomDot selectedTimestamp={selectedTimestamp} />}
+            activeDot={{ r: 6, stroke: "#fff", strokeWidth: 2, cursor: "pointer" }}
             isAnimationActive={false}
           />
         </LineChart>
@@ -244,3 +293,4 @@ export const EnergyLineChart = ({
 };
 
 export default EnergyLineChart;
+

@@ -19,6 +19,20 @@
   font-size: 24px;
   font-weight: 600;
   color: var(--text-primary);
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.conceptCount {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--accent-color);
+  background: var(--accent-subtle);
+  border: 1px solid var(--accent-color);
+  border-radius: 999px;
+  padding: 0.15rem 0.65rem;
+  white-space: nowrap;
 }
 
 .closeBtn {

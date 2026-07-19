@@ -46,7 +46,7 @@
   grid-template-columns: 280px 1fr 280px;
   gap: 16px;
   flex: 1;
-  height: calc(100vh - 180px);
+  height: calc(100vh - 213px);
   overflow: hidden;
 }
 
@@ -85,4 +85,54 @@
 @keyframes fadeIn {
   from { opacity: 0; transform: translateY(8px); }
   to { opacity: 1; transform: translateY(0); }
+}
+
+.toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 16px;
+  margin-bottom: 12px;
+  gap: 8px;
+}
+
+.toolbarLeft {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.toolbarNodeName {
+  font-size: 25px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.toolbarRight {
+  display: flex;
+  gap: 6px;
+}
+
+.toolBtn {
+  padding: 6px 12px;
+  font-size: 12px;
+  background: var(--bg-input);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  color: var(--text-primary);
+  cursor: pointer;
+  transition: all 0.15s;
+  font-family: inherit;
+  white-space: nowrap;
+}
+
+.toolBtn:hover {
+  border-color: var(--purple);
+  color: var(--purple);
+}
+
+.toolBtnDanger:hover {
+  border-color: var(--red) !important;
+  color: var(--red) !important;
 }

@@ -1,10 +1,14 @@
 import { useParams, useNavigate } from 'react-router-dom'
 import { useState, useEffect, useCallback, useRef } from 'react'
-import { getEgoGraph, eliminarSinapsis, actualizarNodo } from '../../services/api'
+import { getEgoGraph, eliminarSinapsis, actualizarNodo, eliminarNodo, dormirNodo, fusionarNodos, crearSinapsis } from '../../services/api'
 import { ExplorarHeader } from '../../components/ExplorarHeader/ExplorarHeader'
 import { NodeIdentityPanel } from '../../components/NodeIdentityPanel/NodeIdentityPanel'
 import { ConnectionsPanel } from '../../components/ConnectionsPanel/ConnectionsPanel'
 import { LatentesPanel } from '../../components/LatentesPanel/LatentesPanel'
+import { MergeModal } from '../../components/MergeModal/MergeModal'
+import { SleepConfirm } from '../../components/SleepConfirm/SleepConfirm'
+import { DeleteConfirm } from '../../components/DeleteConfirm/DeleteConfirm'
+import { LinkModal } from '../../components/LinkModal/LinkModal'
 import styles from './ExplorarPage.module.css'
 
 interface EgoGraphResponse {
@@ -58,9 +62,14 @@ const ExplorarPage = () => {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [toast, setToast] = useState<string | null>(null)
+  const [mergeModalOpen, setMergeModalOpen] = useState(false)
+  const [sleepConfirmOpen, setSleepConfirmOpen] = useState(false)
+  const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false)
+  const [linkModalOpen, setLinkModalOpen] = useState(false)
 
   const historyRef = useRef<string[]>([])
   const historyIndexRef = useRef(-1)
+  const skipHistoryRef = useRef(false)
   const [_historyVersion, setHistoryVersion] = useState(0)
   const forceHistoryUpdate = useCallback(() => setHistoryVersion(v => v + 1), [])
 
@@ -89,6 +98,12 @@ const ExplorarPage = () => {
       lastFetchedRef.current = concepto
       fetchNode(concepto)
 
+      if (skipHistoryRef.current) {
+        skipHistoryRef.current = false
+        forceHistoryUpdate()
+        return
+      }
+
       const hist = historyRef.current
       const idx = historyIndexRef.current
       const newHist = hist.slice(0, idx + 1)
@@ -113,6 +128,7 @@ const ExplorarPage = () => {
     const prevConcepto = hist[idx - 1]
     if (!prevConcepto) return
     historyIndexRef.current = idx - 1
+    skipHistoryRef.current = true
     forceHistoryUpdate()
     navigate(`/explorar/${encodeURIComponent(prevConcepto)}`)
   }, [navigate, forceHistoryUpdate])
@@ -124,6 +140,7 @@ const ExplorarPage = () => {
     const nextConcepto = hist[idx + 1]
     if (!nextConcepto) return
     historyIndexRef.current = idx + 1
+    skipHistoryRef.current = true
     forceHistoryUpdate()
     navigate(`/explorar/${encodeURIComponent(nextConcepto)}`)
   }, [navigate, forceHistoryUpdate])
@@ -138,15 +155,31 @@ const ExplorarPage = () => {
     navigate(`/explorar/${encodeURIComponent(targetConcepto)}`)
   }, [navigate, forceHistoryUpdate])
 
-  const handleSleep = useCallback(() => {
-    alert('Función dormir — próximamente')
-  }, [])
-
-  const handleDelete = useCallback(() => {
+  const handleSleep = useCallback(async () => {
     if (!node) return
-    if (!confirm(`⚠️ ELIMINAR nodo '${node.concepto}'?\nEsto borrará TODAS sus sinapsis, dimensiones y grupos.`)) return
-    alert('Función eliminar — próximamente')
-  }, [node])
+    try {
+      await dormirNodo(node.concepto)
+      setToast('😴 Nodo dormido')
+      setTimeout(() => setToast(null), 4000)
+      setSleepConfirmOpen(false)
+      fetchNode(node.concepto)
+    } catch (e: any) {
+      setError(e.message || 'Error al dormir nodo')
+    }
+  }, [node, fetchNode])
+
+  const handleDelete = useCallback(async () => {
+    if (!node) return
+    try {
+      await eliminarNodo(node.concepto)
+      setToast('🗑️ Nodo eliminado')
+      setTimeout(() => setToast(null), 4000)
+      setDeleteConfirmOpen(false)
+      navigate('/explorar')
+    } catch (e: any) {
+      setError(e.message || 'Error al eliminar nodo')
+    }
+  }, [node, navigate])
 
   const handleUnlink = useCallback(async (a: string, b: string) => {
     try {
@@ -169,11 +202,29 @@ const ExplorarPage = () => {
     }
   }, [node, fetchNode])
 
-  const handleLink = useCallback(() => {
-    const target = prompt('Concepto a vincular con:')
-    if (!target || !node) return
-    alert('Función vincular — próximamente')
-  }, [node])
+  const handleLink = useCallback(async (target: string) => {
+    if (!node || !target.trim()) return
+    try {
+      await crearSinapsis({ origen: node.concepto, destino: target.trim(), peso: 0.5, tipo: 'manual' })
+      setToast(`✏️ Vinculado con '${target.trim()}'`)
+      setTimeout(() => setToast(null), 4000)
+      setLinkModalOpen(false)
+      fetchNode(node.concepto)
+    } catch (e: any) {
+      setError(e.message || 'Error al vincular')
+    }
+  }, [node, fetchNode])
+
+  const handleMerge = useCallback(async (origen: string, destinos: string[]) => {
+    try {
+      const result = await fusionarNodos(origen, destinos)
+      setToast(`🔗 ${result.mensaje}`)
+      setTimeout(() => setToast(null), 4000)
+      fetchNode(origen)
+    } catch (e: any) {
+      setError(e.message || 'Error al fusionar nodos')
+    }
+  }, [fetchNode])
 
   const canGoBack = historyIndexRef.current > 0
   const canGoForward = historyIndexRef.current < historyRef.current.length - 1
@@ -247,11 +298,28 @@ const ExplorarPage = () => {
         onForward={goForward}
         onJumpToCrumb={jumpToCrumb}
       />
+      {node && (
+        <div className={styles.toolbar}>
+          <span className={styles.toolbarNodeName}>{node.concepto}</span>
+          <div className={styles.toolbarRight}>
+            <button className={styles.toolBtn} onClick={() => setLinkModalOpen(true)} title="Vincular con otro nodo">
+              ✏️ Vincular
+            </button>
+            <button className={styles.toolBtn} onClick={() => setMergeModalOpen(true)} title="Fusionar con otros nodos">
+              🔗 Fusionar
+            </button>
+            <button className={styles.toolBtn} onClick={() => setSleepConfirmOpen(true)} title="Dormir nodo">
+              😴 Dormir
+            </button>
+            <button className={`${styles.toolBtn} ${styles.toolBtnDanger}`} onClick={() => setDeleteConfirmOpen(true)} title="Eliminar nodo">
+              🗑️ Eliminar
+            </button>
+          </div>
+        </div>
+      )}
       <div className={styles.explorar3col}>
         <NodeIdentityPanel
           node={node}
-          onSleep={handleSleep}
-          onDelete={handleDelete}
           onSave={handleSaveContent}
         />
         <ConnectionsPanel
@@ -259,7 +327,6 @@ const ExplorarPage = () => {
           currentNode={concepto}
           onNavigate={navigateTo}
           onUnlink={handleUnlink}
-          onLink={handleLink}
         />
         <LatentesPanel
           latentes={latentes}
@@ -267,6 +334,38 @@ const ExplorarPage = () => {
         />
       </div>
       {toast && <div className={styles.toast}>{toast}</div>}
+      {node && (
+        <MergeModal
+          open={mergeModalOpen}
+          onOpenChange={setMergeModalOpen}
+          origen={node.concepto}
+          onMerge={handleMerge}
+        />
+      )}
+      {node && (
+        <SleepConfirm
+          open={sleepConfirmOpen}
+          onOpenChange={setSleepConfirmOpen}
+          node={node}
+          onConfirm={handleSleep}
+        />
+      )}
+      {node && (
+        <DeleteConfirm
+          open={deleteConfirmOpen}
+          onOpenChange={setDeleteConfirmOpen}
+          node={node}
+          onConfirm={handleDelete}
+        />
+      )}
+      {node && (
+        <LinkModal
+          open={linkModalOpen}
+          onOpenChange={setLinkModalOpen}
+          currentNode={node.concepto}
+          onLink={handleLink}
+        />
+      )}
     </>
   )
 }

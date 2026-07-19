@@ -123,3 +123,19 @@ export function consolidarCerebro(): Promise<{ status: string; mensaje: string; 
 export function actualizarNodo(concepto: string, contenido: string): Promise<{ status: string }> {
   return put(`/nodo/${encodeParam(concepto)}`, { contenido })
 }
+
+export function fusionarNodos(origen: string, destinos: string[]): Promise<{ status: string; mensaje: string; fusionados: number; errores: string[] }> {
+  return post('/nodo/fusionar', { origen, destinos })
+}
+
+export interface BuscarNodoResult {
+  concepto: string
+  contenido: string
+  score: number
+  estado: string
+  categoria?: string
+}
+
+export function buscarNodos(query: string, limit: number = 15): Promise<{ resultados: BuscarNodoResult[]; total: number }> {
+  return get(`/buscar?q=${encodeParam(query)}&limit=${limit}`)
+}

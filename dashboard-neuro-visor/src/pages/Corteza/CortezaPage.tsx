@@ -177,6 +177,7 @@ const CortezaPage = () => {
             data={actividad?.energia_historial ?? []}
             ciclos={actividad?.ciclos ?? []}
             onPointClick={handlePointClick}
+            selectedPoint={puntoSeleccionado}
           />
         </section>
       </div>
