@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useState, useRef, useEffect } from "react";
 import styles from "./NodeIdentityPanel.module.css";
 import type { EgoNode } from "@/types/explorar";
 
@@ -6,6 +6,7 @@ interface NodeIdentityPanelProps {
   node: EgoNode | null;
   onSleep: () => void;
   onDelete: () => void;
+  onSave?: (contenido: string) => void;
 }
 
 const timeAgo = (ts: number): string => {
@@ -21,12 +22,46 @@ export function NodeIdentityPanel({
   node,
   onSleep,
   onDelete,
+  onSave,
 }: NodeIdentityPanelProps) {
-  if (!node) return null;
- 
+  const [editing, setEditing] = useState(false);
+  const [editContent, setEditContent] = useState("");
+  const [saving, setSaving] = useState(false);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+
   useEffect(() => {
-    console.log("NodeIdentityPanel: node changed", node);
-  }, [node]);
+    if (editing && textareaRef.current) {
+      textareaRef.current.focus();
+      textareaRef.current.setSelectionRange(
+        textareaRef.current.value.length,
+        textareaRef.current.value.length,
+      );
+    }
+  }, [editing]);
+
+  if (!node) return null;
+
+  const handleEdit = () => {
+    setEditContent(node.contenido || "");
+    setEditing(true);
+  };
+
+  const handleCancel = () => {
+    setEditing(false);
+    setEditContent("");
+  };
+
+  const handleSave = async () => {
+    if (!onSave) return;
+    setSaving(true);
+    try {
+      await onSave(editContent);
+      setEditing(false);
+      setEditContent("");
+    } finally {
+      setSaving(false);
+    }
+  };
 
   return (
     <div className={styles.colIzq}>
@@ -66,8 +101,48 @@ export function NodeIdentityPanel({
       </div>
 
       <div className={styles.nodeSection}>
-        <h4>📝 Contenido</h4>
-        <div className={styles.contentBox}>{node.contenido || "(vacío)"}</div>
+        <div className={styles.sectionHeader}>
+          <h4>📝 Contenido</h4>
+          {onSave && !editing && (
+            <button
+              className={styles.editBtn}
+              onClick={handleEdit}
+              title="Editar contenido"
+            >
+              ✏️
+            </button>
+          )}
+        </div>
+        {editing ? (
+          <>
+            <textarea
+              ref={textareaRef}
+              className={styles.contentEditor}
+              value={editContent}
+              onChange={(e) => setEditContent(e.target.value)}
+              placeholder="Escribí el contenido del nodo..."
+              rows={6}
+            />
+            <div className={styles.editActions}>
+              <button
+                className={styles.btnSave}
+                onClick={handleSave}
+                disabled={saving}
+              >
+                {saving ? "Guardando..." : "💾 Guardar"}
+              </button>
+              <button
+                className={styles.btnCancel}
+                onClick={handleCancel}
+                disabled={saving}
+              >
+                Cancelar
+              </button>
+            </div>
+          </>
+        ) : (
+          <div className={styles.contentBox}>{node.contenido || "(vacío)"}</div>
+        )}
       </div>
 
       {Object.keys(node.dimensiones).length > 0 && (

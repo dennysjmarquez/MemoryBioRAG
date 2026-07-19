@@ -111,6 +111,101 @@
   margin-bottom: 8px;
 }
 
+.sectionHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.sectionHeader h4 {
+  margin-bottom: 0;
+}
+
+.editBtn {
+  background: none;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  padding: 2px 6px;
+  cursor: pointer;
+  font-size: 12px;
+  transition: all 0.15s;
+}
+
+.editBtn:hover {
+  border-color: var(--accent-color);
+  background: var(--accent-subtle);
+}
+
+.contentEditor {
+  width: 100%;
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--text-primary);
+  background: var(--bg-input);
+  border: 1px solid var(--accent-color);
+  border-radius: var(--radius-sm);
+  padding: 10px;
+  resize: vertical;
+  min-height: 100px;
+  font-family: inherit;
+}
+
+.contentEditor:focus {
+  outline: none;
+  border-color: var(--accent-color);
+  box-shadow: 0 0 0 2px var(--accent-subtle);
+}
+
+.editActions {
+  display: flex;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.btnSave {
+  padding: 6px 12px;
+  font-size: 12px;
+  background: var(--green);
+  color: #fff;
+  border: none;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  font-family: inherit;
+  font-weight: 500;
+  transition: opacity 0.15s;
+}
+
+.btnSave:hover {
+  opacity: 0.85;
+}
+
+.btnSave:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.btnCancel {
+  padding: 6px 12px;
+  font-size: 12px;
+  background: var(--bg-input);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  color: var(--text-primary);
+  cursor: pointer;
+  font-family: inherit;
+  transition: all 0.15s;
+}
+
+.btnCancel:hover {
+  border-color: var(--text-dim);
+}
+
+.btnCancel:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
 .chipList {
   display: flex;
   flex-wrap: wrap;

@@ -48,7 +48,11 @@ const SaludPage = () => {
   const [cleaning, setCleaning] = useState<string | null>(null)
   const [toast, setToast] = useState<string | null>(null)
   const [lastAudit, setLastAudit] = useState<Date | null>(null)
-  const [expanded, setExpanded] = useState<Record<string, boolean>>({})
+  const [expanded, setExpanded] = useState<Record<string, boolean>>({
+    aislados: true,
+    vacios: true,
+    peso0: true,
+  })
 
   const fetchAudit = useCallback(async () => {
     setLoading(true)
@@ -67,7 +71,11 @@ const SaludPage = () => {
 
   useEffect(() => { fetchAudit() }, [fetchAudit])
 
-  const limpiar = async (accion: string) => {
+  const limpiar = async (accion: string, count: number, label: string) => {
+    const msg = accion === 'todo'
+      ? `¿Eliminar TODOS los registros huérfanos? Esta acción no se puede deshacer.`
+      : `¿Eliminar ${formatNumber(count)} ${label}? Esta acción no se puede deshacer.`
+    if (!window.confirm(msg)) return
     setCleaning(accion)
     try {
       const res = await fetch('/api/salud/limpiar', {
@@ -77,8 +85,8 @@ const SaludPage = () => {
       })
       if (!res.ok) throw new Error(`${res.status} ${res.statusText}`)
       const result = await res.json()
-      setToast(`${result.eliminados} registros eliminados`)
-      setTimeout(() => setToast(null), 3000)
+      setToast(`✓ ${result.eliminados} registros eliminados · Integridad restaurada`)
+      setTimeout(() => setToast(null), 5000)
       fetchAudit()
     } catch (e: any) {
       setError(e.message || 'Error limpiando')
@@ -89,9 +97,19 @@ const SaludPage = () => {
 
   const toggle = (key: string) => setExpanded(prev => ({ ...prev, [key]: !prev[key] }))
 
-  const totalProblemas = data ? Object.values(data.problemas).reduce((a, b) => a + b, 0) : 0
+  // ── Separación: Integridad vs Calidad ──
+  const totalIntegridad = data
+    ? data.problemas.sinapsis_huerfanas + data.problemas.latentes_huerfanas
+      + data.problemas.latentes_ambos_huerfanos + data.problemas.dimensiones_huerfanas
+    : 0
+
+  const totalNodosProblematicos = data
+    ? data.problemas.nodos_aislados + data.problemas.contenido_vacio + data.problemas.peso_cero
+    : 0
+
+  // Health score: % of nodes that are NOT problematic
   const healthScore = data
-    ? Math.max(0, Math.round(100 - (totalProblemas / Math.max(data.resumen.nodos_total, 1)) * 100))
+    ? Math.round(((data.resumen.nodos_total - data.problemas.nodos_aislados - data.problemas.contenido_vacio - data.problemas.peso_cero) / Math.max(data.resumen.nodos_total, 1)) * 100)
     : 100
 
   if (loading) return <div className={styles.loading}>Cargando auditoría...</div>
@@ -114,6 +132,11 @@ const SaludPage = () => {
   const circumference = 2 * Math.PI * 34
   const offset = circumference - (healthScore / 100) * circumference
 
+  const qualityColor = totalNodosProblematicos > 500 ? 'var(--red)'
+    : totalNodosProblematicos > 100 ? 'var(--orange)'
+    : totalNodosProblematicos > 0 ? 'var(--yellow)'
+    : 'var(--green)'
+
   return (
     <div className={styles.page}>
       <div className={styles.header}>
@@ -128,9 +151,83 @@ const SaludPage = () => {
         </button>
       </div>
 
-      {/* Hero: Health Score + Problem Breakdown */}
-      {totalProblemas > 0 && (
+      {/* ── Sección A: Integridad referencial ── */}
+      {totalIntegridad > 0 ? (
         <div className={styles.hero}>
+          <div className={styles.heroScore}>
+            <div className={styles.scoreRing}>
+              <svg viewBox="0 0 80 80">
+                <circle className={styles.scoreRingBg} cx="40" cy="40" r="34" />
+                <circle
+                  className={styles.scoreRingFill}
+                  cx="40" cy="40" r="34"
+                  stroke="var(--green)"
+                  strokeDasharray={circumference}
+                  strokeDashoffset={0}
+                />
+              </svg>
+              <span className={styles.scoreLabel} style={{ color: 'var(--green)' }}>
+                100%
+              </span>
+            </div>
+            <span className={styles.scoreText}>Integridad</span>
+          </div>
+
+          <div className={styles.heroBreakdown}>
+            <HeroProblemRow
+              name="Sinapsis huérfanas"
+              count={data.problemas.sinapsis_huerfanas}
+              max={maxProblem}
+              severity="red"
+              onClean={() => limpiar('sinapsis_huerfanas', data.problemas.sinapsis_huerfanas, 'sinapsis huérfanas')}
+              cleaning={cleaning === 'sinapsis_huerfanas'}
+              info="Sinapsis que apuntan a nodos que ya no existen. Son enlaces rotos — no tienen valor y se pueden eliminar sin perder información."
+            />
+            <HeroProblemRow
+              name="Latentes huérfanas"
+              count={data.problemas.latentes_huerfanas}
+              max={maxProblem}
+              severity="red"
+              onClean={() => limpiar('latentes_huerfanas', data.problemas.latentes_huerfanas, 'latentes huérfanas')}
+              cleaning={cleaning === 'latentes_huerfanas'}
+              info="Conexiones latentes que referencian nodos inexistentes. Basura de propagación — seguro de limpiar."
+            />
+            <HeroProblemRow
+              name="Dimensiones huérfanas"
+              count={data.problemas.dimensiones_huerfanas}
+              max={maxProblem}
+              severity="orange"
+              onClean={() => limpiar('dimensiones_huerfanas', data.problemas.dimensiones_huerfanas, 'dimensiones huérfanas')}
+              cleaning={cleaning === 'dimensiones_huerfanas'}
+              info="Dimensiones semánticas asociadas a nodos que ya no existen. Clasificaciones huérfanas — se pueden eliminar."
+            />
+            <HeroProblemRow
+              name="Latentes sin ambos nodos"
+              count={data.problemas.latentes_ambos_huerfanos}
+              max={maxProblem}
+              severity="yellow"
+              info="Conexiones latentes donde ni el nodo origen ni el destino existen. Más grave que una huérfana simple — indica pérdida de datos."
+            />
+          </div>
+
+          <button
+            className={styles.heroCleanAll}
+            onClick={() => limpiar('todo', totalIntegridad, 'registros huérfanos')}
+            disabled={cleaning !== null}
+          >
+            {cleaning === 'todo' ? 'Limpiando...' : 'Limpiar huérfanas'}
+          </button>
+        </div>
+      ) : (
+        <div className={styles.heroCollapsed}>
+          <span className={styles.heroCollapsedCheck}>✓</span>
+          <span className={styles.heroCollapsedText}>Integridad del grafo — sin problemas</span>
+        </div>
+      )}
+
+      {/* ── Sección B: Calidad de nodos ── */}
+      <div className={styles.qualitySection}>
+        <div className={styles.qualityHeader}>
           <div className={styles.heroScore}>
             <div className={styles.scoreRing}>
               <svg viewBox="0 0 80 80">
@@ -147,76 +244,16 @@ const SaludPage = () => {
                 {healthScore}%
               </span>
             </div>
-            <span className={styles.scoreText}>Salud</span>
+            <span className={styles.scoreText}>Calidad</span>
           </div>
-
-          <div className={styles.heroBreakdown}>
-            <HeroProblemRow
-              name="Sinapsis huérfanas"
-              count={data.problemas.sinapsis_huerfanas}
-              max={maxProblem}
-              severity="red"
-              onClean={() => limpiar('sinapsis_huerfanas')}
-              cleaning={cleaning === 'sinapsis_huerfanas'}
-            />
-            <HeroProblemRow
-              name="Latentes huérfanas"
-              count={data.problemas.latentes_huerfanas}
-              max={maxProblem}
-              severity="red"
-              onClean={() => limpiar('latentes_huerfanas')}
-              cleaning={cleaning === 'latentes_huerfanas'}
-            />
-            <HeroProblemRow
-              name="Dimensiones huérfanas"
-              count={data.problemas.dimensiones_huerfanas}
-              max={maxProblem}
-              severity="orange"
-              onClean={() => limpiar('dimensiones_huerfanas')}
-              cleaning={cleaning === 'dimensiones_huerfanas'}
-            />
-            <HeroProblemRow
-              name="Latentes sin ambos nodos"
-              count={data.problemas.latentes_ambos_huerfanos}
-              max={maxProblem}
-              severity="yellow"
-            />
+          <div className={styles.qualityInfo}>
+            <span className={styles.qualityTitle}>Calidad de nodos</span>
+            <span className={styles.qualityCount} style={{ color: qualityColor }}>
+              {formatNumber(totalNodosProblematicos)} nodos con problemas
+            </span>
           </div>
-
-          <button
-            className={styles.heroCleanAll}
-            onClick={() => limpiar('todo')}
-            disabled={cleaning !== null}
-          >
-            {cleaning === 'todo' ? 'Limpiando...' : 'Limpiar todo'}
-          </button>
         </div>
-      )}
-
-      {/* All good hero */}
-      {totalProblemas === 0 && (
-        <div className={styles.hero} style={{ justifyContent: 'center' }}>
-          <div className={styles.heroScore}>
-            <div className={styles.scoreRing}>
-              <svg viewBox="0 0 80 80">
-                <circle className={styles.scoreRingBg} cx="40" cy="40" r="34" />
-                <circle
-                  className={styles.scoreRingFill}
-                  cx="40" cy="40" r="34"
-                  stroke="var(--green)"
-                  strokeDasharray={circumference}
-                  strokeDashoffset={offset}
-                />
-              </svg>
-              <span className={styles.scoreLabel} style={{ color: 'var(--green)' }}>100%</span>
-            </div>
-            <span className={styles.scoreText}>Salud</span>
-          </div>
-          <span style={{ color: 'var(--green)', fontWeight: 600, fontSize: 16 }}>
-            Cerebro sano — sin problemas detectados
-          </span>
-        </div>
-      )}
+      </div>
 
       {/* Stats Grid */}
       <div className={styles.statsGrid}>
@@ -242,31 +279,31 @@ const SaludPage = () => {
         </div>
       </div>
 
-      {/* Nodos problemáticos */}
-      <div className={styles.section}>
-        <div className={styles.sectionHeader}>
-          <h2 className={styles.sectionTitle}>Nodos problemáticos</h2>
-        </div>
+      {/* Nodos problemáticos — solo informativo */}
+      <div className={styles.problemSection}>
+        <h2 className={styles.problemSectionTitle}>Nodos problemáticos</h2>
         <div className={styles.problemList}>
           <ProblemRow
             name="Nodos aislados (sin conexiones)"
             count={data.problemas.nodos_aislados}
             accent="orange"
+            info="Nodo creado pero sin conexiones a otros nodos. Puede necesitar vinculación con biorag_vincular(), no eliminación."
           />
           <ProblemRow
             name="Contenido vacío"
             count={data.problemas.contenido_vacio}
             accent="yellow"
+            info="El nodo existe en la DB pero no tiene contenido guardado. No aporta información — puede eliminarse sin riesgo."
           />
           <ProblemRow
             name="Peso cero/null"
             count={data.problemas.peso_cero}
             accent="yellow"
+            info="El nodo no ha sido accedido ni utilizado. Puede ser un nodo nuevo sin uso todavía, o uno que dejó de ser relevante. Requiere revisión antes de decidir."
           />
         </div>
 
-        {/* Accordion details */}
-        <div className={styles.detailsSection}>
+        <div style={{ marginTop: '0.75rem' }}>
           <AccordionGroup
             title="Nodos aislados"
             items={data.detalles.nodos_aislados}
@@ -299,7 +336,7 @@ const SaludPage = () => {
 /* ── Sub-components ── */
 
 function HeroProblemRow({
-  name, count, max, severity, onClean, cleaning,
+  name, count, max, severity, onClean, cleaning, info,
 }: {
   name: string
   count: number
@@ -307,6 +344,7 @@ function HeroProblemRow({
   severity: 'red' | 'orange' | 'yellow'
   onClean?: () => void
   cleaning?: boolean
+  info?: string
 }) {
   const dotClass = severity === 'red' ? styles.heroDotRed
     : severity === 'orange' ? styles.heroDotOrange
@@ -321,6 +359,9 @@ function HeroProblemRow({
       <div className={styles.heroProblemLeft}>
         <span className={`${styles.heroDot} ${dotClass}`} />
         <span className={styles.heroProblemName}>{name}</span>
+        {info && (
+          <button className={styles.infoBtn} title={info}>ℹ</button>
+        )}
       </div>
       <div className={styles.heroProblemRight}>
         <span className={styles.heroProblemCount} style={{ color: count > 0 ? barColor : 'var(--text-dim)' }}>
@@ -352,11 +393,12 @@ function HeroProblemRow({
 }
 
 function ProblemRow({
-  name, count, accent,
+  name, count, accent, info,
 }: {
   name: string
   count: number
   accent: 'red' | 'orange' | 'yellow' | 'green'
+  info?: string
 }) {
   const dotClass = accent === 'red' ? styles.dotRed
     : accent === 'orange' ? styles.dotOrange
@@ -368,6 +410,9 @@ function ProblemRow({
       <div className={styles.problemInfo}>
         <span className={`${styles.problemDot} ${dotClass}`} />
         <span className={styles.problemName}>{name}</span>
+        {info && (
+          <button className={styles.infoBtn} title={info}>ℹ</button>
+        )}
       </div>
       <div className={styles.problemActions}>
         <span className={styles.problemCount}>{formatNumber(count)}</span>
@@ -389,12 +434,15 @@ function AccordionGroup({
 
   return (
     <div className={styles.detailGroup}>
-      <button className={styles.detailHeader} onClick={onToggle}>
-        <div className={styles.detailHeaderLeft}>
+      <button className={styles.detailToggle} onClick={onToggle}>
+        <div className={styles.detailToggleLeft}>
           <span className={`${styles.detailChevron} ${open ? styles.detailChevronOpen : ''}`}>
             ▶
           </span>
-          <span>{title}</span>
+          <span className={styles.detailToggleLabel}>{title}</span>
+          <span className={styles.detailToggleHint}>
+            {open ? '— click para colapsar' : '— click para ver'}
+          </span>
         </div>
         <span className={styles.detailCount}>{items.length}</span>
       </button>

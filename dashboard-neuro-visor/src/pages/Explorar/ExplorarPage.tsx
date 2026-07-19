@@ -1,6 +1,6 @@
 import { useParams, useNavigate } from 'react-router-dom'
 import { useState, useEffect, useCallback, useRef } from 'react'
-import { getEgoGraph, eliminarSinapsis } from '../../services/api'
+import { getEgoGraph, eliminarSinapsis, actualizarNodo } from '../../services/api'
 import { ExplorarHeader } from '../../components/ExplorarHeader/ExplorarHeader'
 import { NodeIdentityPanel } from '../../components/NodeIdentityPanel/NodeIdentityPanel'
 import { ConnectionsPanel } from '../../components/ConnectionsPanel/ConnectionsPanel'
@@ -57,6 +57,7 @@ const ExplorarPage = () => {
   const [latentes, setLatentes] = useState<EgoGraphResponse['latentes']>([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [toast, setToast] = useState<string | null>(null)
 
   const historyRef = useRef<string[]>([])
   const historyIndexRef = useRef(-1)
@@ -156,6 +157,18 @@ const ExplorarPage = () => {
     }
   }, [node, fetchNode])
 
+  const handleSaveContent = useCallback(async (contenido: string) => {
+    if (!node) return
+    try {
+      await actualizarNodo(node.concepto, contenido)
+      setToast('✓ Contenido actualizado')
+      setTimeout(() => setToast(null), 4000)
+      fetchNode(node.concepto)
+    } catch (e: any) {
+      setError(e.message || 'Error guardando contenido')
+    }
+  }, [node, fetchNode])
+
   const handleLink = useCallback(() => {
     const target = prompt('Concepto a vincular con:')
     if (!target || !node) return
@@ -239,6 +252,7 @@ const ExplorarPage = () => {
           node={node}
           onSleep={handleSleep}
           onDelete={handleDelete}
+          onSave={handleSaveContent}
         />
         <ConnectionsPanel
           connections={connections}
@@ -252,6 +266,7 @@ const ExplorarPage = () => {
           onNavigate={navigateTo}
         />
       </div>
+      {toast && <div className={styles.toast}>{toast}</div>}
     </>
   )
 }

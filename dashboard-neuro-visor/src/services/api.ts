@@ -36,6 +36,16 @@ async function del<T>(path: string, body: unknown): Promise<T> {
   return response.json() as Promise<T>
 }
 
+async function put<T>(path: string, body: unknown): Promise<T> {
+  const response = await fetch(`${API_BASE}${path}`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body),
+  })
+  if (!response.ok) throw new ApiError(response.status, response.statusText)
+  return response.json() as Promise<T>
+}
+
 async function patch<T>(path: string, body: unknown): Promise<T> {
   const response = await fetch(`${API_BASE}${path}`, {
     method: 'PATCH',
@@ -108,4 +118,8 @@ export function eliminarNodo(concepto: string): Promise<SinapsisResponse> {
 
 export function consolidarCerebro(): Promise<{ status: string; mensaje: string; resultado: string }> {
   return post('/consolidar', {})
+}
+
+export function actualizarNodo(concepto: string, contenido: string): Promise<{ status: string }> {
+  return put(`/nodo/${encodeParam(concepto)}`, { contenido })
 }
