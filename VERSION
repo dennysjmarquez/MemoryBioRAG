@@ -1,16 +1,36 @@
-v17.1 — Auto-Clustering Robusto, Desambiguación Jaccard y Similitud Conceptual Stateless (Julio 2026)
+BioRAG v18.3 — Neuro-Visor Dashboard v2, CSS Design System, Salud/Explorar/Toolbar, FKs métricas cognitivas (Julio 2026)
 
-Mejoras de estabilidad y robustez en los sistemas de auto-clustering y similitud conceptual latente de BioRAG.
+Esta versión consolida el dashboard Neuro-Visor v2 con páginas completas de auditoría de salud del grafo, exploración interactiva de nodos, toolbar unificado con gestión de conexiones, y migración completa a sistema de diseño CSS basado en Radix Themes. Incluye refactor de la tabla métricas_cognitivas con claves foráneas reales a largo_plazo.
 
-Lo nuevo:
+Novedades principales:
 
-AUTO-CLUSTERING:
-- Migración de limpieza única (`migration_autoclustering_v1`) para remover dimensiones auto-generadas legacy inactivas.
-- Desambiguación dinámica de nombres de clusters mediante el cálculo de solapamiento Jaccard contra miembros de dimensiones existentes en la base de datos (con umbral de reutilización >= 0.5).
-- Saneamiento local de miembros obsoletos al reutilizar un cluster existente.
-- Purga global de dimensiones auto-generadas inactivas (aquellas sin miembros al final de un ciclo de consolidación).
+NEURO-VISOR DASHBOARD v2:
+- Nueva página **Salud (Graph Health Audit)**: Health Score (0-100), breakdown por severidad (crítico/advertencia/ok), auditoría de integridad referencial, aislamiento semántico, limpieza de dimensiones inactivas, nodos huérfanos. Endpoints backend: /health/summary, /health/audit, /health/cleanup. Modal de confirmación para limpieza con dry-run.
+- Nueva página **Explorar (Node Inspection)**: Panel unificado con pestañas: Identidad, Conexiones (sinapsis agrupadas por tipo con pesos), Contenido (editable inline), Latentes (sinapsis transitivas con score y ruta). Toolbar con acciones: Merge, Link, Delete, Sleep.
+- **Toolbar unificado** en página Corteza: Merge (combinar nodos), Link (crear sinapsis), Delete, Sleep — con modales dedicados (MergeModal, LinkModal, DeleteConfirm, SleepConfirm).
+- **CSS Design System**: Migración completa a tokens de Radix Themes (--radius-*, --spacing-*, --color-*, --font-*). 12+ componentes con CSS Modules consistentes. Eliminado globals.css legacy.
+- **Edición inline** de contenido de nodos directamente en NodeIdentityPanel.
+- **Fix: Prevención de grupos semánticos duplicados** en node detail y ego-graph queries.
+- **Fix: Text overflow prevention + reorder** en NodeIdentityPanel.
 
-SIMILITUD CONCEPTUAL:
-- Eliminación del estado mutable global (`_grafo_cache`) en `similitud_conceptual.py` para garantizar la seguridad frente a concurrencia y fugas de memoria.
-- `_cargar_grafo(cerebro)` convertida en función pura stateless.
-- `_limpiar_cache()` redefinida como no-op para preservar la compatibilidad hacia atrás.
+BACKEND & ARQUITECTURA:
+- **metricas_cognitivas refactor**: FK reales (largo_plazo_id, categoria_dominante_id → largo_plazo.id / categorias.id). Eliminada columna concepto duplicada. Índices optimizados. Migración idempotente con validación de integridad.
+- Fix: Prevención de grupos semánticos duplicados en node detail y ego-graph queries.
+- Fix: Text overflow prevention y reorder en NodeIdentityPanel.
+
+TESTS & CALIDAD:
+- 95/95 tests ✓
+- Latencia búsqueda: ~2.8ms
+- RAM: ~20 MB
+
+Archivos modificados:
+| Archivo | Cambio |
+|---|---|
+| `dashboard-neuro-visor/src/pages/Salud/*` | **[NUEVO]** Página completa auditoría salud grafo + modal limpieza |
+| `dashboard-neuro-visor/src/pages/Explorar/*` | **[NUEVO]** Panel inspección nodos con pestañas + edición inline |
+| `dashboard-neuro-visor/src/components/Toolbar/*` | **[NUEVO]** Toolbar unificado + MergeModal, LinkModal, DeleteConfirm, SleepConfirm |
+| `dashboard-neuro-visor/src/components/NodeIdentityPanel/*` | Edición inline contenido + chips sinapsis legibles |
+| `dashboard-neuro-visor/src/styles/globals.css` | **[REFACTOR]** Design System Radix Themes tokens |
+| `dashboard-neuro-visor/backend/server.py` | Endpoints /health/*, /api/nodes/* (merge, link, delete, sleep, edit) |
+| `core/memory_store.py` | Migración metricas_cognitivas FK + validación integridad |
+| `MemoryBioRAG_Data/memory_biorag.db` | Esquema actualizado (FKs, índices) |

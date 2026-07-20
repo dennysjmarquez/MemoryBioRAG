@@ -1,6 +1,6 @@
-# BioRAG v18.1 — Arquitectura de Memoria Cognitiva Simbólica para Agentes de IA
+# BioRAG v18.3 — Arquitectura de Memoria Cognitiva Simbólica para Agentes de IA
 
-> **Versión:** v18.1 — Julio 2026
+> **Versión:** v18.3 — Julio 2026
 > **Paradigma:** Semántica Determinista, Discreta y Simbólica
 > **Motor:** Python puro + SQLite FTS5
 > **Dependencias ML:** 0 (mcp + nltk para WordNet, sin numpy ni sentence-transformers)
@@ -918,6 +918,68 @@ Optimizaciones de precisión lógica en la propagación del grafo de inferencia 
 *   **Filtro de compatibilidad de tipos de relación:** Restricción estricta de propagación de sinapsis latentes para bloquear la acumulación de ruido estadístico casual (`co_ocurrencia -> co_ocurrencia`). Solo se permite extender relaciones a través de puentes de confianza (`manual`, `sinonimos_explicito`, `test`) y compatibilidades semánticas directas.
 *   **Alineamiento temporal en consultas MCP:** Forzado del uso uniforme de `timezone.utc` al convertir strings temporales absolutos de consultas MCP (`desde`/`hasta`), garantizando una respuesta idéntica sin importar la zona horaria local del host.
 *   **Suite de Verificación Aislada:** Inclusión de pruebas controladas en memoria para comprobar ciclos, bloqueo de ruido y puentes de confianza.
+
+
+---
+
+### v18.3 — Neuro-Visor Dashboard v2, CSS Design System, Salud/Explorar/Toolbar, FKs métricas cognitivas (Julio 2026)
+
+Esta versión consolida el dashboard Neuro-Visor v2 con páginas completas de auditoría de salud del grafo, exploración interactiva de nodos, toolbar unificado con gestión de conexiones, y migración completa a sistema de diseño CSS basado en Radix Themes. Incluye refactor de la tabla métricas_cognitivas con claves foráneas reales a largo_plazo.
+
+**Novedades principales:**
+
+**NEURO-VISOR DASHBOARD v2:**
+- **Nueva página Salud (Graph Health Audit):** Health Score (0-100), breakdown por severidad (crítico/advertencia/ok), auditoría de integridad referencial, aislamiento semántico, limpieza de dimensiones inactivas, nodos huérfanos. Endpoints backend: `/health/summary`, `/health/audit`, `/health/cleanup`. Modal de confirmación para limpieza con dry-run.
+- **Nueva página Explorar (Node Inspection):** Panel unificado con pestañas: Identidad, Conexiones (sinapsis agrupadas por tipo con pesos), Contenido (editable inline), Latentes (sinapsis transitivas con score y ruta). Toolbar con acciones: Merge, Link, Delete, Sleep.
+- **Toolbar unificado + Modales de gestión de nodos:** MergeModal (combinar nodos preservando sinapsis), LinkModal (crear sinapsis manual con tipo/peso), DeleteConfirm (borrado en cascada con preview), SleepConfirm (consolidación ciclo).
+- **CSS Design System — Migración a Radix Themes:** Tokens unificados (`--radius-*`, `--spacing-*`, `--color-*`, `--font-*`). 12+ componentes con CSS Modules consistentes. Eliminado `globals.css` legacy.
+- **Edición inline de contenido:** NodeIdentityPanel permite editar contenido directamente con guardado inmediato vía API.
+- **Prevención de grupos semánticos duplicados:** Fix en node detail y ego-graph queries. Chips de sinapsis con mejor legibilidad.
+- **Text overflow prevention + reorder:** NodeIdentityPanel reordenado para mejor legibilidad.
+
+**BACKEND & ARQUITECTURA:**
+- **metricas_cognitivas refactor (FK-based):** Claves foráneas reales `largo_plazo_id` → `largo_plazo.id` y `categoria_dominante_id` → `categorias.id`. Eliminada columna `concepto` duplicada. Índices optimizados. Migración idempotente con validación de integridad.
+
+**TESTS & CALIDAD:**
+- 95/95 tests ✓
+- Latencia búsqueda: ~2.8ms
+- RAM: ~20 MB
+
+**Archivos modificados:**
+
+| Archivo | Cambio |
+|---|---|
+| `dashboard-neuro-visor/src/pages/Salud/*` | **[NUEVO]** Página completa auditoría salud grafo + modal limpieza |
+| `dashboard-neuro-visor/src/pages/Explorar/*` | **[NUEVO]** Panel inspección nodos con pestañas + edición inline |
+| `dashboard-neuro-visor/src/components/Toolbar/*` | **[NUEVO]** Toolbar unificado + MergeModal, LinkModal, DeleteConfirm, SleepConfirm |
+| `dashboard-neuro-visor/src/components/NodeIdentityPanel/*` | Edición inline contenido + chips sinapsis legibles |
+| `dashboard-neuro-visor/src/styles/globals.css` | **[REFACTOR]** Design System Radix Themes tokens |
+| `dashboard-neuro-visor/backend/server.py` | Endpoints `/health/*`, `/api/nodes/*` (merge, link, delete, sleep, edit) |
+| `core/memory_store.py` | Migración metricas_cognitivas FK + validación integridad |
+| `MemoryBioRAG_Data/memory_biorag.db` | Esquema actualizado (FKs, índices) |
+
+
+---
+
+### v18.2 — Fix categoria_dominante: Cuenta Nodos del Ciclo, No de Toda la Base (Julio 2026)
+Corrección de bug crítico en el cálculo de `categoria_dominante` y mejoras UX en el dashboard Neuro-Visor.
+
+**Bug Fix:**
+- `categoria_dominante` consultaba TODOS los nodos activos (siempre `Principle 250/287`).
+- Fix: cuenta solo nodos consolidados **en ESTE ciclo** usando `recuerdos_sesion` (FK a `largo_plazo`).
+
+**Dashboard Neuro-Visor v1:**
+- Nuevo componente `DetallePunto` para inspección de ciclos de sueño (consolidados, dormidos, categoría dominante, nodos).
+- `EnergyLineChart`: tooltips en español, indicador de salud, simplificación de título.
+
+**Archivos modificados:**
+- `core/memory_store.py` — query cíclica con `WHERE id IN`, comentario de empate, nota de backfill
+- `dashboard-neuro-visor/backend/server.py` — endpoint `/api/corteza/actividad` + `categoria_dominante`, ventana temporal 5s→15s
+- `dashboard-neuro-visor/src/components/DetallePunto/` — nuevo componente
+- `dashboard-neuro-visor/src/components/EnergyLineChart/` — tooltips ES, health indicator
+
+**Tests:** 104/104 (95 biológicos + 9 forenses).
+
 
 ---
 

@@ -79,7 +79,7 @@ DB_PATH = os.environ.get("BIORAG_PATH") or _DEFAULT_DB
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from core.memory_store import SQLiteMemoryBioRAG
-from core.sinapsis import auto_vincular, vincular_por_sinonimos
+from core.sinapsis import auto_vincular, vincular_por_sinonimos, _tokenizar, _peso_similitud
 from core.categorizador import inferir_categoria
 from middleware.auto_guardado import registrar_accion, analizar_y_autoguardar
 
@@ -299,6 +299,44 @@ def _parsear_fechas(dias, desde, hasta):
 
 
 # --- MCP Server ------------------------------------------------------------
+
+
+# HELPER: Búsqueda retroactiva de nodos viejos relacionados
+def _buscar_nodos_viejos_relacionados(cerebro, tokens_nuevos, contenido_nuevo, dias=7, top_k=3, umbral=0.05):
+    """
+    Busca en largo_plazo nodos > dias que sean semánticamente similares al contenido nuevo.
+    Retorna lista de (concepto, preview, dias_antiguedad, similitud).
+    """
+    if not tokens_nuevos:
+        return []
+    corte = time.time() - (dias * 86400)
+    try:
+        cerebro.cursor.execute("""
+            SELECT concepto, contenido, creado_en
+            FROM largo_plazo
+            WHERE estado = 'activo' AND creado_en < ?
+            ORDER BY creado_en ASC
+        """, (corte,))
+        candidatos = cerebro.cursor.fetchall()
+    except Exception:
+        return []
+
+    if not candidatos:
+        return []
+
+    resultados = []
+    for concepto, contenido, creado_en in candidatos:
+        tokens_exist = _tokenizar((concepto or "") + " " + (contenido or ""))
+        sim = _peso_similitud(tokens_nuevos, tokens_exist)
+        if sim >= umbral:
+            dias_ant = int((time.time() - (creado_en or time.time())) / 86400)
+            preview = (contenido or "")[:120].replace("\n", " ")
+            resultados.append((concepto, preview, dias_ant, round(sim, 2)))
+
+    # Ordenar por similitud descendente
+    resultados.sort(key=lambda x: x[3], reverse=True)
+    return resultados[:top_k]
+
 
 def _build_server():
     try:

@@ -1,5 +1,26 @@
 # BioRAG Changelog
 
+## v18.3 (2026-07-20)
+
+### Features & Robustness
+- **Neuro-Visor Dashboard v2 — Página Salud (Graph Health Audit)**: Health Score (0-100), breakdown por severidad (crítico/advertencia/ok), auditoría completa de integridad referencial, aislamiento semántico, dimensiones inactivas, nodos huérfanos. Endpoints: `/health/summary`, `/health/audit`, `/health/cleanup`. Modal de confirmación con dry-run.
+- **Neuro-Visor Dashboard v2 — Página Explorar (Node Inspection)**: Panel unificado con pestañas Identidad, Conexiones (sinapsis agrupadas por tipo con pesos), Contenido (edición inline), Latentes (sinapsis transitivas con score y ruta). Toolbar con acciones: Merge, Link, Delete, Sleep.
+- **Toolbar Unificado + Modales de Gestión de Nodos**: MergeModal (combinar nodos preservando sinapsis), LinkModal (crear sinapsis manual con tipo/peso), DeleteConfirm (borrado en cascada con preview), SleepConfirm (consolidación ciclo).
+- **CSS Design System — Migración a Radix Themes**: Tokens unificados (`--radius-*`, `--spacing-*`, `--color-*`, `--font-*`). 12+ componentes con CSS Modules consistentes. Eliminado `globals.css` legacy.
+- **Edición Inline de Contenido**: NodeIdentityPanel permite editar contenido directamente con guardado inmediato vía API.
+- **Prevención de Grupos Semánticos Duplicados**: Fix en node detail y ego-graph queries. Chips de sinapsis con mejor legibilidad.
+- **Text Overflow Prevention + Reorder**: NodeIdentityPanel reordenado para mejor legibilidad.
+
+### Database & Architecture
+- **metricas_cognitivas Refactor (FK-based)**: Claves foráneas reales `largo_plazo_id` → `largo_plazo.id` y `categoria_dominante_id` → `categorias.id`. Eliminada columna `concepto` duplicada. Índices optimizados. Migración idempotente con validación de integridad.
+
+### Tests & Calidad
+- 95/95 tests ✓
+- Latencia búsqueda: ~2.8ms
+- RAM: ~20 MB
+
+---
+
 ## v18.1 (2026-05-15)
 
 ### Features & Robustness

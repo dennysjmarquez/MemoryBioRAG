@@ -215,11 +215,46 @@ import time
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
 from core.memory_store import SQLiteMemoryBioRAG
-from core.sinapsis import auto_vincular, vincular_por_sinonimos
+from core.sinapsis import auto_vincular, vincular_por_sinonimos, _tokenizar, _peso_similitud
 from core.categorizador import inferir_categoria
 
 _DEFAULT_DB = os.path.join(os.path.dirname(os.path.abspath(__file__)), "MemoryBioRAG_Data", "memory_biorag.db")
 DB_PATH = os.environ.get('BIORAG_PATH') or _DEFAULT_DB
+
+
+def _buscar_nodos_viejos_relacionados(cerebro, tokens_nuevos, contenido_nuevo, dias=7, top_k=3, umbral=0.05):
+    """
+    Busca en largo_plazo nodos > dias que sean semanticamente similares al contenido nuevo.
+    Retorna lista de (concepto, preview, dias_antiguedad, similitud).
+    """
+    if not tokens_nuevos:
+        return []
+    corte = time.time() - (dias * 86400)
+    try:
+        cerebro.cursor.execute("""
+            SELECT concepto, contenido, creado_en
+            FROM largo_plazo
+            WHERE estado = 'activo' AND creado_en < ?
+            ORDER BY creado_en ASC
+        """, (corte,))
+        candidatos = cerebro.cursor.fetchall()
+    except Exception:
+        return []
+
+    if not candidatos:
+        return []
+
+    resultados = []
+    for concepto, contenido, creado_en in candidatos:
+        tokens_exist = _tokenizar((concepto or "") + " " + (contenido or ""))
+        sim = _peso_similitud(tokens_nuevos, tokens_exist)
+        if sim >= umbral:
+            dias_ant = int((time.time() - (creado_en or time.time())) / 86400)
+            preview = (contenido or "")[:120].replace("\n", " ")
+            resultados.append((concepto, preview, dias_ant, round(sim, 2)))
+
+    resultados.sort(key=lambda x: x[3], reverse=True)
+    return resultados[:top_k]
 
 
 def cmd_buscar(cerebro, args):
@@ -417,6 +452,17 @@ def cmd_guardar(cerebro, args):
     if enlaces:
         msg += f" Vinculado con {len(enlaces)} nodo(s): {', '.join(e[0] for e in enlaces)}."
     msg += " Consolidalo con 'sueno' para hacerlo permanente."
+
+    tokens_nuevos = _tokenizar(clave + " " + contenido)
+    viejos = _buscar_nodos_viejos_relacionados(cerebro, tokens_nuevos, contenido, dias=7, top_k=3, umbral=0.05)
+    if viejos:
+        lineas_viejos = []
+        for concepto_v, preview, dias_ant, sim in viejos:
+            fecha = time.strftime("%d %b %Y", time.localtime(time.time() - dias_ant * 86400))
+            lineas_viejos.append("  \u2728 {} ({}d) \u00b7 {} (sim={}) \u00b7 {}".format(fecha, dias_ant, concepto_v, sim, preview))
+        msg += "\n\n\u2728 Conexiones con el pasado:"
+        msg += "\n" + "\n".join(lineas_viejos)
+
     print(msg)
     return 0
 
