@@ -1,19 +1,23 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useApi } from "../../hooks/useApi";
-import { getCortezaEstado, getCortezaActividad } from "../../services/api";
-import type { CortezaEstado, CortezaActividad, EnergyPoint } from "../../types";
+import { getCortezaEstado, getCortezaActividad, getBuscadasFallidas, getNodosEnRiesgo } from "../../services/api";
+import type { CortezaEstado, CortezaActividad, EnergyPoint, BuscadaFallida, NodoEnRiesgo } from "../../types";
 import styles from "./CortezaPage.module.css";
 import StatCard from "../../components/StatCard/StatCard";
 import BarChart from "../../components/BarChart/BarChart";
 import StackedBarChart from "../../components/StackedBarChart/StackedBarChart";
 import EnergyLineChart from "../../components/EnergyLineChart/EnergyLineChart";
 import DetallePunto from "../../components/DetallePunto/DetallePunto";
+import RepairCard, { type RepairItem } from "../../components/RepairCard/RepairCard";
 
 const CortezaPage = () => {
   const [estado, setEstado] = useState<CortezaEstado | null>(null);
   const [actividad, setActividad] = useState<CortezaActividad | null>(null);
   const [puntoSeleccionado, setPuntoSeleccionado] =
     useState<EnergyPoint | null>(null);
+  const [buscadasFallidas, setBuscadasFallidas] = useState<RepairItem[]>([]);
+  const [nodosEnRiesgo, setNodosEnRiesgo] = useState<RepairItem[]>([]);
+  const [loadingAction, setLoadingAction] = useState<string | null>(null);
   const {
     data: estadoData,
     loading: estadoLoading,
@@ -35,6 +39,35 @@ const CortezaPage = () => {
     if (actividadData) setActividad(actividadData);
   }, [actividadData]);
 
+  const fetchRepairData = useCallback(async () => {
+    try {
+      const [fallidas, riesgo] = await Promise.all([
+        getBuscadasFallidas(20),
+        getNodosEnRiesgo(20),
+      ]);
+      setBuscadasFallidas(
+        fallidas.map((f: BuscadaFallida) => ({
+          label: f.query,
+          meta: `${f.freq}x · score ${f.top_score} · ${f.ultima_hace}`,
+          raw: f,
+        }))
+      );
+      setNodosEnRiesgo(
+        riesgo.map((r: NodoEnRiesgo) => ({
+          label: r.concepto,
+          meta: `peso ${r.peso} · ${r.dias_idle}d · ${r.categoria}`,
+          raw: r,
+        }))
+      );
+    } catch {
+      // endpoints might not exist yet
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchRepairData();
+  }, [fetchRepairData]);
+
   const handlePointClick = (punto: EnergyPoint) => {
     setPuntoSeleccionado(punto);
   };
@@ -42,6 +75,7 @@ const CortezaPage = () => {
   const handleRefresh = () => {
     refetchEstado();
     refetchActividad();
+    fetchRepairData();
   };
 
   if (estadoLoading || actividadLoading) {
@@ -132,6 +166,55 @@ const CortezaPage = () => {
           description="Velocidad de recuperación"
         />
       </section>
+
+      <div className={styles.repairConsole}>
+        <RepairCard
+          icon={"🔍"}
+          title="Búsquedas que fallaron"
+          count={buscadasFallidas.length}
+          items={buscadasFallidas}
+          actionLabel="Crear nodo"
+          loadingKey={loadingAction}
+          onAction={async (item) => {
+            setLoadingAction(item.label);
+            try {
+              await fetch("http://localhost:8001/api/nodo", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                  concepto: item.label,
+                  contenido: `Nodo creado automáticamente por búsqueda fallida: ${item.label}`,
+                  syn: item.label,
+                }),
+              });
+              fetchRepairData();
+            } catch {
+              // ignore
+            } finally {
+              setLoadingAction(null);
+            }
+          }}
+        />
+        <RepairCard
+          icon={"⚠️"}
+          title="Nodos importantes en riesgo"
+          count={nodosEnRiesgo.length}
+          items={nodosEnRiesgo}
+          actionLabel="Acceder ahora"
+          loadingKey={loadingAction}
+          onAction={async (item) => {
+            setLoadingAction(item.label);
+            try {
+              await fetch(`http://localhost:8001/api/buscar?q=${encodeURIComponent(item.label)}`);
+              fetchRepairData();
+            } catch {
+              // ignore
+            } finally {
+              setLoadingAction(null);
+            }
+          }}
+        />
+      </div>
 
       <div className={styles.twoCol}>
         <section

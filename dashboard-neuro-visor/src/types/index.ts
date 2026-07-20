@@ -125,3 +125,24 @@ export interface BuscarResponse {
   total: number
   resultados: Nodo[]
 }
+
+export interface BuscadaFallida {
+  query: string
+  freq: number
+  ultima: number
+  top_score: number
+  ultima_hace: string
+}
+
+export interface NodoEnRiesgo {
+  concepto: string
+  peso: number
+  ultimo_acceso: number
+  categoria: string
+  dias_idle: number
+}
+
+export interface EstadoReparacion {
+  total_buscadas_fallidas: number
+  total_nodos_riesgo: number
+}

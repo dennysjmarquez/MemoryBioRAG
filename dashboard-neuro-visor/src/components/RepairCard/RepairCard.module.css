@@ -1,0 +1,118 @@
+.card {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  padding: 1.25rem;
+}
+
+.hasItems {
+  border-color: var(--color-advertencia, #eab308);
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+}
+
+.icon {
+  font-size: 1.1rem;
+}
+
+.title {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  flex: 1;
+}
+
+.badge {
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 0.15rem 0.5rem;
+  border-radius: var(--radius-sm);
+  background: var(--bg-tertiary);
+  color: var(--text-muted);
+}
+
+.badgeWarn {
+  background: var(--color-advertencia, #eab308);
+  color: #000;
+}
+
+.empty {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  padding: 0.5rem 0;
+}
+
+.list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.listItem {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.5rem 0.6rem;
+  background: var(--bg-tertiary);
+  border-radius: var(--radius-sm);
+}
+
+.itemInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  min-width: 0;
+  flex: 1;
+}
+
+.itemLabel {
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: var(--text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.itemMeta {
+  font-size: 0.7rem;
+  color: var(--text-muted);
+}
+
+.actionBtn {
+  flex-shrink: 0;
+  padding: 0.3rem 0.6rem;
+  font-size: 0.7rem;
+  font-weight: 500;
+  border: 1px solid var(--accent-color);
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--accent-color);
+  cursor: pointer;
+  transition: all 0.15s ease;
+  white-space: nowrap;
+}
+
+.actionBtn:hover:not(:disabled) {
+  background: var(--accent-color);
+  color: var(--bg-primary);
+}
+
+.actionBtn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.loading {
+  min-width: 2.5rem;
+  text-align: center;
+}

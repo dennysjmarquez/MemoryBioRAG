@@ -1,4 +1,4 @@
-import type { Nodo, EgoNetwork, CortezaEstado, CortezaActividad, Dimension, BuscarResponse } from '../types'
+import type { Nodo, EgoNetwork, CortezaEstado, CortezaActividad, Dimension, BuscarResponse, BuscadaFallida, NodoEnRiesgo, EstadoReparacion } from '../types'
 import type { EgoGraphResponse, SinapsisCreate, SinapsisDelete, SinapsisResponse } from '../types/explorar'
 
 const API_BASE = '/api'
@@ -138,4 +138,16 @@ export interface BuscarNodoResult {
 
 export function buscarNodos(query: string, limit: number = 15): Promise<{ resultados: BuscarNodoResult[]; total: number }> {
   return get(`/buscar?q=${encodeParam(query)}&limit=${limit}`)
+}
+
+export function getBuscadasFallidas(limit: number = 20): Promise<BuscadaFallida[]> {
+  return get(`/corteza/buscadas-fallidas?limit=${limit}`)
+}
+
+export function getNodosEnRiesgo(limit: number = 20): Promise<NodoEnRiesgo[]> {
+  return get(`/corteza/nodos-en-riesgo?limit=${limit}`)
+}
+
+export function getEstadoReparacion(): Promise<EstadoReparacion> {
+  return get('/corteza/estado-reparacion')
 }

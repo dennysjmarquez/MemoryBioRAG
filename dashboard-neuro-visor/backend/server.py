@@ -1183,5 +1183,88 @@ def salud_limpiar(data: dict):
     return {"status": "ok", "accion": accion, "eliminados": eliminados}
 
 
+# ============================================================
+# VISTA 6: CONSOLA DE REPARACIÓN
+# ============================================================
+
+@app.get("/api/corteza/buscadas-fallidas")
+def get_buscadas_fallidas(limit: int = Query(20, ge=1, le=100)):
+    """Búsquedas que devolvieron <3 resultados, agrupadas por query exacta.
+    Ordenadas por frecuencia descendente, luego por recencia."""
+    conn = get_db()
+    try:
+        rows = conn.execute("""
+            SELECT query, COUNT(*) as freq, MAX(creado_en) as ultima, MAX(top_score) as top_score
+            FROM log_busquedas
+            WHERE resultados_count < 3
+            GROUP BY query
+            ORDER BY freq DESC, ultima DESC
+            LIMIT ?
+        """, (limit,)).fetchall()
+        return [
+            {
+                "query": r["query"],
+                "freq": r["freq"],
+                "ultima": r["ultima"],
+                "top_score": round(r["top_score"], 4) if r["top_score"] else 0,
+                "ultima_hace": ts_to_str(r["ultima"]),
+            }
+            for r in rows
+        ]
+    finally:
+        conn.close()
+
+
+@app.get("/api/corteza/nodos-en-riesgo")
+def get_nodos_en_riesgo(limit: int = Query(20, ge=1, le=100)):
+    """Nodos activos con peso > 0.7 y sin acceso en >3 días (259200 seg).
+    Ordenados por peso descendente, luego por último acceso ascendente."""
+    conn = get_db()
+    try:
+        rows = conn.execute("""
+            SELECT lp.concepto, lp.peso_sinaptico, lp.ultimo_acceso, lp.categoria,
+                   c.name as categoria_nombre,
+                   (strftime('%s','now') - lp.ultimo_acceso) / 86400.0 as dias_idle
+            FROM largo_plazo lp
+            LEFT JOIN categories c ON lp.categoria = c.id
+            WHERE lp.estado = 'activo'
+              AND lp.peso_sinaptico > 0.7
+              AND (strftime('%s','now') - lp.ultimo_acceso) > 259200
+            ORDER BY lp.peso_sinaptico DESC, lp.ultimo_acceso ASC
+            LIMIT ?
+        """, (limit,)).fetchall()
+        return [
+            {
+                "concepto": r["concepto"],
+                "peso": round(r["peso_sinaptico"], 4),
+                "ultimo_acceso": r["ultimo_acceso"],
+                "categoria": r["categoria_nombre"] or "General",
+                "dias_idle": round(r["dias_idle"], 1),
+            }
+            for r in rows
+        ]
+    finally:
+        conn.close()
+
+
+@app.get("/api/corteza/estado-reparacion")
+def get_estado_reparacion():
+    """Conteos para badges: búsquedas fallidas totales y nodos en riesgo totales."""
+    conn = get_db()
+    try:
+        fallidas = conn.execute(
+            "SELECT COUNT(*) FROM log_busquedas WHERE resultados_count < 3"
+        ).fetchone()[0]
+        riesgo = conn.execute("""
+            SELECT COUNT(*) FROM largo_plazo
+            WHERE estado = 'activo'
+              AND peso_sinaptico > 0.7
+              AND (strftime('%s','now') - ultimo_acceso) > 259200
+        """).fetchone()[0]
+        return {"total_buscadas_fallidas": fallidas, "total_nodos_riesgo": riesgo}
+    finally:
+        conn.close()
+
+
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=DASHBOARD_BACKEND_PORT)
