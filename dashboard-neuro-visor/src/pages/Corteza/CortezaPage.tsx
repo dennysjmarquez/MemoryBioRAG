@@ -9,13 +9,14 @@ import StackedBarChart from "../../components/StackedBarChart/StackedBarChart";
 import EnergyLineChart from "../../components/EnergyLineChart/EnergyLineChart";
 import DetallePunto from "../../components/DetallePunto/DetallePunto";
 import RepairCard, { type RepairItem } from "../../components/RepairCard/RepairCard";
+import FailedSearchAccordion from "../../components/FailedSearchAccordion/FailedSearchAccordion";
 
 const CortezaPage = () => {
   const [estado, setEstado] = useState<CortezaEstado | null>(null);
   const [actividad, setActividad] = useState<CortezaActividad | null>(null);
   const [puntoSeleccionado, setPuntoSeleccionado] =
     useState<EnergyPoint | null>(null);
-  const [buscadasFallidas, setBuscadasFallidas] = useState<RepairItem[]>([]);
+  const [buscadasFallidas, setBuscadasFallidas] = useState<BuscadaFallida[]>([]);
   const [nodosEnRiesgo, setNodosEnRiesgo] = useState<RepairItem[]>([]);
   const [fallidasTotal, setFallidasTotal] = useState(0);
   const [riesgoTotal, setRiesgoTotal] = useState(0);
@@ -44,18 +45,12 @@ const CortezaPage = () => {
   const fetchRepairData = useCallback(async () => {
     try {
       const [fallidas, riesgo] = await Promise.all([
-        getBuscadasFallidas(10),
-        getNodosEnRiesgo(10),
+        getBuscadasFallidas(25),
+        getNodosEnRiesgo(25),
       ]);
       setFallidasTotal(fallidas.total);
       setRiesgoTotal(riesgo.total);
-      setBuscadasFallidas(
-        fallidas.items.map((f: BuscadaFallida) => ({
-          label: f.query,
-          meta: `${f.freq}x \u00b7 score ${f.top_score} \u00b7 ${f.ultima_hace}`,
-          raw: f,
-        }))
-      );
+      setBuscadasFallidas(fallidas.items);
       setNodosEnRiesgo(
         riesgo.items.map((r: NodoEnRiesgo) => ({
           label: r.concepto,
@@ -172,35 +167,40 @@ const CortezaPage = () => {
       </section>
 
       <div className={styles.repairConsole}>
-        <RepairCard
-          icon={"🔍"}
-          title="Búsquedas que fallaron"
-          total={fallidasTotal}
-          count={buscadasFallidas.length}
-          items={buscadasFallidas}
-          actionLabel="Crear nodo"
-          infoTooltip="Búsquedas que no encontraron suficientes resultados. Indican recuerdos que deberían existir pero no están guardados. Si no creas estos nodos, cada vez que busques algo relacionado no encontrarás nada y tendrás que empezar de cero. Usa 'Crear nodo' para agregar un recuerdo básico y que futuras búsquedas lo encuentren."
-          loadingKey={loadingAction}
-          onAction={async (item) => {
-            setLoadingAction(item.label);
-            try {
-              await fetch("http://localhost:8001/api/nodo", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                  concepto: item.label,
-                  contenido: `Nodo creado automáticamente por búsqueda fallida: ${item.label}`,
-                  syn: item.label,
-                }),
-              });
-              fetchRepairData();
-            } catch {
-              // ignore
-            } finally {
-              setLoadingAction(null);
-            }
-          }}
-        />
+        <div className={styles.repairCard}>
+          <div className={styles.repairCardHeader}>
+            <span className={styles.repairCardIcon}>🔍</span>
+            <span className={styles.repairCardTitle}>Búsquedas que fallaron</span>
+            <span className={styles.infoIcon} title="Búsquedas que no encontraron suficientes resultados. Indican recuerdos que deberían existir pero no están guardados. Si no creas estos nodos, cada vez que busques algo relacionado no encontrarás nada y tendrás que empezar de cero. Usa 'Crear nodo' para agregar un recuerdo básico y que futuras búsquedas lo encuentren.">ℹ</span>
+            <span className={`${styles.repairCardBadge} ${styles.repairCardBadgeWarn}`}>
+              {buscadasFallidas.length}{fallidasTotal > buscadasFallidas.length ? `/${fallidasTotal}` : ''}
+            </span>
+          </div>
+          <FailedSearchAccordion
+            items={buscadasFallidas}
+            loadingKey={loadingAction}
+            infoTooltip="Búsquedas que no encontraron suficientes resultados. Indican recuerdos que deberían existir pero no están guardados. Si no creas estos nodos, cada vez que busques algo relacionado no encontrarás nada y tendrás que empezar de cero. Usa 'Crear nodo' para agregar un recuerdo básico y que futuras búsquedas lo encuentren."
+            onCreateNode={async (query) => {
+              setLoadingAction(query);
+              try {
+                await fetch("http://localhost:8001/api/nodo", {
+                  method: "POST",
+                  headers: { "Content-Type": "application/json" },
+                  body: JSON.stringify({
+                    concepto: query,
+                    contenido: `Nodo creado automáticamente por búsqueda fallida: ${query}`,
+                    syn: query,
+                  }),
+                });
+                fetchRepairData();
+              } catch {
+                // ignore
+              } finally {
+                setLoadingAction(null);
+              }
+            }}
+          />
+        </div>
         <RepairCard
           icon={"⚠️"}
           title="Nodos importantes en riesgo"
@@ -213,7 +213,8 @@ const CortezaPage = () => {
           onAction={async (item) => {
             setLoadingAction(item.label);
             try {
-              await fetch(`http://localhost:8001/api/buscar?q=${encodeURIComponent(item.label)}`);
+              // Use burst search to actually wake dormant nodes
+              await fetch(`http://localhost:8001/api/buscar/rafaga?q=${encodeURIComponent(item.label)}&rafaga=${encodeURIComponent(item.label + ",lección,principio,arquitectura,protocolo")}`);
               fetchRepairData();
             } catch {
               // ignore

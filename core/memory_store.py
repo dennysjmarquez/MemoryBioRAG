@@ -693,7 +693,8 @@ class SQLiteMemoryBioRAG:
                 resultados_count INTEGER NOT NULL,
                 top_score REAL,
                 creado_en REAL NOT NULL,
-                util INTEGER DEFAULT NULL
+                util INTEGER DEFAULT NULL,
+                params_json TEXT
             )
         """)
         self.conn.commit()
@@ -707,9 +708,15 @@ class SQLiteMemoryBioRAG:
                 resultados_count INTEGER NOT NULL,
                 top_score REAL,
                 creado_en REAL NOT NULL,
-                util INTEGER DEFAULT NULL
+                util INTEGER DEFAULT NULL,
+                params_json TEXT
             )
         """)
+        # Migración: agregar params_json si falta
+        try:
+            self.cursor.execute("ALTER TABLE log_busquedas ADD COLUMN params_json TEXT")
+        except:
+            pass  # ya existe
         # Tabla puente: historial forense de acciones por ciclo de consolidación
         self.cursor.execute("""
             CREATE TABLE IF NOT EXISTS metricas_cognitivas_nodos (
@@ -3348,11 +3355,26 @@ class SQLiteMemoryBioRAG:
                 "INSERT INTO log_busquedas (query, resultados_count, top_score, creado_en) VALUES (?, ?, ?, ?)",
                 (query, total, top_score, time.time())
             )
+            self.last_log_id = self.cursor.lastrowid
             self.conn.commit()
         except Exception:
+            self.last_log_id = None
             pass
 
         return pagina_resultados, total
+
+    def actualizar_log_busqueda(self, params_json: str):
+        """Actualiza el último log de búsqueda con los params completos de recordar."""
+        if not hasattr(self, 'last_log_id') or self.last_log_id is None:
+            return
+        try:
+            self.cursor.execute(
+                "UPDATE log_busquedas SET params_json = ? WHERE id = ?",
+                (params_json, self.last_log_id)
+            )
+            self.conn.commit()
+        except Exception:
+            pass
 
     def validar_rafaga(self, rafaga_palabras):
         """Valida palabras de ráfaga contra FTS5 y prioriza por frecuencia.

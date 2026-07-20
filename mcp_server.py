@@ -823,6 +823,34 @@ def _build_server():
                 "profundidad": profundidad,
                 "trazabilidad": trazabilidad,
             }, ensure_ascii=False)
+
+            # Guardar params completos de la búsqueda en log_busquedas
+            try:
+                params_log = {
+                    "query": query,
+                    "parafrasis": parafrasis,
+                    "rafaga_palabras": rafaga_palabras,
+                    "forzar_rafaga": forzar_rafaga,
+                    "dimensiones": dimensiones,
+                    "deep": deep,
+                    "cat": cat,
+                    "dias": dias,
+                    "desde": desde,
+                    "hasta": hasta,
+                    "autor": autor,
+                    "modo_estricto": modo_estricto,
+                    "buscar_por_rol": buscar_por_rol,
+                    "usar_inferencia": usar_inferencia,
+                    "limite": limite,
+                    "asociados": asociados,
+                    "completo": completo,
+                    "context_window": context_window,
+                    "preview_chars": preview_chars,
+                }
+                cerebro.actualizar_log_busqueda(json.dumps(params_log, ensure_ascii=False))
+            except Exception:
+                pass
+
             _interceptar("recordar", query, cerebro)
             # Prepend warnings como texto plano ANTES del JSON
             if _warnings:

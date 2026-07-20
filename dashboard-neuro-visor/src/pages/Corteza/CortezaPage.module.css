@@ -88,6 +88,71 @@
   margin-bottom: 2.5rem;
 }
 
+.repairCard {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  padding: 1.5rem;
+}
+
+.repairCardHeader {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  margin-bottom: 1rem;
+}
+
+.repairCardIcon {
+  font-size: 1.25rem;
+}
+
+.repairCardTitle {
+  font-weight: 600;
+  font-size: 0.9375rem;
+  color: var(--text-primary);
+}
+
+.infoIcon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  border: 1px solid var(--border-color);
+  background: none;
+  color: var(--text-dim);
+  font-size: 11px;
+  font-weight: 600;
+  cursor: help;
+  transition: all 0.15s;
+  flex-shrink: 0;
+  line-height: 1;
+  font-family: inherit;
+  padding: 0;
+}
+
+.infoIcon:hover {
+  border-color: var(--accent-color);
+  color: var(--accent-color);
+  background: var(--accent-subtle);
+}
+
+.repairCardBadge {
+  margin-left: auto;
+  background: rgba(255, 255, 255, 0.1);
+  color: var(--text-muted);
+  font-size: 0.6875rem;
+  font-weight: 500;
+  padding: 0.125rem 0.5rem;
+  border-radius: 0.625rem;
+}
+
+.repairCardBadgeWarn {
+  background: rgba(242, 139, 62, 0.18);
+  color: #f28b3e;
+}
+
 @media (max-width: 900px) {
   .twoCol {
     grid-template-columns: 1fr;

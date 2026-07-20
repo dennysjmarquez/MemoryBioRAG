@@ -561,6 +561,52 @@ def buscar_conceptos(q: str = "", limit: int = 20):
     return {"resultados": mapped, "total": len(mapped)}
 
 
+@app.get("/api/buscar/rafaga")
+def buscar_rafaga(q: str = "", rafaga: str = "", limit: int = 10):
+    """Búsqueda por ráfaga para despertar nodos dormidos.
+    Usa palabras asociadas para encontrar nodos que la búsqueda normal no encuentra."""
+    if not q or len(q.strip()) < 2:
+        return {"resultados": [], "total": 0}
+    
+    if cerebro is None:
+        return {"resultados": [], "total": 0, "error": "cerebro not initialized"}
+    
+    try:
+        # Generar palabras de ráfaga si no se proporcionan
+        if not rafaga:
+            # Usar el query como palabra clave y agregar variaciones
+            palabras = [q.strip()]
+            # Agregar palabras comunes relacionadas
+            palabras.extend([
+                "lección", "principio", "arquitectura", "protocolo",
+                "sistema", "código", "diseño", "patrón"
+            ])
+        else:
+            palabras = [p.strip() for p in rafaga.split(",") if p.strip()]
+        
+        resultados, total, sinapsis = cerebro.buscar_por_rafaga(
+            q, palabras, limite=limit
+        )
+        
+        mapped = []
+        for r in resultados:
+            mapped.append({
+                "concepto": r[0],
+                "contenido": (r[1] or "")[:200],
+                "score": round(float(r[4]), 4) if r[4] is not None else 1.0,
+                "estado": r[3] or "activo"
+            })
+        
+        return {
+            "resultados": mapped,
+            "total": total,
+            "sinapsis_creadas": len(sinapsis),
+            "palabras_usadas": palabras[:10]  # Primeras 10 para debug
+        }
+    except Exception as e:
+        return {"resultados": [], "total": 0, "error": str(e)}
+
+
 # ============================================================
 # VISTA 3: SINAPSIS LATENTES
 # ============================================================
@@ -1209,17 +1255,26 @@ def salud_limpiar(data: dict):
 @app.get("/api/corteza/buscadas-fallidas")
 def get_buscadas_fallidas(limit: int = Query(20, ge=1, le=100)):
     """Búsquedas que devolvieron <3 resultados, agrupadas por query exacta.
-    Ordenadas por frecuencia descendente, luego por recencia."""
+    Ordenadas por frecuencia descendente, luego por recencia.
+    Incluye params_json de la búsqueda más reciente para cada query."""
     conn = get_db()
     try:
         total = conn.execute(
             "SELECT COUNT(DISTINCT query) FROM log_busquedas WHERE resultados_count < 3"
         ).fetchone()[0]
+        # Subquery para obtener el id más reciente por query
         rows = conn.execute("""
-            SELECT query, COUNT(*) as freq, MAX(creado_en) as ultima, MAX(top_score) as top_score
-            FROM log_busquedas
-            WHERE resultados_count < 3
-            GROUP BY query
+            SELECT 
+                l.query, 
+                COUNT(*) as freq, 
+                MAX(l.creado_en) as ultima, 
+                MAX(l.top_score) as top_score,
+                (SELECT params_json FROM log_busquedas l2 
+                 WHERE l2.query = l.query AND l2.resultados_count < 3 
+                 ORDER BY l2.creado_en DESC LIMIT 1) as params_json
+            FROM log_busquedas l
+            WHERE l.resultados_count < 3
+            GROUP BY l.query
             ORDER BY freq DESC, ultima DESC
             LIMIT ?
         """, (limit,)).fetchall()
@@ -1232,6 +1287,7 @@ def get_buscadas_fallidas(limit: int = Query(20, ge=1, le=100)):
                     "ultima": r["ultima"],
                     "top_score": round(r["top_score"], 4) if r["top_score"] else 0,
                     "ultima_hace": ts_to_str(r["ultima"]),
+                    "params": json.loads(r["params_json"]) if r["params_json"] else None,
                 }
                 for r in rows
             ]

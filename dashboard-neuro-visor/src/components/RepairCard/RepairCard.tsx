@@ -11,7 +11,7 @@ interface RepairCardProps {
   title: string
   total: number
   count: number
-  items: RepairItem[]
+  items: any[]
   actionLabel: string
   infoTooltip?: string
   loadingKey: string | null
@@ -40,7 +40,7 @@ const RepairCard = ({ icon, title, total, count, items, actionLabel, infoTooltip
         <span className={styles.icon}>{icon}</span>
         <span className={styles.title}>{title}</span>
         {infoTooltip && (
-          <span className={styles.infoIcon} title={infoTooltip}>ⓘ</span>
+          <span className={styles.infoIcon} title={infoTooltip}>ℹ</span>
         )}
         <span className={`${styles.badge} ${styles.badgeWarn}`}>
           {count}{total > count ? `/${total}` : ''}

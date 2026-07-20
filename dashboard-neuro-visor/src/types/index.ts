@@ -132,6 +132,7 @@ export interface BuscadaFallida {
   ultima: number
   top_score: number
   ultima_hace: string
+  params?: Record<string, unknown> | null
 }
 
 export interface NodoEnRiesgo {
