@@ -62,18 +62,33 @@ const DetallePunto = ({ punto, onClose }: DetallePuntoProps) => {
           />
         </div>
 
-        {punto.conceptos && punto.conceptos.length > 0 && (
-          <section className={styles.conceptos}>
-            <h4 className={styles.conceptosTitle}>🧠 Conceptos consolidados en este momento</h4>
+        {punto.conceptos && punto.conceptos.length > 0 ? (
+          <div className={styles.conceptos}>
+            <h4 className={styles.conceptosTitle}>🧩 Conceptos consolidados ({punto.conceptos.length})</h4>
             <ul className={styles.conceptosList}>
-              {punto.conceptos.map((c: { concepto: string; contenido: string }, i: number) => (
+              {punto.conceptos.map((c, i) => (
                 <li key={i} className={styles.conceptoItem}>
-                  <code className={styles.conceptoNombre}>{c.concepto}</code>
+                  <span className={styles.conceptoNombre}>{c.concepto}</span>
                   <p className={styles.conceptoContenido}>{c.contenido}</p>
                 </li>
               ))}
             </ul>
-          </section>
+          </div>
+        ) : (
+          <p className={styles.mantenimientoMsg}>
+            🌙 <strong>Ciclo de mantenimiento</strong> — sin nodos nuevos consolidados en esta pasada.
+            <br />
+            {punto.dormidos > 0 && (
+              <>
+                {punto.dormidos} recuerdo{punto.dormidos > 1 ? 's' : ''} pasó a estado dormido por inactividad.
+              </>
+            )}
+            {punto.dormidos === 0 && (
+              <>
+                Sin actividad de sueño en este ciclo.
+              </>
+            )}
+          </p>
         )}
       </div>
     </div>

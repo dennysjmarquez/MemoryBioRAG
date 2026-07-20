@@ -158,6 +158,17 @@
   opacity: 0.85;
 }
 
+.mantenimientoMsg {
+  margin: 0;
+  font-size: 15px;
+  color: var(--text-secondary);
+  line-height: 1.5;
+  padding: 0.75rem;
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+}
+
 @media (max-width: 600px) {
   .grid {
     grid-template-columns: 1fr 1fr;

@@ -1179,6 +1179,8 @@ class SQLiteMemoryBioRAG:
                     (key, eid)
                 )
 
+        self.conn.commit()
+
         # ponytail: removed semantic table expansion — agent passes synonyms directly
 
     def consolidar_concepto(self, concepto):
