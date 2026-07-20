@@ -1,25 +1,28 @@
-BioRAG v18.3 — Neuro-Visor Dashboard v2, CSS Design System, Salud/Explorar/Toolbar, FKs métricas cognitivas (Julio 2026)
+BioRAG v18.2 — Neuro-Visor Dashboard v2, CSS Design System, Salud/Explorar/Toolbar, FKs métricas cognitivas, Fix categoria_dominante (Julio 2026)
 
-Esta versión consolida el dashboard Neuro-Visor v2 con páginas completas de auditoría de salud del grafo, exploración interactiva de nodos, toolbar unificado con gestión de conexiones, y migración completa a sistema de diseño CSS basado en Radix Themes. Incluye refactor de la tabla métricas_cognitivas con claves foráneas reales a largo_plazo.
+Esta versión consolida TODO el trabajo desde v18.1: fix crítico de categoria_dominante + dashboard Neuro-Visor v1 + dashboard Neuro-Visor v2 completo (Salud, Explorar, Toolbar unificado, CSS Design System, FKs métricas, edición inline).
 
 Novedades principales:
 
-NEURO-VISOR DASHBOARD v2:
-- Nueva página **Salud (Graph Health Audit)**: Health Score (0-100), breakdown por severidad (crítico/advertencia/ok), auditoría de integridad referencial, aislamiento semántico, limpieza de dimensiones inactivas, nodos huérfanos. Endpoints backend: /health/summary, /health/audit, /health/cleanup. Modal de confirmación para limpieza con dry-run.
+NEURO-VISOR DASHBOARD v2 (NUEVO):
+- Nueva página **Salud (Graph Health Audit)**: Health Score (0-100), breakdown por severidad (crítico/advertencia/ok), auditoría de integridad referencial, aislamiento semántico, limpieza de dimensiones inactivas, nodos huérfanos. Endpoints: /health/summary, /health/audit, /health/cleanup. Modal confirmación limpieza con dry-run.
 - Nueva página **Explorar (Node Inspection)**: Panel unificado con pestañas: Identidad, Conexiones (sinapsis agrupadas por tipo con pesos), Contenido (editable inline), Latentes (sinapsis transitivas con score y ruta). Toolbar con acciones: Merge, Link, Delete, Sleep.
 - **Toolbar unificado** en página Corteza: Merge (combinar nodos), Link (crear sinapsis), Delete, Sleep — con modales dedicados (MergeModal, LinkModal, DeleteConfirm, SleepConfirm).
-- **CSS Design System**: Migración completa a tokens de Radix Themes (--radius-*, --spacing-*, --color-*, --font-*). 12+ componentes con CSS Modules consistentes. Eliminado globals.css legacy.
-- **Edición inline** de contenido de nodos directamente en NodeIdentityPanel.
-- **Fix: Prevención de grupos semánticos duplicados** en node detail y ego-graph queries.
-- **Fix: Text overflow prevention + reorder** en NodeIdentityPanel.
+- **CSS Design System**: Migración completa a tokens Radix Themes (--radius-*, --spacing-*, --color-*, --font-*). 12+ componentes con CSS Modules consistentes. Eliminado globals.css legacy.
+- **Edición inline** de contenido de nodos en NodeIdentityPanel.
+
+NEURO-VISOR DASHBOARD v1 (v18.2 original):
+- Fix crítico `categoria_dominante`: ahora cuenta solo nodos consolidados EN ESTE CICLO (no todos los activos). Usa `recuerdos_sesion` FK a largo_plazo.
+- Nuevo componente `DetallePunto` para inspección de ciclos (consolidados, dormidos, categoría dominante, nodos).
+- EnergyLineChart: tooltips en español, indicador de salud, título simplificado.
 
 BACKEND & ARQUITECTURA:
-- **metricas_cognitivas refactor**: FK reales (largo_plazo_id, categoria_dominante_id → largo_plazo.id / categorias.id). Eliminada columna concepto duplicada. Índices optimizados. Migración idempotente con validación de integridad.
-- Fix: Prevención de grupos semánticos duplicados en node detail y ego-graph queries.
-- Fix: Text overflow prevention y reorder en NodeIdentityPanel.
+- **metricas_cognitivas refactor**: FK reales (`largo_plazo_id`, `categoria_dominante_id` → `largo_plazo.id` / `categorias.id`). Eliminada columna `concepto` duplicada. Índices optimizados. Migración idempotente con validación integridad.
+- Fix: Prevención grupos semánticos duplicados en node detail / ego-graph queries.
+- Fix: Text overflow prevention + reorder en NodeIdentityPanel.
 
 TESTS & CALIDAD:
-- 95/95 tests ✓
+- 95/95 tests ✓ (95 biológicos + 9 forenses)
 - Latencia búsqueda: ~2.8ms
 - RAM: ~20 MB
 
@@ -32,5 +35,7 @@ Archivos modificados:
 | `dashboard-neuro-visor/src/components/NodeIdentityPanel/*` | Edición inline contenido + chips sinapsis legibles |
 | `dashboard-neuro-visor/src/styles/globals.css` | **[REFACTOR]** Design System Radix Themes tokens |
 | `dashboard-neuro-visor/backend/server.py` | Endpoints /health/*, /api/nodes/* (merge, link, delete, sleep, edit) |
-| `core/memory_store.py` | Migración metricas_cognitivas FK + validación integridad |
-| `MemoryBioRAG_Data/memory_biorag.db` | Esquema actualizado (FKs, índices) |
+| `core/memory_store.py` | Migración metricas_cognitivas FK + fix categoria_dominante + validación integridad |
+| `dashboard-neuro-visor/src/components/DetallePunto/` | **[NUEVO v1]** Inspección ciclos sueño |
+| `dashboard-neuro-visor/src/components/EnergyLineChart/` | Tooltips ES, health indicator, título simplificado |
+| `MemoryBioRAG_Data/memory_biorag.db` | Esquema actualizado (FKs, índices)

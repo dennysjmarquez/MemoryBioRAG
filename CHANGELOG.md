@@ -1,6 +1,6 @@
 # BioRAG Changelog
 
-## v18.3 (2026-07-20)
+## v18.2 (2026-07-20)
 
 ### Features & Robustness
 - **Neuro-Visor Dashboard v2 — Página Salud (Graph Health Audit)**: Health Score (0-100), breakdown por severidad (crítico/advertencia/ok), auditoría completa de integridad referencial, aislamiento semántico, dimensiones inactivas, nodos huérfanos. Endpoints: `/health/summary`, `/health/audit`, `/health/cleanup`. Modal de confirmación con dry-run.

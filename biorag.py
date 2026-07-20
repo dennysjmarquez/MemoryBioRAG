@@ -222,21 +222,20 @@ _DEFAULT_DB = os.path.join(os.path.dirname(os.path.abspath(__file__)), "MemoryBi
 DB_PATH = os.environ.get('BIORAG_PATH') or _DEFAULT_DB
 
 
-def _buscar_nodos_viejos_relacionados(cerebro, tokens_nuevos, contenido_nuevo, dias=7, top_k=3, umbral=0.05):
+def _buscar_nodos_viejos_relacionados(cerebro, tokens_nuevos, contenido_nuevo, top_k=3, umbral=0.05):
     """
-    Busca en largo_plazo nodos > dias que sean semanticamente similares al contenido nuevo.
+    Busca en largo_plazo nodos semanticamente similares al contenido nuevo.
     Retorna lista de (concepto, preview, dias_antiguedad, similitud).
     """
     if not tokens_nuevos:
         return []
-    corte = time.time() - (dias * 86400)
     try:
         cerebro.cursor.execute("""
             SELECT concepto, contenido, creado_en
             FROM largo_plazo
-            WHERE estado = 'activo' AND creado_en < ?
+            WHERE estado = 'activo'
             ORDER BY creado_en ASC
-        """, (corte,))
+        """)
         candidatos = cerebro.cursor.fetchall()
     except Exception:
         return []
@@ -454,7 +453,7 @@ def cmd_guardar(cerebro, args):
     msg += " Consolidalo con 'sueno' para hacerlo permanente."
 
     tokens_nuevos = _tokenizar(clave + " " + contenido)
-    viejos = _buscar_nodos_viejos_relacionados(cerebro, tokens_nuevos, contenido, dias=7, top_k=3, umbral=0.05)
+    viejos = _buscar_nodos_viejos_relacionados(cerebro, tokens_nuevos, contenido, top_k=3, umbral=0.05)
     if viejos:
         lineas_viejos = []
         for concepto_v, preview, dias_ant, sim in viejos:

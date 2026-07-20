@@ -1,6 +1,6 @@
-# BioRAG v18.3 — Arquitectura de Memoria Cognitiva Simbólica para Agentes de IA
+# BioRAG v18.2 — Arquitectura de Memoria Cognitiva Simbólica para Agentes de IA
 
-> **Versión:** v18.3 — Julio 2026
+> **Versión:** v18.2 — Julio 2026
 > **Paradigma:** Semántica Determinista, Discreta y Simbólica
 > **Motor:** Python puro + SQLite FTS5
 > **Dependencias ML:** 0 (mcp + nltk para WordNet, sin numpy ni sentence-transformers)

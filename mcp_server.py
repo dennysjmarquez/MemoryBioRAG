@@ -302,21 +302,20 @@ def _parsear_fechas(dias, desde, hasta):
 
 
 # HELPER: Búsqueda retroactiva de nodos viejos relacionados
-def _buscar_nodos_viejos_relacionados(cerebro, tokens_nuevos, contenido_nuevo, dias=7, top_k=3, umbral=0.05):
+def _buscar_nodos_viejos_relacionados(cerebro, tokens_nuevos, contenido_nuevo, top_k=3, umbral=0.05):
     """
-    Busca en largo_plazo nodos > dias que sean semánticamente similares al contenido nuevo.
+    Busca en largo_plazo nodos semanticamente similares al contenido nuevo.
     Retorna lista de (concepto, preview, dias_antiguedad, similitud).
     """
     if not tokens_nuevos:
         return []
-    corte = time.time() - (dias * 86400)
     try:
         cerebro.cursor.execute("""
             SELECT concepto, contenido, creado_en
             FROM largo_plazo
-            WHERE estado = 'activo' AND creado_en < ?
+            WHERE estado = 'activo'
             ORDER BY creado_en ASC
-        """, (corte,))
+        """)
         candidatos = cerebro.cursor.fetchall()
     except Exception:
         return []
@@ -1306,6 +1305,17 @@ def _build_server():
                         f"⚠️ syn bajo ({len(syn_terms)} términos) — "
                         "ideal mínimo 5. Agregá más formas de buscar este nodo."
                     )
+
+            # ── Búsqueda retroactiva: conexiones con el pasado ──
+            tokens_nuevos = _tokenizar(clave + " " + contenido)
+            viejos = _buscar_nodos_viejos_relacionados(cerebro, tokens_nuevos, contenido, top_k=3, umbral=0.05)
+            if viejos:
+                lineas_viejos = []
+                for concepto_v, preview, dias_ant, sim in viejos:
+                    fecha = time.strftime("%d %b %Y", time.localtime(time.time() - dias_ant * 86400))
+                    lineas_viejos.append("  \u2728 {} ({}d) \u00b7 {} (sim={}) \u00b7 {}".format(fecha, dias_ant, concepto_v, sim, preview))
+                msg += "\n\n\u2728 Conexiones con el pasado:"
+                msg += "\n" + "\n".join(lineas_viejos)
 
             _interceptar("aprender", f"{clave}: {contenido}", cerebro)
             resultado = json.dumps({
