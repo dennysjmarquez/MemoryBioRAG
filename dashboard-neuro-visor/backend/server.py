@@ -1253,7 +1253,7 @@ def salud_limpiar(data: dict):
 # ============================================================
 
 @app.get("/api/corteza/buscadas-fallidas")
-def get_buscadas_fallidas(limit: int = Query(20, ge=1, le=100)):
+def get_buscadas_fallidas(limit: int = Query(0, ge=0, le=1000)):
     """Búsquedas que devolvieron <3 resultados, agrupadas por query exacta.
     Ordenadas por frecuencia descendente, luego por recencia.
     Incluye params_json de la búsqueda más reciente para cada query."""
@@ -1263,7 +1263,7 @@ def get_buscadas_fallidas(limit: int = Query(20, ge=1, le=100)):
             "SELECT COUNT(DISTINCT query) FROM log_busquedas WHERE resultados_count < 3"
         ).fetchone()[0]
         # Subquery para obtener el id más reciente por query
-        rows = conn.execute("""
+        sql = """
             SELECT 
                 l.query, 
                 COUNT(*) as freq, 
@@ -1276,8 +1276,12 @@ def get_buscadas_fallidas(limit: int = Query(20, ge=1, le=100)):
             WHERE l.resultados_count < 3
             GROUP BY l.query
             ORDER BY freq DESC, ultima DESC
-            LIMIT ?
-        """, (limit,)).fetchall()
+        """
+        if limit > 0:
+            sql += " LIMIT ?"
+            rows = conn.execute(sql, (limit,)).fetchall()
+        else:
+            rows = conn.execute(sql).fetchall()
         return {
             "total": total,
             "items": [

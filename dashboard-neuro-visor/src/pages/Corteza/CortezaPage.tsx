@@ -18,7 +18,6 @@ const CortezaPage = () => {
     useState<EnergyPoint | null>(null);
   const [buscadasFallidas, setBuscadasFallidas] = useState<BuscadaFallida[]>([]);
   const [nodosEnRiesgo, setNodosEnRiesgo] = useState<RepairItem[]>([]);
-  const [fallidasTotal, setFallidasTotal] = useState(0);
   const [riesgoTotal, setRiesgoTotal] = useState(0);
   const [loadingAction, setLoadingAction] = useState<string | null>(null);
   const {
@@ -45,11 +44,10 @@ const CortezaPage = () => {
   const fetchRepairData = useCallback(async () => {
     try {
       const [fallidas, riesgo] = await Promise.all([
-        getBuscadasFallidas(25),
+        getBuscadasFallidas(),
         getNodosEnRiesgo(25),
       ]);
-      setFallidasTotal(fallidas.total);
-      setRiesgoTotal(riesgo.total);
+        setRiesgoTotal(riesgo.total);
       setBuscadasFallidas(fallidas.items);
       setNodosEnRiesgo(
         riesgo.items.map((r: NodoEnRiesgo) => ({
@@ -173,13 +171,12 @@ const CortezaPage = () => {
             <span className={styles.repairCardTitle}>Búsquedas que fallaron</span>
             <span className={styles.infoIcon} title="Búsquedas que no encontraron suficientes resultados. Indican recuerdos que deberían existir pero no están guardados. Si no creas estos nodos, cada vez que busques algo relacionado no encontrarás nada y tendrás que empezar de cero. Usa 'Crear nodo' para agregar un recuerdo básico y que futuras búsquedas lo encuentren.">ℹ</span>
             <span className={`${styles.repairCardBadge} ${styles.repairCardBadgeWarn}`}>
-              {buscadasFallidas.length}{fallidasTotal > buscadasFallidas.length ? `/${fallidasTotal}` : ''}
+              {buscadasFallidas.length}
             </span>
           </div>
           <FailedSearchAccordion
             items={buscadasFallidas}
             loadingKey={loadingAction}
-            infoTooltip="Búsquedas que no encontraron suficientes resultados. Indican recuerdos que deberían existir pero no están guardados. Si no creas estos nodos, cada vez que busques algo relacionado no encontrarás nada y tendrás que empezar de cero. Usa 'Crear nodo' para agregar un recuerdo básico y que futuras búsquedas lo encuentren."
             onCreateNode={async (query) => {
               setLoadingAction(query);
               try {

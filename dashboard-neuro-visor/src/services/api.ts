@@ -140,8 +140,8 @@ export function buscarNodos(query: string, limit: number = 15): Promise<{ result
   return get(`/buscar?q=${encodeParam(query)}&limit=${limit}`)
 }
 
-export function getBuscadasFallidas(limit: number = 20): Promise<BuscadasFallidasResponse> {
-  return get(`/corteza/buscadas-fallidas?limit=${limit}`)
+export function getBuscadasFallidas(limit: number = 0): Promise<BuscadasFallidasResponse> {
+  return get(`/corteza/buscadas-fallidas${limit > 0 ? `?limit=${limit}` : ''}`)
 }
 
 export function getNodosEnRiesgo(limit: number = 20): Promise<NodosEnRiesgoResponse> {
