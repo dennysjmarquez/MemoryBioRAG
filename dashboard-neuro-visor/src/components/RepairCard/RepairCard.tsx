@@ -9,21 +9,25 @@ interface RepairItem {
 interface RepairCardProps {
   icon: string
   title: string
+  total: number
   count: number
   items: RepairItem[]
   actionLabel: string
+  infoTooltip?: string
   loadingKey: string | null
   onAction: (item: RepairItem) => void
+  onClear?: () => void
+  clearing?: boolean
 }
 
-const RepairCard = ({ icon, title, count, items, actionLabel, loadingKey, onAction }: RepairCardProps) => {
+const RepairCard = ({ icon, title, total, count, items, actionLabel, infoTooltip, loadingKey, onAction, onClear, clearing }: RepairCardProps) => {
   if (count === 0) {
     return (
       <div className={styles.card}>
         <div className={styles.header}>
           <span className={styles.icon}>{icon}</span>
           <span className={styles.title}>{title}</span>
-          <span className={styles.badge}>{count}</span>
+          <span className={styles.badge}>0</span>
         </div>
         <div className={styles.empty}>Todo bien - nada que reparar</div>
       </div>
@@ -35,7 +39,12 @@ const RepairCard = ({ icon, title, count, items, actionLabel, loadingKey, onActi
       <div className={styles.header}>
         <span className={styles.icon}>{icon}</span>
         <span className={styles.title}>{title}</span>
-        <span className={`${styles.badge} ${styles.badgeWarn}`}>{count}</span>
+        {infoTooltip && (
+          <span className={styles.infoIcon} title={infoTooltip}>ⓘ</span>
+        )}
+        <span className={`${styles.badge} ${styles.badgeWarn}`}>
+          {count}{total > count ? `/${total}` : ''}
+        </span>
       </div>
       <ul className={styles.list}>
         {items.map((item, i) => {
@@ -57,6 +66,17 @@ const RepairCard = ({ icon, title, count, items, actionLabel, loadingKey, onActi
           )
         })}
       </ul>
+      {onClear && (
+        <div className={styles.footer}>
+          <button
+            className={styles.clearBtn}
+            onClick={onClear}
+            disabled={clearing}
+          >
+            {clearing ? 'Limpiando...' : '🗑️ Limpiar historial (>7 días)'}
+          </button>
+        </div>
+      )}
     </div>
   )
 }

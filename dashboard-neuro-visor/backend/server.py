@@ -30,6 +30,25 @@ app = FastAPI(title="BioRAG Neuro-Visor v2")
 app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["*"], allow_headers=["*"])
 
 
+def limpiar_log_busquedas(ttl_days: int = 7):
+    """Limpia logs de búsqueda mayores a TTL_days días. Se ejecuta al arrancar."""
+    try:
+        conn = sqlite3.connect(DB_PATH)
+        cutoff = time.time() - ttl_days * 86400
+        cursor = conn.execute("DELETE FROM log_busquedas WHERE creado_en < ?", (cutoff,))
+        eliminados = cursor.rowcount
+        conn.commit()
+        conn.close()
+        if eliminados > 0:
+            print(f"[log_busquedas] Limpieza TTL: {eliminados} registros eliminados (>{ttl_days} días)")
+    except Exception as e:
+        print(f"[log_busquedas] Error en limpieza TTL: {e}")
+
+
+# Ejecutar limpieza al arrancar
+limpiar_log_busquedas(ttl_days=7)
+
+
 def get_db():
     conn = sqlite3.connect(DB_PATH)
     conn.row_factory = sqlite3.Row
@@ -1193,6 +1212,9 @@ def get_buscadas_fallidas(limit: int = Query(20, ge=1, le=100)):
     Ordenadas por frecuencia descendente, luego por recencia."""
     conn = get_db()
     try:
+        total = conn.execute(
+            "SELECT COUNT(DISTINCT query) FROM log_busquedas WHERE resultados_count < 3"
+        ).fetchone()[0]
         rows = conn.execute("""
             SELECT query, COUNT(*) as freq, MAX(creado_en) as ultima, MAX(top_score) as top_score
             FROM log_busquedas
@@ -1201,16 +1223,19 @@ def get_buscadas_fallidas(limit: int = Query(20, ge=1, le=100)):
             ORDER BY freq DESC, ultima DESC
             LIMIT ?
         """, (limit,)).fetchall()
-        return [
-            {
-                "query": r["query"],
-                "freq": r["freq"],
-                "ultima": r["ultima"],
-                "top_score": round(r["top_score"], 4) if r["top_score"] else 0,
-                "ultima_hace": ts_to_str(r["ultima"]),
-            }
-            for r in rows
-        ]
+        return {
+            "total": total,
+            "items": [
+                {
+                    "query": r["query"],
+                    "freq": r["freq"],
+                    "ultima": r["ultima"],
+                    "top_score": round(r["top_score"], 4) if r["top_score"] else 0,
+                    "ultima_hace": ts_to_str(r["ultima"]),
+                }
+                for r in rows
+            ]
+        }
     finally:
         conn.close()
 
@@ -1221,6 +1246,12 @@ def get_nodos_en_riesgo(limit: int = Query(20, ge=1, le=100)):
     Ordenados por peso descendente, luego por último acceso ascendente."""
     conn = get_db()
     try:
+        total = conn.execute("""
+            SELECT COUNT(*) FROM largo_plazo
+            WHERE estado = 'activo'
+              AND peso_sinaptico > 0.7
+              AND (strftime('%s','now') - ultimo_acceso) > 259200
+        """).fetchone()[0]
         rows = conn.execute("""
             SELECT lp.concepto, lp.peso_sinaptico, lp.ultimo_acceso, lp.categoria,
                    c.name as categoria_nombre,
@@ -1233,16 +1264,33 @@ def get_nodos_en_riesgo(limit: int = Query(20, ge=1, le=100)):
             ORDER BY lp.peso_sinaptico DESC, lp.ultimo_acceso ASC
             LIMIT ?
         """, (limit,)).fetchall()
-        return [
-            {
-                "concepto": r["concepto"],
-                "peso": round(r["peso_sinaptico"], 4),
-                "ultimo_acceso": r["ultimo_acceso"],
-                "categoria": r["categoria_nombre"] or "General",
-                "dias_idle": round(r["dias_idle"], 1),
-            }
-            for r in rows
-        ]
+        return {
+            "total": total,
+            "items": [
+                {
+                    "concepto": r["concepto"],
+                    "peso": round(r["peso_sinaptico"], 4),
+                    "ultimo_acceso": r["ultimo_acceso"],
+                    "categoria": r["categoria_nombre"] or "General",
+                    "dias_idle": round(r["dias_idle"], 1),
+                }
+                for r in rows
+            ]
+        }
+    finally:
+        conn.close()
+
+
+@app.post("/api/corteza/limpiar-log")
+def limpiar_log(ttl_days: int = Query(7, ge=1, le=90)):
+    """Limpia logs de búsqueda mayores a TTL_days días."""
+    conn = get_db()
+    try:
+        cutoff = time.time() - ttl_days * 86400
+        cursor = conn.execute("DELETE FROM log_busquedas WHERE creado_en < ?", (cutoff,))
+        eliminados = cursor.rowcount
+        conn.commit()
+        return {"status": "ok", "ttl_days": ttl_days, "eliminados": eliminados}
     finally:
         conn.close()
 

@@ -17,6 +17,8 @@ const CortezaPage = () => {
     useState<EnergyPoint | null>(null);
   const [buscadasFallidas, setBuscadasFallidas] = useState<RepairItem[]>([]);
   const [nodosEnRiesgo, setNodosEnRiesgo] = useState<RepairItem[]>([]);
+  const [fallidasTotal, setFallidasTotal] = useState(0);
+  const [riesgoTotal, setRiesgoTotal] = useState(0);
   const [loadingAction, setLoadingAction] = useState<string | null>(null);
   const {
     data: estadoData,
@@ -42,20 +44,22 @@ const CortezaPage = () => {
   const fetchRepairData = useCallback(async () => {
     try {
       const [fallidas, riesgo] = await Promise.all([
-        getBuscadasFallidas(20),
-        getNodosEnRiesgo(20),
+        getBuscadasFallidas(10),
+        getNodosEnRiesgo(10),
       ]);
+      setFallidasTotal(fallidas.total);
+      setRiesgoTotal(riesgo.total);
       setBuscadasFallidas(
-        fallidas.map((f: BuscadaFallida) => ({
+        fallidas.items.map((f: BuscadaFallida) => ({
           label: f.query,
-          meta: `${f.freq}x · score ${f.top_score} · ${f.ultima_hace}`,
+          meta: `${f.freq}x \u00b7 score ${f.top_score} \u00b7 ${f.ultima_hace}`,
           raw: f,
         }))
       );
       setNodosEnRiesgo(
-        riesgo.map((r: NodoEnRiesgo) => ({
+        riesgo.items.map((r: NodoEnRiesgo) => ({
           label: r.concepto,
-          meta: `peso ${r.peso} · ${r.dias_idle}d · ${r.categoria}`,
+          meta: `peso ${r.peso} \u00b7 ${r.dias_idle}d \u00b7 ${r.categoria}`,
           raw: r,
         }))
       );
@@ -171,9 +175,11 @@ const CortezaPage = () => {
         <RepairCard
           icon={"🔍"}
           title="Búsquedas que fallaron"
+          total={fallidasTotal}
           count={buscadasFallidas.length}
           items={buscadasFallidas}
           actionLabel="Crear nodo"
+          infoTooltip="Búsquedas que no encontraron suficientes resultados. Indican recuerdos que deberían existir pero no están guardados. Si no creas estos nodos, cada vez que busques algo relacionado no encontrarás nada y tendrás que empezar de cero. Usa 'Crear nodo' para agregar un recuerdo básico y que futuras búsquedas lo encuentren."
           loadingKey={loadingAction}
           onAction={async (item) => {
             setLoadingAction(item.label);
@@ -198,9 +204,11 @@ const CortezaPage = () => {
         <RepairCard
           icon={"⚠️"}
           title="Nodos importantes en riesgo"
+          total={riesgoTotal}
           count={nodosEnRiesgo.length}
           items={nodosEnRiesgo}
           actionLabel="Acceder ahora"
+          infoTooltip={"Nodos con peso sináptico alto (>0.7) pero sin ser accedidos en más de 3 días. Riesgo de quedar dormidos por falta de uso.\n\nNOTA: Recuerdos importantes que llevan varios días sin usarse. Si no se acceden pronto, serán difíciles de encontrar después. Usa 'Acceder ahora' para mantenerlos activos.\n\nCuando un nodo duerme:\n- No aparece en búsquedas normales\n- Necesita deep=True o ráfaga específica para encontrarlo\n- Se pierde \"conectividad\" en el grafo\n- Cuesta más energía reactivarlo después"}
           loadingKey={loadingAction}
           onAction={async (item) => {
             setLoadingAction(item.label);

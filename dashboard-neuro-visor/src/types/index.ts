@@ -146,3 +146,13 @@ export interface EstadoReparacion {
   total_buscadas_fallidas: number
   total_nodos_riesgo: number
 }
+
+export interface BuscadasFallidasResponse {
+  total: number
+  items: BuscadaFallida[]
+}
+
+export interface NodosEnRiesgoResponse {
+  total: number
+  items: NodoEnRiesgo[]
+}

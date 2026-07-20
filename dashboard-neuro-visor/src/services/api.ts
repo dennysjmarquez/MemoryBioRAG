@@ -1,4 +1,4 @@
-import type { Nodo, EgoNetwork, CortezaEstado, CortezaActividad, Dimension, BuscarResponse, BuscadaFallida, NodoEnRiesgo, EstadoReparacion } from '../types'
+import type { Nodo, EgoNetwork, CortezaEstado, CortezaActividad, Dimension, BuscarResponse, EstadoReparacion, BuscadasFallidasResponse, NodosEnRiesgoResponse } from '../types'
 import type { EgoGraphResponse, SinapsisCreate, SinapsisDelete, SinapsisResponse } from '../types/explorar'
 
 const API_BASE = '/api'
@@ -140,14 +140,18 @@ export function buscarNodos(query: string, limit: number = 15): Promise<{ result
   return get(`/buscar?q=${encodeParam(query)}&limit=${limit}`)
 }
 
-export function getBuscadasFallidas(limit: number = 20): Promise<BuscadaFallida[]> {
+export function getBuscadasFallidas(limit: number = 20): Promise<BuscadasFallidasResponse> {
   return get(`/corteza/buscadas-fallidas?limit=${limit}`)
 }
 
-export function getNodosEnRiesgo(limit: number = 20): Promise<NodoEnRiesgo[]> {
+export function getNodosEnRiesgo(limit: number = 20): Promise<NodosEnRiesgoResponse> {
   return get(`/corteza/nodos-en-riesgo?limit=${limit}`)
 }
 
 export function getEstadoReparacion(): Promise<EstadoReparacion> {
   return get('/corteza/estado-reparacion')
+}
+
+export function limpiarLogBusquedas(ttlDays: number = 7): Promise<{ status: string; ttl_days: number; eliminados: number }> {
+  return post(`/corteza/limpiar-log?ttl_days=${ttlDays}`, {})
 }

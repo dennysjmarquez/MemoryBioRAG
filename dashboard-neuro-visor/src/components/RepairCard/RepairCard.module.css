@@ -1,118 +1,184 @@
 .card {
-  background: var(--bg-secondary);
-  border: 1px solid var(--border-color);
-  border-radius: var(--radius-md);
-  padding: 1.25rem;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 14px;
+  padding: 20px 24px;
 }
 
-.hasItems {
-  border-color: var(--color-advertencia, #eab308);
+.card.hasItems {
+  max-width: 700px;
+  display: flex;
+  flex-direction: column;
 }
 
 .header {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-  margin-bottom: 0.75rem;
+  gap: 10px;
+  margin-bottom: 16px;
 }
 
 .icon {
-  font-size: 1.1rem;
+  font-size: 20px;
 }
 
 .title {
-  font-size: 0.875rem;
   font-weight: 600;
-  color: var(--text-primary);
-  flex: 1;
+  font-size: 15px;
+  color: rgba(255, 255, 255, 0.95);
 }
 
 .badge {
-  font-size: 0.75rem;
-  font-weight: 600;
-  padding: 0.15rem 0.5rem;
-  border-radius: var(--radius-sm);
-  background: var(--bg-tertiary);
-  color: var(--text-muted);
+  margin-left: auto;
+  background: rgba(255, 255, 255, 0.1);
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 11px;
+  font-weight: 500;
+  padding: 2px 8px;
+  border-radius: 10px;
 }
 
 .badgeWarn {
-  background: var(--color-advertencia, #eab308);
-  color: #000;
+  background: rgba(242, 139, 62, 0.18);
+  color: #f28b3e;
+}
+
+.infoIcon {
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 14px;
+  cursor: help;
+  transition: color 0.2s;
+}
+
+.infoIcon:hover {
+  color: #fff;
 }
 
 .empty {
-  font-size: 0.8rem;
-  color: var(--text-muted);
-  padding: 0.5rem 0;
+  color: rgba(255, 255, 255, 0.3);
+  font-size: 13px;
+  text-align: center;
+  padding: 16px 0;
 }
 
 .list {
   list-style: none;
   margin: 0;
   padding: 0;
+  max-height: 500px;
+  overflow-y: auto;
   display: flex;
   flex-direction: column;
-  gap: 0.35rem;
+  gap: 8px;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255,255,255,0.15) transparent;
+}
+
+.list::-webkit-scrollbar {
+  width: 6px;
+}
+
+.list::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.list::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 3px;
 }
 
 .listItem {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 0.75rem;
-  padding: 0.5rem 0.6rem;
-  background: var(--bg-tertiary);
-  border-radius: var(--radius-sm);
+  gap: 12px;
+  padding: 10px 12px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 10px;
+  transition: background 0.15s;
+}
+
+.listItem:hover {
+  background: rgba(255, 255, 255, 0.06);
 }
 
 .itemInfo {
   display: flex;
   flex-direction: column;
-  gap: 0.15rem;
+  gap: 2px;
   min-width: 0;
   flex: 1;
 }
 
 .itemLabel {
-  font-size: 0.8rem;
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.9);
   font-weight: 500;
-  color: var(--text-primary);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
 .itemMeta {
-  font-size: 0.7rem;
-  color: var(--text-muted);
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.4);
 }
 
 .actionBtn {
   flex-shrink: 0;
-  padding: 0.3rem 0.6rem;
-  font-size: 0.7rem;
-  font-weight: 500;
-  border: 1px solid var(--accent-color);
-  border-radius: var(--radius-sm);
-  background: transparent;
-  color: var(--accent-color);
+  padding: 6px 12px;
+  font-size: 12px;
+  font-weight: 600;
+  border: none;
+  border-radius: 8px;
   cursor: pointer;
-  transition: all 0.15s ease;
-  white-space: nowrap;
+  transition: all 0.15s;
+  background: rgba(59, 130, 246, 0.2);
+  color: #60a5fa;
 }
 
 .actionBtn:hover:not(:disabled) {
-  background: var(--accent-color);
-  color: var(--bg-primary);
+  background: rgba(59, 130, 246, 0.35);
 }
 
 .actionBtn:disabled {
-  opacity: 0.5;
+  opacity: 0.4;
   cursor: not-allowed;
 }
 
-.loading {
-  min-width: 2.5rem;
-  text-align: center;
+.actionBtn.loading {
+  background: rgba(255, 255, 255, 0.05);
+  color: rgba(255, 255, 255, 0.3);
+}
+
+.footer {
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  display: flex;
+  justify-content: center;
+}
+
+.clearBtn {
+  padding: 6px 14px;
+  font-size: 12px;
+  font-weight: 500;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  cursor: pointer;
+  background: transparent;
+  color: rgba(255, 255, 255, 0.4);
+  transition: all 0.2s;
+}
+
+.clearBtn:hover:not(:disabled) {
+  background: rgba(239, 68, 68, 0.1);
+  border-color: rgba(239, 68, 68, 0.3);
+  color: #ef4444;
+}
+
+.clearBtn:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
 }
