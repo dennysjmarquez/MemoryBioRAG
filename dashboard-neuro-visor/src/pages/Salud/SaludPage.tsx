@@ -103,6 +103,17 @@ const SaludPage = () => {
       + data.problemas.latentes_ambos_huerfanos + data.problemas.dimensiones_huerfanas
     : 0
 
+  const totalRelaciones = data
+    ? data.resumen.sinapsis_total + data.resumen.latentes_total + data.resumen.dimensiones_total
+    : 0
+  const integridadReferencial = totalRelaciones === 0
+    ? 100
+    : Math.round(((totalRelaciones - totalIntegridad) / totalRelaciones) * 100 * 10) / 10
+  const integridadColor = totalIntegridad === 0 ? 'var(--green)'
+    : totalIntegridad <= 5 ? 'var(--yellow)'
+    : totalIntegridad <= 50 ? 'var(--orange)'
+    : 'var(--red)'
+
   const totalNodosProblematicos = data
     ? data.problemas.nodos_aislados + data.problemas.contenido_vacio + data.problemas.peso_cero
     : 0
@@ -161,13 +172,17 @@ const SaludPage = () => {
                 <circle
                   className={styles.scoreRingFill}
                   cx="40" cy="40" r="34"
-                  stroke="var(--green)"
+                  stroke={integridadColor}
                   strokeDasharray={circumference}
-                  strokeDashoffset={0}
+                  strokeDashoffset={circumference - (integridadReferencial / 100) * circumference}
                 />
               </svg>
-              <span className={styles.scoreLabel} style={{ color: 'var(--green)' }}>
-                100%
+              <span className={styles.scoreLabel} style={{ color: integridadColor }}>
+                {totalIntegridad === 0
+                  ? Number.isInteger(integridadReferencial)
+                    ? `${integridadReferencial}%`
+                    : `${integridadReferencial.toFixed(1)}%`
+                  : `⚠ ${totalIntegridad}`}
               </span>
             </div>
             <span className={styles.scoreText}>Integridad</span>
