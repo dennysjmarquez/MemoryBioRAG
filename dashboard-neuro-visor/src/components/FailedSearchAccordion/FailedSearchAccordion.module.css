@@ -168,3 +168,34 @@
   text-align: center;
   padding: 8px;
 }
+
+.footer {
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  display: flex;
+  justify-content: center;
+}
+
+.clearBtn {
+  padding: 6px 14px;
+  font-size: 12px;
+  font-weight: 500;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  cursor: pointer;
+  background: transparent;
+  color: rgba(255, 255, 255, 0.4);
+  transition: all 0.2s;
+}
+
+.clearBtn:hover:not(:disabled) {
+  background: rgba(239, 68, 68, 0.1);
+  border-color: rgba(239, 68, 68, 0.3);
+  color: #ef4444;
+}
+
+.clearBtn:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}

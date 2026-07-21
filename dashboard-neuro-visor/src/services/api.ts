@@ -155,3 +155,7 @@ export function getEstadoReparacion(): Promise<EstadoReparacion> {
 export function limpiarLogBusquedas(ttlDays: number = 7): Promise<{ status: string; ttl_days: number; eliminados: number }> {
   return post(`/corteza/limpiar-log?ttl_days=${ttlDays}`, {})
 }
+
+export function tocarNodo(concepto: string): Promise<{ ok: boolean; concepto: string; actualizados: number }> {
+  return post('/corteza/nodos/tocar', { concepto })
+}

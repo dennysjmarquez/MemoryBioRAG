@@ -3,6 +3,7 @@ import sys
 import json
 import time
 import sqlite3
+import threading
 from collections import deque
 from typing import Optional
 from fastapi import FastAPI, HTTPException, Query
@@ -49,10 +50,36 @@ def limpiar_log_busquedas(ttl_days: int = 7):
 limpiar_log_busquedas(ttl_days=7)
 
 
+def _auto_clear_loop():
+    """Daemon: limpia log_busquedas cada hora (TTL=7d)."""
+    while True:
+        try:
+            time.sleep(3600)
+            limpiar_log_busquedas(ttl_days=7)
+        except Exception as e:
+            print(f"[auto_clear_loop] Error: {e}")
+
+
+threading.Thread(target=_auto_clear_loop, daemon=True, name="auto-clear-log").start()
+
+
 def get_db():
     conn = sqlite3.connect(DB_PATH)
     conn.row_factory = sqlite3.Row
     return conn
+
+
+# Fallida = vacío/casi vacío O ruido masivo (muchos hits, score bajo).
+# count < 3: no hay nodos. top_score < 0.55: hay filas pero ninguna confiable
+# (ej. "perrita" → 281 hits de perfil/relación, score ~0.48 — no es éxito).
+# Funciona con o sin modo_estricto: si el ruido baja el count, entra por count;
+# si el ruido deja count alto con score flojo, entra por score.
+SCORE_FALLIDA = 0.55
+
+
+def _sql_fallida(alias: str = "") -> str:
+    p = f"{alias}." if alias else ""
+    return f"({p}resultados_count < 3 OR COALESCE({p}top_score, 0) < {SCORE_FALLIDA})"
 
 
 def ts_now():
@@ -1254,26 +1281,24 @@ def salud_limpiar(data: dict):
 
 @app.get("/api/corteza/buscadas-fallidas")
 def get_buscadas_fallidas(limit: int = Query(0, ge=0, le=1000)):
-    """Búsquedas que devolvieron <3 resultados, agrupadas por query exacta.
-    Ordenadas por frecuencia descendente, luego por recencia.
-    Incluye params_json de la búsqueda más reciente para cada query."""
+    """Búsquedas fallidas: count < 3 O top_score < 0.55 (ruido sin match útil).
+    Agrupadas por query. Incluye params_json de la más reciente."""
     conn = get_db()
     try:
         total = conn.execute(
-            "SELECT COUNT(DISTINCT query) FROM log_busquedas WHERE resultados_count < 3"
+            f"SELECT COUNT(DISTINCT query) FROM log_busquedas WHERE {_sql_fallida()}"
         ).fetchone()[0]
-        # Subquery para obtener el id más reciente por query
-        sql = """
+        sql = f"""
             SELECT 
                 l.query, 
                 COUNT(*) as freq, 
                 MAX(l.creado_en) as ultima, 
                 MAX(l.top_score) as top_score,
                 (SELECT params_json FROM log_busquedas l2 
-                 WHERE l2.query = l.query AND l2.resultados_count < 3 
+                 WHERE l2.query = l.query AND {_sql_fallida('l2')}
                  ORDER BY l2.creado_en DESC LIMIT 1) as params_json
             FROM log_busquedas l
-            WHERE l.resultados_count < 3
+            WHERE {_sql_fallida('l')}
             GROUP BY l.query
             ORDER BY freq DESC, ultima DESC
         """
@@ -1355,13 +1380,33 @@ def limpiar_log(ttl_days: int = Query(7, ge=1, le=90)):
         conn.close()
 
 
+@app.post("/api/corteza/nodos/tocar")
+def tocar_nodo(payload: dict):
+    """Marca un nodo como accedido: UPDATE ultimo_acceso=now().
+    Lo saca del panel 'Nodos en riesgo' (filtro idle > 3 días)."""
+    concepto = (payload.get("concepto") or "").strip() if isinstance(payload, dict) else ""
+    if not concepto:
+        raise HTTPException(status_code=400, detail="concepto requerido")
+    conn = get_db()
+    try:
+        cur = conn.execute(
+            "UPDATE largo_plazo SET ultimo_acceso = strftime('%s','now') WHERE concepto = ?",
+            (concepto,)
+        )
+        actualizados = cur.rowcount
+        conn.commit()
+        return {"ok": actualizados > 0, "concepto": concepto, "actualizados": actualizados}
+    finally:
+        conn.close()
+
+
 @app.get("/api/corteza/estado-reparacion")
 def get_estado_reparacion():
     """Conteos para badges: búsquedas fallidas totales y nodos en riesgo totales."""
     conn = get_db()
     try:
         fallidas = conn.execute(
-            "SELECT COUNT(*) FROM log_busquedas WHERE resultados_count < 3"
+            f"SELECT COUNT(DISTINCT query) FROM log_busquedas WHERE {_sql_fallida()}"
         ).fetchone()[0]
         riesgo = conn.execute("""
             SELECT COUNT(*) FROM largo_plazo

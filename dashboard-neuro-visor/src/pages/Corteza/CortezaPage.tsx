@@ -1,6 +1,6 @@
 import { useEffect, useState, useCallback } from "react";
 import { useApi } from "../../hooks/useApi";
-import { getCortezaEstado, getCortezaActividad, getBuscadasFallidas, getNodosEnRiesgo } from "../../services/api";
+import { getCortezaEstado, getCortezaActividad, getBuscadasFallidas, getNodosEnRiesgo, limpiarLogBusquedas, tocarNodo } from "../../services/api";
 import type { CortezaEstado, CortezaActividad, EnergyPoint, BuscadaFallida, NodoEnRiesgo } from "../../types";
 import styles from "./CortezaPage.module.css";
 import StatCard from "../../components/StatCard/StatCard";
@@ -10,6 +10,7 @@ import EnergyLineChart from "../../components/EnergyLineChart/EnergyLineChart";
 import DetallePunto from "../../components/DetallePunto/DetallePunto";
 import RepairCard, { type RepairItem } from "../../components/RepairCard/RepairCard";
 import FailedSearchAccordion from "../../components/FailedSearchAccordion/FailedSearchAccordion";
+import ActionFeedbackModal from "../../components/ActionFeedbackModal/ActionFeedbackModal";
 
 const CortezaPage = () => {
   const [estado, setEstado] = useState<CortezaEstado | null>(null);
@@ -19,7 +20,39 @@ const CortezaPage = () => {
   const [buscadasFallidas, setBuscadasFallidas] = useState<BuscadaFallida[]>([]);
   const [nodosEnRiesgo, setNodosEnRiesgo] = useState<RepairItem[]>([]);
   const [riesgoTotal, setRiesgoTotal] = useState(0);
-  const [loadingAction, setLoadingAction] = useState<string | null>(null);
+  const [clearing, setClearing] = useState(false);
+  const [feedback, setFeedback] = useState<{
+    open: boolean
+    state: 'loading' | 'success' | 'error'
+    title: string
+    target: string
+    message: string
+    detail?: string
+  }>({ open: false, state: 'loading', title: '', target: '', message: '' });
+  const closeFeedback = () => setFeedback(f => ({ ...f, open: false }));
+
+  async function runWithFeedback(
+    opts: { title: string; target: string; loadingMsg: string },
+    action: () => Promise<{ ok: boolean; message: string; detail?: string }>
+  ) {
+    setFeedback({ open: true, state: 'loading', title: opts.title, target: opts.target, message: opts.loadingMsg });
+    let result: { ok: boolean; message: string; detail?: string };
+    try {
+      result = await action();
+    } catch (e: unknown) {
+      const msg = e instanceof Error ? e.message : String(e);
+      result = { ok: false, message: 'Error de red', detail: msg };
+    }
+    setFeedback({
+      open: true,
+      state: result.ok ? 'success' : 'error',
+      title: opts.title,
+      target: opts.target,
+      message: result.message,
+      detail: result.detail,
+    });
+    if (result.ok) fetchRepairData();
+  }
   const {
     data: estadoData,
     loading: estadoLoading,
@@ -169,33 +202,47 @@ const CortezaPage = () => {
           <div className={styles.repairCardHeader}>
             <span className={styles.repairCardIcon}>🔍</span>
             <span className={styles.repairCardTitle}>Búsquedas que fallaron</span>
-            <span className={styles.infoIcon} title="Búsquedas que no encontraron suficientes resultados. Indican recuerdos que deberían existir pero no están guardados. Si no creas estos nodos, cada vez que busques algo relacionado no encontrarás nada y tendrás que empezar de cero. Usa 'Crear nodo' para agregar un recuerdo básico y que futuras búsquedas lo encuentren.">ℹ</span>
+            <span className={styles.infoIcon} title="Búsquedas fallidas: menos de 3 resultados O top_score < 0.55 (mucho ruido sin match útil). Incluye vacías y las que devolvieron basura irrelevante. Indican recuerdos que deberían existir pero no están. Usa 'Crear nodo' para que futuras búsquedas los encuentren.">ℹ</span>
             <span className={`${styles.repairCardBadge} ${styles.repairCardBadgeWarn}`}>
               {buscadasFallidas.length}
             </span>
           </div>
           <FailedSearchAccordion
             items={buscadasFallidas}
-            loadingKey={loadingAction}
-            onCreateNode={async (query) => {
-              setLoadingAction(query);
+            loadingKey={null}
+            onCreateNode={(query) =>
+              runWithFeedback(
+                { title: 'Crear nodo', target: query, loadingMsg: 'Creando nodo en BioRAG...' },
+                async () => {
+                  const res = await fetch("http://localhost:8001/api/nodo", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                      concepto: query,
+                      contenido: `Nodo creado automáticamente por búsqueda fallida: ${query}`,
+                      syn: query,
+                    }),
+                  });
+                  if (!res.ok) {
+                    return { ok: false, message: 'No se pudo crear el nodo', detail: `HTTP ${res.status}` };
+                  }
+                  return { ok: true, message: 'Nodo creado correctamente', detail: query };
+                }
+              )
+            }
+            onClear={async () => {
+              if (clearing) return;
+              setClearing(true);
               try {
-                await fetch("http://localhost:8001/api/nodo", {
-                  method: "POST",
-                  headers: { "Content-Type": "application/json" },
-                  body: JSON.stringify({
-                    concepto: query,
-                    contenido: `Nodo creado automáticamente por búsqueda fallida: ${query}`,
-                    syn: query,
-                  }),
-                });
+                await limpiarLogBusquedas(7);
                 fetchRepairData();
               } catch {
                 // ignore
               } finally {
-                setLoadingAction(null);
+                setClearing(false);
               }
             }}
+            clearing={clearing}
           />
         </div>
         <RepairCard
@@ -206,19 +253,29 @@ const CortezaPage = () => {
           items={nodosEnRiesgo}
           actionLabel="Acceder ahora"
           infoTooltip={"Nodos con peso sináptico alto (>0.7) pero sin ser accedidos en más de 3 días. Riesgo de quedar dormidos por falta de uso.\n\nNOTA: Recuerdos importantes que llevan varios días sin usarse. Si no se acceden pronto, serán difíciles de encontrar después. Usa 'Acceder ahora' para mantenerlos activos.\n\nCuando un nodo duerme:\n- No aparece en búsquedas normales\n- Necesita deep=True o ráfaga específica para encontrarlo\n- Se pierde \"conectividad\" en el grafo\n- Cuesta más energía reactivarlo después"}
-          loadingKey={loadingAction}
-          onAction={async (item) => {
-            setLoadingAction(item.label);
-            try {
-              // Use burst search to actually wake dormant nodes
-              await fetch(`http://localhost:8001/api/buscar/rafaga?q=${encodeURIComponent(item.label)}&rafaga=${encodeURIComponent(item.label + ",lección,principio,arquitectura,protocolo")}`);
-              fetchRepairData();
-            } catch {
-              // ignore
-            } finally {
-              setLoadingAction(null);
-            }
-          }}
+          loadingKey={null}
+          onAction={(item) =>
+            runWithFeedback(
+              { title: 'Acceder ahora', target: item.label, loadingMsg: 'Marcando nodo como accedido...' },
+              async () => {
+                const data = await tocarNodo(item.label);
+                if (!data.ok) {
+                  return {
+                    ok: false,
+                    message: 'No se encontró el nodo',
+                    detail: data.actualizados === 0
+                      ? `No existe "${item.label}" en BioRAG`
+                      : `actualizados=${data.actualizados}`,
+                  };
+                }
+                return {
+                  ok: true,
+                  message: 'Nodo marcado como accedido',
+                  detail: 'Último acceso actualizado • ya no aparecerá en riesgo',
+                };
+              }
+            )
+          }
         />
       </div>
 
@@ -281,6 +338,16 @@ const CortezaPage = () => {
           />
         </section>
       </div>
+
+      <ActionFeedbackModal
+        open={feedback.open}
+        state={feedback.state}
+        title={feedback.title}
+        target={feedback.target}
+        message={feedback.message}
+        detail={feedback.detail}
+        onClose={closeFeedback}
+      />
     </>
   );
 };
