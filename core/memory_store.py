@@ -3,6 +3,7 @@ import sqlite3
 import time
 import re
 import sys
+from collections import deque
 
 # Auto-cargar .env.local al importar (antes de leer cualquier variable de entorno)
 from config import _load_env_local
@@ -99,6 +100,26 @@ class SQLiteMemoryBioRAG:
         # Trazaabilidad: datos de la última búsqueda para mcp_server.py
         self.last_todos = []
         self.last_origen_scores = {}
+        # Buffer circular de memoria de trabajo (v19.0 Context Window)
+        self._context_window = deque(maxlen=10)
+
+    def registrar_acceso_contexto(self, concepto: str):
+        """Registra un concepto accedido recientemente en la memoria de trabajo."""
+        if concepto and concepto not in self._context_window:
+            self._context_window.append(concepto)
+
+    def obtener_bonus_contexto(self, concepto: str) -> float:
+        """Devuelve bonus de atención (+0.05) si el concepto o sus tokens coinciden con la memoria de trabajo."""
+        if not self._context_window or not concepto:
+            return 0.0
+        if concepto in self._context_window:
+            return 0.05
+        # Coincidencia por tokens con items en la ventana
+        tokens_concepto = set(concepto.lower().split())
+        for ctx_item in self._context_window:
+            if tokens_concepto.intersection(set(ctx_item.lower().split())):
+                return 0.03
+        return 0.0
 
     def _resolver_categoria_id(self, nombre):
         if not self._cat_cache:
@@ -498,7 +519,7 @@ class SQLiteMemoryBioRAG:
             "CREATE INDEX IF NOT EXISTS idx_ngs_concepto ON nodo_grupos_semanticos(concepto)"
         )
 
-        # 3g. Tabla de sinapsis latentes (caché de inferencia transitiva v16.0)
+        # 3g. Tabla de sinapsis latentes (caché de inferencia transitiva v19.0 SLS)
         self.cursor.execute("""
             CREATE TABLE IF NOT EXISTS sinapsis_latentes (
                 origen TEXT NOT NULL,
@@ -506,9 +527,18 @@ class SQLiteMemoryBioRAG:
                 peso_atenuado REAL NOT NULL,
                 saltos INTEGER NOT NULL,
                 calculado_en REAL NOT NULL,
+                pmi_score REAL DEFAULT 0.0,
+                tiene_dim_comun INTEGER DEFAULT 0,
                 PRIMARY KEY (origen, destino)
             )
         """)
+        # Migración v19.0: añadir columnas si no existen
+        sl_info = [r[1] for r in self.conn.execute("PRAGMA table_info(sinapsis_latentes)").fetchall()]
+        if 'pmi_score' not in sl_info:
+            self.cursor.execute("ALTER TABLE sinapsis_latentes ADD COLUMN pmi_score REAL DEFAULT 0.0")
+        if 'tiene_dim_comun' not in sl_info:
+            self.cursor.execute("ALTER TABLE sinapsis_latentes ADD COLUMN tiene_dim_comun INTEGER DEFAULT 0")
+
         self.cursor.execute(
             "CREATE INDEX IF NOT EXISTS idx_sl_origen ON sinapsis_latentes(origen)"
         )
@@ -739,6 +769,23 @@ class SQLiteMemoryBioRAG:
         self.cursor.execute("CREATE INDEX IF NOT EXISTS idx_mc_nodos_largo_plazo_id ON metricas_cognitivas_nodos(largo_plazo_id)")
         self.cursor.execute("CREATE INDEX IF NOT EXISTS idx_mc_nodos_accion ON metricas_cognitivas_nodos(accion)")
         self.cursor.execute("CREATE INDEX IF NOT EXISTS idx_mc_nodos_anomalo ON metricas_cognitivas_nodos(anomalo)")
+
+        # Migración v19.0 SLS para sinapsis_latentes
+        sl_info = [r[1] for r in self.conn.execute("PRAGMA table_info(sinapsis_latentes)").fetchall()]
+        if 'pmi_score' not in sl_info:
+            self.cursor.execute("ALTER TABLE sinapsis_latentes ADD COLUMN pmi_score REAL DEFAULT 0.0")
+        if 'tiene_dim_comun' not in sl_info:
+            self.cursor.execute("ALTER TABLE sinapsis_latentes ADD COLUMN tiene_dim_comun INTEGER DEFAULT 0")
+
+        # Tabla nodos_sdm para Sparse Distributed Memory (v19.0)
+        self.cursor.execute("""
+            CREATE TABLE IF NOT EXISTS nodos_sdm (
+                concepto TEXT PRIMARY KEY,
+                vector BLOB NOT NULL,
+                actualizado_en REAL NOT NULL
+            )
+        """)
+
         self.conn.commit()
 
     def _calcular_jaccard(self, str1, str2):
@@ -1558,7 +1605,7 @@ class SQLiteMemoryBioRAG:
                 for i in range(0, len(nodos_a_dormir), 900):
                     lote = [n[0] for n in nodos_a_dormir[i:i+900]]
                     placeholders = ",".join("?" for _ in lote)
-                    self.cursor.execute(f"UPDATE largo_plazo SET estado = 'dormido' WHERE concepto IN ({placeholders})", lote)
+                    self.cursor.execute(f"UPDATE largo_plazo SET estado = 'dormido', peso_sinaptico = MAX(0.05, ROUND(peso_sinaptico * 0.9, 2)) WHERE concepto IN ({placeholders})", lote)
                 
                 if len(nodos_a_dormir) <= 10:
                     for concepto, peso in nodos_a_dormir:

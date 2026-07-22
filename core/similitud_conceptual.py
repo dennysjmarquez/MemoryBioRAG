@@ -160,32 +160,95 @@ def _similitud_red(cursor, query_tokens, nodo_concepto, max_puentes=10, grafo=No
     return mejor
 
 
-def score_similitud_latente(cursor, query_tokens, nodo_concepto, nodo_contenido, grafo=None, nodos_cache=None):
+def score_similitud_latente(cursor, query_tokens, nodo_concepto, nodo_contenido,
+                            grafo=None, nodos_cache=None, cerebro=None, peso_sinaptico=1.0):
     """
-    Score compuesto: 60% red sináptica + 40% contenido.
-    Retorna float [0, 1].
+    Score compuesto v19.0 (8 Señales Cognitivas):
+      0.25 × Texto / BM25 / Contenido
+      0.15 × Jaccard sobre vecinos directos
+      0.15 × PMI / NPMI Semántico (co-ocurrencia)
+      0.15 × Inferencia Transitiva Latente (SLS)
+      0.10 × Coincidencia en Dimensiones Semánticas
+      0.10 × SDM Similitud Hamming (Sparse Distributed Memory)
+      0.05 × Peso Sináptico (LTP / LTD)
+      0.05 × Context Window Bonus (Memoria de trabajo)
+
+    Retorna float [0.0, 1.0].
     """
-    score_red = _similitud_red(cursor, query_tokens, nodo_concepto, grafo=grafo, nodos_cache=nodos_cache)
+    # 1. Contenido / Texto (0.25)
     contenido_tokens = _tokenizar_contenido(nodo_contenido)
     score_texto = similitud_por_contenido(query_tokens, contenido_tokens)
 
-    score_base = score_red * 0.60 + score_texto * 0.40
+    # 2. Jaccard Vecinos (0.15)
+    score_red = _similitud_red(cursor, query_tokens, nodo_concepto, grafo=grafo, nodos_cache=nodos_cache)
 
-    # Boost simbólico cuando score_base es bajo (por ejemplo, por problemas ortográficos o ligeros sinónimos)
-    if score_base < UMBRAL_JACCARD:
-        try:
-            from core.fallback_simbolico import score_simbolico
-            score_sym = score_simbolico(
-                query_tokens,
-                nodo_concepto,
-                nodo_contenido or ""
+    # 3. PMI / NPMI Semántico (0.15)
+    score_pmi = 0.0
+    try:
+        from core.pmi_semantico import score_pmi_nodo
+        q_frase = " ".join(query_tokens)
+        score_pmi = score_pmi_nodo(q_frase, nodo_concepto)
+    except Exception:
+        pass
+
+    # 4. Inferencia Transitiva Latente SLS (0.15)
+    score_latente = 0.0
+    try:
+        from core.inferencia_transitiva import obtener_score_latente
+        score_latente = obtener_score_latente(cursor, list(query_tokens), nodo_concepto)
+    except Exception:
+        pass
+
+    # 5. Overlap de Dimensiones Semánticas (0.10)
+    score_dim = 0.0
+    try:
+        if query_tokens:
+            ph = ",".join("?" * len(query_tokens))
+            cursor.execute(
+                f"SELECT COUNT(DISTINCT d.dimension_id) FROM largo_plazo_dimensiones d "
+                f"WHERE d.concepto = ? AND d.dimension_id IN ("
+                f"  SELECT dimension_id FROM largo_plazo_dimensiones WHERE concepto IN ({ph})"
+                f")",
+                (nodo_concepto, *query_tokens)
             )
-            if score_sym > score_base:
-                return score_sym * 0.5 + score_base * 0.5
-        except ImportError:
-            pass
+            r = cursor.fetchone()
+            if r and r[0]:
+                score_dim = min(1.0, r[0] * 0.5)
+    except Exception:
+        pass
 
-    return score_base
+    # 6. SDM Similitud Hamming (0.10)
+    score_sdm = 0.0
+    try:
+        from core.sdm import generar_vector_sdm, similitud_sdm
+        q_str = " ".join(query_tokens)
+        q_vec = generar_vector_sdm(q_str, q_str)
+        n_vec = generar_vector_sdm(nodo_concepto, nodo_contenido or "")
+        score_sdm = similitud_sdm(q_vec, n_vec)
+    except Exception:
+        pass
+
+    # 7. Peso Sináptico (0.05)
+    peso_norm = min(1.0, max(0.0, peso_sinaptico / 5.0))
+
+    # 8. Context Window Bonus (0.05)
+    score_context = 0.0
+    if cerebro and hasattr(cerebro, 'obtener_bonus_contexto'):
+        score_context = cerebro.obtener_bonus_contexto(nodo_concepto)
+
+    # Suma ponderada de 8 señales
+    score_final = (
+        0.25 * score_texto +
+        0.15 * score_red +
+        0.15 * score_pmi +
+        0.15 * score_latente +
+        0.10 * score_dim +
+        0.10 * score_sdm +
+        0.05 * peso_norm +
+        0.05 * score_context
+    )
+
+    return round(min(1.0, score_final), 4)
 
 
 def _generar_subterminos_fts(token):

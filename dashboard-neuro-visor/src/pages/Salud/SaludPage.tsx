@@ -221,7 +221,7 @@ const SaludPage = () => {
           )}
         </div>
         <button className={styles.refreshBtn} onClick={() => { fetchAudit(); fetchRepairData() }} disabled={loading}>
-          ↻ Refrescar
+          {loading ? "⟳ Actualizando..." : "🔄 Actualizar"}
         </button>
       </div>
 
