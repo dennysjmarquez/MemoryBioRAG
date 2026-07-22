@@ -202,18 +202,19 @@ def score_similitud_latente(cursor, query_tokens, nodo_concepto, nodo_contenido,
     # 5. Overlap de Dimensiones Semánticas (0.10)
     score_dim = 0.0
     try:
-        if query_tokens:
-            ph = ",".join("?" * len(query_tokens))
+        conceptos_ref = list(nodos_cache)[:25] if nodos_cache else []
+        if conceptos_ref:
+            ph = ",".join("?" * len(conceptos_ref))
             cursor.execute(
                 f"SELECT COUNT(DISTINCT d.dimension_id) FROM largo_plazo_dimensiones d "
                 f"WHERE d.concepto = ? AND d.dimension_id IN ("
                 f"  SELECT dimension_id FROM largo_plazo_dimensiones WHERE concepto IN ({ph})"
                 f")",
-                (nodo_concepto, *query_tokens)
+                (nodo_concepto, *conceptos_ref)
             )
             r = cursor.fetchone()
             if r and r[0]:
-                score_dim = min(1.0, r[0] * 0.5)
+                score_dim = min(1.0, r[0] * 0.35)
     except Exception:
         pass
 
@@ -344,8 +345,28 @@ def _obtener_candidatos_similitud(cursor, query_tokens):
 
 def buscar_por_similitud_latente(cursor, frase, limite=None, umbral=None):
     """
-    Búsqueda por similitud conceptual latente.
-    Retorna lista de (concepto, contenido, peso, estado, score_latente, asociaciones).
+    Búsqueda por similitud conceptual latente con Propagación Sináptica.
+
+    Implementa un modelo de dos fases análogo a la evocación hipocampal:
+
+      FASE 1 — Activación Léxica (Corteza sensorial → Hipocampo):
+        El query activa nodos que contienen las palabras exactas.
+        Se evalúan con las 8 señales cognitivas (texto, PMI, Jaccard, etc.)
+        Los top-K nodos se convierten en SEMILLAS (neuronas activadas).
+
+      FASE 2 — Propagación Sináptica (CA3 Pattern Completion):
+        Las semillas propagan energía por sus sinapsis (directas + latentes)
+        a TODOS los candidatos. Un candidato que está conectado a MÚLTIPLES
+        semillas recibe amplificación (resonancia por convergencia).
+        Un candidato conectado a UNA sola semilla recibe atenuación.
+
+    Esto permite que nodos semánticamente relacionados (que no contienen
+    las palabras del query pero SÍ están conectados a los nodos que sí las
+    contienen) suban al ranking.
+
+    Ejemplo: Query "arquitectura frontend" → activa cv_adevcom (semilla)
+             → caso_formularios_anidados_angular (conectado con peso 0.493)
+             → SUBE al ranking aunque no contiene "arquitectura frontend"
     """
     if limite is None:
         limite = LIMITE_SIMILITUD
@@ -359,6 +380,9 @@ def buscar_por_similitud_latente(cursor, frase, limite=None, umbral=None):
     if not candidatos:
         return []
 
+    # ═══════════════════════════════════════════════════════════════════
+    # FASE 1: Scoring de 8 señales (Activación Léxica)
+    # ═══════════════════════════════════════════════════════════════════
     scored = []
     grafo = _cargar_grafo(cursor)
     try:
@@ -382,14 +406,95 @@ def buscar_por_similitud_latente(cursor, frase, limite=None, umbral=None):
             nodos_cache = None
     except sqlite3.OperationalError:
         nodos_cache = None
+
     try:
+        # Pre-filtro suave: permitir que más candidatos pasen a la Fase 2.
+        # El umbral real se aplica DESPUÉS de la propagación sináptica.
+        # Analogía: el cerebro no descarta una neurona antes de que la
+        # activación llegue a ella — espera a ver si recibe energía.
+        umbral_prefiltro = umbral * 0.5
         for rowid, concepto, contenido, peso, estado, asoc in candidatos:
             s = score_similitud_latente(cursor, query_tokens, concepto, contenido, grafo=grafo, nodos_cache=nodos_cache)
-            if s >= umbral:
+            if s >= umbral_prefiltro:
                 scored.append((s, (rowid, concepto, contenido, peso, estado, asoc or "")))
     finally:
         _limpiar_cache()
 
+    if not scored:
+        return []
+
     scored.sort(key=lambda x: x[0], reverse=True)
-    return [row for _, row in scored[:limite]]
+
+    # ═══════════════════════════════════════════════════════════════════
+    # FASE 2: Propagación Sináptica desde Semillas (Pattern Completion)
+    # ═══════════════════════════════════════════════════════════════════
+    # Analogía biológica: en la región CA3 del hipocampo, las neuronas
+    # activadas (semillas) propagan energía a través de sus colaterales
+    # recurrentes (sinapsis) a neuronas vecinas.
+    #
+    # Inhibición Lateral de Hubs: para evitar que nodos hiperconectados
+    # (ej. perfil general) absorban toda la energía, cada peso se atenia
+    # por la masa del grado del nodo destino (grados ^ 0.3).
+    K_SEMILLAS = 10
+    PESO_PROPAGACION = 0.25
+
+    semillas = [row[1] for _, row in scored[:K_SEMILLAS]]
+
+    # Precalculo de grados para inhibición lateral
+    try:
+        cur_g = cursor.execute(
+            "SELECT origen, COUNT(*) FROM sinapsis GROUP BY origen "
+            "UNION ALL SELECT destino, COUNT(*) FROM sinapsis GROUP BY destino"
+        ).fetchall()
+        grados = {}
+        for r in cur_g:
+            grados[r[0]] = grados.get(r[0], 0) + r[1]
+    except Exception:
+        grados = {}
+
+    sinapsis_semillas = {}  # {concepto_candidato: peso_total}
+    for semilla in semillas:
+        # Directas
+        rows = cursor.execute(
+            'SELECT destino, peso FROM sinapsis WHERE origen = ? '
+            'UNION SELECT origen, peso FROM sinapsis WHERE destino = ?',
+            (semilla, semilla)
+        ).fetchall()
+        for destino, peso in rows:
+            deg = max(1, grados.get(destino, 1))
+            peso_eff = peso / (deg ** 0.3)
+            sinapsis_semillas.setdefault(destino, 0.0)
+            sinapsis_semillas[destino] += peso_eff
+
+        # Latentes (incluye inmaduras con su peso atenuado)
+        rows_lat = cursor.execute(
+            'SELECT destino, peso_atenuado FROM sinapsis_latentes WHERE origen = ? '
+            'UNION SELECT origen, peso_atenuado FROM sinapsis_latentes WHERE destino = ?',
+            (semilla, semilla)
+        ).fetchall()
+        for destino, peso in rows_lat:
+            deg = max(1, grados.get(destino, 1))
+            peso_eff = peso / (deg ** 0.3)
+            sinapsis_semillas.setdefault(destino, 0.0)
+            sinapsis_semillas[destino] += peso_eff
+
+    # Calcular score de propagación para cada candidato
+    propagados = []
+    for score_original, row in scored:
+        concepto = row[1]
+
+        # ¿Este candidato recibe energía de las semillas?
+        energia_recibida = sinapsis_semillas.get(concepto, 0.0)
+
+        # Normalizar
+        prop_score = min(1.0, energia_recibida / 2.5)
+
+        # Combinar: score original + propagación sináptica
+        score_final = score_original * (1.0 - PESO_PROPAGACION) + prop_score * PESO_PROPAGACION
+
+        propagados.append((score_final, row))
+
+    propagados.sort(key=lambda x: x[0], reverse=True)
+    # Aplicar umbral real DESPUÉS de la propagación
+    return [row for score_f, row in propagados if score_f >= umbral][:limite]
 

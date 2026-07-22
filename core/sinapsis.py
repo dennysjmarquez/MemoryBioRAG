@@ -213,6 +213,64 @@ def auto_vincular(cerebro, concepto, contenido, umbral=0.4):
             except sqlite3.OperationalError:
                 pass
 
+    # ─── Pasada 4: Resonancia PMI Hebbiana (pmi_hebbiano) ───
+    # Conecta el nodo a conceptos emergentes que tienen alto PMI con sus tokens,
+    # resolviendo la categorización implícita (ej. Angular → Frontend).
+    try:
+        from core.pmi_semantico import pares_fuertes
+        from core.stemmer_es import stem
+
+        stems_nuevos = set(stem(t) for t in tokens_nuevos if len(t) >= 3)
+        tokens_pmi = {}  # {tok_asoc: max_npmi}
+        for s in stems_nuevos:
+            fuertes = pares_fuertes(cerebro.cursor, s, top_n=20)
+            for tok_asoc, npmi in fuertes:
+                if npmi >= 0.35 and tok_asoc not in stems_nuevos:
+                    if npmi > tokens_pmi.get(tok_asoc, 0.0):
+                        tokens_pmi[tok_asoc] = npmi
+
+        if tokens_pmi:
+            ya_vinculados = {v[0] for v in vinculados}
+            fts_tokens = [f'"{t}"' for t in tokens_pmi.keys() if len(t) >= 3]
+            if fts_tokens:
+                fts_q = " OR ".join(fts_tokens)
+                cerebro.cursor.execute(
+                    "SELECT DISTINCT l.concepto, l.contenido, l.peso_sinaptico "
+                    "FROM largo_plazo_fts f JOIN largo_plazo l ON l.rowid = f.rowid "
+                    "WHERE largo_plazo_fts MATCH ? AND l.estado = 'activo' AND l.concepto != ? "
+                    "ORDER BY l.peso_sinaptico DESC LIMIT 50",
+                    (fts_q, concepto)
+                )
+                count_pmi = 0
+                for conc_exist, cont_exist, peso_exist in cerebro.cursor.fetchall():
+                    if count_pmi >= 15:
+                        break
+                    if conc_exist in ya_vinculados:
+                        continue
+
+                    # Calcular fuerza hebbiana basada en PMI
+                    tokens_dest = set(stem(t) for t in _tokenizar(conc_exist + " " + (cont_exist or "")) if len(t) >= 3)
+                    pmi_matches = [tokens_pmi[t] for t in tokens_pmi if t in tokens_dest]
+                    if pmi_matches:
+                        avg_pmi = sum(pmi_matches) / len(pmi_matches)
+                        peso_link = round(min(1.0, avg_pmi * 0.75 + peso_exist * 0.25), 2)
+                        if peso_link >= 0.35:
+                            cerebro.cursor.execute(
+                                "INSERT INTO sinapsis (origen, destino, peso, tipo, creado_en) "
+                                "VALUES (?, ?, ?, 'pmi_hebbiano', ?) "
+                                "ON CONFLICT(origen, destino) DO UPDATE SET "
+                                "peso = MAX(sinapsis.peso, excluded.peso), "
+                                "tipo = CASE WHEN sinapsis.tipo IN ('manual', 'manual_v7', 'sinonimo_explicito', 'test') THEN sinapsis.tipo ELSE excluded.tipo END, "
+                                "ultimo_uso = COALESCE(sinapsis.ultimo_uso, excluded.creado_en)",
+                                (concepto, conc_exist, peso_link, time.time())
+                            )
+                            vinculados.append((conc_exist, peso_link))
+                            count_pmi += 1
+                if any(v not in ya_vinculados for v in vinculados):
+                    cerebro.cursor.connection.commit()
+    except Exception:
+        pass
+
     if vinculados:
         _sincronizar_asociaciones(cerebro, concepto)
         for conc_exist, _ in vinculados:

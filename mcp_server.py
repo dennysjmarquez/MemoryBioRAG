@@ -536,28 +536,48 @@ def _build_server():
             # Inicializar parafrasis_list (se usa en buscar_por_frase)
             parafrasis_list = None
 
-            if parafrasis is not None and not parafrasis.strip():
-                return json.dumps({
-                    "status": "error",
-                    "mensaje": "parafrasis es OBLIGATORIO y no puede estar vacío. "
-                               "Genera 3-5 reformulaciones separadas por coma.",
-                    "ejemplo": "parafrasis='el felino descansó,el minino reposó'",
-                }, ensure_ascii=False)
-
             if parafrasis:
-                if not parafrasis.strip():
-                    return json.dumps({
-                        "status": "error",
-                        "mensaje": "parafrasis es OBLIGATORIO. Genera reformulaciones separadas por coma.",
-                        "ejemplo": "parafrasis='el felino descansó,el minino reposó'",
-                    }, ensure_ascii=False)
                 parafrasis_list = [p.strip() for p in parafrasis.split(",") if p.strip()]
-                if not parafrasis_list:
-                    return json.dumps({
-                        "status": "error",
-                        "mensaje": "parafrasis es OBLIGATORIO. Genera reformulaciones separadas por coma.",
-                        "ejemplo": "parafrasis='el felino descansó,el minino reposó'",
-                    }, ensure_ascii=False)
+
+            # ── Auto-Expansión Semántica (Auto-Paráfrasis y Auto-Dimensiones por PMI) ──
+            # Si el agente no proporcionó paráfrasis o dimensiones, el cerebro las deduce
+            # automáticamente consultando la matriz de co-ocurrencia PMI y el grafo ontológico.
+            if query and not parafrasis_list:
+                try:
+                    from core.pmi_semantico import pares_fuertes, _tokenizar
+                    from core.stemmer_es import stem
+                    q_toks = _tokenizar(query)
+                    auto_paras = set()
+                    for t in q_toks:
+                        if len(t) >= 3:
+                            st = stem(t)
+                            fuertes = pares_fuertes(cerebro.cursor, st, top_n=5)
+                            for tok_asoc, npmi in fuertes:
+                                if npmi >= 0.35 and tok_asoc not in q_toks:
+                                    auto_paras.add(tok_asoc)
+                    if auto_paras:
+                        parafrasis_list = list(auto_paras)[:10]
+                except Exception:
+                    pass
+
+            if query and not dimensiones_ids:
+                try:
+                    from core.pmi_semantico import _tokenizar
+                    from core.stemmer_es import stem
+                    q_stems = [stem(t) for t in _tokenizar(query) if len(t) >= 3]
+                    if q_stems:
+                        fts_q = ' OR '.join(q_stems)
+                        cerebro.cursor.execute(
+                            "SELECT DISTINCT d.dimension_id FROM largo_plazo_dimensiones d "
+                            "JOIN largo_plazo l ON l.concepto = d.concepto "
+                            "WHERE l.rowid IN (SELECT rowid FROM largo_plazo_fts WHERE largo_plazo_fts MATCH ?) LIMIT 10",
+                            (fts_q,)
+                        )
+                        auto_dims = [r[0] for r in cerebro.cursor.fetchall()]
+                        if auto_dims:
+                            dimensiones_ids = set(auto_dims)
+                except Exception:
+                    pass
 
             # v13: parsear fechas ANTES de buscar (filtro temporal PRE-hoc)
             desde_ts = None
@@ -624,6 +644,13 @@ def _build_server():
                         score_parafrasis_best = r[4]
 
             sinapsis_creadas = []
+            if forzar_rafaga:
+                _warnings.append(
+                    "⚠️ ADVERTENCIA: Se activó 'forzar_rafaga=True' (Modo Fuerza Bruta). "
+                    "El motor de similitud semántica y la propagación sináptica están desactivados en este modo. "
+                    "Los scores son planos y el ruido aumenta. No uses forzar_rafaga=True para búsquedas normales — "
+                    "úsalo SOLO como último recurso de contingencia si el PASO 1 normal devuelve 0 resultados."
+                )
             if rafaga_list and (forzar_rafaga or not resultados or score_top < THRESHOLD_RAFTAGA_MCP):
                 # Ampliar ráfaga con palabras clave de la paráfrasis si existen
                 if parafrasis:
@@ -1038,9 +1065,9 @@ def _build_server():
         )] = 0,
         forzar_rafaga: Annotated[bool, Field(
             description=(
-                "Si True, ejecuta modo ráfaga aunque ya haya resultados en la búsqueda normal. "
-                "REQUIERE rafaga_palabras — sin él la tool retorna error. "
-                "Usar en PASO 3 y PASO 4 del flujo obligatorio."
+                "⚠️ NUNCA USAR EN BÚSQUEDAS NORMALES. Si True, ejecuta el modo ráfaga por fuerza bruta (FTS5 OR broad search). "
+                "Desactiva el motor semántico de 8 señales y la propagación sináptica, asigna scores planos y aumenta el ruido. "
+                "REQUIERE rafaga_palabras. ÚSALO ÚNICAMENTE como último recurso de contingencia si el PASO 1 normal devolvió 0 resultados."
             )
         )] = False,
         rafaga_palabras: Annotated[Optional[str], Field(
