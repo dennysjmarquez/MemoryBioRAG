@@ -1651,7 +1651,7 @@ class SQLiteMemoryBioRAG:
 
         # 5. Vaciar la memoria de corto plazo (La mente amanece despejada)
         self.cursor.execute("DELETE FROM corto_plazo")
-        self.conn.commit()
+        # Transacción se mantiene abierta para commit atómico final con métricas
 
         # 6. Benchmark de rendimiento post-consolidacion
         self._benchmark_rendimiento()
@@ -1951,7 +1951,7 @@ class SQLiteMemoryBioRAG:
             CREATE TRIGGER trg_cleanup_bridge_after_delete
             AFTER DELETE ON largo_plazo
             BEGIN
-                DELETE FROM metricas_cognitivas_nodos WHERE concepto = OLD.concepto;
+                DELETE FROM metricas_cognitivas_nodos WHERE largo_plazo_id = OLD.id;
             END
         """)
         self.cursor.execute("""
@@ -2122,11 +2122,7 @@ class SQLiteMemoryBioRAG:
                 FOREIGN KEY (categoria_dominante_id) REFERENCES categories(id) ON DELETE SET NULL
             )
         """)
-        # NOTA (2026-07-16): Registros de categoria_dominante anteriores a esta fecha
-        # pueden ser incorrectos (bug: consultaba categoría dominante de TODA la base,
-        # no del ciclo actual). No se puede recalcular retroactivamente para ciclos
-        # sin bridge table (metricas_cognitivas_nodos). Solo ciclos desde el fix en
-        # adelante tienen el valor correcto.
+        self._crear_tabla_historial_si_falta()
         self.conn.commit()
 
     def _agregar_prefix_wildcards(self, query):

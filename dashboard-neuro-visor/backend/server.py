@@ -245,7 +245,7 @@ def corteza_actividad(dias: int = 7):
                     JOIN largo_plazo l ON mn.largo_plazo_id = l.id
                     WHERE mn.metrica_id = ? AND mn.accion IN ('nuevo', 'actualizado')
                     ORDER BY mn.peso_nuevo DESC, mn.id DESC
-                    LIMIT 3
+                    LIMIT 50
                 """, (metrica_id,))
                 conceptos = [{"concepto": row[0], "contenido": (row[1] or "")[:120]} for row in c.fetchall()]
 
