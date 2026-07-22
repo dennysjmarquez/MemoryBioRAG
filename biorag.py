@@ -475,8 +475,7 @@ def cmd_asociar(cerebro, args):
 
 
 def cmd_sueno(cerebro, args):
-    limite = float(args[0]) if args else None
-    cerebro.ciclo_sueno_consolidacion(limite_energia=limite)
+    cerebro.ciclo_sueno_consolidacion()
     return 0
 
 

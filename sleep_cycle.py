@@ -32,7 +32,7 @@ def ejecutar_sueño():
     print(f"[i] Nodos corticales activos previos: {activos_previos}")
     
     # 2. Ejecutar Consolidación y Poda Sináptica
-    cerebro.ciclo_sueno_consolidacion(limite_energia=12.0)
+    cerebro.ciclo_sueno_consolidacion()
     
     # 3. Mostrar estado post-consolidación
     cerebro.cursor.execute("SELECT COUNT(*) FROM largo_plazo WHERE estado = 'activo'")

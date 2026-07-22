@@ -161,7 +161,7 @@ def ejecutar_benchmark_volumen(volumen):
     cerebro.conn.commit()
     
     t0 = time.perf_counter()
-    cerebro.ciclo_sueno_consolidacion(limite_energia=100)
+    cerebro.ciclo_sueno_consolidacion()
     t1 = time.perf_counter()
     resultados["ciclo_sueno"] = t1 - t0
     

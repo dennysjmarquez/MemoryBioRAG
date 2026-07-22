@@ -1417,13 +1417,12 @@ class SQLiteMemoryBioRAG:
         self.cursor.execute("CREATE INDEX IF NOT EXISTS idx_mc_nodos_accion ON metricas_cognitivas_nodos(accion)")
         self.cursor.execute("CREATE INDEX IF NOT EXISTS idx_mc_nodos_anomalo ON metricas_cognitivas_nodos(anomalo)")
 
-    def ciclo_sueno_consolidacion(self, limite_energia=None):
+    def ciclo_sueno_consolidacion(self):
         """
         Consolida las experiencias de Corto Plazo a Largo Plazo (Corteza Permanente).
         Aplica LTD (Depresión a Largo Plazo) mediante decaimiento pasivo (-0.05) a los nodos no usados.
         Duerme los recuerdos cuyo peso sea <= 0.05.
-        Aplica Inhibición Lateral Activa si la 'energía sináptica' total de los nodos activos excede el limite_energia.
-        limite_energia: si es None, se calcula dinámicamente como n_activos * 1.6 (mínimo 10.0).
+        Aplica Inhibición Lateral Activa de forma 100% automática según la carga cortical (n_activos * 1.0).
         """
         print("\n--- Iniciando Ciclo de Consolidación (Sueño) ---")
         
@@ -1573,10 +1572,9 @@ class SQLiteMemoryBioRAG:
         nodos_dormidos_ltd = activos_antes_dormir & dormidos_after_ltd  # intersección: estaban activos Y ahora son dormidos
 
         # 4. Inhibición Lateral Activa (Control de Saturación de Energía)
-        if limite_energia is None:
-            self.cursor.execute("SELECT COUNT(*) FROM largo_plazo WHERE estado = 'activo'")
-            n_activos = self.cursor.fetchone()[0] or 0
-            limite_energia = max(10.0, n_activos * 1.6)
+        self.cursor.execute("SELECT COUNT(*) FROM largo_plazo WHERE estado = 'activo'")
+        n_activos = self.cursor.fetchone()[0] or 0
+        limite_energia = max(10.0, n_activos * 0.8)
 
         self.cursor.execute("SELECT SUM(peso_sinaptico) FROM largo_plazo WHERE estado = 'activo'")
         energia_total = self.cursor.fetchone()[0] or 0.0

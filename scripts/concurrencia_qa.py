@@ -120,7 +120,7 @@ class HiloWorker:
                     )
                     # Ocasionalmente consolidar
                     if i % 5 == 0:
-                        self.cerebro.ciclo_sueno_consolidacion(limite_energia=None)
+                        self.cerebro.ciclo_sueno_consolidacion()
                         
                 elif tipo_operacion == "awakener":
                     # Despertar el nodo dormido

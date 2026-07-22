@@ -51,7 +51,7 @@ def test_sistema():
     
     # 2. Ejecutar Consolidación (Ciclo de Sueño)
     print("\n--- 3. Consolidando Recuerdos (Ciclo de Sueño) ---")
-    cerebro.ciclo_sueno_consolidacion(limite_energia=10.0)
+    cerebro.ciclo_sueno_consolidacion()
     
     # 3. Buscar recuerdo exacto
     print("\n--- 4. Buscando Recuerdo Exacto ---")
@@ -90,7 +90,7 @@ def test_sistema():
     cerebro.cursor.execute("UPDATE largo_plazo SET peso_sinaptico = 0.15 WHERE concepto = 'empleo'")
     cerebro.conn.commit()
     # Ejecutar consolidación (cero elementos en corto plazo, por lo que 'empleo' decae de 0.15 a 0.10 y se duerme)
-    cerebro.ciclo_sueno_consolidacion(limite_energia=10.0)
+    cerebro.ciclo_sueno_consolidacion()
     
     # Verificar si 'empleo' está dormido
     cerebro.cursor.execute("SELECT estado, peso_sinaptico FROM largo_plazo WHERE concepto = 'empleo'")
@@ -110,7 +110,7 @@ def test_sistema():
     
     # Ejecutar ciclo de sueño con un límite de energía estricto (ejemplo: 5.0)
     # Esto forzará a la inhibición lateral a apagar los nodos más débiles/antiguos
-    cerebro.ciclo_sueno_consolidacion(limite_energia=5.0)
+    cerebro.ciclo_sueno_consolidacion()
     
     # Comprobar cuántos nodos siguen activos
     cerebro.cursor.execute("SELECT COUNT(*) FROM largo_plazo WHERE estado = 'activo'")
@@ -1990,7 +1990,7 @@ def test_sistema():
     try:
         fc = SQLiteMemoryBioRAG(db_path=_forensic_db)
         fc.percibir_corto_plazo("test_forensic_nuevo", "Nodo forense nuevo", "test,nuevo,forensic", "Lesson")
-        fc.ciclo_sueno_consolidacion(limite_energia=10.0)
+        fc.ciclo_sueno_consolidacion()
         nodos_f = _get_nodos_acciones(fc)
         assert 'test_forensic_nuevo' in nodos_f, "Nodo no registrado en historial forense"
         accion_f = nodos_f['test_forensic_nuevo'][0]
@@ -2010,13 +2010,13 @@ def test_sistema():
     try:
         fc = SQLiteMemoryBioRAG(db_path=_forensic_db)
         fc.percibir_corto_plazo("test_forensic_upd", "Primera versión", "test,actualizado", "Lesson")
-        fc.ciclo_sueno_consolidacion(limite_energia=10.0)
+        fc.ciclo_sueno_consolidacion()
         # Bajar peso para que la fusión tenga efecto visible
         fc.cursor.execute("UPDATE largo_plazo SET peso_sinaptico = 0.5 WHERE concepto = 'test_forensic_upd'")
         fc.conn.commit()
         # Segundo ciclo: mismo nodo actualizado
         fc.percibir_corto_plazo("test_forensic_upd", "Segunda versión", "test,actualizado,v2", "Lesson")
-        fc.ciclo_sueno_consolidacion(limite_energia=10.0)
+        fc.ciclo_sueno_consolidacion()
         nodos_f = _get_nodos_acciones(fc)
         acc_upd = [a for a in nodos_f.get('test_forensic_upd', []) if a['accion'] == 'actualizado']
         assert len(acc_upd) >= 1, f"No se registró acción 'actualizado'"
@@ -2035,11 +2035,11 @@ def test_sistema():
     try:
         fc = SQLiteMemoryBioRAG(db_path=_forensic_db)
         fc.percibir_corto_plazo("test_forensic_ltd", "Nodo LTD", "test,dormido,ltd", "Lesson")
-        fc.ciclo_sueno_consolidacion(limite_energia=10.0)
+        fc.ciclo_sueno_consolidacion()
         # Forzar peso bajo para que LTD lo duerma
         fc.cursor.execute("UPDATE largo_plazo SET peso_sinaptico = 0.03 WHERE concepto = 'test_forensic_ltd'")
         fc.conn.commit()
-        fc.ciclo_sueno_consolidacion(limite_energia=10.0)
+        fc.ciclo_sueno_consolidacion()
         estado_f = fc.cursor.execute("SELECT estado FROM largo_plazo WHERE concepto = 'test_forensic_ltd'").fetchone()
         assert estado_f[0] == 'dormido', f"Estado esperado 'dormido', got '{estado_f[0]}'"
         nodos_f = _get_nodos_acciones(fc)
@@ -2059,7 +2059,7 @@ def test_sistema():
         fc = SQLiteMemoryBioRAG(db_path=_forensic_db)
         for i in range(15):
             fc.percibir_corto_plazo(f"test_inhib_lat_{i}", f"Contenido inhib {i}", f"test,inhib, Lat{i}", "General")
-        fc.ciclo_sueno_consolidacion(limite_energia=1.0)
+        fc.ciclo_sueno_consolidacion()
         dormidos_f = fc.cursor.execute("SELECT COUNT(*) FROM largo_plazo WHERE estado = 'dormido' AND concepto LIKE 'test_inhib_lat_%'").fetchone()[0]
         assert dormidos_f > 0, "Ningún nodo dormido por inhibición lateral"
         nodos_f = _get_nodos_acciones(fc)
@@ -2078,7 +2078,7 @@ def test_sistema():
         fc = SQLiteMemoryBioRAG(db_path=_forensic_db)
         for i in range(5):
             fc.percibir_corto_plazo(f"test_eliminado_{i}", f"Contenido evicción {i}", f"test,elim{i}", "General")
-        fc.ciclo_sueno_consolidacion(limite_energia=10.0)
+        fc.ciclo_sueno_consolidacion()
         fc.cursor.execute("UPDATE largo_plazo SET estado = 'dormido', peso_sinaptico = 0.005 WHERE concepto LIKE 'test_eliminado_%'")
         fc.conn.commit()
         os.environ['BIORAG_PODAR'] = 'true'
@@ -2124,7 +2124,7 @@ def test_sistema():
     try:
         fc = SQLiteMemoryBioRAG(db_path=_forensic_db)
         fc.percibir_corto_plazo("test_forensic_fk", "Test FK", "test,fk", "Lesson")
-        fc.ciclo_sueno_consolidacion(limite_energia=10.0)
+        fc.ciclo_sueno_consolidacion()
         row_f = fc.cursor.execute("SELECT mn.metrica_id FROM metricas_cognitivas_nodos mn JOIN largo_plazo l ON mn.largo_plazo_id = l.id WHERE l.concepto = 'test_forensic_fk' LIMIT 1").fetchone()
         assert row_f is not None, "No hay registro forense"
         existe_f = fc.cursor.execute("SELECT 1 FROM metricas_cognitivas WHERE id = ?", (row_f[0],)).fetchone()
@@ -2143,7 +2143,7 @@ def test_sistema():
     try:
         fc = SQLiteMemoryBioRAG(db_path=_forensic_db)
         fc.percibir_corto_plazo("test_forensic_preview", "x" * 200, "test,preview", "Lesson")
-        fc.ciclo_sueno_consolidacion(limite_energia=10.0)
+        fc.ciclo_sueno_consolidacion()
         preview_f = fc.cursor.execute("SELECT mn.contenido_preview FROM metricas_cognitivas_nodos mn JOIN largo_plazo l ON mn.largo_plazo_id = l.id WHERE l.concepto = 'test_forensic_preview'").fetchone()
         assert preview_f is not None, "No hay registro forense"
         assert len(preview_f[0]) <= 100, f"contenido_preview excede 100 chars: {len(preview_f[0])}"
@@ -2160,10 +2160,10 @@ def test_sistema():
     try:
         fc = SQLiteMemoryBioRAG(db_path=_forensic_db)
         fc.percibir_corto_plazo("test_forensic_anomalo", "Nodo anómalo", "test,anomalo", "Lesson")
-        fc.ciclo_sueno_consolidacion(limite_energia=10.0)
+        fc.ciclo_sueno_consolidacion()
         fc.cursor.execute("UPDATE largo_plazo SET peso_sinaptico = -0.5 WHERE concepto = 'test_forensic_anomalo'")
         fc.conn.commit()
-        fc.ciclo_sueno_consolidacion(limite_energia=10.0)
+        fc.ciclo_sueno_consolidacion()
         nodos_f = _get_nodos_acciones(fc)
         if 'test_forensic_anomalo' in nodos_f:
             anomalous_f = [a for a in nodos_f['test_forensic_anomalo'] if a['anomalo'] == 1]

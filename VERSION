@@ -31,11 +31,16 @@ Esta versión marca el hito fundamental hacia la autonomía semántica en memori
    - Inyección de warnings de runtime en el servidor MCP para prevenir el uso indebido de `forzar_rafaga=True` (evitando la degradación a búsquedas planas FTS5).
    - Sanitización contra inyecciones adversariales y truncamiento a 64 caracteres por token.
 
+5. **Commit Atómico Unificado, Homeostasis Energética y Visibilidad Completa:**
+   - **Garantía Transaccional:** Se unificó el ciclo de consolidación (`ciclo_sueno_consolidacion()`) en una sola transacción atómica de SQLite. La transferencia de recuerdos, la Inhibición Lateral, la optimización FTS5 y el registro de métricas forenses (`metricas_cognitivas_nodos`) se ejecutan bajo un único `commit()` final, garantizando cero desincronizaciones.
+   - **Homeostasis Energética Cortical:** Se eliminó la dependencia de parámetros de energía externos (`limite_energia`), dejando la Inhibición Lateral Activa 100% autorregulada en función de la masa activa real ($\max(10.0, \text{n\_activos} \times 0.8)$).
+   - **Visibilidad Completa en Neuro-Visor:** Se eliminó el truncamiento `LIMIT 3` en el backend del dashboard (`/api/corteza/actividad`), permitiendo visualizar la totalidad de los conceptos consolidados en cada ciclo.
+
 ---
 
 ### 📊 Métricas de Validación en Producción:
-- **Suite de Tests:** 95/95 tests automatizados pasados ✓.
-- **Corpus Recalculado:** 543 nodos, 9,063 pares PMI semánticos.
+- **Suite de Tests:** 104/104 tests automatizados pasados ✓.
+- **Corpus Recalculado:** 558 nodos, 9,063 pares PMI semánticos.
 - **Latencia Promedio:** ~2.8ms en búsquedas complejas.
 - **Consumo de Memoria RAM:** ~20 MB (0 GPU, 0 PyTorch, 0 Transformers).
 - **Precisión de Evocación Autónoma:** Score top pasó de 0.6500 a 0.7376 en búsquedas sin paráfrasis.
