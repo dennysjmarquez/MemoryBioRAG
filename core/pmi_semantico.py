@@ -280,20 +280,36 @@ def score_pmi_nodo(arg1, arg2=None, arg3=None) -> float:
     if not _cache['npmi'] and cursor is not None:
         recalcular(cursor)
 
-    scores = []
+    # ─────────────────────────────────────────────────────────────────
+    # Pattern Completion Scoring (Completación de Patrón)
+    # ─────────────────────────────────────────────────────────────────
+    # Analogía biológica: la query es un PATRÓN de neuronas activándose
+    # juntas. Cada neurona (token del query) busca su mejor resonancia
+    # en el nodo candidato. El score final es el PROMEDIO de todas las
+    # neuronas del query, INCLUYENDO las que no resonaron (score=0).
+    #
+    # Antes: avg de pares positivos → "arquitectura" sola daba 1.0
+    # Ahora: avg de TODOS los tokens → "arquitectura" sin "frontend" da 0.5
+    #
+    # Esto es exactamente cómo el hipocampo evalúa Pattern Completion:
+    # una señal parcial genera una reconstrucción parcial, no total.
+    per_query_best = []
     for qt in q_tokens:
+        best = 0.0
         for ct in c_tokens:
             if qt == ct:
-                scores.append(1.0)
-                continue
+                best = 1.0
+                break  # Máximo posible para este token, no buscar más
             npmi = get_npmi(cursor, qt, ct)
-            if npmi > 0:
-                scores.append(npmi)
+            if npmi > best:
+                best = npmi
+        per_query_best.append(best)
 
-    if not scores:
+    if not per_query_best:
         return 0.0
 
-    return round(min(1.0, sum(scores) / len(scores)), 4)
+    # Promedio de TODOS los query tokens (incluye los 0.0)
+    return round(min(1.0, sum(per_query_best) / len(per_query_best)), 4)
 
 
 def pares_fuertes(cursor, token: str, top_n: int = 10) -> list[tuple[str, float]]:

@@ -90,9 +90,28 @@ def distancia_hamming(vec1: bytes, vec2: bytes) -> int:
 
 
 def similitud_sdm(vec1: bytes, vec2: bytes) -> float:
-    """Retorna una métrica de similitud entre 0.0 y 1.0 basada en distancia Hamming."""
-    dist = distancia_hamming(vec1, vec2)
-    return max(0.0, round(1.0 - (dist / float(SDM_BITS)), 4))
+    """Similitud SDM por Jaccard sobre bits activos (no Hamming).
+
+    Analogía biológica: dos engramas se parecen cuando comparten
+    NEURONAS ACTIVAS, no cuando comparten silencio. La distancia
+    Hamming clásica inflaba la similitud porque 90%+ de los bits
+    eran 0 en ambos vectores (esparsidad simétrica).
+
+    Jaccard sobre bits activos:
+      J = |A ∩ B| / |A ∪ B|  (solo bits encendidos)
+
+    Esto elimina la inflación por ceros compartidos y da una
+    medida real de solapamiento de representación.
+    """
+    if len(vec1) != SDM_BYTES or len(vec2) != SDM_BYTES:
+        return 0.0
+    int1 = int.from_bytes(vec1, 'big')
+    int2 = int.from_bytes(vec2, 'big')
+    bits_interseccion = (int1 & int2).bit_count()  # Bits 1 en AMBOS
+    bits_union = (int1 | int2).bit_count()          # Bits 1 en CUALQUIERA
+    if bits_union == 0:
+        return 0.0
+    return round(bits_interseccion / bits_union, 4)
 
 
 def indexar_nodo_sdm(cerebro, concepto: str) -> bool:
