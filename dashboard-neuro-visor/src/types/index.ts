@@ -131,6 +131,7 @@ export interface BuscadaFallida {
   freq: number
   ultima: number
   top_score: number
+  resultados_count?: number
   ultima_hace: string
   params?: Record<string, unknown> | null
 }

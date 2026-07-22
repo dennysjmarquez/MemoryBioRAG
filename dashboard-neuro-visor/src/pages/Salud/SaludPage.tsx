@@ -1,5 +1,10 @@
 import { useState, useEffect, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { getBuscadasFallidas, getNodosEnRiesgo, limpiarLogBusquedas, tocarNodo } from '../../services/api'
+import type { BuscadaFallida, NodoEnRiesgo } from '../../types'
+import FailedSearchAccordion from '../../components/FailedSearchAccordion/FailedSearchAccordion'
+import RepairCard, { type RepairItem } from '../../components/RepairCard/RepairCard'
+import ActionFeedbackModal from '../../components/ActionFeedbackModal/ActionFeedbackModal'
 import styles from './SaludPage.module.css'
 
 interface AuditData {
@@ -54,6 +59,40 @@ const SaludPage = () => {
     peso0: true,
   })
 
+  const [buscadasFallidas, setBuscadasFallidas] = useState<BuscadaFallida[]>([])
+  const [nodosEnRiesgo, setNodosEnRiesgo] = useState<RepairItem[]>([])
+  const [riesgoTotal, setRiesgoTotal] = useState(0)
+  const [clearing, setClearing] = useState(false)
+  const [feedback, setFeedback] = useState<{
+    open: boolean
+    state: 'loading' | 'success' | 'error'
+    title: string
+    target: string
+    message: string
+    detail?: string
+  }>({ open: false, state: 'loading', title: '', target: '', message: '' })
+  const closeFeedback = () => setFeedback(f => ({ ...f, open: false }))
+
+  const fetchRepairData = useCallback(async () => {
+    try {
+      const [fallidas, riesgo] = await Promise.all([
+        getBuscadasFallidas(),
+        getNodosEnRiesgo(25),
+      ])
+      setRiesgoTotal(riesgo.total)
+      setBuscadasFallidas(fallidas.items)
+      setNodosEnRiesgo(
+        riesgo.items.map((r: NodoEnRiesgo) => ({
+          label: r.concepto,
+          meta: `peso ${r.peso} · ${r.dias_idle}d · ${r.categoria}`,
+          raw: r,
+        }))
+      )
+    } catch {
+      // endpoints might not exist yet
+    }
+  }, [])
+
   const fetchAudit = useCallback(async () => {
     setLoading(true)
     setError(null)
@@ -70,6 +109,7 @@ const SaludPage = () => {
   }, [])
 
   useEffect(() => { fetchAudit() }, [fetchAudit])
+  useEffect(() => { fetchRepairData() }, [fetchRepairData])
 
   const limpiar = async (accion: string, count: number, label: string) => {
     const msg = accion === 'todo'
@@ -96,6 +136,29 @@ const SaludPage = () => {
   }
 
   const toggle = (key: string) => setExpanded(prev => ({ ...prev, [key]: !prev[key] }))
+
+  async function runWithFeedback(
+    opts: { title: string; target: string; loadingMsg: string },
+    action: () => Promise<{ ok: boolean; message: string; detail?: string }>
+  ) {
+    setFeedback({ open: true, state: 'loading', title: opts.title, target: opts.target, message: opts.loadingMsg })
+    let result: { ok: boolean; message: string; detail?: string }
+    try {
+      result = await action()
+    } catch (e: unknown) {
+      const msg = e instanceof Error ? e.message : String(e)
+      result = { ok: false, message: 'Error de red', detail: msg }
+    }
+    setFeedback({
+      open: true,
+      state: result.ok ? 'success' : 'error',
+      title: opts.title,
+      target: opts.target,
+      message: result.message,
+      detail: result.detail,
+    })
+    if (result.ok) fetchRepairData()
+  }
 
   // ── Separación: Integridad vs Calidad ──
   const totalIntegridad = data
@@ -157,12 +220,95 @@ const SaludPage = () => {
             <span className={styles.subtitle}>Última auditoría: {timeAgo(lastAudit)}</span>
           )}
         </div>
-        <button className={styles.refreshBtn} onClick={fetchAudit} disabled={loading}>
+        <button className={styles.refreshBtn} onClick={() => { fetchAudit(); fetchRepairData() }} disabled={loading}>
           ↻ Refrescar
         </button>
       </div>
 
-      {/* ── Sección A: Integridad referencial ── */}
+      {/* ── Sección 1: Necesita tu atención ── */}
+      <div className={styles.repairConsole}>
+        <div className={styles.repairCard}>
+          <div className={styles.repairCardHeader}>
+            <span className={styles.repairCardIcon}>🔍</span>
+            <span className={styles.repairCardTitle}>Búsquedas que fallaron</span>
+            <span className={styles.infoIcon} title="Búsquedas fallidas: menos de 3 resultados O top_score < 0.55 (mucho ruido sin match útil). Indican recuerdos que deberían existir pero no están. Usa 'Crear nodo' para que futuras búsquedas los encuentren.">ℹ</span>
+            <span className={`${styles.repairCardBadge} ${styles.repairCardBadgeWarn}`}>
+              {buscadasFallidas.length}
+            </span>
+          </div>
+          <FailedSearchAccordion
+            items={buscadasFallidas}
+            loadingKey={null}
+            onCreateNode={(query) =>
+              runWithFeedback(
+                { title: 'Crear nodo', target: query, loadingMsg: 'Creando nodo en BioRAG...' },
+                async () => {
+                  const res = await fetch("http://localhost:8001/api/nodo", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                      concepto: query,
+                      contenido: `Nodo creado automáticamente por búsqueda fallida: ${query}`,
+                      syn: query,
+                    }),
+                  })
+                  if (!res.ok) {
+                    return { ok: false, message: 'No se pudo crear el nodo', detail: `HTTP ${res.status}` }
+                  }
+                  return { ok: true, message: 'Nodo creado correctamente', detail: query }
+                }
+              )
+            }
+            onClear={async () => {
+              if (clearing) return
+              setClearing(true)
+              try {
+                await limpiarLogBusquedas(7)
+                fetchRepairData()
+              } catch {
+                // ignore
+              } finally {
+                setClearing(false)
+              }
+            }}
+            clearing={clearing}
+          />
+        </div>
+        <RepairCard
+          icon={"⚠️"}
+          title="Nodos importantes en riesgo"
+          total={riesgoTotal}
+          count={nodosEnRiesgo.length}
+          items={nodosEnRiesgo}
+          actionLabel="Acceder ahora"
+          infoTooltip={"Nodos con peso sináptico alto (>0.7) pero sin ser accedidos en más de 3 días. Riesgo de quedar dormidos por falta de uso.\n\nCuando un nodo duerme:\n- No aparece en búsquedas normales\n- Necesita deep=True o ráfaga específica para encontrarlo\n- Se pierde conectividad en el grafo\n- Cuesta más energía reactivarlo después"}
+          loadingKey={null}
+          onAction={(item) =>
+            runWithFeedback(
+              { title: 'Acceder ahora', target: item.label, loadingMsg: 'Marcando nodo como accedido...' },
+              async () => {
+                const data = await tocarNodo(item.label)
+                if (!data.ok) {
+                  return {
+                    ok: false,
+                    message: 'No se encontró el nodo',
+                    detail: data.actualizados === 0
+                      ? `No existe "${item.label}" en BioRAG`
+                      : `actualizados=${data.actualizados}`,
+                  }
+                }
+                return {
+                  ok: true,
+                  message: 'Nodo marcado como accedido',
+                  detail: 'Último acceso actualizado · ya no aparecerá en riesgo',
+                }
+              }
+            )
+          }
+        />
+      </div>
+
+      {/* ── Sección 2: Integridad referencial ── */}
       {totalIntegridad > 0 ? (
         <div className={styles.hero}>
           <div className={styles.heroScore}>
@@ -240,7 +386,31 @@ const SaludPage = () => {
         </div>
       )}
 
-      {/* ── Sección B: Calidad de nodos ── */}
+      {/* ── Sección 3: Estadísticas generales ── */}
+      <div className={styles.statsGrid}>
+        <div className={styles.statCard}>
+          <span className={styles.statLabel}>Nodos</span>
+          <span className={styles.statValue}>{formatNumber(data.resumen.nodos_total)}</span>
+        </div>
+        <div className={styles.statCard}>
+          <span className={styles.statLabel}>Sinapsis</span>
+          <span className={styles.statValue}>{formatNumber(data.resumen.sinapsis_total)}</span>
+        </div>
+        <div className={styles.statCard}>
+          <span className={styles.statLabel}>Latentes</span>
+          <span className={styles.statValue}>{formatNumber(data.resumen.latentes_total)}</span>
+        </div>
+        <div className={styles.statCard}>
+          <span className={styles.statLabel}>Dimensiones</span>
+          <span className={styles.statValue}>{formatNumber(data.resumen.dimensiones_total)}</span>
+        </div>
+        <div className={styles.statCard}>
+          <span className={styles.statLabel}>WordNet bridge</span>
+          <span className={styles.statValue}>{formatNumber(data.resumen.wordnet_bridge)}</span>
+        </div>
+      </div>
+
+      {/* ── Sección 4: Calidad de nodos + Nodos problemáticos ── */}
       <div className={styles.qualitySection}>
         <div className={styles.qualityHeader}>
           <div className={styles.heroScore}>
@@ -270,39 +440,13 @@ const SaludPage = () => {
         </div>
       </div>
 
-      {/* Stats Grid */}
-      <div className={styles.statsGrid}>
-        <div className={styles.statCard}>
-          <span className={styles.statLabel}>Nodos</span>
-          <span className={styles.statValue}>{formatNumber(data.resumen.nodos_total)}</span>
-        </div>
-        <div className={styles.statCard}>
-          <span className={styles.statLabel}>Sinapsis</span>
-          <span className={styles.statValue}>{formatNumber(data.resumen.sinapsis_total)}</span>
-        </div>
-        <div className={styles.statCard}>
-          <span className={styles.statLabel}>Latentes</span>
-          <span className={styles.statValue}>{formatNumber(data.resumen.latentes_total)}</span>
-        </div>
-        <div className={styles.statCard}>
-          <span className={styles.statLabel}>Dimensiones</span>
-          <span className={styles.statValue}>{formatNumber(data.resumen.dimensiones_total)}</span>
-        </div>
-        <div className={styles.statCard}>
-          <span className={styles.statLabel}>WordNet bridge</span>
-          <span className={styles.statValue}>{formatNumber(data.resumen.wordnet_bridge)}</span>
-        </div>
-      </div>
-
-      {/* Nodos problemáticos — solo informativo */}
       <div className={styles.problemSection}>
-        <h2 className={styles.problemSectionTitle}>Nodos problemáticos</h2>
         <div className={styles.problemList}>
           <ProblemRow
             name="Nodos aislados (sin conexiones)"
             count={data.problemas.nodos_aislados}
             accent="orange"
-            info="Nodo creado pero sin conexiones a otros nodos. Puede necesitar vinculación con biorag_vincular(), no eliminación."
+            info="Nodo creado pero sin conexiones a otros nodos. Se puede vincular para integrarlo a la red, o eliminar si no sirven."
           />
           <ProblemRow
             name="Contenido vacío"
@@ -314,7 +458,7 @@ const SaludPage = () => {
             name="Peso cero/null"
             count={data.problemas.peso_cero}
             accent="yellow"
-            info="El nodo no ha sido accedido ni utilizado. Puede ser un nodo nuevo sin uso todavía, o uno que dejó de ser relevante. Requiere revisión antes de decidir."
+            info="Nodos con peso sináptico en cero pero que tienen conexiones y acceso reciente. Esto no es normal — puede ser un cálculo de peso que no se ejecutó correctamente."
           />
         </div>
 
@@ -325,6 +469,7 @@ const SaludPage = () => {
             open={!!expanded['aislados']}
             onToggle={() => toggle('aislados')}
             onNavigate={navigate}
+            info="Nodos que no tienen conexiones con ningún otro nodo. Existen por separado — no forman parte de la red de memoria. Se pueden vincular para integrarlos, o eliminar si no sirven."
           />
           <AccordionGroup
             title="Sin contenido"
@@ -332,6 +477,7 @@ const SaludPage = () => {
             open={!!expanded['vacios']}
             onToggle={() => toggle('vacios')}
             onNavigate={navigate}
+            info="Nodos que existen pero no tienen texto guardado. Son estructura vacía — no aportan información. Se pueden eliminar sin perder nada."
           />
           <AccordionGroup
             title="Peso cero"
@@ -339,11 +485,22 @@ const SaludPage = () => {
             open={!!expanded['peso0']}
             onToggle={() => toggle('peso0')}
             onNavigate={navigate}
+            info="Nodos con peso sináptico en cero pero que tienen conexiones y acceso reciente. Esto no es normal — un nodo activo debería tener peso. Puede ser un cálculo de peso que no se ejecutó correctamente."
           />
         </div>
       </div>
 
       {toast && <div className={styles.toast}>{toast}</div>}
+
+      <ActionFeedbackModal
+        open={feedback.open}
+        state={feedback.state}
+        title={feedback.title}
+        target={feedback.target}
+        message={feedback.message}
+        detail={feedback.detail}
+        onClose={closeFeedback}
+      />
     </div>
   )
 }
@@ -437,13 +594,14 @@ function ProblemRow({
 }
 
 function AccordionGroup({
-  title, items, open, onToggle, onNavigate,
+  title, items, open, onToggle, onNavigate, info,
 }: {
   title: string
   items: string[]
   open: boolean
   onToggle: () => void
   onNavigate: (path: string) => void
+  info?: string
 }) {
   if (items.length === 0) return null
 
@@ -455,6 +613,7 @@ function AccordionGroup({
             ▶
           </span>
           <span className={styles.detailToggleLabel}>{title}</span>
+          {info && <button className={styles.infoBtn} title={info} onClick={(e) => e.stopPropagation()}>ℹ</button>}
           <span className={styles.detailToggleHint}>
             {open ? '— click para colapsar' : '— click para ver'}
           </span>

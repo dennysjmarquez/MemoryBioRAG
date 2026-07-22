@@ -1294,6 +1294,9 @@ def get_buscadas_fallidas(limit: int = Query(0, ge=0, le=1000)):
                 COUNT(*) as freq, 
                 MAX(l.creado_en) as ultima, 
                 MAX(l.top_score) as top_score,
+                (SELECT l3.resultados_count FROM log_busquedas l3 
+                 WHERE l3.query = l.query AND {_sql_fallida('l3')}
+                 ORDER BY l3.creado_en DESC LIMIT 1) as resultados_count,
                 (SELECT params_json FROM log_busquedas l2 
                  WHERE l2.query = l.query AND {_sql_fallida('l2')}
                  ORDER BY l2.creado_en DESC LIMIT 1) as params_json
@@ -1314,7 +1317,8 @@ def get_buscadas_fallidas(limit: int = Query(0, ge=0, le=1000)):
                     "query": r["query"],
                     "freq": r["freq"],
                     "ultima": r["ultima"],
-                    "top_score": round(r["top_score"], 4) if r["top_score"] else 0,
+                    "top_score": r["top_score"],
+                    "resultados_count": r["resultados_count"],
                     "ultima_hace": ts_to_str(r["ultima"]),
                     "params": json.loads(r["params_json"]) if r["params_json"] else None,
                 }

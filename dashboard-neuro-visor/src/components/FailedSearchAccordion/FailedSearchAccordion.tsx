@@ -6,6 +6,7 @@ interface FailedSearchItem {
   freq: number
   ultima: number
   top_score: number
+  resultados_count?: number
   ultima_hace: string
   params?: Record<string, unknown> | null
 }
@@ -16,6 +17,19 @@ interface FailedSearchAccordionProps {
   onCreateNode: (query: string) => void
   onClear?: () => void
   clearing?: boolean
+}
+
+const SCORE_FALLIDA = 0.55
+
+function getMotivoFallida(item: FailedSearchItem): string {
+  const motives: string[] = []
+  if (item.resultados_count !== undefined && item.resultados_count < 3) {
+    motives.push(`solo ${item.resultados_count} resultado${item.resultados_count !== 1 ? 's' : ''}`)
+  }
+  if (item.top_score < SCORE_FALLIDA) {
+    motives.push(`score ${item.top_score}`)
+  }
+  return motives.length > 0 ? motives.join(' · ') : 'pocos resultados'
 }
 
 const FailedSearchAccordion = ({ items, loadingKey, onCreateNode, onClear, clearing }: FailedSearchAccordionProps) => {
@@ -63,7 +77,7 @@ const FailedSearchAccordion = ({ items, loadingKey, onCreateNode, onClear, clear
                 <div className={styles.headerInfo}>
                   <span className={styles.query}>{item.query}</span>
                   <span className={styles.meta}>
-                    {item.freq}x · score {item.top_score} · {item.ultima_hace}
+                    {item.freq}x · {getMotivoFallida(item)} · {item.ultima_hace}
                   </span>
                 </div>
                 <button

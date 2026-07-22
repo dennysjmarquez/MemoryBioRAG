@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom"
 import { EnergyPoint } from "../../types"
 import styles from "./DetallePunto.module.css"
 
@@ -68,8 +69,10 @@ const DetallePunto = ({ punto, onClose }: DetallePuntoProps) => {
             <ul className={styles.conceptosList}>
               {punto.conceptos.map((c, i) => (
                 <li key={i} className={styles.conceptoItem}>
-                  <span className={styles.conceptoNombre}>{c.concepto}</span>
-                  <p className={styles.conceptoContenido}>{c.contenido}</p>
+                  <Link to={`/explorar/${encodeURIComponent(c.concepto)}`} className={styles.conceptoNombre}>
+                    {c.concepto}
+                  </Link>
+                  <div className={styles.conceptoContenido}>{c.contenido}</div>
                 </li>
               ))}
             </ul>

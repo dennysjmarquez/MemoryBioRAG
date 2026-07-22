@@ -1695,22 +1695,16 @@ def _build_server():
         description=(
             "Fijá los recuerdos nuevos permanentemente. Llamá a consolidar después de aprender. Si no lo hacés, los nodos nuevos se borran en el siguiente ciclo.\n\n"
             "El ciclo de sueño hace: fortalece nodos nuevos, debilita los viejos, borra conexiones débiles, evita saturación, y mueve todo de memoria temporal a permanente.\n\n"
-            "Si no ponés limite_energia, se calcula solo (nodos activos × 1.6, mínimo 10)."
+            "La energía se calcula automáticamente (nodos activos × 1.6, mínimo 10). No requiere parámetros."
         ),
     )
-    def biorag_consolidar(
-        limite_energia: Annotated[Optional[float], Field(
-            description=(
-                "limite_energia: Cuánta energía tiene el ciclo. Más energía = más nodos consolidados. Si se omite, se calcula solo (activos × 1.6, mínimo 10)."
-            )
-        )] = None,
-    ) -> str:
+    def biorag_consolidar() -> str:
         cerebro = _get_cerebro()
         try:
             old_stdout = sys.stdout
             sys.stdout = captured = io.StringIO()
             try:
-                cerebro.ciclo_sueno_consolidacion(limite_energia=limite_energia)
+                cerebro.ciclo_sueno_consolidacion()
             finally:
                 sys.stdout = old_stdout
             output = captured.getvalue()
@@ -1725,15 +1719,11 @@ def _build_server():
     @mcp.tool(
         name="sueno",
         description=(
-            "Alias viejo de consolidar. Usá consolidar en vez de esta. Misma funcionalidad, mismo parámetro (limite_energia)."
+            "Alias viejo de consolidar. Usá consolidar en vez de esta. Misma funcionalidad, sin parámetros."
         ),
     )
-    def biorag_sueno(
-        limite_energia: Annotated[Optional[float], Field(
-            description="Energía máxima del ciclo. Si se omite, se calcula dinámicamente (n_activos × 1.6, mín 10.0)."
-        )] = None,
-    ) -> str:
-        return biorag_consolidar(limite_energia)
+    def biorag_sueno() -> str:
+        return biorag_consolidar()
 
     @mcp.tool(
         name="introspeccion",
