@@ -627,9 +627,21 @@ class SQLiteMemoryBioRAG:
             """)
             cur.execute("DROP TABLE corto_plazo_old")
 
+        if 'valencia_somatica' not in cp_cols:
+            cur.execute("ALTER TABLE corto_plazo ADD COLUMN valencia_somatica REAL DEFAULT 0.0")
+
         # --- largo_plazo ---
         cur.execute("PRAGMA table_info(largo_plazo)")
         lp_cols = {row[1]: row[2] for row in cur.fetchall()}
+        if 'valencia_somatica' not in lp_cols:
+            cur.execute("ALTER TABLE largo_plazo ADD COLUMN valencia_somatica REAL DEFAULT 0.0")
+        if 'exitos_dopamina' not in lp_cols:
+            cur.execute("ALTER TABLE largo_plazo ADD COLUMN exitos_dopamina INTEGER DEFAULT 0")
+        if 'fallos_dopamina' not in lp_cols:
+            cur.execute("ALTER TABLE largo_plazo ADD COLUMN fallos_dopamina INTEGER DEFAULT 0")
+        cur.execute("CREATE INDEX IF NOT EXISTS idx_lp_valencia ON largo_plazo (valencia_somatica)")
+        self.conn.commit()
+
         needs_recreate = False
 
         # Caso 1: categoria_id existe (schema viejo)
@@ -685,19 +697,19 @@ class SQLiteMemoryBioRAG:
         self.cursor.execute("CREATE INDEX IF NOT EXISTS idx_estado ON largo_plazo (estado)")
         self.cursor.execute("CREATE INDEX IF NOT EXISTS idx_creado_en ON largo_plazo (creado_en)")
         # --- Migración v20.0 (Valencia Somática y Dopamina RPE) ---
-        cur.execute("PRAGMA table_info(largo_plazo)")
-        lp_cols_v20 = [row[1] for row in cur.fetchall()]
+        self.cursor.execute("PRAGMA table_info(largo_plazo)")
+        lp_cols_v20 = [row[1] for row in self.cursor.fetchall()]
         if 'valencia_somatica' not in lp_cols_v20:
-            cur.execute("ALTER TABLE largo_plazo ADD COLUMN valencia_somatica REAL DEFAULT 0.0")
+            self.cursor.execute("ALTER TABLE largo_plazo ADD COLUMN valencia_somatica REAL DEFAULT 0.0")
         if 'exitos_dopamina' not in lp_cols_v20:
-            cur.execute("ALTER TABLE largo_plazo ADD COLUMN exitos_dopamina INTEGER DEFAULT 0")
+            self.cursor.execute("ALTER TABLE largo_plazo ADD COLUMN exitos_dopamina INTEGER DEFAULT 0")
         if 'fallos_dopamina' not in lp_cols_v20:
-            cur.execute("ALTER TABLE largo_plazo ADD COLUMN fallos_dopamina INTEGER DEFAULT 0")
+            self.cursor.execute("ALTER TABLE largo_plazo ADD COLUMN fallos_dopamina INTEGER DEFAULT 0")
 
-        cur.execute("PRAGMA table_info(corto_plazo)")
-        cp_cols_v20 = [row[1] for row in cur.fetchall()]
+        self.cursor.execute("PRAGMA table_info(corto_plazo)")
+        cp_cols_v20 = [row[1] for row in self.cursor.fetchall()]
         if 'valencia_somatica' not in cp_cols_v20:
-            cur.execute("ALTER TABLE corto_plazo ADD COLUMN valencia_somatica REAL DEFAULT 0.0")
+            self.cursor.execute("ALTER TABLE corto_plazo ADD COLUMN valencia_somatica REAL DEFAULT 0.0")
 
         self.cursor.execute("CREATE INDEX IF NOT EXISTS idx_lp_valencia ON largo_plazo (valencia_somatica)")
 
@@ -748,6 +760,24 @@ class SQLiteMemoryBioRAG:
 
     def _crear_tablas_nuevas_si_faltan(self):
         """Crea tablas nuevas (Phase 2D) si no existen en esquemas existentes."""
+        # --- Migración v20.0 (Valencia Somática y Dopamina RPE) ---
+        self.cursor.execute("PRAGMA table_info(largo_plazo)")
+        lp_cols_v20 = [row[1] for row in self.cursor.fetchall()]
+        if 'valencia_somatica' not in lp_cols_v20:
+            self.cursor.execute("ALTER TABLE largo_plazo ADD COLUMN valencia_somatica REAL DEFAULT 0.0")
+        if 'exitos_dopamina' not in lp_cols_v20:
+            self.cursor.execute("ALTER TABLE largo_plazo ADD COLUMN exitos_dopamina INTEGER DEFAULT 0")
+        if 'fallos_dopamina' not in lp_cols_v20:
+            self.cursor.execute("ALTER TABLE largo_plazo ADD COLUMN fallos_dopamina INTEGER DEFAULT 0")
+
+        self.cursor.execute("PRAGMA table_info(corto_plazo)")
+        cp_cols_v20 = [row[1] for row in self.cursor.fetchall()]
+        if 'valencia_somatica' not in cp_cols_v20:
+            self.cursor.execute("ALTER TABLE corto_plazo ADD COLUMN valencia_somatica REAL DEFAULT 0.0")
+
+        self.cursor.execute("CREATE INDEX IF NOT EXISTS idx_lp_valencia ON largo_plazo (valencia_somatica)")
+        self.conn.commit()
+
         self.cursor.execute("""
             CREATE TABLE IF NOT EXISTS log_busquedas (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
