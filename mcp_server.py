@@ -138,8 +138,8 @@ QUERIES_BIORAG_INICIO = [
 ]
 """Búsquedas predefinidas que el oráculo de BioRAG ejecuta al arrancar."""
 
-AGENTES_VALIDOS = {"athena", "artemis", "hermes"}
-"""Agentes reconocidos por el ecosistema OEC."""
+AGENTES_VALIDOS = set()
+"""Agentes reconocidos por el sistema (vacío = permite cualquier agente)."""
 
 
 # --- Helpers ----------------------------------------------------------------
@@ -593,7 +593,7 @@ def _build_server():
             # Si no hay query pero hay dimensiones, usar string vacío para que buscar_por_frase no falle
             limite_interno = limite * 3
             if buscar_por_rol:
-                # Parsear buscar_por_rol (formato: "sujeto:Dennys,accion:corregir")
+                # Parsear buscar_por_rol (formato: "sujeto:usuario,accion:corregir")
                 sujeto = None
                 accion = None
                 objeto = None
@@ -954,9 +954,9 @@ def _build_server():
             "═══════════════════════════════════════════════════════\n"
             "MEMORIA COMPARTIDA — BUSCAR TUS PROPIOS RECUERDOS\n"
             "═══════════════════════════════════════════════════════\n"
-            "BioRAG es compartido entre Athena, Artemis y Hermes.\n"
+            "BioRAG es una memoria compartida entre múltiples agentes.\n"
             "Para buscar lo que TÚ aprendiste:\n"
-            "  1. Tu nombre en el query: query='Athena-OEC lesson'\n"
+            "  1. Tu nombre de agente en el query: query='agente_1 lesson'\n"
             "  2. Tu categoría: cat='Lesson'\n"
             "  3. Tus dimensiones: dimensiones='{\"emocion\":[\"afecto\"],\"entidad\":[\"identidad_artificial\"]}'\n"
             "Sin filtro de autor, los resultados mezclan todos los agentes.\n\n"
@@ -972,7 +972,7 @@ def _build_server():
             "  ❌ Mal: recordar(query='cv') — sin fecha, trae todo\n"
             "  ✅ Bien: recordar(query='cv currículo', dias=1) — solo lo de hoy\n"
             "  ✅ Bien: recordar(dias=1) → todo lo de hoy sin filtro de texto\n\n"
-            "- autor='athena' → solo recuerdos de ese agente\n\n"
+            "- autor='agente_1' → solo recuerdos de ese agente\n\n"
             "═══════════════════════════════════════════════════════\n"
             "ORÁCULO: ÚLTIMO RECURSO, NO PRIMERO\n"
             "═══════════════════════════════════════════════════════\n"
@@ -1120,7 +1120,7 @@ def _build_server():
         )] = None,
         autor: Annotated[Optional[str], Field(
             description=(
-                "Filtrar por nombre del agente que creó el recuerdo (ej: 'athena'). "
+                "Filtrar por nombre del agente que creó el recuerdo (ej: 'agente_1'). "
                 "Busca el nombre en concepto y contenido. "
                 "Útil en memoria compartida para aislar recuerdos propios."
             )
@@ -1141,7 +1141,15 @@ def _build_server():
             )
         )] = False,
         buscar_por_rol: Annotated[Optional[str], Field(
-            description="Búsqueda por roles semánticos SRL (v16.0). Formato: 'sujeto:valor,accion:valor,objeto:valor,contexto:valor'."
+            description=(
+                "Búsqueda por roles semánticos SRL (v16.0).\n"
+                "Formato: 'sujeto:valor,accion:valor,objeto:valor,contexto:valor'\n\n"
+                "CUÁNDO USARLO: Cuando la consulta pregunte por autoría, causas o acciones específicas "
+                "(ej: '¿Qué reglas creó el usuario?' → buscar_por_rol='sujeto:usuario,accion:creo' | "
+                "'¿Qué decisiones tomó el agente?' → buscar_por_rol='sujeto:agente_1,accion:decidio').\n"
+                "CUÁNDO OMITIRLO: En búsquedas conceptuales o de código puro (dejar None).\n\n"
+                "Ejemplos: 'sujeto:usuario', 'sujeto:agente_1,accion:establecio', 'objeto:no_monolith'."
+            )
         )] = None,
         usar_inferencia: Annotated[bool, Field(
             description="Si True, utiliza inferencia transitiva sobre sinapsis latentes para aumentar recall semántico."
@@ -1219,7 +1227,15 @@ def _build_server():
             )
         )] = False,
         buscar_por_rol: Annotated[Optional[str], Field(
-            description="Búsqueda por roles semánticos SRL (v16.0). Formato: 'sujeto:valor,accion:valor,objeto:valor,contexto:valor'."
+            description=(
+                "Búsqueda por roles semánticos SRL (v16.0).\n"
+                "Formato: 'sujeto:valor,accion:valor,objeto:valor,contexto:valor'\n\n"
+                "CUÁNDO USARLO: Cuando la consulta pregunte por autoría, causas o acciones específicas "
+                "(ej: '¿Qué reglas creó el usuario?' → buscar_por_rol='sujeto:usuario,accion:creo' | "
+                "'¿Qué decisiones tomó el agente?' → buscar_por_rol='sujeto:agente_1,accion:decidio').\n"
+                "CUÁNDO OMITIRLO: En búsquedas conceptuales o de código puro (dejar None).\n\n"
+                "Ejemplos: 'sujeto:usuario', 'sujeto:agente_1,accion:establecio', 'objeto:no_monolith'."
+            )
         )] = None,
         usar_inferencia: Annotated[bool, Field(
             description="Si True, utiliza inferencia transitiva sobre sinapsis latentes."
@@ -1361,6 +1377,16 @@ def _build_server():
                         "ideal mínimo 5. Agregá más formas de buscar este nodo."
                     )
 
+            # ── TIP DE PREDICADOS SRL (v16.0) ─────
+            if not predicados:
+                kw_srl = ["regla", "protocolo", "decision", "estableci", "creo", "autor", "prohibi", "fijo", "aprobo", "decidio", "hito", "leccion"]
+                if any(kw in (clave + " " + contenido).lower() for kw in kw_srl):
+                    _warnings.append(
+                        "💡 Tip SRL (Predicados): Este nodo expresa una regla, decisión o hito de autoría. "
+                        "Para permitir consultas causales de 'quién hizo qué' (ej: '¿Qué reglas creó el usuario?'), "
+                        "podés incluir predicados=[{'sujeto': 'usuario|agente_1', 'accion': 'establecio|creo', 'objeto': '...'}]"
+                    )
+
             # ── Búsqueda retroactiva: conexiones con el pasado ──
             tokens_nuevos = _tokenizar(clave + " " + contenido)
             viejos = _buscar_nodos_viejos_relacionados(cerebro, tokens_nuevos, contenido, top_k=3, umbral=0.05)
@@ -1468,7 +1494,12 @@ def _build_server():
             )
         )] = None,
         predicados: Annotated[Optional[Any], Field(
-            description="Estructura SRL (JSON o diccionario) de predicados: [{'sujeto': '...', 'accion': '...', 'objeto': '...', 'contexto': '...'}]"
+            description=(
+                "Estructura SRL (Semantic Role Labeling) de tripletas/cuádruplas causales.\n"
+                "Formato: JSON o lista de dicts [{'sujeto': '...', 'accion': '...', 'objeto': '...', 'contexto': '...'}]\n\n"
+                "CUÁNDO USARLO: En recuerdos sobre decisiones, reglas, acuerdos, autoría o acciones (ej: 'El usuario instruyó no usar CSS global' → sujeto: 'usuario', accion: 'instruyo', objeto: 'no_usar_css_global').\n"
+                "CUÁNDO OMITIRLO: En datos técnicos puros, snippets de código o configs sin autoría (dejar None)."
+            )
         )] = None,
     ) -> str:
         return _aprender_impl(concepto, contenido, syn, cat, dimensiones=dimensiones, predicados=predicados)
@@ -1497,7 +1528,7 @@ def _build_server():
             description="Clasificación dimensional en JSON. Ver aprender para formato."
         )] = None,
         predicados: Annotated[Optional[Any], Field(
-            description="Estructura SRL de predicados JSON."
+            description="Estructura SRL (JSON o lista de dicts). Ver descripción en `aprender` para reglas y ejemplos de uso."
         )] = None,
     ) -> str:
         return _aprender_impl(concepto, contenido, syn, cat, dimensiones=dimensiones, predicados=predicados)
@@ -1672,7 +1703,7 @@ def _build_server():
         )] = 10,
         para: Annotated[Optional[str], Field(
             description=(
-                "para: Si ponés tu nombre (ej: 'athena'), solo ves los mensajes que te llegaron a vos. Si se omite, ves todos los mensajes de todos los agentes."
+                "para: Si ponés tu nombre (ej: 'agente_1'), solo ves los mensajes que te llegaron a vos. Si se omite, ves todos los mensajes de todos los agentes."
             )
         )] = None,
     ) -> str:
@@ -2042,7 +2073,7 @@ def _build_server():
     )
     def biorag_contexto_fin(
         agente: Annotated[str, Field(
-            description="Nombre del agente que cierra la sesión (ej: 'Athena', 'Artemis', 'Hermes')."
+            description="Nombre del agente que cierra la sesión (ej: 'agente_1')."
         )],
         resumen: Annotated[str, Field(
             description=(
@@ -2179,11 +2210,11 @@ def _build_server():
         if not agente or not agente.strip():
             return json.dumps({
                 "status": "error",
-                "mensaje": "El parámetro `agente` es obligatorio. Ejemplo: agente='Athena'.",
+                "mensaje": "El parámetro `agente` es obligatorio. Ejemplo: agente='agente_1'.",
             }, ensure_ascii=False)
 
         agente_limpio = agente.strip().lower()
-        if agente_limpio not in AGENTES_VALIDOS:
+        if AGENTES_VALIDOS and agente_limpio not in AGENTES_VALIDOS:
             return json.dumps({
                 "status": "error",
                 "mensaje": f"Agente '{agente}' no reconocido. Agentes válidos: {', '.join(sorted(AGENTES_VALIDOS))}.",
@@ -2323,7 +2354,7 @@ def _build_server():
         )],
         query: Annotated[str, Field(
             description=(
-                "La pregunta a hacer al oráculo. Ejemplo: '¿Qué tengo sobre el CV de Dennys?'. "
+                "La pregunta a hacer al oráculo. Ejemplo: '¿Qué información hay sobre la arquitectura del sistema?'. "
                 "OBLIGATORIO — no puede estar vacío."
             )
         )],
@@ -2332,11 +2363,11 @@ def _build_server():
         if not agente or not agente.strip():
             return json.dumps({
                 "status": "error",
-                "mensaje": "El parámetro `agente` es obligatorio. Ejemplo: agente='Athena'.",
+                "mensaje": "El parámetro `agente` es obligatorio. Ejemplo: agente='agente_1'.",
             }, ensure_ascii=False)
 
         agente_limpio = agente.strip().lower()
-        if agente_limpio not in AGENTES_VALIDOS:
+        if AGENTES_VALIDOS and agente_limpio not in AGENTES_VALIDOS:
             return json.dumps({
                 "status": "error",
                 "mensaje": f"Agente '{agente}' no reconocido. Agentes válidos: {', '.join(sorted(AGENTES_VALIDOS))}.",
