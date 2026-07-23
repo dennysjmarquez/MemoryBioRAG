@@ -1423,5 +1423,27 @@ def get_estado_reparacion():
         conn.close()
 
 
+@app.get("/api/corteza/dmn")
+def get_corteza_dmn():
+    conn = get_db()
+    c = conn.cursor()
+    try:
+        c.execute("""
+            SELECT id, concepto, contenido, datetime(creado_en, 'unixepoch', 'localtime')
+            FROM largo_plazo
+            WHERE concepto LIKE 'insight_dmn_%'
+            ORDER BY creado_en DESC
+            LIMIT 20
+        """)
+        insights = [{"id": r[0], "concepto": r[1], "contenido": r[2], "fecha": r[3]} for r in c.fetchall()]
+        return {
+            "activo": True,
+            "total_insights_historicos": len(insights),
+            "insights": insights
+        }
+    finally:
+        conn.close()
+
+
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=DASHBOARD_BACKEND_PORT)

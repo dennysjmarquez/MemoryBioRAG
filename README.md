@@ -1,13 +1,13 @@
-# BioRAG v20.0 — Arquitectura de Memoria Cognitiva Simbólica, Biomimética y Circuito Cerrado para Agentes de IA
+# BioRAG v21.0 — Neocórtex Sintético con Red por Defecto (DMN) y Curiosidad Espontánea Autónoma
 
-> **Versión:** v20.0 — Julio 2026
-> **Paradigma:** Circuito Sintético Cognitivamente Cerrado (GABA en Vivo + Dopamina RPE con Inercia Sináptica + Valencia Somática + Escalado Homeostático + PMI + SDM 1024-bit + SLS + Stemmer Bilingüe)
-> **Motor:** Python puro + SQLite FTS5
-> **Dependencias ML:** 0 (mcp + nltk para WordNet, 0 numpy, 0 sentence-transformers, 0 torch)
+> **Versión:** v21.0 — Julio 2026
+> **Paradigma:** Circuito Sintético Cognitivamente Cerrado & Red por Defecto (DMN Ideación Autónoma en Reposo + GABA en Vivo + Dopamina RPE con Inercia Sináptica + Valencia Somática Cortical + Escalado Homeostático + PMI + SDM 1024-bit + SLS + Stemmer Bilingüe)
+> **Motor:** Python puro + SQLite FTS5 WAL
+> **Dependencias ML:** 0 (mcp + nltk para WordNet, 0 numpy, 0 sentence-transformers, 0 torch, 0 dependencias C++ o CUDA)
 > **Idiomas:** Español + Inglés (stemming bilingüe ES/EN + expansión simbólica vía WordNet)
-> **Tests:** 108/108 tests biológicos automatizados (100% Éxito) ✓
+> **Tests:** 112/112 tests biológicos automatizados (100% Éxito) ✓
 
-**BioRAG** es una arquitectura de memoria cognitiva simbólica, biomimética y persistente para agentes de inteligencia artificial. Resuelve el problema fundamental de que los LLMs olvidan todo entre sesiones — sin depender de vectores densos, embeddings, GPU ni infraestructura externa. Opera sobre un espacio discreto, determinista y auditable: 7 ejes semánticos × 73 sub-valores declarativos, 45 grupos léxicos WordNet, Pointwise Mutual Information (PMI/NPMI) aprendido sobre el corpus, Sparse Distributed Memory (SDM de 1024 bits), un pipeline de recuperación de 13 capas en cascada con expansión simbólica bilingüe (Stemmer ES/EN + Levenshtein + WordNet), y un grafo de conocimiento dinámico con plasticidad negativa y sinapsis latentes semánticas (SLS).
+**BioRAG** es una arquitectura de memoria cognitiva simbólica, biomimética y persistente para agentes de inteligencia artificial. Resuelve el problema fundamental de que los LLMs olvidan todo entre sesiones — sin depender de vectores densos, embeddings, GPU ni infraestructura externa. Opera sobre un espacio discreto, determinista y auditable: 7 ejes semánticos × 73 sub-valores declarativos, 45 grupos léxicos WordNet, Pointwise Mutual Information (PMI/NPMI) aprendido sobre el corpus, Sparse Distributed Memory (SDM de 1024 bits), un pipeline de recuperación de 13 capas en cascada con expansión simbólica bilingüe (Stemmer ES/EN + Levenshtein + WordNet), un grafo de conocimiento dinámico con plasticidad negativa y sinapsis latentes semánticas (SLS), y un motor autónomo de Red por Defecto (DMN) que divaga y genera hipótesis en reposo.
 
 ---
 
@@ -189,6 +189,17 @@ graph TD
   2. **Error de Predicción de Recompensa (Dopamina RPE - Schultz 1997) + Factor de Inercia Sináptica**: Implementación de la tool MCP `biorag_feedback(concepto, util=True/False)`. Éxito incrementa peso ($\Delta W = +0.15 \times (1.0 - W \times 0.3)$) e incrementa contador de éxitos. Fallo aplica depresión modulada por inercia sináptica: $\Delta W_{\text{fracaso}} = \frac{-0.10}{1.0 + \ln(1 + \text{éxitos})}$, protegiendo nodos antiguos consolidados contra fallos aislados y permitiendo corrección instantánea de nodos nuevos.
   3. **Marcadores Somáticos y Valencia Cortical (Damasio 1994)**: Schema actualizado con columna `valencia_somatica` (0.0 a 1.0) en `largo_plazo` y `corto_plazo`. Nodos con valencia $\ge 0.80$ o categorías axiomáticas (`Principle`, `Protocol`) adquieren **Inmunidad Cortical Total**: son omitidos del decaimiento pasivo LTD (-0.05), la poda y la inhibición lateral.
   4. **Escalado Sináptico Homeostático (Synaptic Scaling - Turrigiano 2008)**: Durante la consolidación nocturna, si el peso promedio de la corteza activa supera $0.70$, se aplica una normalización multiplicativa ($\times 0.98$) a los nodos no inmunes, asegurando capacidad de aprendizaje ilimitada sin saturación a $1.0$.
+
+#### Fase 11: BioRAG v21.0 — Red por Defecto (Default Mode Network - DMN) y Curiosidad Espontánea Autónoma
+* **Objetivo y Aporte**: Convertir a BioRAG de un sistema puramente reactivo (que solo recupera información ante solicitudes) a una corteza sintética con ideación espontánea en reposo, emulando la Red por Defecto (DMN) humana (mind-wandering, consolidación asociativa NREM/REM y producción autónoma de hipótesis/insights).
+* **Componentes Implementados en v21.0**:
+  1. **Motor DMN en Segundo Plano (`core/dmn_engine.py`)**: Hilo autónomo daemon (`DMNEngine`) que monitorea la inactividad del usuario (`BIORAG_DMN_IDLE_SECONDS`, por defecto 300s). 100% independiente de librerías externas nativas (Python puro `threading` y `sqlite3`).
+  2. **Interrupción Instantánea de Latencia Cero (`threading.Event()`)**: La recepción de cualquier prompt o consulta de usuario activa `notificar_actividad_usuario()`, el cual notifica al evento de sincronización de inmediato, congelando la ideación autónoma para garantizar 0% de latencia en la atención al usuario.
+  3. **Muestreo Resonante Cortical (Spindles Replay)**: Algoritmo que selecciona un Nodo Ancla de alta valencia ($V_s \ge 0.3$) o peso ($W \ge 0.5$) y explora nodos resonantes distantes (a 2-3 saltos asociativos o dimensionales) no conectados fuertemente previo, creando un "Insight" sintético latente.
+  4. **Concurrencia Aislada Thread-Local**: Conexión SQLite dedicada por hilo en modo WAL con `PRAGMA busy_timeout = 5000` y transacciones seguras sin bloqueos.
+  5. **Selección Natural de Hipótesis (Decaimiento LTD Pasivo)**: Los Insights nacen con peso moderado ($W=0.50$) y valencia somática protegida ($V_s=0.85$). Si el usuario no los refuerza mediante evocación o feedback, sufrirán decaimiento LTD pasivo pasadas varias etapas de consolidación.
+  6. **Presupuesto de Energía & Período Refractario**: Limita la ideación a un máximo de 3 hipótesis por ciclo de reposo (`BIORAG_DMN_MAX_IDEAS=3`) con un período de enfriamiento refractario de 60 segundos.
+  7. **Visualización y Monitoreo MCP**: Exposición de la herramienta MCP `biorag_estado_dmn` y el endpoint REST `/api/corteza/dmn` en el backend del Neuro-Visor para inspección en tiempo real.
 
 ---
 

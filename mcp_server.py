@@ -1862,6 +1862,20 @@ def _build_server():
         return biorag_introspeccion()
 
     @mcp.tool(
+        name="estado_dmn",
+        description=(
+            "Consulta el estado operativo de la Red por Defecto (Default Mode Network - DMN) y la curiosidad espontánea autónoma de BioRAG v21.0. "
+            "Devuelve si el hilo autónomo está activo, el tiempo de inactividad actual y la última idea/insight generada en reposo."
+        ),
+    )
+    def biorag_estado_dmn() -> str:
+        cerebro = _get_cerebro()
+        if hasattr(cerebro, 'dmn') and cerebro.dmn is not None:
+            estado = cerebro.dmn.obtener_estado()
+            return json.dumps(estado, ensure_ascii=False, indent=2)
+        return json.dumps({"activo": False, "mensaje": "DMN no iniciado en esta instancia."}, ensure_ascii=False)
+
+    @mcp.tool(
         name="mapear",
         description=(
             "Listá todos los nodos de la memoria — activos y dormidos — ordenados de más fuerte a más débil. Para explorar qué hay, detectar nodos huérfanos, revisar categorías, o verificar que algo se guardó bien. Ojo: si hay muchos nodos, la respuesta es larga. Sin parámetros."

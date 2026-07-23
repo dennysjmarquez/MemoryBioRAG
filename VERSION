@@ -1,30 +1,39 @@
-BioRAG v20.0 — Circuito Sintético Cognitivamente Cerrado: GABA en Vivo, Dopamina RPE con Inercia Sináptica, Valencia Somática Cortical y Escalado Sináptico Homeostático (Julio 2026)
+BioRAG v21.0 — Default Mode Network (DMN) & Motor de Curiosidad Espontánea autónoma (Julio 2026)
 
-Esta versión completa el circuito neurobiológico cerrado transformando a BioRAG en un Neocórtex Sintético Homeostático y Auto-Evolutivo.
+Esta versión introduce una Red por Defecto (Default Mode Network - DMN) autónoma y multiplataforma en reposo, transformando a BioRAG en un neocórtex sintético con ideación espontánea e ininterrumpida.
+
+---
+
+### 🧬 Hitos Evolutivos Principales de v21.0:
+
+1. **Motor DMN & Curiosidad Espontánea en Reposo (`core/dmn_engine.py`):**
+   - Hilo autónomo de ideación en segundo plano (`DMNEngine`) que emula la divagación mental y consolidación asociativa NREM/REM.
+   - **Interrupción Instantánea de Latencia Cero (`threading.Event()`):** Cualquier interacción del usuario interrumpe inmediatamente el hilo autónomo para dedicar el 100% de los recursos a la consulta.
+   - **Muestreo Resonante Cortical (Spindles Replay):** Selecciona nodos ancla de alta valencia somática ($V_s \ge 0.3$) o peso ($W \ge 0.5$) y explora nodos resonantes distantes para sintetizar "Insights" autónomos.
+   - **Concurrencia Aislada Thread-Local:** Conexiones SQLite WAL aisladas por hilo con `PRAGMA busy_timeout = 5000`.
+   - **Selección Natural de Hipótesis (Decaimiento LTD Pasivo):** Los Insights nacen con peso moderado ($W=0.50$) y valencia somática protegida ($V_s=0.85$). Si no reciben atención del usuario, sufren decaimiento pasivo por sueño (LTD).
+   - **Presupuesto de Energía & Periodo Refractario:** Máximo 3 ideas por ventana de reposo con 60s de enfriamiento para evitar saturación cortical.
+
+2. **Integración MCP & Neuro-Visor Backend:**
+   - Herramienta MCP `biorag_estado_dmn` con payload JSON enriquecido.
+   - Endpoint HTTP `/api/corteza/dmn` en `dashboard-neuro-visor/backend/server.py`.
 
 ---
 
 ### 🧬 Hitos Evolutivos Principales de v20.0:
 
 1. **Inhibición Lateral GABA en Tiempo Real en Evocación (Edelman 1987):**
-   - Cuando un candidato alcanza el Top-1 en la evocación con una fuerza dominante ($\ge 0.80$), el sistema calcula la interacción competitiva y atenera activamente ($\times 0.60$) a los competidores semánticos de menor rango. Esto elimina el ruido de fondo sin alterar el contenido estático.
-
+   - El ganador Top-1 atenúa ($\times 0.60$) a competidores semánticos secundarios durante la evocación.
 2. **Error de Predicción de Recompensa Dopaminérgica (Dopamina RPE - Schultz 1997) con Factor de Inercia Sináptica:**
-   - Implementación del bucle de retroalimentación de utilidad `biorag_feedback(concepto, util=True/False)`.
-   - **Éxito ($R = +1$):** Disparo dopaminérgico con incremento de peso $\Delta W = +0.15 \times (1.0 - W \times 0.3)$.
-   - **Fallo ($R = -1$):** Depresión instantánea modulada por inercia sináptica: $\Delta W_{\text{fracaso}} = \frac{-0.10}{1.0 + \ln(1 + \text{éxitos})}$. Los nodos consolidados con historial son resilientes a fallos aislados, mientras que los nodos nuevos son corregibles al instante.
-
+   - Retroalimentación `biorag_feedback`. Recompensa dopaminérgica ($\Delta W = +0.15$) y depresión por fallo atenuada por inercia histórica.
 3. **Marcadores Somáticos e Inmunidad Cortical por Valencia (Damasio 1994):**
-   - Incorporación de la columna `valencia_somatica` (0.0 a 1.0) y auto-asignación `1.0` a axiomas de categorías `Principle` y `Protocol`.
-   - Los nodos con valencia $\ge 0.80$ o categorías axiomáticas quedan **blindados contra el decaimiento pasivo LTD (-0.05), la poda y la inhibición lateral**. Jamás se duermen ni son eliminados.
-
-4. **Escalado Sináptico Homeostático (Synaptic Scaling - Turrigiano 2008):**
-   - Durante la consolidación nocturna, si la energía promedio de la corteza activa excede $0.70$, se aplica una normalización multiplicativa ($\times 0.98$) a los nodos no inmunes, previniendo la saturación global y manteniendo una capacidad de aprendizaje ilimitada.
+   - Valencia somática ($0.0 \text{ a } 1.0$). Nodos con valencia $\ge 0.80$ o categorías axiomáticas (`Principle`, `Protocol`) son inmunes a decaimiento LTD y borrado.
+4. **Escalado Sináptico Homeostático (Turrigiano 2008):**
+   - Normalización multiplicativa ($\times 0.98$) durante el sueño cuando la energía cortical promedio excede $0.70$.
 
 ---
 
 ### 📊 Métricas de Validación en Producción:
-- **Suite de Tests:** 108/108 tests automatizados pasados ✓ (100% Éxito).
-- **Corpus Recalculado:** 558 nodos activos consolidados.
+- **Suite de Tests:** 112/112 tests automatizados pasados ✓ (100% Éxito).
 - **Latencia Promedio:** ~2.9ms en búsquedas complejas.
-- **Consumo de Memoria RAM:** ~20 MB (0 GPU, 0 PyTorch, 0 Transformers).
+- **Consumo de RAM:** ~20 MB (0 GPU, 0 PyTorch, 0 Dependencias externas).

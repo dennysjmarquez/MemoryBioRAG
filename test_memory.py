@@ -2273,6 +2273,60 @@ def test_sistema():
             os.remove(_v20_db)
     print("--- 108. Escalado Sináptico Homeostático OK ---")
 
+    print("\n--- 109. Probando Inicio y Parada del Motor DMN (v21.0) ---")
+    _v21_db = tempfile.mktemp(suffix='.db')
+    try:
+        f21 = SQLiteMemoryBioRAG(db_path=_v21_db)
+        dmn = f21.iniciar_dmn(idle_seconds=10.0)
+        assert dmn.activo is True, "Error: DMN no se marcó como activo"
+        assert dmn._thread is not None and dmn._thread.is_alive(), "Error: Hilo DMN no está corriendo"
+        
+        f21.detener_dmn()
+        assert dmn.activo is False, "Error: DMN no se detuvo correctamente"
+        print("  OK: Control de hilo DMN iniciado y detenido correctamente")
+
+        print("\n--- 110. Probando Detección de Inactividad e Interrupción por Actividad de Usuario ---")
+        f21.iniciar_dmn(idle_seconds=0.5)
+        time.sleep(0.2)
+        f21.notificar_actividad_usuario()
+        assert dmn._user_active_event.is_set(), "Error: Notificación de actividad de usuario no registró evento"
+        print("  OK: Interrupción inmediata por actividad de usuario verificada")
+
+        print("\n--- 111. Probando Ideación Espontánea DMN entre Nodos Distantes ---")
+        # Crear 3 nodos distantes de alta valencia de distintas áreas temáticas
+        f21.percibir_corto_plazo("nodo_fuente_alpha", "Arquitectura distribuida de microservicios", "alpha", "General", valencia_somatica=0.90)
+        f21.percibir_corto_plazo("nodo_fuente_beta", "Bioquimica celular de la dopamina", "beta", "General", valencia_somatica=0.85)
+        f21.percibir_corto_plazo("nodo_fuente_gamma", "Astrofisica de agujeros de gusano", "gamma", "General", valencia_somatica=0.88)
+        f21.ciclo_sueno_consolidacion()
+
+        # Forzar ejecución manual de ciclo de curiosidad
+        idea = f21.dmn.ejecutar_ciclo_curiosidad(forzar=True)
+        assert idea is not None, "Error: DMN no generó ninguna hipótesis entre nodos distantes"
+        assert "insight_dmn_" in idea["concepto"], f"Concepto insight inesperado: {idea['concepto']}"
+        assert dmn.ideas_generadas_sesion > 0, "Contador de ideas DMN no se incrementó"
+        print(f"  OK: Idea autónoma DMN generada con éxito ({idea['concepto']})")
+
+        print("\n--- 112. Probando Registro y Persistencia Forense de Ideas DMN ---")
+        f21.dmn.ultimo_acceso_usuario = time.time() - 350.0
+        st = f21.dmn.obtener_estado()
+        assert st["ideas_generadas_sesion"] >= 1, "Error en estado DMN"
+        assert st["ultima_idea"] is not None, "Error: Última idea DMN nula"
+        assert st["estado"] == "idle", "Estado DMN debe ser idle al no haber actividad reciente"
+        
+        # Verificar en DB que el insight está en largo plazo con valencia 0.85 y peso 0.50
+        row_insight = f21.cursor.execute("SELECT valencia_somatica, peso_sinaptico FROM largo_plazo WHERE concepto = ?", (idea["concepto"],)).fetchone()
+        assert row_insight is not None, "Error: Insight DMN no encontrado en largo plazo"
+        assert abs(row_insight[0] - 0.85) < 0.01, f"Valencia del insight incorrecta: {row_insight[0]}"
+        assert abs(row_insight[1] - 0.50) < 0.01, f"Peso inicial del insight incorrecto: {row_insight[1]}"
+        print(f"  OK: Persistencia e inmunidad de Insight DMN verificada en DB (valencia={row_insight[0]}, peso={row_insight[1]})")
+
+        f21.detener_dmn()
+        f21.cerrar_sistema()
+    finally:
+        if os.path.exists(_v21_db):
+            os.remove(_v21_db)
+    print("--- 112. Persistencia Forense DMN OK ---")
+
     # Finalizar
     cerebro.cerrar_sistema()
 

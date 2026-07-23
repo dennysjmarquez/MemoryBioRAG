@@ -1,5 +1,29 @@
 # BioRAG Changelog
 
+## v21.0 (2026-07-23)
+
+### Features & Architecture
+- **Default Mode Network (DMN) & Motor de Curiosidad Espontánea (`core/dmn_engine.py`)**: Hilo autónomo en segundo plano (`DMNEngine`) para ideación espontánea (mind-wandering) en periodos de inactividad del usuario, 100% libre de dependencias nativas externas.
+- **Interrupción de Latencia Cero (`threading.Event()`)**: Interrupción inmediata del hilo autónomo DMN al recibir actividad del usuario para garantizar 0% de latencia en la atención de consultas.
+- **Muestreo Resonante Cortical (Spindles Replay)**: Selección de nodos ancla de alta valencia/peso y exploración latente a 2-3 saltos para sintetizar "Insights" autónomos.
+- **Concurrencia Aislada Thread-Local**: Conexión SQLite aislada por hilo en modo WAL con `PRAGMA busy_timeout = 5000`.
+- **Selección Natural de Hipótesis (Decaimiento LTD Pasivo)**: Insights autónomos generados con peso inicial $W=0.50$ y valencia protegida $V_s=0.85$, sujetos a decaimiento pasivo por sueño si no reciben atención futura.
+- **Presupuesto de Energía & Período Refractario**: Límite de máximo 3 ideas por ciclo de reposo con 60s de enfriamiento.
+- **Integración MCP & Neuro-Visor Backend**: Herramienta `biorag_estado_dmn` y endpoint HTTP `/api/corteza/dmn`.
+- **Suite de Pruebas Biológicas**: Ampliada a **112/112 pruebas biológicas aprobadas con éxito (100%)**.
+
+---
+
+## v20.0 (2026-07-22)
+
+### Features & Architecture
+- **Inhibición Lateral GABA en Tiempo Real en Evocación (Edelman 1987)**: Atenuación dinámica ($\times 0.60$) de competidores semánticos secundarios cuando el nodo Top-1 domina ($\ge 0.80$).
+- **Error de Predicción de Recompensa Dopaminérgica (Dopamina RPE - Schultz 1997) con Factor de Inercia Sináptica**: Modulación de peso vía `biorag_feedback` ($\Delta W = +0.15$ en éxitos, depresión ajustada por inercia histórica en fallos).
+- **Marcadores Somáticos e Inmunidad Cortical por Valencia (Damasio 1994)**: Columna `valencia_somatica` (0.0 a 1.0) con inmunidad absoluta a decaimiento LTD y borrado para nodos con valencia $\ge 0.80$ o categorías axiomáticas (`Principle`, `Protocol`).
+- **Escalado Sináptico Homeostático (Turrigiano 2008)**: Normalización multiplicativa ($\times 0.98$) durante el sueño cuando la energía activa promedio supera $0.70$.
+
+---
+
 ## v18.2 (2026-07-20)
 
 ### Features & Robustness

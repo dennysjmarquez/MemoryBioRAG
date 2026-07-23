@@ -102,6 +102,25 @@ class SQLiteMemoryBioRAG:
         self.last_origen_scores = {}
         # Buffer circular de memoria de trabajo (v19.0 Context Window)
         self._context_window = deque(maxlen=10)
+        self.dmn = None
+
+    def notificar_actividad_usuario(self):
+        """Notifica actividad del usuario al motor DMN si está activo."""
+        if hasattr(self, 'dmn') and self.dmn is not None:
+            self.dmn.notificar_actividad_usuario()
+
+    def iniciar_dmn(self, idle_seconds=300):
+        """Inicia el motor DMN de curiosidad espontánea."""
+        from core.dmn_engine import DMNEngine
+        if self.dmn is None:
+            self.dmn = DMNEngine(self, idle_seconds=idle_seconds)
+        self.dmn.start()
+        return self.dmn
+
+    def detener_dmn(self):
+        """Detiene el motor DMN."""
+        if hasattr(self, 'dmn') and self.dmn is not None:
+            self.dmn.stop()
 
     def registrar_acceso_contexto(self, concepto: str):
         """Registra un concepto accedido recientemente en la memoria de trabajo."""
@@ -2493,6 +2512,7 @@ class SQLiteMemoryBioRAG:
         Retorna (resultados, total) donde resultados es lista de
         (concepto, contenido, peso, estado, score, asociaciones)
         """
+        self.notificar_actividad_usuario()
         # SRL v16.0: Filtrado por roles semánticos (buscar_por_rol)
         conceptos_validos_rol = None
         if buscar_por_rol:
