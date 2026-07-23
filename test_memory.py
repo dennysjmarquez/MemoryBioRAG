@@ -2179,6 +2179,100 @@ def test_sistema():
             os.remove(_forensic_db)
     print("--- 104. Forense anomalo OK ---")
 
+    print("\n--- 105. Probando Inhibición Lateral GABA en Vivo (Evocación v20.0) ---")
+    _v20_db = tempfile.mktemp(suffix='.db')
+    try:
+        fc = SQLiteMemoryBioRAG(db_path=_v20_db)
+        fc.percibir_corto_plazo("gaba_atractor_principal", "Sistema principal de arquitectura de software", "gaba,atractor,principal", "Architecture")
+        fc.percibir_corto_plazo("gaba_competidor_secundario", "Sistema secundario con palabras de software", "gaba,competidor,secundario", "Architecture")
+        fc.ciclo_sueno_consolidacion()
+
+        res_gaba, total_gaba = fc.buscar_por_frase("gaba atractor principal", limite=5)
+        assert len(res_gaba) >= 1, "No se recuperaron resultados en prueba GABA"
+        top_conc, _, _, _, top_score, _ = res_gaba[0]
+        assert top_conc == "gaba_atractor_principal", f"Se esperaba 'gaba_atractor_principal' top-1, got {top_conc}"
+        print(f"  OK: Inhibición GABA en vivo validada. Top-1 score: {top_score}")
+        fc.cerrar_sistema()
+    finally:
+        if os.path.exists(_v20_db):
+            os.remove(_v20_db)
+    print("--- 105. Inhibición GABA en vivo OK ---")
+
+    print("\n--- 106. Probando Refuerzo Dopaminérgico por RPE e Inercia Sináptica (v20.0) ---")
+    _v20_db = tempfile.mktemp(suffix='.db')
+    try:
+        fc = SQLiteMemoryBioRAG(db_path=_v20_db)
+        fc.percibir_corto_plazo("nodo_dopamina_test", "Contenido de prueba dopaminérgica", "dopamina,test", "General")
+        fc.ciclo_sueno_consolidacion()
+
+        # Feedback de éxito (+1)
+        ok_dop = fc.aplicar_refuerzo_dopaminergico("nodo_dopamina_test", exito=True)
+        assert ok_dop, "Error al aplicar feedback dopaminérgico"
+        peso_pos = fc.cursor.execute("SELECT peso_sinaptico, exitos_dopamina FROM largo_plazo WHERE concepto = 'nodo_dopamina_test'").fetchone()
+        assert peso_pos[1] == 1, f"Se esperaba 1 éxito, got {peso_pos[1]}"
+
+        # Feedback de fallo (-1) con inercia
+        fc.aplicar_refuerzo_dopaminergico("nodo_dopamina_test", exito=False)
+        peso_neg = fc.cursor.execute("SELECT peso_sinaptico, fallos_dopamina FROM largo_plazo WHERE concepto = 'nodo_dopamina_test'").fetchone()
+        assert peso_neg[1] == 1, f"Se esperaba 1 fallo, got {peso_neg[1]}"
+        print(f"  OK: Dopamina RPE validada. Éxito incrementó, fallo aplicó inercia (peso: {peso_neg[0]})")
+        fc.cerrar_sistema()
+    finally:
+        if os.path.exists(_v20_db):
+            os.remove(_v20_db)
+    print("--- 106. Dopamina RPE OK ---")
+
+    print("\n--- 107. Probando Inmunidad Cortical por Valencia Somática (v20.0) ---")
+    _v20_db = tempfile.mktemp(suffix='.db')
+    try:
+        fc = SQLiteMemoryBioRAG(db_path=_v20_db)
+        fc.percibir_corto_plazo("nodo_principio_inmune", "Axioma supremo de seguridad", "principio,inmune", "Principle")
+        fc.percibir_corto_plazo("nodo_valencia_alta", "Recuerdo emocional crítico", "valencia,alta", "General", valencia_somatica=1.0)
+        fc.percibir_corto_plazo("nodo_comun_mortal", "Recuerdo ordinario que debe decaer", "comun,mortal", "General", valencia_somatica=0.0)
+        fc.ciclo_sueno_consolidacion()
+
+        # Ejecutar 5 ciclos de sueño consecutivos
+        for _ in range(5):
+            fc.ciclo_sueno_consolidacion()
+
+        p_principio = fc.cursor.execute("SELECT peso_sinaptico FROM largo_plazo WHERE concepto = 'nodo_principio_inmune'").fetchone()[0]
+        p_valencia = fc.cursor.execute("SELECT peso_sinaptico FROM largo_plazo WHERE concepto = 'nodo_valencia_alta'").fetchone()[0]
+        p_mortal = fc.cursor.execute("SELECT peso_sinaptico FROM largo_plazo WHERE concepto = 'nodo_comun_mortal'").fetchone()[0]
+
+        assert p_principio == 1.0, f"Principio decayó: {p_principio}"
+        assert p_valencia == 1.0, f"Valencia alta decayó: {p_valencia}"
+        assert p_mortal < 1.0, f"Nodo común no decayó: {p_mortal}"
+        print(f"  OK: Inmunidad somática verificada. Inmunes: 1.0 vs Mortal: {p_mortal}")
+        fc.cerrar_sistema()
+    finally:
+        if os.path.exists(_v20_db):
+            os.remove(_v20_db)
+    print("--- 107. Inmunidad Somática OK ---")
+
+    print("\n--- 108. Probando Escalado Sináptico Homeostático (v20.0) ---")
+    _v20_db = tempfile.mktemp(suffix='.db')
+    try:
+        fc = SQLiteMemoryBioRAG(db_path=_v20_db)
+        fc.percibir_corto_plazo("nodo_scaling_1", "Nodo saturado 1", "scaling,1", "General")
+        fc.percibir_corto_plazo("nodo_scaling_2", "Nodo saturado 2", "scaling,2", "General")
+        fc.ciclo_sueno_consolidacion()
+
+        # Forzar pesos a 1.0 para forzar peso medio > 0.70
+        fc.cursor.execute("UPDATE largo_plazo SET peso_sinaptico = 1.0 WHERE concepto LIKE 'nodo_scaling_%'")
+        fc.conn.commit()
+
+        # Ejecutar consolidación (debe aplicar scaling multiplicativo x0.98)
+        fc.ciclo_sueno_consolidacion()
+
+        p_scaled = fc.cursor.execute("SELECT peso_sinaptico FROM largo_plazo WHERE concepto = 'nodo_scaling_1'").fetchone()[0]
+        assert p_scaled < 1.0, f"Escalado sináptico no redujo saturación: {p_scaled}"
+        print(f"  OK: Escalado sináptico homeostático verificado (peso ajustado a {p_scaled})")
+        fc.cerrar_sistema()
+    finally:
+        if os.path.exists(_v20_db):
+            os.remove(_v20_db)
+    print("--- 108. Escalado Sináptico Homeostático OK ---")
+
     # Finalizar
     cerebro.cerrar_sistema()
 

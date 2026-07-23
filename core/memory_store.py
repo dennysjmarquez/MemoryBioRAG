@@ -684,6 +684,23 @@ class SQLiteMemoryBioRAG:
         # v13: índices para queries rápidos por estado y fecha
         self.cursor.execute("CREATE INDEX IF NOT EXISTS idx_estado ON largo_plazo (estado)")
         self.cursor.execute("CREATE INDEX IF NOT EXISTS idx_creado_en ON largo_plazo (creado_en)")
+        # --- Migración v20.0 (Valencia Somática y Dopamina RPE) ---
+        cur.execute("PRAGMA table_info(largo_plazo)")
+        lp_cols_v20 = [row[1] for row in cur.fetchall()]
+        if 'valencia_somatica' not in lp_cols_v20:
+            cur.execute("ALTER TABLE largo_plazo ADD COLUMN valencia_somatica REAL DEFAULT 0.0")
+        if 'exitos_dopamina' not in lp_cols_v20:
+            cur.execute("ALTER TABLE largo_plazo ADD COLUMN exitos_dopamina INTEGER DEFAULT 0")
+        if 'fallos_dopamina' not in lp_cols_v20:
+            cur.execute("ALTER TABLE largo_plazo ADD COLUMN fallos_dopamina INTEGER DEFAULT 0")
+
+        cur.execute("PRAGMA table_info(corto_plazo)")
+        cp_cols_v20 = [row[1] for row in cur.fetchall()]
+        if 'valencia_somatica' not in cp_cols_v20:
+            cur.execute("ALTER TABLE corto_plazo ADD COLUMN valencia_somatica REAL DEFAULT 0.0")
+
+        self.cursor.execute("CREATE INDEX IF NOT EXISTS idx_lp_valencia ON largo_plazo (valencia_somatica)")
+
         self._crear_tabla_comunicaciones()
         self._crear_tabla_fts()
         self._crear_tabla_metricas()
@@ -1176,13 +1193,19 @@ class SQLiteMemoryBioRAG:
         print(f"[MemoryBioRAG] Evocado exitosamente '{key}' en {(fin - inicio) * 1000000:.2f} microsegundos.")
         return contenido
 
-    def percibir_corto_plazo(self, concepto, contenido, sinonimos="", categoria="General", dimensiones=None, predicados=None):
+    def percibir_corto_plazo(self, concepto, contenido, sinonimos="", categoria="General", dimensiones=None, predicados=None, valencia_somatica=0.0):
         """Almacena temporalmente una percepción o hecho en la memoria de trabajo (Corto Plazo).
         Si el concepto ya existe en corto plazo, concatena contenido y mergea sinónimos.
         dimensiones: dict {tipo_nombre: [valores]} para indexación de 5 ejes.
-        predicados: list[dict] con {sujeto, accion, objeto, contexto} para SRL v16.0."""
+        predicados: list[dict] con {sujeto, accion, objeto, contexto} para SRL v16.0.
+        valencia_somatica: float [0.0, 1.0] para marcadores somáticos (v20.0)."""
         key = concepto.lower().strip()
         cat_id = self._resolver_categoria_id(categoria)
+        
+        # Auto-asignar valencia somática máxima si la categoría es Principle o Protocol
+        if isinstance(categoria, str) and categoria.lower() in ('principle', 'protocol'):
+            valencia_somatica = 1.0
+
         self.cursor.execute("SELECT contenido, sinonimos, categoria FROM corto_plazo WHERE concepto = ?", (key,))
         existente = self.cursor.fetchone()
         if existente:
@@ -1196,9 +1219,9 @@ class SQLiteMemoryBioRAG:
             sinonimos_final = sinonimos
 
         self.cursor.execute("""
-            INSERT OR REPLACE INTO corto_plazo (concepto, contenido, timestamp, sinonimos, categoria)
-            VALUES (?, ?, ?, ?, ?)
-        """, (key, contenido_final, time.time(), sinonimos_final, cat_id))
+            INSERT OR REPLACE INTO corto_plazo (concepto, contenido, timestamp, sinonimos, categoria, valencia_somatica)
+            VALUES (?, ?, ?, ?, ?, ?)
+        """, (key, contenido_final, time.time(), sinonimos_final, cat_id, float(valencia_somatica or 0.0)))
 
         # SRL v16.0: Almacenar predicados en corto_plazo_predicados (se propagan al consolidar)
         if predicados:
@@ -1299,12 +1322,15 @@ class SQLiteMemoryBioRAG:
         
         # 1. Co-ocurrencia en corto_plazo (conceptos de la misma sesión)
         if len(recuerdos_sesion) >= 2:
-            for c1, contenido1, _, _ in recuerdos_sesion:
+            for item in recuerdos_sesion:
+                c1, contenido1 = item[0], item[1]
                 if c1 not in concepto_tokens:
                     concepto_tokens[c1] = set(re.findall(r'\w{4,}', (contenido1 or "").lower()))
             
             # Para cada par de conceptos consolidados juntos
-            for (c1, cont1, _, _), (c2, cont2, _, _) in combinations(recuerdos_sesion, 2):
+            for item1, item2 in combinations(recuerdos_sesion, 2):
+                c1, cont1 = item1[0], item1[1]
+                c2, cont2 = item2[0], item2[1]
                 tokens1 = concepto_tokens.get(c1, set())
                 tokens2 = concepto_tokens.get(c2, set())
                 
@@ -1444,30 +1470,40 @@ class SQLiteMemoryBioRAG:
         acciones_ciclo = []
 
         # 1. Transferencia y Fusión de Corto a Largo Plazo
-        self.cursor.execute("SELECT concepto, contenido, sinonimos, categoria FROM corto_plazo")
+        self.cursor.execute("SELECT concepto, contenido, sinonimos, categoria, COALESCE(valencia_somatica, 0.0) FROM corto_plazo")
         recuerdos_sesion = self.cursor.fetchall()
         
-        for concepto, contenido, sinonimos, cat_id in recuerdos_sesion:
+        for concepto, contenido, sinonimos, cat_id, val_somatica in recuerdos_sesion:
             existente = snapshot_inicial.get(concepto)
             
+            # Si categoria es Principle o Protocol, forzar valencia_somatica = 1.0
+            cat_name = ""
+            if cat_id:
+                res_cat = self.cursor.execute("SELECT name FROM categories WHERE id = ?", (cat_id,)).fetchone()
+                if res_cat:
+                    cat_name = res_cat[0]
+            if cat_name in ('Principle', 'Protocol'):
+                val_somatica = 1.0
+
             if existente:
                 # Fusión de información por adición semántica y subida de peso (LTP de consolidación)
                 peso_anterior = existente['peso']
                 nuevo_peso = min(1.0, existente['peso'] + 0.20)
                 
-                self.cursor.execute("SELECT contenido, sinonimos, categoria FROM largo_plazo WHERE concepto = ?", (concepto,))
+                self.cursor.execute("SELECT contenido, sinonimos, categoria, COALESCE(valencia_somatica, 0.0) FROM largo_plazo WHERE concepto = ?", (concepto,))
                 datos_actuales = self.cursor.fetchone()
                 nuevo_contenido = datos_actuales[0] + f" | Actualización: {contenido}"
                 sinonimos_exist = [s.strip() for s in (datos_actuales[1] or "").split(",") if s.strip()]
                 sinonimos_nuevos = [s.strip() for s in (sinonimos or "").split(",") if s.strip() and s.strip() not in sinonimos_exist]
                 sinonimos_final = ",".join(sinonimos_exist + sinonimos_nuevos)
                 cat_id = datos_actuales[2] or cat_id
+                val_final = max(datos_actuales[3], val_somatica)
                 
                 self.cursor.execute("""
                     UPDATE largo_plazo 
-                    SET contenido = ?, peso_sinaptico = ?, estado = 'activo', ultimo_acceso = ?, sinonimos = ?, categoria = ?
+                    SET contenido = ?, peso_sinaptico = ?, estado = 'activo', ultimo_acceso = ?, sinonimos = ?, categoria = ?, valencia_somatica = ?
                     WHERE concepto = ?
-                """, (nuevo_contenido, nuevo_peso, time.time(), sinonimos_final, cat_id, concepto))
+                """, (nuevo_contenido, nuevo_peso, time.time(), sinonimos_final, cat_id, val_final, concepto))
                 
                 acciones_ciclo.append({
                     'concepto': concepto, 'accion': 'actualizado',
@@ -1481,9 +1517,9 @@ class SQLiteMemoryBioRAG:
                 # Creación de un nuevo nodo en el grafo con peso inicial máximo
                 ahora = time.time()
                 self.cursor.execute("""
-                    INSERT INTO largo_plazo (concepto, categoria, contenido, peso_sinaptico, estado, asociaciones, ultimo_acceso, sinonimos, creado_en)
-                    VALUES (?, ?, ?, 1.0, 'activo', '', ?, ?, ?)
-                """, (concepto, cat_id or 1, contenido, ahora, sinonimos or "", ahora))
+                    INSERT INTO largo_plazo (concepto, categoria, contenido, peso_sinaptico, estado, asociaciones, ultimo_acceso, sinonimos, creado_en, valencia_somatica)
+                    VALUES (?, ?, ?, 1.0, 'activo', '', ?, ?, ?, ?)
+                """, (concepto, cat_id or 1, contenido, ahora, sinonimos or "", ahora, val_somatica))
                 
                 acciones_ciclo.append({
                     'concepto': concepto, 'accion': 'nuevo',
@@ -1514,11 +1550,11 @@ class SQLiteMemoryBioRAG:
 
         # Auto-vincular cada concepto consolidado (aristas por solapamiento de tokens)
         from core.sinapsis import auto_vincular
-        for concepto, contenido, _, _ in recuerdos_sesion:
+        for concepto, contenido, _, _, _ in recuerdos_sesion:
             auto_vincular(self, concepto, contenido)
 
         # Clasificación simbólica: WordNet lexnames para cada nodo consolidado
-        for concepto, contenido, sinonimos, _ in recuerdos_sesion:
+        for concepto, contenido, sinonimos, _, _ in recuerdos_sesion:
             self._clasificar_nodo_wordnet(concepto, contenido, sinonimos or "")
 
         # Fase 2: Auto-generar sinapsis por co-ocurrencia
@@ -1536,13 +1572,16 @@ class SQLiteMemoryBioRAG:
             print(f"[Inferencia Transitiva] Fallback silencioso: {e}")
 
         # 2. Decaimiento Pasivo (LTD): Reducir peso según decay_rate de la categoría
-        # Profile/Principle decaen lento, Project/General decaen rápido
+        # Nodos protegidos (valencia_somatica >= 0.8 o categoria Principle/Protocol) son inmunes a LTD pasivo
         self.cursor.execute("""
             UPDATE largo_plazo
             SET peso_sinaptico = ROUND(MAX(0.0, peso_sinaptico - 0.05 * (
                 SELECT COALESCE(c.decay_rate, 1.0) FROM categories c WHERE c.id = largo_plazo.categoria
             )), 2)
-            WHERE estado = 'activo' AND concepto NOT IN (SELECT concepto FROM corto_plazo)
+            WHERE estado = 'activo' 
+              AND concepto NOT IN (SELECT concepto FROM corto_plazo)
+              AND COALESCE(valencia_somatica, 0.0) < 0.80
+              AND categoria NOT IN (SELECT id FROM categories WHERE name IN ('Principle', 'Protocol'))
         """)
 
         # 2b. Decay Sináptico: reducir peso de conexiones no usadas en 7+ días
@@ -1555,7 +1594,7 @@ class SQLiteMemoryBioRAG:
         # Podar sinapsis muertas
         self.cursor.execute("DELETE FROM sinapsis WHERE peso < 0.05")
 
-        # 3. Poda selectiva por umbral de fuerza (Dormir recuerdos <= 0.1)
+        # 3. Poda selectiva por umbral de fuerza (Dormir recuerdos <= 0.05)
         # Snapshot ANTES de dormir (para detectar quiénes se duermen)
         self.cursor.execute("SELECT concepto FROM largo_plazo WHERE estado = 'activo'")
         activos_antes_dormir = set(row[0] for row in self.cursor.fetchall())
@@ -1563,7 +1602,10 @@ class SQLiteMemoryBioRAG:
         self.cursor.execute("""
             UPDATE largo_plazo 
             SET estado = 'dormido' 
-            WHERE peso_sinaptico <= 0.05 AND estado = 'activo'
+            WHERE peso_sinaptico <= 0.05 
+              AND estado = 'activo'
+              AND COALESCE(valencia_somatica, 0.0) < 0.80
+              AND categoria NOT IN (SELECT id FROM categories WHERE name IN ('Principle', 'Protocol'))
         """)
         
         # Detectar quiénes se durmieron POR LTD (solo los que estaban activos y ahora son dormidos)
@@ -1580,24 +1622,26 @@ class SQLiteMemoryBioRAG:
         energia_total = self.cursor.fetchone()[0] or 0.0
 
         nodos_inhibicion_lateral = []
+        nodos_a_dormir = []
         if energia_total > limite_energia:
             exceso = energia_total - limite_energia
             print(f"[Inhibición Lateral] Alerta: Energía sináptica activa ({energia_total:.2f}) excede el límite ({limite_energia}). Aplicando inhibición...")
-            # Obtener los nodos activos ordenados de menor peso y más antiguos para apagar los más débiles
+            # Obtener los nodos activos ordenados de menor peso y más antiguos (excluyendo inmunes)
             self.cursor.execute("""
                 SELECT concepto, peso_sinaptico FROM largo_plazo 
                 WHERE estado = 'activo' 
+                  AND COALESCE(valencia_somatica, 0.0) < 0.80
+                  AND categoria NOT IN (SELECT id FROM categories WHERE name IN ('Principle', 'Protocol'))
                 ORDER BY peso_sinaptico ASC, ultimo_acceso ASC
             """)
             nodos_activos = self.cursor.fetchall()
             
-            nodos_a_dormir = []
             for concepto, peso in nodos_activos:
                 if exceso <= 0:
                     break
                 nodos_a_dormir.append((concepto, peso))
                 exceso -= peso
-            
+
             if nodos_a_dormir:
                 nodos_inhibicion_lateral = [n[0] for n in nodos_a_dormir]
                 for i in range(0, len(nodos_a_dormir), 900):
@@ -1610,6 +1654,19 @@ class SQLiteMemoryBioRAG:
                         print(f"[Inhibición Lateral] Recuerdo '{concepto}' puesto a dormir forzadamente para balancear la carga cortical.")
                 else:
                     print(f"[Inhibición Lateral] Puestos a dormir {len(nodos_a_dormir)} recuerdos débiles para liberar energía (Consolidación en lote exitosa).")
+
+        # 4b. Escalado Sináptico Homeostático (Synaptic Scaling - Turrigiano 2008)
+        # Si el peso medio activo excede 0.70, aplica normalización multiplicativa (x0.98) a nodos no inmunes
+        self.cursor.execute("SELECT AVG(peso_sinaptico) FROM largo_plazo WHERE estado = 'activo'")
+        peso_medio_activo = self.cursor.fetchone()[0] or 0.0
+        if peso_medio_activo > 0.70:
+            self.cursor.execute("""
+                UPDATE largo_plazo
+                SET peso_sinaptico = ROUND(peso_sinaptico * 0.98, 2)
+                WHERE estado = 'activo'
+                  AND COALESCE(valencia_somatica, 0.0) < 0.80
+                  AND categoria NOT IN (SELECT id FROM categories WHERE name IN ('Principle', 'Protocol'))
+            """)
         
         # Registrar dormidos (LTD + inhibición lateral)
         # Obtener pesos REALES de nodos dormidos desde la DB (snapshot_inicial puede estar vacío si nodos venían de corto_plazo)
@@ -1687,7 +1744,7 @@ class SQLiteMemoryBioRAG:
         # Contar categorías de nodos consolidados EN ESTE CICLO (no en toda la base)
         cats_ciclo = {}
         if recuerdos_sesion:
-            cat_ids_unicos = list(set(cat_id for _, _, _, cat_id in recuerdos_sesion if cat_id))
+            cat_ids_unicos = list(set(r[3] for r in recuerdos_sesion if len(r) > 3 and r[3]))
             if cat_ids_unicos:
                 placeholders = ",".join("?" for _ in cat_ids_unicos)
                 cats_map = {}
@@ -1696,7 +1753,8 @@ class SQLiteMemoryBioRAG:
                     cat_ids_unicos
                 ):
                     cats_map[row[0]] = row[1]
-                for _, _, _, cat_id in recuerdos_sesion:
+                for r in recuerdos_sesion:
+                    cat_id = r[3]
                     if cat_id and cat_id in cats_map:
                         nombre = cats_map[cat_id]
                         cats_ciclo[nombre] = cats_ciclo.get(nombre, 0) + 1
@@ -1762,6 +1820,49 @@ class SQLiteMemoryBioRAG:
         self.conn.commit()
 
         print("[MemoryBioRAG] Proceso de consolidación y equilibrio sináptico completado con éxito.")
+
+    def aplicar_refuerzo_dopaminergico(self, concepto: str, exito: bool, motivo: str = None) -> bool:
+        """
+        Refuerzo Dopaminérgico por Error de Predicción de Recompensa (RPE v20.0 - Schultz 1997).
+        Aplica el Factor de Inercia Sináptica (Dopaminergic Inertia):
+        - Éxito: Delta W = +0.15 * (1.0 - peso_actual * 0.3)
+        - Fallo: Delta W = -0.10 / (1.0 + ln(1 + exitos_previos))
+        """
+        key = concepto.lower().strip()
+        self.cursor.execute(
+            "SELECT peso_sinaptico, COALESCE(exitos_dopamina, 0), COALESCE(fallos_dopamina, 0) "
+            "FROM largo_plazo WHERE concepto = ?", (key,)
+        )
+        row = self.cursor.fetchone()
+        if not row:
+            return False
+
+        peso_actual, exitos, fallos = row[0] or 0.5, row[1], row[2]
+        import math, time
+
+        if exito:
+            delta = 0.15 * (1.0 - peso_actual * 0.3)
+            nuevo_peso = min(1.0, round(peso_actual + delta, 2))
+            nuevos_exitos = exitos + 1
+            self.cursor.execute("""
+                UPDATE largo_plazo
+                SET peso_sinaptico = ?, exitos_dopamina = ?, ultimo_acceso = ?, estado = 'activo'
+                WHERE concepto = ?
+            """, (nuevo_peso, nuevos_exitos, time.time(), key))
+        else:
+            inercia = 1.0 + math.log(1.0 + exitos)
+            delta = -0.10 / inercia
+            nuevo_peso = max(0.05, round(peso_actual + delta, 2))
+            nuevos_fallos = fallos + 1
+            nuevo_estado = 'dormido' if nuevo_peso <= 0.05 else 'activo'
+            self.cursor.execute("""
+                UPDATE largo_plazo
+                SET peso_sinaptico = ?, fallos_dopamina = ?, estado = ?
+                WHERE concepto = ?
+            """, (nuevo_peso, nuevos_fallos, nuevo_estado, key))
+
+        self.conn.commit()
+        return True
 
     def establecer_asociacion(self, concepto_a, concepto_b):
         """Crea un enlace sináptico bidireccional entre dos conceptos en el grafo de largo plazo."""
@@ -3306,6 +3407,19 @@ class SQLiteMemoryBioRAG:
 
         # Reordenar por score hibrido descendente
         resultados_con_hibrido.sort(key=lambda r: r[4], reverse=True)
+
+        # v20.0 Inhibición Lateral GABA en Tiempo Real (Edelman 1987)
+        # Si el candidato Top-1 es un atractor fuerte (score >= 0.80),
+        # atenúa activamente a los competidores secundarios del mismo nicho (x0.60)
+        if resultados_con_hibrido and resultados_con_hibrido[0][4] >= 0.80:
+            top_score = resultados_con_hibrido[0][4]
+            gaba_resultados = [resultados_con_hibrido[0]]
+            for conc, cont, peso, est, sc, asoc in resultados_con_hibrido[1:]:
+                if sc < top_score * 0.70:
+                    sc = round(sc * 0.60, 4)
+                gaba_resultados.append((conc, cont, peso, est, sc, asoc))
+            gaba_resultados.sort(key=lambda r: r[4], reverse=True)
+            resultados_con_hibrido = gaba_resultados
 
         # Filtro final con PALABRA_PREFIJO: para queries de una palabra,
         # exigir que aparezca como prefijo de palabra en contenido (del lado de la DB).

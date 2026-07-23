@@ -1260,11 +1260,15 @@ def _build_server():
         cat: Optional[str] = None,
         dimensiones: Optional[Any] = None,
         predicados: Optional[Any] = None,
+        valencia_somatica: Optional[float] = None,
     ) -> str:
         cerebro = _get_cerebro()
         try:
             clave = concepto.lower().replace(" ", "_")
             categoria = cat or inferir_categoria(contenido)
+            val_somatica = float(valencia_somatica or 0.0)
+            if categoria and str(categoria).lower() in ('principle', 'protocol'):
+                val_somatica = 1.0
             try:
                 cerebro._resolver_categoria_id(categoria)
             except ValueError as e:
@@ -1294,7 +1298,7 @@ def _build_server():
                 except (json.JSONDecodeError, TypeError):
                     predicados_list = None
 
-            cerebro.percibir_corto_plazo(clave, contenido, syn or "", categoria, dimensiones_dict, predicados=predicados_list)
+            cerebro.percibir_corto_plazo(clave, contenido, syn or "", categoria, dimensiones_dict, predicados=predicados_list, valencia_somatica=val_somatica)
 
             enlaces = auto_vincular(cerebro, clave, contenido)
             sinapsis_count = len(enlaces)
@@ -1501,8 +1505,11 @@ def _build_server():
                 "CUÁNDO OMITIRLO: En datos técnicos puros, snippets de código o configs sin autoría (dejar None)."
             )
         )] = None,
+        valencia_somatica: Annotated[Optional[float], Field(
+            description="Valencia emocional/somática (0.0 a 1.0). Nodos con valencia >= 0.80 son inmunes al decaimiento por sueño y la poda."
+        )] = None,
     ) -> str:
-        return _aprender_impl(concepto, contenido, syn, cat, dimensiones=dimensiones, predicados=predicados)
+        return _aprender_impl(concepto, contenido, syn, cat, dimensiones=dimensiones, predicados=predicados, valencia_somatica=valencia_somatica)
 
     @mcp.tool(
         name="guardar",
@@ -1510,7 +1517,7 @@ def _build_server():
             "(legado) Alias de 'aprender' — preferir 'aprender' para identificar la operación cognitiva real. "
             "Misma funcionalidad y parámetros.\n\n"
             "Parámetros: concepto (str), contenido (str), syn (str opcional), cat (str opcional), "
-            "dimensiones (str JSON opcional).\n\n"
+            "dimensiones (str JSON opcional), valencia_somatica (float opcional).\n\n"
             "Retorna: {status, mensaje, concepto (str normalizado), sinapsis (int)}"
         ),
     )
@@ -1530,8 +1537,34 @@ def _build_server():
         predicados: Annotated[Optional[Any], Field(
             description="Estructura SRL (JSON o lista de dicts). Ver descripción en `aprender` para reglas y ejemplos de uso."
         )] = None,
+        valencia_somatica: Annotated[Optional[float], Field(
+            description="Valencia emocional/somática (0.0 a 1.0)."
+        )] = None,
     ) -> str:
-        return _aprender_impl(concepto, contenido, syn, cat, dimensiones=dimensiones, predicados=predicados)
+        return _aprender_impl(concepto, contenido, syn, cat, dimensiones=dimensiones, predicados=predicados, valencia_somatica=valencia_somatica)
+
+    @mcp.tool(
+        name="feedback",
+        description=(
+            "Refuerzo Dopaminérgico por Error de Predicción de Recompensa (RPE v20.0 - Schultz 1997).\n"
+            "Permite a un agente o usuario enviar retroalimentación sobre si un recuerdo recuperado fue útil (util=True) o erróneo (util=False).\n"
+            "Aplica el Factor de Inercia Sináptica: nodos consolidados con historial de éxitos resisten fallos aislados, mientras que nodos nuevos son corregibles al instante."
+        ),
+    )
+    def biorag_feedback(
+        concepto: Annotated[str, Field(description="Nombre del concepto/nodo a retroalimentar (snake_case).")],
+        util: Annotated[bool, Field(description="True si la memoria fue útil para resolver la tarea; False si fue irrelevante o errónea.")],
+        motivo: Annotated[Optional[str], Field(description="Motivo u observación opcional sobre el feedback.")] = None,
+    ) -> str:
+        cerebro = _get_cerebro()
+        try:
+            exito = cerebro.aplicar_refuerzo_dopaminergico(concepto, exito=util, motivo=motivo)
+            if not exito:
+                return json.dumps({"status": "error", "mensaje": f"El concepto '{concepto}' no existe en largo plazo."}, ensure_ascii=False)
+            accion = "Disparo dopaminérgico (+LTP)" if util else "Depresión por fracaso (-LTD)"
+            return json.dumps({"status": "ok", "mensaje": f"Feedback dopaminérgico aplicado a '{concepto}': {accion}"}, ensure_ascii=False)
+        finally:
+            cerebro.cerrar_sistema()
 
     @mcp.tool(
         name="vincular",

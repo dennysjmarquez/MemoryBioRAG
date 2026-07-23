@@ -1,11 +1,11 @@
-# BioRAG v19.0 — Arquitectura de Memoria Cognitiva Simbólica y Biomimética para Agentes de IA
+# BioRAG v20.0 — Arquitectura de Memoria Cognitiva Simbólica, Biomimética y Circuito Cerrado para Agentes de IA
 
-> **Versión:** v19.0 — Julio 2026
-> **Paradigma:** Semántica Determinista, Discreta, Simbólica y Biomimética (PMI + SDM 1024-bit + SLS + Stemmer Bilingüe)
+> **Versión:** v20.0 — Julio 2026
+> **Paradigma:** Circuito Sintético Cognitivamente Cerrado (GABA en Vivo + Dopamina RPE con Inercia Sináptica + Valencia Somática + Escalado Homeostático + PMI + SDM 1024-bit + SLS + Stemmer Bilingüe)
 > **Motor:** Python puro + SQLite FTS5
 > **Dependencias ML:** 0 (mcp + nltk para WordNet, 0 numpy, 0 sentence-transformers, 0 torch)
 > **Idiomas:** Español + Inglés (stemming bilingüe ES/EN + expansión simbólica vía WordNet)
-> **Tests:** 95/95 + Suite QA (Fase 1 y 2) + Integration Test 5/5 ✓
+> **Tests:** 108/108 tests biológicos automatizados (100% Éxito) ✓
 
 **BioRAG** es una arquitectura de memoria cognitiva simbólica, biomimética y persistente para agentes de inteligencia artificial. Resuelve el problema fundamental de que los LLMs olvidan todo entre sesiones — sin depender de vectores densos, embeddings, GPU ni infraestructura externa. Opera sobre un espacio discreto, determinista y auditable: 7 ejes semánticos × 73 sub-valores declarativos, 45 grupos léxicos WordNet, Pointwise Mutual Information (PMI/NPMI) aprendido sobre el corpus, Sparse Distributed Memory (SDM de 1024 bits), un pipeline de recuperación de 13 capas en cascada con expansión simbólica bilingüe (Stemmer ES/EN + Levenshtein + WordNet), y un grafo de conocimiento dinámico con plasticidad negativa y sinapsis latentes semánticas (SLS).
 
@@ -181,6 +181,14 @@ graph TD
   1. **Commit Atómico Unificado**: `ciclo_sueno_consolidacion()` ejecuta todo el proceso (transferencia LTP, inhibición lateral LTD, cálculo PMI, optimización FTS5 y registro de métricas forenses `metricas_cognitivas_nodos`) en una sola transacción atómica de SQLite con un único `commit()` final al cierre del ciclo.
   2. **Homeostasis Energética Cortical**: Se eliminó la dependencia de parámetros de energía externos (`limite_energia`), dejando la Inhibición Lateral Activa 100% autorregulada en función de la carga cortical real ($\max(10.0, \text{n\_activos} \times 0.8)$).
   3. **Visibilidad Completa en Neuro-Visor**: Se actualizó el endpoint de actividad (`/api/corteza/actividad`) ampliando el límite de conceptos devueltos de `LIMIT 3` a `LIMIT 50` y ordenando por ID descendente, permitiendo inspeccionar la totalidad de los nodos consolidados en cada ciclo.
+
+#### Fase 10: BioRAG v20.0 — Circuito Sintético Cognitivamente Cerrado (GABA en Vivo, Dopamina RPE, Valencia Somática y Escalado Homeostático)
+* **Objetivo y Aporte**: Transformar el almacenamiento dinámico de BioRAG en un circuito neurobiológico cerrado autónomo y auto-homeostático, sustituyendo la similitud estática por dinámicas cognitivas inspiradas en Hebb, Schultz (1997), Damasio (1994) y Turrigiano (2008).
+* **Componentes Implementados en v20.0**:
+  1. **Inhibición Lateral GABA en Tiempo Real en Evocación (Edelman 1987)**: En `core/memory_store.py` (`buscar_por_frase`), cuando un candidato Top-1 es un atractor fuerte ($\text{Score} \ge 0.80$), atenúa activamente ($\times 0.60$) a los competidores secundarios del mismo nicho semántico, enfocando la atención y eliminando el ruido sin depender de vectores.
+  2. **Error de Predicción de Recompensa (Dopamina RPE - Schultz 1997) + Factor de Inercia Sináptica**: Implementación de la tool MCP `biorag_feedback(concepto, util=True/False)`. Éxito incrementa peso ($\Delta W = +0.15 \times (1.0 - W \times 0.3)$) e incrementa contador de éxitos. Fallo aplica depresión modulada por inercia sináptica: $\Delta W_{\text{fracaso}} = \frac{-0.10}{1.0 + \ln(1 + \text{éxitos})}$, protegiendo nodos antiguos consolidados contra fallos aislados y permitiendo corrección instantánea de nodos nuevos.
+  3. **Marcadores Somáticos y Valencia Cortical (Damasio 1994)**: Schema actualizado con columna `valencia_somatica` (0.0 a 1.0) en `largo_plazo` y `corto_plazo`. Nodos con valencia $\ge 0.80$ o categorías axiomáticas (`Principle`, `Protocol`) adquieren **Inmunidad Cortical Total**: son omitidos del decaimiento pasivo LTD (-0.05), la poda y la inhibición lateral.
+  4. **Escalado Sináptico Homeostático (Synaptic Scaling - Turrigiano 2008)**: Durante la consolidación nocturna, si el peso promedio de la corteza activa supera $0.70$, se aplica una normalización multiplicativa ($\times 0.98$) a los nodos no inmunes, asegurando capacidad de aprendizaje ilimitada sin saturación a $1.0$.
 
 ---
 
