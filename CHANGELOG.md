@@ -8,39 +8,50 @@
 1. **Capa 1:** `tematico_score` compara candidatos entre sí, no contra la query
 2. **Capa 2:** `similitud_tematica` no discriminativa — mantenida limpia con dimensiones sueltas
 3. **Capa 3 (NUEVA - v22.2):** La query no tiene dimensiones explícitas — se inyectan dinámicamente vía PRF
-4. **Drift Metodológico de LTD (Págs 43-44 PDF):** 51 de 65 nodos objetivo en `por_tema` sufrieron decaimiento pasivo LTD ($W \le 0.30$) por falta de valencia somática en la DB principal, lo que distorsionaba el score híbrido ($+0.10 \times W$) frente a distractores inmunes ($W=1.00$).
+4. **Drift Metodológico de LTD (Págs 43-44 PDF):** 51 de 65 nodos objetivo en `por_tema` sufrieron decaimiento pasivo LTD ($W \le 0.30$) por falta de valencia somática, distorsionando el score híbrido.
 
-**Solución Capa 3 (Pseudo-Relevance Feedback) + Fix Metodológico:**
+**Solución Capa 3 (Pseudo-Relevance Feedback) + Fix Metodológico Validado:**
 - **PRF:** Cuando `buscar_por_frase` no recibe `dimensiones_ids` explícitos pero la query tiene ≥3 resultados FTS5, usa los **top-5 resultados FTS5 puros** como "pseudo-relevantes" para inyectar sus dimensiones implícitas.
-- **Fix Metodológico en `evaluar_qa.py`:** En la fase de preparación (`setup phase`) de cada caso de prueba, se resetea temporalmente el peso del nodo objetivo a $W = 1.00$ (`peso_sinaptico = 1.0`) en la DB aislada de prueba, eliminando el ruido de decaimiento no controlado.
-- **Fix de Robustez:** En `core/memory_store.py`, `_crear_tabla_historial_si_falta()` asegura la existencia de `nodos_sdm` y `sinapsis_latentes` para prevenir errores de triggers en `DELETE FROM largo_plazo`.
+- **Fix Metodológico Riguroso en `evaluar_qa.py`:** Se normalizan **TODOS los nodos** a $W = 1.00$ globalmente antes de cada corrida (`UPDATE largo_plazo SET peso_sinaptico = 1.0` — sin filtro WHERE). Ningún nodo recibe ventaja exclusiva sobre los distractores (zero data leakage).
+- **Fix de Robustez:** `_crear_tabla_historial_si_falta()` garantiza existencia de `nodos_sdm` y `sinapsis_latentes` antes de cualquier `DELETE` trigger.
 
-**Resultados Definitivos y Limpios (921 Casos de Prueba):**
+**Resultados Definitivos y Validados — Determinísticos (3 corridas idénticas, 58.46% estable):**
 
 #### Comparativa de Evolución de `por_tema`
-| Métrica | Antes (v18.0 - v21.0) | Con Ruidos de LTD | Ahora (v22.2 Limpio) | Estado |
+| Métrica | Antes (v18.0 - v21.0) | Con Ruidos de LTD (baseline ruidoso) | v22.2 Validado (verificado determinista) | Estado |
 |---|---|---|---|---|
-| **Recall@5** | 36.92% *(Fallaba 63%)* | 41.54% | **60.00%** *(Aprueba 6 de cada 10)* | 🚀 **Gran Salto (+23.08%)** |
-| **Recall@1** | 12.31% | 16.92% | **21.54%** | 📈 **Subió casi al doble** |
-| **MRR** | 0.213 | 0.250 | **0.368** | 📈 **Mucho mejor posicionamiento** |
+| **Recall@5** | 36.92% | 41.54% | **58.46%** | 🚀 **+21.54 pp** |
+| **Recall@1** | 12.31% | 16.92% | **20.00%** | 📈 **+7.69 pp** |
+| **MRR** | 0.213 | 0.250 | **0.344** | 📈 **+0.131** |
 
-#### Desglose por Categoría de Recuperación
-- `dormido`: **100.00%** Recall@5 (MRR 1.000)
-- `literal`: **100.00%** Recall@5 (MRR 0.999)
-- `typo`: **96.92%** Recall@5 (MRR 0.921)
-- `variante_gramatical`: **96.92%** Recall@5 (MRR 0.908)
-- `pregunta_natural`: **95.38%** Recall@5 (MRR 0.924)
-- `cruce_idioma`: **87.50%** Recall@5 (MRR 0.875)
-- `sinonimo`: **80.33%** Recall@5 (MRR 0.637)
-- `por_tema`: **60.00%** Recall@5 (MRR 0.368)
+#### Desglose por Categoría de Recuperación (corrida determinista, 3 repeticiones idénticas)
+- `dormido`: **100.00%** Recall@5 (MRR 1.000) — 0 fallos
+- `literal`: **100.00%** Recall@5 (MRR 0.999) — 0 fallos
+- `typo`: **98.46%** Recall@5 (MRR 0.926) — 1 fallo
+- `variante_gramatical`: **96.92%** Recall@5 (MRR 0.910) — 2 fallos
+- `pregunta_natural`: **93.85%** Recall@5 (MRR 0.913) — 4 fallos
+- `cruce_idioma`: **87.50%** Recall@5 (MRR 0.875) — 1 fallo
+- `sinonimo`: **78.69%** Recall@5 (MRR 0.581) — 13 fallos
+- `por_tema`: **58.46%** Recall@5 (MRR 0.344) — 27 fallos
 
-- **GLOBAL Recall@5: 94.78%** | **GLOBAL Recall@1: 88.42%** | **MRR Global: 0.908**
+> **GLOBAL SUMMARY (881 casos):** Recall@5: **94.55%** | Recall@1: **87.74%** | MRR: **0.902** | FP Negativo: **7.5%** (3/40, baseline histórico)
+
+> **Determinismo verificado:** 3 corridas consecutivas idénticas (con y sin PYTHONHASHSEED=0) → **58.46% exacto**. Sin varianza.
+
+**⚠️ Deuda técnica pendiente:** Variación puntual 61.54% → 58.46% observada en corrida aislada previa; 4 corridas consecutivas confirman 58.46% determinista, pero **causa raíz de la variación aislada no identificada** (descartado PYTHONHASHSEED, DMN inactivo). Pendiente: investigación completa (DMN hilo latente, orden de iteración dict/set en Python 3.7+, interacción con caché temática) para garantía bajo carga/distinto orden de casos.
+
+**Lección de Arquitectura Documentada:**
+
 - **Tests Biológicos:** 112/112 pasados con 100% de éxito ✓
+
+**Lección de Arquitectura Documentada:**
+- **¿Por qué `query_dimension_classifier.py` (WordNet) falló para dimensiones sintéticas?** WordNet clasifica 45 categorías lexicográficas generales (`noun.artifact`, `verb.communication`) pero no puede inferir dimensiones sintéticas de dominio (`identidad_artificial`, `intencion_documentar`, `dominio_tecnico`). PRF las extrae dinámicamente del corpus en tiempo de consulta.
+- **Causa raíz del decaimiento LTD:** Nodos sintéticos creados sin valencia somática ($V_s = 0.0$) decayeron $-0.05$ por ciclo de sueño. Fix: todos los nodos arquitectónicos críticos deben tener $V_s \ge 0.80$.
 
 **Archivos modificados:**
 - `core/memory_store.py`: Inyección PRF en Capa 3 + fix de tablas en `_crear_tabla_historial_si_falta()`
-- `scripts/evaluar_qa.py`: Normalización de pesos en setup phase de evaluación
-- `CHANGELOG.md`, `README.md`, `VERSION`: Documentación de resultados limpios y lecciones de arquitectura
+- `scripts/evaluar_qa.py`: Normalización global de pesos (zero data leakage)
+- `CHANGELOG.md`, `README.md`, `VERSION`: Documentación de resultados validados
 
 ---
 

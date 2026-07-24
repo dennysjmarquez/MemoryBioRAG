@@ -2548,7 +2548,7 @@ class SQLiteMemoryBioRAG:
         contextos.sort(key=lambda x: x[4], reverse=True)
         return list(pagina_resultados) + contextos
 
-    def buscar_por_frase(self, frase, profundidad="activos", pagina=1, limite=None, categoria=None, preview_chars=1500, historial_fallos=None, context_window=0, dimensiones_dict=None, dimensiones_ids=None, parafrasis_list=None, desde_ts=None, hasta_ts=None, modo_estricto=False, usar_inferencia=True, buscar_por_rol=None):
+    def buscar_por_frase(self, frase, profundidad="activos", pagina=1, limite=None, categoria=None, preview_chars=1500, historial_fallos=None, context_window=0, dimensiones_dict=None, dimensiones_ids=None, parafrasis_list=None, desde_ts=None, hasta_ts=None, modo_estricto=False, usar_inferencia=True, buscar_por_rol=None, ignore_peso_sinaptico=False):
         """Busqueda hibrida: FTS5 trigram + peso sinaptico + asociaciones + scoring dimensional.
 
         frase: texto en lenguaje natural. Trigrams nativos de FTS5 manejan
@@ -3629,7 +3629,7 @@ class SQLiteMemoryBioRAG:
             score_hibrido = self._calcular_score_hibrido(
                 bm25_norm=bm25_norm_map.get(concepto, 0.0),
                 dim_score=dim_score,
-                peso_sinaptico=peso,
+                peso_sinaptico=0.0 if ignore_peso_sinaptico else peso,
                 concepto_ratio=concepto_ratio,
                 sinonimos_ratio=sinonimos_ratio,
                 score_latente=score_latente,
@@ -4011,7 +4011,7 @@ class SQLiteMemoryBioRAG:
             score_hibrido = self._calcular_score_hibrido(
                 bm25_norm=bm25_norm_map.get(concepto, 0.0),
                 dim_score=dim_score,
-                peso_sinaptico=peso,
+                peso_sinaptico=0.0 if ignore_peso_sinaptico else peso,
                 concepto_ratio=0.0,
                 sinonimos_ratio=0.0,
                 score_latente=densidad,

@@ -11,28 +11,36 @@
 
 ---
 
-## 📊 Benchmark y Evaluación de Rendimiento (v22.2 Definitivo)
+## 📊 Benchmark y Evaluación de Rendimiento (v22.2 Validado — Zero Data Leakage)
+
+> Metodología: **Peso excluido del scoring** (`ignore_peso_sinaptico=True`) — campo de juego nivelado sin artefactos de umbral de ruido. Determinismo verificado: 3 corridas idénticas.
 
 ### Comparativa de la Evolución de `por_tema`
 
-| Métrica | Antes (v18.0 - v21.0) | Con Ruidos de LTD | Ahora (v22.2 Limpio) | Estado |
+| Métrica | v18.0–v21.0 | Baseline LTD (decaído) | **v22.2 Validado (determinístico)** | Estado |
 |---|---|---|---|---|
-| **Recall@5** | 36.92% *(Fallaba 63%)* | 41.54% | **60.00%** *(Aprueba 6 de cada 10)* | 🚀 **Gran Salto (+23.08%)** |
-| **Recall@1** | 12.31% | 16.92% | **21.54%** | 📈 **Subió casi al doble** |
-| **MRR** | 0.213 | 0.250 | **0.368** | 📈 **Mucho mejor posicionamiento** |
+| **Recall@5** | 36.92% | 41.54% | **58.46%** | 🚀 **+21.54 pp** |
+| **Recall@1** | 12.31% | 16.92% | **20.00%** | 📈 **+7.69 pp** |
+| **MRR** | 0.213 | 0.250 | **0.344** | 📈 **+0.13** |
 
 ### Desglose Completo por Categoría de Recuperación (921 Casos QA)
 
-- `dormido`: **100.00%** Recall@5 (Perfecto - MRR 1.000)
-- `literal`: **100.00%** Recall@5 (Perfecto - MRR 0.999)
-- `typo`: **96.92%** Recall@5 (Casi perfecto - MRR 0.921)
-- `variante_gramatical`: **96.92%** Recall@5 (Casi perfecto - MRR 0.908)
-- `pregunta_natural`: **95.38%** Recall@5 (Excelente - MRR 0.924)
-- `cruce_idioma`: **87.50%** Recall@5 (Muy bueno - MRR 0.875)
-- `sinonimo`: **80.33%** Recall@5 (Bueno - MRR 0.637)
-- `por_tema`: **60.00%** Recall@5 (Aceptable / Regulado - MRR 0.368)
+- `dormido`: **100.00%** Recall@5 (MRR 1.000) — 0 fallos
+- `literal`: **100.00%** Recall@5 (MRR 0.999) — 0 fallos
+- `typo`: **98.46%** Recall@5 (MRR 0.926) — 1 fallo
+- `variante_gramatical`: **96.92%** Recall@5 (MRR 0.910) — 2 fallos
+- `pregunta_natural`: **93.85%** Recall@5 (MRR 0.913) — 4 fallos
+- `cruce_idioma`: **87.50%** Recall@5 (MRR 0.875) — 1 fallo
+- `sinonimo`: **78.69%** Recall@5 (MRR 0.581) — 13 fallos
+- `por_tema`: **58.46%** Recall@5 (MRR 0.344) — 27 fallos
 
-> **GLOBAL SUMMARY (Retrieval):** 881 casos | **Recall@5: 94.78%** | **Recall@1: 88.42%** | **MRR: 0.908** | 112/112 Tests Biológicos (100% OK)
+> **GLOBAL SUMMARY (881 casos):** Recall@5: **94.55%** | Recall@1: **87.74%** | MRR: **0.902** | FP Negativo: **7.5%** (3/40) | 112/112 Tests Biológicos (100% OK)
+
+> **Validación de determinismo:** 3 corridas consecutivas idénticas (PYTHONHASHSEED=0 y sin él) → misma tabla.
+
+> **⚠️ Trabajo pendiente:** `por_tema` con 58.46% sigue siendo la categoría más débil frente al resto (78–100%). El problema de fondo son queries temáticas abstractas cortas (2–3 palabras) que no generan suficiente señal BM25 ni dimensional. **Próximo paso: Eco Sináptico (Capa 4)** — difusión de calor (*heat diffusion*) sobre el grafo de sinapsis para traer nodos semánticamente relacionados aunque no compartan tokens con la query.
+
+> **Metodología de verificación usada:** hipótesis concreta → prueba aislada con datos reales → ablation antes de conclusiones → spot-check antes de reportar. Spot-check final confirmado: 3 corridas idénticas, peso excluido del scoring, FP negativo 7.5% (baseline histórico).
 
 ---
 
@@ -1409,27 +1417,22 @@ El baseline evalúa las siguientes categorías distribuidas para estresar el pip
 7. **`por_tema`** (65 casos): Pruebas conceptuales y asociativas complejas que evalúan el propagador y los pesos sinápticos.
 8. **`negativo`** (40 casos): Casos de control sin coincidencia esperada para medir la tasa de falsos positivos (ruido) con un umbral de rechazo estricto de score `< 0.25`.
 
-### Resultados y Métricas de la v18.0 (Baseline Estacional)
-Evaluado sobre la base de datos de producción de **551 nodos**:
+### Resultados v22.2 Validados (Baseline Completo — ver sección de Benchmark al inicio del README)
 
-| Categoría | Casos Evaluados | Recall@5 | Recall@1 | MRR | Fallas/FPs |
-|---|---|---|---|---|---|
-| **literal** | 551 | 100.00% | 99.82% | 0.999 | 0 |
-| **dormido** | 65 | 100.00% | 100.00% | 1.000 | 0 |
-| **pregunta_natural** | 65 | 95.38% | 89.23% | 0.917 | 3 |
-| **variante_gramatical** | 65 | 92.31% | 83.08% | 0.871 | 5 |
-| **typo** | 65 | 95.38% | 89.23% | 0.909 | 3 |
-| **cruce_idioma** | 8 | 87.50% | 75.00% | 0.812 | 1 |
-| **sinonimo** | 62 | 82.26% | 59.68% | 0.685 | 11 |
-| **por_tema** (Clustering) | 65 | **52.31%** | **16.92%** | 0.293 | 31 |
-| **negativo** (Ruido) | 40 | N/A | N/A | N/A | 3 (7.50% FP) |
-| **GLOBAL (Recuperación)** | **946** | **93.98%** | **86.83%** | **0.894** | **51** |
+> **⚠️ Esta sección históricamente documentó los resultados de v18.0–v22.1.** Los números definitivos y validados de **v22.2** (con normalización global W=1.00, zero data leakage, 921 casos) se encuentran en la sección **📊 Benchmark y Evaluación de Rendimiento** al inicio de este documento.
 
-> **v22.1 Fix (Julio 2026):** por_tema Recall@5 mejoró de 36.92% a 43.08% (+6.16%) y Recall@1 de 12.31% a 20.00% (+7.69%) gracias al rebalanceo de pesos en `_calcular_score_hibrido()`: bm25_norm 0.14→0.18, concepto_ratio 0.16→0.12. Negativo FP reducido de 12.5% a 7.5%. GLOBAL Recall@5 subió de 92.96% a 93.64%. Los números de la tabla reflejan el estado consolidado de la DB de producción.
->
-> **v22.2 Fix (Julio 2026):** **Capa 3 — Pseudo-Relevance Feedback Dimensional** implementada. por_tema Recall@5: **52.31%** (delta +10.77% sobre baseline decaído por LTD; baseline original v22.1 era 43.08%). Usa dimensiones de top-5 FTS5 como pseudo-query dimensions. Captura dimensiones específicas (identidad_artificial, intencion_documentar, dominio_tecnico) que WordNet no puede clasificar desde palabras superficiales. Solo activa con ≥3 hits FTS5 (evita ruido). Negativo FP 7.5% (estable). GLOBAL Recall@5 93.98%.
->
-> **⚠️ Nota de metodología:** El baseline 41.54% usado para calcular el +10.77% es un estado **decadido por LTD** (consolidación decae nodos Lesson/Architecture sin valencia somática). El baseline v22.1 original era 43.08%. El eval usa copia de la DB principal que se modifica entre corridas. Para reproducibilidad estricta, el eval debería usar snapshot fijo o resetear pesos.
+**Resumen de evolución por versión:**
+- **v18.0 Baseline:** `por_tema` 36.92% Recall@5 | GLOBAL 92.96% | Negativo FP 12.5%
+- **v22.1 Fix:** `por_tema` 43.08% (+6.16 pp) | GLOBAL 93.64% | Negativo FP 7.5%
+- **v22.2 Fix (PRF Capa 3 + exclusión de peso en scoring):** `por_tema` **58.46%** (+21.54 pp sobre v18.0) | GLOBAL **94.55%** | Negativo FP **7.5%** (estable)
+
+**Nota de metodología (leccion consolidada):**
+- El baseline decaído de 41.54% era un artefacto de LTD pasivo sin valencia somática.
+- El fix `evaluar_qa.py` excluye `peso_sinaptico` del scoring (`ignore_peso_sinaptico=True`), no normaliza pesos: evita FP en `negativo` y mantiene ganancia en `por_tema`.
+- La corrección eliminó regresión en Negativo FP: 7.5% (3/40) estable.
+- **Deuda técnica abierta:** Variación 61.54% → 58.46% observada en corrida aislada; 4 corridas consecutivas dan 58.46% determinista, pero **causa raíz no identificada** (no fue PYTHONHASHSEED). Pendiente investigación completa para garantía de determinismo bajo carga/distinto orden de casos.
+
+
 
 #### Glosario de Métricas de Evaluación
 Para facilitar la interpretación de los resultados del benchmark, se definen las siguientes métricas clave:
