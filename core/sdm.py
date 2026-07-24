@@ -162,24 +162,31 @@ def indexar_todos_sdm(cerebro) -> int:
     return count
 
 
-def buscar_sdm(cerebro, query: str, radio_max: int = None, limite: int = 10) -> list[dict]:
+def buscar_sdm(cerebro, query: str = "", radio_max: int = None, limite: int = 10,
+               vector_fijo: bytes = None) -> list[dict]:
     """Busca nodos conceptualmente similares usando distancia Hamming en el espacio SDM.
-    Usar cuando FTS5 devuelve <3 candidatos.
+
+    Modos de operación:
+    1. Query por texto (vector_fijo=None): genera vector desde el query text.
+    2. Query por ejemplo (vector_fijo=bytes): usa el vector proporcionado directamente.
+       Esto permite "buscar nodos similares a ESTE nodo" — búsqueda semántica pura.
 
     Retorna lista de dicts: [{'concepto': str, 'distancia': int, 'similitud': float}]
     """
     if radio_max is None:
         radio_max = SDM_RADIO_DEFAULT
 
-    # Generar vector para el query (tratado como concepto + contenido)
-    query_vec = generar_vector_sdm(concepto=query, contenido=query)
+    # Determinar vector de consulta
+    if vector_fijo is not None:
+        query_vec = vector_fijo
+    else:
+        query_vec = generar_vector_sdm(concepto=query, contenido=query)
 
     # Cargar todos los vectores SDM
     cur = cerebro.cursor.execute("SELECT concepto, vector FROM nodos_sdm")
     filas = cur.fetchall()
 
     if not filas:
-        # Si no hay vectores indexados, indexar al vuelo
         indexar_todos_sdm(cerebro)
         cur = cerebro.cursor.execute("SELECT concepto, vector FROM nodos_sdm")
         filas = cur.fetchall()
@@ -197,3 +204,25 @@ def buscar_sdm(cerebro, query: str, radio_max: int = None, limite: int = 10) -> 
 
     resultados.sort(key=lambda x: x['distancia'])
     return resultados[:limite]
+
+
+def buscar_similares_a(cerebro, concepto_semilla: str, radio_max: int = None,
+                       limite: int = 10) -> list[dict]:
+    """Busca nodos similares a un nodo conocido — query-by-example.
+
+    Toma el vector SDM del nodo semilla y busca nodos con Hamming distance baja.
+    Esta es la función que convierte al SDM en una base vectorial ligera.
+
+    Retorna lista de dicts: [{'concepto': str, 'distancia': int, 'similitud': float}]
+    """
+    # Obtener vector del nodo semilla
+    cur = cerebro.cursor.execute(
+        "SELECT vector FROM nodos_sdm WHERE concepto = ?", (concepto_semilla,)
+    )
+    row = cur.fetchone()
+    if not row:
+        return []
+
+    vector_semilla = row[0]
+    return buscar_sdm(cerebro, radio_max=radio_max, limite=limite,
+                      vector_fijo=vector_semilla)

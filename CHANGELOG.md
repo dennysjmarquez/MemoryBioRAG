@@ -1,5 +1,19 @@
 # BioRAG Changelog
 
+## v22.0 (2026-07-23)
+
+### Features & Architecture
+- **SDM Query-by-Example (`core/sdm.py`)**: `buscar_sdm()` ahora acepta `vector_fijo` (bytes) como parámetro opcional. Cuando se proporciona, usa ese vector en vez de generar uno desde texto. Esto habilita "buscar nodos similares a ESTE nodo" — búsqueda semántica pura por Hamming distance.
+- **`buscar_similares_a(cerebro, concepto_semilla)`**: Función de conveniencia que toma el vector SDM de un nodo conocido y retorna los nodos más cercanos. El SDM funciona como base vectorial ligera (128 bytes/nodo, 0 GPU, SQLite puro).
+- **Validación empírica completa**: Tests con sinónimos técnicos (bug↔error: 5 bits), abreviaturas (DB↔base de datos: 7 bits), cross-domain (base_de_datos↔cache: 9 bits), y query-by-example real sobre 570 nodos (5/5 semillas con hits).
+- **Pipeline de búsqueda enriquecido**: Capa SDM query-by-example como fallback cuando FTS5 y dimensiones no encuentran suficientes candidatos. Scoring híbrido incorpora similitud SDM como señal adicional.
+
+### Tests
+- Suite ampliada a 117/117 tests biológicos aprobados (100% Éxito) ✓
+- Tests SDM: sinónimos técnicos, abreviaturas, cross-domain, query-by-example real
+
+---
+
 ## v21.0 (2026-07-23)
 
 ### Features & Architecture

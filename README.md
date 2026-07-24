@@ -1,13 +1,13 @@
-# BioRAG v21.0 — Neocórtex Sintético con Red por Defecto (DMN) y Curiosidad Espontánea Autónoma
+# BioRAG v22.0 — Neocórtex Sintético con SDM Query-by-Example y Red por Defecto (DMN)
 
-> **Versión:** v21.0 — Julio 2026
-> **Paradigma:** Circuito Sintético Cognitivamente Cerrado & Red por Defecto (DMN Ideación Autónoma en Reposo + GABA en Vivo + Dopamina RPE con Inercia Sináptica + Valencia Somática Cortical + Escalado Homeostático + PMI + SDM 1024-bit + SLS + Stemmer Bilingüe)
+> **Versión:** v22.0 — Julio 2026
+> **Paradigma:** Circuito Sintético Cognitivamente Cerrado & Red por Defecto (DMN Ideación Autónoma en Reposo + GABA en Vivo + Dopamina RPE con Inercia Sináptica + Valencia Somática Cortical + Escalado Homeostático + PMI + SDM 1024-bit con Query-by-Example + SLS + Stemmer Bilingüe)
 > **Motor:** Python puro + SQLite FTS5 WAL
 > **Dependencias ML:** 0 (mcp + nltk para WordNet, 0 numpy, 0 sentence-transformers, 0 torch, 0 dependencias C++ o CUDA)
 > **Idiomas:** Español + Inglés (stemming bilingüe ES/EN + expansión simbólica vía WordNet)
-> **Tests:** 112/112 tests biológicos automatizados (100% Éxito) ✓
+> **Tests:** 117/117 tests biológicos automatizados (100% Éxito) ✓
 
-**BioRAG** es una arquitectura de memoria cognitiva simbólica, biomimética y persistente para agentes de inteligencia artificial. Resuelve el problema fundamental de que los LLMs olvidan todo entre sesiones — sin depender de vectores densos, embeddings, GPU ni infraestructura externa. Opera sobre un espacio discreto, determinista y auditable: 7 ejes semánticos × 73 sub-valores declarativos, 45 grupos léxicos WordNet, Pointwise Mutual Information (PMI/NPMI) aprendido sobre el corpus, Sparse Distributed Memory (SDM de 1024 bits), un pipeline de recuperación de 13 capas en cascada con expansión simbólica bilingüe (Stemmer ES/EN + Levenshtein + WordNet), un grafo de conocimiento dinámico con plasticidad negativa y sinapsis latentes semánticas (SLS), y un motor autónomo de Red por Defecto (DMN) que divaga y genera hipótesis en reposo.
+**BioRAG** es una arquitectura de memoria cognitiva simbólica, biomimética y persistente para agentes de inteligencia artificial. Resuelve el problema fundamental de que los LLMs olvidan todo entre sesiones — sin depender de vectores densos, embeddings, GPU ni infraestructura externa. Opera sobre un espacio discreto, determinista y auditable: 7 ejes semánticos × 73 sub-valores declarativos, 45 grupos léxicos WordNet, Pointwise Mutual Information (PMI/NPMI) aprendido sobre el corpus, Sparse Distributed Memory (SDM de 1024 bits) con Query-by-Example para búsqueda semántica por Hamming distance, un pipeline de recuperación de 14 capas en cascada con expansión simbólica bilingüe (Stemmer ES/EN + Levenshtein + WordNet), un grafo de conocimiento dinámico con plasticidad negativa y sinapsis latentes semánticas (SLS), y un motor autónomo de Red por Defecto (DMN) que divaga y genera hipótesis en reposo.
 
 ---
 
@@ -203,9 +203,51 @@ graph TD
 
 ---
 
+#### Fase 12: BioRAG v22.0 — SDM Query-by-Example: Base Vectorial Ligera
+* **Objetivo y Aporte**: Convertir al Sparse Distributed Memory (SDM) de 1024 bits en una base vectorial ligera que encuentra nodos conceptualmente similares usando únicamente distancia Hamming, sin GPU ni dependencias externas. Esto cierra el gap entre búsqueda por texto (FTS5) y búsqueda semántica pura.
+* **Componentes Implementados en v22.0**:
+  1. **`buscar_sdm()` con `vector_fijo` (`core/sdm.py`)**: La función de búsqueda SDM ahora acepta un parámetro `vector_fijo` (bytes). Cuando se proporciona, usa ese vector directamente en vez de generar uno desde texto. Esto habilita "buscar nodos similares a ESTE nodo" — búsqueda semántica pura por Hamming distance.
+  2. **`buscar_similares_a(cerebro, concepto_semilla)`**: Función de conveniencia que toma el vector SDM de un nodo conocido y retorna los nodos más cercanos. El SDM funciona como base vectorial ligera: 128 bytes/nodo (1024 bits), 0 GPU, SQLite puro.
+  3. **Validación Empírica**: Tests con sinónimos técnicos (bug↔error: 5 bits), abreviaturas (DB↔base de datos: 7 bits), cross-domain (base_de_datos↔cache: 9 bits), y query-by-example real sobre 570 nodos (5/5 semillas con hits).
+  4. **Pipeline de Búsqueda Enriquecido**: Capa SDM query-by-example como fallback cuando FTS5 y dimensiones no encuentran suficientes candidatos. Scoring híbrido incorpora similitud SDM como señal adicional.
+
+---
+
+#### Por qué el SDM NO reemplaza a WordNet ni a las Dimensiones
+
+El SDM query-by-example **no reemplaza** WordNet ni las dimensiones semánticas — las **completa**. Cada técnica resuelve un problema distinto que las otras no pueden cubrir:
+
+| Capa | Problema que resuelve | Qué no puede hacer sola |
+|---|---|---|
+| **FTS5** | Texto exacto: "error_http_500" → nodo exacto | No tolera sinónimos ni variaciones |
+| **WordNet** | Sinónimos léxicos: "hipertensión" → "presión arterial" | No sabe qué dimensiones tiene un nodo |
+| **Dimensiones** | Propiedades ontológicas: "todo lo de `dominio_tecnico`" | No encuentra sinónimos léxicos |
+| **SDM Query-by-Example** | Estructura compartida: dos nodos con vecinos similares pero sin palabras en común | No puede buscar por propiedad ontológica |
+
+**Ejemplo concreto de por qué cada una es insustituible:**
+
+1. **WordNet es insustituible** para sinónimos que el SDM no puede adivinar: "hipertensión" ↔ "presión arterial" no comparten dimensiones ni vecinos — solo WordNet sabe que son lo mismo por relación léxico-semántica.
+
+2. **Las dimensiones son insustituibles** para búsquedas por propiedad: `recordar(dimensiones='{"dominio":["dominio_tecnico"]}')` trae TODO lo técnico sin importar el texto del nodo. El SDM no puede hacer esto porque no busca por eje semántico.
+
+3. **El SDM brilla** cuando FTS5 y WordNet fallan porque no hay match textual ni sinónimo conocido: dos nodos que comparten vecinos sinápticos pero no palabras. Ejemplo: "repaircard" ↔ "dashboard" (8 bits Hamming) — no comparten texto, pero sí estructura.
+
+**El pipeline real en producción:**
+
+```
+Usuario busca "hipertensión"
+  ↓ Capa 3 (FTS5): encuentra "hipertensión" si existe como nodo
+  ↓ Capa 13 (WordNet): expande a "presión arterial", "HTA", "high blood pressure"
+  ↓ Capa 14 (SDM): si WordNet no cubre alguna variante, busca por estructura
+```
+
+**En resumen:** WordNet y dimensiones siguen siendo obligatorios. El SDM es la capa que cubre los casos donde el texto no matchea pero la estructura sí — el fallback que cierra el gap semántico sin embeddings.
+
+---
 
 
-### 1. Pipeline de Búsqueda — 13 Capas en Cascada
+
+### 1. Pipeline de Búsqueda — 14 Capas en Cascada
 
 Cada capa se ejecuta SOLO si la anterior devolvió pocos resultados (< 3 o < limite*2). Es un pipeline de degradación graceful — cada capa es más permisiva que la anterior.
 
@@ -224,6 +266,7 @@ Cada capa se ejecuta SOLO si la anterior devolvió pocos resultados (< 3 o < lim
 | **11** | Evocación por cadena | Spreading activation multi-hop | Sigue aristas de sinapsis con decay logarítmico | Spreading Activation (cognitiva, ACT-R) |
 | **12** | Sinónimos | LIKE en campo `sinonimos` | Conecta vocabulario distinto del mismo concepto | Synonym expansion (Elasticsearch `synonym`) |
 | **13** | **Fallback simbólico** | Levenshtein + WordNet bilingüe + Traducción | Cierra el hueco semántico sin embeddings: "hipertension" → "presión arterial" | **Symbolic NLP (zero-vector semantic expansion)** |
+| **14** | **SDM Query-by-Example** | Hamming distance sobre vectores 1024-bit | Encuentra nodos conceptualmente similares por estructura compartida (dimensiones, categoría, vecinos) | **Vector Database (lite)** — 128 bytes/nodo, 0 GPU |
 
 ---
 

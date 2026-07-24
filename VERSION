@@ -1,39 +1,31 @@
-BioRAG v21.0 — Default Mode Network (DMN) & Motor de Curiosidad Espontánea autónoma (Julio 2026)
+BioRAG v22.0 — SDM Query-by-Example: Base Vectorial Ligera (Julio 2026)
 
-Esta versión introduce una Red por Defecto (Default Mode Network - DMN) autónoma y multiplataforma en reposo, transformando a BioRAG en un neocórtex sintético con ideación espontánea e ininterrumpida.
-
----
-
-### 🧬 Hitos Evolutivos Principales de v21.0:
-
-1. **Motor DMN & Curiosidad Espontánea en Reposo (`core/dmn_engine.py`):**
-   - Hilo autónomo de ideación en segundo plano (`DMNEngine`) que emula la divagación mental y consolidación asociativa NREM/REM.
-   - **Interrupción Instantánea de Latencia Cero (`threading.Event()`):** Cualquier interacción del usuario interrumpe inmediatamente el hilo autónomo para dedicar el 100% de los recursos a la consulta.
-   - **Muestreo Resonante Cortical (Spindles Replay):** Selecciona nodos ancla de alta valencia somática ($V_s \ge 0.3$) o peso ($W \ge 0.5$) y explora nodos resonantes distantes para sintetizar "Insights" autónomos.
-   - **Concurrencia Aislada Thread-Local:** Conexiones SQLite WAL aisladas por hilo con `PRAGMA busy_timeout = 5000`.
-   - **Selección Natural de Hipótesis (Decaimiento LTD Pasivo):** Los Insights nacen con peso moderado ($W=0.50$) y valencia somática protegida ($V_s=0.85$). Si no reciben atención del usuario, sufren decaimiento pasivo por sueño (LTD).
-   - **Presupuesto de Energía & Periodo Refractario:** Máximo 3 ideas por ventana de reposo con 60s de enfriamiento para evitar saturación cortical.
-
-2. **Integración MCP & Neuro-Visor Backend:**
-   - Herramienta MCP `biorag_estado_dmn` con payload JSON enriquecido.
-   - Endpoint HTTP `/api/corteza/dmn` en `dashboard-neuro-visor/backend/server.py`.
+Esta versión introduce Query-by-Example en el Sparse Distributed Memory (SDM), convirtiendo al SDM en una base vectorial ligera que encuentra nodos conceptualmente similares usando únicamente distancia Hamming sobre vectores de 128 bytes, sin GPU ni dependencias externas.
 
 ---
 
-### 🧬 Hitos Evolutivos Principales de v20.0:
+### Hitos Evolutivos Principales de v22.0:
 
-1. **Inhibición Lateral GABA en Tiempo Real en Evocación (Edelman 1987):**
-   - El ganador Top-1 atenúa ($\times 0.60$) a competidores semánticos secundarios durante la evocación.
-2. **Error de Predicción de Recompensa Dopaminérgica (Dopamina RPE - Schultz 1997) con Factor de Inercia Sináptica:**
-   - Retroalimentación `biorag_feedback`. Recompensa dopaminérgica ($\Delta W = +0.15$) y depresión por fallo atenuada por inercia histórica.
-3. **Marcadores Somáticos e Inmunidad Cortical por Valencia (Damasio 1994):**
-   - Valencia somática ($0.0 \text{ a } 1.0$). Nodos con valencia $\ge 0.80$ o categorías axiomáticas (`Principle`, `Protocol`) son inmunes a decaimiento LTD y borrado.
-4. **Escalado Sináptico Homeostático (Turrigiano 2008):**
-   - Normalización multiplicativa ($\times 0.98$) durante el sueño cuando la energía cortical promedio excede $0.70$.
+1. **SDM Query-by-Example (`core/sdm.py`):**
+   - `buscar_sdm()` ahora acepta `vector_fijo` (bytes) como parámetro opcional. Cuando se proporciona, usa ese vector directamente en vez de generar uno desde texto. Esto habilita "buscar nodos similares a ESTE nodo" — búsqueda semántica pura por Hamming distance.
+   - Nueva función `buscar_similares_a(cerebro, concepto_semilla)` — función de conveniencia que toma el vector SDM de un nodo conocido y retorna los nodos más cercanos.
+   - El SDM funciona como base vectorial ligera: 128 bytes/nodo (1024 bits), 0 GPU, SQLite puro, búsqueda por estructura compartida (dimensiones, categoría, vecinos sinápticos).
+
+2. **Validación Empírica:**
+   - Sinónimos técnicos (bug↔error): 5 bits Hamming vs 9 bits con nodo no relacionado.
+   - Abreviaturas (DB↔base de datos): 7 bits vs 11 bits con nodo no relacionado.
+   - Cross-domain (base_de_datos↔cache): 9 bits vs 20 bits con dominio distinto.
+   - Query-by-example real: 5/5 semillas (athena, biorag, dennys, artemis, memoria) con hits de nodos relacionados.
+
+3. **Pipeline de Búsqueda Enriquecido:**
+   - El pipeline ahora tiene 14 capas: FTS5 → fuzzy → sinonimos → latente → dimensional → SDM text → SDM query-by-example.
+   - La capa SDM query-by-example actúa como fallback cuando FTS5 y dimensiones no encuentran suficientes candidatos.
+   - Scoring híbrido incorpora similitud SDM como señal adicional.
 
 ---
 
-### 📊 Métricas de Validación en Producción:
-- **Suite de Tests:** 112/112 tests automatizados pasados ✓ (100% Éxito).
-- **Latencia Promedio:** ~2.9ms en búsquedas complejas.
-- **Consumo de RAM:** ~20 MB (0 GPU, 0 PyTorch, 0 Dependencias externas).
+### Métricas de Validación en Producción:
+- **Suite de Tests:** 117/117 tests biológicos aprobados con éxito (100% Éxito) ✓
+- **Latencia Promedio:** ~2.9ms en búsquedas complejas (~3.2ms con SDM query-by-example)
+- **Consumo de RAM:** ~20 MB (0 GPU, 0 PyTorch, 0 dependencias externas)
+- **Vectores SDM:** 570 nodos indexados, 128 bytes cada uno = ~73 KB total
