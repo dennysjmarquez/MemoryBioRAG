@@ -103,6 +103,10 @@ class SQLiteMemoryBioRAG:
         # Buffer circular de memoria de trabajo (v19.0 Context Window)
         self._context_window = deque(maxlen=10)
         self.dmn = None
+        # v22.1: Cache for thematic scores (precomputed once)
+        self._thematic_scores_cache = None
+        self._thematic_profiles_cache = None
+        self._thematic_idf_cache = None
 
     def notificar_actividad_usuario(self):
         """Notifica actividad del usuario al motor DMN si está activo."""
@@ -1498,6 +1502,27 @@ class SQLiteMemoryBioRAG:
         self.cursor.execute("CREATE INDEX IF NOT EXISTS idx_mc_nodos_accion ON metricas_cognitivas_nodos(accion)")
         self.cursor.execute("CREATE INDEX IF NOT EXISTS idx_mc_nodos_anomalo ON metricas_cognitivas_nodos(anomalo)")
 
+        # Asegurar tablas referenciadas por triggers de DELETE en largo_plazo
+        self.cursor.execute("""
+            CREATE TABLE IF NOT EXISTS nodos_sdm (
+                concepto TEXT PRIMARY KEY,
+                vector BLOB NOT NULL,
+                actualizado_en REAL NOT NULL
+            )
+        """)
+        self.cursor.execute("""
+            CREATE TABLE IF NOT EXISTS sinapsis_latentes (
+                origen TEXT NOT NULL,
+                destino TEXT NOT NULL,
+                peso_atenuado REAL NOT NULL,
+                saltos INTEGER NOT NULL,
+                calculado_en REAL NOT NULL,
+                pmi_score REAL DEFAULT 0.0,
+                tiene_dim_comun INTEGER DEFAULT 0,
+                PRIMARY KEY (origen, destino)
+            )
+        """)
+
     def ciclo_sueno_consolidacion(self):
         """
         Consolida las experiencias de Corto Plazo a Largo Plazo (Corteza Permanente).
@@ -2426,23 +2451,25 @@ class SQLiteMemoryBioRAG:
                                 sinonimos_ratio=0.0, score_latente=0.0,
                                 score_cadena=0.0, temporal=0.0,
                                 asoc_count=0, match_exacto=False,
-                                grupo_score=0.0):
-        """Score híbrido unificado: 9 señales ortogonales que suman 1.0.
+                                grupo_score=0.0, tematico_score=0.0):
+        """Score híbrido unificado: 10 señales ortogonales que suman 1.0.
         grupo_score: similitud por grupo semántico WordNet (coseno binario).
+        tematico_score: similitud temática por ausencia/presencia de dimensiones (IDF).
         match_exacto: preserva precisión en búsquedas por nombre exacto (floor 0.5)."""
         asoc_norm = min(1.0, asoc_count / 20.0)
         peso_norm = min(1.0, peso_sinaptico)
 
         score = (
-            0.15 * bm25_norm +          # FTS5 BM25 (was 0.20)
-            0.15 * dim_score +           # Dimensiones semánticas (remains 0.15)
-            0.175 * concepto_ratio +     # Match en concepto (was 0.15)
-            0.125 * sinonimos_ratio +    # Match en sinónimos (was 0.10)
+            0.18 * bm25_norm +          # FTS5 BM25 (↑ from 0.14 — rewards raw text match)
+            0.14 * dim_score +           # Dimensiones semánticas
+            0.12 * concepto_ratio +      # Match en concepto (↓ from 0.16 — prevents concept name from dominating)
+            0.12 * sinonimos_ratio +     # Match en sinónimos
             0.10 * peso_norm +           # Peso sináptico
             0.10 * max(score_latente, score_cadena) +  # Jaccard/cadena
             0.10 * grupo_score +         # Grupo semántico WordNet
-            0.05 * temporal +            # Recencia
-            0.05 * asoc_norm             # Asociaciones
+            0.08 * tematico_score +      # Similitud temática (ausencia/presencia)
+            0.04 * temporal +            # Recencia
+            0.02 * asoc_norm             # Asociaciones
         )
 
         if match_exacto:
@@ -2795,6 +2822,9 @@ class SQLiteMemoryBioRAG:
                     origen_scores[r[1]] = ("literal", 0.0)
             except sqlite3.OperationalError:
                 pass
+
+        # Store FTS5-only concepts for pseudo-relevance feedback (before content expansion)
+        fts5_conceptos = [r[1] for r in todos if r[1]]
 
         # ─── Términos protegidos: búsqueda exacta contra unicode61 + PALABRA_COMPLETA ───
         # Los términos entre comillas dobles ("CV", "IA") bypassan trigram y se buscan
@@ -3236,6 +3266,90 @@ class SQLiteMemoryBioRAG:
                         todos.append(row)
                         origen_scores[concepto] = ("semantica", match_ratio)
 
+            # v22.1: Content-based expansion for por_tema queries ───
+        # Find nodes where query words appear in content, but ONLY when FTS returns
+        # few results (indicates the query is thematic, not literal).
+        # This ensures thematically relevant nodes are in the candidate pool.
+        # Key: requires >= 2 word matches (not just 1) to avoid noise.
+        # Results are prepended (not appended) to ensure they appear in top-N for thematic scoring.
+        # Also: compute content_match_count for ALL nodes (not just new ones) so
+        # FTS-found nodes that also match content get boosted.
+        content_match_counts = {}
+        if not modo_estricto and len(palabras) >= 2:
+            # Compute match count for ALL current candidates
+            match_count_clause = " + ".join(
+                f"CASE WHEN LOWER(l.contenido) LIKE '%' || ? || '%' THEN 1 ELSE 0 END"
+                for _ in palabras
+            )
+            match_params = [w.lower() for w in palabras]
+            all_conceptos = [r[1] for r in todos if r[1]]
+            if all_conceptos:
+                ph = ",".join(["?" for _ in all_conceptos])
+                try:
+                    self.cursor.execute(
+                        f"SELECT concepto, ({match_count_clause}) AS match_count "
+                        f"FROM largo_plazo WHERE concepto IN ({ph})",
+                        match_params + all_conceptos
+                    )
+                    for conc, mc in self.cursor.fetchall():
+                        content_match_counts[conc] = mc
+                except sqlite3.OperationalError:
+                    pass
+
+            # Only expand candidate pool when FTS returned few results
+            if len(todos) < 3:
+                seen_ids = {r[0] for r in todos}
+                seen_conceptos = {r[1] for r in todos}
+                min_matches = min(2, len(palabras))
+                content_sql = f"""
+                    SELECT l.rowid, l.concepto, l.contenido, l.peso_sinaptico,
+                           l.estado, l.asociaciones,
+                           ({match_count_clause}) AS match_count
+                    FROM largo_plazo l
+                    WHERE l.estado = 'activo'
+                      AND ({match_count_clause}) >= ?
+                    ORDER BY match_count DESC, l.peso_sinaptico DESC
+                    LIMIT ?
+                """
+                try:
+                    self.cursor.execute(content_sql, match_params + match_params + [min_matches, max(limite * 3, 20)])
+                    content_new = []
+                    for row in self.cursor.fetchall():
+                        if row[0] not in seen_ids and row[1] not in seen_conceptos:
+                            content_new.append(row[:6])
+                            seen_ids.add(row[0])
+                            seen_conceptos.add(row[1])
+                            if row[1] not in origen_scores:
+                                origen_scores[row[1]] = ("contenido", min(1.0, row[6] / len(palabras) * 1.5))
+                            content_match_counts[row[1]] = row[6]
+                    if content_new:
+                        todos = content_new + todos
+                except sqlite3.OperationalError:
+                    pass
+
+        # ─── Capa 3: Pseudo-relevance feedback for query dimensions ───
+        # If no explicit dimensiones_ids but there's a query and FTS5 results,
+        # use top-K FTS5 results' dimensions as pseudo-query dimensions.
+        # Only trigger if FTS5 returned ≥3 results (semantic query, not noise).
+        # This captures domain-specific dims (identidad_artificial, intencion_documentar)
+        # that WordNet cannot classify from surface words.
+        if not dimensiones_ids and frase.strip() and len(fts5_conceptos) >= 3:
+            try:
+                top_fts5_conceptos = fts5_conceptos[:5]
+                if top_fts5_conceptos:
+                    placeholders = ",".join(["?" for _ in top_fts5_conceptos])
+                    dim_sql = f"""
+                        SELECT DISTINCT dimension_id
+                        FROM largo_plazo_dimensiones
+                        WHERE concepto IN ({placeholders})
+                    """
+                    self.cursor.execute(dim_sql, top_fts5_conceptos)
+                    pseudo_dims = [row[0] for row in self.cursor.fetchall()]
+                    if pseudo_dims:
+                        dimensiones_ids = pseudo_dims
+            except Exception:
+                pass  # Silently skip
+        
         # ─── Batch query: dimensiones de todos los conceptos ───
         # Una sola query en vez de N queries individuales (rendimiento)
         dim_scores_map = {}
@@ -3439,6 +3553,32 @@ class SQLiteMemoryBioRAG:
         from core.fallback_simbolico import _tokenizar_normalizado, score_simbolico_concepto, score_simbolico_sinonimos
         tokens_query = _tokenizar_normalizado(query)
 
+        # v22.1: Pre-compute thematic profiles and scores for tematico_score
+        # Use cached values if available (computed once, reused across searches)
+        _perfiles_tematicos = {}
+        _idf_tematico = {}
+        _scores_tematicos = {}  # Cache: {(a, b): score}
+        try:
+            from core.tematica import calcular_perfiles_presencia, calcular_idf_dims, precompute_thematic_scores
+            
+            # Use cached values if available
+            if self._thematic_scores_cache is not None:
+                _perfiles_tematicos = self._thematic_profiles_cache
+                _idf_tematico = self._thematic_idf_cache
+                _scores_tematicos = self._thematic_scores_cache
+            else:
+                # Compute and cache
+                _perfiles_tematicos = calcular_perfiles_presencia(self)
+                _idf_tematico = calcular_idf_dims(self)
+                _scores_tematicos = precompute_thematic_scores(self, _perfiles_tematicos, _idf_tematico)
+                
+                # Store in cache
+                self._thematic_profiles_cache = _perfiles_tematicos
+                self._thematic_idf_cache = _idf_tematico
+                self._thematic_scores_cache = _scores_tematicos
+        except Exception:
+            pass
+
         # Calcular score hibrido para cada resultado (fórmula única 9 señales)
         total = len(todos)
         resultados_con_hibrido = []
@@ -3448,7 +3588,8 @@ class SQLiteMemoryBioRAG:
             _q_norm = query.lower().replace(" ", "_").replace("-", "_")
             _c_norm = (concepto or "").lower().replace(" ", "_").replace("-", "_")
             match_exacto = (_q_norm == _c_norm) or (bool(tokens_query) and tokens_query == _tokenizar_normalizado(concepto))
-            score_latente = score_capa if origen in ("latente", "expansion") else 0.0
+            # v22.1: Content-expanded nodes get a boost (they matched on content, not just FTS)
+            score_latente = score_capa if origen in ("latente", "expansion", "contenido") else 0.0
             # v16.0: Boost por inferencia transitiva (sinapsis latentes)
             if usar_inferencia:
                 try:
@@ -3471,6 +3612,20 @@ class SQLiteMemoryBioRAG:
             sinonimos_s_score = score_simbolico_sinonimos(tokens_query, sinonimos_str)
             sinonimos_ratio = max(resultados_semantica.get(concepto, 0.0), sinonimos_s_score)
 
+            # v22.1: Compute thematic score (presence + absence of dimensions)
+            # Use precomputed scores from cache for O(1) lookup
+            # Expanded to top-50 candidates (was top-20) to boost content-expanded nodes
+            tematico_score = 0.0
+            if _scores_tematicos:
+                sims = []
+                for _, (other_concepto, _, _, _, _, _) in enumerate(todos[:50]):
+                    if other_concepto != concepto:
+                        key = (concepto, other_concepto)
+                        if key in _scores_tematicos:
+                            sims.append(_scores_tematicos[key])
+                if sims:
+                    tematico_score = min(1.0, sum(sims) / len(sims) * 3.0)
+
             score_hibrido = self._calcular_score_hibrido(
                 bm25_norm=bm25_norm_map.get(concepto, 0.0),
                 dim_score=dim_score,
@@ -3481,7 +3636,8 @@ class SQLiteMemoryBioRAG:
                 score_cadena=score_cadena,
                 asoc_count=len([v for v in (asociaciones or "").split(",") if v.strip()]),
                 match_exacto=match_exacto,
-                grupo_score=grupo_scores_map.get(concepto, 0.0)
+                grupo_score=grupo_scores_map.get(concepto, 0.0),
+                tematico_score=tematico_score
             )
 
             resultados_con_hibrido.append(
@@ -3861,7 +4017,8 @@ class SQLiteMemoryBioRAG:
                 score_latente=densidad,
                 score_cadena=0.0,
                 asoc_count=num_asoc,
-                match_exacto=match_exacto
+                match_exacto=match_exacto,
+                tematico_score=0.0
             )
 
             scored.append((concepto, contenido, peso, estado, score_hibrido, asoc or ""))

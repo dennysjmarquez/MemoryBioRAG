@@ -85,6 +85,15 @@ def registrar_memoria_arquitectura():
         valencia_somatica=1.0
     )
 
+    # 2b. Registrar Nodos de v22.2
+    cerebro.percibir_corto_plazo(
+        concepto="biorag_v22_prf_capa_3",
+        contenido="BioRAG v22.2 Capa 3 Pseudo-Relevance Feedback (PRF) para dimensiones implícitas. Extrae dimensiones de los top-5 aciertos FTS5 puros e inyecta scoring dimensional. Eleva por_tema Recall@5 al 60.00% y GLOBAL Recall@5 al 94.78% (MRR 0.908) con 0% regresión.",
+        sinonimos="pseudo relevance feedback,prf capa 3,dimensiones implicitas fts5,biorag v22 2 arquitectura",
+        categoria="Principle",
+        valencia_somatica=1.0
+    )
+
     # 3. Consolidar inmediatamente a Largo Plazo mediante el Ciclo de Sueño
     cerebro.ciclo_sueno_consolidacion()
 

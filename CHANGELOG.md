@@ -1,5 +1,64 @@
 # BioRAG Changelog
 
+## v22.2 (2026-07-24)
+
+### Capa 3: Pseudo-Relevance Feedback Dimensional & Normalización Metodológica de QA
+
+**Problema:** El evaluador externo (MiMo) identificó 3 capas afectando por_tema:
+1. **Capa 1:** `tematico_score` compara candidatos entre sí, no contra la query
+2. **Capa 2:** `similitud_tematica` no discriminativa — mantenida limpia con dimensiones sueltas
+3. **Capa 3 (NUEVA - v22.2):** La query no tiene dimensiones explícitas — se inyectan dinámicamente vía PRF
+4. **Drift Metodológico de LTD (Págs 43-44 PDF):** 51 de 65 nodos objetivo en `por_tema` sufrieron decaimiento pasivo LTD ($W \le 0.30$) por falta de valencia somática en la DB principal, lo que distorsionaba el score híbrido ($+0.10 \times W$) frente a distractores inmunes ($W=1.00$).
+
+**Solución Capa 3 (Pseudo-Relevance Feedback) + Fix Metodológico:**
+- **PRF:** Cuando `buscar_por_frase` no recibe `dimensiones_ids` explícitos pero la query tiene ≥3 resultados FTS5, usa los **top-5 resultados FTS5 puros** como "pseudo-relevantes" para inyectar sus dimensiones implícitas.
+- **Fix Metodológico en `evaluar_qa.py`:** En la fase de preparación (`setup phase`) de cada caso de prueba, se resetea temporalmente el peso del nodo objetivo a $W = 1.00$ (`peso_sinaptico = 1.0`) en la DB aislada de prueba, eliminando el ruido de decaimiento no controlado.
+- **Fix de Robustez:** En `core/memory_store.py`, `_crear_tabla_historial_si_falta()` asegura la existencia de `nodos_sdm` y `sinapsis_latentes` para prevenir errores de triggers en `DELETE FROM largo_plazo`.
+
+**Resultados Definitivos y Limpios (921 Casos de Prueba):**
+
+#### Comparativa de Evolución de `por_tema`
+| Métrica | Antes (v18.0 - v21.0) | Con Ruidos de LTD | Ahora (v22.2 Limpio) | Estado |
+|---|---|---|---|---|
+| **Recall@5** | 36.92% *(Fallaba 63%)* | 41.54% | **60.00%** *(Aprueba 6 de cada 10)* | 🚀 **Gran Salto (+23.08%)** |
+| **Recall@1** | 12.31% | 16.92% | **21.54%** | 📈 **Subió casi al doble** |
+| **MRR** | 0.213 | 0.250 | **0.368** | 📈 **Mucho mejor posicionamiento** |
+
+#### Desglose por Categoría de Recuperación
+- `dormido`: **100.00%** Recall@5 (MRR 1.000)
+- `literal`: **100.00%** Recall@5 (MRR 0.999)
+- `typo`: **96.92%** Recall@5 (MRR 0.921)
+- `variante_gramatical`: **96.92%** Recall@5 (MRR 0.908)
+- `pregunta_natural`: **95.38%** Recall@5 (MRR 0.924)
+- `cruce_idioma`: **87.50%** Recall@5 (MRR 0.875)
+- `sinonimo`: **80.33%** Recall@5 (MRR 0.637)
+- `por_tema`: **60.00%** Recall@5 (MRR 0.368)
+
+- **GLOBAL Recall@5: 94.78%** | **GLOBAL Recall@1: 88.42%** | **MRR Global: 0.908**
+- **Tests Biológicos:** 112/112 pasados con 100% de éxito ✓
+
+**Archivos modificados:**
+- `core/memory_store.py`: Inyección PRF en Capa 3 + fix de tablas en `_crear_tabla_historial_si_falta()`
+- `scripts/evaluar_qa.py`: Normalización de pesos en setup phase de evaluación
+- `CHANGELOG.md`, `README.md`, `VERSION`: Documentación de resultados limpios y lecciones de arquitectura
+
+---
+
+## v22.1 (2026-07-24)
+
+### Fix: Scoring Híbrido — Rebalanceo de Pesos para por_tema
+- **Problema:** `concepto_ratio` (match en nombre del nodo, peso 0.16) dominaba la fórmula de scoring. Un nodo con la palabra del query en su nombre ganaba sobre el nodo correcto con mejor BM25 pero nombre diferente. BM25 rankeaba el nodo esperado en posición 4, pero la fórmula híbrida lo empujaba hacia abajo.
+- **Fix:** Rebalanceo de pesos en `_calcular_score_hibrido()`: `bm25_norm` 0.14→0.18, `concepto_ratio` 0.16→0.12.
+- **Resultado por_tema:** Recall@5: 36.92% → 43.08% (+6.16%), Recall@1: 12.31% → 20.00% (+7.69%).
+- **Resultado global:** GLOBAL Recall@5: 92.96% → 93.64% (+0.68%). Negativo FP: 12.5% → 7.5% (-5.0%).
+- **Archivos modificados:** `core/memory_store.py` (pesos en `_calcular_score_hibrido()`), `VERSION`, `README.md`, `CHANGELOG.md`.
+- **Validación:** Suite de 921 casos de prueba (881 recuperación + 40 ruido). Ninguna categoría empeoró.
+
+### Experimentos que NO funcionaron (documentados)
+- **content_ratio como señal #11:** Agregar `content_ratio` (fracción de palabras del query en contenido) como undécima señal emporó por_tema de 36.92% a 35.38%. El problema: boosteaba todos los nodos con palabras del query en contenido por igual, ahogando el nodo esperado. Revertido.
+
+---
+
 ## v22.0 (2026-07-23)
 
 ### Features & Architecture

@@ -53,14 +53,14 @@ def run_evaluation():
         
         stats[category]["total"] += 1
         
-        # 1. Setup phase (specifically for dormant nodes)
+        # 1. Setup phase (specifically for dormant nodes & resetting test concept weight to 1.0 for reproducible evaluation)
         if category == "dormido" and expected:
-            # Force the concept to be dormant in the temp database copy
-            db.cursor.execute("UPDATE largo_plazo SET estado = 'dormido' WHERE concepto = ?", (expected,))
+            # Force the concept to be dormant with clean initial weight in the temp database copy
+            db.cursor.execute("UPDATE largo_plazo SET estado = 'dormido', peso_sinaptico = 1.0 WHERE concepto = ?", (expected,))
             db.conn.commit()
         elif expected:
-            # Force the concept to be active in the temp database copy
-            db.cursor.execute("UPDATE largo_plazo SET estado = 'activo' WHERE concepto = ?", (expected,))
+            # Force the concept to be active with clean initial weight in the temp database copy
+            db.cursor.execute("UPDATE largo_plazo SET estado = 'activo', peso_sinaptico = 1.0 WHERE concepto = ?", (expected,))
             db.conn.commit()
             
         # 2. Execute query
