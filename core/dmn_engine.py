@@ -216,6 +216,13 @@ class DMNEngine:
 
             conn.commit()
 
+            # SDM v19.0: Indexar vector del insight para recuperación por similitud estructural
+            try:
+                from core.sdm import indexar_nodo_sdm
+                indexar_nodo_sdm(self.cerebro, concepto_insight)
+            except Exception:
+                pass
+
             self.ideas_generadas_sesion += 1
             self.ultima_idea = {
                 "concepto": concepto_insight,

@@ -1344,6 +1344,12 @@ class SQLiteMemoryBioRAG:
         auto_vincular(self, key, contenido)
         # Clasificación simbólica: WordNet lexnames
         self._clasificar_nodo_wordnet(key, contenido, sinonimos or "")
+        # SDM v19.0: Indexar vector binario para recuperación por similitud estructural
+        try:
+            from core.sdm import indexar_nodo_sdm
+            indexar_nodo_sdm(self, key)
+        except Exception:
+            pass
         # SRL v16.0: Propagar predicados de corto → largo plazo
         self.cursor.execute("""
             INSERT INTO predicados (concepto, sujeto, accion, objeto, contexto, creado_en)
@@ -1868,6 +1874,15 @@ class SQLiteMemoryBioRAG:
             pass
         self.conn.commit()
 
+        # SDM v19.0: Reindexar vectores binarios tras consolidation para mantener cobertura
+        try:
+            from core.sdm import indexar_todos_sdm
+            n_sdm = indexar_todos_sdm(self)
+            if n_sdm:
+                print(f"[SDM] {n_sdm} vectores reindexados tras consolidación.")
+        except Exception:
+            pass
+
         print("[MemoryBioRAG] Proceso de consolidación y equilibrio sináptico completado con éxito.")
 
     def aplicar_refuerzo_dopaminergico(self, concepto: str, exito: bool, motivo: str = None) -> bool:
@@ -2100,6 +2115,24 @@ class SQLiteMemoryBioRAG:
             AFTER DELETE ON largo_plazo
             BEGIN
                 DELETE FROM metricas_cognitivas_nodos WHERE largo_plazo_id = OLD.id;
+            END
+        """)
+        # Cascade delete SDM: limpiar vectores binarios huérfanos
+        self.cursor.execute("DROP TRIGGER IF EXISTS trg_cleanup_sdm_after_delete")
+        self.cursor.execute("""
+            CREATE TRIGGER trg_cleanup_sdm_after_delete
+            AFTER DELETE ON largo_plazo
+            BEGIN
+                DELETE FROM nodos_sdm WHERE concepto = OLD.concepto;
+            END
+        """)
+        # Cascade delete sinapsis latentes: limpiar conexiones huérfanas
+        self.cursor.execute("DROP TRIGGER IF EXISTS trg_cleanup_sinapsis_after_delete")
+        self.cursor.execute("""
+            CREATE TRIGGER trg_cleanup_sinapsis_after_delete
+            AFTER DELETE ON largo_plazo
+            BEGIN
+                DELETE FROM sinapsis_latentes WHERE origen = OLD.concepto OR destino = OLD.concepto;
             END
         """)
         self.cursor.execute("""
