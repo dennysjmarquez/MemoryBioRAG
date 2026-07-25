@@ -1075,6 +1075,58 @@ class SQLiteMemoryBioRAG:
 
         return [(r[0], r[1], r[2], r[3], r[4], r[5] or "") for r in self.cursor.fetchall()]
 
+    def _fallback_busqueda_predicados(self, frase, limite=10):
+        """
+        Fallback Causal SRL v1.0.
+        Se ejecuta cuando la búsqueda tradicional por 8 señales arroja 0 candidatos o score < 0.35.
+        Extrae o tokeniza la query y busca coincidencias por roles semánticos en la tabla predicados.
+        """
+        if not frase or len(frase.strip()) < 3:
+            return []
+
+        import re
+        from core.srl_extractor import extraerte_normalizado, VERBOS_CANONICOS
+        tokens = [extraerte_normalizado(w) for w in re.findall(r'\w{3,}', frase)]
+        if not tokens:
+            return []
+
+        acciones = {VERBOS_CANONICOS.get(t, t) for t in tokens}
+        
+        placeholders = " OR ".join([
+            "(PALABRA_PREFIJO(?, COALESCE(p.sujeto, '')) = 1 OR PALABRA_PREFIJO(?, COALESCE(p.accion, '')) = 1 OR PALABRA_PREFIJO(?, COALESCE(p.objeto, '')) = 1 OR PALABRA_PREFIJO(?, COALESCE(p.contexto, '')) = 1)"
+        ] * len(tokens))
+        params = []
+        for t in tokens:
+            params.extend([t, t, t, t])
+
+        sql = f"""
+            SELECT DISTINCT l.concepto, l.contenido, l.peso_sinaptico, l.estado, l.asociaciones,
+                            p.sujeto, p.accion, p.objeto, p.contexto
+            FROM predicados p
+            JOIN largo_plazo l ON l.concepto = p.concepto
+            WHERE ({placeholders}) AND l.estado = 'activo'
+            LIMIT ?
+        """
+        params.append(limite)
+        
+        try:
+            self.cursor.execute(sql, tuple(params))
+            rows = self.cursor.fetchall()
+        except Exception:
+            return []
+
+        resultados = []
+        for r in rows:
+            conc, cont, peso, est, asoc, suj, acc, obj, ctx = r
+            match_bonus = 0.50
+            if acc and extraerte_normalizado(acc) in acciones:
+                match_bonus = 0.65
+            score = round(min(0.85, match_bonus + (peso or 0.5) * 0.10), 4)
+            resultados.append((conc, cont, peso or 0.5, est, score, asoc or ""))
+
+        resultados.sort(key=lambda x: x[4], reverse=True)
+        return resultados
+
     def buscar_por_tokens(self, tokens, modo="relaxed", profundidad="activos", limite=3, pagina=1):
         """Busqueda multi-token con Soft AND.
 
@@ -3737,6 +3789,13 @@ class SQLiteMemoryBioRAG:
                 )
                 if resultados_var:
                     return resultados_var, total_var
+
+        # Fallback Causal SRL: únicamente si la búsqueda tradicional por 8 señales devolvió 0 resultados
+        if not pagina_resultados:
+            res_srl = self._fallback_busqueda_predicados(query, limite=limite)
+            if res_srl:
+                pagina_resultados = res_srl
+                total = len(res_srl)
 
         # Guardar trazabilidad para mcp_server.py
         self.last_todos = todos
