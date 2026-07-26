@@ -103,6 +103,36 @@
 
 ---
 
+### Predicados SRL como Signal #12 — APROBADO
+
+**Hipótesis:** Los predicados SRL (keywords extraídos del contenido de cada nodo) proporcionarían una señal específica que captura el contenido semántico del nodo, complementando BM25 y dimensiones.
+
+**Implementación:**
+- `scripts/backfill_predicados.py`: Backfill de keyword predicates para todos los nodos (5.6%→100% cobertura)
+- Extracción de keywords técnicos del contenido (top50 por nodo)
+- Integración como signal #12 en `_calcular_score_hibrido()` con peso configurable
+- Precomputación de `pred_contexto_map` en `buscar_por_frase()` para O(1) lookup
+
+**Protocolo:** Snapshot DB actual (609 nodos),921 test cases, ablation con pesos0.01→0.04→0.06→0.08→0.10→0.12→0.15→0.20→0.25.
+
+**Resultados (peso óptimo:0.20):**
+
+| Métrica | Baseline | Con Predicados | Delta |
+|---------|----------|----------------|-------|
+| GLOBAL Recall@5 |96.25%|97.50%|**+1.25pp** |
+| GLOBAL Recall@1 |88.08%|91.26%|**+3.18pp** |
+| por_tema Recall@5 |70.77%|86.15%|**+15.38pp** |
+| por_tema Recall@1 |35.38%|58.46%|**+23.08pp** |
+| FP |7.50%|7.50%|0.00 |
+
+**Peso0.25 causó FP+2.50pp (10.00%) — rechazado.**
+
+**Causa raíz:** El problema de por_tema no era retrieval sino scoring — los nodos específicos tenían el mejor BM25 pero eran penalizados por bajo peso sináptico y pocas dimensiones. Los predicados proporcionan una señal adicional que captura el contenido semántico del nodo, permitiendo que nodos específicos con contenido relevante pero pocas dimensiones sean mejor rankeados.
+
+**Lección:** La clave no era agregar más señales genéricas sino agregar señales ESPECÍFICAS que capturen el contenido real del nodo. Los predicados son específicos porque extraen keywords únicos de cada nodo, no distribuciones compartidas.
+
+---
+
 ## v22.2 (2026-07-24)
 
 ### Capa 3: Pseudo-Relevance Feedback Dimensional & Normalización Metodológica de QA

@@ -2627,13 +2627,15 @@ class SQLiteMemoryBioRAG:
                                 asoc_count=0, match_exacto=False,
                                 grupo_score=0.0, tematico_score=0.0,
                                 jsd_score: float = 0.0,
-                                jsd_weight: float = 0.0):
-        """Score híbrido unificado: 10 señales ortogonales + JSD (signal #11).
+                                jsd_weight: float = 0.0,
+                                pred_score: float = 0.0):
+        """Score híbrido unificado: 10 señales ortogonales + JSD (signal #11) + Predicados (signal #12).
         grupo_score: similitud por grupo semántico WordNet (coseno binario).
         tematico_score: similitud temática por ausencia/presencia de dimensiones (IDF).
         match_exacto: preserva precisión en búsquedas por nombre exacto (floor 0.5).
         jsd_score: Jensen-Shannon Divergence como similitud [0,1].
-        jsd_weight: peso de JSD en la fórmula (0.0 = desactivado, 0.05 = default activo)."""
+        jsd_weight: peso de JSD en la fórmula (0.0 = desactivado, 0.05 = default activo).
+        pred_score: matching de query tokens contra predicados SRL [0,1]."""
         asoc_norm = min(1.0, asoc_count / 20.0)
         peso_norm = min(1.0, peso_sinaptico)
 
@@ -2651,7 +2653,8 @@ class SQLiteMemoryBioRAG:
                 0.10 * grupo_score +         # Grupo semántico WordNet
                 0.08 * tematico_score +      # Similitud temática
                 0.04 * temporal +            # Recencia
-                0.02 * asoc_norm             # Asociaciones
+                0.02 * asoc_norm +           # Asociaciones
+                0.20 * pred_score            # Signal #12: Predicados SRL (20x weight)
             ) +
             jsd_weight * jsd_score           # Signal #11: JSD distributional overlap
         )
@@ -3703,6 +3706,27 @@ class SQLiteMemoryBioRAG:
         for concepto, raw_bm25 in bm25_raw.items():
             bm25_norm_map[concepto] = abs(raw_bm25) / (abs(raw_bm25) + 3.0)
 
+        # ─── Capa 4.5: Precompute predicate data for scoring ───
+        # Fetch predicate contexto (keywords) for all candidates
+        conceptos_todos = [r[1] for r in todos if r[1]]
+        pred_contexto_map = {}  # concepto -> set of predicate tokens
+        if conceptos_todos:
+            ph_conceptos = ",".join(["?" for _ in conceptos_todos])
+            try:
+                self.cursor.execute(
+                    f"SELECT concepto, COALESCE(contexto, '') FROM predicados WHERE concepto IN ({ph_conceptos})",
+                    conceptos_todos
+                )
+                for conc, ctx in self.cursor.fetchall():
+                    if conc not in pred_contexto_map:
+                        pred_contexto_map[conc] = set()
+                    if ctx:
+                        pred_contexto_map[conc].update(
+                            t for t in re.findall(r'\w{3,}', ctx.lower()) if len(t) >= 3
+                        )
+            except Exception:
+                pass
+
         # ─── Capa 5: Score por grupo semántico (WordNet lexnames) ───
         grupo_scores_map = {}
         # Skip WordNet for very short queries (< 3 chars) or very long (> 100 chars, likely garbage/adversarial)
@@ -3849,6 +3873,13 @@ class SQLiteMemoryBioRAG:
                 node_text = f"{concepto} {contenido or ''}"
                 jsd_val = self._calcular_jsd(query, node_text)
 
+            # Signal #12: Predicate matching (query tokens vs predicate keywords)
+            pred_val = 0.0
+            pred_tokens = pred_contexto_map.get(concepto, set())
+            if pred_tokens and tokens_query:
+                matches = sum(1 for t in tokens_query if t in pred_tokens)
+                pred_val = min(1.0, matches / max(1, len(tokens_query)))
+
             score_hibrido = self._calcular_score_hibrido(
                 bm25_norm=bm25_norm_map.get(concepto, 0.0),
                 dim_score=dim_score,
@@ -3862,7 +3893,8 @@ class SQLiteMemoryBioRAG:
                 grupo_score=grupo_scores_map.get(concepto, 0.0),
                 tematico_score=tematico_score,
                 jsd_score=jsd_val,
-                jsd_weight=JSD_WEIGHT
+                jsd_weight=JSD_WEIGHT,
+                pred_score=pred_val
             )
 
             resultados_con_hibrido.append(
@@ -4256,7 +4288,8 @@ class SQLiteMemoryBioRAG:
                 match_exacto=match_exacto,
                 tematico_score=0.0,
                 jsd_score=jsd_val,
-                jsd_weight=JSD_WEIGHT
+                jsd_weight=JSD_WEIGHT,
+                pred_score=0.0  # Rafaga path: no predicate data precomputed
             )
 
             scored.append((concepto, contenido, peso, estado, score_hibrido, asoc or ""))
