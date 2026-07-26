@@ -3,6 +3,7 @@ import sqlite3
 import time
 import re
 import sys
+import math
 from collections import deque
 
 # Auto-cargar .env.local al importar (antes de leer cualquier variable de entorno)
@@ -46,6 +47,18 @@ LIMITE_RAFTAGA = int(os.environ.get('BIORAG_LIMITE_RAFTAGA', '5'))
 
 LIMITE_EVOCACION = int(os.environ.get('BIORAG_LIMITE_EVOCACION', '5'))
 """Límite de resultados en evocación por cadena."""
+
+JSD_WEIGHT = float(os.environ.get('BIORAG_JSD_WEIGHT', '0.0'))
+"""Peso de JSD (señal #11) en la fórmula de scoring. 0.0=desactivado, 0.05=default activo.
+Override: export BIORAG_JSD_WEIGHT=0.05"""
+
+BAYESIAN_BM25 = os.environ.get('BIORAG_BAYESIAN_BM25', 'false').lower() == 'true'
+"""Activar calibración Bayesian BM25 (sigmoid) en vez de normalización fija x/(x+3).
+Override: export BIORAG_BAYESIAN_BM25=true"""
+
+BAYESIAN_BM25_ALPHA = float(os.environ.get('BIORAG_BAYESIAN_BM25_ALPHA', '1.0'))
+"""Steepness de la sigmoid Bayesian BM25. Mayor = más sensible a diferencias de score.
+Override: export BIORAG_BAYESIAN_BM25_ALPHA=0.5"""
 
 # =============================================================================
 
@@ -2498,30 +2511,149 @@ class SQLiteMemoryBioRAG:
         
         return variaciones[:3]
 
+    @staticmethod
+    def _calcular_jsd(query_text: str, node_text: str) -> float:
+        """Jensen-Shannon Divergence como score de similitud [0,1].
+
+        Calcula la divergencia entre las distribuciones de frecuencia de palabras
+        del query y del contenido del nodo. A diferencia de BM25 (que mide
+        relevancia por IDF), JSD mide *solapamiento distribucional* — cuánta
+        información comparten dos textos.
+
+        JSD = ½·KL(P||M) + ½·KL(Q||M)  donde M = ½(P+Q)
+        Score = 1 - sqrt(JSD)  → [0,1], mayor = más similar.
+        """
+        if not query_text or not node_text:
+            return 0.0
+
+        from core.stopwords import STOPWORDS_ES
+        from core.fallback_simbolico import _STOPWORDS_NORM
+
+        def _word_freqs(text: str) -> dict[str, float]:
+            text_norm = text.lower().replace('_', ' ').replace('-', ' ')
+            words = re.findall(r'\w{2,}', text_norm)
+            stopwords = STOPWORDS_ES | _STOPWORDS_NORM
+            counts: dict[str, int] = {}
+            for w in words:
+                if w not in stopwords and len(w) >= 2:
+                    counts[w] = counts.get(w, 0) + 1
+            total = sum(counts.values())
+            if total == 0:
+                return {}
+            return {w: c / total for w, c in counts.items()}
+
+        p_dist = _word_freqs(query_text)
+        q_dist = _word_freqs(node_text)
+
+        if not p_dist or not q_dist:
+            return 0.0
+
+        vocab = set(p_dist.keys()) | set(q_dist.keys())
+
+        # Laplace smoothing: α=0.01 para evitar log(0)
+        alpha = 0.01
+        p_vec = [p_dist.get(w, 0.0) + alpha for w in vocab]
+        q_vec = [q_dist.get(w, 0.0) + alpha for w in vocab]
+
+        # Normalize to probability distributions
+        p_sum = sum(p_vec)
+        q_sum = sum(q_vec)
+        p_vec = [x / p_sum for x in p_vec]
+        q_vec = [x / q_sum for x in q_vec]
+
+        # Mixture distribution M = ½(P+Q)
+        m_vec = [(p + q) / 2.0 for p, q in zip(p_vec, q_vec)]
+
+        def _kl(a: list[float], b: list[float]) -> float:
+            return sum(x * math.log(x / y) for x, y in zip(a, b) if x > 0 and y > 0)
+
+        jsd_div = 0.5 * _kl(p_vec, m_vec) + 0.5 * _kl(q_vec, m_vec)
+
+        # Score: 1 - sqrt(JSD) → [0, 1], higher = more similar
+        return round(1.0 - math.sqrt(min(jsd_div, 1.0)), 4)
+
+    @staticmethod
+    def _calcular_bm25_bayesiano(raw_scores: dict, alpha: float = 1.0) -> dict:
+        """Calibración Bayesian BM25: convierte scores crudos FTS5 a probabilidades [0,1].
+
+        Fórmula: sigmoid(α × (score - β)) donde β = mediana(scores) × 0.7
+        (estimación sin labels, basada en distribución del corpus).
+
+        A diferencia de x/(x+3), la sigmoid calibra probabilísticamente:
+        - scores altos → ~1.0 (alta probabilidad de relevancia)
+        - scores bajos → ~0.0 (baja probabilidad)
+        - β se adapta a la distribución de scores de cada query
+
+        Args:
+            raw_scores: {concepto: raw_bm25_score} — scores crudos de FTS5
+            alpha: steepness de la sigmoid (default 1.0)
+
+        Returns:
+            {concepto: probability} — probabilidades calibradas en [0, 1]
+        """
+        if not raw_scores:
+            return {}
+
+        scores = list(raw_scores.values())
+        # β = mediana × 0.7 — estimación heurística sin labels
+        # IMPORTANTE: BM25 de FTS5 es negativo (más negativo = mejor match)
+        # La sigmoid se aplica directamente al score crudo (sin abs)
+        sorted_scores = sorted(scores)
+        n = len(sorted_scores)
+        median = sorted_scores[n // 2] if n % 2 == 1 else (sorted_scores[n // 2 - 1] + sorted_scores[n // 2]) / 2.0
+        beta = median * 0.7
+
+        result = {}
+        for concepto, raw in raw_scores.items():
+            # sigmoid(α × (score - β))
+            # BM25 scores son negativos: más negativo → más relevante
+            # sigmoid(-large) ≈ 0.0 (mejor match), sigmoid(-small) ≈ 1.0 (peor match)
+            z = alpha * (raw - beta)
+            # Clamp to avoid overflow
+            if z > 500:
+                prob = 1.0
+            elif z < -500:
+                prob = 0.0
+            else:
+                prob = 1.0 / (1.0 + math.exp(-z))
+            result[concepto] = round(prob, 4)
+
+        return result
+
     def _calcular_score_hibrido(self, bm25_norm=0.0, dim_score=0.0,
                                 peso_sinaptico=0.0, concepto_ratio=0.0,
                                 sinonimos_ratio=0.0, score_latente=0.0,
                                 score_cadena=0.0, temporal=0.0,
                                 asoc_count=0, match_exacto=False,
-                                grupo_score=0.0, tematico_score=0.0):
-        """Score híbrido unificado: 10 señales ortogonales que suman 1.0.
+                                grupo_score=0.0, tematico_score=0.0,
+                                jsd_score: float = 0.0,
+                                jsd_weight: float = 0.0):
+        """Score híbrido unificado: 10 señales ortogonales + JSD (signal #11).
         grupo_score: similitud por grupo semántico WordNet (coseno binario).
         tematico_score: similitud temática por ausencia/presencia de dimensiones (IDF).
-        match_exacto: preserva precisión en búsquedas por nombre exacto (floor 0.5)."""
+        match_exacto: preserva precisión en búsquedas por nombre exacto (floor 0.5).
+        jsd_score: Jensen-Shannon Divergence como similitud [0,1].
+        jsd_weight: peso de JSD en la fórmula (0.0 = desactivado, 0.05 = default activo)."""
         asoc_norm = min(1.0, asoc_count / 20.0)
         peso_norm = min(1.0, peso_sinaptico)
 
+        # Base weights (sum to 1.0 when jsd_weight=0)
+        base_weight = 1.0 - jsd_weight
+
         score = (
-            0.25 * bm25_norm +          # FTS5 BM25 (↑ from 0.18 — stronger text match signal)
-            0.14 * dim_score +           # Dimensiones semánticas
-            0.08 * concepto_ratio +      # Match en concepto (↓ from 0.12 — less concept name dominance)
-            0.08 * sinonimos_ratio +     # Match en sinónimos (↓ from 0.12 — blind synonyms only partial)
-            0.10 * peso_norm +           # Peso sináptico
-            0.10 * max(score_latente, score_cadena) +  # Jaccard/cadena
-            0.10 * grupo_score +         # Grupo semántico WordNet
-            0.08 * tematico_score +      # Similitud temática (ausencia/presencia)
-            0.04 * temporal +            # Recencia
-            0.02 * asoc_norm             # Asociaciones
+            base_weight * (
+                0.25 * bm25_norm +          # FTS5 BM25
+                0.14 * dim_score +           # Dimensiones semánticas
+                0.08 * concepto_ratio +      # Match en concepto
+                0.08 * sinonimos_ratio +     # Match en sinónimos
+                0.10 * peso_norm +           # Peso sináptico
+                0.10 * max(score_latente, score_cadena) +  # Jaccard/cadena
+                0.10 * grupo_score +         # Grupo semántico WordNet
+                0.08 * tematico_score +      # Similitud temática
+                0.04 * temporal +            # Recencia
+                0.02 * asoc_norm             # Asociaciones
+            ) +
+            jsd_weight * jsd_score           # Signal #11: JSD distributional overlap
         )
 
         if match_exacto:
@@ -3560,10 +3692,13 @@ class SQLiteMemoryBioRAG:
             except sqlite3.OperationalError:
                 pass
 
-        # Normalizar BM25 con fórmula estable abs/(abs+1) para que la escala sea
-        # consistente entre buscar_por_frase y buscar_por_rafaga (misma que línea ~2693).
+        # Normalizar BM25 con fórmula estable abs/(abs+3) para que la escala sea
+        # consistente entre buscar_por_frase y buscar_por_rafaga.
         # No usa min-max porque al mezclar resultados de ambas funciones en biorag_recordar
         # las escalas relativas no son comparables entre sí.
+        # NOTA: Bayesian BM25 (sigmoid) fue testiado y RECHAZADO — los scores negativos
+        # de FTS5 y la variabilidad por query hacen que la sigmoid produzca rankings
+        # incorrectos. La fórmula abs/(abs+3) es monotónica y funcional para ranking.
         bm25_norm_map = {}
         for concepto, raw_bm25 in bm25_raw.items():
             bm25_norm_map[concepto] = abs(raw_bm25) / (abs(raw_bm25) + 3.0)
@@ -3708,6 +3843,12 @@ class SQLiteMemoryBioRAG:
                 if sims:
                     tematico_score = min(1.0, sum(sims) / len(sims) * 3.0)
 
+            # Signal #11: Jensen-Shannon Divergence (distributional overlap)
+            jsd_val = 0.0
+            if JSD_WEIGHT > 0.0:
+                node_text = f"{concepto} {contenido or ''}"
+                jsd_val = self._calcular_jsd(query, node_text)
+
             score_hibrido = self._calcular_score_hibrido(
                 bm25_norm=bm25_norm_map.get(concepto, 0.0),
                 dim_score=dim_score,
@@ -3719,7 +3860,9 @@ class SQLiteMemoryBioRAG:
                 asoc_count=len([v for v in (asociaciones or "").split(",") if v.strip()]),
                 match_exacto=match_exacto,
                 grupo_score=grupo_scores_map.get(concepto, 0.0),
-                tematico_score=tematico_score
+                tematico_score=tematico_score,
+                jsd_score=jsd_val,
+                jsd_weight=JSD_WEIGHT
             )
 
             resultados_con_hibrido.append(
@@ -4062,9 +4205,7 @@ class SQLiteMemoryBioRAG:
 
         total = len(todos)
 
-        # Normalizar BM25 con fórmula estable para pool pequeño (ráfaga típicamente 1-5 candidatos)
-        # abs(raw) / (abs(raw) + 3.0) es sigmoid-like: más negativo (mejor match) → mayor score en [0,1]
-        # No usa min-max porque con pocos candidatos la normalización de rango es inestable.
+        # Normalizar BM25 con fórmula estable abs/(abs+3) para pool pequeño (ráfaga)
         bm25_norm_map = {}
         for r in todos:
             _, concepto, _, _, _, _, *bm25_rest = r
@@ -4097,6 +4238,12 @@ class SQLiteMemoryBioRAG:
                     match_exacto = True
                     break
 
+            # Signal #11: JSD (rafaga path)
+            jsd_val = 0.0
+            if JSD_WEIGHT > 0.0:
+                node_text = f"{concepto} {contenido or ''}"
+                jsd_val = self._calcular_jsd(query, node_text)
+
             score_hibrido = self._calcular_score_hibrido(
                 bm25_norm=bm25_norm_map.get(concepto, 0.0),
                 dim_score=dim_score,
@@ -4107,7 +4254,9 @@ class SQLiteMemoryBioRAG:
                 score_cadena=0.0,
                 asoc_count=num_asoc,
                 match_exacto=match_exacto,
-                tematico_score=0.0
+                tematico_score=0.0,
+                jsd_score=jsd_val,
+                jsd_weight=JSD_WEIGHT
             )
 
             scored.append((concepto, contenido, peso, estado, score_hibrido, asoc or ""))

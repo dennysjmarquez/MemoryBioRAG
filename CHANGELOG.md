@@ -44,6 +44,65 @@
 
 ---
 
+### Experimento JSD (Signal #11) — RECHAZADO
+
+**Hipótesis:** JSD (Jensen-Shannon Divergence) como signal #11 de scoring mediría solapamiento distribucional entre query y nodo, complementando BM25 (que mide relevancia por IDF).
+
+**Implementación:**
+- `_calcular_jsd()` en `core/memory_store.py:2504` — distribuciones de frecuencia de palabras, Laplace smoothing, `1 - sqrt(JSD)` como score [0,1]
+- `_calcular_score_hibrido()` acepta `jsd_score` + `jsd_weight` — weight default=0.0 (zero overhead: `_calcular_jsd()` solo se ejecuta si `JSD_WEIGHT > 0.0`)
+- Configurable vía env var `BIORAG_JSD_WEIGHT`
+
+**Protocolo:** Snapshot DB actual (605 nodos), 921 test cases, ablation peso 0.0 vs 0.05.
+
+**Resultados:**
+
+| Métrica | JSD=0.0 | JSD=0.05 | Delta |
+|---------|---------|----------|-------|
+| GLOBAL Recall@5 | 96.14% | 95.80% | **-0.34pp** |
+| GLOBAL Recall@1 | 88.65% | 88.20% | **-0.45pp** |
+| por_tema Recall@5 | 75.38% | 73.85% | **-1.53pp** |
+| FP | 7.50% | 7.50% | 0.00 |
+
+**Causa raíz:** JSD mide solapamiento distribucional — para queries genéricas ("perfil", "memoria", "arquitectura"), muchos nodos tienen distribuciones similares → JSD empata scores que BM25/dim_score distinguían → nodos genéricos suben, específicos bajan.
+
+**Principio generalizable (regla de diseño):** Señales que miden similitud distribucional/genérica tienden a perjudicar queries cortas y ambiguas porque homogeneizan candidatos que las señales específicas (BM25, concepto_ratio) ya distinguían bien. Cualquier señal candidata debe evaluarse contra queries genéricas — no solo contra las específicas donde funciona.
+
+**Baselines post-JSD (DB 605 nodos, 2026-07-26):**
+- GLOBAL Recall@5: 96.14% | FP: 7.50%
+- por_tema Recall@5: 75.38% | Recall@1: 35.38%
+- **Nota:** Estos números no son directamente comparables con los 70.77% del v23.0 original (medidos sobre corpus de ~593 nodos). El crecimiento de 593→605 nodos es crecimiento orgánico del corpus, no mejora de código. Leer como "evolución natural del corpus", no como mejora de algoritmo.
+
+---
+
+### Experimento Bayesian BM25 (Calibración Sigmoid) — RECHAZADO
+
+**Hipótesis:** Bayesian BM25 (`sigmoid(α(s-β))`) reemplazaría la normalización fija `abs(x)/(abs(x)+3)` con calibración probabilística, mejorando la mezcla de BM25 con otras señales en `_calcular_score_hibrido()`.
+
+**Implementación:**
+- `_calcular_bm25_bayesiano()` en `core/memory_store.py` — sigmoid con β=mediana×0.7 estimado del corpus
+- Env vars: `BIORAG_BAYESIAN_BM25=true/false`, `BIORAG_BAYESIAN_BM25_ALPHA=1.0`
+- Reemplaza normalización en buscar_por_frase (línea 3695) y rafaga (línea 4204)
+
+**Protocolo:** Snapshot DB actual (605 nodos), 921 test cases.
+
+**Resultados:**
+
+| Métrica | Baseline | Bayesian α=1.0 | Delta |
+|---------|----------|----------------|-------|
+| GLOBAL Recall@5 | 96.14% | 83.31% | **-12.83pp** |
+| GLOBAL Recall@1 | 88.20% | 76.28% | **-11.92pp** |
+| por_tema Recall@5 | 73.85% | 10.77% | **-63.08pp** |
+| FP | 7.50% | 7.50% | 0.00 |
+
+**Causa raíz:** BM25 de FTS5 produce scores **negativos** (más negativo = mejor match). La sigmoid con `abs(raw)` trataba scores altos (abs de malos matches) como más relevantes → ranking completamente invertido. Incluso sin `abs()`, la sigmoid calibrada por query no es comparable entre queries (cada query tiene distribución diferente).
+
+**Lección:** Bayesian BM25 está diseñado para fusionar BM25 con vectores densos en hybrid search. En BioRAG (sin vectores densos), la calibración no aporta valor y destruye el ranking. La fórmula `abs(x)/(abs(x)+3)` es monotónica y funcional — NO necesita calibración probabilística.
+
+**Código revertido:** `_calcular_bm25_bayesiano()` queda implementado pero desactivado. Config `BAYESIAN_BM25` default=false.
+
+---
+
 ## v22.2 (2026-07-24)
 
 ### Capa 3: Pseudo-Relevance Feedback Dimensional & Normalización Metodológica de QA
