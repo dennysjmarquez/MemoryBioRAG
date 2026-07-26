@@ -3,8 +3,8 @@
 ======================================================================
   Archivo DB:    memory_biorag.db
   Ruta (relativa): MemoryBioRAG_Data/memory_biorag.db
-  Generado:      2026-07-25 14:38:01
-  Tamaño DB:     21,594,112 bytes (21088.0 KB)
+  Generado:      2026-07-25 23:16:11
+  Tamaño DB:     23,068,672 bytes (22528.0 KB)
 ======================================================================
 
 Este blueprint se genera dinámicamente desde la DB.
@@ -17,8 +17,8 @@ Si se agrega una tabla o columna, se incluye automáticamente.
 ======================================================================
 
   Journal mode:    wal
-  Tamaño total:    21,594,112 bytes (21088.0 KB)
-  Páginas libres:  1132
+  Tamaño total:    23,068,672 bytes (22528.0 KB)
+  Páginas libres:  1421
 
 
 ======================================================================
@@ -93,7 +93,7 @@ CREATE TABLE grupos_semanticos (
                 descripcion TEXT DEFAULT ''
             );
 
--- largo_plazo (589 filas)
+-- largo_plazo (593 filas)
 CREATE TABLE largo_plazo (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 concepto TEXT UNIQUE NOT NULL,
@@ -120,10 +120,10 @@ CREATE TABLE largo_plazo_backup (
                 deleted_at REAL DEFAULT (strftime('%s','now'))
             );
 
--- largo_plazo_dimensiones (2725 filas)
+-- largo_plazo_dimensiones (2729 filas)
 CREATE TABLE "largo_plazo_dimensiones" (concepto TEXT NOT NULL, dimension_id INTEGER NOT NULL, PRIMARY KEY (concepto, dimension_id), FOREIGN KEY (concepto) REFERENCES largo_plazo(concepto) ON DELETE CASCADE, FOREIGN KEY (dimension_id) REFERENCES "dimensiones_semanticas"(id));
 
--- largo_plazo_fts (589 filas)
+-- largo_plazo_fts (593 filas)
 CREATE VIRTUAL TABLE largo_plazo_fts USING fts5(
                     concepto,
                     contenido,
@@ -134,19 +134,19 @@ CREATE VIRTUAL TABLE largo_plazo_fts USING fts5(
 -- largo_plazo_fts_config (1 filas)
 CREATE TABLE 'largo_plazo_fts_config'(k PRIMARY KEY, v) WITHOUT ROWID;
 
--- largo_plazo_fts_content (589 filas)
+-- largo_plazo_fts_content (593 filas)
 CREATE TABLE 'largo_plazo_fts_content'(id INTEGER PRIMARY KEY, c0, c1, c2);
 
--- largo_plazo_fts_data (640 filas)
+-- largo_plazo_fts_data (680 filas)
 CREATE TABLE 'largo_plazo_fts_data'(id INTEGER PRIMARY KEY, block BLOB);
 
--- largo_plazo_fts_docsize (589 filas)
+-- largo_plazo_fts_docsize (593 filas)
 CREATE TABLE 'largo_plazo_fts_docsize'(id INTEGER PRIMARY KEY, sz BLOB);
 
--- largo_plazo_fts_idx (624 filas)
+-- largo_plazo_fts_idx (670 filas)
 CREATE TABLE 'largo_plazo_fts_idx'(segid, term, pgno, PRIMARY KEY(segid, term)) WITHOUT ROWID;
 
--- largo_plazo_fts_unicode (589 filas)
+-- largo_plazo_fts_unicode (593 filas)
 CREATE VIRTUAL TABLE largo_plazo_fts_unicode USING fts5(
                     concepto,
                     contenido,
@@ -157,19 +157,19 @@ CREATE VIRTUAL TABLE largo_plazo_fts_unicode USING fts5(
 -- largo_plazo_fts_unicode_config (1 filas)
 CREATE TABLE 'largo_plazo_fts_unicode_config'(k PRIMARY KEY, v) WITHOUT ROWID;
 
--- largo_plazo_fts_unicode_content (589 filas)
+-- largo_plazo_fts_unicode_content (593 filas)
 CREATE TABLE 'largo_plazo_fts_unicode_content'(id INTEGER PRIMARY KEY, c0, c1, c2);
 
--- largo_plazo_fts_unicode_data (105 filas)
+-- largo_plazo_fts_unicode_data (116 filas)
 CREATE TABLE 'largo_plazo_fts_unicode_data'(id INTEGER PRIMARY KEY, block BLOB);
 
--- largo_plazo_fts_unicode_docsize (589 filas)
+-- largo_plazo_fts_unicode_docsize (593 filas)
 CREATE TABLE 'largo_plazo_fts_unicode_docsize'(id INTEGER PRIMARY KEY, sz BLOB);
 
--- largo_plazo_fts_unicode_idx (103 filas)
+-- largo_plazo_fts_unicode_idx (114 filas)
 CREATE TABLE 'largo_plazo_fts_unicode_idx'(segid, term, pgno, PRIMARY KEY(segid, term)) WITHOUT ROWID;
 
--- log_busquedas (214 filas)
+-- log_busquedas (268 filas)
 CREATE TABLE log_busquedas (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 query TEXT NOT NULL,
@@ -179,7 +179,7 @@ CREATE TABLE log_busquedas (
                 util INTEGER DEFAULT NULL
             , params_json TEXT);
 
--- metricas_cognitivas (347 filas)
+-- metricas_cognitivas (348 filas)
 CREATE TABLE "metricas_cognitivas" (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         timestamp REAL NOT NULL,
@@ -192,7 +192,7 @@ CREATE TABLE "metricas_cognitivas" (
         FOREIGN KEY (categoria_dominante_id) REFERENCES categories(id) ON DELETE SET NULL
     );
 
--- metricas_cognitivas_nodos (2959 filas)
+-- metricas_cognitivas_nodos (2963 filas)
 CREATE TABLE "metricas_cognitivas_nodos" (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         metrica_id INTEGER NOT NULL,
@@ -209,7 +209,7 @@ CREATE TABLE "metricas_cognitivas_nodos" (
         FOREIGN KEY (largo_plazo_id) REFERENCES largo_plazo(id) ON DELETE CASCADE
     );
 
--- metricas_rendimiento (195 filas)
+-- metricas_rendimiento (196 filas)
 CREATE TABLE metricas_rendimiento (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 timestamp REAL NOT NULL,
@@ -221,7 +221,7 @@ CREATE TABLE metricas_rendimiento (
                 energia_sinaptica REAL NOT NULL
             );
 
--- nodo_grupos_semanticos (51606 filas)
+-- nodo_grupos_semanticos (52038 filas)
 CREATE TABLE nodo_grupos_semanticos (
         concepto TEXT NOT NULL,
         palabra TEXT NOT NULL,
@@ -231,14 +231,14 @@ CREATE TABLE nodo_grupos_semanticos (
         FOREIGN KEY (concepto) REFERENCES largo_plazo(concepto) ON DELETE CASCADE
     );
 
--- nodos_sdm (586 filas)
+-- nodos_sdm (590 filas)
 CREATE TABLE nodos_sdm (
                 concepto TEXT PRIMARY KEY,
                 vector BLOB NOT NULL,
                 actualizado_en REAL NOT NULL
             );
 
--- predicados (52 filas)
+-- predicados (53 filas)
 CREATE TABLE predicados (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 concepto TEXT NOT NULL,
@@ -250,7 +250,7 @@ CREATE TABLE predicados (
                 FOREIGN KEY (concepto) REFERENCES largo_plazo(concepto) ON DELETE CASCADE
             );
 
--- sinapsis (7833 filas)
+-- sinapsis (7947 filas)
 CREATE TABLE sinapsis (
             origen TEXT NOT NULL,
             destino TEXT NOT NULL,
@@ -260,7 +260,7 @@ CREATE TABLE sinapsis (
             PRIMARY KEY (origen, destino)
         );
 
--- sinapsis_latentes (5913 filas)
+-- sinapsis_latentes (5941 filas)
 CREATE TABLE sinapsis_latentes (
                 origen TEXT NOT NULL,
                 destino TEXT NOT NULL,
@@ -273,7 +273,7 @@ CREATE TABLE sinapsis_latentes (
 -- sqlite_sequence (14 filas)
 CREATE TABLE sqlite_sequence(name,seq);
 
--- sync_log (201 filas)
+-- sync_log (205 filas)
 CREATE TABLE sync_log (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 categoria_id INTEGER NOT NULL,
@@ -429,45 +429,45 @@ CREATE TRIGGER trg_sync_update AFTER UPDATE ON largo_plazo
   corto_plazo_predicados                          0 filas
   dimensiones_semanticas                         75 filas
   grupos_semanticos                              45 filas
-  largo_plazo                                   589 filas
+  largo_plazo                                   593 filas
   largo_plazo_backup                              0 filas
-  largo_plazo_dimensiones                      2725 filas
-  log_busquedas                                 214 filas
-  metricas_cognitivas                           347 filas
-  metricas_cognitivas_nodos                    2959 filas
-  metricas_rendimiento                          195 filas
-  nodo_grupos_semanticos                      51606 filas
-  nodos_sdm                                     586 filas
-  predicados                                     52 filas
-  sinapsis                                     7833 filas
-  sinapsis_latentes                            5913 filas
-  sync_log                                      201 filas
+  largo_plazo_dimensiones                      2729 filas
+  log_busquedas                                 268 filas
+  metricas_cognitivas                           348 filas
+  metricas_cognitivas_nodos                    2963 filas
+  metricas_rendimiento                          196 filas
+  nodo_grupos_semanticos                      52038 filas
+  nodos_sdm                                     590 filas
+  predicados                                     53 filas
+  sinapsis                                     7947 filas
+  sinapsis_latentes                            5941 filas
+  sync_log                                      205 filas
   tipos_dimension                                 7 filas
 
 
 --- LARGO PLAZO ---
 
-  Total:           589
-  Activos:         333
-  Dormidos:        256
-  Energía total:   141.76
+  Total:           593
+  Activos:         506
+  Dormidos:        87
+  Energía total:   186.14
 
 
 --- DISTRIBUCIÓN POR CATEGORÍA ---
 
 Categoría       Total    Activos  Dormidos Peso Prom.
 -------------------------------------------------------
-Lesson          122      44       78       0.17      
+Lesson          124      98       26       0.27      
 Principle       103      103      0        0.53      
-Architecture    84       50       34       0.21      
-Project         69       31       38       0.15      
-System          65       21       44       0.13      
+Architecture    85       79       6        0.27      
+Project         69       62       7        0.22      
+System          65       47       18       0.22      
 Protocol        38       38       0        0.48      
-General         30       8        22       0.06      
-Cognition       30       8        22       0.12      
+General         31       19       12       0.13      
+Cognition       30       21       9        0.21      
 Profile         20       20       0        0.7       
-Relation        15       6        9        0.15      
-Personal        13       4        9        0.2       
+Relation        15       12       3        0.23      
+Personal        13       7        6        0.25      
 
 
 ======================================================================
@@ -479,27 +479,27 @@ Personal        13       4        9        0.2
 
 --- FTS: largo_plazo_fts ---
 
-  Documentos indexados: 589
+  Documentos indexados: 593
 
 
 --- FTS: largo_plazo_fts_data ---
 
-  Documentos indexados: 640
+  Documentos indexados: 680
 
 
 --- FTS: largo_plazo_fts_idx ---
 
-  Documentos indexados: 624
+  Documentos indexados: 670
 
 
 --- FTS: largo_plazo_fts_content ---
 
-  Documentos indexados: 589
+  Documentos indexados: 593
 
 
 --- FTS: largo_plazo_fts_docsize ---
 
-  Documentos indexados: 589
+  Documentos indexados: 593
 
 
 --- FTS: largo_plazo_fts_config ---
@@ -509,27 +509,27 @@ Personal        13       4        9        0.2
 
 --- FTS: largo_plazo_fts_unicode ---
 
-  Documentos indexados: 589
+  Documentos indexados: 593
 
 
 --- FTS: largo_plazo_fts_unicode_data ---
 
-  Documentos indexados: 105
+  Documentos indexados: 116
 
 
 --- FTS: largo_plazo_fts_unicode_idx ---
 
-  Documentos indexados: 103
+  Documentos indexados: 114
 
 
 --- FTS: largo_plazo_fts_unicode_content ---
 
-  Documentos indexados: 589
+  Documentos indexados: 593
 
 
 --- FTS: largo_plazo_fts_unicode_docsize ---
 
-  Documentos indexados: 589
+  Documentos indexados: 593
 
 
 --- FTS: largo_plazo_fts_unicode_config ---
@@ -564,19 +564,19 @@ Personal        13       4        9        0.2
 
 Tipo                   Cantidad   Peso Prom.   Mín      Máx     
 ------------------------------------------------------------
-sinonimo_explicito     3554       0.883        0.077    1.0     
-co_ocurrencia          2048       0.608        0.058    1.0     
-co_nombre              905        0.401        0.051    1.0     
-pmi_hebbiano           716        0.476        0.35     0.9     
-co_semantica           244        0.595        0.28     1.0     
-manual                 173        0.511        0.199    0.9     
+sinonimo_explicito     3555       0.883        0.073    1.0     
+co_ocurrencia          2050       0.607        0.055    1.0     
+co_nombre              934        0.399        0.051    1.0     
+pmi_hebbiano           761        0.475        0.35     0.9     
+co_semantica           281        0.587        0.28     1.0     
+manual                 173        0.511        0.189    0.9     
 latente_confirmada     150        0.405        0.397    0.441   
 legacy_csv             26         0.5          0.5      0.5     
 manual_v7              16         0.693        0.585    0.7     
 test                   1          0.9          0.9      0.9     
 
-  Nodos origen únicos:  347
-  Nodos destino únicos: 568
+  Nodos origen únicos:  350
+  Nodos destino únicos: 572
 
 
 ======================================================================
@@ -590,11 +590,11 @@ test                   1          0.9          0.9      0.9
 
   Fecha                  consolidados   dormidos       sin.creadas    sin.podadas    ratio          Cat.Dom.       
 -----------------------------------------------------------------------------------------------------------
+  2026-07-25 18:16       3              1              97             0              0.010          Lesson         
   2026-07-25 13:11       2              0              59             0              0.010          Personal       
   2026-07-24 16:50       1              0              1              0              0.010          Lesson         
   2026-07-24 13:51       2              40             121            0              0.010          Principle      
   2026-07-24 13:31       9              28             174            0              0.040          Principle      
-  2026-07-24 13:29       9              162            154            0              0.040          Principle      
 
 
 --- MÉTRICAS DE RENDIMIENTO ---
@@ -603,9 +603,9 @@ test                   1          0.9          0.9      0.9
 
   timestamp          total_nodos        total_dormidos     latencia_busqueda_ms tamano_db_bytes    nodos_activos      energia_sinaptica 
 --------------------------------------------------------------------------------------------------------------------------------
+  2026-07-25 18:16  593               100               0.10              21088 KB          493               181.59            
   2026-07-25 13:11  589               256               0.11              21088 KB          333               141.76            
   2026-07-24 16:50  587               410               0.06              21088 KB          177               95.89             
-  2026-07-24 13:51  586               410               0.12              21088 KB          176               95.59             
 
 
 ======================================================================
@@ -615,24 +615,24 @@ test                   1          0.9          0.9      0.9
   Columnas: id, nombre, fuente, descripcion
 
   Grupos:            45
-  Relaciones:        51606
-  Nodos clasificados: 588
+  Relaciones:        52038
+  Nodos clasificados: 591
 
 
 --- TOP 10 GRUPOS POR USO ---
 
   Grupo                          Nodos   
   --------------------------------------
-  noun.communication             5071    
-  noun.artifact                  3559    
-  noun.act                       3456    
-  noun.person                    3155    
-  adj.all                        3074    
-  noun.cognition                 2921    
-  verb.communication             1789    
-  noun.attribute                 1704    
-  verb.social                    1673    
-  noun.state                     1556    
+  noun.communication             5114    
+  noun.artifact                  3579    
+  noun.act                       3499    
+  noun.person                    3189    
+  adj.all                        3113    
+  noun.cognition                 2948    
+  verb.communication             1798    
+  noun.attribute                 1720    
+  verb.social                    1685    
+  noun.state                     1574    
 
 
 ======================================================================
@@ -706,7 +706,7 @@ test                   1          0.9          0.9      0.9
   --------------------------------------------------------------------------------
   id                        1               165             83.00           165       
   timestamp                 1781534007.12   1784872609.67   1782746262.19   165       
-  leido                     0               1               0.98            165       
+  leido                     0               1               0.99            165       
 
 
 --- dimensiones_semanticas (75 filas) ---
@@ -727,128 +727,128 @@ test                   1          0.9          0.9      0.9
   id                        1               45              23.00           45        
 
 
---- largo_plazo (589 filas) ---
+--- largo_plazo (593 filas) ---
 
   Columna                   Mín             Máx             Promedio        No Nulos  
   --------------------------------------------------------------------------------
-  id                        1               786             422.78          589       
-  categoria                 1               11              4.89            589       
-  peso_sinaptico            0.00            1.00            0.26            589       
-  ultimo_acceso             1784142830.39   1784999448.26   1784808717.11   589       
-  creado_en                 0.00            1784999448.26   1780388209.07   589       
-  valencia_somatica         0.00            1.00            0.03            589       
-  exitos_dopamina           0               0               0.00            589       
-  fallos_dopamina           0               0               0.00            589       
+  id                        1               790             425.24          593       
+  categoria                 1               11              4.89            593       
+  peso_sinaptico            0.00            1.00            0.32            593       
+  ultimo_acceso             1784142830.39   1785035580.45   1784868031.39   592       
+  creado_en                 0.00            1785017795.02   1780419434.85   593       
+  valencia_somatica         0.00            1.00            0.03            593       
+  exitos_dopamina           0               0               0.00            593       
+  fallos_dopamina           0               0               0.00            593       
 
 
---- largo_plazo_dimensiones (2725 filas) ---
-
-  Columna                   Mín             Máx             Promedio        No Nulos  
-  --------------------------------------------------------------------------------
-  dimension_id              1               38027           358.38          2725      
-
-
---- log_busquedas (214 filas) ---
+--- largo_plazo_dimensiones (2729 filas) ---
 
   Columna                   Mín             Máx             Promedio        No Nulos  
   --------------------------------------------------------------------------------
-  id                        171             384             277.50          214       
-  resultados_count          0               364             100.20          214       
-  top_score                 0.00            0.95            0.48            196       
-  creado_en                 1784488241.24   1784999480.78   1784768491.54   214       
+  dimension_id              1               38027           357.97          2729      
 
 
---- metricas_cognitivas (347 filas) ---
+--- log_busquedas (268 filas) ---
 
   Columna                   Mín             Máx             Promedio        No Nulos  
   --------------------------------------------------------------------------------
-  id                        1               349             174.22          347       
-  timestamp                 1781660379.44   1784999467.90   1783143208.14   347       
-  nodos_consolidados        0               18              1.42            347       
-  nodos_dormidos_ciclo      0               531             34.39           347       
-  sinapsis_creadas          0               323             23.16           347       
-  sinapsis_podadas          0               74              0.95            347       
-  categoria_dominante_id    1               11              6.46            341       
-  ratio_consolidacion       0.00            0.17            0.01            347       
+  id                        171             438             304.50          268       
+  resultados_count          0               364             90.20           268       
+  top_score                 0.00            0.95            0.47            238       
+  creado_en                 1784488241.24   1785035615.65   1784818370.50   268       
 
 
---- metricas_cognitivas_nodos (2959 filas) ---
+--- metricas_cognitivas (348 filas) ---
 
   Columna                   Mín             Máx             Promedio        No Nulos  
   --------------------------------------------------------------------------------
-  id                        1               3114            1604.53         2959      
-  metrica_id                41              349             319.82          2959      
-  largo_plazo_id            1               786             415.89          2959      
-  peso_anterior             0.00            1.00            0.13            2959      
-  peso_nuevo                0.00            1.00            0.07            2959      
-  anomalo                   0               0               0.00            2959      
-  created_at                1781914991.89   1784999467.90   1784632141.89   2959      
+  id                        1               350             174.73          348       
+  timestamp                 1781660379.44   1785017817.86   1783148594.94   348       
+  nodos_consolidados        0               18              1.42            348       
+  nodos_dormidos_ciclo      0               531             34.29           348       
+  sinapsis_creadas          0               323             23.37           348       
+  sinapsis_podadas          0               74              0.95            348       
+  categoria_dominante_id    1               11              6.46            342       
+  ratio_consolidacion       0.00            0.17            0.01            348       
 
 
---- metricas_rendimiento (195 filas) ---
-
-  Columna                   Mín             Máx             Promedio        No Nulos  
-  --------------------------------------------------------------------------------
-  id                        1               197             98.40           195       
-  timestamp                 1782941651.21   1784999466.96   1783882229.73   195       
-  total_nodos               374             589             476.91          195       
-  total_dormidos            0               549             171.14          195       
-  latencia_busqueda_ms      0.05            1.31            0.20            195       
-  tamano_db_bytes           6397952         31522816        21989848.62     195       
-  nodos_activos             5               569             305.77          195       
-  energia_sinaptica         5.00            349.82          132.84          195       
-
-
---- nodo_grupos_semanticos (51606 filas) ---
+--- metricas_cognitivas_nodos (2963 filas) ---
 
   Columna                   Mín             Máx             Promedio        No Nulos  
   --------------------------------------------------------------------------------
-  grupo_id                  1               45              16.05           51606     
+  id                        1               3118            1606.57         2963      
+  metrica_id                41              350             319.86          2963      
+  largo_plazo_id            1               790             416.38          2963      
+  peso_anterior             0.00            1.00            0.13            2963      
+  peso_nuevo                0.00            1.00            0.07            2963      
+  anomalo                   0               0               0.00            2963      
+  created_at                1781914991.89   1785017817.86   1784632662.54   2963      
 
 
---- nodos_sdm (586 filas) ---
-
-  Columna                   Mín             Máx             Promedio        No Nulos  
-  --------------------------------------------------------------------------------
-  actualizado_en            1784721327.99   1784999470.29   1784948931.09   586       
-
-
---- predicados (52 filas) ---
-
-  Columna                   Mín             Máx             Promedio        No Nulos  
-  --------------------------------------------------------------------------------
-  id                        3               54              28.50           52        
-  creado_en                 1783651969.73   1784989460.17   1784528520.26   52        
-
-
---- sinapsis (7833 filas) ---
+--- metricas_rendimiento (196 filas) ---
 
   Columna                   Mín             Máx             Promedio        No Nulos  
   --------------------------------------------------------------------------------
-  peso                      0.05            1.00            0.69            7833      
-  creado_en                 1781482041.87   1784999449.39   1783988898.81   7833      
-  ultimo_uso                1783786474.13   1784999449.39   1784692028.43   2684      
+  id                        1               198             98.91           196       
+  timestamp                 1782941651.21   1785017814.73   1783888023.53   196       
+  total_nodos               374             593             477.50          196       
+  total_dormidos            0               549             170.78          196       
+  latencia_busqueda_ms      0.05            1.31            0.20            196       
+  tamano_db_bytes           6397952         31522816        21987829.55     196       
+  nodos_activos             5               569             306.72          196       
+  energia_sinaptica         5.00            349.82          133.08          196       
 
 
---- sinapsis_latentes (5913 filas) ---
-
-  Columna                   Mín             Máx             Promedio        No Nulos  
-  --------------------------------------------------------------------------------
-  peso_atenuado             0.01            0.64            0.20            5913      
-  saltos                    2               3               2.42            5913      
-  calculado_en              1784999449.40   1784999449.40   1784999449.40   5913      
-  pmi_score                 0.00            1.00            0.15            5913      
-  tiene_dim_comun           0               1               0.89            5913      
-
-
---- sync_log (201 filas) ---
+--- nodo_grupos_semanticos (52038 filas) ---
 
   Columna                   Mín             Máx             Promedio        No Nulos  
   --------------------------------------------------------------------------------
-  id                        918             1118            1018.00         201       
-  categoria_id              1               11              4.67            201       
-  timestamp                 1783810053.00   1784999448.00   1784502382.86   201       
-  sincronizado              0               0               0.00            201       
+  grupo_id                  1               45              16.05           52038     
+
+
+--- nodos_sdm (590 filas) ---
+
+  Columna                   Mín             Máx             Promedio        No Nulos  
+  --------------------------------------------------------------------------------
+  actualizado_en            1784721327.99   1785017821.62   1784994218.22   590       
+
+
+--- predicados (53 filas) ---
+
+  Columna                   Mín             Máx             Promedio        No Nulos  
+  --------------------------------------------------------------------------------
+  id                        3               55              29.00           53        
+  creado_en                 1783651969.73   1785017788.39   1784537751.73   53        
+
+
+--- sinapsis (7947 filas) ---
+
+  Columna                   Mín             Máx             Promedio        No Nulos  
+  --------------------------------------------------------------------------------
+  peso                      0.05            1.00            0.69            7947      
+  creado_en                 1781482041.87   1785017798.14   1784004084.70   7947      
+  ultimo_uso                1783786474.13   1785017798.17   1784705262.01   2702      
+
+
+--- sinapsis_latentes (5941 filas) ---
+
+  Columna                   Mín             Máx             Promedio        No Nulos  
+  --------------------------------------------------------------------------------
+  peso_atenuado             0.01            0.64            0.20            5941      
+  saltos                    2               3               2.40            5941      
+  calculado_en              1785017798.17   1785017798.17   1785017798.17   5941      
+  pmi_score                 0.00            1.00            0.15            5941      
+  tiene_dim_comun           0               1               0.89            5941      
+
+
+--- sync_log (205 filas) ---
+
+  Columna                   Mín             Máx             Promedio        No Nulos  
+  --------------------------------------------------------------------------------
+  id                        918             1122            1020.00         205       
+  categoria_id              1               11              4.68            205       
+  timestamp                 1783810053.00   1785017795.00   1784512432.56   205       
+  sincronizado              0               0               0.00            205       
 
 
 ======================================================================
@@ -917,8 +917,8 @@ test                   1          0.9          0.9      0.9
 
   Dimensión                      Nodos   
   --------------------------------------
-  intencion_documentar           442     
-  identidad_artificial           365     
+  intencion_documentar           443     
+  identidad_artificial           366     
   cualidad_abstracta_conceptual  324     
   dominio_tecnico                322     
   accion_persistencia_computacion 230     
@@ -928,7 +928,7 @@ test                   1          0.9          0.9      0.9
   accion_cognitiva               96      
   identidad_natural              77      
   sorpresa                       72      
-  satisfaccion                   34      
+  satisfaccion                   35      
   intencion_solucionar           34      
   intencion_reflexionar          29      
   intencion_aprender             25      
@@ -938,48 +938,48 @@ test                   1          0.9          0.9      0.9
 
   Grupo                               Nodos Únicos
   -----------------------------------------------
-  noun.person                         575         
-  noun.communication                  575         
-  noun.act                            559         
-  adj.all                             541         
-  noun.artifact                       537         
-  verb.social                         518         
-  noun.state                          502         
-  noun.quantity                       500         
-  noun.location                       500         
-  noun.cognition                      500         
-  adv.all                             500         
-  verb.cognition                      491         
-  noun.object                         486         
-  noun.attribute                      480         
-  verb.communication                  441         
-  verb.creation                       440         
-  verb.contact                        425         
-  noun.group                          424         
-  verb.change                         417         
-  verb.motion                         407         
-  noun.relation                       366         
-  noun.substance                      360         
-  verb.competition                    358         
-  noun.possession                     357         
-  verb.stative                        351         
-  verb.possession                     342         
-  noun.event                          329         
-  adj.pert                            306         
-  noun.time                           295         
-  noun.body                           288         
-  noun.animal                         281         
-  verb.perception                     223         
-  noun.food                           222         
-  noun.shape                          218         
-  verb.body                           206         
-  noun.plant                          198         
-  noun.process                        175         
-  noun.feeling                        172         
-  verb.emotion                        170         
+  noun.person                         578         
+  noun.communication                  578         
+  noun.act                            562         
+  adj.all                             544         
+  noun.artifact                       539         
+  verb.social                         520         
+  noun.state                          505         
+  noun.cognition                      503         
+  noun.quantity                       502         
+  noun.location                       502         
+  adv.all                             502         
+  verb.cognition                      493         
+  noun.object                         488         
+  noun.attribute                      483         
+  verb.communication                  443         
+  verb.creation                       442         
+  verb.contact                        427         
+  noun.group                          427         
+  verb.change                         419         
+  verb.motion                         408         
+  noun.relation                       368         
+  noun.substance                      362         
+  verb.competition                    360         
+  noun.possession                     359         
+  verb.stative                        353         
+  verb.possession                     344         
+  noun.event                          331         
+  adj.pert                            308         
+  noun.time                           297         
+  noun.body                           291         
+  noun.animal                         283         
+  verb.perception                     225         
+  noun.food                           224         
+  noun.shape                          219         
+  verb.body                           208         
+  noun.plant                          199         
+  noun.process                        177         
+  noun.feeling                        174         
+  verb.emotion                        171         
   noun.phenomenon                     168         
   verb.consumption                    153         
-  noun.Tops                           148         
-  noun.motive                         87          
+  noun.Tops                           150         
+  noun.motive                         88          
   verb.weather                        47          
   adj.ppl                             4           

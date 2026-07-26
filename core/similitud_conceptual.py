@@ -27,6 +27,10 @@ LIMITE_SIMILITUD = int(os.environ.get('BIORAG_LIMITE_SIMILITUD', '5'))
 
 _TOKEN_PATTERN = re.compile(r'\b[a-zA-Z\u00e1\u00e9\u00ed\u00f3\u00fa\u00f1]{3,}\b')
 
+# Caché del vector SDM del query para no regenerarlo en cada candidato.
+# Se setea antes del loop y se limpia al final.
+_sdm_query_vector_cache: dict = {}
+
 def _cargar_grafo(cursor):
     """Carga todas las sinapsis en un dict de Python (una sola query SQL).
     Función pura y stateless para evitar concurrencia."""
@@ -46,8 +50,8 @@ def _cargar_grafo(cursor):
 
 
 def _limpiar_cache(*args, **kwargs):
-    """No-op. El caché es stateless y se maneja localmente."""
-    pass
+    """Limpia caché local incluyendo el vector SDM del query."""
+    _sdm_query_vector_cache.clear()
 
 
 def _tokenizar_query(texto):
@@ -219,13 +223,24 @@ def score_similitud_latente(cursor, query_tokens, nodo_concepto, nodo_contenido,
         pass
 
     # 6. SDM Similitud Hamming (0.10)
+    #    Lee vector pre-calculado de nodos_sdm en vez de regenerarlo.
+    #    Solo genera el vector del query (fuera del loop por el caller).
     score_sdm = 0.0
     try:
-        from core.sdm import generar_vector_sdm, similitud_sdm
-        q_str = " ".join(query_tokens)
-        q_vec = generar_vector_sdm(q_str, q_str)
-        n_vec = generar_vector_sdm(nodo_concepto, nodo_contenido or "")
-        score_sdm = similitud_sdm(q_vec, n_vec)
+        from core.sdm import similitud_sdm
+        n_vec = None
+        if cerebro and hasattr(cerebro, 'cursor'):
+            row = cerebro.cursor.execute(
+                "SELECT vector FROM nodos_sdm WHERE concepto = ?", (nodo_concepto,)
+            ).fetchone()
+            if row:
+                n_vec = row[0]
+        if n_vec is None:
+            from core.sdm import generar_vector_sdm
+            n_vec = generar_vector_sdm(nodo_concepto, nodo_contenido or "")
+        q_vec = _sdm_query_vector_cache.get("vector")
+        if q_vec is not None:
+            score_sdm = similitud_sdm(q_vec, n_vec)
     except Exception:
         pass
 
@@ -343,7 +358,7 @@ def _obtener_candidatos_similitud(cursor, query_tokens):
             return []
 
 
-def buscar_por_similitud_latente(cursor, frase, limite=None, umbral=None):
+def buscar_por_similitud_latente(cursor, frase, limite=None, umbral=None, cerebro=None):
     """
     Búsqueda por similitud conceptual latente con Propagación Sináptica.
 
@@ -407,6 +422,15 @@ def buscar_por_similitud_latente(cursor, frase, limite=None, umbral=None):
     except sqlite3.OperationalError:
         nodos_cache = None
 
+    # Pre-generar vector SDM del query (una sola vez para todos los candidatos)
+    _sdm_query_vector_cache.clear()
+    try:
+        from core.sdm import generar_vector_sdm
+        q_str = " ".join(query_tokens)
+        _sdm_query_vector_cache["vector"] = generar_vector_sdm(q_str, q_str)
+    except Exception:
+        pass
+
     try:
         # Pre-filtro suave: permitir que más candidatos pasen a la Fase 2.
         # El umbral real se aplica DESPUÉS de la propagación sináptica.
@@ -414,7 +438,7 @@ def buscar_por_similitud_latente(cursor, frase, limite=None, umbral=None):
         # activación llegue a ella — espera a ver si recibe energía.
         umbral_prefiltro = umbral * 0.5
         for rowid, concepto, contenido, peso, estado, asoc in candidatos:
-            s = score_similitud_latente(cursor, query_tokens, concepto, contenido, grafo=grafo, nodos_cache=nodos_cache)
+            s = score_similitud_latente(cursor, query_tokens, concepto, contenido, grafo=grafo, nodos_cache=nodos_cache, cerebro=cerebro)
             if s >= umbral_prefiltro:
                 scored.append((s, (rowid, concepto, contenido, peso, estado, asoc or "")))
     finally:

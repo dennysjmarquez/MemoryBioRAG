@@ -3109,7 +3109,7 @@ class SQLiteMemoryBioRAG:
                                 for rowid, concepto, contenido, peso, estado, asoc in candidatos_lat:
                                     if rowid in seen_rowids:
                                         continue
-                                    s = score_similitud_latente(self.cursor, query_tokens, concepto, contenido, grafo=grafo, nodos_cache=nodos_cache)
+                                    s = score_similitud_latente(self.cursor, query_tokens, concepto, contenido, grafo=grafo, nodos_cache=nodos_cache, cerebro=self)
                                     if s >= 0.15:
                                         scored.append((s, (rowid, concepto, contenido, peso, estado, asoc or "")))
                                 scored.sort(key=lambda x: x[0], reverse=True)
@@ -4070,7 +4070,7 @@ class SQLiteMemoryBioRAG:
             score_hibrido = self._calcular_score_hibrido(
                 bm25_norm=bm25_norm_map.get(concepto, 0.0),
                 dim_score=dim_score,
-                peso_sinaptico=0.0 if ignore_peso_sinaptico else peso,
+                peso_sinaptico=peso,
                 concepto_ratio=0.0,
                 sinonimos_ratio=0.0,
                 score_latente=densidad,
