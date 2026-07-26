@@ -268,15 +268,16 @@ metricas_cognitivas_nodos (metrica_id FK, largo_plazo_id FK, accion, peso_nuevo)
 ### 6.2 Scoring Híbrido — 9 Señales Ortogonales
 
 ```
-score = 0.15 × BM25_norm
-      + 0.15 × dim_score (coseno binario dimensiones)
-      + 0.10 × grupo_score (WordNet Jaccard)
-      + 0.175 × concepto_ratio (match en nombre)
-      + 0.125 × sinonimos_ratio (match en sinónimos)
+score = 0.25 × BM25_norm
+      + 0.14 × dim_score (coseno binario dimensiones)
+      + 0.08 × concepto_ratio (match en nombre)
+      + 0.08 × sinonimos_ratio (match en sinónimos)
       + 0.10 × peso_sinaptico (fuerza del nodo)
       + 0.10 × max(score_latente, score_cadena)
-      + 0.05 × temporal (recencia)
-      + 0.05 × asoc_count (grado del nodo)
+      + 0.10 × grupo_score (WordNet Jaccard)
+      + 0.08 × tematico_score (competidores del mismo dominio)
+      + 0.04 × temporal (recencia)
+      + 0.02 × asoc_count (grado del nodo)
 
 Si match_exacto (query == concepto): floor 0.95
 ```

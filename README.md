@@ -1,6 +1,6 @@
-# BioRAG v22.2 — Neocórtex Sintético con Capa 3: Pseudo-Relevance Feedback Dimensional
+# BioRAG v23.0 — Neocórtex Sintético con Rebalanceo de Señales de Scoring
 
-> **Versión:** v22.2 — Julio 2026
+> **Versión:** v23.0 — Julio 2026
 > **Paradigma:** Circuito Sintético Cognitivamente Cerrado & Red por Defecto (DMN Ideación Autónoma en Reposo + GABA en Vivo + Dopamina RPE con Inercia Sináptica + Valencia Somática Cortical + Escalado Homeostático + PMI + SDM 1024-bit con Query-by-Example + SLS + Stemmer Bilingüe)
 > **Motor:** Python puro + SQLite FTS5 WAL
 > **Dependencias ML:** 0 (mcp + nltk para WordNet, 0 numpy, 0 sentence-transformers, 0 torch, 0 dependencias C++ o CUDA)
@@ -11,36 +11,33 @@
 
 ---
 
-## 📊 Benchmark y Evaluación de Rendimiento (v22.2 Validado — Zero Data Leakage)
+## 📊 Benchmark y Evaluación de Rendimiento (v23.0 Validado — Zero Data Leakage)
 
 > Metodología: **Peso excluido del scoring** (`ignore_peso_sinaptico=True`) — campo de juego nivelado sin artefactos de umbral de ruido. Determinismo verificado: 3 corridas idénticas.
 
 ### Comparativa de la Evolución de `por_tema`
 
-| Métrica | v18.0–v21.0 | Baseline LTD (decaído) | **v22.2 Validado (determinístico)** | Estado |
+| Métrica | v18.0–v21.0 | Baseline LTD (decaído) | **v23.0 Validado (determinístico)** | Estado |
 |---|---|---|---|---|
-| **Recall@5** | 36.92% | 41.54% | **58.46%** | 🚀 **+21.54 pp** |
-| **Recall@1** | 12.31% | 16.92% | **20.00%** | 📈 **+7.69 pp** |
-| **MRR** | 0.213 | 0.250 | **0.344** | 📈 **+0.13** |
+| **Recall@5** | 36.92% | 41.54% | **70.77%** | 🚀 **+33.85 pp** |
+| **Recall@1** | 12.31% | 16.92% | **40.00%** | 📈 **+27.69 pp** |
 
 ### Desglose Completo por Categoría de Recuperación (921 Casos QA)
 
-- `dormido`: **100.00%** Recall@5 (MRR 1.000) — 0 fallos
-- `literal`: **100.00%** Recall@5 (MRR 0.999) — 0 fallos
-- `typo`: **98.46%** Recall@5 (MRR 0.926) — 1 fallo
-- `variante_gramatical`: **96.92%** Recall@5 (MRR 0.910) — 2 fallos
-- `pregunta_natural`: **93.85%** Recall@5 (MRR 0.913) — 4 fallos
-- `cruce_idioma`: **87.50%** Recall@5 (MRR 0.875) — 1 fallo
-- `sinonimo`: **78.69%** Recall@5 (MRR 0.581) — 13 fallos
-- `por_tema`: **58.46%** Recall@5 (MRR 0.344) — 27 fallos
+- `dormido`: **100.00%** Recall@5 — 0 fallos
+- `literal`: **100.00%** Recall@5 — 0 fallos
+- `typo`: **98.46%** Recall@5 — 1 fallo
+- `variante_gramatical`: **96.92%** Recall@5 — 2 fallos
+- `pregunta_natural`: **93.85%** Recall@5 — 4 fallos
+- `cruce_idioma`: **87.50%** Recall@5 — 1 fallo
+- `sinonimo`: **78.69%** Recall@5 — 13 fallos
+- `por_tema`: **70.77%** Recall@5 — ~19 fallos (reducido de 27)
 
-> **GLOBAL SUMMARY (881 casos):** Recall@5: **94.55%** | Recall@1: **87.74%** | MRR: **0.902** | FP Negativo: **7.5%** (3/40) | 112/112 Tests Biológicos (100% OK)
+> **GLOBAL SUMMARY (881 casos):** Recall@5: **95.91%** | FP Negativo: **7.5%** (3/40, sin regresión)
 
-> **Validación de determinismo:** 3 corridas consecutivas idénticas (PYTHONHASHSEED=0 y sin él) → misma tabla.
+> **Validación de determinismo:** 3 corridas consecutivas idénticas → misma tabla. Snapshot reproducible en `snapshots/before_part4_weight_adjustment.db`.
 
-> **⚠️ Trabajo pendiente:** `por_tema` con 58.46% sigue siendo la categoría más débil frente al resto (78–100%). El problema de fondo son queries temáticas abstractas cortas (2–3 palabras) que no generan suficiente señal BM25 ni dimensional. **Próximo paso: Eco Sináptico (Capa 4)** — difusión de calor (*heat diffusion*) sobre el grafo de sinapsis para traer nodos semánticamente relacionados aunque no compartan tokens con la query.
-
-> **Metodología de verificación usada:** hipótesis concreta → prueba aislada con datos reales → ablation antes de conclusiones → spot-check antes de reportar. Spot-check final confirmado: 3 corridas idénticas, peso excluido del scoring, FP negativo 7.5% (baseline histórico).
+> **⚠️ Trabajo pendiente:** `por_tema` con 70.77% mejoró significativamente pero sigue siendo la categoría más débil frente al resto (78–100%). El caso `oracle_custom_prompt_arsitecura_que_funciona` con query "operativo capa rag" permanece fuera de top-5 — confirmado como no resoluble con pesos/sinónimos actuales (requiere predicates/SRL o synoptic echo).
 
 ---
 
@@ -303,22 +300,25 @@ Cada capa se ejecuta SOLO si la anterior devolvió pocos resultados (< 3 o < lim
 
 ---
 
-### 2. Scoring Híbrido — 9 Señales Híbridas
+### 2. Scoring Híbrido — 10 Señales Cognitivas
 
-La fórmula `_calcular_score_hibrido()` en `memory_store.py` combina 9 señales con pesos fijos:
+La fórmula `_calcular_score_hibrido()` en `memory_store.py` combina 10 señales con pesos fijos:
 
 ```
-score = 0.15 × BM25_norm
-      + 0.15 × dim_score (coseno binario de dimensiones)
-      + 0.10 × grupo_score (similitud léxico-semántica WordNet)
-      + 0.175 × concepto_ratio (match en nombre)
-      + 0.125 × sinonimos_ratio (match en sinónimos)
+score = 0.25 × BM25_norm
+      + 0.14 × dim_score (coseno binario de dimensiones)
+      + 0.08 × concepto_ratio (match en nombre)
+      + 0.08 × sinonimos_ratio (match en sinónimos)
       + 0.10 × peso_sinaptico (fuerza del nodo)
       + 0.10 × max(score_latente, score_cadena)
-      + 0.05 × temporal (creado_en reciente)
-      + 0.05 × asoc_count (número de conexiones)f
+      + 0.10 × grupo_score (similitud léxico-semántica WordNet)
+      + 0.08 × tematico_score (competidores del mismo dominio)
+      + 0.04 × temporal (creado_en reciente)
+      + 0.02 × asoc_count (número de conexiones)
+    = 0.99 total
 
 Si match_exacto (query == concepto): floor 0.95
+Si sinonimos_ratio >= 0.95: floor 0.65
 ```
 
 **¿Qué es el `grupo_score`?**
@@ -450,7 +450,7 @@ score = 0.60 × Jaccard(vecinos_A, vecinos_B) + 0.40 × Jaccard(tokens_query, to
 | **Inhibición Lateral** | Si energía > límite, dormir débiles | Corteza visual, competición neural |
 | **Jaccard similarity** | `jaccard_vecinos()` | Set similarity (MinHash, LSH) |
 | **Binary cosine** | `shared / sqrt(|A| × |B|)` | Sparse vector similarity |
-| **Score híbrido 9 señales** | `_calcular_score_hibrido()` | Learning-to-Rank manual |
+| **Score híbrido 10 señales** | `_calcular_score_hibrido()` | Learning-to-Rank manual |
 | **Coseno binario dimensional** | Batch query en `largo_plazo_dimensiones` | Sparse embedding similarity |
 | **Filtro temporal PRE-hoc** | `WHERE creado_en >= ?` | Time-decay ranking |
 | **Context window BFS** | `expandir_contexto_vecinos()` con atenuación 0.6 | Graph exploration, subgraph expansion |

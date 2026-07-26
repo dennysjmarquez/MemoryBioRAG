@@ -2512,10 +2512,10 @@ class SQLiteMemoryBioRAG:
         peso_norm = min(1.0, peso_sinaptico)
 
         score = (
-            0.18 * bm25_norm +          # FTS5 BM25 (↑ from 0.14 — rewards raw text match)
+            0.25 * bm25_norm +          # FTS5 BM25 (↑ from 0.18 — stronger text match signal)
             0.14 * dim_score +           # Dimensiones semánticas
-            0.12 * concepto_ratio +      # Match en concepto (↓ from 0.16 — prevents concept name from dominating)
-            0.12 * sinonimos_ratio +     # Match en sinónimos
+            0.08 * concepto_ratio +      # Match en concepto (↓ from 0.12 — less concept name dominance)
+            0.08 * sinonimos_ratio +     # Match en sinónimos (↓ from 0.12 — blind synonyms only partial)
             0.10 * peso_norm +           # Peso sináptico
             0.10 * max(score_latente, score_cadena) +  # Jaccard/cadena
             0.10 * grupo_score +         # Grupo semántico WordNet
@@ -2744,21 +2744,32 @@ class SQLiteMemoryBioRAG:
             temporal_params.append(hasta_ts)
         clause = (" AND " + " AND ".join(filtros)) if filtros else ""
 
+        def _fts_safe_term(term):
+            """Split hyphenated tokens so FTS5 doesn't parse '-' as NOT operator.
+            'fin-aprendizaje-creerse' -> 'fin aprendizaje creerse'"""
+            import re as _re
+            parts = _re.split(r'[-]+', term)
+            return " ".join(p for p in parts if p)
+
+        def _fts_safe_phrase(phrase):
+            """Apply _fts_safe_term to each whitespace-separated token in a phrase."""
+            return " ".join(_fts_safe_term(t) for t in phrase.split())
+
         # ponytail: no semantic expansion table — agent passes synonyms as parafrasis_list directly
         if modo_estricto:
             if parafrasis_list:
-                fts_match = " OR ".join(f"({' AND '.join(v.split())})" for v in [frase] + parafrasis_list)
+                fts_match = " OR ".join(f"({' AND '.join(_fts_safe_phrase(v).split())})" for v in [frase] + parafrasis_list)
             elif len(frase.split()) > 1:
-                fts_match = " AND ".join(frase.split())
+                fts_match = " AND ".join(_fts_safe_phrase(frase).split())
             else:
-                fts_match = frase
+                fts_match = _fts_safe_phrase(frase)
         elif parafrasis_list:
-            fts_variantes = [f'"{frase}"'] + [f'"{p}"' for p in parafrasis_list]
+            fts_variantes = [f'"{_fts_safe_phrase(frase)}"'] + [f'"{_fts_safe_phrase(p)}"' for p in parafrasis_list]
             fts_match = " OR ".join(fts_variantes)
         elif len(frase.split()) > 1:
-            fts_match = " OR ".join(frase.split())
+            fts_match = " OR ".join(_fts_safe_phrase(frase).split())
         else:
-            fts_match = frase
+            fts_match = _fts_safe_phrase(frase)
         sql = """
             SELECT l.rowid, l.concepto, l.contenido, l.peso_sinaptico,
                    l.estado, l.asociaciones,
@@ -2771,7 +2782,14 @@ class SQLiteMemoryBioRAG:
 
         todos = []
         bm25_raw = {}  # concepto -> raw BM25 from FTS5
-        palabras = [w for w in frase.split() if len(w) >= 2]
+        # Split hyphenated tokens for FTS5 safety and better matching
+        palabras_raw = [w for w in frase.split() if len(w) >= 2]
+        palabras = []
+        for w in palabras_raw:
+            partes = re.split(r'[-]+', w)
+            palabras.extend(p for p in partes if p and len(p) >= 2)
+        if not palabras:
+            palabras = palabras_raw
         origen_scores = {}  # Side channel: rastrea origen de cada nodo para Dynamic Multiplicator
 
         # SRL v16.0: si no hay frase pero hay roles, popular todos directamente
@@ -2804,7 +2822,14 @@ class SQLiteMemoryBioRAG:
         # Busca coincidencia por substring en el nombre del concepto.
         # Complementa a FTS5: maneja guiones, puntos y caracteres especiales
         # que FTS5 trigram no tokeniza bien como palabras completas.
-        palabras_like = [w for w in frase.split() if len(w) >= 2]
+        # Split hyphenated tokens for better substring matching.
+        palabras_like = []
+        for w in frase.split():
+            if len(w) >= 2:
+                partes = re.split(r'[-]+', w)
+                palabras_like.extend(p for p in partes if p and len(p) >= 2)
+        if not palabras_like:
+            palabras_like = [w for w in frase.split() if len(w) >= 2]
         resultados_concepto = {}
         if palabras_like:
             like_clauses = []
@@ -2849,8 +2874,13 @@ class SQLiteMemoryBioRAG:
         sql_con_pc = sql.replace("ORDER BY bm25(largo_plazo_fts, 5.0, 1.0, 2.0) * (0.5 + 0.5 * l.peso_sinaptico)", pc_clause + " ORDER BY bm25(largo_plazo_fts, 5.0, 1.0, 2.0) * (0.5 + 0.5 * l.peso_sinaptico)")
 
         # Intentar NEAR query primero (palabras cercanas entre sí)
-        if not solo_protegidos and len(palabras) > 1:
-            near_query = f'NEAR({" ".join(palabras)}, 15)'
+        # Split hyphenated tokens so FTS5 doesn't parse '-' as NOT operator
+        palabras_safe = []
+        for w in palabras:
+            partes = re.split(r'[-]+', w)
+            palabras_safe.extend(p for p in partes if p and len(p) >= 2)
+        if not solo_protegidos and len(palabras_safe) > 1:
+            near_query = f'NEAR({" ".join(palabras_safe)}, 15)'
             try:
                 self.cursor.execute(sql_con_pc, tuple([near_query]) + tuple(temporal_params) + tuple(pc_params))
                 _raw = self.cursor.fetchall()

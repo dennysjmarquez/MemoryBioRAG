@@ -1,0 +1,204 @@
+{
+  "clusters": [
+    [
+      3,
+      4,
+      13,
+      16,
+      24,
+      25,
+      90,
+      95,
+      98,
+      102,
+      103,
+      113,
+      118
+    ],
+    [
+      1,
+      7,
+      12,
+      14,
+      17,
+      21,
+      78,
+      79,
+      109,
+      112,
+      114
+    ],
+    [
+      20,
+      121
+    ],
+    [
+      2
+    ],
+    [
+      5
+    ],
+    [
+      6
+    ],
+    [
+      8
+    ],
+    [
+      11
+    ],
+    [
+      18
+    ],
+    [
+      19
+    ],
+    [
+      22
+    ],
+    [
+      23
+    ],
+    [
+      76
+    ],
+    [
+      81
+    ],
+    [
+      91
+    ],
+    [
+      92
+    ],
+    [
+      96
+    ],
+    [
+      101
+    ],
+    [
+      104
+    ],
+    [
+      105
+    ],
+    [
+      106
+    ],
+    [
+      107
+    ],
+    [
+      108
+    ],
+    [
+      111
+    ],
+    [
+      38027
+    ]
+  ],
+  "idf": {
+    "1": 1.7186,
+    "2": 2.9832,
+    "3": 4.5518,
+    "4": 4.5518,
+    "5": 4.5518,
+    "6": 5.4681,
+    "7": 1.9716,
+    "8": 3.0257,
+    "11": 4.5518,
+    "12": 0.3471,
+    "13": 4.5518,
+    "14": 1.9565,
+    "16": 5.4681,
+    "17": 0.8679,
+    "18": 5.4681,
+    "19": 4.0818,
+    "20": 4.7749,
+    "21": 1.6839,
+    "22": 3.5221,
+    "23": 3.328,
+    "24": 3.7633,
+    "25": 4.0818,
+    "76": 5.4681,
+    "78": 0.4742,
+    "79": 1.4076,
+    "81": 4.7749,
+    "90": 5.0626,
+    "91": 2.6647,
+    "92": 4.5518,
+    "95": 5.4681,
+    "96": 3.7633,
+    "98": 5.4681,
+    "101": 3.6763,
+    "102": 5.4681,
+    "103": 5.4681,
+    "104": 2.9832,
+    "105": 5.4681,
+    "106": 2.9423,
+    "107": 3.964,
+    "108": 2.7272,
+    "109": 0.1951,
+    "111": 3.3886,
+    "112": 0.5336,
+    "113": 3.964,
+    "114": 0.9517,
+    "118": 5.4681,
+    "121": 5.4681,
+    "38027": 3.0702
+  },
+  "umbral": 0.25,
+  "total_nodos": 474,
+  "dim_names": {
+    "1": "afecto",
+    "2": "alegria",
+    "3": "frustracion",
+    "4": "tristeza",
+    "5": "preocupacion",
+    "6": "confusion",
+    "7": "sorpresa",
+    "8": "identidad_individual",
+    "11": "identidad_digital",
+    "12": "identidad_artificial",
+    "13": "identidad_fisica_hardware",
+    "14": "identidad_natural",
+    "16": "accion_transformacion_material",
+    "17": "accion_persistencia_computacion",
+    "18": "accion_rutina_automatica",
+    "19": "accion_comunicacion",
+    "20": "accion_interaccion_social",
+    "21": "accion_cognitiva",
+    "22": "accion_estado_ser",
+    "23": "cualidad_dimension_fisica",
+    "24": "cualidad_estado_condicion",
+    "25": "cualidad_valoracion",
+    "76": "cualidad_temporal_duracion",
+    "78": "cualidad_abstracta_conceptual",
+    "79": "coordenada_cronologia_absoluta",
+    "81": "coordenada_secuencia_relativa",
+    "90": "culpa",
+    "91": "satisfaccion",
+    "92": "identidad_concepto",
+    "95": "identidad_vinculo",
+    "96": "accion_evaluar",
+    "98": "accion_fallar",
+    "101": "cualidad_autentica",
+    "102": "coordenada_etapa",
+    "103": "coordenada_hito",
+    "104": "intencion_aprender",
+    "105": "intencion_decidir",
+    "106": "intencion_reflexionar",
+    "107": "intencion_resolver",
+    "108": "intencion_solucionar",
+    "109": "intencion_documentar",
+    "111": "intencion_registrar",
+    "112": "dominio_tecnico",
+    "113": "dominio_personal",
+    "114": "dominio_profesional",
+    "118": "dominio_ambiental",
+    "121": "dominio_espiritual",
+    "38027": "auto_dennys_biorag_verdad"
+  }
+}

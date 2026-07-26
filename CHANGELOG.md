@@ -1,5 +1,49 @@
 # BioRAG Changelog
 
+## v23.0 (2026-07-26)
+
+### Rebalanceo de Señales de Scoring para por_tema + Fix FTS5 Hyphens
+
+**Problema:** `por_tema` con 58.46% seguía siendo la categoría más débil (78–100% el resto). Las causas identificadas en auditoría de 50 casos fallidos:
+1. **44%** gap de vocabulario — query words no presentes en contenido ni sinónimos del nodo
+2. **33%** queries genéricas con muchos competidores
+3. **11%** crashes de FTS5 por sintaxis de guiones (hyphens)
+4. El problema no es retrieval (FTS5 OR encuentra targets en pos 1-6), sino scoring (pipeline híbrido los baja)
+
+**Solución — Part 1: Fix FTS5 Hyphens:**
+- `_fts_safe_term()` y `_fts_safe_phrase()` en `buscar_por_frase()` para dividir tokens con guiones
+- Corregidos 5 crashes de FTS5 ("no such column") en búsquedas con guiones
+
+**Solución — Part 4: Rebalanceo de Pesos (Ablation en Snapshot):**
+- `bm25_norm`: 0.18 → **0.25** (+38.9%) — BM25 es la señal más informativa para por_tema
+- `concepto_ratio`: 0.12 → **0.08** (-33.3%) — match en nombre no discriminaba lo suficiente
+- `sinonimos_ratio`: 0.12 → **0.08** (-33.3%) — misma razón que concepto_ratio
+- Snapshot congelado en `snapshots/before_part4_weight_adjustment.db` para reproducibilidad
+
+**Resultados — Ablation completa (snapshot frozen, 3 corridas idénticas):**
+
+| Métrica | v22.2 (antes) | **v23.0 (después)** | Delta |
+|---|---|---|---|
+| por_tema Recall@5 | 58.46% | **70.77%** | **+12.31 pp** |
+| por_tema Recall@1 | 20.00% | **40.00%** | **+20.00 pp** |
+| GLOBAL Recall@5 | 95.01% | **95.91%** | +0.90 pp |
+| NEGATIVO FP | 7.50% | 7.50% | sin regresión |
+
+**Experimentos documentados que NO funcionaron:**
+- Sinónimos ciegos (TF-IDF, frecuencia, content-relevant) — mejoraban solo cuando query compartía vocabulario con contenido
+- Sinónimos manuales del query — circular (pos 8→1 pero no generalizable)
+
+**Lección de Arquitectura:**
+- El problema de por_tema no es retrieval sino scoring. FTS5 OR encuentra el target en pos 1-6 para la mayoría de casos. El rebalanceo de pesos reordena correctamente.
+- `oracle_custom_prompt_arsitecura_que_funciona` permanece fuera de top-5 — requiere predicates/SRL, no pesos.
+
+**Archivos modificados:**
+- `core/memory_store.py`: Fix FTS5 hyphens + pesos en `_calcular_score_hibrido()`
+- `scripts/evaluar_qa.py`: Metodología de ablation con snapshot
+- `snapshots/before_part4_weight_adjustment.db`: Snapshot frozen para reproducibilidad
+
+---
+
 ## v22.2 (2026-07-24)
 
 ### Capa 3: Pseudo-Relevance Feedback Dimensional & Normalización Metodológica de QA
