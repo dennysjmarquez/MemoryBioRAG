@@ -1,6 +1,6 @@
-# BioRAG v23.1 — Neocórtex Sintético con Predicados SRL y Feedback-Driven Graph Learning
+# BioRAG v24.1 — Neocórtex Sintético con La Hormiguita y Grafo Maintenance Daemon
 
-> **Versión:** v23.1 — Julio 2026
+> **Versión:** v24.1 — Julio 2026
 > **Paradigma:** Circuito Sintético Cognitivamente Cerrado & Red por Defecto (DMN Ideación Autónoma en Reposo + GABA en Vivo + Dopamina RPE con Inercia Sináptica + Valencia Somática Cortical + Escalado Homeostático + PMI + SDM 1024-bit con Query-by-Example + SLS + Stemmer Bilingüe + Predicados SRL + Feedback-Driven Graph Learning)
 > **Motor:** Python puro + SQLite FTS5 WAL
 > **Dependencias ML:** 0 (mcp + nltk para WordNet, 0 numpy, 0 sentence-transformers, 0 torch, 0 dependencias C++ o CUDA)
@@ -11,7 +11,7 @@
 
 ---
 
-## 📊 Benchmark y Evaluación de Rendimiento (v23.1 Validado — Zero Data Leakage)
+## 📊 Benchmark y Evaluación de Rendimiento (v24.1 Validado — Zero Data Leakage)
 
 > Metodología: **Peso excluido del scoring** (`ignore_peso_sinaptico=True`) — campo de juego nivelado sin artefactos de umbral de ruido. Determinismo verificado: 2 corridas idénticas.
 

@@ -21,3 +21,7 @@ Thumbs.db
 # React project (subfolder, not tracked in main repo)
 dashboard-neuro-visor/node_modules/
 dashboard-neuro-visor/dist/
+
+.env.local
+
+estado_hormiga.json

@@ -1817,6 +1817,115 @@ def _build_server():
         return biorag_consolidar()
 
     @mcp.tool(
+        name="hormiguita",
+        description=(
+            "Ejecuta un ciclo de mantenimiento del grafo (la Hormiguita). "
+            "Evalúa sinapsis directas y latentes de nodos usando IA (Gemini) "
+            "y poda conexiones espurias. Usa pre-filtrado para ahorrar tokens.\n\n"
+            "Parámetros:\n"
+            "- max_nodos (int, opcional): Máximo de nodos a procesar (default: 5)\n"
+            "- nodo_especifico (str, opcional): Procesar solo un nodo específico\n\n"
+            "Retorna: resumen del ciclo con nodos procesados, eliminados, pre-filtrados."
+        ),
+    )
+    def biorag_hormiguita(max_nodos: int = 5, nodo_especifico: str = "") -> str:
+        from core.dmn_reflexion import (
+            ejecutar_ciclo_reflexivo,
+            _construir_payload_nodo,
+            _llamar_gemini_nodo,
+            _aplicar_veredicto_nodo,
+            _cargar_estado,
+        )
+        
+        cerebro = _get_cerebro()
+        try:
+            # Modo específico: procesar un solo nodo
+            if nodo_especifico:
+                resultado_payload = _construir_payload_nodo(nodo_especifico, cerebro)
+                if not resultado_payload:
+                    return json.dumps({
+                        "status": "error",
+                        "mensaje": f"Nodo '{nodo_especifico}' no encontrado o inactivo",
+                    }, ensure_ascii=False)
+                
+                payload, prefiltro_data = resultado_payload
+                
+                # Estadísticas de pre-filtrado
+                stats_prefiltro = {
+                    "total_original": payload.get("_meta_prefiltrado", {}).get("total_original", 0),
+                    "candidatas": payload.get("_meta_prefiltrado", {}).get("candidatas", 0),
+                    "cortadas_directo": payload.get("_meta_prefiltrado", {}).get("cortadas_directo", 0),
+                    "mantenidas_directo": payload.get("_meta_prefiltrado", {}).get("mantenidas_directo", 0),
+                }
+                
+                # Aplicar cortes directos
+                cortes_directos = 0
+                cursor = cerebro.conn.cursor()
+                for s in prefiltro_data.get("cortadas_directas", []):
+                    cursor.execute(
+                        "DELETE FROM sinapsis WHERE origen = ? AND destino = ?",
+                        (nodo_especifico, s.get("destino", ""))
+                    )
+                    cortes_directos += 1
+                for s in prefiltro_data.get("cortadas_latentes", []):
+                    cursor.execute(
+                        "DELETE FROM sinapsis_latentes WHERE origen = ? AND destino = ?",
+                        (nodo_especifico, s.get("destino", ""))
+                    )
+                    cortes_directos += 1
+                cerebro.conn.commit()
+                
+                # Llamar a Gemini si hay candidatas
+                veredictos_llm = []
+                if payload.get("sinapsis_directas") or payload.get("sinapsis_latentes"):
+                    veredictos = _llamar_gemini_nodo(payload)
+                    if veredictos:
+                        for v in veredictos:
+                            if isinstance(v, dict):
+                                _aplicar_veredicto_nodo(nodo_especifico, v, cerebro)
+                                veredictos_llm.append(v)
+                        cerebro.conn.commit()
+                
+                return json.dumps({
+                    "status": "ok",
+                    "nodo": nodo_especifico,
+                    "prefiltrado": stats_prefiltro,
+                    "cortes_directos": cortes_directos,
+                    "veredictos_llm": len(veredictos_llm),
+                    "detalles_veredictos": veredictos_llm[:20],
+                }, ensure_ascii=False, default=str)
+            
+            # Modo general: ejecutar ciclo con la hormiguita
+            resultado = ejecutar_ciclo_reflexivo(cerebro, max_nodos=max_nodos)
+            return json.dumps({
+                "status": "ok",
+                "resultado": resultado,
+            }, ensure_ascii=False, default=str)
+        
+        finally:
+            cerebro.cerrar_sistema()
+
+    @mcp.tool(
+        name="hormiguita_estado",
+        description=(
+            "Muestra el estado actual de la hormiguita: nodos visitados, "
+            "frontier pendiente, ciclos completados, tokens gastados. Sin parámetros."
+        ),
+    )
+    def biorag_hormiguita_estado() -> str:
+        from core.dmn_reflexion import _cargar_estado
+        estado = _cargar_estado()
+        return json.dumps({
+            "ciclos_completados": estado.get("ciclos_completados", 0),
+            "nodo_actual": estado.get("nodo_actual"),
+            "visitados_hoy": len(estado.get("visitados_hoy", [])),
+            "visitados_total": len(estado.get("visitados_total", [])),
+            "frontier_pendiente": len(estado.get("frontier", [])),
+            "tokens_gastados_hoy": estado.get("tokens_gastados_hoy", 0),
+            "frontier_preview": estado.get("frontier", [])[:10],
+        }, ensure_ascii=False, default=str)
+
+    @mcp.tool(
         name="introspeccion",
         description=(
             "Mirá el estado de la memoria. No modifica nada — solo muestra cuántos nodos activos, dormidos, en corto plazo, y cuánta energía sináptica queda. Sin parámetros."

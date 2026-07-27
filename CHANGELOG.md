@@ -1,5 +1,49 @@
 # BioRAG Changelog
 
+## v24.1 (2026-07-27)
+
+### La Hormiguita — Sistema de Mantenimiento Seguro y Automedible
+
+**Objetivo:** Proteger el grafo contra degradación con cuarentena, benchmark gate, two-strike pruning, batching con resume y pre-filter opcional.
+
+**Features:**
+- **Cuarentena de sinapsis** (`sinapsis_cuarentena`): soft-delete reversible por 30 días. Sinapsis eliminadas van a cuarentena, restaurables con `restaurar_cuarentena()`
+- **Benchmark gate**: Mini-eval automática de 40 casos cada 25 nodos. Si recall cae >2.0 pts → auto-restaurar cuarentena + alertar. Baseline: 80.0% (32/40 positivos)
+- **Two-strike pruning** (latentes): strike 1 = attenuate (peso×0.5), strike 2 = cuarentena. conf≥0.90 = cuarentena directa. "confirmar" resetea strikes
+- **Batching con resume**: `TAMANO_LOTE_SINAPSIS=10` sinapsis por llamada a Gemini. Estado persistido después de cada lote. Resume exacto tras crash
+- **Pre-filter opcional**: `BIORAG_HORMIGA_PRE_FILTRO=0` por defecto. Gemini juzga TODAS las sinapsis con contenido completo. Pre-filtrado determinista opcional para ahorrar tokens
+- **Anti-over-pruning floor**: `MIN_CONEXIONES_POR_NODO=5` — corte diferido cuando nodo llega al mínimo
+- **WAL mode + busy_timeout=5000**: SQLite permite lectores paralelos + 1 writer en ext4 local
+- **Tablas nuevas**: `sinapsis_cuarentena` con índices en origen + timestamp; `strikes` en `sinapsis_latentes`
+- **Herramientas MCP**: `hormiguita` (con `max_nodos`, `nodo_especifico`) y `hormiguita_estado`
+- **Daemon wrapper**: `graph_maintenance_daemon.py` — lock file, scheduler, resume, CLI (--once/--status/--reset)
+
+**Archivos modificados:**
+- `core/dmn_reflexion.py` — batching, cuarentena, benchmark gate, two-strike, pre-filter opcional
+- `mcp_server.py` — herramientas hormiguita y hormiguita_estado
+- `graph_maintenance_daemon.py` — daemon wrapper (nuevo)
+
+**Constants configurables via env:**
+- `BIORAG_HORMIGA_LOTE_SINAPSIS`, `BIORAG_HORMIGA_MIN_CONEXIONES`
+- `BIORAG_HORMIGA_BENCHMARK_CADA_N`, `BIORAG_HORMIGA_BENCHMARK_TOLERANCIA`
+- `BIORAG_HORMIGA_PRE_FILTRO`, `BIORAG_HORMIGA_UMBRAL_LATENTE_DIRECTO`
+- `BIORAG_HORMIGA_RETENCION_CUARENTENA_DIAS`, `BIORAG_HORMIGA_PESO_ATENUACION`
+
+---
+
+## v24.0 (2026-07-27)
+
+### La Hormiguita — Grafo Maintenance Daemon con Gemini AI
+
+**Objetivo:** Daemon background que valida y poda conexiones del grafo usando Gemini como juez experto.
+
+**Implementación:**
+- `core/dmn_reflexion.py`: `_reflexionar_nodo()` — batched Gemini evaluation, pre-filtering determinista
+- `graph_maintenance_daemon.py`: daemon con lock, scheduler, resume
+- MCP tools: `hormiguita` y `hormiguita_estado`
+- Pre-filtrado: redujo 1173 candidates a 60 para Gemini (verificación en `biorag_v21_hypothesis_natural_selection`)
+- Primer ciclo exitoso: 15 nodos → 24 sinapsis eliminadas, 0 huérfanos
+
 ## v23.1 (2026-07-26)
 
 ### Predicados SRL + Feedback-Driven Graph Learning
