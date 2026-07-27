@@ -2895,7 +2895,7 @@ def main(argv: Optional[list[str]] = None) -> int:
     # Asegurar que el daemon de mantenimiento del grafo esté vivo
     try:
         from core.daemon_lifecycle import ensure_daemon_alive
-        if ensure_daemon_alive():
+        if ensure_daemon_alive(intervalo_horas=0):
             sys.stderr.write("Hormiguita daemon: vivo\n")
         else:
             sys.stderr.write("Hormiguita daemon: no disponible (se intentará en próximo ciclo)\n")

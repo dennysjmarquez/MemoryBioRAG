@@ -187,9 +187,11 @@ class GraphMaintenanceDaemon:
             
             # Log resultado
             if resultado.get("resultado") == "quota_agotada":
+                retry_s = resultado.get("retry_after_seconds", 0)
+                retry_h = retry_s / 3600 if retry_s > 0 else self.intervalo_horas
                 self.logger.warning(
                     f"[Daemon] Quota agotada: {resultado.get('motivo', 'unknown')}. "
-                    f"Próximo intento en {self.intervalo_horas}h."
+                    f"Próximo intento en {retry_h:.1f}h ({retry_s}s)."
                 )
             else:
                 self.logger.info(
@@ -281,14 +283,47 @@ class GraphMaintenanceDaemon:
             if not self.running:
                 break
             
-            # Calcular espera
-            if resultado.get("resultado") == "quota_agotada":
-                # Si quota agotada, esperar menos (reintentar pronto)
-                espera_segundos = min(3600, self.intervalo_horas * 3600)  # Max 1h
-                self.logger.info(f"[Daemon] Esperando {espera_segundos/3600:.1f}h (quota agotada)")
+            # Modo "hasta morir" (intervalo=0): sin sleep entre ciclos,
+            # retry cuando quota se agota, esperar 2 días cuando grafo completo
+            if self.intervalo_horas == 0:
+                if resultado.get("resultado") == "quota_agotada":
+                    retry_seconds = resultado.get("retry_after_seconds", 0)
+                    if retry_seconds > 0:
+                        espera_segundos = retry_seconds
+                        horas = retry_seconds / 3600
+                        self.logger.info(
+                            f"[Daemon] Quota agotada. Reintentando en {horas:.1f}h "
+                            f"({retry_seconds}s) — cuando renueve la primera key."
+                        )
+                    else:
+                        retry_min = int(os.environ.get("BIORAG_DAEMON_QUOTA_RETRY_MINUTES", "30"))
+                        espera_segundos = retry_min * 60
+                        self.logger.info(
+                            f"[Daemon] Quota agotada. Reintentando en {retry_min} min..."
+                        )
+                elif resultado.get("nodos_procesados", 0) == 0 and resultado.get("frontier_restante", 0) == 0:
+                    # Grafo completo: todos los nodos visitados, frontier vacía
+                    dias_espera = int(os.environ.get("BIORAG_DAEMON_GRAFO_COMPLETO_ESPERA_DIAS", "2"))
+                    espera_segundos = dias_espera * 86400
+                    self.logger.info(
+                        f"[Daemon] Grafo completo (0 nodos, 0 frontier). "
+                        f"Esperando {dias_espera} días antes de reintentar..."
+                    )
+                else:
+                    # Ciclo OK con trabajo → continuar inmediatamente sin esperar
+                    continue
             else:
-                espera_segundos = self.intervalo_horas * 3600
-                self.logger.info(f"[Daemon] Esperando {self.intervalo_horas}h para próximo ciclo")
+                # Modo normal: esperar intervalo entre ciclos
+                if resultado.get("resultado") == "quota_agotada":
+                    espera_segundos = min(3600, self.intervalo_horas * 3600)
+                    self.logger.info(
+                        f"[Daemon] Esperando {espera_segundos/3600:.1f}h (quota agotada)"
+                    )
+                else:
+                    espera_segundos = self.intervalo_horas * 3600
+                    self.logger.info(
+                        f"[Daemon] Esperando {self.intervalo_horas}h para próximo ciclo"
+                    )
             
             # Espera interruptible
             inicio_espera = time.time()

@@ -486,17 +486,24 @@ def _construir_payload_nodo(concepto, cerebro):
 
 # --- Construcción del lote (legacy — batch por candidatos) ----------------
 
-def _llamar_gemini_nodo(payload):
+def _llamar_gemini_nodo(payload, keys_agotadas=None):
     """
     Envía el payload de UN nodo a Gemini con el prompt genérico.
     Devuelve lista de veredictos, o None si falla.
-    Soporta multi-key rotation (429/404 → siguiente key).
+    Soporta multi-key rotation con circuit breaker:
+      - 429/400/404 → skip key, intentar siguiente con mismos datos
+      - keys_agotadas: set de índices a saltar (circuit breaker persistente)
     """
     if not GEMINI_API_KEYS:
         logger.warning("No hay GEMINI_API_KEYS configuradas.")
         return None
     if not payload:
         return None
+
+    if keys_agotadas is None:
+        keys_agotadas = set()
+    # NOTA: keys_agotadas es pass-by-reference. Las modificaciones aquí
+    # (keys_agotadas.add(idx)) persisten en el caller entre batches.
 
     payload_usuario = json.dumps(payload, ensure_ascii=False)
 
@@ -510,8 +517,16 @@ def _llamar_gemini_nodo(payload):
     }
 
     ultimo_error = None
+    ultimo_key_preview = None
+    keys_intentadas = 0
     for idx, key in enumerate(GEMINI_API_KEYS):
+        if idx in keys_agotadas:
+            logger.debug(f"[Key {idx}/{len(GEMINI_API_KEYS)}] Skip (en keys_agotadas)")
+            continue  # Circuit breaker: saltar key ya marcada como agotada
+
+        keys_intentadas += 1
         key_preview = key[:12] + "..." if len(key) > 12 else key
+        logger.info(f"[Key {idx}/{len(GEMINI_API_KEYS)}] Intentando con {key_preview}")
         url = f"{GEMINI_ENDPOINT_TPL.format(modelo=GEMINI_MODEL)}?key={key}"
         req = urllib.request.Request(
             url,
@@ -527,20 +542,25 @@ def _llamar_gemini_nodo(payload):
             resultado = json.loads(texto)
             # Extraer veredictos del JSON
             if isinstance(resultado, dict) and "veredictos" in resultado:
-                return resultado["veredictos"]
+                return resultado["veredictos"], None
             elif isinstance(resultado, list):
-                return resultado
+                return resultado, None
             else:
                 logger.warning(f"Gemini devolvió estructura inesperada: {type(resultado)}")
-                return None
+                return None, key_preview
         except urllib.error.HTTPError as e:
             error_body = e.read().decode("utf-8", errors="ignore")
             if e.code in (429, 400, 404):
+                # Calcular retry_after del header si existe
+                retry_after = e.headers.get("Retry-After") if hasattr(e, 'headers') else None
                 logger.warning(
                     f"[Key {idx}/{len(GEMINI_API_KEYS)}] {key_preview} "
-                    f"HTTP {e.code}: {error_body[:200]}"
+                    f"HTTP {e.code} (skip, {retry_after or 'sin retry-after'}): "
+                    f"{error_body[:150]}"
                 )
                 ultimo_error = f"HTTP {e.code}"
+                ultimo_key_preview = key_preview
+                keys_agotadas.add(idx)  # Circuit breaker: no reintentar esta key
                 continue
             else:
                 logger.error(
@@ -548,22 +568,29 @@ def _llamar_gemini_nodo(payload):
                     f"HTTP {e.code}: {error_body[:500]}"
                 )
                 ultimo_error = f"HTTP {e.code}"
-                return None
+                ultimo_key_preview = key_preview
+                return None, key_preview
         except urllib.error.URLError as e:
             logger.warning(f"[Key {idx}] {key_preview} red: {e}")
             ultimo_error = str(e)
+            ultimo_key_preview = key_preview
             continue
         except (KeyError, IndexError, TypeError) as e:
             logger.warning(f"[Key {idx}] {key_preview} estructura: {e}")
             ultimo_error = str(e)
-            return None
+            ultimo_key_preview = key_preview
+            continue  # Skip esta key, intentar siguiente
         except json.JSONDecodeError as e:
             logger.warning(f"[Key {idx}] {key_preview} JSON inválido: {e}")
             ultimo_error = str(e)
-            return None
+            ultimo_key_preview = key_preview
+            continue  # Skip esta key, intentar siguiente
 
-    logger.error(f"Todas las {len(GEMINI_API_KEYS)} keys agotadas. Último: {ultimo_error}")
-    return None
+    if keys_intentadas == 0:
+        logger.error(f"Todas las {len(GEMINI_API_KEYS)} keys ya estaban agotadas.")
+    else:
+        logger.error(f"Todas las {keys_intentadas} keys disponibles agotadas. Último: {ultimo_error}")
+    return None, ultimo_key_preview
 
 
 # --- Aplicación determinista de veredictos -----------------------------------
@@ -1248,7 +1275,7 @@ def _siguiente_nodo(estado, cerebro):
 def _verificar_quota(estado):
     """
     Verifica si hay quota disponible para llamar a Gemini.
-    Retorna: (disponible: bool, motivo: str)
+    Retorna: (disponible: bool, motivo: str, retry_after_seconds: int)
     """
     proveedores = estado.get("proveedores", {})
     ahora = time.time()
@@ -1274,9 +1301,10 @@ def _verificar_quota(estado):
             if k.get("estado") == "agotado"
         )
         horas_espera = max(0, (min_hasta - ahora) / 3600)
-        return False, f"Todas las keys agotadas. Renueva en {horas_espera:.1f}h"
+        retry_seconds = max(0, int(min_hasta - ahora))
+        return False, f"Todas las keys agotadas. Renueva en {horas_espera:.1f}h", retry_seconds
     
-    return True, "OK"
+    return True, "OK", 0
 
 
 def _registrar_exito(estado, tokens_usados=0):
@@ -1285,13 +1313,14 @@ def _registrar_exito(estado, tokens_usados=0):
     estado["ultimo_exito"] = time.time()
 
 
-def _registrar_fallo(estado, tipo_error="unknown"):
+def _registrar_fallo(estado, tipo_error="unknown", key_preview=None):
     """Registra un fallo de API (429/404) y marca la key como agotada."""
     ahora = time.time()
     espera_horas = 24  # Esperar 24 horas antes de reintentar
     
     proveedores = estado.setdefault("proveedores", {})
-    key_actual = f"key_{len(proveedores)}"
+    # Usar preview real de la key si se proporciona, sino fallback a key_N
+    key_actual = key_preview if key_preview else f"key_{len(proveedores)}"
     
     proveedores[key_actual] = {
         "estado": "agotado",
@@ -1302,7 +1331,8 @@ def _registrar_fallo(estado, tipo_error="unknown"):
     }
     
     estado["motivo_espera"] = f"{tipo_error} — reintento en {espera_horas}h"
-    logger.warning(f"[Hormiguita] Quota agotada ({tipo_error}). Reintento en {espera_horas}h.")
+    estado["retry_after_seconds"] = int(espera_horas * 3600)
+    logger.warning(f"[Hormiguita] Quota agotada ({tipo_error}, key={key_actual}). Reintento en {espera_horas}h.")
 
 # --- Punto de entrada (hormiguita — nodo por nodo) -------------------------
 
@@ -1334,7 +1364,7 @@ def ejecutar_ciclo_reflexivo(cerebro, max_nodos=10):
     estado = _cargar_estado()
     
     # Verificar quota
-    disponible, motivo = _verificar_quota(estado)
+    disponible, motivo, retry_after_seconds = _verificar_quota(estado)
     if not disponible:
         logger.info(f"[Hormiguita] Quota no disponible: {motivo}")
         estado["historial"].append({
@@ -1343,13 +1373,14 @@ def ejecutar_ciclo_reflexivo(cerebro, max_nodos=10):
             "motivo": motivo,
         })
         _guardar_estado(estado)
-        return {"resultado": "quota_agotada", "motivo": motivo}
+        return {"resultado": "quota_agotada", "motivo": motivo, "retry_after_seconds": retry_after_seconds}
     
     visitados_hoy = estado.get("visitados_hoy", [])
     visitados_total = set(estado.get("visitados_total", []))
     resultados = []
     nodos_procesados = 0
     eliminados_total = 0
+    fallo = False  # Inicializar para que exista fuera del while
     
     while nodos_procesados < max_nodos:
         # Elegir siguiente nodo (o reanudar el que quedó a medias)
@@ -1440,6 +1471,7 @@ def ejecutar_ciclo_reflexivo(cerebro, max_nodos=10):
         aplicados = 0
         eliminados = 0
         fallo = False
+        keys_agotadas_acum = set()  # Circuit breaker persistente entre batches del mismo nodo
 
         for idx, lote in enumerate(lotes):
             # Mini-payload: semilla completa + solo este grupo de sinapsis
@@ -1450,14 +1482,14 @@ def ejecutar_ciclo_reflexivo(cerebro, max_nodos=10):
                 "catalogo_disponible": payload.get("catalogo_disponible"),
             }
 
-            veredictos = _llamar_gemini_nodo(mini_payload)
+            veredictos, last_key_preview = _llamar_gemini_nodo(mini_payload, keys_agotadas=keys_agotadas_acum)
             if veredictos is None:
                 # FALLA DE API: guardar posición exacta (nodo + lote + procesadas)
                 # y abortar el ciclo. El próximo arranque reanuda aquí mismo.
                 estado["nodo_actual"] = concepto
                 estado["procesadas_nodo"] = list(procesadas)
                 _guardar_estado(estado)
-                _registrar_fallo(estado, "api_fallo")
+                _registrar_fallo(estado, "api_fallo", key_preview=last_key_preview)
                 fallo = True
                 logger.warning(
                     f"[Hormiguita] Fallo API en {concepto} lote {idx + 1}/{len(lotes)}. "
@@ -1559,12 +1591,14 @@ def ejecutar_ciclo_reflexivo(cerebro, max_nodos=10):
     estado["visitados_hoy"] = visitados_hoy
     estado["visitados_total"] = list(visitados_total)
     estado["ciclos_completados"] = estado.get("ciclos_completados", 0) + 1
-    estado["nodo_actual"] = None
+    # NO resetear nodo_actual si hubo fallo — el ciclo de fallo ya guardó el punto exacto
+    if not fallo:
+        estado["nodo_actual"] = None
     
     estado["historial"].append({
         "timestamp": time.time(),
         "ciclos_completados": estado["ciclos_completados"],
-        "resultado": "completo",
+        "resultado": "quota_agotada" if fallo else "completo",
         "nodos_procesados": nodos_procesados,
         "eliminados_total": eliminados_total,
         "frontier_restante": len(estado.get("frontier", [])),
@@ -1580,11 +1614,12 @@ def ejecutar_ciclo_reflexivo(cerebro, max_nodos=10):
         )
     
     resumen = {
-        "resultado": "completo",
+        "resultado": "quota_agotada" if fallo else "completo",
         "nodos_procesados": nodos_procesados,
         "eliminados_total": eliminados_total,
         "frontier_restante": len(estado.get("frontier", [])),
         "visitados_total": len(visitados_total),
+        "retry_after_seconds": estado.get("retry_after_seconds", 0) if fallo else 0,
         "detalle": resultados,
     }
     
