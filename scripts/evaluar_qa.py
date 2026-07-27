@@ -41,6 +41,7 @@ def run_evaluation():
     # Stats tracking
     stats = defaultdict(lambda: {"total": 0, "hits_at_5": 0, "hits_at_1": 0, "reciprocal_rank_sum": 0, "false_positives": 0})
     failures_by_category = defaultdict(list)
+    spreading_activation_count = 0  # Contador de queries que activan spreading activation
     
     start_time = time.time()
     
@@ -64,6 +65,10 @@ def run_evaluation():
         # 2. Execute query
         profundidad = "profundo" if (deep or category == "dormido" or category == "negativo") else "activos"
         results, total = db.buscar_por_frase(query, profundidad=profundidad, limite=5, ignore_peso_sinaptico=True)
+        
+        # Track spreading activation usage
+        if hasattr(db, 'last_parent_map') and db.last_parent_map:
+            spreading_activation_count += 1
         
         # Extract returned concepts
         returned = [r[0] for r in results]
@@ -186,6 +191,7 @@ def run_evaluation():
     
     print(f"{'GLOBAL SUMMARY (Retrieval)':<22} | {total_queries:<6} | {global_recall_5:>7.2f}% | {global_recall_1:>7.2f}% | {global_mrr:>6.3f} | {total_queries - total_hits_at_5:<10}")
     print(f"{'GLOBAL SUMMARY (Noise/FP)':<22} | {total_negatives:<6} | {'N/A':<9} | {'N/A':<9} | {'N/A':<8} | {total_false_positives:<10} ({global_fp_rate:.2f}% FP)")
+    print(f"{'SPREADING ACTIVATION':<22} | {spreading_activation_count}/{len(cases)} queries ({spreading_activation_count/len(cases)*100:.1f}%)")
     print("="*80)
     
     # Output detailed failures per category (up to 3 cases per category)

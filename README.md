@@ -1,7 +1,7 @@
-# BioRAG v23.0 — Neocórtex Sintético con Rebalanceo de Señales de Scoring
+# BioRAG v23.1 — Neocórtex Sintético con Predicados SRL y Feedback-Driven Graph Learning
 
-> **Versión:** v23.0 — Julio 2026
-> **Paradigma:** Circuito Sintético Cognitivamente Cerrado & Red por Defecto (DMN Ideación Autónoma en Reposo + GABA en Vivo + Dopamina RPE con Inercia Sináptica + Valencia Somática Cortical + Escalado Homeostático + PMI + SDM 1024-bit con Query-by-Example + SLS + Stemmer Bilingüe)
+> **Versión:** v23.1 — Julio 2026
+> **Paradigma:** Circuito Sintético Cognitivamente Cerrado & Red por Defecto (DMN Ideación Autónoma en Reposo + GABA en Vivo + Dopamina RPE con Inercia Sináptica + Valencia Somática Cortical + Escalado Homeostático + PMI + SDM 1024-bit con Query-by-Example + SLS + Stemmer Bilingüe + Predicados SRL + Feedback-Driven Graph Learning)
 > **Motor:** Python puro + SQLite FTS5 WAL
 > **Dependencias ML:** 0 (mcp + nltk para WordNet, 0 numpy, 0 sentence-transformers, 0 torch, 0 dependencias C++ o CUDA)
 > **Idiomas:** Español + Inglés (stemming bilingüe ES/EN + expansión simbólica vía WordNet)
@@ -11,33 +11,33 @@
 
 ---
 
-## 📊 Benchmark y Evaluación de Rendimiento (v23.0 Validado — Zero Data Leakage)
+## 📊 Benchmark y Evaluación de Rendimiento (v23.1 Validado — Zero Data Leakage)
 
-> Metodología: **Peso excluido del scoring** (`ignore_peso_sinaptico=True`) — campo de juego nivelado sin artefactos de umbral de ruido. Determinismo verificado: 3 corridas idénticas.
+> Metodología: **Peso excluido del scoring** (`ignore_peso_sinaptico=True`) — campo de juego nivelado sin artefactos de umbral de ruido. Determinismo verificado: 2 corridas idénticas.
 
 ### Comparativa de la Evolución de `por_tema`
 
-| Métrica | v18.0–v21.0 | Baseline LTD (decaído) | **v23.0 Validado (determinístico)** | Estado |
-|---|---|---|---|---|
-| **Recall@5** | 36.92% | 41.54% | **70.77%** | 🚀 **+33.85 pp** |
-| **Recall@1** | 12.31% | 16.92% | **40.00%** | 📈 **+27.69 pp** |
+| Métrica | v18.0–v21.0 | Baseline LTD (decaído) | **v23.0 (593 nodos)** | **v23.1 (614 nodos)** | Estado |
+|---|---|---|---|---|---|
+| **Recall@5** | 36.92% | 41.54% | **70.77%** | **81.54%** | 🚀 **+44.62 pp** |
+| **Recall@1** | 12.31% | 16.92% | **40.00%** | **56.92%** | 📈 **+44.61 pp** |
 
 ### Desglose Completo por Categoría de Recuperación (921 Casos QA)
 
 - `dormido`: **100.00%** Recall@5 — 0 fallos
 - `literal`: **100.00%** Recall@5 — 0 fallos
 - `typo`: **98.46%** Recall@5 — 1 fallo
-- `variante_gramatical`: **96.92%** Recall@5 — 2 fallos
-- `pregunta_natural`: **93.85%** Recall@5 — 4 fallos
+- `variante_gramatical`: **95.38%** Recall@5 — 3 fallos
+- `pregunta_natural`: **100.00%** Recall@5 — 0 fallos
 - `cruce_idioma`: **87.50%** Recall@5 — 1 fallo
-- `sinonimo`: **78.69%** Recall@5 — 13 fallos
-- `por_tema`: **70.77%** Recall@5 — ~19 fallos (reducido de 27)
+- `sinonimo`: **80.33%** Recall@5 — 12 fallos
+- `por_tema`: **81.54%** Recall@5 — 12 fallos (reducido de 27)
 
-> **GLOBAL SUMMARY (881 casos):** Recall@5: **95.91%** | FP Negativo: **7.5%** (3/40, sin regresión)
+> **GLOBAL SUMMARY (881 casos):** Recall@5: **96.82%** | FP Negativo: **7.5%** (3/40, sin regresión)
 
-> **Validación de determinismo:** 3 corridas consecutivas idénticas → misma tabla. Snapshot reproducible en `snapshots/before_part4_weight_adjustment.db`.
+> **Validación de determinismo:** 2 corridas consecutivas idénticas → misma tabla. Snapshot reproducible en `snapshots/ablation_parent_pointers.db`.
 
-> **⚠️ Trabajo pendiente:** `por_tema` con 70.77% mejoró significativamente pero sigue siendo la categoría más débil frente al resto (78–100%). El caso `oracle_custom_prompt_arsitecura_que_funciona` con query "operativo capa rag" permanece fuera de top-5 — confirmado como no resoluble con pesos/sinónimos actuales (requiere predicates/SRL o synoptic echo).
+> **Nuevas features v23.1:** Predicados SRL como Signal #12 (+13.85pp por_tema), Feedback-Driven Graph Learning (LTP asintótico sobre aristas de spreading activation). Experiments rechazados documentados: JSD, Bayesian BM25.
 
 ---
 
@@ -47,7 +47,7 @@ BioRAG se ubica en la intersección de cuatro disciplinas científicas:
 
 | Disciplina | Rol en BioRAG |
 |---|---|
-| **Information Retrieval** | Pipeline de cascade ranking de 13 capas con 9 señales de scoring híbrido (Learning-to-Rank manual) |
+| **Information Retrieval** | Pipeline de cascade ranking de 13 capas con 12 señales de scoring híbrido (Learning-to-Rank manual) |
 | **Knowledge Graphs** | Grafo de sinapsis tipadas y pesadas con plasticidad negativa, inferencia transitiva y auto-clustering |
 | **Cognitive Architecture** | Ciclos de sueño, LTP/LTD, spreading activation, poda sináptica, inhibición lateral (ACT-R, Hebb, Marr) |
 | **Symbolic NLP** | Expansión semántica sin embeddings: Levenshtein normalizado + WordNet bilingüe + traducción opcional |

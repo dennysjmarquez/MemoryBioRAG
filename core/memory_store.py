@@ -113,6 +113,7 @@ class SQLiteMemoryBioRAG:
         # Trazaabilidad: datos de la última búsqueda para mcp_server.py
         self.last_todos = []
         self.last_origen_scores = {}
+        self.last_parent_map = {}  # parent pointers from last spreading activation
         # Buffer circular de memoria de trabajo (v19.0 Context Window)
         self._context_window = deque(maxlen=10)
         self.dmn = None
@@ -1979,8 +1980,9 @@ class SQLiteMemoryBioRAG:
         """
         Refuerzo Dopaminérgico por Error de Predicción de Recompensa (RPE v20.0 - Schultz 1997).
         Aplica el Factor de Inercia Sináptica (Dopaminergic Inertia):
-        - Éxito: Delta W = +0.15 * (1.0 - peso_actual * 0.3)
-        - Fallo: Delta W = -0.10 / (1.0 + ln(1 + exitos_previos))
+        - Éxito: Delta W = +0.15 * (1.0 - peso_actual * 0.3) sobre el nodo
+        - Éxito: LTP asintótico sobre aristas del camino exacto (si hay parent_map)
+        - Fallo: Delta W = -0.10 / (1.0 + ln(1 + exitos_previos)) solo sobre nodo
         """
         key = concepto.lower().strip()
         self.cursor.execute(
@@ -2003,6 +2005,17 @@ class SQLiteMemoryBioRAG:
                 SET peso_sinaptico = ?, exitos_dopamina = ?, ultimo_acceso = ?, estado = 'activo'
                 WHERE concepto = ?
             """, (nuevo_peso, nuevos_exitos, time.time(), key))
+
+            # Feedback-Driven Graph Learning: fortalecer aristas del camino exacto
+            if hasattr(self, 'last_parent_map') and self.last_parent_map:
+                camino = self._reconstruir_camino(key)
+                for nodo_a, nodo_b, peso_arista in camino:
+                    # LTP asintótico: peso += 0.05 * (1.0 - peso)
+                    nuevo_peso_arista = min(1.0, round(peso_arista + 0.05 * (1.0 - peso_arista), 3))
+                    self.cursor.execute("""
+                        UPDATE sinapsis SET peso = ?, ultimo_uso = ?
+                        WHERE (origen = ? AND destino = ?) OR (origen = ? AND destino = ?)
+                    """, (nuevo_peso_arista, time.time(), nodo_a, nodo_b, nodo_b, nodo_a))
         else:
             inercia = 1.0 + math.log(1.0 + exitos)
             delta = -0.10 / inercia
@@ -2017,6 +2030,25 @@ class SQLiteMemoryBioRAG:
 
         self.conn.commit()
         return True
+
+    def _reconstruir_camino(self, destino):
+        """Reconstruye el camino exacto desde la semilla hasta el destino usando parent_map.
+        Retorna lista de (nodo_a, nodo_b, peso_arista) para cada arista del camino."""
+        if not hasattr(self, 'last_parent_map') or not self.last_parent_map:
+            return []
+
+        camino = []
+        actual = destino.lower().strip()
+        visitados = set()
+
+        while actual in self.last_parent_map and actual not in visitados:
+            visitados.add(actual)
+            padre, peso_arista = self.last_parent_map[actual]
+            camino.append((padre, actual, peso_arista))
+            actual = padre
+
+        camino.reverse()  # Desde la semilla hasta el destino
+        return camino
 
     def establecer_asociacion(self, concepto_a, concepto_b):
         """Crea un enlace sináptico bidireccional entre dos conceptos en el grafo de largo plazo."""
@@ -2451,6 +2483,10 @@ class SQLiteMemoryBioRAG:
         Sigue aristas de sinapsis en cadena. Cada salto reduce el score
         con decay logarítmico: 1/(2^salto). Más fiel al proceso cognitivo
         humano donde el tercer salto es mucho más débil que el segundo.
+        
+        Retorna: (resultados, parent_map)
+          - resultados: lista de (nodo, score, salto)
+          - parent_map: dict {nodo: (nodo_padre, peso_arista)} para rastrear caminos
         """
         if max_saltos is None:
             max_saltos = MAX_SALTOS_CADENA
@@ -2458,6 +2494,7 @@ class SQLiteMemoryBioRAG:
             limite = LIMITE_EVOCACION
         visitados = set()
         resultados = []
+        parent_map = {}  # {nodo: (nodo_padre, peso_arista)}
         actuales = [(n, 1.0) for n in semillas]
 
         for salto in range(max_saltos):
@@ -2482,11 +2519,14 @@ class SQLiteMemoryBioRAG:
                         if sv > 0.05:
                             siguientes.append((vecino, sv))
                             resultados.append((vecino, sv, salto + 1))
+                            # Track parent for path reconstruction
+                            if vecino not in parent_map:
+                                parent_map[vecino] = (nodo, peso or 0.5)
 
             actuales = siguientes
 
         resultados.sort(key=lambda x: x[1], reverse=True)
-        return resultados[:limite]
+        return resultados[:limite], parent_map
 
     def _generar_variaciones(self, query, historial_fallos=None):
         """Genera variaciones de la query basadas en el historial de fallos.
@@ -2760,6 +2800,7 @@ class SQLiteMemoryBioRAG:
         (concepto, contenido, peso, estado, score, asociaciones)
         """
         self.notificar_actividad_usuario()
+        self.last_parent_map = {}  # Reset parent pointers for this search
         # SRL v16.0: Filtrado por roles semánticos (buscar_por_rol)
         conceptos_validos_rol = None
         if buscar_por_rol:
@@ -3362,7 +3403,8 @@ class SQLiteMemoryBioRAG:
                         )
                         semillas = [row[0] for row in self.cursor.fetchall()]
                         if semillas:
-                            evocados = self._evocacion_por_cadena(semillas)
+                            evocados, parent_map = self._evocacion_por_cadena(semillas)
+                            self.last_parent_map = parent_map
                             for concepto_ev, decay_score, _ in evocados:
                                 ev_sql = (
                                     "SELECT rowid, concepto, contenido, peso_sinaptico, "

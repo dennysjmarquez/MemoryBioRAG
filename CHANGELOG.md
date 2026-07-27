@@ -1,5 +1,78 @@
 # BioRAG Changelog
 
+## v23.1 (2026-07-26)
+
+### Predicados SRL + Feedback-Driven Graph Learning
+
+**Objetivo:** Mejorar `por_tema` mediante señales específicas que capturen el contenido real del nodo, y hacer que el grafo aprenda con el uso real.
+
+### Feature 1: Predicados SRL como Signal #12
+
+**Implementación:**
+- `scripts/backfill_predicados.py`: Backfill de keyword predicates para todos los nodos (5.6%→100% cobertura)
+- Extracción de keywords técnicos del contenido (top50 por nodo)
+- Integración como signal #12 en `_calcular_score_hibrido()` con peso configurable
+- Precomputación de `pred_contexto_map` en `buscar_por_frase()` para O(1) lookup
+
+**Ablation (pesos0.01→0.25, snapshot congelado,921 test cases):**
+
+| Peso | por_tema R@5 | por_tema R@1 | GLOBAL R@5 | FP |
+|------|-------------|-------------|------------|-----|
+|0.00 (baseline) |70.77% |35.38% |96.25% |7.50% |
+|0.04 |76.92% |38.46% |96.59% |7.50% |
+|0.10 |78.46% |49.23% |97.05% |7.50% |
+|0.15 |81.54% |55.38% |97.28% |7.50% |
+|**0.20** |**84.62%** |**58.46%** |**97.05%** |**7.50%** |
+|0.25 |84.62% |58.46% |97.28% |10.00% ❌ |
+
+**Peso óptimo:0.20** — por_tema Recall@5 +13.85pp, Recall@1 +23.08pp, FP sin regresión.
+
+**Determinismo:** por_tema (84.62%/58.46%) y FP (3/40=7.50%) idénticos en2 corridas. GLOBAL variación±0.11pp por estado de DB durante sesión.
+
+### Feature 2: Feedback-Driven Graph Learning
+
+**Implementación:**
+- `_evocacion_por_cadena` ahora devuelve `parent_map` — diccionario `{nodo: (padre, peso_arista)}` para rastrear caminos de spreading activation
+- `aplicar_refuerzo_dopaminergico` cuando `exito=True`: fortalece aristas del camino exacto con LTP asintótico (`peso += 0.05*(1-peso)`)
+- `_reconstruir_camino` traza el camino desde la semilla hasta el nodo exitoso
+- Reset de `parent_map` entre queries para evitar acumulación
+
+**Diseño:** Solo refuerzo positivo (no atribución de culpa). Decay multiplicativo (`peso*=0.95` para aristas no usadas en7+ días) debilita naturalmente los caminos no reforzados.
+
+**Ablation:** Parent pointers es100% inocuo — números idénticos sobre misma DB congelada.
+
+**Alcance real:** Spreading activation se activa en SOLO21/921 queries (2.3%). Por categoría: literal13, negativo2, por_tema2, sinonimo3, typo2, variante_gramatical1. Es un mecanismo de nicho, no central — pero potencialmente significativo en los casos más difíciles de por_tema.
+
+### Experimentos rechazados (documentados)
+
+**JSD (Signal #11):** -0.34pp GLOBAL, -1.53pp por_tema. Señales distribucionales perjudican queries genéricas. Código queda desactivado (`JSD_WEIGHT=0.0`).
+
+**Bayesian BM25:** -12.83pp GLOBAL, -63.08pp por_tema (regresión catastrófica). El error fue el `abs()` sobre scores negativos de FTS5, no la idea de calibrar probabilísticamente. Código queda desactivado (`BAYESIAN_BM25=false`).
+
+### Principio generalizable
+
+"Señales que miden similitud distribucional/genérica tienden a perjudicar queries cortas y ambiguas porque homogeneizan candidatos que las señales específicas (BM25, concepto_ratio) ya distinguían bien." — Los4 experimentos negativos de la semana (content_ratio, eco sináptico, JSD, Bayesian BM25) comparten este patrón.
+
+### Baselines v23.1 (DB614 nodos,2026-07-26)
+
+| Métrica | v23.0 (593 nodos) | v23.1 (614 nodos) | Nota |
+|---------|-------------------|-------------------|------|
+| por_tema Recall@5 |70.77% |81.54% |+10.77pp (predicados SRL) |
+| por_tema Recall@1 |40.00% |56.92% |+16.92pp |
+| GLOBAL Recall@5 |95.91% |96.82% |+0.91pp |
+| FP |7.50% |7.50% |sin regresión |
+
+**Nota:** Los números de v23.1 no son directamente comparables con v23.0 — el corpus creció de593 a614 nodos (crecimiento orgánico + backfill de predicados).
+
+### Archivos modificados
+- `core/memory_store.py`: Signal #12 (pred_score), parent pointers, refuerzo LTP
+- `scripts/backfill_predicados.py`: Nuevo — backfill de keyword predicates
+- `scripts/evaluar_qa.py`: Tracking de spreading activation
+- `test_memory.py`: Actualizado para parent pointers
+- `CHANGELOG.md`, `VERSION`: Actualizados
+
+---
+
 ## v23.0 (2026-07-26)
 
 ### Rebalanceo de Señales de Scoring para por_tema + Fix FTS5 Hyphens
@@ -95,7 +168,9 @@
 | por_tema Recall@5 | 73.85% | 10.77% | **-63.08pp** |
 | FP | 7.50% | 7.50% | 0.00 |
 
-**Causa raíz:** BM25 de FTS5 produce scores **negativos** (más negativo = mejor match). La sigmoid con `abs(raw)` trataba scores altos (abs de malos matches) como más relevantes → ranking completamente invertido. Incluso sin `abs()`, la sigmoid calibrada por query no es comparable entre queries (cada query tiene distribución diferente).
+**Causa raíz:** BM25 de FTS5 produce scores **negativos** (más negativo = mejor match). La implementación aplicaba `abs(raw)` antes de la sigmoid, lo que invertía el signo real del score — literalmente daba vuelta el ranking, tratando los documentos menos relevantes como más relevantes.
+
+**Corrección importante:** El error fue el `abs()`, NO la idea de calibrar probabilísticamente. Bayesian BM25 con FTS5 requiere manejar los scores negativos correctamente antes de aplicar sigmoid. Si alguna vez se retoma, el punto exacto a corregir es: aplicar sigmoid directamente al score crudo negativo (sin abs), o negar el score antes de la sigmoid.
 
 **Lección:** Bayesian BM25 está diseñado para fusionar BM25 con vectores densos en hybrid search. En BioRAG (sin vectores densos), la calibración no aporta valor y destruye el ranking. La fórmula `abs(x)/(abs(x)+3)` es monotónica y funcional — NO necesita calibración probabilística.
 
@@ -115,15 +190,17 @@
 
 **Protocolo:** Snapshot DB actual (609 nodos),921 test cases, ablation con pesos0.01→0.04→0.06→0.08→0.10→0.12→0.15→0.20→0.25.
 
-**Resultados (peso óptimo:0.20):**
+**Resultados (peso óptimo:0.20, verificado con2 corridas idénticas):**
 
 | Métrica | Baseline | Con Predicados | Delta |
 |---------|----------|----------------|-------|
-| GLOBAL Recall@5 |96.25%|97.50%|**+1.25pp** |
-| GLOBAL Recall@1 |88.08%|91.26%|**+3.18pp** |
-| por_tema Recall@5 |70.77%|86.15%|**+15.38pp** |
+| GLOBAL Recall@5 |96.25%|97.05%|**+0.80pp** |
+| GLOBAL Recall@1 |88.08%|91.15%|**+3.07pp** |
+| por_tema Recall@5 |70.77%|84.62%|**+13.85pp** |
 | por_tema Recall@1 |35.38%|58.46%|**+23.08pp** |
 | FP |7.50%|7.50%|0.00 |
+
+**Determinismo:** por_tema (84.62%/58.46%) y FP (3/40=7.50%) idénticos en2 corridas. GLOBAL variación±0.11pp por estado de DB durante sesión.
 
 **Peso0.25 causó FP+2.50pp (10.00%) — rechazado.**
 
