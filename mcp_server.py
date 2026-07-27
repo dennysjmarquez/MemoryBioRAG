@@ -2892,6 +2892,16 @@ def main(argv: Optional[list[str]] = None) -> int:
         sys.stderr.write(f"BioRAG MCP: {exc}\n")
         return 2
 
+    # Asegurar que el daemon de mantenimiento del grafo esté vivo
+    try:
+        from core.daemon_lifecycle import ensure_daemon_alive
+        if ensure_daemon_alive():
+            sys.stderr.write("Hormiguita daemon: vivo\n")
+        else:
+            sys.stderr.write("Hormiguita daemon: no disponible (se intentará en próximo ciclo)\n")
+    except Exception as exc:
+        sys.stderr.write(f"Hormiguita daemon: skip ({exc})\n")
+
     try:
         if use_sse:
             sys.stderr.write(f"BioRAG MCP iniciado en SSE :{port}\n")

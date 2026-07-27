@@ -48,6 +48,7 @@ from core.dmn_reflexion import ejecutar_ciclo_reflexivo, _cargar_estado, _guarda
 INTERVALO_HORAS = float(os.environ.get("BIORAG_DAEMON_INTERVALO_HORAS", "6"))
 MAX_NODOS_POR_CICLO = int(os.environ.get("BIORAG_DAEMON_MAX_NODOS", "10"))
 LOCK_PATH = os.environ.get("BIORAG_DAEMON_LOCK_PATH", ".hormiguita.lock")
+PID_PATH = os.environ.get("BIORAG_DAEMON_PID_PATH", ".hormiguita.pid")
 LOG_DIR = os.environ.get("BIORAG_DAEMON_LOG_PATH", "logs")
 
 # --- Logging -----------------------------------------------------------------
@@ -100,6 +101,27 @@ class DaemonLock:
                 pass
 
 
+# --- PID file ----------------------------------------------------------------
+
+def _escribir_pid():
+    """Escribe el PID actual al archivo PID."""
+    try:
+        with open(PID_PATH, "w") as f:
+            f.write(str(os.getpid()))
+    except OSError as e:
+        logging.getLogger("Hormiguita.Daemon").warning(
+            "No se pudo escribir PID file: %s", e
+        )
+
+
+def _borrar_pid():
+    """Borra el archivo PID al salir."""
+    try:
+        os.remove(PID_PATH)
+    except FileNotFoundError:
+        pass
+
+
 # --- Daemon ------------------------------------------------------------------
 
 class GraphMaintenanceDaemon:
@@ -121,6 +143,7 @@ class GraphMaintenanceDaemon:
         """Maneja señales de shutdown."""
         self.logger.info(f"[Daemon] Señal {signum} recibida, shutting down gracefully...")
         self.running = False
+        _borrar_pid()
     
     def _get_db_path(self):
         """Obtiene la ruta de la base de datos."""
@@ -239,8 +262,15 @@ class GraphMaintenanceDaemon:
     
     def ejecutar_daemon(self):
         """Ejecuta el daemon en modo continuo."""
+        import atexit
+        
+        # Escribir PID file al arrancar el loop
+        _escribir_pid()
+        atexit.register(_borrar_pid)
+        
         self.logger.info(
-            f"[Daemon] Iniciando daemon (intervalo: {self.intervalo_horas}h, "
+            f"[Daemon] Iniciando daemon (PID: {os.getpid()}, "
+            f"intervalo: {self.intervalo_horas}h, "
             f"max_nodos: {self.max_nodos})"
         )
         
@@ -332,6 +362,7 @@ def main():
             daemon.ejecutar_daemon()
     finally:
         lock.liberar()
+        _borrar_pid()
 
 
 if __name__ == "__main__":

@@ -23,5 +23,4 @@ dashboard-neuro-visor/node_modules/
 dashboard-neuro-visor/dist/
 
 .env.local
-
 estado_hormiga.json
