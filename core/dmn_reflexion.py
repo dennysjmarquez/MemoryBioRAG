@@ -1247,7 +1247,9 @@ def _guardar_estado(estado):
     """Guarda el estado, rotando el historial a las últimas 50 entradas.
     Usa flock para evitar escrituras concurrentes de múltiples instancias."""
     estado["historial"] = estado.get("historial", [])[-50:]
-    estado["visitados_total"] = estado.get("visitados_total", [])[-500:]
+    # NOTA: visitados_total NO se trunca — el [-500:] previo daba orden arbitrario
+    # porque sets de Python no preservan orden de inserción (depende de PYTHONHASHSEED).
+    # Se guarda completo. Si el grafo crece a >100K nodos, migrar a columna DB.
     try:
         with open(ESTADO_HORMIGA_PATH, "w", encoding="utf-8") as f:
             try:
@@ -1329,23 +1331,31 @@ def _expandir_frontera(concepto, cerebro, visitados):
     """
     Dado un nodo, retorna sus vecinos directos no visitados.
     Metodología: BFS local — expande 1 salto desde el nodo actual.
+    Solo incluye nodos activos (excluye dormidos — no se prunan, pero tampoco
+    entran a la cola del Hormiguita).
     """
     conn = cerebro.conn
     cursor = conn.cursor()
     
     vecinos = set()
     
-    # Vecinos salientes (origen → destino)
+    # Vecinos salientes (origen → destino), solo activos
     cursor.execute("""
-        SELECT DISTINCT destino FROM sinapsis WHERE origen = ?
+        SELECT DISTINCT s.destino
+        FROM sinapsis s
+        JOIN largo_plazo lp ON lp.concepto = s.destino
+        WHERE s.origen = ? AND lp.estado = 'activo'
     """, (concepto,))
     for (destino,) in cursor.fetchall():
         if destino not in visitados:
             vecinos.add(destino)
     
-    # Vecinos entrantes (destino → origen)
+    # Vecinos entrantes (destino → origen), solo activos
     cursor.execute("""
-        SELECT DISTINCT origen FROM sinapsis WHERE destino = ?
+        SELECT DISTINCT s.origen
+        FROM sinapsis s
+        JOIN largo_plazo lp ON lp.concepto = s.origen
+        WHERE s.destino = ? AND lp.estado = 'activo'
     """, (concepto,))
     for (origen,) in cursor.fetchall():
         if origen not in visitados:
