@@ -45,11 +45,15 @@ from core.dmn_reflexion import ejecutar_ciclo_reflexivo, _cargar_estado, _guarda
 
 # --- Configuración -----------------------------------------------------------
 
-INTERVALO_HORAS = float(os.environ.get("BIORAG_DAEMON_INTERVALO_HORAS", "6"))
+INTERVALO_HORAS = float(os.environ.get("BIORAG_DAEMON_INTERVALO_HORAS", "1"))
 MAX_NODOS_POR_CICLO = int(os.environ.get("BIORAG_DAEMON_MAX_NODOS", "10"))
-LOCK_PATH = os.environ.get("BIORAG_DAEMON_LOCK_PATH", ".hormiguita.lock")
-PID_PATH = os.environ.get("BIORAG_DAEMON_PID_PATH", ".hormiguita.pid")
-LOG_DIR = os.environ.get("BIORAG_DAEMON_LOG_PATH", "logs")
+_PROJECT_ROOT = os.path.dirname(os.path.abspath(__file__))
+_LOCK_DEFAULT = os.path.join(_PROJECT_ROOT, ".hormiguita.lock")
+_PID_DEFAULT = os.path.join(_PROJECT_ROOT, ".hormiguita.pid")
+_LOG_DEFAULT = os.path.join(_PROJECT_ROOT, "logs")
+LOCK_PATH = os.environ.get("BIORAG_DAEMON_LOCK_PATH", _LOCK_DEFAULT)
+PID_PATH = os.environ.get("BIORAG_DAEMON_PID_PATH", _PID_DEFAULT)
+LOG_DIR = os.environ.get("BIORAG_DAEMON_LOG_PATH", _LOG_DEFAULT)
 
 # --- Logging -----------------------------------------------------------------
 

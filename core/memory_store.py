@@ -83,6 +83,7 @@ class SQLiteMemoryBioRAG:
         self.conn = sqlite3.connect(self.db_path, timeout=60)
         self.conn.execute("PRAGMA journal_mode=WAL")
         self.conn.execute("PRAGMA synchronous=NORMAL")
+        self.conn.execute("PRAGMA busy_timeout=5000")
         self.cursor = self.conn.cursor()
         # Función personalizada: word boundary check del lado de la DB
         def palabra_completa(token, texto):

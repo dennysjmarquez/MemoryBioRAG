@@ -54,6 +54,13 @@ logger = logging.getLogger("BioRAG.DMN.Reflexion")
 
 # --- Configuración ---------------------------------------------------------
 
+# Cargar .env.local si existe (para ejecución directa)
+try:
+    from dotenv import load_dotenv as _load_dotenv
+    _load_dotenv(os.path.join(os.path.dirname(__file__), "..", ".env.local"))
+except ImportError:
+    pass
+
 # Multi-key: GEMINI_API_KEYS (comma-separated) takes precedence.
 # Falls back to legacy GEMINI_API_KEY (single) if前者 is empty.
 _KEYS_RAW = os.environ.get("GEMINI_API_KEYS", "")
@@ -75,6 +82,7 @@ MAX_PMI_HEBBIANO_POR_LOTE = int(os.environ.get("BIORAG_DMN_LOTE_MAX_PMI_HEBBIANO
 VALENCIA_PESO_UMBRAL = float(os.environ.get("BIORAG_DMN_VALENCIA_PESO_UMBRAL", "0.4"))
 VALENCIA_ACTIVIDAD_RECIENTE_DIAS = float(os.environ.get("BIORAG_DMN_VALENCIA_DIAS_RECIENTES", "7"))
 TIMEOUT_RED_SEGUNDOS = 30
+DEBUG_RAW = False  # Si True, guarda request/response en /tmp/hormiguita_debug.json y para
 ESTADO_HORMIGA_PATH = os.environ.get("BIORAG_DMN_ESTADO_PATH", "estado_hormiga.json")
 
 # Procesamiento por lotes dentro de cada nodo: la semilla se envía con
@@ -98,6 +106,10 @@ BENCHMARK_TOLERANCIA = float(os.environ.get("BIORAG_HORMIGA_BENCHMARK_TOLERANCIA
 # Confianza >= este umbral salta el strike y cuarentena directo.
 UMBRAL_ELIMINAR_LATENTE_DIRECTO = float(os.environ.get("BIORAG_HORMIGA_UMBRAL_LATENTE_DIRECTO", "0.90"))
 
+# Límite de reintentos por nodo antes de forzar ignorar en sinapsis pendientes.
+# Híbrido: 1 reintento inmediato dentro de la invocación, luego espaciado entre invocaciones.
+MAX_INTENTOS_POR_NODO = int(os.environ.get("BIORAG_HORMIGA_MAX_INTENTOS_NODO", "3"))
+
 ACCIONES_VALIDAS = {"aceptar", "eliminar", "fusionar", "reponderar", "reforzar_valencia", "ignorar"}
 
 PROMPT_SISTEMA = """Eres un analizador semántico que evalúa la calidad de un grafo de \
@@ -107,11 +119,18 @@ disponibles. Tu trabajo: decidir qué está bien y qué necesita corrección.
 Vas a recibir un JSON con:
 - "nodo": contenido, categoría, peso, sinónimos, dimensiones actuales, lexnames WordNet
 - "sinapsis_directas": conexiones directas con su tipo, peso, y contenido del nodo destino
-- "sinapsis_latentes": conexiones indirectas (calculadas por saltos)
+- "sinapsis_latentes": conexiones indirectas (calculadas por saltos), incluyendo \
+"camino_nombres" (conceptos intermedios por los que pasa la conexión)
 - "catalogo_disponible": lista de dimensiones y categorías disponibles para clasificar
 
+COMPLETITUD OBLIGATORIA: Debes devolver un veredicto para TODAS las sinapsis que \
+recibiste en este lote (tanto directas como latentes). No ignores ninguna. Si no tenés \
+suficiente información para decidir, usá "ignorar" con confianza baja. Nunca omitas \
+un veredicto.
+
 Para CADA capa que evalúes, devolvé un veredicto. Respondé SOLO con JSON válido, sin \
-texto antes ni después, con este esquema exacto:
+texto antes ni después. El servidor solo acepta JSON puro — cualquier texto extra causa \
+error de parseo. Usá este esquema exacto:
 
 {"veredictos": [
   {"capa": "<dimension|sinonimo|categoria|contenido|sinapsis_directa|sinapsis_latente>",
@@ -131,6 +150,13 @@ ACCIONES POR CAPA:
 - "sinapsis_directa": mantener, eliminar (si es espuria), reponderar, fusionar, ignorar
 - "sinapsis_latente": confirmar, eliminar, reponderar, ignorar
 
+RANGOS DE PESO PARA reponderar:
+- 0.0-0.2: conexión muy débil, considerar eliminar
+- 0.2-0.4: conexión débil, reponderar con cautela
+- 0.4-0.6: conexión moderada, reponderar solo si hay evidencia fuerte
+- 0.6-0.8: conexión fuerte, reponderar con confianza
+- 0.8-1.0: conexión muy fuerte, rara vez necesita reponderar
+
 REGLAS DE DECISIÓN:
 
 1. DIMENSIONES: El nodo debe tener las dimensiones que correspondan a su contenido. \
@@ -142,20 +168,30 @@ Si tiene una dimensión que no corresponde → eliminar.
 Si falta un término clave del contenido → agregar. Si un sinónimo es demasiado \
 genérico (ej: "cosa", "info") → eliminar.
 
-3. CATEGORÍA: Usá el catálogo disponible. Si el contenido describe un error resuelto \
-→ debe ser "Lesson". Si describe una decisión de diseño → "Architecture". Si describe \
-un procedimiento → "Protocol".
+3. CATEGORÍA: Usá el catálogo disponible. Si el nodo tiene una categoría demasiado \
+genérica para su contenido, reemplazá por la más específica del catálogo. Regla: \
+"más específica sobre más general".
 
 4. SINAPSIS DIRECTAS: Para cada conexión, compará el contenido del nodo semilla con \
 el contenido del nodo destino. Si hablan de cosas distintas → eliminar. Si comparten \
-solo palabras genéricas (nombre de proyecto, persona, términos vagos) → eliminar. \
+solo palabras genéricas (nombres de proyecto, persona, términos vagos como "sistema", \
+"proyecto", "usuario", "módulo", "dato", "configuración") → eliminar. \
 REGLA ESTRICTA para conexiones tipo "pmi_hebbiano": estas fueron creadas por \
 co-ocurrencia estadística, NO por comprensión semántica. Si la justificación requiere \
 inventar un puente conceptual que NO está en los contenidos → ELIMINAR.
+IMPORTANTE: El contenido del destino puede estar truncado (máx 700 chars). Si la \
+decisión depende del contenido completo, indicá "contenido truncado" en la justificación \
+y usá "ignorar" con confianza media.
 
 5. SINAPSIS LATENTES: Mismo criterio que directas, pero estas son conexiones \
-indirectas (por saltos). Son más débiles por naturaleza. Si no hay relación real \
-entre los contenidos → eliminar.
+indirectas (por saltos). Son más débiles por naturaleza. El campo "camino_nombres" \
+muestra los conceptos intermedios por los que pasa la conexión. Si el camino incluye \
+un nodo que no tiene relación clara con ambos extremos → eliminar.
+
+FUSIONAR: Si dos sinapsis apuntan a destinos que hablan de lo mismo pero con nombres \
+distintos, fusionar es válido. El valor_sugerido debe contener la lista de conceptos a \
+fusionar y la justificación debe explicar POR QUÉ son equivalentes. No fusionar por \
+coincidencia superficial de palabras clave.
 
 6. CONTENIDO: Si el contenido es menor a 100 caracteres o demasiado vago → \
 "enriquecer" con valor_sugerido que expanda el contenido.
@@ -285,13 +321,41 @@ def _pre_filtrar_conexiones(seed_contenido, sinapsis_directas, sinapsis_latentes
 
 # Acciones válidas por capa (para validación determinista)
 ACCIONES_POR_CAPA = {
-    "dimension": {"agregar", "eliminar", "reemplazar", "mantener", "ignorar"},
-    "sinonimo": {"agregar", "eliminar", "reemplazar", "ignorar"},
-    "categoria": {"reemplazar", "ignorar"},
+    "dimension": {"agregar", "eliminar", "reemplazar", "mantener", "confirmar", "ignorar"},
+    "sinonimo": {"agregar", "eliminar", "reemplazar", "confirmar", "ignorar"},
+    "categoria": {"reemplazar", "confirmar", "ignorar"},
     "contenido": {"enriquecer", "ignorar"},
     "sinapsis_directa": {"mantener", "eliminar", "reponderar", "fusionar", "ignorar"},
     "sinapsis_latente": {"confirmar", "eliminar", "reponderar", "ignorar"},
 }
+
+
+def _reconstruir_camino_nombres(origen, destino, cerebro, max_saltos=3):
+    """
+    Reconstruye camino intermedio entre origen y destino usando BFS acotada
+    sobre sinapsis directas. Retorna lista de conceptos intermedios (sin origen
+    ni destino). El camino se reconstruye sobre el grafo actual — puede diferir
+    del camino original que existía al calcular pmi_score/saltos.
+    """
+    from collections import deque
+    cursor = cerebro.conn.cursor()
+    visitado = {origen}
+    cola = deque([(origen, [origen])])
+    while cola:
+        actual, ruta = cola.popleft()
+        if len(ruta) > max_saltos + 1:
+            break
+        cursor.execute(
+            "SELECT destino FROM sinapsis WHERE origen = ? AND peso >= 0.1",
+            (actual,)
+        )
+        for (siguiente,) in cursor.fetchall():
+            if siguiente == destino:
+                return ruta[1:-1] if len(ruta) > 2 else []
+            if siguiente not in visitado:
+                visitado.add(siguiente)
+                cola.append((siguiente, ruta + [siguiente]))
+    return []
 
 
 def _construir_payload_nodo(concepto, cerebro):
@@ -364,7 +428,7 @@ def _construir_payload_nodo(concepto, cerebro):
             "destino": destino,
             "tipo": tipo,
             "peso": peso_dest,
-            "contenido_destino": cont_dest[:300] if cont_dest else ""
+            "contenido_destino": cont_dest[:700] if cont_dest else ""
         })
 
     # --- 4. SINAPSIS LATENTES (tabla sinapsis_latentes) ---
@@ -378,12 +442,14 @@ def _construir_payload_nodo(concepto, cerebro):
     """, (concepto,))
     sinapsis_latentes = []
     for destino, peso_lat, saltos, pmi, cont_dest in cursor.fetchall():
+        intermedios = _reconstruir_camino_nombres(concepto, destino, cerebro, max_saltos=saltos)
         sinapsis_latentes.append({
             "destino": destino,
             "peso_atenuado": peso_lat,
             "saltos": saltos,
             "pmi_score": pmi,
-            "contenido_destino": cont_dest[:300] if cont_dest else ""
+            "contenido_destino": cont_dest[:700] if cont_dest else "",
+            "camino_nombres": intermedios,
         })
 
     # --- 5. CATÁLOGO DE DIMENSIONES (todas las disponibles) ---
@@ -516,6 +582,26 @@ def _llamar_gemini_nodo(payload, keys_agotadas=None):
         },
     }
 
+    if DEBUG_RAW:
+        key = GEMINI_API_KEYS[0] if GEMINI_API_KEYS else ""
+        url = f"{GEMINI_ENDPOINT_TPL.format(modelo=GEMINI_MODEL)}?key={key}"
+        req = urllib.request.Request(
+            url,
+            data=json.dumps(body).encode("utf-8"),
+            headers={"Content-Type": "application/json"},
+            method="POST",
+        )
+        try:
+            with urllib.request.urlopen(req, timeout=TIMEOUT_RED_SEGUNDOS) as resp:
+                raw = resp.read().decode("utf-8")
+        except urllib.error.HTTPError as e:
+            raw = e.read().decode("utf-8", errors="ignore")
+        debug = {"request": body, "response": json.loads(raw)}
+        with open("/tmp/hormiguita_debug.json", "w") as f:
+            json.dump(debug, f, ensure_ascii=False, indent=2)
+        logger.info("[DEBUG_RAW] Request y response guardados en /tmp/hormiguita_debug.json")
+        return None
+
     ultimo_error = None
     ultimo_key_preview = None
     keys_intentadas = 0
@@ -539,7 +625,9 @@ def _llamar_gemini_nodo(payload, keys_agotadas=None):
             with urllib.request.urlopen(req, timeout=TIMEOUT_RED_SEGUNDOS) as resp:
                 data = json.loads(resp.read().decode("utf-8"))
             texto = data["candidates"][0]["content"]["parts"][0]["text"]
-            resultado = json.loads(texto)
+            # Parsing tolerante: raw_decode extrae el primer JSON válido
+            decoder = json.JSONDecoder()
+            resultado, _ = decoder.raw_decode(texto)
             # Extraer veredictos del JSON
             if isinstance(resultado, dict) and "veredictos" in resultado:
                 return resultado["veredictos"], None
@@ -1113,7 +1201,11 @@ def _aplicar_veredicto_nodo(concepto, veredicto, cerebro):
 # --- Persistencia de estado (estado_hormiga.json) ----------------------------
 
 def _cargar_estado():
-    """Carga el estado persistente del demonio. Crea uno nuevo si no existe."""
+    """Carga el estado persistente del demonio. Crea uno nuevo si no existe.
+    Resetea contadores diarios (visitados_hoy, tokens_gastados_hoy) al cambio de fecha."""
+    from datetime import datetime
+    hoy_str = datetime.now().strftime("%Y-%m-%d")
+    
     if os.path.exists(ESTADO_HORMIGA_PATH):
         try:
             with open(ESTADO_HORMIGA_PATH, "r", encoding="utf-8") as f:
@@ -1124,9 +1216,15 @@ def _cargar_estado():
                 ("fase_actual", "urgente"), ("ciclos_completados", 0), ("historial", []),
                 ("tokens_gastados_hoy", 0), ("nodo_actual", None),
                 ("lote_actual", 0), ("procesadas_nodo", []),
+                ("fecha_ultimo_reset", None),
             ]:
                 if campo not in estado:
                     estado[campo] = default
+            # Reset diario: si cambió la fecha, limpiar contadores del día
+            if estado.get("fecha_ultimo_reset") != hoy_str:
+                estado["visitados_hoy"] = []
+                estado["tokens_gastados_hoy"] = 0
+                estado["fecha_ultimo_reset"] = hoy_str
             return estado
         except (json.JSONDecodeError, OSError):
             logger.warning("estado_hormiga.json corrupto — creando uno nuevo.")
@@ -1141,16 +1239,29 @@ def _cargar_estado():
         "nodo_actual": None,
         "lote_actual": 0,
         "procesadas_nodo": [],
+        "fecha_ultimo_reset": hoy_str,
     }
 
 
 def _guardar_estado(estado):
-    """Guarda el estado, rotando el historial a las últimas 50 entradas."""
+    """Guarda el estado, rotando el historial a las últimas 50 entradas.
+    Usa flock para evitar escrituras concurrentes de múltiples instancias."""
     estado["historial"] = estado.get("historial", [])[-50:]
     estado["visitados_total"] = estado.get("visitados_total", [])[-500:]
     try:
         with open(ESTADO_HORMIGA_PATH, "w", encoding="utf-8") as f:
+            try:
+                import fcntl
+                fcntl.flock(f, fcntl.LOCK_EX)
+            except (ImportError, OSError):
+                pass  # Windows u otros sistemas sin fcntl
             json.dump(estado, f, ensure_ascii=False, indent=2)
+            f.flush()
+            try:
+                import fcntl
+                fcntl.flock(f, fcntl.LOCK_UN)
+            except (ImportError, OSError):
+                pass
     except OSError as e:
         logger.warning(f"No se pudo guardar estado_hormiga.json: {e}")
 
@@ -1279,31 +1390,33 @@ def _verificar_quota(estado):
     """
     proveedores = estado.get("proveedores", {})
     ahora = time.time()
-    
-    # Verificar si todas las keys están agotadas
-    keys_agotadas = 0
+    total_keys = len(GEMINI_API_KEYS)
+
+    # Renovar keys cuyo agotado_hasta ya pasó
     for key_info in proveedores.values():
         if key_info.get("estado") == "agotado":
             hasta = key_info.get("agotado_hasta", 0)
-            if ahora < hasta:
-                keys_agotadas += 1
-            else:
-                # Quota renovada
+            if ahora >= hasta:
                 key_info["estado"] = "disponible"
                 key_info["intentos_fallidos"] = 0
-    
-    total_keys = len(GEMINI_API_KEYS)
-    if total_keys > 0 and keys_agotadas >= total_keys:
-        # Calcular cuándo se renueva la primera key
-        min_hasta = min(
-            k.get("agotado_hasta", 0) 
-            for k in proveedores.values() 
-            if k.get("estado") == "agotado"
-        )
-        horas_espera = max(0, (min_hasta - ahora) / 3600)
-        retry_seconds = max(0, int(min_hasta - ahora))
+
+    # Contar solo las primeras N keys del env (las únicas reales)
+    keys_disponibles = 0
+    min_hasta_agotado = float("inf")
+    for i in range(total_keys):
+        key_name = f"key_{i}"
+        info = proveedores.get(key_name, {})
+        if info.get("estado") == "disponible":
+            keys_disponibles += 1
+        elif info.get("estado") == "agotado":
+            hasta = info.get("agotado_hasta", float("inf"))
+            min_hasta_agotado = min(min_hasta_agotado, hasta)
+
+    if total_keys > 0 and keys_disponibles == 0:
+        horas_espera = max(0, (min_hasta_agotado - ahora) / 3600)
+        retry_seconds = max(0, int(min_hasta_agotado - ahora))
         return False, f"Todas las keys agotadas. Renueva en {horas_espera:.1f}h", retry_seconds
-    
+
     return True, "OK", 0
 
 
@@ -1381,6 +1494,9 @@ def ejecutar_ciclo_reflexivo(cerebro, max_nodos=10):
     nodos_procesados = 0
     eliminados_total = 0
     fallo = False  # Inicializar para que exista fuera del while
+    nodo_pendiente_resumir = False  # Flag híbrido: nodo incompleto que se retoma en próxima invocación
+    nodos_desde_ultimo_benchmark = estado.get("nodos_desde_ultimo_benchmark", 0)
+    reintento_hecho_para = None  # Per-nodo: trackea si ya se hizo reintento inmediato
     
     while nodos_procesados < max_nodos:
         # Elegir siguiente nodo (o reanudar el que quedó a medias)
@@ -1534,9 +1650,11 @@ def ejecutar_ciclo_reflexivo(cerebro, max_nodos=10):
 
             veredictos_totales += len(veredictos)
 
-            # Marcar lote como procesado y persistir estado DESPUÉS DE CADA LOTE
+            # Marcar SOLO las sinapsis que Gemini realmente evaluó
+            refs_veredictadas = {v.get("ref") for v in veredictos if isinstance(v, dict) and v.get("ref")}
             for _, s in lote:
-                procesadas.add(s.get("destino"))
+                if s.get("destino") in refs_veredictadas:
+                    procesadas.add(s.get("destino"))
             estado["procesadas_nodo"] = list(procesadas)
             estado["lote_actual"] = estado.get("lote_actual", 0) + 1
             _registrar_exito(estado, tokens_usados=len(json.dumps(mini_payload)) // 4)
@@ -1552,34 +1670,109 @@ def ejecutar_ciclo_reflexivo(cerebro, max_nodos=10):
 
         eliminados_total += eliminados
 
-        # Nodo completo — limpiar estado granular y expandir frontera
-        estado["nodo_actual"] = None
-        estado["lote_actual"] = 0
-        estado["procesadas_nodo"] = []
+        # Verificar completitud del nodo (subset check, no igualdad)
+        todas_destinos = {s.get("destino") for _, s in pendientes}
+        sinapsis_completadas = todas_destinos <= procesadas
 
-        vecinos = _expandir_frontera(concepto, cerebro, visitados_total)
-        frontier_actual = set(estado.get("frontier", []))
-        for v in vecinos:
-            if v not in visitados_total and v not in frontier_actual:
-                estado["frontier"].append(v)
+        if sinapsis_completadas:
+            # Nodo COMPLETO — cerrar y expandir frontera
+            estado["nodo_actual"] = None
+            estado["lote_actual"] = 0
+            estado["procesadas_nodo"] = []
+            intentos = estado.get("intentos_por_nodo", {})
+            intentos.pop(concepto, None)
 
-        resultados.append({
-            "nodo": concepto,
-            "veredictos": veredictos_totales,
-            "aplicados": aplicados,
-            "eliminados": eliminados,
-            "prefiltrados": cortes_directos,
-            "lotes": len(lotes),
-        })
+            vecinos = _expandir_frontera(concepto, cerebro, visitados_total)
+            frontier_actual = set(estado.get("frontier", []))
+            for v in vecinos:
+                if v not in visitados_total and v not in frontier_actual:
+                    estado["frontier"].append(v)
+
+            resultados.append({
+                "nodo": concepto,
+                "veredictos": veredictos_totales,
+                "aplicados": aplicados,
+                "eliminados": eliminados,
+                "prefiltrados": cortes_directos,
+                "lotes": len(lotes),
+                "completo": True,
+            })
+        else:
+            # Nodo INCOMPLETO — quedan sinapsis sin veredicto
+            intentos = estado.get("intentos_por_nodo", {})
+            intentos[concepto] = intentos.get(concepto, 0) + 1
+
+            if intentos[concepto] >= MAX_INTENTOS_POR_NODO:
+                # Forzar ignorar sobre sinapsis pendientes con trazabilidad
+                abandonadas = list(todas_destinos - procesadas)
+                logger.warning(
+                    f"[Hormiguita] {concepto}: {MAX_INTENTOS_POR_NODO} intentos fallidos. "
+                    f"Forzando ignorar en {len(abandonadas)} sinapsis."
+                )
+                estado["historial"].append({
+                    "tipo": "nodo_forzado_incompleto",
+                    "concepto": concepto,
+                    "sinapsis_abandonadas": abandonadas,
+                    "ts": time.time(),
+                })
+                for destino in abandonadas:
+                    procesadas.add(destino)
+                intentos.pop(concepto, None)
+                estado["intentos_por_nodo"] = intentos
+                # Cerrar nodo forzadamente
+                estado["nodo_actual"] = None
+                estado["lote_actual"] = 0
+                estado["procesadas_nodo"] = []
+                vecinos = _expandir_frontera(concepto, cerebro, visitados_total)
+                frontier_actual = set(estado.get("frontier", []))
+                for v in vecinos:
+                    if v not in visitados_total and v not in frontier_actual:
+                        estado["frontier"].append(v)
+                resultados.append({
+                    "nodo": concepto,
+                    "veredictos": veredictos_totales,
+                    "aplicados": aplicados,
+                    "eliminados": eliminados,
+                    "prefiltrados": cortes_directos,
+                    "lotes": len(lotes),
+                    "completo": True,
+                    "forzado": True,
+                })
+            else:
+                # Todavía hay reintentos disponibles — híbrido 1+2
+                estado["intentos_por_nodo"] = intentos
+                estado["nodo_actual"] = concepto
+                estado["procesadas_nodo"] = list(procesadas)
+
+                if reintento_hecho_para != concepto:
+                    # Primer reintento inmediato — procesar de nuevo en este ciclo
+                    reintento_hecho_para = concepto
+                    estado["lote_actual"] = 1  # Sentinel para _siguiente_nodo
+                    logger.warning(
+                        f"[Hormiguita] {concepto}: incompleto — "
+                        f"Reintentando una vez más en este mismo ciclo."
+                    )
+                    continue
+                else:
+                    # Ya se reintentó una vez — break, se retoma en próxima invocación
+                    nodo_pendiente_resumir = True
+                    estado["lote_actual"] = 0
+                    logger.warning(
+                        f"[Hormiguita] {concepto}: incompleto tras reintento — "
+                        f"Se retomará en la próxima invocación del daemon."
+                    )
+                    break
 
         nodos_procesados += 1
+        nodos_desde_ultimo_benchmark += 1
 
         # Benchmark gate: cada N nodos, medir recall real del grafo podado
-        if nodos_procesados % BENCHMARK_CADA_N_NODOS == 0:
+        if nodos_desde_ultimo_benchmark >= BENCHMARK_CADA_N_NODOS:
             gate = _benchmark_gate(cerebro, estado)
             if gate:
                 estado["historial"].append({"tipo": "benchmark", **gate})
-                _guardar_estado(estado)
+            nodos_desde_ultimo_benchmark = 0
+            _guardar_estado(estado)
 
         logger.info(
             f"[Hormiguita] {concepto}: {aplicados}/{veredictos_totales} veredictos en "
@@ -1591,14 +1784,15 @@ def ejecutar_ciclo_reflexivo(cerebro, max_nodos=10):
     estado["visitados_hoy"] = visitados_hoy
     estado["visitados_total"] = list(visitados_total)
     estado["ciclos_completados"] = estado.get("ciclos_completados", 0) + 1
-    # NO resetear nodo_actual si hubo fallo — el ciclo de fallo ya guardó el punto exacto
-    if not fallo:
+    estado["nodos_desde_ultimo_benchmark"] = nodos_desde_ultimo_benchmark
+    # NO resetear nodo_actual si hubo fallo o si hay nodo pendiente de reintento
+    if not fallo and not nodo_pendiente_resumir:
         estado["nodo_actual"] = None
     
     estado["historial"].append({
         "timestamp": time.time(),
         "ciclos_completados": estado["ciclos_completados"],
-        "resultado": "quota_agotada" if fallo else "completo",
+        "resultado": "quota_agotada" if fallo else ("nodo_incompleto" if nodo_pendiente_resumir else "completo"),
         "nodos_procesados": nodos_procesados,
         "eliminados_total": eliminados_total,
         "frontier_restante": len(estado.get("frontier", [])),
@@ -1629,3 +1823,26 @@ def ejecutar_ciclo_reflexivo(cerebro, max_nodos=10):
     )
     
     return resumen
+
+
+if __name__ == "__main__":
+    import argparse
+    parser = argparse.ArgumentParser(description="Hormiguita debug: enviar 1 nodo a Gemini")
+    parser.add_argument("concepto", help="Concepto del nodo a evaluar")
+    parser.add_argument("--db", default=None, help="Ruta a memory_biorag.db")
+    args = parser.parse_args()
+
+    import sys
+    sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
+    from core.memory_store import SQLiteMemoryBioRAG
+    import os
+    db = args.db or os.path.join(os.path.dirname(__file__), "..", "MemoryBioRAG_Data", "memory_biorag.db")
+    cerebro = SQLiteMemoryBioRAG(db_path=os.path.abspath(db))
+    payload = _construir_payload_nodo(args.concepto, cerebro)
+    if not payload:
+        print(f"No se pudo construir payload para '{args.concepto}' (nodo inactivo o no existe)")
+    else:
+        DEBUG_RAW = True
+        _llamar_gemini_nodo(payload)
+        print("Guardado en /tmp/hormiguita_debug.json")
+    cerebro.cerrar_sistema()
