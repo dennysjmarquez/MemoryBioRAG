@@ -1440,7 +1440,8 @@ def _verificar_quota(estado):
     for i in range(total_keys):
         key_name = f"key_{i}"
         info = proveedores.get(key_name, {})
-        if info.get("estado") == "disponible":
+        if info.get("estado") == "disponible" or not info:
+            # Sin historial = nunca falló = disponible
             keys_disponibles += 1
         elif info.get("estado") == "agotado":
             hasta = info.get("agotado_hasta", float("inf"))
@@ -1448,7 +1449,10 @@ def _verificar_quota(estado):
 
     if total_keys > 0 and keys_disponibles == 0:
         horas_espera = max(0, (min_hasta_agotado - ahora) / 3600)
-        retry_seconds = max(0, int(min_hasta_agotado - ahora))
+        if min_hasta_agotado == float("inf"):
+            retry_seconds = 600  # 10 min si no hay ventana conocida
+        else:
+            retry_seconds = max(0, int(min_hasta_agotado - ahora))
         return False, f"Todas las keys agotadas. Renueva en {horas_espera:.1f}h", retry_seconds
 
     return True, "OK", 0
@@ -1460,14 +1464,14 @@ def _registrar_exito(estado, tokens_usados=0):
     estado["ultimo_exito"] = time.time()
 
 
-def _registrar_fallo(estado, tipo_error="unknown", key_preview=None):
+def _registrar_fallo(estado, tipo_error="unknown", key_preview=None, key_idx=None):
     """Registra un fallo de API (429/404) y marca la key como agotada."""
     ahora = time.time()
     espera_horas = 24  # Esperar 24 horas antes de reintentar
     
     proveedores = estado.setdefault("proveedores", {})
-    # Usar preview real de la key si se proporciona, sino fallback a key_N
-    key_actual = key_preview if key_preview else f"key_{len(proveedores)}"
+    # Usar key_idx (formato "key_0") si está disponible, sino fallback a key_preview
+    key_actual = f"key_{key_idx}" if key_idx is not None else (key_preview if key_preview else f"key_{len(proveedores)}")
     
     proveedores[key_actual] = {
         "estado": "agotado",
@@ -1800,7 +1804,8 @@ def ejecutar_ciclo_reflexivo(cerebro, max_nodos=10):
                 estado["nodo_actual"] = concepto
                 estado["procesadas_nodo"] = list(procesadas)
                 _guardar_estado(estado)
-                _registrar_fallo(estado, "api_fallo", key_preview=last_key_preview)
+                for key_idx_exhausted in keys_agotadas_acum:
+                    _registrar_fallo(estado, "api_fallo", key_preview=last_key_preview, key_idx=key_idx_exhausted)
                 fallo = True
                 logger.warning(
                     f"[Hormiguita] Fallo API en {concepto} lote {idx + 1}/{len(lotes)}. "
