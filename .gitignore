@@ -24,3 +24,19 @@ dashboard-neuro-visor/dist/
 
 .env.local
 estado_hormiga.json
+
+dashboard-2.py
+
+dashboard.py
+
+dashboard_back/
+
+dashboard_img/
+
+logs/
+
+MemoryBioRAG_Data/memory_biorag.db-shm
+
+MemoryBioRAG_Data/memory_biorag.db-wal
+
+snapshots/

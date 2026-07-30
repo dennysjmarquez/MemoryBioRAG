@@ -1,28 +1,28 @@
-# BioRAG v24.1 — Neocórtex Sintético con La Hormiguita y Grafo Maintenance Daemon
+# BioRAG v24.1 — Neocórtex Sintético con La Hormiguita, Predicados SRL y Grafo Maintenance Daemon
 
 > **Versión:** v24.1 — Julio 2026
-> **Paradigma:** Circuito Sintético Cognitivamente Cerrado & Red por Defecto (DMN Ideación Autónoma en Reposo + GABA en Vivo + Dopamina RPE con Inercia Sináptica + Valencia Somática Cortical + Escalado Homeostático + PMI + SDM 1024-bit con Query-by-Example + SLS + Stemmer Bilingüe + Predicados SRL + Feedback-Driven Graph Learning)
+> **Paradigma:** Circuito Sintético Cognitivamente Cerrado & Red por Defecto (DMN Ideación Autónoma en Reposo + GABA en Vivo + Dopamina RPE con Inercia Sináptica + Valencia Somática Cortical + Escalado Homeostático + PMI + SDM 1024-bit con Query-by-Example + SLS + Stemmer Bilingüe + Predicados SRL + Feedback-Driven Graph Learning + La Hormiguita)
 > **Motor:** Python puro + SQLite FTS5 WAL
 > **Dependencias ML:** 0 (mcp + nltk para WordNet, 0 numpy, 0 sentence-transformers, 0 torch, 0 dependencias C++ o CUDA)
 > **Idiomas:** Español + Inglés (stemming bilingüe ES/EN + expansión simbólica vía WordNet)
 > **Tests:** 117/117 tests biológicos automatizados (100% Éxito) ✓
 
-**BioRAG** es una arquitectura de memoria cognitiva simbólica, biomimética y persistente para agentes de inteligencia artificial. Resuelve el problema fundamental de que los LLMs olvidan todo entre sesiones — sin depender de vectores densos, embeddings, GPU ni infraestructura externa. Opera sobre un espacio discreto, determinista y auditable: 7 ejes semánticos × 73 sub-valores declarativos, 45 grupos léxicos WordNet, Pointwise Mutual Information (PMI/NPMI) aprendido sobre el corpus, Sparse Distributed Memory (SDM de 1024 bits) con Query-by-Example para búsqueda semántica por Hamming distance, un pipeline de recuperación de 14 capas en cascada con expansión simbólica bilingüe (Stemmer ES/EN + Levenshtein + WordNet), un grafo de conocimiento dinámico con plasticidad negativa y sinapsis latentes semánticas (SLS), y un motor autónomo de Red por Defecto (DMN) que divaga y genera hipótesis en reposo.
+**BioRAG** es una arquitectura de memoria cognitiva simbólica, biomimética y persistente para agentes de inteligencia artificial. Resuelve el problema fundamental de que los LLMs olvidan todo entre sesiones — sin depender de vectores densos, embeddings, GPU ni infraestructura externa. Opera sobre un espacio discreto, determinista y auditable: 7 ejes semánticos × 73 sub-valores declarativos, 45 grupos léxicos WordNet, Pointwise Mutual Information (PMI/NPMI) aprendido sobre el corpus, Sparse Distributed Memory (SDM de 1024 bits) con Query-by-Example para búsqueda semántica por Hamming distance, un pipeline de recuperación de 14 capas en cascada con expansión simbólica bilingüe (Stemmer ES/EN + Levenshtein + WordNet), un grafo de conocimiento dinámico con plasticidad negativa y sinapsis latentes semánticas (SLS), un motor autónomo de Red por Defecto (DMN) que divaga y genera hipótesis en reposo, un sistema de mantenimiento automatizado del grafo (La Hormiguita) con cuarentena y benchmark gate, y Feedback-Driven Graph Learning con LTP asintótico sobre caminos de spreading activation.
 
 ---
 
 ## 📊 Benchmark y Evaluación de Rendimiento (v24.1 Validado — Zero Data Leakage)
 
-> Metodología: **Peso excluido del scoring** (`ignore_peso_sinaptico=True`) — campo de juego nivelado sin artefactos de umbral de ruido. Determinismo verificado: 2 corridas idénticas.
+> Metodología: **Peso excluido del scoring** (`ignore_peso_sinaptico=True`) — campo de juego nivelado sin artefactos de umbral de ruido. Determinismo verificado: 4 corridas idénticas. Tests: 117/117.
 
 ### Comparativa de la Evolución de `por_tema`
 
-| Métrica | v18.0–v21.0 | Baseline LTD (decaído) | **v23.0 (593 nodos)** | **v23.1 (614 nodos)** | Estado |
-|---|---|---|---|---|---|
-| **Recall@5** | 36.92% | 41.54% | **70.77%** | **81.54%** | 🚀 **+44.62 pp** |
-| **Recall@1** | 12.31% | 16.92% | **40.00%** | **56.92%** | 📈 **+44.61 pp** |
+| Métrica | v18.0–v21.0 | v22.2 (PRF) | **v23.0 (Rebalanceo)** | **v23.1 (Predicados SRL)** | **v24.1 (Madurez)** | Estado |
+|---|---|---|---|---|---|---|
+| **Recall@5** | 36.92% | 58.46% | **70.77%** | **84.62%** | **84.62%** | 🚀 **+47.70 pp** |
+| **Recall@1** | 12.31% | 20.00% | **40.00%** | **58.46%** | **58.46%** | 📈 **+46.15 pp** |
 
-### Desglose Completo por Categoría de Recuperación (921 Casos QA)
+### Desglose Completo por Categoría de Recuperación (921 Casos QA, v24.1)
 
 - `dormido`: **100.00%** Recall@5 — 0 fallos
 - `literal`: **100.00%** Recall@5 — 0 fallos
@@ -31,13 +31,13 @@
 - `pregunta_natural`: **100.00%** Recall@5 — 0 fallos
 - `cruce_idioma`: **87.50%** Recall@5 — 1 fallo
 - `sinonimo`: **80.33%** Recall@5 — 12 fallos
-- `por_tema`: **81.54%** Recall@5 — 12 fallos (reducido de 27)
+- `por_tema`: **84.62%** Recall@5 — 8 fallos (reducido de 27)
 
-> **GLOBAL SUMMARY (881 casos):** Recall@5: **96.82%** | FP Negativo: **7.5%** (3/40, sin regresión)
+> **GLOBAL SUMMARY (921 casos):** Recall@5: **97.05%** | FP Negativo: **7.5%** (3/40, sin regresión)
 
-> **Validación de determinismo:** 2 corridas consecutivas idénticas → misma tabla. Snapshot reproducible en `snapshots/ablation_parent_pointers.db`.
+> **Validación de determinismo:** 4 corridas consecutivas idénticas → misma tabla. Snapshot reproducible en `snapshots/ablation_parent_pointers.db`.
 
-> **Nuevas features v23.1:** Predicados SRL como Signal #12 (+13.85pp por_tema), Feedback-Driven Graph Learning (LTP asintótico sobre aristas de spreading activation). Experiments rechazados documentados: JSD, Bayesian BM25.
+> **Scoring híbrido: 12 señales.** Incluye Predicados SRL como Signal #12 (+13.85pp por_tema), Feedback-Driven Graph Learning (LTP asintótico sobre aristas de spreading activation), La Hormiguita para mantenimiento autónomo del grafo con cuarentena y benchmark gate. Experiments rechazados documentados: JSD, Bayesian BM25.
 
 ---
 
@@ -300,9 +300,9 @@ Cada capa se ejecuta SOLO si la anterior devolvió pocos resultados (< 3 o < lim
 
 ---
 
-### 2. Scoring Híbrido — 10 Señales Cognitivas
+### 2. Scoring Híbrido — 12 Señales Cognitivas
 
-La fórmula `_calcular_score_hibrido()` en `memory_store.py` combina 10 señales con pesos fijos:
+La fórmula `_calcular_score_hibrido()` en `memory_store.py` combina 12 señales con pesos fijos (actualizado v23.1):
 
 ```
 score = 0.25 × BM25_norm
@@ -315,11 +315,19 @@ score = 0.25 × BM25_norm
       + 0.08 × tematico_score (competidores del mismo dominio)
       + 0.04 × temporal (creado_en reciente)
       + 0.02 × asoc_count (número de conexiones)
-    = 0.99 total
+      + 0.20 × pred_score (Predicados SRL — Signal #12, v23.1)
+    = 1.19 total → normalizado
 
 Si match_exacto (query == concepto): floor 0.95
 Si sinonimos_ratio >= 0.95: floor 0.65
 ```
+
+**Signal #12 — Predicados SRL (v23.1):** Keywords extraídos del contenido de cada nodo. Peso 0.20. Mejoró por_tema Recall@5 de 70.77% → 84.62% (+13.85pp) y Recall@1 de 35.38% → 58.46% (+23.08pp) sin regresión de FP.
+
+**Evolución de pesos (v18.0 → v23.0):**
+- `bm25_norm`: 0.14 → **0.25** (+78.6%) — BM25 es la señal más informativa
+- `concepto_ratio`: 0.16 → **0.08** (-50%) — match en nombre no discriminaba lo suficiente
+- `sinonimos_ratio`: 0.14 → **0.08** (-42.9%) — misma razón
 
 **¿Qué es el `grupo_score`?**
 Es una señal de similitud simbólica. Mide la coincidencia conceptual mediante un coseno binario o coeficiente de Jaccard entre las categorías léxicas de WordNet de las palabras de la consulta y las del nodo almacenado. Si compartes categorías como `verb.communication` o `noun.act`, se añade un boost semántico independiente del texto exacto.
@@ -909,22 +917,27 @@ if qw_cortas:
 ```
 MemoryBioRAG/
   ├── biorag.py                 # CLI bridge (buscar, guardar, asociar, sueno, corteza, comunicar)
-   ├── mcp_server.py             # Servidor MCP: 26 herramientas + ráfaga + contingencia
+  ├── mcp_server.py             # Servidor MCP: 32 herramientas + ráfaga + contingencia
   ├── install.py                # Instalador cross-platform para 7 plataformas
   ├── sleep_cycle.py            # Script autónomo de consolidación/sueño
   ├── benchmark.py              # Script de benchmarks vs LangChain+Chroma
-   ├── requirements.txt          # Dependencias: mcp, nltk (clasificación léxica)
+  ├── requirements.txt          # Dependencias: mcp, nltk (clasificación léxica)
   ├── vocabulario_inicial.json  # 239 términos del dominio para expansión semántica
   ├── VERSION                   # Versión actual del sistema
-   ├── core/
-   │    ├── memory_store.py      # Motor: LTP/LTD, 12 capas, Dynamic Multiplicator,
-   │    │                        #   co-ocurrencia, ráfaga, PALABRA_COMPLETA,
-   │    │                        #   boosting conceptual 1.2x, 9 señales de scoring
-   │    ├── clasificador_wordnet.py  # Clasificador léxico WordNet (offline)
-   │    ├── sinapsis.py          # Grafo: auto-linking, overlap coefficient, decay
-   │    ├── similitud_conceptual.py  # Jaccard vecinos + contenido, score 60/40
-   │    ├── fallback_simbolico.py  # Fallback 2.1: Levenshtein + WordNet bilingüe + traducción
-   │    └── categorizador.py     # Inferencia de categoría por palabras clave
+  ├── graph_maintenance_daemon.py  # Daemon de mantenimiento del grafo (La Hormiguita)
+  ├── core/
+  │    ├── memory_store.py      # Motor: LTP/LTD, 14 capas, PRF, 12 señales de scoring
+  │    ├── clasificador_wordnet.py  # Clasificador léxico WordNet (offline)
+  │    ├── sinapsis.py          # Grafo: auto-linking, overlap coefficient, decay
+  │    ├── similitud_conceptual.py  # Jaccard vecinos + contenido, score 60/40
+  │    ├── fallback_simbolico.py  # Fallback 2.1: Levenshtein + WordNet bilingüe + traducción
+  │    ├── sdm.py               # Sparse Distributed Memory 1024-bit
+  │    ├── pmi_semantico.py     # Pointwise Mutual Information automático
+  │    ├── stemmer_es.py        # Stemmer bilingüe ES/EN ultraligero
+  │    ├── dmn_engine.py        # Default Mode Network (ideación espontánea en reposo)
+  │    ├── dmn_reflexion.py     # La Hormiguita: mantenimiento con Gemini
+  │    ├── categorizador.py     # Inferencia de categoría por palabras clave
+  │    └── stopwords.py         # Stopwords centralizadas ES/EN
   ├── middleware/
   │    ├── __init__.py
   │    ├── interceptor.py       # Escaneo de familiaridad difusa
@@ -932,16 +945,22 @@ MemoryBioRAG/
   ├── config/
   │    ├── __init__.py
   │    └── prompts.py           # System prompts con protocolo de 4 pasos
-   ├── scripts/
-   │    ├── export_architecture.py  # Exporta blueprint completo de la DB
-   │    ├── migrar_clasificacion.py  # Migración de nodos existentes a WordNet
-   │    ├── migrar_sinapsis.py     # Migración de CSV legacy a tabla sinapsis
-   │    └── migrar_sinonimos_v2.0.py
-   ├── MemoryBioRAG_Data/        # Bases de datos SQLite (auto-creado)
-   │    └── nltk_data/           # WordNet local offline (nltk)
-   ├── db_architecture_export.txt  # Blueprint generado
-   ├── test_memory.py            # Tests automatizados
-   └── README.md                 # Este archivo
+  ├── scripts/
+  │    ├── export_architecture.py  # Exporta blueprint completo de la DB
+  │    ├── evaluar_qa.py        # Suite de 921 casos de prueba Cranfield
+  │    ├── backfill_predicados.py  # Backfill de keyword predicates SRL
+  │    ├── fuzz_qa.py           # Pruebas adversariales (33 casos)
+  │    ├── concurrencia_qa.py   # Pruebas de concurrencia multi-thread
+  │    ├── escala_qa.py         # Benchmarking de escala (50K nodos)
+  │    ├── migrar_clasificacion.py  # Migración a WordNet
+  │    ├── migrar_sinapsis.py   # Migración de CSV legacy
+  │    └── migrar_sinonimos_v2.0.py
+  ├── snapshots/                # Snapshots congelados para ablation
+  ├── MemoryBioRAG_Data/        # Bases de datos SQLite (auto-creado)
+  │    └── nltk_data/           # WordNet local offline (nltk)
+  ├── db_architecture_export.txt  # Blueprint generado
+  ├── test_memory.py            # 117 tests biológicos automatizados
+  └── README.md                 # Este archivo
 ```
 
 ---
@@ -952,27 +971,35 @@ BioRAG expone una corteza cerebral compartida via MCP para que cualquier IDE o a
 
 ### Herramientas MCP
 
-| Herramienta | Descripcion |
-|---|---|
-| `recordar` (legacy: `buscar`) | Búsqueda híbrida + ráfaga + contingencia. Params: `query`, `rafaga_palabras`, `cat`, `deep`, `completo`, `asociados` |
-| `aprender` (legacy: `guardar`) | Guardar recuerdo en corto plazo. Params: `concepto`, `contenido`, `syn`, `cat` |
-| `vincular` (legacy: `asociar`) | Sinapsis bidireccional entre conceptos |
-| `comunicar` | Enviar mensaje inter-agente (athena, artemis, hermes, todos) |
-| `leer_mensajes` | Leer canal compartido (auto-marca leidos) |
-| `consolidar` (legacy: `sueno`) | Consolidar + co-ocurrencia + métricas |
-| `introspeccion` (legacy: `estado`) | Stats de la corteza (activos, dormidos, energia, sinapsis) |
-| `mapear` (legacy: `corteza`) | Listar todos los nodos de la corteza |
-| `biorag_contexto_inicio` | Anunciar inicio de interacción |
-| `biorag_contexto_fin` | Finalizar + auto-sueño automático |
-| `biorag_metricas_historial` | Últimos N ciclos de sueño con tendencias |
-| `biorag_semantica_admin` | CRUD tabla semántica |
-| `biorag_listar_categorias` | Lista las 11 categorías madre |
-| `biorag_sync_status` | Categorías pendientes de sync a NotebookLM |
-| `biorag_export_sync` | Exporta categorías pendientes |
-| `biorag_export_full` | Export completo |
-| `listar_tipos_dimension` | Retorna los 7 tipos con `num_dimensiones` |
-| `listar_dimensiones_por_tipo` | Retorna sub-valores de uno o más tipos |
-| `listar_dimensiones` | Catálogo vivo de las 73 dimensiones |
+| Herramienta | Descripcion | Versión |
+|---|---|---|
+| `recordar` (legacy: `buscar`) | Búsqueda híbrida + ráfaga + contingencia. Params: `query`, `rafaga_palabras`, `cat`, `deep`, `completo`, `asociados`, `dias`, `desde`, `hasta`, `autor` | core |
+| `aprender` (legacy: `guardar`) | Guardar recuerdo en corto plazo. Params: `concepto`, `contenido`, `syn`, `cat`, `dimensiones`, `predicados` | core |
+| `vincular` (legacy: `asociar`) | Sinapsis bidireccional entre conceptos | core |
+| `desvincular` | Plasticidad negativa — borra sinapsis entre dos nodos | v12.0 |
+| `comunicar` | Enviar mensaje inter-agente (athena, artemis, hermes, todos) | core |
+| `leer_mensajes` | Leer canal compartido (auto-marca leidos) | core |
+| `marcar_como_leido` | Marcar cartelera como leída | v17.0 |
+| `consolidar` (legacy: `sueno`) | Consolidar + co-ocurrencia + métricas | core |
+| `introspeccion` (legacy: `estado`) | Stats de la corteza (activos, dormidos, energia, sinapsis) | core |
+| `mapear` (legacy: `corteza`) | Listar todos los nodos de la corteza | core |
+| `biorag_contexto_inicio` | Anunciar inicio de interacción | v13.0 |
+| `biorag_contexto_fin` | Finalizar + auto-sueño automático | v13.0 |
+| `biorag_metricas_historial` | Últimos N ciclos de sueño con tendencias | v13.0 |
+| `biorag_semantica_admin` | CRUD tabla semántica | v13.0 |
+| `biorag_listar_categorias` | Lista las 11 categorías madre | v13.0 |
+| `biorag_sync_status` | Categorías pendientes de sync a NotebookLM | v13.0 |
+| `biorag_export_sync` | Exporta categorías pendientes | v13.0 |
+| `biorag_export_full` | Export completo | v13.0 |
+| `listar_tipos_dimension` | Retorna los 7 tipos con `num_dimensiones` | v13.4 |
+| `listar_dimensiones_por_tipo` | Retorna sub-valores de uno o más tipos | v13.4 |
+| `listar_dimensiones` | Catálogo vivo de las 73 dimensiones | v13.4 |
+| `oraculo_inicio` | Inicialización de sesión con NotebookLM | v17.0 |
+| `oraculo_preguntar` | Consulta directa al oráculo NotebookLM | v17.0 |
+| `feedback` | Refuerzo dopaminérgico RPE por utilidad | v20.0 |
+| `estado_dmn` | Estado del motor DMN (ideación en reposo) | v21.0 |
+| `hormiguita` | Ejecutar ciclo de mantenimiento del grafo | v24.0 |
+| `hormiguita_estado` | Estado del ciclo de mantenimiento | v24.0 |
 
 ### Protocolo de 3 pasos en `recordar`
 
@@ -1019,11 +1046,38 @@ DESPUES DE CADA PASO: Leer resultados y explicar con propias palabras
 | `BIORAG_RAFTAGA_ACTIVA` | `true` | Activa/desactiva la ráfaga |
 | `BIORAG_THRESHOLD_RAFTAGA` | `0.5` | Score mínimo para activar ráfaga automática |
 
+### Caducidad Temporal (Staleness)
+
+| Variable | Default | Descripción |
+|---|---|---|
+| `BIORAG_STALE_DAYS` | `90` | Días después de los cuales un nodo se marca `stale`. El agente no debe entregarlo como información vigente. Protegidos: Principle, Profile, Personal, Relation |
+| `BIORAG_STALE_HARD_CUTOFF` | `365` | Días después de los cuales un nodo se excluye automáticamente de resultados (excepto categorías protegidas). `0` = sin cutoff |
+
 ### Fallback Simbólico (v18.0)
 
 | Variable | Default | Descripción |
 |---|---|---|
 | `BIORAG_TRADUCCION_ACTIVA` | `0` | Activa la capa de traducción externa (ES↔EN). `0` = 100% local (Levenshtein + WordNet). `1` = habilita deep-translator para expansión cruzada |
+
+### La Hormiguita — Mantenimiento del Grafo (v24.1)
+
+| Variable | Default | Descripción |
+|---|---|---|
+| `BIORAG_HORMIGA_LOTE_SINAPSIS` | `10` | Sinapsis por lote en llamada a Gemini |
+| `BIORAG_HORMIGA_MIN_CONEXIONES` | `5` | Piso anti-over-pruning por nodo |
+| `BIORAG_HORMIGA_BENCHMARK_CADA_N` | `25` | Mini-eval cada N nodos procesados |
+| `BIORAG_HORMIGA_BENCHMARK_TOLERANCIA` | `2.0` | Caída de recall máxima permitida (puntos %) |
+| `BIORAG_HORMIGA_PRE_FILTRO` | `0` | Pre-filtrado determinista (0=Gemini juzga todas) |
+| `BIORAG_HORMIGA_UMBRAL_LATENTE_DIRECTO` | `0.90` | Confianza para cuarentena directa |
+| `BIORAG_HORMIGA_RETENCION_CUARENTENA_DIAS` | `30` | Días de retención en cuarentena |
+| `BIORAG_HORMIGA_PESO_ATENUACION` | `0.50` | Factor de atenuación en strike 1 |
+
+### DMN — Red por Defecto (v21.0)
+
+| Variable | Default | Descripción |
+|---|---|---|
+| `BIORAG_DMN_IDLE_SECONDS` | `300` | Segundos de inactividad antes de activar DMN |
+| `BIORAG_DMN_MAX_IDEAS` | `3` | Máximo de ideas por ciclo de reposo |
 
 ```bash
 # Ejemplo rápido
@@ -1031,6 +1085,9 @@ export BIORAG_LIMITE_MCP=5
 export BIORAG_CANDIDATOS_SIMILITUD=50
 # Activar traducción externa (opcional, requiere internet)
 export BIORAG_TRADUCCION_ACTIVA=1
+# La Hormiguita
+export BIORAG_HORMIGA_PRE_FILTRO=1
+export BIORAG_HORMIGA_LOTE_SINAPSIS=20
 ```
 
 ---
@@ -1097,6 +1154,123 @@ Las dimensiones SIEMPRE suman, incluso con cero match de texto. El fallback dime
 ---
 
 ## Historial de Versiones
+
+### v24.1 — La Hormiguita: Sistema de Mantenimiento Seguro y Automedible (Julio 2026)
+
+**Objetivo:** Proteger el grafo contra degradación con cuarentena, benchmark gate, two-strike pruning, batching con resume y pre-filter opcional.
+
+**Features:**
+- **Cuarentena de sinapsis** (`sinapsis_cuarentena`): soft-delete reversible por 30 días
+- **Benchmark gate**: Mini-eval automática de 40 casos cada 25 nodos. Si recall cae >2.0 pts → auto-restaurar cuarentena + alertar. Baseline: 80.0%
+- **Two-strike pruning** (latentes): strike 1 = attenuate (peso×0.5), strike 2 = cuarentena
+- **Batching con resume**: 10 sinapsis por llamada a Gemini, estado persistido tras cada lote
+- **Anti-over-pruning floor**: `MIN_CONEXIONES_POR_NODO=5`
+- **WAL mode + busy_timeout=5000**
+- **Herramientas MCP**: `hormiguita` y `hormiguita_estado`
+- **Daemon wrapper**: `graph_maintenance_daemon.py` con lock file, scheduler, resume
+
+### v24.0 — La Hormiguita: Grafo Maintenance Daemon con Gemini AI (Julio 2026)
+
+**Objetivo:** Daemon background que valida y poda conexiones del grafo usando Gemini como juez experto.
+
+**Implementación:**
+- `core/dmn_reflexion.py`: `_reflexionar_nodo()` — batched Gemini evaluation, pre-filtering determinista
+- `graph_maintenance_daemon.py`: daemon con lock, scheduler, resume
+- MCP tools: `hormiguita` y `hormiguita_estado`
+- Pre-filtrado: redujo 1173 candidates a 60 para Gemini
+- Primer ciclo exitoso: 15 nodos → 24 sinapsis eliminadas, 0 huérfanos
+
+### v23.1 — Predicados SRL + Feedback-Driven Graph Learning (Julio 2026)
+
+**Objetivo:** Mejorar `por_tema` mediante señales específicas que capturen el contenido real del nodo, y hacer que el grafo aprenda con el uso real.
+
+**Feature 1: Predicados SRL como Signal #12**
+- Backfill de keyword predicates para todos los nodos (5.6%→100% cobertura)
+- Integración como signal #12 con peso óptimo 0.20 (ablation completa)
+- por_tema Recall@5: 70.77% → **84.62%** (+13.85pp)
+- por_tema Recall@1: 35.38% → **58.46%** (+23.08pp)
+- GLOBAL Recall@5: 96.25% → **97.05%**
+- FP sin regresión (7.50%)
+
+**Feature 2: Feedback-Driven Graph Learning**
+- `parent_map` en spreading activation: rastreo de caminos exactos
+- LTP asintótico sobre aristas del camino cuando `exito=True` (`peso += 0.05*(1-peso)`)
+- Solo refuerzo positivo (no atribución de culpa)
+- Alcance real: 21/921 queries (2.3%) — mecanismo de nicho
+
+**Experimentos rechazados (documentados):**
+- JSD (Signal #11): -0.34pp GLOBAL, -1.53pp por_tema
+- Bayesian BM25: -12.83pp GLOBAL, -63.08pp por_tema (catastrófico)
+
+### v23.0 — Rebalanceo de Señales de Scoring + Fix FTS5 Hyphens (Julio 2026)
+
+**Problema:** `por_tema` con 58.46% seguía siendo la categoría más débil. Causas: 44% gap de vocabulario, 33% queries genéricas, 11% crashes FTS5 por hyphens, problema no era retrieval sino scoring.
+
+**Fix FTS5 Hyphens:** `_fts_safe_term()` y `_fts_safe_phrase()` para dividir tokens con guiones.
+
+**Rebalanceo de Pesos:**
+- `bm25_norm`: 0.18 → **0.25** (+38.9%)
+- `concepto_ratio`: 0.12 → **0.08** (-33.3%)
+- `sinonimos_ratio`: 0.12 → **0.08** (-33.3%)
+
+**Resultados (snapshot congelado, 3 corridas idénticas):**
+- por_tema Recall@5: 58.46% → **70.77%** (+12.31pp)
+- por_tema Recall@1: 20.00% → **40.00%** (+20.00pp)
+- GLOBAL Recall@5: 95.01% → **95.91%**
+- FP sin regresión (7.50%)
+
+### v22.2 — Pseudo-Relevance Feedback Dimensional + Normalización QA (Julio 2026)
+
+**Problema:** 3 capas afectando por_tema: tematico_score, similitud_tematica, query sin dimensiones explícitas, y drift de LTD (51/65 nodos con W ≤ 0.30).
+
+**Solución:**
+- **PRF (Pseudo-Relevance Feedback)**: Cuando no hay dimensiones_ids explícitos, usa top-5 FTS5 como pseudo-relevantes para inyectar dimensiones implícitas
+- **Fix metodológico en evaluar_qa.py**: Normalización global W=1.00, zero data leakage
+- **Fix de tablas**: `_crear_tabla_historial_si_falta()` garantiza existencia de `nodos_sdm` y `sinapsis_latentes`
+
+**Resultados (3 corridas idénticas, determinista):**
+- por_tema Recall@5: 43.08% → **58.46%** (+15.38pp)
+- por_tema Recall@1: 12.31% → **20.00%** (+7.69pp)
+- GLOBAL Recall@5: 93.64% → **94.55%**
+- FP: 7.5% (estable)
+
+### v22.1 — Fix Scoring Híbrido: Rebalanceo de Pesos (Julio 2026)
+
+**Problema:** `concepto_ratio` (peso 0.16) dominaba la fórmula. Un nodo con la palabra del query en su nombre ganaba sobre el nodo correcto con mejor BM25.
+
+**Fix:** `bm25_norm` 0.14→0.18, `concepto_ratio` 0.16→0.12.
+
+**Resultados:** por_tema Recall@5: 36.92% → **43.08%** (+6.16pp), GLOBAL: 92.96% → 93.64%. FP: 12.5% → 7.5%.
+
+### v22.0 — SDM Query-by-Example: Base Vectorial Ligera (Julio 2026)
+
+Implementación de `buscar_sdm()` con `vector_fijo` para búsqueda semántica pura por Hamming distance (128 bytes/nodo, 0 GPU). Función `buscar_similares_a()` para encontrar nodos conceptualmente similares por estructura compartida. Validación empírica con 5/5 semillas. Suite ampliada a 117/117 tests.
+
+### v21.0 — Default Mode Network (DMN) y Curiosidad Espontánea (Julio 2026)
+
+Motor autónomo de mind-wandering en reposo (`core/dmn_engine.py`): hilo daemon con interrupción de latencia cero, muestreo resonante cortical (spindles replay), selección natural de hipótesis con decaimiento LTD, presupuesto de energía (3 ideas/ciclo), concurrencia aislada thread-local. Herramienta MCP `biorag_estado_dmn`. 112/112 tests.
+
+### v20.0 — Circuito Sintético Cognitivamente Cerrado (Julio 2026)
+
+Cuatro mecanismos neurobiológicos integrados:
+1. **Inhibición Lateral GABA**: Atenuación ×0.60 de competidores cuando Top-1 ≥ 0.80
+2. **Dopamina RPE**: `biorag_feedback(concepto, util=True/False)` con inercia sináptica
+3. **Valencia Somática**: Columna `valencia_somatica` (0.0-1.0), nodos ≥ 0.80 son inmunes a LTD
+4. **Escalado Homeostático**: Normalización ×0.98 cuando energía activa promedio > 0.70
+
+### v19.0 — Motor Cognitivo Biomimético Integrado de 5 Fases (Julio 2026)
+
+Revolución del paradigma de recuperación sin embeddings mediante arquitectura cognitiva de 8 señales ortogonales:
+1. **PMI/NPMI Semántico Automático**: Matriz de co-ocurrencia, 8,832 pares en 1,007ms
+2. **Stemmer Bilingüe ES/EN**: Reducción morfológica sin librerías pesadas
+3. **SLS (Sinapsis Latentes Semánticas)**: Filtro involutivo doble, 18,988→17,062 latentes puras
+4. **SDM 1024-bit (Kanerva 1988)**: Proyección determinista, Hamming distance, 14 bits de diferencia (98.63%)
+5. **Context Window**: Búfer de memoria de trabajo (deque maxlen=10), bonus +0.05
+6. **Engine 8 Señales**: BM25, Jaccard, PMI, SLS, Dimensional, SDM, LTP/LTD, Context
+7. **Auto-Expansión Semántica**: Paráfrasis automática vía PMI sin intervención del agente
+8. **Resonancia PMI Hebbiana**: Auto-vinculación en escritura
+9. **Commit Atómico Unificado**: Transacción única en ciclo de sueño
+10. **Homeostasis Energética**: Inhibición Lateral 100% autorregulada
 
 ### v18.1 — Higiene del Grafo de Inferencia y Corrección de Zona Horaria (Julio 2026)
 
@@ -1507,19 +1681,20 @@ La suite y herramientas asociadas se encuentran en el directorio `scripts/` (exc
 
 ## Producción
 
-| Métrica | v14.0 | v15.0 | v16.0 | v17.0 | v18.0 | v18.1 | **v19.0 (Actual)** |
-|---|---|---|---|---|---|---|---|
-| Pipeline de búsqueda | 12 capas | 12 capas + WordNet | 12 capas + SRL + Inferencia | 12 capas + SRL + Inferencia | 13 capas + Fallback Simbólico | 13 capas + Fallback Simbólico | **13 capas + Cascadas + Engine 8 Señales** |
-| Señales de scoring | 8 ortogonales | 9 señales híbridas | 9 señales + SRL + Inferencia | 9 señales + SRL + Inferencia | 9 señales + SRL + Simbólico | 9 señales + SRL + Simbólico | **8 señales cognitivas (PMI, SLS, SDM, Context)** |
-| Nodos activos | — | 415 | 415+ | 415+ | 415+ | 415+ | **534 (Producción en vivo)** |
-| Sinapsis latentes | — | — | 18,988 (ruidosas) | 18,988 (ruidosas) | 18,988 | 18,988 | **17,062 (Sinapsis Latentes Semánticas SLS)** |
-| Vectores SDM (1024-bit) | — | — | — | — | — | — | **534 vectores binarios en SQLite** |
-| Pares PMI / NPMI | — | — | — | — | — | — | **8,832 pares asociativos aprendidos** |
-| Stemming | — | — | — | — | — | — | **Bilingüe ES/EN (Stemmer adaptativo)** |
-| Tests | 78/78 | 79/79 | 86 checkpoints | 87 checkpoints | 95/95 + Suite QA | 95/95 + Suite QA | **95/95 + Suite QA + Integration 5/5 ✓** |
-| Dependencias ML | 0 | 0 (mcp + nltk) | 0 (mcp + nltk) | 0 (mcp + nltk) | 0 (mcp + nltk) | 0 (mcp + nltk) | **0 (mcp + nltk, 0 numpy, 0 torch, 0 vectors)** |
-| RAM | ~18 MB | ~20 MB | ~20 MB | ~20 MB | ~20 MB | ~20 MB | **~22 MB (en caliente)** |
-| Tools MCP | 19 | 26 | 26 | 28 | 28 | 28 | **28** |
+| Métrica | v18.0 | v19.0 | v20.0–v21.0 | v22.0 | v23.0–v23.1 | **v24.1 (Actual)** |
+|---|---|---|---|---|---|---|
+| Pipeline de búsqueda | 13 capas + Fallback Simbólico | 13 capas + Cascadas + Engine 8 Señales | 13 capas + Engine 8 Señales + DMN | 14 capas + SDM QBE | 14 capas + Señal #12 | **14 capas + 12 señales + Hormiguita** |
+| Señales de scoring | 9 | 8 cognitivas (PMI, SLS, SDM, Context) | 10 (+ GABA, RPE, Valencia) | 10 | 12 (+ Predicados SRL) | **12 señales híbridas** |
+| Nodos | ~550 | ~550 | ~570 | ~570 | ~614 | **~650+** |
+| Sinapsis latentes | 18,988 | 17,062 (SLS puras) | 17,062 | 17,062 | 17,062 | **17,062 + cuarentena** |
+| Tests | 95/95 + Suite QA | 95/95 + Suite QA | 95/95 + Suite QA | 117/117 | 117/117 | **117/117 ✓** |
+| GLOBAL Recall@5 | 93.76% | — | — | — | 96.82% | **97.05%** |
+| por_tema Recall@5 | 36.92% | — | — | 43.08% | 84.62% | **84.62%** |
+| FP Negativo | 12.5% | — | — | 7.5% | 7.5% | **7.5%** |
+| Dependencias ML | 0 (mcp + nltk) | 0 | 0 | 0 | 0 | **0** |
+| RAM | ~20 MB | ~22 MB | ~20 MB | ~20 MB | ~20 MB | **~20 MB** |
+| Latencia | ~2.8ms | ~2.8ms | ~2.8ms | ~2.8ms | ~2.8ms | **~2.8ms** |
+| Tools MCP | 28 | 28 | 29 | 29 | 30 | **32** |
 
 ---
 

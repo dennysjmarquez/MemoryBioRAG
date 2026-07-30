@@ -110,6 +110,10 @@ UMBRAL_ELIMINAR_LATENTE_DIRECTO = float(os.environ.get("BIORAG_HORMIGA_UMBRAL_LA
 # Híbrido: 1 reintento inmediato dentro de la invocación, luego espaciado entre invocaciones.
 MAX_INTENTOS_POR_NODO = int(os.environ.get("BIORAG_HORMIGA_MAX_INTENTOS_NODO", "3"))
 
+# Máx chars del contenido_destino enviado a Gemini. Aumentar da más contexto
+# pero sube el costo. Default 3000 cubre la mayoría de nodos tipo lección.
+MAX_CONTENIDO_DESTINO_CHARS = int(os.environ.get("BIORAG_CONTENIDO_DESTINO_CHARS", "3000"))
+
 ACCIONES_VALIDAS = {"aceptar", "eliminar", "fusionar", "reponderar", "reforzar_valencia", "ignorar"}
 
 PROMPT_SISTEMA = """Eres un analizador semántico que evalúa la calidad de un grafo de \
@@ -179,7 +183,7 @@ solo palabras genéricas (nombres de proyecto, persona, términos vagos como "si
 REGLA ESTRICTA para conexiones tipo "pmi_hebbiano": estas fueron creadas por \
 co-ocurrencia estadística, NO por comprensión semántica. Si la justificación requiere \
 inventar un puente conceptual que NO está en los contenidos → ELIMINAR.
-IMPORTANTE: El contenido del destino puede estar truncado (máx 700 chars). Si la \
+IMPORTANTE: El contenido del destino puede estar truncado (máx 3000 chars). Si la \
 decisión depende del contenido completo, indicá "contenido truncado" en la justificación \
 y usá "ignorar" con confianza media.
 
@@ -428,7 +432,7 @@ def _construir_payload_nodo(concepto, cerebro):
             "destino": destino,
             "tipo": tipo,
             "peso": peso_dest,
-            "contenido_destino": cont_dest[:700] if cont_dest else ""
+            "contenido_destino": cont_dest[:MAX_CONTENIDO_DESTINO_CHARS] if cont_dest else ""
         })
 
     # --- 4. SINAPSIS LATENTES (tabla sinapsis_latentes) ---
@@ -448,7 +452,7 @@ def _construir_payload_nodo(concepto, cerebro):
             "peso_atenuado": peso_lat,
             "saltos": saltos,
             "pmi_score": pmi,
-            "contenido_destino": cont_dest[:700] if cont_dest else "",
+            "contenido_destino": cont_dest[:MAX_CONTENIDO_DESTINO_CHARS] if cont_dest else "",
             "camino_nombres": intermedios,
         })
 

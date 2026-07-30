@@ -96,6 +96,14 @@ LIMITE_MCP = int(os.environ.get('BIORAG_LIMITE_MCP', '10'))
 THRESHOLD_RAFTAGA_MCP = float(os.environ.get('BIORAG_THRESHOLD_RAFTAGA', '0.5'))
 """Score mínimo para activar ráfaga automáticamente en MCP."""
 
+STALE_DAYS = int(os.environ.get('BIORAG_STALE_DAYS', '90'))
+"""Días después de los cuales un nodo se marca como 'stale' (obsoleto).
+Resultados stale no se entregan como información vigente.
+Protegidos: categories Principle, Profile, Personal, Relation no se marcan stale."""
+STALE_HARD_CUTOFF_DAYS = int(os.environ.get('BIORAG_STALE_HARD_CUTOFF', '365'))
+"""Días después de los cuales un nodo se excluye de resultados (a menos que
+esté en categoría protegida). 0 = sin cutoff."""
+
 PARAFRASIS_PENALTY = 0.95
 """Factor multiplicativo aplicado a resultados de variantes no exactas (paráfrasis).
 El query original (i==0) mantiene factor 1.0; variantes penalizan ×0.95."""
@@ -728,14 +736,61 @@ def _build_server():
                     preview_chars=preview_chars
                 )
 
+            # ── CADUCIDAD TEMPORAL (staleness) ─────────────────────────
+            # Marcar resultados viejos para que el agente no los entregue
+            # como información vigente. Categorías protegidas (Principle,
+            # Profile, Personal, Relation) no caducan.
+            _CATEGORIAS_PROTEGIDAS = {"Principle", "Profile", "Personal", "Relation"}
+            ahora = time.time()
+            _edad_map = {}
+            _cat_map = {}
+            if resultados:
+                conceptos_stale = [r[0] for r in resultados]
+                ph = ",".join("?" * len(conceptos_stale))
+                try:
+                    cerebro.cursor.execute(
+                        f"SELECT concepto, creado_en, c.nombre "
+                        f"FROM largo_plazo l "
+                        f"JOIN categorias c ON c.id = l.categoria "
+                        f"WHERE l.concepto IN ({ph})",
+                        conceptos_stale,
+                    )
+                    for conc, creado, cat_nombre in cerebro.cursor.fetchall():
+                        _edad_map[conc] = creado if creado else 0
+                        _cat_map[conc] = cat_nombre
+                except Exception:
+                    pass
+                # Hard cutoff: excluir nodos más viejos que STALE_HARD_CUTOFF_DAYS
+                # a menos que estén en categoría protegida
+                if STALE_HARD_CUTOFF_DAYS > 0:
+                    resultados_filtrados = []
+                    for r in resultados:
+                        edad_dias = (ahora - _edad_map.get(r[0], ahora)) / 86400 if _edad_map.get(r[0]) else 0
+                        cat_protegida = _cat_map.get(r[0], "") in _CATEGORIAS_PROTEGIDAS
+                        if edad_dias > STALE_HARD_CUTOFF_DAYS and not cat_protegida:
+                            _warnings.append(f"🕰️ '{r[0]}' ({int(edad_dias)} días) supera cutoff de {STALE_HARD_CUTOFF_DAYS} días — excluido. Categoría protegida → mantener.")
+                        else:
+                            resultados_filtrados.append(r)
+                    _hard_cut = len(resultados) - len(resultados_filtrados)
+                    if _hard_cut > 0:
+                        _warnings.append(
+                            f"🕰️ Se excluyeron {_hard_cut} nodos por superar {STALE_HARD_CUTOFF_DAYS} días de antigüedad. "
+                            "Si necesitás verlos, usá deep=True o reducí BIORAG_STALE_HARD_CUTOFF."
+                        )
+                    resultados = resultados_filtrados
+
             items = []
             for concepto, contenido, peso, estado, score, asociaciones in resultados:
+                edad_dias = (ahora - _edad_map.get(concepto, ahora)) / 86400 if _edad_map.get(concepto) else 0
+                es_stale = edad_dias > STALE_DAYS and _cat_map.get(concepto, "") not in _CATEGORIAS_PROTEGIDAS
                 items.append({
                     "concepto": concepto,
                     "contenido": contenido,
                     "peso_sinaptico": peso,
                     "estado": estado,
                     "score_hibrido": score,
+                    "edad_dias": round(edad_dias, 1),
+                    "stale": es_stale,
                     "asociaciones": [
                         v.strip() for v in (asociaciones or "").split(",") if v.strip()
                     ] if asociados and asociaciones else [],
@@ -766,6 +821,19 @@ def _build_server():
                                 item["dimensiones_semanticas"] = dim_map[item["concepto"]]
                     except sqlite3.OperationalError:
                         pass
+
+            # ── WARNING DE STALE ───────────────────────────────────────
+            if items and any(item.get("stale") for item in items):
+                stale_count = sum(1 for item in items if item.get("stale"))
+                old_items = [item for item in items if item.get("stale")]
+                old_names = ", ".join(item["concepto"] for item in old_items[:5])
+                if len(old_items) > 5:
+                    old_names += f" (+{len(old_items) - 5} más)"
+                _warnings.append(
+                    f"🕰️ {stale_count} resultado(s) marcado(s) como 'stale': {old_names}. "
+                    f"Tienen más de {STALE_DAYS} días de antigüedad. "
+                    "El campo 'edad_dias' indica la edad real. Considerá actualizar o verificar su vigencia."
+                )
 
             limite_den = limite if (limite and limite > 0) else 1
             paginas_totales = math.ceil(total / limite_den)
