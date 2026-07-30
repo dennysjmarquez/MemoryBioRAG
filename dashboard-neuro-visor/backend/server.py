@@ -1520,9 +1520,28 @@ def procesar_nodo_individual(concepto: str, force: bool = False):
     """
     try:
         from core.memory_store import SQLiteMemoryBioRAG
-        from core.dmn_reflexion import procesar_nodo_unico
+        from core.dmn_reflexion import procesar_nodo_unico, _cargar_estado, _guardar_estado
     except ImportError as e:
         raise HTTPException(status_code=500, detail=f"Error importando módulos: {e}")
+
+    # Asegurar ruta correcta a estado_hormiga.json
+    ESTADO_HORMIGA_PATH = os.path.join(BASE_DIR, "..", "estado_hormiga.json")
+    os.environ["BIORAG_DMN_ESTADO_PATH"] = ESTADO_HORMIGA_PATH
+
+    # Guard visitados_hoy: si ya se procesó hoy, no llamar a Gemini
+    estado = _cargar_estado()
+    if not force and concepto in estado.get("visitados_hoy", []):
+        return {
+            "status": "ya_procesado",
+            "mensaje": f"'{concepto}' ya fue procesado hoy. Usá force=True para reprocesar.",
+            "nodo": concepto,
+            "veredictos": 0,
+            "aplicados": 0,
+            "eliminados": 0,
+            "prefiltrados": 0,
+            "lotes": 0,
+            "completo": True,
+        }
 
     cerebro = SQLiteMemoryBioRAG(DB_PATH)
     try:
@@ -1544,6 +1563,13 @@ def procesar_nodo_individual(concepto: str, force: bool = False):
 
         if resultado["status"] == "error":
             raise HTTPException(status_code=400, detail=resultado.get("error", "Error desconocido"))
+
+        # Marcar como procesado hoy
+        if resultado["status"] == "ok":
+            estado = _cargar_estado()
+            if concepto not in estado.get("visitados_hoy", []):
+                estado["visitados_hoy"].append(concepto)
+                _guardar_estado(estado)
 
         # status "api_fallo" y "ya_procesado" se devuelven como 200
         return {

@@ -1832,6 +1832,8 @@ def _build_server():
     def biorag_hormiguita(max_nodos: int = 5, nodo_especifico: str = "") -> str:
         from core.dmn_reflexion import (
             procesar_nodo_unico,
+            _cargar_estado,
+            _guardar_estado,
         )
 
         if not nodo_especifico:
@@ -1842,9 +1844,34 @@ def _build_server():
                            "El MCP solo procesa nodos individuales bajo demanda.",
             }, ensure_ascii=False, default=str)
 
+        # Guard visitados_hoy: si ya se procesó hoy, no llamar a Gemini
+        ESTADO_HORMIGA_PATH = os.path.join(
+            _PROJECT_ROOT, "dashboard-neuro-visor", "estado_hormiga.json"
+        )
+        os.environ["BIORAG_DMN_ESTADO_PATH"] = ESTADO_HORMIGA_PATH
+        estado = _cargar_estado()
+        if nodo_especifico in estado.get("visitados_hoy", []):
+            return json.dumps({
+                "status": "ya_procesado",
+                "mensaje": f"'{nodo_especifico}' ya fue procesado hoy.",
+                "nodo": nodo_especifico,
+                "veredictos": 0,
+                "aplicados": 0,
+                "eliminados": 0,
+                "prefiltrados": 0,
+                "lotes": 0,
+                "completo": True,
+            }, ensure_ascii=False, default=str)
+
         cerebro = _get_cerebro()
         try:
             resultado = procesar_nodo_unico(nodo_especifico, cerebro)
+            # Marcar como procesado hoy
+            if resultado.get("status") == "ok":
+                estado = _cargar_estado()
+                if nodo_especifico not in estado.get("visitados_hoy", []):
+                    estado["visitados_hoy"].append(nodo_especifico)
+                    _guardar_estado(estado)
             return json.dumps(resultado, ensure_ascii=False, default=str)
         finally:
             cerebro.cerrar_sistema()
