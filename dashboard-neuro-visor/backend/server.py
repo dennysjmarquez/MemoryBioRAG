@@ -1445,5 +1445,101 @@ def get_corteza_dmn():
         conn.close()
 
 
+@app.post("/api/nodo/{concepto}/procesar")
+def procesar_nodo_individual(concepto: str, force: bool = False):
+    """
+    Procesa un nodo individual con el pipeline COMPLETO de la hormiguita (on-demand).
+    Delega en procesar_nodo_unico() de dmn_reflexion, que garantiza:
+      - Pre-filtrado determinista via cuarentena (no DELETE directo)
+      - Batching hacia Gemini con circuit-breaker multi-key
+      - Piso anti-sobrepoda (MIN_CONEXIONES_POR_NODO)
+      - Expansión de frontera con vecinos
+      - Marcado como visitado en estado_hormiga.json
+
+    Si force=False (default) y el nodo ya fue procesado hoy, retorna 200 sin llamar a Gemini.
+    """
+    try:
+        from core.memory_store import SQLiteMemoryBioRAG
+        from core.dmn_reflexion import procesar_nodo_unico
+    except ImportError as e:
+        raise HTTPException(status_code=500, detail=f"Error importando módulos: {e}")
+
+    cerebro = SQLiteMemoryBioRAG(DB_PATH)
+    try:
+        # Verificar que el nodo existe
+        cursor = cerebro.conn.cursor()
+        cursor.execute("SELECT estado FROM largo_plazo WHERE concepto = ?", (concepto,))
+        row = cursor.fetchone()
+        if not row:
+            raise HTTPException(status_code=404, detail=f"Nodo '{concepto}' no encontrado")
+
+        # Verificar si está dormido
+        if row[0] == "dormido":
+            raise HTTPException(
+                status_code=400,
+                detail=f"El nodo '{concepto}' está dormido. Despertalo antes de optimizar."
+            )
+
+        resultado = procesar_nodo_unico(concepto, cerebro, force=force)
+
+        if resultado["status"] == "error":
+            raise HTTPException(status_code=400, detail=resultado.get("error", "Error desconocido"))
+
+        # status "api_fallo" y "ya_procesado" se devuelven como 200
+        return {
+            "status": resultado["status"],
+            "mensaje": resultado["mensaje"],
+            "veredictos": resultado["veredictos"],
+            "aplicados": resultado["aplicados"],
+            "eliminados": resultado["eliminados"],
+            "prefiltrados": resultado.get("prefiltrados", 0),
+            "lotes": resultado.get("lotes", 0),
+            "completo": resultado.get("completo", True),
+        }
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error procesando nodo: {str(e)}")
+    finally:
+        cerebro.conn.close()
+
+
+@app.post("/api/nodo/{concepto}/dormir")
+def dormir_nodo(concepto: str):
+    """Pone un nodo en estado dormido."""
+    conn = get_db()
+    try:
+        cursor = conn.cursor()
+        cursor.execute(
+            "UPDATE largo_plazo SET estado = 'dormido' WHERE concepto = ? AND estado = 'activo'",
+            (concepto,),
+        )
+        conn.commit()
+        if cursor.rowcount == 0:
+            raise HTTPException(status_code=404, detail=f"Nodo '{concepto}' no encontrado o ya dormido")
+        return {"status": "ok", "mensaje": f"Nodo '{concepto}' dormido"}
+    finally:
+        conn.close()
+
+
+@app.post("/api/nodo/{concepto}/despertar")
+def despertar_nodo(concepto: str):
+    """Despierta un nodo dormido."""
+    conn = get_db()
+    try:
+        cursor = conn.cursor()
+        cursor.execute(
+            "UPDATE largo_plazo SET estado = 'activo' WHERE concepto = ? AND estado = 'dormido'",
+            (concepto,),
+        )
+        conn.commit()
+        if cursor.rowcount == 0:
+            raise HTTPException(status_code=404, detail=f"Nodo '{concepto}' no encontrado o ya activo")
+        return {"status": "ok", "mensaje": f"Nodo '{concepto}' despertado"}
+    finally:
+        conn.close()
+
+
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=DASHBOARD_BACKEND_PORT)
+

@@ -1,6 +1,6 @@
 import { useParams, useNavigate } from 'react-router-dom'
 import { useState, useEffect, useCallback, useRef } from 'react'
-import { getEgoGraph, eliminarSinapsis, actualizarNodo, eliminarNodo, dormirNodo, fusionarNodos, crearSinapsis } from '../../services/api'
+import { getEgoGraph, eliminarSinapsis, actualizarNodo, eliminarNodo, dormirNodo, despertarNodo, fusionarNodos, crearSinapsis, procesarNodo } from '../../services/api'
 import { ExplorarHeader } from '../../components/ExplorarHeader/ExplorarHeader'
 import { NodeIdentityPanel } from '../../components/NodeIdentityPanel/NodeIdentityPanel'
 import { ConnectionsPanel } from '../../components/ConnectionsPanel/ConnectionsPanel'
@@ -9,6 +9,9 @@ import { MergeModal } from '../../components/MergeModal/MergeModal'
 import { SleepConfirm } from '../../components/SleepConfirm/SleepConfirm'
 import { DeleteConfirm } from '../../components/DeleteConfirm/DeleteConfirm'
 import { LinkModal } from '../../components/LinkModal/LinkModal'
+import { ProcessConfirm } from '../../components/ProcessConfirm/ProcessConfirm'
+import { WakeUpConfirm } from '../../components/WakeUpConfirm/WakeUpConfirm'
+import ActionFeedbackModal from '../../components/ActionFeedbackModal/ActionFeedbackModal'
 import styles from './ExplorarPage.module.css'
 
 interface EgoGraphResponse {
@@ -66,6 +69,12 @@ const ExplorarPage = () => {
   const [sleepConfirmOpen, setSleepConfirmOpen] = useState(false)
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false)
   const [linkModalOpen, setLinkModalOpen] = useState(false)
+  const [processConfirmOpen, setProcessConfirmOpen] = useState(false)
+  const [wakeUpConfirmOpen, setWakeUpConfirmOpen] = useState(false)
+  const [feedbackState, setFeedbackState] = useState<'closed' | 'loading' | 'success' | 'error'>('closed')
+  const [feedbackTitle, setFeedbackTitle] = useState('')
+  const [feedbackMessage, setFeedbackMessage] = useState('')
+  const [feedbackDetail, setFeedbackDetail] = useState('')
 
   const historyRef = useRef<string[]>([])
   const historyIndexRef = useRef(-1)
@@ -226,6 +235,78 @@ const ExplorarPage = () => {
     }
   }, [fetchNode])
 
+  const handleProcess = useCallback(async () => {
+    if (!node) return
+    if (feedbackState === 'loading') return
+    setProcessConfirmOpen(false)
+    setFeedbackState('loading')
+    setFeedbackTitle('Optimizando nodo')
+    setFeedbackMessage('Evaluando conexiones con el motor de reflexión...')
+    setFeedbackDetail('')
+    try {
+      const result = await procesarNodo(node.concepto)
+
+      if (result.status === 'ya_procesado') {
+        setFeedbackState('success')
+        setFeedbackTitle('Ya optimizado')
+        setFeedbackMessage(result.mensaje)
+        setFeedbackDetail('No se gastaron tokens adicionales.')
+        return
+      }
+
+      setFeedbackState('success')
+      setFeedbackTitle('¡Listo!')
+
+      const eliminados = result.eliminados || 0
+      const ajustes = Math.max(0, (result.aplicados || 0) - eliminados)
+      const lotes = result.lotes || 0
+      const prefiltrados = result.prefiltrados || 0
+
+      const lineas: string[] = []
+      if (!result.completo) {
+        lineas.push('Terminó con fallos de API en algún lote.')
+      } else {
+        lineas.push('Optimización terminada.')
+      }
+      if (eliminados > 0) lineas.push(`${eliminados} conexiones eliminadas`)
+      if (ajustes > 0) lineas.push(`${ajustes} ajustes de metadata`)
+      if (prefiltrados > 0) lineas.push(`${prefiltrados} cortes automáticos (sin IA)`)
+      if (lotes > 0) lineas.push(`${lotes} lotes al motor`)
+      if (lineas.length === 1) lineas.push('Sin cambios — el motor no encontró nada que corregir')
+
+      setFeedbackMessage(lineas[0] ?? 'Optimización terminada.')
+      setFeedbackDetail(lineas.slice(1).join('\n') || '')
+      fetchNode(node.concepto)
+    } catch (e: any) {
+      setFeedbackState('error')
+      setFeedbackTitle('Algo salió mal')
+      const msg = e?.detail || e?.message || 'Error al optimizar nodo'
+      setFeedbackMessage(msg)
+    }
+  }, [node, fetchNode, feedbackState])
+
+  const handleWakeUp = useCallback(async () => {
+    if (!node) return
+    setWakeUpConfirmOpen(false)
+    setFeedbackState('loading')
+    setFeedbackTitle('Despertando nodo')
+    setFeedbackMessage('Reactivando conexiones...')
+    setFeedbackDetail('')
+    try {
+      await despertarNodo(node.concepto)
+      setFeedbackState('success')
+      setFeedbackTitle('¡Despertado!')
+      setFeedbackMessage(`Nodo '${node.concepto}' reactivado`)
+      setFeedbackDetail('')
+      fetchNode(node.concepto)
+    } catch (e: any) {
+      setFeedbackState('error')
+      setFeedbackTitle('Algo salió mal')
+      const msg = e?.detail || e?.message || 'Error al despertar nodo'
+      setFeedbackMessage(msg)
+    }
+  }, [node, fetchNode])
+
   const canGoBack = historyIndexRef.current > 0
   const canGoForward = historyIndexRef.current < historyRef.current.length - 1
   const breadcrumbs = historyRef.current.slice(0, historyIndexRef.current + 1)
@@ -302,16 +383,36 @@ const ExplorarPage = () => {
         <div className={styles.toolbar}>
           <span className={styles.toolbarNodeName}>{node.concepto}</span>
           <div className={styles.toolbarRight}>
-            <button className={styles.toolBtn} onClick={() => setLinkModalOpen(true)} title="Vincular con otro nodo">
+            {node.estado === 'dormido' ? (
+              <button
+                className={styles.toolBtn}
+                disabled
+                title="Despertá el nodo primero"
+                style={{ opacity: 0.5, cursor: 'not-allowed' }}
+              >
+                ⚡ Optimizar
+              </button>
+            ) : (
+              <button className={styles.toolBtn} onClick={() => setProcessConfirmOpen(true)}>
+                ⚡ Optimizar
+              </button>
+            )}
+            <button className={styles.toolBtn} onClick={() => setLinkModalOpen(true)}>
               ✏️ Vincular
             </button>
-            <button className={styles.toolBtn} onClick={() => setMergeModalOpen(true)} title="Fusionar con otros nodos">
+            <button className={styles.toolBtn} onClick={() => setMergeModalOpen(true)}>
               🔗 Fusionar
             </button>
-            <button className={styles.toolBtn} onClick={() => setSleepConfirmOpen(true)} title="Dormir nodo">
-              😴 Dormir
-            </button>
-            <button className={`${styles.toolBtn} ${styles.toolBtnDanger}`} onClick={() => setDeleteConfirmOpen(true)} title="Eliminar nodo">
+            {node.estado === 'dormido' ? (
+              <button className={`${styles.toolBtn} ${styles.toolBtnSuccess}`} onClick={() => setWakeUpConfirmOpen(true)}>
+                🔔 Despertar
+              </button>
+            ) : (
+              <button className={styles.toolBtn} onClick={() => setSleepConfirmOpen(true)}>
+                😴 Dormir
+              </button>
+            )}
+            <button className={`${styles.toolBtn} ${styles.toolBtnDanger}`} onClick={() => setDeleteConfirmOpen(true)}>
               🗑️ Eliminar
             </button>
           </div>
@@ -366,6 +467,31 @@ const ExplorarPage = () => {
           onLink={handleLink}
         />
       )}
+      {node && (
+        <ProcessConfirm
+          open={processConfirmOpen}
+          onOpenChange={setProcessConfirmOpen}
+          node={node}
+          onConfirm={handleProcess}
+        />
+      )}
+      {node && (
+        <WakeUpConfirm
+          open={wakeUpConfirmOpen}
+          onOpenChange={setWakeUpConfirmOpen}
+          node={node}
+          onConfirm={handleWakeUp}
+        />
+      )}
+      <ActionFeedbackModal
+        open={feedbackState !== 'closed'}
+        state={feedbackState === 'closed' ? 'loading' : feedbackState}
+        title={feedbackTitle}
+        target={node?.concepto || ''}
+        message={feedbackMessage}
+        detail={feedbackDetail || undefined}
+        onClose={() => setFeedbackState('closed')}
+      />
     </>
   )
 }

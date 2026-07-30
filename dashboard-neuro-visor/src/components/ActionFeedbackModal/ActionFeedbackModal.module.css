@@ -136,6 +136,7 @@
   font-size: 12px;
   font-family: monospace;
   word-break: break-word;
+  white-space: pre-line;
   padding: 8px;
   background: var(--bg-input);
   border-radius: 6px;

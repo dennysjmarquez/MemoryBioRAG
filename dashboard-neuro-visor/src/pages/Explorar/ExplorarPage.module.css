@@ -136,3 +136,8 @@
   border-color: var(--red) !important;
   color: var(--red) !important;
 }
+
+.toolBtnSuccess:hover {
+  border-color: var(--green) !important;
+  color: var(--green) !important;
+}

@@ -159,3 +159,19 @@ export function limpiarLogBusquedas(ttlDays: number = 7): Promise<{ status: stri
 export function tocarNodo(concepto: string): Promise<{ ok: boolean; concepto: string; actualizados: number }> {
   return post('/corteza/nodos/tocar', { concepto })
 }
+
+export interface ProcesarNodoResponse {
+  status: string
+  mensaje: string
+  veredictos: number
+  aplicados: number
+  eliminados: number
+  prefiltrados: number
+  lotes: number
+  completo: boolean
+}
+
+export function procesarNodo(concepto: string, force: boolean = false): Promise<ProcesarNodoResponse> {
+  const params = force ? '?force=true' : ''
+  return post(`/nodo/${encodeParam(concepto)}/procesar${params}`, {})
+}

@@ -1014,6 +1014,7 @@ def _aplicar_veredicto_nodo(concepto, veredicto, cerebro):
 
     conn = cerebro.conn
     cursor = conn.cursor()
+    changes_antes = conn.total_changes
 
     try:
         # --- DIMENSION ---
@@ -1136,6 +1137,7 @@ def _aplicar_veredicto_nodo(concepto, veredicto, cerebro):
         elif capa == "sinapsis_directa" and accion == "fusionar" and confianza >= UMBRAL_CONFIANZA_ACEPTAR:
             # Marcar para revisión humana (no ejecutar solo)
             logger.info(f"[Hormiguita] FUSION {concepto}↔{ref} marcada para revisión humana")
+            return False  # Sin mutación DB — no contar como "aplicado"
 
         # --- SINAPSIS LATENTE ---
         elif capa == "sinapsis_latente" and accion == "eliminar" and confianza >= UMBRAL_CONFIANZA_ELIMINAR:
@@ -1183,14 +1185,17 @@ def _aplicar_veredicto_nodo(concepto, veredicto, cerebro):
         # --- MANTENER / CONFIRMAR / IGNORAR ---
         elif accion in ("mantener", "confirmar", "ignorar"):
             logger.debug(f"[Hormiguita] {capa} {ref}: {accion} (confianza={confianza:.2f})")
-            return True
+            return False  # Sin mutación DB — no contar como "aplicado"
 
         else:
             logger.info(f"[Hormiguita] {capa} {ref}: {accion} no aplicado (confianza={confianza:.2f})")
-            return True
+            return False  # Acción conocida pero sin handler = sin cambio
 
-        conn.commit()
-        return True
+        # Solo contar como "aplicado" si hubo mutación real en la DB
+        if conn.total_changes > changes_antes:
+            conn.commit()
+            return True
+        return False  # Acción ejecutada pero sin efecto (ej: INSERT OR IGNORE duplicado)
 
     except sqlite3.Error as e:
         conn.rollback()
@@ -1225,6 +1230,8 @@ def _cargar_estado():
                 estado["visitados_hoy"] = []
                 estado["tokens_gastados_hoy"] = 0
                 estado["fecha_ultimo_reset"] = hoy_str
+                # Persistir el reset para que otros procesos lo vean
+                _guardar_estado(estado)
             return estado
         except (json.JSONDecodeError, OSError):
             logger.warning("estado_hormiga.json corrupto — creando uno nuevo.")
@@ -1469,7 +1476,208 @@ def _contar_conexiones(concepto, cerebro):
     return d + l
 
 
+def procesar_nodo_unico(concepto: str, cerebro, force: bool = False) -> dict:
+    """
+    Ejecuta el pipeline COMPLETO de la hormiguita para un único nodo bajo demanda.
+
+    Equivalente a un ciclo de ejecutar_ciclo_reflexivo limitado a max_nodos=1,
+    pero forzando el nodo concreto. Usa exactamente la misma lógica:
+      - Pre-filtrado con _mover_a_cuarentena (no DELETE directo)
+      - Batching de sinapsis hacia Gemini
+      - Piso anti-sobrepoda (MIN_CONEXIONES_POR_NODO)
+      - Expansión de frontera con vecinos
+      - Actualización de estado_hormiga.json (visitados + frontier)
+
+    Retorna dict con:
+      status          : "ok" | "error" | "api_fallo" | "ya_procesado"
+      nodo            : concepto procesado
+      veredictos      : total de veredictos recibidos de Gemini
+      aplicados       : cuántos se aplicaron (solo mutaciones reales)
+      eliminados      : cuántos se eliminaron (via cuarentena)
+      prefiltrados    : cortes deterministas directos
+      lotes           : número de lotes enviados a Gemini
+      completo        : True si todos los pendientes fueron evaluados
+      mensaje         : descripción legible del resultado
+      error           : (solo si status != "ok") descripción del error
+    """
+    # 0. Guard: si ya fue procesado hoy y no es force, no re-gastar tokens
+    if not force:
+        estado = _cargar_estado()
+        visitados_hoy = estado.get("visitados_hoy", [])
+        if concepto in visitados_hoy:
+            return {
+                "status": "ya_procesado",
+                "nodo": concepto,
+                "veredictos": 0,
+                "aplicados": 0,
+                "eliminados": 0,
+                "prefiltrados": 0,
+                "lotes": 0,
+                "completo": True,
+                "mensaje": f"'{concepto}' ya fue optimizado hoy. Sin re-gasto de tokens.",
+            }
+
+    # 1. Construir payload con pre-filtrado
+    resultado_payload = _construir_payload_nodo(concepto, cerebro)
+    if not resultado_payload:
+        return {
+            "status": "error",
+            "nodo": concepto,
+            "error": f"Nodo '{concepto}' no encontrado, inactivo o sin sinapsis",
+            "mensaje": f"No se pudo construir payload para '{concepto}'",
+        }
+
+    payload, prefiltro_data = resultado_payload
+
+    # 2. Cortes deterministas → cuarentena (no DELETE directo)
+    cortes_directos = 0
+    for s in prefiltro_data.get("cortadas_directas", []):
+        destino = s.get("destino", "")
+        if _mover_a_cuarentena(
+            concepto, destino, "sinapsis", cerebro,
+            motivo=f"pre-filtro determinista on-demand (peso={s.get('peso', 0):.3f})",
+            confianza=1.0,
+        ):
+            cortes_directos += 1
+            logger.info(f"[procesar_nodo_unico] CORTE DIRECTO {concepto}→{destino}")
+
+    for s in prefiltro_data.get("cortadas_latentes", []):
+        destino = s.get("destino", "")
+        if _mover_a_cuarentena(
+            concepto, destino, "sinapsis_latentes", cerebro,
+            motivo=f"pre-filtro determinista on-demand latente (peso={s.get('peso_atenuado', 0):.3f})",
+            confianza=1.0,
+        ):
+            cortes_directos += 1
+            logger.info(f"[procesar_nodo_unico] CORTE LATENTE {concepto}→{destino}")
+
+    if cortes_directos > 0:
+        cerebro.conn.commit()
+
+    # 3. Armar lista de candidatas para Gemini
+    todas = []
+    for s in payload.get("sinapsis_directas", []):
+        todas.append(("sinapsis_directa", s))
+    for s in payload.get("sinapsis_latentes", []):
+        todas.append(("sinapsis_latente", s))
+
+    veredictos_totales = 0
+    aplicados = 0
+    eliminados = 0
+    lotes_enviados = 0
+    completo = True
+
+    if todas:
+        # 4. Dividir en lotes (igual que el daemon)
+        lotes = [
+            todas[i:i + TAMANO_LOTE_SINAPSIS]
+            for i in range(0, len(todas), TAMANO_LOTE_SINAPSIS)
+        ]
+        keys_agotadas = set()
+
+        for lote in lotes:
+            mini_payload = {
+                "nodo": payload["nodo"],
+                "sinapsis_directas": [s for capa, s in lote if capa == "sinapsis_directa"],
+                "sinapsis_latentes": [s for capa, s in lote if capa == "sinapsis_latente"],
+                "catalogo_disponible": payload.get("catalogo_disponible"),
+            }
+
+            veredictos, _key_preview = _llamar_gemini_nodo(mini_payload, keys_agotadas=keys_agotadas)
+            if veredictos is None:
+                logger.warning(f"[procesar_nodo_unico] Fallo API en lote {lotes_enviados + 1}/{len(lotes)} para '{concepto}'")
+                completo = False
+                break
+
+            lotes_enviados += 1
+            veredictos_totales += len(veredictos)
+
+            # 5. Separar eliminaciones del resto (igual que el daemon)
+            eliminaciones = [
+                v for v in veredictos
+                if isinstance(v, dict)
+                and v.get("accion") == "eliminar"
+                and v.get("capa") in ("sinapsis_directa", "sinapsis_latente")
+            ]
+            otros = [
+                v for v in veredictos
+                if not (
+                    isinstance(v, dict)
+                    and v.get("accion") == "eliminar"
+                    and v.get("capa") in ("sinapsis_directa", "sinapsis_latente")
+                )
+            ]
+
+            # 6. Piso anti-sobrepoda: mayor confianza primero
+            eliminaciones.sort(key=lambda v: v.get("confianza", 0), reverse=True)
+            conexiones_restantes = _contar_conexiones(concepto, cerebro)
+            for v in eliminaciones:
+                if conexiones_restantes <= MIN_CONEXIONES_POR_NODO:
+                    logger.warning(
+                        f"[procesar_nodo_unico] PISO anti-sobrepoda: aplazando '{v.get('ref')}' "
+                        f"en '{concepto}' (quedan {conexiones_restantes} conexiones)"
+                    )
+                    continue
+                if _aplicar_veredicto_nodo(concepto, v, cerebro):
+                    aplicados += 1
+                    conexiones_restantes -= 1
+                    eliminados += 1
+
+            # El resto (metadatos, confirmaciones, reponderar, etc.)
+            for v in otros:
+                if isinstance(v, dict):
+                    if _aplicar_veredicto_nodo(concepto, v, cerebro):
+                        aplicados += 1
+
+        cerebro.conn.commit()
+    else:
+        logger.info(f"[procesar_nodo_unico] '{concepto}': sin candidatas para Gemini")
+
+    # 7. Actualizar estado_hormiga.json: visitados + expandir frontera
+    estado = _cargar_estado()
+    visitados_hoy = estado.get("visitados_hoy", [])
+    visitados_total = set(estado.get("visitados_total", []))
+
+    # Siempre registrar en visitados_hoy (resetea diariamente)
+    if concepto not in visitados_hoy:
+        visitados_hoy.append(concepto)
+    # Registrar en visitados_total solo si es nuevo (nunca se resetea)
+    if concepto not in visitados_total:
+        visitados_total.add(concepto)
+
+    # Expandir frontera con vecinos no visitados (igual que el daemon)
+    vecinos = _expandir_frontera(concepto, cerebro, visitados_total)
+    frontier_actual = set(estado.get("frontier", []))
+    for v in vecinos:
+        if v not in visitados_total and v not in frontier_actual:
+            estado["frontier"].append(v)
+
+    estado["visitados_hoy"] = visitados_hoy
+    estado["visitados_total"] = list(visitados_total)
+    _guardar_estado(estado)
+
+    mensaje = (
+        f"Nodo procesado: {veredictos_totales} veredictos, "
+        f"{aplicados} aplicados, {eliminados} eliminados"
+        + (" [INCOMPLETO — fallo de API en algún lote]" if not completo else "")
+    )
+    logger.info(f"[procesar_nodo_unico] {mensaje}")
+
+    return {
+        "status": "ok" if completo else "api_fallo",
+        "nodo": concepto,
+        "veredictos": veredictos_totales,
+        "aplicados": aplicados,
+        "eliminados": eliminados,
+        "prefiltrados": cortes_directos,
+        "lotes": lotes_enviados,
+        "completo": completo,
+        "mensaje": mensaje,
+    }
+
+
 def ejecutar_ciclo_reflexivo(cerebro, max_nodos=10):
+
     """
     Punto de entrada de la hormiguita. Procesa nodos uno por uno
     usando frontier-based traversal. Persiste estado entre ciclos.
