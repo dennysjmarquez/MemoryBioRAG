@@ -793,12 +793,13 @@ def _aplicar_veredicto(cerebro, veredicto):
         return False
 
 
-def _mover_a_cuarentena(concepto, destino, tabla, cerebro, motivo="", confianza=0.0):
+def _mover_a_cuarentena(concepto, destino, tabla, cerebro, motivo="", confianza=0.0, origen="ciclo_daemon"):
     """
     Soft-delete: mueve una sinapsis a sinapsis_cuarentena antes de borrarla.
-    Nada se pierde de verdad — toda poda es reversible durante 30 días.
+    Nada se pierde de verdad — toda poda es reversible mientras no la purgue el TTL.
 
     tabla: "sinapsis" (directa) o "sinapsis_latentes" (latente).
+    origen: "ciclo_daemon" | "on_demand" | "gemini" — para trazabilidad.
     Retorna True si se movió y eliminó, False si no existía.
     """
     cursor = cerebro.conn.cursor()
@@ -831,9 +832,9 @@ def _mover_a_cuarentena(concepto, destino, tabla, cerebro, motivo="", confianza=
 
     cursor.execute(
         "INSERT INTO sinapsis_cuarentena "
-        "(origen, destino, tipo, tabla_origen, peso, datos_extra, motivo, confianza, eliminado_en) "
-        "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
-        (concepto, destino, tipo, tabla, peso, datos_extra, motivo, confianza, ahora)
+        "(origen, destino, tipo, tabla_origen, peso, datos_extra, motivo, confianza, eliminado_en, origen_llamada) "
+        "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+        (concepto, destino, tipo, tabla, peso, datos_extra, motivo, confianza, ahora, origen)
     )
     cursor.execute(delete_sql, (concepto, destino))
     return True
@@ -882,6 +883,22 @@ def _restaurar_cuarentena(cerebro, desde_timestamp=0, max_items=None):
         cerebro.conn.commit()
         logger.warning(f"[Hormiguita] {restauradas} sinapsis RESTAURADAS desde cuarentena")
     return restauradas
+
+
+def _purgar_cuarentena(cerebro, ttl_dias=30):
+    """
+    Limpia sinapsis_cuarentena con más de ttl_dias días.
+    Si pasaron 30 días y el gate nunca restauró, la poda se acepta como definitiva.
+    Mismo patrón que server.limpiar_log_busquedas.
+    """
+    cursor = cerebro.conn.cursor()
+    cutoff = time.time() - ttl_dias * 86400
+    cursor.execute("DELETE FROM sinapsis_cuarentena WHERE eliminado_en < ?", (cutoff,))
+    eliminados = cursor.rowcount
+    if eliminados > 0:
+        cerebro.conn.commit()
+        logger.info(f"[Hormiguita] Cuarentena purgada: {eliminados} registros (>{ttl_dias} días)")
+    return eliminados
 
 
 def _benchmark_gate(cerebro, estado):
@@ -977,7 +994,7 @@ def _benchmark_gate(cerebro, estado):
     return resultado
 
 
-def _aplicar_veredicto_nodo(concepto, veredicto, cerebro):
+def _aplicar_veredicto_nodo(concepto, veredicto, cerebro, origen_llamada="ciclo_daemon"):
     """
     Aplica UN veredicto del nuevo formato (capa + ref) con reglas deterministas.
     Cada capa tiene su propia lógica SQL.
@@ -1122,7 +1139,7 @@ def _aplicar_veredicto_nodo(concepto, veredicto, cerebro):
 
         # --- SINAPSIS DIRECTA ---
         elif capa == "sinapsis_directa" and accion == "eliminar" and confianza >= UMBRAL_CONFIANZA_ELIMINAR:
-            _mover_a_cuarentena(concepto, ref, "sinapsis", cerebro, justificacion, confianza)
+            _mover_a_cuarentena(concepto, ref, "sinapsis", cerebro, justificacion, confianza, origen=origen_llamada)
             logger.info(f"[Hormiguita] SINAP -{concepto}→{ref} ({confianza:.2f}): {justificacion}")
 
         elif capa == "sinapsis_directa" and accion == "reponderar" and confianza >= UMBRAL_CONFIANZA_ACEPTAR:
@@ -1145,7 +1162,7 @@ def _aplicar_veredicto_nodo(concepto, veredicto, cerebro):
             # conf >= 0.90 → cuarentena directa (evidencia abrumadora)
             # conf 0.70-0.90 → strike 1: atenúa (peso×0.5). Solo si ya tenía strike → cuarentena.
             if confianza >= UMBRAL_ELIMINAR_LATENTE_DIRECTO:
-                _mover_a_cuarentena(concepto, ref, "sinapsis_latentes", cerebro, justificacion, confianza)
+                _mover_a_cuarentena(concepto, ref, "sinapsis_latentes", cerebro, justificacion, confianza, origen=origen_llamada)
                 logger.info(f"[Hormiguita] LATENTE -{concepto}→{ref} ({confianza:.2f} directa): {justificacion}")
             else:
                 cursor.execute(
@@ -1155,7 +1172,7 @@ def _aplicar_veredicto_nodo(concepto, veredicto, cerebro):
                 row = cursor.fetchone()
                 strikes_actuales = (row[0] if row and row[0] is not None else 0)
                 if strikes_actuales >= 1:
-                    _mover_a_cuarentena(concepto, ref, "sinapsis_latentes", cerebro, justificacion, confianza)
+                    _mover_a_cuarentena(concepto, ref, "sinapsis_latentes", cerebro, justificacion, confianza, origen=origen_llamada)
                     logger.info(f"[Hormiguita] LATENTE -{concepto}→{ref} (strike 2, {confianza:.2f}): {justificacion}")
                 else:
                     cursor.execute(
@@ -1478,18 +1495,16 @@ def _contar_conexiones(concepto, cerebro):
 
 def procesar_nodo_unico(concepto: str, cerebro, force: bool = False) -> dict:
     """
-    Ejecuta el pipeline COMPLETO de la hormiguita para un único nodo bajo demanda.
+    Procesa un único nodo bajo demanda con Gemini.
 
-    Equivalente a un ciclo de ejecutar_ciclo_reflexivo limitado a max_nodos=1,
-    pero forzando el nodo concreto. Usa exactamente la misma lógica:
-      - Pre-filtrado con _mover_a_cuarentena (no DELETE directo)
+    Pipeline completo de poda inline (mismo system prompt que el daemon):
+      - Pre-filtrado determinista → _mover_a_cuarentena
       - Batching de sinapsis hacia Gemini
       - Piso anti-sobrepoda (MIN_CONEXIONES_POR_NODO)
-      - Expansión de frontera con vecinos
-      - Actualización de estado_hormiga.json (visitados + frontier)
+      - SIN estado global (no toca estado_hormiga.json, frontier, benchmark, purge)
 
     Retorna dict con:
-      status          : "ok" | "error" | "api_fallo" | "ya_procesado"
+      status          : "ok" | "error" | "api_fallo"
       nodo            : concepto procesado
       veredictos      : total de veredictos recibidos de Gemini
       aplicados       : cuántos se aplicaron (solo mutaciones reales)
@@ -1500,23 +1515,6 @@ def procesar_nodo_unico(concepto: str, cerebro, force: bool = False) -> dict:
       mensaje         : descripción legible del resultado
       error           : (solo si status != "ok") descripción del error
     """
-    # 0. Guard: si ya fue procesado hoy y no es force, no re-gastar tokens
-    if not force:
-        estado = _cargar_estado()
-        visitados_hoy = estado.get("visitados_hoy", [])
-        if concepto in visitados_hoy:
-            return {
-                "status": "ya_procesado",
-                "nodo": concepto,
-                "veredictos": 0,
-                "aplicados": 0,
-                "eliminados": 0,
-                "prefiltrados": 0,
-                "lotes": 0,
-                "completo": True,
-                "mensaje": f"'{concepto}' ya fue optimizado hoy. Sin re-gasto de tokens.",
-            }
-
     # 1. Construir payload con pre-filtrado
     resultado_payload = _construir_payload_nodo(concepto, cerebro)
     if not resultado_payload:
@@ -1536,7 +1534,7 @@ def procesar_nodo_unico(concepto: str, cerebro, force: bool = False) -> dict:
         if _mover_a_cuarentena(
             concepto, destino, "sinapsis", cerebro,
             motivo=f"pre-filtro determinista on-demand (peso={s.get('peso', 0):.3f})",
-            confianza=1.0,
+            confianza=1.0, origen="on_demand",
         ):
             cortes_directos += 1
             logger.info(f"[procesar_nodo_unico] CORTE DIRECTO {concepto}→{destino}")
@@ -1546,7 +1544,7 @@ def procesar_nodo_unico(concepto: str, cerebro, force: bool = False) -> dict:
         if _mover_a_cuarentena(
             concepto, destino, "sinapsis_latentes", cerebro,
             motivo=f"pre-filtro determinista on-demand latente (peso={s.get('peso_atenuado', 0):.3f})",
-            confianza=1.0,
+            confianza=1.0, origen="on_demand",
         ):
             cortes_directos += 1
             logger.info(f"[procesar_nodo_unico] CORTE LATENTE {concepto}→{destino}")
@@ -1618,7 +1616,7 @@ def procesar_nodo_unico(concepto: str, cerebro, force: bool = False) -> dict:
                         f"en '{concepto}' (quedan {conexiones_restantes} conexiones)"
                     )
                     continue
-                if _aplicar_veredicto_nodo(concepto, v, cerebro):
+                if _aplicar_veredicto_nodo(concepto, v, cerebro, origen_llamada="on_demand"):
                     aplicados += 1
                     conexiones_restantes -= 1
                     eliminados += 1
@@ -1626,36 +1624,15 @@ def procesar_nodo_unico(concepto: str, cerebro, force: bool = False) -> dict:
             # El resto (metadatos, confirmaciones, reponderar, etc.)
             for v in otros:
                 if isinstance(v, dict):
-                    if _aplicar_veredicto_nodo(concepto, v, cerebro):
+                    if _aplicar_veredicto_nodo(concepto, v, cerebro, origen_llamada="on_demand"):
                         aplicados += 1
 
         cerebro.conn.commit()
     else:
         logger.info(f"[procesar_nodo_unico] '{concepto}': sin candidatas para Gemini")
 
-    # 7. Actualizar estado_hormiga.json: visitados + expandir frontera
-    estado = _cargar_estado()
-    visitados_hoy = estado.get("visitados_hoy", [])
-    visitados_total = set(estado.get("visitados_total", []))
-
-    # Siempre registrar en visitados_hoy (resetea diariamente)
-    if concepto not in visitados_hoy:
-        visitados_hoy.append(concepto)
-    # Registrar en visitados_total solo si es nuevo (nunca se resetea)
-    if concepto not in visitados_total:
-        visitados_total.add(concepto)
-
-    # Expandir frontera con vecinos no visitados (igual que el daemon)
-    vecinos = _expandir_frontera(concepto, cerebro, visitados_total)
-    frontier_actual = set(estado.get("frontier", []))
-    for v in vecinos:
-        if v not in visitados_total and v not in frontier_actual:
-            estado["frontier"].append(v)
-
-    estado["visitados_hoy"] = visitados_hoy
-    estado["visitados_total"] = list(visitados_total)
-    _guardar_estado(estado)
-
+    # Fin — no toca estado_hormiga.json, frontier, benchmark, ni purge.
+    # El daemon (único escritor de estado global) se encarga de eso.
     mensaje = (
         f"Nodo procesado: {veredictos_totales} veredictos, "
         f"{aplicados} aplicados, {eliminados} eliminados"
@@ -1750,7 +1727,7 @@ def ejecutar_ciclo_reflexivo(cerebro, max_nodos=10):
                 if _mover_a_cuarentena(
                     concepto, destino, "sinapsis", cerebro,
                     motivo=f"pre-filtro determinista (peso={s.get('peso', 0):.3f})",
-                    confianza=1.0
+                    confianza=1.0, origen="ciclo_daemon",
                 ):
                     cortes_directos += 1
                     logger.info(f"[Pre-filtrado] CORTE DIRECTO {concepto}→{destino} (peso={s.get('peso', 0):.3f})")
@@ -1760,7 +1737,7 @@ def ejecutar_ciclo_reflexivo(cerebro, max_nodos=10):
                 if _mover_a_cuarentena(
                     concepto, destino, "sinapsis_latentes", cerebro,
                     motivo=f"pre-filtro determinista (peso={s.get('peso_atenuado', 0):.3f})",
-                    confianza=1.0
+                    confianza=1.0, origen="ciclo_daemon",
                 ):
                     cortes_directos += 1
                     logger.info(f"[Pre-filtrado] CORTE LATENTE {concepto}→{destino} (peso={s.get('peso_atenuado', 0):.3f})")
@@ -1855,7 +1832,7 @@ def ejecutar_ciclo_reflexivo(cerebro, max_nodos=10):
                         f"{v.get('ref')} en {concepto} (quedan {conexiones_restantes} conexiones)"
                     )
                     continue
-                if _aplicar_veredicto_nodo(concepto, v, cerebro):
+                if _aplicar_veredicto_nodo(concepto, v, cerebro, origen_llamada="ciclo_daemon"):
                     aplicados += 1
                     conexiones_restantes -= 1
                     eliminados += 1
@@ -1863,7 +1840,7 @@ def ejecutar_ciclo_reflexivo(cerebro, max_nodos=10):
             # El resto de veredictos (metadatos, confirmaciones) se aplican normal
             for v in otros:
                 if isinstance(v, dict):
-                    if _aplicar_veredicto_nodo(concepto, v, cerebro):
+                    if _aplicar_veredicto_nodo(concepto, v, cerebro, origen_llamada="ciclo_daemon"):
                         aplicados += 1
 
             veredictos_totales += len(veredictos)
@@ -2018,7 +1995,10 @@ def ejecutar_ciclo_reflexivo(cerebro, max_nodos=10):
     })
     
     _guardar_estado(estado)
-    
+
+    # Purga automática de cuarentena al final de cada ciclo del daemon
+    _purgar_cuarentena(cerebro)
+
     if eliminados_total > 0:
         logger.warning(
             f"[Hormiguita] ⚠️ {eliminados_total} conexiones eliminadas. "

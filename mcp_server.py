@@ -1819,35 +1819,33 @@ def _build_server():
     @mcp.tool(
         name="hormiguita",
         description=(
-            "Ejecuta un ciclo de mantenimiento del grafo (la Hormiguita). "
-            "Evalúa sinapsis directas y latentes de nodos usando IA (Gemini) "
-            "y poda conexiones espurias. Usa pre-filtrado para ahorrar tokens.\n\n"
+            "Procesa UN nodo específico con la Hormiguita (Gemini). "
+            "Evalúa sinapsis directas y latentes del nodo usando IA y poda conexiones espurias. "
+            "Usa pre-filtrado para ahorrar tokens.\n\n"
+            "NOTA: Solo procesa nodos individuales. El ciclo completo del daemon "
+            "corre automáticamente en el dashboard.\n\n"
             "Parámetros:\n"
-            "- max_nodos (int, opcional): Máximo de nodos a procesar (default: 5)\n"
-            "- nodo_especifico (str, opcional): Procesar solo un nodo específico\n\n"
-            "Retorna: resumen del ciclo con nodos procesados, eliminados, pre-filtrados."
+            "- nodo_especifico (str, OBLIGATORIO): Nombre del nodo a procesar\n\n"
+            "Retorna: resultado del procesamiento con veredictos, aplicados, eliminados."
         ),
     )
     def biorag_hormiguita(max_nodos: int = 5, nodo_especifico: str = "") -> str:
         from core.dmn_reflexion import (
-            ejecutar_ciclo_reflexivo,
             procesar_nodo_unico,
         )
 
-        cerebro = _get_cerebro()
-        try:
-            # Modo específico: delegar en el pipeline canónico de un solo nodo
-            if nodo_especifico:
-                resultado = procesar_nodo_unico(nodo_especifico, cerebro, force=True)
-                return json.dumps(resultado, ensure_ascii=False, default=str)
-
-            # Modo general: ejecutar ciclo con la hormiguita
-            resultado = ejecutar_ciclo_reflexivo(cerebro, max_nodos=max_nodos)
+        if not nodo_especifico:
             return json.dumps({
-                "status": "ok",
-                "resultado": resultado,
+                "status": "error",
+                "error": "Modo general desactivado. Usá 'nodo_especifico' para procesar un nodo concreto.",
+                "mensaje": "El daemon es el único que ejecuta ciclos completos. "
+                           "El MCP solo procesa nodos individuales bajo demanda.",
             }, ensure_ascii=False, default=str)
 
+        cerebro = _get_cerebro()
+        try:
+            resultado = procesar_nodo_unico(nodo_especifico, cerebro)
+            return json.dumps(resultado, ensure_ascii=False, default=str)
         finally:
             cerebro.cerrar_sistema()
 
@@ -2838,16 +2836,6 @@ def main(argv: Optional[list[str]] = None) -> int:
     except ImportError as exc:
         sys.stderr.write(f"BioRAG MCP: {exc}\n")
         return 2
-
-    # Asegurar que el daemon de mantenimiento del grafo esté vivo
-    try:
-        from core.daemon_lifecycle import ensure_daemon_alive
-        if ensure_daemon_alive(intervalo_horas=0):
-            sys.stderr.write("Hormiguita daemon: vivo\n")
-        else:
-            sys.stderr.write("Hormiguita daemon: no disponible (se intentará en próximo ciclo)\n")
-    except Exception as exc:
-        sys.stderr.write(f"Hormiguita daemon: skip ({exc})\n")
 
     try:
         if use_sse:

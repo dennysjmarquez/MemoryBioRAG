@@ -782,7 +782,26 @@ class SQLiteMemoryBioRAG:
                 sincronizado INTEGER DEFAULT 0
             )
         """)
-        # 8. Tabla de log de búsquedas (Phase 2D Telemetría)
+        # 8. Tabla de cuarentena de sinapsis (soft-delete reversible de la Hormiguita)
+        self.cursor.execute("""
+            CREATE TABLE IF NOT EXISTS sinapsis_cuarentena (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                origen TEXT NOT NULL,
+                destino TEXT NOT NULL,
+                tipo TEXT,
+                tabla_origen TEXT NOT NULL DEFAULT 'sinapsis',
+                peso REAL,
+                datos_extra TEXT,
+                motivo TEXT DEFAULT '',
+                confianza REAL DEFAULT 0.0,
+                restaurado INTEGER DEFAULT 0,
+                eliminado_en REAL NOT NULL,
+                origen_llamada TEXT DEFAULT 'ciclo_daemon'
+            )
+        """)
+        self.cursor.execute("CREATE INDEX IF NOT EXISTS idx_cuarentena_eliminado ON sinapsis_cuarentena(eliminado_en)")
+        self.cursor.execute("CREATE INDEX IF NOT EXISTS idx_cuarentena_origen ON sinapsis_cuarentena(origen)")
+        # 9. Tabla de log de búsquedas (Phase 2D Telemetría)
         self.cursor.execute("""
             CREATE TABLE IF NOT EXISTS log_busquedas (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -854,6 +873,15 @@ class SQLiteMemoryBioRAG:
         self.cursor.execute("CREATE INDEX IF NOT EXISTS idx_mc_nodos_largo_plazo_id ON metricas_cognitivas_nodos(largo_plazo_id)")
         self.cursor.execute("CREATE INDEX IF NOT EXISTS idx_mc_nodos_accion ON metricas_cognitivas_nodos(accion)")
         self.cursor.execute("CREATE INDEX IF NOT EXISTS idx_mc_nodos_anomalo ON metricas_cognitivas_nodos(anomalo)")
+
+        # Migración v25+ para sinapsis_cuarentena (tabla existe pero puede faltar columna)
+        try:
+            self.cursor.execute("PRAGMA table_info(sinapsis_cuarentena)")
+            sc_cols = [row[1] for row in self.cursor.fetchall()]
+            if 'origen_llamada' not in sc_cols:
+                self.cursor.execute("ALTER TABLE sinapsis_cuarentena ADD COLUMN origen_llamada TEXT DEFAULT 'ciclo_daemon'")
+        except:
+            pass  # La tabla no existe aún — CREATE TABLE en _crear_estructura_cerebral la creará
 
         # Migración v19.0 SLS para sinapsis_latentes
         sl_info = [r[1] for r in self.conn.execute("PRAGMA table_info(sinapsis_latentes)").fetchall()]

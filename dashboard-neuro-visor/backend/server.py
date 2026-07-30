@@ -50,6 +50,24 @@ def limpiar_log_busquedas(ttl_days: int = 7):
 limpiar_log_busquedas(ttl_days=7)
 
 
+def limpiar_cuarentena(ttl_days: int = 30):
+    """Limpia sinapsis_cuarentena con más de TTL_days días. Se ejecuta al arrancar."""
+    try:
+        conn = sqlite3.connect(DB_PATH)
+        cutoff = time.time() - ttl_days * 86400
+        cursor = conn.execute("DELETE FROM sinapsis_cuarentena WHERE eliminado_en < ?", (cutoff,))
+        eliminados = cursor.rowcount
+        conn.commit()
+        conn.close()
+        if eliminados > 0:
+            print(f"[cuarentena] Limpieza TTL: {eliminados} registros eliminados (>{ttl_days} días)")
+    except Exception as e:
+        print(f"[cuarentena] Error en limpieza TTL: {e}")
+
+
+limpiar_cuarentena(ttl_days=30)
+
+
 def _auto_clear_loop():
     """Daemon: limpia log_busquedas cada hora (TTL=7d)."""
     while True:
@@ -61,6 +79,34 @@ def _auto_clear_loop():
 
 
 threading.Thread(target=_auto_clear_loop, daemon=True, name="auto-clear-log").start()
+
+
+def _hormiguita_loop():
+    """Daemon: ejecuta ciclos de la hormiguita cada N minutos (default 15)."""
+    from core.memory_store import SQLiteMemoryBioRAG
+    from core.dmn_reflexion import ejecutar_ciclo_reflexivo
+    INTERVALO_SEG = float(os.environ.get('BIORAG_DAEMON_INTERVALO_MINUTOS', '15')) * 60
+    while True:
+        try:
+            max_nodos = int(os.environ.get('BIORAG_DAEMON_MAX_NODOS', '10'))
+            cerebro = SQLiteMemoryBioRAG(DB_PATH)
+            try:
+                resultado = ejecutar_ciclo_reflexivo(cerebro, max_nodos=max_nodos)
+                if resultado.get("resultado") == "quota_agotada":
+                    retry = resultado.get("retry_after_seconds", 0)
+                    if retry > 0:
+                        print(f"[hormiguita_loop] Quota agotada. Esperando {retry}s...")
+                        time.sleep(retry)
+                        continue
+            finally:
+                cerebro.cerrar_sistema()
+            time.sleep(INTERVALO_SEG)
+        except Exception as e:
+            print(f"[hormiguita_loop] Error: {e}")
+            time.sleep(60)
+
+
+threading.Thread(target=_hormiguita_loop, daemon=True, name="hormiguita").start()
 
 
 def get_db():
@@ -1377,6 +1423,20 @@ def limpiar_log(ttl_days: int = Query(7, ge=1, le=90)):
     try:
         cutoff = time.time() - ttl_days * 86400
         cursor = conn.execute("DELETE FROM log_busquedas WHERE creado_en < ?", (cutoff,))
+        eliminados = cursor.rowcount
+        conn.commit()
+        return {"status": "ok", "ttl_days": ttl_days, "eliminados": eliminados}
+    finally:
+        conn.close()
+
+
+@app.post("/api/corteza/limpiar-cuarentena")
+def limpiar_cuarentena_endpoint(ttl_days: int = Query(30, ge=1, le=365)):
+    """Limpia sinapsis_cuarentena con más de TTL_days días."""
+    conn = get_db()
+    try:
+        cutoff = time.time() - ttl_days * 86400
+        cursor = conn.execute("DELETE FROM sinapsis_cuarentena WHERE eliminado_en < ?", (cutoff,))
         eliminados = cursor.rowcount
         conn.commit()
         return {"status": "ok", "ttl_days": ttl_days, "eliminados": eliminados}
