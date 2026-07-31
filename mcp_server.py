@@ -2154,13 +2154,14 @@ def _build_server():
     @mcp.tool(
         name="listar_tipos_dimension",
         description=(
-            "Mostrá los 7 tipos de dimensión semántica (emoción, entidad, acción, cualidad, coordenada, intención, dominio) "
+            "Mostrá los 13 tipos de dimensión semántica (emoción, entidad, acción, cualidad, coordenada, intención, dominio, "
+            "cualia, epistemia, escala_abstraccion, centralidad_identitaria, textura_experiencial, modalidad) "
             "con sus descripciones. Llamá esto PRIMERO para ver qué categorías existen. "
             "Después usá listar_dimensiones_por_tipo para traer los sub-values de una categoría específica. Sin parámetros."
         ),
     )
     def biorag_listar_tipos_dimension() -> str:
-        """Retorna los 7 tipos de dimensión con sus descripciones."""
+        """Retorna los 13 tipos de dimensión con sus descripciones."""
         cerebro = _get_cerebro()
         try:
             cerebro.cursor.execute("""
@@ -2189,10 +2190,11 @@ def _build_server():
     @mcp.tool(
         name="listar_dimensiones_por_tipo",
         description=(
-            "Trae las dimensiones semánticas de UNO O MÁS tipos específicos (emoción, entidad, acción, cualidad, coordenada, intención, dominio). "
+            "Trae las dimensiones semánticas de UNO O MÁS tipos específicos (emoción, entidad, acción, cualidad, coordenada, intención, dominio, "
+            "cualia, epistemia, escala_abstraccion, centralidad_identitaria, textura_experiencial, modalidad). "
             "Llamá esto después de listar_tipos_dimension para ver los valores disponibles. "
             "Acepta múltiples tipos separados por coma (ej: 'emocion,dominio'). "
-            "Úsalo para clasificar nodos con precisión sin traer las 73 dimensiones de golpe."
+            "Úsalo para clasificar nodos con precisión sin traer las 102 dimensiones de golpe."
         ),
     )
     def biorag_listar_dimensiones_por_tipo(

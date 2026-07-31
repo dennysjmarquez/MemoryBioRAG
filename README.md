@@ -1,19 +1,19 @@
-# BioRAG v24.1 — Neocórtex Sintético con La Hormiguita, Predicados SRL y Grafo Maintenance Daemon
+# BioRAG v25.0 — Neocórtex Sintético con La Hormiguita, Predicados SRL y Grafo Maintenance Daemon
 
-> **Versión:** v24.1 — Julio 2026
+> **Versión:** v25.0 — Julio 2026
 > **Paradigma:** Circuito Sintético Cognitivamente Cerrado & Red por Defecto (DMN Ideación Autónoma en Reposo + GABA en Vivo + Dopamina RPE con Inercia Sináptica + Valencia Somática Cortical + Escalado Homeostático + PMI + SDM 1024-bit con Query-by-Example + SLS + Stemmer Bilingüe + Predicados SRL + Feedback-Driven Graph Learning + La Hormiguita)
 > **Motor:** Python puro + SQLite FTS5 WAL
 > **Dependencias ML:** 0 (mcp + nltk para WordNet, 0 numpy, 0 sentence-transformers, 0 torch, 0 dependencias C++ o CUDA)
 > **Idiomas:** Español + Inglés (stemming bilingüe ES/EN + expansión simbólica vía WordNet)
-> **Tests:** 117/117 tests biológicos automatizados (100% Éxito) ✓
+> **Tests:** 117 tests biológicos automatizados — 116/117 pasan (1 fallo preexistente documentado, test 83; ver Historial v25.0)
 
-**BioRAG** es una arquitectura de memoria cognitiva simbólica, biomimética y persistente para agentes de inteligencia artificial. Resuelve el problema fundamental de que los LLMs olvidan todo entre sesiones — sin depender de vectores densos, embeddings, GPU ni infraestructura externa. Opera sobre un espacio discreto, determinista y auditable: 7 ejes semánticos × 73 sub-valores declarativos, 45 grupos léxicos WordNet, Pointwise Mutual Information (PMI/NPMI) aprendido sobre el corpus, Sparse Distributed Memory (SDM de 1024 bits) con Query-by-Example para búsqueda semántica por Hamming distance, un pipeline de recuperación de 14 capas en cascada con expansión simbólica bilingüe (Stemmer ES/EN + Levenshtein + WordNet), un grafo de conocimiento dinámico con plasticidad negativa y sinapsis latentes semánticas (SLS), un motor autónomo de Red por Defecto (DMN) que divaga y genera hipótesis en reposo, un sistema de mantenimiento automatizado del grafo (La Hormiguita) con cuarentena y benchmark gate, y Feedback-Driven Graph Learning con LTP asintótico sobre caminos de spreading activation.
+**BioRAG** es una arquitectura de memoria cognitiva simbólica, biomimética y persistente para agentes de inteligencia artificial. Resuelve el problema fundamental de que los LLMs olvidan todo entre sesiones — sin depender de vectores densos, embeddings, GPU ni infraestructura externa. Opera sobre un espacio discreto, determinista y auditable: 13 ejes semánticos × 102 sub-valores declarativos, 45 grupos léxicos WordNet, Pointwise Mutual Information (PMI/NPMI) aprendido sobre el corpus, Sparse Distributed Memory (SDM de 1024 bits) con Query-by-Example para búsqueda semántica por Hamming distance, un pipeline de recuperación de 14 capas en cascada con expansión simbólica bilingüe (Stemmer ES/EN + Levenshtein + WordNet), un grafo de conocimiento dinámico con plasticidad negativa y sinapsis latentes semánticas (SLS), un motor autónomo de Red por Defecto (DMN) que divaga y genera hipótesis en reposo, un sistema de mantenimiento automatizado del grafo (La Hormiguita) con cuarentena y benchmark gate, y Feedback-Driven Graph Learning con LTP asintótico sobre caminos de spreading activation.
 
 ---
 
 ## 📊 Benchmark y Evaluación de Rendimiento (v24.1 Validado — Zero Data Leakage)
 
-> Metodología: **Peso excluido del scoring** (`ignore_peso_sinaptico=True`) — campo de juego nivelado sin artefactos de umbral de ruido. Determinismo verificado: 4 corridas idénticas. Tests: 117/117.
+> Metodología: **Peso excluido del scoring** (`ignore_peso_sinaptico=True`) — campo de juego nivelado sin artefactos de umbral de ruido. Determinismo verificado: 4 corridas idénticas. Tests: 116/117 (test 83 falla preexistente, documentado en v25.0).
 
 ### Comparativa de la Evolución de `por_tema`
 
@@ -54,9 +54,9 @@ BioRAG se ubica en la intersección de cuatro disciplinas científicas:
 
 **BioRAG NO es:**
 - **No es un RAG** — RAG (Retrieval-Augmented Generation) usa embeddings vectoriales para recuperar chunks de texto. BioRAG no usa embeddings.
-- **No es una base de datos vectorial** — No hay vectores densos. Los 73 ejes dimensionales son un sparse embedding declarativo: la misma idea que un vector, pero con valores que un humano define, inspecciona y audita.
+- **No es una base de datos vectorial** — No hay vectores densos. Los 13 ejes dimensionales son un sparse embedding declarativo: la misma idea que un vector, pero con valores que un humano define, inspecciona y audita.
 - **No es un LLM** — BioRAG no genera texto. Es el sistema de memoria que un LLM usa para recordar entre sesiones.
-- **No es un prototipo académico** — Es un sistema de producción con 95 tests automatizados, ~20 MB RAM, latencia de 2.84ms.
+- **No es un prototipo académico** — Es un sistema de producción con 117 tests automatizados, ~20 MB RAM, latencia de 2.84ms.
 
 ---
 
@@ -384,8 +384,8 @@ La normalización `abs(x) / (abs(x) + 3.0)` es una **sigmoid-like** que mapea BM
 
 ### 5. Dimensiones Semánticas — Búsqueda sin Vectores
 
-**7 ejes semánticos:** emoción, entidad, acción, cualidad, coordenada, intención, dominio.
-**73 sub-valores** categorizados manualmente.
+**13 ejes semánticos:** emoción, entidad, acción, cualidad, coordenada, intención, dominio + cualia, epistemia, escala_abstraccion, centralidad_identitaria, textura_experiencial, modalidad.
+**102 sub-valores** categorizados manualmente.
 
 **Cómo funciona:**
 - Al guardar un nodo, el agente clasifica con dimensiones (ej: `{emocion: [afecto], dominio: [tecnico]}`)
@@ -394,7 +394,7 @@ La normalización `abs(x) / (abs(x) + 3.0)` es una **sigmoid-like** que mapea BM
 
 **¿Qué es en términos del campo?**
 
-Es un **sparse embedding declarativo**. En vez de 1536 floats que el modelo "adivina", tenemos 73 categorías declaradas explícitamente. Es más preciso, más auditado, y cero costo computacional.
+Es un **sparse embedding declarativo**. En vez de 1536 floats que el modelo "adivina", tenemos 102 categorías declaradas explícitamente. Es más preciso, más auditado, y cero costo computacional.
 
 ---
 
@@ -505,7 +505,7 @@ El Fallback 2.1 resuelve la brecha de sinonimia y variaciones morfológicas sin 
 
 | Eje de Evaluación | RAG Vectorial Tradicional | BioRAG (Corteza Simbólica) |
 |---|---|---|
-| **Representación** | Espacio vectorial continuo (floats de 1536d) | Espacio discreto (7 ejes, 73 dimensiones, WordNet) |
+| **Representación** | Espacio vectorial continuo (floats de 1536d) | Espacio discreto (13 ejes, 102 dimensiones, WordNet) |
 | **Computo** | GPU / Modelos de Deep Learning de peso | CPU estándar / SQLite local en memoria |
 | **Higiene** | Imposible remover o corregir una asociación | Plasticidad negativa (`desvincular`) en milisegundos |
 | **Auditoría** | Caja negra matemática | Explicabilidad total (score descompuesto en 9 señales) |
@@ -991,9 +991,9 @@ BioRAG expone una corteza cerebral compartida via MCP para que cualquier IDE o a
 | `biorag_sync_status` | Categorías pendientes de sync a NotebookLM | v13.0 |
 | `biorag_export_sync` | Exporta categorías pendientes | v13.0 |
 | `biorag_export_full` | Export completo | v13.0 |
-| `listar_tipos_dimension` | Retorna los 7 tipos con `num_dimensiones` | v13.4 |
+| `listar_tipos_dimension` | Retorna los 13 tipos con `num_dimensiones` | v25.0 |
 | `listar_dimensiones_por_tipo` | Retorna sub-valores de uno o más tipos | v13.4 |
-| `listar_dimensiones` | Catálogo vivo de las 73 dimensiones | v13.4 |
+| `listar_dimensiones` | Catálogo vivo de las 102 dimensiones | v25.0 |
 | `oraculo_inicio` | Inicialización de sesión con NotebookLM | v17.0 |
 | `oraculo_preguntar` | Consulta directa al oráculo NotebookLM | v17.0 |
 | `feedback` | Refuerzo dopaminérgico RPE por utilidad | v20.0 |
@@ -1097,7 +1097,7 @@ export BIORAG_HORMIGA_LOTE_SINAPSIS=20
 | Capacidad | Base de Datos Vectorial | BioRAG |
 |---|---|---|
 | **Naturaleza** | Espacio continuo, probabilístico, opaco | Espacio discreto, determinista, auditable |
-| **Similitud semántica** | Embeddings (768-1536 floats opacos) | 7 dimensiones × 73 IDs discretos + 45 grupos WordNet |
+| **Similitud semántica** | Embeddings (768-1536 floats opacos) | 13 dimensiones × 102 IDs discretos + 45 grupos WordNet |
 | **Cómo sabe qué es similar** | Entrenamiento masivo (aprende de internet) | Tú definís las dimensiones y WordNet local (discreto, 100% offline) |
 | **Tolerancia a typos** | Depende del modelo | FTS5 trigram nativo |
 | **Expansión de queries** | Embeddings implícitos | Tesauro explícito + ráfaga del agente |
@@ -1153,7 +1153,76 @@ Las dimensiones SIEMPRE suman, incluso con cero match de texto. El fallback dime
 
 ---
 
+## Dimensiones Semánticas — v25.0: De 7 a 13 Ejes (Julio 2026)
+
+### Por qué 13 y no 7
+
+En v13.4 el catálogo tenía **7 ejes × 73 sub-valores**: emoción (qué se siente), entidad (qué existe), acción (qué pasa), cualidad (cómo es), coordenada (dónde/cuándo), intención (por qué se hace), dominio (dónde se aplica). Ese espacio capturaba el *qué*, pero no dos preguntas ontológicas que la literatura y el uso real mostraron como huecos estructurales:
+
+| Hueco detectado | Pregunta que no respondía | Disciplinas que lo señalaron |
+|---|---|---|
+| **Modalidad deóntica** | ¿Qué es *obligatorio*, *prohibido*, *permitido* o *posible*? | Lingüística — modalidad deóntica (Palmer, 2001); lógica modal |
+| **Epistemología** | ¿Cómo *se sabe* lo que se sabe? ¿Es experiencia directa, inferencia, reporte, hipótesis? | Lingüística — evidencialidad (Aikhenvald, 2004); epistemología |
+| **Escala de abstracción** | ¿Es un caso concreto, un patrón, un principio, una ley, una metáfora? | Ciencia cognitiva — granularidad/abstracción |
+| **Centralidad identitaria** | ¿Cuán central es para la identidad del agente? | Psicología — self-reference effect (Rogers et al., 1977) |
+| **Cualia** | ¿Qué es, de qué está hecho, cómo llegó a ser, para qué sirve? | Filosofía del lenguaje — Generative Lexicon (Pustejovsky, 1995), las 4 causas aristotélicas |
+| **Textura experiencial** | ¿Qué se siente *al vivir* la experiencia? ¿flujo, tensión, rutina, presencia? | Fenomenología; psicología — experiencia de flujo (Csikszentmihalyi) |
+
+**Confluencia diagnóstica:** Dos análisis independientes del sistema —el análisis dimensional de otra IA y el plan de 16 ejes propuesto— convergieron en detectar **exactamente los mismos dos huecos prioritarios** (epistemía y modalidad deóntica) sin coordinarse entre sí. Dos rutas independientes de diagnóstico convergiendo en el mismo déficit es señal fuerte de que el hueco era real, no un sesgo del analizador.
+
+**Principio rector:** Las dimensiones son **características genéricas de la información**, no una taxonomía del sistema. Si un eje solo describe a BioRAG mismo y no a cualquier información del mundo, es metadato de arquitectura, no dimensión semántica. Este principio evitó inflar el catálogo con ejes de nicho.
+
+### Los 6 ejes nuevos
+
+| Eje | Sub-valores | Qué captura | Fundamento |
+|---|---|---|---|
+| **cualia** | 4 (constitutiva, formal, agentiva, télica) | Las 4 causas de qué es algo | Pustejovsky (1995) — Generative Lexicon |
+| **epistemia** | 6 (experiencia_directa, verificado, inferido, reportado_externo, hipotético, obsoleto) | Cómo se justifica lo que se sabe | Aikhenvald (2004) — evidencialidad |
+| **escala_abstraccion** | 5 (instancia, patrón, principio, ley_modelo, metáfora) | Granularidad del conocimiento | Ciencia cognitiva de la abstracción |
+| **centralidad_identitaria** | 5 (núcleo_identitario, relevante_personal, relevante_contextual, información_externa, impersonal) | Peso del conocimiento en la identidad | Self-reference effect — Rogers et al. (1977) |
+| **textura_experiencial** | 5 (flujo, tensión, desorientación, rutina, presencia_plena) | Cualidad vivencial del momento | Fenomenología; Csikszentmihalyi — flujo |
+| **modalidad** | 4 (obligación, prohibición, permiso, capacidad) | Reglas y posibilidades del hacer | Palmer (2001) — modalidad deóntica |
+
+**Validación empírica:** El catálogo vive en `core/memory_store.py` (siembra idempotente `_asegurar_catalogo_dimensiones`). Verificado con DB limpia: **13 tipos × 102 sub-valores**, re-siembra idempotente (sin duplicados), y migración correcta de la DB existente (13 tipos × 104 IDs reales — los +2 son artefactos residuales de migraciones previas, no parte del seed).
+
+### Tabla completa (13 ejes × 102 sub-valores)
+
+| ID | Dimensión | Qué captura | Sub-valores |
+|---|---|---|---|
+| 1 | emoción | El "Sentir" — carga emocional | 12 |
+| 2 | entidad | El "Qué" — entes, objetos, conceptos | 11 |
+| 3 | acción | El "Hacer/Estar" — verbos, procesos | 11 |
+| 4 | cualidad | El "Cómo" — propiedades, valoraciones | 11 |
+| 5 | coordenada | Espacio y Tiempo | 10 |
+| 6 | intención | El "Por Qué" — propósito | 8 |
+| 7 | dominio | El "Dónde" — área de aplicación | 10 |
+| 8 | cualia | El "Esencia" — causas de ser | 4 |
+| 9 | epistemia | El "Cómo se sabe" — evidencialidad | 6 |
+| 10 | escala_abstraccion | El "Nivel" — granularidad | 5 |
+| 11 | centralidad_identitaria | El "Cuán mío" — identidad | 5 |
+| 12 | textura_experiencial | El "Cómo se vive" — vivencia | 5 |
+| 13 | modalidad | El "Se debe/puede" — deóntica | 4 |
+
+> **Nota histórica:** la sección v13.4 (más abajo) documenta el catálogo original de 7 ejes, preservado como registro de esa versión.
+
+---
+
 ## Historial de Versiones
+
+### v25.0 — Expansión Dimensional: 13 Ejes Semánticos (Julio 2026)
+
+**Objetivo:** Cerrar los dos huecos estructurales del catálogo dimensional —evidencialidad (cómo se sabe) y modalidad deóntica (qué se debe/puede)— detectados por dos análisis independientes, y enriquecer la discriminación semántica con 4 ejes más.
+
+**Features:**
+- **Catálogo expandido 7 → 13 ejes, 73 → 102 sub-valores** en `core/memory_store.py`
+- **6 ejes nuevos:** cualia, epistemia, escala_abstraccion, centralidad_identitaria, textura_experiencial, modalidad
+- **Siembra idempotente** (`_asegurar_catalogo_dimensiones`): INSERT OR IGNORE por nombre — corre en DB nueva y existente sin duplicar
+- **Migración verificada:** DB limpia 13/102 ✓, re-siembra idempotente ✓, DB real migrada 13/104 ✓ (con backup pre-migración)
+- **Principio de dimensiones genéricas:** se definieron dimensiones como características de *cualquier* información, no taxonomía del sistema
+
+**Decisión de diseño (reversión documentada):** El plan original de 16 ejes (incluyendo agencia, alcance, ubicación_sistema) se rechazó parcialmente: ejes que describen a BioRAG mismo (y no a la información genérica) se marcaron como metadato de arquitectura, no dimensión semántica. La lección: el espacio dimensional no debe mezclar epistemología del mundo con auto-descripción del sistema.
+
+**Nota de tests:** 116/117 tests pasan. El test 83 (`test_memory.py:1609`, búsqueda SRL por rol `sujeto:Artemis`) falla **de forma preexistente** — se verificó que el mismo fallo ocurre con `memory_store.py` en estado HEAD original, sin los cambios de v25.0. No es regresión de esta versión.
 
 ### v24.1 — La Hormiguita: Sistema de Mantenimiento Seguro y Automedible (Julio 2026)
 

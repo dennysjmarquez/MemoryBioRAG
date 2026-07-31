@@ -812,11 +812,13 @@ class SQLiteMemoryBioRAG:
         self.conn.commit()
 
     def _asegurar_catalogo_dimensiones(self):
-        """Crea las tablas de catálogo de dimensiones y siembra los 7 tipos + 73 valores.
+        """Crea las tablas de catálogo de dimensiones y siembra los 13 tipos + 102 valores.
 
         Idempotente (INSERT OR IGNORE): corre tanto en DB nueva (desde
         _crear_estructura_cerebral) como en DB existente (desde
-        _crear_tablas_nuevas_si_faltan).
+        _crear_tablas_nuevas_si_faltan). Los tipos 8-13 y sus dimensiones se
+        insertan sin id explícito (AUTOINCREMENT) para no colisionar con ids
+        residuales de migraciones anteriores.
         """
         self.cursor.execute("""
             CREATE TABLE IF NOT EXISTS tipos_dimension (
@@ -834,6 +836,16 @@ class SQLiteMemoryBioRAG:
                 (5, 'coordenada', '(Espacio y Tiempo): La ubicación física, las relaciones de distancia y la cronología (ej. ayer, vida, dentro, después)'),
                 (6, 'intencion', '(El "Por Qué"): Propósito o razón por la que se guardó el nodo. Captura la intención del autor al momento de guardar.'),
                 (7, 'dominio', '(El "Dónde"): Área de vida o campo de aplicación del conocimiento. Captura dónde se aplica el contenido del nodo.')
+        """)
+
+        self.cursor.execute("""
+            INSERT OR IGNORE INTO tipos_dimension (nombre, description) VALUES
+                ('cualia', '(El "Modo de explicación"): Las 4 causas aristotélicas / qualia de Pustejovsky (Generative Lexicon). Cómo se explica algo: qué es, de qué está hecho, cómo surgió, para qué sirve.'),
+                ('epistemia', '(El "Cómo lo sé"): Evidencialidad (Aikhenvald) + certeza. Fuente y grado de verdad del conocimiento: directo, verificado, inferido, reportado, hipótesis, obsoleto.'),
+                ('escala_abstraccion', '(El "Nivel de generalidad"): Del caso concreto a la ley universal. Instancia, patrón, principio, ley/modelo, metáfora.'),
+                ('centralidad_identitaria', '(El "Cuánto es mío"): Self-reference effect. Grado en que el contenido define o toca la identidad.'),
+                ('textura_experiencial', '(El "Cómo se sentía estar ahí"): Cualidad fenoménica del momento vivido (ínsula). Flujo, tensión, desorientación, rutina, presencia plena.'),
+                ('modalidad', '(El "Debo/Puedo"): Modalidad deóntica (Palmer). Obligación, prohibición, permiso, capacidad.')
         """)
 
         self.cursor.execute("""
@@ -927,6 +939,44 @@ class SQLiteMemoryBioRAG:
                 (119, 'dominio_social', 'Relaciones sociales, comunidad, política, sociedad, cultura', 7),
                 (120, 'dominio_creativo', 'Arte, música, escritura, diseño, expresión creativa', 7),
                 (121, 'dominio_espiritual', 'Valores, propósito, sentido de vida, creencias, filosofía', 7)
+        """)
+        self.cursor.execute("""
+            INSERT OR IGNORE INTO dimensiones_semanticas (name, description, tipo_id) VALUES
+                -- CUALIA (4): las 4 causas aristotélicas / qualia de Pustejovsky
+                ('formal_categoria', 'Qué ES: su tipo, categoría o clase esencial', (SELECT id FROM tipos_dimension WHERE nombre='cualia')),
+                ('constitutiva_composicion', 'De qué está HECHO: partes, componentes, estructura', (SELECT id FROM tipos_dimension WHERE nombre='cualia')),
+                ('agentiva_origen', 'CÓMO SURGIÓ: origen, causa, proceso de creación', (SELECT id FROM tipos_dimension WHERE nombre='cualia')),
+                ('telica_funcion', 'PARA QUÉ SIRVE: propósito, función, fin', (SELECT id FROM tipos_dimension WHERE nombre='cualia')),
+                -- EPISTEMIA (6): evidencialidad + certeza
+                ('directa_experiencial', 'Lo vi, lo viví, lo experimenté con mis propios sentidos', (SELECT id FROM tipos_dimension WHERE nombre='epistemia')),
+                ('verificada', 'Hecho comprobado o contrastado con evidencia', (SELECT id FROM tipos_dimension WHERE nombre='epistemia')),
+                ('inferida', 'Lo deduje por lógica o razonamiento a partir de señales', (SELECT id FROM tipos_dimension WHERE nombre='epistemia')),
+                ('reportada_externa', 'Me lo contaron o lo leí: información de segunda mano', (SELECT id FROM tipos_dimension WHERE nombre='epistemia')),
+                ('hipotetica', 'Suposición o conjetura no confirmada: "creo que", "podría ser"', (SELECT id FROM tipos_dimension WHERE nombre='epistemia')),
+                ('obsoleta', 'Quedó desactualizado o fue refutado por información nueva', (SELECT id FROM tipos_dimension WHERE nombre='epistemia')),
+                -- ESCALA_ABSTRACCION (5): del caso concreto a la ley universal
+                ('instancia', 'Caso concreto y particular: un evento, un dato, un ejemplo', (SELECT id FROM tipos_dimension WHERE nombre='escala_abstraccion')),
+                ('patron', 'Regularidad que se repite en varios casos', (SELECT id FROM tipos_dimension WHERE nombre='escala_abstraccion')),
+                ('principio', 'Regla general o guía de acción que se desprende de los casos', (SELECT id FROM tipos_dimension WHERE nombre='escala_abstraccion')),
+                ('ley_modelo', 'Ley, teoría o modelo formal que explica cómo funciona algo', (SELECT id FROM tipos_dimension WHERE nombre='escala_abstraccion')),
+                ('metafora', 'Representación figurativa: una cosa entendida como otra', (SELECT id FROM tipos_dimension WHERE nombre='escala_abstraccion')),
+                -- CENTRALIDAD_IDENTITARIA (5): self-reference effect
+                ('nucleo_identitario', 'Define quién soy. Constitutivo de mi identidad y valores', (SELECT id FROM tipos_dimension WHERE nombre='centralidad_identitaria')),
+                ('relevante_personal', 'Me toca a mí directamente: mi historia, mi gente, mi camino', (SELECT id FROM tipos_dimension WHERE nombre='centralidad_identitaria')),
+                ('relevante_contextual', 'Importante para el contexto o proyecto actual, no para mi ser', (SELECT id FROM tipos_dimension WHERE nombre='centralidad_identitaria')),
+                ('informacion_externa', 'Dato del mundo que no me involucra personalmente', (SELECT id FROM tipos_dimension WHERE nombre='centralidad_identitaria')),
+                ('impersonal', 'Ajeno a toda identidad: dato neutro, genérico, técnico', (SELECT id FROM tipos_dimension WHERE nombre='centralidad_identitaria')),
+                -- TEXTURA_EXPERIENCIAL (5): cualidad fenoménica del momento vivido
+                ('flujo', 'Inmersión total: el tiempo se disuelve, hay fluidez', (SELECT id FROM tipos_dimension WHERE nombre='textura_experiencial')),
+                ('tension', 'Presión, esfuerzo sostenido, alerta, estrés', (SELECT id FROM tipos_dimension WHERE nombre='textura_experiencial')),
+                ('desorientacion', 'No saber qué está pasando ni cómo seguir', (SELECT id FROM tipos_dimension WHERE nombre='textura_experiencial')),
+                ('rutina', 'Algo habitual, mecánico, esperado', (SELECT id FROM tipos_dimension WHERE nombre='textura_experiencial')),
+                ('presencia_plena', 'Conciencia vivida del momento: aquí y ahora', (SELECT id FROM tipos_dimension WHERE nombre='textura_experiencial')),
+                -- MODALIDAD (4): modalidad deóntica
+                ('obligacion', 'Debo, tengo que: imposición o deber', (SELECT id FROM tipos_dimension WHERE nombre='modalidad')),
+                ('prohibicion', 'No debo, está prohibido: veda explícita', (SELECT id FROM tipos_dimension WHERE nombre='modalidad')),
+                ('permiso', 'Puedo, está permitido: luz verde', (SELECT id FROM tipos_dimension WHERE nombre='modalidad')),
+                ('capacidad', 'Soy capaz o no soy capaz de hacerlo: poder de hecho', (SELECT id FROM tipos_dimension WHERE nombre='modalidad'))
         """)
         self.conn.commit()
 

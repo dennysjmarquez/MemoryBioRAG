@@ -1,5 +1,32 @@
 # BioRAG Changelog
 
+## v25.0 (2026-07-31)
+
+### Expansión Dimensional: 13 Ejes Semánticos (7 → 13, 73 → 102 sub-valores)
+
+**Objetivo:** Cerrar los huecos estructurales del catálogo dimensional detectados por dos análisis independientes —evidencialidad (cómo se sabe) y modalidad deóntica (qué se debe/puede)— y enriquecer la discriminación semántica con ejes genéricos de la información.
+
+**Features:**
+- **Catálogo expandido 7 → 13 ejes, 73 → 102 sub-valores** en `core/memory_store.py` (`_asegurar_catalogo_dimensiones`)
+- **6 ejes nuevos:** cualia (4), epistemia (6), escala_abstraccion (5), centralidad_identitaria (5), textura_experiencial (5), modalidad (4)
+- **Siembra idempotente**: INSERT OR IGNORE por nombre — corre en DB nueva y existente sin duplicar, con backup pre-migración
+- **Verificación**: DB limpia 13/102 ✓, re-siembra idempotente ✓, DB real migrada 13/104 ✓
+- **Principio de dimensiones genéricas**: dimensiones = características de cualquier información, no taxonomía del sistema (se rechazaron ejes de auto-descripción tipo agencia/alcance/ubicación)
+
+**Referencias teóricas:**
+- Evidencialidad — Aikhenvald (2004)
+- Modalidad deóntica — Palmer (2001)
+- Generative Lexicon / cualia — Pustejovsky (1995)
+- Self-reference effect — Rogers et al. (1977)
+- Experiencia de flujo — Csikszentmihalyi
+
+**Archivos modificados:**
+- `core/memory_store.py` — seed ampliado + `_asegurar_catalogo_dimensiones` idempotente
+- `README.md` — documentación v25.0 con fundamento científico
+- `VERSION` — v25.0
+
+**Nota de tests:** 116/117 pasan. Test 83 (`test_memory.py:1609`, búsqueda SRL por rol `sujeto:Artemis`) falla **de forma preexistente** — verificado también con `memory_store.py` en estado HEAD sin cambios v25.0. No es regresión de esta versión.
+
 ## v24.1 (2026-07-27)
 
 ### La Hormiguita — Sistema de Mantenimiento Seguro y Automedible
