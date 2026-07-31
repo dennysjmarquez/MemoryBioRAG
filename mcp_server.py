@@ -475,6 +475,14 @@ def _build_server():
 
             # ── VALIDACIÓN DE PARÁMETROS (warnings inmediatos) ──────────
             _warnings = []
+
+            # Purga de cuarentena vencida: corre en cada recordar (path caliente)
+            n_purgados = cerebro.purgar_cuarentena_vencida()
+            if n_purgados > 0:
+                _warnings.append(
+                    f"🧹 Se purgaron {n_purgados} nodo(s) de cuarentena vencida "
+                    "(fecha_expiracion < ahora). Si esperabas verlos, su cuarentena expiró."
+                )
             if query is not None:
                 if parafrasis is None:
                     _warnings.append("⚠️ parafrasis=None — Sin parafrasis, el recall es ~40%. Generá 3-5 reformulaciones.")
@@ -713,6 +721,34 @@ def _build_server():
                 total = len(resultados)
 
             resultados = resultados[:limite]
+
+            # Auto-rescate: nodos en cuarentena que aparecieron en resultados → volver a activo
+            for r in resultados:
+                if len(r) > 3 and r[3] == 'cuarentena':
+                    cerebro.rescatar_de_cuarentena(r[0])
+                    _warnings.append(
+                        f"🔄 Nodo '{r[0]}' rescatado de cuarentena (apareció en resultados con score {r[4]:.3f}). "
+                        "Vuelve a estado activo."
+                    )
+
+            # Auto-rescate reversible en el camino normal (fix v24.2):
+            # el filtro l.estado='activo' de la búsqueda normal excluye la cuarentena
+            # ANTES del loop anterior, así que ese rescate solo era alcanzable con
+            # deep=True. Este chequeo liviano contra nodos en cuarentena corre
+            # SIEMPRE, independiente del profundidad: si el nodo se re-referencia,
+            # vuelve a activo en el uso normal del día a día.
+            try:
+                _frase_rescate = query if query else ""
+                if _frase_rescate.strip():
+                    nodos_cuarentena = cerebro.buscar_en_cuarentena(_frase_rescate)
+                    for _conc, _cont, _peso, _bm25 in nodos_cuarentena:
+                        if cerebro.rescatar_de_cuarentena(_conc):
+                            _warnings.append(
+                                f"🔄 Nodo '{_conc}' rescatado de cuarentena (re-referenciado en búsqueda normal). "
+                                "Vuelve a estado activo."
+                            )
+            except Exception as _e_rescate:
+                _warnings.append(f"⚠️ Chequeo de cuarentena omitido: {_e_rescate}")
 
             if not resultados:
                 cerebro.cerrar_sistema()

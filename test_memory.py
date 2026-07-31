@@ -924,7 +924,7 @@ def test_sistema():
     )
     cerebro.conn.commit()
     # Probar evocación por cadena desde A
-    evocados = cerebro._evocacion_por_cadena(["test_cadena_a"], max_saltos=3)
+    evocados, _ = cerebro._evocacion_por_cadena(["test_cadena_a"], max_saltos=3)
     conceptos_evocados = [e[0] for e in evocados]
     print(f"  Evocados desde 'test_cadena_a': {conceptos_evocados[:5]}")
     # B debería estar en la lista (1 hop)

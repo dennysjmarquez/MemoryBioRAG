@@ -392,118 +392,8 @@ class SQLiteMemoryBioRAG:
             self.cursor.execute("ALTER TABLE sinapsis ADD COLUMN ultimo_uso REAL")
             self.conn.commit()
 
-        # 3b. Catálogo de tipos de dimensión (5 ejes)
-        self.cursor.execute("""
-            CREATE TABLE IF NOT EXISTS tipos_dimension (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                nombre TEXT UNIQUE NOT NULL,
-                description TEXT DEFAULT ''
-            )
-        """)
-        self.cursor.execute("""
-            INSERT OR IGNORE INTO tipos_dimension (id, nombre, description) VALUES
-                (1, 'emocion', '(El "Sentir"): La carga emocional o la reacción subjetiva ante la experiencia (ej. alegría, frustración, sorpresa)'),
-                (2, 'entidad', '(El "Qué"): Cualquier tipo de ente, objeto o concepto que existe como unidad identificable — personas, agentes de IA, dispositivos, software, organizaciones o ideas abstractas (ej. usuario, servidor, empresa, fiesta, base de datos).'),
-                (3, 'accion', '(El "Hacer" o "Estar"): Verbos, transiciones, procesos físicos y cognitivos (ej. disfrutar, copiar, recordar)'),
-                (4, 'cualidad', '(El "Cómo"): Propiedades, descripciones, tamaños y valoraciones de las cosas (ej. bueno, comprimido, malformado)'),
-                (5, 'coordenada', '(Espacio y Tiempo): La ubicación física, las relaciones de distancia y la cronología (ej. ayer, vida, dentro, después)'),
-                (6, 'intencion', '(El "Por Qué"): Propósito o razón por la que se guardó el nodo. Captura la intención del autor al momento de guardar.'),
-                (7, 'dominio', '(El "Dónde"): Área de vida o campo de aplicación del conocimiento. Captura dónde se aplica el contenido del nodo.')
-        """)
-
-        # 3d. Tabla de dimensiones semánticas (39 valores en 5 ejes)
-        self.cursor.execute("""
-            CREATE TABLE IF NOT EXISTS dimensiones_semanticas (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                name TEXT UNIQUE NOT NULL,
-                description TEXT DEFAULT '',
-                tipo_id INTEGER NOT NULL,
-                FOREIGN KEY (tipo_id) REFERENCES tipos_dimension(id)
-            )
-        """)
-        self.cursor.execute("""
-            INSERT OR IGNORE INTO dimensiones_semanticas (id, name, description, tipo_id) VALUES
-                -- EMOCION (tipo_id=1): 12 valores
-                (1, 'afecto', 'Cariño, aprecio, gratitud, amor hacia personas o agentes', 1),
-                (2, 'alegria', 'Satisfacción, logro, orgullo, entusiasmo', 1),
-                (3, 'frustracion', 'Molestia, rabia, arrechera, enojo con algo o alguien', 1),
-                (4, 'tristeza', 'Pérdida, decepción, nostalgia', 1),
-                (5, 'preocupacion', 'Duda, alerta, ansiedad, incertidumbre', 1),
-                (6, 'confusion', 'Desorientación, falta de claridad, no entender', 1),
-                (7, 'sorpresa', 'Asombro, descubrimiento inesperado, impacto', 1),
-                (87, 'miedo', 'Temor, susto, sensación de amenaza o peligro ante algo', 1),
-                (88, 'alivio', 'Sensación de calma después de resolver algo o soltar tensión', 1),
-                (89, 'apatia', 'Falta de interés, motivación o energía. Desgano, indiferencia', 1),
-                (90, 'culpa', 'Sensación de haber hecho algo malo o de deber algo. Arrepentimiento', 1),
-                (91, 'satisfaccion', 'Placer por completar algo, aprender algo nuevo o ver resultados positivos', 1),
-                -- ENTIDAD (tipo_id=2): 11 valores
-                (8, 'identidad_individual', 'El ser humano en su plano personal, biológico y psicológico', 2),
-                (9, 'identidad_social_legal', 'Vinculación de personas a nivel de cultura, idioma, etnia y estatus legal', 2),
-                (10, 'identidad_organizacional', 'Colectivos, instituciones o agrupaciones de personas estructuradas bajo un fin', 2),
-                (11, 'identidad_digital', 'El rastro, cuentas de usuario, correos electrónicos y representaciones virtuales', 2),
-                (12, 'identidad_artificial', 'Elementos lógicos y de software autónomos, agentes inteligentes de IA, algoritmos', 2),
-                (13, 'identidad_fisica_hardware', 'Dispositivos computacionales físicos, servidores, infraestructura de red', 2),
-                (14, 'identidad_natural', 'Organismos biológicos no humanos, animales, plantas, microorganismos', 2),
-                (92, 'identidad_concepto', 'Ideas, teorías, principios, modelos mentales. Sin forma física', 2),
-                (93, 'identidad_institucion', 'Organizaciones, empresas, universidades, gobiernos. Estructuras formales', 2),
-                (94, 'identidad_evento', 'Reuniones, conferencias, lanzamientos. Occurrences puntuales con fecha', 2),
-                (95, 'identidad_vinculo', 'Personas con las que tengo vínculo emocional: familia, amigos, pareja', 2),
-                -- ACCION (tipo_id=3): 11 valores
-                (15, 'accion_fisica', 'Movimientos y desplazamientos del cuerpo o de objetos en el espacio', 3),
-                (16, 'accion_transformacion_material', 'Construir, destruir, modificar o alterar objetos físicos o materiales', 3),
-                (17, 'accion_persistencia_computacion', 'Guardar, procesar, consultar o transmitir información digital', 3),
-                (18, 'accion_rutina_automatica', 'Procesos cíclicos, repetitivos o automatizados sin intervención activa', 3),
-                (19, 'accion_comunicacion', 'Enviar, informar, reportar o transferir información entre agentes', 3),
-                (20, 'accion_interaccion_social', 'Acciones entre personas o agentes con propósito relacional', 3),
-                (21, 'accion_cognitiva', 'Procesos de pensamiento, aprendizaje, decisión o inferencia', 3),
-                (22, 'accion_estado_ser', 'Estados de existencia o permanencia sin acción activa', 3),
-                (96, 'accion_evaluar', 'Analizar, juzgar, comparar o valorar algo. Proceso de decisión', 3),
-                (97, 'accion_observar', 'Presenciar, notar o registrar algo sin actuar directamente', 3),
-                (98, 'accion_fallar', 'Algo falló, se rompió o dejó de funcionar. Error, crash', 3),
-                -- CUALIDAD (tipo_id=4): 11 valores
-                (23, 'cualidad_dimension_fisica', 'Tamaño, forma, cantidad, peso, medida', 4),
-                (24, 'cualidad_estado_condicion', 'Condición física o funcional de algo, íntegro o dañado', 4),
-                (25, 'cualidad_valoracion', 'Juicio de calidad o mérito, bueno/malo, correcto/incorrecto', 4),
-                (74, 'cualidad_sensorial', 'Percepciones captadas por los sentidos: color, textura, sonido, sabor', 4),
-                (75, 'cualidad_material_composicion', 'De qué está hecho o compuesto algo: metálico, digital, orgánico', 4),
-                (76, 'cualidad_temporal_duracion', 'Propiedades de duración o permanencia de algo', 4),
-                (77, 'cualidad_relacional_comparativa', 'Propiedades que solo existen en comparación con otra cosa', 4),
-                (78, 'cualidad_abstracta_conceptual', 'Propiedades no físicas de ideas o sistemas: complejo, simple, lógico', 4),
-                (99, 'cualidad_economica', 'Relacionado con dinero, costos, presupuesto, inversión o finanzas', 4),
-                (100, 'cualidad_urgente', 'Requiere acción inmediata. Tiene fecha límite o consecuencias', 4),
-                (101, 'cualidad_autentica', 'Vivencia real, genuina. No teórico ni hipotético. Experiencia personal', 4),
-                -- COORDENADA (tipo_id=5): 10 valores
-                (79, 'coordenada_cronologia_absoluta', 'Fechas o momentos específicos y objetivos', 5),
-                (80, 'coordenada_anclaje_deictico', 'Referencias temporales relativas al momento del habla', 5),
-                (81, 'coordenada_secuencia_relativa', 'Orden entre eventos, sin fecha fija', 5),
-                (82, 'coordenada_ciclo_periodico', 'Repetición regular en el tiempo: diario, semanal, anual', 5),
-                (83, 'coordenada_inclusion_topologica', 'Contención o pertenencia a un espacio', 5),
-                (84, 'coordenada_distancia_proximal', 'Cercanía o lejanía entre puntos', 5),
-                (85, 'coordenada_vector_direccional', 'Dirección u orientación: arriba, abajo, norte', 5),
-                (86, 'coordenada_trayectoria_limite', 'Movimiento entre puntos o fronteras: desde, hacia, a través de', 5),
-                (102, 'coordenada_etapa', 'Corresponde a una etapa de vida: infancia, juventud, adultez, vejez', 5),
-                (103, 'coordenada_hito', 'Marca un momento significativo: nacimiento, muerte, cambio de trabajo', 5),
-                -- INTENCION (tipo_id=6): 8 valores
-                (104, 'intencion_aprender', 'Guardo para aprender o recordar algo que estoy estudiando', 6),
-                (105, 'intencion_decidir', 'Guardo para tomar una decisión o tener contexto para decidir', 6),
-                (106, 'intencion_reflexionar', 'Guardo para pensar sobre algo, meditar o sacar conclusiones', 6),
-                (107, 'intencion_resolver', 'Guardo porque algo falló o hay un obstáculo que superar', 6),
-                (108, 'intencion_solucionar', 'Guardo la solución a un problema que ya resolví. Referencia futura', 6),
-                (109, 'intencion_documentar', 'Guardo para tener un registro formal o referencia duradera', 6),
-                (110, 'intencion_desahogar', 'Guardo para expresar lo que siento, sin buscar solución', 6),
-                (111, 'intencion_registrar', 'Guardo para marcar que algo pasó, sin juicio ni propósito específico', 6),
-                -- DOMINIO (tipo_id=7): 10 valores
-                (112, 'dominio_tecnico', 'Programación, infraestructura, herramientas de desarrollo, software', 7),
-                (113, 'dominio_personal', 'Vida privada, familia, relaciones personales, hogar', 7),
-                (114, 'dominio_profesional', 'Trabajo, carrera, crecimiento profesional, oficina', 7),
-                (115, 'dominio_academico', 'Estudios, cursos, investigación, aprendizaje formal, universidad', 7),
-                (116, 'dominio_salud', 'Salud física, mental, bienestar, cuidado del cuerpo, medicina', 7),
-                (117, 'dominio_finanzas', 'Dinero, inversiones, presupuesto, deudas, planificación financiera', 7),
-                (118, 'dominio_ambiental', 'Naturaleza, clima, medio ambiente, ecología, sustentabilidad', 7),
-                (119, 'dominio_social', 'Relaciones sociales, comunidad, política, sociedad, cultura', 7),
-                (120, 'dominio_creativo', 'Arte, música, escritura, diseño, expresión creativa', 7),
-                (121, 'dominio_espiritual', 'Valores, propósito, sentido de vida, creencias, filosofía', 7)
-        """)
+        # 3b/3d. Catálogo de tipos de dimensión + dimensiones semánticas (15 ejes)
+        self._asegurar_catalogo_dimensiones()
 
         # 3e. Tablas puente para dimensiones en corto y largo plazo
         self.cursor.execute("""
@@ -749,7 +639,17 @@ class SQLiteMemoryBioRAG:
         if 'valencia_somatica' not in cp_cols_v20:
             self.cursor.execute("ALTER TABLE corto_plazo ADD COLUMN valencia_somatica REAL DEFAULT 0.0")
 
+        # --- Migración v24.2 (Cuarentena y Prioridad para arquitectura de memoria agente) ---
+        self.cursor.execute("PRAGMA table_info(largo_plazo)")
+        lp_cols_v24 = [row[1] for row in self.cursor.fetchall()]
+        if 'fecha_expiracion' not in lp_cols_v24:
+            self.cursor.execute("ALTER TABLE largo_plazo ADD COLUMN fecha_expiracion REAL DEFAULT NULL")
+        if 'prioridad' not in lp_cols_v24:
+            self.cursor.execute("ALTER TABLE largo_plazo ADD COLUMN prioridad INTEGER DEFAULT 3")
+
         self.cursor.execute("CREATE INDEX IF NOT EXISTS idx_lp_valencia ON largo_plazo (valencia_somatica)")
+        self.cursor.execute("CREATE INDEX IF NOT EXISTS idx_lp_fecha_expiracion ON largo_plazo (fecha_expiracion)")
+        self.cursor.execute("CREATE INDEX IF NOT EXISTS idx_lp_prioridad ON largo_plazo (prioridad)")
 
         self._crear_tabla_comunicaciones()
         self._crear_tabla_fts()
@@ -817,7 +717,7 @@ class SQLiteMemoryBioRAG:
 
     def _crear_tablas_nuevas_si_faltan(self):
         """Crea tablas nuevas (Phase 2D) si no existen en esquemas existentes."""
-        # --- Migración v20.0 (Valencia Somática y Dopamina RPE) ---
+# --- Migración v20.0 (Valencia Somática y Dopamina RPE) ---
         self.cursor.execute("PRAGMA table_info(largo_plazo)")
         lp_cols_v20 = [row[1] for row in self.cursor.fetchall()]
         if 'valencia_somatica' not in lp_cols_v20:
@@ -832,8 +732,15 @@ class SQLiteMemoryBioRAG:
         if 'valencia_somatica' not in cp_cols_v20:
             self.cursor.execute("ALTER TABLE corto_plazo ADD COLUMN valencia_somatica REAL DEFAULT 0.0")
 
+        # --- Migración v24.2 (Cuarentena y Prioridad para arquitectura de memoria agente) ---
+        if 'fecha_expiracion' not in lp_cols_v20:
+            self.cursor.execute("ALTER TABLE largo_plazo ADD COLUMN fecha_expiracion REAL DEFAULT NULL")
+        if 'prioridad' not in lp_cols_v20:
+            self.cursor.execute("ALTER TABLE largo_plazo ADD COLUMN prioridad INTEGER DEFAULT 3")
+
         self.cursor.execute("CREATE INDEX IF NOT EXISTS idx_lp_valencia ON largo_plazo (valencia_somatica)")
-        self.conn.commit()
+        self.cursor.execute("CREATE INDEX IF NOT EXISTS idx_lp_fecha_expiracion ON largo_plazo (fecha_expiracion)")
+        self.cursor.execute("CREATE INDEX IF NOT EXISTS idx_lp_prioridad ON largo_plazo (prioridad)")
 
         self.cursor.execute("""
             CREATE TABLE IF NOT EXISTS log_busquedas (
@@ -899,6 +806,128 @@ class SQLiteMemoryBioRAG:
             )
         """)
 
+        # Catálogo de dimensiones: sembrar tipos y valores faltantes en DB existente
+        self._asegurar_catalogo_dimensiones()
+
+        self.conn.commit()
+
+    def _asegurar_catalogo_dimensiones(self):
+        """Crea las tablas de catálogo de dimensiones y siembra los 7 tipos + 73 valores.
+
+        Idempotente (INSERT OR IGNORE): corre tanto en DB nueva (desde
+        _crear_estructura_cerebral) como en DB existente (desde
+        _crear_tablas_nuevas_si_faltan).
+        """
+        self.cursor.execute("""
+            CREATE TABLE IF NOT EXISTS tipos_dimension (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                nombre TEXT UNIQUE NOT NULL,
+                description TEXT DEFAULT ''
+            )
+        """)
+        self.cursor.execute("""
+            INSERT OR IGNORE INTO tipos_dimension (id, nombre, description) VALUES
+                (1, 'emocion', '(El "Sentir"): La carga emocional o la reacción subjetiva ante la experiencia (ej. alegría, frustración, sorpresa)'),
+                (2, 'entidad', '(El "Qué"): Cualquier tipo de ente, objeto o concepto que existe como unidad identificable — personas, agentes de IA, dispositivos, software, organizaciones o ideas abstractas (ej. usuario, servidor, empresa, fiesta, base de datos).'),
+                (3, 'accion', '(El "Hacer" o "Estar"): Verbos, transiciones, procesos físicos y cognitivos (ej. disfrutar, copiar, recordar)'),
+                (4, 'cualidad', '(El "Cómo"): Propiedades, descripciones, tamaños y valoraciones de las cosas (ej. bueno, comprimido, malformado)'),
+                (5, 'coordenada', '(Espacio y Tiempo): La ubicación física, las relaciones de distancia y la cronología (ej. ayer, vida, dentro, después)'),
+                (6, 'intencion', '(El "Por Qué"): Propósito o razón por la que se guardó el nodo. Captura la intención del autor al momento de guardar.'),
+                (7, 'dominio', '(El "Dónde"): Área de vida o campo de aplicación del conocimiento. Captura dónde se aplica el contenido del nodo.')
+        """)
+
+        self.cursor.execute("""
+            CREATE TABLE IF NOT EXISTS dimensiones_semanticas (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                name TEXT UNIQUE NOT NULL,
+                description TEXT DEFAULT '',
+                tipo_id INTEGER NOT NULL,
+                FOREIGN KEY (tipo_id) REFERENCES tipos_dimension(id)
+            )
+        """)
+        self.cursor.execute("""
+            INSERT OR IGNORE INTO dimensiones_semanticas (id, name, description, tipo_id) VALUES
+                -- EMOCION (tipo_id=1): 12 valores
+                (1, 'afecto', 'Cariño, aprecio, gratitud, amor hacia personas o agentes', 1),
+                (2, 'alegria', 'Satisfacción, logro, orgullo, entusiasmo', 1),
+                (3, 'frustracion', 'Molestia, rabia, arrechera, enojo con algo o alguien', 1),
+                (4, 'tristeza', 'Pérdida, decepción, nostalgia', 1),
+                (5, 'preocupacion', 'Duda, alerta, ansiedad, incertidumbre', 1),
+                (6, 'confusion', 'Desorientación, falta de claridad, no entender', 1),
+                (7, 'sorpresa', 'Asombro, descubrimiento inesperado, impacto', 1),
+                (87, 'miedo', 'Temor, susto, sensación de amenaza o peligro ante algo', 1),
+                (88, 'alivio', 'Sensación de calma después de resolver algo o soltar tensión', 1),
+                (89, 'apatia', 'Falta de interés, motivación o energía. Desgano, indiferencia', 1),
+                (90, 'culpa', 'Sensación de haber hecho algo malo o de deber algo. Arrepentimiento', 1),
+                (91, 'satisfaccion', 'Placer por completar algo, aprender algo nuevo o ver resultados positivos', 1),
+                -- ENTIDAD (tipo_id=2): 11 valores
+                (8, 'identidad_individual', 'El ser humano en su plano personal, biológico y psicológico', 2),
+                (9, 'identidad_social_legal', 'Vinculación de personas a nivel de cultura, idioma, etnia y estatus legal', 2),
+                (10, 'identidad_organizacional', 'Colectivos, instituciones o agrupaciones de personas estructuradas bajo un fin', 2),
+                (11, 'identidad_digital', 'El rastro, cuentas de usuario, correos electrónicos y representaciones virtuales', 2),
+                (12, 'identidad_artificial', 'Elementos lógicos y de software autónomos, agentes inteligentes de IA, algoritmos', 2),
+                (13, 'identidad_fisica_hardware', 'Dispositivos computacionales físicos, servidores, infraestructura de red', 2),
+                (14, 'identidad_natural', 'Organismos biológicos no humanos, animales, plantas, microorganismos', 2),
+                (92, 'identidad_concepto', 'Ideas, teorías, principios, modelos mentales. Sin forma física', 2),
+                (93, 'identidad_institucion', 'Organizaciones, empresas, universidades, gobiernos. Estructuras formales', 2),
+                (94, 'identidad_evento', 'Reuniones, conferencias, lanzamientos. Occurrences puntuales con fecha', 2),
+                (95, 'identidad_vinculo', 'Personas con las que tengo vínculo emocional: familia, amigos, pareja', 2),
+                -- ACCION (tipo_id=3): 11 valores
+                (15, 'accion_fisica', 'Movimientos y desplazamientos del cuerpo o de objetos en el espacio', 3),
+                (16, 'accion_transformacion_material', 'Construir, destruir, modificar o alterar objetos físicos o materiales', 3),
+                (17, 'accion_persistencia_computacion', 'Guardar, procesar, consultar o transmitir información digital', 3),
+                (18, 'accion_rutina_automatica', 'Procesos cíclicos, repetitivos o automatizados sin intervención activa', 3),
+                (19, 'accion_comunicacion', 'Enviar, informar, reportar o transferir información entre agentes', 3),
+                (20, 'accion_interaccion_social', 'Acciones entre personas o agentes con propósito relacional', 3),
+                (21, 'accion_cognitiva', 'Procesos de pensamiento, aprendizaje, decisión o inferencia', 3),
+                (22, 'accion_estado_ser', 'Estados de existencia o permanencia sin acción activa', 3),
+                (96, 'accion_evaluar', 'Analizar, juzgar, comparar o valorar algo. Proceso de decisión', 3),
+                (97, 'accion_observar', 'Presenciar, notar o registrar algo sin actuar directamente', 3),
+                (98, 'accion_fallar', 'Algo falló, se rompió o dejó de funcionar. Error, crash', 3),
+                -- CUALIDAD (tipo_id=4): 11 valores
+                (23, 'cualidad_dimension_fisica', 'Tamaño, forma, cantidad, peso, medida', 4),
+                (24, 'cualidad_estado_condicion', 'Condición física o funcional de algo, íntegro o dañado', 4),
+                (25, 'cualidad_valoracion', 'Juicio de calidad o mérito, bueno/malo, correcto/incorrecto', 4),
+                (74, 'cualidad_sensorial', 'Percepciones captadas por los sentidos: color, textura, sonido, sabor', 4),
+                (75, 'cualidad_material_composicion', 'De qué está hecho o compuesto algo: metálico, digital, orgánico', 4),
+                (76, 'cualidad_temporal_duracion', 'Propiedades de duración o permanencia de algo', 4),
+                (77, 'cualidad_relacional_comparativa', 'Propiedades que solo existen en comparación con otra cosa', 4),
+                (78, 'cualidad_abstracta_conceptual', 'Propiedades no físicas de ideas o sistemas: complejo, simple, lógico', 4),
+                (99, 'cualidad_economica', 'Relacionado con dinero, costos, presupuesto, inversión o finanzas', 4),
+                (100, 'cualidad_urgente', 'Requiere acción inmediata. Tiene fecha límite o consecuencias', 4),
+                (101, 'cualidad_autentica', 'Vivencia real, genuina. No teórico ni hipotético. Experiencia personal', 4),
+                -- COORDENADA (tipo_id=5): 10 valores
+                (79, 'coordenada_cronologia_absoluta', 'Fechas o momentos específicos y objetivos', 5),
+                (80, 'coordenada_anclaje_deictico', 'Referencias temporales relativas al momento del habla', 5),
+                (81, 'coordenada_secuencia_relativa', 'Orden entre eventos, sin fecha fija', 5),
+                (82, 'coordenada_ciclo_periodico', 'Repetición regular en el tiempo: diario, semanal, anual', 5),
+                (83, 'coordenada_inclusion_topologica', 'Contención o pertenencia a un espacio', 5),
+                (84, 'coordenada_distancia_proximal', 'Cercanía o lejanía entre puntos', 5),
+                (85, 'coordenada_vector_direccional', 'Dirección u orientación: arriba, abajo, norte', 5),
+                (86, 'coordenada_trayectoria_limite', 'Movimiento entre puntos o fronteras: desde, hacia, a través de', 5),
+                (102, 'coordenada_etapa', 'Corresponde a una etapa de vida: infancia, juventud, adultez, vejez', 5),
+                (103, 'coordenada_hito', 'Marca un momento significativo: nacimiento, muerte, cambio de trabajo', 5),
+                -- INTENCION (tipo_id=6): 8 valores
+                (104, 'intencion_aprender', 'Guardo para aprender o recordar algo que estoy estudiando', 6),
+                (105, 'intencion_decidir', 'Guardo para tomar una decisión o tener contexto para decidir', 6),
+                (106, 'intencion_reflexionar', 'Guardo para pensar sobre algo, meditar o sacar conclusiones', 6),
+                (107, 'intencion_resolver', 'Guardo porque algo falló o hay un obstáculo que superar', 6),
+                (108, 'intencion_solucionar', 'Guardo la solución a un problema que ya resolví. Referencia futura', 6),
+                (109, 'intencion_documentar', 'Guardo para tener un registro formal o referencia duradera', 6),
+                (110, 'intencion_desahogar', 'Guardo para expresar lo que siento, sin buscar solución', 6),
+                (111, 'intencion_registrar', 'Guardo para marcar que algo pasó, sin juicio ni propósito específico', 6),
+                -- DOMINIO (tipo_id=7): 10 valores
+                (112, 'dominio_tecnico', 'Programación, infraestructura, herramientas de desarrollo, software', 7),
+                (113, 'dominio_personal', 'Vida privada, familia, relaciones personales, hogar', 7),
+                (114, 'dominio_profesional', 'Trabajo, carrera, crecimiento profesional, oficina', 7),
+                (115, 'dominio_academico', 'Estudios, cursos, investigación, aprendizaje formal, universidad', 7),
+                (116, 'dominio_salud', 'Salud física, mental, bienestar, cuidado del cuerpo, medicina', 7),
+                (117, 'dominio_finanzas', 'Dinero, inversiones, presupuesto, deudas, planificación financiera', 7),
+                (118, 'dominio_ambiental', 'Naturaleza, clima, medio ambiente, ecología, sustentabilidad', 7),
+                (119, 'dominio_social', 'Relaciones sociales, comunidad, política, sociedad, cultura', 7),
+                (120, 'dominio_creativo', 'Arte, música, escritura, diseño, expresión creativa', 7),
+                (121, 'dominio_espiritual', 'Valores, propósito, sentido de vida, creencias, filosofía', 7)
+        """)
         self.conn.commit()
 
     def _calcular_jaccard(self, str1, str2):
@@ -1748,12 +1777,23 @@ class SQLiteMemoryBioRAG:
 
         # 2. Decaimiento Pasivo (LTD): Reducir peso según decay_rate de la categoría
         # Nodos protegidos (valencia_somatica >= 0.8 o categoria Principle/Protocol) son inmunes a LTD pasivo
+        # Prioridad P0-P1: inmunes. P2: 50% LTD. P3: normal (1.0). P4: 1.5x. P5: 2.5x.
+        # Sin prioridad asignada (NULL): 1.5x (intermedio, no el más volátil).
+        # Nodos en cuarentena se excluyen del ciclo de olvido.
         self.cursor.execute("""
             UPDATE largo_plazo
             SET peso_sinaptico = ROUND(MAX(0.0, peso_sinaptico - 0.05 * (
                 SELECT COALESCE(c.decay_rate, 1.0) FROM categories c WHERE c.id = largo_plazo.categoria
-            )), 2)
-            WHERE estado = 'activo' 
+            ) * CASE
+                WHEN prioridad = 2 THEN 0.5
+                WHEN prioridad = 3 THEN 1.0
+                WHEN prioridad = 4 THEN 1.5
+                WHEN prioridad >= 5 THEN 2.5
+                WHEN prioridad IS NULL THEN 1.5
+                ELSE 0
+            END), 2)
+            WHERE estado = 'activo'
+              AND (prioridad IS NULL OR prioridad NOT IN (0, 1))
               AND concepto NOT IN (SELECT concepto FROM corto_plazo)
               AND COALESCE(valencia_somatica, 0.0) < 0.80
               AND categoria NOT IN (SELECT id FROM categories WHERE name IN ('Principle', 'Protocol'))
@@ -1779,6 +1819,7 @@ class SQLiteMemoryBioRAG:
             SET estado = 'dormido' 
             WHERE peso_sinaptico <= 0.05 
               AND estado = 'activo'
+              AND (prioridad IS NULL OR prioridad NOT IN (0, 1))
               AND COALESCE(valencia_somatica, 0.0) < 0.80
               AND categoria NOT IN (SELECT id FROM categories WHERE name IN ('Principle', 'Protocol'))
         """)
@@ -1789,6 +1830,7 @@ class SQLiteMemoryBioRAG:
         nodos_dormidos_ltd = activos_antes_dormir & dormidos_after_ltd  # intersección: estaban activos Y ahora son dormidos
 
         # 4. Inhibición Lateral Activa (Control de Saturación de Energía)
+        # Excluir cuarentena de conteo activo y energía
         self.cursor.execute("SELECT COUNT(*) FROM largo_plazo WHERE estado = 'activo'")
         n_activos = self.cursor.fetchone()[0] or 0
         limite_energia = max(10.0, n_activos * 0.8)
@@ -1801,10 +1843,11 @@ class SQLiteMemoryBioRAG:
         if energia_total > limite_energia:
             exceso = energia_total - limite_energia
             print(f"[Inhibición Lateral] Alerta: Energía sináptica activa ({energia_total:.2f}) excede el límite ({limite_energia}). Aplicando inhibición...")
-            # Obtener los nodos activos ordenados de menor peso y más antiguos (excluyendo inmunes)
+            # Obtener los nodos activos ordenados de menor peso y más antiguos (excluyendo inmunes y cuarentena)
             self.cursor.execute("""
                 SELECT concepto, peso_sinaptico FROM largo_plazo 
                 WHERE estado = 'activo' 
+                  AND (prioridad IS NULL OR prioridad NOT IN (0, 1))
                   AND COALESCE(valencia_somatica, 0.0) < 0.80
                   AND categoria NOT IN (SELECT id FROM categories WHERE name IN ('Principle', 'Protocol'))
                 ORDER BY peso_sinaptico ASC, ultimo_acceso ASC
@@ -4536,6 +4579,87 @@ class SQLiteMemoryBioRAG:
         )
         fila = self.cursor.fetchone()
         return fila[0] if fila else None
+
+    def purgar_cuarentena_vencida(self) -> int:
+        """Elimina definitivamente nodos en cuarentena con fecha_expiracion vencida.
+        Corre automáticamente al inicio de cada recordar (path caliente).
+        Retorna cantidad de nodos eliminados."""
+        ahora = time.time()
+        self.cursor.execute(
+            "DELETE FROM largo_plazo WHERE estado = 'cuarentena' AND fecha_expiracion IS NOT NULL AND fecha_expiracion < ?",
+            (ahora,)
+        )
+        n = self.cursor.rowcount
+        if n > 0:
+            self.conn.commit()
+        return n
+
+    def mover_a_cuarentena(self, concepto: str, dias_expiracion: int = 30) -> bool:
+        """Mueve un nodo a estado 'cuarentena' con fecha de expiración.
+        Reversible: si el nodo se referencia antes de expirar, vuelve a activo.
+        El purge definitivo corre automáticamente en cada recordar."""
+        self.cursor.execute("SELECT estado FROM largo_plazo WHERE concepto = ?", (concepto,))
+        row = self.cursor.fetchone()
+        if not row:
+            return False
+        ahora = time.time()
+        expiracion = ahora + (dias_expiracion * 86400)
+        self.cursor.execute(
+            "UPDATE largo_plazo SET estado = 'cuarentena', fecha_expiracion = ? WHERE concepto = ?",
+            (expiracion, concepto)
+        )
+        self.conn.commit()
+        return True
+
+    def rescatar_de_cuarentena(self, concepto: str) -> bool:
+        """Rescata un nodo de cuarentena antes de que expire.
+        Vuelve a estado activo. Se gatilla automáticamente si el nodo
+        aparece en resultados de recordar con score > 0."""
+        self.cursor.execute(
+            "UPDATE largo_plazo SET estado = 'activo', fecha_expiracion = NULL WHERE concepto = ? AND estado = 'cuarentena'",
+            (concepto,)
+        )
+        n = self.cursor.rowcount
+        if n > 0:
+            self.conn.commit()
+        return n > 0
+
+    def buscar_en_cuarentena(self, frase: str, limite: int = 3):
+        """Busca nodos en estado 'cuarentena' que matcheen la frase via FTS.
+
+        Independiente del 'profundidad' de la búsqueda principal: el filtro
+        l.estado = 'activo' de buscar_por_frase excluye la cuarentena, así que
+        el auto-rescate del camino normal de recordar necesita su propia query.
+        Sin esto, un nodo en cuarentena solo podía salir por purge o por
+        rescate manual con deep=True (cuarentena de una sola vía en la práctica).
+
+        Retorna lista de (concepto, contenido, peso_sinaptico, bm25)."""
+        if not frase or not frase.strip():
+            return []
+        import re as _re
+
+        def _fts_safe_term(term):
+            partes = _re.split(r'[-]+', term)
+            return " ".join(p for p in partes if p)
+
+        tokens = [t for t in frase.split() if len(t) >= 2]
+        if not tokens:
+            return []
+        fts_match = " OR ".join(f'"{_fts_safe_term(t)}"' for t in tokens)
+        self.cursor.execute(
+            """
+            SELECT l.concepto, l.contenido, l.peso_sinaptico,
+                   bm25(largo_plazo_fts, 5.0, 1.0, 2.0) AS bm25_val
+            FROM largo_plazo_fts f
+            CROSS JOIN largo_plazo l ON l.rowid = f.rowid
+            WHERE largo_plazo_fts MATCH ? AND l.estado = 'cuarentena'
+            ORDER BY bm25(largo_plazo_fts, 5.0, 1.0, 2.0)
+            LIMIT ?
+            """,
+            (fts_match, limite)
+        )
+        return self.cursor.fetchall()
+
     def cerrar_sistema(self):
         """Cierra de forma segura la conexión con la base de datos SQLite."""
         self.conn.close()
