@@ -40,3 +40,11 @@ MemoryBioRAG_Data/memory_biorag.db-shm
 MemoryBioRAG_Data/memory_biorag.db-wal
 
 snapshots/
+
+agent_benchmark_coldstart.jsonl
+
+agent_benchmark_v1.jsonl
+
+dashboard/
+
+res_img/
