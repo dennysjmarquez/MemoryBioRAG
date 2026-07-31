@@ -101,6 +101,10 @@ def spawn_daemon_detached(
     
     env = os.environ.copy()
     env["BIORAG_DAEMON_SPAWNED_FROM_MCP"] = "1"
+    # Forzar el estado canónico: el daemon SIEMPRE escribe en la raíz del proyecto.
+    # No debe heredar un BIORAG_DMN_ESTADO_PATH mutado por tools on-demand
+    # (mcp_server/server.py lo setean por llamada para procesar_nodo_unico).
+    env["BIORAG_DMN_ESTADO_PATH"] = os.path.join(PROJECT_ROOT, "estado_hormiga.json")
     
     try:
         if sys.platform == "win32":

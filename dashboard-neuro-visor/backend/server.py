@@ -81,32 +81,9 @@ def _auto_clear_loop():
 threading.Thread(target=_auto_clear_loop, daemon=True, name="auto-clear-log").start()
 
 
-def _hormiguita_loop():
-    """Daemon: ejecuta ciclos de la hormiguita cada N minutos (default 15)."""
-    from core.memory_store import SQLiteMemoryBioRAG
-    from core.dmn_reflexion import ejecutar_ciclo_reflexivo
-    INTERVALO_SEG = float(os.environ.get('BIORAG_DAEMON_INTERVALO_MINUTOS', '15')) * 60
-    while True:
-        try:
-            max_nodos = int(os.environ.get('BIORAG_DAEMON_MAX_NODOS', '10'))
-            cerebro = SQLiteMemoryBioRAG(DB_PATH)
-            try:
-                resultado = ejecutar_ciclo_reflexivo(cerebro, max_nodos=max_nodos)
-                if resultado.get("resultado") == "quota_agotada":
-                    retry = resultado.get("retry_after_seconds", 0)
-                    if retry > 0:
-                        print(f"[hormiguita_loop] Quota agotada. Esperando {retry}s...")
-                        time.sleep(retry)
-                        continue
-            finally:
-                cerebro.cerrar_sistema()
-            time.sleep(INTERVALO_SEG)
-        except Exception as e:
-            print(f"[hormiguita_loop] Error: {e}")
-            time.sleep(60)
-
-
-threading.Thread(target=_hormiguita_loop, daemon=True, name="hormiguita").start()
+# El escritorio NO ejecuta ciclos completos de la hormiguita. El daemon de
+# mantenimiento es un proceso separado y siempre vivo que corre esos ciclos.
+# El escritorio solo procesa nodos individuales on-demand (POST /api/nodo/*/procesar).
 
 
 def get_db():
@@ -1524,8 +1501,9 @@ def procesar_nodo_individual(concepto: str, force: bool = False):
     except ImportError as e:
         raise HTTPException(status_code=500, detail=f"Error importando módulos: {e}")
 
-    # Asegurar ruta correcta a estado_hormiga.json
-    ESTADO_HORMIGA_PATH = os.path.join(BASE_DIR, "..", "estado_hormiga.json")
+    # Asegurar ruta correcta a estado_hormiga.json (canónico: raíz del proyecto,
+    # mismo archivo que el daemon y el MCP comparten)
+    ESTADO_HORMIGA_PATH = os.path.join(PROJECT_ROOT, "estado_hormiga.json")
     os.environ["BIORAG_DMN_ESTADO_PATH"] = ESTADO_HORMIGA_PATH
 
     # Guard visitados_hoy: si ya se procesó hoy, no llamar a Gemini

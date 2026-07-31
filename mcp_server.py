@@ -1936,7 +1936,7 @@ def _build_server():
             "Evalúa sinapsis directas y latentes del nodo usando IA y poda conexiones espurias. "
             "Usa pre-filtrado para ahorrar tokens.\n\n"
             "NOTA: Solo procesa nodos individuales. El ciclo completo del daemon "
-            "corre automáticamente en el dashboard.\n\n"
+            "corre como proceso separado (siempre vivo), no en el dashboard.\n\n"
             "Parámetros:\n"
             "- nodo_especifico (str, OBLIGATORIO): Nombre del nodo a procesar\n\n"
             "Retorna: resultado del procesamiento con veredictos, aplicados, eliminados."
@@ -1958,9 +1958,7 @@ def _build_server():
             }, ensure_ascii=False, default=str)
 
         # Guard visitados_hoy: si ya se procesó hoy, no llamar a Gemini
-        ESTADO_HORMIGA_PATH = os.path.join(
-            _PROJECT_ROOT, "dashboard-neuro-visor", "estado_hormiga.json"
-        )
+        ESTADO_HORMIGA_PATH = os.path.join(_PROJECT_ROOT, "estado_hormiga.json")
         os.environ["BIORAG_DMN_ESTADO_PATH"] = ESTADO_HORMIGA_PATH
         estado = _cargar_estado()
         if not force and nodo_especifico in estado.get("visitados_hoy", []):
@@ -2978,6 +2976,15 @@ def main(argv: Optional[list[str]] = None) -> int:
     except ImportError as exc:
         sys.stderr.write(f"BioRAG MCP: {exc}\n")
         return 2
+
+    # El MCP es el guardián del daemon: al arrancar cualquier consola,
+    # verifica que la hormiguita esté viva y la spawnea si hace falta.
+    # El daemon es un proceso detachado que sobrevive al cierre de la sesión.
+    try:
+        from core.daemon_lifecycle import ensure_daemon_alive
+        ensure_daemon_alive(intervalo_horas=0.5)
+    except Exception as exc:
+        logger.warning("No se pudo verificar/spawnear el daemon: %s", exc)
 
     try:
         if use_sse:

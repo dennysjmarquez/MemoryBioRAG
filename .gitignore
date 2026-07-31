@@ -48,3 +48,7 @@ agent_benchmark_v1.jsonl
 dashboard/
 
 res_img/
+
+.hormiguita.lock
+
+.hormiguita.pid

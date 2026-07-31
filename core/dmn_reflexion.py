@@ -83,7 +83,14 @@ VALENCIA_PESO_UMBRAL = float(os.environ.get("BIORAG_DMN_VALENCIA_PESO_UMBRAL", "
 VALENCIA_ACTIVIDAD_RECIENTE_DIAS = float(os.environ.get("BIORAG_DMN_VALENCIA_DIAS_RECIENTES", "7"))
 TIMEOUT_RED_SEGUNDOS = 30
 DEBUG_RAW = False  # Si True, guarda request/response en /tmp/hormiguita_debug.json y para
-ESTADO_HORMIGA_PATH = os.environ.get("BIORAG_DMN_ESTADO_PATH", "estado_hormiga.json")
+def _estado_path():
+    """Resuelve la ruta del estado en cada llamada (NO capturarla al importar).
+
+    Setear BIORAG_DMN_ESTADO_PATH en el entorno justo antes de llamar a
+    _cargar_estado/_guardar_estado SOLO tiene efecto si se evalúa acá.
+    La constante a nivel de módulo congelaba el path al primer import y
+    rompía la unificación del estado entre daemon, MCP y dashboard."""
+    return os.environ.get("BIORAG_DMN_ESTADO_PATH", "estado_hormiga.json")
 
 # Procesamiento por lotes dentro de cada nodo: la semilla se envía con
 # grupos de N sinapsis por llamada. El estado guarda el lote exacto para
@@ -841,6 +848,11 @@ def _mover_a_cuarentena(concepto, destino, tabla, cerebro, motivo="", confianza=
         (concepto, destino, tipo, tabla, peso, datos_extra, motivo, confianza, ahora, origen)
     )
     cursor.execute(delete_sql, (concepto, destino))
+    # Sincronizar asociaciones para ambos nodos afectados (fix bug fantasmas)
+    if tabla == "sinapsis":
+        from core.sinapsis import _sincronizar_asociaciones
+        _sincronizar_asociaciones(cerebro, concepto)
+        _sincronizar_asociaciones(cerebro, destino)
     return True
 
 
@@ -882,6 +894,11 @@ def _restaurar_cuarentena(cerebro, desde_timestamp=0, max_items=None):
             )
         cursor.execute("UPDATE sinapsis_cuarentena SET restaurado = 1 WHERE id = ?", (id_,))
         restauradas += 1
+        # Sincronizar asociaciones tras restauración
+        if tabla == "sinapsis":
+            from core.sinapsis import _sincronizar_asociaciones
+            _sincronizar_asociaciones(cerebro, origen)
+            _sincronizar_asociaciones(cerebro, destino)
 
     if restauradas > 0:
         cerebro.conn.commit()
@@ -1231,10 +1248,11 @@ def _cargar_estado():
     Resetea contadores diarios (visitados_hoy, tokens_gastados_hoy) al cambio de fecha."""
     from datetime import datetime
     hoy_str = datetime.now().strftime("%Y-%m-%d")
+    _ESTADO_PATH = _estado_path()
     
-    if os.path.exists(ESTADO_HORMIGA_PATH):
+    if os.path.exists(_ESTADO_PATH):
         try:
-            with open(ESTADO_HORMIGA_PATH, "r", encoding="utf-8") as f:
+            with open(_ESTADO_PATH, "r", encoding="utf-8") as f:
                 estado = json.load(f)
             # Asegurar campos requeridos
             for campo, default in [
@@ -1279,7 +1297,7 @@ def _guardar_estado(estado):
     # porque sets de Python no preservan orden de inserción (depende de PYTHONHASHSEED).
     # Se guarda completo. Si el grafo crece a >100K nodos, migrar a columna DB.
     try:
-        with open(ESTADO_HORMIGA_PATH, "w", encoding="utf-8") as f:
+        with open(_estado_path(), "w", encoding="utf-8") as f:
             try:
                 import fcntl
                 fcntl.flock(f, fcntl.LOCK_EX)

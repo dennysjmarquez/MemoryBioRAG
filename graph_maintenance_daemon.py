@@ -25,6 +25,9 @@ Variables de entorno:
     BIORAG_DAEMON_MAX_NODOS        — Nodos por ciclo (default: 10)
     BIORAG_DAEMON_LOCK_PATH        — Ruta del lock file (default: .hormiguita.lock)
     BIORAG_DAEMON_LOG_PATH         — Ruta del log (default: logs/hormiguita.log)
+    BIORAG_DAEMON_LOG_ENABLED      — Logging ON/OFF (default: off = silencio).
+                                     Con 1/true: archivo único hormiguita.log,
+                                     rotación ~1MB x3, TTL 7 días.
 """
 
 import os
@@ -39,6 +42,19 @@ from datetime import datetime
 
 # Asegurar que el path incluya el directorio actual
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
+
+# Cargar .env.local (si existe) para que BIORAG_DAEMON_LOG_ENABLED funcione
+# también cuando se ejecuta el daemon manualmente, no solo al spawn desde MCP.
+try:
+    from dotenv import load_dotenv
+    _root = os.path.dirname(os.path.abspath(__file__))
+    for _cand in (".env.local", ".env"):
+        _p = os.path.join(_root, _cand)
+        if os.path.exists(_p):
+            load_dotenv(_p, override=False)
+            break
+except ImportError:
+    pass
 
 from core.memory_store import SQLiteMemoryBioRAG
 from core.dmn_reflexion import ejecutar_ciclo_reflexivo, _cargar_estado, _guardar_estado
@@ -57,21 +73,54 @@ LOG_DIR = os.environ.get("BIORAG_DAEMON_LOG_PATH", _LOG_DEFAULT)
 
 # --- Logging -----------------------------------------------------------------
 
+def _limpiar_logs_viejos(log_dir, dias=7):
+    """Borra archivos de log con más de `dias` días (TTL)."""
+    try:
+        import glob
+        cutoff = time.time() - dias * 86400
+        for p in glob.glob(os.path.join(log_dir, "hormiguita.log*")):
+            try:
+                if os.path.getmtime(p) < cutoff:
+                    os.remove(p)
+            except OSError:
+                pass
+    except OSError:
+        pass
+
+
 def configurar_logging(log_dir):
-    """Configura logging a archivo y consola."""
+    """Configura logging según BIORAG_DAEMON_LOG_ENABLED (default: off).
+
+    Off (default): silencio total — no crea archivos, no escribe nada.
+    On (BIORAG_DAEMON_LOG_ENABLED=1/true): un único archivo hormiguita.log
+    con rotación (~1MB x 3 backups) + consola. Limpia logs >7 días al arrancar.
+    """
+    logger = logging.getLogger("Hormiguita.Daemon")
+    logger.handlers.clear()
+
+    flag = os.environ.get("BIORAG_DAEMON_LOG_ENABLED", "").strip().lower()
+    if flag not in ("1", "true", "yes", "on"):
+        logger.addHandler(logging.NullHandler())
+        return logger
+
     os.makedirs(log_dir, exist_ok=True)
-    log_file = os.path.join(log_dir, f"hormiguita_{datetime.now().strftime('%Y%m%d')}.log")
-    
+    _limpiar_logs_viejos(log_dir, dias=7)
+    log_file = os.path.join(log_dir, "hormiguita.log")
+
+    from logging.handlers import RotatingFileHandler
+    handlers = [
+        RotatingFileHandler(
+            log_file, maxBytes=1024 * 1024, backupCount=3, encoding="utf-8"
+        ),
+        logging.StreamHandler(sys.stdout),
+    ]
     logging.basicConfig(
         level=logging.INFO,
         format="%(asctime)s [%(name)s] %(levelname)s: %(message)s",
         datefmt="%Y-%m-%d %H:%M:%S",
-        handlers=[
-            logging.FileHandler(log_file, encoding="utf-8"),
-            logging.StreamHandler(sys.stdout),
-        ],
+        handlers=handlers,
     )
-    return logging.getLogger("Hormiguita.Daemon")
+    return logger
 
 
 # --- Lock file ---------------------------------------------------------------
@@ -95,12 +144,13 @@ class DaemonLock:
             return False
     
     def liberar(self):
-        """Libera el lock."""
+        """Libera el lock. NO borra el archivo: el flock es sobre el inode,
+        y borrarlo permitiría que una segunda instancia adquiera un lock nuevo
+        sobre un inode distinto (causa raíz del doble daemon)."""
         if self.lock_file:
             try:
                 fcntl.flock(self.lock_file, fcntl.LOCK_UN)
                 self.lock_file.close()
-                os.remove(self.lock_path)
             except (IOError, OSError):
                 pass
 
@@ -391,7 +441,7 @@ def main():
     if not lock.adquirir():
         logger.error("[Daemon] Ya hay una instancia corriendo (lock file presente)")
         print("ERROR: Ya hay una instancia del daemon corriendo.")
-        print(f"Si estás seguro de que no, elimina: {LOCK_PATH}")
+        print("NO borres el lock file: el flock es la protección contra duplicados.")
         sys.exit(1)
     
     try:
