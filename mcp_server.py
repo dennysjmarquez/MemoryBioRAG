@@ -494,7 +494,7 @@ def _build_server():
                     _warnings.append(
                         "⚠️ dimensiones=None — Sin boost semántico. "
                         "Usá dimensiones cuando busques por propiedades ontológicas "
-                        "(emoción, intención, dominio, entidad, acción, cualidad, coordenada). "
+                        "(emoción, entidad, acción, cualidad, coordenada, intención, dominio, cualia, epistemia, escala_abstraccion, centralidad_identitaria, textura_experiencial, modalidad). "
                         "Ejemplo: dimensiones='intencion_aprender' o dimensiones='dominio_tecnico'"
                     )
 
@@ -1008,7 +1008,7 @@ def _build_server():
             "PASO 1 — Búsqueda Semántica:\n"
             "  SIEMPRE incluir parafrasis desde el primer intento.\n"
             "  dimensiones: INCLUIR cuando la query busca propiedades ontológicas\n"
-            "    (emoción, intención, dominio, entidad, acción, cualidad, coordenada).\n"
+            "    (emoción, entidad, acción, cualidad, coordenada, intención, dominio, cualia, epistemia, escala_abstraccion, centralidad_identitaria, textura_experiencial, modalidad).\n"
             "    OMITIR cuando busques por nombre exacto o keywords claras.\n"
             "  Generar paráfrasis con 5 niveles:\n"
             "    N1 (Sinónimos) N2 (Técnico/coloquial) N3 (Perspectiva opuesta)\n"
@@ -1046,8 +1046,17 @@ def _build_server():
             "  ¿Cuándo NO usar? Cuando busques por nombre exacto o keywords claras:\n"
             "    - recordar(query='error_http_500') → NO necesita dimensiones\n"
             "    - recordar(query='v13.4 dimensiones') → NO necesita dimensiones\n"
-            "  Sin dimensiones = score solo por texto (funciona, pero sin boost semántico).\n"
-            "- cat: filtrar por categoría (opcional). Sin filtro = todas.\n"
+             "  Sin dimensiones = score solo por texto (funciona, pero sin boost semántico).\n"
+             "  REGLA DEL UMBRAL (no es fallo, es diseño):\n"
+             "    - Query con texto que ya dio resultados: las dimensiones SOLO suman boost.\n"
+             "    - Query con texto SIN resultados (todo vacío): el fallback dimensional necesita\n"
+             "      compartir ≥3 dimensiones con la query para traer nodos. Con 1-2 dimensiones\n"
+             "      no aparece nada → NO significa que el nodo no exista.\n"
+             "    - Query vacía + dimensiones: el umbral baja a 1. Basta UNA dimensión compartida\n"
+             "      para recuperar nodos por propiedad ontológica (búsqueda sin palabras).\n"
+             "    - Si querés buscar SOLO por dimensión: dejá query vacía o usá un término\n"
+             "      que no matchee, y el motor filtra por ontología.\n"
+             "- cat: filtrar por categoría (opcional). Sin filtro = todas.\n"
             "- context_window: 1-2 para incluir vecinos sinápticos.\n"
             "- deep: True para incluir nodos dormidos.\n"
             "- asociados: True para ver las conexiones de cada resultado.\n"
@@ -2199,7 +2208,7 @@ def _build_server():
     )
     def biorag_listar_dimensiones_por_tipo(
         tipo: Annotated[str, Field(
-            description="Nombre del tipo o tipos separados por coma: emocion, entidad, accion, cualidad, coordenada, intencion, dominio. Ej: 'emocion' o 'emocion,dominio'"
+            description="Nombre del tipo o tipos separados por coma: emocion, entidad, accion, cualidad, coordenada, intencion, dominio, cualia, epistemia, escala_abstraccion, centralidad_identitaria, textura_experiencial, modalidad. Ej: 'emocion' o 'emocion,dominio'"
         )],
     ) -> str:
         """Retorna las dimensiones de uno o más tipos específicos con IDs y descripciones."""
@@ -2232,7 +2241,7 @@ def _build_server():
             
             if not tipos_encontrados:
                 return json.dumps({
-                    "error": f"Ninguno de los tipos '{tipo}' fue encontrado. Tipos válidos: emocion, entidad, accion, cualidad, coordenada, intencion, dominio"
+                    "error": f"Ninguno de los tipos '{tipo}' fue encontrado. Tipos válidos: emocion, entidad, accion, cualidad, coordenada, intencion, dominio, cualia, epistemia, escala_abstraccion, centralidad_identitaria, textura_experiencial, modalidad"
                 }, ensure_ascii=False)
             
             # Recopilar IDs y descripciones de los tipos encontrados
