@@ -50,9 +50,13 @@ interface EgoGraphResponse {
   }[]
   stats: {
     total_conexiones: number
+    total_latentes: number
     salientes: number
     entrantes: number
-    latentes: number
+    mostrando_conexiones: number
+    mostrando_latentes: number
+    offset_conexiones: number
+    offset_latentes: number
   }
 }
 
@@ -62,6 +66,9 @@ const ExplorarPage = () => {
   const [node, setNode] = useState<EgoGraphResponse['center'] | null>(null)
   const [connections, setConnections] = useState<EgoGraphResponse['connections']>([])
   const [latentes, setLatentes] = useState<EgoGraphResponse['latentes']>([])
+  const [stats, setStats] = useState<EgoGraphResponse['stats'] | null>(null)
+  const [offsetConexiones, setOffsetConexiones] = useState(0)
+  const [offsetLatentes, setOffsetLatentes] = useState(0)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [toast, setToast] = useState<string | null>(null)
@@ -83,22 +90,44 @@ const ExplorarPage = () => {
   const forceHistoryUpdate = useCallback(() => setHistoryVersion(v => v + 1), [])
 
   const fetchNode = useCallback(async (c: string) => {
+    setOffsetConexiones(0)
+    setOffsetLatentes(0)
     setLoading(true)
     setError(null)
     try {
-      const data = await getEgoGraph(c)
+      const data = await getEgoGraph(c, 0, 0)
       setNode(data.center)
       setConnections(data.connections)
       setLatentes(data.latentes)
+      setStats(data.stats)
     } catch (err: any) {
       setError(err.message || 'Error cargando nodo')
       setNode(null)
       setConnections([])
       setLatentes([])
+      setStats(null)
     } finally {
       setLoading(false)
     }
   }, [])
+
+  const loadMoreConnections = useCallback(async () => {
+    if (!node) return
+    const nuevo = offsetConexiones + 50
+    const data = await getEgoGraph(node.concepto, nuevo, offsetLatentes)
+    setConnections(prev => [...prev, ...data.connections])
+    setOffsetConexiones(nuevo)
+    setStats(data.stats)
+  }, [node, offsetConexiones, offsetLatentes])
+
+  const loadMoreLatentes = useCallback(async () => {
+    if (!node) return
+    const nuevo = offsetLatentes + 50
+    const data = await getEgoGraph(node.concepto, offsetConexiones, nuevo)
+    setLatentes(prev => [...prev, ...data.latentes])
+    setOffsetLatentes(nuevo)
+    setStats(data.stats)
+  }, [node, offsetConexiones, offsetLatentes])
 
   const lastFetchedRef = useRef<string | undefined>(undefined)
 
@@ -428,10 +457,16 @@ const ExplorarPage = () => {
           currentNode={concepto}
           onNavigate={navigateTo}
           onUnlink={handleUnlink}
+          totalReal={stats?.total_conexiones ?? connections.length}
+          onLoadMore={loadMoreConnections}
+          hasMore={stats ? stats.mostrando_conexiones >= 50 && connections.length < stats.total_conexiones : false}
         />
         <LatentesPanel
           latentes={latentes}
           onNavigate={navigateTo}
+          totalReal={stats?.total_latentes ?? latentes.length}
+          onLoadMore={loadMoreLatentes}
+          hasMore={stats ? stats.mostrando_latentes >= 50 && latentes.length < stats.total_latentes : false}
         />
       </div>
       {toast && <div className={styles.toast}>{toast}</div>}

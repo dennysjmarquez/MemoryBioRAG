@@ -34,6 +34,9 @@ interface ConnectionsPanelProps {
   currentNode: string
   onNavigate: (concepto: string) => void
   onUnlink: (a: string, b: string) => void
+  totalReal: number
+  onLoadMore: () => void
+  hasMore: boolean
 }
 
 export function ConnectionsPanel({
@@ -41,6 +44,9 @@ export function ConnectionsPanel({
   currentNode,
   onNavigate,
   onUnlink,
+  totalReal,
+  onLoadMore,
+  hasMore,
 }: ConnectionsPanelProps) {
   const [filterTipo, setFilterTipo] = useState('')
   const [filterOrden, setFilterOrden] = useState<'peso' | 'ultimo_uso' | 'alfabeto'>('peso')
@@ -56,7 +62,12 @@ export function ConnectionsPanel({
   return (
     <div className={styles.colCentro}>
       <div className={styles.colHeader}>
-        <h3>🔗 Sinapsis Directas (<span id="conn-total">{connections.length}</span>)</h3>
+        <h3>🔗 Sinapsis Directas (<span id="conn-total">{totalReal}</span>)</h3>
+        {connections.length < totalReal && (
+          <span style={{ fontSize: '12px', color: 'var(--text-dim)' }}>
+            Mostrando {connections.length} de {totalReal}
+          </span>
+        )}
       </div>
       <div className={styles.connFilters}>
         <select
@@ -89,6 +100,24 @@ export function ConnectionsPanel({
               onUnlink={onUnlink}
             />
           ))
+        )}
+        {hasMore && (
+          <button
+            onClick={onLoadMore}
+            style={{
+              width: '100%',
+              padding: '10px',
+              marginTop: '8px',
+              background: 'var(--bg-secondary)',
+              color: 'var(--text)',
+              border: '1px solid var(--border)',
+              borderRadius: '6px',
+              cursor: 'pointer',
+              fontSize: '13px',
+            }}
+          >
+            Cargar más ({connections.length} de {totalReal} cargados)
+          </button>
         )}
       </div>
     </div>

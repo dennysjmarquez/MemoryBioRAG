@@ -72,8 +72,8 @@ export function getEgo(concepto: string): Promise<EgoNetwork> {
   return get(`/nodo/${encodeParam(concepto)}/ego`)
 }
 
-export function getEgoGraph(concepto: string, limit: number = 50): Promise<EgoGraphResponse> {
-  return get(`/nodo/${encodeParam(concepto)}/ego?limit=${limit}`)
+export function getEgoGraph(concepto: string, offsetConexiones: number = 0, offsetLatentes: number = 0, limit: number = 50): Promise<EgoGraphResponse> {
+  return get(`/nodo/${encodeParam(concepto)}/ego?limit=${limit}&offset_conexiones=${offsetConexiones}&offset_latentes=${offsetLatentes}`)
 }
 
 export function getCortezaEstado(): Promise<CortezaEstado> {

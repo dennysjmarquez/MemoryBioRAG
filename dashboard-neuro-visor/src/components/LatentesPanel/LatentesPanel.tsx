@@ -9,13 +9,21 @@ interface LatentesPanelProps {
     destino_preview: string
   }[]
   onNavigate: (concepto: string) => void
+  totalReal: number
+  onLoadMore: () => void
+  hasMore: boolean
 }
 
-export function LatentesPanel({ latentes, onNavigate }: LatentesPanelProps) {
+export function LatentesPanel({ latentes, onNavigate, totalReal, onLoadMore, hasMore }: LatentesPanelProps) {
   return (
     <div className={styles.colDer}>
       <div className={styles.colHeader}>
-        <h3>🌀 Latentes (<span id="lat-total">{latentes.length}</span>)</h3>
+        <h3>🌀 Latentes (<span id="lat-total">{totalReal}</span>)</h3>
+        {latentes.length < totalReal && (
+          <span style={{ fontSize: '12px', color: 'var(--text-dim)' }}>
+            Mostrando {latentes.length} de {totalReal}
+          </span>
+        )}
       </div>
       <div className={styles.latentesList}>
         {latentes.length === 0 ? (
@@ -38,6 +46,24 @@ export function LatentesPanel({ latentes, onNavigate }: LatentesPanelProps) {
               </div>
             </div>
           ))
+        )}
+        {hasMore && (
+          <button
+            onClick={onLoadMore}
+            style={{
+              width: '100%',
+              padding: '10px',
+              marginTop: '8px',
+              background: 'var(--bg-secondary)',
+              color: 'var(--text)',
+              border: '1px solid var(--border)',
+              borderRadius: '6px',
+              cursor: 'pointer',
+              fontSize: '13px',
+            }}
+          >
+            Cargar más ({latentes.length} de {totalReal})
+          </button>
         )}
       </div>
     </div>

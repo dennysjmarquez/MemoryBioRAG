@@ -357,7 +357,7 @@ def nodo_detalle(concepto: str):
 
 
 @app.get("/api/nodo/{concepto}/ego")
-def nodo_ego_graph(concepto: str, limit: int = 50):
+def nodo_ego_graph(concepto: str, limit: int = 50, offset_conexiones: int = 0, offset_latentes: int = 0):
     """Retorna nodo central + sus conexiones directas con metadata enriquecida."""
     conn = get_db()
     c = conn.cursor()
@@ -375,6 +375,9 @@ def nodo_ego_graph(concepto: str, limit: int = 50):
         conn.close()
         raise HTTPException(status_code=404, detail=f"Nodo '{concepto}' no encontrado")
 
+    c.execute("SELECT COUNT(*) FROM sinapsis WHERE origen=? OR destino=?", (concepto, concepto))
+    num_conexiones = c.fetchone()[0]
+
     center = {
         "id": r[0],
         "concepto": r[1],
@@ -384,7 +387,8 @@ def nodo_ego_graph(concepto: str, limit: int = 50):
         "sinonimos": r[5] or "",
         "ultimo_acceso": r[6],
         "creado_en": r[7],
-        "categoria": r[8] or "General"
+        "categoria": r[8] or "General",
+        "num_conexiones": num_conexiones
     }
 
     c.execute("""
@@ -475,9 +479,14 @@ def nodo_ego_graph(concepto: str, limit: int = 50):
         else:
             all_conns[key] = e
 
-    connections = sorted(all_conns.values(), key=lambda x: x["peso"], reverse=True)[:limit]
+    total_conexiones = len(all_conns)
+    connections_ordenadas = sorted(all_conns.values(), key=lambda x: (-x["peso"], x["destino_concepto"]))
+    connections = connections_ordenadas[offset_conexiones:offset_conexiones + limit]
 
     # Sinapsis latentes
+    c.execute("SELECT COUNT(*) FROM sinapsis_latentes WHERE origen=? OR destino=?", (concepto, concepto))
+    total_latentes = c.fetchone()[0]
+
     c.execute("""
         SELECT sl.origen, sl.destino, sl.peso_atenuado, sl.saltos,
                l.peso_sinaptico, l.estado, cat.name as categoria, l.contenido
@@ -487,8 +496,8 @@ def nodo_ego_graph(concepto: str, limit: int = 50):
         LEFT JOIN categories cat ON l.categoria = cat.id
         WHERE sl.origen = ? OR sl.destino = ?
         ORDER BY sl.peso_atenuado DESC
-        LIMIT 30
-    """, (concepto, concepto, concepto))
+        LIMIT ? OFFSET ?
+    """, (concepto, concepto, concepto, limit, offset_latentes))
     latentes = []
     for row in c.fetchall():
         destino = row[1] if row[0] == concepto else row[0]
@@ -507,10 +516,14 @@ def nodo_ego_graph(concepto: str, limit: int = 50):
         "connections": connections,
         "latentes": latentes,
         "stats": {
-            "total_conexiones": len(connections),
+            "total_conexiones": total_conexiones,
+            "total_latentes": total_latentes,
             "salientes": len(salientes),
             "entrantes": len(entrantes),
-            "latentes": len(latentes)
+            "mostrando_conexiones": len(connections),
+            "mostrando_latentes": len(latentes),
+            "offset_conexiones": offset_conexiones,
+            "offset_latentes": offset_latentes
         }
     }
 

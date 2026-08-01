@@ -40,9 +40,13 @@ export interface EgoGraphResponse {
   latentes: EgoLatent[]
   stats: {
     total_conexiones: number
+    total_latentes: number
     salientes: number
     entrantes: number
-    latentes: number
+    mostrando_conexiones: number
+    mostrando_latentes: number
+    offset_conexiones: number
+    offset_latentes: number
   }
 }
 
