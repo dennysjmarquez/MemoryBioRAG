@@ -662,10 +662,9 @@ def _build_server():
             sinapsis_creadas = []
             if forzar_rafaga:
                 _warnings.append(
-                    "⚠️ ADVERTENCIA: Se activó 'forzar_rafaga=True' (Modo Fuerza Bruta). "
-                    "El motor de similitud semántica y la propagación sináptica están desactivados en este modo. "
-                    "Los scores son planos y el ruido aumenta. No uses forzar_rafaga=True para búsquedas normales — "
-                    "úsalo SOLO como último recurso de contingencia si el PASO 1 normal devuelve 0 resultados."
+                    "ℹ️ MODO RÁFAGA ACTIVADO (PASO 2 - RESCATE AMMPLIO): Búsqueda multitérmino de contingencia. "
+                    "El motor amplía la cobertura sobre los 15 términos para rescatar recuerdos con vocabulario distinto. "
+                    "Los scores son más planos para priorizar cobertura sobre precisión fina. Evaluá los resultados en la síntesis."
                 )
             if rafaga_list and (forzar_rafaga or not resultados or score_top < THRESHOLD_RAFTAGA_MCP):
                 # Ampliar ráfaga con palabras clave de la paráfrasis si existen
@@ -763,9 +762,12 @@ def _build_server():
                     return "\n".join(_warnings) + "\n\n" + resultado
                 return resultado
 
-            # Expansión de contexto final post-truncamiento
+            # Expansión de contexto final post-truncamiento.
+            # Contrato: (primarios, contexto). El contexto es contexto ADJUNTO,
+            # nunca parte de la página: no afecta total/paginas_totales.
+            contexto_expandido = []
             if context_window and context_window > 0 and resultados:
-                resultados = cerebro.expandir_contexto_vecinos(
+                resultados, contexto_expandido = cerebro.expandir_contexto_vecinos(
                     resultados,
                     depth=context_window,
                     profundidad=profundidad,
@@ -832,9 +834,30 @@ def _build_server():
                     ] if asociados and asociaciones else [],
                 })
 
+            # Contexto expandido (adjunto): solo se expone en página > 1.
+            # Página 1 es 100% pura (solo primarios). No altera total/paginas_totales.
+            contexto_items = []
+            if pagina > 1 and contexto_expandido:
+                for concepto, contenido, peso, estado, score, asociaciones in contexto_expandido:
+                    edad_dias = (ahora - _edad_map.get(concepto, ahora)) / 86400 if _edad_map.get(concepto) else 0
+                    es_stale = edad_dias > STALE_DAYS and _cat_map.get(concepto, "") not in _CATEGORIAS_PROTEGIDAS
+                    contexto_items.append({
+                        "concepto": concepto,
+                        "contenido": contenido,
+                        "peso_sinaptico": peso,
+                        "estado": estado,
+                        "score_hibrido": score,
+                        "edad_dias": round(edad_dias, 1),
+                        "stale": es_stale,
+                        "asociaciones": [
+                            v.strip() for v in (asociaciones or "").split(",") if v.strip()
+                        ] if asociados and asociaciones else [],
+                    })
+
             # Batch query: adjuntar dimensiones semánticas a cada resultado
-            if items:
-                conceptos_dim = [item["concepto"] for item in items if item["concepto"]]
+            _items_con_dim = items + contexto_items
+            if _items_con_dim:
+                conceptos_dim = [item["concepto"] for item in _items_con_dim if item["concepto"]]
                 if conceptos_dim:
                     ph = ",".join("?" * len(conceptos_dim))
                     try:
@@ -852,7 +875,7 @@ def _build_server():
                             if tipo not in dim_map[concepto]:
                                 dim_map[concepto][tipo] = []
                             dim_map[concepto][tipo].append(dim_name)
-                        for item in items:
+                        for item in _items_con_dim:
                             if item["concepto"] in dim_map:
                                 item["dimensiones_semanticas"] = dim_map[item["concepto"]]
                     except sqlite3.OperationalError:
@@ -950,6 +973,7 @@ def _build_server():
                 "pagina_actual": pagina,
                 "paginas_totales": paginas_totales,
                 "resultados": items,
+                "contexto_expandido": contexto_items,
                 "sinapsis_creadas": [{"origen": o, "destino": d, "peso": p} for o, d, p in sinapsis_creadas] if sinapsis_creadas else [],
                 "profundidad": profundidad,
                 "trazabilidad": trazabilidad,
@@ -1002,6 +1026,18 @@ def _build_server():
             "3. QUÉ parámetros configurás y por qué\n"
             "4. QUÉ hacés si no encontrás nada (ráfaga, deep=True, o preguntar al humano)\n\n"
             "Está prohibido llamar sin haber justificado la estrategia.\n\n"
+            "═══════════════════════════════════════════════════════\n"
+            "GUÍA DE MODOS DE BÚSQUEDA (de menos a más cobertura):\n"
+            "═══════════════════════════════════════════════════════\n"
+            "│ Query sola                       │ Ruido ⭐    │ Recall Bajo   │ Nombre exacto o keyword precisa\n"
+            "│ Query + dimensiones              │ Ruido ⭐    │ Recall Medio  │ Filtrar por propiedades ontológicas\n"
+            "│ Query + paráfrasis               │ Ruido ⭐⭐  │ Recall Alto   │ Búsqueda semántica estándar\n"
+            "│ Query + paráfrasis + dimensiones  │ Ruido ⭐⭐  │ Recall Máximo │ MODO RECOMENDADO (mejor balance)\n"
+            "│ Ráfaga                            │ Ruido ⭐⭐⭐⭐│ Recall Amplio │ Rescate cuando PASO 1 falla\n"
+            "│ Ráfaga + paráfrasis               │ Ruido ⭐⭐⭐⭐⭐│Recall Máximo│ Último recurso — filtrar en síntesis\n"
+            "CLAVE: Las dimensiones REDUCEN ruido (son filtro, no amplificador).\n"
+            "       Las paráfrasis AMPLÍAN cobertura (más candidatos, posible ruido).\n"
+            "       La ráfaga es la red de rescate más amplia — evaluá resultados en síntesis.\n\n"
             "═══════════════════════════════════════════════════════\n"
             "FLUJO — 2 PASOS. NO SALTEAR.\n"
             "═══════════════════════════════════════════════════════\n\n"
@@ -1126,9 +1162,46 @@ def _build_server():
         )] = None,
         dimensiones: Annotated[Any, Field(
             description=(
-                "Etiquetá el contexto de búsqueda con dimensiones semánticas. Formato: STRING JSON con comillas dobles (ej: '{'emocion':['preocupacion'],'entidad':['identidad_artificial']}').\n\n"
-                "Regla dura: ANTES de usar, llamá a listar_dimensiones para obtener los nombres válidos. Valores inexistentes = ERROR.\n\n"
-                "Cada eje es un key, cada valor es un array. Si un eje no aplica, no lo incluyas. Las dimensiones aumentan el score de los conceptos que comparten las mismas."
+                "Coordenadas semánticas para búsqueda ontológica.\n\n"
+                "QUÉ SON LAS DIMENSIONES:\n"
+                "Las dimensiones son coordenadas en un espacio de significado. Cada nodo en BioRAG "
+                "tiene una posición en 13 ejes que clasifican QUÉ ES ese conocimiento, no qué palabras tiene. "
+                "Dos nodos sobre temas completamente distintos (un bug de CSS y un error de API) pueden estar "
+                "'cerca' dimensionalmente si comparten emocion=frustracion, dominio=dominio_tecnico, "
+                "escala_abstraccion=instancia. Las dimensiones permiten encontrar nodos por su NATURALEZA, "
+                "no por su vocabulario.\n\n"
+                "POR QUÉ IMPORTAN:\n"
+                "Sin dimensiones, solo buscás por palabras (BM25/FTS5). Con dimensiones, podés hacer preguntas "
+                "que son IMPOSIBLES con texto: '¿Qué principios técnicos tengo?', '¿Qué sé que es hipótesis?', "
+                "'¿Qué me define como identidad?'. Estas preguntas no tienen keywords — son sobre la naturaleza "
+                "del conocimiento. Si al guardar se clasificaron bien las dimensiones, al buscar las encontrás. "
+                "Si se clasificaron mal o incompletas, se pierden para siempre en búsquedas ontológicas.\n\n"
+                "LOS 13 EJES DISPONIBLES PARA BÚSQUEDA:\n"
+                "1. emocion → alegria, frustracion, satisfaccion, curiosidad, preocupacion, sorpresa, afecto, orgullo, tedio, nostalgia, ansiedad, calma\n"
+                "2. entidad → identidad_individual, identidad_artificial, herramienta_software, organizacion, concepto_abstracto, dispositivo, proyecto, evento, lugar, grupo_social, dato_informacion\n"
+                "3. accion → accion_comunicacion, accion_creacion, accion_persistencia_computacion, accion_investigacion, accion_rutina_automatica, accion_decision, accion_ensenanza, accion_correccion, accion_navegacion, accion_consumo, accion_reflexion\n"
+                "4. cualidad → cualidad_funcional, cualidad_positiva, cualidad_negativa, cualidad_abstracta_conceptual, cualidad_autentica, cualidad_tecnica, cualidad_temporal, cualidad_espacial, cualidad_cuantitativa, cualidad_relacional, cualidad_estetica\n"
+                "5. coordenada → coordenada_temporal_puntual, coordenada_temporal_durativa, coordenada_secuencial, coordenada_espacial_fisica, coordenada_espacial_digital, coordenada_relativa, coordenada_ciclica, coordenada_antes_despues, coordenada_origen, coordenada_frecuencia\n"
+                "6. intencion → intencion_documentar, intencion_aprender, intencion_corregir, intencion_compartir, intencion_proteger, intencion_explorar, intencion_decidir, intencion_recordar\n"
+                "7. dominio → dominio_tecnico, dominio_personal, dominio_profesional, dominio_creativo, dominio_social, dominio_educativo, dominio_cientifico, dominio_filosofico, dominio_domestico, dominio_salud, dominio_financiero, dominio_legal\n"
+                "8. cualia → qualia_formal, qualia_constitutivo, qualia_agentivo, qualia_telico\n"
+                "9. epistemia → epistemia_directa, epistemia_verificada, epistemia_inferida, epistemia_reportada, epistemia_hipotesis, epistemia_obsoleta\n"
+                "10. escala_abstraccion → instancia, patron, principio, ley_modelo, metafora\n"
+                "11. centralidad_identitaria → nucleo_identitario, rasgo_estable, aspecto_contextual, periferico, ajeno\n"
+                "12. textura_experiencial → flujo, tension, desorientacion, rutina, presencia_plena\n"
+                "13. modalidad → obligacion, prohibicion, permiso, capacidad\n\n"
+                "3 MODOS DE USO:\n"
+                "• query + dimensiones: El texto busca por palabras, las dimensiones dan boost a nodos que comparten coordenadas. Mejor precisión.\n"
+                "  Ej: recordar(query='error servidor', dimensiones='{\"emocion\":[\"frustracion\"],\"dominio\":[\"dominio_tecnico\"]}')\n"
+                "• solo query (sin dimensiones): Búsqueda solo por texto/BM25/sinapsis. Funciona bien para keywords claras o nombres exactos.\n"
+                "  Ej: recordar(query='biorag_v14_estado')\n"
+                "• solo dimensiones (sin query o query vacía): Búsqueda puramente ontológica — encuentra nodos por lo que SON, no por sus palabras. Umbral bajo (1 dimensión basta).\n"
+                "  Ej: recordar(dimensiones='{\"escala_abstraccion\":[\"principio\"],\"dominio\":[\"dominio_tecnico\"]}') → todos los principios técnicos\n"
+                "  Ej: recordar(dimensiones='{\"epistemia\":[\"epistemia_hipotesis\"]}') → todas las hipótesis\n"
+                "  Ej: recordar(dimensiones='{\"centralidad_identitaria\":[\"nucleo_identitario\"]}') → lo que define la identidad\n"
+                "  Ej: recordar(dimensiones='{\"modalidad\":[\"obligacion\"]}') → todas las reglas obligatorias\n\n"
+                "FORMATO — STRING JSON con comillas dobles:\n"
+                '{\"emocion\":[\"frustracion\"],\"dominio\":[\"dominio_tecnico\"]}'
             )
         )] = None,
         deep: Annotated[bool, Field(
@@ -1178,17 +1251,21 @@ def _build_server():
         )] = 0,
         forzar_rafaga: Annotated[bool, Field(
             description=(
-                "⚠️ NUNCA USAR EN BÚSQUEDAS NORMALES. Si True, ejecuta el modo ráfaga por fuerza bruta (FTS5 OR broad search). "
-                "Desactiva el motor semántico de 8 señales y la propagación sináptica, asigna scores planos y aumenta el ruido. "
-                "REQUIERE rafaga_palabras. ÚSALO ÚNICAMENTE como último recurso de contingencia si el PASO 1 normal devolvió 0 resultados."
+                "Ejecución explícita e inmediata del modo Ráfaga. Si es True, bypassea los filtros semánticos "
+                "iniciales y ejecuta la ráfaga de forma deliberada sobre los 10-15 términos de `rafaga_palabras`.\n\n"
+                "DOS MODALIDADES DE USO:\n"
+                "1. Explicita (forzar_rafaga=True + rafaga_palabras='t1,t2...'): Para exploración intencional en abanico amplio "
+                "o cuando sabes de antemano que la búsqueda requiere rescatar recuerdos con vocabulario disperso.\n"
+                "2. Automática / Fallback (forzar_rafaga=False + rafaga_palabras='t1,t2...'): Si incluyes `rafaga_palabras` "
+                "sin forzar_rafaga, BioRAG intenta la búsqueda normal primero; si devuelve 0 resultados o score_top < 0.5, "
+                "el motor activa la ráfaga automáticamente como red de seguridad."
             )
         )] = False,
         rafaga_palabras: Annotated[Optional[str], Field(
             description=(
-                "Términos de ráfaga separados por coma, sin espacios extra "
-                "(ej: 'error,fallo,excepción,bug,traza,timeout,conexión'). "
-                "Usar 10-15 términos de 5 niveles: Literal, Técnico, Contexto, Problema, Emoción. "
-                "Obligatorio si forzar_rafaga=True."
+                "Términos de ráfaga separados por coma, sin espacios extra (ej: 'error,fallo,excepción,bug,traza,timeout,conexión').\n"
+                "Usar 10-15 términos construidos en 5 niveles: (1) Literal, (2) Técnico, (3) Contexto, (4) Problema, (5) Emoción/Prioridad.\n"
+                "Obligatorio si `forzar_rafaga=True`. Si se envía con `forzar_rafaga=False`, actúa como red de seguridad automática si el score inicial es < 0.5."
             )
         )] = None,
         pagina: Annotated[int, Field(
@@ -1480,18 +1557,19 @@ def _build_server():
                 if len(syn_terms) == 0:
                     _warnings.append(
                         f"⚠️ syn vacío — '{clave}' tiene syn pero sin términos. "
-                        "Poné mínimo 5 sinónimos separados por coma."
-                    )
-                elif len(syn_terms) < 3:
-                    _warnings.append(
-                        f"⚠️ syn insuficiente ({len(syn_terms)} términos) — "
-                        "mínimo 5. Sin suficientes sinónimos, "
-                        "el nodo difícilmente aparecerá en búsquedas con otras palabras."
+                        "Cada sinónimo es una arista de búsqueda. Poné todos los que el contenido justifique (mínimo 8)."
                     )
                 elif len(syn_terms) < 5:
                     _warnings.append(
+                        f"⚠️ syn insuficiente ({len(syn_terms)} términos) — "
+                        "mínimo 8. Sin suficientes sinónimos, "
+                        "el nodo queda como isla invisible. Revisá las 5 capas: Identidad, Dominio, Asociación, Problema, Búsqueda Ingenua."
+                    )
+                elif len(syn_terms) < 8:
+                    _warnings.append(
                         f"⚠️ syn bajo ({len(syn_terms)} términos) — "
-                        "ideal mínimo 5. Agregá más formas de buscar este nodo."
+                        "ideal mínimo 8. Cada sinónimo que omitís es un camino de búsqueda que se cierra. "
+                        "Extraé TODOS los que el contenido justifique."
                     )
 
             # ── TIP DE PREDICADOS SRL (v16.0) ─────
@@ -1572,34 +1650,81 @@ def _build_server():
         )],
         dimensiones: Annotated[Any, Field(
             description=(
-                "Clasificación dimensional del recuerdo.\n\n"
-                "ANTES de clasificar: llamá a listar_dimensiones para obtener los ejes y valores disponibles. No inventes nombres.\n\n"
+                "Clasificación dimensional del recuerdo — coordenadas semánticas. OBLIGATORIO evaluar y clasificar el mayor número de ejes posible que estén justificados por el contenido. No inventes nombres.\n\n"
+                "QUÉ SON LAS DIMENSIONES:\n"
+                "Las dimensiones son coordenadas en un espacio de significado. Cada nodo tiene una posición en 13 ejes "
+                "que clasifican QUÉ ES ese conocimiento, no qué palabras tiene. Dos nodos sobre temas distintos pueden "
+                "estar 'cerca' dimensionalmente si comparten las mismas coordenadas (ej: ambos son instancias técnicas "
+                "que generaron frustración). Las dimensiones permiten encontrar nodos por su NATURALEZA, no por su vocabulario.\n\n"
+                "POR QUÉ CLASIFICAR BIEN ES CRÍTICO:\n"
+                "Cuando alguien busque con recordar(dimensiones='{\"epistemia\":[\"epistemia_hipotesis\"]}'), solo aparecerán "
+                "los nodos que TÚ clasificaste con esa dimensión al guardar. Si no la pusiste, ese nodo queda invisible "
+                "para búsquedas ontológicas PARA SIEMPRE. Cada dimensión que omitís es un camino de búsqueda que se cierra. "
+                "Clasificar bien hoy = encontrar mañana.\n\n"
+                "LOS 13 EJES DISPONIBLES — evaluá CADA UNO antes de guardar:\n"
+                "1. emocion (El Sentir): ¿Qué se siente? → alegria, frustracion, satisfaccion, curiosidad, preocupacion, sorpresa, afecto, orgullo, tedio, nostalgia, ansiedad, calma\n"
+                "2. entidad (El Qué): ¿Qué cosas/personas/sistemas aparecen? → identidad_individual, identidad_artificial, herramienta_software, organizacion, concepto_abstracto, dispositivo, proyecto, evento, lugar, grupo_social, dato_informacion\n"
+                "3. accion (El Hacer): ¿Qué se hace o pasa? → accion_comunicacion, accion_creacion, accion_persistencia_computacion, accion_investigacion, accion_rutina_automatica, accion_decision, accion_ensenanza, accion_correccion, accion_navegacion, accion_consumo, accion_reflexion\n"
+                "4. cualidad (El Cómo): ¿Cómo es/está? → cualidad_funcional, cualidad_positiva, cualidad_negativa, cualidad_abstracta_conceptual, cualidad_autentica, cualidad_tecnica, cualidad_temporal, cualidad_espacial, cualidad_cuantitativa, cualidad_relacional, cualidad_estetica\n"
+                "5. coordenada (Espacio/Tiempo): ¿Cuándo/dónde ocurre? → coordenada_temporal_puntual, coordenada_temporal_durativa, coordenada_secuencial, coordenada_espacial_fisica, coordenada_espacial_digital, coordenada_relativa, coordenada_ciclica, coordenada_antes_despues, coordenada_origen, coordenada_frecuencia\n"
+                "6. intencion (El Por Qué): ¿Para qué se guarda esto? → intencion_documentar, intencion_aprender, intencion_corregir, intencion_compartir, intencion_proteger, intencion_explorar, intencion_decidir, intencion_recordar\n"
+                "7. dominio (El Dónde aplica): ¿En qué campo? → dominio_tecnico, dominio_personal, dominio_profesional, dominio_creativo, dominio_social, dominio_educativo, dominio_cientifico, dominio_filosofico, dominio_domestico, dominio_salud, dominio_financiero, dominio_legal\n"
+                "8. cualia (Modo de explicación): ¿Cómo se explica? ¿Definición, composición, origen o función? → qualia_formal, qualia_constitutivo, qualia_agentivo, qualia_telico\n"
+                "9. epistemia (Cómo lo sé): ¿Es vivencia directa, verificado, inferido, reportado? → epistemia_directa, epistemia_verificada, epistemia_inferida, epistemia_reportada, epistemia_hipotesis, epistemia_obsoleta\n"
+                "10. escala_abstraccion (Nivel de generalidad): ¿Caso concreto o ley universal? → instancia, patron, principio, ley_modelo, metafora\n"
+                "11. centralidad_identitaria (Cuánto es mío): ¿Define quién soy/somos? → nucleo_identitario, rasgo_estable, aspecto_contextual, periferico, ajeno\n"
+                "12. textura_experiencial (Cómo se sentía): ¿Cómo fue el momento? → flujo, tension, desorientacion, rutina, presencia_plena\n"
+                "13. modalidad (Debo/Puedo): ¿Hay obligación, prohibición, permiso o capacidad? → obligacion, prohibicion, permiso, capacidad\n\n"
+                "REGLAS DE RIGOR Y VERACIDAD:\n"
+                "- Si el texto/experiencia toca varias dimensiones de un mismo eje, poné varias. Si es una, poné una.\n"
+                "- La pregunta que importa: ¿Está justificado en el texto/contexto o no? Si está → ponelo. Si no → no lo pongas.\n"
+                "- Si podés señalar la frase o elemento exacto que justifica la dimensión → válida. Si no se sostiene → borrala.\n"
+                "- Si el texto habla de varias entidades o conceptos, separalas en la lista. No las mezcles.\n"
+                "- Tu conocimiento externo no importa. Solo el contenido real y su contexto.\n\n"
+                "PROTOCOLO OBLIGATORIO:\n"
+                "- Recorré los 13 ejes uno por uno. Para cada uno preguntate: ¿el contenido lo justifica? Si sí → clasificalo.\n"
+                "- Mínimo esperable cuando el contenido es rico: 7-10 ejes. Si ponés menos de 6, revisá si no omitiste ejes justificables (ej: epistemia, escala_abstraccion, cualia, intencion, dominio).\n"
+                "- Usá los valores del catálogo listados arriba. Si no recordás alguno, llamá listar_dimensiones_por_tipo.\n\n"
                 "FORMATO — STRING JSON con comillas dobles:\n"
-                '{"emocion":["preocupacion"],"entidad":["identidad_artificial"]}\n\n'
-                "REGLAS:\n"
-                "- Si el texto toca varias dimensiones de un mismo eje, poné varias. Si es una, poné una.\n"
-                "- La pregunta que importa: ¿Está en el texto o no? Si está → ponelo. Si no → no lo pongas.\n"
-                "- No infieras. Solo lo que el texto dice literalmente.\n"
-                "- Si podés señalar la frase exacta que justifica la dimensión → válida. Si no → borrala.\n"
-                "- Si el texto habla de varias entidades, separalas. No las mezcles.\n"
-                "- Tu conocimiento no importa. Solo el texto.\n\n"
+                '{"emocion":["satisfaccion"],"entidad":["herramienta_software"],"accion":["accion_creacion"],'
+                '"cualidad":["cualidad_funcional"],"coordenada":["coordenada_temporal_puntual"],'
+                '"intencion":["intencion_documentar"],"dominio":["dominio_tecnico"],'
+                '"cualia":["qualia_agentivo"],"epistemia":["epistemia_directa"],'
+                '"escala_abstraccion":["instancia"],"centralidad_identitaria":["periferico"],'
+                '"textura_experiencial":["flujo"],"modalidad":["capacidad"]}\n\n'
                 "ÚLTIMO RECURSO: Si el texto no tiene nada que clasificar, clasificá por tipo ontológico."
             )
         )],
         syn: Annotated[Optional[str], Field(
             description=(
-                "Los sinónimos hacen que el nodo sea encontrable. Sin al menos 5, solo alguien que sepa el nombre exacto que elegiste puede dar con él. Tienes que cubrir 3 capas: el nombre exacto y sus abreviaturas, las cosas relacionadas que alguien asociaría al concepto, y cómo lo buscaría alguien que ni sabe que el nodo existe. Si no te salen 5 sinónimos, el concepto que elegiste no sirve como clave de búsqueda.\n\n"
-                "REGLAS DURAS:\n"
-                "1. Sin syn → nodo invisible para cualquiera que no sepa el nombre exacto\n"
-                "2. Cubrí TRES capas de búsqueda:\n"
-                "   - LITERAL: nombre exacto, abreviaturas, siglas (v14, fourteen, v14.0)\n"
-                "   - RELACIONADO: objetos vinculados (changelog, release notes)\n"
-                "   - ABSTRACTO: cómo lo busca alguien que ni sabe que existe (última versión, novedades)\n"
-                "3. Mínimo 5. Si no te salen, repensá el concepto.\n\n"
-                "Diferencia con dimensiones: dimensiones clasifica el CONTENIDO (qué ES).\n"
-                "syn anticipa la BÚSQUEDA (cómo se PREGUNTA). Acá sí vale adelantarse.\n\n"
-                "Ejemplo para 'biorag_v14_0_estado':\n"
-                "latest version,última versión,v14,changelog,novedades,release notes,estado actual,current state"
+                "FIRMA DE BÚSQUEDA DEL CONTENIDO.\n\n"
+                "QUÉ ES syn:\n"
+                "BM25 ya busca dentro del contenido y del nombre del concepto. Pero si alguien "
+                "busca con PALABRAS DIFERENTES a las que se usaron al guardar, BM25 no lo encuentra. "
+                "syn cierra esa brecha: son todas las palabras con las que alguien podría buscar "
+                "este nodo que NO ESTÁN YA en el contenido ni en el nombre del concepto.\n\n"
+                "PROCESO — Leé el contenido completo y preguntate:\n"
+                "Para cada concepto, entidad, acción y propiedad mencionada en el texto:\n"
+                "  → ¿Tiene abreviaturas, siglas o variantes? (CSS → cascading style sheets, hojas de estilo)\n"
+                "  → ¿Tiene traducción al otro idioma? (formulario → form, búsqueda → search)\n"
+                "  → ¿Cómo lo nombraría alguien informalmente? (peso sináptico → importancia, fuerza de conexión)\n"
+                "  → ¿Cuál es el problema que resuelve? (si el contenido es la solución, poné el problema)\n"
+                "  → ¿Cuál es la solución? (si el contenido es el problema, poné la solución)\n"
+                "  → ¿Quién participó o está asociado pero no está mencionado en el texto?\n"
+                "  → ¿Con qué otros conceptos del dominio se relaciona que no se nombran?\n"
+                "  → ¿Cómo buscaría esto alguien que NO sabe que este nodo existe?\n\n"
+                "REGLA DE ORO: Si una palabra ya está en el contenido o en el nombre del concepto, "
+                "NO la pongas en syn (BM25 ya la indexa con peso 1.0x en contenido y 5.0x en concepto). "
+                "syn es para lo que FALTA — las palabras que cierran la brecha de vocabulario.\n\n"
+                "MÍNIMO 8. IDEAL 12-20. Sin límite máximo — cada sinónimo es una arista de búsqueda.\n"
+                "Formato: separados por coma, sin espacios extra.\n"
+                "Incluir español E inglés si el contenido es técnico.\n\n"
+                "EJEMPLO — concepto: 'css_flexbox_fix_formulario'\n"
+                "contenido: 'Se corrigió el layout del formulario usando display:flex y align-items:center...'\n"
+                "syn (lo que NO está en el contenido): "
+                "alineación,alignment,form,caja flexible,flexible box,layout roto,broken layout,"
+                "centrado vertical,vertical centering,bug visual,responsive,maquetación,"
+                "grid vs flex,posicionamiento,positioning,adevcom,peritaje"
             )
         )] = None,
         cat: Annotated[Optional[str], Field(
@@ -1645,7 +1770,11 @@ def _build_server():
         )] = None,
         cat: Annotated[Optional[str], Field(description="Categoría. Ver aprender para valores válidos.")] = None,
         dimensiones: Annotated[Optional[Any], Field(
-            description="Clasificación dimensional en JSON. Ver aprender para formato."
+            description=(
+                "Clasificación dimensional en JSON. OBLIGATORIO llenar el mayor número de ejes posible (mínimo 7-10 de 13).\n\n"
+                "Los 13 ejes: emocion, entidad, accion, cualidad, coordenada, intencion, dominio, cualia, epistemia, escala_abstraccion, centralidad_identitaria, textura_experiencial, modalidad.\n\n"
+                "Protocolo: recorré los 13 ejes uno por uno y clasificá cada uno que aplique. Ver descripción completa y valores en `aprender`."
+            )
         )] = None,
         predicados: Annotated[Optional[Any], Field(
             description="Estructura SRL (JSON o lista de dicts). Ver descripción en `aprender` para reglas y ejemplos de uso."

@@ -78,7 +78,8 @@ class SQLiteMemoryBioRAG:
                 os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
                 "MemoryBioRAG_Data", "memory_biorag.db"
             )
-        os.makedirs(os.path.dirname(self.db_path), exist_ok=True)
+        if self.db_path != ":memory:":
+            os.makedirs(os.path.dirname(self.db_path), exist_ok=True)
         # Conectar a SQLite
         self.conn = sqlite3.connect(self.db_path, timeout=60)
         self.conn.execute("PRAGMA journal_mode=WAL")
@@ -2829,12 +2830,26 @@ class SQLiteMemoryBioRAG:
         return round(min(1.0, score), 4)
 
     def expandir_contexto_vecinos(self, pagina_resultados, depth, profundidad="activos", preview_chars=None):
-        """Realiza una búsqueda BFS real en la red sináptica hasta una profundidad 'depth'.
+        """Expande el contexto de una página devolviendo (primarios, contextos).
+        Usa BFS. Capa los contextos con un corte duro
+        que escala con depth: BIORAG_MAX_CONTEXTOS * max(1, depth).
+        """
+        import os
+        if not depth or depth <= 0 or not pagina_resultados:
+            return pagina_resultados, []
+
+        primarios, contextos = self._expandir_contexto_bfs(pagina_resultados, depth, profundidad=profundidad, preview_chars=preview_chars)
+        max_contextos = int(os.environ.get("BIORAG_MAX_CONTEXTOS", "15")) * max(1, int(depth or 1))
+        
+        return primarios, contextos[:max_contextos]
+
+    def _expandir_contexto_bfs(self, pagina_resultados, depth, profundidad="activos", preview_chars=None):
+        """Búsqueda BFS real en la red sináptica hasta una profundidad 'depth' (máx 3).
         Atenúa recursivamente los scores de los vecinos encontrados.
         Deduplica nodos de forma estricta.
         """
         if not depth or depth <= 0 or not pagina_resultados:
-            return pagina_resultados
+            return pagina_resultados, []
 
         depth = min(int(depth), 3)
         vistos = {}  # concepto -> item
@@ -2895,7 +2910,7 @@ class SQLiteMemoryBioRAG:
 
         # Ordenar contextos por score descendente
         contextos.sort(key=lambda x: x[4], reverse=True)
-        return list(pagina_resultados) + contextos
+        return list(pagina_resultados), contextos
 
     def buscar_por_frase(self, frase, profundidad="activos", pagina=1, limite=None, categoria=None, preview_chars=1500, historial_fallos=None, context_window=0, dimensiones_dict=None, dimensiones_ids=None, parafrasis_list=None, desde_ts=None, hasta_ts=None, modo_estricto=False, usar_inferencia=True, buscar_por_rol=None, ignore_peso_sinaptico=False):
         """Busqueda hibrida: FTS5 trigram + peso sinaptico + asociaciones + scoring dimensional.
@@ -4134,7 +4149,7 @@ class SQLiteMemoryBioRAG:
 
         # Context window: expandir cada resultado con vecinos por sinapsis
         if context_window and context_window > 0 and pagina_resultados:
-            pagina_resultados = self.expandir_contexto_vecinos(
+            pagina_resultados, _ = self.expandir_contexto_vecinos(
                 pagina_resultados,
                 depth=context_window,
                 profundidad=profundidad,
