@@ -1,5 +1,37 @@
 # BioRAG Changelog
 
+## v25.1 (2026-08-03)
+
+### HDC Binding y Multi-Proyección SDM — Confiabilidad y Precisión de Representación
+
+**Objetivo:** Eliminar colisiones de hash en la generación de vectores SDM mediante multi-hashing con semillas independientes, e integrar una capa de Computación Hiperdimensional (HDC) para representación estructurada de predicados.
+
+**Features:**
+- **Multi-proyección SDM** (`core/sdm.py`): `_hash_token_a_bit` ahora acepta parámetro `seed` para hashing independiente. Nueva función `_activar_proyecciones` activa k posiciones de bits independientes por token. Reemplaza hash único + ventana contigua en segmentos de contenido (k=4), concepto (k=4), categoría (k=8) y vecinos sinápticos (k=4). Segmento de dimensiones conserva ventana contigua por regresión de recall medido (54.3%→43.1%).
+- **HDC Binding** (`scripts/hdc_binding.py`): Operaciones núcleo de HDC — `generar_rol`, `item_denso_desde_string` (SHA256 i.i.d. p=0.5 por bit), `densificar`, `xor`, `majority_vote`, `sim_ham`, `bind`, `unbind`, `recuperar_rol`. Acierto 38/38 en predicados reales, 10/10 en stress test de conceptos versionados.
+- **Reindexación automática SDM** (`core/dmn_reflexion.py`): 5 hooks que reindexan vectores SDM tras mutaciones del grafo — `_reindexar_sdm` en `_aplicar_veredicto`, `_restaurar_cuarentena`, `_aplicar_veredicto_nodo`, `procesar_nodo_unico`, `ejecutar_ciclo_reflexivo`.
+- **Scripts de verificación**: `medir_hdc_margen_pares_duros.py`, `medir_hdc_predicados_reales.py`, `medir_rangos_hamming_sdm.py`, `test_hdc_binding_sintetico.py`, `test_hdc_stress_versionado.py`, `verificar_fallback18_queries_cortas.py`, `verificar_hdc_hash_no_colisiona.py`.
+
+**Resultados:**
+- Colisiones Fallback 1.8: 0 en 89,676 pares (antes: 182 colisiones, 0.203%)
+- HDC binding: acierto 100% (38/38 predicados reales), separación media 0.128→0.144
+- Stress test: 10/10 conceptos versionados (antes: 9/10 con hash viejo)
+- Fallback 1.8 queries cortas: 0 colisiones en 1,653 pares query×query y 40,890 pares query×nodo
+
+**Archivos modificados:**
+- `core/sdm.py` — multi-proyección K con seed, `_activar_proyecciones`
+- `core/dmn_reflexion.py` — 5 hooks de reindexación SDM
+- `mcp_server.py` — rutas corregidas para scripts de notebooks
+- `scripts/hdc_binding.py` — primitivas HDC (nuevo)
+- `scripts/medir_hdc_margen_pares_duros.py` — medición margen HDC (nuevo)
+- `scripts/medir_hdc_predicados_reales.py` — evaluación HDC en predicados reales (nuevo)
+- `scripts/medir_rangos_hamming_sdm.py` — recalibración rangos Hamming (nuevo)
+- `scripts/test_hdc_binding_sintetico.py` — prueba sintética HDC (nuevo)
+- `scripts/test_hdc_stress_versionado.py` — stress test conceptos versionados (nuevo)
+- `scripts/verificar_fallback18_queries_cortas.py` — verificación colisiones Fallback 1.8 (nuevo)
+- `scripts/verificar_hdc_hash_no_colisiona.py` — verificación reducción colisiones (nuevo)
+- `.gitignore` — artefactos temporales de scripts
+
 ## v25.0 (2026-07-31)
 
 ### Expansión Dimensional: 13 Ejes Semánticos (7 → 13, 73 → 102 sub-valores)

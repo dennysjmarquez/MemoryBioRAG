@@ -52,3 +52,9 @@ res_img/
 .hormiguita.lock
 
 .hormiguita.pid
+
+scripts/snapshot_prf_real.db
+
+MemoryBioRAG_Data/memory_biorag_qa_temp.db-wal
+
+MemoryBioRAG_Data/memory_biorag_qa_temp.db-shm

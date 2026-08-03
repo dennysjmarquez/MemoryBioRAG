@@ -107,13 +107,36 @@ def _calcular_rango_cluster(cluster_idx, total_clusters):
 # Funciones de hashing
 # =============================================================================
 
-def _hash_token_a_bit(token: str, min_bit: int, max_bit: int) -> int:
-    """Mapea un token a una posición de bit unívoca en el rango [min_bit, max_bit)."""
+def _hash_token_a_bit(token: str, min_bit: int, max_bit: int, seed: int = 0) -> int:
+    """Mapea un token a una posición de bit en el rango [min_bit, max_bit).
+
+    seed=0 mantiene el comportamiento histórico (md5(token)) para compatibilidad
+    de tests e imports externos. seed>0 produce una proyección INDEPENDIENTE
+    (md5(f"{seed}:{token}")) — usada por _activar_proyecciones para multi-hashing.
+    """
     rango = max_bit - min_bit
     if rango <= 0:
         return min_bit
-    h = int(hashlib.md5(token.encode('utf-8')).hexdigest(), 16)
+    entrada = f"{seed}:{token}" if seed else token
+    h = int(hashlib.md5(entrada.encode('utf-8')).hexdigest(), 16)
     return min_bit + (h % rango)
+
+
+def _activar_proyecciones(bit_array, token: str, rango_inicio: int, rango_fin: int, k: int):
+    """Activa k posiciones INDEPENDIENTES por token (multi-proyección).
+
+    Cada seed produce un hash distinto del token → k bits pseudoaleatorios en
+    [rango_inicio, rango_fin). Con k proyecciones, la colisión exacta entre dos
+    tokens distintos cae de 1/rango a (1/rango)^k — elimina la paradoja de
+    cumpleaños del md5%512 para strings de un solo token (concepto==contenido),
+    preservando la densidad de bits activos (k bits/token, igual que la ventana
+    contigua histórica). Los bits independientes además eliminan el solapamiento
+    espurio que la ventana contigua causaba entre tokens con bases cercanas.
+    """
+    for seed in range(k):
+        pos = _hash_token_a_bit(token, rango_inicio, rango_fin, seed=seed)
+        if 0 <= pos < len(bit_array):
+            bit_array[pos] = 1
 
 
 def _activar_ventana(bit_array, pos_base, rango_inicio, rango_fin, n_bits):
@@ -142,18 +165,16 @@ def generar_vector_sdm(concepto: str, contenido: str = "", categoria: str = "",
     clusters = data.get('clusters', [])
     total_clusters = len(clusters)
 
-    # 1. Tokens de contenido (bits 0..511, ventana de 4 bits/token)
+    # 1. Tokens de contenido (bits 0..511, 4 proyecciones independientes/token)
     if contenido:
         tokens_contenido = [stem(t.lower()) for t in contenido.split() if len(t) >= 3]
         for tok in set(tokens_contenido[:50]):
-            pos = _hash_token_a_bit(tok, *SEGMENTO_CONTENIDO)
-            _activar_ventana(bit_array, pos, *SEGMENTO_CONTENIDO, 4)
+            _activar_proyecciones(bit_array, tok, *SEGMENTO_CONTENIDO, 4)
 
-    # 2. Tokens de concepto (bits 512..767, ventana de 4 bits/token)
+    # 2. Tokens de concepto (bits 512..767, 4 proyecciones independientes/token)
     tokens_concepto = [stem(t.lower()) for t in concepto.split() if len(t) >= 2]
     for tok in tokens_concepto:
-        pos = _hash_token_a_bit(tok, *SEGMENTO_CONCEPTO)
-        _activar_ventana(bit_array, pos, *SEGMENTO_CONCEPTO, 4)
+        _activar_proyecciones(bit_array, tok, *SEGMENTO_CONCEPTO, 4)
 
     # 3. Dimensiones Hebbianas (bits 768..1792, ponderadas por IDF)
     if dimensiones and total_clusters > 0:
@@ -180,16 +201,14 @@ def generar_vector_sdm(concepto: str, contenido: str = "", categoria: str = "",
             pos = _hash_token_a_bit(str(dim_id), *rango)
             _activar_ventana(bit_array, pos, *rango, n_bits)
 
-    # 4. Categoría (bits 1792..1920, ventana de 8 bits)
+    # 4. Categoría (bits 1792..1920, 8 proyecciones independientes)
     if categoria is not None:
-        pos = _hash_token_a_bit(str(categoria).lower(), *SEGMENTO_CATEGORIA)
-        _activar_ventana(bit_array, pos, *SEGMENTO_CATEGORIA, 8)
+        _activar_proyecciones(bit_array, str(categoria).lower(), *SEGMENTO_CATEGORIA, 8)
 
-    # 5. Vecinos sinápticos (bits 1920..2047, ventana de 4 bits/vecino)
+    # 5. Vecinos sinápticos (bits 1920..2047, 4 proyecciones independientes/vecino)
     if vecinos:
         for vec in vecinos:
-            pos = _hash_token_a_bit(str(vec).lower(), *SEGMENTO_VECINOS)
-            _activar_ventana(bit_array, pos, *SEGMENTO_VECINOS, 4)
+            _activar_proyecciones(bit_array, str(vec).lower(), *SEGMENTO_VECINOS, 4)
 
     # Empaquetar bits en bytes
     bytes_list = bytearray(SDM_BYTES)

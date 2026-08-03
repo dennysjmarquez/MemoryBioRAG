@@ -2840,7 +2840,7 @@ def _build_server():
     def biorag_export_sync() -> str:
         script_path = os.path.join(
             os.path.dirname(os.path.abspath(__file__)),
-            "..", "MemoryBioRAG_NOTEBOOK_NCP", "scripts", "export_pending.py"
+            "..", "MemoryBioRAG_NOTEBOOK_MCP", "scripts", "export_pending.py"
         )
         try:
             result = subprocess.run(
@@ -2872,7 +2872,7 @@ def _build_server():
     def biorag_export_full() -> str:
         script_path = os.path.join(
             os.path.dirname(os.path.abspath(__file__)),
-            "..", "MemoryBioRAG_NOTEBOOK_NCP", "scripts", "export_full.py"
+            "..", "MemoryBioRAG_NOTEBOOK_MCP", "scripts", "export_full.py"
         )
         try:
             result = subprocess.run(

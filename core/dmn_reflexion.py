@@ -707,6 +707,22 @@ def _llamar_gemini_nodo(payload, keys_agotadas=None):
 
 # --- Aplicación determinista de veredictos -----------------------------------
 
+def _reindexar_sdm(cerebro, *conceptos):
+    """Reindexa el vector SDM de los nodos modificados tras una mutación.
+
+    El vector SDM depende de contenido, categoría, dimensiones y vecinos
+    sinápticos. Cuando la hormiguita muta esos campos en largo_plazo, la
+    entrada en nodos_sdm queda desactualizada. indexar_nodo_sdm reindexa UN
+    nodo con los datos frescos (y commitea por su cuenta).
+    """
+    try:
+        from core.sdm import indexar_nodo_sdm
+        for c in set(filter(None, conceptos)):
+            indexar_nodo_sdm(cerebro, c)
+    except Exception as e:
+        logger.warning(f"[DMN] Error reindexando SDM tras mutación: {e}")
+
+
 def _aplicar_veredicto(cerebro, veredicto):
     """
     Aplica UN veredicto con reglas deterministas. Nunca confía ciegamente
@@ -728,6 +744,7 @@ def _aplicar_veredicto(cerebro, veredicto):
     tipo, _, ref = id_.partition(":")
     conn = cerebro.conn
     cursor = conn.cursor()
+    reindexar = set()  # conceptos cuyo vector SDM quedó obsoleto tras la mutación
 
     try:
         if accion == "eliminar" and confianza >= UMBRAL_CONFIANZA_ELIMINAR:
@@ -745,6 +762,7 @@ def _aplicar_veredicto(cerebro, veredicto):
                     "DELETE FROM sinapsis WHERE origen = ? AND destino = ?",
                     (origen, destino),
                 )
+                reindexar.update((origen, destino))  # vecinos cambiaron
             logger.info(f"[DMN Fase2] ELIMINADO {id_} (confianza={confianza:.2f}): {justificacion}")
 
         elif accion == "aceptar" and confianza >= UMBRAL_CONFIANZA_ACEPTAR and tipo == "nodo":
@@ -754,6 +772,11 @@ def _aplicar_veredicto(cerebro, veredicto):
                     "UPDATE largo_plazo SET contenido = ?, peso_sinaptico = MIN(peso_sinaptico + 0.1, 1.0) WHERE id = ?",
                     (contenido_mejorado, ref),
                 )
+                fila = cursor.execute(
+                    "SELECT concepto FROM largo_plazo WHERE id = ?", (ref,)
+                ).fetchone()
+                if fila:
+                    reindexar.add(fila[0])  # contenido cambió
             else:
                 cursor.execute(
                     "UPDATE largo_plazo SET peso_sinaptico = MIN(peso_sinaptico + 0.1, 1.0) WHERE id = ?",
@@ -809,6 +832,8 @@ def _aplicar_veredicto(cerebro, veredicto):
             return True  # no es error, es una decisión válida de no-acción
 
         conn.commit()
+        if reindexar:
+            _reindexar_sdm(cerebro, *reindexar)
         return True
 
     except sqlite3.Error as e:
@@ -889,6 +914,7 @@ def _restaurar_cuarentena(cerebro, desde_timestamp=0, max_items=None):
     cursor.execute(sql, (desde_timestamp,))
 
     restauradas = 0
+    reindexar = set()
     for id_, origen, destino, tipo, tabla, peso, datos_extra in cursor.fetchall():
         if tabla == "sinapsis":
             cursor.execute(
@@ -896,6 +922,7 @@ def _restaurar_cuarentena(cerebro, desde_timestamp=0, max_items=None):
                 "VALUES (?, ?, ?, ?, ?)",
                 (origen, destino, tipo or "pmi_hebbiano", peso, time.time())
             )
+            reindexar.update((origen, destino))  # vecinos cambiaron
         else:
             extra = json.loads(datos_extra) if datos_extra else {}
             cursor.execute(
@@ -915,6 +942,8 @@ def _restaurar_cuarentena(cerebro, desde_timestamp=0, max_items=None):
 
     if restauradas > 0:
         cerebro.conn.commit()
+        if reindexar:
+            _reindexar_sdm(cerebro, *reindexar)
         logger.warning(f"[Hormiguita] {restauradas} sinapsis RESTAURADAS desde cuarentena")
     return restauradas
 
@@ -1066,6 +1095,7 @@ def _aplicar_veredicto_nodo(concepto, veredicto, cerebro, origen_llamada="ciclo_
     conn = cerebro.conn
     cursor = conn.cursor()
     changes_antes = conn.total_changes
+    reindexar = set()  # conceptos cuyo vector SDM queda obsoleto tras la mutación
 
     try:
         # --- DIMENSION ---
@@ -1077,6 +1107,7 @@ def _aplicar_veredicto_nodo(concepto, veredicto, cerebro, origen_llamada="ciclo_
                     "INSERT OR IGNORE INTO largo_plazo_dimensiones (concepto, dimension_id) VALUES (?, ?)",
                     (concepto, dim_row[0])
                 )
+                reindexar.add(concepto)
                 logger.info(f"[Hormiguita] DIM +{ref} en {concepto} ({confianza:.2f}): {justificacion}")
             else:
                 logger.warning(f"[Hormiguita] Dimensión '{ref}' no existe en catálogo")
@@ -1090,6 +1121,7 @@ def _aplicar_veredicto_nodo(concepto, veredicto, cerebro, origen_llamada="ciclo_
                     "DELETE FROM largo_plazo_dimensiones WHERE concepto = ? AND dimension_id = ?",
                     (concepto, dim_row[0])
                 )
+                reindexar.add(concepto)
                 logger.info(f"[Hormiguita] DIM -{ref} en {concepto} ({confianza:.2f}): {justificacion}")
 
         elif capa == "dimension" and accion == "reemplazar" and confianza >= UMBRAL_CONFIANZA_ACEPTAR:
@@ -1108,6 +1140,7 @@ def _aplicar_veredicto_nodo(concepto, veredicto, cerebro, origen_llamada="ciclo_
                         "INSERT OR IGNORE INTO largo_plazo_dimensiones (concepto, dimension_id) VALUES (?, ?)",
                         (concepto, new_dim[0])
                     )
+                    reindexar.add(concepto)
                     logger.info(f"[Hormiguita] DIM {ref}→{valor_sugerido} en {concepto} ({confianza:.2f})")
 
         # --- SINONIMO ---
@@ -1160,6 +1193,7 @@ def _aplicar_veredicto_nodo(concepto, veredicto, cerebro, origen_llamada="ciclo_
                     "UPDATE largo_plazo SET categoria = ? WHERE concepto = ?",
                     (cat_row[0], concepto)
                 )
+                reindexar.add(concepto)
                 logger.info(f"[Hormiguita] CAT →{ref} en {concepto} ({confianza:.2f}): {justificacion}")
 
         # --- CONTENIDO ---
@@ -1169,11 +1203,13 @@ def _aplicar_veredicto_nodo(concepto, veredicto, cerebro, origen_llamada="ciclo_
                     "UPDATE largo_plazo SET contenido = ? WHERE concepto = ?",
                     (valor_sugerido, concepto)
                 )
+                reindexar.add(concepto)
                 logger.info(f"[Hormiguita] CONTenido enriquecido en {concepto} ({confianza:.2f})")
 
         # --- SINAPSIS DIRECTA ---
         elif capa == "sinapsis_directa" and accion == "eliminar" and confianza >= UMBRAL_CONFIANZA_ELIMINAR:
             _mover_a_cuarentena(concepto, ref, "sinapsis", cerebro, justificacion, confianza, origen=origen_llamada)
+            reindexar.update((concepto, ref))  # vecinos cambiaron
             logger.info(f"[Hormiguita] SINAP -{concepto}→{ref} ({confianza:.2f}): {justificacion}")
 
         elif capa == "sinapsis_directa" and accion == "reponderar" and confianza >= UMBRAL_CONFIANZA_ACEPTAR:
@@ -1245,6 +1281,8 @@ def _aplicar_veredicto_nodo(concepto, veredicto, cerebro, origen_llamada="ciclo_
         # Solo contar como "aplicado" si hubo mutación real en la DB
         if conn.total_changes > changes_antes:
             conn.commit()
+            if reindexar:
+                _reindexar_sdm(cerebro, *reindexar)
             return True
         return False  # Acción ejecutada pero sin efecto (ej: INSERT OR IGNORE duplicado)
 
@@ -1568,6 +1606,7 @@ def procesar_nodo_unico(concepto: str, cerebro, force: bool = False) -> dict:
 
     # 2. Cortes deterministas → cuarentena (no DELETE directo)
     cortes_directos = 0
+    reindexar = set()
     for s in prefiltro_data.get("cortadas_directas", []):
         destino = s.get("destino", "")
         if _mover_a_cuarentena(
@@ -1576,6 +1615,7 @@ def procesar_nodo_unico(concepto: str, cerebro, force: bool = False) -> dict:
             confianza=1.0, origen="on_demand",
         ):
             cortes_directos += 1
+            reindexar.update((concepto, destino))  # vecinos cambiaron
             logger.info(f"[procesar_nodo_unico] CORTE DIRECTO {concepto}→{destino}")
 
     for s in prefiltro_data.get("cortadas_latentes", []):
@@ -1590,6 +1630,8 @@ def procesar_nodo_unico(concepto: str, cerebro, force: bool = False) -> dict:
 
     if cortes_directos > 0:
         cerebro.conn.commit()
+        if reindexar:
+            _reindexar_sdm(cerebro, *reindexar)
 
     # 3. Armar lista de candidatas para Gemini
     todas = []
@@ -1760,6 +1802,7 @@ def ejecutar_ciclo_reflexivo(cerebro, max_nodos=10):
         # Aplicar cortes directos del pre-filtrado (solo en pasada fresca;
         # en reanudación ya se aplicaron antes del fallo)
         cortes_directos = 0
+        reindexar = set()
         if not resumiendo:
             for s in prefiltro_data.get("cortadas_directas", []):
                 destino = s.get("destino", "")
@@ -1769,6 +1812,7 @@ def ejecutar_ciclo_reflexivo(cerebro, max_nodos=10):
                     confianza=1.0, origen="ciclo_daemon",
                 ):
                     cortes_directos += 1
+                    reindexar.update((concepto, destino))  # vecinos cambiaron
                     logger.info(f"[Pre-filtrado] CORTE DIRECTO {concepto}→{destino} (peso={s.get('peso', 0):.3f})")
 
             for s in prefiltro_data.get("cortadas_latentes", []):
@@ -1783,6 +1827,8 @@ def ejecutar_ciclo_reflexivo(cerebro, max_nodos=10):
 
             if cortes_directos > 0:
                 cerebro.conn.commit()
+                if reindexar:
+                    _reindexar_sdm(cerebro, *reindexar)
                 eliminados_total += cortes_directos
 
         # Lista completa de sinapsis a evaluar, con su capa
