@@ -1551,6 +1551,9 @@ class SQLiteMemoryBioRAG:
         import re
         from itertools import combinations
         
+        # Reindex SDM selectivo: extremos de sinapsis NUEVAS creadas aquí
+        dirty = set()
+        
         # Mapa de concepto → tokens de contenido (para matching)
         concepto_tokens = {}
         
@@ -1573,12 +1576,20 @@ class SQLiteMemoryBioRAG:
                 if len(shared) >= 2:
                     peso = min(0.9, 0.3 + len(shared) * 0.1)
                     self.cursor.execute(
+                        "SELECT 1 FROM sinapsis WHERE origen = ? AND destino = ?",
+                        (c1, c2)
+                    )
+                    es_nueva = self.cursor.fetchone() is None
+                    self.cursor.execute(
                         "INSERT INTO sinapsis (origen, destino, peso, tipo, creado_en) "
                         "VALUES (?, ?, ?, 'co_ocurrencia', ?) "
                         "ON CONFLICT(origen, destino) DO UPDATE SET "
                         "peso = MIN(0.9, peso + 0.1), ultimo_uso = ?",
                         (c1, c2, peso, time.time(), time.time())
                     )
+                    if es_nueva:
+                        dirty.add(c1)
+                        dirty.add(c2)
         
         # 2. Co-ocurrencia en comunicaciones (conceptos en el mismo mensaje)
         try:
@@ -1609,16 +1620,31 @@ class SQLiteMemoryBioRAG:
                     # Para cada par de conceptos en el mismo mensaje
                     for c1, c2 in combinations(conceptos_en_msg[:10], 2):
                         self.cursor.execute(
+                            "SELECT 1 FROM sinapsis WHERE origen = ? AND destino = ?",
+                            (c1, c2)
+                        )
+                        es_nueva = self.cursor.fetchone() is None
+                        self.cursor.execute(
                             "INSERT INTO sinapsis (origen, destino, peso, tipo, creado_en) "
                             "VALUES (?, ?, 0.4, 'co_ocurrencia', ?) "
                             "ON CONFLICT(origen, destino) DO UPDATE SET "
                             "peso = MIN(0.9, peso + 0.05), ultimo_uso = ?",
                             (c1, c2, time.time(), time.time())
                         )
+                        if es_nueva:
+                            dirty.add(c1)
+                            dirty.add(c2)
         except Exception:
             pass  # Tabla comunicaciones puede no tener datos
         
         self.conn.commit()
+
+        if dirty:
+            try:
+                from core.sdm import marcar_sdm_dirty
+                marcar_sdm_dirty(self, dirty)
+            except Exception:
+                pass
 
     def _clasificar_nodo_wordnet(self, concepto, contenido, sinonimos=""):
         """Clasifica las palabras del nodo por grupo semántico WordNet.
@@ -2088,12 +2114,28 @@ class SQLiteMemoryBioRAG:
             pass
         self.conn.commit()
 
-        # SDM v19.0: Reindexar vectores binarios tras consolidation para mantener cobertura
+        # SDM v2.0: Reindex selectivo por dirty-set + full reindex periódico (24h)
+        # El dirty-set es explícito (marcado en cada sinapsis NUEVA): no se confía
+        # en actualizado_en, que miente cuando un vecino nuevo cambia el vector.
+        # indexar_todos_sdm se conserva como red de seguridad periódica.
         try:
-            from core.sdm import indexar_todos_sdm
-            n_sdm = indexar_todos_sdm(self)
-            if n_sdm:
-                print(f"[SDM] {n_sdm} vectores reindexados tras consolidación.")
+            from core.sdm import (
+                indexar_todos_sdm, reindex_selectivo_sdm, marcar_sdm_dirty,
+                limpiar_sdm_dirty, _sdm_full_reindex_due, _registrar_sdm_full_reindex,
+            )
+            # Los nodos consolidados en este ciclo cambiaron contenido/peso → dirty
+            for concepto, *_ in recuerdos_sesion:
+                marcar_sdm_dirty(self, (concepto,))
+            if _sdm_full_reindex_due(self):
+                n_sdm = indexar_todos_sdm(self)
+                limpiar_sdm_dirty(self)
+                _registrar_sdm_full_reindex(self)
+                if n_sdm:
+                    print(f"[SDM] {n_sdm} vectores reindexados (full periódico).")
+            else:
+                n_sdm = reindex_selectivo_sdm(self)
+                if n_sdm:
+                    print(f"[SDM] {n_sdm} vectores reindexados (selectivo).")
         except Exception:
             pass
 
@@ -2176,6 +2218,7 @@ class SQLiteMemoryBioRAG:
     def establecer_asociacion(self, concepto_a, concepto_b):
         """Crea un enlace sináptico bidireccional entre dos conceptos en el grafo de largo plazo."""
         concepto_a, concepto_b = concepto_a.lower().strip(), concepto_b.lower().strip()
+        inserto = False
         for a, b in [(concepto_a, concepto_b), (concepto_b, concepto_a)]:
             self.cursor.execute("SELECT 1 FROM sinapsis WHERE origen = ? AND destino = ?", (a, b))
             if not self.cursor.fetchone():
@@ -2183,10 +2226,17 @@ class SQLiteMemoryBioRAG:
                     "INSERT INTO sinapsis (origen, destino, peso, tipo, creado_en) VALUES (?, ?, 0.5, 'manual', ?)",
                     (a, b, time.time())
                 )
+                inserto = True
         from core.sinapsis import _sincronizar_asociaciones
         _sincronizar_asociaciones(self, concepto_a)
         _sincronizar_asociaciones(self, concepto_b)
         self.conn.commit()
+        if inserto:
+            try:
+                from core.sdm import marcar_sdm_dirty
+                marcar_sdm_dirty(self, (concepto_a, concepto_b))
+            except Exception:
+                pass
         print(f"[MemoryBioRAG] Sinapsis establecida: '{concepto_a}' <--> '{concepto_b}'")
 
     # ─── CANAL DE COMUNICACION INTER-AGENTE ──────────────────────────────
@@ -4542,6 +4592,16 @@ class SQLiteMemoryBioRAG:
                             )
         
         self.conn.commit()
+
+        # Reindex SDM selectivo: marcar dirty las sinapsis rafaga_rememb nuevas
+        # (sinapsis_creadas solo acumula inserciones reales, no refuerzos)
+        if sinapsis_creadas:
+            try:
+                from core.sdm import marcar_sdm_dirty
+                dirty_rafaga = {e for par in sinapsis_creadas for e in par[:2]}
+                marcar_sdm_dirty(self, dirty_rafaga)
+            except Exception:
+                pass
         
         # Fase 4: Métricas de ráfaga
         import sys

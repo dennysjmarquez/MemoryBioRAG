@@ -83,6 +83,7 @@ def auto_vincular(cerebro, concepto, contenido, umbral=0.4):
 
     MAX_FANOUT = 30  # Límite de sinapsis por nodo en una sola pasada
     vinculados = []
+    dirty = set()  # Reindex SDM selectivo: extremos de sinapsis NUEVAS
     for conc_exist, cont_exist in existentes:
         if len(vinculados) >= MAX_FANOUT:
             break
@@ -96,6 +97,13 @@ def auto_vincular(cerebro, concepto, contenido, umbral=0.4):
 
         if sim >= umbral:
             peso = sim
+            # Reindex SDM selectivo: marcar dirty solo si la sinapsis es NUEVA
+            # (el ON CONFLICT DO UPDATE no distingue insert de update)
+            cerebro.cursor.execute(
+                "SELECT 1 FROM sinapsis WHERE origen = ? AND destino = ?",
+                (concepto, conc_exist)
+            )
+            es_nueva = cerebro.cursor.fetchone() is None
             cerebro.cursor.execute(
                 "INSERT INTO sinapsis (origen, destino, peso, tipo, creado_en) "
                 "VALUES (?, ?, ?, 'co_ocurrencia', ?) "
@@ -105,6 +113,9 @@ def auto_vincular(cerebro, concepto, contenido, umbral=0.4):
                 "ultimo_uso = COALESCE(sinapsis.ultimo_uso, excluded.creado_en)",
                 (concepto, conc_exist, peso, time.time())
             )
+            if es_nueva:
+                dirty.add(concepto)
+                dirty.add(conc_exist)
             vinculados.append((conc_exist, peso))
 
     if vinculados:
@@ -144,6 +155,11 @@ def auto_vincular(cerebro, concepto, contenido, umbral=0.4):
                 if nombre_overlap >= 0.3:
                     peso_link = round(min(1.0, nombre_overlap * 0.7 + peso_exist * 0.3), 2)
                     cerebro.cursor.execute(
+                        "SELECT 1 FROM sinapsis WHERE origen = ? AND destino = ?",
+                        (concepto, conc_exist)
+                    )
+                    es_nueva = cerebro.cursor.fetchone() is None
+                    cerebro.cursor.execute(
                         "INSERT INTO sinapsis (origen, destino, peso, tipo, creado_en) "
                         "VALUES (?, ?, ?, 'co_nombre', ?) "
                         "ON CONFLICT(origen, destino) DO UPDATE SET "
@@ -152,6 +168,9 @@ def auto_vincular(cerebro, concepto, contenido, umbral=0.4):
                         "ultimo_uso = COALESCE(sinapsis.ultimo_uso, excluded.creado_en)",
                         (concepto, conc_exist, peso_link, time.time())
                     )
+                    if es_nueva:
+                        dirty.add(concepto)
+                        dirty.add(conc_exist)
                     vinculados.append((conc_exist, peso_link))
                     count_name += 1
             if any(v not in ya_vinculados for v in vinculados):
@@ -198,6 +217,11 @@ def auto_vincular(cerebro, concepto, contenido, umbral=0.4):
                         if overlap >= umbral:
                             peso_link = round(min(1.0, overlap * 0.6 + peso_exist * 0.4), 2)
                             cerebro.cursor.execute(
+                                "SELECT 1 FROM sinapsis WHERE origen = ? AND destino = ?",
+                                (concepto, conc_exist)
+                            )
+                            es_nueva = cerebro.cursor.fetchone() is None
+                            cerebro.cursor.execute(
                                 "INSERT INTO sinapsis (origen, destino, peso, tipo, creado_en) "
                                 "VALUES (?, ?, ?, 'co_semantica', ?) "
                                 "ON CONFLICT(origen, destino) DO UPDATE SET "
@@ -206,6 +230,9 @@ def auto_vincular(cerebro, concepto, contenido, umbral=0.4):
                                 "ultimo_uso = COALESCE(sinapsis.ultimo_uso, excluded.creado_en)",
                                 (concepto, conc_exist, peso_link, time.time())
                             )
+                            if es_nueva:
+                                dirty.add(concepto)
+                                dirty.add(conc_exist)
                             vinculados.append((conc_exist, peso_link))
                             count_syn += 1
                 if any(v not in ya_vinculados for v in vinculados):
@@ -256,6 +283,11 @@ def auto_vincular(cerebro, concepto, contenido, umbral=0.4):
                         peso_link = round(min(1.0, avg_pmi * 0.75 + peso_exist * 0.25), 2)
                         if peso_link >= 0.35:
                             cerebro.cursor.execute(
+                                "SELECT 1 FROM sinapsis WHERE origen = ? AND destino = ?",
+                                (concepto, conc_exist)
+                            )
+                            es_nueva = cerebro.cursor.fetchone() is None
+                            cerebro.cursor.execute(
                                 "INSERT INTO sinapsis (origen, destino, peso, tipo, creado_en) "
                                 "VALUES (?, ?, ?, 'pmi_hebbiano', ?) "
                                 "ON CONFLICT(origen, destino) DO UPDATE SET "
@@ -264,6 +296,9 @@ def auto_vincular(cerebro, concepto, contenido, umbral=0.4):
                                 "ultimo_uso = COALESCE(sinapsis.ultimo_uso, excluded.creado_en)",
                                 (concepto, conc_exist, peso_link, time.time())
                             )
+                            if es_nueva:
+                                dirty.add(concepto)
+                                dirty.add(conc_exist)
                             vinculados.append((conc_exist, peso_link))
                             count_pmi += 1
                 if any(v not in ya_vinculados for v in vinculados):
@@ -276,6 +311,14 @@ def auto_vincular(cerebro, concepto, contenido, umbral=0.4):
         for conc_exist, _ in vinculados:
             _sincronizar_asociaciones(cerebro, conc_exist)
         cerebro.cursor.connection.commit()
+
+    # Reindex SDM selectivo: marcar dirty los extremos de sinapsis nuevas
+    if dirty:
+        try:
+            from core.sdm import marcar_sdm_dirty
+            marcar_sdm_dirty(cerebro, dirty)
+        except Exception:
+            pass
 
     return vinculados
 
@@ -340,6 +383,7 @@ def vincular_por_sinonimos(cerebro, concepto, sinonimos, peso=0.9):
         return []
 
     vinculados = []
+    dirty = set()  # Reindex SDM selectivo: extremos de sinapsis NUEVAS
     for termino in terminos:
         # ponytail: solo buscar en concepto y sinonimos, NO en contenido
         # Evita falsos positivos cuando el término aparece de pasada en el contenido
@@ -350,6 +394,11 @@ def vincular_por_sinonimos(cerebro, concepto, sinonimos, peso=0.9):
         )
         for (conc_exist,) in cerebro.cursor.fetchall():
             cerebro.cursor.execute(
+                "SELECT 1 FROM sinapsis WHERE origen = ? AND destino = ?",
+                (concepto, conc_exist)
+            )
+            es_nueva = cerebro.cursor.fetchone() is None
+            cerebro.cursor.execute(
                 "INSERT INTO sinapsis (origen, destino, peso, tipo, creado_en) "
                 "VALUES (?, ?, ?, 'sinonimo_explicito', ?) "
                 "ON CONFLICT(origen, destino) DO UPDATE SET "
@@ -358,6 +407,9 @@ def vincular_por_sinonimos(cerebro, concepto, sinonimos, peso=0.9):
                 "ultimo_uso = COALESCE(sinapsis.ultimo_uso, excluded.creado_en)",
                 (concepto, conc_exist, peso, time.time())
             )
+            if es_nueva:
+                dirty.add(concepto)
+                dirty.add(conc_exist)
             vinculados.append((conc_exist, peso))
 
     if vinculados:
@@ -365,6 +417,13 @@ def vincular_por_sinonimos(cerebro, concepto, sinonimos, peso=0.9):
         for conc_exist, _ in vinculados:
             _sincronizar_asociaciones(cerebro, conc_exist)
         cerebro.cursor.connection.commit()
+
+    if dirty:
+        try:
+            from core.sdm import marcar_sdm_dirty
+            marcar_sdm_dirty(cerebro, dirty)
+        except Exception:
+            pass
     return vinculados
 
 

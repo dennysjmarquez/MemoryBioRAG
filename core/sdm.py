@@ -363,6 +363,118 @@ def indexar_todos_sdm(cerebro) -> int:
 
 
 # =============================================================================
+# Reindexación selectiva por dirty-set
+# =============================================================================
+# Los vectores SDM dependen del contenido Y de los vecinos sinápticos del nodo.
+# Cuando se crea una sinapsis NUEVA (auto_vincular, co_ocurrencia, vincular
+# manual, ráfaga), el vector del nodo existente queda desactualizado aunque su
+# 'actualizado_en' no cambie (ese timestamp miente: ver diagnóstico Bug 1).
+# Solución: dirty-set explícito — cada creación de sinapsis nueva marca AMBOS
+# extremos; el reindex selectivo consume el set sin consultar timestamps.
+# indexar_todos_sdm se conserva como red de seguridad periódica (cada 24h).
+
+
+def _asegurar_tablas_reindex(cerebro):
+    """Crea las tablas de seguimiento del reindex SDM selectivo si faltan."""
+    cerebro.cursor.execute("""
+        CREATE TABLE IF NOT EXISTS sdm_dirty (
+            concepto TEXT PRIMARY KEY,
+            marcado_en REAL
+        )
+    """)
+    cerebro.cursor.execute("""
+        CREATE TABLE IF NOT EXISTS sdm_meta (
+            clave TEXT PRIMARY KEY,
+            valor TEXT
+        )
+    """)
+    cerebro.conn.commit()
+
+
+def marcar_sdm_dirty(cerebro, conceptos):
+    """Marca conceptos como pendientes de reindexación SDM.
+
+    Se invoca en cada creación de sinapsis NUEVA (ambos extremos) y cuando un
+    nodo cambia su contenido o peso. La marca es idempotente (INSERT OR IGNORE)
+    y nunca se consulta 'actualizado_en' al consumirla.
+    """
+    try:
+        _asegurar_tablas_reindex(cerebro)
+        ahora = time.time()
+        for c in conceptos:
+            if c:
+                cerebro.cursor.execute(
+                    "INSERT OR IGNORE INTO sdm_dirty (concepto, marcado_en) VALUES (?, ?)",
+                    (c, ahora)
+                )
+        cerebro.conn.commit()
+    except Exception:
+        pass
+
+
+def reindex_selectivo_sdm(cerebro) -> int:
+    """Reindexa SOLO los nodos del dirty-set y lo vacía por completo.
+
+    Contrato: tras la llamada el set queda vacío. Devuelve cuántos vectores se
+    recalcularon (0 si no había nada pendiente).
+    """
+    try:
+        _asegurar_tablas_reindex(cerebro)
+        cerebro.cursor.execute("SELECT concepto FROM sdm_dirty")
+        conceptos = [r[0] for r in cerebro.cursor.fetchall()]
+        if not conceptos:
+            return 0
+        count = 0
+        for concepto in conceptos:
+            if indexar_nodo_sdm(cerebro, concepto):
+                count += 1
+        cerebro.cursor.execute("DELETE FROM sdm_dirty")
+        cerebro.conn.commit()
+        return count
+    except Exception:
+        return 0
+
+
+def limpiar_sdm_dirty(cerebro):
+    """Vacía el dirty-set sin reindexar (tras un full reindex que ya cubrió todo)."""
+    try:
+        _asegurar_tablas_reindex(cerebro)
+        cerebro.cursor.execute("DELETE FROM sdm_dirty")
+        cerebro.conn.commit()
+    except Exception:
+        pass
+
+
+SDM_FULL_REINTERVAL = float(os.environ.get('BIORAG_SDM_FULL_REINTERVAL', '86400'))
+
+
+def _sdm_full_reindex_due(cerebro) -> bool:
+    """True si nunca hubo un full reindex o pasó el intervalo configurado."""
+    try:
+        _asegurar_tablas_reindex(cerebro)
+        cerebro.cursor.execute("SELECT valor FROM sdm_meta WHERE clave = 'ultimo_full_reindex'")
+        fila = cerebro.cursor.fetchone()
+        if not fila:
+            return True
+        return (time.time() - float(fila[0])) >= SDM_FULL_REINTERVAL
+    except Exception:
+        return True
+
+
+def _registrar_sdm_full_reindex(cerebro):
+    """Registra el timestamp del último full reindex en sdm_meta."""
+    try:
+        _asegurar_tablas_reindex(cerebro)
+        cerebro.cursor.execute(
+            "INSERT OR REPLACE INTO sdm_meta (clave, valor) VALUES ('ultimo_full_reindex', ?)",
+            (str(time.time()),)
+        )
+        cerebro.conn.commit()
+    except Exception:
+        pass
+
+
+# =============================================================================
 # Búsqueda
 # =============================================================================
 
