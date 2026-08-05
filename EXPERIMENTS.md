@@ -146,6 +146,22 @@ python3 scripts/diagnostico_tematico_jaccard_sinonimo.py
 
 ---
 
+## Hipótesis Pendientes
+
+### 7. Tejedora — Agujeros Estructurales (2026-08-05) → PENDIENTE
+
+**Hipótesis:** tejer sinapsis estructurales (Adamic-Adar) entre nodos con degree bajo y dimensiones compartidas mejora el recall@5 en ≥+2pp sobre el baseline, sin degradar ninguna categoría.
+
+**Estado:** plan validado por líder con 2 correcciones (cross-check cuarentena + peso como parámetro del barrido). Pendiente de ejecución. Documento completo: `docs/plan_tejedora_agujeros_estructurales.md`.
+
+**Correcciones del líder integradas:**
+1. Fase 1 excluye todo par con fila en `sinapsis_cuarentena` (bidireccional)
+2. Peso inicial de sinapsis tejida = parámetro del barrido (0.3, 0.5, 0.7, 1.0)
+
+**Semilla:** `core/dmn_engine.py` (durmiente, L130-215 muestreo resonante cortical).
+
+---
+
 ## Changelog Científico (vs. Changelog Técnico)
 
 | Versión | Hallazgo científico | Acción |
