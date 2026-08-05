@@ -1,5 +1,42 @@
 # BioRAG Changelog
 
+## v25.2 (2026-08-04)
+
+### Re-Ranking Jaccard Léxico — Activación Gradual (Cierre del Proyecto por_tema)
+
+**Objetivo:** Rescatar candidatos correctos hundidos por señales ruidosas en el ranking base, usando coincidencia léxica jaccard como señal de matching pura.
+
+**Features:**
+- **Re-ranking jaccard condicional** (`core/memory_store.py`, Fase C): re-sort del head (`topk=20`) con `score + alpha × jaccard/max_j` (alpha=0.25), gate de activación (max jaccard ventana de 50 ≥ 0.04), y **protect-r0** (restaura a posición 0 el ítem que ocupaba la primera posición antes del re-ranking — rescata hundidos, no hunde ganadores).
+- **Flag OFF por defecto** (`BIORAG_RERANKING_JACCARD_ENABLED=0`) con activación gradual monitoreada contra el benchmark — aplicando la lección de PPR.
+- **Fidelidad de réplica verificada**: 921/921 rankings idénticos al experimento.
+
+**Resultados (921 casos, corpus real 2026-08-04, peso excluido del scoring):**
+- `por_tema` Recall@5: baseline real 67.69% → **81.54%** (+13.85pp)
+- `por_tema` Recall@1: baseline real 60.00% → **76.92%** (+16.92pp)
+- Cero regresiones en variante/PN/typo/literal; R@1 global intacto (86.38)
+- Sensibilidad residual única: `sinonimo` R@5 -1 caso (id 0656, mitad A)
+
+**Corrección de veracidad (importante):** el `84.62%` histórico de por_tema (v23.1) correspondía a un snapshot de 614 nodos con backfill parcial de predicados. El baseline real sobre el corpus actual es 67.69%. Signal #12 (predicados) queda documentada con nota de canibalización — su backfill completo canibaliza la señal; queda como capacidad disponible no enganchada.
+
+**Archivos modificados:**
+- `core/memory_store.py` — `_rerank_jaccard_protect_r0`, constantes `RERANKING_JACCARD_*`, llamada condicional en `buscar_por_frase`, nota de canibalización Signal #12
+- `EXPERIMENTS.md` — bitácora de hipótesis probadas/descartadas (nuevo)
+- `README.md` — benchmark v25.2 corregido, env vars del re-ranking, badge DOI Zenodo
+- `.env.example` — variables del re-ranking jaccard
+
+**Protocolo de cierre:** activación con `BIORAG_RERANKING_JACCARD_ENABLED=1` y monitoreo del benchmark con atención específica a la categoría `sinonimo` durante los primeros días. Si `sinonimo` se mantiene estable → cierre definitivo del proyecto.
+
+**Changelog científico (ver EXPERIMENTS.md):**
+| Hallazgo | Veredicto |
+|---|---|
+| PPR (Diffusion of Heat): 0% ganancia honesta, +100–190ms | Descarta do (v25.1) |
+| FCA (Reticulados de Galois): frecuencia ≠ semántica, sin clusters coherentes | Descarta do (v25.1) |
+| Boost dimensional: techo estructural de discriminación | Descarta do (v25.0–v25.1) |
+| SDM segmento de dimensiones: multi-proyección K regresa recall | Revertido (v25.1) |
+| Signal #12 (predicados): +13.85pp era snapshot parcial; backfill completo canibaliza | Desenganchado (v25.2) |
+| Re-ranking jaccard: +13.85pp por_tema, holdout 50/50 sostiene | **Integrado** (v25.2) |
+
 ## v25.1 (2026-08-03)
 
 ### HDC Binding y Multi-Proyección SDM — Confiabilidad y Precisión de Representación

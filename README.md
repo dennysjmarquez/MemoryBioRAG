@@ -1,7 +1,7 @@
-# BioRAG v25.1 — Neocórtex Sintético con La Hormiguita, Predicados SRL, HDC Binding y Grafo Maintenance Daemon
+# BioRAG v25.2 — Neocórtex Sintético con La Hormiguita, Predicados SRL, HDC Binding y Grafo Maintenance Daemon
 
-> **Versión:** v25.1 — Agosto 2026
-> **Paradigma:** Circuito Sintético Cognitivamente Cerrado & Red por Defecto (DMN Ideación Autónoma en Reposo + GABA en Vivo + Dopamina RPE con Inercia Sináptica + Valencia Somática Cortical + Escalado Homeostático + PMI + SDM 2048-bit con Multi-Proyección K + HDC Binding + SLS + Stemmer Bilingüe + Predicados SRL + Feedback-Driven Graph Learning + La Hormiguita)
+> **Versión:** v25.2 — Agosto 2026
+> **Paradigma:** Circuito Sintético Cognitivamente Cerrado & Red por Defecto (DMN Ideación Autónoma en Reposo + GABA en Vivo + Dopamina RPE con Inercia Sináptica + Valencia Somática Cortical + Escalado Homeostático + PMI + SDM 2048-bit con Multi-Proyección K + HDC Binding + SLS + Stemmer Bilingüe + Predicados SRL + Feedback-Driven Graph Learning + La Hormiguita + Re-Ranking Jaccard Léxico)
 > **Motor:** Python puro + SQLite FTS5 WAL
 > **Dependencias ML:** 0 (mcp + nltk para WordNet, 0 numpy, 0 sentence-transformers, 0 torch, 0 dependencias C++ o CUDA)
 > **Idiomas:** Español + Inglés (stemming bilingüe ES/EN + expansión simbólica vía WordNet)
@@ -11,18 +11,20 @@
 
 ---
 
-## 📊 Benchmark y Evaluación de Rendimiento (v24.1 Validado — Zero Data Leakage)
+## 📊 Benchmark y Evaluación de Rendimiento (v25.2 Validado — Zero Data Leakage)
 
 > Metodología: **Peso excluido del scoring** (`ignore_peso_sinaptico=True`) — campo de juego nivelado sin artefactos de umbral de ruido. Determinismo verificado: 4 corridas idénticas. Tests: 116/117 (test 83 falla preexistente, documentado en v25.0).
 
 ### Comparativa de la Evolución de `por_tema`
 
-| Métrica | v18.0–v21.0 | v22.2 (PRF) | **v23.0 (Rebalanceo)** | **v23.1 (Predicados SRL)** | **v24.1 (Madurez)** | Estado |
-|---|---|---|---|---|---|---|
-| **Recall@5** | 36.92% | 58.46% | **70.77%** | **84.62%** | **84.62%** | 🚀 **+47.70 pp** |
-| **Recall@1** | 12.31% | 20.00% | **40.00%** | **58.46%** | **58.46%** | 📈 **+46.15 pp** |
+| Métrica | v18.0–v21.0 | v22.2 (PRF) | **v23.0 (Rebalanceo)** | **v23.1 (Predicados SRL)** | **v25.2 (baseline real)** | **v25.2 (+ Jaccard)** | Estado |
+|---|---|---|---|---|---|---|---|
+| **Recall@5** | 36.92% | 58.46% | **70.77%** | **84.62%** | **67.69%** | **81.54%** | 🚀 **+13.85 pp** |
+| **Recall@1** | 12.31% | 20.00% | **40.00%** | **58.46%** | **60.00%** | **76.92%** | 📈 **+16.92 pp** |
 
-### Desglose Completo por Categoría de Recuperación (921 Casos QA, v24.1)
+> **Nota de veracidad:** el `84.62%` histórico de v23.1 provenía de un snapshot con `por_tema` en un corpus de 614 nodos y backfill parcial de predicados. Medido sobre el corpus real actual (921 casos QA, 2026-08-04), el baseline real de `por_tema` es **67.69%**, y el re-ranking jaccard lo eleva a **81.54%** (+13.85pp) con protecciones (protect-r0, gate 0.04, topk 20) que eliminan las regresiones. Ver `EXPERIMENTS.md` para la narrativa completa.
+
+### Desglose Completo por Categoría de Recuperación (921 Casos QA, v25.2 + Jaccard)
 
 - `dormido`: **100.00%** Recall@5 — 0 fallos
 - `literal`: **100.00%** Recall@5 — 0 fallos
@@ -31,13 +33,24 @@
 - `pregunta_natural`: **100.00%** Recall@5 — 0 fallos
 - `cruce_idioma`: **87.50%** Recall@5 — 1 fallo
 - `sinonimo`: **80.33%** Recall@5 — 12 fallos
-- `por_tema`: **84.62%** Recall@5 — 8 fallos (reducido de 27)
+- `por_tema`: **81.54%** Recall@5 — 12 fallos (reducido de 27; único baseline con ganancia real medido en corpus actual)
 
 > **GLOBAL SUMMARY (921 casos):** Recall@5: **97.05%** | FP Negativo: **7.5%** (3/40, sin regresión)
 
 > **Validación de determinismo:** 4 corridas consecutivas idénticas → misma tabla. Snapshot reproducible en `snapshots/ablation_parent_pointers.db`.
 
-> **Scoring híbrido: 12 señales.** Incluye Predicados SRL como Signal #12 (+13.85pp por_tema), Feedback-Driven Graph Learning (LTP asintótico sobre aristas de spreading activation), La Hormiguita para mantenimiento autónomo del grafo con cuarentena y benchmark gate. Experiments rechazados documentados: JSD, Bayesian BM25.
+> **Scoring híbrido: 12 señales.** Incluye Predicados SRL como Signal #12 (peso 0.20, capacidad de backfill restante, documentada con nota de canibalización), Feedback-Driven Graph Learning (LTP asintótico sobre aristas de spreading activation), La Hormiguita para mantenimiento autónomo del grafo con cuarentena y benchmark gate, y **re-ranking jaccard léxico (v25.2)** como señal de matching en `por_tema` (+13.85pp). Experiments rechazados documentados: JSD, Bayesian BM25, PPR (Diffusión de Calor), FCA (Reticulados de Galois), boost dimensional. Ver `EXPERIMENTS.md`.
+
+---
+
+## 📑 Registro Científico y Validación
+
+### 🔬 Registro Oficial (DOI)
+> **Certificado por Zenodo/CERN para integridad académica y preservación técnica.**
+>
+> [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.21204977.svg)](https://doi.org/10.5281/zenodo.21204977)
+>
+> [Ver registro en Zenodo](https://zenodo.org/records/21204978)
 
 ---
 
@@ -322,7 +335,7 @@ Si match_exacto (query == concepto): floor 0.95
 Si sinonimos_ratio >= 0.95: floor 0.65
 ```
 
-**Signal #12 — Predicados SRL (v23.1):** Keywords extraídos del contenido de cada nodo. Peso 0.20. Mejoró por_tema Recall@5 de 70.77% → 84.62% (+13.85pp) y Recall@1 de 35.38% → 58.46% (+23.08pp) sin regresión de FP.
+**Signal #12 — Predicados SRL (v23.1):** Keywords extraídas del contenido de cada nodo. Peso 0.20. El claim histórico de +13.85pp por_tema correspondía a un snapshot parcial (backfill de predicados en 614 nodos); el backfill completo canibalizaba la señal y se desenganchó. Medido sobre el corpus real (921 casos, 2026-08-04), Signal #12 **no sostiene ganancia** en el baseline y queda documentada como capacidad disponible (nota de canibalización junto al peso en `memory_store.py`). La ganancia real de `por_tema` en v25.2 proviene del **re-ranking jaccard léxico** (+13.85pp).
 
 **Evolución de pesos (v18.0 → v23.0):**
 - `bm25_norm`: 0.14 → **0.25** (+78.6%) — BM25 es la señal más informativa
@@ -1045,6 +1058,17 @@ DESPUES DE CADA PASO: Leer resultados y explicar con propias palabras
 |---|---|---|
 | `BIORAG_RAFTAGA_ACTIVA` | `true` | Activa/desactiva la ráfaga |
 | `BIORAG_THRESHOLD_RAFTAGA` | `0.5` | Score mínimo para activar ráfaga automática |
+
+### Re-Ranking Jaccard Léxico (v25.2)
+
+| Variable | Default | Descripción |
+|---|---|---|
+| `BIORAG_RERANKING_JACCARD_ENABLED` | `0` | Activa el re-ranking jaccard en el top-k de `buscar_por_frase` (validado: +13.85pp por_tema, ver EXPERIMENTS.md) |
+| `BIORAG_RERANKING_JACCARD_ALPHA` | `0.25` | Peso del boost jaccard en el re-sort (score + alpha × jaccard/max_j) |
+| `BIORAG_RERANKING_JACCARD_GATE` | `0.04` | Si max jaccard de la ventana < gate, no re-ordenar (evita ruido) |
+| `BIORAG_RERANKING_JACCARD_TOPK` | `20` | Tamaño del head sobre el que se aplica el re-sort |
+| `BIORAG_RERANKING_JACCARD_WINDOW` | `50` | Ventana del pool sobre la que se calcula max_jaccard para el gate |
+| `BIORAG_RERANKING_JACCARD_PROTECT_R0` | `1` | Protege el resultado rank-0 original (elimina regresiones R1, ver experimento Fase B) |
 
 ### Caducidad Temporal (Staleness)
 

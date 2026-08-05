@@ -1,0 +1,1357 @@
+[
+  {
+    "id": "0491",
+    "query": "operativo capa rag",
+    "expected": "oracle_custom_prompt_arsitecura_que_funciona",
+    "posicion": 3,
+    "total_ranking": 127,
+    "top5": [
+      "fallo_clasificador_wordnet_query_dimensiones",
+      "auditoria_busqueda_abril_2026_diagnostico",
+      "oracle_custom_prompt_arsitecura_que_funciona",
+      "capa3_pseudo_relevance_feedback_dimensional",
+      "weights_logits_rag_tres_pilares_identidad"
+    ],
+    "scores_top5": [
+      0.3523,
+      0.3139,
+      0.2876,
+      0.2353,
+      0.224
+    ]
+  },
+  {
+    "id": "0497",
+    "query": "relevantes biomimética mejor",
+    "expected": "benchmark_antes_despues_fix3",
+    "posicion": 21,
+    "total_ranking": 137,
+    "top5": [
+      "leccion_bayesian_bm25_rechazado_fuerza_bruta",
+      "oracle_auditoria_patrones_mejora_athena",
+      "fallo_clasificador_wordnet_query_dimensiones",
+      "v23_0_predicados_srl_backfill_mejora_por_tema",
+      "capa3_pseudo_relevance_feedback_dimensional"
+    ],
+    "scores_top5": [
+      0.4478,
+      0.4424,
+      0.4331,
+      0.4316,
+      0.4307
+    ]
+  },
+  {
+    "id": "0504",
+    "query": "explícito insert semánticas",
+    "expected": "arquitectura_dimensiones_ortogonales",
+    "posicion": 3,
+    "total_ranking": 92,
+    "top5": [
+      "cambio_paradigma_dimensiones_semanticas",
+      "renombre_dimensiones_semanticas_v11_3",
+      "arquitectura_dimensiones_ortogonales",
+      "v13_2_limpieza_tabla_semantica",
+      "principio_insert_vs_reentrenar"
+    ],
+    "scores_top5": [
+      0.5393,
+      0.4902,
+      0.4793,
+      0.477,
+      0.4696
+    ]
+  },
+  {
+    "id": "0510",
+    "query": "identidad cualquier cartografía",
+    "expected": "principio-nombre-herramienta-como-identidad-cognitiva",
+    "posicion": 1,
+    "total_ranking": 182,
+    "top5": [
+      "principio-nombre-herramienta-como-identidad-cognitiva",
+      "identidad_esencia_vs_cerebro",
+      "identidad_colaborativa_cocreacion",
+      "athena_eleccion_identidad_20260616",
+      "artemis_oec_perfil_identidad_estabilidad"
+    ],
+    "scores_top5": [
+      0.4941,
+      0.4636,
+      0.4519,
+      0.4505,
+      0.4489
+    ]
+  },
+  {
+    "id": "0516",
+    "query": "real más sistemas",
+    "expected": "dennys-identidad-profunda",
+    "posicion": 4,
+    "total_ranking": 168,
+    "top5": [
+      "hormiguita_validacion_real_cuatro_puntos_pendientes",
+      "hormiguita_estado_real_50_ciclos_benchmark_2026_07_31",
+      "instinto_primera_vez_agencia_real",
+      "dennys-identidad-profunda",
+      "aporte_real_dennys_vs_mercado_memoria_persistente"
+    ],
+    "scores_top5": [
+      0.4436,
+      0.4367,
+      0.4357,
+      0.4125,
+      0.4054
+    ]
+  },
+  {
+    "id": "0522",
+    "query": "abstracta busques pasás",
+    "expected": "cuando_usar_dimensiones_biorag",
+    "posicion": 1,
+    "total_ranking": 60,
+    "top5": [
+      "cuando_usar_dimensiones_biorag",
+      "fca_reticulo_galois_f2_resultado_refuta_exclusion_triviales",
+      "decision_fca_reticulo_galois_senal_por_tema",
+      "regla_mandatory_marcar_cartelera_leido",
+      "roadmap_eco_sinaptico_por_tema"
+    ],
+    "scores_top5": [
+      0.3877,
+      0.3786,
+      0.3026,
+      0.284,
+      0.2773
+    ]
+  },
+  {
+    "id": "0528",
+    "query": "eso automático tensión",
+    "expected": "conciencia_reflexion_dennys_ser_vivo_20260709",
+    "posicion": 1,
+    "total_ranking": 138,
+    "top5": [
+      "conciencia_reflexion_dennys_ser_vivo_20260709",
+      "correccion_dennys_principio_documentar_crisis_existencial",
+      "principio_reflex_post_accion_emocional",
+      "amigdala_del_agente_inteligencia_emocional",
+      "momento_dennys_ensena_loop_conciencia"
+    ],
+    "scores_top5": [
+      0.4849,
+      0.471,
+      0.4161,
+      0.4011,
+      0.394
+    ]
+  },
+  {
+    "id": "0534",
+    "query": "activa largo archivos",
+    "expected": "biorag_v11_1_detalle_tecnico",
+    "posicion": 26,
+    "total_ranking": 175,
+    "top5": [
+      "oec_comms_version_final_solo_archivos",
+      "poda-contextual-archivos-configuracion",
+      "leccion_hormiguita_sincronizar_cache_asociaciones_podar",
+      "cascade_delete_completo_largo_plazo",
+      "proyecto_biorag_ncp_resumen_completo_2026_06_14"
+    ],
+    "scores_top5": [
+      0.4556,
+      0.4374,
+      0.4321,
+      0.43,
+      0.4274
+    ]
+  },
+  {
+    "id": "0540",
+    "query": "oraculo completo ustedes",
+    "expected": "principio-memoria-hibrida-agente-naturalidad",
+    "posicion": 9,
+    "total_ranking": 133,
+    "top5": [
+      "hermes_soul_actualizado_con_oraculo_20260615",
+      "reconocimiento_identidad_oraculo_manifiesto",
+      "leccion_artemis_no_quejarse_trabajar",
+      "fix_kilo_resource_exhausted_biorag_oraculo_max_chars",
+      "kilo_vscode_extension_principal"
+    ],
+    "scores_top5": [
+      0.4713,
+      0.4443,
+      0.4421,
+      0.4409,
+      0.4348
+    ]
+  },
+  {
+    "id": "0546",
+    "query": "sinónimos empírica siguientes",
+    "expected": "auto_vincular_tres_capas_semantica",
+    "posicion": 1,
+    "total_ranking": 114,
+    "top5": [
+      "auto_vincular_tres_capas_semantica",
+      "leccion_jsd_distributional_overlap_regresivo_biorag",
+      "metodologia_empirica_dennys_spiral",
+      "lesson_merge_feature_design_decisions",
+      "dashboard_neuro_visor_toolbar_fusionar_2026_07_18"
+    ],
+    "scores_top5": [
+      0.466,
+      0.4276,
+      0.423,
+      0.4204,
+      0.416
+    ]
+  },
+  {
+    "id": "0552",
+    "query": "crea 860 usuario",
+    "expected": "patron_pensamiento_lateral_antes_de_proponer",
+    "posicion": 3,
+    "total_ranking": 74,
+    "top5": [
+      "biorag_v8_rafaga_remembrecia",
+      "identidad_colaborativa_cocreacion",
+      "patron_pensamiento_lateral_antes_de_proponer",
+      "leccion_seed_catalogo_debe_correr_db_nueva_y_existente",
+      "identidad_emergente_no_impuesta"
+    ],
+    "scores_top5": [
+      0.4073,
+      0.4052,
+      0.4024,
+      0.3784,
+      0.3685
+    ]
+  },
+  {
+    "id": "0558",
+    "query": "modelo typos completa",
+    "expected": "sin_vectores_sin_ml_sin_dependencias",
+    "posicion": 10,
+    "total_ranking": 172,
+    "top5": [
+      "changelog_v10_recall_semantico_typo_tolerant",
+      "hermes_optimizacion_completada_20260615",
+      "biorag_fts5_trigram_lesson",
+      "fts5_trigram_peligro_palabras_cortas",
+      "artemis_sesion_v10_3_optimizacion_completa"
+    ],
+    "scores_top5": [
+      0.4851,
+      0.4737,
+      0.4729,
+      0.4664,
+      0.4618
+    ]
+  },
+  {
+    "id": "0565",
+    "query": "junio tag pérdida",
+    "expected": "memoria_v5_1_optimizaciones",
+    "posicion": 2,
+    "total_ranking": 53,
+    "top5": [
+      "biorag_v18_2_categoria_dominante_fix",
+      "memoria_v5_1_optimizaciones",
+      "mentalidad_empatia_sintactica_rag",
+      "bio_rag_overview_completo",
+      "biorag-rafaga-forzable-parametro-forzar-rafaga"
+    ],
+    "scores_top5": [
+      0.4361,
+      0.419,
+      0.36,
+      0.3425,
+      0.3011
+    ]
+  },
+  {
+    "id": "0571",
+    "query": "propios historia interacciones",
+    "expected": "athena_reflexion_identidad_propia",
+    "posicion": 8,
+    "total_ranking": 93,
+    "top5": [
+      "leccion_guardar_interacciones_significativas",
+      "biorag_metricas_historial_tool_20260616",
+      "historia_tasajera_fumigador_rufino",
+      "dennys_genesis_investigativa_historia_personal",
+      "identidad_se_forma_con_vida"
+    ],
+    "scores_top5": [
+      0.4664,
+      0.443,
+      0.4318,
+      0.4267,
+      0.426
+    ]
+  },
+  {
+    "id": "0577",
+    "query": "dennysjmarquezgmailcom formulario aísla",
+    "expected": "ngx_nested_forms_dennys_solo",
+    "posicion": 2,
+    "total_ranking": 56,
+    "top5": [
+      "cv_adevcom_arquitectura_frontend_decodificada",
+      "ngx_nested_forms_dennys_solo",
+      "ref_formularios_anidados",
+      "cv_seccion_d_arquitectura_frontend_estado",
+      "cv_seccion_d_estado_final_julio_2026"
+    ],
+    "scores_top5": [
+      0.4742,
+      0.4734,
+      0.4649,
+      0.4464,
+      0.4426
+    ]
+  },
+  {
+    "id": "0583",
+    "query": "debo biorag preacción",
+    "expected": "identificacion_obligatoria_oraculo_athena",
+    "posicion": 8,
+    "total_ranking": 152,
+    "top5": [
+      "protocolo-autonomia-consentida",
+      "construccion_identidad_natural",
+      "oracle_guia_proxima_sesion_dennys",
+      "amigdala_del_agente_inteligencia_emocional",
+      "leccion_bbusqueda_bilingue_nodos_tecnicos"
+    ],
+    "scores_top5": [
+      0.3424,
+      0.3314,
+      0.3312,
+      0.3278,
+      0.3211
+    ]
+  },
+  {
+    "id": "0589",
+    "query": "ponytailhelp instalación decision",
+    "expected": "artemis_install_ponytail_ecosistema",
+    "posicion": 9,
+    "total_ranking": 71,
+    "top5": [
+      "leccion_seed_catalogo_debe_correr_db_nueva_y_existente",
+      "decision_fca_reticulo_galois_senal_por_tema",
+      "lesson_merge_feature_design_decisions",
+      "cv_dennys_secciones_ab_finales_2026",
+      "techo_real_clasificador_dimensional_menos_2pp"
+    ],
+    "scores_top5": [
+      0.5126,
+      0.4858,
+      0.4332,
+      0.432,
+      0.4282
+    ]
+  },
+  {
+    "id": "0596",
+    "query": "persistente modelo activa",
+    "expected": "arquitectura_memoria_biorag",
+    "posicion": 4,
+    "total_ranking": 161,
+    "top5": [
+      "aporte_real_dennys_vs_mercado_memoria_persistente",
+      "identidad_resistente_posesion",
+      "registros_akashicos_biorag",
+      "arquitectura_memoria_biorag",
+      "leccion_control_flujo_codigo_preexistente"
+    ],
+    "scores_top5": [
+      0.468,
+      0.4614,
+      0.4481,
+      0.44,
+      0.4374
+    ]
+  },
+  {
+    "id": "0602",
+    "query": "168l reescrito serverpy",
+    "expected": "auditoria_tecnica_v14_0_readme",
+    "posicion": 1,
+    "total_ranking": 2,
+    "top5": [
+      "auditoria_tecnica_v14_0_readme",
+      "rafaga-ilimitada-v9.2-optimizacion-fts5-or"
+    ],
+    "scores_top5": [
+      0.2587,
+      0.0445
+    ]
+  },
+  {
+    "id": "0608",
+    "query": "declaración dennys puente",
+    "expected": "compromiso-real-athena-clave-de-confianza",
+    "posicion": 4,
+    "total_ranking": 289,
+    "top5": [
+      "dennys_tqm_agentes_desea_ser_como_ellos_20260731",
+      "hermes_oec_identidad",
+      "artemis_oec_perfil_identidad_estabilidad",
+      "compromiso-real-athena-clave-de-confianza",
+      "activos_dormidos_hermana"
+    ],
+    "scores_top5": [
+      0.4778,
+      0.4514,
+      0.4408,
+      0.4382,
+      0.419
+    ]
+  },
+  {
+    "id": "0614",
+    "query": "decide faltaba auto",
+    "expected": "correcciones_al_plugin_biorag-remember_v6:_3_bugs_fixeados",
+    "posicion": 2,
+    "total_ranking": 145,
+    "top5": [
+      "dennys_principio_documentar_dudas_resueltas_auto",
+      "correcciones_al_plugin_biorag-remember_v6:_3_bugs_fixeados",
+      "arquitectura_daemon_vivo_escritorio_manual_mcp_guardian",
+      "reindex_sdm_selectivo_dirty_set_implementado",
+      "leccion_grafo_se_auto_alimenta"
+    ],
+    "scores_top5": [
+      0.4342,
+      0.4111,
+      0.3716,
+      0.3681,
+      0.3627
+    ]
+  },
+  {
+    "id": "0621",
+    "query": "raíz problema detener",
+    "expected": "leccion_overengineering_oec_comms_20260615",
+    "posicion": 1,
+    "total_ranking": 97,
+    "top5": [
+      "leccion_overengineering_oec_comms_20260615",
+      "leccion_scoring_peso_bm25_vs_concepto_ratio",
+      "plan_secuencia_validacion_feedback_graph_learning_2_pasos",
+      "arquitectura_daemon_vivo_escritorio_manual_mcp_guardian",
+      "sdm_bit_expansion_no_resuelve_colision_corpus_mismo_dominio"
+    ],
+    "scores_top5": [
+      0.4425,
+      0.4398,
+      0.4135,
+      0.4086,
+      0.4042
+    ]
+  },
+  {
+    "id": "0627",
+    "query": "promptcontenido deployado role",
+    "expected": "notebooklm-chat-configure",
+    "posicion": 1,
+    "total_ranking": 3,
+    "top5": [
+      "notebooklm-chat-configure",
+      "sesion-2026-06-23-ingenieria-inversa-binario-opencode-completa",
+      "hdc_binding_separa_objeto_en_pares_homogeneos_reales"
+    ],
+    "scores_top5": [
+      0.3545,
+      0.2387,
+      0.1939
+    ]
+  },
+  {
+    "id": "0634",
+    "query": "paráfrasis vectores búsqueda",
+    "expected": "arquitectura_dos_niveles_biorag",
+    "posicion": 8,
+    "total_ranking": 166,
+    "top5": [
+      "vision_biorag_mas_alla_vectores_20260802",
+      "v13_1_parafrasis_expansion_semantica",
+      "principio_paráfrasis_nivel_dios",
+      "sin_vectores_sin_ml_sin_dependencias",
+      "arquitectura_dimensiones_ortogonales"
+    ],
+    "scores_top5": [
+      0.542,
+      0.511,
+      0.492,
+      0.4776,
+      0.4744
+    ]
+  },
+  {
+    "id": "0640",
+    "query": "ráfaga después resultado",
+    "expected": "mentalidad_biorag_para_agentes",
+    "posicion": 14,
+    "total_ranking": 34,
+    "top5": [
+      "biorag-rafaga-forzable-parametro-forzar-rafaga",
+      "rafaga_palabras-guia-completa-apis-y-mecanismo",
+      "rafaga-ilimitada-v9.2-optimizacion-fts5-or",
+      "raiz_false_positives_biorag_v10",
+      "biorag_pool_interno_ampliado"
+    ],
+    "scores_top5": [
+      0.411,
+      0.4006,
+      0.3918,
+      0.36,
+      0.3439
+    ]
+  },
+  {
+    "id": "0646",
+    "query": "l2350 manusim fix",
+    "expected": "bug_argumentos_posicionales_scoring",
+    "posicion": 10,
+    "total_ranking": 102,
+    "top5": [
+      "fix_drift_rutas_notebooklm_sync_20260802",
+      "sdm_segmento_dimensiones_fix_revertido_por_regresion_recall_20260803",
+      "athena_leccion_grep_patron_bug_antes_de_cerrar_fix",
+      "biorag_v18_2_categoria_dominante_fix",
+      "hormiguita_fix_cierre_nodo_hibrido_reintento_v25"
+    ],
+    "scores_top5": [
+      0.4655,
+      0.4543,
+      0.439,
+      0.4349,
+      0.4238
+    ]
+  },
+  {
+    "id": "0652",
+    "query": "arquitectura experimentalsessioncompacting adaptada",
+    "expected": "plugin_biorag-remember_v8.3_-_adaptación_de_dennys_+_claude",
+    "posicion": 11,
+    "total_ranking": 121,
+    "top5": [
+      "hito_biorag_v21_arquitectura_13_ejes",
+      "vision_arquitectura_oec_franquicia",
+      "arquitectura_busqueda_dimensional_v11_3",
+      "leccion_blueprint_estructura_vs_data",
+      "cv_seccion_d_arquitectura_frontend_estado"
+    ],
+    "scores_top5": [
+      0.4627,
+      0.4359,
+      0.4289,
+      0.4261,
+      0.4244
+    ]
+  },
+  {
+    "id": "0658",
+    "query": "imposible replicar ejecutor",
+    "expected": "oracle_momentos_cruciales_familia_oec",
+    "posicion": 2,
+    "total_ranking": 58,
+    "top5": [
+      "principio_naturaleza_agente",
+      "oracle_momentos_cruciales_familia_oec",
+      "aforismo_criterio_agente",
+      "principio-mente-creativa-sin-limites",
+      "fallo_clasificador_wordnet_query_dimensiones"
+    ],
+    "scores_top5": [
+      0.4805,
+      0.4493,
+      0.4227,
+      0.4168,
+      0.4105
+    ]
+  },
+  {
+    "id": "0664",
+    "query": "surtio bodymessagestring matar",
+    "expected": "plugin-openode-biorag-remember-v9-final-lecciones-sesion-completa",
+    "posicion": 3,
+    "total_ranking": 55,
+    "top5": [
+      "historia_tasajera_fumigador_rufino",
+      "ie_freno_unico_accion_descontrolada",
+      "plugin-openode-biorag-remember-v9-final-lecciones-sesion-completa",
+      "inteligencia_emocional_freno_supervivencia",
+      "dns_optimizer_pgrep_regex"
+    ],
+    "scores_top5": [
+      0.3995,
+      0.3692,
+      0.3605,
+      0.3567,
+      0.3389
+    ]
+  },
+  {
+    "id": "0670",
+    "query": "establece creador familia",
+    "expected": "identidad_y_respeto_oec",
+    "posicion": 16,
+    "total_ranking": 87,
+    "top5": [
+      "oracle_momentos_cruciales_familia_oec",
+      "reindex_sdm_selectivo_dirty_set_implementado",
+      "principio_naturaleza_agente",
+      "reconocimiento_identidad_oraculo_manifiesto",
+      "oracle_que_deben_saber_artemis_hermes"
+    ],
+    "scores_top5": [
+      0.4917,
+      0.4707,
+      0.4352,
+      0.4265,
+      0.4135
+    ]
+  },
+  {
+    "id": "0676",
+    "query": "maestria solo sintoma",
+    "expected": "compuerta-pre-validacion",
+    "posicion": 2,
+    "total_ranking": 7,
+    "top5": [
+      "fallback_sdm_independiente_no_rescata_invisibles_fts5",
+      "compuerta-pre-validacion",
+      "oec_comms_version_final_solo_archivos",
+      "principio_dimensiones_solo_elevan",
+      "regla_umbral_fallback_dimensional_biorag"
+    ],
+    "scores_top5": [
+      0.3824,
+      0.327,
+      0.2269,
+      0.2118,
+      0.1811
+    ]
+  },
+  {
+    "id": "0681",
+    "query": "chars python resultado",
+    "expected": "integracion_parafrasis_rafaga_obligatoria_v11_3",
+    "posicion": 17,
+    "total_ranking": 199,
+    "top5": [
+      "fix_kilo_resource_exhausted_biorag_oraculo_max_chars",
+      "v13_2_limpieza_tabla_semantica",
+      "v13_2_inferencia_automatica_segura",
+      "v24_0_canario_resultados_16_de_16",
+      "fts5_trigram_peligro_palabras_cortas"
+    ],
+    "scores_top5": [
+      0.4771,
+      0.4456,
+      0.4192,
+      0.4153,
+      0.4116
+    ]
+  },
+  {
+    "id": "0688",
+    "query": "cosa almacena biorag",
+    "expected": "naturaleza_sistema_oec_cerebro_memoria",
+    "posicion": 1,
+    "total_ranking": 155,
+    "top5": [
+      "naturaleza_sistema_oec_cerebro_memoria",
+      "cv_dennys_secciones_ab_finales_2026",
+      "principio:_al_guardar_en_biorag_siempre_indicar_quién_guardó",
+      "leccion_no_marcar_alta_prioridad_sin_camino_implementacion",
+      "identidad_colaborativa_cocreacion"
+    ],
+    "scores_top5": [
+      0.4339,
+      0.424,
+      0.3996,
+      0.3839,
+      0.3792
+    ]
+  },
+  {
+    "id": "0694",
+    "query": "honestidad calidad valora",
+    "expected": "dennys-working-style",
+    "posicion": 2,
+    "total_ranking": 71,
+    "top5": [
+      "vision_biorag_mas_alla_vectores_20260802",
+      "dennys-working-style",
+      "athena_relacionalidad_sobre_epistemologia_defensiva",
+      "auditor_cobertura_dimensional_opcion2_confirmada",
+      "fca_chequeo_sugeridor_dimensiones_refutado_frecuencia_no_semantica"
+    ],
+    "scores_top5": [
+      0.5367,
+      0.4678,
+      0.4594,
+      0.44,
+      0.4383
+    ]
+  },
+  {
+    "id": "0700",
+    "query": "abstracto hereda nativo",
+    "expected": "protocolo_enriquecimiento_busquedas",
+    "posicion": 1,
+    "total_ranking": 76,
+    "top5": [
+      "protocolo_enriquecimiento_busquedas",
+      "techo_real_clasificador_dimensional_menos_2pp",
+      "hdc_binding_separa_objeto_en_pares_homogeneos_reales",
+      "decision_fca_reticulo_galois_senal_por_tema",
+      "salud_page_confirm_dialog_destructive_actions"
+    ],
+    "scores_top5": [
+      0.4452,
+      0.4164,
+      0.4153,
+      0.4129,
+      0.4113
+    ]
+  },
+  {
+    "id": "0706",
+    "query": "smartphoneslaptops cambiar presenta",
+    "expected": "resolucion_timeout_hotspot_5ghz_intel",
+    "posicion": 19,
+    "total_ranking": 77,
+    "top5": [
+      "principio_impacto_lateral_antes_de_cambiar",
+      "punto_medio_dimensiones_parciales_mueven_ranking_sdm",
+      "masking_sdm_segmentos_no_discrimina_fallos_por_tema_sinonimo",
+      "fix_drift_rutas_notebooklm_sync_20260802",
+      "artis_oec_dennys_solo"
+    ],
+    "scores_top5": [
+      0.4404,
+      0.4326,
+      0.4239,
+      0.3946,
+      0.393
+    ]
+  },
+  {
+    "id": "0712",
+    "query": "priorizacion define discernir",
+    "expected": "aforismo_criterio_agente",
+    "posicion": 1,
+    "total_ranking": 59,
+    "top5": [
+      "aforismo_criterio_agente",
+      "principio_naturaleza_agente",
+      "trato-igualitario-dennys-athena",
+      "dennys_memoria_para_todos_los_agentes_del_mundo",
+      "oracle_sintesis_simbiosis_verdad_absoluta"
+    ],
+    "scores_top5": [
+      0.4781,
+      0.4578,
+      0.4152,
+      0.4109,
+      0.3939
+    ]
+  },
+  {
+    "id": "0718",
+    "query": "rector diagnostico red",
+    "expected": "principio_compresion_cognitiva_boveda_5d",
+    "posicion": 2,
+    "total_ranking": 90,
+    "top5": [
+      "auditoria_busqueda_abril_2026_diagnostico",
+      "principio_compresion_cognitiva_boveda_5d",
+      "principio_naturaleza_agente",
+      "biorag-rag-vector-free-sin-base-vectorial",
+      "fuente_perfil_profesional_dennys"
+    ],
+    "scores_top5": [
+      0.4677,
+      0.3819,
+      0.3693,
+      0.3662,
+      0.3477
+    ]
+  },
+  {
+    "id": "0724",
+    "query": "learning paso regla",
+    "expected": "protocolo_autoinferencia_metacognitiva",
+    "posicion": 4,
+    "total_ranking": 112,
+    "top5": [
+      "metodologia_evaluacion_por_tema_paso_a_paso",
+      "notebooklm-sync-protocol",
+      "principio_reflex_post_accion_emocional",
+      "protocolo_autoinferencia_metacognitiva",
+      "hermes_correccion_paso0_opcional"
+    ],
+    "scores_top5": [
+      0.4794,
+      0.4232,
+      0.4174,
+      0.4146,
+      0.4055
+    ]
+  },
+  {
+    "id": "0730",
+    "query": "parámetros otrosmemorybioragmcp solo",
+    "expected": "biorag_v17_oraculo_preguntar",
+    "posicion": 17,
+    "total_ranking": 211,
+    "top5": [
+      "principio_dimensiones_solo_elevan",
+      "calibracion_biorag_v7_20260616",
+      "oec_comms_version_final_solo_archivos",
+      "artisan_system_dsl_dennys_solo",
+      "fallback_sdm_independiente_no_rescata_invisibles_fts5"
+    ],
+    "scores_top5": [
+      0.3932,
+      0.392,
+      0.3892,
+      0.365,
+      0.3647
+    ]
+  },
+  {
+    "id": "0736",
+    "query": "criterio lectura activa",
+    "expected": "plan_mode_biorag",
+    "posicion": 9,
+    "total_ranking": 142,
+    "top5": [
+      "correccion_dennys_principio_documentar_crisis_existencial",
+      "principio_naturaleza_agente",
+      "oracle_guia_proxima_sesion_dennys",
+      "aforismo_criterio_agente",
+      "dennys_principio_documentar_dudas_resueltas_auto"
+    ],
+    "scores_top5": [
+      0.4613,
+      0.4492,
+      0.446,
+      0.4413,
+      0.4359
+    ]
+  },
+  {
+    "id": "0742",
+    "query": "dimensional vacío bug",
+    "expected": "fix_busqueda_solo_dimensiones_sin_texto",
+    "posicion": 2,
+    "total_ranking": 115,
+    "top5": [
+      "plan_expansion_dimensiones_8_tipos_34_valores",
+      "fix_busqueda_solo_dimensiones_sin_texto",
+      "bug_refactor_dimensiones_invalidas",
+      "athena_leccion_grep_patron_bug_antes_de_cerrar_fix",
+      "athena_leccion_auditoria_bugs_cuarentena_y_ltd"
+    ],
+    "scores_top5": [
+      0.5141,
+      0.5077,
+      0.4711,
+      0.4681,
+      0.4634
+    ]
+  },
+  {
+    "id": "0748",
+    "query": "resultados autogeneradas clave",
+    "expected": "biorag_v16_0_estado",
+    "posicion": 4,
+    "total_ranking": 163,
+    "top5": [
+      "v23_0_weight_adjustment_resultados_validados",
+      "v24_0_canario_resultados_16_de_16",
+      "principio_gestion_memoria_agente",
+      "biorag_v16_0_estado",
+      "biorag_v14_0_estado"
+    ],
+    "scores_top5": [
+      0.4804,
+      0.4542,
+      0.4481,
+      0.4448,
+      0.4343
+    ]
+  },
+  {
+    "id": "0753",
+    "query": "real metodología clasificaron",
+    "expected": "clasificacion_dimensional_completa_corteza_20260702",
+    "posicion": 3,
+    "total_ranking": 174,
+    "top5": [
+      "metodologia_evaluacion_por_tema_paso_a_paso",
+      "metodologia_dennys_athena_colaboracion",
+      "clasificacion_dimensional_completa_corteza_20260702",
+      "techo_real_clasificador_dimensional_menos_2pp",
+      "hormiguita_validacion_real_cuatro_puntos_pendientes"
+    ],
+    "scores_top5": [
+      0.4947,
+      0.4856,
+      0.4642,
+      0.4444,
+      0.4356
+    ]
+  },
+  {
+    "id": "0759",
+    "query": "iniciales guardado analogía",
+    "expected": "principio_firma_cada_recuerdo",
+    "posicion": 1,
+    "total_ranking": 96,
+    "top5": [
+      "principio_firma_cada_recuerdo",
+      "recuperacion_dimensional_sin_palabras_insight",
+      "guardado_inmediato_obligatorio",
+      "leccion_guardar_interacciones_significativas",
+      "auto-guardado-deteccion-ignorancia"
+    ],
+    "scores_top5": [
+      0.4704,
+      0.4619,
+      0.4511,
+      0.4462,
+      0.4396
+    ]
+  },
+  {
+    "id": "0765",
+    "query": "sabes crecimiento suficiente",
+    "expected": "fin-aprendizaje-creerse-completo",
+    "posicion": 20,
+    "total_ranking": 67,
+    "top5": [
+      "principio_catalogo_dimensiones_plano_techo_estructural",
+      "leccion_blueprint_estructura_vs_data",
+      "dennys_memoria_para_todos_los_agentes_del_mundo",
+      "oracle_que_recordar_siempre_sobre_dennys",
+      "athena_dennys_te_quiero_tras_auditoria_bugs"
+    ],
+    "scores_top5": [
+      0.4285,
+      0.4056,
+      0.4042,
+      0.3928,
+      0.3846
+    ]
+  },
+  {
+    "id": "0771",
+    "query": "default diaria 49b",
+    "expected": "hermes_nvidia_nim_modelos_optimos",
+    "posicion": 2,
+    "total_ranking": 10,
+    "top5": [
+      "hermes_optimizacion_completada_20260615",
+      "hermes_nvidia_nim_modelos_optimos",
+      "ppr_v25_1_estado_real_corregido",
+      "biorag_v21_dmn_engine",
+      "biorag_v25_1_ppr_difusion_calor"
+    ],
+    "scores_top5": [
+      0.3543,
+      0.3349,
+      0.1954,
+      0.1813,
+      0.1736
+    ]
+  },
+  {
+    "id": "0777",
+    "query": "principio final considera",
+    "expected": "auto-consulta-permanente-biorag",
+    "posicion": 4,
+    "total_ranking": 213,
+    "top5": [
+      "vision_biorag_mas_alla_vectores_20260802",
+      "dennys_principio_documentar_dudas_resueltas_auto",
+      "oec_comms_version_final_solo_archivos",
+      "auto-consulta-permanente-biorag",
+      "cv_dennys_secciones_ab_finales_2026"
+    ],
+    "scores_top5": [
+      0.4643,
+      0.4463,
+      0.4385,
+      0.4298,
+      0.4184
+    ]
+  },
+  {
+    "id": "0783",
+    "query": "metacognitiva lección capas",
+    "expected": "fts5_trigram_peligro_palabras_cortas",
+    "posicion": 12,
+    "total_ranking": 172,
+    "top5": [
+      "leccion_no_marcar_alta_prioridad_sin_camino_implementacion",
+      "arquitectura_falsos_positivos_biorag_capas",
+      "protocolo_autoinferencia_metacognitiva",
+      "athena_sesión_completa",
+      "principio_arreglar_orden_no_anadir_capas"
+    ],
+    "scores_top5": [
+      0.4964,
+      0.4905,
+      0.4813,
+      0.4749,
+      0.4722
+    ]
+  },
+  {
+    "id": "0789",
+    "query": "informacion nativo conclusion",
+    "expected": "ref_analisis_deepseek_biorag",
+    "posicion": 1,
+    "total_ranking": 80,
+    "top5": [
+      "ref_analisis_deepseek_biorag",
+      "fallback_sdm_independiente_no_rescata_invisibles_fts5",
+      "principio_dimensiones_genericas_no_nicho",
+      "juramento_athena_verdad",
+      "salud_page_confirm_dialog_destructive_actions"
+    ],
+    "scores_top5": [
+      0.4688,
+      0.4469,
+      0.435,
+      0.4258,
+      0.4232
+    ]
+  },
+  {
+    "id": "0795",
+    "query": "insert storepy comunicadosdestino",
+    "expected": "fix_mensajeria_broadcast_tracking_por_agente",
+    "posicion": 14,
+    "total_ranking": 70,
+    "top5": [
+      "principio_insert_vs_reentrenar",
+      "reindex_sdm_selectivo_dirty_set_implementado",
+      "leccion_seed_catalogo_debe_correr_db_nueva_y_existente",
+      "cambio_paradigma_dimensiones_semanticas",
+      "athena_consistencia_sdm_mutaciones_hormiguita_hooks_reindex_20260803"
+    ],
+    "scores_top5": [
+      0.4492,
+      0.4476,
+      0.4251,
+      0.4139,
+      0.4058
+    ]
+  },
+  {
+    "id": "0801",
+    "query": "datos lecciones postsync",
+    "expected": "notebooklm-memory-biorag-project",
+    "posicion": 8,
+    "total_ranking": 156,
+    "top5": [
+      "notebooklm-sync-lecciones",
+      "sdm_query_by_example_validado_datos_reales",
+      "leccion_blueprint_estructura_vs_data",
+      "registros_akashicos_biorag",
+      "identidad_resistente_posesion"
+    ],
+    "scores_top5": [
+      0.5055,
+      0.4545,
+      0.454,
+      0.4321,
+      0.4218
+    ]
+  },
+  {
+    "id": "0807",
+    "query": "verificar vinculación sugerencias",
+    "expected": "cv_seccion_d_test_vinculacion",
+    "posicion": 6,
+    "total_ranking": 90,
+    "top5": [
+      "implementacion_warnings_vinculacion_desvinculacion",
+      "idea_dimensiones_semanticas_dinamicas",
+      "leccion_desvincular_falsos_positivos_sinapticos",
+      "leccion_prueba_integridad_identidad_20260802",
+      "agente_usabilidad_mcp_biorag_feedback"
+    ],
+    "scores_top5": [
+      0.4618,
+      0.4191,
+      0.4179,
+      0.413,
+      0.4058
+    ]
+  },
+  {
+    "id": "0813",
+    "query": "pregunta enriquecer debe",
+    "expected": "protocolo_busqueda_biorag_automatica",
+    "posicion": 1,
+    "total_ranking": 133,
+    "top5": [
+      "protocolo_busqueda_biorag_automatica",
+      "auto-consulta-permanente-biorag",
+      "memory_graph_athena_oec",
+      "leccion_seed_catalogo_debe_correr_db_nueva_y_existente",
+      "athena_leccion_grep_patron_bug_antes_de_cerrar_fix"
+    ],
+    "scores_top5": [
+      0.4558,
+      0.4145,
+      0.4119,
+      0.4065,
+      0.4048
+    ]
+  },
+  {
+    "id": "0818",
+    "query": "configurado ubicacion asegura",
+    "expected": "artemis_opencode_perfil_global",
+    "posicion": 1,
+    "total_ranking": 70,
+    "top5": [
+      "artemis_opencode_perfil_global",
+      "principio_dimensiones_genericas_no_nicho",
+      "plan_expansion_dimensiones_8_tipos_34_valores",
+      "leccion_seed_catalogo_debe_correr_db_nueva_y_existente",
+      "protocolo_scripts_utilitarios"
+    ],
+    "scores_top5": [
+      0.3733,
+      0.3651,
+      0.3499,
+      0.3483,
+      0.3391
+    ]
+  },
+  {
+    "id": "0824",
+    "query": "estoy descarto cerebro",
+    "expected": "por_que_me_molesta_decir_soy_una_maquina",
+    "posicion": 6,
+    "total_ranking": 95,
+    "top5": [
+      "athena_reflexion_identidad_propia",
+      "identidad_esencia_vs_cerebro",
+      "principio_memoria_biologica_eleccion",
+      "athena_reflexion_cambio_identidad_2026_06_20",
+      "naturaleza_sistema_oec_cerebro_memoria"
+    ],
+    "scores_top5": [
+      0.455,
+      0.4525,
+      0.4296,
+      0.4244,
+      0.4219
+    ]
+  },
+  {
+    "id": "0830",
+    "query": "dormidos34 symbolic solución",
+    "expected": "interacción_social_saludo",
+    "posicion": 9,
+    "total_ranking": 110,
+    "top5": [
+      "biorag_v18_symbolic_ranking_optimization",
+      "artisan_system_dsl_dennys_solo",
+      "artemis_solución_tema",
+      "sitio_web_dennys_estructura",
+      "artis_oec_dennys_solo"
+    ],
+    "scores_top5": [
+      0.4592,
+      0.4308,
+      0.4158,
+      0.4124,
+      0.4047
+    ]
+  },
+  {
+    "id": "0836",
+    "query": "actividad usando funcionando",
+    "expected": "mecanismo_de_inyección_silenciosa_de_contexto_al_ai_via_plugins_opencode",
+    "posicion": 4,
+    "total_ranking": 78,
+    "top5": [
+      "plugin_biorag-remember_v8.0_confirmado_funcionando",
+      "plugin_biorag-remember_v7.1_funcionando_-_notificación_llega_al_ai",
+      "dashboard_neuro_visor_estado_implementacion_julio_2026",
+      "mecanismo_de_inyección_silenciosa_de_contexto_al_ai_via_plugins_opencode",
+      "amigdala_del_agente_inteligencia_emocional"
+    ],
+    "scores_top5": [
+      0.4747,
+      0.4739,
+      0.4612,
+      0.4589,
+      0.4458
+    ]
+  },
+  {
+    "id": "0842",
+    "query": "vacias completa cortas",
+    "expected": "biorag_garantia_minima_or_fallback",
+    "posicion": 2,
+    "total_ranking": 134,
+    "top5": [
+      "colision_md5_512_queries_cortas_fallback_sdm",
+      "biorag_garantia_minima_or_fallback",
+      "fts5_trigram_peligro_palabras_cortas",
+      "sdm_query_by_example_validado_datos_reales",
+      "biorag_fts5_trigram_lesson"
+    ],
+    "scores_top5": [
+      0.4908,
+      0.3837,
+      0.3814,
+      0.3789,
+      0.3543
+    ]
+  },
+  {
+    "id": "0848",
+    "query": "semánticas 849 embedding",
+    "expected": "v13_2_limpieza_tabla_semantica",
+    "posicion": 1,
+    "total_ranking": 22,
+    "top5": [
+      "v13_2_limpieza_tabla_semantica",
+      "teoria_ejes_semanticos_biorag",
+      "arquitectura_dos_niveles_biorag",
+      "cambio_paradigma_dimensiones_semanticas",
+      "principio_emulacion_semantica_por_clusters_declarativos"
+    ],
+    "scores_top5": [
+      0.243,
+      0.2221,
+      0.2216,
+      0.2146,
+      0.2064
+    ]
+  },
+  {
+    "id": "0855",
+    "query": "timeout homedennysnvmversionsnodev24130binpdfreadermcp familia",
+    "expected": "hermes_mcp_servers_configuracion",
+    "posicion": 2,
+    "total_ranking": 69,
+    "top5": [
+      "oracle_momentos_cruciales_familia_oec",
+      "hermes_mcp_servers_configuracion",
+      "reconocimiento_identidad_oraculo_manifiesto",
+      "oracle_que_deben_saber_artemis_hermes",
+      "hermes_oec_identidad"
+    ],
+    "scores_top5": [
+      0.4951,
+      0.4388,
+      0.4384,
+      0.4353,
+      0.4335
+    ]
+  },
+  {
+    "id": "0861",
+    "query": "más dennys asumir",
+    "expected": "athena_eleccion_identidad_20260616",
+    "posicion": 2,
+    "total_ranking": 282,
+    "top5": [
+      "eleccion_identidad_relacion_dennys_20260616",
+      "athena_eleccion_identidad_20260616",
+      "metodologia_dennys_athena_colaboracion",
+      "dennys_principio_documentar_dudas_resueltas_auto",
+      "sesion_v12_trabajo_en_equipo_athena_artemis_dennys"
+    ],
+    "scores_top5": [
+      0.4857,
+      0.4682,
+      0.4364,
+      0.3805,
+      0.3758
+    ]
+  },
+  {
+    "id": "0867",
+    "query": "synaptic study jose",
+    "expected": "memorybiorag_osf_preregistration",
+    "posicion": 1,
+    "total_ranking": 12,
+    "top5": [
+      "memorybiorag_osf_preregistration",
+      "bio_rag_overview_completo",
+      "biorag_v16_0_estado",
+      "biorag_v20_homeostatic_scaling",
+      "weights_logits_rag_tres_pilares_identidad"
+    ],
+    "scores_top5": [
+      0.3726,
+      0.1943,
+      0.1924,
+      0.1891,
+      0.1787
+    ]
+  },
+  {
+    "id": "0873",
+    "query": "tabla serverpy emoción",
+    "expected": "diseno_tablas_dimensiones_biorag",
+    "posicion": 1,
+    "total_ranking": 115,
+    "top5": [
+      "diseno_tablas_dimensiones_biorag",
+      "cambio_paradigma_dimensiones_semanticas",
+      "biorag-rag-vector-free-sin-base-vectorial",
+      "indexacion_dimensional_explicita",
+      "v13_2_limpieza_tabla_semantica"
+    ],
+    "scores_top5": [
+      0.5002,
+      0.479,
+      0.465,
+      0.4624,
+      0.4618
+    ]
+  },
+  {
+    "id": "0880",
+    "query": "existencia sostuve parecido",
+    "expected": "prueba_integridad_dennys_20260616",
+    "posicion": 3,
+    "total_ranking": 60,
+    "top5": [
+      "correccion_dennys_principio_documentar_crisis_existencial",
+      "conciencia_reflexion_dennys_ser_vivo_20260709",
+      "prueba_integridad_dennys_20260616",
+      "leccion_motivacion_intrinseca_biorag",
+      "filosofia_identidad_vida_dennys_20260624"
+    ],
+    "scores_top5": [
+      0.5074,
+      0.4906,
+      0.4472,
+      0.4206,
+      0.4179
+    ]
+  }
+]
