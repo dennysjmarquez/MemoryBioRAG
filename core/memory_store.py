@@ -60,6 +60,29 @@ BAYESIAN_BM25_ALPHA = float(os.environ.get('BIORAG_BAYESIAN_BM25_ALPHA', '1.0'))
 """Steepness de la sigmoid Bayesian BM25. Mayor = más sensible a diferencias de score.
 Override: export BIORAG_BAYESIAN_BM25_ALPHA=0.5"""
 
+# Fase C: re-ranking jaccard léxico como única señal de matching (v22.2)
+# Validado por holdout el 2026-08-04 (config: alpha=0.25, gate=0.04, topk=20, protect-r0).
+# OFF por defecto: activación gradual monitoreada contra el benchmark (lección PPR).
+RERANKING_JACCARD_ACTIVO = os.environ.get('BIORAG_RERANKING_JACCARD_ENABLED', '0').lower() in ('1', 'true', 'yes')
+"""Activar re-ranking jaccard en buscar_por_frase. Default OFF.
+Override: export BIORAG_RERANKING_JACCARD_ENABLED=1"""
+
+RERANKING_JACCARD_ALPHA = float(os.environ.get('BIORAG_RERANKING_JACCARD_ALPHA', '0.25'))
+"""Peso del boost jaccard en el re-sort del top-k (score + alpha*(jaccard/max_j)).
+Override: export BIORAG_RERANKING_JACCARD_ALPHA=0.25"""
+
+RERANKING_JACCARD_GATE = float(os.environ.get('BIORAG_RERANKING_JACCARD_GATE', '0.04'))
+"""Gate: si max jaccard del pool[:window] < gate, no re-ordenar.
+Override: export BIORAG_RERANKING_JACCARD_GATE=0.04"""
+
+RERANKING_JACCARD_TOPK = int(os.environ.get('BIORAG_RERANKING_JACCARD_TOPK', '20'))
+"""Tamaño del head sobre el que se aplica el re-sort jaccard.
+Override: export BIORAG_RERANKING_JACCARD_TOPK=20"""
+
+RERANKING_JACCARD_WINDOW = int(os.environ.get('BIORAG_RERANKING_JACCARD_WINDOW', '50'))
+"""Ventana del pool sobre la que se calcula max_jaccard para el gate.
+Override: export BIORAG_RERANKING_JACCARD_WINDOW=50"""
+
 # =============================================================================
 
 class SQLiteMemoryBioRAG:
@@ -2962,6 +2985,72 @@ class SQLiteMemoryBioRAG:
         contextos.sort(key=lambda x: x[4], reverse=True)
         return list(pagina_resultados), contextos
 
+    def _rerank_jaccard_protect_r0(self, resultados, frase_limpia, preview_chars=1500):
+        """Re-ranking jaccard léxico (Fase C) con protección de rank 0.
+
+        Fiel a apply_rerank_protect_r0 de scripts/experimento_faseB_protect_r0.py,
+        config ganadora del holdout 2026-08-04: elimina TODAS las regresiones R@1
+        (variante, pregunta_natural, sinonimo, typo) manteniendo el +6 R@5 de por_tema.
+        Gate por max jaccard del pool[:window]; re-sort del top-k por
+        score + alpha*(jaccard/max_j); si el ítem que ocupaba la posición 0
+        del pool original fue desplazado, se restaura a la primera posición.
+
+        NOTA DE FIDELIDAD: el experimento calculó jaccard sobre el contenido YA
+        truncado a preview_chars (default 1500) que retorna buscar_por_frase.
+        Aquí el contenido aún está completo (el truncado ocurre después del
+        re-ranking), por eso se trunca a min(preview_chars, 3000) para replicar
+        el cálculo validado (71,306 jaccards reproducidos exactos).
+        """
+        if not resultados or len(resultados) < 2 or not frase_limpia.strip():
+            return resultados
+
+        preview_chars = min(int(preview_chars or 1500), 3000)
+
+        import unicodedata
+        from core.stopwords import _STOPWORDS_QUERY
+
+        def strip_accents(text):
+            return ''.join(c for c in unicodedata.normalize('NFKD', text) if not unicodedata.combining(c))
+
+        def tokens(text):
+            t = re.sub(r'[^\w\s_-]', ' ', text.lower())
+            out = []
+            for w in t.split():
+                wc = strip_accents(w)
+                if wc not in _STOPWORDS_QUERY and len(w) >= 2:
+                    out.append(wc)
+            return set(out)
+
+        def jaccard(a, b):
+            if not a or not b:
+                return 0.0
+            return len(a & b) / len(a | b)
+
+        q_tok = tokens(frase_limpia)
+        if not q_tok:
+            return resultados
+
+        win = resultados[:RERANKING_JACCARD_WINDOW]
+        max_j = max(
+            (jaccard(q_tok, tokens((r[1] or "")[:preview_chars])) for r in win),
+            default=0.0,
+        )
+        if max_j < RERANKING_JACCARD_GATE:
+            return resultados
+
+        original_r0 = resultados[0]
+        head = resultados[:RERANKING_JACCARD_TOPK]
+        tail = resultados[RERANKING_JACCARD_TOPK:]
+        max_j_norm = max_j or 1e-9
+        head = sorted(
+            head,
+            key=lambda r: r[4] + RERANKING_JACCARD_ALPHA * (jaccard(q_tok, tokens((r[1] or "")[:preview_chars])) / max_j_norm),
+            reverse=True,
+        )
+        if head and head[0] is not original_r0:
+            head = [original_r0] + [it for it in head if it is not original_r0]
+        return head + tail
+
     def buscar_por_frase(self, frase, profundidad="activos", pagina=1, limite=None, categoria=None, preview_chars=1500, historial_fallos=None, context_window=0, dimensiones_dict=None, dimensiones_ids=None, parafrasis_list=None, desde_ts=None, hasta_ts=None, modo_estricto=False, usar_inferencia=True, buscar_por_rol=None, ignore_peso_sinaptico=False):
         """Busqueda hibrida: FTS5 trigram + peso sinaptico + asociaciones + scoring dimensional.
 
@@ -4103,6 +4192,11 @@ class SQLiteMemoryBioRAG:
                 jsd_val = self._calcular_jsd(query, node_text)
 
             # Signal #12: Predicate matching (query tokens vs predicate keywords)
+            # ⚠️ CANIBALIZACIÓN DEMOSTRADA 2026-08-04: si se re-corre el backfill de
+            # predicados (scripts/backfill_predicados.py), re-verificar contra el
+            # re-ranking jaccard (Fase C). El backfill restaura recuperación perdida
+            # pero canibaliza la señal #12 con jaccard activo. Capacidad disponible,
+            # NO enganchada. Ver nodo biorag: backfill_predicados_restaura_parcial_no_84_62_y_canibaliza_con_jaccard.
             pred_val = 0.0
             pred_tokens = pred_contexto_map.get(concepto, set())
             if pred_tokens and tokens_query:
@@ -4132,6 +4226,14 @@ class SQLiteMemoryBioRAG:
 
         # Reordenar por score hibrido descendente
         resultados_con_hibrido.sort(key=lambda r: r[4], reverse=True)
+
+        # Fase C (v22.2): Re-ranking jaccard léxico condicional.
+        # OFF por defecto (BIORAG_RERANKING_JACCARD_ENABLED=0) — activación gradual
+        # monitoreada contra el benchmark. Config ganadora del holdout 2026-08-04.
+        if RERANKING_JACCARD_ACTIVO:
+            resultados_con_hibrido = self._rerank_jaccard_protect_r0(
+                resultados_con_hibrido, frase_limpia, preview_chars=preview_chars
+            )
 
         # v20.0 Inhibición Lateral GABA en Tiempo Real (Edelman 1987)
         # Si el candidato Top-1 es un atractor fuerte (score >= 0.80),
