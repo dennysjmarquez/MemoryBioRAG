@@ -60,3 +60,5 @@ MemoryBioRAG_Data/memory_biorag_qa_temp.db-wal
 MemoryBioRAG_Data/memory_biorag_qa_temp.db-shm
 
 MemoryBioRAG_Data/_verif_tmp.db-shm
+
+MemoryBioRAG_Data/_verif_tmp.db-wal

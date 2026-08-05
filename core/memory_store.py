@@ -782,6 +782,31 @@ class SQLiteMemoryBioRAG:
             self.cursor.execute("ALTER TABLE log_busquedas ADD COLUMN params_json TEXT")
         except:
             pass  # ya existe
+
+        # Índice para purga eficiente de log_busquedas (O(log n) en DELETE del trigger)
+        self.cursor.execute("CREATE INDEX IF NOT EXISTS idx_lb_creado_en ON log_busquedas(creado_en)")
+
+        # Triggers de purga a nivel DB — la garantía de que las tablas no crecen sin límite.
+        # Patrón idempotente (CREATE TRIGGER IF NOT EXISTS), seguro para DB nueva y existente.
+        # recursive_triggers=0, DELETE no re-dispara AFTER INSERT → sin loop.
+        # Verificado empíricamente en DB en memoria antes de implementar.
+        self.cursor.execute("""
+            CREATE TRIGGER IF NOT EXISTS trg_purga_cuarentena
+            AFTER INSERT ON sinapsis_cuarentena
+            BEGIN
+                DELETE FROM sinapsis_cuarentena
+                WHERE eliminado_en < (CAST(strftime('%s','now') AS REAL) - 30 * 86400);
+            END
+        """)
+        self.cursor.execute("""
+            CREATE TRIGGER IF NOT EXISTS trg_purga_log_busquedas
+            AFTER INSERT ON log_busquedas
+            BEGIN
+                DELETE FROM log_busquedas
+                WHERE creado_en < (CAST(strftime('%s','now') AS REAL) - 7 * 86400);
+            END
+        """)
+
         # Tabla puente: historial forense de acciones por ciclo de consolidación
         self.cursor.execute("""
             CREATE TABLE IF NOT EXISTS metricas_cognitivas_nodos (
