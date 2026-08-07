@@ -162,12 +162,14 @@
 |0.04 |76.92% |38.46% |96.59% |7.50% |
 |0.10 |78.46% |49.23% |97.05% |7.50% |
 |0.15 |81.54% |55.38% |97.28% |7.50% |
-|**0.20** |**84.62%** |**58.46%** |**97.05%** |**7.50%** |
-|0.25 |84.62% |58.46% |97.28% |10.00% ❌ |
+|**0.20** |**84.62%*** |**58.46%** |**97.05%** |**7.50%** |
+|0.25 |84.62%* |58.46% |97.28% |10.00% ❌ |
+
+> \* ⚠️ Snapshot con backfill parcial de predicados (614 nodos) — el baseline real sobre el corpus actual (921 casos) es 67.69%. Ver Corrección de veracidad (sección v25.2).
 
 **Peso óptimo:0.20** — por_tema Recall@5 +13.85pp, Recall@1 +23.08pp, FP sin regresión.
 
-**Determinismo:** por_tema (84.62%/58.46%) y FP (3/40=7.50%) idénticos en2 corridas. GLOBAL variación±0.11pp por estado de DB durante sesión.
+**Determinismo:** por_tema (84.62%*/58.46%) y FP (3/40=7.50%) idénticos en2 corridas. GLOBAL variación±0.11pp por estado de DB durante sesión.
 
 ### Feature 2: Feedback-Driven Graph Learning
 
@@ -336,11 +338,13 @@
 |---------|----------|----------------|-------|
 | GLOBAL Recall@5 |96.25%|97.05%|**+0.80pp** |
 | GLOBAL Recall@1 |88.08%|91.15%|**+3.07pp** |
-| por_tema Recall@5 |70.77%|84.62%|**+13.85pp** |
+| por_tema Recall@5 |70.77%|84.62%*|**+13.85pp** |
 | por_tema Recall@1 |35.38%|58.46%|**+23.08pp** |
 | FP |7.50%|7.50%|0.00 |
 
-**Determinismo:** por_tema (84.62%/58.46%) y FP (3/40=7.50%) idénticos en2 corridas. GLOBAL variación±0.11pp por estado de DB durante sesión.
+**Determinismo:** por_tema (84.62%*/58.46%) y FP (3/40=7.50%) idénticos en2 corridas. GLOBAL variación±0.11pp por estado de DB durante sesión.
+
+> \* ⚠️ Snapshot con backfill parcial de predicados — valor no representativo del corpus real (baseline real `por_tema`: 67.69%).
 
 **Peso0.25 causó FP+2.50pp (10.00%) — rechazado.**
 

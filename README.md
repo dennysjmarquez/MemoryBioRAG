@@ -19,8 +19,10 @@
 
 | Métrica | v18.0–v21.0 | v22.2 (PRF) | **v23.0 (Rebalanceo)** | **v23.1 (Predicados SRL)** | **v25.2 (baseline real)** | **v25.2 (+ Jaccard)** | Estado |
 |---|---|---|---|---|---|---|---|
-| **Recall@5** | 36.92% | 58.46% | **70.77%** | **84.62%** | **67.69%** | **81.54%** | 🚀 **+13.85 pp** |
+| **Recall@5** | 36.92% | 58.46% | **70.77%** | ⚠️ **84.62%*** | **67.69%** | **81.54%** | 🚀 **+13.85 pp** |
 | **Recall@1** | 12.31% | 20.00% | **40.00%** | **58.46%** | **60.00%** | **76.92%** | 📈 **+16.92 pp** |
+
+> \* ⚠️ El `84.62%` de v23.1 es un snapshot con backfill parcial de predicados — no representativo del corpus real.
 
 > **Nota de veracidad:** el `84.62%` histórico de v23.1 provenía de un snapshot con `por_tema` en un corpus de 614 nodos y backfill parcial de predicados. Medido sobre el corpus real actual (921 casos QA, 2026-08-04), el baseline real de `por_tema` es **67.69%**, y el re-ranking jaccard lo eleva a **81.54%** (+13.85pp) con protecciones (protect-r0, gate 0.04, topk 20) que eliminan las regresiones. Ver `EXPERIMENTS.md` para la narrativa completa.
 
@@ -1280,7 +1282,7 @@ En v13.4 el catálogo tenía **7 ejes × 73 sub-valores**: emoción (qué se sie
 **Feature 1: Predicados SRL como Signal #12**
 - Backfill de keyword predicates para todos los nodos (5.6%→100% cobertura)
 - Integración como signal #12 con peso óptimo 0.20 (ablation completa)
-- por_tema Recall@5: 70.77% → **84.62%** (+13.85pp)
+- por_tema Recall@5: 70.77% → **84.62%** (+13.85pp) — ⚠️ valor de snapshot con backfill parcial de predicados; el baseline real sobre el corpus actual (921 casos) es 67.69% y la señal desenganchada por canibalización (ver `EXPERIMENTS.md`).
 - por_tema Recall@1: 35.38% → **58.46%** (+23.08pp)
 - GLOBAL Recall@5: 96.25% → **97.05%**
 - FP sin regresión (7.50%)
@@ -1782,12 +1784,14 @@ La suite y herramientas asociadas se encuentran en el directorio `scripts/` (exc
 | Sinapsis latentes | 18,988 | 17,062 (SLS puras) | 17,062 | 17,062 | 17,062 | **17,062 + cuarentena** |
 | Tests | 95/95 + Suite QA | 95/95 + Suite QA | 95/95 + Suite QA | 117/117 | 117/117 | **117/117 ✓** |
 | GLOBAL Recall@5 | 93.76% | — | — | — | 96.82% | **97.05%** |
-| por_tema Recall@5 | 36.92% | — | — | 43.08% | 84.62% | **84.62%** |
+| por_tema Recall@5 | 36.92% | — | — | 43.08% | ⚠️ 84.62%* | **81.54%** |
 | FP Negativo | 12.5% | — | — | 7.5% | 7.5% | **7.5%** |
 | Dependencias ML | 0 (mcp + nltk) | 0 | 0 | 0 | 0 | **0** |
 | RAM | ~20 MB | ~22 MB | ~20 MB | ~20 MB | ~20 MB | **~20 MB** |
 | Latencia | ~2.8ms | ~2.8ms | ~2.8ms | ~2.8ms | ~2.8ms | **~2.8ms** |
 | Tools MCP | 28 | 28 | 29 | 29 | 30 | **32** |
+
+> \* ⚠️ El `84.62%` de v23.0–v23.1 proviene de un snapshot con backfill parcial de predicados (corpus de 614 nodos). El baseline real de `por_tema` sobre el corpus actual (921 casos QA) es **67.69%**; el valor **81.54%** de la columna Actual (v24.1, v25.2 Fase C) corresponde al re-ranking jaccard con protecciones (protect-r0, gate 0.04, topk 20). Ver nota de veracidad en la sección Benchmark.
 
 ---
 

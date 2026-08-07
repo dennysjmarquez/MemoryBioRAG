@@ -1,0 +1,57 @@
+{
+ "flag": "1",
+ "snapshot": "tejedora_pre_fase0_20260805_220447.db",
+ "n_casos_no_negativo": 881,
+ "R@5_global_pct": 95.35,
+ "R@1_global_pct": 86.38,
+ "hits5": 840,
+ "hits1": 761,
+ "tiempo_s": 292.4,
+ "por_categoria": {
+  "literal": {
+   "n": 487,
+   "hits5": 484,
+   "hits1": 482
+  },
+  "variante_gramatical": {
+   "n": 65,
+   "hits5": 60,
+   "hits1": 52
+  },
+  "typo": {
+   "n": 65,
+   "hits5": 63,
+   "hits1": 56
+  },
+  "pregunta_natural": {
+   "n": 65,
+   "hits5": 64,
+   "hits1": 56
+  },
+  "por_tema": {
+   "n": 65,
+   "hits5": 51,
+   "hits1": 17
+  },
+  "dormido": {
+   "n": 65,
+   "hits5": 65,
+   "hits1": 65
+  },
+  "sinonimo": {
+   "n": 61,
+   "hits5": 46,
+   "hits1": 27
+  },
+  "cruce_idioma": {
+   "n": 8,
+   "hits5": 7,
+   "hits1": 6
+  },
+  "negativo": {
+   "n": 40,
+   "hits5": 0,
+   "hits1": 0
+  }
+ }
+}

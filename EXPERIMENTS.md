@@ -148,13 +148,24 @@ python3 scripts/diagnostico_tematico_jaccard_sinonimo.py
 
 ## Hipótesis Pendientes
 
-### 7. Tejedora — Agujeros Estructurales (2026-08-05) → PENDIENTE
+### 7. Tejedora — Agujeros Estructurales (2026-08-05) → DESCARTADO
 
 **Hipótesis:** tejer sinapsis estructurales (Adamic-Adar) entre nodos con degree bajo y dimensiones compartidas mejora el recall@5 en ≥+2pp sobre el baseline, sin degradar ninguna categoría.
 
-**Estado:** plan validado por líder con 2 correcciones (cross-check cuarentena + peso como parámetro del barrido). Pendiente de ejecución. Documento completo: `docs/plan_tejedora_agujeros_estructurales.md`.
+**Estado:** **DESCARTADO EMPÍRICAMENTE 2026-08-06.** Aprobado por Dennys; valencia removida totalmente de la pipeline (desacople salvaguardas, decisión 2026-08-06); sweep Fase 2 ejecutado con pipeline real sobre los 921 casos.
 
-**Correcciones del líder integradas:**
+**Evidencia del sweep (`scripts/tejedora_sweep.py`, snapshot aislado, 8 workers, `limite=5`):**
+```
+baseline_sin_tejido    95.35    +0.000pp
+tejido_peso_0.6        95.35    +0.000pp
+```
+Las 13 sinapsis tejidas (`tejida_estructural`, peso 0.6) **no movieron ni un solo ranking** — R@5, R@1 y MRR idénticos. Confirmó el techo teórico pre-sweep (la red pesa ~2% en el score híbrido; solo 5 misses tenían respuesta-isla; las aristas conectan islas que no llegan al top-5).
+
+**Lección:** el recall NO mejora tejiendo más sinapsis estructurales. El cuello de botella es el matching léxico/semántico (BM25 + dimensiones + PRF), no el cableado del grafo. Fases 3-8 canceladas.
+
+**Historial:** plan validado por auditor técnico (Claude) con 2 correcciones (cross-check cuarentena + peso como parámetro del barrido). Documento completo: `docs/plan_tejedora_agujeros_estructurales.md`.
+
+**Correcciones del auditor técnico integradas:**
 1. Fase 1 excluye todo par con fila en `sinapsis_cuarentena` (bidireccional)
 2. Peso inicial de sinapsis tejida = parámetro del barrido (0.3, 0.5, 0.7, 1.0)
 
@@ -171,3 +182,4 @@ python3 scripts/diagnostico_tematico_jaccard_sinonimo.py
 | v25.1 | SDM dimensiones: multi-proyección K regresa | Revertido en sesión |
 | v25.2 | Signal #12: +13.85pp histórico = snapshot parcial; backfill completo canibaliza | Desenganchada (capacidad disponible) |
 | v25.2 | Jaccard: +13.85pp por_tema, +16.92pp R@1, holdout sostiene | **Integrado** (Fase C, activación gradual) |
+| v25.2+ | Tejedora: 13 sinapsis estructurales sobre 921 casos → +0.000pp | Descartado (Fases 3-8 canceladas) |
