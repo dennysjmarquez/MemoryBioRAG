@@ -220,3 +220,23 @@ Antes de integrar, verificar en Fase 4 que el puente NO duplica una señal exist
 ---
 
 *Documento generado por Athena-OEC. Borrador v0.2 — dictamen del auditor integrado (Sección 11), punto de memoria resuelto por consolidación. Pendiente: decisión de negocio del umbral (Dennys) y aprobación de Fases 5-6.*
+**Anexo 11.1 — Resolución del salto de nodos activos (377 → 433) reportado por el auditor (2026-08-07):**
+
+El auditor detectó que los nodos activos pasaron de 377 a 433 (+56) entre su clon original (fe5f19e) y el commit actual (62e3c83), preguntando si la Hormiguita, un backfill o Tejedora generaron el salto. **Verificación directa contra las DBs de los 4 commits clave:**
+
+| Commit | Activos | Dormidos | Total | max_id | Delta activos |
+|---|---|---|---|---|---|
+| fe5f19e (clon original) | 377 | 378 | 755 | 1004 | — |
+| 94e6e65 (merge origin/master) | 402 | 353 | 755 | 1004 | +25 |
+| a81e157 (docs word2vec) | 433 | 328 | 761 | 1010 | +31 |
+| 62e3c83 (chore db, actual) | 433 | 328 | 761 | 1010 | 0 |
+
+**Conclusión: NO son 56 nodos nuevos — el total creció solo +6 (755 → 761).**
+- **+25** del merge 94e6e65: trajo estados de otra rama (mismos nodos, distinto estado activo/dormido). Cero creación de nodos.
+- **+31** de a81e157: +6 nodos nuevos reales (ids 1005-1010: 2 de Tejedora merge, 4 del trabajo word2vec) + rebalanceo del ciclo de consolidación/sueño (reactivó 142, durmió 117, neto +25 en ese paso).
+- **Hormiguita:** corrió (174 ciclos, 725 visitados) pero NO crea nodos — solo evalúa/poda sinapsis. No es causa.
+- **Backfill:** ninguno en estos commits.
+- El rebalanceo activo↔dormido es comportamiento normal del ciclo de sueño (refuerza lo nuevo, decae lo viejo).
+
+**Veredicto final:** la DB tiene 6 nodos reales más que el clon original del auditor, no 56. Nada patológico. Autorizado Fase 0-2.
+
