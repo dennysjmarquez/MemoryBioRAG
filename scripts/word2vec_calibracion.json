@@ -1,0 +1,60 @@
+{
+  "meta": {
+    "script": "word2vec_calibracion.py",
+    "snapshot": "/mnt/recursos_compartidos_y_otros/MemoryBioRAG/snapshots/word2vec_pre_fase0_20260806_235239.db",
+    "vectores": "/mnt/recursos_compartidos_y_otros/MemoryBioRAG/scripts/word2vec_vectores.json",
+    "seed": 20260804,
+    "n_aleatorios": 2654,
+    "generado": "2026-08-07 00:44:11"
+  },
+  "por_ventana": {
+    "W0": {
+      "n_positivos": 2654,
+      "n_aleatorios": 2654,
+      "media_positivos": 0.5894,
+      "media_aleatorios": 0.5744,
+      "mediana_positivos": 0.5909,
+      "mediana_aleatorios": 0.5784,
+      "percentil_90_positivos": 0.6578,
+      "percentil_90_aleatorios": 0.6484,
+      "auc": 0.5654,
+      "cohen_d": 0.2546,
+      "solape_lexico_positivos": 0.9936
+    },
+    "W1": {
+      "n_positivos": 2654,
+      "n_aleatorios": 2654,
+      "media_positivos": 0.651,
+      "media_aleatorios": 0.6011,
+      "mediana_positivos": 0.6627,
+      "mediana_aleatorios": 0.6073,
+      "percentil_90_positivos": 0.738,
+      "percentil_90_aleatorios": 0.6801,
+      "auc": 0.709,
+      "cohen_d": 0.6972,
+      "solape_lexico_positivos": 0.9936
+    },
+    "W0+W1": {
+      "n_positivos": 2654,
+      "n_aleatorios": 2654,
+      "media_positivos": 0.593,
+      "media_aleatorios": 0.5801,
+      "mediana_positivos": 0.5939,
+      "mediana_aleatorios": 0.5838,
+      "percentil_90_positivos": 0.6594,
+      "percentil_90_aleatorios": 0.652,
+      "auc": 0.5571,
+      "cohen_d": 0.2254,
+      "solape_lexico_positivos": 0.9936
+    }
+  },
+  "veredicto": {
+    "gate": {
+      "pasa": true,
+      "criterio": "AUC >= 0.65 Y media_positivos > media_aleatorios en al menos una ventana",
+      "mejor_ventana": "W1",
+      "mejor_auc": 0.709,
+      "justificacion": "La similitud HDC de contexto separa sinónimos conocidos de pares aleatorios => la señal distribucional PORTA INFORMACIÓN. Se autoriza Fase 2."
+    }
+  }
+}
