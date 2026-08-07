@@ -1,8 +1,10 @@
 # Plan Tejedora — Detección y Tejido de Agujeros Estructurales
 
-**Estado:** Validado por líder, 2 correcciones integradas. Pendiente de presentación (2026-08-05 16:00).
+**Estado:** VALIDADO EMPÍRICAMENTE 2026-08-06 — Fase 2 (sweep) completada con pipeline real sobre 921 casos: tejido = **+0.000pp** (R@5 95.35% idéntico). Hipótesis refutada → el cableado estructural NO es el cuello de botella del recall. Decisión Dennys: valencia **removida totalmente** de la pipeline (4.1b, SUPERSEDE 4.1a). Proyecto cerrado como experimento (Fase 5-8 canceladas).
+
+**Historial:** Validado por auditor técnico (Claude), 2 correcciones integradas. Ajuste de diseño 2026-08-06 (valencia → desempate, isla → degree ≤ 3, AA → 0.2) documentado en 4.1a. Presentación a Dennys 2026-08-06 02:00.
 **Autor:** Athena-OEC
-**Versión:** 1.0 (con correcciones del líder)
+**Versión:** 1.0 (con correcciones del auditor técnico)
 
 ---
 
@@ -15,7 +17,7 @@ El sistema tiene **8,529 sinapsis latentes** detectadas pero **no conectadas**. 
 - `_context_window` (memory_store.py:143, deque maxlen=10) ya da bonus token-level, pero NO hay interferencia semántica entre queries recientes
 - No existe detección de vacíos estructurales en el grafo
 
-**Idea 2 del líder (2026-08-05):** detectar agujeros estructurales (nodos con degree 0-1, low clustering coefficient) y crear sinapsis nuevas para llenarlos, usando Adamic-Adar (no Jaccard) como métrica estructural.
+**Idea 2 del auditor técnico (2026-08-05):** detectar agujeros estructurales (nodos con degree 0-1, low clustering coefficient) y crear sinapsis nuevas para llenarlos, usando Adamic-Adar (no Jaccard) como métrica estructural.
 
 **Lo que NO hace este experimento:**
 - No emula el cerebro por emular
@@ -55,12 +57,36 @@ El sistema tiene **8,529 sinapsis latentes** detectadas pero **no conectadas**. 
 | Parámetro | Valor Inicial | Justificación |
 |---|---|---|
 | Métrica estructural | Adamic-Adar (AA) | Mide probabilidad de conexión por vecinos comunes; pondera por rareza de vecinos |
-| Umbral AA mínimo | ≥ 0.5 | Criterio inicial conservador; se sweep en Fase 2 |
+| Umbral AA mínimo | ≥ 0.2 | Ajustado 2026-08-06 (era ≥ 0.5): con 0.5 el pool real era de 2 pares — insuficiente para medir contra 921 casos. Con 0.2 + cap de saturación: 13 pares. Se sweep en Fase 2 |
 | Dimensiones compartidas mínimas | ≥ 2 | Garantiza coherencia semántica (no conexión random) |
-| Valencia somática mínima | ≥ 0.3 | Excluye nodos "fríos" sin señal emocional |
+| Valencia somática | Desempate (NO filtro) | Ajustado 2026-08-06 — ver 4.1a |
 | Máximo conexiones por nodo por ciclo | 3 | Evita saturación de un nodo |
+| Grado máximo de isla | ≤ 3 | Ajustado 2026-08-06 (era ≤ 1): amplía la frontera sin perder coherencia |
 
-### 4.2 Cross-check contra Cuarentena (Catch #1 del líder)
+### 4.1a Ajuste de Diseño — Valencia pasa de Filtro a Desempate (2026-08-06)
+
+**Cambio:** `valencia_somatica` dejó de ser filtro de exclusión (≥ 0.3) y pasó a criterio de desempate/prioridad entre candidatos que ya pasaron AA + dimensiones compartidas.
+
+**Razón exacta (verificada en código, no opinión):** en el sistema, `valencia_somatica` se diseñó como escudo contra el olvido — los nodos con valencia ≥ 0.80 o categoría Principle/Protocol son inmunes al decaimiento pasivo LTD y a la poda (`core/memory_store.py:1904-2010`, todos los queries de decaimiento usan `AND COALESCE(valencia_somatica, 0.0) < 0.80`). **Nunca midió "disposición a conectar".** El plan original la reutilizó con un significado nuevo que el campo nunca tuvo.
+
+**Evidencia empírica:** las islas (degree bajo) son por definición nodos que nadie reforzó → valencia 0.0. Verificado en snapshot Fase 0 (34/34 islas con valencia 0.0) y en la DB viva (de los 62 nodos con valencia ≥ 0.3, ninguno es isla). El filtro valencia ≥ 0.3 era estructuralmente incompatible con la propia definición de isla: pedir a un nodo frío que tenga "señal emocional" es una contradicción. Por eso Fase 1 produjo 0 candidatos con los parámetros originales.
+
+**Qué NO cambia:** la protección contra el olvido sigue intacta en todo el sistema — ningún nodo pierde su inmunidad LTD. Este ajuste es SOLO del filtro nuevo de la Fase 1 del experimento, no del sistema de memoria.
+
+**Nuevo rol de valencia:** si dos candidatos empatan en AA + dims compartidas, prioriza el de valencia más alta — su significado real (importancia protegida). Nunca excluye.
+
+### 4.1b REMOCIÓN TOTAL DE VALENCIA — Decisión Dennys 2026-08-06 (SUPERSEDE 4.1a)
+
+**Decisión de Dennys:** valencia NO participa en la pipeline de Tejedora ni como filtro ni como desempate. Desacople total entre la salvaguarda de olvido (valencia/LTD) y el tejido estructural.
+
+**Por qué es correcto (evidencia):**
+1. `valencia_somatica` mide inmunidad al olvido, NO "disposición a conectar" (ver 4.1a) — cualquier uso en Tejedora es reutilizar el campo con un significado que nunca tuvo.
+2. Verificado empíricamente: la regeneración de candidatos SIN valencia produce **los mismos 13 pares** que con valencia como desempate (0.4s, 726 activos, 56 islas). La valencia era NO-OP en la práctica.
+3. Desacoplar salvaguardas de señales de conexión elimina el riesgo de arrastrar basura protegida por valencia alta.
+
+**Implementado:** `scripts/tejedora_generar_candidatos.py` — sin query de valencias, sin campos en el dict, sin sort por valencia. Keys: `['a', 'b', 'aa', 'dims_compartidas', 'degree_a', 'degree_b']`.
+
+### 4.2 Cross-check contra Cuarentena (Catch #1 del auditor técnico)
 
 > **Regla obligatoria:** Excluir de candidatos TODO par que tenga fila en `sinapsis_cuarentena` (en cualquier dirección: A→B o B→A).
 
@@ -80,7 +106,7 @@ WHERE NOT EXISTS (
 );
 ```
 
-### 4.3 Peso Inicial de la Sinapsis (Catch #2 del líder)
+### 4.3 Peso Inicial de la Sinapsis (Catch #2 del auditor técnico)
 
 > **Parámetro del barrido:** el peso inicial de la sinapsis tejida NO es constante — se varía junto a AA, dims y valencia en Fase 2.
 
@@ -101,9 +127,9 @@ WHERE NOT EXISTS (
 ### Fase 1: Generación de Candidatos
 
 1. Calcular degree de cada nodo activo en el grafo de sinapsis
-2. Identificar nodos con degree ≤ 1 (candidatos a "isla")
+2. Identificar nodos con degree ≤ 3 (candidatos a "isla" — ajustado desde ≤ 1, ver 4.1a)
 3. Para cada par de candidatos, calcular Adamic-Adar
-4. Filtrar por AA ≥ umbral + dims compartidas ≥ 2 + valencia ≥ 0.3
+4. Filtrar por AA ≥ umbral + dims compartidas ≥ 2 (valencia NO filtra — es desempate)
 5. **Excluir** todo par con fila en `sinapsis_cuarentena` (cross-check bidireccional)
 6. **Registrar** cuántos candidatos coinciden con cuarentena (señal de calibración)
 7. **Output:** `scripts/tejedora_candidatos.json` — lista de pares candidatos con scores
@@ -114,15 +140,36 @@ Barrido grid-search sobre mitad A del holdout:
 
 | Parámetro | Valores | Total combinaciones |
 |---|---|---|
-| Umbral AA | 0.3, 0.5, 0.7 | 3 |
+| Umbral AA | 0.2, 0.3, 0.5, 0.7 | 4 (ajustado: se agregó 0.2) |
 | Dims mínimas | 2, 3 | 2 |
-| Valencia mínima | 0.3, 0.5 | 2 |
+| Valencia | Desempate (no se barre como filtro) | — |
 | Peso inicial | 0.3, 0.5, 0.7, 1.0 | 4 |
-| **Total** | | **48 configs** |
+| **Total** | | **32 configs** |
 
 Cada config: crear sinapsis tejidas en mitad A → medir recall@5 → seleccionar mejor config.
 
 **Criterio de selección:** mayor recall@5 sin degradar ninguna categoría >1 caso.
+
+### Fase 2 RESULTADO — Sweep ejecutado 2026-08-06 (pipelline real, 8 workers)
+
+**Setup real ejecutado:** `scripts/tejedora_sweep.py` — mismo snapshot de Fase 0, mismo holdout (921 casos), `buscar_por_frase` real de `core/memory_store.py:3079`, `limite=5`, inyección de aristas con tipo `tejida_estructural` (rechaza aristas existentes), jaccard sobre tokens stopwords. Baseline vs config con las 13 aristas tejidas (peso 0.6).
+
+```
+baseline_sin_tejido    95.35    +0.000pp
+tejido_peso_0.6        95.35    +0.000pp
+```
+
+| Métrica | baseline | tejido | delta |
+|---|---|---|---|
+| R@5 global | 95.35% | 95.35% | **0.000pp** |
+| R@1 global | 86.27% | 86.27% | 0.000pp |
+| MRR | 0.8983 | 0.8983 | 0.000 |
+| por_tema R@5 | 78.46% | 78.46% | 0.000pp |
+| sinonimo R@5 | 75.41% | 75.41% | 0.000pp |
+
+**VEREDICTO: la hipótesis está REFUTADA con la pipeline real.** Las 13 sinapsis tejidas no movieron NI UN SOLO ranking de los 921 casos. Confirmado el techo teórico calculado antes del sweep (la red pesa ~2% en el score híbrido; las aristas conectan islas que de todos modos no llegan al top-5; solo 5 misses tenían respuesta-isla, y ninguna se salvó).
+
+**Implicación:** el recall de BioRAG NO mejora tejiendo más sinapsis estructurales. El cuello de botella es el matching léxico/semántico (BM25 + dimensiones + PRF), no el cableado del grafo. Las sinapsis existentes ya cubren la vía de propagación; agregar aristas no cambia el ranking porque el peso de la red en el scoring es marginal. Fases 3-8 CANCELADAS.
 
 ### Fase 3: Tejido de Sinapsis
 
@@ -222,10 +269,10 @@ El experimento se basa en la idea dormida de `core/dmn_engine.py` (256 líneas, 
 
 ## 9. Referencias
 
-- **Líder validó:** "mismo rigor que todo lo demás — snapshot, holdout seed fija, criterio de éxito explícito"
+- **Auditor técnico validó:** "mismo rigor que todo lo demás — snapshot, holdout seed fija, criterio de éxito explícito"
 - **Catch #1:** cross-check contra `sinapsis_cuarentena` (evitar reconectar lo que la Hormiguita juzgó)
 - **Catch #2:** peso inicial como parámetro del barrido (no constante)
-- **Grid Cells:** confirmado como NO necesario ahora (fronteras ya cubiertas por degree 0-1)
+- **Grid Cells:** confirmado como NO necesario ahora (fronteras ya cubiertas por islas de degree ≤ 3)
 - **HDC binding:** no se toca (experimento independiente, 38/38 validados)
 - **principio_purga_nivel_db_triggers:** la DB se auto-limpia, no depende de daemon/dashboard
 - **principio_cableado_completo_todos_los_caminos:** este plan cubre daemon/on-demand/startup/endpoint
@@ -238,7 +285,7 @@ El experimento se basa en la idea dormida de `core/dmn_engine.py` (256 líneas, 
 |---|---|---|
 | Fase 0 | 30 min | Snapshot + split + baseline |
 | Fase 1 | 1-2 horas | Grafo real, cuarentena |
-| Fase 2 | 2-4 horas | 48 configs × mitad A |
+| Fase 2 | 2-4 horas | 32 configs × mitad A |
 | Fase 3 | 30 min | Mejor config |
 | Fase 4 | 30 min | Mitad B |
 | Fase 5 | 1-2 horas | Si Fase 4 aprueba |
@@ -248,4 +295,4 @@ El experimento se basa en la idea dormida de `core/dmn_engine.py` (256 líneas, 
 
 ---
 
-*Documento generado por Athena-OEC. Pendiente de presentación al líder (2026-08-05 16:00).*
+*Documento generado por Athena-OEC. Pendiente de aprobación de negocio (Dennys) — presentación 2026-08-06 02:00.*

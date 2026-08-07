@@ -1,0 +1,159 @@
+{
+  "fase": "2",
+  "descripcion": "Sweep de tejido estructural con pipeline REAL de búsqueda sobre snapshot de Fase 0. Un solo cambio: inyección de aristas candidatas en la tabla sinapsis. flag OFF. ignore_peso_sinaptico=True (igual que la generación del pool original).",
+  "snapshot": "tejedora_pre_fase0_20260805_220447.db",
+  "n_casos": 921,
+  "n_aristas": 13,
+  "aristas": [
+    [
+      "costo-mecanica-involucramiento",
+      "criterio-propio-sobre-mandato"
+    ],
+    [
+      "instalacion_de_tema_2026_en_antigravity",
+      "install_py_skill_install_logic"
+    ],
+    [
+      "instalacion_de_tema_2026_en_antigravity",
+      "plugin_ponytail"
+    ],
+    [
+      "install_py_skill_install_logic",
+      "plugin_ponytail"
+    ],
+    [
+      "detalles_técnicos:_experimental.chat.system.transform_en_opencode_plugin_sdk_v1.15.11",
+      "oracle_custom_prompt_arsitecura_que_funciona"
+    ],
+    [
+      "detalles_técnicos:_experimental.chat.system.transform_en_opencode_plugin_sdk_v1.15.11",
+      "oracle_custom_prompt_config_actual"
+    ],
+    [
+      "oracle_custom_prompt_arsitecura_que_funciona",
+      "oracle_custom_prompt_config_actual"
+    ],
+    [
+      "detalles_técnicos:_experimental.chat.system.transform_en_opencode_plugin_sdk_v1.15.11",
+      "medir-antes-de-podar-contexto"
+    ],
+    [
+      "medir-antes-de-podar-contexto",
+      "oracle_custom_prompt_arsitecura_que_funciona"
+    ],
+    [
+      "medir-antes-de-podar-contexto",
+      "oracle_custom_prompt_config_actual"
+    ],
+    [
+      "oracle_custom_prompt_failure_modes",
+      "transformers_matrix_no_despiertan"
+    ],
+    [
+      "leccion_parametro_emocion_proposito_real",
+      "protocolo_scripts_utilitarios"
+    ],
+    [
+      "fts5-sanitizacion-comillas-dobles-filter",
+      "integracion_parafrasis_rafaga_obligatoria_v11_3"
+    ]
+  ],
+  "configs": [
+    {
+      "tag": "baseline_sin_tejido",
+      "peso_arista": 0.0,
+      "aristas_inyectadas": 0,
+      "n": 881,
+      "R@5": 95.3462,
+      "R@1": 86.2656,
+      "MRR": 0.8983,
+      "tiempo_s": 149.6,
+      "por_categoria": {
+        "literal": {
+          "n": 487,
+          "R@5": 99.38
+        },
+        "variante_gramatical": {
+          "n": 65,
+          "R@5": 92.31
+        },
+        "typo": {
+          "n": 65,
+          "R@5": 96.92
+        },
+        "pregunta_natural": {
+          "n": 65,
+          "R@5": 98.46
+        },
+        "por_tema": {
+          "n": 65,
+          "R@5": 78.46
+        },
+        "dormido": {
+          "n": 65,
+          "R@5": 100.0
+        },
+        "sinonimo": {
+          "n": 61,
+          "R@5": 75.41
+        },
+        "cruce_idioma": {
+          "n": 8,
+          "R@5": 87.5
+        },
+        "negativo": {
+          "n": 40,
+          "R@5": 0.0
+        }
+      }
+    },
+    {
+      "tag": "tejido_peso_0.6",
+      "peso_arista": 0.6,
+      "aristas_inyectadas": 13,
+      "n": 881,
+      "R@5": 95.3462,
+      "R@1": 86.2656,
+      "MRR": 0.8983,
+      "tiempo_s": 154.8,
+      "por_categoria": {
+        "literal": {
+          "n": 487,
+          "R@5": 99.38
+        },
+        "variante_gramatical": {
+          "n": 65,
+          "R@5": 92.31
+        },
+        "typo": {
+          "n": 65,
+          "R@5": 96.92
+        },
+        "pregunta_natural": {
+          "n": 65,
+          "R@5": 98.46
+        },
+        "por_tema": {
+          "n": 65,
+          "R@5": 78.46
+        },
+        "dormido": {
+          "n": 65,
+          "R@5": 100.0
+        },
+        "sinonimo": {
+          "n": 61,
+          "R@5": 75.41
+        },
+        "cruce_idioma": {
+          "n": 8,
+          "R@5": 87.5
+        },
+        "negativo": {
+          "n": 40,
+          "R@5": 0.0
+        }
+      }
+    }
+  ]
+}

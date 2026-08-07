@@ -1,0 +1,129 @@
+{
+ "fase": "1",
+ "descripcion": "Candidatos a tejido estructural (Adamic-Adar) sobre el snapshot de Fase 0. La cuarentena es EXCLUSIÓN (filtro negativo), no fuente. REMOCIÓN TOTAL DE VALENCIA 2026-08-06 (desacople de la salvaguarda anti-olvido) — señales SOLO estructurales: AA + dims + degree.",
+ "snapshot": "tejedora_pre_fase0_20260805_220447.db",
+ "parametros": {
+  "aa_umbral": 0.2,
+  "dims_min": 2,
+  "degree_max": 3,
+  "max_por_nodo": 3,
+  "valencia": "removida (desacople total)"
+ },
+ "grafo": {
+  "nodos_activos": 726,
+  "islas_degree_le": 3,
+  "pares_islas_evaluados": 1540
+ },
+ "filtros": {
+  "excluidos_por_cuarentena": 0,
+  "excluidos_por_dims_aa": 1527
+ },
+ "total_candidatos": 13,
+ "candidatos": [
+  {
+   "a": "costo-mecanica-involucramiento",
+   "b": "criterio-propio-sobre-mandato",
+   "aa": 0.7213,
+   "dims_compartidas": 3,
+   "degree_a": 1,
+   "degree_b": 1
+  },
+  {
+   "a": "instalacion_de_tema_2026_en_antigravity",
+   "b": "install_py_skill_install_logic",
+   "aa": 0.5581,
+   "dims_compartidas": 3,
+   "degree_a": 1,
+   "degree_b": 2
+  },
+  {
+   "a": "instalacion_de_tema_2026_en_antigravity",
+   "b": "plugin_ponytail",
+   "aa": 0.5581,
+   "dims_compartidas": 3,
+   "degree_a": 1,
+   "degree_b": 1
+  },
+  {
+   "a": "install_py_skill_install_logic",
+   "b": "plugin_ponytail",
+   "aa": 0.5581,
+   "dims_compartidas": 3,
+   "degree_a": 2,
+   "degree_b": 1
+  },
+  {
+   "a": "detalles_técnicos:_experimental.chat.system.transform_en_opencode_plugin_sdk_v1.15.11",
+   "b": "oracle_custom_prompt_arsitecura_que_funciona",
+   "aa": 0.286,
+   "dims_compartidas": 4,
+   "degree_a": 3,
+   "degree_b": 1
+  },
+  {
+   "a": "detalles_técnicos:_experimental.chat.system.transform_en_opencode_plugin_sdk_v1.15.11",
+   "b": "oracle_custom_prompt_config_actual",
+   "aa": 0.286,
+   "dims_compartidas": 4,
+   "degree_a": 3,
+   "degree_b": 2
+  },
+  {
+   "a": "oracle_custom_prompt_arsitecura_que_funciona",
+   "b": "oracle_custom_prompt_config_actual",
+   "aa": 0.286,
+   "dims_compartidas": 4,
+   "degree_a": 1,
+   "degree_b": 2
+  },
+  {
+   "a": "detalles_técnicos:_experimental.chat.system.transform_en_opencode_plugin_sdk_v1.15.11",
+   "b": "medir-antes-de-podar-contexto",
+   "aa": 0.286,
+   "dims_compartidas": 3,
+   "degree_a": 3,
+   "degree_b": 3
+  },
+  {
+   "a": "medir-antes-de-podar-contexto",
+   "b": "oracle_custom_prompt_arsitecura_que_funciona",
+   "aa": 0.286,
+   "dims_compartidas": 2,
+   "degree_a": 3,
+   "degree_b": 1
+  },
+  {
+   "a": "medir-antes-de-podar-contexto",
+   "b": "oracle_custom_prompt_config_actual",
+   "aa": 0.286,
+   "dims_compartidas": 2,
+   "degree_a": 3,
+   "degree_b": 2
+  },
+  {
+   "a": "oracle_custom_prompt_failure_modes",
+   "b": "transformers_matrix_no_despiertan",
+   "aa": 0.286,
+   "dims_compartidas": 2,
+   "degree_a": 1,
+   "degree_b": 1
+  },
+  {
+   "a": "leccion_parametro_emocion_proposito_real",
+   "b": "protocolo_scripts_utilitarios",
+   "aa": 0.2387,
+   "dims_compartidas": 4,
+   "degree_a": 1,
+   "degree_b": 2
+  },
+  {
+   "a": "fts5-sanitizacion-comillas-dobles-filter",
+   "b": "integracion_parafrasis_rafaga_obligatoria_v11_3",
+   "aa": 0.2104,
+   "dims_compartidas": 4,
+   "degree_a": 3,
+   "degree_b": 2
+  }
+ ],
+ "tiempo_s": 0.3
+}

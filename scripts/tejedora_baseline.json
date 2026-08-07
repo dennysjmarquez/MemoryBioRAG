@@ -1,0 +1,437 @@
+{
+ "descripcion": "Baseline ORIGINAL R@5 sobre pools congelados en experimento_rr_pool.json (ago 4, sin tejido). Referencia de viabilidad; para el experimento usar baseline_formal_snapshot_fase0_flag_OFF.",
+ "GLOBAL_completo": {
+  "n": 881,
+  "hits5": 834,
+  "R@5": 94.67,
+  "hits1": 761,
+  "R@1": 86.38,
+  "MRR": 0.8932
+ },
+ "por_categoria_completo": {
+  "cruce_idioma": {
+   "n": 8,
+   "hits5": 7,
+   "R@5": 87.5,
+   "hits1": 6,
+   "R@1": 75.0,
+   "MRR": 0.7917
+  },
+  "dormido": {
+   "n": 65,
+   "hits5": 65,
+   "R@5": 100.0,
+   "hits1": 65,
+   "R@1": 100.0,
+   "MRR": 1.0
+  },
+  "literal": {
+   "n": 487,
+   "hits5": 484,
+   "R@5": 99.38,
+   "hits1": 482,
+   "R@1": 98.97,
+   "MRR": 0.9918
+  },
+  "negativo": {
+   "n": 40,
+   "hits5": 0,
+   "R@5": 0.0,
+   "hits1": 0,
+   "R@1": 0.0,
+   "MRR": 0.0
+  },
+  "por_tema": {
+   "n": 65,
+   "hits5": 44,
+   "R@5": 67.69,
+   "hits1": 16,
+   "R@1": 24.62,
+   "MRR": 0.4036
+  },
+  "pregunta_natural": {
+   "n": 65,
+   "hits5": 63,
+   "R@5": 96.92,
+   "hits1": 57,
+   "R@1": 87.69,
+   "MRR": 0.9054
+  },
+  "sinonimo": {
+   "n": 61,
+   "hits5": 47,
+   "R@5": 77.05,
+   "hits1": 27,
+   "R@1": 44.26,
+   "MRR": 0.5538
+  },
+  "typo": {
+   "n": 65,
+   "hits5": 63,
+   "R@5": 96.92,
+   "hits1": 56,
+   "R@1": 86.15,
+   "MRR": 0.901
+  },
+  "variante_gramatical": {
+   "n": 65,
+   "hits5": 61,
+   "R@5": 93.85,
+   "hits1": 52,
+   "R@1": 80.0,
+   "MRR": 0.8485
+  },
+  "GLOBAL": {
+   "n": 881,
+   "hits5": 834,
+   "R@5": 94.67,
+   "hits1": 761,
+   "R@1": 86.38,
+   "MRR": 0.8932
+  }
+ },
+ "GLOBAL_mitad_A": {
+  "n": 437,
+  "hits5": 418,
+  "R@5": 95.65,
+  "hits1": 385,
+  "R@1": 88.1,
+  "MRR": 0.9077
+ },
+ "GLOBAL_mitad_B": {
+  "n": 444,
+  "hits5": 416,
+  "R@5": 93.69,
+  "hits1": 376,
+  "R@1": 84.68,
+  "MRR": 0.8789
+ },
+ "por_categoria_mitad_B": {
+  "cruce_idioma": {
+   "n": 4,
+   "hits5": 3,
+   "R@5": 75.0,
+   "hits1": 2,
+   "R@1": 50.0,
+   "MRR": 0.5833
+  },
+  "dormido": {
+   "n": 33,
+   "hits5": 33,
+   "R@5": 100.0,
+   "hits1": 33,
+   "R@1": 100.0,
+   "MRR": 1.0
+  },
+  "literal": {
+   "n": 244,
+   "hits5": 242,
+   "R@5": 99.18,
+   "hits1": 241,
+   "R@1": 98.77,
+   "MRR": 0.9898
+  },
+  "negativo": {
+   "n": 20,
+   "hits5": 0,
+   "R@5": 0.0,
+   "hits1": 0,
+   "R@1": 0.0,
+   "MRR": 0.0
+  },
+  "por_tema": {
+   "n": 33,
+   "hits5": 19,
+   "R@5": 57.58,
+   "hits1": 8,
+   "R@1": 24.24,
+   "MRR": 0.3697
+  },
+  "pregunta_natural": {
+   "n": 33,
+   "hits5": 33,
+   "R@5": 100.0,
+   "hits1": 30,
+   "R@1": 90.91,
+   "MRR": 0.9364
+  },
+  "sinonimo": {
+   "n": 31,
+   "hits5": 24,
+   "R@5": 77.42,
+   "hits1": 10,
+   "R@1": 32.26,
+   "MRR": 0.4774
+  },
+  "typo": {
+   "n": 33,
+   "hits5": 32,
+   "R@5": 96.97,
+   "hits1": 27,
+   "R@1": 81.82,
+   "MRR": 0.8707
+  },
+  "variante_gramatical": {
+   "n": 33,
+   "hits5": 30,
+   "R@5": 90.91,
+   "hits1": 25,
+   "R@1": 75.76,
+   "MRR": 0.8116
+  },
+  "GLOBAL": {
+   "n": 444,
+   "hits5": 416,
+   "R@5": 93.69,
+   "hits1": 376,
+   "R@1": 84.68,
+   "MRR": 0.8789
+  }
+ },
+ "seed": 20260804,
+ "n_casos": 921,
+ "dictamen_flag_jaccard": {
+  "pregunta_auditor": "¿El baseline 94.67% corresponde a BIORAG_RERANKING_JACCARD_ENABLED en 0 o en 1?",
+  "respuesta": "NI 0 NI 1: el flag NO EXISTÍA cuando se generó el pool. Por orden temporal (git): experimento_rr_pool.json se generó 2026-08-04 13:03 con el código 59520c3 (ago 3). El flag BIORAG_RERANKING_JACCARD_ENABLED se introdujo en 275fc88 (2026-08-04 20:32, Fase C), 7.5 horas DESPUÉS. El re-ranking jaccard no podía estar activo en la corrida del pool.",
+  "evidencia_git": {
+   "pool_generado": "2026-08-04 13:03 (mtime experimento_rr_pool.json)",
+   "codigo_que_genero_pool": "59520c3 2026-08-04 (último commit de core/memory_store.py antes del pool)",
+   "commit_introdujo_flag": "275fc88 2026-08-04 20:32 -0400 feat(core, rerank): implement conditional jaccard re-ranking with protect-r0 (Fase C)"
+  },
+  "conclusion": "Baseline 94.67% (pool congelado) y techo 94.78% (ago 2, medición viva snapshot_prf_real.db) AMBOS son sin jaccard. La diferencia de 1 caso (834 vs 835/881) NO es el flag: es deriva de DB entre mediciones en estados distintos (lección PPR / snapshot consistente). R@1=86.38% idéntico en las 4 mediciones -> el flag solo mueve R@5, nunca R@1.",
+  "verificacion_empirica_sobre_snapshot_fase0": {
+   "flag_0_OFF": {
+    "R@5": 94.1,
+    "hits5": 829,
+    "R@1": 86.38
+   },
+   "flag_1_ON": {
+    "R@5": 95.35,
+    "hits5": 840,
+    "R@1": 86.38
+   }
+  },
+  "regla_para_experimento_tejedora": "Fases 1-4 corren con BIORAG_RERANKING_JACCARD_ENABLED=0 (OFF, default del sistema). Baseline de referencia = baseline_formal_snapshot_fase0 (94.1%). El delta de la Fase 4 medirá SOLO el efecto del tejido, sin mezclar el flag (un solo cambio a la vez)."
+ },
+ "baseline_formal_snapshot_fase0_flag_OFF": {
+  "descripcion": "Baseline re-medido sobre el snapshot de Fase 0 (tejedora_pre_fase0_20260805_220447.db) con BIORAG_RERANKING_JACCARD_ENABLED=0 explícito. Este es el número comparable con las fases 1-4 (mismo snapshot, mismo flag). Re-ejecuta buscar_por_frase (no usa pool congelado).",
+  "snapshot": "tejedora_pre_fase0_20260805_220447.db",
+  "script": "scripts/tejedora_verif_flag.py (flag=0)",
+  "GLOBAL_completo": {
+   "n": 881,
+   "hits5": 829,
+   "hits1": 761,
+   "R@5": 94.1,
+   "R@1": 86.38
+  },
+  "por_categoria_completo": {
+   "literal": {
+    "n": 487,
+    "hits5": 484,
+    "hits1": 482,
+    "R@5": 99.38,
+    "R@1": 98.97
+   },
+   "variante_gramatical": {
+    "n": 65,
+    "hits5": 61,
+    "hits1": 52,
+    "R@5": 93.85,
+    "R@1": 80.0
+   },
+   "typo": {
+    "n": 65,
+    "hits5": 63,
+    "hits1": 56,
+    "R@5": 96.92,
+    "R@1": 86.15
+   },
+   "pregunta_natural": {
+    "n": 65,
+    "hits5": 63,
+    "hits1": 56,
+    "R@5": 96.92,
+    "R@1": 86.15
+   },
+   "por_tema": {
+    "n": 65,
+    "hits5": 42,
+    "hits1": 17,
+    "R@5": 64.62,
+    "R@1": 26.15
+   },
+   "dormido": {
+    "n": 65,
+    "hits5": 65,
+    "hits1": 65,
+    "R@5": 100.0,
+    "R@1": 100.0
+   },
+   "sinonimo": {
+    "n": 61,
+    "hits5": 44,
+    "hits1": 27,
+    "R@5": 72.13,
+    "R@1": 44.26
+   },
+   "cruce_idioma": {
+    "n": 8,
+    "hits5": 7,
+    "hits1": 6,
+    "R@5": 87.5,
+    "R@1": 75.0
+   },
+   "GLOBAL": {
+    "n": 881,
+    "hits5": 829,
+    "hits1": 761,
+    "R@5": 94.1,
+    "R@1": 86.38
+   }
+  },
+  "GLOBAL_mitad_A": {
+   "n": 437,
+   "hits5": 416,
+   "hits1": 384,
+   "R@5": 95.19,
+   "R@1": 87.87
+  },
+  "por_categoria_mitad_A": {
+   "literal": {
+    "n": 243,
+    "hits5": 242,
+    "hits1": 240,
+    "R@5": 99.59,
+    "R@1": 98.77
+   },
+   "pregunta_natural": {
+    "n": 32,
+    "hits5": 30,
+    "hits1": 27,
+    "R@5": 93.75,
+    "R@1": 84.38
+   },
+   "por_tema": {
+    "n": 32,
+    "hits5": 23,
+    "hits1": 8,
+    "R@5": 71.88,
+    "R@1": 25.0
+   },
+   "dormido": {
+    "n": 32,
+    "hits5": 32,
+    "hits1": 32,
+    "R@5": 100.0,
+    "R@1": 100.0
+   },
+   "variante_gramatical": {
+    "n": 32,
+    "hits5": 31,
+    "hits1": 27,
+    "R@5": 96.88,
+    "R@1": 84.38
+   },
+   "cruce_idioma": {
+    "n": 4,
+    "hits5": 4,
+    "hits1": 4,
+    "R@5": 100.0,
+    "R@1": 100.0
+   },
+   "sinonimo": {
+    "n": 30,
+    "hits5": 23,
+    "hits1": 17,
+    "R@5": 76.67,
+    "R@1": 56.67
+   },
+   "typo": {
+    "n": 32,
+    "hits5": 31,
+    "hits1": 29,
+    "R@5": 96.88,
+    "R@1": 90.62
+   },
+   "GLOBAL": {
+    "n": 437,
+    "hits5": 416,
+    "hits1": 384,
+    "R@5": 95.19,
+    "R@1": 87.87
+   }
+  },
+  "GLOBAL_mitad_B": {
+   "n": 444,
+   "hits5": 413,
+   "hits1": 377,
+   "R@5": 93.02,
+   "R@1": 84.91
+  },
+  "por_categoria_mitad_B": {
+   "literal": {
+    "n": 244,
+    "hits5": 242,
+    "hits1": 242,
+    "R@5": 99.18,
+    "R@1": 99.18
+   },
+   "variante_gramatical": {
+    "n": 33,
+    "hits5": 30,
+    "hits1": 25,
+    "R@5": 90.91,
+    "R@1": 75.76
+   },
+   "typo": {
+    "n": 33,
+    "hits5": 32,
+    "hits1": 27,
+    "R@5": 96.97,
+    "R@1": 81.82
+   },
+   "dormido": {
+    "n": 33,
+    "hits5": 33,
+    "hits1": 33,
+    "R@5": 100.0,
+    "R@1": 100.0
+   },
+   "sinonimo": {
+    "n": 31,
+    "hits5": 21,
+    "hits1": 10,
+    "R@5": 67.74,
+    "R@1": 32.26
+   },
+   "pregunta_natural": {
+    "n": 33,
+    "hits5": 33,
+    "hits1": 29,
+    "R@5": 100.0,
+    "R@1": 87.88
+   },
+   "por_tema": {
+    "n": 33,
+    "hits5": 19,
+    "hits1": 9,
+    "R@5": 57.58,
+    "R@1": 27.27
+   },
+   "cruce_idioma": {
+    "n": 4,
+    "hits5": 3,
+    "hits1": 2,
+    "R@5": 75.0,
+    "R@1": 50.0
+   },
+   "GLOBAL": {
+    "n": 444,
+    "hits5": 413,
+    "hits1": 377,
+    "R@5": 93.02,
+    "R@1": 84.91
+   }
+  }
+ }
+}
