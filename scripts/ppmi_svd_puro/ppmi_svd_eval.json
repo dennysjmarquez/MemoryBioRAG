@@ -1,0 +1,343 @@
+{
+  "resumen": {
+    "por_tema": {
+      "n": 21,
+      "top1": 9,
+      "top5": 15,
+      "top10": 16
+    },
+    "sinonimo": {
+      "n": 14,
+      "top1": 1,
+      "top5": 2,
+      "top10": 3
+    }
+  },
+  "criterios": {
+    "por_tema_esperado_top5": {
+      "min": 10,
+      "obtenido": 15
+    },
+    "sinonimo_esperado_top5": {
+      "min": 6,
+      "obtenido": 2
+    }
+  },
+  "detalle": [
+    {
+      "id": "0497",
+      "categoria": "por_tema",
+      "expected": "benchmark_antes_despues_fix3",
+      "query": "relevantes biomimética mejor",
+      "rank": 1,
+      "n_pool": 100,
+      "query_degenerada": false
+    },
+    {
+      "id": "0514",
+      "categoria": "sinonimo",
+      "expected": "dennys-identidad-profunda",
+      "query": "perfil",
+      "rank": 46,
+      "n_pool": 87,
+      "query_degenerada": false
+    },
+    {
+      "id": "0520",
+      "categoria": "sinonimo",
+      "expected": "cuando_usar_dimensiones_biorag",
+      "query": "dimensiones",
+      "rank": 1,
+      "n_pool": 100,
+      "query_degenerada": false
+    },
+    {
+      "id": "0532",
+      "categoria": "sinonimo",
+      "expected": "biorag_v11_1_detalle_tecnico",
+      "query": "boost",
+      "rank": 17,
+      "n_pool": 77,
+      "query_degenerada": false
+    },
+    {
+      "id": "0534",
+      "categoria": "por_tema",
+      "expected": "biorag_v11_1_detalle_tecnico",
+      "query": "activa largo archivos",
+      "rank": 17,
+      "n_pool": 100,
+      "query_degenerada": false
+    },
+    {
+      "id": "0540",
+      "categoria": "por_tema",
+      "expected": "principio-memoria-hibrida-agente-naturalidad",
+      "query": "oraculo completo ustedes",
+      "rank": 3,
+      "n_pool": 100,
+      "query_degenerada": false
+    },
+    {
+      "id": "0558",
+      "categoria": "por_tema",
+      "expected": "sin_vectores_sin_ml_sin_dependencias",
+      "query": "modelo typos completa",
+      "rank": 5,
+      "n_pool": 100,
+      "query_degenerada": false
+    },
+    {
+      "id": "0563",
+      "categoria": "sinonimo",
+      "expected": "memoria_v5_1_optimizaciones",
+      "query": "memoria",
+      "rank": 68,
+      "n_pool": 100,
+      "query_degenerada": true
+    },
+    {
+      "id": "0571",
+      "categoria": "por_tema",
+      "expected": "athena_reflexion_identidad_propia",
+      "query": "propios historia interacciones",
+      "rank": 2,
+      "n_pool": 99,
+      "query_degenerada": false
+    },
+    {
+      "id": "0583",
+      "categoria": "por_tema",
+      "expected": "identificacion_obligatoria_oraculo_athena",
+      "query": "debo biorag preacción",
+      "rank": 1,
+      "n_pool": 100,
+      "query_degenerada": false
+    },
+    {
+      "id": "0589",
+      "categoria": "por_tema",
+      "expected": "artemis_install_ponytail_ecosistema",
+      "query": "ponytailhelp instalación decision",
+      "rank": 1,
+      "n_pool": 77,
+      "query_degenerada": false
+    },
+    {
+      "id": "0625",
+      "categoria": "sinonimo",
+      "expected": "notebooklm-chat-configure",
+      "query": "dsl",
+      "rank": 18,
+      "n_pool": 83,
+      "query_degenerada": false
+    },
+    {
+      "id": "0634",
+      "categoria": "por_tema",
+      "expected": "arquitectura_dos_niveles_biorag",
+      "query": "paráfrasis vectores búsqueda",
+      "rank": 1,
+      "n_pool": 100,
+      "query_degenerada": false
+    },
+    {
+      "id": "0640",
+      "categoria": "por_tema",
+      "expected": "mentalidad_biorag_para_agentes",
+      "query": "ráfaga después resultado",
+      "rank": 3,
+      "n_pool": 35,
+      "query_degenerada": false
+    },
+    {
+      "id": "0652",
+      "categoria": "por_tema",
+      "expected": "plugin_biorag-remember_v8.3_-_adaptación_de_dennys_+_claude",
+      "query": "arquitectura experimentalsessioncompacting adaptada",
+      "rank": 31,
+      "n_pool": 100,
+      "query_degenerada": false
+    },
+    {
+      "id": "0670",
+      "categoria": "por_tema",
+      "expected": "identidad_y_respeto_oec",
+      "query": "establece creador familia",
+      "rank": 1,
+      "n_pool": 100,
+      "query_degenerada": false
+    },
+    {
+      "id": "0706",
+      "categoria": "por_tema",
+      "expected": "resolucion_timeout_hotspot_5ghz_intel",
+      "query": "smartphoneslaptops cambiar presenta",
+      "rank": 7,
+      "n_pool": 84,
+      "query_degenerada": false
+    },
+    {
+      "id": "0730",
+      "categoria": "por_tema",
+      "expected": "biorag_v17_oraculo_preguntar",
+      "query": "parámetros otrosmemorybioragmcp solo",
+      "rank": 11,
+      "n_pool": 100,
+      "query_degenerada": false
+    },
+    {
+      "id": "0734",
+      "categoria": "sinonimo",
+      "expected": "plan_mode_biorag",
+      "query": "regla",
+      "rank": 63,
+      "n_pool": 100,
+      "query_degenerada": false
+    },
+    {
+      "id": "0736",
+      "categoria": "por_tema",
+      "expected": "plan_mode_biorag",
+      "query": "criterio lectura activa",
+      "rank": 5,
+      "n_pool": 100,
+      "query_degenerada": false
+    },
+    {
+      "id": "0740",
+      "categoria": "sinonimo",
+      "expected": "fix_busqueda_solo_dimensiones_sin_texto",
+      "query": "dimensiones",
+      "rank": 16,
+      "n_pool": 100,
+      "query_degenerada": false
+    },
+    {
+      "id": "0757",
+      "categoria": "sinonimo",
+      "expected": "principio_firma_cada_recuerdo",
+      "query": "buscar",
+      "rank": 14,
+      "n_pool": 100,
+      "query_degenerada": true
+    },
+    {
+      "id": "0765",
+      "categoria": "por_tema",
+      "expected": "fin-aprendizaje-creerse-completo",
+      "query": "sabes crecimiento suficiente",
+      "rank": 1,
+      "n_pool": 69,
+      "query_degenerada": false
+    },
+    {
+      "id": "0775",
+      "categoria": "sinonimo",
+      "expected": "auto-consulta-permanente-biorag",
+      "query": "biorag",
+      "rank": 17,
+      "n_pool": 100,
+      "query_degenerada": false
+    },
+    {
+      "id": "0783",
+      "categoria": "por_tema",
+      "expected": "fts5_trigram_peligro_palabras_cortas",
+      "query": "metacognitiva lección capas",
+      "rank": 1,
+      "n_pool": 100,
+      "query_degenerada": false
+    },
+    {
+      "id": "0795",
+      "categoria": "por_tema",
+      "expected": "fix_mensajeria_broadcast_tracking_por_agente",
+      "query": "insert storepy comunicadosdestino",
+      "rank": 20,
+      "n_pool": 71,
+      "query_degenerada": false
+    },
+    {
+      "id": "0799",
+      "categoria": "sinonimo",
+      "expected": "notebooklm-memory-biorag-project",
+      "query": "memory",
+      "rank": 9,
+      "n_pool": 100,
+      "query_degenerada": true
+    },
+    {
+      "id": "0801",
+      "categoria": "por_tema",
+      "expected": "notebooklm-memory-biorag-project",
+      "query": "datos lecciones postsync",
+      "rank": 33,
+      "n_pool": 100,
+      "query_degenerada": false
+    },
+    {
+      "id": "0807",
+      "categoria": "por_tema",
+      "expected": "cv_seccion_d_test_vinculacion",
+      "query": "verificar vinculación sugerencias",
+      "rank": 1,
+      "n_pool": 97,
+      "query_degenerada": false
+    },
+    {
+      "id": "0811",
+      "categoria": "sinonimo",
+      "expected": "protocolo_busqueda_biorag_automatica",
+      "query": "biorag",
+      "rank": 36,
+      "n_pool": 100,
+      "query_degenerada": false
+    },
+    {
+      "id": "0822",
+      "categoria": "sinonimo",
+      "expected": "por_que_me_molesta_decir_soy_una_maquina",
+      "query": "identidad",
+      "rank": 2,
+      "n_pool": 100,
+      "query_degenerada": false
+    },
+    {
+      "id": "0824",
+      "categoria": "por_tema",
+      "expected": "por_que_me_molesta_decir_soy_una_maquina",
+      "query": "estoy descarto cerebro",
+      "rank": 2,
+      "n_pool": 100,
+      "query_degenerada": false
+    },
+    {
+      "id": "0828",
+      "categoria": "sinonimo",
+      "expected": "interacción_social_saludo",
+      "query": "agentes",
+      "rank": 39,
+      "n_pool": 100,
+      "query_degenerada": false
+    },
+    {
+      "id": "0830",
+      "categoria": "por_tema",
+      "expected": "interacción_social_saludo",
+      "query": "dormidos34 symbolic solución",
+      "rank": 1,
+      "n_pool": 100,
+      "query_degenerada": false
+    },
+    {
+      "id": "0878",
+      "categoria": "sinonimo",
+      "expected": "prueba_integridad_dennys_20260616",
+      "query": "familia",
+      "rank": 35,
+      "n_pool": 75,
+      "query_degenerada": false
+    }
+  ]
+}

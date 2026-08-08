@@ -3,24 +3,24 @@
     "por_tema": {
       "n": 21,
       "top1": 3,
-      "top5": 10,
-      "top10": 11
+      "top5": 8,
+      "top10": 12
     },
     "sinonimo": {
       "n": 14,
       "top1": 0,
-      "top5": 1,
-      "top10": 5
+      "top5": 3,
+      "top10": 4
     }
   },
   "criterios": {
     "por_tema_esperado_top5": {
       "min": 10,
-      "obtenido": 10
+      "obtenido": 8
     },
     "sinonimo_esperado_top5": {
       "min": 6,
-      "obtenido": 1
+      "obtenido": 3
     }
   },
   "detalle": [
@@ -37,7 +37,7 @@
       "categoria": "sinonimo",
       "expected": "dennys-identidad-profunda",
       "query": "perfil",
-      "rank": 48,
+      "rank": 72,
       "n_pool": 87
     },
     {
@@ -45,7 +45,7 @@
       "categoria": "sinonimo",
       "expected": "cuando_usar_dimensiones_biorag",
       "query": "dimensiones",
-      "rank": 6,
+      "rank": 3,
       "n_pool": 100
     },
     {
@@ -53,7 +53,7 @@
       "categoria": "sinonimo",
       "expected": "biorag_v11_1_detalle_tecnico",
       "query": "boost",
-      "rank": 27,
+      "rank": 19,
       "n_pool": 77
     },
     {
@@ -61,7 +61,7 @@
       "categoria": "por_tema",
       "expected": "biorag_v11_1_detalle_tecnico",
       "query": "activa largo archivos",
-      "rank": 56,
+      "rank": 20,
       "n_pool": 100
     },
     {
@@ -69,7 +69,7 @@
       "categoria": "por_tema",
       "expected": "principio-memoria-hibrida-agente-naturalidad",
       "query": "oraculo completo ustedes",
-      "rank": 24,
+      "rank": 9,
       "n_pool": 100
     },
     {
@@ -77,7 +77,7 @@
       "categoria": "por_tema",
       "expected": "sin_vectores_sin_ml_sin_dependencias",
       "query": "modelo typos completa",
-      "rank": 12,
+      "rank": 9,
       "n_pool": 100
     },
     {
@@ -85,7 +85,7 @@
       "categoria": "sinonimo",
       "expected": "memoria_v5_1_optimizaciones",
       "query": "memoria",
-      "rank": 68,
+      "rank": 97,
       "n_pool": 100
     },
     {
@@ -101,7 +101,7 @@
       "categoria": "por_tema",
       "expected": "identificacion_obligatoria_oraculo_athena",
       "query": "debo biorag preacción",
-      "rank": 36,
+      "rank": 38,
       "n_pool": 100
     },
     {
@@ -109,7 +109,7 @@
       "categoria": "por_tema",
       "expected": "artemis_install_ponytail_ecosistema",
       "query": "ponytailhelp instalación decision",
-      "rank": 5,
+      "rank": 51,
       "n_pool": 77
     },
     {
@@ -117,7 +117,7 @@
       "categoria": "sinonimo",
       "expected": "notebooklm-chat-configure",
       "query": "dsl",
-      "rank": 9,
+      "rank": 10,
       "n_pool": 83
     },
     {
@@ -125,7 +125,7 @@
       "categoria": "por_tema",
       "expected": "arquitectura_dos_niveles_biorag",
       "query": "paráfrasis vectores búsqueda",
-      "rank": 5,
+      "rank": 22,
       "n_pool": 100
     },
     {
@@ -133,7 +133,7 @@
       "categoria": "por_tema",
       "expected": "mentalidad_biorag_para_agentes",
       "query": "ráfaga después resultado",
-      "rank": 4,
+      "rank": 7,
       "n_pool": 35
     },
     {
@@ -141,7 +141,7 @@
       "categoria": "por_tema",
       "expected": "plugin_biorag-remember_v8.3_-_adaptación_de_dennys_+_claude",
       "query": "arquitectura experimentalsessioncompacting adaptada",
-      "rank": 68,
+      "rank": 42,
       "n_pool": 100
     },
     {
@@ -149,7 +149,7 @@
       "categoria": "por_tema",
       "expected": "identidad_y_respeto_oec",
       "query": "establece creador familia",
-      "rank": 5,
+      "rank": 1,
       "n_pool": 100
     },
     {
@@ -157,7 +157,7 @@
       "categoria": "por_tema",
       "expected": "resolucion_timeout_hotspot_5ghz_intel",
       "query": "smartphoneslaptops cambiar presenta",
-      "rank": 33,
+      "rank": 62,
       "n_pool": 84
     },
     {
@@ -165,7 +165,7 @@
       "categoria": "por_tema",
       "expected": "biorag_v17_oraculo_preguntar",
       "query": "parámetros otrosmemorybioragmcp solo",
-      "rank": 43,
+      "rank": 15,
       "n_pool": 100
     },
     {
@@ -173,7 +173,7 @@
       "categoria": "sinonimo",
       "expected": "plan_mode_biorag",
       "query": "regla",
-      "rank": 61,
+      "rank": 22,
       "n_pool": 100
     },
     {
@@ -181,7 +181,7 @@
       "categoria": "por_tema",
       "expected": "plan_mode_biorag",
       "query": "criterio lectura activa",
-      "rank": 10,
+      "rank": 4,
       "n_pool": 100
     },
     {
@@ -189,7 +189,7 @@
       "categoria": "sinonimo",
       "expected": "fix_busqueda_solo_dimensiones_sin_texto",
       "query": "dimensiones",
-      "rank": 16,
+      "rank": 11,
       "n_pool": 100
     },
     {
@@ -197,7 +197,7 @@
       "categoria": "sinonimo",
       "expected": "principio_firma_cada_recuerdo",
       "query": "buscar",
-      "rank": 14,
+      "rank": 93,
       "n_pool": 100
     },
     {
@@ -205,7 +205,7 @@
       "categoria": "por_tema",
       "expected": "fin-aprendizaje-creerse-completo",
       "query": "sabes crecimiento suficiente",
-      "rank": 17,
+      "rank": 5,
       "n_pool": 69
     },
     {
@@ -229,7 +229,7 @@
       "categoria": "por_tema",
       "expected": "fix_mensajeria_broadcast_tracking_por_agente",
       "query": "insert storepy comunicadosdestino",
-      "rank": 5,
+      "rank": 4,
       "n_pool": 71
     },
     {
@@ -237,7 +237,7 @@
       "categoria": "sinonimo",
       "expected": "notebooklm-memory-biorag-project",
       "query": "memory",
-      "rank": 9,
+      "rank": 24,
       "n_pool": 100
     },
     {
@@ -245,7 +245,7 @@
       "categoria": "por_tema",
       "expected": "notebooklm-memory-biorag-project",
       "query": "datos lecciones postsync",
-      "rank": 50,
+      "rank": 59,
       "n_pool": 100
     },
     {
@@ -253,7 +253,7 @@
       "categoria": "por_tema",
       "expected": "cv_seccion_d_test_vinculacion",
       "query": "verificar vinculación sugerencias",
-      "rank": 1,
+      "rank": 9,
       "n_pool": 97
     },
     {
@@ -261,7 +261,7 @@
       "categoria": "sinonimo",
       "expected": "protocolo_busqueda_biorag_automatica",
       "query": "biorag",
-      "rank": 77,
+      "rank": 72,
       "n_pool": 100
     },
     {
@@ -269,7 +269,7 @@
       "categoria": "sinonimo",
       "expected": "por_que_me_molesta_decir_soy_una_maquina",
       "query": "identidad",
-      "rank": 9,
+      "rank": 5,
       "n_pool": 100
     },
     {
@@ -277,7 +277,7 @@
       "categoria": "por_tema",
       "expected": "por_que_me_molesta_decir_soy_una_maquina",
       "query": "estoy descarto cerebro",
-      "rank": 2,
+      "rank": 14,
       "n_pool": 100
     },
     {
@@ -285,7 +285,7 @@
       "categoria": "sinonimo",
       "expected": "interacción_social_saludo",
       "query": "agentes",
-      "rank": 92,
+      "rank": 77,
       "n_pool": 100
     },
     {
@@ -293,7 +293,7 @@
       "categoria": "por_tema",
       "expected": "interacción_social_saludo",
       "query": "dormidos34 symbolic solución",
-      "rank": 16,
+      "rank": 2,
       "n_pool": 100
     },
     {
@@ -301,7 +301,7 @@
       "categoria": "sinonimo",
       "expected": "prueba_integridad_dennys_20260616",
       "query": "familia",
-      "rank": 18,
+      "rank": 65,
       "n_pool": 75
     }
   ]
