@@ -255,12 +255,17 @@ def crear_db(snapshot: Path, db: Path) -> sqlite3.Connection:
 # Entrenamiento
 # =============================================================================
 
-def cargar_contenidos(snapshot: Path) -> tuple[list[list[str]], list[str]]:
-    """Corpus = contenido tokenizado de los nodos ACTIVOS (solo contenido)."""
+def cargar_contenidos(snapshot: Path, estados: list[str] | None = None) -> tuple[list[list[str]], list[str]]:
+    """Corpus = contenido tokenizado de los nodos ACTIVOS (o todos si estados=None)."""
     con = sqlite3.connect(f"file:{snapshot}?mode=ro", uri=True)
-    filas = con.execute(
-        "SELECT concepto, contenido FROM largo_plazo WHERE estado='activo'"
-    ).fetchall()
+    if estados is None:
+        filas = con.execute("SELECT concepto, contenido FROM largo_plazo").fetchall()
+    else:
+        marks = ", ".join(['?'] * len(estados))
+        filas = con.execute(
+            f"SELECT concepto, contenido FROM largo_plazo WHERE estado IN ({marks})",
+            estados,
+        ).fetchall()
     con.close()
     corpus, conceptos = [], []
     for concepto, contenido in filas:
@@ -271,7 +276,8 @@ def cargar_contenidos(snapshot: Path) -> tuple[list[list[str]], list[str]]:
     return corpus, conceptos
 
 
-def guardar_vectores(db: sqlite3.Connection, sgns: SGNS, snapshot: Path) -> None:
+def guardar_vectores(db: sqlite3.Connection, sgns: SGNS, snapshot: Path,
+                     estados: list[str] | None = None) -> None:
     """Guarda los vectores de token y de nodo en la DB nueva."""
     cur = db.cursor()
     cur.execute("BEGIN")
@@ -281,9 +287,16 @@ def guardar_vectores(db: sqlite3.Connection, sgns: SGNS, snapshot: Path) -> None
 
     # vectores de nodo: promedio de los tokens de su contenido
     con_src = sqlite3.connect(f"file:{snapshot}?mode=ro", uri=True)
-    filas = con_src.execute(
-        "SELECT concepto, contenido, estado FROM largo_plazo WHERE estado='activo'"
-    ).fetchall()
+    if estados is None:
+        filas = con_src.execute(
+            "SELECT concepto, contenido, estado FROM largo_plazo"
+        ).fetchall()
+    else:
+        marks = ", ".join(['?'] * len(estados))
+        filas = con_src.execute(
+            f"SELECT concepto, contenido, estado FROM largo_plazo WHERE estado IN ({marks})",
+            estados,
+        ).fetchall()
     con_src.close()
     data_nodos = []
     for concepto, contenido, estado in filas:
@@ -358,7 +371,8 @@ def _cargar_sgns(db: sqlite3.Connection) -> SGNS:
 # Evaluación contra los 35 fallos (comparación justa con los gates)
 # =============================================================================
 
-def evaluar(db: sqlite3.Connection, snapshot: Path) -> dict:
+def evaluar(db: sqlite3.Connection, snapshot: Path,
+            estados: list[str] | None = None) -> dict:
     sgns = _cargar_sgns(db)
     casos = json.loads(Path(DEFAULT_POOL).read_text(encoding='utf-8'))
     casos = [c for c in casos if c['id'] in FALLOS_ID]
@@ -366,9 +380,16 @@ def evaluar(db: sqlite3.Connection, snapshot: Path) -> dict:
     # vector por concepto (desde contenido del snapshot)
     con_src = sqlite3.connect(f"file:{snapshot}?mode=ro", uri=True)
     cache_vec: dict = {}
-    filas = con_src.execute(
-        "SELECT concepto, contenido FROM largo_plazo WHERE estado='activo'"
-    ).fetchall()
+    if estados is None:
+        filas = con_src.execute(
+            "SELECT concepto, contenido FROM largo_plazo"
+        ).fetchall()
+    else:
+        marks = ", ".join(['?'] * len(estados))
+        filas = con_src.execute(
+            f"SELECT concepto, contenido FROM largo_plazo WHERE estado IN ({marks})",
+            estados,
+        ).fetchall()
     for concepto, contenido in filas:
         toks = _tokenizar(contenido or '')
         v, _, _ = sgns.vector_documento(toks)
@@ -424,6 +445,8 @@ def main():
     parser.add_argument('--lr', type=float, default=0.05)
     parser.add_argument('--subsample', type=float, default=1e-3)
     parser.add_argument('--seed', type=int, default=42)
+    parser.add_argument('--incluir-dormidos', action='store_true',
+                        help='entrenar y vectorizar activos + dormidos (default: solo activos)')
     parser.add_argument('--eval', action='store_true', help='evaluar los 35 fallos')
     parser.add_argument('query', nargs='?', default=None,
                         help='consulta para recuperar (si se pasa, solo recupera)')
@@ -431,6 +454,7 @@ def main():
 
     snapshot = Path(args.snapshot)
     db_path = Path(args.db)
+    estados = None if args.incluir_dormidos else ['activo']
 
     # ---- Solo recuperación --------------------------------------------
     if args.query:
@@ -457,9 +481,9 @@ def main():
     db = crear_db(snapshot, db_path)
 
     print("[2/4] Cargando corpus de contenidos (solo contenido, nada más)...")
-    corpus, conceptos = cargar_contenidos(snapshot)
-    print(f"      {len(corpus)} nodos activos con contenido, "
-          f"{sum(len(d) for d in corpus)} tokens totales")
+    corpus, conceptos = cargar_contenidos(snapshot, estados)
+    print(f"      {len(corpus)} nodos ({'todos' if estados is None else 'activos'}) "
+          f"con contenido, {sum(len(d) for d in corpus)} tokens totales")
 
     print("[3/4] Entrenando SGNS (skip-gram + negative sampling)...")
     sgns = SGNS(dim=args.dim, window=args.window, negative=args.negative,
@@ -470,12 +494,12 @@ def main():
           f"({metrics['segundos']}s)")
 
     print("[4/4] Guardando vectores en la DB nueva...")
-    guardar_vectores(db, sgns, snapshot)
+    guardar_vectores(db, sgns, snapshot, estados)
     meta_params(db, sgns, metrics)
 
     if args.eval:
         print("\n[EVAL] Evaluando los 35 fallos (pool idéntico a los gates):")
-        res = evaluar(db, snapshot)
+        res = evaluar(db, snapshot, estados)
         r = res['resumen']
         print(f"  por_tema : top1={r['por_tema']['top1']}/{r['por_tema']['n']} "
               f"top5={r['por_tema']['top5']}/{r['por_tema']['n']} "
