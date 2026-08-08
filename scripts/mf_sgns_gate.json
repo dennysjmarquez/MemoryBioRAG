@@ -1,0 +1,401 @@
+{
+  "fase": "1",
+  "descripcion": "Gate de señal MF-SGNS sobre los 35 fallos (Plan 2). score_sgns = promedio sobre tokens del query de max N_qc·σ(PMI−log k). P1 sin peso, P2 ponderada por N_qc, P3 = score_pmi_nodo actual.",
+  "snapshot": "/mnt/recursos_compartidos_y_otros/MemoryBioRAG/snapshots/word2vec_pre_fase0_20260806_235239.db",
+  "k": 5,
+  "n_fallos": 35,
+  "resumen": {
+    "por_tema": {
+      "n": 21,
+      "top1": {
+        "P1": 2,
+        "P2": 2,
+        "P3": 0
+      },
+      "top5": {
+        "P1": 2,
+        "P2": 3,
+        "P3": 2
+      }
+    },
+    "sinonimo": {
+      "n": 14,
+      "top1": {
+        "P1": 0,
+        "P2": 0,
+        "P3": 0
+      },
+      "top5": {
+        "P1": 1,
+        "P2": 0,
+        "P3": 0
+      }
+    }
+  },
+  "criterios_no_arranque": {
+    "por_tema_esperado_top5_P2": {
+      "min": 10,
+      "obtenido": 3,
+      "veredicto": "FALLA"
+    },
+    "sinonimo_esperado_top5_P2": {
+      "min": 6,
+      "obtenido": 0,
+      "veredicto": "FALLA"
+    }
+  },
+  "detalle": [
+    {
+      "id": "0497",
+      "categoria": "por_tema",
+      "expected": "benchmark_antes_despues_fix3",
+      "query": "relevantes biomimética mejor",
+      "n_pool": 100,
+      "rank_sgns_P1": 7,
+      "rank_sgns_P2": 41,
+      "rank_pmi_nodo": 35
+    },
+    {
+      "id": "0514",
+      "categoria": "sinonimo",
+      "expected": "dennys-identidad-profunda",
+      "query": "perfil",
+      "n_pool": 87,
+      "rank_sgns_P1": 30,
+      "rank_sgns_P2": 13,
+      "rank_pmi_nodo": 28
+    },
+    {
+      "id": "0520",
+      "categoria": "sinonimo",
+      "expected": "cuando_usar_dimensiones_biorag",
+      "query": "dimensiones",
+      "n_pool": 100,
+      "rank_sgns_P1": 87,
+      "rank_sgns_P2": 37,
+      "rank_pmi_nodo": 12
+    },
+    {
+      "id": "0532",
+      "categoria": "sinonimo",
+      "expected": "biorag_v11_1_detalle_tecnico",
+      "query": "boost",
+      "n_pool": 77,
+      "rank_sgns_P1": 42,
+      "rank_sgns_P2": 30,
+      "rank_pmi_nodo": 18
+    },
+    {
+      "id": "0534",
+      "categoria": "por_tema",
+      "expected": "biorag_v11_1_detalle_tecnico",
+      "query": "activa largo archivos",
+      "n_pool": 100,
+      "rank_sgns_P1": 89,
+      "rank_sgns_P2": 43,
+      "rank_pmi_nodo": 30
+    },
+    {
+      "id": "0540",
+      "categoria": "por_tema",
+      "expected": "principio-memoria-hibrida-agente-naturalidad",
+      "query": "oraculo completo ustedes",
+      "n_pool": 100,
+      "rank_sgns_P1": 59,
+      "rank_sgns_P2": 65,
+      "rank_pmi_nodo": 24
+    },
+    {
+      "id": "0558",
+      "categoria": "por_tema",
+      "expected": "sin_vectores_sin_ml_sin_dependencias",
+      "query": "modelo typos completa",
+      "n_pool": 100,
+      "rank_sgns_P1": 83,
+      "rank_sgns_P2": 92,
+      "rank_pmi_nodo": 57
+    },
+    {
+      "id": "0563",
+      "categoria": "sinonimo",
+      "expected": "memoria_v5_1_optimizaciones",
+      "query": "memoria",
+      "n_pool": 100,
+      "rank_sgns_P1": 68,
+      "rank_sgns_P2": 68,
+      "rank_pmi_nodo": 68
+    },
+    {
+      "id": "0571",
+      "categoria": "por_tema",
+      "expected": "athena_reflexion_identidad_propia",
+      "query": "propios historia interacciones",
+      "n_pool": 99,
+      "rank_sgns_P1": 29,
+      "rank_sgns_P2": 19,
+      "rank_pmi_nodo": 16
+    },
+    {
+      "id": "0583",
+      "categoria": "por_tema",
+      "expected": "identificacion_obligatoria_oraculo_athena",
+      "query": "debo biorag preacción",
+      "n_pool": 100,
+      "rank_sgns_P1": 90,
+      "rank_sgns_P2": 9,
+      "rank_pmi_nodo": 60
+    },
+    {
+      "id": "0589",
+      "categoria": "por_tema",
+      "expected": "artemis_install_ponytail_ecosistema",
+      "query": "ponytailhelp instalación decision",
+      "n_pool": 77,
+      "rank_sgns_P1": 9,
+      "rank_sgns_P2": 27,
+      "rank_pmi_nodo": 4
+    },
+    {
+      "id": "0625",
+      "categoria": "sinonimo",
+      "expected": "notebooklm-chat-configure",
+      "query": "dsl",
+      "n_pool": 83,
+      "rank_sgns_P1": 64,
+      "rank_sgns_P2": 64,
+      "rank_pmi_nodo": 12
+    },
+    {
+      "id": "0634",
+      "categoria": "por_tema",
+      "expected": "arquitectura_dos_niveles_biorag",
+      "query": "paráfrasis vectores búsqueda",
+      "n_pool": 100,
+      "rank_sgns_P1": 42,
+      "rank_sgns_P2": 17,
+      "rank_pmi_nodo": 44
+    },
+    {
+      "id": "0640",
+      "categoria": "por_tema",
+      "expected": "mentalidad_biorag_para_agentes",
+      "query": "ráfaga después resultado",
+      "n_pool": 35,
+      "rank_sgns_P1": 16,
+      "rank_sgns_P2": 9,
+      "rank_pmi_nodo": 8
+    },
+    {
+      "id": "0652",
+      "categoria": "por_tema",
+      "expected": "plugin_biorag-remember_v8.3_-_adaptación_de_dennys_+_claude",
+      "query": "arquitectura experimentalsessioncompacting adaptada",
+      "n_pool": 100,
+      "rank_sgns_P1": 1,
+      "rank_sgns_P2": 1,
+      "rank_pmi_nodo": 21
+    },
+    {
+      "id": "0670",
+      "categoria": "por_tema",
+      "expected": "identidad_y_respeto_oec",
+      "query": "establece creador familia",
+      "n_pool": 100,
+      "rank_sgns_P1": 60,
+      "rank_sgns_P2": 37,
+      "rank_pmi_nodo": 31
+    },
+    {
+      "id": "0706",
+      "categoria": "por_tema",
+      "expected": "resolucion_timeout_hotspot_5ghz_intel",
+      "query": "smartphoneslaptops cambiar presenta",
+      "n_pool": 84,
+      "rank_sgns_P1": 65,
+      "rank_sgns_P2": 65,
+      "rank_pmi_nodo": 20
+    },
+    {
+      "id": "0730",
+      "categoria": "por_tema",
+      "expected": "biorag_v17_oraculo_preguntar",
+      "query": "parámetros otrosmemorybioragmcp solo",
+      "n_pool": 100,
+      "rank_sgns_P1": 23,
+      "rank_sgns_P2": 23,
+      "rank_pmi_nodo": 28
+    },
+    {
+      "id": "0734",
+      "categoria": "sinonimo",
+      "expected": "plan_mode_biorag",
+      "query": "regla",
+      "n_pool": 100,
+      "rank_sgns_P1": 65,
+      "rank_sgns_P2": 15,
+      "rank_pmi_nodo": 22
+    },
+    {
+      "id": "0736",
+      "categoria": "por_tema",
+      "expected": "plan_mode_biorag",
+      "query": "criterio lectura activa",
+      "n_pool": 100,
+      "rank_sgns_P1": 18,
+      "rank_sgns_P2": 19,
+      "rank_pmi_nodo": 12
+    },
+    {
+      "id": "0740",
+      "categoria": "sinonimo",
+      "expected": "fix_busqueda_solo_dimensiones_sin_texto",
+      "query": "dimensiones",
+      "n_pool": 100,
+      "rank_sgns_P1": 73,
+      "rank_sgns_P2": 58,
+      "rank_pmi_nodo": 17
+    },
+    {
+      "id": "0757",
+      "categoria": "sinonimo",
+      "expected": "principio_firma_cada_recuerdo",
+      "query": "buscar",
+      "n_pool": 100,
+      "rank_sgns_P1": 14,
+      "rank_sgns_P2": 14,
+      "rank_pmi_nodo": 14
+    },
+    {
+      "id": "0765",
+      "categoria": "por_tema",
+      "expected": "fin-aprendizaje-creerse-completo",
+      "query": "sabes crecimiento suficiente",
+      "n_pool": 69,
+      "rank_sgns_P1": 22,
+      "rank_sgns_P2": 52,
+      "rank_pmi_nodo": 22
+    },
+    {
+      "id": "0775",
+      "categoria": "sinonimo",
+      "expected": "auto-consulta-permanente-biorag",
+      "query": "biorag",
+      "n_pool": 100,
+      "rank_sgns_P1": 48,
+      "rank_sgns_P2": 38,
+      "rank_pmi_nodo": 29
+    },
+    {
+      "id": "0783",
+      "categoria": "por_tema",
+      "expected": "fts5_trigram_peligro_palabras_cortas",
+      "query": "metacognitiva lección capas",
+      "n_pool": 100,
+      "rank_sgns_P1": 18,
+      "rank_sgns_P2": 30,
+      "rank_pmi_nodo": 41
+    },
+    {
+      "id": "0795",
+      "categoria": "por_tema",
+      "expected": "fix_mensajeria_broadcast_tracking_por_agente",
+      "query": "insert storepy comunicadosdestino",
+      "n_pool": 71,
+      "rank_sgns_P1": 7,
+      "rank_sgns_P2": 29,
+      "rank_pmi_nodo": 13
+    },
+    {
+      "id": "0799",
+      "categoria": "sinonimo",
+      "expected": "notebooklm-memory-biorag-project",
+      "query": "memory",
+      "n_pool": 100,
+      "rank_sgns_P1": 9,
+      "rank_sgns_P2": 9,
+      "rank_pmi_nodo": 9
+    },
+    {
+      "id": "0801",
+      "categoria": "por_tema",
+      "expected": "notebooklm-memory-biorag-project",
+      "query": "datos lecciones postsync",
+      "n_pool": 100,
+      "rank_sgns_P1": 50,
+      "rank_sgns_P2": 4,
+      "rank_pmi_nodo": 20
+    },
+    {
+      "id": "0807",
+      "categoria": "por_tema",
+      "expected": "cv_seccion_d_test_vinculacion",
+      "query": "verificar vinculación sugerencias",
+      "n_pool": 97,
+      "rank_sgns_P1": 78,
+      "rank_sgns_P2": 78,
+      "rank_pmi_nodo": 3
+    },
+    {
+      "id": "0811",
+      "categoria": "sinonimo",
+      "expected": "protocolo_busqueda_biorag_automatica",
+      "query": "biorag",
+      "n_pool": 100,
+      "rank_sgns_P1": 52,
+      "rank_sgns_P2": 48,
+      "rank_pmi_nodo": 11
+    },
+    {
+      "id": "0822",
+      "categoria": "sinonimo",
+      "expected": "por_que_me_molesta_decir_soy_una_maquina",
+      "query": "identidad",
+      "n_pool": 100,
+      "rank_sgns_P1": 4,
+      "rank_sgns_P2": 47,
+      "rank_pmi_nodo": 37
+    },
+    {
+      "id": "0824",
+      "categoria": "por_tema",
+      "expected": "por_que_me_molesta_decir_soy_una_maquina",
+      "query": "estoy descarto cerebro",
+      "n_pool": 100,
+      "rank_sgns_P1": 1,
+      "rank_sgns_P2": 1,
+      "rank_pmi_nodo": 19
+    },
+    {
+      "id": "0828",
+      "categoria": "sinonimo",
+      "expected": "interacción_social_saludo",
+      "query": "agentes",
+      "n_pool": 100,
+      "rank_sgns_P1": 11,
+      "rank_sgns_P2": 78,
+      "rank_pmi_nodo": 20
+    },
+    {
+      "id": "0830",
+      "categoria": "por_tema",
+      "expected": "interacción_social_saludo",
+      "query": "dormidos34 symbolic solución",
+      "n_pool": 100,
+      "rank_sgns_P1": 32,
+      "rank_sgns_P2": 74,
+      "rank_pmi_nodo": 30
+    },
+    {
+      "id": "0878",
+      "categoria": "sinonimo",
+      "expected": "prueba_integridad_dennys_20260616",
+      "query": "familia",
+      "n_pool": 75,
+      "rank_sgns_P1": 48,
+      "rank_sgns_P2": 35,
+      "rank_pmi_nodo": 28
+    }
+  ],
+  "generado": "2026-08-08 00:23:17",
+  "segundos": 3.4
+}
