@@ -271,7 +271,7 @@ def cargar_contenidos(snapshot: Path) -> tuple[list[list[str]], list[str]]:
     return corpus, conceptos
 
 
-def guardar_vectores(db: sqlite3.Connection, sgns: SGNS) -> None:
+def guardar_vectores(db: sqlite3.Connection, sgns: SGNS, snapshot: Path) -> None:
     """Guarda los vectores de token y de nodo en la DB nueva."""
     cur = db.cursor()
     cur.execute("BEGIN")
@@ -280,7 +280,7 @@ def guardar_vectores(db: sqlite3.Connection, sgns: SGNS) -> None:
     cur.executemany("INSERT INTO tokens (token, freq, vector) VALUES (?, ?, ?)", data_tok)
 
     # vectores de nodo: promedio de los tokens de su contenido
-    con_src = sqlite3.connect(f"file:{DEFAULT_SNAPSHOT}?mode=ro", uri=True)
+    con_src = sqlite3.connect(f"file:{snapshot}?mode=ro", uri=True)
     filas = con_src.execute(
         "SELECT concepto, contenido, estado FROM largo_plazo WHERE estado='activo'"
     ).fetchall()
@@ -470,7 +470,7 @@ def main():
           f"({metrics['segundos']}s)")
 
     print("[4/4] Guardando vectores en la DB nueva...")
-    guardar_vectores(db, sgns)
+    guardar_vectores(db, sgns, snapshot)
     meta_params(db, sgns, metrics)
 
     if args.eval:
