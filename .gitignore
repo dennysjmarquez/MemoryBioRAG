@@ -64,3 +64,7 @@ MemoryBioRAG_Data/_verif_tmp.db-shm
 MemoryBioRAG_Data/_verif_tmp.db-wal
 
 scripts/word2vec_puro/word2vec_vectors_prueba.db
+
+# Bases de datos generadas (vectores, datos locales — no subir)
+scripts/**/*.db
+scripts/*.db

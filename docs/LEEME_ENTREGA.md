@@ -54,17 +54,47 @@ distintas y sinonimia limpia real sigue en 0/14. No es "no se probó
 todavía" — se probó y no funcionó, con evidencia (`ppmi_svd_vectors_ctx_eval.json`
 adjunto).
 
-## 3. Próxima hipótesis (no implementada — para que la evalúen ustedes)
+## 3. Retrofitting (Faruqui et al. 2015) sobre `sinapsis` real — REFUTADO (2026-08-08)
 
-La DB tiene tabla `sinapsis` (grafo de nodos relacionados, ya existe en
-producción, se puede leer solo-lectura). Ningún experimento de la cadena
-usó esa señal — todos partieron solo del texto. *Retrofitting* (Faruqui et
-al. 2015): ajustar los vectores PPMI+SVD para que además queden cerca de
-sus vecinos en el grafo de sinapsis. Cero dependencias externas (la señal
-sale de la propia DB), respeta el aislamiento. Vale la pena porque ya se
-descartó que el problema sea el método de co-ocurrencia — puede que sea que
-71k tokens de puro texto no alcanza para que la sinonimia paradigmática
-emerja, y el grafo ya tiene esa relación codificada por otro camino.
+La hipótesis de la sección previa se implementó y probó: `scripts/ppmi_svd_retro.py`
+(aislado, no toca `v2_suave`). Usa la tabla `sinapsis` REAL de
+`memory_biorag.db` (12.337 filas, 11.910 aristas usable, nodos con 10–96
+vecinos). Dos modos:
+
+1. **`concepto`** — retrofitea vectores de nodo contra sus vecinos directos
+   (Faruqui estándar). Barrido α ∈ {0.1..0.7}, it ∈ {1..3}.
+2. **`tokens`** — expande cada arista concepto→concepto a token→token
+   (top-40 vecinos/token, 127.856 aristas) y retrofitea la matriz W.
+   Barrido α ∈ {0.3..0.8}, it ∈ {2..5}; también `--solo-tipo`
+   ∈ {sinonimo_explicito, pmi_hebbiano, manual}.
+
+**Resultado — ninguna config destraba el gate de sinonimia:**
+```
+baseline (v2_suave, sin retro):     por_tema 15/21  sinonimo 2/14
+concepto α=0.1 it=1-3:              15/21          2/14
+concepto α=0.3:                     12–13/21       2/14
+concepto α=0.7 it=5:                10/21          1/14
+tokens α=0.3-0.8 it=2-5:            14–15/21       2/14
+tokens solo sinonimo_explicito:     15/21          2/14
+```
+Los 2 aciertos de siempre (0520, 0822 — co-ocurrencia léxica). Control de
+cordura pasa. `por_tema` nunca regresó por debajo del gate 10.
+
+**Diagnóstico (no es bug, es estructural):** la señal SÍ llega — el coseno
+del expected sube +0.16 a +0.24 en los 14 casos de sinónimo y el gap contra
+top-5 baja de 0.36 → 0.07 promedio. Pero el grafo es **demasiado denso**
+(60–96 vecinos por nodo): el retrofitting comprime TODO el pool hacia los
+centroides, los competidores suben igual que el expected y los ranks quedan
+congelados. Faruqui funciona con léxicos escasos (5–10 vecinos/palabra);
+un grafo denso y heterogéneo (tipos mezclados) aplasta la discriminación
+relativa. Consistente con la lección JSD ya guardada: señales globales
+aplastan queries genéricas.
+
+**Conclusión:** retrofitting con la sinapsis real NO es la palanca para
+sinonimia limpia. Si se quisiera insistir, habría que adelgazar drásticamente
+el grafo (solo edges de alta confianza tipo `manual`/`sinonimo_explicito`
+de 1 salto), pero la evidencia actual dice que el problema no se resuelve
+con una presión global.
 
 ## Restricciones respetadas
 Sistema aislado (solo lectura sobre `memory_biorag.db`), sin dependencias

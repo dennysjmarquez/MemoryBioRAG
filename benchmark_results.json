@@ -1,0 +1,29 @@
+{
+  "fecha": "2026-08-08T20:47:36.371828",
+  "config": {
+    "n_nodes": 100,
+    "n_queries": 50
+  },
+  "resultados": [
+    {
+      "sistema": "BioRAG",
+      "nodos": 100,
+      "queries": 50,
+      "latencia_avg_ms": 10.8,
+      "latencia_min_ms": 7.47,
+      "latencia_max_ms": 19.53,
+      "memoria_mb": 318.3,
+      "throughput_qps": 92.6
+    },
+    {
+      "sistema": "LangChain+Chroma",
+      "nodos": 100,
+      "queries": 50,
+      "latencia_avg_ms": 1.37,
+      "latencia_min_ms": 0.96,
+      "latencia_max_ms": 4.81,
+      "memoria_mb": 366.3,
+      "throughput_qps": 731.6
+    }
+  ]
+}

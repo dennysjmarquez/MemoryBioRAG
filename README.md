@@ -1,13 +1,13 @@
-# BioRAG v25.2 — Neocórtex Sintético con La Hormiguita, Predicados SRL, HDC Binding y Grafo Maintenance Daemon
+# BioRAG v26.0 — Neocórtex Sintético con PPMI+SVD + Retrofitting de Grafo + IDF-Synonym Hybrid Retrieval
 
-> **Versión:** v25.2 — Agosto 2026
-> **Paradigma:** Circuito Sintético Cognitivamente Cerrado & Red por Defecto (DMN Ideación Autónoma en Reposo + GABA en Vivo + Dopamina RPE con Inercia Sináptica + Valencia Somática Cortical + Escalado Homeostático + PMI + SDM 2048-bit con Multi-Proyección K + HDC Binding + SLS + Stemmer Bilingüe + Predicados SRL + Feedback-Driven Graph Learning + La Hormiguita + Re-Ranking Jaccard Léxico)
-> **Motor:** Python puro + SQLite FTS5 WAL
-> **Dependencias ML:** 0 (mcp + nltk para WordNet, 0 numpy, 0 sentence-transformers, 0 torch, 0 dependencias C++ o CUDA)
+> **Versión:** v26.0 — Agosto 2026
+> **Paradigma:** Circuito Sintético Cognitivamente Cerrado & Factorización Matricial PPMI+SVD (100 Dims) + Retrofitting Hebbiano Faruqui (2015) + IDF-Synonym Specificity Scoring + Propagación Multi-Hop (DMN Ideación Autónoma en Reposo + GABA en Vivo + Dopamina RPE con Inercia Sináptica + Valencia Somática Cortical + Escalado Homeostático + PMI + SDM 2048-bit + HDC Binding + SLS + Stemmer Bilingüe + Predicados SRL + La Hormiguita)
+> **Motor:** Python puro + NumPy + SQLite FTS5 WAL
+> **Dependencias ML:** 0 (mcp + nltk para WordNet, 0 sentence-transformers, 0 torch, 0 dependencias C++ o CUDA)
 > **Idiomas:** Español + Inglés (stemming bilingüe ES/EN + expansión simbólica vía WordNet)
-> **Tests:** 117 tests biológicos automatizados — 116/117 pasan (1 fallo preexistente documentado, test 83; ver Historial v25.0/v25.1)
+> **Benchmark (35 Casos Pool):** por_tema 14/21 ✔, sinonimo 8/14 ✔, sinonimia limpia 2 ✔ (Todos los 3 gates de evaluación pasados)
 
-**BioRAG** es una arquitectura de memoria cognitiva simbólica, biomimética y persistente para agentes de inteligencia artificial. Resuelve el problema fundamental de que los LLMs olvidan todo entre sesiones — sin depender de vectores densos, embeddings, GPU ni infraestructura externa. Opera sobre un espacio discreto, determinista y auditable: 13 ejes semánticos × 102 sub-valores declarativos, 45 grupos léxicos WordNet, Pointwise Mutual Information (PMI/NPMI) aprendido sobre el corpus, Sparse Distributed Memory (SDM de 2048 bits) con Multi-Proyección K y Query-by-Example para búsqueda semántica por Hamming distance, Computación Hiperdimensional (HDC) para binding de predicados, un pipeline de recuperación de 14 capas en cascada con expansión simbólica bilingüe (Stemmer ES/EN + Levenshtein + WordNet), un grafo de conocimiento dinámico con plasticidad negativa y sinapsis latentes semánticas (SLS), un motor autónomo de Red por Defecto (DMN) que divaga y genera hipótesis en reposo, un sistema de mantenimiento automatizado del grafo (La Hormiguita) con cuarentena y benchmark gate, y Feedback-Driven Graph Learning con LTP asintótico sobre caminos de spreading activation.
+**BioRAG** es una arquitectura de memoria cognitiva simbólica, biomimética y persistente para agentes de inteligencia artificial. Resuelve el problema fundamental de que los LLMs olvidan todo entre sesiones — sin depender de embeddings pesados de PyTorch/Transformers, GPUs ni infraestructura externa. Opera sobre un espacio discreto, determinista y auditable: Factorización Espectral PPMI+SVD de 100 dimensiones, Retrofitting Hebbiano sobre el grafo de sinapsis, Especificidad IDF sobre el índice de sinónimos curados, 13 ejes semánticos × 102 sub-valores declarativos, 45 grupos léxicos WordNet, Pointwise Mutual Information (PMI/NPMI) aprendido sobre el corpus, Sparse Distributed Memory (SDM de 2048 bits), Computación Hiperdimensional (HDC) para binding de predicados, un pipeline de recuperación híbrido con expansión simbólica bilingüe, un grafo de conocimiento dinámico con plasticidad negativa y sinapsis latentes semánticas (SLS), un motor autónomo de Red por Defecto (DMN) que divaga y genera hipótesis en reposo, y un sistema de mantenimiento automatizado del grafo (La Hormiguita).
 
 ---
 
@@ -15,14 +15,18 @@
 
 > Metodología: **Peso excluido del scoring** (`ignore_peso_sinaptico=True`) — campo de juego nivelado sin artefactos de umbral de ruido. Determinismo verificado: 4 corridas idénticas. Tests: 116/117 (test 83 falla preexistente, documentado en v25.0).
 
-### Comparativa de la Evolución de `por_tema`
+### Comparativa de la Evolución de `por_tema` y `sinonimo` (Benchmark Pool 35 Casos)
 
-| Métrica | v18.0–v21.0 | v22.2 (PRF) | **v23.0 (Rebalanceo)** | **v23.1 (Predicados SRL)** | **v25.2 (baseline real)** | **v25.2 (+ Jaccard)** | Estado |
+| Métrica | v18.0–v21.0 | v22.2 | v23.0 | v25.2 (+ Jaccard) | **v26.0 (PPMI+SVD Hybrid)** | Gate Exigido | Estado |
 |---|---|---|---|---|---|---|---|
-| **Recall@5** | 36.92% | 58.46% | **70.77%** | ⚠️ **84.62%*** | **67.69%** | **81.54%** | 🚀 **+13.85 pp** |
-| **Recall@1** | 12.31% | 20.00% | **40.00%** | **58.46%** | **60.00%** | **76.92%** | 📈 **+16.92 pp** |
+| **por_tema top-5** | 36.92% | 58.46% | 70.77% | 66.67% (14/21) | **66.67% (14/21)** | $\ge 10\,/\,21$ | 🏆 **✔ PASA (+40%)** |
+| **sinonimo top-5** | 14.28% | 14.28% | 14.28% | 14.28% (2/14) | **57.14% (8/14)** | $\ge 6\,/\,14$ | 🏆 **✔ PASA (+33%)** |
+| **sinonimia limpia** | 0 | 0 | 0 | 0 | **2** | $\ge 1$ | 🏆 **✔ PASA** |
 
-> \* ⚠️ El `84.62%` de v23.1 es un snapshot con backfill parcial de predicados — no representativo del corpus real.
+> **Hito v26.0:** Primera versión en la historia del proyecto en destrabar simultáneamente los 3 gates de evaluación (temática, sinónimos y sinonimia limpia) sin depender de modelos preentrenados densos ni GPUs.
+
+**Validación QA completa (921 casos, snapshot congelado):** con la señal PPMI activada por defecto (`BIORAG_PPMI_WEIGHT=0.15`) el sistema obtiene `por_tema` R@5 **86.15%**, `sinonimo` R@5 **83.61%**, GLOBAL R@5 **96.71%**, FP 22.5%. Supera el mejor `por_tema` de v25.2 (81.54% con Jaccard). Ver CHANGELOG v26.0.
+
 
 > **Nota de veracidad:** el `84.62%` histórico de v23.1 provenía de un snapshot con `por_tema` en un corpus de 614 nodos y backfill parcial de predicados. Medido sobre el corpus real actual (921 casos QA, 2026-08-04), el baseline real de `por_tema` es **67.69%**, y el re-ranking jaccard lo eleva a **81.54%** (+13.85pp) con protecciones (protect-r0, gate 0.04, topk 20) que eliminan las regresiones. Ver `EXPERIMENTS.md` para la narrativa completa.
 

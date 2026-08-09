@@ -13,7 +13,19 @@ from core.memory_store import SQLiteMemoryBioRAG
 
 def run_evaluation():
     base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+    # Cargar .env.local automáticamente si existe
+    env_local = os.path.join(base_dir, ".env.local")
+    if os.path.exists(env_local):
+        with open(env_local, "r", encoding="utf-8") as f:
+            for line in f:
+                line = line.strip()
+                if line and not line.startswith("#") and "=" in line:
+                    k, v = line.split("=", 1)
+                    os.environ.setdefault(k.strip(), v.strip())
+
     src_db = os.environ.get('BIORAG_PATH') or os.path.join(base_dir, "MemoryBioRAG_Data", "memory_biorag.db")
+
     temp_db = os.path.join(base_dir, "MemoryBioRAG_Data", "memory_biorag_qa_temp.db")
     cases_filename = sys.argv[1] if len(sys.argv) > 1 else "casos_qa_baseline_v1.jsonl"
     cases_file = os.path.join(base_dir, "scripts", cases_filename)

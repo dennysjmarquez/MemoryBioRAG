@@ -83,7 +83,17 @@ RERANKING_JACCARD_WINDOW = int(os.environ.get('BIORAG_RERANKING_JACCARD_WINDOW',
 """Ventana del pool sobre la que se calcula max_jaccard para el gate.
 Override: export BIORAG_RERANKING_JACCARD_WINDOW=50"""
 
+# Signal #13: PPMI+SVD Vector Similarity (v26.0)
+# Activación gradual (lección PPR): primero OFF (0.0), luego validado en
+# snapshot congelado sobre los 921 casos QA: peso 0.15 óptimo (por_tema R@5
+# 78.46% → 86.15%, sinonimo 73.77% → 83.61%, global 95.23% → 96.71%,
+# FP +2.5pp 20.0% → 22.5%). Se deja ON por defecto a 0.15.
+PPMI_VECTOR_WEIGHT = float(os.environ.get('BIORAG_PPMI_WEIGHT', '0.15'))
+"""Peso de la señal PPMI+SVD en _calcular_score_hibrido. 0.15 = default (v26.0).
+Override: export BIORAG_PPMI_WEIGHT=0.0 para volver al comportamiento v25.2"""
+
 # =============================================================================
+
 
 class SQLiteMemoryBioRAG:
     """
@@ -146,6 +156,16 @@ class SQLiteMemoryBioRAG:
         self._thematic_scores_cache = None
         self._thematic_profiles_cache = None
         self._thematic_idf_cache = None
+        # Signal #13 (v26.0): Índice de vectores PPMI+SVD (lazy-loaded, ~320KB en RAM)
+        # Solo se carga si BIORAG_PPMI_WEIGHT > 0 para cero overhead cuando está OFF
+        self._ppmi_index = None
+        if PPMI_VECTOR_WEIGHT > 0.0:
+            try:
+                from core.ppmi_hybrid_search import IndicesBioRAG
+                self._ppmi_index = IndicesBioRAG(str(self.db_path))
+            except Exception:
+                pass  # Silencioso: si la tabla no existe aún, se crea en el próximo sueño
+
 
     def notificar_actividad_usuario(self):
         """Notifica actividad del usuario al motor DMN si está activo."""
@@ -2186,8 +2206,23 @@ class SQLiteMemoryBioRAG:
                     print(f"[SDM] {n_sdm} vectores reindexados (selectivo).")
         except Exception:
             pass
+        # Signal #13 (v26.0): Reindexar vectores PPMI+SVD con los nuevos nodos consolidados.
+        # Se ejecuta siempre (independiente de PPMI_VECTOR_WEIGHT) para mantener las tablas
+        # tokens/nodos/meta actualizadas y listas para cuando se active el flag.
+        try:
+            from core.ppmi_vectorizer import reindexar_ppmi_svd
+            n_ppmi = reindexar_ppmi_svd(self.conn)
+            if n_ppmi:
+                print(f"[PPMI] {n_ppmi} nodos reindexados con PPMI+SVD+Retrofitting.")
+            # Recargar el índice en memoria si estaba activo
+            if self._ppmi_index is not None:
+                from core.ppmi_hybrid_search import IndicesBioRAG
+                self._ppmi_index = IndicesBioRAG(str(self.db_path))
+        except Exception as _ppmi_err:
+            pass  # No bloquear el sueño si PPMI falla
 
         print("[MemoryBioRAG] Proceso de consolidación y equilibrio sináptico completado con éxito.")
+
 
     def aplicar_refuerzo_dopaminergico(self, concepto: str, exito: bool, motivo: str = None) -> bool:
         """
@@ -2889,14 +2924,16 @@ class SQLiteMemoryBioRAG:
                                 grupo_score=0.0, tematico_score=0.0,
                                 jsd_score: float = 0.0,
                                 jsd_weight: float = 0.0,
-                                pred_score: float = 0.0):
-        """Score híbrido unificado: 10 señales ortogonales + JSD (signal #11) + Predicados (signal #12).
+                                pred_score: float = 0.0,
+                                ppmi_score: float = 0.0):
+        """Score híbrido unificado: 10 señales ortogonales + JSD (signal #11) + Predicados (signal #12) + PPMI+SVD (signal #13).
         grupo_score: similitud por grupo semántico WordNet (coseno binario).
         tematico_score: similitud temática por ausencia/presencia de dimensiones (IDF).
         match_exacto: preserva precisión en búsquedas por nombre exacto (floor 0.5).
         jsd_score: Jensen-Shannon Divergence como similitud [0,1].
         jsd_weight: peso de JSD en la fórmula (0.0 = desactivado, 0.05 = default activo).
-        pred_score: matching de query tokens contra predicados SRL [0,1]."""
+        pred_score: matching de query tokens contra predicados SRL [0,1].
+        ppmi_score: similitud vectorial PPMI+SVD+Retrofitting normalizada [0,1]. Signal #13 (v26.0)."""
         asoc_norm = min(1.0, asoc_count / 20.0)
         peso_norm = min(1.0, peso_sinaptico)
 
@@ -2917,15 +2954,18 @@ class SQLiteMemoryBioRAG:
                 0.02 * asoc_norm +           # Asociaciones
                 0.20 * pred_score            # Signal #12: Predicados SRL (20x weight)
             ) +
-            jsd_weight * jsd_score           # Signal #11: JSD distributional overlap
+            jsd_weight * jsd_score +         # Signal #11: JSD distributional overlap
+            PPMI_VECTOR_WEIGHT * ppmi_score  # Signal #13: PPMI+SVD vector similarity (v26.0)
         )
 
         if match_exacto:
             score = max(0.95, score)
         elif sinonimos_ratio >= 0.95:
-            score = max(0.65, score)
+            score = max(0.70 + 0.10 * ppmi_score, score)
+
 
         return round(min(1.0, score), 4)
+
 
     def expandir_contexto_vecinos(self, pagina_resultados, depth, profundidad="activos", preview_chars=None):
         """Expande el contexto de una página devolviendo (primarios, contextos).
@@ -4228,6 +4268,26 @@ class SQLiteMemoryBioRAG:
                 matches = sum(1 for t in tokens_query if t in pred_tokens)
                 pred_val = min(1.0, matches / max(1, len(tokens_query)))
 
+            # Signal #13: PPMI+SVD vector similarity (v26.0)
+            # OFF por defecto (PPMI_VECTOR_WEIGHT=0.0). Activar con: export BIORAG_PPMI_WEIGHT=0.15
+            ppmi_val = 0.0
+            if PPMI_VECTOR_WEIGHT > 0.0 and self._ppmi_index:
+                try:
+                    from core.ppmi_hybrid_search import score_candidato
+                    q_toks_list = list(tokens_query)
+                    q_set = set(q_toks_list)
+                    es_corta = len(q_set) <= 2
+                    pool_set = {r[1] for r in todos}
+                    _raw_ppmi, _ = score_candidato(self._ppmi_index, q_toks_list, q_set, es_corta, concepto, pool_set)
+                    # Normalizar: el score bruto de score_candidato ronda 0-2 para query corta (dividir por 2.0), 0-1 para larga
+                    ppmi_val = min(1.0, max(0.0, _raw_ppmi / (2.0 if es_corta else 1.0)))
+
+
+
+                except Exception:
+                    ppmi_val = 0.0
+
+
             score_hibrido = self._calcular_score_hibrido(
                 bm25_norm=bm25_norm_map.get(concepto, 0.0),
                 dim_score=dim_score,
@@ -4242,8 +4302,10 @@ class SQLiteMemoryBioRAG:
                 tematico_score=tematico_score,
                 jsd_score=jsd_val,
                 jsd_weight=JSD_WEIGHT,
-                pred_score=pred_val
+                pred_score=pred_val,
+                ppmi_score=ppmi_val
             )
+
 
             resultados_con_hibrido.append(
                 (concepto, contenido, peso, estado, score_hibrido, asociaciones or "")
@@ -4326,12 +4388,14 @@ class SQLiteMemoryBioRAG:
 
         # Context window: expandir cada resultado con vecinos por sinapsis
         if context_window and context_window > 0 and pagina_resultados:
-            pagina_resultados, _ = self.expandir_contexto_vecinos(
+            primarios_ctx, vecinos_ctx = self.expandir_contexto_vecinos(
                 pagina_resultados,
                 depth=context_window,
                 profundidad=profundidad,
                 preview_chars=preview_chars
             )
+            pagina_resultados = primarios_ctx + vecinos_ctx
+
 
         # Truncar preview a nivel de motor (ahorra RAM en CLI/MCP)
         if preview_chars and preview_chars > 0:
@@ -4645,7 +4709,8 @@ class SQLiteMemoryBioRAG:
                 tematico_score=0.0,
                 jsd_score=jsd_val,
                 jsd_weight=JSD_WEIGHT,
-                pred_score=0.0  # Rafaga path: no predicate data precomputed
+                pred_score=0.0,   # Rafaga path: no predicate data precomputed
+                ppmi_score=0.0    # Signal #13: neutral en ráfaga (queries ya son muy específicas)
             )
 
             scored.append((concepto, contenido, peso, estado, score_hibrido, asoc or ""))

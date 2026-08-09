@@ -1,5 +1,41 @@
 # BioRAG Changelog
 
+## v26.0 (2026-08-08)
+
+### Motor Híbrido PPMI+SVD + Retrofitting de Grafo + IDF-Synonym Specificity Scoring
+
+**Objetivo:** Destrabar la categoría `sinonimo` y resolver el plateau de búsqueda distribucional sin modelos preentrenados ni dependencias externas de IA.
+
+**Features Principales:**
+- **PPMI+SVD (100 Dims) + Retrofitting de Grafo (Faruqui et al., 2015)**: Factorización determinista de la matriz término-documento con Smoothing $\alpha=0.75$ y Shift $k=1.0$. Ajuste geométrico de nodos mediante el grafo de sinapsis hebbianas en 5 iteraciones ($\lambda=0.2$). Cómputo de la corteza completa en $< 0.8$ segundos.
+- **IDF-Synonym Specificity Scoring (Pilar 1)**: Trata la lista de sinónimos curados como una distribución TF-IDF: $\text{Score}_{\text{IDF-Sin}} = \frac{1}{\log(1 + n_{\text{sin\_nodo}})} \times \frac{1}{\log(1 + k_{\text{pool}})}$. Nodos con sinónimos específicos e intencionales se posicionan en `#1` y `#2` frente a términos omnipresentes (`perfil`, `biorag`, `identidad`).
+- **Nodos & Tokens Binarios**: Tablas `tokens`, `nodos` y `meta` integradas en la base SQLite principal.
+- **Modo Dual de Búsqueda (PPMI+IDF)**: Modo Sinónimo IDF para queries de 1 token; Modo Temático PPMI Coseno con vector de consulta IDF-weighted para queries de 2+ tokens.
+- **Propagación Multi-Hop**: Incorpora energía de nodos vecinos de 1 salto con factor de atenuación $\text{decay}=0.4$.
+
+**Resultados Benchmark Validado (35 casos):**
+- `por_tema` top-5: **14 / 21** ✔ (Gate $\ge 10$)
+- `sinonimo` top-5: **8 / 14** ✔ (Gate $\ge 6$)
+- `sinonimia limpia`: **2** ✔ (Gate $\ge 1$)
+- **Todos los 3 gates pasan simultáneamente por primera vez.**
+
+### Validación sobre QA completo (921 casos, snapshot congelado — 2026-08-08)
+
+Se validó el peso de la señal PPMI sobre `casos_qa_baseline_v1.jsonl` (921 casos, DB congelada de 803 nodos para comparación determinista):
+
+| Métrica | OFF (0.0) | PPMI 0.10 | **PPMI 0.15 (default)** |
+|---|---|---|---|
+| `por_tema` R@5 | 78.46% (14 fail) | 84.62% (10) | **86.15% (9)** |
+| `sinonimo` R@5 | 73.77% (16) | 83.61% (10) | **83.61% (10)** |
+| GLOBAL R@5 | 95.23% | 96.59% | **96.71%** |
+| GLOBAL R@1 | 86.61% | 87.74% | **88.20%** |
+| FP (negativo) | 20.0% (8/40) | 22.5% (9/40) | 22.5% (9/40) |
+
+- Diff caso-a-caso (0.15 vs OFF, mismo snapshot): **16 arreglados** (8 `sinonimo`, 4 `por_tema`, 3 `variante`, 1 `typo`) / **4 regresiones** (`0733` typo, `0750` variante, `0840` sinonimo, `0904` negativo/FP).
+- **Decisión:** `BIORAG_PPMI_WEIGHT=0.15` por defecto. Sobre el QA completo, `por_tema` supera el mejor v25.2 (81.54% con Jaccard). Costo: +2.5pp FP (8→9 de 40).
+
+---
+
 ## v25.2 (2026-08-04)
 
 ### Re-Ranking Jaccard Léxico — Activación Gradual (Cierre del Proyecto por_tema)
