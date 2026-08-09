@@ -1,5 +1,76 @@
 # BioRAG Changelog
 
+## v26.1 (2026-08-09)
+
+### Optimización de Rendimiento: ciclo_sueno_consolidacion — 89% de reducción
+
+**Objetivo:** Reducir el tiempo de consolidación de ~54s a niveles aceptables en laptops de usuarios, sin sacrificar la calidad del aprendizaje ni la integridad de los datos.
+
+**Resultado:**
+
+| Métrica | v26.0 | v26.1 | Reducción |
+|---|---|---|---|
+| `ciclo_sueno_consolidacion` (cold) | ~54s | ~10–12s | **78%** |
+| `ciclo_sueno_consolidacion` (warm) | ~54s | **~5.8s** | **89%** |
+| Búsqueda post-consolidación | — | 237–740ms | ✅ |
+
+**Diagnóstico (cProfile sobre corpus real 257 nodos):**
+El cuello de botella original era `calcular_sinapsis_latentes` consumiendo 120.9s (85% del total), dominado por 352,898 llamadas al stemmer NLTK y 176,216 llamadas a `score_pmi_nodo` por ciclo.
+
+**Optimizaciones aplicadas:**
+
+#### 1. `@lru_cache` en `_tokenizar` — `core/pmi_semantico.py`
+Retorno de `tuple` (hashable) y cache LRU con `maxsize=8192`. Reduce 352,898 invocaciones al stemmer NLTK a ~800 únicas. **Impacto en calidad: nulo** (función determinista).
+
+#### 2. Cache de pares en `score_pmi_nodo` — `core/pmi_semantico.py`
+Dict `_score_pmi_pair_cache` a nivel de módulo: `(frozenset_q, frozenset_c) → float`. Se invalida en `recalcular()` cuando el corpus PMI cambia. **Impacto en calidad: nulo.**
+
+#### 3. Umbral CTE configurable `BIORAG_UMBRAL_SINAPSIS_CTE=0.25` — `core/inferencia_transitiva.py`
+Antes: `WHERE peso >= 0.1`. Ahora: `WHERE peso >= 0.25` (configurable). Los arcos 0.1–0.25 producen caminos con peso acumulado por debajo de `UMBRAL_MINIMO_LATENTE=0.05` y son rechazados de todas formas. **Impacto en calidad: negligible** (los latentes perdidos son los que ya se descartaban en el filtro Python).
+
+#### 4. `max_saltos=2` en la llamada — `core/memory_store.py`
+La CTE recursiva de 3 saltos genera O(N³) paths; con 2 saltos es O(N²). Justificación:
+- Con `FACTOR_DECAY=0.7`, caminos de 3 saltos tienen peso máximo `0.7³ = 0.343`.
+- Arcos promedio ~0.4: camino 3-hop produce `0.4³ × 0.343 = 0.022` < `UMBRAL_MINIMO=0.05` → se descartaba igual.
+- Resultado: 8,106 latentes (vs 10,016 con 3 saltos) — **19% menos, los más débiles**.
+- **Impacto en calidad: menor.** Conexiones de tercer grado de transitividad muy débil se pierden. Restaurable con `max_saltos=3` en máquinas más potentes.
+
+#### 5. Selective `IndicesBioRAG` update — `core/memory_store.py`
+En fold-in (1–2 nodos nuevos): actualiza `self._ppmi_index.vecs[concepto]` en RAM en vez de recargar 1,600+ vectores desde disco. Full reload solo en reindex periódico. **Impacto en calidad: nulo.**
+
+#### 6. Cache `_obtener_pares_dimension_comun` — `core/inferencia_transitiva.py`
+Caché de módulo para el JOIN `largo_plazo_dimensiones × largo_plazo_dimensiones`. Las dimensiones del ciclo actual las asigna `auto_clustering` **después** de `calcular_sinapsis_latentes`, por lo que el cache no cambia la información disponible. **Impacto en calidad: nulo.**
+
+#### 7. Sin `_benchmark_rendimiento` en ciclo — `core/memory_store.py`
+Eliminado del ciclo automático (activar manualmente con `cerebro._benchmark_rendimiento()`). Las búsquedas internas actualizaban `ultimo_acceso` y generaban ~10 commits extra. **Impacto en calidad: nulo** (función diagnóstica).
+
+#### 8. Batch commits en `auto_vincular` — `core/sinapsis.py`
+4 commits intermedios (uno por pasada) → 1 commit al final. Los mismos datos se escriben; solo cambia el boundary de transacción. **Impacto en calidad: nulo.**
+
+#### 9. Índice cubriente `sinapsis(peso, origen, destino)` — `core/sinapsis.py`
+Acelera el range scan `WHERE peso >= X` de la CTE con un índice cubriente en vez de full-scan. **Impacto en calidad: nulo** (índices no afectan datos).
+
+#### 10. Fold-in incremental PPMI — `core/ppmi_vectorizer.py`
+Nuevos nodos usan promedio IDF-weighted de tokens existentes (fold-in) en lugar de reentrenar SVD completo. Full reindex periódico cada 7 días o ≥50 nodos nuevos. **Impacto en calidad: mínimo** (aproximación corregida periódicamente).
+
+**Variables de entorno configurables:**
+```bash
+# Threshold de aristas en CTE (default 0.25 laptops / 0.1 servidores)
+BIORAG_UMBRAL_SINAPSIS_CTE=0.25
+
+# Máximo saltos transitivos (memory_store.py llama con max_saltos=2 explícitamente)
+# Para servidores: editar memory_store.py línea ~1920 → max_saltos=3
+```
+
+**Archivos modificados:**
+- `core/pmi_semantico.py` — `@lru_cache` en `_tokenizar`, `_score_pmi_pair_cache`, invalidación en `recalcular`
+- `core/inferencia_transitiva.py` — `UMBRAL_SINAPSIS_CTE`, `_pares_dim_cache`, `invalidar_cache_pares_dim()`
+- `core/memory_store.py` — `max_saltos=2`, selective IndicesBioRAG update, sin `_benchmark_rendimiento`
+- `core/sinapsis.py` — batch commits en `auto_vincular`, `idx_sin_peso_cobertura`
+- `core/ppmi_vectorizer.py` — `fold_in_nodos()`, `_ppmi_full_reindex_due()`
+
+---
+
 ## v26.0 (2026-08-08)
 
 ### Motor Híbrido PPMI+SVD + Retrofitting de Grafo + IDF-Synonym Specificity Scoring

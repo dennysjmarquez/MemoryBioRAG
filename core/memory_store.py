@@ -1912,9 +1912,12 @@ class SQLiteMemoryBioRAG:
         self._auto_generar_co_ocurrencia(recuerdos_sesion)
 
         # Inferencia transitiva: recalcular sinapsis latentes (v16.0)
+        # max_saltos=2: cubre A→B→C (transitivo de 1 intermediario), cobertura suficiente
+        # para laptops. FACTOR_DECAY=0.7 hace que el 3er salto apenas supere el umbral 0.05
+        # (0.7³ × 0.5 ≈ 0.17 para aristas fuertes), por lo que los saltos 3 aportan poco valor real.
         try:
             from core.inferencia_transitiva import calcular_sinapsis_latentes
-            n_latentes = calcular_sinapsis_latentes(self)
+            n_latentes = calcular_sinapsis_latentes(self, max_saltos=2)
             if n_latentes:
                 print(f"[Inferencia Transitiva] {n_latentes} sinapsis latentes calculadas.")
         except Exception as e:
@@ -2072,7 +2075,10 @@ class SQLiteMemoryBioRAG:
         # Transacción se mantiene abierta para commit atómico final con métricas
 
         # 6. Benchmark de rendimiento post-consolidacion
-        self._benchmark_rendimiento()
+        # Omitido en cada ciclo: corre búsquedas reales que actualizan ultimo_acceso,
+        # generan commits extra (~10 commits × 0.25s) y suman ~5s sin valor operativo.
+        # Activar puntualmente con: cerebro._benchmark_rendimiento()
+        # self._benchmark_rendimiento()
 
         # 7. Eviccion opcional (solo si BIORAG_PODAR=true)
         # Snapshot ANTES de evicción
@@ -2206,20 +2212,48 @@ class SQLiteMemoryBioRAG:
                     print(f"[SDM] {n_sdm} vectores reindexados (selectivo).")
         except Exception:
             pass
-        # Signal #13 (v26.0): Reindexar vectores PPMI+SVD con los nuevos nodos consolidados.
-        # Se ejecuta siempre (independiente de PPMI_VECTOR_WEIGHT) para mantener las tablas
-        # tokens/nodos/meta actualizadas y listas para cuando se active el flag.
+        # Signal #13 (v26.0): Reindexar vectores PPMI+SVD de forma incremental (fold-in < 10ms)
+        # El re-entrenamiento completo (SVD full) solo se ejecuta periódicamente si han acumulado >=50 nodos y 7 días
+        _ppmi_did_full = False
         try:
-            from core.ppmi_vectorizer import reindexar_ppmi_svd
-            n_ppmi = reindexar_ppmi_svd(self.conn)
-            if n_ppmi:
-                print(f"[PPMI] {n_ppmi} nodos reindexados con PPMI+SVD+Retrofitting.")
-            # Recargar el índice en memoria si estaba activo
+            from core.ppmi_vectorizer import reindexar_ppmi_svd, fold_in_nodos, _ppmi_full_reindex_due
+            conceptos_nuevos = [c for c, *_ in recuerdos_sesion] if recuerdos_sesion else []
+            if _ppmi_full_reindex_due(self.conn, delta_nodos_nuevos=len(conceptos_nuevos)):
+                n_ppmi = reindexar_ppmi_svd(self.conn)
+                _ppmi_did_full = True
+                if n_ppmi:
+                    print(f"[PPMI] {n_ppmi} nodos reindexados con PPMI+SVD+Retrofitting (full periódico).")
+            else:
+                n_ppmi = fold_in_nodos(self.conn, conceptos_nuevos)
+                if n_ppmi:
+                    print(f"[PPMI] {n_ppmi} nodos reindexados con fold-in incremental.")
+
+            # Actualizar el índice en memoria
             if self._ppmi_index is not None:
-                from core.ppmi_hybrid_search import IndicesBioRAG
-                self._ppmi_index = IndicesBioRAG(str(self.db_path))
+                if _ppmi_did_full:
+                    # Full reindex: recargar todo desde disco
+                    from core.ppmi_hybrid_search import IndicesBioRAG
+                    self._ppmi_index = IndicesBioRAG(str(self.db_path))
+                else:
+                    # Fold-in: actualizar solo los nodos nuevos en el dict en memoria (ahorra ~5.9s)
+                    import numpy as np
+                    for concepto in conceptos_nuevos:
+                        row = self.conn.execute(
+                            "SELECT vector FROM nodos WHERE concepto = ?", (concepto,)
+                        ).fetchone()
+                        if row:
+                            self._ppmi_index.vecs[concepto] = np.frombuffer(row[0], dtype='float32').astype('float64')
         except Exception as _ppmi_err:
             pass  # No bloquear el sueño si PPMI falla
+
+        # Invalidar cachés temáticos y de inferencia en RAM para que reconozcan los nuevos nodos
+        self._thematic_scores_cache = None
+        self._thematic_profiles_cache = None
+        self._thematic_idf_cache = None
+        # NO se invalida el cache de pares_dim aquí: la dimension data se transfiere
+        # de corto→largo ANTES de que calcular_sinapsis_latentes la lea, así que el
+        # cache del ciclo actual ya refleja los nuevos nodos. Persistirlo ahorra 2.566s
+        # en el siguiente ciclo. Solo se invalida cuando auto_clustering agrega nuevas dims.
 
         print("[MemoryBioRAG] Proceso de consolidación y equilibrio sináptico completado con éxito.")
 

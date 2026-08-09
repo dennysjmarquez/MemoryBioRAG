@@ -42,6 +42,9 @@ def init_sinapsis_table(cursor):
     """)
     cursor.execute("CREATE INDEX IF NOT EXISTS idx_sin_origen ON sinapsis(origen)")
     cursor.execute("CREATE INDEX IF NOT EXISTS idx_sin_destino ON sinapsis(destino)")
+    # Índice cubriente para la CTE recursiva de inferencia_transitiva:
+    # WHERE peso >= X  JOIN ON origen=destino  → range scan + covering lookup sin acceder a la tabla
+    cursor.execute("CREATE INDEX IF NOT EXISTS idx_sin_peso_cobertura ON sinapsis(peso, origen, destino)")
     cursor.connection.commit()
 
 
@@ -118,9 +121,6 @@ def auto_vincular(cerebro, concepto, contenido, umbral=0.4):
                 dirty.add(conc_exist)
             vinculados.append((conc_exist, peso))
 
-    if vinculados:
-        cerebro.cursor.connection.commit()
-
     # ─── Pasada 2: vincular por nombre de concepto (LIKE + PALABRA_COMPLETA) ───
     # Conecta nodos que comparten palabras clave en el nombre aunque su
     # contenido use vocabulario distinto. No requiere FTS5 — usa LIKE directo.
@@ -173,8 +173,7 @@ def auto_vincular(cerebro, concepto, contenido, umbral=0.4):
                         dirty.add(conc_exist)
                     vinculados.append((conc_exist, peso_link))
                     count_name += 1
-            if any(v not in ya_vinculados for v in vinculados):
-                cerebro.cursor.connection.commit()
+            # commit al final de todas las pasadas
         except sqlite3.OperationalError:
             pass
 
@@ -235,8 +234,6 @@ def auto_vincular(cerebro, concepto, contenido, umbral=0.4):
                                 dirty.add(conc_exist)
                             vinculados.append((conc_exist, peso_link))
                             count_syn += 1
-                if any(v not in ya_vinculados for v in vinculados):
-                    cerebro.cursor.connection.commit()
             except sqlite3.OperationalError:
                 pass
 
@@ -301,8 +298,6 @@ def auto_vincular(cerebro, concepto, contenido, umbral=0.4):
                                 dirty.add(conc_exist)
                             vinculados.append((conc_exist, peso_link))
                             count_pmi += 1
-                if any(v not in ya_vinculados for v in vinculados):
-                    cerebro.cursor.connection.commit()
     except Exception:
         pass
 
@@ -310,7 +305,7 @@ def auto_vincular(cerebro, concepto, contenido, umbral=0.4):
         _sincronizar_asociaciones(cerebro, concepto)
         for conc_exist, _ in vinculados:
             _sincronizar_asociaciones(cerebro, conc_exist)
-        cerebro.cursor.connection.commit()
+        cerebro.cursor.connection.commit()  # Único commit de todas las pasadas
 
     # Reindex SDM selectivo: marcar dirty los extremos de sinapsis nuevas
     if dirty:

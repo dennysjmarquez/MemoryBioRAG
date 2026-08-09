@@ -20,6 +20,7 @@ import re
 import time
 import os
 from collections import Counter
+from functools import lru_cache
 from core.stopwords import STOPWORDS
 
 # =============================================================================
@@ -53,20 +54,23 @@ _TOKEN_PATTERN = re.compile(r'\b[a-zA-Z\u00e1\u00e9\u00ed\u00f3\u00fa\u00f1]{3,}
 _TOKENS_CORTOS = {'dsl', 'api', 'mcp', 'rag', 'cpu', 'ram', 'gpu', 'cli', 'sql', 'orm'}
 
 
-def _tokenizar(texto: str) -> list[str]:
-    """Tokeniza texto → lista de STEMS limpios (sin stopwords, con términos técnicos).
-    Usar stems garantiza que buscar/búsqueda/búscamos contribuyan al mismo token
-    en la matriz de co-ocurrencia.
+@lru_cache(maxsize=8192)
+def _tokenizar(texto: str) -> tuple[str, ...]:
+    """Tokeniza texto → tupla de STEMS limpios (sin stopwords, con términos técnicos).
+    Memoizada con lru_cache: durante calcular_sinapsis_latentes los mismos ~800 conceptos
+    se tokenizaban 440 veces cada uno (352,898 llamadas → 156M str.endswith). Con el cache
+    se reduce a 1 llamada por texto único.
+    Retorna tupla (inmutable) para ser compatible con lru_cache.
     """
     if not texto:
-        return []
+        return ()
     from core.stemmer_es import stem as _stem
     texto = texto.replace('_', ' ').replace('-', ' ')
     tokens = _TOKEN_PATTERN.findall(texto.lower())
     cortos = [t for t in texto.lower().split() if t in _TOKENS_CORTOS]
     todos = [t for t in (tokens + cortos) if t not in STOPWORDS]
     # Aplicar stem → normaliza morfología antes de calcular PMI
-    return [_stem(t) for t in todos]
+    return tuple(_stem(t) for t in todos)
 
 
 # =============================================================================
@@ -214,6 +218,7 @@ def recalcular(cursor_or_cerebro=None, forzar: bool = False) -> int:
     _cache['freq'] = dict(doc_freq)
     _cache['total_nodos'] = total
     _cache['calculado_en'] = time.time()
+    _score_pmi_pair_cache.clear()  # Invalidar scores cacheados: el corpus cambió
 
     elapsed = (time.perf_counter() - t0) * 1000
     print(f"[PMI] Corpus recalculado: {total} nodos, {len(npmi_map)} pares, {elapsed:.1f}ms")
@@ -235,6 +240,8 @@ def get_npmi(cursor_or_cerebro, tok_a: str, tok_b: str) -> float:
     par = (min(tok_a, tok_b), max(tok_a, tok_b))
     return _cache['npmi'].get(par, 0.0)
 
+
+_score_pmi_pair_cache: dict = {}   # (frozenset_q, frozenset_c) → float  (cache de scores por par)
 
 def score_pmi_nodo(arg1, arg2=None, arg3=None) -> float:
     """
@@ -261,18 +268,18 @@ def score_pmi_nodo(arg1, arg2=None, arg3=None) -> float:
             c_input = arg2
 
     if isinstance(q_input, str):
-        q_tokens = set(_tokenizar(q_input))
+        q_tokens = frozenset(_tokenizar(q_input))
     elif isinstance(q_input, (set, list, tuple)):
-        q_tokens = set(q_input)
+        q_tokens = frozenset(q_input)
     else:
-        q_tokens = set()
+        q_tokens = frozenset()
 
     if isinstance(c_input, str):
-        c_tokens = set(_tokenizar(c_input))
+        c_tokens = frozenset(_tokenizar(c_input))
     elif isinstance(c_input, (set, list, tuple)):
-        c_tokens = set(c_input)
+        c_tokens = frozenset(c_input)
     else:
-        c_tokens = set()
+        c_tokens = frozenset()
 
     if not q_tokens or not c_tokens:
         return 0.0
@@ -280,19 +287,17 @@ def score_pmi_nodo(arg1, arg2=None, arg3=None) -> float:
     if not _cache['npmi'] and cursor is not None:
         recalcular(cursor)
 
+    # Cache de resultados por par de token-sets (elimina el loop O(q×c) redundante)
+    # Durante calcular_sinapsis_latentes los mismos 800 conceptos se evalúan 176,216 veces
+    # → con cache basta con calcular cada par único 1 sola vez
+    cache_key = (q_tokens, c_tokens)
+    cached = _score_pmi_pair_cache.get(cache_key)
+    if cached is not None:
+        return cached
+
     # ─────────────────────────────────────────────────────────────────
     # Pattern Completion Scoring (Completación de Patrón)
     # ─────────────────────────────────────────────────────────────────
-    # Analogía biológica: la query es un PATRÓN de neuronas activándose
-    # juntas. Cada neurona (token del query) busca su mejor resonancia
-    # en el nodo candidato. El score final es el PROMEDIO de todas las
-    # neuronas del query, INCLUYENDO las que no resonaron (score=0).
-    #
-    # Antes: avg de pares positivos → "arquitectura" sola daba 1.0
-    # Ahora: avg de TODOS los tokens → "arquitectura" sin "frontend" da 0.5
-    #
-    # Esto es exactamente cómo el hipocampo evalúa Pattern Completion:
-    # una señal parcial genera una reconstrucción parcial, no total.
     per_query_best = []
     for qt in q_tokens:
         best = 0.0
@@ -306,10 +311,14 @@ def score_pmi_nodo(arg1, arg2=None, arg3=None) -> float:
         per_query_best.append(best)
 
     if not per_query_best:
+        _score_pmi_pair_cache[cache_key] = 0.0
         return 0.0
 
-    # Promedio de TODOS los query tokens (incluye los 0.0)
-    return round(min(1.0, sum(per_query_best) / len(per_query_best)), 4)
+    result = round(min(1.0, sum(per_query_best) / len(per_query_best)), 4)
+    # Limitar tamaño del cache para evitar consumo excesivo de RAM (máx 32k pares)
+    if len(_score_pmi_pair_cache) < 32768:
+        _score_pmi_pair_cache[cache_key] = result
+    return result
 
 
 def pares_fuertes(cursor, token: str, top_n: int = 10) -> list[tuple[str, float]]:

@@ -182,6 +182,107 @@ def cargar_contenidos(con: sqlite3.Connection, estados=None):
     return corpus, conceptos, ests
 
 
+def _ppmi_full_reindex_due(con: sqlite3.Connection, delta_nodos_nuevos: int = 0) -> bool:
+    """True si pasaron al menos 7 días Y se acumularon >= 50 nodos nuevos.
+    Diseñado para computadoras personales (evita picos de CPU inútiles).
+    """
+    try:
+        count = con.execute("SELECT COUNT(*) FROM nodos").fetchone()[0]
+        if count == 0:
+            return True
+        row = con.execute("SELECT valor FROM meta WHERE clave = 'actualizado_en'").fetchone()
+        if not row:
+            return True
+        ultimo_ts = float(row[0])
+        
+        row_delta = con.execute("SELECT valor FROM meta WHERE clave = 'nodos_acumulados_desde_full'").fetchone()
+        acumulados = int(row_delta[0]) if row_delta else 0
+        acumulados += delta_nodos_nuevos
+        con.execute("INSERT OR REPLACE INTO meta VALUES ('nodos_acumulados_desde_full', ?)", (str(acumulados),))
+        
+        hace_7_dias = (time.time() - ultimo_ts) >= 7 * 86400
+        return hace_7_dias and acumulados >= 50
+    except Exception:
+        return True
+
+
+def fold_in_nodos(con: sqlite3.Connection, conceptos_nuevos: list[str]) -> int:
+    """Calcula vectores de forma incremental solo para nodos nuevos usando la tabla tokens existente.
+    Tarda < 10ms y no congela la CPU en laptops.
+    """
+    if not conceptos_nuevos:
+        return 0
+
+    token_rows = con.execute("SELECT token, freq, vector FROM tokens").fetchall()
+    if not token_rows:
+        return reindexar_ppmi_svd(con)
+
+    token_vecs = {}
+    token_freq = {}
+    for t, f, blob in token_rows:
+        token_vecs[t] = np.frombuffer(blob, dtype='float32').astype('float64')
+        token_freq[t] = f
+
+    n_docs_row = con.execute("SELECT COUNT(*) FROM largo_plazo").fetchone()
+    n_docs = n_docs_row[0] if n_docs_row else 100
+
+    ph = ",".join("?" for _ in conceptos_nuevos)
+    filas = con.execute(f"SELECT concepto, contenido, sinonimos, estado FROM largo_plazo WHERE concepto IN ({ph})", conceptos_nuevos).fetchall()
+
+    nuevos_vecs = {}
+    nodos_rows = []
+    for concepto, contenido, sinonimos, estado in filas:
+        texto = f"{concepto.replace('_', ' ').replace('-', ' ')} {sinonimos or ''} {contenido or ''}"
+        toks = _tokenizar(texto)
+
+        vsum = None
+        wsum = 0.0
+        n_conv = 0
+        for tok in set(toks):
+            if tok in token_vecs:
+                freq = token_freq.get(tok, 1)
+                idf_w = math.log((n_docs + 1.0) / (freq + 1.0)) + 1.0
+                v = token_vecs[tok] * idf_w
+                vsum = v if vsum is None else vsum + v
+                wsum += idf_w
+                n_conv += 1
+
+        if vsum is None or wsum < 1e-10:
+            v_final = np.zeros(100, dtype='float64')
+        else:
+            v_final = vsum / wsum
+
+        nuevos_vecs[concepto] = v_final
+        nodos_rows.append((concepto, estado, len(toks), n_conv, v_final.astype('float32').tobytes()))
+
+    if not nodos_rows:
+        return 0
+
+    con.executemany("INSERT OR REPLACE INTO nodos VALUES (?, ?, ?, ?, ?)", nodos_rows)
+
+    adj = _cargar_sinapsis(con)
+    vecinos_set = set()
+    for c in conceptos_nuevos:
+        for dest, _ in adj.get(c, []):
+            vecinos_set.add(dest)
+
+    if vecinos_set:
+        ph_v = ",".join("?" for _ in vecinos_set)
+        vecinos_rows = con.execute(f"SELECT concepto, vector FROM nodos WHERE concepto IN ({ph_v})", list(vecinos_set)).fetchall()
+        vecs_dict = {c: v for c, v in nuevos_vecs.items()}
+        for c, blob in vecinos_rows:
+            vecs_dict[c] = np.frombuffer(blob, dtype='float32').astype('float64')
+
+        retro = retrofit(vecs_dict, adj, iters=3, lam=0.2)
+        con.executemany(
+            "UPDATE nodos SET vector = ? WHERE concepto = ?",
+            [(v.astype('float32').tobytes(), c) for c, v in retro.items()]
+        )
+
+    con.commit()
+    return len(nodos_rows)
+
+
 def reindexar_ppmi_svd(con: sqlite3.Connection, dim: int = 100, retrofit_lam: float = 0.2, retrofit_iters: int = 5):
     """Reindexa la matriz de la corteza en la conexión SQLite dada."""
     # 1. Asegurar tablas
@@ -237,9 +338,11 @@ def reindexar_ppmi_svd(con: sqlite3.Connection, dim: int = 100, retrofit_lam: fl
         ('dim', str(dim)),
         ('vocab', str(metricas['vocab'])),
         ('var_explicada', str(metricas['varianza_explicada_top_k'])),
-        ('actualizado_en', str(time.time()))
+        ('actualizado_en', str(time.time())),
+        ('nodos_acumulados_desde_full', '0')
     ]:
         con.execute("INSERT OR REPLACE INTO meta VALUES (?, ?)", (k, v))
 
     con.commit()
     return len(conceptos)
+

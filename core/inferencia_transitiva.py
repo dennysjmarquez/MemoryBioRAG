@@ -45,9 +45,21 @@ UMBRAL_PESO_DIM_SOLO   = float(os.environ.get('BIORAG_UMBRAL_PESO_DIM',     '0.3
 # Top-K poda por nodo (Pattern Separation — inhibición lateral)
 MAX_LATENTES_POR_NODO  = int(os.environ.get('BIORAG_MAX_LATENTES_NODO',     '20'))
 
+# Umbral de peso de sinapsis para la CTE (cuánto ruido se filtra EN ORIGEN).
+# En laptops: 0.25 reduce candidatos de ~177k a ~15k sin perder conexiones significativas.
+# Servidores: 0.1 (default) para máxima cobertura de inferencia.
+UMBRAL_SINAPSIS_CTE    = float(os.environ.get('BIORAG_UMBRAL_SINAPSIS_CTE', '0.25'))
+
+# Cache de pares con dimensión común (invalida tras cada consolidación)
+_pares_dim_cache: dict = {'data': None}
+
 
 def _obtener_pares_dimension_comun(cerebro) -> set[tuple[str, str]]:
-    """Devuelve un set de pares (origen, destino) que comparten al menos una dimensión semántica."""
+    """Devuelve un set de pares (origen, destino) que comparten al menos una dimensión semántica.
+    Resultado cacheado en RAM durante toda la sesión — invalida llamando a invalidar_cache_pares_dim().
+    """
+    if _pares_dim_cache['data'] is not None:
+        return _pares_dim_cache['data']
     try:
         cur = cerebro.cursor.execute("""
             SELECT DISTINCT d1.concepto, d2.concepto
@@ -59,9 +71,15 @@ def _obtener_pares_dimension_comun(cerebro) -> set[tuple[str, str]]:
         for r in cur.fetchall():
             pares.add((r[0], r[1]))
             pares.add((r[1], r[0]))
+        _pares_dim_cache['data'] = pares
         return pares
     except Exception:
         return set()
+
+
+def invalidar_cache_pares_dim():
+    """Llamar tras consolidar para que la próxima consulta rehaga el JOIN."""
+    _pares_dim_cache['data'] = None
 
 
 def calcular_sinapsis_latentes(cerebro, max_saltos=None, factor_decay=None, umbral=None):
@@ -80,6 +98,7 @@ def calcular_sinapsis_latentes(cerebro, max_saltos=None, factor_decay=None, umbr
         umbral = UMBRAL_MINIMO_LATENTE
 
     max_saltos = min(max_saltos, 3)  # Hard cap para proteger rendimiento
+    umbral_cte = UMBRAL_SINAPSIS_CTE
 
     ahora = time.time()
 
@@ -102,7 +121,7 @@ def calcular_sinapsis_latentes(cerebro, max_saltos=None, factor_decay=None, umbr
             SELECT origen, destino, ROUND(peso * {factor_decay}, 4), 1,
                    origen || ',' || destino, tipo
             FROM sinapsis
-            WHERE peso >= 0.1
+            WHERE peso >= {umbral_cte}
 
             UNION ALL
 
