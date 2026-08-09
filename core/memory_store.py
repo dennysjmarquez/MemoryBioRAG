@@ -4269,7 +4269,7 @@ class SQLiteMemoryBioRAG:
                 pred_val = min(1.0, matches / max(1, len(tokens_query)))
 
             # Signal #13: PPMI+SVD vector similarity (v26.0)
-            # OFF por defecto (PPMI_VECTOR_WEIGHT=0.0). Activar con: export BIORAG_PPMI_WEIGHT=0.15
+            # ON por defecto (PPMI_VECTOR_WEIGHT=0.15). Apagar con: export BIORAG_PPMI_WEIGHT=0.0
             ppmi_val = 0.0
             if PPMI_VECTOR_WEIGHT > 0.0 and self._ppmi_index:
                 try:
