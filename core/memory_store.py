@@ -4177,29 +4177,25 @@ class SQLiteMemoryBioRAG:
         from core.fallback_simbolico import _tokenizar_normalizado, score_simbolico_concepto, score_simbolico_sinonimos
         tokens_query = _tokenizar_normalizado(query)
 
-        # v22.1: Pre-compute thematic profiles and scores for tematico_score
-        # Use cached values if available (computed once, reused across searches)
+        # v22.1: Pre-compute thematic profiles and lazy-cache pairwise scores
+        # On-demand calculation per candidate pair (O(K^2) for K=50 top candidates instead of O(N^2) for N=800 all nodes)
         _perfiles_tematicos = {}
         _idf_tematico = {}
-        _scores_tematicos = {}  # Cache: {(a, b): score}
+        _todas_dims = None
         try:
-            from core.tematica import calcular_perfiles_presencia, calcular_idf_dims, precompute_thematic_scores
-            
-            # Use cached values if available
-            if self._thematic_scores_cache is not None:
+            from core.tematica import calcular_perfiles_presencia, calcular_idf_dims, similitud_tematica
+            if self._thematic_profiles_cache is not None:
                 _perfiles_tematicos = self._thematic_profiles_cache
                 _idf_tematico = self._thematic_idf_cache
-                _scores_tematicos = self._thematic_scores_cache
             else:
-                # Compute and cache
                 _perfiles_tematicos = calcular_perfiles_presencia(self)
                 _idf_tematico = calcular_idf_dims(self)
-                _scores_tematicos = precompute_thematic_scores(self, _perfiles_tematicos, _idf_tematico)
-                
-                # Store in cache
                 self._thematic_profiles_cache = _perfiles_tematicos
                 self._thematic_idf_cache = _idf_tematico
-                self._thematic_scores_cache = _scores_tematicos
+                self._thematic_scores_cache = {}
+            if self._thematic_scores_cache is None:
+                self._thematic_scores_cache = {}
+            _todas_dims = set(_idf_tematico.keys())
         except Exception:
             pass
 
@@ -4237,16 +4233,21 @@ class SQLiteMemoryBioRAG:
             sinonimos_ratio = max(resultados_semantica.get(concepto, 0.0), sinonimos_s_score)
 
             # v22.1: Compute thematic score (presence + absence of dimensions)
-            # Use precomputed scores from cache for O(1) lookup
-            # Expanded to top-50 candidates (was top-20) to boost content-expanded nodes
+            # On-demand pairwise calculation over top-50 candidates with memoization (O(1) cached)
             tematico_score = 0.0
-            if _scores_tematicos:
+            if _perfiles_tematicos and _todas_dims:
                 sims = []
                 for _, (other_concepto, _, _, _, _, _) in enumerate(todos[:50]):
-                    if other_concepto != concepto:
-                        key = (concepto, other_concepto)
-                        if key in _scores_tematicos:
-                            sims.append(_scores_tematicos[key])
+                    if other_concepto != concepto and concepto and other_concepto:
+                        c1, c2 = str(concepto), str(other_concepto)
+                        pair_key = (c1, c2) if c1 <= c2 else (c2, c1)
+                        if pair_key not in self._thematic_scores_cache:
+                            s = similitud_tematica(concepto, other_concepto, self, _perfiles_tematicos, _idf_tematico)
+                            self._thematic_scores_cache[pair_key] = s
+                        else:
+                            s = self._thematic_scores_cache[pair_key]
+                        if s > 0.1:
+                            sims.append(s)
                 if sims:
                     tematico_score = min(1.0, sum(sims) / len(sims) * 3.0)
 
