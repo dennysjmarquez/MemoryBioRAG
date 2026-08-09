@@ -4426,6 +4426,41 @@ class SQLiteMemoryBioRAG:
         self.last_todos = todos
         self.last_origen_scores = origen_scores
 
+        # Puente LLM de Sinonimia: detectar términos con 0 hits reales.
+        # Solo se activa cuando no hay resultados O el top score es muy bajo
+        # (< 0.25 = trigram noise). Costo cero para búsquedas exitosas.
+        _score_top = pagina_resultados[0][4] if pagina_resultados else 0.0
+        _activar_puente = (total == 0 or _score_top < 0.25) and frase and not modo_estricto
+        if _activar_puente:
+            try:
+                from core.stopwords import STOPWORDS
+                raw_tokens = re.findall(r'\b[a-zA-Z0-9_\u00e1\u00e9\u00ed\u00f3\u00fa\u00f1\u00c1\u00c9\u00cd\u00d3\u00da\u00d1]{2,}\b', frase)
+                q_toks = [t.lower() for t in raw_tokens if t.lower() not in STOPWORDS]
+                terminos_sin_match = []
+                for t in q_toks:
+                    found = False
+                    try:
+                        self.cursor.execute(
+                            "SELECT 1 FROM largo_plazo WHERE "
+                            "PALABRA_COMPLETA(?, concepto) = 1 OR "
+                            "PALABRA_COMPLETA(?, contenido) = 1 OR "
+                            "PALABRA_COMPLETA(?, COALESCE(sinonimos, '')) = 1 LIMIT 1",
+                            (t, t, t)
+                        )
+                        if self.cursor.fetchone():
+                            found = True
+                    except Exception:
+                        pass
+                    if not found:
+                        terminos_sin_match.append(t)
+                self.last_terminos_sin_match = terminos_sin_match
+            except Exception:
+                self.last_terminos_sin_match = []
+        else:
+            self.last_terminos_sin_match = []
+
+
+
         # Phase 2D: Telemetría de búsquedas (non-blocking)
         try:
             top_score = pagina_resultados[0][4] if pagina_resultados else None

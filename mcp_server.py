@@ -968,6 +968,7 @@ def _build_server():
                                 f"biorag_desvincular(a='{origen_bfs}', b='{concepto}')."
                             )
 
+            _last_unmatched = getattr(cerebro, 'last_terminos_sin_match', [])
             resultado = json.dumps({
                 "total": total,
                 "pagina_actual": pagina,
@@ -977,7 +978,9 @@ def _build_server():
                 "sinapsis_creadas": [{"origen": o, "destino": d, "peso": p} for o, d, p in sinapsis_creadas] if sinapsis_creadas else [],
                 "profundidad": profundidad,
                 "trazabilidad": trazabilidad,
+                "terminos_sin_match": _last_unmatched,
             }, ensure_ascii=False)
+
 
             # Guardar params completos de la búsqueda en log_busquedas
             try:
