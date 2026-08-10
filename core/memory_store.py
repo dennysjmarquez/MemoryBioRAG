@@ -2287,6 +2287,7 @@ class SQLiteMemoryBioRAG:
                         ).fetchone()
                         if row:
                             self._ppmi_index.vecs[concepto] = np.frombuffer(row[0], dtype='float32').astype('float64')
+            self.conn.commit()
         except Exception as _ppmi_err:
             pass  # No bloquear el sueño si PPMI falla
 

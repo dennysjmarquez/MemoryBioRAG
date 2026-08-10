@@ -2,7 +2,7 @@
   "resumen": {
     "por_tema": {
       "n": 21,
-      "top1": 7,
+      "top1": 8,
       "top5": 15,
       "top10": 16
     },
@@ -38,7 +38,7 @@
       "categoria": "sinonimo",
       "expected": "dennys-identidad-profunda",
       "query": "perfil",
-      "rank": 46,
+      "rank": 43,
       "n_pool": 87,
       "query_degenerada": false
     },
@@ -65,7 +65,7 @@
       "categoria": "por_tema",
       "expected": "biorag_v11_1_detalle_tecnico",
       "query": "activa largo archivos",
-      "rank": 15,
+      "rank": 17,
       "n_pool": 100,
       "query_degenerada": false
     },
@@ -101,7 +101,7 @@
       "categoria": "por_tema",
       "expected": "athena_reflexion_identidad_propia",
       "query": "propios historia interacciones",
-      "rank": 2,
+      "rank": 1,
       "n_pool": 99,
       "query_degenerada": false
     },
@@ -146,7 +146,7 @@
       "categoria": "por_tema",
       "expected": "mentalidad_biorag_para_agentes",
       "query": "ráfaga después resultado",
-      "rank": 4,
+      "rank": 3,
       "n_pool": 35,
       "query_degenerada": false
     },
@@ -155,7 +155,7 @@
       "categoria": "por_tema",
       "expected": "plugin_biorag-remember_v8.3_-_adaptación_de_dennys_+_claude",
       "query": "arquitectura experimentalsessioncompacting adaptada",
-      "rank": 31,
+      "rank": 38,
       "n_pool": 100,
       "query_degenerada": false
     },
@@ -173,7 +173,7 @@
       "categoria": "por_tema",
       "expected": "resolucion_timeout_hotspot_5ghz_intel",
       "query": "smartphoneslaptops cambiar presenta",
-      "rank": 7,
+      "rank": 6,
       "n_pool": 84,
       "query_degenerada": false
     },
@@ -182,7 +182,7 @@
       "categoria": "por_tema",
       "expected": "biorag_v17_oraculo_preguntar",
       "query": "parámetros otrosmemorybioragmcp solo",
-      "rank": 12,
+      "rank": 11,
       "n_pool": 100,
       "query_degenerada": false
     },
@@ -191,7 +191,7 @@
       "categoria": "sinonimo",
       "expected": "plan_mode_biorag",
       "query": "regla",
-      "rank": 64,
+      "rank": 63,
       "n_pool": 100,
       "query_degenerada": false
     },
@@ -209,7 +209,7 @@
       "categoria": "sinonimo",
       "expected": "fix_busqueda_solo_dimensiones_sin_texto",
       "query": "dimensiones",
-      "rank": 18,
+      "rank": 20,
       "n_pool": 100,
       "query_degenerada": false
     },
@@ -236,7 +236,7 @@
       "categoria": "sinonimo",
       "expected": "auto-consulta-permanente-biorag",
       "query": "biorag",
-      "rank": 15,
+      "rank": 13,
       "n_pool": 100,
       "query_degenerada": false
     },
@@ -254,7 +254,7 @@
       "categoria": "por_tema",
       "expected": "fix_mensajeria_broadcast_tracking_por_agente",
       "query": "insert storepy comunicadosdestino",
-      "rank": 20,
+      "rank": 21,
       "n_pool": 71,
       "query_degenerada": false
     },
@@ -263,7 +263,7 @@
       "categoria": "sinonimo",
       "expected": "notebooklm-memory-biorag-project",
       "query": "memory",
-      "rank": 65,
+      "rank": 67,
       "n_pool": 100,
       "query_degenerada": false
     },
@@ -272,7 +272,7 @@
       "categoria": "por_tema",
       "expected": "notebooklm-memory-biorag-project",
       "query": "datos lecciones postsync",
-      "rank": 35,
+      "rank": 31,
       "n_pool": 100,
       "query_degenerada": false
     },
@@ -290,7 +290,7 @@
       "categoria": "sinonimo",
       "expected": "protocolo_busqueda_biorag_automatica",
       "query": "biorag",
-      "rank": 37,
+      "rank": 36,
       "n_pool": 100,
       "query_degenerada": false
     },
@@ -299,7 +299,7 @@
       "categoria": "sinonimo",
       "expected": "por_que_me_molesta_decir_soy_una_maquina",
       "query": "identidad",
-      "rank": 2,
+      "rank": 3,
       "n_pool": 100,
       "query_degenerada": false
     },
@@ -317,7 +317,7 @@
       "categoria": "sinonimo",
       "expected": "interacción_social_saludo",
       "query": "agentes",
-      "rank": 42,
+      "rank": 41,
       "n_pool": 100,
       "query_degenerada": false
     },
@@ -335,7 +335,7 @@
       "categoria": "sinonimo",
       "expected": "prueba_integridad_dennys_20260616",
       "query": "familia",
-      "rank": 35,
+      "rank": 33,
       "n_pool": 75,
       "query_degenerada": false
     }

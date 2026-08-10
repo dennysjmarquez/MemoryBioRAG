@@ -209,6 +209,8 @@ def _ppmi_full_reindex_due(con: sqlite3.Connection, delta_nodos_nuevos: int = 0)
             "ON CONFLICT(clave) DO UPDATE SET valor = excluded.valor",
             (str(acumulados),),
         )
+        con.commit()
+
         
         hace_7_dias = (time.time() - ultimo_ts) >= 7 * 86400
         return hace_7_dias and acumulados >= 50

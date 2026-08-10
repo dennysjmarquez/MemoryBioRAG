@@ -36,7 +36,21 @@ def run_evaluation():
         sys.exit(1)
         
     print(f"Creating isolated database copy at: {temp_db}")
-    shutil.copyfile(src_db, temp_db)
+    for ext in ["", "-wal", "-shm"]:
+        f = temp_db + ext
+        if os.path.exists(f):
+            try:
+                os.remove(f)
+            except OSError:
+                pass
+    conn_src = sqlite3.connect(src_db)
+    conn_src.execute("PRAGMA wal_checkpoint(FULL);")
+    conn_dst = sqlite3.connect(temp_db)
+    conn_src.backup(conn_dst)
+    conn_dst.close()
+    conn_src.close()
+
+
     
     # Load cases
     cases = []
