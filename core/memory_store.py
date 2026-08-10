@@ -80,6 +80,10 @@ RERANKING_JACCARD_TOPK = int(os.environ.get('BIORAG_RERANKING_JACCARD_TOPK', '20
 Override: export BIORAG_RERANKING_JACCARD_TOPK=20"""
 
 RERANKING_JACCARD_WINDOW = int(os.environ.get('BIORAG_RERANKING_JACCARD_WINDOW', '50'))
+
+GABA_ACTIVO = os.environ.get('BIORAG_GABA_ACTIVO', '1').lower() in ('1', 'true', 'yes')
+"""Activar inhibición lateral GABA (Edelman 1987): atenúa competidores secundarios cuando top-1 es atractor fuerte.
+Default ON. Ablación: export BIORAG_GABA_ACTIVO=0"""
 """Ventana del pool sobre la que se calcula max_jaccard para el gate.
 Override: export BIORAG_RERANKING_JACCARD_WINDOW=50"""
 
@@ -4406,7 +4410,8 @@ class SQLiteMemoryBioRAG:
         # v20.0 Inhibición Lateral GABA en Tiempo Real (Edelman 1987)
         # Si el candidato Top-1 es un atractor fuerte (score >= 0.80),
         # atenúa activamente a los competidores secundarios del mismo nicho (x0.60)
-        if resultados_con_hibrido and resultados_con_hibrido[0][4] >= 0.80:
+        # Ablación: export BIORAG_GABA_ACTIVO=0
+        if GABA_ACTIVO and resultados_con_hibrido and resultados_con_hibrido[0][4] >= 0.80:
             top_score = resultados_con_hibrido[0][4]
             gaba_resultados = [resultados_con_hibrido[0]]
             for conc, cont, peso, est, sc, asoc in resultados_con_hibrido[1:]:

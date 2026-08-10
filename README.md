@@ -327,22 +327,68 @@ python3 scripts/test_hdc_stress_versionado.py
 
 ---
 
+### Test 9 — Ablación de Mecanismos Neuro-Narrativos
+
+**Qué verifica:** La contribución real (en Recall@5) de cada mecanismo que tiene naming "neuro-narrativo" — GABA, PPMI+SVD, Re-ranking Jaccard y DMN. Responde directamente la pregunta: *"¿Estos mecanismos en verdad aportan, o son solo marketing?"*
+
+Cada configuración desactiva un mecanismo vía variable de entorno y corre la suite completa de 921 casos de prueba:
+
+```bash
+# Ablación completa automática (5 configs × 921 casos ≈ 45-50 minutos)
+python3 scripts/ablacion_mecanismos.py
+
+# Ablación manual por mecanismo individual:
+
+# 1. Sin GABA (inhibición lateral OFF)
+BIORAG_GABA_ACTIVO=0 python3 scripts/evaluar_qa.py
+
+# 2. Sin Re-ranking Jaccard léxico
+BIORAG_RERANKING_JACCARD_ENABLED=0 python3 scripts/evaluar_qa.py
+
+# 3. Sin PPMI+SVD (señal vectorial apagada)
+BIORAG_PPMI_WEIGHT=0.0 python3 scripts/evaluar_qa.py
+
+# 4. Sin Retrofitting de Grafo Hebbiano (solo PPMI puro)
+python3 scripts/ppmi_svd_retro.py --eval --no-retrofit
+
+# 5. Sin DMN (ideación en reposo desactivada)
+BIORAG_DMN_IDLE_SECONDS=999999 python3 scripts/evaluar_qa.py
+```
+
+**Implementación real de cada mecanismo:**
+
+| Mecanismo | Nombre Técnico Real | Implementación | Variable de Ablación |
+|---|---|---|---|
+| **GABA** | Inhibición Lateral de Atractor (Edelman 1987) | Si top-1 score ≥ 0.80, atenúa competidores con score < top_score×0.70 por factor ×0.60 | `BIORAG_GABA_ACTIVO=0` |
+| **Retrofitting Hebbiano** | Graph-Constrained Vector Retrofitting (Faruqui 2015) | Promedia vectores PPMI con vecinos de sinapsis `sinonimo_explicito` — λ=0.2, 5 iters | `--no-retrofit` en ppmi_svd_retro.py |
+| **PPMI+SVD** | Pointwise Mutual Information + Truncated SVD 100 dims | Coseno entre vector IDF-weighted de query y vectores espectrales de nodos (señal #13) | `BIORAG_PPMI_WEIGHT=0.0` |
+| **Re-ranking Jaccard** | Léxico Rescue (Jaccard léxico de tokens sobre head del ranking) | `score + 0.25 × (jaccard/max_j)` sobre top-20, con protect-r0 | `BIORAG_RERANKING_JACCARD_ENABLED=0` |
+| **LTP/LTD Sináptico** | Long-Term Potentiation/Depression (Hebb 1949) | `peso_sinaptico` ∈ [0.05, 1.0] se incrementa con accesos exitosos, decae con olvido | `ignore_peso_sinaptico=True` |
+| **DMN** | Default Mode Network (spindles replay en reposo) | Daemon thread que genera insights cruzando nodos distantes cuando el agente lleva ≥5 min inactivo | `BIORAG_DMN_IDLE_SECONDS=999999` |
+
+> **Nota sobre LTP/LTD:** La suite QA de 921 casos ya corre con `ignore_peso_sinaptico=True` por diseño (campo de juego nivelado). El efecto del LTP/LTD sináptico se mide en producción real, no en benchmark sintético, porque los pesos solo se diferencian con meses de uso acumulado.
+
+---
+
 ### Tabla Resumen de la Suite Completa
 
 | Test | Script | Casos | Resultado esperado | Tiempo aprox. |
 |---|---|---|---|---|
 | Suite biológica | `test_memory.py` | 112 tests | 112/112 ✔ | ~30s |
-| QA Cranfield | `scripts/evaluar_qa.py` | 921 casos | R@5 96.7% global | 2–5 min |
-| PPMI 3 gates | `scripts/ppmi_svd_retro.py --eval` | 35 casos | 3/3 gates ✔ | ~10s |
+| QA Cranfield | `scripts/evaluar_qa.py` | 921 casos | R@5 95.6% global | ~9 min |
+| PPMI 3 gates | `scripts/ppmi_svd_retro.py --eval` | 35 casos | por_tema gate ✔ | ~10s |
 | Adversariales | `scripts/fuzz_qa.py` | 33 casos | 33/33 ✔ | ~15s |
 | Concurrencia | `scripts/concurrencia_qa.py` | 60 ops | 0 colisiones ✔ | ~5s |
 | Escala | `scripts/escala_qa.py` | 4 volúmenes | O(log N) BM25 ✔ | ~3 min |
 | Ablation Jaccard | `scripts/experimento_faseB_holdout.py` | 921 casos | +13.85pp por_tema ✔ | ~2 min |
 | SDM QBE | `tests/test_sdm_query_by_example.py` | unitario | todos ✔ | ~5s |
+| **Ablación mecanismos** | **`scripts/ablacion_mecanismos.py`** | **921 × 5 configs** | **Tabla de contribución** | **~50 min** |
 
 > **Determinismo verificado:** 4 corridas consecutivas idénticas → misma tabla. `random.seed(42)` en generación de casos QA.
 
 ---
+
+
 
 ## 🏗️ Arquitectura del Motor v26.1 — 13 Señales + PPMI+SVD
 
