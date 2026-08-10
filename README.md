@@ -1840,4 +1840,4 @@ La suite y herramientas asociadas se encuentran en el directorio `scripts/` (exc
 
 ## Licencia
 
-MIT — Dennys J. Marquez (dennysjmarquez@gmail.com)
+Apache License 2.0 — Copyright 2026 Dennys J. Marquez (dennysjmarquez@gmail.com)
