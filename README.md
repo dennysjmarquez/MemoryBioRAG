@@ -83,7 +83,7 @@ BioRAG se ubica en la intersección de cuatro disciplinas científicas:
 
 BioRAG no implementa una técnica aislada — sintetiza catorce mecanismos de campos distintos (recuperación de información, neurociencia computacional, lingüística computacional, sistemas dinámicos) en un único motor cognitivo determinista. Cada uno de los siguientes componentes está implementado y verificable en el código fuente, no es aspiracional:
 
- Fundamento científico | Dónde vive en el código | Para qué se usa |
+| Mecanismo | Fundamento científico | Dónde vive en el código | Para qué se usa |
 |---|---|---|---|
 | **PMI (Pointwise Mutual Information)** | Church & Hanks (1990) | `core/pmi_semantico.py` | Medir qué tan asociados están dos conceptos por co-ocurrencia real en el corpus, y usar eso como señal para auto-vincular nodos nuevos al guardarlos. |
 | **SDM — Sparse Distributed Memory (2048-bit)** | Kanerva (1988) | `core/sdm.py` | Recuperación asociativa por parecido, no por coincidencia exacta — encontrar un recuerdo aunque la consulta esté incompleta o levemente distinta. |
