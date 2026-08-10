@@ -757,7 +757,49 @@ class SQLiteMemoryBioRAG:
                 params_json TEXT
             )
         """)
+        self._crear_tabla_data()
         self.conn.commit()
+
+    def _crear_tabla_data(self):
+        """Tabla clave → valor con estado dinámico del motor vectorial.
+
+        Se crea siempre en la inicialización del sistema (DB nueva y existente),
+        nunca desde el deploy ni desde el motor. Las constantes estáticas del motor
+        viven en core/ppmi_vectorizer.py, no aquí.
+
+        Robusta ante esquemas heredados: si la tabla `data` ya existe sin la
+        columna `descripcion` (instalaciones previas), se agrega con ALTER en
+        lugar de asumir que el CREATE TABLE IF NOT EXISTS la añade (no lo hace).
+        """
+        self.cursor.execute("""
+            CREATE TABLE IF NOT EXISTS data (
+                clave TEXT PRIMARY KEY,
+                valor TEXT,
+                descripcion TEXT
+            )
+        """)
+        cols = {row[1] for row in self.cursor.execute("PRAGMA table_info(data)")}
+        if 'descripcion' not in cols:
+            self.cursor.execute("ALTER TABLE data ADD COLUMN descripcion TEXT")
+        claves_iniciales = [
+            (
+                'ppmi_ultima_reindexacion',
+                str(time.time()),
+                'Timestamp Unix de la última reindexación completa del motor PPMI+SVD',
+            ),
+            (
+                'ppmi_nodos_acumulados',
+                '0',
+                'Nodos nuevos acumulados desde la última reindexación completa del motor PPMI+SVD',
+            ),
+        ]
+        for clave, valor, descripcion in claves_iniciales:
+            self.cursor.execute("SELECT 1 FROM data WHERE clave = ?", (clave,))
+            if not self.cursor.fetchone():
+                self.cursor.execute(
+                    "INSERT OR IGNORE INTO data (clave, valor, descripcion) VALUES (?, ?, ?)",
+                    (clave, valor, descripcion),
+                )
 
     def _crear_tablas_nuevas_si_faltan(self):
         """Crea tablas nuevas (Phase 2D) si no existen en esquemas existentes."""
@@ -877,6 +919,8 @@ class SQLiteMemoryBioRAG:
 
         # Catálogo de dimensiones: sembrar tipos y valores faltantes en DB existente
         self._asegurar_catalogo_dimensiones()
+
+        self._crear_tabla_data()
 
         self.conn.commit()
 
@@ -4451,8 +4495,8 @@ class SQLiteMemoryBioRAG:
                 if resultados_var:
                     return resultados_var, total_var
 
-        # Fallback Causal SRL: únicamente si la búsqueda tradicional por 8 señales devolvió 0 resultados
-        if not pagina_resultados:
+        # Fallback Causal SRL: únicamente si la búsqueda tradicional por 8 señales devolvió 0 resultados Y no hay filtro estricto de rol
+        if not pagina_resultados and not buscar_por_rol:
             res_srl = self._fallback_busqueda_predicados(query, limite=limite)
             if res_srl:
                 pagina_resultados = res_srl

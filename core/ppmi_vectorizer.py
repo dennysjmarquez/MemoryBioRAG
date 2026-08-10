@@ -9,7 +9,7 @@ Algoritmo:
   1. Matriz Término-Documento con PPMI (alpha=0.75, k_shift=1.0)
   2. Factorización TruncatedSVD (dim=100) para obtener W (palabras) y D (documentos/nodos)
   3. Retrofitting de Grafo (Faruqui et al., 2015) sobre sinapsis (5 iters, lambda=0.2)
-  4. Almacenamiento binario en las tablas `tokens`, `nodos` y `meta`
+  4. Almacenamiento binario en las tablas `tokens`, `nodos` y `data`
 """
 import math
 import sqlite3
@@ -22,6 +22,12 @@ from core.stemmer_es import stem as _stem
 
 EXCEPCIONES_STOPWORD = {'memoria', 'buscar', 'memory'}
 STOPWORDS_SUAVE = STOPWORDS - EXCEPCIONES_STOPWORD
+
+# ─── Constantes de Configuración Estática del Motor Vectorial PPMI+SVD ───
+DIM_VECTORIAL = 100
+RETROFIT_LAMBDA = 0.2
+RETROFIT_ITERS = 5
+MOTOR_NOMBRE = "PPMI+SVD+Retrofit"
 
 
 def _tokenizar(texto: str) -> list[str]:
@@ -36,7 +42,7 @@ def _tokenizar(texto: str) -> list[str]:
 
 
 class PPMISVD:
-    def __init__(self, dim: int = 100, min_count: int = 1, alpha: float = 0.75,
+    def __init__(self, dim: int = DIM_VECTORIAL, min_count: int = 1, alpha: float = 0.75,
                  k_shift: float = 1.0, seed: int = 42):
         self.dim = dim
         self.min_count = min_count
@@ -190,15 +196,19 @@ def _ppmi_full_reindex_due(con: sqlite3.Connection, delta_nodos_nuevos: int = 0)
         count = con.execute("SELECT COUNT(*) FROM nodos").fetchone()[0]
         if count == 0:
             return True
-        row = con.execute("SELECT valor FROM meta WHERE clave = 'actualizado_en'").fetchone()
+        row = con.execute("SELECT valor FROM data WHERE clave = 'ppmi_ultima_reindexacion'").fetchone()
         if not row:
             return True
         ultimo_ts = float(row[0])
         
-        row_delta = con.execute("SELECT valor FROM meta WHERE clave = 'nodos_acumulados_desde_full'").fetchone()
+        row_delta = con.execute("SELECT valor FROM data WHERE clave = 'ppmi_nodos_acumulados'").fetchone()
         acumulados = int(row_delta[0]) if row_delta else 0
         acumulados += delta_nodos_nuevos
-        con.execute("INSERT OR REPLACE INTO meta VALUES ('nodos_acumulados_desde_full', ?)", (str(acumulados),))
+        con.execute(
+            "INSERT INTO data (clave, valor) VALUES ('ppmi_nodos_acumulados', ?) "
+            "ON CONFLICT(clave) DO UPDATE SET valor = excluded.valor",
+            (str(acumulados),),
+        )
         
         hace_7_dias = (time.time() - ultimo_ts) >= 7 * 86400
         return hace_7_dias and acumulados >= 50
@@ -295,7 +305,7 @@ def reindexar_ppmi_svd(con: sqlite3.Connection, dim: int = 100, retrofit_lam: fl
                        vector    BLOB
                    )""")
     con.execute("CREATE INDEX IF NOT EXISTS ix_nodos_estado ON nodos(estado)")
-    con.execute("CREATE TABLE IF NOT EXISTS meta (clave TEXT PRIMARY KEY, valor TEXT)")
+    con.execute("CREATE TABLE IF NOT EXISTS data (clave TEXT PRIMARY KEY, valor TEXT)")
 
     # 2. Cargar corpus
     corpus, conceptos, ests = cargar_contenidos(con)
@@ -332,16 +342,17 @@ def reindexar_ppmi_svd(con: sqlite3.Connection, dim: int = 100, retrofit_lam: fl
         [(v.astype('float32').tobytes(), c) for c, v in retro.items()]
     )
 
-    # 7. Metadatos
+    # 7. Estado Dinámico de Ejecución (Solo variables dinámicas de SQLite).
+    # La tabla `data` la crea el sistema (memory_store._crear_tabla_data).
     for k, v in [
-        ('motor', 'PPMI+SVD+Retrofit'),
-        ('dim', str(dim)),
-        ('vocab', str(metricas['vocab'])),
-        ('var_explicada', str(metricas['varianza_explicada_top_k'])),
-        ('actualizado_en', str(time.time())),
-        ('nodos_acumulados_desde_full', '0')
+        ('ppmi_ultima_reindexacion', str(time.time())),
+        ('ppmi_nodos_acumulados', '0')
     ]:
-        con.execute("INSERT OR REPLACE INTO meta VALUES (?, ?)", (k, v))
+        con.execute(
+            "INSERT INTO data (clave, valor) VALUES (?, ?) "
+            "ON CONFLICT(clave) DO UPDATE SET valor = excluded.valor",
+            (k, v)
+        )
 
     con.commit()
     return len(conceptos)

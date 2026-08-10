@@ -252,7 +252,7 @@ def crear_db(db: Path) -> sqlite3.Connection:
                        vector    BLOB
                    )""")
     con.execute("CREATE INDEX IF NOT EXISTS ix_nodos_estado ON nodos(estado)")
-    con.execute("""CREATE TABLE meta (clave TEXT PRIMARY KEY, valor TEXT)""")
+    con.execute("""CREATE TABLE data (clave TEXT PRIMARY KEY, valor TEXT)""")
     return con
 
 
@@ -301,7 +301,7 @@ def meta_params(db: sqlite3.Connection, modelo: PPMISVD, metrics: dict) -> None:
     params = {'dim': modelo.dim, 'min_count': modelo.min_count, 'alpha': modelo.alpha,
               'k_shift': modelo.k_shift, 'seed': modelo.seed, **metrics}
     for k, v in params.items():
-        cur.execute("INSERT OR REPLACE INTO meta (clave, valor) VALUES (?, ?)", (k, str(v)))
+        cur.execute("INSERT OR REPLACE INTO data (clave, valor) VALUES (?, ?)", (k, str(v)))
     cur.execute("COMMIT")
 
 

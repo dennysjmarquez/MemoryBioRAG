@@ -90,6 +90,7 @@ def calcular_sinapsis_latentes(cerebro, max_saltos=None, factor_decay=None, umbr
     Pobla la tabla sinapsis_latentes con pmi_score y tiene_dim_comun.
     Retorna: número de sinapsis latentes válidas generadas.
     """
+    invalidar_cache_pares_dim()
     if max_saltos is None:
         max_saltos = MAX_SALTOS_INFERENCIA
     if factor_decay is None:

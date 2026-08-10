@@ -241,7 +241,7 @@ def crear_db(snapshot: Path, db: Path) -> sqlite3.Connection:
     )
     dst.execute("CREATE INDEX IF NOT EXISTS ix_nodos_estado ON nodos(estado)")
     dst.execute(
-        """CREATE TABLE meta (
+        """CREATE TABLE data (
                clave TEXT PRIMARY KEY,
                valor TEXT
            )"""
@@ -320,7 +320,7 @@ def meta_params(db: sqlite3.Connection, sgns: SGNS, corpus_metrics: dict) -> Non
         'Wp': None,
         'corpus': json.dumps(corpus_metrics),
     }.items():
-        cur.execute("INSERT OR REPLACE INTO meta (clave, valor) VALUES (?, ?)",
+        cur.execute("INSERT OR REPLACE INTO data (clave, valor) VALUES (?, ?)",
                     (k, str(v)))
     cur.execute("COMMIT")
 

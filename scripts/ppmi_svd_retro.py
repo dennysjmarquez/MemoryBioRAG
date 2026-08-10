@@ -389,7 +389,7 @@ def main():
                      n_conv    INTEGER,
                      vector    BLOB
                  )""")
-    db.execute("CREATE TABLE meta (clave TEXT PRIMARY KEY, valor TEXT)")
+    db.execute("CREATE TABLE IF NOT EXISTS data (clave TEXT PRIMARY KEY, valor TEXT)")
     db.execute("BEGIN")
     db.executemany("INSERT INTO tokens (token, freq, vector) VALUES (?, ?, ?)",
                    [(tok, modelo.freqs[tok], modelo.W[i].astype(np.float32).tobytes())
@@ -399,14 +399,8 @@ def main():
         db.execute("INSERT INTO nodos (concepto, estado, n_tokens, n_conv, vector) "
                    "VALUES (?, ?, ?, ?, ?)",
                    (concepto, estado, n_tot, n_conv, Vh[concepto].astype(np.float32).tobytes()))
-    params = {'dim': modelo.dim, 'min_count': modelo.min_count, 'alpha': modelo.alpha,
-              'k_shift': modelo.k_shift, 'seed': modelo.seed,
-              'modo': args.modo, 'alpha_retro': args.alpha_retro,
-              'it_retro': args.it_retro, 'lam_tokens': args.lam_tokens,
-              'solo_tipo': args.solo_tipo or '', 'top_tokens': args.top_tokens,
-              'n_edges': n_edges, **metricas}
-    for k, v in params.items():
-        db.execute("INSERT OR REPLACE INTO meta (clave, valor) VALUES (?, ?)", (k, str(v)))
+    for k, v in [('actualizado_en', str(time.time())), ('nodos_acumulados_desde_full', '0')]:
+        db.execute("INSERT OR REPLACE INTO data (clave, valor) VALUES (?, ?)", (k, v))
     db.execute("COMMIT")
     print(f"  guardado en {db_path}")
 
