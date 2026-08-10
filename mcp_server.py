@@ -320,6 +320,21 @@ ORACLE_PROMPT = (
     "¿Busco por quién lo creó? → autor='nombre_agente'\n"
     "¿Busco nodos dormidos? → deep=true\n\n"
 
+    # ── PROTOCOLO DE FEEDBACK DOPAMINÉRGICO (RPE) ───────────────────────
+    "═══ PROTOCOLO DE FEEDBACK DOPAMINÉRGICO (RPE - Schultz 1997) ═══\n"
+    "Un agente NUNCA debe asumir ni adivinar feedback sin evidencia real. Usar la tool feedback() en 3 casos:\n"
+    "1. CONFIRMACIÓN EXPLÍCITA DEL USUARIO:\n"
+    "   - Si el usuario dice '¡Excelente!', 'Exacto', 'Esa era la regla', 'Funcionó':\n"
+    "     → feedback(concepto='nombre_nodo', util=True, motivo='Usuario confirmó éxito')\n"
+    "   - Si el usuario dice 'No, eso está mal', 'Esa regla no aplica', 'Te equivocaste':\n"
+    "     → feedback(concepto='nombre_nodo', util=False, motivo='Usuario indicó error')\n"
+    "2. VERIFICACIÓN DE EJECUCIÓN (CÓDIGO/TESTS):\n"
+    "   - Si aplicaste un recuerdo de código/configuración y el test o build pasó limpio:\n"
+    "     → feedback(concepto='nombre_nodo', util=True, motivo='Verificado por build/test')\n"
+    "   - Si la ejecución falló por causa del recuerdo recuperado:\n"
+    "     → feedback(concepto='nombre_nodo', util=False, motivo='Falló verificación')\n"
+    "3. EN CASO DE DUDA → NO DISPARAR A CIEGAS: Esperá la respuesta del usuario o preguntale.\n\n"
+
     # ── PROTOCOLO AL GUARDAR ─────────────────────────────────────────────
     "═══ PROTOCOLO AL GUARDAR (aprender) ═══\n"
     "1. Pensá: '¿Con qué 5-8 palabras me buscaré en 3 meses?' → esas van en syn\n"

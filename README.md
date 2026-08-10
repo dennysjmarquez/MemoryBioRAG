@@ -83,22 +83,23 @@ BioRAG se ubica en la intersección de cuatro disciplinas científicas:
 
 BioRAG no implementa una técnica aislada — sintetiza catorce mecanismos de campos distintos (recuperación de información, neurociencia computacional, lingüística computacional, sistemas dinámicos) en un único motor cognitivo determinista. Cada uno de los siguientes componentes está implementado y verificable en el código fuente, no es aspiracional:
 
-| Mecanismo | Fundamento científico | Dónde vive en el código |
-|---|---|---|
-| **PMI (Pointwise Mutual Information)** | Church & Hanks (1990) | `core/pmi_semantico.py` |
-| **SDM — Sparse Distributed Memory (2048-bit)** | Kanerva (1988) | `core/sdm.py` |
-| **Retrofitting de grafo semántico** | Faruqui et al. (2015) | `core/sinapsis.py` |
-| **LTP/LTD (potenciación y depresión sináptica)** | Hebb (1949); Bliss & Lømo (1973) | `core/sinapsis.py` |
-| **Consolidación de memoria (corto → largo plazo)** | Marr (1971) | `core/memory_store.py` — `ciclo_sueno_consolidacion()` |
-| **Spreading activation multi-hop** | Anderson (1983) — ACT-R | `core/memory_store.py` — `_evocacion_por_cadena()` |
-| **Error de predicción de recompensa (dopamina/RPE)** | Schultz (1997) | `mcp_server.py` — `biorag_feedback()` |
-| **Marcador somático / valencia** | Damasio (1994) | `core/dmn_engine.py` |
-| **Escalado homeostático** | Turrigiano (2008) | `core/dmn_engine.py` |
-| **Léxico generativo (ejes "cualia")** | Pustejovsky (1995) | `core/memory_store.py` — dimensiones semánticas |
-| **Evidencialidad (eje "epistemia")** | Aikhenvald (2004) | `core/memory_store.py` — dimensiones semánticas |
-| **Efecto de autorreferencia (centralidad identitaria)** | Rogers, Kuiper & Kirker (1977) | `core/memory_store.py` — dimensiones semánticas |
-| **Modalidad deóntica** | Palmer (2001) | `core/memory_store.py` — dimensiones semánticas |
-| **Clasificación léxica ontológica** | WordNet — Miller (1995) | `core/clasificador_wordnet.py` |
+ Fundamento científico | Dónde vive en el código | Para qué se usa |
+|---|---|---|---|
+| **PMI (Pointwise Mutual Information)** | Church & Hanks (1990) | `core/pmi_semantico.py` | Medir qué tan asociados están dos conceptos por co-ocurrencia real en el corpus, y usar eso como señal para auto-vincular nodos nuevos al guardarlos. |
+| **SDM — Sparse Distributed Memory (2048-bit)** | Kanerva (1988) | `core/sdm.py` | Recuperación asociativa por parecido, no por coincidencia exacta — encontrar un recuerdo aunque la consulta esté incompleta o levemente distinta. |
+| **Retrofitting de grafo semántico** | Faruqui et al. (2015) | `core/sinapsis.py` | Ajustar el espacio vectorial PPMI+SVD usando la topología real del grafo de sinapsis, para que conceptos conectados queden más cerca entre sí. |
+| **LTP/LTD (potenciación y depresión sináptica)** | Hebb (1949); Bliss & Lømo (1973) | `core/sinapsis.py` | Reforzar automáticamente los recuerdos que se reutilizan y debilitar los que no se tocan, para que la memoria "olvide" lo irrelevante con el tiempo. |
+| **Consolidación de memoria (corto → largo plazo)** | Marr (1971) | `core/memory_store.py` — `ciclo_sueno_consolidacion()` | Decidir qué pasa de memoria de trabajo temporal a memoria permanente al cierre de una sesión ("fase de sueño"). |
+| **Spreading activation multi-hop** | Anderson (1983) — ACT-R | `core/memory_store.py` — `_evocacion_por_cadena()` | Encontrar conceptos relacionados indirectamente, siguiendo la cadena del grafo desde una semilla, no solo coincidencias directas. |
+| **Inhibición lateral GABA en tiempo real** | Edelman (1987) | `core/memory_store.py` — `buscar_por_frase()` (línea ~4361) | Cuando un resultado domina claramente la búsqueda, atenuar a sus competidores del mismo nicho semántico para reducir ruido, sin usar vectores densos. |
+| **Error de predicción de recompensa (dopamina/RPE)** | Schultz (1997) | `mcp_server.py` — `biorag_feedback()` | Que el propio agente le diga al sistema "esto sirvió / no sirvió" y el peso del recuerdo suba o baje en consecuencia — aprendizaje por refuerzo explícito. |
+| **Marcador somático / valencia cortical** | Damasio (1994) | `core/memory_store.py` (columna `valencia_somatica`) + `core/dmn_engine.py` | Marcar recuerdos como emocionalmente/estratégicamente importantes; los de alta valencia quedan inmunes al olvido pasivo y son ancla para ideación autónoma del DMN. |
+| **Escalado sináptico homeostático** | Turrigiano (2008) | `core/memory_store.py` (línea ~2031) | Evitar que los pesos sinápticos se saturen todos en 1.0 — normaliza la corteza activa cuando el promedio supera 0.70, para que el sistema siga pudiendo aprender. |
+| **Léxico generativo (ejes "cualia")** | Pustejovsky (1995) | `core/memory_store.py` — dimensiones semánticas | Clasificar un concepto según de qué está hecho, su forma, su propósito y su origen — cuatro causas aristotélicas aplicadas a cada nodo. |
+| **Evidencialidad (eje "epistemia")** | Aikhenvald (2004) | `core/memory_store.py` — dimensiones semánticas | Registrar cómo se sabe algo (experiencia directa, verificado, inferido, reportado, hipotético, obsoleto) — para no tratar un rumor igual que un hecho confirmado. |
+| **Efecto de autorreferencia (centralidad identitaria)** | Rogers, Kuiper & Kirker (1977) | `core/memory_store.py` — dimensiones semánticas | Priorizar recuerdos centrales a la identidad/rol del agente por sobre información externa impersonal, al momento de recuperar. |
+| **Modalidad deóntica** | Palmer (2001) | `core/memory_store.py` — dimensiones semánticas | Distinguir reglas obligatorias, prohibiciones, permisos y capacidades — clave para que el agente no confunda una sugerencia con una norma. |
+| **Clasificación léxica ontológica** | WordNet — Miller (1995) | `core/clasificador_wordnet.py` | Resolver búsquedas donde las palabras no coinciden literalmente pero significan lo mismo (ej. "decodificar jerga" ≈ "traducir lenguaje críptico"), sin embeddings. |
 
 **Todo lo anterior corre en Python puro + SQLite, con cero dependencias de embeddings densos, GPU o APIs de LLM en el camino de recuperación.** El objetivo no es competir con la escala de un modelo preentrenado — es demostrar que memoria persistente, auditable y explicable, con fundamento en literatura de neurociencia cognitiva e IR clásico, es posible sin ellas.
 
