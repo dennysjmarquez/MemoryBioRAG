@@ -2373,6 +2373,7 @@ class SQLiteMemoryBioRAG:
         """)
         self.cursor.execute("CREATE INDEX IF NOT EXISTS idx_com_destino ON comunicaciones (destino, leido)")
         self.cursor.execute("CREATE INDEX IF NOT EXISTS idx_com_timestamp ON comunicaciones (timestamp)")
+        self.cursor.execute("CREATE INDEX IF NOT EXISTS idx_com_leido_ts ON comunicaciones (leido, timestamp DESC)")
         # Migración: agregar columnas si no existen
         com_cols = [row[1] for row in self.conn.execute("PRAGMA table_info(comunicaciones)").fetchall()]
         if 'tipo' not in com_cols:
