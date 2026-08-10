@@ -79,6 +79,33 @@ BioRAG se ubica en la intersección de cuatro disciplinas científicas:
 
 ---
 
+## 🔬 Fundamentos Científicos
+
+BioRAG no implementa una técnica aislada — sintetiza catorce mecanismos de campos distintos (recuperación de información, neurociencia computacional, lingüística computacional, sistemas dinámicos) en un único motor cognitivo determinista. Cada uno de los siguientes componentes está implementado y verificable en el código fuente, no es aspiracional:
+
+| Mecanismo | Fundamento científico | Dónde vive en el código |
+|---|---|---|
+| **PMI (Pointwise Mutual Information)** | Church & Hanks (1990) | `core/pmi_semantico.py` |
+| **SDM — Sparse Distributed Memory (2048-bit)** | Kanerva (1988) | `core/sdm.py` |
+| **Retrofitting de grafo semántico** | Faruqui et al. (2015) | `core/sinapsis.py` |
+| **LTP/LTD (potenciación y depresión sináptica)** | Hebb (1949); Bliss & Lømo (1973) | `core/sinapsis.py` |
+| **Consolidación de memoria (corto → largo plazo)** | Marr (1971) | `core/memory_store.py` — `ciclo_sueno_consolidacion()` |
+| **Spreading activation multi-hop** | Anderson (1983) — ACT-R | `core/memory_store.py` — `_evocacion_por_cadena()` |
+| **Error de predicción de recompensa (dopamina/RPE)** | Schultz (1997) | `mcp_server.py` — `biorag_feedback()` |
+| **Marcador somático / valencia** | Damasio (1994) | `core/dmn_engine.py` |
+| **Escalado homeostático** | Turrigiano (2008) | `core/dmn_engine.py` |
+| **Léxico generativo (ejes "cualia")** | Pustejovsky (1995) | `core/memory_store.py` — dimensiones semánticas |
+| **Evidencialidad (eje "epistemia")** | Aikhenvald (2004) | `core/memory_store.py` — dimensiones semánticas |
+| **Efecto de autorreferencia (centralidad identitaria)** | Rogers, Kuiper & Kirker (1977) | `core/memory_store.py` — dimensiones semánticas |
+| **Modalidad deóntica** | Palmer (2001) | `core/memory_store.py` — dimensiones semánticas |
+| **Clasificación léxica ontológica** | WordNet — Miller (1995) | `core/clasificador_wordnet.py` |
+
+**Todo lo anterior corre en Python puro + SQLite, con cero dependencias de embeddings densos, GPU o APIs de LLM en el camino de recuperación.** El objetivo no es competir con la escala de un modelo preentrenado — es demostrar que memoria persistente, auditable y explicable, con fundamento en literatura de neurociencia cognitiva e IR clásico, es posible sin ellas.
+
+> *Nota de honestidad intelectual: ninguna de estas técnicas individuales es una invención de este proyecto — son bien conocidas en sus respectivos campos, algunas con más de 70 años. La contribución de BioRAG es la síntesis: hacerlas coexistir en un solo sistema cerrado, determinista y funcional, algo que no encontramos replicado en ningún otro proyecto open-source de memoria para agentes de IA.*
+
+---
+
 ## Auditoría Técnica Completa — v14.0
 
 ### Archivos Analizados

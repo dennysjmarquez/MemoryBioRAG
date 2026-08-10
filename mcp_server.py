@@ -199,6 +199,9 @@ def _encontrar_arista_origen(cerebro, concepto_fp, items, origen_scores):
     return None
 
 
+_ULTIMO_SUENO_TS: float = 0.0
+
+
 def _interceptar(accion: str, texto: str, cerebro) -> dict | None:
     registrar_accion(accion, texto)
     resultado = analizar_y_autoguardar(cerebro)
@@ -2140,12 +2143,29 @@ def _build_server():
         ),
     )
     def biorag_consolidar() -> str:
+        global _ULTIMO_SUENO_TS
         cerebro = _get_cerebro()
         try:
+            ahora = time.time()
+            n_pendientes = 0
+            try:
+                n_pendientes = cerebro.cursor.execute("SELECT COUNT(*) FROM corto_plazo").fetchone()[0]
+            except Exception:
+                pass
+
+            if n_pendientes == 0 and (ahora - _ULTIMO_SUENO_TS) < 15.0:
+                return json.dumps({
+                    "status": "ok",
+                    "mensaje": "⚡ Consolidación omitida: No hay recuerdos nuevos en memoria temporal (corto_plazo) y el último ciclo de sueño ocurrió recientemente.",
+                    "nodos_pendientes": 0,
+                    "guardrail_activo": True
+                }, ensure_ascii=False)
+
             old_stdout = sys.stdout
             sys.stdout = captured = io.StringIO()
             try:
                 cerebro.ciclo_sueno_consolidacion()
+                _ULTIMO_SUENO_TS = time.time()
             finally:
                 sys.stdout = old_stdout
             output = captured.getvalue()
