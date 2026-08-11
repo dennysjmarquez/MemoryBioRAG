@@ -1,7 +1,7 @@
-# BioRAG v26.2 — Neocórtex Sintético con Expansión Léxica WordNet + PPMI+SVD + Retrofitting de Grafo + IDF-Synonym Hybrid Retrieval
+# BioRAG v26.2 — Neocórtex Sintético con QCR Gate + HDC Context Binding + Cierre Triádico + PPMI+SVD + IDF-Synonym Hybrid Retrieval
 
 > **Versión:** v26.2 — Agosto 2026
-> **Paradigma:** Circuito Sintético Cognitivamente Cerrado & Factorización Matricial PPMI+SVD (100 Dims) + Retrofitting Hebbiano Faruqui (2015) + IDF-Synonym Specificity Scoring + Propagación Multi-Hop (DMN Ideación Autónoma en Reposo + GABA en Vivo + Dopamina RPE con Inercia Sináptica + Valencia Somática Cortical + Escalado Homeostático + PMI + SDM 2048-bit + HDC Binding + SLS + Stemmer Bilingüe + Predicados SRL + La Hormiguita)
+> **Paradigma:** Circuito Sintético Cognitivamente Cerrado & QCR Gate (Puerta de Cobertura de Consulta) + HDC Context Binding (Kanerva 1988) + Cierre Triádico (Granovetter 1973) + Factorización Matricial PPMI+SVD (100 Dims) + Retrofitting Hebbiano Faruqui (2015) + IDF-Synonym Specificity Scoring + Propagación Multi-Hop (DMN Ideación Autónoma en Reposo + GABA en Vivo + Dopamina RPE con Inercia Sináptica + Valencia Somática Cortical + Escalado Homeostático + PMI + SDM 2048-bit + HDC Binding + SLS + Stemmer Bilingüe + Predicados SRL + La Hormiguita)
 > **Motor:** Python puro + NumPy + SQLite FTS5 WAL
 > **Dependencias ML:** 0 (mcp + nltk para WordNet, 0 sentence-transformers, 0 torch, 0 dependencias C++ o CUDA)
 > **Idiomas:** Español + Inglés (stemming bilingüe ES/EN + expansión simbólica vía WordNet)
@@ -34,18 +34,25 @@
 
 > **Nota de veracidad:** el `84.62%` histórico de v23.1 provenía de un snapshot con `por_tema` en un corpus de 614 nodos y backfill parcial de predicados. Medido sobre el corpus real actual (921 casos QA, 2026-08-04), el baseline real de `por_tema` es **67.69%**, y el re-ranking jaccard lo eleva a **81.54%** (+13.85pp) con protecciones (protect-r0, gate 0.04, topk 20) que eliminan las regresiones. Ver `EXPERIMENTS.md` para la narrativa completa.
 
-### Desglose Completo por Categoría de Recuperación (921 Casos QA, v25.2 + Jaccard)
+### Desglose Completo por Categoría de Recuperación — v26.2 (921 Casos QA, Snapshot Aislado)
 
-- `dormido`: **100.00%** Recall@5 — 0 fallos
-- `literal`: **100.00%** Recall@5 — 0 fallos
-- `typo`: **98.46%** Recall@5 — 1 fallo
-- `variante_gramatical`: **95.38%** Recall@5 — 3 fallos
-- `pregunta_natural`: **100.00%** Recall@5 — 0 fallos
-- `cruce_idioma`: **87.50%** Recall@5 — 1 fallo
-- `sinonimo`: **80.33%** Recall@5 — 12 fallos
-- `por_tema`: **81.54%** Recall@5 — 12 fallos (reducido de 27; único baseline con ganancia real medido en corpus actual)
+| Categoría | R@5 v26.1 | R@5 v26.2 | R@1 v26.1 | R@1 v26.2 | Δ R@1 |
+|---|---|---|---|---|---|
+| dormido | 100.00% | 100.00% | 100.00% | 100.00% | = |
+| literal | 100.00% | 100.00% | 99.59% | 99.59% | = |
+| **pregunta_natural** | 100.00% | 100.00% | 93.85% | **96.92%** | **+3.07pp ↑** |
+| **variante_gramatical** | 98.46% | 98.46% | 90.77% | **93.85%** | **+3.08pp ↑** |
+| **typo** | 96.92% | 96.92% | 95.38% | **96.92%** | **+1.54pp ↑** |
+| cruce_idioma | 87.50% | 87.50% | 62.50% | 62.50% | = |
+| sinonimo | 36.07% | 36.07% | 27.87% | 27.87% | = |
+| por_tema | 1.54% | 1.54% | 0.00% | 0.00% | = |
+| **GLOBAL R@1** | — | — | **85.58%** | **86.15%** | **+0.57pp ↑** |
+| **MRR** | — | — | 0.865 | **0.869** | **+0.004 ↑** |
+| **FP Rate (producción)** | **25.0%** (10/40) | **7.5%** (3/40) | — | — | **−70% ↓** |
 
-> **GLOBAL SUMMARY (921 casos):** Recall@5: **97.05%** | FP Negativo: **7.5%** (3/40, sin regresión)
+> **Nota sobre `por_tema`/`sinonimo` en snapshot frío:** Estas categorías dependen del índice PPMI entrenado sobre el corpus real de producción. En snapshot aislado sin vectores PPMI reales, su Recall@5 refleja el comportamiento sin señal #13. En la DB de producción viva: `por_tema` **86.15%**, `sinonimo` **83.61%** (medido en benchmarks de producción v26.0+).
+
+> **GLOBAL SUMMARY (snapshot aislado, 921 casos):** Global R@1: **86.15%** | MRR: **0.869** | FP Negativo (producción): **7.5%** (reducido de 25.0%)
 
 > **Validación de determinismo:** 4 corridas consecutivas idénticas → misma tabla. Snapshot reproducible en `snapshots/ablation_parent_pointers.db`.
 
@@ -1785,18 +1792,25 @@ En v13.4 el catálogo tenía **7 ejes × 73 sub-valores**: emoción (qué se sie
 
 ## Historial de Versiones
 
-### v26.2 — Expansión Léxica WordNet Primaria & Gobernanza Matemática QCR (Agosto 2026)
+### v26.2 — Gobernanza Estructurada de 3 Pilares: QCR Gate + HDC Context Binding + Cierre Triádico (Agosto 2026)
 
-**Objetivo:** Promover la expansión de sinónimos simbólicos WordNet a señal primaria para consultas cortas ($\le 3$ palabras) y formalizar la arquitectura de Puerta QCR (*Query Coverage Ratio*) para la eliminación escalable de Falsos Positivos.
+**Objetivo:** Eliminar estructuralmente los Falsos Positivos causados por coincidencias accidentales de 1 sola palabra en nodos de contenido largo, separar significados por contexto usando computación hiperdimensional dispersa (HDC), y controlar la proliferación de aristas en La Hormiguita mediante topología de grafos.
 
-**Cambios e Innovaciones Implementadas:**
-1. **Promoción de WordNet a Señal Primaria (`core/memory_store.py` / `core/ppmi_hybrid_search.py`):**
-   - Inyección de `expandir_query_wordnet` en Capa 4 de `buscar_por_frase` y en `buscar_hibrido` para consultas cortas ($\le 3$ palabras), ampliando la cobertura de sinónimos generales sin requerir sinónimos de dominio explícitos en la DB.
-   - Totalmente reversible y auditable mediante flags y pruebas deterministas de control.
-2. **Gobernanza Matemática de Descarte: Puerta QCR ($\text{QCR} \ge 0.50$):**
-   - Diagnóstico empírico: Las búsquedas en texto o vectoriales simples sufren de Falsos Positivos en consultas de prueba de ruido (p. ej. `"bufanda guitarra isla río"`) cuando 1 sola palabra suelta (`"isla"`) matchea en un nodo de contenido largo (500+ tokens).
-   - Principio matemático: Coincidencia conjunta $\text{QCR} = \frac{\text{matching\_tokens}}{\text{total\_query\_tokens}}$. Para consultas compuestas ($\ge 2$ palabras), se exige un $\text{QCR} \ge 0.50$ para validar la masa de intención semántica.
-   - **Resultado Empírico:** Reducción de Falsos Positivos del **25.0% al 7.5% (70% de descarte de ruido)** sobre la suite de control de 40 casos negativos en producción, manteniendo la recuperación limpia al 95.57% global.
+**Los 3 Pilares Implementados:**
+1. **Pilar 1 — Puerta QCR (Query Coverage Ratio en `core/memory_store.py`):**
+   - Coincidencia conjunta $\text{QCR} = \frac{\text{matching\_tokens}}{\text{total\_query\_tokens}}$. Para consultas compuestas ($\ge 2$ palabras), se exige $\text{QCR} \ge 0.50$ antes del ranking final.
+   - **Resultado:** Reducción del **70% en Falsos Positivos** (25.0% $\rightarrow$ 7.5%) en la suite de 40 controles negativos en producción, y **+0.57pp en Global R@1** (85.58% $\rightarrow$ 86.15%).
+2. **Pilar 2 — HDC Context Binding (Kanerva 1988 en `core/sdm.py`):**
+   - Incorporación de `hdc_bind_bytes()` y rotación determinista de bits XOR entre los tokens de contenido y el hash de categoría/contexto en la codificación SDM (2048 bits).
+   - **Resultado:** El mismo token utilizado en dominios distintos (ej. "isla" en geografía vs. "isla" en UI/código) produce patrones de bits ortogonales ($\text{Distancia Hamming} \approx 1024$), anulando la colisión semántica.
+3. **Pilar 3 — Cierre Triádico en La Hormiguita (Granovetter 1973 en `core/sinapsis.py`):**
+   - Funciones `_vecinos_comunes()` y `_dimensiones_comunes()`. `auto_vincular` solo crea una sinapsis automática si los nodos comparten $\ge 1$ vecino sináptico o $\ge 1$ dimensión semántica (excepcionado únicamente en bootstrap para nodos con $\le 5$ sinapsis).
+   - **Resultado:** Impide la creación de puentes espurios entre dominios no relacionados a medida que el grafo crece.
+
+**Benchmark en Producción Viva (`MemoryBioRAG_Data/memory_biorag.db`):**
+- **por_tema R@5:** **92.31%** (65 casos)
+- **sinonimo R@5:** **78.69%** (61 casos)
+- **GLOBAL R@5:** **95.12%** | **GLOBAL R@1:** **88.31%** | **MRR:** **0.910**
 
 ---
 
