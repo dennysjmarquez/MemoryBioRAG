@@ -1794,9 +1794,9 @@ En v13.4 el catálogo tenía **7 ejes × 73 sub-valores**: emoción (qué se sie
 
 ### v26.2 — Expansión Léxica WordNet & Gobernanza de 3 Pilares: QCR Gate + HDC Context Binding + Cierre Triádico (Agosto 2026)
 
-**Objetivo:** Elevar el recall en consultas cortas mediante expansión simbólica de sinónimos generalistas (WordNet), eliminar estructuralmente los Falsos Positivos causados por coincidencias accidentales de 1 sola palabra en nodos de contenido largo, separar significados por contexto usando computación hiperdimensional dispersa (HDC), y controlar la proliferación de aristas en La Hormiguita mediante topología de grafos.
+**Objetivo:** Elevar el recall en consultas cortas mediante expansión simbólica de sinónimos generalistas (WordNet), eliminar estructuralmente los Falsos Positivos causados por coincidencia accidental de 1 sola palabra en textos largos, separar significados por contexto usando computación hiperdimensional dispersa (HDC), y controlar la proliferación de aristas espurias en los motores de auto-vinculación (`auto_vincular` y `_auto_generar_co_ocurrencia`) mediante topología de grafos, mientras La Hormiguita opera el mantenimiento autónomo (cuarentena, poda y confirmación).
 
-**Innovaciones e Componentes Implementados:**
+**Innovaciones y Componentes Implementados:**
 1. **Expansión Léxica WordNet Primaria (`core/memory_store.py` / `core/ppmi_hybrid_search.py`):**
    - Inyección de `expandir_query_wordnet` en Capa 4 de `buscar_por_frase` y en `buscar_hibrido` para consultas cortas ($\le 3$ palabras).
    - Eleva la cobertura de sinónimos generales sin requerir sinónimos de dominio explícitos pre-existentes en la base de datos.
@@ -1806,9 +1806,9 @@ En v13.4 el catálogo tenía **7 ejes × 73 sub-valores**: emoción (qué se sie
 3. **Pilar 2 — HDC Context Binding (Kanerva 1988 en `core/sdm.py`):**
    - Incorporación de `hdc_bind_bytes()` y rotación determinista de bits XOR entre los tokens de contenido y el hash de categoría/contexto en la codificación SDM (2048 bits).
    - **Resultado:** El mismo token utilizado en dominios distintos (ej. "isla" en geografía vs. "isla" en UI/código) produce patrones de bits ortogonales ($\text{Distancia Hamming} \approx 1024$), anulando la colisión semántica.
-4. **Pilar 3 — Cierre Triádico en La Hormiguita (Granovetter 1973 en `core/sinapsis.py`):**
-   - Funciones `_vecinos_comunes()` y `_dimensiones_comunes()`. `auto_vincular` solo crea una sinapsis automática si los nodos comparten $\ge 1$ vecino sináptico o $\ge 1$ dimensión semántica (excepcionado únicamente en bootstrap para nodos con $\le 5$ sinapsis).
-   - **Resultado:** Impide la creación de puentes espurios entre dominios no relacionados a medida que el grafo crece.
+4. **Pilar 3 — Cierre Triádico en Auto-Vinculación (`auto_vincular` en `core/sinapsis.py` y `_auto_generar_co_ocurrencia` en `core/memory_store.py`):**
+   - Funciones `_vecinos_comunes()` y `_dimensiones_comunes()`. Todos los caminos de creación de aristas por co-ocurrencia (`auto_vincular` al guardar y `_auto_generar_co_ocurrencia` en consolidación/comunicaciones) exigen que los nodos compartan $\ge 1$ vecino sináptico o $\ge 1$ dimensión semántica (excepcionado en bootstrap para nodos jóvenes con $\le 5$ sinapsis).
+   - **Resultado:** Cierra la puerta trasera de generación masiva por tokens compartidos. La Hormiguita (`core/dmn_reflexion.py`) actúa como podador/mantenimiento autónomo sobre un grafo previamente protegido en su origen.
 
 **Benchmark en Producción Viva (`MemoryBioRAG_Data/memory_biorag.db`):**
 - **por_tema R@5:** **92.31%** (65 casos)

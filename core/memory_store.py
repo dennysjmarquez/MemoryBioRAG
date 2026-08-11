@@ -1690,6 +1690,19 @@ class SQLiteMemoryBioRAG:
                 # Si comparten al menos 2 tokens significativos, co-ocurren
                 shared = tokens1 & tokens2
                 if len(shared) >= 2:
+                    # v26.2: Cierre Triádico en co-ocurrencia — exige vecinos/dimensiones comunes o bootstrap (<=5 sinapsis)
+                    try:
+                        from core.sinapsis import _vecinos_comunes, _dimensiones_comunes, _CIERRE_TRIADICO
+                        if _CIERRE_TRIADICO:
+                            vec_com = _vecinos_comunes(self.cursor, c1, c2)
+                            dim_com = _dimensiones_comunes(self.cursor, c1, c2) if vec_com == 0 else 1
+                            self.cursor.execute("SELECT COUNT(*) FROM sinapsis WHERE origen = ? OR destino = ?", (c1, c1))
+                            sinap_exist = self.cursor.fetchone()[0]
+                            if vec_com == 0 and dim_com == 0 and sinap_exist > 5:
+                                continue  # Rechazar: coincidencia tokenizada entre dominios aislados
+                    except Exception:
+                        pass
+
                     peso = min(0.9, 0.3 + len(shared) * 0.1)
                     self.cursor.execute(
                         "SELECT 1 FROM sinapsis WHERE origen = ? AND destino = ?",
@@ -1735,6 +1748,19 @@ class SQLiteMemoryBioRAG:
                     
                     # Para cada par de conceptos en el mismo mensaje
                     for c1, c2 in combinations(conceptos_en_msg[:10], 2):
+                        # v26.2: Cierre Triádico en comunicaciones
+                        try:
+                            from core.sinapsis import _vecinos_comunes, _dimensiones_comunes, _CIERRE_TRIADICO
+                            if _CIERRE_TRIADICO:
+                                vec_com = _vecinos_comunes(self.cursor, c1, c2)
+                                dim_com = _dimensiones_comunes(self.cursor, c1, c2) if vec_com == 0 else 1
+                                self.cursor.execute("SELECT COUNT(*) FROM sinapsis WHERE origen = ? OR destino = ?", (c1, c1))
+                                sinap_exist = self.cursor.fetchone()[0]
+                                if vec_com == 0 and dim_com == 0 and sinap_exist > 5:
+                                    continue
+                        except Exception:
+                            pass
+
                         self.cursor.execute(
                             "SELECT 1 FROM sinapsis WHERE origen = ? AND destino = ?",
                             (c1, c2)

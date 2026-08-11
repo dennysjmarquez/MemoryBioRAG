@@ -72,7 +72,9 @@ def _vecinos_comunes(cursor, nodo_a: str, nodo_b: str) -> int:
         """, (nodo_a, nodo_a, nodo_b, nodo_b))
         row = cursor.fetchone()
         return row[0] if row else 0
-    except Exception:
+    except Exception as exc:
+        import logging
+        logging.warning("Error consultando vecinos comunes (%s, %s): %s", nodo_a, nodo_b, exc)
         return 0
 
 
@@ -88,7 +90,9 @@ def _dimensiones_comunes(cursor, nodo_a: str, nodo_b: str) -> int:
         """, (nodo_a, nodo_b))
         row = cursor.fetchone()
         return row[0] if row else 0
-    except Exception:
+    except Exception as exc:
+        import logging
+        logging.warning("Error consultando dimensiones comunes (%s, %s): %s", nodo_a, nodo_b, exc)
         return 0
 
 
@@ -149,13 +153,13 @@ def auto_vincular(cerebro, concepto, contenido, umbral=0.4):
 
         if sim >= umbral:
             # v26.2: Cierre Triádico — sólo conectar si comparten vecino/dimensión común,
-            # o si el grafo del nodo nuevo está vacío (bootstrap). Previene puentes espurios
+            # o si el nodo nuevo tiene <= 5 sinapsis (bootstrap necesario). Previene puentes espurios
             # entre nodos de dominios distintos causados por tokens compartidos accidentalmente.
             if _CIERRE_TRIADICO:
                 vec_comunes = _vecinos_comunes(cerebro.cursor, concepto, conc_exist)
                 dim_comunes = _dimensiones_comunes(cerebro.cursor, concepto, conc_exist) if vec_comunes == 0 else 1
                 # Permitir la conexión si: (1) hay vecinos comunes, (2) hay dims semánticas comunes,
-                # o (3) el nodo nuevo no tiene aún ninguna sinapsis (bootstrap necesario)
+                # o (3) el nodo nuevo tiene <= 5 sinapsis (bootstrap necesario para nodos jóvenes)
                 cerebro.cursor.execute("SELECT COUNT(*) FROM sinapsis WHERE origen = ? OR destino = ?", (concepto, concepto))
                 sinap_existentes = cerebro.cursor.fetchone()[0]
                 if vec_comunes == 0 and dim_comunes == 0 and sinap_existentes > 5:
