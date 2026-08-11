@@ -68,3 +68,7 @@ scripts/word2vec_puro/word2vec_vectors_prueba.db
 # Bases de datos generadas (vectores, datos locales — no subir)
 scripts/**/*.db
 scripts/*.db
+
+scripts/snapshot_prf_real.db-shm
+
+scripts/snapshot_prf_real.db-wal
