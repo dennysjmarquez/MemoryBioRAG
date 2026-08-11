@@ -31,16 +31,28 @@ def run_eval(env_overrides: dict, label: str) -> dict:
     env = os.environ.copy()
     env["BIORAG_PATH"] = SNAPSHOT
     env.update({k: str(v) for k, v in env_overrides.items()})
-    result = subprocess.run(
+
+    print(f"\n>>> Iniciando prueba de evaluación: {label}")
+    print(f"    Variables activas: {env_overrides if env_overrides else 'Defaults (Baseline)'}\n", flush=True)
+
+    proc = subprocess.Popen(
         [sys.executable, os.path.join(BASE_DIR, "scripts", "evaluar_qa.py")],
-        env=env, capture_output=True, text=True
+        env=env, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True, bufsize=1
     )
+
+    output_lines = []
+    for line in iter(proc.stdout.readline, ''):
+        sys.stdout.write("  | " + line)
+        sys.stdout.flush()
+        output_lines.append(line)
+    proc.wait()
+
     stats = {}
-    for line in result.stdout.splitlines():
+    for line in output_lines:
         if "|" in line and "%" in line:
             parts = [p.strip() for p in line.split("|")]
             if len(parts) >= 3:
-                cat = parts[1].strip()
+                cat = parts[0].strip()
                 r5 = parts[2].strip().replace("%", "").strip()
                 try:
                     stats[cat] = float(r5)
@@ -72,14 +84,18 @@ def main():
 
     results = []
     for i, (env_ov, label) in enumerate(configs, 1):
-        print(f"[{i}/{len(configs)}] {label} ...", flush=True)
+        print(f"\n========================================================================")
+        print(f" ESCENARIO [{i}/{len(configs)}]: {label}")
+        print(f"========================================================================", flush=True)
         r = run_eval(env_ov, label)
         results.append(r)
         g = r["stats"].get("GLOBAL SUMMARY (Retrieval)", "?")
-        print(f"       GLOBAL Recall@5: {g}%\n")
+        print(f"\n[✔] ESCENARIO [{i}/{len(configs)}] FINALIZADO → GLOBAL Recall@5: {g}%\n", flush=True)
 
-    # Tabla comparativa
+    # Tabla comparativa final
     baseline = results[0]["stats"]
+    print("\n" + "=" * 72)
+    print("  TABLA FINAL COMPARATIVA DE ABLACIÓN")
     print("=" * 72)
     print(f"  {'Mecanismo':<40} | {'GLOBAL':>9} | {'por_tema':>9} | {'sinonimo':>9}")
     print("-" * 72)

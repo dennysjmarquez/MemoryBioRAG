@@ -1,0 +1,72 @@
+[
+  {
+    "label": "Baseline (todos ON)",
+    "stats": {
+      "cruce_idioma": 87.5,
+      "dormido": 100.0,
+      "literal": 99.38,
+      "por_tema": 84.62,
+      "pregunta_natural": 98.46,
+      "sinonimo": 70.49,
+      "typo": 96.92,
+      "variante_gramatical": 93.85,
+      "GLOBAL SUMMARY (Retrieval)": 95.57
+    }
+  },
+  {
+    "label": "Sin GABA  (inhibición lateral OFF)",
+    "stats": {
+      "cruce_idioma": 87.5,
+      "dormido": 100.0,
+      "literal": 99.38,
+      "por_tema": 84.62,
+      "pregunta_natural": 98.46,
+      "sinonimo": 70.49,
+      "typo": 96.92,
+      "variante_gramatical": 93.85,
+      "GLOBAL SUMMARY (Retrieval)": 95.57
+    }
+  },
+  {
+    "label": "Sin Re-ranking Jaccard",
+    "stats": {
+      "cruce_idioma": 87.5,
+      "dormido": 100.0,
+      "literal": 99.38,
+      "por_tema": 67.69,
+      "pregunta_natural": 98.46,
+      "sinonimo": 72.13,
+      "typo": 98.46,
+      "variante_gramatical": 95.38,
+      "GLOBAL SUMMARY (Retrieval)": 94.67
+    }
+  },
+  {
+    "label": "Sin PPMI+SVD  (weight=0.0)",
+    "stats": {
+      "cruce_idioma": 87.5,
+      "dormido": 100.0,
+      "literal": 99.38,
+      "por_tema": 84.62,
+      "pregunta_natural": 98.46,
+      "sinonimo": 70.49,
+      "typo": 95.38,
+      "variante_gramatical": 93.85,
+      "GLOBAL SUMMARY (Retrieval)": 95.46
+    }
+  },
+  {
+    "label": "Sin DMN  (idle=999999s)",
+    "stats": {
+      "cruce_idioma": 87.5,
+      "dormido": 100.0,
+      "literal": 99.38,
+      "por_tema": 84.62,
+      "pregunta_natural": 98.46,
+      "sinonimo": 70.49,
+      "typo": 96.92,
+      "variante_gramatical": 93.85,
+      "GLOBAL SUMMARY (Retrieval)": 95.57
+    }
+  }
+]

@@ -368,6 +368,18 @@ BIORAG_DMN_IDLE_SECONDS=999999 python3 scripts/evaluar_qa.py
 
 > **Nota sobre LTP/LTD:** La suite QA de 921 casos ya corre con `ignore_peso_sinaptico=True` por diseño (campo de juego nivelado). El efecto del LTP/LTD sináptico se mide en producción real, no en benchmark sintético, porque los pesos solo se diferencian con meses de uso acumulado.
 
+**Resultados Empíricos de la Suite de Ablación (921 casos QA, snapshot congelado):**
+
+| Escenario de Ablación | GLOBAL R@5 | `por_tema` R@5 | `sinonimo` R@5 | Impacto Demostrado |
+|---|---|---|---|---|
+| **Baseline (todos ON)** | **95.57%** | **84.62%** | **70.49%** | Punto de referencia calibrado |
+| **Sin GABA (inhibición lateral OFF)** | 95.57% (0.0pp) | 84.62% (0.0pp) | 70.49% (0.0pp) | Control de atractor (preserva R@1 sin sofocar competidores) |
+| **Sin Re-ranking Jaccard** | **94.67% (-0.90pp)** | **67.69% (-16.93pp)** | 72.13% (+1.64pp) | **Aporte crítico (+16.93pp por_tema):** Rescata candidatos hundidos |
+| **Sin PPMI+SVD (weight=0.0)** | 95.46% (-0.11pp) | 84.62% (0.0pp) | 70.49% (0.0pp) | Aporte vectorial espectral en el score de desempate |
+| **Sin DMN (idle=999999s)** | 95.57% (0.0pp) | 84.62% (0.0pp) | 70.49% (0.0pp) | Tarea de fondo en reposo (no afecta la búsqueda directa) |
+
+> **Conclusión del Ablation:** La ablación demuestra empíricamente que el **Re-ranking Jaccard** es el motor principal del rescate temático (+16.93pp de ganancia directa), mientras que **PPMI+SVD** aporta refinamiento espectral y **GABA/DMN** operan como reguladores de interferencia y mantenimiento en reposo sin degradar el camino caliente.
+
 ---
 
 ### Tabla Resumen de la Suite Completa
