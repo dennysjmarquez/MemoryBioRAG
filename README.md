@@ -1,4 +1,4 @@
-# BioRAG v26.2 — Neocórtex Sintético con QCR Gate + HDC Context Binding + Cierre Triádico + PPMI+SVD + IDF-Synonym Hybrid Retrieval
+# BioRAG v26.2 — Neocórtex Sintético con Expansión Léxica WordNet + QCR Gate + HDC Context Binding + Cierre Triádico + PPMI+SVD + IDF-Synonym Hybrid Retrieval
 
 > **Versión:** v26.2 — Agosto 2026
 > **Paradigma:** Circuito Sintético Cognitivamente Cerrado & QCR Gate (Puerta de Cobertura de Consulta) + HDC Context Binding (Kanerva 1988) + Cierre Triádico (Granovetter 1973) + Factorización Matricial PPMI+SVD (100 Dims) + Retrofitting Hebbiano Faruqui (2015) + IDF-Synonym Specificity Scoring + Propagación Multi-Hop (DMN Ideación Autónoma en Reposo + GABA en Vivo + Dopamina RPE con Inercia Sináptica + Valencia Somática Cortical + Escalado Homeostático + PMI + SDM 2048-bit + HDC Binding + SLS + Stemmer Bilingüe + Predicados SRL + La Hormiguita)
@@ -1792,18 +1792,21 @@ En v13.4 el catálogo tenía **7 ejes × 73 sub-valores**: emoción (qué se sie
 
 ## Historial de Versiones
 
-### v26.2 — Gobernanza Estructurada de 3 Pilares: QCR Gate + HDC Context Binding + Cierre Triádico (Agosto 2026)
+### v26.2 — Expansión Léxica WordNet & Gobernanza de 3 Pilares: QCR Gate + HDC Context Binding + Cierre Triádico (Agosto 2026)
 
-**Objetivo:** Eliminar estructuralmente los Falsos Positivos causados por coincidencias accidentales de 1 sola palabra en nodos de contenido largo, separar significados por contexto usando computación hiperdimensional dispersa (HDC), y controlar la proliferación de aristas en La Hormiguita mediante topología de grafos.
+**Objetivo:** Elevar el recall en consultas cortas mediante expansión simbólica de sinónimos generalistas (WordNet), eliminar estructuralmente los Falsos Positivos causados por coincidencias accidentales de 1 sola palabra en nodos de contenido largo, separar significados por contexto usando computación hiperdimensional dispersa (HDC), y controlar la proliferación de aristas en La Hormiguita mediante topología de grafos.
 
-**Los 3 Pilares Implementados:**
-1. **Pilar 1 — Puerta QCR (Query Coverage Ratio en `core/memory_store.py`):**
+**Innovaciones e Componentes Implementados:**
+1. **Expansión Léxica WordNet Primaria (`core/memory_store.py` / `core/ppmi_hybrid_search.py`):**
+   - Inyección de `expandir_query_wordnet` en Capa 4 de `buscar_por_frase` y en `buscar_hibrido` para consultas cortas ($\le 3$ palabras).
+   - Eleva la cobertura de sinónimos generales sin requerir sinónimos de dominio explícitos pre-existentes en la base de datos.
+2. **Pilar 1 — Puerta QCR (Query Coverage Ratio en `core/memory_store.py`):**
    - Coincidencia conjunta $\text{QCR} = \frac{\text{matching\_tokens}}{\text{total\_query\_tokens}}$. Para consultas compuestas ($\ge 2$ palabras), se exige $\text{QCR} \ge 0.50$ antes del ranking final.
    - **Resultado:** Reducción del **70% en Falsos Positivos** (25.0% $\rightarrow$ 7.5%) en la suite de 40 controles negativos en producción, y **+0.57pp en Global R@1** (85.58% $\rightarrow$ 86.15%).
-2. **Pilar 2 — HDC Context Binding (Kanerva 1988 en `core/sdm.py`):**
+3. **Pilar 2 — HDC Context Binding (Kanerva 1988 en `core/sdm.py`):**
    - Incorporación de `hdc_bind_bytes()` y rotación determinista de bits XOR entre los tokens de contenido y el hash de categoría/contexto en la codificación SDM (2048 bits).
    - **Resultado:** El mismo token utilizado en dominios distintos (ej. "isla" en geografía vs. "isla" en UI/código) produce patrones de bits ortogonales ($\text{Distancia Hamming} \approx 1024$), anulando la colisión semántica.
-3. **Pilar 3 — Cierre Triádico en La Hormiguita (Granovetter 1973 en `core/sinapsis.py`):**
+4. **Pilar 3 — Cierre Triádico en La Hormiguita (Granovetter 1973 en `core/sinapsis.py`):**
    - Funciones `_vecinos_comunes()` y `_dimensiones_comunes()`. `auto_vincular` solo crea una sinapsis automática si los nodos comparten $\ge 1$ vecino sináptico o $\ge 1$ dimensión semántica (excepcionado únicamente en bootstrap para nodos con $\le 5$ sinapsis).
    - **Resultado:** Impide la creación de puentes espurios entre dominios no relacionados a medida que el grafo crece.
 
