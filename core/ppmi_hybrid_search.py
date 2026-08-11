@@ -161,6 +161,13 @@ def buscar_hibrido(query: str, con_or_db, top_k: int = 10) -> list[dict]:
     q_toks = _tokenizar(query)
     q_toks_unique = set(q_toks)
     es_corta = len(q_toks_unique) <= MAX_Q
+    if es_corta:
+        try:
+            from core.fallback_simbolico import expandir_query_wordnet
+            wn_exp = expandir_query_wordnet(q_toks_unique)
+            q_toks_unique = q_toks_unique | set(_tokenizar(" ".join(wn_exp)))
+        except Exception:
+            pass
     pool_set = set(idx.todos_los_conceptos)
 
     resultados = []

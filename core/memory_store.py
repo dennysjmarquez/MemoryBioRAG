@@ -3917,6 +3917,13 @@ class SQLiteMemoryBioRAG:
         resultados_semantica = {}
         if palabras_like:
             palabras_sin = [w for w in palabras_like]
+            if len(palabras_sin) <= 3:
+                try:
+                    from core.fallback_simbolico import expandir_query_wordnet
+                    syn_wn = expandir_query_wordnet(set(palabras_sin))
+                    palabras_sin.extend([w for w in syn_wn if len(w) >= 3][:5])
+                except Exception:
+                    pass
             if palabras_sin:
                 sin_conds = " OR ".join(["l.sinonimos LIKE '%' || ? || '%'" for _ in palabras_sin])
                 sin_params = list(palabras_sin)
