@@ -1,31 +1,31 @@
 {
   "snapshot": "/mnt/recursos_compartidos_y_otros/MemoryBioRAG/scripts/snapshot_prf_real.db",
   "total_casos_busqueda": 881,
-  "gaba_activados_top1_ge_80": 447,
-  "gaba_inactivos_top1_lt_80": 434,
-  "porcentaje_activados": 50.74,
-  "atenuaciones_efectivas_competidores": 316,
-  "porcentaje_atenuaciones_efectivas": 35.87,
+  "gaba_activados_top1_ge_80": 601,
+  "gaba_inactivos_top1_lt_80": 280,
+  "porcentaje_activados": 68.22,
+  "atenuaciones_efectivas_competidores": 554,
+  "porcentaje_atenuaciones_efectivas": 62.88,
   "desglose_por_categoria": {
     "literal": {
       "total": 487,
-      "activados": 341,
-      "atenuaciones": 253
+      "activados": 487,
+      "atenuaciones": 451
     },
     "variante_gramatical": {
       "total": 65,
       "activados": 11,
-      "atenuaciones": 7
+      "atenuaciones": 11
     },
     "typo": {
       "total": 65,
       "activados": 12,
-      "atenuaciones": 8
+      "atenuaciones": 10
     },
     "pregunta_natural": {
       "total": 65,
-      "activados": 18,
-      "atenuaciones": 8
+      "activados": 26,
+      "atenuaciones": 24
     },
     "por_tema": {
       "total": 65,
@@ -34,13 +34,13 @@
     },
     "dormido": {
       "total": 65,
-      "activados": 42,
-      "atenuaciones": 31
+      "activados": 65,
+      "atenuaciones": 58
     },
     "sinonimo": {
       "total": 61,
-      "activados": 23,
-      "atenuaciones": 9
+      "activados": 0,
+      "atenuaciones": 0
     },
     "cruce_idioma": {
       "total": 8,
