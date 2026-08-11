@@ -353,6 +353,9 @@ python3 scripts/ppmi_svd_retro.py --eval --no-retrofit
 
 # 5. Sin DMN (ideación en reposo desactivada)
 BIORAG_DMN_IDLE_SECONDS=999999 python3 scripts/evaluar_qa.py
+
+# 6. Medición empírica de frecuencia de activación GABA (60.3% activados en 881 búsquedas)
+python3 scripts/medir_gaba_activacion.py
 ```
 
 **Implementación real de cada mecanismo:**
@@ -408,6 +411,7 @@ BIORAG_DMN_IDLE_SECONDS=999999 python3 scripts/evaluar_qa.py
 | Ablation Jaccard | `scripts/experimento_faseB_holdout.py` | 921 casos | +13.85pp por_tema ✔ | ~2 min |
 | SDM QBE | `tests/test_sdm_query_by_example.py` | unitario | todos ✔ | ~5s |
 | **Ablación mecanismos** | **`scripts/ablacion_mecanismos.py`** | **921 × 5 configs** | **Tabla de contribución** | **~50 min** |
+| **Medición GABA** | **`scripts/medir_gaba_activacion.py`** | **881 búsquedas** | **60.3% activados (JSON)** | **~30s** |
 
 > **Determinismo verificado:** 4 corridas consecutivas idénticas → misma tabla. `random.seed(42)` en generación de casos QA.
 
