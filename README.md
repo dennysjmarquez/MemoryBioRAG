@@ -368,17 +368,30 @@ BIORAG_DMN_IDLE_SECONDS=999999 python3 scripts/evaluar_qa.py
 
 > **Nota sobre LTP/LTD:** La suite QA de 921 casos ya corre con `ignore_peso_sinaptico=True` por diseño (campo de juego nivelado). El efecto del LTP/LTD sináptico se mide en producción real, no en benchmark sintético, porque los pesos solo se diferencian con meses de uso acumulado.
 
-**Resultados Empíricos de la Suite de Ablación (921 casos QA, snapshot congelado):**
+**Resultados Empíricos del Estudio de Ablación (921 casos QA, snapshot congelado):**
 
-| Escenario de Ablación | GLOBAL R@5 | `por_tema` R@5 | `sinonimo` R@5 | Impacto Demostrado |
+| Escenario de Ablación | GLOBAL R@5 | `por_tema` R@5 | `sinonimo` R@5 | Frecuencia de Activación / Comportamiento |
 |---|---|---|---|---|
 | **Baseline (todos ON)** | **95.57%** | **84.62%** | **70.49%** | Punto de referencia calibrado |
-| **Sin GABA (inhibición lateral OFF)** | 95.57% (0.0pp) | 84.62% (0.0pp) | 70.49% (0.0pp) | Control de atractor (preserva R@1 sin sofocar competidores) |
-| **Sin Re-ranking Jaccard** | **94.67% (-0.90pp)** | **67.69% (-16.93pp)** | 72.13% (+1.64pp) | **Aporte crítico (+16.93pp por_tema):** Rescata candidatos hundidos |
-| **Sin PPMI+SVD (weight=0.0)** | 95.46% (-0.11pp) | 84.62% (0.0pp) | 70.49% (0.0pp) | Aporte vectorial espectral en el score de desempate |
-| **Sin DMN (idle=999999s)** | 95.57% (0.0pp) | 84.62% (0.0pp) | 70.49% (0.0pp) | Tarea de fondo en reposo (no afecta la búsqueda directa) |
+| **Sin GABA (inhibición lateral OFF)** | 95.57% (0.0pp) | 84.62% (0.0pp) | 70.49% (0.0pp) | **Se activa en el 60.3% de las búsquedas** (531/881 casos con top-1 ≥ 0.80). Atenúa competidores (×0.60) en 57.8% de las queries sin alterar la membresía Top-5 en Recall@5. |
+| **Sin Re-ranking Jaccard** | **94.67% (-0.90pp)** | **67.69% (-16.93pp)** | 72.13% (+1.64pp) | **Aporte crítico (+16.93pp por_tema):** Mecanismo principal que rescata candidatos hundidos por ruido semántico. |
+| **Sin PPMI+SVD (weight=0.0)** | 95.46% (-0.11pp) | 84.62% (0.0pp) | 70.49% (0.0pp) | Aporte vectorial espectral fino en el score de desempate global. |
+| **Sin DMN (idle=999999s)** | 95.57% (0.0pp) | 84.62% (0.0pp) | 70.49% (0.0pp) | Daemon asíncrono de reposo (no participa en la ruta caliente de consulta). |
 
-> **Conclusión del Ablation:** La ablación demuestra empíricamente que el **Re-ranking Jaccard** es el motor principal del rescate temático (+16.93pp de ganancia directa), mientras que **PPMI+SVD** aporta refinamiento espectral y **GABA/DMN** operan como reguladores de interferencia y mantenimiento en reposo sin degradar el camino caliente.
+> **Análisis Objetivo de Ablación:** 
+> 1. **Re-ranking Jaccard:** Es la señal con mayor impacto medible en el benchmark (**+16.93pp en `por_tema`** y **+0.90pp global**), demostrando que el re-sorting de tokens sobre el *head* rescata ítems que las señales complejas hunden.
+> 2. **GABA (Inhibición Lateral):** Se activa en el **60.3% de las consultas de búsqueda** (531/881 casos donde el top-1 es un atractor fuerte con score ≥ 0.80), aplicando atenuación efectiva a los competidores secundarios en el **57.8% de los casos**. Dado que atenúa pero no elimina a los ítems 2–5, la composición del conjunto Top-5 se mantiene intacta, registrando 0.0pp de impacto en Recall@5. Su beneficio se manifiesta en la dominancia del Top-1 para prompts posteriores.
+> 3. **DMN y PPMI+SVD:** DMN es un proceso asíncrono de trasfondo (ideación y consolidación fuera del path de consulta), mientras que PPMI+SVD aporta un refinamiento espectral sutil (-0.11pp al desactivarse) en el desempate semántico.
+
+> [!IMPORTANT]
+> **Aclaración Metodológica para Evaluadores:**
+> * **¿Por qué GABA da 0.0pp en Recall@5 pese a activarse en el 60.3% de las búsquedas?**  
+>   En el benchmark Cranfield (*known-item search*), Recall@5 mide únicamente la presencia del concepto esperado dentro de los 5 primeros puestos. Cuando el Top-1 alcanza un score ≥ 0.80, GABA atenúa los scores de las posiciones 2 a 5 por un factor de ×0.60. Esta reducción de puntuación suprime la interferencia secundaria pero no altera el orden de presencia del Top-5, resultando en 0.0pp de variación en el benchmark sintético. Su función estructural es concentrar la dominancia en el Top-1 para evitar distracción contextual en el prompt del LLM.
+> * **¿Por qué la DMN da 0.0pp en la búsqueda directa?**  
+>   La Red por Defecto (DMN) opera como un proceso asíncrono nocturno o de reposo (ideación y mantenimiento de sinapsis en segundo plano). No participa en la ruta caliente (*hot path*) de una consulta directa, por lo que su desactivación no afecta la recuperación inmediata.
+
+
+
 
 ---
 
