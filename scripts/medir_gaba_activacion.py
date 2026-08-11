@@ -30,8 +30,9 @@ OUT_JSON = os.path.join(BASE_DIR, "scripts", "gaba_activacion_resultado.json")
 
 def main():
     if not os.path.exists(SNAPSHOT):
-        print(f"ERROR: Snapshot no encontrado en {SNAPSHOT}")
-        sys.exit(1)
+        print(f"Snapshot no encontrado en {SNAPSHOT}. Auto-generando desde fuentes...")
+        from scripts.generar_snapshot import main as gen_snap
+        gen_snap()
 
     if not os.path.exists(CASES_FILE):
         print(f"ERROR: Casos QA no encontrados en {CASES_FILE}")

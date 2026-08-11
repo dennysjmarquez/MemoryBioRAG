@@ -334,6 +334,9 @@ python3 scripts/test_hdc_stress_versionado.py
 Cada configuración desactiva un mecanismo vía variable de entorno y corre la suite completa de 921 casos de prueba:
 
 ```bash
+# Reconstruir el snapshot determinista desde fuentes (si se clona el repo sin .db)
+python3 scripts/generar_snapshot.py
+
 # Ablación completa automática (5 configs × 921 casos ≈ 45-50 minutos)
 python3 scripts/ablacion_mecanismos.py
 
@@ -1142,7 +1145,7 @@ def biorag_buscar(
 
 REGLA #1 (BUSCAR) - FLUJO EN 3 PASOS:
   PASO 1: Ejecutar biorag_buscar(query="frase del usuario"). Si es abstracta/poetica, agregar 3-5 palabras clave al final.
-  PASO 2: Si PASO 1 da 0 resultados, volver a llamar con rafaga_palabras=[10-15 terminos relacionados con lo que se busca.
+  PASO 2: Si PASO 1 da 0 resultados, volver a llamar con rafaga_palabras=[10-15 terminos relacionados con lo que se busca].
   PASO 3: Si PASO 2 da 0 resultados o puro ruido, buscar en el contexto del chat actual. Si encuentras el dato, guardar con biorag_guardar.
   DESPUES DE CADA PASO: Leer los resultados y explicar al usuario con TUS PROPIAS PALABRAS qué encontraste.
   No retornar el JSON crudo. Leer el contenido de cada nodo y redactar una respuesta clara y natural.
@@ -1181,6 +1184,11 @@ def _calcular_score_hibrido(self, rank_idx, total, peso_sinaptico, asociaciones,
         tokens_en_contenido = set(re.findall(r'\w{3,}', contenido.lower()))
         peso_query = sum(peso for token, peso in pesos_tokens.items()
                        if token in tokens_en_contenido)
+        def main():
+            if not os.path.exists(SNAPSHOT):
+                print(f"Snapshot no encontrado en {SNAPSHOT}. Auto-generando desde fuentes...")
+                from scripts.generar_snapshot import main as gen_snap
+                gen_snap()
         score_texto = score_texto * 0.7 + peso_query * 0.3
 
     return round(0.60 * score_texto + 0.25 * peso_normalizado + 0.15 * score_asoc, 4)

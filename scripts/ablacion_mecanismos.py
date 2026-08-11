@@ -63,8 +63,9 @@ def run_eval(env_overrides: dict, label: str) -> dict:
 
 def main():
     if not os.path.exists(SNAPSHOT):
-        print(f"ERROR: snapshot no encontrado: {SNAPSHOT}")
-        sys.exit(1)
+        print(f"Snapshot no encontrado en {SNAPSHOT}. Auto-generando desde fuentes...")
+        from scripts.generar_snapshot import main as gen_snap
+        gen_snap()
 
     print("=" * 72)
     print("  ABLACIÓN DE MECANISMOS BioRAG — Contribución al Recall@5")
