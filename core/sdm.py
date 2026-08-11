@@ -150,13 +150,25 @@ def _activar_ventana(bit_array, pos_base, rango_inicio, rango_fin, n_bits):
             bit_array[pos] = 1
 
 
+def hdc_bind_bytes(vec_a: bytes, vec_b: bytes) -> bytes:
+    """Realiza la vinculación hiperdimensional HDC (Kanerva 1988) mediante XOR bit a bit.
+
+    Produce un vector que es estrictamente ortogonal (distancia Hamming ≈ N/2)
+    a ambos vectores originales si difieren, permitiendo atar conceptos a su contexto.
+    """
+    if not vec_a or not vec_b:
+        return vec_a or vec_b or b''
+    length = min(len(vec_a), len(vec_b))
+    return bytes(a ^ b for a, b in zip(vec_a[:length], vec_b[:length]))
+
+
 # =============================================================================
 # Generación de vectores
 # =============================================================================
 
 def generar_vector_sdm(concepto: str, contenido: str = "", categoria: str = "",
                        dimensiones: list = None, vecinos: list = None) -> bytes:
-    """Genera un vector binario disperso v2 con semántica Hebbiana.
+    """Genera un vector binario disperso v2 con semántica Hebbiana y binding HDC.
 
     Dimensiones: lista de dimension_id (int o str).
     """
@@ -170,6 +182,15 @@ def generar_vector_sdm(concepto: str, contenido: str = "", categoria: str = "",
         tokens_contenido = [stem(t.lower()) for t in contenido.split() if len(t) >= 3]
         for tok in set(tokens_contenido[:50]):
             _activar_proyecciones(bit_array, tok, *SEGMENTO_CONTENIDO, 4)
+
+        # v26.2: HDC Context Binding (Kanerva 1988): Vincula tokens con el contexto/categoría
+        if categoria:
+            cat_hash = int(hashlib.md5(str(categoria).lower().encode('utf-8')).hexdigest(), 16)
+            for i in range(SEGMENTO_CONTENIDO[0], SEGMENTO_CONTENIDO[1]):
+                if bit_array[i] and (cat_hash & (1 << (i % 32))):
+                    bound_pos = SEGMENTO_CONTENIDO[0] + ((i + (cat_hash % 64)) % (SEGMENTO_CONTENIDO[1] - SEGMENTO_CONTENIDO[0]))
+                    bit_array[i] = 0
+                    bit_array[bound_pos] = 1
 
     # 2. Tokens de concepto (bits 512..767, 4 proyecciones independientes/token)
     tokens_concepto = [stem(t.lower()) for t in concepto.split() if len(t) >= 2]

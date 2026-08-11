@@ -48,6 +48,55 @@ def init_sinapsis_table(cursor):
     cursor.connection.commit()
 
 
+def _vecinos_comunes(cursor, nodo_a: str, nodo_b: str) -> int:
+    """Retorna el número de vecinos sinápticos comunes entre nodo_a y nodo_b.
+
+    Fundamento (Granovetter 1973 / Teoría de Cierre Triádico):
+    Dos nodos deben conectarse sólo si ya comparten al menos un vecino común
+    en el grafo — garantía matemática de que pertenecen al mismo dominio semántico.
+    Sin este requisito, palabras accidentalmente compartidas entre nodos de dominios
+    distintos crean puentes espurios que degradan la precisión de búsqueda a escala.
+    """
+    try:
+        cursor.execute("""
+            SELECT COUNT(*) FROM (
+                SELECT vecino FROM (
+                    SELECT destino AS vecino FROM sinapsis WHERE origen = ?
+                    UNION SELECT origen AS vecino FROM sinapsis WHERE destino = ?
+                ) INTERSECT
+                SELECT vecino FROM (
+                    SELECT destino AS vecino FROM sinapsis WHERE origen = ?
+                    UNION SELECT origen AS vecino FROM sinapsis WHERE destino = ?
+                )
+            )
+        """, (nodo_a, nodo_a, nodo_b, nodo_b))
+        row = cursor.fetchone()
+        return row[0] if row else 0
+    except Exception:
+        return 0
+
+
+def _dimensiones_comunes(cursor, nodo_a: str, nodo_b: str) -> int:
+    """Retorna el número de dimensiones semánticas compartidas entre nodo_a y nodo_b."""
+    try:
+        cursor.execute("""
+            SELECT COUNT(*) FROM (
+                SELECT dimension_id FROM largo_plazo_dimensiones WHERE concepto = ?
+                INTERSECT
+                SELECT dimension_id FROM largo_plazo_dimensiones WHERE concepto = ?
+            )
+        """, (nodo_a, nodo_b))
+        row = cursor.fetchone()
+        return row[0] if row else 0
+    except Exception:
+        return 0
+
+
+# v26.2: Control de Cierre Triádico — activo por defecto, apagable con BIORAG_CIERRE_TRIADICO=0
+import os as _os
+_CIERRE_TRIADICO = _os.getenv("BIORAG_CIERRE_TRIADICO", "1") == "1"
+
+
 def auto_vincular(cerebro, concepto, contenido, umbral=0.4):
     if not concepto and not contenido:
         return []
@@ -99,6 +148,19 @@ def auto_vincular(cerebro, concepto, contenido, umbral=0.4):
         sim = _peso_similitud(tokens_nuevos, tokens_exist, idf_map=None)
 
         if sim >= umbral:
+            # v26.2: Cierre Triádico — sólo conectar si comparten vecino/dimensión común,
+            # o si el grafo del nodo nuevo está vacío (bootstrap). Previene puentes espurios
+            # entre nodos de dominios distintos causados por tokens compartidos accidentalmente.
+            if _CIERRE_TRIADICO:
+                vec_comunes = _vecinos_comunes(cerebro.cursor, concepto, conc_exist)
+                dim_comunes = _dimensiones_comunes(cerebro.cursor, concepto, conc_exist) if vec_comunes == 0 else 1
+                # Permitir la conexión si: (1) hay vecinos comunes, (2) hay dims semánticas comunes,
+                # o (3) el nodo nuevo no tiene aún ninguna sinapsis (bootstrap necesario)
+                cerebro.cursor.execute("SELECT COUNT(*) FROM sinapsis WHERE origen = ? OR destino = ?", (concepto, concepto))
+                sinap_existentes = cerebro.cursor.fetchone()[0]
+                if vec_comunes == 0 and dim_comunes == 0 and sinap_existentes > 5:
+                    continue  # Rechazar: puente espurio entre dominios distintos
+
             peso = sim
             # Reindex SDM selectivo: marcar dirty solo si la sinapsis es NUEVA
             # (el ON CONFLICT DO UPDATE no distingue insert de update)

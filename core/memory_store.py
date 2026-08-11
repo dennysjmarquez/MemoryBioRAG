@@ -4406,6 +4406,24 @@ class SQLiteMemoryBioRAG:
         # Reordenar por score hibrido descendente
         resultados_con_hibrido.sort(key=lambda r: r[4], reverse=True)
 
+        # v26.2: Puerta QCR (Query Coverage Ratio) para consultas compuestas (>= 2 palabras)
+        # Exige que al menos el 50% de los tokens de la consulta coincidan en el nodo/sinónimos/metadatos
+        # para prevenir que 1 sola palabra accidental en textos largos genere Falsos Positivos.
+        # Desactivable con export BIORAG_QCR_ACTIVO=0
+        QCR_ACTIVO = os.getenv("BIORAG_QCR_ACTIVO", "1") == "1"
+        q_tokens_qcr = [t.lower() for t in re.findall(r'\w{3,}', query)]
+        if QCR_ACTIVO and len(q_tokens_qcr) >= 2 and resultados_con_hibrido:
+            filtrados_qcr = []
+            for conc, cont, peso, est, sc, asoc in resultados_con_hibrido:
+                text_target = f"{conc} {cont} {concepto_sinonimos_map.get(conc, '')}".lower()
+                matches_qcr = sum(1 for t in q_tokens_qcr if t in text_target)
+                ratio_qcr = matches_qcr / len(q_tokens_qcr)
+                origen_tipo = origen_scores.get(conc, ("literal", 0.0))[0]
+                if ratio_qcr >= 0.50 or origen_tipo in ("semantica", "simbolico", "expansion", "dimensional_fallback"):
+                    filtrados_qcr.append((conc, cont, peso, est, sc, asoc))
+            if filtrados_qcr:
+                resultados_con_hibrido = filtrados_qcr
+
         # Fase C (v22.2): Re-ranking jaccard léxico condicional.
         # OFF por defecto (BIORAG_RERANKING_JACCARD_ENABLED=0) — activación gradual
         # monitoreada contra el benchmark. Config ganadora del holdout 2026-08-04.
