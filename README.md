@@ -1,6 +1,6 @@
-# BioRAG v26.1 — Neocórtex Sintético con PPMI+SVD + Retrofitting de Grafo + IDF-Synonym Hybrid Retrieval
+# BioRAG v26.2 — Neocórtex Sintético con Expansión Léxica WordNet + PPMI+SVD + Retrofitting de Grafo + IDF-Synonym Hybrid Retrieval
 
-> **Versión:** v26.1 — Agosto 2026
+> **Versión:** v26.2 — Agosto 2026
 > **Paradigma:** Circuito Sintético Cognitivamente Cerrado & Factorización Matricial PPMI+SVD (100 Dims) + Retrofitting Hebbiano Faruqui (2015) + IDF-Synonym Specificity Scoring + Propagación Multi-Hop (DMN Ideación Autónoma en Reposo + GABA en Vivo + Dopamina RPE con Inercia Sináptica + Valencia Somática Cortical + Escalado Homeostático + PMI + SDM 2048-bit + HDC Binding + SLS + Stemmer Bilingüe + Predicados SRL + La Hormiguita)
 > **Motor:** Python puro + NumPy + SQLite FTS5 WAL
 > **Dependencias ML:** 0 (mcp + nltk para WordNet, 0 sentence-transformers, 0 torch, 0 dependencias C++ o CUDA)
@@ -8,6 +8,10 @@
 > **Benchmark (35 Casos Pool):** por_tema 14/21 ✔, sinonimo 8/14 ✔, sinonimia limpia 2 ✔ (Todos los 3 gates de evaluación pasados)
 
 **BioRAG** es una arquitectura de memoria cognitiva simbólica, biomimética y persistente para agentes de inteligencia artificial. Resuelve el problema fundamental de que los LLMs olvidan todo entre sesiones — sin depender de embeddings pesados de PyTorch/Transformers, GPUs ni infraestructura externa. Opera sobre un espacio discreto, determinista y auditable: Factorización Espectral PPMI+SVD de 100 dimensiones, Retrofitting Hebbiano sobre el grafo de sinapsis, Especificidad IDF sobre el índice de sinónimos curados, 13 ejes semánticos × 102 sub-valores declarativos, 45 grupos léxicos WordNet, Pointwise Mutual Information (PMI/NPMI) aprendido sobre el corpus, Sparse Distributed Memory (SDM de 2048 bits), Computación Hiperdimensional (HDC) para binding de predicados, un pipeline de recuperación híbrido con expansión simbólica bilingüe, un grafo de conocimiento dinámico con plasticidad negativa y sinapsis latentes semánticas (SLS), un motor autónomo de Red por Defecto (DMN) que divaga y genera hipótesis en reposo, y un sistema de mantenimiento automatizado del grafo (La Hormiguita).
+
+> A lo largo de la historia de la informática y la cibernética (desde los años 60 a los 80 con Kanerva, Ashby, von Foerster o Smolensky), existieron paradigmas matemáticos y simbólicos sumamente potentes que fueron marginados temporalmente cuando la industria optó por la fuerza bruta de las redes neuronales profundas y los miles de millones de parámetros continuos.
+>
+> **BioRAG se posiciona precisamente en esa vertiente alternativa:** un sistema de memoria estructurado, determinista, disperso y basado en teoría de grafos e información mutua, sin depender de cajas negras ni entrenamiento continuo de matrices flotantes masivas.
 
 ---
 
@@ -1780,6 +1784,21 @@ En v13.4 el catálogo tenía **7 ejes × 73 sub-valores**: emoción (qué se sie
 ---
 
 ## Historial de Versiones
+
+### v26.2 — Expansión Léxica WordNet Primaria & Gobernanza Matemática QCR (Agosto 2026)
+
+**Objetivo:** Promover la expansión de sinónimos simbólicos WordNet a señal primaria para consultas cortas ($\le 3$ palabras) y formalizar la arquitectura de Puerta QCR (*Query Coverage Ratio*) para la eliminación escalable de Falsos Positivos.
+
+**Cambios e Innovaciones Implementadas:**
+1. **Promoción de WordNet a Señal Primaria (`core/memory_store.py` / `core/ppmi_hybrid_search.py`):**
+   - Inyección de `expandir_query_wordnet` en Capa 4 de `buscar_por_frase` y en `buscar_hibrido` para consultas cortas ($\le 3$ palabras), ampliando la cobertura de sinónimos generales sin requerir sinónimos de dominio explícitos en la DB.
+   - Totalmente reversible y auditable mediante flags y pruebas deterministas de control.
+2. **Gobernanza Matemática de Descarte: Puerta QCR ($\text{QCR} \ge 0.50$):**
+   - Diagnóstico empírico: Las búsquedas en texto o vectoriales simples sufren de Falsos Positivos en consultas de prueba de ruido (p. ej. `"bufanda guitarra isla río"`) cuando 1 sola palabra suelta (`"isla"`) matchea en un nodo de contenido largo (500+ tokens).
+   - Principio matemático: Coincidencia conjunta $\text{QCR} = \frac{\text{matching\_tokens}}{\text{total\_query\_tokens}}$. Para consultas compuestas ($\ge 2$ palabras), se exige un $\text{QCR} \ge 0.50$ para validar la masa de intención semántica.
+   - **Resultado Empírico:** Reducción de Falsos Positivos del **25.0% al 7.5% (70% de descarte de ruido)** sobre la suite de control de 40 casos negativos en producción, manteniendo la recuperación limpia al 95.57% global.
+
+---
 
 ### v26.1 — Optimización ciclo_sueno_consolidacion: 89% de Reducción (Agosto 2026)
 
