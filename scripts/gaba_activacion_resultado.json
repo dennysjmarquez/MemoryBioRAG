@@ -1,5 +1,5 @@
 {
-  "snapshot": "/mnt/recursos_compartidos_y_otros/MemoryBioRAG/scripts/snapshot_prf_real.db",
+  "snapshot": "scripts/snapshot_prf_real.db",
   "total_casos_busqueda": 881,
   "gaba_activados_top1_ge_80": 601,
   "gaba_inactivos_top1_lt_80": 280,

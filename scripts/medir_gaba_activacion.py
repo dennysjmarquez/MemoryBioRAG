@@ -81,7 +81,7 @@ def main():
     pct_atenuados = (atenuaciones_efectivas / total_busquedas) * 100
 
     reporte = {
-        "snapshot": SNAPSHOT,
+        "snapshot": os.path.relpath(SNAPSHOT, BASE_DIR),
         "total_casos_busqueda": total_busquedas,
         "gaba_activados_top1_ge_80": gaba_activados,
         "gaba_inactivos_top1_lt_80": gaba_inactivos,
