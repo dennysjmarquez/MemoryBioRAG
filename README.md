@@ -545,6 +545,53 @@ BioRAG no implementa una técnica aislada — sintetiza veintiséis mecanismos d
 | `graph_maintenance_daemon.py` | 17,383 | La Hormiguita — daemon de mantenimiento del grafo |
 | `middleware/auto_guardado.py` | 2,174 | Buffer de sesión + autoguardado heurístico |
 
+---
+
+### 🛡️ Patrón de Gobierno de IA con "Default Deny" (`core/dmn_reflexion.py` — La Hormiguita)
+
+* **¿Por qué se creó? (El Por qué):** Permitir que un LLM (ej. Gemini) escriba, modifique o borre directamente registros en la base de datos de memoria permanente es un riesgo crítico de seguridad. Las alucinaciones, respuestas fuera de esquema o JSONs truncados pueden corromper el grafo de sinapsis o destruir recuerdos valiosos.
+* **¿Para qué sirve? (El Para qué):** Sirve para aprovechar el juicio analítico avanzado de un LLM en tareas de mantenimiento del grafo de memoria (sanación y poda de sinapsis obsoletas) de forma 100% segura, protegiendo la base de datos contra corrupción o pérdidas de información accidental.
+* **Propósito en Producción (El Propósito):** Garantizar la **integridad absoluta del sistema de memoria** mediante una arquitectura de gobierno **Zero-Trust**:
+
+1. **Gemini como mero asesor (Proposal-Only):** El LLM nunca ejecuta sentencias SQL ni muta la base de datos directamente. Solo recibe un payload estructurado de candidatos pre-filtrados y emite un veredicto en JSON.
+2. **Pre-filtrado Determinista:** Antes de gastar tokens llamando a la API, el motor Python (`_pre_filtrar_conexiones`) evalúa >1,000 candidaturas mediante distancia de Hamming en SDM y score de co-ocurrencia hebbiana, reduciéndolas a ~60 candidatos dudosos que realmente requieren juicio experto.
+3. **Default Deny / Zero-Trust Safety:**
+   - Si la API del LLM falla, expira por timeout, o el JSON retornado contiene errores de sintaxis, el sistema aplica **Default Deny**: aborta con `return False` y **0 mutaciones en la DB**.
+   - Si el veredicto es válido, no se aplica ciegamente: pasa por un evaluador estricto (`_aplicar_veredicto_nodo`) que exige umbrales de confianza diferenciados: `UMBRAL_CONFIANZA_ACEPTAR` (para adiciones) y `UMBRAL_CONFIANZA_ELIMINAR` (para podas).
+4. **Cuarentena Reversible (`sinapsis_cuarentena`):** Las conexiones podadas no se destruyen inmediatamente. Se transfieren a la tabla relacional `sinapsis_cuarentena`, registrando el motivo, confianza, timestamp y estado previo. Esto permite auditoría forense y rollback completo en cualquier momento vía `_restaurar_cuarentena()`.
+
+---
+
+### 🔬 Memoria Dispersa Binaria de 2048 Bits (`core/sdm.py` — Kanerva 1988 + HDC)
+
+* **¿Por qué se creó? (El Por qué):** Los embeddings densos tradicionales (ej. 1536 dimensiones de 32 bits) consumen 6,144 bytes por nodo, requieren GPUs o librerías pesadas como PyTorch/FAISS, y mezclan toda la información en un espacio vectorial indivisible donde es imposible saber qué componente representa texto, categoría o topología de grafo.
+* **¿Para qué sirve? (El Para qué):** Sirve para ejecutar búsquedas de similitud conceptual hiperdimensional en microsegundos (<1.5 ms en 800+ nodos) utilizando CPU pura en cualquier dispositivo (sin GPUs ni dependencias externas), discriminando con precisión quirúrgica entre coincidencias de texto superficiales y relaciones Hebbianas profundas.
+* **Propósito en Producción (El Propósito):** Proveer un **hiperespacio binario ultra-eficiente de 2048 bits (256 bytes por nodo)** que combina semántica hebbiana, texto y topología con rendimiento en CPU pura (<1.5 ms en 800+ nodos).
+
+**Particionado Estructurado del Vector SDM (2048 bits = 256 bytes):**
+A diferencia de un hash disperso uniforme (que mezcla tokens al azar), el vector de 2048 bits en BioRAG v2.0 tiene un **layout de memoria explícito por capa de información**:
+
+| Rango de Bits | % Vector | Segmento | Propósito y Codificación |
+|---|---|---|---|
+| `bits 0..511` | 25.0% | **Tokens de Contenido** | Ventanas hash-mapped de 4 bits por token extraído del contenido. |
+| `bits 512..767` | 12.5% | **Tokens de Concepto** | Ventana de 4 bits por token del identificador principal del nodo. |
+| `bits 768..1791` | **50.0%** | **Dimensiones Hebbianas** | Clusters Hebbianos + dimensiones cualia/epistemia (8–16 bits por dimensión, ponderadas por IDF). Captura la semántica profunda. |
+| `bits 1792..1919` | 6.25% | **Categoría Estructurada** | Ventana determinista de 8 bits correspondiente al catálogo de categorías del cerebro. |
+| `bits 1920..2047` | 6.25% | **Vecindario Sináptico** | Ventana de 4 bits por concepto vecino interconectado en el grafo. |
+
+**Jaccard Ponderado por Capa Semántica:**
+Al calcular la similitud en el hiperespacio entre dos vectores binarios de 2048 bits, los bits no pesan lo mismo:
+```python
+PESO_TOKEN = 1.0        # Solapamiento léxico básico
+PESO_CATEGORIA = 1.5    # Afinidad estructural
+PESO_VECINO = 1.2       # Afinidad topológica en el grafo
+PESO_DIMENSION = 2.5    # Semántica Hebbiana profunda (pesa 2.5× para guiar el retrieval)
+```
+
+**Rendimiento:** Al operar con representaciones binarias compactas, la comparación de distancias sobre 800+ nodos utiliza `int.bit_count()` nativo de 64 bits en Python, consumiendo solo **256 bytes por nodo** (vs. 6,144 bytes de un embedding denso float32 de 1536 dimensiones), sin requerir FAISS ni PyTorch.
+
+---
+
 ## Clasificación Simbólica WordNet — v15.0
 
 Para la versión v15.0 de BioRAG, diseñamos e implementamos una extensión ontológica basada en **WordNet** que proporciona similitud conceptual discreta y determinista, 100% offline y sin depender de bases de datos vectoriales ni de modelos de embeddings pesados.
