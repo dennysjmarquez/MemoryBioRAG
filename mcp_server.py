@@ -96,6 +96,11 @@ LIMITE_MCP = int(os.environ.get('BIORAG_LIMITE_MCP', '10'))
 THRESHOLD_RAFTAGA_MCP = float(os.environ.get('BIORAG_THRESHOLD_RAFTAGA', '0.5'))
 """Score mínimo para activar ráfaga automáticamente en MCP."""
 
+VENTANA_CORRECCION = int(os.environ.get('BIORAG_VENTANA_CORRECCION_SEGUNDOS', '900'))
+"""Ventana de corrección en caliente (default 900s = 15min). Nodos más jóvenes se pueden actualizar directamente; más viejos requieren nodo nuevo + vincular."""
+
+_sesiones_activas: dict[str, float] = {}  # agente → timestamp de contexto_inicio
+
 STALE_DAYS = int(os.environ.get('BIORAG_STALE_DAYS', '90'))
 """Días después de los cuales un nodo se marca como 'stale' (obsoleto).
 Resultados stale no se entregan como información vigente.
@@ -510,6 +515,7 @@ def _build_server():
         modo_estricto: bool = False,
         buscar_por_rol: Optional[str] = None,
         usar_inferencia: bool = True,
+        ordenar_por: str = "relevancia",
     ) -> str:
         if limite is None:
             limite = LIMITE_MCP
@@ -770,6 +776,7 @@ def _build_server():
                     hasta_ts=hasta_ts,
                     modo_estricto=modo_estricto,
                     usar_inferencia=usar_inferencia,
+                    ordenar_por=ordenar_por,
                 )
             score_top = resultados[0][4] if resultados else 0
 
@@ -945,7 +952,8 @@ def _build_server():
 
             items = []
             for concepto, contenido, peso, estado, score, asociaciones in resultados:
-                edad_dias = (ahora - _edad_map.get(concepto, ahora)) / 86400 if _edad_map.get(concepto) else 0
+                creado_ts = _edad_map.get(concepto, 0)
+                edad_dias = (ahora - creado_ts) / 86400 if creado_ts else 0
                 es_stale = edad_dias > STALE_DAYS and _cat_map.get(concepto, "") not in _CATEGORIAS_PROTEGIDAS
                 items.append({
                     "concepto": concepto,
@@ -954,6 +962,8 @@ def _build_server():
                     "estado": estado,
                     "score_hibrido": score,
                     "edad_dias": round(edad_dias, 1),
+                    "timestamp_creado": creado_ts,
+                    "fecha_legible": datetime.fromtimestamp(creado_ts).strftime("%Y-%m-%d %H:%M") if creado_ts else None,
                     "stale": es_stale,
                     "asociaciones": [
                         v.strip() for v in (asociaciones or "").split(",") if v.strip()
@@ -965,7 +975,8 @@ def _build_server():
             contexto_items = []
             if pagina > 1 and contexto_expandido:
                 for concepto, contenido, peso, estado, score, asociaciones in contexto_expandido:
-                    edad_dias = (ahora - _edad_map.get(concepto, ahora)) / 86400 if _edad_map.get(concepto) else 0
+                    creado_ts = _edad_map.get(concepto, 0)
+                    edad_dias = (ahora - creado_ts) / 86400 if creado_ts else 0
                     es_stale = edad_dias > STALE_DAYS and _cat_map.get(concepto, "") not in _CATEGORIAS_PROTEGIDAS
                     contexto_items.append({
                         "concepto": concepto,
@@ -974,6 +985,8 @@ def _build_server():
                         "estado": estado,
                         "score_hibrido": score,
                         "edad_dias": round(edad_dias, 1),
+                        "timestamp_creado": creado_ts,
+                        "fecha_legible": datetime.fromtimestamp(creado_ts).strftime("%Y-%m-%d %H:%M") if creado_ts else None,
                         "stale": es_stale,
                         "asociaciones": [
                             v.strip() for v in (asociaciones or "").split(",") if v.strip()
@@ -1103,6 +1116,7 @@ def _build_server():
                 "sinapsis_creadas": [{"origen": o, "destino": d, "peso": p} for o, d, p in sinapsis_creadas] if sinapsis_creadas else [],
                 "profundidad": profundidad,
                 "trazabilidad": trazabilidad,
+                "advertencia_temporal": ordenar_por in ("recencia", "antiguedad"),
             }, ensure_ascii=False)
 
             # Guardar params completos de la búsqueda en log_busquedas
@@ -1133,6 +1147,14 @@ def _build_server():
                 pass
 
             _interceptar("recordar", query, cerebro)
+            # WARNER para ordenar_por temporal (antes de prepend warnings)
+            if ordenar_por in ("recencia", "antiguedad"):
+                _warnings.append(
+                    f"⚠️ ORDEN POR FECHA ACTIVO (ordenar_por='{ordenar_por}'): "
+                    "estos resultados están ordenados por fecha de creación, NO por relevancia semántica. "
+                    "El orden cronológico NO implica que un resultado sea más importante que otro. "
+                    "Usá 'relevancia' (default) para recuperación estándar."
+                )
             # Prepend warnings como texto plano ANTES del JSON
             if _warnings:
                 return "\n".join(_warnings) + "\n\n" + resultado
@@ -1248,6 +1270,30 @@ def _build_server():
             "  ✅ Bien: recordar(query='cv currículo', dias=1) — solo lo de hoy\n"
             "  ✅ Bien: recordar(dias=1) → todo lo de hoy sin filtro de texto\n\n"
             "- autor='agente_1' → solo recuerdos de ese agente\n\n"
+            "═══════════════════════════════════════════════════════\n"
+            "CAMPO FECHA_LEGIBLE EN CADA RESULTADO\n"
+            "═══════════════════════════════════════════════════════\n"
+            "Cada resultado incluye 'fecha_legible' (ej: '2026-08-10 14:32') y 'timestamp_creado'.\n"
+            "Esto permite razonar sobre CUÁNDO pasó algo sin necesidad de filtros temporales.\n"
+            "Usar cuando el usuario pregunte por fechas, antigüedad, o para desambiguar.\n\n"
+            "═══════════════════════════════════════════════════════\n"
+            "ORDENAR POR FECHA — ordenar_por\n"
+            "═══════════════════════════════════════════════════════\n"
+            "ordenar_por controla el ORDEN de los resultados post-scoring.\n"
+            "• 'relevancia' (default): orden por score híbrido. SIEMPRE usar este por defecto.\n"
+            "• 'recencia': creado_en DESC — más recientes primero.\n"
+            "• 'antiguedad': creado_en ASC — más antiguos primero.\n\n"
+            "CUÁNDO USAR 'recencia' o 'antiguedad':\n"
+            "  ✅ '¿Cuál fue lo último que me dijiste sobre X?'\n"
+            "  ✅ '¿Qué fue lo último que hice?'\n"
+            "  ✅ '¿Hace cuánto fue esto?'\n"
+            "  ✅ Desambiguar entre varios resultados similares por antigüedad\n\n"
+            "CUÁNDO NO USAR:\n"
+            "  ❌ '¿Qué sé sobre X?' → usar 'relevancia' (default)\n"
+            "  ❌ '¿Qué me frustra?' → usar 'relevancia'\n"
+            "  ❌ Para determinar qué es 'más importante' → NO es intención temporal\n\n"
+            "⚠️ WARNER: ordenar_por NO reemplaza relevancia — reordena el conjunto YA FILTRADO.\n"
+            "  La paginación (pág 2, 3, etc.) sigue el mismo orden cronológico.\n\n"
             "═══════════════════════════════════════════════════════\n"
             "ORÁCULO: ÚLTIMO RECURSO, NO PRIMERO\n"
             "═══════════════════════════════════════════════════════\n"
@@ -1470,12 +1516,26 @@ def _build_server():
         usar_inferencia: Annotated[bool, Field(
             description="Si True, utiliza inferencia transitiva sobre sinapsis latentes para aumentar recall semántico."
         )] = True,
+        ordenar_por: Annotated[str, Field(
+            description=(
+                "Orden de los resultados después del scoring.\n"
+                "• 'relevancia' (default): orden por score híbrido. Comportamiento estándar.\n"
+                "• 'recencia': creado_en DESC — más recientes primero. Para 'qué fue lo último', 'cuál fue el último X'.\n"
+                "• 'antiguedad': creado_en ASC — más antiguos primero.\n\n"
+                "⚠️ SOLO PARA INTENCIÓN TEMPORAL: usar cuando se pregunte por 'lo último', 'lo más reciente', "
+                "o para desambiguar entre respuestas similares por antigüedad. "
+                "NO sirve para saber si algo es 'más importante' o 'más relevante' — para eso usá 'relevancia'.\n"
+                "El orden se aplica DESPUÉS del scoring, sobre el conjunto ya filtrado por relevancia. "
+                "Las páginas 2, 3, etc. siguen el mismo orden cronológico."
+            )
+        )] = "relevancia",
     ) -> str:
         return _recordar_impl(
             query, deep, cat, completo, asociados, limite, preview_chars,
             context_window, forzar_rafaga, rafaga_palabras, pagina, parafrasis,
             dimensiones, dias, desde, hasta, autor, modo_estricto,
-            buscar_por_rol=buscar_por_rol, usar_inferencia=usar_inferencia
+            buscar_por_rol=buscar_por_rol, usar_inferencia=usar_inferencia,
+            ordenar_por=ordenar_por,
         )
 
     @mcp.tool(
@@ -2573,8 +2633,9 @@ def _build_server():
     ) -> str:
         cerebro = _get_cerebro()
         try:
+            _sesiones_activas[agente] = time.time()
             registrar_accion("inicio", f"[{agente}] {contexto}")
-            return json.dumps({"status": "ok", "mensaje": "Contexto de inicio registrado."}, ensure_ascii=False)
+            return json.dumps({"status": "ok", "mensaje": "Contexto de inicio registrado.", "ventana_extension": True}, ensure_ascii=False)
         finally:
             cerebro.cerrar_sistema()
 
@@ -2596,6 +2657,7 @@ def _build_server():
     ) -> str:
         cerebro = _get_cerebro()
         try:
+            _sesiones_activas.pop(agente, None)
             registrar_accion("fin", f"[{agente}] {resumen}")
             resultado = analizar_y_autoguardar(cerebro, fuerza=True)
             if resultado:
@@ -3129,6 +3191,121 @@ def _build_server():
                 },
             }
             return json.dumps(resultado, ensure_ascii=False, indent=2)
+        finally:
+            cerebro.cerrar_sistema()
+
+    @mcp.tool(
+        name="actualizar",
+        description=(
+            "Actualiza campos de un nodo existente en largo_plazo. "
+            "SOLO funciona dentro de la ventana de corrección (default 15min, configurable vía BIORAG_VENTANA_CORRECCION_SEGUNDOS). "
+            "Si hay sesión activa (contexto_inicio llamado), la ventana se triplica automáticamente. "
+            "Si el nodo está fuera de ventana, retorna 'fuera_de_ventana' con instrucciones para crear nodo nuevo. "
+            "Permitidos: contenido, peso_sinaptico, estado, sinonimos. "
+            "Si el nodo no existe retorna error 404. Si no se especifica ningún campo, retorna sin_cambios."
+        ),
+    )
+    def biorag_actualizar(
+        concepto: Annotated[str, Field(
+            description="Nombre del nodo a actualizar (snake_case). Debe existir en largo_plazo."
+        )],
+        contenido: Annotated[Optional[str], Field(
+            description="Nuevo contenido del nodo."
+        )] = None,
+        peso_sinaptico: Annotated[Optional[float], Field(
+            description="Nuevo peso sináptico (0.0 a 1.0)."
+        )] = None,
+        estado: Annotated[Optional[str], Field(
+            description="Nuevo estado: activo, dormido, cuarentena."
+        )] = None,
+        sinonimos: Annotated[Optional[str], Field(
+            description="Nuevos sinónimos separados por coma."
+        )] = None,
+        agente: Annotated[Optional[str], Field(
+            description="Tu nombre de agente (ej: 'athena'). Para extender la ventana si hay sesión activa."
+        )] = None,
+    ) -> str:
+        cerebro = _get_cerebro()
+        try:
+            cur = cerebro.cursor
+            cur.execute("SELECT 1, creado_en FROM largo_plazo WHERE concepto=?", (concepto,))
+            row = cur.fetchone()
+            if not row:
+                return json.dumps({
+                    "status": "error",
+                    "mensaje": f"Nodo '{concepto}' no encontrado",
+                }, ensure_ascii=False)
+
+            # ── Ventana de corrección ──
+            creado_ts = row[1] or 0
+            ahora = time.time()
+            elapsed = ahora - creado_ts if creado_ts > 0 else float('inf')
+
+            # Extender ventana si hay sesión activa para este agente
+            ventana = VENTANA_CORRECCION
+            sesion_activa = agente and agente in _sesiones_activas
+            if sesion_activa:
+                ventana = ventana * 3  # Sesión activa = 3x la ventana (45 min default)
+
+            if elapsed > ventana:
+                return json.dumps({
+                    "status": "fuera_de_ventana",
+                    "mensaje": (
+                        f"Nodo '{concepto}' tiene {int(elapsed/60)} minutos — supera la ventana de "
+                        f"corrección ({int(ventana/60)} min{'con sesión activa' if sesion_activa else ''}). "
+                        f"Usá biorag_aprender para crear un nodo nuevo y biorag_vincular para conectarlo."
+                    ),
+                    "edad_minutos": int(elapsed/60),
+                    "ventana_minutos": int(ventana/60),
+                    "sesion_activa": sesion_activa,
+                }, ensure_ascii=False)
+
+            updates = []
+            params = []
+            if contenido is not None:
+                updates.append("contenido = ?")
+                params.append(contenido)
+            if peso_sinaptico is not None:
+                if not 0.0 <= peso_sinaptico <= 1.0:
+                    return json.dumps({
+                        "status": "error",
+                        "mensaje": f"peso_sinaptico debe estar entre 0.0 y 1.0, recibido: {peso_sinaptico}",
+                    }, ensure_ascii=False)
+                updates.append("peso_sinaptico = ?")
+                params.append(peso_sinaptico)
+            if estado is not None:
+                estados_validos = {"activo", "dormido", "cuarentena"}
+                if estado not in estados_validos:
+                    return json.dumps({
+                        "status": "error",
+                        "mensaje": f"estado debe ser uno de {estados_validos}, recibido: '{estado}'",
+                    }, ensure_ascii=False)
+                updates.append("estado = ?")
+                params.append(estado)
+            if sinonimos is not None:
+                updates.append("sinonimos = ?")
+                params.append(sinonimos)
+
+            if not updates:
+                return json.dumps({
+                    "status": "sin_cambios",
+                    "mensaje": "No se especificaron campos a actualizar",
+                }, ensure_ascii=False)
+
+            params.append(concepto)
+            cur.execute(
+                f"UPDATE largo_plazo SET {', '.join(updates)} WHERE concepto=?",
+                params,
+            )
+            cerebro.conn.commit()
+
+            return json.dumps({
+                "status": "ok",
+                "mensaje": f"Nodo '{concepto}' actualizado",
+                "campos_modificados": [u.split(" =")[0] for u in updates],
+                "dentro_de_ventana": True,
+                "edad_minutos": int(elapsed/60) if elapsed != float('inf') else None,
+            }, ensure_ascii=False)
         finally:
             cerebro.cerrar_sistema()
 

@@ -3226,7 +3226,7 @@ class SQLiteMemoryBioRAG:
             head = [original_r0] + [it for it in head if it is not original_r0]
         return head + tail
 
-    def buscar_por_frase(self, frase, profundidad="activos", pagina=1, limite=None, categoria=None, preview_chars=1500, historial_fallos=None, context_window=0, dimensiones_dict=None, dimensiones_ids=None, parafrasis_list=None, desde_ts=None, hasta_ts=None, modo_estricto=False, usar_inferencia=True, buscar_por_rol=None, ignore_peso_sinaptico=False):
+    def buscar_por_frase(self, frase, profundidad="activos", pagina=1, limite=None, categoria=None, preview_chars=1500, historial_fallos=None, context_window=0, dimensiones_dict=None, dimensiones_ids=None, parafrasis_list=None, desde_ts=None, hasta_ts=None, modo_estricto=False, usar_inferencia=True, buscar_por_rol=None, ignore_peso_sinaptico=False, ordenar_por="relevancia"):
         """Busqueda hibrida: FTS5 trigram + peso sinaptico + asociaciones + scoring dimensional.
 
         frase: texto en lenguaje natural. Trigrams nativos de FTS5 manejan
@@ -3247,6 +3247,10 @@ class SQLiteMemoryBioRAG:
         desde_ts: timestamp Unix mínimo para filtro temporal PRE-hoc (creado_en).
         hasta_ts: timestamp Unix máximo para filtro temporal PRE-hoc (creado_en).
         buscar_por_rol: string con filtro por roles semánticos (ej: 'sujeto:Dennys')
+        ordenar_por: 'relevancia' (default, orden por score híbrido), 'recencia' (creado_en DESC,
+                     más recientes primero) o 'antiguedad' (creado_en ASC, más antiguos primero).
+                     Post-hoc: reordena el conjunto ya filtrado por relevancia ANTES de paginar.
+                     WARNER: solo responde intención temporal, no determina relevancia.
         Retorna (resultados, total) donde resultados es lista de
         (concepto, contenido, peso, estado, score, asociaciones)
         """
@@ -4500,6 +4504,26 @@ class SQLiteMemoryBioRAG:
                 validos = {row[0] for row in self.cursor.fetchall()}
                 resultados_con_hibrido = [r for r in literal_results if r[0] in validos] + non_literal_results
 
+        # ── Ordenamiento post-hoc por fecha (antes de paginar) ──────────
+        # Solo responde intención temporal: "qué pasó hace X", "cuál fue lo último".
+        # NO reemplaza relevancia — reordena el conjunto ya filtrado por relevancia.
+        if ordenar_por in ("recencia", "antiguedad") and resultados_con_hibrido:
+            conceptos_todo = [r[0] for r in resultados_con_hibrido]
+            ph_todo = ",".join("?" * len(conceptos_todo))
+            try:
+                self.cursor.execute(
+                    f"SELECT concepto, creado_en FROM largo_plazo WHERE concepto IN ({ph_todo})",
+                    tuple(conceptos_todo),
+                )
+                creado_map = {row[0]: row[1] or 0 for row in self.cursor.fetchall()}
+            except Exception:
+                creado_map = {}
+            reverse = (ordenar_por == "recencia")
+            resultados_con_hibrido.sort(
+                key=lambda r: creado_map.get(r[0], 0),
+                reverse=reverse,
+            )
+
         # Paginar (sin truncar aun; se necesita contenido completo para context window)
         inicio = (pagina - 1) * limite
         pagina_resultados = resultados_con_hibrido[inicio:inicio + limite]
@@ -4521,7 +4545,8 @@ class SQLiteMemoryBioRAG:
                     pagina_resultados_actualizada.append(r)
             pagina_resultados = pagina_resultados_actualizada
             self.conn.commit()
-            pagina_resultados.sort(key=lambda r: r[4], reverse=True)
+            if ordenar_por == "relevancia":
+                pagina_resultados.sort(key=lambda r: r[4], reverse=True)
 
         # Context window: expandir cada resultado con vecinos por sinapsis
         if context_window and context_window > 0 and pagina_resultados:
