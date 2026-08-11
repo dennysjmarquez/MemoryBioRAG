@@ -334,8 +334,11 @@ python3 scripts/test_hdc_stress_versionado.py
 Cada configuración desactiva un mecanismo vía variable de entorno y corre la suite completa de 921 casos de prueba:
 
 ```bash
-# Reconstruir el snapshot determinista desde fuentes (si se clona el repo sin .db)
+# Reconstruir el snapshot determinista desde fuentes (auto-valida que la DB tenga datos; si no existe o está vacía, la genera en <5s)
 python3 scripts/generar_snapshot.py
+
+# Medición empírica de frecuencia de activación GABA (auto-verifica contenido DB antes de medir)
+python3 scripts/medir_gaba_activacion.py
 
 # Ablación completa automática (5 configs × 921 casos ≈ 45-50 minutos)
 python3 scripts/ablacion_mecanismos.py
@@ -356,9 +359,6 @@ python3 scripts/ppmi_svd_retro.py --eval --no-retrofit
 
 # 5. Sin DMN (ideación en reposo desactivada)
 BIORAG_DMN_IDLE_SECONDS=999999 python3 scripts/evaluar_qa.py
-
-# 6. Medición empírica de frecuencia de activación GABA (60.3% activados en 881 búsquedas)
-python3 scripts/medir_gaba_activacion.py
 ```
 
 **Implementación real de cada mecanismo:**

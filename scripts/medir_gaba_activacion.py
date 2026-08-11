@@ -28,10 +28,11 @@ CASES_FILE = os.path.join(BASE_DIR, "scripts", "casos_qa_baseline_v1.jsonl")
 OUT_JSON = os.path.join(BASE_DIR, "scripts", "gaba_activacion_resultado.json")
 
 
+from scripts.generar_snapshot import validar_db_con_datos, main as gen_snap
+
 def main():
-    if not os.path.exists(SNAPSHOT):
-        print(f"Snapshot no encontrado en {SNAPSHOT}. Auto-generando desde fuentes...")
-        from scripts.generar_snapshot import main as gen_snap
+    if not validar_db_con_datos(SNAPSHOT):
+        print(f"Snapshot no encontrado o sin datos en {SNAPSHOT}. Auto-generando desde fuentes...")
         gen_snap()
 
     if not os.path.exists(CASES_FILE):

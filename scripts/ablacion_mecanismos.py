@@ -61,10 +61,11 @@ def run_eval(env_overrides: dict, label: str) -> dict:
     return {"label": label, "stats": stats}
 
 
+from scripts.generar_snapshot import validar_db_con_datos, main as gen_snap
+
 def main():
-    if not os.path.exists(SNAPSHOT):
-        print(f"Snapshot no encontrado en {SNAPSHOT}. Auto-generando desde fuentes...")
-        from scripts.generar_snapshot import main as gen_snap
+    if not validar_db_con_datos(SNAPSHOT):
+        print(f"Snapshot no encontrado o sin datos en {SNAPSHOT}. Auto-generando desde fuentes...")
         gen_snap()
 
     print("=" * 72)
