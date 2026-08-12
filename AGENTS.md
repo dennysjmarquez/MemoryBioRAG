@@ -136,7 +136,7 @@ Primary tools agents use:
 
 ## Version / Release
 
-- `VERSION` file: `v26.4`
+- `VERSION` file: `v27.0`
 - `CHANGELOG.md` — detailed history with metrics
 - Version bump: update `VERSION`, `CHANGELOG.md`, tag commit
 

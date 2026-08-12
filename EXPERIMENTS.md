@@ -183,3 +183,39 @@ Las 13 sinapsis tejidas (`tejida_estructural`, peso 0.6) **no movieron ni un sol
 | v25.2 | Signal #12: +13.85pp histórico = snapshot parcial; backfill completo canibaliza | Desenganchada (capacidad disponible) |
 | v25.2 | Jaccard: +13.85pp por_tema, +16.92pp R@1, holdout sostiene | **Integrado** (Fase C, activación gradual) |
 | v25.2+ | Tejedora: 13 sinapsis estructurales sobre 921 casos → +0.000pp | Descartado (Fases 3-8 canceladas) |
+| v27.0 | Neocórtex de Sangre: ADN Conceptual + razonamiento por esencia + teleología | **PENDIENTE DE EVALUACIÓN** (blueprint, no integrado) |
+
+---
+
+## Hipótesis en Evaluación
+
+### 8. Neocórtex de Sangre — ADN Conceptual y Razonamiento por Esencia (v27.0) → PENDIENTE DE EVALUACIÓN
+
+**Hipótesis:** si cada recuerdo se describe por su *esencia* (una firma genética de genes mecánicos/abstractos, en vez de por su vocabulario), el sistema puede relacionar conceptos que no comparten palabras ("un error de código" con "frustración" o "entropía") y razonar por esencia en vez de por coincidencia textual.
+
+**Estado:** **EN EVALUACIÓN — no presentado a nadie todavía.** Es un **blueprint congelado**, no una implementación integrada. La decisión de integración al core NO se ha tomado; aún no se ha discutido con ningún auditor ni par.
+
+**Dónde vive:**
+- Blueprint completo (código de referencia + demos + tests + documentación + presentación): `docs/¿Cuál es la Meta Final del Proyecto_Neocortex_nivel_2/`
+- Variante experimental del core: `docs/.../memory_store.py` (5229 líneas, +75 vs core) — fork con init de `NeocortexTeleologico` + `ADNConceptualEngine`, métodos `_cargar_firmas_adn()` / `_persistir_firma_adn()`, tabla `adn_firmas`.
+- Motor de ADN: `docs/.../adn_conceptual.py` — infiere la firma genética (esencia) de un concepto.
+- Razonamiento teleológico: `docs/.../neocortex_teleologico.py` + `docs/.../hipotesis_teleologica.py` — vinculación por esencia y generación proactiva de hipótesis por "gaps genéticos".
+- DMN evolucionada: `docs/.../dmn_engine.py` (variante modificada con curiosidad teleológica).
+- Módulos de apoyo (copias o variantes): `auto_clustering.py`, `clasificador_wordnet.py`, `stemmer_es.py`, `ppmi_hybrid_search.py`, `dmn_reflexion.py`.
+- Demos y tests: `demo_vivo_neocortex.py`, `run_adn_test.py`, `run_neocortex_test.py`, `run_teleology_test.py`, `test_neocortex_teleologico.py`, `test_sdm_completo.py`.
+- Arquitectura y narrativa: `info.md`, `teoria_de_ejes_semanticos.md`, `slide_content.md`, 4 docs de briefing/arquitectura, presentación `Neocórtex de Sangre: La Evolución Genética de BioRAG.pptx`.
+
+**Las 3 promesas del experimento (a validar empíricamente):**
+1. **Intuición Sintética:** relacionar un error de código con una emoción de frustración o el concepto de "entropía" sin que nadie lo haya explicado, solo porque sus genes mecánicos/abstractos coinciden.
+2. **Verdad Absoluta (cero alucinación):** un motor de incertidumbre como "filtro de realidad" — si el ADN de la consulta no encaja en el mapa, el sistema se detiene en vez de adivinar.
+3. **Evolución Proactiva:** la memoria "sueña"; al detectar datos sobre "Gatos" y "Autonomía" pero ninguno sobre "Libertad", el motor teleológico marca el hueco para que el sistema busque activamente esa conexión.
+
+**Qué falta para pasar de blueprint a experimento medido:**
+- Decidir si la integración se hace sobre `core/memory_store.py` o como capa independiente.
+- Medir impacto real sobre los 921 casos QA (recuperación, FP, latencia) con protocolo de ablación como los experimentos previos.
+- Definir umbrales de afinidad y honestidad epistémica con evidencia, no por diseño.
+- Evaluar la relación costo/beneficio de persistir firmas ADN por nodo en el ciclo de sueño.
+
+**Lección de proceso que ya dejó:** documentar como blueprint ANTES de integrar evita que una idea sin evidencia contamine el core — el experimento se evalúa con datos, no por entusiasmo.
+
+---

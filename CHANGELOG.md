@@ -14,6 +14,40 @@
 
 **Nota:** los cambios surten efecto al reiniciar el servidor MCP (el `ORACLE_PROMPT` se inyecta en cada arranque).
 
+## v27.0 (2026-08-12)
+
+### Blueprint del Neocórtex de Sangre: ADN Conceptual y Razonamiento por Esencia
+
+**Objetivo:** documentar y congelar como blueprint la siguiente etapa de evolución de BioRAG — pasar de biblioteca estática (recuperación estadística de palabras) a cerebro vivo con **memoria genética conceptual**: cada recuerdo tiene un *ADN* (firma de esencia, no de vocabulario), y el sistema razona por esencia en vez de por coincidencia textual, formulando hipótesis teleológicas propias en reposo.
+
+**Estado honesto:** es un **experimento en evaluación**, presentado a nadie todavía. La implementación viva (`core/memory_store.py`) NO contiene el neocórtex; el blueprint vive como copia de referencia modificada y documentación reproducible en `docs/¿Cuál es la Meta Final del Proyecto_Neocortex_nivel_2/`. La decisión de integración queda pendiente — bitácora en `EXPERIMENTS.md`.
+
+**Contenido del blueprint (`docs/¿Cuál es la Meta Final del Proyecto_Neocortex_nivel_2/`):**
+- `memory_store.py` (variante experimental, 5229 líneas, +75 vs core): fork del core con init de `NeocortexTeleologico` + `ADNConceptualEngine` y métodos `_cargar_firmas_adn()` / `_persistir_firma_adn()` para la tabla `adn_firmas`.
+- `adn_conceptual.py` — motor de ADN Conceptual: infiere la firma genética (esencia) de un concepto.
+- `neocortex_teleologico.py` — capa de razonamiento teleológico que vincula firmas y genera hipótesis autónomas.
+- `hipotesis_teleologica.py` — generación proactiva de hipótesis por detección de "gaps genéticos".
+- `dmn_engine.py` (variante modificada) — DMN con curiosidad teleológica y escaneo de gaps en reposo.
+- Módulos de apoyo (copias o variantes): `auto_clustering.py`, `clasificador_wordnet.py`, `stemmer_es.py`, `ppmi_hybrid_search.py`, `dmn_reflexion.py`.
+- Demos y tests: `demo_vivo_neocortex.py`, `run_adn_test.py`, `run_neocortex_test.py`, `run_teleology_test.py`, `test_neocortex_teleologico.py`, `test_sdm_completo.py`.
+- Documentación: 4 documentos de arquitectura/briefing, `info.md`, `teoria_de_ejes_semanticos.md`, `slide_content.md`, `SKILL.md`, y presentación `Neocórtex de Sangre: La Evolución Genética de BioRAG.pptx`.
+
+**Concepto central:** *"razonar por esencia, no por palabras"* — dos conceptos se relacionan si comparten genes mecánicos/abstractos (p.ej. "un error de código", "frustración" o "entropía") solo por sus firmas de ADN, sin explicación previa. Añade **honestidad epistémica** (filtro de incertidumbre: si el ADN no encaja, lanza error en vez de adivinar) y **evolución proactiva** (la memoria "sueña" y marca huecos a investigar).
+
+### AGENTS.md — Guía de instrucciones para agentes
+
+**Cambio:** nuevo `AGENTS.md` (152 líneas) con arquitectura del repo, comandos de corrida, evaluación QA, disciplina de snapshots, herramientas MCP, errores comunes, key files y checklist de verificación.
+
+**Por qué:** el repo carecía de onboarding legible por máquina; cada sesión de agente re-derivaba comandos y reglas de snapshot.
+
+### mcp_server.py — Fix de arranque: daemon en hilo de fondo
+
+**Cambio:** en `main()`, `ensure_daemon_alive(intervalo_horas=0.5)` ahora corre dentro de un `threading.Thread(daemon=True)` con try/except interno, en vez de bloquear el hilo principal.
+
+**Por qué:** la espera bloqueante del PID file (~5s) retrasaba el handshake MCP stdio (initialize), causando "context deadline exceeded" en el cliente. El daemon igual queda spawneado (proceso detachado).
+
+**Archivos modificados:** `docs/.../Neocortex_nivel_2/*` (26 archivos nuevos), `AGENTS.md` (nuevo), `mcp_server.py`, `README.md`, `VERSION`, `CHANGELOG.md`.
+
 ## v26.4 (2026-08-11)
 
 ### Escape del Gate QCR con Umbral de Capa 0.60

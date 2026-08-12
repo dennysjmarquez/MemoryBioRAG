@@ -1,6 +1,6 @@
-# BioRAG v26.4 — Neocórtex Sintético con Umbral de Capa 0.60 en el Escape del Gate QCR
+# BioRAG v27.0 — Blueprint del Neocórtex de Sangre: ADN Conceptual y Razonamiento por Esencia
 
-> **Versión:** v26.4 — Agosto 2026
+> **Versión:** v27.0 — Agosto 2026
 > **Paradigma:** Circuito Sintético Cognitivamente Cerrado & QCR Gate (Puerta de Cobertura de Consulta) + HDC Context Binding (Kanerva 1988) + Cierre Triádico (Granovetter 1973) + Factorización Matricial PPMI+SVD (100 Dims) + Retrofitting Hebbiano Faruqui (2015) + IDF-Synonym Specificity Scoring + Propagación Multi-Hop (DMN Ideación Autónoma en Reposo + GABA en Vivo + Dopamina RPE con Inercia Sináptica + Valencia Somática Cortical + Escalado Homeostático + PMI + SDM 2048-bit + HDC Binding + SLS + Stemmer Bilingüe + Predicados SRL + La Hormiguita)
 > **Motor:** Python puro + NumPy + SQLite FTS5 WAL
 > **Dependencias ML:** 0 (mcp + nltk para WordNet, 0 sentence-transformers, 0 torch, 0 dependencias C++ o CUDA)
@@ -1469,7 +1469,7 @@ MemoryBioRAG/
   ├── deploy_v26.py              # Script de despliegue y verificación v26.x
   ├── requirements.txt           # numpy, nltk, mcp, fastapi, uvicorn, pytest
   ├── vocabulario_inicial.json   # 239 términos del dominio para expansión semántica
-  ├── VERSION                    # Versión actual: v26.4
+  ├── VERSION                    # Versión actual: v27.0
   ├── CHANGELOG.md               # Historial completo de cambios técnicos
   ├── EXPERIMENTS.md             # Bitácora de hipótesis probadas y descartadas
   ├── test_memory.py             # Suite principal: 112 tests biológicos automatizados
@@ -1791,6 +1791,32 @@ En v13.4 el catálogo tenía **7 ejes × 73 sub-valores**: emoción (qué se sie
 ---
 
 ## Historial de Versiones
+
+### v27.0 — Blueprint del Neocórtex de Sangre: ADN Conceptual y Razonamiento por Esencia (Agosto 2026)
+
+**Objetivo:** documentar y congelar como blueprint la siguiente etapa de evolución de BioRAG — pasar de biblioteca estática (recuperación estadística de palabras) a cerebro vivo con **memoria genética conceptual**: cada recuerdo tiene un *ADN* (firma de esencia, no de vocabulario), y el sistema razona por esencia en vez de por coincidencia textual, formulando hipótesis teleológicas propias en reposo.
+
+**Estado honesto:** es un **experimento en evaluación**, no integrado al core de producción. La implementación viva (`core/memory_store.py`) NO contiene el neocórtex; el blueprint vive como copia de referencia modificada y documentación reproducible en `docs/¿Cuál es la Meta Final del Proyecto_Neocortex_nivel_2/`. Ver `EXPERIMENTS.md` para la bitácora.
+
+**Contenido del blueprint (`docs/¿Cuál es la Meta Final del Proyecto_Neocortex_nivel_2/`):**
+- **`memory_store.py` (variante experimental, 5229 líneas):** fork del core con +75 líneas — inicialización de `NeocortexTeleologico` + `ADNConceptualEngine` en `__init__`, y métodos `_cargar_firmas_adn()` / `_persistir_firma_adn()` para persistir firmas genéticas en la tabla `adn_firmas`.
+- **`adn_conceptual.py`:** motor de ADN Conceptual — infiere la firma genética (esencia) de un concepto.
+- **`neocortex_teleologico.py`:** capa de razonamiento teleológico que vincula firmas y genera hipótesis autónomas.
+- **`hipotesis_teleologica.py`:** generación proactiva de hipótesis por detección de "gaps genéticos" entre conceptos.
+- **`dmn_engine.py` (variante modificada):** DMN evolucionada con escaneo de gaps y curiosidad teleológica en reposo.
+- **`auto_clustering.py`, `clasificador_wordnet.py`, `stemmer_es.py`, `ppmi_hybrid_search.py`, `dmn_reflexion.py`:** módulos de apoyo (copias o variantes) para autosuficiencia del experimento.
+- **Demos y tests:** `demo_vivo_neocortex.py`, `run_adn_test.py`, `run_neocortex_test.py`, `run_teleology_test.py`, `test_neocortex_teleologico.py`, `test_sdm_completo.py`.
+- **Documentación:** 4 documentos de arquitectura/briefing, `info.md`, `teoria_de_ejes_semanticos.md`, `slide_content.md` y la presentación `Neocórtex de Sangre: La Evolución Genética de BioRAG.pptx`.
+
+**Concepto central:** *"razonar por esencia, no por palabras"* — dos conceptos se relacionan si comparten genes mecánicos/abstractos (p.ej. "un error de código" y "frustración" o "entropía"), sin que nadie se lo haya explicado, solo porque sus firmas de ADN coinciden. Añade **honestidad epistémica** (filtro de incertidumbre: si el ADN no encaja, lanza error en vez de adivinar) y **evolución proactiva** (la memoria "sueña" y marca los huecos que debería buscar).
+
+**Otros cambios incluidos en v27.0:**
+- `AGENTS.md`: nueva guía de instrucciones para agentes (arquitectura, comandos, disciplina de snapshots, evaluación QA).
+- `mcp_server.py`: fix de arranque — `ensure_daemon_alive()` ahora corre en un hilo de fondo, eliminando el retraso (~5s) en el handshake MCP stdio que causaba "context deadline exceeded".
+
+**Estado del experimento:** presentado a nadie todavía; pendiente de evaluación y decisión de integración.
+
+---
 
 ### v26.4 — Escape del Gate QCR con Umbral de Capa 0.60 (Agosto 2026)
 
