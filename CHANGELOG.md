@@ -1,5 +1,19 @@
 # BioRAG Changelog
 
+## [Unreleased]
+
+### Mar 11-ago-2026 — Fix: catálogo de dimensiones desincronizado + reactivación de `biorag_feedback`
+
+**Bug reportado:** "Dimensiones inválidas" a cada rato al guardar (`aprender`) con dimensiones del system prompt.
+
+**Causa raíz:** el `ORACLE_PROMPT` y las `description` de las tools (`recordar`, `aprender`) documentaban el catálogo de dimensiones **viejo** (75 valores: `herramienta_software`, `accion_correccion`, `cualidad_tecnica`, `qualia_agentivo`, `epistemia_directa`...). La DB real (seed v26.x en `core/memory_store.py::_asegurar_catalogo_dimensiones`) tiene **13 tipos / 102 valores con nombres distintos** (`identidad_artificial`, `accion_cognitiva`, `cualidad_abstracta_conceptual`, `telica_funcion`, `directa_experiencial`...). Todo agente que seguía la doc fallaba.
+
+**Cambios:**
+- `mcp_server.py` — 4 bloques de documentación corregidos con el catálogo real: referencia rápida del `ORACLE_PROMPT`, "LOS 13 EJES" de `recordar`, "LOS 13 EJES" de `aprender`, y el ejemplo JSON del protocolo de guardado. Se añadió aviso "⚠️ ESTE ES EL CATÁLOGO REAL".
+- `mcp_server.py` — bloque `ORACLE_PROMPT` PROTOCOLO DE FEEDBACK DOPAMINÉRGICO: reescrito de 3 casos excepcionales a **5 casos accionables** (confirmación usuario, verificación test/build, uso de recuerdo recuperado en respuesta = caso más común, cierre de sesión, única excepción: duda real) y description de `biorag_feedback` actualizada para invitar al uso post-recuperación.
+
+**Nota:** los cambios surten efecto al reiniciar el servidor MCP (el `ORACLE_PROMPT` se inyecta en cada arranque).
+
 ## v26.1 (2026-08-09)
 
 ### Optimización de Rendimiento: ciclo_sueno_consolidacion — 89% de reducción

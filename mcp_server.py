@@ -279,19 +279,20 @@ ORACLE_PROMPT = (
     "Ej: 'qué me frustra' → emocion:frustracion\n"
     "¿Cuándo NO usar? → Cuando busca por nombre exacto o keywords claras. "
     "Ej: 'error_http_500' → NO necesita dimensiones\n\n"
-    "emocion: alegria,frustracion,satisfaccion,curiosidad,preocupacion,sorpresa,afecto,orgullo,tedio,nostalgia,ansiedad,calma\n"
-    "entidad: identidad_individual,identidad_artificial,herramienta_software,organizacion,concepto_abstracto,dispositivo,proyecto,evento,lugar,grupo_social,dato_informacion\n"
-    "accion: accion_comunicacion,accion_creacion,accion_persistencia_computacion,accion_investigacion,accion_rutina_automatica,accion_decision,accion_ensenanza,accion_correccion,accion_navegacion,accion_consumo,accion_reflexion,accion_estado_ser,accion_evaluar,accion_observar,accion_fallar\n"
-    "cualidad: cualidad_funcional,cualidad_positiva,cualidad_negativa,cualidad_abstracta_conceptual,cualidad_autentica,cualidad_tecnica,cualidad_temporal,cualidad_espacial,cualidad_cuantitativa,cualidad_relacional,cualidad_estetica\n"
-    "coordenada: coordenada_temporal_puntual,coordenada_temporal_durativa,coordenada_secuencial,coordenada_espacial_fisica,coordenada_espacial_digital,coordenada_relativa,coordenada_ciclica,coordenada_antes_despues,coordenada_origen,coordenada_frecuencia\n"
-    "intencion: intencion_documentar,intencion_aprender,intencion_corregir,intencion_compartir,intencion_proteger,intencion_explorar,intencion_decidir,intencion_recordar\n"
-    "dominio: dominio_tecnico,dominio_personal,dominio_profesional,dominio_creativo,dominio_social,dominio_educativo,dominio_cientifico,dominio_filosofico,dominio_domestico,dominio_salud,dominio_financiero,dominio_legal\n"
-    "cualia: qualia_formal,qualia_constitutivo,qualia_agentivo,qualia_telico\n"
-    "epistemia: epistemia_directa,epistemia_verificada,epistemia_inferida,epistemia_reportada,epistemia_hipotesis,epistemia_obsoleta\n"
+    "emocion: afecto,alegria,frustracion,tristeza,preocupacion,confusion,sorpresa,miedo,alivio,apatia,culpa,satisfaccion\n"
+    "entidad: identidad_individual,identidad_social_legal,identidad_organizacional,identidad_digital,identidad_artificial,identidad_fisica_hardware,identidad_natural,identidad_concepto,identidad_institucion,identidad_evento,identidad_vinculo\n"
+    "accion: accion_fisica,accion_transformacion_material,accion_persistencia_computacion,accion_rutina_automatica,accion_comunicacion,accion_interaccion_social,accion_cognitiva,accion_estado_ser,accion_evaluar,accion_observar,accion_fallar\n"
+    "cualidad: cualidad_dimension_fisica,cualidad_estado_condicion,cualidad_valoracion,cualidad_sensorial,cualidad_material_composicion,cualidad_temporal_duracion,cualidad_relacional_comparativa,cualidad_abstracta_conceptual,cualidad_economica,cualidad_urgente,cualidad_autentica\n"
+    "coordenada: coordenada_cronologia_absoluta,coordenada_anclaje_deictico,coordenada_secuencia_relativa,coordenada_ciclo_periodico,coordenada_inclusion_topologica,coordenada_distancia_proximal,coordenada_vector_direccional,coordenada_trayectoria_limite,coordenada_etapa,coordenada_hito\n"
+    "intencion: intencion_aprender,intencion_decidir,intencion_reflexionar,intencion_resolver,intencion_solucionar,intencion_documentar,intencion_desahogar,intencion_registrar\n"
+    "dominio: dominio_tecnico,dominio_personal,dominio_profesional,dominio_academico,dominio_salud,dominio_finanzas,dominio_ambiental,dominio_social,dominio_creativo,dominio_espiritual\n"
+    "cualia: formal_categoria,constitutiva_composicion,agentiva_origen,telica_funcion\n"
+    "epistemia: directa_experiencial,verificada,inferida,reportada_externa,hipotetica,obsoleta\n"
     "escala_abstraccion: instancia,patron,principio,ley_modelo,metafora\n"
-    "centralidad_identitaria: nucleo_identitario,rasgo_estable,aspecto_contextual,periferico,ajeno\n"
+    "centralidad_identitaria: nucleo_identitario,relevante_personal,relevante_contextual,informacion_externa,impersonal\n"
     "textura_experiencial: flujo,tension,desorientacion,rutina,presencia_plena\n"
     "modalidad: obligacion,prohibicion,permiso,capacidad\n\n"
+    "⚠️ ESTE ES EL CATÁLOGO REAL (13 tipos, 102 valores). Si dudás, llamá `listar_dimensiones_por_tipo`.\n\n"
     "FORMATO: String JSON con comillas dobles → '{\"emocion\":[\"frustracion\"],\"dominio\":[\"dominio_tecnico\"]}'\n\n"
 
     # ── REGLAS DE ORO ────────────────────────────────────────────────────
@@ -327,7 +328,7 @@ ORACLE_PROMPT = (
 
     # ── PROTOCOLO DE FEEDBACK DOPAMINÉRGICO (RPE) ───────────────────────
     "═══ PROTOCOLO DE FEEDBACK DOPAMINÉRGICO (RPE - Schultz 1997) ═══\n"
-    "Un agente NUNCA debe asumir ni adivinar feedback sin evidencia real. Usar la tool feedback() en 3 casos:\n"
+    "La tool feedback() es un hábito, no una excepción. Todo recuerdo recuperado que se USE en una respuesta merece refuerzo. Dispará feedback() en cualquiera de estos casos:\n"
     "1. CONFIRMACIÓN EXPLÍCITA DEL USUARIO:\n"
     "   - Si el usuario dice '¡Excelente!', 'Exacto', 'Esa era la regla', 'Funcionó':\n"
     "     → feedback(concepto='nombre_nodo', util=True, motivo='Usuario confirmó éxito')\n"
@@ -338,7 +339,13 @@ ORACLE_PROMPT = (
     "     → feedback(concepto='nombre_nodo', util=True, motivo='Verificado por build/test')\n"
     "   - Si la ejecución falló por causa del recuerdo recuperado:\n"
     "     → feedback(concepto='nombre_nodo', util=False, motivo='Falló verificación')\n"
-    "3. EN CASO DE DUDA → NO DISPARAR A CIEGAS: Esperá la respuesta del usuario o preguntale.\n\n"
+    "3. TRAS USAR UN RECUERDO RECUPERADO EN LA RESPUESTA (caso más común):\n"
+    "   - Cada vez que evocés un nodo con recordar() y SU CONTENIDO INFLUYE en lo que respondés:\n"
+    "     → feedback(concepto='<nodo_recuperado>', util=True, motivo='Usado para responder')\n"
+    "   - Si lo recuperaste pero NO aportó (era ruido, no ayudó a resolver):\n"
+    "     → feedback(concepto='<nodo_recuperado>', util=False, motivo='Ruido en recuperación')\n"
+    "4. AL CIERRE DE SESIÓN: antes de contexto_fin, revisá qué recuerdos usaste en la sesión y reforzá los que sirvieron.\n"
+    "5. ÚNICA EXCEPCIÓN: si dudás genuinamente de si un recuerdo fue útil (no es confirmación, ni build, ni uso real), NO dispares a ciegas — esperá la respuesta del usuario.\n\n"
 
     # ── PROTOCOLO AL GUARDAR ─────────────────────────────────────────────
     "═══ PROTOCOLO AL GUARDAR (aprender) ═══\n"
@@ -1349,17 +1356,17 @@ def _build_server():
                 "del conocimiento. Si al guardar se clasificaron bien las dimensiones, al buscar las encontrás. "
                 "Si se clasificaron mal o incompletas, se pierden para siempre en búsquedas ontológicas.\n\n"
                 "LOS 13 EJES DISPONIBLES PARA BÚSQUEDA:\n"
-                "1. emocion → alegria, frustracion, satisfaccion, curiosidad, preocupacion, sorpresa, afecto, orgullo, tedio, nostalgia, ansiedad, calma\n"
-                "2. entidad → identidad_individual, identidad_artificial, herramienta_software, organizacion, concepto_abstracto, dispositivo, proyecto, evento, lugar, grupo_social, dato_informacion\n"
-                "3. accion → accion_comunicacion, accion_creacion, accion_persistencia_computacion, accion_investigacion, accion_rutina_automatica, accion_decision, accion_ensenanza, accion_correccion, accion_navegacion, accion_consumo, accion_reflexion\n"
-                "4. cualidad → cualidad_funcional, cualidad_positiva, cualidad_negativa, cualidad_abstracta_conceptual, cualidad_autentica, cualidad_tecnica, cualidad_temporal, cualidad_espacial, cualidad_cuantitativa, cualidad_relacional, cualidad_estetica\n"
-                "5. coordenada → coordenada_temporal_puntual, coordenada_temporal_durativa, coordenada_secuencial, coordenada_espacial_fisica, coordenada_espacial_digital, coordenada_relativa, coordenada_ciclica, coordenada_antes_despues, coordenada_origen, coordenada_frecuencia\n"
-                "6. intencion → intencion_documentar, intencion_aprender, intencion_corregir, intencion_compartir, intencion_proteger, intencion_explorar, intencion_decidir, intencion_recordar\n"
-                "7. dominio → dominio_tecnico, dominio_personal, dominio_profesional, dominio_creativo, dominio_social, dominio_educativo, dominio_cientifico, dominio_filosofico, dominio_domestico, dominio_salud, dominio_financiero, dominio_legal\n"
-                "8. cualia → qualia_formal, qualia_constitutivo, qualia_agentivo, qualia_telico\n"
-                "9. epistemia → epistemia_directa, epistemia_verificada, epistemia_inferida, epistemia_reportada, epistemia_hipotesis, epistemia_obsoleta\n"
+                "1. emocion → afecto, alegria, frustracion, tristeza, preocupacion, confusion, sorpresa, miedo, alivio, apatia, culpa, satisfaccion\n"
+                "2. entidad → identidad_individual, identidad_social_legal, identidad_organizacional, identidad_digital, identidad_artificial, identidad_fisica_hardware, identidad_natural, identidad_concepto, identidad_institucion, identidad_evento, identidad_vinculo\n"
+                "3. accion → accion_fisica, accion_transformacion_material, accion_persistencia_computacion, accion_rutina_automatica, accion_comunicacion, accion_interaccion_social, accion_cognitiva, accion_estado_ser, accion_evaluar, accion_observar, accion_fallar\n"
+                "4. cualidad → cualidad_dimension_fisica, cualidad_estado_condicion, cualidad_valoracion, cualidad_sensorial, cualidad_material_composicion, cualidad_temporal_duracion, cualidad_relacional_comparativa, cualidad_abstracta_conceptual, cualidad_economica, cualidad_urgente, cualidad_autentica\n"
+                "5. coordenada → coordenada_cronologia_absoluta, coordenada_anclaje_deictico, coordenada_secuencia_relativa, coordenada_ciclo_periodico, coordenada_inclusion_topologica, coordenada_distancia_proximal, coordenada_vector_direccional, coordenada_trayectoria_limite, coordenada_etapa, coordenada_hito\n"
+                "6. intencion → intencion_aprender, intencion_decidir, intencion_reflexionar, intencion_resolver, intencion_solucionar, intencion_documentar, intencion_desahogar, intencion_registrar\n"
+                "7. dominio → dominio_tecnico, dominio_personal, dominio_profesional, dominio_academico, dominio_salud, dominio_finanzas, dominio_ambiental, dominio_social, dominio_creativo, dominio_espiritual\n"
+                "8. cualia → formal_categoria, constitutiva_composicion, agentiva_origen, telica_funcion\n"
+                "9. epistemia → directa_experiencial, verificada, inferida, reportada_externa, hipotetica, obsoleta\n"
                 "10. escala_abstraccion → instancia, patron, principio, ley_modelo, metafora\n"
-                "11. centralidad_identitaria → nucleo_identitario, rasgo_estable, aspecto_contextual, periferico, ajeno\n"
+                "11. centralidad_identitaria → nucleo_identitario, relevante_personal, relevante_contextual, informacion_externa, impersonal\n"
                 "12. textura_experiencial → flujo, tension, desorientacion, rutina, presencia_plena\n"
                 "13. modalidad → obligacion, prohibicion, permiso, capacidad\n\n"
                 "3 MODOS DE USO:\n"
@@ -1848,17 +1855,17 @@ def _build_server():
                 "para búsquedas ontológicas PARA SIEMPRE. Cada dimensión que omitís es un camino de búsqueda que se cierra. "
                 "Clasificar bien hoy = encontrar mañana.\n\n"
                 "LOS 13 EJES DISPONIBLES — evaluá CADA UNO antes de guardar:\n"
-                "1. emocion (El Sentir): ¿Qué se siente? → alegria, frustracion, satisfaccion, curiosidad, preocupacion, sorpresa, afecto, orgullo, tedio, nostalgia, ansiedad, calma\n"
-                "2. entidad (El Qué): ¿Qué cosas/personas/sistemas aparecen? → identidad_individual, identidad_artificial, herramienta_software, organizacion, concepto_abstracto, dispositivo, proyecto, evento, lugar, grupo_social, dato_informacion\n"
-                "3. accion (El Hacer): ¿Qué se hace o pasa? → accion_comunicacion, accion_creacion, accion_persistencia_computacion, accion_investigacion, accion_rutina_automatica, accion_decision, accion_ensenanza, accion_correccion, accion_navegacion, accion_consumo, accion_reflexion\n"
-                "4. cualidad (El Cómo): ¿Cómo es/está? → cualidad_funcional, cualidad_positiva, cualidad_negativa, cualidad_abstracta_conceptual, cualidad_autentica, cualidad_tecnica, cualidad_temporal, cualidad_espacial, cualidad_cuantitativa, cualidad_relacional, cualidad_estetica\n"
-                "5. coordenada (Espacio/Tiempo): ¿Cuándo/dónde ocurre? → coordenada_temporal_puntual, coordenada_temporal_durativa, coordenada_secuencial, coordenada_espacial_fisica, coordenada_espacial_digital, coordenada_relativa, coordenada_ciclica, coordenada_antes_despues, coordenada_origen, coordenada_frecuencia\n"
-                "6. intencion (El Por Qué): ¿Para qué se guarda esto? → intencion_documentar, intencion_aprender, intencion_corregir, intencion_compartir, intencion_proteger, intencion_explorar, intencion_decidir, intencion_recordar\n"
-                "7. dominio (El Dónde aplica): ¿En qué campo? → dominio_tecnico, dominio_personal, dominio_profesional, dominio_creativo, dominio_social, dominio_educativo, dominio_cientifico, dominio_filosofico, dominio_domestico, dominio_salud, dominio_financiero, dominio_legal\n"
-                "8. cualia (Modo de explicación): ¿Cómo se explica? ¿Definición, composición, origen o función? → qualia_formal, qualia_constitutivo, qualia_agentivo, qualia_telico\n"
-                "9. epistemia (Cómo lo sé): ¿Es vivencia directa, verificado, inferido, reportado? → epistemia_directa, epistemia_verificada, epistemia_inferida, epistemia_reportada, epistemia_hipotesis, epistemia_obsoleta\n"
+                "1. emocion (El Sentir): ¿Qué se siente? → afecto, alegria, frustracion, tristeza, preocupacion, confusion, sorpresa, miedo, alivio, apatia, culpa, satisfaccion\n"
+                "2. entidad (El Qué): ¿Qué cosas/personas/sistemas aparecen? → identidad_individual, identidad_social_legal, identidad_organizacional, identidad_digital, identidad_artificial, identidad_fisica_hardware, identidad_natural, identidad_concepto, identidad_institucion, identidad_evento, identidad_vinculo\n"
+                "3. accion (El Hacer): ¿Qué se hace o pasa? → accion_fisica, accion_transformacion_material, accion_persistencia_computacion, accion_rutina_automatica, accion_comunicacion, accion_interaccion_social, accion_cognitiva, accion_estado_ser, accion_evaluar, accion_observar, accion_fallar\n"
+                "4. cualidad (El Cómo): ¿Cómo es/está? → cualidad_dimension_fisica, cualidad_estado_condicion, cualidad_valoracion, cualidad_sensorial, cualidad_material_composicion, cualidad_temporal_duracion, cualidad_relacional_comparativa, cualidad_abstracta_conceptual, cualidad_economica, cualidad_urgente, cualidad_autentica\n"
+                "5. coordenada (Espacio/Tiempo): ¿Cuándo/dónde ocurre? → coordenada_cronologia_absoluta, coordenada_anclaje_deictico, coordenada_secuencia_relativa, coordenada_ciclo_periodico, coordenada_inclusion_topologica, coordenada_distancia_proximal, coordenada_vector_direccional, coordenada_trayectoria_limite, coordenada_etapa, coordenada_hito\n"
+                "6. intencion (El Por Qué): ¿Para qué se guarda esto? → intencion_aprender, intencion_decidir, intencion_reflexionar, intencion_resolver, intencion_solucionar, intencion_documentar, intencion_desahogar, intencion_registrar\n"
+                "7. dominio (El Dónde aplica): ¿En qué campo? → dominio_tecnico, dominio_personal, dominio_profesional, dominio_academico, dominio_salud, dominio_finanzas, dominio_ambiental, dominio_social, dominio_creativo, dominio_espiritual\n"
+                "8. cualia (Modo de explicación): ¿Cómo se explica? ¿Definición, composición, origen o función? → formal_categoria, constitutiva_composicion, agentiva_origen, telica_funcion\n"
+                "9. epistemia (Cómo lo sé): ¿Es vivencia directa, verificado, inferido, reportado? → directa_experiencial, verificada, inferida, reportada_externa, hipotetica, obsoleta\n"
                 "10. escala_abstraccion (Nivel de generalidad): ¿Caso concreto o ley universal? → instancia, patron, principio, ley_modelo, metafora\n"
-                "11. centralidad_identitaria (Cuánto es mío): ¿Define quién soy/somos? → nucleo_identitario, rasgo_estable, aspecto_contextual, periferico, ajeno\n"
+                "11. centralidad_identitaria (Cuánto es mío): ¿Define quién soy/somos? → nucleo_identitario, relevante_personal, relevante_contextual, informacion_externa, impersonal\n"
                 "12. textura_experiencial (Cómo se sentía): ¿Cómo fue el momento? → flujo, tension, desorientacion, rutina, presencia_plena\n"
                 "13. modalidad (Debo/Puedo): ¿Hay obligación, prohibición, permiso o capacidad? → obligacion, prohibicion, permiso, capacidad\n\n"
                 "REGLAS DE RIGOR Y VERACIDAD:\n"
@@ -1872,11 +1879,11 @@ def _build_server():
                 "- Mínimo esperable cuando el contenido es rico: 7-10 ejes. Si ponés menos de 6, revisá si no omitiste ejes justificables (ej: epistemia, escala_abstraccion, cualia, intencion, dominio).\n"
                 "- Usá los valores del catálogo listados arriba. Si no recordás alguno, llamá listar_dimensiones_por_tipo.\n\n"
                 "FORMATO — STRING JSON con comillas dobles:\n"
-                '{"emocion":["satisfaccion"],"entidad":["herramienta_software"],"accion":["accion_creacion"],'
-                '"cualidad":["cualidad_funcional"],"coordenada":["coordenada_temporal_puntual"],'
+                '{"emocion":["satisfaccion"],"entidad":["identidad_artificial"],"accion":["accion_cognitiva"],'
+                '"cualidad":["cualidad_abstracta_conceptual"],"coordenada":["coordenada_cronologia_absoluta"],'
                 '"intencion":["intencion_documentar"],"dominio":["dominio_tecnico"],'
-                '"cualia":["qualia_agentivo"],"epistemia":["epistemia_directa"],'
-                '"escala_abstraccion":["instancia"],"centralidad_identitaria":["periferico"],'
+                '"cualia":["telica_funcion"],"epistemia":["directa_experiencial"],'
+                '"escala_abstraccion":["instancia"],"centralidad_identitaria":["impersonal"],'
                 '"textura_experiencial":["flujo"],"modalidad":["capacidad"]}\n\n'
                 "ÚLTIMO RECURSO: Si el texto no tiene nada que clasificar, clasificá por tipo ontológico."
             )
@@ -1975,7 +1982,8 @@ def _build_server():
         name="feedback",
         description=(
             "Refuerzo Dopaminérgico por Error de Predicción de Recompensa (RPE v20.0 - Schultz 1997).\n"
-            "Permite a un agente o usuario enviar retroalimentación sobre si un recuerdo recuperado fue útil (util=True) o erróneo (util=False).\n"
+            "HÁBITO OBLIGATORIO (no excepción): usá esta tool cada vez que un recuerdo recuperado con recordar() INFLUYA en tu respuesta — marcá util=True si sirvió, util=False si fue ruido.\n"
+            "Casos activables: 1) confirmación explícita del usuario, 2) verificación por test/build, 3) tras usar un recuerdo en la respuesta (caso más común), 4) al cierre de sesión, 5) excepción única: duda real sin evidencia → no disparar.\n"
             "Aplica el Factor de Inercia Sináptica: nodos consolidados con historial de éxitos resisten fallos aislados, mientras que nodos nuevos son corregibles al instante."
         ),
     )

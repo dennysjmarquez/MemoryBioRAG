@@ -1,0 +1,70 @@
+{
+  "total_queries": 921,
+  "fps_totales": 30,
+  "tps_totales": 837,
+  "fps_via_escape": 19,
+  "tps_via_escape": 6,
+  "si_se_cerrara_escape_estimacion": {
+    "FP_eliminados": 19,
+    "TP_esperados_perdidos_cota": 6,
+    "nota": "Cota de TP perdidos = esperados que HOY llegan al top5 SOLO por escape. El reemplazo por otros candidatos puede reducir el daño; requiere re-correr para exactitud."
+  },
+  "distribuciones": {
+    "fps_escape": {
+      "grupo": "FP-escape",
+      "n": 19,
+      "score_min": 0.252,
+      "score_max": 0.504,
+      "score_media": 0.382,
+      "capa_min": 0.25,
+      "capa_max": 1.0,
+      "capa_media": 0.333
+    },
+    "tps_escape": {
+      "grupo": "TP-escape",
+      "n": 6,
+      "score_min": 0.184,
+      "score_max": 0.451,
+      "score_media": 0.296,
+      "capa_min": 0.652,
+      "capa_max": 0.891,
+      "capa_media": 0.751
+    },
+    "tps_escape_por_cat": {
+      "typo": {
+        "grupo": "typo",
+        "n": 1,
+        "score_min": 0.184,
+        "score_max": 0.184,
+        "score_media": 0.184,
+        "capa_min": 0.804,
+        "capa_max": 0.804,
+        "capa_media": 0.804
+      },
+      "variante_gramatical": {
+        "grupo": "variante_gramatical",
+        "n": 5,
+        "score_min": 0.211,
+        "score_max": 0.451,
+        "score_media": 0.319,
+        "capa_min": 0.652,
+        "capa_max": 0.891,
+        "capa_media": 0.74
+      }
+    },
+    "histograma_fp_escape": {
+      "25-30": 3,
+      "35-40": 12,
+      "40-45": 1,
+      "45-50": 2,
+      "50-55": 1
+    },
+    "histograma_tp_escape": {
+      "15-20": 1,
+      "20-25": 1,
+      "25-30": 2,
+      "35-40": 1,
+      "45-50": 1
+    }
+  }
+}
