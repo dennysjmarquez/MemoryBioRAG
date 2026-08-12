@@ -14,6 +14,32 @@
 
 **Nota:** los cambios surten efecto al reiniciar el servidor MCP (el `ORACLE_PROMPT` se inyecta en cada arranque).
 
+## v26.4 (2026-08-11)
+
+### Escape del Gate QCR con Umbral de Capa 0.60
+
+**Problema:** el escape binario del gate QCR dejaba pasar Falsos Positivos en orígenes de capa semántica/dimensional (ratio de cobertura bajo, capa 0.25–0.33).
+
+**Cambio en `core/memory_store.py`:** el escape de capa ya no es binario — exige `score_capa >= umbral`. Default `0.60`, configurable con `BIORAG_QCR_ESCAPE_CAPA_MIN`. Condición final: `ratio_qcr >= 0.50 OR (origen in ESCAPE_SET AND score_capa >= 0.60)`. Costo residual documentado: 2 FP (capa 0.667/1.0) aceptados — no existe señal que los separe de los TP.
+
+**Re-run A/B real (921 casos, snapshot congelado `snapshots/qa_escape_qcr_20260811.db`):**
+
+| Métrica | Binario | Umbral 0.6 | Δ |
+|---|---|---|---|
+| Recall@5 | 95.12% | 96.03% | +0.91pp |
+| Recall@1 | 88.31% | 88.76% | +0.45pp |
+| MRR | 0.910 | 0.916 | +0.006 |
+| Errores positivas | 43 | 35 | -8 |
+| FP binario (40 neg) | 10 | 10 | 0 |
+
+**Resultado:** POSITIVO — 8 queries ganadas, 0 perdidas (todas typo/variante_gramatical), 0 TP perdidos. El umbral NO redujo los FP binarios (10→10): el gate es NO-MONOTÓNICO — si `filtrados_qcr` queda vacío, el gate se auto-desactiva y deja pasar ruido literal. Decisión pendiente sobre ruido literal en queries negativas documentada en `scripts/reporte_umbral_060_qcr_20260811.md`.
+
+**Artefactos:** `scripts/reporte_umbral_060_qcr_20260811.md`, `scripts/run_a_baseline_escape_binario.txt`, `scripts/run_b_umbral_060.txt`, `scripts/casos_fallidos_run_a_binario.jsonl`, `scripts/casos_fallidos_run_b_umbral060.jsonl`.
+
+**Archivos modificados:** `core/memory_store.py`, `README.md`, `VERSION`, `CHANGELOG.md`.
+
+---
+
 ## v26.1 (2026-08-09)
 
 ### Optimización de Rendimiento: ciclo_sueno_consolidacion — 89% de reducción

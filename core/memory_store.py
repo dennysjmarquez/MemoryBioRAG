@@ -4441,6 +4441,13 @@ class SQLiteMemoryBioRAG:
         # para prevenir que 1 sola palabra accidental en textos largos genere Falsos Positivos.
         # Desactivable con export BIORAG_QCR_ACTIVO=0
         QCR_ACTIVO = os.getenv("BIORAG_QCR_ACTIVO", "1") == "1"
+        # v26.4: El escape de capa ya no es binario — exige score_capa >= umbral (0.60).
+        # Motivo: los orígenes semantica/dimensional_fallback sin piso generaban FPs (ratio bajo,
+        # capa 0.25-0.33). Los orígenes simbolico nacen con capa >= 0.60 por construcción (fallback
+        # simbolico umbral=0.60), así que este umbral preserva los rescates de typo/variante.
+        # Costo residual conocido y documentado: 2 FP (capa 0.667/1.0) aceptados tras análisis
+        # 921 casos (2026-08-11) — no existe señal (tokens ni capa) que los separe de los TP.
+        QCR_ESCAPE_CAPA_MIN = float(os.getenv("BIORAG_QCR_ESCAPE_CAPA_MIN", "0.60"))
         q_tokens_qcr = [t.lower() for t in re.findall(r'\w{3,}', query)]
         if QCR_ACTIVO and len(q_tokens_qcr) >= 2 and resultados_con_hibrido:
             filtrados_qcr = []
@@ -4448,8 +4455,11 @@ class SQLiteMemoryBioRAG:
                 text_target = f"{conc} {cont} {concepto_sinonimos_map.get(conc, '')}".lower()
                 matches_qcr = sum(1 for t in q_tokens_qcr if t in text_target)
                 ratio_qcr = matches_qcr / len(q_tokens_qcr)
-                origen_tipo = origen_scores.get(conc, ("literal", 0.0))[0]
-                if ratio_qcr >= 0.50 or origen_tipo in ("semantica", "simbolico", "expansion", "dimensional_fallback"):
+                origen_tipo, score_capa = origen_scores.get(conc, ("literal", 0.0))
+                if ratio_qcr >= 0.50 or (
+                    origen_tipo in ("semantica", "simbolico", "expansion", "dimensional_fallback")
+                    and score_capa >= QCR_ESCAPE_CAPA_MIN
+                ):
                     filtrados_qcr.append((conc, cont, peso, est, sc, asoc))
             if filtrados_qcr:
                 resultados_con_hibrido = filtrados_qcr

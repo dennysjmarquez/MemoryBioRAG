@@ -1,6 +1,6 @@
-# BioRAG v26.3 — Neocórtex Sintético con Ventana de Corrección + Fecha Legible + Ordenar por Fecha + Sesiones
+# BioRAG v26.4 — Neocórtex Sintético con Umbral de Capa 0.60 en el Escape del Gate QCR
 
-> **Versión:** v26.3 — Agosto 2026
+> **Versión:** v26.4 — Agosto 2026
 > **Paradigma:** Circuito Sintético Cognitivamente Cerrado & QCR Gate (Puerta de Cobertura de Consulta) + HDC Context Binding (Kanerva 1988) + Cierre Triádico (Granovetter 1973) + Factorización Matricial PPMI+SVD (100 Dims) + Retrofitting Hebbiano Faruqui (2015) + IDF-Synonym Specificity Scoring + Propagación Multi-Hop (DMN Ideación Autónoma en Reposo + GABA en Vivo + Dopamina RPE con Inercia Sináptica + Valencia Somática Cortical + Escalado Homeostático + PMI + SDM 2048-bit + HDC Binding + SLS + Stemmer Bilingüe + Predicados SRL + La Hormiguita)
 > **Motor:** Python puro + NumPy + SQLite FTS5 WAL
 > **Dependencias ML:** 0 (mcp + nltk para WordNet, 0 sentence-transformers, 0 torch, 0 dependencias C++ o CUDA)
@@ -1469,7 +1469,7 @@ MemoryBioRAG/
   ├── deploy_v26.py              # Script de despliegue y verificación v26.x
   ├── requirements.txt           # numpy, nltk, mcp, fastapi, uvicorn, pytest
   ├── vocabulario_inicial.json   # 239 términos del dominio para expansión semántica
-  ├── VERSION                    # Versión actual: v26.3
+  ├── VERSION                    # Versión actual: v26.4
   ├── CHANGELOG.md               # Historial completo de cambios técnicos
   ├── EXPERIMENTS.md             # Bitácora de hipótesis probadas y descartadas
   ├── test_memory.py             # Suite principal: 112 tests biológicos automatizados
@@ -1791,6 +1791,31 @@ En v13.4 el catálogo tenía **7 ejes × 73 sub-valores**: emoción (qué se sie
 ---
 
 ## Historial de Versiones
+
+### v26.4 — Escape del Gate QCR con Umbral de Capa 0.60 (Agosto 2026)
+
+**Objetivo:** Eliminar los Falsos Positivos que el escape binario del gate QCR dejaba pasar en orígenes de capa semántica/dimensional (ratio de cobertura bajo, capa 0.25–0.33), sin perder los rescates legítimos de typo/variante_gramatical que se salvan por vía simbólica (capa ≥ 0.60 por construcción).
+
+**Cambio implementado (`core/memory_store.py`):**
+- El escape de capa ya no es binario — exige `score_capa >= umbral` (default `0.60`, configurable con `BIORAG_QCR_ESCAPE_CAPA_MIN`).
+- Condición final: `ratio_qcr >= 0.50 OR (origen in ESCAPE_SET AND score_capa >= 0.60)`.
+- Costo residual conocido y documentado: 2 FP (capa 0.667/1.0) aceptados tras análisis de 921 casos (2026-08-11) — no existe señal (tokens ni capa) que los separe de los TP.
+
+**Re-run A/B real (evaluador real, 921 casos, snapshot congelado `snapshots/qa_escape_qcr_20260811.db`):**
+
+| Métrica | Binario (baseline) | Umbral 0.6 | Δ |
+|---|---|---|---|
+| Recall@5 | 95.12% | 96.03% | +0.91pp |
+| Recall@1 | 88.31% | 88.76% | +0.45pp |
+| MRR | 0.910 | 0.916 | +0.006 |
+| Errores positivas | 43 | 35 | -8 |
+| FP binario (40 neg) | 10 | 10 | 0 |
+
+**Resultado:** POSITIVO — 8 queries ganadas, 0 perdidas; todas typo/variante_gramatical (el patrón que el análisis decía proteger). 0 TP perdidos. El umbral NO redujo los FP binarios (10→10): el gate es NO-MONOTÓNICO — si `filtrados_qcr` queda vacío, el `if filtrados_qcr:` no reemplaza la lista y el gate se auto-desactiva, dejando pasar ruido literal de score alto. Decisión pendiente documentada en el reporte.
+
+Artefactos: `scripts/reporte_umbral_060_qcr_20260811.md`, `scripts/run_a_baseline_escape_binario.txt`, `scripts/run_b_umbral_060.txt`, `scripts/casos_fallidos_run_a_binario.jsonl`, `scripts/casos_fallidos_run_b_umbral060.jsonl`.
+
+---
 
 ### v26.3 — Ventana de Corrección Configurable + Fecha Legible + Ordenar por Fecha + Sesiones (Agosto 2026)
 
