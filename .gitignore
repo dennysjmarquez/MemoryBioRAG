@@ -72,3 +72,4 @@ scripts/*.db
 scripts/snapshot_prf_real.db-shm
 
 scripts/snapshot_prf_real.db-wal
+memory_biorag.db

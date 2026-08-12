@@ -4461,14 +4461,8 @@ class SQLiteMemoryBioRAG:
                     and score_capa >= QCR_ESCAPE_CAPA_MIN
                 ):
                     filtrados_qcr.append((conc, cont, peso, est, sc, asoc))
-            # v26.5 (F1): el gate SIEMPRE aplica su filtro. Si filtrados_qcr queda vacío
-            # (ningún candidato supera ratio>=0.50 ni escape de capa>=QCR_ESCAPE_CAPA_MIN),
-            # se devuelve lista vacía en vez de dejar pasar el ruido literal de score alto.
-            # Motivo: el pass-through previo hacía el gate NO-MONOTÓNICO — al crecer el corpus
-            # los contenidos largos matchean tokens por accidente y el ruido literal (p.ej.
-            # 'bufanda guitarra isla río') emergía con score alto. Costo: los TP de pregunta
-            # natural que solo sobrevivían por el pass-through ahora requieren cobertura real.
-            resultados_con_hibrido = filtrados_qcr
+            if filtrados_qcr:
+                resultados_con_hibrido = filtrados_qcr
 
         # Fase C (v22.2): Re-ranking jaccard léxico condicional.
         # OFF por defecto (BIORAG_RERANKING_JACCARD_ENABLED=0) — activación gradual
