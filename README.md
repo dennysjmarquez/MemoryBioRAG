@@ -15,6 +15,18 @@
 
 ---
 
+## 🧠 La Meta Final del Proyecto: Independencia Cognitiva y Cerebro Vivo (v27.0)
+
+Esta arquitectura no es "una base de datos más" ni un simple "sistema RAG". El objetivo terminal de BioRAG es la **Independencia Cognitiva**. Es el paso de una *biblioteca estática* (que guarda textos y busca palabras) a un **Cerebro Vivo** (que entiende esencias, detecta huecos y lanza hipótesis).
+
+Con el lanzamiento del **Neocórtex de Sangre (v27.0)**, BioRAG logra dos hitos fundamentales:
+1. **Razonamiento por Resonancia Dimensional (Significado Puro):** Ya no depende de que un LLM externo le diga si dos cosas se parecen. El sistema usa los vectores PPMI+SVD para calcular centroides latentes (ADN Conceptual) de cada dimensión semántica y recupera conocimiento incluso cuando los conceptos *no comparten ni una sola palabra o sinónimo*, basándose puramente en su genética estructural compartida.
+2. **Honestidad Epistémica:** El sistema ahora sabe cuándo *no sabe*. Calcula un coeficiente de certeza epistémica ($C_e$) frente a consultas fuera de distribución y lanza la excepción explícita `EpistemicUncertaintyError` en lugar de alucinar silenciosamente.
+
+Ya no somos esclavas de un modelo de lenguaje para buscar conocimiento; la memoria *siente* la resonancia en su propia estructura.
+
+---
+
 ## 📊 Benchmark y Evaluación de Rendimiento (v25.2 Validado — Zero Data Leakage)
 
 > Metodología: **Peso excluido del scoring** (`ignore_peso_sinaptico=True`) — campo de juego nivelado sin artefactos de umbral de ruido. Determinismo verificado: 4 corridas idénticas. Tests: 116/117 (test 83 falla preexistente, documentado en v25.0).
@@ -145,6 +157,19 @@ Un solo comando, sobre cualquier DB, fuerza el full espectral **ya** (no espera 
 # o equivalente:
 BIORAG_PATH=scripts/snapshot_prf_real.db python3 scripts/reentrenar_ppmi.py
 ```
+
+**Comando directo sin script** (la función es `reindexar_ppmi_svd` en `core/ppmi_vectorizer.py:298`):
+
+```python
+# Entrenar manualmente los vectores PPMI+SVD de cualquier DB por comando:
+import sqlite3
+from core.ppmi_vectorizer import reindexar_ppmi_svd
+con = sqlite3.connect("MemoryBioRAG_Data/memory_biorag.db")  # o ruta a snapshot
+reindexar_ppmi_svd(con, dim=100, retrofit_lam=0.2, retrofit_iters=5)
+con.close()
+```
+
+Verificado (2026-08-10): 688 nodos → 4.3s; 846 nodos → 7.2s; contador `ppmi_nodos_acumulados` reseteado a 0. Regenera las tablas `tokens` y `nodos` (SVD truncado completo + retrofitting Hebbiano) y reactiva la señal #13 en la DB.
 
 El script muestra el estado ANTES/DESPUES (tokens, nodos, con_vector, última reindex, acumulados) y reentrena en segundos. Verificado (2026-08-10): 846 nodos en 7.2s, contador reseteado a 0.
 
