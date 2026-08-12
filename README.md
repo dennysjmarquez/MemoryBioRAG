@@ -1,6 +1,6 @@
-# BioRAG v26.2 — Neocórtex Sintético con Expansión Léxica WordNet + QCR Gate + HDC Context Binding + Cierre Triádico + PPMI+SVD + IDF-Synonym Hybrid Retrieval
+# BioRAG v26.3 — Neocórtex Sintético con Ventana de Corrección + Fecha Legible + Ordenar por Fecha + Sesiones
 
-> **Versión:** v26.2 — Agosto 2026
+> **Versión:** v26.3 — Agosto 2026
 > **Paradigma:** Circuito Sintético Cognitivamente Cerrado & QCR Gate (Puerta de Cobertura de Consulta) + HDC Context Binding (Kanerva 1988) + Cierre Triádico (Granovetter 1973) + Factorización Matricial PPMI+SVD (100 Dims) + Retrofitting Hebbiano Faruqui (2015) + IDF-Synonym Specificity Scoring + Propagación Multi-Hop (DMN Ideación Autónoma en Reposo + GABA en Vivo + Dopamina RPE con Inercia Sináptica + Valencia Somática Cortical + Escalado Homeostático + PMI + SDM 2048-bit + HDC Binding + SLS + Stemmer Bilingüe + Predicados SRL + La Hormiguita)
 > **Motor:** Python puro + NumPy + SQLite FTS5 WAL
 > **Dependencias ML:** 0 (mcp + nltk para WordNet, 0 sentence-transformers, 0 torch, 0 dependencias C++ o CUDA)
@@ -1469,7 +1469,7 @@ MemoryBioRAG/
   ├── deploy_v26.py              # Script de despliegue y verificación v26.x
   ├── requirements.txt           # numpy, nltk, mcp, fastapi, uvicorn, pytest
   ├── vocabulario_inicial.json   # 239 términos del dominio para expansión semántica
-  ├── VERSION                    # Versión actual: v26.1
+  ├── VERSION                    # Versión actual: v26.3
   ├── CHANGELOG.md               # Historial completo de cambios técnicos
   ├── EXPERIMENTS.md             # Bitácora de hipótesis probadas y descartadas
   ├── test_memory.py             # Suite principal: 112 tests biológicos automatizados
@@ -1791,6 +1791,40 @@ En v13.4 el catálogo tenía **7 ejes × 73 sub-valores**: emoción (qué se sie
 ---
 
 ## Historial de Versiones
+
+### v26.3 — Ventana de Corrección Configurable + Fecha Legible + Ordenar por Fecha + Sesiones (Agosto 2026)
+
+**Objetivo:** Implementar mecanismos de corrección segura para nodos recientes, transparencia temporal en resultados de búsqueda, y ordenamiento por fecha pilotado por el agente como intención temporal.
+
+**Innovaciones y Componentes Implementados:**
+1. **`biorag_actualizar` con Ventana de Corrección (`mcp_server.py`):**
+   - Solo nodos dentro de la ventana configurable se pueden actualizar directamente via MCP.
+   - Default: 900 segundos (15 minutos). Configurable vía `BIORAG_VENTANA_CORRECCION_SEGUNDOS`.
+   - Si hay sesión activa (`contexto_inicio` llamado sin `contexto_fin`), la ventana se **triplica automáticamente** (45 min default).
+   - Fuera de ventana → retorna `status='fuera_de_ventana'` con instrucciones para crear nodo nuevo + vincular.
+   - Parámetro `agente` extiende la ventana si hay sesión activa.
+
+2. **Fecha Legible + Timestamp Creado (`mcp_server.py`):**
+   - Cada resultado de `biorag_recordar` ahora incluye `timestamp_creado` (epoch) y `fecha_legible` (YYYY-MM-DD HH:MM).
+   - Sin query extra — usa `_edad_map` existente del pipeline de scoring.
+
+3. **`ordenar_por` Parameter en `biorag_recordar` (`mcp_server.py` + `core/memory_store.py`):**
+   - Valores: `relevancia` (default), `recencia` (CREATED DESC), `antiguedad` (CREATED ASC).
+   - Reordenamiento ocurre sobre lista completa ANTES de paginación, NO página por página.
+   - Neutraliza deep re-sort para mantener coherencia.
+   - **WARNER doble:** (a) campo JSON `advertencia_temporal: true/false`, (b) texto plano prepend cuando `ordenar_por` es de fecha.
+   - **Diseño:** No es automático — es un parámetro pilotado por el agente con intención temporal explícita. `ordenar_por` NO reemplaza relevancia, solo reordena el conjunto ya filtrado.
+
+4. **Sesiones Rastreadas (`mcp_server.py`):**
+   - `contexto_inicio` guarda timestamp en `_sesiones_activas[agente]`.
+   - `contexto_fin` limpia `_sesiones_activas.pop(agente)`.
+   - Sesión activa extiende ventana de corrección 3x.
+
+**Principio de Diseño (Dennys):** La memoria de un nodo se fija después de un tiempo razonable. `biorag_actualizar` es para corrección en caliente (error de tipeo recién guardado), no para edición arbitraria de nodos viejos. Nodos viejos → crear nuevo + vincular + marcar viejo con `epistemia=obsoleta`.
+
+Commit: `818c85a`. Archivos modificados: `mcp_server.py`, `core/memory_store.py`, `VERSION`.
+
+---
 
 ### v26.2 — Expansión Léxica WordNet & Gobernanza de 3 Pilares: QCR Gate + HDC Context Binding + Cierre Triádico (Agosto 2026)
 
