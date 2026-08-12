@@ -3439,7 +3439,28 @@ def main(argv: Optional[list[str]] = None) -> int:
     # El daemon es un proceso detachado que sobrevive al cierre de la sesión.
     try:
         from core.daemon_lifecycle import ensure_daemon_alive
-        ensure_daemon_alive(intervalo_horas=0.5)
+        import threading
+
+        def _spawn_daemon_bg() -> None:
+            # Corre en el hilo de fondo: el try/except tiene que estar ACÁ
+            # adentro, porque una excepción lanzada dentro del target de un
+            # Thread vive en un contexto de ejecución distinto al del hilo
+            # que llamó a .start() — un except afuera de threading.Thread(...)
+            # solo captura fallos al crear/arrancar el hilo, no lo que pasa
+            # una vez que ya está corriendo.
+            try:
+                ensure_daemon_alive(intervalo_horas=0.5)
+            except Exception as exc:
+                logger.warning("No se pudo verificar/spawnear el daemon: %s", exc)
+
+        # ensure_daemon_alive() puede bloquear hasta ~5s (spawn_daemon_detached
+        # espera el PID file del daemon en loop de 0.5s x10). Eso retrasaba
+        # el handshake MCP (initialize) del transport stdio, causando
+        # "context deadline exceeded" en el cliente. Se corre en background
+        # para que server.run(transport="stdio") arranque a responder de
+        # inmediato; el daemon igual queda spawneado (proceso detachado,
+        # no depende de que este hilo termine).
+        threading.Thread(target=_spawn_daemon_bg, daemon=True).start()
     except Exception as exc:
         logger.warning("No se pudo verificar/spawnear el daemon: %s", exc)
 
