@@ -1,0 +1,34 @@
+EXPERIMENTO C — EVAL 921 CON ADN PPMI (flag ON) (2026-08-13)
+=============================================================
+Configuración: BIORAG_PATH=/tmp/opencode/adn_ppmi_bench.db (snapshot +
+índice ADN con 96 cromosomas PPMI persistidos)
+BIORAG_ADN_RANKING_ENABLED=true
+921 casos congelados (casos_qa_baseline_v1.jsonl).
+
+RESULTADO GLOBAL:
+  R@5  96.03%  (baseline: 96.03%)
+  R@1  88.76%  (baseline: 88.76%)
+  MRR  0.916   (baseline: 0.916)
+  FP   10/40 (25%)  (baseline: 10/40)
+  45 fallidos, IDs idénticos al baseline OFF.
+
+VERIFICACIÓN DE QUE EL ADN SÍ PARTICIPÓ (no fue fallo de carga):
+  - adn_engine cargado, indice_listo=True, 96 cromosomas.
+  - Consulta 'dennys identidad personal': scores sin ADN [0.95,...]
+    vs con ADN [0.9986, 0.8095, 0.792, ...] -> el enriquecimiento opera.
+  - candidatos_adn_consultados=48; asociaciones coherentes entran al pool
+    (filosofia_identidad_vida_dennys_20260624, relacion_dennys_athena...).
+
+INTERPRETACIÓN:
+  El ADN PPMI es NO degenerado, carga, enriquece y NO regresa el baseline
+  (el ADN degenerado anterior daba 0.915, -0.001). Es señal inocua para
+  el harness de 921: la cota 0.49 impide que asociaciones adelanten a
+  coincidencias directas, y el ranking directo ya es fuerte.
+  => El harness de 921 mide recuperación directa, NO calidad de asociación.
+     Para medir el valor del ADN PPMI hace falta el Experimento B del
+     documento (consultas etiquetadas directa/relacionada/sin_evidencia).
+
+CONCLUSIÓN A/B/C:
+  A) PPMI tiene modularidad real (kNN mutuo + LPA).
+  B) Esa modularidad revivió el ADN: índice no degenerado (96 cromosomas).
+  C) Inocuo sobre recuperación directa (0.916 = baseline exacto).

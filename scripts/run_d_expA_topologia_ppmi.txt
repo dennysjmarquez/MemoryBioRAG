@@ -1,0 +1,52 @@
+EXPERIMENTO A — TOPOLOGÍA SEMÁNTICA PPMI (2026-08-13)
+=====================================================
+Contexto: tras hallazgo ADN degenerado (LPA sobre sinapsis = 1 cromosoma),
+se prueba si el ESPACIO PPMI (no el grafo de sinapsis) tiene modularidad.
+Solo lectura del snapshot canónico (qa_escape_qcr_20260811.db, 866 nodos).
+
+Métodos probados:
+  1) kNN mutuo (k=15, min_sim=0.3) + LPA sobre ESE grafo
+  2) HDBSCAN (min_cluster_size=8)
+  3) Aglomerativo jerárquico (n_clusters=10)
+
+Resultados:
+--------------------------------------------------------------
+método             #com  ruido  cobertura  mayor%   tam_med
+kNN_mutuo+LPA      105     0    1.000      5.5%     5
+HDBSCAN              2   162    0.813     80.0%    -
+Aglomerativo        10     0    1.000     91.8%    -
+
+[kNN_mutuo+LPA] criterios de no-degeneración:
+  PASA   1. >1 comunidad útil: 105 comunidades
+  PASA   2. sin comunidad dominante: mayor 48/866 (5.5%)
+  PASA   3. firmas con varianza real: varianza media 0.0171
+  PASA   4. vecinos distintos para consultas distintas: intersección 0.0/5
+  N/A    5. estabilidad (kNN es determinista; requiere bootstrap)
+
+[HDBSCAN] -> NO PASA (2 comunidades + 162 ruido, 80% dominante)
+[Aglomerativo] -> NO PASA (91.8% dominante, degenerado)
+
+VEREDICTO: kNN_mutuo+LPA PASA criterios 1-4. El espacio PPMI SÍ tiene
+modularidad discriminativa. El problema era la topología de sinapsis,
+no el algoritmo LPA.
+
+Barrido de parámetros (kNN mutuo + LPA):
+  k=5  -> 247 com, mayor 1.3%, 110 con >=4 nodos
+  k=10 -> 140 com, mayor 3.9%, 95 con >=4 nodos
+  k=15 -> 105 com, mayor 5.5%, 71 con >=4 nodos  (elegido)
+  k=20 ->  80 com, mayor 6.2%, 58 con >=4 nodos
+  k=30 ->  56 com, mayor 8.8%, 44 con >=4 nodos
+(min_sim 0.2-0.4 sin efecto: la mutua vecindad ya filtra)
+
+Comunidades cualitativas (k=15) — coherentes por tema:
+  [2]  (48) familia OEC: athena_oec_identidad, hermes_orchestration_status,
+       artemis_oec_perfil, protocolo_resolucion_incertidumbre_agente...
+  [27] (39) identidad/conciencia: dennys_identidad_personal, amigdala_del_agente,
+       construccion_identidad_natural, leccion_madurez_identidad_escuchar...
+  [60] (34) arquitectura BioRAG: hormiguita_v25..., biorag_v26_2_neocortex,
+       principio_cableado_completo_todos_los_caminos...
+  [82] (34) metodología empírica/lecciones: leccion_claim_passed_sin_artefacto,
+       ladera_verificacion_fixes_revisor, diagnostico_empirico_vs_teorico...
+
+Etiquetas: scripts/experimentos/expA_labels.json
+Siguiente: Experimento B (inyectar estas comunidades al índice ADN v29).

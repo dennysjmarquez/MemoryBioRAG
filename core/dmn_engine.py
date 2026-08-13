@@ -107,10 +107,10 @@ class DMNEngine:
 
     def ejecutar_ciclo_curiosidad(self, conn_hilo=None, forzar=False) -> dict | None:
         """
-        Ejecuta una ronda de ideación espontánea mediante Muestreo Resonante Cortical (Spindles Replay):
+        Ejecuta una ronda de ideación espontánea mediante Muestreo Resonante Cortical y Teleología Genética:
         1. Selecciona Nodo Ancla (N1) con valencia_somatica >= 0.3 o peso_sinaptico >= 0.5.
-        2. Busca un Nodo Resonante (N2) distinto en el espacio asociativo o dimensional.
-        3. Genera un Insight autónomo con peso inicial moderado (0.50) y valencia 0.85 (inmune a LTD inicial).
+        2. Busca un Nodo Resonante (N2) distinto en el espacio asociativo, dimensional o genético (ADN).
+        3. Genera un Insight autónomo o una Hipótesis Teleológica basada en ADN compartido.
         4. Si no recibe atención futura (LTP/feedback), sufrirá decaimiento pasivo natural por sueño (LTD).
         """
         if not forzar:
@@ -222,6 +222,27 @@ class DMNEngine:
                 indexar_nodo_sdm(self.cerebro, concepto_insight)
             except Exception:
                 pass
+
+            # v29: reconstrucción batch del índice ADN durante sueño. Esta es la única
+            # ruta que agrupa el corpus, recalcula centroides y materializa vecinos.
+            try:
+                necesita_recalculo = getattr(self.cerebro, "_adn_pendiente_recalculo", False)
+                indice_no_listo = not getattr(getattr(self.cerebro, "adn_engine", None), "indice_listo", False)
+                if necesita_recalculo or indice_no_listo:
+                    from core.adn_conceptual import ADNConceptualEngine
+                    estado_adn = ADNConceptualEngine.reconstruir_indice_nocturno(str(self.db_path))
+                    if estado_adn.get("estado") == "ok":
+                        # Recargar solo los artefactos persistidos, sin clustering en caliente.
+                        self.cerebro.adn_engine = ADNConceptualEngine(
+                            db_path=str(self.db_path),
+                            indices=getattr(self.cerebro, "_ppmi_index", None),
+                        )
+                        from core.neocortex_teleologico import NeocortexTeleologico
+                        self.cerebro.neocortex = NeocortexTeleologico(str(self.db_path))
+                        self.cerebro._adn_pendiente_recalculo = False
+                    logger.info("DMN sueño: índice ADN v29 procesado con estado=%s", estado_adn.get("estado"))
+            except Exception as e:
+                logger.warning(f"Error en reconstrucción ADN nocturna DMN: {e}")
 
             self.ideas_generadas_sesion += 1
             self.ultima_idea = {

@@ -1,0 +1,33 @@
+EXPERIMENTO B — ÍNDICE ADN v29 CON CROMOSOMAS PPMI (2026-08-13)
+================================================================
+Objetivo: el pipeline ADN v29 del fork era degenerado (1 cromosoma,
+firma escalar) porque sus comunidades venían de LPA sobre sinapsis.
+Se inyecta topología PPMI (kNN mutuo k=15 + LPA) en el pipeline REAL
+vía monkeypatch de `core.adn_conceptual.detectar_comunidades`, sin
+tocar el core. Copia de trabajo: /tmp/opencode/adn_ppmi_bench.db.
+
+Comunidades inyectadas: 96 (>=2 nodos), top: [48, 39, 34, 29, ...]
+Reconstrucción: estado=ok, 866 nodos, 96 cromosomas.
+
+Criterios de no-degeneración (índice cargado):
+  PASA  1. >1 cromosoma útil: 96 cromosomas
+  PASA  2. sin cromosoma dominante: mayor=221/2598 membresías (8.5%)
+  PASA  3. firmas con varianza real: varianza media=0.0171
+  PASA  4. vecinos distintos para consultas distintas: intersección media=0.0/5
+  -> VEREDICTO: PASA (ADN PPMI no degenerado)
+
+Vecinos por esencia (top-5) — coherentes:
+  [dennys_identidad_personal]  -> relacion_dennys_athena, identidad_colaborativa_cocreacion,
+       identidad_resistente_posesion, alguien_vs_algo_identidad, filosofia_identidad_vida_dennys_20260624
+  [hormiguita_v25_sistema...]  -> version_actual_biorag_v26_2, v22_2_determinism_verification,
+       protocolo_prueba_poda_copia, hormiguita_estado_real_50_ciclos_benchmark...
+  [cv_dennys_secciones_ab]     -> identidad-usuario, vida_laboral_completa_dennys, angular_proyecto...
+  [protocolo_autoinferencia]   -> principio_reflex_post_accion_emocional, guardado_inmediato...
+  [hallazgo_adn_degenerado]    -> word2vec_puro_costo..., word2vec_mecanica_embeddings...
+
+Intersección entre conjuntos de vecinos de consultas distintas: 0/5 en 10/10 pares.
+
+IMPORTANTE: expA_labels.json se regeneró correctamente (el archivo previo
+estaba corrupto por serialización ndarray sin convertir a list).
+
+Siguiente: Experimento C (eval 921 con flag ON + ADN PPMI).
