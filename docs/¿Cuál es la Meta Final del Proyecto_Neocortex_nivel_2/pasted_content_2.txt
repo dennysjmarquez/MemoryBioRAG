@@ -1,0 +1,28 @@
+Me dcien que te diga "
+El mismo texto de Manus, esta vez enmarcado distinto — pero el código pegado es exactamente el mismo que ya leí y verifiqué en el turno anterior (confirmé línea por línea: CROMOSOMAS_ANCLAS con "gato"/"tigre" hardcodeados, C_e calculado pero nunca usado para filtrar). No cambia el veredicto.
+
+Voy a responder directo a lo que parece ser la pregunta de fondo detrás de este mensaje — porque el texto de Manus insiste en vender esto como "búsqueda semántica perfecta", y ya te expliqué por qué esa afirmación no se sostiene contra el propio código que él mismo pegó. Mantengo lo mismo que te dije antes, con la misma evidencia:
+
+Lo que cambió respecto al ADN hardcodeado original: los centroides ahora se calculan desde vectores PPMI/SVD reales del corpus — eso es progreso genuino, verificado.
+
+Lo que NO cambió, y Manus sigue sin abordar:
+
+Las 8 categorías (biologico, depredador, contemplativo...) siguen fijas a mano, sesgadas a un demo de animales/filosofía — no generalizan a tu corpus real de ingeniería, y esto contradice tu propia meta de "nada hardcodeado, cualquier nicho".
+evaluar_episteme calcula C_e, pero razonar_por_significado nunca lo usa para filtrar nada — solo un logger.warning. La frase "prefiere no darte nada antes que mentir" describe una intención, no lo que el código hace.
+Recorre todo el corpus en caliente (no en ciclo de sueño) — riesgo de rendimiento no evaluado.
+Nunca se corrió contra el benchmark real de 921 casos, solo contra 3 conceptos con vectores aleatorios.
+
+Antes de que le pidas a Manus que "cablee esto ya" basado en su propio texto de venta, valdría la pena que le reenvíes exactamente los 4 puntos de arriba y le pidas que los resuelva uno por uno — empezando por el más importante: que reemplace las categorías fijas por algo derivado con clustering sobre los vectores reales del corpus, porque sin eso, todo lo demás hereda el mismo sesgo del demo original de gatos y filosofía." y "
+Antes de integrar nada, necesito que resuelvas estos 4 puntos sobre adn_conceptual.py y neocortex_teleologico.py. Ya verifiqué el código línea por línea, así que necesito la versión que resuelva esto de verdad, no una descripción de que ya está resuelto:
+
+1. Las categorías (CROMOSOMAS_ANCLAS) siguen fijas a mano — hay que eliminarlas. Hoy son 8 categorías con palabras ancla puestas por una persona (biológico, depredador, doméstico, contemplativo...), sesgadas a un dominio de ejemplo (gatos, filosofía) que no tiene nada que ver con el corpus real. Reemplazalas por categorías derivadas automáticamente del corpus real vía clustering no supervisado (k-means u otro método) sobre los vectores PPMI/SVD que ya existen — sin ninguna palabra ni categoría escrita a mano. El número de categorías también debe salir del propio clustering, no ser un 8 fijo. Esto tiene que funcionar igual de bien para un corpus de ingeniería de software que para uno de medicina o cualquier otro nicho, sin tocar código.
+2. evaluar_episteme calcula C_e pero nunca se usa — hay que conectarlo como filtro activo. Hoy razonar_por_significado solo imprime un logger.warning cuando la confianza es baja y sigue devolviendo resultados igual. Necesito que, cuando C_e esté debajo de un umbral configurable, el resultado se marque explícitamente como baja confianza en la respuesta (o se suprima, según se decida), no que se pierda en un log. El objetivo medible es bajar el falso-positivo en la categoría negativo del benchmark, no solo evitar el crash.
+3. Mover el cálculo pesado al ciclo de sueño. buscar_por_esencia y razonar_por_significado recorren todo el corpus en cada búsqueda, en caliente. Los centroides deben recalcularse una vez por ciclo de consolidación (ciclo_sueno_consolidacion), no en cada query — y la búsqueda en caliente debe usar los centroides ya calculados, no recalcularlos ni recorrer todo el corpus cada vez.
+4. Evaluación con datos y benchmark reales, no con 3 conceptos y vectores aleatorios. El test actual (test_neocortex_v27.py) usa np.random.randn para gato/soledad/filosofía — eso solo prueba que no crashea, no que las relaciones tengan sentido. Necesito:
+
+Snapshot congelado del benchmark de 921 casos, antes y después del cambio.
+Medir específicamente: negativo (FP, debe bajar del 25% actual), typo/variante_gramatical (no deben bajar), literal/sinonimo/por_tema (no deben degradarse).
+Artefacto JSON reproducible en clean room, mismo estándar que usamos con el ablation study de GABA y el umbral QCR.
+
+No voy a integrar esto hasta ver los 4 puntos resueltos con evidencia verificable — no con un resumen de que ya están resueltos
+"

@@ -223,31 +223,26 @@ class DMNEngine:
             except Exception:
                 pass
 
-            # v26.1: Integración de Teleología Genética
+            # v29: reconstrucción batch del índice ADN durante sueño. Esta es la única
+            # ruta que agrupa el corpus, recalcula centroides y materializa vecinos.
             try:
-                if self.cerebro.adn_engine:
-                    from core.hipotesis_teleologica import HipotesisTeleologica
-                    motor_h = HipotesisTeleologica(self.cerebro.adn_engine)
-                    
-                    # Verificar afinidad genética entre c1 y c2
-                    v1 = self.cerebro.adn_engine.firmas.get(c1)
-                    v2 = self.cerebro.adn_engine.firmas.get(c2)
-                    
-                    if v1 and v2:
-                        from core.adn_conceptual import _vector_firma, _coseno
-                        afinidad = _coseno(_vector_firma(v1), _vector_firma(v2))
-                        
-                        if afinidad > 0.7:
-                            # Formular hipótesis formal y persistirla
-                            h_proposicion = f"El concepto '{c1}' y '{c2}' podrían estar vinculados por su ADN compartido (afinidad={afinidad:.2f})."
-                            cursor.execute("""
-                                INSERT INTO hipotesis_teleologicas (proposicion, afinidad, creado_en)
-                                VALUES (?, ?, ?)
-                            """, (h_proposicion, afinidad, time.time()))
-                            conn.commit()
-                            logger.info(f"🧬 Teleología: Hipótesis genética formulada entre {c1} y {c2}")
+                necesita_recalculo = getattr(self.cerebro, "_adn_pendiente_recalculo", False)
+                indice_no_listo = not getattr(getattr(self.cerebro, "adn_engine", None), "indice_listo", False)
+                if necesita_recalculo or indice_no_listo:
+                    from core.adn_conceptual import ADNConceptualEngine
+                    estado_adn = ADNConceptualEngine.reconstruir_indice_nocturno(str(self.db_path))
+                    if estado_adn.get("estado") == "ok":
+                        # Recargar solo los artefactos persistidos, sin clustering en caliente.
+                        self.cerebro.adn_engine = ADNConceptualEngine(
+                            db_path=str(self.db_path),
+                            indices=getattr(self.cerebro, "_ppmi_index", None),
+                        )
+                        from core.neocortex_teleologico import NeocortexTeleologico
+                        self.cerebro.neocortex = NeocortexTeleologico(str(self.db_path))
+                        self.cerebro._adn_pendiente_recalculo = False
+                    logger.info("DMN sueño: índice ADN v29 procesado con estado=%s", estado_adn.get("estado"))
             except Exception as e:
-                logger.warning(f"Error en teleología DMN: {e}")
+                logger.warning(f"Error en reconstrucción ADN nocturna DMN: {e}")
 
             self.ideas_generadas_sesion += 1
             self.ultima_idea = {

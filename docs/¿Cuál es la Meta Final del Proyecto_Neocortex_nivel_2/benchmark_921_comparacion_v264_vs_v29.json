@@ -1,0 +1,165 @@
+{
+  "protocolo": {
+    "suite": "casos_qa_baseline_v1.jsonl",
+    "casos": 921,
+    "snapshot_congelado": "/home/ubuntu/MemoryBioRAG/scripts/snapshot_prf_real.db",
+    "baseline_revision": "v26.4",
+    "revision_evaluada": "v29",
+    "condicion": "Mismo snapshot, misma suite y proceso aislado por ejecución."
+  },
+  "global": {
+    "recall_at_5": {
+      "antes_v264": 0.8785471055618616,
+      "despues_v29": 0.8785471055618616,
+      "delta": 0.0
+    },
+    "recall_at_1": {
+      "antes_v264": 0.8592508513053349,
+      "despues_v29": 0.8592508513053349,
+      "delta": 0.0
+    },
+    "mrr": {
+      "antes_v264": 0.8674612183125237,
+      "despues_v29": 0.8674612183125237,
+      "delta": 0.0
+    },
+    "tasa_fp": {
+      "antes_v264": 0.0,
+      "despues_v29": 0.0,
+      "delta": 0.0
+    },
+    "segundos": {
+      "antes_v264": 42.77953815460205,
+      "despues_v29": 43.451416969299316,
+      "delta": 0.6718788146972656
+    }
+  },
+  "por_categoria": {
+    "cruce_idioma": {
+      "mrr": {
+        "antes_v264": 0.8125,
+        "despues_v29": 0.8125
+      },
+      "recall_at_1": {
+        "antes_v264": 0.75,
+        "despues_v29": 0.75
+      },
+      "recall_at_5": {
+        "antes_v264": 0.875,
+        "despues_v29": 0.875
+      }
+    },
+    "dormido": {
+      "mrr": {
+        "antes_v264": 1.0,
+        "despues_v29": 1.0
+      },
+      "recall_at_1": {
+        "antes_v264": 1.0,
+        "despues_v29": 1.0
+      },
+      "recall_at_5": {
+        "antes_v264": 1.0,
+        "despues_v29": 1.0
+      }
+    },
+    "literal": {
+      "mrr": {
+        "antes_v264": 0.997946611909651,
+        "despues_v29": 0.997946611909651
+      },
+      "recall_at_1": {
+        "antes_v264": 0.9958932238193019,
+        "despues_v29": 0.9958932238193019
+      },
+      "recall_at_5": {
+        "antes_v264": 1.0,
+        "despues_v29": 1.0
+      }
+    },
+    "negativo": {
+      "falsos_positivos": {
+        "antes_v264": 0,
+        "despues_v29": 0
+      },
+      "tasa_fp": {
+        "antes_v264": 0.0,
+        "despues_v29": 0.0
+      }
+    },
+    "por_tema": {
+      "mrr": {
+        "antes_v264": 0.0038461538461538464,
+        "despues_v29": 0.0038461538461538464
+      },
+      "recall_at_1": {
+        "antes_v264": 0.0,
+        "despues_v29": 0.0
+      },
+      "recall_at_5": {
+        "antes_v264": 0.015384615384615385,
+        "despues_v29": 0.015384615384615385
+      }
+    },
+    "pregunta_natural": {
+      "mrr": {
+        "antes_v264": 0.9923076923076923,
+        "despues_v29": 0.9923076923076923
+      },
+      "recall_at_1": {
+        "antes_v264": 0.9846153846153847,
+        "despues_v29": 0.9846153846153847
+      },
+      "recall_at_5": {
+        "antes_v264": 1.0,
+        "despues_v29": 1.0
+      }
+    },
+    "sinonimo": {
+      "mrr": {
+        "antes_v264": 0.2866120218579235,
+        "despues_v29": 0.2866120218579235
+      },
+      "recall_at_1": {
+        "antes_v264": 0.2459016393442623,
+        "despues_v29": 0.2459016393442623
+      },
+      "recall_at_5": {
+        "antes_v264": 0.36065573770491804,
+        "despues_v29": 0.36065573770491804
+      }
+    },
+    "typo": {
+      "mrr": {
+        "antes_v264": 0.9615384615384616,
+        "despues_v29": 0.9615384615384616
+      },
+      "recall_at_1": {
+        "antes_v264": 0.9538461538461539,
+        "despues_v29": 0.9538461538461539
+      },
+      "recall_at_5": {
+        "antes_v264": 0.9692307692307692,
+        "despues_v29": 0.9692307692307692
+      }
+    },
+    "variante_gramatical": {
+      "mrr": {
+        "antes_v264": 0.9538461538461539,
+        "despues_v29": 0.9538461538461539
+      },
+      "recall_at_1": {
+        "antes_v264": 0.9230769230769231,
+        "despues_v29": 0.9230769230769231
+      },
+      "recall_at_5": {
+        "antes_v264": 0.9846153846153847,
+        "despues_v29": 0.9846153846153847
+      }
+    }
+  },
+  "interpretacion": {
+    "regresion_retrieval": false,
+    "observacion": "La suite de buscar_por_frase no utiliza todavía el ranking de ADN v29; por ello este resultado prueba ausencia de regresión en la ruta existente, no una mejora de recall atribuible al ADN."
+  }
+}

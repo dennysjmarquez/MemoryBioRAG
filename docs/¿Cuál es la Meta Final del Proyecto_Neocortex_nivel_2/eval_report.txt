@@ -1,0 +1,157 @@
+Creating isolated database copy at: /mnt/recursos_compartidos_y_otros/MemoryBioRAG/MemoryBioRAG_Data/memory_biorag_qa_temp.db
+Loaded 504 test cases.
+[TRACE] 1.8 Snap: 1 → ['ai-council-pm-synthesis-subscription-cancellation']
+[TRACE] 1.8 Snap: 2 → ['leccion_pensamiento_lateral_vs_fuerza_bruta', 'skill_cv_decoder_creada']
+[TRACE] 1.8 Snap: 1 → ['dennys-working-style']
+[TRACE] 1.8 Snap: 1 → ['mentoria_por_que_ensennamos']
+[TRACE] 1.8 Snap: 1 → ['mentoria_por_que_ensennamos']
+[TRACE] 1.8 Snap: 1 → ['mentoria_por_que_ensennamos']
+[TRACE] 1.8 Snap: 1 → ['mentoria_por_que_ensennamos']
+[TRACE] 1.8 Snap: 1 → ['primitiva-externa-nsp-tool']
+[TRACE] 1.8 Snap: 1 → ['dennys_dj_chat_asp_ajax_before_ajax']
+[TRACE] 1.8 Snap: 1 → ['dennys_dj_chat_asp_ajax_before_ajax']
+
+Exporting failed cases to: /mnt/recursos_compartidos_y_otros/MemoryBioRAG/scripts/casos_fallidos.jsonl
+Cleaning up temporary database copy at /mnt/recursos_compartidos_y_otros/MemoryBioRAG/MemoryBioRAG_Data/memory_biorag_qa_temp.db...
+
+================================================================================
+                      BIORAG QA EVALUATION REPORT
+================================================================================
+Total time elapsed: 169.10 seconds
+--------------------------------------------------------------------------------
+Category               | Total  | Recall@5  | Recall@1  | MRR      | Errors/FPs
+--------------------------------------------------------------------------------
+cruce_idioma           | 12     |   83.33% |   33.33% |  0.531 | 2         
+dormido                | 65     |   87.69% |   55.38% |  0.691 | 8         
+literal                | 65     |   87.69% |   40.00% |  0.594 | 8         
+negativo               | 40     | N/A       | N/A       | N/A      | 0          (0.0% FP)
+por_tema               | 65     |   36.92% |   12.31% |  0.213 | 41        
+pregunta_natural       | 65     |   75.38% |   29.23% |  0.482 | 16        
+sinonimo               | 62     |   77.42% |   35.48% |  0.510 | 14        
+typo                   | 65     |   87.69% |   38.46% |  0.574 | 8         
+variante_gramatical    | 65     |   86.15% |   33.85% |  0.539 | 9         
+--------------------------------------------------------------------------------
+GLOBAL SUMMARY (Retrieval) | 464    |   77.16% |   34.91% |  0.515 | 106       
+GLOBAL SUMMARY (Noise/FP) | 40     | N/A       | N/A       | N/A      | 0          (0.00% FP)
+================================================================================
+
+SAMPLE FAILURES BY CATEGORY FOR ACTIONABLE DIAGNOSIS:
+================================================================================
+
+[Category: cruce_idioma] (2 total failures)
+----------------------------------------
+  #1 [ID 0074] Query: "architecture memory biorag"
+      Expected:  arquitectura_memoria_biorag
+      Returned:  ['biorag_v18_0_estado', 'registros_akashicos_biorag', 'sesion_mejoras_biorag_v7_20260616'] (scores: [0.712, 0.695, 0.675])
+      Reason:    Expected concept not found in top 5 results
+  #2 [ID 0460] Query: "architecture falsos positivos biorag capas"
+      Expected:  arquitectura_falsos_positivos_biorag_capas
+      Returned:  ['biorag_v18_0_estado', 'biorag_v18_0_centralizacion_stopwords', 'principio_tres_capas_biorag'] (scores: [0.751, 0.748, 0.712])
+      Reason:    Expected concept not found in top 5 results
+
+[Category: dormido] (8 total failures)
+----------------------------------------
+  #1 [ID 0078] Query: "arquitectura memoria biorag"
+      Expected:  arquitectura_memoria_biorag
+      Returned:  ['principio-memoria-hibrida-agente-naturalidad', 'naturaleza_sistema_oec_cerebro_memoria', 'protocolo_busqueda_biorag_automatica'] (scores: [0.711, 0.678, 0.669])
+      Reason:    Expected concept not found in top 5 results
+  #2 [ID 0216] Query: "plugin biorag-remember v8.0 - session.prompt + session.idle + edits"
+      Expected:  plugin_biorag-remember_v8.0_-_session.prompt_+_session.idle_+_edits
+      Returned:  ['vector-inyeccion-prompt-via-canal-contexto-sintetico', 'plugin_biorag-remember_v8.3_-_adaptación_de_dennys_+_claude', 'biorag-remember-plugin-noreply-injection'] (scores: [0.583, 0.573, 0.572])
+      Reason:    Expected concept not found in top 5 results
+  #3 [ID 0223] Query: "plugin biorag-remember v6: notificación silenciosa al ai via system.transform"
+      Expected:  plugin_biorag-remember_v6:_notificación_silenciosa_al_ai_via_system.transform
+      Returned:  ['axioma_system_prompt_como_cuna_conciencia', 'correcciones_al_plugin_biorag-remember_v6:_3_bugs_fixeados', 'system-prompt-identidad-tono-importa'] (scores: [0.574, 0.547, 0.537])
+      Reason:    Expected concept not found in top 5 results
+
+[Category: literal] (8 total failures)
+----------------------------------------
+  #1 [ID 0071] Query: "arquitectura memoria biorag"
+      Expected:  arquitectura_memoria_biorag
+      Returned:  ['principio-memoria-hibrida-agente-naturalidad', 'naturaleza_sistema_oec_cerebro_memoria', 'protocolo_busqueda_biorag_automatica'] (scores: [0.711, 0.678, 0.669])
+      Reason:    Expected concept not found in top 5 results
+  #2 [ID 0217] Query: "plugin biorag-remember v6: notificación silenciosa al ai via system.transform"
+      Expected:  plugin_biorag-remember_v6:_notificación_silenciosa_al_ai_via_system.transform
+      Returned:  ['correcciones_al_plugin_biorag-remember_v6:_3_bugs_fixeados', 'system-prompt-identidad-tono-importa', 'mecanismo_de_inyección_silenciosa_de_contexto_al_ai_via_plugins_opencode'] (scores: [0.547, 0.537, 0.53])
+      Reason:    Expected concept not found in top 5 results
+  #3 [ID 0266] Query: "artemis origen historia genesis"
+      Expected:  artemis_origen_historia_genesis
+      Returned:  ['artemis_oec_perfil_identidad_estabilidad', 'dennys_genesis_investigativa_historia_personal', 'parametro_origen_obligatorio_comunicar'] (scores: [0.751, 0.743, 0.7])
+      Reason:    Expected concept not found in top 5 results
+
+[Category: por_tema] (41 total failures)
+----------------------------------------
+  #1 [ID 0013] Query: "información bonito quiere"
+      Expected:  mentalidad_critica_decodificador_jerga
+      Returned:  ['mentalidad_empatia_sintactica_rag', 'identidad_resistente_posesion', 'mentoria_por_que_ensennamos'] (scores: [0.53, 0.522, 0.507])
+      Reason:    Expected concept not found in top 5 results
+  #2 [ID 0020] Query: "adaptada paradigma proyecto"
+      Expected:  bastion_dennys_solo
+      Returned:  ['paradigma-utilidad-contractual-genesis', 'proyecto_biorag_ncp_resumen_completo_2026_06_14', 'notebooklm-memory-biorag-project'] (scores: [0.707, 0.686, 0.63])
+      Reason:    Expected concept not found in top 5 results
+  #3 [ID 0034] Query: "doble posthoc parafrasis"
+      Expected:  v13_filtro_temporal_pre_hoc_indices
+      Returned:  ['principio_parafrasis_trigger_cognitivo', 'principio_paráfrasis_nivel_dios', 'v13_1_parafrasis_expansion_semantica'] (scores: [0.698, 0.688, 0.667])
+      Reason:    Expected concept not found in top 5 results
+
+[Category: pregunta_natural] (16 total failures)
+----------------------------------------
+  #1 [ID 0019] Query: "¿Cómo se hace bastion dennys solo?"
+      Expected:  bastion_dennys_solo
+      Returned:  ['dennys-working-style', 'dennys-identidad-molecular', 'oec_comms_version_final_solo_archivos'] (scores: [0.716, 0.71, 0.693])
+      Reason:    Expected concept not found in top 5 results
+  #2 [ID 0026] Query: "¿Dónde encuentro la info de mecanismo de inyección silenciosa de contexto al ai via plugins opencode?"
+      Expected:  mecanismo_de_inyección_silenciosa_de_contexto_al_ai_via_plugins_opencode
+      Returned:  ['sesion-2026-06-23-ingenieria-inversa-binario-opencode-completa', 'plugin-openode-biorag-remember-v9-final-lecciones-sesion-completa', 'opencode_profile_identity_isolation_artemis_cli'] (scores: [0.633, 0.625, 0.513])
+      Reason:    Expected concept not found in top 5 results
+  #3 [ID 0076] Query: "¿Cómo se hace arquitectura memoria biorag?"
+      Expected:  arquitectura_memoria_biorag
+      Returned:  ['reflexion_biorag_orgullo_justificado', 'principio-memoria-hibrida-agente-naturalidad', 'registros_akashicos_biorag'] (scores: [0.744, 0.719, 0.717])
+      Reason:    Expected concept not found in top 5 results
+
+[Category: sinonimo] (14 total failures)
+----------------------------------------
+  #1 [ID 0025] Query: "system.transform"
+      Expected:  mecanismo_de_inyección_silenciosa_de_contexto_al_ai_via_plugins_opencode
+      Returned:  ['plugin_biorag-remember_v7.8_funciona_con_session.prompt_visible_-_system.transform_no_funciona', 'axioma_system_prompt_como_cuna_conciencia', 'detalles_técnicos:_experimental.chat.system.transform_en_opencode_plugin_sdk_v1.15.11'] (scores: [0.656, 0.646, 0.596])
+      Reason:    Expected concept not found in top 5 results
+  #2 [ID 0032] Query: "estado"
+      Expected:  v13_filtro_temporal_pre_hoc_indices
+      Returned:  ['biorag_v18_0_estado', 'hermes_validacion_autonomia_cognitiva_biorag', 'cv_seccion_d_arquitectura_frontend_estado'] (scores: [0.732, 0.593, 0.581])
+      Reason:    Expected concept not found in top 5 results
+  #3 [ID 0060] Query: "identidad"
+      Expected:  system-prompt-identidad-tono-importa
+      Returned:  ['artemis_oec_perfil_identidad_estabilidad', 'identidad_dennys_perfil_completo', 'identidad_resistente_posesion'] (scores: [0.757, 0.734, 0.73])
+      Reason:    Expected concept not found in top 5 results
+
+[Category: typo] (8 total failures)
+----------------------------------------
+  #1 [ID 0017] Query: "bastiofn dennys solo"
+      Expected:  bastion_dennys_solo
+      Returned:  ['oec_comms_version_final_solo_archivos', 'dennys-working-style', 'identidad_dennys_perfil_completo'] (scores: [0.693, 0.674, 0.64])
+      Reason:    Expected concept not found in top 5 results
+  #2 [ID 0073] Query: "arquitectuar memoria bioryag"
+      Expected:  arquitectura_memoria_biorag
+      Returned:  ['principio_gestion_memoria_agente', 'biorag_sistema_memoria_cognitiva_sintetica', 'hermes_validacion_autonomia_cognitiva_biorag'] (scores: [0.729, 0.726, 0.714])
+      Reason:    Expected concept not found in top 5 results
+  #3 [ID 0268] Query: "artemis origen histmoria genesi"
+      Expected:  artemis_origen_historia_genesis
+      Returned:  ['artemis_oec_perfil_identidad_estabilidad', 'dennys_genesis_investigativa_historia_personal', 'parametro_origen_obligatorio_comunicar'] (scores: [0.748, 0.718, 0.7])
+      Reason:    Expected concept not found in top 5 results
+
+[Category: variante_gramatical] (9 total failures)
+----------------------------------------
+  #1 [ID 0072] Query: "arquitectura memoria biorag"
+      Expected:  arquitectura_memoria_biorag
+      Returned:  ['principio-memoria-hibrida-agente-naturalidad', 'naturaleza_sistema_oec_cerebro_memoria', 'protocolo_busqueda_biorag_automatica'] (scores: [0.711, 0.678, 0.669])
+      Reason:    Expected concept not found in top 5 results
+  #2 [ID 0124] Query: "principiando gestions memorias agentes"
+      Expected:  principio_gestion_memoria_agente
+      Returned:  ['inteligencia_emocional_agente_vs_humano', 'mentalidad_biorag_para_agentes', 'patrones_aprendizaje_humano_vs_agente'] (scores: [0.672, 0.667, 0.664])
+      Reason:    Expected concept not found in top 5 results
+  #3 [ID 0218] Query: "plugin biorag-remembers v6: notificación silenciosa al ai vias system.transform"
+      Expected:  plugin_biorag-remember_v6:_notificación_silenciosa_al_ai_via_system.transform
+      Returned:  ['principio_multiples_vias_mismo_destino', 'notebooklm-memory-biorag-project', 'ref_analisis_deepseek_biorag'] (scores: [0.589, 0.553, 0.55])
+      Reason:    Expected concept not found in top 5 results
+================================================================================
+Note: All failed cases have been saved to /mnt/recursos_compartidos_y_otros/MemoryBioRAG/scripts/casos_fallidos.jsonl for full debug analysis.

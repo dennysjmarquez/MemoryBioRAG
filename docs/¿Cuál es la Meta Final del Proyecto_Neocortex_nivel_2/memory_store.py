@@ -5,6 +5,9 @@ import re
 import sys
 import math
 from collections import deque
+import logging
+
+logger = logging.getLogger("BioRAG.MemoryStore")
 
 # Auto-cargar .env.local al importar (antes de leer cualquier variable de entorno)
 from config import _load_env_local
@@ -177,9 +180,9 @@ class SQLiteMemoryBioRAG:
             from core.neocortex_teleologico import NeocortexTeleologico
             from core.adn_conceptual import ADNConceptualEngine
             self.neocortex = NeocortexTeleologico(str(self.db_path))
-            self.adn_engine = ADNConceptualEngine()
-            # Cargar firmas persistidas si existen
-            self._cargar_firmas_adn()
+            self.adn_engine = ADNConceptualEngine(db_path=str(self.db_path), indices=self._ppmi_index)
+            # El índice ADN v29 se carga desde artefactos persistidos; nunca se recalcula aquí.
+            self._adn_pendiente_recalculo = False
         except Exception as e:
             logger.warning(f"No se pudo inicializar el Neocórtex de Sangre: {e}")
 
@@ -1697,11 +1700,10 @@ class SQLiteMemoryBioRAG:
         auto_vincular(self, key, contenido)
         # Clasificación simbólica: WordNet lexnames
         self._clasificar_nodo_wordnet(key, contenido, sinonimos or "")
-        # v26.1: Neocórtex de Sangre — Inferencia de ADN Conceptual
-        if self.adn_engine:
-            firma = self.adn_engine.inferir_firma_por_texto(f"{key} {contenido} {sinonimos or ''}")
-            self.adn_engine.registrar_concepto(key, firma)
-            self._persistir_firma_adn(key, firma)
+        # v29: el recuerdo se marca como cambio estructural. El ADN y los vecinos
+        # se reconstruyen de forma batch en el siguiente ciclo de sueño DMN; no hay
+        # inferencia vectorial ni recorrido del corpus en el camino de escritura.
+        self._adn_pendiente_recalculo = True
         # SDM v19.0: Indexar vector binario para recuperación por similitud estructural
         try:
             from core.sdm import indexar_nodo_sdm

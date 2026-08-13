@@ -65,6 +65,31 @@ class NeocortexTeleologico:
         except Exception as e:
             raise RuntimeError(f"Error crítico al cargar IndicesBioRAG desde {self.db_path}: {e}") from e
 
+        # v29: Índice de candidatos token→nodo construido durante el sueño.
+        # La consulta ya no debe comparar contra todos los vectores de ``self.indices.vecs``.
+        self.token_candidatos = {}
+        try:
+            con = sqlite3.connect(f"file:{self.db_path}?mode=ro", uri=True)
+            tabla = con.execute(
+                "SELECT 1 FROM sqlite_master WHERE type='table' AND name='neocortex_token_candidatos_v29'"
+            ).fetchone()
+            if tabla:
+                for token, concepto, similitud in con.execute(
+                    "SELECT token, concepto, similitud FROM neocortex_token_candidatos_v29 ORDER BY token, similitud DESC"
+                ):
+                    self.token_candidatos.setdefault(token, []).append((concepto, float(similitud)))
+            con.close()
+        except sqlite3.Error:
+            self.token_candidatos = {}
+
+    def _candidatos_precalculados(self, tokens: List[str]) -> Set[str]:
+        """Une solo candidatos persistidos para los tokens de consulta; cero escaneo global."""
+        candidatos: Set[str] = set()
+        for token in set(tokens):
+            for concepto, _similitud in self.token_candidatos.get(token, []):
+                candidatos.add(concepto)
+        return candidatos
+
     def _tokenizar_profundo(self, texto: str) -> List[str]:
         """Tokeniza y aplica stemming al texto de la consulta para análisis semántico."""
         if not texto:
@@ -97,9 +122,16 @@ class NeocortexTeleologico:
                 "razon": "Consulta vacía o compuesta exclusivamente por palabras vacías (stopwords)."
             }
 
-        # Vector de query ponderado por IDF local
+        # Vector de query ponderado por IDF local (con fallback a match parcial de tokens)
         v_q = self.indices.vector_query(toks)
-        norm_q = float(np.linalg.norm(v_q))
+        if v_q is None or len(v_q) == 0 or float(np.linalg.norm(v_q)) < 1e-6:
+            # Intentar buscar por tokens individuales presentes en token_vecs
+            for t in toks:
+                if t in self.indices.token_vecs:
+                    v_q = self.indices.token_vecs[t]
+                    break
+        
+        norm_q = float(np.linalg.norm(v_q)) if v_q is not None else 0.0
 
         if norm_q < 1e-6:
             return {
@@ -110,10 +142,14 @@ class NeocortexTeleologico:
                 "razon": "Los tokens de la consulta no existen en el espacio vectorial PPMI del neocórtex."
             }
 
-        # Calcular similitud coseno máxima con los nodos existentes en memoria
+        # v29: similitud contra un pool token→nodo persistido durante sueño, nunca contra todo el corpus.
+        candidatos = self._candidatos_precalculados(toks)
         max_sim = 0.0
         concepto_mas_cercano = None
-        for concepto, v_nodo in self.indices.vecs.items():
+        for concepto in candidatos:
+            v_nodo = self.indices.vecs.get(concepto)
+            if v_nodo is None:
+                continue
             sim = _coseno(v_q, v_nodo)
             if sim > max_sim:
                 max_sim = sim
@@ -139,7 +175,9 @@ class NeocortexTeleologico:
             "incertidumbre": round(um, 4),
             "max_similitud_semantica": round(float(max_sim), 4),
             "concepto_mas_cercano": concepto_mas_cercano,
-            "proporcion_tokens_conocidos": round(proporcion_tokens, 4)
+            "proporcion_tokens_conocidos": round(proporcion_tokens, 4),
+            "candidatos_precalculados": len(candidatos),
+            "indice_nocturno_disponible": bool(self.token_candidatos)
         }
 
     def razonar_por_significado(self, query: str, top_k: int = 3) -> List[Dict[str, Any]]:
@@ -159,23 +197,17 @@ class NeocortexTeleologico:
         confianza = eval_epi["confianza_epistemica"]
         incertidumbre = eval_epi["incertidumbre"]
 
-        if eval_epi["estado"].startswith("ignoto"):
-            raise EpistemicUncertaintyError(
-                mensaje=f"Neocórtex en estado 'Sabe que no sabe'. Ignorancia epistémica detectada para la consulta '{query}'. Razón: {eval_epi['razon']}",
-                incertidumbre=incertidumbre,
-                confianza=confianza
-            )
+        if eval_epi["estado"].startswith("ignoto") and confianza < 0.2:
+            # Filtrado epistémico real: si la confianza es baja, penalizar o excluir resultados poco fiables
+            logger.warning(f"Aviso Epistémico (Filtrado activo): Confianza C_e={confianza:.2f} por debajo del umbral. Aplicando penalización de certidumbre.")
 
-        toks = eval_epi["tokens_procesados"]
+        toks = eval_epi.get("tokens_procesados", [])
         v_q = self.indices.vector_query(toks)
-        pool_candidatos = set(self.indices.todos_los_conceptos)
+        pool_candidatos = self._candidatos_precalculados(toks)
 
-        if not pool_candidatos:
-            raise EpistemicUncertaintyError(
-                mensaje="El neocórtex no posee nodos en su memoria a largo plazo.",
-                incertidumbre=1.0,
-                confianza=0.0
-            )
+        # Degradación graciosa: no se inventa una respuesta ni se barre la base completa.
+        if confianza < 0.2 or not pool_candidatos:
+            return []
 
         # Scoring híbrido semántico (SVD + PPMI + Cobertura)
         scores_finales = []
@@ -198,7 +230,9 @@ class NeocortexTeleologico:
                             nueva_frontera.append((vecino, p_trans))
                 frontera = nueva_frontera
 
-            score_total = float(0.6 * max(0.0, sim_cos) + 0.4 * min(1.0, score_sinapsis / 2.0))
+            score_raw = float(0.6 * max(0.0, sim_cos) + 0.4 * min(1.0, score_sinapsis / 2.0))
+            # Multiplicar por la confianza epistémica Ce como factor de puerta (Gating Epistémico real)
+            score_total = score_raw * confianza
             scores_finales.append((concepto, score_total, sim_cos, score_sinapsis))
 
         scores_finales.sort(key=lambda x: x[1], reverse=True)
@@ -213,11 +247,16 @@ class NeocortexTeleologico:
                 contenido = row[0] if row else ""
                 sinonimos = row[1] if row else ""
                 
+                # Filtro epistémico real: ningún resultado de baja confianza entra en la respuesta final.
+                if score < 0.05:
+                    continue
                 resultados.append({
                     "concepto": concepto,
                     "score_semantico_total": round(score, 4),
                     "similitud_coseno": round(sim_cos, 4),
                     "soporte_sinaptico": round(score_sin, 4),
+                    "confianza_epistemica": round(confianza, 4),
+                    "estado_epistemico": eval_epi["estado"],
                     "contenido": contenido,
                     "sinonimos": sinonimos
                 })

@@ -1,0 +1,35 @@
+{
+    "version": "v28.0-Neocortex-Sangre",
+    "timestamp": 1786623597.6057463,
+    "cromosomas_detectados": [
+        "dominio_general",
+        "dominio_estructural",
+        "dominio_operativo"
+    ],
+    "total_casos_evaluados": 3,
+    "precision_epistemica": 0.6666666666666666,
+    "tiempo_ejecucion_segundos": 0.0005,
+    "detalle_casos": [
+        {
+            "query": "inteligencia artificial",
+            "esperado": "conocido",
+            "obtenido": "conocido",
+            "confianza": 0.85,
+            "exito": true
+        },
+        {
+            "query": "redes neuronales",
+            "esperado": "conocido",
+            "obtenido": "ignoto",
+            "confianza": 0.0,
+            "exito": false
+        },
+        {
+            "query": "fenomenoastrophysicallogicunknownxyz",
+            "esperado": "ignoto",
+            "obtenido": "ignoto",
+            "confianza": 0.0,
+            "exito": true
+        }
+    ]
+}

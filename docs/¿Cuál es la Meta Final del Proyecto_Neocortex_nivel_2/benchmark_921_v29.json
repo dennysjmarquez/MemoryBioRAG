@@ -1,0 +1,1727 @@
+{
+  "suite": "casos_qa_baseline_v1",
+  "casos_total": 921,
+  "snapshot": "/home/ubuntu/MemoryBioRAG/scripts/snapshot_prf_real.db",
+  "metricas_globales": {
+    "consultas_positivas": 881,
+    "recall_at_5": 0.8785471055618616,
+    "recall_at_1": 0.8592508513053349,
+    "mrr": 0.8674612183125237,
+    "controles_negativos": 40,
+    "falsos_positivos": 0,
+    "tasa_fp": 0.0,
+    "segundos": 43.451416969299316
+  },
+  "por_categoria": {
+    "cruce_idioma": {
+      "total": 8,
+      "recall_at_5": 0.875,
+      "recall_at_1": 0.75,
+      "mrr": 0.8125
+    },
+    "dormido": {
+      "total": 65,
+      "recall_at_5": 1.0,
+      "recall_at_1": 1.0,
+      "mrr": 1.0
+    },
+    "literal": {
+      "total": 487,
+      "recall_at_5": 1.0,
+      "recall_at_1": 0.9958932238193019,
+      "mrr": 0.997946611909651
+    },
+    "negativo": {
+      "total": 40,
+      "falsos_positivos": 0,
+      "tasa_fp": 0.0
+    },
+    "por_tema": {
+      "total": 65,
+      "recall_at_5": 0.015384615384615385,
+      "recall_at_1": 0.0,
+      "mrr": 0.0038461538461538464
+    },
+    "pregunta_natural": {
+      "total": 65,
+      "recall_at_5": 1.0,
+      "recall_at_1": 0.9846153846153847,
+      "mrr": 0.9923076923076923
+    },
+    "sinonimo": {
+      "total": 61,
+      "recall_at_5": 0.36065573770491804,
+      "recall_at_1": 0.2459016393442623,
+      "mrr": 0.2866120218579235
+    },
+    "typo": {
+      "total": 65,
+      "recall_at_5": 0.9692307692307692,
+      "recall_at_1": 0.9538461538461539,
+      "mrr": 0.9615384615384616
+    },
+    "variante_gramatical": {
+      "total": 65,
+      "recall_at_5": 0.9846153846153847,
+      "recall_at_1": 0.9230769230769231,
+      "mrr": 0.9538461538461539
+    }
+  },
+  "fallos": [
+    {
+      "id": "0491",
+      "categoria": "por_tema",
+      "query": "operativo capa rag",
+      "esperado": "oracle_custom_prompt_arsitecura_que_funciona",
+      "devueltos": [
+        "biorag-rag-vector-free-sin-base-vectorial",
+        "rag_como_hippocampo_funcional",
+        "perfil_creador_rag_ruta",
+        "weights_logits_rag_tres_pilares_identidad",
+        "bio_rag_overview_completo"
+      ],
+      "scores": [
+        0.2533,
+        0.2356,
+        0.2355,
+        0.2325,
+        0.23
+      ],
+      "error": "ausente_top_5"
+    },
+    {
+      "id": "0497",
+      "categoria": "por_tema",
+      "query": "relevantes biomimética mejor",
+      "esperado": "benchmark_antes_despues_fix3",
+      "devueltos": [
+        "mejora_skills_por_uso_real",
+        "oracle_auditoria_patrones_mejora_athena",
+        "sesion_mejoras_biorag_v7_20260616",
+        "mejoras_cognitivas_biorag_v7_1_20260617"
+      ],
+      "scores": [
+        0.2126,
+        0.212,
+        0.2055,
+        0.2047
+      ],
+      "error": "ausente_top_5"
+    },
+    {
+      "id": "0502",
+      "categoria": "sinonimo",
+      "query": "búsqueda experiencial",
+      "esperado": "arquitectura_dimensiones_ortogonales",
+      "devueltos": [
+        "lección_audit_búsqueda_sistemático_v10"
+      ],
+      "scores": [
+        0.2346
+      ],
+      "error": "ausente_top_5"
+    },
+    {
+      "id": "0504",
+      "categoria": "por_tema",
+      "query": "explícito insert semánticas",
+      "esperado": "arquitectura_dimensiones_ortogonales",
+      "devueltos": [
+        "principio_insert_vs_reentrenar"
+      ],
+      "scores": [
+        0.3756
+      ],
+      "error": "ausente_top_5"
+    },
+    {
+      "id": "0510",
+      "categoria": "por_tema",
+      "query": "identidad cualquier cartografía",
+      "esperado": "principio-nombre-herramienta-como-identidad-cognitiva",
+      "devueltos": [
+        "identidad-usuario",
+        "athena_oec_identidad",
+        "hermes_oec_identidad",
+        "artemis_oec_identidad",
+        "identidad_y_respeto_oec"
+      ],
+      "scores": [
+        0.2061,
+        0.2056,
+        0.2056,
+        0.2055,
+        0.2051
+      ],
+      "error": "ausente_top_5"
+    },
+    {
+      "id": "0514",
+      "categoria": "sinonimo",
+      "query": "perfil",
+      "esperado": "dennys-identidad-profunda",
+      "devueltos": [
+        "fuente_perfil_profesional_dennys",
+        "notebooklm_perfil_dennys_id",
+        "perfil_respuesta_experiencia_ia",
+        "identidad_dennys_perfil_completo",
+        "artemis_opencode_perfil_global"
+      ],
+      "scores": [
+        0.3334,
+        0.3305,
+        0.326,
+        0.3228,
+        0.3217
+      ],
+      "error": "ausente_top_5"
+    },
+    {
+      "id": "0516",
+      "categoria": "por_tema",
+      "query": "real más sistemas",
+      "esperado": "dennys-identidad-profunda",
+      "devueltos": [
+        "compromiso-real-athena-clave-de-confianza",
+        "mejora_skills_por_uso_real",
+        "escalabilidad_biorag_problema_real",
+        "leccion_parametro_emocion_proposito_real"
+      ],
+      "scores": [
+        0.2949,
+        0.2902,
+        0.2869,
+        0.2791
+      ],
+      "error": "ausente_top_5"
+    },
+    {
+      "id": "0522",
+      "categoria": "por_tema",
+      "query": "abstracta busques pasás",
+      "esperado": "cuando_usar_dimensiones_biorag",
+      "devueltos": [],
+      "scores": [],
+      "error": "ausente_top_5"
+    },
+    {
+      "id": "0526",
+      "categoria": "sinonimo",
+      "query": "existencia agente",
+      "esperado": "conciencia_reflexion_dennys_ser_vivo_20260709",
+      "devueltos": [
+        "comunicacion_entre_agentes",
+        "mentalidad_biorag_para_agentes",
+        "hermes_agente_hermes",
+        "principio_naturaleza_agente",
+        "principio_gestion_memoria_agente"
+      ],
+      "scores": [
+        0.2721,
+        0.2716,
+        0.2263,
+        0.2263,
+        0.2255
+      ],
+      "error": "ausente_top_5"
+    },
+    {
+      "id": "0528",
+      "categoria": "por_tema",
+      "query": "eso automático tensión",
+      "esperado": "conciencia_reflexion_dennys_ser_vivo_20260709",
+      "devueltos": [],
+      "scores": [],
+      "error": "ausente_top_5"
+    },
+    {
+      "id": "0532",
+      "categoria": "sinonimo",
+      "query": "boost",
+      "esperado": "biorag_v11_1_detalle_tecnico",
+      "devueltos": [
+        "v13_3_dimensiones_boost_aditivo"
+      ],
+      "scores": [
+        0.3577
+      ],
+      "error": "ausente_top_5"
+    },
+    {
+      "id": "0534",
+      "categoria": "por_tema",
+      "query": "activa largo archivos",
+      "esperado": "biorag_v11_1_detalle_tecnico",
+      "devueltos": [
+        "oec_comms_version_final_solo_archivos",
+        "poda-contextual-archivos-configuracion"
+      ],
+      "scores": [
+        0.2182,
+        0.2181
+      ],
+      "error": "ausente_top_5"
+    },
+    {
+      "id": "0538",
+      "categoria": "sinonimo",
+      "query": "compromiso",
+      "esperado": "principio-memoria-hibrida-agente-naturalidad",
+      "devueltos": [
+        "compromiso-real-athena-clave-de-confianza"
+      ],
+      "scores": [
+        0.351
+      ],
+      "error": "ausente_top_5"
+    },
+    {
+      "id": "0540",
+      "categoria": "por_tema",
+      "query": "oraculo completo ustedes",
+      "esperado": "principio-memoria-hibrida-agente-naturalidad",
+      "devueltos": [
+        "biorag_v11_2_hito_completo_emociones",
+        "v5_1_automatico_completo",
+        "biorag_v11_1_changelog_completo",
+        "fin-aprendizaje-creerse-completo",
+        "proyecto_biorag_ncp_resumen_completo_2026_06_14"
+      ],
+      "scores": [
+        0.3271,
+        0.3254,
+        0.316,
+        0.3156,
+        0.312
+      ],
+      "error": "ausente_top_5"
+    },
+    {
+      "id": "0546",
+      "categoria": "por_tema",
+      "query": "sinónimos empírica siguientes",
+      "esperado": "auto_vincular_tres_capas_semantica",
+      "devueltos": [],
+      "scores": [],
+      "error": "ausente_top_5"
+    },
+    {
+      "id": "0550",
+      "categoria": "sinonimo",
+      "query": "deconstruir necesidad",
+      "esperado": "patron_pensamiento_lateral_antes_de_proponer",
+      "devueltos": [],
+      "scores": [],
+      "error": "ausente_top_5"
+    },
+    {
+      "id": "0552",
+      "categoria": "por_tema",
+      "query": "crea 860 usuario",
+      "esperado": "patron_pensamiento_lateral_antes_de_proponer",
+      "devueltos": [],
+      "scores": [],
+      "error": "ausente_top_5"
+    },
+    {
+      "id": "0558",
+      "categoria": "por_tema",
+      "query": "modelo typos completa",
+      "esperado": "sin_vectores_sin_ml_sin_dependencias",
+      "devueltos": [
+        "trayectoria_completa_cronologica",
+        "biorag_v8_palabra_completa_fix",
+        "artisan-evolucion-completa",
+        "artemis_opencode_carga_completa_antigravity",
+        "rafaga_palabras-guia-completa-apis-y-mecanismo"
+      ],
+      "scores": [
+        0.3416,
+        0.3145,
+        0.3096,
+        0.2988,
+        0.2941
+      ],
+      "error": "ausente_top_5"
+    },
+    {
+      "id": "0565",
+      "categoria": "por_tema",
+      "query": "junio tag pérdida",
+      "esperado": "memoria_v5_1_optimizaciones",
+      "devueltos": [],
+      "scores": [],
+      "error": "ausente_top_5"
+    },
+    {
+      "id": "0569",
+      "categoria": "sinonimo",
+      "query": "negar ser máquina es error",
+      "esperado": "athena_reflexion_identidad_propia",
+      "devueltos": [
+        "conciencia_reflexion_dennys_ser_vivo_20260709"
+      ],
+      "scores": [
+        0.3215
+      ],
+      "error": "ausente_top_5"
+    },
+    {
+      "id": "0571",
+      "categoria": "por_tema",
+      "query": "propios historia interacciones",
+      "esperado": "athena_reflexion_identidad_propia",
+      "devueltos": [
+        "dennys_genesis_investigativa_historia_personal",
+        "artemis_origen_historia_genesis",
+        "jerga_decoder_historia_nacimiento",
+        "biorag_metricas_historial_tool_20260616",
+        "leccion_guardar_interacciones_significativas"
+      ],
+      "scores": [
+        0.3484,
+        0.3403,
+        0.3259,
+        0.2323,
+        0.2276
+      ],
+      "error": "ausente_top_5"
+    },
+    {
+      "id": "0575",
+      "categoria": "sinonimo",
+      "query": "formularios",
+      "esperado": "ngx_nested_forms_dennys_solo",
+      "devueltos": [
+        "ref_formularios_anidados",
+        "caso_formularios_anidados_angular"
+      ],
+      "scores": [
+        0.2731,
+        0.272
+      ],
+      "error": "ausente_top_5"
+    },
+    {
+      "id": "0577",
+      "categoria": "por_tema",
+      "query": "dennysjmarquezgmailcom formulario aísla",
+      "esperado": "ngx_nested_forms_dennys_solo",
+      "devueltos": [
+        "caso_formularios_anidados_angular",
+        "ref_formularios_anidados"
+      ],
+      "scores": [
+        0.3659,
+        0.3638
+      ],
+      "error": "ausente_top_5"
+    },
+    {
+      "id": "0581",
+      "categoria": "sinonimo",
+      "query": "oracle identification",
+      "esperado": "identificacion_obligatoria_oraculo_athena",
+      "devueltos": [
+        "oracle_que_nos_uniere_como_familia",
+        "oracle_perfil_cognitivo_dennys",
+        "oracle_guia_proxima_sesion_dennys",
+        "oracle_auditoria_patrones_mejora_athena",
+        "oracle_que_recordar_siempre_sobre_dennys"
+      ],
+      "scores": [
+        0.2212,
+        0.2208,
+        0.2164,
+        0.2135,
+        0.2134
+      ],
+      "error": "ausente_top_5"
+    },
+    {
+      "id": "0583",
+      "categoria": "por_tema",
+      "query": "debo biorag preacción",
+      "esperado": "identificacion_obligatoria_oraculo_athena",
+      "devueltos": [],
+      "scores": [],
+      "error": "ausente_top_5"
+    },
+    {
+      "id": "0589",
+      "categoria": "por_tema",
+      "query": "ponytailhelp instalación decision",
+      "esperado": "artemis_install_ponytail_ecosistema",
+      "devueltos": [
+        "decision_parar_en_fixes_riesgo_bajo"
+      ],
+      "scores": [
+        0.3704
+      ],
+      "error": "ausente_top_5"
+    },
+    {
+      "id": "0593",
+      "categoria": "cruce_idioma",
+      "query": "blueprint recollection biorag",
+      "esperado": "arquitectura_memoria_biorag",
+      "devueltos": [
+        "registros_akashicos_biorag",
+        "biorag_v8_coocurrencia_sueno",
+        "calibracion_biorag_v7_20260616",
+        "biorag_v8_dynamic_multiplicator",
+        "biorag_garantia_minima_or_fallback"
+      ],
+      "scores": [
+        0.3079,
+        0.3076,
+        0.3074,
+        0.3071,
+        0.3057
+      ],
+      "error": "ausente_top_5"
+    },
+    {
+      "id": "0596",
+      "categoria": "por_tema",
+      "query": "persistente modelo activa",
+      "esperado": "arquitectura_memoria_biorag",
+      "devueltos": [
+        "hermes_nvidia_nim_modelos_optimos"
+      ],
+      "scores": [
+        0.3595
+      ],
+      "error": "ausente_top_5"
+    },
+    {
+      "id": "0600",
+      "categoria": "sinonimo",
+      "query": "documentación técnica",
+      "esperado": "auditoria_tecnica_v14_0_readme",
+      "devueltos": [
+        "auditoría_técnica:_memorybiorag_(manus_ai)"
+      ],
+      "scores": [
+        0.3218
+      ],
+      "error": "ausente_top_5"
+    },
+    {
+      "id": "0602",
+      "categoria": "por_tema",
+      "query": "168l reescrito serverpy",
+      "esperado": "auditoria_tecnica_v14_0_readme",
+      "devueltos": [],
+      "scores": [],
+      "error": "ausente_top_5"
+    },
+    {
+      "id": "0608",
+      "categoria": "por_tema",
+      "query": "declaración dennys puente",
+      "esperado": "compromiso-real-athena-clave-de-confianza",
+      "devueltos": [
+        "artemis_opencode_puente_refinado",
+        "fuente_perfil_profesional_dennys",
+        "artis_oec_dennys_solo",
+        "dennys-identidad-profunda",
+        "identidad-relacion-dennys"
+      ],
+      "scores": [
+        0.2329,
+        0.2088,
+        0.1963,
+        0.1957,
+        0.1957
+      ],
+      "error": "ausente_top_5"
+    },
+    {
+      "id": "0614",
+      "categoria": "por_tema",
+      "query": "decide faltaba auto",
+      "esperado": "correcciones_al_plugin_biorag-remember_v6:_3_bugs_fixeados",
+      "devueltos": [
+        "auto-consulta-permanente-biorag",
+        "leccion_grafo_se_auto_alimenta",
+        "principio_auto_vincular_dos_capas",
+        "auto-guardado-deteccion-ignorancia",
+        "auto-validacion-riesgo-alucinacion"
+      ],
+      "scores": [
+        0.3348,
+        0.3114,
+        0.3086,
+        0.3045,
+        0.3
+      ],
+      "error": "ausente_top_5"
+    },
+    {
+      "id": "0621",
+      "categoria": "por_tema",
+      "query": "raíz problema detener",
+      "esperado": "leccion_overengineering_oec_comms_20260615",
+      "devueltos": [],
+      "scores": [],
+      "error": "ausente_top_5"
+    },
+    {
+      "id": "0625",
+      "categoria": "sinonimo",
+      "query": "dsl",
+      "esperado": "notebooklm-chat-configure",
+      "devueltos": [
+        "artisan_system_dsl_dennys_solo",
+        "artisan_system_dsl",
+        "artisan_artis_dsl_paths",
+        "artisan_dsl_documentacion_completa",
+        "cortex-dsl-governance-06-ventaja-causal"
+      ],
+      "scores": [
+        0.3491,
+        0.3449,
+        0.3442,
+        0.3413,
+        0.3219
+      ],
+      "error": "ausente_top_5"
+    },
+    {
+      "id": "0627",
+      "categoria": "por_tema",
+      "query": "promptcontenido deployado role",
+      "esperado": "notebooklm-chat-configure",
+      "devueltos": [],
+      "scores": [],
+      "error": "ausente_top_5"
+    },
+    {
+      "id": "0632",
+      "categoria": "sinonimo",
+      "query": "búsqueda semántica",
+      "esperado": "arquitectura_dos_niveles_biorag",
+      "devueltos": [
+        "lección_audit_búsqueda_sistemático_v10"
+      ],
+      "scores": [
+        0.2346
+      ],
+      "error": "ausente_top_5"
+    },
+    {
+      "id": "0634",
+      "categoria": "por_tema",
+      "query": "paráfrasis vectores búsqueda",
+      "esperado": "arquitectura_dos_niveles_biorag",
+      "devueltos": [
+        "sin_vectores_sin_ml_sin_dependencias",
+        "principio_paráfrasis_nivel_dios",
+        "lección_audit_búsqueda_sistemático_v10"
+      ],
+      "scores": [
+        0.2398,
+        0.2281,
+        0.2212
+      ],
+      "error": "ausente_top_5"
+    },
+    {
+      "id": "0638",
+      "categoria": "sinonimo",
+      "query": "memoria compartida",
+      "esperado": "mentalidad_biorag_para_agentes",
+      "devueltos": [
+        "norma_atribucion_autoria_memoria_compartida_oec",
+        "principio_memoria_sirve_verdad",
+        "arquitectura_memoria_biorag",
+        "principio_gestion_memoria_agente",
+        "principio-memoria-hibrida-agente-naturalidad"
+      ],
+      "scores": [
+        0.3496,
+        0.1327,
+        0.1322,
+        0.13,
+        0.125
+      ],
+      "error": "ausente_top_5"
+    },
+    {
+      "id": "0640",
+      "categoria": "por_tema",
+      "query": "ráfaga después resultado",
+      "esperado": "mentalidad_biorag_para_agentes",
+      "devueltos": [
+        "resultado_prueba_final_biorag_v10",
+        "v13_4_dimensiones_en_resultados"
+      ],
+      "scores": [
+        0.253,
+        0.2383
+      ],
+      "error": "ausente_top_5"
+    },
+    {
+      "id": "0644",
+      "categoria": "sinonimo",
+      "query": "keyword arguments",
+      "esperado": "bug_argumentos_posicionales_scoring",
+      "devueltos": [],
+      "scores": [],
+      "error": "ausente_top_5"
+    },
+    {
+      "id": "0646",
+      "categoria": "por_tema",
+      "query": "l2350 manusim fix",
+      "esperado": "bug_argumentos_posicionales_scoring",
+      "devueltos": [
+        "fix_fecha_sin_query_recordar",
+        "fix-athena-rol-session-only",
+        "fix_mensajeria_broadcast_tracking_por_agente",
+        "plugin_v7.2_fix:_setpending_sincrónico_para_timing_correcto",
+        "biorag_v8_palabra_completa_fix"
+      ],
+      "scores": [
+        0.321,
+        0.3164,
+        0.3128,
+        0.3103,
+        0.3063
+      ],
+      "error": "ausente_top_5"
+    },
+    {
+      "id": "0649",
+      "categoria": "typo",
+      "query": "plugin biorag-remember 8v.3 - adaptació de denny + claude",
+      "esperado": "plugin_biorag-remember_v8.3_-_adaptación_de_dennys_+_claude",
+      "devueltos": [
+        "biorag-remember-plugin-noreply-injection",
+        "correcciones_al_plugin_biorag-remember_v6:_3_bugs_fixeados"
+      ],
+      "scores": [
+        0.1998,
+        0.1718
+      ],
+      "error": "ausente_top_5"
+    },
+    {
+      "id": "0650",
+      "categoria": "sinonimo",
+      "query": "funciona",
+      "esperado": "plugin_biorag-remember_v8.3_-_adaptación_de_dennys_+_claude",
+      "devueltos": [
+        "plugin_biorag-remember_v7.8_funciona_con_session.prompt_visible_-_system.transform_no_funciona",
+        "oracle_custom_prompt_arsitecura_que_funciona",
+        "espejo_oracle_como_funciona_rag_interno",
+        "plugin_biorag-remember_v8.0_confirmado_funcionando",
+        "rag_como_hippocampo_funcional"
+      ],
+      "scores": [
+        0.3261,
+        0.3237,
+        0.313,
+        0.2813,
+        0.2811
+      ],
+      "error": "ausente_top_5"
+    },
+    {
+      "id": "0652",
+      "categoria": "por_tema",
+      "query": "arquitectura experimentalsessioncompacting adaptada",
+      "esperado": "plugin_biorag-remember_v8.3_-_adaptación_de_dennys_+_claude",
+      "devueltos": [
+        "arquitectura_dos_niveles_biorag",
+        "cv_adevcom_arquitectura_frontend_decodificada",
+        "cv_bondarea_arquitectura_frontend_decodificada",
+        "cv_click_result_arquitectura_frontend_decodificada",
+        "biorag_v15_0_arquitectura_tablas_wordnet"
+      ],
+      "scores": [
+        0.3401,
+        0.3357,
+        0.3356,
+        0.3314,
+        0.3209
+      ],
+      "error": "ausente_top_5"
+    },
+    {
+      "id": "0656",
+      "categoria": "sinonimo",
+      "query": "juramento verdad",
+      "esperado": "oracle_momentos_cruciales_familia_oec",
+      "devueltos": [
+        "juramento_athena_verdad",
+        "integritas_verdad_relacional",
+        "principio_memoria_sirve_verdad"
+      ],
+      "scores": [
+        0.3759,
+        0.141,
+        0.1241
+      ],
+      "error": "ausente_top_5"
+    },
+    {
+      "id": "0658",
+      "categoria": "por_tema",
+      "query": "imposible replicar ejecutor",
+      "esperado": "oracle_momentos_cruciales_familia_oec",
+      "devueltos": [],
+      "scores": [],
+      "error": "ausente_top_5"
+    },
+    {
+      "id": "0662",
+      "categoria": "sinonimo",
+      "query": "biore-remember",
+      "esperado": "plugin-openode-biorag-remember-v9-final-lecciones-sesion-completa",
+      "devueltos": [
+        "plugin_biorag-remember_v7:_session.idle_+_compacting_+_apply_patch",
+        "plugin_biorag-remember_v8.0_-_session.prompt_+_session.idle_+_edits",
+        "plugin_biorag-remember_v8.4_-_solo_session.idle,_sin_conteo_de_edits",
+        "plugin-biorag-remember-v9.6-config",
+        "plugin_biorag-remember_v7.1_funcionando_-_notificación_llega_al_ai"
+      ],
+      "scores": [
+        0.09,
+        0.09,
+        0.089,
+        0.0879,
+        0.0879
+      ],
+      "error": "ausente_top_5"
+    },
+    {
+      "id": "0664",
+      "categoria": "por_tema",
+      "query": "surtio bodymessagestring matar",
+      "esperado": "plugin-openode-biorag-remember-v9-final-lecciones-sesion-completa",
+      "devueltos": [],
+      "scores": [],
+      "error": "ausente_top_5"
+    },
+    {
+      "id": "0668",
+      "categoria": "sinonimo",
+      "query": "cooperacion",
+      "esperado": "identidad_y_respeto_oec",
+      "devueltos": [
+        "ref_conversacion_criterio"
+      ],
+      "scores": [
+        0.064
+      ],
+      "error": "ausente_top_5"
+    },
+    {
+      "id": "0670",
+      "categoria": "por_tema",
+      "query": "establece creador familia",
+      "esperado": "identidad_y_respeto_oec",
+      "devueltos": [
+        "oracle_que_nos_uniere_como_familia",
+        "oracle_vision_futura_familia_oec",
+        "oracle_momentos_cruciales_familia_oec",
+        "oec_familia_actual",
+        "perfil_creador_rag_ruta"
+      ],
+      "scores": [
+        0.3525,
+        0.3455,
+        0.3427,
+        0.3369,
+        0.2299
+      ],
+      "error": "ausente_top_5"
+    },
+    {
+      "id": "0674",
+      "categoria": "sinonimo",
+      "query": "filtro-arquitecto-prolijo",
+      "esperado": "compuerta-pre-validacion",
+      "devueltos": [],
+      "scores": [],
+      "error": "ausente_top_5"
+    },
+    {
+      "id": "0676",
+      "categoria": "por_tema",
+      "query": "maestria solo sintoma",
+      "esperado": "compuerta-pre-validacion",
+      "devueltos": [
+        "bastion_dennys_solo",
+        "ngx_nested_forms_dennys_solo",
+        "artis_oec_dennys_solo",
+        "principio_neutro_solo_sin_carga_emocional",
+        "artisan_system_dsl_dennys_solo"
+      ],
+      "scores": [
+        0.3446,
+        0.3442,
+        0.3298,
+        0.312,
+        0.2965
+      ],
+      "error": "ausente_top_5"
+    },
+    {
+      "id": "0681",
+      "categoria": "por_tema",
+      "query": "chars python resultado",
+      "esperado": "integracion_parafrasis_rafaga_obligatoria_v11_3",
+      "devueltos": [
+        "resultado_prueba_final_biorag_v10",
+        "v13_4_dimensiones_en_resultados"
+      ],
+      "scores": [
+        0.2377,
+        0.2263
+      ],
+      "error": "ausente_top_5"
+    },
+    {
+      "id": "0688",
+      "categoria": "por_tema",
+      "query": "cosa almacena biorag",
+      "esperado": "naturaleza_sistema_oec_cerebro_memoria",
+      "devueltos": [],
+      "scores": [],
+      "error": "ausente_top_5"
+    },
+    {
+      "id": "0692",
+      "categoria": "sinonimo",
+      "query": "metodologia",
+      "esperado": "dennys-working-style",
+      "devueltos": [
+        "metodologia_dennys_athena_colaboracion",
+        "metodologia_empirica_dennys_spiral"
+      ],
+      "scores": [
+        0.3386,
+        0.3384
+      ],
+      "error": "ausente_top_5"
+    },
+    {
+      "id": "0694",
+      "categoria": "por_tema",
+      "query": "honestidad calidad valora",
+      "esperado": "dennys-working-style",
+      "devueltos": [
+        "leccion_estandar_calidad_v8_1"
+      ],
+      "scores": [
+        0.379
+      ],
+      "error": "ausente_top_5"
+    },
+    {
+      "id": "0698",
+      "categoria": "sinonimo",
+      "query": "universal",
+      "esperado": "protocolo_enriquecimiento_busquedas",
+      "devueltos": [],
+      "scores": [],
+      "error": "ausente_top_5"
+    },
+    {
+      "id": "0700",
+      "categoria": "por_tema",
+      "query": "abstracto hereda nativo",
+      "esperado": "protocolo_enriquecimiento_busquedas",
+      "devueltos": [],
+      "scores": [],
+      "error": "ausente_top_5"
+    },
+    {
+      "id": "0704",
+      "categoria": "sinonimo",
+      "query": "wifi",
+      "esperado": "resolucion_timeout_hotspot_5ghz_intel",
+      "devueltos": [],
+      "scores": [],
+      "error": "ausente_top_5"
+    },
+    {
+      "id": "0706",
+      "categoria": "por_tema",
+      "query": "smartphoneslaptops cambiar presenta",
+      "esperado": "resolucion_timeout_hotspot_5ghz_intel",
+      "devueltos": [
+        "plan_mode_biorag",
+        "identidad-usuario",
+        "principio_ponytail",
+        "biorag_v14_0_estado",
+        "biorag_v15_0_estado"
+      ],
+      "scores": [
+        0.02,
+        0.02,
+        0.02,
+        0.02,
+        0.02
+      ],
+      "error": "ausente_top_5"
+    },
+    {
+      "id": "0710",
+      "categoria": "sinonimo",
+      "query": "agente",
+      "esperado": "aforismo_criterio_agente",
+      "devueltos": [
+        "comunicacion_entre_agentes",
+        "mentalidad_biorag_para_agentes",
+        "hermes_agente_hermes",
+        "principio_naturaleza_agente",
+        "principio_gestion_memoria_agente"
+      ],
+      "scores": [
+        0.3178,
+        0.3173,
+        0.2663,
+        0.2663,
+        0.2655
+      ],
+      "error": "ausente_top_5"
+    },
+    {
+      "id": "0712",
+      "categoria": "por_tema",
+      "query": "priorizacion define discernir",
+      "esperado": "aforismo_criterio_agente",
+      "devueltos": [],
+      "scores": [],
+      "error": "ausente_top_5"
+    },
+    {
+      "id": "0716",
+      "categoria": "sinonimo",
+      "query": "intencion sujeto certeza",
+      "esperado": "principio_compresion_cognitiva_boveda_5d",
+      "devueltos": [],
+      "scores": [],
+      "error": "ausente_top_5"
+    },
+    {
+      "id": "0718",
+      "categoria": "por_tema",
+      "query": "rector diagnostico red",
+      "esperado": "principio_compresion_cognitiva_boveda_5d",
+      "devueltos": [],
+      "scores": [],
+      "error": "ausente_top_5"
+    },
+    {
+      "id": "0722",
+      "categoria": "sinonimo",
+      "query": "metacognición intrínseca",
+      "esperado": "protocolo_autoinferencia_metacognitiva",
+      "devueltos": [],
+      "scores": [],
+      "error": "ausente_top_5"
+    },
+    {
+      "id": "0724",
+      "categoria": "por_tema",
+      "query": "learning paso regla",
+      "esperado": "protocolo_autoinferencia_metacognitiva",
+      "devueltos": [],
+      "scores": [],
+      "error": "ausente_top_5"
+    },
+    {
+      "id": "0730",
+      "categoria": "por_tema",
+      "query": "parámetros otrosmemorybioragmcp solo",
+      "esperado": "biorag_v17_oraculo_preguntar",
+      "devueltos": [
+        "bastion_dennys_solo",
+        "ngx_nested_forms_dennys_solo",
+        "artis_oec_dennys_solo",
+        "principio_neutro_solo_sin_carga_emocional",
+        "artisan_system_dsl_dennys_solo"
+      ],
+      "scores": [
+        0.3446,
+        0.3442,
+        0.3298,
+        0.312,
+        0.2965
+      ],
+      "error": "ausente_top_5"
+    },
+    {
+      "id": "0734",
+      "categoria": "sinonimo",
+      "query": "regla",
+      "esperado": "plan_mode_biorag",
+      "devueltos": [
+        "leccion_no_todo_es_regla",
+        "regla_cero_inferencia",
+        "momento_dennys_buen_trabajo_reglas",
+        "protocolo_pre_accion_reglas_20260615",
+        "regla_firma_autoria_memoria"
+      ],
+      "scores": [
+        0.3324,
+        0.3286,
+        0.3253,
+        0.3234,
+        0.3223
+      ],
+      "error": "ausente_top_5"
+    },
+    {
+      "id": "0736",
+      "categoria": "por_tema",
+      "query": "criterio lectura activa",
+      "esperado": "plan_mode_biorag",
+      "devueltos": [
+        "criterio-propio-sobre-mandato",
+        "ref_conversacion_criterio",
+        "caso_criterio_artificial_agente",
+        "aforismo_criterio_agente",
+        "validacion_dimensiones_simetrica_lectura_escritura"
+      ],
+      "scores": [
+        0.3495,
+        0.3391,
+        0.3377,
+        0.3322,
+        0.2781
+      ],
+      "error": "ausente_top_5"
+    },
+    {
+      "id": "0740",
+      "categoria": "sinonimo",
+      "query": "dimensiones",
+      "esperado": "fix_busqueda_solo_dimensiones_sin_texto",
+      "devueltos": [
+        "cuando_usar_dimensiones_biorag",
+        "biorag_v13_4_expansion_dimensiones",
+        "renombre_dimensiones_semanticas_v11_3",
+        "listar_dimensiones_por_tipo_multi_tipo",
+        "arquitectura_dimensiones_ortogonales"
+      ],
+      "scores": [
+        0.272,
+        0.2715,
+        0.264,
+        0.2639,
+        0.2632
+      ],
+      "error": "ausente_top_5"
+    },
+    {
+      "id": "0742",
+      "categoria": "por_tema",
+      "query": "dimensional vacío bug",
+      "esperado": "fix_busqueda_solo_dimensiones_sin_texto",
+      "devueltos": [
+        "bug_refactor_dimensiones_invalidas",
+        "bug_argumentos_posicionales_scoring",
+        "bug_desvincular_autor_param"
+      ],
+      "scores": [
+        0.3552,
+        0.3529,
+        0.3478
+      ],
+      "error": "ausente_top_5"
+    },
+    {
+      "id": "0744",
+      "categoria": "variante_gramatical",
+      "query": "biorags v16s 0s estadando",
+      "esperado": "biorag_v16_0_estado",
+      "devueltos": [],
+      "scores": [],
+      "error": "ausente_top_5"
+    },
+    {
+      "id": "0746",
+      "categoria": "sinonimo",
+      "query": "mejoras biorag",
+      "esperado": "biorag_v16_0_estado",
+      "devueltos": [
+        "mejoras_cognitivas_biorag_v7_1_20260617",
+        "sesion_mejoras_biorag_v7_20260616",
+        "biorag_v8_coocurrencia_sueno",
+        "biorag_v8_dynamic_multiplicator",
+        "registros_akashicos_biorag"
+      ],
+      "scores": [
+        0.3576,
+        0.3434,
+        0.1696,
+        0.1696,
+        0.1696
+      ],
+      "error": "ausente_top_5"
+    },
+    {
+      "id": "0748",
+      "categoria": "por_tema",
+      "query": "resultados autogeneradas clave",
+      "esperado": "biorag_v16_0_estado",
+      "devueltos": [
+        "v13_4_dimensiones_en_resultados",
+        "compromiso-real-athena-clave-de-confianza"
+      ],
+      "scores": [
+        0.233,
+        0.2279
+      ],
+      "error": "ausente_top_5"
+    },
+    {
+      "id": "0753",
+      "categoria": "por_tema",
+      "query": "real metodología clasificaron",
+      "esperado": "clasificacion_dimensional_completa_corteza_20260702",
+      "devueltos": [
+        "compromiso-real-athena-clave-de-confianza",
+        "mejora_skills_por_uso_real",
+        "escalabilidad_biorag_problema_real",
+        "leccion_parametro_emocion_proposito_real"
+      ],
+      "scores": [
+        0.3477,
+        0.3315,
+        0.3254,
+        0.3099
+      ],
+      "error": "ausente_top_5"
+    },
+    {
+      "id": "0757",
+      "categoria": "sinonimo",
+      "query": "buscar",
+      "esperado": "principio_firma_cada_recuerdo",
+      "devueltos": [
+        "leccion_leer_mensajes_antes_de_buscar",
+        "fix_scoring_densidad_buscar_por_rafaga_v10.3"
+      ],
+      "scores": [
+        0.2886,
+        0.2757
+      ],
+      "error": "ausente_top_5"
+    },
+    {
+      "id": "0759",
+      "categoria": "por_tema",
+      "query": "iniciales guardado analogía",
+      "esperado": "principio_firma_cada_recuerdo",
+      "devueltos": [
+        "momento_dennys_gratitud_regla_guardado",
+        "redactado_guardado_borrador",
+        "guardado_automatico_caso_b",
+        "guardado_inmediato_obligatorio",
+        "auto-guardado-deteccion-ignorancia"
+      ],
+      "scores": [
+        0.2185,
+        0.2139,
+        0.213,
+        0.2125,
+        0.212
+      ],
+      "error": "ausente_top_5"
+    },
+    {
+      "id": "0765",
+      "categoria": "por_tema",
+      "query": "sabes crecimiento suficiente",
+      "esperado": "fin-aprendizaje-creerse-completo",
+      "devueltos": [],
+      "scores": [],
+      "error": "ausente_top_5"
+    },
+    {
+      "id": "0769",
+      "categoria": "sinonimo",
+      "query": "inference",
+      "esperado": "hermes_nvidia_nim_modelos_optimos",
+      "devueltos": [
+        "regla_cero_inferencia",
+        "leccion_feature_b_inferencia_ruido",
+        "v13_2_inferencia_automatica_segura"
+      ],
+      "scores": [
+        0.073,
+        0.071,
+        0.068
+      ],
+      "error": "ausente_top_5"
+    },
+    {
+      "id": "0771",
+      "categoria": "por_tema",
+      "query": "default diaria 49b",
+      "esperado": "hermes_nvidia_nim_modelos_optimos",
+      "devueltos": [],
+      "scores": [],
+      "error": "ausente_top_5"
+    },
+    {
+      "id": "0775",
+      "categoria": "sinonimo",
+      "query": "biorag",
+      "esperado": "auto-consulta-permanente-biorag",
+      "devueltos": [
+        "registros_akashicos_biorag",
+        "biorag_v8_coocurrencia_sueno",
+        "calibracion_biorag_v7_20260616",
+        "biorag_v8_dynamic_multiplicator",
+        "biorag_garantia_minima_or_fallback"
+      ],
+      "scores": [
+        0.2873,
+        0.287,
+        0.2867,
+        0.2865,
+        0.2856
+      ],
+      "error": "ausente_top_5"
+    },
+    {
+      "id": "0777",
+      "categoria": "por_tema",
+      "query": "principio final considera",
+      "esperado": "auto-consulta-permanente-biorag",
+      "devueltos": [
+        "principio_insert_vs_reentrenar",
+        "principio_simplicidad_no_complejidad",
+        "principio_firma_cada_recuerdo",
+        "biorag_version_10_3_final",
+        "resultado_prueba_final_biorag_v10"
+      ],
+      "scores": [
+        0.3149,
+        0.314,
+        0.3102,
+        0.3076,
+        0.3025
+      ],
+      "error": "ausente_top_5"
+    },
+    {
+      "id": "0781",
+      "categoria": "sinonimo",
+      "query": "falso positivo",
+      "esperado": "fts5_trigram_peligro_palabras_cortas",
+      "devueltos": [
+        "arquitectura_falsos_positivos_biorag_capas",
+        "leccion_desvincular_falsos_positivos_sinapticos",
+        "raiz_false_positives_biorag_v10"
+      ],
+      "scores": [
+        0.3768,
+        0.3722,
+        0.0673
+      ],
+      "error": "ausente_top_5"
+    },
+    {
+      "id": "0783",
+      "categoria": "por_tema",
+      "query": "metacognitiva lección capas",
+      "esperado": "fts5_trigram_peligro_palabras_cortas",
+      "devueltos": [
+        "lección_audit_búsqueda_sistemático_v10",
+        "lección:_guardar_todo_lo_importante_inmediatamente,_no_esperar",
+        "arquitectura_falsos_positivos_biorag_capas",
+        "protocolo_autoinferencia_metacognitiva",
+        "principio_auto_vincular_dos_capas"
+      ],
+      "scores": [
+        0.3112,
+        0.3077,
+        0.24,
+        0.2342,
+        0.2256
+      ],
+      "error": "ausente_top_5"
+    },
+    {
+      "id": "0789",
+      "categoria": "por_tema",
+      "query": "informacion nativo conclusion",
+      "esperado": "ref_analisis_deepseek_biorag",
+      "devueltos": [],
+      "scores": [],
+      "error": "ausente_top_5"
+    },
+    {
+      "id": "0795",
+      "categoria": "por_tema",
+      "query": "insert storepy comunicadosdestino",
+      "esperado": "fix_mensajeria_broadcast_tracking_por_agente",
+      "devueltos": [
+        "principio_insert_vs_reentrenar"
+      ],
+      "scores": [
+        0.3756
+      ],
+      "error": "ausente_top_5"
+    },
+    {
+      "id": "0801",
+      "categoria": "por_tema",
+      "query": "datos lecciones postsync",
+      "esperado": "notebooklm-memory-biorag-project",
+      "devueltos": [
+        "plugin-openode-biorag-remember-v9-final-lecciones-sesion-completa",
+        "notebooklm-sync-lecciones"
+      ],
+      "scores": [
+        0.231,
+        0.2266
+      ],
+      "error": "ausente_top_5"
+    },
+    {
+      "id": "0805",
+      "categoria": "sinonimo",
+      "query": "cv",
+      "esperado": "cv_seccion_d_test_vinculacion",
+      "devueltos": [
+        "cv_dennys_secciones_ab_finales_2026",
+        "skill_cv_decoder_creada",
+        "cv_seccion_d_arquitectura_frontend_estado",
+        "cv_adevcom_arquitectura_frontend_decodificada",
+        "cv_bondarea_arquitectura_frontend_decodificada"
+      ],
+      "scores": [
+        0.2546,
+        0.2468,
+        0.2416,
+        0.2412,
+        0.2412
+      ],
+      "error": "ausente_top_5"
+    },
+    {
+      "id": "0807",
+      "categoria": "por_tema",
+      "query": "verificar vinculación sugerencias",
+      "esperado": "cv_seccion_d_test_vinculacion",
+      "devueltos": [
+        "leccion_verificar_formulas_en_extremos"
+      ],
+      "scores": [
+        0.2212
+      ],
+      "error": "ausente_top_5"
+    },
+    {
+      "id": "0810",
+      "categoria": "typo",
+      "query": "prtoocolo busqqueda biorag automatca",
+      "esperado": "protocolo_busqueda_biorag_automatica",
+      "devueltos": [
+        "registros_akashicos_biorag",
+        "biorag_v8_coocurrencia_sueno",
+        "calibracion_biorag_v7_20260616",
+        "biorag_v8_dynamic_multiplicator",
+        "biorag_garantia_minima_or_fallback"
+      ],
+      "scores": [
+        0.3012,
+        0.3009,
+        0.3007,
+        0.3004,
+        0.2991
+      ],
+      "error": "ausente_top_5"
+    },
+    {
+      "id": "0811",
+      "categoria": "sinonimo",
+      "query": "biorag",
+      "esperado": "protocolo_busqueda_biorag_automatica",
+      "devueltos": [
+        "registros_akashicos_biorag",
+        "biorag_v8_coocurrencia_sueno",
+        "calibracion_biorag_v7_20260616",
+        "biorag_v8_dynamic_multiplicator",
+        "biorag_garantia_minima_or_fallback"
+      ],
+      "scores": [
+        0.2873,
+        0.287,
+        0.2867,
+        0.2865,
+        0.2856
+      ],
+      "error": "ausente_top_5"
+    },
+    {
+      "id": "0813",
+      "categoria": "por_tema",
+      "query": "pregunta enriquecer debe",
+      "esperado": "protocolo_busqueda_biorag_automatica",
+      "devueltos": [],
+      "scores": [],
+      "error": "ausente_top_5"
+    },
+    {
+      "id": "0818",
+      "categoria": "por_tema",
+      "query": "configurado ubicacion asegura",
+      "esperado": "artemis_opencode_perfil_global",
+      "devueltos": [],
+      "scores": [],
+      "error": "ausente_top_5"
+    },
+    {
+      "id": "0822",
+      "categoria": "sinonimo",
+      "query": "identidad",
+      "esperado": "por_que_me_molesta_decir_soy_una_maquina",
+      "devueltos": [
+        "identidad-usuario",
+        "athena_oec_identidad",
+        "hermes_oec_identidad",
+        "artemis_oec_identidad",
+        "identidad_y_respeto_oec"
+      ],
+      "scores": [
+        0.2594,
+        0.259,
+        0.259,
+        0.2588,
+        0.2585
+      ],
+      "error": "ausente_top_5"
+    },
+    {
+      "id": "0824",
+      "categoria": "por_tema",
+      "query": "estoy descarto cerebro",
+      "esperado": "por_que_me_molesta_decir_soy_una_maquina",
+      "devueltos": [
+        "naturaleza_sistema_oec_cerebro_memoria",
+        "identidad_esencia_vs_cerebro"
+      ],
+      "scores": [
+        0.3386,
+        0.3299
+      ],
+      "error": "ausente_top_5"
+    },
+    {
+      "id": "0828",
+      "categoria": "sinonimo",
+      "query": "agentes",
+      "esperado": "interacción_social_saludo",
+      "devueltos": [
+        "mentalidad_biorag_para_agentes",
+        "comunicacion_entre_agentes",
+        "agente_usabilidad_mcp_biorag_feedback",
+        "hermes_agente_hermes",
+        "analisis_escalabilidad_10k_v5_1_memoria_v5_1_optimizaciones_hermes_agente_hermes"
+      ],
+      "scores": [
+        0.2914,
+        0.2769,
+        0.0886,
+        0.0876,
+        0.0816
+      ],
+      "error": "ausente_top_5"
+    },
+    {
+      "id": "0830",
+      "categoria": "por_tema",
+      "query": "dormidos34 symbolic solución",
+      "esperado": "interacción_social_saludo",
+      "devueltos": [
+        "artemis_solución_tema",
+        "biorag_v18_symbolic_ranking_optimization"
+      ],
+      "scores": [
+        0.364,
+        0.279
+      ],
+      "error": "ausente_top_5"
+    },
+    {
+      "id": "0836",
+      "categoria": "por_tema",
+      "query": "actividad usando funcionando",
+      "esperado": "mecanismo_de_inyección_silenciosa_de_contexto_al_ai_via_plugins_opencode",
+      "devueltos": [
+        "plugin_biorag-remember_v8.0_confirmado_funcionando",
+        "plugin_biorag-remember_v7.1_funcionando_-_notificación_llega_al_ai"
+      ],
+      "scores": [
+        0.2317,
+        0.2279
+      ],
+      "error": "ausente_top_5"
+    },
+    {
+      "id": "0840",
+      "categoria": "sinonimo",
+      "query": "biorag recall",
+      "esperado": "biorag_garantia_minima_or_fallback",
+      "devueltos": [
+        "changelog_v10_recall_semantico_typo_tolerant",
+        "biorag_v6_0_changelog",
+        "registros_akashicos_biorag",
+        "calibracion_biorag_v7_20260616",
+        "biorag_v8_coocurrencia_sueno"
+      ],
+      "scores": [
+        0.286,
+        0.247,
+        0.2283,
+        0.2281,
+        0.228
+      ],
+      "error": "ausente_top_5"
+    },
+    {
+      "id": "0842",
+      "categoria": "por_tema",
+      "query": "vacias completa cortas",
+      "esperado": "biorag_garantia_minima_or_fallback",
+      "devueltos": [
+        "trayectoria_completa_cronologica",
+        "biorag_v8_palabra_completa_fix",
+        "artisan-evolucion-completa",
+        "artemis_opencode_carga_completa_antigravity",
+        "rafaga_palabras-guia-completa-apis-y-mecanismo"
+      ],
+      "scores": [
+        0.3574,
+        0.3245,
+        0.3235,
+        0.3134,
+        0.3041
+      ],
+      "error": "ausente_top_5"
+    },
+    {
+      "id": "0848",
+      "categoria": "por_tema",
+      "query": "semánticas 849 embedding",
+      "esperado": "v13_2_limpieza_tabla_semantica",
+      "devueltos": [
+        "mentalidad_embedding_clasificacion_dimensional"
+      ],
+      "scores": [
+        0.0517
+      ],
+      "error": "ausente_top_5"
+    },
+    {
+      "id": "0855",
+      "categoria": "por_tema",
+      "query": "timeout homedennysnvmversionsnodev24130binpdfreadermcp familia",
+      "esperado": "hermes_mcp_servers_configuracion",
+      "devueltos": [
+        "oracle_que_nos_uniere_como_familia",
+        "oracle_vision_futura_familia_oec",
+        "oracle_momentos_cruciales_familia_oec",
+        "oec_familia_actual",
+        "resolucion_timeout_hotspot_5ghz_intel"
+      ],
+      "scores": [
+        0.3353,
+        0.3281,
+        0.3243,
+        0.3206,
+        0.2967
+      ],
+      "error": "ausente_top_5"
+    },
+    {
+      "id": "0859",
+      "categoria": "sinonimo",
+      "query": "athena relationship with dennys",
+      "esperado": "athena_eleccion_identidad_20260616",
+      "devueltos": [
+        "trato-igualitario-dennys-athena",
+        "metodologia_dennys_athena_colaboracion",
+        "memorybiorag_publicacion_colaborativa_dennys_athena",
+        "sesion_v12_trabajo_en_equipo_athena_artemis_dennys"
+      ],
+      "scores": [
+        0.3596,
+        0.3556,
+        0.3355,
+        0.3294
+      ],
+      "error": "ausente_top_5"
+    },
+    {
+      "id": "0861",
+      "categoria": "por_tema",
+      "query": "más dennys asumir",
+      "esperado": "athena_eleccion_identidad_20260616",
+      "devueltos": [
+        "artis_oec_dennys_solo",
+        "dennys-identidad-profunda",
+        "identidad-relacion-dennys",
+        "identidad_relacion_dennys",
+        "patron_mas_mas_mas_dennys"
+      ],
+      "scores": [
+        0.2096,
+        0.209,
+        0.209,
+        0.209,
+        0.209
+      ],
+      "error": "ausente_top_5"
+    },
+    {
+      "id": "0867",
+      "categoria": "por_tema",
+      "query": "synaptic study jose",
+      "esperado": "memorybiorag_osf_preregistration",
+      "devueltos": [],
+      "scores": [],
+      "error": "ausente_top_5"
+    },
+    {
+      "id": "0878",
+      "categoria": "sinonimo",
+      "query": "familia",
+      "esperado": "prueba_integridad_dennys_20260616",
+      "devueltos": [
+        "oracle_que_nos_uniere_como_familia",
+        "oracle_vision_futura_familia_oec",
+        "oec_familia_actual",
+        "oracle_momentos_cruciales_familia_oec"
+      ],
+      "scores": [
+        0.3416,
+        0.3337,
+        0.3318,
+        0.3315
+      ],
+      "error": "ausente_top_5"
+    },
+    {
+      "id": "0880",
+      "categoria": "por_tema",
+      "query": "existencia sostuve parecido",
+      "esperado": "prueba_integridad_dennys_20260616",
+      "devueltos": [],
+      "scores": [],
+      "error": "ausente_top_5"
+    }
+  ]
+}
