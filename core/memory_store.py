@@ -3323,6 +3323,106 @@ class SQLiteMemoryBioRAG:
             head = [original_r0] + [it for it in head if it is not original_r0]
         return head + tail
 
+    def obtener_asociaciones_enriquecidas(self, conceptos_top, top_vecinos=5, peso_min=0.50):
+        """Canal 2 — Asociaciones enriquecidas desde el grafo sináptico real.
+
+        POR QUÉ existe: el canal 1 (ranking top-5 por score_hibrido) es un juego de
+        suma cero y NO debe mezclarse con el halo asociativo (lección del 13/08:
+        la comunidad no sirve para re-rankear, sí para asociar). Este método entrega
+        los vecinos de la tabla `sinapsis` con su fuerza real, ordenados por prioridad
+        de tipo y fuerza de arista, para exponerlos como campo aparte.
+
+        Filtros anti-ruido (basados en el diagnóstico del grafo, 2026-08-14):
+        - peso >= peso_min (default 0.50): la mediana real de pesos es 0.72, así que
+          0.50 corta aristas débiles sin perder el núcleo fuerte.
+        - Tipos prioritarios: pmi_hebbiano, co_semantica, manual, latente_confirmada.
+        - sinonimo_explicito: hiperdenso (6,494 aristas) — se limita a 2 por nodo
+          para no inundar el canal de asociaciones con ruido redundante.
+        - Excluye vecinos dormidos y nodos inexistentes en largo_plazo.
+
+        Complejidad: 1 query SQL con IN clause + filtrado/orden en memoria.
+
+        Retorna dict {concepto_raiz: [ {concepto, fuerza_arista, tipo_sinapsis, peso_vecino}, ... ]}
+        """
+        if not conceptos_top:
+            return {}
+        conceptos_top = [c for c in conceptos_top if c]
+        if not conceptos_top:
+            return {}
+
+        placeholders = ",".join("?" * len(conceptos_top))
+        # Prioridad de tipo para el orden final (más semántico primero).
+        # sinonimo_explicito va al final: aporta sinonimia pero es hiperdenso.
+        prioridad_tipo = {
+            "pmi_hebbiano": 0,
+            "co_semantica": 1,
+            "manual": 2,
+            "latente_confirmada": 3,
+            "co_ocurrencia": 4,
+            "co_nombre": 5,
+            "legacy_csv": 6,
+            "manual_v7": 7,
+            "test": 8,
+            "sinonimo_explicito": 9,
+        }
+        MAX_SINONIMO_EXPLICITO = 2
+
+        try:
+            # El LEFT JOIN resuelve el vecino: si el origen está en el top, el vecino
+            # es el destino; si no (caso donde solo el destino está en el top), el origen.
+            # El filtro l.estado='activo' elimina aristas hacia nodos dormidos/inexistentes.
+            self.cursor.execute(
+                f"""
+                SELECT s.origen, s.destino, s.peso, s.tipo,
+                       l.peso_sinaptico AS peso_vecino,
+                       substr(l.contenido, 1, 120) AS resumen_vecino
+                FROM sinapsis s
+                LEFT JOIN largo_plazo l ON l.concepto = CASE
+                    WHEN s.origen IN ({placeholders}) THEN s.destino
+                    ELSE s.origen
+                END
+                WHERE (s.origen IN ({placeholders}) OR s.destino IN ({placeholders}))
+                  AND s.peso >= ?
+                  AND l.estado = 'activo'
+                ORDER BY s.peso DESC
+                """,
+                list(conceptos_top) * 3 + [peso_min],
+            )
+            filas = self.cursor.fetchall()
+        except Exception as exc:
+            logger.warning("obtener_asociaciones_enriquecidas falló: %s", exc)
+            return {}
+
+        asoc_map = {c: [] for c in conceptos_top}
+        for origen, destino, peso, tipo, peso_vecino, resumen_vecino in filas:
+            raiz = origen if origen in asoc_map else destino
+            vecino = destino if raiz == origen else origen
+            if vecino == raiz:
+                continue
+            asoc_map[raiz].append({
+                "concepto": vecino,
+                "fuerza_arista": round(float(peso or 0.5), 3),
+                "tipo_sinapsis": tipo,
+                "peso_vecino": round(float(peso_vecino or 0.5), 2),
+                "resumen": resumen_vecino or "",
+            })
+
+        resultado = {}
+        for raiz, aristas in asoc_map.items():
+            aristas.sort(key=lambda a: (prioridad_tipo.get(a["tipo_sinapsis"], 50), -a["fuerza_arista"]))
+            sinonimo_cont = 0
+            filtradas = []
+            for a in aristas:
+                if a["tipo_sinapsis"] == "sinonimo_explicito":
+                    if sinonimo_cont >= MAX_SINONIMO_EXPLICITO:
+                        continue
+                    sinonimo_cont += 1
+                filtradas.append(a)
+                if len(filtradas) >= top_vecinos:
+                    break
+            resultado[raiz] = filtradas
+        return resultado
+
     def buscar_por_frase(self, frase, profundidad="activos", pagina=1, limite=None, categoria=None, preview_chars=1500, historial_fallos=None, context_window=0, dimensiones_dict=None, dimensiones_ids=None, parafrasis_list=None, desde_ts=None, hasta_ts=None, modo_estricto=False, usar_inferencia=True, buscar_por_rol=None, ignore_peso_sinaptico=False, ordenar_por="relevancia"):
         """Busqueda hibrida: FTS5 trigram + peso sinaptico + asociaciones + scoring dimensional.
 

@@ -957,6 +957,18 @@ def _build_server():
                         )
                     resultados = resultados_filtrados
 
+            # Canal 2 — Asociaciones enriquecidas (grafo sináptico real, con fuerza de arista).
+            # NO toca score_hibrido ni el ranking: es campo aparte, adjunto a cada resultado.
+            # Si asociados=true, se consulta la tabla sinapsis con filtro de peso/tipo.
+            _asoc_enriquecidas = {}
+            if asociados and resultados:
+                try:
+                    _asoc_enriquecidas = cerebro.obtener_asociaciones_enriquecidas(
+                        [r[0] for r in resultados]
+                    )
+                except Exception as _exc_asoc:
+                    logger.warning("No se pudieron enriquecer asociaciones: %s", _exc_asoc)
+
             items = []
             for concepto, contenido, peso, estado, score, asociaciones in resultados:
                 creado_ts = _edad_map.get(concepto, 0)
@@ -975,6 +987,8 @@ def _build_server():
                     "asociaciones": [
                         v.strip() for v in (asociaciones or "").split(",") if v.strip()
                     ] if asociados and asociaciones else [],
+                    "asociaciones_enriquecidas": _asoc_enriquecidas.get(concepto, [])
+                        if asociados else [],
                 })
 
             # Contexto expandido (adjunto): solo se expone en página > 1.
@@ -998,6 +1012,8 @@ def _build_server():
                         "asociaciones": [
                             v.strip() for v in (asociaciones or "").split(",") if v.strip()
                         ] if asociados and asociaciones else [],
+                        "asociaciones_enriquecidas": _asoc_enriquecidas.get(concepto, [])
+                            if asociados else [],
                     })
 
             # Batch query: adjuntar dimensiones semánticas a cada resultado
