@@ -73,10 +73,21 @@ Copy `.env.example` → `.env.local` and uncomment. Key vars:
 
 ## Snapshot Discipline
 
-- **Never eval against live DB** — `evaluar_qa.py` copies to temp but daemons mutate live DB
+- **Never eval against live DB directly** — `evaluar_qa.py` copies to temp but daemons mutate live DB
 - **Always use `BIORAG_PATH=snapshots/qa_escape_qcr_20260811.db`** for regression testing
 - **Snapshot creation**: `python3 scripts/generar_snapshot.py` (creates timestamped .db in `snapshots/`)
 - **Never commit .db files** — `.gitignore` covers `MemoryBioRAG_Data/**/*.db` and `snapshots/`
+- **Live-DB copies**: `python3 -c "import sqlite3; src=sqlite3.connect('MemoryBioRAG_Data/memory_biorag.db'); dst=sqlite3.connect('/tmp/opencode/live_copy.db'); src.backup(dst); dst.close(); src.close()"` — consistent snapshot even with daemons running.
+
+## Dual Verification (MANDATORY since 2026-08-14)
+
+**Verifying a fix against the frozen snapshot is NOT sufficient** — the live DB has a different node population (906 total / 481 active vs snapshot 866/851). Proof: fix `d6678b3` "rescued" case 0757 in the snapshot (rank 5) but **still fails in production** (rank 9, tie at 0.7000). The MCP runs against the live DB, so a fix that only works on the snapshot fixes nothing for the real user.
+
+Every fix must be verified **BOTH** ways:
+1. **Snapshot** (`snapshots/qa_escape_qcr_20260811.db`) — reproducible regression comparison against `run_b_umbral_060.txt`.
+2. **Live-DB copy** (via `sqlite backup()` above) — to confirm the fix actually rescues the case in production.
+
+If a fix passes the snapshot but fails on the live copy, report it as **NOT resolved in production** — never claim "rescatado" without the production re-check.
 
 ---
 
@@ -148,5 +159,6 @@ Before claiming "done" on any core change:
 
 1. `python3 -m pytest tests/ -v` — unit tests pass
 2. `BIORAG_PATH=snapshots/qa_escape_qcr_20260811.db python3 scripts/evaluar_qa.py` — numbers match `run_b_umbral_060.txt` (R@5 96.03%, R@1 88.76%, MRR 0.916, FP 25%)
-3. No new .db files committed (check `git status`)
-4. `.env.local` not committed (check `git status`)
+3. **Live-DB re-check (Dual Verification)**: copy live DB via `sqlite backup()` and re-verify the specific rescued cases against that copy — a snapshot rescue is NOT a production rescue (proof: 0757, fix `d6678b3`)
+4. No new .db files committed (check `git status`)
+5. `.env.local` not committed (check `git status`)
