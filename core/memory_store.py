@@ -4450,6 +4450,29 @@ class SQLiteMemoryBioRAG:
             sinonimos_s_score = score_simbolico_sinonimos(tokens_query, sinonimos_str)
             sinonimos_ratio = max(resultados_semantica.get(concepto, 0.0), sinonimos_s_score)
 
+            # Fix Grupo C v2 (2026-08-13): el piso de sinónimos (memory_store.py:3170,
+            # sinonimos_ratio >= 0.95) no disparaba cuando la query es 100% stopword
+            # (ej. "buscar") — score_simbolico_sinonimos recibe tokens_query vacío
+            # (fallback_simbolico.py:47 elimina stopwords) y devuelve 0.0, y Capa 4
+            # (memory_store.py:4066, condición `if conc not in todos`) nunca llena
+            # resultados_semantica para nodos que entraron por otra capa (ej. FTS
+            # literal). Resultado: sinonimos_ratio = max(0,0) = 0 aunque la palabra SÍ
+            # esté en el campo sinonimos del nodo. Fix v2 RESTRICTIVO: el substring
+            # solo aplica cuando tokens_query está vacío (query 100% stopword). Fue
+            # necesario restringirlo tras medir que la versión amplia (criterio
+            # substring para toda query) elevaba nodos ruidosos al piso y regresaba
+            # los casos 0532 y 0781 del benchmark. Con esta condición, "boost" y
+            # "falso positivo" (con tokens reales) no se ven afectados, y solo se
+            # rescata el caso exacto del bug: query sin tokens simbólicos cuyo
+            # sinónimo está en el campo sinonimos del nodo, mismo criterio LIKE de
+            # Capa 4 (memory_store.py:4067).
+            sinonimos_substring = 0.0
+            if not tokens_query and sinonimos_str and palabras_like:
+                sinonimos_substring = sum(
+                    1 for w in palabras_like if w.lower() in sinonimos_str.lower()
+                ) / len(palabras_like)
+            sinonimos_ratio = max(sinonimos_ratio, sinonimos_substring)
+
             # v22.1: Compute thematic score (presence + absence of dimensions)
             # On-demand pairwise calculation over top-50 candidates with memoization (O(1) cached)
             tematico_score = 0.0
