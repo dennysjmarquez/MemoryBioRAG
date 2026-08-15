@@ -43,6 +43,21 @@
 
 **Verificado:** 0 duplicados en 5 consultas (familia 19, arquitectura 22, playa 25, memoria 19, dennys 25 items de halo). NO afecta el benchmark QA ni el ranking.
 
+### Saneamiento de keyword-stuffing — línea base honesta para sinonimia
+
+**Problema:** 6 nodos con contenido reescrito + listas de sinónimos incrustadas (p.ej. `DSL dsl` x14 en `notebooklm-chat-configure`) inflaban el R@5 de sinónimo a **86.89%** artificialmente.
+
+**Remediación:** contenido canónico restaurado, sinónimos legítimos preservados, FTS/SDM/PPMI reindexados (commit `5a306fa`).
+
+**Resultado (benchmark 921 casos, snapshot + DB viva):**
+- Sinonimia R@5: **73.77% live / 80.00% snapshot canónico** (antes 86.89% inflado)
+- Global R@5: **96.03%** (estable)
+- Verificación dual obligatoria: snapshot (866 nodos) vs DB viva (929 nodos) difieren — regla institucionalizada en `AGENTS.md`.
+
+**Hallazgo clave:** sinónimos enriquecidos aislados NO rescatan casos en FTS5 (canónico-viejo vs canónico-enriquecido = fallos byte-idénticos) porque la columna `sinonimos` no gana peso contra nodos que repiten la palabra en contenido/título. La sinonimia pura vive en **Canal 2** (asociaciones enriquecidas), no forzando el ranking léxico del Canal 1.
+
+**Documentado en BioRAG:** nodos `keyword_stuffing_saneamiento` y `cierre_paso1_linea_base_honesta_saneamiento_20260815` (peso 1.0, 146 asociaciones).
+
 ## v27.0 (2026-08-12)
 
 ### Blueprint del Neocórtex de Sangre: ADN Conceptual y Razonamiento por Esencia
