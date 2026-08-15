@@ -136,19 +136,78 @@ def analizar(db_path: str, etiqueta: str, pos_casos, neg_casos, umbral: float) -
     print(f"  FP con umbral {umbral}: {100*fp:.1f}%")
     print(f"  AUC (separación pos vs neg): {auc:.3f}")
 
-    # Umbral que la predicción conforme elegiría con estos negativos
-    s_ord = sorted(s_neg)
-    import math
-    k = math.ceil((len(s_ord) + 1) * 0.90)  # alpha=0.10, realista con n pequeño
-    umbral_conforme = s_ord[min(k, len(s_ord)) - 1]
-    fp_conf = sum(1 for s in s_neg if s > umbral_conforme) / len(s_neg)
-    recall_conf = sum(1 for s in s_pos if s > umbral_conforme) / len(s_pos)
-    print(f"  umbral conforme (alpha=0.10): {umbral_conforme:.3f}")
-    print(f"     -> FP={100*fp_conf:.1f}%   positivos que aún pasan={100*recall_conf:.1f}%")
+    # Barrido de umbrales para ver la curva completa
+    print(f"\n  --- Barrido de umbrales (optimizando ganancia neta) ---")
+    s_neg_sorted = sorted(s_neg)
+    s_pos_sorted = sorted(s_pos)
+    mejores = []
+    # Barrer desde 0.0 a 1.0 en pasos de 0.01
+    for u in [i/1000 for i in range(0, 1001, 5)]:
+        fp = sum(1 for s in s_neg if s >= u) / len(s_neg) if s_neg else 0
+        recall = sum(1 for s in s_pos if s >= u) / len(s_pos) if s_pos else 0
+        # Ganancia neta = TP - FP (ponderando por prior real si se conoce)
+        # Aquí asumimos prior real 50/50 para decisión, pero reportamos con prior real
+        tp = sum(1 for s in s_pos if s >= u)
+        fp = sum(1 for s in s_neg if s >= u)
+        ganancia_neta = tp - fp  # ganancia neta simple: TP - FP
+        mejores.append((u, fp, recall, ganancia_neta))
+    
+    # Buscar óptimo: maximizar ganancia neta
+    best_u, best_fp, best_recall, best_ganancia = max(mejores, key=lambda x: x[3])
+    
+    # Umbral conforme con hold-out (split 50/50)
+    s_neg_mezcla = list(s_neg)
+    random.Random(20260815).shuffle(s_neg)
+    corte = len(s_neg) // 2
+    cal_neg = s_neg[:len(s_neg)//2]
+    val_neg = s_neg[len(s_neg)//2:]
+    
+    print(f"\n  --- Barrido de umbrales (optimizando ganancia neta) ---")
+    print(f"  Mejor umbral: {best_u:.3f} -> FP={100*best_fp:.1f}%, Recall={100*best_recall:.1f}%, Ganancia neta={best_ganancia:.1f}")
+    
+    if len(s_neg) >= 10:
+        s_neg_mezcla = list(s_neg)
+        random.Random(20260815).shuffle(s_neg)
+        corte = len(s_neg) // 2
+        cal_neg = s_neg[:len(s_neg)//2]
+        val_neg = s_neg[len(s_neg)//2:]
+        
+        s_ord = sorted(cal_neg)
+        k = math.ceil((len(s_ord) + 1) * 0.90)
+        umbral_conforme = s_ord[min(k, len(s_ord)) - 1]
+        fp_conf = sum(1 for s in val_neg if s > umbral_conforme) / len(val_neg)
+        recall_conf = sum(1 for s in s_pos if s > umbral_conforme) / len(s_pos)
+        print(f"  Umbral conforme (hold-out, alpha=0.10): {umbral_conforme:.3f} -> FP held-out={100*fp_conf:.1f}%, Recall held-out={100*recall_conf:.1f}%")
+        
+        # Análisis de coste-beneficio
+        perdidos = (1.0 - recall_conf) * len(s_pos)
+        evitados = (1.0 - fp_conf) * len(s_neg)
+        print(f"     -> COSTE: perderías ~{perdidos:.0f} de {len(s_pos)} positivos "
+              f"para evitar ~{evitados:.0f} de {len(s_neg)} falsos positivos")
+        if perdidos > evitados:
+            print(f"     *** AVISO: el umbral destruye más aciertos ({perdidos:.0f}) "
+                  f"de los que protege ({evitados:.0f}). ***")
+            print("         Revisa alpha, o el ratio real positivos:negativos de "
+                  "tu carga de producción.")
+    else:
+        print(f"  Umbral conforme: NO CALCULADO — se necesitan >=10 negativos para "
+              f"partir en calibración/validación (hay {len(s_neg)}).")
+        print("  Calibrar y medir sobre los mismos datos daría un FP tautológico.")
+    
+    # Barrido completo para mostrar curva
+    print(f"\n  --- Curva FP vs Recall ---")
+    for u in [0.25, 0.3, 0.35, 0.4, 0.45, 0.5, 0.55, 0.6, 0.65, 0.7, 0.75, 0.8, 0.85, 0.9]:
+        fp = sum(1 for s in s_neg if s >= u) / len(s_neg) if s_neg else 0
+        recall = sum(1 for s in s_pos if s >= u) / len(s_pos) if s_pos else 0
+        tp = sum(1 for s in s_pos if s >= u)
+        fp_val = sum(1 for s in s_neg if s >= u)
+        net = tp - fp_val
+        print(f"  @ {u:.2f}: FP={100*sum(1 for s in s_neg if s >= u)/len(s_neg):.1f}%, Recall={100*sum(1 for s in s_pos if s >= u)/len(s_pos):.1f}%, Net={tp - sum(1 for s in s_neg if s >= u)}")
 
     return {"etiqueta": etiqueta, "auc": auc, "fp": fp,
             "media_pos": statistics.mean(s_pos), "media_neg": statistics.mean(s_neg),
-            "umbral_conforme": umbral_conforme, "recall_conforme": recall_conf}
+            "umbral_conforme": umbral_conforme if 'umbral_conforme' in locals() else float("nan"),
+            "recall_conforme": recall_conf if 'recall_conf' in locals() else float("nan")}
 
 
 def main() -> None:
