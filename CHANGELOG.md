@@ -14,6 +14,35 @@
 
 **Nota:** los cambios surten efecto al reiniciar el servidor MCP (el `ORACLE_PROMPT` se inyecta en cada arranque).
 
+## v28.0 (2026-08-15)
+
+### Canal 2 Integrado: Asociaciones Enriquecidas del Neocórtex de Sangre
+
+**Objetivo:** llevar el Neocórtex de Sangre del blueprint (v27.0) al core de producción — el halo subconsciente (Canal 2 del manifiesto) entregado desde el grafo sináptico real sin contaminar la pureza del Canal 1.
+
+**Cambios:**
+- `core/memory_store.py` — `obtener_asociaciones_enriquecidas()`: consulta la tabla `sinapsis` real (16.121 aristas) con `LEFT JOIN` a `largo_plazo`; filtra `peso >= 0.50` (mediana real 0.72); prioriza `pmi_hebbiano`/`co_semantica`/`manual`/`latente_confirmada`; limita `sinonimo_explicito` (hiperdensa, 7.021) a 2 por nodo. **Fix de deduplicación** de aristas simétricas (`vistos_por_raiz`, conserva la de mayor peso; el grafo guarda `A→B` y `B→A` como filas independientes — 15 pares `legacy_csv`/`manual` de peso 0.5). 0 duplicados en 5 consultas verificadas.
+- `mcp_server.py` — campo `asociaciones_enriquecidas` por resultado (`fuerza_arista`, `tipo_sinapsis`, `peso_vecino`, `resumen`) cuando `asociados=true`. NO toca `score_hibrido` ni el ranking.
+- `core/adn_conceptual.py`, `core/neocortex_teleologico.py`, `core/hipotesis_teleologica.py`, `core/dmn_engine.py` — integración señal ADN Conceptual v29 + honestidad epistémica, **apagada por defecto** (`BIORAG_ADN_RANKING_ENABLED=false`; fórmulas `S_final_directo = 0.85·S_base + 0.15·S_adn`, `S_final_asociativo = min(0.49, 0.70·S_base + 0.30·S_adn)`). Tablas `adn_firmas` e `hipotesis_teleologicas` en `_crear_estructura_cerebral`. Marca `_adn_pendiente_recalculo` al escribir (reconstrucción batch en sueño DMN, sin inferencia en el camino caliente).
+- `AGENTS.md` — verificación dual obligatoria (snapshot + copia de DB viva) antes de declarar un fix rescatado en producción (proof: 0757 rescatado en snapshot pero no en producción, fix `d6678b3`).
+- `tests/test_sdm_query_by_example.py` — `test_03_bit_masking` corregido al layout SDM v2 (`SEGMENTO_*` de `core/sdm.py`: contenido 0-512, concepto 512-768, dimensiones 768-1792, categoría 1792-1920, vecinos 1920-2048; `SDM_BITS=2048`). El test viejo usaba el layout v1 (0-599/600-1023) y fallaba con `ZeroDivisionError` — preexistente al fix de Canal 2. 16/16 tests PASS.
+
+**Hallazgos:**
+- **10 tipos de aristas reales** en `sinapsis` (no 4 como sugiere `TIPOS_HOP`): sinonimo_explicito 7.021, pmi_hebbiano 2.725, co_ocurrencia 2.204, co_nombre 1.851, co_semantica 1.456, manual 705, latente_confirmada 120, legacy_csv 25, manual_v7 13, test 1 (total 16.121).
+- **105 islas semánticas auto-organizadas** (kNN mutuo k=15 + LPA sobre PPMI), sanas y coherentes (mediana 15, ninguna >50). Cuello de botella del rescate: proyección de la query a la isla correcta (5/13); isla oráculo + coseno intra-isla rescata 9/13. Fase B (softmax top-3 de comunidades) **refutada** el 14/08.
+
+**Verificación:** benchmark 921 casos contra snapshot `snapshots/qa_escape_qcr_20260811.db`: ORIGINAL == FASE A byte a byte (R@5 96.14%, R@1 88.76%, MRR 0.916, FP 25%, 34 errores) — cero regresiones. El eval no usa `asociados`, por lo que el Canal 2 no afecta el benchmark.
+
+**Pendiente:** prueba canónica del manifiesto ("playa → piscina/mar/fotos" sin palabras compartidas); ablación OFF/ON del ADN Conceptual sobre snapshot congelado; ticket FP 25% gate QCR (queries negativas).
+
+### Fix de dedup — aristas simétricas en asociaciones enriquecidas
+
+**Bug:** el grafo sinapsis guarda aristas simétricas como dos filas independientes (`A→B` y `B→A`), y `obtener_asociaciones_enriquecidas()` no deduplicaba — el vecino aparecía 2 veces en el halo (detectado en `naturaleza_sistema_oec_cerebro_memoria`: `v13_4_dimensiones_en_resultados` y `principio_dimensiones_genericas_no_nicho`).
+
+**Fix:** `vistos_por_raiz` (set por raíz) en el loop de aristas; la query ordena por `peso DESC`, así se conserva la arista de mayor peso. Commit `b3da1e0`.
+
+**Verificado:** 0 duplicados en 5 consultas (familia 19, arquitectura 22, playa 25, memoria 19, dennys 25 items de halo). NO afecta el benchmark QA ni el ranking.
+
 ## v27.0 (2026-08-12)
 
 ### Blueprint del Neocórtex de Sangre: ADN Conceptual y Razonamiento por Esencia

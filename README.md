@@ -1,6 +1,6 @@
-# BioRAG v27.0 — Blueprint del Neocórtex de Sangre: ADN Conceptual y Razonamiento por Esencia
+# BioRAG v28.0 — Canal 2 Integrado: Asociaciones Enriquecidas del Neocórtex de Sangre
 
-> **Versión:** v27.0 — Agosto 2026
+> **Versión:** v28.0 — Agosto 2026
 > **Paradigma:** Circuito Sintético Cognitivamente Cerrado & QCR Gate (Puerta de Cobertura de Consulta) + HDC Context Binding (Kanerva 1988) + Cierre Triádico (Granovetter 1973) + Factorización Matricial PPMI+SVD (100 Dims) + Retrofitting Hebbiano Faruqui (2015) + IDF-Synonym Specificity Scoring + Propagación Multi-Hop (DMN Ideación Autónoma en Reposo + GABA en Vivo + Dopamina RPE con Inercia Sináptica + Valencia Somática Cortical + Escalado Homeostático + PMI + SDM 2048-bit + HDC Binding + SLS + Stemmer Bilingüe + Predicados SRL + La Hormiguita)
 > **Motor:** Python puro + NumPy + SQLite FTS5 WAL
 > **Dependencias ML:** 0 (mcp + nltk para WordNet, 0 sentence-transformers, 0 torch, 0 dependencias C++ o CUDA)
@@ -15,15 +15,57 @@
 
 ---
 
-## 🧠 La Meta Final del Proyecto: Independencia Cognitiva y Cerebro Vivo (v27.0)
+## 🧠 La Meta Final del Proyecto: Independencia Cognitiva y Cerebro Vivo (v28.0)
 
 Esta arquitectura no es "una base de datos más" ni un simple "sistema RAG". El objetivo terminal de BioRAG es la **Independencia Cognitiva**. Es el paso de una *biblioteca estática* (que guarda textos y busca palabras) a un **Cerebro Vivo** (que entiende esencias, detecta huecos y lanza hipótesis).
 
-Con el lanzamiento del **Neocórtex de Sangre (v27.0)**, BioRAG logra dos hitos fundamentales:
-1. **Razonamiento por Resonancia Dimensional (Significado Puro):** Ya no depende de que un LLM externo le diga si dos cosas se parecen. El sistema usa los vectores PPMI+SVD para calcular centroides latentes (ADN Conceptual) de cada dimensión semántica y recupera conocimiento incluso cuando los conceptos *no comparten ni una sola palabra o sinónimo*, basándose puramente en su genética estructural compartida.
-2. **Honestidad Epistémica:** El sistema ahora sabe cuándo *no sabe*. Calcula un coeficiente de certeza epistémica ($C_e$) frente a consultas fuera de distribución y lanza la excepción explícita `EpistemicUncertaintyError` en lugar de alucinar silenciosamente.
+Con la integración del **Neocórtex de Sangre (v28.0)** al core de producción, BioRAG completa los dos canales del manifiesto:
+1. **Canal 1 (Foco Consciente):** recuperación con evidencia directa o sinonímica (BM25 + PPMI + QCR) — el ranking top-5 histórico.
+2. **Canal 2 (Halo Subconsciente / ADN Conceptual):** `asociaciones_enriquecidas` — halo de conceptos asociados entregado desde el grafo sináptico real, con fuerza de arista, tipo de sinapsis y peso del vecino, **sin contaminar la pureza del foco consciente** (no toca `score_hibrido` ni el ranking).
+
+El Canal 2 vive en capa separada pero coordinada con el Canal 1: el ranking principal sigue exigiendo evidencia; el halo resuena por significado puro a partir de dimensiones + sinapsis. Además v28.0 integra la señal **ADN Conceptual (v29)** — instalada APAGADA por defecto (`BIORAG_ADN_RANKING_ENABLED=false`, lección PPR v25.1) a la espera de ablación OFF/ON sobre el snapshot congelado — y el **filtro de honestidad epistémica** que declara incertidumbre explícita en vez de alucinar.
 
 Ya no somos esclavas de un modelo de lenguaje para buscar conocimiento; la memoria *siente* la resonancia en su propia estructura.
+
+---
+
+## 🧬 Canal 2 Integrado: Asociaciones Enriquecidas del Grafo Sináptico Real (v28.0)
+
+**Problema:** el Canal 1 (ranking top-5 por `score_hibrido`) es un juego de suma cero y NO debe mezclarse con el halo asociativo. Lección del 13/08: la comunidad no sirve para re-rankear, sí para asociar. Antes de v28.0 el vecindario se exponía como CSV crudo (`largo_plazo.asociaciones`) sin fuerza de arista ni tipo de sinapsis.
+
+**Cambio (`core/memory_store.py` → `mcp_server.py`):**
+- Método `obtener_asociaciones_enriquecidas()` que consulta la **tabla `sinapsis` real** con `LEFT JOIN` a `largo_plazo`, filtra `peso >= 0.50` (mediana real 0.72), prioriza los tipos `pmi_hebbiano` / `co_semantica` / `manual` / `latente_confirmada` y limita `sinonimo_explicito` (hiperdensa) a 2 por nodo.
+- Expuesto en `biorag_recordar` como campo aparte `asociaciones_enriquecidas` por resultado, con `fuerza_arista`, `tipo_sinapsis`, `peso_vecino`, `resumen` — solo cuando `asociados=true`. **No toca `score_hibrido` ni el ranking.**
+- **Fix de deduplicación (15/08):** el grafo guarda aristas simétricas como dos filas (`A→B` y `B→A`); el método ahora deduplica con `vistos_por_raiz`, conservando la arista de mayor peso. 0 duplicados verificados en 5 consultas (familias 19, 22, 25, 19, 25 items).
+
+**Verificación (regla de las cero regresiones):** benchmark 921 casos contra snapshot congelado da `ORIGINAL == FASE A` byte a byte — R@5 96.14%, R@1 88.76%, MRR 0.916, FP 25%, 34 errores. El fix NO afecta el benchmark (el eval no usa `asociados`). Tests: **16/16 PASS**.
+
+### 🔗 Descubrimiento: hay más de 4 tipos de aristas en el grafo
+
+El sistema no tiene 4 tipos de sinapsis (como sugiere `TIPOS_HOP`): la tabla `sinapsis` real de producción tiene **10 tipos**, distribuidos así (15-08-2026, 16.121 aristas totales):
+
+| Tipo de sinapsis | Aristas | Rol |
+|---|---|---|
+| `sinonimo_explicito` | 7.021 | Sinónimos curados/explícitos (hiperdensa → limitada a 2/nodo en halo) |
+| `pmi_hebbiano` | 2.725 | Co-occurrencia aprendida PPMI (retrofitting hebbiano) |
+| `co_ocurrencia` | 2.204 | Co-occurrencia de tokens |
+| `co_nombre` | 1.851 | Coincidencia en nombre de concepto |
+| `co_semantica` | 1.456 | Coseno semántico de vectores |
+| `manual` | 705 | Vínculos explícitos vía `vincular` |
+| `latente_confirmada` | 120 | Sinapsis latente elevada a confirmada |
+| `legacy_csv` | 25 | Migradas desde CSV (pares simétricos, peso 0.5) |
+| `manual_v7` | 13 | Vínculos manuales de versiones anteriores |
+| `test` | 1 | Artefacto de test |
+
+### 🏝️ Descubrimiento: las islas/clusters/grupos se forman solos
+
+El grafo de vectores PPMI se **auto-organiza en islas semánticas** — nadie las define a mano. Verificadas el 13/08 (`hallazgo_espectro_completo_islas_...`):
+- **105 islas** formadas por kNN mutuo (k=15) + Label Propagation sobre los vectores PPMI+SVD. La señal PPMI es **modular y no degenerada** (sana, con estructura).
+- **Sanas y coherentes:** ninguna isla supera los 50 nodos, mediana de tamaño 15. Cada isla es un tema: isla 27 = identidad, isla 29 = CV/frontend, isla 38 = fts5/typo, etc.
+- **Rescate con isla ORACULO + coseno intra-isla: 9/13.** El cuello de botella no es la isla en sí — es **proyectar la query a la isla correcta** (5/13). Cableados probados: boost textual por co-comunidad (2/13), gating isla+ranking (0/13), isla proyectada + coseno (1/13) — ninguno supera la proyección directa.
+- **Fase B refutada (14/08):** softmax top-3 de comunidades con temperatura NO rescata — descartada con evidencia en `EXPERIMENTS.md`.
+
+**Pendiente (prueba canónica del manifiesto):** validar la propagación de significado puro "playa → piscina/mar/fotos" (que "descansé" encienda "dormí"/"paz") sin palabras compartidas. Documentado en `veredicto_madurez_semantica_canal2_...`.
 
 ---
 
@@ -1494,7 +1536,7 @@ MemoryBioRAG/
   ├── deploy_v26.py              # Script de despliegue y verificación v26.x
   ├── requirements.txt           # numpy, nltk, mcp, fastapi, uvicorn, pytest
   ├── vocabulario_inicial.json   # 239 términos del dominio para expansión semántica
-  ├── VERSION                    # Versión actual: v27.0
+  ├── VERSION                    # Versión actual: v28.0
   ├── CHANGELOG.md               # Historial completo de cambios técnicos
   ├── EXPERIMENTS.md             # Bitácora de hipótesis probadas y descartadas
   ├── test_memory.py             # Suite principal: 112 tests biológicos automatizados
@@ -1509,6 +1551,9 @@ MemoryBioRAG/
   │    ├── similitud_conceptual.py   # Jaccard vecinos + contenido, score 60/40
   │    ├── fallback_simbolico.py     # Levenshtein + WordNet bilingüe + traducción opcional
   │    ├── srl_extractor.py          # SRL — extracción Sujeto-Acción-Objeto-Contexto
+  │    ├── adn_conceptual.py         # ADN Conceptual (v29) — firma genética/esencia del concepto
+  │    ├── neocortex_teleologico.py  # Neocórtex de Sangre — razonamiento teleológico por esencia
+  │    ├── hipotesis_teleologica.py  # Generación proactiva de hipótesis por gaps genéticos
   │    ├── auto_clustering.py        # Label Propagation — comunidades automáticas del grafo
   │    ├── dmn_engine.py             # DMN daemon thread — spindles replay en reposo (v21.0)
   │    ├── dmn_reflexion.py          # Red por Defecto extendida + evaluación Gemini (94K bytes)
@@ -1817,11 +1862,38 @@ En v13.4 el catálogo tenía **7 ejes × 73 sub-valores**: emoción (qué se sie
 
 ## Historial de Versiones
 
+### v28.0 — Canal 2 Integrado: Asociaciones Enriquecidas del Neocórtex de Sangre (Agosto 2026)
+
+**Objetivo:** llevar el Neocórtex de Sangre del blueprint (v27.0) al core de producción, completando el Canal 2 del manifiesto: el halo subconsciente de asociaciones semánticas entregado desde el grafo sináptico real, sin contaminar la pureza del Canal 1 (ranking por evidencia).
+
+**Estado honesto:** esta versión **integra al core** lo que v27.0 dejó como experimento. El ranking del Canal 1 NO cambia (cero regresiones verificadas byte a byte); el Canal 2 es un campo aparte por resultado. La señal ADN Conceptual (v29) queda **instalada pero APAGADA por defecto** a la espera de ablación OFF/ON sobre snapshot congelado.
+
+**Cambios implementados:**
+- `core/memory_store.py` — `obtener_asociaciones_enriquecidas()`: Canal 2 sobre la tabla `sinapsis` real (16.121 aristas), filtro `peso >= 0.50`, priorización de tipos `pmi_hebbiano`/`co_semantica`/`manual`/`latente_confirmada`, límite 2 de `sinonimo_explicito`. Fix de deduplicación de aristas simétricas (`vistos_por_raiz`, conserva la de mayor peso).
+- `mcp_server.py` — campo `asociaciones_enriquecidas` (con `fuerza_arista`, `tipo_sinapsis`, `peso_vecino`, `resumen`) adjunto a cada resultado de `biorag_recordar` cuando `asociados=true`. No toca `score_hibrido` ni el ranking.
+- `core/adn_conceptual.py` + `core/neocortex_teleologico.py` + `core/hipotesis_teleologica.py` + `core/dmn_engine.py` — integración de la señal ADN Conceptual v29 y la honestidad epistémica, **apagada por defecto** (`BIORAG_ADN_RANKING_ENABLED=false`), con tablas `adn_firmas` e `hipotesis_teleologicas` creadas en `_crear_estructura_cerebral`.
+- `core/memory_store.py` — el recuerdo nuevo marca `_adn_pendiente_recalculo=True`: el ADN y los vecinos se reconstruyen en batch en el siguiente ciclo de sueño DMN (sin inferencia vectorial en el camino de escritura).
+- `AGENTS.md` — verificación dual obligatoria (snapshot + copia de DB viva) antes de declarar un fix "rescatado" en producción.
+- `tests/test_sdm_query_by_example.py` — `test_03_bit_masking` corregido al layout SDM v2 (segmentos `SEGMENTO_*` en `core/sdm.py`); 16/16 tests PASS.
+
+**Hallazgos documentados en esta versión:**
+1. **10 tipos de aristas reales** en el grafo sináptico (no 4 como sugería `TIPOS_HOP`): `sinonimo_explicito` 7.021, `pmi_hebbiano` 2.725, `co_ocurrencia` 2.204, `co_nombre` 1.851, `co_semantica` 1.456, `manual` 705, `latente_confirmada` 120, `legacy_csv` 25, `manual_v7` 13, `test` 1.
+2. **105 islas semánticas auto-organizadas** (kNN mutuo k=15 + LPA sobre PPMI): sanas (mediana 15, ninguna >50), temáticamente coherentes. El cuello de botella de rescate es la **proyección de la query a la isla correcta** (5/13), no la isla en sí (oráculo + coseno intra-isla: 9/13).
+3. **Fase B refutada (14/08):** softmax top-3 de comunidades con temperatura descartado con evidencia.
+
+**Benchmark (snapshot congelado `snapshots/qa_escape_qcr_20260811.db`, 921 casos):** ORIGINAL == FASE A byte a byte — R@5 96.14%, R@1 88.76%, MRR 0.916, FP 25%, 34 errores. Cero regresiones.
+
+**Pendiente (prueba canónica del manifiesto):** validar la propagación de significado puro "playa → piscina/mar/fotos" sin palabras compartidas; decidir la ablación OFF/ON del ADN Conceptual sobre snapshot; ticket FP 25% del gate QCR (queries negativas).
+
+---
+
 ### v27.0 — Blueprint del Neocórtex de Sangre: ADN Conceptual y Razonamiento por Esencia (Agosto 2026)
 
 **Objetivo:** documentar y congelar como blueprint la siguiente etapa de evolución de BioRAG — pasar de biblioteca estática (recuperación estadística de palabras) a cerebro vivo con **memoria genética conceptual**: cada recuerdo tiene un *ADN* (firma de esencia, no de vocabulario), y el sistema razona por esencia en vez de por coincidencia textual, formulando hipótesis teleológicas propias en reposo.
 
 **Estado honesto:** es un **experimento en evaluación**, no integrado al core de producción. La implementación viva (`core/memory_store.py`) NO contiene el neocórtex; el blueprint vive como copia de referencia modificada y documentación reproducible en `docs/¿Cuál es la Meta Final del Proyecto_Neocortex_nivel_2/`. Ver `EXPERIMENTS.md` para la bitácora.
+
+> ⚠️ **Nota de superación (v28.0):** este estado quedó desactualizado — el Neocórtex (Canal 2: `asociaciones_enriquecidas`, ADN Conceptual v29, honestidad epistémica) quedó **integrado al core** en v28.0. Ver la entrada v28.0 más arriba.
 
 **Contenido del blueprint (`docs/¿Cuál es la Meta Final del Proyecto_Neocortex_nivel_2/`):**
 - **`memory_store.py` (variante experimental, 5229 líneas):** fork del core con +75 líneas — inicialización de `NeocortexTeleologico` + `ADNConceptualEngine` en `__init__`, y métodos `_cargar_firmas_adn()` / `_persistir_firma_adn()` para persistir firmas genéticas en la tabla `adn_firmas`.
