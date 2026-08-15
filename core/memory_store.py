@@ -1942,6 +1942,27 @@ class SQLiteMemoryBioRAG:
         self.cursor.execute("CREATE INDEX IF NOT EXISTS idx_mc_nodos_accion ON metricas_cognitivas_nodos(accion)")
         self.cursor.execute("CREATE INDEX IF NOT EXISTS idx_mc_nodos_anomalo ON metricas_cognitivas_nodos(anomalo)")
 
+        # Tabla de eventos de refuerzo dopaminérgico en tiempo real.
+        # POR QUÉ una tabla aparte: metricas_cognitivas_nodos tiene grano de "ciclo de
+        # sueño" (metrica_id NOT NULL con FK). El feedback ocurre entre ciclos, así que
+        # no tiene un ciclo padre al que apuntar. Meterlo ahí obliga a inventar un
+        # metrica_id o a relajar la FK; ambas cosas corrompen el historial forense.
+        self.cursor.execute("""
+            CREATE TABLE IF NOT EXISTS eventos_refuerzo (
+                id            INTEGER PRIMARY KEY AUTOINCREMENT,
+                concepto      TEXT    NOT NULL,
+                exito         INTEGER NOT NULL CHECK(exito IN (0,1)),
+                peso_anterior REAL    NOT NULL,
+                peso_nuevo    REAL    NOT NULL,
+                delta         REAL    NOT NULL,
+                exitos_previos INTEGER NOT NULL,
+                motivo        TEXT,
+                created_at    REAL    NOT NULL
+            )
+        """)
+        self.cursor.execute("CREATE INDEX IF NOT EXISTS ix_evref_concepto ON eventos_refuerzo(concepto)")
+        self.cursor.execute("CREATE INDEX IF NOT EXISTS ix_evref_fecha    ON eventos_refuerzo(created_at)")
+
         # Asegurar tablas referenciadas por triggers de DELETE en largo_plazo
         self.cursor.execute("""
             CREATE TABLE IF NOT EXISTS nodos_sdm (
@@ -2481,6 +2502,23 @@ class SQLiteMemoryBioRAG:
                 SET peso_sinaptico = ?, fallos_dopamina = ?, estado = ?
                 WHERE concepto = ?
             """, (nuevo_peso, nuevos_fallos, nuevo_estado, key))
+
+        # Registrar el evento de refuerzo en tabla propia (sin FK a ciclos).
+        # POR QUÉ: el LTP dopaminérgico era la única regla de actualización de peso
+        # sin rastro persistente (P3, 2026-08-15), lo que la hacía imposible de
+        # validar contra la teoría. El try/except es deliberado: perder una fila
+        # de telemetría es aceptable; romper el bucle de feedback no.
+        try:
+            delta = round(nuevo_peso - peso_actual, 4)
+            self.cursor.execute(
+                "INSERT INTO eventos_refuerzo "
+                "(concepto, exito, peso_anterior, peso_nuevo, delta, exitos_previos, motivo, created_at) "
+                "VALUES (?,?,?,?,?,?,?,?)",
+                (key, 1 if exito else 0, peso_actual, nuevo_peso,
+                 delta, exitos, motivo, time.time())
+            )
+        except Exception as e:
+            print(f"[BioRAG] aviso: no se pudo registrar evento_refuerzo para '{key}': {e}")
 
         self.conn.commit()
         return True
