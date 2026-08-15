@@ -3352,18 +3352,19 @@ class SQLiteMemoryBioRAG:
 
         placeholders = ",".join("?" * len(conceptos_top))
         # Prioridad de tipo para el orden final (más semántico primero).
-        # sinonimo_explicito va al final: aporta sinonimia pero es hiperdenso.
+        # Tipos EXPLÍCITOS (manual, sinonimo, co_semantica) PRIMERO — son señal semántica real.
+        # pmi_hebbiano va al final: es estadístico, hiperdenso (7k aristas) y ruidoso (hubs genéricos).
         prioridad_tipo = {
-            "pmi_hebbiano": 0,
-            "co_semantica": 1,
-            "manual": 2,
+            "manual": 0,
+            "sinonimo_explicito": 1,
+            "co_semantica": 2,
             "latente_confirmada": 3,
             "co_ocurrencia": 4,
             "co_nombre": 5,
             "legacy_csv": 6,
             "manual_v7": 7,
             "test": 8,
-            "sinonimo_explicito": 9,
+            "pmi_hebbiano": 9,
         }
         MAX_SINONIMO_EXPLICITO = 2
 
@@ -3371,11 +3372,25 @@ class SQLiteMemoryBioRAG:
             # El LEFT JOIN resuelve el vecino: si el origen está en el top, el vecino
             # es el destino; si no (caso donde solo el destino está en el top), el origen.
             # El filtro l.estado='activo' elimina aristas hacia nodos dormidos/inexistentes.
+            # ORDER BY: prioridad de tipo (explícitos primero) + peso DESC.
+            # CASE mapea tipo -> prioridad numérica (menor = mejor).
             self.cursor.execute(
                 f"""
                 SELECT s.origen, s.destino, s.peso, s.tipo,
                        l.peso_sinaptico AS peso_vecino,
-                       substr(l.contenido, 1, 120) AS resumen_vecino
+                       substr(l.contenido, 1, 120) AS resumen_vecino,
+                       CASE s.tipo
+                           WHEN 'manual' THEN 0
+                           WHEN 'sinonimo_explicito' THEN 1
+                           WHEN 'co_semantica' THEN 2
+                           WHEN 'latente_confirmada' THEN 3
+                           WHEN 'co_ocurrencia' THEN 4
+                           WHEN 'co_nombre' THEN 5
+                           WHEN 'legacy_csv' THEN 6
+                           WHEN 'manual_v7' THEN 7
+                           WHEN 'test' THEN 8
+                           ELSE 9
+                       END AS prioridad_tipo
                 FROM sinapsis s
                 LEFT JOIN largo_plazo l ON l.concepto = CASE
                     WHEN s.origen IN ({placeholders}) THEN s.destino
@@ -3384,7 +3399,7 @@ class SQLiteMemoryBioRAG:
                 WHERE (s.origen IN ({placeholders}) OR s.destino IN ({placeholders}))
                   AND s.peso >= ?
                   AND l.estado = 'activo'
-                ORDER BY s.peso DESC
+                ORDER BY prioridad_tipo ASC, s.peso DESC
                 """,
                 list(conceptos_top) * 3 + [peso_min],
             )
@@ -3395,11 +3410,11 @@ class SQLiteMemoryBioRAG:
 
         asoc_map = {c: [] for c in conceptos_top}
         # Deduplicación por (raíz, vecino): el grafo guarda aristas simétricas como
-        # dos filas independientes (A->B y B->A), así que el mismo vecino entraba
-        # dos veces por cada raíz. Fix 2026-08-15: set por raíz, mantiene la arista
-        # de mayor peso (la query ya ordena por peso DESC).
+        # dos filas independientes (A->B y B->A). Como la query ya viene ordenada
+        # por prioridad de tipo + peso, el primer borde que llega por cada (raiz,vecino)
+        # es el MEJOR (tipo explícito > pmi_hebbiano; y dentro del mismo tipo, mayor peso).
         vistos_por_raiz = {c: set() for c in conceptos_top}
-        for origen, destino, peso, tipo, peso_vecino, resumen_vecino in filas:
+        for origen, destino, peso, tipo, peso_vecino, resumen_vecino, prioridad_tipo in filas:
             raiz = origen if origen in asoc_map else destino
             vecino = destino if raiz == origen else origen
             if vecino == raiz:
