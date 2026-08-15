@@ -3394,11 +3394,19 @@ class SQLiteMemoryBioRAG:
             return {}
 
         asoc_map = {c: [] for c in conceptos_top}
+        # Deduplicación por (raíz, vecino): el grafo guarda aristas simétricas como
+        # dos filas independientes (A->B y B->A), así que el mismo vecino entraba
+        # dos veces por cada raíz. Fix 2026-08-15: set por raíz, mantiene la arista
+        # de mayor peso (la query ya ordena por peso DESC).
+        vistos_por_raiz = {c: set() for c in conceptos_top}
         for origen, destino, peso, tipo, peso_vecino, resumen_vecino in filas:
             raiz = origen if origen in asoc_map else destino
             vecino = destino if raiz == origen else origen
             if vecino == raiz:
                 continue
+            if vecino in vistos_por_raiz[raiz]:
+                continue
+            vistos_por_raiz[raiz].add(vecino)
             asoc_map[raiz].append({
                 "concepto": vecino,
                 "fuerza_arista": round(float(peso or 0.5), 3),
