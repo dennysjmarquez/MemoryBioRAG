@@ -98,9 +98,9 @@ class PPMISVD:
         np.random.seed(self.seed)
 
         try:
-            U, S, Vt = np.linalg.svd(ppmi, full_matrices=False)
-            U = U[:, :dim_real]
-            S = S[:dim_real]
+            U_full, S_full, Vt = np.linalg.svd(ppmi, full_matrices=False)
+            U = U_full[:, :dim_real]
+            S = S_full[:dim_real]
         except np.linalg.LinAlgError:
             U = np.eye(V, dim_real)
             S = np.ones(dim_real)
@@ -110,8 +110,8 @@ class PPMISVD:
         df = (doc_counts > 0).sum(axis=1)
         self.idf_words = np.log((D + 1.0) / (df + 1.0)) + 1.0
 
-        var_total = (S**2).sum()
-        var_expl = float((S[:dim_real]**2).sum() / (var_total + 1e-12))
+        var_total = float((S_full**2).sum())
+        var_expl = float((S**2).sum() / (var_total + 1e-12))
         dt = time.perf_counter() - t0
 
         return {

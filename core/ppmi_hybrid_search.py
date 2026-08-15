@@ -139,9 +139,8 @@ class IndicesBioRAG:
         return best
 
 
-def score_candidato(idx: IndicesBioRAG, q_toks: list[str], q_toks_unique: set,
+def score_candidato(idx: IndicesBioRAG, vq: np.ndarray, q_toks_unique: set,
                     es_corta: bool, c_name: str, pool_set: set) -> tuple[float, dict]:
-    vq = idx.vector_query(q_toks)
     vn = idx.vecs.get(c_name, np.zeros(100))
     s_ppmi = _coseno(vq, vn)
 
@@ -170,9 +169,10 @@ def buscar_hibrido(query: str, con_or_db, top_k: int = 10) -> list[dict]:
             pass
     pool_set = set(idx.todos_los_conceptos)
 
+    vq = idx.vector_query(q_toks)  # Compute ONCE outside the loop
     resultados = []
     for c_name in idx.todos_los_conceptos:
-        total, det = score_candidato(idx, q_toks, q_toks_unique, es_corta, c_name, pool_set)
+        total, det = score_candidato(idx, vq, q_toks_unique, es_corta, c_name, pool_set)
         resultados.append({'concepto': c_name, 'score': total, **det})
 
     resultados.sort(key=lambda x: -x['score'])

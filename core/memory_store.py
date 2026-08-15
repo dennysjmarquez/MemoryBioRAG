@@ -3144,8 +3144,12 @@ class SQLiteMemoryBioRAG:
         asoc_norm = min(1.0, asoc_count / 20.0)
         peso_norm = min(1.0, peso_sinaptico)
 
-        # Base weights (sum to 1.0 when jsd_weight=0)
-        base_weight = 1.0 - jsd_weight
+        # Base weights (sum to 1.0 when jsd_weight=0, PPMI_VECTOR_WEIGHT folded in)
+        # 0.25+0.14+0.08+0.08+0.10+0.10+0.10+0.08+0.04+0.02+0.20 = 1.19
+        # PPMI_VECTOR_WEIGHT = 0.15 -> total 1.34
+        # Re-normalizamos todos los pesos para que sumen 1.0 - jsd_weight
+        total_base = 1.19 + PPMI_VECTOR_WEIGHT  # 1.34
+        base_weight = (1.0 - jsd_weight) / total_base
 
         score = (
             base_weight * (
@@ -3159,19 +3163,30 @@ class SQLiteMemoryBioRAG:
                 0.08 * tematico_score +      # Similitud temática
                 0.04 * temporal +            # Recencia
                 0.02 * asoc_norm +           # Asociaciones
-                0.20 * pred_score            # Signal #12: Predicados SRL (20x weight)
+                0.20 * pred_score +          # Signal #12: Predicados SRL
+                PPMI_VECTOR_WEIGHT * ppmi_score  # Signal #13: PPMI+SVD
             ) +
-            jsd_weight * jsd_score +         # Signal #11: JSD distributional overlap
-            PPMI_VECTOR_WEIGHT * ppmi_score  # Signal #13: PPMI+SVD vector similarity (v26.0)
+            jsd_weight * jsd_score           # Signal #11: JSD distributional overlap
         )
 
+        # Bonos en espacio logit (aditivos en log-odds) para preservar orden interno
+        # match_exacto: bono ~logit(0.95) - logit(score_base) ≈ +2.94 log-odds
+        # sinonimos_ratio >= 0.95: bono para llegar a ~0.70 + 0.10*ppmi
         if match_exacto:
-            score = max(0.95, score)
+            # Convertir a log-odds, sumar bono, volver a probabilidad
+            p = max(1e-6, min(1-1e-6, score))
+            logit = math.log(p / (1.0 - p)) + 2.94  # logit(0.95) ≈ 2.94
+            score = 1.0 / (1.0 + math.exp(-logit))
         elif sinonimos_ratio >= 0.95:
-            score = max(0.70 + 0.10 * ppmi_score, score)
+            # Bono para alcanzar ~0.70 + 0.10*ppmi
+            target = 0.70 + 0.10 * ppmi_score
+            p = max(1e-6, min(1-1e-6, score))
+            logit = math.log(p / (1.0 - p))
+            target_logit = math.log(target / (1.0 - target))
+            # Bono aditivo hacia el target, pero no más allá
+            score = 1.0 / (1.0 + math.exp(-max(logit, target_logit)))
 
-
-        return round(min(1.0, score), 4)
+        return round(min(1.0, max(0.0, score)), 4)
 
 
     def expandir_contexto_vecinos(self, pagina_resultados, depth, profundidad="activos", preview_chars=None):
@@ -4628,7 +4643,8 @@ class SQLiteMemoryBioRAG:
                     q_set = set(q_toks_list)
                     es_corta = len(q_set) <= 2
                     pool_set = {r[1] for r in todos}
-                    _raw_ppmi, _ = score_candidato(self._ppmi_index, q_toks_list, q_set, es_corta, concepto, pool_set)
+                    vq = self._ppmi_index.vector_query(q_toks_list)
+                    _raw_ppmi, _ = score_candidato(self._ppmi_index, vq, q_set, es_corta, concepto, pool_set)
                     # Normalizar: el score bruto de score_candidato ronda 0-2 para query corta (dividir por 2.0), 0-1 para larga
                     ppmi_val = min(1.0, max(0.0, _raw_ppmi / (2.0 if es_corta else 1.0)))
 

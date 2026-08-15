@@ -530,12 +530,14 @@ def buscar_sdm(cerebro, query: str = "", radio_max: int = None, limite: int = 10
     resultados = []
     for concepto, vec_blob in filas:
         sim = similitud_sdm(query_vec, vec_blob)
-        # Usar 1-sim como "distancia" para ordenar (mayor sim = mejor)
-        dist = int((1.0 - sim) * SDM_BITS)
-        if dist <= radio_max:
+        # Distancia de Hamming real (bits diferentes) - Kanerva SDM usa distancia Hamming
+        int1 = int.from_bytes(query_vec, 'big')
+        int2 = int.from_bytes(vec_blob, 'big')
+        dist_hamming = (int1 ^ int2).bit_count()
+        if dist_hamming <= radio_max:
             resultados.append({
                 'concepto': concepto,
-                'distancia': dist,
+                'distancia': dist_hamming,
                 'similitud': sim
             })
 
