@@ -121,6 +121,18 @@ nota indicando que el contenido fue recortado. Esto evita que el output de la
 tool sea truncado por el cliente MCP por exceso de tamaño.
 """
 
+MAX_ASOCIACIONES_FLAT = int(os.environ.get('BIORAG_MAX_ASOCIACIONES_FLAT', '12'))
+"""Máximo de nombres de asociaciones planas expuestos por nodo en la respuesta de
+recordar/buscar. El campo `asociaciones` de cada resultado se devuelve como objeto
+{total, items, truncada}: total es el conteo REAL de conexiones del nodo (nunca se
+pierde información), items es la lista acotada a este límite, y truncada indica si
+hay más que no se muestran. Con asociaciones_max=0 el agente pide la lista completa
+del nodo que le interesa (consulta dirigida), evitando que hubs de 130-167 conexiones
+inflen el JSON y disparen el truncado del cliente MCP. La tabla `sinapsis` (fuente
+canónica) y la columna `largo_plazo.asociaciones` quedan intactas — es decisión de
+serialización. Ver mcp_server.py _serializar_asociaciones.
+"""
+
 # --- Arranque de sesión ----------------------------------------------------
 
 PROMPT_INICIO_NOTEBOOKLM = os.environ.get("BIORAG_PROMPT_INICIO", "").strip()
@@ -170,6 +182,27 @@ def _preview(text: str, limit: int = 1500) -> str:
         return ""
     return text[:limit] + ("..." if len(text) > limit else "")
 
+
+def _serializar_asociaciones(asociaciones, asociados, max_items) -> dict:
+    """Serializa el campo `asociaciones` de un resultado como objeto compacto.
+
+    Transforma la lista plana de nombres (que en hubs llega a 167 conexiones y
+    infla el JSON hasta truncar el cliente MCP) en {total, items, truncada}:
+    - total: conteo REAL de conexiones del nodo — la información nunca se pierde.
+    - items: hasta `max_items` nombres (0 = todos).
+    - truncada: True si el nodo tiene más conexiones de las mostradas.
+
+    Si asociados=False o no hay asociaciones, devuelve objeto vacío. Solo es
+    serialización: la columna `largo_plazo.asociaciones` y la tabla `sinapsis`
+    (fuente canónica) quedan intactas.
+    """
+    if not asociados or not asociaciones:
+        return {"total": 0, "items": [], "truncada": False}
+    nombres = [v.strip() for v in asociaciones.split(",") if v.strip()]
+    total = len(nombres)
+    if max_items is not None and max_items > 0 and total > max_items:
+        return {"total": total, "items": nombres[:max_items], "truncada": True}
+    return {"total": total, "items": nombres, "truncada": False}
 
 
 
@@ -523,10 +556,16 @@ def _build_server():
         buscar_por_rol: Optional[str] = None,
         usar_inferencia: bool = True,
         ordenar_por: str = "relevancia",
+        asociaciones_max: Optional[int] = None,
     ) -> str:
         if limite is None:
             limite = LIMITE_MCP
-        
+
+        # asociaciones_max: 0 = lista completa, None = default de env (12).
+        # Solo aplica si asociados=True; si asociados=False el campo queda vacío.
+        if asociaciones_max is None:
+            asociaciones_max = MAX_ASOCIACIONES_FLAT
+
         # ── SANITIZACIÓN Y VALIDACIÓN DE ENTRADAS ADVERSARIALES ──
         def _sanitizar_string(s):
             if s is None:
@@ -662,7 +701,9 @@ def _build_server():
                 items = [
                     {"concepto": r[0], "contenido": r[1], "peso_sinaptico": r[2],
                      "estado": r[3], "score_hibrido": min(1.0, r[2]),
-                     "asociaciones": [v.strip() for v in (r[5] or "").split(",") if v.strip()] if asociados and r[5] else []}
+                     "asociaciones": _serializar_asociaciones(
+                         r[5], asociados, asociaciones_max
+                     )}
                     for r in resultados
                 ]
                 return json.dumps({
@@ -984,9 +1025,9 @@ def _build_server():
                     "timestamp_creado": creado_ts,
                     "fecha_legible": datetime.fromtimestamp(creado_ts).strftime("%Y-%m-%d %H:%M") if creado_ts else None,
                     "stale": es_stale,
-                    "asociaciones": [
-                        v.strip() for v in (asociaciones or "").split(",") if v.strip()
-                    ] if asociados and asociaciones else [],
+                    "asociaciones": _serializar_asociaciones(
+                        asociaciones, asociados, asociaciones_max
+                    ),
                     "asociaciones_enriquecidas": _asoc_enriquecidas.get(concepto, [])
                         if asociados else [],
                 })
@@ -1009,9 +1050,9 @@ def _build_server():
                         "timestamp_creado": creado_ts,
                         "fecha_legible": datetime.fromtimestamp(creado_ts).strftime("%Y-%m-%d %H:%M") if creado_ts else None,
                         "stale": es_stale,
-                        "asociaciones": [
-                            v.strip() for v in (asociaciones or "").split(",") if v.strip()
-                        ] if asociados and asociaciones else [],
+                        "asociaciones": _serializar_asociaciones(
+                            asociaciones, asociados, asociaciones_max
+                        ),
                         "asociaciones_enriquecidas": _asoc_enriquecidas.get(concepto, [])
                             if asociados else [],
                     })
@@ -1300,6 +1341,22 @@ def _build_server():
             "Esto permite razonar sobre CUÁNDO pasó algo sin necesidad de filtros temporales.\n"
             "Usar cuando el usuario pregunte por fechas, antigüedad, o para desambiguar.\n\n"
             "═══════════════════════════════════════════════════════\n"
+            "CAMPO ASOCIACIONES — QUÉ ES Y CUÁNDO PEDIR MÁS\n"
+            "═══════════════════════════════════════════════════════\n"
+            "Cada resultado trae DOS campos de asociaciones (si asociados=True):\n"
+            "- asociaciones_enriquecidas: top-5 POR PESO con fuerza_arista, tipo_sinapsis,\n"
+            "  peso_vecino y resumen. Es la navegación semántica: lo que importa para explorar.\n"
+            "- asociaciones: objeto {total, items, truncada}. total es SIEMPRE el conteo real\n"
+            "  de conexiones del nodo (la información nunca se pierde); items son los nombres\n"
+            "  acotados a asociaciones_max (default 12); truncada=True indica que hay más.\n\n"
+            "El campo plano NO está ordenado por peso (es el orden del cache CSV) — sirve como\n"
+            "MAPA de vecindad, no como ranking. Para el ranking usá asociaciones_enriquecidas.\n\n"
+            "CUÁNDO PEDIR LA LISTA COMPLETA: si asociaciones.truncada=True y necesitás ver todo\n"
+            "el grafo de UN nodo, hacé consulta dirigida con asociaciones_max=0:\n"
+            "  ✅ recordar(query='kilo_vscode_extension_principal', asociaciones_max=0)\n"
+            "NO dejes asociaciones_max alto en búsquedas generales: hubs con 130-167 conexiones\n"
+            "inflarían el JSON y el cliente MCP trunca el output (leer el archivo consume tokens).\n\n"
+            "═══════════════════════════════════════════════════════\n"
             "ORDENAR POR FECHA — ordenar_por\n"
             "═══════════════════════════════════════════════════════\n"
             "ordenar_por controla el ORDEN de los resultados post-scoring.\n"
@@ -1422,6 +1479,19 @@ def _build_server():
                 "Útil para explorar la red de memoria y encontrar conceptos relacionados."
             )
         )] = True,
+        asociaciones_max: Annotated[Optional[int], Field(
+            description=(
+                "Límite de nombres planos de asociaciones visibles por nodo. "
+                "El campo `asociaciones` se devuelve como objeto {total, items, truncada}: "
+                "total es SIEMPRE el conteo real de conexiones del nodo (la información no se pierde); "
+                "items es la lista acotada a este valor; truncada indica si hay más. "
+                "Default: 12 (configurable via BIORAG_MAX_ASOCIACIONES_FLAT). "
+                "Usá 0 para traer la lista completa del nodo que te interesa — consulta dirigida, "
+                "ej: recordar(query='kilo_vscode_extension_principal', asociaciones_max=0). "
+                "Un default alto infla el JSON (hubs con 130-167 conexiones) y el cliente MCP trunca el output."
+            ),
+            ge=0,
+        )] = None,
         limite: Annotated[Optional[int], Field(
             description=(
                 f"Máximo de resultados a devolver. "
@@ -1603,6 +1673,16 @@ def _build_server():
         cat: Annotated[Optional[str], Field(description="Filtrar por categoría (string simple). REGLA: Es preferible omitir para evitar falsos negativos. Úsalo solo con certeza absoluta. Ver listar_categorias para valores válidos.")] = None,
         completo: Annotated[bool, Field(description="Si True, devuelve contenido completo sin truncar.")] = False,
         asociados: Annotated[bool, Field(description="Si True, incluye asociaciones sinápticas en cada resultado.")] = True,
+        asociaciones_max: Annotated[Optional[int], Field(
+            description=(
+                "Límite de nombres planos de asociaciones visibles por nodo. "
+                "El campo `asociaciones` se devuelve como objeto {total, items, truncada}: "
+                "total es SIEMPRE el conteo real (la información no se pierde); items se acota a este valor; "
+                "truncada indica si hay más. Default: 12 (BIORAG_MAX_ASOCIACIONES_FLAT). "
+                "Usá 0 para la lista completa del nodo que te interesa (consulta dirigida)."
+            ),
+            ge=0,
+        )] = None,
         limite: Annotated[Optional[int], Field(description=f"Máximo de resultados. Default: {LIMITE_MCP}.")] = None,
         preview_chars: Annotated[Optional[int], Field(description="Caracteres de preview por resultado. Default: 1500.")] = None,
         context_window: Annotated[int, Field(description="Vecinos sinápticos a incluir (0=ninguno, 1-2=vecinos).", ge=0, le=2)] = 0,
@@ -1644,7 +1724,8 @@ def _build_server():
             query, deep, cat, completo, asociados, limite, preview_chars,
             context_window, forzar_rafaga, rafaga_palabras, pagina, parafrasis,
             dimensiones, modo_estricto=modo_estricto,
-            buscar_por_rol=buscar_por_rol, usar_inferencia=usar_inferencia
+            buscar_por_rol=buscar_por_rol, usar_inferencia=usar_inferencia,
+            asociaciones_max=asociaciones_max
         )
 
     # ── APRENDER ─────────────────────────────────────────────────────────────

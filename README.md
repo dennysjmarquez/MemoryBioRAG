@@ -5,7 +5,7 @@
 > **Motor:** Python puro + NumPy + SQLite FTS5 WAL
 > **Dependencias ML:** 0 (mcp + nltk para WordNet, 0 sentence-transformers, 0 torch, 0 dependencias C++ o CUDA)
 > **Idiomas:** Español + Inglés (stemming bilingüe ES/EN + expansión simbólica vía WordNet)
-> **Benchmark (35 Casos Pool):** por_tema 14/21 ✔, sinonimo 8/14 ✔, sinonimia limpia 2 ✔ (Todos los 3 gates de evaluación pasados)
+> **Benchmark (921 Casos QA, snapshot congelado):** GLOBAL R@5 **96.14%** · R@1 **88.76%** · MRR **0.916** · FP **25%** (34 errores). Los 3 gates de evaluación (pool 35 casos) pasados: por_tema 14/21 ✔, sinonimo 8/14 ✔, sinonimia limpia 2 ✔.
 
 **BioRAG** es una arquitectura de memoria cognitiva simbólica, biomimética y persistente para agentes de inteligencia artificial. Resuelve el problema fundamental de que los LLMs olvidan todo entre sesiones — sin depender de embeddings pesados de PyTorch/Transformers, GPUs ni infraestructura externa. Opera sobre un espacio discreto, determinista y auditable: Factorización Espectral PPMI+SVD de 100 dimensiones, Retrofitting Hebbiano sobre el grafo de sinapsis, Especificidad IDF sobre el índice de sinónimos curados, 13 ejes semánticos × 102 sub-valores declarativos, 45 grupos léxicos WordNet, Pointwise Mutual Information (PMI/NPMI) aprendido sobre el corpus, Sparse Distributed Memory (SDM de 2048 bits), Computación Hiperdimensional (HDC) para binding de predicados, un pipeline de recuperación híbrido con expansión simbólica bilingüe, un grafo de conocimiento dinámico con plasticidad negativa y sinapsis latentes semánticas (SLS), un motor autónomo de Red por Defecto (DMN) que divaga y genera hipótesis en reposo, y un sistema de mantenimiento automatizado del grafo (La Hormiguita).
 
@@ -69,9 +69,11 @@ El grafo de vectores PPMI se **auto-organiza en islas semánticas** — nadie la
 
 ---
 
-## 📊 Benchmark y Evaluación de Rendimiento (v25.2 Validado — Zero Data Leakage)
+## 📊 Benchmark y Evaluación de Rendimiento (v26.x — Zero Data Leakage)
 
-> Metodología: **Peso excluido del scoring** (`ignore_peso_sinaptico=True`) — campo de juego nivelado sin artefactos de umbral de ruido. Determinismo verificado: 4 corridas idénticas. Tests: 116/117 (test 83 falla preexistente, documentado en v25.0).
+> **Números vigentes (v28.0, 921 casos, snapshot congelado):** R@5 **96.14%**, R@1 **88.76%**, MRR **0.916**, FP **25%**, 34 errores — ver sección [Canal 2 Integrado](#-canal-2-integrado-asociaciones-enriquecidas-del-grafo-sináptico-real-v280). Las tablas siguientes documentan la evolución histórica del benchmark hasta v26.2.
+
+> Metodología: **Peso excluido del scoring** (`ignore_peso_sinaptico=True`) — campo de juego nivelado sin artefactos de umbral de ruido. Determinismo verificado: 4 corridas idénticas. Tests pytest: 16/16 PASS (v28.0).
 
 ### Comparativa de la Evolución de `por_tema` y `sinonimo` (Benchmark Pool 35 Casos)
 
@@ -502,9 +504,9 @@ BIORAG_DMN_IDLE_SECONDS=999999 python3 scripts/evaluar_qa.py
 
 
 
-## 🏗️ Arquitectura del Motor v26.1 — 13 Señales + PPMI+SVD
+## 🏗️ Arquitectura del Motor — 13 Señales + PPMI+SVD (núcleo, vigente desde v26.1)
 
-La versión v26.1 integra un motor vectorial espectral (PPMI+SVD de 100 dimensiones + Retrofitting de Grafo Hebbiano) sobre el pipeline de 12 señales que existía en v25.x. El siguiente diagrama refleja la arquitectura actual en producción:
+La versión v26.1 integra un motor vectorial espectral (PPMI+SVD de 100 dimensiones + Retrofitting de Grafo Hebbiano) sobre el pipeline de 12 señales que existía en v25.x. El siguiente diagrama refleja el núcleo de ranking en producción (v26.1 en adelante):
 
 ```mermaid
 graph TD
@@ -512,7 +514,7 @@ graph TD
     B --> C["Ventana de Atención — Context Window"]
     B --> D["Pipeline Híbrido — 13 Señales"]
 
-    subgraph Engine_v261 ["BioRAG v26.1 — Motor Híbrido PPMI+SVD+Retrofit"]
+    subgraph Engine_v261 ["BioRAG — Motor Híbrido PPMI+SVD+Retrofit"]
         D --> D1["1. BM25 / FTS5 · w=0.25"]
         D --> D2["2. Dimensiones Semánticas · w=0.14"]
         D --> D3["3. PPMI+SVD Coseno · w=0.15"]
@@ -539,6 +541,12 @@ graph TD
 > **Nota histórica:** el diagrama de la arquitectura base de v19.0 (8 señales cognitivas originales)
 > se preserva en la sección [Motor Cognitivo Biomimético Integrado — v19.0](#motor-cognitivo-biomimético-integrado--v190),
 > ya que es el punto de partida de la evolución arquitectónica del sistema.
+>
+> **Sobre v28.0 (vigente):** el diagrama arriba describe el núcleo de ranking (Canal 1).
+> v28.0 agrega por encima el **Canal 2** (asociaciones_enriquecidas del grafo sináptico real, sin tocar
+> `score_hibrido`), el **QCR Gate** (puerta de cobertura de consulta, umbral de capa 0.60) y la señal
+> **ADN Conceptual (v29, APAGADA por defecto)** — descritos en la sección
+> [Canal 2 Integrado](#-canal-2-integrado-asociaciones-enriquecidas-del-grafo-sináptico-real-v280).
 
 ---
 
@@ -554,10 +562,10 @@ BioRAG se ubica en la intersección de cuatro disciplinas científicas:
 | **Symbolic NLP** | Expansión semántica sin embeddings: Levenshtein normalizado + WordNet bilingüe + traducción opcional |
 
 **BioRAG NO es:**
-- **No es un RAG** — RAG (Retrieval-Augmented Generation) usa embeddings vectoriales para recuperar chunks de texto. BioRAG no usa embeddings.
-- **No es una base de datos vectorial** — No hay vectores densos. Los 13 ejes dimensionales son un sparse embedding declarativo: la misma idea que un vector, pero con valores que un humano define, inspecciona y audita.
+- **No es un RAG con embeddings externos** — RAG (Retrieval-Augmented Generation) típico recupera chunks con embeddings preentrenados (OpenAI, sentence-transformers). BioRAG no usa embeddings de modelos externos: su espacio vectorial se **entrena localmente** sobre el corpus propio (PPMI+SVD, sin redes neuronales ni GPU).
+- **No es una base de datos vectorial externa** — BioRAG **SÍ tiene motor vectorial propio** (PPMI+SVD de 100 dimensiones + SDM de 2048 bits + HDC). Lo que no usa son bases vectoriales comerciales/embeddings de caja negra (Pinecone, pgvector, FAISS, etc.). Sus vectores son entrenados, explicables y auditarles. Además de los vectores espectrales, los 13 ejes dimensionales forman un sparse embedding declarativo: la misma idea que un vector, pero con valores que un humano define, inspecciona y audita.
 - **No es un LLM** — BioRAG no genera texto. Es el sistema de memoria que un LLM usa para recordar entre sesiones.
-- **No es un prototipo académico** — Es un sistema de producción con 117 tests automatizados, ~20 MB RAM, latencia de 2.84ms.
+- **No es un prototipo académico** — Es un sistema de producción con 16 tests pytest + benchmark de 921 casos, ~20 MB RAM, latencia de 2.84ms.
 
 ---
 
@@ -606,8 +614,8 @@ BioRAG no implementa una técnica aislada — sintetiza veintiséis mecanismos d
 
 | Archivo | Bytes | Rol |
 |---|---|---|
-| `core/memory_store.py` | 261,879 | Motor cognitivo — 13 señales, 14 capas, ciclo de sueño, LTP/LTD |
-| `mcp_server.py` | 177,965 | Interfaz MCP — 32 herramientas expuestas al IDE |
+| `core/memory_store.py` | 286,079 | Motor cognitivo — 13 señales, 14 capas, ciclo de sueño, LTP/LTD, QCR Gate |
+| `mcp_server.py` | 191,729 | Interfaz MCP — 33 herramientas expuestas al IDE |
 | `core/dmn_reflexion.py` | 94,285 | Red por Defecto extendida + La Hormiguita (evaluación con Gemini) |
 | `core/sinapsis.py` | 22,976 | Grafo: auto-linking, LTP/LTD, decay sináptico |
 | `core/similitud_conceptual.py` | 19,920 | Jaccard vecinos + contenido, score 60/40 |
@@ -988,7 +996,7 @@ La normalización `abs(x) / (abs(x) + 3.0)` es una **sigmoid-like** que mapea BM
 
 ---
 
-### 5. Dimensiones Semánticas — Búsqueda sin Vectores
+### 5. Dimensiones Semánticas — Sparse Embedding Declarativo
 
 **13 ejes semánticos:** emoción, entidad, acción, cualidad, coordenada, intención, dominio + cualia, epistemia, escala_abstraccion, centralidad_identitaria, textura_experiencial, modalidad.
 **102 sub-valores** categorizados manualmente.
@@ -1111,7 +1119,7 @@ El Fallback 2.1 resuelve la brecha de sinonimia y variaciones morfológicas sin 
 
 | Eje de Evaluación | RAG Vectorial Tradicional | BioRAG (Corteza Simbólica) |
 |---|---|---|
-| **Representación** | Espacio vectorial continuo (floats de 1536d) | Espacio discreto (13 ejes, 102 dimensiones, WordNet) |
+| **Representación** | Espacio vectorial continuo externo (floats de 1536d, preentrenado) | Espacio vectorial **propio** (PPMI+SVD 100d + SDM 2048-bit, entrenado local) + 13 ejes discretos declarativos (102 dimensiones) + WordNet |
 | **Computo** | GPU / Modelos de Deep Learning de peso | CPU estándar / SQLite local en memoria |
 | **Higiene** | Imposible remover o corregir una asociación | Plasticidad negativa (`desvincular`) en milisegundos |
 | **Auditoría** | Caja negra matemática | Explicabilidad total (score descompuesto en 9 señales) |
@@ -1615,8 +1623,9 @@ BioRAG expone una corteza cerebral compartida via MCP para que cualquier IDE o a
 
 | Herramienta | Descripcion | Versión |
 |---|---|---|
-| `recordar` (legacy: `buscar`) | Búsqueda híbrida + ráfaga + contingencia. Params: `query`, `rafaga_palabras`, `cat`, `deep`, `completo`, `asociados`, `dias`, `desde`, `hasta`, `autor` | core |
-| `aprender` (legacy: `guardar`) | Guardar recuerdo en corto plazo. Params: `concepto`, `contenido`, `syn`, `cat`, `dimensiones`, `predicados` | core |
+| `recordar` (legacy: `buscar`) | Búsqueda híbrida + ráfaga + contingencia. Params: `query`, `dimensiones`, `deep`, `cat`, `completo`, `asociados`, `limite`, `preview_chars`, `context_window`, `parafrasis`, `rafaga_palabras`, `forzar_rafaga`, `pagina`, `dias`, `desde`, `hasta`, `autor`, `modo_estricto`, `buscar_por_rol`, `usar_inferencia`, `ordenar_por` | core |
+| `aprender` (legacy: `guardar`) | Guardar recuerdo en corto plazo. Params: `concepto`, `contenido`, `syn`, `cat`, `dimensiones`, `predicados`, `valencia_somatica` | core |
+| `actualizar` | Actualizar campos de un nodo existente (`contenido`, `peso_sinaptico`, `estado`, `sinonimos`) dentro de la ventana de corrección | core |
 | `vincular` (legacy: `asociar`) | Sinapsis bidireccional entre conceptos | core |
 | `desvincular` | Plasticidad negativa — borra sinapsis entre dos nodos | v12.0 |
 | `comunicar` | Enviar mensaje inter-agente (athena, artemis, hermes, todos) | core |
@@ -1628,7 +1637,6 @@ BioRAG expone una corteza cerebral compartida via MCP para que cualquier IDE o a
 | `biorag_contexto_inicio` | Anunciar inicio de interacción | v13.0 |
 | `biorag_contexto_fin` | Finalizar + auto-sueño automático | v13.0 |
 | `biorag_metricas_historial` | Últimos N ciclos de sueño con tendencias | v13.0 |
-| `biorag_semantica_admin` | CRUD tabla semántica | v13.0 |
 | `biorag_listar_categorias` | Lista las 11 categorías madre | v13.0 |
 | `biorag_sync_status` | Categorías pendientes de sync a NotebookLM | v13.0 |
 | `biorag_export_sync` | Exporta categorías pendientes | v13.0 |
@@ -1643,20 +1651,28 @@ BioRAG expone una corteza cerebral compartida via MCP para que cualquier IDE o a
 | `hormiguita` | Ejecutar ciclo de mantenimiento del grafo | v24.0 |
 | `hormiguita_estado` | Estado del ciclo de mantenimiento | v24.0 |
 
-### Protocolo de 3 pasos en `recordar`
+### Protocolo de 2 pasos en `recordar`
 
 ```
-PASO 1: biorag_buscar(query="frase del usuario")
-        Si es abstracta → interpretar + agregar 3-5 palabras clave
+PASO 1: Búsqueda Semántica (recordar)
+        recordar(query="sustantivos_concretos_del_dominio",
+                 parafrasis="N1_sinonimo,N2_tecnico,N3_perspectiva_opuesta,N4_abstracto,N5_emocion",
+                 dimensiones='{"emocion":["..."],"dominio":["..."]}',  # si busca propiedades ontológicas
+                 asociados=true)
+        → Si total >= 1 → síntesis (listar TODOS los resultados)
+        → Si total == 0 O score_top < 0.70 → PASO 2
 
-PASO 2: Si PASO 1 da 0 resultados
-        biorag_buscar(query="...", rafaga_palabras=[10-15 términos])
-
-PASO 3: Si PASO 2 da 0 resultados o puro ruido
-        Buscar en contexto del chat → guardar con biorag_guardar
+PASO 2: Ráfaga Asociativa (fallback)
+        recordar(forzar_rafaga=true,
+                 rafaga_palabras="t1,t2,...t15",  # 15 términos en 5 niveles: literal,tecnico,contexto,problema,emocion
+                 asociados=true)
+        → Si total >= 1 → síntesis
+        → Si total == 0 → contingencia: buscar en historial del chat
 
 DESPUES DE CADA PASO: Leer resultados y explicar con propias palabras
 ```
+
+> Reglas de oro: `parafrasis` SIEMPRE (sin ella, recall cae ~60%); `asociados=true` SIEMPRE; filtro temporal `dias=7` o `desde=YYYY-MM-DD` salvo búsqueda histórica explícita.
 
 ---
 
@@ -1745,27 +1761,29 @@ export BIORAG_HORMIGA_LOTE_SINAPSIS=20
 
 ---
 
-## BioRAG vs. Bases de Datos Vectoriales
+## BioRAG vs. Bases de Datos Vectoriales Externas
 
-| Capacidad | Base de Datos Vectorial | BioRAG |
+> **Matiz crítico (verdadero desde v26.0):** BioRAG **sí tiene un motor vectorial propio** — PPMI+SVD de 100 dimensiones entrenado sobre el corpus local, SDM de 2048 bits y Computación Hiperdimensional (HDC). Lo que rechaza son las bases vectoriales **comerciales/externas** (Pinecone, pgvector, FAISS, Chroma, embeddings de caja negra preentrenados). El comparativo siguiente es contra *ese* tipo de sistemas.
+
+| Capacidad | Base de Datos Vectorial Externa | BioRAG |
 |---|---|---|
-| **Naturaleza** | Espacio continuo, probabilístico, opaco | Espacio discreto, determinista, auditable |
-| **Similitud semántica** | Embeddings (768-1536 floats opacos) | 13 dimensiones × 102 IDs discretos + 45 grupos WordNet |
-| **Cómo sabe qué es similar** | Entrenamiento masivo (aprende de internet) | Tú definís las dimensiones y WordNet local (discreto, 100% offline) |
+| **Naturaleza** | Espacio continuo, probabilístico, opaco, preentrenado por terceros | Espacio vectorial propio entrenado en el corpus local (PPMI+SVD) + ejes discretos declarativos; determinista y auditable |
+| **Similitud semántica** | Embeddings (768-1536 floats opacos) | Vectores PPMI+SVD propios (100d) + 13 dimensiones × 102 IDs discretos + 45 grupos WordNet |
+| **Cómo sabe qué es similar** | Entrenamiento masivo de un tercero (aprende de internet) | Tú definís las dimensiones, WordNet local y el PPMI se entrena sobre **tu** corpus (discreto + espectral, 100% offline) |
 | **Tolerancia a typos** | Depende del modelo | FTS5 trigram nativo |
-| **Expansión de queries** | Embeddings implícitos | Tesauro explícito + ráfaga del agente |
-| **Ranking** | Distancia coseno | Score híbrido 9 señales + Dynamic Multiplicator |
-| **Explicabilidad** | Caja negra | Cada dimensión y grupo semántico es inspeccionable |
-| **Control en caliente** | Reentrenar | INSERT/DELETE en milisegundos |
+| **Expansión de queries** | Embeddings implícitos | Tesauro explícito + ráfaga del agente + vectores PPMI propios |
+| **Ranking** | Distancia coseno | Score híbrido 13 señales (incluye PPMI coseno propio) + Dynamic Multiplicator |
+| **Explicabilidad** | Caja negra | Cada dimensión, grupo semántico y vector espectral es inspeccionable |
+| **Control en caliente** | Reentrenar | INSERT/DELETE en milisegundos + fold-in incremental |
 | **Plasticidad negativa** | No existe | desvincular() + LTD sináptico |
 | **Ciclo de vida** | Insert → Query | Corto plazo → Sueño → Largo plazo → Olvido |
 | **Asociaciones explícitas** | Solo similitud | Sinapsis con tipos y pesos |
-| **Dependencias** | numpy, sentence-transformers, GPU | Cero ML/GPU. SQLite + nltk (WordNet aislado local) |
+| **Dependencias** | numpy, sentence-transformers, GPU, servicio en la nube | Cero ML externo/GPU. SQLite + nltk (WordNet aislado local) + PPMI/SVD/HDC propio (NumPy) |
 | **Latencia** | 2-100ms | 2.84ms promedio |
 | **Memoria RAM** | 100-500MB | ~20 MB |
 | **Funciona offline** | No | Sí |
 | **Ráfaga de reminiscencia** | No | LLM genera términos, script ejecuta |
-| **Auto-aprendizaje** | No | Co-ocurrencia + sinapsis automáticas |
+| **Auto-aprendizaje** | No | Co-ocurrencia + sinapsis automáticas + espacio espectral reentrenado sobre el corpus |
 
 ---
 
@@ -2253,7 +2271,7 @@ Corrección de bug crítico en el cálculo de `categoria_dominante` y mejoras UX
 
 ### v18.0 — Fallback 2.1 Simbólico: Levenshtein + WordNet Bilingüe + Traducción (Julio 2026)
 
-Capa final de búsqueda semántica **sin embeddings ni vectores**. Cierra el último hueco del pipeline: cuando todas las 12 capas anteriores fallan, el Fallback 2.1 activa expansión simbólica pura.
+Capa final de búsqueda semántica **puramente simbólica (sin vectores)**. Cierra el último hueco del pipeline: cuando todas las 12 capas anteriores fallan, el Fallback 2.1 activa expansión simbólica pura (Levenshtein + WordNet + traducción) sin tocar el espacio vectorial.
 
 **Arquitectura de 3 sub-capas con graceful degradation:**
 
@@ -2479,7 +2497,7 @@ búsqueda, y se mide automáticamente cuántas veces el motor acierta.
 Con el fin de garantizar la estabilidad del motor BioRAG y evitar regresiones en futuras optimizaciones, se ha implementado una suite de control de calidad (QA) y benchmarking formal basada en el paradigma Cranfield (*Known-Item Search*).
 
 ### Objetivos y Enfoque Metodológico
-	- **Evaluación No Sesgada**: Se aíslan los datos de prueba a través de un archivo baseline estático (`casos_qa_baseline_v1.jsonl`) con un total de **986 casos de prueba reales** mapeados a los 551 nodos del grafo.
+	- **Evaluación No Sesgada**: Se aíslan los datos de prueba a través de un archivo baseline estático (`casos_qa_baseline_v1.jsonl`) con un total de **921 casos de prueba reales** mapeados a los nodos del grafo (snapshot congelado 803 nodos; live ~900+).
 - **Determinismo Absoluto**:
   - Se fijó el generador de casos mediante una semilla determinista (`random.seed(42)`) para evitar la dispersión estocástica entre corridas.
   - Se forzó el ordenamiento determinista (`ORDER BY concepto`) en las extracciones de base de datos SQL para asegurar la reproducibilidad exacta de las aristas del grafo.
@@ -2487,14 +2505,15 @@ Con el fin de garantizar la estabilidad del motor BioRAG y evitar regresiones en
 
 ### Estructura del Dataset de Benchmarking
 El baseline evalúa las siguientes categorías distribuidas para estresar el pipeline de 13 capas y el fallback simbólico:
-1. **`literal`** (551 casos): Cobertura total de correspondencia exacta uno-a-uno para cada nodo del cerebro.s
+1. **`literal`** (487 casos): Cobertura total de correspondencia exacta uno-a-uno para cada nodo del cerebro.
 2. **`dormido`** (65 casos): Pruebas de despertar cognitivo del nodo y activación en el flujo de evocación.
 3. **`typo`** (65 casos): Pruebas de robustez sintáctica inyectando errores de escritura para validar el comparador de Levenshtein.
 4. **`sinonimo`** (61 casos): Pruebas de expansión de sinónimos bajo diferentes capas léxicas.
 5. **`cruce_idioma`** (8 casos): Validación de la pasarela de traducción bilingüe de WordNet.
 6. **`pregunta_natural`** (65 casos): Evocación a través de consultas formuladas de manera natural y conversacional.
 7. **`por_tema`** (65 casos): Pruebas conceptuales y asociativas complejas que evalúan el propagador y los pesos sinápticos.
-8. **`negativo`** (40 casos): Casos de control sin coincidencia esperada para medir la tasa de falsos positivos (ruido) con un umbral de rechazo estricto de score `< 0.25`.
+8. **`variante_gramatical`** (65 casos): Variaciones morfológicas de las mismas palabras.
+9. **`negativo`** (40 casos): Casos de control sin coincidencia esperada para medir la tasa de falsos positivos (ruido) con un umbral de rechazo estricto de score `< 0.25`.
 
 ### Resultados v22.2 Validados (Baseline Completo — ver sección de Benchmark al inicio del README)
 
@@ -2566,7 +2585,7 @@ A continuación se detallan las especificaciones de cada prueba y sus resultados
 
 #### 4. Fase 2D: Captura de Uso Real en Producción
 * **Qué prueba**: Registro de interacciones reales de los agentes con el fin de recopilar consultas complejas que generen falsos positivos o negativos en producción.
-* **Implementación**: Se añade una tabla `log_busquedas` en SQLite o archivo `.jsonl` local que guarda de forma pasiva la consulta (`query`), cantidad de resultados e id del primer resultado. El comando `biorag_marcar_resultado(query_id, util=False)` permite al usuario retroalimentar el sistema para agregar el caso como regresión de test permanente en futuras iteraciones.
+* **Implementación**: Se añade una tabla `log_busquedas` en SQLite o archivo `.jsonl` local que guarda de forma pasiva la consulta (`query`), cantidad de resultados e id del primer resultado. El script `scripts/marcar_resultado.py` (con `--stats` y `--limit`) permite al usuario retroalimentar el sistema para agregar el caso como regresión de test permanente en futuras iteraciones.
 
 ---
 
@@ -2586,21 +2605,21 @@ La suite y herramientas asociadas se encuentran en el directorio `scripts/` (exc
 
 ## Producción
 
-| Métrica | v18.0 | v19.0 | v20.0–v21.0 | v22.0 | v23.0–v23.1 | v24.1–v25.2 | **v26.1 (Actual)** |
-|---|---|---|---|---|---|---|---|
-| Pipeline de búsqueda | 13 capas + Fallback Simbólico | 13 capas + Engine 8 Señales | 13 capas + Engine + DMN | 14 capas + SDM QBE | 14 capas + SRL | 14 capas + 12 señales + Re-ranking | **14 capas + 13 señales + PPMI+SVD+Retrofit + fold-in** |
-| Señales de scoring | 9 | 8 cognitivas | 10 (+ GABA, RPE, Valencia) | 10 | 12 (+ SRL) | 12 + re-ranking Jaccard | **13 (+ PPMI coseno v26.0)** |
-| Nodos | ~550 | ~550 | ~570 | ~570 | ~614 | ~800+ | **~800+** |
-| Sinapsis latentes | 18,988 | 17,062 (SLS puras) | 17,062 | 17,062 | 17,062 | 17,062 + cuarentena | **8,106–17,062 (max_saltos=2/3)** |
-| Tests | 95/95 + QA | 95/95 + QA | 95/95 + QA | 117/117 | 117/117 | 117/117 | **112/112 ✓** |
-| GLOBAL Recall@5 | 93.76% | — | — | — | 96.82% | 97.05% | **96.71%** |
-| por_tema Recall@5 | 36.92% | — | — | 43.08% | ⚠️ 84.62%* | 81.54%–86.15% | **86.15%** |
-| FP Negativo | 12.5% | — | — | 7.5% | 7.5% | 7.5% | **22.5%** (corpus expandido) |
-| Consolidación (warm) | — | — | — | — | — | ~54s | **~5.8s (89% ↓ v26.1)** |
-| Dependencias ML | 0 (mcp + nltk) | 0 | 0 | 0 | 0 | 0 | **0** |
-| RAM | ~20 MB | ~22 MB | ~20 MB | ~20 MB | ~20 MB | ~20 MB | **~20 MB** |
-| Latencia búsqueda | ~2.8ms | ~2.8ms | ~2.8ms | ~2.8ms | ~2.8ms | ~2.8ms | **~2.8ms** |
-| Tools MCP | 28 | 28 | 29 | 29 | 30 | 32 | **32** |
+| Métrica | v18.0 | v19.0 | v20.0–v21.0 | v22.0 | v23.0–v23.1 | v24.1–v25.2 | v26.1 | **v28.0 (Actual)** |
+|---|---|---|---|---|---|---|---|---|---|
+| Pipeline de búsqueda | 13 capas + Fallback Simbólico | 13 capas + Engine 8 Señales | 13 capas + Engine + DMN | 14 capas + SDM QBE | 14 capas + SRL | 14 capas + 12 señales + Re-ranking | 14 capas + 13 señales + PPMI+SVD+Retrofit + fold-in | **14 capas + 13 señales + PPMI + QCR Gate + Canal 2 (asociaciones enriquecidas)** |
+| Señales de scoring | 9 | 8 cognitivas | 10 (+ GABA, RPE, Valencia) | 10 | 12 (+ SRL) | 12 + re-ranking Jaccard | 13 (+ PPMI coseno v26.0) | **13 (+ PPMI coseno v26.0; ADN Conceptual v29 instalado APAGADO)** |
+| Nodos | ~550 | ~550 | ~570 | ~570 | ~614 | ~800+ | ~800+ | **~900+ (snapshot 866 / live 935)** |
+| Sinapsis latentes | 18,988 | 17,062 (SLS puras) | 17,062 | 17,062 | 17,062 | 17,062 + cuarentena | 8,106–17,062 (max_saltos=2/3) | **8,106–17,062 (max_saltos=2/3)** |
+| Tests | 95/95 + QA | 95/95 + QA | 95/95 + QA | 117/117 | 117/117 | 117/117 | 112/112 | **16/16 PASS (pytest) + benchmark 921** |
+| GLOBAL Recall@5 | 93.76% | — | — | — | 96.82% | 97.05% | 96.71% | **96.14%** |
+| por_tema Recall@5 | 36.92% | — | — | 43.08% | ⚠️ 84.62%* | 81.54%–86.15% | 86.15% | **86.15%** (producción viva) |
+| FP Negativo | 12.5% | — | — | 7.5% | 7.5% | 7.5% | 22.5% (corpus expandido) | **25%** (40 casos, ticket gate QCR abierto) |
+| Consolidación (warm) | — | — | — | — | — | ~54s | ~5.8s (89% ↓ v26.1) | **~5.8s (89% ↓ v26.1)** |
+| Dependencias ML | 0 (mcp + nltk) | 0 | 0 | 0 | 0 | 0 | 0 | **0** |
+| RAM | ~20 MB | ~22 MB | ~20 MB | ~20 MB | ~20 MB | ~20 MB | ~20 MB | **~20 MB** |
+| Latencia búsqueda | ~2.8ms | ~2.8ms | ~2.8ms | ~2.8ms | ~2.8ms | ~2.8ms | ~2.8ms | **~2.8ms** |
+| Tools MCP | 28 | 28 | 29 | 29 | 30 | 32 | 32 | **33** |
 
 > \* ⚠️ El `84.62%` de v23.0–v23.1 proviene de un snapshot con backfill parcial de predicados (corpus de 614 nodos). El baseline real de `por_tema` sobre el corpus actual (921 casos QA) es **67.69%**; el valor **81.54%** de v24.1–v25.2 corresponde al re-ranking jaccard con protect-r0. El **86.15%** de v26.1 incluye la señal PPMI+SVD (weight=0.15) sobre snapshot congelado 803 nodos. Ver sección 🧪 Verificación para reproducir.
 >
