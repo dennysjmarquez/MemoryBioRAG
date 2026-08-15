@@ -17,7 +17,7 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from core.sdm import (
     generar_vector_sdm, distancia_hamming, similitud_sdm,
-    SDM_BITS, SDM_BYTES, _hash_token_a_bit
+    SDM_BITS, SDM_BYTES, SEGMENTO_DIMENSIONES, _hash_token_a_bit
 )
 
 
@@ -119,7 +119,7 @@ def test_02_vectores_mismos_vecinos():
 def test_03_bit_masking():
     """Prueba 3: Ignorar bits de texto, solo comparar bits semánticos."""
     print("\n" + "="*60)
-    print("PRUEBA 3: Bit Masking — ignorar bits de texto (0-599)")
+    print(f"PRUEBA 3: Bit Masking — ignorar bits de texto ({SEGMENTO_DIMENSIONES[0]}-{SEGMENTO_DIMENSIONES[1]-1})")
     print("="*60)
 
     vec_gato = generar_vector_sdm(
@@ -143,11 +143,12 @@ def test_03_bit_masking():
     int_felino = int.from_bytes(vec_felino, 'big')
     int_auto = int.from_bytes(vec_auto, 'big')
 
-    # Máscara: solo bits 600-1023 (bits semánticos)
-    # Bits 0-599 enmascarados a 0
+    # Máscara: solo bits del segmento de dimensiones (bits semánticos).
+    # Los demás segmentos (contenido, concepto, categoría, vecinos) enmascarados a 0.
+    inicio_sem, fin_sem = SEGMENTO_DIMENSIONES
     mask_semantico = 0
-    for i in range(600, 1024):
-        mask_semantico |= (1 << (1023 - i))
+    for i in range(inicio_sem, fin_sem):
+        mask_semantico |= (1 << (SDM_BITS - 1 - i))
 
     # Aplicar máscara
     gato_sem = int_gato & mask_semantico
@@ -166,13 +167,15 @@ def test_03_bit_masking():
     print(f"  gato ↔ felino:  {dist_gato_felino_full:4d} bits")
     print(f"  gato ↔ auto:    {dist_gato_auto_full:4d} bits")
 
-    print(f"\nHamming SOLO bits semánticos (600-1023):")
-    print(f"  gato ↔ felino:  {dist_gato_felino_sem:4d} bits  (de 424 posibles)")
-    print(f"  gato ↔ auto:    {dist_gato_auto_sem:4d} bits  (de 424 posibles)")
+    total_sem = fin_sem - inicio_sem
+    print(f"\nHamming SOLO bits semánticos ({inicio_sem}-{fin_sem-1}):")
+    print(f"  gato ↔ felino:  {dist_gato_felino_sem:4d} bits  (de {total_sem} posibles)")
+    print(f"  gato ↔ auto:    {dist_gato_auto_sem:4d} bits  (de {total_sem} posibles)")
 
     print(f"\n¿El masking mejora la distinción?")
-    print(f"  Ratio normal:    {dist_gato_felino_full/dist_gato_auto_full:.2f}x")
-    print(f"  Ratio semántico: {dist_gato_felino_sem/dist_gato_auto_sem:.2f}x")
+    if dist_gato_auto_sem > 0:
+        print(f"  Ratio normal:    {dist_gato_felino_full/dist_gato_auto_full:.2f}x")
+        print(f"  Ratio semántico: {dist_gato_felino_sem/dist_gato_auto_sem:.2f}x")
 
     return dist_gato_felino_sem < dist_gato_auto_sem
 
