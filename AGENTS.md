@@ -29,8 +29,26 @@
 | **DMN reflection (La Hormiguita)** | `python3 sleep_cycle.py` |
 | **Install/verify** | `python3 install.py` |
 | **Run QA suite wrapper** | `./scripts/run_qa_suite.sh` (loads `.env.local`, runs eval) |
+| **Recalibrate FP guarantee (manual)** | MCP tool `calibrar` (alpha, n_negativos, forzar) — or `cerebro.calibrar_y_persistir()` |
 
 **Critical**: Always use `BIORAG_PATH` pointing to a **snapshot** for reproducible eval. The live DB (`MemoryBioRAG_Data/memory_biorag.db`) is mutated by eval (temp copy) and daemons.
+
+---
+
+## Calibration (v28.1) — FP guarantee as a PERCENTILE
+
+**Principle (Dennys, 2026-08-16)**: the corpus is not static — it grows or shrinks. A threshold calibrated against N nodes becomes invalid when the corpus changes size. So the FP threshold is a **percentile** (conformal prediction split, Vovk 2005), not an absolute number — like `width: 50%` in CSS, invariant to container size.
+
+- `k = ceil((n+1)(1−alpha))/n` → the threshold is the score at that quantile of the negative queries' scores.
+- **Guarantee is distribution-free**: assumes only that the calibration sample comes from the same population as production queries.
+- When the corpus grows (more nodes → higher noise floor), the absolute value auto-recalculates; the percentile stays fixed.
+- **Persistence**: table `calibracion_estado` (id=1) stores threshold, alpha, n_nodos_corpus, Platt a/b, date.
+- **Drift detection**: `calibrar_y_persistir()` recalibrates automatically when corpus size changes >20% (second call = 0.0s reuse; first = ~35s / 40 searches).
+- **MCP output**: each search result now carries `confianza_calibrada` + `nivel_certeza` (`evidencia_directa` / `relacionado_confianza_media` / `sin_evidencia_directa`) — the 3 Neocortex levels, without touching ranking (baseline preserved).
+
+**Measured on live copy (918 nodes)**: fixed threshold 0.25 → FP 100% (32/32); conformal percentile → FP 6% (2/32).
+
+Key methods in `core/memory_store.py`: `_contar_nodos_corpus`, `_cargar_calibracion_persistida`, `_persistir_calibracion`, `calibrar_y_persistir`, `nivel_certeza`, `confianza_calibrada`. Core math in `core/calibracion.py` (`UmbralConforme`, `CalibradorPlatt`). Tests: `tests/test_calibracion_conforme.py`.
 
 ---
 

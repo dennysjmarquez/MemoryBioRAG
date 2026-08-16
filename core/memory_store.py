@@ -6,12 +6,21 @@ import sys
 import math
 import json
 import logging
+import numpy as np
 from collections import deque
 
 logger = logging.getLogger("BioRAG.MemoryStore")
 
 # Auto-cargar .env.local al importar (antes de leer cualquier variable de entorno)
 from config import _load_env_local
+
+try:
+    from core.calibracion import (zscore_por_query, fusion_rrf, FusionLogistica,
+                                   CalibradorPlatt, calibracion_isotonica,
+                                   UmbralConforme, mmr)
+except ImportError:
+    zscore_por_query = fusion_rrf = FusionLogistica = CalibradorPlatt = None
+    calibracion_isotonica = UmbralConforme = mmr = None
 _load_env_local()
 
 # Pre-cargar WordNet al importar para evitar latencia de 3s en primera consulta semántica
@@ -217,6 +226,24 @@ class SQLiteMemoryBioRAG:
                 self._adn_pendiente_recalculo = False
             except Exception as e:
                 logger.warning(f"No se pudo inicializar el Neocórtex de Sangre: {e}")
+
+        # v28.1: Componentes de calibración y decisión estadística (FP controlado)
+        self._platt_calibrador = None
+        self._umbral_conforme = None
+        self._fusion_logistica = None
+        self._calibracion_entrenada = False
+        self._calibracion_meta = None
+
+        # v28.1: Cargar calibración persistida si existe (rápida, sin búsquedas).
+        # Esto le da al path caliente el umbral/Platt ya calibrados contra el
+        # corpus del momento en que se persistieron. Si el corpus creció o se
+        # redujo después, `calibrar_y_persistir()` lo detecta por n_nodos y
+        # recalcula la garantía.
+        try:
+            if getattr(self, 'cursor', None) is not None:
+                self._cargar_calibracion_persistida()
+        except Exception as _e_cal:
+            logger.debug(f"Calibración persistida no cargada: {_e_cal}")
 
 
     def notificar_actividad_usuario(self):
@@ -900,6 +927,22 @@ class SQLiteMemoryBioRAG:
 
     def _crear_tablas_nuevas_si_faltan(self):
         """Crea tablas nuevas (Phase 2D) si no existen en esquemas existentes."""
+# --- Migración v28.1 (Calibración persistente — garantía FP dinámica) ---
+        self.cursor.execute("""
+            CREATE TABLE IF NOT EXISTS calibracion_estado (
+                id INTEGER PRIMARY KEY CHECK (id = 1),
+                umbral_conforme REAL NOT NULL,
+                alpha REAL NOT NULL,
+                n_negativos INT NOT NULL,
+                n_positivos INT NOT NULL,
+                n_nodos_corpus INT NOT NULL,
+                a_platt REAL,
+                b_platt REAL,
+                metodo TEXT NOT NULL,
+                rango_negativos TEXT,
+                fecha_calibracion REAL NOT NULL
+            )
+        """)
 # --- Migración v20.0 (Valencia Somática y Dopamina RPE) ---
         self.cursor.execute("PRAGMA table_info(largo_plazo)")
         lp_cols_v20 = [row[1] for row in self.cursor.fetchall()]
@@ -3236,6 +3279,425 @@ class SQLiteMemoryBioRAG:
             score = 1.0 / (1.0 + math.exp(-(logit + bonus)))
 
         return round(min(1.0, max(0.0, score)), 4)
+
+    # =============================================================================
+    # v28.1: Calibración de probabilidad y decisión con garantía (FP controlado)
+    # =============================================================================
+
+    def _preparar_datos_calibracion(self, n_calibracion: int = 500) -> tuple:
+        """Prepara datos de calibración usando el QA baseline (921 casos).
+
+        Returns:
+            (scores, labels)
+            scores: scores del top-1 para cada caso (score_hibrido crudo)
+            labels: 1 si el top-1 era el esperado, 0 en caso contrario
+        """
+        import json
+        base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+        qa_path = os.path.join(base_dir, "scripts", "casos_qa_baseline_v1.jsonl")
+        if not os.path.exists(qa_path):
+            qa_path = os.path.join(base_dir, "scripts", "casos_qa.jsonl")
+
+        if not os.path.exists(qa_path):
+            logger.warning("No se encontró QA baseline para calibración")
+            return [], []
+
+        scores = []
+        labels = []
+        n = 0
+        with open(qa_path, 'r', encoding='utf-8') as f:
+            for line in f:
+                if n >= n_calibracion:
+                    break
+                try:
+                    caso = json.loads(line.strip())
+                    query = caso.get('query', '')
+                    expected = caso.get('concepto_esperado', '') or caso.get('expected', '')
+                    if not query or not expected:
+                        continue
+                    resultados = self.buscar_por_frase(query, limite=1)
+                    if resultados and resultados[0]:
+                        score = resultados[0][0][4]  # score_hibrido (first result, first tuple, index 4)
+                        label = 1 if resultados[0][0][0] == expected else 0
+                        scores.append(score)
+                        labels.append(label)
+                        n += 1
+                except Exception:
+                    continue
+        return scores, labels
+
+    def entrenar_calibracion(self, n_calibracion: int = 500, metodo: str = "platt") -> bool:
+        """Entrena el calibrador de Platt (o isotónico) usando el QA baseline.
+
+        Args:
+            n_calibracion: máximo de casos a usar
+            metodo: 'platt' o 'isotonica'
+        """
+        if not CalibradorPlatt or not calibracion_isotonica:
+            logger.warning("Módulo calibracion no disponible")
+            return False
+
+        scores, labels = self._preparar_datos_calibracion(n_calibracion)
+        if not scores:
+            logger.warning("No hay datos de calibración")
+            return False
+
+        if metodo == "platt" and CalibradorPlatt:
+            self._platt_calibrador = CalibradorPlatt().entrenar(scores, labels)
+            logger.info(f"Platt calibrado: a={self._platt_calibrador.a:.4f}, b={self._platt_calibrador.b:.4f}")
+        elif calibracion_isotonica:
+            self._platt_calibrador = calibracion_isotonica(
+                [float(s) for s in scores], [int(l) for l in labels]
+            )
+            logger.info("Calibración isotónica entrenada")
+        else:
+            logger.warning("Método de calibración no disponible")
+            return False
+
+        self._calibracion_entrenada = True
+        return True
+
+    def calibrar_umbral_conforme(self, alpha: float = 0.10, n_negativos: int = 100) -> float:
+        """Crea el umbral de abstención con garantía FP <= alpha (predicción conforme).
+
+        Usa consultas negativas conocidas (sin respuesta en corpus) para fijar
+        el umbral con garantía FP <= alpha (distribution-free).
+
+        IMPORTANTE — SELECCIÓN DE NEGATIVOS: se usan EXCLUSIVAMENTE los casos de
+        categoría `negativo` del QA baseline. NO se usan "expected no existe en
+        largo_plazo" como criterio: eso filtra por nombre exacto y deja colar
+        casos literales/naturales que SÍ tienen respuesta en el corpus (matchean
+        con score 0.95+, corrompiendo el cuantil y empujando el umbral arriba).
+
+        IMPORTANTE — MISMA ESCALA QUE EN USO: los scores recogidos aquí son
+        `score_hibrido` crudo (resultados[0][0][4]). `_debe_responder` debe
+        recibir la MISMA escala cruda; no mezclar con probabilidades de Platt.
+        """
+        if not UmbralConforme:
+            logger.warning("UmbralConforme no disponible")
+            return 0.0
+
+        # Buscar casos negativos: queries de la categoría `negativo` del QA
+        import json
+        base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+        qa_path = os.path.join(base_dir, "scripts", "casos_qa_baseline_v1.jsonl")
+        if not os.path.exists(qa_path):
+            qa_path = os.path.join(base_dir, "scripts", "casos_qa.jsonl")
+
+        scores_neg = []
+        with open(qa_path, 'r', encoding='utf-8') as f:
+            for line in f:
+                try:
+                    caso = json.loads(line.strip())
+                    if caso.get('categoria', '') != 'negativo':
+                        continue
+                    query = caso.get('query', '')
+                    if not query:
+                        continue
+
+                    resultados = self.buscar_por_frase(query, limite=1)
+                    if resultados and resultados[0]:
+                        scores_neg.append(resultados[0][0][4])
+                        if len(scores_neg) >= n_negativos:
+                            break
+                except Exception:
+                    continue
+
+        if not scores_neg:
+            logger.warning("No se encontraron negativos para calibración conforme")
+            return 0.0
+
+        self._umbral_conforme = UmbralConforme(alpha=alpha).calibrar(scores_neg[:n_negativos])
+        logger.info(f"Umbral conforme (alpha={alpha}): {self._umbral_conforme.umbral:.4f} (n={self._umbral_conforme.n_calibracion})")
+        return self._umbral_conforme.umbral
+
+    def _score_con_calibracion(self, score_bruto: float) -> float:
+        """Convierte score bruto a probabilidad calibrada (Platt o isotónica)."""
+        if self._platt_calibrador:
+            if hasattr(self._platt_calibrador, 'probabilidad'):
+                return self._platt_calibrador.probabilidad(score_bruto)
+            elif callable(self._platt_calibrador):
+                return self._platt_calibrador(score_bruto)
+        return score_bruto
+
+    def _debe_responder(self, score: float) -> bool:
+        """Decide si responder o abstenerse basado en umbral conforme.
+
+        RECIBE LA MISMA ESCALA USADA EN calibrar_umbral_conforme: score_hibrido
+        crudo. Si se calibró con crudo, aquí va crudo.
+        """
+        if self._umbral_conforme:
+            return self._umbral_conforme.responder(score)
+        # Fallback: umbral fijo conservador
+        return score > 0.65
+
+    def buscar_con_calibracion(self, query: str, limite: int = 10,
+                               usar_calibracion: bool = True) -> list:
+        """Búsqueda estándar con abstención conforme sobre el score híbrido crudo.
+
+        NOTA (decisión del auditor): RRF NO resuelve el FP 80% — es invariante a
+        la magnitud de los scores. El fix del FP es la calibración (Platt +
+        umbral conforme), por eso RRF queda fuera de este camino.
+
+        Args:
+            query: consulta
+            limite: máximo resultados
+            usar_calibracion: aplicar abstención conforme
+        """
+        resultados = self.buscar(query, limite=limite)
+        if usar_calibracion and self._umbral_conforme:
+            resultados_cal = []
+            for r in resultados:
+                # r[4] es score_hibrido crudo: misma escala que el umbral conforme
+                if self._debe_responder(r[4]):
+                    resultados_cal.append(r)
+            return resultados_cal[:limite]
+        return resultados
+
+    # =============================================================================
+    # v28.1: Calibración dinámica persistente — garantía FP independiente del corpus
+    # =============================================================================
+    # PRINCIPIO (Dennys, 2026-08-16): el corpus no es estático — crece o decrece.
+    # Un umbral calibrado contra N nodos deja de ser válido cuando el corpus cambia
+    # de tamaño. Por eso la calibración se PERSISTE (tabla calibracion_estado) junto
+    # con el n_nodos_corpus del momento, y se RECALCULA automáticamente cuando el
+    # tamaño actual se aleja del calibrado. La garantía FP <= alpha es
+    # distribution-free (predicción conforme split, Vovk 2005): no asume la forma
+    # de la distribución, solo que la muestra de calibración viene de la misma
+    # población que las consultas de producción.
+    # =============================================================================
+
+    def _contar_nodos_corpus(self) -> int:
+        """Número de nodos activos actuales (para detectar drift de tamaño)."""
+        try:
+            row = self.cursor.execute(
+                "SELECT COUNT(*) FROM largo_plazo WHERE estado = 'activo'"
+            ).fetchone()
+            return int(row[0]) if row else 0
+        except Exception:
+            return 0
+
+    def _cargar_calibracion_persistida(self) -> bool:
+        """Carga la última calibración persistida. Devuelve True si hay una vigente."""
+        try:
+            self.cursor.execute("PRAGMA table_info(calibracion_estado)")
+            if not self.cursor.fetchall():
+                return False
+            row = self.cursor.execute(
+                "SELECT umbral_conforme, alpha, n_negativos, n_positivos, "
+                "n_nodos_corpus, a_platt, b_platt, metodo, rango_negativos, "
+                "fecha_calibracion FROM calibracion_estado WHERE id = 1"
+            ).fetchone()
+            if not row:
+                return False
+            (umbral, alpha, n_neg, n_pos, n_nodos, a_platt, b_platt,
+             metodo, rango, fecha) = row
+            if umbral is None or umbral <= 0:
+                return False
+            self._umbral_conforme = UmbralConforme(alpha=alpha)
+            self._umbral_conforme.umbral = float(umbral)
+            self._umbral_conforme.n_calibracion = int(n_neg)
+            if rango:
+                try:
+                    r0, r1 = rango.split(",")
+                    self._umbral_conforme.rango_negativos = (float(r0), float(r1))
+                except Exception:
+                    pass
+            if a_platt is not None and b_platt is not None and CalibradorPlatt:
+                platt = CalibradorPlatt(alpha=1.0)
+                platt.a = float(a_platt)
+                platt.b = float(b_platt)
+                self._platt_calibrador = platt
+            self._calibracion_meta = {
+                "alpha": float(alpha),
+                "n_negativos": int(n_neg),
+                "n_positivos": int(n_pos),
+                "n_nodos_corpus": int(n_nodos),
+                "metodo": metodo,
+                "fecha_calibracion": float(fecha),
+            }
+            self._calibracion_entrenada = True
+            return True
+        except Exception as e:
+            logger.warning(f"No se pudo cargar calibración persistida: {e}")
+            return False
+
+    def _persistir_calibracion(self, n_positivos: int, metodo: str = "conforme") -> None:
+        """Persiste el estado de calibración junto al tamaño de corpus del momento."""
+        try:
+            u = self._umbral_conforme
+            a_platt = getattr(getattr(self, "_platt_calibrador", None), "a", None)
+            b_platt = getattr(getattr(self, "_platt_calibrador", None), "b", None)
+            rango = f"{u.rango_negativos[0]:.4f},{u.rango_negativos[1]:.4f}" \
+                if u.rango_negativos else None
+            n_nodos = self._contar_nodos_corpus()
+            self.cursor.execute("""
+                INSERT INTO calibracion_estado
+                    (id, umbral_conforme, alpha, n_negativos, n_positivos,
+                     n_nodos_corpus, a_platt, b_platt, metodo, rango_negativos,
+                     fecha_calibracion)
+                VALUES (1, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                ON CONFLICT(id) DO UPDATE SET
+                    umbral_conforme = excluded.umbral_conforme,
+                    alpha = excluded.alpha,
+                    n_negativos = excluded.n_negativos,
+                    n_positivos = excluded.n_positivos,
+                    n_nodos_corpus = excluded.n_nodos_corpus,
+                    a_platt = excluded.a_platt,
+                    b_platt = excluded.b_platt,
+                    metodo = excluded.metodo,
+                    rango_negativos = excluded.rango_negativos,
+                    fecha_calibracion = excluded.fecha_calibracion
+            """, (u.umbral, u.alpha, u.n_calibracion, n_positivos, n_nodos,
+                  a_platt, b_platt, metodo, rango, time.time()))
+            self.conn.commit()
+            self._calibracion_meta = {
+                "alpha": u.alpha,
+                "n_negativos": u.n_calibracion,
+                "n_positivos": n_positivos,
+                "n_nodos_corpus": n_nodos,
+                "metodo": metodo,
+                "fecha_calibracion": time.time(),
+            }
+            logger.info(
+                f"Calibración persistida: umbral={u.umbral:.4f} alpha={u.alpha} "
+                f"n_nodos={n_nodos}"
+            )
+        except Exception as e:
+            logger.warning(f"No se pudo persistir calibración: {e}")
+
+    def calibrar_y_persistir(self, alpha: float = 0.10, n_negativos: int = 40,
+                             n_positivos_max: int = 300,
+                             recalcular_si_drift: bool = True,
+                             force: bool = False) -> dict:
+        """Calibra (o recalibra si el corpus cambió) y persiste la garantía.
+
+        DEVUELVE EL UMBRAL CON GARANTÍA FP <= alpha SOBRE EL CORPUS ACTUAL.
+        Si ya hay una calibración persistida y el tamaño del corpus no cambió
+        significativamente, reutiliza la vigente (no quema tiempo de búsqueda).
+
+        Umbral por defecto 0.10: con los negativos del QA baseline (40 casos)
+        fija el cuantil ceil((n+1)(1-alpha))/n de sus scores crudos.
+
+        Args:
+            alpha: garantía FP objetivo (0 < alpha < 1).
+            n_negativos: máximo de negativos a usar (los 40 del QA baseline).
+            n_positivos_max: máximo de positivos para calibrar Platt (opcional).
+            recalcular_si_drift: re-calibrar si n_nodos cambió > tolerancia.
+            force: True = recalibrar siempre, ignorando calibración vigente.
+        """
+        n_nodos_actual = self._contar_nodos_corpus()
+        meta = getattr(self, "_calibracion_meta", None)
+
+        # Reutilizar calibración vigente si el corpus no se movió mucho
+        if (not force and recalcular_si_drift and meta and self._umbral_conforme
+                and self._umbral_conforme.umbral > 0):
+            n_previo = meta.get("n_nodos_corpus", 0)
+            drift_rel = abs(n_nodos_actual - n_previo) / max(n_previo, 1)
+            # Tolerancia: 20% de cambio relativo (matemática simple, escalable:
+            # el cuantil conforme es robusto a perturbaciones pequeñas del corpus)
+            if drift_rel <= 0.20:
+                return {
+                    "umbral": self._umbral_conforme.umbral,
+                    "alpha": self._umbral_conforme.alpha,
+                    "n_negativos": self._umbral_conforme.n_calibracion,
+                    "n_nodos_corpus": n_nodos_actual,
+                    "recalibrado": False,
+                    "motivo": "corpus_sin_drift_significativo",
+                    "fecha": meta.get("fecha_calibracion"),
+                }
+            logger.info(
+                f"Corpus cambió {100*drift_rel:.1f}% ({n_previo} -> {n_nodos_actual}); "
+                f"recalibrando umbral conforme"
+            )
+
+        # Intentar cargar persistida (si no la teníamos en memoria)
+        if not force and not meta and self._cargar_calibracion_persistida():
+            meta = self._calibracion_meta
+            n_previo = meta.get("n_nodos_corpus", 0)
+            drift_rel = abs(n_nodos_actual - n_previo) / max(n_previo, 1)
+            if drift_rel <= 0.20 and self._umbral_conforme.umbral > 0:
+                return {
+                    "umbral": self._umbral_conforme.umbral,
+                    "alpha": self._umbral_conforme.alpha,
+                    "n_negativos": self._umbral_conforme.n_calibracion,
+                    "n_nodos_corpus": n_nodos_actual,
+                    "recalibrado": False,
+                    "motivo": "persistida_sin_drift",
+                    "fecha": meta.get("fecha_calibracion"),
+                }
+
+        # Calibrar sobre el corpus ACTUAL
+        umbral = self.calibrar_umbral_conforme(alpha=alpha, n_negativos=n_negativos)
+        if umbral <= 0:
+            return {"umbral": 0.0, "error": "calibracion_fallida"}
+
+        n_pos = 0
+        if n_positivos_max > 0 and CalibradorPlatt:
+            try:
+                scores_pos, labels_pos = self._preparar_datos_calibracion(n_positivos_max)
+                if len(scores_pos) >= 20:
+                    self._platt_calibrador = CalibradorPlatt().entrenar(
+                        scores_pos, labels_pos
+                    )
+                    n_pos = len(scores_pos)
+                    logger.info(
+                        f"Platt recalibrado: a={self._platt_calibrador.a:.4f}, "
+                        f"b={self._platt_calibrador.b:.4f} (n={n_pos})"
+                    )
+            except Exception as e:
+                logger.warning(f"Platt falló en recalibración: {e}")
+
+        self._persistir_calibracion(n_pos, metodo="conforme")
+        return {
+            "umbral": umbral,
+            "alpha": alpha,
+            "n_negativos": self._umbral_conforme.n_calibracion,
+            "n_nodos_corpus": n_nodos_actual,
+            "recalibrado": True,
+            "motivo": "calibrado_sobre_corpus_actual",
+            "fecha": time.time(),
+        }
+
+    def nivel_certeza(self, score: float) -> str:
+        """Clasifica un score crudo en los 3 niveles de honestidad epistémica.
+
+        Regla del Neocórtex de Sangre (Dennys, 2026-08-14): nunca silencio vacío.
+        Tres niveles:
+          - evidencia_directa: score supera el umbral conforme (garantía FP <= alpha)
+          - relacionado_confianza_media: por debajo del umbral pero hay señal
+          - sin_evidencia_directa: score por debajo del umbral inferior (0.35)
+
+        El umbral inferior 0.35 es el piso de ruido medido en live DB
+        (rango de negativos: 0.34-0.61). Si el corpus cambia de tamaño, la
+        recalibración ajusta el umbral superior; el piso se re-deriva del
+        rango persistido de negativos.
+        """
+        u = self._umbral_conforme
+        if u and u.umbral > 0:
+            if float(score) > u.umbral:
+                return "evidencia_directa"
+            piso = (u.rango_negativos[0] or 0.0) if u.rango_negativos else 0.35
+            if float(score) >= max(piso, 0.35) - 0.01:
+                return "relacionado_confianza_media"
+            return "sin_evidencia_directa"
+        # Sin calibración: fallback conservador de 3 niveles
+        if score >= 0.60:
+            return "evidencia_directa"
+        if score >= 0.35:
+            return "relacionado_confianza_media"
+        return "sin_evidencia_directa"
+
+    def confianza_calibrada(self, score: float) -> float:
+        """Probabilidad calibrada (Platt) o score crudo si no hay calibrador."""
+        if self._platt_calibrador:
+            try:
+                if hasattr(self._platt_calibrador, 'probabilidad'):
+                    return float(self._platt_calibrador.probabilidad(score))
+                return float(self._platt_calibrador(score))
+            except Exception:
+                pass
+        return float(score)
 
 
     def expandir_contexto_vecinos(self, pagina_resultados, depth, profundidad="activos", preview_chars=None):

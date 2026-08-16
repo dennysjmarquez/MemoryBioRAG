@@ -240,6 +240,30 @@ def _encontrar_arista_origen(cerebro, concepto_fp, items, origen_scores):
 _ULTIMO_SUENO_TS: float = 0.0
 
 
+def _confianza_calibrada(cerebro, score) -> float:
+    """Probabilidad calibrada (Platt) del score crudo, o el score si no hay calibrador."""
+    try:
+        if hasattr(cerebro, "confianza_calibrada"):
+            return cerebro.confianza_calibrada(score)
+    except Exception:
+        pass
+    return float(score)
+
+
+def _nivel_certeza(cerebro, score) -> str:
+    """Nivel de honestidad epistémica: evidencia_directa / relacionado_confianza_media / sin_evidencia_directa."""
+    try:
+        if hasattr(cerebro, "nivel_certeza"):
+            return cerebro.nivel_certeza(score)
+    except Exception:
+        pass
+    if score >= 0.60:
+        return "evidencia_directa"
+    if score >= 0.35:
+        return "relacionado_confianza_media"
+    return "sin_evidencia_directa"
+
+
 def _interceptar(accion: str, texto: str, cerebro) -> dict | None:
     registrar_accion(accion, texto)
     resultado = analizar_y_autoguardar(cerebro)
@@ -1021,6 +1045,8 @@ def _build_server():
                     "peso_sinaptico": peso,
                     "estado": estado,
                     "score_hibrido": score,
+                    "confianza_calibrada": _confianza_calibrada(cerebro, score),
+                    "nivel_certeza": _nivel_certeza(cerebro, score),
                     "edad_dias": round(edad_dias, 1),
                     "timestamp_creado": creado_ts,
                     "fecha_legible": datetime.fromtimestamp(creado_ts).strftime("%Y-%m-%d %H:%M") if creado_ts else None,
@@ -1046,6 +1072,8 @@ def _build_server():
                         "peso_sinaptico": peso,
                         "estado": estado,
                         "score_hibrido": score,
+                        "confianza_calibrada": _confianza_calibrada(cerebro, score),
+                        "nivel_certeza": _nivel_certeza(cerebro, score),
                         "edad_dias": round(edad_dias, 1),
                         "timestamp_creado": creado_ts,
                         "fecha_legible": datetime.fromtimestamp(creado_ts).strftime("%Y-%m-%d %H:%M") if creado_ts else None,
@@ -2210,6 +2238,39 @@ def _build_server():
                 "status": "ok",
                 "mensaje": f"Mensaje de {agente} para {destino} registrado.",
             }, ensure_ascii=False)
+        finally:
+            cerebro.cerrar_sistema()
+
+    @mcp.tool(
+        name="calibrar",
+        description=(
+            "Calibra (o recalibra) la garantía de falso positivo del motor contra el corpus ACTUAL y la persiste. "
+            "El umbral conforme fija FP <= alpha (distribution-free, Vovk 2005) usando los 40 negativos del QA baseline. "
+            "Se recalibra automáticamente cuando el corpus cambia de tamaño >20%; esta tool fuerza la recalibración "
+            "con los parámetros pedidos. Retorna el umbral y el estado de calibración."
+        ),
+    )
+    def biorag_calibrar(
+        alpha: Annotated[float, Field(
+            description="Garantía FP objetivo (0 < alpha < 1). Default 0.10 = 90% de confianza en que el corte no deja pasar negativos."
+        )] = 0.10,
+        n_negativos: Annotated[int, Field(
+            description="Máximo de negativos a usar (hasta 40 disponibles en QA baseline)."
+        )] = 40,
+        forzar: Annotated[bool, Field(
+            description="True = recalibrar aunque el corpus no haya cambiado. False (default) = reutilizar calibración vigente si no hay drift."
+        )] = False,
+    ) -> str:
+        cerebro = _get_cerebro()
+        try:
+            if forzar:
+                res = cerebro.calibrar_y_persistir(
+                    alpha=alpha, n_negativos=n_negativos, force=True
+                )
+                res["forzado"] = True
+            else:
+                res = cerebro.calibrar_y_persistir(alpha=alpha, n_negativos=n_negativos)
+            return json.dumps(res, ensure_ascii=False)
         finally:
             cerebro.cerrar_sistema()
 
