@@ -121,6 +121,40 @@ class TestCalibracionPersistente(unittest.TestCase):
         """Sin Platt calibrado, confianza_calibrada == score crudo (no inventa)."""
         self.assertEqual(self.ms.confianza_calibrada(0.42), 0.42)
 
+    def test_feedback_propaga_util_entre_instancias(self):
+        """El MCP crea una instancia nueva por llamada. El feedback debe propagarse
+        igual: si esto falla, `util` queda NULL para siempre en producción aunque
+        los tests de una sola instancia pasen."""
+        # Instancia 1: hace una búsqueda que devuelve un concepto conocido
+        c1 = SQLiteMemoryBioRAG(self.db_file)
+        # Asegurar que hay nodos para buscar
+        c1.cursor.execute(
+            "INSERT INTO largo_plazo (concepto, contenido, peso_sinaptico, estado, sinonimos) "
+            "VALUES (?, ?, ?, ?, ?)",
+            ("concepto_para_feedback", "contenido de prueba para feedback loop", 0.8,
+             "activo", "feedback,test")
+        )
+        c1.conn.commit()
+        c1.buscar_por_frase("feedback loop", limite=1)
+        log_id = c1.last_log_id
+        c1.cerrar_sistema()
+
+        # Instancia 2: aplica feedback (simula flujo MCP real)
+        c2 = SQLiteMemoryBioRAG(self.db_file)
+        c2.aplicar_refuerzo_dopaminergico("concepto_para_feedback", exito=True)
+        c2.cerrar_sistema()
+
+        # Verificar que util se propagó en la DB (cruzó instancias)
+        con = sqlite3.connect(self.db_file)
+        util = con.execute(
+            "SELECT util FROM log_busquedas WHERE id = ?", (log_id,)
+        ).fetchone()[0]
+        con.close()
+        self.assertIsNotNone(
+            util, "util quedó NULL: el feedback no cruzó instancias (CASO B falla)"
+        )
+        self.assertEqual(util, 1, f"esperado util=1 (éxito), obtenido {util}")
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -878,7 +878,8 @@ class SQLiteMemoryBioRAG:
                 top_score REAL,
                 creado_en REAL NOT NULL,
                 util INTEGER DEFAULT NULL,
-                params_json TEXT
+                params_json TEXT,
+                conceptos_top TEXT
             )
         """)
         self._crear_tabla_data()
@@ -976,12 +977,18 @@ class SQLiteMemoryBioRAG:
                 top_score REAL,
                 creado_en REAL NOT NULL,
                 util INTEGER DEFAULT NULL,
-                params_json TEXT
+                params_json TEXT,
+                conceptos_top TEXT
             )
         """)
         # Migración: agregar params_json si falta
         try:
             self.cursor.execute("ALTER TABLE log_busquedas ADD COLUMN params_json TEXT")
+        except:
+            pass  # ya existe
+        # Migración: agregar conceptos_top si falta
+        try:
+            self.cursor.execute("ALTER TABLE log_busquedas ADD COLUMN conceptos_top TEXT")
         except:
             pass  # ya existe
 
@@ -2563,15 +2570,24 @@ class SQLiteMemoryBioRAG:
         except Exception as e:
             print(f"[BioRAG] aviso: no se pudo registrar evento_refuerzo para '{key}': {e}")
 
-        # Propagar feedback a log_busquedas.util usando last_log_id (puente
-        # establecido en recordar/buscar_por_frase). Esto cierra el bucle:
-        # feedback de concepto -> util de la query que lo recuperó.
+        # Propagar feedback a log_busquedas.util atribuyéndolo a la búsqueda
+        # más reciente que devolvió este concepto (ver docs/FIX_FEEDBACK_NO_ALCANZABLE.md).
+        # Usamos conceptos_top (CSV) en lugar de last_log_id (estado en memoria),
+        # porque el MCP crea una instancia nueva por llamada y last_log_id no
+        # sobrevive entre herramientas. El WHERE utiliza LIKE con delimitadores
+        # para coincidencia exacta del concepto en la lista CSV.
         try:
-            if getattr(self, "last_log_id", None):
-                self.cursor.execute(
-                    "UPDATE log_busquedas SET util = ? WHERE id = ? AND util IS NULL",
-                    (1 if exito else 0, self.last_log_id),
-                )
+            self.cursor.execute(
+                "UPDATE log_busquedas SET util = ? "
+                "WHERE id = (SELECT id FROM log_busquedas "
+                "            WHERE util IS NULL "
+                "              AND (',' || conceptos_top || ',') LIKE ? "
+                "            ORDER BY creado_en DESC LIMIT 1)",
+                (1 if exito else 0, f"%,{key},%"),
+            )
+            if self.cursor.rowcount == 0:
+                print(f"[BioRAG] aviso: feedback sobre '{key}' sin búsqueda asociada "
+                      f"pendiente; no se propagó a log_busquedas.")
         except Exception as e:
             print(f"[BioRAG] aviso: no se pudo propagar feedback a log_busquedas: {e}")
 
@@ -5468,9 +5484,17 @@ class SQLiteMemoryBioRAG:
         # Phase 2D: Telemetría de búsquedas (non-blocking)
         try:
             top_score = pagina_resultados[0][4] if pagina_resultados else None
+            # Guardar top-5 conceptos para atribución de feedback (ver
+            # docs/FIX_FEEDBACK_NO_ALCANZABLE.md): permite unir feedback por
+            # concepto a la búsqueda que lo recuperó, sin depender de estado
+            # en memoria (que no sobrevive entre llamadas MCP).
+            conceptos_top = None
+            if pagina_resultados:
+                top_conceptos = [r[0] for r in pagina_resultados[:5]]
+                conceptos_top = ",".join(top_conceptos)
             self.cursor.execute(
-                "INSERT INTO log_busquedas (query, resultados_count, top_score, creado_en) VALUES (?, ?, ?, ?)",
-                (query, total, top_score, time.time())
+                "INSERT INTO log_busquedas (query, resultados_count, top_score, creado_en, conceptos_top) VALUES (?, ?, ?, ?, ?)",
+                (query, total, top_score, time.time(), conceptos_top),
             )
             self.last_log_id = self.cursor.lastrowid
             self.conn.commit()
