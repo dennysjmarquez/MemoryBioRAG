@@ -1942,6 +1942,27 @@ class SQLiteMemoryBioRAG:
         self.cursor.execute("CREATE INDEX IF NOT EXISTS idx_mc_nodos_accion ON metricas_cognitivas_nodos(accion)")
         self.cursor.execute("CREATE INDEX IF NOT EXISTS idx_mc_nodos_anomalo ON metricas_cognitivas_nodos(anomalo)")
 
+        # Tabla de eventos de refuerzo dopaminérgico en tiempo real.
+        # POR QUÉ una tabla aparte: metricas_cognitivas_nodos tiene grano de "ciclo de
+        # sueño" (metrica_id NOT NULL con FK). El feedback ocurre entre ciclos, así que
+        # no tiene un ciclo padre al que apuntar. Meterlo ahí obliga a inventar un
+        # metrica_id o a relajar la FK; ambas cosas corrompen el historial forense.
+        self.cursor.execute("""
+            CREATE TABLE IF NOT EXISTS eventos_refuerzo (
+                id            INTEGER PRIMARY KEY AUTOINCREMENT,
+                concepto      TEXT    NOT NULL,
+                exito         INTEGER NOT NULL CHECK(exito IN (0,1)),
+                peso_anterior REAL    NOT NULL,
+                peso_nuevo    REAL    NOT NULL,
+                delta         REAL    NOT NULL,
+                exitos_previos INTEGER NOT NULL,
+                motivo        TEXT,
+                created_at    REAL    NOT NULL
+            )
+        """)
+        self.cursor.execute("CREATE INDEX IF NOT EXISTS ix_evref_concepto ON eventos_refuerzo(concepto)")
+        self.cursor.execute("CREATE INDEX IF NOT EXISTS ix_evref_fecha    ON eventos_refuerzo(created_at)")
+
         # Asegurar tablas referenciadas por triggers de DELETE en largo_plazo
         self.cursor.execute("""
             CREATE TABLE IF NOT EXISTS nodos_sdm (
@@ -2482,6 +2503,23 @@ class SQLiteMemoryBioRAG:
                 WHERE concepto = ?
             """, (nuevo_peso, nuevos_fallos, nuevo_estado, key))
 
+        # Registrar el evento de refuerzo en tabla propia (sin FK a ciclos).
+        # POR QUÉ: el LTP dopaminérgico era la única regla de actualización de peso
+        # sin rastro persistente (P3, 2026-08-15), lo que la hacía imposible de
+        # validar contra la teoría. El try/except es deliberado: perder una fila
+        # de telemetría es aceptable; romper el bucle de feedback no.
+        try:
+            delta = round(nuevo_peso - peso_actual, 4)
+            self.cursor.execute("""
+                INSERT INTO eventos_refuerzo
+                (concepto, exito, peso_anterior, peso_nuevo, delta, exitos_previos, motivo, created_at)
+                VALUES (?,?,?,?,?,?,?,?)""",
+                (key, 1 if exito else 0, peso_actual, nuevo_peso,
+                 delta, exitos, motivo, time.time())
+            )
+        except Exception as e:
+            print(f"[BioRAG] aviso: no se pudo registrar evento_refuerzo para '{key}': {e}")
+
         self.conn.commit()
         return True
 
@@ -3020,11 +3058,11 @@ class SQLiteMemoryBioRAG:
 
         Calcula la divergencia entre las distribuciones de frecuencia de palabras
         del query y del contenido del nodo. A diferencia de BM25 (que mide
-        relevancia por IDF), JSD mide *solapamiento distribucional* — cuánta
-        información comparten dos textos.
+        relevancia por IDF), JSD mide solapamiento distribucional - cuanta
+        informacion comparten dos textos.
 
-        JSD = ½·KL(P||M) + ½·KL(Q||M)  donde M = ½(P+Q)
-        Score = 1 - sqrt(JSD)  → [0,1], mayor = más similar.
+        JSD = 1/2 * KL(P||M) + 1/2 * KL(Q||M)  donde M = 1/2(P+Q)
+        Score = 1 - sqrt(JSD)  -> [0,1], mayor = mas similar.
         """
         if not query_text or not node_text:
             return 0.0
@@ -3077,22 +3115,22 @@ class SQLiteMemoryBioRAG:
 
     @staticmethod
     def _calcular_bm25_bayesiano(raw_scores: dict, alpha: float = 1.0) -> dict:
-        """Calibración Bayesian BM25: convierte scores crudos FTS5 a probabilidades [0,1].
+        """Calibracion Bayesian BM25: convierte scores crudos FTS5 a probabilidades [0,1].
 
-        Fórmula: sigmoid(α × (score - β)) donde β = mediana(scores) × 0.7
-        (estimación sin labels, basada en distribución del corpus).
+        Formula: sigmoid(alpha * (score - beta)) donde beta = mediana(scores) * 0.7
+        (estimacion sin labels, basada en distribucion del corpus).
 
-        A diferencia de x/(x+3), la sigmoid calibra probabilísticamente:
-        - scores altos → ~1.0 (alta probabilidad de relevancia)
-        - scores bajos → ~0.0 (baja probabilidad)
+        A diferencia de x/(x+3), la sigmoid calibra probabilisticamente:
+        - scores altos -> ~1.0 (alta probabilidad de relevancia)
+        - scores bajos -> ~0.0 (baja probabilidad)
         - β se adapta a la distribución de scores de cada query
 
         Args:
-            raw_scores: {concepto: raw_bm25_score} — scores crudos de FTS5
+            raw_scores: {concepto: raw_bm25_score} - scores crudos de FTS5
             alpha: steepness de la sigmoid (default 1.0)
 
         Returns:
-            {concepto: probability} — probabilidades calibradas en [0, 1]
+            {concepto: probability} - probabilidades calibradas en [0, 1]
         """
         if not raw_scores:
             return {}
