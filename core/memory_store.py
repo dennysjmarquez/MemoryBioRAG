@@ -1942,6 +1942,27 @@ class SQLiteMemoryBioRAG:
         self.cursor.execute("CREATE INDEX IF NOT EXISTS idx_mc_nodos_accion ON metricas_cognitivas_nodos(accion)")
         self.cursor.execute("CREATE INDEX IF NOT EXISTS idx_mc_nodos_anomalo ON metricas_cognitivas_nodos(anomalo)")
 
+        # Tabla de eventos de refuerzo dopaminérgico en tiempo real.
+        # POR QUÉ una tabla aparte: metricas_cognitivas_nodos tiene grano de "ciclo de
+        # sueño" (metrica_id NOT NULL con FK). El feedback ocurre entre ciclos, así que
+        # no tiene un ciclo padre al que apuntar. Meterlo ahí obliga a inventar un
+        # metrica_id o a relajar la FK; ambas cosas corrompen el historial forense.
+        self.cursor.execute("""
+            CREATE TABLE IF NOT EXISTS eventos_refuerzo (
+                id            INTEGER PRIMARY KEY AUTOINCREMENT,
+                concepto      TEXT    NOT NULL,
+                exito         INTEGER NOT NULL CHECK(exito IN (0,1)),
+                peso_anterior REAL    NOT NULL,
+                peso_nuevo    REAL    NOT NULL,
+                delta         REAL    NOT NULL,
+                exitos_previos INTEGER NOT NULL,
+                motivo        TEXT,
+                created_at    REAL    NOT NULL
+            )
+        """)
+        self.cursor.execute("CREATE INDEX IF NOT EXISTS ix_evref_concepto ON eventos_refuerzo(concepto)")
+        self.cursor.execute("CREATE INDEX IF NOT EXISTS ix_evref_fecha    ON eventos_refuerzo(created_at)")
+
         # Asegurar tablas referenciadas por triggers de DELETE en largo_plazo
         self.cursor.execute("""
             CREATE TABLE IF NOT EXISTS nodos_sdm (
@@ -2482,6 +2503,23 @@ class SQLiteMemoryBioRAG:
                 WHERE concepto = ?
             """, (nuevo_peso, nuevos_fallos, nuevo_estado, key))
 
+        # Registrar el evento de refuerzo en tabla propia (sin FK a ciclos).
+        # POR QUÉ: el LTP dopaminérgico era la única regla de actualización de peso
+        # sin rastro persistente (P3, 2026-08-15), lo que la hacía imposible de
+        # validar contra la teoría. El try/except es deliberado: perder una fila
+        # de telemetría es aceptable; romper el bucle de feedback no.
+        try:
+            delta = round(nuevo_peso - peso_actual, 4)
+            self.cursor.execute("""
+                INSERT INTO eventos_refuerzo
+                (concepto, exito, peso_anterior, peso_nuevo, delta, exitos_previos, motivo, created_at)
+                VALUES (?,?,?,?,?,?,?,?)""",
+                (key, 1 if exito else 0, peso_actual, nuevo_peso,
+                 delta, exitos, motivo, time.time())
+            )
+        except Exception as e:
+            print(f"[BioRAG] aviso: no se pudo registrar evento_refuerzo para '{key}': {e}")
+
         self.conn.commit()
         return True
 
@@ -3020,11 +3058,11 @@ class SQLiteMemoryBioRAG:
 
         Calcula la divergencia entre las distribuciones de frecuencia de palabras
         del query y del contenido del nodo. A diferencia de BM25 (que mide
-        relevancia por IDF), JSD mide *solapamiento distribucional* — cuánta
-        información comparten dos textos.
+        relevancia por IDF), JSD mide solapamiento distribucional - cuanta
+        informacion comparten dos textos.
 
-        JSD = ½·KL(P||M) + ½·KL(Q||M)  donde M = ½(P+Q)
-        Score = 1 - sqrt(JSD)  → [0,1], mayor = más similar.
+        JSD = 1/2 * KL(P||M) + 1/2 * KL(Q||M)  donde M = 1/2(P+Q)
+        Score = 1 - sqrt(JSD)  -> [0,1], mayor = mas similar.
         """
         if not query_text or not node_text:
             return 0.0
@@ -3077,22 +3115,22 @@ class SQLiteMemoryBioRAG:
 
     @staticmethod
     def _calcular_bm25_bayesiano(raw_scores: dict, alpha: float = 1.0) -> dict:
-        """Calibración Bayesian BM25: convierte scores crudos FTS5 a probabilidades [0,1].
+        """Calibracion Bayesian BM25: convierte scores crudos FTS5 a probabilidades [0,1].
 
-        Fórmula: sigmoid(α × (score - β)) donde β = mediana(scores) × 0.7
-        (estimación sin labels, basada en distribución del corpus).
+        Formula: sigmoid(alpha * (score - beta)) donde beta = mediana(scores) * 0.7
+        (estimacion sin labels, basada en distribucion del corpus).
 
-        A diferencia de x/(x+3), la sigmoid calibra probabilísticamente:
-        - scores altos → ~1.0 (alta probabilidad de relevancia)
-        - scores bajos → ~0.0 (baja probabilidad)
+        A diferencia de x/(x+3), la sigmoid calibra probabilisticamente:
+        - scores altos -> ~1.0 (alta probabilidad de relevancia)
+        - scores bajos -> ~0.0 (baja probabilidad)
         - β se adapta a la distribución de scores de cada query
 
         Args:
-            raw_scores: {concepto: raw_bm25_score} — scores crudos de FTS5
+            raw_scores: {concepto: raw_bm25_score} - scores crudos de FTS5
             alpha: steepness de la sigmoid (default 1.0)
 
         Returns:
-            {concepto: probability} — probabilidades calibradas en [0, 1]
+            {concepto: probability} - probabilidades calibradas en [0, 1]
         """
         if not raw_scores:
             return {}
@@ -3144,8 +3182,21 @@ class SQLiteMemoryBioRAG:
         asoc_norm = min(1.0, asoc_count / 20.0)
         peso_norm = min(1.0, peso_sinaptico)
 
-        # Base weights (sum to 1.0 when jsd_weight=0)
-        base_weight = 1.0 - jsd_weight
+        # Base weights (sum to 1.0 when jsd_weight=0, PPMI_VECTOR_WEIGHT folded in)
+        # Weights dict: bm25=0.25, dim=0.14, concepto=0.08, sinonimos=0.08,
+        # peso=0.10, jaccard=0.10, grupo=0.10, tematico=0.08,
+        # temporal=0.04, asoc=0.02, pred=0.20 = 1.19
+        # PPMI_VECTOR_WEIGHT = 0.15 -> total 1.34
+        # Re-normalizamos todos los pesos para que sumen 1.0 - jsd_weight
+        # Derivamos la suma base del dict para evitar hardcoding
+        _base_weights = {
+            "bm25": 0.25, "dim": 0.14, "concepto": 0.08, "sinonimos": 0.08,
+            "peso": 0.10, "jaccard": 0.10, "grupo": 0.10, "tematico": 0.08,
+            "temporal": 0.04, "asoc": 0.02, "pred": 0.20,
+        }
+        _base_sum = sum(_base_weights.values())  # 1.19
+        total_base = _base_sum + PPMI_VECTOR_WEIGHT  # 1.34
+        base_weight = (1.0 - jsd_weight) / total_base
 
         score = (
             base_weight * (
@@ -3159,19 +3210,32 @@ class SQLiteMemoryBioRAG:
                 0.08 * tematico_score +      # Similitud temática
                 0.04 * temporal +            # Recencia
                 0.02 * asoc_norm +           # Asociaciones
-                0.20 * pred_score            # Signal #12: Predicados SRL (20x weight)
+                0.20 * pred_score +          # Signal #12: Predicados SRL
+                PPMI_VECTOR_WEIGHT * ppmi_score  # Signal #13: PPMI+SVD
             ) +
-            jsd_weight * jsd_score +         # Signal #11: JSD distributional overlap
-            PPMI_VECTOR_WEIGHT * ppmi_score  # Signal #13: PPMI+SVD vector similarity (v26.0)
+            jsd_weight * jsd_score           # Signal #11: JSD distributional overlap
         )
 
+        # Bonos en espacio logit (aditivos en log-odds) para preservar orden interno
+        # match_exacto: bono ~logit(0.95) - logit(score_base) ≈ +2.94 log-odds
+        # sinonimos_ratio >= 0.95: bono para llegar a ~0.70 + 0.10*ppmi
         if match_exacto:
-            score = max(0.95, score)
+            # Convertir a log-odds, sumar bono, volver a probabilidad
+            p = max(1e-6, min(1-1e-6, score))
+            logit = math.log(p / (1.0 - p)) + 2.94  # logit(0.95) ≈ 2.94
+            score = 1.0 / (1.0 + math.exp(-logit))
         elif sinonimos_ratio >= 0.95:
-            score = max(0.70 + 0.10 * ppmi_score, score)
+            # Bono para alcanzar ~0.70 + 0.10*ppmi: bono aditivo en logit space
+            target = 0.70 + 0.10 * ppmi_score
+            p = max(1e-6, min(1-1e-6, score))
+            logit = math.log(p / (1.0 - p))
+            # Bono aditivo en espacio logit: diferencia entre target_logit y 0
+            # Equivalente a añadir log(target/(1-target)) al logit
+            target_logit = math.log(target / (1.0 - target))
+            bonus = target_logit  # bono para llevar score base 0.5 -> target
+            score = 1.0 / (1.0 + math.exp(-(logit + bonus)))
 
-
-        return round(min(1.0, score), 4)
+        return round(min(1.0, max(0.0, score)), 4)
 
 
     def expandir_contexto_vecinos(self, pagina_resultados, depth, profundidad="activos", preview_chars=None):
@@ -4643,7 +4707,8 @@ class SQLiteMemoryBioRAG:
                     q_set = set(q_toks_list)
                     es_corta = len(q_set) <= 2
                     pool_set = {r[1] for r in todos}
-                    _raw_ppmi, _ = score_candidato(self._ppmi_index, q_toks_list, q_set, es_corta, concepto, pool_set)
+                    vq = self._ppmi_index.vector_query(q_toks_list)
+                    _raw_ppmi, _ = score_candidato(self._ppmi_index, vq, q_set, es_corta, concepto, pool_set)
                     # Normalizar: el score bruto de score_candidato ronda 0-2 para query corta (dividir por 2.0), 0-1 para larga
                     ppmi_val = min(1.0, max(0.0, _raw_ppmi / (2.0 if es_corta else 1.0)))
 

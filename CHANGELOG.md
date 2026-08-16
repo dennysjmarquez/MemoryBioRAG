@@ -1,5 +1,58 @@
 # BioRAG Changelog
 
+## [v28.1] — 2026-08-15 — Auditoría matemática, corrección de scoring e instrumentación
+
+Release de **correctitud e instrumentación**. No cambia las métricas de
+recuperación (los deltas medidos son de 1-3 casos, ninguno significativo).
+Detalle completo en `docs/RELEASE_v28.1.md` y `EXPERIMENTS.md`.
+
+### Corregido
+- **Bug 1.1** (`ppmi_vectorizer.py`): `varianza_explicada` siempre devolvía 1.0
+  porque truncaba `S` antes de calcular el total. Ahora divide por el espectro
+  completo. Habilita elegir `dim` con criterio.
+- **Bug 1.2** (`memory_store.py`): los pesos del score híbrido sumaban 1.34 y el
+  resultado saturaba en `min(1.0, ·)`, perdiendo resolución en el head del ranking.
+  Renormalizados; la suma se deriva de un dict en vez de una constante literal.
+- **Bug 1.3** (`memory_store.py`): `max(0.95, score)` empataba resultados y el
+  desempate lo decidía el orden del `SELECT`. Sustituido por bonos aditivos en
+  espacio logit, que preservan el orden interno.
+- **Bug 1.4** (`sdm.py`): el radio de búsqueda comparaba `(1-Jaccard)*2048` contra
+  una escala Hamming. Ahora usa distancia de Hamming real.
+- **Bug 1.5** (`ppmi_hybrid_search.py`): `vector_query` se recalculaba por
+  candidato. Movido fuera del bucle.
+
+### Añadido
+- Tabla **`eventos_refuerzo`**: registra cada refuerzo dopaminérgico
+  (`peso_anterior`, `peso_nuevo`, `delta`, `exitos_previos`). Antes el LTP era la
+  única regla de actualización de peso sin rastro persistente, lo que la hacía
+  imposible de validar.
+- `scripts/test_regresion_scoring.py` — 4 tests de propiedades del scoring,
+  validados contra las versiones con y sin bug.
+- `scripts/test_h_corpus_umbral.py` — AUC, barrido de umbral y coste de abstenerse.
+- `scripts/medir_ratio_produccion.py` — ratio real de consultas con/sin respuesta.
+- `scripts/evaluacion_estadistica.py` — Wilson, McNemar pareado, macro vs micro, BH.
+- `scripts/test_p4_feedback.py`, `test_p5_que_sostiene_activos.py`,
+  `test_p6_inmortales_por_null.py` — diagnóstico de la dinámica de olvido.
+- `core/termodinamica_cortical.py` — ley de supervivencia cortical (teoría + autotest).
+- `core/calibracion.py` — RRF, Platt, isotónica, umbral conforme, MMR, Dunning LLR.
+- `BIORAG_FP_THRESHOLD` en `evaluar_qa.py`: el umbral de falso positivo estaba
+  hardcodeado en 0.25, lo que invalidaba comparaciones tras cualquier reescalado.
+
+### Diagnosticado (sin resolver)
+- **FP 80% en live DB es preexistente**, no lo causaron los fixes ni el daemon
+  (matriz 2×2 completa con `baseline@live` medido).
+- **El ranking funciona**: AUC positivos vs negativos = 0.914; R@5 live 96.37%.
+  El problema es el umbral absoluto, que no escala con el tamaño del corpus.
+- **El olvido no discrimina por valor**: 154 nodos dormidos, 100% con
+  `exitos_dopamina = 0`; 97 de ellos con grado ≥10 (puentes estructurales).
+- **Bug latente H5**: un nodo con `categoria IS NULL` nunca recibe LTD
+  (`NULL NOT IN (...)` evalúa a NULL en SQL). Es inmortal de facto.
+  **No aplicar el fix sin medir antes el tamaño de la población afectada.**
+
+### Descartado con evidencia
+RRF como solución al FP, el daemon como causa, el fix 1.2 como causa, la fusión
+lineal como causa, y el escenario de "discriminación rota". Ver `EXPERIMENTS.md`.
+
 ## [Unreleased]
 
 ### Mar 11-ago-2026 — Fix: catálogo de dimensiones desincronizado + reactivación de `biorag_feedback`

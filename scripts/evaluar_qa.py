@@ -103,8 +103,9 @@ def run_evaluation():
         # 3. Evaluation phase
         if expected is None:
             # Negative control case: check if we retrieved any matches with high score
-            # Noise threshold: if any result has score >= 0.25, it's considered a false positive
-            fps = [r for r in results if r[4] >= 0.25]
+            # Noise threshold: configurable via BIORAG_FP_THRESHOLD (default 0.25)
+            fp_threshold = float(os.environ.get('BIORAG_FP_THRESHOLD', '0.25'))
+            fps = [r for r in results if r[4] >= fp_threshold]
             if len(fps) > 0:
                 stats[category]["false_positives"] += 1
                 failures_by_category[category].append({
