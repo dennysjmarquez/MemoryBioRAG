@@ -5482,25 +5482,29 @@ class SQLiteMemoryBioRAG:
             total = len(pagina_resultados)
 
         # Phase 2D: Telemetría de búsquedas (non-blocking)
-        try:
-            top_score = pagina_resultados[0][4] if pagina_resultados else None
-            # Guardar top-5 conceptos para atribución de feedback (ver
-            # docs/FIX_FEEDBACK_NO_ALCANZABLE.md): permite unir feedback por
-            # concepto a la búsqueda que lo recuperó, sin depender de estado
-            # en memoria (que no sobrevive entre llamadas MCP).
-            conceptos_top = None
-            if pagina_resultados:
-                top_conceptos = [r[0] for r in pagina_resultados[:5]]
-                conceptos_top = ",".join(top_conceptos)
-            self.cursor.execute(
-                "INSERT INTO log_busquedas (query, resultados_count, top_score, creado_en, conceptos_top) VALUES (?, ?, ?, ?, ?)",
-                (query, total, top_score, time.time(), conceptos_top),
-            )
-            self.last_log_id = self.cursor.lastrowid
-            self.conn.commit()
-        except Exception:
+        # Respeta BIORAG_NO_LOG=1 para no contaminar el log con consultas de test/benchmark
+        if os.environ.get("BIORAG_NO_LOG") == "1":
             self.last_log_id = None
-            pass
+        else:
+            try:
+                top_score = pagina_resultados[0][4] if pagina_resultados else None
+                # Guardar top-5 conceptos para atribución de feedback (ver
+                # docs/FIX_FEEDBACK_NO_ALCANZABLE.md): permite unir feedback por
+                # concepto a la búsqueda que lo recuperó, sin depender de estado
+                # en memoria (que no sobrevive entre llamadas MCP).
+                conceptos_top = None
+                if pagina_resultados:
+                    top_conceptos = [r[0] for r in pagina_resultados[:5]]
+                    conceptos_top = ",".join(top_conceptos)
+                self.cursor.execute(
+                    "INSERT INTO log_busquedas (query, resultados_count, top_score, creado_en, conceptos_top) VALUES (?, ?, ?, ?, ?)",
+                    (query, total, top_score, time.time(), conceptos_top),
+                )
+                self.last_log_id = self.cursor.lastrowid
+                self.conn.commit()
+            except Exception:
+                self.last_log_id = None
+                pass
 
         return pagina_resultados, total
 

@@ -24,6 +24,9 @@ def run_evaluation():
                     k, v = line.split("=", 1)
                     os.environ.setdefault(k.strip(), v.strip())
 
+    # No contaminar log_busquedas con consultas del benchmark
+    os.environ["BIORAG_NO_LOG"] = "1"
+
     src_db = os.environ.get('BIORAG_PATH') or os.path.join(base_dir, "MemoryBioRAG_Data", "memory_biorag.db")
 
     temp_db = os.path.join(base_dir, "MemoryBioRAG_Data", "memory_biorag_qa_temp.db")
