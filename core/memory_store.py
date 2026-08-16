@@ -3357,11 +3357,17 @@ class SQLiteMemoryBioRAG:
         self._calibracion_entrenada = True
         return True
 
-    def calibrar_umbral_conforme(self, alpha: float = 0.10, n_negativos: int = 100) -> float:
+    def calibrar_umbral_conforme(self, alpha: float = None, n_negativos: int = 100) -> float:
         """Crea el umbral de abstención con garantía FP <= alpha (predicción conforme).
 
         Usa consultas negativas conocidas (sin respuesta en corpus) para fijar
         el umbral con garantía FP <= alpha (distribution-free).
+
+        alpha: garantía FP objetivo. Si None, se lee de BIORAG_ALPHA_CONFORME
+        (default 0.10). GUARDA (DECISION_ALPHA.md): con n negativos el alpha
+        mínimo alcanzable es 1/(n+1). Pedir menos no da esa garantía — solo
+        coloca el umbral en el máximo de la muestra, que es el estadístico más
+        inestable. Se avisa y se usa alpha_min en vez de fingir precisión.
 
         IMPORTANTE — SELECCIÓN DE NEGATIVOS: se usan EXCLUSIVAMENTE los casos de
         categoría `negativo` del QA baseline. NO se usan "expected no existe en
@@ -3376,6 +3382,11 @@ class SQLiteMemoryBioRAG:
         if not UmbralConforme:
             logger.warning("UmbralConforme no disponible")
             return 0.0
+
+        # alpha default desde env (DECISION_ALPHA.md, sección 5): ajustable por
+        # entorno (QA / producción / agente) sin tocar código.
+        if alpha is None:
+            alpha = float(os.environ.get('BIORAG_ALPHA_CONFORME', '0.10'))
 
         # Buscar casos negativos: queries de la categoría `negativo` del QA
         import json
@@ -3407,7 +3418,21 @@ class SQLiteMemoryBioRAG:
             logger.warning("No se encontraron negativos para calibración conforme")
             return 0.0
 
-        self._umbral_conforme = UmbralConforme(alpha=alpha).calibrar(scores_neg[:n_negativos])
+        # GUARDA (DECISION_ALPHA.md sección 5): alpha mínimo honesto = 1/(n+1).
+        # Con 32 muestras pedir alpha=0.01 no da esa garantía: solo coloca el
+        # umbral en el máximo observado (el estadístico más inestable). Avisar
+        # en vez de fingir precisión.
+        n_reales = min(len(scores_neg), n_negativos)
+        alpha_min = 1.0 / (n_reales + 1)
+        if alpha < alpha_min:
+            logger.warning(
+                f"alpha={alpha} pedido, pero con {n_reales} negativos el mínimo "
+                f"alcanzable es {alpha_min:.3f}. Se usa {alpha_min:.3f}. "
+                f"Para un alpha menor, amplía el corpus de negativos."
+            )
+            alpha = alpha_min
+
+        self._umbral_conforme = UmbralConforme(alpha=alpha).calibrar(scores_neg[:n_reales])
         logger.info(f"Umbral conforme (alpha={alpha}): {self._umbral_conforme.umbral:.4f} (n={self._umbral_conforme.n_calibracion})")
         return self._umbral_conforme.umbral
 
@@ -3572,7 +3597,7 @@ class SQLiteMemoryBioRAG:
         except Exception as e:
             logger.warning(f"No se pudo persistir calibración: {e}")
 
-    def calibrar_y_persistir(self, alpha: float = 0.10, n_negativos: int = 40,
+    def calibrar_y_persistir(self, alpha: float = None, n_negativos: int = 40,
                              n_positivos_max: int = 300,
                              recalcular_si_drift: bool = True,
                              force: bool = False) -> dict:
@@ -3591,7 +3616,10 @@ class SQLiteMemoryBioRAG:
         de consultas con/sin respuesta en log_busquedas (AUDITORÍA v28.1, paso 3).
 
         Args:
-            alpha: garantía FP objetivo (0 < alpha < 1).
+            alpha: garantía FP objetivo (0 < alpha < 1). None = leer env
+                BIORAG_ALPHA_CONFORME (default 0.10). Si es menor que
+                1/(n_negativos+1), se usa el mínimo alcanzable con la muestra
+                (GUARDA DECISION_ALPHA.md sección 5) y se avisa.
             n_negativos: máximo de negativos a usar (los 40 del QA baseline).
             n_positivos_max: máximo de positivos para calibrar Platt (opcional).
             recalcular_si_drift: re-calibrar si n_nodos cambió > tolerancia.
@@ -3599,6 +3627,10 @@ class SQLiteMemoryBioRAG:
         """
         n_nodos_actual = self._contar_nodos_corpus()
         meta = getattr(self, "_calibracion_meta", None)
+
+        # alpha default desde env (DECISION_ALPHA.md sección 5)
+        if alpha is None:
+            alpha = float(os.environ.get('BIORAG_ALPHA_CONFORME', '0.10'))
 
         # Reutilizar calibración vigente si el corpus no se movió mucho
         if (not force and recalcular_si_drift and meta and self._umbral_conforme
@@ -3667,7 +3699,9 @@ class SQLiteMemoryBioRAG:
         self._persistir_calibracion(n_pos, metodo="conforme")
         return {
             "umbral": umbral,
-            "alpha": alpha,
+            # alpha EFECTIVO tras la guarda 1/(n+1), no el pedido
+            "alpha": self._umbral_conforme.alpha,
+            "alpha_pedido": alpha,
             "n_negativos": self._umbral_conforme.n_calibracion,
             "n_nodos_corpus": n_nodos_actual,
             "recalibrado": True,

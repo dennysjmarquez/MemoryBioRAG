@@ -2252,8 +2252,8 @@ def _build_server():
     )
     def biorag_calibrar(
         alpha: Annotated[float, Field(
-            description="Garantía FP objetivo (0 < alpha < 1). Default 0.10 = 90% de confianza en que el corte no deja pasar negativos."
-        )] = 0.10,
+            description="Garantía FP objetivo (0 < alpha < 1). Default: BIORAG_ALPHA_CONFORME o 0.10. Si es menor que 1/(n_negativos+1), se usa el mínimo alcanzable y se avisa (DECISION_ALPHA.md)."
+        )] = None,
         n_negativos: Annotated[int, Field(
             description="Máximo de negativos a usar (hasta 40 disponibles en QA baseline)."
         )] = 40,
