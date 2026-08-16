@@ -3145,10 +3145,19 @@ class SQLiteMemoryBioRAG:
         peso_norm = min(1.0, peso_sinaptico)
 
         # Base weights (sum to 1.0 when jsd_weight=0, PPMI_VECTOR_WEIGHT folded in)
-        # 0.25+0.14+0.08+0.08+0.10+0.10+0.10+0.08+0.04+0.02+0.20 = 1.19
+        # Weights dict: bm25=0.25, dim=0.14, concepto=0.08, sinonimos=0.08,
+        # peso=0.10, jaccard=0.10, grupo=0.10, tematico=0.08,
+        # temporal=0.04, asoc=0.02, pred=0.20 = 1.19
         # PPMI_VECTOR_WEIGHT = 0.15 -> total 1.34
         # Re-normalizamos todos los pesos para que sumen 1.0 - jsd_weight
-        total_base = 1.19 + PPMI_VECTOR_WEIGHT  # 1.34
+        # Derivamos la suma base del dict para evitar hardcoding
+        _base_weights = {
+            "bm25": 0.25, "dim": 0.14, "concepto": 0.08, "sinonimos": 0.08,
+            "peso": 0.10, "jaccard": 0.10, "grupo": 0.10, "tematico": 0.08,
+            "temporal": 0.04, "asoc": 0.02, "pred": 0.20,
+        }
+        _base_sum = sum(_base_weights.values())  # 1.19
+        total_base = _base_sum + PPMI_VECTOR_WEIGHT  # 1.34
         base_weight = (1.0 - jsd_weight) / total_base
 
         score = (
@@ -3178,13 +3187,15 @@ class SQLiteMemoryBioRAG:
             logit = math.log(p / (1.0 - p)) + 2.94  # logit(0.95) ≈ 2.94
             score = 1.0 / (1.0 + math.exp(-logit))
         elif sinonimos_ratio >= 0.95:
-            # Bono para alcanzar ~0.70 + 0.10*ppmi
+            # Bono para alcanzar ~0.70 + 0.10*ppmi: bono aditivo en logit space
             target = 0.70 + 0.10 * ppmi_score
             p = max(1e-6, min(1-1e-6, score))
             logit = math.log(p / (1.0 - p))
+            # Bono aditivo en espacio logit: diferencia entre target_logit y 0
+            # Equivalente a añadir log(target/(1-target)) al logit
             target_logit = math.log(target / (1.0 - target))
-            # Bono aditivo hacia el target, pero no más allá
-            score = 1.0 / (1.0 + math.exp(-max(logit, target_logit)))
+            bonus = target_logit  # bono para llevar score base 0.5 -> target
+            score = 1.0 / (1.0 + math.exp(-(logit + bonus)))
 
         return round(min(1.0, max(0.0, score)), 4)
 
