@@ -114,12 +114,34 @@ if alpha < alpha_min:
 al corpus. Los negativos reales son sutiles (temas vecinos, matices ausentes) y
 puntúan más alto.
 
-Ahora hay **60 negativos reales identificados** en `log_busquedas` (las consultas
-con `resultados_count = 0`). Recalibrar con esos, en vez de con los 40 sintéticos,
-mejora la garantía más que cualquier ajuste de α — porque corrige el sesgo de la
-muestra, que es la hipótesis central del método conforme.
+## 6.1. CORRECCIÓN (2026-08-16) — el proxy `resultados_count = 0` está contaminado
 
-**Prioridad:** recalibrar con negativos reales > afinar α.
+Una versión anterior de esta sección afirmaba que había "60 negativos reales
+identificados en `log_busquedas` (consultas con `resultados_count = 0`)". **Ese
+proxy miente.** Verificado contra la realidad del corpus:
+
+- De las 44 queries únicas con `resultados_count = 0` (deduplicadas y sin los
+  sintéticos del QA), **33 son nodos que existen HOY en `largo_plazo`**.
+- El flujo real de BioRAG: el agente busca → no encuentra (`resultados_count = 0`)
+  → **justamente por eso lo guarda** → el nodo existe hoy.
+- Las 43 que devuelven resultado puntúan **0.90-0.95** contra su propio nombre.
+  Solo 2-3 son negativos genuinos.
+- **Consecuencia demostrada:** recalibrar con esos 44 fija el umbral en ~0.95
+  (cuantil α=0.10). El máximo positivo observado en la live DB es ~0.93.
+  **Abstención del 100%** — el sistema dejaría de responder por completo.
+
+**La lección es la misma que recorrió toda la auditoría:** `resultados_count = 0`
+no significa "no hay respuesta", significa "no la había en ese momento". Es una
+señal correlacionada con el pasado, no una medida del presente.
+
+**Vía real para obtener negativos reales:** cerrar el bucle de feedback. La
+columna `util` de `log_busquedas` está vacía en las 2.157 filas (P4 de la
+auditoría). Solo cuando los agentes marquen búsquedas como inútiles habrá
+negativos reales etiquetados con qué recalibrar.
+
+**Prioridad:** cerrar el bucle de feedback (recolectar `util`) → recién entonces
+recalibrar con negativos reales. Mientras tanto, los 40 sintéticos del QA siguen
+siendo la muestra válida (validada con holdout: FP 5.9-7.7% ≤ α=0.10).
 
 ## 7. Resumen
 
@@ -128,4 +150,4 @@ muestra, que es la hipótesis central del método conforme.
 | ¿α=0.10 es correcto? | **Sí**, con margen. El equilibrio está en C_fp/C_fn > 1.09 |
 | ¿El 37% de abstención es alarmante? | **No**. La pérdida real es ~10.7%, y los 3 niveles la reducen más |
 | ¿Configurable? | **Sí, con guarda** de α ≥ 1/(n+1) |
-| ¿Qué falta de verdad? | **Recalibrar con los 60 negativos reales del log** |
+| ¿Qué falta de verdad? | **Cerrar el bucle de feedback** (`util` vacía) para tener negativos reales |

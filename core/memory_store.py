@@ -3432,7 +3432,21 @@ class SQLiteMemoryBioRAG:
             )
             alpha = alpha_min
 
-        self._umbral_conforme = UmbralConforme(alpha=alpha).calibrar(scores_neg[:n_reales])
+        # Detección de umbral degenerado: calibrar() solo evalúa la cobertura
+        # sobre positivos si se los pasan. Sin esto, una recalibración con
+        # negativos contaminados (p.ej. queries de log que luego resultaron ser
+        # nodos existentes) fijaría el umbral por encima del máximo positivo y
+        # el sistema se abstendría en el 100% de los casos EN SILENCIO.
+        # Se pasan solo los positivos del QA (label==1): los negativos del QA
+        # puntúan bajo y diluirían el chequeo de frac_pasa.
+        try:
+            scores_pos_muestra, labels_pos_muestra = self._preparar_datos_calibracion(100)
+            scores_positivos = [s for s, l in zip(scores_pos_muestra, labels_pos_muestra) if l == 1] or None
+        except Exception:
+            scores_positivos = None
+        self._umbral_conforme = UmbralConforme(alpha=alpha).calibrar(
+            scores_neg[:n_reales], scores_positivos=scores_positivos
+        )
         logger.info(f"Umbral conforme (alpha={alpha}): {self._umbral_conforme.umbral:.4f} (n={self._umbral_conforme.n_calibracion})")
         return self._umbral_conforme.umbral
 
