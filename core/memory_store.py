@@ -2563,6 +2563,18 @@ class SQLiteMemoryBioRAG:
         except Exception as e:
             print(f"[BioRAG] aviso: no se pudo registrar evento_refuerzo para '{key}': {e}")
 
+        # Propagar feedback a log_busquedas.util usando last_log_id (puente
+        # establecido en recordar/buscar_por_frase). Esto cierra el bucle:
+        # feedback de concepto -> util de la query que lo recuperó.
+        try:
+            if getattr(self, "last_log_id", None):
+                self.cursor.execute(
+                    "UPDATE log_busquedas SET util = ? WHERE id = ? AND util IS NULL",
+                    (1 if exito else 0, self.last_log_id),
+                )
+        except Exception as e:
+            print(f"[BioRAG] aviso: no se pudo propagar feedback a log_busquedas: {e}")
+
         self.conn.commit()
         return True
 
