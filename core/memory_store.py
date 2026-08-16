@@ -3428,7 +3428,13 @@ class SQLiteMemoryBioRAG:
         """
         if self._umbral_conforme:
             return self._umbral_conforme.responder(score)
-        # Fallback: umbral fijo conservador
+        # Fallback: umbral fijo conservador (BASE PRE-CALIBRACIÓN v28.1)
+        # Antes de la calibración conforme, la decisión de FP se hacía contra
+        # dos valores fijos que hoy quedan SOLO como referencia histórica:
+        #   - BIORAG_FP_THRESHOLD = 0.25  (declaración de FP en evaluar_qa.py)
+        #   - BIORAG_QCR_ESCAPE_CAPA_MIN = 0.60  (escape del gate QCR)
+        # 0.65 es un corte conservador de respaldo cuando NO hay calibración.
+        # AUDITORÍA v28.1 (P4): degrada en silencio — debería loguear warning.
         return score > 0.65
 
     def buscar_con_calibracion(self, query: str, limite: int = 10,
@@ -3578,6 +3584,11 @@ class SQLiteMemoryBioRAG:
 
         Umbral por defecto 0.10: con los negativos del QA baseline (40 casos)
         fija el cuantil ceil((n+1)(1-alpha))/n de sus scores crudos.
+        BASE HISTÓRICA: pre-v28.1 el sistema usaba cortes fijos
+        (BIORAG_FP_THRESHOLD=0.25, BIORAG_QCR_ESCAPE_CAPA_MIN=0.60) que no
+        dependían de la distribución real. alpha=0.10 es una PREFERENCIA
+        (no una decisión con datos): su justificación requiere medir el ratio
+        de consultas con/sin respuesta en log_busquedas (AUDITORÍA v28.1, paso 3).
 
         Args:
             alpha: garantía FP objetivo (0 < alpha < 1).
@@ -3595,7 +3606,12 @@ class SQLiteMemoryBioRAG:
             n_previo = meta.get("n_nodos_corpus", 0)
             drift_rel = abs(n_nodos_actual - n_previo) / max(n_previo, 1)
             # Tolerancia: 20% de cambio relativo (matemática simple, escalable:
-            # el cuantil conforme es robusto a perturbaciones pequeñas del corpus)
+            # el cuantil conforme es robusto a perturbaciones pequeñas del corpus).
+            # BASE PRE-CALIBRACIÓN: el umbral era un valor FIJO (0.25 FP / 0.60 QCR)
+            # que no se recalculaba jamás aunque el corpus triplicara su tamaño.
+            # AUDITORÍA v28.1 (P3): faltaría invalidar también ante reindexado PPMI
+            # (ppmi_ultima_reindexacion) y cambios de pesos del scoring — el tamaño
+            # del corpus no es la única causa de deriva del piso de ruido.
             if drift_rel <= 0.20:
                 return {
                     "umbral": self._umbral_conforme.umbral,
@@ -3672,6 +3688,13 @@ class SQLiteMemoryBioRAG:
         (rango de negativos: 0.34-0.61). Si el corpus cambia de tamaño, la
         recalibración ajusta el umbral superior; el piso se re-deriva del
         rango persistido de negativos.
+
+        NOTA DE BASE (Dennys, 2026-08-16): antes de la calibración v28.1 el
+        sistema tenía UN SOLO corte fijo, BIORAG_QCR_ESCAPE_CAPA_MIN = 0.60
+        (gate QCR) y el umbral de FP BIORAG_FP_THRESHOLD = 0.25. El piso 0.35
+        y el corte 0.60 que aparecen en este método son los valores fijos que
+        la calibración reemplaza por cuantiles derivados de la distribución
+        real de negativos. No reintroducir umbrales absolutos sin evidencia.
         """
         u = self._umbral_conforme
         if u and u.umbral > 0:
@@ -3682,6 +3705,11 @@ class SQLiteMemoryBioRAG:
                 return "relacionado_confianza_media"
             return "sin_evidencia_directa"
         # Sin calibración: fallback conservador de 3 niveles
+        # BASE HISTÓRICA (valores fijos que la calibración v28.1 reemplaza):
+        #   0.60 = BIORAG_QCR_ESCAPE_CAPA_MIN, el único corte del gate QCR pre-v28.1
+        #   0.35 = piso de ruido medido en live DB (rango negativos 0.34-0.61)
+        # Con calibración estos dos números salen de la distribución real;
+        # aquí quedan como referencia de la base que se estaba usando.
         if score >= 0.60:
             return "evidencia_directa"
         if score >= 0.35:
