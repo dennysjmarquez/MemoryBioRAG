@@ -219,3 +219,85 @@ Las 13 sinapsis tejidas (`tejida_estructural`, peso 0.6) **no movieron ni un sol
 **Lección de proceso que ya dejó:** documentar como blueprint ANTES de integrar evita que una idea sin evidencia contamine el core — el experimento se evalúa con datos, no por entusiasmo.
 
 ---
+
+## Sesión 2026-08-15 — Diagnóstico del FP 80% en live DB
+
+Registro de una sesión completa de depuración estadística. Se incluye porque las
+hipótesis **refutadas** son la parte más útil: evitan repetir el mismo camino.
+
+### Resumen ejecutivo
+
+| Hipótesis | Veredicto | Evidencia clave |
+|---|---|---|
+| El daemon de mantenimiento causa el FP 80% | **DESCARTADA** | daemon OFF → sigue 80% |
+| El fix 1.2 (renormalización) causó el FP 80% | **DESCARTADA** | baseline@live = 80% sin los fixes |
+| La fusión lineal está rota (→ usar RRF) | **DESCARTADA** | AUC=0.914 y R@5 live 96.37%: el ranking funciona |
+| RRF resuelve el FP | **DESCARTADA** | RRF es invariante a la magnitud; el FP es decidir *si* responder |
+| Escenario B: discriminación colapsada | **DESCARTADA** | AUC=0.914 (umbral A: separación excelente) |
+| H-corpus: el umbral absoluto no escala con el corpus | **CONFIRMADA** | negativos en [0.3,0.5] contra umbral fijo 0.25 |
+
+### La matriz 2×2 que cerró la atribución
+
+|  | SNAPSHOT | LIVE DB |
+|---|---|---|
+| Baseline (`5a306fa`) | 25% FP | **80% FP** |
+| Con 5 fixes | 17.5% FP | 80% FP |
+
+Medir `baseline@live` fue la corrida decisiva: **el 80% es preexistente**. Sin esa
+celda, entre "snapshot+baseline" y "live+fixes" cambiaban dos variables a la vez y
+no había atribución posible.
+
+### Bugs corregidos (7)
+
+Cinco iniciales (varianza explicada siempre 1.0; pesos sumando 1.34 con saturación;
+pisos `max(0.95,·)` que empataban el head; radio SDM comparando Jaccard contra una
+escala Hamming; `vector_query` recalculado por candidato) más **dos introducidos por
+los propios fixes**: la suma `1.19` hardcodeada y una rama de sinónimos que usaba
+`max(logit, target)` y aplastaba cinco scores distintos al mismo 0.70.
+
+### Lecciones de método
+
+1. **`16/16 tests` no era evidencia de no-regresión.** `test_memory.py` verifica
+   mecánica (LTP, sueño, SDM), no propiedades del scoring: cero ocurrencias de
+   `recall`/`mrr`. Los dos bugs introducidos pasaron en verde. Se añadió
+   `scripts/test_regresion_scoring.py`, validado contra las versiones con bug
+   (falla) y sin bug (pasa) — un test que solo pasa no demuestra nada.
+
+2. **Un umbral absoluto invalida comparaciones históricas.** El FP se medía contra
+   `score >= 0.25` hardcodeado. Cualquier reescalado del scoring cambia lo que ese
+   0.25 significa. Ahora es `BIORAG_FP_THRESHOLD`.
+
+3. **Truncar la clase mayoritaria sesga el punto de operación.** Un
+   `limite_casos=120` recortaba los positivos pero no los negativos, distorsionando
+   el ratio de ~22:1 a ~1.6:1. El "umbral óptimo 0.78" derivado de ahí era artefacto:
+   con el ratio real el óptimo de `TP−FP` es 0.25.
+
+4. **Calibrar y medir sobre los mismos datos da un resultado tautológico.** Un
+   `FP=6.2%` que era, por definición del cuantil 90, aritmética y no medición.
+   Corregido con partición calibración/validación.
+
+5. **Los deltas hay que traducirlos a casos.** `+0.11pp R@5` = **1 caso de 881**
+   (McNemar p=1.00); `−7.5pp FP` = **3 casos de 40** (p=0.25). Ninguno significativo.
+   Con 881 casos hacen falta ~782 pareados para detectar +2pp con potencia 80%.
+
+6. **La monotonía es un test gratuito de sanidad.** Una tabla mostraba FP y recall
+   subiendo *a la vez* al subir el umbral — imposible. Detectó un error de medición
+   que ningún test funcional habría visto.
+
+### Estado al cierre
+
+**Resuelto:** 7 bugs con tests de regresión; instrumentación del LTP (tabla
+`eventos_refuerzo`, antes no había rastro persistente del refuerzo dopaminérgico);
+umbral de FP parametrizable.
+
+**Sin resolver:** el FP del 80% en live sigue idéntico. Lo que cambió es que está
+localizado: umbral absoluto que no escala, en un sistema cuyo ranking funciona bien.
+
+**Pendiente que bloquea la decisión:** medir el ratio real de consultas con y sin
+respuesta en `log_busquedas` (`scripts/medir_ratio_produccion.py`). De ese ratio
+depende el umbral: con 881:32 el óptimo de `TP−FP` es 0.25; con 1.6:1 salía 0.78.
+Mismo método, conclusión opuesta — **el ratio decide, no el método**. Si sale alto,
+la vía no es un corte binario sino abstención graduada, que además encaja con el
+filtro de honestidad epistémica que el proyecto ya declara.
+
+---

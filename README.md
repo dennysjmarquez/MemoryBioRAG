@@ -1,11 +1,13 @@
-# BioRAG v28.0 — Canal 2 Integrado: Asociaciones Enriquecidas del Neocórtex de Sangre
+# BioRAG v28.1 — Auditoría Matemática, Corrección de Scoring e Instrumentación
 
-> **Versión:** v28.0 — Agosto 2026
+> **Versión:** v28.1 — Agosto 2026
+> **Tipo:** Release de correctitud e instrumentación. **No cambia métricas de recuperación.**
+> **Base:** v28.0 (`5a306fa`)
 > **Paradigma:** Circuito Sintético Cognitivamente Cerrado & QCR Gate (Puerta de Cobertura de Consulta) + HDC Context Binding (Kanerva 1988) + Cierre Triádico (Granovetter 1973) + Factorización Matricial PPMI+SVD (100 Dims) + Retrofitting Hebbiano Faruqui (2015) + IDF-Synonym Specificity Scoring + Propagación Multi-Hop (DMN Ideación Autónoma en Reposo + GABA en Vivo + Dopamina RPE con Inercia Sináptica + Valencia Somática Cortical + Escalado Homeostático + PMI + SDM 2048-bit + HDC Binding + SLS + Stemmer Bilingüe + Predicados SRL + La Hormiguita)
 > **Motor:** Python puro + NumPy + SQLite FTS5 WAL
 > **Dependencias ML:** 0 (mcp + nltk para WordNet, 0 sentence-transformers, 0 torch, 0 dependencias C++ o CUDA)
 > **Idiomas:** Español + Inglés (stemming bilingüe ES/EN + expansión simbólica vía WordNet)
-> **Benchmark (921 Casos QA, snapshot congelado):** GLOBAL R@5 **96.14%** · R@1 **88.76%** · MRR **0.916** · FP **25%** (34 errores). Los 3 gates de evaluación (pool 35 casos) pasados: por_tema 14/21 ✔, sinonimo 8/14 ✔, sinonimia limpia 2 ✔.
+> **Benchmark (921 Casos QA, snapshot congelado):** GLOBAL R@5 **96.25%** · R@1 **88.76%** · MRR **0.917** · FP **17.5%** (33 errores). Los 3 gates de evaluación (pool 35 casos) pasados: por_tema 14/21 ✔, sinonimo 8/14 ✔, sinonimia limpia 2 ✔.
 
 **BioRAG** es una arquitectura de memoria cognitiva simbólica, biomimética y persistente para agentes de inteligencia artificial. Resuelve el problema fundamental de que los LLMs olvidan todo entre sesiones — sin depender de embeddings pesados de PyTorch/Transformers, GPUs ni infraestructura externa. Opera sobre un espacio discreto, determinista y auditable: Factorización Espectral PPMI+SVD de 100 dimensiones, Retrofitting Hebbiano sobre el grafo de sinapsis, Especificidad IDF sobre el índice de sinónimos curados, 13 ejes semánticos × 102 sub-valores declarativos, 45 grupos léxicos WordNet, Pointwise Mutual Information (PMI/NPMI) aprendido sobre el corpus, Sparse Distributed Memory (SDM de 2048 bits), Computación Hiperdimensional (HDC) para binding de predicados, un pipeline de recuperación híbrido con expansión simbólica bilingüe, un grafo de conocimiento dinámico con plasticidad negativa y sinapsis latentes semánticas (SLS), un motor autónomo de Red por Defecto (DMN) que divaga y genera hipótesis en reposo, y un sistema de mantenimiento automatizado del grafo (La Hormiguita).
 
@@ -29,7 +31,7 @@ Ya no somos esclavas de un modelo de lenguaje para buscar conocimiento; la memor
 
 ---
 
-## 🧬 Canal 2 Integrado: Asociaciones Enriquecidas del Grafo Sináptico Real (v28.0)
+## 🧬 Canal 2 Integrado: Asociaciones Enriquecidas del Grafo Sináptico Real (v28.1)
 
 **Problema:** el Canal 1 (ranking top-5 por `score_hibrido`) es un juego de suma cero y NO debe mezclarse con el halo asociativo. Lección del 13/08: la comunidad no sirve para re-rankear, sí para asociar. Antes de v28.0 el vecindario se exponía como CSV crudo (`largo_plazo.asociaciones`) sin fuerza de arista ni tipo de sinapsis.
 
@@ -69,19 +71,19 @@ El grafo de vectores PPMI se **auto-organiza en islas semánticas** — nadie la
 
 ---
 
-## 📊 Benchmark y Evaluación de Rendimiento (v26.x — Zero Data Leakage)
+## 📊 Benchmark y Evaluación de Rendimiento (v28.1 — Zero Data Leakage)
 
-> **Números vigentes (v28.0, 921 casos, snapshot congelado):** R@5 **96.14%**, R@1 **88.76%**, MRR **0.916**, FP **25%**, 34 errores — ver sección [Canal 2 Integrado](#-canal-2-integrado-asociaciones-enriquecidas-del-grafo-sináptico-real-v280). Las tablas siguientes documentan la evolución histórica del benchmark hasta v26.2.
+> **Números vigentes (v28.1, 921 casos, snapshot congelado):** R@5 **96.25%**, R@1 **88.76%**, MRR **0.917**, FP **17.5%** (33 errores). Los 3 gates de evaluación (pool 35 casos) pasados: por_tema 14/21 ✔, sinonimo 8/14 ✔, sinonimia limpia 2 ✔.
 
 > Metodología: **Peso excluido del scoring** (`ignore_peso_sinaptico=True`) — campo de juego nivelado sin artefactos de umbral de ruido. Determinismo verificado: 4 corridas idénticas. Tests pytest: 16/16 PASS (v28.0).
 
 ### Comparativa de la Evolución de `por_tema` y `sinonimo` (Benchmark Pool 35 Casos)
 
-| Métrica | v18.0–v21.0 | v22.2 | v23.0 | v25.2 (+ Jaccard) | **v26.0 (PPMI+SVD Hybrid)** | Gate Exigido | Estado |
-|---|---|---|---|---|---|---|---|
-| **por_tema top-5** | 36.92% | 58.46% | 70.77% | 66.67% (14/21) | **66.67% (14/21)** | $\ge 10\,/\,21$ | 🏆 **✔ PASA (+40%)** |
-| **sinonimo top-5** | 14.28% | 14.28% | 14.28% | 14.28% (2/14) | **57.14% (8/14)** | $\ge 6\,/\,14$ | 🏆 **✔ PASA (+33%)** |
-| **sinonimia limpia** | 0 | 0 | 0 | 0 | **2** | $\ge 1$ | 🏆 **✔ PASA** |
+| Métrica | v18.0–v21.0 | v22.2 | v23.0 | v25.2 (+ Jaccard) | **v26.0 (PPMI+SVD Hybrid)** | **v28.1** | Gate Exigido | Estado |
+|---|---|---|---|---|---|---|---|---|
+| **por_tema top-5** | 36.92% | 58.46% | 70.77% | 66.67% (14/21) | 66.67% (14/21) | **66.67% (14/21)** | $\ge 10\,/\,21$ | 🏆 **✔ PASA (+40%)** |
+| **sinonimo top-5** | 14.28% | 14.28% | 14.28% | 14.28% (2/14) | **57.14% (8/14)** | **57.14% (8/14)** | $\ge 6\,/\,14$ | 🏆 **✔ PASA (+33%)** |
+| **sinonimia limpia** | 0 | 0 | 0 | 0 | **2** | **2** | $\ge 1$ | 🏆 **✔ PASA** |
 
 > **Hito v26.0:** Primera versión en la historia del proyecto en destrabar simultáneamente los 3 gates de evaluación (temática, sinónimos y sinonimia limpia) sin depender de modelos preentrenados densos ni GPUs.
 
@@ -1912,6 +1914,64 @@ En v13.4 el catálogo tenía **7 ejes × 73 sub-valores**: emoción (qué se sie
 **Estado honesto:** es un **experimento en evaluación**, no integrado al core de producción. La implementación viva (`core/memory_store.py`) NO contiene el neocórtex; el blueprint vive como copia de referencia modificada y documentación reproducible en `docs/¿Cuál es la Meta Final del Proyecto_Neocortex_nivel_2/`. Ver `EXPERIMENTS.md` para la bitácora.
 
 > ⚠️ **Nota de superación (v28.0):** este estado quedó desactualizado — el Neocórtex (Canal 2: `asociaciones_enriquecidas`, ADN Conceptual v29, honestidad epistémica) quedó **integrado al core** en v28.0. Ver la entrada v28.0 más arriba.
+
+---
+
+### v28.1 — Auditoría Matemática, Corrección de Scoring e Instrumentación (Agosto 2026)
+
+**Objetivo:** Release de correctitud e instrumentación. **No cambia métricas de recuperación** (los deltas medidos son de 1-3 casos, ninguno significativo). Detalle completo en `docs/RELEASE_v28.1.md` y `EXPERIMENTS.md`.
+
+**5 Bugs Críticos de Scoring Corregidos:**
+
+| # | Dónde | Qué Estaba Mal | Efecto |
+|---|---|---|---|
+| 1.1 | `ppmi_vectorizer.py` | `varianza_explicada` siempre devolvía 1.0 (truncaba `S` antes de calcular el total) | la métrica no informaba nada; imposible elegir `dim` con criterio |
+| 1.2 | `memory_store.py` | los pesos sumaban 1.34 y el score saturaba en `min(1.0, ·)` | pérdida de resolución en el head del ranking |
+| 1.3 | `memory_store.py` | `max(0.95, score)` empataba resultados | el desempate lo decidía el orden del `SELECT` |
+| 1.5 | `ppmi_hybrid_search.py` | `vector_query` se recalculaba por candidato | O(N·\|q\|) evitable |
+
+**Más 2 bugs introducidos por los propios fixes y corregidos después:** la suma `1.19` hardcodeada (bug 1.2 en otra forma) y una rama de sinónimos que usaba `max(logit, target)` y aplastaba cinco scores distintos al mismo 0.70.
+
+**Métricas (snapshot congelado `snapshots/qa_escape_qcr_20260811.db`, 921 casos):**
+- R@5: **96.25%** (era 96.14%) | R@1: 88.76% | MRR: 0.917 | FP: **17.5%** (era 25.0%)
+- **Cero regresiones** — ORIGINAL == FASE A byte a byte
+
+**Fixes de Infraestructura Críticos:**
+- Tabla `eventos_refuerzo`: registra cada refuerzo dopaminérgico con `peso_anterior`, `peso_nuevo`, `delta`, `exitos_previos`, timestamp. El LTP era la única regla de actualización de peso sin rastro persistente.
+- Logging LTP en `aplicar_refuerzo_dopaminergico` con `try/except` seguro.
+- `BIORAG_FP_THRESHOLD` configurable (antes hardcodeado 0.25).
+- `scripts/test_regresion_scoring.py` — 4 tests de propiedades del scoring.
+- `test_h_corpus_umbral.py` — AUC, barrido de umbral, coste de abstenerse.
+- `medir_ratio_produccion.py` — ratio real de consultas con/sin respuesta en `log_busquedas`.
+- `scripts/evaluacion_estadistica.py` — Wilson, McNemar pareado, macro vs micro, BH.
+- `BIORAG_FP_THRESHOLD` en `evaluar_qa.py` — umbral FP configurable (era hardcodeado 0.25).
+
+**Hallazgo Clave (H-corpus):** AUC=0.914 (excelente separación), FP 80% @ 0.25, óptimo real = 0.25 (ratio 881:32). RRF NO resuelve esto — el problema es el umbral fijo. Solución: calibración Platt + Umbral Conforme en escala score crudo.
+
+**Bug H5 latente detectado:** nodo con `categoria IS NULL` nunca recibe LTD (`NULL NOT IN (...)` evalúa a NULL). Inmortal de facto. Ver `docs/HALLAZGO_H5_INMORTALES.md`.
+
+---
+
+### v28.0 — Canal 2 Integrado: Asociaciones Enriquecidas del Neocórtex de Sangre (Agosto 2026)
+
+**Objetivo:** llevar el Neocórtex de Sangre del blueprint (v27.0) al core de producción, completando el Canal 2 del manifiesto: el halo subconsciente de asociaciones semánticas entregado desde el grafo sináptico real, sin contaminar la pureza del Canal 1 (ranking por evidencia).
+
+**Estado honesto:** esta versión **integra al core** lo que v27.0 dejó como experimento. El ranking del Canal 1 NO cambia (cero regresiones verificadas byte a byte); el Canal 2 es un campo aparte por resultado. La señal ADN Conceptual (v29) queda **instalada pero APAGADA por defecto** (`BIORAG_ADN_RANKING_ENABLED=false`), a la espera de ablación OFF/ON sobre snapshot congelado.
+
+**Cambios implementados:**
+- `core/memory_store.py` — `obtener_asociaciones_enriquecidas()`: Canal 2 sobre la tabla `sinapsis` real (16.121 aristas), filtro `peso >= 0.50`, priorización de tipos `pmi_hebbiano`/`co_semantica`/`manual`/`latente_confirmada`, límite 2 de `sinonimo_explicito`. Fix de deduplicación de aristas simétricas (`vistos_por_raiz`, conserva la de mayor peso).
+- `mcp_server.py` — campo `asociaciones_enriquecidas` (con `fuerza_arista`, `tipo_sinapsis`, `peso_vecino`, `resumen`) adjunto a cada resultado de `biorag_recordar` cuando `asociados=true`. No toca `score_hibrido` ni el ranking.
+- `core/adn_conceptual.py` + `core/neocortex_teleologico.py` + `core/hipotesis_teleologica.py` + `core/dmn_engine.py` — integración de la señal ADN Conceptual v29 + honestidad epistémica, **apagada por defecto** (`BIORAG_ADN_RANKING_ENABLED=false`), con tablas `adn_firmas` e `hipotesis_teleologicas` en `_crear_estructura_cerebral`. Marca `_adn_pendiente_recalculo` al escribir (reconstrucción batch en sueño DMN, sin inferencia en el camino caliente).
+- `AGENTS.md` — verificación dual obligatoria (snapshot + copia de DB viva) antes de declarar un fix "rescatado" en producción.
+- `tests/test_sdm_query_by_example.py` — `test_03_bit_masking` corregido al layout SDM v2 (segmentos `SEGMENTO_*` en `core/sdm.py`: contenido 0-512, concepto 512-768, dimensiones 768-1792, categoría 1792-1920, vecinos 1920-2048; `SDM_BITS=2048`). El test viejo usaba el layout v1 (0-599/600-1023) y fallaba con `ZeroDivisionError` — preexistente al fix de Canal 2. 16/16 tests PASS.
+
+**Hallazgos documentados en esta versión:**
+1. **10 tipos de aristas reales** en el grafo sináptico (no 4 como sugiere `TIPOS_HOP`): sinonimo_explicito 7.021, pmi_hebbiano 2.725, co_ocurrencia 2.204, co_nombre 1.851, co_semantica 1.456, manual 705, latente_confirmada 120, legacy_csv 25, manual_v7 13, test 1.
+3. **105 islas semánticas auto-organizadas** (kNN mutuo k=15 + LPA sobre PPMI): sanas (mediana 15, ninguna >50), temáticamente coherentes. Cuello de botella de rescate: proyección de la query a la isla correcta (5/13); isla oráculo + coseno intra-isla rescata 9/13. Fase B (softmax top-3 de comunidades) **refutada** el 14/08.
+
+**Benchmark (snapshot congelado `snapshots/qa_escape_qcr_20260811.db`, 921 casos):** ORIGINAL == FASE A byte a byte — R@5 96.14%, R@1 88.76%, MRR 0.916, FP 25%, 34 errores. Cero regresiones.
+
+**Pendiente (prueba canónica del manifiesto):** validar la propagación de significado puro "playa → piscina/mar/fotos" sin palabras compartidas; decidir la ablación OFF/ON del ADN Conceptual sobre snapshot; ticket FP 25% del gate QCR (queries negativas).
 
 **Contenido del blueprint (`docs/¿Cuál es la Meta Final del Proyecto_Neocortex_nivel_2/`):**
 - **`memory_store.py` (variante experimental, 5229 líneas):** fork del core con +75 líneas — inicialización de `NeocortexTeleologico` + `ADNConceptualEngine` en `__init__`, y métodos `_cargar_firmas_adn()` / `_persistir_firma_adn()` para persistir firmas genéticas en la tabla `adn_firmas`.
