@@ -8,6 +8,8 @@
 > **Dependencias ML:** 0 (mcp + nltk para WordNet, 0 sentence-transformers, 0 torch, 0 dependencias C++ o CUDA)
 > **Idiomas:** Español + Inglés (stemming bilingüe ES/EN + expansión simbólica vía WordNet)
 > **Benchmark (921 Casos QA, snapshot congelado):** GLOBAL R@5 **96.25%** · R@1 **88.76%** · MRR **0.917** · FP **17.5%** (33 errores). Los 3 gates de evaluación (pool 35 casos) pasados: por_tema 14/21 ✔, sinonimo 8/14 ✔, sinonimia limpia 2 ✔.
+> 
+> ⚠️ **El FP de 17.5% es del snapshot congelado.** En la DB de producción viva el FP es **80%** (preexistente, no introducido por esta release): el umbral absoluto de 0.25 no escala con corpus grandes. La separación semántica es excelente (AUC 0.914) — el problema es dónde está puesto el corte, no la señal. Diagnóstico completo en `EXPERIMENTS.md`; corrección pendiente vía umbral calibrado.
 
 **BioRAG** es una arquitectura de memoria cognitiva simbólica, biomimética y persistente para agentes de inteligencia artificial. Resuelve el problema fundamental de que los LLMs olvidan todo entre sesiones — sin depender de embeddings pesados de PyTorch/Transformers, GPUs ni infraestructura externa. Opera sobre un espacio discreto, determinista y auditable: Factorización Espectral PPMI+SVD de 100 dimensiones, Retrofitting Hebbiano sobre el grafo de sinapsis, Especificidad IDF sobre el índice de sinónimos curados, 13 ejes semánticos × 102 sub-valores declarativos, 45 grupos léxicos WordNet, Pointwise Mutual Information (PMI/NPMI) aprendido sobre el corpus, Sparse Distributed Memory (SDM de 2048 bits), Computación Hiperdimensional (HDC) para binding de predicados, un pipeline de recuperación híbrido con expansión simbólica bilingüe, un grafo de conocimiento dinámico con plasticidad negativa y sinapsis latentes semánticas (SLS), un motor autónomo de Red por Defecto (DMN) que divaga y genera hipótesis en reposo, y un sistema de mantenimiento automatizado del grafo (La Hormiguita).
 
@@ -74,6 +76,8 @@ El grafo de vectores PPMI se **auto-organiza en islas semánticas** — nadie la
 ## 📊 Benchmark y Evaluación de Rendimiento (v28.1 — Zero Data Leakage)
 
 > **Números vigentes (v28.1, 921 casos, snapshot congelado):** R@5 **96.25%**, R@1 **88.76%**, MRR **0.917**, FP **17.5%** (33 errores). Los 3 gates de evaluación (pool 35 casos) pasados: por_tema 14/21 ✔, sinonimo 8/14 ✔, sinonimia limpia 2 ✔.
+> 
+> ⚠️ **El FP de 17.5% es del snapshot congelado.** En la DB de producción viva el FP es **80%** (preexistente, no introducido por esta release): el umbral absoluto de 0.25 no escala con corpus grandes. La separación semántica es excelente (AUC 0.914) — el problema es dónde está puesto el corte, no la señal. Diagnóstico completo en `EXPERIMENTS.md`; corrección pendiente vía umbral calibrado.
 
 > Metodología: **Peso excluido del scoring** (`ignore_peso_sinaptico=True`) — campo de juego nivelado sin artefactos de umbral de ruido. Determinismo verificado: 4 corridas idénticas. Tests pytest: 16/16 PASS (v28.0).
 
