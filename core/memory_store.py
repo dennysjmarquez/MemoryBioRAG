@@ -5506,6 +5506,12 @@ class SQLiteMemoryBioRAG:
                 self.last_log_id = None
                 pass
 
+        # Aplicar umbral calibrado (FP ≤ α) si hay calibración vigente
+        # Esto filtra resultados cuyo score híbrido crudo no supera el umbral conforme
+        if self._umbral_conforme:
+            pagina_resultados = [r for r in pagina_resultados if self._debe_responder(r[4])]
+            total = len(pagina_resultados)
+
         return pagina_resultados, total
 
     def _enriquecer_con_adn(self, query, resultados_base, limite=None):

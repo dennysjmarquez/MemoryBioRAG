@@ -926,6 +926,12 @@ def _build_server():
 
             resultados = resultados[:limite]
 
+            # Aplicar umbral calibrado (FP ≤ α) si hay calibración vigente
+            # Esto filtra resultados cuyo score híbrido crudo no supera el umbral conforme
+            if cerebro._umbral_conforme:
+                resultados = [r for r in resultados if cerebro._debe_responder(r[4])]
+                total = len(resultados)
+
             # Auto-rescate: nodos en cuarentena que aparecieron en resultados → volver a activo
             for r in resultados:
                 if len(r) > 3 and r[3] == 'cuarentena':
