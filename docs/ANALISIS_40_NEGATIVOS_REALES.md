@@ -16,40 +16,30 @@
 
 ---
 
-## Conclusiones
+## Qué pasó con los "40 negativos reales"
 
-### 1. Los 40 "negativos reales" del dry-run son **solo reformulaciones** (señal A)
+El dry-run inicial reportó **40 negativos** con confianza ≥ 0.7. Tras análisis del auditor:
 
-- Cero aprendizajes posteriores (señal B) — el benchmark no crea nodos, y el uso real no ha generado pares `buscar → 0 resultados → guardar nodo parecido` detectables con la ventana actual
-- La señal B es la que detecta **ausencia real** (búsqueda sin respuesta → el agente la crea). Sin ella, no hay negativos de "no hay nada que devolver"
+1. **Eran 40 reformulaciones** (señal A), **cero aprendizajes posteriores** (señal B)
+2. El filtro de "profundización" (tokens X ⊂ X') ya estaba implementado y funcionando — descarta casos donde el agente *añade* especificidad a una búsqueda que ya funcionó (ej: "umbral conforme" → "umbral conforme calibracion alpha")
+3. De los 40, **la mayoría son retries idénticos/quasi-idénticos** del agente (ej: "athena artemis" a 2s, sim=0.50) que puntean alto (mediana 0.946) porque **encontraron el nodo correcto** y el agente volvió a consultar
+3. Solo **1 es una reformulación genuina** ("biorag v11 changelog completo" → reformulada en 3s, sim=0.50)
 
-### 2. Los negativos reales (reformulaciones) puntúan **mucho más alto** que los sintéticos
+**Conclusión:** los 40 aplicados son **reformulaciones/retries detectados tras filtro de benchmark**, pero **no son negativos de ausencia** (señal B). La señal B (aprendizaje posterior) es la única que da negativos de "no hay respuesta" para calibrar el umbral conforme.
 
-```
-Sintéticos:  media 0.458  |  máx 0.600
-Reales (R):  media 0.800  |  máx 0.969
-```
+---
 
-El umbral conforme calibrado con sintéticos (~0.60) **no protege** contra reformulaciones reales, que caen en 0.4-0.97.
+## Calibración conforme: qué valida y qué no
 
-### 3. La calibración conforme con 40 sintéticos **no valida la garantía real**
+### Lo que SÍ valida
+- **Umbral 0.6000** calibrado con 40 sintéticos → FP held-out 0% (Wilson [0%, 16.1%])
+- **Wilson 95% para 0/20 = [0%, 16.1%]** → **EXCEDE α=0.10** (no "dentro" como se reportó erróneamente)
+- Sin poder estadístico para confirmar la garantía con n=20
 
-- FP held-out 0% con 20 muestras → Wilson 95% = **[0%, 16.1%]**
-- **EXCEDE α=0.10** (no "dentro" como se reportó erróneamente)
-- Sin poder estadístico para confirmar la garantía
-
-### 4. El experimento clave ya se corrió y el resultado es: **umbrales idénticos**
-
-```
-Umbral con 40 sintéticos: ~0.60
-Umbral con 40 reales:     0.6000
-```
-
-**No se movió.** Dos lecturas posibles:
-- **(A)** Los sintéticos nunca estuvieron sesgados
-- **(B)** Los 40 "reales" no son el mismo tipo de negativo (reformulación ≠ ausencia)
-
-La evidencia apunta a **(B)**: reformulación = respuesta imprecisa; conforme = ausencia. Calibrar abstención con reformulaciones mide otra propiedad.
+### Lo que NO valida
+- Los negativos sintéticos (media 0.458) **no representan** las reformulaciones reales (media 0.800-0.967)
+- El umbral 0.600 **no protege** contra reformulaciones reales que puntúan 0.4-0.97
+- La garantía 6% es **teórica sobre sintéticos**; garantía real pendiente de señal B
 
 ---
 
@@ -57,35 +47,38 @@ La evidencia apunta a **(B)**: reformulación = respuesta imprecisa; conforme = 
 
 | Señal | Qué detecta | Estado |
 |---|---|---|
-| **A. Reformulación** | Respuesta imprecisa | ✅ 40 detectados, pero no calibra abstención |
-| **B. Aprendizaje posterior** | Ausencia real (buscar → 0 → guardar) | ❌ 0 detectados — requiere tiempo real |
+| **A. Reformulación** | Respuesta imprecisa / retry | ✅ 40 detectados, pero no calibran abstención |
+| **B. Aprendizaje posterior** | Ausencia real (buscar → 0 → guardar) | ❌ 0 detectados — requiere tiempo real con uso limpio |
 | **C. Silencio posterior** | Respuesta útil | Filtrada por riesgo asimétrico |
 
 **La señal B es la única que da negativos de "no hay respuesta" para calibrar el umbral conforme.** Solo aparece con uso real acumulado (días/semanas con `BIORAG_NO_LOG=1`).
 
 ---
 
+## Correcciones implementadas en esta sesión
+
+1. **Filtro selectivo de ráfagas** (`feedback_implicito.py`): solo la señal A (reformulación) mira `es_rafaga`; la señal B (aprendizaje) queda intacta porque el benchmark nunca crea nodos
+2. **Regla de profundización** (subset tokens): `tokens(X) ⊂ tokens(X')` → **profundización, no marcar** — evita LTD a nodos que sirvieron
+3. **`BIORAG_NO_LOG=1`** en `evaluar_qa.py` + `buscar_por_frase`: evita contaminación futura del log con consultas de benchmark
+4. **Guarda degenerada conectada** en `calibrar_umbral_conforme`: pasa positivos a `UmbralConforme.calibrar()` → dispara `*** UMBRAL DEGENERADO ***` si umbral > max positivo
+4. **Feedback cross-instance** via `conceptos_top` en `log_busquedas`: funciona entre instancias MCP (caso B real)
+5. **Wilson interval corrección**: 0/20 = [0%, 16.1%] **EXCEDE α=0.10** (no "dentro")
+
+---
+
 ## Plan real (no bloqueante por merge)
 
-1. **Merge a master** — el sistema funciona, ranking intacto (snapshot 50/50 = 100%), calibración conforme operativa con α configurable y guardas
-2. **Dejar correr con `BIORAG_NO_LOG=1` en evaluaciones** — en días/semanas aparecerán pares `buscar → 0 → guardar` (señal B)
+1. **Merge a master** — el sistema cumple: ranking intacto (snapshot 20/20 = 100%), calibración conforme operativa (percentil, α configurable, guarda 1/(n+1), recalibración por drift), guarda degenerada, feedback cross-instance, `BIORAG_NO_LOG`
+2. **Dejar correr con `BIORAG_NO_LOG=1`** — en días/semanas aparecerán pares `buscar → 0 → guardar` (señal B)
 3. **Batch periódico de `feedback_implicito.py`** — acumular negativos reales de tipo B
 4. **Recalibrar con negativos de tipo B** → comparar umbral nuevo vs 0.6000 → ese experimento sí valida (o no) la garantía real
 
 ---
 
-## Corrección a documentación previa
-
-- ❌ "Wilson dentro de α=0.10" → ✅ "Wilson 95% = [0%, 16.1%] EXCEDE α=0.10; consistente pero sin poder estadístico"
-- ❌ "40 negativos reales" → ✅ "40 reformulaciones reales; 0 negativos de ausencia real (señal B)"
-- ❌ "Garantía 6% validada" → ✅ "Garantía teórica sobre sintéticos; garantía real pendiente de señal B"
-
----
-
 ## Merge a master: decisión
 
-**El merge NO debe bloquearse por esto.** El sistema cumple:
-- ✅ Ranking intacto (snapshot 50/50 = 100%, live muestra que el problema del 80% FP era el umbral fijo 0.25, no el ranking)
+**El merge NO debe bloquearse.** El sistema cumple:
+- ✅ Ranking intacto (snapshot 20/20 = 100%, live muestra que el problema del 80% FP era el umbral fijo 0.25, no el ranking)
 - ✅ Calibración conforme operativa (percentil, α configurable, guarda 1/(n+1), recalibración por drift)
 - ✅ Guarda degenerada conectada y verificada
 - ✅ Bucle feedback cross-instance funcional

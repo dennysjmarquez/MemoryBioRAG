@@ -208,8 +208,26 @@ def inferir_feedback(db_path: str, limite: Optional[int] = None,
             _, q_sig, _, _, ts_sig = filas[i + 1]
             dt = ts_sig - ts
             if 0 < dt <= VENTANA_REFORMULACION:
-                sim = _solapamiento(toks, _tokens(q_sig))
-                if sim >= UMBRAL_SIMILITUD:
+                toks_sig = _tokens(q_sig)
+                sim = _solapamiento(toks, toks_sig)
+                # DISTINGUIR FALLO DE PROFUNDIZACIÓN (2026-08-16)
+                # -------------------------------------------------
+                # No toda reformulación es un fallo. Medido sobre datos reales:
+                # las "reformulaciones" detectadas puntúan alto (mediana 0.946),
+                # que en BioRAG significa match casi exacto. Eso sugiere que
+                # muchas NO son fallos sino refinamientos: el agente encontró lo
+                # que buscaba y siguió profundizando.
+                #
+                #   fallo          : X' parafrasea a X con otras palabras
+                #                    "ciclo de sueño" -> "como funciona sleep cycle"
+                #   profundización : X' CONTIENE a X y añade especificidad
+                #                    "ciclo de sueño" -> "ciclo sueño LTD umbral"
+                #
+                # Marcar una profundización como util=0 aplica LTD a un nodo que
+                # SÍ sirvió: lo debilita y puede llegar a dormirlo. Es el bucle
+                # tóxico en su versión negativa, y por eso se excluye.
+                profundizacion = toks.issubset(toks_sig) and len(toks_sig) > len(toks)
+                if sim >= UMBRAL_SIMILITUD and not profundizacion:
                     util = 0
                     senal = f"reformulada en {dt:.0f}s (sim={sim:.2f})"
                     # Cuanto más rápida y más parecida, más segura la inferencia.
