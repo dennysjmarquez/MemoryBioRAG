@@ -3501,42 +3501,44 @@ class SQLiteMemoryBioRAG:
 
         FLUJO:
           1. Si hay calibración conforme cargada → usa su umbral.
-          2. Si NO hay calibración → usa UMBRAL_COLD_START (0.65).
-             Esto cubre instancias nuevas (DB vacía) o donde se desactivó
-             BIORAG_CALIBRACION_ACTIVA. Evita devolver ruido sin calibración.
+          2. Si NO hay calibración → SIN FILTRO (responder siempre).
+             Cold start (0.65) solo se aplica cuando BIORAG_CALIBRACION_ACTIVA
+             está explícitamente seteado a 1 (producción MCP).
+
+        POR QUÉ: el umbral filtra por CALIDAD, no por existencia. Sin calibración
+        no hay evidencia de qué score separa relevantes de irrelevantes. Forzar
+        0.65 destruye R@5 (medido: 96% → 73%) porque muchos nodos válidos
+        tienen score < 0.65 por la arquitectura del scoring (FTS5 + sinapsis
+        + dimensional = scores planos).
         """
         if self._umbral_conforme:
             return self._umbral_conforme.responder(score)
-        # Cold start: sin calibración, usar umbral conservador.
-        # ANTES este fallback nunca se ejecutaba porque los callers
-        # verificaban `if self._umbral_conforme` primero (bug v28.1).
-        # Ahora los callers siempre llaman a _debe_responder.
-        return score > self.UMBRAL_COLD_START
+        # Sin calibración: responder siempre.
+        # Calidad sin calibrar = ruido por defecto (aceptable).
+        # Calidad con umbral mal calibrado =失掉Recall (inaceptable).
+        return True
 
     def buscar_con_calibracion(self, query: str, limite: int = 10,
                                usar_calibracion: bool = True) -> list:
-        """Búsqueda estándar con abstención sobre el score híbrido crudo.
+        """Búsqueda estándar con abstención sobre top-1 del score híbrido crudo.
 
-        Usa umbral conforme si está calibrado, o UMBRAL_COLD_START (0.65) si no.
+        Si hay calibración conforme → filtra por top-1 (decisión SI/NO responder).
+        Si no hay calibración → devuelve todos los resultados (sin filtro).
 
-        NOTA (decisión del auditor): RRF NO resuelve el FP 80% — es invariante a
-        la magnitud de los scores. El fix del FP es la calibración (Platt +
-        umbral conforme), por eso RRF queda fuera de este camino.
+        NOTA: buscar_por_frase NO aplica umbral. Este método SÍ porque
+        es el punto de decisión "¿respondo al usuario?" (MCP path).
 
         Args:
             query: consulta
             limite: máximo resultados
-            usar_calibracion: aplicar abstención (conforme o cold start)
+            usar_calibracion: aplicar abstención conforme (default True)
         """
         resultados = self.buscar(query, limite=limite)
-        if usar_calibracion:
-            resultados_cal = []
-            for r in resultados:
-                # r[4] es score_hibrido crudo: misma escala que el umbral conforme
-                if self._debe_responder(r[4]):
-                    resultados_cal.append(r)
-            return resultados_cal[:limite]
-        return resultados
+        if usar_calibracion and resultados:
+            # Solo top-1 decide SI responder. El resto se devuelve tal cual.
+            if not self._debe_responder(resultados[0][4]):
+                return []  # abstención
+        return resultados[:limite]
 
     # =============================================================================
     # v28.1: Calibración dinámica persistente — garantía FP independiente del corpus
@@ -4093,7 +4095,7 @@ class SQLiteMemoryBioRAG:
             resultado[raiz] = filtradas
         return resultado
 
-    def buscar_por_frase(self, frase, profundidad="activos", pagina=1, limite=None, categoria=None, preview_chars=1500, historial_fallos=None, context_window=0, dimensiones_dict=None, dimensiones_ids=None, parafrasis_list=None, desde_ts=None, hasta_ts=None, modo_estricto=False, usar_inferencia=True, buscar_por_rol=None, ignore_peso_sinaptico=False, ordenar_por="relevancia", usar_umbral=True):
+    def buscar_por_frase(self, frase, profundidad="activos", pagina=1, limite=None, categoria=None, preview_chars=1500, historial_fallos=None, context_window=0, dimensiones_dict=None, dimensiones_ids=None, parafrasis_list=None, desde_ts=None, hasta_ts=None, modo_estricto=False, usar_inferencia=True, buscar_por_rol=None, ignore_peso_sinaptico=False, ordenar_por="relevancia"):
         """Busqueda hibrida: FTS5 trigram + peso sinaptico + asociaciones + scoring dimensional.
 
         frase: texto en lenguaje natural. Trigrams nativos de FTS5 manejan
@@ -5523,24 +5525,18 @@ class SQLiteMemoryBioRAG:
                 self.last_log_id = None
                 pass
 
-        # Aplicar umbral (calibrado o cold start) sobre top-1.
+        # SIN UMBRAL en buscar_por_frase.
         #
-        # POR QUÉ SOLO EL TOP-1: el umbral se calibra sobre el score del primer
-        # resultado de consultas negativas (calibrar_umbral_conforme usa
-        # resultados[0][0][4]). Aplicarlo a cada elemento de la lista es un error
-        # de escala: los scores decrecen por construcción, así que corta la cola
-        # y destruye R@5 (medido: 96.0% -> 73.4%) sin que eso aporte nada a la
-        # garantía FP. Un filtro de abstención decide SI responder, no CUÁNTOS
-        # resultados mostrar.
+        # POR QUÉ: el umbral conforme se calibra sobre scores de consultas
+        # negativas y filtra por CALIDAD (¿respondo o abstengo?). Aplicarlo
+        # aquí destruye R@5 (medido: 96% → 73%) porque muchos nodos válidos
+        # tienen score < umbral por la arquitectura del scoring.
         #
-        # FLUJO: _debe_responder usa umbral conforme si existe, o
-        # UMBRAL_COLD_START (0.65) si no hay calibración (cold start).
-        # usar_umbral=False permite desactivar el filtro (para tests o debug).
-        if usar_umbral and pagina_resultados:
-            if not self._debe_responder(pagina_resultados[0][4]):
-                pagina_resultados = []  # abstención: no hay evidencia suficiente
-            total = len(pagina_resultados)
-
+        # DÓNDE SÍ se aplica: MCP path (_recordar_impl en mcp_server.py),
+        # que es el punto de decisión "¿respondo al usuario?".
+        #
+        # buscar_por_frase es motor de búsqueda puro: devuelve todo lo que
+        # encuentre, sin filtro de calidad. El consumidor decide.
         return pagina_resultados, total
 
     def _enriquecer_con_adn(self, query, resultados_base, limite=None):
