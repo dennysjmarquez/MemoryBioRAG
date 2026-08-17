@@ -3487,26 +3487,37 @@ class SQLiteMemoryBioRAG:
                 return self._platt_calibrador(score_bruto)
         return score_bruto
 
+    # Cold start: umbral conservador para instancias sin calibración.
+    # Si alguien instala BioRAG con DB vacía o sin `biorag_calibrar`, este
+    # umbral evita devolver ruido. Se reemplaza automáticamente cuando se
+    # ejecuta la primera calibración (conforme o manual).
+    UMBRAL_COLD_START = 0.65
+
     def _debe_responder(self, score: float) -> bool:
         """Decide si responder o abstenerse basado en umbral conforme.
 
         RECIBE LA MISMA ESCALA USADA EN calibrar_umbral_conforme: score_hibrido
         crudo. Si se calibró con crudo, aquí va crudo.
+
+        FLUJO:
+          1. Si hay calibración conforme cargada → usa su umbral.
+          2. Si NO hay calibración → usa UMBRAL_COLD_START (0.65).
+             Esto cubre instancias nuevas (DB vacía) o donde se desactivó
+             BIORAG_CALIBRACION_ACTIVA. Evita devolver ruido sin calibración.
         """
         if self._umbral_conforme:
             return self._umbral_conforme.responder(score)
-        # Fallback: umbral fijo conservador (BASE PRE-CALIBRACIÓN v28.1)
-        # Antes de la calibración conforme, la decisión de FP se hacía contra
-        # dos valores fijos que hoy quedan SOLO como referencia histórica:
-        #   - BIORAG_FP_THRESHOLD = 0.25  (declaración de FP en evaluar_qa.py)
-        #   - BIORAG_QCR_ESCAPE_CAPA_MIN = 0.60  (escape del gate QCR)
-        # 0.65 es un corte conservador de respaldo cuando NO hay calibración.
-        # AUDITORÍA v28.1 (P4): degrada en silencio — debería loguear warning.
-        return score > 0.65
+        # Cold start: sin calibración, usar umbral conservador.
+        # ANTES este fallback nunca se ejecutaba porque los callers
+        # verificaban `if self._umbral_conforme` primero (bug v28.1).
+        # Ahora los callers siempre llaman a _debe_responder.
+        return score > self.UMBRAL_COLD_START
 
     def buscar_con_calibracion(self, query: str, limite: int = 10,
                                usar_calibracion: bool = True) -> list:
-        """Búsqueda estándar con abstención conforme sobre el score híbrido crudo.
+        """Búsqueda estándar con abstención sobre el score híbrido crudo.
+
+        Usa umbral conforme si está calibrado, o UMBRAL_COLD_START (0.65) si no.
 
         NOTA (decisión del auditor): RRF NO resuelve el FP 80% — es invariante a
         la magnitud de los scores. El fix del FP es la calibración (Platt +
@@ -3515,10 +3526,10 @@ class SQLiteMemoryBioRAG:
         Args:
             query: consulta
             limite: máximo resultados
-            usar_calibracion: aplicar abstención conforme
+            usar_calibracion: aplicar abstención (conforme o cold start)
         """
         resultados = self.buscar(query, limite=limite)
-        if usar_calibracion and self._umbral_conforme:
+        if usar_calibracion:
             resultados_cal = []
             for r in resultados:
                 # r[4] es score_hibrido crudo: misma escala que el umbral conforme
@@ -3556,6 +3567,12 @@ class SQLiteMemoryBioRAG:
             self.cursor.execute("PRAGMA table_info(calibracion_estado)")
             if not self.cursor.fetchall():
                 return False
+
+            # BIORAG_CALIBRACION_ACTIVA: gate para activar la abstención por umbral.
+            # OFF por defecto hasta tener negativos reales de tipo B para calibrar.
+            if os.environ.get("BIORAG_CALIBRACION_ACTIVA", "0") != "1":
+                return False
+
             row = self.cursor.execute(
                 "SELECT umbral_conforme, alpha, n_negativos, n_positivos, "
                 "n_nodos_corpus, a_platt, b_platt, metodo, rango_negativos, "
@@ -4076,7 +4093,7 @@ class SQLiteMemoryBioRAG:
             resultado[raiz] = filtradas
         return resultado
 
-    def buscar_por_frase(self, frase, profundidad="activos", pagina=1, limite=None, categoria=None, preview_chars=1500, historial_fallos=None, context_window=0, dimensiones_dict=None, dimensiones_ids=None, parafrasis_list=None, desde_ts=None, hasta_ts=None, modo_estricto=False, usar_inferencia=True, buscar_por_rol=None, ignore_peso_sinaptico=False, ordenar_por="relevancia"):
+    def buscar_por_frase(self, frase, profundidad="activos", pagina=1, limite=None, categoria=None, preview_chars=1500, historial_fallos=None, context_window=0, dimensiones_dict=None, dimensiones_ids=None, parafrasis_list=None, desde_ts=None, hasta_ts=None, modo_estricto=False, usar_inferencia=True, buscar_por_rol=None, ignore_peso_sinaptico=False, ordenar_por="relevancia", usar_umbral=True):
         """Busqueda hibrida: FTS5 trigram + peso sinaptico + asociaciones + scoring dimensional.
 
         frase: texto en lenguaje natural. Trigrams nativos de FTS5 manejan
@@ -5506,10 +5523,22 @@ class SQLiteMemoryBioRAG:
                 self.last_log_id = None
                 pass
 
-        # Aplicar umbral calibrado (FP ≤ α) si hay calibración vigente
-        # Esto filtra resultados cuyo score híbrido crudo no supera el umbral conforme
-        if self._umbral_conforme:
-            pagina_resultados = [r for r in pagina_resultados if self._debe_responder(r[4])]
+        # Aplicar umbral (calibrado o cold start) sobre top-1.
+        #
+        # POR QUÉ SOLO EL TOP-1: el umbral se calibra sobre el score del primer
+        # resultado de consultas negativas (calibrar_umbral_conforme usa
+        # resultados[0][0][4]). Aplicarlo a cada elemento de la lista es un error
+        # de escala: los scores decrecen por construcción, así que corta la cola
+        # y destruye R@5 (medido: 96.0% -> 73.4%) sin que eso aporte nada a la
+        # garantía FP. Un filtro de abstención decide SI responder, no CUÁNTOS
+        # resultados mostrar.
+        #
+        # FLUJO: _debe_responder usa umbral conforme si existe, o
+        # UMBRAL_COLD_START (0.65) si no hay calibración (cold start).
+        # usar_umbral=False permite desactivar el filtro (para tests o debug).
+        if usar_umbral and pagina_resultados:
+            if not self._debe_responder(pagina_resultados[0][4]):
+                pagina_resultados = []  # abstención: no hay evidencia suficiente
             total = len(pagina_resultados)
 
         return pagina_resultados, total

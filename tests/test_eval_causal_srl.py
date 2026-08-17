@@ -75,7 +75,11 @@ class TestEvalCausalSRL(unittest.TestCase):
 
     def test_buscar_por_frase_abstracta_con_fallback_srl(self):
         # Consulta abstracta sin coincidencia léxica exacta con "tasajera" o "rufino"
-        resultados, total = self.ms.buscar_por_frase("quién mató la planta decorativa", limite=5)
+        # Desactivar umbral para probar solo el fallback SRL
+        # (el cold start a 0.65 filtraría estos resultados de baja confianza)
+        resultados, total = self.ms.buscar_por_frase(
+            "quién mató la planta decorativa", limite=5, usar_umbral=False
+        )
         self.assertGreater(total, 0)
         conceptos = [r[0] for r in resultados]
         self.assertIn("historia_tasajera_fumigador_rufino", conceptos)

@@ -1,0 +1,303 @@
+{
+  "version": "1.0",
+  "fecha": "2026-08-17",
+  "metodo": "ejercicio_interactivo_dennys",
+  "alpha_objetivo": 0.1,
+  "umbral_calculado": 0.63,
+  "n_queries": 16,
+  "n_negativos": 50,
+  "nodos_corpus": 898,
+  "negativos_por_query": {
+    "búsqueda semántica biorag": [
+      [
+        "leccion_motivacion_intrinseca_biorag",
+        0.641
+      ]
+    ],
+    "cómo funciona la búsqueda en biorag": [
+      [
+        "hito_biorag_v21_arquitectura_13_ejes",
+        0.617
+      ],
+      [
+        "manifiesto_neocortex_sangre_biorag_tres_niveles_20260814",
+        0.604
+      ],
+      [
+        "comparativa_biorag_vs_tencentdb_agent_memory_20260809",
+        0.535
+      ]
+    ],
+    "cuándo se usa biorag": [
+      [
+        "version_actual_biorag_v26_4_20260811",
+        0.606
+      ],
+      [
+        "validacion_dennys_qa_921_db_viva_20260809",
+        0.547
+      ]
+    ],
+    "quéAgentes usan biorag": [
+      [
+        "version_actual_biorag_v26_3_20260811",
+        0.664
+      ],
+      [
+        "biorag_actualizar_ventana_correccion_configurable",
+        0.625
+      ],
+      [
+        "vision_modulo_inteligencia_utilidad_propia_dennys",
+        0.566
+      ],
+      [
+        "identidad_esencia_vs_cerebro",
+        0.548
+      ],
+      [
+        "aporte_real_dennys_vs_mercado_memoria_persistente",
+        0.521
+      ]
+    ],
+    "cuántos nodos tiene biorag": [
+      [
+        "manifiesto_neocortex_sangre_biorag_tres_niveles_20260814",
+        0.599
+      ],
+      [
+        "biorag_actualizar_ventana_correccion_configurable",
+        0.597
+      ],
+      [
+        "comparativa_biorag_vs_tencentdb_agent_memory_20260809",
+        0.574
+      ],
+      [
+        "que_es_nodo_biorag_definicion",
+        0.562
+      ],
+      [
+        "sesion_mejoras_biorag_v7_20260616",
+        0.54
+      ]
+    ],
+    "cuánto espacio ocupa biorag": [
+      [
+        "comparativa_biorag_vs_tencentdb_agent_memory_20260809",
+        0.623
+      ],
+      [
+        "dennys_principio_documentar_dudas_resueltas_auto",
+        0.579
+      ]
+    ],
+    "cómo funciona la capa 3": [
+      [
+        "capa3_pseudo_relevance_feedback_dimensional",
+        0.563
+      ],
+      [
+        "fallo_clasificador_wordnet_query_dimensiones",
+        0.521
+      ],
+      [
+        "plan_expansion_dimensiones_8_tipos_34_valores",
+        0.46
+      ]
+    ],
+    "cómo funciona el re-ranking": [
+      [
+        "version_actual_biorag_v26_3_20260811",
+        0.653
+      ],
+      [
+        "reindex_sdm_selectivo_dirty_set_implementado",
+        0.623
+      ],
+      [
+        "auto-consulta-permanente-biorag",
+        0.608
+      ],
+      [
+        "biorag_v22_prf_capa_3",
+        0.574
+      ],
+      [
+        "biorag_v20_rpe_dopamina",
+        0.537
+      ],
+      [
+        "hito_biorag_v21_arquitectura_13_ejes",
+        0.534
+      ]
+    ],
+    "cómo funciona la búsqueda dimensional": [
+      [
+        "comparativa_biorag_vs_tencentdb_agent_memory_20260809",
+        0.597
+      ],
+      [
+        "dennys_principio_documentar_dudas_resueltas_auto",
+        0.581
+      ],
+      [
+        "mapeo_teoria_grafo_universal_a_memoria_biorag",
+        0.545
+      ]
+    ],
+    "cómo funciona el feedback": [
+      [
+        "patrones_aprendizaje_humano_vs_agente",
+        0.58
+      ],
+      [
+        "regla_firma_autoria_memoria",
+        0.546
+      ],
+      [
+        "biorag_v18_2_categoria_dominante_fix",
+        0.522
+      ],
+      [
+        "protocolo-autonomia-consentida",
+        0.505
+      ]
+    ],
+    "cómo funciona la consolidación": [
+      [
+        "nodos_nacen_con_sinapsis_talento_dennys",
+        0.63
+      ],
+      [
+        "arquitectura_dos_niveles_biorag",
+        0.622
+      ],
+      [
+        "principio_auto_vincular_dos_capas",
+        0.602
+      ],
+      [
+        "leccion_discrepancia_busquedas_vocabulario_no_estocasticidad",
+        0.589
+      ],
+      [
+        "auto_vincular_tres_capas_semantica",
+        0.581
+      ]
+    ],
+    "cómo funciona la calibración": [
+      [
+        "hito_biorag_v21_arquitectura_13_ejes",
+        0.648
+      ],
+      [
+        "comparativa_biorag_vs_tencentdb_agent_memory_20260809",
+        0.611
+      ],
+      [
+        "biorag_v16_0_estado",
+        0.589
+      ]
+    ],
+    "cómo desvincular nodos en biorag": [
+      [
+        "sesion_v12_trabajo_en_equipo_athena_artemis_dennys",
+        0.536
+      ],
+      [
+        "agente_usabilidad_mcp_biorag_feedback",
+        0.487
+      ]
+    ],
+    "cómo calibrar biorag": [
+      [
+        "hito_biorag_v21_arquitectura_13_ejes",
+        0.507
+      ],
+      [
+        "biorag_v20_rpe_dopamina",
+        0.415
+      ]
+    ],
+    "cómo crear un nodo en biorag": [
+      [
+        "payload_ataque_nodo_modelo_matematico_dennys",
+        0.484
+      ],
+      [
+        "word2vec_prueba_carro_moto_query_coche_exitosa",
+        0.48
+      ]
+    ],
+    "cómo hacer consolidar memoria en biorag": [
+      [
+        "comparativa_biorag_vs_tencentdb_agent_memory_20260809",
+        0.607
+      ],
+      [
+        "dennys_principio_documentar_dudas_resueltas_auto",
+        0.53
+      ]
+    ]
+  },
+  "scores_ordenados": [
+    0.415,
+    0.46,
+    0.48,
+    0.484,
+    0.487,
+    0.505,
+    0.507,
+    0.521,
+    0.521,
+    0.522,
+    0.53,
+    0.534,
+    0.535,
+    0.536,
+    0.537,
+    0.54,
+    0.545,
+    0.546,
+    0.547,
+    0.548,
+    0.562,
+    0.563,
+    0.566,
+    0.574,
+    0.574,
+    0.579,
+    0.58,
+    0.581,
+    0.581,
+    0.589,
+    0.589,
+    0.597,
+    0.597,
+    0.599,
+    0.602,
+    0.604,
+    0.606,
+    0.607,
+    0.608,
+    0.611,
+    0.617,
+    0.622,
+    0.623,
+    0.623,
+    0.625,
+    0.63,
+    0.641,
+    0.648,
+    0.653,
+    0.664
+  ],
+  "estadisticas": {
+    "min": 0.415,
+    "max": 0.664,
+    "mean": 0.5683,
+    "median": 0.5765,
+    "std": 0.05267380753277666
+  }
+}

@@ -926,10 +926,15 @@ def _build_server():
 
             resultados = resultados[:limite]
 
-            # Aplicar umbral calibrado (FP ≤ α) si hay calibración vigente
-            # Esto filtra resultados cuyo score híbrido crudo no supera el umbral conforme
-            if cerebro._umbral_conforme:
-                resultados = [r for r in resultados if cerebro._debe_responder(r[4])]
+            # Aplicar umbral (calibrado o cold start) sobre top-1.
+            # POR QUÉ SOLO EL TOP-1: el umbral se calibra sobre el score del
+            # primer resultado de consultas negativas. Aplicarlo a cada elemento
+            # destruye R@5 (96%→73%) sin aportar garantía FP.
+            # FLUJO: _debe_responder usa umbral conforme si existe, o
+            # UMBRAL_COLD_START (0.65) si no hay calibración (cold start).
+            if resultados:
+                if not cerebro._debe_responder(resultados[0][4]):
+                    resultados = []  # abstención: no hay evidencia suficiente
                 total = len(resultados)
 
             # Auto-rescate: nodos en cuarentena que aparecieron en resultados → volver a activo
