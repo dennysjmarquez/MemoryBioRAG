@@ -7,9 +7,9 @@
 > **Motor:** Python puro + NumPy + SQLite FTS5 WAL
 > **Dependencias ML:** 0 (mcp + nltk para WordNet, 0 sentence-transformers, 0 torch, 0 dependencias C++ o CUDA)
 > **Idiomas:** Español + Inglés (stemming bilingüe ES/EN + expansión simbólica vía WordNet)
-> **Benchmark (921 Casos QA, snapshot congelado):** GLOBAL R@5 **96.25%** · R@1 **88.76%** · MRR **0.917** · FP **17.5%** (33 errores). Los 3 gates de evaluación (pool 35 casos) pasados: por_tema 14/21 ✔, sinonimo 8/14 ✔, sinonimia limpia 2 ✔.
+> **Benchmark (921 Casos QA, snapshot congelado):** GLOBAL R@5 **96.03%** · R@1 **88.76%** · MRR **0.917** · FP **17.5%** (33 errores). Los 3 gates de evaluación (pool 35 casos) pasados: por_tema 14/21 ✔, sinonimo 8/14 ✔, sinonimia limpia 2 ✔.
 > 
-> ⚠️ **El FP de 17.5% es del snapshot congelado.** En la DB de producción viva el FP es **80%** (preexistente, no introducido por esta release): el umbral absoluto de 0.25 no escala con corpus grandes. La separación semántica es excelente (AUC 0.914) — el problema es dónde está puesto el corte, no la señal. Diagnóstico completo en `EXPERIMENTS.md`; corrección pendiente vía umbral calibrado.
+> ⚠️ **Estado del FP en producción:** El **80% FP histórico** se midió con el umbral fijo legado **0.25** (pre-v28.1). v28.1 implementa **calibración conforme percentil** (Vovk 2005, α=0.10, umbral ~0.60) con guardas (α ≥ 1/(n+1), recalibración por drift, guarda degenerada). El umbral calibrado **está activo** en `_debe_responder` / `buscar_con_calibracion`. El FP real con el nuevo umbral **es desconocido** — requiere negativos reales de producción (señal B: aprendizaje-post-miss) que se acumulan con `BIORAG_NO_LOG=1`. Ver `docs/ANALISIS_40_NEGATIVOS_REALES.md` y `docs/DECISION_ALPHA.md`.
 
 **BioRAG** es una arquitectura de memoria cognitiva simbólica, biomimética y persistente para agentes de inteligencia artificial. Resuelve el problema fundamental de que los LLMs olvidan todo entre sesiones — sin depender de embeddings pesados de PyTorch/Transformers, GPUs ni infraestructura externa. Opera sobre un espacio discreto, determinista y auditable: Factorización Espectral PPMI+SVD de 100 dimensiones, Retrofitting Hebbiano sobre el grafo de sinapsis, Especificidad IDF sobre el índice de sinónimos curados, 13 ejes semánticos × 102 sub-valores declarativos, 45 grupos léxicos WordNet, Pointwise Mutual Information (PMI/NPMI) aprendido sobre el corpus, Sparse Distributed Memory (SDM de 2048 bits), Computación Hiperdimensional (HDC) para binding de predicados, un pipeline de recuperación híbrido con expansión simbólica bilingüe, un grafo de conocimiento dinámico con plasticidad negativa y sinapsis latentes semánticas (SLS), un motor autónomo de Red por Defecto (DMN) que divaga y genera hipótesis en reposo, y un sistema de mantenimiento automatizado del grafo (La Hormiguita).
 
@@ -75,9 +75,9 @@ El grafo de vectores PPMI se **auto-organiza en islas semánticas** — nadie la
 
 ## 📊 Benchmark y Evaluación de Rendimiento (v28.1 — Zero Data Leakage)
 
-> **Números vigentes (v28.1, 921 casos, snapshot congelado):** R@5 **96.25%**, R@1 **88.76%**, MRR **0.917**, FP **17.5%** (33 errores). Los 3 gates de evaluación (pool 35 casos) pasados: por_tema 14/21 ✔, sinonimo 8/14 ✔, sinonimia limpia 2 ✔.
+> **Números vigentes (v28.1, 921 casos, snapshot `qa_escape_qcr_20260811`):** R@5 **96.03%**, R@1 **88.76%**, MRR **0.917**, FP **17.5%** (33 errores). Los 3 gates de evaluación (pool 35 casos) pasados: por_tema 14/21 ✔, sinonimo 8/14 ✔, sinonimia limpia 2 ✔.
 > 
-> ⚠️ **El FP de 17.5% es del snapshot congelado.** En la DB de producción viva el FP es **80%** (preexistente, no introducido por esta release): el umbral absoluto de 0.25 no escala con corpus grandes. La separación semántica es excelente (AUC 0.914) — el problema es dónde está puesto el corte, no la señal. Diagnóstico completo en `EXPERIMENTS.md`; corrección pendiente vía umbral calibrado.
+> ⚠️ **Estado del FP en producción:** El **80% FP histórico** se midió con el umbral fijo legado **0.25** (pre-v28.1). v28.1 implementa **calibración conforme percentil** (Vovk 2005, α=0.10, umbral ~0.60) con guardas (α ≥ 1/(n+1), recalibración por drift, guarda degenerada). El umbral calibrado **está activo**. El FP real con el nuevo umbral **es desconocido** — requiere negativos reales de producción (señal B: aprendizaje-post-miss) que se acumulan con `BIORAG_NO_LOG=1`. Ver `docs/ANALISIS_40_NEGATIVOS_REALES.md` y `docs/DECISION_ALPHA.md`.
 
 > Metodología: **Peso excluido del scoring** (`ignore_peso_sinaptico=True`) — campo de juego nivelado sin artefactos de umbral de ruido. Determinismo verificado: 4 corridas idénticas. Tests pytest: 16/16 PASS (v28.0).
 
@@ -88,6 +88,7 @@ El grafo de vectores PPMI se **auto-organiza en islas semánticas** — nadie la
 | **por_tema top-5** | 36.92% | 58.46% | 70.77% | 66.67% (14/21) | 66.67% (14/21) | **66.67% (14/21)** | $\ge 10\,/\,21$ | 🏆 **✔ PASA (+40%)** |
 | **sinonimo top-5** | 14.28% | 14.28% | 14.28% | 14.28% (2/14) | **57.14% (8/14)** | **57.14% (8/14)** | $\ge 6\,/\,14$ | 🏆 **✔ PASA (+33%)** |
 | **sinonimia limpia** | 0 | 0 | 0 | 0 | **2** | **2** | $\ge 1$ | 🏆 **✔ PASA** |
+| **GLOBAL R@5 (921)** | — | — | — | — | — | **96.03%** | — | — |
 
 > **Hito v26.0:** Primera versión en la historia del proyecto en destrabar simultáneamente los 3 gates de evaluación (temática, sinónimos y sinonimia limpia) sin depender de modelos preentrenados densos ni GPUs.
 
