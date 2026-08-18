@@ -2,6 +2,7 @@
 
 # Generated databases (local data, not code)
 MemoryBioRAG_Data/**/*.db
+!MemoryBioRAG_Data/memory_biorag.db
 MemoryBioRAG_Data/obsolete_and_debug/
 test_memory.db
 

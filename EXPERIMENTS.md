@@ -301,3 +301,98 @@ la vía no es un corte binario sino abstención graduada, que además encaja con
 filtro de honestidad epistémica que el proyecto ya declara.
 
 ---
+
+## Hipótesis E — Sinónimo, calibración, y auditoría inicial de mecanismos (18-ago-2026)
+
+### Contexto
+`sinonimo` es la categoría más débil del benchmark de 921 casos (top5 2/14 en el
+sub-proyecto aislado PPMI+SVD, 77% en el benchmark completo). Se probaron dos
+vías para cerrarla, ninguna lista para producción, y se auditó el cableado real
+de 4 mecanismos existentes contra el mismo benchmark.
+
+### 1. Calibración conforme — activada
+`BIORAG_CALIBRACION_ACTIVA` estaba OFF por default, sin documentar en
+`.env.example`, con calibración guardada (`metodo=cost_sensitive_optimal`,
+`umbral=0.53`, `n_positivos=0` — nunca verificada contra positivos reales).
+Medido en vivo contra DB real: sin activar, FP=80% (32/40); activada, FP=2.5%
+(1/40), a costa de R@5 91.4%→70.7%. **No existe umbral que dé R@5>90% y FP<5%
+a la vez** (probado 0.25/0.53/0.60/0.63). Decisión: activar 0.53 en producción.
+`.env.example` actualizado con el trade-off documentado.
+
+### 2. Retrofitting de vectores (Faruqui et al. 2015) — descartado en esta forma
+`scripts/retrofit_ppmi_svd.py`. Grafo `sinapsis(tipo=sinonimo_explicito)`,
+7685 edges. 8 configuraciones probadas (alpha 0.05–1.0, iters 3–10, con/sin
+normalización por grado, filtro de peso 0–0.9). **Ninguna mejoró `sinonimo`
+top5 sobre el baseline (2/14); la mayoría empeoró, y `por_tema` degradó en
+casi todas.** Causa raíz verificada: el grafo tiene nodos-hub de hasta 305
+vecinos (mediana 9, p99 129) — muy distinto a un lexicon WordNet-style de
+pocos sinónimos por nodo, para el que está diseñada la fórmula de Faruqui.
+Con alpha fijo, un hub de 305 vecinos reduce el vector original a ~0.4% del
+resultado. Diagnóstico adicional: las 14 queries de `sinonimo` son palabras
+sueltas comparadas contra vectores de documento promediados de un modelo con
+varianza explicada 33% — el retrofitting mueve el destino (documento), pero
+el punto de partida (la palabra suelta) ya viene mal representado; no ataca
+la causa.
+
+### 3. Expansión de query por grafo (1 salto) — señal real, no lista para producción
+`scripts/expansion_grafo_sinonimo.py`. En vez de mover vectores, expande la
+query a nivel léxico: conceptos-semilla (contienen la palabra literal) →
+boost a vecinos por `sinonimo_explicito`. Primera versión (boost=SUMA) explotó
+por el mismo problema de hub (`identidad` acumuló boost=29.7 en un candidato
+irrelevante). Corregido a boost=MAX (un concepto gana por su mejor camino,
+no por cantidad de caminos débiles). Resultado con w=0.5: `sinonimo` 2/14→3/14
+(+1 caso real), pero `por_tema` 13/21→1/21 (colapso). Detalle caso por caso:
+3/14 casos tenían camino de grafo y mejoraron mucho (rank 34→9, 88→6, 38→5);
+11/14 no tenían ningún camino (cobertura incompleta); daño colateral confirmado
+en 1 caso que ya estaba bien (rank 4→16, sin recibir boost él mismo — lo
+desplazaron competidores boosteados). Ganancia y pérdida se cancelan en el
+agregado. Un solo peso global no puede servir a las dos categorías —
+necesita ruteo por tipo de query, no mezcla aditiva.
+
+### 4. Ablación de 4 mecanismos existentes (GABA, DMN, PPMI+SVD, Jaccard)
+`scripts/ablacion_mecanismos.py` (ya existente, cableado verificado real).
+Snapshot congelado por config (bug propio corregido: la primera corrida
+reusó el mismo archivo de DB mutable entre configs — la búsqueda despierta
+nodos dormidos como efecto secundario, contaminando comparaciones
+posteriores; detectado porque GABA-off y DMN-off dieron idéntico hasta el
+decimal, estadísticamente imposible si fueran mecanismos independientes).
+Repetido con copia fresca por config:
+- **PPMI+SVD OFF**: R@5 91.4%→90.8% (−0.57pp), concentrado 100% en
+  `sinonimo` (−4.9pp) y `por_tema` (−3.1pp), cero impacto en las otras 6
+  categorías. Bien cableado, aporta lo esperado de un mecanismo de peso 0.15.
+- **GABA OFF**: idéntico al baseline en las 8 categorías. Solo se activa si
+  top-1 ≥0.80; puede estar disparando pero sin cruzar el umbral binario top-5
+  en ningún caso de este dataset — no confirmado si realmente no aporta o si
+  el benchmark no es sensible a su efecto.
+- **DMN OFF**: idéntico al baseline. **Test estructuralmente inválido** — DMN
+  vive en `core/dmn_engine.py`, corre en inactividad/consolidación, nunca es
+  invocado por `buscar_por_frase`. Ejemplo real de "tecnología correcta,
+  aplicada donde no corresponde medirla": no es un bug de cableado, es medir
+  el mecanismo equivocado con el benchmark equivocado.
+  Jaccard no se re-probó: su config de ablación fuerza el mismo valor que ya
+  es default (OFF), sería una comparación contra sí mismo.
+
+### Lecciones metodológicas de hoy
+1. `buscar_por_frase` no es una función pura — despierta nodos dormidos como
+   efecto secundario. Cualquier comparación entre configs necesita una copia
+   de DB fresca por config, nunca reusar un archivo mutable entre corridas.
+2. Un resultado "idéntico hasta el decimal" entre dos configs que deberían
+   ser independientes es señal de contaminación, no de que ninguna aporte —
+   investigar antes de reportar.
+3. Auditar "¿está bien cableado?" y auditar "¿el benchmark puede medir este
+   mecanismo?" son preguntas distintas — un mecanismo puede pasar la primera
+   y fallar la segunda sin estar roto (caso DMN).
+4. No existe un techo de "recall perfecto en todo" — cada categoría semántica
+   tiene un techo real medido (ver arriba), y el trade-off recall/FP es
+   matemático, no un bug.
+
+### Pendiente — auditoría de los ~22 mecanismos restantes del catálogo de 26
+Documento de referencia: catálogo completo con mecanismo → fundamento
+científico → archivo → para qué se usa. Verificados hoy contra código real:
+PPMI/SVD, GABA, DMN, escalado sináptico homeostático, separación de patrones
+hipocampal (los 2 últimos solo spot-check de existencia, no de comportamiento
+en benchmark). Criterio para seguir: mismo estándar que arriba — no basta con
+"existe en el código", hay que (a) confirmar que el camino de código que dice
+usarlo realmente lo invoca, (b) medir su efecto real contra los 921 casos con
+DB fresca por config, (c) si da nulo, verificar primero si el benchmark puede
+medirlo (caso DMN) antes de concluir que no aporta.
