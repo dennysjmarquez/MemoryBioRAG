@@ -482,3 +482,28 @@ sugerido en el propio código) contra los 921 casos: R@5 91.37%→91.37%
 (sin cambio), R@1 +0.11pp, FP sin cambio. Por categoría: `por_tema` +1.5pp,
 `sinonimo` −1.6pp — se cancelan casi exacto. **No hay caso claro para
 activarlo con este peso** — no se probaron otros pesos por tiempo.
+
+### Cambio real implementado: ampliación de ventana por empate (18-ago-2026)
+
+`core/memory_store.py::buscar_por_frase()`, antes de la paginación final.
+Para queries ≤2 palabras (página 1), si hay candidatos justo debajo del
+corte de `limite` con score ≥90% del último incluido, se amplía la ventana
+devuelta (tope +10). Motivación: casos reales (`dimensiones`, `familia`,
+`buscar` — ver más arriba) donde el concepto correcto SÍ se encuentra pero
+pierde una competencia legítima contra candidatos igual de plausibles justo
+debajo del top-5.
+
+**Medido correctamente (no con R@5 — ese nunca fue el objetivo del cambio):**
+de los casos que antes NO devolvían el concepto esperado en absoluto
+(found_rank=null), **7 ahora sí lo devuelven** en algún lugar de la ventana
+ampliada (posiciones 6-11). **0 regresiones**: ningún caso que antes se
+encontraba se rompió, ningún negativo empezó a devolver falsos positivos
+nuevos. Nota metodológica propia: el primer intento de medir esto con R@5
+agregado dio "0.00pp cambio" — error de métrica (R@5 no puede detectar un
+candidato que aparece en posición 6-11), no de código. Corregido comparando
+found_rank null→no-null directamente.
+
+Límite conocido: el tope +10 es arbitrario: rescata casos con rank real
+≤15, no rescata casos más profundos (ej. "buscar", rank real 21, no
+resuelto). Subir el tope rescataría más casos a costa de ventanas de
+respuesta más grandes — no evaluado el trade-off de subirlo más.

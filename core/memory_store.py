@@ -5427,6 +5427,28 @@ class SQLiteMemoryBioRAG:
                 reverse=reverse,
             )
 
+        # Ampliación por empate en el corte, solo para queries cortas (≤2 palabras).
+        # Evidencia real (EXPERIMENTS.md, 18-ago-2026): para queries de una palabra,
+        # el concepto correcto a veces cae justo debajo de `limite` compitiendo con
+        # candidatos igual de plausibles (ranks 8, 11, 21 medidos en producción real
+        # para "dimensiones", "familia", "buscar" — sin bug, competencia legítima).
+        # En vez de cortar arbitrario en el número redondo, si hay candidatos justo
+        # debajo del corte con score muy cercano al último incluido, se amplía la
+        # ventana (tope +10) para no perder al candidato correcto por centésimas.
+        # No aplica a queries largas (menos ambiguas) ni a páginas >1.
+        query_words_ambiguedad = re.findall(r"\w+", frase.lower())
+        if (pagina == 1 and limite and len(query_words_ambiguedad) <= 2
+                and len(resultados_con_hibrido) > limite):
+            score_corte = resultados_con_hibrido[limite - 1][4]
+            tope = min(limite + 10, len(resultados_con_hibrido))
+            limite_ampliado = limite
+            for idx in range(limite, tope):
+                if resultados_con_hibrido[idx][4] >= score_corte * 0.90:
+                    limite_ampliado = idx + 1
+                else:
+                    break
+            limite = limite_ampliado
+
         # Paginar (sin truncar aun; se necesita contenido completo para context window)
         inicio = (pagina - 1) * limite
         pagina_resultados = resultados_con_hibrido[inicio:inicio + limite]
