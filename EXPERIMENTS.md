@@ -396,3 +396,78 @@ en benchmark). Criterio para seguir: mismo estándar que arriba — no basta con
 usarlo realmente lo invoca, (b) medir su efecto real contra los 921 casos con
 DB fresca por config, (c) si da nulo, verificar primero si el benchmark puede
 medirlo (caso DMN) antes de concluir que no aporta.
+
+### Corrección de marco (18-ago-2026, mismo día): "2/14" no es el número de producción
+
+El sub-proyecto aislado PPMI+SVD (`ppmi-svd-semantico.md`) mide el componente
+vectorial SOLO, por diseño ("sin complejidad del pipeline"). Comparando las
+mismas queries contra `buscar_por_frase` real (con Capa 4: WordNet +
+columna `sinonimos`, 96.9% de nodos poblados): `perfil` rank 34→**4**,
+`regla` 66→**5**, `memory` 68→**2**, `agentes` 38→**3**. La Capa 4 ya rescata
+la mayoría de estos casos en producción. El número real de producción para
+`sinonimo` es el 77% del benchmark de 921 casos, no el 2/14 aislado.
+
+Investigados los 7 casos que SÍ fallan en producción real (found_rank=None
+en el benchmark de 921): en los 3 auditados a fondo (`dimensiones`,
+`familia`, `buscar`) el concepto esperado **tiene la palabra literal en su
+campo `sinonimos`**, está `activo`, y SÍ es encontrado por el motor — solo
+que compite contra 10-20 candidatos igual de plausibles que también
+mencionan la misma palabra, y pierde la competencia por score (ranks 8, 11,
+21 respectivamente). **No es un bug de cableado — es el techo inherente de
+una consulta de una palabra contra un corpus de conceptos densamente
+relacionados.** No se investigaron los 4 casos restantes (`boost`, `memoria`,
+`dsl`) con este mismo nivel de detalle — mismo patrón esperado pero sin
+confirmar.
+
+**Conclusión de toda la sesión de auditoría:** de todo lo revisado hoy
+(calibración, PPMI+SVD, GABA, DMN, retrofitting, expansión de grafo, Capa 4
+WordNet/sinónimos, escalado homeostático, separación de patrones), **no se
+encontró ningún mecanismo genuinamente mal cableado.** Los hallazgos reales
+fueron: (a) mecanismos correctos pero apagados por default sin documentar
+(calibración, Jaccard), (b) un mecanismo correcto probado con el benchmark
+equivocado (DMN), (c) un problema real sin resolver que no es de cableado
+sino de ambigüedad semántica inherente en queries de una palabra.
+
+### Reversión de la decisión de calibración (18-ago-2026, mismo día)
+
+`scripts/medir_ratio_produccion.py` (ya existía, nunca se había corrido) midió
+el ratio real contra `log_busquedas`: **15-36:1** (con:sin respuesta) en 6134
+consultas reales — muy por encima del 22:1 sintético del benchmark de 921
+casos. Las dos copias de DB disponibles dieron números distintos entre sí
+(15.1:1 vs 36.4:1; rangos de fecha de `log_busquedas` no anidados entre las
+dos copias, causa no determinada — posible retención/poda en la DB viva,
+sin confirmar). Ambas apuntan en la misma dirección cualitativa: muy por
+encima del punto de quiebre (1.6:1) que hubiera justificado un umbral alto.
+
+Con la regla de decisión del propio script (`neto = recall − fp/ratio`), un
+ratio de 15-36:1 favorece un umbral BAJO: activar 0.53 destruye más recall
+del que protege de FP en tráfico real. **Se revirtió la decisión de activar
+`BIORAG_CALIBRACION_ACTIVA` tomada horas antes en esta misma sesión** —
+`.env.example` actualizado, default vuelve a ser desactivada.
+
+Nota aparte, sin resolver: de 6134 consultas, solo 38 (0.6%) tienen feedback
+explícito (`util`), y las 38 son `util=0` — nunca se registró un `util=1` en
+esta DB. El mecanismo de feedback (dopamina/RPE, `biorag_feedback()`) existe
+y está cableado, pero no se está usando en la práctica — no se investigó por
+qué hoy.
+
+### Auditoría de GABA con tráfico real (18-ago-2026, mismo día)
+
+Se midió, contra `log_busquedas` (6134 consultas reales), cuántas veces se
+cumple la condición de disparo de GABA (top1 ≥0.80): **64.7%** (3861/5970
+con `top_score` registrado) — se dispara constantemente, no es un caso raro.
+
+Sin embargo, cruzando con la ablación del benchmark de 921: de los 579 casos
+donde la condición se cumple, **0 cambiaron de rank al desactivar GABA**
+(no solo el agregado — caso por caso, ninguno). Causa verificada en el
+código (`core/memory_store.py`, bloque GABA): solo atenúa candidatos con
+`score < top_score * 0.70`. Para que eso mueva el top-5 hace falta que un
+candidato ya claramente inferior al líder esté además compitiendo justo en
+el borde del corte top-5 — combinación que no ocurrió ni una vez en 6134
+consultas reales + 921 del benchmark.
+
+**No es un mecanismo mal cableado ni con bug — es un mecanismo de cola que,
+con los datos actuales, no tiene ningún caso donde aplique de forma
+observable.** Puede que sea necesario para escenarios que este corpus
+todavía no tiene (documentos casi-duplicados compitiendo cerca del líder),
+o puede ser candidato a simplificar. No se decidió qué hacer con esto hoy.
