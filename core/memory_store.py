@@ -5371,6 +5371,7 @@ class SQLiteMemoryBioRAG:
                 resultados_con_hibrido = filtrados_qcr
 
 
+
         # Fase C (v22.2): Re-ranking jaccard léxico condicional.
         # OFF por defecto (BIORAG_RERANKING_JACCARD_ENABLED=0) — activación gradual
         # monitoreada contra el benchmark. Config ganadora del holdout 2026-08-04.
