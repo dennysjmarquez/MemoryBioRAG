@@ -5189,6 +5189,19 @@ class SQLiteMemoryBioRAG:
         except Exception:
             pass
 
+        # ─── Precompute Spreading Activation (cadena) scores from top seeds ───
+        cadena_scores_map = {}
+        if not modo_estricto and todos:
+            try:
+                semillas_top = [r[1] for r in todos[:5] if r[1]]
+                if semillas_top:
+                    evocados, _ = self._evocacion_por_cadena(semillas_top)
+                    for conc_ev, decay_score, _ in evocados:
+                        cadena_scores_map[conc_ev] = max(cadena_scores_map.get(conc_ev, 0.0), decay_score)
+            except Exception:
+                pass
+
+
         # Calcular score hibrido para cada resultado (fórmula única 9 señales)
         total = len(todos)
         resultados_con_hibrido = []
@@ -5212,7 +5225,7 @@ class SQLiteMemoryBioRAG:
                         score_latente = max(score_latente, row_lat[0])
                 except Exception:
                     pass
-            score_cadena = score_capa if origen == "cadena" else 0.0
+            score_cadena = max(score_capa if origen == "cadena" else 0.0, cadena_scores_map.get(concepto, 0.0))
             
             # Calculate symbolic similarity for concept name and synonyms, and update ratios
             concepto_s_score = score_simbolico_concepto(tokens_query, concepto)
@@ -5356,6 +5369,7 @@ class SQLiteMemoryBioRAG:
                     filtrados_qcr.append((conc, cont, peso, est, sc, asoc))
             if filtrados_qcr:
                 resultados_con_hibrido = filtrados_qcr
+
 
         # Fase C (v22.2): Re-ranking jaccard léxico condicional.
         # OFF por defecto (BIORAG_RERANKING_JACCARD_ENABLED=0) — activación gradual
