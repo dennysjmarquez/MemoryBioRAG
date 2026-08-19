@@ -471,3 +471,14 @@ con los datos actuales, no tiene ningún caso donde aplique de forma
 observable.** Puede que sea necesario para escenarios que este corpus
 todavía no tiene (documentos casi-duplicados compitiendo cerca del líder),
 o puede ser candidato a simplificar. No se decidió qué hacer con esto hoy.
+
+### JSD (Jensen-Shannon Divergence) — mismo patrón de peso 0.0 por default, sin caso claro para activar
+
+`BIORAG_JSD_WEIGHT` default `'0.0'` — se calcula (`_calcular_jsd`) en cada
+búsqueda pero no aporta al score final salvo activación explícita. Mismo
+patrón que calibración/Jaccard (mecanismo real, apagado por default, sin
+documentar el trade-off). Probado con `BIORAG_JSD_WEIGHT=0.05` (valor
+sugerido en el propio código) contra los 921 casos: R@5 91.37%→91.37%
+(sin cambio), R@1 +0.11pp, FP sin cambio. Por categoría: `por_tema` +1.5pp,
+`sinonimo` −1.6pp — se cancelan casi exacto. **No hay caso claro para
+activarlo con este peso** — no se probaron otros pesos por tiempo.
