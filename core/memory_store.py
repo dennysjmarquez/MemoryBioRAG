@@ -4696,6 +4696,7 @@ class SQLiteMemoryBioRAG:
             except sqlite3.OperationalError:
                 pass
 
+
         # Fallback 1.9: Evocación por cadena (multi-hop con decay logarítmico)
         # Dynamic Multiplicator: registrar como "cadena" con score de decay
         if not modo_estricto and len(todos) < 3 and len(query) >= 2:
@@ -4916,6 +4917,13 @@ class SQLiteMemoryBioRAG:
                         todos = content_new + todos
                 except sqlite3.OperationalError:
                     pass
+
+        # [AUDIT #15 — PPMI Vector Retrieval: DESCARTADO tras 3 iteraciones]
+        # Iteración 1 (pool < 3, antes de SA): mató SA (27→1 queries). Revertido.
+        # Iteración 2 (pool < 3, después de SA): neutral, 0 rescates (pool siempre >= 3).
+        # Iteración 3 (always-on, cos > 0.55): +6 regresiones por ruido PPMI.
+        # Causa raíz: FTS5 OR con trigram infla pool a 200+ nodos → bloquea fallbacks.
+        # La solución correcta no es inyectar vía PPMI, es reducir ruido FTS5.
 
         # ─── Capa 3: Pseudo-relevance feedback for query dimensions ───
         # If no explicit dimensiones_ids but there's a query and FTS5 results,
@@ -5314,7 +5322,6 @@ class SQLiteMemoryBioRAG:
 
                 except Exception:
                     ppmi_val = 0.0
-
 
             score_hibrido = self._calcular_score_hibrido(
                 bm25_norm=bm25_norm_map.get(concepto, 0.0),
