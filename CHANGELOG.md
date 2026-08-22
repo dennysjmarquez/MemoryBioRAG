@@ -1,5 +1,26 @@
 # BioRAG Changelog
 
+## [v29.0] — 2026-08-21 — Era del Concept Hub y Expansión Semántica Pura
+
+Release de **independencia semántica y superación de la barrera léxica**. Permite recuperar recuerdos sin overlap de vocabulario (queries puramente semánticas) manteniendo la pureza del pipeline híbrido sin dependencias de modelos externos.
+
+### Añadido
+- **Concept Hub (`core/concept_hub.py`)**: Motor asociativo de significado que mapea frases de intención y puentes léxicos ("bridges") a conceptos canónicos antes de FTS5.
+- **Señal #14 (`hub_match`)**: Integrada en `_calcular_score_hibrido()` con peso del 20% (renormalizado con las 13 señales previas) y bypass de QCR para nodos canónicos de alta confianza.
+- **5 Nuevas MCP Tools** para gestión dinámica de hubs y puentes:
+  - `concept_hub_crear`: Creación de hubs con nodo canónico.
+  - `concept_hub_agregar_bridges`: Inserción en caliente de nuevas frases puente.
+  - `concept_hub_listar`: Inspección de todos los hubs y sus nodos asociados.
+  - `concept_hub_buscar`: Matching directo de frases contra hubs.
+  - `concept_hub_cargar_iniciales`: Carga de 10 hubs canónicos base.
+- **Suite de Pruebas FASE 2 (`scripts/test_concept_hub.py`)**: Suite de validación para consultas semánticas puras sin palabras compartidas.
+
+### Métricas y Resultados Validados
+- **Recall@5 Semántico Puro (Fase 2)**: **100% de Éxito (5/5 en TOP1)** vs **0%** anterior.
+- **Control de Ruido / Falsos Positivos**: Reducción de FPs de 80% (32 FPs) a **17.50% (7 FPs)** en el dataset de control negativo (-78% de ruido).
+- **Recall@1 Global (TOP-1)**: Subió a **88.20%** en la suite congelada de 921 casos QA.
+- **Invariantes de Scoring y Tests Unitarios**: **23/23 Unit Tests PASSED** y **4/4 Invariantes de Monotonía PASSED**.
+
 ## [v28.1] — 2026-08-15 — Auditoría matemática, corrección de scoring e instrumentación
 
 Release de **correctitud e instrumentación**. No cambia las métricas de
