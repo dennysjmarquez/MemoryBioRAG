@@ -1780,7 +1780,7 @@ def _build_server():
         dimensiones: Optional[Any] = None,
         predicados: Optional[Any] = None,
         valencia_somatica: Optional[float] = None,
-        bridges: Optional[str] = None,
+        bridges: str = "",
     ) -> str:
         cerebro = _get_cerebro()
         try:
@@ -2122,24 +2122,35 @@ def _build_server():
         valencia_somatica: Annotated[Optional[float], Field(
             description="Valencia emocional/somática (0.0 a 1.0). Nodos con valencia >= 0.80 son inmunes al decaimiento por sueño y la poda."
         )] = None,
-        bridges: Annotated[Optional[str], Field(
+        bridges: Annotated[str, Field(
             description=(
-                "Puentes semánticos: frases naturales separadas por pipe (|) que usaría alguien "
-                "para encontrar este nodo SIN compartir vocabulario.\n"
-                "OBLIGATORIO para nodos importantes. Si se omite y valencia >= 0.80, aparece aviso.\n\n"
-                "QUÉ ES: frases como las que alguien preguntaría para llegar a este nodo.\n"
-                "NO son sinónimos (eso ya lo hace syn). Son ENTRY POINTS semánticos.\n\n"
-                "EJEMPLOS BUENOS:\n"
-                "  bridges='trabajos antes de programar|empleos previos ingeniero'\n"
-                "  bridges='recompensa sin que nadie enseñe|aprendizaje refuerzo'\n"
-                "  bridges='error que se traga código|excepciones silenciosas'\n\n"
-                "ANTI-EJEMPLOS (basura, se rechazan):\n"
+                "REQUERIDO — sin bridges el nodo no se guarda.\n\n"
+                "QUÉ SON: Puente semántico = frase natural (≥2 palabras) que alguien escribiría "
+                "para encontrar este nodo SIN compartir vocabulario con su nombre ni contenido.\n\n"
+                "FORMATO: string con frases separadas por pipe (|). NO es array JSON.\n"
+                "  bridges='trabajo antes de programar|empleos previos ingeniero'\n"
+                "  bridges='error que se traga código|excepciones silenciosas'\n"
+                "  bridges='recetas para principiantes|cocina fácil paso a paso'\n\n"
+                "CANTIDAD: mínimo 1, ideal 3-5. Más puentes = más formas de encontrar el nodo.\n\n"
+                "QUÉ PONER:\n"
+                "  Preguntate: ¿cómo buscaría esto alguien que NO sabe que este nodo existe?\n"
+                "  1. Frases con palabras diferentes al nombre/contenido (sinónimos conceptuales)\n"
+                "  2. El problema que resuelve este nodo (si el contenido es la solución)\n"
+                "  3. La solución que da este nodo (si el contenido es el problema)\n"
+                "  4. Quién lo usaría y en qué situación\n\n"
+                "QUÉ NO PONER (basura, se rechazan):\n"
                 "  'info importante' (< 2 palabras de contenido)\n"
                 "  'dato relevante sistema' (genérico, no describe nada)\n"
                 "  'concepto_nodo' (igual al nombre del nodo)\n\n"
-                "FORMATO: pipe-separated. Cada bridge ≥2 palabras de contenido."
+                "EJEMPLOS REALES:\n"
+                "  Si guardás 'leccion_http_500_timeout':\n"
+                "    bridges='servidor no responde|página en blanco|error 500|timeout de conexión'\n"
+                "  Si guardás 'patron_singleton_python':\n"
+                "    bridges='una sola instancia|objeto global|instancia única'\n"
+                "  Si guardás 'leccion_nudge_no_bloqueo_diseño_tools':\n"
+                "    bridges='herramientas exigen campos pero no bloquean|guía no guardia|cuando el modelo falla la memoria se pierde'"
             )
-        )] = None,
+        )] = "",
     ) -> str:
         return _aprender_impl(concepto, contenido, syn, cat, dimensiones=dimensiones, predicados=predicados, valencia_somatica=valencia_somatica, bridges=bridges)
 
@@ -2148,8 +2159,8 @@ def _build_server():
         description=(
             "(legado) Alias de 'aprender' — preferir 'aprender' para identificar la operación cognitiva real. "
             "Misma funcionalidad y parámetros.\n\n"
-            "Parámetros: concepto (str), contenido (str), syn (str opcional), cat (str opcional), "
-            "dimensiones (str JSON opcional), bridges (str opcional), valencia_somatica (float opcional).\n\n"
+            "Parámetros: concepto (str), contenido (str), bridges (str REQUERIDO), syn (str opcional), cat (str opcional), "
+            "dimensiones (str JSON opcional), predicados (str JSON opcional), valencia_somatica (float opcional).\n\n"
             "Retorna: {status, mensaje, concepto (str normalizado), sinapsis (int)}"
         ),
     )
@@ -2176,12 +2187,12 @@ def _build_server():
         valencia_somatica: Annotated[Optional[float], Field(
             description="Valencia emocional/somática (0.0 a 1.0)."
         )] = None,
-        bridges: Annotated[Optional[str], Field(
+        bridges: Annotated[str, Field(
             description=(
-                "Puentes semánticos: frases naturales separadas por pipe (|). "
+                "REQUERIDO — sin bridges el nodo no se guarda. "
                 "Ver descripción completa en `aprender`."
             )
-        )] = None,
+        )] = "",
     ) -> str:
         return _aprender_impl(concepto, contenido, syn, cat, dimensiones=dimensiones, predicados=predicados, valencia_somatica=valencia_somatica, bridges=bridges)
 
