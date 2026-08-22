@@ -520,5 +520,6 @@ def buscar_por_similitud_latente(cursor, frase, limite=None, umbral=None, cerebr
 
     propagados.sort(key=lambda x: x[0], reverse=True)
     # Aplicar umbral real DESPUÉS de la propagación
-    return [row for score_f, row in propagados if score_f >= umbral][:limite]
+    # Retornar (score_final, row) para que el caller use el score real
+    return [(score_f, row) for score_f, row in propagados if score_f >= umbral][:limite]
 

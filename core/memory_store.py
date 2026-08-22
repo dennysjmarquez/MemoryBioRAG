@@ -4876,12 +4876,12 @@ class SQLiteMemoryBioRAG:
                     self.cursor, query, limite=max(limite, 5), umbral=0.3, cerebro=self
                 )
                 seen_rowids = {r[0] for r in todos}
-                for row in latente_results:
+                for lat_score, row in latente_results:
                     if row[0] not in seen_rowids:
                         todos.append(row[:6])
                         seen_rowids.add(row[0])
                         if row[1] not in origen_scores:
-                            origen_scores[row[1]] = ("latente", row[4] if len(row) > 4 else 0.5)
+                            origen_scores[row[1]] = ("latente", lat_score)
             except ImportError:
                 pass
             except Exception:
