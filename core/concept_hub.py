@@ -164,13 +164,6 @@ def listar_hubs(conn):
     return hubs
 
 
-def eliminar_hub(conn, hub_id):
-    """Elimina un hub y todos sus bridges/nodos (CASCADE)."""
-    conn.execute("DELETE FROM concept_hubs WHERE hub_id = ?", (hub_id,))
-    conn.commit()
-    return {"status": "ok", "hub_id": hub_id}
-
-
 # ─── MOTOR DE EXPANSIÓN ───
 
 def _tokenizar(texto):
