@@ -3556,6 +3556,96 @@ def _build_server():
         finally:
             cerebro.cerrar_sistema()
 
+    # ── CONCEPT HUB TOOLS ──────────────────────────────────────────────────
+
+    @mcp.tool(
+        name="concept_hub_crear",
+        description=(
+            "Crea un Concept Hub — nodo semántico canónico con bridges (frases puente). "
+            "Los hubs resuelven vocabulario sin overlap: cuando la query y el nodo no comparten palabras "
+            "pero comparten significado, el hub mapea la query al nodo correcto."
+        ),
+    )
+    def concept_hub_crear(
+        hub_id: Annotated[str, Field(description="ID único del hub (snake_case)")],
+        canonical_node: Annotated[str, Field(description="Nombre del nodo canónico en BioRAG")],
+        description: Annotated[str, Field(description="Descripción del significado del hub")] = "",
+        bridges: Annotated[Optional[str], Field(
+            description="Frases puente separadas por pipe (|). Ej: 'trabajos antes de programar|empleos previos'"
+        )] = None,
+    ) -> str:
+        from core.concept_hub import crear_hub, agregar_bridges
+        cerebro = _get_cerebro()
+        try:
+            crear_hub(cerebro.conn, hub_id, canonical_node, description)
+            if bridges:
+                bridge_list = [b.strip() for b in bridges.split("|") if b.strip()]
+                agregar_bridges(cerebro.conn, hub_id, bridge_list)
+            return json.dumps({"status": "ok", "hub_id": hub_id, "canonical": canonical_node}, ensure_ascii=False)
+        finally:
+            cerebro.cerrar_sistema()
+
+    @mcp.tool(
+        name="concept_hub_agregar_bridges",
+        description="Agrega bridges (frases puente) a un hub existente.",
+    )
+    def concept_hub_agregar_bridges_tool(
+        hub_id: Annotated[str, Field(description="ID del hub")],
+        bridges: Annotated[str, Field(description="Frases puente separadas por pipe (|)")],
+    ) -> str:
+        from core.concept_hub import agregar_bridges
+        cerebro = _get_cerebro()
+        try:
+            bridge_list = [b.strip() for b in bridges.split("|") if b.strip()]
+            result = agregar_bridges(cerebro.conn, hub_id, bridge_list)
+            return json.dumps(result, ensure_ascii=False)
+        finally:
+            cerebro.cerrar_sistema()
+
+    @mcp.tool(
+        name="concept_hub_listar",
+        description="Lista todos los Concept Hub registrados con sus bridges y nodos.",
+    )
+    def concept_hub_listar_tool() -> str:
+        from core.concept_hub import listar_hubs
+        cerebro = _get_cerebro()
+        try:
+            hubs = listar_hubs(cerebro.conn)
+            return json.dumps({"total": len(hubs), "hubs": hubs}, ensure_ascii=False, indent=2)
+        finally:
+            cerebro.cerrar_sistema()
+
+    @mcp.tool(
+        name="concept_hub_buscar",
+        description="Busca qué Concept Hub matchea una query dada. Retorna el hub con mayor confianza.",
+    )
+    def concept_hub_buscar_tool(
+        query: Annotated[str, Field(description="Query a evaluar contra los hubs")],
+    ) -> str:
+        from core.concept_hub import expandir_query_con_hub
+        cerebro = _get_cerebro()
+        try:
+            result = expandir_query_con_hub(query, cerebro.conn)
+            if result:
+                return json.dumps({"match": True, **result}, ensure_ascii=False, indent=2)
+            else:
+                return json.dumps({"match": False, "message": "Ningún hub matcheó esta query"}, ensure_ascii=False)
+        finally:
+            cerebro.cerrar_sistema()
+
+    @mcp.tool(
+        name="concept_hub_cargar_iniciales",
+        description="Carga los 10 hubs predefinidos iniciales en la base de datos.",
+    )
+    def concept_hub_cargar_iniciales_tool() -> str:
+        from core.concept_hub import cargar_hubs_iniciales
+        cerebro = _get_cerebro()
+        try:
+            result = cargar_hubs_iniciales(cerebro.conn)
+            return json.dumps(result, ensure_ascii=False)
+        finally:
+            cerebro.cerrar_sistema()
+
     # ── PROMPTS ──────────────────────────────────────────────────────────────
 
     @mcp.prompt(

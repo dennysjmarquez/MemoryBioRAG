@@ -1,0 +1,59 @@
+{
+  "fecha": "2026-08-21 21:38",
+  "total_casos": 5,
+  "exitos_sin_hub": 0,
+  "exitos_con_hub": 5,
+  "hubs_matcheados": 5,
+  "resultados": [
+    {
+      "caso": 1,
+      "query": "trabajos que tuve antes de programar",
+      "esperado": "historia_tasajera_fumigador_rufino",
+      "sin_hub_encontrado": false,
+      "sin_hub_posicion": -1,
+      "con_hub_encontrado": true,
+      "con_hub_posicion": 1,
+      "hub_match": true
+    },
+    {
+      "caso": 2,
+      "query": "romper algo que funcionaba",
+      "esperado": "leccion_control_flujo_codigo_preexistente",
+      "sin_hub_encontrado": false,
+      "sin_hub_posicion": -1,
+      "con_hub_encontrado": true,
+      "con_hub_posicion": 1,
+      "hub_match": true
+    },
+    {
+      "caso": 3,
+      "query": "aprender sin que nadie enseñe",
+      "esperado": "biorag_v20_rpe_dopamina",
+      "sin_hub_encontrado": false,
+      "sin_hub_posicion": -1,
+      "con_hub_encontrado": true,
+      "con_hub_posicion": 1,
+      "hub_match": true
+    },
+    {
+      "caso": 4,
+      "query": "trabajos ingeniero sobrevivir antes programar",
+      "esperado": "historia_tasajera_fumigador_rufino",
+      "sin_hub_encontrado": false,
+      "sin_hub_posicion": -1,
+      "con_hub_encontrado": true,
+      "con_hub_posicion": 1,
+      "hub_match": true
+    },
+    {
+      "caso": 5,
+      "query": "IAs que se contradigan para encontrar la verdad",
+      "esperado": "resolucion_de_contradicciones_entre_insights_sumatoria_mentalidad",
+      "sin_hub_encontrado": false,
+      "sin_hub_posicion": -1,
+      "con_hub_encontrado": true,
+      "con_hub_posicion": 1,
+      "hub_match": true
+    }
+  ]
+}

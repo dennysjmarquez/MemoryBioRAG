@@ -3241,8 +3241,9 @@ class SQLiteMemoryBioRAG:
                                 jsd_score: float = 0.0,
                                 jsd_weight: float = 0.0,
                                 pred_score: float = 0.0,
-                                ppmi_score: float = 0.0):
-        """Score híbrido unificado: 10 señales ortogonales + JSD (signal #11) + Predicados (signal #12) + PPMI+SVD (signal #13).
+                                ppmi_score: float = 0.0,
+                                hub_match: float = 0.0):
+        """Score híbrido unificado: 10 señales ortogonales + JSD (signal #11) + Predicados (signal #12) + PPMI+SVD (signal #13) + Concept Hub (signal #14).
         grupo_score: similitud por grupo semántico WordNet (coseno binario).
         tematico_score: similitud temática por ausencia/presencia de dimensiones (IDF).
         match_exacto: preserva precisión en búsquedas por nombre exacto (floor 0.5).
@@ -3263,7 +3264,7 @@ class SQLiteMemoryBioRAG:
         _base_weights = {
             "bm25": 0.25, "dim": 0.14, "concepto": 0.08, "sinonimos": 0.08,
             "peso": 0.10, "jaccard": 0.10, "grupo": 0.10, "tematico": 0.08,
-            "temporal": 0.04, "asoc": 0.02, "pred": 0.20,
+            "temporal": 0.04, "asoc": 0.02, "pred": 0.20, "hub": 0.20,
         }
         _base_sum = sum(_base_weights.values())  # 1.19
         total_base = _base_sum + PPMI_VECTOR_WEIGHT  # 1.34
@@ -3282,7 +3283,8 @@ class SQLiteMemoryBioRAG:
                 0.04 * temporal +            # Recencia
                 0.02 * asoc_norm +           # Asociaciones
                 0.20 * pred_score +          # Signal #12: Predicados SRL
-                PPMI_VECTOR_WEIGHT * ppmi_score  # Signal #13: PPMI+SVD
+                PPMI_VECTOR_WEIGHT * ppmi_score +  # Signal #13: PPMI+SVD
+                0.20 * hub_match              # Signal #14: Concept Hub
             ) +
             jsd_weight * jsd_score           # Signal #11: JSD distributional overlap
         )
@@ -4195,7 +4197,73 @@ class SQLiteMemoryBioRAG:
         frase = frase_limpia_filtrada
         query = frase_limpia_filtrada if not solo_protegidos else ""
 
-# Filtrar stopwords de la lista de paráfrasis
+        # ── CONCEPT HUB: Expansión semántica pre-FTS5 ──
+        # Si un hub matchea la query, inyecta términos del hub en la frase
+        # para que BM25 pueda encontrar el nodo canónico.
+        hub_expansion = None
+        try:
+            from core.concept_hub import expandir_query_con_hub
+            hub_expansion = expandir_query_con_hub(frase_limpia, self.conn)
+            if hub_expansion and hub_expansion.get("expanded_terms"):
+                hub_terms = " ".join(hub_expansion["expanded_terms"])
+                frase = frase + " " + hub_terms
+                query = frase
+        except Exception:
+            hub_expansion = None
+
+        # ── WORDNET EXPANDIDO: Expansión automática por sinónimos+hiperonimios ──
+        # Solo para palabras en inglés (WordNet no soporta español).
+        # Import caching: se importa una vez, no por query.
+        try:
+            tokens_frase = [w for w in frase.split() if len(w) >= 3]
+            # Detectar si hay palabras en inglés (>=3 chars, solo ASCII)
+            import re as _re
+            english_tokens = [w for w in tokens_frase if _re.match(r'^[a-zA-Z]{3,}$', w)]
+            if english_tokens:
+                from nltk.corpus import wordnet as _wn
+                wordnet_terms = []
+                for token in english_tokens[:6]:  # máx 6 tokens
+                    try:
+                        synsets = _wn.synsets(token)
+                        for s in synsets[:2]:
+                            for l in s.lemmas():
+                                name = l.name().replace('_', ' ')
+                                if name.lower() != token.lower() and name not in wordnet_terms:
+                                    wordnet_terms.append(name)
+                                    if len(wordnet_terms) >= 12:
+                                        break
+                            if len(wordnet_terms) >= 12:
+                                break
+                    except Exception:
+                        pass
+                if wordnet_terms:
+                    frase = frase + " " + " ".join(wordnet_terms)
+                    query = frase
+        except Exception:
+            pass  # WordNet no disponible — fallback silencioso
+
+        # ── DOMAIN DICT: Expansión por diccionario de dominio técnico ──
+        # Cache: carga el diccionario una vez por instancia de cerebro.
+        try:
+            if not hasattr(self, '_domain_dict_cache'):
+                cursor_dict = self.conn.execute(
+                    "SELECT term, synonyms FROM concept_hub_domain_dict"
+                )
+                self._domain_dict_cache = {row[0]: row[1] for row in cursor_dict.fetchall()}
+            tokens_frase = frase.split()
+            domain_terms = []
+            for token in tokens_frase:
+                token_lower = token.lower()
+                if token_lower in self._domain_dict_cache and self._domain_dict_cache[token_lower]:
+                    synonyms = self._domain_dict_cache[token_lower].split(',')
+                    domain_terms.extend(synonyms[:3])  # máx 3 sinónimos por término
+            if domain_terms:
+                frase = frase + " " + " ".join(domain_terms)
+                query = frase
+        except Exception:
+            pass  # Tabla domain_dict no existe aún — fallback silencioso
+
+        # Filtrar stopwords de la lista de paráfrasis
         parafrasis_filtradas = []
         if parafrasis_list:
             for p in parafrasis_list:
@@ -4797,6 +4865,28 @@ class SQLiteMemoryBioRAG:
             except Exception:
                 pass
 
+        # ─── Fallback 2.2: Expansión Sináptica (spreading activation) ───
+        # Cuando todas las capas devuelven < 3 resultados, usar el grafo de sinapsis
+        # para encontrar nodos conectados a las semillas (nodos que SÍ matchean).
+        # Automático — no requiere configuración.
+        if not modo_estricto and len(todos) < 3 and len(query) >= 2:
+            try:
+                from core.similitud_conceptual import buscar_por_similitud_latente
+                latente_results = buscar_por_similitud_latente(
+                    self.cursor, query, limite=max(limite, 5), umbral=0.3, cerebro=self
+                )
+                seen_rowids = {r[0] for r in todos}
+                for row in latente_results:
+                    if row[0] not in seen_rowids:
+                        todos.append(row[:6])
+                        seen_rowids.add(row[0])
+                        if row[1] not in origen_scores:
+                            origen_scores[row[1]] = ("latente", row[4] if len(row) > 4 else 0.5)
+            except ImportError:
+                pass
+            except Exception:
+                pass
+
         # ─── Merge: inyectar resultados de concepto no encontrados por FTS5 ───
 
         if resultados_concepto:
@@ -5323,6 +5413,21 @@ class SQLiteMemoryBioRAG:
                 except Exception:
                     ppmi_val = 0.0
 
+            # Signal #14: Concept Hub match
+            hub_val = 0.0
+            if hub_expansion:
+                canonical_nodes = hub_expansion.get("canonical_nodes", [])
+                hub_conf = hub_expansion.get("hub_confidence", 0.0)
+                if concepto in canonical_nodes:
+                    # Nodo canónico: boost fuerte (garantiza aparición en TOP)
+                    hub_val = min(1.0, hub_conf * 2.0)
+                elif any(concepto in cn for cn in canonical_nodes):
+                    # Nodo vinculado al hub: boost medio
+                    hub_val = min(0.8, hub_conf * 1.5)
+                else:
+                    # Nodo no relacionado: sin boost
+                    hub_val = 0.0
+
             score_hibrido = self._calcular_score_hibrido(
                 bm25_norm=bm25_norm_map.get(concepto, 0.0),
                 dim_score=dim_score,
@@ -5338,7 +5443,8 @@ class SQLiteMemoryBioRAG:
                 jsd_score=jsd_val,
                 jsd_weight=JSD_WEIGHT,
                 pred_score=pred_val,
-                ppmi_score=ppmi_val
+                ppmi_score=ppmi_val,
+                hub_match=hub_val
             )
 
 
@@ -5361,10 +5467,18 @@ class SQLiteMemoryBioRAG:
         # Costo residual conocido y documentado: 2 FP (capa 0.667/1.0) aceptados tras análisis
         # 921 casos (2026-08-11) — no existe señal (tokens ni capa) que los separe de los TP.
         QCR_ESCAPE_CAPA_MIN = float(os.getenv("BIORAG_QCR_ESCAPE_CAPA_MIN", "0.60"))
+        # Concept Hub: nodos canónicos bypass QCR cuando el hub tiene alta confianza
+        hub_canonical_set = set()
+        if hub_expansion and hub_expansion.get("hub_confidence", 0) >= 0.4:
+            hub_canonical_set = set(hub_expansion.get("canonical_nodes", []))
         q_tokens_qcr = [t.lower() for t in re.findall(r'\w{3,}', query)]
         if QCR_ACTIVO and len(q_tokens_qcr) >= 2 and resultados_con_hibrido:
             filtrados_qcr = []
             for conc, cont, peso, est, sc, asoc in resultados_con_hibrido:
+                # Bypass QCR para nodos canónicos del hub
+                if conc in hub_canonical_set:
+                    filtrados_qcr.append((conc, cont, peso, est, sc, asoc))
+                    continue
                 text_target = f"{conc} {cont} {concepto_sinonimos_map.get(conc, '')}".lower()
                 matches_qcr = sum(1 for t in q_tokens_qcr if t in text_target)
                 ratio_qcr = matches_qcr / len(q_tokens_qcr)
@@ -5376,6 +5490,42 @@ class SQLiteMemoryBioRAG:
                     filtrados_qcr.append((conc, cont, peso, est, sc, asoc))
             if filtrados_qcr:
                 resultados_con_hibrido = filtrados_qcr
+
+        # ── CONCEPT HUB: Post-procesamiento — garantizar nodo canónico primario ──
+        # Cuando el hub tiene alta confianza, el nodo canónico PRIMERO debe aparecer
+        # en los resultados, sin importar el ranking de BM25/otras señales.
+        if hub_expansion and hub_expansion.get("hub_confidence", 0) >= 0.4:
+            primary_canonical = hub_expansion.get("canonical_nodes", [None])[0]
+            print(f"DEBUG_HUB: primary_canonical={primary_canonical}", file=sys.stderr)
+            if primary_canonical:
+                # Buscar si ya está en resultados
+                ya_existe = any(r[0] == primary_canonical for r in resultados_con_hibrido)
+                if not ya_existe:
+                    # Buscar el nodo en la DB y agregarlo con score alto
+                    try:
+                        self.cursor.execute(
+                            "SELECT concepto, contenido, peso_sinaptico, estado, asociaciones "
+                            "FROM largo_plazo WHERE concepto = ? AND estado = 'activo'",
+                            (primary_canonical,)
+                        )
+                        row = self.cursor.fetchone()
+                        if row:
+                            # Score forzado = hub_confidence * 0.95 (casi máximo)
+                            score_forzado = min(0.95, hub_expansion["hub_confidence"] * 0.95)
+                            resultados_con_hibrido.insert(0, (
+                                row[0], row[1], row[2], row[3], score_forzado, row[4] or ""
+                            ))
+                    except Exception:
+                        pass
+                else:
+                    # Ya existe — moverlo al top si no está primero
+                    idx = next(i for i, r in enumerate(resultados_con_hibrido) if r[0] == primary_canonical)
+                    if idx > 0:
+                        nodo = resultados_con_hibrido.pop(idx)
+                        # Score forzado alto
+                        nodo_mod = list(nodo)
+                        nodo_mod[4] = min(0.95, hub_expansion["hub_confidence"] * 0.95)
+                        resultados_con_hibrido.insert(0, tuple(nodo_mod))
 
 
 
