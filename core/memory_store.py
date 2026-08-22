@@ -4880,8 +4880,12 @@ class SQLiteMemoryBioRAG:
                     if row[0] not in seen_rowids:
                         todos.append(row[:6])
                         seen_rowids.add(row[0])
+                        # Opción B: no usar lat_score para score_latente.
+                        # Los nodos latentes ya tienen sus señales (BM25, dims, PPMI)
+                        # computadas en el loop principal; _calcular_score_hibrido
+                        # calcula score_latente desde sus señales base.
                         if row[1] not in origen_scores:
-                            origen_scores[row[1]] = ("latente", lat_score)
+                            origen_scores[row[1]] = ("latente", 0.0)
             except ImportError:
                 pass
             except Exception:
