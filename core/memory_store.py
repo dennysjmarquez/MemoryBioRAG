@@ -5531,7 +5531,6 @@ class SQLiteMemoryBioRAG:
         # en los resultados, sin importar el ranking de BM25/otras señales.
         if hub_expansion and hub_expansion.get("hub_confidence", 0) >= 0.4:
             primary_canonical = hub_expansion.get("canonical_nodes", [None])[0]
-            print(f"DEBUG_HUB: primary_canonical={primary_canonical}", file=sys.stderr)
             if primary_canonical:
                 # Buscar si ya está en resultados
                 ya_existe = any(r[0] == primary_canonical for r in resultados_con_hibrido)
