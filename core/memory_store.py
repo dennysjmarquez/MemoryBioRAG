@@ -4197,24 +4197,54 @@ class SQLiteMemoryBioRAG:
         frase = frase_limpia_filtrada
         query = frase_limpia_filtrada if not solo_protegidos else ""
 
+        # ── GUARD: solo expandir si la búsqueda normal (sin expandir) no alcanza ──
+        # Medido esta sesión: expandir SIEMPRE (Concept Hub + WordNet + Domain Dict)
+        # regresionó 'literal' de ~100%→73% y Spreading Activation de 6%→1.4% —
+        # el ruido de los términos inyectados competía con queries que ya
+        # matcheaban limpio. Probe barato: ¿la query CRUDA ya encuentra >=3 por
+        # FTS5 AND? Si sí, no expandir — ya no hace falta y solo mete ruido.
+        _necesita_expansion = True
+        if frase.strip() and len(frase.split()) >= 1:
+            try:
+                # Escape simple e independiente — _fts_safe_phrase se define más
+                # abajo en esta misma función, no está disponible aquí todavía
+                # (bug real detectado: la primera versión de este guard llamaba
+                # a _fts_safe_phrase antes de su definición, NameError silencioso
+                # por el except Exception, y el guard nunca bloqueaba nada).
+                _tokens_probe = [
+                    re.sub(r'["\x00]', '', t) for t in frase.split() if t.strip()
+                ]
+                _tokens_probe = [t for t in _tokens_probe if t]
+                if _tokens_probe:
+                    _fts_and_probe = " AND ".join(f'"{t}"' for t in _tokens_probe)
+                    _cnt_probe = self.cursor.execute(
+                        "SELECT COUNT(*) FROM largo_plazo_fts WHERE largo_plazo_fts MATCH ?",
+                        (_fts_and_probe,)
+                    ).fetchone()[0]
+                    _necesita_expansion = _cnt_probe == 0
+            except Exception:
+                _necesita_expansion = True  # si el probe falla, más seguro expandir
+
         # ── CONCEPT HUB: Expansión semántica pre-FTS5 ──
         # Si un hub matchea la query, inyecta términos del hub en la frase
         # para que BM25 pueda encontrar el nodo canónico.
         hub_expansion = None
-        try:
+        if _necesita_expansion:
+          try:
             from core.concept_hub import expandir_query_con_hub
             hub_expansion = expandir_query_con_hub(frase_limpia, self.conn)
             if hub_expansion and hub_expansion.get("expanded_terms"):
                 hub_terms = " ".join(hub_expansion["expanded_terms"])
                 frase = frase + " " + hub_terms
                 query = frase
-        except Exception:
+          except Exception:
             hub_expansion = None
 
         # ── WORDNET EXPANDIDO: Expansión automática por sinónimos+hiperonimios ──
         # Solo para palabras en inglés (WordNet no soporta español).
         # Import caching: se importa una vez, no por query.
-        try:
+        if _necesita_expansion:
+          try:
             tokens_frase = [w for w in frase.split() if len(w) >= 3]
             # Detectar si hay palabras en inglés (>=3 chars, solo ASCII)
             import re as _re
@@ -4239,12 +4269,13 @@ class SQLiteMemoryBioRAG:
                 if wordnet_terms:
                     frase = frase + " " + " ".join(wordnet_terms)
                     query = frase
-        except Exception:
+          except Exception:
             pass  # WordNet no disponible — fallback silencioso
 
         # ── DOMAIN DICT: Expansión por diccionario de dominio técnico ──
         # Cache: carga el diccionario una vez por instancia de cerebro.
-        try:
+        if _necesita_expansion:
+          try:
             if not hasattr(self, '_domain_dict_cache'):
                 cursor_dict = self.conn.execute(
                     "SELECT term, synonyms FROM concept_hub_domain_dict"
@@ -4260,7 +4291,7 @@ class SQLiteMemoryBioRAG:
             if domain_terms:
                 frase = frase + " " + " ".join(domain_terms)
                 query = frase
-        except Exception:
+          except Exception:
             pass  # Tabla domain_dict no existe aún — fallback silencioso
 
         # Filtrar stopwords de la lista de paráfrasis
