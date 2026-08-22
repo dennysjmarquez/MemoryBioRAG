@@ -1780,6 +1780,7 @@ def _build_server():
         dimensiones: Optional[Any] = None,
         predicados: Optional[Any] = None,
         valencia_somatica: Optional[float] = None,
+        bridges: Optional[str] = None,
     ) -> str:
         cerebro = _get_cerebro()
         try:
@@ -1910,6 +1911,52 @@ def _build_server():
                         "Para permitir consultas causales de 'quién hizo qué' (ej: '¿Qué reglas creó el usuario?'), "
                         "podés incluir predicados=[{'sujeto': 'usuario|agente_1', 'accion': 'establecio|creo', 'objeto': '...'}]"
                     )
+
+            # ── BRIDGES: Puentes semánticos para findability ──────────────
+            # Bridges son frases naturales que conectan queries cero-overlap con el nodo.
+            # Ej: "trabajos antes de programar" → nodo "historia_tasajera_fumigador_rufino"
+            _bridges_validos = []
+            _bridges_rechazados = []
+            if bridges:
+                from core.stopwords import STOPWORDS_ES
+                _STOP_BRIDGES = STOPWORDS_ES | {
+                    'el', 'la', 'los', 'las', 'un', 'una', 'que', 'de', 'en',
+                    'y', 'a', 'por', 'con', 'para', 'es', 'se', 'no', 'lo', 'al',
+                }
+                for b in bridges.split("|"):
+                    b = b.strip()
+                    if not b:
+                        continue
+                    words = b.lower().split()
+                    content_words = [w for w in words if w not in _STOP_BRIDGES and len(w) > 2]
+                    if len(content_words) < 2:
+                        _bridges_rechazados.append(f'"{b}" (< 2 palabras de contenido)')
+                    elif b.lower().strip() == clave.lower().replace("_", " "):
+                        _bridges_rechazados.append(f'"{b}" (igual al nombre del nodo)')
+                    else:
+                        _bridges_validos.append(b)
+
+                if _bridges_validos:
+                    try:
+                        from core.concept_hub import crear_hub, agregar_bridges as _agregar_bridges
+                        hub_id = f"hub_{clave}"
+                        crear_hub(cerebro.conn, hub_id, clave, description="Auto-bridge desde aprender")
+                        _agregar_bridges(cerebro.conn, hub_id, _bridges_validos)
+                        msg += f" Hub '{hub_id}' creado con {len(_bridges_validos)} bridges."
+                    except Exception as e:
+                        _warnings.append(f"⚠️ Error creando hub de bridges: {e}")
+                if _bridges_rechazados:
+                    _warnings.append(
+                        f"⚠️ Bridges rechazados: {'; '.join(_bridges_rechazados)}. "
+                        "Un bridge debe tener ≥2 palabras de contenido (no stopwords). "
+                        "Ejemplo bueno: 'trabajos antes de programar'."
+                    )
+            elif val_somatica >= 0.80:
+                _warnings.append(
+                    f"⚠️ Nodo importante (valencia={val_somatica}) sin bridges semánticos. "
+                    "Repetí con bridges='frase1|frase2|frase3' o usá concept_hub_crear después. "
+                    "Sin bridges, este nodo no aparecerá en queries que no compartan vocabulario."
+                )
 
             # ── Búsqueda retroactiva: conexiones con el pasado ──
             tokens_nuevos = _tokenizar(clave + " " + contenido)
@@ -2075,8 +2122,26 @@ def _build_server():
         valencia_somatica: Annotated[Optional[float], Field(
             description="Valencia emocional/somática (0.0 a 1.0). Nodos con valencia >= 0.80 son inmunes al decaimiento por sueño y la poda."
         )] = None,
+        bridges: Annotated[Optional[str], Field(
+            description=(
+                "Puentes semánticos: frases naturales separadas por pipe (|) que usaría alguien "
+                "para encontrar este nodo SIN compartir vocabulario.\n"
+                "OBLIGATORIO para nodos importantes. Si se omite y valencia >= 0.80, aparece aviso.\n\n"
+                "QUÉ ES: frases como las que alguien preguntaría para llegar a este nodo.\n"
+                "NO son sinónimos (eso ya lo hace syn). Son ENTRY POINTS semánticos.\n\n"
+                "EJEMPLOS BUENOS:\n"
+                "  bridges='trabajos antes de programar|empleos previos ingeniero'\n"
+                "  bridges='recompensa sin que nadie enseñe|aprendizaje refuerzo'\n"
+                "  bridges='error que se traga código|excepciones silenciosas'\n\n"
+                "ANTI-EJEMPLOS (basura, se rechazan):\n"
+                "  'info importante' (< 2 palabras de contenido)\n"
+                "  'dato relevante sistema' (genérico, no describe nada)\n"
+                "  'concepto_nodo' (igual al nombre del nodo)\n\n"
+                "FORMATO: pipe-separated. Cada bridge ≥2 palabras de contenido."
+            )
+        )] = None,
     ) -> str:
-        return _aprender_impl(concepto, contenido, syn, cat, dimensiones=dimensiones, predicados=predicados, valencia_somatica=valencia_somatica)
+        return _aprender_impl(concepto, contenido, syn, cat, dimensiones=dimensiones, predicados=predicados, valencia_somatica=valencia_somatica, bridges=bridges)
 
     @mcp.tool(
         name="guardar",
@@ -2084,7 +2149,7 @@ def _build_server():
             "(legado) Alias de 'aprender' — preferir 'aprender' para identificar la operación cognitiva real. "
             "Misma funcionalidad y parámetros.\n\n"
             "Parámetros: concepto (str), contenido (str), syn (str opcional), cat (str opcional), "
-            "dimensiones (str JSON opcional), valencia_somatica (float opcional).\n\n"
+            "dimensiones (str JSON opcional), bridges (str opcional), valencia_somatica (float opcional).\n\n"
             "Retorna: {status, mensaje, concepto (str normalizado), sinapsis (int)}"
         ),
     )
@@ -2111,8 +2176,14 @@ def _build_server():
         valencia_somatica: Annotated[Optional[float], Field(
             description="Valencia emocional/somática (0.0 a 1.0)."
         )] = None,
+        bridges: Annotated[Optional[str], Field(
+            description=(
+                "Puentes semánticos: frases naturales separadas por pipe (|). "
+                "Ver descripción completa en `aprender`."
+            )
+        )] = None,
     ) -> str:
-        return _aprender_impl(concepto, contenido, syn, cat, dimensiones=dimensiones, predicados=predicados, valencia_somatica=valencia_somatica)
+        return _aprender_impl(concepto, contenido, syn, cat, dimensiones=dimensiones, predicados=predicados, valencia_somatica=valencia_somatica, bridges=bridges)
 
     @mcp.tool(
         name="feedback",
@@ -3634,7 +3705,24 @@ def _build_server():
             cerebro.cerrar_sistema()
 
     @mcp.tool(
-        name="concept_hub_cargar_iniciales",
+        name="concept_hub_eliminar",
+        description=(
+            "Elimina un hub y todos sus bridges/nodos asociados. "
+            "Reversible: las filas se borran limpiamente de concept_hubs, concept_hub_bridges y concept_hub_nodes."
+        ),
+    )
+    def concept_hub_eliminar_tool(
+        hub_id: Annotated[str, Field(description="ID del hub a eliminar (ej: 'hub_biorag_v10')")],
+    ) -> str:
+        from core.concept_hub import eliminar_hub
+        cerebro = _get_cerebro()
+        try:
+            result = eliminar_hub(cerebro.conn, hub_id)
+            return json.dumps(result, ensure_ascii=False)
+        finally:
+            cerebro.cerrar_sistema()
+
+    @mcp.tool(
         description="Carga los 10 hubs predefinidos iniciales en la base de datos.",
     )
     def concept_hub_cargar_iniciales_tool() -> str:

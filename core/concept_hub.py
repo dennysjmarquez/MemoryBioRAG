@@ -104,6 +104,24 @@ def agregar_bridges(conn, hub_id, bridges):
     return {"status": "ok", "hub_id": hub_id, "bridges_agregados": insertados}
 
 
+def eliminar_hub(conn, hub_id):
+    """Elimina un hub y todos sus bridges/nodos asociados. 100% reversible."""
+    # Contar qué se va a borrar
+    bridges_count = conn.execute(
+        "SELECT COUNT(*) FROM concept_hub_bridges WHERE hub_id = ?", (hub_id,)
+    ).fetchone()[0]
+    nodes_count = conn.execute(
+        "SELECT COUNT(*) FROM concept_hub_nodes WHERE hub_id = ?", (hub_id,)
+    ).fetchone()[0]
+
+    # Borrar en orden: bridges → nodes → hub
+    conn.execute("DELETE FROM concept_hub_bridges WHERE hub_id = ?", (hub_id,))
+    conn.execute("DELETE FROM concept_hub_nodes WHERE hub_id = ?", (hub_id,))
+    conn.execute("DELETE FROM concept_hubs WHERE hub_id = ?", (hub_id,))
+    conn.commit()
+    return {"status": "ok", "hub_id": hub_id, "bridges_eliminados": bridges_count, "nodos_eliminados": nodes_count}
+
+
 def agregar_nodos(conn, hub_id, nodos):
     """Agrega nodos relacionados a un hub.
     nodos: lista de {'concepto': str, 'role': str} o lista de strings.
