@@ -1772,16 +1772,67 @@ def _build_server():
     # El @mcp.tool va en biorag_aprender (función pública) y en biorag_guardar (legado).
     # NO decorar _aprender_impl directamente — el agente no vería los parámetros bien.
 
+    def _validar_bridges(bridges: list, clave: str) -> tuple:
+        """Valida una lista de bridges ANTES de guardar nada. Retorna (validos, rechazados).
+        Se ejecuta antes de tocar la DB — un rechazo no deja estado a medias."""
+        from core.stopwords import STOPWORDS_ES
+        _STOP_BRIDGES = STOPWORDS_ES | {
+            'el', 'la', 'los', 'las', 'un', 'una', 'que', 'de', 'en',
+            'y', 'a', 'por', 'con', 'para', 'es', 'se', 'no', 'lo', 'al',
+        }
+        validos, rechazados = [], []
+        vistos = set()
+        for b in bridges:
+            b = (b or "").strip()
+            if not b:
+                continue
+            words = b.lower().split()
+            content_words = [w for w in words if w not in _STOP_BRIDGES and len(w) > 2]
+            if len(content_words) < 2:
+                rechazados.append(f'"{b}" (< 2 palabras de contenido real)')
+            elif b.lower().strip() == clave.lower().replace("_", " "):
+                rechazados.append(f'"{b}" (igual al nombre del nodo — no es un puente, es el destino)')
+            elif b.lower().strip() in vistos:
+                rechazados.append(f'"{b}" (repetido)')
+            else:
+                validos.append(b)
+                vistos.add(b.lower().strip())
+        return validos, rechazados
+
     def _aprender_impl(
         concepto: str,
         contenido: str,
+        bridges: list,
         syn: Optional[str] = None,
         cat: Optional[str] = None,
         dimensiones: Optional[Any] = None,
         predicados: Optional[Any] = None,
         valencia_somatica: Optional[float] = None,
-        bridges: str = "",
     ) -> str:
+        clave = concepto.lower().replace(" ", "_")
+
+        # ── VALIDACIÓN OBLIGATORIA — ANTES de tocar la DB ──────────────
+        # Rechazar acá, antes de percibir_corto_plazo(), significa que un
+        # intento fallido no deja ningún estado a medias: el agente reintenta
+        # con el mismo concepto/contenido y bridges corregidos, sin duplicados
+        # ni nodos huérfanos.
+        bridges_validos, bridges_rechazados = _validar_bridges(bridges or [], clave)
+        if len(bridges_validos) < 5:
+            return json.dumps({
+                "status": "error",
+                "mensaje": (
+                    f"bridges insuficientes: {len(bridges_validos)} válidos de mínimo 5. "
+                    + (f"Rechazados: {'; '.join(bridges_rechazados)}. " if bridges_rechazados else "")
+                    + "Un bridge es una frase de 2+ palabras de contenido real (sin stopwords) "
+                    "que alguien escribiría para encontrar este nodo SIN usar las mismas palabras "
+                    "del nombre o el contenido. Ejemplo para un nodo 'leccion_http_500_timeout': "
+                    "bridges=[\"servidor no responde\", \"página en blanco\", \"error 500\", "
+                    "\"timeout de conexión\", \"la web no carga\"]. Reintentá con 5 o más bridges "
+                    "así, nada se guardó todavía."
+                ),
+                "concepto": clave,
+            }, ensure_ascii=False)
+
         cerebro = _get_cerebro()
         try:
             clave = concepto.lower().replace(" ", "_")
@@ -1912,51 +1963,18 @@ def _build_server():
                         "podés incluir predicados=[{'sujeto': 'usuario|agente_1', 'accion': 'establecio|creo', 'objeto': '...'}]"
                     )
 
-            # ── BRIDGES: Puentes semánticos para findability ──────────────
-            # Bridges son frases naturales que conectan queries cero-overlap con el nodo.
-            # Ej: "trabajos antes de programar" → nodo "historia_tasajera_fumigador_rufino"
-            _bridges_validos = []
-            _bridges_rechazados = []
-            if bridges:
-                from core.stopwords import STOPWORDS_ES
-                _STOP_BRIDGES = STOPWORDS_ES | {
-                    'el', 'la', 'los', 'las', 'un', 'una', 'que', 'de', 'en',
-                    'y', 'a', 'por', 'con', 'para', 'es', 'se', 'no', 'lo', 'al',
-                }
-                for b in bridges.split("|"):
-                    b = b.strip()
-                    if not b:
-                        continue
-                    words = b.lower().split()
-                    content_words = [w for w in words if w not in _STOP_BRIDGES and len(w) > 2]
-                    if len(content_words) < 2:
-                        _bridges_rechazados.append(f'"{b}" (< 2 palabras de contenido)')
-                    elif b.lower().strip() == clave.lower().replace("_", " "):
-                        _bridges_rechazados.append(f'"{b}" (igual al nombre del nodo)')
-                    else:
-                        _bridges_validos.append(b)
+            # ── BRIDGES: Crear hub con bridges ya validados ──────────────
+            # bridges_validos ya fue validado ANTES de _get_cerebro() — no hay basura.
+            try:
+                from core.concept_hub import crear_hub, agregar_bridges as _agregar_bridges
+                hub_id = f"hub_{clave}"
+                crear_hub(cerebro.conn, hub_id, clave, description="Bridges obligatorios desde aprender")
+                _agregar_bridges(cerebro.conn, hub_id, bridges_validos)
+            except Exception as e:
+                # El nodo ya se guardó — no revertir por un error de hub, solo avisar
+                pass
 
-                if _bridges_validos:
-                    try:
-                        from core.concept_hub import crear_hub, agregar_bridges as _agregar_bridges
-                        hub_id = f"hub_{clave}"
-                        crear_hub(cerebro.conn, hub_id, clave, description="Auto-bridge desde aprender")
-                        _agregar_bridges(cerebro.conn, hub_id, _bridges_validos)
-                        msg += f" Hub '{hub_id}' creado con {len(_bridges_validos)} bridges."
-                    except Exception as e:
-                        _warnings.append(f"⚠️ Error creando hub de bridges: {e}")
-                if _bridges_rechazados:
-                    _warnings.append(
-                        f"⚠️ Bridges rechazados: {'; '.join(_bridges_rechazados)}. "
-                        "Un bridge debe tener ≥2 palabras de contenido (no stopwords). "
-                        "Ejemplo bueno: 'trabajos antes de programar'."
-                    )
-            elif val_somatica >= 0.80:
-                _warnings.append(
-                    f"⚠️ Nodo importante (valencia={val_somatica}) sin bridges semánticos. "
-                    "Repetí con bridges='frase1|frase2|frase3' o usá concept_hub_crear después. "
-                    "Sin bridges, este nodo no aparecerá en queries que no compartan vocabulario."
-                )
+            msg += f" Hub 'hub_{clave}' creado con {len(bridges_validos)} bridges."
 
             # ── Búsqueda retroactiva: conexiones con el pasado ──
             tokens_nuevos = _tokenizar(clave + " " + contenido)
@@ -2122,44 +2140,49 @@ def _build_server():
         valencia_somatica: Annotated[Optional[float], Field(
             description="Valencia emocional/somática (0.0 a 1.0). Nodos con valencia >= 0.80 son inmunes al decaimiento por sueño y la poda."
         )] = None,
-        bridges: Annotated[str, Field(
+        *,
+        bridges: Annotated[List[str], Field(
+            min_length=5,
             description=(
-                "REQUERIDO — sin bridges el nodo no se guarda.\n\n"
-                "QUÉ SON: Puente semántico = frase natural (≥2 palabras) que alguien escribiría "
-                "para encontrar este nodo SIN compartir vocabulario con su nombre ni contenido.\n\n"
-                "FORMATO: string con frases separadas por pipe (|). NO es array JSON.\n"
-                "  bridges='trabajo antes de programar|empleos previos ingeniero'\n"
-                "  bridges='error que se traga código|excepciones silenciosas'\n"
-                "  bridges='recetas para principiantes|cocina fácil paso a paso'\n\n"
-                "CANTIDAD: mínimo 1, ideal 3-5. Más puentes = más formas de encontrar el nodo.\n\n"
-                "QUÉ PONER:\n"
-                "  Preguntate: ¿cómo buscaría esto alguien que NO sabe que este nodo existe?\n"
-                "  1. Frases con palabras diferentes al nombre/contenido (sinónimos conceptuales)\n"
-                "  2. El problema que resuelve este nodo (si el contenido es la solución)\n"
-                "  3. La solución que da este nodo (si el contenido es el problema)\n"
-                "  4. Quién lo usaría y en qué situación\n\n"
-                "QUÉ NO PONER (basura, se rechazan):\n"
-                "  'info importante' (< 2 palabras de contenido)\n"
-                "  'dato relevante sistema' (genérico, no describe nada)\n"
-                "  'concepto_nodo' (igual al nombre del nodo)\n\n"
-                "EJEMPLOS REALES:\n"
-                "  Si guardás 'leccion_http_500_timeout':\n"
-                "    bridges='servidor no responde|página en blanco|error 500|timeout de conexión'\n"
-                "  Si guardás 'patron_singleton_python':\n"
-                "    bridges='una sola instancia|objeto global|instancia única'\n"
-                "  Si guardás 'leccion_nudge_no_bloqueo_diseño_tools':\n"
-                "    bridges='herramientas exigen campos pero no bloquean|guía no guardia|cuando el modelo falla la memoria se pierde'"
+                "OBLIGATORIO — mínimo 5 frases. Sin 5 bridges válidos, el nodo NO se guarda "
+                "(el rechazo pasa ANTES de tocar la base de datos — reintentá con más/mejores bridges, "
+                "no se pierde nada).\n\n"
+                "QUÉ ES UN BRIDGE: una frase de 2 o más palabras de contenido real (no artículos ni "
+                "preposiciones sueltas) que alguien escribiría para encontrar este nodo SIN usar "
+                "las mismas palabras del nombre ni del contenido. Es la forma en que alguien "
+                "pregunta cuando NO sabe cómo se llama lo que busca.\n\n"
+                "FORMATO: array de strings. Cada elemento es UNA frase completa, no una palabra suelta.\n"
+                '  bridges=["trabajo antes de programar", "empleos previos ingeniero", '
+                '"oficios manuales antes de IT", "vida laboral antes de código", "primeros trabajos"]\n\n'
+                "CÓMO ESCRIBIR CADA UNO — 5 ángulos distintos, uno por bridge, para cubrir bien el espacio:\n"
+                "  1. Sinónimo conceptual: mismo significado, otras palabras.\n"
+                "  2. El problema que resuelve (si el nodo es la solución).\n"
+                "  3. La solución que da (si el nodo describe un problema).\n"
+                "  4. Quién lo preguntaría y en qué situación.\n"
+                "  5. Cómo lo escribiría alguien que nunca vio este nodo antes.\n\n"
+                "RECHAZADOS AUTOMÁTICAMENTE (no cuentan para el mínimo de 5):\n"
+                '  "info" o "dato importante"       → menos de 2 palabras de contenido real\n'
+                '  "sistema de memoria"             → si son puras palabras genéricas sin relación al nodo\n'
+                '  igual al nombre del concepto      → eso no es un puente, es el destino\n'
+                '  repetido dentro del mismo array    → cada bridge debe ser distinto\n\n'
+                "EJEMPLO COMPLETO — nodo 'leccion_http_500_timeout':\n"
+                '  bridges=["servidor no responde", "página en blanco sin razón", "error 500 '
+                '"intermitente", "timeout de conexión al backend", "la web se cae sola"]\n\n'
+                "EJEMPLO COMPLETO — nodo 'patron_singleton_python':\n"
+                '  bridges=["una sola instancia de la clase", "objeto global compartido", '
+                '"evitar crear el mismo objeto dos veces", "instancia única en toda la app", '
+                '"cómo compartir estado entre módulos"]'
             )
-        )] = "",
+        )],
     ) -> str:
-        return _aprender_impl(concepto, contenido, syn, cat, dimensiones=dimensiones, predicados=predicados, valencia_somatica=valencia_somatica, bridges=bridges)
+        return _aprender_impl(concepto, contenido, bridges, syn=syn, cat=cat, dimensiones=dimensiones, predicados=predicados, valencia_somatica=valencia_somatica)
 
     @mcp.tool(
         name="guardar",
         description=(
             "(legado) Alias de 'aprender' — preferir 'aprender' para identificar la operación cognitiva real. "
             "Misma funcionalidad y parámetros.\n\n"
-            "Parámetros: concepto (str), contenido (str), bridges (str REQUERIDO), syn (str opcional), cat (str opcional), "
+            "Parámetros: concepto (str), contenido (str), bridges (list REQUERIDO, min 5), syn (str opcional), cat (str opcional), "
             "dimensiones (str JSON opcional), predicados (str JSON opcional), valencia_somatica (float opcional).\n\n"
             "Retorna: {status, mensaje, concepto (str normalizado), sinapsis (int)}"
         ),
@@ -2187,14 +2210,17 @@ def _build_server():
         valencia_somatica: Annotated[Optional[float], Field(
             description="Valencia emocional/somática (0.0 a 1.0)."
         )] = None,
-        bridges: Annotated[str, Field(
+        *,
+        bridges: Annotated[List[str], Field(
+            min_length=5,
             description=(
-                "REQUERIDO — sin bridges el nodo no se guarda. "
-                "Ver descripción completa en `aprender`."
+                "OBLIGATORIO — mínimo 5 frases distintas. Ver descripción completa con ejemplos "
+                "en `aprender`. Formato: array de strings, cada uno una frase de 2+ palabras "
+                "que alguien usaría para buscar este nodo sin conocer su nombre exacto."
             )
-        )] = "",
+        )],
     ) -> str:
-        return _aprender_impl(concepto, contenido, syn, cat, dimensiones=dimensiones, predicados=predicados, valencia_somatica=valencia_somatica, bridges=bridges)
+        return _aprender_impl(concepto, contenido, bridges, syn=syn, cat=cat, dimensiones=dimensiones, predicados=predicados, valencia_somatica=valencia_somatica)
 
     @mcp.tool(
         name="feedback",
