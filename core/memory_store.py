@@ -4230,33 +4230,47 @@ class SQLiteMemoryBioRAG:
                 _necesita_expansion = True  # si el probe falla, más seguro expandir
 
         # ── CONCEPT HUB: Expansión semántica pre-FTS5 ──
-        # Si un hub matchea la query, inyecta términos del hub en la frase
+        # Si un hub matchea la query, inyecta términos del hub en la frase FTS5
         # para que BM25 pueda encontrar el nodo canónico.
         hub_expansion = None
         if _necesita_expansion:
           try:
             from core.concept_hub import expandir_query_con_hub
-            hub_expansion = expandir_query_con_hub(frase_limpia, self.conn)
+            hub_expansion = expandir_query_con_hub(frase_limpia, self.conn, threshold=0.35)
             if hub_expansion and hub_expansion.get("expanded_terms"):
                 hub_terms = " ".join(hub_expansion["expanded_terms"])
                 frase = frase + " " + hub_terms
-                query = frase
+                # NOTA: NUNCA sobreescribir 'query = frase'.
+                # 'query' debe conservar los términos originales del usuario para
+                # evitar explosión combinatoria O(N*M) en el scoring simbólico (Levenshtein).
           except Exception:
             hub_expansion = None
 
         # ── WORDNET EXPANDIDO: Expansión automática por sinónimos+hiperonimios ──
-        # Solo para palabras en inglés (WordNet no soporta español).
-        # Import caching: se importa una vez, no por query.
+        # Solo para palabras genuinamente en inglés (WordNet en inglés).
+        # Evitar palabras en español que pasen por ser ASCII puro (sin tildes ni ñ).
         if _necesita_expansion:
           try:
-            tokens_frase = [w for w in frase.split() if len(w) >= 3]
-            # Detectar si hay palabras en inglés (>=3 chars, solo ASCII)
-            import re as _re
-            english_tokens = [w for w in tokens_frase if _re.match(r'^[a-zA-Z]{3,}$', w)]
-            if english_tokens:
-                from nltk.corpus import wordnet as _wn
-                wordnet_terms = []
-                for token in english_tokens[:6]:  # máx 6 tokens
+            from core.stopwords import STOPWORDS_ES
+            from nltk.corpus import wordnet as _wn
+            tokens_frase_orig = [w for w in frase_limpia_filtrada.split() if len(w) >= 3]
+            
+            wordnet_terms = []
+            for token in tokens_frase_orig[:6]:  # máx 6 tokens originales
+                token_l = token.lower()
+                if token_l in STOPWORDS_ES:
+                    continue
+                # Si la palabra tiene synsets en español (OMW), es palabra española -> no expandir con inglés
+                try:
+                    spa_synsets = _wn.synsets(token_l, lang='spa')
+                    if spa_synsets:
+                        continue
+                except Exception:
+                    pass
+                
+                # Solo si es ASCII y parece término técnico en inglés
+                import re as _re
+                if _re.match(r'^[a-zA-Z]{3,}$', token):
                     try:
                         synsets = _wn.synsets(token)
                         for s in synsets[:2]:
@@ -4264,20 +4278,20 @@ class SQLiteMemoryBioRAG:
                                 name = l.name().replace('_', ' ')
                                 if name.lower() != token.lower() and name not in wordnet_terms:
                                     wordnet_terms.append(name)
-                                    if len(wordnet_terms) >= 12:
+                                    if len(wordnet_terms) >= 8:
                                         break
-                            if len(wordnet_terms) >= 12:
+                            if len(wordnet_terms) >= 8:
                                 break
                     except Exception:
                         pass
-                if wordnet_terms:
-                    frase = frase + " " + " ".join(wordnet_terms)
-                    query = frase
+            if wordnet_terms:
+                frase = frase + " " + " ".join(wordnet_terms)
           except Exception:
             pass  # WordNet no disponible — fallback silencioso
 
         # ── DOMAIN DICT: Expansión por diccionario de dominio técnico ──
         # Cache: carga el diccionario una vez por instancia de cerebro.
+        # Solo expande sobre los tokens ORIGINALES de la query, no sobre lo ya expandido.
         if _necesita_expansion:
           try:
             if not hasattr(self, '_domain_dict_cache'):
@@ -4285,16 +4299,15 @@ class SQLiteMemoryBioRAG:
                     "SELECT term, synonyms FROM concept_hub_domain_dict"
                 )
                 self._domain_dict_cache = {row[0]: row[1] for row in cursor_dict.fetchall()}
-            tokens_frase = frase.split()
+            tokens_originales = frase_limpia_filtrada.split()
             domain_terms = []
-            for token in tokens_frase:
+            for token in tokens_originales:
                 token_lower = token.lower()
                 if token_lower in self._domain_dict_cache and self._domain_dict_cache[token_lower]:
                     synonyms = self._domain_dict_cache[token_lower].split(',')
                     domain_terms.extend(synonyms[:3])  # máx 3 sinónimos por término
             if domain_terms:
                 frase = frase + " " + " ".join(domain_terms)
-                query = frase
           except Exception:
             pass  # Tabla domain_dict no existe aún — fallback silencioso
 
@@ -5304,6 +5317,17 @@ class SQLiteMemoryBioRAG:
         from core.fallback_simbolico import _tokenizar_normalizado, score_simbolico_concepto, score_simbolico_sinonimos
         tokens_query = _tokenizar_normalizado(query)
 
+        # ── Precompute PPMI Query Vector ONCE before candidate loop ──
+        _ppmi_vq = None
+        _ppmi_q_set = set(tokens_query) if tokens_query else set()
+        _ppmi_es_corta = len(_ppmi_q_set) <= 2
+        _ppmi_pool_set = {r[1] for r in todos}
+        if PPMI_VECTOR_WEIGHT > 0.0 and self._ppmi_index and tokens_query:
+            try:
+                _ppmi_vq = self._ppmi_index.vector_query(list(tokens_query))
+            except Exception:
+                _ppmi_vq = None
+
         # v22.1: Pre-compute thematic profiles and lazy-cache pairwise scores
         # On-demand calculation per candidate pair (O(K^2) for K=50 top candidates instead of O(N^2) for N=800 all nodes)
         _perfiles_tematicos = {}
@@ -5396,11 +5420,11 @@ class SQLiteMemoryBioRAG:
             sinonimos_ratio = max(sinonimos_ratio, sinonimos_substring)
 
             # v22.1: Compute thematic score (presence + absence of dimensions)
-            # On-demand pairwise calculation over top-50 candidates with memoization (O(1) cached)
+            # On-demand pairwise calculation over top-15 candidates with memoization (O(1) cached)
             tematico_score = 0.0
             if _perfiles_tematicos and _todas_dims:
                 sims = []
-                for _, (other_concepto, _, _, _, _, _) in enumerate(todos[:50]):
+                for _, (other_concepto, _, _, _, _, _) in enumerate(todos[:15]):
                     if other_concepto != concepto and concepto and other_concepto:
                         c1, c2 = str(concepto), str(other_concepto)
                         pair_key = (c1, c2) if c1 <= c2 else (c2, c1)
@@ -5435,7 +5459,7 @@ class SQLiteMemoryBioRAG:
             # Signal #13: PPMI+SVD vector similarity (v26.0)
             # ON por defecto (PPMI_VECTOR_WEIGHT=0.15). Apagar con: export BIORAG_PPMI_WEIGHT=0.0
             ppmi_val = 0.0
-            if PPMI_VECTOR_WEIGHT > 0.0 and self._ppmi_index:
+            if _ppmi_vq is not None:
                 try:
                     from core.ppmi_hybrid_search import score_candidato
                     q_toks_list = list(tokens_query)

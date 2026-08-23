@@ -54,21 +54,28 @@ def calcular_perfiles_presencia(cerebro):
     return dict(perfiles)
 
 
+_cache_ausencia = {}
+
 def calcular_perfil_ausencia(concepto, perfiles_presencia, idf, todas_dims):
-    """Calcula vector de ausencia ponderado por IDF para un nodo.
+    """Calcula vector de ausencia ponderado por IDF para un nodo (memoizado).
 
     El vector tiene valor para cada dimensión que el nodo NO tiene,
     ponderado por cuán rara es esa ausencia en el corpus.
 
     Retorna dict: {dim_id: idf_weight} (solo dimensiones ausentes)
     """
+    key = (concepto, id(perfiles_presencia), id(idf))
+    if key in _cache_ausencia:
+        return _cache_ausencia[key]
+
     dims_presentes = perfiles_presencia.get(concepto, set())
     dims_ausentes = todas_dims - dims_presentes
 
-    ausencia_ponderada = {}
-    for dim in dims_ausentes:
-        ausencia_ponderada[dim] = idf.get(dim, 0.0)
-
+    ausencia_ponderada = {dim: idf.get(dim, 0.0) for dim in dims_ausentes}
+    
+    if len(_cache_ausencia) > 4096:
+        _cache_ausencia.clear()
+    _cache_ausencia[key] = ausencia_ponderada
     return ausencia_ponderada
 
 
@@ -86,13 +93,12 @@ def similitud_ausencia(concepto_a, concepto_b, perfiles_presencia, idf, todas_di
         return 0.0
 
     dims_comunes = set(aus_a.keys()) & set(aus_b.keys())
-    dims_todos = set(aus_a.keys()) | set(aus_b.keys())
-
-    if not dims_todos:
+    if not dims_comunes:
         return 0.0
 
     peso_interseccion = sum(aus_a[d] for d in dims_comunes)
-    peso_union = sum(aus_a.get(d, 0) + aus_b.get(d, 0) for d in dims_todos) / 2.0
+    # Identidad matemática: sum_{d in A U B} (A[d] + B[d]) == sum(A.values()) + sum(B.values())
+    peso_union = (sum(aus_a.values()) + sum(aus_b.values())) / 2.0
 
     if peso_union == 0:
         return 0.0
