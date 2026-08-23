@@ -1772,37 +1772,115 @@ def _build_server():
     # El @mcp.tool va en biorag_aprender (función pública) y en biorag_guardar (legado).
     # NO decorar _aprender_impl directamente — el agente no vería los parámetros bien.
 
-    def _validar_bridges(bridges: list, clave: str) -> tuple:
-        """Valida una lista de bridges ANTES de guardar nada. Retorna (validos, rechazados).
+    ANGULOS_OFICIALES = ('sinonimo', 'problema', 'solucion', 'situacion', 'ingenuo')
+    ANGULOS_SET = set(ANGULOS_OFICIALES)
+
+    def _validar_bridges(bridges: Any, clave: str) -> tuple:
+        """Valida una lista de bridges con los 5 ángulos semánticos ANTES de guardar nada.
+        Retorna (validos: list[dict], rechazados: list[str]).
         Se ejecuta antes de tocar la DB — un rechazo no deja estado a medias."""
         from core.stopwords import STOPWORDS_ES
-        _STOP_BRIDGES = STOPWORDS_ES | {
-            'el', 'la', 'los', 'las', 'un', 'una', 'que', 'de', 'en',
-            'y', 'a', 'por', 'con', 'para', 'es', 'se', 'no', 'lo', 'al',
-        }
-        validos, rechazados = [], []
-        vistos = set()
-        for b in bridges:
-            b = (b or "").strip()
-            if not b:
-                continue
-            words = b.lower().split()
-            content_words = [w for w in words if w not in _STOP_BRIDGES and len(w) > 2]
-            if len(content_words) < 2:
-                rechazados.append(f'"{b}" (< 2 palabras de contenido real)')
-            elif b.lower().strip() == clave.lower().replace("_", " "):
-                rechazados.append(f'"{b}" (igual al nombre del nodo — no es un puente, es el destino)')
-            elif b.lower().strip() in vistos:
-                rechazados.append(f'"{b}" (repetido)')
+        from core.stemmer_es import stem
+
+        validos = []
+        rechazados = []
+
+        if not bridges:
+            return [], ["No se enviaron bridges (se requieren exactamente 5 bridges con los 5 ángulos semánticos)."]
+
+        # Parsear si viene como string JSON o string con pipes
+        if isinstance(bridges, str):
+            s_val = bridges.strip()
+            if s_val.startswith("[") and s_val.endswith("]"):
+                try:
+                    bridges = json.loads(s_val)
+                except Exception:
+                    pass
+            elif "|" in s_val:
+                bridges = [p.strip() for p in s_val.split("|") if p.strip()]
             else:
-                validos.append(b)
-                vistos.add(b.lower().strip())
+                bridges = [s_val]
+
+        if not isinstance(bridges, list):
+            return [], [f"Formato inválido de bridges: se esperaba una lista de dicts o strings, recibido {type(bridges).__name__}"]
+
+        # Compatibilidad: Si viene lista de strings (legacy format)
+        items_procesados = []
+        if all(isinstance(x, str) for x in bridges):
+            # Si vienen exactamente 5 strings, asignar en orden los 5 ángulos oficiales
+            if len(bridges) == 5:
+                for b_text, ang in zip(bridges, ANGULOS_OFICIALES):
+                    items_procesados.append({"text": b_text.strip(), "angle": ang, "weight": 1.0})
+            else:
+                for b_text in bridges:
+                    items_procesados.append({"text": b_text.strip(), "angle": "legacy", "weight": 1.0})
+        elif all(isinstance(x, dict) for x in bridges):
+            items_procesados = bridges
+        else:
+            for x in bridges:
+                if isinstance(x, dict):
+                    items_procesados.append(x)
+                elif isinstance(x, str):
+                    items_procesados.append({"text": x.strip(), "angle": "legacy", "weight": 1.0})
+
+        stems_clave = {stem(w) for w in clave.lower().replace("_", " ").split() if len(w) > 2}
+        vistos_textos = set()
+        angulos_cubiertos = set()
+
+        for item in items_procesados:
+            if not isinstance(item, dict):
+                rechazados.append(f"Elemento no es un dict válido: {item}")
+                continue
+
+            text = (item.get("text") or "").strip()
+            angle = (item.get("angle") or "").strip().lower()
+            weight = float(item.get("weight", 1.0))
+
+            if not text:
+                rechazados.append("Bridge con texto vacío")
+                continue
+
+            words = text.lower().split()
+            content_words = [w for w in words if w not in STOPWORDS_ES and len(w) > 2]
+            if len(content_words) < 2:
+                rechazados.append(f'"{text}" (< 2 palabras de contenido real)')
+                continue
+
+            # Stemming anti-destinatario
+            stems_bridge = {stem(w) for w in content_words}
+            if stems_clave and stems_bridge.issubset(stems_clave):
+                rechazados.append(f'"{text}" (es una variación morfológica del nombre del nodo — un puente debe usar vocabulario diferente)')
+                continue
+
+            text_norm = text.lower()
+            if text_norm in vistos_textos:
+                rechazados.append(f'"{text}" (texto repetido)')
+                continue
+
+            if angle not in ANGULOS_SET:
+                rechazados.append(f'"{text}" tiene ángulo inválido "{angle}". Permitidos: {list(ANGULOS_OFICIALES)}')
+                continue
+
+            if angle in angulos_cubiertos:
+                rechazados.append(f'"{text}" repite el ángulo "{angle}" (cada bridge debe tener un ángulo distinto)')
+                continue
+
+            vistos_textos.add(text_norm)
+            angulos_cubiertos.add(angle)
+            validos.append({"text": text, "angle": angle, "weight": weight})
+
+        # Verificar que estén exactamente los 5 ángulos oficiales
+        if len(validos) != 5 or angulos_cubiertos != ANGULOS_SET:
+            faltantes = list(ANGULOS_SET - angulos_cubiertos)
+            if faltantes:
+                rechazados.append(f"Faltan bridges para los ángulos: {faltantes}")
+
         return validos, rechazados
 
     def _aprender_impl(
         concepto: str,
         contenido: str,
-        bridges: list,
+        bridges: Any,
         syn: Optional[str] = None,
         cat: Optional[str] = None,
         dimensiones: Optional[Any] = None,
@@ -1816,19 +1894,27 @@ def _build_server():
         # intento fallido no deja ningún estado a medias: el agente reintenta
         # con el mismo concepto/contenido y bridges corregidos, sin duplicados
         # ni nodos huérfanos.
-        bridges_validos, bridges_rechazados = _validar_bridges(bridges or [], clave)
-        if len(bridges_validos) < 5:
+        bridges_validos, bridges_rechazados = _validar_bridges(bridges, clave)
+        if len(bridges_validos) != 5:
             return json.dumps({
                 "status": "error",
                 "mensaje": (
-                    f"bridges insuficientes: {len(bridges_validos)} válidos de mínimo 5. "
-                    + (f"Rechazados: {'; '.join(bridges_rechazados)}. " if bridges_rechazados else "")
-                    + "Un bridge es una frase de 2+ palabras de contenido real (sin stopwords) "
-                    "que alguien escribiría para encontrar este nodo SIN usar las mismas palabras "
-                    "del nombre o el contenido. Ejemplo para un nodo 'leccion_http_500_timeout': "
-                    "bridges=[\"servidor no responde\", \"página en blanco\", \"error 500\", "
-                    "\"timeout de conexión\", \"la web no carga\"]. Reintentá con 5 o más bridges "
-                    "así, nada se guardó todavía."
+                    f"Bridges inválidos ({len(bridges_validos)}/5 válidos). "
+                    + (f"Motivos de rechazo: {'; '.join(bridges_rechazados)}. " if bridges_rechazados else "")
+                    + "Se requieren exactamente 5 bridges válidos cubriendo los 5 ángulos semánticos distintos:\n"
+                    "  1. 'sinonimo': mismo significado con otro vocabulario\n"
+                    "  2. 'problema': dolor o falla que resuelve este nodo\n"
+                    "  3. 'solucion': técnica o herramienta que aplica este nodo\n"
+                    "  4. 'situacion': caso de uso, rol o contexto de búsqueda\n"
+                    "  5. 'ingenuo': búsqueda sin tecnicismos (cómo lo googlearía un novato)\n\n"
+                    "Ejemplo en JSON/dict:\n"
+                    "bridges=[\n"
+                    "  {'text': 'modo reposo del sistema de memoria', 'angle': 'sinonimo'},\n"
+                    "  {'text': 'proceso que genera ideas en silencio', 'angle': 'problema'},\n"
+                    "  {'text': 'hilos de pensamiento espontaneo', 'angle': 'solucion'},\n"
+                    "  {'text': 'cerebro piensa solo cuando nadie pregunta', 'angle': 'situacion'},\n"
+                    "  {'text': 'que pasa cuando no hay actividad en BioRAG', 'angle': 'ingenuo'}\n"
+                    "]"
                 ),
                 "concepto": clave,
             }, ensure_ascii=False)
@@ -2141,37 +2227,34 @@ def _build_server():
             description="Valencia emocional/somática (0.0 a 1.0). Nodos con valencia >= 0.80 son inmunes al decaimiento por sueño y la poda."
         )] = None,
         *,
-        bridges: Annotated[List[str], Field(
-            min_length=5,
+        bridges: Annotated[Any, Field(
             description=(
-                "OBLIGATORIO — mínimo 5 frases. Sin 5 bridges válidos, el nodo NO se guarda "
-                "(el rechazo pasa ANTES de tocar la base de datos — reintentá con más/mejores bridges, "
-                "no se pierde nada).\n\n"
-                "QUÉ ES UN BRIDGE: una frase de 2 o más palabras de contenido real (no artículos ni "
-                "preposiciones sueltas) que alguien escribiría para encontrar este nodo SIN usar "
-                "las mismas palabras del nombre ni del contenido. Es la forma en que alguien "
-                "pregunta cuando NO sabe cómo se llama lo que busca.\n\n"
-                "FORMATO: array de strings. Cada elemento es UNA frase completa, no una palabra suelta.\n"
-                '  bridges=["trabajo antes de programar", "empleos previos ingeniero", '
-                '"oficios manuales antes de IT", "vida laboral antes de código", "primeros trabajos"]\n\n'
-                "CÓMO ESCRIBIR CADA UNO — 5 ángulos distintos, uno por bridge, para cubrir bien el espacio:\n"
-                "  1. Sinónimo conceptual: mismo significado, otras palabras.\n"
-                "  2. El problema que resuelve (si el nodo es la solución).\n"
-                "  3. La solución que da (si el nodo describe un problema).\n"
-                "  4. Quién lo preguntaría y en qué situación.\n"
-                "  5. Cómo lo escribiría alguien que nunca vio este nodo antes.\n\n"
-                "RECHAZADOS AUTOMÁTICAMENTE (no cuentan para el mínimo de 5):\n"
-                '  "info" o "dato importante"       → menos de 2 palabras de contenido real\n'
-                '  "sistema de memoria"             → si son puras palabras genéricas sin relación al nodo\n'
-                '  igual al nombre del concepto      → eso no es un puente, es el destino\n'
-                '  repetido dentro del mismo array    → cada bridge debe ser distinto\n\n'
+                "OBLIGATORIO — exactamente 5 frases estructuradas cubriendo los 5 ángulos semánticos.\n"
+                "Sin 5 bridges válidos con sus 5 ángulos distintos, el nodo NO se guarda (rechazo preventivo pre-DB).\n\n"
+                "QUÉ ES UN BRIDGE: una frase de 2 o más palabras de contenido real (sin stopwords) "
+                "que alguien escribiría para encontrar este nodo SIN usar las mismas palabras del nombre ni del contenido.\n\n"
+                "FORMATO OFICIAL: lista de 5 dicts {'text': '...', 'angle': '...'}:\n"
+                "  bridges=[\n"
+                "    {'text': 'sinonimo conceptual con otras palabras', 'angle': 'sinonimo'},\n"
+                "    {'text': 'dolor o falla que este nodo resuelve', 'angle': 'problema'},\n"
+                "    {'text': 'herramienta o solucion tecnica que aplica', 'angle': 'solucion'},\n"
+                "    {'text': 'quien y en que situacion o caso de uso lo busca', 'angle': 'situacion'},\n"
+                "    {'text': 'como lo buscaria un novato a ciegas sin tecnicismos', 'angle': 'ingenuo'}\n"
+                "  ]\n\n"
+                "LOS 5 ÁNGULOS PERMITIDOS (exactamente 1 por cada ángulo):\n"
+                "  - 'sinonimo': concepto equivalente con vocabulario disjunto\n"
+                "  - 'problema': síntoma, error o necesidad\n"
+                "  - 'solucion': técnica, patrón o respuesta\n"
+                "  - 'situacion': rol o contexto de aplicación\n"
+                "  - 'ingenuo': búsqueda en lenguaje común sin jerga\n\n"
                 "EJEMPLO COMPLETO — nodo 'leccion_http_500_timeout':\n"
-                '  bridges=["servidor no responde", "página en blanco sin razón", "error 500 '
-                '"intermitente", "timeout de conexión al backend", "la web se cae sola"]\n\n'
-                "EJEMPLO COMPLETO — nodo 'patron_singleton_python':\n"
-                '  bridges=["una sola instancia de la clase", "objeto global compartido", '
-                '"evitar crear el mismo objeto dos veces", "instancia única en toda la app", '
-                '"cómo compartir estado entre módulos"]'
+                "  bridges=[\n"
+                "    {'text': 'corte intempestivo de comunicacion backend', 'angle': 'sinonimo'},\n"
+                "    {'text': 'pagina en blanco sin respuesta del servidor', 'angle': 'problema'},\n"
+                "    {'text': 'reintentos exponenciales y keepalive configurado', 'angle': 'solucion'},\n"
+                "    {'text': 'usuario reportando caida intermitente de la web', 'angle': 'situacion'},\n"
+                "    {'text': 'la web se cae sola y no carga', 'angle': 'ingenuo'}\n"
+                "  ]"
             )
         )],
     ) -> str:
@@ -2182,7 +2265,7 @@ def _build_server():
         description=(
             "(legado) Alias de 'aprender' — preferir 'aprender' para identificar la operación cognitiva real. "
             "Misma funcionalidad y parámetros.\n\n"
-            "Parámetros: concepto (str), contenido (str), bridges (list REQUERIDO, min 5), syn (str opcional), cat (str opcional), "
+            "Parámetros: concepto (str), contenido (str), bridges (5 ángulos REQUERIDO), syn (str opcional), cat (str opcional), "
             "dimensiones (str JSON opcional), predicados (str JSON opcional), valencia_somatica (float opcional).\n\n"
             "Retorna: {status, mensaje, concepto (str normalizado), sinapsis (int)}"
         ),
@@ -2211,12 +2294,10 @@ def _build_server():
             description="Valencia emocional/somática (0.0 a 1.0)."
         )] = None,
         *,
-        bridges: Annotated[List[str], Field(
-            min_length=5,
+        bridges: Annotated[Any, Field(
             description=(
-                "OBLIGATORIO — mínimo 5 frases distintas. Ver descripción completa con ejemplos "
-                "en `aprender`. Formato: array de strings, cada uno una frase de 2+ palabras "
-                "que alguien usaría para buscar este nodo sin conocer su nombre exacto."
+                "OBLIGATORIO — exactamente 5 frases estructuradas cubriendo los 5 ángulos semánticos. "
+                "Ver descripción completa con ejemplos en `aprender`."
             )
         )],
     ) -> str:
@@ -3676,10 +3757,10 @@ def _build_server():
     )
     def concept_hub_crear(
         hub_id: Annotated[str, Field(description="ID único del hub (snake_case)")],
-        canonical_node: Annotated[str, Field(description="Nombre del nodo canónico en BioRAG")],
+        canonical_node: Annotated[str, Field(description="Nombre del nodo canónico en BioRAG (debe existir en largo_plazo o corto_plazo)")],
         description: Annotated[str, Field(description="Descripción del significado del hub")] = "",
-        bridges: Annotated[Optional[str], Field(
-            description="Frases puente separadas por pipe (|). Ej: 'trabajos antes de programar|empleos previos'"
+        bridges: Annotated[Optional[Any], Field(
+            description="Frases puente: lista de dicts [{'text': '...', 'angle': '...'}], lista de strings o string con pipes (|)."
         )] = None,
     ) -> str:
         from core.concept_hub import crear_hub, agregar_bridges
@@ -3687,26 +3768,48 @@ def _build_server():
         try:
             crear_hub(cerebro.conn, hub_id, canonical_node, description)
             if bridges:
-                bridge_list = [b.strip() for b in bridges.split("|") if b.strip()]
+                if isinstance(bridges, str):
+                    if bridges.strip().startswith("["):
+                        try:
+                            bridge_list = json.loads(bridges)
+                        except Exception:
+                            bridge_list = [b.strip() for b in bridges.split("|") if b.strip()]
+                    else:
+                        bridge_list = [b.strip() for b in bridges.split("|") if b.strip()]
+                else:
+                    bridge_list = bridges
                 agregar_bridges(cerebro.conn, hub_id, bridge_list)
             return json.dumps({"status": "ok", "hub_id": hub_id, "canonical": canonical_node}, ensure_ascii=False)
+        except ValueError as e:
+            return json.dumps({"status": "error", "mensaje": str(e)}, ensure_ascii=False)
         finally:
             cerebro.cerrar_sistema()
 
     @mcp.tool(
         name="concept_hub_agregar_bridges",
-        description="Agrega bridges (frases puente) a un hub existente.",
+        description="Agrega bridges (frases puente con ángulo) a un hub existente.",
     )
     def concept_hub_agregar_bridges_tool(
         hub_id: Annotated[str, Field(description="ID del hub")],
-        bridges: Annotated[str, Field(description="Frases puente separadas por pipe (|)")],
+        bridges: Annotated[Any, Field(description="Frases puente: lista de dicts [{'text': '...', 'angle': '...'}], lista de strings o string con pipes (|)")],
     ) -> str:
         from core.concept_hub import agregar_bridges
         cerebro = _get_cerebro()
         try:
-            bridge_list = [b.strip() for b in bridges.split("|") if b.strip()]
+            if isinstance(bridges, str):
+                if bridges.strip().startswith("["):
+                    try:
+                        bridge_list = json.loads(bridges)
+                    except Exception:
+                        bridge_list = [b.strip() for b in bridges.split("|") if b.strip()]
+                else:
+                    bridge_list = [b.strip() for b in bridges.split("|") if b.strip()]
+            else:
+                bridge_list = bridges
             result = agregar_bridges(cerebro.conn, hub_id, bridge_list)
             return json.dumps(result, ensure_ascii=False)
+        except ValueError as e:
+            return json.dumps({"status": "error", "mensaje": str(e)}, ensure_ascii=False)
         finally:
             cerebro.cerrar_sistema()
 

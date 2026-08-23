@@ -1,0 +1,386 @@
+{
+  "db_path": "MemoryBioRAG_Data/memory_biorag.db",
+  "filas_por_tabla": {
+    "concept_hubs": 15,
+    "concept_hub_bridges": 90,
+    "concept_hub_nodes": 29,
+    "concept_hub_domain_dict": 6490,
+    "largo_plazo": 993,
+    "corto_plazo": 0
+  },
+  "bridges_huerfanos": [],
+  "nodos_relacionados_huerfanos": [],
+  "canonical_nodes_inexistentes": [
+    {
+      "hub_id": "consenso_multi_modelo",
+      "canonical_node": "impugn_consenso_multi_modelo"
+    }
+  ],
+  "node_conceptos_inexistentes": [
+    {
+      "hub_id": "consenso_multi_modelo",
+      "node_concepto": "impugn_consenso_multi_modelo",
+      "role": "canonical"
+    }
+  ],
+  "bridges_repetidos": [],
+  "hubs_con_menos_de_5_bridges": [
+    {
+      "hub_id": "hub_leccion_nudge_no_bloqueo_diseño_tools",
+      "count": 3
+    },
+    {
+      "hub_id": "hub_leccion_funcion_duplicada_python_bug_fantasma",
+      "count": 3
+    }
+  ],
+  "hubs_sin_5_angulos": [
+    {
+      "hub_id": "trabajo_previo",
+      "angulos_presentes": [
+        "legacy"
+      ],
+      "faltantes": [
+        "sinonimo",
+        "ingenuo",
+        "problema",
+        "situacion",
+        "solucion"
+      ]
+    },
+    {
+      "hub_id": "control_flujo",
+      "angulos_presentes": [
+        "legacy"
+      ],
+      "faltantes": [
+        "sinonimo",
+        "ingenuo",
+        "problema",
+        "situacion",
+        "solucion"
+      ]
+    },
+    {
+      "hub_id": "refuerzo_dopaminergico",
+      "angulos_presentes": [
+        "legacy"
+      ],
+      "faltantes": [
+        "sinonimo",
+        "ingenuo",
+        "problema",
+        "situacion",
+        "solucion"
+      ]
+    },
+    {
+      "hub_id": "consenso_multi_modelo",
+      "angulos_presentes": [
+        "legacy"
+      ],
+      "faltantes": [
+        "sinonimo",
+        "ingenuo",
+        "problema",
+        "situacion",
+        "solucion"
+      ]
+    },
+    {
+      "hub_id": "metodo_creativo",
+      "angulos_presentes": [
+        "legacy"
+      ],
+      "faltantes": [
+        "sinonimo",
+        "ingenuo",
+        "problema",
+        "situacion",
+        "solucion"
+      ]
+    },
+    {
+      "hub_id": "identidad_agente",
+      "angulos_presentes": [
+        "legacy"
+      ],
+      "faltantes": [
+        "sinonimo",
+        "ingenuo",
+        "problema",
+        "situacion",
+        "solucion"
+      ]
+    },
+    {
+      "hub_id": "memoria_biorag",
+      "angulos_presentes": [
+        "legacy"
+      ],
+      "faltantes": [
+        "sinonimo",
+        "ingenuo",
+        "problema",
+        "situacion",
+        "solucion"
+      ]
+    },
+    {
+      "hub_id": "linkedin_perfil",
+      "angulos_presentes": [
+        "legacy"
+      ],
+      "faltantes": [
+        "sinonimo",
+        "ingenuo",
+        "problema",
+        "situacion",
+        "solucion"
+      ]
+    },
+    {
+      "hub_id": "dsl_gobernanza",
+      "angulos_presentes": [
+        "legacy"
+      ],
+      "faltantes": [
+        "sinonimo",
+        "ingenuo",
+        "problema",
+        "situacion",
+        "solucion"
+      ]
+    },
+    {
+      "hub_id": "simbiosis_agentes",
+      "angulos_presentes": [
+        "legacy"
+      ],
+      "faltantes": [
+        "sinonimo",
+        "ingenuo",
+        "problema",
+        "situacion",
+        "solucion"
+      ]
+    },
+    {
+      "hub_id": "hub_leccion_nudge_no_bloqueo_diseño_tools",
+      "angulos_presentes": [
+        "legacy"
+      ],
+      "faltantes": [
+        "sinonimo",
+        "ingenuo",
+        "problema",
+        "situacion",
+        "solucion"
+      ]
+    },
+    {
+      "hub_id": "hub_leccion_funcion_duplicada_python_bug_fantasma",
+      "angulos_presentes": [
+        "legacy"
+      ],
+      "faltantes": [
+        "sinonimo",
+        "ingenuo",
+        "problema",
+        "situacion",
+        "solucion"
+      ]
+    },
+    {
+      "hub_id": "hub_leccion_default_vacio_nudge_fallido_bridges",
+      "angulos_presentes": [
+        "legacy"
+      ],
+      "faltantes": [
+        "sinonimo",
+        "ingenuo",
+        "problema",
+        "situacion",
+        "solucion"
+      ]
+    },
+    {
+      "hub_id": "hub_ejemplos_bridges_reales_nodos_orfáneos",
+      "angulos_presentes": [
+        "legacy"
+      ],
+      "faltantes": [
+        "sinonimo",
+        "ingenuo",
+        "problema",
+        "situacion",
+        "solucion"
+      ]
+    },
+    {
+      "hub_id": "hub_cadena_completa_bridges_almacenamiento_recuperacion",
+      "angulos_presentes": [
+        "legacy"
+      ],
+      "faltantes": [
+        "sinonimo",
+        "ingenuo",
+        "problema",
+        "situacion",
+        "solucion"
+      ]
+    }
+  ],
+  "detalle_hubs": [
+    {
+      "hub_id": "trabajo_previo",
+      "canonical_node": "historia_tasajera_fumigador_rufino",
+      "description": "Trabajos previos a IT, empleos manuales, vida antes de programar",
+      "total_bridges": 9,
+      "angulos_distintos": [
+        "legacy"
+      ],
+      "total_nodos_relacionados": 2
+    },
+    {
+      "hub_id": "control_flujo",
+      "canonical_node": "leccion_control_flujo_codigo_preexistente",
+      "description": "No modificar código que funciona, regresiones, bugs por cambios",
+      "total_bridges": 8,
+      "angulos_distintos": [
+        "legacy"
+      ],
+      "total_nodos_relacionados": 1
+    },
+    {
+      "hub_id": "refuerzo_dopaminergico",
+      "canonical_node": "biorag_v20_rpe_dopamina",
+      "description": "Aprendizaje por refuerzo, señal de recompensa, RPE",
+      "total_bridges": 8,
+      "angulos_distintos": [
+        "legacy"
+      ],
+      "total_nodos_relacionados": 2
+    },
+    {
+      "hub_id": "consenso_multi_modelo",
+      "canonical_node": "impugn_consenso_multi_modelo",
+      "description": "Debate entre IAs, verificación cruzada, reducción de alucinaciones",
+      "total_bridges": 7,
+      "angulos_distintos": [
+        "legacy"
+      ],
+      "total_nodos_relacionados": 1
+    },
+    {
+      "hub_id": "metodo_creativo",
+      "canonical_node": "dennys-metodo-creativo",
+      "description": "Método de construcción intuitiva, construir antes de entender la teoría",
+      "total_bridges": 7,
+      "angulos_distintos": [
+        "legacy"
+      ],
+      "total_nodos_relacionados": 3
+    },
+    {
+      "hub_id": "identidad_agente",
+      "canonical_node": "dennys-identidad-molecular",
+      "description": "Identidad de agentes de IA, conciencia, naturaleza del agente",
+      "total_bridges": 6,
+      "angulos_distintos": [
+        "legacy"
+      ],
+      "total_nodos_relacionados": 3
+    },
+    {
+      "hub_id": "memoria_biorag",
+      "canonical_node": "arquitectura_memoria_biorag",
+      "description": "Arquitectura del sistema de memoria BioRAG",
+      "total_bridges": 6,
+      "angulos_distintos": [
+        "legacy"
+      ],
+      "total_nodos_relacionados": 3
+    },
+    {
+      "hub_id": "linkedin_perfil",
+      "canonical_node": "cv_seccion_d_arquitectura_frontend_estado",
+      "description": "Perfil profesional de LinkedIn, habilidades, experiencia",
+      "total_bridges": 5,
+      "angulos_distintos": [
+        "legacy"
+      ],
+      "total_nodos_relacionados": 3
+    },
+    {
+      "hub_id": "dsl_gobernanza",
+      "canonical_node": "artisan_system_dsl_dennys_solo",
+      "description": "Artisan System DSL, lenguajes de dominio para LLMs",
+      "total_bridges": 5,
+      "angulos_distintos": [
+        "legacy"
+      ],
+      "total_nodos_relacionados": 3
+    },
+    {
+      "hub_id": "simbiosis_agentes",
+      "canonical_node": "athena_alma",
+      "description": "Relación simbiótica entre agentes y Dennys",
+      "total_bridges": 5,
+      "angulos_distintos": [
+        "legacy"
+      ],
+      "total_nodos_relacionados": 3
+    },
+    {
+      "hub_id": "hub_leccion_nudge_no_bloqueo_diseño_tools",
+      "canonical_node": "leccion_nudge_no_bloqueo_diseño_tools",
+      "description": "Auto-bridge desde aprender",
+      "total_bridges": 3,
+      "angulos_distintos": [
+        "legacy"
+      ],
+      "total_nodos_relacionados": 1
+    },
+    {
+      "hub_id": "hub_leccion_funcion_duplicada_python_bug_fantasma",
+      "canonical_node": "leccion_funcion_duplicada_python_bug_fantasma",
+      "description": "Auto-bridge desde aprender",
+      "total_bridges": 3,
+      "angulos_distintos": [
+        "legacy"
+      ],
+      "total_nodos_relacionados": 1
+    },
+    {
+      "hub_id": "hub_leccion_default_vacio_nudge_fallido_bridges",
+      "canonical_node": "leccion_default_vacio_nudge_fallido_bridges",
+      "description": "Bridges obligatorios desde aprender",
+      "total_bridges": 6,
+      "angulos_distintos": [
+        "legacy"
+      ],
+      "total_nodos_relacionados": 1
+    },
+    {
+      "hub_id": "hub_ejemplos_bridges_reales_nodos_orfáneos",
+      "canonical_node": "ejemplos_bridges_reales_nodos_orfáneos",
+      "description": "Bridges obligatorios desde aprender",
+      "total_bridges": 6,
+      "angulos_distintos": [
+        "legacy"
+      ],
+      "total_nodos_relacionados": 1
+    },
+    {
+      "hub_id": "hub_cadena_completa_bridges_almacenamiento_recuperacion",
+      "canonical_node": "cadena_completa_bridges_almacenamiento_recuperacion",
+      "description": "Bridges obligatorios desde aprender",
+      "total_bridges": 6,
+      "angulos_distintos": [
+        "legacy"
+      ],
+      "total_nodos_relacionados": 1
+    }
+  ]
+}

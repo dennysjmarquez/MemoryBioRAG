@@ -172,13 +172,10 @@ class SQLiteMemoryBioRAG:
             return 1 if re.search(r'\b' + re.escape(token_norm), texto_norm) else 0
         self.conn.create_function("PALABRA_PREFIJO", 2, palabra_prefijo)
         self._cat_cache = {}
-        # Evitar inicialización redundante de DDL si el esquema ya está creado
         self.cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='largo_plazo'")
         if not self.cursor.fetchone():
             self._crear_estructura_cerebral()
-        else:
-            # Schema exists but ensure new tables (like log_busquedas) are created
-            self._crear_tablas_nuevas_si_faltan()
+        self._crear_tablas_nuevas_si_faltan()
         self.conn.execute("PRAGMA foreign_keys = ON")
         # Trazaabilidad: datos de la última búsqueda para mcp_server.py
         self.last_todos = []
@@ -1068,6 +1065,13 @@ class SQLiteMemoryBioRAG:
         self._asegurar_catalogo_dimensiones()
 
         self._crear_tabla_data()
+
+        # Concept Hub v29.1 (hubs, bridges con 5 ángulos, nodos y domain dict)
+        try:
+            from core.concept_hub import crear_tablas as _crear_concept_hub_tablas
+            _crear_concept_hub_tablas(self.conn)
+        except Exception as _e_ch:
+            logger.warning(f"No se pudieron inicializar tablas de Concept Hub: {_e_ch}")
 
         self.conn.commit()
 
