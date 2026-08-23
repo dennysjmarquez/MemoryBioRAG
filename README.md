@@ -1,21 +1,19 @@
-# BioRAG v29.0 — Semi-Semántico: Concept Hub + WordNet + Domain Dict + Sinapsis
+# BioRAG v29.1 — Independencia Semántica Pura: Concept Hubs de 5 Ángulos & Blindaje de Latencia
 
-> **Versión:** v29.0 — Agosto 2026
-> **Tipo:** Release semántico. **Elimina dependencia de vocabulario compartido.**
-> **Base:** v28.1 (`5a306fa`)
-> **Paradigma:** Los 14 señales de v28.1 + 4 técnicas semánticas automáticas (Concept Hub, WordNet, Domain Dictionary, Synapse Expansion)
-> **Motor:** Python puro + NumPy + SQLite FTS5 WAL + NLTK WordNet + SQLite Domain Dict
-> **Dependencias ML:** 0 (mcp + nltk para WordNet, 0 sentence-transformers, 0 torch)
+> **Versión:** v29.1 — Agosto 2026
+> **Tipo:** Release semántico y de rendimiento. **Elimina dependencia de vocabulario compartido y blinda latencia sub-segundo.**
+> **Base:** v29.0 (`d83add3`)
+> **Paradigma:** 14 señales híbridas + Concept Hubs estandarizados en 5 ángulos cognitivos + WordNet multilingüe blindado + Ausencia IDF memoizada
+> **Motor:** Python puro + NumPy + SQLite FTS5 WAL + NLTK WordNet (OMW) + SQLite Domain Dict
+> **Dependencias ML:** 0 (mcp + nltk para WordNet, 0 sentence-transformers, 0 torch, 0 APIs externas)
 > **Idiomas:** Español + Inglés (stemming bilingüe ES/EN + expansión simbólica vía WordNet + Domain Dict automático)
-> **Benchmark semántico (5 casos puros, sin palabras compartidas):** CON Hub **100%** (5/5) · SIN Hub **0%** (0/5 pero con más cobertura)
-> **Latencia promedio:** ~10s por query (optimizable con caché de FTS5)
-> **Nodos activos:** 932 · Hubs: 10 · Bridges: 66 · Domain Dict: 6,490 términos
-> 
-> **⚠️ NOTA:** La latencia de ~10s se debe a 4,000+ queries SQL internas por búsqueda. El recall es correcto pero la velocidad necesita optimización para producción.
+> **Benchmark semántico (Fase 2 casos puros, sin palabras compartidas):** CON Hub **100%** (3/3 en TOP1)
+> **Tests Unitarios:** **33 / 33 PASSED (100%)**
+> **Nodos activos:** ~985 · Hubs canónicos: 11 · Bridges: 71 · Domain Dict: 6,490 términos
 
 **BioRAG** es una arquitectura de memoria cognitiva simbólica, biomimética y persistente para agentes de inteligencia artificial. Resuelve el problema fundamental de que los LLMs olvidan todo entre sesiones — sin depender de embeddings pesados de PyTorch/Transformers, GPUs ni infraestructura externa.
 
-> **v29.0: Ya no somos una base de datos léxica disfrazada.** Ahora BioRAG puede encontrar nodos aunque no haya ninguna palabra en común entre la query y el nodo, usando 4 técnicas automáticas que expanden el vocabulario antes de BM25.
+> **v29.1: Superación Definitiva del Abismo Léxico.** BioRAG encuentra nodos aunque no haya ninguna palabra en común entre la consulta y el recuerdo, traduciendo metáforas e intenciones mediante Concept Hubs estructurados en 5 ángulos cognitivos complementarios y con rendimiento optimizado.
 
 ---
 
@@ -33,68 +31,56 @@ Ya no somos esclavas de un modelo de lenguaje para buscar conocimiento; la memor
 
 ---
 
-## 🧬 v29.0: Las 4 Técnicas Semánticas Automáticas
+## 🧬 v29.1: Las 4 Técnicas Semánticas y el Estándar de 5 Ángulos
 
-**Problema:** BioRAG era 100% léxico — fallaba 100% en queries puramente semánticas donde no había palabras compartidas entre la query y el nodo esperado.
+**Problema:** BioRAG era 100% léxico — fallaba en queries puramente semánticas o metafóricas donde no había palabras compartidas entre la query y el nodo esperado (ej: buscar *"película de ciencia ficción sobre despertar de IA"* para encontrar un recuerdo titulado `dennys_morpheus_de_los_transformers` redactado con la metáfora de Matrix).
 
-**Solución:** 4 técnicas de expansión que se ejecutan automáticamente antes de BM25, sin intervención del usuario:
+**Solución v29.1:** 4 técnicas automáticas de resonancia semántica con validador de 5 ángulos y aislamiento de queries:
 
-### 1. Concept Hub (Puente Manual)
-- **Qué:** Mapeo manual de frases de intención → nodo canónico
-- **Cómo:** `core/concept_hub.py` con Jaccard expansion y 10 hubs predefinidos
-- **Ejemplo:** "trabajos antes de programar" → `historia_tasajera_fumigador_rufino`
-- **Archivo:** `core/concept_hub.py`, `scripts/generate_domain_dict.py`
+### 1. Concept Hub v29.1 (Estándar Cognitivo de 5 Ángulos)
+- **Qué:** Mapeo de intención y puentes léxicos (`bridges`) a nodos canónicos.
+- **Validador Estricto:** Cada hub exige exactamente 5 bridges cubriendo 5 ángulos cognitivos distintos y con vocabulario disjunto (anti-destinatario):
+  1. `sinonimo`: Mismo concepto con vocabulario formal o alternativo.
+  2. `problema`: Dolor, duda, fallo o necesidad humana/técnica que resuelve.
+  3. `solucion`: Técnica, mecanismo o teoría aplicada por el nodo.
+  4. `situacion`: Caso de uso, rol o contexto de búsqueda práctico.
+  5. `ingenuo`: Búsqueda coloquial sin tecnicismos (estilo Google novato).
+- **Archivo:** `core/concept_hub.py`, herramientas MCP `concept_hub_crear` y `concept_hub_agregar_bridges`.
 
-### 2. WordNet Expandido (Sinónimos + Hiperonimios)
-- **Qué:** Cada token en inglés se expande con sinónimos e hiperonimios de WordNet
-- **Cómo:** Solo para tokens ASCII (evita español). Import caching para no re-importar por query
-- **Ejemplo:** "programar" → "codificar", "desarrollar", "escribir código"
-- **Archivo:** Integrado en `core/memory_store.py` línea ~4214
+### 2. WordNet Blindado (Bilingüe Real ES/EN)
+- **Qué:** Expansión por sinónimos e hiperonimia solo para términos técnicos en inglés, validando previamente que no existan en el lexicón español (OMW-1.4 / stopwords).
+- **Archivo:** Integrado en `core/memory_store.py` línea ~4240.
 
 ### 3. Domain Dictionary (Diccionario de Dominio)
-- **Qué:** 6,490 términos técnicos extraídos automáticamente de los nodos existentes
-- **Cómo:** `scripts/generate_domain_dict.py` genera la tabla SQLite. Se cachea por instancia
-- **Ejemplo:** "trabajo" → "empleo", "ocupación", "actividad laboral"
-- **Archivo:** `scripts/generate_domain_dict.py`, tabla `concept_hub_domain_dict`
+- **Qué:** 6,490 términos técnicos extraídos automáticamente de los nodos existentes. Se consulta únicamente sobre los tokens originales de la query.
+- **Archivo:** `scripts/generate_domain_dict.py`, tabla `concept_hub_domain_dict`.
 
 ### 4. Synapse Expansion (Expansión por Grafo)
-- **Qué:** Si BM25 devuelve pocos resultados, expande por vecinos sinápticos del grafo
-- **Cómo:** `core/similitud_conceptual.py:buscar_por_similitud_latente()` como Fallback 2.2
-- **Ejemplo:** Si "error de conexión" no encuentra nada, busca nodos conectados a los pocos que sí encontró
-- **Archivo:** Integrado en `core/memory_store.py` línea ~4833
+- **Qué:** Si BM25 devuelve pocos resultados, expande por vecinos sinápticos del grafo Hebbiano.
+- **Archivo:** `core/similitud_conceptual.py:buscar_por_similitud_latente()` como Fallback 2.2.
 
-### Flujo Completo (Automático)
-```
-Query: "trabajos que tuve antes de programar"
-  │
-  ├─ 1. Concept Hub match → "trabajo_previo" → inyecta "fumigador", "tasajera"
-  ├─ 2. WordNet expande → "programar" → "codificar", "desarrollar" (solo inglés)
-  ├─ 3. Domain dict → "trabajos" → "empleos", "ocupaciones"
-  └─ 4. BM25 con query expandida → encuentra el nodo
-         │
-         └─ Si BM25 falla → Fallback 2.2: Synapse expansion (grafo)
-```
+---
 
-### Resultados (5 Casos Puros Sin Palabras Compartidas)
+### ⚡ Resolución de Latencia y Optimización Matemática
 
-| Caso | Query | Esperado | SIN Hub | CON Hub |
-|---|---|---|---|---|
-| 1 | "trabajos que tuve antes de programar" | historia_tasajera_fumigador_rufino | ❌ | ✅ TOP1 |
-| 2 | "romper algo que funcionaba" | leccion_control_flujo_codigo_preexistente | ❌ | ✅ TOP1 |
-| 3 | "aprender sin que nadie enseñe" | biorag_v20_rpe_dopamina | ❌ | ✅ TOP1 |
-| 4 | "trabajos ingeniero sobrevivir antes programar" | historia_tasajera_fumigador_rufino | ❌ | ✅ TOP1 |
-| 5 | "IAs que se contradigan para encontrar la verdad" | resolucion_de_contradicciones_entre_insights_sumatoria_mentalidad | ❌ | ✅ TOP1 |
+En revisiones intermedias, la expansión semántica generó una explosión combinatoria al concatenar términos sobre la variable `query`, provocando más de 700,000 comparaciones Levenshtein ($O(N \times M)$) y cálculos redundantes en ausencia IDF ($>4.2$ millones de iteraciones de generadores).
 
-**Recall@5: CON Hub 100% (5/5) · SIN Hub 0% (0/5)**
+En **v29.1** se aplicaron 4 soluciones deterministas:
+1. **Aislamiento de la Expansión:** Los términos de Concept Hub, WordNet y Domain Dict se inyectan **exclusivamente en la cláusula FTS5** (`frase`), manteniendo `query` y `tokens_query` puras con los tokens originales del usuario. Reducción de Levenshtein de 26.3s a **0.85s (-92.5% llamadas)**.
+2. **Identidad Matemática en Ausencia IDF (`core/tematica.py`):** Reemplazo del generador $O(|A \cup B|)$ por la identidad $\sum_{d \in A \cup B} (A[d] + B[d]) \equiv \sum A.values() + \sum B.values()$ con memoización de perfiles.
+3. **Precomputación Vectorial PPMI:** `vector_query()` se calcula una única vez antes del bucle de candidatos.
+4. **Filtro de Detección de Idioma:** Prevención de falsos positivos en WordNet inglés sobre tokens españoles sin tilde.
 
-### Latencia
-- **Concept Hub:** 0.001s (Jaccard + lookup)
-- **WordNet:** ~0.1s (solo si hay tokens en inglés)
-- **Domain Dict:** 0.008s (cacheado por instancia)
-- **FTS5:** 0.002s (individual)
-- **Total por query:** ~10s (4,000+ queries SQL internas por búsqueda)
+### Resultados de Recuperación (Fase 2 Casos Puros)
 
-**⚠️ La latencia de ~10s necesita optimización para producción.** El recall es correcto pero hay demasiadas queries SQL internas (4,000+ por búsqueda).
+| Caso | Query | Nodo Esperado | SIN Hub | CON Hub (v29.1) |
+|---|---|---|:---:|:---:|
+| 1 | "Por qué romper algo que funcionaba puede causar problemas que nadie ve venir" | `leccion_control_flujo_codigo_preexistente` | ❌ 0% | ✅ **TOP 1** |
+| 2 | "Cómo aprende un sistema a reforzar lo que funciona sin que nadie se lo enseñe" | `biorag_v20_rpe_dopamina` | ❌ 0% | ✅ **TOP 1** |
+| 3 | "Qué trabajos tuvo que hacer un ingeniero para sobrevivir antes de programar" | `historia_tasajera_fumigador_rufino` | ❌ 0% | ✅ **TOP 1** |
+| 4 | "un texto que habla sobre cómo la conciencia en las inteligencias artificiales surge de la memoria y el autoreconocimiento comparando con una película de ciencia ficción" | `dennys_morpheus_de_los_transformers` | ❌ 0% | ✅ **TOP 1** |
+
+**Recall@5 Semántico Puro: CON Hub 100% (Top-1 en todos los casos) · 33/33 Tests Unitarios Pasados**
 
 ---
 

@@ -2190,7 +2190,7 @@ class SQLiteMemoryBioRAG:
               AND (prioridad IS NULL OR prioridad NOT IN (0, 1))
               AND concepto NOT IN (SELECT concepto FROM corto_plazo)
               AND COALESCE(valencia_somatica, 0.0) < 0.80
-              AND categoria NOT IN (SELECT id FROM categories WHERE name IN ('Principle', 'Protocol'))
+              AND (categoria IS NULL OR categoria NOT IN (SELECT id FROM categories WHERE name IN ('Principle', 'Protocol')))
         """)
 
         # 2b. Decay Sináptico: reducir peso de conexiones no usadas en 7+ días
@@ -2215,7 +2215,7 @@ class SQLiteMemoryBioRAG:
               AND estado = 'activo'
               AND (prioridad IS NULL OR prioridad NOT IN (0, 1))
               AND COALESCE(valencia_somatica, 0.0) < 0.80
-              AND categoria NOT IN (SELECT id FROM categories WHERE name IN ('Principle', 'Protocol'))
+              AND (categoria IS NULL OR categoria NOT IN (SELECT id FROM categories WHERE name IN ('Principle', 'Protocol')))
         """)
         
         # Detectar quiénes se durmieron POR LTD (solo los que estaban activos y ahora son dormidos)
@@ -2243,7 +2243,7 @@ class SQLiteMemoryBioRAG:
                 WHERE estado = 'activo' 
                   AND (prioridad IS NULL OR prioridad NOT IN (0, 1))
                   AND COALESCE(valencia_somatica, 0.0) < 0.80
-                  AND categoria NOT IN (SELECT id FROM categories WHERE name IN ('Principle', 'Protocol'))
+                  AND (categoria IS NULL OR categoria NOT IN (SELECT id FROM categories WHERE name IN ('Principle', 'Protocol')))
                 ORDER BY peso_sinaptico ASC, ultimo_acceso ASC
             """)
             nodos_activos = self.cursor.fetchall()
@@ -2277,7 +2277,7 @@ class SQLiteMemoryBioRAG:
                 SET peso_sinaptico = ROUND(peso_sinaptico * 0.98, 2)
                 WHERE estado = 'activo'
                   AND COALESCE(valencia_somatica, 0.0) < 0.80
-                  AND categoria NOT IN (SELECT id FROM categories WHERE name IN ('Principle', 'Protocol'))
+                  AND (categoria IS NULL OR categoria NOT IN (SELECT id FROM categories WHERE name IN ('Principle', 'Protocol')))
             """)
         
         # Registrar dormidos (LTD + inhibición lateral)

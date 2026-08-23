@@ -83,6 +83,13 @@ from core.sinapsis import auto_vincular, vincular_por_sinonimos, _tokenizar, _pe
 from core.categorizador import inferir_categoria
 from middleware.auto_guardado import registrar_accion, analizar_y_autoguardar
 
+# Warmup silencioso de WordNet para eliminar latencia en primera query
+try:
+    from core.clasificador_wordnet import obtener_lexnames_query
+    obtener_lexnames_query("test")
+except Exception:
+    pass
+
 # =============================================================================
 # Configuración de Usuario (Override con variables de entorno)
 # =============================================================================

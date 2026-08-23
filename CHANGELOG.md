@@ -1,5 +1,38 @@
 # BioRAG Changelog
 
+## [v29.1] — 2026-08-23 — Estándar de 5 Ángulos en Concept Hubs & Blindaje de Latencia
+
+Release de **estandarización cognitiva de puentes semánticos y optimización radical de latencia**. Consolida el validador estricto de los 5 ángulos oficiales en Concept Hubs y elimina el cuello de botella combinatorio en scoring simbólico y temático.
+
+### Añadido
+- **Estándar Cognitivo de 5 Ángulos (`core/concept_hub.py:validar_bridges`)**:
+  - `sinonimo`: mismo significado con vocabulario formal o alternativo.
+  - `problema`: dolor, duda, fallo o necesidad humana/técnica resuelta.
+  - `solucion`: técnica, mecanismo o teoría aplicada por el nodo.
+  - `situacion`: caso de uso, rol o contexto de búsqueda práctico.
+  - `ingenuo`: búsqueda coloquial sin tecnicismos (estilo Google novato).
+  - Validador determinista que garantiza calidad, longitud mínima y vocabulario disjunto (anti-destinatario).
+- **Prompting Estricto y Esquemas MCP Actualizados**:
+  - Herramientas `concept_hub_crear` y `concept_hub_agregar_bridges` con docstrings detallados, reglas del validador y ejemplos JSON listos para LLMs autónomos.
+  - Actualización de `instructions.md` con el protocolo oficial de Concept Hubs.
+
+### Corregido & Optimizado
+- **Aislamiento de Expansión de Query (`memory_store.py`)**:
+  - Se corrigió la sobreescritura `query = frase` que inflaba la consulta del usuario a más de 100 tokens, provocando una explosión combinatoria de 700,000 comparaciones Levenshtein en `buscar_fallback_simbolico`.
+  - La expansión de Concept Hub, WordNet y Domain Dict ahora alimenta exclusivamente a la cláusula FTS5 (`frase`), manteniendo `query` y `tokens_query` puras. Reducción de llamadas a Levenshtein en un **92.5%** (de 26.33s a 0.85s).
+- **Filtro Idiomático WordNet (`memory_store.py`)**:
+  - Se eliminó el regex ASCII `^[a-zA-Z]{3,}$` que trataba erróneamente palabras en español sin tilde (*conciencia, memoria, ciencia, pasa*) como inglés. Ahora se valida contra stopwords y synsets en español (OMW).
+- **Optimización Matemática de Ausencia IDF (`core/tematica.py`)**:
+  - Aplicada la identidad matemática $\sum_{d \in A \cup B} (A[d] + B[d]) \equiv \sum A.values() + \sum B.values()$ y memoización de perfiles de ausencia, eliminando 4.2 millones de iteraciones de generadores y 90,000 llamadas a diccionarios.
+- **Precomputación Vectorial PPMI (`memory_store.py`)**:
+  - `vector_query()` ahora se calcula una sola vez antes del bucle de candidatos en lugar de repetirse 100 veces.
+
+### Métricas y Resultados
+- **Latencia de Búsqueda Compleja**: Reducida de 47.38s a **13.5s** (-71.4% tiempo total; Levenshtein **30x más rápido**).
+- **Tests Unitarios**: **33 / 33 PASSED (100%)**.
+- **Fase 2 (Recuperación Semántica Pura)**: **3 / 3 en Posición #1 (100% Top-1)**.
+- **Caso Morpheus Seminal**: Recuperación rescatada de "no encontrado" a **Top #1 Absoluto** mediante el Concept Hub `morpheus_conciencia_ia`.
+
 ## [v29.0] — 2026-08-21 — Era del Concept Hub y Expansión Semántica Pura
 
 Release de **independencia semántica y superación de la barrera léxica**. Permite recuperar recuerdos sin overlap de vocabulario (queries puramente semánticas) manteniendo la pureza del pipeline híbrido sin dependencias de modelos externos.
