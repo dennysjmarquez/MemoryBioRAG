@@ -15,10 +15,12 @@ from core.concept_hub import (
     eliminar_hub,
     listar_hubs,
     expandir_query_con_hub,
+    validar_bridges,
     ANGULOS_OFICIALES,
 )
-from mcp_server import _build_server
 
+
+# ─── FIXTURE ───
 
 @pytest.fixture
 def test_db():
@@ -65,19 +67,25 @@ def test_db():
         os.unlink(path)
 
 
+# ─── 5 BRIDGES VÁLIDOS PARA REUTILIZAR ───
+
+BRIDGES_5_VALIDOS = [
+    {"text": "concepto analogo equivalente", "angle": "sinonimo"},
+    {"text": "falla critica de comunicacion", "angle": "problema"},
+    {"text": "estrategia de mitigacion y guard", "angle": "solucion"},
+    {"text": "desarrollador revisando logs", "angle": "situacion"},
+    {"text": "como arreglar la falla rapido", "angle": "ingenuo"},
+]
+
+
+# ─── TESTS ───
+
 def test_01_hub_valido_5_angulos(test_db):
     """1. Un hub válido tiene cinco bridges y cinco ángulos distintos."""
     conn, _ = test_db
     crear_hub(conn, "hub_demo_1", "nodo_canónico_demo", "Descripción del hub")
     
-    bridges = [
-        {"text": "concepto analogo equivalente", "angle": "sinonimo"},
-        {"text": "falla critica de comunicacion", "angle": "problema"},
-        {"text": "estrategia de mitigacion y guard", "angle": "solucion"},
-        {"text": "desarrollador revisando logs", "angle": "situacion"},
-        {"text": "como arreglar la falla rapido", "angle": "ingenuo"},
-    ]
-    res = agregar_bridges(conn, "hub_demo_1", bridges)
+    res = agregar_bridges(conn, "hub_demo_1", BRIDGES_5_VALIDOS)
     assert res["status"] == "ok"
     assert res["bridges_agregados"] == 5
 
@@ -88,58 +96,49 @@ def test_01_hub_valido_5_angulos(test_db):
     assert angulos_guardados == set(ANGULOS_OFICIALES)
 
 
-def test_02_hub_4_bridges_rechazado():
-    """2. Un hub con cuatro bridges es rechazado en la validación MCP."""
-    from mcp_server import _build_server
-    # Simular llamada a _validar_bridges interna
-    # Accedemos a la lógica de validación
-    from core.stopwords import STOPWORDS_ES
-    from core.stemmer_es import stem
+def test_02_hub_4_bridges_rechazado(test_db):
+    """2. Un hub con cuatro bridges es rechazado en la validación."""
+    conn, _ = test_db
+    crear_hub(conn, "hub_demo_2", "nodo_canónico_demo", "Test 4 bridges")
+    
+    bridges_4 = BRIDGES_5_VALIDOS[:4]  # Solo 4 bridges
+    
+    with pytest.raises(ValueError, match="Bridges inválidos"):
+        agregar_bridges(conn, "hub_demo_2", bridges_4)
 
-    # Importamos o probamos a través de la función de validación
-    # Creamos 4 bridges
-    bridges_4 = [
-        {"text": "concepto analogo equivalente", "angle": "sinonimo"},
+
+def test_03_bridges_duplicados_o_mismo_angulo_rechazados(test_db):
+    """3. Dos bridges con el mismo ángulo son rechazados en la validación."""
+    conn, _ = test_db
+    crear_hub(conn, "hub_demo_3", "nodo_canónico_demo", "Prueba duplicados ángulo")
+    
+    # 5 bridges pero con ángulo repetido (dos 'sinonimo')
+    bridges_con_angulo_repetido = [
+        {"text": "concepto analogo equivalente uno", "angle": "sinonimo"},
+        {"text": "concepto analogo equivalente dos", "angle": "sinonimo"},  # mismo ángulo
         {"text": "falla critica de comunicacion", "angle": "problema"},
         {"text": "estrategia de mitigacion y guard", "angle": "solucion"},
         {"text": "desarrollador revisando logs", "angle": "situacion"},
     ]
-    # En mcp_server _validar_bridges requiere 5
-    # Probamos el wrapper o validación
-    mcp = _build_server()
-    # Llamamos _validar_bridges vía test de la función
-    # Como _validar_bridges está en el scope interno de _build_server, testeamos el rechazo de biorag_aprender
-    # O directamente la regla
-    assert len(bridges_4) == 4
-    # Si intentamos validar con 4 elementos, debe fallar
-
-
-def test_03_bridges_duplicados_o_mismo_angulo_rechazados(test_db):
-    """3. Dos bridges iguales o dos bridges con el mismo ángulo son rechazados."""
-    conn, _ = test_db
-    crear_hub(conn, "hub_demo_3", "nodo_canónico_demo", "Prueba de duplicados")
+    # Falta 'ingenuo' y 'sinonimo' repetido
     
-    # 2 bridges con el mismo texto
-    b1 = [{"text": "puente semantico identico", "angle": "sinonimo"}]
-    b2 = [{"text": "puente semantico identico", "angle": "problema"}]
-    
-    agregar_bridges(conn, "hub_demo_3", b1)
-    agregar_bridges(conn, "hub_demo_3", b2) # ON CONFLICT actualiza, no duplica
-    
-    cur = conn.cursor()
-    cur.execute("SELECT COUNT(*) FROM concept_hub_bridges WHERE hub_id = 'hub_demo_3'")
-    assert cur.fetchone()[0] == 1  # No se duplicó en DB gracias a UNIQUE(hub_id, bridge_text)
+    with pytest.raises(ValueError, match="Bridges inválidos"):
+        agregar_bridges(conn, "hub_demo_3", bridges_con_angulo_repetido)
 
 
 def test_04_angle_invalido_rechazado(test_db):
-    """4. Un bridge con angle inválido es rechazado por la base de datos (CHECK constraint) y función."""
+    """4. Un bridge con angle inválido es rechazado por la validación."""
     conn, _ = test_db
     crear_hub(conn, "hub_demo_4", "nodo_canónico_demo")
     
-    # Intentar ángulo no permitido
-    with pytest.raises(ValueError, match="Ángulo inválido"):
-        agregar_bridges(conn, "hub_demo_4", [{"text": "frase valida de prueba", "angle": "invalido_total"}])
-        
+    # Deep copy para no mutar el original
+    import copy
+    bridges_invalidos = copy.deepcopy(BRIDGES_5_VALIDOS)
+    bridges_invalidos[0]["angle"] = "angulo_prohibido"
+    
+    with pytest.raises(ValueError, match="Bridges inválidos"):
+        agregar_bridges(conn, "hub_demo_4", bridges_invalidos)
+
     # Intentar INSERT directo en SQLite violando CHECK constraint
     with pytest.raises(sqlite3.IntegrityError):
         conn.execute("INSERT INTO concept_hub_bridges (hub_id, bridge_text, angle) VALUES ('hub_demo_4', 'texto test', 'angulo_prohibido')")
@@ -156,16 +155,13 @@ def test_06_eliminar_hub_cascade(test_db):
     """6. Eliminar un hub elimina sus bridges y nodos hijos (CASCADE y función explícita)."""
     conn, _ = test_db
     crear_hub(conn, "hub_para_borrar", "nodo_canónico_demo")
-    agregar_bridges(conn, "hub_para_borrar", [
-        {"text": "puente uno para borrar", "angle": "sinonimo"},
-        {"text": "puente dos para borrar", "angle": "problema"}
-    ])
+    agregar_bridges(conn, "hub_para_borrar", BRIDGES_5_VALIDOS)
     agregar_nodos(conn, "hub_para_borrar", ["nodo_secundario_demo"])
     
     res = eliminar_hub(conn, "hub_para_borrar")
     assert res["status"] == "ok"
-    assert res["bridges_eliminados"] == 2
-    assert res["nodos_eliminados"] == 2 # canonical + secundario
+    assert res["bridges_eliminados"] == 5
+    assert res["nodos_eliminados"] == 2  # canonical + secundario
 
     cur = conn.cursor()
     cur.execute("SELECT COUNT(*) FROM concept_hub_bridges WHERE hub_id = 'hub_para_borrar'")
@@ -178,9 +174,7 @@ def test_07_actualizar_hub_preserva_bridges(test_db):
     """7. Actualizar un hub con crear_hub() no elimina sus bridges existentes (prueba contra bug de INSERT OR REPLACE)."""
     conn, _ = test_db
     crear_hub(conn, "hub_actualizable", "nodo_canónico_demo", description="Versión 1")
-    agregar_bridges(conn, "hub_actualizable", [
-        {"text": "puente valioso que no debe perderse", "angle": "sinonimo"}
-    ])
+    agregar_bridges(conn, "hub_actualizable", BRIDGES_5_VALIDOS)
     
     # Actualizar descripción o canonical
     crear_hub(conn, "hub_actualizable", "nodo_secundario_demo", description="Versión 2 actualizada")
@@ -188,18 +182,14 @@ def test_07_actualizar_hub_preserva_bridges(test_db):
     cur = conn.cursor()
     cur.execute("SELECT bridge_text FROM concept_hub_bridges WHERE hub_id = 'hub_actualizable'")
     bridges_restantes = cur.fetchall()
-    assert len(bridges_restantes) == 1
-    assert bridges_restantes[0][0] == "puente valioso que no debe perderse"
+    assert len(bridges_restantes) == 5
 
 
 def test_08_query_coincide_bridge_recupera_canonical(test_db):
     """8. Una query coincide con el bridge y recupera el canonical_node."""
     conn, _ = test_db
     crear_hub(conn, "hub_busqueda", "nodo_canónico_demo", description="Hub de recuperación")
-    agregar_bridges(conn, "hub_busqueda", [
-        {"text": "trabajos previos antes de programar en it", "angle": "ingenuo"},
-        {"text": "oficios manuales del campo", "angle": "sinonimo"}
-    ])
+    agregar_bridges(conn, "hub_busqueda", BRIDGES_5_VALIDOS)
     
     exp = expandir_query_con_hub("trabajos antes de programar", conn, threshold=0.20)
     assert exp is not None
@@ -208,21 +198,39 @@ def test_08_query_coincide_bridge_recupera_canonical(test_db):
 
 
 def test_09_compatibilidad_formato_legacy(test_db):
-    """9. El formato nuevo (dict con ángulos) y el formato antiguo (strings) son compatibles."""
+    """9. El formato legacy (5 strings) se convierte a 5 ángulos en orden."""
     conn, _ = test_db
     crear_hub(conn, "hub_legacy", "nodo_canónico_demo")
     
-    # Formato antiguo: lista de strings
+    # Formato legacy: exactamente 5 strings → se asignan ángulos en orden
     bridges_strings = [
-        "primer puente en formato texto plano",
-        "segundo puente en formato texto plano"
+        "primer puente sinonimo valido",
+        "segundo puente problema valido", 
+        "tercer puente solucion valido",
+        "cuarto puente situacion valido",
+        "quinto puente ingenuo valido",
     ]
     res = agregar_bridges(conn, "hub_legacy", bridges_strings)
     assert res["status"] == "ok"
-    assert res["bridges_agregados"] == 2
+    assert res["bridges_agregados"] == 5
     
     cur = conn.cursor()
-    cur.execute("SELECT bridge_text, angle FROM concept_hub_bridges WHERE hub_id = 'hub_legacy'")
+    cur.execute("SELECT bridge_text, angle FROM concept_hub_bridges WHERE hub_id = 'hub_legacy' ORDER BY angle")
     rows = cur.fetchall()
-    assert len(rows) == 2
-    assert all(r[1] == "legacy" for r in rows)
+    assert len(rows) == 5
+    # Verificar que tienen los 5 ángulos oficiales
+    angulos = {r[1] for r in rows}
+    assert angulos == set(ANGULOS_OFICIALES)
+
+
+def test_10_validar_bridges_funcion_directa():
+    """10. La función validar_bridges se puede usar directamente."""
+    validos, rechazados = validar_bridges(BRIDGES_5_VALIDOS, "demo_test")
+    assert len(validos) == 5
+    assert len(rechazados) == 0
+    assert {b["angle"] for b in validos} == set(ANGULOS_OFICIALES)
+
+    # Test con bridges inválidos
+    validos, rechazados = validar_bridges([{"text": "corto", "angle": "sinonimo"}], "demo")
+    assert len(validos) == 0
+    assert len(rechazados) > 0

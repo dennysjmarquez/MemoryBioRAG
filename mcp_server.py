@@ -1772,110 +1772,9 @@ def _build_server():
     # El @mcp.tool va en biorag_aprender (función pública) y en biorag_guardar (legado).
     # NO decorar _aprender_impl directamente — el agente no vería los parámetros bien.
 
-    ANGULOS_OFICIALES = ('sinonimo', 'problema', 'solucion', 'situacion', 'ingenuo')
-    ANGULOS_SET = set(ANGULOS_OFICIALES)
-
-    def _validar_bridges(bridges: Any, clave: str) -> tuple:
-        """Valida una lista de bridges con los 5 ángulos semánticos ANTES de guardar nada.
-        Retorna (validos: list[dict], rechazados: list[str]).
-        Se ejecuta antes de tocar la DB — un rechazo no deja estado a medias."""
-        from core.stopwords import STOPWORDS_ES
-        from core.stemmer_es import stem
-
-        validos = []
-        rechazados = []
-
-        if not bridges:
-            return [], ["No se enviaron bridges (se requieren exactamente 5 bridges con los 5 ángulos semánticos)."]
-
-        # Parsear si viene como string JSON o string con pipes
-        if isinstance(bridges, str):
-            s_val = bridges.strip()
-            if s_val.startswith("[") and s_val.endswith("]"):
-                try:
-                    bridges = json.loads(s_val)
-                except Exception:
-                    pass
-            elif "|" in s_val:
-                bridges = [p.strip() for p in s_val.split("|") if p.strip()]
-            else:
-                bridges = [s_val]
-
-        if not isinstance(bridges, list):
-            return [], [f"Formato inválido de bridges: se esperaba una lista de dicts o strings, recibido {type(bridges).__name__}"]
-
-        # Compatibilidad: Si viene lista de strings (legacy format)
-        items_procesados = []
-        if all(isinstance(x, str) for x in bridges):
-            # Si vienen exactamente 5 strings, asignar en orden los 5 ángulos oficiales
-            if len(bridges) == 5:
-                for b_text, ang in zip(bridges, ANGULOS_OFICIALES):
-                    items_procesados.append({"text": b_text.strip(), "angle": ang, "weight": 1.0})
-            else:
-                for b_text in bridges:
-                    items_procesados.append({"text": b_text.strip(), "angle": "legacy", "weight": 1.0})
-        elif all(isinstance(x, dict) for x in bridges):
-            items_procesados = bridges
-        else:
-            for x in bridges:
-                if isinstance(x, dict):
-                    items_procesados.append(x)
-                elif isinstance(x, str):
-                    items_procesados.append({"text": x.strip(), "angle": "legacy", "weight": 1.0})
-
-        stems_clave = {stem(w) for w in clave.lower().replace("_", " ").split() if len(w) > 2}
-        vistos_textos = set()
-        angulos_cubiertos = set()
-
-        for item in items_procesados:
-            if not isinstance(item, dict):
-                rechazados.append(f"Elemento no es un dict válido: {item}")
-                continue
-
-            text = (item.get("text") or "").strip()
-            angle = (item.get("angle") or "").strip().lower()
-            weight = float(item.get("weight", 1.0))
-
-            if not text:
-                rechazados.append("Bridge con texto vacío")
-                continue
-
-            words = text.lower().split()
-            content_words = [w for w in words if w not in STOPWORDS_ES and len(w) > 2]
-            if len(content_words) < 2:
-                rechazados.append(f'"{text}" (< 2 palabras de contenido real)')
-                continue
-
-            # Stemming anti-destinatario
-            stems_bridge = {stem(w) for w in content_words}
-            if stems_clave and stems_bridge.issubset(stems_clave):
-                rechazados.append(f'"{text}" (es una variación morfológica del nombre del nodo — un puente debe usar vocabulario diferente)')
-                continue
-
-            text_norm = text.lower()
-            if text_norm in vistos_textos:
-                rechazados.append(f'"{text}" (texto repetido)')
-                continue
-
-            if angle not in ANGULOS_SET:
-                rechazados.append(f'"{text}" tiene ángulo inválido "{angle}". Permitidos: {list(ANGULOS_OFICIALES)}')
-                continue
-
-            if angle in angulos_cubiertos:
-                rechazados.append(f'"{text}" repite el ángulo "{angle}" (cada bridge debe tener un ángulo distinto)')
-                continue
-
-            vistos_textos.add(text_norm)
-            angulos_cubiertos.add(angle)
-            validos.append({"text": text, "angle": angle, "weight": weight})
-
-        # Verificar que estén exactamente los 5 ángulos oficiales
-        if len(validos) != 5 or angulos_cubiertos != ANGULOS_SET:
-            faltantes = list(ANGULOS_SET - angulos_cubiertos)
-            if faltantes:
-                rechazados.append(f"Faltan bridges para los ángulos: {faltantes}")
-
-        return validos, rechazados
+    # Validación de bridges movida a core.concept_hub.validar_bridges
+    # para unificar la validación en un solo lugar (core + MCP).
+    from core.concept_hub import validar_bridges
 
     def _aprender_impl(
         concepto: str,
@@ -1894,7 +1793,8 @@ def _build_server():
         # intento fallido no deja ningún estado a medias: el agente reintenta
         # con el mismo concepto/contenido y bridges corregidos, sin duplicados
         # ni nodos huérfanos.
-        bridges_validos, bridges_rechazados = _validar_bridges(bridges, clave)
+        from core.concept_hub import validar_bridges
+        bridges_validos, bridges_rechazados = validar_bridges(bridges, clave)
         if len(bridges_validos) != 5:
             return json.dumps({
                 "status": "error",

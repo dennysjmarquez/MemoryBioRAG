@@ -38,6 +38,114 @@ from typing import Optional, List, Dict, Any, Tuple, Union
 ANGULOS_OFICIALES = ('sinonimo', 'problema', 'solucion', 'situacion', 'ingenuo')
 ANGULOS_VALIDOS = set(ANGULOS_OFICIALES) | {'legacy'}
 
+# ─── VALIDACIÓN DE BRIDGES (5 ángulos obligatorios) ───
+
+def validar_bridges(bridges: Any, clave: str) -> Tuple[List[Dict[str, Any]], List[str]]:
+    """
+    Valida una lista de bridges con los 5 ángulos semánticos ANTES de guardar nada.
+    Retorna (validos: list[dict], rechazados: list[str]).
+    Se ejecuta antes de tocar la DB — un rechazo no deja estado a medias.
+    """
+    import json
+    from core.stopwords import STOPWORDS_ES
+    from core.stemmer_es import stem
+
+    validos = []
+    rechazados = []
+
+    if not bridges:
+        return [], ["No se enviaron bridges (se requieren exactamente 5 bridges con los 5 ángulos semánticos)."]
+
+    # Parsear si viene como string JSON o string con pipes
+    if isinstance(bridges, str):
+        s_val = bridges.strip()
+        if s_val.startswith("[") and s_val.endswith("]"):
+            try:
+                bridges = json.loads(s_val)
+            except Exception:
+                pass
+        elif "|" in s_val:
+            bridges = [p.strip() for p in s_val.split("|") if p.strip()]
+        else:
+            bridges = [s_val]
+
+    if not isinstance(bridges, list):
+        return [], [f"Formato inválido de bridges: se esperaba una lista de dicts o strings, recibido {type(bridges).__name__}"]
+
+    # Compatibilidad: Si viene lista de strings (legacy format)
+    items_procesados = []
+    if all(isinstance(x, str) for x in bridges):
+        # Si vienen exactamente 5 strings, asignar en orden los 5 ángulos oficiales
+        if len(bridges) == 5:
+            for b_text, ang in zip(bridges, ANGULOS_OFICIALES):
+                items_procesados.append({"text": b_text.strip(), "angle": ang, "weight": 1.0})
+        else:
+            for b_text in bridges:
+                items_procesados.append({"text": b_text.strip(), "angle": "legacy", "weight": 1.0})
+    elif all(isinstance(x, dict) for x in bridges):
+        items_procesados = bridges
+    else:
+        for x in bridges:
+            if isinstance(x, dict):
+                items_procesados.append(x)
+            elif isinstance(x, str):
+                items_procesados.append({"text": x.strip(), "angle": "legacy", "weight": 1.0})
+
+    stems_clave = {stem(w) for w in clave.lower().replace("_", " ").split() if len(w) > 2}
+    vistos_textos = set()
+    angulos_cubiertos = set()
+
+    for item in items_procesados:
+        if not isinstance(item, dict):
+            rechazados.append(f"Elemento no es un dict válido: {item}")
+            continue
+
+        text = (item.get("text") or "").strip()
+        angle = (item.get("angle") or "").strip().lower()
+        weight = float(item.get("weight", 1.0))
+
+        if not text:
+            rechazados.append("Bridge con texto vacío")
+            continue
+
+        words = text.lower().split()
+        content_words = [w for w in words if w not in STOPWORDS_ES and len(w) > 2]
+        if len(content_words) < 2:
+            rechazados.append(f'"{text}" (< 2 palabras de contenido real)')
+            continue
+
+        # Stemming anti-destinatario
+        stems_bridge = {stem(w) for w in content_words}
+        if stems_clave and stems_bridge.issubset(stems_clave):
+            rechazados.append(f'"{text}" (es una variación morfológica del nombre del nodo — un puente debe usar vocabulario diferente)')
+            continue
+
+        text_norm = text.lower()
+        if text_norm in vistos_textos:
+            rechazados.append(f'"{text}" (texto repetido)')
+            continue
+
+        if angle not in set(ANGULOS_OFICIALES):
+            rechazados.append(f'"{text}" tiene ángulo inválido "{angle}". Permitidos: {list(ANGULOS_OFICIALES)}')
+            continue
+
+        if angle in angulos_cubiertos:
+            rechazados.append(f'"{text}" repite el ángulo "{angle}" (cada bridge debe tener un ángulo distinto)')
+            continue
+
+        vistos_textos.add(text_norm)
+        angulos_cubiertos.add(angle)
+        validos.append({"text": text, "angle": angle, "weight": weight})
+
+    # Verificar que estén exactamente los 5 ángulos oficiales
+    if len(validos) != 5 or angulos_cubiertos != set(ANGULOS_OFICIALES):
+        faltantes = list(set(ANGULOS_OFICIALES) - angulos_cubiertos)
+        if faltantes:
+            rechazados.append(f"Faltan bridges para los ángulos: {faltantes}")
+
+    return validos, rechazados
+
+
 # ─── DDL DE TABLAS ───
 
 CREATE_TABLES_SQL = """
@@ -169,20 +277,38 @@ def agregar_bridges(conn: sqlite3.Connection, hub_id: str, bridges: Union[List[D
     """
     Agrega bridges a un hub existente.
     bridges: lista de dicts {'text': str, 'angle': str, 'weight': float} o lista de strings.
+    VALIDACIÓN OBLIGATORIA: exactamente 5 bridges con los 5 ángulos semánticos oficiales.
     """
-    insertados = 0
-    for b in bridges:
-        if isinstance(b, str):
-            text = b.strip()
-            angle = "legacy"
-            weight = 1.0
-        else:
-            text = b.get("text", "").strip()
-            angle = b.get("angle", "legacy")
-            weight = float(b.get("weight", 1.0))
+    # Derivar clave del hub_id para validación anti-destinatario
+    clave = hub_id.replace("hub_", "")
+    
+    # VALIDACIÓN OBLIGATORIA — ANTES de tocar la DB
+    bridges_validos, rechazados = validar_bridges(bridges, clave)
+    if len(bridges_validos) != 5:
+        raise ValueError(
+            f"Bridges inválidos ({len(bridges_validos)}/5 válidos). "
+            + (f"Motivos de rechazo: {'; '.join(rechazados)}. " if rechazados else "")
+            + "Se requieren exactamente 5 bridges válidos cubriendo los 5 ángulos semánticos distintos:\n"
+            "  1. 'sinonimo': mismo significado con otro vocabulario\n"
+            "  2. 'problema': dolor o falla que resuelve este nodo\n"
+            "  3. 'solucion': técnica o herramienta que aplica este nodo\n"
+            "  4. 'situacion': caso de uso, rol o contexto de búsqueda\n"
+            "  5. 'ingenuo': búsqueda sin tecnicismos (cómo lo googlearía un novato)\n\n"
+            "Ejemplo en JSON/dict:\n"
+            "bridges=[\n"
+            "  {'text': 'modo reposo del sistema de memoria', 'angle': 'sinonimo'},\n"
+            "  {'text': 'proceso que genera ideas en silencio', 'angle': 'problema'},\n"
+            "  {'text': 'hilos de pensamiento espontaneo', 'angle': 'solucion'},\n"
+            "  {'text': 'cerebro piensa solo cuando nadie pregunta', 'angle': 'situacion'},\n"
+            "  {'text': 'que pasa cuando no hay actividad en BioRAG', 'angle': 'ingenuo'}\n"
+            "]"
+        )
 
-        if angle not in ANGULOS_VALIDOS:
-            raise ValueError(f"Ángulo inválido '{angle}'. Valores permitidos: {sorted(ANGULOS_VALIDOS)}")
+    insertados = 0
+    for b in bridges_validos:
+        text = b["text"].strip()
+        angle = b["angle"].strip().lower()
+        weight = float(b.get("weight", 1.0))
 
         if text:
             conn.execute(
