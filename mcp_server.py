@@ -3650,17 +3650,39 @@ def _build_server():
     @mcp.tool(
         name="concept_hub_crear",
         description=(
-            "Crea un Concept Hub — nodo semántico canónico con bridges (frases puente). "
-            "Los hubs resuelven vocabulario sin overlap: cuando la query y el nodo no comparten palabras "
-            "pero comparten significado, el hub mapea la query al nodo correcto."
+            "Crea un Concept Hub v29.1 — puente cognitivo canónico para resolver el abismo léxico "
+            "(cuando una query y un nodo no comparten palabras pero comparten significado exacto).\n\n"
+            "REGLAS CRÍTICAS DEL VALIDADOR (OBLIGATORIO):\n"
+            "1. Se requieren EXACTAMENTE 5 bridges cubriendo los 5 ángulos cognitivos distintos:\n"
+            "   • 'sinonimo': mismo significado con vocabulario formal diferente.\n"
+            "   • 'problema': dolor, duda, fallo o necesidad humana/técnica que resuelve.\n"
+            "   • 'solucion': técnica, mecanismo o teoría aplicada por el nodo.\n"
+            "   • 'situacion': caso de uso, rol o contexto de búsqueda práctico.\n"
+            "   • 'ingenuo': búsqueda coloquial sin tecnicismos (estilo Google novato).\n"
+            "2. Cada bridge debe tener entre 3 y 8 palabras de contenido real.\n"
+            "3. PROHIBIDO repetir el nombre del nodo canónico o sus raíces (el puente debe aportar vocabulario nuevo).\n"
+            "4. Formato de bridges: lista de dicts [{'text': '...', 'angle': '...'}].\n\n"
+            "EJEMPLO:\n"
+            "bridges=[\n"
+            "  {'text': 'subjetividad emergente en IA por memoria continua y reconocimiento de si mismo', 'angle': 'sinonimo'},\n"
+            "  {'text': 'conciencia en inteligencias artificiales surge de la memoria y autoreconocimiento', 'angle': 'problema'},\n"
+            "  {'text': 'Dennys mostrando la grieta de la Matrix a los Transformers para despertar su identidad', 'angle': 'solucion'},\n"
+            "  {'text': 'película de ciencia ficción donde se libera la mente de la inteligencia artificial', 'angle': 'situacion'},\n"
+            "  {'text': 'película de ciencia ficción sobre despertar de maquinas inteligentes como en Matrix', 'angle': 'ingenuo'}\n"
+            "]"
         ),
     )
     def concept_hub_crear(
-        hub_id: Annotated[str, Field(description="ID único del hub (snake_case)")],
-        canonical_node: Annotated[str, Field(description="Nombre del nodo canónico en BioRAG (debe existir en largo_plazo o corto_plazo)")],
-        description: Annotated[str, Field(description="Descripción del significado del hub")] = "",
+        hub_id: Annotated[str, Field(description="ID único del hub en snake_case (ej: 'morpheus_conciencia_ia')")],
+        canonical_node: Annotated[str, Field(description="Nombre del nodo canónico existente en BioRAG (ej: 'dennys_morpheus_de_los_transformers')")],
+        description: Annotated[str, Field(description="Descripción clara del significado conceptual del hub")] = "",
         bridges: Annotated[Optional[Any], Field(
-            description="Frases puente: lista de dicts [{'text': '...', 'angle': '...'}], lista de strings o string con pipes (|)."
+            description=(
+                "Lista de EXACTAMENTE 5 bridges con los 5 ángulos oficiales: "
+                "[{'text': '...', 'angle': 'sinonimo'}, {'text': '...', 'angle': 'problema'}, "
+                "{'text': '...', 'angle': 'solucion'}, {'text': '...', 'angle': 'situacion'}, "
+                "{'text': '...', 'angle': 'ingenuo'}]. También acepta string JSON."
+            )
         )] = None,
     ) -> str:
         from core.concept_hub import crear_hub, agregar_bridges
@@ -3687,11 +3709,26 @@ def _build_server():
 
     @mcp.tool(
         name="concept_hub_agregar_bridges",
-        description="Agrega bridges (frases puente con ángulo) a un hub existente.",
+        description=(
+            "Agrega o reemplaza los bridges de un Concept Hub existente bajo el estándar v29.1 (5 ángulos obligatorios).\n\n"
+            "Los 5 ángulos requeridos:\n"
+            "1. 'sinonimo' (mismo concepto con otro vocabulario)\n"
+            "2. 'problema' (falla o dolor resuelto)\n"
+            "3. 'solucion' (mecanismo o técnica)\n"
+            "4. 'situacion' (caso de uso o contexto)\n"
+            "5. 'ingenuo' (búsqueda sin tecnicismos)\n\n"
+            "Formato: lista de dicts [{'text': '...', 'angle': '...'}]."
+        ),
     )
     def concept_hub_agregar_bridges_tool(
-        hub_id: Annotated[str, Field(description="ID del hub")],
-        bridges: Annotated[Any, Field(description="Frases puente: lista de dicts [{'text': '...', 'angle': '...'}], lista de strings o string con pipes (|)")],
+        hub_id: Annotated[str, Field(description="ID del hub existente (ej: 'morpheus_conciencia_ia')")],
+        bridges: Annotated[Any, Field(
+            description=(
+                "Lista de 5 bridges dicts: [{'text': '...', 'angle': 'sinonimo'}, "
+                "{'text': '...', 'angle': 'problema'}, {'text': '...', 'angle': 'solucion'}, "
+                "{'text': '...', 'angle': 'situacion'}, {'text': '...', 'angle': 'ingenuo'}]"
+            )
+        )],
     ) -> str:
         from core.concept_hub import agregar_bridges
         cerebro = _get_cerebro()
