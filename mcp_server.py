@@ -859,6 +859,14 @@ def _build_server():
                 )
             score_top = resultados[0][4] if resultados else 0
 
+            # Guardar total real ANTES de que filtros/truncación lo sobreescriban.
+            # total se usa para paginas_totales y el campo "total" del JSON.
+            # Los filtros posteriores (límite, umbral, autor) reducen resultados
+            # pero el total debe reflejar cuántos había realmente para paginación.
+            _total_real = total
+            # Calcular paginas_totales AHORA, antes de que filtros modifiquen 'total'
+            _paginas_totales_real = math.ceil(_total_real / (limite if (limite and limite > 0) else 1))
+
             # Trazaabilidad: tracking de scores por capa
             score_parafrasis_best = 0.0
             resultados_rafaga = []
@@ -1143,8 +1151,10 @@ def _build_server():
                     "El campo 'edad_dias' indica la edad real. Considerá actualizar o verificar su vigencia."
                 )
 
+            # Restaurar total real para paginación (fue sobreescrito por filtros)
+            total = _total_real
             limite_den = limite if (limite and limite > 0) else 1
-            paginas_totales = math.ceil(total / limite_den)
+            paginas_totales = _paginas_totales_real
 
             # Trazaabilidad: info de debugging por capa
             _last_todos = getattr(cerebro, 'last_todos', [])

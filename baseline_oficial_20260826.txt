@@ -1,0 +1,433 @@
+BIORAG QA EVALUATION REPORT - BASELINE OFICIAL 2026-08-26
+================================================================================
+$ ./scripts/run_qa_suite.sh
+Cargando variables desde .env.local...
+Usando BIORAG_PATH configurado: /mnt/recursos_compartidos_y_otros/MemoryBioRAG/MemoryBioRAG_Data/memory_biorag.db
+================================================================================
+          INICIANDO SUITE INTEGRAL DE CALIDAD Y REGRESIÓN BIORAG
+================================================================================
+
+─── [1/4] TESTS UNITARIOS (Pytest) ─────────────────────────────────────────────
+================================================= test session starts ==================================================
+platform linux -- Python 3.12.3, pytest-9.1.1, pluggy-1.6.0 -- /usr/bin/python3
+cachedir: .pytest_cache
+rootdir: /mnt/recursos_compartidos_y_otros/MemoryBioRAG
+plugins: anyio-4.13.0, langsmith-0.8.5
+collected 33 items                                                                                                     
+
+tests/test_calibracion_conforme.py::TestUmbralConforme::test_alpha_controla_fp PASSED                            [  3%]
+tests/test_calibracion_conforme.py::TestUmbralConforme::test_platt_probabilidad_creciente_con_score PASSED       [  6%]
+tests/test_calibracion_conforme.py::TestUmbralConforme::test_umbral_es_percentil_no_valor_absoluto PASSED        [  9%]
+tests/test_calibracion_conforme.py::TestCalibracionPersistente::test_calibrar_y_persistir_crea_tabla PASSED      [ 12%]
+tests/test_calibracion_conforme.py::TestCalibracionPersistente::test_confianza_calibrada_sin_calibrador_es_score_crudo PASSED [ 15%]
+tests/test_calibracion_conforme.py::TestCalibracionPersistente::test_feedback_propaga_util_entre_instancias PASSED [ 18%]
+tests/test_calibracion_conforme.py::TestCalibracionPersistente::test_nivel_certeza_tres_niveles_sin_silencio PASSED [ 21%]
+tests/test_concept_hub_5_angulos.py::test_01_hub_valido_5_angulos PASSED                                         [ 24%]
+tests/test_concept_hub_5_angulos.py::test_02_hub_4_bridges_rechazado PASSED                                      [ 27%]
+tests/test_concept_hub_5_angulos.py::test_03_bridges_duplicados_o_mismo_angulo_rechazados PASSED                 [ 30%]
+tests/test_concept_hub_5_angulos.py::test_04_angle_invalido_rechazado PASSED                                     [ 33%]
+tests/test_concept_hub_5_angulos.py::test_05_canonical_node_inexistente_rechazado PASSED                         [ 36%]
+tests/test_concept_hub_5_angulos.py::test_06_eliminar_hub_cascade PASSED                                         [ 39%]
+tests/test_concept_hub_5_angulos.py::test_07_actualizar_hub_preserva_bridges PASSED                              [ 42%]
+tests/test_concept_hub_5_angulos.py::test_08_query_coincide_bridge_recupera_canonical PASSED                     [ 45%]
+tests/test_concept_hub_5_angulos.py::test_09_compatibilidad_formato_legacy PASSED                                [ 48%]
+tests/test_concept_hub_5_angulos.py::test_10_validar_bridges_funcion_directa PASSED                              [ 51%]
+tests/test_eval_causal_srl.py::TestEvalCausalSRL::test_buscar_por_frase_abstracta_con_fallback_srl PASSED        [ 54%]
+tests/test_eval_causal_srl.py::TestEvalCausalSRL::test_extractor_srl_determinista PASSED                         [ 57%]
+tests/test_eval_causal_srl.py::TestEvalCausalSRL::test_fallback_busqueda_predicados_directo PASSED               [ 60%]
+tests/test_sdm_completo.py::test_01_vectores_con_contenido PASSED                                                [ 63%]
+tests/test_sdm_completo.py::test_02_datos_reales_completos PASSED                                                [ 66%]
+tests/test_sdm_completo.py::test_03_busqueda_query_by_example PASSED                                             [ 69%]
+tests/test_sdm_diverso.py::test_01_sononimos_tecnicos PASSED                                                     [ 72%]
+tests/test_sdm_diverso.py::test_02_abreviaturas PASSED                                                           [ 75%]
+tests/test_sdm_diverso.py::test_03_cross_domain PASSED                                                           [ 78%]
+tests/test_sdm_diverso.py::test_04_texto_largo_vs_corto PASSED                                                   [ 81%]
+tests/test_sdm_diverso.py::test_05_query_by_example_real PASSED                                                  [ 84%]
+tests/test_sdm_query_by_example.py::test_01_vectores_mismas_dimensiones PASSED                                   [ 87%]
+tests/test_sdm_query_by_example.py::test_02_vectores_mismos_vecinos PASSED                                       [ 90%]
+tests/test_sdm_query_by_example.py::test_03_bit_masking PASSED                                                   [ 93%]
+tests/test_sdm_query_by_example.py::test_04_reponderar_vectores PASSED                                           [ 96%]
+tests/test_sdm_query_by_example.py::test_05_datos_reales PASSED                                                  [100%]
+
+=================================================== warnings summary ===================================================
+tests/test_sdm_completo.py::test_01_vectores_con_contenido
+  /home/dennys/.local/lib/python3.12/site-packages/_pytest/python.py:171: PytestReturnNotNoneWarning: Test functions should return None, but tests/test_sdm_completo.py::test_01_vectores_con_contenido returned <class 'bool'>.
+  Did you mean to use `assert` instead of `return`?
+  See https://docs.pytest.org/en/stable/how-to/assert.html#return-not-none for more information.
+    warnings.warn(
+
+tests/test_sdm_completo.py::test_02_datos_reales_completos
+  /home/dennys/.local/lib/python3.12/site-packages/_pytest/python.py:171: PytestReturnNotNoneWarning: Test functions should return None, but tests/test_sdm_completo.py::test_02_datos_reales_completos returned <class 'bool'>.
+  Did you mean to use `assert` instead of `return`?
+  See https://docs.pytest.org/en/stable/how-to/assert.html#return-not-none for more information.
+    warnings.warn(
+
+tests/test_sdm_completo.py::test_03_busqueda_query_by_example
+  /home/dennys/.local/lib/python3.12/site-packages/_pytest/python.py:171: PytestReturnNotNoneWarning: Test functions should return None, but tests/test_sdm_completo.py::test_03_busqueda_query_by_example returned <class 'bool'>.
+  Did you mean to use `assert` instead of `return`?
+  See https://docs.pytest.org/en/stable/how-to/assert.html#return-not-none for more information.
+    warnings.warn(
+
+tests/test_sdm_diverso.py::test_01_sononimos_tecnicos
+  /home/dennys/.local/lib/python3.12/site-packages/_pytest/python.py:171: PytestReturnNotNoneWarning: Test functions should return None, but tests/test_sdm_diverso.py::test_01_sononimos_tecnicos returned <class 'bool'>.
+  Did you mean to use `assert` instead of `return`?
+  See https://docs.pytest.org/en/stable/how-to/assert.html#return-not-none for more information.
+    warnings.warn(
+
+tests/test_sdm_diverso.py::test_02_abreviaturas
+  /home/dennys/.local/lib/python3.12/site-packages/_pytest/python.py:171: PytestReturnNotNoneWarning: Test functions should return None, but tests/test_sdm_diverso.py::test_02_abreviaturas returned <class 'bool'>.
+  Did you mean to use `assert` instead of `return`?
+  See https://docs.pytest.org/en/stable/how-to/assert.html#return-not-none for more information.
+    warnings.warn(
+
+tests/test_sdm_diverso.py::test_03_cross_domain
+  /home/dennys/.local/lib/python3.12/site-packages/_pytest/python.py:171: PytestReturnNotNoneWarning: Test functions should return None, but tests/test_sdm_diverso.py::test_03_cross_domain returned <class 'bool'>.
+  Did you mean to use `assert` instead of `return`?
+  See https://docs.pytest.org/en/stable/how-to/assert.html#return-not-none for more information.
+    warnings.warn(
+
+tests/test_sdm_diverso.py::test_04_texto_largo_vs_corto
+  /home/dennys/.local/lib/python3.12/site-packages/_pytest/python.py:171: PytestReturnNotNoneWarning: Test functions should return None, but tests/test_sdm_diverso.py::test_04_texto_largo_vs_corto returned <class 'bool'>.
+  Did you mean to use `assert` instead of `return`?
+  See https://docs.pytest.org/en/stable/how-to/assert.html#return-not-none for more information.
+    warnings.warn(
+
+tests/test_sdm_diverso.py::test_05_query_by_example_real
+  /home/dennys/.local/lib/python3.12/site-packages/_pytest/python.py:171: PytestReturnNotNoneWarning: Test functions should return None, but tests/test_sdm_diverso.py::test_05_query_by_example_real returned <class 'bool'>.
+  Did you mean to use `assert` instead of `return`?
+  See https://docs.pytest.org/en/stable/how-to/assert.html#return-not-none for more information.
+    warnings.warn(
+
+tests/test_sdm_query_by_example.py::test_01_vectores_mismas_dimensiones
+  /home/dennys/.local/lib/python3.12/site-packages/_pytest/python.py:171: PytestReturnNotNoneWarning: Test functions should return None, but tests/test_sdm_query_by_example.py::test_01_vectores_mismas_dimensiones returned <class 'bool'>.
+  Did you mean to use `assert` instead of `return`?
+  See https://docs.pytest.org/en/stable/how-to/assert.html#return-not-none for more information.
+    warnings.warn(
+
+tests/test_sdm_query_by_example.py::test_02_vectores_mismos_vecinos
+  /home/dennys/.local/lib/python3.12/site-packages/_pytest/python.py:171: PytestReturnNotNoneWarning: Test functions should return None, but tests/test_sdm_query_by_example.py::test_02_vectores_mismos_vecinos returned <class 'bool'>.
+  Did you mean to use `assert` instead of `return`?
+  See https://docs.pytest.org/en/stable/how-to/assert.html#return-not-none for more information.
+    warnings.warn(
+
+tests/test_sdm_query_by_example.py::test_03_bit_masking
+  /home/dennys/.local/lib/python3.12/site-packages/_pytest/python.py:171: PytestReturnNotNoneWarning: Test functions should return None, but tests/test_sdm_query_by_example.py::test_03_bit_masking returned <class 'bool'>.
+  Did you mean to use `assert` instead of `return`?
+  See https://docs.pytest.org/en/stable/how-to/assert.html#return-not-none for more information.
+    warnings.warn(
+
+tests/test_sdm_query_by_example.py::test_04_reponderar_vectores
+  /home/dennys/.local/lib/python3.12/site-packages/_pytest/python.py:171: PytestReturnNotNoneWarning: Test functions should return None, but tests/test_sdm_query_by_example.py::test_04_reponderar_vectores returned <class 'bool'>.
+  Did you mean to use `assert` instead of `return`?
+  See https://docs.pytest.org/en/stable/how-to/assert.html#return-not-none for more information.
+    warnings.warn(
+
+tests/test_sdm_query_by_example.py::test_05_datos_reales
+  /home/dennys/.local/lib/python3.12/site-packages/_pytest/python.py:171: PytestReturnNotNoneWarning: Test functions should return None, but tests/test_sdm_query_by_example.py::test_05_datos_reales returned <class 'bool'>.
+  Did you mean to use `assert` instead of `return`?
+  See https://docs.pytest.org/en/stable/how-to/assert.html#return-not-none for more information.
+    warnings.warn(
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================================== 33 passed, 13 warnings in 14.31s ===========================================
+
+─── [2/4] INVARIANTES DE SCORING HÍBRIDO (Monotonía y Preservación) ────────────
+==================================================================
+  Tests de regresión del scoring híbrido (bugs 1.2 y 1.3)
+==================================================================
+
+TEST 1 — rama sinónimos preserva el orden interno
+        bm25=0.0 -> score=0.1134
+        bm25=0.2 -> score=0.1770
+        bm25=0.4 -> score=0.2360
+        bm25=0.6 -> score=0.2906
+        bm25=0.8 -> score=0.3415
+        bm25=1.0 -> score=0.3889
+  OK    salidas distintas para entradas distintas
+  OK    orden monótono no decreciente
+
+TEST 2 — match_exacto preserva el orden interno
+        bm25=0.1 -> score=0.2379
+        bm25=0.3 -> score=0.4920
+        bm25=0.5 -> score=0.6256
+        bm25=0.7 -> score=0.7080
+  OK    salidas distintas
+  OK    orden monótono
+
+TEST 3 — normalización coherente con los pesos reales
+        todas las señales al máximo -> score=0.9481
+  OK    score máximo cerca del techo teórico
+        todas las señales a cero    -> score=0.0000
+  OK    score mínimo es 0.0
+
+TEST 4 — monotonía por señal individual
+  OK    'bm25_norm' es monótona
+  OK    'dim_score' es monótona
+  OK    'concepto_ratio' es monótona
+  OK    'peso_sinaptico' es monótona
+  OK    'grupo_score' es monótona
+  OK    'tematico_score' es monótona
+  OK    'temporal' es monótona
+  OK    'pred_score' es monótona
+  OK    'ppmi_score' es monótona
+
+==================================================================
+RESULTADO: todos los tests pasan
+
+─── [3/4] SUITE CONCEPT HUB (Búsqueda Semántica Pura sin Overlap Léxico) ───────
+======================================================================
+EVALUACIÓN CONCEPT HUB — FASE 2: Vocabulario sin overlap
+======================================================================
+
+[INFO] DB: /mnt/recursos_compartidos_y_otros/MemoryBioRAG/MemoryBioRAG_Data/memory_biorag_test.db
+[INFO] Nodos activos: 932
+[INFO] Concept Hubs: 11
+[INFO] Bridges: 68
+
+──────────────────────────────────────────────────────────────────────
+CASO 1: Empleos previos a IT
+  Query: "trabajos que tuve antes de programar"
+  Esperado: historia_tasajera_fumigador_rufino
+
+  [SIN HUB]
+    Resultados: 673 | Tiempo: 4.477s
+    Nodo esperado: ❌ No encontrado
+    TOP-3: ['interacción_social_saludo', 'paradigma-utilidad-contractual-genesis', 'research-pipeline-ownership-oec']
+
+  [CON HUB]
+    Hub matcheado: trabajo_previo (confianza: 1.000)
+    Bridges: ['lo que hice antes de it', 'trabajos que tuve antes de programar', 'trabajos sin programar', 'trabajé de obrero', 'vida antes de computación']
+    Términos expandidos: ['antes', 'personal', 'computación', 'lo', 'obrero', 'vida', 'tasajera', 'dennys', 'fumigador', 'rufino']...
+    Resultados: 886 | Tiempo: 4.574s
+    Nodo esperado: ✅ TOP1
+    TOP-3: ['historia_tasajera_fumigador_rufino', 'dennys_genesis_investigativa_historia_personal']
+
+──────────────────────────────────────────────────────────────────────
+CASO 2: Regresiones por cambios
+  Query: "romper algo que funcionaba"
+  Esperado: leccion_control_flujo_codigo_preexistente
+
+  [SIN HUB]
+    Resultados: 750 | Tiempo: 4.141s
+    Nodo esperado: ❌ No encontrado
+    TOP-3: ['dennys_principio_no_danar_conjunto_completo_objetivo_local_20260807', 'regla_verificar_codigo_real_antes_de_diagnostico', 'regla_1_cientifica_imaginacion_sin_limites_evidencia_sin_excepcion']
+
+  [CON HUB]
+    Hub matcheado: control_flujo (confianza: 1.000)
+    Bridges: ['bug al cambiar algo que andaba', 'cambios que causan problemas', 'code smell que funciona', 'romper algo que funcionaba']
+    Términos expandidos: ['algo', 'al', 'leccion', 'flujo', 'bug', 'codigo', 'cambiar', 'causan', 'control', 'que']...
+    Resultados: 830 | Tiempo: 4.093s
+    Nodo esperado: ✅ TOP1
+    TOP-3: ['leccion_control_flujo_codigo_preexistente', 'dennys_principio_no_danar_conjunto_completo_objetivo_local_20260807', 'regla_verificar_codigo_real_antes_de_diagnostico']
+
+──────────────────────────────────────────────────────────────────────
+CASO 3: Refuerzo dopaminérgico
+  Query: "aprender sin que nadie enseñe"
+  Esperado: biorag_v20_rpe_dopamina
+
+  [SIN HUB]
+    Resultados: 273 | Tiempo: 2.352s
+    Nodo esperado: ❌ No encontrado
+    TOP-3: ['leccion_syn_obligatorio_aprender', 'vision_arquitectura_oec_franquicia']
+
+  [CON HUB]
+    Hub matcheado: refuerzo_dopaminergico (confianza: 1.000)
+    Bridges: ['aprender sin que nadie enseñe', 'refuerzo positivo sin humano', 'refuerzo sin supervisión']
+    Términos expandidos: ['refuerzo', 'enseñe', 'supervisión', 'biorag', 'positivo', 'nodo', 'humano', 'dopamina', 'protocolo', 'feedback']...
+    Resultados: 794 | Tiempo: 4.423s
+    Nodo esperado: ✅ TOP1
+    TOP-3: ['biorag_v20_rpe_dopamina', 'feedback_humano_nodo_dennys_protocolo_rpe', 'leccion_syn_obligatorio_aprender']
+
+──────────────────────────────────────────────────────────────────────
+CASO 4: Historia laboral
+  Query: "trabajos ingeniero sobrevivir antes programar"
+  Esperado: historia_tasajera_fumigador_rufino
+
+  [SIN HUB]
+    Resultados: 701 | Tiempo: 4.141s
+    Nodo esperado: ❌ No encontrado
+    TOP-3: ['paradigma-utilidad-contractual-genesis', 'integritas_verdad_relacional', 'protocolo-autonomia-consentida']
+
+  [CON HUB]
+    Hub matcheado: trabajo_previo (confianza: 0.575)
+    Bridges: ['sobrevivir trabajando', 'trabajos que tuve antes de programar', 'trabajos sin programar', 'vida antes de computación']
+    Términos expandidos: ['antes', 'personal', 'computación', 'vida', 'tasajera', 'dennys', 'fumigador', 'rufino', 'de', 'que']...
+    Resultados: 885 | Tiempo: 5.744s
+    Nodo esperado: ✅ TOP1
+    TOP-3: ['historia_tasajera_fumigador_rufino', 'dennys_genesis_investigativa_historia_personal']
+
+──────────────────────────────────────────────────────────────────────
+CASO 5: Consenso multi-modelo
+  Query: "IAs que se contradigan para encontrar la verdad"
+  Esperado: resolucion_de_contradicciones_entre_insights_sumatoria_mentalidad
+
+  [SIN HUB]
+    Resultados: 451 | Tiempo: 3.016s
+    Nodo esperado: ❌ No encontrado
+    TOP-3: ['aporte_real_dennys_vs_mercado_memoria_persistente', 'vida_laboral_completa_dennys', 'memory_graph_athena_oec']
+
+  [CON HUB]
+    Hub matcheado: consenso_multi_modelo (confianza: 0.467)
+    Bridges: ['ias que se contradigan entre sí']
+    Términos expandidos: ['mentalidad', 'sumatoria', 'modelo', 'sí', 'ias', 'contradigan', 'de', 'resolucion', 'se', 'impugn']...
+    Resultados: 826 | Tiempo: 4.464s
+    Nodo esperado: ✅ TOP1
+    TOP-3: ['resolucion_de_contradicciones_entre_insights_sumatoria_mentalidad', 'vida_laboral_completa_dennys', 'aporte_real_dennys_vs_mercado_memoria_persistente']
+
+======================================================================
+RESUMEN
+======================================================================
+
+Métrica                        SIN Hub         CON Hub        
+────────────────────────────────────────────────────────────
+Recall@5 (encontrados)         0/5 (0%)      5/5 (100%)
+Hubs matcheados                N/A             5/5 (100%)
+
+Detalle por caso:
+  Caso 1: ❌ - → ✅ TOP1  | trabajos que tuve antes de programar
+  Caso 2: ❌ - → ✅ TOP1  | romper algo que funcionaba
+  Caso 3: ❌ - → ✅ TOP1  | aprender sin que nadie enseñe
+  Caso 4: ❌ - → ✅ TOP1  | trabajos ingeniero sobrevivir antes programar
+  Caso 5: ❌ - → ✅ TOP1  | IAs que se contradigan para encontrar la verdad
+
+[OK] Resultados guardados en: /mnt/recursos_compartidos_y_otros/MemoryBioRAG/docs/concept_hub_eval_results.json
+
+─── [4/4] EVALUACIÓN GLOBAL QA (921 Casos de Regresión) ────────────────────────
+Creating isolated database copy at: /mnt/recursos_compartidos_y_otros/MemoryBioRAG/MemoryBioRAG_Data/memory_biorag_qa_temp.db
+Loaded 921 test cases.
+[TRACE] 1.8 Snap: 1 → ['dns_optimizer_linux']
+[TRACE] 1.8 Snap: 1 → ['dot_systemd_resolved']
+[TRACE] 1.8 Snap: 1 → ['dns_optimizer_linux']
+
+Exporting failed cases to: /mnt/recursos_compartidos_y_otros/MemoryBioRAG/scripts/casos_fallidos.jsonl
+Cleaning up temporary database copy at /mnt/recursos_compartidos_y_otros/MemoryBioRAG/MemoryBioRAG_Data/memory_biorag_qa_temp.db...
+
+================================================================================
+                      BIORAG QA EVALUATION REPORT
+================================================================================
+Total time elapsed: 2232.35 seconds
+--------------------------------------------------------------------------------
+Category               | Total  | Recall@5  | Recall@1  | MRR      | Errors/FPs
+--------------------------------------------------------------------------------
+cruce_idioma           | 8      |   87.50% |   62.50% |  0.750 | 1         
+dormido                | 65     |  100.00% |  100.00% |  1.000 | 0         
+literal                | 487    |   99.38% |   98.77% |  0.991 | 3         
+negativo               | 40     | N/A       | N/A       | N/A      | 33         (82.5% FP)
+por_tema               | 65     |   92.31% |   46.15% |  0.652 | 5         
+pregunta_natural       | 65     |   98.46% |   84.62% |  0.897 | 1         
+sinonimo               | 61     |   91.80% |   39.34% |  0.543 | 5         
+typo                   | 65     |   98.46% |   75.38% |  0.854 | 1         
+variante_gramatical    | 65     |   89.23% |   78.46% |  0.829 | 7         
+--------------------------------------------------------------------------------
+GLOBAL SUMMARY (Retrieval) | 881    |   97.39% |   86.27% |  0.904 | 23        
+GLOBAL SUMMARY (Noise/FP) | 40     | N/A       | N/A       | N/A      | 33         (82.50% FP)
+SPREADING ACTIVATION   | 25/921 queries (2.7%)
+================================================================================
+
+SAMPLE FAILURES BY CATEGORY FOR ACTIONABLE DIAGNOSIS:
+================================================================================
+
+[Category: cruce_idioma] (1 total failures)
+----------------------------------------
+  #1 [ID 0593] Query: "blueprint recollection biorag"
+      Expected:  arquitectura_memoria_biorag
+      Returned:  ['vision_arquitectura_oec_franquicia', 'fin-aprendizaje-creerse-completo', 'principio_naturaleza_agente'] (scores: [0.258, 0.254, 0.247])
+      Reason:    Expected concept not found in top 5 results
+
+[Category: dormido] (0 total failures)
+----------------------------------------
+
+[Category: literal] (3 total failures)
+----------------------------------------
+  #1 [ID 0268] Query: "lección: guardar todo lo importante inmediatamente, no esperar"
+      Expected:  lección:_guardar_todo_lo_importante_inmediatamente,_no_esperar
+      Returned:  ['lección:_guardar_todo_lo_importante_inmediatamente_y_no_esperar', 'leccion_guardar_interacciones_significativas', 'puente_sinonimos_mejoras'] (scores: [0.932, 0.258, 0.207])
+      Reason:    Expected concept not found in top 5 results
+  #2 [ID 0368] Query: "plugin biorag-remember v8.4 - solo session.idle, sin conteo de edits"
+      Expected:  plugin_biorag-remember_v8.4_-_solo_session.idle,_sin_conteo_de_edits
+      Returned:  ['plugin_biorag-remember_v8.4_-_solo_session.idle_y_sin_conteo_de_edits', 'plugin_biorag-remember_v8.0_-_session.prompt_+_session.idle_+_edits', 'sesion_investigacion_hermes_plugin_biorag_20260622'] (scores: [0.951, 0.292, 0.282])
+      Reason:    Expected concept not found in top 5 results
+  #3 [ID 0371] Query: "plugin v7.1 fix: session.idle es un event, no un hook"
+      Expected:  plugin_v7.1_fix:_session.idle_es_un_event,_no_un_hook
+      Returned:  ['plugin_v7.1_fix:_session.idle_es_un_event_y_no_un_hook', 'plugin_biorag-remember_v7:_session.idle_+_compacting_+_apply_patch', 'plugin_biorag-remember_v8.0_-_session.prompt_+_session.idle_+_edits'] (scores: [0.945, 0.257, 0.253])
+      Reason:    Expected concept not found in top 5 results
+
+[Category: negativo] (33 total failures)
+----------------------------------------
+  #1 [ID 0882] Query: "fresa manzana"
+      Expected:  None
+      Returned:  ['hallazgo_fp_75_gate_qcr_queries_negativas_vivo', 'escape_qcr_umbral_capa_0_6_decisivo'] (scores: [0.331, 0.193])
+      Reason:    False positive returned with score 0.3311
+  #2 [ID 0883] Query: "jirafa helado"
+      Expected:  None
+      Returned:  ['hallazgo_fp_75_gate_qcr_queries_negativas_vivo', 'leccion_run_c_gate_vacio_real_corrige_prediccion_20260812'] (scores: [0.331, 0.193])
+      Reason:    False positive returned with score 0.331
+  #3 [ID 0884] Query: "bufanda sándwich linterna"
+      Expected:  None
+      Returned:  ['umbral_0_6_qcr_rerun_real_corrige_prediccion', 'leccion_robustez_crecimiento_gate_qcr_senal_estructura', 'version_actual_biorag_v26_4_20260811'] (scores: [0.431, 0.426, 0.415])
+      Reason:    False positive returned with score 0.431
+
+[Category: por_tema] (5 total failures)
+----------------------------------------
+  #1 [ID 0497] Query: "relevantes biomimética mejor"
+      Expected:  benchmark_antes_despues_fix3
+      Returned:  ['causa_raiz_por_tema_pooling_plano_diluye_senal_word2vec', 'aciertos_word2vec_top5_coincidencia_lexica_no_semantica_20260808', 'word2vec_pooling_promedio'] (scores: [0.415, 0.402, 0.338])
+      Reason:    Expected concept not found in top 5 results
+  #2 [ID 0516] Query: "real más sistemas"
+      Expected:  dennys-identidad-profunda
+      Returned:  ['umbral_0_6_qcr_rerun_real_corrige_prediccion', 'regla_verificar_codigo_real_antes_de_diagnostico', 'senal_b_aprendizaje_posterior_negativo_real'] (scores: [0.436, 0.375, 0.365])
+      Reason:    Expected concept not found in top 5 results
+  #3 [ID 0589] Query: "ponytailhelp instalación decision"
+      Expected:  artemis_install_ponytail_ecosistema
+      Returned:  ['leccion_seed_catalogo_debe_correr_db_nueva_y_existente', 'decision_pendiente_madurez_metacognitiva_20260813', 'decision_diseno_actualizar_nodo_canonico_no_reordenar_por_recencia'] (scores: [0.406, 0.388, 0.386])
+      Reason:    Expected concept not found in top 5 results
+
+[Category: pregunta_natural] (1 total failures)
+----------------------------------------
+  #1 [ID 0639] Query: "¿Qué tenemos registrado para mentalidad biorag para agentes?"
+      Expected:  mentalidad_biorag_para_agentes
+      Returned:  ['patrones_aprendizaje_humano_vs_agente', 'leccion_equivocarse_es_aprender', 'dennys_memoria_para_todos_los_agentes_del_mundo'] (scores: [0.422, 0.372, 0.377])
+      Reason:    Expected concept not found in top 5 results
+
+[Category: sinonimo] (5 total failures)
+----------------------------------------
+  #1 [ID 0563] Query: "memoria"
+      Expected:  memoria_v5_1_optimizaciones
+      Returned:  ['mapeo_teoria_grafo_universal_a_memoria_biorag', 'memoria_aprendizaje_personal_artemis', 'arquitectura_memoria_biorag'] (scores: [0.783, 0.7, 0.705])
+      Reason:    Expected concept not found in top 5 results
+  #2 [ID 0625] Query: "dsl"
+      Expected:  notebooklm-chat-configure
+      Returned:  ['cortex-dsl-governance-06-ventaja-causal', 'athena_sesión_planificación', 'artisan_artis_dsl_paths'] (scores: [0.783, 0.76, 0.746])
+      Reason:    Expected concept not found in top 5 results
+  #3 [ID 0757] Query: "buscar"
+      Expected:  principio_firma_cada_recuerdo
+      Returned:  ['regla_memoria_primero_buscar_regla_antes_de_actuar', 'leccion_leer_mensajes_antes_de_buscar', 'fix_scoring_densidad_buscar_por_rafaga_v10.3'] (scores: [0.614, 0.584, 0.584])
+      Reason:    Expected concept not found in top 5 results
+
+[Category: typo] (1 total failures)
+----------------------------------------
+  #1 [ID 0821] Query: "por que me mlesta decir soy una maqina"
+      Expected:  por_que_me_molesta_decir_soy_una_maquina
+      Returned:  ['fin-aprendizaje-creerse-completo'] (scores: [0.216])
+      Reason:    Expected concept not found in top 5 results
+
+[Category: variante_gramatical] (7 total failures)
+----------------------------------------
+  #1 [ID 0518] Query: "cuando usado dimensione biorags"
+      Expected:  cuando_usar_dimensiones_biorag
+      Returned:  ['descubrimiento_embudo_invertido_fts5_or_trigram_ruido_20260820', 'mentalidad_biorag_para_agentes'] (scores: [0.295, 0.209])
+      Reason:    Expected concept not found in top 5 results
+  #2 [ID 0702] Query: "resoluciones timeouts hotspot 5ghzs intels"
+      Expected:  resolucion_timeout_hotspot_5ghz_intel
+      Returned:  ['desde_athena_biorag', 'notebooklm-sync-lecciones', 'ref_analisis_deepseek_biorag'] (scores: [0.247, 0.244, 0.223])
+      Reason:    Expected concept not found in top 5 results
+  #3 [ID 0750] Query: "clasificaciones dimensionals completas corteza 20260702s"
+      Expected:  clasificacion_dimensional_completa_corteza_20260702
+      Returned:  ['notebooklm-memory-biorag-project', 'hito_mcp_v3', 'notebooklm-sync-protocol'] (scores: [0.213, 0.185, 0.2])
+      Reason:    Expected concept not found in top 5 results
+================================================================================
+Note: All failed cases have been saved to /mnt/recursos_compartidos_y_otros/MemoryBioRAG/scripts/casos_fallidos.jsonl for full debug analysis.
+
+================================================================================
+          SUITE DE EVALUACIÓN BIORAG FINALIZADA CON ÉXITO
+================================================================================

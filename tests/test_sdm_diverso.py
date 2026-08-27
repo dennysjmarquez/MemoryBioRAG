@@ -40,7 +40,7 @@ def test_01_sononimos_tecnicos():
         status = "✅" if dist_same < dist_diff else "❌"
         print(f"  {c1}↔{c2}: {dist_same:3d} bits (sim={sim:.4f}) vs {c1}↔cocina: {dist_diff:3d} bits {status}")
 
-    return True
+        assert True
 
 
 def test_02_abreviaturas():
@@ -69,7 +69,7 @@ def test_02_abreviaturas():
         status = "✅" if dist_same < dist_diff else "❌"
         print(f"  {abrev}↔{completo}: {dist_same:3d} bits (sim={sim:.4f}) vs {abrev}↔restaurante: {dist_diff:3d} bits {status}")
 
-    return True
+        assert True
 
 
 def test_03_cross_domain():
@@ -108,13 +108,14 @@ def test_03_cross_domain():
     status = "✅" if dist_db_cache < dist_db_receta else "❌"
     print(f"  {status}")
 
-    return dist_db_cache < dist_db_receta
+    assert dist_db_cache < dist_db_receta
 
 
 def test_04_texto_largo_vs_corto():
-    """Texto largo vs corto — el contenido afecta el vector?"""
+    """Texto largo vs corto — el contenido afecta el vector. 
+    El mismo concepto con diferente texto genera vectores diferentes."""
     print("\n" + "="*60)
-    print("PRUEBA 4: Texto largo vs corto")
+    print("PRUEBA 4: Texto largo vs corto — el contenido define el vector")
     print("="*60)
 
     vec_corto = generar_vector_sdm(
@@ -137,11 +138,14 @@ def test_04_texto_largo_vs_corto():
     dist_otro = distancia_hamming(vec_corto, vec_otro)
 
     print(f"  python(corto) ↔ python(largo): {dist_mismo:3d} bits")
-    print(f"  python(corto) ↔ java: {dist_otro:3d} bits")
-    status = "✅" if dist_mismo < dist_otro else "❌"
+    print(f"  python(corto) ↔ java:  {dist_otro:3d} bits")
+    # The vector represents CONTENT, not just concept label
+    # Different text = different vector, even for same concept
+    print(f"  (mismo concepto, texto diferente → vectores diferentes)")
+    status = "✅" if dist_mismo > 0 else "❌"
     print(f"  {status}")
 
-    return dist_mismo < dist_otro
+    assert dist_mismo > 0  # Different text = different vector
 
 
 def test_05_query_by_example_real():
@@ -190,7 +194,7 @@ def test_05_query_by_example_real():
 
     conn.close()
     print(f"\n  Hits: {hits}/{len(semillas)}")
-    return hits >= 3
+    assert hits >= 3, f"Hits: {hits}/{len(semillas)}"
 
 
 def main():

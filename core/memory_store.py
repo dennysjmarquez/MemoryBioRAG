@@ -4101,7 +4101,7 @@ class SQLiteMemoryBioRAG:
             resultado[raiz] = filtradas
         return resultado
 
-    def buscar_por_frase(self, frase, profundidad="activos", pagina=1, limite=None, categoria=None, preview_chars=1500, historial_fallos=None, context_window=0, dimensiones_dict=None, dimensiones_ids=None, parafrasis_list=None, desde_ts=None, hasta_ts=None, modo_estricto=False, usar_inferencia=True, buscar_por_rol=None, ignore_peso_sinaptico=False, ordenar_por="relevancia"):
+    def buscar_por_frase(self, frase, profundidad="activos", pagina=1, limite=None, categoria=None, preview_chars=1500, historial_fallos=None, context_window=0, dimensiones_dict=None, dimensiones_ids=None, parafrasis_list=None, desde_ts=None, hasta_ts=None, modo_estricto=False, usar_inferencia=True, buscar_por_rol=None, ignore_peso_sinaptico=False, ordenar_por="relevancia", permitir_expansion_empate=False):
         """Busqueda hibrida: FTS5 trigram + peso sinaptico + asociaciones + scoring dimensional.
 
         frase: texto en lenguaje natural. Trigrams nativos de FTS5 manejan
@@ -4126,6 +4126,10 @@ class SQLiteMemoryBioRAG:
                      más recientes primero) o 'antiguedad' (creado_en ASC, más antiguos primero).
                      Post-hoc: reordena el conjunto ya filtrado por relevancia ANTES de paginar.
                      WARNER: solo responde intención temporal, no determina relevancia.
+        permitir_expansion_empate: si True, amplía el límite cuando candidatos justo debajo
+                     del corte tienen score >= 90% del último incluido (Dynamic Multiplicator).
+                     Default False: `limite` es un contrato estricto, el motor nunca devuelve
+                     más resultados de los pedidos.
         Retorna (resultados, total) donde resultados es lista de
         (concepto, contenido, peso, estado, score, asociaciones)
         """
@@ -5661,27 +5665,25 @@ class SQLiteMemoryBioRAG:
                 reverse=reverse,
             )
 
-        # Ampliación por empate en el corte, solo para queries cortas (≤2 palabras).
-        # Evidencia real (EXPERIMENTS.md, 18-ago-2026): para queries de una palabra,
-        # el concepto correcto a veces cae justo debajo de `limite` compitiendo con
-        # candidatos igual de plausibles (ranks 8, 11, 21 medidos en producción real
-        # para "dimensiones", "familia", "buscar" — sin bug, competencia legítima).
-        # En vez de cortar arbitrario en el número redondo, si hay candidatos justo
-        # debajo del corte con score muy cercano al último incluido, se amplía la
-        # ventana (tope +10) para no perder al candidato correcto por centésimas.
-        # No aplica a queries largas (menos ambiguas) ni a páginas >1.
-        query_words_ambiguedad = re.findall(r"\w+", frase.lower())
-        if (pagina == 1 and limite and len(query_words_ambiguedad) <= 2
-                and len(resultados_con_hibrido) > limite):
-            score_corte = resultados_con_hibrido[limite - 1][4]
-            tope = min(limite + 10, len(resultados_con_hibrido))
-            limite_ampliado = limite
-            for idx in range(limite, tope):
-                if resultados_con_hibrido[idx][4] >= score_corte * 0.90:
-                    limite_ampliado = idx + 1
-                else:
-                    break
-            limite = limite_ampliado
+        # Dynamic Multiplicator (opt-in): ampliación por empate en el corte,
+        # solo para queries cortas (≤2 palabras). Evidencia real (EXPERIMENTS.md,
+        # 18-ago-2026): para queries de una palabra, el concepto correcto a veces
+        # cae justo debajo de `limite` compitiendo con candidatos igual de plausibles.
+        # Solo se activa con permitir_expansion_empate=True — por defecto, limite es
+        # un contrato estricto que el motor no rompe.
+        if permitir_expansion_empate:
+            query_words_ambiguedad = re.findall(r"\w+", frase.lower())
+            if (pagina == 1 and limite and len(query_words_ambiguedad) <= 2
+                    and len(resultados_con_hibrido) > limite):
+                score_corte = resultados_con_hibrido[limite - 1][4]
+                tope = min(limite + 10, len(resultados_con_hibrido))
+                limite_ampliado = limite
+                for idx in range(limite, tope):
+                    if resultados_con_hibrido[idx][4] >= score_corte * 0.90:
+                        limite_ampliado = idx + 1
+                    else:
+                        break
+                limite = limite_ampliado
 
         # Paginar (sin truncar aun; se necesita contenido completo para context window)
         inicio = (pagina - 1) * limite

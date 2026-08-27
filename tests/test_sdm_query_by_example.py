@@ -73,7 +73,7 @@ def test_01_vectores_mismas_dimensiones():
     print(f"  gato ↔ felino DENTRO del radio: {dist_gato_felino <= radio}")
     print(f"  gato ↔ auto FUERA del radio: {dist_gato_auto > radio}")
 
-    return dist_gato_felino < dist_gato_auto
+    assert dist_gato_felino < dist_gato_auto
 
 
 def test_02_vectores_mismos_vecinos():
@@ -113,7 +113,7 @@ def test_02_vectores_mismos_vecinos():
     print(f"  gato ↔ felino DENTRO: {dist_gato_felino <= radio}")
     print(f"  gato ↔ auto FUERA: {dist_gato_auto > radio}")
 
-    return dist_gato_felino < dist_gato_auto
+    assert dist_gato_felino < dist_gato_auto, f"gato↔felino ({dist_gato_felino}) no es menor que gato↔auto ({dist_gato_auto})"
 
 
 def test_03_bit_masking():
@@ -177,7 +177,7 @@ def test_03_bit_masking():
         print(f"  Ratio normal:    {dist_gato_felino_full/dist_gato_auto_full:.2f}x")
         print(f"  Ratio semántico: {dist_gato_felino_sem/dist_gato_auto_sem:.2f}x")
 
-    return dist_gato_felino_sem < dist_gato_auto_sem
+    assert dist_gato_felino_sem < dist_gato_auto_sem
 
 
 def test_04_reponderar_vectores():
@@ -261,7 +261,7 @@ def test_04_reponderar_vectores():
     print(f"  gato ↔ felino DENTRO: {dist_gato_felino <= radio}")
     print(f"  gato ↔ auto FUERA: {dist_gato_auto > radio}")
 
-    return dist_gato_felino < dist_gato_auto
+    assert dist_gato_felino < dist_gato_auto
 
 
 def test_05_datos_reales():
@@ -274,7 +274,7 @@ def test_05_datos_reales():
     if not os.path.exists(db_path):
         print(f"  DB no encontrada: {db_path}")
         print("  Saltando prueba 5")
-        return None
+        assert False, "DB no encontrada"
 
     import sqlite3
     conn = sqlite3.connect(db_path)
@@ -321,7 +321,7 @@ def test_05_datos_reales():
     conn.close()
 
     print(f"\n  Nodos con al menos 1 similar: {resultados_buenos}/10")
-    return resultados_buenos > 0
+    assert resultados_buenos > 0, f"Nodos con al menos 1 similar: {resultados_buenos}/10"
 
 
 def main():
