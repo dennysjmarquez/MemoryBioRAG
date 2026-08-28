@@ -1,6 +1,7 @@
 import sqlite3
+import os
 
-db_path = '/mnt/recursos_compartidos_y_otros/MemoryBioRAG/memory_biorag.db'
+db_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "MemoryBioRAG_Data", "memory_biorag.db")
 conn = sqlite3.connect(db_path)
 conn.row_factory = sqlite3.Row
 c = conn.cursor()

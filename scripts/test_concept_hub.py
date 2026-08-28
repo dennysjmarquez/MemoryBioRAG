@@ -5,8 +5,8 @@ Mide si el Concept Hub resuelve el problema de vocabulario sin overlap.
 Compara resultados CON y SIN hub para las 5 queries de la FASE 2.
 
 Uso:
-    cd /mnt/recursos_compartidos_y_otros/MemoryBioRAG
     python3 scripts/test_concept_hub.py
+    (desde el directorio raíz del proyecto: cd <raiz_biorag>)
 """
 
 import sys

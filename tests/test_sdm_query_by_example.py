@@ -20,6 +20,17 @@ from core.sdm import (
     SDM_BITS, SDM_BYTES, SEGMENTO_DIMENSIONES, _hash_token_a_bit
 )
 
+_RAIZ = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+
+def _db_viva_o_snapshot():
+    """Resuelve la DB de datos reales sin rutas atadas a la maquina.
+
+    Prioriza BIORAG_PATH (la suite lo apunta al snapshot inmutable);
+    si no esta definido, usa la DB por defecto relativa al proyecto.
+    """
+    return os.environ.get("BIORAG_PATH") or os.path.join(_RAIZ, "MemoryBioRAG_Data", "memory_biorag.db")
+
 
 def test_01_vectores_mismas_dimensiones():
     """Prueba 1: Vectores con mismas dimensiones → Hamming bajo."""
@@ -270,7 +281,7 @@ def test_05_datos_reales():
     print("PRUEBA 5: Datos reales de la DB")
     print("="*60)
 
-    db_path = "/mnt/recursos_compartidos_y_otros/MemoryBioRAG/MemoryBioRAG_Data/memory_biorag.db"
+    db_path = _db_viva_o_snapshot()
     if not os.path.exists(db_path):
         print(f"  DB no encontrada: {db_path}")
         print("  Saltando prueba 5")

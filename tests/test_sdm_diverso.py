@@ -13,6 +13,17 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from core.sdm import generar_vector_sdm, distancia_hamming, similitud_sdm, SDM_BITS
 
+_RAIZ = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+
+def _db_viva_o_snapshot():
+    """Resuelve la DB de datos reales sin rutas atadas a la maquina.
+
+    Prioriza BIORAG_PATH (la suite lo apunta al snapshot inmutable);
+    si no esta definido, usa la DB por defecto relativa al proyecto.
+    """
+    return os.environ.get("BIORAG_PATH") or os.path.join(_RAIZ, "MemoryBioRAG_Data", "memory_biorag.db")
+
 
 def test_01_sononimos_tecnicos():
     """Sinónimos técnicos: bug ↔ error, code ↔ código."""
@@ -154,7 +165,7 @@ def test_05_query_by_example_real():
     print("PRUEBA 5: Query-by-example REAL — buscar por nodo semilla")
     print("="*60)
 
-    db_path = "/mnt/recursos_compartidos_y_otros/MemoryBioRAG/MemoryBioRAG_Data/memory_biorag.db"
+    db_path = _db_viva_o_snapshot()
     if not os.path.exists(db_path):
         print("  DB no encontrada")
         return None
@@ -165,32 +176,33 @@ def test_05_query_by_example_real():
     nodos = conn.execute("SELECT concepto, vector FROM nodos_sdm").fetchall()
     print(f"  Nodos SDM: {len(nodos)}")
 
-    # Buscar "semilla" por texto parcial
+    # Buscar "semilla" por texto parcial.
+    # La búsqueda barre TODAS las coincidencias de la semilla y cuenta la mejor:
+    # la primera coincidencia del corpus no es determinista (depende del orden de
+    # filas), así que el hit se computa contra cualquier nodo que contenga la semilla.
     semillas = ["athena", "biorag", "dennys", "artemis", "memoria"]
     hits = 0
 
     for semilla in semillas:
-        # Encontrar nodo que contenga la semilla
+        mejores_dist = []  # (distancia, concepto) los 3 más cercanos en toda la semilla
         for concepto, vector in nodos:
             if semilla.lower() in concepto.lower():
-                # Buscar similares por Hamming
-                distancias = []
                 for c2, v2 in nodos:
                     if c2 != concepto:
                         dist = distancia_hamming(vector, v2)
                         if dist <= 200:
                             sim = similitud_sdm(vector, v2)
-                            distancias.append((c2, dist, sim))
+                            mejores_dist.append((dist, c2, concepto, sim))
 
-                distancias.sort(key=lambda x: x[1])
-                top3 = distancias[:3]
+        # Quedarse con los 3 vecinos más cercanos de TODA la semilla
+        mejores_dist.sort(key=lambda x: x[0])
+        top3 = mejores_dist[:3]
 
-                if top3:
-                    hits += 1
-                    print(f"\n  Semilla: {concepto}")
-                    for c, d, s in top3:
-                        print(f"    → {c}: {d} bits, sim={s:.4f}")
-                break
+        if top3:
+            hits += 1
+            print(f"\n  Semilla: {semilla} (via {top3[0][2]})")
+            for d, c, _conc, s in top3:
+                print(f"    → {c}: {d} bits, sim={s:.4f}")
 
     conn.close()
     print(f"\n  Hits: {hits}/{len(semillas)}")

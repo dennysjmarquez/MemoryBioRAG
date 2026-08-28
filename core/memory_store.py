@@ -1,5 +1,4 @@
 import os
-import bisect
 import sqlite3
 import time
 import re
@@ -9,8 +8,6 @@ import json
 import logging
 import numpy as np
 from collections import deque
-from typing import List, Tuple, Dict, Any, Optional, Set
-from collections import defaultdict
 
 logger = logging.getLogger("BioRAG.MemoryStore")
 
@@ -3239,73 +3236,6 @@ class SQLiteMemoryBioRAG:
 
         return result
 
-    # ─── RRF Fusion (Reciprocal Rank Fusion) ───
-    # Parameter-free, scale-invariant fusion (Cormack et al. 2009)
-    # k=60 is the universal constant per Cormack et al. 2009
-    # Parameter-free, scale-invariant, no calibration needed
-    def _rrf_fusion(self, rankings: Dict[str, List[str]], k: int = 60) -> Dict[str, float]:
-        """
-        Reciprocal Rank Fusion (RRF) - Parameter-free, scale-invariant fusion.
-        
-        Args:
-            rankings: Dict[signal_name, List[concepto]] - ranked lists per signal
-            k: RRF parameter (k=60 is universal constant per Cormack et al. 2009)
-        
-        Returns:
-            Dict[concepto, rrf_score] - fused scores based on rank positions
-        
-        Properties:
-        - Parameter-free (k=60 is universal constant per Cormack et al. 2009)
-        - Scale-invariant: works with any score distribution
-        - No calibration needed
-        - Works with 100 or 10M nodes
-        - Rank-only: ignores score magnitudes (noisy, leg-specific)
-        """
-        scores = defaultdict(float)
-        k = 60  # Universal constant per Cormack et al. 2009
-        
-        for signal_name, ranking in rankings.items():
-            for rank, concepto in enumerate(ranking, 1):
-                if concepto:
-                    scores[concepto] += 1.0 / (k + rank)
-        
-        return dict(scores)
-
-    def _percentile_normalize(self, scores: Dict[str, float]) -> Dict[str, float]:
-        """
-        Convert raw scores to percentiles [0, 1] within corpus.
-        Scale-invariant: percentiles don't change with corpus size.
-        """
-        if not scores:
-            return {}
-        
-        sorted_scores = sorted(scores.values())
-        n = len(sorted_scores)
-        percentiles = {}
-        
-        for concepto, score in scores.items():
-            rank = bisect.bisect_left(sorted_scores, score)
-            percentiles[concepto] = rank / max(1, len(sorted_scores) - 1)
-        
-        return percentiles
-
-    def _rrf_fusion_weighted(self, rankings: Dict[str, List[str]], weights: Dict[str, float], k: int = 60) -> Dict[str, float]:
-        """
-        Weighted RRF fusion - still rank-based, scale-invariant.
-        """
-        scores = defaultdict(float)
-        k = 60
-        
-        for signal_name, ranking in rankings.items():
-            weight = weights.get(signal_name, 0.0)
-            if weight <= 0:
-                continue
-            for rank, concepto in enumerate(ranking, 1):
-                if concepto:
-                    scores[concepto] += weight * (1.0 / (60 + rank))
-        
-        return dict(scores)
-
     def _calcular_score_hibrido(self, bm25_norm=0.0, dim_score=0.0,
                                 peso_sinaptico=0.0, concepto_ratio=0.0,
                                 sinonimos_ratio=0.0, score_latente=0.0,
@@ -5436,14 +5366,6 @@ class SQLiteMemoryBioRAG:
             except Exception:
                 pass
 
-        # ─── Query-level gate for tematico_score (Query Performance Prediction) ───
-        # Calcular una vez por query: si el pool tiene algún candidato con bm25 real,
-        # la query tiene fundamento léxico y se activa tematico_score para TODOS los candidatos.
-        # Esto evita bloquear candidatos semánticos correctos (bm25 bajo) cuando el pool
-        # sí tiene candidatos con match léxico real (como "memoria" con bm25 0.78+).
-        mejor_bm25_del_pool = max(bm25_norm_map.values(), default=0.0)
-        query_tiene_fundamento = mejor_bm25_del_pool > 0.05
-
 
         # Calcular score hibrido para cada resultado (fórmula única 9 señales)
         total = len(todos)
@@ -5501,13 +5423,10 @@ class SQLiteMemoryBioRAG:
                 ) / len(palabras_like)
             sinonimos_ratio = max(sinonimos_ratio, sinonimos_substring)
 
-            # Fix tematico_score (Per-Candidate Gate - Winning Config: 3.0/0.02, NO Clarity Score):
-            # Gate per-candidate: solo si hay evidencia léxica mínima (bm25 > 0.001 o concepto_ratio > 0.001)
-            # Y NO hay señal fuerte de sinónimo (sinonimos_ratio < 0.5)
-            # SIN Clarity Score: no discriminamos por tipo de query, el gate per-candidate ya filtra
+            # v22.1: Compute thematic score (presence + absence of dimensions)
+            # On-demand pairwise calculation over top-15 candidates with memoization (O(1) cached)
             tematico_score = 0.0
-            bm25_val = bm25_norm_map.get(concepto, 0.0)
-            if _perfiles_tematicos and (bm25_val > 0.001 or concepto_ratio > 0.001) and sinonimos_ratio < 0.5:
+            if _perfiles_tematicos and _todas_dims:
                 sims = []
                 for _, (other_concepto, _, _, _, _, _) in enumerate(todos[:15]):
                     if other_concepto != concepto and concepto and other_concepto:
@@ -5518,10 +5437,10 @@ class SQLiteMemoryBioRAG:
                             self._thematic_scores_cache[pair_key] = s
                         else:
                             s = self._thematic_scores_cache[pair_key]
-                        if s > 0.02:  # umbral estable
+                        if s > 0.1:
                             sims.append(s)
                 if sims:
-                    tematico_score = min(1.0, sum(sims) / len(sims) * 3.0)  # multiplicador óptimo 3.0
+                    tematico_score = min(1.0, sum(sims) / len(sims) * 3.0)
 
             # Signal #11: Jensen-Shannon Divergence (distributional overlap)
             jsd_val = 0.0
@@ -5576,7 +5495,6 @@ class SQLiteMemoryBioRAG:
                     # Nodo no relacionado: sin boost
                     hub_val = 0.0
 
-            # ─── PASO 1: Calcular score híbrido base para todos los candidatos ───
             score_hibrido = self._calcular_score_hibrido(
                 bm25_norm=bm25_norm_map.get(concepto, 0.0),
                 dim_score=dim_score,
@@ -5596,47 +5514,6 @@ class SQLiteMemoryBioRAG:
                 hub_match=hub_val
             )
 
-            # ─── Recolectar TODAS las señales para RRF (si está habilitado) ───
-            # Cada clave es única — sin duplicados — para evitar corrupción silenciosa.
-            # RRF usa estas señales para construir rankings por señal y aplicar fusión.
-            # NOTA: concepto_ratio es el overlap del nombre del concepto con la query,
-            # NO es un duplicado de 'concepto' — es una señal independiente e importante.
-            _use_rrf = os.getenv("BIORAG_USE_RRF", "0") == "1"
-            if _use_rrf:
-                _rrf_entry = {
-                    'bm25':           bm25_norm_map.get(concepto, 0.0),
-                    'dim':            dim_score,
-                    'concepto_ratio': concepto_ratio,
-                    'sinonimos':      sinonimos_ratio,
-                    'jaccard':        max(score_latente, score_cadena),
-                    'grupo':          grupo_scores_map.get(concepto, 0.0),
-                    'tematico':       tematico_score,
-                    'pred':           pred_val,
-                    'ppmi':           ppmi_val,
-                    'hub':            hub_val,
-                }
-                if not hasattr(self, '_rrf_signal_buffer'):
-                    self._rrf_signal_buffer = {}
-                self._rrf_signal_buffer[concepto] = _rrf_entry
-
-            score_hibrido = self._calcular_score_hibrido(
-                bm25_norm=bm25_norm_map.get(concepto, 0.0),
-                dim_score=dim_score,
-                peso_sinaptico=0.0 if ignore_peso_sinaptico else peso,
-                concepto_ratio=concepto_ratio,
-                sinonimos_ratio=sinonimos_ratio,
-                score_latente=score_latente,
-                score_cadena=score_cadena,
-                asoc_count=len([v for v in (asociaciones or "").split(",") if v.strip()]),
-                match_exacto=match_exacto,
-                grupo_score=grupo_scores_map.get(concepto, 0.0),
-                tematico_score=tematico_score,
-                jsd_score=jsd_val,
-                jsd_weight=JSD_WEIGHT,
-                pred_score=pred_val,
-                ppmi_score=ppmi_val,
-                hub_match=hub_val
-            )
 
             resultados_con_hibrido.append(
                 (concepto, contenido, peso, estado, score_hibrido, asociaciones or "")
@@ -5644,39 +5521,6 @@ class SQLiteMemoryBioRAG:
 
         # Reordenar por score hibrido descendente
         resultados_con_hibrido.sort(key=lambda r: r[4], reverse=True)
-
-        # ─── RRF Re-ranking (si está habilitado con BIORAG_USE_RRF=1) ───
-        # ARQUITECTURA CRÍTICA: RRF se usa SOLO para re-ordenar (sort key).
-        # Los valores de score_hibrido (0-1) se PRESERVAN intactos porque todo
-        # el código downstream (QCR gate umbral 0.60, FP threshold 0.25,
-        # calibración conformal, nivel_certeza) fue diseñado y calibrado para
-        # scores en rango [0, 1]. Los scores RRF crudos (~0.003-0.016) romperían
-        # todos esos umbrales, causando regresión masiva.
-        # Probado 2026-08-27: reemplazar scores → R@5 96→91%, R@1 89→70%.
-        _use_rrf = os.getenv("BIORAG_USE_RRF", "0") == "1"
-        if _use_rrf and hasattr(self, '_rrf_signal_buffer') and self._rrf_signal_buffer:
-            try:
-                from core.rrf_fusion import fuse_signals
-                # Transponer buffer: {concepto: {signal: score}} → {signal: {concepto: score}}
-                signal_scores_by_sig: Dict[str, Dict[str, float]] = {}
-                for conc, sigs in self._rrf_signal_buffer.items():
-                    for sig_name, sig_val in sigs.items():
-                        signal_scores_by_sig.setdefault(sig_name, {})[conc] = sig_val
-
-                # Aplicar fusión RRF con pesos dinámicos basados en la query
-                rrf_scores = fuse_signals(signal_scores_by_sig, query=query,
-                                          use_dynamic_weights=True)
-
-                # Re-ordenar por RRF pero PRESERVAR score_hibrido como valor.
-                # Así el ORDEN lo decide RRF (scale-invariant, rank-based)
-                # pero el VALOR sigue siendo el score_hibrido (para umbrales).
-                resultados_con_hibrido.sort(
-                    key=lambda r: rrf_scores.get(r[0], 0.0), reverse=True
-                )
-            except Exception:
-                pass  # Si RRF falla, el sort anterior (score_hibrido) ya está aplicado
-            finally:
-                self._rrf_signal_buffer = {}
 
         # v26.2: Puerta QCR (Query Coverage Ratio) para consultas compuestas (>= 2 palabras)
         # Exige que al menos el 50% de los tokens de la consulta coincidan en el nodo/sinónimos/metadatos

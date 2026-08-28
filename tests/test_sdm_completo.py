@@ -15,6 +15,17 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from core.sdm import generar_vector_sdm, distancia_hamming, similitud_sdm, SDM_BITS, SDM_BYTES
 
+_RAIZ = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+
+def _db_viva_o_snapshot():
+    """Resuelve la DB de datos reales sin rutas atadas a la maquina.
+
+    Prioriza BIORAG_PATH (la suite lo apunta al snapshot inmutable);
+    si no esta definido, usa la DB por defecto relativa al proyecto.
+    """
+    return os.environ.get("BIORAG_PATH") or os.path.join(_RAIZ, "MemoryBioRAG_Data", "memory_biorag.db")
+
 
 def test_01_vectores_con_contenido():
     """Prueba 1: Vectores con contenido real + sinónimos + dimensiones."""
@@ -86,7 +97,7 @@ def test_02_datos_reales_completos():
     print("PRUEBA 2: Datos REALES — vectores completos de la DB")
     print("="*60)
 
-    db_path = "/mnt/recursos_compartidos_y_otros/MemoryBioRAG/MemoryBioRAG_Data/memory_biorag.db"
+    db_path = _db_viva_o_snapshot()
     if not os.path.exists(db_path):
         print(f"  DB no encontrada: {db_path}")
         assert False, "DB no encontrada"
@@ -160,7 +171,7 @@ def test_03_busqueda_query_by_example():
     print("PRUEBA 3: Búsqueda completa query-by-example")
     print("="*60)
 
-    db_path = "/mnt/recursos_compartidos_y_otros/MemoryBioRAG/MemoryBioRAG_Data/memory_biorag.db"
+    db_path = _db_viva_o_snapshot()
     if not os.path.exists(db_path):
         print(f"  DB no encontrada")
         assert False, "DB no encontrada"
