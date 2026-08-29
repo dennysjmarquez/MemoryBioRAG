@@ -3258,6 +3258,11 @@ class SQLiteMemoryBioRAG:
         asoc_norm = min(1.0, asoc_count / 20.0)
         peso_norm = min(1.0, peso_sinaptico)
 
+        # Gate per-candidate: tematico_score solo si hay evidencia léxica real
+        # (bm25_norm > 0.001 o concepto_ratio > 0.001). Sin evidencia léxica,
+        # tematico_score no debe poder mover el score sola.
+        tematico_score_gated = tematico_score if (bm25_norm > 0.001 or concepto_ratio > 0.001) else 0.0
+
         # Base weights (sum to 1.0 when jsd_weight=0, PPMI_VECTOR_WEIGHT folded in)
         # Weights dict: bm25=0.25, dim=0.14, concepto=0.08, sinonimos=0.08,
         # peso=0.10, jaccard=0.10, grupo=0.10, tematico=0.08,
@@ -3283,7 +3288,7 @@ class SQLiteMemoryBioRAG:
                 0.10 * peso_norm +           # Peso sináptico
                 0.10 * max(score_latente, score_cadena) +  # Jaccard/cadena
                 0.10 * grupo_score +         # Grupo semántico WordNet
-                0.08 * tematico_score +      # Similitud temática
+                0.08 * tematico_score_gated +      # Similitud temática (gate per-candidate)
                 0.04 * temporal +            # Recencia
                 0.02 * asoc_norm +           # Asociaciones
                 0.20 * pred_score +          # Signal #12: Predicados SRL
@@ -5425,8 +5430,11 @@ class SQLiteMemoryBioRAG:
 
             # v22.1: Compute thematic score (presence + absence of dimensions)
             # On-demand pairwise calculation over top-15 candidates with memoization (O(1) cached)
+            # Fix: per-candidate gate — tematico_score solo si hay evidencia léxica real
+            # (bm25 > 0.001 o concepto_ratio > 0.001) Y no hay señal fuerte de sinónimo
             tematico_score = 0.0
-            if _perfiles_tematicos and _todas_dims:
+            bm25_val = bm25_norm_map.get(concepto, 0.0)
+            if _perfiles_tematicos and _todas_dims and (bm25_val > 0.001 or concepto_ratio > 0.001) and sinonimos_ratio < 0.5:
                 sims = []
                 for _, (other_concepto, _, _, _, _, _) in enumerate(todos[:15]):
                     if other_concepto != concepto and concepto and other_concepto:
@@ -5437,10 +5445,10 @@ class SQLiteMemoryBioRAG:
                             self._thematic_scores_cache[pair_key] = s
                         else:
                             s = self._thematic_scores_cache[pair_key]
-                        if s > 0.1:
+                        if s > 0.02:  # umbral estable
                             sims.append(s)
                 if sims:
-                    tematico_score = min(1.0, sum(sims) / len(sims) * 3.0)
+                    tematico_score = min(1.0, sum(sims) / len(sims) * 3.0)  # multiplicador óptimo 3.0
 
             # Signal #11: Jensen-Shannon Divergence (distributional overlap)
             jsd_val = 0.0
