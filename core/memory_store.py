@@ -4238,21 +4238,20 @@ class SQLiteMemoryBioRAG:
             except Exception:
                 _necesita_expansion = True  # si el probe falla, más seguro expandir
 
-        # ── CONCEPT HUB: Expansión semántica pre-FTS5 ──
-        # Si un hub matchea la query, inyecta términos del hub en la frase FTS5
-        # para que BM25 pueda encontrar el nodo canónico.
+        # ── CONCEPT HUB: Expansión semántica pre-FTS5 (SIEMPRE, no solo si FTS falla)
+        # El hub es una pata de routing de intención paralela a FTS5.
+        # Si su confianza calibrada supera la barra (con guard de márgen), su decisión manda.
         hub_expansion = None
-        if _necesita_expansion:
-          try:
+        try:
             from core.concept_hub import expandir_query_con_hub
-            hub_expansion = expandir_query_con_hub(frase_limpia, self.conn, threshold=0.35)
+            hub_expansion = expandir_query_con_hub(frase_limpia, self.conn, threshold=0.40)
             if hub_expansion and hub_expansion.get("expanded_terms"):
                 hub_terms = " ".join(hub_expansion["expanded_terms"])
                 frase = frase + " " + hub_terms
                 # NOTA: NUNCA sobreescribir 'query = frase'.
                 # 'query' debe conservar los términos originales del usuario para
                 # evitar explosión combinatoria O(N*M) en el scoring simbólico (Levenshtein).
-          except Exception:
+        except Exception:
             hub_expansion = None
 
         # ── WORDNET EXPANDIDO: Expansión automática por sinónimos+hiperonimios ──

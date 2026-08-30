@@ -417,7 +417,7 @@ def _jaccard(set_a: set, set_b: set) -> float:
     return inter / union if union > 0 else 0.0
 
 
-def expandir_query_con_hub(query_text: str, conn: sqlite3.Connection, threshold: float = 0.25) -> Optional[dict]:
+def expandir_query_con_hub(query_text: str, conn: sqlite3.Connection, threshold: float = 0.40) -> Optional[dict]:
     """
     Dado un query, busca bridges de todos los hubs y retorna expansión semántica.
 
@@ -440,7 +440,7 @@ def expandir_query_con_hub(query_text: str, conn: sqlite3.Connection, threshold:
     # Cargar todos los hubs y sus bridges
     cursor = conn.execute("""
         SELECT h.hub_id, h.canonical_node,
-               b.bridge_text, b.weight,
+               b.bridge_text, b.weight, b.angle,
                GROUP_CONCAT(DISTINCT n.node_concepto) as nodos
         FROM concept_hubs h
         LEFT JOIN concept_hub_bridges b ON h.hub_id = b.hub_id
@@ -449,10 +449,11 @@ def expandir_query_con_hub(query_text: str, conn: sqlite3.Connection, threshold:
     """)
 
     mejor_hub = None
+    segundo_score = 0.0
     mejor_score = 0.0
     todos_los_hubs = {}
 
-    for hub_id, canonical, bridge_text, weight, nodos_str in cursor.fetchall():
+    for hub_id, canonical, bridge_text, weight, angle, nodos_str in cursor.fetchall():
         if hub_id not in todos_los_hubs:
             todos_los_hubs[hub_id] = {
                 "canonical": canonical,
@@ -460,7 +461,7 @@ def expandir_query_con_hub(query_text: str, conn: sqlite3.Connection, threshold:
                 "nodos": set()
             }
         if bridge_text:
-            todos_los_hubs[hub_id]["bridges"].append((bridge_text, weight or 1.0))
+            todos_los_hubs[hub_id]["bridges"].append((bridge_text, weight or 1.0, angle or "legacy"))
         if nodos_str:
             for n in nodos_str.split(","):
                 todos_los_hubs[hub_id]["nodos"].add(n.strip())
@@ -473,13 +474,24 @@ def expandir_query_con_hub(query_text: str, conn: sqlite3.Connection, threshold:
         bridges_matcheados = []
         total_bridge_weight = 0.0
 
-        for bridge_text, bridge_weight in hub_data["bridges"]:
+        # Multiplicadores por ángulo semántico (calibrados contra snapshot QA)
+        ANGLE_MULT = {
+            "sinonimo": 1.5,
+            "problema": 1.2,
+            "solucion": 1.1,
+            "situacion": 1.0,
+            "ingenuo": 0.85,
+            "legacy": 1.0,
+        }
+
+        for bridge_text, bridge_weight, angle in hub_data["bridges"]:
             bridge_tokens = _tokenizar(bridge_text)
             if not bridge_tokens:
                 continue
 
             jacc = _jaccard(query_tokens, bridge_tokens)
-            score = jacc * bridge_weight
+            mult = ANGLE_MULT.get(angle, 1.0)
+            score = jacc * bridge_weight * mult
 
             if score > mejor_bridge_score:
                 mejor_bridge_score = score
@@ -490,7 +502,9 @@ def expandir_query_con_hub(query_text: str, conn: sqlite3.Connection, threshold:
         consensus_boost = min(1.0, len(bridges_matcheados) / 3.0) * 0.2
         hub_score = mejor_bridge_score + consensus_boost
 
+        # Guard de márgen: trackear top 2 para detectar ambigüedad
         if hub_score > mejor_score:
+            segundo_score = mejor_score
             mejor_score = hub_score
             mejor_hub = {
                 "hub_id": hub_id,
@@ -499,6 +513,12 @@ def expandir_query_con_hub(query_text: str, conn: sqlite3.Connection, threshold:
                 "bridges_matched": bridges_matcheados,
                 "hub_confidence": min(1.0, hub_score)
             }
+        elif hub_score > segundo_score:
+            segundo_score = hub_score
+
+    # Guard de ambigüedad: si no hay margen suficiente, no decidir
+    if mejor_hub and (mejor_score - segundo_score) < 0.08:
+        return None
 
     if mejor_hub and mejor_hub["hub_confidence"] >= threshold:
         expanded_terms = []
