@@ -29,6 +29,11 @@ def _get_nodos_acciones(cerebro):
 
 def test_sistema():
     _biorag_db = os.environ.get('BIORAG_PATH')
+    if not _biorag_db:
+        _biorag_db = os.path.join(
+            os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+            "MemoryBioRAG_Data", "memory_biorag.db"
+        )
     db_test_path = os.path.join(os.path.dirname(_biorag_db), "test_memory.db")
     
     # Limpiar base de datos de pruebas anterior si existe

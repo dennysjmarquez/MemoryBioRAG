@@ -1810,21 +1810,31 @@ def _build_server():
         # intento fallido no deja ningún estado a medias: el agente reintenta
         # con el mismo concepto/contenido y bridges corregidos, sin duplicados
         # ni nodos huérfanos.
+        #
+        # CASO ESPECIAL — bridges ausente (None):
+        # Cuando el agente omite bridges por completo, Pydantic lo deja pasar
+        # (bridges=None) en lugar de rechazar la llamada con un error de schema
+        # que el agente no puede interpretar. Aquí emitimos un error accionable
+        # que confirma qué llegó bien y solo pide los bridges, para que el
+        # agente repita la llamada COMPLETA con todos los parámetros.
         from core.concept_hub import validar_bridges
-        bridges_validos, bridges_rechazados = validar_bridges(bridges, clave)
-        if len(bridges_validos) != 5:
+        if bridges is None:
             return json.dumps({
                 "status": "error",
+                "codigo": "BRIDGES_AUSENTES",
                 "mensaje": (
-                    f"Bridges inválidos ({len(bridges_validos)}/5 válidos). "
-                    + (f"Motivos de rechazo: {'; '.join(bridges_rechazados)}. " if bridges_rechazados else "")
-                    + "Se requieren exactamente 5 bridges válidos cubriendo los 5 ángulos semánticos distintos:\n"
+                    f"❌ BRIDGES AUSENTES — el nodo '{clave}' NO fue guardado.\n\n"
+                    "Los parámetros concepto, contenido, dimensiones y syn ya llegaron correctamente. "
+                    "Solo falta el parámetro obligatorio 'bridges'.\n\n"
+                    "ACCIÓN REQUERIDA: repetí la llamada a biorag_aprender con TODOS los mismos parámetros "
+                    "más el campo bridges. No es necesario cambiar nada más — solo añadí bridges.\n\n"
+                    "Se requieren exactamente 5 bridges cubriendo los 5 ángulos semánticos distintos:\n"
                     "  1. 'sinonimo': mismo significado con otro vocabulario\n"
                     "  2. 'problema': dolor o falla que resuelve este nodo\n"
                     "  3. 'solucion': técnica o herramienta que aplica este nodo\n"
                     "  4. 'situacion': caso de uso, rol o contexto de búsqueda\n"
                     "  5. 'ingenuo': búsqueda sin tecnicismos (cómo lo googlearía un novato)\n\n"
-                    "Ejemplo en JSON/dict:\n"
+                    "FORMATO — lista de 5 dicts obligatorios:\n"
                     "bridges=[\n"
                     "  {'text': 'modo reposo del sistema de memoria', 'angle': 'sinonimo'},\n"
                     "  {'text': 'proceso que genera ideas en silencio', 'angle': 'problema'},\n"
@@ -1834,6 +1844,39 @@ def _build_server():
                     "]"
                 ),
                 "concepto": clave,
+                "parametros_recibidos_ok": ["concepto", "contenido", "dimensiones", "syn", "cat"],
+                "parametro_faltante": "bridges",
+            }, ensure_ascii=False)
+
+        bridges_validos, bridges_rechazados = validar_bridges(bridges, clave)
+        if len(bridges_validos) != 5:
+            return json.dumps({
+                "status": "error",
+                "codigo": "BRIDGES_INVALIDOS",
+                "mensaje": (
+                    f"❌ Bridges inválidos ({len(bridges_validos)}/5 válidos) — el nodo '{clave}' NO fue guardado.\n\n"
+                    + (f"Motivos de rechazo: {'; '.join(bridges_rechazados)}.\n\n" if bridges_rechazados else "")
+                    + "ACCIÓN REQUERIDA: repetí la llamada a biorag_aprender con TODOS los mismos parámetros "
+                    "y corregí los bridges rechazados. No cambies concepto, contenido ni dimensiones.\n\n"
+                    "Se requieren exactamente 5 bridges válidos cubriendo los 5 ángulos semánticos distintos:\n"
+                    "  1. 'sinonimo': mismo significado con otro vocabulario\n"
+                    "  2. 'problema': dolor o falla que resuelve este nodo\n"
+                    "  3. 'solucion': técnica o herramienta que aplica este nodo\n"
+                    "  4. 'situacion': caso de uso, rol o contexto de búsqueda\n"
+                    "  5. 'ingenuo': búsqueda sin tecnicismos (cómo lo googlearía un novato)\n\n"
+                    "FORMATO — lista de 5 dicts obligatorios:\n"
+                    "bridges=[\n"
+                    "  {'text': 'modo reposo del sistema de memoria', 'angle': 'sinonimo'},\n"
+                    "  {'text': 'proceso que genera ideas en silencio', 'angle': 'problema'},\n"
+                    "  {'text': 'hilos de pensamiento espontaneo', 'angle': 'solucion'},\n"
+                    "  {'text': 'cerebro piensa solo cuando nadie pregunta', 'angle': 'situacion'},\n"
+                    "  {'text': 'que pasa cuando no hay actividad en BioRAG', 'angle': 'ingenuo'}\n"
+                    "]"
+                ),
+                "concepto": clave,
+                "parametros_recibidos_ok": ["concepto", "contenido", "dimensiones", "syn", "cat"],
+                "bridges_validos_recibidos": len(bridges_validos),
+                "bridges_rechazados": bridges_rechazados,
             }, ensure_ascii=False)
 
         cerebro = _get_cerebro()
@@ -2143,11 +2186,11 @@ def _build_server():
         valencia_somatica: Annotated[Optional[float], Field(
             description="Valencia emocional/somática (0.0 a 1.0). Nodos con valencia >= 0.80 son inmunes al decaimiento por sueño y la poda."
         )] = None,
-        *,
-        bridges: Annotated[Any, Field(
+        bridges: Annotated[Optional[Any], Field(
             description=(
                 "OBLIGATORIO — exactamente 5 frases estructuradas cubriendo los 5 ángulos semánticos.\n"
-                "Sin 5 bridges válidos con sus 5 ángulos distintos, el nodo NO se guarda (rechazo preventivo pre-DB).\n\n"
+                "Sin 5 bridges válidos con sus 5 ángulos distintos, el nodo NO se guarda (rechazo preventivo pre-DB).\n"
+                "Si bridges llega vacío o ausente, la tool retorna error accionable con instrucciones exactas para reintentar.\n\n"
                 "QUÉ ES UN BRIDGE: una frase de 2 o más palabras de contenido real (sin stopwords) "
                 "que alguien escribiría para encontrar este nodo SIN usar las mismas palabras del nombre ni del contenido.\n\n"
                 "FORMATO OFICIAL: lista de 5 dicts {'text': '...', 'angle': '...'}:\n"
@@ -2173,7 +2216,7 @@ def _build_server():
                 "    {'text': 'la web se cae sola y no carga', 'angle': 'ingenuo'}\n"
                 "  ]"
             )
-        )],
+        )] = None,
     ) -> str:
         return _aprender_impl(concepto, contenido, bridges, syn=syn, cat=cat, dimensiones=dimensiones, predicados=predicados, valencia_somatica=valencia_somatica)
 
@@ -2210,13 +2253,13 @@ def _build_server():
         valencia_somatica: Annotated[Optional[float], Field(
             description="Valencia emocional/somática (0.0 a 1.0)."
         )] = None,
-        *,
-        bridges: Annotated[Any, Field(
+        bridges: Annotated[Optional[Any], Field(
             description=(
                 "OBLIGATORIO — exactamente 5 frases estructuradas cubriendo los 5 ángulos semánticos. "
-                "Ver descripción completa con ejemplos en `aprender`."
+                "Ver descripción completa con ejemplos en `aprender`. "
+                "Si se omite, la tool retorna error accionable con instrucciones exactas para reintentar."
             )
-        )],
+        )] = None,
     ) -> str:
         return _aprender_impl(concepto, contenido, bridges, syn=syn, cat=cat, dimensiones=dimensiones, predicados=predicados, valencia_somatica=valencia_somatica)
 
