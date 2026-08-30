@@ -2,9 +2,10 @@ import sqlite3
 import os
 import re
 import sys
-sys.path.insert(0, "/mnt/recursos_compartidos_y_otros/MemoryBioRAG")
+_RAIZ = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+sys.path.insert(0, _RAIZ)
 
-db_path = "/mnt/recursos_compartidos_y_otros/MemoryBioRAG/MemoryBioRAG_Data/test_memory.db"
+db_path = os.path.join(_RAIZ, "MemoryBioRAG_Data", "test_memory.db")
 if not os.path.exists(db_path):
     print("Database not found")
     exit()

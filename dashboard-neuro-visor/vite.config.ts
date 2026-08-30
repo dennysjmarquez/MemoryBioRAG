@@ -8,6 +8,9 @@ export default defineConfig({
   plugins: [react()],
   server: {
     port: FRONTEND_PORT,
+    watch: {
+      usePolling: true,
+    },
     proxy: {
       '/api': {
         target: `http://localhost:${BACKEND_PORT}`,

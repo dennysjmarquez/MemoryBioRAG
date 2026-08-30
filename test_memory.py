@@ -29,6 +29,11 @@ def _get_nodos_acciones(cerebro):
 
 def test_sistema():
     _biorag_db = os.environ.get('BIORAG_PATH')
+    if not _biorag_db:
+        _biorag_db = os.path.join(
+            os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+            "MemoryBioRAG_Data", "memory_biorag.db"
+        )
     db_test_path = os.path.join(os.path.dirname(_biorag_db), "test_memory.db")
     
     # Limpiar base de datos de pruebas anterior si existe
@@ -1313,13 +1318,13 @@ def test_sistema():
     print(f"  Score sin dim_score: {score_sin_dim}")
     assert score_con_dim > score_sin_dim, \
         f"Error: score con dim_score debería ser mayor. con={score_con_dim}, sin={score_sin_dim}"
-    # Verificar que la diferencia es ~20% (0.20 * 0.75 = 0.15)
+    # Peso actual de dim_score = 0.14 (base_weight ~0.746) → diff esperado ~0.078
     diff = round(score_con_dim - score_sin_dim, 3)
-    print(f"  Diferencia: {diff} (esperado ~0.15)")
-    assert 0.10 <= diff <= 0.25, f"Error: diferencia fuera de rango esperado. diff={diff}"
+    print(f"  Diferencia: {diff} (esperado ~0.078)")
+    assert 0.05 <= diff <= 0.12, f"Error: diferencia fuera de rango esperado. diff={diff}"
     print("  OK: Score híbrido con dim_score integrado correcto")
 
-    print("\n--- 75. Probando Match Exacto (floor 0.95) ---")
+    print("\n--- 75. Probando Match Exacto (boost logit ~logit(0.95)) ---")
     score_exacto = cerebro._calcular_score_hibrido(
         peso_sinaptico=0.25, dim_score=0.0, match_exacto=True
     )
@@ -1328,9 +1333,9 @@ def test_sistema():
     )
     print(f"  Score match exacto: {score_exacto}")
     print(f"  Score normal: {score_normal}")
-    assert score_exacto == max(0.95, score_normal), \
-        f"Error: match exacto debería ser max(0.95, score). exacto={score_exacto}, normal={score_normal}"
-    print("  OK: Match exacto floor 0.95 funciona correctamente")
+    assert score_exacto > score_normal, \
+        f"Error: match exacto debería ser mayor que normal. exacto={score_exacto}, normal={score_normal}"
+    print("  OK: Match exacto boost logit funciona correctamente")
 
     print("\n--- 76. Probando Fallback Dimensional (búsqueda por dimensión pura) ---")
     # Guardar un nodo con dimensiones pero contenido poco específico

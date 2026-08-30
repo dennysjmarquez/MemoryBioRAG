@@ -3258,6 +3258,11 @@ class SQLiteMemoryBioRAG:
         asoc_norm = min(1.0, asoc_count / 20.0)
         peso_norm = min(1.0, peso_sinaptico)
 
+        # Gate per-candidate: tematico_score solo si hay evidencia léxica real
+        # (bm25_norm > 0.001 o concepto_ratio > 0.001). Sin evidencia léxica,
+        # tematico_score no debe poder mover el score sola.
+        tematico_score_gated = tematico_score if (bm25_norm > 0.001 or concepto_ratio > 0.001) else 0.0
+
         # Base weights (sum to 1.0 when jsd_weight=0, PPMI_VECTOR_WEIGHT folded in)
         # Weights dict: bm25=0.25, dim=0.14, concepto=0.08, sinonimos=0.08,
         # peso=0.10, jaccard=0.10, grupo=0.10, tematico=0.08,
@@ -3283,7 +3288,7 @@ class SQLiteMemoryBioRAG:
                 0.10 * peso_norm +           # Peso sináptico
                 0.10 * max(score_latente, score_cadena) +  # Jaccard/cadena
                 0.10 * grupo_score +         # Grupo semántico WordNet
-                0.08 * tematico_score +      # Similitud temática
+                0.08 * tematico_score_gated +      # Similitud temática (gate per-candidate)
                 0.04 * temporal +            # Recencia
                 0.02 * asoc_norm +           # Asociaciones
                 0.20 * pred_score +          # Signal #12: Predicados SRL
@@ -4101,7 +4106,7 @@ class SQLiteMemoryBioRAG:
             resultado[raiz] = filtradas
         return resultado
 
-    def buscar_por_frase(self, frase, profundidad="activos", pagina=1, limite=None, categoria=None, preview_chars=1500, historial_fallos=None, context_window=0, dimensiones_dict=None, dimensiones_ids=None, parafrasis_list=None, desde_ts=None, hasta_ts=None, modo_estricto=False, usar_inferencia=True, buscar_por_rol=None, ignore_peso_sinaptico=False, ordenar_por="relevancia"):
+    def buscar_por_frase(self, frase, profundidad="activos", pagina=1, limite=None, categoria=None, preview_chars=1500, historial_fallos=None, context_window=0, dimensiones_dict=None, dimensiones_ids=None, parafrasis_list=None, desde_ts=None, hasta_ts=None, modo_estricto=False, usar_inferencia=True, buscar_por_rol=None, ignore_peso_sinaptico=False, ordenar_por="relevancia", permitir_expansion_empate=False):
         """Busqueda hibrida: FTS5 trigram + peso sinaptico + asociaciones + scoring dimensional.
 
         frase: texto en lenguaje natural. Trigrams nativos de FTS5 manejan
@@ -4126,6 +4131,10 @@ class SQLiteMemoryBioRAG:
                      más recientes primero) o 'antiguedad' (creado_en ASC, más antiguos primero).
                      Post-hoc: reordena el conjunto ya filtrado por relevancia ANTES de paginar.
                      WARNER: solo responde intención temporal, no determina relevancia.
+        permitir_expansion_empate: si True, amplía el límite cuando candidatos justo debajo
+                     del corte tienen score >= 90% del último incluido (Dynamic Multiplicator).
+                     Default False: `limite` es un contrato estricto, el motor nunca devuelve
+                     más resultados de los pedidos.
         Retorna (resultados, total) donde resultados es lista de
         (concepto, contenido, peso, estado, score, asociaciones)
         """
@@ -5421,8 +5430,11 @@ class SQLiteMemoryBioRAG:
 
             # v22.1: Compute thematic score (presence + absence of dimensions)
             # On-demand pairwise calculation over top-15 candidates with memoization (O(1) cached)
+            # Fix: per-candidate gate — tematico_score solo si hay evidencia léxica real
+            # (bm25 > 0.001 o concepto_ratio > 0.001) Y no hay señal fuerte de sinónimo
             tematico_score = 0.0
-            if _perfiles_tematicos and _todas_dims:
+            bm25_val = bm25_norm_map.get(concepto, 0.0)
+            if _perfiles_tematicos and _todas_dims and (bm25_val > 0.001 or concepto_ratio > 0.001) and sinonimos_ratio < 0.5:
                 sims = []
                 for _, (other_concepto, _, _, _, _, _) in enumerate(todos[:15]):
                     if other_concepto != concepto and concepto and other_concepto:
@@ -5433,10 +5445,10 @@ class SQLiteMemoryBioRAG:
                             self._thematic_scores_cache[pair_key] = s
                         else:
                             s = self._thematic_scores_cache[pair_key]
-                        if s > 0.1:
+                        if s > 0.02:  # umbral estable
                             sims.append(s)
                 if sims:
-                    tematico_score = min(1.0, sum(sims) / len(sims) * 3.0)
+                    tematico_score = min(1.0, sum(sims) / len(sims) * 3.0)  # multiplicador óptimo 3.0
 
             # Signal #11: Jensen-Shannon Divergence (distributional overlap)
             jsd_val = 0.0
@@ -5661,27 +5673,25 @@ class SQLiteMemoryBioRAG:
                 reverse=reverse,
             )
 
-        # Ampliación por empate en el corte, solo para queries cortas (≤2 palabras).
-        # Evidencia real (EXPERIMENTS.md, 18-ago-2026): para queries de una palabra,
-        # el concepto correcto a veces cae justo debajo de `limite` compitiendo con
-        # candidatos igual de plausibles (ranks 8, 11, 21 medidos en producción real
-        # para "dimensiones", "familia", "buscar" — sin bug, competencia legítima).
-        # En vez de cortar arbitrario en el número redondo, si hay candidatos justo
-        # debajo del corte con score muy cercano al último incluido, se amplía la
-        # ventana (tope +10) para no perder al candidato correcto por centésimas.
-        # No aplica a queries largas (menos ambiguas) ni a páginas >1.
-        query_words_ambiguedad = re.findall(r"\w+", frase.lower())
-        if (pagina == 1 and limite and len(query_words_ambiguedad) <= 2
-                and len(resultados_con_hibrido) > limite):
-            score_corte = resultados_con_hibrido[limite - 1][4]
-            tope = min(limite + 10, len(resultados_con_hibrido))
-            limite_ampliado = limite
-            for idx in range(limite, tope):
-                if resultados_con_hibrido[idx][4] >= score_corte * 0.90:
-                    limite_ampliado = idx + 1
-                else:
-                    break
-            limite = limite_ampliado
+        # Dynamic Multiplicator (opt-in): ampliación por empate en el corte,
+        # solo para queries cortas (≤2 palabras). Evidencia real (EXPERIMENTS.md,
+        # 18-ago-2026): para queries de una palabra, el concepto correcto a veces
+        # cae justo debajo de `limite` compitiendo con candidatos igual de plausibles.
+        # Solo se activa con permitir_expansion_empate=True — por defecto, limite es
+        # un contrato estricto que el motor no rompe.
+        if permitir_expansion_empate:
+            query_words_ambiguedad = re.findall(r"\w+", frase.lower())
+            if (pagina == 1 and limite and len(query_words_ambiguedad) <= 2
+                    and len(resultados_con_hibrido) > limite):
+                score_corte = resultados_con_hibrido[limite - 1][4]
+                tope = min(limite + 10, len(resultados_con_hibrido))
+                limite_ampliado = limite
+                for idx in range(limite, tope):
+                    if resultados_con_hibrido[idx][4] >= score_corte * 0.90:
+                        limite_ampliado = idx + 1
+                    else:
+                        break
+                limite = limite_ampliado
 
         # Paginar (sin truncar aun; se necesita contenido completo para context window)
         inicio = (pagina - 1) * limite

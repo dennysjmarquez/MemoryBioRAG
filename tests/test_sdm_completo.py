@@ -15,6 +15,17 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from core.sdm import generar_vector_sdm, distancia_hamming, similitud_sdm, SDM_BITS, SDM_BYTES
 
+_RAIZ = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+
+def _db_viva_o_snapshot():
+    """Resuelve la DB de datos reales sin rutas atadas a la maquina.
+
+    Prioriza BIORAG_PATH (la suite lo apunta al snapshot inmutable);
+    si no esta definido, usa la DB por defecto relativa al proyecto.
+    """
+    return os.environ.get("BIORAG_PATH") or os.path.join(_RAIZ, "MemoryBioRAG_Data", "memory_biorag.db")
+
 
 def test_01_vectores_con_contenido():
     """Prueba 1: Vectores con contenido real + sinónimos + dimensiones."""
@@ -77,7 +88,7 @@ def test_01_vectores_con_contenido():
     print(f"programa↔error DENTRO: {distancia_hamming(vec_programa, vec_error) <= radio}")
     print(f"gato↔auto FUERA: {distancia_hamming(vec_gato, vec_auto) > radio}")
 
-    return True
+    assert True
 
 
 def test_02_datos_reales_completos():
@@ -86,10 +97,10 @@ def test_02_datos_reales_completos():
     print("PRUEBA 2: Datos REALES — vectores completos de la DB")
     print("="*60)
 
-    db_path = "/mnt/recursos_compartidos_y_otros/MemoryBioRAG/MemoryBioRAG_Data/memory_biorag.db"
+    db_path = _db_viva_o_snapshot()
     if not os.path.exists(db_path):
         print(f"  DB no encontrada: {db_path}")
-        return None
+        assert False, "DB no encontrada"
 
     conn = sqlite3.connect(db_path)
 
@@ -108,7 +119,7 @@ def test_02_datos_reales_completos():
 
     if len(nodos) < 5:
         print("  Muy pocos nodos con dimensiones para probar")
-        return None
+        assert False, "Muy pocos nodos con dimensiones"
 
     vectores = []
     for concepto, contenido, sinonimos, dims_str in nodos:
@@ -151,7 +162,7 @@ def test_02_datos_reales_completos():
     conn.close()
 
     print(f"\n  Nodos con al menos 1 similar que comparte dimensiones: {resultados_buenos}/{min(15, len(vectores))}")
-    return resultados_buenos > 0
+    assert resultados_buenos > 0, f"Nodos con dimensiones compartidas: {resultados_buenos}/{min(15, len(vectores))}"
 
 
 def test_03_busqueda_query_by_example():
@@ -160,15 +171,15 @@ def test_03_busqueda_query_by_example():
     print("PRUEBA 3: Búsqueda completa query-by-example")
     print("="*60)
 
-    db_path = "/mnt/recursos_compartidos_y_otros/MemoryBioRAG/MemoryBioRAG_Data/memory_biorag.db"
+    db_path = _db_viva_o_snapshot()
     if not os.path.exists(db_path):
         print(f"  DB no encontrada")
-        return None
+        assert False, "DB no encontrada"
 
     conn = sqlite3.connect(db_path)
 
     nodos_sdm = conn.execute("SELECT concepto, vector FROM nodos_sdm").fetchall()
-    print(f"\n  Nodos SDM indexados: {len(nodos_sdm)}")
+    print(f"\n  Nodos SDM: {len(nodos_sdm)}")
 
     dims_map = {}
     for concepto, dims_str in conn.execute("""
@@ -216,7 +227,7 @@ def test_03_busqueda_query_by_example():
     conn.close()
 
     print(f"\n  Hits conceptuales: {hits_conceptuales}/{total_nodos}")
-    return hits_conceptuales > 0
+    assert hits_conceptuales > 0
 
 
 def main():

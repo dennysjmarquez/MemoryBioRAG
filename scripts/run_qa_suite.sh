@@ -14,18 +14,44 @@ if [ -f "$PARENT_DIR/.env.local" ]; then
     set +a
 fi
 
-# 2. Snapshot de evaluación por defecto (protección contra mutación de DB en vivo)
-DEFAULT_SNAPSHOT="$PARENT_DIR/snapshots/qa_escape_qcr_20260811.db"
-if [ -z "$BIORAG_PATH" ]; then
-    if [ -f "$DEFAULT_SNAPSHOT" ]; then
-        export BIORAG_PATH="$DEFAULT_SNAPSHOT"
-        echo "BIORAG_PATH no definido -> Usando snapshot oficial: $DEFAULT_SNAPSHOT"
-    else
-        echo "AVISO: No se encontró snapshot oficial en $DEFAULT_SNAPSHOT. Se usará la configuración por defecto."
-    fi
+# 2. Resolver DB origen: BIORAG_PATH explícito del entorno > DB viva del repo
+if [ -n "$BIORAG_PATH" ]; then
+    SRC_DB="$BIORAG_PATH"
+    echo "Usando BIORAG_PATH explícito como origen: $SRC_DB"
 else
-    echo "Usando BIORAG_PATH configurado: $BIORAG_PATH"
+    SRC_DB="$PARENT_DIR/MemoryBioRAG_Data/memory_biorag.db"
+    echo "BIORAG_PATH no definido -> Usando DB viva del repo: $SRC_DB"
 fi
+
+if [ ! -f "$SRC_DB" ]; then
+    echo "ERROR: No existe la base de datos origen: $SRC_DB" >&2
+    exit 1
+fi
+
+# 3. Crear copia aislada para toda la suite (protección total: original nunca se toca)
+QA_DB="$PARENT_DIR/MemoryBioRAG_Data/memory_biorag_qa_run.db"
+echo "Creando copia aislada para la suite: $QA_DB"
+rm -f "$QA_DB" "$QA_DB-wal" "$QA_DB-shm"
+python3 -c "
+import sqlite3
+src = sqlite3.connect('$SRC_DB')
+dst = sqlite3.connect('$QA_DB')
+src.execute('PRAGMA wal_checkpoint(FULL);')
+src.backup(dst)
+src.close()
+dst.close()
+"
+
+# 4. Exportar BIORAG_PATH a la copia para TODOS los hijos
+export BIORAG_PATH="$QA_DB"
+echo "BIORAG_PATH exportado a copia aislada: $BIORAG_PATH"
+
+# 5. Función de limpieza
+cleanup() {
+    echo "Limpiando copia temporal..."
+    rm -f "$QA_DB" "$QA_DB-wal" "$QA_DB-shm"
+}
+trap cleanup EXIT
 
 echo "================================================================================"
 echo "          INICIANDO SUITE INTEGRAL DE CALIDAD Y REGRESIÓN BIORAG"
@@ -80,4 +106,3 @@ echo ""
 echo "================================================================================"
 echo "          SUITE DE EVALUACIÓN BIORAG FINALIZADA CON ÉXITO"
 echo "================================================================================"
-

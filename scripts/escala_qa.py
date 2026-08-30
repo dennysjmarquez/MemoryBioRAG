@@ -6,6 +6,7 @@ import random
 import shutil
 import sqlite3
 import math
+import tempfile
 from datetime import date
 
 # Añadir el directorio raíz al path de importación
@@ -13,7 +14,7 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from core.memory_store import SQLiteMemoryBioRAG
 
-TEMP_DB_DIR = "/home/dennys/.gemini/antigravity/brain/4f9566b3-266c-4f8b-a4c5-70a5fe4fb2e0/scratch"
+TEMP_DB_DIR = tempfile.gettempdir()
 TEMP_DB_PATH = os.path.join(TEMP_DB_DIR, "memory_biorag_scale_temp.db")
 
 VOCABULARIO = [
