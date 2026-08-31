@@ -4238,14 +4238,26 @@ class SQLiteMemoryBioRAG:
             except Exception:
                 _necesita_expansion = True  # si el probe falla, más seguro expandir
 
-        # ── CONCEPT HUB: Expansión semántica pre-FTS5 (SIEMPRE, no solo si FTS falla)
-        # El hub es una pata de routing de intención paralela a FTS5.
-        # Si su confianza calibrada supera la barra (con guard de márgen), su decisión manda.
+        # ── CONCEPT HUB: Expansión semántica pre-FTS5 (condicional, igual que WordNet y DomainDict)
+        # El hub resuelve el "abismo léxico": queries que no tienen ningún overlap léxico con el
+        # nodo correcto. Pero si FTS5 ya encontró candidatos (probe AND), inyectar hub_terms
+        # contamina el score BM25: los términos expandidos tienen IDF bajo y dilluyen el peso de
+        # los tokens originales (vocabulary drift), empujando el nodo correcto fuera del top-5.
+        #
+        # Guard invariante al tamaño del corpus:
+        #   _necesita_expansion = True  si el probe FTS5 AND retorna 0 resultados
+        #   _necesita_expansion = False si ya hay al menos 1 hit léxico directo
+        # Este check es relativo a la query, no al corpus — no cambia si el corpus crece.
+        # Alineado con WordNet (L4260) y DomainDict (L4303) que usan el mismo guard.
+        #
+        # La promoción del nodo canónico (post-ranking, L5568+) sigue activa siempre,
+        # independientemente de este guard — el Hub sigue rescatando abismos léxicos
+        # via hub_val en score híbrido y canonical insertion directa desde DB.
         hub_expansion = None
         try:
             from core.concept_hub import expandir_query_con_hub
             hub_expansion = expandir_query_con_hub(frase_limpia, self.conn, threshold=0.40)
-            if hub_expansion and hub_expansion.get("expanded_terms"):
+            if hub_expansion and hub_expansion.get("expanded_terms") and _necesita_expansion:
                 hub_terms = " ".join(hub_expansion["expanded_terms"])
                 frase = frase + " " + hub_terms
                 # NOTA: NUNCA sobreescribir 'query = frase'.
