@@ -5577,16 +5577,31 @@ class SQLiteMemoryBioRAG:
             if filtrados_qcr:
                 resultados_con_hibrido = filtrados_qcr
 
-        # ── CONCEPT HUB: Post-procesamiento — garantizar nodo canónico primario ──
-        # Cuando el hub tiene alta confianza, el nodo canónico PRIMERO debe aparecer
-        # en los resultados, sin importar el ranking de BM25/otras señales.
+        # ── CONCEPT HUB: Post-procesamiento — promoción competitiva del nodo canónico ──
+        # El canónico compite contra el mejor candidato léxico en vez de forzarse
+        # incondicionalmente a TOP1. Esto evita que un Hub falso positivo (confianza
+        # mínima 0.40 → score 0.38) desplace un match léxico perfecto (score 0.80).
+        #
+        # Regla:
+        #   hub_gana = score_forzado >= mejor_score_lexico
+        #   → True:  canónico va a TOP1 (semántica supera léxico)
+        #   → False: canónico se inserta en su posición natural por score
+        #             (presencia garantizada, no TOP1 garantizado)
+        #
+        # Para matches de alta confianza (1.0 → score 0.95) el hub siempre gana
+        # porque el scoring híbrido máximo real es ~0.948 (TEST 3, invariante scoring).
+        # Para matches de baja confianza (0.40 → score 0.38) el léxico gana si hay
+        # cualquier candidato decente, que es el comportamiento correcto.
         if hub_expansion and hub_expansion.get("hub_confidence", 0) >= 0.4:
             primary_canonical = hub_expansion.get("canonical_nodes", [None])[0]
             if primary_canonical:
-                # Buscar si ya está en resultados
+                score_forzado = min(0.95, hub_expansion["hub_confidence"] * 0.95)
+                mejor_score_lexico = resultados_con_hibrido[0][4] if resultados_con_hibrido else 0.0
+                hub_gana = score_forzado >= mejor_score_lexico
+
                 ya_existe = any(r[0] == primary_canonical for r in resultados_con_hibrido)
                 if not ya_existe:
-                    # Buscar el nodo en la DB y agregarlo con score alto
+                    # Canónico ausente → traer desde DB
                     try:
                         self.cursor.execute(
                             "SELECT concepto, contenido, peso_sinaptico, estado, asociaciones "
@@ -5595,22 +5610,32 @@ class SQLiteMemoryBioRAG:
                         )
                         row = self.cursor.fetchone()
                         if row:
-                            # Score forzado = hub_confidence * 0.95 (casi máximo)
-                            score_forzado = min(0.95, hub_expansion["hub_confidence"] * 0.95)
-                            resultados_con_hibrido.insert(0, (
-                                row[0], row[1], row[2], row[3], score_forzado, row[4] or ""
-                            ))
+                            entrada = (row[0], row[1], row[2], row[3], score_forzado, row[4] or "")
+                            if hub_gana:
+                                # Hub supera al mejor léxico → TOP1
+                                resultados_con_hibrido.insert(0, entrada)
+                            else:
+                                # Léxico supera al hub → insertar en posición que
+                                # preserve orden por score (presencia garantizada)
+                                pos = next(
+                                    (i for i, r in enumerate(resultados_con_hibrido) if r[4] < score_forzado),
+                                    len(resultados_con_hibrido)
+                                )
+                                resultados_con_hibrido.insert(pos, entrada)
                     except Exception:
                         pass
                 else:
-                    # Ya existe — moverlo al top si no está primero
+                    # Canónico ya existe en resultados
                     idx = next(i for i, r in enumerate(resultados_con_hibrido) if r[0] == primary_canonical)
                     if idx > 0:
-                        nodo = resultados_con_hibrido.pop(idx)
-                        # Score forzado alto
-                        nodo_mod = list(nodo)
-                        nodo_mod[4] = min(0.95, hub_expansion["hub_confidence"] * 0.95)
-                        resultados_con_hibrido.insert(0, tuple(nodo_mod))
+                        if hub_gana:
+                            # Hub supera al mejor léxico → mover a TOP1
+                            nodo = resultados_con_hibrido.pop(idx)
+                            nodo_mod = list(nodo)
+                            nodo_mod[4] = score_forzado
+                            resultados_con_hibrido.insert(0, tuple(nodo_mod))
+                        # Si no hub_gana: el canónico ya está en su posición natural,
+                        # no lo movemos — el léxico merece el TOP1
 
 
 
