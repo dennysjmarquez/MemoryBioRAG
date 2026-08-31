@@ -42,12 +42,24 @@ El usuario preguntó:
 
 Búsqueda literal → **0 resultados**. Esas palabras no están en ningún nodo.
 
-El agente razonó sobre la *forma* del problema:
-- `"interfaz destruye y recrea secciones"` → ciclo montar/desmontar de componentes
-- `"validador aleatorio de instanciación inicial"` → identificador único generado al crear (UUID)
-- `"impidiendo duplicados"` → deduplicación por ID de instancia
+El agente que razonó correctamente aplicó un protocolo de descomposición con 3 preguntas:
 
-Búsqueda por la *forma* → resultado correcto en **TOP 1**.
+**1. ¿QUÉ HACE? (acción)**
+- `"destruye y recrea secciones"` → ciclo montar/desmontar de componentes
+- `"impidiendo duplicados"` → deduplicación de instancias
+- **Acción:** persistencia de estado en componentes que se destruyen
+
+**2. ¿EN QUÉ CONTEXTO? (dominio)**
+- `"librería"`, `"interfaz"`, `"secciones"` → framework frontend
+- `"flujos de recopilación masiva"` → formularios complejos
+- **Dominio:** formularios anidados en framework frontend
+
+**3. ¿QUÉ PROPIEDAD RESUELVE? (cualidad)**
+- `"validador aleatorio de instanciación inicial"` → ID único al crear (UUID)
+- `"impidiendo duplicados"` → cada instancia es única e irrepetible
+- **Cualidad:** instancia única mediante identificador aleatorio
+
+Con esas 3 respuestas, armó la búsqueda con las palabras traducidas (no las del humano) → resultado correcto en **TOP 1**.
 
 El agente que falló (el mismo sistema, sin ese razonamiento) mandó las palabras literales del usuario al motor y concluyó: *"No tengo ese conocimiento en mi BioRAG."* Error. El conocimiento existía. Faltó el razonamiento.
 
