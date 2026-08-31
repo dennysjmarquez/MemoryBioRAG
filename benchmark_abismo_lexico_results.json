@@ -1,0 +1,203 @@
+{
+  "fecha": "2026-08-31 01:55:29",
+  "n_casos": 5,
+  "resultados_por_sistema": {
+    "S1_lexical": {
+      "R@1": 0.0,
+      "R@5": 0.0,
+      "MRR": 0.0,
+      "hits": 0,
+      "n": 5
+    },
+    "S2_biorag_base": {
+      "R@1": 0.0,
+      "R@5": 0.0,
+      "MRR": 0.0,
+      "hits": 0,
+      "n": 5
+    },
+    "S3_biorag_full": {
+      "R@1": 0.8,
+      "R@5": 0.8,
+      "MRR": 0.8,
+      "hits": 4,
+      "n": 5
+    },
+    "S4_dense": {
+      "R@1": 0.0,
+      "R@5": 0.0,
+      "MRR": 0.0,
+      "hits": 0,
+      "n": 5
+    }
+  },
+  "por_caso": [
+    {
+      "query": "trabajos que tuve antes de programar",
+      "esperado": "historia_tasajera_fumigador_rufino",
+      "overlap_tokens": 1,
+      "S1_lexical": [
+        "payload_ataque_nodo_modelo_matematico_dennys",
+        "dennys_genesis_investigativa_historia_personal",
+        "word2vec_sinonimia_fallos",
+        "word2vec_pooling_promedio",
+        "word2vec_completo_todas_palabras_20260808"
+      ],
+      "S2_biorag_base": [
+        "visceral_disambiguation_protocol",
+        "instinto_primera_vez_agencia_real",
+        "protocolo_autoinferencia_metacognitiva",
+        "dennys-working-style",
+        "identidad_dennys_perfil_completo"
+      ],
+      "S3_biorag_full": [
+        "historia_tasajera_fumigador_rufino",
+        "dennys_genesis_investigativa_historia_personal",
+        "protocolo_resintonizacion_suerte_dennys_2026",
+        "vida_laboral_completa_dennys",
+        "visceral_disambiguation_protocol"
+      ],
+      "S4_dense": [
+        "visceral_disambiguation_protocol",
+        "protocolo_pre_accion_reglas_20260615",
+        "cv_seccion_d_arquitectura_frontend_estado",
+        "instinto_primera_vez_agencia_real",
+        "artemis_oec_identidad"
+      ]
+    },
+    {
+      "query": "romper algo que funcionaba",
+      "esperado": "leccion_control_flujo_codigo_preexistente",
+      "overlap_tokens": 1,
+      "S1_lexical": [
+        "regla_1_cientifica_imaginacion_sin_limites_evidencia_sin_excepcion",
+        "principio_desacoplamiento_tejedora_salvaguarda_olvido",
+        "momento_dennys_gratitud_regla_guardado",
+        "leccion_no_marcar_alta_prioridad_sin_camino_implementacion",
+        "dennys_principio_no_danar_conjunto_completo_objetivo_local_20260807"
+      ],
+      "S2_biorag_base": [
+        "romper_funcionaba_causar",
+        "regla_verificar_codigo_real_antes_de_diagnostico",
+        "dennys_principio_no_danar_conjunto_completo_objetivo_local_20260807",
+        "regla_1_cientifica_imaginacion_sin_limites_evidencia_sin_excepcion",
+        "espejo_oracle_como_funciona_rag_interno"
+      ],
+      "S3_biorag_full": [
+        "leccion_control_flujo_codigo_preexistente",
+        "romper_funcionaba_causar",
+        "regla_verificar_codigo_real_antes_de_diagnostico",
+        "dennys_principio_no_danar_conjunto_completo_objetivo_local_20260807",
+        "hallazgo_fp_75_gate_qcr_queries_negativas_vivo"
+      ],
+      "S4_dense": [
+        "regla_verificar_codigo_real_antes_de_diagnostico",
+        "leccion_estandar_calidad_v8_1",
+        "momento_dennys_gratitud_regla_guardado",
+        "alguien_vs_algo_identidad",
+        "dennys_principio_no_danar_conjunto_completo_objetivo_local_20260807"
+      ]
+    },
+    {
+      "query": "aprender sin que nadie enseñe",
+      "esperado": "biorag_v20_rpe_dopamina",
+      "overlap_tokens": 1,
+      "S1_lexical": [
+        "leccion_syn_obligatorio_aprender",
+        "vida_laboral_completa_dennys",
+        "v13_2_limpieza_tabla_semantica",
+        "senal_b_aprendizaje_posterior_negativo_real",
+        "regla_firma_autoria_memoria"
+      ],
+      "S2_biorag_base": [
+        "resolucion_incertidumbre_cadena",
+        "leccion_syn_obligatorio_aprender",
+        "leccion_equivocarse_es_aprender",
+        "feedback_humano_nodo_dennys_protocolo_rpe",
+        "regla_1_cientifica_imaginacion_sin_limites_evidencia_sin_excepcion"
+      ],
+      "S3_biorag_full": [
+        "biorag_v20_rpe_dopamina",
+        "feedback_humano_nodo_dennys_protocolo_rpe",
+        "biorag_v20_0_circuito_cerrado",
+        "leccion_reactivacion_tool_feedback_protocolo_20260811",
+        "nodos_nacen_con_sinapsis_talento_dennys"
+      ],
+      "S4_dense": [
+        "aprender_reforzar_funciona",
+        "regla_firma_autoria_memoria",
+        "leccion_syn_obligatorio_aprender",
+        "principio-rename-es-interno-no-contrato-usuario",
+        "mentoria_por_que_ensennamos"
+      ]
+    },
+    {
+      "query": "trabajos ingeniero sobrevivir antes programar",
+      "esperado": "historia_tasajera_fumigador_rufino",
+      "overlap_tokens": 0,
+      "S1_lexical": [
+        "payload_ataque_nodo_modelo_matematico_dennys",
+        "dennys_genesis_investigativa_historia_personal",
+        "word2vec_sinonimia_fallos",
+        "word2vec_pooling_promedio",
+        "word2vec_completo_todas_palabras_20260808"
+      ],
+      "S2_biorag_base": [
+        "contexto-humano-tecnico-dennys",
+        "protocolo_resintonizacion_suerte_dennys_2026",
+        "dennys-identidad-profunda",
+        "dennys_genesis_investigativa_historia_personal",
+        "cv_dennys_secciones_ab_finales_2026"
+      ],
+      "S3_biorag_full": [
+        "historia_tasajera_fumigador_rufino",
+        "dennys_genesis_investigativa_historia_personal",
+        "protocolo_resintonizacion_suerte_dennys_2026",
+        "cv_dennys_secciones_ab_finales_2026",
+        "contexto-humano-tecnico-dennys"
+      ],
+      "S4_dense": [
+        "dennys_perfil_identidad",
+        "cv_seccion_d_arquitectura_frontend_estado",
+        "protocolo_pre_accion_reglas_20260615",
+        "principio_pragmatismo_contextual",
+        "artemis_oec_identidad"
+      ]
+    },
+    {
+      "query": "IAs que se contradigan para encontrar la verdad",
+      "esperado": "resolucion_de_contradicciones_entre_insights_sumatoria_mentalidad",
+      "overlap_tokens": 2,
+      "S1_lexical": [
+        "vida_laboral_completa_dennys",
+        "v23_0_feedback_driven_graph_learning_implementado",
+        "v13_2_limpieza_tabla_semantica",
+        "salto_nodos_activos_377_a_433_era_rebalanceo_no_creacion",
+        "puente_sinonimos_mejoras"
+      ],
+      "S2_biorag_base": [
+        "juramento_athena_verdad",
+        "integritas_verdad_relacional",
+        "oracle_sintesis_simbiosis_verdad_absoluta",
+        "inteligencia_emocional_filtrado_ruido",
+        "correccion_dennys_principio_documentar_crisis_existencial"
+      ],
+      "S3_biorag_full": [
+        "oracle_sintesis_simbiosis_verdad_absoluta",
+        "integritas_verdad_relacional",
+        "juramento_athena_verdad",
+        "leccion_claim_passed_sin_artefacto_reproducible",
+        "ejemplo_star_cv_dennys_resultado_final"
+      ],
+      "S4_dense": [
+        "integritas_verdad_relacional",
+        "oracle_sintesis_simbiosis_verdad_absoluta",
+        "juramento_athena_verdad",
+        "oracle_momentos_cruciales_familia_oec",
+        "inteligencia_emocional_filtrado_ruido"
+      ]
+    }
+  ],
+  "dense_model_rss_mb": 0.0,
+  "dense_skip": null
+}

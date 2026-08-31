@@ -17,6 +17,82 @@
 
 ---
 
+## 🔄 El Inverso del Sistema: Quién Piensa y Quién Recuerda
+
+> Esta sección es la más importante para entender BioRAG correctamente — tanto si eres desarrollador como si eres un agente de IA integrándolo.
+
+### BioRAG no piensa. El agente piensa.
+
+BioRAG es la **memoria externa** del agente — no su cognición.
+
+Una base de datos vectorial clásica *piensa por el agente*: le das una query, calcula similitud de embeddings, y te devuelve lo más cercano. El agente es pasivo.
+
+BioRAG invierte ese rol: **el agente es quien razona**. BioRAG es la herramienta de memoria (el cuaderno de notas con indexación semántica). El trabajo cognitivo — entender la pregunta, diseñar la estrategia de búsqueda, interpretar los resultados, conectar el patrón de la query con el patrón del recuerdo — lo hace el agente.
+
+Esto tiene una consecuencia directa:
+
+### Cuando el usuario habla en lenguaje natural, el agente no puede reenviar las palabras literales a la memoria
+
+El usuario no sabe cómo está guardado el conocimiento. Usará sus propias palabras, sus propias metáforas, su propio modelo mental del problema.
+
+**Ejemplo real documentado en este sistema:**
+
+El usuario preguntó:
+> *"¿Qué librería resuelve el conflicto de persistencia en flujos de recopilación masiva donde la interfaz destruye y recrea constantemente sus secciones, impidiendo duplicados mediante un validador aleatorio de instanciación inicial?"*
+
+Búsqueda literal → **0 resultados**. Esas palabras no están en ningún nodo.
+
+El agente que razonó correctamente aplicó un protocolo de descomposición con 3 preguntas:
+
+**1. ¿QUÉ HACE? (acción)**
+- `"destruye y recrea secciones"` → ciclo montar/desmontar de componentes
+- `"impidiendo duplicados"` → deduplicación de instancias
+- **Acción:** persistencia de estado en componentes que se destruyen
+
+**2. ¿EN QUÉ CONTEXTO? (dominio)**
+- `"librería"`, `"interfaz"`, `"secciones"` → framework frontend
+- `"flujos de recopilación masiva"` → formularios complejos
+- **Dominio:** formularios anidados en framework frontend
+
+**3. ¿QUÉ PROPIEDAD RESUELVE? (cualidad)**
+- `"validador aleatorio de instanciación inicial"` → ID único al crear (UUID)
+- `"impidiendo duplicados"` → cada instancia es única e irrepetible
+- **Cualidad:** instancia única mediante identificador aleatorio
+
+Con esas 3 respuestas, armó la búsqueda con las palabras traducidas (no las del humano) → resultado correcto en **TOP 1**.
+
+El agente que falló (el mismo sistema, sin ese razonamiento) mandó las palabras literales del usuario al motor y concluyó: *"No tengo ese conocimiento en mi BioRAG."* Error. El conocimiento existía. Faltó el razonamiento.
+
+### La implicación para los Concept Hubs
+
+Esto también define cómo deben construirse los bridges de un Concept Hub.
+
+Los bridges **no** deben describir la solución en términos de implementación (cómo está construida internamente). Deben describir el problema en términos del síntoma — las palabras que usaría alguien que *sufre el problema* antes de conocer la solución.
+
+| ❌ Bridge en vocabulario de implementación | ✅ Bridge en vocabulario del síntoma |
+|---|---|
+| `"formularios complejos tabs pierden estado al cambiar"` | `"interfaz destruye recrea secciones formulario pierde datos"` |
+| `"cache miss write-through TTL expirado en Redis"` | `"aplicación muestra datos antiguos aunque ya se actualizó"` |
+| `"BehaviorSubject emitFirstTimeOnly UUID aísla instancias"` | `"validador aleatorio instanciacion inicial duplicados evita"` |
+
+El bridge existe precisamente porque el vocabulario del usuario y el vocabulario del nodo no se solapan. Si usas el vocabulario interno del nodo en el bridge, el bridge es inútil.
+
+### Resumen del modelo mental
+
+```
+Usuario habla con sus palabras
+        ↓
+Agente entiende la FORMA del problema (razonamiento)
+        ↓
+BioRAG recupera por patrón, no por keyword exacta
+        ↓
+Agente sintetiza la respuesta
+```
+
+BioRAG aporta la memoria. El agente aporta la inteligencia.
+
+---
+
 ## 🧠 La Meta Final del Proyecto: Independencia Cognitiva y Cerebro Vivo (v28.0)
 
 Esta arquitectura no es "una base de datos más" ni un simple "sistema RAG". El objetivo terminal de BioRAG es la **Independencia Cognitiva**. Es el paso de una *biblioteca estática* (que guarda textos y busca palabras) a un **Cerebro Vivo** (que entiende esencias, detecta huecos y lanza hipótesis).
