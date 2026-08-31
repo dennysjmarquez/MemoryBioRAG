@@ -1,0 +1,278 @@
+{
+  "fecha": "2026-08-30 23:51:33",
+  "db": "/home/user/MemoryBioRAG/MemoryBioRAG_Data/memory_biorag.db",
+  "k": 5,
+  "n_evaluables": 449,
+  "n_zero_overlap": 3,
+  "qcr_desactivado": true,
+  "notas": [
+    "WordNet lexnames (grupo semántico) desactivada: requiere omw-2.0 (multilingüe), no disponible offline. Afecta igual a S2 y S3.",
+    "WordNet sinónimos (expansión v29.1, inglés) SÍ disponible para tokens en inglés.",
+    "Cada sistema sobre copia fresca de la DB; QCR (gate FP) off para aislar recuperación.",
+    "Categorías 'negativo' (FP) y 'dormido' (profundidad deep) excluidas del recall.",
+    "Subconjunto estratificado: categorías semánticas completas + 'literal' muestreada (cap 120)."
+  ],
+  "latencia": {
+    "S1_lexical": {
+      "mean_ms": 4.86,
+      "p50_ms": 4.27,
+      "p95_ms": 9.35
+    },
+    "S2_biorag_base": {
+      "mean_ms": 960.21,
+      "p50_ms": 764.17,
+      "p95_ms": 1957.5
+    },
+    "S3_biorag_full": {
+      "mean_ms": 1260.95,
+      "p50_ms": 953.7,
+      "p95_ms": 2498.31
+    }
+  },
+  "dense_model_rss_mb": null,
+  "dense_skip": "carga de modelo falló: We couldn't connect to 'https://huggingface.co' to load the files, and couldn't find them in the cached files.\nCheck your internet connection or see how to run the library in offline mode at 'https://huggingface.co/docs/transformers/installation#offline-mode'.",
+  "recall": {
+    "S1_lexical": {
+      "global": {
+        "n": 446,
+        "R@1": 0.4843,
+        "R@5": 0.7803,
+        "MRR": 0.5946
+      },
+      "per_cat": {
+        "literal": {
+          "n": 117,
+          "R@1": 0.6923,
+          "R@5": 0.9658,
+          "MRR": 0.8054
+        },
+        "pregunta_natural": {
+          "n": 65,
+          "R@1": 0.4154,
+          "R@5": 0.7385,
+          "MRR": 0.5123
+        },
+        "por_tema": {
+          "n": 65,
+          "R@1": 0.6769,
+          "R@5": 0.9385,
+          "MRR": 0.7936
+        },
+        "typo": {
+          "n": 65,
+          "R@1": 0.3846,
+          "R@5": 0.7846,
+          "MRR": 0.5267
+        },
+        "cruce_idioma": {
+          "n": 8,
+          "R@1": 0.25,
+          "R@5": 0.75,
+          "MRR": 0.4313
+        },
+        "sinonimo": {
+          "n": 61,
+          "R@1": 0.2131,
+          "R@5": 0.3934,
+          "MRR": 0.273
+        },
+        "variante_gramatical": {
+          "n": 65,
+          "R@1": 0.3692,
+          "R@5": 0.6923,
+          "MRR": 0.4882
+        }
+      }
+    },
+    "S2_biorag_base": {
+      "global": {
+        "n": 446,
+        "R@1": 0.5785,
+        "R@5": 0.8027,
+        "MRR": 0.6564
+      },
+      "per_cat": {
+        "literal": {
+          "n": 117,
+          "R@1": 1.0,
+          "R@5": 1.0,
+          "MRR": 1.0
+        },
+        "pregunta_natural": {
+          "n": 65,
+          "R@1": 0.6615,
+          "R@5": 0.8769,
+          "MRR": 0.7382
+        },
+        "por_tema": {
+          "n": 65,
+          "R@1": 0.1385,
+          "R@5": 0.4,
+          "MRR": 0.2392
+        },
+        "typo": {
+          "n": 65,
+          "R@1": 0.4769,
+          "R@5": 0.8,
+          "MRR": 0.5995
+        },
+        "cruce_idioma": {
+          "n": 8,
+          "R@1": 0.25,
+          "R@5": 0.75,
+          "MRR": 0.3937
+        },
+        "sinonimo": {
+          "n": 61,
+          "R@1": 0.3934,
+          "R@5": 0.7541,
+          "MRR": 0.5066
+        },
+        "variante_gramatical": {
+          "n": 65,
+          "R@1": 0.4923,
+          "R@5": 0.8308,
+          "MRR": 0.6031
+        }
+      }
+    },
+    "S3_biorag_full": {
+      "global": {
+        "n": 446,
+        "R@1": 0.5179,
+        "R@5": 0.7534,
+        "MRR": 0.6016
+      },
+      "per_cat": {
+        "literal": {
+          "n": 117,
+          "R@1": 0.9658,
+          "R@5": 1.0,
+          "MRR": 0.9829
+        },
+        "pregunta_natural": {
+          "n": 65,
+          "R@1": 0.5538,
+          "R@5": 0.7692,
+          "MRR": 0.6231
+        },
+        "por_tema": {
+          "n": 65,
+          "R@1": 0.1077,
+          "R@5": 0.3846,
+          "MRR": 0.219
+        },
+        "typo": {
+          "n": 65,
+          "R@1": 0.4,
+          "R@5": 0.7385,
+          "MRR": 0.5249
+        },
+        "cruce_idioma": {
+          "n": 8,
+          "R@1": 0.0,
+          "R@5": 0.5,
+          "MRR": 0.1604
+        },
+        "sinonimo": {
+          "n": 61,
+          "R@1": 0.377,
+          "R@5": 0.7049,
+          "MRR": 0.4869
+        },
+        "variante_gramatical": {
+          "n": 65,
+          "R@1": 0.4,
+          "R@5": 0.7538,
+          "MRR": 0.5149
+        }
+      }
+    }
+  },
+  "zero_overlap_recall": {
+    "S1_lexical": {
+      "global": {
+        "n": 3,
+        "R@1": 0.6667,
+        "R@5": 0.6667,
+        "MRR": 0.6667
+      },
+      "per_cat": {
+        "pregunta_natural": {
+          "n": 1,
+          "R@1": 1.0,
+          "R@5": 1.0,
+          "MRR": 1.0
+        },
+        "literal": {
+          "n": 1,
+          "R@1": 1.0,
+          "R@5": 1.0,
+          "MRR": 1.0
+        },
+        "typo": {
+          "n": 1,
+          "R@1": 0.0,
+          "R@5": 0.0,
+          "MRR": 0.0
+        }
+      }
+    },
+    "S2_biorag_base": {
+      "global": {
+        "n": 3,
+        "R@1": 0.3333,
+        "R@5": 0.6667,
+        "MRR": 0.4167
+      },
+      "per_cat": {
+        "pregunta_natural": {
+          "n": 1,
+          "R@1": 0.0,
+          "R@5": 1.0,
+          "MRR": 0.25
+        },
+        "literal": {
+          "n": 1,
+          "R@1": 1.0,
+          "R@5": 1.0,
+          "MRR": 1.0
+        },
+        "typo": {
+          "n": 1,
+          "R@1": 0.0,
+          "R@5": 0.0,
+          "MRR": 0.0
+        }
+      }
+    },
+    "S3_biorag_full": {
+      "global": {
+        "n": 3,
+        "R@1": 0.3333,
+        "R@5": 0.3333,
+        "MRR": 0.3333
+      },
+      "per_cat": {
+        "pregunta_natural": {
+          "n": 1,
+          "R@1": 0.0,
+          "R@5": 0.0,
+          "MRR": 0.0
+        },
+        "literal": {
+          "n": 1,
+          "R@1": 1.0,
+          "R@5": 1.0,
+          "MRR": 1.0
+        },
+        "typo": {
+          "n": 1,
+          "R@1": 0.0,
+          "R@5": 0.0,
+          "MRR": 0.0
+        }
+      }
+    }
+  }
+}
