@@ -5238,16 +5238,20 @@ class SQLiteMemoryBioRAG:
             except sqlite3.OperationalError:
                 pass
 
-        # Normalizar BM25 con fórmula estable abs/(abs+3) para que la escala sea
-        # consistente entre buscar_por_frase y buscar_por_rafaga.
-        # No usa min-max porque al mezclar resultados de ambas funciones en biorag_recordar
-        # las escalas relativas no son comparables entre sí.
-        # NOTA: Bayesian BM25 (sigmoid) fue testiado y RECHAZADO — los scores negativos
-        # de FTS5 y la variabilidad por query hacen que la sigmoid produzca rankings
-        # incorrectos. La fórmula abs/(abs+3) es monotónica y funcional para ranking.
-        bm25_norm_map = {}
-        for concepto, raw_bm25 in bm25_raw.items():
-            bm25_norm_map[concepto] = abs(raw_bm25) / (abs(raw_bm25) + 3.0)
+        # Normalización BM25 relativa intra-query (invariante a escala del corpus N).
+        # Reemplaza la constante fija 3.0 que saturaba y comprimía scores al crecer el corpus.
+        # Calcula min/max sobre los candidatos de la query actual para preservar discriminación.
+        # Aplica escala = min(1.0, hi) para evitar inflar ruido en queries sin match fuerte (typos).
+        raw_vals = [abs(v) for v in bm25_raw.values()]
+        if raw_vals:
+            lo, hi = min(raw_vals), max(raw_vals)
+            rango = hi - lo if hi > lo else 1.0
+            escala = min(1.0, hi) if hi > 0 else 1.0
+            bm25_norm_map = {c: ((abs(v) - lo) / rango) * escala for c, v in bm25_raw.items()}
+        else:
+            bm25_norm_map = {}
+
+
 
         # ─── Capa 4.5: Precompute predicate data for scoring ───
         # Fetch predicate contexto (keywords) for all candidates
@@ -6183,12 +6187,21 @@ class SQLiteMemoryBioRAG:
 
         total = len(todos)
 
-        # Normalizar BM25 con fórmula estable abs/(abs+3) para pool pequeño (ráfaga)
-        bm25_norm_map = {}
-        for r in todos:
-            _, concepto, _, _, _, _, *bm25_rest = r
-            raw = bm25_rest[0] if bm25_rest else 0.0
-            bm25_norm_map[concepto] = abs(raw) / (abs(raw) + 3.0)
+        # Normalización BM25 relativa intra-query para pool de ráfaga (invariante a escala N)
+        # Reemplaza la constante fija 3.0 para mantener escalas coherentes e invariantes.
+        # Aplica escala = min(1.0, hi) para evitar inflar ruido en queries sin match fuerte.
+        raw_vals = [abs(r[6] if len(r) > 6 else 0.0) for r in todos]
+        if raw_vals:
+            lo, hi = min(raw_vals), max(raw_vals)
+            rango = hi - lo if hi > lo else 1.0
+            escala = min(1.0, hi) if hi > 0 else 1.0
+            bm25_norm_map = {
+                r[1]: ((abs(r[6] if len(r) > 6 else 0.0) - lo) / rango) * escala for r in todos
+            }
+        else:
+            bm25_norm_map = {}
+
+
 
         scored = []
         for r in todos:
