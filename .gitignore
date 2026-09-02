@@ -40,7 +40,8 @@ MemoryBioRAG_Data/memory_biorag.db-shm
 
 MemoryBioRAG_Data/memory_biorag.db-wal
 
-snapshots/
+snapshots/*
+!snapshots/qa_escape_qcr_20260811.db
 
 agent_benchmark_coldstart.jsonl
 
