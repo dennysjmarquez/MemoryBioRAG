@@ -266,39 +266,102 @@ def generate_cases_for_node(node, db, only_literal=False, exclude_literal=False)
     
     return cases
 
-def generate_negative_queries(db, count=40):
-    """Generates negative queries and validates they return no results."""
-    negative_words_pool = [
-        "paraguas", "velero", "jirafa", "chocolate", "guitarra", "telescopio",
-        "sándwich", "bufanda", "canguro", "rinoceronte", "pantalón", "espejo",
-        "alfombra", "dinosaurio", "orquesta", "linterna", "cuaderno", "martillo",
-        "almohada", "helado", "piscina", "balón", "zapato", "camisa", "sombrero",
-        "parque", "bosque", "montaña", "río", "playa", "isla", "selva", "desierto",
-        "naranja", "plátano", "manzana", "uva", "pera", "sandía", "fresa", "limón"
-    ]
-    
+def _normalizar_token(texto):
+    """Normaliza texto para matching de tokens: sin acentos, minúsculas."""
+    import unicodedata
+    return ''.join(
+        c for c in unicodedata.normalize('NFKD', texto)
+        if not unicodedata.combining(c)
+    ).lower()
+
+
+def _tokens_corpus(db):
+    """Tokens (>=3 chars, normalizados) presentes en el corpus completo.
+
+    Un control negativo solo es válido si NINGÚN token de su query aparece
+    como palabra en el corpus (concepto + contenido + sinónimos). De lo
+    contrario la query deja de ser "ruido" y pasa a ser una coincidencia
+    léxica legítima (contaminación autorreferencial): el motor la recupera
+    correctamente y el QA la cuenta como falso positivo sin serlo.
+    """
+    import re
+    tokens = set()
+    db.cursor.execute(
+        "SELECT concepto, COALESCE(contenido, ''), COALESCE(sinonimos, '') FROM largo_plazo"
+    )
+    for concepto, contenido, sinonimos in db.cursor.fetchall():
+        texto = f"{concepto} {contenido} {sinonimos}".replace('_', ' ').replace('-', ' ')
+        for w in re.findall(r'\w{3,}', _normalizar_token(texto)):
+            tokens.add(w)
+    return tokens
+
+
+# Vocabulario fresco para controles negativos (v2, 2026-09-01).
+# MOTIVACIÓN: el pool v1 (jirafa, helado, bufanda, ...) quedó contaminado
+# porque las lecciones/hallazgos sobre la propia suite QA (gate QCR y su
+# investigación de FP) citan esos términos como ejemplos DENTRO del corpus.
+# Al documentarse en la memoria, dejaron de ser controles negativos válidos.
+# Este pool no reutiliza ninguna palabra del pool v1 y cada query se valida
+# contra el corpus actual (tokens) + búsqueda empírica top-5, garantizando
+# que sea "ruido real" sin overlap léxico.
+NEGATIVE_WORDS_POOL_V2 = [
+    "hipopótamo", "aspiradora", "tocadiscos", "perchero", "abrelatas",
+    "palangana", "cebolla", "trompeta", "acordeón", "colibrí",
+    "perejil", "lavanda", "cigüeña", "mapache", "castor",
+    "avestruz", "cisne", "sartén", "cucharón", "tetera",
+    "hamaca", "mecedora", "regadera", "macetero", "farola",
+    "noria", "tobogán", "saxofón", "clarinete", "flauta",
+    "cocodrilo", "cebra", "morsa", "tapir", "jabalí",
+    "albahaca", "romero", "tomillo", "jengibre", "canela",
+    "tamboril", "pandereta", "cacerola", "colador", "rallador",
+    "servilleta", "alfiler", "cremallera", "cinturón", "pañoleta",
+    "tendedero", "escobillón", "plumero", "batidora", "exprimidor",
+]
+
+
+def generate_negative_queries(db, count=40, negative_words_pool=None):
+    """Genera controles negativos y valida que NO existan en el corpus.
+
+    Un control es válido si:
+      1. Ningún token de la query aparece como palabra en el corpus
+         (concepto + contenido + sinónimos) — evita la contaminación
+         autorreferencial que infló el %FP a 60% en la corrida previa.
+      2. La búsqueda profunda no devuelve nada, o todo el top-5 queda
+         por debajo del umbral de ruido (score < 0.25).
+    """
+    if negative_words_pool is None:
+        negative_words_pool = NEGATIVE_WORDS_POOL_V2
+
+    import re
+    tokens_corpus = _tokens_corpus(db)
     negatives = []
     attempts = 0
-    max_attempts = 500
-    
+    max_attempts = 2000
+
     while len(negatives) < count and attempts < max_attempts:
         attempts += 1
         num_words = random.randint(2, 4)
-        selected = random.sample(negative_words_pool, num_words)
+        selected = random.sample(negative_words_pool, min(num_words, len(negative_words_pool)))
         query = " ".join(selected)
-        
-        # Empirical Validation: Run it against database to ensure it doesn't match anything
-        results, total = db.buscar_por_frase(query, profundidad="profundo", limite=1)
-        if total == 0 or (len(results) > 0 and results[0][4] < 0.25):
-            # If no matches or score is extremely low noise, accept it
+
+        # Guarda 1: ningún token de la query puede existir en el corpus
+        q_tokens = re.findall(r'\w{3,}', _normalizar_token(query))
+        if any(t in tokens_corpus for t in q_tokens):
+            continue
+
+        # Guarda 2: validación empírica contra búsqueda profunda (top-5 completo)
+        results, total = db.buscar_por_frase(query, profundidad="profundo", limite=5)
+        if total == 0 or (len(results) > 0 and all(r[4] < 0.25 for r in results)):
             negatives.append({
                 "categoria": "negativo",
                 "query": query,
                 "concepto_esperado": None,
-                "deep": True, # Test under deep search as well to test robustness of all layers
-                "notes": "Empirically validated negative control"
+                "deep": True,  # Test under deep search as well to test robustness of all layers
+                "notes": "Empirically validated negative control (v2, sin overlap léxico con el corpus)"
             })
-            
+
+    if len(negatives) < count:
+        print(f"ADVERTENCIA: solo se validaron {len(negatives)}/{count} negativos en {attempts} intentos.")
     print(f"Validated {len(negatives)} negative queries in {attempts} generation attempts.")
     return negatives
 

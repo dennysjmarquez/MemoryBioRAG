@@ -36,7 +36,8 @@ python3 -c "
 import sqlite3
 src = sqlite3.connect('$SRC_DB')
 dst = sqlite3.connect('$QA_DB')
-src.execute('PRAGMA wal_checkpoint(FULL);')
+# usar checkpoint en modo solo-lectura (no reescribe el archivo principal):
+src.execute('PRAGMA wal_checkpoint(PASSIVE);')
 src.backup(dst)
 src.close()
 dst.close()
