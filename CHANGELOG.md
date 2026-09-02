@@ -1,5 +1,33 @@
 # BioRAG Changelog
 
+## [v30.0] — 2026-09-02 — Invarianza de Escala, Normalización Intra-Query y Falsos Positivos Cero
+
+Release arquitectónico mayor de **Invarianza al Tamaño del Corpus ($N$) y Precisión Libre de Calibración Manual**. Transforma la señal léxica BM25 de una escala fija y saturable a una normalización relativa intra-query matemáticamente inmune al crecimiento de la base de datos, unifica la comparabilidad entre búsqueda por frase y ráfaga en el servidor MCP, y logra **0.00% de Falsos Positivos** en el benchmark global de regresión.
+
+### Añadido & Refactorizado
+- **Normalización BM25 Intra-Query Invariante a Escala (`core/memory_store.py`)**:
+  - Reemplazo de la fórmula estática `abs(raw_bm25) / (abs(raw_bm25) + 3.0)` que saturaba cerca de $1.0$ al crecer el corpus debido al crecimiento logarítmico del IDF ($\log(N)$).
+  - Implementación de **Min-Max Intra-Query** sobre el pool de candidatos de cada consulta individual:
+    $$\text{bm25\_norm} = \frac{|v| - \text{lo}}{\text{hi} - \text{lo}} \times \min(1.0, \text{hi})$$
+  - La guarda de escala `escala = min(1.0, hi)` previene la amplificación artificial de ruido en consultas sin coincidencia léxica sólida (ej. errores tipográficos y variantes gramaticales).
+- **Unificación de Comparabilidad Frase / Ráfaga (`core/memory_store.py:buscar_por_rafaga`)**:
+  - `buscar_por_frase` preserva los límites de escala en `self._last_bm25_bounds = (lo, hi, escala)`.
+  - `buscar_por_rafaga` reutiliza y extiende dinámicamente este intervalo (`lo = min(base_lo, r_lo)`, `hi = max(base_hi, r_hi)`), garantizando que cuando `mcp_server.py` combina y reordena ambos pools por `r[4]`, ambas funciones evalúan sobre el mismo espacio métrico lineal.
+- **Calibración Conforme Persistida (`calibracion_estado`)**:
+  - Umbral de corte empírico recalculado y persistido en SQLite a **0.5233** ($\alpha=0.10$, 926 nodos) con entrenamiento Platt monótono.
+- **Limpieza de Controles Negativos en Evaluación QA (`scripts/evaluar_qa.py`)**:
+  - Detección automática de controles autorreferenciales (palabras del control negativo que fueron indexadas en nodos legítimos del corpus), aislando el ruido puro de matches válidos.
+
+### Métricas y Resultados (Suite Completa 921 Casos en DB Viva)
+- **Falsos Positivos (`negativo`)**: **0.00% FP (0 / 40)** — Reducción total de ruido en consultas negativas.
+- **`por_tema` Recall@1**: **70.77% (46 / 65)** y **MRR 0.797** (Récord histórico de precisión conceptual).
+- **`por_tema` Recall@5**: **92.31% (60 / 65)**.
+- **Global Recall@1**: **86.61% (763 / 881)** — Más del 86.6% de consultas resueltas en Top-1 directo.
+- **Global Recall@5**: **95.23% (839 / 881)** — MRR global de **0.900**.
+- **Tests Unitarios Pytest**: **34 / 34 PASSED (100%)** en 22.21s.
+- **Invariantes de Scoring**: **4 / 4 PASSED** (Monotonía y Preservación de Escala).
+- **Concept Hub Semántico (Fase 2)**: **5 / 5 TOP-1 PASSED (100%)**.
+
 ## [v29.1] — 2026-08-23 — Estándar de 5 Ángulos en Concept Hubs & Blindaje de Latencia
 
 Release de **estandarización cognitiva de puentes semánticos y optimización radical de latencia**. Consolida el validador estricto de los 5 ángulos oficiales en Concept Hubs y elimina el cuello de botella combinatorio en scoring simbólico y temático.

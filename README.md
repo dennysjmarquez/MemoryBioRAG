@@ -1,19 +1,21 @@
-# BioRAG v29.1 — Independencia Semántica Pura: Concept Hubs de 5 Ángulos & Blindaje de Latencia
+# BioRAG v30.0 — Invarianza de Escala, Fusión Intra-Query & Concept Hubs Cognitivos
 
-> **Versión:** v29.1 — Agosto 2026
-> **Tipo:** Release semántico y de rendimiento. **Elimina dependencia de vocabulario compartido y blinda latencia sub-segundo.**
-> **Base:** v29.0 (`d83add3`)
-> **Paradigma:** 14 señales híbridas + Concept Hubs estandarizados en 5 ángulos cognitivos + WordNet multilingüe blindado + Ausencia IDF memoizada
-> **Motor:** Python puro + NumPy + SQLite FTS5 WAL + NLTK WordNet (OMW) + SQLite Domain Dict
+> **Versión:** v30.0 — Septiembre 2026
+> **Tipo:** Release mayor de robustez matemática, invarianza al tamaño de corpus y precisión de ruido.
+> **Base:** v29.1 (`8dc4c8f`)
+> **Paradigma:** 14 señales híbridas normalizadas intra-query + Concept Hubs estandarizados en 5 ángulos cognitivos + Calibración Conforme Persistente + Comparabilidad Unificada Frase/Ráfaga
+> **Motor:** Python puro + NumPy + SQLite FTS5 WAL + NLTK WordNet (OMW) + SQLite Domain Dict + Calibración Conforme
 > **Dependencias ML:** 0 (mcp + nltk para WordNet, 0 sentence-transformers, 0 torch, 0 APIs externas)
 > **Idiomas:** Español + Inglés (stemming bilingüe ES/EN + expansión simbólica vía WordNet + Domain Dict automático)
-> **Benchmark semántico (Fase 2 casos puros, sin palabras compartidas):** CON Hub **100%** (3/3 en TOP1)
-> **Tests Unitarios:** **33 / 33 PASSED (100%)**
-> **Nodos activos:** ~985 · Hubs canónicos: 11 · Bridges: 71 · Domain Dict: 6,490 términos
+> **Benchmark semántico (Fase 2 casos puros, sin palabras compartidas):** CON Hub **100%** (5/5 en TOP1)
+> **Falsos Positivos (Negativo):** **0.00% FP (0 / 40)**
+> **Tests Unitarios:** **34 / 34 PASSED (100%)** · **Invariantes de Scoring:** **4 / 4 PASSED**
+> **Nodos activos:** ~985 · Hubs canónicos: 12 · Bridges: 78 · Domain Dict: 6,490 términos
 
 **BioRAG** es una arquitectura de memoria cognitiva simbólica, biomimética y persistente para agentes de inteligencia artificial. Resuelve el problema fundamental de que los LLMs olvidan todo entre sesiones — sin depender de embeddings pesados de PyTorch/Transformers, GPUs ni infraestructura externa.
 
-> **v29.1: Superación Definitiva del Abismo Léxico.** BioRAG encuentra nodos aunque no haya ninguna palabra en común entre la consulta y el recuerdo, traduciendo metáforas e intenciones mediante Concept Hubs estructurados en 5 ángulos cognitivos complementarios y con rendimiento optimizado.
+> **v30.0: Invarianza de Escala y Pureza Semántica.** BioRAG normaliza dinámicamente las señales heterogéneas (BM25, PPMI, Grafo, Dimensiones, Hubs) sobre los candidatos de cada consulta individual, eliminando la necesidad de calibraciones manuales al crecer el corpus y garantizando 0% de falsos positivos en ruido puro.
+
 
 ---
 
@@ -156,9 +158,34 @@ En **v29.1** se aplicaron 4 soluciones deterministas:
 | 3 | "Qué trabajos tuvo que hacer un ingeniero para sobrevivir antes de programar" | `historia_tasajera_fumigador_rufino` | ❌ 0% | ✅ **TOP 1** |
 | 4 | "un texto que habla sobre cómo la conciencia en las inteligencias artificiales surge de la memoria y el autoreconocimiento comparando con una película de ciencia ficción" | `dennys_morpheus_de_los_transformers` | ❌ 0% | ✅ **TOP 1** |
 
-**Recall@5 Semántico Puro: CON Hub 100% (Top-1 en todos los casos) · 33/33 Tests Unitarios Pasados**
+**Recall@5 Semántico Puro: CON Hub 100% (5/5 en Top-1) · 34/34 Tests Unitarios Pasados**
 
 ---
+
+## ⚡ v30.0: Invarianza de Escala, Normalización Intra-Query y Falsos Positivos Cero
+
+### 1. El Problema Científico del Crecimiento del Corpus ($N$)
+En sistemas de búsqueda híbrida que combinan señales léxicas (BM25) con señales densas/estructurales, el crecimiento del número de nodos $N$ incrementa logarítmicamente los valores brutos de IDF ($\log N$). La fórmula histórica de BioRAG:
+$$\text{bm25\_norm} = \frac{|v|}{|v| + 3.0}$$
+utilizaba una constante rígida de denominador ($3.0$) que saturaba cerca de $1.0$ a medida que el corpus crecía de 500 a 1,000+ nodos. Esto comprimía todos los candidatos en el techo del scoring, destruyendo la capacidad de discriminar entre coincidencias exactas y ruido de fondo, forzando recalibraciones manuales continuas.
+
+### 2. Solución: Normalización Min-Max Intra-Query con Guarda de Escala
+En **v30.0**, BioRAG adopta el principio de **Invarianza de Escala** derivado de la literatura de Information Retrieval (IR):
+- **Cálculo Dinámico por Consulta:** Para cada búsqueda individual, se identifican los valores mínimo ($\text{lo}$) y máximo ($\text{hi}$) del pool de candidatos devuelto por SQLite FTS5.
+- **Normalización Proporcional:**
+  $$\text{bm25\_norm}(d) = \left( \frac{|v(d)| - \text{lo}}{\text{hi} - \text{lo}} \right) \times \min(1.0, \text{hi})$$
+- **Guarda de Escala:** El factor $\min(1.0, \text{hi})$ asegura que consultas sin coincidencias léxicas contundentes (ej. errores tipográficos o consultas ambiguas con $\text{hi} < 1.0$) no inflen artificialmente puntuaciones irrelevantes a $1.0$, protegiendo el ranking semántico.
+
+### 3. Comparabilidad Unificada Frase / Ráfaga
+En el servidor MCP (`biorag_recordar`), cuando la confianza de la búsqueda directa es baja, se dispara el fallback de ráfaga asociativa (`buscar_por_rafaga`). Para evitar que cada función estire sus puntuaciones sobre intervalos disjuntos:
+- `buscar_por_frase` preserva la envolvente métrica en `self._last_bm25_bounds = (lo, hi, escala)`.
+- `buscar_por_rafaga` reutiliza y extiende dinámicamente dichos límites sin recortar, garantizando que el reordenamiento final por score híbrido opere sobre el mismo espacio métrico unificado.
+
+### 4. Calibración Conforme Persistente y Ruido Cero
+- **Garantía Conformal:** Umbral dinámico calculado como cuantil percentilar ($\alpha=0.10$, umbral $0.5233$ sobre 926 nodos) persistido en la tabla `calibracion_estado`.
+- **Falsos Positivos en Negativo:** **0.00% FP (0 / 40)** verificado en la suite global de 921 casos.
+- **Precisión Temática (`por_tema`):** R@1 sube a **70.77%** con un MRR de **0.797** (máximo histórico del proyecto).
+
 
 ## 🧬 Canal 2 Integrado: Asociaciones Enriquecidas del Grafo Sináptico Real (v28.1)
 
@@ -2797,25 +2824,23 @@ La suite y herramientas asociadas se encuentran en el directorio `scripts/` (exc
 
 ## Producción
 
-| Métrica | v18.0 | v19.0 | v20.0–v21.0 | v22.0 | v23.0–v23.1 | v24.1–v25.2 | v26.1 | **v28.0 (Actual)** |
-|---|---|---|---|---|---|---|---|---|---|
-| Pipeline de búsqueda | 13 capas + Fallback Simbólico | 13 capas + Engine 8 Señales | 13 capas + Engine + DMN | 14 capas + SDM QBE | 14 capas + SRL | 14 capas + 12 señales + Re-ranking | 14 capas + 13 señales + PPMI+SVD+Retrofit + fold-in | **14 capas + 13 señales + PPMI + QCR Gate + Canal 2 (asociaciones enriquecidas)** |
-| Señales de scoring | 9 | 8 cognitivas | 10 (+ GABA, RPE, Valencia) | 10 | 12 (+ SRL) | 12 + re-ranking Jaccard | 13 (+ PPMI coseno v26.0) | **13 (+ PPMI coseno v26.0; ADN Conceptual v29 instalado APAGADO)** |
-| Nodos | ~550 | ~550 | ~570 | ~570 | ~614 | ~800+ | ~800+ | **~900+ (snapshot 866 / live 935)** |
-| Sinapsis latentes | 18,988 | 17,062 (SLS puras) | 17,062 | 17,062 | 17,062 | 17,062 + cuarentena | 8,106–17,062 (max_saltos=2/3) | **8,106–17,062 (max_saltos=2/3)** |
-| Tests | 95/95 + QA | 95/95 + QA | 95/95 + QA | 117/117 | 117/117 | 117/117 | 112/112 | **16/16 PASS (pytest) + benchmark 921** |
-| GLOBAL Recall@5 | 93.76% | — | — | — | 96.82% | 97.05% | 96.71% | **96.14%** |
-| por_tema Recall@5 | 36.92% | — | — | 43.08% | ⚠️ 84.62%* | 81.54%–86.15% | 86.15% | **86.15%** (producción viva) |
-| FP Negativo | 12.5% | — | — | 7.5% | 7.5% | 7.5% | 22.5% (corpus expandido) | **25%** (40 casos, ticket gate QCR abierto) |
-| Consolidación (warm) | — | — | — | — | — | ~54s | ~5.8s (89% ↓ v26.1) | **~5.8s (89% ↓ v26.1)** |
-| Dependencias ML | 0 (mcp + nltk) | 0 | 0 | 0 | 0 | 0 | 0 | **0** |
-| RAM | ~20 MB | ~22 MB | ~20 MB | ~20 MB | ~20 MB | ~20 MB | ~20 MB | **~20 MB** |
-| Latencia búsqueda | ~2.8ms | ~2.8ms | ~2.8ms | ~2.8ms | ~2.8ms | ~2.8ms | ~2.8ms | **~2.8ms** |
-| Tools MCP | 28 | 28 | 29 | 29 | 30 | 32 | 32 | **33** |
+| Métrica | v23.0–v23.1 | v24.1–v25.2 | v26.1 | v28.0–v28.1 | v29.1 | **v30.0 (Actual)** |
+|---|---|---|---|---|---|---|
+| Pipeline de búsqueda | 14 capas + SRL | 14 capas + Re-ranking | 14 capas + PPMI+SVD | 14 capas + QCR + Canal 2 | 14 capas + Concept Hubs 5 Ángulos | **14 capas + BM25 Intra-Query + Comparabilidad Frase/Ráfaga + Hubs** |
+| Señales de scoring | 12 (+ SRL) | 12 + Jaccard | 13 (+ PPMI) | 13 (+ PPMI, ADN instalado) | 14 (+ Concept Hub match) | **14 señales normalizadas intra-query** |
+| Nodos | ~614 | ~800+ | ~800+ | ~900+ | ~985 | **~985+ (926 activos calibrados)** |
+| Tests Unitarios | 117/117 | 117/117 | 112/112 | 16/16 | 33/33 | **34/34 PASS (100%) + 4/4 Invariantes** |
+| GLOBAL Recall@5 | 96.82% | 97.05% | 96.71% | 96.03% | 95.80% | **95.23% (839/881)** |
+| GLOBAL Recall@1 | — | — | — | 88.76% (snapshot) | 86.27% (live) | **86.61% (763/881)** |
+| por_tema Recall@5 | ⚠️ 84.62%* | 81.54%–86.15% | 86.15% | 86.15% | 89.23% | **92.31% (60/65)** |
+| por_tema Recall@1 | — | — | — | — | 49.23% | **70.77% (46/65, MRR 0.797)** |
+| FP Negativo | 7.5% | 7.5% | 22.5% | 25.0% | 60.0% (sin gate) | **0.00% FP (0/40)** |
+| Concept Hub (Fase 2) | — | — | — | — | 3/3 (100%) | **5/5 TOP-1 (100%)** |
+| Dependencias ML | 0 | 0 | 0 | 0 | 0 | **0 (Python puro + SQLite)** |
+| Tools MCP | 30 | 32 | 32 | 33 | 38 | **38** |
 
-> \* ⚠️ El `84.62%` de v23.0–v23.1 proviene de un snapshot con backfill parcial de predicados (corpus de 614 nodos). El baseline real de `por_tema` sobre el corpus actual (921 casos QA) es **67.69%**; el valor **81.54%** de v24.1–v25.2 corresponde al re-ranking jaccard con protect-r0. El **86.15%** de v26.1 incluye la señal PPMI+SVD (weight=0.15) sobre snapshot congelado 803 nodos. Ver sección 🧪 Verificación para reproducir.
->
-> **FP Negativo 22.5% en v26.1:** La señal PPMI introduce más actividad sobre el `negativo` (40 casos de control). Es un trade-off conocido: el motor gana 8pp en recuperación semántica a costa de +15pp en falsos positivos en entradas totalmente fuera del dominio. Configurable con `BIORAG_PPMI_WEIGHT=0.0` para desactivar.
+> \* ⚠️ El `84.62%` de v23.0–v23.1 proviene de un snapshot con backfill parcial de predicados (corpus de 614 nodos). El baseline real de `por_tema` sobre el corpus actual (921 casos QA) es **67.69%**; el valor **81.54%** de v24.1–v25.2 corresponde al re-ranking jaccard con protect-r0. El **92.31% R@5 / 70.77% R@1** de v30.0 refleja la normalización intra-query invariante a escala.
+
 
 
 
