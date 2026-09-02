@@ -5242,14 +5242,18 @@ class SQLiteMemoryBioRAG:
         # Reemplaza la constante fija 3.0 que saturaba y comprimía scores al crecer el corpus.
         # Calcula min/max sobre los candidatos de la query actual para preservar discriminación.
         # Aplica escala = min(1.0, hi) para evitar inflar ruido en queries sin match fuerte (typos).
+        # Guarda _last_bm25_bounds para que buscar_por_rafaga comparta la misma escala en biorag_recordar.
         raw_vals = [abs(v) for v in bm25_raw.values()]
         if raw_vals:
             lo, hi = min(raw_vals), max(raw_vals)
             rango = hi - lo if hi > lo else 1.0
             escala = min(1.0, hi) if hi > 0 else 1.0
             bm25_norm_map = {c: ((abs(v) - lo) / rango) * escala for c, v in bm25_raw.items()}
+            self._last_bm25_bounds = (lo, hi, escala)
         else:
             bm25_norm_map = {}
+            self._last_bm25_bounds = None
+
 
 
 
@@ -6187,12 +6191,19 @@ class SQLiteMemoryBioRAG:
 
         total = len(todos)
 
-        # Normalización BM25 relativa intra-query para pool de ráfaga (invariante a escala N)
-        # Reemplaza la constante fija 3.0 para mantener escalas coherentes e invariantes.
-        # Aplica escala = min(1.0, hi) para evitar inflar ruido en queries sin match fuerte.
-        raw_vals = [abs(r[6] if len(r) > 6 else 0.0) for r in todos]
-        if raw_vals:
-            lo, hi = min(raw_vals), max(raw_vals)
+        # Normalización BM25 consistente con buscar_por_frase (Opción 1: Reúso y extensión de escala)
+        # Para garantizar comparabilidad cuando mcp_server combina resultados de frase + ráfaga
+        # y reordena por score (r[4]), ráfaga normaliza contra la misma escala [lo, hi] de frase.
+        # Si un candidato de ráfaga excede los límites previos, el rango se extiende sin recortar.
+        rafaga_raw_vals = [abs(r[6] if len(r) > 6 else 0.0) for r in todos]
+        if rafaga_raw_vals:
+            r_lo, r_hi = min(rafaga_raw_vals), max(rafaga_raw_vals)
+            if getattr(self, '_last_bm25_bounds', None) is not None:
+                base_lo, base_hi, _ = self._last_bm25_bounds
+                lo = min(base_lo, r_lo)
+                hi = max(base_hi, r_hi)
+            else:
+                lo, hi = r_lo, r_hi
             rango = hi - lo if hi > lo else 1.0
             escala = min(1.0, hi) if hi > 0 else 1.0
             bm25_norm_map = {
@@ -6200,6 +6211,7 @@ class SQLiteMemoryBioRAG:
             }
         else:
             bm25_norm_map = {}
+
 
 
 
