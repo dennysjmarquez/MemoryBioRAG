@@ -5278,6 +5278,15 @@ class SQLiteMemoryBioRAG:
             bm25_norm_map = {}
             self._last_bm25_bounds = None
 
+        # Asignar BM25 sintético a candidatos de rescate (typo, simbólico, dimensional_fallback)
+        # para que no compitan con bm25=0 frente a matches parciales débiles,
+        # preservando la escala intra-query para mantener 0% falsos positivos en ruido.
+        if bm25_norm_map and self._last_bm25_bounds:
+            escala_activa = self._last_bm25_bounds[2]
+            for conc, (origen, sc_capa) in origen_scores.items():
+                if conc not in bm25_norm_map and origen in ("typo", "simbolico", "dimensional_fallback"):
+                    bm25_norm_map[conc] = escala_activa * float(sc_capa)
+
 
 
 
