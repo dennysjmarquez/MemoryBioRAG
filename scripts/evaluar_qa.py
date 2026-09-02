@@ -106,6 +106,10 @@ def run_evaluation():
         # 3. Evaluation phase
         if expected is None:
             # Negative control case: check if we retrieved any matches with high score
+            # DEUDA TÉCNICA CONOCIDA: evaluar_qa.py evalúa FP con el corte estático BIORAG_FP_THRESHOLD=0.25
+            # y no consulta la tabla calibracion_estado ni pasa por _debe_responder() / nivel_certeza() de
+            # biorag_recordar(). Para validar el umbral conforme empírico (ej. 0.5233) en producción,
+            # se requiere una suite dedicada que evalúe el pipeline de producción MCP.
             # Noise threshold: configurable via BIORAG_FP_THRESHOLD (default 0.25)
             fp_threshold = float(os.environ.get('BIORAG_FP_THRESHOLD', '0.25'))
             fps = [r for r in results if r[4] >= fp_threshold]
