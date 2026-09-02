@@ -879,43 +879,43 @@
 {"categoria": "pregunta_natural", "query": "Me acuerdo de algo sobre prueba integridad dennys 20260616", "concepto_esperado": "prueba_integridad_dennys_20260616", "deep": false, "notes": "Natural language query check", "id": "0879"}
 {"categoria": "por_tema", "query": "existencia sostuve parecido", "concepto_esperado": "prueba_integridad_dennys_20260616", "deep": false, "notes": "Content/theme check", "id": "0880"}
 {"categoria": "dormido", "query": "prueba integridad dennys 20260616", "concepto_esperado": "prueba_integridad_dennys_20260616", "deep": true, "notes": "Dormant node retrieval check", "id": "0881"}
-{"categoria": "negativo", "query": "fresa manzana", "concepto_esperado": null, "deep": true, "notes": "Empirically validated negative control", "id": "0882"}
-{"categoria": "negativo", "query": "jirafa helado", "concepto_esperado": null, "deep": true, "notes": "Empirically validated negative control", "id": "0883"}
-{"categoria": "negativo", "query": "bufanda sándwich linterna", "concepto_esperado": null, "deep": true, "notes": "Empirically validated negative control", "id": "0884"}
-{"categoria": "negativo", "query": "canguro sombrero playa camisa", "concepto_esperado": null, "deep": true, "notes": "Empirically validated negative control", "id": "0885"}
-{"categoria": "negativo", "query": "sándwich selva fresa", "concepto_esperado": null, "deep": true, "notes": "Empirically validated negative control", "id": "0886"}
-{"categoria": "negativo", "query": "martillo jirafa camisa", "concepto_esperado": null, "deep": true, "notes": "Empirically validated negative control", "id": "0887"}
-{"categoria": "negativo", "query": "sándwich camisa plátano", "concepto_esperado": null, "deep": true, "notes": "Empirically validated negative control", "id": "0888"}
-{"categoria": "negativo", "query": "bufanda playa", "concepto_esperado": null, "deep": true, "notes": "Empirically validated negative control", "id": "0889"}
-{"categoria": "negativo", "query": "dinosaurio limón", "concepto_esperado": null, "deep": true, "notes": "Empirically validated negative control", "id": "0890"}
-{"categoria": "negativo", "query": "velero chocolate balón linterna", "concepto_esperado": null, "deep": true, "notes": "Empirically validated negative control", "id": "0891"}
-{"categoria": "negativo", "query": "uva dinosaurio", "concepto_esperado": null, "deep": true, "notes": "Empirically validated negative control", "id": "0892"}
-{"categoria": "negativo", "query": "manzana dinosaurio", "concepto_esperado": null, "deep": true, "notes": "Empirically validated negative control", "id": "0893"}
-{"categoria": "negativo", "query": "paraguas martillo rinoceronte canguro", "concepto_esperado": null, "deep": true, "notes": "Empirically validated negative control", "id": "0894"}
-{"categoria": "negativo", "query": "bufanda guitarra isla río", "concepto_esperado": null, "deep": true, "notes": "Empirically validated negative control", "id": "0895"}
-{"categoria": "negativo", "query": "naranja helado", "concepto_esperado": null, "deep": true, "notes": "Empirically validated negative control", "id": "0896"}
-{"categoria": "negativo", "query": "velero chocolate isla", "concepto_esperado": null, "deep": true, "notes": "Empirically validated negative control", "id": "0897"}
-{"categoria": "negativo", "query": "montaña sándwich selva", "concepto_esperado": null, "deep": true, "notes": "Empirically validated negative control", "id": "0898"}
-{"categoria": "negativo", "query": "río guitarra telescopio piscina", "concepto_esperado": null, "deep": true, "notes": "Empirically validated negative control", "id": "0899"}
-{"categoria": "negativo", "query": "rinoceronte guitarra canguro martillo", "concepto_esperado": null, "deep": true, "notes": "Empirically validated negative control", "id": "0900"}
-{"categoria": "negativo", "query": "sandía naranja almohada", "concepto_esperado": null, "deep": true, "notes": "Empirically validated negative control", "id": "0901"}
-{"categoria": "negativo", "query": "desierto sandía montaña", "concepto_esperado": null, "deep": true, "notes": "Empirically validated negative control", "id": "0902"}
-{"categoria": "negativo", "query": "bufanda manzana", "concepto_esperado": null, "deep": true, "notes": "Empirically validated negative control", "id": "0903"}
-{"categoria": "negativo", "query": "dinosaurio montaña río orquesta", "concepto_esperado": null, "deep": true, "notes": "Empirically validated negative control", "id": "0904"}
-{"categoria": "negativo", "query": "balón playa parque", "concepto_esperado": null, "deep": true, "notes": "Empirically validated negative control", "id": "0905"}
-{"categoria": "negativo", "query": "sándwich piscina montaña", "concepto_esperado": null, "deep": true, "notes": "Empirically validated negative control", "id": "0906"}
-{"categoria": "negativo", "query": "isla guitarra telescopio montaña", "concepto_esperado": null, "deep": true, "notes": "Empirically validated negative control", "id": "0907"}
-{"categoria": "negativo", "query": "camisa canguro", "concepto_esperado": null, "deep": true, "notes": "Empirically validated negative control", "id": "0908"}
-{"categoria": "negativo", "query": "chocolate almohada sandía helado", "concepto_esperado": null, "deep": true, "notes": "Empirically validated negative control", "id": "0909"}
-{"categoria": "negativo", "query": "sándwich uva desierto", "concepto_esperado": null, "deep": true, "notes": "Empirically validated negative control", "id": "0910"}
-{"categoria": "negativo", "query": "rinoceronte isla", "concepto_esperado": null, "deep": true, "notes": "Empirically validated negative control", "id": "0911"}
-{"categoria": "negativo", "query": "camisa bufanda martillo uva", "concepto_esperado": null, "deep": true, "notes": "Empirically validated negative control", "id": "0912"}
-{"categoria": "negativo", "query": "montaña manzana", "concepto_esperado": null, "deep": true, "notes": "Empirically validated negative control", "id": "0913"}
-{"categoria": "negativo", "query": "fresa manzana velero sandía", "concepto_esperado": null, "deep": true, "notes": "Empirically validated negative control", "id": "0914"}
-{"categoria": "negativo", "query": "rinoceronte limón", "concepto_esperado": null, "deep": true, "notes": "Empirically validated negative control", "id": "0915"}
-{"categoria": "negativo", "query": "telescopio naranja", "concepto_esperado": null, "deep": true, "notes": "Empirically validated negative control", "id": "0916"}
-{"categoria": "negativo", "query": "balón pantalón camisa", "concepto_esperado": null, "deep": true, "notes": "Empirically validated negative control", "id": "0917"}
-{"categoria": "negativo", "query": "piscina uva sandía", "concepto_esperado": null, "deep": true, "notes": "Empirically validated negative control", "id": "0918"}
-{"categoria": "negativo", "query": "chocolate rinoceronte", "concepto_esperado": null, "deep": true, "notes": "Empirically validated negative control", "id": "0919"}
-{"categoria": "negativo", "query": "fresa chocolate", "concepto_esperado": null, "deep": true, "notes": "Empirically validated negative control", "id": "0920"}
-{"categoria": "negativo", "query": "telescopio martillo río montaña", "concepto_esperado": null, "deep": true, "notes": "Empirically validated negative control", "id": "0921"}
+{"categoria": "negativo", "query": "trompeta aspiradora cremallera sartén", "concepto_esperado": null, "deep": true, "notes": "Empirically validated negative control (v2, sin overlap léxico con el corpus)", "id": "0882"}
+{"categoria": "negativo", "query": "castor acordeón", "concepto_esperado": null, "deep": true, "notes": "Empirically validated negative control (v2, sin overlap léxico con el corpus)", "id": "0883"}
+{"categoria": "negativo", "query": "cebolla colador cremallera jabalí", "concepto_esperado": null, "deep": true, "notes": "Empirically validated negative control (v2, sin overlap léxico con el corpus)", "id": "0884"}
+{"categoria": "negativo", "query": "tomillo saxofón", "concepto_esperado": null, "deep": true, "notes": "Empirically validated negative control (v2, sin overlap léxico con el corpus)", "id": "0885"}
+{"categoria": "negativo", "query": "aspiradora palangana", "concepto_esperado": null, "deep": true, "notes": "Empirically validated negative control (v2, sin overlap léxico con el corpus)", "id": "0886"}
+{"categoria": "negativo", "query": "castor morsa", "concepto_esperado": null, "deep": true, "notes": "Empirically validated negative control (v2, sin overlap léxico con el corpus)", "id": "0887"}
+{"categoria": "negativo", "query": "aspiradora albahaca cigüeña servilleta", "concepto_esperado": null, "deep": true, "notes": "Empirically validated negative control (v2, sin overlap léxico con el corpus)", "id": "0888"}
+{"categoria": "negativo", "query": "rallador jabalí tobogán castor", "concepto_esperado": null, "deep": true, "notes": "Empirically validated negative control (v2, sin overlap léxico con el corpus)", "id": "0889"}
+{"categoria": "negativo", "query": "tomillo sartén escobillón", "concepto_esperado": null, "deep": true, "notes": "Empirically validated negative control (v2, sin overlap léxico con el corpus)", "id": "0890"}
+{"categoria": "negativo", "query": "cinturón escobillón", "concepto_esperado": null, "deep": true, "notes": "Empirically validated negative control (v2, sin overlap léxico con el corpus)", "id": "0891"}
+{"categoria": "negativo", "query": "rallador saxofón", "concepto_esperado": null, "deep": true, "notes": "Empirically validated negative control (v2, sin overlap léxico con el corpus)", "id": "0892"}
+{"categoria": "negativo", "query": "sartén colibrí mapache", "concepto_esperado": null, "deep": true, "notes": "Empirically validated negative control (v2, sin overlap léxico con el corpus)", "id": "0893"}
+{"categoria": "negativo", "query": "cebolla palangana farola", "concepto_esperado": null, "deep": true, "notes": "Empirically validated negative control (v2, sin overlap léxico con el corpus)", "id": "0894"}
+{"categoria": "negativo", "query": "regadera exprimidor", "concepto_esperado": null, "deep": true, "notes": "Empirically validated negative control (v2, sin overlap léxico con el corpus)", "id": "0895"}
+{"categoria": "negativo", "query": "jengibre cisne escobillón", "concepto_esperado": null, "deep": true, "notes": "Empirically validated negative control (v2, sin overlap léxico con el corpus)", "id": "0896"}
+{"categoria": "negativo", "query": "alfiler flauta", "concepto_esperado": null, "deep": true, "notes": "Empirically validated negative control (v2, sin overlap léxico con el corpus)", "id": "0897"}
+{"categoria": "negativo", "query": "trompeta farola palangana albahaca", "concepto_esperado": null, "deep": true, "notes": "Empirically validated negative control (v2, sin overlap léxico con el corpus)", "id": "0898"}
+{"categoria": "negativo", "query": "batidora tamboril canela", "concepto_esperado": null, "deep": true, "notes": "Empirically validated negative control (v2, sin overlap léxico con el corpus)", "id": "0899"}
+{"categoria": "negativo", "query": "romero cigüeña servilleta", "concepto_esperado": null, "deep": true, "notes": "Empirically validated negative control (v2, sin overlap léxico con el corpus)", "id": "0900"}
+{"categoria": "negativo", "query": "tocadiscos cacerola", "concepto_esperado": null, "deep": true, "notes": "Empirically validated negative control (v2, sin overlap léxico con el corpus)", "id": "0901"}
+{"categoria": "negativo", "query": "pañoleta cucharón", "concepto_esperado": null, "deep": true, "notes": "Empirically validated negative control (v2, sin overlap léxico con el corpus)", "id": "0902"}
+{"categoria": "negativo", "query": "exprimidor castor", "concepto_esperado": null, "deep": true, "notes": "Empirically validated negative control (v2, sin overlap léxico con el corpus)", "id": "0903"}
+{"categoria": "negativo", "query": "farola sartén", "concepto_esperado": null, "deep": true, "notes": "Empirically validated negative control (v2, sin overlap léxico con el corpus)", "id": "0904"}
+{"categoria": "negativo", "query": "tamboril batidora macetero", "concepto_esperado": null, "deep": true, "notes": "Empirically validated negative control (v2, sin overlap léxico con el corpus)", "id": "0905"}
+{"categoria": "negativo", "query": "macetero regadera", "concepto_esperado": null, "deep": true, "notes": "Empirically validated negative control (v2, sin overlap léxico con el corpus)", "id": "0906"}
+{"categoria": "negativo", "query": "cacerola sartén", "concepto_esperado": null, "deep": true, "notes": "Empirically validated negative control (v2, sin overlap léxico con el corpus)", "id": "0907"}
+{"categoria": "negativo", "query": "colador pandereta abrelatas jengibre", "concepto_esperado": null, "deep": true, "notes": "Empirically validated negative control (v2, sin overlap léxico con el corpus)", "id": "0908"}
+{"categoria": "negativo", "query": "perejil jabalí alfiler avestruz", "concepto_esperado": null, "deep": true, "notes": "Empirically validated negative control (v2, sin overlap léxico con el corpus)", "id": "0909"}
+{"categoria": "negativo", "query": "flauta farola", "concepto_esperado": null, "deep": true, "notes": "Empirically validated negative control (v2, sin overlap léxico con el corpus)", "id": "0910"}
+{"categoria": "negativo", "query": "tamboril rallador albahaca", "concepto_esperado": null, "deep": true, "notes": "Empirically validated negative control (v2, sin overlap léxico con el corpus)", "id": "0911"}
+{"categoria": "negativo", "query": "colador hamaca", "concepto_esperado": null, "deep": true, "notes": "Empirically validated negative control (v2, sin overlap léxico con el corpus)", "id": "0912"}
+{"categoria": "negativo", "query": "castor plumero", "concepto_esperado": null, "deep": true, "notes": "Empirically validated negative control (v2, sin overlap léxico con el corpus)", "id": "0913"}
+{"categoria": "negativo", "query": "escobillón hamaca", "concepto_esperado": null, "deep": true, "notes": "Empirically validated negative control (v2, sin overlap léxico con el corpus)", "id": "0914"}
+{"categoria": "negativo", "query": "sartén abrelatas mapache", "concepto_esperado": null, "deep": true, "notes": "Empirically validated negative control (v2, sin overlap léxico con el corpus)", "id": "0915"}
+{"categoria": "negativo", "query": "servilleta hamaca mapache pandereta", "concepto_esperado": null, "deep": true, "notes": "Empirically validated negative control (v2, sin overlap léxico con el corpus)", "id": "0916"}
+{"categoria": "negativo", "query": "noria pandereta flauta", "concepto_esperado": null, "deep": true, "notes": "Empirically validated negative control (v2, sin overlap léxico con el corpus)", "id": "0917"}
+{"categoria": "negativo", "query": "cisne acordeón", "concepto_esperado": null, "deep": true, "notes": "Empirically validated negative control (v2, sin overlap léxico con el corpus)", "id": "0918"}
+{"categoria": "negativo", "query": "cremallera albahaca", "concepto_esperado": null, "deep": true, "notes": "Empirically validated negative control (v2, sin overlap léxico con el corpus)", "id": "0919"}
+{"categoria": "negativo", "query": "cisne cremallera tomillo saxofón", "concepto_esperado": null, "deep": true, "notes": "Empirically validated negative control (v2, sin overlap léxico con el corpus)", "id": "0920"}
+{"categoria": "negativo", "query": "noria macetero castor acordeón", "concepto_esperado": null, "deep": true, "notes": "Empirically validated negative control (v2, sin overlap léxico con el corpus)", "id": "0921"}

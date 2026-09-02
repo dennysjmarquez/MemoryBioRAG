@@ -1,15 +1,45 @@
 import sys
 import os
 import json
+import re
 import shutil
 import sqlite3
 import time
+import unicodedata
 from collections import defaultdict
 
 # Add workspace root to sys.path
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from core.memory_store import SQLiteMemoryBioRAG
+
+
+def _normalizar_token(texto):
+    """Normaliza texto para matching de tokens: sin acentos, minúsculas."""
+    return ''.join(
+        c for c in unicodedata.normalize('NFKD', texto)
+        if not unicodedata.combining(c)
+    ).lower()
+
+
+def _tokens_corpus(db):
+    """Tokens (>=3 chars, normalizados) presentes en el corpus completo.
+
+    Se usa para detectar controles negativos contaminados: si un token de la
+    query aparece como palabra en el corpus (concepto + contenido + sinónimos),
+    la query dejó de ser "ruido" y pasó a ser una coincidencia léxica legítima.
+    Esos controles no miden el gate de ruido y se reportan aparte.
+    """
+    tokens = set()
+    db.cursor.execute(
+        "SELECT concepto, COALESCE(contenido, ''), COALESCE(sinonimos, '') FROM largo_plazo"
+    )
+    for concepto, contenido, sinonimos in db.cursor.fetchall():
+        texto = f"{concepto} {contenido} {sinonimos}".replace('_', ' ').replace('-', ' ')
+        for w in re.findall(r'\w{3,}', _normalizar_token(texto)):
+            tokens.add(w)
+    return tokens
+
 
 def run_evaluation():
     base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -66,9 +96,13 @@ def run_evaluation():
     
     # Initialize BioRAG against the temp DB copy
     db = SQLiteMemoryBioRAG(db_path=temp_db)
+
+    # Tokens del corpus para detectar controles negativos contaminados
+    # (autorreferencia: el corpus documenta las mismas queries negativas).
+    corpus_tokens = _tokens_corpus(db)
     
     # Stats tracking
-    stats = defaultdict(lambda: {"total": 0, "hits_at_5": 0, "hits_at_1": 0, "reciprocal_rank_sum": 0, "false_positives": 0})
+    stats = defaultdict(lambda: {"total": 0, "hits_at_5": 0, "hits_at_1": 0, "reciprocal_rank_sum": 0, "false_positives": 0, "contaminados": 0})
     failures_by_category = defaultdict(list)
     spreading_activation_count = 0  # Contador de queries que activan spreading activation
     
@@ -112,17 +146,35 @@ def run_evaluation():
             # se requiere una suite dedicada que evalúe el pipeline de producción MCP.
             # Noise threshold: configurable via BIORAG_FP_THRESHOLD (default 0.25)
             fp_threshold = float(os.environ.get('BIORAG_FP_THRESHOLD', '0.25'))
-            fps = [r for r in results if r[4] >= fp_threshold]
-            if len(fps) > 0:
-                stats[category]["false_positives"] += 1
+
+            # Detección de control contaminado: si algún token de la query ya
+            # existe como palabra en el corpus, el control dejó de ser "negativo"
+            # (el motor lo recupera correctamente y no es un fallo del gate).
+            q_tokens = [t for t in re.findall(r'\w{3,}', _normalizar_token(query))]
+            contaminados = [t for t in q_tokens if t in corpus_tokens]
+            if contaminados:
+                stats[category]["contaminados"] += 1
                 failures_by_category[category].append({
                     "id": case_id,
                     "query": query,
                     "expected": None,
                     "returned": returned[:3],
                     "scores": scores[:3],
-                    "error": f"False positive returned with score {scores[0]}"
+                    "contaminado": True,
+                    "error": f"Control negativo contaminado (tokens en corpus: {', '.join(sorted(set(contaminados)))}) — no es un FP del gate"
                 })
+            else:
+                fps = [r for r in results if r[4] >= fp_threshold]
+                if len(fps) > 0:
+                    stats[category]["false_positives"] += 1
+                    failures_by_category[category].append({
+                        "id": case_id,
+                        "query": query,
+                        "expected": None,
+                        "returned": returned[:3],
+                        "scores": scores[:3],
+                        "error": f"False positive returned with score {scores[0]}"
+                    })
         else:
             # Normal or awakening case
             found_at = -1
@@ -196,6 +248,7 @@ def run_evaluation():
     total_mrr_sum = 0
     total_negatives = 0
     total_false_positives = 0
+    total_contaminados = 0
     
     for cat in sorted(stats.keys()):
         stat = stats[cat]
@@ -203,8 +256,10 @@ def run_evaluation():
         if cat == "negativo":
             total_negatives += cnt
             total_false_positives += stat["false_positives"]
-            fp_rate = (stat["false_positives"] / cnt) * 100 if cnt > 0 else 0
-            print(f"{cat:<22} | {cnt:<6} | {'N/A':<9} | {'N/A':<9} | {'N/A':<8} | {stat['false_positives']:<10} ({fp_rate:.1f}% FP)")
+            total_contaminados += stat.get("contaminados", 0)
+            validos = cnt - stat.get("contaminados", 0)
+            fp_rate = (stat["false_positives"] / validos) * 100 if validos > 0 else 0.0
+            print(f"{cat:<22} | {cnt:<6} | {'N/A':<9} | {'N/A':<9} | {'N/A':<8} | {stat['false_positives']:<10} ({fp_rate:.1f}% FP sobre {validos} válidos; {stat.get('contaminados', 0)} contaminados)")
         else:
             total_queries += cnt
             total_hits_at_5 += stat["hits_at_5"]
@@ -221,10 +276,11 @@ def run_evaluation():
     global_recall_5 = (total_hits_at_5 / total_queries) * 100 if total_queries > 0 else 0
     global_recall_1 = (total_hits_at_1 / total_queries) * 100 if total_queries > 0 else 0
     global_mrr = total_mrr_sum / total_queries if total_queries > 0 else 0
-    global_fp_rate = (total_false_positives / total_negatives) * 100 if total_negatives > 0 else 0
+    global_validos = total_negatives - total_contaminados
+    global_fp_rate = (total_false_positives / global_validos) * 100 if global_validos > 0 else 0.0
     
     print(f"{'GLOBAL SUMMARY (Retrieval)':<22} | {total_queries:<6} | {global_recall_5:>7.2f}% | {global_recall_1:>7.2f}% | {global_mrr:>6.3f} | {total_queries - total_hits_at_5:<10}")
-    print(f"{'GLOBAL SUMMARY (Noise/FP)':<22} | {total_negatives:<6} | {'N/A':<9} | {'N/A':<9} | {'N/A':<8} | {total_false_positives:<10} ({global_fp_rate:.2f}% FP)")
+    print(f"{'GLOBAL SUMMARY (Noise/FP)':<22} | {total_negatives:<6} | {'N/A':<9} | {'N/A':<9} | {'N/A':<8} | {total_false_positives:<10} ({global_fp_rate:.2f}% FP sobre {global_validos} válidos; {total_contaminados} contaminados)")
     print(f"{'SPREADING ACTIVATION':<22} | {spreading_activation_count}/{len(cases)} queries ({spreading_activation_count/len(cases)*100:.1f}%)")
     print("="*80)
     
