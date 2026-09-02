@@ -284,10 +284,34 @@ class SQLiteMemoryBioRAG:
             cur = self.conn.execute("SELECT id, name FROM categories")
             for row in cur.fetchall():
                 self._cat_cache[row[1]] = row[0]
-        if nombre not in self._cat_cache:
-            validas = ", ".join(sorted(self._cat_cache.keys()))
-            raise ValueError(f"Categoria '{nombre}' no existe. Validas: {validas}")
-        return self._cat_cache[nombre]
+        if nombre in self._cat_cache:
+            return self._cat_cache[nombre]
+
+        # Mapeo insensible a mayúsculas y alias español/inglés
+        norm_map = {
+            'proyecto': 'Project', 'project': 'Project',
+            'leccion': 'Lesson', 'lección': 'Lesson', 'lesson': 'Lesson',
+            'sistema': 'System', 'system': 'System',
+            'arquitectura': 'Architecture', 'architecture': 'Architecture',
+            'perfil': 'Profile', 'profile': 'Profile',
+            'personal': 'Personal',
+            'principio': 'Principle', 'principle': 'Principle',
+            'protocolo': 'Protocol', 'protocol': 'Protocol',
+            'cognicion': 'Cognition', 'cognición': 'Cognition', 'cognition': 'Cognition',
+            'metacognicion': 'Cognition', 'metacognición': 'Cognition',
+            'relacion': 'Relation', 'relación': 'Relation', 'relation': 'Relation',
+            'general': 'General', 'solucion': 'Lesson', 'solución': 'Lesson'
+        }
+        n_clean = str(nombre).strip().lower()
+        if n_clean in norm_map and norm_map[n_clean] in self._cat_cache:
+            return self._cat_cache[norm_map[n_clean]]
+
+        for k, v in self._cat_cache.items():
+            if k.lower() == n_clean:
+                return v
+
+        validas = ", ".join(sorted(self._cat_cache.keys()))
+        raise ValueError(f"Categoria '{nombre}' no existe. Validas: {validas}")
 
     def listar_categorias(self):
         self.cursor.execute("SELECT id, name, description FROM categories ORDER BY id")

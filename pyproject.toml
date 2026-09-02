@@ -1,0 +1,60 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "memory-biorag"
+version = "30.1.0"
+description = "BioRAG — Memoria cognitiva biomimética persistente para agentes de IA"
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "Apache-2.0" }
+authors = [
+    { name = "Dennys José Márquez Reyes", email = "dennysjmarquez@gmail.com" }
+]
+keywords = [
+    "memory",
+    "biorag",
+    "ai-agents",
+    "cognitive-architecture",
+    "mcp",
+    "retrieval",
+    "sqlite-fts5",
+    "kanerva-sdm"
+]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: Apache Software License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence"
+]
+dependencies = [
+    "numpy>=1.24.0",
+    "pydantic>=2.0.0",
+    "nltk>=3.8,<3.10",
+    "mcp>=1.0.0,<2",
+    "python-dotenv>=1.0.0",
+    "fastapi>=0.104.0",
+    "uvicorn>=0.24.0"
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.0.0"
+]
+
+[project.scripts]
+biorag = "biorag:main"
+biorag-mcp = "mcp_server:main"
+
+[tool.setuptools]
+py-modules = ["biorag", "mcp_server", "install"]
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["core*"]

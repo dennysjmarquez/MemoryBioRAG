@@ -1,0 +1,44 @@
+name: BioRAG CI
+
+on:
+  push:
+    branches: [ master, main ]
+  pull_request:
+    branches: [ master, main ]
+
+jobs:
+  test:
+    name: Test Suite (Python ${{ matrix.python-version }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.10", "3.11", "3.12"]
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: 'pip'
+
+      - name: Install Dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install -e .
+
+      - name: Run Pytest Unit Tests
+        run: |
+          python -m pytest tests/ -v
+
+      - name: Verify Scoring Invariants
+        run: |
+          python scripts/test_regresion_scoring.py
+
+      - name: Verify Concept Hub 5-Angles
+        run: |
+          python scripts/test_concept_hub.py

@@ -9,7 +9,7 @@
 > **Idiomas:** Español + Inglés (stemming bilingüe ES/EN + expansión simbólica vía WordNet + Domain Dict automático)
 > **Benchmark semántico (Fase 2 casos puros, sin palabras compartidas):** CON Hub **100%** (5/5 en TOP1)
 > **Falsos Positivos (Negativo):** **0.00% FP (0 / 40)**
-> **Tests Unitarios:** **56 / 56 PASSED (100%)** · **Invariantes de Scoring:** **4 / 4 PASSED**
+> **Tests Unitarios:** **57 / 57 PASSED (100%)** · **Invariantes de Scoring:** **4 / 4 PASSED**
 > **Nodos activos:** ~985 · Hubs canónicos: 17 · Bridges: 119 · Domain Dict: 6,490 términos
 
 **BioRAG** es una arquitectura de memoria cognitiva simbólica, biomimética y persistente para agentes de inteligencia artificial. Resuelve el problema fundamental de que los LLMs olvidan todo entre sesiones — sin depender de embeddings pesados de PyTorch/Transformers, GPUs ni infraestructura externa.
@@ -158,7 +158,7 @@ En **v29.1** se aplicaron 4 soluciones deterministas:
 | 3 | "Qué trabajos tuvo que hacer un ingeniero para sobrevivir antes de programar" | `historia_tasajera_fumigador_rufino` | ❌ 0% | ✅ **TOP 1** |
 | 4 | "un texto que habla sobre cómo la conciencia en las inteligencias artificiales surge de la memoria y el autoreconocimiento comparando con una película de ciencia ficción" | `dennys_morpheus_de_los_transformers` | ❌ 0% | ✅ **TOP 1** |
 
-**Recall@5 Semántico Puro: CON Hub 100% (5/5 en Top-1) · 34/34 Tests Unitarios Pasados**
+**Recall@5 Semántico Puro: CON Hub 100% (5/5 en Top-1) · 56/56 Tests Unitarios Pasados**
 
 ---
 
