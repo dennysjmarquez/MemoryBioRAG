@@ -1,20 +1,20 @@
-# BioRAG v30.0 — Invarianza de Escala, Fusión Intra-Query & Concept Hubs Cognitivos
+# BioRAG v30.1 — Integridad del Ranking, Medición QA Reproducible & Invarianza de Escala
 
-> **Versión:** v30.0 — Septiembre 2026
-> **Tipo:** Release mayor de robustez matemática, invarianza al tamaño de corpus y precisión de ruido.
-> **Base:** v29.1 (`8dc4c8f`)
-> **Paradigma:** 14 señales híbridas normalizadas intra-query + Concept Hubs estandarizados en 5 ángulos cognitivos + Calibración Conforme Persistente + Comparabilidad Unificada Frase/Ráfaga
+> **Versión:** v30.1 — Septiembre 2026
+> **Tipo:** Fix de contrato del ranking y blindaje del arnés de evaluación (post v30.0).
+> **Base:** v30.0 (`c4f2f6f`)
+> **Paradigma:** 14 señales híbridas normalizadas intra-query + Concept Hubs estandarizados en 5 ángulos cognitivos + Calibración Conforme Persistente + Comparabilidad Unificada Frase/Ráfaga + Orden Monotónico Garantizado + Evaluación QA con Gate de Regresión
 > **Motor:** Python puro + NumPy + SQLite FTS5 WAL + NLTK WordNet (OMW) + SQLite Domain Dict + Calibración Conforme
-> **Dependencias ML:** 0 (mcp + nltk para WordNet, 0 sentence-transformers, 0 torch, 0 APIs externas)
+> **Dependencias ML:** 0 (pydantic + mcp + nltk para WordNet, 0 sentence-transformers, 0 torch, 0 APIs externas)
 > **Idiomas:** Español + Inglés (stemming bilingüe ES/EN + expansión simbólica vía WordNet + Domain Dict automático)
 > **Benchmark semántico (Fase 2 casos puros, sin palabras compartidas):** CON Hub **100%** (5/5 en TOP1)
 > **Falsos Positivos (Negativo):** **0.00% FP (0 / 40)**
-> **Tests Unitarios:** **34 / 34 PASSED (100%)** · **Invariantes de Scoring:** **4 / 4 PASSED**
-> **Nodos activos:** ~985 · Hubs canónicos: 12 · Bridges: 78 · Domain Dict: 6,490 términos
+> **Tests Unitarios:** **56 / 56 PASSED (100%)** · **Invariantes de Scoring:** **4 / 4 PASSED**
+> **Nodos activos:** ~985 · Hubs canónicos: 17 · Bridges: 119 · Domain Dict: 6,490 términos
 
 **BioRAG** es una arquitectura de memoria cognitiva simbólica, biomimética y persistente para agentes de inteligencia artificial. Resuelve el problema fundamental de que los LLMs olvidan todo entre sesiones — sin depender de embeddings pesados de PyTorch/Transformers, GPUs ni infraestructura externa.
 
-> **v30.0: Invarianza de Escala y Pureza Semántica.** BioRAG normaliza dinámicamente las señales heterogéneas (BM25, PPMI, Grafo, Dimensiones, Hubs) sobre los candidatos de cada consulta individual, eliminando la necesidad de calibraciones manuales al crecer el corpus y garantizando 0% de falsos positivos en ruido puro.
+> **v30.1: Integridad del Ranking y Medición QA.** Arregla dos defectos del motor (piso de promoción del Concept Hub que generaba orden no monotónico + filtro `PALABRA_PREFIJO` sin reordenar) y tres defectos del arnés de evaluación (etiquetas oro obsoletas, queries ambiguas sin reclasificar, mutación acumulada entre casos). El ranking ahora garantiza que posición y score dicen lo mismo, y la suite QA produce resultados reproducibles con gate de regresión.
 
 
 ---
@@ -2862,22 +2862,27 @@ La suite y herramientas asociadas se encuentran en el directorio `scripts/` (exc
 
 ## Producción
 
-| Métrica | v23.0–v23.1 | v24.1–v25.2 | v26.1 | v28.0–v28.1 | v29.1 | **v30.0 (Actual)** |
-|---|---|---|---|---|---|---|
-| Pipeline de búsqueda | 14 capas + SRL | 14 capas + Re-ranking | 14 capas + PPMI+SVD | 14 capas + QCR + Canal 2 | 14 capas + Concept Hubs 5 Ángulos | **14 capas + BM25 Intra-Query + Comparabilidad Frase/Ráfaga + Hubs** |
-| Señales de scoring | 12 (+ SRL) | 12 + Jaccard | 13 (+ PPMI) | 13 (+ PPMI, ADN instalado) | 14 (+ Concept Hub match) | **14 señales normalizadas intra-query** |
-| Nodos | ~614 | ~800+ | ~800+ | ~900+ | ~985 | **~985+ (926 activos calibrados)** |
-| Tests Unitarios | 117/117 | 117/117 | 112/112 | 16/16 | 33/33 | **34/34 PASS (100%) + 4/4 Invariantes** |
-| GLOBAL Recall@5 | 96.82% | 97.05% | 96.71% | 96.03% | 95.80% | **95.23% (839/881)** |
-| GLOBAL Recall@1 | — | — | — | 88.76% (snapshot) | 86.27% (live) | **86.61% (763/881)** |
-| por_tema Recall@5 | ⚠️ 84.62%* | 81.54%–86.15% | 86.15% | 86.15% | 89.23% | **92.31% (60/65)** |
-| por_tema Recall@1 | — | — | — | — | 49.23% | **70.77% (46/65, MRR 0.797)** |
-| FP Negativo | 7.5% | 7.5% | 22.5% | 25.0% | 60.0% (sin gate) | **0.00% FP (0/40)** |
-| Concept Hub (Fase 2) | — | — | — | — | 3/3 (100%) | **5/5 TOP-1 (100%)** |
-| Dependencias ML | 0 | 0 | 0 | 0 | 0 | **0 (Python puro + SQLite)** |
-| Tools MCP | 30 | 32 | 32 | 33 | 38 | **38** |
+| Métrica | v23.0–v23.1 | v24.1–v25.2 | v26.1 | v28.0–v28.1 | v29.1 | v30.0 | **v30.1 (Actual)** |
+|---|---|---|---|---|---|---|---|
+| Pipeline de búsqueda | 14 capas + SRL | 14 capas + Re-ranking | 14 capas + PPMI+SVD | 14 capas + QCR + Canal 2 | 14 capas + Concept Hubs 5 Ángulos | 14 capas + BM25 Intra-Query | **14 capas + Orden Monotónico + QA Gate** |
+| Señales de scoring | 12 (+ SRL) | 12 + Jaccard | 13 (+ PPMI) | 13 (+ PPMI, ADN instalado) | 14 (+ Concept Hub match) | 14 normalizadas intra-query | **14 normalizadas + monotonía garantizada** |
+| Nodos | ~614 | ~800+ | ~800+ | ~900+ | ~985 | ~985+ (926 calibrados) | **~985+ (live DB)** |
+| Tests Unitarios | 117/117 | 117/117 | 112/112 | 16/16 | 33/33 | 34/34 + 4/4 Invariantes | **56/56 PASS + 4/4 Invariantes** |
+| GLOBAL Recall@5 | 96.82% | 97.05% | 96.71% | 96.03% | 95.80% | 95.23% | **95.89% (839/875)** |
+| GLOBAL Recall@1 | — | — | — | 88.76% | 86.27% | 86.61% | **87.43%** |
+| GLOBAL MRR | — | — | — | — | — | 0.900 | **0.9073** |
+| sinonimo Recall@5 | — | — | — | — | — | 80.00% | **81.82% (45/55)** |
+| por_tema Recall@5 | ⚠️ 84.62%* | 81.54%–86.15% | 86.15% | 86.15% | 89.23% | 92.31% | **92.31% (60/65)** |
+| por_tema Recall@1 | — | — | — | — | 49.23% | 70.77% | **70.77% (MRR 0.797)** |
+| FP Negativo | 7.5% | 7.5% | 22.5% | 25.0% | 60.0% (sin gate) | 0.00% | **0.00% FP (0/40)** |
+| Concept Hub (Fase 2) | — | — | — | — | 3/3 (100%) | 5/5 TOP-1 (100%) | **5/5 TOP-1 (100%)** |
+| Dependencias ML | 0 | 0 | 0 | 0 | 0 | 0 | **0 (Python puro + SQLite)** |
+| Tools MCP | 30 | 32 | 32 | 33 | 38 | 38 | **38** |
+| Fallos totales | — | — | — | 35 | — | 44 (pre-fix) | **36** |
 
-> \* ⚠️ El `84.62%` de v23.0–v23.1 proviene de un snapshot con backfill parcial de predicados (corpus de 614 nodos). El baseline real de `por_tema` sobre el corpus actual (921 casos QA) es **67.69%**; el valor **81.54%** de v24.1–v25.2 corresponde al re-ranking jaccard con protect-r0. El **92.31% R@5 / 70.77% R@1** de v30.0 refleja la normalización intra-query invariante a escala.
+> \* ⚠️ El `84.62%` de v23.0–v23.1 proviene de un snapshot con backfill parcial de predicados (corpus de 614 nodos). El baseline real de `por_tema` sobre el corpus actual (921 casos QA) es **67.69%**; el valor **81.54%** de v24.1–v25.2 corresponde al re-ranking jaccard con protect-r0.
+>
+> **v30.0 → v30.1 (regresión v30.0 no reportada):** La normalización Min-Max intra-query introducida en v30.0 causó una caída no detectada de 97.39% a 95.23% R@5 (+19 fallos) porque la suite QA no tenía gate de regresión. v30.1 arregla la medición (gate + métricas machine-readable) y el contrato del ranking (orden monotónico), pero la causa raíz de la caída en `typo`/`variante_gramatical` (amplificación ×3.6 de BM25 en pools débiles) sigue abierta.
 
 
 

@@ -48,7 +48,7 @@ Ningún caso que pasara antes falla ahora: los 6 fallos eliminados son 0268/0368
 - **Hipótesis de la causa, aún sin validar**: la normalización Min-Max intra-query amplifica ×3.6 el aporte de BM25 en pools débiles (typo/variante), donde es la señal menos fiable, y los candidatos de las capas de rescate (trigramas `:4684`, simbólico `:4930`, dimensional `:5233`) **nunca reciben `bm25_raw`**, así que con normalización relativa al pool quedan por construcción bajo el peor candidato con BM25. Experimento propuesto: `BIORAG_BM25_NORM=abs|minmax|rescate` sobre el mismo snapshot; `rescate` debería devolver `typo` a ≥ 98 % sin mover el 0 % de FP.
 - **Calibración vencida**: `calibracion_estado` guarda `umbral_conforme = 0.5233` entrenado con 33 negativos, es decir con la distribución de scores pre-v30.0. Recalibrar después de fijar la normalización definitiva.
 - **Dataset ruidoso en `sinonimo`**: los 11 fallos restantes son sinónimos registrados válidos pero no discriminativos (`biorag` aparece en los sinónimos de 174 nodos, `memoria` en 99, `dimensiones` en 42). Requiere filtrar el generador, no el motor.
-- **`requirements.txt` incompleto**: `mcp_server.py:69` importa `pydantic` y no está declarado; `tests/test_memory_core.py` falla en cualquier entorno limpio por eso.
+- **`requirements.txt` incompleto**: `mcp_server.py:69` importa `pydantic` y no está declarado; `tests/test_memory_core.py` falla en cualquier entorno limpio por eso. **Resuelto en seguimiento inmediato (commit `9986f5a`)**: se añadieron `pydantic>=2.0.0`, `nltk>=3.8,<3.10`, `mcp>=1.0.0` y `python-dotenv>=1.0.0`.
 
 ## [v30.0] — 2026-09-02 — Invarianza de Escala, Normalización Intra-Query y Falsos Positivos Cero
 
@@ -110,6 +110,30 @@ Release de **estandarización cognitiva de puentes semánticos y optimización r
 - **Tests Unitarios**: **33 / 33 PASSED (100%)**.
 - **Fase 2 (Recuperación Semántica Pura)**: **3 / 3 en Posición #1 (100% Top-1)**.
 - **Caso Morpheus Seminal**: Recuperación rescatada de "no encontrado" a **Top #1 Absoluto** mediante el Concept Hub `morpheus_conciencia_ia`.
+
+## [v29.2] — 2026-08-29 — Baseline congelada, Gate de tematico_score y Fundación RRF
+
+Release de **correctitud del scoring temático, arnés QA hermético e infraestructura de fusión invariante a escala**. Congela la baseline oficial de referencia **(97.39 % R@5 / 23 fallos / 0 % FP sobre el corpus 2026-08-26)**, corrige una regresión crítica donde `tematico_score` saturada en queries sin evidencia léxica, e introduce la infraestructura de Reciprocal Rank Fusion (RRF) que reemplaza los 14 pesos hardcodeados del scoring híbrido.
+
+### Corregido (scoring)
+- **Gate de `tematico_score` por candidato (`core/memory_store.py`)**: bloquear la contribución temática cuando `bm25_norm = 0` Y `concepto_ratio = 0` (queries como *"fresa manzana"* sin evidencia léxica real aportaban 0.08 de ruido, rompiendo el recall de `sinonimo`). Añadido guard `sinonimos_ratio < 0.5`, umbral de similitud temática bajado a 0.02, y `Dynamic Multiplicator` opt-in vía parámetro `permitir_expansion_empate`. Tests de regresión: `tests/test_tematico_score_regression.py`.
+- **Restablecimiento a baseline v29.1**: `tematico_score` restaurado al comportamiento de `a45654b` con tests portables a snapshot (`c9f06cc`).
+
+### Añadido
+- **`core/rrf_fusion.py`**: fusión de rango recíproco (Cormack 2009) + normalización percentilar + pesos dinámicos heurísticos por estructura/claridad/tipo de query. Reemplaza los 14 pesos hardcodeados en `_calcular_score_hibrido` con fusión invariante a escala, sin ML ni dependencias externas. Fundación para el meta-controlador de Fase 1 (pesos aprendidos por query).
+- **Arnés QA hermético (`scripts/run_qa_suite.sh`)**: rewrite completo — resolución explícita de `BIORAG_PATH`, copia aislada vía `sqlite3 backup()` con WAL checkpoint, `trap cleanup` en EXIT, y exporta la variable a todos los hijos. Antes corría contra la live DB (mutando estado) o usaba snapshot de forma inconsistente; ahora la DB original nunca se toca.
+
+### Mejoras MCP y QA
+- **Errores accionables en Concept Hub (`mcp_server.py`)**: validación de bridges con mensajes que instruyen el reintento exacto; fix de conteo total en paginación (`fcb7a0d`, `62140ee`).
+- **Aislamiento de la DB de la suite Concept Hub**: `tests/test_concept_hub.py` ahora respeta `BIORAG_PATH` y no abre a pelo `memory_biorag_test.db` (`62140ee`).
+- **Benchmark comparativo vs sistemas externos**: `6d3e216` añade el benchmark del abismo léxico (MemoryBioRAG vs Pinecone/FAISS/Chroma/OpenAI embeddings) documentado en `docs/`.
+- **Refuerzo de agentes y roles (`core`)**: refuerzo de roles agente-memoria, lógica de Concept Hub refinada, promoción competitiva de canónicos (`9998ed8`), gate de expansión de hubs para evitar deriva de vocabulario (`0155c9f`), y weighting por ángulo con guard de ambigüedad en expansión semántica (`8fc732a`).
+- **Protocolo de descomposición de queries (`6c7901d`)**: formaliza el protocolo de 3 preguntas (qué hace / en qué contexto / qué propiedad resuelve) para búsqueda por evocación.
+
+### Métricas (baseline oficial congelada 2026-08-26)
+- **Global Recall@5**: **97.39 % (23 fallos)** — baseline de referencia para el gate de regresión.
+- **FP Negativo**: **0.00 % (0 / 40)**.
+- La latencia y el benchmark comparativo se detallan en `docs/`.
 
 ## [v29.0] — 2026-08-21 — Era del Concept Hub y Expansión Semántica Pura
 

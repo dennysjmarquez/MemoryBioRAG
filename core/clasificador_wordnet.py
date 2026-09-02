@@ -12,11 +12,23 @@ if local_nltk_dir not in nltk.data.path:
 # Asegurar que wordnet y omw-1.4 estén disponibles de forma local y silenciosa
 try:
     from nltk.corpus import wordnet as wn
-    # Lookup rápido de prueba
+    # Lookup rápido de prueba bilingüe
     wn.synsets('error')
+    try:
+        wn.synsets('error', lang='spa')
+    except (LookupError, Exception):
+        try:
+            nltk.download('omw-1.4', download_dir=local_nltk_dir, quiet=True)
+            nltk.download('omw-2.0', download_dir=local_nltk_dir, quiet=True)
+        except Exception:
+            pass
 except LookupError:
-    nltk.download('wordnet', download_dir=local_nltk_dir, quiet=True)
-    nltk.download('omw-1.4', download_dir=local_nltk_dir, quiet=True)
+    try:
+        nltk.download('wordnet', download_dir=local_nltk_dir, quiet=True)
+        nltk.download('omw-1.4', download_dir=local_nltk_dir, quiet=True)
+        nltk.download('omw-2.0', download_dir=local_nltk_dir, quiet=True)
+    except Exception:
+        pass
     from nltk.corpus import wordnet as wn
 
 
@@ -32,8 +44,19 @@ def clasificar_palabra(palabra):
     if key in _cache_lexnames:
         return _cache_lexnames[key]
 
-    # Bilingüe: español primero, fallback inglés
-    synsets = wn.synsets(key, lang='spa') or wn.synsets(key)
+    synsets = []
+    # Bilingüe: intentar español primero con protección contra LookupError (omw-1.4 vs omw-2.0)
+    try:
+        synsets = wn.synsets(key, lang='spa')
+    except (LookupError, AttributeError, Exception):
+        pass
+
+    if not synsets:
+        try:
+            synsets = wn.synsets(key)
+        except (LookupError, AttributeError, Exception):
+            synsets = []
+
     lexnames = set(s.lexname() for s in synsets)
     _cache_lexnames[key] = lexnames
     return lexnames
