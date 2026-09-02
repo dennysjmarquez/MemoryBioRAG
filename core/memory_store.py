@@ -5607,6 +5607,23 @@ class SQLiteMemoryBioRAG:
                 mejor_score_lexico = resultados_con_hibrido[0][4] if resultados_con_hibrido else 0.0
                 hub_gana = score_forzado >= mejor_score_lexico
 
+                # v30.1 — PISO DE PROMOCIÓN (fix de orden no monotónico).
+                # Antes: cuando el hub ganaba se hacía insert(0, ...) con score_forzado,
+                # que puede ser MENOR que el mejor score léxico (ej. confianza 0.467 →
+                # 0.444 colocado encima de un léxico de 0.513). El resultado devuelto
+                # quedaba con scores no ordenados descendente, rompiendo el contrato de
+                # buscar_por_frase para todo consumidor que corte por score en vez de por
+                # posición (mcp_server.py reordena los pools frase/ráfaga por r[4]).
+                # Ahora: la promoción se expresa EN EL SCORE. Si el canónico va a TOP1,
+                # su score se eleva al mejor léxico + 1 tick (0.0001, la resolución de
+                # round(...,4)), así posición y score dicen lo mismo y el orden sobrevive
+                # a cualquier re-sort posterior. La semántica de promoción no cambia: el
+                # canónico sigue yendo a TOP1 cuando hub_gana.
+                score_promocion = (
+                    round(min(1.0, max(score_forzado, mejor_score_lexico + 0.0001)), 4)
+                    if hub_gana else score_forzado
+                )
+
                 ya_existe = any(r[0] == primary_canonical for r in resultados_con_hibrido)
                 if not ya_existe:
                     # Canónico ausente → traer desde DB
@@ -5618,7 +5635,7 @@ class SQLiteMemoryBioRAG:
                         )
                         row = self.cursor.fetchone()
                         if row:
-                            entrada = (row[0], row[1], row[2], row[3], score_forzado, row[4] or "")
+                            entrada = (row[0], row[1], row[2], row[3], score_promocion, row[4] or "")
                             if hub_gana:
                                 # Hub supera al mejor léxico → TOP1
                                 resultados_con_hibrido.insert(0, entrada)
@@ -5626,7 +5643,7 @@ class SQLiteMemoryBioRAG:
                                 # Léxico supera al hub → insertar en posición que
                                 # preserve orden por score (presencia garantizada)
                                 pos = next(
-                                    (i for i, r in enumerate(resultados_con_hibrido) if r[4] < score_forzado),
+                                    (i for i, r in enumerate(resultados_con_hibrido) if r[4] < score_promocion),
                                     len(resultados_con_hibrido)
                                 )
                                 resultados_con_hibrido.insert(pos, entrada)
@@ -5640,7 +5657,7 @@ class SQLiteMemoryBioRAG:
                             # Hub supera al mejor léxico → mover a TOP1
                             nodo = resultados_con_hibrido.pop(idx)
                             nodo_mod = list(nodo)
-                            nodo_mod[4] = score_forzado
+                            nodo_mod[4] = score_promocion
                             resultados_con_hibrido.insert(0, tuple(nodo_mod))
                         # Si no hub_gana: el canónico ya está en su posición natural,
                         # no lo movemos — el léxico merece el TOP1
@@ -5696,6 +5713,30 @@ class SQLiteMemoryBioRAG:
                 )
                 validos = {row[0] for row in self.cursor.fetchall()}
                 resultados_con_hibrido = [r for r in literal_results if r[0] in validos] + non_literal_results
+
+        # ── v30.1: GUARDIA DE ORDEN MONOTÓNICO (antes de paginar) ──────────
+        # Los post-procesos (promoción del Concept Hub, filtro PALABRA_PREFIJO de una
+        # palabra, re-ranking jaccard) reconstruyen la lista por posición, no por score.
+        # El filtro PALABRA_PREFIJO concatenaba `literales_validos + no_literales` sin
+        # reordenar, y cada bloque conservaba el orden previo: de ahí salían resultados
+        # con scores NO descendentes (9 casos en casos_fallidos.jsonl del 2026-09-02,
+        # ej. 'perfil' → [0.7562, 0.6780, 0.7523]).
+        #
+        # Un ranking que no está ordenado por el score que él mismo reporta rompe a todo
+        # consumidor que corte por score en vez de por posición (mcp_server.py combina y
+        # reordena los pools de buscar_por_frase y buscar_por_rafaga por r[4], así que
+        # frase y ráfaga podían devolver órdenes distintos para la misma consulta).
+        #
+        # Este re-sort es la última palabra sobre relevancia: solo aplica cuando
+        # ordenar_por == "relevancia" (el bloque siguiente de recencia/antiguedad
+        # reordena a propósito por fecha y debe respetarse). O(n log n) sobre el pool ya
+        # filtrado, sin coste medible. Desactivable: export BIORAG_ORDEN_MONOTONICO=0
+        if (
+            ordenar_por == "relevancia"
+            and resultados_con_hibrido
+            and os.getenv("BIORAG_ORDEN_MONOTONICO", "1") == "1"
+        ):
+            resultados_con_hibrido.sort(key=lambda r: r[4], reverse=True)
 
         # ── Ordenamiento post-hoc por fecha (antes de paginar) ──────────
         # Solo responde intención temporal: "qué pasó hace X", "cuál fue lo último".

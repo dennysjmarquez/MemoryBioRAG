@@ -84,6 +84,17 @@ Copy `.env.example` → `.env.local` and uncomment. Key vars:
 | `BIORAG_RAFTAGA_ACTIVA` | Enable reminiscence burst | `true` |
 | `GEMINI_API_KEYS` | Comma-separated keys for DMN daemon | — |
 | `BIORAG_DAEMON_LOG_ENABLED` | Enable daemon logging | `0` |
+| `BIORAG_ORDEN_MONOTONICO` | Final re-sort of `buscar_por_frase` results by score (v30.1) | `1` |
+| `BIORAG_QA_GATE` | Fail the QA suite (exit 1) when metrics fall below the official baseline | `1` |
+| `BIORAG_QA_MIN_RECALL5` | Minimum global Recall@5 (%) enforced by the gate | `97.0` |
+| `BIORAG_QA_MAX_FALLOS` | Maximum retrieval failures enforced by the gate | `23` |
+| `BIORAG_QA_MAX_FP_RATE` | Maximum false-positive rate (%) on valid negative controls | `0.0` |
+| `BIORAG_QA_MAX_REGRESION_PP` | Max per-category Recall@5 drop vs `BIORAG_QA_BASELINE` (pp) | `2.0` |
+| `BIORAG_QA_BASELINE` | Baseline metrics file in `scripts/` for per-category comparison | `qa_metrics_baseline.json` |
+| `BIORAG_QA_METRICS` | Where `evaluar_qa.py` writes machine-readable metrics | `scripts/qa_metrics.json` |
+| `BIORAG_QA_RESOLVER_ETIQUETAS` | Resolve stale gold labels against the DB under evaluation | `1` |
+| `BIORAG_QA_ETIQUETA_DIFUSA` | Min similarity ratio for fuzzy gold-label resolution | `0.94` |
+| `BIORAG_QA_ETIQUETA_MARGEN` | Min margin over the runner-up candidate before fuzzy-resolving | `0.02` |
 
 **.env.local is gitignored**. Never commit secrets. `.env.example` documents all options.
 
@@ -165,7 +176,7 @@ Primary tools agents use:
 
 ## Version / Release
 
-- `VERSION` file: `v30.0`
+- `VERSION` file: `v30.1`
 - `CHANGELOG.md` — detailed history with metrics
 - Version bump: update `VERSION`, `CHANGELOG.md`, tag commit
 

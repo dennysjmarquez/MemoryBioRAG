@@ -1,5 +1,55 @@
 # BioRAG Changelog
 
+## [v30.1] — 2026-09-02 — Integridad del Ranking y Confiabilidad de la Medición QA
+
+Release de **corrección de contrato del ranking y de blindaje del arnés de evaluación**. No añade señales ni toca los pesos del scoring híbrido: arregla dos defectos que hacían que el motor devolviera un orden inconsistente con su propio score, y tres defectos del banco de pruebas que hacían que las cifras publicadas no fueran reproducibles ni comparables.
+
+Origen: diagnóstico de la corrida del 2026-09-02 (`docs/diagnostico_suite_qa_20260902.md`), donde la suite imprimió "FINALIZADA CON ÉXITO" pese a que el Recall@5 global había caído de 97.39 % a 95.23 % (+19 fallos) contra la baseline oficial.
+
+### Corregido (motor)
+- **Orden monotónico de `buscar_por_frase` (`core/memory_store.py`)**:
+  - *Piso de promoción del Concept Hub*: cuando el canónico se promovía a TOP1 se hacía `insert(0, ...)` con `score_forzado = min(0.95, confianza × 0.95)`, que puede ser **menor** que el mejor score léxico (confianza 0.467 → 0.444 colocado encima de un léxico 0.513). Ahora la promoción se expresa en el score: `score_promocion = max(score_forzado, mejor_léxico + 0.0001)`. La semántica no cambia —el canónico sigue yendo a TOP1 cuando `hub_gana`— pero posición y score dicen lo mismo.
+  - *Guardia final de monotonía*: re-sort por `r[4]` antes de paginar, solo con `ordenar_por="relevancia"` (el orden por recencia/antigüedad se respeta). Corrige el filtro `PALABRA_PREFIJO` de una palabra, que concatenaba `literales_válidos + no_literales` sin reordenar. Ablación: `BIORAG_ORDEN_MONOTONICO=0`.
+  - *Por qué importa*: `mcp_server.py` combina y reordena los pools de `buscar_por_frase` y `buscar_por_rafaga` por `r[4]`. Con scores no monotónicos, un consumidor que cortara por score y uno que cortara por posición obtenían resultados distintos para la misma consulta.
+- **Aislamiento real de la suite (`scripts/test_concept_hub.py`)**: respetaba `BIORAG_PATH` en `tests/` pero este script abría a pelo `memory_biorag_test.db`. El paso [3/4] medía un corpus distinto al de producción (880 nodos / 12 hubs / 78 bridges contra 993 / 17 / 119 de la DB viva) y además escribía (`crear_tablas` + `cargar_hubs_iniciales`) fuera de la copia aislada que `run_qa_suite.sh` promete proteger.
+
+### Corregido (arnés de evaluación, `scripts/evaluar_qa.py`)
+- **Resolución de etiquetas oro obsoletas**: el JSONL se genera contra una DB concreta; si un nodo se renombra, el caso se vuelve *imposible* (falla aunque el motor acierte). Se resuelven en tiempo de evaluación contra la DB medida, en dos niveles: clave normalizada sin acentos ni puntuación, y coincidencia difusa (`difflib`, ratio ≥ 0.94 con margen ≥ 0.02 sobre el segundo candidato). Si no se cumplen ambas guardas se reporta como irreparable en vez de adivinar. Los 3 renames reales fueron coma → `_y_` (se **añadió** el token `y`), así que el nivel difuso es el que los resuelve. Ablación: `BIORAG_QA_RESOLVER_ETIQUETAS=0`.
+- **Queries con etiqueta contradictoria fuera del Recall global**: misma query con ≥ 2 esperados distintos es un caso imposible para un motor determinista. Se reclasifican a la categoría `ambiguo` (como `negativo`) y se reporta su cobertura por separado. En el dataset actual: `dimensiones`, `compromiso`, `biorag` → 6 casos.
+- **Aislamiento de estado por caso**: el arnés muta la DB y las mutaciones se acumulaban — el setup hace `UPDATE estado='activo'/'dormido'` y `buscar_por_frase(profundidad="profundo")` **despierta** nodos (`peso_sinaptico += 0.15`) dentro del motor. El resultado del caso N dependía de los N−1 anteriores. Ahora se toma un snapshot del corpus y se restaura tras cada caso (`_restaurar_estado_nodos`). En la corrida de validación se revirtieron **117 mutaciones**; 66 nodos arrancaban dormidos y **46 de los 921 casos** tienen su nodo esperado en ese estado.
+- **Gate de regresión + métricas machine-readable**: la suite escribía solo texto y terminaba siempre en 0; con `set -e` en el wrapper eso significa que **no podía fallar**. Ahora emite `scripts/qa_metrics.json` y sale con `exit 1` si se incumple algún umbral (defaults = baseline oficial 2026-08-26). Incluye comparación por categoría contra `BIORAG_QA_BASELINE` y conteo de `orden_no_monotonico`. Ablación: `BIORAG_QA_GATE=0`.
+
+### Añadido
+- **`tests/test_orden_monotonico.py`** (22 tests): aritmética del piso de promoción del hub y el invariante de orden sobre la DB real, incluyendo que `ordenar_por="recencia"` sigue mandando y que `BIORAG_ORDEN_MONOTONICO=0` no rompe la llamada. El invariante no tenía cobertura previa.
+
+### Métricas y Resultados (921 casos, misma DB y mismo código para las dos corridas)
+
+Medido en el sandbox de validación. La columna "pre" es el código de v30.0 sin tocar; "post" es v30.1. Los absolutos difieren unos decimales de la corrida del autor (95.23 %) por deriva de la DB entre snapshots — el baseline oficial se midió sobre un corpus con 12 hubs frente a los 17 actuales.
+
+| Métrica | pre (v30.0) | post (v30.1) | Δ |
+|---|---|---|---|
+| **Global Recall@5** | 95.01 % (44 fallos) | **95.66 % (38 fallos)** | ✅ +0.65 pp / −6 fallos |
+| **Global Recall@1** | 86.83 % | **87.66 %** | ✅ +0.83 pp |
+| **Global MRR** | 0.901 | **0.909** | ✅ +0.008 |
+| `literal` Recall@5 | 99.38 % (3) | **100.00 % (0)** | ✅ 487/487 |
+| `sinonimo` Recall@5 | 77.05 % (14) | **80.00 % (11)** | ✅ +2.95 pp |
+| Fallos con scores no monotónicos | 9 | **0** | ✅ contrato restaurado |
+| `negativo` (FP) | 0/40 = 0.00 % | **0/40 = 0.00 %** | ✅ preservado |
+| `dormido` Recall@5 | 100 % | **100 %** | ✅ preservado |
+| `typo` / `variante_gramatical` / `por_tema` | 89.23 / 86.15 / 92.31 % | **89.23 / 86.15 / 92.31 %** | ⏸ sin cambio |
+| Tests unitarios | 34 | **56 passed** | ✅ +22 |
+| Invariantes de scoring | 4/4 | **4/4** | ✅ |
+| Tiempo de evaluación | 944 s | **909 s** | ✅ |
+
+Ningún caso que pasara antes falla ahora: los 6 fallos eliminados son 0268/0368/0371 (etiqueta obsoleta) y 0520/0740/0811 (ambigüedad); los 2 registros nuevos son esos mismos 0520/0740 reclasificados en `ambiguo`, fuera del Recall global.
+
+### Conocido y pendiente (no resuelto en este release)
+- **La regresión de v30.0 contra la baseline oficial sigue abierta.** El Recall@5 global queda en 95.66 % frente al 97.39 % del 2026-08-26; `typo` 89.23 % vs 98.46 % y `variante_gramatical` 86.15 % vs 89.23 %. Este release arregla la medición y el contrato del ranking, **no** la causa de esa caída. El gate queda en rojo a propósito hasta que se arregle.
+- **Hipótesis de la causa, aún sin validar**: la normalización Min-Max intra-query amplifica ×3.6 el aporte de BM25 en pools débiles (typo/variante), donde es la señal menos fiable, y los candidatos de las capas de rescate (trigramas `:4684`, simbólico `:4930`, dimensional `:5233`) **nunca reciben `bm25_raw`**, así que con normalización relativa al pool quedan por construcción bajo el peor candidato con BM25. Experimento propuesto: `BIORAG_BM25_NORM=abs|minmax|rescate` sobre el mismo snapshot; `rescate` debería devolver `typo` a ≥ 98 % sin mover el 0 % de FP.
+- **Calibración vencida**: `calibracion_estado` guarda `umbral_conforme = 0.5233` entrenado con 33 negativos, es decir con la distribución de scores pre-v30.0. Recalibrar después de fijar la normalización definitiva.
+- **Dataset ruidoso en `sinonimo`**: los 11 fallos restantes son sinónimos registrados válidos pero no discriminativos (`biorag` aparece en los sinónimos de 174 nodos, `memoria` en 99, `dimensiones` en 42). Requiere filtrar el generador, no el motor.
+- **`requirements.txt` incompleto**: `mcp_server.py:69` importa `pydantic` y no está declarado; `tests/test_memory_core.py` falla en cualquier entorno limpio por eso.
+
 ## [v30.0] — 2026-09-02 — Invarianza de Escala, Normalización Intra-Query y Falsos Positivos Cero
 
 Release arquitectónico mayor de **Invarianza al Tamaño del Corpus ($N$) y Precisión Libre de Calibración Manual**. Transforma la señal léxica BM25 de una escala fija y saturable a una normalización relativa intra-query matemáticamente inmune al crecimiento de la base de datos, unifica la comparabilidad entre búsqueda por frase y ráfaga en el servidor MCP, y logra **0.00% de Falsos Positivos** en el benchmark global de regresión.

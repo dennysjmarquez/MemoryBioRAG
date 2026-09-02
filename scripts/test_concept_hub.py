@@ -58,8 +58,13 @@ def evaluar_concept_hub():
     print("EVALUACIÓN CONCEPT HUB — FASE 2: Vocabulario sin overlap")
     print("=" * 70)
 
-    # Inicializar con DB de test
-    db_path = os.path.join(
+    # Inicializar con la DB que la suite aísla (BIORAG_PATH), igual que el resto de
+    # tests/ y scripts. Antes se hardcodeaba memory_biorag_test.db, así que el paso
+    # [3/4] de run_qa_suite.sh medía un corpus DISTINTO al de producción (880 nodos /
+    # 12 hubs / 78 bridges contra 993 / 17 / 119 de la DB viva) y además escribía
+    # (crear_tablas + cargar_hubs_iniciales) fuera de la copia aislada que el wrapper
+    # promete proteger. Sin BIORAG_PATH se conserva el default histórico.
+    db_path = os.environ.get("BIORAG_PATH") or os.path.join(
         os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
         "MemoryBioRAG_Data", "memory_biorag_test.db"
     )
