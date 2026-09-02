@@ -1,16 +1,16 @@
 {
   "version": "v30.1",
-  "generado_en": "2026-09-02T15:03:25",
-  "elapsed_seconds": 908.69,
-  "casos_file": "casos_qa.jsonl",
+  "generado_en": "2026-09-02T12:17:44",
+  "elapsed_seconds": 1448.35,
+  "casos_file": "casos_qa_baseline_v1.jsonl",
   "casos_total": 921,
-  "db_src": "/home/user/MemoryBioRAG/MemoryBioRAG_Data/memory_biorag.db",
+  "db_src": "/mnt/recursos_compartidos_y_otros/MemoryBioRAG/MemoryBioRAG_Data/memory_biorag_qa_run.db",
   "global": {
     "queries": 875,
-    "recall_at_5": 95.66,
-    "recall_at_1": 87.66,
-    "mrr": 0.9089,
-    "fallos": 38,
+    "recall_at_5": 95.89,
+    "recall_at_1": 87.43,
+    "mrr": 0.9073,
+    "fallos": 36,
     "negativos_total": 40,
     "negativos_fp": 0,
     "negativos_fp_rate": 0.0,
@@ -20,7 +20,7 @@
     "etiquetas_irreparables": 0,
     "queries_ambiguas": 3,
     "nodos_dormidos_iniciales": 66,
-    "nodos_restaurados_entre_casos": 117,
+    "nodos_restaurados_entre_casos": 116,
     "orden_no_monotonico": 0
   },
   "categorias": {
@@ -28,7 +28,7 @@
       "total": 8,
       "recall_at_5": 87.5,
       "recall_at_1": 50.0,
-      "mrr": 0.6875,
+      "mrr": 0.6667,
       "fallos": 1
     },
     "dormido": {
@@ -49,36 +49,36 @@
       "total": 65,
       "recall_at_5": 92.31,
       "recall_at_1": 70.77,
-      "mrr": 0.8,
+      "mrr": 0.7949,
       "fallos": 5
     },
     "pregunta_natural": {
       "total": 65,
       "recall_at_5": 92.31,
       "recall_at_1": 83.08,
-      "mrr": 0.8628,
+      "mrr": 0.8595,
       "fallos": 5
     },
     "sinonimo": {
       "total": 55,
-      "recall_at_5": 80.0,
-      "recall_at_1": 49.09,
-      "mrr": 0.5982,
-      "fallos": 11
+      "recall_at_5": 81.82,
+      "recall_at_1": 43.64,
+      "mrr": 0.5694,
+      "fallos": 10
     },
     "typo": {
       "total": 65,
       "recall_at_5": 89.23,
-      "recall_at_1": 67.69,
-      "mrr": 0.7603,
+      "recall_at_1": 66.15,
+      "mrr": 0.7526,
       "fallos": 7
     },
     "variante_gramatical": {
       "total": 65,
-      "recall_at_5": 86.15,
-      "recall_at_1": 66.15,
-      "mrr": 0.7526,
-      "fallos": 9
+      "recall_at_5": 87.69,
+      "recall_at_1": 69.23,
+      "mrr": 0.7736,
+      "fallos": 8
     }
   }
 }
