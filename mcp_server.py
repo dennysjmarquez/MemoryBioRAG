@@ -552,8 +552,8 @@ def _build_server():
         from mcp.server.fastmcp import FastMCP
     except ImportError as exc:
         raise ImportError(
-            "BioRAG MCP server requires the 'mcp' package.\n"
-            f"  pip install mcp\n  ({exc})"
+            "BioRAG MCP server requires the 'mcp' 1.x package (mcp>=1.0.0,<2).\n"
+            f"  pip install 'mcp>=1.0.0,<2'\n  ({exc})"
         ) from exc
 
     # ORACLE_PROMPT va aquí como `instructions`: es el contexto base del agente.

@@ -351,7 +351,7 @@ def _install_mcp() -> None:
     _step("Instalando dependencias (mcp + nltk)...")
     try:
         subprocess.run(
-            [_python(), "-m", "pip", "install", "mcp", "nltk>=3.8,<3.10"],
+            [_python(), "-m", "pip", "install", "mcp>=1.0.0,<2", "nltk>=3.8,<3.10"],
             check=True, capture_output=True, text=True,
         )
     except subprocess.CalledProcessError as exc:
