@@ -600,7 +600,45 @@ python3 scripts/ppmi_svd_retro.py --eval --no-retrofit
 
 # 5. Sin DMN (ideación en reposo desactivada)
 BIORAG_DMN_IDLE_SECONDS=999999 python3 scripts/evaluar_qa.py
+
+# 6. Sin la guardia de orden monotónico (v30.1) — solo para reproducir el bug
+BIORAG_ORDEN_MONOTONICO=0 python3 scripts/evaluar_qa.py
 ```
+
+**Gate de regresión de la suite QA (v30.1):** `scripts/evaluar_qa.py` escribe
+`scripts/qa_metrics.json` (cifras machine-readable, listas para diff/CI) y termina en
+`exit 1` si la corrida queda por debajo de la baseline oficial. Es lo que faltaba: hasta
+v30.0 el evaluador siempre salía en 0 y, con `set -e` en `run_qa_suite.sh`, la suite
+imprimía "FINALIZADA CON ÉXITO" aunque el Recall@5 global hubiera caído de 97.39 % a
+95.23 % (+19 fallos), que es exactamente lo que pasó el 2026-09-02.
+
+```bash
+# Umbrales por defecto = baseline oficial 2026-08-26 (Recall@5 97.39 %, 23 fallos, 0 % FP)
+./scripts/run_qa_suite.sh
+
+# Corrida exploratoria (ablación, experimento): apagar el gate
+BIORAG_QA_GATE=0 ./scripts/run_qa_suite.sh
+
+# Relajar umbrales puntualmente
+BIORAG_QA_MIN_RECALL5=95.0 BIORAG_QA_MAX_FALLOS=42 ./scripts/run_qa_suite.sh
+
+# Fijar una corrida buena como nueva baseline de comparación por categoría
+cp scripts/qa_metrics.json scripts/qa_metrics_baseline.json
+```
+
+| Variable | Propósito | Default |
+|---|---|---|
+| `BIORAG_QA_GATE` | Apagar/encender el gate de regresión | `1` |
+| `BIORAG_QA_MIN_RECALL5` | Recall@5 global mínimo (%) | `97.0` |
+| `BIORAG_QA_MAX_FALLOS` | Máximo de fallos de recuperación | `23` |
+| `BIORAG_QA_MAX_FP_RATE` | Máximo % de FP sobre negativos válidos | `0.0` |
+| `BIORAG_QA_MAX_REGRESION_PP` | Caída máxima por categoría vs. baseline (pp) | `2.0` |
+| `BIORAG_QA_BASELINE` | Archivo de baseline en `scripts/` | `qa_metrics_baseline.json` |
+| `BIORAG_QA_METRICS` | Salida de métricas JSON | `scripts/qa_metrics.json` |
+| `BIORAG_QA_RESOLVER_ETIQUETAS` | Resolver etiquetas oro obsoletas contra la DB evaluada | `1` |
+| `BIORAG_QA_ETIQUETA_DIFUSA` | Ratio mínimo de la resolución difusa de etiquetas | `0.94` |
+| `BIORAG_QA_ETIQUETA_MARGEN` | Margen mínimo sobre el segundo candidato | `0.02` |
+| `BIORAG_ORDEN_MONOTONICO` | Re-sort final de `buscar_por_frase` por score | `1` |
 
 **Implementación real de cada mecanismo:**
 

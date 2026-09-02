@@ -389,3 +389,98 @@ Experimento de validación para #4: poner la normalización detrás de un flag
 (`BIORAG_BM25_NORM=abs|minmax|rescate`) y correr la suite con las tres variantes sobre el
 mismo snapshot. Si la hipótesis §2.1/§2.2 es correcta, `rescate` debe devolver `typo` a
 ≥98 % **sin** mover el 0 % de FP.
+
+---
+
+## 6. Correcciones a este diagnóstico (aplicadas en v30.1)
+
+Este informe se escribió antes de implementar los arreglos. Dos afirmaciones resultaron
+inexactas y una tercera se quedó corta; se corrigen aquí para que el documento no
+circule con errores conocidos.
+
+### 6.1 §1.1 era incorrecto: el rename no fue de puntuación
+
+Se afirmó que los 3 nodos habían sido renombrados con "coma → `_y_`" y que una clave
+normalizada (sin acentos ni puntuación) bastaba para resolverlos. **Falso**: `_y_` añade
+el token `y`, así que las claves normalizadas no coinciden.
+
+```
+vieja  lección:_guardar_todo_lo_importante_inmediatamente,_no_esperar
+       → clave: leccionguardartodoloimportanteinmediatamentenoesperar
+actual lección:_guardar_todo_lo_importante_inmediatamente_y_no_esperar
+       → clave: leccionguardartodoloimportanteinmediatamenteynoesperar   ← difieren
+```
+
+Se verificó empíricamente: la primera implementación del resolver (solo normalización)
+reportó las 3 etiquetas como `inexistente`. La solución definitiva es de dos niveles —
+clave normalizada y, si falla, coincidencia difusa con `difflib` acotada por ratio ≥ 0.94
+**y** margen ≥ 0.02 sobre el segundo candidato. Sobre los 921 casos del dataset: 918
+etiquetas correctas, 3 resueltas por vía difusa, **0 falsas resoluciones**.
+
+### 6.2 §4.3 se quedó corto: el arnés no es determinista
+
+Se documentó que la suite muta la DB viva y que quedan 66 nodos `dormido` como residuo.
+El hallazgo real es más grave: **la evaluación no es reproducible ni siquiera contra la
+misma copia y el mismo código.**
+
+Mecanismo completo:
+
+1. El setup hace `UPDATE largo_plazo SET estado='activo'/'dormido'` sobre el esperado de
+   cada caso.
+2. `buscar_por_frase(profundidad="profundo")` **despierta** nodos dentro del motor
+   (`estado='activo'`, `peso_sinaptico += 0.15`).
+3. Ambas mutaciones se acumulan: el caso N se evalúa sobre un corpus modificado por los
+   N−1 anteriores. **46 de los 921 casos** tienen su nodo esperado `dormido` en la DB
+   viva, así que el pool de candidatos crece de forma irreversible durante la corrida.
+
+Evidencia: dos corridas consecutivas del mismo código difirieron en el caso `typo` 0513
+(`denys-identidad-profunda`), que pasó de PASS a FAIL y volvió a PASS al añadirse el
+restaurador de estado. La causa próxima no fue el fix de etiquetas —su nodo esperado puntúa
+**0.1743, empatado con otro candidato y justo en el corte del top-5**, de modo que
+cualquier perturbación del pool lo deja dentro o fuera. Se descartó la hipótesis inicial
+(caso 0368 reactivando un nodo que compite con `dennys`) con un experimento aislado: con y
+sin ese nodo activo el resultado es idéntico.
+
+Consecuencia metodológica: **con ruido de ±1-2 casos por corrida no se puede validar ningún
+fix de motor.** Cualquier comparación A/B sobre este arnés anterior a v30.1 —incluidas las
+de este informe— tiene esa barra de error.
+
+Corrección aplicada: snapshot del estado del corpus al arrancar y restauración tras cada
+caso (`_restaurar_estado_nodos`). En la corrida de validación se revirtieron **117
+mutaciones**.
+
+### 6.3 Efecto medido de los arreglos
+
+Misma DB, mismo sandbox, corridas consecutivas (921 casos, ~910 s cada una):
+
+| Métrica | pre (v30.0) | post (v30.1) | Δ |
+|---|---|---|---|
+| Global Recall@5 | 95.01 % (44 fallos) | **95.66 % (38 fallos)** | +0.65 pp / −6 |
+| Global Recall@1 | 86.83 % | **87.66 %** | +0.83 pp |
+| Global MRR | 0.901 | **0.909** | +0.008 |
+| `literal` | 99.38 % (3) | **100.00 % (0)** | 487/487 |
+| `sinonimo` | 77.05 % (14) | **80.00 % (11)** | +2.95 pp |
+| Fallos con scores no monotónicos | 9 | **0** | contrato restaurado |
+| `negativo` (FP) | 0.00 % | **0.00 %** | preservado |
+| `typo` / `variante` / `por_tema` | 89.23 / 86.15 / 92.31 % | idéntico | sin cambio |
+| Tests unitarios | 34 | **56** | +22 |
+
+Ningún caso que pasara antes falla ahora. Los 6 fallos eliminados son 0268/0368/0371
+(etiqueta obsoleta) y 0520/0740/0811 (ambigüedad).
+
+### 6.4 Estado del plan de acción (§5)
+
+| # | Acción | Estado |
+|---|---|---|
+| 1 | Validar/reparar etiquetas oro y marcar ambiguas | ✅ hecho en `evaluar_qa.py` (resolución en tiempo de evaluación, no se reescribe el JSONL) |
+| 2 | Gate de regresión + `qa_metrics.json` | ✅ hecho |
+| 3 | Reordenar tras hub-promotion y `PALABRA_PREFIJO` | ✅ hecho (piso de promoción + guardia final) |
+| 5 | `test_concept_hub.py` respeta `BIORAG_PATH` | ✅ hecho |
+| 9 (parcial) | Aislamiento de estado por caso | ✅ hecho; falta eliminar la doble copia de 60 MB |
+| 4 | Poblar `bm25_norm` de candidatos de rescate | ⏸ **pendiente — es lo que falta para cerrar la regresión** |
+| 6 | Recalibrar `calibracion_estado` | ⏸ pendiente (hacerlo después de #4) |
+| 7 | Filtrar sinónimos no discriminativos en el generador | ⏸ pendiente (11 fallos de `sinonimo` dependen de esto) |
+| 8 | Separar score relativo vs. absoluto | ⏸ pendiente |
+
+La regresión contra la baseline oficial **sigue abierta**: 95.66 % frente a 97.39 %. El
+gate queda en rojo a propósito (`exit 1`) hasta que se resuelva el item 4.

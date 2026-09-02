@@ -54,6 +54,33 @@ cleanup() {
 }
 trap cleanup EXIT
 
+# 5b. Mensaje explícito si algún paso falla (v30.1).
+# Con `set -e` un fallo terminaba con el error crudo de bash ("exit status 1") y la
+# limpieza del trap, sin explicar nada. Desde v30.1 evaluar_qa.py sale con código 1
+# cuando el gate de regresión no se cumple, así que este aviso es lo primero que hay
+# que ver al fallar la suite.
+on_error() {
+    codigo=$?
+    echo "" >&2
+    echo "================================================================================" >&2
+    echo "          LA SUITE TERMINÓ EN ROJO (código $codigo)" >&2
+    echo "================================================================================" >&2
+    echo "Causa más probable: el GATE DE REGRESIÓN de evaluar_qa.py detectó métricas por" >&2
+    echo "debajo de la baseline oficial (Recall@5 >= 97.0%, <= 23 fallos, 0% FP)." >&2
+    echo "" >&2
+    echo "El detalle está arriba en el informe y en:" >&2
+    echo "  scripts/qa_metrics.json     métricas de esta corrida (machine-readable)" >&2
+    echo "  scripts/casos_fallidos.jsonl  caso por caso" >&2
+    echo "" >&2
+    echo "Si es una corrida exploratoria (ablación, experimento) y esperabas este resultado:" >&2
+    echo "  BIORAG_QA_GATE=0 ./scripts/run_qa_suite.sh" >&2
+    echo "" >&2
+    echo "Otras causas posibles: un test de pytest fallido o un error en los pasos [2/4]" >&2
+    echo "y [3/4]. Revisa la salida anterior a este mensaje." >&2
+    echo "================================================================================" >&2
+}
+trap on_error ERR
+
 echo "================================================================================"
 echo "          INICIANDO SUITE INTEGRAL DE CALIDAD Y REGRESIÓN BIORAG"
 echo "================================================================================"
