@@ -1088,6 +1088,11 @@ class SQLiteMemoryBioRAG:
         # Catálogo de dimensiones: sembrar tipos y valores faltantes en DB existente
         self._asegurar_catalogo_dimensiones()
 
+        # Índices críticos en tabla sinapsis y largo_plazo (F3: aceleración 2x-30x de consultas al grafo)
+        self.cursor.execute("CREATE INDEX IF NOT EXISTS idx_sin_destino ON sinapsis(destino)")
+        self.cursor.execute("CREATE INDEX IF NOT EXISTS idx_sin_origen ON sinapsis(origen)")
+        self.cursor.execute("CREATE INDEX IF NOT EXISTS idx_lp_estado ON largo_plazo(estado)")
+
         self._crear_tabla_data()
 
         # Concept Hub v29.1 (hubs, bridges con 5 ángulos, nodos y domain dict)
@@ -3631,7 +3636,7 @@ class SQLiteMemoryBioRAG:
                 except Exception:
                     pass
             if a_platt is not None and b_platt is not None and CalibradorPlatt:
-                platt = CalibradorPlatt(alpha=1.0)
+                platt = CalibradorPlatt()
                 platt.a = float(a_platt)
                 platt.b = float(b_platt)
                 self._platt_calibrador = platt
@@ -4098,7 +4103,7 @@ class SQLiteMemoryBioRAG:
         # por prioridad de tipo + peso, el primer borde que llega por cada (raiz,vecino)
         # es el MEJOR (tipo explícito > pmi_hebbiano; y dentro del mismo tipo, mayor peso).
         vistos_por_raiz = {c: set() for c in conceptos_top}
-        for origen, destino, peso, tipo, peso_vecino, resumen_vecino, prioridad_tipo in filas:
+        for origen, destino, peso, tipo, peso_vecino, resumen_vecino, p_tipo_col in filas:
             raiz = origen if origen in asoc_map else destino
             vecino = destino if raiz == origen else origen
             if vecino == raiz:
