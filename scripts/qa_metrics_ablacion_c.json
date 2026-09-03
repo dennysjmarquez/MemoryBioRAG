@@ -1,7 +1,7 @@
 {
   "version": "v30.1",
-  "generado_en": "2026-09-02T18:47:39",
-  "elapsed_seconds": 942.52,
+  "generado_en": "2026-09-03T09:18:14",
+  "elapsed_seconds": 662.6,
   "casos_file": "casos_qa_baseline_v1.jsonl",
   "casos_total": 921,
   "db_src": "snapshots/qa_escape_qcr_20260811.db",
