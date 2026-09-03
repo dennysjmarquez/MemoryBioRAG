@@ -5287,14 +5287,13 @@ class SQLiteMemoryBioRAG:
             bm25_norm_map = {}
             self._last_bm25_bounds = None
 
-        # Asignar BM25 sintético a candidatos de rescate (typo, simbólico, dimensional_fallback)
+        # Asignar BM25 sintético a candidatos de rescate (typo, simbólico, dimensional_fallback, concepto)
         # para que no compitan con bm25=0 frente a matches parciales débiles,
         # preservando la escala intra-query para mantener 0% falsos positivos en ruido.
-        if bm25_norm_map and self._last_bm25_bounds:
-            escala_activa = self._last_bm25_bounds[2]
-            for conc, (origen, sc_capa) in origen_scores.items():
-                if conc not in bm25_norm_map and origen in ("typo", "simbolico", "dimensional_fallback"):
-                    bm25_norm_map[conc] = escala_activa * float(sc_capa)
+        escala_activa = self._last_bm25_bounds[2] if (self._last_bm25_bounds and self._last_bm25_bounds[2] > 0.3) else 0.8
+        for conc, (origen, sc_capa) in origen_scores.items():
+            if conc not in bm25_norm_map and origen in ("typo", "simbolico", "dimensional_fallback", "concepto"):
+                bm25_norm_map[conc] = min(1.0, escala_activa * float(sc_capa or 0.5))
 
 
 
@@ -5620,7 +5619,7 @@ class SQLiteMemoryBioRAG:
                 ratio_qcr = matches_qcr / len(q_tokens_qcr)
                 origen_tipo, score_capa = origen_scores.get(conc, ("literal", 0.0))
                 if ratio_qcr >= 0.50 or (
-                    origen_tipo in ("semantica", "simbolico", "expansion", "dimensional_fallback")
+                    origen_tipo in ("semantica", "simbolico", "expansion", "dimensional_fallback", "typo", "concepto")
                     and score_capa >= QCR_ESCAPE_CAPA_MIN
                 ):
                     filtrados_qcr.append((conc, cont, peso, est, sc, asoc))
