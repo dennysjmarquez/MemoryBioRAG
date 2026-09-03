@@ -4278,22 +4278,26 @@ class SQLiteMemoryBioRAG:
         # independientemente de este guard — el Hub sigue rescatando abismos léxicos
         # via hub_val en score híbrido y canonical insertion directa desde DB.
         hub_expansion = None
-        try:
-            from core.concept_hub import expandir_query_con_hub
-            hub_expansion = expandir_query_con_hub(frase_limpia, self.conn, threshold=0.40)
-            if hub_expansion and hub_expansion.get("expanded_terms") and _necesita_expansion:
-                hub_terms = " ".join(hub_expansion["expanded_terms"])
-                frase = frase + " " + hub_terms
-                # NOTA: NUNCA sobreescribir 'query = frase'.
-                # 'query' debe conservar los términos originales del usuario para
-                # evitar explosión combinatoria O(N*M) en el scoring simbólico (Levenshtein).
-        except Exception:
-            hub_expansion = None
+        # BIORAG_HUB_ENABLED (default "1"): apaga TANTO la expansión de términos
+        # COMO la promoción del nodo canónico post-ranking, para ablación limpia.
+        if os.environ.get("BIORAG_HUB_ENABLED", "1") != "0":
+            try:
+                from core.concept_hub import expandir_query_con_hub
+                hub_expansion = expandir_query_con_hub(frase_limpia, self.conn, threshold=0.40)
+                if hub_expansion and hub_expansion.get("expanded_terms") and _necesita_expansion:
+                    hub_terms = " ".join(hub_expansion["expanded_terms"])
+                    frase = frase + " " + hub_terms
+                    # NOTA: NUNCA sobreescribir 'query = frase'.
+                    # 'query' debe conservar los términos originales del usuario para
+                    # evitar explosión combinatoria O(N*M) en el scoring simbólico (Levenshtein).
+            except Exception:
+                hub_expansion = None
 
         # ── WORDNET EXPANDIDO: Expansión automática por sinónimos+hiperonimios ──
         # Solo para palabras genuinamente en inglés (WordNet en inglés).
         # Evitar palabras en español que pasen por ser ASCII puro (sin tildes ni ñ).
-        if _necesita_expansion:
+        # BIORAG_WORDNET_ENABLED (default "1"): apaga la expansión léxica y la Capa 5 de scoring.
+        if _necesita_expansion and os.environ.get("BIORAG_WORDNET_ENABLED", "1") != "0":
           try:
             from core.stopwords import STOPWORDS_ES
             from nltk.corpus import wordnet as _wn
@@ -5315,7 +5319,7 @@ class SQLiteMemoryBioRAG:
         grupo_scores_map = {}
         # Skip WordNet for very short queries (< 3 chars) or very long (> 100 chars, likely garbage/adversarial)
         # NLTK load takes ~3s on first run, and long queries are not legitimate semantic queries
-        if 3 <= len(frase) <= 100:
+        if 3 <= len(frase) <= 100 and os.environ.get("BIORAG_WORDNET_ENABLED", "1") != "0":
             try:
                 from core.clasificador_wordnet import obtener_lexnames_query
                 query_lexnames = obtener_lexnames_query(frase, parafrasis_list)
