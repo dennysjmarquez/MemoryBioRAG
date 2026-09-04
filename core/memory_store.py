@@ -4930,8 +4930,10 @@ class SQLiteMemoryBioRAG:
                         pass
 
         # ─── Fallback 2.1: Simbólico (Levenshtein + WordNet + Traducción) ───
-        # Solo cuando todas las capas anteriores devuelven < 5 resultados y no es modo_estricto.
-        if not modo_estricto and len(todos) < 5 and len(query) >= 3:
+        # Se ejecuta cuando hay pocos resultados (< 8) o cuando no hay matches literales directos.
+        # El umbral interno (0.60) previene FPs y solo rescata similitudes morfológicas reales.
+        hay_literal = any(orig == "literal" for orig, _ in origen_scores.values())
+        if not modo_estricto and (len(todos) < 8 or not hay_literal) and len(query) >= 3:
             try:
                 from core.fallback_simbolico import buscar_fallback_simbolico
                 estado_filter = "WHERE estado = 'activo'" if profundidad != "profundo" else ""
@@ -4952,7 +4954,7 @@ class SQLiteMemoryBioRAG:
                         query,
                         candidatos_fb,
                         umbral=0.60,
-                        top_k=5
+                        top_k=10
                     )
                     seen_rowids = {r[0] for r in todos}
                     for score_fb, rowid, conc, cont, peso, est, asoc in fb_results:
