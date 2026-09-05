@@ -21,7 +21,10 @@ import time
 import subprocess
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-DB_VIVA = os.path.join(BASE_DIR, "MemoryBioRAG_Data", "memory_biorag.db")
+DB_PATH = os.environ.get(
+    "BIORAG_PATH",
+    os.path.join(BASE_DIR, "snapshots", "qa_escape_qcr_20260811.db")
+)
 CASOS_FILE = os.path.join(BASE_DIR, "scripts", "casos_qa_baseline_v1.jsonl")
 METRICS_DIR = os.path.join(BASE_DIR, "docs")
 os.makedirs(METRICS_DIR, exist_ok=True)
@@ -45,7 +48,7 @@ def ejecutar_corrida(config):
     env["BIORAG_HUB_ENABLED"] = config["hub"]
     env["BIORAG_WORDNET_ENABLED"] = config["wn"]
     env["BIORAG_NO_LOG"] = "1"
-    env["BIORAG_PATH"] = DB_VIVA
+    env["BIORAG_PATH"] = DB_PATH
     env["BIORAG_QA_GATE"] = "0"  # Para no abortar la corrida si alguna variante cae del gate
 
     metrics_out = os.path.join(METRICS_DIR, f"qa_metrics_ablation_{config['id']}.json")
@@ -79,7 +82,7 @@ def ejecutar_corrida(config):
 def main():
     print("="*80)
     print("INICIANDO MATRIZ DE ABLACIÓN 2x2: CONCEPT HUB × WORDNET (v30.2)")
-    print(f"Base de datos origen: {DB_VIVA}")
+    print(f"Base de datos origen: {DB_PATH}")
     print(f"Casos QA: {CASOS_FILE}")
     print("="*80)
 
