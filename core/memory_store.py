@@ -4539,8 +4539,10 @@ class SQLiteMemoryBioRAG:
                 pc_clauses.append("(PALABRA_COMPLETA(?, l.contenido) = 1 OR PALABRA_COMPLETA(?, l.concepto) = 1 OR PALABRA_COMPLETA(?, COALESCE(l.sinonimos, '')) = 1)")
                 pc_params.extend([p, p, p])
             pc_clause = " AND (" + " OR ".join(pc_clauses) + ")"
-        # Inyectar pc_clause en el WHERE después de los filtros de estado/categoría
-        sql_con_pc = sql.replace("ORDER BY bm25(largo_plazo_fts, 5.0, 1.0, 2.0) * (0.5 + 0.5 * l.peso_sinaptico)", pc_clause + " ORDER BY bm25(largo_plazo_fts, 5.0, 1.0, 2.0) * (0.5 + 0.5 * l.peso_sinaptico)")
+        # v30.2: Generación FTS desacoplada (B2) — sql_con_pc = sql (sin pc_clause en NEAR+AND+OR).
+        # El filtrado destructivo de FTS se reemplaza por el Quality Gate de Fallback 2.1 (B3).
+        sql_con_pc = sql
+        pc_params = []
 
         # Intentar NEAR query primero (palabras cercanas entre sí)
         # Split hyphenated tokens so FTS5 doesn't parse '-' as NOT operator
@@ -4930,8 +4932,18 @@ class SQLiteMemoryBioRAG:
                         pass
 
         # ─── Fallback 2.1: Simbólico (Levenshtein + WordNet + Traducción) ───
-        # Solo cuando todas las capas anteriores devuelven < 3 resultados y no es modo_estricto.
-        if not modo_estricto and len(todos) < 3 and len(query) >= 3:
+        # v30.2 (B3): Fallback Quality Gate desacoplado del tamaño de pool.
+        # Se activa si len(todos) < 3 O si ningún candidato FTS alcanza max_cov >= 0.60.
+        # Usa _tokenizar_normalizado de core.fallback_simbolico (Strict Real: sin subcadenas espurias).
+        from core.fallback_simbolico import _tokenizar_normalizado as _fb_tok
+        _q_toks_fb = _fb_tok(query)
+        def _calc_strict_cov(_r):
+            _d_toks = _fb_tok(f"{_r[1]} {_r[2] or ''}")
+            return len(_q_toks_fb & _d_toks) / len(_q_toks_fb) if _q_toks_fb else 0.0
+        _max_cov_fb = max((_calc_strict_cov(_r) for _r in todos), default=0.0) if _q_toks_fb else 0.0
+        _fb_activo = len(todos) < 3 or (len(_q_toks_fb) >= 2 and _max_cov_fb < 0.60)
+
+        if not modo_estricto and _fb_activo and len(query) >= 3:
             try:
                 from core.fallback_simbolico import buscar_fallback_simbolico
                 estado_filter = "WHERE estado = 'activo'" if profundidad != "profundo" else ""
@@ -4959,8 +4971,10 @@ class SQLiteMemoryBioRAG:
                         if rowid not in seen_rowids:
                             todos.append((rowid, conc, cont, peso, est, asoc or ""))
                             seen_rowids.add(rowid)
-                            if conc not in origen_scores:
-                                origen_scores[conc] = ("simbolico", score_fb)
+                        # Promover origen_scores a "simbolico" si la puntuación simbólica es superior
+                        prev_origen, prev_sc = origen_scores.get(conc, (None, 0.0))
+                        if prev_origen != "simbolico" or score_fb > prev_sc:
+                            origen_scores[conc] = ("simbolico", score_fb)
             except ImportError:
                 pass
             except Exception:
