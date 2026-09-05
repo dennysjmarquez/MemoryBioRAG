@@ -589,11 +589,11 @@ HUBS_INICIALES = [
         "canonical_node": "historia_tasajera_fumigador_rufino",
         "description": "Trabajos previos a IT, empleos manuales, vida antes de programar",
         "bridges": [
-            {"text": "lo que hice antes de it", "angle": "sinonimo"},
-            {"text": "sobrevivir trabajando en tareas manuales", "angle": "problema"},
-            {"text": "fumigador y obrero tasajera", "angle": "solucion"},
-            {"text": "vida antes de computacion y programacion", "angle": "situacion"},
-            {"text": "trabajos que tuve antes de programar", "angle": "ingenuo"},
+            {"text": "oficios manuales rurales y empleos previos a computacion", "angle": "sinonimo"},
+            {"text": "como sobrevivir trabajando antes de aprender a programar", "angle": "problema"},
+            {"text": "fumigador de campo y operario de tasajera en rufino", "angle": "solucion"},
+            {"text": "trabajos de obrero ingeniero para sobrevivir antes de programar", "angle": "situacion"},
+            {"text": "trabajos que tuve antes de empezar a programar", "angle": "ingenuo"},
         ],
         "nodos": [
             "historia_tasajera_fumigador_rufino",
@@ -605,11 +605,11 @@ HUBS_INICIALES = [
         "canonical_node": "leccion_control_flujo_codigo_preexistente",
         "description": "No modificar código que funciona, regresiones, bugs por cambios",
         "bridges": [
-            {"text": "modificar codigo estable y romperlo", "angle": "sinonimo"},
-            {"text": "regresion por cambio en codigo viejo", "angle": "problema"},
-            {"text": "no tocar logica preexistente que funciona", "angle": "solucion"},
-            {"text": "cambios que causan problemas imprevistos", "angle": "situacion"},
-            {"text": "romper algo que funcionaba", "angle": "ingenuo"},
+            {"text": "regresiones y fallos al modificar codigo estable que funcionaba", "angle": "sinonimo"},
+            {"text": "meti un cambio en codigo que andaba bien y todo se rompio", "angle": "problema"},
+            {"text": "no tocar logica preexistente estable salvo evidencia real y medible", "angle": "solucion"},
+            {"text": "toque algo que andaba bien y dejo de andar al refactorizar", "angle": "situacion"},
+            {"text": "por que se rompe todo cuando cambio una sola linea que andaba", "angle": "ingenuo"},
         ],
         "nodos": [
             "leccion_control_flujo_codigo_preexistente"
@@ -620,11 +620,11 @@ HUBS_INICIALES = [
         "canonical_node": "biorag_v20_rpe_dopamina",
         "description": "Aprendizaje por refuerzo, señal de recompensa, RPE",
         "bridges": [
-            {"text": "error de prediccion de recompensa rpe", "angle": "sinonimo"},
-            {"text": "sistema que no sabe si acerto o fallo", "angle": "problema"},
-            {"text": "disparo dopaminergico por exito ltp", "angle": "solucion"},
-            {"text": "refuerzo positivo sin supervision humana", "angle": "situacion"},
-            {"text": "aprender sin que nadie enseñe", "angle": "ingenuo"},
+            {"text": "mecanismo de recompensa interna y error de prediccion rpe", "angle": "sinonimo"},
+            {"text": "sistema que no sabe si acerto o fallo y no mejora solo", "angle": "problema"},
+            {"text": "disparo dopaminergico por acierto que consolida memoria via ltp", "angle": "solucion"},
+            {"text": "aprendizaje autonomo sin supervision humana ni guia externa", "angle": "situacion"},
+            {"text": "como hace la memoria para aprender sola sin que nadie le ensene", "angle": "ingenuo"},
         ],
         "nodos": [
             "biorag_v20_rpe_dopamina",
@@ -636,11 +636,11 @@ HUBS_INICIALES = [
         "canonical_node": "resolucion_de_contradicciones_entre_insights_sumatoria_mentalidad",
         "description": "Debate entre IAs, verificación cruzada, reducción de alucinaciones",
         "bridges": [
-            {"text": "debate estructurado entre modelos de lenguaje", "angle": "sinonimo"},
-            {"text": "alucinaciones y sesgos de un solo modelo", "angle": "problema"},
-            {"text": "impugnacion y resolucion de contradicciones", "angle": "solucion"},
-            {"text": "verificacion ciega con multiples inteligencias", "angle": "situacion"},
-            {"text": "ias que se contradigan para encontrar la verdad", "angle": "ingenuo"},
+            {"text": "discrepancia debate y divergencia entre modelos de lenguaje", "angle": "sinonimo"},
+            {"text": "dos modelos de ia que no estan de acuerdo en la respuesta", "angle": "problema"},
+            {"text": "sumar insights opuestos y sintetizar mentalidad sin descartar ninguno", "angle": "solucion"},
+            {"text": "resolucion de contradicciones y desacuerdos entre inteligencias artificiales", "angle": "situacion"},
+            {"text": "ias que se contradigan para encontrar la verdad y consenso", "angle": "ingenuo"},
         ],
         "nodos": [
             "resolucion_de_contradicciones_entre_insights_sumatoria_mentalidad"
@@ -655,7 +655,7 @@ HUBS_INICIALES = [
             {"text": "bloqueo por exceso de teoria sin practica", "angle": "problema"},
             {"text": "construir primero deducir principios despues", "angle": "solucion"},
             {"text": "desarrollo por intuicion y validacion practica", "angle": "situacion"},
-            {"text": "construir antes de entender la teoria", "angle": "ingenuo"},
+            {"text": "como construir y aprender antes de dominar la teoria formal", "angle": "ingenuo"},
         ],
         "nodos": [
             "dennys-metodo-creativo",
@@ -672,6 +672,7 @@ def cargar_hubs_iniciales(conn: sqlite3.Connection) -> dict:
     for hub in HUBS_INICIALES:
         try:
             crear_hub(conn, hub["hub_id"], hub["canonical_node"], hub["description"], validar_existencia=False)
+            conn.execute("DELETE FROM concept_hub_bridges WHERE hub_id = ?", (hub["hub_id"],))
             agregar_bridges(conn, hub["hub_id"], hub["bridges"])
             agregar_nodos(conn, hub["hub_id"], hub["nodos"], validar_existencia=False)
             creados += 1

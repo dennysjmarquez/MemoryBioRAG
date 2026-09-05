@@ -1088,6 +1088,11 @@ class SQLiteMemoryBioRAG:
         # Catálogo de dimensiones: sembrar tipos y valores faltantes en DB existente
         self._asegurar_catalogo_dimensiones()
 
+        # Índices críticos en tabla sinapsis y largo_plazo (F3: aceleración 2x-30x de consultas al grafo)
+        self.cursor.execute("CREATE INDEX IF NOT EXISTS idx_sin_destino ON sinapsis(destino)")
+        self.cursor.execute("CREATE INDEX IF NOT EXISTS idx_sin_origen ON sinapsis(origen)")
+        self.cursor.execute("CREATE INDEX IF NOT EXISTS idx_lp_estado ON largo_plazo(estado)")
+
         self._crear_tabla_data()
 
         # Concept Hub v29.1 (hubs, bridges con 5 ángulos, nodos y domain dict)
@@ -3631,7 +3636,7 @@ class SQLiteMemoryBioRAG:
                 except Exception:
                     pass
             if a_platt is not None and b_platt is not None and CalibradorPlatt:
-                platt = CalibradorPlatt(alpha=1.0)
+                platt = CalibradorPlatt()
                 platt.a = float(a_platt)
                 platt.b = float(b_platt)
                 self._platt_calibrador = platt
@@ -4098,7 +4103,7 @@ class SQLiteMemoryBioRAG:
         # por prioridad de tipo + peso, el primer borde que llega por cada (raiz,vecino)
         # es el MEJOR (tipo explícito > pmi_hebbiano; y dentro del mismo tipo, mayor peso).
         vistos_por_raiz = {c: set() for c in conceptos_top}
-        for origen, destino, peso, tipo, peso_vecino, resumen_vecino, prioridad_tipo in filas:
+        for origen, destino, peso, tipo, peso_vecino, resumen_vecino, p_tipo_col in filas:
             raiz = origen if origen in asoc_map else destino
             vecino = destino if raiz == origen else origen
             if vecino == raiz:
@@ -4278,22 +4283,26 @@ class SQLiteMemoryBioRAG:
         # independientemente de este guard — el Hub sigue rescatando abismos léxicos
         # via hub_val en score híbrido y canonical insertion directa desde DB.
         hub_expansion = None
-        try:
-            from core.concept_hub import expandir_query_con_hub
-            hub_expansion = expandir_query_con_hub(frase_limpia, self.conn, threshold=0.40)
-            if hub_expansion and hub_expansion.get("expanded_terms") and _necesita_expansion:
-                hub_terms = " ".join(hub_expansion["expanded_terms"])
-                frase = frase + " " + hub_terms
-                # NOTA: NUNCA sobreescribir 'query = frase'.
-                # 'query' debe conservar los términos originales del usuario para
-                # evitar explosión combinatoria O(N*M) en el scoring simbólico (Levenshtein).
-        except Exception:
-            hub_expansion = None
+        # BIORAG_HUB_ENABLED (default "1"): apaga TANTO la expansión de términos
+        # COMO la promoción del nodo canónico post-ranking, para ablación limpia.
+        if os.environ.get("BIORAG_HUB_ENABLED", "1") != "0":
+            try:
+                from core.concept_hub import expandir_query_con_hub
+                hub_expansion = expandir_query_con_hub(frase_limpia, self.conn, threshold=0.40)
+                if hub_expansion and hub_expansion.get("expanded_terms") and _necesita_expansion:
+                    hub_terms = " ".join(hub_expansion["expanded_terms"])
+                    frase = frase + " " + hub_terms
+                    # NOTA: NUNCA sobreescribir 'query = frase'.
+                    # 'query' debe conservar los términos originales del usuario para
+                    # evitar explosión combinatoria O(N*M) en el scoring simbólico (Levenshtein).
+            except Exception:
+                hub_expansion = None
 
         # ── WORDNET EXPANDIDO: Expansión automática por sinónimos+hiperonimios ──
         # Solo para palabras genuinamente en inglés (WordNet en inglés).
         # Evitar palabras en español que pasen por ser ASCII puro (sin tildes ni ñ).
-        if _necesita_expansion:
+        # BIORAG_WORDNET_ENABLED (default "1"): apaga la expansión léxica y la Capa 5 de scoring.
+        if _necesita_expansion and os.environ.get("BIORAG_WORDNET_ENABLED", "1") != "0":
           try:
             from core.stopwords import STOPWORDS_ES
             from nltk.corpus import wordnet as _wn
@@ -4530,8 +4539,10 @@ class SQLiteMemoryBioRAG:
                 pc_clauses.append("(PALABRA_COMPLETA(?, l.contenido) = 1 OR PALABRA_COMPLETA(?, l.concepto) = 1 OR PALABRA_COMPLETA(?, COALESCE(l.sinonimos, '')) = 1)")
                 pc_params.extend([p, p, p])
             pc_clause = " AND (" + " OR ".join(pc_clauses) + ")"
-        # Inyectar pc_clause en el WHERE después de los filtros de estado/categoría
-        sql_con_pc = sql.replace("ORDER BY bm25(largo_plazo_fts, 5.0, 1.0, 2.0) * (0.5 + 0.5 * l.peso_sinaptico)", pc_clause + " ORDER BY bm25(largo_plazo_fts, 5.0, 1.0, 2.0) * (0.5 + 0.5 * l.peso_sinaptico)")
+        # v30.2: Generación FTS desacoplada (B2) — sql_con_pc = sql (sin pc_clause en NEAR+AND+OR).
+        # El filtrado destructivo de FTS se reemplaza por el Quality Gate de Fallback 2.1 (B3).
+        sql_con_pc = sql
+        pc_params = []
 
         # Intentar NEAR query primero (palabras cercanas entre sí)
         # Split hyphenated tokens so FTS5 doesn't parse '-' as NOT operator
@@ -4921,8 +4932,18 @@ class SQLiteMemoryBioRAG:
                         pass
 
         # ─── Fallback 2.1: Simbólico (Levenshtein + WordNet + Traducción) ───
-        # Solo cuando todas las capas anteriores devuelven < 3 resultados y no es modo_estricto.
-        if not modo_estricto and len(todos) < 3 and len(query) >= 3:
+        # v30.2 (B3): Fallback Quality Gate desacoplado del tamaño de pool.
+        # Se activa si len(todos) < 3 O si ningún candidato FTS alcanza max_cov >= 0.60.
+        # Usa _tokenizar_normalizado de core.fallback_simbolico (Strict Real: sin subcadenas espurias).
+        from core.fallback_simbolico import _tokenizar_normalizado as _fb_tok
+        _q_toks_fb = _fb_tok(query)
+        def _calc_strict_cov(_r):
+            _d_toks = _fb_tok(f"{_r[1]} {_r[2] or ''}")
+            return len(_q_toks_fb & _d_toks) / len(_q_toks_fb) if _q_toks_fb else 0.0
+        _max_cov_fb = max((_calc_strict_cov(_r) for _r in todos), default=0.0) if _q_toks_fb else 0.0
+        _fb_activo = len(todos) < 3 or (len(_q_toks_fb) >= 2 and _max_cov_fb < 0.60)
+
+        if not modo_estricto and _fb_activo and len(query) >= 3:
             try:
                 from core.fallback_simbolico import buscar_fallback_simbolico
                 estado_filter = "WHERE estado = 'activo'" if profundidad != "profundo" else ""
@@ -4950,8 +4971,10 @@ class SQLiteMemoryBioRAG:
                         if rowid not in seen_rowids:
                             todos.append((rowid, conc, cont, peso, est, asoc or ""))
                             seen_rowids.add(rowid)
-                            if conc not in origen_scores:
-                                origen_scores[conc] = ("simbolico", score_fb)
+                        # Promover origen_scores a "simbolico" si la puntuación simbólica es superior
+                        prev_origen, prev_sc = origen_scores.get(conc, (None, 0.0))
+                        if prev_origen != "simbolico" or score_fb > prev_sc:
+                            origen_scores[conc] = ("simbolico", score_fb)
             except ImportError:
                 pass
             except Exception:
@@ -5278,14 +5301,13 @@ class SQLiteMemoryBioRAG:
             bm25_norm_map = {}
             self._last_bm25_bounds = None
 
-        # Asignar BM25 sintético a candidatos de rescate (typo, simbólico, dimensional_fallback)
+        # Asignar BM25 sintético a candidatos de rescate (typo, simbólico, dimensional_fallback, concepto)
         # para que no compitan con bm25=0 frente a matches parciales débiles,
         # preservando la escala intra-query para mantener 0% falsos positivos en ruido.
-        if bm25_norm_map and self._last_bm25_bounds:
-            escala_activa = self._last_bm25_bounds[2]
-            for conc, (origen, sc_capa) in origen_scores.items():
-                if conc not in bm25_norm_map and origen in ("typo", "simbolico", "dimensional_fallback"):
-                    bm25_norm_map[conc] = escala_activa * float(sc_capa)
+        escala_activa = self._last_bm25_bounds[2] if (self._last_bm25_bounds and self._last_bm25_bounds[2] > 0.3) else 0.8
+        for conc, (origen, sc_capa) in origen_scores.items():
+            if conc not in bm25_norm_map and origen in ("typo", "simbolico", "dimensional_fallback", "concepto"):
+                bm25_norm_map[conc] = min(1.0, escala_activa * float(sc_capa or 0.5))
 
 
 
@@ -5315,7 +5337,7 @@ class SQLiteMemoryBioRAG:
         grupo_scores_map = {}
         # Skip WordNet for very short queries (< 3 chars) or very long (> 100 chars, likely garbage/adversarial)
         # NLTK load takes ~3s on first run, and long queries are not legitimate semantic queries
-        if 3 <= len(frase) <= 100:
+        if 3 <= len(frase) <= 100 and os.environ.get("BIORAG_WORDNET_ENABLED", "1") != "0":
             try:
                 from core.clasificador_wordnet import obtener_lexnames_query
                 query_lexnames = obtener_lexnames_query(frase, parafrasis_list)
@@ -5611,7 +5633,7 @@ class SQLiteMemoryBioRAG:
                 ratio_qcr = matches_qcr / len(q_tokens_qcr)
                 origen_tipo, score_capa = origen_scores.get(conc, ("literal", 0.0))
                 if ratio_qcr >= 0.50 or (
-                    origen_tipo in ("semantica", "simbolico", "expansion", "dimensional_fallback")
+                    origen_tipo in ("semantica", "simbolico", "expansion", "dimensional_fallback", "typo", "concepto")
                     and score_capa >= QCR_ESCAPE_CAPA_MIN
                 ):
                     filtrados_qcr.append((conc, cont, peso, est, sc, asoc))

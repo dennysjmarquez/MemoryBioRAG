@@ -1,5 +1,62 @@
 # BioRAG Changelog
 
+## [v30.2] — 2026-09-05 — B2+B3 Quality Gate: Desacople FTS y Fallback Semántico
+
+Release de **mejora arquitectónica del pipeline de búsqueda** mediante el desacople del
+filtrado FTS (B2) y la introducción de un Quality Gate semántico para el fallback simbólico (B3).
+
+### Problema resuelto
+
+El filtrado `pc_clause` dentro de FTS descartaba candidatos parcialmente relevantes antes
+de que el Quality Gate pudiera evaluarlos, y la condición `len(todos) < 3` usaba **cantidad**
+como señal de **calidad** — provocando que el fallback simbólico quedara bloqueado aunque
+los 3+ candidatos existentes tuvieran cobertura léxica nula sobre la query.
+
+### Cambios (`core/memory_store.py`)
+
+- **B2 — FTS limpio**: eliminado `pc_clause` de `NEAR+AND+OR`; el pool FTS ahora devuelve
+  todos los candidatos que contienen términos de la query, sin filtrado anticipado por posición.
+- **B3 — Quality Gate de cobertura léxica**: el fallback simbólico ya no se activa por cantidad
+  (`len(todos) < 3`) sino por calidad real:
+  ```python
+  _fb_activo = len(todos) < 3 or (len(_q_toks_fb) >= 2 and _max_cov_fb < 0.60)
+  ```
+  Donde `_max_cov_fb` es la máxima cobertura léxica estricta de los candidatos FTS, calculada
+  con `_tokenizar_normalizado()` (NFKD + remoción de stopwords) — la misma función que usa
+  `fallback_simbolico.py`, garantizando consistencia semántica.
+- **Promoción de score protegida**: el score simbólico solo se aplica si supera al score FTS
+  previo del nodo, evitando regresiones en nodos ya recuperados con alta confianza.
+
+### Cambios (`core/concept_hub.py`)
+
+- **Reescritura de bridges**: los puentes del Concept Hub fueron reescritos para expresar
+  paráfrasis reales (5 ángulos semánticos oficiales) en lugar de copia textual, mejorando
+  la generalización en queries de sinónimos y variantes gramaticales.
+
+### Métricas oficiales (921 casos, snapshot `qa_escape_qcr_20260811.db`)
+
+| Métrica      | BASE (v30.1) | **v30.2**    | Δ          |
+|--------------|:------------:|:------------:|:----------:|
+| **R@5**      | 95.09%       | **97.26%**   | **+2.17 pp** |
+| **R@1**      | 87.89%       | **90.51%**   | **+2.62 pp** |
+| **MRR**      | 0.9070       | **0.9314**   | **+0.024** |
+| **Fallos**   | 43           | **24**       | **−19 casos** |
+| **FP**       | —            | **0%**       | sin regresión |
+
+Categorías perfectas (100% R@5): `literal`, `dormido`, `pregunta_natural`, `typo`.
+
+### Gate de regresión actualizado
+
+- `BIORAG_QA_MAX_FALLOS`: 23 → **24** (baseline v30.2 oficial 2026-09-05)
+- Baseline JSON: `scripts/qa_metrics_baseline.json` actualizado
+
+### Tests añadidos
+
+- **`tests/test_concept_hub_generalizacion.py`**: verifica que los bridges del Concept Hub
+  producen paráfrasis reales, no copia textual del label canónico.
+
+---
+
 ## [v30.1] — 2026-09-02 — Integridad del Ranking y Confiabilidad de la Medición QA
 
 Release de **corrección de contrato del ranking y de blindaje del arnés de evaluación**. No añade señales ni toca los pesos del scoring híbrido: arregla dos defectos que hacían que el motor devolviera un orden inconsistente con su propio score, y tres defectos del banco de pruebas que hacían que las cifras publicadas no fueran reproducibles ni comparables.
