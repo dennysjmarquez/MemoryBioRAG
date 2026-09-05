@@ -148,9 +148,10 @@ _wordnet_disponible: Optional[bool] = None
 def _verificar_wordnet() -> bool:
     """Verifica si WordNet está disponible de forma local y silenciosa. Cachea el resultado."""
     global _wordnet_disponible
+    if os.environ.get("BIORAG_WORDNET_ENABLED", "1") == "0":
+        return False
     if _wordnet_disponible is None:
         try:
-            import os
             import nltk
             # Configurar ruta local de nltk_data dentro del proyecto
             project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
