@@ -1,5 +1,5 @@
 {
-  "fecha": "2026-09-04 07:04",
+  "fecha": "2026-09-05 08:18",
   "total_casos": 5,
   "exitos_sin_hub": 0,
   "exitos_con_hub": 5,
@@ -32,7 +32,7 @@
       "sin_hub_encontrado": false,
       "sin_hub_posicion": -1,
       "con_hub_encontrado": true,
-      "con_hub_posicion": 1,
+      "con_hub_posicion": 2,
       "hub_match": true
     },
     {
@@ -42,7 +42,7 @@
       "sin_hub_encontrado": false,
       "sin_hub_posicion": -1,
       "con_hub_encontrado": true,
-      "con_hub_posicion": 2,
+      "con_hub_posicion": 1,
       "hub_match": true
     },
     {

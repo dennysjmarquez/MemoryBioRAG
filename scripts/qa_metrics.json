@@ -1,34 +1,34 @@
 {
   "version": "v30.1",
-  "generado_en": "2026-09-04T07:14:12",
-  "elapsed_seconds": 543.98,
+  "generado_en": "2026-09-05T08:36:31",
+  "elapsed_seconds": 1045.93,
   "casos_file": "casos_qa_baseline_v1.jsonl",
   "casos_total": 921,
   "db_src": "/mnt/recursos_compartidos_y_otros/MemoryBioRAG/MemoryBioRAG_Data/memory_biorag_qa_run.db",
   "global": {
     "queries": 875,
-    "recall_at_5": 95.54,
-    "recall_at_1": 88.11,
-    "mrr": 0.9104,
-    "fallos": 39,
+    "recall_at_5": 97.6,
+    "recall_at_1": 88.91,
+    "mrr": 0.9233,
+    "fallos": 21,
     "negativos_total": 40,
     "negativos_fp": 0,
     "negativos_fp_rate": 0.0,
     "negativos_contaminados": 0,
-    "spreading_activation": 16,
+    "spreading_activation": 9,
     "etiquetas_obsoletas_resueltas": 3,
     "etiquetas_irreparables": 0,
     "queries_ambiguas": 3,
-    "nodos_dormidos_iniciales": 15,
-    "nodos_restaurados_entre_casos": 64,
+    "nodos_dormidos_iniciales": 19,
+    "nodos_restaurados_entre_casos": 65,
     "orden_no_monotonico": 0
   },
   "categorias": {
     "cruce_idioma": {
       "total": 8,
       "recall_at_5": 87.5,
-      "recall_at_1": 75.0,
-      "mrr": 0.775,
+      "recall_at_1": 50.0,
+      "mrr": 0.6562,
       "fallos": 1
     },
     "dormido": {
@@ -47,38 +47,38 @@
     },
     "por_tema": {
       "total": 65,
-      "recall_at_5": 87.69,
-      "recall_at_1": 63.08,
-      "mrr": 0.7359,
-      "fallos": 8
+      "recall_at_5": 89.23,
+      "recall_at_1": 64.62,
+      "mrr": 0.7441,
+      "fallos": 7
     },
     "pregunta_natural": {
       "total": 65,
-      "recall_at_5": 93.85,
-      "recall_at_1": 86.15,
-      "mrr": 0.8923,
-      "fallos": 4
+      "recall_at_5": 100.0,
+      "recall_at_1": 90.77,
+      "mrr": 0.9441,
+      "fallos": 0
     },
     "sinonimo": {
       "total": 55,
-      "recall_at_5": 83.64,
+      "recall_at_5": 81.82,
       "recall_at_1": 41.82,
-      "mrr": 0.5718,
-      "fallos": 9
+      "mrr": 0.5536,
+      "fallos": 10
     },
     "typo": {
       "total": 65,
-      "recall_at_5": 87.69,
-      "recall_at_1": 72.31,
-      "mrr": 0.7831,
-      "fallos": 8
+      "recall_at_5": 98.46,
+      "recall_at_1": 80.0,
+      "mrr": 0.8756,
+      "fallos": 1
     },
     "variante_gramatical": {
       "total": 65,
-      "recall_at_5": 86.15,
+      "recall_at_5": 96.92,
       "recall_at_1": 73.85,
-      "mrr": 0.7885,
-      "fallos": 9
+      "mrr": 0.839,
+      "fallos": 2
     }
   }
 }
