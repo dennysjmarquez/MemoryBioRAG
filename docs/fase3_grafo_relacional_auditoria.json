@@ -1,0 +1,969 @@
+{
+  "tablas_grafo": {
+    "largo_plazo": {
+      "columns": [
+        "id",
+        "concepto",
+        "categoria",
+        "contenido",
+        "peso_sinaptico",
+        "estado",
+        "asociaciones",
+        "ultimo_acceso",
+        "sinonimos",
+        "creado_en",
+        "valencia_somatica",
+        "exitos_dopamina",
+        "fallos_dopamina",
+        "fecha_expiracion",
+        "prioridad"
+      ],
+      "row_count": 866
+    },
+    "sinapsis": {
+      "columns": [
+        "origen",
+        "destino",
+        "peso",
+        "tipo",
+        "creado_en",
+        "ultimo_uso"
+      ],
+      "row_count": 13848
+    },
+    "sinapsis_latentes": {
+      "columns": [
+        "origen",
+        "destino",
+        "peso_atenuado",
+        "saltos",
+        "calculado_en",
+        "pmi_score",
+        "tiene_dim_comun",
+        "strikes"
+      ],
+      "row_count": 8893
+    },
+    "predicados": {
+      "columns": [
+        "id",
+        "concepto",
+        "sujeto",
+        "accion",
+        "objeto",
+        "contexto",
+        "creado_en"
+      ],
+      "row_count": 187
+    },
+    "dimensiones_semanticas": {
+      "columns": [
+        "id",
+        "name",
+        "description",
+        "tipo_id",
+        "auto_generada",
+        "confianza",
+        "generado_en"
+      ],
+      "row_count": 104
+    },
+    "largo_plazo_dimensiones": {
+      "columns": [
+        "concepto",
+        "dimension_id"
+      ],
+      "row_count": 5535
+    },
+    "grupos_semanticos": {
+      "columns": [
+        "id",
+        "nombre",
+        "fuente",
+        "descripcion"
+      ],
+      "row_count": 45
+    },
+    "nodo_grupos_semanticos": {
+      "columns": [
+        "concepto",
+        "palabra",
+        "grupo_id"
+      ],
+      "row_count": 101028
+    },
+    "concept_hubs": {
+      "columns": [
+        "hub_id",
+        "canonical_node",
+        "description",
+        "created_at"
+      ],
+      "row_count": 0
+    },
+    "concept_hub_bridges": {
+      "columns": [
+        "bridge_id",
+        "hub_id",
+        "bridge_text",
+        "angle",
+        "weight"
+      ],
+      "row_count": 0
+    }
+  },
+  "tipos_relaciones_sinapsis": [
+    {
+      "tipo": "sinonimo_explicito",
+      "aristas": 5863,
+      "peso_promedio": 0.876,
+      "peso_min": 0.05,
+      "peso_max": 0.93,
+      "provenance": "Ingestión manual/explícita"
+    },
+    {
+      "tipo": "pmi_hebbiano",
+      "aristas": 2359,
+      "peso_promedio": 0.502,
+      "peso_min": 0.05,
+      "peso_max": 0.96,
+      "provenance": "Consolidación / Hebbian Daemon"
+    },
+    {
+      "tipo": "co_ocurrencia",
+      "aristas": 2108,
+      "peso_promedio": 0.674,
+      "peso_min": 0.07,
+      "peso_max": 1.0,
+      "provenance": "Consolidación / Hebbian Daemon"
+    },
+    {
+      "tipo": "co_nombre",
+      "aristas": 1558,
+      "peso_promedio": 0.419,
+      "peso_min": 0.05,
+      "peso_max": 1.0,
+      "provenance": "Consolidación / Hebbian Daemon"
+    },
+    {
+      "tipo": "co_semantica",
+      "aristas": 1226,
+      "peso_promedio": 0.569,
+      "peso_min": 0.07,
+      "peso_max": 1.0,
+      "provenance": "Consolidación / Hebbian Daemon"
+    },
+    {
+      "tipo": "manual",
+      "aristas": 575,
+      "peso_promedio": 0.503,
+      "peso_min": 0.06,
+      "peso_max": 0.9,
+      "provenance": "Ingestión manual/explícita"
+    },
+    {
+      "tipo": "latente_confirmada",
+      "aristas": 120,
+      "peso_promedio": 0.404,
+      "peso_min": 0.4,
+      "peso_max": 0.44,
+      "provenance": "Consolidación / Hebbian Daemon"
+    },
+    {
+      "tipo": "legacy_csv",
+      "aristas": 25,
+      "peso_promedio": 0.5,
+      "peso_min": 0.5,
+      "peso_max": 0.5,
+      "provenance": "Ingestión manual/explícita"
+    },
+    {
+      "tipo": "manual_v7",
+      "aristas": 13,
+      "peso_promedio": 0.715,
+      "peso_min": 0.7,
+      "peso_max": 0.9,
+      "provenance": "Ingestión manual/explícita"
+    },
+    {
+      "tipo": "test",
+      "aristas": 1,
+      "peso_promedio": 0.9,
+      "peso_min": 0.9,
+      "peso_max": 0.9,
+      "provenance": "Consolidación / Hebbian Daemon"
+    }
+  ],
+  "predicados_acciones": [
+    {
+      "accion": "verifico",
+      "count": 12
+    },
+    {
+      "accion": "decidio",
+      "count": 12
+    },
+    {
+      "accion": "corrigio",
+      "count": 9
+    },
+    {
+      "accion": "midio",
+      "count": 8
+    },
+    {
+      "accion": "implemento",
+      "count": 8
+    },
+    {
+      "accion": "definio",
+      "count": 6
+    },
+    {
+      "accion": "establecio",
+      "count": 5
+    },
+    {
+      "accion": "reprodujo",
+      "count": 4
+    },
+    {
+      "accion": "pidio",
+      "count": 4
+    },
+    {
+      "accion": "ejecuto",
+      "count": 4
+    },
+    {
+      "accion": "detecto",
+      "count": 4
+    },
+    {
+      "accion": "reporto",
+      "count": 3
+    },
+    {
+      "accion": "refuto",
+      "count": 3
+    },
+    {
+      "accion": "establece",
+      "count": 3
+    },
+    {
+      "accion": "encuentra",
+      "count": 3
+    },
+    {
+      "accion": "descubrio",
+      "count": 3
+    },
+    {
+      "accion": "creo",
+      "count": 3
+    },
+    {
+      "accion": "corrige",
+      "count": 3
+    },
+    {
+      "accion": "confirmo",
+      "count": 3
+    },
+    {
+      "accion": "aprobo",
+      "count": 3
+    },
+    {
+      "accion": "actualizo",
+      "count": 3
+    },
+    {
+      "accion": "valido",
+      "count": 2
+    },
+    {
+      "accion": "instruyo",
+      "count": 2
+    },
+    {
+      "accion": "expreso",
+      "count": 2
+    },
+    {
+      "accion": "entrego",
+      "count": 2
+    },
+    {
+      "accion": "elimino",
+      "count": 2
+    },
+    {
+      "accion": "corrio",
+      "count": 2
+    },
+    {
+      "accion": "autorizo",
+      "count": 2
+    },
+    {
+      "accion": "anhelo",
+      "count": 2
+    },
+    {
+      "accion": "valida",
+      "count": 1
+    },
+    {
+      "accion": "usa",
+      "count": 1
+    },
+    {
+      "accion": "supera",
+      "count": 1
+    },
+    {
+      "accion": "solicito",
+      "count": 1
+    },
+    {
+      "accion": "separo",
+      "count": 1
+    },
+    {
+      "accion": "se emociono al comprender",
+      "count": 1
+    },
+    {
+      "accion": "rompe",
+      "count": 1
+    },
+    {
+      "accion": "reviso",
+      "count": 1
+    },
+    {
+      "accion": "revirtio",
+      "count": 1
+    },
+    {
+      "accion": "revelo_vision",
+      "count": 1
+    },
+    {
+      "accion": "responde",
+      "count": 1
+    },
+    {
+      "accion": "resolvio",
+      "count": 1
+    },
+    {
+      "accion": "resistio",
+      "count": 1
+    },
+    {
+      "accion": "reitera",
+      "count": 1
+    },
+    {
+      "accion": "reentro",
+      "count": 1
+    },
+    {
+      "accion": "redacto",
+      "count": 1
+    },
+    {
+      "accion": "rechazo",
+      "count": 1
+    },
+    {
+      "accion": "pueblo_prueba",
+      "count": 1
+    },
+    {
+      "accion": "publica",
+      "count": 1
+    },
+    {
+      "accion": "prunea",
+      "count": 1
+    },
+    {
+      "accion": "propuso",
+      "count": 1
+    },
+    {
+      "accion": "promete",
+      "count": 1
+    },
+    {
+      "accion": "probo",
+      "count": 1
+    },
+    {
+      "accion": "pregunto",
+      "count": 1
+    },
+    {
+      "accion": "podaba",
+      "count": 1
+    },
+    {
+      "accion": "ordeno",
+      "count": 1
+    },
+    {
+      "accion": "ordena",
+      "count": 1
+    },
+    {
+      "accion": "mostro",
+      "count": 1
+    },
+    {
+      "accion": "instalo",
+      "count": 1
+    },
+    {
+      "accion": "implemento_y_valido",
+      "count": 1
+    },
+    {
+      "accion": "identifico",
+      "count": 1
+    },
+    {
+      "accion": "exigio",
+      "count": 1
+    },
+    {
+      "accion": "evaluo",
+      "count": 1
+    },
+    {
+      "accion": "evalua",
+      "count": 1
+    },
+    {
+      "accion": "especifico",
+      "count": 1
+    },
+    {
+      "accion": "escalo",
+      "count": 1
+    },
+    {
+      "accion": "es",
+      "count": 1
+    },
+    {
+      "accion": "entreno",
+      "count": 1
+    },
+    {
+      "accion": "encontro",
+      "count": 1
+    },
+    {
+      "accion": "eligio",
+      "count": 1
+    },
+    {
+      "accion": "elige",
+      "count": 1
+    },
+    {
+      "accion": "dictamino",
+      "count": 1
+    },
+    {
+      "accion": "dice",
+      "count": 1
+    },
+    {
+      "accion": "diagnostico",
+      "count": 1
+    },
+    {
+      "accion": "descompuso",
+      "count": 1
+    },
+    {
+      "accion": "descarto",
+      "count": 1
+    },
+    {
+      "accion": "demuestra",
+      "count": 1
+    },
+    {
+      "accion": "demostro",
+      "count": 1
+    },
+    {
+      "accion": "demostraron",
+      "count": 1
+    },
+    {
+      "accion": "debe_aplicar",
+      "count": 1
+    },
+    {
+      "accion": "crea",
+      "count": 1
+    },
+    {
+      "accion": "contacta",
+      "count": 1
+    },
+    {
+      "accion": "consolido",
+      "count": 1
+    },
+    {
+      "accion": "concluyo",
+      "count": 1
+    },
+    {
+      "accion": "compro",
+      "count": 1
+    },
+    {
+      "accion": "calculo",
+      "count": 1
+    },
+    {
+      "accion": "articulo",
+      "count": 1
+    },
+    {
+      "accion": "aprendio",
+      "count": 1
+    },
+    {
+      "accion": "analizo",
+      "count": 1
+    },
+    {
+      "accion": "ajusto",
+      "count": 1
+    },
+    {
+      "accion": "agrega",
+      "count": 1
+    },
+    {
+      "accion": "agradece",
+      "count": 1
+    },
+    {
+      "accion": "adopto",
+      "count": 1
+    },
+    {
+      "accion": "activo",
+      "count": 1
+    },
+    {
+      "accion": "acerto",
+      "count": 1
+    }
+  ],
+  "type2_path_audit": [
+    {
+      "id": "0497",
+      "query": "relevantes biomimética mejor",
+      "gold": "benchmark_antes_despues_fix3",
+      "is_direct_seed": true,
+      "shortest_hops": 0,
+      "accumulated_weight": 1.0,
+      "path_nodes": [
+        "benchmark_antes_despues_fix3"
+      ],
+      "path_edges": [],
+      "retrieval_potential_without_lexical": true
+    },
+    {
+      "id": "0516",
+      "query": "real más sistemas",
+      "gold": "dennys-identidad-profunda",
+      "is_direct_seed": true,
+      "shortest_hops": 0,
+      "accumulated_weight": 1.0,
+      "path_nodes": [
+        "dennys-identidad-profunda"
+      ],
+      "path_edges": [],
+      "retrieval_potential_without_lexical": true
+    },
+    {
+      "id": "0534",
+      "query": "activa largo archivos",
+      "gold": "biorag_v11_1_detalle_tecnico",
+      "is_direct_seed": false,
+      "shortest_hops": 2,
+      "accumulated_weight": 0.648,
+      "path_nodes": [
+        "arquitectura_memoria_biorag",
+        "principio_gestion_memoria_agente",
+        "biorag_v11_1_detalle_tecnico"
+      ],
+      "path_edges": [
+        {
+          "from": "arquitectura_memoria_biorag",
+          "to": "principio_gestion_memoria_agente",
+          "type": "sinonimo_explicito_rev",
+          "weight": 0.72
+        },
+        {
+          "from": "principio_gestion_memoria_agente",
+          "to": "biorag_v11_1_detalle_tecnico",
+          "type": "sinonimo_explicito",
+          "weight": 0.9
+        }
+      ],
+      "retrieval_potential_without_lexical": true
+    },
+    {
+      "id": "0583",
+      "query": "debo biorag preacción",
+      "gold": "identificacion_obligatoria_oraculo_athena",
+      "is_direct_seed": true,
+      "shortest_hops": 0,
+      "accumulated_weight": 1.0,
+      "path_nodes": [
+        "identificacion_obligatoria_oraculo_athena"
+      ],
+      "path_edges": [],
+      "retrieval_potential_without_lexical": true
+    },
+    {
+      "id": "0640",
+      "query": "ráfaga después resultado",
+      "gold": "mentalidad_biorag_para_agentes",
+      "is_direct_seed": false,
+      "shortest_hops": 2,
+      "accumulated_weight": 0.2621,
+      "path_nodes": [
+        "autoria-athena-oec-sanitizacion-rafaga-v9.2",
+        "borrar_cascada_largo_plazo",
+        "mentalidad_biorag_para_agentes"
+      ],
+      "path_edges": [
+        {
+          "from": "autoria-athena-oec-sanitizacion-rafaga-v9.2",
+          "to": "borrar_cascada_largo_plazo",
+          "type": "pmi_hebbiano_rev",
+          "weight": 0.336
+        },
+        {
+          "from": "borrar_cascada_largo_plazo",
+          "to": "mentalidad_biorag_para_agentes",
+          "type": "co_semantica",
+          "weight": 0.78
+        }
+      ],
+      "retrieval_potential_without_lexical": true
+    },
+    {
+      "id": "0724",
+      "query": "learning paso regla",
+      "gold": "protocolo_autoinferencia_metacognitiva",
+      "is_direct_seed": true,
+      "shortest_hops": 0,
+      "accumulated_weight": 1.0,
+      "path_nodes": [
+        "protocolo_autoinferencia_metacognitiva"
+      ],
+      "path_edges": [],
+      "retrieval_potential_without_lexical": true
+    },
+    {
+      "id": "0795",
+      "query": "insert storepy comunicadosdestino",
+      "gold": "fix_mensajeria_broadcast_tracking_por_agente",
+      "is_direct_seed": false,
+      "shortest_hops": 1,
+      "accumulated_weight": 0.72,
+      "path_nodes": [
+        "v13_2_limpieza_tabla_semantica",
+        "fix_mensajeria_broadcast_tracking_por_agente"
+      ],
+      "path_edges": [
+        {
+          "from": "v13_2_limpieza_tabla_semantica",
+          "to": "fix_mensajeria_broadcast_tracking_por_agente",
+          "type": "sinonimo_explicito_rev",
+          "weight": 0.72
+        }
+      ],
+      "retrieval_potential_without_lexical": true
+    },
+    {
+      "id": "0801",
+      "query": "datos lecciones postsync",
+      "gold": "notebooklm-memory-biorag-project",
+      "is_direct_seed": true,
+      "shortest_hops": 0,
+      "accumulated_weight": 1.0,
+      "path_nodes": [
+        "notebooklm-memory-biorag-project"
+      ],
+      "path_edges": [],
+      "retrieval_potential_without_lexical": true
+    }
+  ],
+  "clasificacion_24_fallos": {
+    "resumen_conteos": {
+      "C": 5,
+      "A": 3,
+      "E": 4,
+      "D": 13,
+      "B": 1
+    },
+    "detalle_casos": [
+      {
+        "id": "0497",
+        "query": "relevantes biomimética mejor",
+        "expected": "benchmark_antes_despues_fix3",
+        "category_code": "C",
+        "category_desc": "Existe relación/nodo pero peso o ranking actual lo diluye"
+      },
+      {
+        "id": "0516",
+        "query": "real más sistemas",
+        "expected": "dennys-identidad-profunda",
+        "category_code": "C",
+        "category_desc": "Existe relación/nodo pero peso o ranking actual lo diluye"
+      },
+      {
+        "id": "0534",
+        "query": "activa largo archivos",
+        "expected": "biorag_v11_1_detalle_tecnico",
+        "category_code": "A",
+        "category_desc": "Existe ruta relacional suficiente en grafo (<= 2 saltos)"
+      },
+      {
+        "id": "0583",
+        "query": "debo biorag preacción",
+        "expected": "identificacion_obligatoria_oraculo_athena",
+        "category_code": "C",
+        "category_desc": "Existe relación/nodo pero peso o ranking actual lo diluye"
+      },
+      {
+        "id": "0640",
+        "query": "ráfaga después resultado",
+        "expected": "mentalidad_biorag_para_agentes",
+        "category_code": "A",
+        "category_desc": "Existe ruta relacional suficiente en grafo (<= 2 saltos)"
+      },
+      {
+        "id": "0724",
+        "query": "learning paso regla",
+        "expected": "protocolo_autoinferencia_metacognitiva",
+        "category_code": "C",
+        "category_desc": "Existe relación/nodo pero peso o ranking actual lo diluye"
+      },
+      {
+        "id": "0795",
+        "query": "insert storepy comunicadosdestino",
+        "expected": "fix_mensajeria_broadcast_tracking_por_agente",
+        "category_code": "A",
+        "category_desc": "Existe ruta relacional suficiente en grafo (<= 2 saltos)"
+      },
+      {
+        "id": "0801",
+        "query": "datos lecciones postsync",
+        "expected": "notebooklm-memory-biorag-project",
+        "category_code": "C",
+        "category_desc": "Existe relación/nodo pero peso o ranking actual lo diluye"
+      },
+      {
+        "id": "0518",
+        "query": "cuando usado dimensione biorags",
+        "expected": "cuando_usar_dimensiones_biorag",
+        "category_code": "E",
+        "category_desc": "Problema principalmente lingüístico/morfológico (stemming/typo)"
+      },
+      {
+        "id": "0560",
+        "query": "memorias v5 1s optimizaciones",
+        "expected": "memoria_v5_1_optimizaciones",
+        "category_code": "E",
+        "category_desc": "Problema principalmente lingüístico/morfológico (stemming/typo)"
+      },
+      {
+        "id": "0666",
+        "query": "identidad ys respeto oec",
+        "expected": "identidad_y_respeto_oec",
+        "category_code": "E",
+        "category_desc": "Problema principalmente lingüístico/morfológico (stemming/typo)"
+      },
+      {
+        "id": "0803",
+        "query": "cv seccion ds tests vinculaciones",
+        "expected": "cv_seccion_d_test_vinculacion",
+        "category_code": "E",
+        "category_desc": "Problema principalmente lingüístico/morfológico (stemming/typo)"
+      },
+      {
+        "id": "0520",
+        "query": "dimensiones",
+        "expected": [
+          "cuando_usar_dimensiones_biorag",
+          "fix_busqueda_solo_dimensiones_sin_texto"
+        ],
+        "category_code": "D",
+        "category_desc": "No existe conocimiento relacional / Ambigüedad dataset"
+      },
+      {
+        "id": "0740",
+        "query": "dimensiones",
+        "expected": [
+          "cuando_usar_dimensiones_biorag",
+          "fix_busqueda_solo_dimensiones_sin_texto"
+        ],
+        "category_code": "D",
+        "category_desc": "No existe conocimiento relacional / Ambigüedad dataset"
+      },
+      {
+        "id": "0532",
+        "query": "boost",
+        "expected": "biorag_v11_1_detalle_tecnico",
+        "category_code": "D",
+        "category_desc": "No existe conocimiento relacional / Ambigüedad dataset"
+      },
+      {
+        "id": "0550",
+        "query": "deconstruir necesidad",
+        "expected": "patron_pensamiento_lateral_antes_de_proponer",
+        "category_code": "D",
+        "category_desc": "No existe conocimiento relacional / Ambigüedad dataset"
+      },
+      {
+        "id": "0563",
+        "query": "memoria",
+        "expected": "memoria_v5_1_optimizaciones",
+        "category_code": "D",
+        "category_desc": "No existe conocimiento relacional / Ambigüedad dataset"
+      },
+      {
+        "id": "0625",
+        "query": "dsl",
+        "expected": "notebooklm-chat-configure",
+        "category_code": "D",
+        "category_desc": "No existe conocimiento relacional / Ambigüedad dataset"
+      },
+      {
+        "id": "0734",
+        "query": "regla",
+        "expected": "plan_mode_biorag",
+        "category_code": "D",
+        "category_desc": "No existe conocimiento relacional / Ambigüedad dataset"
+      },
+      {
+        "id": "0757",
+        "query": "buscar",
+        "expected": "principio_firma_cada_recuerdo",
+        "category_code": "D",
+        "category_desc": "No existe conocimiento relacional / Ambigüedad dataset"
+      },
+      {
+        "id": "0763",
+        "query": "aprendizaje",
+        "expected": "fin-aprendizaje-creerse-completo",
+        "category_code": "B",
+        "category_desc": "Existe grafo pero falta una relación clave"
+      },
+      {
+        "id": "0822",
+        "query": "identidad",
+        "expected": "por_que_me_molesta_decir_soy_una_maquina",
+        "category_code": "D",
+        "category_desc": "No existe conocimiento relacional / Ambigüedad dataset"
+      },
+      {
+        "id": "0828",
+        "query": "agentes",
+        "expected": "interacción_social_saludo",
+        "category_code": "D",
+        "category_desc": "No existe conocimiento relacional / Ambigüedad dataset"
+      },
+      {
+        "id": "0878",
+        "query": "familia",
+        "expected": "prueba_integridad_dennys_20260616",
+        "category_code": "D",
+        "category_desc": "No existe conocimiento relacional / Ambigüedad dataset"
+      },
+      {
+        "id": "0562",
+        "query": "recollection v5 1 optimizaciones",
+        "expected": "memoria_v5_1_optimizaciones",
+        "category_code": "D",
+        "category_desc": "No existe conocimiento relacional / Ambigüedad dataset"
+      },
+      {
+        "id": "0593",
+        "query": "blueprint recollection biorag",
+        "expected": "arquitectura_memoria_biorag",
+        "category_code": "D",
+        "category_desc": "No existe conocimiento relacional / Ambigüedad dataset"
+      }
+    ]
+  },
+  "spreading_activation_audit": {
+    "top_10_hubs": [
+      {
+        "nodo": "version_actual_biorag",
+        "in_degree": 258
+      },
+      {
+        "nodo": "kilo_vscode_extension_principal",
+        "in_degree": 167
+      },
+      {
+        "nodo": "leccion_motivacion_intrinseca_biorag",
+        "in_degree": 158
+      },
+      {
+        "nodo": "ajuste_tejedora_valencia_desempate_fase1",
+        "in_degree": 151
+      },
+      {
+        "nodo": "leccion_syn_obligatorio_aprender",
+        "in_degree": 148
+      },
+      {
+        "nodo": "naturaleza_sistema_oec_cerebro_memoria",
+        "in_degree": 147
+      },
+      {
+        "nodo": "principio_metacognicion_autobservacion",
+        "in_degree": 143
+      },
+      {
+        "nodo": "principio_gestion_memoria_agente",
+        "in_degree": 135
+      },
+      {
+        "nodo": "hormiguita_v25_sistema_mantenimiento_seguro_athena_biorag",
+        "in_degree": 133
+      },
+      {
+        "nodo": "leccion_discrepancia_busquedas_vocabulario_no_estocasticidad",
+        "in_degree": 130
+      }
+    ],
+    "diagnostico_efecto_atractor": "En grafos no normalizados, nodos de alto in-degree (hubs > 40 conexiones) acumulan energía de múltiples caminos convergentes, saturando el Top-5 y desplazando al gold específico."
+  },
+  "conocimiento_implicito": {
+    "patrones_problema_solucion_en_texto": 28,
+    "patrones_regla_protocolo_en_texto": 174,
+    "patrones_benchmark_antes_despues_en_texto": 1,
+    "conceptos_con_prefijo_estructural": 117
+  }
+}
