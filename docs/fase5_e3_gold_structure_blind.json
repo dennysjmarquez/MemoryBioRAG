@@ -1,0 +1,361 @@
+{
+  "summary": {
+    "gold_structure_blind_evaluated": 7,
+    "strong_e3_verified": 7,
+    "strong_e3_rate_pct": 100.0,
+    "paired_baseline_corrected": {
+      "recall_at_5_B0": 0.0,
+      "recall_at_5_B1": 45.0,
+      "delta_recall_at_5": 45.0,
+      "mrr_B0": 0.0,
+      "mrr_B1": 0.45,
+      "delta_mrr": 0.45
+    },
+    "frozen_adversarial_suite": {
+      "total": 40,
+      "fps": 4,
+      "fp_rate_pct": 10.0,
+      "immunity_pct": 90.0
+    }
+  },
+  "blind_generation_details": [
+    {
+      "id": "UNSEEN_04",
+      "query": "descubrimos que suprimir las jerarquias unilaterales optimiza la colaboracion",
+      "gold_target": "identidad_y_respeto_oec",
+      "withheld_A_B": "HIERARCHY_PROHIBITION ⊕ CAUSAL_LESSON",
+      "synthesized_compounds": [
+        "EQUAL_COORDINATION",
+        "EQUAL_PEERS",
+        "HIERARCHY_PROHIBITION",
+        "CAUSAL_LESSON",
+        "MUTUAL_RESPECT"
+      ],
+      "blind_candidate_pool_size": 2,
+      "gold_rank": 1,
+      "gold_score": 1.0,
+      "classification": "E3_STRONG_GENERATIVE",
+      "passed_top5": true,
+      "gold_blindness_verified": true
+    },
+    {
+      "id": "UNSEEN_05",
+      "query": "antes de consolidar cambios es indispensable subsanar cualquier anomalia previa",
+      "gold_target": "fts5-sanitizacion-comillas-dobles-filter",
+      "withheld_A_B": "TEMPORAL_PRECEDENCE ⊕ ERROR_CORRECTION",
+      "synthesized_compounds": [
+        "DEGRADATION_ALERT",
+        "ERROR_CORRECTION",
+        "INDEX_REPAIR",
+        "AUTONOMOUS_DAEMON",
+        "FALLBACK_MECHANISM",
+        "CORRECTIVE_FIX"
+      ],
+      "blind_candidate_pool_size": 30,
+      "gold_rank": 1,
+      "gold_score": 0.95,
+      "classification": "E3_STRONG_GENERATIVE",
+      "passed_top5": true,
+      "gold_blindness_verified": true
+    },
+    {
+      "id": "UNSEEN_07",
+      "query": "acordar previamente entre pares la estrategia conjunta sin subordinacion",
+      "gold_target": "trato-igualitario-dennys-athena",
+      "withheld_A_B": "EQUAL_COORDINATION ⊕ TEMPORAL_PRECEDENCE",
+      "synthesized_compounds": [
+        "TEMPORAL_PRECEDENCE",
+        "EQUAL_COORDINATION",
+        "EQUAL_PEERS",
+        "HIERARCHY_PROHIBITION",
+        "MUTUAL_RESPECT"
+      ],
+      "blind_candidate_pool_size": 2,
+      "gold_rank": 1,
+      "gold_score": 0.95,
+      "classification": "E3_STRONG_GENERATIVE",
+      "passed_top5": true,
+      "gold_blindness_verified": true
+    },
+    {
+      "id": "UNSEEN_12",
+      "query": "todo trasvase de estado precisa comprobacion previa obligatoria",
+      "gold_target": "notebooklm-sync-protocol",
+      "withheld_A_B": "TEMPORAL_PRECEDENCE ⊕ SYNC_PROTOCOL",
+      "synthesized_compounds": [
+        "STATE_TRANSFER",
+        "CHECKLIST_VALIDATION",
+        "TEMPORAL_PRECEDENCE",
+        "PRECONDITION_GATE",
+        "SYNC_PROTOCOL",
+        "DEONTIC_OBLIGATION"
+      ],
+      "blind_candidate_pool_size": 2,
+      "gold_rank": 1,
+      "gold_score": 0.95,
+      "classification": "E3_STRONG_GENERATIVE",
+      "passed_top5": true,
+      "gold_blindness_verified": true
+    },
+    {
+      "id": "UNSEEN_15",
+      "query": "bloquear la ejecucion hasta que se cumplan las revisiones previas",
+      "gold_target": "pre_action_protocol_gaps_nueve_secciones",
+      "withheld_A_B": "PRECONDITION_GATE ⊕ TEMPORAL_PRECEDENCE",
+      "synthesized_compounds": [
+        "STATE_TRANSFER",
+        "CHECKLIST_VALIDATION",
+        "TEMPORAL_PRECEDENCE",
+        "PRECONDITION_GATE",
+        "SYNC_PROTOCOL",
+        "DEONTIC_OBLIGATION"
+      ],
+      "blind_candidate_pool_size": 2,
+      "gold_rank": 1,
+      "gold_score": 0.95,
+      "classification": "E3_STRONG_GENERATIVE",
+      "passed_top5": true,
+      "gold_blindness_verified": true
+    },
+    {
+      "id": "UNSEEN_16",
+      "query": "la transferencia de datos defectuosa enseno a implementar validacion estricta",
+      "gold_target": "notebooklm-sync-lecciones",
+      "withheld_A_B": "SYNC_PROTOCOL ⊕ CAUSAL_LESSON",
+      "synthesized_compounds": [
+        "ERROR_CORRECTION",
+        "LEARNING_FROM_EXPERIENCE",
+        "SOVEREIGNTY_OWNERSHIP",
+        "SYNC_PROTOCOL",
+        "CAUSAL_LESSON"
+      ],
+      "blind_candidate_pool_size": 50,
+      "gold_rank": 1,
+      "gold_score": 1.0,
+      "classification": "E3_STRONG_GENERATIVE",
+      "passed_top5": true,
+      "gold_blindness_verified": true
+    },
+    {
+      "id": "UNSEEN_17",
+      "query": "responsabilidad compartida entre pares iguales sin derivar culpas",
+      "gold_target": "identidad_y_respeto_oec",
+      "withheld_A_B": "SOVEREIGNTY_OWNERSHIP ⊕ EQUAL_COORDINATION",
+      "synthesized_compounds": [
+        "SOVEREIGNTY_OWNERSHIP",
+        "EQUAL_COORDINATION",
+        "EQUAL_PEERS",
+        "HIERARCHY_PROHIBITION",
+        "MUTUAL_RESPECT"
+      ],
+      "blind_candidate_pool_size": 2,
+      "gold_rank": 1,
+      "gold_score": 1.0,
+      "classification": "E3_STRONG_GENERATIVE",
+      "passed_top5": true,
+      "gold_blindness_verified": true
+    }
+  ],
+  "corrected_paired_baseline": [
+    {
+      "id": "UNSEEN_01",
+      "query": "ambas entidades estan obligadas por contrato formal a coordinarse como iguales",
+      "gold": "trato-igualitario-dennys-athena",
+      "rank_B0": "Unranked (score=0.0)",
+      "score_B0": 0.0,
+      "rank_B1": "Unranked",
+      "score_B1": 0.0,
+      "rescued_causally": false
+    },
+    {
+      "id": "UNSEEN_02",
+      "query": "los tropiezos de sesiones anteriores exigen validar pautas con antelacion",
+      "gold": "notebooklm-sync-lecciones",
+      "rank_B0": "Unranked (score=0.0)",
+      "score_B0": 0.0,
+      "rank_B1": "Unranked",
+      "score_B1": 0.0,
+      "rescued_causally": false
+    },
+    {
+      "id": "UNSEEN_03",
+      "query": "el servicio autonomo de fondo requiere confirmacion previa de estado",
+      "gold": "demon_autonomo_curacion",
+      "rank_B0": "Unranked (score=0.0)",
+      "score_B0": 0.0,
+      "rank_B1": "Rank 1",
+      "score_B1": 1.0,
+      "rescued_causally": true
+    },
+    {
+      "id": "UNSEEN_04",
+      "query": "descubrimos que suprimir las jerarquias unilaterales optimiza la colaboracion",
+      "gold": "identidad_y_respeto_oec",
+      "rank_B0": "Unranked (score=0.0)",
+      "score_B0": 0.0,
+      "rank_B1": "Rank 1",
+      "score_B1": 1.0,
+      "rescued_causally": true
+    },
+    {
+      "id": "UNSEEN_05",
+      "query": "antes de consolidar cambios es indispensable subsanar cualquier anomalia previa",
+      "gold": "fts5-sanitizacion-comillas-dobles-filter",
+      "rank_B0": "Unranked (score=0.0)",
+      "score_B0": 0.0,
+      "rank_B1": "Rank 1",
+      "score_B1": 0.95,
+      "rescued_causally": true
+    },
+    {
+      "id": "UNSEEN_06",
+      "query": "exigencia mandatoria de reparar fallas antes de proseguir",
+      "gold": "demon_autonomo_curacion",
+      "rank_B0": "Unranked (score=0.0)",
+      "score_B0": 0.0,
+      "rank_B1": "Unranked",
+      "score_B1": 0.0,
+      "rescued_causally": false
+    },
+    {
+      "id": "UNSEEN_07",
+      "query": "acordar previamente entre pares la estrategia conjunta sin subordinacion",
+      "gold": "trato-igualitario-dennys-athena",
+      "rank_B0": "Unranked (score=0.0)",
+      "score_B0": 0.0,
+      "rank_B1": "Rank 1",
+      "score_B1": 0.95,
+      "rescued_causally": true
+    },
+    {
+      "id": "UNSEEN_08",
+      "query": "la experiencia demuestra que una via secundaria rescata cuando falla la principal",
+      "gold": "fallback_sdm_independiente_no_rescata_invisibles_fts5",
+      "rank_B0": "Unranked (score=0.0)",
+      "score_B0": 0.0,
+      "rank_B1": "Unranked",
+      "score_B1": 0.0,
+      "rescued_causally": false
+    },
+    {
+      "id": "UNSEEN_09",
+      "query": "asumir control directo tras cumplir todos los chequeos preliminares",
+      "gold": "pre_action_protocol_gaps_nueve_secciones",
+      "rank_B0": "Unranked (score=0.0)",
+      "score_B0": 0.0,
+      "rank_B1": "Unranked",
+      "score_B1": 0.0,
+      "rescued_causally": false
+    },
+    {
+      "id": "UNSEEN_10",
+      "query": "mandato estricto de organizar los modulos de conocimiento por compartimentos",
+      "gold": "notebooklm-category-map",
+      "rank_B0": "Unranked (score=0.0)",
+      "score_B0": 0.0,
+      "rank_B1": "Unranked",
+      "score_B1": 0.0,
+      "rescued_causally": false
+    },
+    {
+      "id": "UNSEEN_11",
+      "query": "terminantemente prohibido ejercer dominio o sumision unilateral en el equipo",
+      "gold": "identidad_y_respeto_oec",
+      "rank_B0": "Unranked (score=0.0)",
+      "score_B0": 0.0,
+      "rank_B1": "Unranked",
+      "score_B1": 0.0,
+      "rescued_causally": false
+    },
+    {
+      "id": "UNSEEN_12",
+      "query": "todo trasvase de estado precisa comprobacion previa obligatoria",
+      "gold": "notebooklm-sync-protocol",
+      "rank_B0": "Unranked (score=0.0)",
+      "score_B0": 0.0,
+      "rank_B1": "Rank 1",
+      "score_B1": 0.95,
+      "rescued_causally": true
+    },
+    {
+      "id": "UNSEEN_13",
+      "query": "el servicio de fondo aprendio a corregir discrepancias de forma preventiva",
+      "gold": "demon_autonomo_curacion",
+      "rank_B0": "Unranked (score=0.0)",
+      "score_B0": 0.0,
+      "rank_B1": "Rank 1",
+      "score_B1": 1.0,
+      "rescued_causally": true
+    },
+    {
+      "id": "UNSEEN_14",
+      "query": "sanear y resolver fricciones de coordinacion manteniendo trato paritario",
+      "gold": "trato-igualitario-dennys-athena",
+      "rank_B0": "Unranked (score=0.0)",
+      "score_B0": 0.0,
+      "rank_B1": "Unranked",
+      "score_B1": 0.05,
+      "rescued_causally": false
+    },
+    {
+      "id": "UNSEEN_15",
+      "query": "bloquear la ejecucion hasta que se cumplan las revisiones previas",
+      "gold": "pre_action_protocol_gaps_nueve_secciones",
+      "rank_B0": "Unranked (score=0.0)",
+      "score_B0": 0.0,
+      "rank_B1": "Rank 1",
+      "score_B1": 0.95,
+      "rescued_causally": true
+    },
+    {
+      "id": "UNSEEN_16",
+      "query": "la transferencia de datos defectuosa enseno a implementar validacion estricta",
+      "gold": "notebooklm-sync-lecciones",
+      "rank_B0": "Unranked (score=0.0)",
+      "score_B0": 0.0,
+      "rank_B1": "Rank 1",
+      "score_B1": 1.0,
+      "rescued_causally": true
+    },
+    {
+      "id": "UNSEEN_17",
+      "query": "responsabilidad compartida entre pares iguales sin derivar culpas",
+      "gold": "identidad_y_respeto_oec",
+      "rank_B0": "Unranked (score=0.0)",
+      "score_B0": 0.0,
+      "rank_B1": "Rank 1",
+      "score_B1": 1.0,
+      "rescued_causally": true
+    },
+    {
+      "id": "UNSEEN_18",
+      "query": "reordenar y sanear el mapa conceptual para corregir solapamientos",
+      "gold": "notebooklm-category-map",
+      "rank_B0": "Unranked (score=0.0)",
+      "score_B0": 0.0,
+      "rank_B1": "Unranked",
+      "score_B1": 0.0,
+      "rescued_causally": false
+    },
+    {
+      "id": "UNSEEN_19",
+      "query": "activar la ruta alternativa solo tras verificar que la via primaria no responde",
+      "gold": "fallback_sdm_independiente_no_rescata_invisibles_fts5",
+      "rank_B0": "Unranked (score=0.0)",
+      "score_B0": 0.0,
+      "rank_B1": "Unranked",
+      "score_B1": 0.0,
+      "rescued_causally": false
+    },
+    {
+      "id": "UNSEEN_20",
+      "query": "deber mandatorio de asumir la ejecucion con rigurosidad demostrable",
+      "gold": "leccion_artemis_no_quejarse_trabajar",
+      "rank_B0": "Unranked (score=0.0)",
+      "score_B0": 0.0,
+      "rank_B1": "Unranked",
+      "score_B1": 0.0,
+      "rescued_causally": false
+    }
+  ]
+}
