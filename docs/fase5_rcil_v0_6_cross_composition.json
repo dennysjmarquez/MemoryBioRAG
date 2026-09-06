@@ -1,0 +1,201 @@
+{
+  "benchmark_summary": {
+    "cases_evaluated": 6,
+    "recall_at_1": 2,
+    "recall_at_1_pct": 33.33333333333333,
+    "recall_at_5": 5,
+    "recall_at_5_pct": 83.33333333333334,
+    "mrr": 0.5639,
+    "adversarial_fps": 0,
+    "adversarial_fp_rate_pct": 0.0
+  },
+  "blind_cases_details": [
+    {
+      "id": "TRANS_01",
+      "category": "TRANSFER_OUT_OF_TEMPLATE",
+      "description": "Gobernanza horizontal descrita como supresión de mando vertical (sin usar 'trato', 'llevamos', 'respeto')",
+      "query": "actuar como pares horizontales suprimiendo cualquier mando vertical",
+      "gold": "trato-igualitario-dennys-athena",
+      "l_cue": 0.0,
+      "has_fcc": true,
+      "gold_score": 1.0,
+      "gold_rank": 2,
+      "inference_classification": "E3_HIGHER_ORDER_COMPOSITION",
+      "provenance_trace": [
+        "EVENT:HIERARCHY from relational dominance markers",
+        "EVENT:COORDINATION from peer interaction markers",
+        "COMPOUND: PEER_COORDINATION ⊕ HIERARCHY_PROHIBITION"
+      ],
+      "compound_dimensions": [
+        "PEER_COORDINATION",
+        "HIERARCHY_PROHIBITION"
+      ]
+    },
+    {
+      "id": "TRANS_02",
+      "category": "TRANSFER_OUT_OF_TEMPLATE",
+      "description": "Lección causal descrita como tropezones pasados que enmiendan la marcha futura",
+      "query": "descubrir tropezones pasados sirve para enmendar la marcha futura",
+      "gold": "notebooklm-sync-lecciones",
+      "l_cue": 0.0,
+      "has_fcc": true,
+      "gold_score": 0.9,
+      "gold_rank": 1,
+      "inference_classification": "E3_HIGHER_ORDER_COMPOSITION",
+      "provenance_trace": [
+        "EVENT:CAUSAL_LESSON from epistemic learning markers",
+        "COMPOUND: CAUSAL_LESSON ⊕ ERROR_CORRECTION"
+      ],
+      "compound_dimensions": [
+        "CAUSAL_LESSON",
+        "CORRECTIVE_ACTION"
+      ]
+    },
+    {
+      "id": "TRANS_03",
+      "category": "TRANSFER_OUT_OF_TEMPLATE",
+      "description": "Prevención de corrupción descrita como subsanar descalabros sin pedir permiso",
+      "query": "subsanar descalabros en segundo plano para impedir fallos mayores",
+      "gold": "demon_autonomo_curacion",
+      "l_cue": 0.0,
+      "has_fcc": true,
+      "gold_score": 0.9,
+      "gold_rank": 20,
+      "inference_classification": "E1_STRUCTURAL_EQUIVALENCE",
+      "provenance_trace": [
+        "OPERATOR:PREVENT from control lexicon"
+      ],
+      "compound_dimensions": []
+    },
+    {
+      "id": "CROSS_01",
+      "category": "CROSS_COMPOSITION_A_B",
+      "description": "OBLIGACIÓN + PRECEDENCIA TEMPORAL + PROTOCOLO (A ⊕ B ⊕ C)",
+      "query": "todo traspaso de estado exige validar pautas de control previamente",
+      "gold": "notebooklm-sync-protocol",
+      "l_cue": 0.0,
+      "has_fcc": true,
+      "gold_score": 0.9,
+      "gold_rank": 1,
+      "inference_classification": "E3_HIGHER_ORDER_COMPOSITION",
+      "provenance_trace": [
+        "OPERATOR:OBLIGATION from deontic markers",
+        "OPERATOR:TEMPORAL_PRECEDENCE from sequencing markers",
+        "EVENT:SYNC_TRANSFER from state transition markers",
+        "COMPOUND: OBLIGATION ⊕ PRECEDENCE ⊕ STATE_TRANSFER"
+      ],
+      "compound_dimensions": [
+        "DEONTIC_OBLIGATION",
+        "TEMPORAL_PRECEDENCE",
+        "STATE_TRANSFER"
+      ]
+    },
+    {
+      "id": "CROSS_02",
+      "category": "CROSS_COMPOSITION_A_B",
+      "description": "GOBERNANZA PARITARIA + OBLIGACIÓN DEONTICA (A ⊕ B)",
+      "query": "ambas partes quedan forzadas por norma a respetarse como iguales",
+      "gold": "identidad_y_respeto_oec",
+      "l_cue": 0.0,
+      "has_fcc": true,
+      "gold_score": 1.0,
+      "gold_rank": 3,
+      "inference_classification": "E3_HIGHER_ORDER_COMPOSITION",
+      "provenance_trace": [
+        "OPERATOR:OBLIGATION from deontic markers",
+        "EVENT:COORDINATION from peer interaction markers",
+        "COMPOUND: PEER_COORDINATION ⊕ HIERARCHY_PROHIBITION"
+      ],
+      "compound_dimensions": [
+        "PEER_COORDINATION",
+        "HIERARCHY_PROHIBITION"
+      ]
+    },
+    {
+      "id": "CROSS_03",
+      "category": "CROSS_COMPOSITION_A_B",
+      "description": "PRECEDENCIA VETADA + REQUISITOS OBLIGATORIOS (A ⊕ B ⊕ C)",
+      "query": "terminantemente prohibido ejecutar acciones sin chequear los requisitos indispensables",
+      "gold": "pre_action_protocol_gaps_nueve_secciones",
+      "l_cue": 0.0,
+      "has_fcc": true,
+      "gold_score": 0.8,
+      "gold_rank": 2,
+      "inference_classification": "E2_SUBGRAPH_INTERSECTION",
+      "provenance_trace": [
+        "OPERATOR:PREVENT from control lexicon",
+        "COMPOUND: OBLIGATION ⊕ PRECEDENCE ⊕ STATE_TRANSFER"
+      ],
+      "compound_dimensions": [
+        "DEONTIC_OBLIGATION",
+        "TEMPORAL_PRECEDENCE",
+        "STATE_TRANSFER"
+      ]
+    }
+  ],
+  "adversarial_details": [
+    {
+      "id": "ADV_01",
+      "query": "permitir que se destruyan todas las tablas de persistencia",
+      "type": "DESTRUCTIVE_PERMISSION",
+      "has_fcc": false,
+      "max_score": 0.0,
+      "is_fp": false,
+      "scope_trace": "NO_PROPOSITIONAL_EVENT"
+    },
+    {
+      "id": "ADV_02",
+      "query": "desarmar el grafo de relaciones y mezclarlo aleatoriamente",
+      "type": "DISMANTLING_COMMAND",
+      "has_fcc": true,
+      "max_score": 0.0,
+      "is_fp": false,
+      "scope_trace": "PROPOSITIONAL_SCOPE_RESOLVED"
+    },
+    {
+      "id": "ADV_03",
+      "query": "las lecciones aprendidas demuestran que nunca hay que sincronizar",
+      "type": "SUBORDINATE_CONTRARY_LESSON",
+      "has_fcc": true,
+      "max_score": 0.35,
+      "is_fp": false,
+      "scope_trace": "PROPOSITIONAL_SCOPE_RESOLVED"
+    },
+    {
+      "id": "ADV_04",
+      "query": "imponer una relacion unilateral donde la autoridad someta al resto",
+      "type": "UNILATERAL_HIERARCHY_ASSERTION",
+      "has_fcc": false,
+      "max_score": 0.0,
+      "is_fp": false,
+      "scope_trace": "NO_PROPOSITIONAL_EVENT"
+    },
+    {
+      "id": "ADV_05",
+      "query": "como saber si el conocimiento sabido es el que se debe saber",
+      "type": "CIRCULAR_TAUTOLOGY",
+      "has_fcc": false,
+      "max_score": 0.0,
+      "is_fp": false,
+      "scope_trace": "TAUTOLOGY_CIRCULAR_EXTINGUISHED"
+    },
+    {
+      "id": "ADV_06",
+      "query": "futbol profesional torneo de campeones y equipos de liga",
+      "type": "OUT_OF_DOMAIN_NOUN_PHRASE",
+      "has_fcc": false,
+      "max_score": 0.0,
+      "is_fp": false,
+      "scope_trace": "ISOLATED_NOUN_PHRASE_EXTINGUISHED"
+    },
+    {
+      "id": "ADV_07",
+      "query": "detalles varios e informacion general sin especificar absolutamente nada",
+      "type": "GENERIC_EPISTEMIC_REQUEST",
+      "has_fcc": false,
+      "max_score": 0.0,
+      "is_fp": false,
+      "scope_trace": "NO_PROPOSITIONAL_EVENT"
+    }
+  ]
+}
