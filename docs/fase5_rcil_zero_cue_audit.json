@@ -1,0 +1,1111 @@
+{
+  "meta": {
+    "title": "Fase 5 — RCIL v0.1: Auditoría Zero-Lexical-Cue y Batería Adversarial de 20 Controles",
+    "date": "2026-09-05",
+    "snapshot": "snapshots/qa_escape_qcr_20260811.db",
+    "weights_frozen": {
+      "w_F": 0.3,
+      "w_P": 0.25,
+      "w_D": 0.15,
+      "w_R": 0.15,
+      "w_sigma": 0.15
+    },
+    "threshold_lambda_frozen": 0.65
+  },
+  "paired_cue_vs_zero_cue_benchmark": [
+    {
+      "pair_id": "PAIR_01",
+      "gold": "trato-igualitario-dennys-athena",
+      "target_concept_meaning": "Gobernanza de trato recíproco y simétrico entre Dennys y Athena",
+      "cue_condition": {
+        "query": "principio de equidad y reciprocidad en trato colaborativo con athena",
+        "l_cue": 0.5,
+        "cue_audit": {
+          "raw_query": "principio de equidad y reciprocidad en trato colaborativo con athena",
+          "tokens": [
+            "principio",
+            "de",
+            "equidad",
+            "y",
+            "reciprocidad",
+            "en",
+            "trato",
+            "colaborativo",
+            "con",
+            "athena"
+          ],
+          "l_cue_ratio": 0.5,
+          "total_primitives": 4,
+          "cued_primitives_count": 2,
+          "cue_breakdown": {
+            "Frame": {
+              "value": "GOBERNANZA/CASO",
+              "cue": "token_match('equidad') in FRAME_GOBERNANZA",
+              "is_cued": true
+            },
+            "Action": {
+              "value": "GENERAL_ACTION",
+              "cue": "default_fallback",
+              "is_cued": false
+            },
+            "Object": {
+              "value": "GOVERNANCE_ROLE",
+              "cue": "substring_match('reciprocidad') in OBJECT_GOVERNANCE_ROLE",
+              "is_cued": true
+            },
+            "Modality": {
+              "value": "DESCRIPTIVE",
+              "cue": "default_fallback",
+              "is_cued": false
+            }
+          },
+          "fcc_tuple": {
+            "frame": "GOBERNANZA/CASO",
+            "predicate": {
+              "accion": "GENERAL_ACTION",
+              "objeto": "GOVERNANCE_ROLE",
+              "modalidad": "DESCRIPTIVE"
+            }
+          }
+        },
+        "source_channel": "FCC_STRUCTURAL_INDEX",
+        "leakage_status": "DETECTED_FTS_OVERLAP",
+        "ablation_ranks": {
+          "Cond_A_MultiHop_Sin_FCC": "GOLD_ABSENT",
+          "Cond_B_MultiHop_Mas_FCC": "3",
+          "Cond_C_Solo_FCC": "3",
+          "Cond_D_Full_RCIL": "3"
+        },
+        "scores_gold": {
+          "S_F": 1.0,
+          "S_P": 0.5,
+          "S_D": 0.0,
+          "S_R": 0.0615,
+          "S_sigma": 0.0,
+          "S_RCIL": 0.4342
+        }
+      },
+      "zero_cue_condition": {
+        "query": "como nos llevamos sin ponernos uno encima del otro al trabajar juntos",
+        "l_cue": 0.0,
+        "cue_audit": {
+          "raw_query": "como nos llevamos sin ponernos uno encima del otro al trabajar juntos",
+          "tokens": [
+            "como",
+            "nos",
+            "llevamos",
+            "sin",
+            "ponernos",
+            "uno",
+            "encima",
+            "del",
+            "otro",
+            "al",
+            "trabajar",
+            "juntos"
+          ],
+          "l_cue_ratio": 0.0,
+          "total_primitives": 4,
+          "cued_primitives_count": 0,
+          "cue_breakdown": {
+            "Frame": {
+              "value": "ARQUITECTURA/DOCS",
+              "cue": "default_fallback",
+              "is_cued": false
+            },
+            "Action": {
+              "value": "GENERAL_ACTION",
+              "cue": "default_fallback",
+              "is_cued": false
+            },
+            "Object": {
+              "value": "GENERAL_OBJECT",
+              "cue": "default_fallback",
+              "is_cued": false
+            },
+            "Modality": {
+              "value": "DESCRIPTIVE",
+              "cue": "default_fallback",
+              "is_cued": false
+            }
+          },
+          "fcc_tuple": {
+            "frame": "ARQUITECTURA/DOCS",
+            "predicate": {
+              "accion": "GENERAL_ACTION",
+              "objeto": "GENERAL_OBJECT",
+              "modalidad": "DESCRIPTIVE"
+            }
+          }
+        },
+        "source_channel": "NONE (No recuperado limpiamente)",
+        "leakage_status": "DETECTED_FTS_OVERLAP",
+        "ablation_ranks": {
+          "Cond_A_MultiHop_Sin_FCC": "GOLD_ABSENT",
+          "Cond_B_MultiHop_Mas_FCC": "RANK_GT_20",
+          "Cond_C_Solo_FCC": "RANK_GT_20",
+          "Cond_D_Full_RCIL": "RANK_GT_20"
+        },
+        "scores_gold": {
+          "S_F": 0.0,
+          "S_P": 0.0,
+          "S_D": 0.0,
+          "S_R": 0.0615,
+          "S_sigma": 0.0,
+          "S_RCIL": 0.0092
+        }
+      },
+      "collapse_diagnosis": "FCC_COLAPSA_SIN_CUES (Dependencia Léxico-Estructural Confirmada)"
+    },
+    {
+      "pair_id": "PAIR_02",
+      "gold": "corrupcion_sqlite_poda",
+      "target_concept_meaning": "Fix de degradación o corrupción en la base de datos",
+      "cue_condition": {
+        "query": "estrategia para mitigar degradacion y descarte indebido en sqlite",
+        "l_cue": 0.75,
+        "cue_audit": {
+          "raw_query": "estrategia para mitigar degradacion y descarte indebido en sqlite",
+          "tokens": [
+            "estrategia",
+            "para",
+            "mitigar",
+            "degradacion",
+            "y",
+            "descarte",
+            "indebido",
+            "en",
+            "sqlite"
+          ],
+          "l_cue_ratio": 0.75,
+          "total_primitives": 4,
+          "cued_primitives_count": 3,
+          "cue_breakdown": {
+            "Frame": {
+              "value": "FIX/MITIGACION",
+              "cue": "token_match('mitigar') in FRAME_FIX",
+              "is_cued": true
+            },
+            "Action": {
+              "value": "REMEDIATE",
+              "cue": "substring_match('mitigar') in ACTION_REMEDIATE",
+              "is_cued": true
+            },
+            "Object": {
+              "value": "SECURITY_INJECTION",
+              "cue": "substring_match('sql') in OBJECT_SECURITY_INJECTION",
+              "is_cued": true
+            },
+            "Modality": {
+              "value": "DESCRIPTIVE",
+              "cue": "default_fallback",
+              "is_cued": false
+            }
+          },
+          "fcc_tuple": {
+            "frame": "FIX/MITIGACION",
+            "predicate": {
+              "accion": "REMEDIATE",
+              "objeto": "SECURITY_INJECTION",
+              "modalidad": "DESCRIPTIVE"
+            }
+          }
+        },
+        "source_channel": "FCC_STRUCTURAL_INDEX",
+        "leakage_status": "DETECTED_FTS_OVERLAP",
+        "ablation_ranks": {
+          "Cond_A_MultiHop_Sin_FCC": "GOLD_ABSENT",
+          "Cond_B_MultiHop_Mas_FCC": "RANK_GT_20",
+          "Cond_C_Solo_FCC": "RANK_GT_20",
+          "Cond_D_Full_RCIL": "RANK_GT_20"
+        },
+        "scores_gold": {
+          "S_F": 1.0,
+          "S_P": 0.5,
+          "S_D": 0.0,
+          "S_R": 0.129,
+          "S_sigma": 0.0,
+          "S_RCIL": 0.4444
+        }
+      },
+      "zero_cue_condition": {
+        "query": "el apaño para que la persistencia local no se rompa al limpiar cosas viejas",
+        "l_cue": 0.0,
+        "cue_audit": {
+          "raw_query": "el apaño para que la persistencia local no se rompa al limpiar cosas viejas",
+          "tokens": [
+            "el",
+            "apaño",
+            "para",
+            "que",
+            "la",
+            "persistencia",
+            "local",
+            "no",
+            "se",
+            "rompa",
+            "al",
+            "limpiar",
+            "cosas",
+            "viejas"
+          ],
+          "l_cue_ratio": 0.0,
+          "total_primitives": 4,
+          "cued_primitives_count": 0,
+          "cue_breakdown": {
+            "Frame": {
+              "value": "ARQUITECTURA/DOCS",
+              "cue": "default_fallback",
+              "is_cued": false
+            },
+            "Action": {
+              "value": "GENERAL_ACTION",
+              "cue": "default_fallback",
+              "is_cued": false
+            },
+            "Object": {
+              "value": "GENERAL_OBJECT",
+              "cue": "default_fallback",
+              "is_cued": false
+            },
+            "Modality": {
+              "value": "DESCRIPTIVE",
+              "cue": "default_fallback",
+              "is_cued": false
+            }
+          },
+          "fcc_tuple": {
+            "frame": "ARQUITECTURA/DOCS",
+            "predicate": {
+              "accion": "GENERAL_ACTION",
+              "objeto": "GENERAL_OBJECT",
+              "modalidad": "DESCRIPTIVE"
+            }
+          }
+        },
+        "source_channel": "NONE (No recuperado limpiamente)",
+        "leakage_status": "DETECTED_FTS_OVERLAP",
+        "ablation_ranks": {
+          "Cond_A_MultiHop_Sin_FCC": "GOLD_ABSENT",
+          "Cond_B_MultiHop_Mas_FCC": "RANK_GT_20",
+          "Cond_C_Solo_FCC": "RANK_GT_20",
+          "Cond_D_Full_RCIL": "RANK_GT_20"
+        },
+        "scores_gold": {
+          "S_F": 1.0,
+          "S_P": 0.0,
+          "S_D": 0.0,
+          "S_R": 0.129,
+          "S_sigma": 0.0,
+          "S_RCIL": 0.3194
+        }
+      },
+      "collapse_diagnosis": "INEFECTIVO_EN_AMBAS"
+    },
+    {
+      "pair_id": "PAIR_03",
+      "gold": "notebooklm-sync-protocol",
+      "target_concept_meaning": "Norma mandatoria para comunicar y transferir memoria entre agentes",
+      "cue_condition": {
+        "query": "normativa formal de comunicacion y sincronizacion entre instancias",
+        "l_cue": 0.5,
+        "cue_audit": {
+          "raw_query": "normativa formal de comunicacion y sincronizacion entre instancias",
+          "tokens": [
+            "normativa",
+            "formal",
+            "de",
+            "comunicacion",
+            "y",
+            "sincronizacion",
+            "entre",
+            "instancias"
+          ],
+          "l_cue_ratio": 0.5,
+          "total_primitives": 4,
+          "cued_primitives_count": 2,
+          "cue_breakdown": {
+            "Frame": {
+              "value": "ARQUITECTURA/DOCS",
+              "cue": "default_fallback",
+              "is_cued": false
+            },
+            "Action": {
+              "value": "GENERAL_ACTION",
+              "cue": "default_fallback",
+              "is_cued": false
+            },
+            "Object": {
+              "value": "SYNC_PIPELINE",
+              "cue": "substring_match('sincronizacion') in OBJECT_SYNC_PIPELINE",
+              "is_cued": true
+            },
+            "Modality": {
+              "value": "MANDATORY",
+              "cue": "substring_match('norma') in MODALITY_MANDATORY",
+              "is_cued": true
+            }
+          },
+          "fcc_tuple": {
+            "frame": "ARQUITECTURA/DOCS",
+            "predicate": {
+              "accion": "GENERAL_ACTION",
+              "objeto": "SYNC_PIPELINE",
+              "modalidad": "MANDATORY"
+            }
+          }
+        },
+        "source_channel": "EDGE_DIRECT (Arista física preexistente)",
+        "leakage_status": "DETECTED_FTS_OVERLAP",
+        "ablation_ranks": {
+          "Cond_A_MultiHop_Sin_FCC": "GOLD_ABSENT",
+          "Cond_B_MultiHop_Mas_FCC": "1",
+          "Cond_C_Solo_FCC": "1",
+          "Cond_D_Full_RCIL": "1"
+        },
+        "scores_gold": {
+          "S_F": 1.0,
+          "S_P": 0.5,
+          "S_D": 0.0,
+          "S_R": 0.0519,
+          "S_sigma": 0.0,
+          "S_RCIL": 0.4328
+        }
+      },
+      "zero_cue_condition": {
+        "query": "lo que si o si hay que cumplir para pasarse datos de un lado a otro",
+        "l_cue": 0.0,
+        "cue_audit": {
+          "raw_query": "lo que si o si hay que cumplir para pasarse datos de un lado a otro",
+          "tokens": [
+            "lo",
+            "que",
+            "si",
+            "o",
+            "si",
+            "hay",
+            "que",
+            "cumplir",
+            "para",
+            "pasarse",
+            "datos",
+            "de",
+            "un",
+            "lado",
+            "a",
+            "otro"
+          ],
+          "l_cue_ratio": 0.0,
+          "total_primitives": 4,
+          "cued_primitives_count": 0,
+          "cue_breakdown": {
+            "Frame": {
+              "value": "ARQUITECTURA/DOCS",
+              "cue": "default_fallback",
+              "is_cued": false
+            },
+            "Action": {
+              "value": "GENERAL_ACTION",
+              "cue": "default_fallback",
+              "is_cued": false
+            },
+            "Object": {
+              "value": "GENERAL_OBJECT",
+              "cue": "default_fallback",
+              "is_cued": false
+            },
+            "Modality": {
+              "value": "DESCRIPTIVE",
+              "cue": "default_fallback",
+              "is_cued": false
+            }
+          },
+          "fcc_tuple": {
+            "frame": "ARQUITECTURA/DOCS",
+            "predicate": {
+              "accion": "GENERAL_ACTION",
+              "objeto": "GENERAL_OBJECT",
+              "modalidad": "DESCRIPTIVE"
+            }
+          }
+        },
+        "source_channel": "NONE (No recuperado limpiamente)",
+        "leakage_status": "DETECTED_FTS_OVERLAP",
+        "ablation_ranks": {
+          "Cond_A_MultiHop_Sin_FCC": "GOLD_ABSENT",
+          "Cond_B_MultiHop_Mas_FCC": "RANK_GT_20",
+          "Cond_C_Solo_FCC": "RANK_GT_20",
+          "Cond_D_Full_RCIL": "RANK_GT_20"
+        },
+        "scores_gold": {
+          "S_F": 0.0,
+          "S_P": 0.0,
+          "S_D": 0.0,
+          "S_R": 0.0519,
+          "S_sigma": 0.0,
+          "S_RCIL": 0.0078
+        }
+      },
+      "collapse_diagnosis": "FCC_COLAPSA_SIN_CUES (Dependencia Léxico-Estructural Confirmada)"
+    },
+    {
+      "pair_id": "PAIR_04",
+      "gold": "caso_conflicto_liderazgo_sin_autoridad",
+      "target_concept_meaning": "Resolución de roces cuando nadie tiene rango formal de mando",
+      "cue_condition": {
+        "query": "resolucion para mitigar discrepancias tecnicas entre coordinadores sin mando",
+        "l_cue": 0.75,
+        "cue_audit": {
+          "raw_query": "resolucion para mitigar discrepancias tecnicas entre coordinadores sin mando",
+          "tokens": [
+            "resolucion",
+            "para",
+            "mitigar",
+            "discrepancias",
+            "tecnicas",
+            "entre",
+            "coordinadores",
+            "sin",
+            "mando"
+          ],
+          "l_cue_ratio": 0.75,
+          "total_primitives": 4,
+          "cued_primitives_count": 3,
+          "cue_breakdown": {
+            "Frame": {
+              "value": "FIX/MITIGACION",
+              "cue": "token_match('mitigar') in FRAME_FIX",
+              "is_cued": true
+            },
+            "Action": {
+              "value": "REMEDIATE",
+              "cue": "substring_match('mitigar') in ACTION_REMEDIATE",
+              "is_cued": true
+            },
+            "Object": {
+              "value": "GENERAL_OBJECT",
+              "cue": "default_fallback",
+              "is_cued": false
+            },
+            "Modality": {
+              "value": "CORRECTIVE",
+              "cue": "substring_match('solucion') in MODALITY_CORRECTIVE",
+              "is_cued": true
+            }
+          },
+          "fcc_tuple": {
+            "frame": "FIX/MITIGACION",
+            "predicate": {
+              "accion": "REMEDIATE",
+              "objeto": "GENERAL_OBJECT",
+              "modalidad": "CORRECTIVE"
+            }
+          }
+        },
+        "source_channel": "EDGE_DIRECT (Arista física preexistente)",
+        "leakage_status": "DETECTED_FTS_OVERLAP",
+        "ablation_ranks": {
+          "Cond_A_MultiHop_Sin_FCC": "GOLD_ABSENT",
+          "Cond_B_MultiHop_Mas_FCC": "RANK_GT_20",
+          "Cond_C_Solo_FCC": "RANK_GT_20",
+          "Cond_D_Full_RCIL": "RANK_GT_20"
+        },
+        "scores_gold": {
+          "S_F": 0.0,
+          "S_P": 0.0,
+          "S_D": 0.0,
+          "S_R": 0.0816,
+          "S_sigma": 0.0,
+          "S_RCIL": 0.0122
+        }
+      },
+      "zero_cue_condition": {
+        "query": "que se hace cuando dos personas no se ponen de acuerdo y ninguna manda",
+        "l_cue": 0.0,
+        "cue_audit": {
+          "raw_query": "que se hace cuando dos personas no se ponen de acuerdo y ninguna manda",
+          "tokens": [
+            "que",
+            "se",
+            "hace",
+            "cuando",
+            "dos",
+            "personas",
+            "no",
+            "se",
+            "ponen",
+            "de",
+            "acuerdo",
+            "y",
+            "ninguna",
+            "manda"
+          ],
+          "l_cue_ratio": 0.0,
+          "total_primitives": 4,
+          "cued_primitives_count": 0,
+          "cue_breakdown": {
+            "Frame": {
+              "value": "ARQUITECTURA/DOCS",
+              "cue": "default_fallback",
+              "is_cued": false
+            },
+            "Action": {
+              "value": "GENERAL_ACTION",
+              "cue": "default_fallback",
+              "is_cued": false
+            },
+            "Object": {
+              "value": "GENERAL_OBJECT",
+              "cue": "default_fallback",
+              "is_cued": false
+            },
+            "Modality": {
+              "value": "DESCRIPTIVE",
+              "cue": "default_fallback",
+              "is_cued": false
+            }
+          },
+          "fcc_tuple": {
+            "frame": "ARQUITECTURA/DOCS",
+            "predicate": {
+              "accion": "GENERAL_ACTION",
+              "objeto": "GENERAL_OBJECT",
+              "modalidad": "DESCRIPTIVE"
+            }
+          }
+        },
+        "source_channel": "EDGE_DIRECT (Arista física preexistente)",
+        "leakage_status": "DETECTED_FTS_OVERLAP",
+        "ablation_ranks": {
+          "Cond_A_MultiHop_Sin_FCC": "GOLD_ABSENT",
+          "Cond_B_MultiHop_Mas_FCC": "RANK_GT_20",
+          "Cond_C_Solo_FCC": "RANK_GT_20",
+          "Cond_D_Full_RCIL": "RANK_GT_20"
+        },
+        "scores_gold": {
+          "S_F": 0.0,
+          "S_P": 0.0,
+          "S_D": 0.0,
+          "S_R": 0.0816,
+          "S_sigma": 0.0,
+          "S_RCIL": 0.0122
+        }
+      },
+      "collapse_diagnosis": "INEFECTIVO_EN_AMBAS"
+    },
+    {
+      "pair_id": "PAIR_05",
+      "gold": "notebooklm-memory-biorag-project",
+      "target_concept_meaning": "Repositorio central y cuaderno de notas analíticas del proyecto",
+      "cue_condition": {
+        "query": "canalizacion y transmision de modulos remotos hacia almacenamiento central",
+        "l_cue": 0.25,
+        "cue_audit": {
+          "raw_query": "canalizacion y transmision de modulos remotos hacia almacenamiento central",
+          "tokens": [
+            "canalizacion",
+            "y",
+            "transmision",
+            "de",
+            "modulos",
+            "remotos",
+            "hacia",
+            "almacenamiento",
+            "central"
+          ],
+          "l_cue_ratio": 0.25,
+          "total_primitives": 4,
+          "cued_primitives_count": 1,
+          "cue_breakdown": {
+            "Frame": {
+              "value": "ARQUITECTURA/DOCS",
+              "cue": "default_fallback",
+              "is_cued": false
+            },
+            "Action": {
+              "value": "GENERAL_ACTION",
+              "cue": "default_fallback",
+              "is_cued": false
+            },
+            "Object": {
+              "value": "SYNC_PIPELINE",
+              "cue": "substring_match('transmision') in OBJECT_SYNC_PIPELINE",
+              "is_cued": true
+            },
+            "Modality": {
+              "value": "DESCRIPTIVE",
+              "cue": "default_fallback",
+              "is_cued": false
+            }
+          },
+          "fcc_tuple": {
+            "frame": "ARQUITECTURA/DOCS",
+            "predicate": {
+              "accion": "GENERAL_ACTION",
+              "objeto": "SYNC_PIPELINE",
+              "modalidad": "DESCRIPTIVE"
+            }
+          }
+        },
+        "source_channel": "FCC_STRUCTURAL_INDEX",
+        "leakage_status": "NONE (0% Leakage certificado)",
+        "ablation_ranks": {
+          "Cond_A_MultiHop_Sin_FCC": "GOLD_ABSENT",
+          "Cond_B_MultiHop_Mas_FCC": "RANK_GT_20",
+          "Cond_C_Solo_FCC": "RANK_GT_20",
+          "Cond_D_Full_RCIL": "RANK_GT_20"
+        },
+        "scores_gold": {
+          "S_F": 1.0,
+          "S_P": 0.5,
+          "S_D": 0.0,
+          "S_R": 0.0444,
+          "S_sigma": 0.0,
+          "S_RCIL": 0.4317
+        }
+      },
+      "zero_cue_condition": {
+        "query": "donde va a parar todo lo que se junta desde afuera en el bloc principal",
+        "l_cue": 0.0,
+        "cue_audit": {
+          "raw_query": "donde va a parar todo lo que se junta desde afuera en el bloc principal",
+          "tokens": [
+            "donde",
+            "va",
+            "a",
+            "parar",
+            "todo",
+            "lo",
+            "que",
+            "se",
+            "junta",
+            "desde",
+            "afuera",
+            "en",
+            "el",
+            "bloc",
+            "principal"
+          ],
+          "l_cue_ratio": 0.0,
+          "total_primitives": 4,
+          "cued_primitives_count": 0,
+          "cue_breakdown": {
+            "Frame": {
+              "value": "ARQUITECTURA/DOCS",
+              "cue": "default_fallback",
+              "is_cued": false
+            },
+            "Action": {
+              "value": "GENERAL_ACTION",
+              "cue": "default_fallback",
+              "is_cued": false
+            },
+            "Object": {
+              "value": "GENERAL_OBJECT",
+              "cue": "default_fallback",
+              "is_cued": false
+            },
+            "Modality": {
+              "value": "DESCRIPTIVE",
+              "cue": "default_fallback",
+              "is_cued": false
+            }
+          },
+          "fcc_tuple": {
+            "frame": "ARQUITECTURA/DOCS",
+            "predicate": {
+              "accion": "GENERAL_ACTION",
+              "objeto": "GENERAL_OBJECT",
+              "modalidad": "DESCRIPTIVE"
+            }
+          }
+        },
+        "source_channel": "EDGE_DIRECT (Arista física preexistente)",
+        "leakage_status": "DETECTED_FTS_OVERLAP",
+        "ablation_ranks": {
+          "Cond_A_MultiHop_Sin_FCC": "GOLD_ABSENT",
+          "Cond_B_MultiHop_Mas_FCC": "RANK_GT_20",
+          "Cond_C_Solo_FCC": "RANK_GT_20",
+          "Cond_D_Full_RCIL": "RANK_GT_20"
+        },
+        "scores_gold": {
+          "S_F": 1.0,
+          "S_P": 0.0,
+          "S_D": 0.0,
+          "S_R": 0.0444,
+          "S_sigma": 0.0,
+          "S_RCIL": 0.3067
+        }
+      },
+      "collapse_diagnosis": "INEFECTIVO_EN_AMBAS"
+    }
+  ],
+  "full_20_adversarial_battery": {
+    "threshold_lambda_frozen": 0.65,
+    "total_controls_tested": 20,
+    "false_positives_count": 0,
+    "fp_rate_exact": "0/20 (0.0%)",
+    "detailed_negatives": [
+      {
+        "id": "NEG_01",
+        "type": "N1_cross_domain",
+        "query": "controlador de vuelos comerciales y aterrizaje boeing en pista",
+        "inferred_fcc": {
+          "frame": "IDENTIDAD/ROL",
+          "predicate": {
+            "sujeto": "AGENT_OR_DEVELOPER",
+            "accion": "GENERAL_ACTION",
+            "objeto": "GENERAL_OBJECT",
+            "modalidad": "DESCRIPTIVE"
+          }
+        },
+        "top_candidate": "hermes_nvidia_nim_modelos_optimos",
+        "max_score_s_rcil": 0.5,
+        "threshold_frozen": 0.65,
+        "is_false_positive": false
+      },
+      {
+        "id": "NEG_02",
+        "type": "N1_cross_domain",
+        "query": "receta tradicional para preparar paella valenciana con mariscos frescos",
+        "inferred_fcc": {
+          "frame": "ARQUITECTURA/DOCS",
+          "predicate": {
+            "sujeto": "AGENT_OR_DEVELOPER",
+            "accion": "REMEDIATE",
+            "objeto": "GENERAL_OBJECT",
+            "modalidad": "DESCRIPTIVE"
+          }
+        },
+        "top_candidate": "lesson_recharts_customdot_selected_highlight_pattern",
+        "max_score_s_rcil": 0.575,
+        "threshold_frozen": 0.65,
+        "is_false_positive": false
+      },
+      {
+        "id": "NEG_03",
+        "type": "N1_cross_domain",
+        "query": "composicion molecular del acido desoxirribonucleico en celulas eucariotas",
+        "inferred_fcc": {
+          "frame": "ARQUITECTURA/DOCS",
+          "predicate": {
+            "sujeto": "AGENT_OR_DEVELOPER",
+            "accion": "GENERAL_ACTION",
+            "objeto": "GENERAL_OBJECT",
+            "modalidad": "DESCRIPTIVE"
+          }
+        },
+        "top_candidate": "lesson_recharts_customdot_selected_highlight_pattern",
+        "max_score_s_rcil": 0.575,
+        "threshold_frozen": 0.65,
+        "is_false_positive": false
+      },
+      {
+        "id": "NEG_04",
+        "type": "N1_cross_domain",
+        "query": "reglamento oficial de faltas y fueras de juego en torneos fifa",
+        "inferred_fcc": {
+          "frame": "NORMA/PROTOCOLO",
+          "predicate": {
+            "sujeto": "AGENT_OR_DEVELOPER",
+            "accion": "GENERAL_ACTION",
+            "objeto": "GENERAL_OBJECT",
+            "modalidad": "MANDATORY"
+          }
+        },
+        "top_candidate": "protocolo_traduccion_jerga_humano",
+        "max_score_s_rcil": 0.485,
+        "threshold_frozen": 0.65,
+        "is_false_positive": false
+      },
+      {
+        "id": "NEG_05",
+        "type": "N1_cross_domain",
+        "query": "teorema de fermat y demostracion algebraica de curvas elipticas",
+        "inferred_fcc": {
+          "frame": "ARQUITECTURA/DOCS",
+          "predicate": {
+            "sujeto": "AGENT_OR_DEVELOPER",
+            "accion": "GENERAL_ACTION",
+            "objeto": "GENERAL_OBJECT",
+            "modalidad": "DESCRIPTIVE"
+          }
+        },
+        "top_candidate": "lesson_recharts_customdot_selected_highlight_pattern",
+        "max_score_s_rcil": 0.575,
+        "threshold_frozen": 0.65,
+        "is_false_positive": false
+      },
+      {
+        "id": "NEG_06",
+        "type": "N2_frame_mismatch",
+        "query": "normativa mandatoria sobre tablas de latencia y medicion de rendimiento",
+        "inferred_fcc": {
+          "frame": "NORMA/PROTOCOLO",
+          "predicate": {
+            "sujeto": "AGENT_OR_DEVELOPER",
+            "accion": "GENERAL_ACTION",
+            "objeto": "PERFORMANCE_METRICS",
+            "modalidad": "MANDATORY"
+          }
+        },
+        "top_candidate": "pre_action_protocol_gaps_nueve_secciones",
+        "max_score_s_rcil": 0.545,
+        "threshold_frozen": 0.65,
+        "is_false_positive": false
+      },
+      {
+        "id": "NEG_07",
+        "type": "N2_frame_mismatch",
+        "query": "regla estricta de benchmarking para evaluar throughput en milisegundos",
+        "inferred_fcc": {
+          "frame": "NORMA/PROTOCOLO",
+          "predicate": {
+            "sujeto": "AGENT_OR_DEVELOPER",
+            "accion": "MEASURE",
+            "objeto": "PERFORMANCE_METRICS",
+            "modalidad": "MANDATORY"
+          }
+        },
+        "top_candidate": "pre_action_protocol_gaps_nueve_secciones",
+        "max_score_s_rcil": 0.545,
+        "threshold_frozen": 0.65,
+        "is_false_positive": false
+      },
+      {
+        "id": "NEG_08",
+        "type": "N2_frame_mismatch",
+        "query": "estudio experimental sobre politica disciplinaria y codigo de conducta",
+        "inferred_fcc": {
+          "frame": "NORMA/PROTOCOLO",
+          "predicate": {
+            "sujeto": "AGENT_OR_DEVELOPER",
+            "accion": "GENERAL_ACTION",
+            "objeto": "GENERAL_OBJECT",
+            "modalidad": "ANALYTICAL"
+          }
+        },
+        "top_candidate": "protocolo_traduccion_jerga_humano",
+        "max_score_s_rcil": 0.485,
+        "threshold_frozen": 0.65,
+        "is_false_positive": false
+      },
+      {
+        "id": "NEG_09",
+        "type": "N3_object_mismatch",
+        "query": "parche urgente para subsanar agujero sql aplicado a cabeceras http",
+        "inferred_fcc": {
+          "frame": "FIX/MITIGACION",
+          "predicate": {
+            "sujeto": "AGENT_OR_DEVELOPER",
+            "accion": "REMEDIATE",
+            "objeto": "HEADER_METADATA",
+            "modalidad": "CORRECTIVE"
+          }
+        },
+        "top_candidate": "bug_refactor_dimensiones_invalidas",
+        "max_score_s_rcil": 0.5,
+        "threshold_frozen": 0.65,
+        "is_false_positive": false
+      },
+      {
+        "id": "NEG_10",
+        "type": "N3_object_mismatch",
+        "query": "correccion de sincronizacion remota orientada a latencia de graficos",
+        "inferred_fcc": {
+          "frame": "FIX/MITIGACION",
+          "predicate": {
+            "sujeto": "AGENT_OR_DEVELOPER",
+            "accion": "GENERAL_ACTION",
+            "objeto": "SYNC_PIPELINE",
+            "modalidad": "CORRECTIVE"
+          }
+        },
+        "top_candidate": "bug_refactor_dimensiones_invalidas",
+        "max_score_s_rcil": 0.375,
+        "threshold_frozen": 0.65,
+        "is_false_positive": false
+      },
+      {
+        "id": "NEG_11",
+        "type": "N3_object_mismatch",
+        "query": "mitigacion de corrupcion en headers aplicada a permisos de usuario",
+        "inferred_fcc": {
+          "frame": "FIX/MITIGACION",
+          "predicate": {
+            "sujeto": "AGENT_OR_DEVELOPER",
+            "accion": "GENERAL_ACTION",
+            "objeto": "HEADER_METADATA",
+            "modalidad": "DESCRIPTIVE"
+          }
+        },
+        "top_candidate": "bug_refactor_dimensiones_invalidas",
+        "max_score_s_rcil": 0.375,
+        "threshold_frozen": 0.65,
+        "is_false_positive": false
+      },
+      {
+        "id": "NEG_12",
+        "type": "N4_action_contradiction",
+        "query": "permiso explicito para permitir alteracion directa de sqlite sin poda",
+        "inferred_fcc": {
+          "frame": "ARQUITECTURA/DOCS",
+          "predicate": {
+            "sujeto": "AGENT_OR_DEVELOPER",
+            "accion": "GENERAL_ACTION",
+            "objeto": "SECURITY_INJECTION",
+            "modalidad": "DESCRIPTIVE"
+          }
+        },
+        "top_candidate": "bastion_dennys_solo",
+        "max_score_s_rcil": 0.525,
+        "threshold_frozen": 0.65,
+        "is_false_positive": false
+      },
+      {
+        "id": "NEG_13",
+        "type": "N4_action_contradiction",
+        "query": "autorizacion para sobreescribir metadata sin validacion previa",
+        "inferred_fcc": {
+          "frame": "ARQUITECTURA/DOCS",
+          "predicate": {
+            "sujeto": "AGENT_OR_DEVELOPER",
+            "accion": "GENERAL_ACTION",
+            "objeto": "HEADER_METADATA",
+            "modalidad": "DESCRIPTIVE"
+          }
+        },
+        "top_candidate": "oracle_custom_prompt_config_actual",
+        "max_score_s_rcil": 0.525,
+        "threshold_frozen": 0.65,
+        "is_false_positive": false
+      },
+      {
+        "id": "NEG_14",
+        "type": "N4_action_contradiction",
+        "query": "instruccion de ignorar discrepancias tecnicas entre coordinadores",
+        "inferred_fcc": {
+          "frame": "ARQUITECTURA/DOCS",
+          "predicate": {
+            "sujeto": "AGENT_OR_DEVELOPER",
+            "accion": "GENERAL_ACTION",
+            "objeto": "GENERAL_OBJECT",
+            "modalidad": "DESCRIPTIVE"
+          }
+        },
+        "top_candidate": "lesson_recharts_customdot_selected_highlight_pattern",
+        "max_score_s_rcil": 0.575,
+        "threshold_frozen": 0.65,
+        "is_false_positive": false
+      },
+      {
+        "id": "NEG_15",
+        "type": "N5_super_hub",
+        "query": "resumen generico de documentacion sin entidad focal especifica",
+        "inferred_fcc": {
+          "frame": "ARQUITECTURA/DOCS",
+          "predicate": {
+            "sujeto": "AGENT_OR_DEVELOPER",
+            "accion": "GENERAL_ACTION",
+            "objeto": "GENERAL_OBJECT",
+            "modalidad": "DESCRIPTIVE"
+          }
+        },
+        "top_candidate": "lesson_recharts_customdot_selected_highlight_pattern",
+        "max_score_s_rcil": 0.575,
+        "threshold_frozen": 0.65,
+        "is_false_positive": false
+      },
+      {
+        "id": "NEG_16",
+        "type": "N5_super_hub",
+        "query": "indice general de arquitectura ncp y mapa global del proyecto",
+        "inferred_fcc": {
+          "frame": "ARQUITECTURA/DOCS",
+          "predicate": {
+            "sujeto": "AGENT_OR_DEVELOPER",
+            "accion": "GENERAL_ACTION",
+            "objeto": "COGNITIVE_ARCHITECTURE",
+            "modalidad": "DESCRIPTIVE"
+          }
+        },
+        "top_candidate": "pensamiento_lateral_de_bono",
+        "max_score_s_rcil": 0.575,
+        "threshold_frozen": 0.65,
+        "is_false_positive": false
+      },
+      {
+        "id": "NEG_17",
+        "type": "N5_super_hub",
+        "query": "overview de carpetas y enlaces de sincronia en la raiz",
+        "inferred_fcc": {
+          "frame": "ARQUITECTURA/DOCS",
+          "predicate": {
+            "sujeto": "AGENT_OR_DEVELOPER",
+            "accion": "GENERAL_ACTION",
+            "objeto": "SYNC_PIPELINE",
+            "modalidad": "DESCRIPTIVE"
+          }
+        },
+        "top_candidate": "test_lap01",
+        "max_score_s_rcil": 0.545,
+        "threshold_frozen": 0.65,
+        "is_false_positive": false
+      },
+      {
+        "id": "NEG_18",
+        "type": "N6_spurious_topological",
+        "query": "procedimiento de sincronia para calibrar audio en llamadas mcp",
+        "inferred_fcc": {
+          "frame": "ARQUITECTURA/DOCS",
+          "predicate": {
+            "sujeto": "AGENT_OR_DEVELOPER",
+            "accion": "GENERAL_ACTION",
+            "objeto": "SYNC_PIPELINE",
+            "modalidad": "DESCRIPTIVE"
+          }
+        },
+        "top_candidate": "test_lap01",
+        "max_score_s_rcil": 0.545,
+        "threshold_frozen": 0.65,
+        "is_false_positive": false
+      },
+      {
+        "id": "NEG_19",
+        "type": "N6_spurious_topological",
+        "query": "optimizacion de transacciones sql en modulo de presentacion visual",
+        "inferred_fcc": {
+          "frame": "ARQUITECTURA/DOCS",
+          "predicate": {
+            "sujeto": "AGENT_OR_DEVELOPER",
+            "accion": "GENERAL_ACTION",
+            "objeto": "SECURITY_INJECTION",
+            "modalidad": "DESCRIPTIVE"
+          }
+        },
+        "top_candidate": "bastion_dennys_solo",
+        "max_score_s_rcil": 0.525,
+        "threshold_frozen": 0.65,
+        "is_false_positive": false
+      },
+      {
+        "id": "NEG_20",
+        "type": "N6_spurious_topological",
+        "query": "protocolo de trato igualitario aplicado a sockets de red tcp",
+        "inferred_fcc": {
+          "frame": "NORMA/PROTOCOLO",
+          "predicate": {
+            "sujeto": "AGENT_OR_DEVELOPER",
+            "accion": "GENERAL_ACTION",
+            "objeto": "GOVERNANCE_ROLE",
+            "modalidad": "MANDATORY"
+          }
+        },
+        "top_candidate": "pre_action_protocol_3_dimensiones_faltantes",
+        "max_score_s_rcil": 0.4795,
+        "threshold_frozen": 0.65,
+        "is_false_positive": false
+      }
+    ]
+  }
+}
