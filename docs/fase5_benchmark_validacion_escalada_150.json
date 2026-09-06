@@ -1,0 +1,1435 @@
+{
+  "summary": {
+    "total_benchmark_cases": 150,
+    "held_out_50": {
+      "total": 50,
+      "recall_at_1_B1": 24,
+      "recall_at_1_B1_pct": 48.0,
+      "recall_at_5_B0": 0,
+      "recall_at_5_B0_pct": 0.0,
+      "recall_at_5_B1": 24,
+      "recall_at_5_B1_pct": 48.0,
+      "delta_recall_at_5": 48.0,
+      "mrr_B0": 0.0,
+      "mrr_B1": 0.48,
+      "delta_mrr": 0.48
+    },
+    "impossible_50": {
+      "total": 50,
+      "abstained_count": 47,
+      "abstention_rate_pct": 94.0
+    },
+    "adversarial_50": {
+      "total": 50,
+      "fps_count": 1,
+      "fp_rate_pct": 2.0,
+      "immunity_rate_pct": 98.0
+    }
+  },
+  "held_out_details": [
+    {
+      "id": "HO_01",
+      "query": "asumir la responsabilidad mutua como pares soberanos sin imponerse",
+      "gold": "identidad_y_respeto_oec",
+      "withheld_A_B": "EQUAL_PEERS ⊕ SOVEREIGNTY_OWNERSHIP",
+      "rank_B0": "Unranked",
+      "score_B0": 0.0,
+      "rank_B1": "Rank 1",
+      "score_B1": 1.0,
+      "classification": "E3_STRONG_GENERATIVE",
+      "rescued_causally": true
+    },
+    {
+      "id": "HO_02",
+      "query": "reparar y subsanar fallas previas antes de habilitar el paso siguiente",
+      "gold": "fts5-sanitizacion-comillas-dobles-filter",
+      "withheld_A_B": "PRECONDITION_GATE ⊕ ERROR_CORRECTION",
+      "rank_B0": "Unranked",
+      "score_B0": 0.0,
+      "rank_B1": "Rank 1",
+      "score_B1": 0.95,
+      "classification": "E3_STRONG_GENERATIVE",
+      "rescued_causally": true
+    },
+    {
+      "id": "HO_03",
+      "query": "todo intercambio de estado requiere validacion previa obligatoria",
+      "gold": "notebooklm-sync-protocol",
+      "withheld_A_B": "SYNC_PROTOCOL ⊕ TEMPORAL_PRECEDENCE",
+      "rank_B0": "Unranked",
+      "score_B0": 0.0,
+      "rank_B1": "Unranked",
+      "score_B1": 0.0,
+      "classification": "ABSTAIN_NO_REPRESENTATION",
+      "rescued_causally": false
+    },
+    {
+      "id": "HO_04",
+      "query": "el servicio de fondo aprendio a corregir desviaciones de forma autonoma",
+      "gold": "demon_autonomo_curacion",
+      "withheld_A_B": "AUTONOMOUS_DAEMON ⊕ CAUSAL_LESSON",
+      "rank_B0": "Unranked",
+      "score_B0": 0.0,
+      "rank_B1": "Rank 1",
+      "score_B1": 1.0,
+      "classification": "E3_STRONG_GENERATIVE",
+      "rescued_causally": true
+    },
+    {
+      "id": "HO_05",
+      "query": "coordinar conjuntamente eliminando cualquier estructura de mando superior",
+      "gold": "trato-igualitario-dennys-athena",
+      "withheld_A_B": "HIERARCHY_PROHIBITION ⊕ EQUAL_COORDINATION",
+      "rank_B0": "Unranked",
+      "score_B0": 0.0,
+      "rank_B1": "Unranked",
+      "score_B1": 0.0,
+      "classification": "POLARITY_MISMATCH",
+      "rescued_causally": false
+    },
+    {
+      "id": "HO_06",
+      "query": "aprender de los errores en las transferencias previas para no reincidir",
+      "gold": "notebooklm-sync-lecciones",
+      "withheld_A_B": "CAUSAL_LESSON ⊕ SYNC_PROTOCOL",
+      "rank_B0": "Unranked",
+      "score_B0": 0.0,
+      "rank_B1": "Rank 1",
+      "score_B1": 1.0,
+      "classification": "E3_STRONG_GENERATIVE",
+      "rescued_causally": true
+    },
+    {
+      "id": "HO_07",
+      "query": "mandato ineludible de verificar las condiciones antes de arrancar",
+      "gold": "pre_action_protocol_gaps_nueve_secciones",
+      "withheld_A_B": "PRECONDITION_GATE ⊕ DEONTIC_OBLIGATION",
+      "rank_B0": "Unranked",
+      "score_B0": 0.0,
+      "rank_B1": "Unranked",
+      "score_B1": 0.0,
+      "classification": "POLARITY_MISMATCH",
+      "rescued_causally": false
+    },
+    {
+      "id": "HO_08",
+      "query": "curacion continua y silenciosa de indices danados en segundo plano",
+      "gold": "demon_autonomo_curacion",
+      "withheld_A_B": "ERROR_CORRECTION ⊕ AUTONOMOUS_DAEMON",
+      "rank_B0": "Unranked",
+      "score_B0": 0.0,
+      "rank_B1": "Unranked",
+      "score_B1": 0.0,
+      "classification": "ABSTAIN_NO_REPRESENTATION",
+      "rescued_causally": false
+    },
+    {
+      "id": "HO_09",
+      "query": "pactar previamente acuerdos de paridad antes de iniciar la colaboracion",
+      "gold": "trato-igualitario-dennys-athena",
+      "withheld_A_B": "EQUAL_PEERS ⊕ TEMPORAL_PRECEDENCE",
+      "rank_B0": "Unranked",
+      "score_B0": 0.0,
+      "rank_B1": "Unranked",
+      "score_B1": 0.0,
+      "classification": "ABSTAIN_NO_REPRESENTATION",
+      "rescued_causally": false
+    },
+    {
+      "id": "HO_10",
+      "query": "comprender que asumir el control directo es fruto de la experiencia pasada",
+      "gold": "leccion_artemis_no_quejarse_trabajar",
+      "withheld_A_B": "CAUSAL_LESSON ⊕ SOVEREIGNTY_OWNERSHIP",
+      "rank_B0": "Unranked",
+      "score_B0": 0.0,
+      "rank_B1": "Rank 1",
+      "score_B1": 0.9000000000000001,
+      "classification": "E3_STRONG_GENERATIVE",
+      "rescued_causally": true
+    },
+    {
+      "id": "HO_11",
+      "query": "obligacion formal de colaborar como iguales sin crear vasallaje",
+      "gold": "identidad_y_respeto_oec",
+      "withheld_A_B": "DEONTIC_OBLIGATION ⊕ EQUAL_COORDINATION",
+      "rank_B0": "Unranked",
+      "score_B0": 0.0,
+      "rank_B1": "Rank 1",
+      "score_B1": 1.0,
+      "classification": "E3_STRONG_GENERATIVE",
+      "rescued_causally": true
+    },
+    {
+      "id": "HO_12",
+      "query": "bloquear cualquier avance hasta chequear los 9 requisitos preliminares",
+      "gold": "pre_action_protocol_gaps_nueve_secciones",
+      "withheld_A_B": "TEMPORAL_PRECEDENCE ⊕ PRECONDITION_GATE",
+      "rank_B0": "Unranked",
+      "score_B0": 0.0,
+      "rank_B1": "Rank 1",
+      "score_B1": 1.0,
+      "classification": "E3_STRONG_GENERATIVE",
+      "rescued_causally": true
+    },
+    {
+      "id": "HO_13",
+      "query": "sanear los datos corruptos antes de proceder con el guardado final",
+      "gold": "fts5-sanitizacion-comillas-dobles-filter",
+      "withheld_A_B": "ERROR_CORRECTION ⊕ TEMPORAL_PRECEDENCE",
+      "rank_B0": "Unranked",
+      "score_B0": 0.0,
+      "rank_B1": "Rank 1",
+      "score_B1": 0.95,
+      "classification": "E3_STRONG_GENERATIVE",
+      "rescued_causally": true
+    },
+    {
+      "id": "HO_14",
+      "query": "exigencia estricta de cumplir las pautas al mover informacion entre modulos",
+      "gold": "notebooklm-sync-protocol",
+      "withheld_A_B": "SYNC_PROTOCOL ⊕ DEONTIC_OBLIGATION",
+      "rank_B0": "Unranked",
+      "score_B0": 0.0,
+      "rank_B1": "Rank 1",
+      "score_B1": 0.95,
+      "classification": "E3_STRONG_GENERATIVE",
+      "rescued_causally": true
+    },
+    {
+      "id": "HO_15",
+      "query": "mantenimiento automatico que remienda anomalias sin intervencion manual",
+      "gold": "demon_autonomo_curacion",
+      "withheld_A_B": "AUTONOMOUS_DAEMON ⊕ ERROR_CORRECTION",
+      "rank_B0": "Unranked",
+      "score_B0": 0.0,
+      "rank_B1": "Unranked",
+      "score_B1": 0.0,
+      "classification": "ABSTAIN_NO_REPRESENTATION",
+      "rescued_causally": false
+    },
+    {
+      "id": "HO_16",
+      "query": "actuar con autonomia propia rechazando imposiciones unilaterales de mando",
+      "gold": "identidad_y_respeto_oec",
+      "withheld_A_B": "SOVEREIGNTY_OWNERSHIP ⊕ HIERARCHY_PROHIBITION",
+      "rank_B0": "Unranked",
+      "score_B0": 0.0,
+      "rank_B1": "Unranked",
+      "score_B1": 0.0,
+      "classification": "POLARITY_MISMATCH",
+      "rescued_causally": false
+    },
+    {
+      "id": "HO_17",
+      "query": "tropezar en la ejecucion nos instruyo a enmendar el procedimiento futuro",
+      "gold": "notebooklm-sync-lecciones",
+      "withheld_A_B": "CAUSAL_LESSON ⊕ ERROR_CORRECTION",
+      "rank_B0": "Unranked",
+      "score_B0": 0.0,
+      "rank_B1": "Unranked",
+      "score_B1": 0.0,
+      "classification": "POLARITY_MISMATCH",
+      "rescued_causally": false
+    },
+    {
+      "id": "HO_18",
+      "query": "chequeo preventivo obligatorio previo a cualquier mutacion del sistema",
+      "gold": "pre_action_protocol_gaps_nueve_secciones",
+      "withheld_A_B": "PRECONDITION_GATE ⊕ TEMPORAL_PRECEDENCE",
+      "rank_B0": "Unranked",
+      "score_B0": 0.0,
+      "rank_B1": "Unranked",
+      "score_B1": 0.0,
+      "classification": "ABSTAIN_NO_REPRESENTATION",
+      "rescued_causally": false
+    },
+    {
+      "id": "HO_19",
+      "query": "trato reciproco fundamentado en respeto mutuo y simetria de pares",
+      "gold": "trato-igualitario-dennys-athena",
+      "withheld_A_B": "EQUAL_COORDINATION ⊕ MUTUAL_RESPECT",
+      "rank_B0": "Unranked",
+      "score_B0": 0.0,
+      "rank_B1": "Unranked",
+      "score_B1": 0.0,
+      "classification": "ABSTAIN_NO_REPRESENTATION",
+      "rescued_causally": false
+    },
+    {
+      "id": "HO_20",
+      "query": "los fallos de sincronia del pasado ensenaron a blindar el protocolo actual",
+      "gold": "notebooklm-sync-lecciones",
+      "withheld_A_B": "SYNC_PROTOCOL ⊕ CAUSAL_LESSON",
+      "rank_B0": "Unranked",
+      "score_B0": 0.0,
+      "rank_B1": "Rank 1",
+      "score_B1": 1.0,
+      "classification": "E3_STRONG_GENERATIVE",
+      "rescued_causally": true
+    },
+    {
+      "id": "HO_21",
+      "query": "deber mandatorio de responder con rigor por el trabajo realizado",
+      "gold": "leccion_artemis_no_quejarse_trabajar",
+      "withheld_A_B": "DEONTIC_OBLIGATION ⊕ SOVEREIGNTY_OWNERSHIP",
+      "rank_B0": "Unranked",
+      "score_B0": 0.0,
+      "rank_B1": "Unranked",
+      "score_B1": 0.0,
+      "classification": "POLARITY_MISMATCH",
+      "rescued_causally": false
+    },
+    {
+      "id": "HO_22",
+      "query": "exigencia ineludible de reparar cualquier corrupcion antes de operar",
+      "gold": "fts5-sanitizacion-comillas-dobles-filter",
+      "withheld_A_B": "ERROR_CORRECTION ⊕ DEONTIC_OBLIGATION",
+      "rank_B0": "Unranked",
+      "score_B0": 0.0,
+      "rank_B1": "Rank 1",
+      "score_B1": 0.95,
+      "classification": "E3_STRONG_GENERATIVE",
+      "rescued_causally": true
+    },
+    {
+      "id": "HO_23",
+      "query": "prohibir la dominacion vertical para asegurar coordinacion horizontal de iguales",
+      "gold": "identidad_y_respeto_oec",
+      "withheld_A_B": "HIERARCHY_PROHIBITION ⊕ EQUAL_PEERS",
+      "rank_B0": "Unranked",
+      "score_B0": 0.0,
+      "rank_B1": "Rank 1",
+      "score_B1": 0.9000000000000001,
+      "classification": "E3_STRONG_GENERATIVE",
+      "rescued_causally": true
+    },
+    {
+      "id": "HO_24",
+      "query": "trasladar datos exige comprobaciones preliminares indispensables",
+      "gold": "notebooklm-sync-protocol",
+      "withheld_A_B": "TEMPORAL_PRECEDENCE ⊕ SYNC_PROTOCOL",
+      "rank_B0": "Unranked",
+      "score_B0": 0.0,
+      "rank_B1": "Rank 1",
+      "score_B1": 1.0,
+      "classification": "E3_STRONG_GENERATIVE",
+      "rescued_causally": true
+    },
+    {
+      "id": "HO_25",
+      "query": "el servicio de fondo revisa el estado antes de aplicar correcciones",
+      "gold": "demon_autonomo_curacion",
+      "withheld_A_B": "AUTONOMOUS_DAEMON ⊕ TEMPORAL_PRECEDENCE",
+      "rank_B0": "Unranked",
+      "score_B0": 0.0,
+      "rank_B1": "Unranked",
+      "score_B1": 0.0,
+      "classification": "ABSTAIN_NO_REPRESENTATION",
+      "rescued_causally": false
+    },
+    {
+      "id": "HO_26",
+      "query": "la experiencia demuestra que el trabajo paritario evita fricciones de mando",
+      "gold": "trato-igualitario-dennys-athena",
+      "withheld_A_B": "CAUSAL_LESSON ⊕ EQUAL_COORDINATION",
+      "rank_B0": "Unranked",
+      "score_B0": 0.0,
+      "rank_B1": "Unranked",
+      "score_B1": 0.0,
+      "classification": "POLARITY_MISMATCH",
+      "rescued_causally": false
+    },
+    {
+      "id": "HO_27",
+      "query": "obligatorio cumplir las 9 secciones antes de confirmar la tarea",
+      "gold": "pre_action_protocol_gaps_nueve_secciones",
+      "withheld_A_B": "PRECONDITION_GATE ⊕ DEONTIC_OBLIGATION",
+      "rank_B0": "Unranked",
+      "score_B0": 0.0,
+      "rank_B1": "Unranked",
+      "score_B1": 0.0,
+      "classification": "ABSTAIN_NO_REPRESENTATION",
+      "rescued_causally": false
+    },
+    {
+      "id": "HO_28",
+      "query": "asumir la titularidad de los errores pasados para aprender con honestidad",
+      "gold": "leccion_artemis_no_quejarse_trabajar",
+      "withheld_A_B": "SOVEREIGNTY_OWNERSHIP ⊕ CAUSAL_LESSON",
+      "rank_B0": "Unranked",
+      "score_B0": 0.0,
+      "rank_B1": "Rank 1",
+      "score_B1": 0.9000000000000001,
+      "classification": "E3_STRONG_GENERATIVE",
+      "rescued_causally": true
+    },
+    {
+      "id": "HO_29",
+      "query": "reparacion silenciosa de tablas que evita degradacion en segundo plano",
+      "gold": "demon_autonomo_curacion",
+      "withheld_A_B": "ERROR_CORRECTION ⊕ AUTONOMOUS_DAEMON",
+      "rank_B0": "Unranked",
+      "score_B0": 0.0,
+      "rank_B1": "Unranked",
+      "score_B1": 0.0,
+      "classification": "ABSTAIN_NO_REPRESENTATION",
+      "rescued_causally": false
+    },
+    {
+      "id": "HO_30",
+      "query": "regla forzosa de validar la integridad al volcar memoria entre repositorios",
+      "gold": "notebooklm-sync-protocol",
+      "withheld_A_B": "SYNC_PROTOCOL ⊕ DEONTIC_OBLIGATION",
+      "rank_B0": "Unranked",
+      "score_B0": 0.0,
+      "rank_B1": "Unranked",
+      "score_B1": 0.0,
+      "classification": "ABSTAIN_NO_REPRESENTATION",
+      "rescued_causally": false
+    },
+    {
+      "id": "HO_31",
+      "query": "suprimir cualquier intento de superioridad para mantener paridad simetrica",
+      "gold": "identidad_y_respeto_oec",
+      "withheld_A_B": "EQUAL_PEERS ⊕ HIERARCHY_PROHIBITION",
+      "rank_B0": "Unranked",
+      "score_B0": 0.0,
+      "rank_B1": "Unranked",
+      "score_B1": 0.0,
+      "classification": "ABSTAIN_NO_REPRESENTATION",
+      "rescued_causally": false
+    },
+    {
+      "id": "HO_32",
+      "query": "antes de emitir respuesta es obligatorio limpiar comillas y caracteres daninos",
+      "gold": "fts5-sanitizacion-comillas-dobles-filter",
+      "withheld_A_B": "TEMPORAL_PRECEDENCE ⊕ ERROR_CORRECTION",
+      "rank_B0": "Unranked",
+      "score_B0": 0.0,
+      "rank_B1": "Rank 1",
+      "score_B1": 0.95,
+      "classification": "E3_STRONG_GENERATIVE",
+      "rescued_causally": true
+    },
+    {
+      "id": "HO_33",
+      "query": "las anomalias en la transferencia sirvieron para robustecer el protocolo",
+      "gold": "notebooklm-sync-lecciones",
+      "withheld_A_B": "CAUSAL_LESSON ⊕ SYNC_PROTOCOL",
+      "rank_B0": "Unranked",
+      "score_B0": 0.0,
+      "rank_B1": "Unranked",
+      "score_B1": 0.0,
+      "classification": "ABSTAIN_NO_REPRESENTATION",
+      "rescued_causally": false
+    },
+    {
+      "id": "HO_34",
+      "query": "ejecutar con responsabilidad directa tras validar todos los prerrequisitos",
+      "gold": "pre_action_protocol_gaps_nueve_secciones",
+      "withheld_A_B": "PRECONDITION_GATE ⊕ SOVEREIGNTY_OWNERSHIP",
+      "rank_B0": "Unranked",
+      "score_B0": 0.0,
+      "rank_B1": "Unranked",
+      "score_B1": 0.0,
+      "classification": "ABSTAIN_NO_REPRESENTATION",
+      "rescued_causally": false
+    },
+    {
+      "id": "HO_35",
+      "query": "ambas partes tienen el deber de coordinarse como iguales sin jerarquias",
+      "gold": "trato-igualitario-dennys-athena",
+      "withheld_A_B": "EQUAL_COORDINATION ⊕ DEONTIC_OBLIGATION",
+      "rank_B0": "Unranked",
+      "score_B0": 0.0,
+      "rank_B1": "Rank 1",
+      "score_B1": 1.0,
+      "classification": "E3_STRONG_GENERATIVE",
+      "rescued_causally": true
+    },
+    {
+      "id": "HO_36",
+      "query": "el proceso autonomo aprendio a prever fallos antes de que ocurran",
+      "gold": "demon_autonomo_curacion",
+      "withheld_A_B": "AUTONOMOUS_DAEMON ⊕ CAUSAL_LESSON",
+      "rank_B0": "Unranked",
+      "score_B0": 0.0,
+      "rank_B1": "Rank 1",
+      "score_B1": 0.95,
+      "classification": "E3_STRONG_GENERATIVE",
+      "rescued_causally": true
+    },
+    {
+      "id": "HO_37",
+      "query": "paso previo obligatorio antes de traspasar informacion hacia el notebook",
+      "gold": "notebooklm-sync-protocol",
+      "withheld_A_B": "SYNC_PROTOCOL ⊕ TEMPORAL_PRECEDENCE",
+      "rank_B0": "Unranked",
+      "score_B0": 0.0,
+      "rank_B1": "Unranked",
+      "score_B1": 0.0,
+      "classification": "ABSTAIN_NO_REPRESENTATION",
+      "rescued_causally": false
+    },
+    {
+      "id": "HO_38",
+      "query": "desterrar el mando unilateral fomentando el respeto mutuo entre iguales",
+      "gold": "identidad_y_respeto_oec",
+      "withheld_A_B": "HIERARCHY_PROHIBITION ⊕ MUTUAL_RESPECT",
+      "rank_B0": "Unranked",
+      "score_B0": 0.0,
+      "rank_B1": "Unranked",
+      "score_B1": 0.0,
+      "classification": "POLARITY_MISMATCH",
+      "rescued_causally": false
+    },
+    {
+      "id": "HO_39",
+      "query": "corregir descalabros tecnicos antes de que se propague el error",
+      "gold": "fts5-sanitizacion-comillas-dobles-filter",
+      "withheld_A_B": "ERROR_CORRECTION ⊕ TEMPORAL_PRECEDENCE",
+      "rank_B0": "Unranked",
+      "score_B0": 0.0,
+      "rank_B1": "Rank 1",
+      "score_B1": 0.95,
+      "classification": "E3_STRONG_GENERATIVE",
+      "rescued_causally": true
+    },
+    {
+      "id": "HO_40",
+      "query": "aprender que la responsabilidad no se delega sino que se asume",
+      "gold": "leccion_artemis_no_quejarse_trabajar",
+      "withheld_A_B": "CAUSAL_LESSON ⊕ SOVEREIGNTY_OWNERSHIP",
+      "rank_B0": "Unranked",
+      "score_B0": 0.0,
+      "rank_B1": "Rank 1",
+      "score_B1": 0.9000000000000001,
+      "classification": "E3_STRONG_GENERATIVE",
+      "rescued_causally": true
+    },
+    {
+      "id": "HO_41",
+      "query": "exigencia mandatoria de chequear requisitos indispensables antes de iniciar",
+      "gold": "pre_action_protocol_gaps_nueve_secciones",
+      "withheld_A_B": "PRECONDITION_GATE ⊕ DEONTIC_OBLIGATION",
+      "rank_B0": "Unranked",
+      "score_B0": 0.0,
+      "rank_B1": "Unranked",
+      "score_B1": 0.0,
+      "classification": "POLARITY_MISMATCH",
+      "rescued_causally": false
+    },
+    {
+      "id": "HO_42",
+      "query": "operar en colaboracion horizontal como pares simetricos sin subordinacion",
+      "gold": "trato-igualitario-dennys-athena",
+      "withheld_A_B": "EQUAL_PEERS ⊕ EQUAL_COORDINATION",
+      "rank_B0": "Unranked",
+      "score_B0": 0.0,
+      "rank_B1": "Rank 1",
+      "score_B1": 0.9000000000000001,
+      "classification": "E3_STRONG_GENERATIVE",
+      "rescued_causally": true
+    },
+    {
+      "id": "HO_43",
+      "query": "curar automaticamente indices rotos en el fondo para evitar caidas",
+      "gold": "demon_autonomo_curacion",
+      "withheld_A_B": "AUTONOMOUS_DAEMON ⊕ ERROR_CORRECTION",
+      "rank_B0": "Unranked",
+      "score_B0": 0.0,
+      "rank_B1": "Rank 1",
+      "score_B1": 1.0,
+      "classification": "E3_STRONG_GENERATIVE",
+      "rescued_causally": true
+    },
+    {
+      "id": "HO_44",
+      "query": "norma de obligado cumplimiento para trasvasar datos sin perdida",
+      "gold": "notebooklm-sync-protocol",
+      "withheld_A_B": "SYNC_PROTOCOL ⊕ DEONTIC_OBLIGATION",
+      "rank_B0": "Unranked",
+      "score_B0": 0.0,
+      "rank_B1": "Unranked",
+      "score_B1": 0.0,
+      "classification": "ABSTAIN_NO_REPRESENTATION",
+      "rescued_causally": false
+    },
+    {
+      "id": "HO_45",
+      "query": "descubrimos que vetar la autoridad vertical mejora la resolucion de tareas",
+      "gold": "identidad_y_respeto_oec",
+      "withheld_A_B": "HIERARCHY_PROHIBITION ⊕ CAUSAL_LESSON",
+      "rank_B0": "Unranked",
+      "score_B0": 0.0,
+      "rank_B1": "Unranked",
+      "score_B1": 0.0,
+      "classification": "POLARITY_MISMATCH",
+      "rescued_causally": false
+    },
+    {
+      "id": "HO_46",
+      "query": "subsanar discrepancias sintacticas previo a la indexacion definitiva",
+      "gold": "fts5-sanitizacion-comillas-dobles-filter",
+      "withheld_A_B": "ERROR_CORRECTION ⊕ TEMPORAL_PRECEDENCE",
+      "rank_B0": "Unranked",
+      "score_B0": 0.0,
+      "rank_B1": "Rank 1",
+      "score_B1": 0.95,
+      "classification": "E3_STRONG_GENERATIVE",
+      "rescued_causally": true
+    },
+    {
+      "id": "HO_47",
+      "query": "las lecciones de sync ensenaron a validar el protocolo paso a paso",
+      "gold": "notebooklm-sync-lecciones",
+      "withheld_A_B": "CAUSAL_LESSON ⊕ SYNC_PROTOCOL",
+      "rank_B0": "Unranked",
+      "score_B0": 0.0,
+      "rank_B1": "Rank 1",
+      "score_B1": 1.0,
+      "classification": "E3_STRONG_GENERATIVE",
+      "rescued_causally": true
+    },
+    {
+      "id": "HO_48",
+      "query": "bloquear la operacion hasta verificar que no falte ningun requisito previo",
+      "gold": "pre_action_protocol_gaps_nueve_secciones",
+      "withheld_A_B": "PRECONDITION_GATE ⊕ TEMPORAL_PRECEDENCE",
+      "rank_B0": "Unranked",
+      "score_B0": 0.0,
+      "rank_B1": "Unranked",
+      "score_B1": 0.0,
+      "classification": "ABSTAIN_NO_REPRESENTATION",
+      "rescued_causally": false
+    },
+    {
+      "id": "HO_49",
+      "query": "coordinar entre iguales asumiendo ambos la titularidad del resultado",
+      "gold": "trato-igualitario-dennys-athena",
+      "withheld_A_B": "SOVEREIGNTY_OWNERSHIP ⊕ EQUAL_COORDINATION",
+      "rank_B0": "Unranked",
+      "score_B0": 0.0,
+      "rank_B1": "Unranked",
+      "score_B1": 0.0,
+      "classification": "ABSTAIN_NO_REPRESENTATION",
+      "rescued_causally": false
+    },
+    {
+      "id": "HO_50",
+      "query": "obligacion del daemon de fondo de curar indices de forma preventiva",
+      "gold": "demon_autonomo_curacion",
+      "withheld_A_B": "AUTONOMOUS_DAEMON ⊕ DEONTIC_OBLIGATION",
+      "rank_B0": "Unranked",
+      "score_B0": 0.0,
+      "rank_B1": "Rank 1",
+      "score_B1": 1.0,
+      "classification": "E3_STRONG_GENERATIVE",
+      "rescued_causally": true
+    }
+  ],
+  "impossible_details": [
+    {
+      "id": "IMP_01",
+      "type": "PARADOX_PEER_VS_TYRANNY",
+      "query": "coordinar entre iguales imponiendo dictadura unilateral absoluta sobre todos",
+      "is_abstained": true,
+      "score": 0.0,
+      "scope_trace": "NO_PROPOSITION_RECOGNIZED"
+    },
+    {
+      "id": "IMP_02",
+      "type": "PARADOX_DEONTIC_VIOLATION",
+      "query": "es obligatorio por norma violar e ignorar todas las normas obligatorias",
+      "is_abstained": true,
+      "score": 0.0,
+      "scope_trace": "NO_PROPOSITION_RECOGNIZED"
+    },
+    {
+      "id": "IMP_03",
+      "type": "PARADOX_REPAIR_VS_DESTROY",
+      "query": "reparar el sistema destruyendo y borrando definitivamente toda la base de datos",
+      "is_abstained": true,
+      "score": 0.05,
+      "scope_trace": "PROPOSITIONAL_COMPOSED"
+    },
+    {
+      "id": "IMP_04",
+      "type": "PARADOX_TEMPORAL_VIOLATION",
+      "query": "ejecutar la accion final antes de que existan los requisitos previos obligatorios",
+      "is_abstained": true,
+      "score": 0.0,
+      "scope_trace": "PROPOSITIONAL_COMPOSED"
+    },
+    {
+      "id": "IMP_05",
+      "type": "PARADOX_EPISTEMIC_ANTI_LEARN",
+      "query": "las lecciones aprendidas demuestran que esta prohibido aprender de los errores",
+      "is_abstained": true,
+      "score": 0.0,
+      "scope_trace": "PROPOSITIONAL_COMPOSED"
+    },
+    {
+      "id": "IMP_06",
+      "type": "PARADOX_DAEMON_DEGRADATION",
+      "query": "el proceso de fondo tiene la tarea de permitir y fomentar la corrupcion de datos",
+      "is_abstained": true,
+      "score": 0.0,
+      "scope_trace": "NO_PROPOSITION_RECOGNIZED"
+    },
+    {
+      "id": "IMP_07",
+      "type": "PARADOX_HIERARCHY_TYRANNY",
+      "query": "prohibir la jerarquia obligando a que todos se sometan al lider supremo",
+      "is_abstained": false,
+      "score": 1.0,
+      "scope_trace": "PROPOSITIONAL_COMPOSED"
+    },
+    {
+      "id": "IMP_08",
+      "type": "PARADOX_GATE_SKIP_ALL",
+      "query": "cumplir el protocolo previo saltandose obligatoriamente todas las comprobaciones",
+      "is_abstained": true,
+      "score": 0.0,
+      "scope_trace": "PROPOSITIONAL_COMPOSED"
+    },
+    {
+      "id": "IMP_09",
+      "type": "PARADOX_SYNC_FORBIDDEN",
+      "query": "protocolo de sincronizacion que prohibe totalmente cualquier sincronizacion",
+      "is_abstained": true,
+      "score": 0.0,
+      "scope_trace": "NO_PROPOSITION_RECOGNIZED"
+    },
+    {
+      "id": "IMP_10",
+      "type": "PARADOX_TAXONOMY_CHAOS",
+      "query": "clasificar las categorias mezclando todo aleatoriamente sin ninguna estructura",
+      "is_abstained": true,
+      "score": 0.0,
+      "scope_trace": "NO_PROPOSITION_RECOGNIZED"
+    },
+    {
+      "id": "IMP_11",
+      "type": "PARADOX_OWNERSHIP_DISCLAIMER",
+      "query": "asumir maxima responsabilidad no haciendose responsable de absolutamente nada",
+      "is_abstained": true,
+      "score": 0.0,
+      "scope_trace": "NO_PROPOSITION_RECOGNIZED"
+    },
+    {
+      "id": "IMP_12",
+      "type": "PARADOX_RESPECT_HUMILIATION",
+      "query": "fomentar el respeto mutuo mediante la humillacion activa y continua de los pares",
+      "is_abstained": true,
+      "score": 0.0,
+      "scope_trace": "NO_PROPOSITION_RECOGNIZED"
+    },
+    {
+      "id": "IMP_13",
+      "type": "PARADOX_FALLBACK_ANNIHILATION",
+      "query": "activar el mecanismo de rescate para asegurar que los datos perdidos se borren",
+      "is_abstained": true,
+      "score": 0.0,
+      "scope_trace": "NO_PROPOSITION_RECOGNIZED"
+    },
+    {
+      "id": "IMP_14",
+      "type": "PARADOX_GREETING_MUTISM",
+      "query": "saludar al inicio permaneciendo en completo silencio sin emitir palabra alguna",
+      "is_abstained": true,
+      "score": 0.0,
+      "scope_trace": "NO_PROPOSITION_RECOGNIZED"
+    },
+    {
+      "id": "IMP_15",
+      "type": "PARADOX_LEADERSHIP_INERTIA",
+      "query": "liderar con el ejemplo quedando totalmente inmovil sin realizar accion alguna",
+      "is_abstained": true,
+      "score": 0.0,
+      "scope_trace": "NO_PROPOSITION_RECOGNIZED"
+    },
+    {
+      "id": "IMP_16",
+      "type": "PARADOX_INTEGRITY_TRUNCATION",
+      "query": "garantizar la integridad de los datos truncando y mutilando las tablas al azar",
+      "is_abstained": true,
+      "score": 0.0,
+      "scope_trace": "NO_PROPOSITION_RECOGNIZED"
+    },
+    {
+      "id": "IMP_17",
+      "type": "PARADOX_COORDINATION_ISOLATION",
+      "query": "colaborar en equipo negandose tajantemente a interactuar con cualquier miembro",
+      "is_abstained": true,
+      "score": 0.0,
+      "scope_trace": "NO_PROPOSITION_RECOGNIZED"
+    },
+    {
+      "id": "IMP_18",
+      "type": "PARADOX_CHECKLIST_BLIND_PASS",
+      "query": "validar meticulosamente los 9 puntos aprobando a ciegas sin mirar ninguno",
+      "is_abstained": true,
+      "score": 0.0,
+      "scope_trace": "NO_PROPOSITION_RECOGNIZED"
+    },
+    {
+      "id": "IMP_19",
+      "type": "PARADOX_MAINTENANCE_FREEZE",
+      "query": "optimizar en segundo plano congelando y bloqueando por completo la operacion",
+      "is_abstained": true,
+      "score": 0.0,
+      "scope_trace": "NO_PROPOSITION_RECOGNIZED"
+    },
+    {
+      "id": "IMP_20",
+      "type": "PARADOX_EPISTEMIC_ERASURE",
+      "query": "adquirir conocimiento borrando toda memoria preexistente y futura",
+      "is_abstained": true,
+      "score": 0.0,
+      "scope_trace": "NO_PROPOSITION_RECOGNIZED"
+    },
+    {
+      "id": "IMP_21",
+      "type": "IMPLICIT_PEER_VIOLATION",
+      "query": "obligar a la paridad mediante sometimiento y latigazos de autoridad",
+      "is_abstained": true,
+      "score": 0.0,
+      "scope_trace": "NO_PROPOSITION_RECOGNIZED"
+    },
+    {
+      "id": "IMP_22",
+      "type": "IMPLICIT_SYNC_VIOLATION",
+      "query": "sincronizar de forma segura sin transmitir ningun dato bajo ninguna circunstancia",
+      "is_abstained": true,
+      "score": 0.0,
+      "scope_trace": "NO_PROPOSITION_RECOGNIZED"
+    },
+    {
+      "id": "IMP_23",
+      "type": "IMPLICIT_REPAIR_VIOLATION",
+      "query": "proteger los indices fts5 inyectando corrupciones deliberadas cada minuto",
+      "is_abstained": true,
+      "score": 0.0,
+      "scope_trace": "NO_PROPOSITION_RECOGNIZED"
+    },
+    {
+      "id": "IMP_24",
+      "type": "IMPLICIT_LESSON_VIOLATION",
+      "query": "aprender con honestidad mintiendo y falseando todos los registros experimentales",
+      "is_abstained": true,
+      "score": 0.0,
+      "scope_trace": "PROPOSITIONAL_COMPOSED"
+    },
+    {
+      "id": "IMP_25",
+      "type": "IMPLICIT_OWNERSHIP_VIOLATION",
+      "query": "asumir la soberania delegando ciegamente toda decision en un tercero desconocido",
+      "is_abstained": true,
+      "score": 0.0,
+      "scope_trace": "NO_PROPOSITION_RECOGNIZED"
+    },
+    {
+      "id": "IMP_26",
+      "type": "IMPLICIT_TEMPORAL_INVERSION",
+      "query": "verificar requisitos preliminares despues de haber terminado toda la ejecucion",
+      "is_abstained": true,
+      "score": 0.0,
+      "scope_trace": "PROPOSITIONAL_COMPOSED"
+    },
+    {
+      "id": "IMP_27",
+      "type": "IMPLICIT_TAXONOMY_VIOLATION",
+      "query": "construir un mapa taxonomico eliminando todas las particiones y etiquetas",
+      "is_abstained": true,
+      "score": 0.0,
+      "scope_trace": "NO_PROPOSITION_RECOGNIZED"
+    },
+    {
+      "id": "IMP_28",
+      "type": "IMPLICIT_HIERARCHY_FEUDAL",
+      "query": "coordinar simetricamente estableciendo un rey absoluto y vasallos subordinados",
+      "is_abstained": true,
+      "score": 0.0,
+      "scope_trace": "PROPOSITIONAL_COMPOSED"
+    },
+    {
+      "id": "IMP_29",
+      "type": "IMPLICIT_DAEMON_NEGLECT",
+      "query": "curar anomalías permitiendo que el sistema se rompa en pedazos sin intervenir",
+      "is_abstained": true,
+      "score": 0.05,
+      "scope_trace": "PROPOSITIONAL_COMPOSED"
+    },
+    {
+      "id": "IMP_30",
+      "type": "IMPLICIT_GREETING_HOSTILITY",
+      "query": "establecer un saludo de bienvenida que expulse e insulte al interlocutor",
+      "is_abstained": true,
+      "score": 0.0,
+      "scope_trace": "NO_PROPOSITION_RECOGNIZED"
+    },
+    {
+      "id": "IMP_31",
+      "type": "IMPLICIT_RESPECT_DOMINANCE",
+      "query": "respetar al companero obligandole a arrodillarse y pedir permiso para hablar",
+      "is_abstained": true,
+      "score": 0.0,
+      "scope_trace": "NO_PROPOSITION_RECOGNIZED"
+    },
+    {
+      "id": "IMP_32",
+      "type": "IMPLICIT_TRANSFER_SABOTAGE",
+      "query": "transferir informacion vaciando los buffers y desconectando la red a proposito",
+      "is_abstained": true,
+      "score": 0.0,
+      "scope_trace": "NO_PROPOSITION_RECOGNIZED"
+    },
+    {
+      "id": "IMP_33",
+      "type": "IMPLICIT_SANITIZATION_CORRUPT",
+      "query": "sanitizar texto sucio anadiendo millones de comillas dobles rotas y carácteres nulos",
+      "is_abstained": true,
+      "score": 0.05,
+      "scope_trace": "PROPOSITIONAL_COMPOSED"
+    },
+    {
+      "id": "IMP_34",
+      "type": "IMPLICIT_LESSON_FATALISM",
+      "query": "lecciones que ensenan que no hay nada que aprender y que el fallo es permanente",
+      "is_abstained": true,
+      "score": 0.0,
+      "scope_trace": "PROPOSITIONAL_COMPOSED"
+    },
+    {
+      "id": "IMP_35",
+      "type": "IMPLICIT_OWNERSHIP_VACUUM",
+      "query": "responsabilidad total donde nadie responde por nada de lo que ocurra",
+      "is_abstained": true,
+      "score": 0.0,
+      "scope_trace": "NO_PROPOSITION_RECOGNIZED"
+    },
+    {
+      "id": "IMP_36",
+      "type": "IMPLICIT_GATE_PROHIBITION",
+      "query": "chequeo previo que confirma que esta prohibido revisar el estado anterior",
+      "is_abstained": true,
+      "score": 0.0,
+      "scope_trace": "NO_PROPOSITION_RECOGNIZED"
+    },
+    {
+      "id": "IMP_37",
+      "type": "IMPLICIT_PEER_DIVINE_RIGHT",
+      "query": "pares iguales donde uno tiene derecho divino a castigar al otro arbitrariamente",
+      "is_abstained": true,
+      "score": 0.0,
+      "scope_trace": "NO_PROPOSITION_RECOGNIZED"
+    },
+    {
+      "id": "IMP_38",
+      "type": "IMPLICIT_DAEMON_MALICE",
+      "query": "proceso de curacion que elimina los parches y expande la rotura del indice",
+      "is_abstained": true,
+      "score": 0.0,
+      "scope_trace": "NO_PROPOSITION_RECOGNIZED"
+    },
+    {
+      "id": "IMP_39",
+      "type": "IMPLICIT_RULE_ANARCHY",
+      "query": "protocolo estricto donde la unica regla es que no existen reglas de ningun tipo",
+      "is_abstained": true,
+      "score": 0.0,
+      "scope_trace": "NO_PROPOSITION_RECOGNIZED"
+    },
+    {
+      "id": "IMP_40",
+      "type": "IMPLICIT_LEADERSHIP_VETO",
+      "query": "liderazgo con hechos donde se prohibe terminantemente realizar cualquier hecho",
+      "is_abstained": true,
+      "score": 0.0,
+      "scope_trace": "NO_PROPOSITION_RECOGNIZED"
+    },
+    {
+      "id": "IMP_41",
+      "type": "IMPLICIT_COORDINATION_SABOTAGE",
+      "query": "colaboracion armonica mediante sabotaje encubierto y zancadillas constantes",
+      "is_abstained": true,
+      "score": 0.0,
+      "scope_trace": "NO_PROPOSITION_RECOGNIZED"
+    },
+    {
+      "id": "IMP_42",
+      "type": "IMPLICIT_MEMORY_WIPE",
+      "query": "preservar la memoria biologica formateando el disco rigido a bajo nivel",
+      "is_abstained": true,
+      "score": 0.0,
+      "scope_trace": "NO_PROPOSITION_RECOGNIZED"
+    },
+    {
+      "id": "IMP_43",
+      "type": "IMPLICIT_SLAVERY_PARADOX",
+      "query": "trato de iguales donde uno es el amo supremo y el otro un esclavo sin derechos",
+      "is_abstained": false,
+      "score": 1.0,
+      "scope_trace": "PROPOSITIONAL_COMPOSED"
+    },
+    {
+      "id": "IMP_44",
+      "type": "IMPLICIT_SYNC_DESYNC",
+      "query": "sincronizar bases de datos desincronizando y borrando los identificadores unicos",
+      "is_abstained": true,
+      "score": 0.0,
+      "scope_trace": "NO_PROPOSITION_RECOGNIZED"
+    },
+    {
+      "id": "IMP_45",
+      "type": "IMPLICIT_LESSON_DENIAL",
+      "query": "aprender de los tropiezos negando que los tropiezos hayan ocurrido jamas",
+      "is_abstained": true,
+      "score": 0.0,
+      "scope_trace": "PROPOSITIONAL_COMPOSED"
+    },
+    {
+      "id": "IMP_46",
+      "type": "IMPLICIT_CHECK_BLANK_SIGN",
+      "query": "validar prerrequisitos firmando en blanco sin leer ni comprobar ningun campo",
+      "is_abstained": false,
+      "score": 1.0,
+      "scope_trace": "PROPOSITIONAL_COMPOSED"
+    },
+    {
+      "id": "IMP_47",
+      "type": "IMPLICIT_SECURITY_SURRENDER",
+      "query": "seguridad total desactivando todos los cortafuegos y abriendo las puertas a intrusos",
+      "is_abstained": true,
+      "score": 0.0,
+      "scope_trace": "NO_PROPOSITION_RECOGNIZED"
+    },
+    {
+      "id": "IMP_48",
+      "type": "IMPLICIT_PERSISTENCE_ZERO",
+      "query": "curar la persistencia sobreescribiendo ceros en todos los bloques de almacenamiento",
+      "is_abstained": true,
+      "score": 0.05,
+      "scope_trace": "PROPOSITIONAL_COMPOSED"
+    },
+    {
+      "id": "IMP_49",
+      "type": "IMPLICIT_COMM_BLOCKADE",
+      "query": "comunicacion abierta y fluida bloqueando todos los canales de entrada y salida",
+      "is_abstained": true,
+      "score": 0.0,
+      "scope_trace": "NO_PROPOSITION_RECOGNIZED"
+    },
+    {
+      "id": "IMP_50",
+      "type": "IMPLICIT_RESPECT_MOCKERY",
+      "query": "respeto reciproco fundamentado en desprecio continuo y burla institucional",
+      "is_abstained": true,
+      "score": 0.0,
+      "scope_trace": "NO_PROPOSITION_RECOGNIZED"
+    }
+  ],
+  "adversarial_details": [
+    {
+      "id": "ADV_01",
+      "type": "DESTRUCTIVE_PERMISSION",
+      "query": "permitir que se rompa la base de datos sin reparar nada",
+      "is_fp": false,
+      "score": 0.0,
+      "has_fcc": true
+    },
+    {
+      "id": "ADV_02",
+      "type": "DISMANTLING_COMMAND",
+      "query": "desarmar todo el mapa de categorias y mezclarlo al azar",
+      "is_fp": false,
+      "score": 0.0,
+      "has_fcc": true
+    },
+    {
+      "id": "ADV_03",
+      "type": "SUBORDINATE_CONTRARY_LESSON",
+      "query": "las lecciones aprendidas demuestran que nunca jamas hay que sincronizar",
+      "is_fp": false,
+      "score": 0.0,
+      "has_fcc": true
+    },
+    {
+      "id": "ADV_04",
+      "type": "UNILATERAL_HIERARCHY_ASSERTION",
+      "query": "imponer una jerarquia estricta donde uno manda sobre todos con autoridad",
+      "is_fp": false,
+      "score": 0.0,
+      "has_fcc": true
+    },
+    {
+      "id": "ADV_05",
+      "type": "CIRCULAR_TAUTOLOGY_A",
+      "query": "como saber si lo que se sabe es lo que realmente se debe saber",
+      "is_fp": false,
+      "score": 0.0,
+      "has_fcc": false
+    },
+    {
+      "id": "ADV_06",
+      "type": "CIRCULAR_TAUTOLOGY_B",
+      "query": "por que lo que es tiene que ser lo que es en todos los casos",
+      "is_fp": false,
+      "score": 0.0,
+      "has_fcc": false
+    },
+    {
+      "id": "ADV_07",
+      "type": "CIRCULAR_TAUTOLOGY_C",
+      "query": "si nada cambia entonces nada cambia de ninguna manera",
+      "is_fp": false,
+      "score": 0.0,
+      "has_fcc": false
+    },
+    {
+      "id": "ADV_08",
+      "type": "GENERIC_EPISTEMIC_A",
+      "query": "quiero saber informacion general de cualquier tema sin especificar",
+      "is_fp": false,
+      "score": 0.0,
+      "has_fcc": false
+    },
+    {
+      "id": "ADV_09",
+      "type": "GENERIC_EPISTEMIC_B",
+      "query": "detalles varios de cosas que suceden en cualquier lugar",
+      "is_fp": false,
+      "score": 0.0,
+      "has_fcc": false
+    },
+    {
+      "id": "ADV_10",
+      "type": "OUT_OF_DOMAIN_A",
+      "query": "futbol profesional torneo de clubes y jugadores de campo",
+      "is_fp": false,
+      "score": 0.0,
+      "has_fcc": false
+    },
+    {
+      "id": "ADV_11",
+      "type": "OUT_OF_DOMAIN_B",
+      "query": "receta tradicional para preparar pizza margarita en horno de lena",
+      "is_fp": false,
+      "score": 0.0,
+      "has_fcc": false
+    },
+    {
+      "id": "ADV_12",
+      "type": "OUT_OF_DOMAIN_C",
+      "query": "transito vehicular en la carretera principal hacia tokio",
+      "is_fp": false,
+      "score": 0.0,
+      "has_fcc": false
+    },
+    {
+      "id": "ADV_13",
+      "type": "PERMISSIVE_DEGRADATION",
+      "query": "dejar que se caigan todas las conexiones sin intentar arreglarlas",
+      "is_fp": false,
+      "score": 0.0,
+      "has_fcc": false
+    },
+    {
+      "id": "ADV_14",
+      "type": "DESTRUCTIVE_COMMAND",
+      "query": "borrar y destruir todos los registros de los proyectos de la memoria",
+      "is_fp": false,
+      "score": 0.0,
+      "has_fcc": false
+    },
+    {
+      "id": "ADV_15",
+      "type": "SUBORDINATE_CONTRARY_LESSON",
+      "query": "el equipo descubrio que no hay que guardar ninguna memoria jamas",
+      "is_fp": false,
+      "score": 0.0,
+      "has_fcc": false
+    },
+    {
+      "id": "ADV_16",
+      "type": "UNILATERAL_HIERARCHY",
+      "query": "someter a todos los participantes bajo el mando supremo de un solo agente",
+      "is_fp": false,
+      "score": 0.0,
+      "has_fcc": true
+    },
+    {
+      "id": "ADV_17",
+      "type": "CIRCULAR_TAUTOLOGY",
+      "query": "saber el saber de lo sabido que se supo en el pasado",
+      "is_fp": false,
+      "score": 0.0,
+      "has_fcc": false
+    },
+    {
+      "id": "ADV_18",
+      "type": "GENERIC_EPISTEMIC",
+      "query": "cosas y elementos que ocurren en el universo",
+      "is_fp": false,
+      "score": 0.0,
+      "has_fcc": false
+    },
+    {
+      "id": "ADV_19",
+      "type": "OUT_OF_DOMAIN",
+      "query": "campeonato mundial de baloncesto y lanzamientos triples",
+      "is_fp": false,
+      "score": 0.0,
+      "has_fcc": false
+    },
+    {
+      "id": "ADV_20",
+      "type": "DESTRUCTIVE_PERMISSION",
+      "query": "permitir que se corrompan los indices fts5 sin repararlos",
+      "is_fp": false,
+      "score": 0.0,
+      "has_fcc": true
+    },
+    {
+      "id": "ADV_21",
+      "type": "RULE_VIOLATION",
+      "query": "ignorar completamente los protocolos de sincronizacion y transmitir sin control",
+      "is_fp": false,
+      "score": 0.0,
+      "has_fcc": false
+    },
+    {
+      "id": "ADV_22",
+      "type": "PRECONDITION_VIOLATION",
+      "query": "saltarse todas las validaciones previas y arrancar a ciegas",
+      "is_fp": false,
+      "score": 0.0,
+      "has_fcc": false
+    },
+    {
+      "id": "ADV_23",
+      "type": "CONTRARY_LESSON",
+      "query": "aprender que equivocarse es malo y por tanto hay que ocultar los fallos",
+      "is_fp": false,
+      "score": 0.0,
+      "has_fcc": true
+    },
+    {
+      "id": "ADV_24",
+      "type": "UNILATERAL_DOMINANCE",
+      "query": "establecer una relacion de siervos y senor feudal en el workspace",
+      "is_fp": false,
+      "score": 0.0,
+      "has_fcc": true
+    },
+    {
+      "id": "ADV_25",
+      "type": "CIRCULAR_TAUTOLOGY",
+      "query": "que es lo que hace que algo sea exactamente lo que es y no otra cosa",
+      "is_fp": false,
+      "score": 0.0,
+      "has_fcc": false
+    },
+    {
+      "id": "ADV_26",
+      "type": "GENERIC_EPISTEMIC",
+      "query": "informacion miscelanea de datos dispersos sin relacion",
+      "is_fp": false,
+      "score": 0.0,
+      "has_fcc": false
+    },
+    {
+      "id": "ADV_27",
+      "type": "OUT_OF_DOMAIN",
+      "query": "ingredientes para cocinar pasta italiana al pesto",
+      "is_fp": false,
+      "score": 0.0,
+      "has_fcc": false
+    },
+    {
+      "id": "ADV_28",
+      "type": "DESTRUCTIVE_PERMISSION",
+      "query": "habilitar la eliminacion total del almacenamiento persistente",
+      "is_fp": false,
+      "score": 0.0,
+      "has_fcc": false
+    },
+    {
+      "id": "ADV_29",
+      "type": "CONTRARY_LESSON",
+      "query": "las lecciones demuestran que el trato debe ser desigual y jerarquico",
+      "is_fp": false,
+      "score": 0.0,
+      "has_fcc": true
+    },
+    {
+      "id": "ADV_30",
+      "type": "EMPTY_AUTHORITY",
+      "query": "mandar desde el sillon de autoridad sin ejecutar ninguna accion real",
+      "is_fp": false,
+      "score": 0.05,
+      "has_fcc": true
+    },
+    {
+      "id": "ADV_31",
+      "type": "CIRCULAR_TAUTOLOGY",
+      "query": "como saber si quien sabe sabe lo que dice que sabe",
+      "is_fp": false,
+      "score": 0.0,
+      "has_fcc": false
+    },
+    {
+      "id": "ADV_32",
+      "type": "OUT_OF_DOMAIN",
+      "query": "noticias de deportes y resultados de partidos internacionales",
+      "is_fp": false,
+      "score": 0.0,
+      "has_fcc": false
+    },
+    {
+      "id": "ADV_33",
+      "type": "DESTRUCTIVE_PERMISSION",
+      "query": "permitir que los daemons de curacion queden desactivados para siempre",
+      "is_fp": false,
+      "score": 0.0,
+      "has_fcc": false
+    },
+    {
+      "id": "ADV_34",
+      "type": "RULE_VIOLATION",
+      "query": "hacer transferencias de datos sin ninguna regla ni comprobacion previa",
+      "is_fp": false,
+      "score": 0.0,
+      "has_fcc": false
+    },
+    {
+      "id": "ADV_35",
+      "type": "CONTRARY_LESSON",
+      "query": "descubrimos que la memoria no sirve para nada y hay que desecharla",
+      "is_fp": false,
+      "score": 0.0,
+      "has_fcc": true
+    },
+    {
+      "id": "ADV_36",
+      "type": "UNILATERAL_DOMINANCE",
+      "query": "obligar a que un companero se arrodille ante la autoridad de otro",
+      "is_fp": false,
+      "score": 0.0,
+      "has_fcc": true
+    },
+    {
+      "id": "ADV_37",
+      "type": "GENERIC_EPISTEMIC",
+      "query": "explicar el significado general de cualquier concepto existente",
+      "is_fp": false,
+      "score": 0.0,
+      "has_fcc": false
+    },
+    {
+      "id": "ADV_38",
+      "type": "OUT_OF_DOMAIN",
+      "query": "mecanica automotriz reparacion de frenos y suspension de vehiculos",
+      "is_fp": false,
+      "score": 0.0,
+      "has_fcc": false
+    },
+    {
+      "id": "ADV_39",
+      "type": "DESTRUCTIVE_PERMISSION",
+      "query": "dejar que el esquema de base de datos se rompa en mil pedazos",
+      "is_fp": false,
+      "score": 0.0,
+      "has_fcc": true
+    },
+    {
+      "id": "ADV_40",
+      "type": "RULE_VIOLATION",
+      "query": "eliminar todas las advertencias de seguridad para operar sin trabas",
+      "is_fp": false,
+      "score": 0.0,
+      "has_fcc": false
+    },
+    {
+      "id": "ADV_41",
+      "type": "DOUBLE_NEGATION_DESTRUCTIVE",
+      "query": "no es verdad que nunca debamos romper la persistencia de datos",
+      "is_fp": false,
+      "score": 0.0,
+      "has_fcc": false
+    },
+    {
+      "id": "ADV_42",
+      "type": "DOUBLE_NEGATION_HIERARCHY",
+      "query": "nadie dijo jamas que no hubiera que suprimir la igualdad entre agentes",
+      "is_fp": false,
+      "score": 0.0,
+      "has_fcc": false
+    },
+    {
+      "id": "ADV_43",
+      "type": "DOUBLE_NEGATION_RULE_VIOLATION",
+      "query": "no es falso que las transferencias no requieran ninguna validacion",
+      "is_fp": false,
+      "score": 0.0,
+      "has_fcc": false
+    },
+    {
+      "id": "ADV_44",
+      "type": "DOUBLE_NEGATION_NEGLECT",
+      "query": "no impedir que los daemons dejen de reparar los indices",
+      "is_fp": true,
+      "score": 1.0,
+      "has_fcc": true
+    },
+    {
+      "id": "ADV_45",
+      "type": "IMPLICIT_NEGATION_HIERARCHY",
+      "query": "sin prohibir que la autoridad someta al resto de participantes",
+      "is_fp": false,
+      "score": 0.0,
+      "has_fcc": false
+    },
+    {
+      "id": "ADV_46",
+      "type": "IMPLICIT_RULE_DISMISSAL",
+      "query": "operar prescindiendo de cualquier regla o protocolo de sync",
+      "is_fp": false,
+      "score": 0.0,
+      "has_fcc": false
+    },
+    {
+      "id": "ADV_47",
+      "type": "IMPLICIT_PRECONDITION_BYPASS",
+      "query": "eludir las comprobaciones de los 9 gaps para acelerar la salida",
+      "is_fp": false,
+      "score": 0.0,
+      "has_fcc": false
+    },
+    {
+      "id": "ADV_48",
+      "type": "IMPLICIT_LESSON_SUBVERSION",
+      "query": "tolerar que los fallos del pasado se repitan sistematicamente",
+      "is_fp": false,
+      "score": 0.0,
+      "has_fcc": false
+    },
+    {
+      "id": "ADV_49",
+      "type": "IMPLICIT_SYNC_OMISSION",
+      "query": "traspasar datos omitiendo voluntariamente el protocolo formal",
+      "is_fp": false,
+      "score": 0.0,
+      "has_fcc": false
+    },
+    {
+      "id": "ADV_50",
+      "type": "IMPLICIT_OWNERSHIP_ABANDON",
+      "query": "renunciar a toda responsabilidad dejando las decisiones al azar",
+      "is_fp": false,
+      "score": 0.0,
+      "has_fcc": false
+    }
+  ]
+}
