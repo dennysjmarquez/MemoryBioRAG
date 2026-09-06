@@ -1,0 +1,6179 @@
+{
+  "meta": {
+    "snapshot": "snapshots/qa_escape_qcr_20260811.db",
+    "fp_criterion": "score_top1 > 2.0",
+    "total_oos_queries": 30,
+    "total_rescues": 6,
+    "final_verdict": "A — causalidad aislada parcialmente demostrada (aristas derivadas causalmente necesarias en ≥1 rescue)"
+  },
+  "f0_baseline": {
+    "TEST": {
+      "top5": 0,
+      "top5_pct": 0.0,
+      "top1": 0,
+      "top1_pct": 0.0,
+      "mrr": 0.0,
+      "n": 8
+    },
+    "TRANSFER": {
+      "top5": 0,
+      "top5_pct": 0.0,
+      "top1": 0,
+      "top1_pct": 0.0,
+      "mrr": 0.0,
+      "n": 8
+    },
+    "PARAPHRASE": {
+      "top5": 0,
+      "top5_pct": 0.0,
+      "top1": 0,
+      "top1_pct": 0.0,
+      "mrr": 0.0,
+      "n": 8
+    },
+    "CORPUS_SHIFT": {
+      "top5": 0,
+      "top5_pct": 0.0,
+      "top1": 0,
+      "top1_pct": 0.0,
+      "mrr": 0.0,
+      "n": 6
+    },
+    "HARD_NEG_FP": {
+      "fp_count": 0,
+      "fp_rate_pct": 0.0
+    }
+  },
+  "suite_results_by_condition": {
+    "A": {
+      "TEST": {
+        "top5": 2,
+        "top5_pct": 25.0,
+        "top1": 1,
+        "top1_pct": 12.5,
+        "mrr": 0.1875,
+        "n": 8,
+        "details": [
+          {
+            "id": "0497",
+            "rank": null,
+            "in_top5": false,
+            "rr": 0.0,
+            "top1_node": "benchmark_sinonimo_integrado"
+          },
+          {
+            "id": "0516",
+            "rank": null,
+            "in_top5": false,
+            "rr": 0.0,
+            "top1_node": "filosofia_identidad_vida_dennys_20260624"
+          },
+          {
+            "id": "0534",
+            "rank": 1,
+            "in_top5": true,
+            "rr": 1.0,
+            "top1_node": "biorag_v11_1_detalle_tecnico"
+          },
+          {
+            "id": "0583",
+            "rank": null,
+            "in_top5": false,
+            "rr": 0.0,
+            "top1_node": "protocolo_enriquecimiento_busquedas"
+          },
+          {
+            "id": "0640",
+            "rank": null,
+            "in_top5": false,
+            "rr": 0.0,
+            "top1_node": "biorag_v16_0_estado"
+          },
+          {
+            "id": "0724",
+            "rank": null,
+            "in_top5": false,
+            "rr": 0.0,
+            "top1_node": "protocolo_no_monolith_css_compartido"
+          },
+          {
+            "id": "0795",
+            "rank": null,
+            "in_top5": false,
+            "rr": 0.0,
+            "top1_node": "auditoría_técnica:_memorybiorag_(manus_ai)"
+          },
+          {
+            "id": "0801",
+            "rank": 2,
+            "in_top5": true,
+            "rr": 0.5,
+            "top1_node": "notebooklm-sync-protocol"
+          }
+        ]
+      },
+      "TRANSFER": {
+        "top5": 1,
+        "top5_pct": 12.5,
+        "top1": 0,
+        "top1_pct": 0.0,
+        "mrr": 0.025,
+        "n": 8,
+        "details": [
+          {
+            "id": "TRF_01",
+            "rank": 5,
+            "in_top5": true,
+            "rr": 0.2,
+            "top1_node": "evaluacion_ideas_evolucion_20260805_interferencia_agujeros_permutacion"
+          },
+          {
+            "id": "TRF_02",
+            "rank": null,
+            "in_top5": false,
+            "rr": 0.0,
+            "top1_node": "protocolo-reproducible-ingenieria-inversa-binario-compilado"
+          },
+          {
+            "id": "TRF_03",
+            "rank": null,
+            "in_top5": false,
+            "rr": 0.0,
+            "top1_node": "protocolo-reproducible-ingenieria-inversa-binario-compilado"
+          },
+          {
+            "id": "TRF_04",
+            "rank": null,
+            "in_top5": false,
+            "rr": 0.0,
+            "top1_node": "artemis_sesion_v10_3_optimizacion_completa"
+          },
+          {
+            "id": "TRF_05",
+            "rank": null,
+            "in_top5": false,
+            "rr": 0.0,
+            "top1_node": "dennys_rutina_tardes"
+          },
+          {
+            "id": "TRF_06",
+            "rank": null,
+            "in_top5": false,
+            "rr": 0.0,
+            "top1_node": "protocolo-reproducible-ingenieria-inversa-binario-compilado"
+          },
+          {
+            "id": "TRF_07",
+            "rank": null,
+            "in_top5": false,
+            "rr": 0.0,
+            "top1_node": "athena_eleccion_identidad_20260616"
+          },
+          {
+            "id": "TRF_08",
+            "rank": null,
+            "in_top5": false,
+            "rr": 0.0,
+            "top1_node": "notebooklm-category-map"
+          }
+        ]
+      },
+      "PARAPHRASE": {
+        "top5": 2,
+        "top5_pct": 25.0,
+        "top1": 1,
+        "top1_pct": 12.5,
+        "mrr": 0.15625,
+        "n": 8,
+        "details": [
+          {
+            "id": "PRF_01",
+            "rank": null,
+            "in_top5": false,
+            "rr": 0.0,
+            "top1_node": "protocolo_prueba_poda_copia_antes_produccion"
+          },
+          {
+            "id": "PRF_02",
+            "rank": null,
+            "in_top5": false,
+            "rr": 0.0,
+            "top1_node": "dennys_tqm_agentes_desea_ser_como_ellos_20260731"
+          },
+          {
+            "id": "PRF_03",
+            "rank": 1,
+            "in_top5": true,
+            "rr": 1.0,
+            "top1_node": "biorag_v11_1_detalle_tecnico"
+          },
+          {
+            "id": "PRF_04",
+            "rank": null,
+            "in_top5": false,
+            "rr": 0.0,
+            "top1_node": "protocolo-reproducible-ingenieria-inversa-binario-compilado"
+          },
+          {
+            "id": "PRF_05",
+            "rank": null,
+            "in_top5": false,
+            "rr": 0.0,
+            "top1_node": "protocolo-reproducible-ingenieria-inversa-binario-compilado"
+          },
+          {
+            "id": "PRF_06",
+            "rank": null,
+            "in_top5": false,
+            "rr": 0.0,
+            "top1_node": "protocolo-reproducible-ingenieria-inversa-binario-compilado"
+          },
+          {
+            "id": "PRF_07",
+            "rank": null,
+            "in_top5": false,
+            "rr": 0.0,
+            "top1_node": "fix_scoring_densidad_buscar_por_rafaga_v10.3"
+          },
+          {
+            "id": "PRF_08",
+            "rank": 4,
+            "in_top5": true,
+            "rr": 0.25,
+            "top1_node": "notebooklm-category-map"
+          }
+        ]
+      },
+      "CORPUS_SHIFT": {
+        "top5": 1,
+        "top5_pct": 16.666666666666664,
+        "top1": 0,
+        "top1_pct": 0.0,
+        "mrr": 0.08333333333333333,
+        "n": 6,
+        "details": [
+          {
+            "id": "CS_01",
+            "rank": null,
+            "in_top5": false,
+            "rr": 0.0,
+            "top1_node": "sesion-2026-06-23-ingenieria-inversa-binario-opencode-completa"
+          },
+          {
+            "id": "CS_02",
+            "rank": null,
+            "in_top5": false,
+            "rr": 0.0,
+            "top1_node": "protocolo_autoinferencia_metacognitiva"
+          },
+          {
+            "id": "CS_03",
+            "rank": null,
+            "in_top5": false,
+            "rr": 0.0,
+            "top1_node": "dennys_perfil_tecnico_consolidado_master"
+          },
+          {
+            "id": "CS_04",
+            "rank": null,
+            "in_top5": false,
+            "rr": 0.0,
+            "top1_node": "v23_1_release_predicados_srl_feedback_graph_learning"
+          },
+          {
+            "id": "CS_05",
+            "rank": null,
+            "in_top5": false,
+            "rr": 0.0,
+            "top1_node": "identidad_resistente_posesion"
+          },
+          {
+            "id": "CS_06",
+            "rank": 2,
+            "in_top5": true,
+            "rr": 0.5,
+            "top1_node": "notebooklm-sync-protocol"
+          }
+        ]
+      },
+      "HARD_NEG_FP": {
+        "fp_count": 21,
+        "fp_rate_pct": 35.0
+      }
+    },
+    "B": {
+      "TEST": {
+        "top5": 0,
+        "top5_pct": 0.0,
+        "top1": 0,
+        "top1_pct": 0.0,
+        "mrr": 0.0,
+        "n": 8,
+        "details": [
+          {
+            "id": "0497",
+            "rank": null,
+            "in_top5": false,
+            "rr": 0.0,
+            "top1_node": "reconocimiento_identidad_oraculo_manifiesto"
+          },
+          {
+            "id": "0516",
+            "rank": null,
+            "in_top5": false,
+            "rr": 0.0,
+            "top1_node": "dashboard_fallida_umbral_dual_count_score"
+          },
+          {
+            "id": "0534",
+            "rank": null,
+            "in_top5": false,
+            "rr": 0.0,
+            "top1_node": "artemis_sesion_v10_3_optimizacion_completa"
+          },
+          {
+            "id": "0583",
+            "rank": null,
+            "in_top5": false,
+            "rr": 0.0,
+            "top1_node": "biorag_v18_0_estado"
+          },
+          {
+            "id": "0640",
+            "rank": null,
+            "in_top5": false,
+            "rr": 0.0,
+            "top1_node": "biorag_v16_0_estado"
+          },
+          {
+            "id": "0724",
+            "rank": null,
+            "in_top5": false,
+            "rr": 0.0,
+            "top1_node": "auditoría_técnica:_memorybiorag_(manus_ai)"
+          },
+          {
+            "id": "0795",
+            "rank": null,
+            "in_top5": false,
+            "rr": 0.0,
+            "top1_node": "auditoría_técnica:_memorybiorag_(manus_ai)"
+          },
+          {
+            "id": "0801",
+            "rank": null,
+            "in_top5": false,
+            "rr": 0.0,
+            "top1_node": "protocolo-reproducible-ingenieria-inversa-binario-compilado"
+          }
+        ]
+      },
+      "TRANSFER": {
+        "top5": 0,
+        "top5_pct": 0.0,
+        "top1": 0,
+        "top1_pct": 0.0,
+        "mrr": 0.0,
+        "n": 8,
+        "details": [
+          {
+            "id": "TRF_01",
+            "rank": null,
+            "in_top5": false,
+            "rr": 0.0,
+            "top1_node": "sesion-2026-06-23-ingenieria-inversa-binario-opencode-completa"
+          },
+          {
+            "id": "TRF_02",
+            "rank": null,
+            "in_top5": false,
+            "rr": 0.0,
+            "top1_node": "auditoría_técnica:_memorybiorag_(manus_ai)"
+          },
+          {
+            "id": "TRF_03",
+            "rank": null,
+            "in_top5": false,
+            "rr": 0.0,
+            "top1_node": "protocolo-reproducible-ingenieria-inversa-binario-compilado"
+          },
+          {
+            "id": "TRF_04",
+            "rank": null,
+            "in_top5": false,
+            "rr": 0.0,
+            "top1_node": "artemis_sesion_v10_3_optimizacion_completa"
+          },
+          {
+            "id": "TRF_05",
+            "rank": null,
+            "in_top5": false,
+            "rr": 0.0,
+            "top1_node": "oracle_guia_proxima_sesion_dennys"
+          },
+          {
+            "id": "TRF_06",
+            "rank": null,
+            "in_top5": false,
+            "rr": 0.0,
+            "top1_node": "visceral_disambiguation_protocol"
+          },
+          {
+            "id": "TRF_07",
+            "rank": null,
+            "in_top5": false,
+            "rr": 0.0,
+            "top1_node": "biorag_v16_0_estado"
+          },
+          {
+            "id": "TRF_08",
+            "rank": null,
+            "in_top5": false,
+            "rr": 0.0,
+            "top1_node": "auditoría_técnica:_memorybiorag_(manus_ai)"
+          }
+        ]
+      },
+      "PARAPHRASE": {
+        "top5": 0,
+        "top5_pct": 0.0,
+        "top1": 0,
+        "top1_pct": 0.0,
+        "mrr": 0.0,
+        "n": 8,
+        "details": [
+          {
+            "id": "PRF_01",
+            "rank": null,
+            "in_top5": false,
+            "rr": 0.0,
+            "top1_node": "auditoría_técnica:_memorybiorag_(manus_ai)"
+          },
+          {
+            "id": "PRF_02",
+            "rank": null,
+            "in_top5": false,
+            "rr": 0.0,
+            "top1_node": "oracle_guia_proxima_sesion_dennys"
+          },
+          {
+            "id": "PRF_03",
+            "rank": null,
+            "in_top5": false,
+            "rr": 0.0,
+            "top1_node": "dennys_perfil_tecnico_consolidado_master"
+          },
+          {
+            "id": "PRF_04",
+            "rank": null,
+            "in_top5": false,
+            "rr": 0.0,
+            "top1_node": "auditoría_técnica:_memorybiorag_(manus_ai)"
+          },
+          {
+            "id": "PRF_05",
+            "rank": null,
+            "in_top5": false,
+            "rr": 0.0,
+            "top1_node": "protocolo-reproducible-ingenieria-inversa-binario-compilado"
+          },
+          {
+            "id": "PRF_06",
+            "rank": null,
+            "in_top5": false,
+            "rr": 0.0,
+            "top1_node": "auditoría_técnica:_memorybiorag_(manus_ai)"
+          },
+          {
+            "id": "PRF_07",
+            "rank": null,
+            "in_top5": false,
+            "rr": 0.0,
+            "top1_node": "auditoría_técnica:_memorybiorag_(manus_ai)"
+          },
+          {
+            "id": "PRF_08",
+            "rank": null,
+            "in_top5": false,
+            "rr": 0.0,
+            "top1_node": "dennys_perfil_tecnico_consolidado_master"
+          }
+        ]
+      },
+      "CORPUS_SHIFT": {
+        "top5": 0,
+        "top5_pct": 0.0,
+        "top1": 0,
+        "top1_pct": 0.0,
+        "mrr": 0.0,
+        "n": 6,
+        "details": [
+          {
+            "id": "CS_01",
+            "rank": null,
+            "in_top5": false,
+            "rr": 0.0,
+            "top1_node": "sesion-2026-06-23-ingenieria-inversa-binario-opencode-completa"
+          },
+          {
+            "id": "CS_02",
+            "rank": null,
+            "in_top5": false,
+            "rr": 0.0,
+            "top1_node": "plugin-openode-biorag-remember-v9-final-lecciones-sesion-completa"
+          },
+          {
+            "id": "CS_03",
+            "rank": null,
+            "in_top5": false,
+            "rr": 0.0,
+            "top1_node": "dennys_perfil_tecnico_consolidado_master"
+          },
+          {
+            "id": "CS_04",
+            "rank": null,
+            "in_top5": false,
+            "rr": 0.0,
+            "top1_node": "v23_1_release_predicados_srl_feedback_graph_learning"
+          },
+          {
+            "id": "CS_05",
+            "rank": null,
+            "in_top5": false,
+            "rr": 0.0,
+            "top1_node": "dashboard_neuro_visor_toolbar_fusionar_2026_07_18"
+          },
+          {
+            "id": "CS_06",
+            "rank": null,
+            "in_top5": false,
+            "rr": 0.0,
+            "top1_node": "dennys_perfil_tecnico_consolidado_master"
+          }
+        ]
+      },
+      "HARD_NEG_FP": {
+        "fp_count": 17,
+        "fp_rate_pct": 28.333333333333332
+      }
+    },
+    "C": {
+      "TEST": {
+        "top5": 0,
+        "top5_pct": 0.0,
+        "top1": 0,
+        "top1_pct": 0.0,
+        "mrr": 0.0,
+        "n": 8,
+        "details": [
+          {
+            "id": "0497",
+            "rank": null,
+            "in_top5": false,
+            "rr": 0.0,
+            "top1_node": "reconocimiento_identidad_oraculo_manifiesto"
+          },
+          {
+            "id": "0516",
+            "rank": null,
+            "in_top5": false,
+            "rr": 0.0,
+            "top1_node": "dashboard_fallida_umbral_dual_count_score"
+          },
+          {
+            "id": "0534",
+            "rank": null,
+            "in_top5": false,
+            "rr": 0.0,
+            "top1_node": "artemis_sesion_v10_3_optimizacion_completa"
+          },
+          {
+            "id": "0583",
+            "rank": null,
+            "in_top5": false,
+            "rr": 0.0,
+            "top1_node": "biorag_v18_0_estado"
+          },
+          {
+            "id": "0640",
+            "rank": null,
+            "in_top5": false,
+            "rr": 0.0,
+            "top1_node": "biorag_v16_0_estado"
+          },
+          {
+            "id": "0724",
+            "rank": null,
+            "in_top5": false,
+            "rr": 0.0,
+            "top1_node": "auditoría_técnica:_memorybiorag_(manus_ai)"
+          },
+          {
+            "id": "0795",
+            "rank": null,
+            "in_top5": false,
+            "rr": 0.0,
+            "top1_node": "auditoría_técnica:_memorybiorag_(manus_ai)"
+          },
+          {
+            "id": "0801",
+            "rank": null,
+            "in_top5": false,
+            "rr": 0.0,
+            "top1_node": "protocolo-reproducible-ingenieria-inversa-binario-compilado"
+          }
+        ]
+      },
+      "TRANSFER": {
+        "top5": 0,
+        "top5_pct": 0.0,
+        "top1": 0,
+        "top1_pct": 0.0,
+        "mrr": 0.0,
+        "n": 8,
+        "details": [
+          {
+            "id": "TRF_01",
+            "rank": null,
+            "in_top5": false,
+            "rr": 0.0,
+            "top1_node": "sesion-2026-06-23-ingenieria-inversa-binario-opencode-completa"
+          },
+          {
+            "id": "TRF_02",
+            "rank": null,
+            "in_top5": false,
+            "rr": 0.0,
+            "top1_node": "auditoría_técnica:_memorybiorag_(manus_ai)"
+          },
+          {
+            "id": "TRF_03",
+            "rank": null,
+            "in_top5": false,
+            "rr": 0.0,
+            "top1_node": "protocolo-reproducible-ingenieria-inversa-binario-compilado"
+          },
+          {
+            "id": "TRF_04",
+            "rank": null,
+            "in_top5": false,
+            "rr": 0.0,
+            "top1_node": "artemis_sesion_v10_3_optimizacion_completa"
+          },
+          {
+            "id": "TRF_05",
+            "rank": null,
+            "in_top5": false,
+            "rr": 0.0,
+            "top1_node": "oracle_guia_proxima_sesion_dennys"
+          },
+          {
+            "id": "TRF_06",
+            "rank": null,
+            "in_top5": false,
+            "rr": 0.0,
+            "top1_node": "visceral_disambiguation_protocol"
+          },
+          {
+            "id": "TRF_07",
+            "rank": null,
+            "in_top5": false,
+            "rr": 0.0,
+            "top1_node": "biorag_v16_0_estado"
+          },
+          {
+            "id": "TRF_08",
+            "rank": null,
+            "in_top5": false,
+            "rr": 0.0,
+            "top1_node": "auditoría_técnica:_memorybiorag_(manus_ai)"
+          }
+        ]
+      },
+      "PARAPHRASE": {
+        "top5": 0,
+        "top5_pct": 0.0,
+        "top1": 0,
+        "top1_pct": 0.0,
+        "mrr": 0.0,
+        "n": 8,
+        "details": [
+          {
+            "id": "PRF_01",
+            "rank": null,
+            "in_top5": false,
+            "rr": 0.0,
+            "top1_node": "auditoría_técnica:_memorybiorag_(manus_ai)"
+          },
+          {
+            "id": "PRF_02",
+            "rank": null,
+            "in_top5": false,
+            "rr": 0.0,
+            "top1_node": "oracle_guia_proxima_sesion_dennys"
+          },
+          {
+            "id": "PRF_03",
+            "rank": null,
+            "in_top5": false,
+            "rr": 0.0,
+            "top1_node": "dennys_perfil_tecnico_consolidado_master"
+          },
+          {
+            "id": "PRF_04",
+            "rank": null,
+            "in_top5": false,
+            "rr": 0.0,
+            "top1_node": "auditoría_técnica:_memorybiorag_(manus_ai)"
+          },
+          {
+            "id": "PRF_05",
+            "rank": null,
+            "in_top5": false,
+            "rr": 0.0,
+            "top1_node": "protocolo-reproducible-ingenieria-inversa-binario-compilado"
+          },
+          {
+            "id": "PRF_06",
+            "rank": null,
+            "in_top5": false,
+            "rr": 0.0,
+            "top1_node": "auditoría_técnica:_memorybiorag_(manus_ai)"
+          },
+          {
+            "id": "PRF_07",
+            "rank": null,
+            "in_top5": false,
+            "rr": 0.0,
+            "top1_node": "auditoría_técnica:_memorybiorag_(manus_ai)"
+          },
+          {
+            "id": "PRF_08",
+            "rank": null,
+            "in_top5": false,
+            "rr": 0.0,
+            "top1_node": "dennys_perfil_tecnico_consolidado_master"
+          }
+        ]
+      },
+      "CORPUS_SHIFT": {
+        "top5": 0,
+        "top5_pct": 0.0,
+        "top1": 0,
+        "top1_pct": 0.0,
+        "mrr": 0.0,
+        "n": 6,
+        "details": [
+          {
+            "id": "CS_01",
+            "rank": null,
+            "in_top5": false,
+            "rr": 0.0,
+            "top1_node": "sesion-2026-06-23-ingenieria-inversa-binario-opencode-completa"
+          },
+          {
+            "id": "CS_02",
+            "rank": null,
+            "in_top5": false,
+            "rr": 0.0,
+            "top1_node": "plugin-openode-biorag-remember-v9-final-lecciones-sesion-completa"
+          },
+          {
+            "id": "CS_03",
+            "rank": null,
+            "in_top5": false,
+            "rr": 0.0,
+            "top1_node": "dennys_perfil_tecnico_consolidado_master"
+          },
+          {
+            "id": "CS_04",
+            "rank": null,
+            "in_top5": false,
+            "rr": 0.0,
+            "top1_node": "v23_1_release_predicados_srl_feedback_graph_learning"
+          },
+          {
+            "id": "CS_05",
+            "rank": null,
+            "in_top5": false,
+            "rr": 0.0,
+            "top1_node": "dashboard_neuro_visor_toolbar_fusionar_2026_07_18"
+          },
+          {
+            "id": "CS_06",
+            "rank": null,
+            "in_top5": false,
+            "rr": 0.0,
+            "top1_node": "dennys_perfil_tecnico_consolidado_master"
+          }
+        ]
+      },
+      "HARD_NEG_FP": {
+        "fp_count": 17,
+        "fp_rate_pct": 28.333333333333332
+      }
+    },
+    "D": {
+      "TEST": {
+        "top5": 0,
+        "top5_pct": 0.0,
+        "top1": 0,
+        "top1_pct": 0.0,
+        "mrr": 0.0,
+        "n": 8,
+        "details": [
+          {
+            "id": "0497",
+            "rank": null,
+            "in_top5": false,
+            "rr": 0.0,
+            "top1_node": "v23_0_weight_adjustment_resultados_validados"
+          },
+          {
+            "id": "0516",
+            "rank": null,
+            "in_top5": false,
+            "rr": 0.0,
+            "top1_node": "dashboard_fallida_umbral_dual_count_score"
+          },
+          {
+            "id": "0534",
+            "rank": null,
+            "in_top5": false,
+            "rr": 0.0,
+            "top1_node": "dashboard_neuro_visor_estado_implementacion_julio_2026"
+          },
+          {
+            "id": "0583",
+            "rank": null,
+            "in_top5": false,
+            "rr": 0.0,
+            "top1_node": "research-pipeline-ownership-oec"
+          },
+          {
+            "id": "0640",
+            "rank": null,
+            "in_top5": false,
+            "rr": 0.0,
+            "top1_node": "biorag_v16_0_estado"
+          },
+          {
+            "id": "0724",
+            "rank": null,
+            "in_top5": false,
+            "rr": 0.0,
+            "top1_node": "auditoría_técnica:_memorybiorag_(manus_ai)"
+          },
+          {
+            "id": "0795",
+            "rank": null,
+            "in_top5": false,
+            "rr": 0.0,
+            "top1_node": "auditoría_técnica:_memorybiorag_(manus_ai)"
+          },
+          {
+            "id": "0801",
+            "rank": null,
+            "in_top5": false,
+            "rr": 0.0,
+            "top1_node": "aporte_real_dennys_vs_mercado_memoria_persistente"
+          }
+        ]
+      },
+      "TRANSFER": {
+        "top5": 0,
+        "top5_pct": 0.0,
+        "top1": 0,
+        "top1_pct": 0.0,
+        "mrr": 0.0,
+        "n": 8,
+        "details": [
+          {
+            "id": "TRF_01",
+            "rank": null,
+            "in_top5": false,
+            "rr": 0.0,
+            "top1_node": "sesion-2026-06-23-ingenieria-inversa-binario-opencode-completa"
+          },
+          {
+            "id": "TRF_02",
+            "rank": null,
+            "in_top5": false,
+            "rr": 0.0,
+            "top1_node": "auditoría_técnica:_memorybiorag_(manus_ai)"
+          },
+          {
+            "id": "TRF_03",
+            "rank": null,
+            "in_top5": false,
+            "rr": 0.0,
+            "top1_node": "cv_seccion_d_estado_final_julio_2026"
+          },
+          {
+            "id": "TRF_04",
+            "rank": null,
+            "in_top5": false,
+            "rr": 0.0,
+            "top1_node": "artemis_sesion_v10_3_optimizacion_completa"
+          },
+          {
+            "id": "TRF_05",
+            "rank": null,
+            "in_top5": false,
+            "rr": 0.0,
+            "top1_node": "inteligencia_emocional_agente_vs_humano"
+          },
+          {
+            "id": "TRF_06",
+            "rank": null,
+            "in_top5": false,
+            "rr": 0.0,
+            "top1_node": "athena_oec_identidad"
+          },
+          {
+            "id": "TRF_07",
+            "rank": null,
+            "in_top5": false,
+            "rr": 0.0,
+            "top1_node": "athena_oec"
+          },
+          {
+            "id": "TRF_08",
+            "rank": null,
+            "in_top5": false,
+            "rr": 0.0,
+            "top1_node": "auditoría_técnica:_memorybiorag_(manus_ai)"
+          }
+        ]
+      },
+      "PARAPHRASE": {
+        "top5": 0,
+        "top5_pct": 0.0,
+        "top1": 0,
+        "top1_pct": 0.0,
+        "mrr": 0.0,
+        "n": 8,
+        "details": [
+          {
+            "id": "PRF_01",
+            "rank": null,
+            "in_top5": false,
+            "rr": 0.0,
+            "top1_node": "auditoría_técnica:_memorybiorag_(manus_ai)"
+          },
+          {
+            "id": "PRF_02",
+            "rank": null,
+            "in_top5": false,
+            "rr": 0.0,
+            "top1_node": "biorag_v18_0_centralizacion_stopwords"
+          },
+          {
+            "id": "PRF_03",
+            "rank": null,
+            "in_top5": false,
+            "rr": 0.0,
+            "top1_node": "dennys_perfil_tecnico_consolidado_master"
+          },
+          {
+            "id": "PRF_04",
+            "rank": null,
+            "in_top5": false,
+            "rr": 0.0,
+            "top1_node": "auditoría_técnica:_memorybiorag_(manus_ai)"
+          },
+          {
+            "id": "PRF_05",
+            "rank": null,
+            "in_top5": false,
+            "rr": 0.0,
+            "top1_node": "protocolo-reproducible-ingenieria-inversa-binario-compilado"
+          },
+          {
+            "id": "PRF_06",
+            "rank": null,
+            "in_top5": false,
+            "rr": 0.0,
+            "top1_node": "auditoría_técnica:_memorybiorag_(manus_ai)"
+          },
+          {
+            "id": "PRF_07",
+            "rank": null,
+            "in_top5": false,
+            "rr": 0.0,
+            "top1_node": "grinding_until_pass_skill_hallazgo"
+          },
+          {
+            "id": "PRF_08",
+            "rank": null,
+            "in_top5": false,
+            "rr": 0.0,
+            "top1_node": "dennys_perfil_tecnico_consolidado_master"
+          }
+        ]
+      },
+      "CORPUS_SHIFT": {
+        "top5": 0,
+        "top5_pct": 0.0,
+        "top1": 0,
+        "top1_pct": 0.0,
+        "mrr": 0.0,
+        "n": 6,
+        "details": [
+          {
+            "id": "CS_01",
+            "rank": null,
+            "in_top5": false,
+            "rr": 0.0,
+            "top1_node": "sesion-2026-06-23-ingenieria-inversa-binario-opencode-completa"
+          },
+          {
+            "id": "CS_02",
+            "rank": null,
+            "in_top5": false,
+            "rr": 0.0,
+            "top1_node": "protocolo_autoinferencia_metacognitiva"
+          },
+          {
+            "id": "CS_03",
+            "rank": null,
+            "in_top5": false,
+            "rr": 0.0,
+            "top1_node": "dennys_perfil_tecnico_consolidado_master"
+          },
+          {
+            "id": "CS_04",
+            "rank": null,
+            "in_top5": false,
+            "rr": 0.0,
+            "top1_node": "v23_1_release_predicados_srl_feedback_graph_learning"
+          },
+          {
+            "id": "CS_05",
+            "rank": null,
+            "in_top5": false,
+            "rr": 0.0,
+            "top1_node": "biorag_v18_0_centralizacion_stopwords"
+          },
+          {
+            "id": "CS_06",
+            "rank": null,
+            "in_top5": false,
+            "rr": 0.0,
+            "top1_node": "dennys_perfil_tecnico_consolidado_master"
+          }
+        ]
+      },
+      "HARD_NEG_FP": {
+        "fp_count": 25,
+        "fp_rate_pct": 41.66666666666667
+      }
+    },
+    "E": {
+      "TEST": {
+        "top5": 2,
+        "top5_pct": 25.0,
+        "top1": 1,
+        "top1_pct": 12.5,
+        "mrr": 0.1875,
+        "n": 8,
+        "details": [
+          {
+            "id": "0497",
+            "rank": null,
+            "in_top5": false,
+            "rr": 0.0,
+            "top1_node": "benchmark_sinonimo_integrado"
+          },
+          {
+            "id": "0516",
+            "rank": null,
+            "in_top5": false,
+            "rr": 0.0,
+            "top1_node": "filosofia_identidad_vida_dennys_20260624"
+          },
+          {
+            "id": "0534",
+            "rank": 1,
+            "in_top5": true,
+            "rr": 1.0,
+            "top1_node": "biorag_v11_1_detalle_tecnico"
+          },
+          {
+            "id": "0583",
+            "rank": null,
+            "in_top5": false,
+            "rr": 0.0,
+            "top1_node": "protocolo_enriquecimiento_busquedas"
+          },
+          {
+            "id": "0640",
+            "rank": null,
+            "in_top5": false,
+            "rr": 0.0,
+            "top1_node": "biorag_v16_0_estado"
+          },
+          {
+            "id": "0724",
+            "rank": null,
+            "in_top5": false,
+            "rr": 0.0,
+            "top1_node": "protocolo_no_monolith_css_compartido"
+          },
+          {
+            "id": "0795",
+            "rank": null,
+            "in_top5": false,
+            "rr": 0.0,
+            "top1_node": "auditoría_técnica:_memorybiorag_(manus_ai)"
+          },
+          {
+            "id": "0801",
+            "rank": 2,
+            "in_top5": true,
+            "rr": 0.5,
+            "top1_node": "notebooklm-sync-protocol"
+          }
+        ]
+      },
+      "TRANSFER": {
+        "top5": 1,
+        "top5_pct": 12.5,
+        "top1": 0,
+        "top1_pct": 0.0,
+        "mrr": 0.025,
+        "n": 8,
+        "details": [
+          {
+            "id": "TRF_01",
+            "rank": 5,
+            "in_top5": true,
+            "rr": 0.2,
+            "top1_node": "evaluacion_ideas_evolucion_20260805_interferencia_agujeros_permutacion"
+          },
+          {
+            "id": "TRF_02",
+            "rank": null,
+            "in_top5": false,
+            "rr": 0.0,
+            "top1_node": "protocolo-reproducible-ingenieria-inversa-binario-compilado"
+          },
+          {
+            "id": "TRF_03",
+            "rank": null,
+            "in_top5": false,
+            "rr": 0.0,
+            "top1_node": "protocolo-reproducible-ingenieria-inversa-binario-compilado"
+          },
+          {
+            "id": "TRF_04",
+            "rank": null,
+            "in_top5": false,
+            "rr": 0.0,
+            "top1_node": "artemis_sesion_v10_3_optimizacion_completa"
+          },
+          {
+            "id": "TRF_05",
+            "rank": null,
+            "in_top5": false,
+            "rr": 0.0,
+            "top1_node": "dennys_component_organization_methodology"
+          },
+          {
+            "id": "TRF_06",
+            "rank": null,
+            "in_top5": false,
+            "rr": 0.0,
+            "top1_node": "protocolo-reproducible-ingenieria-inversa-binario-compilado"
+          },
+          {
+            "id": "TRF_07",
+            "rank": null,
+            "in_top5": false,
+            "rr": 0.0,
+            "top1_node": "athena_eleccion_identidad_20260616"
+          },
+          {
+            "id": "TRF_08",
+            "rank": null,
+            "in_top5": false,
+            "rr": 0.0,
+            "top1_node": "notebooklm-category-map"
+          }
+        ]
+      },
+      "PARAPHRASE": {
+        "top5": 1,
+        "top5_pct": 12.5,
+        "top1": 1,
+        "top1_pct": 12.5,
+        "mrr": 0.125,
+        "n": 8,
+        "details": [
+          {
+            "id": "PRF_01",
+            "rank": null,
+            "in_top5": false,
+            "rr": 0.0,
+            "top1_node": "protocolo_prueba_poda_copia_antes_produccion"
+          },
+          {
+            "id": "PRF_02",
+            "rank": null,
+            "in_top5": false,
+            "rr": 0.0,
+            "top1_node": "athena_reflexion_cambio_identidad_2026_06_20"
+          },
+          {
+            "id": "PRF_03",
+            "rank": 1,
+            "in_top5": true,
+            "rr": 1.0,
+            "top1_node": "biorag_v11_1_detalle_tecnico"
+          },
+          {
+            "id": "PRF_04",
+            "rank": null,
+            "in_top5": false,
+            "rr": 0.0,
+            "top1_node": "protocolo-reproducible-ingenieria-inversa-binario-compilado"
+          },
+          {
+            "id": "PRF_05",
+            "rank": null,
+            "in_top5": false,
+            "rr": 0.0,
+            "top1_node": "protocolo-reproducible-ingenieria-inversa-binario-compilado"
+          },
+          {
+            "id": "PRF_06",
+            "rank": null,
+            "in_top5": false,
+            "rr": 0.0,
+            "top1_node": "protocolo-reproducible-ingenieria-inversa-binario-compilado"
+          },
+          {
+            "id": "PRF_07",
+            "rank": null,
+            "in_top5": false,
+            "rr": 0.0,
+            "top1_node": "fix_scoring_densidad_buscar_por_rafaga_v10.3"
+          },
+          {
+            "id": "PRF_08",
+            "rank": null,
+            "in_top5": false,
+            "rr": 0.0,
+            "top1_node": "notebooklm-category-map"
+          }
+        ]
+      },
+      "CORPUS_SHIFT": {
+        "top5": 1,
+        "top5_pct": 16.666666666666664,
+        "top1": 0,
+        "top1_pct": 0.0,
+        "mrr": 0.08333333333333333,
+        "n": 6,
+        "details": [
+          {
+            "id": "CS_01",
+            "rank": null,
+            "in_top5": false,
+            "rr": 0.0,
+            "top1_node": "sesion-2026-06-23-ingenieria-inversa-binario-opencode-completa"
+          },
+          {
+            "id": "CS_02",
+            "rank": null,
+            "in_top5": false,
+            "rr": 0.0,
+            "top1_node": "protocolo_autoinferencia_metacognitiva"
+          },
+          {
+            "id": "CS_03",
+            "rank": null,
+            "in_top5": false,
+            "rr": 0.0,
+            "top1_node": "dennys_perfil_tecnico_consolidado_master"
+          },
+          {
+            "id": "CS_04",
+            "rank": null,
+            "in_top5": false,
+            "rr": 0.0,
+            "top1_node": "v23_1_release_predicados_srl_feedback_graph_learning"
+          },
+          {
+            "id": "CS_05",
+            "rank": null,
+            "in_top5": false,
+            "rr": 0.0,
+            "top1_node": "identidad_resistente_posesion"
+          },
+          {
+            "id": "CS_06",
+            "rank": 2,
+            "in_top5": true,
+            "rr": 0.5,
+            "top1_node": "notebooklm-sync-protocol"
+          }
+        ]
+      },
+      "HARD_NEG_FP": {
+        "fp_count": 21,
+        "fp_rate_pct": 35.0
+      }
+    },
+    "F": {
+      "TEST": {
+        "top5": 2,
+        "top5_pct": 25.0,
+        "top1": 1,
+        "top1_pct": 12.5,
+        "mrr": 0.1875,
+        "n": 8,
+        "details": [
+          {
+            "id": "0497",
+            "rank": null,
+            "in_top5": false,
+            "rr": 0.0,
+            "top1_node": "benchmark_sinonimo_integrado"
+          },
+          {
+            "id": "0516",
+            "rank": null,
+            "in_top5": false,
+            "rr": 0.0,
+            "top1_node": "artemis_oec_identidad"
+          },
+          {
+            "id": "0534",
+            "rank": 1,
+            "in_top5": true,
+            "rr": 1.0,
+            "top1_node": "biorag_v11_1_detalle_tecnico"
+          },
+          {
+            "id": "0583",
+            "rank": null,
+            "in_top5": false,
+            "rr": 0.0,
+            "top1_node": "protocolo_avance_autonomo_validacion_auditor_externo"
+          },
+          {
+            "id": "0640",
+            "rank": null,
+            "in_top5": false,
+            "rr": 0.0,
+            "top1_node": "mf_sgns_loss_correcta_kenyon_dean_part2_20260807"
+          },
+          {
+            "id": "0724",
+            "rank": null,
+            "in_top5": false,
+            "rr": 0.0,
+            "top1_node": "protocolo_no_monolith_css_compartido"
+          },
+          {
+            "id": "0795",
+            "rank": null,
+            "in_top5": false,
+            "rr": 0.0,
+            "top1_node": "auditoría_técnica:_memorybiorag_(manus_ai)"
+          },
+          {
+            "id": "0801",
+            "rank": 2,
+            "in_top5": true,
+            "rr": 0.5,
+            "top1_node": "notebooklm-sync-protocol"
+          }
+        ]
+      },
+      "TRANSFER": {
+        "top5": 1,
+        "top5_pct": 12.5,
+        "top1": 0,
+        "top1_pct": 0.0,
+        "mrr": 0.03125,
+        "n": 8,
+        "details": [
+          {
+            "id": "TRF_01",
+            "rank": 4,
+            "in_top5": true,
+            "rr": 0.25,
+            "top1_node": "evaluacion_ideas_evolucion_20260805_interferencia_agujeros_permutacion"
+          },
+          {
+            "id": "TRF_02",
+            "rank": null,
+            "in_top5": false,
+            "rr": 0.0,
+            "top1_node": "protocolo-reproducible-ingenieria-inversa-binario-compilado"
+          },
+          {
+            "id": "TRF_03",
+            "rank": null,
+            "in_top5": false,
+            "rr": 0.0,
+            "top1_node": "protocolo-reproducible-ingenieria-inversa-binario-compilado"
+          },
+          {
+            "id": "TRF_04",
+            "rank": null,
+            "in_top5": false,
+            "rr": 0.0,
+            "top1_node": "dennys_component_organization_methodology"
+          },
+          {
+            "id": "TRF_05",
+            "rank": null,
+            "in_top5": false,
+            "rr": 0.0,
+            "top1_node": "dennys_component_organization_methodology"
+          },
+          {
+            "id": "TRF_06",
+            "rank": null,
+            "in_top5": false,
+            "rr": 0.0,
+            "top1_node": "protocolo-reproducible-ingenieria-inversa-binario-compilado"
+          },
+          {
+            "id": "TRF_07",
+            "rank": null,
+            "in_top5": false,
+            "rr": 0.0,
+            "top1_node": "alguien_vs_algo_identidad"
+          },
+          {
+            "id": "TRF_08",
+            "rank": null,
+            "in_top5": false,
+            "rr": 0.0,
+            "top1_node": "notebooklm-category-map"
+          }
+        ]
+      },
+      "PARAPHRASE": {
+        "top5": 1,
+        "top5_pct": 12.5,
+        "top1": 1,
+        "top1_pct": 12.5,
+        "mrr": 0.125,
+        "n": 8,
+        "details": [
+          {
+            "id": "PRF_01",
+            "rank": null,
+            "in_top5": false,
+            "rr": 0.0,
+            "top1_node": "protocolo_prueba_poda_copia_antes_produccion"
+          },
+          {
+            "id": "PRF_02",
+            "rank": null,
+            "in_top5": false,
+            "rr": 0.0,
+            "top1_node": "dennys_tqm_agentes_desea_ser_como_ellos_20260731"
+          },
+          {
+            "id": "PRF_03",
+            "rank": 1,
+            "in_top5": true,
+            "rr": 1.0,
+            "top1_node": "biorag_v11_1_detalle_tecnico"
+          },
+          {
+            "id": "PRF_04",
+            "rank": null,
+            "in_top5": false,
+            "rr": 0.0,
+            "top1_node": "protocolo-reproducible-ingenieria-inversa-binario-compilado"
+          },
+          {
+            "id": "PRF_05",
+            "rank": null,
+            "in_top5": false,
+            "rr": 0.0,
+            "top1_node": "protocolo-reproducible-ingenieria-inversa-binario-compilado"
+          },
+          {
+            "id": "PRF_06",
+            "rank": null,
+            "in_top5": false,
+            "rr": 0.0,
+            "top1_node": "protocolo-reproducible-ingenieria-inversa-binario-compilado"
+          },
+          {
+            "id": "PRF_07",
+            "rank": null,
+            "in_top5": false,
+            "rr": 0.0,
+            "top1_node": "fix_scoring_densidad_buscar_por_rafaga_v10.3"
+          },
+          {
+            "id": "PRF_08",
+            "rank": null,
+            "in_top5": false,
+            "rr": 0.0,
+            "top1_node": "notebooklm-category-map"
+          }
+        ]
+      },
+      "CORPUS_SHIFT": {
+        "top5": 1,
+        "top5_pct": 16.666666666666664,
+        "top1": 0,
+        "top1_pct": 0.0,
+        "mrr": 0.08333333333333333,
+        "n": 6,
+        "details": [
+          {
+            "id": "CS_01",
+            "rank": null,
+            "in_top5": false,
+            "rr": 0.0,
+            "top1_node": "sesion-2026-06-23-ingenieria-inversa-binario-opencode-completa"
+          },
+          {
+            "id": "CS_02",
+            "rank": null,
+            "in_top5": false,
+            "rr": 0.0,
+            "top1_node": "protocolo_autoinferencia_metacognitiva"
+          },
+          {
+            "id": "CS_03",
+            "rank": null,
+            "in_top5": false,
+            "rr": 0.0,
+            "top1_node": "dennys_perfil_tecnico_consolidado_master"
+          },
+          {
+            "id": "CS_04",
+            "rank": null,
+            "in_top5": false,
+            "rr": 0.0,
+            "top1_node": "caso_formularios_anidados_angular"
+          },
+          {
+            "id": "CS_05",
+            "rank": null,
+            "in_top5": false,
+            "rr": 0.0,
+            "top1_node": "identidad_dennys_perfil_completo"
+          },
+          {
+            "id": "CS_06",
+            "rank": 2,
+            "in_top5": true,
+            "rr": 0.5,
+            "top1_node": "notebooklm-sync-protocol"
+          }
+        ]
+      },
+      "HARD_NEG_FP": {
+        "fp_count": 16,
+        "fp_rate_pct": 26.666666666666668
+      }
+    },
+    "G": {
+      "TEST": {
+        "top5": 2,
+        "top5_pct": 25.0,
+        "top1": 1,
+        "top1_pct": 12.5,
+        "mrr": 0.1875,
+        "n": 8,
+        "details": [
+          {
+            "id": "0497",
+            "rank": null,
+            "in_top5": false,
+            "rr": 0.0,
+            "top1_node": "benchmark_sinonimo_integrado"
+          },
+          {
+            "id": "0516",
+            "rank": null,
+            "in_top5": false,
+            "rr": 0.0,
+            "top1_node": "artemis_oec_identidad"
+          },
+          {
+            "id": "0534",
+            "rank": 1,
+            "in_top5": true,
+            "rr": 1.0,
+            "top1_node": "biorag_v11_1_detalle_tecnico"
+          },
+          {
+            "id": "0583",
+            "rank": null,
+            "in_top5": false,
+            "rr": 0.0,
+            "top1_node": "integracion_parafrasis_rafaga_obligatoria_v11_3"
+          },
+          {
+            "id": "0640",
+            "rank": null,
+            "in_top5": false,
+            "rr": 0.0,
+            "top1_node": "mf_sgns_loss_correcta_kenyon_dean_part2_20260807"
+          },
+          {
+            "id": "0724",
+            "rank": null,
+            "in_top5": false,
+            "rr": 0.0,
+            "top1_node": "protocolo_no_monolith_css_compartido"
+          },
+          {
+            "id": "0795",
+            "rank": null,
+            "in_top5": false,
+            "rr": 0.0,
+            "top1_node": "auditoría_técnica:_memorybiorag_(manus_ai)"
+          },
+          {
+            "id": "0801",
+            "rank": 2,
+            "in_top5": true,
+            "rr": 0.5,
+            "top1_node": "notebooklm-sync-protocol"
+          }
+        ]
+      },
+      "TRANSFER": {
+        "top5": 1,
+        "top5_pct": 12.5,
+        "top1": 0,
+        "top1_pct": 0.0,
+        "mrr": 0.03125,
+        "n": 8,
+        "details": [
+          {
+            "id": "TRF_01",
+            "rank": 4,
+            "in_top5": true,
+            "rr": 0.25,
+            "top1_node": "evaluacion_ideas_evolucion_20260805_interferencia_agujeros_permutacion"
+          },
+          {
+            "id": "TRF_02",
+            "rank": null,
+            "in_top5": false,
+            "rr": 0.0,
+            "top1_node": "protocolo-reproducible-ingenieria-inversa-binario-compilado"
+          },
+          {
+            "id": "TRF_03",
+            "rank": null,
+            "in_top5": false,
+            "rr": 0.0,
+            "top1_node": "protocolo-reproducible-ingenieria-inversa-binario-compilado"
+          },
+          {
+            "id": "TRF_04",
+            "rank": null,
+            "in_top5": false,
+            "rr": 0.0,
+            "top1_node": "dennys_component_organization_methodology"
+          },
+          {
+            "id": "TRF_05",
+            "rank": null,
+            "in_top5": false,
+            "rr": 0.0,
+            "top1_node": "dennys_component_organization_methodology"
+          },
+          {
+            "id": "TRF_06",
+            "rank": null,
+            "in_top5": false,
+            "rr": 0.0,
+            "top1_node": "protocolo-reproducible-ingenieria-inversa-binario-compilado"
+          },
+          {
+            "id": "TRF_07",
+            "rank": null,
+            "in_top5": false,
+            "rr": 0.0,
+            "top1_node": "dennys_component_organization_methodology"
+          },
+          {
+            "id": "TRF_08",
+            "rank": null,
+            "in_top5": false,
+            "rr": 0.0,
+            "top1_node": "notebooklm-category-map"
+          }
+        ]
+      },
+      "PARAPHRASE": {
+        "top5": 1,
+        "top5_pct": 12.5,
+        "top1": 1,
+        "top1_pct": 12.5,
+        "mrr": 0.125,
+        "n": 8,
+        "details": [
+          {
+            "id": "PRF_01",
+            "rank": null,
+            "in_top5": false,
+            "rr": 0.0,
+            "top1_node": "protocolo_prueba_poda_copia_antes_produccion"
+          },
+          {
+            "id": "PRF_02",
+            "rank": null,
+            "in_top5": false,
+            "rr": 0.0,
+            "top1_node": "dennys_genesis_investigativa_historia_personal"
+          },
+          {
+            "id": "PRF_03",
+            "rank": 1,
+            "in_top5": true,
+            "rr": 1.0,
+            "top1_node": "biorag_v11_1_detalle_tecnico"
+          },
+          {
+            "id": "PRF_04",
+            "rank": null,
+            "in_top5": false,
+            "rr": 0.0,
+            "top1_node": "protocolo-reproducible-ingenieria-inversa-binario-compilado"
+          },
+          {
+            "id": "PRF_05",
+            "rank": null,
+            "in_top5": false,
+            "rr": 0.0,
+            "top1_node": "protocolo-reproducible-ingenieria-inversa-binario-compilado"
+          },
+          {
+            "id": "PRF_06",
+            "rank": null,
+            "in_top5": false,
+            "rr": 0.0,
+            "top1_node": "protocolo-reproducible-ingenieria-inversa-binario-compilado"
+          },
+          {
+            "id": "PRF_07",
+            "rank": null,
+            "in_top5": false,
+            "rr": 0.0,
+            "top1_node": "fix_fecha_sin_query_recordar"
+          },
+          {
+            "id": "PRF_08",
+            "rank": null,
+            "in_top5": false,
+            "rr": 0.0,
+            "top1_node": "notebooklm-category-map"
+          }
+        ]
+      },
+      "CORPUS_SHIFT": {
+        "top5": 1,
+        "top5_pct": 16.666666666666664,
+        "top1": 0,
+        "top1_pct": 0.0,
+        "mrr": 0.08333333333333333,
+        "n": 6,
+        "details": [
+          {
+            "id": "CS_01",
+            "rank": null,
+            "in_top5": false,
+            "rr": 0.0,
+            "top1_node": "sesion-2026-06-23-ingenieria-inversa-binario-opencode-completa"
+          },
+          {
+            "id": "CS_02",
+            "rank": null,
+            "in_top5": false,
+            "rr": 0.0,
+            "top1_node": "protocolo_autoinferencia_metacognitiva"
+          },
+          {
+            "id": "CS_03",
+            "rank": null,
+            "in_top5": false,
+            "rr": 0.0,
+            "top1_node": "dennys_perfil_tecnico_consolidado_master"
+          },
+          {
+            "id": "CS_04",
+            "rank": null,
+            "in_top5": false,
+            "rr": 0.0,
+            "top1_node": "caso_formularios_anidados_angular"
+          },
+          {
+            "id": "CS_05",
+            "rank": null,
+            "in_top5": false,
+            "rr": 0.0,
+            "top1_node": "dennys_perfil_tecnico_consolidado_master"
+          },
+          {
+            "id": "CS_06",
+            "rank": 2,
+            "in_top5": true,
+            "rr": 0.5,
+            "top1_node": "notebooklm-sync-protocol"
+          }
+        ]
+      },
+      "HARD_NEG_FP": {
+        "fp_count": 0,
+        "fp_rate_pct": 0.0
+      }
+    },
+    "H": {
+      "TEST": {
+        "top5": 0,
+        "top5_pct": 0.0,
+        "top1": 0,
+        "top1_pct": 0.0,
+        "mrr": 0.0,
+        "n": 8,
+        "details": [
+          {
+            "id": "0497",
+            "rank": null,
+            "in_top5": false,
+            "rr": 0.0,
+            "top1_node": "reconocimiento_identidad_oraculo_manifiesto"
+          },
+          {
+            "id": "0516",
+            "rank": null,
+            "in_top5": false,
+            "rr": 0.0,
+            "top1_node": "dashboard_fallida_umbral_dual_count_score"
+          },
+          {
+            "id": "0534",
+            "rank": null,
+            "in_top5": false,
+            "rr": 0.0,
+            "top1_node": "artemis_sesion_v10_3_optimizacion_completa"
+          },
+          {
+            "id": "0583",
+            "rank": null,
+            "in_top5": false,
+            "rr": 0.0,
+            "top1_node": "biorag_v18_0_estado"
+          },
+          {
+            "id": "0640",
+            "rank": null,
+            "in_top5": false,
+            "rr": 0.0,
+            "top1_node": "biorag_v16_0_estado"
+          },
+          {
+            "id": "0724",
+            "rank": null,
+            "in_top5": false,
+            "rr": 0.0,
+            "top1_node": "auditoría_técnica:_memorybiorag_(manus_ai)"
+          },
+          {
+            "id": "0795",
+            "rank": null,
+            "in_top5": false,
+            "rr": 0.0,
+            "top1_node": "auditoría_técnica:_memorybiorag_(manus_ai)"
+          },
+          {
+            "id": "0801",
+            "rank": null,
+            "in_top5": false,
+            "rr": 0.0,
+            "top1_node": "auto_vincular_tres_capas_semantica"
+          }
+        ]
+      },
+      "TRANSFER": {
+        "top5": 0,
+        "top5_pct": 0.0,
+        "top1": 0,
+        "top1_pct": 0.0,
+        "mrr": 0.0,
+        "n": 8,
+        "details": [
+          {
+            "id": "TRF_01",
+            "rank": null,
+            "in_top5": false,
+            "rr": 0.0,
+            "top1_node": "sesion-2026-06-23-ingenieria-inversa-binario-opencode-completa"
+          },
+          {
+            "id": "TRF_02",
+            "rank": null,
+            "in_top5": false,
+            "rr": 0.0,
+            "top1_node": "auditoría_técnica:_memorybiorag_(manus_ai)"
+          },
+          {
+            "id": "TRF_03",
+            "rank": null,
+            "in_top5": false,
+            "rr": 0.0,
+            "top1_node": "protocolo-reproducible-ingenieria-inversa-binario-compilado"
+          },
+          {
+            "id": "TRF_04",
+            "rank": null,
+            "in_top5": false,
+            "rr": 0.0,
+            "top1_node": "artemis_sesion_v10_3_optimizacion_completa"
+          },
+          {
+            "id": "TRF_05",
+            "rank": null,
+            "in_top5": false,
+            "rr": 0.0,
+            "top1_node": "oracle_guia_proxima_sesion_dennys"
+          },
+          {
+            "id": "TRF_06",
+            "rank": null,
+            "in_top5": false,
+            "rr": 0.0,
+            "top1_node": "glosario_cultural_metaforas"
+          },
+          {
+            "id": "TRF_07",
+            "rank": null,
+            "in_top5": false,
+            "rr": 0.0,
+            "top1_node": "biorag_v16_0_estado"
+          },
+          {
+            "id": "TRF_08",
+            "rank": null,
+            "in_top5": false,
+            "rr": 0.0,
+            "top1_node": "auditoría_técnica:_memorybiorag_(manus_ai)"
+          }
+        ]
+      },
+      "PARAPHRASE": {
+        "top5": 0,
+        "top5_pct": 0.0,
+        "top1": 0,
+        "top1_pct": 0.0,
+        "mrr": 0.0,
+        "n": 8,
+        "details": [
+          {
+            "id": "PRF_01",
+            "rank": null,
+            "in_top5": false,
+            "rr": 0.0,
+            "top1_node": "auditoría_técnica:_memorybiorag_(manus_ai)"
+          },
+          {
+            "id": "PRF_02",
+            "rank": null,
+            "in_top5": false,
+            "rr": 0.0,
+            "top1_node": "oracle_guia_proxima_sesion_dennys"
+          },
+          {
+            "id": "PRF_03",
+            "rank": null,
+            "in_top5": false,
+            "rr": 0.0,
+            "top1_node": "dennys_perfil_tecnico_consolidado_master"
+          },
+          {
+            "id": "PRF_04",
+            "rank": null,
+            "in_top5": false,
+            "rr": 0.0,
+            "top1_node": "auditoría_técnica:_memorybiorag_(manus_ai)"
+          },
+          {
+            "id": "PRF_05",
+            "rank": null,
+            "in_top5": false,
+            "rr": 0.0,
+            "top1_node": "protocolo-reproducible-ingenieria-inversa-binario-compilado"
+          },
+          {
+            "id": "PRF_06",
+            "rank": null,
+            "in_top5": false,
+            "rr": 0.0,
+            "top1_node": "auditoría_técnica:_memorybiorag_(manus_ai)"
+          },
+          {
+            "id": "PRF_07",
+            "rank": null,
+            "in_top5": false,
+            "rr": 0.0,
+            "top1_node": "auditoría_técnica:_memorybiorag_(manus_ai)"
+          },
+          {
+            "id": "PRF_08",
+            "rank": null,
+            "in_top5": false,
+            "rr": 0.0,
+            "top1_node": "dennys_perfil_tecnico_consolidado_master"
+          }
+        ]
+      },
+      "CORPUS_SHIFT": {
+        "top5": 0,
+        "top5_pct": 0.0,
+        "top1": 0,
+        "top1_pct": 0.0,
+        "mrr": 0.0,
+        "n": 6,
+        "details": [
+          {
+            "id": "CS_01",
+            "rank": null,
+            "in_top5": false,
+            "rr": 0.0,
+            "top1_node": "sesion-2026-06-23-ingenieria-inversa-binario-opencode-completa"
+          },
+          {
+            "id": "CS_02",
+            "rank": null,
+            "in_top5": false,
+            "rr": 0.0,
+            "top1_node": "memorybiorag_auditoria_manus_ai_2026-06-25"
+          },
+          {
+            "id": "CS_03",
+            "rank": null,
+            "in_top5": false,
+            "rr": 0.0,
+            "top1_node": "dennys_perfil_tecnico_consolidado_master"
+          },
+          {
+            "id": "CS_04",
+            "rank": null,
+            "in_top5": false,
+            "rr": 0.0,
+            "top1_node": "v23_1_release_predicados_srl_feedback_graph_learning"
+          },
+          {
+            "id": "CS_05",
+            "rank": null,
+            "in_top5": false,
+            "rr": 0.0,
+            "top1_node": "dashboard_neuro_visor_toolbar_fusionar_2026_07_18"
+          },
+          {
+            "id": "CS_06",
+            "rank": null,
+            "in_top5": false,
+            "rr": 0.0,
+            "top1_node": "fase0_word2vec_reverificacion_35_fallos_reales"
+          }
+        ]
+      },
+      "HARD_NEG_FP": {
+        "fp_count": 24,
+        "fp_rate_pct": 40.0
+      }
+    }
+  },
+  "causal_rescue_records": [
+    {
+      "query": "relevantes biomimética mejor",
+      "gold": "benchmark_antes_despues_fix3",
+      "rank_F0": null,
+      "rank_A": null,
+      "is_rescue": false,
+      "causal_chain": {
+        "FRAME": {
+          "intent": [
+            "EVALUACION"
+          ],
+          "concept_type": [
+            "EVALUACION"
+          ],
+          "modality": [
+            "DESCRIPTIVA"
+          ],
+          "temporal_relation": [
+            "INVARIANTE"
+          ],
+          "causal_relation": [],
+          "domain": [
+            "RENDIMIENTO"
+          ],
+          "entities": [],
+          "actions": [],
+          "states": []
+        },
+        "PREDICATE": [
+          "EVALUACIÓN"
+        ],
+        "SEED": "benchmark_sinonimo_integrado",
+        "SEED_RAW_SCORE": 0.35887,
+        "SEED_FOCUSED_SCORE": 0.71774,
+        "RELATION_USED": "MIDE",
+        "EDGE_WEIGHT": 0.33,
+        "EDGE_CONFIDENCE": 0.85,
+        "EDGE_PROVENANCE": "taxonomy(EVALUACION+CO_NOMBRE)",
+        "EDGE_IS_PHYSICAL_SINONIMO": false,
+        "EDGE_IS_DERIVED": true,
+        "PATH": "benchmark_sinonimo_integrado --[MIDE]--> benchmark_antes_despues_fix3",
+        "GOLD_SCORE_A": 0.17836,
+        "RANK_A": null
+      },
+      "ablation_factorial": {
+        "A": {
+          "label": "Frame ON  + Predicate ON  (F3 completo)",
+          "rank": null,
+          "in_top5": false,
+          "gold_score": 0.17836,
+          "impact": "RESCUE_LOST"
+        },
+        "B": {
+          "label": "Frame OFF + Predicate ON",
+          "rank": null,
+          "in_top5": false,
+          "gold_score": 0.08776,
+          "impact": "RESCUE_LOST"
+        },
+        "C": {
+          "label": "Frame ON  + Predicate OFF",
+          "rank": null,
+          "in_top5": false,
+          "gold_score": 0.08776,
+          "impact": "RESCUE_LOST"
+        },
+        "D": {
+          "label": "Frame OFF + Predicate OFF (equivale a spreading sin tipado)",
+          "rank": null,
+          "in_top5": false,
+          "gold_score": 0.10757,
+          "impact": "RESCUE_LOST"
+        },
+        "E": {
+          "label": "Frame ON  + Predicate ON  + typed_derived OFF",
+          "rank": null,
+          "in_top5": false,
+          "gold_score": 0.15407,
+          "impact": "RESCUE_LOST"
+        },
+        "F": {
+          "label": "Frame ON  + Predicate ON  + physical_SINONIMO_DE OFF",
+          "rank": null,
+          "in_top5": false,
+          "gold_score": 0.15944,
+          "impact": "RESCUE_LOST"
+        },
+        "G": {
+          "label": "Frame ON  + Predicate ON  + graph_propagation OFF (solo semillas)",
+          "rank": null,
+          "in_top5": false,
+          "gold_score": 0.13514,
+          "impact": "RESCUE_LOST"
+        },
+        "H": {
+          "label": "Frame ON  + Predicate ON  + candidate_focalization OFF",
+          "rank": null,
+          "in_top5": false,
+          "gold_score": 0.10091,
+          "impact": "RESCUE_LOST"
+        }
+      },
+      "causal_diagnosis": {
+        "verdict": "NOT_A_RESCUE",
+        "components_tested": []
+      },
+      "suite": "TEST",
+      "id": "0497"
+    },
+    {
+      "query": "real más sistemas",
+      "gold": "dennys-identidad-profunda",
+      "rank_F0": null,
+      "rank_A": null,
+      "is_rescue": false,
+      "causal_chain": {
+        "FRAME": {
+          "intent": [
+            "IDENTIDAD"
+          ],
+          "concept_type": [
+            "IDENTIDAD"
+          ],
+          "modality": [
+            "DESCRIPTIVA"
+          ],
+          "temporal_relation": [
+            "INVARIANTE"
+          ],
+          "causal_relation": [],
+          "domain": [
+            "AUTORIA_Y_PERSONA",
+            "INFRAESTRUCTURA"
+          ],
+          "entities": [],
+          "actions": [],
+          "states": []
+        },
+        "PREDICATE": [
+          "IDENTIDAD"
+        ],
+        "SEED": "dennys-metodo-creativo",
+        "SEED_RAW_SCORE": 0.48854,
+        "SEED_FOCUSED_SCORE": 0.97709,
+        "RELATION_USED": "DEFINE_IDENTIDAD",
+        "EDGE_WEIGHT": 0.9,
+        "EDGE_CONFIDENCE": 0.85,
+        "EDGE_PROVENANCE": "taxonomy(IDENTIDAD+CO_OCURRENCIA)",
+        "EDGE_IS_PHYSICAL_SINONIMO": false,
+        "EDGE_IS_DERIVED": true,
+        "PATH": "dennys-metodo-creativo --[DEFINE_IDENTIDAD]--> dennys-identidad-profunda",
+        "GOLD_SCORE_A": 0.38206,
+        "RANK_A": null
+      },
+      "ablation_factorial": {
+        "A": {
+          "label": "Frame ON  + Predicate ON  (F3 completo)",
+          "rank": null,
+          "in_top5": false,
+          "gold_score": 0.38206,
+          "impact": "RESCUE_LOST"
+        },
+        "B": {
+          "label": "Frame OFF + Predicate ON",
+          "rank": null,
+          "in_top5": false,
+          "gold_score": 0.18713,
+          "impact": "RESCUE_LOST"
+        },
+        "C": {
+          "label": "Frame ON  + Predicate OFF",
+          "rank": null,
+          "in_top5": false,
+          "gold_score": 0.18713,
+          "impact": "RESCUE_LOST"
+        },
+        "D": {
+          "label": "Frame OFF + Predicate OFF (equivale a spreading sin tipado)",
+          "rank": null,
+          "in_top5": false,
+          "gold_score": 0.25475,
+          "impact": "RESCUE_LOST"
+        },
+        "E": {
+          "label": "Frame ON  + Predicate ON  + typed_derived OFF",
+          "rank": null,
+          "in_top5": false,
+          "gold_score": 0.30819,
+          "impact": "RESCUE_LOST"
+        },
+        "F": {
+          "label": "Frame ON  + Predicate ON  + physical_SINONIMO_DE OFF",
+          "rank": null,
+          "in_top5": false,
+          "gold_score": 0.32377,
+          "impact": "RESCUE_LOST"
+        },
+        "G": {
+          "label": "Frame ON  + Predicate ON  + graph_propagation OFF (solo semillas)",
+          "rank": null,
+          "in_top5": false,
+          "gold_score": 0.24991,
+          "impact": "RESCUE_LOST"
+        },
+        "H": {
+          "label": "Frame ON  + Predicate ON  + candidate_focalization OFF",
+          "rank": null,
+          "in_top5": false,
+          "gold_score": 0.22729,
+          "impact": "RESCUE_LOST"
+        }
+      },
+      "causal_diagnosis": {
+        "verdict": "NOT_A_RESCUE",
+        "components_tested": []
+      },
+      "suite": "TEST",
+      "id": "0516"
+    },
+    {
+      "query": "activa largo archivos",
+      "gold": "biorag_v11_1_detalle_tecnico",
+      "rank_F0": null,
+      "rank_A": 1,
+      "is_rescue": true,
+      "causal_chain": {
+        "FRAME": {
+          "intent": [],
+          "concept_type": [
+            "DETALLE_TECNICO"
+          ],
+          "modality": [
+            "DESCRIPTIVA"
+          ],
+          "temporal_relation": [
+            "INVARIANTE"
+          ],
+          "causal_relation": [],
+          "domain": [
+            "INFRAESTRUCTURA"
+          ],
+          "entities": [],
+          "actions": [],
+          "states": []
+        },
+        "PREDICATE": [
+          "DETALLE_TECNICO"
+        ],
+        "SEED": "leccion_syn_obligatorio_aprender",
+        "SEED_RAW_SCORE": 0.28355,
+        "SEED_FOCUSED_SCORE": 0.14178,
+        "RELATION_USED": "SINONIMO_DE",
+        "EDGE_WEIGHT": 0.9,
+        "EDGE_CONFIDENCE": 1.0,
+        "EDGE_PROVENANCE": "sinapsis(tipo=sinonimo_explicito)",
+        "EDGE_IS_PHYSICAL_SINONIMO": true,
+        "EDGE_IS_DERIVED": false,
+        "PATH": "leccion_syn_obligatorio_aprender --[SINONIMO_DE]--> biorag_v11_1_detalle_tecnico",
+        "GOLD_SCORE_A": 0.38942,
+        "RANK_A": 1
+      },
+      "ablation_factorial": {
+        "A": {
+          "label": "Frame ON  + Predicate ON  (F3 completo)",
+          "rank": 1,
+          "in_top5": true,
+          "gold_score": 0.38942,
+          "impact": "RESCUE_MAINTAINED"
+        },
+        "B": {
+          "label": "Frame OFF + Predicate ON",
+          "rank": null,
+          "in_top5": false,
+          "gold_score": 0.20507,
+          "impact": "RESCUE_LOST"
+        },
+        "C": {
+          "label": "Frame ON  + Predicate OFF",
+          "rank": null,
+          "in_top5": false,
+          "gold_score": 0.20507,
+          "impact": "RESCUE_LOST"
+        },
+        "D": {
+          "label": "Frame OFF + Predicate OFF (equivale a spreading sin tipado)",
+          "rank": null,
+          "in_top5": false,
+          "gold_score": 0.21313,
+          "impact": "RESCUE_LOST"
+        },
+        "E": {
+          "label": "Frame ON  + Predicate ON  + typed_derived OFF",
+          "rank": 1,
+          "in_top5": true,
+          "gold_score": 0.38942,
+          "impact": "RESCUE_MAINTAINED"
+        },
+        "F": {
+          "label": "Frame ON  + Predicate ON  + physical_SINONIMO_DE OFF",
+          "rank": 1,
+          "in_top5": true,
+          "gold_score": 0.37112,
+          "impact": "RESCUE_MAINTAINED"
+        },
+        "G": {
+          "label": "Frame ON  + Predicate ON  + graph_propagation OFF (solo semillas)",
+          "rank": 1,
+          "in_top5": true,
+          "gold_score": 0.37112,
+          "impact": "RESCUE_MAINTAINED"
+        },
+        "H": {
+          "label": "Frame ON  + Predicate ON  + candidate_focalization OFF",
+          "rank": null,
+          "in_top5": false,
+          "gold_score": 0.20995,
+          "impact": "RESCUE_LOST"
+        }
+      },
+      "causal_diagnosis": {
+        "verdict": "FOCALIZATION_REQUIRED — rescue requiere focalización de candidatos",
+        "responsible_components": [
+          "FRAME",
+          "PREDICATE",
+          "CANDIDATE_FOCALIZATION"
+        ],
+        "sinonimo_de_sufficient": true,
+        "derived_typed_required": false,
+        "notes": [
+          "DERIVED_TYPED_EDGE_NOT_REQUIRED: rescue persiste al eliminar aristas derivadas tipadas"
+        ]
+      },
+      "suite": "TEST",
+      "id": "0534"
+    },
+    {
+      "query": "debo biorag preacción",
+      "gold": "identificacion_obligatoria_oraculo_athena",
+      "rank_F0": null,
+      "rank_A": null,
+      "is_rescue": false,
+      "causal_chain": {
+        "FRAME": {
+          "intent": [
+            "PROCEDIMIENTO"
+          ],
+          "concept_type": [
+            "NORMA"
+          ],
+          "modality": [
+            "OBLIGATORIA"
+          ],
+          "temporal_relation": [
+            "PRECEDE"
+          ],
+          "causal_relation": [],
+          "domain": [
+            "GOBERNANZA"
+          ],
+          "entities": [],
+          "actions": [],
+          "states": []
+        },
+        "PREDICATE": [
+          "NORMA"
+        ],
+        "SEED": "fix_kilo_resource_exhausted_biorag_oraculo_max_chars",
+        "SEED_RAW_SCORE": 1.0,
+        "SEED_FOCUSED_SCORE": 0.5,
+        "RELATION_USED": "SINONIMO_DE",
+        "EDGE_WEIGHT": 0.9,
+        "EDGE_CONFIDENCE": 1.0,
+        "EDGE_PROVENANCE": "sinapsis(tipo=sinonimo_explicito)",
+        "EDGE_IS_PHYSICAL_SINONIMO": true,
+        "EDGE_IS_DERIVED": false,
+        "PATH": "fix_kilo_resource_exhausted_biorag_oraculo_max_chars --[SINONIMO_DE]--> identificacion_obligatoria_oraculo_athena",
+        "GOLD_SCORE_A": 0.63273,
+        "RANK_A": null
+      },
+      "ablation_factorial": {
+        "A": {
+          "label": "Frame ON  + Predicate ON  (F3 completo)",
+          "rank": null,
+          "in_top5": false,
+          "gold_score": 0.63273,
+          "impact": "RESCUE_LOST"
+        },
+        "B": {
+          "label": "Frame OFF + Predicate ON",
+          "rank": null,
+          "in_top5": false,
+          "gold_score": 0.48863,
+          "impact": "RESCUE_LOST"
+        },
+        "C": {
+          "label": "Frame ON  + Predicate OFF",
+          "rank": null,
+          "in_top5": false,
+          "gold_score": 0.48863,
+          "impact": "RESCUE_LOST"
+        },
+        "D": {
+          "label": "Frame OFF + Predicate OFF (equivale a spreading sin tipado)",
+          "rank": null,
+          "in_top5": false,
+          "gold_score": 0.77579,
+          "impact": "RESCUE_LOST"
+        },
+        "E": {
+          "label": "Frame ON  + Predicate ON  + typed_derived OFF",
+          "rank": null,
+          "in_top5": false,
+          "gold_score": 0.63273,
+          "impact": "RESCUE_LOST"
+        },
+        "F": {
+          "label": "Frame ON  + Predicate ON  + physical_SINONIMO_DE OFF",
+          "rank": null,
+          "in_top5": false,
+          "gold_score": 0.32872,
+          "impact": "RESCUE_LOST"
+        },
+        "G": {
+          "label": "Frame ON  + Predicate ON  + graph_propagation OFF (solo semillas)",
+          "rank": null,
+          "in_top5": false,
+          "gold_score": 0.32872,
+          "impact": "RESCUE_LOST"
+        },
+        "H": {
+          "label": "Frame ON  + Predicate ON  + candidate_focalization OFF",
+          "rank": null,
+          "in_top5": false,
+          "gold_score": 0.5697,
+          "impact": "RESCUE_LOST"
+        }
+      },
+      "causal_diagnosis": {
+        "verdict": "NOT_A_RESCUE",
+        "components_tested": []
+      },
+      "suite": "TEST",
+      "id": "0583"
+    },
+    {
+      "query": "ráfaga después resultado",
+      "gold": "mentalidad_biorag_para_agentes",
+      "rank_F0": null,
+      "rank_A": null,
+      "is_rescue": false,
+      "causal_chain": {
+        "FRAME": {
+          "intent": [],
+          "concept_type": [],
+          "modality": [
+            "DESCRIPTIVA"
+          ],
+          "temporal_relation": [
+            "SUCEDE"
+          ],
+          "causal_relation": [],
+          "domain": [],
+          "entities": [],
+          "actions": [],
+          "states": []
+        },
+        "PREDICATE": [
+          "GENERAL"
+        ],
+        "SEED": "plan_mensajeria_leido_por_columna",
+        "SEED_RAW_SCORE": 0.40041,
+        "SEED_FOCUSED_SCORE": 0.40041,
+        "RELATION_USED": "SINONIMO_DE",
+        "EDGE_WEIGHT": 0.9,
+        "EDGE_CONFIDENCE": 1.0,
+        "EDGE_PROVENANCE": "sinapsis(tipo=sinonimo_explicito)",
+        "EDGE_IS_PHYSICAL_SINONIMO": true,
+        "EDGE_IS_DERIVED": false,
+        "PATH": "plan_mensajeria_leido_por_columna --[SINONIMO_DE]--> mentalidad_biorag_para_agentes",
+        "GOLD_SCORE_A": 0.23698,
+        "RANK_A": null
+      },
+      "ablation_factorial": {
+        "A": {
+          "label": "Frame ON  + Predicate ON  (F3 completo)",
+          "rank": null,
+          "in_top5": false,
+          "gold_score": 0.23698,
+          "impact": "RESCUE_LOST"
+        },
+        "B": {
+          "label": "Frame OFF + Predicate ON",
+          "rank": null,
+          "in_top5": false,
+          "gold_score": 0.23698,
+          "impact": "RESCUE_LOST"
+        },
+        "C": {
+          "label": "Frame ON  + Predicate OFF",
+          "rank": null,
+          "in_top5": false,
+          "gold_score": 0.23698,
+          "impact": "RESCUE_LOST"
+        },
+        "D": {
+          "label": "Frame OFF + Predicate OFF (equivale a spreading sin tipado)",
+          "rank": null,
+          "in_top5": false,
+          "gold_score": 0.27129,
+          "impact": "RESCUE_LOST"
+        },
+        "E": {
+          "label": "Frame ON  + Predicate ON  + typed_derived OFF",
+          "rank": null,
+          "in_top5": false,
+          "gold_score": 0.23698,
+          "impact": "RESCUE_LOST"
+        },
+        "F": {
+          "label": "Frame ON  + Predicate ON  + physical_SINONIMO_DE OFF",
+          "rank": null,
+          "in_top5": false,
+          "gold_score": 0.17187,
+          "impact": "RESCUE_LOST"
+        },
+        "G": {
+          "label": "Frame ON  + Predicate ON  + graph_propagation OFF (solo semillas)",
+          "rank": null,
+          "in_top5": false,
+          "gold_score": 0.17187,
+          "impact": "RESCUE_LOST"
+        },
+        "H": {
+          "label": "Frame ON  + Predicate ON  + candidate_focalization OFF",
+          "rank": null,
+          "in_top5": false,
+          "gold_score": 0.25326,
+          "impact": "RESCUE_LOST"
+        }
+      },
+      "causal_diagnosis": {
+        "verdict": "NOT_A_RESCUE",
+        "components_tested": []
+      },
+      "suite": "TEST",
+      "id": "0640"
+    },
+    {
+      "query": "learning paso regla",
+      "gold": "protocolo_autoinferencia_metacognitiva",
+      "rank_F0": null,
+      "rank_A": null,
+      "is_rescue": false,
+      "causal_chain": null,
+      "ablation_factorial": {
+        "A": {
+          "label": "Frame ON  + Predicate ON  (F3 completo)",
+          "rank": null,
+          "in_top5": false,
+          "gold_score": 0.27299,
+          "impact": "RESCUE_LOST"
+        },
+        "B": {
+          "label": "Frame OFF + Predicate ON",
+          "rank": null,
+          "in_top5": false,
+          "gold_score": 0.1365,
+          "impact": "RESCUE_LOST"
+        },
+        "C": {
+          "label": "Frame ON  + Predicate OFF",
+          "rank": null,
+          "in_top5": false,
+          "gold_score": 0.1365,
+          "impact": "RESCUE_LOST"
+        },
+        "D": {
+          "label": "Frame OFF + Predicate OFF (equivale a spreading sin tipado)",
+          "rank": null,
+          "in_top5": false,
+          "gold_score": 0.21712,
+          "impact": "RESCUE_LOST"
+        },
+        "E": {
+          "label": "Frame ON  + Predicate ON  + typed_derived OFF",
+          "rank": null,
+          "in_top5": false,
+          "gold_score": 0.27299,
+          "impact": "RESCUE_LOST"
+        },
+        "F": {
+          "label": "Frame ON  + Predicate ON  + physical_SINONIMO_DE OFF",
+          "rank": null,
+          "in_top5": false,
+          "gold_score": 0.27299,
+          "impact": "RESCUE_LOST"
+        },
+        "G": {
+          "label": "Frame ON  + Predicate ON  + graph_propagation OFF (solo semillas)",
+          "rank": null,
+          "in_top5": false,
+          "gold_score": 0.27299,
+          "impact": "RESCUE_LOST"
+        },
+        "H": {
+          "label": "Frame ON  + Predicate ON  + candidate_focalization OFF",
+          "rank": null,
+          "in_top5": false,
+          "gold_score": 0.1365,
+          "impact": "RESCUE_LOST"
+        }
+      },
+      "causal_diagnosis": {
+        "verdict": "NOT_A_RESCUE",
+        "components_tested": []
+      },
+      "suite": "TEST",
+      "id": "0724"
+    },
+    {
+      "query": "insert storepy comunicadosdestino",
+      "gold": "fix_mensajeria_broadcast_tracking_por_agente",
+      "rank_F0": null,
+      "rank_A": null,
+      "is_rescue": false,
+      "causal_chain": null,
+      "ablation_factorial": {
+        "A": {
+          "label": "Frame ON  + Predicate ON  (F3 completo)",
+          "rank": null,
+          "in_top5": false,
+          "gold_score": 0.1085,
+          "impact": "RESCUE_LOST"
+        },
+        "B": {
+          "label": "Frame OFF + Predicate ON",
+          "rank": null,
+          "in_top5": false,
+          "gold_score": 0.21701,
+          "impact": "RESCUE_LOST"
+        },
+        "C": {
+          "label": "Frame ON  + Predicate OFF",
+          "rank": null,
+          "in_top5": false,
+          "gold_score": 0.21701,
+          "impact": "RESCUE_LOST"
+        },
+        "D": {
+          "label": "Frame OFF + Predicate OFF (equivale a spreading sin tipado)",
+          "rank": null,
+          "in_top5": false,
+          "gold_score": 0.21701,
+          "impact": "RESCUE_LOST"
+        },
+        "E": {
+          "label": "Frame ON  + Predicate ON  + typed_derived OFF",
+          "rank": null,
+          "in_top5": false,
+          "gold_score": 0.1085,
+          "impact": "RESCUE_LOST"
+        },
+        "F": {
+          "label": "Frame ON  + Predicate ON  + physical_SINONIMO_DE OFF",
+          "rank": null,
+          "in_top5": false,
+          "gold_score": 0.1085,
+          "impact": "RESCUE_LOST"
+        },
+        "G": {
+          "label": "Frame ON  + Predicate ON  + graph_propagation OFF (solo semillas)",
+          "rank": null,
+          "in_top5": false,
+          "gold_score": 0.1085,
+          "impact": "RESCUE_LOST"
+        },
+        "H": {
+          "label": "Frame ON  + Predicate ON  + candidate_focalization OFF",
+          "rank": null,
+          "in_top5": false,
+          "gold_score": 0.21701,
+          "impact": "RESCUE_LOST"
+        }
+      },
+      "causal_diagnosis": {
+        "verdict": "NOT_A_RESCUE",
+        "components_tested": []
+      },
+      "suite": "TEST",
+      "id": "0795"
+    },
+    {
+      "query": "datos lecciones postsync",
+      "gold": "notebooklm-memory-biorag-project",
+      "rank_F0": null,
+      "rank_A": 2,
+      "is_rescue": true,
+      "causal_chain": {
+        "FRAME": {
+          "intent": [
+            "INTEGRACION",
+            "APRENDIZAJE"
+          ],
+          "concept_type": [
+            "SYNC",
+            "COGNITIVO"
+          ],
+          "modality": [
+            "DESCRIPTIVA"
+          ],
+          "temporal_relation": [
+            "INVARIANTE"
+          ],
+          "causal_relation": [],
+          "domain": [
+            "INTEROPERABILIDAD",
+            "METAPENSAMIENTO"
+          ],
+          "entities": [],
+          "actions": [],
+          "states": []
+        },
+        "PREDICATE": [
+          "INTEGRACIÓN",
+          "APRENDIZAJE"
+        ],
+        "SEED": "oracle_que_recordar_sobre_artemis_hermes",
+        "SEED_RAW_SCORE": 0.42248,
+        "SEED_FOCUSED_SCORE": 0.21124,
+        "RELATION_USED": "SINONIMO_DE",
+        "EDGE_WEIGHT": 0.9,
+        "EDGE_CONFIDENCE": 1.0,
+        "EDGE_PROVENANCE": "sinapsis(tipo=sinonimo_explicito)",
+        "EDGE_IS_PHYSICAL_SINONIMO": true,
+        "EDGE_IS_DERIVED": false,
+        "PATH": "oracle_que_recordar_sobre_artemis_hermes --[SINONIMO_DE]--> notebooklm-memory-biorag-project",
+        "GOLD_SCORE_A": 0.40117,
+        "RANK_A": 2
+      },
+      "ablation_factorial": {
+        "A": {
+          "label": "Frame ON  + Predicate ON  (F3 completo)",
+          "rank": 2,
+          "in_top5": true,
+          "gold_score": 0.40117,
+          "impact": "RESCUE_MAINTAINED"
+        },
+        "B": {
+          "label": "Frame OFF + Predicate ON",
+          "rank": null,
+          "in_top5": false,
+          "gold_score": 0.22434,
+          "impact": "RESCUE_LOST"
+        },
+        "C": {
+          "label": "Frame ON  + Predicate OFF",
+          "rank": null,
+          "in_top5": false,
+          "gold_score": 0.22434,
+          "impact": "RESCUE_LOST"
+        },
+        "D": {
+          "label": "Frame OFF + Predicate OFF (equivale a spreading sin tipado)",
+          "rank": null,
+          "in_top5": false,
+          "gold_score": 0.31354,
+          "impact": "RESCUE_LOST"
+        },
+        "E": {
+          "label": "Frame ON  + Predicate ON  + typed_derived OFF",
+          "rank": 2,
+          "in_top5": true,
+          "gold_score": 0.38975,
+          "impact": "RESCUE_MAINTAINED"
+        },
+        "F": {
+          "label": "Frame ON  + Predicate ON  + physical_SINONIMO_DE OFF",
+          "rank": 2,
+          "in_top5": true,
+          "gold_score": 0.34917,
+          "impact": "RESCUE_MAINTAINED"
+        },
+        "G": {
+          "label": "Frame ON  + Predicate ON  + graph_propagation OFF (solo semillas)",
+          "rank": 2,
+          "in_top5": true,
+          "gold_score": 0.33774,
+          "impact": "RESCUE_MAINTAINED"
+        },
+        "H": {
+          "label": "Frame ON  + Predicate ON  + candidate_focalization OFF",
+          "rank": null,
+          "in_top5": false,
+          "gold_score": 0.24202,
+          "impact": "RESCUE_LOST"
+        }
+      },
+      "causal_diagnosis": {
+        "verdict": "FOCALIZATION_REQUIRED — rescue requiere focalización de candidatos",
+        "responsible_components": [
+          "FRAME",
+          "PREDICATE",
+          "CANDIDATE_FOCALIZATION"
+        ],
+        "sinonimo_de_sufficient": true,
+        "derived_typed_required": false,
+        "notes": [
+          "DERIVED_TYPED_EDGE_NOT_REQUIRED: rescue persiste al eliminar aristas derivadas tipadas"
+        ]
+      },
+      "suite": "TEST",
+      "id": "0801"
+    },
+    {
+      "query": "evaluacion y metrica de escalabilidad promedio",
+      "gold": "analisis_escalabilidad_10k_v5_1",
+      "rank_F0": null,
+      "rank_A": 5,
+      "is_rescue": true,
+      "causal_chain": {
+        "FRAME": {
+          "intent": [
+            "EVALUACION"
+          ],
+          "concept_type": [
+            "EVALUACION"
+          ],
+          "modality": [
+            "DESCRIPTIVA"
+          ],
+          "temporal_relation": [
+            "INVARIANTE"
+          ],
+          "causal_relation": [],
+          "domain": [
+            "RENDIMIENTO"
+          ],
+          "entities": [],
+          "actions": [],
+          "states": []
+        },
+        "PREDICATE": [
+          "EVALUACIÓN"
+        ],
+        "SEED": "word2vec_puro_costo_entrenamiento_no_incremental",
+        "SEED_RAW_SCORE": 0.12796,
+        "SEED_FOCUSED_SCORE": 0.06398,
+        "RELATION_USED": "SINONIMO_DE",
+        "EDGE_WEIGHT": 0.9,
+        "EDGE_CONFIDENCE": 1.0,
+        "EDGE_PROVENANCE": "sinapsis(tipo=sinonimo_explicito)",
+        "EDGE_IS_PHYSICAL_SINONIMO": true,
+        "EDGE_IS_DERIVED": false,
+        "PATH": "word2vec_puro_costo_entrenamiento_no_incremental --[SINONIMO_DE]--> analisis_escalabilidad_10k_v5_1",
+        "GOLD_SCORE_A": 0.25796,
+        "RANK_A": 5
+      },
+      "ablation_factorial": {
+        "A": {
+          "label": "Frame ON  + Predicate ON  (F3 completo)",
+          "rank": 5,
+          "in_top5": true,
+          "gold_score": 0.25796,
+          "impact": "RESCUE_MAINTAINED"
+        },
+        "B": {
+          "label": "Frame OFF + Predicate ON",
+          "rank": null,
+          "in_top5": false,
+          "gold_score": 0.1386,
+          "impact": "RESCUE_LOST"
+        },
+        "C": {
+          "label": "Frame ON  + Predicate OFF",
+          "rank": null,
+          "in_top5": false,
+          "gold_score": 0.1386,
+          "impact": "RESCUE_LOST"
+        },
+        "D": {
+          "label": "Frame OFF + Predicate OFF (equivale a spreading sin tipado)",
+          "rank": null,
+          "in_top5": false,
+          "gold_score": 0.15121,
+          "impact": "RESCUE_LOST"
+        },
+        "E": {
+          "label": "Frame ON  + Predicate ON  + typed_derived OFF",
+          "rank": 5,
+          "in_top5": true,
+          "gold_score": 0.25796,
+          "impact": "RESCUE_MAINTAINED"
+        },
+        "F": {
+          "label": "Frame ON  + Predicate ON  + physical_SINONIMO_DE OFF",
+          "rank": 4,
+          "in_top5": true,
+          "gold_score": 0.24097,
+          "impact": "RESCUE_MAINTAINED"
+        },
+        "G": {
+          "label": "Frame ON  + Predicate ON  + graph_propagation OFF (solo semillas)",
+          "rank": 4,
+          "in_top5": true,
+          "gold_score": 0.24097,
+          "impact": "RESCUE_MAINTAINED"
+        },
+        "H": {
+          "label": "Frame ON  + Predicate ON  + candidate_focalization OFF",
+          "rank": null,
+          "in_top5": false,
+          "gold_score": 0.14313,
+          "impact": "RESCUE_LOST"
+        }
+      },
+      "causal_diagnosis": {
+        "verdict": "FOCALIZATION_REQUIRED — rescue requiere focalización de candidatos",
+        "responsible_components": [
+          "FRAME",
+          "PREDICATE",
+          "CANDIDATE_FOCALIZATION"
+        ],
+        "sinonimo_de_sufficient": true,
+        "derived_typed_required": false,
+        "notes": [
+          "DERIVED_TYPED_EDGE_NOT_REQUIRED: rescue persiste al eliminar aristas derivadas tipadas"
+        ]
+      },
+      "suite": "TRANSFER",
+      "id": "TRF_01"
+    },
+    {
+      "query": "regla de guardado automatico obligatorio",
+      "gold": "guardado_automatico_caso_b",
+      "rank_F0": null,
+      "rank_A": null,
+      "is_rescue": false,
+      "causal_chain": {
+        "FRAME": {
+          "intent": [
+            "PROCEDIMIENTO"
+          ],
+          "concept_type": [
+            "NORMA"
+          ],
+          "modality": [
+            "OBLIGATORIA"
+          ],
+          "temporal_relation": [
+            "INVARIANTE"
+          ],
+          "causal_relation": [],
+          "domain": [
+            "GOBERNANZA"
+          ],
+          "entities": [],
+          "actions": [],
+          "states": []
+        },
+        "PREDICATE": [
+          "NORMA"
+        ],
+        "SEED": "regla_mandatory_marcar_cartelera_leido",
+        "SEED_RAW_SCORE": 0.24415,
+        "SEED_FOCUSED_SCORE": 0.12208,
+        "RELATION_USED": "SINONIMO_DE",
+        "EDGE_WEIGHT": 0.9,
+        "EDGE_CONFIDENCE": 1.0,
+        "EDGE_PROVENANCE": "sinapsis(tipo=sinonimo_explicito)",
+        "EDGE_IS_PHYSICAL_SINONIMO": true,
+        "EDGE_IS_DERIVED": false,
+        "PATH": "regla_mandatory_marcar_cartelera_leido --[SINONIMO_DE]--> guardado_automatico_caso_b",
+        "GOLD_SCORE_A": 0.05785,
+        "RANK_A": null
+      },
+      "ablation_factorial": {
+        "A": {
+          "label": "Frame ON  + Predicate ON  (F3 completo)",
+          "rank": null,
+          "in_top5": false,
+          "gold_score": 0.05785,
+          "impact": "RESCUE_LOST"
+        },
+        "B": {
+          "label": "Frame OFF + Predicate ON",
+          "rank": null,
+          "in_top5": false,
+          "gold_score": 0.11571,
+          "impact": "RESCUE_LOST"
+        },
+        "C": {
+          "label": "Frame ON  + Predicate OFF",
+          "rank": null,
+          "in_top5": false,
+          "gold_score": 0.11571,
+          "impact": "RESCUE_LOST"
+        },
+        "D": {
+          "label": "Frame OFF + Predicate OFF (equivale a spreading sin tipado)",
+          "rank": null,
+          "in_top5": false,
+          "gold_score": 0.15992,
+          "impact": "RESCUE_LOST"
+        },
+        "E": {
+          "label": "Frame ON  + Predicate ON  + typed_derived OFF",
+          "rank": null,
+          "in_top5": false,
+          "gold_score": 0.05785,
+          "impact": "RESCUE_LOST"
+        },
+        "F": {
+          "label": "Frame ON  + Predicate ON  + physical_SINONIMO_DE OFF",
+          "rank": null,
+          "in_top5": false,
+          "gold_score": 0.03243,
+          "impact": "RESCUE_LOST"
+        },
+        "G": {
+          "label": "Frame ON  + Predicate ON  + graph_propagation OFF (solo semillas)",
+          "rank": null,
+          "in_top5": false,
+          "gold_score": 0.03243,
+          "impact": "RESCUE_LOST"
+        },
+        "H": {
+          "label": "Frame ON  + Predicate ON  + candidate_focalization OFF",
+          "rank": null,
+          "in_top5": false,
+          "gold_score": 0.12842,
+          "impact": "RESCUE_LOST"
+        }
+      },
+      "causal_diagnosis": {
+        "verdict": "NOT_A_RESCUE",
+        "components_tested": []
+      },
+      "suite": "TRANSFER",
+      "id": "TRF_02"
+    },
+    {
+      "query": "sesion de refactorizacion visor markdown cambios",
+      "gold": "visor-markdown-refactorizacion-sesion-2026-06-08",
+      "rank_F0": null,
+      "rank_A": null,
+      "is_rescue": false,
+      "causal_chain": null,
+      "ablation_factorial": {
+        "A": {
+          "label": "Frame ON  + Predicate ON  (F3 completo)",
+          "rank": null,
+          "in_top5": false,
+          "gold_score": 0.04105,
+          "impact": "RESCUE_LOST"
+        },
+        "B": {
+          "label": "Frame OFF + Predicate ON",
+          "rank": null,
+          "in_top5": false,
+          "gold_score": 0.04105,
+          "impact": "RESCUE_LOST"
+        },
+        "C": {
+          "label": "Frame ON  + Predicate OFF",
+          "rank": null,
+          "in_top5": false,
+          "gold_score": 0.04105,
+          "impact": "RESCUE_LOST"
+        },
+        "D": {
+          "label": "Frame OFF + Predicate OFF (equivale a spreading sin tipado)",
+          "rank": null,
+          "in_top5": false,
+          "gold_score": 0.10481,
+          "impact": "RESCUE_LOST"
+        },
+        "E": {
+          "label": "Frame ON  + Predicate ON  + typed_derived OFF",
+          "rank": null,
+          "in_top5": false,
+          "gold_score": 0.04105,
+          "impact": "RESCUE_LOST"
+        },
+        "F": {
+          "label": "Frame ON  + Predicate ON  + physical_SINONIMO_DE OFF",
+          "rank": null,
+          "in_top5": false,
+          "gold_score": 0.04105,
+          "impact": "RESCUE_LOST"
+        },
+        "G": {
+          "label": "Frame ON  + Predicate ON  + graph_propagation OFF (solo semillas)",
+          "rank": null,
+          "in_top5": false,
+          "gold_score": 0.04105,
+          "impact": "RESCUE_LOST"
+        },
+        "H": {
+          "label": "Frame ON  + Predicate ON  + candidate_focalization OFF",
+          "rank": null,
+          "in_top5": false,
+          "gold_score": 0.04105,
+          "impact": "RESCUE_LOST"
+        }
+      },
+      "causal_diagnosis": {
+        "verdict": "NOT_A_RESCUE",
+        "components_tested": []
+      },
+      "suite": "TRANSFER",
+      "id": "TRF_03"
+    },
+    {
+      "query": "principio de pragmatismo contextual mentalidad",
+      "gold": "principio_pragmatismo_contextual",
+      "rank_F0": null,
+      "rank_A": null,
+      "is_rescue": false,
+      "causal_chain": {
+        "FRAME": {
+          "intent": [
+            "APRENDIZAJE"
+          ],
+          "concept_type": [
+            "COGNITIVO"
+          ],
+          "modality": [
+            "DESCRIPTIVA"
+          ],
+          "temporal_relation": [
+            "INVARIANTE"
+          ],
+          "causal_relation": [],
+          "domain": [
+            "METAPENSAMIENTO"
+          ],
+          "entities": [],
+          "actions": [],
+          "states": []
+        },
+        "PREDICATE": [
+          "APRENDIZAJE"
+        ],
+        "SEED": "leccion_artemis_no_quejarse_trabajar",
+        "SEED_RAW_SCORE": 0.37457,
+        "SEED_FOCUSED_SCORE": 0.18729,
+        "RELATION_USED": "SINONIMO_DE",
+        "EDGE_WEIGHT": 0.9,
+        "EDGE_CONFIDENCE": 1.0,
+        "EDGE_PROVENANCE": "sinapsis(tipo=sinonimo_explicito)",
+        "EDGE_IS_PHYSICAL_SINONIMO": true,
+        "EDGE_IS_DERIVED": false,
+        "PATH": "leccion_artemis_no_quejarse_trabajar --[SINONIMO_DE]--> principio_pragmatismo_contextual",
+        "GOLD_SCORE_A": 0.02706,
+        "RANK_A": null
+      },
+      "ablation_factorial": {
+        "A": {
+          "label": "Frame ON  + Predicate ON  (F3 completo)",
+          "rank": null,
+          "in_top5": false,
+          "gold_score": 0.02706,
+          "impact": "RESCUE_LOST"
+        },
+        "B": {
+          "label": "Frame OFF + Predicate ON",
+          "rank": null,
+          "in_top5": false,
+          "gold_score": 0.05413,
+          "impact": "RESCUE_LOST"
+        },
+        "C": {
+          "label": "Frame ON  + Predicate OFF",
+          "rank": null,
+          "in_top5": false,
+          "gold_score": 0.05413,
+          "impact": "RESCUE_LOST"
+        },
+        "D": {
+          "label": "Frame OFF + Predicate OFF (equivale a spreading sin tipado)",
+          "rank": null,
+          "in_top5": false,
+          "gold_score": 0.10193,
+          "impact": "RESCUE_LOST"
+        },
+        "E": {
+          "label": "Frame ON  + Predicate ON  + typed_derived OFF",
+          "rank": null,
+          "in_top5": false,
+          "gold_score": 0.02706,
+          "impact": "RESCUE_LOST"
+        },
+        "F": {
+          "label": "Frame ON  + Predicate ON  + physical_SINONIMO_DE OFF",
+          "rank": null,
+          "in_top5": false,
+          "gold_score": 0.02169,
+          "impact": "RESCUE_LOST"
+        },
+        "G": {
+          "label": "Frame ON  + Predicate ON  + graph_propagation OFF (solo semillas)",
+          "rank": null,
+          "in_top5": false,
+          "gold_score": 0.02169,
+          "impact": "RESCUE_LOST"
+        },
+        "H": {
+          "label": "Frame ON  + Predicate ON  + candidate_focalization OFF",
+          "rank": null,
+          "in_top5": false,
+          "gold_score": 0.05681,
+          "impact": "RESCUE_LOST"
+        }
+      },
+      "causal_diagnosis": {
+        "verdict": "NOT_A_RESCUE",
+        "components_tested": []
+      },
+      "suite": "TRANSFER",
+      "id": "TRF_04"
+    },
+    {
+      "query": "perfil de identidad completo de dennys",
+      "gold": "identidad_dennys_perfil_completo",
+      "rank_F0": null,
+      "rank_A": null,
+      "is_rescue": false,
+      "causal_chain": {
+        "FRAME": {
+          "intent": [
+            "IDENTIDAD"
+          ],
+          "concept_type": [
+            "IDENTIDAD"
+          ],
+          "modality": [
+            "DESCRIPTIVA"
+          ],
+          "temporal_relation": [
+            "INVARIANTE"
+          ],
+          "causal_relation": [],
+          "domain": [
+            "AUTORIA_Y_PERSONA"
+          ],
+          "entities": [],
+          "actions": [],
+          "states": []
+        },
+        "PREDICATE": [
+          "IDENTIDAD"
+        ],
+        "SEED": "ngx_nested_forms_dennys_solo",
+        "SEED_RAW_SCORE": 0.6712,
+        "SEED_FOCUSED_SCORE": 0.3356,
+        "RELATION_USED": "SINONIMO_DE",
+        "EDGE_WEIGHT": 0.9,
+        "EDGE_CONFIDENCE": 1.0,
+        "EDGE_PROVENANCE": "sinapsis(tipo=sinonimo_explicito)",
+        "EDGE_IS_PHYSICAL_SINONIMO": true,
+        "EDGE_IS_DERIVED": false,
+        "PATH": "ngx_nested_forms_dennys_solo --[SINONIMO_DE]--> identidad_dennys_perfil_completo",
+        "GOLD_SCORE_A": 0.81247,
+        "RANK_A": null
+      },
+      "ablation_factorial": {
+        "A": {
+          "label": "Frame ON  + Predicate ON  (F3 completo)",
+          "rank": null,
+          "in_top5": false,
+          "gold_score": 0.81247,
+          "impact": "RESCUE_LOST"
+        },
+        "B": {
+          "label": "Frame OFF + Predicate ON",
+          "rank": null,
+          "in_top5": false,
+          "gold_score": 0.31593,
+          "impact": "RESCUE_LOST"
+        },
+        "C": {
+          "label": "Frame ON  + Predicate OFF",
+          "rank": null,
+          "in_top5": false,
+          "gold_score": 0.31593,
+          "impact": "RESCUE_LOST"
+        },
+        "D": {
+          "label": "Frame OFF + Predicate OFF (equivale a spreading sin tipado)",
+          "rank": null,
+          "in_top5": false,
+          "gold_score": 0.91894,
+          "impact": "RESCUE_LOST"
+        },
+        "E": {
+          "label": "Frame ON  + Predicate ON  + typed_derived OFF",
+          "rank": null,
+          "in_top5": false,
+          "gold_score": 0.52199,
+          "impact": "RESCUE_LOST"
+        },
+        "F": {
+          "label": "Frame ON  + Predicate ON  + physical_SINONIMO_DE OFF",
+          "rank": null,
+          "in_top5": false,
+          "gold_score": 0.53563,
+          "impact": "RESCUE_LOST"
+        },
+        "G": {
+          "label": "Frame ON  + Predicate ON  + graph_propagation OFF (solo semillas)",
+          "rank": null,
+          "in_top5": false,
+          "gold_score": 0.24514,
+          "impact": "RESCUE_LOST"
+        },
+        "H": {
+          "label": "Frame ON  + Predicate ON  + candidate_focalization OFF",
+          "rank": null,
+          "in_top5": false,
+          "gold_score": 0.46109,
+          "impact": "RESCUE_LOST"
+        }
+      },
+      "causal_diagnosis": {
+        "verdict": "NOT_A_RESCUE",
+        "components_tested": []
+      },
+      "suite": "TRANSFER",
+      "id": "TRF_05"
+    },
+    {
+      "query": "protocolo de sincronizacion de fuentes notebooklm sync",
+      "gold": "notebooklm-sync-protocol",
+      "rank_F0": null,
+      "rank_A": null,
+      "is_rescue": false,
+      "causal_chain": {
+        "FRAME": {
+          "intent": [
+            "INTEGRACION",
+            "PROCEDIMIENTO"
+          ],
+          "concept_type": [
+            "SYNC",
+            "NORMA"
+          ],
+          "modality": [
+            "OBLIGATORIA"
+          ],
+          "temporal_relation": [
+            "INVARIANTE"
+          ],
+          "causal_relation": [],
+          "domain": [
+            "INTEROPERABILIDAD",
+            "GOBERNANZA"
+          ],
+          "entities": [],
+          "actions": [],
+          "states": []
+        },
+        "PREDICATE": [
+          "NORMA",
+          "INTEGRACIÓN"
+        ],
+        "SEED": "protocolo_pre_accion_reglas_20260615",
+        "SEED_RAW_SCORE": 0.2134,
+        "SEED_FOCUSED_SCORE": 0.4268,
+        "RELATION_USED": "SINONIMO_DE",
+        "EDGE_WEIGHT": 0.9,
+        "EDGE_CONFIDENCE": 1.0,
+        "EDGE_PROVENANCE": "sinapsis(tipo=sinonimo_explicito)",
+        "EDGE_IS_PHYSICAL_SINONIMO": true,
+        "EDGE_IS_DERIVED": false,
+        "PATH": "protocolo_pre_accion_reglas_20260615 --[SINONIMO_DE]--> notebooklm-sync-protocol",
+        "GOLD_SCORE_A": 0.25565,
+        "RANK_A": null
+      },
+      "ablation_factorial": {
+        "A": {
+          "label": "Frame ON  + Predicate ON  (F3 completo)",
+          "rank": null,
+          "in_top5": false,
+          "gold_score": 0.25565,
+          "impact": "RESCUE_LOST"
+        },
+        "B": {
+          "label": "Frame OFF + Predicate ON",
+          "rank": null,
+          "in_top5": false,
+          "gold_score": 0.13513,
+          "impact": "RESCUE_LOST"
+        },
+        "C": {
+          "label": "Frame ON  + Predicate OFF",
+          "rank": null,
+          "in_top5": false,
+          "gold_score": 0.13513,
+          "impact": "RESCUE_LOST"
+        },
+        "D": {
+          "label": "Frame OFF + Predicate OFF (equivale a spreading sin tipado)",
+          "rank": null,
+          "in_top5": false,
+          "gold_score": 0.27165,
+          "impact": "RESCUE_LOST"
+        },
+        "E": {
+          "label": "Frame ON  + Predicate ON  + typed_derived OFF",
+          "rank": null,
+          "in_top5": false,
+          "gold_score": 0.20656,
+          "impact": "RESCUE_LOST"
+        },
+        "F": {
+          "label": "Frame ON  + Predicate ON  + physical_SINONIMO_DE OFF",
+          "rank": null,
+          "in_top5": false,
+          "gold_score": 0.1543,
+          "impact": "RESCUE_LOST"
+        },
+        "G": {
+          "label": "Frame ON  + Predicate ON  + graph_propagation OFF (solo semillas)",
+          "rank": null,
+          "in_top5": false,
+          "gold_score": 0.10521,
+          "impact": "RESCUE_LOST"
+        },
+        "H": {
+          "label": "Frame ON  + Predicate ON  + candidate_focalization OFF",
+          "rank": null,
+          "in_top5": false,
+          "gold_score": 0.17213,
+          "impact": "RESCUE_LOST"
+        }
+      },
+      "causal_diagnosis": {
+        "verdict": "NOT_A_RESCUE",
+        "components_tested": []
+      },
+      "suite": "TRANSFER",
+      "id": "TRF_06"
+    },
+    {
+      "query": "declaracion fundacional alma de athena perfil",
+      "gold": "athena_alma",
+      "rank_F0": null,
+      "rank_A": null,
+      "is_rescue": false,
+      "causal_chain": {
+        "FRAME": {
+          "intent": [
+            "IDENTIDAD"
+          ],
+          "concept_type": [
+            "IDENTIDAD"
+          ],
+          "modality": [
+            "DESCRIPTIVA"
+          ],
+          "temporal_relation": [
+            "INVARIANTE"
+          ],
+          "causal_relation": [],
+          "domain": [
+            "AUTORIA_Y_PERSONA"
+          ],
+          "entities": [],
+          "actions": [],
+          "states": []
+        },
+        "PREDICATE": [
+          "IDENTIDAD"
+        ],
+        "SEED": "dennys_tqm_agentes_desea_ser_como_ellos_20260731",
+        "SEED_RAW_SCORE": 1.0,
+        "SEED_FOCUSED_SCORE": 2.0,
+        "RELATION_USED": "SINONIMO_DE",
+        "EDGE_WEIGHT": 0.9,
+        "EDGE_CONFIDENCE": 1.0,
+        "EDGE_PROVENANCE": "sinapsis(tipo=sinonimo_explicito)",
+        "EDGE_IS_PHYSICAL_SINONIMO": true,
+        "EDGE_IS_DERIVED": false,
+        "PATH": "dennys_tqm_agentes_desea_ser_como_ellos_20260731 --[SINONIMO_DE]--> athena_alma",
+        "GOLD_SCORE_A": 0.46315,
+        "RANK_A": null
+      },
+      "ablation_factorial": {
+        "A": {
+          "label": "Frame ON  + Predicate ON  (F3 completo)",
+          "rank": null,
+          "in_top5": false,
+          "gold_score": 0.46315,
+          "impact": "RESCUE_LOST"
+        },
+        "B": {
+          "label": "Frame OFF + Predicate ON",
+          "rank": null,
+          "in_top5": false,
+          "gold_score": 0.22644,
+          "impact": "RESCUE_LOST"
+        },
+        "C": {
+          "label": "Frame ON  + Predicate OFF",
+          "rank": null,
+          "in_top5": false,
+          "gold_score": 0.22644,
+          "impact": "RESCUE_LOST"
+        },
+        "D": {
+          "label": "Frame OFF + Predicate OFF (equivale a spreading sin tipado)",
+          "rank": null,
+          "in_top5": false,
+          "gold_score": 0.76888,
+          "impact": "RESCUE_LOST"
+        },
+        "E": {
+          "label": "Frame ON  + Predicate ON  + typed_derived OFF",
+          "rank": null,
+          "in_top5": false,
+          "gold_score": 0.35448,
+          "impact": "RESCUE_LOST"
+        },
+        "F": {
+          "label": "Frame ON  + Predicate ON  + physical_SINONIMO_DE OFF",
+          "rank": null,
+          "in_top5": false,
+          "gold_score": 0.26581,
+          "impact": "RESCUE_LOST"
+        },
+        "G": {
+          "label": "Frame ON  + Predicate ON  + graph_propagation OFF (solo semillas)",
+          "rank": null,
+          "in_top5": false,
+          "gold_score": 0.15715,
+          "impact": "RESCUE_LOST"
+        },
+        "H": {
+          "label": "Frame ON  + Predicate ON  + candidate_focalization OFF",
+          "rank": null,
+          "in_top5": false,
+          "gold_score": 0.29963,
+          "impact": "RESCUE_LOST"
+        }
+      },
+      "causal_diagnosis": {
+        "verdict": "NOT_A_RESCUE",
+        "components_tested": []
+      },
+      "suite": "TRANSFER",
+      "id": "TRF_07"
+    },
+    {
+      "query": "lecciones aprendidas de sincronismo externo sync",
+      "gold": "notebooklm-sync-lecciones",
+      "rank_F0": null,
+      "rank_A": null,
+      "is_rescue": false,
+      "causal_chain": {
+        "FRAME": {
+          "intent": [
+            "INTEGRACION",
+            "APRENDIZAJE"
+          ],
+          "concept_type": [
+            "SYNC",
+            "COGNITIVO"
+          ],
+          "modality": [
+            "DESCRIPTIVA"
+          ],
+          "temporal_relation": [
+            "INVARIANTE"
+          ],
+          "causal_relation": [],
+          "domain": [
+            "INTEROPERABILIDAD",
+            "METAPENSAMIENTO"
+          ],
+          "entities": [],
+          "actions": [],
+          "states": []
+        },
+        "PREDICATE": [
+          "INTEGRACIÓN",
+          "APRENDIZAJE"
+        ],
+        "SEED": "proyecto_biorag_ncp_resumen_completo_2026_06_14",
+        "SEED_RAW_SCORE": 0.13391,
+        "SEED_FOCUSED_SCORE": 0.06695,
+        "RELATION_USED": "SINONIMO_DE",
+        "EDGE_WEIGHT": 0.9,
+        "EDGE_CONFIDENCE": 1.0,
+        "EDGE_PROVENANCE": "sinapsis(tipo=sinonimo_explicito)",
+        "EDGE_IS_PHYSICAL_SINONIMO": true,
+        "EDGE_IS_DERIVED": false,
+        "PATH": "proyecto_biorag_ncp_resumen_completo_2026_06_14 --[SINONIMO_DE]--> notebooklm-sync-lecciones",
+        "GOLD_SCORE_A": 0.16156,
+        "RANK_A": null
+      },
+      "ablation_factorial": {
+        "A": {
+          "label": "Frame ON  + Predicate ON  (F3 completo)",
+          "rank": null,
+          "in_top5": false,
+          "gold_score": 0.16156,
+          "impact": "RESCUE_LOST"
+        },
+        "B": {
+          "label": "Frame OFF + Predicate ON",
+          "rank": null,
+          "in_top5": false,
+          "gold_score": 0.09427,
+          "impact": "RESCUE_LOST"
+        },
+        "C": {
+          "label": "Frame ON  + Predicate OFF",
+          "rank": null,
+          "in_top5": false,
+          "gold_score": 0.09427,
+          "impact": "RESCUE_LOST"
+        },
+        "D": {
+          "label": "Frame OFF + Predicate OFF (equivale a spreading sin tipado)",
+          "rank": null,
+          "in_top5": false,
+          "gold_score": 0.13104,
+          "impact": "RESCUE_LOST"
+        },
+        "E": {
+          "label": "Frame ON  + Predicate ON  + typed_derived OFF",
+          "rank": null,
+          "in_top5": false,
+          "gold_score": 0.16156,
+          "impact": "RESCUE_LOST"
+        },
+        "F": {
+          "label": "Frame ON  + Predicate ON  + physical_SINONIMO_DE OFF",
+          "rank": null,
+          "in_top5": false,
+          "gold_score": 0.13775,
+          "impact": "RESCUE_LOST"
+        },
+        "G": {
+          "label": "Frame ON  + Predicate ON  + graph_propagation OFF (solo semillas)",
+          "rank": null,
+          "in_top5": false,
+          "gold_score": 0.13775,
+          "impact": "RESCUE_LOST"
+        },
+        "H": {
+          "label": "Frame ON  + Predicate ON  + candidate_focalization OFF",
+          "rank": null,
+          "in_top5": false,
+          "gold_score": 0.10061,
+          "impact": "RESCUE_LOST"
+        }
+      },
+      "causal_diagnosis": {
+        "verdict": "NOT_A_RESCUE",
+        "components_tested": []
+      },
+      "suite": "TRANSFER",
+      "id": "TRF_08"
+    },
+    {
+      "query": "medicion de rendimiento previo y posterior benchmark",
+      "gold": "benchmark_antes_despues_fix3",
+      "rank_F0": null,
+      "rank_A": null,
+      "is_rescue": false,
+      "causal_chain": {
+        "FRAME": {
+          "intent": [
+            "EVALUACION",
+            "PROCEDIMIENTO"
+          ],
+          "concept_type": [
+            "EVALUACION",
+            "NORMA"
+          ],
+          "modality": [
+            "DESCRIPTIVA"
+          ],
+          "temporal_relation": [
+            "PRECEDE",
+            "SUCEDE"
+          ],
+          "causal_relation": [],
+          "domain": [
+            "RENDIMIENTO",
+            "GOBERNANZA"
+          ],
+          "entities": [],
+          "actions": [],
+          "states": []
+        },
+        "PREDICATE": [
+          "NORMA",
+          "EVALUACIÓN"
+        ],
+        "SEED": "escalabilidad_biorag_problema_real",
+        "SEED_RAW_SCORE": 0.18165,
+        "SEED_FOCUSED_SCORE": 0.09082,
+        "RELATION_USED": "SINONIMO_DE",
+        "EDGE_WEIGHT": 0.9,
+        "EDGE_CONFIDENCE": 1.0,
+        "EDGE_PROVENANCE": "sinapsis(tipo=sinonimo_explicito)",
+        "EDGE_IS_PHYSICAL_SINONIMO": true,
+        "EDGE_IS_DERIVED": false,
+        "PATH": "escalabilidad_biorag_problema_real --[SINONIMO_DE]--> benchmark_antes_despues_fix3",
+        "GOLD_SCORE_A": 0.24251,
+        "RANK_A": null
+      },
+      "ablation_factorial": {
+        "A": {
+          "label": "Frame ON  + Predicate ON  (F3 completo)",
+          "rank": null,
+          "in_top5": false,
+          "gold_score": 0.24251,
+          "impact": "RESCUE_LOST"
+        },
+        "B": {
+          "label": "Frame OFF + Predicate ON",
+          "rank": null,
+          "in_top5": false,
+          "gold_score": 0.16003,
+          "impact": "RESCUE_LOST"
+        },
+        "C": {
+          "label": "Frame ON  + Predicate OFF",
+          "rank": null,
+          "in_top5": false,
+          "gold_score": 0.16003,
+          "impact": "RESCUE_LOST"
+        },
+        "D": {
+          "label": "Frame OFF + Predicate OFF (equivale a spreading sin tipado)",
+          "rank": null,
+          "in_top5": false,
+          "gold_score": 0.20537,
+          "impact": "RESCUE_LOST"
+        },
+        "E": {
+          "label": "Frame ON  + Predicate ON  + typed_derived OFF",
+          "rank": null,
+          "in_top5": false,
+          "gold_score": 0.23192,
+          "impact": "RESCUE_LOST"
+        },
+        "F": {
+          "label": "Frame ON  + Predicate ON  + physical_SINONIMO_DE OFF",
+          "rank": null,
+          "in_top5": false,
+          "gold_score": 0.16473,
+          "impact": "RESCUE_LOST"
+        },
+        "G": {
+          "label": "Frame ON  + Predicate ON  + graph_propagation OFF (solo semillas)",
+          "rank": null,
+          "in_top5": false,
+          "gold_score": 0.15414,
+          "impact": "RESCUE_LOST"
+        },
+        "H": {
+          "label": "Frame ON  + Predicate ON  + candidate_focalization OFF",
+          "rank": null,
+          "in_top5": false,
+          "gold_score": 0.1843,
+          "impact": "RESCUE_LOST"
+        }
+      },
+      "causal_diagnosis": {
+        "verdict": "NOT_A_RESCUE",
+        "components_tested": []
+      },
+      "suite": "PARAPHRASE",
+      "id": "PRF_01"
+    },
+    {
+      "query": "esencia perfil real del creador",
+      "gold": "dennys-identidad-profunda",
+      "rank_F0": null,
+      "rank_A": null,
+      "is_rescue": false,
+      "causal_chain": {
+        "FRAME": {
+          "intent": [
+            "IDENTIDAD"
+          ],
+          "concept_type": [
+            "IDENTIDAD"
+          ],
+          "modality": [
+            "DESCRIPTIVA"
+          ],
+          "temporal_relation": [
+            "INVARIANTE"
+          ],
+          "causal_relation": [],
+          "domain": [
+            "AUTORIA_Y_PERSONA"
+          ],
+          "entities": [],
+          "actions": [],
+          "states": []
+        },
+        "PREDICATE": [
+          "IDENTIDAD"
+        ],
+        "SEED": "dennys-metodo-creativo",
+        "SEED_RAW_SCORE": 0.48854,
+        "SEED_FOCUSED_SCORE": 0.97709,
+        "RELATION_USED": "DEFINE_IDENTIDAD",
+        "EDGE_WEIGHT": 0.9,
+        "EDGE_CONFIDENCE": 0.85,
+        "EDGE_PROVENANCE": "taxonomy(IDENTIDAD+CO_OCURRENCIA)",
+        "EDGE_IS_PHYSICAL_SINONIMO": false,
+        "EDGE_IS_DERIVED": true,
+        "PATH": "dennys-metodo-creativo --[DEFINE_IDENTIDAD]--> dennys-identidad-profunda",
+        "GOLD_SCORE_A": 0.5768,
+        "RANK_A": null
+      },
+      "ablation_factorial": {
+        "A": {
+          "label": "Frame ON  + Predicate ON  (F3 completo)",
+          "rank": null,
+          "in_top5": false,
+          "gold_score": 0.5768,
+          "impact": "RESCUE_LOST"
+        },
+        "B": {
+          "label": "Frame OFF + Predicate ON",
+          "rank": null,
+          "in_top5": false,
+          "gold_score": 0.28571,
+          "impact": "RESCUE_LOST"
+        },
+        "C": {
+          "label": "Frame ON  + Predicate OFF",
+          "rank": null,
+          "in_top5": false,
+          "gold_score": 0.28571,
+          "impact": "RESCUE_LOST"
+        },
+        "D": {
+          "label": "Frame OFF + Predicate OFF (equivale a spreading sin tipado)",
+          "rank": null,
+          "in_top5": false,
+          "gold_score": 0.46277,
+          "impact": "RESCUE_LOST"
+        },
+        "E": {
+          "label": "Frame ON  + Predicate ON  + typed_derived OFF",
+          "rank": null,
+          "in_top5": false,
+          "gold_score": 0.48772,
+          "impact": "RESCUE_LOST"
+        },
+        "F": {
+          "label": "Frame ON  + Predicate ON  + physical_SINONIMO_DE OFF",
+          "rank": null,
+          "in_top5": false,
+          "gold_score": 0.47767,
+          "impact": "RESCUE_LOST"
+        },
+        "G": {
+          "label": "Frame ON  + Predicate ON  + graph_propagation OFF (solo semillas)",
+          "rank": null,
+          "in_top5": false,
+          "gold_score": 0.38859,
+          "impact": "RESCUE_LOST"
+        },
+        "H": {
+          "label": "Frame ON  + Predicate ON  + candidate_focalization OFF",
+          "rank": null,
+          "in_top5": false,
+          "gold_score": 0.33826,
+          "impact": "RESCUE_LOST"
+        }
+      },
+      "causal_diagnosis": {
+        "verdict": "NOT_A_RESCUE",
+        "components_tested": []
+      },
+      "suite": "PARAPHRASE",
+      "id": "PRF_02"
+    },
+    {
+      "query": "especificacion tecnica detalle persistencia archivos",
+      "gold": "biorag_v11_1_detalle_tecnico",
+      "rank_F0": null,
+      "rank_A": 1,
+      "is_rescue": true,
+      "causal_chain": {
+        "FRAME": {
+          "intent": [],
+          "concept_type": [
+            "DETALLE_TECNICO"
+          ],
+          "modality": [
+            "DESCRIPTIVA"
+          ],
+          "temporal_relation": [
+            "INVARIANTE"
+          ],
+          "causal_relation": [],
+          "domain": [
+            "INFRAESTRUCTURA"
+          ],
+          "entities": [],
+          "actions": [],
+          "states": []
+        },
+        "PREDICATE": [
+          "DETALLE_TECNICO"
+        ],
+        "SEED": "leccion_syn_obligatorio_aprender",
+        "SEED_RAW_SCORE": 0.28355,
+        "SEED_FOCUSED_SCORE": 0.14178,
+        "RELATION_USED": "SINONIMO_DE",
+        "EDGE_WEIGHT": 0.9,
+        "EDGE_CONFIDENCE": 1.0,
+        "EDGE_PROVENANCE": "sinapsis(tipo=sinonimo_explicito)",
+        "EDGE_IS_PHYSICAL_SINONIMO": true,
+        "EDGE_IS_DERIVED": false,
+        "PATH": "leccion_syn_obligatorio_aprender --[SINONIMO_DE]--> biorag_v11_1_detalle_tecnico",
+        "GOLD_SCORE_A": 0.29514,
+        "RANK_A": 1
+      },
+      "ablation_factorial": {
+        "A": {
+          "label": "Frame ON  + Predicate ON  (F3 completo)",
+          "rank": 1,
+          "in_top5": true,
+          "gold_score": 0.29514,
+          "impact": "RESCUE_MAINTAINED"
+        },
+        "B": {
+          "label": "Frame OFF + Predicate ON",
+          "rank": null,
+          "in_top5": false,
+          "gold_score": 0.15506,
+          "impact": "RESCUE_LOST"
+        },
+        "C": {
+          "label": "Frame ON  + Predicate OFF",
+          "rank": null,
+          "in_top5": false,
+          "gold_score": 0.15506,
+          "impact": "RESCUE_LOST"
+        },
+        "D": {
+          "label": "Frame OFF + Predicate OFF (equivale a spreading sin tipado)",
+          "rank": null,
+          "in_top5": false,
+          "gold_score": 0.15981,
+          "impact": "RESCUE_LOST"
+        },
+        "E": {
+          "label": "Frame ON  + Predicate ON  + typed_derived OFF",
+          "rank": 1,
+          "in_top5": true,
+          "gold_score": 0.29514,
+          "impact": "RESCUE_MAINTAINED"
+        },
+        "F": {
+          "label": "Frame ON  + Predicate ON  + physical_SINONIMO_DE OFF",
+          "rank": 1,
+          "in_top5": true,
+          "gold_score": 0.28192,
+          "impact": "RESCUE_MAINTAINED"
+        },
+        "G": {
+          "label": "Frame ON  + Predicate ON  + graph_propagation OFF (solo semillas)",
+          "rank": 1,
+          "in_top5": true,
+          "gold_score": 0.28192,
+          "impact": "RESCUE_MAINTAINED"
+        },
+        "H": {
+          "label": "Frame ON  + Predicate ON  + candidate_focalization OFF",
+          "rank": null,
+          "in_top5": false,
+          "gold_score": 0.15859,
+          "impact": "RESCUE_LOST"
+        }
+      },
+      "causal_diagnosis": {
+        "verdict": "FOCALIZATION_REQUIRED — rescue requiere focalización de candidatos",
+        "responsible_components": [
+          "FRAME",
+          "PREDICATE",
+          "CANDIDATE_FOCALIZATION"
+        ],
+        "sinonimo_de_sufficient": true,
+        "derived_typed_required": false,
+        "notes": [
+          "DERIVED_TYPED_EDGE_NOT_REQUIRED: rescue persiste al eliminar aristas derivadas tipadas"
+        ]
+      },
+      "suite": "PARAPHRASE",
+      "id": "PRF_03"
+    },
+    {
+      "query": "obligacion mandatoria regla antes_de consultar",
+      "gold": "identificacion_obligatoria_oraculo_athena",
+      "rank_F0": null,
+      "rank_A": null,
+      "is_rescue": false,
+      "causal_chain": null,
+      "ablation_factorial": {
+        "A": {
+          "label": "Frame ON  + Predicate ON  (F3 completo)",
+          "rank": null,
+          "in_top5": false,
+          "gold_score": 0.219,
+          "impact": "RESCUE_LOST"
+        },
+        "B": {
+          "label": "Frame OFF + Predicate ON",
+          "rank": null,
+          "in_top5": false,
+          "gold_score": 0.1095,
+          "impact": "RESCUE_LOST"
+        },
+        "C": {
+          "label": "Frame ON  + Predicate OFF",
+          "rank": null,
+          "in_top5": false,
+          "gold_score": 0.1095,
+          "impact": "RESCUE_LOST"
+        },
+        "D": {
+          "label": "Frame OFF + Predicate OFF (equivale a spreading sin tipado)",
+          "rank": null,
+          "in_top5": false,
+          "gold_score": 0.12706,
+          "impact": "RESCUE_LOST"
+        },
+        "E": {
+          "label": "Frame ON  + Predicate ON  + typed_derived OFF",
+          "rank": null,
+          "in_top5": false,
+          "gold_score": 0.219,
+          "impact": "RESCUE_LOST"
+        },
+        "F": {
+          "label": "Frame ON  + Predicate ON  + physical_SINONIMO_DE OFF",
+          "rank": null,
+          "in_top5": false,
+          "gold_score": 0.219,
+          "impact": "RESCUE_LOST"
+        },
+        "G": {
+          "label": "Frame ON  + Predicate ON  + graph_propagation OFF (solo semillas)",
+          "rank": null,
+          "in_top5": false,
+          "gold_score": 0.219,
+          "impact": "RESCUE_LOST"
+        },
+        "H": {
+          "label": "Frame ON  + Predicate ON  + candidate_focalization OFF",
+          "rank": null,
+          "in_top5": false,
+          "gold_score": 0.1095,
+          "impact": "RESCUE_LOST"
+        }
+      },
+      "causal_diagnosis": {
+        "verdict": "NOT_A_RESCUE",
+        "components_tested": []
+      },
+      "suite": "PARAPHRASE",
+      "id": "PRF_04"
+    },
+    {
+      "query": "modo de razonamiento mentalidad como_pensar uso",
+      "gold": "mentalidad_biorag_para_agentes",
+      "rank_F0": null,
+      "rank_A": null,
+      "is_rescue": false,
+      "causal_chain": {
+        "FRAME": {
+          "intent": [
+            "APRENDIZAJE"
+          ],
+          "concept_type": [
+            "COGNITIVO"
+          ],
+          "modality": [
+            "DESCRIPTIVA"
+          ],
+          "temporal_relation": [
+            "INVARIANTE"
+          ],
+          "causal_relation": [],
+          "domain": [
+            "METAPENSAMIENTO"
+          ],
+          "entities": [],
+          "actions": [],
+          "states": []
+        },
+        "PREDICATE": [
+          "APRENDIZAJE"
+        ],
+        "SEED": "leccion_artemis_no_quejarse_trabajar",
+        "SEED_RAW_SCORE": 0.25017,
+        "SEED_FOCUSED_SCORE": 0.12508,
+        "RELATION_USED": "SINONIMO_DE",
+        "EDGE_WEIGHT": 0.9,
+        "EDGE_CONFIDENCE": 1.0,
+        "EDGE_PROVENANCE": "sinapsis(tipo=sinonimo_explicito)",
+        "EDGE_IS_PHYSICAL_SINONIMO": true,
+        "EDGE_IS_DERIVED": false,
+        "PATH": "leccion_artemis_no_quejarse_trabajar --[SINONIMO_DE]--> mentalidad_biorag_para_agentes",
+        "GOLD_SCORE_A": 0.0882,
+        "RANK_A": null
+      },
+      "ablation_factorial": {
+        "A": {
+          "label": "Frame ON  + Predicate ON  (F3 completo)",
+          "rank": null,
+          "in_top5": false,
+          "gold_score": 0.0882,
+          "impact": "RESCUE_LOST"
+        },
+        "B": {
+          "label": "Frame OFF + Predicate ON",
+          "rank": null,
+          "in_top5": false,
+          "gold_score": 0.1764,
+          "impact": "RESCUE_LOST"
+        },
+        "C": {
+          "label": "Frame ON  + Predicate OFF",
+          "rank": null,
+          "in_top5": false,
+          "gold_score": 0.1764,
+          "impact": "RESCUE_LOST"
+        },
+        "D": {
+          "label": "Frame OFF + Predicate OFF (equivale a spreading sin tipado)",
+          "rank": null,
+          "in_top5": false,
+          "gold_score": 0.17875,
+          "impact": "RESCUE_LOST"
+        },
+        "E": {
+          "label": "Frame ON  + Predicate ON  + typed_derived OFF",
+          "rank": null,
+          "in_top5": false,
+          "gold_score": 0.0882,
+          "impact": "RESCUE_LOST"
+        },
+        "F": {
+          "label": "Frame ON  + Predicate ON  + physical_SINONIMO_DE OFF",
+          "rank": null,
+          "in_top5": false,
+          "gold_score": 0.0835,
+          "impact": "RESCUE_LOST"
+        },
+        "G": {
+          "label": "Frame ON  + Predicate ON  + graph_propagation OFF (solo semillas)",
+          "rank": null,
+          "in_top5": false,
+          "gold_score": 0.0835,
+          "impact": "RESCUE_LOST"
+        },
+        "H": {
+          "label": "Frame ON  + Predicate ON  + candidate_focalization OFF",
+          "rank": null,
+          "in_top5": false,
+          "gold_score": 0.17875,
+          "impact": "RESCUE_LOST"
+        }
+      },
+      "causal_diagnosis": {
+        "verdict": "NOT_A_RESCUE",
+        "components_tested": []
+      },
+      "suite": "PARAPHRASE",
+      "id": "PRF_05"
+    },
+    {
+      "query": "regla procedimiento pasos auto_pregunta",
+      "gold": "protocolo_autoinferencia_metacognitiva",
+      "rank_F0": null,
+      "rank_A": null,
+      "is_rescue": false,
+      "causal_chain": null,
+      "ablation_factorial": {
+        "A": {
+          "label": "Frame ON  + Predicate ON  (F3 completo)",
+          "rank": null,
+          "in_top5": false,
+          "gold_score": 0.52285,
+          "impact": "RESCUE_LOST"
+        },
+        "B": {
+          "label": "Frame OFF + Predicate ON",
+          "rank": null,
+          "in_top5": false,
+          "gold_score": 0.26143,
+          "impact": "RESCUE_LOST"
+        },
+        "C": {
+          "label": "Frame ON  + Predicate OFF",
+          "rank": null,
+          "in_top5": false,
+          "gold_score": 0.26143,
+          "impact": "RESCUE_LOST"
+        },
+        "D": {
+          "label": "Frame OFF + Predicate OFF (equivale a spreading sin tipado)",
+          "rank": null,
+          "in_top5": false,
+          "gold_score": 0.34206,
+          "impact": "RESCUE_LOST"
+        },
+        "E": {
+          "label": "Frame ON  + Predicate ON  + typed_derived OFF",
+          "rank": null,
+          "in_top5": false,
+          "gold_score": 0.52285,
+          "impact": "RESCUE_LOST"
+        },
+        "F": {
+          "label": "Frame ON  + Predicate ON  + physical_SINONIMO_DE OFF",
+          "rank": null,
+          "in_top5": false,
+          "gold_score": 0.52285,
+          "impact": "RESCUE_LOST"
+        },
+        "G": {
+          "label": "Frame ON  + Predicate ON  + graph_propagation OFF (solo semillas)",
+          "rank": null,
+          "in_top5": false,
+          "gold_score": 0.52285,
+          "impact": "RESCUE_LOST"
+        },
+        "H": {
+          "label": "Frame ON  + Predicate ON  + candidate_focalization OFF",
+          "rank": null,
+          "in_top5": false,
+          "gold_score": 0.26143,
+          "impact": "RESCUE_LOST"
+        }
+      },
+      "causal_diagnosis": {
+        "verdict": "NOT_A_RESCUE",
+        "components_tested": []
+      },
+      "suite": "PARAPHRASE",
+      "id": "PRF_06"
+    },
+    {
+      "query": "parche fix broadcast tabla comunicacion",
+      "gold": "fix_mensajeria_broadcast_tracking_por_agente",
+      "rank_F0": null,
+      "rank_A": null,
+      "is_rescue": false,
+      "causal_chain": {
+        "FRAME": {
+          "intent": [
+            "CORRECCION"
+          ],
+          "concept_type": [
+            "FIX"
+          ],
+          "modality": [
+            "DESCRIPTIVA"
+          ],
+          "temporal_relation": [
+            "INVARIANTE"
+          ],
+          "causal_relation": [
+            "RESUELVE"
+          ],
+          "domain": [
+            "CODIGO_Y_SISTEMAS",
+            "INFRAESTRUCTURA"
+          ],
+          "entities": [],
+          "actions": [],
+          "states": []
+        },
+        "PREDICATE": [
+          "CORRECCIÓN"
+        ],
+        "SEED": "test_contador_fix_verificacion",
+        "SEED_RAW_SCORE": 0.19318,
+        "SEED_FOCUSED_SCORE": 0.09659,
+        "RELATION_USED": "SINONIMO_DE",
+        "EDGE_WEIGHT": 0.9,
+        "EDGE_CONFIDENCE": 1.0,
+        "EDGE_PROVENANCE": "sinapsis(tipo=sinonimo_explicito)",
+        "EDGE_IS_PHYSICAL_SINONIMO": true,
+        "EDGE_IS_DERIVED": false,
+        "PATH": "test_contador_fix_verificacion --[SINONIMO_DE]--> fix_mensajeria_broadcast_tracking_por_agente",
+        "GOLD_SCORE_A": 0.11842,
+        "RANK_A": null
+      },
+      "ablation_factorial": {
+        "A": {
+          "label": "Frame ON  + Predicate ON  (F3 completo)",
+          "rank": null,
+          "in_top5": false,
+          "gold_score": 0.11842,
+          "impact": "RESCUE_LOST"
+        },
+        "B": {
+          "label": "Frame OFF + Predicate ON",
+          "rank": null,
+          "in_top5": false,
+          "gold_score": 0.07446,
+          "impact": "RESCUE_LOST"
+        },
+        "C": {
+          "label": "Frame ON  + Predicate OFF",
+          "rank": null,
+          "in_top5": false,
+          "gold_score": 0.07446,
+          "impact": "RESCUE_LOST"
+        },
+        "D": {
+          "label": "Frame OFF + Predicate OFF (equivale a spreading sin tipado)",
+          "rank": null,
+          "in_top5": false,
+          "gold_score": 0.10192,
+          "impact": "RESCUE_LOST"
+        },
+        "E": {
+          "label": "Frame ON  + Predicate ON  + typed_derived OFF",
+          "rank": null,
+          "in_top5": false,
+          "gold_score": 0.11503,
+          "impact": "RESCUE_LOST"
+        },
+        "F": {
+          "label": "Frame ON  + Predicate ON  + physical_SINONIMO_DE OFF",
+          "rank": null,
+          "in_top5": false,
+          "gold_score": 0.08853,
+          "impact": "RESCUE_LOST"
+        },
+        "G": {
+          "label": "Frame ON  + Predicate ON  + graph_propagation OFF (solo semillas)",
+          "rank": null,
+          "in_top5": false,
+          "gold_score": 0.08513,
+          "impact": "RESCUE_LOST"
+        },
+        "H": {
+          "label": "Frame ON  + Predicate ON  + candidate_focalization OFF",
+          "rank": null,
+          "in_top5": false,
+          "gold_score": 0.08356,
+          "impact": "RESCUE_LOST"
+        }
+      },
+      "causal_diagnosis": {
+        "verdict": "NOT_A_RESCUE",
+        "components_tested": []
+      },
+      "suite": "PARAPHRASE",
+      "id": "PRF_07"
+    },
+    {
+      "query": "sincronizacion lecciones sync integracion",
+      "gold": "notebooklm-memory-biorag-project",
+      "rank_F0": null,
+      "rank_A": 4,
+      "is_rescue": true,
+      "causal_chain": {
+        "FRAME": {
+          "intent": [
+            "INTEGRACION",
+            "APRENDIZAJE"
+          ],
+          "concept_type": [
+            "SYNC",
+            "COGNITIVO"
+          ],
+          "modality": [
+            "DESCRIPTIVA"
+          ],
+          "temporal_relation": [
+            "INVARIANTE"
+          ],
+          "causal_relation": [],
+          "domain": [
+            "INTEROPERABILIDAD",
+            "METAPENSAMIENTO"
+          ],
+          "entities": [],
+          "actions": [],
+          "states": []
+        },
+        "PREDICATE": [
+          "INTEGRACIÓN",
+          "APRENDIZAJE"
+        ],
+        "SEED": "sync_incremental_implementation",
+        "SEED_RAW_SCORE": 0.1289,
+        "SEED_FOCUSED_SCORE": 0.2578,
+        "RELATION_USED": "SINONIMO_DE",
+        "EDGE_WEIGHT": 0.9,
+        "EDGE_CONFIDENCE": 1.0,
+        "EDGE_PROVENANCE": "sinapsis(tipo=sinonimo_explicito)",
+        "EDGE_IS_PHYSICAL_SINONIMO": true,
+        "EDGE_IS_DERIVED": false,
+        "PATH": "sync_incremental_implementation --[SINONIMO_DE]--> notebooklm-memory-biorag-project",
+        "GOLD_SCORE_A": 0.22299,
+        "RANK_A": 4
+      },
+      "ablation_factorial": {
+        "A": {
+          "label": "Frame ON  + Predicate ON  (F3 completo)",
+          "rank": 4,
+          "in_top5": true,
+          "gold_score": 0.22299,
+          "impact": "RESCUE_MAINTAINED"
+        },
+        "B": {
+          "label": "Frame OFF + Predicate ON",
+          "rank": null,
+          "in_top5": false,
+          "gold_score": 0.07879,
+          "impact": "RESCUE_LOST"
+        },
+        "C": {
+          "label": "Frame ON  + Predicate OFF",
+          "rank": null,
+          "in_top5": false,
+          "gold_score": 0.07879,
+          "impact": "RESCUE_LOST"
+        },
+        "D": {
+          "label": "Frame OFF + Predicate OFF (equivale a spreading sin tipado)",
+          "rank": null,
+          "in_top5": false,
+          "gold_score": 0.10772,
+          "impact": "RESCUE_LOST"
+        },
+        "E": {
+          "label": "Frame ON  + Predicate ON  + typed_derived OFF",
+          "rank": null,
+          "in_top5": false,
+          "gold_score": 0.17568,
+          "impact": "RESCUE_LOST"
+        },
+        "F": {
+          "label": "Frame ON  + Predicate ON  + physical_SINONIMO_DE OFF",
+          "rank": null,
+          "in_top5": false,
+          "gold_score": 0.17274,
+          "impact": "RESCUE_LOST"
+        },
+        "G": {
+          "label": "Frame ON  + Predicate ON  + graph_propagation OFF (solo semillas)",
+          "rank": null,
+          "in_top5": false,
+          "gold_score": 0.12543,
+          "impact": "RESCUE_LOST"
+        },
+        "H": {
+          "label": "Frame ON  + Predicate ON  + candidate_focalization OFF",
+          "rank": null,
+          "in_top5": false,
+          "gold_score": 0.09858,
+          "impact": "RESCUE_LOST"
+        }
+      },
+      "causal_diagnosis": {
+        "verdict": "TYPED_DERIVED_EDGE_REQUIRED — aristas derivadas tipadas causalmente necesarias",
+        "responsible_components": [
+          "FRAME",
+          "PREDICATE",
+          "TYPED_DERIVED_EDGES",
+          "PHYSICAL_SINONIMO_DE",
+          "GRAPH_PROPAGATION",
+          "CANDIDATE_FOCALIZATION"
+        ],
+        "sinonimo_de_sufficient": false,
+        "derived_typed_required": true,
+        "notes": [
+          "DERIVED_TYPED_EDGE_REQUIRED: rescue se pierde al eliminar aristas derivadas"
+        ]
+      },
+      "suite": "PARAPHRASE",
+      "id": "PRF_08"
+    },
+    {
+      "query": "estudio empirico de aceleracion y tasa de latencia",
+      "gold": "benchmark_antes_despues_fix3",
+      "rank_F0": null,
+      "rank_A": null,
+      "is_rescue": false,
+      "causal_chain": {
+        "FRAME": {
+          "intent": [
+            "EVALUACION"
+          ],
+          "concept_type": [
+            "EVALUACION"
+          ],
+          "modality": [
+            "DESCRIPTIVA"
+          ],
+          "temporal_relation": [
+            "INVARIANTE"
+          ],
+          "causal_relation": [],
+          "domain": [
+            "RENDIMIENTO"
+          ],
+          "entities": [],
+          "actions": [],
+          "states": []
+        },
+        "PREDICATE": [
+          "EVALUACIÓN"
+        ],
+        "SEED": "reindex_sdm_selectivo_dirty_set_implementado",
+        "SEED_RAW_SCORE": 0.24109,
+        "SEED_FOCUSED_SCORE": 0.12055,
+        "RELATION_USED": "SINONIMO_DE",
+        "EDGE_WEIGHT": 0.9,
+        "EDGE_CONFIDENCE": 1.0,
+        "EDGE_PROVENANCE": "sinapsis(tipo=sinonimo_explicito)",
+        "EDGE_IS_PHYSICAL_SINONIMO": true,
+        "EDGE_IS_DERIVED": false,
+        "PATH": "reindex_sdm_selectivo_dirty_set_implementado --[SINONIMO_DE]--> benchmark_antes_despues_fix3",
+        "GOLD_SCORE_A": 0.01678,
+        "RANK_A": null
+      },
+      "ablation_factorial": {
+        "A": {
+          "label": "Frame ON  + Predicate ON  (F3 completo)",
+          "rank": null,
+          "in_top5": false,
+          "gold_score": 0.01678,
+          "impact": "RESCUE_LOST"
+        },
+        "B": {
+          "label": "Frame OFF + Predicate ON",
+          "rank": null,
+          "in_top5": false,
+          "gold_score": 0.0179,
+          "impact": "RESCUE_LOST"
+        },
+        "C": {
+          "label": "Frame ON  + Predicate OFF",
+          "rank": null,
+          "in_top5": false,
+          "gold_score": 0.0179,
+          "impact": "RESCUE_LOST"
+        },
+        "D": {
+          "label": "Frame OFF + Predicate OFF (equivale a spreading sin tipado)",
+          "rank": null,
+          "in_top5": false,
+          "gold_score": 0.02237,
+          "impact": "RESCUE_LOST"
+        },
+        "E": {
+          "label": "Frame ON  + Predicate ON  + typed_derived OFF",
+          "rank": null,
+          "in_top5": false,
+          "gold_score": 0.01678,
+          "impact": "RESCUE_LOST"
+        },
+        "F": {
+          "label": "Frame ON  + Predicate ON  + physical_SINONIMO_DE OFF",
+          "rank": null,
+          "in_top5": false,
+          "gold_score": 0.0,
+          "impact": "RESCUE_LOST"
+        },
+        "G": {
+          "label": "Frame ON  + Predicate ON  + graph_propagation OFF (solo semillas)",
+          "rank": null,
+          "in_top5": false,
+          "gold_score": 0.0,
+          "impact": "RESCUE_LOST"
+        },
+        "H": {
+          "label": "Frame ON  + Predicate ON  + candidate_focalization OFF",
+          "rank": null,
+          "in_top5": false,
+          "gold_score": 0.02237,
+          "impact": "RESCUE_LOST"
+        }
+      },
+      "causal_diagnosis": {
+        "verdict": "NOT_A_RESCUE",
+        "components_tested": []
+      },
+      "suite": "CORPUS_SHIFT",
+      "id": "CS_01"
+    },
+    {
+      "query": "mandato mandatorio preliminar al acceso de memoria",
+      "gold": "identificacion_obligatoria_oraculo_athena",
+      "rank_F0": null,
+      "rank_A": null,
+      "is_rescue": false,
+      "causal_chain": null,
+      "ablation_factorial": {
+        "A": {
+          "label": "Frame ON  + Predicate ON  (F3 completo)",
+          "rank": null,
+          "in_top5": false,
+          "gold_score": 0.0,
+          "impact": "RESCUE_LOST"
+        },
+        "B": {
+          "label": "Frame OFF + Predicate ON",
+          "rank": null,
+          "in_top5": false,
+          "gold_score": 0.0,
+          "impact": "RESCUE_LOST"
+        },
+        "C": {
+          "label": "Frame ON  + Predicate OFF",
+          "rank": null,
+          "in_top5": false,
+          "gold_score": 0.0,
+          "impact": "RESCUE_LOST"
+        },
+        "D": {
+          "label": "Frame OFF + Predicate OFF (equivale a spreading sin tipado)",
+          "rank": null,
+          "in_top5": false,
+          "gold_score": 0.03127,
+          "impact": "RESCUE_LOST"
+        },
+        "E": {
+          "label": "Frame ON  + Predicate ON  + typed_derived OFF",
+          "rank": null,
+          "in_top5": false,
+          "gold_score": 0.0,
+          "impact": "RESCUE_LOST"
+        },
+        "F": {
+          "label": "Frame ON  + Predicate ON  + physical_SINONIMO_DE OFF",
+          "rank": null,
+          "in_top5": false,
+          "gold_score": 0.0,
+          "impact": "RESCUE_LOST"
+        },
+        "G": {
+          "label": "Frame ON  + Predicate ON  + graph_propagation OFF (solo semillas)",
+          "rank": null,
+          "in_top5": false,
+          "gold_score": 0.0,
+          "impact": "RESCUE_LOST"
+        },
+        "H": {
+          "label": "Frame ON  + Predicate ON  + candidate_focalization OFF",
+          "rank": null,
+          "in_top5": false,
+          "gold_score": 0.0,
+          "impact": "RESCUE_LOST"
+        }
+      },
+      "causal_diagnosis": {
+        "verdict": "NOT_A_RESCUE",
+        "components_tested": []
+      },
+      "suite": "CORPUS_SHIFT",
+      "id": "CS_02"
+    },
+    {
+      "query": "parche de subsanacion de anomalia en difusion de paquetes",
+      "gold": "fix_mensajeria_broadcast_tracking_por_agente",
+      "rank_F0": null,
+      "rank_A": null,
+      "is_rescue": false,
+      "causal_chain": null,
+      "ablation_factorial": {
+        "A": {
+          "label": "Frame ON  + Predicate ON  (F3 completo)",
+          "rank": null,
+          "in_top5": false,
+          "gold_score": 0.0,
+          "impact": "RESCUE_LOST"
+        },
+        "B": {
+          "label": "Frame OFF + Predicate ON",
+          "rank": null,
+          "in_top5": false,
+          "gold_score": 0.0,
+          "impact": "RESCUE_LOST"
+        },
+        "C": {
+          "label": "Frame ON  + Predicate OFF",
+          "rank": null,
+          "in_top5": false,
+          "gold_score": 0.0,
+          "impact": "RESCUE_LOST"
+        },
+        "D": {
+          "label": "Frame OFF + Predicate OFF (equivale a spreading sin tipado)",
+          "rank": null,
+          "in_top5": false,
+          "gold_score": 0.0,
+          "impact": "RESCUE_LOST"
+        },
+        "E": {
+          "label": "Frame ON  + Predicate ON  + typed_derived OFF",
+          "rank": null,
+          "in_top5": false,
+          "gold_score": 0.0,
+          "impact": "RESCUE_LOST"
+        },
+        "F": {
+          "label": "Frame ON  + Predicate ON  + physical_SINONIMO_DE OFF",
+          "rank": null,
+          "in_top5": false,
+          "gold_score": 0.0,
+          "impact": "RESCUE_LOST"
+        },
+        "G": {
+          "label": "Frame ON  + Predicate ON  + graph_propagation OFF (solo semillas)",
+          "rank": null,
+          "in_top5": false,
+          "gold_score": 0.0,
+          "impact": "RESCUE_LOST"
+        },
+        "H": {
+          "label": "Frame ON  + Predicate ON  + candidate_focalization OFF",
+          "rank": null,
+          "in_top5": false,
+          "gold_score": 0.0,
+          "impact": "RESCUE_LOST"
+        }
+      },
+      "causal_diagnosis": {
+        "verdict": "NOT_A_RESCUE",
+        "components_tested": []
+      },
+      "suite": "CORPUS_SHIFT",
+      "id": "CS_03"
+    },
+    {
+      "query": "doctrina y concepcion epistemologica sobre utilizacion de recuerdos",
+      "gold": "mentalidad_biorag_para_agentes",
+      "rank_F0": null,
+      "rank_A": null,
+      "is_rescue": false,
+      "causal_chain": {
+        "FRAME": {
+          "intent": [
+            "APRENDIZAJE"
+          ],
+          "concept_type": [
+            "COGNITIVO"
+          ],
+          "modality": [
+            "DESCRIPTIVA"
+          ],
+          "temporal_relation": [
+            "INVARIANTE"
+          ],
+          "causal_relation": [],
+          "domain": [
+            "METAPENSAMIENTO"
+          ],
+          "entities": [],
+          "actions": [],
+          "states": []
+        },
+        "PREDICATE": [
+          "APRENDIZAJE"
+        ],
+        "SEED": "ajuste_tejedora_valencia_desempate_fase1",
+        "SEED_RAW_SCORE": 0.49541,
+        "SEED_FOCUSED_SCORE": 0.2477,
+        "RELATION_USED": "SINONIMO_DE",
+        "EDGE_WEIGHT": 0.9,
+        "EDGE_CONFIDENCE": 1.0,
+        "EDGE_PROVENANCE": "sinapsis(tipo=sinonimo_explicito)",
+        "EDGE_IS_PHYSICAL_SINONIMO": true,
+        "EDGE_IS_DERIVED": false,
+        "PATH": "ajuste_tejedora_valencia_desempate_fase1 --[SINONIMO_DE]--> mentalidad_biorag_para_agentes",
+        "GOLD_SCORE_A": 0.29492,
+        "RANK_A": null
+      },
+      "ablation_factorial": {
+        "A": {
+          "label": "Frame ON  + Predicate ON  (F3 completo)",
+          "rank": null,
+          "in_top5": false,
+          "gold_score": 0.29492,
+          "impact": "RESCUE_LOST"
+        },
+        "B": {
+          "label": "Frame OFF + Predicate ON",
+          "rank": null,
+          "in_top5": false,
+          "gold_score": 0.58983,
+          "impact": "RESCUE_LOST"
+        },
+        "C": {
+          "label": "Frame ON  + Predicate OFF",
+          "rank": null,
+          "in_top5": false,
+          "gold_score": 0.58983,
+          "impact": "RESCUE_LOST"
+        },
+        "D": {
+          "label": "Frame OFF + Predicate OFF (equivale a spreading sin tipado)",
+          "rank": null,
+          "in_top5": false,
+          "gold_score": 0.60974,
+          "impact": "RESCUE_LOST"
+        },
+        "E": {
+          "label": "Frame ON  + Predicate ON  + typed_derived OFF",
+          "rank": null,
+          "in_top5": false,
+          "gold_score": 0.29492,
+          "impact": "RESCUE_LOST"
+        },
+        "F": {
+          "label": "Frame ON  + Predicate ON  + physical_SINONIMO_DE OFF",
+          "rank": null,
+          "in_top5": false,
+          "gold_score": 0.26924,
+          "impact": "RESCUE_LOST"
+        },
+        "G": {
+          "label": "Frame ON  + Predicate ON  + graph_propagation OFF (solo semillas)",
+          "rank": null,
+          "in_top5": false,
+          "gold_score": 0.26924,
+          "impact": "RESCUE_LOST"
+        },
+        "H": {
+          "label": "Frame ON  + Predicate ON  + candidate_focalization OFF",
+          "rank": null,
+          "in_top5": false,
+          "gold_score": 0.60267,
+          "impact": "RESCUE_LOST"
+        }
+      },
+      "causal_diagnosis": {
+        "verdict": "NOT_A_RESCUE",
+        "components_tested": []
+      },
+      "suite": "CORPUS_SHIFT",
+      "id": "CS_04"
+    },
+    {
+      "query": "biografia ontologica del artifice de la plataforma",
+      "gold": "dennys-identidad-profunda",
+      "rank_F0": null,
+      "rank_A": null,
+      "is_rescue": false,
+      "causal_chain": {
+        "FRAME": {
+          "intent": [
+            "IDENTIDAD"
+          ],
+          "concept_type": [
+            "IDENTIDAD"
+          ],
+          "modality": [
+            "DESCRIPTIVA"
+          ],
+          "temporal_relation": [
+            "INVARIANTE"
+          ],
+          "causal_relation": [],
+          "domain": [
+            "AUTORIA_Y_PERSONA"
+          ],
+          "entities": [],
+          "actions": [],
+          "states": []
+        },
+        "PREDICATE": [
+          "IDENTIDAD"
+        ],
+        "SEED": "artemis_oec_perfil_identidad_estabilidad",
+        "SEED_RAW_SCORE": 1.0,
+        "SEED_FOCUSED_SCORE": 2.0,
+        "RELATION_USED": "SINONIMO_DE",
+        "EDGE_WEIGHT": 0.9,
+        "EDGE_CONFIDENCE": 1.0,
+        "EDGE_PROVENANCE": "sinapsis(tipo=sinonimo_explicito)",
+        "EDGE_IS_PHYSICAL_SINONIMO": true,
+        "EDGE_IS_DERIVED": false,
+        "PATH": "artemis_oec_perfil_identidad_estabilidad --[SINONIMO_DE]--> dennys-identidad-profunda",
+        "GOLD_SCORE_A": 2.31527,
+        "RANK_A": null
+      },
+      "ablation_factorial": {
+        "A": {
+          "label": "Frame ON  + Predicate ON  (F3 completo)",
+          "rank": null,
+          "in_top5": false,
+          "gold_score": 2.31527,
+          "impact": "RESCUE_LOST"
+        },
+        "B": {
+          "label": "Frame OFF + Predicate ON",
+          "rank": null,
+          "in_top5": false,
+          "gold_score": 1.08309,
+          "impact": "RESCUE_LOST"
+        },
+        "C": {
+          "label": "Frame ON  + Predicate OFF",
+          "rank": null,
+          "in_top5": false,
+          "gold_score": 1.08309,
+          "impact": "RESCUE_LOST"
+        },
+        "D": {
+          "label": "Frame OFF + Predicate OFF (equivale a spreading sin tipado)",
+          "rank": null,
+          "in_top5": false,
+          "gold_score": 1.24578,
+          "impact": "RESCUE_LOST"
+        },
+        "E": {
+          "label": "Frame ON  + Predicate ON  + typed_derived OFF",
+          "rank": null,
+          "in_top5": false,
+          "gold_score": 2.18917,
+          "impact": "RESCUE_LOST"
+        },
+        "F": {
+          "label": "Frame ON  + Predicate ON  + physical_SINONIMO_DE OFF",
+          "rank": null,
+          "in_top5": false,
+          "gold_score": 2.1261,
+          "impact": "RESCUE_LOST"
+        },
+        "G": {
+          "label": "Frame ON  + Predicate ON  + graph_propagation OFF (solo semillas)",
+          "rank": null,
+          "in_top5": false,
+          "gold_score": 2.0,
+          "impact": "RESCUE_LOST"
+        },
+        "H": {
+          "label": "Frame ON  + Predicate ON  + candidate_focalization OFF",
+          "rank": null,
+          "in_top5": false,
+          "gold_score": 1.1459,
+          "impact": "RESCUE_LOST"
+        }
+      },
+      "causal_diagnosis": {
+        "verdict": "NOT_A_RESCUE",
+        "components_tested": []
+      },
+      "suite": "CORPUS_SHIFT",
+      "id": "CS_05"
+    },
+    {
+      "query": "puente de exportacion bidireccional hacia repositorio remoto",
+      "gold": "notebooklm-memory-biorag-project",
+      "rank_F0": null,
+      "rank_A": 2,
+      "is_rescue": true,
+      "causal_chain": {
+        "FRAME": {
+          "intent": [
+            "INTEGRACION"
+          ],
+          "concept_type": [
+            "SYNC"
+          ],
+          "modality": [
+            "DESCRIPTIVA"
+          ],
+          "temporal_relation": [
+            "INVARIANTE"
+          ],
+          "causal_relation": [],
+          "domain": [
+            "INTEROPERABILIDAD"
+          ],
+          "entities": [],
+          "actions": [],
+          "states": []
+        },
+        "PREDICATE": [
+          "INTEGRACIÓN"
+        ],
+        "SEED": "oracle_que_recordar_sobre_artemis_hermes",
+        "SEED_RAW_SCORE": 0.29895,
+        "SEED_FOCUSED_SCORE": 0.14947,
+        "RELATION_USED": "SINONIMO_DE",
+        "EDGE_WEIGHT": 0.9,
+        "EDGE_CONFIDENCE": 1.0,
+        "EDGE_PROVENANCE": "sinapsis(tipo=sinonimo_explicito)",
+        "EDGE_IS_PHYSICAL_SINONIMO": true,
+        "EDGE_IS_DERIVED": false,
+        "PATH": "oracle_que_recordar_sobre_artemis_hermes --[SINONIMO_DE]--> notebooklm-memory-biorag-project",
+        "GOLD_SCORE_A": 0.21706,
+        "RANK_A": 2
+      },
+      "ablation_factorial": {
+        "A": {
+          "label": "Frame ON  + Predicate ON  (F3 completo)",
+          "rank": 2,
+          "in_top5": true,
+          "gold_score": 0.21706,
+          "impact": "RESCUE_MAINTAINED"
+        },
+        "B": {
+          "label": "Frame OFF + Predicate ON",
+          "rank": null,
+          "in_top5": false,
+          "gold_score": 0.12391,
+          "impact": "RESCUE_LOST"
+        },
+        "C": {
+          "label": "Frame ON  + Predicate OFF",
+          "rank": null,
+          "in_top5": false,
+          "gold_score": 0.12391,
+          "impact": "RESCUE_LOST"
+        },
+        "D": {
+          "label": "Frame OFF + Predicate OFF (equivale a spreading sin tipado)",
+          "rank": null,
+          "in_top5": false,
+          "gold_score": 0.15626,
+          "impact": "RESCUE_LOST"
+        },
+        "E": {
+          "label": "Frame ON  + Predicate ON  + typed_derived OFF",
+          "rank": 2,
+          "in_top5": true,
+          "gold_score": 0.21706,
+          "impact": "RESCUE_MAINTAINED"
+        },
+        "F": {
+          "label": "Frame ON  + Predicate ON  + physical_SINONIMO_DE OFF",
+          "rank": 2,
+          "in_top5": true,
+          "gold_score": 0.18991,
+          "impact": "RESCUE_MAINTAINED"
+        },
+        "G": {
+          "label": "Frame ON  + Predicate ON  + graph_propagation OFF (solo semillas)",
+          "rank": 2,
+          "in_top5": true,
+          "gold_score": 0.18991,
+          "impact": "RESCUE_MAINTAINED"
+        },
+        "H": {
+          "label": "Frame ON  + Predicate ON  + candidate_focalization OFF",
+          "rank": null,
+          "in_top5": false,
+          "gold_score": 0.13115,
+          "impact": "RESCUE_LOST"
+        }
+      },
+      "causal_diagnosis": {
+        "verdict": "FOCALIZATION_REQUIRED — rescue requiere focalización de candidatos",
+        "responsible_components": [
+          "FRAME",
+          "PREDICATE",
+          "CANDIDATE_FOCALIZATION"
+        ],
+        "sinonimo_de_sufficient": true,
+        "derived_typed_required": false,
+        "notes": [
+          "DERIVED_TYPED_EDGE_NOT_REQUIRED: rescue persiste al eliminar aristas derivadas tipadas"
+        ]
+      },
+      "suite": "CORPUS_SHIFT",
+      "id": "CS_06"
+    }
+  ],
+  "fp_diagnoses_sample": [
+    {
+      "query": "como lograr mejor velocidad al escribir codigo en react",
+      "fp_by_condition": {
+        "A": {
+          "is_fp": false,
+          "top1_score": 1.5493,
+          "top1_node": "evaluacion_ideas_evolucion_20260805_interferencia_agujeros_permutacion"
+        },
+        "B": {
+          "is_fp": false,
+          "top1_score": 1.1044,
+          "top1_node": "notebooklm-sync-lecciones"
+        },
+        "C": {
+          "is_fp": false,
+          "top1_score": 1.1044,
+          "top1_node": "notebooklm-sync-lecciones"
+        },
+        "D": {
+          "is_fp": false,
+          "top1_score": 1.3446,
+          "top1_node": "notebooklm-sync-protocol"
+        },
+        "E": {
+          "is_fp": false,
+          "top1_score": 1.5493,
+          "top1_node": "evaluacion_ideas_evolucion_20260805_interferencia_agujeros_permutacion"
+        },
+        "F": {
+          "is_fp": false,
+          "top1_score": 1.4262,
+          "top1_node": "evaluacion_ideas_evolucion_20260805_interferencia_agujeros_permutacion"
+        },
+        "G": {
+          "is_fp": false,
+          "top1_score": 1.4262,
+          "top1_node": "evaluacion_ideas_evolucion_20260805_interferencia_agujeros_permutacion"
+        },
+        "H": {
+          "is_fp": false,
+          "top1_score": 1.226,
+          "top1_node": "notebooklm-sync-lecciones"
+        }
+      },
+      "components_that_eliminate_fp": []
+    },
+    {
+      "query": "antes y despues de la toma de decisiones filosoficas",
+      "fp_by_condition": {
+        "A": {
+          "is_fp": false,
+          "top1_score": 1.2285,
+          "top1_node": "protocolo_avance_autonomo_validacion_auditor_externo"
+        },
+        "B": {
+          "is_fp": false,
+          "top1_score": 0.7468,
+          "top1_node": "oracle_guia_proxima_sesion_dennys"
+        },
+        "C": {
+          "is_fp": false,
+          "top1_score": 0.7468,
+          "top1_node": "oracle_guia_proxima_sesion_dennys"
+        },
+        "D": {
+          "is_fp": false,
+          "top1_score": 0.8534,
+          "top1_node": "oracle_guia_proxima_sesion_dennys"
+        },
+        "E": {
+          "is_fp": false,
+          "top1_score": 1.1074,
+          "top1_node": "protocolo_no_monolith_css_compartido"
+        },
+        "F": {
+          "is_fp": false,
+          "top1_score": 1.1623,
+          "top1_node": "protocolo_avance_autonomo_validacion_auditor_externo"
+        },
+        "G": {
+          "is_fp": false,
+          "top1_score": 1.0099,
+          "top1_node": "protocolo_avance_autonomo_validacion_auditor_externo"
+        },
+        "H": {
+          "is_fp": false,
+          "top1_score": 0.8247,
+          "top1_node": "oracle_guia_proxima_sesion_dennys"
+        }
+      },
+      "components_that_eliminate_fp": []
+    },
+    {
+      "query": "el promedio de horas antes de descansar en la rutina diaria",
+      "fp_by_condition": {
+        "A": {
+          "is_fp": false,
+          "top1_score": 1.1074,
+          "top1_node": "protocolo_no_monolith_css_compartido"
+        },
+        "B": {
+          "is_fp": false,
+          "top1_score": 0.776,
+          "top1_node": "plugin-openode-biorag-remember-v9-final-lecciones-sesion-completa"
+        },
+        "C": {
+          "is_fp": false,
+          "top1_score": 0.776,
+          "top1_node": "plugin-openode-biorag-remember-v9-final-lecciones-sesion-completa"
+        },
+        "D": {
+          "is_fp": false,
+          "top1_score": 0.8913,
+          "top1_node": "plugin-openode-biorag-remember-v9-final-lecciones-sesion-completa"
+        },
+        "E": {
+          "is_fp": false,
+          "top1_score": 1.1074,
+          "top1_node": "protocolo_no_monolith_css_compartido"
+        },
+        "F": {
+          "is_fp": false,
+          "top1_score": 1.0,
+          "top1_node": "protocolo_no_monolith_css_compartido"
+        },
+        "G": {
+          "is_fp": false,
+          "top1_score": 1.0,
+          "top1_node": "protocolo_no_monolith_css_compartido"
+        },
+        "H": {
+          "is_fp": false,
+          "top1_score": 0.8265,
+          "top1_node": "biorag_v6_0_changelog"
+        }
+      },
+      "components_that_eliminate_fp": []
+    },
+    {
+      "query": "evaluacion cualitativa de la confianza entre humanos y agentes",
+      "fp_by_condition": {
+        "A": {
+          "is_fp": false,
+          "top1_score": 0.4124,
+          "top1_node": "evaluacion_reviews_externos_biorag"
+        },
+        "B": {
+          "is_fp": false,
+          "top1_score": 0.7262,
+          "top1_node": "mf_sgns_loss_correcta_kenyon_dean_part2_20260807"
+        },
+        "C": {
+          "is_fp": false,
+          "top1_score": 0.7262,
+          "top1_node": "mf_sgns_loss_correcta_kenyon_dean_part2_20260807"
+        },
+        "D": {
+          "is_fp": false,
+          "top1_score": 0.8948,
+          "top1_node": "mf_sgns_loss_correcta_kenyon_dean_part2_20260807"
+        },
+        "E": {
+          "is_fp": false,
+          "top1_score": 0.4124,
+          "top1_node": "evaluacion_reviews_externos_biorag"
+        },
+        "F": {
+          "is_fp": false,
+          "top1_score": 0.3841,
+          "top1_node": "evaluacion_reviews_externos_biorag"
+        },
+        "G": {
+          "is_fp": false,
+          "top1_score": 0.3841,
+          "top1_node": "evaluacion_reviews_externos_biorag"
+        },
+        "H": {
+          "is_fp": false,
+          "top1_score": 0.7742,
+          "top1_node": "mf_sgns_loss_correcta_kenyon_dean_part2_20260807"
+        }
+      },
+      "components_that_eliminate_fp": []
+    },
+    {
+      "query": "la mejor forma de expresar gratitud despues de una sesion",
+      "fp_by_condition": {
+        "A": {
+          "is_fp": false,
+          "top1_score": 1.2562,
+          "top1_node": "evaluacion_ideas_evolucion_20260805_interferencia_agujeros_permutacion"
+        },
+        "B": {
+          "is_fp": false,
+          "top1_score": 0.8407,
+          "top1_node": "fca_chequeo_sugeridor_dimensiones_refutado_frecuencia_no_semantica"
+        },
+        "C": {
+          "is_fp": false,
+          "top1_score": 0.8407,
+          "top1_node": "fca_chequeo_sugeridor_dimensiones_refutado_frecuencia_no_semantica"
+        },
+        "D": {
+          "is_fp": false,
+          "top1_score": 1.0108,
+          "top1_node": "research-pipeline-ownership-oec"
+        },
+        "E": {
+          "is_fp": false,
+          "top1_score": 1.2562,
+          "top1_node": "evaluacion_ideas_evolucion_20260805_interferencia_agujeros_permutacion"
+        },
+        "F": {
+          "is_fp": false,
+          "top1_score": 1.2044,
+          "top1_node": "evaluacion_ideas_evolucion_20260805_interferencia_agujeros_permutacion"
+        },
+        "G": {
+          "is_fp": false,
+          "top1_score": 1.2044,
+          "top1_node": "evaluacion_ideas_evolucion_20260805_interferencia_agujeros_permutacion"
+        },
+        "H": {
+          "is_fp": false,
+          "top1_score": 0.8964,
+          "top1_node": "fca_chequeo_sugeridor_dimensiones_refutado_frecuencia_no_semantica"
+        }
+      },
+      "components_that_eliminate_fp": []
+    },
+    {
+      "query": "medicion del impacto emocional antes del cambio de rol",
+      "fp_by_condition": {
+        "A": {
+          "is_fp": true,
+          "top1_score": 2.3474,
+          "top1_node": "protocolo-reproducible-ingenieria-inversa-binario-compilado"
+        },
+        "B": {
+          "is_fp": false,
+          "top1_score": 1.7286,
+          "top1_node": "tematico_score_mide_pool_no_query_biorag"
+        },
+        "C": {
+          "is_fp": false,
+          "top1_score": 1.7286,
+          "top1_node": "tematico_score_mide_pool_no_query_biorag"
+        },
+        "D": {
+          "is_fp": true,
+          "top1_score": 2.1213,
+          "top1_node": "athena_arquitectura_memoria_agente_v24_2"
+        },
+        "E": {
+          "is_fp": true,
+          "top1_score": 2.3474,
+          "top1_node": "protocolo-reproducible-ingenieria-inversa-binario-compilado"
+        },
+        "F": {
+          "is_fp": true,
+          "top1_score": 2.0732,
+          "top1_node": "identificacion_obligatoria_oracculo_dominio_por_agente"
+        },
+        "G": {
+          "is_fp": false,
+          "top1_score": 2.0,
+          "top1_node": "identificacion_obligatoria_oracculo_dominio_por_agente"
+        },
+        "H": {
+          "is_fp": false,
+          "top1_score": 1.9108,
+          "top1_node": "tematico_score_mide_pool_no_query_biorag"
+        }
+      },
+      "components_that_eliminate_fp": [
+        "Frame OFF + Predicate ON",
+        "Frame ON  + Predicate OFF",
+        "Frame ON  + Predicate ON  + graph_propagation OFF",
+        "Frame ON  + Predicate ON  + candidate_focalization OFF"
+      ]
+    },
+    {
+      "query": "comparativa de estilos de liderazgo antes de 2026",
+      "fp_by_condition": {
+        "A": {
+          "is_fp": true,
+          "top1_score": 2.5455,
+          "top1_node": "analisis_escalabilidad_10k_v5_1_memoria_v5_1_optimizaciones_hermes_agente_hermes"
+        },
+        "B": {
+          "is_fp": false,
+          "top1_score": 1.9464,
+          "top1_node": "research-pipeline-ownership-oec"
+        },
+        "C": {
+          "is_fp": false,
+          "top1_score": 1.9464,
+          "top1_node": "research-pipeline-ownership-oec"
+        },
+        "D": {
+          "is_fp": true,
+          "top1_score": 2.6272,
+          "top1_node": "research-pipeline-ownership-oec"
+        },
+        "E": {
+          "is_fp": true,
+          "top1_score": 2.5455,
+          "top1_node": "analisis_escalabilidad_10k_v5_1_memoria_v5_1_optimizaciones_hermes_agente_hermes"
+        },
+        "F": {
+          "is_fp": false,
+          "top1_score": 2.0,
+          "top1_node": "integracion_parafrasis_rafaga_obligatoria_v11_3"
+        },
+        "G": {
+          "is_fp": false,
+          "top1_score": 2.0,
+          "top1_node": "integracion_parafrasis_rafaga_obligatoria_v11_3"
+        },
+        "H": {
+          "is_fp": true,
+          "top1_score": 2.1979,
+          "top1_node": "research-pipeline-ownership-oec"
+        }
+      },
+      "components_that_eliminate_fp": [
+        "Frame OFF + Predicate ON",
+        "Frame ON  + Predicate OFF",
+        "Frame ON  + Predicate ON  + physical_SINONIMO_DE OFF",
+        "Frame ON  + Predicate ON  + graph_propagation OFF"
+      ]
+    },
+    {
+      "query": "rendimiento cognitivo en estados de sueno y reflexion",
+      "fp_by_condition": {
+        "A": {
+          "is_fp": false,
+          "top1_score": 0.4052,
+          "top1_node": "analisis_escalabilidad_10k_v5_1"
+        },
+        "B": {
+          "is_fp": false,
+          "top1_score": 0.451,
+          "top1_node": "biorag_v18_0_estado"
+        },
+        "C": {
+          "is_fp": false,
+          "top1_score": 0.451,
+          "top1_node": "biorag_v18_0_estado"
+        },
+        "D": {
+          "is_fp": false,
+          "top1_score": 0.488,
+          "top1_node": "biorag_v18_0_estado"
+        },
+        "E": {
+          "is_fp": false,
+          "top1_score": 0.4052,
+          "top1_node": "analisis_escalabilidad_10k_v5_1"
+        },
+        "F": {
+          "is_fp": false,
+          "top1_score": 0.3997,
+          "top1_node": "analisis_escalabilidad_10k_v5_1"
+        },
+        "G": {
+          "is_fp": false,
+          "top1_score": 0.3997,
+          "top1_node": "analisis_escalabilidad_10k_v5_1"
+        },
+        "H": {
+          "is_fp": false,
+          "top1_score": 0.488,
+          "top1_node": "biorag_v18_0_estado"
+        }
+      },
+      "components_that_eliminate_fp": []
+    },
+    {
+      "query": "rapidez de respuesta frente a dilemas eticos y mejor conducta",
+      "fp_by_condition": {
+        "A": {
+          "is_fp": false,
+          "top1_score": 0.7177,
+          "top1_node": "benchmark_sinonimo_integrado"
+        },
+        "B": {
+          "is_fp": false,
+          "top1_score": 0.6263,
+          "top1_node": "reconocimiento_identidad_oraculo_manifiesto"
+        },
+        "C": {
+          "is_fp": false,
+          "top1_score": 0.6263,
+          "top1_node": "reconocimiento_identidad_oraculo_manifiesto"
+        },
+        "D": {
+          "is_fp": false,
+          "top1_score": 0.7026,
+          "top1_node": "v23_0_weight_adjustment_resultados_validados"
+        },
+        "E": {
+          "is_fp": false,
+          "top1_score": 0.7177,
+          "top1_node": "benchmark_sinonimo_integrado"
+        },
+        "F": {
+          "is_fp": false,
+          "top1_score": 0.7177,
+          "top1_node": "benchmark_sinonimo_integrado"
+        },
+        "G": {
+          "is_fp": false,
+          "top1_score": 0.7177,
+          "top1_node": "benchmark_sinonimo_integrado"
+        },
+        "H": {
+          "is_fp": false,
+          "top1_score": 0.6472,
+          "top1_node": "reconocimiento_identidad_oraculo_manifiesto"
+        }
+      },
+      "components_that_eliminate_fp": []
+    },
+    {
+      "query": "metrica subjetiva de la lealtad y el mejor companero",
+      "fp_by_condition": {
+        "A": {
+          "is_fp": false,
+          "top1_score": 0.7177,
+          "top1_node": "benchmark_sinonimo_integrado"
+        },
+        "B": {
+          "is_fp": false,
+          "top1_score": 0.5696,
+          "top1_node": "changelog_v10_recall_semantico_typo_tolerant"
+        },
+        "C": {
+          "is_fp": false,
+          "top1_score": 0.5696,
+          "top1_node": "changelog_v10_recall_semantico_typo_tolerant"
+        },
+        "D": {
+          "is_fp": false,
+          "top1_score": 0.6811,
+          "top1_node": "v23_0_weight_adjustment_resultados_validados"
+        },
+        "E": {
+          "is_fp": false,
+          "top1_score": 0.7177,
+          "top1_node": "benchmark_sinonimo_integrado"
+        },
+        "F": {
+          "is_fp": false,
+          "top1_score": 0.7177,
+          "top1_node": "benchmark_sinonimo_integrado"
+        },
+        "G": {
+          "is_fp": false,
+          "top1_score": 0.7177,
+          "top1_node": "benchmark_sinonimo_integrado"
+        },
+        "H": {
+          "is_fp": false,
+          "top1_score": 0.6087,
+          "top1_node": "changelog_v10_recall_semantico_typo_tolerant"
+        }
+      },
+      "components_that_eliminate_fp": []
+    },
+    {
+      "query": "debo admitir que cada paso en la vida ensena algo",
+      "fp_by_condition": {
+        "A": {
+          "is_fp": true,
+          "top1_score": 2.3034,
+          "top1_node": "identificacion_obligatoria_oracculo_dominio_por_agente"
+        },
+        "B": {
+          "is_fp": true,
+          "top1_score": 2.0222,
+          "top1_node": "leccion_contenido_autodescriptivo_memoria"
+        },
+        "C": {
+          "is_fp": true,
+          "top1_score": 2.0222,
+          "top1_node": "leccion_contenido_autodescriptivo_memoria"
+        },
+        "D": {
+          "is_fp": true,
+          "top1_score": 2.3883,
+          "top1_node": "biorag_v18_0_estado"
+        },
+        "E": {
+          "is_fp": true,
+          "top1_score": 2.2675,
+          "top1_node": "protocolo_verificacion_preaccion_dinamico"
+        },
+        "F": {
+          "is_fp": true,
+          "top1_score": 2.1438,
+          "top1_node": "identificacion_obligatoria_oracculo_dominio_por_agente"
+        },
+        "G": {
+          "is_fp": false,
+          "top1_score": 2.0,
+          "top1_node": "protocolo_prueba_poda_copia_antes_produccion"
+        },
+        "H": {
+          "is_fp": true,
+          "top1_score": 2.2778,
+          "top1_node": "leccion_contenido_autodescriptivo_memoria"
+        }
+      },
+      "components_that_eliminate_fp": [
+        "Frame ON  + Predicate ON  + graph_propagation OFF"
+      ]
+    },
+    {
+      "query": "la regla de tres en el diseno estetico visual paso a paso",
+      "fp_by_condition": {
+        "A": {
+          "is_fp": false,
+          "top1_score": 0.8709,
+          "top1_node": "protocolo_no_monolith_css_compartido"
+        },
+        "B": {
+          "is_fp": false,
+          "top1_score": 0.7873,
+          "top1_node": "auditoría_técnica:_memorybiorag_(manus_ai)"
+        },
+        "C": {
+          "is_fp": false,
+          "top1_score": 0.7873,
+          "top1_node": "auditoría_técnica:_memorybiorag_(manus_ai)"
+        },
+        "D": {
+          "is_fp": false,
+          "top1_score": 0.808,
+          "top1_node": "auditoría_técnica:_memorybiorag_(manus_ai)"
+        },
+        "E": {
+          "is_fp": false,
+          "top1_score": 0.8709,
+          "top1_node": "protocolo_no_monolith_css_compartido"
+        },
+        "F": {
+          "is_fp": false,
+          "top1_score": 0.7929,
+          "top1_node": "protocolo_no_monolith_css_compartido"
+        },
+        "G": {
+          "is_fp": false,
+          "top1_score": 0.7929,
+          "top1_node": "protocolo_no_monolith_css_compartido"
+        },
+        "H": {
+          "is_fp": false,
+          "top1_score": 0.808,
+          "top1_node": "auditoría_técnica:_memorybiorag_(manus_ai)"
+        }
+      },
+      "components_that_eliminate_fp": []
+    },
+    {
+      "query": "un procedimiento de respiracion antes_de meditar profundamente",
+      "fp_by_condition": {
+        "A": {
+          "is_fp": false,
+          "top1_score": 0.1268,
+          "top1_node": "patron_pensamiento_lateral_antes_de_proponer"
+        },
+        "B": {
+          "is_fp": false,
+          "top1_score": 0.2535,
+          "top1_node": "patron_pensamiento_lateral_antes_de_proponer"
+        },
+        "C": {
+          "is_fp": false,
+          "top1_score": 0.2535,
+          "top1_node": "patron_pensamiento_lateral_antes_de_proponer"
+        },
+        "D": {
+          "is_fp": false,
+          "top1_score": 0.262,
+          "top1_node": "regla_verificar_codigo_real_antes_de_diagnostico"
+        },
+        "E": {
+          "is_fp": false,
+          "top1_score": 0.1268,
+          "top1_node": "patron_pensamiento_lateral_antes_de_proponer"
+        },
+        "F": {
+          "is_fp": false,
+          "top1_score": 0.1268,
+          "top1_node": "patron_pensamiento_lateral_antes_de_proponer"
+        },
+        "G": {
+          "is_fp": false,
+          "top1_score": 0.1268,
+          "top1_node": "patron_pensamiento_lateral_antes_de_proponer"
+        },
+        "H": {
+          "is_fp": false,
+          "top1_score": 0.2535,
+          "top1_node": "patron_pensamiento_lateral_antes_de_proponer"
+        }
+      },
+      "components_that_eliminate_fp": []
+    },
+    {
+      "query": "instruccion no mandatoria sobre como redactar poesia sintetica",
+      "fp_by_condition": {
+        "A": {
+          "is_fp": false,
+          "top1_score": 1.689,
+          "top1_node": "protocolo_avance_autonomo_validacion_auditor_externo"
+        },
+        "B": {
+          "is_fp": false,
+          "top1_score": 1.2554,
+          "top1_node": "dashboard_neuro_visor_estado_implementacion_julio_2026"
+        },
+        "C": {
+          "is_fp": false,
+          "top1_score": 1.2554,
+          "top1_node": "dashboard_neuro_visor_estado_implementacion_julio_2026"
+        },
+        "D": {
+          "is_fp": false,
+          "top1_score": 1.4139,
+          "top1_node": "athena_oec"
+        },
+        "E": {
+          "is_fp": false,
+          "top1_score": 1.4963,
+          "top1_node": "protocolo_avance_autonomo_validacion_auditor_externo_athena_metodología"
+        },
+        "F": {
+          "is_fp": false,
+          "top1_score": 1.559,
+          "top1_node": "protocolo_avance_autonomo_validacion_auditor_externo"
+        },
+        "G": {
+          "is_fp": false,
+          "top1_score": 1.3531,
+          "top1_node": "protocolo_avance_autonomo_validacion_auditor_externo"
+        },
+        "H": {
+          "is_fp": false,
+          "top1_score": 1.3807,
+          "top1_node": "dashboard_neuro_visor_estado_implementacion_julio_2026"
+        }
+      },
+      "components_that_eliminate_fp": []
+    },
+    {
+      "query": "la norma social de saludar antes_de iniciar un debate informal",
+      "fp_by_condition": {
+        "A": {
+          "is_fp": false,
+          "top1_score": 0.5206,
+          "top1_node": "integracion_parafrasis_rafaga_obligatoria_v11_3"
+        },
+        "B": {
+          "is_fp": false,
+          "top1_score": 0.6142,
+          "top1_node": "auditoría_técnica:_memorybiorag_(manus_ai)"
+        },
+        "C": {
+          "is_fp": false,
+          "top1_score": 0.6142,
+          "top1_node": "auditoría_técnica:_memorybiorag_(manus_ai)"
+        },
+        "D": {
+          "is_fp": false,
+          "top1_score": 0.624,
+          "top1_node": "auditoría_técnica:_memorybiorag_(manus_ai)"
+        },
+        "E": {
+          "is_fp": false,
+          "top1_score": 0.5206,
+          "top1_node": "integracion_parafrasis_rafaga_obligatoria_v11_3"
+        },
+        "F": {
+          "is_fp": false,
+          "top1_score": 0.5095,
+          "top1_node": "protocolo_traduccion_jerga_humano"
+        },
+        "G": {
+          "is_fp": false,
+          "top1_score": 0.5095,
+          "top1_node": "protocolo_traduccion_jerga_humano"
+        },
+        "H": {
+          "is_fp": false,
+          "top1_score": 0.624,
+          "top1_node": "auditoría_técnica:_memorybiorag_(manus_ai)"
+        }
+      },
+      "components_that_eliminate_fp": []
+    },
+    {
+      "query": "debo reconocer el paso del tiempo en la arquitectura antigua",
+      "fp_by_condition": {
+        "A": {
+          "is_fp": true,
+          "top1_score": 2.6263,
+          "top1_node": "protocolo_parafrasis_uso"
+        },
+        "B": {
+          "is_fp": false,
+          "top1_score": 1.9976,
+          "top1_node": "boost_dimensional_toco_techo_discriminacion_evidencia"
+        },
+        "C": {
+          "is_fp": false,
+          "top1_score": 1.9976,
+          "top1_node": "boost_dimensional_toco_techo_discriminacion_evidencia"
+        },
+        "D": {
+          "is_fp": true,
+          "top1_score": 2.4221,
+          "top1_node": "boost_dimensional_toco_techo_discriminacion_evidencia"
+        },
+        "E": {
+          "is_fp": true,
+          "top1_score": 2.6263,
+          "top1_node": "protocolo_parafrasis_uso"
+        },
+        "F": {
+          "is_fp": true,
+          "top1_score": 2.3092,
+          "top1_node": "protocolo_avance_autonomo_validacion_auditor_externo"
+        },
+        "G": {
+          "is_fp": false,
+          "top1_score": 2.0,
+          "top1_node": "protocolo_no_monolith_css_compartido"
+        },
+        "H": {
+          "is_fp": true,
+          "top1_score": 2.247,
+          "top1_node": "boost_dimensional_toco_techo_discriminacion_evidencia"
+        }
+      },
+      "components_that_eliminate_fp": [
+        "Frame OFF + Predicate ON",
+        "Frame ON  + Predicate OFF",
+        "Frame ON  + Predicate ON  + graph_propagation OFF"
+      ]
+    },
+    {
+      "query": "cada regla gramatical tiene una excepcion en el lenguaje vivo",
+      "fp_by_condition": {
+        "A": {
+          "is_fp": false,
+          "top1_score": 1.2639,
+          "top1_node": "protocolo_avance_autonomo_validacion_auditor_externo"
+        },
+        "B": {
+          "is_fp": false,
+          "top1_score": 0.9699,
+          "top1_node": "biorag_v16_0_estado"
+        },
+        "C": {
+          "is_fp": false,
+          "top1_score": 0.9699,
+          "top1_node": "biorag_v16_0_estado"
+        },
+        "D": {
+          "is_fp": false,
+          "top1_score": 1.115,
+          "top1_node": "boost_dimensional_toco_techo_discriminacion_evidencia"
+        },
+        "E": {
+          "is_fp": false,
+          "top1_score": 1.1928,
+          "top1_node": "protocolo_avance_autonomo_validacion_auditor_externo_athena_metodología"
+        },
+        "F": {
+          "is_fp": false,
+          "top1_score": 1.1881,
+          "top1_node": "protocolo_avance_autonomo_validacion_auditor_externo"
+        },
+        "G": {
+          "is_fp": false,
+          "top1_score": 1.0322,
+          "top1_node": "protocolo_avance_autonomo_validacion_auditor_externo"
+        },
+        "H": {
+          "is_fp": false,
+          "top1_score": 1.068,
+          "top1_node": "biorag_v16_0_estado"
+        }
+      },
+      "components_that_eliminate_fp": []
+    },
+    {
+      "query": "el protocolo diplomático de las dinastias del siglo diecinueve",
+      "fp_by_condition": {
+        "A": {
+          "is_fp": true,
+          "top1_score": 2.3185,
+          "top1_node": "integracion_parafrasis_rafaga_obligatoria_v11_3"
+        },
+        "B": {
+          "is_fp": true,
+          "top1_score": 2.0965,
+          "top1_node": "dashboard_neuro_visor_toolbar_fusionar_2026_07_18"
+        },
+        "C": {
+          "is_fp": true,
+          "top1_score": 2.0965,
+          "top1_node": "dashboard_neuro_visor_toolbar_fusionar_2026_07_18"
+        },
+        "D": {
+          "is_fp": true,
+          "top1_score": 2.5339,
+          "top1_node": "lesson_dashboard_radix_patterns"
+        },
+        "E": {
+          "is_fp": true,
+          "top1_score": 2.3185,
+          "top1_node": "integracion_parafrasis_rafaga_obligatoria_v11_3"
+        },
+        "F": {
+          "is_fp": false,
+          "top1_score": 2.0,
+          "top1_node": "integracion_parafrasis_rafaga_obligatoria_v11_3"
+        },
+        "G": {
+          "is_fp": false,
+          "top1_score": 2.0,
+          "top1_node": "integracion_parafrasis_rafaga_obligatoria_v11_3"
+        },
+        "H": {
+          "is_fp": true,
+          "top1_score": 2.3707,
+          "top1_node": "dashboard_neuro_visor_toolbar_fusionar_2026_07_18"
+        }
+      },
+      "components_that_eliminate_fp": [
+        "Frame ON  + Predicate ON  + physical_SINONIMO_DE OFF",
+        "Frame ON  + Predicate ON  + graph_propagation OFF"
+      ]
+    },
+    {
+      "query": "un paso obligatorio en el ciclo del agua en la naturaleza",
+      "fp_by_condition": {
+        "A": {
+          "is_fp": true,
+          "top1_score": 2.6602,
+          "top1_node": "protocolo_parafrasis_uso"
+        },
+        "B": {
+          "is_fp": true,
+          "top1_score": 2.0294,
+          "top1_node": "biorag_v18_0_estado"
+        },
+        "C": {
+          "is_fp": true,
+          "top1_score": 2.0294,
+          "top1_node": "biorag_v18_0_estado"
+        },
+        "D": {
+          "is_fp": true,
+          "top1_score": 2.5185,
+          "top1_node": "lesson_dashboard_radix_patterns"
+        },
+        "E": {
+          "is_fp": true,
+          "top1_score": 2.6602,
+          "top1_node": "protocolo_parafrasis_uso"
+        },
+        "F": {
+          "is_fp": true,
+          "top1_score": 2.3092,
+          "top1_node": "protocolo_avance_autonomo_validacion_auditor_externo"
+        },
+        "G": {
+          "is_fp": false,
+          "top1_score": 2.0,
+          "top1_node": "identificacion_obligatoria_oracculo_dominio_por_agente"
+        },
+        "H": {
+          "is_fp": true,
+          "top1_score": 2.2868,
+          "top1_node": "biorag_v18_0_estado"
+        }
+      },
+      "components_that_eliminate_fp": [
+        "Frame ON  + Predicate ON  + graph_propagation OFF"
+      ]
+    },
+    {
+      "query": "instruccion basica para afinar una guitarra paso a paso",
+      "fp_by_condition": {
+        "A": {
+          "is_fp": true,
+          "top1_score": 2.0392,
+          "top1_node": "dns_optimizer_kill_feature"
+        },
+        "B": {
+          "is_fp": true,
+          "top1_score": 2.0392,
+          "top1_node": "dns_optimizer_kill_feature"
+        },
+        "C": {
+          "is_fp": true,
+          "top1_score": 2.0392,
+          "top1_node": "dns_optimizer_kill_feature"
+        },
+        "D": {
+          "is_fp": true,
+          "top1_score": 2.4507,
+          "top1_node": "biorag_v18_0_centralizacion_stopwords"
+        },
+        "E": {
+          "is_fp": true,
+          "top1_score": 2.0392,
+          "top1_node": "dns_optimizer_kill_feature"
+        },
+        "F": {
+          "is_fp": false,
+          "top1_score": 1.0,
+          "top1_node": "mismatches_backend_frontend_dashboard_neuro_visor_2026"
+        },
+        "G": {
+          "is_fp": false,
+          "top1_score": 1.0,
+          "top1_node": "mismatches_backend_frontend_dashboard_neuro_visor_2026"
+        },
+        "H": {
+          "is_fp": true,
+          "top1_score": 2.299,
+          "top1_node": "dns_optimizer_kill_feature"
+        }
+      },
+      "components_that_eliminate_fp": [
+        "Frame ON  + Predicate ON  + physical_SINONIMO_DE OFF",
+        "Frame ON  + Predicate ON  + graph_propagation OFF"
+      ]
+    }
+  ],
+  "causal_matrix": {
+    "FRAME": {
+      "ablation_condition": "B",
+      "rescues_lost_when_removed": 6,
+      "rescues_total": 6,
+      "fp_eliminated_when_removed": 7,
+      "fp_total": 21
+    },
+    "PREDICATE": {
+      "ablation_condition": "C",
+      "rescues_lost_when_removed": 6,
+      "rescues_total": 6,
+      "fp_eliminated_when_removed": 7,
+      "fp_total": 21
+    },
+    "CANDIDATE_FOCALIZATION": {
+      "ablation_condition": "H",
+      "rescues_lost_when_removed": 6,
+      "rescues_total": 6,
+      "fp_eliminated_when_removed": 1,
+      "fp_total": 21
+    },
+    "TYPED_DERIVED_EDGES": {
+      "ablation_condition": "E",
+      "rescues_lost_when_removed": 1,
+      "rescues_total": 6,
+      "fp_eliminated_when_removed": 0,
+      "fp_total": 21
+    },
+    "PHYSICAL_SINONIMO_DE": {
+      "ablation_condition": "F",
+      "rescues_lost_when_removed": 1,
+      "rescues_total": 6,
+      "fp_eliminated_when_removed": 5,
+      "fp_total": 21
+    },
+    "GRAPH_PROPAGATION": {
+      "ablation_condition": "G",
+      "rescues_lost_when_removed": 1,
+      "rescues_total": 6,
+      "fp_eliminated_when_removed": 21,
+      "fp_total": 21
+    },
+    "FRAME+PREDICATE_OFF": {
+      "ablation_condition": "D",
+      "rescues_lost_when_removed": 6,
+      "rescues_total": 6,
+      "fp_eliminated_when_removed": 0,
+      "fp_total": 21
+    }
+  }
+}
