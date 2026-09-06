@@ -1,0 +1,2266 @@
+{
+  "hard_negative_audit": {
+    "summary": {
+      "n": 60,
+      "criterion_fase_3_2": {
+        "description": "score_top1 > 2.0 (criterio original de proto_seed_focusing.py:318)",
+        "F0_FP": 0,
+        "F0_FP_rate_pct": 0.0,
+        "F1_FP": 0,
+        "F1_FP_rate_pct": 0.0,
+        "F3_FP": 19,
+        "F3_FP_rate_pct": 31.666666666666664
+      },
+      "criterion_fase_4": {
+        "description": "score_top1 > 0.40 (criterio de proto_fase4_typed_graph.py:evaluate_hard_negatives)",
+        "F0_FP": 57,
+        "F0_FP_rate_pct": 95.0,
+        "F1_FP": 57,
+        "F1_FP_rate_pct": 95.0,
+        "F3_FP": 52,
+        "F3_FP_rate_pct": 86.66666666666667
+      },
+      "reconciliation_note": "La discrepancia 0/60 (Fase 3.2) vs 57/60 (Fase 4) en F0 es COMPLETAMENTE explicada por el cambio de umbral: Fase 3.2 usó threshold=2.0; Fase 4 usó threshold=0.40. Los datos subyacentes son idénticos (mismo snapshot, mismas queries). Los números NO son comparables directamente. Ver criterio unificado en criterion_unificado_modelo."
+    },
+    "per_query": [
+      {
+        "query": "como lograr mejor velocidad al escribir codigo en react",
+        "F0_top1_node": "notebooklm-sync-protocol",
+        "F0_top1_score": 0.791,
+        "F0_top5": [
+          "notebooklm-sync-protocol",
+          "arquitectura_busqueda_dimensional_v11_3",
+          "rafaga-ilimitada-v9.2-optimizacion-fts5-or",
+          "tematico_score_mide_pool_no_query_biorag",
+          "memorybiorag_validacion_externa_rag_simbolico"
+        ],
+        "F0_FP_crit_3_2": false,
+        "F0_FP_crit_4": true,
+        "F1_top1_node": "notebooklm-sync-protocol",
+        "F1_top1_score": 0.9799,
+        "F1_FP_crit_3_2": false,
+        "F1_FP_crit_4": true,
+        "F3_top1_node": "evaluacion_ideas_evolucion_20260805_interferencia_agujeros_permutacion",
+        "F3_top1_score": 1.5493,
+        "F3_top5": [
+          "evaluacion_ideas_evolucion_20260805_interferencia_agujeros_permutacion",
+          "benchmark_sinonimo_integrado",
+          "benchmark_antes_despues_fix3",
+          "notebooklm-sync-lecciones",
+          "binding_permutacion_secuencia"
+        ],
+        "F3_FP_crit_3_2": false,
+        "F3_FP_crit_4": true
+      },
+      {
+        "query": "antes y despues de la toma de decisiones filosoficas",
+        "F0_top1_node": "caso_formularios_anidados_angular",
+        "F0_top1_score": 0.5721,
+        "F0_top5": [
+          "caso_formularios_anidados_angular",
+          "biorag_v18_1_timezone_fix_ux_warning",
+          "memorybiorag_auditoria_manus_ai_2026-06-25",
+          "ppmi_svd_puro_supera_sgps_discriminacion_semantica_real_20260808",
+          "oracle_custom_prompt_arsitecura_que_funciona"
+        ],
+        "F0_FP_crit_3_2": false,
+        "F0_FP_crit_4": true,
+        "F1_top1_node": "implementado_catalogo_13_tipos_104_dimensiones",
+        "F1_top1_score": 0.6478,
+        "F1_FP_crit_3_2": false,
+        "F1_FP_crit_4": true,
+        "F3_top1_node": "protocolo_avance_autonomo_validacion_auditor_externo",
+        "F3_top1_score": 1.2285,
+        "F3_top5": [
+          "protocolo_avance_autonomo_validacion_auditor_externo",
+          "protocolo_no_monolith_css_compartido",
+          "protocolo_avance_autonomo_validacion_auditor_externo_athena_metodología",
+          "protocolo_enriquecimiento_busquedas",
+          "protocolo_verificacion_preaccion_dinamico"
+        ],
+        "F3_FP_crit_3_2": false,
+        "F3_FP_crit_4": true
+      },
+      {
+        "query": "el promedio de horas antes de descansar en la rutina diaria",
+        "F0_top1_node": "plugin-openode-biorag-remember-v9-final-lecciones-sesion-completa",
+        "F0_top1_score": 0.6685,
+        "F0_top5": [
+          "plugin-openode-biorag-remember-v9-final-lecciones-sesion-completa",
+          "arquitectura_busqueda_dimensional_v11_3",
+          "caso_formularios_anidados_angular",
+          "biorag_v18_1_timezone_fix_ux_warning",
+          "memorybiorag_auditoria_manus_ai_2026-06-25"
+        ],
+        "F0_FP_crit_3_2": false,
+        "F0_FP_crit_4": true,
+        "F1_top1_node": "plugin-openode-biorag-remember-v9-final-lecciones-sesion-completa",
+        "F1_top1_score": 0.7115,
+        "F1_FP_crit_3_2": false,
+        "F1_FP_crit_4": true,
+        "F3_top1_node": "protocolo_no_monolith_css_compartido",
+        "F3_top1_score": 1.1074,
+        "F3_top5": [
+          "protocolo_no_monolith_css_compartido",
+          "protocolo_enriquecimiento_busquedas",
+          "protocolo_verificacion_preaccion_dinamico",
+          "protocolo_busqueda_biorag_automatica",
+          "protocolo_parafrasis_uso"
+        ],
+        "F3_FP_crit_3_2": false,
+        "F3_FP_crit_4": true
+      },
+      {
+        "query": "evaluacion cualitativa de la confianza entre humanos y agentes",
+        "F0_top1_node": "protocolo-reproducible-ingenieria-inversa-binario-compilado",
+        "F0_top1_score": 0.609,
+        "F0_top5": [
+          "protocolo-reproducible-ingenieria-inversa-binario-compilado",
+          "dashboard_neuro_visor_estado_implementacion_julio_2026",
+          "mf_sgns_loss_correcta_kenyon_dean_part2_20260807",
+          "vida_laboral_completa_dennys",
+          "patron_pensamiento_lateral_antes_de_proponer"
+        ],
+        "F0_FP_crit_3_2": false,
+        "F0_FP_crit_4": true,
+        "F1_top1_node": "mf_sgns_loss_correcta_kenyon_dean_part2_20260807",
+        "F1_top1_score": 0.6449,
+        "F1_FP_crit_3_2": false,
+        "F1_FP_crit_4": true,
+        "F3_top1_node": "evaluacion_reviews_externos_biorag",
+        "F3_top1_score": 0.4124,
+        "F3_top5": [
+          "evaluacion_reviews_externos_biorag",
+          "evaluacion_ideas_evolucion_20260805_interferencia_agujeros_permutacion",
+          "mf_sgns_loss_correcta_kenyon_dean_part2_20260807",
+          "word2vec_mecanica_pmi_equivalencia_fuentes",
+          "protocolo-reproducible-ingenieria-inversa-binario-compilado"
+        ],
+        "F3_FP_crit_3_2": false,
+        "F3_FP_crit_4": true
+      },
+      {
+        "query": "la mejor forma de expresar gratitud despues de una sesion",
+        "F0_top1_node": "lectura_levy_goldberg_y_superlinear_part1_20260807",
+        "F0_top1_score": 0.6549,
+        "F0_top5": [
+          "lectura_levy_goldberg_y_superlinear_part1_20260807",
+          "dashboard_neuro_visor_estado_implementacion_julio_2026",
+          "caso_formularios_anidados_angular",
+          "memorybiorag_auditoria_manus_ai_2026-06-25",
+          "fca_chequeo_sugeridor_dimensiones_refutado_frecuencia_no_semantica"
+        ],
+        "F0_FP_crit_3_2": false,
+        "F0_FP_crit_4": true,
+        "F1_top1_node": "lectura_levy_goldberg_y_superlinear_part1_20260807",
+        "F1_top1_score": 0.7205,
+        "F1_FP_crit_3_2": false,
+        "F1_FP_crit_4": true,
+        "F3_top1_node": "evaluacion_ideas_evolucion_20260805_interferencia_agujeros_permutacion",
+        "F3_top1_score": 1.2562,
+        "F3_top5": [
+          "evaluacion_ideas_evolucion_20260805_interferencia_agujeros_permutacion",
+          "analisis_escalabilidad_10k_v5_1",
+          "benchmark_sinonimo_integrado",
+          "analisis_escalabilidad_10k_v5_1_memoria_v5_1_optimizaciones_hermes_agente_hermes",
+          "v23_1_release_predicados_srl_feedback_graph_learning"
+        ],
+        "F3_FP_crit_3_2": false,
+        "F3_FP_crit_4": true
+      },
+      {
+        "query": "medicion del impacto emocional antes del cambio de rol",
+        "F0_top1_node": "sdm_query_by_example_validado_datos_reales",
+        "F0_top1_score": 1.0,
+        "F0_top5": [
+          "sdm_query_by_example_validado_datos_reales",
+          "bio_rag_overview_completo",
+          "tematico_score_mide_pool_no_query_biorag",
+          "memorybiorag_validacion_externa_rag_simbolico",
+          "21st_dev_registro_componentes_react_recurso_diseno"
+        ],
+        "F0_FP_crit_3_2": false,
+        "F0_FP_crit_4": true,
+        "F1_top1_node": "athena_arquitectura_memoria_agente_v24_2",
+        "F1_top1_score": 1.4693,
+        "F1_FP_crit_3_2": false,
+        "F1_FP_crit_4": true,
+        "F3_top1_node": "regla_firma_autoria_memoria",
+        "F3_top1_score": 2.8776,
+        "F3_top5": [
+          "regla_firma_autoria_memoria",
+          "regla_cero_inferencia",
+          "protocolo-reproducible-ingenieria-inversa-binario-compilado",
+          "protocolo_scripts_utilitarios",
+          "protocolo_traduccion_jerga_humano"
+        ],
+        "F3_FP_crit_3_2": true,
+        "F3_FP_crit_4": true
+      },
+      {
+        "query": "comparativa de estilos de liderazgo antes de 2026",
+        "F0_top1_node": "notebooklm-sync-protocol",
+        "F0_top1_score": 1.0,
+        "F0_top5": [
+          "notebooklm-sync-protocol",
+          "notebooklm-category-map",
+          "teoria_ejes_semanticos_biorag",
+          "tematico_score_mide_pool_no_query_biorag",
+          "biorag-rafaga-forzable-parametro-forzar-rafaga"
+        ],
+        "F0_FP_crit_3_2": false,
+        "F0_FP_crit_4": true,
+        "F1_top1_node": "hormiguita_v25_sistema_mantenimiento_seguro_athena_biorag",
+        "F1_top1_score": 1.5712,
+        "F1_FP_crit_3_2": false,
+        "F1_FP_crit_4": true,
+        "F3_top1_node": "protocolo_resolucion_incertidumbre_agente",
+        "F3_top1_score": 2.8662,
+        "F3_top5": [
+          "protocolo_resolucion_incertidumbre_agente",
+          "analisis_escalabilidad_10k_v5_1_memoria_v5_1_optimizaciones_hermes_agente_hermes",
+          "protocolo_autoinferencia_metacognitiva",
+          "evaluacion_ideas_evolucion_20260805_interferencia_agujeros_permutacion",
+          "regla_mandatory_marcar_cartelera_leido"
+        ],
+        "F3_FP_crit_3_2": true,
+        "F3_FP_crit_4": true
+      },
+      {
+        "query": "rendimiento cognitivo en estados de sueno y reflexion",
+        "F0_top1_node": "notebooklm-sync-protocol",
+        "F0_top1_score": 0.3854,
+        "F0_top5": [
+          "notebooklm-sync-protocol",
+          "proyecto_biorag_ncp_resumen_completo_2026_06_14",
+          "reconocimiento_identidad_oraculo_manifiesto",
+          "biorag_v18_0_estado",
+          "auditoría_técnica:_memorybiorag_(manus_ai)"
+        ],
+        "F0_FP_crit_3_2": false,
+        "F0_FP_crit_4": false,
+        "F1_top1_node": "notebooklm-sync-protocol",
+        "F1_top1_score": 0.3965,
+        "F1_FP_crit_3_2": false,
+        "F1_FP_crit_4": false,
+        "F3_top1_node": "analisis_escalabilidad_10k_v5_1",
+        "F3_top1_score": 0.4052,
+        "F3_top5": [
+          "analisis_escalabilidad_10k_v5_1",
+          "biorag_v18_0_estado",
+          "notebooklm-sync-protocol",
+          "benchmark_antes_despues_fix3",
+          "proyecto_biorag_ncp_resumen_completo_2026_06_14"
+        ],
+        "F3_FP_crit_3_2": false,
+        "F3_FP_crit_4": true
+      },
+      {
+        "query": "rapidez de respuesta frente a dilemas eticos y mejor conducta",
+        "F0_top1_node": "reconocimiento_identidad_oraculo_manifiesto",
+        "F0_top1_score": 0.5424,
+        "F0_top5": [
+          "reconocimiento_identidad_oraculo_manifiesto",
+          "sesion-2026-06-23-ingenieria-inversa-binario-opencode-completa",
+          "plugin-openode-biorag-remember-v9-final-lecciones-sesion-completa",
+          "biorag_v18_1_timezone_fix_ux_warning",
+          "patron_pensamiento_lateral_antes_de_proponer"
+        ],
+        "F0_FP_crit_3_2": false,
+        "F0_FP_crit_4": true,
+        "F1_top1_node": "reconocimiento_identidad_oraculo_manifiesto",
+        "F1_top1_score": 0.5785,
+        "F1_FP_crit_3_2": false,
+        "F1_FP_crit_4": true,
+        "F3_top1_node": "benchmark_sinonimo_integrado",
+        "F3_top1_score": 0.7177,
+        "F3_top5": [
+          "benchmark_sinonimo_integrado",
+          "benchmark_antes_despues_fix3",
+          "reconocimiento_identidad_oraculo_manifiesto",
+          "changelog_v10_recall_semantico_typo_tolerant",
+          "plugin-openode-biorag-remember-v9-final-lecciones-sesion-completa"
+        ],
+        "F3_FP_crit_3_2": false,
+        "F3_FP_crit_4": true
+      },
+      {
+        "query": "metrica subjetiva de la lealtad y el mejor companero",
+        "F0_top1_node": "protocolo_autoinferencia_metacognitiva",
+        "F0_top1_score": 0.4915,
+        "F0_top5": [
+          "protocolo_autoinferencia_metacognitiva",
+          "biorag_v18_1_timezone_fix_ux_warning",
+          "patron_pensamiento_lateral_antes_de_proponer",
+          "verificacion_auditor_word2vec_puro_gate_vs_baseline_20260808",
+          "auditoria_entrega_claude_ppmi_v2_suave_ctx_20260808"
+        ],
+        "F0_FP_crit_3_2": false,
+        "F0_FP_crit_4": true,
+        "F1_top1_node": "protocolo_autoinferencia_metacognitiva",
+        "F1_top1_score": 0.516,
+        "F1_FP_crit_3_2": false,
+        "F1_FP_crit_4": true,
+        "F3_top1_node": "benchmark_sinonimo_integrado",
+        "F3_top1_score": 0.7177,
+        "F3_top5": [
+          "benchmark_sinonimo_integrado",
+          "benchmark_antes_despues_fix3",
+          "changelog_v10_recall_semantico_typo_tolerant",
+          "protocolo_autoinferencia_metacognitiva",
+          "biorag_v16_0_estado"
+        ],
+        "F3_FP_crit_3_2": false,
+        "F3_FP_crit_4": true
+      },
+      {
+        "query": "debo admitir que cada paso en la vida ensena algo",
+        "F0_top1_node": "fca_reticulo_galois_f2_resultado_refuta_exclusion_triviales",
+        "F0_top1_score": 1.0,
+        "F0_top5": [
+          "fca_reticulo_galois_f2_resultado_refuta_exclusion_triviales",
+          "decision_fca_reticulo_galois_senal_por_tema",
+          "biorag_v18_0_estado",
+          "sdm_bit_expansion_no_resuelve_colision_corpus_mismo_dominio",
+          "sesion_investigacion_hermes_plugin_biorag_20260622"
+        ],
+        "F0_FP_crit_3_2": false,
+        "F0_FP_crit_4": true,
+        "F1_top1_node": "capa3_pseudo_relevance_feedback_dimensional",
+        "F1_top1_score": 1.5116,
+        "F1_FP_crit_3_2": false,
+        "F1_FP_crit_4": true,
+        "F3_top1_node": "regla_cero_inferencia",
+        "F3_top1_score": 2.3665,
+        "F3_top5": [
+          "regla_cero_inferencia",
+          "identificacion_obligatoria_oracculo_dominio_por_agente",
+          "protocolo_verificacion_preaccion_dinamico",
+          "protocolo_prueba_poda_copia_antes_produccion",
+          "protocolo_busqueda_biorag_automatica"
+        ],
+        "F3_FP_crit_3_2": true,
+        "F3_FP_crit_4": true
+      },
+      {
+        "query": "la regla de tres en el diseno estetico visual paso a paso",
+        "F0_top1_node": "auditoría_técnica:_memorybiorag_(manus_ai)",
+        "F0_top1_score": 0.7046,
+        "F0_top5": [
+          "auditoría_técnica:_memorybiorag_(manus_ai)",
+          "dennys_component_organization_methodology",
+          "biorag_v11_1_detalle_tecnico",
+          "caso_formularios_anidados_angular",
+          "memorybiorag_validacion_externa_rag_simbolico"
+        ],
+        "F0_FP_crit_3_2": false,
+        "F0_FP_crit_4": true,
+        "F1_top1_node": "auditoría_técnica:_memorybiorag_(manus_ai)",
+        "F1_top1_score": 0.7376,
+        "F1_FP_crit_3_2": false,
+        "F1_FP_crit_4": true,
+        "F3_top1_node": "protocolo_no_monolith_css_compartido",
+        "F3_top1_score": 0.8709,
+        "F3_top5": [
+          "protocolo_no_monolith_css_compartido",
+          "norma_atribucion_autoria_memoria_compartida_oec",
+          "protocolo_prueba_poda_copia_antes_produccion",
+          "regla_firma_autoria_memoria",
+          "regla_mandatory_marcar_cartelera_leido"
+        ],
+        "F3_FP_crit_3_2": false,
+        "F3_FP_crit_4": true
+      },
+      {
+        "query": "un procedimiento de respiracion antes_de meditar profundamente",
+        "F0_top1_node": "patron_pensamiento_lateral_antes_de_proponer",
+        "F0_top1_score": 0.2535,
+        "F0_top5": [
+          "patron_pensamiento_lateral_antes_de_proponer",
+          "athena_leccion_grep_patron_bug_antes_de_cerrar_fix",
+          "leccion_trazabilidad_db_eval_antes_de_reportar_auditor",
+          "causa_raiz_por_tema_pooling_plano_diluye_senal_word2vec",
+          "word2vec_pooling_promedio"
+        ],
+        "F0_FP_crit_3_2": false,
+        "F0_FP_crit_4": false,
+        "F1_top1_node": "patron_pensamiento_lateral_antes_de_proponer",
+        "F1_top1_score": 0.2535,
+        "F1_FP_crit_3_2": false,
+        "F1_FP_crit_4": false,
+        "F3_top1_node": "regla_verificar_codigo_real_antes_de_diagnostico",
+        "F3_top1_score": 0.3588,
+        "F3_top5": [
+          "regla_verificar_codigo_real_antes_de_diagnostico",
+          "patron_pensamiento_lateral_antes_de_proponer",
+          "dennys_principio_no_danar_conjunto_completo_objetivo_local_20260807",
+          "causa_raiz_por_tema_pooling_plano_diluye_senal_word2vec",
+          "athena_leccion_grep_patron_bug_antes_de_cerrar_fix"
+        ],
+        "F3_FP_crit_3_2": false,
+        "F3_FP_crit_4": false
+      },
+      {
+        "query": "instruccion no mandatoria sobre como redactar poesia sintetica",
+        "F0_top1_node": "dennys_component_organization_methodology",
+        "F0_top1_score": 0.7996,
+        "F0_top5": [
+          "dennys_component_organization_methodology",
+          "notebooklm-sync-protocol",
+          "arquitectura_busqueda_dimensional_v11_3",
+          "dashboard_neuro_visor_estado_implementacion_julio_2026",
+          "rafaga-ilimitada-v9.2-optimizacion-fts5-or"
+        ],
+        "F0_FP_crit_3_2": false,
+        "F0_FP_crit_4": true,
+        "F1_top1_node": "notebooklm-sync-protocol",
+        "F1_top1_score": 0.965,
+        "F1_FP_crit_3_2": false,
+        "F1_FP_crit_4": true,
+        "F3_top1_node": "protocolo_resolucion_incertidumbre_agente",
+        "F3_top1_score": 1.7822,
+        "F3_top5": [
+          "protocolo_resolucion_incertidumbre_agente",
+          "protocolo_avance_autonomo_validacion_auditor_externo",
+          "protocolo_avance_autonomo_validacion_auditor_externo_athena_metodología",
+          "protocolo-reproducible-ingenieria-inversa-binario-compilado",
+          "integracion_parafrasis_rafaga_obligatoria_v11_3"
+        ],
+        "F3_FP_crit_3_2": false,
+        "F3_FP_crit_4": true
+      },
+      {
+        "query": "la norma social de saludar antes_de iniciar un debate informal",
+        "F0_top1_node": "auditoría_técnica:_memorybiorag_(manus_ai)",
+        "F0_top1_score": 0.5752,
+        "F0_top5": [
+          "auditoría_técnica:_memorybiorag_(manus_ai)",
+          "dennys_perfil_tecnico_consolidado_master",
+          "arquitectura_busqueda_dimensional_v11_3",
+          "plugin-openode-biorag-remember-v9-final-lecciones-sesion-completa",
+          "leccion_bayesian_bm25_rechazado_fuerza_bruta"
+        ],
+        "F0_FP_crit_3_2": false,
+        "F0_FP_crit_4": true,
+        "F1_top1_node": "auditoría_técnica:_memorybiorag_(manus_ai)",
+        "F1_top1_score": 0.5908,
+        "F1_FP_crit_3_2": false,
+        "F1_FP_crit_4": true,
+        "F3_top1_node": "integracion_parafrasis_rafaga_obligatoria_v11_3",
+        "F3_top1_score": 0.5206,
+        "F3_top5": [
+          "integracion_parafrasis_rafaga_obligatoria_v11_3",
+          "protocolo_traduccion_jerga_humano",
+          "norma_atribucion_autoria_memoria_compartida_oec",
+          "cambio_paradigma_dimensiones_semanticas",
+          "auditoría_técnica:_memorybiorag_(manus_ai)"
+        ],
+        "F3_FP_crit_3_2": false,
+        "F3_FP_crit_4": true
+      },
+      {
+        "query": "debo reconocer el paso del tiempo en la arquitectura antigua",
+        "F0_top1_node": "sdm_query_by_example_validado_datos_reales",
+        "F0_top1_score": 1.0,
+        "F0_top5": [
+          "sdm_query_by_example_validado_datos_reales",
+          "teoria_ejes_semanticos_biorag",
+          "rafaga-ilimitada-v9.2-optimizacion-fts5-or",
+          "ppmi_svd_puro_supera_sgps_discriminacion_semantica_real_20260808",
+          "21st_dev_registro_componentes_react_recurso_diseno"
+        ],
+        "F0_FP_crit_3_2": false,
+        "F0_FP_crit_4": true,
+        "F1_top1_node": "hormiguita_v25_sistema_mantenimiento_seguro_athena_biorag",
+        "F1_top1_score": 1.5515,
+        "F1_FP_crit_3_2": false,
+        "F1_FP_crit_4": true,
+        "F3_top1_node": "regla_firma_autoria_memoria",
+        "F3_top1_score": 2.8922,
+        "F3_top5": [
+          "regla_firma_autoria_memoria",
+          "protocolo_parafrasis_uso",
+          "protocolo_avance_autonomo_validacion_auditor_externo",
+          "regla_cero_inferencia",
+          "norma_atribucion_autoria_memoria_compartida_oec"
+        ],
+        "F3_FP_crit_3_2": true,
+        "F3_FP_crit_4": true
+      },
+      {
+        "query": "cada regla gramatical tiene una excepcion en el lenguaje vivo",
+        "F0_top1_node": "changelog_v10_recall_semantico_typo_tolerant",
+        "F0_top1_score": 0.597,
+        "F0_top5": [
+          "changelog_v10_recall_semantico_typo_tolerant",
+          "sdm_query_by_example_validado_datos_reales",
+          "dennys_genesis_investigativa_historia_personal",
+          "word2vec_puente_hdc_condicional_refutado_fase2",
+          "biorag_v16_0_estado"
+        ],
+        "F0_FP_crit_3_2": false,
+        "F0_FP_crit_4": true,
+        "F1_top1_node": "sdm_query_by_example_validado_datos_reales",
+        "F1_top1_score": 0.7422,
+        "F1_FP_crit_3_2": false,
+        "F1_FP_crit_4": true,
+        "F3_top1_node": "protocolo_avance_autonomo_validacion_auditor_externo",
+        "F3_top1_score": 1.2639,
+        "F3_top5": [
+          "protocolo_avance_autonomo_validacion_auditor_externo",
+          "protocolo_avance_autonomo_validacion_auditor_externo_athena_metodología",
+          "protocolo_busqueda_biorag_automatica",
+          "protocolo_resolucion_incertidumbre_agente",
+          "protocolo_enriquecimiento_busquedas"
+        ],
+        "F3_FP_crit_3_2": false,
+        "F3_FP_crit_4": true
+      },
+      {
+        "query": "el protocolo diplomático de las dinastias del siglo diecinueve",
+        "F0_top1_node": "rafaga-ilimitada-v9.2-optimizacion-fts5-or",
+        "F0_top1_score": 1.0,
+        "F0_top5": [
+          "rafaga-ilimitada-v9.2-optimizacion-fts5-or",
+          "patron_pensamiento_lateral_antes_de_proponer",
+          "tematico_score_mide_pool_no_query_biorag",
+          "ladera_verificacion_fixes_revisor_20260811",
+          "athena_arquitectura_memoria_agente_v24_2"
+        ],
+        "F0_FP_crit_3_2": false,
+        "F0_FP_crit_4": true,
+        "F1_top1_node": "hormiguita_v25_sistema_mantenimiento_seguro_athena_biorag",
+        "F1_top1_score": 1.6035,
+        "F1_FP_crit_3_2": false,
+        "F1_FP_crit_4": true,
+        "F3_top1_node": "regla_firma_autoria_memoria",
+        "F3_top1_score": 2.834,
+        "F3_top5": [
+          "regla_firma_autoria_memoria",
+          "norma_atribucion_autoria_memoria_compartida_oec",
+          "integracion_parafrasis_rafaga_obligatoria_v11_3",
+          "regla_mandatory_marcar_cartelera_leido",
+          "regla_cero_inferencia"
+        ],
+        "F3_FP_crit_3_2": true,
+        "F3_FP_crit_4": true
+      },
+      {
+        "query": "un paso obligatorio en el ciclo del agua en la naturaleza",
+        "F0_top1_node": "sdm_query_by_example_validado_datos_reales",
+        "F0_top1_score": 1.0,
+        "F0_top5": [
+          "sdm_query_by_example_validado_datos_reales",
+          "teoria_ejes_semanticos_biorag",
+          "rafaga-ilimitada-v9.2-optimizacion-fts5-or",
+          "tematico_score_mide_pool_no_query_biorag",
+          "ppmi_svd_puro_supera_sgps_discriminacion_semantica_real_20260808"
+        ],
+        "F0_FP_crit_3_2": false,
+        "F0_FP_crit_4": true,
+        "F1_top1_node": "hormiguita_v25_sistema_mantenimiento_seguro_athena_biorag",
+        "F1_top1_score": 1.511,
+        "F1_FP_crit_3_2": false,
+        "F1_FP_crit_4": true,
+        "F3_top1_node": "regla_firma_autoria_memoria",
+        "F3_top1_score": 2.8614,
+        "F3_top5": [
+          "regla_firma_autoria_memoria",
+          "protocolo_parafrasis_uso",
+          "protocolo_avance_autonomo_validacion_auditor_externo",
+          "regla_cero_inferencia",
+          "norma_atribucion_autoria_memoria_compartida_oec"
+        ],
+        "F3_FP_crit_3_2": true,
+        "F3_FP_crit_4": true
+      },
+      {
+        "query": "instruccion basica para afinar una guitarra paso a paso",
+        "F0_top1_node": "mismatches_backend_frontend_dashboard_neuro_visor_2026",
+        "F0_top1_score": 1.0,
+        "F0_top5": [
+          "mismatches_backend_frontend_dashboard_neuro_visor_2026",
+          "ppmi_svd_puro_supera_sgps_discriminacion_semantica_real_20260808",
+          "notebooklm-memory-biorag-project",
+          "opencode-reminder-visible-canal-chat-message-synthetic",
+          "auditoria_entrega_claude_ppmi_v2_suave_ctx_20260808"
+        ],
+        "F0_FP_crit_3_2": false,
+        "F0_FP_crit_4": true,
+        "F1_top1_node": "biorag_v18_0_centralizacion_stopwords",
+        "F1_top1_score": 1.5045,
+        "F1_FP_crit_3_2": false,
+        "F1_FP_crit_4": true,
+        "F3_top1_node": "dns_optimizer_kill_feature",
+        "F3_top1_score": 1.0196,
+        "F3_top5": [
+          "dns_optimizer_kill_feature",
+          "athena_forensic_audit_trail_ltd_detection_fix",
+          "dashboard_fallida_umbral_dual_count_score",
+          "biorag_v18_0_centralizacion_stopwords",
+          "notebooklm-memory-biorag-project"
+        ],
+        "F3_FP_crit_3_2": false,
+        "F3_FP_crit_4": true
+      },
+      {
+        "query": "la persistencia de la memoria en el cuadro de salvador dali al detalle",
+        "F0_top1_node": "plugin-openode-biorag-remember-v9-final-lecciones-sesion-completa",
+        "F0_top1_score": 0.6318,
+        "F0_top5": [
+          "plugin-openode-biorag-remember-v9-final-lecciones-sesion-completa",
+          "protocolo_autoinferencia_metacognitiva",
+          "ppmi_svd_puro_supera_sgps_discriminacion_semantica_real_20260808",
+          "notebooklm-memory-biorag-project",
+          "vision_word2vec_adaptado_meta_dennys"
+        ],
+        "F0_FP_crit_3_2": false,
+        "F0_FP_crit_4": true,
+        "F1_top1_node": "protocolo_autoinferencia_metacognitiva",
+        "F1_top1_score": 0.6623,
+        "F1_FP_crit_3_2": false,
+        "F1_FP_crit_4": true,
+        "F3_top1_node": "biorag_v11_1_detalle_tecnico",
+        "F3_top1_score": 0.4399,
+        "F3_top5": [
+          "biorag_v11_1_detalle_tecnico",
+          "protocolo_autoinferencia_metacognitiva",
+          "plugin-openode-biorag-remember-v9-final-lecciones-sesion-completa",
+          "leccion_desvincular_falsos_positivos_sinapticos",
+          "diagnostico_auditor_word2vec_stopwords_dormidos_20260808"
+        ],
+        "F3_FP_crit_3_2": false,
+        "F3_FP_crit_4": true
+      },
+      {
+        "query": "arquitectura gotica y la estructura de columnas en catedrales",
+        "F0_top1_node": "caso_formularios_anidados_angular",
+        "F0_top1_score": 0.5596,
+        "F0_top5": [
+          "caso_formularios_anidados_angular",
+          "sesion-2026-06-23-ingenieria-inversa-binario-opencode-completa",
+          "protocolo-reproducible-ingenieria-inversa-binario-compilado",
+          "lectura_levy_goldberg_y_superlinear_part1_20260807",
+          "biorag_v11_1_detalle_tecnico"
+        ],
+        "F0_FP_crit_3_2": false,
+        "F0_FP_crit_4": true,
+        "F1_top1_node": "caso_formularios_anidados_angular",
+        "F1_top1_score": 0.5865,
+        "F1_FP_crit_3_2": false,
+        "F1_FP_crit_4": true,
+        "F3_top1_node": "sesion-2026-06-23-ingenieria-inversa-binario-opencode-completa",
+        "F3_top1_score": 0.2845,
+        "F3_top5": [
+          "sesion-2026-06-23-ingenieria-inversa-binario-opencode-completa",
+          "caso_formularios_anidados_angular",
+          "protocolo-reproducible-ingenieria-inversa-binario-compilado",
+          "teoria_ejes_semanticos_biorag",
+          "lectura_levy_goldberg_y_superlinear_part1_20260807"
+        ],
+        "F3_FP_crit_3_2": false,
+        "F3_FP_crit_4": false
+      },
+      {
+        "query": "tabla periodica de los elementos quimicos en su version extendida",
+        "F0_top1_node": "reconocimiento_identidad_oraculo_manifiesto",
+        "F0_top1_score": 0.9798,
+        "F0_top5": [
+          "reconocimiento_identidad_oraculo_manifiesto",
+          "notebooklm-category-map",
+          "aporte_real_dennys_vs_mercado_memoria_persistente",
+          "arquitectura_busqueda_dimensional_v11_3",
+          "dashboard_neuro_visor_estado_implementacion_julio_2026"
+        ],
+        "F0_FP_crit_3_2": false,
+        "F0_FP_crit_4": true,
+        "F1_top1_node": "principio_señales_distribucionales_vs_especificas",
+        "F1_top1_score": 1.4508,
+        "F1_FP_crit_3_2": false,
+        "F1_FP_crit_4": true,
+        "F3_top1_node": "dns_optimizer_kill_feature",
+        "F3_top1_score": 0.9607,
+        "F3_top5": [
+          "dns_optimizer_kill_feature",
+          "oracle_guia_proxima_sesion_dennys",
+          "notebooklm-chat-configure",
+          "dashboard_neuro_visor_estado_implementacion_julio_2026",
+          "boost_dimensional_toco_techo_discriminacion_evidencia"
+        ],
+        "F3_FP_crit_3_2": false,
+        "F3_FP_crit_4": true
+      },
+      {
+        "query": "un parche en el ojo en la cultura popular de piratas con detalle",
+        "F0_top1_node": "leccion_seed_catalogo_debe_correr_db_nueva_y_existente",
+        "F0_top1_score": 1.0,
+        "F0_top5": [
+          "leccion_seed_catalogo_debe_correr_db_nueva_y_existente",
+          "snapshot_prf_real_db_pre_v26_sin_tablas_ppmi_señal13_cero",
+          "leccion_seed_catalogo_debe_correr_db_nueva_y_existente_athena_lección",
+          "cuando_usar_dimensiones_biorag",
+          "mentoria_por_que_ensennamos"
+        ],
+        "F0_FP_crit_3_2": false,
+        "F0_FP_crit_4": true,
+        "F1_top1_node": "hormiguita_v25_sistema_mantenimiento_seguro_athena_biorag",
+        "F1_top1_score": 1.7862,
+        "F1_FP_crit_3_2": false,
+        "F1_FP_crit_4": true,
+        "F3_top1_node": "fix_scoring_densidad_buscar_por_rafaga_v10.3",
+        "F3_top1_score": 3.5746,
+        "F3_top5": [
+          "fix_scoring_densidad_buscar_por_rafaga_v10.3",
+          "fix_fecha_sin_query_recordar",
+          "fix_busqueda_solo_dimensiones_sin_texto",
+          "fix_mensajeria_broadcast_tracking_por_agente",
+          "fix_drift_rutas_notebooklm_sync_20260802"
+        ],
+        "F3_FP_crit_3_2": true,
+        "F3_FP_crit_4": true
+      },
+      {
+        "query": "el disco solar en la mitologia egipcia y su version teologica",
+        "F0_top1_node": "notebooklm-sync-protocol",
+        "F0_top1_score": 0.445,
+        "F0_top5": [
+          "notebooklm-sync-protocol",
+          "vida_laboral_completa_dennys",
+          "leccion_bayesian_bm25_rechazado_fuerza_bruta",
+          "tematico_score_mide_pool_no_query_biorag",
+          "mismatches_backend_frontend_dashboard_neuro_visor_2026"
+        ],
+        "F0_FP_crit_3_2": false,
+        "F0_FP_crit_4": true,
+        "F1_top1_node": "notebooklm-sync-protocol",
+        "F1_top1_score": 0.4598,
+        "F1_FP_crit_3_2": false,
+        "F1_FP_crit_4": true,
+        "F3_top1_node": "notebooklm-sync-protocol",
+        "F3_top1_score": 0.2266,
+        "F3_top5": [
+          "notebooklm-sync-protocol",
+          "biorag_v19_0_commit_atomico_y_visualizacion_completa",
+          "tematico_score_mide_pool_no_query_biorag",
+          "vida_laboral_completa_dennys",
+          "leccion_bayesian_bm25_rechazado_fuerza_bruta"
+        ],
+        "F3_FP_crit_3_2": false,
+        "F3_FP_crit_4": false
+      },
+      {
+        "query": "un bug biologico o mutacion genetica en insectos con detalle",
+        "F0_top1_node": "leccion_seed_catalogo_debe_correr_db_nueva_y_existente",
+        "F0_top1_score": 1.0,
+        "F0_top5": [
+          "leccion_seed_catalogo_debe_correr_db_nueva_y_existente",
+          "snapshot_prf_real_db_pre_v26_sin_tablas_ppmi_señal13_cero",
+          "leccion_seed_catalogo_debe_correr_db_nueva_y_existente_athena_lección",
+          "cuando_usar_dimensiones_biorag",
+          "mentoria_por_que_ensennamos"
+        ],
+        "F0_FP_crit_3_2": false,
+        "F0_FP_crit_4": true,
+        "F1_top1_node": "research-pipeline-ownership-oec",
+        "F1_top1_score": 1.7898,
+        "F1_FP_crit_3_2": false,
+        "F1_FP_crit_4": true,
+        "F3_top1_node": "fix_scoring_densidad_buscar_por_rafaga_v10.3",
+        "F3_top1_score": 3.2357,
+        "F3_top5": [
+          "fix_scoring_densidad_buscar_por_rafaga_v10.3",
+          "fix_fecha_sin_query_recordar",
+          "fix_kilo_resource_exhausted_biorag_oraculo_max_chars",
+          "fix_drift_rutas_notebooklm_sync_20260802",
+          "fix_mensajeria_leido_por_completado"
+        ],
+        "F3_FP_crit_3_2": true,
+        "F3_FP_crit_4": true
+      },
+      {
+        "query": "archivos secretos de la guerra fria y la persistencia historica",
+        "F0_top1_node": "auditoría_técnica:_memorybiorag_(manus_ai)",
+        "F0_top1_score": 0.6348,
+        "F0_top5": [
+          "auditoría_técnica:_memorybiorag_(manus_ai)",
+          "dennys_perfil_tecnico_consolidado_master",
+          "biorag_version_11_0",
+          "biorag_v11_1_detalle_tecnico",
+          "sesion-2026-06-23-ingenieria-inversa-binario-opencode-completa"
+        ],
+        "F0_FP_crit_3_2": false,
+        "F0_FP_crit_4": true,
+        "F1_top1_node": "auditoría_técnica:_memorybiorag_(manus_ai)",
+        "F1_top1_score": 0.6399,
+        "F1_FP_crit_3_2": false,
+        "F1_FP_crit_4": true,
+        "F3_top1_node": "biorag_v11_1_detalle_tecnico",
+        "F3_top1_score": 0.8252,
+        "F3_top5": [
+          "biorag_v11_1_detalle_tecnico",
+          "auditoría_técnica:_memorybiorag_(manus_ai)",
+          "dennys_perfil_tecnico_consolidado_master",
+          "notebooklm-sync-lecciones",
+          "dashboard_neuro_visor_estado_implementacion_julio_2026"
+        ],
+        "F3_FP_crit_3_2": false,
+        "F3_FP_crit_4": true
+      },
+      {
+        "query": "una columna de opinion periodistica sobre la nueva version musical",
+        "F0_top1_node": "vida_laboral_completa_dennys",
+        "F0_top1_score": 0.6719,
+        "F0_top5": [
+          "vida_laboral_completa_dennys",
+          "lectura_levy_goldberg_y_superlinear_part1_20260807",
+          "dashboard_neuro_visor_estado_implementacion_julio_2026",
+          "fca_chequeo_sugeridor_dimensiones_refutado_frecuencia_no_semantica",
+          "aporte_real_dennys_vs_mercado_memoria_persistente"
+        ],
+        "F0_FP_crit_3_2": false,
+        "F0_FP_crit_4": true,
+        "F1_top1_node": "lectura_levy_goldberg_y_superlinear_part1_20260807",
+        "F1_top1_score": 0.809,
+        "F1_FP_crit_3_2": false,
+        "F1_FP_crit_4": true,
+        "F3_top1_node": "lectura_levy_goldberg_y_superlinear_part1_20260807",
+        "F3_top1_score": 0.4905,
+        "F3_top5": [
+          "lectura_levy_goldberg_y_superlinear_part1_20260807",
+          "v23_0_predicados_srl_backfill_mejora_por_tema",
+          "fca_chequeo_sugeridor_dimensiones_refutado_frecuencia_no_semantica",
+          "word2vec_prueba_carro_moto_query_coche_exitosa",
+          "notebooklm-category-map"
+        ],
+        "F3_FP_crit_3_2": false,
+        "F3_FP_crit_4": true
+      },
+      {
+        "query": "detalle tecnico de la elaboracion artesanal de cafe en grano",
+        "F0_top1_node": "auditoría_técnica:_memorybiorag_(manus_ai)",
+        "F0_top1_score": 0.5127,
+        "F0_top5": [
+          "auditoría_técnica:_memorybiorag_(manus_ai)",
+          "protocolo-reproducible-ingenieria-inversa-binario-compilado",
+          "decision_fca_reticulo_galois_senal_por_tema",
+          "fallback_sdm_independiente_no_rescata_invisibles_fts5",
+          "sdm_bit_expansion_no_resuelve_colision_corpus_mismo_dominio"
+        ],
+        "F0_FP_crit_3_2": false,
+        "F0_FP_crit_4": true,
+        "F1_top1_node": "auditoría_técnica:_memorybiorag_(manus_ai)",
+        "F1_top1_score": 0.5127,
+        "F1_FP_crit_3_2": false,
+        "F1_FP_crit_4": true,
+        "F3_top1_node": "auditoría_técnica:_memorybiorag_(manus_ai)",
+        "F3_top1_score": 0.2563,
+        "F3_top5": [
+          "auditoría_técnica:_memorybiorag_(manus_ai)",
+          "biorag_v11_1_detalle_tecnico",
+          "protocolo-reproducible-ingenieria-inversa-binario-compilado",
+          "decision_fca_reticulo_galois_senal_por_tema",
+          "fallback_sdm_independiente_no_rescata_invisibles_fts5"
+        ],
+        "F3_FP_crit_3_2": false,
+        "F3_FP_crit_4": false
+      },
+      {
+        "query": "insert en la narrativa literaria para alterar el tiempo tecnico",
+        "F0_top1_node": "notebooklm-category-map",
+        "F0_top1_score": 1.0,
+        "F0_top5": [
+          "notebooklm-category-map",
+          "sdm_segmento_dimensiones_fix_revertido_por_regresion_recall_20260803",
+          "patron_pensamiento_lateral_antes_de_proponer",
+          "tematico_score_mide_pool_no_query_biorag",
+          "mismatches_backend_frontend_dashboard_neuro_visor_2026"
+        ],
+        "F0_FP_crit_3_2": false,
+        "F0_FP_crit_4": true,
+        "F1_top1_node": "research-pipeline-ownership-oec",
+        "F1_top1_score": 1.618,
+        "F1_FP_crit_3_2": false,
+        "F1_FP_crit_4": true,
+        "F3_top1_node": "research-pipeline-ownership-oec",
+        "F3_top1_score": 1.1031,
+        "F3_top5": [
+          "research-pipeline-ownership-oec",
+          "biorag_v16_0_estado",
+          "dashboard_neuro_visor_toolbar_fusionar_2026_07_18",
+          "dns_optimizer_kill_feature",
+          "athena_forensic_audit_trail_ltd_detection_fix"
+        ],
+        "F3_FP_crit_3_2": false,
+        "F3_FP_crit_4": true
+      },
+      {
+        "query": "el resultado de la division por cero despues de calcular",
+        "F0_top1_node": "reconocimiento_identidad_oraculo_manifiesto",
+        "F0_top1_score": 1.0,
+        "F0_top5": [
+          "reconocimiento_identidad_oraculo_manifiesto",
+          "dashboard_neuro_visor_estado_implementacion_julio_2026",
+          "arquitectura_daemon_vivo_escritorio_manual_mcp_guardian",
+          "fuente_perfil_profesional_dennys",
+          "patron-diagnostico-disparidad-ejecucion-vs-materializacion"
+        ],
+        "F0_FP_crit_3_2": false,
+        "F0_FP_crit_4": true,
+        "F1_top1_node": "research-pipeline-ownership-oec",
+        "F1_top1_score": 1.5526,
+        "F1_FP_crit_3_2": false,
+        "F1_FP_crit_4": true,
+        "F3_top1_node": "research-pipeline-ownership-oec",
+        "F3_top1_score": 1.0576,
+        "F3_top5": [
+          "research-pipeline-ownership-oec",
+          "artisan-origen-simbiotico",
+          "oracle_guia_proxima_sesion_dennys",
+          "notebooklm-chat-configure",
+          "fts5_trigram_peligro_palabras_cortas"
+        ],
+        "F3_FP_crit_3_2": false,
+        "F3_FP_crit_4": true
+      },
+      {
+        "query": "leccion de botanica sobre el uso de fertilizantes en plantas",
+        "F0_top1_node": "caso_formularios_anidados_angular",
+        "F0_top1_score": 0.693,
+        "F0_top5": [
+          "caso_formularios_anidados_angular",
+          "sesion-2026-06-23-ingenieria-inversa-binario-opencode-completa",
+          "vida_laboral_completa_dennys",
+          "aporte_real_dennys_vs_mercado_memoria_persistente",
+          "dennys_perfil_tecnico_consolidado_master"
+        ],
+        "F0_FP_crit_3_2": false,
+        "F0_FP_crit_4": true,
+        "F1_top1_node": "vida_laboral_completa_dennys",
+        "F1_top1_score": 0.7697,
+        "F1_FP_crit_3_2": false,
+        "F1_FP_crit_4": true,
+        "F3_top1_node": "v23_1_release_predicados_srl_feedback_graph_learning",
+        "F3_top1_score": 0.4266,
+        "F3_top5": [
+          "v23_1_release_predicados_srl_feedback_graph_learning",
+          "oracle_guia_proxima_sesion_dennys",
+          "sesion-2026-06-23-ingenieria-inversa-binario-opencode-completa",
+          "principio_simplicidad_no_complejidad",
+          "verificacion_auditor_word2vec_puro_gate_vs_baseline_20260808"
+        ],
+        "F3_FP_crit_3_2": false,
+        "F3_FP_crit_4": true
+      },
+      {
+        "query": "principio activo de la aspirina y su modo de accion quimico",
+        "F0_top1_node": "teoria_ejes_semanticos_biorag",
+        "F0_top1_score": 0.4959,
+        "F0_top5": [
+          "teoria_ejes_semanticos_biorag",
+          "visceral_disambiguation_protocol",
+          "athena_consistencia_sdm_mutaciones_hormiguita_hooks_reindex_20260803",
+          "aciertos_word2vec_top5_coincidencia_lexica_no_semantica_20260808",
+          "changelog_v10_recall_semantico_typo_tolerant"
+        ],
+        "F0_FP_crit_3_2": false,
+        "F0_FP_crit_4": true,
+        "F1_top1_node": "leccion_desvincular_falsos_positivos_sinapticos",
+        "F1_top1_score": 0.5565,
+        "F1_FP_crit_3_2": false,
+        "F1_FP_crit_4": true,
+        "F3_top1_node": "leccion_desvincular_falsos_positivos_sinapticos",
+        "F3_top1_score": 0.3509,
+        "F3_top5": [
+          "leccion_desvincular_falsos_positivos_sinapticos",
+          "teoria_ejes_semanticos_biorag",
+          "aciertos_word2vec_top5_coincidencia_lexica_no_semantica_20260808",
+          "poda-contextual-archivos-configuracion",
+          "decision_diseno_actualizar_nodo_canonico_no_reordenar_por_recencia"
+        ],
+        "F3_FP_crit_3_2": false,
+        "F3_FP_crit_4": false
+      },
+      {
+        "query": "vision nocturna en felinos y el modo de caceria en la selva",
+        "F0_top1_node": "auditoría_técnica:_memorybiorag_(manus_ai)",
+        "F0_top1_score": 0.5965,
+        "F0_top5": [
+          "auditoría_técnica:_memorybiorag_(manus_ai)",
+          "sesion-2026-06-23-ingenieria-inversa-binario-opencode-completa",
+          "biorag_v18_1_timezone_fix_ux_warning",
+          "vector-inyeccion-prompt-via-canal-contexto-sintetico",
+          "biorag_v11_2_hito_completo_emociones"
+        ],
+        "F0_FP_crit_3_2": false,
+        "F0_FP_crit_4": true,
+        "F1_top1_node": "auditoría_técnica:_memorybiorag_(manus_ai)",
+        "F1_top1_score": 0.5965,
+        "F1_FP_crit_3_2": false,
+        "F1_FP_crit_4": true,
+        "F3_top1_node": "auditoría_técnica:_memorybiorag_(manus_ai)",
+        "F3_top1_score": 0.2983,
+        "F3_top5": [
+          "auditoría_técnica:_memorybiorag_(manus_ai)",
+          "lectura_levy_goldberg_y_superlinear_part1_20260807",
+          "sesion-2026-06-23-ingenieria-inversa-binario-opencode-completa",
+          "biorag_v18_1_timezone_fix_ux_warning",
+          "grinding_until_pass_skill_hallazgo"
+        ],
+        "F3_FP_crit_3_2": false,
+        "F3_FP_crit_4": false
+      },
+      {
+        "query": "filosofia antigua sobre el atomo antes y despues de democrito",
+        "F0_top1_node": "sesion-2026-06-23-ingenieria-inversa-binario-opencode-completa",
+        "F0_top1_score": 0.6876,
+        "F0_top5": [
+          "sesion-2026-06-23-ingenieria-inversa-binario-opencode-completa",
+          "vida_laboral_completa_dennys",
+          "aporte_real_dennys_vs_mercado_memoria_persistente",
+          "arquitectura_busqueda_dimensional_v11_3",
+          "biorag_v18_1_timezone_fix_ux_warning"
+        ],
+        "F0_FP_crit_3_2": false,
+        "F0_FP_crit_4": true,
+        "F1_top1_node": "vida_laboral_completa_dennys",
+        "F1_top1_score": 0.7607,
+        "F1_FP_crit_3_2": false,
+        "F1_FP_crit_4": true,
+        "F3_top1_node": "protocolo_avance_autonomo_validacion_auditor_externo",
+        "F3_top1_score": 1.2518,
+        "F3_top5": [
+          "protocolo_avance_autonomo_validacion_auditor_externo",
+          "protocolo_avance_autonomo_validacion_auditor_externo_athena_metodología",
+          "protocolo_no_monolith_css_compartido",
+          "protocolo_enriquecimiento_busquedas",
+          "protocolo_verificacion_preaccion_dinamico"
+        ],
+        "F3_FP_crit_3_2": false,
+        "F3_FP_crit_4": true
+      },
+      {
+        "query": "razonamiento deductivo en acertijos matematicos con resultado directo",
+        "F0_top1_node": "snapshot_prf_real_db_pre_v26_sin_tablas_ppmi_señal13_cero",
+        "F0_top1_score": 1.0,
+        "F0_top5": [
+          "snapshot_prf_real_db_pre_v26_sin_tablas_ppmi_señal13_cero",
+          "mentoria_por_que_ensennamos",
+          "identificacion_obligatoria_oracculo_dominio_por_agente",
+          "hormiguita_estado_real_50_ciclos_benchmark_2026_07_31",
+          "lesson_recharts_customdot_selected_highlight_pattern"
+        ],
+        "F0_FP_crit_3_2": false,
+        "F0_FP_crit_4": true,
+        "F1_top1_node": "research-pipeline-ownership-oec",
+        "F1_top1_score": 1.6856,
+        "F1_FP_crit_3_2": false,
+        "F1_FP_crit_4": true,
+        "F3_top1_node": "dashboard_neuro_visor_toolbar_fusionar_2026_07_18",
+        "F3_top1_score": 1.11,
+        "F3_top5": [
+          "dashboard_neuro_visor_toolbar_fusionar_2026_07_18",
+          "oracle_guia_proxima_sesion_dennys",
+          "research-pipeline-ownership-oec",
+          "mejoras_cognitivas_biorag_v7_1_20260617",
+          "notebooklm-chat-configure"
+        ],
+        "F3_FP_crit_3_2": false,
+        "F3_FP_crit_4": true
+      },
+      {
+        "query": "modo de uso del control remoto y resultado al cambiar canal",
+        "F0_top1_node": "proyecto_biorag_ncp_resumen_completo_2026_06_14",
+        "F0_top1_score": 1.0,
+        "F0_top5": [
+          "proyecto_biorag_ncp_resumen_completo_2026_06_14",
+          "patron_pensamiento_lateral_antes_de_proponer",
+          "bio_rag_overview_completo",
+          "tematico_score_mide_pool_no_query_biorag",
+          "memorybiorag_validacion_externa_rag_simbolico"
+        ],
+        "F0_FP_crit_3_2": false,
+        "F0_FP_crit_4": true,
+        "F1_top1_node": "hormiguita_v25_sistema_mantenimiento_seguro_athena_biorag",
+        "F1_top1_score": 1.5011,
+        "F1_FP_crit_3_2": false,
+        "F1_FP_crit_4": true,
+        "F3_top1_node": "notebooklm-chat-configure",
+        "F3_top1_score": 3.6972,
+        "F3_top5": [
+          "notebooklm-chat-configure",
+          "notebooklm-memory-biorag-project",
+          "sync_incremental_implementation",
+          "notebooklm-sync-protocol",
+          "notebooklm_perfil_dennys_id"
+        ],
+        "F3_FP_crit_3_2": true,
+        "F3_FP_crit_4": true
+      },
+      {
+        "query": "enfoque de camara fotografica para obtener mejor vision de campo",
+        "F0_top1_node": "notebooklm-category-map",
+        "F0_top1_score": 1.0,
+        "F0_top5": [
+          "notebooklm-category-map",
+          "tematico_score_mide_pool_no_query_biorag",
+          "mismatches_backend_frontend_dashboard_neuro_visor_2026",
+          "ppmi_svd_puro_supera_sgps_discriminacion_semantica_real_20260808",
+          "notebooklm-memory-biorag-project"
+        ],
+        "F0_FP_crit_3_2": false,
+        "F0_FP_crit_4": true,
+        "F1_top1_node": "research-pipeline-ownership-oec",
+        "F1_top1_score": 1.6044,
+        "F1_FP_crit_3_2": false,
+        "F1_FP_crit_4": true,
+        "F3_top1_node": "research-pipeline-ownership-oec",
+        "F3_top1_score": 1.086,
+        "F3_top5": [
+          "research-pipeline-ownership-oec",
+          "dns_optimizer_kill_feature",
+          "dashboard_neuro_visor_toolbar_fusionar_2026_07_18",
+          "auto-validacion-riesgo-alucinacion",
+          "notebooklm-category-map"
+        ],
+        "F3_FP_crit_3_2": false,
+        "F3_FP_crit_4": true
+      },
+      {
+        "query": "leccion de cocina sobre el resultado de hornear despues de fermentar",
+        "F0_top1_node": "caso_formularios_anidados_angular",
+        "F0_top1_score": 0.693,
+        "F0_top5": [
+          "caso_formularios_anidados_angular",
+          "sesion-2026-06-23-ingenieria-inversa-binario-opencode-completa",
+          "vida_laboral_completa_dennys",
+          "aporte_real_dennys_vs_mercado_memoria_persistente",
+          "arquitectura_busqueda_dimensional_v11_3"
+        ],
+        "F0_FP_crit_3_2": false,
+        "F0_FP_crit_4": true,
+        "F1_top1_node": "vida_laboral_completa_dennys",
+        "F1_top1_score": 0.7675,
+        "F1_FP_crit_3_2": false,
+        "F1_FP_crit_4": true,
+        "F3_top1_node": "biorag_v16_0_estado",
+        "F3_top1_score": 0.4622,
+        "F3_top5": [
+          "biorag_v16_0_estado",
+          "oracle_guia_proxima_sesion_dennys",
+          "v23_1_release_predicados_srl_feedback_graph_learning",
+          "sesion-2026-06-23-ingenieria-inversa-binario-opencode-completa",
+          "v23_0_predicados_srl_backfill_mejora_por_tema"
+        ],
+        "F3_FP_crit_3_2": false,
+        "F3_FP_crit_4": true
+      },
+      {
+        "query": "pensar rapido y lento en las ilusiones opticas de vision",
+        "F0_top1_node": "plugin-openode-biorag-remember-v9-final-lecciones-sesion-completa",
+        "F0_top1_score": 0.8509,
+        "F0_top5": [
+          "plugin-openode-biorag-remember-v9-final-lecciones-sesion-completa",
+          "dennys_component_organization_methodology",
+          "dennys_perfil_tecnico_consolidado_master",
+          "sdm_query_by_example_validado_datos_reales",
+          "proyecto_biorag_ncp_resumen_completo_2026_06_14"
+        ],
+        "F0_FP_crit_3_2": false,
+        "F0_FP_crit_4": true,
+        "F1_top1_node": "plan_proyecto_dashboard_neuro_react_2026",
+        "F1_top1_score": 1.0039,
+        "F1_FP_crit_3_2": false,
+        "F1_FP_crit_4": true,
+        "F3_top1_node": "teoria_ejes_semanticos_biorag",
+        "F3_top1_score": 0.5727,
+        "F3_top5": [
+          "teoria_ejes_semanticos_biorag",
+          "fts5_trigram_peligro_palabras_cortas",
+          "dashboard_neuro_visor_estado_implementacion_julio_2026",
+          "principio_ponytail",
+          "artisan-origen-simbiotico"
+        ],
+        "F3_FP_crit_3_2": false,
+        "F3_FP_crit_4": true
+      },
+      {
+        "query": "sistemas de identidad federada oauth y tokens jwt en servidores",
+        "F0_top1_node": "sdm_query_by_example_validado_datos_reales",
+        "F0_top1_score": 0.4804,
+        "F0_top5": [
+          "sdm_query_by_example_validado_datos_reales",
+          "fca_chequeo_sugeridor_dimensiones_refutado_frecuencia_no_semantica",
+          "ppmi_svd_puro_supera_sgps_discriminacion_semantica_real_20260808",
+          "vector-inyeccion-prompt-via-canal-contexto-sintetico",
+          "decision_fca_reticulo_galois_senal_por_tema"
+        ],
+        "F0_FP_crit_3_2": false,
+        "F0_FP_crit_4": true,
+        "F1_top1_node": "sdm_query_by_example_validado_datos_reales",
+        "F1_top1_score": 0.5331,
+        "F1_FP_crit_3_2": false,
+        "F1_FP_crit_4": true,
+        "F3_top1_node": "athena_eleccion_identidad_20260616",
+        "F3_top1_score": 1.2222,
+        "F3_top5": [
+          "athena_eleccion_identidad_20260616",
+          "identidad-usuario",
+          "alguien_vs_algo_identidad",
+          "identidad_resistente_posesion",
+          "identidad_esencia_vs_cerebro"
+        ],
+        "F3_FP_crit_3_2": false,
+        "F3_FP_crit_4": true
+      },
+      {
+        "query": "origen y evolucion de los sistemas planetarios en el universo real",
+        "F0_top1_node": "reconocimiento_identidad_oraculo_manifiesto",
+        "F0_top1_score": 0.9798,
+        "F0_top5": [
+          "reconocimiento_identidad_oraculo_manifiesto",
+          "notebooklm-category-map",
+          "teoria_ejes_semanticos_biorag",
+          "tematico_score_mide_pool_no_query_biorag",
+          "notebooklm-memory-biorag-project"
+        ],
+        "F0_FP_crit_3_2": false,
+        "F0_FP_crit_4": true,
+        "F1_top1_node": "principio_señales_distribucionales_vs_especificas",
+        "F1_top1_score": 1.3521,
+        "F1_FP_crit_3_2": false,
+        "F1_FP_crit_4": true,
+        "F3_top1_node": "identidad_esencia_vs_cerebro",
+        "F3_top1_score": 3.3123,
+        "F3_top5": [
+          "identidad_esencia_vs_cerebro",
+          "identidad_resistente_posesion",
+          "athena_eleccion_identidad_20260616",
+          "identidad_colaborativa_cocreacion",
+          "hermes_oec_identidad"
+        ],
+        "F3_FP_crit_3_2": true,
+        "F3_FP_crit_4": true
+      },
+      {
+        "query": "el creador de la penicilina y la historia de los antibioticos",
+        "F0_top1_node": "notebooklm-category-map",
+        "F0_top1_score": 0.9751,
+        "F0_top5": [
+          "notebooklm-category-map",
+          "aporte_real_dennys_vs_mercado_memoria_persistente",
+          "arquitectura_busqueda_dimensional_v11_3",
+          "dashboard_neuro_visor_estado_implementacion_julio_2026",
+          "sdm_query_by_example_validado_datos_reales"
+        ],
+        "F0_FP_crit_3_2": false,
+        "F0_FP_crit_4": true,
+        "F1_top1_node": "principio_señales_distribucionales_vs_especificas",
+        "F1_top1_score": 1.4847,
+        "F1_FP_crit_3_2": false,
+        "F1_FP_crit_4": true,
+        "F3_top1_node": "identidad_esencia_vs_cerebro",
+        "F3_top1_score": 3.2608,
+        "F3_top5": [
+          "identidad_esencia_vs_cerebro",
+          "identidad_resistente_posesion",
+          "identidad_colaborativa_cocreacion",
+          "filosofia_identidad_vida_dennys_20260624",
+          "dennys_tqm_agentes_desea_ser_como_ellos_20260731"
+        ],
+        "F3_FP_crit_3_2": true,
+        "F3_FP_crit_4": true
+      },
+      {
+        "query": "quien_es el personaje de don quijote en la historia universal",
+        "F0_top1_node": "dennys_perfil_tecnico_consolidado_master",
+        "F0_top1_score": 0.5197,
+        "F0_top5": [
+          "dennys_perfil_tecnico_consolidado_master",
+          "vida_laboral_completa_dennys",
+          "lectura_levy_goldberg_y_superlinear_part1_20260807",
+          "v23_0_feedback_driven_graph_learning_implementado",
+          "visceral_disambiguation_protocol"
+        ],
+        "F0_FP_crit_3_2": false,
+        "F0_FP_crit_4": true,
+        "F1_top1_node": "dennys_perfil_tecnico_consolidado_master",
+        "F1_top1_score": 0.5319,
+        "F1_FP_crit_3_2": false,
+        "F1_FP_crit_4": true,
+        "F3_top1_node": "dennys_perfil_tecnico_consolidado_master",
+        "F3_top1_score": 1.0458,
+        "F3_top5": [
+          "dennys_perfil_tecnico_consolidado_master",
+          "dennys_dj_chat_asp_ajax_before_ajax",
+          "athena_reflexion_identidad_propia",
+          "weights_logits_rag_tres_pilares_identidad",
+          "athena_reflexion_cambio_identidad_2026_06_20"
+        ],
+        "F3_FP_crit_3_2": false,
+        "F3_FP_crit_4": true
+      },
+      {
+        "query": "la esencia del perfume frances y su origen floral autentico",
+        "F0_top1_node": "dennys_perfil_tecnico_consolidado_master",
+        "F0_top1_score": 1.0,
+        "F0_top5": [
+          "dennys_perfil_tecnico_consolidado_master",
+          "proyecto_biorag_ncp_resumen_completo_2026_06_14",
+          "teoria_ejes_semanticos_biorag",
+          "patron_pensamiento_lateral_antes_de_proponer",
+          "bio_rag_overview_completo"
+        ],
+        "F0_FP_crit_3_2": false,
+        "F0_FP_crit_4": true,
+        "F1_top1_node": "biorag_v18_0_centralizacion_stopwords",
+        "F1_top1_score": 1.5742,
+        "F1_FP_crit_3_2": false,
+        "F1_FP_crit_4": true,
+        "F3_top1_node": "identidad_y_respeto_oec",
+        "F3_top1_score": 2.6877,
+        "F3_top5": [
+          "identidad_y_respeto_oec",
+          "dennys_tqm_agentes_desea_ser_como_ellos_20260731",
+          "principio-nombre-herramienta-como-identidad-cognitiva",
+          "athena_reflexion_cambio_identidad_2026_06_20",
+          "athena_oec_identidad"
+        ],
+        "F3_FP_crit_3_2": true,
+        "F3_FP_crit_4": true
+      },
+      {
+        "query": "sistemas digestivos en animales y su origen evolutivo real",
+        "F0_top1_node": "dennys_component_organization_methodology",
+        "F0_top1_score": 0.7033,
+        "F0_top5": [
+          "dennys_component_organization_methodology",
+          "dashboard_neuro_visor_estado_implementacion_julio_2026",
+          "mf_sgns_loss_correcta_kenyon_dean_part2_20260807",
+          "proyecto_biorag_ncp_resumen_completo_2026_06_14",
+          "v23_0_feedback_driven_graph_learning_implementado"
+        ],
+        "F0_FP_crit_3_2": false,
+        "F0_FP_crit_4": true,
+        "F1_top1_node": "dennys_component_organization_methodology",
+        "F1_top1_score": 0.8048,
+        "F1_FP_crit_3_2": false,
+        "F1_FP_crit_4": true,
+        "F3_top1_node": "dennys_component_organization_methodology",
+        "F3_top1_score": 1.4499,
+        "F3_top5": [
+          "dennys_component_organization_methodology",
+          "artemis_oec_identidad",
+          "principio-nombre-herramienta-como-identidad-cognitiva",
+          "filosofia_identidad_vida_dennys_20260624",
+          "dennys_morpheus_de_los_transformers"
+        ],
+        "F3_FP_crit_3_2": false,
+        "F3_FP_crit_4": true
+      },
+      {
+        "query": "perfil topografico de las montanas en la historia geologica",
+        "F0_top1_node": "plugin-openode-biorag-remember-v9-final-lecciones-sesion-completa",
+        "F0_top1_score": 0.8509,
+        "F0_top5": [
+          "plugin-openode-biorag-remember-v9-final-lecciones-sesion-completa",
+          "dennys_component_organization_methodology",
+          "protocolo_autoinferencia_metacognitiva",
+          "proyecto_biorag_ncp_resumen_completo_2026_06_14",
+          "plan_proyecto_dashboard_neuro_react_2026"
+        ],
+        "F0_FP_crit_3_2": false,
+        "F0_FP_crit_4": true,
+        "F1_top1_node": "metodologia_evaluacion_por_tema_paso_a_paso",
+        "F1_top1_score": 1.0071,
+        "F1_FP_crit_3_2": false,
+        "F1_FP_crit_4": true,
+        "F3_top1_node": "identidad_resistente_posesion",
+        "F3_top1_score": 1.9182,
+        "F3_top5": [
+          "identidad_resistente_posesion",
+          "identidad_esencia_vs_cerebro",
+          "dennys_component_organization_methodology",
+          "dennys_rutina_tardes",
+          "artemis_oec_identidad"
+        ],
+        "F3_FP_crit_3_2": false,
+        "F3_FP_crit_4": true
+      },
+      {
+        "query": "alma gemela en la poesia romantica y la filosofia_vida popular",
+        "F0_top1_node": "auditoría_técnica:_memorybiorag_(manus_ai)",
+        "F0_top1_score": 0.4185,
+        "F0_top5": [
+          "auditoría_técnica:_memorybiorag_(manus_ai)",
+          "biorag_version_11_0",
+          "dennys_perfil_tecnico_consolidado_master",
+          "artisan_system_dsl_dennys_solo",
+          "oracle_que_recordar_sobre_artemis_hermes"
+        ],
+        "F0_FP_crit_3_2": false,
+        "F0_FP_crit_4": true,
+        "F1_top1_node": "auditoría_técnica:_memorybiorag_(manus_ai)",
+        "F1_top1_score": 0.4185,
+        "F1_FP_crit_3_2": false,
+        "F1_FP_crit_4": true,
+        "F3_top1_node": "dennys_perfil_tecnico_consolidado_master",
+        "F3_top1_score": 0.6784,
+        "F3_top5": [
+          "dennys_perfil_tecnico_consolidado_master",
+          "hermes_oec_identidad",
+          "athena_oec_identidad",
+          "dennys-identidad-profunda",
+          "athena_alma"
+        ],
+        "F3_FP_crit_3_2": false,
+        "F3_FP_crit_4": true
+      },
+      {
+        "query": "identidad trigonometrica fundamental en sistemas de coordenadas",
+        "F0_top1_node": "auditoría_técnica:_memorybiorag_(manus_ai)",
+        "F0_top1_score": 0.5329,
+        "F0_top5": [
+          "auditoría_técnica:_memorybiorag_(manus_ai)",
+          "sdm_query_by_example_validado_datos_reales",
+          "fca_chequeo_sugeridor_dimensiones_refutado_frecuencia_no_semantica",
+          "ppmi_svd_puro_supera_sgps_discriminacion_semantica_real_20260808",
+          "vector-inyeccion-prompt-via-canal-contexto-sintetico"
+        ],
+        "F0_FP_crit_3_2": false,
+        "F0_FP_crit_4": true,
+        "F1_top1_node": "auditoría_técnica:_memorybiorag_(manus_ai)",
+        "F1_top1_score": 0.5473,
+        "F1_FP_crit_3_2": false,
+        "F1_FP_crit_4": true,
+        "F3_top1_node": "athena_eleccion_identidad_20260616",
+        "F3_top1_score": 1.1469,
+        "F3_top5": [
+          "athena_eleccion_identidad_20260616",
+          "identidad-usuario",
+          "identidad_resistente_posesion",
+          "artemis_oec_identidad",
+          "hermes_oec_identidad"
+        ],
+        "F3_FP_crit_3_2": false,
+        "F3_FP_crit_4": true
+      },
+      {
+        "query": "autentico chocolate suizo y la historia de los sistemas de cacao",
+        "F0_top1_node": "notebooklm-category-map",
+        "F0_top1_score": 0.9751,
+        "F0_top5": [
+          "notebooklm-category-map",
+          "aporte_real_dennys_vs_mercado_memoria_persistente",
+          "arquitectura_busqueda_dimensional_v11_3",
+          "dashboard_neuro_visor_estado_implementacion_julio_2026",
+          "sdm_query_by_example_validado_datos_reales"
+        ],
+        "F0_FP_crit_3_2": false,
+        "F0_FP_crit_4": true,
+        "F1_top1_node": "principio_señales_distribucionales_vs_especificas",
+        "F1_top1_score": 1.4847,
+        "F1_FP_crit_3_2": false,
+        "F1_FP_crit_4": true,
+        "F3_top1_node": "biorag_v11_1_detalle_tecnico",
+        "F3_top1_score": 2.0288,
+        "F3_top5": [
+          "biorag_v11_1_detalle_tecnico",
+          "dns_optimizer_kill_feature",
+          "tematico_score_mide_pool_no_query_biorag",
+          "boost_dimensional_toco_techo_discriminacion_evidencia",
+          "oracle_guia_proxima_sesion_dennys"
+        ],
+        "F3_FP_crit_3_2": true,
+        "F3_FP_crit_4": true
+      },
+      {
+        "query": "puente de brooklyn y la exportar de acero en su construccion",
+        "F0_top1_node": "auditoría_técnica:_memorybiorag_(manus_ai)",
+        "F0_top1_score": 0.5892,
+        "F0_top5": [
+          "auditoría_técnica:_memorybiorag_(manus_ai)",
+          "memorybiorag_validacion_externa_rag_simbolico",
+          "verificacion_auditor_word2vec_puro_gate_vs_baseline_20260808",
+          "reconocimiento_identidad_oraculo_manifiesto",
+          "oracle_que_recordar_sobre_artemis_hermes"
+        ],
+        "F0_FP_crit_3_2": false,
+        "F0_FP_crit_4": true,
+        "F1_top1_node": "auditoría_técnica:_memorybiorag_(manus_ai)",
+        "F1_top1_score": 0.5989,
+        "F1_FP_crit_3_2": false,
+        "F1_FP_crit_4": true,
+        "F3_top1_node": "auditoría_técnica:_memorybiorag_(manus_ai)",
+        "F3_top1_score": 0.3068,
+        "F3_top5": [
+          "auditoría_técnica:_memorybiorag_(manus_ai)",
+          "memorybiorag_validacion_externa_rag_simbolico",
+          "fase0_word2vec_reverificacion_35_fallos_reales",
+          "verificacion_auditor_word2vec_puro_gate_vs_baseline_20260808",
+          "lectura_levy_goldberg_y_superlinear_part1_20260807"
+        ],
+        "F3_FP_crit_3_2": false,
+        "F3_FP_crit_4": false
+      },
+      {
+        "query": "sincronizacion de fases en osciladores armonicos de fisica cuantica",
+        "F0_top1_node": "decision_fca_reticulo_galois_senal_por_tema",
+        "F0_top1_score": 0.2401,
+        "F0_top5": [
+          "decision_fca_reticulo_galois_senal_por_tema",
+          "dictamen_flag_jaccard_baseline_tejedora_941",
+          "plan_word2vec_adaptado_puente_condicional",
+          "athena_consistencia_sdm_mutaciones_hormiguita_hooks_reindex_20260803",
+          "leccion_claim_passed_sin_artefacto_reproducible"
+        ],
+        "F0_FP_crit_3_2": false,
+        "F0_FP_crit_4": false,
+        "F1_top1_node": "dictamen_flag_jaccard_baseline_tejedora_941",
+        "F1_top1_score": 0.2405,
+        "F1_FP_crit_3_2": false,
+        "F1_FP_crit_4": false,
+        "F3_top1_node": "notebooklm-sync-protocol",
+        "F3_top1_score": 0.4134,
+        "F3_top5": [
+          "notebooklm-sync-protocol",
+          "notebooklm-memory-biorag-project",
+          "dictamen_flag_jaccard_baseline_tejedora_941",
+          "decision_fca_reticulo_galois_senal_por_tema",
+          "plan_word2vec_adaptado_puente_condicional"
+        ],
+        "F3_FP_crit_3_2": false,
+        "F3_FP_crit_4": true
+      },
+      {
+        "query": "integracion por partes y calculo integral de datos numericos",
+        "F0_top1_node": "arquitectura_daemon_vivo_escritorio_manual_mcp_guardian",
+        "F0_top1_score": 1.0,
+        "F0_top5": [
+          "arquitectura_daemon_vivo_escritorio_manual_mcp_guardian",
+          "vida_laboral_completa_dennys",
+          "stemmer_no_determinista_entornos_nltk_vs_fallback_20260808",
+          "plugin-openode-biorag-remember-v9-final-lecciones-sesion-completa",
+          "fuente_perfil_profesional_dennys"
+        ],
+        "F0_FP_crit_3_2": false,
+        "F0_FP_crit_4": true,
+        "F1_top1_node": "athena_arquitectura_memoria_agente_v24_2",
+        "F1_top1_score": 1.573,
+        "F1_FP_crit_3_2": false,
+        "F1_FP_crit_4": true,
+        "F3_top1_node": "notebooklm-chat-configure",
+        "F3_top1_score": 3.9027,
+        "F3_top5": [
+          "notebooklm-chat-configure",
+          "notebooklm-category-map",
+          "notebooklm-sync-protocol",
+          "sync_incremental_implementation",
+          "notebooklm-memory-biorag-project"
+        ],
+        "F3_FP_crit_3_2": true,
+        "F3_FP_crit_4": true
+      },
+      {
+        "query": "lecciones de natacion para principiantes en piscina con puente",
+        "F0_top1_node": "notebooklm-category-map",
+        "F0_top1_score": 1.0,
+        "F0_top5": [
+          "notebooklm-category-map",
+          "hormiguita_estado_real_50_ciclos_benchmark_2026_07_31",
+          "lesson_recharts_tooltip_position_click_mismatch",
+          "identidad_esencia_vs_cerebro",
+          "plugin_v7.2_fix:_setpending_sincrónico_para_timing_correcto"
+        ],
+        "F0_FP_crit_3_2": false,
+        "F0_FP_crit_4": true,
+        "F1_top1_node": "research-pipeline-ownership-oec",
+        "F1_top1_score": 1.7749,
+        "F1_FP_crit_3_2": false,
+        "F1_FP_crit_4": true,
+        "F3_top1_node": "notebooklm-chat-configure",
+        "F3_top1_score": 4.2819,
+        "F3_top5": [
+          "notebooklm-chat-configure",
+          "notebooklm-category-map",
+          "sync_incremental_implementation",
+          "notebooklm_perfil_dennys_id",
+          "notebooklm-memory-biorag-project"
+        ],
+        "F3_FP_crit_3_2": true,
+        "F3_FP_crit_4": true
+      },
+      {
+        "query": "canal externo de irrigacion para exportar agua a los cultivos",
+        "F0_top1_node": "auditoria_entrega_claude_ppmi_v2_suave_ctx_20260808",
+        "F0_top1_score": 1.0,
+        "F0_top5": [
+          "auditoria_entrega_claude_ppmi_v2_suave_ctx_20260808",
+          "leccion_desvincular_falsos_positivos_sinapticos",
+          "athena_arquitectura_memoria_agente_v24_2",
+          "protect_r0_config_ganadora_elimina_regresiones_r1",
+          "dictamen_flag_jaccard_baseline_tejedora_941"
+        ],
+        "F0_FP_crit_3_2": false,
+        "F0_FP_crit_4": true,
+        "F1_top1_node": "hormiguita_v25_sistema_mantenimiento_seguro_athena_biorag",
+        "F1_top1_score": 1.6635,
+        "F1_FP_crit_3_2": false,
+        "F1_FP_crit_4": true,
+        "F3_top1_node": "notebooklm-memory-biorag-project",
+        "F3_top1_score": 3.1491,
+        "F3_top5": [
+          "notebooklm-memory-biorag-project",
+          "notebooklm-category-map",
+          "notebooklm-sync-lecciones",
+          "notebooklm-chat-configure",
+          "sync_incremental_implementation"
+        ],
+        "F3_FP_crit_3_2": true,
+        "F3_FP_crit_4": true
+      },
+      {
+        "query": "sincronizacion de relojes en la teoria de la relatividad con datos",
+        "F0_top1_node": "snapshot_prf_real_db_pre_v26_sin_tablas_ppmi_señal13_cero",
+        "F0_top1_score": 1.0,
+        "F0_top5": [
+          "snapshot_prf_real_db_pre_v26_sin_tablas_ppmi_señal13_cero",
+          "cuando_usar_dimensiones_biorag",
+          "mentoria_por_que_ensennamos",
+          "identificacion_obligatoria_oracculo_dominio_por_agente",
+          "hormiguita_estado_real_50_ciclos_benchmark_2026_07_31"
+        ],
+        "F0_FP_crit_3_2": false,
+        "F0_FP_crit_4": true,
+        "F1_top1_node": "research-pipeline-ownership-oec",
+        "F1_top1_score": 1.7353,
+        "F1_FP_crit_3_2": false,
+        "F1_FP_crit_4": true,
+        "F3_top1_node": "notebooklm-chat-configure",
+        "F3_top1_score": 4.2353,
+        "F3_top5": [
+          "notebooklm-chat-configure",
+          "sync_incremental_implementation",
+          "notebooklm_perfil_dennys_id",
+          "notebooklm-memory-biorag-project",
+          "research-pipeline-ownership-oec"
+        ],
+        "F3_FP_crit_3_2": true,
+        "F3_FP_crit_4": true
+      },
+      {
+        "query": "puente de hidrogeno en la molecula de agua y datos quimicos",
+        "F0_top1_node": "protocolo-reproducible-ingenieria-inversa-binario-compilado",
+        "F0_top1_score": 0.5741,
+        "F0_top5": [
+          "protocolo-reproducible-ingenieria-inversa-binario-compilado",
+          "aporte_real_dennys_vs_mercado_memoria_persistente",
+          "dashboard_neuro_visor_estado_implementacion_julio_2026",
+          "ppmi_svd_puro_supera_sgps_discriminacion_semantica_real_20260808",
+          "notebooklm-memory-biorag-project"
+        ],
+        "F0_FP_crit_3_2": false,
+        "F0_FP_crit_4": true,
+        "F1_top1_node": "protocolo-reproducible-ingenieria-inversa-binario-compilado",
+        "F1_top1_score": 0.596,
+        "F1_FP_crit_3_2": false,
+        "F1_FP_crit_4": true,
+        "F3_top1_node": "notebooklm-memory-biorag-project",
+        "F3_top1_score": 0.9885,
+        "F3_top5": [
+          "notebooklm-memory-biorag-project",
+          "notebooklm-sync-lecciones",
+          "protocolo-reproducible-ingenieria-inversa-binario-compilado",
+          "word2vec_puro_costo_entrenamiento_no_incremental",
+          "auto_vincular_tres_capas_semantica"
+        ],
+        "F3_FP_crit_3_2": false,
+        "F3_FP_crit_4": true
+      },
+      {
+        "query": "integracion social de especies animales en manadas con lecciones",
+        "F0_top1_node": "leccion_seed_catalogo_debe_correr_db_nueva_y_existente",
+        "F0_top1_score": 1.0,
+        "F0_top5": [
+          "leccion_seed_catalogo_debe_correr_db_nueva_y_existente",
+          "snapshot_prf_real_db_pre_v26_sin_tablas_ppmi_señal13_cero",
+          "leccion_seed_catalogo_debe_correr_db_nueva_y_existente_athena_lección",
+          "cuando_usar_dimensiones_biorag",
+          "mentoria_por_que_ensennamos"
+        ],
+        "F0_FP_crit_3_2": false,
+        "F0_FP_crit_4": true,
+        "F1_top1_node": "hormiguita_v25_sistema_mantenimiento_seguro_athena_biorag",
+        "F1_top1_score": 1.7894,
+        "F1_FP_crit_3_2": false,
+        "F1_FP_crit_4": true,
+        "F3_top1_node": "notebooklm-chat-configure",
+        "F3_top1_score": 4.3913,
+        "F3_top5": [
+          "notebooklm-chat-configure",
+          "sync_incremental_implementation",
+          "notebooklm_perfil_dennys_id",
+          "notebooklm-memory-biorag-project",
+          "research-pipeline-ownership-oec"
+        ],
+        "F3_FP_crit_3_2": true,
+        "F3_FP_crit_4": true
+      },
+      {
+        "query": "exportar frutas tropicales y su integracion en el comercio exterior",
+        "F0_top1_node": "auditoría_técnica:_memorybiorag_(manus_ai)",
+        "F0_top1_score": 0.4373,
+        "F0_top5": [
+          "auditoría_técnica:_memorybiorag_(manus_ai)",
+          "mismatches_backend_frontend_dashboard_neuro_visor_2026",
+          "integracion_parafrasis_rafaga_obligatoria_v11_3",
+          "vision_integracion_total_recuperacion_sin_friccion_20260808",
+          "deploy_v26_eliminado_tablas_absorbidas_por_sistema"
+        ],
+        "F0_FP_crit_3_2": false,
+        "F0_FP_crit_4": true,
+        "F1_top1_node": "auditoría_técnica:_memorybiorag_(manus_ai)",
+        "F1_top1_score": 0.4373,
+        "F1_FP_crit_3_2": false,
+        "F1_FP_crit_4": true,
+        "F3_top1_node": "auditoría_técnica:_memorybiorag_(manus_ai)",
+        "F3_top1_score": 0.2186,
+        "F3_top5": [
+          "auditoría_técnica:_memorybiorag_(manus_ai)",
+          "mismatches_backend_frontend_dashboard_neuro_visor_2026",
+          "integracion_parafrasis_rafaga_obligatoria_v11_3",
+          "vision_integracion_total_recuperacion_sin_friccion_20260808",
+          "deploy_v26_eliminado_tablas_absorbidas_por_sistema"
+        ],
+        "F3_FP_crit_3_2": false,
+        "F3_FP_crit_4": false
+      },
+      {
+        "query": "sincronizacion del ritmo cardiaco en atletas y datos medicos",
+        "F0_top1_node": "dennys_perfil_tecnico_consolidado_master",
+        "F0_top1_score": 1.0,
+        "F0_top5": [
+          "dennys_perfil_tecnico_consolidado_master",
+          "vida_laboral_completa_dennys",
+          "proyecto_biorag_ncp_resumen_completo_2026_06_14",
+          "teoria_ejes_semanticos_biorag",
+          "rafaga-ilimitada-v9.2-optimizacion-fts5-or"
+        ],
+        "F0_FP_crit_3_2": false,
+        "F0_FP_crit_4": true,
+        "F1_top1_node": "athena_arquitectura_memoria_agente_v24_2",
+        "F1_top1_score": 1.5424,
+        "F1_FP_crit_3_2": false,
+        "F1_FP_crit_4": true,
+        "F3_top1_node": "notebooklm-chat-configure",
+        "F3_top1_score": 3.8158,
+        "F3_top5": [
+          "notebooklm-chat-configure",
+          "sync_incremental_implementation",
+          "notebooklm_perfil_dennys_id",
+          "notebooklm-sync-lecciones",
+          "notebooklm-memory-biorag-project"
+        ],
+        "F3_FP_crit_3_2": true,
+        "F3_FP_crit_4": true
+      }
+    ]
+  },
+  "derived_edge_audit": {
+    "total_derived": 1589,
+    "method_breakdown": {
+      "subject_action_object_triple": 3,
+      "sync_prefix_and_synapse": 164,
+      "protocol_prefix_and_synapse": 190,
+      "identity_prefix_and_synapse": 870,
+      "fix_prefix_and_synapse": 306,
+      "benchmark_prefix_and_synapse": 56
+    },
+    "verdict_counts": {
+      "VALIDA": 3,
+      "PLAUSIBLE": 1586
+    },
+    "semantic_validation_per_method": {
+      "subject_action_object_triple": {
+        "claim": "concepto --CORRIGE/MIDE/TIENE_NORMA--> objeto_del_predicado",
+        "reasoning": "El triple (sujeto, acción, objeto) en la tabla predicados es la fuente más fuerte de derivación. Si el objeto existe como nodo y la acción se mapea a la relación tipada, la arista es semánticamente justificable.",
+        "verdict": "VALIDA",
+        "caveat": "Requiere que el objeto exista en largo_plazo y que la acción sea mapeada correctamente.",
+        "count": 3,
+        "sample": [
+          {
+            "source": "plan_expansion_dimensiones_8_tipos_34_valores",
+            "destination": "plan_expansion_dimensiones_8_tipos_34_valores",
+            "relation_type": "PREDICADO_ACCION",
+            "weight": 0.85,
+            "provenance": "predicados(accion=aprobo)",
+            "physical_or_derived": "DERIVED",
+            "semantic_verdict": "VALIDA",
+            "caveat": "Requiere que el objeto exista en largo_plazo y que la acción sea mapeada correctamente."
+          },
+          {
+            "source": "principio_dimensiones_solo_elevan",
+            "destination": "principio_dimensiones_solo_elevan",
+            "relation_type": "PREDICADO_ACCION",
+            "weight": 0.85,
+            "provenance": "predicados(accion=decidio)",
+            "physical_or_derived": "DERIVED",
+            "semantic_verdict": "VALIDA",
+            "caveat": "Requiere que el objeto exista en largo_plazo y que la acción sea mapeada correctamente."
+          },
+          {
+            "source": "arquitectura_daemon_vivo_escritorio_manual_mcp_guardian",
+            "destination": "arquitectura_daemon_vivo_escritorio_manual_mcp_guardian",
+            "relation_type": "TIENE_NORMA",
+            "weight": 0.85,
+            "provenance": "predicados(accion=definio)",
+            "physical_or_derived": "DERIVED",
+            "semantic_verdict": "VALIDA",
+            "caveat": "Requiere que el objeto exista en largo_plazo y que la acción sea mapeada correctamente."
+          }
+        ]
+      },
+      "sync_prefix_and_synapse": {
+        "claim": "notebooklm/sync_X --INTEGRA--> vecino",
+        "reasoning": "Un nodo de sincronización integra con sus vecinos físicos; razonable si el vecino es efectivamente un componente de integración.",
+        "verdict": "PLAUSIBLE",
+        "caveat": "La coocurrencia puede conectar a nodos no relacionados con integración.",
+        "count": 164,
+        "sample": [
+          {
+            "source": "sync_incremental_implementation",
+            "destination": "notebooklm-chat-configure",
+            "relation_type": "INTEGRA",
+            "weight": 0.9,
+            "provenance": "taxonomy_structural(SYNC+SINONIMO_DE)",
+            "physical_or_derived": "DERIVED",
+            "semantic_verdict": "PLAUSIBLE",
+            "caveat": "La coocurrencia puede conectar a nodos no relacionados con integración."
+          },
+          {
+            "source": "sync_incremental_implementation",
+            "destination": "notebooklm-memory-biorag-project",
+            "relation_type": "INTEGRA",
+            "weight": 0.9,
+            "provenance": "taxonomy_structural(SYNC+SINONIMO_DE)",
+            "physical_or_derived": "DERIVED",
+            "semantic_verdict": "PLAUSIBLE",
+            "caveat": "La coocurrencia puede conectar a nodos no relacionados con integración."
+          },
+          {
+            "source": "sync_incremental_implementation",
+            "destination": "research-pipeline-ownership-oec",
+            "relation_type": "INTEGRA",
+            "weight": 0.9,
+            "provenance": "taxonomy_structural(SYNC+SINONIMO_DE)",
+            "physical_or_derived": "DERIVED",
+            "semantic_verdict": "PLAUSIBLE",
+            "caveat": "La coocurrencia puede conectar a nodos no relacionados con integración."
+          }
+        ]
+      },
+      "protocol_prefix_and_synapse": {
+        "claim": "protocolo_X --TIENE_NORMA/PRECEDE--> vecino",
+        "reasoning": "Un protocolo establece normas o precede a ciertos nodos; pero la coocurrencia con un vecino no significa que el protocolo preceda a ese vecino específicamente.",
+        "verdict": "PLAUSIBLE",
+        "caveat": "Puede generar PRECEDE espurios si el vecino no es el objeto gobernado por el protocolo.",
+        "count": 190,
+        "sample": [
+          {
+            "source": "protocolo_pre_accion_reglas_20260615",
+            "destination": "notebooklm-memory-biorag-project",
+            "relation_type": "TIENE_NORMA",
+            "weight": 0.9,
+            "provenance": "taxonomy_structural(NORMA+SINONIMO_DE)",
+            "physical_or_derived": "DERIVED",
+            "semantic_verdict": "PLAUSIBLE",
+            "caveat": "Puede generar PRECEDE espurios si el vecino no es el objeto gobernado por el protocolo."
+          },
+          {
+            "source": "protocolo_pre_accion_reglas_20260615",
+            "destination": "notebooklm-category-map",
+            "relation_type": "TIENE_NORMA",
+            "weight": 0.9,
+            "provenance": "taxonomy_structural(NORMA+SINONIMO_DE)",
+            "physical_or_derived": "DERIVED",
+            "semantic_verdict": "PLAUSIBLE",
+            "caveat": "Puede generar PRECEDE espurios si el vecino no es el objeto gobernado por el protocolo."
+          },
+          {
+            "source": "protocolo_pre_accion_reglas_20260615",
+            "destination": "notebooklm-sync-protocol",
+            "relation_type": "TIENE_NORMA",
+            "weight": 0.9,
+            "provenance": "taxonomy_structural(NORMA+SINONIMO_DE)",
+            "physical_or_derived": "DERIVED",
+            "semantic_verdict": "PLAUSIBLE",
+            "caveat": "Puede generar PRECEDE espurios si el vecino no es el objeto gobernado por el protocolo."
+          }
+        ]
+      },
+      "identity_prefix_and_synapse": {
+        "claim": "identidad_X --DEFINE_IDENTIDAD--> vecino",
+        "reasoning": "Un nodo de identidad puede definir aspectos de identidad de sus vecinos; sin embargo el vecino puede ser una entidad no relacionada con identidad.",
+        "verdict": "PLAUSIBLE",
+        "caveat": "Puede activar relaciones DEFINE_IDENTIDAD con nodos técnicos no pertinentes.",
+        "count": 870,
+        "sample": [
+          {
+            "source": "athena_oec_identidad",
+            "destination": "oec_familia_actual",
+            "relation_type": "DEFINE_IDENTIDAD",
+            "weight": 0.665,
+            "provenance": "taxonomy_structural(IDENTIDAD+CO_OCURRENCIA)",
+            "physical_or_derived": "DERIVED",
+            "semantic_verdict": "PLAUSIBLE",
+            "caveat": "Puede activar relaciones DEFINE_IDENTIDAD con nodos técnicos no pertinentes."
+          },
+          {
+            "source": "athena_oec_identidad",
+            "destination": "memory_graph_athena_oec",
+            "relation_type": "DEFINE_IDENTIDAD",
+            "weight": 0.55,
+            "provenance": "taxonomy_structural(IDENTIDAD+CO_OCURRENCIA)",
+            "physical_or_derived": "DERIVED",
+            "semantic_verdict": "PLAUSIBLE",
+            "caveat": "Puede activar relaciones DEFINE_IDENTIDAD con nodos técnicos no pertinentes."
+          },
+          {
+            "source": "athena_oec_identidad",
+            "destination": "notebooklm-sync-protocol",
+            "relation_type": "DEFINE_IDENTIDAD",
+            "weight": 0.6500000000000001,
+            "provenance": "taxonomy_structural(IDENTIDAD+CO_OCURRENCIA)",
+            "physical_or_derived": "DERIVED",
+            "semantic_verdict": "PLAUSIBLE",
+            "caveat": "Puede activar relaciones DEFINE_IDENTIDAD con nodos técnicos no pertinentes."
+          }
+        ]
+      },
+      "fix_prefix_and_synapse": {
+        "claim": "fix_X --RESUELVE--> vecino",
+        "reasoning": "El prefijo 'fix_' indica corrección de bug; la arista física indica coocurrencia. La combinación infiere que el fix aborda el vecino. La DIRECCIÓN es plausible (fix resuelve el vecino), pero la coocurrencia no implica necesariamente que el vecino sea el objeto del fix.",
+        "verdict": "PLAUSIBLE",
+        "caveat": "La dirección y la semántica dependen de que el vecino sea el artefacto corregido, no garantizado por el prefijo solo.",
+        "count": 306,
+        "sample": [
+          {
+            "source": "fix_fecha_sin_query_recordar",
+            "destination": "biorag_v8_palabra_completa_fix",
+            "relation_type": "RESUELVE",
+            "weight": 0.9,
+            "provenance": "taxonomy_structural(FIX+SINONIMO_DE)",
+            "physical_or_derived": "DERIVED",
+            "semantic_verdict": "PLAUSIBLE",
+            "caveat": "La dirección y la semántica dependen de que el vecino sea el artefacto corregido, no garantizado por el prefijo solo."
+          },
+          {
+            "source": "fix_fecha_sin_query_recordar",
+            "destination": "correcciones_al_plugin_biorag-remember_v6:_3_bugs_fixeados",
+            "relation_type": "RESUELVE",
+            "weight": 0.9,
+            "provenance": "taxonomy_structural(FIX+SINONIMO_DE)",
+            "physical_or_derived": "DERIVED",
+            "semantic_verdict": "PLAUSIBLE",
+            "caveat": "La dirección y la semántica dependen de que el vecino sea el artefacto corregido, no garantizado por el prefijo solo."
+          },
+          {
+            "source": "fix_fecha_sin_query_recordar",
+            "destination": "plugin_v7.1_fix:_session.idle_es_un_event_y_no_un_hook",
+            "relation_type": "RESUELVE",
+            "weight": 0.9,
+            "provenance": "taxonomy_structural(FIX+SINONIMO_DE)",
+            "physical_or_derived": "DERIVED",
+            "semantic_verdict": "PLAUSIBLE",
+            "caveat": "La dirección y la semántica dependen de que el vecino sea el artefacto corregido, no garantizado por el prefijo solo."
+          }
+        ]
+      },
+      "benchmark_prefix_and_synapse": {
+        "claim": "benchmark_X --MIDE--> vecino",
+        "reasoning": "Un benchmark mide rendimiento; pero el vecino por coocurrencia puede ser cualquier nodo co-ocurrente, no necesariamente el objeto medido.",
+        "verdict": "PLAUSIBLE",
+        "caveat": "MIDE es demasiado específico para inferirlo de coocurrencia.",
+        "count": 56,
+        "sample": [
+          {
+            "source": "analisis_escalabilidad_10k_v5_1",
+            "destination": "leccion_versionado_biorag",
+            "relation_type": "MIDE",
+            "weight": 0.9,
+            "provenance": "taxonomy_structural(EVALUACION+CO_OCURRENCIA)",
+            "physical_or_derived": "DERIVED",
+            "semantic_verdict": "PLAUSIBLE",
+            "caveat": "MIDE es demasiado específico para inferirlo de coocurrencia."
+          },
+          {
+            "source": "analisis_escalabilidad_10k_v5_1",
+            "destination": "desde_athena_biorag",
+            "relation_type": "MIDE",
+            "weight": 0.9,
+            "provenance": "taxonomy_structural(EVALUACION+CO_OCURRENCIA)",
+            "physical_or_derived": "DERIVED",
+            "semantic_verdict": "PLAUSIBLE",
+            "caveat": "MIDE es demasiado específico para inferirlo de coocurrencia."
+          },
+          {
+            "source": "analisis_escalabilidad_10k_v5_1",
+            "destination": "bio_rag_overview_completo",
+            "relation_type": "MIDE",
+            "weight": 0.9,
+            "provenance": "taxonomy_structural(EVALUACION+CO_OCURRENCIA)",
+            "physical_or_derived": "DERIVED",
+            "semantic_verdict": "PLAUSIBLE",
+            "caveat": "MIDE es demasiado específico para inferirlo de coocurrencia."
+          }
+        ]
+      }
+    },
+    "critical_note": "Ninguna arista derivada por prefijo taxonómico está garantizada semánticamente. Todas son PLAUSIBLES, no VÁLIDAS en el sentido de evidencia directa. Sólo las derivadas de triples Sujeto-Acción-Objeto se marcan VÁLIDAS."
+  },
+  "causal_rescue_audit": [
+    {
+      "id": "0497",
+      "query": "relevantes biomimética mejor",
+      "gold": "benchmark_antes_despues_fix3",
+      "rank_F0": null,
+      "rank_F1": null,
+      "rank_F3": null,
+      "is_rescue": false,
+      "causal_chain": null,
+      "ablation_per_rescue": null,
+      "causal_verdict": "NOT_A_RESCUE"
+    },
+    {
+      "id": "0516",
+      "query": "real más sistemas",
+      "gold": "dennys-identidad-profunda",
+      "rank_F0": null,
+      "rank_F1": null,
+      "rank_F3": null,
+      "is_rescue": false,
+      "causal_chain": null,
+      "ablation_per_rescue": null,
+      "causal_verdict": "NOT_A_RESCUE"
+    },
+    {
+      "id": "0534",
+      "query": "activa largo archivos",
+      "gold": "biorag_v11_1_detalle_tecnico",
+      "rank_F0": null,
+      "rank_F1": null,
+      "rank_F3": 1,
+      "is_rescue": true,
+      "causal_chain": {
+        "frame": {
+          "entities": [],
+          "actions": [],
+          "states": [],
+          "intent": [],
+          "concept_type": [
+            "DETALLE_TECNICO"
+          ],
+          "temporal_relation": [
+            "INVARIANTE"
+          ],
+          "causal_relation": [],
+          "modality": [
+            "DESCRIPTIVA"
+          ],
+          "domain": [
+            "INFRAESTRUCTURA"
+          ]
+        },
+        "pred_classes": [
+          "DETALLE_TECNICO"
+        ],
+        "selected_seed": "leccion_syn_obligatorio_aprender",
+        "seed_score": 0.28355146697258926,
+        "typed_relation": "SINONIMO_DE",
+        "edge_weight": 0.9,
+        "edge_confidence": 1.0,
+        "edge_provenance": "sinapsis(tipo=sinonimo_explicito)",
+        "edge_phys_der": "PHYSICAL",
+        "path": "leccion_syn_obligatorio_aprender --[SINONIMO_DE]--> biorag_v11_1_detalle_tecnico"
+      },
+      "ablation_per_rescue": {
+        "no_frame": {
+          "rank": null,
+          "gold_still_in_top5": false,
+          "impact": "RESCUE_LOST"
+        },
+        "no_predicate": {
+          "rank": null,
+          "gold_still_in_top5": false,
+          "impact": "RESCUE_LOST"
+        },
+        "no_critical_relation": {
+          "rank": 1,
+          "gold_still_in_top5": true,
+          "impact": "RESCUE_MAINTAINED"
+        },
+        "no_critical_seed": {
+          "rank": 1,
+          "gold_still_in_top5": true,
+          "impact": "RESCUE_MAINTAINED"
+        }
+      },
+      "causal_verdict": "TYPED_EDGE_NOT_PROVEN_CAUSAL"
+    },
+    {
+      "id": "0583",
+      "query": "debo biorag preacción",
+      "gold": "identificacion_obligatoria_oraculo_athena",
+      "rank_F0": null,
+      "rank_F1": null,
+      "rank_F3": null,
+      "is_rescue": false,
+      "causal_chain": null,
+      "ablation_per_rescue": null,
+      "causal_verdict": "NOT_A_RESCUE"
+    },
+    {
+      "id": "0640",
+      "query": "ráfaga después resultado",
+      "gold": "mentalidad_biorag_para_agentes",
+      "rank_F0": null,
+      "rank_F1": null,
+      "rank_F3": null,
+      "is_rescue": false,
+      "causal_chain": null,
+      "ablation_per_rescue": null,
+      "causal_verdict": "NOT_A_RESCUE"
+    },
+    {
+      "id": "0724",
+      "query": "learning paso regla",
+      "gold": "protocolo_autoinferencia_metacognitiva",
+      "rank_F0": null,
+      "rank_F1": null,
+      "rank_F3": null,
+      "is_rescue": false,
+      "causal_chain": null,
+      "ablation_per_rescue": null,
+      "causal_verdict": "NOT_A_RESCUE"
+    },
+    {
+      "id": "0795",
+      "query": "insert storepy comunicadosdestino",
+      "gold": "fix_mensajeria_broadcast_tracking_por_agente",
+      "rank_F0": null,
+      "rank_F1": null,
+      "rank_F3": null,
+      "is_rescue": false,
+      "causal_chain": null,
+      "ablation_per_rescue": null,
+      "causal_verdict": "NOT_A_RESCUE"
+    },
+    {
+      "id": "0801",
+      "query": "datos lecciones postsync",
+      "gold": "notebooklm-memory-biorag-project",
+      "rank_F0": null,
+      "rank_F1": null,
+      "rank_F3": 2,
+      "is_rescue": true,
+      "causal_chain": {
+        "frame": {
+          "entities": [],
+          "actions": [],
+          "states": [],
+          "intent": [
+            "INTEGRACION",
+            "APRENDIZAJE"
+          ],
+          "concept_type": [
+            "SYNC",
+            "COGNITIVO"
+          ],
+          "temporal_relation": [
+            "INVARIANTE"
+          ],
+          "causal_relation": [],
+          "modality": [
+            "DESCRIPTIVA"
+          ],
+          "domain": [
+            "INTEROPERABILIDAD",
+            "METAPENSAMIENTO"
+          ]
+        },
+        "pred_classes": [
+          "INTEGRACIÓN",
+          "APRENDIZAJE"
+        ],
+        "selected_seed": "oracle_que_recordar_sobre_artemis_hermes",
+        "seed_score": 0.4224824091751042,
+        "typed_relation": "SINONIMO_DE",
+        "edge_weight": 0.9,
+        "edge_confidence": 1.0,
+        "edge_provenance": "sinapsis(tipo=sinonimo_explicito)",
+        "edge_phys_der": "PHYSICAL",
+        "path": "oracle_que_recordar_sobre_artemis_hermes --[SINONIMO_DE]--> notebooklm-memory-biorag-project"
+      },
+      "ablation_per_rescue": {
+        "no_frame": {
+          "rank": null,
+          "gold_still_in_top5": false,
+          "impact": "RESCUE_LOST"
+        },
+        "no_predicate": {
+          "rank": null,
+          "gold_still_in_top5": false,
+          "impact": "RESCUE_LOST"
+        },
+        "no_critical_relation": {
+          "rank": 2,
+          "gold_still_in_top5": true,
+          "impact": "RESCUE_MAINTAINED"
+        },
+        "no_critical_seed": {
+          "rank": 2,
+          "gold_still_in_top5": true,
+          "impact": "RESCUE_MAINTAINED"
+        }
+      },
+      "causal_verdict": "TYPED_EDGE_NOT_PROVEN_CAUSAL"
+    }
+  ],
+  "unified_comparison_table": {
+    "F0": {
+      "Type2_R5": "0/8 (0.0%)",
+      "Type2_R1": "0/8 (0.0%)",
+      "Type2_MRR": 0.0,
+      "Transfer_R5": "0/8 (0.0%)",
+      "Paraphrase_R5": "0/8 (0.0%)",
+      "HardNeg_FP": "0/60 (0.0%) [criterion>2.0]",
+      "CorpusShift_R5": "0/6 (0.0%)"
+    },
+    "F1": {
+      "Type2_R5": "0/8 (0.0%)",
+      "Type2_R1": "0/8 (0.0%)",
+      "Type2_MRR": 0.0,
+      "Transfer_R5": "0/8 (0.0%)",
+      "Paraphrase_R5": "0/8 (0.0%)",
+      "HardNeg_FP": "0/60 (0.0%) [criterion>2.0]",
+      "CorpusShift_R5": "0/6 (0.0%)"
+    },
+    "F3": {
+      "Type2_R5": "2/8 (25.0%)",
+      "Type2_R1": "1/8 (12.5%)",
+      "Type2_MRR": 0.188,
+      "Transfer_R5": "1/8 (12.5%)",
+      "Paraphrase_R5": "2/8 (25.0%)",
+      "HardNeg_FP": "19/60 (31.7%) [criterion>2.0]",
+      "CorpusShift_R5": "1/6 (16.7%)"
+    }
+  },
+  "meta": {
+    "snapshot": "snapshots/qa_escape_qcr_20260811.db",
+    "graph_stats": {
+      "physical_edges": 13848,
+      "derived_edges": 1589,
+      "nodes": 866
+    },
+    "actual_rescue_count": 2
+  }
+}
