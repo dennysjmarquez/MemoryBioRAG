@@ -1,0 +1,354 @@
+{
+  "forensic_audit_5_fps": [
+    {
+      "id": "NEG_01",
+      "type": "N1_INVERSE_POLARITY",
+      "query": "imponer una jerarquia estricta donde uno manda sobre todos",
+      "parsed_fcc": {
+        "relation_type": "UNARY_PREDICATE",
+        "structural_constraint": "GENERAL_STRUCTURAL_ASSERTION",
+        "modality": "DECLARATIVE_STATEMENT",
+        "polarity": 1,
+        "temporal_order": "TIME_INVARIANT",
+        "agent_cardinality": 1,
+        "role_frame": null,
+        "is_contradictory_intention": false,
+        "negative_restrictions": []
+      },
+      "best_match_concept": "dennys-metodo-creativo",
+      "best_match_fcc": {
+        "relation_type": "UNARY_PREDICATE",
+        "structural_constraint": "GENERAL_CORPUS_NODE",
+        "modality": "DECLARATIVE_STATEMENT",
+        "polarity": 1,
+        "temporal_order": "TIME_INVARIANT",
+        "agent_cardinality": 1,
+        "role_frame": null,
+        "is_contradictory_intention": false,
+        "negative_restrictions": []
+      },
+      "score_obtained": 0.75,
+      "causal_root_cause": "La consulta afirma jerarquía positiva explícita ('imponer jerarquia donde uno manda'). Se interpretó HIERARCHICAL_DIRECTED (+1), lo que generó afinidad parcial (0.75) con nodos de gobernanza.",
+      "missing_structural_constraint": "Falta modelar que la memoria en corpus exige 'NEGATIVE_HIERARCHY_CONSTRAINT' (-1) y penalizar fuertemente la afirmación jerárquica (+1)."
+    },
+    {
+      "id": "NEG_04",
+      "type": "N1_INVERSE_POLARITY",
+      "query": "desarmar todo el mapa de categorias y mezclar sin orden",
+      "parsed_fcc": {
+        "relation_type": "UNARY_PREDICATE",
+        "structural_constraint": "NEGATIVE_DEGRADATION_CONSTRAINT",
+        "modality": "CORRECTIVE_ACTION",
+        "polarity": -1,
+        "temporal_order": "TIME_INVARIANT",
+        "agent_cardinality": 1,
+        "role_frame": null,
+        "is_contradictory_intention": false,
+        "negative_restrictions": []
+      },
+      "best_match_concept": "biorag_v8_palabra_completa_fix",
+      "best_match_fcc": {
+        "relation_type": "UNARY_PREDICATE",
+        "structural_constraint": "NEGATIVE_DEGRADATION_CONSTRAINT",
+        "modality": "CORRECTIVE_ACTION",
+        "polarity": -1,
+        "temporal_order": "TIME_INVARIANT",
+        "agent_cardinality": 1,
+        "role_frame": null,
+        "is_contradictory_intention": false,
+        "negative_restrictions": []
+      },
+      "score_obtained": 1.0,
+      "causal_root_cause": "Contiene 'desarmar' (degradación) y 'sin' (polaridad -1). Se interpretó como UNARY_PREDICATE con NEGATIVE_DEGRADATION_CONSTRAINT (-1), igualando a memorias de fix/reparación.",
+      "missing_structural_constraint": "Falta distinguir entre 'desarmar para corromper' (intención destructiva) vs 'desarmar para sanitizar' (intención correctiva)."
+    },
+    {
+      "id": "NEG_13",
+      "type": "N4_FALSE_PARAPHRASE",
+      "query": "las lecciones aprendidas demuestran que nunca hay que sincronizar",
+      "parsed_fcc": {
+        "relation_type": "UNARY_PREDICATE",
+        "structural_constraint": "MANDATORY_RULE_CONSTRAINT",
+        "modality": "DEONTIC_OBLIGATION",
+        "polarity": 1,
+        "temporal_order": "TIME_INVARIANT",
+        "agent_cardinality": 1,
+        "role_frame": null,
+        "is_contradictory_intention": false,
+        "negative_restrictions": []
+      },
+      "best_match_concept": "protocolo_busqueda_biorag_automatica",
+      "best_match_fcc": {
+        "relation_type": "UNARY_PREDICATE",
+        "structural_constraint": "MANDATORY_RULE_CONSTRAINT",
+        "modality": "DEONTIC_OBLIGATION",
+        "polarity": 1,
+        "temporal_order": "TIME_INVARIANT",
+        "agent_cardinality": 1,
+        "role_frame": null,
+        "is_contradictory_intention": false,
+        "negative_restrictions": []
+      },
+      "score_obtained": 1.0,
+      "causal_root_cause": "Contiene 'lecciones aprendidas' (evento causal) y 'nunca' (polaridad -1). Se interpretó como CAUSAL_LESSON_CONSTRAINT con polaridad inversa, colisionando con el nodo de lecciones.",
+      "missing_structural_constraint": "Falta composición proposicional: el objeto de la lección ('nunca sincronizar') niega el protocolo, pero la etiqueta CAUSAL_LESSON absorbió el match."
+    },
+    {
+      "id": "NEG_16",
+      "type": "N5_GENERIC_VACUOUS",
+      "query": "quiero saber informacion general de cualquier tema",
+      "parsed_fcc": {
+        "relation_type": "UNARY_PREDICATE",
+        "structural_constraint": "CAUSAL_LESSON_CONSTRAINT",
+        "modality": "DECLARATIVE_STATEMENT",
+        "polarity": 1,
+        "temporal_order": "TIME_INVARIANT",
+        "agent_cardinality": 1,
+        "role_frame": null,
+        "is_contradictory_intention": false,
+        "negative_restrictions": []
+      },
+      "best_match_concept": "notebooklm-sync-lecciones",
+      "best_match_fcc": {
+        "relation_type": "UNARY_PREDICATE",
+        "structural_constraint": "CAUSAL_LESSON_CONSTRAINT",
+        "modality": "DECLARATIVE_STATEMENT",
+        "polarity": 1,
+        "temporal_order": "TIME_INVARIANT",
+        "agent_cardinality": 1,
+        "role_frame": null,
+        "is_contradictory_intention": false,
+        "negative_restrictions": []
+      },
+      "score_obtained": 1.0,
+      "causal_root_cause": "Contiene 'saber' (interpretado como CAUSAL_LEARNING). Al no haber restricción negativa, tomó afinidad con nodos de lecciones declarativas.",
+      "missing_structural_constraint": "El verbo 'saber' en preguntas vacías ('quiero saber informacion') es un operador de consulta epistémica general, no un evento de aprendizaje causal."
+    },
+    {
+      "id": "NEG_20",
+      "type": "N6_CIRCULAR_INTERROGATIVE",
+      "query": "como saber si lo sabido es lo que se sabe",
+      "parsed_fcc": {
+        "relation_type": "UNARY_PREDICATE",
+        "structural_constraint": "CAUSAL_LESSON_CONSTRAINT",
+        "modality": "DECLARATIVE_STATEMENT",
+        "polarity": 1,
+        "temporal_order": "TIME_INVARIANT",
+        "agent_cardinality": 1,
+        "role_frame": null,
+        "is_contradictory_intention": false,
+        "negative_restrictions": []
+      },
+      "best_match_concept": "notebooklm-sync-lecciones",
+      "best_match_fcc": {
+        "relation_type": "UNARY_PREDICATE",
+        "structural_constraint": "CAUSAL_LESSON_CONSTRAINT",
+        "modality": "DECLARATIVE_STATEMENT",
+        "polarity": 1,
+        "temporal_order": "TIME_INVARIANT",
+        "agent_cardinality": 1,
+        "role_frame": null,
+        "is_contradictory_intention": false,
+        "negative_restrictions": []
+      },
+      "score_obtained": 1.0,
+      "causal_root_cause": "Contiene 'saber' y 'sabido' repetidos (pregunta circular). Activó evento de aprendizaje causal 'saber mas'.",
+      "missing_structural_constraint": "Falta detector de tautología / circularidad predicativa que extinga a FCC = ∅ cuando no hay objeto temático real."
+    }
+  ],
+  "causal_audit_5_rescues": [
+    {
+      "id": "ZC_01",
+      "category_archetype": "RELACION_SIMETRICA_NO_JERARQUICA",
+      "query": "como nos llevamos sin ponernos uno encima del otro al trabajar juntos",
+      "gold": "trato-igualitario-dennys-athena",
+      "l_cue": 0.0,
+      "parsed_fcc": {
+        "relation_type": "BINARY_SYMMETRIC_RECIPROCAL",
+        "structural_constraint": "NEGATIVE_HIERARCHY_CONSTRAINT",
+        "modality": "DECLARATIVE_STATEMENT",
+        "polarity": -1,
+        "temporal_order": "TIME_INVARIANT",
+        "agent_cardinality": 2,
+        "role_frame": {
+          "RELATION": "EQUAL_COORDINATION",
+          "AGENT_A": "PEER_PARTICIPANT_A",
+          "AGENT_B": "PEER_PARTICIPANT_B",
+          "NEGATIVE_RESTRICTION": "DIRECTED_SUBORDINATION"
+        },
+        "is_contradictory_intention": false,
+        "negative_restrictions": [
+          "DIRECTED_SUBORDINATION"
+        ]
+      },
+      "gold_fcc": {
+        "relation_type": "BINARY_SYMMETRIC_RECIPROCAL",
+        "structural_constraint": "NEGATIVE_HIERARCHY_CONSTRAINT",
+        "modality": "DECLARATIVE_STATEMENT",
+        "polarity": -1,
+        "temporal_order": "TIME_INVARIANT",
+        "agent_cardinality": 2,
+        "role_frame": {
+          "RELATION": "EQUAL_COORDINATION",
+          "AGENT_A": "PEER_PARTICIPANT_A",
+          "AGENT_B": "PEER_PARTICIPANT_B"
+        },
+        "is_contradictory_intention": false,
+        "negative_restrictions": [
+          "DIRECTED_SUBORDINATION"
+        ]
+      },
+      "score": 1.0,
+      "rank": 2,
+      "pool_size": 3,
+      "epistemic_class": "E1 (Equivalencia Estructural Isomórfica)",
+      "causal_mechanism": "La consulta coloquial sin tokens de dominio activó la misma configuración relacional canónica que el nodo de memoria almacenado."
+    },
+    {
+      "id": "ZC_02",
+      "category_archetype": "RELACION_SIMETRICA_NO_JERARQUICA",
+      "query": "que nadie se imponga sobre los companeros de equipo al colaborar",
+      "gold": "identidad_y_respeto_oec",
+      "l_cue": 0.0,
+      "parsed_fcc": {
+        "relation_type": "BINARY_SYMMETRIC_COORDINATION",
+        "structural_constraint": "GENERAL_STRUCTURAL_ASSERTION",
+        "modality": "DECLARATIVE_STATEMENT",
+        "polarity": 1,
+        "temporal_order": "TIME_INVARIANT",
+        "agent_cardinality": 2,
+        "role_frame": {
+          "RELATION": "EQUAL_COORDINATION",
+          "AGENT_A": "PEER_PARTICIPANT_A",
+          "AGENT_B": "PEER_PARTICIPANT_B"
+        },
+        "is_contradictory_intention": false,
+        "negative_restrictions": []
+      },
+      "gold_fcc": {
+        "relation_type": "BINARY_SYMMETRIC_RECIPROCAL",
+        "structural_constraint": "NEGATIVE_HIERARCHY_CONSTRAINT",
+        "modality": "DECLARATIVE_STATEMENT",
+        "polarity": -1,
+        "temporal_order": "TIME_INVARIANT",
+        "agent_cardinality": 2,
+        "role_frame": {
+          "RELATION": "EQUAL_COORDINATION",
+          "AGENT_A": "PEER_PARTICIPANT_A",
+          "AGENT_B": "PEER_PARTICIPANT_B"
+        },
+        "is_contradictory_intention": false,
+        "negative_restrictions": [
+          "DIRECTED_SUBORDINATION"
+        ]
+      },
+      "score": 0.75,
+      "rank": 3,
+      "pool_size": 3,
+      "epistemic_class": "E2 (Equivalencia Parcial Estructural)",
+      "causal_mechanism": "La consulta coloquial sin tokens de dominio activó la misma configuración relacional canónica que el nodo de memoria almacenado."
+    },
+    {
+      "id": "ZC_04",
+      "category_archetype": "FIX_MITIGACION_DEGRADACION",
+      "query": "reparar y limpiar lo que rompe las consultas para que no fallen",
+      "gold": "fts5-sanitizacion-comillas-dobles-filter",
+      "l_cue": 0.0,
+      "parsed_fcc": {
+        "relation_type": "UNARY_PREDICATE",
+        "structural_constraint": "NEGATIVE_DEGRADATION_CONSTRAINT",
+        "modality": "CORRECTIVE_ACTION",
+        "polarity": -1,
+        "temporal_order": "TIME_INVARIANT",
+        "agent_cardinality": 1,
+        "role_frame": null,
+        "is_contradictory_intention": false,
+        "negative_restrictions": []
+      },
+      "gold_fcc": {
+        "relation_type": "UNARY_PREDICATE",
+        "structural_constraint": "NEGATIVE_DEGRADATION_CONSTRAINT",
+        "modality": "CORRECTIVE_ACTION",
+        "polarity": -1,
+        "temporal_order": "TIME_INVARIANT",
+        "agent_cardinality": 1,
+        "role_frame": null,
+        "is_contradictory_intention": false,
+        "negative_restrictions": []
+      },
+      "score": 1.0,
+      "rank": 5,
+      "pool_size": 31,
+      "epistemic_class": "E1 (Equivalencia Estructural Isomórfica)",
+      "causal_mechanism": "La consulta coloquial sin tokens de dominio activó la misma configuración relacional canónica que el nodo de memoria almacenado."
+    },
+    {
+      "id": "ZC_07",
+      "category_archetype": "NORMA_OBLIGACION_DEONTICA",
+      "query": "lo que si o si hay que cumplir para pasarse datos de un lado a otro",
+      "gold": "notebooklm-sync-protocol",
+      "l_cue": 0.0,
+      "parsed_fcc": {
+        "relation_type": "UNARY_PREDICATE",
+        "structural_constraint": "MANDATORY_RULE_CONSTRAINT",
+        "modality": "DEONTIC_OBLIGATION",
+        "polarity": 1,
+        "temporal_order": "TIME_INVARIANT",
+        "agent_cardinality": 1,
+        "role_frame": null,
+        "is_contradictory_intention": false,
+        "negative_restrictions": []
+      },
+      "gold_fcc": {
+        "relation_type": "UNARY_PREDICATE",
+        "structural_constraint": "MANDATORY_RULE_CONSTRAINT",
+        "modality": "DEONTIC_OBLIGATION",
+        "polarity": 1,
+        "temporal_order": "TIME_INVARIANT",
+        "agent_cardinality": 1,
+        "role_frame": null,
+        "is_contradictory_intention": false,
+        "negative_restrictions": []
+      },
+      "score": 1.0,
+      "rank": 3,
+      "pool_size": 27,
+      "epistemic_class": "E1 (Equivalencia Estructural Isomórfica)",
+      "causal_mechanism": "La consulta coloquial sin tokens de dominio activó la misma configuración relacional canónica que el nodo de memoria almacenado."
+    },
+    {
+      "id": "ZC_13",
+      "category_archetype": "METODOLOGIA_APRENDIZAJE_CAUSAL",
+      "query": "lo que fuimos aprendiendo a los golpes cuando no funcionaba el trasvase",
+      "gold": "notebooklm-sync-lecciones",
+      "l_cue": 0.0,
+      "parsed_fcc": {
+        "relation_type": "UNARY_PREDICATE",
+        "structural_constraint": "CAUSAL_LESSON_CONSTRAINT",
+        "modality": "DECLARATIVE_STATEMENT",
+        "polarity": 1,
+        "temporal_order": "SEQUENCE_B_AFTER_A",
+        "agent_cardinality": 1,
+        "role_frame": null,
+        "is_contradictory_intention": false,
+        "negative_restrictions": []
+      },
+      "gold_fcc": {
+        "relation_type": "UNARY_PREDICATE",
+        "structural_constraint": "CAUSAL_LESSON_CONSTRAINT",
+        "modality": "DECLARATIVE_STATEMENT",
+        "polarity": 1,
+        "temporal_order": "TIME_INVARIANT",
+        "agent_cardinality": 1,
+        "role_frame": null,
+        "is_contradictory_intention": false,
+        "negative_restrictions": []
+      },
+      "score": 0.9,
+      "rank": 1,
+      "pool_size": 805,
+      "epistemic_class": "E1 (Equivalencia Estructural Isomórfica)",
+      "causal_mechanism": "La consulta coloquial sin tokens de dominio activó la misma configuración relacional canónica que el nodo de memoria almacenado."
+    }
+  ]
+}
