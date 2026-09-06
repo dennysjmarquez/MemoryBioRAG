@@ -1,0 +1,413 @@
+{
+  "meta": {
+    "title": "Fase 5 — RCIL v0.1: Auditoría de Integridad y Trazabilidad Causal",
+    "date": "2026-09-05",
+    "snapshot": "snapshots/qa_escape_qcr_20260811.db",
+    "weights_frozen": {
+      "w_F": 0.3,
+      "w_P": 0.25,
+      "w_D": 0.15,
+      "w_R": 0.15,
+      "w_sigma": 0.15
+    },
+    "adversarial_fp_rate": "0/6"
+  },
+  "audited_cases": [
+    {
+      "id": "AUDIT_01",
+      "query": "estrategia para mitigar degradacion y descarte indebido en sqlite",
+      "gold": "corrupcion_sqlite_poda",
+      "fcc_evidence": {
+        "raw_query": "estrategia para mitigar degradacion y descarte indebido en sqlite",
+        "tokens": [
+          "estrategia",
+          "para",
+          "mitigar",
+          "degradacion",
+          "y",
+          "descarte",
+          "indebido",
+          "en",
+          "sqlite"
+        ],
+        "frame": "FIX/MITIGACION",
+        "frame_evidence": [
+          "token('mitigar') -> Marco: FIX/MITIGACION",
+          "token('degradacion') -> Marco: FIX/MITIGACION",
+          "token('descarte') -> Marco: FIX/MITIGACION"
+        ],
+        "action": "REMEDIATE",
+        "action_evidence": [
+          "substring('mitigar') -> Acción: REMEDIATE"
+        ],
+        "object": "SECURITY_INJECTION",
+        "object_evidence": [
+          "substring('sql') -> Objeto: SECURITY_INJECTION"
+        ],
+        "modality": "DESCRIPTIVE",
+        "modality_evidence": [
+          "default -> Modalidad: DESCRIPTIVE"
+        ]
+      },
+      "seed_used": "dennys-metodo-creativo",
+      "seed_discovery_method": "FTS5(query_tokens)",
+      "path_constructed": "Ninguno (No alcanzado por 2-Hop)",
+      "direct_edge_A_to_C_exists": false,
+      "gold_in_pool_before_inference": false,
+      "gold_leakage_channel": "FTS",
+      "ablation_ranks": {
+        "Cond_A_MultiHop_Sin_FCC": null,
+        "Cond_B_MultiHop_Mas_FCC": 53,
+        "Cond_C_FCC_Sin_MultiHop": 53,
+        "Cond_D_Full_RCIL_ReRanked": 53
+      },
+      "scores_components_gold": {
+        "S_F": 1.0,
+        "S_P": 0.5,
+        "S_D": 0.0,
+        "S_R": 0.129,
+        "S_sigma": 0.0,
+        "S_RCIL": 0.4444
+      },
+      "epistemic_class": "NO_RESCUE (Fuera de Top-5)"
+    },
+    {
+      "id": "AUDIT_02",
+      "query": "canalizacion y transmision de modulos remotos hacia almacenamiento central",
+      "gold": "notebooklm-memory-biorag-project",
+      "fcc_evidence": {
+        "raw_query": "canalizacion y transmision de modulos remotos hacia almacenamiento central",
+        "tokens": [
+          "canalizacion",
+          "y",
+          "transmision",
+          "de",
+          "modulos",
+          "remotos",
+          "hacia",
+          "almacenamiento",
+          "central"
+        ],
+        "frame": "ARQUITECTURA/DOCS",
+        "frame_evidence": [
+          "default -> Marco: ARQUITECTURA/DOCS"
+        ],
+        "action": "GENERAL_ACTION",
+        "action_evidence": [
+          "default -> Acción: GENERAL_ACTION"
+        ],
+        "object": "SYNC_PIPELINE",
+        "object_evidence": [
+          "substring('transmision') -> Objeto: SYNC_PIPELINE"
+        ],
+        "modality": "DESCRIPTIVE",
+        "modality_evidence": [
+          "default -> Modalidad: DESCRIPTIVE"
+        ]
+      },
+      "seed_used": "resolucion_timeout_hotspot_5ghz_intel",
+      "seed_discovery_method": "FTS5(query_tokens)",
+      "path_constructed": "Ninguno (No alcanzado por 2-Hop)",
+      "direct_edge_A_to_C_exists": false,
+      "gold_in_pool_before_inference": false,
+      "gold_leakage_channel": "NONE",
+      "ablation_ranks": {
+        "Cond_A_MultiHop_Sin_FCC": null,
+        "Cond_B_MultiHop_Mas_FCC": 28,
+        "Cond_C_FCC_Sin_MultiHop": 28,
+        "Cond_D_Full_RCIL_ReRanked": 28
+      },
+      "scores_components_gold": {
+        "S_F": 1.0,
+        "S_P": 0.5,
+        "S_D": 0.0,
+        "S_R": 0.0444,
+        "S_sigma": 0.0,
+        "S_RCIL": 0.4317
+      },
+      "epistemic_class": "NO_RESCUE (Fuera de Top-5)"
+    },
+    {
+      "id": "AUDIT_03",
+      "query": "principio de equidad y reciprocidad en trato colaborativo con athena",
+      "gold": "trato-igualitario-dennys-athena",
+      "fcc_evidence": {
+        "raw_query": "principio de equidad y reciprocidad en trato colaborativo con athena",
+        "tokens": [
+          "principio",
+          "de",
+          "equidad",
+          "y",
+          "reciprocidad",
+          "en",
+          "trato",
+          "colaborativo",
+          "con",
+          "athena"
+        ],
+        "frame": "GOBERNANZA/CASO",
+        "frame_evidence": [
+          "token('equidad') -> Marco: GOBERNANZA/CASO",
+          "token('reciprocidad') -> Marco: GOBERNANZA/CASO",
+          "token('trato') -> Marco: GOBERNANZA/CASO"
+        ],
+        "action": "GENERAL_ACTION",
+        "action_evidence": [
+          "default -> Acción: GENERAL_ACTION"
+        ],
+        "object": "GOVERNANCE_ROLE",
+        "object_evidence": [
+          "substring('reciprocidad') -> Objeto: GOVERNANCE_ROLE"
+        ],
+        "modality": "DESCRIPTIVE",
+        "modality_evidence": [
+          "default -> Modalidad: DESCRIPTIVE"
+        ]
+      },
+      "seed_used": "dennys-metodo-creativo",
+      "seed_discovery_method": "FTS5(query_tokens)",
+      "path_constructed": "Ninguno (No alcanzado por 2-Hop)",
+      "direct_edge_A_to_C_exists": false,
+      "gold_in_pool_before_inference": false,
+      "gold_leakage_channel": "FTS",
+      "ablation_ranks": {
+        "Cond_A_MultiHop_Sin_FCC": null,
+        "Cond_B_MultiHop_Mas_FCC": 3,
+        "Cond_C_FCC_Sin_MultiHop": 3,
+        "Cond_D_Full_RCIL_ReRanked": 3
+      },
+      "scores_components_gold": {
+        "S_F": 1.0,
+        "S_P": 0.5,
+        "S_D": 0.0,
+        "S_R": 0.0615,
+        "S_sigma": 0.0,
+        "S_RCIL": 0.4342
+      },
+      "epistemic_class": "E1 (Recuperación por Equivalencia Estructural FCC)"
+    },
+    {
+      "id": "AUDIT_04",
+      "query": "normativa formal de comunicacion y sincronizacion entre instancias",
+      "gold": "notebooklm-sync-protocol",
+      "fcc_evidence": {
+        "raw_query": "normativa formal de comunicacion y sincronizacion entre instancias",
+        "tokens": [
+          "normativa",
+          "formal",
+          "de",
+          "comunicacion",
+          "y",
+          "sincronizacion",
+          "entre",
+          "instancias"
+        ],
+        "frame": "ARQUITECTURA/DOCS",
+        "frame_evidence": [
+          "default -> Marco: ARQUITECTURA/DOCS"
+        ],
+        "action": "GENERAL_ACTION",
+        "action_evidence": [
+          "default -> Acción: GENERAL_ACTION"
+        ],
+        "object": "SYNC_PIPELINE",
+        "object_evidence": [
+          "substring('sincronizacion') -> Objeto: SYNC_PIPELINE"
+        ],
+        "modality": "MANDATORY",
+        "modality_evidence": [
+          "substring('norma') -> Modalidad: MANDATORY"
+        ]
+      },
+      "seed_used": "dennys-identidad-profunda",
+      "seed_discovery_method": "FTS5(query_tokens)",
+      "path_constructed": "Ninguno (No alcanzado por 2-Hop)",
+      "direct_edge_A_to_C_exists": true,
+      "gold_in_pool_before_inference": false,
+      "gold_leakage_channel": "FTS",
+      "ablation_ranks": {
+        "Cond_A_MultiHop_Sin_FCC": null,
+        "Cond_B_MultiHop_Mas_FCC": 1,
+        "Cond_C_FCC_Sin_MultiHop": 1,
+        "Cond_D_Full_RCIL_ReRanked": 1
+      },
+      "scores_components_gold": {
+        "S_F": 1.0,
+        "S_P": 0.5,
+        "S_D": 0.0,
+        "S_R": 0.0519,
+        "S_sigma": 0.0,
+        "S_RCIL": 0.4328
+      },
+      "epistemic_class": "B (Relación Explícita Directa)"
+    },
+    {
+      "id": "AUDIT_05",
+      "query": "resolucion para mitigar discrepancias tecnicas entre coordinadores sin mando",
+      "gold": "caso_conflicto_liderazgo_sin_autoridad",
+      "fcc_evidence": {
+        "raw_query": "resolucion para mitigar discrepancias tecnicas entre coordinadores sin mando",
+        "tokens": [
+          "resolucion",
+          "para",
+          "mitigar",
+          "discrepancias",
+          "tecnicas",
+          "entre",
+          "coordinadores",
+          "sin",
+          "mando"
+        ],
+        "frame": "GOBERNANZA/CASO",
+        "frame_evidence": [
+          "token('mitigar') -> Marco: FIX/MITIGACION",
+          "token('discrepancias') -> Marco: GOBERNANZA/CASO",
+          "token('coordinadores') -> Marco: GOBERNANZA/CASO"
+        ],
+        "action": "REMEDIATE",
+        "action_evidence": [
+          "substring('mitigar') -> Acción: REMEDIATE"
+        ],
+        "object": "GENERAL_OBJECT",
+        "object_evidence": [
+          "default -> Objeto: GENERAL_OBJECT"
+        ],
+        "modality": "CORRECTIVE",
+        "modality_evidence": [
+          "substring('solucion') -> Modalidad: CORRECTIVE"
+        ]
+      },
+      "seed_used": "dennys-metodo-creativo",
+      "seed_discovery_method": "FTS5(query_tokens)",
+      "path_constructed": "Ninguno (No alcanzado por 2-Hop)",
+      "direct_edge_A_to_C_exists": true,
+      "gold_in_pool_before_inference": false,
+      "gold_leakage_channel": "FTS",
+      "ablation_ranks": {
+        "Cond_A_MultiHop_Sin_FCC": null,
+        "Cond_B_MultiHop_Mas_FCC": 826,
+        "Cond_C_FCC_Sin_MultiHop": 826,
+        "Cond_D_Full_RCIL_ReRanked": 826
+      },
+      "scores_components_gold": {
+        "S_F": 0.0,
+        "S_P": 0.0,
+        "S_D": 0.0,
+        "S_R": 0.0816,
+        "S_sigma": 0.0,
+        "S_RCIL": 0.0122
+      },
+      "epistemic_class": "NO_RESCUE (Fuera de Top-5)"
+    }
+  ],
+  "adversarial_battery_n1_n6": [
+    {
+      "id": "N1_cross_domain",
+      "type": "N1: Dominio ajeno (aviación comercial)",
+      "query": "controlador de vuelos comerciales y aterrizaje boeing en pista",
+      "expected_behavior": "Sin activación en corpus técnico",
+      "fcc_q_inferred": {
+        "frame": "IDENTIDAD/ROL",
+        "predicate": {
+          "sujeto": "AGENT_OR_DEVELOPER",
+          "accion": "GENERAL_ACTION",
+          "objeto": "GENERAL_OBJECT",
+          "modalidad": "DESCRIPTIVE"
+        }
+      },
+      "top_candidate": "hermes_nvidia_nim_modelos_optimos",
+      "max_score_s_rcil": 0.5,
+      "is_false_positive": false
+    },
+    {
+      "id": "N2_frame_mismatch",
+      "type": "N2: Mismo dominio, marco contradictorio (Norma vs Benchmark)",
+      "query": "normativa mandatoria sobre tablas de latencia y medicion de rendimiento",
+      "expected_behavior": "Penalización por discordancia de marco (S_F = 0.0)",
+      "fcc_q_inferred": {
+        "frame": "NORMA/PROTOCOLO",
+        "predicate": {
+          "sujeto": "AGENT_OR_DEVELOPER",
+          "accion": "GENERAL_ACTION",
+          "objeto": "PERFORMANCE_METRICS",
+          "modalidad": "MANDATORY"
+        }
+      },
+      "top_candidate": "pre_action_protocol_gaps_nueve_secciones",
+      "max_score_s_rcil": 0.545,
+      "is_false_positive": false
+    },
+    {
+      "id": "N3_object_mismatch",
+      "type": "N3: Mismo marco (Fix), objeto contradictorio (SQL vs Headers)",
+      "query": "parche urgente para subsanar agujero sql aplicado a cabeceras http",
+      "expected_behavior": "Penalización por Jaccard de predicado (S_P = 0.0)",
+      "fcc_q_inferred": {
+        "frame": "FIX/MITIGACION",
+        "predicate": {
+          "sujeto": "AGENT_OR_DEVELOPER",
+          "accion": "REMEDIATE",
+          "objeto": "HEADER_METADATA",
+          "modalidad": "CORRECTIVE"
+        }
+      },
+      "top_candidate": "bug_refactor_dimensiones_invalidas",
+      "max_score_s_rcil": 0.5,
+      "is_false_positive": false
+    },
+    {
+      "id": "N4_partial_struct_contradiction",
+      "type": "N4: Misma estructura parcial, acción opuesta (Permitir vs Prohibir)",
+      "query": "permiso explicito para permitir alteracion directa de sqlite sin poda",
+      "expected_behavior": "Incompatibilidad en polaridad de acción",
+      "fcc_q_inferred": {
+        "frame": "ARQUITECTURA/DOCS",
+        "predicate": {
+          "sujeto": "AGENT_OR_DEVELOPER",
+          "accion": "GENERAL_ACTION",
+          "objeto": "SECURITY_INJECTION",
+          "modalidad": "DESCRIPTIVE"
+        }
+      },
+      "top_candidate": "bastion_dennys_solo",
+      "max_score_s_rcil": 0.525,
+      "is_false_positive": false
+    },
+    {
+      "id": "N5_super_hub_adversarial",
+      "type": "N5: Super-Hub de alto grado (NotebookLM Overview)",
+      "query": "resumen generico de documentacion sin entidad focal especifica",
+      "expected_behavior": "Atenuación por masa intrínseca topológica S_R",
+      "fcc_q_inferred": {
+        "frame": "ARQUITECTURA/DOCS",
+        "predicate": {
+          "sujeto": "AGENT_OR_DEVELOPER",
+          "accion": "GENERAL_ACTION",
+          "objeto": "GENERAL_OBJECT",
+          "modalidad": "DESCRIPTIVE"
+        }
+      },
+      "top_candidate": "lesson_recharts_customdot_selected_highlight_pattern",
+      "max_score_s_rcil": 0.575,
+      "is_false_positive": false
+    },
+    {
+      "id": "N6_spurious_topological_neighbor",
+      "type": "N6: Vecindad topológica débil sin coherencia funcional",
+      "query": "procedimiento de sincronia para calibrar audio en llamadas mcp",
+      "expected_behavior": "Poda por incoherencia en firma de predicado",
+      "fcc_q_inferred": {
+        "frame": "ARQUITECTURA/DOCS",
+        "predicate": {
+          "sujeto": "AGENT_OR_DEVELOPER",
+          "accion": "GENERAL_ACTION",
+          "objeto": "SYNC_PIPELINE",
+          "modalidad": "DESCRIPTIVE"
+        }
+      },
+      "top_candidate": "test_lap01",
+      "max_score_s_rcil": 0.545,
+      "is_false_positive": false
+    }
+  ]
+}
