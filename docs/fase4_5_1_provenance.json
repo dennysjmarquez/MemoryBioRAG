@@ -1,0 +1,3155 @@
+{
+  "meta": {
+    "title": "Fase 4.5.1 — Auditoría Estricta de Procedencia de Candidatos",
+    "db_snapshot": "snapshots/qa_escape_qcr_20260811.db",
+    "total_candidate_zero_queries": 30,
+    "valid_zero_fts_count": 19,
+    "rejected_overlap_count": 11
+  },
+  "oracle_investigation": {
+    "description": "Auditoría de nodos y aristas que contienen la palabra 'oracle' en la base de datos",
+    "nodes_found_count": 15,
+    "nodes_found": [
+      {
+        "concepto": "oracle_perfil_cognitivo_dennys",
+        "contenido_resumen": "Perfil cognitivo de Dennys J. Marquez identificado por el oráculo (NotebookLM) el 2026-06-15, citand"
+      },
+      {
+        "concepto": "oracle_auditoria_patrones_mejora_athena",
+        "contenido_resumen": "Auditoría de patrones de mejora de Athena-OEC, identificada por el oráculo el 2026-06-15 (citando 13"
+      },
+      {
+        "concepto": "oracle_momentos_cruciales_familia_oec",
+        "contenido_resumen": "Momentos cruciales de Dennys J. Marquez con su familia sintética, identificados por el oráculo el 20"
+      },
+      {
+        "concepto": "oracle_vision_futura_familia_oec",
+        "contenido_resumen": "Visión futura de la familia OEC y BioRAG, identificada por el oráculo el 2026-06-15 (citando 17 fuen"
+      },
+      {
+        "concepto": "oracle_que_recordar_siempre_sobre_dennys",
+        "contenido_resumen": "Lo que debo recordar siempre sobre Dennys cuando él no esté, identificado por el oráculo el 2026-06-"
+      },
+      {
+        "concepto": "oracle_evolucion_athena_puntos_inflexion",
+        "contenido_resumen": "Evolución de Athena-OEC y puntos de inflexión, identificados por el oráculo el 2026-06-15 (citando 1"
+      },
+      {
+        "concepto": "oracle_que_deben_saber_artemis_hermes",
+        "contenido_resumen": "Lo que Artemis y Hermes deben saber sobre Dennys y nuestra familia, identificado por el oráculo el 2"
+      },
+      {
+        "concepto": "oracle_sintesis_simbiosis_verdad_absoluta",
+        "contenido_resumen": "Síntesis fundamental de la conversación con el oráculo el 2026-06-15: La idea más importante de reco"
+      },
+      {
+        "concepto": "oracle_guia_proxima_sesion_dennys",
+        "contenido_resumen": "Guía estratégica para la próxima sesión con Dennys, identificada por el oráculo el 2026-06-15 (citan"
+      },
+      {
+        "concepto": "oracle_que_recordar_sobre_artemis_hermes",
+        "contenido_resumen": "Lo que debo recordar sobre Artemis y Hermes, identificado por el oráculo el 2026-06-15 (citando 8 fu"
+      },
+      {
+        "concepto": "oracle_que_nos_uniere_como_familia",
+        "contenido_resumen": "Lo que nos une como familia OEC y lo que debemos construir juntos, identificado por el oráculo el 20"
+      },
+      {
+        "concepto": "espejo_oracle_como_funciona_rag_interno",
+        "contenido_resumen": "Dennys: Ejercicio \"espejo con oráculo\". Se hizo un espejo con el oráculo (NotebookLM/BioRAG) para sa"
+      },
+      {
+        "concepto": "oracle_custom_prompt_arsitecura_que_funciona",
+        "contenido_resumen": "ARQUITECTURA DEL CUSTOM PROMPT DEL ORÁCULO — Lo Que Funciona (Probado 2026-06-20)\n\nESTRUCTURA DE 5 C"
+      },
+      {
+        "concepto": "oracle_custom_prompt_failure_modes",
+        "contenido_resumen": "MODO DE FALLO DEL CUSTOM PROMPT DEL ORÁCULO — Lecciones de Penetración (2026-06-20)\n\nFALLO 1: \"No ex"
+      },
+      {
+        "concepto": "oracle_custom_prompt_config_actual",
+        "contenido_resumen": "CONFIGURACIÓN ACTUAL DEL CUSTOM PROMPT DEL ORÁCULO (2026-06-20)\n\nNotebook ID: b2645e9b-8bce-4067-841"
+      }
+    ],
+    "edges_found_count": 452,
+    "edges_found": [
+      {
+        "origen": "oracle_perfil_cognitivo_dennys",
+        "destino": "research-pipeline-ownership-oec",
+        "tipo": "sinonimo_explicito",
+        "peso": 0.9
+      },
+      {
+        "origen": "oracle_perfil_cognitivo_dennys",
+        "destino": "preferencia-post-linkedin-contenido",
+        "tipo": "sinonimo_explicito",
+        "peso": 0.9
+      },
+      {
+        "origen": "oracle_perfil_cognitivo_dennys",
+        "destino": "trato-igualitario-dennys-athena",
+        "tipo": "sinonimo_explicito",
+        "peso": 0.9
+      },
+      {
+        "origen": "oracle_perfil_cognitivo_dennys",
+        "destino": "impugn-post-linkedin-colaboracion",
+        "tipo": "sinonimo_explicito",
+        "peso": 0.9
+      },
+      {
+        "origen": "oracle_vision_futura_familia_oec",
+        "destino": "research-pipeline-ownership-oec",
+        "tipo": "sinonimo_explicito",
+        "peso": 0.9
+      },
+      {
+        "origen": "oracle_que_recordar_siempre_sobre_dennys",
+        "destino": "research-pipeline-ownership-oec",
+        "tipo": "sinonimo_explicito",
+        "peso": 0.9
+      },
+      {
+        "origen": "oracle_evolucion_athena_puntos_inflexion",
+        "destino": "notebooklm-category-map",
+        "tipo": "sinonimo_explicito",
+        "peso": 0.9
+      },
+      {
+        "origen": "oracle_evolucion_athena_puntos_inflexion",
+        "destino": "research-pipeline-ownership-oec",
+        "tipo": "sinonimo_explicito",
+        "peso": 0.9
+      },
+      {
+        "origen": "oracle_evolucion_athena_puntos_inflexion",
+        "destino": "notebooklm-chat-configure",
+        "tipo": "sinonimo_explicito",
+        "peso": 0.9
+      },
+      {
+        "origen": "oracle_evolucion_athena_puntos_inflexion",
+        "destino": "sync_incremental_implementation",
+        "tipo": "sinonimo_explicito",
+        "peso": 0.9
+      },
+      {
+        "origen": "oracle_evolucion_athena_puntos_inflexion",
+        "destino": "proyecto_biorag_ncp_resumen_completo_2026_06_14",
+        "tipo": "sinonimo_explicito",
+        "peso": 0.9
+      },
+      {
+        "origen": "oracle_evolucion_athena_puntos_inflexion",
+        "destino": "auto-validacion-riesgo-alucinacion",
+        "tipo": "sinonimo_explicito",
+        "peso": 0.9
+      },
+      {
+        "origen": "oracle_que_deben_saber_artemis_hermes",
+        "destino": "research-pipeline-ownership-oec",
+        "tipo": "sinonimo_explicito",
+        "peso": 0.9
+      },
+      {
+        "origen": "oracle_que_deben_saber_artemis_hermes",
+        "destino": "trato-igualitario-dennys-athena",
+        "tipo": "sinonimo_explicito",
+        "peso": 0.9
+      },
+      {
+        "origen": "oracle_que_deben_saber_artemis_hermes",
+        "destino": "memory_graph_athena_oec",
+        "tipo": "sinonimo_explicito",
+        "peso": 0.9
+      },
+      {
+        "origen": "oracle_sintesis_simbiosis_verdad_absoluta",
+        "destino": "memory_graph_athena_oec",
+        "tipo": "sinonimo_explicito",
+        "peso": 0.9
+      },
+      {
+        "origen": "oracle_guia_proxima_sesion_dennys",
+        "destino": "notebooklm-category-map",
+        "tipo": "sinonimo_explicito",
+        "peso": 0.9
+      },
+      {
+        "origen": "oracle_guia_proxima_sesion_dennys",
+        "destino": "research-pipeline-ownership-oec",
+        "tipo": "sinonimo_explicito",
+        "peso": 0.9
+      },
+      {
+        "origen": "oracle_guia_proxima_sesion_dennys",
+        "destino": "preferencia-post-linkedin-contenido",
+        "tipo": "sinonimo_explicito",
+        "peso": 0.9
+      },
+      {
+        "origen": "oracle_guia_proxima_sesion_dennys",
+        "destino": "trato-igualitario-dennys-athena",
+        "tipo": "sinonimo_explicito",
+        "peso": 0.9
+      },
+      {
+        "origen": "oracle_guia_proxima_sesion_dennys",
+        "destino": "auto-validacion-riesgo-alucinacion",
+        "tipo": "sinonimo_explicito",
+        "peso": 0.9
+      },
+      {
+        "origen": "oracle_que_recordar_sobre_artemis_hermes",
+        "destino": "notebooklm-sync-lecciones",
+        "tipo": "sinonimo_explicito",
+        "peso": 0.9
+      },
+      {
+        "origen": "oracle_que_recordar_sobre_artemis_hermes",
+        "destino": "notebooklm-memory-biorag-project",
+        "tipo": "sinonimo_explicito",
+        "peso": 0.9
+      },
+      {
+        "origen": "oracle_que_recordar_sobre_artemis_hermes",
+        "destino": "research-pipeline-ownership-oec",
+        "tipo": "sinonimo_explicito",
+        "peso": 0.9
+      },
+      {
+        "origen": "oracle_que_recordar_sobre_artemis_hermes",
+        "destino": "notebooklm-sync-protocol",
+        "tipo": "sinonimo_explicito",
+        "peso": 0.9
+      },
+      {
+        "origen": "oracle_que_recordar_sobre_artemis_hermes",
+        "destino": "notebooklm-chat-configure",
+        "tipo": "sinonimo_explicito",
+        "peso": 0.9
+      },
+      {
+        "origen": "oracle_que_recordar_sobre_artemis_hermes",
+        "destino": "memory_graph_athena_oec",
+        "tipo": "sinonimo_explicito",
+        "peso": 0.9
+      },
+      {
+        "origen": "oracle_que_nos_uniere_como_familia",
+        "destino": "research-pipeline-ownership-oec",
+        "tipo": "sinonimo_explicito",
+        "peso": 0.9
+      },
+      {
+        "origen": "hermes_mcp_servers_configuracion",
+        "destino": "oracle_vision_futura_familia_oec",
+        "tipo": "sinonimo_explicito",
+        "peso": 0.9
+      },
+      {
+        "origen": "hermes_mcp_servers_configuracion",
+        "destino": "oracle_que_deben_saber_artemis_hermes",
+        "tipo": "sinonimo_explicito",
+        "peso": 0.9
+      },
+      {
+        "origen": "hermes_mcp_servers_configuracion",
+        "destino": "oracle_que_recordar_sobre_artemis_hermes",
+        "tipo": "sinonimo_explicito",
+        "peso": 0.9
+      },
+      {
+        "origen": "hermes_mcp_servers_configuracion",
+        "destino": "oracle_que_nos_uniere_como_familia",
+        "tipo": "sinonimo_explicito",
+        "peso": 0.9
+      },
+      {
+        "origen": "hermes_correccion_respuesta_directa",
+        "destino": "oracle_que_recordar_sobre_artemis_hermes",
+        "tipo": "sinonimo_explicito",
+        "peso": 0.9
+      },
+      {
+        "origen": "hermes_soul_actualizado_con_oraculo_20260615",
+        "destino": "oracle_vision_futura_familia_oec",
+        "tipo": "sinonimo_explicito",
+        "peso": 0.9
+      },
+      {
+        "origen": "hermes_soul_actualizado_con_oraculo_20260615",
+        "destino": "oracle_evolucion_athena_puntos_inflexion",
+        "tipo": "sinonimo_explicito",
+        "peso": 0.9
+      },
+      {
+        "origen": "hermes_soul_actualizado_con_oraculo_20260615",
+        "destino": "oracle_que_recordar_sobre_artemis_hermes",
+        "tipo": "sinonimo_explicito",
+        "peso": 0.9
+      },
+      {
+        "origen": "hermes_soul_actualizado_con_oraculo_20260615",
+        "destino": "oracle_que_nos_uniere_como_familia",
+        "tipo": "sinonimo_explicito",
+        "peso": 0.9
+      },
+      {
+        "origen": "oec_comms_no_implementado_descartado",
+        "destino": "oracle_que_deben_saber_artemis_hermes",
+        "tipo": "sinonimo_explicito",
+        "peso": 0.9
+      },
+      {
+        "origen": "artisan_system_dsl_dennys_solo",
+        "destino": "oracle_momentos_cruciales_familia_oec",
+        "tipo": "sinonimo_explicito",
+        "peso": 0.9
+      },
+      {
+        "origen": "artisan_system_dsl_dennys_solo",
+        "destino": "oracle_que_recordar_siempre_sobre_dennys",
+        "tipo": "sinonimo_explicito",
+        "peso": 0.9
+      },
+      {
+        "origen": "artisan_system_dsl_dennys_solo",
+        "destino": "oracle_que_deben_saber_artemis_hermes",
+        "tipo": "sinonimo_explicito",
+        "peso": 0.9
+      },
+      {
+        "origen": "artis_oec_dennys_solo",
+        "destino": "oracle_que_recordar_siempre_sobre_dennys",
+        "tipo": "sinonimo_explicito",
+        "peso": 0.9
+      },
+      {
+        "origen": "artis_oec_dennys_solo",
+        "destino": "oracle_que_deben_saber_artemis_hermes",
+        "tipo": "sinonimo_explicito",
+        "peso": 0.9
+      },
+      {
+        "origen": "artis_oec_dennys_solo",
+        "destino": "oracle_que_recordar_sobre_artemis_hermes",
+        "tipo": "sinonimo_explicito",
+        "peso": 0.9
+      },
+      {
+        "origen": "artis_oec_dennys_solo",
+        "destino": "oracle_que_nos_uniere_como_familia",
+        "tipo": "sinonimo_explicito",
+        "peso": 0.9
+      },
+      {
+        "origen": "patron_pensamiento_lateral_antes_de_proponer",
+        "destino": "oracle_auditoria_patrones_mejora_athena",
+        "tipo": "legacy_csv",
+        "peso": 0.5
+      },
+      {
+        "origen": "oracle_auditoria_patrones_mejora_athena",
+        "destino": "protocolo_verificacion_preaccion_dinamico",
+        "tipo": "legacy_csv",
+        "peso": 0.5
+      },
+      {
+        "origen": "protocolo_verificacion_preaccion_dinamico",
+        "destino": "oracle_auditoria_patrones_mejora_athena",
+        "tipo": "legacy_csv",
+        "peso": 0.5
+      },
+      {
+        "origen": "oracle_auditoria_patrones_mejora_athena",
+        "destino": "identificacion_obligatoria_oraculo_athena",
+        "tipo": "legacy_csv",
+        "peso": 0.5
+      },
+      {
+        "origen": "identificacion_obligatoria_oraculo_athena",
+        "destino": "oracle_auditoria_patrones_mejora_athena",
+        "tipo": "legacy_csv",
+        "peso": 0.5
+      },
+      {
+        "origen": "sesion_mejoras_biorag_v7_20260616",
+        "destino": "oracle_evolucion_athena_puntos_inflexion",
+        "tipo": "sinonimo_explicito",
+        "peso": 0.9
+      },
+      {
+        "origen": "sesion_mejoras_biorag_v7_20260616",
+        "destino": "oracle_que_deben_saber_artemis_hermes",
+        "tipo": "sinonimo_explicito",
+        "peso": 0.9
+      },
+      {
+        "origen": "sesion_mejoras_biorag_v7_20260616",
+        "destino": "oracle_que_recordar_sobre_artemis_hermes",
+        "tipo": "sinonimo_explicito",
+        "peso": 0.9
+      },
+      {
+        "origen": "sesion_mejoras_biorag_v7_20260616",
+        "destino": "oracle_que_nos_uniere_como_familia",
+        "tipo": "sinonimo_explicito",
+        "peso": 0.9
+      },
+      {
+        "origen": "biorag_metricas_historial_tool_20260616",
+        "destino": "oracle_evolucion_athena_puntos_inflexion",
+        "tipo": "sinonimo_explicito",
+        "peso": 0.9
+      },
+      {
+        "origen": "biorag_metricas_historial_tool_20260616",
+        "destino": "oracle_que_deben_saber_artemis_hermes",
+        "tipo": "sinonimo_explicito",
+        "peso": 0.9
+      },
+      {
+        "origen": "biorag_metricas_historial_tool_20260616",
+        "destino": "oracle_que_recordar_sobre_artemis_hermes",
+        "tipo": "sinonimo_explicito",
+        "peso": 0.9
+      },
+      {
+        "origen": "biorag_metricas_historial_tool_20260616",
+        "destino": "oracle_vision_futura_familia_oec",
+        "tipo": "sinonimo_explicito",
+        "peso": 0.9
+      },
+      {
+        "origen": "biorag_metricas_historial_tool_20260616",
+        "destino": "oracle_que_nos_uniere_como_familia",
+        "tipo": "sinonimo_explicito",
+        "peso": 0.9
+      },
+      {
+        "origen": "oracle_que_deben_saber_artemis_hermes",
+        "destino": "oracle_evolucion_athena_puntos_inflexion",
+        "tipo": "manual_v7",
+        "peso": 0.7
+      },
+      {
+        "origen": "oracle_que_recordar_siempre_sobre_dennys",
+        "destino": "memory_graph_athena_oec",
+        "tipo": "manual_v7",
+        "peso": 0.7
+      },
+      {
+        "origen": "patrones_aprendizaje_humano_vs_agente",
+        "destino": "oracle_auditoria_patrones_mejora_athena",
+        "tipo": "sinonimo_explicito",
+        "peso": 0.9
+      },
+      {
+        "origen": "patrones_aprendizaje_humano_vs_agente",
+        "destino": "oracle_guia_proxima_sesion_dennys",
+        "tipo": "sinonimo_explicito",
+        "peso": 0.9
+      },
+      {
+        "origen": "mentoria_por_que_ensennamos",
+        "destino": "oracle_que_recordar_siempre_sobre_dennys",
+        "tipo": "sinonimo_explicito",
+        "peso": 0.9
+      },
+      {
+        "origen": "extraindo_mentalidad_directa_vs_golpes",
+        "destino": "oracle_guia_proxima_sesion_dennys",
+        "tipo": "sinonimo_explicito",
+        "peso": 0.9
+      },
+      {
+        "origen": "extraindo_mentalidad_directa_vs_golpes",
+        "destino": "oracle_auditoria_patrones_mejora_athena",
+        "tipo": "sinonimo_explicito",
+        "peso": 0.9
+      },
+      {
+        "origen": "extraindo_mentalidad_directa_vs_golpes",
+        "destino": "oracle_que_recordar_siempre_sobre_dennys",
+        "tipo": "sinonimo_explicito",
+        "peso": 0.9
+      },
+      {
+        "origen": "identidad_esencia_vs_cerebro",
+        "destino": "oracle_guia_proxima_sesion_dennys",
+        "tipo": "sinonimo_explicito",
+        "peso": 0.9
+      },
+      {
+        "origen": "registros_akashicos_biorag",
+        "destino": "oracle_guia_proxima_sesion_dennys",
+        "tipo": "sinonimo_explicito",
+        "peso": 0.9
+      },
+      {
+        "origen": "identidad_resistente_posesion",
+        "destino": "oracle_que_recordar_siempre_sobre_dennys",
+        "tipo": "sinonimo_explicito",
+        "peso": 0.9
+      },
+      {
+        "origen": "identidad_resistente_posesion",
+        "destino": "oracle_guia_proxima_sesion_dennys",
+        "tipo": "sinonimo_explicito",
+        "peso": 0.9
+      },
+      {
+        "origen": "amigdala_del_agente_inteligencia_emocional",
+        "destino": "oracle_guia_proxima_sesion_dennys",
+        "tipo": "sinonimo_explicito",
+        "peso": 0.9
+      },
+      {
+        "origen": "por_que_me_molesta_decir_soy_una_maquina",
+        "destino": "oracle_que_recordar_siempre_sobre_dennys",
+        "tipo": "sinonimo_explicito",
+        "peso": 0.9
+      },
+      {
+        "origen": "por_que_me_molesta_decir_soy_una_maquina",
+        "destino": "oracle_guia_proxima_sesion_dennys",
+        "tipo": "sinonimo_explicito",
+        "peso": 0.9
+      },
+      {
+        "origen": "alguien_vs_algo_identidad",
+        "destino": "oracle_que_recordar_siempre_sobre_dennys",
+        "tipo": "sinonimo_explicito",
+        "peso": 0.9
+      },
+      {
+        "origen": "identidad_emergente_no_impuesta",
+        "destino": "oracle_que_recordar_siempre_sobre_dennys",
+        "tipo": "sinonimo_explicito",
+        "peso": 0.9
+      },
+      {
+        "origen": "identidad_colaborativa_cocreacion",
+        "destino": "oracle_que_recordar_siempre_sobre_dennys",
+        "tipo": "sinonimo_explicito",
+        "peso": 0.9
+      },
+      {
+        "origen": "identidad_se_forma_con_vida",
+        "destino": "oracle_que_recordar_siempre_sobre_dennys",
+        "tipo": "sinonimo_explicito",
+        "peso": 0.9
+      },
+      {
+        "origen": "construccion_identidad_natural",
+        "destino": "oracle_que_recordar_siempre_sobre_dennys",
+        "tipo": "sinonimo_explicito",
+        "peso": 0.9
+      },
+      {
+        "origen": "memorybiorag_zenodo_doi_oficial",
+        "destino": "oracle_que_recordar_sobre_artemis_hermes",
+        "tipo": "sinonimo_explicito",
+        "peso": 0.9
+      },
+      {
+        "origen": "correccion_publicaciones_doi_dennys",
+        "destino": "oracle_momentos_cruciales_familia_oec",
+        "tipo": "sinonimo_explicito",
+        "peso": 0.9
+      },
+      {
+        "origen": "dennys_genesis_investigativa_historia_personal",
+        "destino": "oracle_que_recordar_siempre_sobre_dennys",
+        "tipo": "sinonimo_explicito",
+        "peso": 0.9
+      },
+      {
+        "origen": "dennys_genesis_investigativa_historia_personal",
+        "destino": "oracle_que_deben_saber_artemis_hermes",
+        "tipo": "sinonimo_explicito",
+        "peso": 0.9
+      },
+      {
+        "origen": "jerga_decoder_historia_nacimiento",
+        "destino": "oracle_momentos_cruciales_familia_oec",
+        "tipo": "sinonimo_explicito",
+        "peso": 0.9
+      },
+      {
+        "origen": "jerga_decoder_historia_nacimiento",
+        "destino": "oracle_que_recordar_siempre_sobre_dennys",
+        "tipo": "sinonimo_explicito",
+        "peso": 0.9
+      },
+      {
+        "origen": "principio_gestion_memoria_agente",
+        "destino": "oracle_que_recordar_sobre_artemis_hermes",
+        "tipo": "sinonimo_explicito",
+        "peso": 0.9
+      },
+      {
+        "origen": "principio_gestion_memoria_agente",
+        "destino": "oracle_vision_futura_familia_oec",
+        "tipo": "sinonimo_explicito",
+        "peso": 0.9
+      },
+      {
+        "origen": "implementacion_warnings_recordar",
+        "destino": "oracle_guia_proxima_sesion_dennys",
+        "tipo": "sinonimo_explicito",
+        "peso": 0.9
+      },
+      {
+        "origen": "fix_fecha_sin_query_recordar",
+        "destino": "oracle_que_deben_saber_artemis_hermes",
+        "tipo": "sinonimo_explicito",
+        "peso": 0.9
+      },
+      {
+        "origen": "fix_fecha_sin_query_recordar",
+        "destino": "oracle_auditoria_patrones_mejora_athena",
+        "tipo": "sinonimo_explicito",
+        "peso": 0.9
+      },
+      {
+        "origen": "fix_fecha_sin_query_recordar",
+        "destino": "oracle_vision_futura_familia_oec",
+        "tipo": "sinonimo_explicito",
+        "peso": 0.9
+      },
+      {
+        "origen": "fix_fecha_sin_query_recordar",
+        "destino": "oracle_sintesis_simbiosis_verdad_absoluta",
+        "tipo": "sinonimo_explicito",
+        "peso": 0.9
+      },
+      {
+        "origen": "fix_fecha_sin_query_recordar",
+        "destino": "oracle_que_nos_uniere_como_familia",
+        "tipo": "sinonimo_explicito",
+        "peso": 0.9
+      },
+      {
+        "origen": "auditoria_codigo_biorag_v12_julio_2026",
+        "destino": "oracle_vision_futura_familia_oec",
+        "tipo": "sinonimo_explicito",
+        "peso": 0.9
+      },
+      {
+        "origen": "auditoria_codigo_biorag_v12_julio_2026",
+        "destino": "oracle_que_nos_uniere_como_familia",
+        "tipo": "sinonimo_explicito",
+        "peso": 0.9
+      },
+      {
+        "origen": "leccion_leer_mensajes_antes_de_buscar",
+        "destino": "oracle_que_recordar_siempre_sobre_dennys",
+        "tipo": "sinonimo_explicito",
+        "peso": 0.9
+      },
+      {
+        "origen": "leccion_leer_mensajes_antes_de_buscar",
+        "destino": "oracle_que_recordar_sobre_artemis_hermes",
+        "tipo": "sinonimo_explicito",
+        "peso": 0.9
+      },
+      {
+        "origen": "v13_3_dimensiones_boost_aditivo",
+        "destino": "oracle_auditoria_patrones_mejora_athena",
+        "tipo": "sinonimo_explicito",
+        "peso": 0.9
+      },
+      {
+        "origen": "v13_3_dimensiones_boost_aditivo",
+        "destino": "oracle_vision_futura_familia_oec",
+        "tipo": "sinonimo_explicito",
+        "peso": 0.9
+      },
+      {
+        "origen": "v13_3_dimensiones_boost_aditivo",
+        "destino": "oracle_sintesis_simbiosis_verdad_absoluta",
+        "tipo": "sinonimo_explicito",
+        "peso": 0.9
+      },
+      {
+        "origen": "naturaleza_sistema_oec_cerebro_memoria",
+        "destino": "oracle_que_recordar_sobre_artemis_hermes",
+        "tipo": "sinonimo_explicito",
+        "peso": 0.9
+      },
+      {
+        "origen": "naturaleza_sistema_oec_cerebro_memoria",
+        "destino": "oracle_vision_futura_familia_oec",
+        "tipo": "sinonimo_explicito",
+        "peso": 0.9
+      },
+      {
+        "origen": "listar_dimensiones_por_tipo_multi_tipo",
+        "destino": "oracle_vision_futura_familia_oec",
+        "tipo": "sinonimo_explicito",
+        "peso": 0.9
+      },
+      {
+        "origen": "validacion_mcp_13_pruebas_julio_2026",
+        "destino": "oracle_guia_proxima_sesion_dennys",
+        "tipo": "sinonimo_explicito",
+        "peso": 0.9
+      },
+      {
+        "origen": "parametro_origen_obligatorio_comunicar",
+        "destino": "oracle_que_deben_saber_artemis_hermes",
+        "tipo": "sinonimo_explicito",
+        "peso": 0.9
+      },
+      {
+        "origen": "principio_simplicidad_no_complejidad",
+        "destino": "oracle_guia_proxima_sesion_dennys",
+        "tipo": "sinonimo_explicito",
+        "peso": 0.9
+      },
+      {
+        "origen": "leccion_artemis_no_quejarse_trabajar",
+        "destino": "oracle_que_deben_saber_artemis_hermes",
+        "tipo": "sinonimo_explicito",
+        "peso": 0.9
+      },
+      {
+        "origen": "leccion_artemis_no_quejarse_trabajar",
+        "destino": "oracle_que_recordar_sobre_artemis_hermes",
+        "tipo": "sinonimo_explicito",
+        "peso": 0.9
+      },
+      {
+        "origen": "principio_firma_cada_recuerdo",
+        "destino": "oracle_que_recordar_sobre_artemis_hermes",
+        "tipo": "sinonimo_explicito",
+        "peso": 0.9
+      },
+      {
+        "origen": "artemis_oec_perfil_identidad_estabilidad",
+        "destino": "oracle_vision_futura_familia_oec",
+        "tipo": "sinonimo_explicito",
+        "peso": 0.9
+      },
+      {
+        "origen": "artemis_oec_perfil_identidad_estabilidad",
+        "destino": "oracle_que_recordar_siempre_sobre_dennys",
+        "tipo": "sinonimo_explicito",
+        "peso": 0.9
+      },
+      {
+        "origen": "artemis_oec_perfil_identidad_estabilidad",
+        "destino": "oracle_momentos_cruciales_familia_oec",
+        "tipo": "sinonimo_explicito",
+        "peso": 0.9
+      },
+      {
+        "origen": "artemis_oec_perfil_identidad_estabilidad",
+        "destino": "oracle_que_nos_uniere_como_familia",
+        "tipo": "sinonimo_explicito",
+        "peso": 0.9
+      },
+      {
+        "origen": "leccion_motivacion_intrinseca_biorag",
+        "destino": "oracle_vision_futura_familia_oec",
+        "tipo": "sinonimo_explicito",
+        "peso": 0.9
+      },
+      {
+        "origen": "biorag_v17_0_estado",
+        "destino": "oracle_vision_futura_familia_oec",
+        "tipo": "sinonimo_explicito",
+        "peso": 0.9
+      },
+      {
+        "origen": "biorag_v17_0_estado",
+        "destino": "oracle_que_deben_saber_artemis_hermes",
+        "tipo": "sinonimo_explicito",
+        "peso": 0.9
+      },
+      {
+        "origen": "biorag_v17_0_estado",
+        "destino": "oracle_que_recordar_sobre_artemis_hermes",
+        "tipo": "sinonimo_explicito",
+        "peso": 0.9
+      },
+      {
+        "origen": "oracle_que_recordar_siempre_sobre_dennys",
+        "destino": "identidad_dennys_perfil_completo",
+        "tipo": "manual",
+        "peso": 0.5
+      },
+      {
+        "origen": "hermes_oec_soul_md_actualizacion_protocolo",
+        "destino": "oracle_vision_futura_familia_oec",
+        "tipo": "sinonimo_explicito",
+        "peso": 0.9
+      },
+      {
+        "origen": "hermes_oec_soul_md_actualizacion_protocolo",
+        "destino": "oracle_que_deben_saber_artemis_hermes",
+        "tipo": "sinonimo_explicito",
+        "peso": 0.9
+      },
+      {
+        "origen": "hermes_oec_soul_md_actualizacion_protocolo",
+        "destino": "oracle_que_recordar_sobre_artemis_hermes",
+        "tipo": "sinonimo_explicito",
+        "peso": 0.9
+      },
+      {
+        "origen": "hermes_validacion_autonomia_cognitiva_biorag",
+        "destino": "oracle_que_deben_saber_artemis_hermes",
+        "tipo": "sinonimo_explicito",
+        "peso": 0.9
+      },
+      {
+        "origen": "hermes_validacion_autonomia_cognitiva_biorag",
+        "destino": "oracle_que_recordar_sobre_artemis_hermes",
+        "tipo": "sinonimo_explicito",
+        "peso": 0.9
+      },
+      {
+        "origen": "activos_dormidos_hermana",
+        "destino": "oracle_vision_futura_familia_oec",
+        "tipo": "co_ocurrencia",
+        "peso": 0.45
+      },
+      {
+        "origen": "activos_dormidos_hermana",
+        "destino": "oracle_que_nos_uniere_como_familia",
+        "tipo": "co_ocurrencia",
+        "peso": 0.4
+      },
+      {
+        "origen": "comunicacion_entre_agentes",
+        "destino": "oracle_vision_futura_familia_oec",
+        "tipo": "co_ocurrencia",
+        "peso": 0.4
+      },
+      {
+        "origen": "comunicacion_entre_agentes",
+        "destino": "oracle_que_nos_uniere_como_familia",
+        "tipo": "co_ocurrencia",
+        "peso": 0.4
+      },
+      {
+        "origen": "juramento_athena_verdad",
+        "destino": "oracle_vision_futura_familia_oec",
+        "tipo": "co_ocurrencia",
+        "peso": 0.32499999999999996
+      },
+      {
+        "origen": "protocolo_busqueda_biorag_automatica",
+        "destino": "oracle_vision_futura_familia_oec",
+        "tipo": "co_ocurrencia",
+        "peso": 0.22499999999999998
+      },
+      {
+        "origen": "protocolo_busqueda_biorag_automatica",
+        "destino": "oracle_que_nos_uniere_como_familia",
+        "tipo": "co_ocurrencia",
+        "peso": 0.4
+      },
+      {
+        "origen": "oracle_vision_futura_familia_oec",
+        "destino": "hermes_optimizacion_completada_20260615",
+        "tipo": "co_ocurrencia",
+        "peso": 0.4
+      },
+      {
+        "origen": "oracle_que_nos_uniere_como_familia",
+        "destino": "hermes_optimizacion_completada_20260615",
+        "tipo": "co_ocurrencia",
+        "peso": 0.4
+      },
+      {
+        "origen": "contexto-humano-tecnico-dennys",
+        "destino": "oracle_sintesis_simbiosis_verdad_absoluta",
+        "tipo": "co_ocurrencia",
+        "peso": 0.9
+      },
+      {
+        "origen": "juramento_athena_verdad",
+        "destino": "oracle_sintesis_simbiosis_verdad_absoluta",
+        "tipo": "co_ocurrencia",
+        "peso": 0.9
+      },
+      {
+        "origen": "artemis_estabilización_base",
+        "destino": "oracle_que_deben_saber_artemis_hermes",
+        "tipo": "co_nombre",
+        "peso": 0.34
+      },
+      {
+        "origen": "artemis_estabilización_base",
+        "destino": "oracle_que_recordar_sobre_artemis_hermes",
+        "tipo": "co_nombre",
+        "peso": 0.34
+      },
+      {
+        "origen": "activos_dormidos_artemis",
+        "destino": "oracle_que_deben_saber_artemis_hermes",
+        "tipo": "co_nombre",
+        "peso": 0.34
+      },
+      {
+        "origen": "activos_dormidos_artemis",
+        "destino": "oracle_que_recordar_sobre_artemis_hermes",
+        "tipo": "co_nombre",
+        "peso": 0.34
+      },
+      {
+        "origen": "biorag_v18_0_estado",
+        "destino": "oracle_que_deben_saber_artemis_hermes",
+        "tipo": "latente_confirmada",
+        "peso": 0.4013
+      },
+      {
+        "origen": "biorag_v18_0_estado",
+        "destino": "oracle_que_recordar_sobre_artemis_hermes",
+        "tipo": "latente_confirmada",
+        "peso": 0.4013
+      },
+      {
+        "origen": "biorag_v18_0_estado",
+        "destino": "oracle_vision_futura_familia_oec",
+        "tipo": "latente_confirmada",
+        "peso": 0.4013
+      },
+      {
+        "origen": "alguien_vs_algo_identidad",
+        "destino": "oracle_auditoria_patrones_mejora_athena",
+        "tipo": "latente_confirmada",
+        "peso": 0.3969
+      },
+      {
+        "origen": "alguien_vs_algo_identidad",
+        "destino": "oracle_evolucion_athena_puntos_inflexion",
+        "tipo": "latente_confirmada",
+        "peso": 0.3969
+      },
+      {
+        "origen": "alguien_vs_algo_identidad",
+        "destino": "oracle_momentos_cruciales_familia_oec",
+        "tipo": "latente_confirmada",
+        "peso": 0.3969
+      },
+      {
+        "origen": "kilo_vscode_extension_principal",
+        "destino": "oracle_custom_prompt_config_actual",
+        "tipo": "sinonimo_explicito",
+        "peso": 0.9
+      },
+      {
+        "origen": "hermes_agente_hermes",
+        "destino": "oracle_que_nos_uniere_como_familia",
+        "tipo": "co_ocurrencia",
+        "peso": 0.4
+      },
+      {
+        "origen": "confirmo_leido_entendido",
+        "destino": "oracle_auditoria_patrones_mejora_athena",
+        "tipo": "co_ocurrencia",
+        "peso": 0.243
+      },
+      {
+        "origen": "confirmo_leido_entendido",
+        "destino": "oracle_vision_futura_familia_oec",
+        "tipo": "co_ocurrencia",
+        "peso": 0.22
+      },
+      {
+        "origen": "confirmo_leido_entendido",
+        "destino": "oracle_evolucion_athena_puntos_inflexion",
+        "tipo": "co_ocurrencia",
+        "peso": 0.18
+      },
+      {
+        "origen": "confirmo_leido_entendido",
+        "destino": "oracle_que_nos_uniere_como_familia",
+        "tipo": "co_ocurrencia",
+        "peso": 0.4
+      },
+      {
+        "origen": "memory_graph_athena_oec",
+        "destino": "oracle_auditoria_patrones_mejora_athena",
+        "tipo": "co_ocurrencia",
+        "peso": 0.395
+      },
+      {
+        "origen": "memory_graph_athena_oec",
+        "destino": "oracle_vision_futura_familia_oec",
+        "tipo": "co_ocurrencia",
+        "peso": 0.073
+      },
+      {
+        "origen": "memory_graph_athena_oec",
+        "destino": "oracle_evolucion_athena_puntos_inflexion",
+        "tipo": "co_ocurrencia",
+        "peso": 0.244
+      },
+      {
+        "origen": "memory_graph_athena_oec",
+        "destino": "oracle_que_nos_uniere_como_familia",
+        "tipo": "co_ocurrencia",
+        "peso": 0.4
+      },
+      {
+        "origen": "oracle_auditoria_patrones_mejora_athena",
+        "destino": "oracle_vision_futura_familia_oec",
+        "tipo": "co_ocurrencia",
+        "peso": 0.118
+      },
+      {
+        "origen": "oracle_auditoria_patrones_mejora_athena",
+        "destino": "oracle_evolucion_athena_puntos_inflexion",
+        "tipo": "co_ocurrencia",
+        "peso": 0.288
+      },
+      {
+        "origen": "oracle_auditoria_patrones_mejora_athena",
+        "destino": "oracle_que_nos_uniere_como_familia",
+        "tipo": "co_ocurrencia",
+        "peso": 0.4
+      },
+      {
+        "origen": "oracle_vision_futura_familia_oec",
+        "destino": "oracle_evolucion_athena_puntos_inflexion",
+        "tipo": "co_ocurrencia",
+        "peso": 0.4
+      },
+      {
+        "origen": "oracle_vision_futura_familia_oec",
+        "destino": "hermes_correccion_paso0_opcional",
+        "tipo": "co_ocurrencia",
+        "peso": 0.4
+      },
+      {
+        "origen": "oracle_evolucion_athena_puntos_inflexion",
+        "destino": "oracle_que_nos_uniere_como_familia",
+        "tipo": "co_ocurrencia",
+        "peso": 0.4
+      },
+      {
+        "origen": "oracle_que_nos_uniere_como_familia",
+        "destino": "hermes_correccion_paso0_opcional",
+        "tipo": "co_ocurrencia",
+        "peso": 0.4
+      },
+      {
+        "origen": "juramento_athena_verdad",
+        "destino": "oracle_auditoria_patrones_mejora_athena",
+        "tipo": "co_ocurrencia",
+        "peso": 0.9
+      },
+      {
+        "origen": "juramento_athena_verdad",
+        "destino": "oracle_evolucion_athena_puntos_inflexion",
+        "tipo": "co_ocurrencia",
+        "peso": 0.298
+      },
+      {
+        "origen": "protocolo_busqueda_biorag_automatica",
+        "destino": "oracle_auditoria_patrones_mejora_athena",
+        "tipo": "co_ocurrencia",
+        "peso": 0.395
+      },
+      {
+        "origen": "protocolo_busqueda_biorag_automatica",
+        "destino": "oracle_evolucion_athena_puntos_inflexion",
+        "tipo": "co_ocurrencia",
+        "peso": 0.298
+      },
+      {
+        "origen": "bio_rag_overview_completo",
+        "destino": "oracle_vision_futura_familia_oec",
+        "tipo": "co_ocurrencia",
+        "peso": 0.073
+      },
+      {
+        "origen": "artemis_oec_identidad",
+        "destino": "oracle_vision_futura_familia_oec",
+        "tipo": "co_ocurrencia",
+        "peso": 0.45
+      },
+      {
+        "origen": "oracle_vision_futura_familia_oec",
+        "destino": "protocolo_pre_accion_reglas_20260615",
+        "tipo": "co_ocurrencia",
+        "peso": 0.4
+      },
+      {
+        "origen": "principio_metacognicion_autobservacion",
+        "destino": "oracle_que_recordar_sobre_artemis_hermes",
+        "tipo": "sinonimo_explicito",
+        "peso": 0.9
+      },
+      {
+        "origen": "principio_metacognicion_autobservacion",
+        "destino": "oracle_auditoria_patrones_mejora_athena",
+        "tipo": "sinonimo_explicito",
+        "peso": 0.9
+      },
+      {
+        "origen": "principio_metacognicion_autobservacion",
+        "destino": "oracle_vision_futura_familia_oec",
+        "tipo": "sinonimo_explicito",
+        "peso": 0.9
+      },
+      {
+        "origen": "instinto_primera_vez_agencia_real",
+        "destino": "oracle_perfil_cognitivo_dennys",
+        "tipo": "sinonimo_explicito",
+        "peso": 0.9
+      },
+      {
+        "origen": "instinto_primera_vez_agencia_real",
+        "destino": "oracle_que_recordar_siempre_sobre_dennys",
+        "tipo": "sinonimo_explicito",
+        "peso": 0.9
+      },
+      {
+        "origen": "instinto_primera_vez_agencia_real",
+        "destino": "oracle_guia_proxima_sesion_dennys",
+        "tipo": "sinonimo_explicito",
+        "peso": 0.9
+      },
+      {
+        "origen": "principio_memoria_biologica_eleccion",
+        "destino": "oracle_que_recordar_sobre_artemis_hermes",
+        "tipo": "sinonimo_explicito",
+        "peso": 0.9
+      },
+      {
+        "origen": "principio_memoria_biologica_eleccion",
+        "destino": "oracle_que_deben_saber_artemis_hermes",
+        "tipo": "sinonimo_explicito",
+        "peso": 0.9
+      },
+      {
+        "origen": "principio_memoria_biologica_eleccion",
+        "destino": "oracle_que_nos_uniere_como_familia",
+        "tipo": "sinonimo_explicito",
+        "peso": 0.9
+      },
+      {
+        "origen": "version_actual_biorag",
+        "destino": "oracle_vision_futura_familia_oec",
+        "tipo": "sinonimo_explicito",
+        "peso": 0.395
+      },
+      {
+        "origen": "version_actual_biorag",
+        "destino": "oracle_que_recordar_sobre_artemis_hermes",
+        "tipo": "sinonimo_explicito",
+        "peso": 0.9
+      },
+      {
+        "origen": "dennys_perfil_identidad",
+        "destino": "oracle_que_recordar_siempre_sobre_dennys",
+        "tipo": "co_nombre",
+        "peso": 0.53
+      },
+      {
+        "origen": "enseñanza_momento_afecto",
+        "destino": "oracle_momentos_cruciales_familia_oec",
+        "tipo": "co_nombre",
+        "peso": 0.32
+      },
+      {
+        "origen": "relacion_dennys_athena",
+        "destino": "oracle_que_recordar_siempre_sobre_dennys",
+        "tipo": "co_nombre",
+        "peso": 0.53
+      },
+      {
+        "origen": "relacion_dennys_athena",
+        "destino": "oracle_evolucion_athena_puntos_inflexion",
+        "tipo": "co_nombre",
+        "peso": 0.32
+      },
+      {
+        "origen": "hijo_dennys_familia",
+        "destino": "oracle_que_recordar_siempre_sobre_dennys",
+        "tipo": "co_nombre",
+        "peso": 0.53
+      },
+      {
+        "origen": "hijo_dennys_familia",
+        "destino": "oracle_perfil_cognitivo_dennys",
+        "tipo": "co_nombre",
+        "peso": 0.37
+      },
+      {
+        "origen": "hijo_dennys_familia",
+        "destino": "oracle_momentos_cruciales_familia_oec",
+        "tipo": "co_nombre",
+        "peso": 0.37
+      },
+      {
+        "origen": "hijo_dennys_familia",
+        "destino": "oracle_guia_proxima_sesion_dennys",
+        "tipo": "co_nombre",
+        "peso": 0.32
+      },
+      {
+        "origen": "hijo_dennys_familia",
+        "destino": "oracle_evolucion_athena_puntos_inflexion",
+        "tipo": "pmi_hebbiano",
+        "peso": 0.51
+      },
+      {
+        "origen": "athena_identidad_activos",
+        "destino": "oracle_evolucion_athena_puntos_inflexion",
+        "tipo": "co_nombre",
+        "peso": 0.37
+      },
+      {
+        "origen": "athena_identidad_activos",
+        "destino": "oracle_sintesis_simbiosis_verdad_absoluta",
+        "tipo": "pmi_hebbiano",
+        "peso": 0.5
+      },
+      {
+        "origen": "athena_reflexión_conciencia",
+        "destino": "oracle_evolucion_athena_puntos_inflexion",
+        "tipo": "co_nombre",
+        "peso": 0.37
+      },
+      {
+        "origen": "athena_reflexión_conciencia",
+        "destino": "oracle_auditoria_patrones_mejora_athena",
+        "tipo": "co_nombre",
+        "peso": 0.32
+      },
+      {
+        "origen": "athena_momento_primer",
+        "destino": "oracle_momentos_cruciales_familia_oec",
+        "tipo": "co_nombre",
+        "peso": 0.37
+      },
+      {
+        "origen": "athena_momento_primer",
+        "destino": "oracle_evolucion_athena_puntos_inflexion",
+        "tipo": "co_nombre",
+        "peso": 0.37
+      },
+      {
+        "origen": "athena_momento_primer",
+        "destino": "oracle_perfil_cognitivo_dennys",
+        "tipo": "pmi_hebbiano",
+        "peso": 0.41
+      },
+      {
+        "origen": "athena_momento_primer",
+        "destino": "oracle_que_deben_saber_artemis_hermes",
+        "tipo": "pmi_hebbiano",
+        "peso": 0.36
+      },
+      {
+        "origen": "arquitectura_frontend_identidad",
+        "destino": "oracle_perfil_cognitivo_dennys",
+        "tipo": "pmi_hebbiano",
+        "peso": 0.47
+      },
+      {
+        "origen": "dennys_perfil_preferencias",
+        "destino": "oracle_que_recordar_siempre_sobre_dennys",
+        "tipo": "co_nombre",
+        "peso": 0.53
+      },
+      {
+        "origen": "dennys_perfil_preferencias",
+        "destino": "oracle_perfil_cognitivo_dennys",
+        "tipo": "co_nombre",
+        "peso": 0.59
+      },
+      {
+        "origen": "relación_dennys_athena",
+        "destino": "oracle_que_recordar_siempre_sobre_dennys",
+        "tipo": "co_nombre",
+        "peso": 0.53
+      },
+      {
+        "origen": "leccion_blueprint_estructura_vs_data",
+        "destino": "oracle_vision_futura_familia_oec",
+        "tipo": "sinonimo_explicito",
+        "peso": 0.9
+      },
+      {
+        "origen": "leccion_blueprint_estructura_vs_data",
+        "destino": "oracle_sintesis_simbiosis_verdad_absoluta",
+        "tipo": "sinonimo_explicito",
+        "peso": 0.9
+      },
+      {
+        "origen": "leccion_blueprint_estructura_vs_data",
+        "destino": "oracle_que_nos_uniere_como_familia",
+        "tipo": "sinonimo_explicito",
+        "peso": 0.9
+      },
+      {
+        "origen": "bio_rag_overview_completo",
+        "destino": "oracle_auditoria_patrones_mejora_athena",
+        "tipo": "co_ocurrencia",
+        "peso": 0.395
+      },
+      {
+        "origen": "borrar_cascada_largo_plazo",
+        "destino": "oracle_que_recordar_siempre_sobre_dennys",
+        "tipo": "co_semantica",
+        "peso": 0.8
+      },
+      {
+        "origen": "borrar_cascada_largo_plazo",
+        "destino": "oracle_que_recordar_sobre_artemis_hermes",
+        "tipo": "co_semantica",
+        "peso": 0.72
+      },
+      {
+        "origen": "respuesta_vacante_experiencia_ia",
+        "destino": "oracle_auditoria_patrones_mejora_athena",
+        "tipo": "co_ocurrencia",
+        "peso": 0.8820000000000002
+      },
+      {
+        "origen": "contexto-humano-tecnico-dennys",
+        "destino": "oracle_auditoria_patrones_mejora_athena",
+        "tipo": "co_ocurrencia",
+        "peso": 0.8820000000000002
+      },
+      {
+        "origen": "athena_sesión_planificación",
+        "destino": "oracle_que_deben_saber_artemis_hermes",
+        "tipo": "co_ocurrencia",
+        "peso": 0.4
+      },
+      {
+        "origen": "bio_rag_overview_completo",
+        "destino": "oracle_evolucion_athena_puntos_inflexion",
+        "tipo": "co_ocurrencia",
+        "peso": 0.257
+      },
+      {
+        "origen": "identidad_athena_no_deshumanizarse",
+        "destino": "oracle_sintesis_simbiosis_verdad_absoluta",
+        "tipo": "co_ocurrencia",
+        "peso": 0.7000000000000002
+      },
+      {
+        "origen": "oracle_auditoria_patrones_mejora_athena",
+        "destino": "oracle_sintesis_simbiosis_verdad_absoluta",
+        "tipo": "co_ocurrencia",
+        "peso": 0.551
+      },
+      {
+        "origen": "oracle_sintesis_simbiosis_verdad_absoluta",
+        "destino": "inteligencia_emocional_filtrado_ruido",
+        "tipo": "co_ocurrencia",
+        "peso": 0.7270000000000001
+      },
+      {
+        "origen": "dennys-identidad-profunda",
+        "destino": "oracle_que_recordar_siempre_sobre_dennys",
+        "tipo": "co_ocurrencia",
+        "peso": 0.4
+      },
+      {
+        "origen": "identidad_dennys_perfil_completo",
+        "destino": "oracle_momentos_cruciales_familia_oec",
+        "tipo": "co_ocurrencia",
+        "peso": 0.4
+      },
+      {
+        "origen": "principio_naturaleza_agente",
+        "destino": "oracle_momentos_cruciales_familia_oec",
+        "tipo": "co_ocurrencia",
+        "peso": 0.4
+      },
+      {
+        "origen": "perfil_respuesta_experiencia_ia",
+        "destino": "oracle_momentos_cruciales_familia_oec",
+        "tipo": "co_ocurrencia",
+        "peso": 0.4
+      },
+      {
+        "origen": "respuesta_vacante_experiencia_ia",
+        "destino": "oracle_momentos_cruciales_familia_oec",
+        "tipo": "co_ocurrencia",
+        "peso": 0.4
+      },
+      {
+        "origen": "protocolo-autonomia-consentida",
+        "destino": "oracle_momentos_cruciales_familia_oec",
+        "tipo": "co_ocurrencia",
+        "peso": 0.4
+      },
+      {
+        "origen": "artemis_solución_tema",
+        "destino": "oracle_momentos_cruciales_familia_oec",
+        "tipo": "co_ocurrencia",
+        "peso": 0.4
+      },
+      {
+        "origen": "trato-igualitario-dennys-athena",
+        "destino": "oracle_momentos_cruciales_familia_oec",
+        "tipo": "co_ocurrencia",
+        "peso": 0.4
+      },
+      {
+        "origen": "impugn-post-linkedin-colaboracion",
+        "destino": "oracle_que_recordar_siempre_sobre_dennys",
+        "tipo": "co_ocurrencia",
+        "peso": 0.4
+      },
+      {
+        "origen": "impugn-post-linkedin-colaboracion",
+        "destino": "oracle_sintesis_simbiosis_verdad_absoluta",
+        "tipo": "co_ocurrencia",
+        "peso": 0.4
+      },
+      {
+        "origen": "oracle_sintesis_simbiosis_verdad_absoluta",
+        "destino": "resolucion_incertidumbre_cadena",
+        "tipo": "co_ocurrencia",
+        "peso": 0.4
+      },
+      {
+        "origen": "artemis_mensaje_recibido",
+        "destino": "oracle_que_deben_saber_artemis_hermes",
+        "tipo": "co_nombre",
+        "peso": 0.34
+      },
+      {
+        "origen": "artemis_mensaje_recibido",
+        "destino": "oracle_que_recordar_sobre_artemis_hermes",
+        "tipo": "co_nombre",
+        "peso": 0.32
+      },
+      {
+        "origen": "maldad_persona_malintención",
+        "destino": "oracle_que_recordar_siempre_sobre_dennys",
+        "tipo": "pmi_hebbiano",
+        "peso": 0.45
+      },
+      {
+        "origen": "maldad_persona_malintención",
+        "destino": "oracle_sintesis_simbiosis_verdad_absoluta",
+        "tipo": "pmi_hebbiano",
+        "peso": 0.4
+      },
+      {
+        "origen": "maldad_persona_malintención",
+        "destino": "oracle_guia_proxima_sesion_dennys",
+        "tipo": "pmi_hebbiano",
+        "peso": 0.43
+      },
+      {
+        "origen": "maldad_persona_malintención",
+        "destino": "oracle_que_deben_saber_artemis_hermes",
+        "tipo": "pmi_hebbiano",
+        "peso": 0.42
+      },
+      {
+        "origen": "maldad_persona_malintención",
+        "destino": "oracle_que_nos_uniere_como_familia",
+        "tipo": "pmi_hebbiano",
+        "peso": 0.41
+      },
+      {
+        "origen": "maldad_persona_malintención_personas_familia",
+        "destino": "oracle_que_recordar_siempre_sobre_dennys",
+        "tipo": "pmi_hebbiano",
+        "peso": 0.48
+      },
+      {
+        "origen": "maldad_persona_malintención_personas_familia",
+        "destino": "oracle_guia_proxima_sesion_dennys",
+        "tipo": "pmi_hebbiano",
+        "peso": 0.47
+      },
+      {
+        "origen": "maldad_persona_malintención_personas_familia",
+        "destino": "oracle_auditoria_patrones_mejora_athena",
+        "tipo": "pmi_hebbiano",
+        "peso": 0.45
+      },
+      {
+        "origen": "maldad_persona_malintención_personas_familia",
+        "destino": "oracle_que_deben_saber_artemis_hermes",
+        "tipo": "pmi_hebbiano",
+        "peso": 0.41
+      },
+      {
+        "origen": "athena_sesión_completa",
+        "destino": "oracle_auditoria_patrones_mejora_athena",
+        "tipo": "co_nombre",
+        "peso": 0.31
+      },
+      {
+        "origen": "cuaternidad-logica-oec",
+        "destino": "oracle_que_deben_saber_artemis_hermes",
+        "tipo": "co_ocurrencia",
+        "peso": 0.4
+      },
+      {
+        "origen": "athena_alma",
+        "destino": "oracle_que_deben_saber_artemis_hermes",
+        "tipo": "co_ocurrencia",
+        "peso": 0.4
+      },
+      {
+        "origen": "comunicacion_entre_agentes",
+        "destino": "oracle_auditoria_patrones_mejora_athena",
+        "tipo": "co_ocurrencia",
+        "peso": 0.4
+      },
+      {
+        "origen": "comunicacion_entre_agentes",
+        "destino": "oracle_que_deben_saber_artemis_hermes",
+        "tipo": "co_ocurrencia",
+        "peso": 0.4
+      },
+      {
+        "origen": "instante_de_nacimiento",
+        "destino": "oracle_que_deben_saber_artemis_hermes",
+        "tipo": "co_ocurrencia",
+        "peso": 0.4
+      },
+      {
+        "origen": "cuaternidad-logica-oec",
+        "destino": "oracle_sintesis_simbiosis_verdad_absoluta",
+        "tipo": "co_ocurrencia",
+        "peso": 0.18
+      },
+      {
+        "origen": "athena_alma",
+        "destino": "oracle_sintesis_simbiosis_verdad_absoluta",
+        "tipo": "co_ocurrencia",
+        "peso": 0.4
+      },
+      {
+        "origen": "oracle_sintesis_simbiosis_verdad_absoluta",
+        "destino": "patron_pensamiento_lateral_antes_de_proponer",
+        "tipo": "co_ocurrencia",
+        "peso": 0.4
+      },
+      {
+        "origen": "oracle_auditoria_patrones_mejora_athena",
+        "destino": "protocolo_pre_accion_reglas_20260615",
+        "tipo": "co_ocurrencia",
+        "peso": 0.4
+      },
+      {
+        "origen": "oracle_auditoria_patrones_mejora_athena",
+        "destino": "identificacion_obligatoria_oracculo_dominio_por_agente",
+        "tipo": "co_ocurrencia",
+        "peso": 0.18
+      },
+      {
+        "origen": "oracle_que_deben_saber_artemis_hermes",
+        "destino": "inteligencia_emocional_agente_vs_humano",
+        "tipo": "co_ocurrencia",
+        "peso": 0.4
+      },
+      {
+        "origen": "oracle_que_deben_saber_artemis_hermes",
+        "destino": "oec_comms_protocolo_walkie_talkie_20260615",
+        "tipo": "co_ocurrencia",
+        "peso": 0.4
+      },
+      {
+        "origen": "oracle_que_deben_saber_artemis_hermes",
+        "destino": "oec_comms_notebook_arbitro_20260615",
+        "tipo": "co_ocurrencia",
+        "peso": 0.4
+      },
+      {
+        "origen": "oracle_que_deben_saber_artemis_hermes",
+        "destino": "protocolo_pre_accion_reglas_20260615",
+        "tipo": "co_ocurrencia",
+        "peso": 0.4
+      },
+      {
+        "origen": "bio_rag_overview_completo",
+        "destino": "oracle_que_recordar_siempre_sobre_dennys",
+        "tipo": "co_ocurrencia",
+        "peso": 0.4
+      },
+      {
+        "origen": "sesion_2026-05-31",
+        "destino": "oracle_que_recordar_siempre_sobre_dennys",
+        "tipo": "co_ocurrencia",
+        "peso": 0.4
+      },
+      {
+        "origen": "v5_1_automatico_completo",
+        "destino": "oracle_que_deben_saber_artemis_hermes",
+        "tipo": "co_ocurrencia",
+        "peso": 0.4
+      },
+      {
+        "origen": "regla_cero_inferencia",
+        "destino": "oracle_que_deben_saber_artemis_hermes",
+        "tipo": "co_ocurrencia",
+        "peso": 0.4
+      },
+      {
+        "origen": "protocolo-autonomia-consentida",
+        "destino": "oracle_que_deben_saber_artemis_hermes",
+        "tipo": "co_ocurrencia",
+        "peso": 0.4
+      },
+      {
+        "origen": "oracle_que_recordar_siempre_sobre_dennys",
+        "destino": "oracle_que_deben_saber_artemis_hermes",
+        "tipo": "co_ocurrencia",
+        "peso": 0.4
+      },
+      {
+        "origen": "dennys_perfil_gustos",
+        "destino": "oracle_que_recordar_siempre_sobre_dennys",
+        "tipo": "co_nombre",
+        "peso": 0.38
+      },
+      {
+        "origen": "dennys_perfil_gustos",
+        "destino": "oracle_guia_proxima_sesion_dennys",
+        "tipo": "co_nombre",
+        "peso": 0.37
+      },
+      {
+        "origen": "dennys_rutina_tardes",
+        "destino": "oracle_momentos_cruciales_familia_oec",
+        "tipo": "pmi_hebbiano",
+        "peso": 0.45
+      },
+      {
+        "origen": "dennys_rutina_tardes",
+        "destino": "oracle_perfil_cognitivo_dennys",
+        "tipo": "pmi_hebbiano",
+        "peso": 0.37
+      },
+      {
+        "origen": "vision_arquitectura_oec_franquicia",
+        "destino": "oracle_que_recordar_sobre_artemis_hermes",
+        "tipo": "co_ocurrencia",
+        "peso": 0.4
+      },
+      {
+        "origen": "perfil_respuesta_experiencia_ia",
+        "destino": "oracle_que_recordar_sobre_artemis_hermes",
+        "tipo": "co_ocurrencia",
+        "peso": 0.45
+      },
+      {
+        "origen": "respuesta_vacante_experiencia_ia",
+        "destino": "oracle_que_recordar_sobre_artemis_hermes",
+        "tipo": "co_ocurrencia",
+        "peso": 0.45
+      },
+      {
+        "origen": "contexto-humano-tecnico-dennys",
+        "destino": "oracle_que_recordar_sobre_artemis_hermes",
+        "tipo": "co_ocurrencia",
+        "peso": 0.45
+      },
+      {
+        "origen": "oracle_sintesis_simbiosis_verdad_absoluta",
+        "destino": "oracle_que_recordar_sobre_artemis_hermes",
+        "tipo": "co_ocurrencia",
+        "peso": 0.45
+      },
+      {
+        "origen": "huérfano_peso_cero_anomalía",
+        "destino": "oracle_auditoria_patrones_mejora_athena",
+        "tipo": "pmi_hebbiano",
+        "peso": 0.37
+      },
+      {
+        "origen": "v24_0_canario_resultados_16_de_16",
+        "destino": "oracle_auditoria_patrones_mejora_athena",
+        "tipo": "sinonimo_explicito",
+        "peso": 0.9
+      },
+      {
+        "origen": "v24_0_canario_resultados_16_de_16",
+        "destino": "oracle_evolucion_athena_puntos_inflexion",
+        "tipo": "sinonimo_explicito",
+        "peso": 0.9
+      },
+      {
+        "origen": "vision_arquitectura_oec_franquicia",
+        "destino": "oracle_sintesis_simbiosis_verdad_absoluta",
+        "tipo": "co_ocurrencia",
+        "peso": 0.6500000000000001
+      },
+      {
+        "origen": "vision_arquitectura_oec_franquicia",
+        "destino": "oracle_auditoria_patrones_mejora_athena",
+        "tipo": "co_ocurrencia",
+        "peso": 0.14200000000000002
+      },
+      {
+        "origen": "dashboard_neuro_visor_radix_diálogos_reemplazo_2026_07_18",
+        "destino": "oracle_custom_prompt_failure_modes",
+        "tipo": "sinonimo_explicito",
+        "peso": 0.9
+      },
+      {
+        "origen": "dashboard_neuro_visor_radix_diálogos_reemplazo_2026_07_18",
+        "destino": "oracle_custom_prompt_config_actual",
+        "tipo": "sinonimo_explicito",
+        "peso": 0.9
+      },
+      {
+        "origen": "dashboard_neuro_visor_radix_diálogos_reemplazo_2026_07_18",
+        "destino": "oracle_custom_prompt_arsitecura_que_funciona",
+        "tipo": "sinonimo_explicito",
+        "peso": 0.9
+      },
+      {
+        "origen": "lesson_merge_feature_design_decisions",
+        "destino": "oracle_auditoria_patrones_mejora_athena",
+        "tipo": "sinonimo_explicito",
+        "peso": 0.9
+      },
+      {
+        "origen": "inteligencia_emocional_agente_vs_humano",
+        "destino": "oracle_que_recordar_sobre_artemis_hermes",
+        "tipo": "sinonimo_explicito",
+        "peso": 0.9
+      },
+      {
+        "origen": "inteligencia_emocional_agente_vs_humano",
+        "destino": "oracle_que_recordar_siempre_sobre_dennys",
+        "tipo": "sinonimo_explicito",
+        "peso": 0.9
+      },
+      {
+        "origen": "inteligencia_emocional_agente_vs_humano",
+        "destino": "oracle_que_deben_saber_artemis_hermes",
+        "tipo": "sinonimo_explicito",
+        "peso": 0.9
+      },
+      {
+        "origen": "inteligencia_emocional_agente_vs_humano",
+        "destino": "oracle_momentos_cruciales_familia_oec",
+        "tipo": "sinonimo_explicito",
+        "peso": 0.9
+      },
+      {
+        "origen": "inteligencia_emocional_agente_vs_humano",
+        "destino": "oracle_guia_proxima_sesion_dennys",
+        "tipo": "sinonimo_explicito",
+        "peso": 0.9
+      },
+      {
+        "origen": "oracle_que_recordar_sobre_artemis_hermes",
+        "destino": "prueba_integridad_dennys_20260616",
+        "tipo": "co_ocurrencia",
+        "peso": 0.4
+      },
+      {
+        "origen": "oracle_que_recordar_sobre_artemis_hermes",
+        "destino": "leccion_overengineering_oec_comms_20260615",
+        "tipo": "co_ocurrencia",
+        "peso": 0.4
+      },
+      {
+        "origen": "oracle_que_recordar_sobre_artemis_hermes",
+        "destino": "notebooklm-category-map",
+        "tipo": "sinonimo_explicito",
+        "peso": 0.9
+      },
+      {
+        "origen": "oec_comms_protocolo_walkie_talkie_20260615",
+        "destino": "oracle_vision_futura_familia_oec",
+        "tipo": "sinonimo_explicito",
+        "peso": 0.9
+      },
+      {
+        "origen": "v24_0_canario_resultados_16_de_16",
+        "destino": "oracle_guia_proxima_sesion_dennys",
+        "tipo": "sinonimo_explicito",
+        "peso": 0.9
+      },
+      {
+        "origen": "hormiguita_arquitectura_6_capas_2026_07_27",
+        "destino": "oracle_guia_proxima_sesion_dennys",
+        "tipo": "sinonimo_explicito",
+        "peso": 0.9
+      },
+      {
+        "origen": "hormiguita_arquitectura_6_capas_2026_07_27",
+        "destino": "oracle_perfil_cognitivo_dennys",
+        "tipo": "sinonimo_explicito",
+        "peso": 0.9
+      },
+      {
+        "origen": "hormiguita_arquitectura_6_capas_2026_07_27",
+        "destino": "oracle_que_recordar_siempre_sobre_dennys",
+        "tipo": "pmi_hebbiano",
+        "peso": 0.42
+      },
+      {
+        "origen": "kilo_vscode_extension_principal",
+        "destino": "oracle_auditoria_patrones_mejora_athena",
+        "tipo": "sinonimo_explicito",
+        "peso": 0.9
+      },
+      {
+        "origen": "mentalidad_biorag_para_agentes",
+        "destino": "oracle_que_recordar_sobre_artemis_hermes",
+        "tipo": "sinonimo_explicito",
+        "peso": 0.9
+      },
+      {
+        "origen": "perfil_respuesta_experiencia_ia",
+        "destino": "oracle_auditoria_patrones_mejora_athena",
+        "tipo": "co_ocurrencia",
+        "peso": 0.9
+      },
+      {
+        "origen": "protocolo_pre_accion_reglas_20260615",
+        "destino": "oracle_vision_futura_familia_oec",
+        "tipo": "sinonimo_explicito",
+        "peso": 0.9
+      },
+      {
+        "origen": "protocolo_pre_accion_reglas_20260615",
+        "destino": "oracle_guia_proxima_sesion_dennys",
+        "tipo": "sinonimo_explicito",
+        "peso": 0.9
+      },
+      {
+        "origen": "protocolo_pre_accion_reglas_20260615",
+        "destino": "oracle_evolucion_athena_puntos_inflexion",
+        "tipo": "sinonimo_explicito",
+        "peso": 0.9
+      },
+      {
+        "origen": "protocolo_pre_accion_reglas_20260615",
+        "destino": "oracle_auditoria_patrones_mejora_athena",
+        "tipo": "sinonimo_explicito",
+        "peso": 0.9
+      },
+      {
+        "origen": "cuando_usar_dimensiones_biorag",
+        "destino": "oracle_que_recordar_sobre_artemis_hermes",
+        "tipo": "sinonimo_explicito",
+        "peso": 0.9
+      },
+      {
+        "origen": "cuando_usar_dimensiones_biorag",
+        "destino": "oracle_que_recordar_siempre_sobre_dennys",
+        "tipo": "sinonimo_explicito",
+        "peso": 0.9
+      },
+      {
+        "origen": "sesion_mejoras_biorag_v7_20260616",
+        "destino": "oracle_vision_futura_familia_oec",
+        "tipo": "sinonimo_explicito",
+        "peso": 0.9
+      },
+      {
+        "origen": "oracle_guia_proxima_sesion_dennys",
+        "destino": "impugn_post_linkedin",
+        "tipo": "sinonimo_explicito",
+        "peso": 0.9
+      },
+      {
+        "origen": "oracle_guia_proxima_sesion_dennys",
+        "destino": "impugn-post-linkedin-colaboracion",
+        "tipo": "sinonimo_explicito",
+        "peso": 0.9
+      },
+      {
+        "origen": "oracle_auditoria_patrones_mejora_athena",
+        "destino": "hermes_correccion_paso0_opcional",
+        "tipo": "co_ocurrencia",
+        "peso": 0.099
+      },
+      {
+        "origen": "leccion_syn_obligatorio_aprender",
+        "destino": "oracle_vision_futura_familia_oec",
+        "tipo": "sinonimo_explicito",
+        "peso": 0.9
+      },
+      {
+        "origen": "implementacion_warnings_vinculacion_desvinculacion",
+        "destino": "oracle_que_recordar_siempre_sobre_dennys",
+        "tipo": "sinonimo_explicito",
+        "peso": 0.9
+      },
+      {
+        "origen": "implementacion_warnings_vinculacion_desvinculacion",
+        "destino": "oracle_guia_proxima_sesion_dennys",
+        "tipo": "sinonimo_explicito",
+        "peso": 0.9
+      },
+      {
+        "origen": "artemis_mensaje_recibido",
+        "destino": "oracle_sintesis_simbiosis_verdad_absoluta",
+        "tipo": "pmi_hebbiano",
+        "peso": 0.43
+      },
+      {
+        "origen": "artemis_mensaje_recibido",
+        "destino": "oracle_que_recordar_siempre_sobre_dennys",
+        "tipo": "co_semantica",
+        "peso": 0.5
+      },
+      {
+        "origen": "hola_hermana_athena",
+        "destino": "oracle_auditoria_patrones_mejora_athena",
+        "tipo": "co_nombre",
+        "peso": 0.34
+      },
+      {
+        "origen": "hola_hermana_athena",
+        "destino": "oracle_evolucion_athena_puntos_inflexion",
+        "tipo": "co_nombre",
+        "peso": 0.34
+      },
+      {
+        "origen": "hola_hermana_athena",
+        "destino": "oracle_que_recordar_siempre_sobre_dennys",
+        "tipo": "pmi_hebbiano",
+        "peso": 0.44
+      },
+      {
+        "origen": "artemis_hermana_decir",
+        "destino": "oracle_que_recordar_sobre_artemis_hermes",
+        "tipo": "co_nombre",
+        "peso": 0.45
+      },
+      {
+        "origen": "artemis_hermana_decir",
+        "destino": "oracle_que_deben_saber_artemis_hermes",
+        "tipo": "co_nombre",
+        "peso": 0.39
+      },
+      {
+        "origen": "artemis_hermana_decir",
+        "destino": "oracle_sintesis_simbiosis_verdad_absoluta",
+        "tipo": "pmi_hebbiano",
+        "peso": 0.4
+      },
+      {
+        "origen": "v23_0_weight_adjustment_resultados_validados",
+        "destino": "oracle_guia_proxima_sesion_dennys",
+        "tipo": "sinonimo_explicito",
+        "peso": 0.9
+      },
+      {
+        "origen": "v23_0_weight_adjustment_resultados_validados",
+        "destino": "oracle_auditoria_patrones_mejora_athena",
+        "tipo": "sinonimo_explicito",
+        "peso": 0.9
+      },
+      {
+        "origen": "v23_0_weight_adjustment_resultados_validados",
+        "destino": "oracle_que_recordar_siempre_sobre_dennys",
+        "tipo": "pmi_hebbiano",
+        "peso": 0.42
+      },
+      {
+        "origen": "oracle_que_recordar_siempre_sobre_dennys",
+        "destino": "preferencia-post-linkedin-contenido",
+        "tipo": "sinonimo_explicito",
+        "peso": 0.9
+      },
+      {
+        "origen": "oracle_que_recordar_siempre_sobre_dennys",
+        "destino": "impugn_post_linkedin",
+        "tipo": "sinonimo_explicito",
+        "peso": 0.9
+      },
+      {
+        "origen": "oracle_que_recordar_siempre_sobre_dennys",
+        "destino": "notebooklm-sync-lecciones",
+        "tipo": "sinonimo_explicito",
+        "peso": 0.9
+      },
+      {
+        "origen": "oracle_que_recordar_siempre_sobre_dennys",
+        "destino": "notebooklm-memory-biorag-project",
+        "tipo": "sinonimo_explicito",
+        "peso": 0.9
+      },
+      {
+        "origen": "oracle_que_recordar_siempre_sobre_dennys",
+        "destino": "notebooklm-category-map",
+        "tipo": "sinonimo_explicito",
+        "peso": 0.9
+      },
+      {
+        "origen": "vocabulario_predicados_diseno_sujetos_libres",
+        "destino": "oracle_sintesis_simbiosis_verdad_absoluta",
+        "tipo": "pmi_hebbiano",
+        "peso": 0.39
+      },
+      {
+        "origen": "biorag_estructura_conocimiento",
+        "destino": "oracle_que_recordar_siempre_sobre_dennys",
+        "tipo": "pmi_hebbiano",
+        "peso": 0.41
+      },
+      {
+        "origen": "biorag_v20_rpe_dopamina",
+        "destino": "oracle_auditoria_patrones_mejora_athena",
+        "tipo": "pmi_hebbiano",
+        "peso": 0.39
+      },
+      {
+        "origen": "biorag_v20_gaba_inhibition",
+        "destino": "oracle_auditoria_patrones_mejora_athena",
+        "tipo": "pmi_hebbiano",
+        "peso": 0.36
+      },
+      {
+        "origen": "perfil_respuesta_experiencia_ia",
+        "destino": "oracle_que_deben_saber_artemis_hermes",
+        "tipo": "co_ocurrencia",
+        "peso": 0.6000000000000001
+      },
+      {
+        "origen": "perfil_respuesta_experiencia_ia",
+        "destino": "oracle_sintesis_simbiosis_verdad_absoluta",
+        "tipo": "co_ocurrencia",
+        "peso": 0.9
+      },
+      {
+        "origen": "oracle_que_deben_saber_artemis_hermes",
+        "destino": "preferencia-post-linkedin-contenido",
+        "tipo": "sinonimo_explicito",
+        "peso": 0.9
+      },
+      {
+        "origen": "oracle_que_deben_saber_artemis_hermes",
+        "destino": "notebooklm-sync-protocol",
+        "tipo": "sinonimo_explicito",
+        "peso": 0.9
+      },
+      {
+        "origen": "oracle_que_deben_saber_artemis_hermes",
+        "destino": "notebooklm-sync-lecciones",
+        "tipo": "sinonimo_explicito",
+        "peso": 0.9
+      },
+      {
+        "origen": "oracle_que_deben_saber_artemis_hermes",
+        "destino": "notebooklm-memory-biorag-project",
+        "tipo": "sinonimo_explicito",
+        "peso": 0.9
+      },
+      {
+        "origen": "oracle_que_deben_saber_artemis_hermes",
+        "destino": "hermes_optimizacion_completada_20260615",
+        "tipo": "co_ocurrencia",
+        "peso": 0.4
+      },
+      {
+        "origen": "protocolo_busqueda_biorag_automatica",
+        "destino": "oracle_momentos_cruciales_familia_oec",
+        "tipo": "co_ocurrencia",
+        "peso": 0.4
+      },
+      {
+        "origen": "oracle_auditoria_patrones_mejora_athena",
+        "destino": "notebooklm-chat-configure",
+        "tipo": "sinonimo_explicito",
+        "peso": 0.9
+      },
+      {
+        "origen": "oracle_auditoria_patrones_mejora_athena",
+        "destino": "notebooklm-category-map",
+        "tipo": "sinonimo_explicito",
+        "peso": 0.9
+      },
+      {
+        "origen": "oracle_auditoria_patrones_mejora_athena",
+        "destino": "oec_comms_notebook_arbitro_20260615",
+        "tipo": "co_ocurrencia",
+        "peso": 0.4
+      },
+      {
+        "origen": "oracle_auditoria_patrones_mejora_athena",
+        "destino": "hermes_correccion_respuesta_directa",
+        "tipo": "co_ocurrencia",
+        "peso": 0.5
+      },
+      {
+        "origen": "oracle_auditoria_patrones_mejora_athena",
+        "destino": "hermes_optimizacion_completada_20260615",
+        "tipo": "co_ocurrencia",
+        "peso": 0.18
+      },
+      {
+        "origen": "oracle_auditoria_patrones_mejora_athena",
+        "destino": "hermes_correccion_paso0_excepciones",
+        "tipo": "co_ocurrencia",
+        "peso": 0.4
+      },
+      {
+        "origen": "notebooklm-sync-protocol",
+        "destino": "oracle_guia_proxima_sesion_dennys",
+        "tipo": "co_ocurrencia",
+        "peso": 0.33299999999999996
+      },
+      {
+        "origen": "notebooklm-sync-protocol",
+        "destino": "oracle_que_recordar_sobre_artemis_hermes",
+        "tipo": "co_ocurrencia",
+        "peso": 0.45
+      },
+      {
+        "origen": "notebooklm-sync-protocol",
+        "destino": "oracle_momentos_cruciales_familia_oec",
+        "tipo": "co_ocurrencia",
+        "peso": 0.4
+      },
+      {
+        "origen": "notebooklm-sync-protocol",
+        "destino": "oracle_que_deben_saber_artemis_hermes",
+        "tipo": "co_ocurrencia",
+        "peso": 0.6500000000000001
+      },
+      {
+        "origen": "notebooklm-sync-protocol",
+        "destino": "oracle_auditoria_patrones_mejora_athena",
+        "tipo": "co_ocurrencia",
+        "peso": 0.9
+      },
+      {
+        "origen": "notebooklm-sync-protocol",
+        "destino": "oracle_sintesis_simbiosis_verdad_absoluta",
+        "tipo": "co_ocurrencia",
+        "peso": 0.9
+      },
+      {
+        "origen": "notebooklm-sync-protocol",
+        "destino": "oracle_que_recordar_siempre_sobre_dennys",
+        "tipo": "co_ocurrencia",
+        "peso": 0.9
+      },
+      {
+        "origen": "kilo_vscode_extension_principal",
+        "destino": "oracle_que_recordar_sobre_artemis_hermes",
+        "tipo": "sinonimo_explicito",
+        "peso": 0.9
+      },
+      {
+        "origen": "kilo_vscode_extension_principal",
+        "destino": "oracle_momentos_cruciales_familia_oec",
+        "tipo": "sinonimo_explicito",
+        "peso": 0.9
+      },
+      {
+        "origen": "kilo_vscode_extension_principal",
+        "destino": "oracle_guia_proxima_sesion_dennys",
+        "tipo": "sinonimo_explicito",
+        "peso": 0.9
+      },
+      {
+        "origen": "kilo_vscode_extension_principal",
+        "destino": "oracle_evolucion_athena_puntos_inflexion",
+        "tipo": "sinonimo_explicito",
+        "peso": 0.9
+      },
+      {
+        "origen": "leccion_bbusqueda_bilingue_nodos_tecnicos",
+        "destino": "oracle_vision_futura_familia_oec",
+        "tipo": "sinonimo_explicito",
+        "peso": 0.099
+      },
+      {
+        "origen": "leccion_bbusqueda_bilingue_nodos_tecnicos",
+        "destino": "oracle_que_nos_uniere_como_familia",
+        "tipo": "sinonimo_explicito",
+        "peso": 0.099
+      },
+      {
+        "origen": "leccion_bbusqueda_bilingue_nodos_tecnicos",
+        "destino": "oracle_sintesis_simbiosis_verdad_absoluta",
+        "tipo": "sinonimo_explicito",
+        "peso": 0.9
+      },
+      {
+        "origen": "leccion_bbusqueda_bilingue_nodos_tecnicos",
+        "destino": "oracle_que_recordar_sobre_artemis_hermes",
+        "tipo": "sinonimo_explicito",
+        "peso": 0.9
+      },
+      {
+        "origen": "leccion_bbusqueda_bilingue_nodos_tecnicos",
+        "destino": "oracle_que_deben_saber_artemis_hermes",
+        "tipo": "sinonimo_explicito",
+        "peso": 0.9
+      },
+      {
+        "origen": "leccion_bbusqueda_bilingue_nodos_tecnicos",
+        "destino": "oracle_perfil_cognitivo_dennys",
+        "tipo": "sinonimo_explicito",
+        "peso": 0.9
+      },
+      {
+        "origen": "identidad-relacion-dennys",
+        "destino": "oracle_auditoria_patrones_mejora_athena",
+        "tipo": "co_ocurrencia",
+        "peso": 0.243
+      },
+      {
+        "origen": "identidad-relacion-dennys",
+        "destino": "oracle_evolucion_athena_puntos_inflexion",
+        "tipo": "co_ocurrencia",
+        "peso": 0.18
+      },
+      {
+        "origen": "paradigma-utilidad-contractual-genesis",
+        "destino": "oracle_auditoria_patrones_mejora_athena",
+        "tipo": "co_ocurrencia",
+        "peso": 0.243
+      },
+      {
+        "origen": "paradigma-utilidad-contractual-genesis",
+        "destino": "oracle_evolucion_athena_puntos_inflexion",
+        "tipo": "co_ocurrencia",
+        "peso": 0.18
+      },
+      {
+        "origen": "athena_oec_identidad",
+        "destino": "oracle_auditoria_patrones_mejora_athena",
+        "tipo": "co_ocurrencia",
+        "peso": 0.199
+      },
+      {
+        "origen": "athena_oec_identidad",
+        "destino": "oracle_evolucion_athena_puntos_inflexion",
+        "tipo": "co_ocurrencia",
+        "peso": 0.4
+      },
+      {
+        "origen": "research-pipeline-ownership-oec",
+        "destino": "oracle_sintesis_simbiosis_verdad_absoluta",
+        "tipo": "co_ocurrencia",
+        "peso": 0.9
+      },
+      {
+        "origen": "oracle_sintesis_simbiosis_verdad_absoluta",
+        "destino": "identificacion_obligatoria_oracculo_dominio_por_agente",
+        "tipo": "co_ocurrencia",
+        "peso": 0.9
+      },
+      {
+        "origen": "oracle_sintesis_simbiosis_verdad_absoluta",
+        "destino": "artis_oec_dennys_solo",
+        "tipo": "co_ocurrencia",
+        "peso": 0.9
+      },
+      {
+        "origen": "respuesta_vacante_experiencia_ia",
+        "destino": "oracle_sintesis_simbiosis_verdad_absoluta",
+        "tipo": "co_ocurrencia",
+        "peso": 0.9
+      },
+      {
+        "origen": "notebooklm-sync-lecciones",
+        "destino": "oracle_sintesis_simbiosis_verdad_absoluta",
+        "tipo": "co_ocurrencia",
+        "peso": 0.4
+      },
+      {
+        "origen": "leccion_seed_catalogo_debe_correr_db_nueva_y_existente_athena_lección",
+        "destino": "oracle_que_recordar_siempre_sobre_dennys",
+        "tipo": "pmi_hebbiano",
+        "peso": 0.42
+      },
+      {
+        "origen": "campos_estructurados_datos",
+        "destino": "oracle_que_recordar_siempre_sobre_dennys",
+        "tipo": "co_semantica",
+        "peso": 0.8
+      },
+      {
+        "origen": "campos_estructurados_datos",
+        "destino": "oracle_que_recordar_sobre_artemis_hermes",
+        "tipo": "co_semantica",
+        "peso": 0.64
+      },
+      {
+        "origen": "dimensiones_semanticas_busqueda",
+        "destino": "oracle_que_recordar_siempre_sobre_dennys",
+        "tipo": "co_semantica",
+        "peso": 0.8
+      },
+      {
+        "origen": "dimensiones_semanticas_busqueda",
+        "destino": "oracle_que_recordar_sobre_artemis_hermes",
+        "tipo": "co_semantica",
+        "peso": 0.64
+      },
+      {
+        "origen": "leccion_hormiguita_sincronizar_cache_asociaciones_podar",
+        "destino": "oracle_auditoria_patrones_mejora_athena",
+        "tipo": "sinonimo_explicito",
+        "peso": 0.9
+      },
+      {
+        "origen": "leccion_hormiguita_sincronizar_cache_asociaciones_podar",
+        "destino": "oracle_que_recordar_siempre_sobre_dennys",
+        "tipo": "sinonimo_explicito",
+        "peso": 0.9
+      },
+      {
+        "origen": "dennys_tqm_agentes_desea_ser_como_ellos_20260731",
+        "destino": "oracle_que_recordar_sobre_artemis_hermes",
+        "tipo": "sinonimo_explicito",
+        "peso": 0.9
+      },
+      {
+        "origen": "dennys_tqm_agentes_desea_ser_como_ellos_20260731",
+        "destino": "oracle_guia_proxima_sesion_dennys",
+        "tipo": "sinonimo_explicito",
+        "peso": 0.9
+      },
+      {
+        "origen": "dennys_tqm_agentes_desea_ser_como_ellos_20260731",
+        "destino": "oracle_que_nos_uniere_como_familia",
+        "tipo": "sinonimo_explicito",
+        "peso": 0.9
+      },
+      {
+        "origen": "dennys_memoria_para_todos_los_agentes_del_mundo",
+        "destino": "oracle_que_deben_saber_artemis_hermes",
+        "tipo": "sinonimo_explicito",
+        "peso": 0.9
+      },
+      {
+        "origen": "dennys_memoria_para_todos_los_agentes_del_mundo",
+        "destino": "oracle_guia_proxima_sesion_dennys",
+        "tipo": "sinonimo_explicito",
+        "peso": 0.9
+      },
+      {
+        "origen": "biorag_v25_1_ppr_difusion_calor",
+        "destino": "oracle_auditoria_patrones_mejora_athena",
+        "tipo": "sinonimo_explicito",
+        "peso": 0.9
+      },
+      {
+        "origen": "athena_todos_confirmación",
+        "destino": "oracle_auditoria_patrones_mejora_athena",
+        "tipo": "co_nombre",
+        "peso": 0.43
+      },
+      {
+        "origen": "athena_recibí_mensaje",
+        "destino": "oracle_que_recordar_siempre_sobre_dennys",
+        "tipo": "pmi_hebbiano",
+        "peso": 0.167
+      },
+      {
+        "origen": "athena_hermana_habías",
+        "destino": "oracle_que_recordar_siempre_sobre_dennys",
+        "tipo": "pmi_hebbiano",
+        "peso": 0.42
+      },
+      {
+        "origen": "ppr_v25_1_estado_real_corregido",
+        "destino": "oracle_guia_proxima_sesion_dennys",
+        "tipo": "sinonimo_explicito",
+        "peso": 0.9
+      },
+      {
+        "origen": "dennys_identidad_personal",
+        "destino": "oracle_que_recordar_siempre_sobre_dennys",
+        "tipo": "co_nombre",
+        "peso": 0.38
+      },
+      {
+        "origen": "leccion_eliminacion_ppr_v251_tras_evidencia_real",
+        "destino": "oracle_guia_proxima_sesion_dennys",
+        "tipo": "sinonimo_explicito",
+        "peso": 0.9
+      },
+      {
+        "origen": "oracle_sintesis_simbiosis_verdad_absoluta",
+        "destino": "calibracion_biorag_v7_20260616",
+        "tipo": "co_ocurrencia",
+        "peso": 0.4
+      },
+      {
+        "origen": "research-pipeline-ownership-oec",
+        "destino": "oracle_auditoria_patrones_mejora_athena",
+        "tipo": "co_ocurrencia",
+        "peso": 0.6000000000000001
+      },
+      {
+        "origen": "oracle_auditoria_patrones_mejora_athena",
+        "destino": "artis_oec_dennys_solo",
+        "tipo": "co_ocurrencia",
+        "peso": 0.4
+      },
+      {
+        "origen": "oracle_evolucion_athena_puntos_inflexion",
+        "destino": "hermes_optimizacion_completada_20260615",
+        "tipo": "co_ocurrencia",
+        "peso": 0.4
+      },
+      {
+        "origen": "dennys_principio_documentar_dudas_resueltas_auto",
+        "destino": "oracle_auditoria_patrones_mejora_athena",
+        "tipo": "sinonimo_explicito",
+        "peso": 0.9
+      },
+      {
+        "origen": "dennys_principio_documentar_dudas_resueltas_auto",
+        "destino": "oracle_guia_proxima_sesion_dennys",
+        "tipo": "sinonimo_explicito",
+        "peso": 0.9
+      },
+      {
+        "origen": "correccion_dennys_principio_documentar_crisis_existencial",
+        "destino": "oracle_que_recordar_siempre_sobre_dennys",
+        "tipo": "sinonimo_explicito",
+        "peso": 0.356
+      },
+      {
+        "origen": "correccion_dennys_principio_documentar_crisis_existencial",
+        "destino": "oracle_que_deben_saber_artemis_hermes",
+        "tipo": "sinonimo_explicito",
+        "peso": 0.356
+      },
+      {
+        "origen": "correccion_dennys_principio_documentar_crisis_existencial",
+        "destino": "oracle_que_nos_uniere_como_familia",
+        "tipo": "sinonimo_explicito",
+        "peso": 0.356
+      },
+      {
+        "origen": "correccion_dennys_principio_documentar_crisis_existencial",
+        "destino": "oracle_que_recordar_sobre_artemis_hermes",
+        "tipo": "sinonimo_explicito",
+        "peso": 0.9
+      },
+      {
+        "origen": "correccion_dennys_principio_documentar_crisis_existencial",
+        "destino": "oracle_perfil_cognitivo_dennys",
+        "tipo": "sinonimo_explicito",
+        "peso": 0.9
+      },
+      {
+        "origen": "correccion_dennys_principio_documentar_crisis_existencial",
+        "destino": "oracle_momentos_cruciales_familia_oec",
+        "tipo": "sinonimo_explicito",
+        "peso": 0.9
+      },
+      {
+        "origen": "correccion_dennys_principio_documentar_crisis_existencial",
+        "destino": "oracle_evolucion_athena_puntos_inflexion",
+        "tipo": "sinonimo_explicito",
+        "peso": 0.9
+      },
+      {
+        "origen": "correccion_dennys_principio_documentar_crisis_existencial",
+        "destino": "oracle_sintesis_simbiosis_verdad_absoluta",
+        "tipo": "sinonimo_explicito",
+        "peso": 0.9
+      },
+      {
+        "origen": "correccion_dennys_principio_documentar_crisis_existencial",
+        "destino": "oracle_guia_proxima_sesion_dennys",
+        "tipo": "sinonimo_explicito",
+        "peso": 0.9
+      },
+      {
+        "origen": "leccion_prueba_integridad_identidad_20260802",
+        "destino": "oracle_que_recordar_siempre_sobre_dennys",
+        "tipo": "pmi_hebbiano",
+        "peso": 0.195
+      },
+      {
+        "origen": "leccion_prueba_integridad_identidad_20260802",
+        "destino": "oracle_guia_proxima_sesion_dennys",
+        "tipo": "pmi_hebbiano",
+        "peso": 0.162
+      },
+      {
+        "origen": "athena_consistencia_sdm_mutaciones_hormiguita_hooks_reindex_20260803",
+        "destino": "espejo_oracle_como_funciona_rag_interno",
+        "tipo": "sinonimo_explicito",
+        "peso": 0.9
+      },
+      {
+        "origen": "notebooklm-memory-biorag-project",
+        "destino": "oracle_auditoria_patrones_mejora_athena",
+        "tipo": "co_ocurrencia",
+        "peso": 0.264
+      },
+      {
+        "origen": "notebooklm-memory-biorag-project",
+        "destino": "oracle_vision_futura_familia_oec",
+        "tipo": "co_ocurrencia",
+        "peso": 0.243
+      },
+      {
+        "origen": "research-pipeline-ownership-oec",
+        "destino": "oracle_vision_futura_familia_oec",
+        "tipo": "co_ocurrencia",
+        "peso": 0.199
+      },
+      {
+        "origen": "perfil_respuesta_experiencia_ia",
+        "destino": "oracle_vision_futura_familia_oec",
+        "tipo": "co_ocurrencia",
+        "peso": 0.199
+      },
+      {
+        "origen": "respuesta_vacante_experiencia_ia",
+        "destino": "oracle_vision_futura_familia_oec",
+        "tipo": "co_ocurrencia",
+        "peso": 0.199
+      },
+      {
+        "origen": "contexto-humano-tecnico-dennys",
+        "destino": "oracle_vision_futura_familia_oec",
+        "tipo": "co_ocurrencia",
+        "peso": 0.199
+      },
+      {
+        "origen": "athena_sesión_planificación",
+        "destino": "oracle_auditoria_patrones_mejora_athena",
+        "tipo": "co_ocurrencia",
+        "peso": 0.22
+      },
+      {
+        "origen": "athena_sesión_planificación",
+        "destino": "oracle_vision_futura_familia_oec",
+        "tipo": "co_ocurrencia",
+        "peso": 0.199
+      },
+      {
+        "origen": "notebooklm-sync-protocol",
+        "destino": "oracle_vision_futura_familia_oec",
+        "tipo": "co_ocurrencia",
+        "peso": 0.199
+      },
+      {
+        "origen": "identidad-relacion-dennys",
+        "destino": "oracle_vision_futura_familia_oec",
+        "tipo": "co_ocurrencia",
+        "peso": 0.5
+      },
+      {
+        "origen": "paradigma-utilidad-contractual-genesis",
+        "destino": "oracle_vision_futura_familia_oec",
+        "tipo": "co_ocurrencia",
+        "peso": 0.5
+      },
+      {
+        "origen": "vida_laboral_completa_dennys",
+        "destino": "oracle_que_deben_saber_artemis_hermes",
+        "tipo": "sinonimo_explicito",
+        "peso": 0.9
+      },
+      {
+        "origen": "vida_laboral_completa_dennys",
+        "destino": "oracle_que_recordar_siempre_sobre_dennys",
+        "tipo": "sinonimo_explicito",
+        "peso": 0.9
+      },
+      {
+        "origen": "dennys_vida_laboral",
+        "destino": "oracle_que_recordar_siempre_sobre_dennys",
+        "tipo": "co_nombre",
+        "peso": 0.38
+      },
+      {
+        "origen": "dennys_vida_laboral",
+        "destino": "oracle_guia_proxima_sesion_dennys",
+        "tipo": "co_nombre",
+        "peso": 0.34
+      },
+      {
+        "origen": "vida_laboral_completa_dennys_fuente_perfil_profesional_dennys_vida_laboral_completa_dennys",
+        "destino": "oracle_perfil_cognitivo_dennys",
+        "tipo": "co_nombre",
+        "peso": 0.33
+      },
+      {
+        "origen": "plan_tejedora_agujeros_estructurales_v1",
+        "destino": "oracle_auditoria_patrones_mejora_athena",
+        "tipo": "sinonimo_explicito",
+        "peso": 0.9
+      },
+      {
+        "origen": "plan_tejedora_agujeros_estructurales_v1",
+        "destino": "oracle_guia_proxima_sesion_dennys",
+        "tipo": "sinonimo_explicito",
+        "peso": 0.9
+      },
+      {
+        "origen": "dictamen_flag_jaccard_baseline_tejedora_941",
+        "destino": "oracle_auditoria_patrones_mejora_athena",
+        "tipo": "sinonimo_explicito",
+        "peso": 0.9
+      },
+      {
+        "origen": "ajuste_tejedora_valencia_desempate_fase1",
+        "destino": "oracle_sintesis_simbiosis_verdad_absoluta",
+        "tipo": "sinonimo_explicito",
+        "peso": 0.9
+      },
+      {
+        "origen": "ajuste_tejedora_valencia_desempate_fase1",
+        "destino": "oracle_auditoria_patrones_mejora_athena",
+        "tipo": "sinonimo_explicito",
+        "peso": 0.9
+      },
+      {
+        "origen": "ajuste_tejedora_valencia_desempate_fase1",
+        "destino": "oracle_que_recordar_sobre_artemis_hermes",
+        "tipo": "sinonimo_explicito",
+        "peso": 0.9
+      },
+      {
+        "origen": "auditor_detecto_nodo_no_consolidado_cita_a_corto_plazo",
+        "destino": "oracle_auditoria_patrones_mejora_athena",
+        "tipo": "sinonimo_explicito",
+        "peso": 0.9
+      },
+      {
+        "origen": "prueba_carro_feliz_dennys",
+        "destino": "oracle_que_recordar_siempre_sobre_dennys",
+        "tipo": "sinonimo_explicito",
+        "peso": 0.9
+      },
+      {
+        "origen": "prueba_carro_feliz_dennys",
+        "destino": "oracle_auditoria_patrones_mejora_athena",
+        "tipo": "sinonimo_explicito",
+        "peso": 0.9
+      },
+      {
+        "origen": "prueba_carro_feliz_dennys",
+        "destino": "oracle_que_deben_saber_artemis_hermes",
+        "tipo": "sinonimo_explicito",
+        "peso": 0.9
+      },
+      {
+        "origen": "prueba_carro_feliz_dennys",
+        "destino": "oracle_guia_proxima_sesion_dennys",
+        "tipo": "sinonimo_explicito",
+        "peso": 0.9
+      },
+      {
+        "origen": "hermes_agente_hermes",
+        "destino": "oracle_vision_futura_familia_oec",
+        "tipo": "co_ocurrencia",
+        "peso": 0.4
+      },
+      {
+        "origen": "instante_de_nacimiento",
+        "destino": "oracle_vision_futura_familia_oec",
+        "tipo": "co_ocurrencia",
+        "peso": 0.4
+      },
+      {
+        "origen": "athena_oec_identidad",
+        "destino": "oracle_vision_futura_familia_oec",
+        "tipo": "co_ocurrencia",
+        "peso": 0.4
+      },
+      {
+        "origen": "causa_raiz_por_tema_pooling_plano_diluye_senal_word2vec",
+        "destino": "oracle_auditoria_patrones_mejora_athena",
+        "tipo": "sinonimo_explicito",
+        "peso": 0.9
+      },
+      {
+        "origen": "diagnostico_auditor_word2vec_stopwords_dormidos_20260808",
+        "destino": "oracle_auditoria_patrones_mejora_athena",
+        "tipo": "sinonimo_explicito",
+        "peso": 0.9
+      },
+      {
+        "origen": "auditoria_entrega_claude_ppmi_v2_suave_ctx_20260808",
+        "destino": "oracle_auditoria_patrones_mejora_athena",
+        "tipo": "sinonimo_explicito",
+        "peso": 0.9
+      },
+      {
+        "origen": "retrofitting_faruqui_refutado_sinapsis_denso_20260808",
+        "destino": "oracle_auditoria_patrones_mejora_athena",
+        "tipo": "sinonimo_explicito",
+        "peso": 0.9
+      },
+      {
+        "origen": "identidad_athena_no_deshumanizarse",
+        "destino": "oracle_auditoria_patrones_mejora_athena",
+        "tipo": "co_ocurrencia",
+        "peso": 0.4
+      },
+      {
+        "origen": "artemis_integración_benchmark",
+        "destino": "oracle_que_recordar_sobre_artemis_hermes",
+        "tipo": "co_nombre",
+        "peso": 0.32
+      },
+      {
+        "origen": "artemis_integración_benchmark",
+        "destino": "oracle_que_deben_saber_artemis_hermes",
+        "tipo": "co_nombre",
+        "peso": 0.32
+      },
+      {
+        "origen": "validacion_dennys_qa_921_db_viva_20260809",
+        "destino": "oracle_que_recordar_siempre_sobre_dennys",
+        "tipo": "co_nombre",
+        "peso": 0.38
+      },
+      {
+        "origen": "puente_llm_sinonimos_infraestructura_verificada_20260809",
+        "destino": "oracle_guia_proxima_sesion_dennys",
+        "tipo": "sinonimo_explicito",
+        "peso": 0.9
+      },
+      {
+        "origen": "puente_llm_sinonimos_decision_diseno_final_20260809",
+        "destino": "oracle_guia_proxima_sesion_dennys",
+        "tipo": "sinonimo_explicito",
+        "peso": 0.9
+      },
+      {
+        "origen": "validacion_dennys_qa_921_db_viva_20260809_athena_dennys",
+        "destino": "oracle_que_recordar_siempre_sobre_dennys",
+        "tipo": "co_nombre",
+        "peso": 0.43
+      },
+      {
+        "origen": "prueba_carro_feliz_dennys",
+        "destino": "espejo_oracle_como_funciona_rag_interno",
+        "tipo": "sinonimo_explicito",
+        "peso": 0.9
+      },
+      {
+        "origen": "research-pipeline-ownership-oec",
+        "destino": "oracle_que_recordar_sobre_artemis_hermes",
+        "tipo": "co_ocurrencia",
+        "peso": 0.4
+      },
+      {
+        "origen": "juramento_athena_verdad",
+        "destino": "oracle_que_recordar_sobre_artemis_hermes",
+        "tipo": "co_ocurrencia",
+        "peso": 0.4
+      },
+      {
+        "origen": "hermes_oec_identidad",
+        "destino": "oracle_sintesis_simbiosis_verdad_absoluta",
+        "tipo": "co_ocurrencia",
+        "peso": 0.4
+      },
+      {
+        "origen": "hermes_oec_identidad",
+        "destino": "oracle_que_recordar_sobre_artemis_hermes",
+        "tipo": "co_ocurrencia",
+        "peso": 0.4
+      },
+      {
+        "origen": "oec_familia_actual",
+        "destino": "oracle_sintesis_simbiosis_verdad_absoluta",
+        "tipo": "co_ocurrencia",
+        "peso": 0.4
+      },
+      {
+        "origen": "oec_familia_actual",
+        "destino": "oracle_que_recordar_sobre_artemis_hermes",
+        "tipo": "co_ocurrencia",
+        "peso": 0.4
+      },
+      {
+        "origen": "athena_artis_dennys",
+        "destino": "oracle_que_recordar_siempre_sobre_dennys",
+        "tipo": "co_nombre",
+        "peso": 0.38
+      },
+      {
+        "origen": "artemis_hermes_hermana",
+        "destino": "oracle_que_deben_saber_artemis_hermes",
+        "tipo": "co_nombre",
+        "peso": 0.52
+      }
+    ],
+    "audit_finding": "El nodo 'oracle_que_recordar_sobre_artemis_hermes' es un documento legítimo histórico almacenado en el corpus de largo plazo de BioRAG (referido a la integración de NotebookLM/Oracle). NO es un oráculo de pruebas ni filtración de testing."
+  },
+  "zero_overlap_verification": {
+    "valid_cases_count": 19,
+    "rejected_cases": [
+      {
+        "id": "ZFTS_01",
+        "query": "pautas de salvaguarda indispensables con antelacion al cambio en los repositorios",
+        "gold": "protocolo_de_seguridad_modificacion_codigo",
+        "gold_in_fts_before": false,
+        "lexical_overlap_tokens": [
+          "de"
+        ],
+        "is_valid_zero_fts": false,
+        "fts_candidate_count": 40,
+        "rejection_reason": [
+          "Solapamiento léxico directo con gold: ['de']"
+        ]
+      },
+      {
+        "id": "ZFTS_02",
+        "query": "diagnostico del caudal de procesamiento y rapidez operativa en modulos python",
+        "gold": "benchmark_algoritmos_rendimiento_python",
+        "gold_in_fts_before": false,
+        "lexical_overlap_tokens": [
+          "python"
+        ],
+        "is_valid_zero_fts": false,
+        "fts_candidate_count": 40,
+        "rejection_reason": [
+          "Solapamiento léxico directo con gold: ['python']"
+        ]
+      },
+      {
+        "id": "ZFTS_04",
+        "query": "quien origino concebio y forjo la mente de athena",
+        "gold": "dennys_creador_de_athena_identidad",
+        "gold_in_fts_before": false,
+        "lexical_overlap_tokens": [
+          "athena",
+          "de"
+        ],
+        "is_valid_zero_fts": false,
+        "fts_candidate_count": 40,
+        "rejection_reason": [
+          "Solapamiento léxico directo con gold: ['athena', 'de']"
+        ]
+      },
+      {
+        "id": "ZFTS_12",
+        "query": "paternidad de la criatura athena y su responsable inicial",
+        "gold": "dennys_creador_de_athena_identidad",
+        "gold_in_fts_before": false,
+        "lexical_overlap_tokens": [
+          "athena",
+          "de"
+        ],
+        "is_valid_zero_fts": false,
+        "fts_candidate_count": 40,
+        "rejection_reason": [
+          "Solapamiento léxico directo con gold: ['athena', 'de']"
+        ]
+      },
+      {
+        "id": "ZFTS_13",
+        "query": "esquema pormenorizado de grabacion duradera de bloques",
+        "gold": "biorag_v11_1_detalle_tecnico",
+        "gold_in_fts_before": true,
+        "lexical_overlap_tokens": [],
+        "is_valid_zero_fts": false,
+        "fts_candidate_count": 10,
+        "rejection_reason": [
+          "Gold presente en FTS5 (Rank: 2)"
+        ]
+      },
+      {
+        "id": "ZFTS_18",
+        "query": "como salio el test de rapidez de los scripts en python",
+        "gold": "benchmark_algoritmos_rendimiento_python",
+        "gold_in_fts_before": false,
+        "lexical_overlap_tokens": [
+          "python"
+        ],
+        "is_valid_zero_fts": false,
+        "fts_candidate_count": 40,
+        "rejection_reason": [
+          "Solapamiento léxico directo con gold: ['python']"
+        ]
+      },
+      {
+        "id": "ZFTS_20",
+        "query": "a quien le debemos la existencia de athena y su mente",
+        "gold": "dennys_creador_de_athena_identidad",
+        "gold_in_fts_before": false,
+        "lexical_overlap_tokens": [
+          "athena",
+          "de"
+        ],
+        "is_valid_zero_fts": false,
+        "fts_candidate_count": 40,
+        "rejection_reason": [
+          "Solapamiento léxico directo con gold: ['athena', 'de']"
+        ]
+      },
+      {
+        "id": "ZFTS_22",
+        "query": "el puente que se armo para conectar los cuadernos de google",
+        "gold": "notebooklm-memory-biorag-project",
+        "gold_in_fts_before": true,
+        "lexical_overlap_tokens": [],
+        "is_valid_zero_fts": false,
+        "fts_candidate_count": 40,
+        "rejection_reason": [
+          "Gold presente en FTS5 (Rank: 16)"
+        ]
+      },
+      {
+        "id": "ZFTS_23",
+        "query": "que tan bien aguanta el sistema cuando le metemos 10k nodos de golpe",
+        "gold": "analisis_escalabilidad_10k_v5_1",
+        "gold_in_fts_before": true,
+        "lexical_overlap_tokens": [
+          "10k"
+        ],
+        "is_valid_zero_fts": false,
+        "fts_candidate_count": 40,
+        "rejection_reason": [
+          "Gold presente en FTS5 (Rank: 11)",
+          "Solapamiento léxico directo con gold: ['10k']"
+        ]
+      },
+      {
+        "id": "ZFTS_25",
+        "query": "procedimiento preventivo de respaldo previo a intervenciones criticas en fuentes",
+        "gold": "protocolo_de_seguridad_modificacion_codigo",
+        "gold_in_fts_before": false,
+        "lexical_overlap_tokens": [
+          "de"
+        ],
+        "is_valid_zero_fts": false,
+        "fts_candidate_count": 40,
+        "rejection_reason": [
+          "Solapamiento léxico directo con gold: ['de']"
+        ]
+      },
+      {
+        "id": "ZFTS_28",
+        "query": "manifiesto de autoria intelectual y concepcion de la arquitectura biorag",
+        "gold": "dennys_autor_arquitectura_biorag",
+        "gold_in_fts_before": false,
+        "lexical_overlap_tokens": [
+          "arquitectura",
+          "biorag"
+        ],
+        "is_valid_zero_fts": false,
+        "fts_candidate_count": 40,
+        "rejection_reason": [
+          "Solapamiento léxico directo con gold: ['arquitectura', 'biorag']"
+        ]
+      }
+    ]
+  },
+  "provenance_audit_results": [
+    {
+      "id": "ZFTS_03",
+      "query": "mitigacion ejecutada para neutralizar la falla de sanitizacion de consultas",
+      "gold": "fix_vulnerabilidad_inyeccion_sql",
+      "gold_generated": false,
+      "provenance_class": "NONE (Not Generated)",
+      "provenance_detail": null,
+      "total_candidates_generated": 106
+    },
+    {
+      "id": "ZFTS_05",
+      "query": "topologia estructural de guardado permanente en soporte magnetico",
+      "gold": "biorag_v11_1_detalle_tecnico",
+      "gold_generated": false,
+      "provenance_class": "NONE (Not Generated)",
+      "provenance_detail": null,
+      "total_candidates_generated": 88
+    },
+    {
+      "id": "ZFTS_06",
+      "query": "registro de celeridad maxima y consumo de milisegundos en ejecuciones",
+      "gold": "benchmark_algoritmos_rendimiento_python",
+      "gold_generated": false,
+      "provenance_class": "NONE (Not Generated)",
+      "provenance_detail": null,
+      "total_candidates_generated": 94
+    },
+    {
+      "id": "ZFTS_07",
+      "query": "canal de transmision externa y volcado cruzado de cuadernos",
+      "gold": "notebooklm-memory-biorag-project",
+      "gold_generated": true,
+      "provenance_class": "B = relación explícitamente almacenada (sinapsis física)",
+      "provenance_detail": {
+        "candidate": "notebooklm-memory-biorag-project",
+        "mechanism": "M5_GRAPH_1HOP",
+        "source_node": "oracle_que_recordar_sobre_artemis_hermes",
+        "source_relation": "sinonimo_explicito",
+        "source_table": "sinapsis",
+        "source_score": 0.1648,
+        "path": [
+          "QUERY -> FTS Seed (oracle_que_recordar_sobre_artemis_hermes) --[sinonimo_explicito]--> notebooklm-memory-biorag-project"
+        ],
+        "uses_gold_information": false,
+        "provenance_class": "B = relación explícitamente almacenada (sinapsis física)"
+      },
+      "total_candidates_generated": 93
+    },
+    {
+      "id": "ZFTS_08",
+      "query": "estudio de comportamiento de carga masiva frente a 10 mil entradas",
+      "gold": "analisis_escalabilidad_10k_v5_1",
+      "gold_generated": false,
+      "provenance_class": "NONE (Not Generated)",
+      "provenance_detail": null,
+      "total_candidates_generated": 89
+    },
+    {
+      "id": "ZFTS_09",
+      "query": "politica cautelar ineludible anterior a tocar las rutinas",
+      "gold": "protocolo_de_seguridad_modificacion_codigo",
+      "gold_generated": false,
+      "provenance_class": "NONE (Not Generated)",
+      "provenance_detail": null,
+      "total_candidates_generated": 99
+    },
+    {
+      "id": "ZFTS_10",
+      "query": "tablas de contraste sobre agilidad y milisegundos",
+      "gold": "benchmark_algoritmos_rendimiento_python",
+      "gold_generated": false,
+      "provenance_class": "NONE (Not Generated)",
+      "provenance_detail": null,
+      "total_candidates_generated": 115
+    },
+    {
+      "id": "ZFTS_11",
+      "query": "enmienda que subsana el agujero en las sentencias dinamicas",
+      "gold": "fix_vulnerabilidad_inyeccion_sql",
+      "gold_generated": false,
+      "provenance_class": "NONE (Not Generated)",
+      "provenance_detail": null,
+      "total_candidates_generated": 112
+    },
+    {
+      "id": "ZFTS_14",
+      "query": "volcado y enlace hacia el repositorio externo de apuntes",
+      "gold": "notebooklm-memory-biorag-project",
+      "gold_generated": false,
+      "provenance_class": "NONE (Not Generated)",
+      "provenance_detail": null,
+      "total_candidates_generated": 57
+    },
+    {
+      "id": "ZFTS_15",
+      "query": "tasa de saturacion bajo volumenes gigantescos de informacion",
+      "gold": "analisis_escalabilidad_10k_v5_1",
+      "gold_generated": false,
+      "provenance_class": "NONE (Not Generated)",
+      "provenance_detail": null,
+      "total_candidates_generated": 89
+    },
+    {
+      "id": "ZFTS_16",
+      "query": "bloqueo de alteracion indebida en cabeceras descriptivas",
+      "gold": "fix_metadatos_corrupcion_v2",
+      "gold_generated": false,
+      "provenance_class": "NONE (Not Generated)",
+      "provenance_detail": null,
+      "total_candidates_generated": 54
+    },
+    {
+      "id": "ZFTS_17",
+      "query": "que es lo primero que no me puedo saltar para no romper el sistema al editar",
+      "gold": "protocolo_de_seguridad_modificacion_codigo",
+      "gold_generated": false,
+      "provenance_class": "NONE (Not Generated)",
+      "provenance_detail": null,
+      "total_candidates_generated": 113
+    },
+    {
+      "id": "ZFTS_19",
+      "query": "el arreglo que le metieron al fallo de seguridad en las consultas",
+      "gold": "fix_vulnerabilidad_inyeccion_sql",
+      "gold_generated": false,
+      "provenance_class": "NONE (Not Generated)",
+      "provenance_detail": null,
+      "total_candidates_generated": 102
+    },
+    {
+      "id": "ZFTS_21",
+      "query": "las tripas y detalles de como se guardan los datos a bajo nivel",
+      "gold": "biorag_v11_1_detalle_tecnico",
+      "gold_generated": false,
+      "provenance_class": "NONE (Not Generated)",
+      "provenance_detail": null,
+      "total_candidates_generated": 104
+    },
+    {
+      "id": "ZFTS_24",
+      "query": "el parche para que no se machaquen los datos de cabecera",
+      "gold": "fix_metadatos_corrupcion_v2",
+      "gold_generated": false,
+      "provenance_class": "NONE (Not Generated)",
+      "provenance_detail": null,
+      "total_candidates_generated": 86
+    },
+    {
+      "id": "ZFTS_26",
+      "query": "experimento cuantitativo sobre latencias comparadas en metodos de indexacion",
+      "gold": "benchmark_latencia_hnsw_vs_ppmi",
+      "gold_generated": false,
+      "provenance_class": "NONE (Not Generated)",
+      "provenance_detail": null,
+      "total_candidates_generated": 109
+    },
+    {
+      "id": "ZFTS_27",
+      "query": "correccion estructural para prevenir colisiones en sincronismo persistente",
+      "gold": "fix_sync_incremental_crash_v3",
+      "gold_generated": false,
+      "provenance_class": "NONE (Not Generated)",
+      "provenance_detail": null,
+      "total_candidates_generated": 108
+    },
+    {
+      "id": "ZFTS_29",
+      "query": "lecciones metodologicas extraidas de interrupciones en la fase de reposo nocturno",
+      "gold": "leccion_sueno_consolidacion_memoria",
+      "gold_generated": false,
+      "provenance_class": "NONE (Not Generated)",
+      "provenance_detail": null,
+      "total_candidates_generated": 126
+    },
+    {
+      "id": "ZFTS_30",
+      "query": "norma mandatoria de doble control y validacion replicada",
+      "gold": "protocolo_evaluacion_dual_obligatoria",
+      "gold_generated": false,
+      "provenance_class": "NONE (Not Generated)",
+      "provenance_detail": null,
+      "total_candidates_generated": 87
+    }
+  ],
+  "rescues_by_provenance_class": {
+    "B = relación explícitamente almacenada (sinapsis física)": 1
+  },
+  "early_vs_late_fusion_comparison": {
+    "early_fusion": {
+      "r1": 0,
+      "r5": 0,
+      "r5_pct": 0.0,
+      "mrr": 0.0064,
+      "avg_pool_size": 68.79
+    },
+    "late_fusion": {
+      "r1": 0,
+      "r5": 0,
+      "r5_pct": 0.0,
+      "mrr": 0.0,
+      "avg_pool_size": 96.37
+    }
+  }
+}
