@@ -82,7 +82,7 @@ def audit_generator_implementation_for_case(cur, node_meta: Dict, graph_adj: Dic
     elif not wn_candidates:
         wn_diag = "NO_CANDIDATE (Los sinónimos de WordNet no aparecen en ningún documento del corpus)"
     else:
-        wn_diag = "IMPLEMENTATION_LIMIT (Sinónimos generados apuntaron a otros documentos disonantes)"
+        wn_diag = "METHOD_LIMIT (Sinónimos de léxico general disonantes con el vocabulario técnico del corpus)"
 
     # 2. Concept Hub
     hub_nodes = expand_query_concept_hub(q)
@@ -91,7 +91,7 @@ def audit_generator_implementation_for_case(cur, node_meta: Dict, graph_adj: Dic
     elif not hub_nodes:
         hub_diag = "NO_RELATION (Ningún bridge de Concept Hub coincidió con los tokens de la query)"
     else:
-        hub_diag = "IMPLEMENTATION_LIMIT (Hub activado pero no conectaba con el gold)"
+        hub_diag = "METHOD_LIMIT (Hub activado pero sus puentes preconfigurados no conectaban con el gold)"
 
     # 3. PPMI Latente
     ppmi_neighbors = query_ppmi_neighbors(q, node_vectors, vocab, top_k=20)
@@ -101,7 +101,7 @@ def audit_generator_implementation_for_case(cur, node_meta: Dict, graph_adj: Dic
     elif not ppmi_neighbors:
         ppmi_diag = "NO_NEIGHBOR (Tokens de la query tienen frecuencia 0 en el vocabulario del corpus)"
     else:
-        ppmi_diag = "IMPLEMENTATION_LIMIT (El espacio latente asoció la query a vecinos con mayor coocurrencia superficial)"
+        ppmi_diag = "METHOD_LIMIT (El espacio latente asoció la query a vecinos con mayor coocurrencia superficial)"
 
     # 4. Grafo 1-Hop
     top_seeds = sorted(raw_fts.items(), key=lambda x: x[1], reverse=True)[:5]
@@ -118,7 +118,7 @@ def audit_generator_implementation_for_case(cur, node_meta: Dict, graph_adj: Dic
     elif not graph_targets:
         graph_diag = "NO_RELATION (Las semillas FTS5 no tenían aristas salientes en sinapsis)"
     else:
-        graph_diag = "IMPLEMENTATION_LIMIT (Las aristas salientes conectaban con otros conceptos)"
+        graph_diag = "METHOD_LIMIT (Las aristas salientes conectaban con otros conceptos del grafo)"
 
     # Unión final
     all_candidates = set(raw_fts.keys()) | set(wn_candidates.keys()) | set(hub_nodes) | set(ppmi_nodes) | set(graph_target_nodes)
@@ -197,7 +197,7 @@ def audit_data_flow_proof() -> Dict[str, Any]:
                 "evidencia": "Única etapa donde entra el gold: rank = (concepts.index(gold) + 1) if gold in concepts else None. Ocurre estrictamente DESPUÉS de ordenar la lista."
             }
         ],
-        "veredicto_leakage": "0% LEAKAGE DEMOSTRADO FORMALMENTE (Flujo de datos 100% unidireccional y aislado)."
+        "veredicto_leakage": "No se identificó un canal de leakage del gold hacia los generadores, semillas o ranking en la implementación auditada."
     }
 
 # =============================================================================

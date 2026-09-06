@@ -55,25 +55,25 @@ Tabla completa de los 19 casos que cumplen estrictamente:
 Desglose de por qué cada generador no logró introducir el gold en los 19 casos:
 
 ### A) WordNet (0 / 19 Rescates)
-- **IMPLEMENTATION_LIMIT (Sinónimos generados apuntaron a otros documentos disonantes):** 19 casos
+- **METHOD_LIMIT (Sinónimos de léxico general disonantes con el vocabulario técnico del corpus):** 19 casos
 
 ### B) Concept Hub (0 / 19 Rescates en estos casos específicos)
-- **IMPLEMENTATION_LIMIT (Hub activado pero no conectaba con el gold):** 16 casos
+- **METHOD_LIMIT (Hub activado pero sus puentes preconfigurados no conectaban con el gold):** 16 casos
 - **NO_RELATION (Ningún bridge de Concept Hub coincidió con los tokens de la query):** 3 casos
 
 ### C) PPMI Latente (0 / 19 Rescates)
-- **IMPLEMENTATION_LIMIT (El espacio latente asoció la query a vecinos con mayor coocurrencia superficial):** 19 casos
+- **METHOD_LIMIT (El espacio latente asoció la query a vecinos con mayor coocurrencia superficial):** 19 casos
 
 ### D) Grafo 1-Hop (1 / 19 Rescates)
-- **IMPLEMENTATION_LIMIT (Las aristas salientes conectaban con otros conceptos):** 18 casos
+- **METHOD_LIMIT (Las aristas salientes conectaban con otros conceptos del grafo):** 18 casos
 - **SUCCESS_EXPLICIT_RELATION (Rescatado vía arista física de sinapsis):** 1 casos
 
 ---
 
 ## 4. AUDITORÍA DEL PRESUPUESTO DE CANDIDATOS
 
-* **Promedio de candidatos generados (brutos):** **167.68421052631578**
-* **Promedio de candidatos tras deduplicación:** **100.94736842105263**
+* **Promedio de candidatos generados (brutos):** **168.05263157894737**
+* **Promedio de candidatos tras deduplicación:** **98.52631578947368**
 * **Candidatos gold descartados por filtrado o poda:** **0** (ningún gold generado fue eliminado por límites de presupuesto).
 
 ---
