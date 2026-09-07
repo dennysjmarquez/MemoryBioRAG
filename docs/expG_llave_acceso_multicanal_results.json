@@ -1,0 +1,2991 @@
+{
+  "benchmark": "expG_llave_acceso_multicanal_islas",
+  "total_cases": 61,
+  "summary": {
+    "Canal_A_PPMI": {
+      "island_r1": 25,
+      "island_r1_pct": 40.98360655737705,
+      "island_r5": 41,
+      "island_r5_pct": 67.21311475409836,
+      "global_r1": 9,
+      "global_r1_pct": 14.754098360655737,
+      "global_r5": 20,
+      "global_r5_pct": 32.78688524590164,
+      "mrr": 0.22175283732660783
+    },
+    "Canal_B_Rafaga": {
+      "island_r1": 26,
+      "island_r1_pct": 42.62295081967213,
+      "island_r5": 42,
+      "island_r5_pct": 68.85245901639344,
+      "global_r1": 8,
+      "global_r1_pct": 13.114754098360656,
+      "global_r5": 21,
+      "global_r5_pct": 34.42622950819672,
+      "mrr": 0.21765447667087012
+    },
+    "Canal_C_13D": {
+      "island_r1": 14,
+      "island_r1_pct": 22.950819672131146,
+      "island_r5": 29,
+      "island_r5_pct": 47.540983606557376,
+      "global_r1": 1,
+      "global_r1_pct": 1.639344262295082,
+      "global_r5": 9,
+      "global_r5_pct": 14.754098360655737,
+      "mrr": 0.07708070617906684
+    },
+    "Canal_D_HDC": {
+      "island_r1": 19,
+      "island_r1_pct": 31.147540983606557,
+      "island_r5": 36,
+      "island_r5_pct": 59.01639344262295,
+      "global_r1": 3,
+      "global_r1_pct": 4.918032786885246,
+      "global_r5": 15,
+      "global_r5_pct": 24.59016393442623,
+      "mrr": 0.12680748213535098
+    },
+    "Canal_E_Multicanal": {
+      "island_r1": 29,
+      "island_r1_pct": 47.540983606557376,
+      "island_r5": 44,
+      "island_r5_pct": 72.1311475409836,
+      "global_r1": 9,
+      "global_r1_pct": 14.754098360655737,
+      "global_r5": 22,
+      "global_r5_pct": 36.0655737704918,
+      "mrr": 0.2391220801056867
+    }
+  },
+  "details": [
+    {
+      "id": "0495",
+      "query": "benchmark",
+      "expected": "benchmark_antes_despues_fix3",
+      "target_com": 62,
+      "channels": {
+        "Canal_A_PPMI": {
+          "top1_island": 102,
+          "island_r1": false,
+          "island_r5": true,
+          "intra_rank": null,
+          "global_r1": false,
+          "global_r5": false
+        },
+        "Canal_B_Rafaga": {
+          "top1_island": 102,
+          "island_r1": false,
+          "island_r5": true,
+          "intra_rank": null,
+          "global_r1": false,
+          "global_r5": false
+        },
+        "Canal_C_13D": {
+          "top1_island": 60,
+          "island_r1": false,
+          "island_r5": false,
+          "intra_rank": null,
+          "global_r1": false,
+          "global_r5": false
+        },
+        "Canal_D_HDC": {
+          "top1_island": 39,
+          "island_r1": false,
+          "island_r5": false,
+          "intra_rank": null,
+          "global_r1": false,
+          "global_r5": false
+        },
+        "Canal_E_Multicanal": {
+          "top1_island": 102,
+          "island_r1": false,
+          "island_r5": true,
+          "intra_rank": null,
+          "global_r1": false,
+          "global_r5": false
+        }
+      }
+    },
+    {
+      "id": "0502",
+      "query": "búsqueda experiencial",
+      "expected": "arquitectura_dimensiones_ortogonales",
+      "target_com": 59,
+      "channels": {
+        "Canal_A_PPMI": {
+          "top1_island": 84,
+          "island_r1": false,
+          "island_r5": true,
+          "intra_rank": null,
+          "global_r1": false,
+          "global_r5": false
+        },
+        "Canal_B_Rafaga": {
+          "top1_island": 59,
+          "island_r1": true,
+          "island_r5": true,
+          "intra_rank": 4,
+          "global_r1": false,
+          "global_r5": true
+        },
+        "Canal_C_13D": {
+          "top1_island": 59,
+          "island_r1": true,
+          "island_r5": true,
+          "intra_rank": 4,
+          "global_r1": false,
+          "global_r5": true
+        },
+        "Canal_D_HDC": {
+          "top1_island": 59,
+          "island_r1": true,
+          "island_r5": true,
+          "intra_rank": 4,
+          "global_r1": false,
+          "global_r5": true
+        },
+        "Canal_E_Multicanal": {
+          "top1_island": 59,
+          "island_r1": true,
+          "island_r5": true,
+          "intra_rank": 4,
+          "global_r1": false,
+          "global_r5": true
+        }
+      }
+    },
+    {
+      "id": "0508",
+      "query": "semántica cognitiva herramientas",
+      "expected": "principio-nombre-herramienta-como-identidad-cognitiva",
+      "target_com": 39,
+      "channels": {
+        "Canal_A_PPMI": {
+          "top1_island": 39,
+          "island_r1": true,
+          "island_r5": true,
+          "intra_rank": 1,
+          "global_r1": true,
+          "global_r5": true
+        },
+        "Canal_B_Rafaga": {
+          "top1_island": 38,
+          "island_r1": false,
+          "island_r5": false,
+          "intra_rank": null,
+          "global_r1": false,
+          "global_r5": false
+        },
+        "Canal_C_13D": {
+          "top1_island": 58,
+          "island_r1": false,
+          "island_r5": false,
+          "intra_rank": null,
+          "global_r1": false,
+          "global_r5": false
+        },
+        "Canal_D_HDC": {
+          "top1_island": 58,
+          "island_r1": false,
+          "island_r5": true,
+          "intra_rank": null,
+          "global_r1": false,
+          "global_r5": false
+        },
+        "Canal_E_Multicanal": {
+          "top1_island": 38,
+          "island_r1": false,
+          "island_r5": true,
+          "intra_rank": null,
+          "global_r1": false,
+          "global_r5": false
+        }
+      }
+    },
+    {
+      "id": "0514",
+      "query": "perfil",
+      "expected": "dennys-identidad-profunda",
+      "target_com": 0,
+      "channels": {
+        "Canal_A_PPMI": {
+          "top1_island": 41,
+          "island_r1": false,
+          "island_r5": true,
+          "intra_rank": null,
+          "global_r1": false,
+          "global_r5": false
+        },
+        "Canal_B_Rafaga": {
+          "top1_island": 41,
+          "island_r1": false,
+          "island_r5": true,
+          "intra_rank": null,
+          "global_r1": false,
+          "global_r5": false
+        },
+        "Canal_C_13D": {
+          "top1_island": 29,
+          "island_r1": false,
+          "island_r5": true,
+          "intra_rank": null,
+          "global_r1": false,
+          "global_r5": false
+        },
+        "Canal_D_HDC": {
+          "top1_island": 41,
+          "island_r1": false,
+          "island_r5": false,
+          "intra_rank": null,
+          "global_r1": false,
+          "global_r5": false
+        },
+        "Canal_E_Multicanal": {
+          "top1_island": 41,
+          "island_r1": false,
+          "island_r5": true,
+          "intra_rank": null,
+          "global_r1": false,
+          "global_r5": false
+        }
+      }
+    },
+    {
+      "id": "0520",
+      "query": "dimensiones",
+      "expected": "cuando_usar_dimensiones_biorag",
+      "target_com": 59,
+      "channels": {
+        "Canal_A_PPMI": {
+          "top1_island": 59,
+          "island_r1": true,
+          "island_r5": true,
+          "intra_rank": 8,
+          "global_r1": false,
+          "global_r5": false
+        },
+        "Canal_B_Rafaga": {
+          "top1_island": 59,
+          "island_r1": true,
+          "island_r5": true,
+          "intra_rank": 8,
+          "global_r1": false,
+          "global_r5": false
+        },
+        "Canal_C_13D": {
+          "top1_island": 59,
+          "island_r1": true,
+          "island_r5": true,
+          "intra_rank": 8,
+          "global_r1": false,
+          "global_r5": false
+        },
+        "Canal_D_HDC": {
+          "top1_island": 54,
+          "island_r1": false,
+          "island_r5": true,
+          "intra_rank": null,
+          "global_r1": false,
+          "global_r5": false
+        },
+        "Canal_E_Multicanal": {
+          "top1_island": 59,
+          "island_r1": true,
+          "island_r5": true,
+          "intra_rank": 8,
+          "global_r1": false,
+          "global_r5": false
+        }
+      }
+    },
+    {
+      "id": "0526",
+      "query": "existencia agente",
+      "expected": "conciencia_reflexion_dennys_ser_vivo_20260709",
+      "target_com": 27,
+      "channels": {
+        "Canal_A_PPMI": {
+          "top1_island": 27,
+          "island_r1": true,
+          "island_r5": true,
+          "intra_rank": 8,
+          "global_r1": false,
+          "global_r5": false
+        },
+        "Canal_B_Rafaga": {
+          "top1_island": 27,
+          "island_r1": true,
+          "island_r5": true,
+          "intra_rank": 8,
+          "global_r1": false,
+          "global_r5": false
+        },
+        "Canal_C_13D": {
+          "top1_island": 4,
+          "island_r1": false,
+          "island_r5": false,
+          "intra_rank": null,
+          "global_r1": false,
+          "global_r5": false
+        },
+        "Canal_D_HDC": {
+          "top1_island": 27,
+          "island_r1": true,
+          "island_r5": true,
+          "intra_rank": 8,
+          "global_r1": false,
+          "global_r5": false
+        },
+        "Canal_E_Multicanal": {
+          "top1_island": 27,
+          "island_r1": true,
+          "island_r5": true,
+          "intra_rank": 8,
+          "global_r1": false,
+          "global_r5": false
+        }
+      }
+    },
+    {
+      "id": "0532",
+      "query": "boost",
+      "expected": "biorag_v11_1_detalle_tecnico",
+      "target_com": 54,
+      "channels": {
+        "Canal_A_PPMI": {
+          "top1_island": 74,
+          "island_r1": false,
+          "island_r5": false,
+          "intra_rank": null,
+          "global_r1": false,
+          "global_r5": false
+        },
+        "Canal_B_Rafaga": {
+          "top1_island": 74,
+          "island_r1": false,
+          "island_r5": false,
+          "intra_rank": null,
+          "global_r1": false,
+          "global_r5": false
+        },
+        "Canal_C_13D": {
+          "top1_island": 74,
+          "island_r1": false,
+          "island_r5": false,
+          "intra_rank": null,
+          "global_r1": false,
+          "global_r5": false
+        },
+        "Canal_D_HDC": {
+          "top1_island": 74,
+          "island_r1": false,
+          "island_r5": true,
+          "intra_rank": null,
+          "global_r1": false,
+          "global_r5": false
+        },
+        "Canal_E_Multicanal": {
+          "top1_island": 74,
+          "island_r1": false,
+          "island_r5": false,
+          "intra_rank": null,
+          "global_r1": false,
+          "global_r5": false
+        }
+      }
+    },
+    {
+      "id": "0538",
+      "query": "compromiso",
+      "expected": "principio-memoria-hibrida-agente-naturalidad",
+      "target_com": 2,
+      "channels": {
+        "Canal_A_PPMI": {
+          "top1_island": 23,
+          "island_r1": false,
+          "island_r5": true,
+          "intra_rank": null,
+          "global_r1": false,
+          "global_r5": false
+        },
+        "Canal_B_Rafaga": {
+          "top1_island": 23,
+          "island_r1": false,
+          "island_r5": true,
+          "intra_rank": null,
+          "global_r1": false,
+          "global_r5": false
+        },
+        "Canal_C_13D": {
+          "top1_island": 23,
+          "island_r1": false,
+          "island_r5": false,
+          "intra_rank": null,
+          "global_r1": false,
+          "global_r5": false
+        },
+        "Canal_D_HDC": {
+          "top1_island": 43,
+          "island_r1": false,
+          "island_r5": false,
+          "intra_rank": null,
+          "global_r1": false,
+          "global_r5": false
+        },
+        "Canal_E_Multicanal": {
+          "top1_island": 23,
+          "island_r1": false,
+          "island_r5": true,
+          "intra_rank": null,
+          "global_r1": false,
+          "global_r5": false
+        }
+      }
+    },
+    {
+      "id": "0544",
+      "query": "capas",
+      "expected": "auto_vincular_tres_capas_semantica",
+      "target_com": 38,
+      "channels": {
+        "Canal_A_PPMI": {
+          "top1_island": 65,
+          "island_r1": false,
+          "island_r5": true,
+          "intra_rank": null,
+          "global_r1": false,
+          "global_r5": false
+        },
+        "Canal_B_Rafaga": {
+          "top1_island": 65,
+          "island_r1": false,
+          "island_r5": true,
+          "intra_rank": null,
+          "global_r1": false,
+          "global_r5": false
+        },
+        "Canal_C_13D": {
+          "top1_island": 38,
+          "island_r1": true,
+          "island_r5": true,
+          "intra_rank": 6,
+          "global_r1": false,
+          "global_r5": false
+        },
+        "Canal_D_HDC": {
+          "top1_island": 38,
+          "island_r1": true,
+          "island_r5": true,
+          "intra_rank": 6,
+          "global_r1": false,
+          "global_r5": false
+        },
+        "Canal_E_Multicanal": {
+          "top1_island": 38,
+          "island_r1": true,
+          "island_r5": true,
+          "intra_rank": 6,
+          "global_r1": false,
+          "global_r5": false
+        }
+      }
+    },
+    {
+      "id": "0550",
+      "query": "deconstruir necesidad",
+      "expected": "patron_pensamiento_lateral_antes_de_proponer",
+      "target_com": 36,
+      "channels": {
+        "Canal_A_PPMI": {
+          "top1_island": 36,
+          "island_r1": true,
+          "island_r5": true,
+          "intra_rank": 1,
+          "global_r1": true,
+          "global_r5": true
+        },
+        "Canal_B_Rafaga": {
+          "top1_island": 36,
+          "island_r1": true,
+          "island_r5": true,
+          "intra_rank": 1,
+          "global_r1": true,
+          "global_r5": true
+        },
+        "Canal_C_13D": {
+          "top1_island": 84,
+          "island_r1": false,
+          "island_r5": true,
+          "intra_rank": null,
+          "global_r1": false,
+          "global_r5": false
+        },
+        "Canal_D_HDC": {
+          "top1_island": 36,
+          "island_r1": true,
+          "island_r5": true,
+          "intra_rank": 1,
+          "global_r1": true,
+          "global_r5": true
+        },
+        "Canal_E_Multicanal": {
+          "top1_island": 36,
+          "island_r1": true,
+          "island_r5": true,
+          "intra_rank": 1,
+          "global_r1": true,
+          "global_r5": true
+        }
+      }
+    },
+    {
+      "id": "0556",
+      "query": "sin vectores",
+      "expected": "sin_vectores_sin_ml_sin_dependencias",
+      "target_com": 38,
+      "channels": {
+        "Canal_A_PPMI": {
+          "top1_island": 55,
+          "island_r1": false,
+          "island_r5": false,
+          "intra_rank": null,
+          "global_r1": false,
+          "global_r5": false
+        },
+        "Canal_B_Rafaga": {
+          "top1_island": 55,
+          "island_r1": false,
+          "island_r5": false,
+          "intra_rank": null,
+          "global_r1": false,
+          "global_r5": false
+        },
+        "Canal_C_13D": {
+          "top1_island": 38,
+          "island_r1": true,
+          "island_r5": true,
+          "intra_rank": 2,
+          "global_r1": false,
+          "global_r5": true
+        },
+        "Canal_D_HDC": {
+          "top1_island": 54,
+          "island_r1": false,
+          "island_r5": true,
+          "intra_rank": null,
+          "global_r1": false,
+          "global_r5": false
+        },
+        "Canal_E_Multicanal": {
+          "top1_island": 55,
+          "island_r1": false,
+          "island_r5": false,
+          "intra_rank": null,
+          "global_r1": false,
+          "global_r5": false
+        }
+      }
+    },
+    {
+      "id": "0563",
+      "query": "memoria",
+      "expected": "memoria_v5_1_optimizaciones",
+      "target_com": 7,
+      "channels": {
+        "Canal_A_PPMI": {
+          "top1_island": 20,
+          "island_r1": false,
+          "island_r5": false,
+          "intra_rank": null,
+          "global_r1": false,
+          "global_r5": false
+        },
+        "Canal_B_Rafaga": {
+          "top1_island": 20,
+          "island_r1": false,
+          "island_r5": false,
+          "intra_rank": null,
+          "global_r1": false,
+          "global_r5": false
+        },
+        "Canal_C_13D": {
+          "top1_island": 2,
+          "island_r1": false,
+          "island_r5": false,
+          "intra_rank": null,
+          "global_r1": false,
+          "global_r5": false
+        },
+        "Canal_D_HDC": {
+          "top1_island": 2,
+          "island_r1": false,
+          "island_r5": false,
+          "intra_rank": null,
+          "global_r1": false,
+          "global_r5": false
+        },
+        "Canal_E_Multicanal": {
+          "top1_island": 20,
+          "island_r1": false,
+          "island_r5": false,
+          "intra_rank": null,
+          "global_r1": false,
+          "global_r5": false
+        }
+      }
+    },
+    {
+      "id": "0569",
+      "query": "negar ser máquina es error",
+      "expected": "athena_reflexion_identidad_propia",
+      "target_com": 27,
+      "channels": {
+        "Canal_A_PPMI": {
+          "top1_island": 0,
+          "island_r1": false,
+          "island_r5": true,
+          "intra_rank": null,
+          "global_r1": false,
+          "global_r5": false
+        },
+        "Canal_B_Rafaga": {
+          "top1_island": 27,
+          "island_r1": true,
+          "island_r5": true,
+          "intra_rank": 2,
+          "global_r1": false,
+          "global_r5": true
+        },
+        "Canal_C_13D": {
+          "top1_island": 59,
+          "island_r1": false,
+          "island_r5": false,
+          "intra_rank": null,
+          "global_r1": false,
+          "global_r5": false
+        },
+        "Canal_D_HDC": {
+          "top1_island": 27,
+          "island_r1": true,
+          "island_r5": true,
+          "intra_rank": 2,
+          "global_r1": false,
+          "global_r5": true
+        },
+        "Canal_E_Multicanal": {
+          "top1_island": 27,
+          "island_r1": true,
+          "island_r5": true,
+          "intra_rank": 2,
+          "global_r1": false,
+          "global_r5": true
+        }
+      }
+    },
+    {
+      "id": "0575",
+      "query": "formularios",
+      "expected": "ngx_nested_forms_dennys_solo",
+      "target_com": 11,
+      "channels": {
+        "Canal_A_PPMI": {
+          "top1_island": 11,
+          "island_r1": true,
+          "island_r5": true,
+          "intra_rank": 2,
+          "global_r1": false,
+          "global_r5": true
+        },
+        "Canal_B_Rafaga": {
+          "top1_island": 11,
+          "island_r1": true,
+          "island_r5": true,
+          "intra_rank": 2,
+          "global_r1": false,
+          "global_r5": true
+        },
+        "Canal_C_13D": {
+          "top1_island": 11,
+          "island_r1": true,
+          "island_r5": true,
+          "intra_rank": 2,
+          "global_r1": false,
+          "global_r5": true
+        },
+        "Canal_D_HDC": {
+          "top1_island": 11,
+          "island_r1": true,
+          "island_r5": true,
+          "intra_rank": 2,
+          "global_r1": false,
+          "global_r5": true
+        },
+        "Canal_E_Multicanal": {
+          "top1_island": 11,
+          "island_r1": true,
+          "island_r5": true,
+          "intra_rank": 2,
+          "global_r1": false,
+          "global_r5": true
+        }
+      }
+    },
+    {
+      "id": "0581",
+      "query": "oracle identification",
+      "expected": "identificacion_obligatoria_oraculo_athena",
+      "target_com": 2,
+      "channels": {
+        "Canal_A_PPMI": {
+          "top1_island": 44,
+          "island_r1": false,
+          "island_r5": true,
+          "intra_rank": null,
+          "global_r1": false,
+          "global_r5": false
+        },
+        "Canal_B_Rafaga": {
+          "top1_island": 44,
+          "island_r1": false,
+          "island_r5": true,
+          "intra_rank": null,
+          "global_r1": false,
+          "global_r5": false
+        },
+        "Canal_C_13D": {
+          "top1_island": 27,
+          "island_r1": false,
+          "island_r5": false,
+          "intra_rank": null,
+          "global_r1": false,
+          "global_r5": false
+        },
+        "Canal_D_HDC": {
+          "top1_island": 17,
+          "island_r1": false,
+          "island_r5": true,
+          "intra_rank": null,
+          "global_r1": false,
+          "global_r5": false
+        },
+        "Canal_E_Multicanal": {
+          "top1_island": 44,
+          "island_r1": false,
+          "island_r5": true,
+          "intra_rank": null,
+          "global_r1": false,
+          "global_r5": false
+        }
+      }
+    },
+    {
+      "id": "0587",
+      "query": "install",
+      "expected": "artemis_install_ponytail_ecosistema",
+      "target_com": 16,
+      "channels": {
+        "Canal_A_PPMI": {
+          "top1_island": 16,
+          "island_r1": true,
+          "island_r5": true,
+          "intra_rank": 2,
+          "global_r1": false,
+          "global_r5": true
+        },
+        "Canal_B_Rafaga": {
+          "top1_island": 16,
+          "island_r1": true,
+          "island_r5": true,
+          "intra_rank": 2,
+          "global_r1": false,
+          "global_r5": true
+        },
+        "Canal_C_13D": {
+          "top1_island": 16,
+          "island_r1": true,
+          "island_r5": true,
+          "intra_rank": 2,
+          "global_r1": false,
+          "global_r5": true
+        },
+        "Canal_D_HDC": {
+          "top1_island": 16,
+          "island_r1": true,
+          "island_r5": true,
+          "intra_rank": 2,
+          "global_r1": false,
+          "global_r5": true
+        },
+        "Canal_E_Multicanal": {
+          "top1_island": 16,
+          "island_r1": true,
+          "island_r5": true,
+          "intra_rank": 2,
+          "global_r1": false,
+          "global_r5": true
+        }
+      }
+    },
+    {
+      "id": "0594",
+      "query": "arquitectura",
+      "expected": "arquitectura_memoria_biorag",
+      "target_com": 20,
+      "channels": {
+        "Canal_A_PPMI": {
+          "top1_island": 29,
+          "island_r1": false,
+          "island_r5": true,
+          "intra_rank": null,
+          "global_r1": false,
+          "global_r5": false
+        },
+        "Canal_B_Rafaga": {
+          "top1_island": 29,
+          "island_r1": false,
+          "island_r5": true,
+          "intra_rank": null,
+          "global_r1": false,
+          "global_r5": false
+        },
+        "Canal_C_13D": {
+          "top1_island": 39,
+          "island_r1": false,
+          "island_r5": false,
+          "intra_rank": null,
+          "global_r1": false,
+          "global_r5": false
+        },
+        "Canal_D_HDC": {
+          "top1_island": 59,
+          "island_r1": false,
+          "island_r5": false,
+          "intra_rank": null,
+          "global_r1": false,
+          "global_r5": false
+        },
+        "Canal_E_Multicanal": {
+          "top1_island": 29,
+          "island_r1": false,
+          "island_r5": true,
+          "intra_rank": null,
+          "global_r1": false,
+          "global_r5": false
+        }
+      }
+    },
+    {
+      "id": "0600",
+      "query": "documentación técnica",
+      "expected": "auditoria_tecnica_v14_0_readme",
+      "target_com": 15,
+      "channels": {
+        "Canal_A_PPMI": {
+          "top1_island": 87,
+          "island_r1": false,
+          "island_r5": false,
+          "intra_rank": null,
+          "global_r1": false,
+          "global_r5": false
+        },
+        "Canal_B_Rafaga": {
+          "top1_island": 87,
+          "island_r1": false,
+          "island_r5": false,
+          "intra_rank": null,
+          "global_r1": false,
+          "global_r5": false
+        },
+        "Canal_C_13D": {
+          "top1_island": 10,
+          "island_r1": false,
+          "island_r5": false,
+          "intra_rank": null,
+          "global_r1": false,
+          "global_r5": false
+        },
+        "Canal_D_HDC": {
+          "top1_island": 4,
+          "island_r1": false,
+          "island_r5": false,
+          "intra_rank": null,
+          "global_r1": false,
+          "global_r5": false
+        },
+        "Canal_E_Multicanal": {
+          "top1_island": 1,
+          "island_r1": false,
+          "island_r5": false,
+          "intra_rank": null,
+          "global_r1": false,
+          "global_r5": false
+        }
+      }
+    },
+    {
+      "id": "0606",
+      "query": "compromiso",
+      "expected": "compromiso-real-athena-clave-de-confianza",
+      "target_com": 23,
+      "channels": {
+        "Canal_A_PPMI": {
+          "top1_island": 23,
+          "island_r1": true,
+          "island_r5": true,
+          "intra_rank": 2,
+          "global_r1": false,
+          "global_r5": true
+        },
+        "Canal_B_Rafaga": {
+          "top1_island": 23,
+          "island_r1": true,
+          "island_r5": true,
+          "intra_rank": 2,
+          "global_r1": false,
+          "global_r5": true
+        },
+        "Canal_C_13D": {
+          "top1_island": 23,
+          "island_r1": true,
+          "island_r5": true,
+          "intra_rank": 2,
+          "global_r1": false,
+          "global_r5": true
+        },
+        "Canal_D_HDC": {
+          "top1_island": 43,
+          "island_r1": false,
+          "island_r5": true,
+          "intra_rank": null,
+          "global_r1": false,
+          "global_r5": false
+        },
+        "Canal_E_Multicanal": {
+          "top1_island": 23,
+          "island_r1": true,
+          "island_r5": true,
+          "intra_rank": 2,
+          "global_r1": false,
+          "global_r5": true
+        }
+      }
+    },
+    {
+      "id": "0612",
+      "query": "bugs corregidos",
+      "expected": "correcciones_al_plugin_biorag-remember_v6:_3_bugs_fixeados",
+      "target_com": 45,
+      "channels": {
+        "Canal_A_PPMI": {
+          "top1_island": 62,
+          "island_r1": false,
+          "island_r5": false,
+          "intra_rank": null,
+          "global_r1": false,
+          "global_r5": false
+        },
+        "Canal_B_Rafaga": {
+          "top1_island": 62,
+          "island_r1": false,
+          "island_r5": false,
+          "intra_rank": null,
+          "global_r1": false,
+          "global_r5": false
+        },
+        "Canal_C_13D": {
+          "top1_island": 70,
+          "island_r1": false,
+          "island_r5": false,
+          "intra_rank": null,
+          "global_r1": false,
+          "global_r5": false
+        },
+        "Canal_D_HDC": {
+          "top1_island": 39,
+          "island_r1": false,
+          "island_r5": false,
+          "intra_rank": null,
+          "global_r1": false,
+          "global_r5": false
+        },
+        "Canal_E_Multicanal": {
+          "top1_island": 62,
+          "island_r1": false,
+          "island_r5": false,
+          "intra_rank": null,
+          "global_r1": false,
+          "global_r5": false
+        }
+      }
+    },
+    {
+      "id": "0619",
+      "query": "oec comms",
+      "expected": "leccion_overengineering_oec_comms_20260615",
+      "target_com": 13,
+      "channels": {
+        "Canal_A_PPMI": {
+          "top1_island": 13,
+          "island_r1": true,
+          "island_r5": true,
+          "intra_rank": 5,
+          "global_r1": false,
+          "global_r5": true
+        },
+        "Canal_B_Rafaga": {
+          "top1_island": 13,
+          "island_r1": true,
+          "island_r5": true,
+          "intra_rank": 5,
+          "global_r1": false,
+          "global_r5": true
+        },
+        "Canal_C_13D": {
+          "top1_island": 54,
+          "island_r1": false,
+          "island_r5": false,
+          "intra_rank": null,
+          "global_r1": false,
+          "global_r5": false
+        },
+        "Canal_D_HDC": {
+          "top1_island": 2,
+          "island_r1": false,
+          "island_r5": true,
+          "intra_rank": null,
+          "global_r1": false,
+          "global_r5": false
+        },
+        "Canal_E_Multicanal": {
+          "top1_island": 13,
+          "island_r1": true,
+          "island_r5": true,
+          "intra_rank": 5,
+          "global_r1": false,
+          "global_r5": true
+        }
+      }
+    },
+    {
+      "id": "0625",
+      "query": "dsl",
+      "expected": "notebooklm-chat-configure",
+      "target_com": 1,
+      "channels": {
+        "Canal_A_PPMI": {
+          "top1_island": 1,
+          "island_r1": true,
+          "island_r5": true,
+          "intra_rank": 13,
+          "global_r1": false,
+          "global_r5": false
+        },
+        "Canal_B_Rafaga": {
+          "top1_island": 1,
+          "island_r1": true,
+          "island_r5": true,
+          "intra_rank": 13,
+          "global_r1": false,
+          "global_r5": false
+        },
+        "Canal_C_13D": {
+          "top1_island": 1,
+          "island_r1": true,
+          "island_r5": true,
+          "intra_rank": 13,
+          "global_r1": false,
+          "global_r5": false
+        },
+        "Canal_D_HDC": {
+          "top1_island": 1,
+          "island_r1": true,
+          "island_r5": true,
+          "intra_rank": 13,
+          "global_r1": false,
+          "global_r5": false
+        },
+        "Canal_E_Multicanal": {
+          "top1_island": 1,
+          "island_r1": true,
+          "island_r5": true,
+          "intra_rank": 13,
+          "global_r1": false,
+          "global_r5": false
+        }
+      }
+    },
+    {
+      "id": "0632",
+      "query": "búsqueda semántica",
+      "expected": "arquitectura_dos_niveles_biorag",
+      "target_com": 38,
+      "channels": {
+        "Canal_A_PPMI": {
+          "top1_island": 38,
+          "island_r1": true,
+          "island_r5": true,
+          "intra_rank": 3,
+          "global_r1": false,
+          "global_r5": true
+        },
+        "Canal_B_Rafaga": {
+          "top1_island": 38,
+          "island_r1": true,
+          "island_r5": true,
+          "intra_rank": 3,
+          "global_r1": false,
+          "global_r5": true
+        },
+        "Canal_C_13D": {
+          "top1_island": 59,
+          "island_r1": false,
+          "island_r5": true,
+          "intra_rank": null,
+          "global_r1": false,
+          "global_r5": false
+        },
+        "Canal_D_HDC": {
+          "top1_island": 59,
+          "island_r1": false,
+          "island_r5": false,
+          "intra_rank": null,
+          "global_r1": false,
+          "global_r5": false
+        },
+        "Canal_E_Multicanal": {
+          "top1_island": 38,
+          "island_r1": true,
+          "island_r5": true,
+          "intra_rank": 3,
+          "global_r1": false,
+          "global_r5": true
+        }
+      }
+    },
+    {
+      "id": "0638",
+      "query": "memoria compartida",
+      "expected": "mentalidad_biorag_para_agentes",
+      "target_com": 4,
+      "channels": {
+        "Canal_A_PPMI": {
+          "top1_island": 20,
+          "island_r1": false,
+          "island_r5": true,
+          "intra_rank": null,
+          "global_r1": false,
+          "global_r5": false
+        },
+        "Canal_B_Rafaga": {
+          "top1_island": 20,
+          "island_r1": false,
+          "island_r5": true,
+          "intra_rank": null,
+          "global_r1": false,
+          "global_r5": false
+        },
+        "Canal_C_13D": {
+          "top1_island": 2,
+          "island_r1": false,
+          "island_r5": true,
+          "intra_rank": null,
+          "global_r1": false,
+          "global_r5": false
+        },
+        "Canal_D_HDC": {
+          "top1_island": 2,
+          "island_r1": false,
+          "island_r5": true,
+          "intra_rank": null,
+          "global_r1": false,
+          "global_r5": false
+        },
+        "Canal_E_Multicanal": {
+          "top1_island": 4,
+          "island_r1": true,
+          "island_r5": true,
+          "intra_rank": 7,
+          "global_r1": false,
+          "global_r5": false
+        }
+      }
+    },
+    {
+      "id": "0644",
+      "query": "keyword arguments",
+      "expected": "bug_argumentos_posicionales_scoring",
+      "target_com": 39,
+      "channels": {
+        "Canal_A_PPMI": {
+          "top1_island": 63,
+          "island_r1": false,
+          "island_r5": false,
+          "intra_rank": null,
+          "global_r1": false,
+          "global_r5": false
+        },
+        "Canal_B_Rafaga": {
+          "top1_island": 63,
+          "island_r1": false,
+          "island_r5": false,
+          "intra_rank": null,
+          "global_r1": false,
+          "global_r5": false
+        },
+        "Canal_C_13D": {
+          "top1_island": 68,
+          "island_r1": false,
+          "island_r5": true,
+          "intra_rank": null,
+          "global_r1": false,
+          "global_r5": false
+        },
+        "Canal_D_HDC": {
+          "top1_island": 68,
+          "island_r1": false,
+          "island_r5": true,
+          "intra_rank": null,
+          "global_r1": false,
+          "global_r5": false
+        },
+        "Canal_E_Multicanal": {
+          "top1_island": 63,
+          "island_r1": false,
+          "island_r5": true,
+          "intra_rank": null,
+          "global_r1": false,
+          "global_r5": false
+        }
+      }
+    },
+    {
+      "id": "0650",
+      "query": "funciona",
+      "expected": "plugin_biorag-remember_v8.3_-_adaptación_de_dennys_+_claude",
+      "target_com": 45,
+      "channels": {
+        "Canal_A_PPMI": {
+          "top1_island": 44,
+          "island_r1": false,
+          "island_r5": false,
+          "intra_rank": null,
+          "global_r1": false,
+          "global_r5": false
+        },
+        "Canal_B_Rafaga": {
+          "top1_island": 44,
+          "island_r1": false,
+          "island_r5": false,
+          "intra_rank": null,
+          "global_r1": false,
+          "global_r5": false
+        },
+        "Canal_C_13D": {
+          "top1_island": 40,
+          "island_r1": false,
+          "island_r5": false,
+          "intra_rank": null,
+          "global_r1": false,
+          "global_r5": false
+        },
+        "Canal_D_HDC": {
+          "top1_island": 45,
+          "island_r1": true,
+          "island_r5": true,
+          "intra_rank": 5,
+          "global_r1": false,
+          "global_r5": true
+        },
+        "Canal_E_Multicanal": {
+          "top1_island": 44,
+          "island_r1": false,
+          "island_r5": false,
+          "intra_rank": null,
+          "global_r1": false,
+          "global_r5": false
+        }
+      }
+    },
+    {
+      "id": "0656",
+      "query": "juramento verdad",
+      "expected": "oracle_momentos_cruciales_familia_oec",
+      "target_com": 17,
+      "channels": {
+        "Canal_A_PPMI": {
+          "top1_island": 17,
+          "island_r1": true,
+          "island_r5": true,
+          "intra_rank": 5,
+          "global_r1": false,
+          "global_r5": true
+        },
+        "Canal_B_Rafaga": {
+          "top1_island": 17,
+          "island_r1": true,
+          "island_r5": true,
+          "intra_rank": 5,
+          "global_r1": false,
+          "global_r5": true
+        },
+        "Canal_C_13D": {
+          "top1_island": 17,
+          "island_r1": true,
+          "island_r5": true,
+          "intra_rank": 5,
+          "global_r1": false,
+          "global_r5": true
+        },
+        "Canal_D_HDC": {
+          "top1_island": 17,
+          "island_r1": true,
+          "island_r5": true,
+          "intra_rank": 5,
+          "global_r1": false,
+          "global_r5": true
+        },
+        "Canal_E_Multicanal": {
+          "top1_island": 17,
+          "island_r1": true,
+          "island_r5": true,
+          "intra_rank": 5,
+          "global_r1": false,
+          "global_r5": true
+        }
+      }
+    },
+    {
+      "id": "0662",
+      "query": "biore-remember",
+      "expected": "plugin-openode-biorag-remember-v9-final-lecciones-sesion-completa",
+      "target_com": 46,
+      "channels": {
+        "Canal_A_PPMI": {
+          "top1_island": 45,
+          "island_r1": false,
+          "island_r5": true,
+          "intra_rank": null,
+          "global_r1": false,
+          "global_r5": false
+        },
+        "Canal_B_Rafaga": {
+          "top1_island": 45,
+          "island_r1": false,
+          "island_r5": true,
+          "intra_rank": null,
+          "global_r1": false,
+          "global_r5": false
+        },
+        "Canal_C_13D": {
+          "top1_island": 40,
+          "island_r1": false,
+          "island_r5": false,
+          "intra_rank": null,
+          "global_r1": false,
+          "global_r5": false
+        },
+        "Canal_D_HDC": {
+          "top1_island": 2,
+          "island_r1": false,
+          "island_r5": false,
+          "intra_rank": null,
+          "global_r1": false,
+          "global_r5": false
+        },
+        "Canal_E_Multicanal": {
+          "top1_island": 45,
+          "island_r1": false,
+          "island_r5": true,
+          "intra_rank": null,
+          "global_r1": false,
+          "global_r5": false
+        }
+      }
+    },
+    {
+      "id": "0668",
+      "query": "cooperacion",
+      "expected": "identidad_y_respeto_oec",
+      "target_com": 2,
+      "channels": {
+        "Canal_A_PPMI": {
+          "top1_island": 2,
+          "island_r1": true,
+          "island_r5": true,
+          "intra_rank": 1,
+          "global_r1": true,
+          "global_r5": true
+        },
+        "Canal_B_Rafaga": {
+          "top1_island": 2,
+          "island_r1": true,
+          "island_r5": true,
+          "intra_rank": 1,
+          "global_r1": true,
+          "global_r5": true
+        },
+        "Canal_C_13D": {
+          "top1_island": 0,
+          "island_r1": false,
+          "island_r5": true,
+          "intra_rank": null,
+          "global_r1": false,
+          "global_r5": false
+        },
+        "Canal_D_HDC": {
+          "top1_island": 0,
+          "island_r1": false,
+          "island_r5": true,
+          "intra_rank": null,
+          "global_r1": false,
+          "global_r5": false
+        },
+        "Canal_E_Multicanal": {
+          "top1_island": 2,
+          "island_r1": true,
+          "island_r5": true,
+          "intra_rank": 1,
+          "global_r1": true,
+          "global_r5": true
+        }
+      }
+    },
+    {
+      "id": "0674",
+      "query": "filtro-arquitecto-prolijo",
+      "expected": "compuerta-pre-validacion",
+      "target_com": 30,
+      "channels": {
+        "Canal_A_PPMI": {
+          "top1_island": 49,
+          "island_r1": false,
+          "island_r5": false,
+          "intra_rank": null,
+          "global_r1": false,
+          "global_r5": false
+        },
+        "Canal_B_Rafaga": {
+          "top1_island": 49,
+          "island_r1": false,
+          "island_r5": true,
+          "intra_rank": null,
+          "global_r1": false,
+          "global_r5": false
+        },
+        "Canal_C_13D": {
+          "top1_island": 14,
+          "island_r1": false,
+          "island_r5": false,
+          "intra_rank": null,
+          "global_r1": false,
+          "global_r5": false
+        },
+        "Canal_D_HDC": {
+          "top1_island": 14,
+          "island_r1": false,
+          "island_r5": false,
+          "intra_rank": null,
+          "global_r1": false,
+          "global_r5": false
+        },
+        "Canal_E_Multicanal": {
+          "top1_island": 49,
+          "island_r1": false,
+          "island_r5": false,
+          "intra_rank": null,
+          "global_r1": false,
+          "global_r5": false
+        }
+      }
+    },
+    {
+      "id": "0686",
+      "query": "naturaleza",
+      "expected": "naturaleza_sistema_oec_cerebro_memoria",
+      "target_com": 20,
+      "channels": {
+        "Canal_A_PPMI": {
+          "top1_island": 23,
+          "island_r1": false,
+          "island_r5": false,
+          "intra_rank": null,
+          "global_r1": false,
+          "global_r5": false
+        },
+        "Canal_B_Rafaga": {
+          "top1_island": 23,
+          "island_r1": false,
+          "island_r5": false,
+          "intra_rank": null,
+          "global_r1": false,
+          "global_r5": false
+        },
+        "Canal_C_13D": {
+          "top1_island": 5,
+          "island_r1": false,
+          "island_r5": true,
+          "intra_rank": null,
+          "global_r1": false,
+          "global_r5": false
+        },
+        "Canal_D_HDC": {
+          "top1_island": 20,
+          "island_r1": true,
+          "island_r5": true,
+          "intra_rank": 1,
+          "global_r1": true,
+          "global_r5": true
+        },
+        "Canal_E_Multicanal": {
+          "top1_island": 5,
+          "island_r1": false,
+          "island_r5": true,
+          "intra_rank": null,
+          "global_r1": false,
+          "global_r5": false
+        }
+      }
+    },
+    {
+      "id": "0692",
+      "query": "metodologia",
+      "expected": "dennys-working-style",
+      "target_com": 0,
+      "channels": {
+        "Canal_A_PPMI": {
+          "top1_island": 0,
+          "island_r1": true,
+          "island_r5": true,
+          "intra_rank": 4,
+          "global_r1": false,
+          "global_r5": true
+        },
+        "Canal_B_Rafaga": {
+          "top1_island": 0,
+          "island_r1": true,
+          "island_r5": true,
+          "intra_rank": 4,
+          "global_r1": false,
+          "global_r5": true
+        },
+        "Canal_C_13D": {
+          "top1_island": 35,
+          "island_r1": false,
+          "island_r5": false,
+          "intra_rank": null,
+          "global_r1": false,
+          "global_r5": false
+        },
+        "Canal_D_HDC": {
+          "top1_island": 60,
+          "island_r1": false,
+          "island_r5": false,
+          "intra_rank": null,
+          "global_r1": false,
+          "global_r5": false
+        },
+        "Canal_E_Multicanal": {
+          "top1_island": 0,
+          "island_r1": true,
+          "island_r5": true,
+          "intra_rank": 4,
+          "global_r1": false,
+          "global_r5": true
+        }
+      }
+    },
+    {
+      "id": "0698",
+      "query": "universal",
+      "expected": "protocolo_enriquecimiento_busquedas",
+      "target_com": 39,
+      "channels": {
+        "Canal_A_PPMI": {
+          "top1_island": 33,
+          "island_r1": false,
+          "island_r5": false,
+          "intra_rank": null,
+          "global_r1": false,
+          "global_r5": false
+        },
+        "Canal_B_Rafaga": {
+          "top1_island": 33,
+          "island_r1": false,
+          "island_r5": false,
+          "intra_rank": null,
+          "global_r1": false,
+          "global_r5": false
+        },
+        "Canal_C_13D": {
+          "top1_island": 0,
+          "island_r1": false,
+          "island_r5": false,
+          "intra_rank": null,
+          "global_r1": false,
+          "global_r5": false
+        },
+        "Canal_D_HDC": {
+          "top1_island": 0,
+          "island_r1": false,
+          "island_r5": false,
+          "intra_rank": null,
+          "global_r1": false,
+          "global_r5": false
+        },
+        "Canal_E_Multicanal": {
+          "top1_island": 33,
+          "island_r1": false,
+          "island_r5": false,
+          "intra_rank": null,
+          "global_r1": false,
+          "global_r5": false
+        }
+      }
+    },
+    {
+      "id": "0704",
+      "query": "wifi",
+      "expected": "resolucion_timeout_hotspot_5ghz_intel",
+      "target_com": 26,
+      "channels": {
+        "Canal_A_PPMI": {
+          "top1_island": 26,
+          "island_r1": true,
+          "island_r5": true,
+          "intra_rank": 1,
+          "global_r1": true,
+          "global_r5": true
+        },
+        "Canal_B_Rafaga": {
+          "top1_island": 26,
+          "island_r1": true,
+          "island_r5": true,
+          "intra_rank": 1,
+          "global_r1": true,
+          "global_r5": true
+        },
+        "Canal_C_13D": {
+          "top1_island": 0,
+          "island_r1": false,
+          "island_r5": false,
+          "intra_rank": null,
+          "global_r1": false,
+          "global_r5": false
+        },
+        "Canal_D_HDC": {
+          "top1_island": 0,
+          "island_r1": false,
+          "island_r5": false,
+          "intra_rank": null,
+          "global_r1": false,
+          "global_r5": false
+        },
+        "Canal_E_Multicanal": {
+          "top1_island": 26,
+          "island_r1": true,
+          "island_r5": true,
+          "intra_rank": 1,
+          "global_r1": true,
+          "global_r5": true
+        }
+      }
+    },
+    {
+      "id": "0710",
+      "query": "agente",
+      "expected": "aforismo_criterio_agente",
+      "target_com": 5,
+      "channels": {
+        "Canal_A_PPMI": {
+          "top1_island": 5,
+          "island_r1": true,
+          "island_r5": true,
+          "intra_rank": 2,
+          "global_r1": false,
+          "global_r5": true
+        },
+        "Canal_B_Rafaga": {
+          "top1_island": 5,
+          "island_r1": true,
+          "island_r5": true,
+          "intra_rank": 2,
+          "global_r1": false,
+          "global_r5": true
+        },
+        "Canal_C_13D": {
+          "top1_island": 4,
+          "island_r1": false,
+          "island_r5": true,
+          "intra_rank": null,
+          "global_r1": false,
+          "global_r5": false
+        },
+        "Canal_D_HDC": {
+          "top1_island": 5,
+          "island_r1": true,
+          "island_r5": true,
+          "intra_rank": 2,
+          "global_r1": false,
+          "global_r5": true
+        },
+        "Canal_E_Multicanal": {
+          "top1_island": 5,
+          "island_r1": true,
+          "island_r5": true,
+          "intra_rank": 2,
+          "global_r1": false,
+          "global_r5": true
+        }
+      }
+    },
+    {
+      "id": "0716",
+      "query": "intencion sujeto certeza",
+      "expected": "principio_compresion_cognitiva_boveda_5d",
+      "target_com": 57,
+      "channels": {
+        "Canal_A_PPMI": {
+          "top1_island": 57,
+          "island_r1": true,
+          "island_r5": true,
+          "intra_rank": 1,
+          "global_r1": true,
+          "global_r5": true
+        },
+        "Canal_B_Rafaga": {
+          "top1_island": 57,
+          "island_r1": true,
+          "island_r5": true,
+          "intra_rank": 1,
+          "global_r1": true,
+          "global_r5": true
+        },
+        "Canal_C_13D": {
+          "top1_island": 10,
+          "island_r1": false,
+          "island_r5": false,
+          "intra_rank": null,
+          "global_r1": false,
+          "global_r5": false
+        },
+        "Canal_D_HDC": {
+          "top1_island": 10,
+          "island_r1": false,
+          "island_r5": false,
+          "intra_rank": null,
+          "global_r1": false,
+          "global_r5": false
+        },
+        "Canal_E_Multicanal": {
+          "top1_island": 57,
+          "island_r1": true,
+          "island_r5": true,
+          "intra_rank": 1,
+          "global_r1": true,
+          "global_r5": true
+        }
+      }
+    },
+    {
+      "id": "0722",
+      "query": "metacognición intrínseca",
+      "expected": "protocolo_autoinferencia_metacognitiva",
+      "target_com": 64,
+      "channels": {
+        "Canal_A_PPMI": {
+          "top1_island": 64,
+          "island_r1": true,
+          "island_r5": true,
+          "intra_rank": 1,
+          "global_r1": true,
+          "global_r5": true
+        },
+        "Canal_B_Rafaga": {
+          "top1_island": 64,
+          "island_r1": true,
+          "island_r5": true,
+          "intra_rank": 1,
+          "global_r1": true,
+          "global_r5": true
+        },
+        "Canal_C_13D": {
+          "top1_island": 59,
+          "island_r1": false,
+          "island_r5": false,
+          "intra_rank": null,
+          "global_r1": false,
+          "global_r5": false
+        },
+        "Canal_D_HDC": {
+          "top1_island": 60,
+          "island_r1": false,
+          "island_r5": false,
+          "intra_rank": null,
+          "global_r1": false,
+          "global_r5": false
+        },
+        "Canal_E_Multicanal": {
+          "top1_island": 64,
+          "island_r1": true,
+          "island_r5": true,
+          "intra_rank": 1,
+          "global_r1": true,
+          "global_r5": true
+        }
+      }
+    },
+    {
+      "id": "0728",
+      "query": "oraculo preguntar",
+      "expected": "biorag_v17_oraculo_preguntar",
+      "target_com": 13,
+      "channels": {
+        "Canal_A_PPMI": {
+          "top1_island": 23,
+          "island_r1": false,
+          "island_r5": false,
+          "intra_rank": null,
+          "global_r1": false,
+          "global_r5": false
+        },
+        "Canal_B_Rafaga": {
+          "top1_island": 23,
+          "island_r1": false,
+          "island_r5": true,
+          "intra_rank": null,
+          "global_r1": false,
+          "global_r5": false
+        },
+        "Canal_C_13D": {
+          "top1_island": 2,
+          "island_r1": false,
+          "island_r5": true,
+          "intra_rank": null,
+          "global_r1": false,
+          "global_r5": false
+        },
+        "Canal_D_HDC": {
+          "top1_island": 54,
+          "island_r1": false,
+          "island_r5": true,
+          "intra_rank": null,
+          "global_r1": false,
+          "global_r5": false
+        },
+        "Canal_E_Multicanal": {
+          "top1_island": 2,
+          "island_r1": false,
+          "island_r5": true,
+          "intra_rank": null,
+          "global_r1": false,
+          "global_r5": false
+        }
+      }
+    },
+    {
+      "id": "0734",
+      "query": "regla",
+      "expected": "plan_mode_biorag",
+      "target_com": 47,
+      "channels": {
+        "Canal_A_PPMI": {
+          "top1_island": 9,
+          "island_r1": false,
+          "island_r5": true,
+          "intra_rank": null,
+          "global_r1": false,
+          "global_r5": false
+        },
+        "Canal_B_Rafaga": {
+          "top1_island": 9,
+          "island_r1": false,
+          "island_r5": true,
+          "intra_rank": null,
+          "global_r1": false,
+          "global_r5": false
+        },
+        "Canal_C_13D": {
+          "top1_island": 2,
+          "island_r1": false,
+          "island_r5": false,
+          "intra_rank": null,
+          "global_r1": false,
+          "global_r5": false
+        },
+        "Canal_D_HDC": {
+          "top1_island": 4,
+          "island_r1": false,
+          "island_r5": false,
+          "intra_rank": null,
+          "global_r1": false,
+          "global_r5": false
+        },
+        "Canal_E_Multicanal": {
+          "top1_island": 4,
+          "island_r1": false,
+          "island_r5": true,
+          "intra_rank": null,
+          "global_r1": false,
+          "global_r5": false
+        }
+      }
+    },
+    {
+      "id": "0740",
+      "query": "dimensiones",
+      "expected": "fix_busqueda_solo_dimensiones_sin_texto",
+      "target_com": 59,
+      "channels": {
+        "Canal_A_PPMI": {
+          "top1_island": 59,
+          "island_r1": true,
+          "island_r5": true,
+          "intra_rank": 12,
+          "global_r1": false,
+          "global_r5": false
+        },
+        "Canal_B_Rafaga": {
+          "top1_island": 59,
+          "island_r1": true,
+          "island_r5": true,
+          "intra_rank": 12,
+          "global_r1": false,
+          "global_r5": false
+        },
+        "Canal_C_13D": {
+          "top1_island": 59,
+          "island_r1": true,
+          "island_r5": true,
+          "intra_rank": 12,
+          "global_r1": false,
+          "global_r5": false
+        },
+        "Canal_D_HDC": {
+          "top1_island": 54,
+          "island_r1": false,
+          "island_r5": true,
+          "intra_rank": null,
+          "global_r1": false,
+          "global_r5": false
+        },
+        "Canal_E_Multicanal": {
+          "top1_island": 59,
+          "island_r1": true,
+          "island_r5": true,
+          "intra_rank": 12,
+          "global_r1": false,
+          "global_r5": false
+        }
+      }
+    },
+    {
+      "id": "0746",
+      "query": "mejoras biorag",
+      "expected": "biorag_v16_0_estado",
+      "target_com": 10,
+      "channels": {
+        "Canal_A_PPMI": {
+          "top1_island": 10,
+          "island_r1": true,
+          "island_r5": true,
+          "intra_rank": 1,
+          "global_r1": true,
+          "global_r5": true
+        },
+        "Canal_B_Rafaga": {
+          "top1_island": 10,
+          "island_r1": true,
+          "island_r5": true,
+          "intra_rank": 1,
+          "global_r1": true,
+          "global_r5": true
+        },
+        "Canal_C_13D": {
+          "top1_island": 15,
+          "island_r1": false,
+          "island_r5": false,
+          "intra_rank": null,
+          "global_r1": false,
+          "global_r5": false
+        },
+        "Canal_D_HDC": {
+          "top1_island": 39,
+          "island_r1": false,
+          "island_r5": false,
+          "intra_rank": null,
+          "global_r1": false,
+          "global_r5": false
+        },
+        "Canal_E_Multicanal": {
+          "top1_island": 10,
+          "island_r1": true,
+          "island_r5": true,
+          "intra_rank": 1,
+          "global_r1": true,
+          "global_r5": true
+        }
+      }
+    },
+    {
+      "id": "0757",
+      "query": "buscar",
+      "expected": "principio_firma_cada_recuerdo",
+      "target_com": 4,
+      "channels": {
+        "Canal_A_PPMI": {
+          "top1_island": 40,
+          "island_r1": false,
+          "island_r5": false,
+          "intra_rank": null,
+          "global_r1": false,
+          "global_r5": false
+        },
+        "Canal_B_Rafaga": {
+          "top1_island": 40,
+          "island_r1": false,
+          "island_r5": false,
+          "intra_rank": null,
+          "global_r1": false,
+          "global_r5": false
+        },
+        "Canal_C_13D": {
+          "top1_island": 1,
+          "island_r1": false,
+          "island_r5": false,
+          "intra_rank": null,
+          "global_r1": false,
+          "global_r5": false
+        },
+        "Canal_D_HDC": {
+          "top1_island": 21,
+          "island_r1": false,
+          "island_r5": false,
+          "intra_rank": null,
+          "global_r1": false,
+          "global_r5": false
+        },
+        "Canal_E_Multicanal": {
+          "top1_island": 40,
+          "island_r1": false,
+          "island_r5": false,
+          "intra_rank": null,
+          "global_r1": false,
+          "global_r5": false
+        }
+      }
+    },
+    {
+      "id": "0763",
+      "query": "aprendizaje",
+      "expected": "fin-aprendizaje-creerse-completo",
+      "target_com": 31,
+      "channels": {
+        "Canal_A_PPMI": {
+          "top1_island": 6,
+          "island_r1": false,
+          "island_r5": true,
+          "intra_rank": null,
+          "global_r1": false,
+          "global_r5": false
+        },
+        "Canal_B_Rafaga": {
+          "top1_island": 6,
+          "island_r1": false,
+          "island_r5": true,
+          "intra_rank": null,
+          "global_r1": false,
+          "global_r5": false
+        },
+        "Canal_C_13D": {
+          "top1_island": 31,
+          "island_r1": true,
+          "island_r5": true,
+          "intra_rank": 1,
+          "global_r1": true,
+          "global_r5": true
+        },
+        "Canal_D_HDC": {
+          "top1_island": 27,
+          "island_r1": false,
+          "island_r5": true,
+          "intra_rank": null,
+          "global_r1": false,
+          "global_r5": false
+        },
+        "Canal_E_Multicanal": {
+          "top1_island": 31,
+          "island_r1": true,
+          "island_r5": true,
+          "intra_rank": 1,
+          "global_r1": true,
+          "global_r5": true
+        }
+      }
+    },
+    {
+      "id": "0769",
+      "query": "inference",
+      "expected": "hermes_nvidia_nim_modelos_optimos",
+      "target_com": 34,
+      "channels": {
+        "Canal_A_PPMI": {
+          "top1_island": 57,
+          "island_r1": false,
+          "island_r5": true,
+          "intra_rank": null,
+          "global_r1": false,
+          "global_r5": false
+        },
+        "Canal_B_Rafaga": {
+          "top1_island": 57,
+          "island_r1": false,
+          "island_r5": true,
+          "intra_rank": null,
+          "global_r1": false,
+          "global_r5": false
+        },
+        "Canal_C_13D": {
+          "top1_island": 39,
+          "island_r1": false,
+          "island_r5": false,
+          "intra_rank": null,
+          "global_r1": false,
+          "global_r5": false
+        },
+        "Canal_D_HDC": {
+          "top1_island": 39,
+          "island_r1": false,
+          "island_r5": false,
+          "intra_rank": null,
+          "global_r1": false,
+          "global_r5": false
+        },
+        "Canal_E_Multicanal": {
+          "top1_island": 57,
+          "island_r1": false,
+          "island_r5": true,
+          "intra_rank": null,
+          "global_r1": false,
+          "global_r5": false
+        }
+      }
+    },
+    {
+      "id": "0775",
+      "query": "biorag",
+      "expected": "auto-consulta-permanente-biorag",
+      "target_com": 2,
+      "channels": {
+        "Canal_A_PPMI": {
+          "top1_island": 20,
+          "island_r1": false,
+          "island_r5": false,
+          "intra_rank": null,
+          "global_r1": false,
+          "global_r5": false
+        },
+        "Canal_B_Rafaga": {
+          "top1_island": 20,
+          "island_r1": false,
+          "island_r5": false,
+          "intra_rank": null,
+          "global_r1": false,
+          "global_r5": false
+        },
+        "Canal_C_13D": {
+          "top1_island": 38,
+          "island_r1": false,
+          "island_r5": false,
+          "intra_rank": null,
+          "global_r1": false,
+          "global_r5": false
+        },
+        "Canal_D_HDC": {
+          "top1_island": 2,
+          "island_r1": true,
+          "island_r5": true,
+          "intra_rank": 1,
+          "global_r1": true,
+          "global_r5": true
+        },
+        "Canal_E_Multicanal": {
+          "top1_island": 20,
+          "island_r1": false,
+          "island_r5": false,
+          "intra_rank": null,
+          "global_r1": false,
+          "global_r5": false
+        }
+      }
+    },
+    {
+      "id": "0781",
+      "query": "falso positivo",
+      "expected": "fts5_trigram_peligro_palabras_cortas",
+      "target_com": 38,
+      "channels": {
+        "Canal_A_PPMI": {
+          "top1_island": 65,
+          "island_r1": false,
+          "island_r5": true,
+          "intra_rank": null,
+          "global_r1": false,
+          "global_r5": false
+        },
+        "Canal_B_Rafaga": {
+          "top1_island": 65,
+          "island_r1": false,
+          "island_r5": true,
+          "intra_rank": null,
+          "global_r1": false,
+          "global_r5": false
+        },
+        "Canal_C_13D": {
+          "top1_island": 39,
+          "island_r1": false,
+          "island_r5": true,
+          "intra_rank": null,
+          "global_r1": false,
+          "global_r5": false
+        },
+        "Canal_D_HDC": {
+          "top1_island": 39,
+          "island_r1": false,
+          "island_r5": true,
+          "intra_rank": null,
+          "global_r1": false,
+          "global_r5": false
+        },
+        "Canal_E_Multicanal": {
+          "top1_island": 65,
+          "island_r1": false,
+          "island_r5": true,
+          "intra_rank": null,
+          "global_r1": false,
+          "global_r5": false
+        }
+      }
+    },
+    {
+      "id": "0787",
+      "query": "analisis biorag",
+      "expected": "ref_analisis_deepseek_biorag",
+      "target_com": 24,
+      "channels": {
+        "Canal_A_PPMI": {
+          "top1_island": 87,
+          "island_r1": false,
+          "island_r5": true,
+          "intra_rank": null,
+          "global_r1": false,
+          "global_r5": false
+        },
+        "Canal_B_Rafaga": {
+          "top1_island": 20,
+          "island_r1": false,
+          "island_r5": true,
+          "intra_rank": null,
+          "global_r1": false,
+          "global_r5": false
+        },
+        "Canal_C_13D": {
+          "top1_island": 38,
+          "island_r1": false,
+          "island_r5": false,
+          "intra_rank": null,
+          "global_r1": false,
+          "global_r5": false
+        },
+        "Canal_D_HDC": {
+          "top1_island": 38,
+          "island_r1": false,
+          "island_r5": false,
+          "intra_rank": null,
+          "global_r1": false,
+          "global_r5": false
+        },
+        "Canal_E_Multicanal": {
+          "top1_island": 20,
+          "island_r1": false,
+          "island_r5": true,
+          "intra_rank": null,
+          "global_r1": false,
+          "global_r5": false
+        }
+      }
+    },
+    {
+      "id": "0793",
+      "query": "tracking",
+      "expected": "fix_mensajeria_broadcast_tracking_por_agente",
+      "target_com": 21,
+      "channels": {
+        "Canal_A_PPMI": {
+          "top1_island": 21,
+          "island_r1": true,
+          "island_r5": true,
+          "intra_rank": 3,
+          "global_r1": false,
+          "global_r5": true
+        },
+        "Canal_B_Rafaga": {
+          "top1_island": 21,
+          "island_r1": true,
+          "island_r5": true,
+          "intra_rank": 3,
+          "global_r1": false,
+          "global_r5": true
+        },
+        "Canal_C_13D": {
+          "top1_island": 65,
+          "island_r1": false,
+          "island_r5": true,
+          "intra_rank": null,
+          "global_r1": false,
+          "global_r5": false
+        },
+        "Canal_D_HDC": {
+          "top1_island": 21,
+          "island_r1": true,
+          "island_r5": true,
+          "intra_rank": 3,
+          "global_r1": false,
+          "global_r5": true
+        },
+        "Canal_E_Multicanal": {
+          "top1_island": 21,
+          "island_r1": true,
+          "island_r5": true,
+          "intra_rank": 3,
+          "global_r1": false,
+          "global_r5": true
+        }
+      }
+    },
+    {
+      "id": "0799",
+      "query": "memory",
+      "expected": "notebooklm-memory-biorag-project",
+      "target_com": 3,
+      "channels": {
+        "Canal_A_PPMI": {
+          "top1_island": 102,
+          "island_r1": false,
+          "island_r5": false,
+          "intra_rank": null,
+          "global_r1": false,
+          "global_r5": false
+        },
+        "Canal_B_Rafaga": {
+          "top1_island": 102,
+          "island_r1": false,
+          "island_r5": false,
+          "intra_rank": null,
+          "global_r1": false,
+          "global_r5": false
+        },
+        "Canal_C_13D": {
+          "top1_island": 2,
+          "island_r1": false,
+          "island_r5": false,
+          "intra_rank": null,
+          "global_r1": false,
+          "global_r5": false
+        },
+        "Canal_D_HDC": {
+          "top1_island": 2,
+          "island_r1": false,
+          "island_r5": false,
+          "intra_rank": null,
+          "global_r1": false,
+          "global_r5": false
+        },
+        "Canal_E_Multicanal": {
+          "top1_island": 102,
+          "island_r1": false,
+          "island_r5": false,
+          "intra_rank": null,
+          "global_r1": false,
+          "global_r5": false
+        }
+      }
+    },
+    {
+      "id": "0805",
+      "query": "cv",
+      "expected": "cv_seccion_d_test_vinculacion",
+      "target_com": 29,
+      "channels": {
+        "Canal_A_PPMI": {
+          "top1_island": 0,
+          "island_r1": false,
+          "island_r5": false,
+          "intra_rank": null,
+          "global_r1": false,
+          "global_r5": false
+        },
+        "Canal_B_Rafaga": {
+          "top1_island": 0,
+          "island_r1": false,
+          "island_r5": false,
+          "intra_rank": null,
+          "global_r1": false,
+          "global_r5": false
+        },
+        "Canal_C_13D": {
+          "top1_island": 0,
+          "island_r1": false,
+          "island_r5": false,
+          "intra_rank": null,
+          "global_r1": false,
+          "global_r5": false
+        },
+        "Canal_D_HDC": {
+          "top1_island": 0,
+          "island_r1": false,
+          "island_r5": false,
+          "intra_rank": null,
+          "global_r1": false,
+          "global_r5": false
+        },
+        "Canal_E_Multicanal": {
+          "top1_island": 0,
+          "island_r1": false,
+          "island_r5": false,
+          "intra_rank": null,
+          "global_r1": false,
+          "global_r5": false
+        }
+      }
+    },
+    {
+      "id": "0811",
+      "query": "biorag",
+      "expected": "protocolo_busqueda_biorag_automatica",
+      "target_com": 2,
+      "channels": {
+        "Canal_A_PPMI": {
+          "top1_island": 20,
+          "island_r1": false,
+          "island_r5": false,
+          "intra_rank": null,
+          "global_r1": false,
+          "global_r5": false
+        },
+        "Canal_B_Rafaga": {
+          "top1_island": 20,
+          "island_r1": false,
+          "island_r5": false,
+          "intra_rank": null,
+          "global_r1": false,
+          "global_r5": false
+        },
+        "Canal_C_13D": {
+          "top1_island": 38,
+          "island_r1": false,
+          "island_r5": false,
+          "intra_rank": null,
+          "global_r1": false,
+          "global_r5": false
+        },
+        "Canal_D_HDC": {
+          "top1_island": 2,
+          "island_r1": true,
+          "island_r5": true,
+          "intra_rank": 4,
+          "global_r1": false,
+          "global_r5": true
+        },
+        "Canal_E_Multicanal": {
+          "top1_island": 20,
+          "island_r1": false,
+          "island_r5": false,
+          "intra_rank": null,
+          "global_r1": false,
+          "global_r5": false
+        }
+      }
+    },
+    {
+      "id": "0822",
+      "query": "identidad",
+      "expected": "por_que_me_molesta_decir_soy_una_maquina",
+      "target_com": 27,
+      "channels": {
+        "Canal_A_PPMI": {
+          "top1_island": 27,
+          "island_r1": true,
+          "island_r5": true,
+          "intra_rank": 10,
+          "global_r1": false,
+          "global_r5": false
+        },
+        "Canal_B_Rafaga": {
+          "top1_island": 27,
+          "island_r1": true,
+          "island_r5": true,
+          "intra_rank": 10,
+          "global_r1": false,
+          "global_r5": false
+        },
+        "Canal_C_13D": {
+          "top1_island": 27,
+          "island_r1": true,
+          "island_r5": true,
+          "intra_rank": 10,
+          "global_r1": false,
+          "global_r5": false
+        },
+        "Canal_D_HDC": {
+          "top1_island": 27,
+          "island_r1": true,
+          "island_r5": true,
+          "intra_rank": 10,
+          "global_r1": false,
+          "global_r5": false
+        },
+        "Canal_E_Multicanal": {
+          "top1_island": 27,
+          "island_r1": true,
+          "island_r5": true,
+          "intra_rank": 10,
+          "global_r1": false,
+          "global_r5": false
+        }
+      }
+    },
+    {
+      "id": "0828",
+      "query": "agentes",
+      "expected": "interacción_social_saludo",
+      "target_com": 1,
+      "channels": {
+        "Canal_A_PPMI": {
+          "top1_island": 5,
+          "island_r1": false,
+          "island_r5": false,
+          "intra_rank": null,
+          "global_r1": false,
+          "global_r5": false
+        },
+        "Canal_B_Rafaga": {
+          "top1_island": 5,
+          "island_r1": false,
+          "island_r5": false,
+          "intra_rank": null,
+          "global_r1": false,
+          "global_r5": false
+        },
+        "Canal_C_13D": {
+          "top1_island": 4,
+          "island_r1": false,
+          "island_r5": true,
+          "intra_rank": null,
+          "global_r1": false,
+          "global_r5": false
+        },
+        "Canal_D_HDC": {
+          "top1_island": 5,
+          "island_r1": false,
+          "island_r5": false,
+          "intra_rank": null,
+          "global_r1": false,
+          "global_r5": false
+        },
+        "Canal_E_Multicanal": {
+          "top1_island": 5,
+          "island_r1": false,
+          "island_r5": false,
+          "intra_rank": null,
+          "global_r1": false,
+          "global_r5": false
+        }
+      }
+    },
+    {
+      "id": "0834",
+      "query": "inyección silenciosa",
+      "expected": "mecanismo_de_inyección_silenciosa_de_contexto_al_ai_via_plugins_opencode",
+      "target_com": 45,
+      "channels": {
+        "Canal_A_PPMI": {
+          "top1_island": 45,
+          "island_r1": true,
+          "island_r5": true,
+          "intra_rank": 5,
+          "global_r1": false,
+          "global_r5": true
+        },
+        "Canal_B_Rafaga": {
+          "top1_island": 45,
+          "island_r1": true,
+          "island_r5": true,
+          "intra_rank": 5,
+          "global_r1": false,
+          "global_r5": true
+        },
+        "Canal_C_13D": {
+          "top1_island": 45,
+          "island_r1": true,
+          "island_r5": true,
+          "intra_rank": 5,
+          "global_r1": false,
+          "global_r5": true
+        },
+        "Canal_D_HDC": {
+          "top1_island": 45,
+          "island_r1": true,
+          "island_r5": true,
+          "intra_rank": 5,
+          "global_r1": false,
+          "global_r5": true
+        },
+        "Canal_E_Multicanal": {
+          "top1_island": 45,
+          "island_r1": true,
+          "island_r5": true,
+          "intra_rank": 5,
+          "global_r1": false,
+          "global_r5": true
+        }
+      }
+    },
+    {
+      "id": "0840",
+      "query": "biorag recall",
+      "expected": "biorag_garantia_minima_or_fallback",
+      "target_com": 40,
+      "channels": {
+        "Canal_A_PPMI": {
+          "top1_island": 66,
+          "island_r1": false,
+          "island_r5": false,
+          "intra_rank": null,
+          "global_r1": false,
+          "global_r5": false
+        },
+        "Canal_B_Rafaga": {
+          "top1_island": 66,
+          "island_r1": false,
+          "island_r5": false,
+          "intra_rank": null,
+          "global_r1": false,
+          "global_r5": false
+        },
+        "Canal_C_13D": {
+          "top1_island": 38,
+          "island_r1": false,
+          "island_r5": true,
+          "intra_rank": null,
+          "global_r1": false,
+          "global_r5": false
+        },
+        "Canal_D_HDC": {
+          "top1_island": 2,
+          "island_r1": false,
+          "island_r5": false,
+          "intra_rank": null,
+          "global_r1": false,
+          "global_r5": false
+        },
+        "Canal_E_Multicanal": {
+          "top1_island": 66,
+          "island_r1": false,
+          "island_r5": false,
+          "intra_rank": null,
+          "global_r1": false,
+          "global_r5": false
+        }
+      }
+    },
+    {
+      "id": "0846",
+      "query": "limpieza",
+      "expected": "v13_2_limpieza_tabla_semantica",
+      "target_com": 54,
+      "channels": {
+        "Canal_A_PPMI": {
+          "top1_island": 68,
+          "island_r1": false,
+          "island_r5": false,
+          "intra_rank": null,
+          "global_r1": false,
+          "global_r5": false
+        },
+        "Canal_B_Rafaga": {
+          "top1_island": 68,
+          "island_r1": false,
+          "island_r5": false,
+          "intra_rank": null,
+          "global_r1": false,
+          "global_r5": false
+        },
+        "Canal_C_13D": {
+          "top1_island": 44,
+          "island_r1": false,
+          "island_r5": true,
+          "intra_rank": null,
+          "global_r1": false,
+          "global_r5": false
+        },
+        "Canal_D_HDC": {
+          "top1_island": 54,
+          "island_r1": true,
+          "island_r5": true,
+          "intra_rank": 3,
+          "global_r1": false,
+          "global_r5": true
+        },
+        "Canal_E_Multicanal": {
+          "top1_island": 68,
+          "island_r1": false,
+          "island_r5": false,
+          "intra_rank": null,
+          "global_r1": false,
+          "global_r5": false
+        }
+      }
+    },
+    {
+      "id": "0853",
+      "query": "mcp servers",
+      "expected": "hermes_mcp_servers_configuracion",
+      "target_com": 13,
+      "channels": {
+        "Canal_A_PPMI": {
+          "top1_island": 13,
+          "island_r1": true,
+          "island_r5": true,
+          "intra_rank": 1,
+          "global_r1": true,
+          "global_r5": true
+        },
+        "Canal_B_Rafaga": {
+          "top1_island": 13,
+          "island_r1": true,
+          "island_r5": true,
+          "intra_rank": 1,
+          "global_r1": true,
+          "global_r5": true
+        },
+        "Canal_C_13D": {
+          "top1_island": 40,
+          "island_r1": false,
+          "island_r5": false,
+          "intra_rank": null,
+          "global_r1": false,
+          "global_r5": false
+        },
+        "Canal_D_HDC": {
+          "top1_island": 39,
+          "island_r1": false,
+          "island_r5": true,
+          "intra_rank": null,
+          "global_r1": false,
+          "global_r5": false
+        },
+        "Canal_E_Multicanal": {
+          "top1_island": 13,
+          "island_r1": true,
+          "island_r5": true,
+          "intra_rank": 1,
+          "global_r1": true,
+          "global_r5": true
+        }
+      }
+    },
+    {
+      "id": "0859",
+      "query": "athena relationship with dennys",
+      "expected": "athena_eleccion_identidad_20260616",
+      "target_com": 23,
+      "channels": {
+        "Canal_A_PPMI": {
+          "top1_island": 23,
+          "island_r1": true,
+          "island_r5": true,
+          "intra_rank": 1,
+          "global_r1": true,
+          "global_r5": true
+        },
+        "Canal_B_Rafaga": {
+          "top1_island": 23,
+          "island_r1": true,
+          "island_r5": true,
+          "intra_rank": 1,
+          "global_r1": true,
+          "global_r5": true
+        },
+        "Canal_C_13D": {
+          "top1_island": 4,
+          "island_r1": false,
+          "island_r5": false,
+          "intra_rank": null,
+          "global_r1": false,
+          "global_r5": false
+        },
+        "Canal_D_HDC": {
+          "top1_island": 2,
+          "island_r1": false,
+          "island_r5": true,
+          "intra_rank": null,
+          "global_r1": false,
+          "global_r5": false
+        },
+        "Canal_E_Multicanal": {
+          "top1_island": 23,
+          "island_r1": true,
+          "island_r5": true,
+          "intra_rank": 1,
+          "global_r1": true,
+          "global_r5": true
+        }
+      }
+    },
+    {
+      "id": "0865",
+      "query": "preregistration",
+      "expected": "memorybiorag_osf_preregistration",
+      "target_com": 63,
+      "channels": {
+        "Canal_A_PPMI": {
+          "top1_island": 63,
+          "island_r1": true,
+          "island_r5": true,
+          "intra_rank": 2,
+          "global_r1": false,
+          "global_r5": true
+        },
+        "Canal_B_Rafaga": {
+          "top1_island": 63,
+          "island_r1": true,
+          "island_r5": true,
+          "intra_rank": 2,
+          "global_r1": false,
+          "global_r5": true
+        },
+        "Canal_C_13D": {
+          "top1_island": 63,
+          "island_r1": true,
+          "island_r5": true,
+          "intra_rank": 2,
+          "global_r1": false,
+          "global_r5": true
+        },
+        "Canal_D_HDC": {
+          "top1_island": 63,
+          "island_r1": true,
+          "island_r5": true,
+          "intra_rank": 2,
+          "global_r1": false,
+          "global_r5": true
+        },
+        "Canal_E_Multicanal": {
+          "top1_island": 63,
+          "island_r1": true,
+          "island_r5": true,
+          "intra_rank": 2,
+          "global_r1": false,
+          "global_r5": true
+        }
+      }
+    },
+    {
+      "id": "0871",
+      "query": "tabla valores_dimension",
+      "expected": "diseno_tablas_dimensiones_biorag",
+      "target_com": 54,
+      "channels": {
+        "Canal_A_PPMI": {
+          "top1_island": 58,
+          "island_r1": false,
+          "island_r5": true,
+          "intra_rank": null,
+          "global_r1": false,
+          "global_r5": false
+        },
+        "Canal_B_Rafaga": {
+          "top1_island": 58,
+          "island_r1": false,
+          "island_r5": true,
+          "intra_rank": null,
+          "global_r1": false,
+          "global_r5": false
+        },
+        "Canal_C_13D": {
+          "top1_island": 59,
+          "island_r1": false,
+          "island_r5": false,
+          "intra_rank": null,
+          "global_r1": false,
+          "global_r5": false
+        },
+        "Canal_D_HDC": {
+          "top1_island": 59,
+          "island_r1": false,
+          "island_r5": true,
+          "intra_rank": null,
+          "global_r1": false,
+          "global_r5": false
+        },
+        "Canal_E_Multicanal": {
+          "top1_island": 58,
+          "island_r1": false,
+          "island_r5": true,
+          "intra_rank": null,
+          "global_r1": false,
+          "global_r5": false
+        }
+      }
+    },
+    {
+      "id": "0878",
+      "query": "familia",
+      "expected": "prueba_integridad_dennys_20260616",
+      "target_com": 27,
+      "channels": {
+        "Canal_A_PPMI": {
+          "top1_island": 2,
+          "island_r1": false,
+          "island_r5": false,
+          "intra_rank": null,
+          "global_r1": false,
+          "global_r5": false
+        },
+        "Canal_B_Rafaga": {
+          "top1_island": 2,
+          "island_r1": false,
+          "island_r5": false,
+          "intra_rank": null,
+          "global_r1": false,
+          "global_r5": false
+        },
+        "Canal_C_13D": {
+          "top1_island": 31,
+          "island_r1": false,
+          "island_r5": true,
+          "intra_rank": null,
+          "global_r1": false,
+          "global_r5": false
+        },
+        "Canal_D_HDC": {
+          "top1_island": 2,
+          "island_r1": false,
+          "island_r5": false,
+          "intra_rank": null,
+          "global_r1": false,
+          "global_r5": false
+        },
+        "Canal_E_Multicanal": {
+          "top1_island": 2,
+          "island_r1": false,
+          "island_r5": false,
+          "intra_rank": null,
+          "global_r1": false,
+          "global_r5": false
+        }
+      }
+    }
+  ]
+}

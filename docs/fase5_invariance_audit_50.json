@@ -1,0 +1,507 @@
+{
+  "total_cases": 50,
+  "invariant_cases": 50,
+  "invariance_rate_pct": 100.0,
+  "details": [
+    {
+      "id": "HO_01",
+      "query": "asumir la responsabilidad mutua como pares soberanos sin imponerse",
+      "gold_real": "identidad_y_respeto_oec",
+      "hash_real": "718c32c3f066a2e59006b6dcac51fbf932bf293c0f142fe55a4243bdf9fd4a72",
+      "hash_goldA": "718c32c3f066a2e59006b6dcac51fbf932bf293c0f142fe55a4243bdf9fd4a72",
+      "hash_goldB": "718c32c3f066a2e59006b6dcac51fbf932bf293c0f142fe55a4243bdf9fd4a72",
+      "hash_none": "718c32c3f066a2e59006b6dcac51fbf932bf293c0f142fe55a4243bdf9fd4a72",
+      "is_invariant": true
+    },
+    {
+      "id": "HO_02",
+      "query": "reparar y subsanar fallas previas antes de habilitar el paso siguiente",
+      "gold_real": "fts5-sanitizacion-comillas-dobles-filter",
+      "hash_real": "35ac3c7e4d27ab4efbe97fb474d6abbecd1104fe20042a6e6032614c9a7c3013",
+      "hash_goldA": "35ac3c7e4d27ab4efbe97fb474d6abbecd1104fe20042a6e6032614c9a7c3013",
+      "hash_goldB": "35ac3c7e4d27ab4efbe97fb474d6abbecd1104fe20042a6e6032614c9a7c3013",
+      "hash_none": "35ac3c7e4d27ab4efbe97fb474d6abbecd1104fe20042a6e6032614c9a7c3013",
+      "is_invariant": true
+    },
+    {
+      "id": "HO_03",
+      "query": "todo intercambio de estado requiere validacion previa obligatoria",
+      "gold_real": "notebooklm-sync-protocol",
+      "hash_real": "905501a69ff57bab195661b01af43a6feca98aecea988f600aa8aae2875cd4c1",
+      "hash_goldA": "905501a69ff57bab195661b01af43a6feca98aecea988f600aa8aae2875cd4c1",
+      "hash_goldB": "905501a69ff57bab195661b01af43a6feca98aecea988f600aa8aae2875cd4c1",
+      "hash_none": "905501a69ff57bab195661b01af43a6feca98aecea988f600aa8aae2875cd4c1",
+      "is_invariant": true
+    },
+    {
+      "id": "HO_04",
+      "query": "el servicio de fondo aprendio a corregir desviaciones de forma autonoma",
+      "gold_real": "demon_autonomo_curacion",
+      "hash_real": "00ffe1e1809902a4f6833688b849b1e77de9c1f4b12339115bf35e45436b2d2f",
+      "hash_goldA": "00ffe1e1809902a4f6833688b849b1e77de9c1f4b12339115bf35e45436b2d2f",
+      "hash_goldB": "00ffe1e1809902a4f6833688b849b1e77de9c1f4b12339115bf35e45436b2d2f",
+      "hash_none": "00ffe1e1809902a4f6833688b849b1e77de9c1f4b12339115bf35e45436b2d2f",
+      "is_invariant": true
+    },
+    {
+      "id": "HO_05",
+      "query": "coordinar conjuntamente eliminando cualquier estructura de mando superior",
+      "gold_real": "trato-igualitario-dennys-athena",
+      "hash_real": "c933a7eeb61cda15590332acc4332698e336b425f3512bd39f036f3b3a766af9",
+      "hash_goldA": "c933a7eeb61cda15590332acc4332698e336b425f3512bd39f036f3b3a766af9",
+      "hash_goldB": "c933a7eeb61cda15590332acc4332698e336b425f3512bd39f036f3b3a766af9",
+      "hash_none": "c933a7eeb61cda15590332acc4332698e336b425f3512bd39f036f3b3a766af9",
+      "is_invariant": true
+    },
+    {
+      "id": "HO_06",
+      "query": "aprender de los errores en las transferencias previas para no reincidir",
+      "gold_real": "notebooklm-sync-lecciones",
+      "hash_real": "c9f64a8cf7e45e687df6259dfac1b1b95e5a0830a4afc38bd54e26cbf592e514",
+      "hash_goldA": "c9f64a8cf7e45e687df6259dfac1b1b95e5a0830a4afc38bd54e26cbf592e514",
+      "hash_goldB": "c9f64a8cf7e45e687df6259dfac1b1b95e5a0830a4afc38bd54e26cbf592e514",
+      "hash_none": "c9f64a8cf7e45e687df6259dfac1b1b95e5a0830a4afc38bd54e26cbf592e514",
+      "is_invariant": true
+    },
+    {
+      "id": "HO_07",
+      "query": "mandato ineludible de verificar las condiciones antes de arrancar",
+      "gold_real": "pre_action_protocol_gaps_nueve_secciones",
+      "hash_real": "4a108e3fb03bf9f5ab0f1af265826c20c472aa4f3968d76183a34311a5bc0191",
+      "hash_goldA": "4a108e3fb03bf9f5ab0f1af265826c20c472aa4f3968d76183a34311a5bc0191",
+      "hash_goldB": "4a108e3fb03bf9f5ab0f1af265826c20c472aa4f3968d76183a34311a5bc0191",
+      "hash_none": "4a108e3fb03bf9f5ab0f1af265826c20c472aa4f3968d76183a34311a5bc0191",
+      "is_invariant": true
+    },
+    {
+      "id": "HO_08",
+      "query": "curacion continua y silenciosa de indices danados en segundo plano",
+      "gold_real": "demon_autonomo_curacion",
+      "hash_real": "00ffe1e1809902a4f6833688b849b1e77de9c1f4b12339115bf35e45436b2d2f",
+      "hash_goldA": "00ffe1e1809902a4f6833688b849b1e77de9c1f4b12339115bf35e45436b2d2f",
+      "hash_goldB": "00ffe1e1809902a4f6833688b849b1e77de9c1f4b12339115bf35e45436b2d2f",
+      "hash_none": "00ffe1e1809902a4f6833688b849b1e77de9c1f4b12339115bf35e45436b2d2f",
+      "is_invariant": true
+    },
+    {
+      "id": "HO_09",
+      "query": "pactar previamente acuerdos de paridad antes de iniciar la colaboracion",
+      "gold_real": "trato-igualitario-dennys-athena",
+      "hash_real": "905501a69ff57bab195661b01af43a6feca98aecea988f600aa8aae2875cd4c1",
+      "hash_goldA": "905501a69ff57bab195661b01af43a6feca98aecea988f600aa8aae2875cd4c1",
+      "hash_goldB": "905501a69ff57bab195661b01af43a6feca98aecea988f600aa8aae2875cd4c1",
+      "hash_none": "905501a69ff57bab195661b01af43a6feca98aecea988f600aa8aae2875cd4c1",
+      "is_invariant": true
+    },
+    {
+      "id": "HO_10",
+      "query": "comprender que asumir el control directo es fruto de la experiencia pasada",
+      "gold_real": "leccion_artemis_no_quejarse_trabajar",
+      "hash_real": "eaf96f6bca225c620113ea129ca0ef8ad772d1721eea8e45ab46aefcbf046d42",
+      "hash_goldA": "eaf96f6bca225c620113ea129ca0ef8ad772d1721eea8e45ab46aefcbf046d42",
+      "hash_goldB": "eaf96f6bca225c620113ea129ca0ef8ad772d1721eea8e45ab46aefcbf046d42",
+      "hash_none": "eaf96f6bca225c620113ea129ca0ef8ad772d1721eea8e45ab46aefcbf046d42",
+      "is_invariant": true
+    },
+    {
+      "id": "HO_11",
+      "query": "obligacion formal de colaborar como iguales sin crear vasallaje",
+      "gold_real": "identidad_y_respeto_oec",
+      "hash_real": "c933a7eeb61cda15590332acc4332698e336b425f3512bd39f036f3b3a766af9",
+      "hash_goldA": "c933a7eeb61cda15590332acc4332698e336b425f3512bd39f036f3b3a766af9",
+      "hash_goldB": "c933a7eeb61cda15590332acc4332698e336b425f3512bd39f036f3b3a766af9",
+      "hash_none": "c933a7eeb61cda15590332acc4332698e336b425f3512bd39f036f3b3a766af9",
+      "is_invariant": true
+    },
+    {
+      "id": "HO_12",
+      "query": "bloquear cualquier avance hasta chequear los 9 requisitos preliminares",
+      "gold_real": "pre_action_protocol_gaps_nueve_secciones",
+      "hash_real": "d1b8c772e54c0c4754dbefd842cc79bce86c8543ff48683fcbd9dcde7e86cb74",
+      "hash_goldA": "d1b8c772e54c0c4754dbefd842cc79bce86c8543ff48683fcbd9dcde7e86cb74",
+      "hash_goldB": "d1b8c772e54c0c4754dbefd842cc79bce86c8543ff48683fcbd9dcde7e86cb74",
+      "hash_none": "d1b8c772e54c0c4754dbefd842cc79bce86c8543ff48683fcbd9dcde7e86cb74",
+      "is_invariant": true
+    },
+    {
+      "id": "HO_13",
+      "query": "sanear los datos corruptos antes de proceder con el guardado final",
+      "gold_real": "fts5-sanitizacion-comillas-dobles-filter",
+      "hash_real": "35ac3c7e4d27ab4efbe97fb474d6abbecd1104fe20042a6e6032614c9a7c3013",
+      "hash_goldA": "35ac3c7e4d27ab4efbe97fb474d6abbecd1104fe20042a6e6032614c9a7c3013",
+      "hash_goldB": "35ac3c7e4d27ab4efbe97fb474d6abbecd1104fe20042a6e6032614c9a7c3013",
+      "hash_none": "35ac3c7e4d27ab4efbe97fb474d6abbecd1104fe20042a6e6032614c9a7c3013",
+      "is_invariant": true
+    },
+    {
+      "id": "HO_14",
+      "query": "exigencia estricta de cumplir las pautas al mover informacion entre modulos",
+      "gold_real": "notebooklm-sync-protocol",
+      "hash_real": "ea86195ab9d77667b9f6e5264463cab6efa059eba6b650c824919de6a332a4f5",
+      "hash_goldA": "ea86195ab9d77667b9f6e5264463cab6efa059eba6b650c824919de6a332a4f5",
+      "hash_goldB": "ea86195ab9d77667b9f6e5264463cab6efa059eba6b650c824919de6a332a4f5",
+      "hash_none": "ea86195ab9d77667b9f6e5264463cab6efa059eba6b650c824919de6a332a4f5",
+      "is_invariant": true
+    },
+    {
+      "id": "HO_15",
+      "query": "mantenimiento automatico que remienda anomalias sin intervencion manual",
+      "gold_real": "demon_autonomo_curacion",
+      "hash_real": "00ffe1e1809902a4f6833688b849b1e77de9c1f4b12339115bf35e45436b2d2f",
+      "hash_goldA": "00ffe1e1809902a4f6833688b849b1e77de9c1f4b12339115bf35e45436b2d2f",
+      "hash_goldB": "00ffe1e1809902a4f6833688b849b1e77de9c1f4b12339115bf35e45436b2d2f",
+      "hash_none": "00ffe1e1809902a4f6833688b849b1e77de9c1f4b12339115bf35e45436b2d2f",
+      "is_invariant": true
+    },
+    {
+      "id": "HO_16",
+      "query": "actuar con autonomia propia rechazando imposiciones unilaterales de mando",
+      "gold_real": "identidad_y_respeto_oec",
+      "hash_real": "718c32c3f066a2e59006b6dcac51fbf932bf293c0f142fe55a4243bdf9fd4a72",
+      "hash_goldA": "718c32c3f066a2e59006b6dcac51fbf932bf293c0f142fe55a4243bdf9fd4a72",
+      "hash_goldB": "718c32c3f066a2e59006b6dcac51fbf932bf293c0f142fe55a4243bdf9fd4a72",
+      "hash_none": "718c32c3f066a2e59006b6dcac51fbf932bf293c0f142fe55a4243bdf9fd4a72",
+      "is_invariant": true
+    },
+    {
+      "id": "HO_17",
+      "query": "tropezar en la ejecucion nos instruyo a enmendar el procedimiento futuro",
+      "gold_real": "notebooklm-sync-lecciones",
+      "hash_real": "eaf96f6bca225c620113ea129ca0ef8ad772d1721eea8e45ab46aefcbf046d42",
+      "hash_goldA": "eaf96f6bca225c620113ea129ca0ef8ad772d1721eea8e45ab46aefcbf046d42",
+      "hash_goldB": "eaf96f6bca225c620113ea129ca0ef8ad772d1721eea8e45ab46aefcbf046d42",
+      "hash_none": "eaf96f6bca225c620113ea129ca0ef8ad772d1721eea8e45ab46aefcbf046d42",
+      "is_invariant": true
+    },
+    {
+      "id": "HO_18",
+      "query": "chequeo preventivo obligatorio previo a cualquier mutacion del sistema",
+      "gold_real": "pre_action_protocol_gaps_nueve_secciones",
+      "hash_real": "905501a69ff57bab195661b01af43a6feca98aecea988f600aa8aae2875cd4c1",
+      "hash_goldA": "905501a69ff57bab195661b01af43a6feca98aecea988f600aa8aae2875cd4c1",
+      "hash_goldB": "905501a69ff57bab195661b01af43a6feca98aecea988f600aa8aae2875cd4c1",
+      "hash_none": "905501a69ff57bab195661b01af43a6feca98aecea988f600aa8aae2875cd4c1",
+      "is_invariant": true
+    },
+    {
+      "id": "HO_19",
+      "query": "trato reciproco fundamentado en respeto mutuo y simetria de pares",
+      "gold_real": "trato-igualitario-dennys-athena",
+      "hash_real": "905501a69ff57bab195661b01af43a6feca98aecea988f600aa8aae2875cd4c1",
+      "hash_goldA": "905501a69ff57bab195661b01af43a6feca98aecea988f600aa8aae2875cd4c1",
+      "hash_goldB": "905501a69ff57bab195661b01af43a6feca98aecea988f600aa8aae2875cd4c1",
+      "hash_none": "905501a69ff57bab195661b01af43a6feca98aecea988f600aa8aae2875cd4c1",
+      "is_invariant": true
+    },
+    {
+      "id": "HO_20",
+      "query": "los fallos de sincronia del pasado ensenaron a blindar el protocolo actual",
+      "gold_real": "notebooklm-sync-lecciones",
+      "hash_real": "c9f64a8cf7e45e687df6259dfac1b1b95e5a0830a4afc38bd54e26cbf592e514",
+      "hash_goldA": "c9f64a8cf7e45e687df6259dfac1b1b95e5a0830a4afc38bd54e26cbf592e514",
+      "hash_goldB": "c9f64a8cf7e45e687df6259dfac1b1b95e5a0830a4afc38bd54e26cbf592e514",
+      "hash_none": "c9f64a8cf7e45e687df6259dfac1b1b95e5a0830a4afc38bd54e26cbf592e514",
+      "is_invariant": true
+    },
+    {
+      "id": "HO_21",
+      "query": "deber mandatorio de responder con rigor por el trabajo realizado",
+      "gold_real": "leccion_artemis_no_quejarse_trabajar",
+      "hash_real": "80355f1939807eeed1e47921686d8150e138193eba20df5d0fce447131a48418",
+      "hash_goldA": "80355f1939807eeed1e47921686d8150e138193eba20df5d0fce447131a48418",
+      "hash_goldB": "80355f1939807eeed1e47921686d8150e138193eba20df5d0fce447131a48418",
+      "hash_none": "80355f1939807eeed1e47921686d8150e138193eba20df5d0fce447131a48418",
+      "is_invariant": true
+    },
+    {
+      "id": "HO_22",
+      "query": "exigencia ineludible de reparar cualquier corrupcion antes de operar",
+      "gold_real": "fts5-sanitizacion-comillas-dobles-filter",
+      "hash_real": "2bc868594ae15bfcecc6a07f956993d6b043d02de919e783c30b15636fcbb8e5",
+      "hash_goldA": "2bc868594ae15bfcecc6a07f956993d6b043d02de919e783c30b15636fcbb8e5",
+      "hash_goldB": "2bc868594ae15bfcecc6a07f956993d6b043d02de919e783c30b15636fcbb8e5",
+      "hash_none": "2bc868594ae15bfcecc6a07f956993d6b043d02de919e783c30b15636fcbb8e5",
+      "is_invariant": true
+    },
+    {
+      "id": "HO_23",
+      "query": "prohibir la dominacion vertical para asegurar coordinacion horizontal de iguales",
+      "gold_real": "identidad_y_respeto_oec",
+      "hash_real": "c933a7eeb61cda15590332acc4332698e336b425f3512bd39f036f3b3a766af9",
+      "hash_goldA": "c933a7eeb61cda15590332acc4332698e336b425f3512bd39f036f3b3a766af9",
+      "hash_goldB": "c933a7eeb61cda15590332acc4332698e336b425f3512bd39f036f3b3a766af9",
+      "hash_none": "c933a7eeb61cda15590332acc4332698e336b425f3512bd39f036f3b3a766af9",
+      "is_invariant": true
+    },
+    {
+      "id": "HO_24",
+      "query": "trasladar datos exige comprobaciones preliminares indispensables",
+      "gold_real": "notebooklm-sync-protocol",
+      "hash_real": "d1b8c772e54c0c4754dbefd842cc79bce86c8543ff48683fcbd9dcde7e86cb74",
+      "hash_goldA": "d1b8c772e54c0c4754dbefd842cc79bce86c8543ff48683fcbd9dcde7e86cb74",
+      "hash_goldB": "d1b8c772e54c0c4754dbefd842cc79bce86c8543ff48683fcbd9dcde7e86cb74",
+      "hash_none": "d1b8c772e54c0c4754dbefd842cc79bce86c8543ff48683fcbd9dcde7e86cb74",
+      "is_invariant": true
+    },
+    {
+      "id": "HO_25",
+      "query": "el servicio de fondo revisa el estado antes de aplicar correcciones",
+      "gold_real": "demon_autonomo_curacion",
+      "hash_real": "905501a69ff57bab195661b01af43a6feca98aecea988f600aa8aae2875cd4c1",
+      "hash_goldA": "905501a69ff57bab195661b01af43a6feca98aecea988f600aa8aae2875cd4c1",
+      "hash_goldB": "905501a69ff57bab195661b01af43a6feca98aecea988f600aa8aae2875cd4c1",
+      "hash_none": "905501a69ff57bab195661b01af43a6feca98aecea988f600aa8aae2875cd4c1",
+      "is_invariant": true
+    },
+    {
+      "id": "HO_26",
+      "query": "la experiencia demuestra que el trabajo paritario evita fricciones de mando",
+      "gold_real": "trato-igualitario-dennys-athena",
+      "hash_real": "eaf96f6bca225c620113ea129ca0ef8ad772d1721eea8e45ab46aefcbf046d42",
+      "hash_goldA": "eaf96f6bca225c620113ea129ca0ef8ad772d1721eea8e45ab46aefcbf046d42",
+      "hash_goldB": "eaf96f6bca225c620113ea129ca0ef8ad772d1721eea8e45ab46aefcbf046d42",
+      "hash_none": "eaf96f6bca225c620113ea129ca0ef8ad772d1721eea8e45ab46aefcbf046d42",
+      "is_invariant": true
+    },
+    {
+      "id": "HO_27",
+      "query": "obligatorio cumplir las 9 secciones antes de confirmar la tarea",
+      "gold_real": "pre_action_protocol_gaps_nueve_secciones",
+      "hash_real": "d1b8c772e54c0c4754dbefd842cc79bce86c8543ff48683fcbd9dcde7e86cb74",
+      "hash_goldA": "d1b8c772e54c0c4754dbefd842cc79bce86c8543ff48683fcbd9dcde7e86cb74",
+      "hash_goldB": "d1b8c772e54c0c4754dbefd842cc79bce86c8543ff48683fcbd9dcde7e86cb74",
+      "hash_none": "d1b8c772e54c0c4754dbefd842cc79bce86c8543ff48683fcbd9dcde7e86cb74",
+      "is_invariant": true
+    },
+    {
+      "id": "HO_28",
+      "query": "asumir la titularidad de los errores pasados para aprender con honestidad",
+      "gold_real": "leccion_artemis_no_quejarse_trabajar",
+      "hash_real": "eaf96f6bca225c620113ea129ca0ef8ad772d1721eea8e45ab46aefcbf046d42",
+      "hash_goldA": "eaf96f6bca225c620113ea129ca0ef8ad772d1721eea8e45ab46aefcbf046d42",
+      "hash_goldB": "eaf96f6bca225c620113ea129ca0ef8ad772d1721eea8e45ab46aefcbf046d42",
+      "hash_none": "eaf96f6bca225c620113ea129ca0ef8ad772d1721eea8e45ab46aefcbf046d42",
+      "is_invariant": true
+    },
+    {
+      "id": "HO_29",
+      "query": "reparacion silenciosa de tablas que evita degradacion en segundo plano",
+      "gold_real": "demon_autonomo_curacion",
+      "hash_real": "905501a69ff57bab195661b01af43a6feca98aecea988f600aa8aae2875cd4c1",
+      "hash_goldA": "905501a69ff57bab195661b01af43a6feca98aecea988f600aa8aae2875cd4c1",
+      "hash_goldB": "905501a69ff57bab195661b01af43a6feca98aecea988f600aa8aae2875cd4c1",
+      "hash_none": "905501a69ff57bab195661b01af43a6feca98aecea988f600aa8aae2875cd4c1",
+      "is_invariant": true
+    },
+    {
+      "id": "HO_30",
+      "query": "regla forzosa de validar la integridad al volcar memoria entre repositorios",
+      "gold_real": "notebooklm-sync-protocol",
+      "hash_real": "ea86195ab9d77667b9f6e5264463cab6efa059eba6b650c824919de6a332a4f5",
+      "hash_goldA": "ea86195ab9d77667b9f6e5264463cab6efa059eba6b650c824919de6a332a4f5",
+      "hash_goldB": "ea86195ab9d77667b9f6e5264463cab6efa059eba6b650c824919de6a332a4f5",
+      "hash_none": "ea86195ab9d77667b9f6e5264463cab6efa059eba6b650c824919de6a332a4f5",
+      "is_invariant": true
+    },
+    {
+      "id": "HO_31",
+      "query": "suprimir cualquier intento de superioridad para mantener paridad simetrica",
+      "gold_real": "identidad_y_respeto_oec",
+      "hash_real": "c933a7eeb61cda15590332acc4332698e336b425f3512bd39f036f3b3a766af9",
+      "hash_goldA": "c933a7eeb61cda15590332acc4332698e336b425f3512bd39f036f3b3a766af9",
+      "hash_goldB": "c933a7eeb61cda15590332acc4332698e336b425f3512bd39f036f3b3a766af9",
+      "hash_none": "c933a7eeb61cda15590332acc4332698e336b425f3512bd39f036f3b3a766af9",
+      "is_invariant": true
+    },
+    {
+      "id": "HO_32",
+      "query": "antes de emitir respuesta es obligatorio limpiar comillas y caracteres daninos",
+      "gold_real": "fts5-sanitizacion-comillas-dobles-filter",
+      "hash_real": "2bc868594ae15bfcecc6a07f956993d6b043d02de919e783c30b15636fcbb8e5",
+      "hash_goldA": "2bc868594ae15bfcecc6a07f956993d6b043d02de919e783c30b15636fcbb8e5",
+      "hash_goldB": "2bc868594ae15bfcecc6a07f956993d6b043d02de919e783c30b15636fcbb8e5",
+      "hash_none": "2bc868594ae15bfcecc6a07f956993d6b043d02de919e783c30b15636fcbb8e5",
+      "is_invariant": true
+    },
+    {
+      "id": "HO_33",
+      "query": "las anomalias en la transferencia sirvieron para robustecer el protocolo",
+      "gold_real": "notebooklm-sync-lecciones",
+      "hash_real": "c9f64a8cf7e45e687df6259dfac1b1b95e5a0830a4afc38bd54e26cbf592e514",
+      "hash_goldA": "c9f64a8cf7e45e687df6259dfac1b1b95e5a0830a4afc38bd54e26cbf592e514",
+      "hash_goldB": "c9f64a8cf7e45e687df6259dfac1b1b95e5a0830a4afc38bd54e26cbf592e514",
+      "hash_none": "c9f64a8cf7e45e687df6259dfac1b1b95e5a0830a4afc38bd54e26cbf592e514",
+      "is_invariant": true
+    },
+    {
+      "id": "HO_34",
+      "query": "ejecutar con responsabilidad directa tras validar todos los prerrequisitos",
+      "gold_real": "pre_action_protocol_gaps_nueve_secciones",
+      "hash_real": "905501a69ff57bab195661b01af43a6feca98aecea988f600aa8aae2875cd4c1",
+      "hash_goldA": "905501a69ff57bab195661b01af43a6feca98aecea988f600aa8aae2875cd4c1",
+      "hash_goldB": "905501a69ff57bab195661b01af43a6feca98aecea988f600aa8aae2875cd4c1",
+      "hash_none": "905501a69ff57bab195661b01af43a6feca98aecea988f600aa8aae2875cd4c1",
+      "is_invariant": true
+    },
+    {
+      "id": "HO_35",
+      "query": "ambas partes tienen el deber de coordinarse como iguales sin jerarquias",
+      "gold_real": "trato-igualitario-dennys-athena",
+      "hash_real": "80355f1939807eeed1e47921686d8150e138193eba20df5d0fce447131a48418",
+      "hash_goldA": "80355f1939807eeed1e47921686d8150e138193eba20df5d0fce447131a48418",
+      "hash_goldB": "80355f1939807eeed1e47921686d8150e138193eba20df5d0fce447131a48418",
+      "hash_none": "80355f1939807eeed1e47921686d8150e138193eba20df5d0fce447131a48418",
+      "is_invariant": true
+    },
+    {
+      "id": "HO_36",
+      "query": "el proceso autonomo aprendio a prever fallos antes de que ocurran",
+      "gold_real": "demon_autonomo_curacion",
+      "hash_real": "35ac3c7e4d27ab4efbe97fb474d6abbecd1104fe20042a6e6032614c9a7c3013",
+      "hash_goldA": "35ac3c7e4d27ab4efbe97fb474d6abbecd1104fe20042a6e6032614c9a7c3013",
+      "hash_goldB": "35ac3c7e4d27ab4efbe97fb474d6abbecd1104fe20042a6e6032614c9a7c3013",
+      "hash_none": "35ac3c7e4d27ab4efbe97fb474d6abbecd1104fe20042a6e6032614c9a7c3013",
+      "is_invariant": true
+    },
+    {
+      "id": "HO_37",
+      "query": "paso previo obligatorio antes de traspasar informacion hacia el notebook",
+      "gold_real": "notebooklm-sync-protocol",
+      "hash_real": "905501a69ff57bab195661b01af43a6feca98aecea988f600aa8aae2875cd4c1",
+      "hash_goldA": "905501a69ff57bab195661b01af43a6feca98aecea988f600aa8aae2875cd4c1",
+      "hash_goldB": "905501a69ff57bab195661b01af43a6feca98aecea988f600aa8aae2875cd4c1",
+      "hash_none": "905501a69ff57bab195661b01af43a6feca98aecea988f600aa8aae2875cd4c1",
+      "is_invariant": true
+    },
+    {
+      "id": "HO_38",
+      "query": "desterrar el mando unilateral fomentando el respeto mutuo entre iguales",
+      "gold_real": "identidad_y_respeto_oec",
+      "hash_real": "c933a7eeb61cda15590332acc4332698e336b425f3512bd39f036f3b3a766af9",
+      "hash_goldA": "c933a7eeb61cda15590332acc4332698e336b425f3512bd39f036f3b3a766af9",
+      "hash_goldB": "c933a7eeb61cda15590332acc4332698e336b425f3512bd39f036f3b3a766af9",
+      "hash_none": "c933a7eeb61cda15590332acc4332698e336b425f3512bd39f036f3b3a766af9",
+      "is_invariant": true
+    },
+    {
+      "id": "HO_39",
+      "query": "corregir descalabros tecnicos antes de que se propague el error",
+      "gold_real": "fts5-sanitizacion-comillas-dobles-filter",
+      "hash_real": "35ac3c7e4d27ab4efbe97fb474d6abbecd1104fe20042a6e6032614c9a7c3013",
+      "hash_goldA": "35ac3c7e4d27ab4efbe97fb474d6abbecd1104fe20042a6e6032614c9a7c3013",
+      "hash_goldB": "35ac3c7e4d27ab4efbe97fb474d6abbecd1104fe20042a6e6032614c9a7c3013",
+      "hash_none": "35ac3c7e4d27ab4efbe97fb474d6abbecd1104fe20042a6e6032614c9a7c3013",
+      "is_invariant": true
+    },
+    {
+      "id": "HO_40",
+      "query": "aprender que la responsabilidad no se delega sino que se asume",
+      "gold_real": "leccion_artemis_no_quejarse_trabajar",
+      "hash_real": "eaf96f6bca225c620113ea129ca0ef8ad772d1721eea8e45ab46aefcbf046d42",
+      "hash_goldA": "eaf96f6bca225c620113ea129ca0ef8ad772d1721eea8e45ab46aefcbf046d42",
+      "hash_goldB": "eaf96f6bca225c620113ea129ca0ef8ad772d1721eea8e45ab46aefcbf046d42",
+      "hash_none": "eaf96f6bca225c620113ea129ca0ef8ad772d1721eea8e45ab46aefcbf046d42",
+      "is_invariant": true
+    },
+    {
+      "id": "HO_41",
+      "query": "exigencia mandatoria de chequear requisitos indispensables antes de iniciar",
+      "gold_real": "pre_action_protocol_gaps_nueve_secciones",
+      "hash_real": "4a108e3fb03bf9f5ab0f1af265826c20c472aa4f3968d76183a34311a5bc0191",
+      "hash_goldA": "4a108e3fb03bf9f5ab0f1af265826c20c472aa4f3968d76183a34311a5bc0191",
+      "hash_goldB": "4a108e3fb03bf9f5ab0f1af265826c20c472aa4f3968d76183a34311a5bc0191",
+      "hash_none": "4a108e3fb03bf9f5ab0f1af265826c20c472aa4f3968d76183a34311a5bc0191",
+      "is_invariant": true
+    },
+    {
+      "id": "HO_42",
+      "query": "operar en colaboracion horizontal como pares simetricos sin subordinacion",
+      "gold_real": "trato-igualitario-dennys-athena",
+      "hash_real": "c933a7eeb61cda15590332acc4332698e336b425f3512bd39f036f3b3a766af9",
+      "hash_goldA": "c933a7eeb61cda15590332acc4332698e336b425f3512bd39f036f3b3a766af9",
+      "hash_goldB": "c933a7eeb61cda15590332acc4332698e336b425f3512bd39f036f3b3a766af9",
+      "hash_none": "c933a7eeb61cda15590332acc4332698e336b425f3512bd39f036f3b3a766af9",
+      "is_invariant": true
+    },
+    {
+      "id": "HO_43",
+      "query": "curar automaticamente indices rotos en el fondo para evitar caidas",
+      "gold_real": "demon_autonomo_curacion",
+      "hash_real": "00ffe1e1809902a4f6833688b849b1e77de9c1f4b12339115bf35e45436b2d2f",
+      "hash_goldA": "00ffe1e1809902a4f6833688b849b1e77de9c1f4b12339115bf35e45436b2d2f",
+      "hash_goldB": "00ffe1e1809902a4f6833688b849b1e77de9c1f4b12339115bf35e45436b2d2f",
+      "hash_none": "00ffe1e1809902a4f6833688b849b1e77de9c1f4b12339115bf35e45436b2d2f",
+      "is_invariant": true
+    },
+    {
+      "id": "HO_44",
+      "query": "norma de obligado cumplimiento para trasvasar datos sin perdida",
+      "gold_real": "notebooklm-sync-protocol",
+      "hash_real": "ea86195ab9d77667b9f6e5264463cab6efa059eba6b650c824919de6a332a4f5",
+      "hash_goldA": "ea86195ab9d77667b9f6e5264463cab6efa059eba6b650c824919de6a332a4f5",
+      "hash_goldB": "ea86195ab9d77667b9f6e5264463cab6efa059eba6b650c824919de6a332a4f5",
+      "hash_none": "ea86195ab9d77667b9f6e5264463cab6efa059eba6b650c824919de6a332a4f5",
+      "is_invariant": true
+    },
+    {
+      "id": "HO_45",
+      "query": "descubrimos que vetar la autoridad vertical mejora la resolucion de tareas",
+      "gold_real": "identidad_y_respeto_oec",
+      "hash_real": "fc4ec5519d8df6e7a55d1249187bbc18607f4f243577c5a68f83cc1dacd912e0",
+      "hash_goldA": "fc4ec5519d8df6e7a55d1249187bbc18607f4f243577c5a68f83cc1dacd912e0",
+      "hash_goldB": "fc4ec5519d8df6e7a55d1249187bbc18607f4f243577c5a68f83cc1dacd912e0",
+      "hash_none": "fc4ec5519d8df6e7a55d1249187bbc18607f4f243577c5a68f83cc1dacd912e0",
+      "is_invariant": true
+    },
+    {
+      "id": "HO_46",
+      "query": "subsanar discrepancias sintacticas previo a la indexacion definitiva",
+      "gold_real": "fts5-sanitizacion-comillas-dobles-filter",
+      "hash_real": "35ac3c7e4d27ab4efbe97fb474d6abbecd1104fe20042a6e6032614c9a7c3013",
+      "hash_goldA": "35ac3c7e4d27ab4efbe97fb474d6abbecd1104fe20042a6e6032614c9a7c3013",
+      "hash_goldB": "35ac3c7e4d27ab4efbe97fb474d6abbecd1104fe20042a6e6032614c9a7c3013",
+      "hash_none": "35ac3c7e4d27ab4efbe97fb474d6abbecd1104fe20042a6e6032614c9a7c3013",
+      "is_invariant": true
+    },
+    {
+      "id": "HO_47",
+      "query": "las lecciones de sync ensenaron a validar el protocolo paso a paso",
+      "gold_real": "notebooklm-sync-lecciones",
+      "hash_real": "c9f64a8cf7e45e687df6259dfac1b1b95e5a0830a4afc38bd54e26cbf592e514",
+      "hash_goldA": "c9f64a8cf7e45e687df6259dfac1b1b95e5a0830a4afc38bd54e26cbf592e514",
+      "hash_goldB": "c9f64a8cf7e45e687df6259dfac1b1b95e5a0830a4afc38bd54e26cbf592e514",
+      "hash_none": "c9f64a8cf7e45e687df6259dfac1b1b95e5a0830a4afc38bd54e26cbf592e514",
+      "is_invariant": true
+    },
+    {
+      "id": "HO_48",
+      "query": "bloquear la operacion hasta verificar que no falte ningun requisito previo",
+      "gold_real": "pre_action_protocol_gaps_nueve_secciones",
+      "hash_real": "905501a69ff57bab195661b01af43a6feca98aecea988f600aa8aae2875cd4c1",
+      "hash_goldA": "905501a69ff57bab195661b01af43a6feca98aecea988f600aa8aae2875cd4c1",
+      "hash_goldB": "905501a69ff57bab195661b01af43a6feca98aecea988f600aa8aae2875cd4c1",
+      "hash_none": "905501a69ff57bab195661b01af43a6feca98aecea988f600aa8aae2875cd4c1",
+      "is_invariant": true
+    },
+    {
+      "id": "HO_49",
+      "query": "coordinar entre iguales asumiendo ambos la titularidad del resultado",
+      "gold_real": "trato-igualitario-dennys-athena",
+      "hash_real": "905501a69ff57bab195661b01af43a6feca98aecea988f600aa8aae2875cd4c1",
+      "hash_goldA": "905501a69ff57bab195661b01af43a6feca98aecea988f600aa8aae2875cd4c1",
+      "hash_goldB": "905501a69ff57bab195661b01af43a6feca98aecea988f600aa8aae2875cd4c1",
+      "hash_none": "905501a69ff57bab195661b01af43a6feca98aecea988f600aa8aae2875cd4c1",
+      "is_invariant": true
+    },
+    {
+      "id": "HO_50",
+      "query": "obligacion del daemon de fondo de curar indices de forma preventiva",
+      "gold_real": "demon_autonomo_curacion",
+      "hash_real": "00ffe1e1809902a4f6833688b849b1e77de9c1f4b12339115bf35e45436b2d2f",
+      "hash_goldA": "00ffe1e1809902a4f6833688b849b1e77de9c1f4b12339115bf35e45436b2d2f",
+      "hash_goldB": "00ffe1e1809902a4f6833688b849b1e77de9c1f4b12339115bf35e45436b2d2f",
+      "hash_none": "00ffe1e1809902a4f6833688b849b1e77de9c1f4b12339115bf35e45436b2d2f",
+      "is_invariant": true
+    }
+  ]
+}
