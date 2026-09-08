@@ -1,0 +1,1011 @@
+{
+  "timestamp": "2026-09-08T16:39:24Z",
+  "experiment": "EXP-N5: Relational Argument Binding (RAB-v0.1)",
+  "hashes": {
+    "db_snapshot": "676827f6b4abc3acaee10b14e273c3c50cae5b2c180593dedcd58048265a2800",
+    "labels": "325ead99c5a8eea63e8e92f10dae85e7f6ef7f858f18dd8e735b011bea56aa2f",
+    "script": "759656c96dda99eec529ca5b6563affd5d76cb4e269a8d3c8841e585c609b8ed"
+  },
+  "negative_controls": [
+    {
+      "id": "CTRL_01_INVERTED_ROLES",
+      "passed": true,
+      "description": "Verificar discriminación entre SEPARATE(OBJECT=HARDWARE, TARGET=VIRTUAL) y SEPARATE(OBJECT=VIRTUAL, TARGET=HARDWARE)",
+      "pos_graph": {
+        "head_op": "SEPARATE",
+        "arguments": [
+          {
+            "role": "OBJECT",
+            "domain": "COMPUTATIONAL",
+            "raw_span": "hardware",
+            "modifiers": [
+              "hardware"
+            ]
+          },
+          {
+            "role": "TARGET",
+            "domain": "COMPUTATIONAL",
+            "raw_span": "nucleos",
+            "modifiers": [
+              "nucleos"
+            ]
+          }
+        ],
+        "tail_op": null,
+        "subordinate_arguments": [],
+        "relation": null,
+        "polarity": 1,
+        "raw_query": "particionar hardware en nucleos virtuales"
+      },
+      "inv_graph": {
+        "head_op": "SEPARATE",
+        "arguments": [
+          {
+            "role": "OBJECT",
+            "domain": "COMPUTATIONAL",
+            "raw_span": "nucleos",
+            "modifiers": [
+              "nucleos"
+            ]
+          },
+          {
+            "role": "TARGET",
+            "domain": "COMPUTATIONAL",
+            "raw_span": "hardware",
+            "modifiers": [
+              "hardware"
+            ]
+          }
+        ],
+        "tail_op": null,
+        "subordinate_arguments": [],
+        "relation": null,
+        "polarity": 1,
+        "raw_query": "particionar nucleos virtuales en hardware"
+      },
+      "pos_pool_size": 358,
+      "inv_pool_size": 358,
+      "pools_identical": true
+    },
+    {
+      "id": "CTRL_02_INVERTED_TEMPORAL",
+      "passed": true,
+      "description": "Verificar discriminación entre EVALUATE BEFORE MODIFY vs MODIFY BEFORE EVALUATE",
+      "pos_graph": {
+        "head_op": "EVALUATE",
+        "arguments": [],
+        "tail_op": "MODIFY",
+        "subordinate_arguments": [
+          {
+            "role": "OBJECT",
+            "domain": "METRIC",
+            "raw_span": "pesos",
+            "modifiers": [
+              "pesos"
+            ]
+          }
+        ],
+        "relation": "BEFORE",
+        "polarity": 1,
+        "raw_query": "evaluar antes de modificar los pesos"
+      },
+      "inv_graph": {
+        "head_op": "MODIFY",
+        "arguments": [],
+        "tail_op": "EVALUATE",
+        "subordinate_arguments": [
+          {
+            "role": "OBJECT",
+            "domain": "METRIC",
+            "raw_span": "pesos",
+            "modifiers": [
+              "pesos"
+            ]
+          }
+        ],
+        "relation": "BEFORE",
+        "polarity": 1,
+        "raw_query": "modificar antes de evaluar los pesos"
+      },
+      "pos_pool_size": 165,
+      "inv_pool_size": 165,
+      "pools_identical": true
+    },
+    {
+      "id": "CTRL_03_SWAPPED_PURPOSE",
+      "passed": true,
+      "description": "Verificar discriminación entre CREATE(LINK) PARA PERSISTIR vs PERSISTIR PARA CREAR(LINK)",
+      "pos_graph": {
+        "head_op": "CREATE",
+        "arguments": [
+          {
+            "role": "OBJECT",
+            "domain": "CONNECTIVE",
+            "raw_span": "enlaces",
+            "modifiers": [
+              "enlaces"
+            ]
+          }
+        ],
+        "tail_op": "STORE",
+        "subordinate_arguments": [],
+        "relation": "PURPOSE_OF",
+        "polarity": 1,
+        "raw_query": "generar enlaces para persistir datos"
+      },
+      "inv_graph": {
+        "head_op": "STORE",
+        "arguments": [],
+        "tail_op": "CREATE",
+        "subordinate_arguments": [
+          {
+            "role": "OBJECT",
+            "domain": "CONNECTIVE",
+            "raw_span": "enlaces",
+            "modifiers": [
+              "enlaces"
+            ]
+          }
+        ],
+        "relation": "PURPOSE_OF",
+        "polarity": 1,
+        "raw_query": "persistir datos para generar enlaces"
+      },
+      "pos_pool_size": 358,
+      "inv_pool_size": 358,
+      "pools_identical": true
+    },
+    {
+      "id": "CTRL_04_POLARITY_INVERSION",
+      "passed": true,
+      "description": "Verificar discriminación entre query positiva y query con negación deóntica",
+      "pos_graph": {
+        "head_op": "MODIFY",
+        "arguments": [],
+        "tail_op": "STORE",
+        "subordinate_arguments": [],
+        "relation": null,
+        "polarity": 1,
+        "raw_query": "modificar los registros del sistema"
+      },
+      "inv_graph": {
+        "head_op": "MODIFY",
+        "arguments": [],
+        "tail_op": "STORE",
+        "subordinate_arguments": [],
+        "relation": null,
+        "polarity": 1,
+        "raw_query": "no se deben modificar los registros del sistema"
+      },
+      "pos_pool_size": 462,
+      "inv_pool_size": 462,
+      "pools_identical": true
+    }
+  ],
+  "summary_rab": {
+    "avg_pool_size": 241.5,
+    "avg_pool_pct": 28.4,
+    "candidate_gen_recall_total": "3/8",
+    "candidate_gen_recall_strict_a0": "2/6",
+    "node_ce_total": {
+      "CE@1": "0/8",
+      "CE@5": "0/8",
+      "CE@10": "0/8",
+      "CE@20": "0/8"
+    },
+    "node_ce_strict_a0": {
+      "CE@1": "0/6",
+      "CE@5": "0/6",
+      "CE@10": "0/6",
+      "CE@20": "0/6"
+    }
+  },
+  "case_details": [
+    {
+      "case_id": "OOF_POS_11",
+      "is_strict_a0": true,
+      "query": "particionar capacidad de computo en doce nucleos virtuales con tope en gigas",
+      "gold": "docker_infrastructure_rog",
+      "pool_size": 358,
+      "pool_pct": 42.1,
+      "gold_in_pool": true,
+      "gold_rank": null,
+      "gold_score": 0.0,
+      "rab_graph": {
+        "head_op": "SEPARATE",
+        "arguments": [
+          {
+            "role": "OBJECT",
+            "domain": "HIERARCHICAL",
+            "raw_span": "capacidad",
+            "modifiers": [
+              "capacidad"
+            ]
+          },
+          {
+            "role": "OBJECT",
+            "domain": "COMPUTATIONAL",
+            "raw_span": "computo",
+            "modifiers": [
+              "computo"
+            ]
+          },
+          {
+            "role": "TARGET",
+            "domain": "COMPUTATIONAL",
+            "raw_span": "nucleos",
+            "modifiers": [
+              "nucleos"
+            ]
+          }
+        ],
+        "tail_op": null,
+        "subordinate_arguments": [],
+        "relation": null,
+        "polarity": 1,
+        "raw_query": "particionar capacidad de computo en doce nucleos virtuales con tope en gigas"
+      },
+      "latency_gen_ms": 5.22,
+      "latency_rank_ms": 5.28,
+      "top_candidates": [
+        {
+          "rank": 1,
+          "node": "analisis_escalabilidad_10k_v5_1",
+          "score": 8.5,
+          "island": 7,
+          "trails": [
+            "HEAD_PREDICATE_MATCH(SEPARATE)",
+            "ARG_BINDING_MATCH(OBJECT=HIERARCHICAL): {'accion_evaluar'}",
+            "ARG_BINDING_MATCH(OBJECT=COMPUTATIONAL): {'accion_persistencia_computacion'}",
+            "ARG_BINDING_MATCH(TARGET=COMPUTATIONAL): {'accion_persistencia_computacion'}"
+          ]
+        },
+        {
+          "rank": 2,
+          "node": "athena_arquitectura_memoria_agente_v24_2",
+          "score": 8.5,
+          "island": 60,
+          "trails": [
+            "HEAD_PREDICATE_MATCH(SEPARATE)",
+            "ARG_BINDING_MATCH(OBJECT=HIERARCHICAL): {'accion_evaluar'}",
+            "ARG_BINDING_MATCH(OBJECT=COMPUTATIONAL): {'accion_persistencia_computacion'}",
+            "ARG_BINDING_MATCH(TARGET=COMPUTATIONAL): {'accion_persistencia_computacion'}"
+          ]
+        },
+        {
+          "rank": 3,
+          "node": "athena_leccion_auditoria_bugs_cuarentena_y_ltd",
+          "score": 8.5,
+          "island": 60,
+          "trails": [
+            "HEAD_PREDICATE_MATCH(SEPARATE)",
+            "ARG_BINDING_MATCH(OBJECT=HIERARCHICAL): {'accion_evaluar'}",
+            "ARG_BINDING_MATCH(OBJECT=COMPUTATIONAL): {'accion_persistencia_computacion'}",
+            "ARG_BINDING_MATCH(TARGET=COMPUTATIONAL): {'accion_persistencia_computacion'}"
+          ]
+        },
+        {
+          "rank": 4,
+          "node": "auditoria_entrega_claude_ppmi_v2_suave_ctx_20260808",
+          "score": 8.5,
+          "island": 101,
+          "trails": [
+            "HEAD_PREDICATE_MATCH(SEPARATE)",
+            "ARG_BINDING_MATCH(OBJECT=HIERARCHICAL): {'accion_evaluar'}",
+            "ARG_BINDING_MATCH(OBJECT=COMPUTATIONAL): {'accion_persistencia_computacion'}",
+            "ARG_BINDING_MATCH(TARGET=COMPUTATIONAL): {'accion_persistencia_computacion'}"
+          ]
+        },
+        {
+          "rank": 5,
+          "node": "auditoria_tecnica_v14_0_readme",
+          "score": 8.5,
+          "island": 15,
+          "trails": [
+            "HEAD_PREDICATE_MATCH(SEPARATE)",
+            "ARG_BINDING_MATCH(OBJECT=HIERARCHICAL): {'accion_evaluar'}",
+            "ARG_BINDING_MATCH(OBJECT=COMPUTATIONAL): {'accion_persistencia_computacion'}",
+            "ARG_BINDING_MATCH(TARGET=COMPUTATIONAL): {'accion_persistencia_computacion'}"
+          ]
+        }
+      ],
+      "rejections": {
+        "PREDICATE_REJECT": 493
+      }
+    },
+    {
+      "case_id": "OOF_POS_19",
+      "is_strict_a0": true,
+      "query": "calibrar coeficientes multiplicativos para combinar valores de relevancia heterogeneos",
+      "gold": "scoring_pesos_bm25",
+      "pool_size": 277,
+      "pool_pct": 32.5,
+      "gold_in_pool": false,
+      "gold_rank": null,
+      "gold_score": 0.0,
+      "rab_graph": {
+        "head_op": "MODIFY",
+        "arguments": [
+          {
+            "role": "OBJECT",
+            "domain": "METRIC",
+            "raw_span": "coeficientes",
+            "modifiers": [
+              "coeficientes"
+            ]
+          },
+          {
+            "role": "OBJECT",
+            "domain": "DIMENSIONAL",
+            "raw_span": "multiplicativos",
+            "modifiers": [
+              "multiplicativos"
+            ]
+          }
+        ],
+        "tail_op": "COMBINE",
+        "subordinate_arguments": [
+          {
+            "role": "OBJECT",
+            "domain": "METRIC",
+            "raw_span": "relevancia",
+            "modifiers": [
+              "relevancia"
+            ]
+          }
+        ],
+        "relation": "PURPOSE_OF",
+        "polarity": 1,
+        "raw_query": "calibrar coeficientes multiplicativos para combinar valores de relevancia heterogeneos"
+      },
+      "latency_gen_ms": 6.77,
+      "latency_rank_ms": 2.34,
+      "top_candidates": [
+        {
+          "rank": 1,
+          "node": "21st_dev_registro_componentes_react_recurso_diseno",
+          "score": 9.0,
+          "island": 90,
+          "trails": [
+            "TAIL_PREDICATE_MATCH(COMBINE)",
+            "ARG_BINDING_MATCH(OBJECT=METRIC): {'cualidad_abstracta_conceptual'}",
+            "ARG_BINDING_MATCH(OBJECT=DIMENSIONAL): {'cualidad_abstracta_conceptual'}",
+            "SUB_ARG_BINDING_MATCH(OBJECT=METRIC)",
+            "COMPOSITIONAL_PURPOSE_ALIGNMENT(MODIFY -> COMBINE)"
+          ]
+        },
+        {
+          "rank": 2,
+          "node": "aciertos_word2vec_top5_coincidencia_lexica_no_semantica_20260808",
+          "score": 9.0,
+          "island": 100,
+          "trails": [
+            "HEAD_PREDICATE_MATCH(MODIFY)",
+            "ARG_BINDING_MATCH(OBJECT=METRIC): {'accion_evaluar', 'cualidad_abstracta_conceptual'}",
+            "ARG_BINDING_MATCH(OBJECT=DIMENSIONAL): {'accion_evaluar', 'cualidad_abstracta_conceptual'}",
+            "SUB_ARG_BINDING_MATCH(OBJECT=METRIC)",
+            "COMPOSITIONAL_PURPOSE_ALIGNMENT(MODIFY -> COMBINE)"
+          ]
+        },
+        {
+          "rank": 3,
+          "node": "activos_dormidos_hermana",
+          "score": 9.0,
+          "island": 6,
+          "trails": [
+            "HEAD_PREDICATE_MATCH(MODIFY)",
+            "ARG_BINDING_MATCH(OBJECT=METRIC): {'accion_evaluar'}",
+            "ARG_BINDING_MATCH(OBJECT=DIMENSIONAL): {'accion_evaluar'}",
+            "SUB_ARG_BINDING_MATCH(OBJECT=METRIC)",
+            "COMPOSITIONAL_PURPOSE_ALIGNMENT(MODIFY -> COMBINE)"
+          ]
+        },
+        {
+          "rank": 4,
+          "node": "aforismo_criterio_agente",
+          "score": 9.0,
+          "island": 5,
+          "trails": [
+            "HEAD_PREDICATE_MATCH(MODIFY)",
+            "ARG_BINDING_MATCH(OBJECT=METRIC): {'accion_evaluar', 'cualidad_abstracta_conceptual'}",
+            "ARG_BINDING_MATCH(OBJECT=DIMENSIONAL): {'accion_evaluar', 'cualidad_abstracta_conceptual'}",
+            "SUB_ARG_BINDING_MATCH(OBJECT=METRIC)",
+            "COMPOSITIONAL_PURPOSE_ALIGNMENT(MODIFY -> COMBINE)"
+          ]
+        },
+        {
+          "rank": 5,
+          "node": "agente_usabilidad_mcp_biorag_feedback",
+          "score": 9.0,
+          "island": 39,
+          "trails": [
+            "TAIL_PREDICATE_MATCH(COMBINE)",
+            "ARG_BINDING_MATCH(OBJECT=METRIC): {'cualidad_abstracta_conceptual'}",
+            "ARG_BINDING_MATCH(OBJECT=DIMENSIONAL): {'cualidad_abstracta_conceptual'}",
+            "SUB_ARG_BINDING_MATCH(OBJECT=METRIC)",
+            "COMPOSITIONAL_PURPOSE_ALIGNMENT(MODIFY -> COMBINE)"
+          ]
+        }
+      ],
+      "rejections": {
+        "PREDICATE_REJECT": 549,
+        "ARG_BINDING_REJECT": 25
+      }
+    },
+    {
+      "case_id": "OOF_POS_21",
+      "is_strict_a0": true,
+      "query": "entrelazamiento hiperdimensional binario proyectado a traves de pasarela situacional",
+      "gold": "coche_puente_condicional",
+      "pool_size": 229,
+      "pool_pct": 26.9,
+      "gold_in_pool": false,
+      "gold_rank": null,
+      "gold_score": 0.0,
+      "rab_graph": {
+        "head_op": "LINK",
+        "arguments": [
+          {
+            "role": "OBJECT",
+            "domain": "COGNITIVE",
+            "raw_span": "hiperdimensional",
+            "modifiers": [
+              "hiperdimensional"
+            ]
+          }
+        ],
+        "tail_op": "TRANSFORM",
+        "subordinate_arguments": [],
+        "relation": null,
+        "polarity": 1,
+        "raw_query": "entrelazamiento hiperdimensional binario proyectado a traves de pasarela situacional"
+      },
+      "latency_gen_ms": 2.62,
+      "latency_rank_ms": 3.28,
+      "top_candidates": [
+        {
+          "rank": 1,
+          "node": "21st_dev_registro_componentes_react_recurso_diseno",
+          "score": 5.5,
+          "island": 90,
+          "trails": [
+            "HEAD_PREDICATE_MATCH(LINK)",
+            "ARG_BINDING_MATCH(OBJECT=COGNITIVE): {'accion_cognitiva'}"
+          ]
+        },
+        {
+          "rank": 2,
+          "node": "aciertos_word2vec_top5_coincidencia_lexica_no_semantica_20260808",
+          "score": 5.5,
+          "island": 100,
+          "trails": [
+            "HEAD_PREDICATE_MATCH(LINK)",
+            "ARG_BINDING_MATCH(OBJECT=COGNITIVE): {'accion_cognitiva', 'identidad_artificial'}"
+          ]
+        },
+        {
+          "rank": 3,
+          "node": "activos_dormidos_hermana",
+          "score": 5.5,
+          "island": 6,
+          "trails": [
+            "HEAD_PREDICATE_MATCH(LINK)",
+            "ARG_BINDING_MATCH(OBJECT=COGNITIVE): {'accion_cognitiva', 'identidad_artificial'}"
+          ]
+        },
+        {
+          "rank": 4,
+          "node": "aforismo_criterio_agente",
+          "score": 5.5,
+          "island": 5,
+          "trails": [
+            "HEAD_PREDICATE_MATCH(LINK)",
+            "ARG_BINDING_MATCH(OBJECT=COGNITIVE): {'accion_cognitiva', 'identidad_artificial'}"
+          ]
+        },
+        {
+          "rank": 5,
+          "node": "agente_usabilidad_mcp_biorag_feedback",
+          "score": 5.5,
+          "island": 39,
+          "trails": [
+            "HEAD_PREDICATE_MATCH(LINK)",
+            "ARG_BINDING_MATCH(OBJECT=COGNITIVE): {'accion_cognitiva', 'identidad_artificial'}"
+          ]
+        }
+      ],
+      "rejections": {
+        "PREDICATE_REJECT": 622
+      }
+    },
+    {
+      "case_id": "OOF_POS_29",
+      "is_strict_a0": true,
+      "query": "generar conexiones estocasticas para consolidar grupos fuertemente entrelazados",
+      "gold": "desde_athena_biorag",
+      "pool_size": 358,
+      "pool_pct": 42.1,
+      "gold_in_pool": true,
+      "gold_rank": null,
+      "gold_score": 0.0,
+      "rab_graph": {
+        "head_op": "CREATE",
+        "arguments": [
+          {
+            "role": "OBJECT",
+            "domain": "CONNECTIVE",
+            "raw_span": "conexiones",
+            "modifiers": [
+              "conexiones"
+            ]
+          },
+          {
+            "role": "OBJECT",
+            "domain": "STOCHASTIC",
+            "raw_span": "estocasticas",
+            "modifiers": [
+              "estocasticas"
+            ]
+          }
+        ],
+        "tail_op": "PERSIST",
+        "subordinate_arguments": [
+          {
+            "role": "OBJECT",
+            "domain": "CONNECTIVE",
+            "raw_span": "entrelazados",
+            "modifiers": [
+              "entrelazados"
+            ]
+          }
+        ],
+        "relation": "PURPOSE_OF",
+        "polarity": 1,
+        "raw_query": "generar conexiones estocasticas para consolidar grupos fuertemente entrelazados"
+      },
+      "latency_gen_ms": 4.06,
+      "latency_rank_ms": 1.73,
+      "top_candidates": [
+        {
+          "rank": 1,
+          "node": "21st_dev_registro_componentes_react_recurso_diseno",
+          "score": 9.0,
+          "island": 90,
+          "trails": [
+            "HEAD_PREDICATE_MATCH(CREATE)",
+            "ARG_BINDING_MATCH(OBJECT=CONNECTIVE): {'accion_cognitiva', 'accion_persistencia_computacion'}",
+            "ARG_BINDING_MATCH(OBJECT=STOCHASTIC): {'accion_cognitiva'}",
+            "SUB_ARG_BINDING_MATCH(OBJECT=CONNECTIVE)",
+            "COMPOSITIONAL_PURPOSE_ALIGNMENT(CREATE -> PERSIST)"
+          ]
+        },
+        {
+          "rank": 2,
+          "node": "[desde_agente-oec]_jerarquía_de_restricciones_del_agente_en_opencode",
+          "score": 9.0,
+          "island": 10,
+          "trails": [
+            "HEAD_PREDICATE_MATCH(CREATE)",
+            "ARG_BINDING_MATCH(OBJECT=CONNECTIVE): {'accion_persistencia_computacion'}",
+            "ARG_BINDING_MATCH(OBJECT=STOCHASTIC): {'accion_rutina_automatica'}",
+            "SUB_ARG_BINDING_MATCH(OBJECT=CONNECTIVE)",
+            "COMPOSITIONAL_PURPOSE_ALIGNMENT(CREATE -> PERSIST)"
+          ]
+        },
+        {
+          "rank": 3,
+          "node": "arquitectura_busqueda_dimensional_v11_3",
+          "score": 9.0,
+          "island": 59,
+          "trails": [
+            "HEAD_PREDICATE_MATCH(CREATE)",
+            "ARG_BINDING_MATCH(OBJECT=CONNECTIVE): {'accion_cognitiva', 'accion_persistencia_computacion'}",
+            "ARG_BINDING_MATCH(OBJECT=STOCHASTIC): {'accion_cognitiva'}",
+            "SUB_ARG_BINDING_MATCH(OBJECT=CONNECTIVE)",
+            "COMPOSITIONAL_PURPOSE_ALIGNMENT(CREATE -> PERSIST)"
+          ]
+        },
+        {
+          "rank": 4,
+          "node": "arquitectura_daemon_vivo_escritorio_manual_mcp_guardian",
+          "score": 9.0,
+          "island": 60,
+          "trails": [
+            "HEAD_PREDICATE_MATCH(CREATE)",
+            "ARG_BINDING_MATCH(OBJECT=CONNECTIVE): {'accion_persistencia_computacion'}",
+            "ARG_BINDING_MATCH(OBJECT=STOCHASTIC): {'accion_rutina_automatica'}",
+            "SUB_ARG_BINDING_MATCH(OBJECT=CONNECTIVE)",
+            "COMPOSITIONAL_PURPOSE_ALIGNMENT(CREATE -> PERSIST)"
+          ]
+        },
+        {
+          "rank": 5,
+          "node": "arquitectura_hormiguita_daemon_singleton",
+          "score": 9.0,
+          "island": 80,
+          "trails": [
+            "HEAD_PREDICATE_MATCH(CREATE)",
+            "ARG_BINDING_MATCH(OBJECT=CONNECTIVE): {'accion_persistencia_computacion'}",
+            "ARG_BINDING_MATCH(OBJECT=STOCHASTIC): {'accion_rutina_automatica'}",
+            "SUB_ARG_BINDING_MATCH(OBJECT=CONNECTIVE)",
+            "COMPOSITIONAL_PURPOSE_ALIGNMENT(CREATE -> PERSIST)"
+          ]
+        }
+      ],
+      "rejections": {
+        "PREDICATE_REJECT": 493
+      }
+    },
+    {
+      "case_id": "OOF_POS_30",
+      "is_strict_a0": true,
+      "query": "transicion de vigilia a letargo con eliminacion de elementos caducos",
+      "gold": "activos_dormidos_hermana",
+      "pool_size": 18,
+      "pool_pct": 2.1,
+      "gold_in_pool": false,
+      "gold_rank": null,
+      "gold_score": 0.0,
+      "rab_graph": {
+        "head_op": "TRANSFORM",
+        "arguments": [
+          {
+            "role": "OBJECT",
+            "domain": "LIFECYCLE",
+            "raw_span": "vigilia",
+            "modifiers": [
+              "vigilia"
+            ]
+          },
+          {
+            "role": "TARGET",
+            "domain": "LIFECYCLE",
+            "raw_span": "letargo",
+            "modifiers": [
+              "letargo"
+            ]
+          },
+          {
+            "role": "CONSTRAINT",
+            "domain": "LIFECYCLE",
+            "raw_span": "caducos",
+            "modifiers": [
+              "caducos"
+            ]
+          }
+        ],
+        "tail_op": null,
+        "subordinate_arguments": [],
+        "relation": null,
+        "polarity": 1,
+        "raw_query": "transicion de vigilia a letargo con eliminacion de elementos caducos"
+      },
+      "latency_gen_ms": 4.32,
+      "latency_rank_ms": 3.13,
+      "top_candidates": [
+        {
+          "rank": 1,
+          "node": "athena_arquitectura_memoria_agente_v24_2",
+          "score": 8.5,
+          "island": 60,
+          "trails": [
+            "HEAD_PREDICATE_MATCH(TRANSFORM)",
+            "ARG_BINDING_MATCH(OBJECT=LIFECYCLE): {'accion_rutina_automatica'}",
+            "ARG_BINDING_MATCH(TARGET=LIFECYCLE): {'accion_rutina_automatica'}",
+            "ARG_BINDING_MATCH(CONSTRAINT=LIFECYCLE): {'accion_rutina_automatica'}"
+          ]
+        },
+        {
+          "rank": 2,
+          "node": "athena_forensic_audit_trail_ltd_detection_fix",
+          "score": 8.5,
+          "island": 22,
+          "trails": [
+            "HEAD_PREDICATE_MATCH(TRANSFORM)",
+            "ARG_BINDING_MATCH(OBJECT=LIFECYCLE): {'accion_rutina_automatica'}",
+            "ARG_BINDING_MATCH(TARGET=LIFECYCLE): {'accion_rutina_automatica'}",
+            "ARG_BINDING_MATCH(CONSTRAINT=LIFECYCLE): {'accion_rutina_automatica'}"
+          ]
+        },
+        {
+          "rank": 3,
+          "node": "biorag_v20_0_circuito_cerrado",
+          "score": 8.5,
+          "island": 71,
+          "trails": [
+            "HEAD_PREDICATE_MATCH(TRANSFORM)",
+            "ARG_BINDING_MATCH(OBJECT=LIFECYCLE): {'accion_rutina_automatica'}",
+            "ARG_BINDING_MATCH(TARGET=LIFECYCLE): {'accion_rutina_automatica'}",
+            "ARG_BINDING_MATCH(CONSTRAINT=LIFECYCLE): {'accion_rutina_automatica'}"
+          ]
+        },
+        {
+          "rank": 4,
+          "node": "biorag_v20_homeostatic_scaling",
+          "score": 8.5,
+          "island": 71,
+          "trails": [
+            "HEAD_PREDICATE_MATCH(TRANSFORM)",
+            "ARG_BINDING_MATCH(OBJECT=LIFECYCLE): {'accion_rutina_automatica'}",
+            "ARG_BINDING_MATCH(TARGET=LIFECYCLE): {'accion_rutina_automatica'}",
+            "ARG_BINDING_MATCH(CONSTRAINT=LIFECYCLE): {'accion_rutina_automatica'}"
+          ]
+        },
+        {
+          "rank": 5,
+          "node": "biorag_v21_spindles_resonant_replay",
+          "score": 8.5,
+          "island": 71,
+          "trails": [
+            "HEAD_PREDICATE_MATCH(TRANSFORM)",
+            "ARG_BINDING_MATCH(OBJECT=LIFECYCLE): {'accion_rutina_automatica'}",
+            "ARG_BINDING_MATCH(TARGET=LIFECYCLE): {'accion_rutina_automatica'}",
+            "ARG_BINDING_MATCH(CONSTRAINT=LIFECYCLE): {'accion_rutina_automatica'}"
+          ]
+        }
+      ],
+      "rejections": {
+        "PREDICATE_REJECT": 622,
+        "ARG_BINDING_REJECT": 211
+      }
+    },
+    {
+      "case_id": "OOF_POS_40",
+      "is_strict_a0": false,
+      "query": "procedimiento de clasificacion dimensional sobre tejido cortical",
+      "gold": "clasificacion_dimensional_completa_corteza_20260702",
+      "pool_size": 165,
+      "pool_pct": 19.4,
+      "gold_in_pool": true,
+      "gold_rank": null,
+      "gold_score": 0.0,
+      "rab_graph": {
+        "head_op": "CLASSIFY",
+        "arguments": [
+          {
+            "role": "OBJECT",
+            "domain": "DIMENSIONAL",
+            "raw_span": "dimensional",
+            "modifiers": [
+              "dimensional"
+            ]
+          },
+          {
+            "role": "TARGET",
+            "domain": "COGNITIVE",
+            "raw_span": "cortical",
+            "modifiers": [
+              "cortical"
+            ]
+          }
+        ],
+        "tail_op": null,
+        "subordinate_arguments": [],
+        "relation": null,
+        "polarity": 1,
+        "raw_query": "procedimiento de clasificacion dimensional sobre tejido cortical"
+      },
+      "latency_gen_ms": 3.63,
+      "latency_rank_ms": 1.74,
+      "top_candidates": [
+        {
+          "rank": 1,
+          "node": "aciertos_word2vec_top5_coincidencia_lexica_no_semantica_20260808",
+          "score": 7.0,
+          "island": 100,
+          "trails": [
+            "HEAD_PREDICATE_MATCH(CLASSIFY)",
+            "ARG_BINDING_MATCH(OBJECT=DIMENSIONAL): {'accion_evaluar', 'cualidad_abstracta_conceptual'}",
+            "ARG_BINDING_MATCH(TARGET=COGNITIVE): {'accion_cognitiva', 'identidad_artificial'}"
+          ]
+        },
+        {
+          "rank": 2,
+          "node": "activos_dormidos_hermana",
+          "score": 7.0,
+          "island": 6,
+          "trails": [
+            "HEAD_PREDICATE_MATCH(CLASSIFY)",
+            "ARG_BINDING_MATCH(OBJECT=DIMENSIONAL): {'accion_evaluar'}",
+            "ARG_BINDING_MATCH(TARGET=COGNITIVE): {'accion_cognitiva', 'identidad_artificial'}"
+          ]
+        },
+        {
+          "rank": 3,
+          "node": "aforismo_criterio_agente",
+          "score": 7.0,
+          "island": 5,
+          "trails": [
+            "HEAD_PREDICATE_MATCH(CLASSIFY)",
+            "ARG_BINDING_MATCH(OBJECT=DIMENSIONAL): {'accion_evaluar', 'cualidad_abstracta_conceptual'}",
+            "ARG_BINDING_MATCH(TARGET=COGNITIVE): {'accion_cognitiva', 'identidad_artificial'}"
+          ]
+        },
+        {
+          "rank": 4,
+          "node": "ajuste_tejedora_valencia_desempate_fase1",
+          "score": 7.0,
+          "island": 94,
+          "trails": [
+            "HEAD_PREDICATE_MATCH(CLASSIFY)",
+            "ARG_BINDING_MATCH(OBJECT=DIMENSIONAL): {'accion_evaluar', 'cualidad_abstracta_conceptual'}",
+            "ARG_BINDING_MATCH(TARGET=COGNITIVE): {'accion_cognitiva', 'identidad_artificial'}"
+          ]
+        },
+        {
+          "rank": 5,
+          "node": "amigdala_del_agente_inteligencia_emocional",
+          "score": 7.0,
+          "island": 27,
+          "trails": [
+            "HEAD_PREDICATE_MATCH(CLASSIFY)",
+            "ARG_BINDING_MATCH(OBJECT=DIMENSIONAL): {'accion_evaluar', 'cualidad_abstracta_conceptual'}",
+            "ARG_BINDING_MATCH(TARGET=COGNITIVE): {'accion_cognitiva', 'identidad_artificial'}"
+          ]
+        }
+      ],
+      "rejections": {
+        "PREDICATE_REJECT": 686
+      }
+    },
+    {
+      "case_id": "OOF_POS_48",
+      "is_strict_a0": true,
+      "query": "malla neuronal con topologia de enlaces sinapticos transversales",
+      "gold": "cuaternidad-logica-oec",
+      "pool_size": 229,
+      "pool_pct": 26.9,
+      "gold_in_pool": false,
+      "gold_rank": null,
+      "gold_score": 0.0,
+      "rab_graph": {
+        "head_op": "TRANSFORM",
+        "arguments": [],
+        "tail_op": null,
+        "subordinate_arguments": [],
+        "relation": null,
+        "polarity": 1,
+        "raw_query": "malla neuronal con topologia de enlaces sinapticos transversales"
+      },
+      "latency_gen_ms": 1.6,
+      "latency_rank_ms": 0.88,
+      "top_candidates": [
+        {
+          "rank": 1,
+          "node": "21st_dev_registro_componentes_react_recurso_diseno",
+          "score": 2.0,
+          "island": 90,
+          "trails": [
+            "HEAD_PREDICATE_MATCH(TRANSFORM)"
+          ]
+        },
+        {
+          "rank": 2,
+          "node": "aciertos_word2vec_top5_coincidencia_lexica_no_semantica_20260808",
+          "score": 2.0,
+          "island": 100,
+          "trails": [
+            "HEAD_PREDICATE_MATCH(TRANSFORM)"
+          ]
+        },
+        {
+          "rank": 3,
+          "node": "activos_dormidos_hermana",
+          "score": 2.0,
+          "island": 6,
+          "trails": [
+            "HEAD_PREDICATE_MATCH(TRANSFORM)"
+          ]
+        },
+        {
+          "rank": 4,
+          "node": "aforismo_criterio_agente",
+          "score": 2.0,
+          "island": 5,
+          "trails": [
+            "HEAD_PREDICATE_MATCH(TRANSFORM)"
+          ]
+        },
+        {
+          "rank": 5,
+          "node": "agente_usabilidad_mcp_biorag_feedback",
+          "score": 2.0,
+          "island": 39,
+          "trails": [
+            "HEAD_PREDICATE_MATCH(TRANSFORM)"
+          ]
+        }
+      ],
+      "rejections": {
+        "PREDICATE_REJECT": 622
+      }
+    },
+    {
+      "case_id": "OOF_POS_49",
+      "is_strict_a0": false,
+      "query": "registro cronologico de hitos alcanzados por el agente",
+      "gold": "trayectoria_completa_cronologica",
+      "pool_size": 298,
+      "pool_pct": 35.0,
+      "gold_in_pool": false,
+      "gold_rank": null,
+      "gold_score": 0.0,
+      "rab_graph": {
+        "head_op": "STORE",
+        "arguments": [
+          {
+            "role": "OBJECT",
+            "domain": "CHRONICLE",
+            "raw_span": "cronologico",
+            "modifiers": [
+              "cronologico"
+            ]
+          }
+        ],
+        "tail_op": null,
+        "subordinate_arguments": [],
+        "relation": null,
+        "polarity": 1,
+        "raw_query": "registro cronologico de hitos alcanzados por el agente"
+      },
+      "latency_gen_ms": 2.57,
+      "latency_rank_ms": 1.43,
+      "top_candidates": [
+        {
+          "rank": 1,
+          "node": "21st_dev_registro_componentes_react_recurso_diseno",
+          "score": 5.5,
+          "island": 90,
+          "trails": [
+            "HEAD_PREDICATE_MATCH(STORE)",
+            "ARG_BINDING_MATCH(OBJECT=CHRONICLE): {'coordenada_cronologia_absoluta', 'intencion_documentar'}"
+          ]
+        },
+        {
+          "rank": 2,
+          "node": "[desde_agente-oec]_jerarquía_de_restricciones_del_agente_en_opencode",
+          "score": 5.5,
+          "island": 10,
+          "trails": [
+            "HEAD_PREDICATE_MATCH(STORE)",
+            "ARG_BINDING_MATCH(OBJECT=CHRONICLE): {'coordenada_cronologia_absoluta', 'intencion_documentar'}"
+          ]
+        },
+        {
+          "rank": 3,
+          "node": "ai-council-pm-synthesis-subscription-cancellation",
+          "score": 5.5,
+          "island": 14,
+          "trails": [
+            "HEAD_PREDICATE_MATCH(STORE)",
+            "ARG_BINDING_MATCH(OBJECT=CHRONICLE): {'intencion_documentar'}"
+          ]
+        },
+        {
+          "rank": 4,
+          "node": "aporte_real_dennys_vs_mercado_memoria_persistente",
+          "score": 5.5,
+          "island": 24,
+          "trails": [
+            "HEAD_PREDICATE_MATCH(STORE)",
+            "ARG_BINDING_MATCH(OBJECT=CHRONICLE): {'intencion_documentar'}"
+          ]
+        },
+        {
+          "rank": 5,
+          "node": "arquitectura_busqueda_dimensional_v11_3",
+          "score": 5.5,
+          "island": 59,
+          "trails": [
+            "HEAD_PREDICATE_MATCH(STORE)",
+            "ARG_BINDING_MATCH(OBJECT=CHRONICLE): {'intencion_documentar'}"
+          ]
+        }
+      ],
+      "rejections": {
+        "PREDICATE_REJECT": 493,
+        "ARG_BINDING_REJECT": 60
+      }
+    }
+  ]
+}
