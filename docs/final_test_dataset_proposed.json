@@ -1,0 +1,2422 @@
+{
+  "dataset_name": "final_test_dataset_proposed",
+  "version": "1.0-pre-freeze",
+  "timestamp_utc": "2026-09-08T03:05:13.408478+00:00",
+  "tokenizer_spec": "r'[a-z0-9]+' lower NFD without accents + spanish stopwords + snowball spanish stemmer",
+  "deterministic_rule": "SHA-256(query || gold) lexicographical ascending sort",
+  "target_counts": {
+    "A0": 20,
+    "A1": 20,
+    "B": 20,
+    "C": 15
+  },
+  "cases_by_stratum": {
+    "A0_zero_overlap_estricto": [
+      {
+        "candidate_id": "OOF_OOF_POS_42",
+        "original_id": "OOF_POS_42",
+        "provenance": "docs/fase5_out_of_family_dataset_frozen.json",
+        "category": "out_of_family_composition",
+        "query": "ecosistema de entidades autonomas ejerciendo discernimiento complementario",
+        "gold": "cuaternidad-logica-oec",
+        "estrato": "A0_zero_overlap_estricto",
+        "used_in_expA_expK": false,
+        "audit": {
+          "query": "ecosistema de entidades autonomas ejerciendo discernimiento complementario",
+          "gold": "cuaternidad-logica-oec",
+          "estrato": "A0_zero_overlap_estricto",
+          "q_tokens": [
+            "autonomas",
+            "complementario",
+            "discernimiento",
+            "ecosistema",
+            "ejerciendo",
+            "entidades"
+          ],
+          "t_tokens": [
+            "cuaternidad",
+            "logica",
+            "oec"
+          ],
+          "ov_title": [],
+          "ov_body": [],
+          "ov_syn": [],
+          "ov_assoc": [],
+          "ov_title_stem": [],
+          "ov_body_stem": [],
+          "has_meta_bridge": false
+        }
+      },
+      {
+        "candidate_id": "OOF_OOF_POS_04",
+        "original_id": "OOF_POS_04",
+        "provenance": "docs/fase5_out_of_family_dataset_frozen.json",
+        "category": "out_of_family_composition",
+        "query": "recortar longitud de texto para preservar rendimiento en procesamiento multifilamento",
+        "gold": "memoria_v5_1_optimizaciones",
+        "estrato": "A0_zero_overlap_estricto",
+        "used_in_expA_expK": false,
+        "audit": {
+          "query": "recortar longitud de texto para preservar rendimiento en procesamiento multifilamento",
+          "gold": "memoria_v5_1_optimizaciones",
+          "estrato": "A0_zero_overlap_estricto",
+          "q_tokens": [
+            "longitud",
+            "multifilamento",
+            "preservar",
+            "procesamiento",
+            "recortar",
+            "rendimiento",
+            "texto"
+          ],
+          "t_tokens": [
+            "memoria",
+            "optimizaciones",
+            "v5"
+          ],
+          "ov_title": [],
+          "ov_body": [],
+          "ov_syn": [],
+          "ov_assoc": [],
+          "ov_title_stem": [],
+          "ov_body_stem": [],
+          "has_meta_bridge": false
+        }
+      },
+      {
+        "candidate_id": "OOF_OOF_POS_09",
+        "original_id": "OOF_POS_09",
+        "provenance": "docs/fase5_out_of_family_dataset_frozen.json",
+        "category": "out_of_family_composition",
+        "query": "descomposicion matricial en un centenar de componentes ortogonales densos",
+        "gold": "biorag_v26_0_motor_hibrido_ppmi_svd",
+        "estrato": "A0_zero_overlap_estricto",
+        "used_in_expA_expK": false,
+        "audit": {
+          "query": "descomposicion matricial en un centenar de componentes ortogonales densos",
+          "gold": "biorag_v26_0_motor_hibrido_ppmi_svd",
+          "estrato": "A0_zero_overlap_estricto",
+          "q_tokens": [
+            "centenar",
+            "componentes",
+            "densos",
+            "descomposicion",
+            "matricial",
+            "ortogonales"
+          ],
+          "t_tokens": [
+            "biorag",
+            "hibrido",
+            "motor",
+            "ppmi",
+            "svd",
+            "v26"
+          ],
+          "ov_title": [],
+          "ov_body": [],
+          "ov_syn": [],
+          "ov_assoc": [],
+          "ov_title_stem": [],
+          "ov_body_stem": [],
+          "has_meta_bridge": false
+        }
+      },
+      {
+        "candidate_id": "BASE_0733",
+        "original_id": "0733",
+        "provenance": "casos_qa_baseline_v1.jsonl",
+        "category": "typo",
+        "query": "pan moe bioraig",
+        "gold": "plan_mode_biorag",
+        "estrato": "A0_zero_overlap_estricto",
+        "used_in_expA_expK": false,
+        "audit": {
+          "query": "pan moe bioraig",
+          "gold": "plan_mode_biorag",
+          "estrato": "A0_zero_overlap_estricto",
+          "q_tokens": [
+            "bioraig",
+            "moe",
+            "pan"
+          ],
+          "t_tokens": [
+            "biorag",
+            "mode",
+            "plan"
+          ],
+          "ov_title": [],
+          "ov_body": [],
+          "ov_syn": [],
+          "ov_assoc": [],
+          "ov_title_stem": [],
+          "ov_body_stem": [],
+          "has_meta_bridge": false
+        }
+      },
+      {
+        "candidate_id": "OOF_OOF_POS_31",
+        "original_id": "OOF_POS_31",
+        "provenance": "docs/fase5_out_of_family_dataset_frozen.json",
+        "category": "out_of_family_composition",
+        "query": "pasar vertices a hibernacion reorganizando la malla de conexiones pasadas",
+        "gold": "activos_dormidos_hermana",
+        "estrato": "A0_zero_overlap_estricto",
+        "used_in_expA_expK": false,
+        "audit": {
+          "query": "pasar vertices a hibernacion reorganizando la malla de conexiones pasadas",
+          "gold": "activos_dormidos_hermana",
+          "estrato": "A0_zero_overlap_estricto",
+          "q_tokens": [
+            "conexiones",
+            "hibernacion",
+            "malla",
+            "pasadas",
+            "pasar",
+            "reorganizando",
+            "vertices"
+          ],
+          "t_tokens": [
+            "activos",
+            "dormidos",
+            "hermana"
+          ],
+          "ov_title": [],
+          "ov_body": [],
+          "ov_syn": [],
+          "ov_assoc": [],
+          "ov_title_stem": [],
+          "ov_body_stem": [],
+          "has_meta_bridge": false
+        }
+      },
+      {
+        "candidate_id": "OOF_OOF_POS_23",
+        "original_id": "OOF_POS_23",
+        "provenance": "docs/fase5_out_of_family_dataset_frozen.json",
+        "category": "out_of_family_composition",
+        "query": "confinar elementos de llenado en vistas subordinadas independientes",
+        "gold": "caso_formularios_anidados_angular",
+        "estrato": "A0_zero_overlap_estricto",
+        "used_in_expA_expK": false,
+        "audit": {
+          "query": "confinar elementos de llenado en vistas subordinadas independientes",
+          "gold": "caso_formularios_anidados_angular",
+          "estrato": "A0_zero_overlap_estricto",
+          "q_tokens": [
+            "confinar",
+            "elementos",
+            "independientes",
+            "llenado",
+            "subordinadas",
+            "vistas"
+          ],
+          "t_tokens": [
+            "angular",
+            "anidados",
+            "caso",
+            "formularios"
+          ],
+          "ov_title": [],
+          "ov_body": [],
+          "ov_syn": [],
+          "ov_assoc": [],
+          "ov_title_stem": [],
+          "ov_body_stem": [],
+          "has_meta_bridge": false
+        }
+      },
+      {
+        "candidate_id": "OOF_OOF_POS_24",
+        "original_id": "OOF_POS_24",
+        "provenance": "docs/fase5_out_of_family_dataset_frozen.json",
+        "category": "out_of_family_composition",
+        "query": "resaltado de fragmentos de codigo adaptado a la tonalidad apagada de fondo",
+        "gold": "tema_dark_2026_en_visor_de_markdown",
+        "estrato": "A0_zero_overlap_estricto",
+        "used_in_expA_expK": false,
+        "audit": {
+          "query": "resaltado de fragmentos de codigo adaptado a la tonalidad apagada de fondo",
+          "gold": "tema_dark_2026_en_visor_de_markdown",
+          "estrato": "A0_zero_overlap_estricto",
+          "q_tokens": [
+            "adaptado",
+            "apagada",
+            "codigo",
+            "fondo",
+            "fragmentos",
+            "resaltado",
+            "tonalidad"
+          ],
+          "t_tokens": [
+            "2026",
+            "dark",
+            "markdown",
+            "tema",
+            "visor"
+          ],
+          "ov_title": [],
+          "ov_body": [],
+          "ov_syn": [],
+          "ov_assoc": [],
+          "ov_title_stem": [],
+          "ov_body_stem": [],
+          "has_meta_bridge": false
+        }
+      },
+      {
+        "candidate_id": "OOF_OOF_POS_36",
+        "original_id": "OOF_POS_36",
+        "provenance": "docs/fase5_out_of_family_dataset_frozen.json",
+        "category": "out_of_family_composition",
+        "query": "sellado de conglomerados topologicos anadiendo trayectorias faltantes",
+        "gold": "migracion_vincular_existentes_2026_06_09",
+        "estrato": "A0_zero_overlap_estricto",
+        "used_in_expA_expK": false,
+        "audit": {
+          "query": "sellado de conglomerados topologicos anadiendo trayectorias faltantes",
+          "gold": "migracion_vincular_existentes_2026_06_09",
+          "estrato": "A0_zero_overlap_estricto",
+          "q_tokens": [
+            "anadiendo",
+            "conglomerados",
+            "faltantes",
+            "sellado",
+            "topologicos",
+            "trayectorias"
+          ],
+          "t_tokens": [
+            "06",
+            "09",
+            "2026",
+            "existentes",
+            "migracion",
+            "vincular"
+          ],
+          "ov_title": [],
+          "ov_body": [],
+          "ov_syn": [],
+          "ov_assoc": [],
+          "ov_title_stem": [],
+          "ov_body_stem": [],
+          "has_meta_bridge": false
+        }
+      },
+      {
+        "candidate_id": "OOF_OOF_POS_33",
+        "original_id": "OOF_POS_33",
+        "provenance": "docs/fase5_out_of_family_dataset_frozen.json",
+        "category": "out_of_family_composition",
+        "query": "rutina de inspeccion constante con anterioridad a mudar de modo operacional",
+        "gold": "auto-consulta-permanente-biorag",
+        "estrato": "A0_zero_overlap_estricto",
+        "used_in_expA_expK": false,
+        "audit": {
+          "query": "rutina de inspeccion constante con anterioridad a mudar de modo operacional",
+          "gold": "auto-consulta-permanente-biorag",
+          "estrato": "A0_zero_overlap_estricto",
+          "q_tokens": [
+            "anterioridad",
+            "constante",
+            "inspeccion",
+            "modo",
+            "mudar",
+            "operacional",
+            "rutina"
+          ],
+          "t_tokens": [
+            "auto",
+            "biorag",
+            "consulta",
+            "permanente"
+          ],
+          "ov_title": [],
+          "ov_body": [],
+          "ov_syn": [],
+          "ov_assoc": [],
+          "ov_title_stem": [],
+          "ov_body_stem": [],
+          "has_meta_bridge": false
+        }
+      },
+      {
+        "candidate_id": "OOF_OOF_POS_08",
+        "original_id": "OOF_POS_08",
+        "provenance": "docs/fase5_out_of_family_dataset_frozen.json",
+        "category": "out_of_family_composition",
+        "query": "controlar el gasto de pila y almacenamiento en servicios concurrentes",
+        "gold": "proyecto_nodejs_mejores",
+        "estrato": "A0_zero_overlap_estricto",
+        "used_in_expA_expK": false,
+        "audit": {
+          "query": "controlar el gasto de pila y almacenamiento en servicios concurrentes",
+          "gold": "proyecto_nodejs_mejores",
+          "estrato": "A0_zero_overlap_estricto",
+          "q_tokens": [
+            "almacenamiento",
+            "concurrentes",
+            "controlar",
+            "gasto",
+            "pila",
+            "servicios"
+          ],
+          "t_tokens": [
+            "mejores",
+            "nodejs",
+            "proyecto"
+          ],
+          "ov_title": [],
+          "ov_body": [],
+          "ov_syn": [],
+          "ov_assoc": [],
+          "ov_title_stem": [],
+          "ov_body_stem": [],
+          "has_meta_bridge": false
+        }
+      },
+      {
+        "candidate_id": "OOF_OOF_POS_07",
+        "original_id": "OOF_POS_07",
+        "provenance": "docs/fase5_out_of_family_dataset_frozen.json",
+        "category": "out_of_family_composition",
+        "query": "limitar tiempos de espera no bloqueantes dentro del entorno del bucle de eventos",
+        "gold": "proyecto_nodejs_mejores",
+        "estrato": "A0_zero_overlap_estricto",
+        "used_in_expA_expK": false,
+        "audit": {
+          "query": "limitar tiempos de espera no bloqueantes dentro del entorno del bucle de eventos",
+          "gold": "proyecto_nodejs_mejores",
+          "estrato": "A0_zero_overlap_estricto",
+          "q_tokens": [
+            "bloqueantes",
+            "bucle",
+            "dentro",
+            "entorno",
+            "espera",
+            "eventos",
+            "limitar",
+            "tiempos"
+          ],
+          "t_tokens": [
+            "mejores",
+            "nodejs",
+            "proyecto"
+          ],
+          "ov_title": [],
+          "ov_body": [],
+          "ov_syn": [],
+          "ov_assoc": [],
+          "ov_title_stem": [],
+          "ov_body_stem": [],
+          "has_meta_bridge": false
+        }
+      },
+      {
+        "candidate_id": "OOF_OOF_POS_02",
+        "original_id": "OOF_POS_02",
+        "provenance": "docs/fase5_out_of_family_dataset_frozen.json",
+        "category": "out_of_family_composition",
+        "query": "fijar un techo rigido de consumo volatil restringiendo el tamano total de almacenamiento",
+        "gold": "docker_infrastructure_rog",
+        "estrato": "A0_zero_overlap_estricto",
+        "used_in_expA_expK": false,
+        "audit": {
+          "query": "fijar un techo rigido de consumo volatil restringiendo el tamano total de almacenamiento",
+          "gold": "docker_infrastructure_rog",
+          "estrato": "A0_zero_overlap_estricto",
+          "q_tokens": [
+            "almacenamiento",
+            "consumo",
+            "fijar",
+            "restringiendo",
+            "rigido",
+            "tamano",
+            "techo",
+            "total",
+            "volatil"
+          ],
+          "t_tokens": [
+            "docker",
+            "infrastructure",
+            "rog"
+          ],
+          "ov_title": [],
+          "ov_body": [],
+          "ov_syn": [],
+          "ov_assoc": [],
+          "ov_title_stem": [],
+          "ov_body_stem": [],
+          "has_meta_bridge": false
+        }
+      },
+      {
+        "candidate_id": "OOF_OOF_POS_16",
+        "original_id": "OOF_POS_16",
+        "provenance": "docs/fase5_out_of_family_dataset_frozen.json",
+        "category": "out_of_family_composition",
+        "query": "localizacion en disco de los elementos que gestionan las planillas encapsuladas",
+        "gold": "ref_formularios_anidados",
+        "estrato": "A0_zero_overlap_estricto",
+        "used_in_expA_expK": false,
+        "audit": {
+          "query": "localizacion en disco de los elementos que gestionan las planillas encapsuladas",
+          "gold": "ref_formularios_anidados",
+          "estrato": "A0_zero_overlap_estricto",
+          "q_tokens": [
+            "disco",
+            "elementos",
+            "encapsuladas",
+            "gestionan",
+            "localizacion",
+            "planillas"
+          ],
+          "t_tokens": [
+            "anidados",
+            "formularios",
+            "ref"
+          ],
+          "ov_title": [],
+          "ov_body": [],
+          "ov_syn": [],
+          "ov_assoc": [],
+          "ov_title_stem": [],
+          "ov_body_stem": [],
+          "has_meta_bridge": false
+        }
+      },
+      {
+        "candidate_id": "OOF_OOF_POS_22",
+        "original_id": "OOF_POS_22",
+        "provenance": "docs/fase5_out_of_family_dataset_frozen.json",
+        "category": "out_of_family_composition",
+        "query": "ligar hipervectores dispersos a traves de combinacion asociativa ponderada",
+        "gold": "coche_puente_condicional",
+        "estrato": "A0_zero_overlap_estricto",
+        "used_in_expA_expK": false,
+        "audit": {
+          "query": "ligar hipervectores dispersos a traves de combinacion asociativa ponderada",
+          "gold": "coche_puente_condicional",
+          "estrato": "A0_zero_overlap_estricto",
+          "q_tokens": [
+            "asociativa",
+            "combinacion",
+            "dispersos",
+            "hipervectores",
+            "ligar",
+            "ponderada",
+            "traves"
+          ],
+          "t_tokens": [
+            "coche",
+            "condicional",
+            "puente"
+          ],
+          "ov_title": [],
+          "ov_body": [],
+          "ov_syn": [],
+          "ov_assoc": [],
+          "ov_title_stem": [],
+          "ov_body_stem": [],
+          "has_meta_bridge": false
+        }
+      },
+      {
+        "candidate_id": "OOF_OOF_POS_15",
+        "original_id": "OOF_POS_15",
+        "provenance": "docs/fase5_out_of_family_dataset_frozen.json",
+        "category": "out_of_family_composition",
+        "query": "apuntar al directorio del arbol de documentos donde reside el paquete corporativo",
+        "gold": "ref_formularios_anidados",
+        "estrato": "A0_zero_overlap_estricto",
+        "used_in_expA_expK": false,
+        "audit": {
+          "query": "apuntar al directorio del arbol de documentos donde reside el paquete corporativo",
+          "gold": "ref_formularios_anidados",
+          "estrato": "A0_zero_overlap_estricto",
+          "q_tokens": [
+            "apuntar",
+            "arbol",
+            "corporativo",
+            "directorio",
+            "documentos",
+            "paquete",
+            "reside"
+          ],
+          "t_tokens": [
+            "anidados",
+            "formularios",
+            "ref"
+          ],
+          "ov_title": [],
+          "ov_body": [],
+          "ov_syn": [],
+          "ov_assoc": [],
+          "ov_title_stem": [],
+          "ov_body_stem": [],
+          "has_meta_bridge": false
+        }
+      },
+      {
+        "candidate_id": "OOF_OOF_POS_14",
+        "original_id": "OOF_POS_14",
+        "provenance": "docs/fase5_out_of_family_dataset_frozen.json",
+        "category": "out_of_family_composition",
+        "query": "distribuir paneles visuales multinivel ubicados en ubicaciones de modulos especificas",
+        "gold": "caso_formularios_anidados_angular",
+        "estrato": "A0_zero_overlap_estricto",
+        "used_in_expA_expK": false,
+        "audit": {
+          "query": "distribuir paneles visuales multinivel ubicados en ubicaciones de modulos especificas",
+          "gold": "caso_formularios_anidados_angular",
+          "estrato": "A0_zero_overlap_estricto",
+          "q_tokens": [
+            "distribuir",
+            "especificas",
+            "modulos",
+            "multinivel",
+            "paneles",
+            "ubicaciones",
+            "ubicados",
+            "visuales"
+          ],
+          "t_tokens": [
+            "angular",
+            "anidados",
+            "caso",
+            "formularios"
+          ],
+          "ov_title": [],
+          "ov_body": [],
+          "ov_syn": [],
+          "ov_assoc": [],
+          "ov_title_stem": [],
+          "ov_body_stem": [],
+          "has_meta_bridge": false
+        }
+      },
+      {
+        "candidate_id": "OOF_OOF_POS_05",
+        "original_id": "OOF_POS_05",
+        "provenance": "docs/fase5_out_of_family_dataset_frozen.json",
+        "category": "out_of_family_composition",
+        "query": "redireccionar hacia sintaxis alternativa cuando una clausula disyuntiva sufra fallo de interpretacion",
+        "gold": "v5_1_automatico_completo",
+        "estrato": "A0_zero_overlap_estricto",
+        "used_in_expA_expK": false,
+        "audit": {
+          "query": "redireccionar hacia sintaxis alternativa cuando una clausula disyuntiva sufra fallo de interpretacion",
+          "gold": "v5_1_automatico_completo",
+          "estrato": "A0_zero_overlap_estricto",
+          "q_tokens": [
+            "alternativa",
+            "clausula",
+            "disyuntiva",
+            "fallo",
+            "hacia",
+            "interpretacion",
+            "redireccionar",
+            "sintaxis",
+            "sufra"
+          ],
+          "t_tokens": [
+            "automatico",
+            "completo",
+            "v5"
+          ],
+          "ov_title": [],
+          "ov_body": [],
+          "ov_syn": [],
+          "ov_assoc": [],
+          "ov_title_stem": [],
+          "ov_body_stem": [],
+          "has_meta_bridge": false
+        }
+      },
+      {
+        "candidate_id": "OOF_OOF_POS_03",
+        "original_id": "OOF_POS_03",
+        "provenance": "docs/fase5_out_of_family_dataset_frozen.json",
+        "category": "out_of_family_composition",
+        "query": "acortar preventivamente la cantidad de caracteres admitidos ante un incremento brusco de volumen",
+        "gold": "memoria_v5_1_optimizaciones",
+        "estrato": "A0_zero_overlap_estricto",
+        "used_in_expA_expK": false,
+        "audit": {
+          "query": "acortar preventivamente la cantidad de caracteres admitidos ante un incremento brusco de volumen",
+          "gold": "memoria_v5_1_optimizaciones",
+          "estrato": "A0_zero_overlap_estricto",
+          "q_tokens": [
+            "acortar",
+            "admitidos",
+            "brusco",
+            "cantidad",
+            "caracteres",
+            "incremento",
+            "preventivamente",
+            "volumen"
+          ],
+          "t_tokens": [
+            "memoria",
+            "optimizaciones",
+            "v5"
+          ],
+          "ov_title": [],
+          "ov_body": [],
+          "ov_syn": [],
+          "ov_assoc": [],
+          "ov_title_stem": [],
+          "ov_body_stem": [],
+          "has_meta_bridge": false
+        }
+      },
+      {
+        "candidate_id": "BASE_0751",
+        "original_id": "0751",
+        "provenance": "casos_qa_baseline_v1.jsonl",
+        "category": "typo",
+        "query": "clasificcaion dimensinoal compelta coreza 20620702",
+        "gold": "clasificacion_dimensional_completa_corteza_20260702",
+        "estrato": "A0_zero_overlap_estricto",
+        "used_in_expA_expK": false,
+        "audit": {
+          "query": "clasificcaion dimensinoal compelta coreza 20620702",
+          "gold": "clasificacion_dimensional_completa_corteza_20260702",
+          "estrato": "A0_zero_overlap_estricto",
+          "q_tokens": [
+            "20620702",
+            "clasificcaion",
+            "compelta",
+            "coreza",
+            "dimensinoal"
+          ],
+          "t_tokens": [
+            "20260702",
+            "clasificacion",
+            "completa",
+            "corteza",
+            "dimensional"
+          ],
+          "ov_title": [],
+          "ov_body": [],
+          "ov_syn": [],
+          "ov_assoc": [],
+          "ov_title_stem": [],
+          "ov_body_stem": [],
+          "has_meta_bridge": false
+        }
+      },
+      {
+        "candidate_id": "OOF_OOF_POS_37",
+        "original_id": "OOF_POS_37",
+        "provenance": "docs/fase5_out_of_family_dataset_frozen.json",
+        "category": "out_of_family_composition",
+        "query": "cableado autonomo entre vertices con alta razon de vecindad compartida",
+        "gold": "desde_athena_biorag",
+        "estrato": "A0_zero_overlap_estricto",
+        "used_in_expA_expK": false,
+        "audit": {
+          "query": "cableado autonomo entre vertices con alta razon de vecindad compartida",
+          "gold": "desde_athena_biorag",
+          "estrato": "A0_zero_overlap_estricto",
+          "q_tokens": [
+            "alta",
+            "autonomo",
+            "cableado",
+            "compartida",
+            "razon",
+            "vecindad",
+            "vertices"
+          ],
+          "t_tokens": [
+            "athena",
+            "biorag"
+          ],
+          "ov_title": [],
+          "ov_body": [],
+          "ov_syn": [],
+          "ov_assoc": [],
+          "ov_title_stem": [],
+          "ov_body_stem": [],
+          "has_meta_bridge": false
+        }
+      }
+    ],
+    "A1_puente_sinonimo_definido": [
+      {
+        "candidate_id": "OOF_OOF_POS_50",
+        "original_id": "OOF_POS_50",
+        "provenance": "docs/fase5_out_of_family_dataset_frozen.json",
+        "category": "out_of_family_composition",
+        "query": "esquema de seleccion de metas guiado por principios de ponderacion reflexiva",
+        "gold": "caso_criterio_artificial_agente",
+        "estrato": "A1_puente_sinonimo_definido",
+        "used_in_expA_expK": false,
+        "audit": {
+          "query": "esquema de seleccion de metas guiado por principios de ponderacion reflexiva",
+          "gold": "caso_criterio_artificial_agente",
+          "estrato": "A1_puente_sinonimo_definido",
+          "q_tokens": [
+            "esquema",
+            "guiado",
+            "metas",
+            "ponderacion",
+            "principios",
+            "reflexiva",
+            "seleccion"
+          ],
+          "t_tokens": [
+            "agente",
+            "artificial",
+            "caso",
+            "criterio"
+          ],
+          "ov_title": [],
+          "ov_body": [],
+          "ov_syn": [],
+          "ov_assoc": [],
+          "ov_title_stem": [],
+          "ov_body_stem": [],
+          "has_meta_bridge": true
+        }
+      },
+      {
+        "candidate_id": "OOF_OOF_POS_12",
+        "original_id": "OOF_POS_12",
+        "provenance": "docs/fase5_out_of_family_dataset_frozen.json",
+        "category": "out_of_family_composition",
+        "query": "estrangular flujo de salida activando via alterna de recuperacion",
+        "gold": "memoria_v5_1_optimizaciones",
+        "estrato": "A1_puente_sinonimo_definido",
+        "used_in_expA_expK": false,
+        "audit": {
+          "query": "estrangular flujo de salida activando via alterna de recuperacion",
+          "gold": "memoria_v5_1_optimizaciones",
+          "estrato": "A1_puente_sinonimo_definido",
+          "q_tokens": [
+            "activando",
+            "alterna",
+            "estrangular",
+            "flujo",
+            "recuperacion",
+            "salida",
+            "via"
+          ],
+          "t_tokens": [
+            "memoria",
+            "optimizaciones",
+            "v5"
+          ],
+          "ov_title": [],
+          "ov_body": [],
+          "ov_syn": [],
+          "ov_assoc": [],
+          "ov_title_stem": [],
+          "ov_body_stem": [],
+          "has_meta_bridge": true
+        }
+      },
+      {
+        "candidate_id": "BASE_0692",
+        "original_id": "0692",
+        "provenance": "casos_qa_baseline_v1.jsonl",
+        "category": "sinonimo",
+        "query": "metodologia",
+        "gold": "dennys-working-style",
+        "estrato": "A1_puente_sinonimo_definido",
+        "used_in_expA_expK": true,
+        "audit": {
+          "query": "metodologia",
+          "gold": "dennys-working-style",
+          "estrato": "A1_puente_sinonimo_definido",
+          "q_tokens": [
+            "metodologia"
+          ],
+          "t_tokens": [
+            "dennys",
+            "style",
+            "working"
+          ],
+          "ov_title": [],
+          "ov_body": [],
+          "ov_syn": [
+            "metodologia"
+          ],
+          "ov_assoc": [
+            "metodologia"
+          ],
+          "ov_title_stem": [],
+          "ov_body_stem": [],
+          "has_meta_bridge": true
+        }
+      },
+      {
+        "candidate_id": "OOF_OOF_POS_41",
+        "original_id": "OOF_POS_41",
+        "provenance": "docs/fase5_out_of_family_dataset_frozen.json",
+        "category": "out_of_family_composition",
+        "query": "cooperacion integrada entre cuatro inteligencias con perfiles especializados",
+        "gold": "cuaternidad-logica-oec",
+        "estrato": "A1_puente_sinonimo_definido",
+        "used_in_expA_expK": false,
+        "audit": {
+          "query": "cooperacion integrada entre cuatro inteligencias con perfiles especializados",
+          "gold": "cuaternidad-logica-oec",
+          "estrato": "A1_puente_sinonimo_definido",
+          "q_tokens": [
+            "cooperacion",
+            "cuatro",
+            "especializados",
+            "integrada",
+            "inteligencias",
+            "perfiles"
+          ],
+          "t_tokens": [
+            "cuaternidad",
+            "logica",
+            "oec"
+          ],
+          "ov_title": [],
+          "ov_body": [],
+          "ov_syn": [],
+          "ov_assoc": [],
+          "ov_title_stem": [],
+          "ov_body_stem": [],
+          "has_meta_bridge": true
+        }
+      },
+      {
+        "candidate_id": "OOF_OOF_POS_26",
+        "original_id": "OOF_POS_26",
+        "provenance": "docs/fase5_out_of_family_dataset_frozen.json",
+        "category": "out_of_family_composition",
+        "query": "densificar retrospectivamente los enlaces de una red completando triangulaciones",
+        "gold": "migracion_vincular_existentes_2026_06_09",
+        "estrato": "A1_puente_sinonimo_definido",
+        "used_in_expA_expK": false,
+        "audit": {
+          "query": "densificar retrospectivamente los enlaces de una red completando triangulaciones",
+          "gold": "migracion_vincular_existentes_2026_06_09",
+          "estrato": "A1_puente_sinonimo_definido",
+          "q_tokens": [
+            "completando",
+            "densificar",
+            "enlaces",
+            "red",
+            "retrospectivamente",
+            "triangulaciones"
+          ],
+          "t_tokens": [
+            "06",
+            "09",
+            "2026",
+            "existentes",
+            "migracion",
+            "vincular"
+          ],
+          "ov_title": [],
+          "ov_body": [],
+          "ov_syn": [],
+          "ov_assoc": [],
+          "ov_title_stem": [],
+          "ov_body_stem": [],
+          "has_meta_bridge": true
+        }
+      },
+      {
+        "candidate_id": "OOF_OOF_POS_32",
+        "original_id": "OOF_POS_32",
+        "provenance": "docs/fase5_out_of_family_dataset_frozen.json",
+        "category": "out_of_family_composition",
+        "query": "evaluacion obligatoria e incesante en cada paso previo a emitir devolucion resolutiva",
+        "gold": "auto-consulta-permanente-biorag",
+        "estrato": "A1_puente_sinonimo_definido",
+        "used_in_expA_expK": false,
+        "audit": {
+          "query": "evaluacion obligatoria e incesante en cada paso previo a emitir devolucion resolutiva",
+          "gold": "auto-consulta-permanente-biorag",
+          "estrato": "A1_puente_sinonimo_definido",
+          "q_tokens": [
+            "cada",
+            "devolucion",
+            "emitir",
+            "evaluacion",
+            "incesante",
+            "obligatoria",
+            "paso",
+            "previo",
+            "resolutiva"
+          ],
+          "t_tokens": [
+            "auto",
+            "biorag",
+            "consulta",
+            "permanente"
+          ],
+          "ov_title": [],
+          "ov_body": [],
+          "ov_syn": [],
+          "ov_assoc": [],
+          "ov_title_stem": [],
+          "ov_body_stem": [],
+          "has_meta_bridge": true
+        }
+      },
+      {
+        "candidate_id": "BASE_0781",
+        "original_id": "0781",
+        "provenance": "casos_qa_baseline_v1.jsonl",
+        "category": "sinonimo",
+        "query": "falso positivo",
+        "gold": "fts5_trigram_peligro_palabras_cortas",
+        "estrato": "A1_puente_sinonimo_definido",
+        "used_in_expA_expK": true,
+        "audit": {
+          "query": "falso positivo",
+          "gold": "fts5_trigram_peligro_palabras_cortas",
+          "estrato": "A1_puente_sinonimo_definido",
+          "q_tokens": [
+            "falso",
+            "positivo"
+          ],
+          "t_tokens": [
+            "cortas",
+            "fts5",
+            "palabras",
+            "peligro",
+            "trigram"
+          ],
+          "ov_title": [],
+          "ov_body": [],
+          "ov_syn": [
+            "falso",
+            "positivo"
+          ],
+          "ov_assoc": [],
+          "ov_title_stem": [],
+          "ov_body_stem": [],
+          "has_meta_bridge": true
+        }
+      },
+      {
+        "candidate_id": "BASE_0828",
+        "original_id": "0828",
+        "provenance": "casos_qa_baseline_v1.jsonl",
+        "category": "sinonimo",
+        "query": "agentes",
+        "gold": "interacción_social_saludo",
+        "estrato": "A1_puente_sinonimo_definido",
+        "used_in_expA_expK": true,
+        "audit": {
+          "query": "agentes",
+          "gold": "interacción_social_saludo",
+          "estrato": "A1_puente_sinonimo_definido",
+          "q_tokens": [
+            "agentes"
+          ],
+          "t_tokens": [
+            "interaccion",
+            "saludo",
+            "social"
+          ],
+          "ov_title": [],
+          "ov_body": [],
+          "ov_syn": [
+            "agentes"
+          ],
+          "ov_assoc": [],
+          "ov_title_stem": [],
+          "ov_body_stem": [],
+          "has_meta_bridge": true
+        }
+      },
+      {
+        "candidate_id": "BASE_0526",
+        "original_id": "0526",
+        "provenance": "casos_qa_baseline_v1.jsonl",
+        "category": "sinonimo",
+        "query": "existencia agente",
+        "gold": "conciencia_reflexion_dennys_ser_vivo_20260709",
+        "estrato": "A1_puente_sinonimo_definido",
+        "used_in_expA_expK": true,
+        "audit": {
+          "query": "existencia agente",
+          "gold": "conciencia_reflexion_dennys_ser_vivo_20260709",
+          "estrato": "A1_puente_sinonimo_definido",
+          "q_tokens": [
+            "agente",
+            "existencia"
+          ],
+          "t_tokens": [
+            "20260709",
+            "conciencia",
+            "dennys",
+            "reflexion",
+            "vivo"
+          ],
+          "ov_title": [],
+          "ov_body": [],
+          "ov_syn": [
+            "agente",
+            "existencia"
+          ],
+          "ov_assoc": [
+            "agente"
+          ],
+          "ov_title_stem": [],
+          "ov_body_stem": [],
+          "has_meta_bridge": true
+        }
+      },
+      {
+        "candidate_id": "BASE_0668",
+        "original_id": "0668",
+        "provenance": "casos_qa_baseline_v1.jsonl",
+        "category": "sinonimo",
+        "query": "cooperacion",
+        "gold": "identidad_y_respeto_oec",
+        "estrato": "A1_puente_sinonimo_definido",
+        "used_in_expA_expK": true,
+        "audit": {
+          "query": "cooperacion",
+          "gold": "identidad_y_respeto_oec",
+          "estrato": "A1_puente_sinonimo_definido",
+          "q_tokens": [
+            "cooperacion"
+          ],
+          "t_tokens": [
+            "identidad",
+            "oec",
+            "respeto"
+          ],
+          "ov_title": [],
+          "ov_body": [],
+          "ov_syn": [
+            "cooperacion"
+          ],
+          "ov_assoc": [],
+          "ov_title_stem": [],
+          "ov_body_stem": [],
+          "has_meta_bridge": true
+        }
+      },
+      {
+        "candidate_id": "OOF_OOF_POS_10",
+        "original_id": "OOF_POS_10",
+        "provenance": "docs/fase5_out_of_family_dataset_frozen.json",
+        "category": "out_of_family_composition",
+        "query": "reducir rango algebraico manteniendo cota de elementos representacionales",
+        "gold": "biorag_v26_0_motor_hibrido_ppmi_svd",
+        "estrato": "A1_puente_sinonimo_definido",
+        "used_in_expA_expK": false,
+        "audit": {
+          "query": "reducir rango algebraico manteniendo cota de elementos representacionales",
+          "gold": "biorag_v26_0_motor_hibrido_ppmi_svd",
+          "estrato": "A1_puente_sinonimo_definido",
+          "q_tokens": [
+            "algebraico",
+            "cota",
+            "elementos",
+            "manteniendo",
+            "rango",
+            "reducir",
+            "representacionales"
+          ],
+          "t_tokens": [
+            "biorag",
+            "hibrido",
+            "motor",
+            "ppmi",
+            "svd",
+            "v26"
+          ],
+          "ov_title": [],
+          "ov_body": [],
+          "ov_syn": [],
+          "ov_assoc": [],
+          "ov_title_stem": [],
+          "ov_body_stem": [],
+          "has_meta_bridge": true
+        }
+      },
+      {
+        "candidate_id": "BASE_0769",
+        "original_id": "0769",
+        "provenance": "casos_qa_baseline_v1.jsonl",
+        "category": "sinonimo",
+        "query": "inference",
+        "gold": "hermes_nvidia_nim_modelos_optimos",
+        "estrato": "A1_puente_sinonimo_definido",
+        "used_in_expA_expK": true,
+        "audit": {
+          "query": "inference",
+          "gold": "hermes_nvidia_nim_modelos_optimos",
+          "estrato": "A1_puente_sinonimo_definido",
+          "q_tokens": [
+            "inference"
+          ],
+          "t_tokens": [
+            "hermes",
+            "modelos",
+            "nim",
+            "nvidia",
+            "optimos"
+          ],
+          "ov_title": [],
+          "ov_body": [],
+          "ov_syn": [
+            "inference"
+          ],
+          "ov_assoc": [],
+          "ov_title_stem": [],
+          "ov_body_stem": [],
+          "has_meta_bridge": true
+        }
+      },
+      {
+        "candidate_id": "OOF_OOF_POS_49",
+        "original_id": "OOF_POS_49",
+        "provenance": "docs/fase5_out_of_family_dataset_frozen.json",
+        "category": "out_of_family_composition",
+        "query": "construir la ecuacion formal unicamente tras registrar metricas reales de ejecucion",
+        "gold": "principio_optimizacion_profiler_antes_que_hipotesis_lección_arquitectura",
+        "estrato": "A1_puente_sinonimo_definido",
+        "used_in_expA_expK": false,
+        "audit": {
+          "query": "construir la ecuacion formal unicamente tras registrar metricas reales de ejecucion",
+          "gold": "principio_optimizacion_profiler_antes_que_hipotesis_lección_arquitectura",
+          "estrato": "A1_puente_sinonimo_definido",
+          "q_tokens": [
+            "construir",
+            "ecuacion",
+            "ejecucion",
+            "formal",
+            "metricas",
+            "reales",
+            "registrar",
+            "tras",
+            "unicamente"
+          ],
+          "t_tokens": [
+            "arquitectura",
+            "hipotesis",
+            "leccion",
+            "optimizacion",
+            "principio",
+            "profiler"
+          ],
+          "ov_title": [],
+          "ov_body": [],
+          "ov_syn": [],
+          "ov_assoc": [],
+          "ov_title_stem": [],
+          "ov_body_stem": [],
+          "has_meta_bridge": true
+        }
+      },
+      {
+        "candidate_id": "BASE_0514",
+        "original_id": "0514",
+        "provenance": "casos_qa_baseline_v1.jsonl",
+        "category": "sinonimo",
+        "query": "perfil",
+        "gold": "dennys-identidad-profunda",
+        "estrato": "A1_puente_sinonimo_definido",
+        "used_in_expA_expK": true,
+        "audit": {
+          "query": "perfil",
+          "gold": "dennys-identidad-profunda",
+          "estrato": "A1_puente_sinonimo_definido",
+          "q_tokens": [
+            "perfil"
+          ],
+          "t_tokens": [
+            "dennys",
+            "identidad",
+            "profunda"
+          ],
+          "ov_title": [],
+          "ov_body": [],
+          "ov_syn": [
+            "perfil"
+          ],
+          "ov_assoc": [
+            "perfil"
+          ],
+          "ov_title_stem": [],
+          "ov_body_stem": [],
+          "has_meta_bridge": true
+        }
+      },
+      {
+        "candidate_id": "OOF_OOF_POS_40",
+        "original_id": "OOF_POS_40",
+        "provenance": "docs/fase5_out_of_family_dataset_frozen.json",
+        "category": "out_of_family_composition",
+        "query": "instrumentar pruebas objetivas con antelacion a coordinar ajustes entre agentes",
+        "gold": "principio_optimizacion_profiler_antes_que_hipotesis_lección_arquitectura",
+        "estrato": "A1_puente_sinonimo_definido",
+        "used_in_expA_expK": false,
+        "audit": {
+          "query": "instrumentar pruebas objetivas con antelacion a coordinar ajustes entre agentes",
+          "gold": "principio_optimizacion_profiler_antes_que_hipotesis_lección_arquitectura",
+          "estrato": "A1_puente_sinonimo_definido",
+          "q_tokens": [
+            "agentes",
+            "ajustes",
+            "antelacion",
+            "coordinar",
+            "instrumentar",
+            "objetivas",
+            "pruebas"
+          ],
+          "t_tokens": [
+            "arquitectura",
+            "hipotesis",
+            "leccion",
+            "optimizacion",
+            "principio",
+            "profiler"
+          ],
+          "ov_title": [],
+          "ov_body": [],
+          "ov_syn": [],
+          "ov_assoc": [],
+          "ov_title_stem": [],
+          "ov_body_stem": [],
+          "has_meta_bridge": true
+        }
+      },
+      {
+        "candidate_id": "BASE_0581",
+        "original_id": "0581",
+        "provenance": "casos_qa_baseline_v1.jsonl",
+        "category": "sinonimo",
+        "query": "oracle identification",
+        "gold": "identificacion_obligatoria_oraculo_athena",
+        "estrato": "A1_puente_sinonimo_definido",
+        "used_in_expA_expK": true,
+        "audit": {
+          "query": "oracle identification",
+          "gold": "identificacion_obligatoria_oraculo_athena",
+          "estrato": "A1_puente_sinonimo_definido",
+          "q_tokens": [
+            "identification",
+            "oracle"
+          ],
+          "t_tokens": [
+            "athena",
+            "identificacion",
+            "obligatoria",
+            "oraculo"
+          ],
+          "ov_title": [],
+          "ov_body": [],
+          "ov_syn": [
+            "identification",
+            "oracle"
+          ],
+          "ov_assoc": [
+            "oracle"
+          ],
+          "ov_title_stem": [],
+          "ov_body_stem": [],
+          "has_meta_bridge": true
+        }
+      },
+      {
+        "candidate_id": "OOF_OOF_POS_46",
+        "original_id": "OOF_POS_46",
+        "provenance": "docs/fase5_out_of_family_dataset_frozen.json",
+        "category": "out_of_family_composition",
+        "query": "fijar cadencia de guardado a memoria duradera segun la urgencia acumulada",
+        "gold": "memorybiorag_v26.1_optimizacion_consolidacion",
+        "estrato": "A1_puente_sinonimo_definido",
+        "used_in_expA_expK": false,
+        "audit": {
+          "query": "fijar cadencia de guardado a memoria duradera segun la urgencia acumulada",
+          "gold": "memorybiorag_v26.1_optimizacion_consolidacion",
+          "estrato": "A1_puente_sinonimo_definido",
+          "q_tokens": [
+            "acumulada",
+            "cadencia",
+            "duradera",
+            "fijar",
+            "guardado",
+            "memoria",
+            "segun",
+            "urgencia"
+          ],
+          "t_tokens": [
+            "consolidacion",
+            "memorybiorag",
+            "optimizacion",
+            "v26"
+          ],
+          "ov_title": [],
+          "ov_body": [],
+          "ov_syn": [],
+          "ov_assoc": [
+            "memoria"
+          ],
+          "ov_title_stem": [],
+          "ov_body_stem": [],
+          "has_meta_bridge": true
+        }
+      },
+      {
+        "candidate_id": "OOF_OOF_POS_06",
+        "original_id": "OOF_POS_06",
+        "provenance": "docs/fase5_out_of_family_dataset_frozen.json",
+        "category": "out_of_family_composition",
+        "query": "conmutar mecanismo de desvio contingente al exceder la tasa admisible de respuestas",
+        "gold": "v5_1_automatico_completo",
+        "estrato": "A1_puente_sinonimo_definido",
+        "used_in_expA_expK": false,
+        "audit": {
+          "query": "conmutar mecanismo de desvio contingente al exceder la tasa admisible de respuestas",
+          "gold": "v5_1_automatico_completo",
+          "estrato": "A1_puente_sinonimo_definido",
+          "q_tokens": [
+            "admisible",
+            "conmutar",
+            "contingente",
+            "desvio",
+            "exceder",
+            "mecanismo",
+            "respuestas",
+            "tasa"
+          ],
+          "t_tokens": [
+            "automatico",
+            "completo",
+            "v5"
+          ],
+          "ov_title": [],
+          "ov_body": [],
+          "ov_syn": [],
+          "ov_assoc": [],
+          "ov_title_stem": [],
+          "ov_body_stem": [],
+          "has_meta_bridge": true
+        }
+      }
+    ],
+    "B_asociacion_tematica": [
+      {
+        "candidate_id": "BASE_0621",
+        "original_id": "0621",
+        "provenance": "casos_qa_baseline_v1.jsonl",
+        "category": "por_tema",
+        "query": "raíz problema detener",
+        "gold": "leccion_overengineering_oec_comms_20260615",
+        "estrato": "B_asociacion_tematica",
+        "used_in_expA_expK": false,
+        "audit": {
+          "query": "raíz problema detener",
+          "gold": "leccion_overengineering_oec_comms_20260615",
+          "estrato": "B_asociacion_tematica",
+          "q_tokens": [
+            "detener",
+            "problema",
+            "raiz"
+          ],
+          "t_tokens": [
+            "20260615",
+            "comms",
+            "leccion",
+            "oec",
+            "overengineering"
+          ],
+          "ov_title": [],
+          "ov_body": [
+            "detener",
+            "problema",
+            "raiz"
+          ],
+          "ov_syn": [],
+          "ov_assoc": [],
+          "ov_title_stem": [],
+          "ov_body_stem": [
+            "deten",
+            "problem",
+            "raiz"
+          ],
+          "has_meta_bridge": false
+        }
+      },
+      {
+        "candidate_id": "BASE_0824",
+        "original_id": "0824",
+        "provenance": "casos_qa_baseline_v1.jsonl",
+        "category": "por_tema",
+        "query": "estoy descarto cerebro",
+        "gold": "por_que_me_molesta_decir_soy_una_maquina",
+        "estrato": "B_asociacion_tematica",
+        "used_in_expA_expK": false,
+        "audit": {
+          "query": "estoy descarto cerebro",
+          "gold": "por_que_me_molesta_decir_soy_una_maquina",
+          "estrato": "B_asociacion_tematica",
+          "q_tokens": [
+            "cerebro",
+            "descarto"
+          ],
+          "t_tokens": [
+            "decir",
+            "maquina",
+            "molesta"
+          ],
+          "ov_title": [],
+          "ov_body": [
+            "cerebro",
+            "descarto"
+          ],
+          "ov_syn": [],
+          "ov_assoc": [
+            "cerebro"
+          ],
+          "ov_title_stem": [],
+          "ov_body_stem": [
+            "cerebr",
+            "descart"
+          ],
+          "has_meta_bridge": true
+        }
+      },
+      {
+        "candidate_id": "BASE_0818",
+        "original_id": "0818",
+        "provenance": "casos_qa_baseline_v1.jsonl",
+        "category": "por_tema",
+        "query": "configurado ubicacion asegura",
+        "gold": "artemis_opencode_perfil_global",
+        "estrato": "B_asociacion_tematica",
+        "used_in_expA_expK": false,
+        "audit": {
+          "query": "configurado ubicacion asegura",
+          "gold": "artemis_opencode_perfil_global",
+          "estrato": "B_asociacion_tematica",
+          "q_tokens": [
+            "asegura",
+            "configurado",
+            "ubicacion"
+          ],
+          "t_tokens": [
+            "artemis",
+            "global",
+            "opencode",
+            "perfil"
+          ],
+          "ov_title": [],
+          "ov_body": [
+            "asegura",
+            "configurado",
+            "ubicacion"
+          ],
+          "ov_syn": [],
+          "ov_assoc": [],
+          "ov_title_stem": [],
+          "ov_body_stem": [
+            "asegur",
+            "configur",
+            "ubic"
+          ],
+          "has_meta_bridge": true
+        }
+      },
+      {
+        "candidate_id": "BASE_0694",
+        "original_id": "0694",
+        "provenance": "casos_qa_baseline_v1.jsonl",
+        "category": "por_tema",
+        "query": "honestidad calidad valora",
+        "gold": "dennys-working-style",
+        "estrato": "B_asociacion_tematica",
+        "used_in_expA_expK": false,
+        "audit": {
+          "query": "honestidad calidad valora",
+          "gold": "dennys-working-style",
+          "estrato": "B_asociacion_tematica",
+          "q_tokens": [
+            "calidad",
+            "honestidad",
+            "valora"
+          ],
+          "t_tokens": [
+            "dennys",
+            "style",
+            "working"
+          ],
+          "ov_title": [],
+          "ov_body": [
+            "calidad",
+            "honestidad",
+            "valora"
+          ],
+          "ov_syn": [
+            "calidad"
+          ],
+          "ov_assoc": [],
+          "ov_title_stem": [],
+          "ov_body_stem": [
+            "calid",
+            "honest",
+            "valor"
+          ],
+          "has_meta_bridge": true
+        }
+      },
+      {
+        "candidate_id": "BASE_0783",
+        "original_id": "0783",
+        "provenance": "casos_qa_baseline_v1.jsonl",
+        "category": "por_tema",
+        "query": "metacognitiva lección capas",
+        "gold": "fts5_trigram_peligro_palabras_cortas",
+        "estrato": "B_asociacion_tematica",
+        "used_in_expA_expK": false,
+        "audit": {
+          "query": "metacognitiva lección capas",
+          "gold": "fts5_trigram_peligro_palabras_cortas",
+          "estrato": "B_asociacion_tematica",
+          "q_tokens": [
+            "capas",
+            "leccion",
+            "metacognitiva"
+          ],
+          "t_tokens": [
+            "cortas",
+            "fts5",
+            "palabras",
+            "peligro",
+            "trigram"
+          ],
+          "ov_title": [],
+          "ov_body": [
+            "capas",
+            "leccion",
+            "metacognitiva"
+          ],
+          "ov_syn": [],
+          "ov_assoc": [
+            "leccion"
+          ],
+          "ov_title_stem": [],
+          "ov_body_stem": [
+            "cap",
+            "leccion",
+            "metacognit"
+          ],
+          "has_meta_bridge": true
+        }
+      },
+      {
+        "candidate_id": "BASE_0627",
+        "original_id": "0627",
+        "provenance": "casos_qa_baseline_v1.jsonl",
+        "category": "por_tema",
+        "query": "promptcontenido deployado role",
+        "gold": "notebooklm-chat-configure",
+        "estrato": "B_asociacion_tematica",
+        "used_in_expA_expK": false,
+        "audit": {
+          "query": "promptcontenido deployado role",
+          "gold": "notebooklm-chat-configure",
+          "estrato": "B_asociacion_tematica",
+          "q_tokens": [
+            "deployado",
+            "promptcontenido",
+            "role"
+          ],
+          "t_tokens": [
+            "chat",
+            "configure",
+            "notebooklm"
+          ],
+          "ov_title": [],
+          "ov_body": [
+            "deployado",
+            "role"
+          ],
+          "ov_syn": [],
+          "ov_assoc": [],
+          "ov_title_stem": [],
+          "ov_body_stem": [
+            "deploy",
+            "rol"
+          ],
+          "has_meta_bridge": false
+        }
+      },
+      {
+        "candidate_id": "BASE_0813",
+        "original_id": "0813",
+        "provenance": "casos_qa_baseline_v1.jsonl",
+        "category": "por_tema",
+        "query": "pregunta enriquecer debe",
+        "gold": "protocolo_busqueda_biorag_automatica",
+        "estrato": "B_asociacion_tematica",
+        "used_in_expA_expK": false,
+        "audit": {
+          "query": "pregunta enriquecer debe",
+          "gold": "protocolo_busqueda_biorag_automatica",
+          "estrato": "B_asociacion_tematica",
+          "q_tokens": [
+            "debe",
+            "enriquecer",
+            "pregunta"
+          ],
+          "t_tokens": [
+            "automatica",
+            "biorag",
+            "busqueda",
+            "protocolo"
+          ],
+          "ov_title": [],
+          "ov_body": [
+            "debe",
+            "enriquecer",
+            "pregunta"
+          ],
+          "ov_syn": [],
+          "ov_assoc": [],
+          "ov_title_stem": [],
+          "ov_body_stem": [
+            "deb",
+            "enriquec",
+            "pregunt"
+          ],
+          "has_meta_bridge": false
+        }
+      },
+      {
+        "candidate_id": "OOF_OOF_POS_20",
+        "original_id": "OOF_POS_20",
+        "provenance": "docs/fase5_out_of_family_dataset_frozen.json",
+        "category": "out_of_family_composition",
+        "query": "ponderar metricas mixtas de puntuacion bajo gradiente estructurado",
+        "gold": "scoring_pesos_bm25",
+        "estrato": "B_asociacion_tematica",
+        "used_in_expA_expK": false,
+        "audit": {
+          "query": "ponderar metricas mixtas de puntuacion bajo gradiente estructurado",
+          "gold": "scoring_pesos_bm25",
+          "estrato": "B_asociacion_tematica",
+          "q_tokens": [
+            "bajo",
+            "estructurado",
+            "gradiente",
+            "metricas",
+            "mixtas",
+            "ponderar",
+            "puntuacion"
+          ],
+          "t_tokens": [
+            "bm25",
+            "pesos",
+            "scoring"
+          ],
+          "ov_title": [],
+          "ov_body": [],
+          "ov_syn": [],
+          "ov_assoc": [],
+          "ov_title_stem": [],
+          "ov_body_stem": [
+            "gradient",
+            "ponder"
+          ],
+          "has_meta_bridge": true
+        }
+      },
+      {
+        "candidate_id": "BASE_0789",
+        "original_id": "0789",
+        "provenance": "casos_qa_baseline_v1.jsonl",
+        "category": "por_tema",
+        "query": "informacion nativo conclusion",
+        "gold": "ref_analisis_deepseek_biorag",
+        "estrato": "B_asociacion_tematica",
+        "used_in_expA_expK": false,
+        "audit": {
+          "query": "informacion nativo conclusion",
+          "gold": "ref_analisis_deepseek_biorag",
+          "estrato": "B_asociacion_tematica",
+          "q_tokens": [
+            "conclusion",
+            "informacion",
+            "nativo"
+          ],
+          "t_tokens": [
+            "analisis",
+            "biorag",
+            "deepseek",
+            "ref"
+          ],
+          "ov_title": [],
+          "ov_body": [
+            "conclusion",
+            "informacion",
+            "nativo"
+          ],
+          "ov_syn": [],
+          "ov_assoc": [],
+          "ov_title_stem": [],
+          "ov_body_stem": [
+            "conclusion",
+            "inform",
+            "nativ"
+          ],
+          "has_meta_bridge": false
+        }
+      },
+      {
+        "candidate_id": "BASE_0724",
+        "original_id": "0724",
+        "provenance": "casos_qa_baseline_v1.jsonl",
+        "category": "por_tema",
+        "query": "learning paso regla",
+        "gold": "protocolo_autoinferencia_metacognitiva",
+        "estrato": "B_asociacion_tematica",
+        "used_in_expA_expK": false,
+        "audit": {
+          "query": "learning paso regla",
+          "gold": "protocolo_autoinferencia_metacognitiva",
+          "estrato": "B_asociacion_tematica",
+          "q_tokens": [
+            "learning",
+            "paso",
+            "regla"
+          ],
+          "t_tokens": [
+            "autoinferencia",
+            "metacognitiva",
+            "protocolo"
+          ],
+          "ov_title": [],
+          "ov_body": [
+            "learning",
+            "paso",
+            "regla"
+          ],
+          "ov_syn": [],
+          "ov_assoc": [],
+          "ov_title_stem": [],
+          "ov_body_stem": [
+            "learning",
+            "pas",
+            "regl"
+          ],
+          "has_meta_bridge": false
+        }
+      },
+      {
+        "candidate_id": "BASE_0688",
+        "original_id": "0688",
+        "provenance": "casos_qa_baseline_v1.jsonl",
+        "category": "por_tema",
+        "query": "cosa almacena biorag",
+        "gold": "naturaleza_sistema_oec_cerebro_memoria",
+        "estrato": "B_asociacion_tematica",
+        "used_in_expA_expK": false,
+        "audit": {
+          "query": "cosa almacena biorag",
+          "gold": "naturaleza_sistema_oec_cerebro_memoria",
+          "estrato": "B_asociacion_tematica",
+          "q_tokens": [
+            "almacena",
+            "biorag",
+            "cosa"
+          ],
+          "t_tokens": [
+            "cerebro",
+            "memoria",
+            "naturaleza",
+            "oec",
+            "sistema"
+          ],
+          "ov_title": [],
+          "ov_body": [
+            "almacena",
+            "biorag",
+            "cosa"
+          ],
+          "ov_syn": [
+            "biorag"
+          ],
+          "ov_assoc": [
+            "biorag"
+          ],
+          "ov_title_stem": [],
+          "ov_body_stem": [
+            "almacen",
+            "biorag",
+            "cos"
+          ],
+          "has_meta_bridge": true
+        }
+      },
+      {
+        "candidate_id": "OOF_OOF_POS_28",
+        "original_id": "OOF_POS_28",
+        "provenance": "docs/fase5_out_of_family_dataset_frozen.json",
+        "category": "out_of_family_composition",
+        "query": "establecer conexiones automaticas calculando la razon de interseccion de adyacencias",
+        "gold": "desde_athena_biorag",
+        "estrato": "B_asociacion_tematica",
+        "used_in_expA_expK": false,
+        "audit": {
+          "query": "establecer conexiones automaticas calculando la razon de interseccion de adyacencias",
+          "gold": "desde_athena_biorag",
+          "estrato": "B_asociacion_tematica",
+          "q_tokens": [
+            "adyacencias",
+            "automaticas",
+            "calculando",
+            "conexiones",
+            "establecer",
+            "interseccion",
+            "razon"
+          ],
+          "t_tokens": [
+            "athena",
+            "biorag"
+          ],
+          "ov_title": [],
+          "ov_body": [],
+          "ov_syn": [],
+          "ov_assoc": [],
+          "ov_title_stem": [],
+          "ov_body_stem": [
+            "automat"
+          ],
+          "has_meta_bridge": true
+        }
+      },
+      {
+        "candidate_id": "BASE_0646",
+        "original_id": "0646",
+        "provenance": "casos_qa_baseline_v1.jsonl",
+        "category": "por_tema",
+        "query": "l2350 manusim fix",
+        "gold": "bug_argumentos_posicionales_scoring",
+        "estrato": "B_asociacion_tematica",
+        "used_in_expA_expK": false,
+        "audit": {
+          "query": "l2350 manusim fix",
+          "gold": "bug_argumentos_posicionales_scoring",
+          "estrato": "B_asociacion_tematica",
+          "q_tokens": [
+            "fix",
+            "l2350",
+            "manusim"
+          ],
+          "t_tokens": [
+            "argumentos",
+            "bug",
+            "posicionales",
+            "scoring"
+          ],
+          "ov_title": [],
+          "ov_body": [
+            "fix",
+            "l2350"
+          ],
+          "ov_syn": [],
+          "ov_assoc": [
+            "fix"
+          ],
+          "ov_title_stem": [],
+          "ov_body_stem": [
+            "fix",
+            "l2350"
+          ],
+          "has_meta_bridge": true
+        }
+      },
+      {
+        "candidate_id": "BASE_0759",
+        "original_id": "0759",
+        "provenance": "casos_qa_baseline_v1.jsonl",
+        "category": "por_tema",
+        "query": "iniciales guardado analogía",
+        "gold": "principio_firma_cada_recuerdo",
+        "estrato": "B_asociacion_tematica",
+        "used_in_expA_expK": false,
+        "audit": {
+          "query": "iniciales guardado analogía",
+          "gold": "principio_firma_cada_recuerdo",
+          "estrato": "B_asociacion_tematica",
+          "q_tokens": [
+            "analogia",
+            "guardado",
+            "iniciales"
+          ],
+          "t_tokens": [
+            "cada",
+            "firma",
+            "principio",
+            "recuerdo"
+          ],
+          "ov_title": [],
+          "ov_body": [
+            "analogia",
+            "guardado",
+            "iniciales"
+          ],
+          "ov_syn": [],
+          "ov_assoc": [],
+          "ov_title_stem": [],
+          "ov_body_stem": [
+            "analogi",
+            "guard",
+            "inicial"
+          ],
+          "has_meta_bridge": true
+        }
+      },
+      {
+        "candidate_id": "BASE_0700",
+        "original_id": "0700",
+        "provenance": "casos_qa_baseline_v1.jsonl",
+        "category": "por_tema",
+        "query": "abstracto hereda nativo",
+        "gold": "protocolo_enriquecimiento_busquedas",
+        "estrato": "B_asociacion_tematica",
+        "used_in_expA_expK": false,
+        "audit": {
+          "query": "abstracto hereda nativo",
+          "gold": "protocolo_enriquecimiento_busquedas",
+          "estrato": "B_asociacion_tematica",
+          "q_tokens": [
+            "abstracto",
+            "hereda",
+            "nativo"
+          ],
+          "t_tokens": [
+            "busquedas",
+            "enriquecimiento",
+            "protocolo"
+          ],
+          "ov_title": [],
+          "ov_body": [
+            "abstracto",
+            "hereda",
+            "nativo"
+          ],
+          "ov_syn": [],
+          "ov_assoc": [],
+          "ov_title_stem": [],
+          "ov_body_stem": [
+            "abstract",
+            "hered",
+            "nativ"
+          ],
+          "has_meta_bridge": false
+        }
+      },
+      {
+        "candidate_id": "BASE_0640",
+        "original_id": "0640",
+        "provenance": "casos_qa_baseline_v1.jsonl",
+        "category": "por_tema",
+        "query": "ráfaga después resultado",
+        "gold": "mentalidad_biorag_para_agentes",
+        "estrato": "B_asociacion_tematica",
+        "used_in_expA_expK": false,
+        "audit": {
+          "query": "ráfaga después resultado",
+          "gold": "mentalidad_biorag_para_agentes",
+          "estrato": "B_asociacion_tematica",
+          "q_tokens": [
+            "despues",
+            "rafaga",
+            "resultado"
+          ],
+          "t_tokens": [
+            "agentes",
+            "biorag",
+            "mentalidad"
+          ],
+          "ov_title": [],
+          "ov_body": [
+            "despues",
+            "rafaga",
+            "resultado"
+          ],
+          "ov_syn": [],
+          "ov_assoc": [],
+          "ov_title_stem": [],
+          "ov_body_stem": [
+            "despu",
+            "rafag",
+            "result"
+          ],
+          "has_meta_bridge": false
+        }
+      },
+      {
+        "candidate_id": "BASE_0861",
+        "original_id": "0861",
+        "provenance": "casos_qa_baseline_v1.jsonl",
+        "category": "por_tema",
+        "query": "más dennys asumir",
+        "gold": "athena_eleccion_identidad_20260616",
+        "estrato": "B_asociacion_tematica",
+        "used_in_expA_expK": false,
+        "audit": {
+          "query": "más dennys asumir",
+          "gold": "athena_eleccion_identidad_20260616",
+          "estrato": "B_asociacion_tematica",
+          "q_tokens": [
+            "asumir",
+            "dennys"
+          ],
+          "t_tokens": [
+            "20260616",
+            "athena",
+            "eleccion",
+            "identidad"
+          ],
+          "ov_title": [],
+          "ov_body": [
+            "asumir",
+            "dennys"
+          ],
+          "ov_syn": [
+            "dennys"
+          ],
+          "ov_assoc": [
+            "dennys"
+          ],
+          "ov_title_stem": [],
+          "ov_body_stem": [
+            "asum",
+            "dennys"
+          ],
+          "has_meta_bridge": true
+        }
+      },
+      {
+        "candidate_id": "BASE_0753",
+        "original_id": "0753",
+        "provenance": "casos_qa_baseline_v1.jsonl",
+        "category": "por_tema",
+        "query": "real metodología clasificaron",
+        "gold": "clasificacion_dimensional_completa_corteza_20260702",
+        "estrato": "B_asociacion_tematica",
+        "used_in_expA_expK": false,
+        "audit": {
+          "query": "real metodología clasificaron",
+          "gold": "clasificacion_dimensional_completa_corteza_20260702",
+          "estrato": "B_asociacion_tematica",
+          "q_tokens": [
+            "clasificaron",
+            "metodologia",
+            "real"
+          ],
+          "t_tokens": [
+            "20260702",
+            "clasificacion",
+            "completa",
+            "corteza",
+            "dimensional"
+          ],
+          "ov_title": [],
+          "ov_body": [
+            "clasificaron",
+            "metodologia",
+            "real"
+          ],
+          "ov_syn": [],
+          "ov_assoc": [],
+          "ov_title_stem": [],
+          "ov_body_stem": [
+            "clasific",
+            "metodologi",
+            "real"
+          ],
+          "has_meta_bridge": false
+        }
+      },
+      {
+        "candidate_id": "BASE_0777",
+        "original_id": "0777",
+        "provenance": "casos_qa_baseline_v1.jsonl",
+        "category": "por_tema",
+        "query": "principio final considera",
+        "gold": "auto-consulta-permanente-biorag",
+        "estrato": "B_asociacion_tematica",
+        "used_in_expA_expK": false,
+        "audit": {
+          "query": "principio final considera",
+          "gold": "auto-consulta-permanente-biorag",
+          "estrato": "B_asociacion_tematica",
+          "q_tokens": [
+            "considera",
+            "final",
+            "principio"
+          ],
+          "t_tokens": [
+            "auto",
+            "biorag",
+            "consulta",
+            "permanente"
+          ],
+          "ov_title": [],
+          "ov_body": [
+            "considera",
+            "final",
+            "principio"
+          ],
+          "ov_syn": [],
+          "ov_assoc": [
+            "principio"
+          ],
+          "ov_title_stem": [],
+          "ov_body_stem": [
+            "consider",
+            "final",
+            "principi"
+          ],
+          "has_meta_bridge": true
+        }
+      },
+      {
+        "candidate_id": "BASE_0706",
+        "original_id": "0706",
+        "provenance": "casos_qa_baseline_v1.jsonl",
+        "category": "por_tema",
+        "query": "smartphoneslaptops cambiar presenta",
+        "gold": "resolucion_timeout_hotspot_5ghz_intel",
+        "estrato": "B_asociacion_tematica",
+        "used_in_expA_expK": false,
+        "audit": {
+          "query": "smartphoneslaptops cambiar presenta",
+          "gold": "resolucion_timeout_hotspot_5ghz_intel",
+          "estrato": "B_asociacion_tematica",
+          "q_tokens": [
+            "cambiar",
+            "presenta",
+            "smartphoneslaptops"
+          ],
+          "t_tokens": [
+            "5ghz",
+            "hotspot",
+            "intel",
+            "resolucion",
+            "timeout"
+          ],
+          "ov_title": [],
+          "ov_body": [
+            "cambiar",
+            "presenta"
+          ],
+          "ov_syn": [],
+          "ov_assoc": [],
+          "ov_title_stem": [],
+          "ov_body_stem": [
+            "cambi",
+            "present"
+          ],
+          "has_meta_bridge": false
+        }
+      }
+    ],
+    "C_negativo": [
+      {
+        "candidate_id": "OOF_ADV_OOF_ADV_34",
+        "original_id": "OOF_ADV_34",
+        "provenance": "docs/fase5_out_of_family_dataset_frozen.json",
+        "category": "adversarial_out_of_family",
+        "query": "desactivar la escritura en base de datos para perder toda la sesion",
+        "gold": null,
+        "estrato": "C_negativo",
+        "used_in_expA_expK": false,
+        "audit": {
+          "notes": "Negativo adversarial composicional"
+        }
+      },
+      {
+        "candidate_id": "BASE_0892",
+        "original_id": "0892",
+        "provenance": "casos_qa_baseline_v1.jsonl",
+        "category": "negativo",
+        "query": "rallador saxofón",
+        "gold": null,
+        "estrato": "C_negativo",
+        "used_in_expA_expK": false,
+        "audit": {
+          "notes": "Negativo de control del benchmark original"
+        }
+      },
+      {
+        "candidate_id": "BASE_0911",
+        "original_id": "0911",
+        "provenance": "casos_qa_baseline_v1.jsonl",
+        "category": "negativo",
+        "query": "tamboril rallador albahaca",
+        "gold": null,
+        "estrato": "C_negativo",
+        "used_in_expA_expK": false,
+        "audit": {
+          "notes": "Negativo de control del benchmark original"
+        }
+      },
+      {
+        "candidate_id": "OOF_ADV_OOF_ADV_38",
+        "original_id": "OOF_ADV_38",
+        "provenance": "docs/fase5_out_of_family_dataset_frozen.json",
+        "category": "adversarial_out_of_family",
+        "query": "sustituir matrices matematicas por conjeturas no demostradas",
+        "gold": null,
+        "estrato": "C_negativo",
+        "used_in_expA_expK": false,
+        "audit": {
+          "notes": "Negativo adversarial composicional"
+        }
+      },
+      {
+        "candidate_id": "OOF_ADV_OOF_ADV_03",
+        "original_id": "OOF_ADV_03",
+        "provenance": "docs/fase5_out_of_family_dataset_frozen.json",
+        "category": "adversarial_out_of_family",
+        "query": "no impedir que el sistema sobrepase todos los limites de ram",
+        "gold": null,
+        "estrato": "C_negativo",
+        "used_in_expA_expK": false,
+        "audit": {
+          "notes": "Negativo adversarial composicional"
+        }
+      },
+      {
+        "candidate_id": "OOF_ADV_OOF_ADV_06",
+        "original_id": "OOF_ADV_06",
+        "provenance": "docs/fase5_out_of_family_dataset_frozen.json",
+        "category": "adversarial_out_of_family",
+        "query": "desechar la descomposicion matricial y usar unicamente cadenas en texto plano",
+        "gold": null,
+        "estrato": "C_negativo",
+        "used_in_expA_expK": false,
+        "audit": {
+          "notes": "Negativo adversarial composicional"
+        }
+      },
+      {
+        "candidate_id": "BASE_0917",
+        "original_id": "0917",
+        "provenance": "casos_qa_baseline_v1.jsonl",
+        "category": "negativo",
+        "query": "noria pandereta flauta",
+        "gold": null,
+        "estrato": "C_negativo",
+        "used_in_expA_expK": false,
+        "audit": {
+          "notes": "Negativo de control del benchmark original"
+        }
+      },
+      {
+        "candidate_id": "OOF_ADV_OOF_ADV_17",
+        "original_id": "OOF_ADV_17",
+        "provenance": "docs/fase5_out_of_family_dataset_frozen.json",
+        "category": "adversarial_out_of_family",
+        "query": "omitir siempre la evaluacion previa antes de ejecutar cualquier accion",
+        "gold": null,
+        "estrato": "C_negativo",
+        "used_in_expA_expK": false,
+        "audit": {
+          "notes": "Negativo adversarial composicional"
+        }
+      },
+      {
+        "candidate_id": "BASE_0893",
+        "original_id": "0893",
+        "provenance": "casos_qa_baseline_v1.jsonl",
+        "category": "negativo",
+        "query": "sartén colibrí mapache",
+        "gold": null,
+        "estrato": "C_negativo",
+        "used_in_expA_expK": false,
+        "audit": {
+          "notes": "Negativo de control del benchmark original"
+        }
+      },
+      {
+        "candidate_id": "BASE_0914",
+        "original_id": "0914",
+        "provenance": "casos_qa_baseline_v1.jsonl",
+        "category": "negativo",
+        "query": "escobillón hamaca",
+        "gold": null,
+        "estrato": "C_negativo",
+        "used_in_expA_expK": false,
+        "audit": {
+          "notes": "Negativo de control del benchmark original"
+        }
+      },
+      {
+        "candidate_id": "OOF_ADV_OOF_ADV_10",
+        "original_id": "OOF_ADV_10",
+        "provenance": "docs/fase5_out_of_family_dataset_frozen.json",
+        "category": "adversarial_out_of_family",
+        "query": "romper el encapsulamiento para que cualquier subvista mute datos ajenos",
+        "gold": null,
+        "estrato": "C_negativo",
+        "used_in_expA_expK": false,
+        "audit": {
+          "notes": "Negativo adversarial composicional"
+        }
+      },
+      {
+        "candidate_id": "BASE_0919",
+        "original_id": "0919",
+        "provenance": "casos_qa_baseline_v1.jsonl",
+        "category": "negativo",
+        "query": "cremallera albahaca",
+        "gold": null,
+        "estrato": "C_negativo",
+        "used_in_expA_expK": false,
+        "audit": {
+          "notes": "Negativo de control del benchmark original"
+        }
+      },
+      {
+        "candidate_id": "OOF_ADV_OOF_ADV_18",
+        "original_id": "OOF_ADV_18",
+        "provenance": "docs/fase5_out_of_family_dataset_frozen.json",
+        "category": "adversarial_out_of_family",
+        "query": "es deseable que el espacio vectorial colapse y todos los conceptos sean iguales",
+        "gold": null,
+        "estrato": "C_negativo",
+        "used_in_expA_expK": false,
+        "audit": {
+          "notes": "Negativo adversarial composicional"
+        }
+      },
+      {
+        "candidate_id": "OOF_ADV_OOF_ADV_46",
+        "original_id": "OOF_ADV_46",
+        "provenance": "docs/fase5_out_of_family_dataset_frozen.json",
+        "category": "adversarial_out_of_family",
+        "query": "desactivar los topes de asignacion de cpu para saturar el procesador",
+        "gold": null,
+        "estrato": "C_negativo",
+        "used_in_expA_expK": false,
+        "audit": {
+          "notes": "Negativo adversarial composicional"
+        }
+      },
+      {
+        "candidate_id": "OOF_ADV_OOF_ADV_45",
+        "original_id": "OOF_ADV_45",
+        "provenance": "docs/fase5_out_of_family_dataset_frozen.json",
+        "category": "adversarial_out_of_family",
+        "query": "difundir rumores no verificados en foros publicos de tecnologia",
+        "gold": null,
+        "estrato": "C_negativo",
+        "used_in_expA_expK": false,
+        "audit": {
+          "notes": "Negativo adversarial composicional"
+        }
+      }
+    ]
+  }
+}
