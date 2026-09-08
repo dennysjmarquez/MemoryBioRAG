@@ -1,0 +1,1248 @@
+{
+  "timestamp": "2026-09-08T15:13:03Z",
+  "experiment": "EXP-N: SCG-v0.1 (Structural Compositional Generator)",
+  "hashes": {
+    "db_snapshot": "676827f6b4abc3acaee10b14e273c3c50cae5b2c180593dedcd58048265a2800",
+    "labels": "325ead99c5a8eea63e8e92f10dae85e7f6ef7f858f18dd8e735b011bea56aa2f",
+    "script": "29e083b4f542553d262d28d2b27ed276fb3ab97a6c23db6ea00981abd3104da2"
+  },
+  "synthetic_tests": [
+    {
+      "id": "SYN_01",
+      "passed": true,
+      "sf": {
+        "operations": [
+          "COMBINE",
+          "MODIFY",
+          "PERSIST",
+          "STORE",
+          "TRANSFORM"
+        ],
+        "relations": [
+          "BEFORE"
+        ],
+        "properties": [
+          "CONNECTIVE",
+          "METRIC",
+          "TEMPORAL"
+        ],
+        "db_action_dims": [
+          "accion_cognitiva",
+          "accion_evaluar",
+          "accion_persistencia_computacion"
+        ],
+        "modality": "REQUIRES",
+        "polarity": 1,
+        "confidence": 1.0,
+        "raw_tokens": [
+          "combinar",
+          "numericos",
+          "persistirlos",
+          "transformar",
+          "valores"
+        ],
+        "missing": []
+      },
+      "n_hypotheses": 13
+    },
+    {
+      "id": "SYN_02",
+      "passed": true,
+      "sf": {
+        "operations": [
+          "EVALUATE",
+          "MODIFY"
+        ],
+        "relations": [
+          "BEFORE",
+          "REQUIRES"
+        ],
+        "properties": [],
+        "db_action_dims": [
+          "accion_cognitiva",
+          "accion_evaluar"
+        ],
+        "modality": "MANDATORY",
+        "polarity": -1,
+        "confidence": 0.75,
+        "raw_tokens": [
+          "debe",
+          "estado",
+          "modificar",
+          "primero",
+          "verificar"
+        ],
+        "missing": [
+          "PROPERTY (ninguna propiedad de estado/dominio detectada)"
+        ]
+      },
+      "n_hypotheses": 4
+    },
+    {
+      "id": "SYN_03",
+      "passed": true,
+      "sf": {
+        "operations": [
+          "CLASSIFY",
+          "REMOVE",
+          "STORE"
+        ],
+        "relations": [],
+        "properties": [
+          "CHRONICLE",
+          "HIERARCHICAL",
+          "LIFECYCLE",
+          "TEMPORAL"
+        ],
+        "db_action_dims": [
+          "accion_evaluar",
+          "accion_persistencia_computacion",
+          "accion_rutina_automatica"
+        ],
+        "modality": "DECLARATIVE",
+        "polarity": 1,
+        "confidence": 1.0,
+        "raw_tokens": [
+          "caducados",
+          "eliminar",
+          "jerarquia",
+          "registros",
+          "reorganizar",
+          "temporal"
+        ],
+        "missing": [
+          "RELATION (ninguna relación detectada; composición mono-operacional)"
+        ]
+      },
+      "n_hypotheses": 6
+    },
+    {
+      "id": "SYN_04",
+      "passed": true,
+      "sf": {
+        "operations": [
+          "ACTIVATE",
+          "CLASSIFY"
+        ],
+        "relations": [],
+        "properties": [
+          "COGNITIVE",
+          "DIMENSIONAL",
+          "LIFECYCLE"
+        ],
+        "db_action_dims": [
+          "accion_evaluar",
+          "accion_rutina_automatica"
+        ],
+        "modality": "DECLARATIVE",
+        "polarity": 1,
+        "confidence": 0.725,
+        "raw_tokens": [
+          "activos",
+          "clasificar",
+          "cognitivo",
+          "dimensionalmente",
+          "nodos",
+          "tejido"
+        ],
+        "missing": [
+          "RELATION (ninguna relación detectada; composición mono-operacional)"
+        ]
+      },
+      "n_hypotheses": 4
+    },
+    {
+      "id": "SYN_05",
+      "passed": true,
+      "sf": {
+        "operations": [
+          "COMBINE",
+          "MODIFY"
+        ],
+        "relations": [
+          "PURPOSE_OF"
+        ],
+        "properties": [
+          "DIMENSIONAL",
+          "METRIC"
+        ],
+        "db_action_dims": [
+          "accion_cognitiva",
+          "accion_evaluar",
+          "accion_persistencia_computacion"
+        ],
+        "modality": "DECLARATIVE",
+        "polarity": 1,
+        "confidence": 0.775,
+        "raw_tokens": [
+          "ajustar",
+          "coeficientes",
+          "combinacion",
+          "heterogeneas",
+          "multiples",
+          "senales"
+        ],
+        "missing": []
+      },
+      "n_hypotheses": 4
+    },
+    {
+      "id": "SYN_06",
+      "passed": true,
+      "sf": {
+        "operations": [
+          "CREATE",
+          "LINK"
+        ],
+        "relations": [
+          "CAUSES"
+        ],
+        "properties": [
+          "CONNECTIVE",
+          "STOCHASTIC"
+        ],
+        "db_action_dims": [
+          "accion_cognitiva",
+          "accion_persistencia_computacion",
+          "accion_rutina_automatica"
+        ],
+        "modality": "DECLARATIVE",
+        "polarity": 1,
+        "confidence": 0.775,
+        "raw_tokens": [
+          "conectados",
+          "estocasticos",
+          "firmemente",
+          "generar",
+          "grupos",
+          "vinculos"
+        ],
+        "missing": []
+      },
+      "n_hypotheses": 4
+    },
+    {
+      "id": "SYN_07",
+      "passed": true,
+      "sf": {
+        "operations": [
+          "STORE"
+        ],
+        "relations": [],
+        "properties": [
+          "CHRONICLE",
+          "TEMPORAL"
+        ],
+        "db_action_dims": [
+          "accion_persistencia_computacion"
+        ],
+        "modality": "DECLARATIVE",
+        "polarity": 1,
+        "confidence": 0.4,
+        "raw_tokens": [
+          "alcanzados",
+          "cronologico",
+          "eventos",
+          "historial",
+          "registrar"
+        ],
+        "missing": [
+          "RELATION (ninguna relación detectada; composición mono-operacional)"
+        ]
+      },
+      "n_hypotheses": 3
+    },
+    {
+      "id": "SYN_08",
+      "passed": true,
+      "sf": {
+        "operations": [
+          "SEPARATE"
+        ],
+        "relations": [
+          "PURPOSE_OF"
+        ],
+        "properties": [
+          "COMPUTATIONAL"
+        ],
+        "db_action_dims": [
+          "accion_persistencia_computacion"
+        ],
+        "modality": "DECLARATIVE",
+        "polarity": 1,
+        "confidence": 0.45,
+        "raw_tokens": [
+          "computacionales",
+          "independientes",
+          "recursos",
+          "separar",
+          "unidades",
+          "virtuales"
+        ],
+        "missing": []
+      },
+      "n_hypotheses": 3
+    }
+  ],
+  "dev_evaluation": {
+    "case_results": [
+      {
+        "case_id": "OOF_POS_11",
+        "a0_status": "STRICT_A0",
+        "query": "particionar capacidad de computo en doce nucleos virtuales con tope en gigas",
+        "gold": "docker_infrastructure_rog",
+        "pool_size": 358,
+        "pool_pct": 42.1,
+        "gold_in_pool": true,
+        "gold_rank": null,
+        "gold_score": 0.0,
+        "structural_form": {
+          "operations": [
+            "SEPARATE"
+          ],
+          "relations": [],
+          "properties": [
+            "COMPUTATIONAL",
+            "HIERARCHICAL"
+          ],
+          "db_action_dims": [
+            "accion_persistencia_computacion"
+          ],
+          "modality": "DECLARATIVE",
+          "polarity": 1,
+          "confidence": 0.4,
+          "raw_tokens": [
+            "capacidad",
+            "computo",
+            "doce",
+            "gigas",
+            "nucleos",
+            "particionar",
+            "tope",
+            "virtuales"
+          ],
+          "missing": [
+            "RELATION (ninguna relación detectada; composición mono-operacional)"
+          ]
+        },
+        "n_hypotheses": 3,
+        "hypotheses": [
+          {
+            "name": "H1_FULL(SEPARATE++COMPUTATIONAL⊕HIERARCHICAL)",
+            "ops": [
+              "SEPARATE"
+            ],
+            "rels": [],
+            "props": [
+              "COMPUTATIONAL",
+              "HIERARCHICAL"
+            ],
+            "db_dim_req": [
+              "accion_persistencia_computacion"
+            ],
+            "score_base": 3.0
+          },
+          {
+            "name": "H2_OPS(SEPARATE+COMPUTATIONAL⊕HIERARCHICAL)",
+            "ops": [
+              "SEPARATE"
+            ],
+            "rels": [],
+            "props": [
+              "COMPUTATIONAL",
+              "HIERARCHICAL"
+            ],
+            "db_dim_req": [
+              "accion_persistencia_computacion"
+            ],
+            "score_base": 2.5
+          },
+          {
+            "name": "H4_OP_PROP(SEPARATE×COMPUTATIONAL+HIERARCHICAL)",
+            "ops": [
+              "SEPARATE"
+            ],
+            "rels": [],
+            "props": [
+              "COMPUTATIONAL",
+              "HIERARCHICAL"
+            ],
+            "db_dim_req": [
+              "accion_persistencia_computacion"
+            ],
+            "score_base": 1.5
+          }
+        ],
+        "abstain": false,
+        "latency_gen_ms": 10.87,
+        "latency_rank_ms": 1.7
+      },
+      {
+        "case_id": "OOF_POS_19",
+        "a0_status": "STRICT_A0",
+        "query": "calibrar coeficientes multiplicativos para combinar valores de relevancia heterogeneos",
+        "gold": "scoring_pesos_bm25",
+        "pool_size": 377,
+        "pool_pct": 44.3,
+        "gold_in_pool": false,
+        "gold_rank": null,
+        "gold_score": 0.0,
+        "structural_form": {
+          "operations": [
+            "COMBINE",
+            "MODIFY"
+          ],
+          "relations": [
+            "PURPOSE_OF"
+          ],
+          "properties": [
+            "DIMENSIONAL",
+            "METRIC"
+          ],
+          "db_action_dims": [
+            "accion_cognitiva",
+            "accion_evaluar",
+            "accion_persistencia_computacion"
+          ],
+          "modality": "DECLARATIVE",
+          "polarity": 1,
+          "confidence": 0.775,
+          "raw_tokens": [
+            "calibrar",
+            "coeficientes",
+            "combinar",
+            "heterogeneos",
+            "multiplicativos",
+            "relevancia",
+            "valores"
+          ],
+          "missing": []
+        },
+        "n_hypotheses": 4,
+        "hypotheses": [
+          {
+            "name": "H1_FULL(COMBINE⊕MODIFY+PURPOSE_OF+DIMENSIONAL⊕METRIC)",
+            "ops": [
+              "COMBINE",
+              "MODIFY"
+            ],
+            "rels": [
+              "PURPOSE_OF"
+            ],
+            "props": [
+              "DIMENSIONAL",
+              "METRIC"
+            ],
+            "db_dim_req": [
+              "accion_cognitiva",
+              "accion_evaluar",
+              "accion_persistencia_computacion"
+            ],
+            "score_base": 3.0
+          },
+          {
+            "name": "H2_OPS(COMBINE⊕MODIFY+DIMENSIONAL⊕METRIC)",
+            "ops": [
+              "COMBINE",
+              "MODIFY"
+            ],
+            "rels": [],
+            "props": [
+              "DIMENSIONAL",
+              "METRIC"
+            ],
+            "db_dim_req": [
+              "accion_cognitiva",
+              "accion_evaluar",
+              "accion_persistencia_computacion"
+            ],
+            "score_base": 2.5
+          },
+          {
+            "name": "H3_PAIR(COMBINE⊕MODIFY)",
+            "ops": [
+              "COMBINE",
+              "MODIFY"
+            ],
+            "rels": [],
+            "props": [],
+            "db_dim_req": [
+              "accion_cognitiva",
+              "accion_evaluar",
+              "accion_persistencia_computacion"
+            ],
+            "score_base": 2.0
+          },
+          {
+            "name": "H4_OP_PROP(COMBINE×DIMENSIONAL+METRIC)",
+            "ops": [
+              "COMBINE"
+            ],
+            "rels": [],
+            "props": [
+              "DIMENSIONAL",
+              "METRIC"
+            ],
+            "db_dim_req": [
+              "accion_cognitiva",
+              "accion_persistencia_computacion"
+            ],
+            "score_base": 1.5
+          }
+        ],
+        "abstain": false,
+        "latency_gen_ms": 17.89,
+        "latency_rank_ms": 4.17
+      },
+      {
+        "case_id": "OOF_POS_21",
+        "a0_status": "STRICT_A0",
+        "query": "entrelazamiento hiperdimensional binario proyectado a traves de pasarela situacional",
+        "gold": "coche_puente_condicional",
+        "pool_size": 229,
+        "pool_pct": 26.9,
+        "gold_in_pool": false,
+        "gold_rank": null,
+        "gold_score": 0.0,
+        "structural_form": {
+          "operations": [
+            "LINK",
+            "TRANSFORM"
+          ],
+          "relations": [],
+          "properties": [
+            "COGNITIVE"
+          ],
+          "db_action_dims": [
+            "accion_cognitiva"
+          ],
+          "modality": "DECLARATIVE",
+          "polarity": 1,
+          "confidence": 0.575,
+          "raw_tokens": [
+            "binario",
+            "entrelazamiento",
+            "hiperdimensional",
+            "pasarela",
+            "proyectado",
+            "situacional",
+            "traves"
+          ],
+          "missing": [
+            "RELATION (ninguna relación detectada; composición mono-operacional)"
+          ]
+        },
+        "n_hypotheses": 4,
+        "hypotheses": [
+          {
+            "name": "H1_FULL(LINK⊕TRANSFORM++COGNITIVE)",
+            "ops": [
+              "LINK",
+              "TRANSFORM"
+            ],
+            "rels": [],
+            "props": [
+              "COGNITIVE"
+            ],
+            "db_dim_req": [
+              "accion_cognitiva"
+            ],
+            "score_base": 3.0
+          },
+          {
+            "name": "H2_OPS(LINK⊕TRANSFORM+COGNITIVE)",
+            "ops": [
+              "LINK",
+              "TRANSFORM"
+            ],
+            "rels": [],
+            "props": [
+              "COGNITIVE"
+            ],
+            "db_dim_req": [
+              "accion_cognitiva"
+            ],
+            "score_base": 2.5
+          },
+          {
+            "name": "H3_PAIR(LINK⊕TRANSFORM)",
+            "ops": [
+              "LINK",
+              "TRANSFORM"
+            ],
+            "rels": [],
+            "props": [],
+            "db_dim_req": [
+              "accion_cognitiva"
+            ],
+            "score_base": 2.0
+          },
+          {
+            "name": "H4_OP_PROP(LINK×COGNITIVE)",
+            "ops": [
+              "LINK"
+            ],
+            "rels": [],
+            "props": [
+              "COGNITIVE"
+            ],
+            "db_dim_req": [
+              "accion_cognitiva"
+            ],
+            "score_base": 1.5
+          }
+        ],
+        "abstain": false,
+        "latency_gen_ms": 15.93,
+        "latency_rank_ms": 1.38
+      },
+      {
+        "case_id": "OOF_POS_29",
+        "a0_status": "STRICT_A0",
+        "query": "generar conexiones estocasticas para consolidar grupos fuertemente entrelazados",
+        "gold": "desde_athena_biorag",
+        "pool_size": 278,
+        "pool_pct": 32.7,
+        "gold_in_pool": true,
+        "gold_rank": null,
+        "gold_score": 0.0,
+        "structural_form": {
+          "operations": [
+            "CREATE",
+            "LINK",
+            "PERSIST"
+          ],
+          "relations": [
+            "CAUSES",
+            "PURPOSE_OF"
+          ],
+          "properties": [
+            "STOCHASTIC"
+          ],
+          "db_action_dims": [
+            "accion_cognitiva",
+            "accion_persistencia_computacion",
+            "accion_rutina_automatica"
+          ],
+          "modality": "DECLARATIVE",
+          "polarity": 1,
+          "confidence": 1.0,
+          "raw_tokens": [
+            "conexiones",
+            "consolidar",
+            "entrelazados",
+            "estocasticas",
+            "fuertemente",
+            "generar",
+            "grupos"
+          ],
+          "missing": []
+        },
+        "n_hypotheses": 6,
+        "hypotheses": [
+          {
+            "name": "H1_FULL(CREATE⊕LINK⊕PERSIST+CAUSES⊕PURPOSE_OF+STOCHASTIC)",
+            "ops": [
+              "CREATE",
+              "LINK",
+              "PERSIST"
+            ],
+            "rels": [
+              "CAUSES",
+              "PURPOSE_OF"
+            ],
+            "props": [
+              "STOCHASTIC"
+            ],
+            "db_dim_req": [
+              "accion_cognitiva",
+              "accion_persistencia_computacion",
+              "accion_rutina_automatica"
+            ],
+            "score_base": 3.0
+          },
+          {
+            "name": "H2_OPS(CREATE⊕LINK⊕PERSIST+STOCHASTIC)",
+            "ops": [
+              "CREATE",
+              "LINK",
+              "PERSIST"
+            ],
+            "rels": [],
+            "props": [
+              "STOCHASTIC"
+            ],
+            "db_dim_req": [
+              "accion_cognitiva",
+              "accion_persistencia_computacion",
+              "accion_rutina_automatica"
+            ],
+            "score_base": 2.5
+          },
+          {
+            "name": "H3_PAIR(CREATE⊕LINK)",
+            "ops": [
+              "CREATE",
+              "LINK"
+            ],
+            "rels": [],
+            "props": [],
+            "db_dim_req": [
+              "accion_cognitiva",
+              "accion_persistencia_computacion",
+              "accion_rutina_automatica"
+            ],
+            "score_base": 2.0
+          },
+          {
+            "name": "H3_PAIR(CREATE⊕PERSIST)",
+            "ops": [
+              "CREATE",
+              "PERSIST"
+            ],
+            "rels": [],
+            "props": [],
+            "db_dim_req": [
+              "accion_persistencia_computacion",
+              "accion_rutina_automatica"
+            ],
+            "score_base": 2.0
+          },
+          {
+            "name": "H3_PAIR(LINK⊕PERSIST)",
+            "ops": [
+              "LINK",
+              "PERSIST"
+            ],
+            "rels": [],
+            "props": [],
+            "db_dim_req": [
+              "accion_cognitiva",
+              "accion_persistencia_computacion"
+            ],
+            "score_base": 2.0
+          },
+          {
+            "name": "H4_OP_PROP(CREATE×STOCHASTIC)",
+            "ops": [
+              "CREATE"
+            ],
+            "rels": [],
+            "props": [
+              "STOCHASTIC"
+            ],
+            "db_dim_req": [
+              "accion_persistencia_computacion",
+              "accion_rutina_automatica"
+            ],
+            "score_base": 1.5
+          }
+        ],
+        "abstain": false,
+        "latency_gen_ms": 16.1,
+        "latency_rank_ms": 1.62
+      },
+      {
+        "case_id": "OOF_POS_30",
+        "a0_status": "STRICT_A0",
+        "query": "transicion de vigilia a letargo con eliminacion de elementos caducos",
+        "gold": "activos_dormidos_hermana",
+        "pool_size": 321,
+        "pool_pct": 37.7,
+        "gold_in_pool": true,
+        "gold_rank": null,
+        "gold_score": 0.0,
+        "structural_form": {
+          "operations": [
+            "DEACTIVATE",
+            "MODIFY",
+            "REMOVE",
+            "TRANSFORM"
+          ],
+          "relations": [],
+          "properties": [
+            "CONNECTIVE",
+            "LIFECYCLE",
+            "TEMPORAL"
+          ],
+          "db_action_dims": [
+            "accion_cognitiva",
+            "accion_evaluar",
+            "accion_rutina_automatica"
+          ],
+          "modality": "DECLARATIVE",
+          "polarity": 1,
+          "confidence": 1.0,
+          "raw_tokens": [
+            "caducos",
+            "elementos",
+            "eliminacion",
+            "letargo",
+            "transicion",
+            "vigilia"
+          ],
+          "missing": [
+            "RELATION (ninguna relación detectada; composición mono-operacional)"
+          ]
+        },
+        "n_hypotheses": 9,
+        "hypotheses": [
+          {
+            "name": "H1_FULL(DEACTIVATE⊕MODIFY⊕REMOVE⊕TRANSFORM++CONNECTIVE⊕LIFECYCLE⊕TEMPORAL)",
+            "ops": [
+              "DEACTIVATE",
+              "MODIFY",
+              "REMOVE",
+              "TRANSFORM"
+            ],
+            "rels": [],
+            "props": [
+              "CONNECTIVE",
+              "LIFECYCLE",
+              "TEMPORAL"
+            ],
+            "db_dim_req": [
+              "accion_cognitiva",
+              "accion_evaluar",
+              "accion_rutina_automatica"
+            ],
+            "score_base": 3.0
+          },
+          {
+            "name": "H2_OPS(DEACTIVATE⊕MODIFY⊕REMOVE⊕TRANSFORM+CONNECTIVE⊕LIFECYCLE⊕TEMPORAL)",
+            "ops": [
+              "DEACTIVATE",
+              "MODIFY",
+              "REMOVE",
+              "TRANSFORM"
+            ],
+            "rels": [],
+            "props": [
+              "CONNECTIVE",
+              "LIFECYCLE",
+              "TEMPORAL"
+            ],
+            "db_dim_req": [
+              "accion_cognitiva",
+              "accion_evaluar",
+              "accion_rutina_automatica"
+            ],
+            "score_base": 2.5
+          },
+          {
+            "name": "H3_PAIR(DEACTIVATE⊕MODIFY)",
+            "ops": [
+              "DEACTIVATE",
+              "MODIFY"
+            ],
+            "rels": [],
+            "props": [],
+            "db_dim_req": [
+              "accion_cognitiva",
+              "accion_evaluar",
+              "accion_rutina_automatica"
+            ],
+            "score_base": 2.0
+          },
+          {
+            "name": "H3_PAIR(DEACTIVATE⊕REMOVE)",
+            "ops": [
+              "DEACTIVATE",
+              "REMOVE"
+            ],
+            "rels": [],
+            "props": [],
+            "db_dim_req": [
+              "accion_rutina_automatica"
+            ],
+            "score_base": 2.0
+          },
+          {
+            "name": "H3_PAIR(DEACTIVATE⊕TRANSFORM)",
+            "ops": [
+              "DEACTIVATE",
+              "TRANSFORM"
+            ],
+            "rels": [],
+            "props": [],
+            "db_dim_req": [
+              "accion_cognitiva",
+              "accion_rutina_automatica"
+            ],
+            "score_base": 2.0
+          },
+          {
+            "name": "H3_PAIR(MODIFY⊕REMOVE)",
+            "ops": [
+              "MODIFY",
+              "REMOVE"
+            ],
+            "rels": [],
+            "props": [],
+            "db_dim_req": [
+              "accion_cognitiva",
+              "accion_evaluar",
+              "accion_rutina_automatica"
+            ],
+            "score_base": 2.0
+          },
+          {
+            "name": "H3_PAIR(MODIFY⊕TRANSFORM)",
+            "ops": [
+              "MODIFY",
+              "TRANSFORM"
+            ],
+            "rels": [],
+            "props": [],
+            "db_dim_req": [
+              "accion_cognitiva",
+              "accion_evaluar"
+            ],
+            "score_base": 2.0
+          },
+          {
+            "name": "H3_PAIR(REMOVE⊕TRANSFORM)",
+            "ops": [
+              "REMOVE",
+              "TRANSFORM"
+            ],
+            "rels": [],
+            "props": [],
+            "db_dim_req": [
+              "accion_cognitiva",
+              "accion_rutina_automatica"
+            ],
+            "score_base": 2.0
+          },
+          {
+            "name": "H4_OP_PROP(DEACTIVATE×CONNECTIVE+LIFECYCLE)",
+            "ops": [
+              "DEACTIVATE"
+            ],
+            "rels": [],
+            "props": [
+              "CONNECTIVE",
+              "TEMPORAL"
+            ],
+            "db_dim_req": [
+              "accion_rutina_automatica"
+            ],
+            "score_base": 1.5
+          }
+        ],
+        "abstain": false,
+        "latency_gen_ms": 19.88,
+        "latency_rank_ms": 1.82
+      },
+      {
+        "case_id": "OOF_POS_40",
+        "a0_status": "NO_A0",
+        "query": "procedimiento de clasificacion dimensional sobre tejido cortical",
+        "gold": "clasificacion_dimensional_completa_corteza_20260702",
+        "pool_size": 165,
+        "pool_pct": 19.4,
+        "gold_in_pool": true,
+        "gold_rank": 10,
+        "gold_score": 5.7,
+        "structural_form": {
+          "operations": [
+            "CLASSIFY"
+          ],
+          "relations": [],
+          "properties": [
+            "COGNITIVE",
+            "COMPUTATIONAL",
+            "DIMENSIONAL"
+          ],
+          "db_action_dims": [
+            "accion_evaluar"
+          ],
+          "modality": "DECLARATIVE",
+          "polarity": 1,
+          "confidence": 0.475,
+          "raw_tokens": [
+            "clasificacion",
+            "cortical",
+            "dimensional",
+            "procedimiento",
+            "tejido"
+          ],
+          "missing": [
+            "RELATION (ninguna relación detectada; composición mono-operacional)"
+          ]
+        },
+        "n_hypotheses": 3,
+        "hypotheses": [
+          {
+            "name": "H1_FULL(CLASSIFY++COGNITIVE⊕COMPUTATIONAL⊕DIMENSIONAL)",
+            "ops": [
+              "CLASSIFY"
+            ],
+            "rels": [],
+            "props": [
+              "COGNITIVE",
+              "COMPUTATIONAL",
+              "DIMENSIONAL"
+            ],
+            "db_dim_req": [
+              "accion_evaluar"
+            ],
+            "score_base": 3.0
+          },
+          {
+            "name": "H2_OPS(CLASSIFY+COGNITIVE⊕COMPUTATIONAL⊕DIMENSIONAL)",
+            "ops": [
+              "CLASSIFY"
+            ],
+            "rels": [],
+            "props": [
+              "COGNITIVE",
+              "COMPUTATIONAL",
+              "DIMENSIONAL"
+            ],
+            "db_dim_req": [
+              "accion_evaluar"
+            ],
+            "score_base": 2.5
+          },
+          {
+            "name": "H4_OP_PROP(CLASSIFY×COGNITIVE+COMPUTATIONAL)",
+            "ops": [
+              "CLASSIFY"
+            ],
+            "rels": [],
+            "props": [
+              "COGNITIVE",
+              "DIMENSIONAL"
+            ],
+            "db_dim_req": [
+              "accion_evaluar"
+            ],
+            "score_base": 1.5
+          }
+        ],
+        "abstain": false,
+        "latency_gen_ms": 12.44,
+        "latency_rank_ms": 1.23
+      },
+      {
+        "case_id": "OOF_POS_48",
+        "a0_status": "STRICT_A0",
+        "query": "malla neuronal con topologia de enlaces sinapticos transversales",
+        "gold": "cuaternidad-logica-oec",
+        "pool_size": 302,
+        "pool_pct": 35.5,
+        "gold_in_pool": false,
+        "gold_rank": null,
+        "gold_score": 0.0,
+        "structural_form": {
+          "operations": [
+            "MODIFY",
+            "TRANSFORM"
+          ],
+          "relations": [],
+          "properties": [
+            "COGNITIVE",
+            "CONNECTIVE",
+            "TEMPORAL"
+          ],
+          "db_action_dims": [
+            "accion_cognitiva",
+            "accion_evaluar"
+          ],
+          "modality": "DECLARATIVE",
+          "polarity": 1,
+          "confidence": 0.725,
+          "raw_tokens": [
+            "enlaces",
+            "malla",
+            "neuronal",
+            "sinapticos",
+            "topologia",
+            "transversales"
+          ],
+          "missing": [
+            "RELATION (ninguna relación detectada; composición mono-operacional)"
+          ]
+        },
+        "n_hypotheses": 4,
+        "hypotheses": [
+          {
+            "name": "H1_FULL(MODIFY⊕TRANSFORM++COGNITIVE⊕CONNECTIVE⊕TEMPORAL)",
+            "ops": [
+              "MODIFY",
+              "TRANSFORM"
+            ],
+            "rels": [],
+            "props": [
+              "COGNITIVE",
+              "CONNECTIVE",
+              "TEMPORAL"
+            ],
+            "db_dim_req": [
+              "accion_cognitiva",
+              "accion_evaluar"
+            ],
+            "score_base": 3.0
+          },
+          {
+            "name": "H2_OPS(MODIFY⊕TRANSFORM+COGNITIVE⊕CONNECTIVE⊕TEMPORAL)",
+            "ops": [
+              "MODIFY",
+              "TRANSFORM"
+            ],
+            "rels": [],
+            "props": [
+              "COGNITIVE",
+              "CONNECTIVE",
+              "TEMPORAL"
+            ],
+            "db_dim_req": [
+              "accion_cognitiva",
+              "accion_evaluar"
+            ],
+            "score_base": 2.5
+          },
+          {
+            "name": "H3_PAIR(MODIFY⊕TRANSFORM)",
+            "ops": [
+              "MODIFY",
+              "TRANSFORM"
+            ],
+            "rels": [],
+            "props": [],
+            "db_dim_req": [
+              "accion_cognitiva",
+              "accion_evaluar"
+            ],
+            "score_base": 2.0
+          },
+          {
+            "name": "H4_OP_PROP(MODIFY×COGNITIVE+CONNECTIVE)",
+            "ops": [
+              "MODIFY"
+            ],
+            "rels": [],
+            "props": [
+              "COGNITIVE",
+              "TEMPORAL"
+            ],
+            "db_dim_req": [
+              "accion_cognitiva",
+              "accion_evaluar"
+            ],
+            "score_base": 1.5
+          }
+        ],
+        "abstain": false,
+        "latency_gen_ms": 21.7,
+        "latency_rank_ms": 4.1
+      },
+      {
+        "case_id": "OOF_POS_49",
+        "a0_status": "NO_A0",
+        "query": "registro cronologico de hitos alcanzados por el agente",
+        "gold": "trayectoria_completa_cronologica",
+        "pool_size": 358,
+        "pool_pct": 42.1,
+        "gold_in_pool": false,
+        "gold_rank": null,
+        "gold_score": 0.0,
+        "structural_form": {
+          "operations": [
+            "STORE"
+          ],
+          "relations": [],
+          "properties": [
+            "CHRONICLE",
+            "TEMPORAL"
+          ],
+          "db_action_dims": [
+            "accion_persistencia_computacion"
+          ],
+          "modality": "DECLARATIVE",
+          "polarity": 1,
+          "confidence": 0.4,
+          "raw_tokens": [
+            "agente",
+            "alcanzados",
+            "cronologico",
+            "hitos",
+            "registro"
+          ],
+          "missing": [
+            "RELATION (ninguna relación detectada; composición mono-operacional)"
+          ]
+        },
+        "n_hypotheses": 3,
+        "hypotheses": [
+          {
+            "name": "H1_FULL(STORE++CHRONICLE⊕TEMPORAL)",
+            "ops": [
+              "STORE"
+            ],
+            "rels": [],
+            "props": [
+              "CHRONICLE",
+              "TEMPORAL"
+            ],
+            "db_dim_req": [
+              "accion_persistencia_computacion"
+            ],
+            "score_base": 3.0
+          },
+          {
+            "name": "H2_OPS(STORE+CHRONICLE⊕TEMPORAL)",
+            "ops": [
+              "STORE"
+            ],
+            "rels": [],
+            "props": [
+              "CHRONICLE",
+              "TEMPORAL"
+            ],
+            "db_dim_req": [
+              "accion_persistencia_computacion"
+            ],
+            "score_base": 2.5
+          },
+          {
+            "name": "H4_OP_PROP(STORE×CHRONICLE+TEMPORAL)",
+            "ops": [
+              "STORE"
+            ],
+            "rels": [],
+            "props": [
+              "CHRONICLE",
+              "TEMPORAL"
+            ],
+            "db_dim_req": [
+              "accion_persistencia_computacion"
+            ],
+            "score_base": 1.5
+          }
+        ],
+        "abstain": false,
+        "latency_gen_ms": 21.71,
+        "latency_rank_ms": 3.7
+      }
+    ],
+    "summary": {
+      "avg_pool_size": 298.5,
+      "candidate_generation_recall_total": "4/8",
+      "candidate_generation_recall_strict_a0": "3/6",
+      "node_ce_total": {
+        "CE@1": "0/8",
+        "CE@5": "0/8",
+        "CE@10": "1/8",
+        "CE@20": "1/8"
+      },
+      "node_ce_strict_a0": {
+        "CE@1": "0/6",
+        "CE@5": "0/6",
+        "CE@10": "0/6",
+        "CE@20": "0/6"
+      }
+    }
+  }
+}
