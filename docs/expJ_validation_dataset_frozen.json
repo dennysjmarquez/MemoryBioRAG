@@ -1,0 +1,280 @@
+{
+  "benchmark_name": "ExpJ Validation Dataset (30 Blind Held-Out Cases + 10 Negative Controls)",
+  "total_positive": 30,
+  "total_adversarial": 10,
+  "positive_cases": [
+    {
+      "val_id": "VAL_TEMA_01",
+      "original_id": "0491",
+      "categoria": "por_tema",
+      "query": "operativo capa rag",
+      "concepto_esperado": "oracle_custom_prompt_arsitecura_que_funciona"
+    },
+    {
+      "val_id": "VAL_TEMA_02",
+      "original_id": "0497",
+      "categoria": "por_tema",
+      "query": "relevantes biomimética mejor",
+      "concepto_esperado": "benchmark_antes_despues_fix3"
+    },
+    {
+      "val_id": "VAL_TEMA_03",
+      "original_id": "0504",
+      "categoria": "por_tema",
+      "query": "explícito insert semánticas",
+      "concepto_esperado": "arquitectura_dimensiones_ortogonales"
+    },
+    {
+      "val_id": "VAL_TEMA_04",
+      "original_id": "0510",
+      "categoria": "por_tema",
+      "query": "identidad cualquier cartografía",
+      "concepto_esperado": "principio-nombre-herramienta-como-identidad-cognitiva"
+    },
+    {
+      "val_id": "VAL_TEMA_05",
+      "original_id": "0516",
+      "categoria": "por_tema",
+      "query": "real más sistemas",
+      "concepto_esperado": "dennys-identidad-profunda"
+    },
+    {
+      "val_id": "VAL_TEMA_06",
+      "original_id": "0522",
+      "categoria": "por_tema",
+      "query": "abstracta busques pasás",
+      "concepto_esperado": "cuando_usar_dimensiones_biorag"
+    },
+    {
+      "val_id": "VAL_TEMA_07",
+      "original_id": "0528",
+      "categoria": "por_tema",
+      "query": "eso automático tensión",
+      "concepto_esperado": "conciencia_reflexion_dennys_ser_vivo_20260709"
+    },
+    {
+      "val_id": "VAL_TEMA_08",
+      "original_id": "0534",
+      "categoria": "por_tema",
+      "query": "activa largo archivos",
+      "concepto_esperado": "biorag_v11_1_detalle_tecnico"
+    },
+    {
+      "val_id": "VAL_TEMA_09",
+      "original_id": "0540",
+      "categoria": "por_tema",
+      "query": "oraculo completo ustedes",
+      "concepto_esperado": "principio-memoria-hibrida-agente-naturalidad"
+    },
+    {
+      "val_id": "VAL_TEMA_10",
+      "original_id": "0546",
+      "categoria": "por_tema",
+      "query": "sinónimos empírica siguientes",
+      "concepto_esperado": "auto_vincular_tres_capas_semantica"
+    },
+    {
+      "val_id": "VAL_TEMA_11",
+      "original_id": "0552",
+      "categoria": "por_tema",
+      "query": "crea 860 usuario",
+      "concepto_esperado": "patron_pensamiento_lateral_antes_de_proponer"
+    },
+    {
+      "val_id": "VAL_TEMA_12",
+      "original_id": "0558",
+      "categoria": "por_tema",
+      "query": "modelo typos completa",
+      "concepto_esperado": "sin_vectores_sin_ml_sin_dependencias"
+    },
+    {
+      "val_id": "VAL_TEMA_13",
+      "original_id": "0565",
+      "categoria": "por_tema",
+      "query": "junio tag pérdida",
+      "concepto_esperado": "memoria_v5_1_optimizaciones"
+    },
+    {
+      "val_id": "VAL_TEMA_14",
+      "original_id": "0571",
+      "categoria": "por_tema",
+      "query": "propios historia interacciones",
+      "concepto_esperado": "athena_reflexion_identidad_propia"
+    },
+    {
+      "val_id": "VAL_TEMA_15",
+      "original_id": "0577",
+      "categoria": "por_tema",
+      "query": "dennysjmarquezgmailcom formulario aísla",
+      "concepto_esperado": "ngx_nested_forms_dennys_solo"
+    },
+    {
+      "val_id": "VAL_PREG_01",
+      "original_id": "0490",
+      "categoria": "pregunta_natural",
+      "query": "Me acuerdo de algo sobre oracle custom prompt arsitecura que funciona",
+      "concepto_esperado": "oracle_custom_prompt_arsitecura_que_funciona"
+    },
+    {
+      "val_id": "VAL_PREG_02",
+      "original_id": "0496",
+      "categoria": "pregunta_natural",
+      "query": "¿Dónde encuentro la info de benchmark antes despues fix3?",
+      "concepto_esperado": "benchmark_antes_despues_fix3"
+    },
+    {
+      "val_id": "VAL_PREG_03",
+      "original_id": "0503",
+      "categoria": "pregunta_natural",
+      "query": "¿Dónde encuentro la info de arquitectura dimensiones ortogonales?",
+      "concepto_esperado": "arquitectura_dimensiones_ortogonales"
+    },
+    {
+      "val_id": "VAL_PREG_04",
+      "original_id": "0509",
+      "categoria": "pregunta_natural",
+      "query": "Explicame el tema de principio-nombre-herramienta-como-identidad-cognitiva",
+      "concepto_esperado": "principio-nombre-herramienta-como-identidad-cognitiva"
+    },
+    {
+      "val_id": "VAL_PREG_05",
+      "original_id": "0515",
+      "categoria": "pregunta_natural",
+      "query": "¿Cómo se hace dennys-identidad-profunda?",
+      "concepto_esperado": "dennys-identidad-profunda"
+    },
+    {
+      "val_id": "VAL_PREG_06",
+      "original_id": "0521",
+      "categoria": "pregunta_natural",
+      "query": "¿Qué me podés decir sobre cuando usar dimensiones biorag?",
+      "concepto_esperado": "cuando_usar_dimensiones_biorag"
+    },
+    {
+      "val_id": "VAL_PREG_07",
+      "original_id": "0527",
+      "categoria": "pregunta_natural",
+      "query": "Explicame el tema de conciencia reflexion dennys ser vivo 20260709",
+      "concepto_esperado": "conciencia_reflexion_dennys_ser_vivo_20260709"
+    },
+    {
+      "val_id": "VAL_PREG_08",
+      "original_id": "0533",
+      "categoria": "pregunta_natural",
+      "query": "¿Cómo se hace biorag v11 1 detalle tecnico?",
+      "concepto_esperado": "biorag_v11_1_detalle_tecnico"
+    },
+    {
+      "val_id": "VAL_PREG_09",
+      "original_id": "0539",
+      "categoria": "pregunta_natural",
+      "query": "¿Dónde encuentro la info de principio-memoria-hibrida-agente-naturalidad?",
+      "concepto_esperado": "principio-memoria-hibrida-agente-naturalidad"
+    },
+    {
+      "val_id": "VAL_PREG_10",
+      "original_id": "0545",
+      "categoria": "pregunta_natural",
+      "query": "¿Dónde encuentro la info de auto vincular tres capas semantica?",
+      "concepto_esperado": "auto_vincular_tres_capas_semantica"
+    },
+    {
+      "val_id": "VAL_PREG_11",
+      "original_id": "0551",
+      "categoria": "pregunta_natural",
+      "query": "¿Qué tenemos registrado para patron pensamiento lateral antes de proponer?",
+      "concepto_esperado": "patron_pensamiento_lateral_antes_de_proponer"
+    },
+    {
+      "val_id": "VAL_PREG_12",
+      "original_id": "0557",
+      "categoria": "pregunta_natural",
+      "query": "¿Qué tenemos registrado para sin vectores sin ml sin dependencias?",
+      "concepto_esperado": "sin_vectores_sin_ml_sin_dependencias"
+    },
+    {
+      "val_id": "VAL_PREG_13",
+      "original_id": "0564",
+      "categoria": "pregunta_natural",
+      "query": "¿Dónde encuentro la info de memoria v5 1 optimizaciones?",
+      "concepto_esperado": "memoria_v5_1_optimizaciones"
+    },
+    {
+      "val_id": "VAL_PREG_14",
+      "original_id": "0570",
+      "categoria": "pregunta_natural",
+      "query": "¿Dónde encuentro la info de athena reflexion identidad propia?",
+      "concepto_esperado": "athena_reflexion_identidad_propia"
+    },
+    {
+      "val_id": "VAL_PREG_15",
+      "original_id": "0576",
+      "categoria": "pregunta_natural",
+      "query": "¿Qué tenemos registrado para ngx nested forms dennys solo?",
+      "concepto_esperado": "ngx_nested_forms_dennys_solo"
+    }
+  ],
+  "adversarial_cases": [
+    {
+      "adv_id": "ADV_NEG_01",
+      "original_id": "0882",
+      "categoria": "negativo",
+      "query": "trompeta aspiradora cremallera sartén"
+    },
+    {
+      "adv_id": "ADV_NEG_02",
+      "original_id": "0883",
+      "categoria": "negativo",
+      "query": "castor acordeón"
+    },
+    {
+      "adv_id": "ADV_NEG_03",
+      "original_id": "0884",
+      "categoria": "negativo",
+      "query": "cebolla colador cremallera jabalí"
+    },
+    {
+      "adv_id": "ADV_NEG_04",
+      "original_id": "0885",
+      "categoria": "negativo",
+      "query": "tomillo saxofón"
+    },
+    {
+      "adv_id": "ADV_NEG_05",
+      "original_id": "0886",
+      "categoria": "negativo",
+      "query": "aspiradora palangana"
+    },
+    {
+      "adv_id": "ADV_NEG_06",
+      "original_id": "0887",
+      "categoria": "negativo",
+      "query": "castor morsa"
+    },
+    {
+      "adv_id": "ADV_NEG_07",
+      "original_id": "0888",
+      "categoria": "negativo",
+      "query": "aspiradora albahaca cigüeña servilleta"
+    },
+    {
+      "adv_id": "ADV_NEG_08",
+      "original_id": "0889",
+      "categoria": "negativo",
+      "query": "rallador jabalí tobogán castor"
+    },
+    {
+      "adv_id": "ADV_NEG_09",
+      "original_id": "0890",
+      "categoria": "negativo",
+      "query": "tomillo sartén escobillón"
+    },
+    {
+      "adv_id": "ADV_NEG_10",
+      "original_id": "0891",
+      "categoria": "negativo",
+      "query": "cinturón escobillón"
+    }
+  ],
+  "dataset_sha256": "672ecd9963a2fbe905f421f31e8fe30c6fd843b50bc140770fdc9f0126efac8d"
+}
