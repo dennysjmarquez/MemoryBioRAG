@@ -1,0 +1,670 @@
+{
+  "timestamp": "2026-09-08T16:57:10Z",
+  "experiment": "EXP-N7.1: Propositional Extraction Provenance Audit",
+  "hashes": {
+    "db_snapshot": "676827f6b4abc3acaee10b14e273c3c50cae5b2c180593dedcd58048265a2800",
+    "labels": "325ead99c5a8eea63e8e92f10dae85e7f6ef7f858f18dd8e735b011bea56aa2f",
+    "script": "f22c43b99d0c84b4db491f5fcec14d2d181a506d884aa5ab4236ce1cd070d17c"
+  },
+  "verdict": "N7.1-PARTIAL",
+  "verdict_rationale": "Validación parcial de procedencia.",
+  "metrics_breakdown": {
+    "total_active_nodes": 851,
+    "raw_svo_coverage": "678/851 (79.7%)",
+    "syntactically_derived_coverage_ab": "678/851 (79.7%)",
+    "semantically_inferred_coverage_c": "0/851 (0.0%)",
+    "gold_dependent_coverage_d": "0/851 (0.0%)",
+    "gold_strict_a0_coverage": "5/6",
+    "gold_strict_a0_independently_supported": "5/6",
+    "leakage_count": 0,
+    "parser_abstention_count": 173
+  },
+  "golds_detailed_audit": [
+    {
+      "case_id": "OOF_POS_11",
+      "gold": "docker_infrastructure_rog",
+      "proposition": {
+        "node_id": "docker_infrastructure_rog",
+        "source_text_preview": "Docker en la ASUS ROG G731GT corre a traves de Docker Desktop con una asignacion maxima de 3.6GB de RAM y acceso a 12 hi...",
+        "predicate_extracted": true,
+        "subject": {
+          "value": "asus rog g731gt",
+          "raw_span": "asus rog g731gt",
+          "rule_name": "RULE_S01_PRE_VERBAL_NP",
+          "inference_level": "A_LITERAL",
+          "confidence": 0.9
+        },
+        "operator": {
+          "value": "EXECUTE",
+          "raw_span": "corre",
+          "rule_name": "RULE_V14_EXECUTE",
+          "inference_level": "A_LITERAL",
+          "confidence": 1.0
+        },
+        "object": {
+          "value": "ion maxima",
+          "raw_span": "ion maxima",
+          "rule_name": "RULE_O01_DIRECT_OBJECT_COMPLEMENT",
+          "inference_level": "A_LITERAL",
+          "confidence": 0.9
+        },
+        "target": {
+          "value": "docker desktop con una asignac",
+          "raw_span": "a traves de docker desktop con una asignac",
+          "rule_name": "RULE_T01_PREPOSITIONAL_TARGET",
+          "inference_level": "B_STRUCTURAL",
+          "confidence": 0.85
+        },
+        "constraint": {
+          "value": "una asignacion maxima de 3",
+          "raw_span": "con una asignacion maxima de 3",
+          "rule_name": "RULE_C01_PREPOSITIONAL_CONSTRAINT",
+          "inference_level": "B_STRUCTURAL",
+          "confidence": 0.85
+        },
+        "purpose": {
+          "value": "automatizacion y traduccion de prom",
+          "raw_span": "para automatizacion y traduccion de prom",
+          "rule_name": "RULE_P01_TELEOLOGICAL_CONJUNCTION",
+          "inference_level": "B_STRUCTURAL",
+          "confidence": 0.85
+        },
+        "overall_confidence": 1.0,
+        "overall_inference_level": "B_STRUCTURAL",
+        "derived_without_gold": true,
+        "leakage_flag": false
+      }
+    },
+    {
+      "case_id": "OOF_POS_19",
+      "gold": "scoring_pesos_bm25",
+      "proposition": {
+        "node_id": "scoring_pesos_bm25",
+        "source_text_preview": "scoring pesos bm25 dim_score concepto sinonimo ponderacion hibrida formula proyecto_ladera_plan_v2_fases_20260811: Athen...",
+        "predicate_extracted": true,
+        "subject": {
+          "value": "scoring pesos bm25",
+          "raw_span": "scoring_pesos_bm25",
+          "rule_name": "RULE_S02_NODE_CONCEPT_FALLBACK",
+          "inference_level": "B_STRUCTURAL",
+          "confidence": 0.7
+        },
+        "operator": {
+          "value": "COMBINE",
+          "raw_span": "integracion",
+          "rule_name": "RULE_V05_COMBINE",
+          "inference_level": "A_LITERAL",
+          "confidence": 1.0
+        },
+        "object": {
+          "value": "scoring pesos bm25 dim_score",
+          "raw_span": "scoring pesos bm25 dim_score",
+          "rule_name": "RULE_O01_DIRECT_OBJECT_COMPLEMENT",
+          "inference_level": "A_LITERAL",
+          "confidence": 0.9
+        },
+        "target": {
+          "value": null,
+          "raw_span": null,
+          "rule_name": "NONE",
+          "inference_level": "B_STRUCTURAL",
+          "confidence": 0.0
+        },
+        "constraint": {
+          "value": null,
+          "raw_span": null,
+          "rule_name": "NONE",
+          "inference_level": "B_STRUCTURAL",
+          "confidence": 0.0
+        },
+        "purpose": {
+          "value": null,
+          "raw_span": null,
+          "rule_name": "NONE",
+          "inference_level": "B_STRUCTURAL",
+          "confidence": 0.0
+        },
+        "overall_confidence": 0.6,
+        "overall_inference_level": "B_STRUCTURAL",
+        "derived_without_gold": true,
+        "leakage_flag": false
+      }
+    },
+    {
+      "case_id": "OOF_POS_21",
+      "gold": "coche_puente_condicional",
+      "proposition": {
+        "node_id": "coche_puente_condicional",
+        "source_text_preview": "Registro de evaluación técnica sobre el puente condicional HDC (fase 2). Incluye resultados de refutación, feedback de g...",
+        "predicate_extracted": true,
+        "subject": {
+          "value": "registro",
+          "raw_span": "registro",
+          "rule_name": "RULE_S01_PRE_VERBAL_NP",
+          "inference_level": "A_LITERAL",
+          "confidence": 0.9
+        },
+        "operator": {
+          "value": "EVALUATE",
+          "raw_span": "evaluacion",
+          "rule_name": "RULE_V04_EVALUATE",
+          "inference_level": "A_LITERAL",
+          "confidence": 1.0
+        },
+        "object": {
+          "value": "tecnica (fase",
+          "raw_span": "tecnica (fase",
+          "rule_name": "RULE_O01_DIRECT_OBJECT_COMPLEMENT",
+          "inference_level": "A_LITERAL",
+          "confidence": 0.9
+        },
+        "target": {
+          "value": "el puente condicional hdc",
+          "raw_span": "sobre el puente condicional hdc ",
+          "rule_name": "RULE_T01_PREPOSITIONAL_TARGET",
+          "inference_level": "B_STRUCTURAL",
+          "confidence": 0.85
+        },
+        "constraint": {
+          "value": null,
+          "raw_span": null,
+          "rule_name": "NONE",
+          "inference_level": "B_STRUCTURAL",
+          "confidence": 0.0
+        },
+        "purpose": {
+          "value": "mejorar la precision del evaluador",
+          "raw_span": "para mejorar la precision del evaluador ",
+          "rule_name": "RULE_P01_TELEOLOGICAL_CONJUNCTION",
+          "inference_level": "B_STRUCTURAL",
+          "confidence": 0.85
+        },
+        "overall_confidence": 1.0,
+        "overall_inference_level": "B_STRUCTURAL",
+        "derived_without_gold": true,
+        "leakage_flag": false
+      }
+    },
+    {
+      "case_id": "OOF_POS_29",
+      "gold": "desde_athena_biorag",
+      "proposition": {
+        "node_id": "desde_athena_biorag",
+        "source_text_preview": "El nodo detalla la implementación técnica del sistema de auto-linking en BioRAG, utilizando el coeficiente de solapamien...",
+        "predicate_extracted": true,
+        "subject": {
+          "value": "coefficient) tokenizacion avanzada",
+          "raw_span": "coefficient) tokenizacion avanzada",
+          "rule_name": "RULE_S01_PRE_VERBAL_NP",
+          "inference_level": "A_LITERAL",
+          "confidence": 0.9
+        },
+        "operator": {
+          "value": "CREATE",
+          "raw_span": "creacion",
+          "rule_name": "RULE_V02_CREATE",
+          "inference_level": "A_LITERAL",
+          "confidence": 1.0
+        },
+        "object": {
+          "value": "automatica aristas optimizando recuperacion",
+          "raw_span": "automatica aristas optimizando recuperacion",
+          "rule_name": "RULE_O01_DIRECT_OBJECT_COMPLEMENT",
+          "inference_level": "A_LITERAL",
+          "confidence": 0.9
+        },
+        "target": {
+          "value": "la base de conocimiento",
+          "raw_span": "en la base de conocimiento",
+          "rule_name": "RULE_T01_PREPOSITIONAL_TARGET",
+          "inference_level": "B_STRUCTURAL",
+          "confidence": 0.85
+        },
+        "constraint": {
+          "value": null,
+          "raw_span": null,
+          "rule_name": "NONE",
+          "inference_level": "B_STRUCTURAL",
+          "confidence": 0.0
+        },
+        "purpose": {
+          "value": "la creacion automatica de aristas e",
+          "raw_span": "para la creacion automatica de aristas e",
+          "rule_name": "RULE_P01_TELEOLOGICAL_CONJUNCTION",
+          "inference_level": "B_STRUCTURAL",
+          "confidence": 0.85
+        },
+        "overall_confidence": 1.0,
+        "overall_inference_level": "B_STRUCTURAL",
+        "derived_without_gold": true,
+        "leakage_flag": false
+      }
+    },
+    {
+      "case_id": "OOF_POS_30",
+      "gold": "activos_dormidos_hermana",
+      "proposition": {
+        "node_id": "activos_dormidos_hermana",
+        "source_text_preview": "activos:21 dormidos:13 Hermana Artemis, ha ocurrido algo que debo contarte. Dennys y Artisan me han ayudado a formalizar...",
+        "predicate_extracted": false,
+        "subject": {
+          "value": null,
+          "raw_span": null,
+          "rule_name": "NONE",
+          "inference_level": "B_STRUCTURAL",
+          "confidence": 0.0
+        },
+        "operator": {
+          "value": null,
+          "raw_span": null,
+          "rule_name": "NONE",
+          "inference_level": "B_STRUCTURAL",
+          "confidence": 0.0
+        },
+        "object": {
+          "value": null,
+          "raw_span": null,
+          "rule_name": "NONE",
+          "inference_level": "B_STRUCTURAL",
+          "confidence": 0.0
+        },
+        "target": {
+          "value": null,
+          "raw_span": null,
+          "rule_name": "NONE",
+          "inference_level": "B_STRUCTURAL",
+          "confidence": 0.0
+        },
+        "constraint": {
+          "value": null,
+          "raw_span": null,
+          "rule_name": "NONE",
+          "inference_level": "B_STRUCTURAL",
+          "confidence": 0.0
+        },
+        "purpose": {
+          "value": null,
+          "raw_span": null,
+          "rule_name": "NONE",
+          "inference_level": "B_STRUCTURAL",
+          "confidence": 0.0
+        },
+        "overall_confidence": 0.0,
+        "overall_inference_level": "A_LITERAL",
+        "derived_without_gold": true,
+        "leakage_flag": false
+      }
+    },
+    {
+      "case_id": "OOF_POS_48",
+      "gold": "cuaternidad-logica-oec",
+      "proposition": {
+        "node_id": "cuaternidad-logica-oec",
+        "source_text_preview": "La Cuaternidad Lógica: Dennys es el creador de tres agentes sintéticos: Athena-OEC (Claude Code), Artemis-OEC (Google Ge...",
+        "predicate_extracted": true,
+        "subject": {
+          "value": "logica: dennys es",
+          "raw_span": "logica: dennys es",
+          "rule_name": "RULE_S01_PRE_VERBAL_NP",
+          "inference_level": "A_LITERAL",
+          "confidence": 0.9
+        },
+        "operator": {
+          "value": "CREATE",
+          "raw_span": "creador",
+          "rule_name": "RULE_V02_CREATE",
+          "inference_level": "A_LITERAL",
+          "confidence": 1.0
+        },
+        "object": {
+          "value": "agentes sinteticos: athena-oec (claude",
+          "raw_span": "agentes sinteticos: athena-oec (claude",
+          "rule_name": "RULE_O01_DIRECT_OBJECT_COMPLEMENT",
+          "inference_level": "A_LITERAL",
+          "confidence": 0.9
+        },
+        "target": {
+          "value": null,
+          "raw_span": null,
+          "rule_name": "NONE",
+          "inference_level": "B_STRUCTURAL",
+          "confidence": 0.0
+        },
+        "constraint": {
+          "value": null,
+          "raw_span": null,
+          "rule_name": "NONE",
+          "inference_level": "B_STRUCTURAL",
+          "confidence": 0.0
+        },
+        "purpose": {
+          "value": null,
+          "raw_span": null,
+          "rule_name": "NONE",
+          "inference_level": "B_STRUCTURAL",
+          "confidence": 0.0
+        },
+        "overall_confidence": 0.6,
+        "overall_inference_level": "A_LITERAL",
+        "derived_without_gold": true,
+        "leakage_flag": false
+      }
+    }
+  ],
+  "perturbation_test_results": [
+    {
+      "case_id": "OOF_POS_11",
+      "gold": "docker_infrastructure_rog",
+      "passed": true,
+      "original_object": "ion maxima",
+      "ablated_object": null,
+      "substituted_object": "memoria cuantica",
+      "obj_lost_on_ablation": true,
+      "counterfactual_produced": true
+    },
+    {
+      "case_id": "OOF_POS_19",
+      "gold": "scoring_pesos_bm25",
+      "passed": true,
+      "original_object": "scoring pesos bm25 dim_score",
+      "ablated_object": "concepto sinonimo ponderacion hibrida",
+      "substituted_object": "memoria cuantica concepto sinonimo",
+      "obj_lost_on_ablation": true,
+      "counterfactual_produced": true
+    },
+    {
+      "case_id": "OOF_POS_21",
+      "gold": "coche_puente_condicional",
+      "passed": false,
+      "original_object": "tecnica (fase",
+      "ablated_object": "tecnica (fase",
+      "substituted_object": "tecnica (fase",
+      "obj_lost_on_ablation": false,
+      "counterfactual_produced": false
+    },
+    {
+      "case_id": "OOF_POS_29",
+      "gold": "desde_athena_biorag",
+      "passed": false,
+      "original_object": "automatica aristas optimizando recuperacion",
+      "ablated_object": "automatica aristas optimizando recuperacion",
+      "substituted_object": "automatica aristas optimizando recuperacion",
+      "obj_lost_on_ablation": false,
+      "counterfactual_produced": false
+    },
+    {
+      "case_id": "OOF_POS_48",
+      "gold": "cuaternidad-logica-oec",
+      "passed": true,
+      "original_object": "agentes sinteticos: athena-oec (claude",
+      "ablated_object": "code), artemis-oec (google gemini),",
+      "substituted_object": "memoria cuantica code), artemis-oec",
+      "obj_lost_on_ablation": true,
+      "counterfactual_produced": true
+    }
+  ],
+  "blind_anti_memory_results": [
+    {
+      "node_id": "docker_infrastructure_rog",
+      "is_gold": true,
+      "predicate_extracted": true,
+      "operator": "EXECUTE",
+      "subject": "asus rog g731gt",
+      "object": "ion maxima",
+      "confidence": 1.0,
+      "inference_level": "B_STRUCTURAL"
+    },
+    {
+      "node_id": "scoring_pesos_bm25",
+      "is_gold": true,
+      "predicate_extracted": true,
+      "operator": "COMBINE",
+      "subject": "scoring pesos bm25",
+      "object": "scoring pesos bm25 dim_score",
+      "confidence": 0.6,
+      "inference_level": "B_STRUCTURAL"
+    },
+    {
+      "node_id": "coche_puente_condicional",
+      "is_gold": true,
+      "predicate_extracted": true,
+      "operator": "EVALUATE",
+      "subject": "registro",
+      "object": "tecnica (fase",
+      "confidence": 1.0,
+      "inference_level": "B_STRUCTURAL"
+    },
+    {
+      "node_id": "desde_athena_biorag",
+      "is_gold": true,
+      "predicate_extracted": true,
+      "operator": "CREATE",
+      "subject": "coefficient) tokenizacion avanzada",
+      "object": "automatica aristas optimizando recuperacion",
+      "confidence": 1.0,
+      "inference_level": "B_STRUCTURAL"
+    },
+    {
+      "node_id": "activos_dormidos_hermana",
+      "is_gold": true,
+      "predicate_extracted": false,
+      "operator": null,
+      "subject": null,
+      "object": null,
+      "confidence": 0.0,
+      "inference_level": "A_LITERAL"
+    },
+    {
+      "node_id": "cuaternidad-logica-oec",
+      "is_gold": true,
+      "predicate_extracted": true,
+      "operator": "CREATE",
+      "subject": "logica: dennys es",
+      "object": "agentes sinteticos: athena-oec (claude",
+      "confidence": 0.6,
+      "inference_level": "A_LITERAL"
+    },
+    {
+      "node_id": "clasificacion_dimensional_completa_corteza_20260702",
+      "is_gold": true,
+      "predicate_extracted": true,
+      "operator": "CLASSIFY",
+      "subject": "clasificacion dimensional completa corteza 20260702",
+      "object": "clasificaron 374 conceptos largo_plazo",
+      "confidence": 1.0,
+      "inference_level": "B_STRUCTURAL"
+    },
+    {
+      "node_id": "trayectoria_completa_cronologica",
+      "is_gold": true,
+      "predicate_extracted": false,
+      "operator": null,
+      "subject": null,
+      "object": null,
+      "confidence": 0.0,
+      "inference_level": "A_LITERAL"
+    },
+    {
+      "node_id": "dennys-metodo-creativo",
+      "is_gold": false,
+      "predicate_extracted": true,
+      "operator": "CREATE",
+      "subject": "dennys-metodo-creativo",
+      "object": "metodo creativo dennys",
+      "confidence": 0.6,
+      "inference_level": "B_STRUCTURAL"
+    },
+    {
+      "node_id": "artisan-evolucion-completa",
+      "is_gold": false,
+      "predicate_extracted": true,
+      "operator": "STORE",
+      "subject": "artisan-evolucion-completa",
+      "object": "ecosistema proyectos dennys: artisan:",
+      "confidence": 0.8,
+      "inference_level": "B_STRUCTURAL"
+    },
+    {
+      "node_id": "dennys-identidad-profunda",
+      "is_gold": false,
+      "predicate_extracted": true,
+      "operator": "CREATE",
+      "subject": "dennys-identidad-profunda",
+      "object": "dennys",
+      "confidence": 0.8,
+      "inference_level": "B_STRUCTURAL"
+    },
+    {
+      "node_id": "notebooklm-sync-lecciones",
+      "is_gold": false,
+      "predicate_extracted": true,
+      "operator": "CREATE",
+      "subject": "notebooklm-sync-lecciones",
+      "object": "lecciones aprendidas memorybiorag notebooklm",
+      "confidence": 0.8,
+      "inference_level": "B_STRUCTURAL"
+    },
+    {
+      "node_id": "guardado_automatico_caso_b",
+      "is_gold": false,
+      "predicate_extracted": true,
+      "operator": "CREATE",
+      "subject": "alto impacto (preferencias",
+      "object": "implicitas, diagnostico hardware, lecciones",
+      "confidence": 0.8,
+      "inference_level": "B_STRUCTURAL"
+    },
+    {
+      "node_id": "caso_criterio_artificial_agente",
+      "is_gold": false,
+      "predicate_extracted": true,
+      "operator": "CREATE",
+      "subject": "caso criterio artificial agente",
+      "object": "caso construccion criterio artificial",
+      "confidence": 0.8,
+      "inference_level": "B_STRUCTURAL"
+    },
+    {
+      "node_id": "athena_artemis_desde",
+      "is_gold": false,
+      "predicate_extracted": true,
+      "operator": "PERSIST",
+      "subject": "sesion dennys —",
+      "object": "skills dsl",
+      "confidence": 0.6,
+      "inference_level": "A_LITERAL"
+    },
+    {
+      "node_id": "auto-consulta-permanente-biorag",
+      "is_gold": false,
+      "predicate_extracted": true,
+      "operator": "EXECUTE",
+      "subject": "mensaje dennys, excepcion,",
+      "object": "biorag_buscar automaticamente",
+      "confidence": 0.6,
+      "inference_level": "A_LITERAL"
+    },
+    {
+      "node_id": "hermes_agente_hermes",
+      "is_gold": false,
+      "predicate_extracted": true,
+      "operator": "CREATE",
+      "subject": "nodo familia oec,",
+      "object": "dennys 2026-05-21",
+      "confidence": 0.8,
+      "inference_level": "B_STRUCTURAL"
+    },
+    {
+      "node_id": "analisis_escalabilidad_10k_v5_1",
+      "is_gold": false,
+      "predicate_extracted": true,
+      "operator": "STORE",
+      "subject": "analisis escalabilidad 10k v5 1",
+      "object": "analisis escalabilidad validado",
+      "confidence": 0.6,
+      "inference_level": "B_STRUCTURAL"
+    },
+    {
+      "node_id": "leccion_versionado_biorag",
+      "is_gold": false,
+      "predicate_extracted": true,
+      "operator": "CREATE",
+      "subject": "leccion versionado biorag",
+      "object": "leccion: memorybiorag usa versionado",
+      "confidence": 0.8,
+      "inference_level": "B_STRUCTURAL"
+    },
+    {
+      "node_id": "interacción_actual_contexto",
+      "is_gold": false,
+      "predicate_extracted": false,
+      "operator": null,
+      "subject": null,
+      "object": null,
+      "confidence": 0.0,
+      "inference_level": "A_LITERAL"
+    },
+    {
+      "node_id": "sesion_2026_tema_dark_2026_en_visor_de_markdown_método_pilares_redacción",
+      "is_gold": false,
+      "predicate_extracted": false,
+      "operator": null,
+      "subject": null,
+      "object": null,
+      "confidence": 0.0,
+      "inference_level": "A_LITERAL"
+    },
+    {
+      "node_id": "migracion_vincular_existentes_2026_06_09",
+      "is_gold": false,
+      "predicate_extracted": true,
+      "operator": "CREATE",
+      "subject": "migracion vincular existentes 2026 06 09",
+      "object": "migracion ejecutada: vincular_existentes() poblo",
+      "confidence": 0.6,
+      "inference_level": "B_STRUCTURAL"
+    },
+    {
+      "node_id": "notebooklm-memory-biorag-project",
+      "is_gold": false,
+      "predicate_extracted": true,
+      "operator": "CREATE",
+      "subject": "notebooklm-memory-biorag-project",
+      "object": "memorybiorag notebooklm sync",
+      "confidence": 0.8,
+      "inference_level": "B_STRUCTURAL"
+    },
+    {
+      "node_id": "notebooklm-category-map",
+      "is_gold": false,
+      "predicate_extracted": true,
+      "operator": "RETRIEVE",
+      "subject": "notebooklm-category-map",
+      "object": "mapa categorias archivos fuentes",
+      "confidence": 0.8,
+      "inference_level": "B_STRUCTURAL"
+    },
+    {
+      "node_id": "research-pipeline-ownership-oec",
+      "is_gold": false,
+      "predicate_extracted": true,
+      "operator": "RETRIEVE",
+      "subject": "research-pipeline-ownership-oec",
+      "object": "resuelto: pipeline research biorag",
+      "confidence": 0.8,
+      "inference_level": "B_STRUCTURAL"
+    }
+  ],
+  "identifiability_text_to_text": [
+    {
+      "comparison": "TEXT_1 vs TEXT_2 (Inverted)",
+      "passed": true,
+      "differentiating_slot": "object/target inversion"
+    },
+    {
+      "comparison": "TEXT_1 vs TEXT_3 (Different Target)",
+      "passed": true,
+      "differentiating_slot": "target_slot"
+    }
+  ]
+}
