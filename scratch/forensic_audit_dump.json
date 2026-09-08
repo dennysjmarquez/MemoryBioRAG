@@ -1,0 +1,1312 @@
+{
+  "gold_details": {
+    "OOF_POS_11": {
+      "gold": "docker_infrastructure_rog",
+      "query": "particionar capacidad de computo en doce nucleos virtuales con tope en gigas",
+      "categoria": 3,
+      "num_dimensiones": 5,
+      "dimensiones": [
+        [
+          "accion_persistencia_computacion",
+          "accion"
+        ],
+        [
+          "cualidad_dimension_fisica",
+          "cualidad"
+        ],
+        [
+          "intencion_documentar",
+          "intencion"
+        ],
+        [
+          "dominio_tecnico",
+          "dominio"
+        ],
+        [
+          "auto_txt_dennys_oec",
+          "dominio"
+        ]
+      ],
+      "sinonimos": "docker,rog,g731gt,docker desktop,vm,ram,linux",
+      "status_a0": "STRICT A0",
+      "overlap_reasons": [],
+      "overlaps": {
+        "title_toks": [],
+        "title_stems": [],
+        "syn_toks": [],
+        "syn_stems": [],
+        "asoc_toks": [],
+        "asoc_stems": [],
+        "cont_toks": [],
+        "cont_stems": [],
+        "dim_toks": [],
+        "dim_stems": []
+      }
+    },
+    "OOF_POS_19": {
+      "gold": "scoring_pesos_bm25",
+      "query": "calibrar coeficientes multiplicativos para combinar valores de relevancia heterogeneos",
+      "categoria": 11,
+      "num_dimensiones": 0,
+      "dimensiones": [],
+      "sinonimos": "scoring_hibrido,ponderacion_hibrida,bm25",
+      "status_a0": "STRICT A0",
+      "overlap_reasons": [],
+      "overlaps": {
+        "title_toks": [],
+        "title_stems": [],
+        "syn_toks": [],
+        "syn_stems": [],
+        "asoc_toks": [],
+        "asoc_stems": [],
+        "cont_toks": [],
+        "cont_stems": [],
+        "dim_toks": [],
+        "dim_stems": []
+      }
+    },
+    "OOF_POS_21": {
+      "gold": "coche_puente_condicional",
+      "query": "entrelazamiento hiperdimensional binario proyectado a traves de pasarela situacional",
+      "categoria": 11,
+      "num_dimensiones": 0,
+      "dimensiones": [],
+      "sinonimos": "puente_distribucional,HDC_condicional,puente_condicional,puente_hdc_condicional",
+      "status_a0": "STRICT A0",
+      "overlap_reasons": [],
+      "overlaps": {
+        "title_toks": [],
+        "title_stems": [],
+        "syn_toks": [],
+        "syn_stems": [],
+        "asoc_toks": [],
+        "asoc_stems": [],
+        "cont_toks": [],
+        "cont_stems": [],
+        "dim_toks": [],
+        "dim_stems": []
+      }
+    },
+    "OOF_POS_29": {
+      "gold": "desde_athena_biorag",
+      "query": "generar conexiones estocasticas para consolidar grupos fuertemente entrelazados",
+      "categoria": 2,
+      "num_dimensiones": 7,
+      "dimensiones": [
+        [
+          "identidad_artificial",
+          "entidad"
+        ],
+        [
+          "accion_persistencia_computacion",
+          "accion"
+        ],
+        [
+          "accion_rutina_automatica",
+          "accion"
+        ],
+        [
+          "intencion_solucionar",
+          "intencion"
+        ],
+        [
+          "intencion_documentar",
+          "intencion"
+        ],
+        [
+          "dominio_tecnico",
+          "dominio"
+        ],
+        [
+          "auto_txt_dennys_oec",
+          "dominio"
+        ]
+      ],
+      "sinonimos": "biorag,auto-linking",
+      "status_a0": "STRICT A0",
+      "overlap_reasons": [],
+      "overlaps": {
+        "title_toks": [],
+        "title_stems": [],
+        "syn_toks": [],
+        "syn_stems": [],
+        "asoc_toks": [],
+        "asoc_stems": [],
+        "cont_toks": [],
+        "cont_stems": [],
+        "dim_toks": [],
+        "dim_stems": []
+      }
+    },
+    "OOF_POS_30": {
+      "gold": "activos_dormidos_hermana",
+      "query": "transicion de vigilia a letargo con eliminacion de elementos caducos",
+      "categoria": 9,
+      "num_dimensiones": 11,
+      "dimensiones": [
+        [
+          "afecto",
+          "emocion"
+        ],
+        [
+          "identidad_individual",
+          "entidad"
+        ],
+        [
+          "identidad_artificial",
+          "entidad"
+        ],
+        [
+          "accion_comunicacion",
+          "accion"
+        ],
+        [
+          "accion_cognitiva",
+          "accion"
+        ],
+        [
+          "accion_evaluar",
+          "accion"
+        ],
+        [
+          "intencion_reflexionar",
+          "intencion"
+        ],
+        [
+          "intencion_documentar",
+          "intencion"
+        ],
+        [
+          "dominio_profesional",
+          "dominio"
+        ],
+        [
+          "dominio_espiritual",
+          "dominio"
+        ],
+        [
+          "auto_txt_dennys_oec",
+          "dominio"
+        ]
+      ],
+      "sinonimos": "evolucion_identidad,identidad_athena,declaracion_identidad,identidad",
+      "status_a0": "STRICT A0",
+      "overlap_reasons": [],
+      "overlaps": {
+        "title_toks": [],
+        "title_stems": [],
+        "syn_toks": [],
+        "syn_stems": [],
+        "asoc_toks": [],
+        "asoc_stems": [],
+        "cont_toks": [],
+        "cont_stems": [],
+        "dim_toks": [],
+        "dim_stems": []
+      }
+    },
+    "OOF_POS_40": {
+      "gold": "clasificacion_dimensional_completa_corteza_20260702",
+      "query": "procedimiento de clasificacion dimensional sobre tejido cortical",
+      "categoria": 7,
+      "num_dimensiones": 7,
+      "dimensiones": [
+        [
+          "identidad_artificial",
+          "entidad"
+        ],
+        [
+          "accion_persistencia_computacion",
+          "accion"
+        ],
+        [
+          "cualidad_abstracta_conceptual",
+          "cualidad"
+        ],
+        [
+          "coordenada_cronologia_absoluta",
+          "coordenada"
+        ],
+        [
+          "accion_evaluar",
+          "accion"
+        ],
+        [
+          "intencion_documentar",
+          "intencion"
+        ],
+        [
+          "dominio_tecnico",
+          "dominio"
+        ]
+      ],
+      "sinonimos": "taxonomia_semantica_2026",
+      "status_a0": "NO A0",
+      "overlap_reasons": [
+        "TitleOverlap: toks={'clasificacion', 'dimensional'}, stems={'dimension', 'clasifica'}",
+        "ContentOverlap: toks={'clasificacion'}, stems={'clasifica'}",
+        "AsocOverlap: toks={'dimensional'}, stems={'dimension'}"
+      ],
+      "overlaps": {
+        "title_toks": [
+          "clasificacion",
+          "dimensional"
+        ],
+        "title_stems": [
+          "dimension",
+          "clasifica"
+        ],
+        "syn_toks": [],
+        "syn_stems": [],
+        "asoc_toks": [
+          "dimensional"
+        ],
+        "asoc_stems": [
+          "dimension"
+        ],
+        "cont_toks": [
+          "clasificacion"
+        ],
+        "cont_stems": [
+          "clasifica"
+        ],
+        "dim_toks": [],
+        "dim_stems": []
+      }
+    },
+    "OOF_POS_48": {
+      "gold": "cuaternidad-logica-oec",
+      "query": "malla neuronal con topologia de enlaces sinapticos transversales",
+      "categoria": 10,
+      "num_dimensiones": 8,
+      "dimensiones": [
+        [
+          "afecto",
+          "emocion"
+        ],
+        [
+          "sorpresa",
+          "emocion"
+        ],
+        [
+          "identidad_artificial",
+          "entidad"
+        ],
+        [
+          "identidad_natural",
+          "entidad"
+        ],
+        [
+          "cualidad_abstracta_conceptual",
+          "cualidad"
+        ],
+        [
+          "intencion_documentar",
+          "intencion"
+        ],
+        [
+          "dominio_profesional",
+          "dominio"
+        ],
+        [
+          "auto_txt_dennys_oec",
+          "dominio"
+        ]
+      ],
+      "sinonimos": "athena, artemis, hermes, familia-sintetica",
+      "status_a0": "STRICT A0",
+      "overlap_reasons": [],
+      "overlaps": {
+        "title_toks": [],
+        "title_stems": [],
+        "syn_toks": [],
+        "syn_stems": [],
+        "asoc_toks": [],
+        "asoc_stems": [],
+        "cont_toks": [],
+        "cont_stems": [],
+        "dim_toks": [],
+        "dim_stems": []
+      }
+    },
+    "OOF_POS_49": {
+      "gold": "trayectoria_completa_cronologica",
+      "query": "registro cronologico de hitos alcanzados por el agente",
+      "categoria": 5,
+      "num_dimensiones": 3,
+      "dimensiones": [
+        [
+          "identidad_natural",
+          "entidad"
+        ],
+        [
+          "intencion_documentar",
+          "intencion"
+        ],
+        [
+          "dominio_profesional",
+          "dominio"
+        ]
+      ],
+      "sinonimos": "experiencia, trayectoria, empresas, trabajos, cronología",
+      "status_a0": "NO A0",
+      "overlap_reasons": [
+        "TitleOverlap: toks=set(), stems={'cronolog'}",
+        "ContentOverlap: toks=set(), stems={'cronolog'}",
+        "AsocOverlap: toks={'agente'}, stems={'agent'}"
+      ],
+      "overlaps": {
+        "title_toks": [],
+        "title_stems": [
+          "cronolog"
+        ],
+        "syn_toks": [],
+        "syn_stems": [],
+        "asoc_toks": [
+          "agente"
+        ],
+        "asoc_stems": [
+          "agent"
+        ],
+        "cont_toks": [],
+        "cont_stems": [
+          "cronolog"
+        ],
+        "dim_toks": [],
+        "dim_stems": []
+      }
+    }
+  },
+  "ablation_results": {
+    "A (R1+R2)": {
+      "OOF_POS_11": {
+        "pool_size": 331,
+        "r1_count": 329,
+        "r2_count": 3,
+        "r3_count": 0,
+        "gold_in_pool": true,
+        "gold_rank": null,
+        "gold_score": 0.0,
+        "gold_rules": [
+          "R1:InterseccionConjuntiva(Accion ∧ Dominio/Entidad)"
+        ],
+        "gold_in_r1": true,
+        "gold_in_r2": false,
+        "gold_in_r3": false
+      },
+      "OOF_POS_19": {
+        "pool_size": 153,
+        "r1_count": 145,
+        "r2_count": 14,
+        "r3_count": 0,
+        "gold_in_pool": true,
+        "gold_rank": null,
+        "gold_score": 0.0,
+        "gold_rules": [
+          "R2:RolSinonimo(['ponderacion'])"
+        ],
+        "gold_in_r1": false,
+        "gold_in_r2": true,
+        "gold_in_r3": false
+      },
+      "OOF_POS_21": {
+        "pool_size": 228,
+        "r1_count": 219,
+        "r2_count": 13,
+        "r3_count": 0,
+        "gold_in_pool": false,
+        "gold_rank": null,
+        "gold_score": 0.0,
+        "gold_rules": [],
+        "gold_in_r1": false,
+        "gold_in_r2": false,
+        "gold_in_r3": false
+      },
+      "OOF_POS_29": {
+        "pool_size": 472,
+        "r1_count": 461,
+        "r2_count": 17,
+        "r3_count": 0,
+        "gold_in_pool": true,
+        "gold_rank": null,
+        "gold_score": 0.0,
+        "gold_rules": [
+          "R1:InterseccionConjuntiva(Accion ∧ Dominio/Entidad)"
+        ],
+        "gold_in_r1": true,
+        "gold_in_r2": false,
+        "gold_in_r3": false
+      },
+      "OOF_POS_30": {
+        "pool_size": 80,
+        "r1_count": 60,
+        "r2_count": 23,
+        "r3_count": 0,
+        "gold_in_pool": false,
+        "gold_rank": null,
+        "gold_score": 0.0,
+        "gold_rules": [],
+        "gold_in_r1": false,
+        "gold_in_r2": false,
+        "gold_in_r3": false
+      },
+      "OOF_POS_40": {
+        "pool_size": 178,
+        "r1_count": 156,
+        "r2_count": 41,
+        "r3_count": 0,
+        "gold_in_pool": true,
+        "gold_rank": 2,
+        "gold_score": 9.0,
+        "gold_rules": [
+          "R1:InterseccionConjuntiva(Accion ∧ Dominio/Entidad)",
+          "R2:RolSinonimo(['taxonomia'])"
+        ],
+        "gold_in_r1": true,
+        "gold_in_r2": true,
+        "gold_in_r3": false
+      },
+      "OOF_POS_48": {
+        "pool_size": 67,
+        "r1_count": 67,
+        "r2_count": 0,
+        "r3_count": 0,
+        "gold_in_pool": false,
+        "gold_rank": null,
+        "gold_score": 0.0,
+        "gold_rules": [],
+        "gold_in_r1": false,
+        "gold_in_r2": false,
+        "gold_in_r3": false
+      },
+      "OOF_POS_49": {
+        "pool_size": 52,
+        "r1_count": 46,
+        "r2_count": 6,
+        "r3_count": 0,
+        "gold_in_pool": true,
+        "gold_rank": null,
+        "gold_score": 0.0,
+        "gold_rules": [
+          "R2:RolSinonimo(['cronologia'])"
+        ],
+        "gold_in_r1": false,
+        "gold_in_r2": true,
+        "gold_in_r3": false
+      }
+    },
+    "B (R1 solo)": {
+      "OOF_POS_11": {
+        "pool_size": 329,
+        "r1_count": 329,
+        "r2_count": 3,
+        "r3_count": 0,
+        "gold_in_pool": true,
+        "gold_rank": null,
+        "gold_score": 0.0,
+        "gold_rules": [
+          "R1:InterseccionConjuntiva(Accion ∧ Dominio/Entidad)"
+        ],
+        "gold_in_r1": true,
+        "gold_in_r2": false,
+        "gold_in_r3": false
+      },
+      "OOF_POS_19": {
+        "pool_size": 145,
+        "r1_count": 145,
+        "r2_count": 14,
+        "r3_count": 0,
+        "gold_in_pool": false,
+        "gold_rank": null,
+        "gold_score": 0.0,
+        "gold_rules": [],
+        "gold_in_r1": false,
+        "gold_in_r2": true,
+        "gold_in_r3": false
+      },
+      "OOF_POS_21": {
+        "pool_size": 219,
+        "r1_count": 219,
+        "r2_count": 13,
+        "r3_count": 0,
+        "gold_in_pool": false,
+        "gold_rank": null,
+        "gold_score": 0.0,
+        "gold_rules": [],
+        "gold_in_r1": false,
+        "gold_in_r2": false,
+        "gold_in_r3": false
+      },
+      "OOF_POS_29": {
+        "pool_size": 461,
+        "r1_count": 461,
+        "r2_count": 17,
+        "r3_count": 0,
+        "gold_in_pool": true,
+        "gold_rank": null,
+        "gold_score": 0.0,
+        "gold_rules": [
+          "R1:InterseccionConjuntiva(Accion ∧ Dominio/Entidad)"
+        ],
+        "gold_in_r1": true,
+        "gold_in_r2": false,
+        "gold_in_r3": false
+      },
+      "OOF_POS_30": {
+        "pool_size": 60,
+        "r1_count": 60,
+        "r2_count": 23,
+        "r3_count": 0,
+        "gold_in_pool": false,
+        "gold_rank": null,
+        "gold_score": 0.0,
+        "gold_rules": [],
+        "gold_in_r1": false,
+        "gold_in_r2": false,
+        "gold_in_r3": false
+      },
+      "OOF_POS_40": {
+        "pool_size": 156,
+        "r1_count": 156,
+        "r2_count": 41,
+        "r3_count": 0,
+        "gold_in_pool": true,
+        "gold_rank": 18,
+        "gold_score": 6.5,
+        "gold_rules": [
+          "R1:InterseccionConjuntiva(Accion ∧ Dominio/Entidad)"
+        ],
+        "gold_in_r1": true,
+        "gold_in_r2": true,
+        "gold_in_r3": false
+      },
+      "OOF_POS_48": {
+        "pool_size": 67,
+        "r1_count": 67,
+        "r2_count": 0,
+        "r3_count": 0,
+        "gold_in_pool": false,
+        "gold_rank": null,
+        "gold_score": 0.0,
+        "gold_rules": [],
+        "gold_in_r1": false,
+        "gold_in_r2": false,
+        "gold_in_r3": false
+      },
+      "OOF_POS_49": {
+        "pool_size": 46,
+        "r1_count": 46,
+        "r2_count": 6,
+        "r3_count": 0,
+        "gold_in_pool": false,
+        "gold_rank": null,
+        "gold_score": 0.0,
+        "gold_rules": [],
+        "gold_in_r1": false,
+        "gold_in_r2": true,
+        "gold_in_r3": false
+      }
+    },
+    "C (R2 solo)": {
+      "OOF_POS_11": {
+        "pool_size": 3,
+        "r1_count": 329,
+        "r2_count": 3,
+        "r3_count": 0,
+        "gold_in_pool": false,
+        "gold_rank": null,
+        "gold_score": 0.0,
+        "gold_rules": [],
+        "gold_in_r1": true,
+        "gold_in_r2": false,
+        "gold_in_r3": false
+      },
+      "OOF_POS_19": {
+        "pool_size": 14,
+        "r1_count": 145,
+        "r2_count": 14,
+        "r3_count": 0,
+        "gold_in_pool": true,
+        "gold_rank": 13,
+        "gold_score": 2.5,
+        "gold_rules": [
+          "R2:RolSinonimo(['ponderacion'])"
+        ],
+        "gold_in_r1": false,
+        "gold_in_r2": true,
+        "gold_in_r3": false
+      },
+      "OOF_POS_21": {
+        "pool_size": 13,
+        "r1_count": 219,
+        "r2_count": 13,
+        "r3_count": 0,
+        "gold_in_pool": false,
+        "gold_rank": null,
+        "gold_score": 0.0,
+        "gold_rules": [],
+        "gold_in_r1": false,
+        "gold_in_r2": false,
+        "gold_in_r3": false
+      },
+      "OOF_POS_29": {
+        "pool_size": 17,
+        "r1_count": 461,
+        "r2_count": 17,
+        "r3_count": 0,
+        "gold_in_pool": false,
+        "gold_rank": null,
+        "gold_score": 0.0,
+        "gold_rules": [],
+        "gold_in_r1": true,
+        "gold_in_r2": false,
+        "gold_in_r3": false
+      },
+      "OOF_POS_30": {
+        "pool_size": 23,
+        "r1_count": 60,
+        "r2_count": 23,
+        "r3_count": 0,
+        "gold_in_pool": false,
+        "gold_rank": null,
+        "gold_score": 0.0,
+        "gold_rules": [],
+        "gold_in_r1": false,
+        "gold_in_r2": false,
+        "gold_in_r3": false
+      },
+      "OOF_POS_40": {
+        "pool_size": 41,
+        "r1_count": 156,
+        "r2_count": 41,
+        "r3_count": 0,
+        "gold_in_pool": true,
+        "gold_rank": 2,
+        "gold_score": 6.0,
+        "gold_rules": [
+          "R2:RolSinonimo(['taxonomia'])"
+        ],
+        "gold_in_r1": true,
+        "gold_in_r2": true,
+        "gold_in_r3": false
+      },
+      "OOF_POS_48": {
+        "pool_size": 0,
+        "r1_count": 67,
+        "r2_count": 0,
+        "r3_count": 0,
+        "gold_in_pool": false,
+        "gold_rank": null,
+        "gold_score": 0.0,
+        "gold_rules": [],
+        "gold_in_r1": false,
+        "gold_in_r2": false,
+        "gold_in_r3": false
+      },
+      "OOF_POS_49": {
+        "pool_size": 6,
+        "r1_count": 46,
+        "r2_count": 6,
+        "r3_count": 0,
+        "gold_in_pool": true,
+        "gold_rank": 1,
+        "gold_score": 4.5,
+        "gold_rules": [
+          "R2:RolSinonimo(['cronologia'])"
+        ],
+        "gold_in_r1": false,
+        "gold_in_r2": true,
+        "gold_in_r3": false
+      }
+    },
+    "D (R1+R2+R3)": {
+      "OOF_POS_11": {
+        "pool_size": 719,
+        "r1_count": 329,
+        "r2_count": 3,
+        "r3_count": 672,
+        "gold_in_pool": true,
+        "gold_rank": null,
+        "gold_score": 0.0,
+        "gold_rules": [
+          "R1:InterseccionConjuntiva(Accion ∧ Dominio/Entidad)"
+        ],
+        "gold_in_r1": true,
+        "gold_in_r2": false,
+        "gold_in_r3": false
+      },
+      "OOF_POS_19": {
+        "pool_size": 655,
+        "r1_count": 145,
+        "r2_count": 14,
+        "r3_count": 644,
+        "gold_in_pool": true,
+        "gold_rank": null,
+        "gold_score": 0.0,
+        "gold_rules": [
+          "R2:RolSinonimo(['ponderacion'])"
+        ],
+        "gold_in_r1": false,
+        "gold_in_r2": true,
+        "gold_in_r3": false
+      },
+      "OOF_POS_21": {
+        "pool_size": 728,
+        "r1_count": 219,
+        "r2_count": 13,
+        "r3_count": 717,
+        "gold_in_pool": false,
+        "gold_rank": null,
+        "gold_score": 0.0,
+        "gold_rules": [],
+        "gold_in_r1": false,
+        "gold_in_r2": false,
+        "gold_in_r3": false
+      },
+      "OOF_POS_29": {
+        "pool_size": 789,
+        "r1_count": 461,
+        "r2_count": 17,
+        "r3_count": 759,
+        "gold_in_pool": true,
+        "gold_rank": null,
+        "gold_score": 0.0,
+        "gold_rules": [
+          "R1:InterseccionConjuntiva(Accion ∧ Dominio/Entidad)",
+          "R3:SinapsisFuerte(desde=biorag_metricas_historial_tool_20260616, peso=0.90)",
+          "R3:SinapsisFuerte(desde=memorybiorag_publicacion_colaborativa_dennys_athena, peso=0.90)",
+          "R3:SinapsisFuerte(desde=sesion_mejoras_biorag_v7_20260616, peso=0.90)",
+          "R3:SinapsisFuerte(desde=dennys-metodo-creativo, peso=0.90)",
+          "R3:SinapsisFuerte(desde=notebooklm-sync-lecciones, peso=0.90)",
+          "R3:SinapsisFuerte(desde=guardado_automatico_caso_b, peso=0.90)",
+          "R3:SinapsisFuerte(desde=analisis_escalabilidad_10k_v5_1, peso=0.90)",
+          "R3:SinapsisFuerte(desde=principio_metacognicion_autobservacion, peso=0.90)",
+          "R3:SinapsisFuerte(desde=ordenar_por_intencion_temporal_pilotado_athena_warn, peso=0.90)",
+          "R3:SinapsisFuerte(desde=artisan_system_dsl_dennys_solo, peso=0.90)",
+          "R3:SinapsisFuerte(desde=leccion_versionado_biorag, peso=0.90)",
+          "R3:SinapsisFuerte(desde=leccion_syn_obligatorio_aprender, peso=0.90)",
+          "R3:SinapsisFuerte(desde=fix_fecha_sin_query_recordar, peso=0.90)",
+          "R3:SinapsisFuerte(desde=principio_gestion_memoria_agente, peso=0.90)",
+          "R3:SinapsisFuerte(desde=artisan-evolucion-completa, peso=0.90)",
+          "R3:SinapsisFuerte(desde=athena_artemis_desde, peso=0.90)",
+          "R3:SinapsisFuerte(desde=migracion_vincular_existentes_2026_06_09, peso=0.90)"
+        ],
+        "gold_in_r1": true,
+        "gold_in_r2": false,
+        "gold_in_r3": true
+      },
+      "OOF_POS_30": {
+        "pool_size": 439,
+        "r1_count": 60,
+        "r2_count": 23,
+        "r3_count": 419,
+        "gold_in_pool": true,
+        "gold_rank": null,
+        "gold_score": 0.0,
+        "gold_rules": [
+          "R3:SinapsisFuerte(desde=guardado_automatico_caso_b, peso=0.90)"
+        ],
+        "gold_in_r1": false,
+        "gold_in_r2": false,
+        "gold_in_r3": true
+      },
+      "OOF_POS_40": {
+        "pool_size": 681,
+        "r1_count": 156,
+        "r2_count": 41,
+        "r3_count": 669,
+        "gold_in_pool": true,
+        "gold_rank": 18,
+        "gold_score": 9.0,
+        "gold_rules": [
+          "R1:InterseccionConjuntiva(Accion ∧ Dominio/Entidad)",
+          "R2:RolSinonimo(['taxonomia'])"
+        ],
+        "gold_in_r1": true,
+        "gold_in_r2": true,
+        "gold_in_r3": false
+      },
+      "OOF_POS_48": {
+        "pool_size": 398,
+        "r1_count": 67,
+        "r2_count": 0,
+        "r3_count": 372,
+        "gold_in_pool": true,
+        "gold_rank": null,
+        "gold_score": 0.0,
+        "gold_rules": [
+          "R3:SinapsisFuerte(desde=kilo_vscode_extension_principal, peso=0.90)"
+        ],
+        "gold_in_r1": false,
+        "gold_in_r2": false,
+        "gold_in_r3": true
+      },
+      "OOF_POS_49": {
+        "pool_size": 334,
+        "r1_count": 46,
+        "r2_count": 6,
+        "r3_count": 320,
+        "gold_in_pool": true,
+        "gold_rank": null,
+        "gold_score": 0.0,
+        "gold_rules": [
+          "R2:RolSinonimo(['cronologia'])",
+          "R3:SinapsisFuerte(desde=respuesta_vacante_experiencia_ia, peso=0.80)",
+          "R3:SinapsisFuerte(desde=vida_laboral_completa_dennys, peso=0.90)",
+          "R3:SinapsisFuerte(desde=cv_seccion_d_estado_final_julio_2026, peso=0.90)",
+          "R3:SinapsisFuerte(desde=cv_seccion_d_arquitectura_frontend_estado, peso=0.90)",
+          "R3:SinapsisFuerte(desde=publicacion_linkedin_pdf_biorag_v26_workflow, peso=0.90)",
+          "R3:SinapsisFuerte(desde=perfil_respuesta_experiencia_ia, peso=0.80)",
+          "R3:SinapsisFuerte(desde=research-pipeline-ownership-oec, peso=0.76)"
+        ],
+        "gold_in_r1": false,
+        "gold_in_r2": true,
+        "gold_in_r3": true
+      }
+    },
+    "E (sin R1: R2+R3)": {
+      "OOF_POS_11": {
+        "pool_size": 11,
+        "r1_count": 329,
+        "r2_count": 3,
+        "r3_count": 8,
+        "gold_in_pool": false,
+        "gold_rank": null,
+        "gold_score": 0.0,
+        "gold_rules": [],
+        "gold_in_r1": true,
+        "gold_in_r2": false,
+        "gold_in_r3": false
+      },
+      "OOF_POS_19": {
+        "pool_size": 156,
+        "r1_count": 145,
+        "r2_count": 14,
+        "r3_count": 151,
+        "gold_in_pool": true,
+        "gold_rank": null,
+        "gold_score": 0.0,
+        "gold_rules": [
+          "R2:RolSinonimo(['ponderacion'])"
+        ],
+        "gold_in_r1": false,
+        "gold_in_r2": true,
+        "gold_in_r3": false
+      },
+      "OOF_POS_21": {
+        "pool_size": 149,
+        "r1_count": 219,
+        "r2_count": 13,
+        "r3_count": 143,
+        "gold_in_pool": false,
+        "gold_rank": null,
+        "gold_score": 0.0,
+        "gold_rules": [],
+        "gold_in_r1": false,
+        "gold_in_r2": false,
+        "gold_in_r3": false
+      },
+      "OOF_POS_29": {
+        "pool_size": 156,
+        "r1_count": 461,
+        "r2_count": 17,
+        "r3_count": 146,
+        "gold_in_pool": false,
+        "gold_rank": null,
+        "gold_score": 0.0,
+        "gold_rules": [],
+        "gold_in_r1": true,
+        "gold_in_r2": false,
+        "gold_in_r3": false
+      },
+      "OOF_POS_30": {
+        "pool_size": 116,
+        "r1_count": 60,
+        "r2_count": 23,
+        "r3_count": 111,
+        "gold_in_pool": false,
+        "gold_rank": null,
+        "gold_score": 0.0,
+        "gold_rules": [],
+        "gold_in_r1": false,
+        "gold_in_r2": false,
+        "gold_in_r3": false
+      },
+      "OOF_POS_40": {
+        "pool_size": 211,
+        "r1_count": 156,
+        "r2_count": 41,
+        "r3_count": 192,
+        "gold_in_pool": true,
+        "gold_rank": 8,
+        "gold_score": 6.0,
+        "gold_rules": [
+          "R2:RolSinonimo(['taxonomia'])"
+        ],
+        "gold_in_r1": true,
+        "gold_in_r2": true,
+        "gold_in_r3": false
+      },
+      "OOF_POS_48": {
+        "pool_size": 0,
+        "r1_count": 67,
+        "r2_count": 0,
+        "r3_count": 0,
+        "gold_in_pool": false,
+        "gold_rank": null,
+        "gold_score": 0.0,
+        "gold_rules": [],
+        "gold_in_r1": false,
+        "gold_in_r2": false,
+        "gold_in_r3": false
+      },
+      "OOF_POS_49": {
+        "pool_size": 48,
+        "r1_count": 46,
+        "r2_count": 6,
+        "r3_count": 43,
+        "gold_in_pool": true,
+        "gold_rank": 1,
+        "gold_score": 4.5,
+        "gold_rules": [
+          "R2:RolSinonimo(['cronologia'])"
+        ],
+        "gold_in_r1": false,
+        "gold_in_r2": true,
+        "gold_in_r3": false
+      }
+    },
+    "F (sin R2: R1+R3)": {
+      "OOF_POS_11": {
+        "pool_size": 719,
+        "r1_count": 329,
+        "r2_count": 3,
+        "r3_count": 672,
+        "gold_in_pool": true,
+        "gold_rank": null,
+        "gold_score": 0.0,
+        "gold_rules": [
+          "R1:InterseccionConjuntiva(Accion ∧ Dominio/Entidad)"
+        ],
+        "gold_in_r1": true,
+        "gold_in_r2": false,
+        "gold_in_r3": false
+      },
+      "OOF_POS_19": {
+        "pool_size": 645,
+        "r1_count": 145,
+        "r2_count": 14,
+        "r3_count": 634,
+        "gold_in_pool": false,
+        "gold_rank": null,
+        "gold_score": 0.0,
+        "gold_rules": [],
+        "gold_in_r1": false,
+        "gold_in_r2": true,
+        "gold_in_r3": false
+      },
+      "OOF_POS_21": {
+        "pool_size": 716,
+        "r1_count": 219,
+        "r2_count": 13,
+        "r3_count": 704,
+        "gold_in_pool": false,
+        "gold_rank": null,
+        "gold_score": 0.0,
+        "gold_rules": [],
+        "gold_in_r1": false,
+        "gold_in_r2": false,
+        "gold_in_r3": false
+      },
+      "OOF_POS_29": {
+        "pool_size": 781,
+        "r1_count": 461,
+        "r2_count": 17,
+        "r3_count": 747,
+        "gold_in_pool": true,
+        "gold_rank": null,
+        "gold_score": 0.0,
+        "gold_rules": [
+          "R1:InterseccionConjuntiva(Accion ∧ Dominio/Entidad)",
+          "R3:SinapsisFuerte(desde=biorag_metricas_historial_tool_20260616, peso=0.90)",
+          "R3:SinapsisFuerte(desde=memorybiorag_publicacion_colaborativa_dennys_athena, peso=0.90)",
+          "R3:SinapsisFuerte(desde=sesion_mejoras_biorag_v7_20260616, peso=0.90)",
+          "R3:SinapsisFuerte(desde=dennys-metodo-creativo, peso=0.90)",
+          "R3:SinapsisFuerte(desde=notebooklm-sync-lecciones, peso=0.90)",
+          "R3:SinapsisFuerte(desde=guardado_automatico_caso_b, peso=0.90)",
+          "R3:SinapsisFuerte(desde=analisis_escalabilidad_10k_v5_1, peso=0.90)",
+          "R3:SinapsisFuerte(desde=principio_metacognicion_autobservacion, peso=0.90)",
+          "R3:SinapsisFuerte(desde=ordenar_por_intencion_temporal_pilotado_athena_warn, peso=0.90)",
+          "R3:SinapsisFuerte(desde=artisan_system_dsl_dennys_solo, peso=0.90)",
+          "R3:SinapsisFuerte(desde=leccion_versionado_biorag, peso=0.90)",
+          "R3:SinapsisFuerte(desde=leccion_syn_obligatorio_aprender, peso=0.90)",
+          "R3:SinapsisFuerte(desde=fix_fecha_sin_query_recordar, peso=0.90)",
+          "R3:SinapsisFuerte(desde=principio_gestion_memoria_agente, peso=0.90)",
+          "R3:SinapsisFuerte(desde=artisan-evolucion-completa, peso=0.90)",
+          "R3:SinapsisFuerte(desde=athena_artemis_desde, peso=0.90)",
+          "R3:SinapsisFuerte(desde=migracion_vincular_existentes_2026_06_09, peso=0.90)"
+        ],
+        "gold_in_r1": true,
+        "gold_in_r2": false,
+        "gold_in_r3": true
+      },
+      "OOF_POS_30": {
+        "pool_size": 385,
+        "r1_count": 60,
+        "r2_count": 23,
+        "r3_count": 362,
+        "gold_in_pool": true,
+        "gold_rank": null,
+        "gold_score": 0.0,
+        "gold_rules": [
+          "R3:SinapsisFuerte(desde=guardado_automatico_caso_b, peso=0.90)"
+        ],
+        "gold_in_r1": false,
+        "gold_in_r2": false,
+        "gold_in_r3": true
+      },
+      "OOF_POS_40": {
+        "pool_size": 667,
+        "r1_count": 156,
+        "r2_count": 41,
+        "r3_count": 655,
+        "gold_in_pool": true,
+        "gold_rank": null,
+        "gold_score": 0.0,
+        "gold_rules": [
+          "R1:InterseccionConjuntiva(Accion ∧ Dominio/Entidad)"
+        ],
+        "gold_in_r1": true,
+        "gold_in_r2": true,
+        "gold_in_r3": false
+      },
+      "OOF_POS_48": {
+        "pool_size": 398,
+        "r1_count": 67,
+        "r2_count": 0,
+        "r3_count": 372,
+        "gold_in_pool": true,
+        "gold_rank": null,
+        "gold_score": 0.0,
+        "gold_rules": [
+          "R3:SinapsisFuerte(desde=kilo_vscode_extension_principal, peso=0.90)"
+        ],
+        "gold_in_r1": false,
+        "gold_in_r2": false,
+        "gold_in_r3": true
+      },
+      "OOF_POS_49": {
+        "pool_size": 310,
+        "r1_count": 46,
+        "r2_count": 6,
+        "r3_count": 298,
+        "gold_in_pool": true,
+        "gold_rank": null,
+        "gold_score": 0.0,
+        "gold_rules": [
+          "R3:SinapsisFuerte(desde=respuesta_vacante_experiencia_ia, peso=0.80)",
+          "R3:SinapsisFuerte(desde=vida_laboral_completa_dennys, peso=0.90)",
+          "R3:SinapsisFuerte(desde=cv_seccion_d_estado_final_julio_2026, peso=0.90)",
+          "R3:SinapsisFuerte(desde=cv_seccion_d_arquitectura_frontend_estado, peso=0.90)",
+          "R3:SinapsisFuerte(desde=publicacion_linkedin_pdf_biorag_v26_workflow, peso=0.90)",
+          "R3:SinapsisFuerte(desde=perfil_respuesta_experiencia_ia, peso=0.80)",
+          "R3:SinapsisFuerte(desde=research-pipeline-ownership-oec, peso=0.76)"
+        ],
+        "gold_in_r1": false,
+        "gold_in_r2": true,
+        "gold_in_r3": true
+      }
+    },
+    "G (sin R3: R1+R2)": {
+      "OOF_POS_11": {
+        "pool_size": 331,
+        "r1_count": 329,
+        "r2_count": 3,
+        "r3_count": 0,
+        "gold_in_pool": true,
+        "gold_rank": null,
+        "gold_score": 0.0,
+        "gold_rules": [
+          "R1:InterseccionConjuntiva(Accion ∧ Dominio/Entidad)"
+        ],
+        "gold_in_r1": true,
+        "gold_in_r2": false,
+        "gold_in_r3": false
+      },
+      "OOF_POS_19": {
+        "pool_size": 153,
+        "r1_count": 145,
+        "r2_count": 14,
+        "r3_count": 0,
+        "gold_in_pool": true,
+        "gold_rank": null,
+        "gold_score": 0.0,
+        "gold_rules": [
+          "R2:RolSinonimo(['ponderacion'])"
+        ],
+        "gold_in_r1": false,
+        "gold_in_r2": true,
+        "gold_in_r3": false
+      },
+      "OOF_POS_21": {
+        "pool_size": 228,
+        "r1_count": 219,
+        "r2_count": 13,
+        "r3_count": 0,
+        "gold_in_pool": false,
+        "gold_rank": null,
+        "gold_score": 0.0,
+        "gold_rules": [],
+        "gold_in_r1": false,
+        "gold_in_r2": false,
+        "gold_in_r3": false
+      },
+      "OOF_POS_29": {
+        "pool_size": 472,
+        "r1_count": 461,
+        "r2_count": 17,
+        "r3_count": 0,
+        "gold_in_pool": true,
+        "gold_rank": null,
+        "gold_score": 0.0,
+        "gold_rules": [
+          "R1:InterseccionConjuntiva(Accion ∧ Dominio/Entidad)"
+        ],
+        "gold_in_r1": true,
+        "gold_in_r2": false,
+        "gold_in_r3": false
+      },
+      "OOF_POS_30": {
+        "pool_size": 80,
+        "r1_count": 60,
+        "r2_count": 23,
+        "r3_count": 0,
+        "gold_in_pool": false,
+        "gold_rank": null,
+        "gold_score": 0.0,
+        "gold_rules": [],
+        "gold_in_r1": false,
+        "gold_in_r2": false,
+        "gold_in_r3": false
+      },
+      "OOF_POS_40": {
+        "pool_size": 178,
+        "r1_count": 156,
+        "r2_count": 41,
+        "r3_count": 0,
+        "gold_in_pool": true,
+        "gold_rank": 2,
+        "gold_score": 9.0,
+        "gold_rules": [
+          "R1:InterseccionConjuntiva(Accion ∧ Dominio/Entidad)",
+          "R2:RolSinonimo(['taxonomia'])"
+        ],
+        "gold_in_r1": true,
+        "gold_in_r2": true,
+        "gold_in_r3": false
+      },
+      "OOF_POS_48": {
+        "pool_size": 67,
+        "r1_count": 67,
+        "r2_count": 0,
+        "r3_count": 0,
+        "gold_in_pool": false,
+        "gold_rank": null,
+        "gold_score": 0.0,
+        "gold_rules": [],
+        "gold_in_r1": false,
+        "gold_in_r2": false,
+        "gold_in_r3": false
+      },
+      "OOF_POS_49": {
+        "pool_size": 52,
+        "r1_count": 46,
+        "r2_count": 6,
+        "r3_count": 0,
+        "gold_in_pool": true,
+        "gold_rank": null,
+        "gold_score": 0.0,
+        "gold_rules": [
+          "R2:RolSinonimo(['cronologia'])"
+        ],
+        "gold_in_r1": false,
+        "gold_in_r2": true,
+        "gold_in_r3": false
+      }
+    }
+  },
+  "scoring_checks": [
+    {
+      "case_id": "OOF_POS_11",
+      "N_total": 851,
+      "N_generated": 719,
+      "N_scored": 719,
+      "N_ranked": 20,
+      "outside_pool_scored": 0,
+      "is_valid": true
+    },
+    {
+      "case_id": "OOF_POS_19",
+      "N_total": 851,
+      "N_generated": 655,
+      "N_scored": 655,
+      "N_ranked": 20,
+      "outside_pool_scored": 0,
+      "is_valid": true
+    },
+    {
+      "case_id": "OOF_POS_21",
+      "N_total": 851,
+      "N_generated": 728,
+      "N_scored": 728,
+      "N_ranked": 20,
+      "outside_pool_scored": 0,
+      "is_valid": true
+    },
+    {
+      "case_id": "OOF_POS_29",
+      "N_total": 851,
+      "N_generated": 789,
+      "N_scored": 789,
+      "N_ranked": 20,
+      "outside_pool_scored": 0,
+      "is_valid": true
+    },
+    {
+      "case_id": "OOF_POS_30",
+      "N_total": 851,
+      "N_generated": 439,
+      "N_scored": 439,
+      "N_ranked": 20,
+      "outside_pool_scored": 0,
+      "is_valid": true
+    },
+    {
+      "case_id": "OOF_POS_40",
+      "N_total": 851,
+      "N_generated": 681,
+      "N_scored": 681,
+      "N_ranked": 20,
+      "outside_pool_scored": 0,
+      "is_valid": true
+    },
+    {
+      "case_id": "OOF_POS_48",
+      "N_total": 851,
+      "N_generated": 398,
+      "N_scored": 398,
+      "N_ranked": 20,
+      "outside_pool_scored": 0,
+      "is_valid": true
+    },
+    {
+      "case_id": "OOF_POS_49",
+      "N_total": 851,
+      "N_generated": 334,
+      "N_scored": 334,
+      "N_ranked": 20,
+      "outside_pool_scored": 0,
+      "is_valid": true
+    }
+  ]
+}
