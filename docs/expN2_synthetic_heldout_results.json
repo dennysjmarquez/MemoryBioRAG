@@ -1,0 +1,2061 @@
+{
+  "timestamp": "2026-09-08T16:26:06Z",
+  "experiment": "EXP-N2: Synthetic Held-out Composition Benchmark",
+  "total_cases": 44,
+  "total_passed": 34,
+  "global_synthetic_score_pct": 77.3,
+  "summary_by_category": {
+    "ATOMIC": {
+      "total": 10,
+      "passed": 10,
+      "accuracy_pct": 100.0,
+      "ops_accuracy_pct": 100.0,
+      "rels_accuracy_pct": 100.0,
+      "props_accuracy_pct": 100.0,
+      "polarity_accuracy_pct": 100.0
+    },
+    "KNOWN_COMPOSITION": {
+      "total": 8,
+      "passed": 7,
+      "accuracy_pct": 87.5,
+      "ops_accuracy_pct": 87.5,
+      "rels_accuracy_pct": 100.0,
+      "props_accuracy_pct": 100.0,
+      "polarity_accuracy_pct": 100.0
+    },
+    "HELDOUT_COMPOSITION": {
+      "total": 10,
+      "passed": 7,
+      "accuracy_pct": 70.0,
+      "ops_accuracy_pct": 90.0,
+      "rels_accuracy_pct": 90.0,
+      "props_accuracy_pct": 90.0,
+      "polarity_accuracy_pct": 100.0
+    },
+    "OPEN_COMPOSITION": {
+      "total": 8,
+      "passed": 3,
+      "accuracy_pct": 37.5,
+      "ops_accuracy_pct": 75.0,
+      "rels_accuracy_pct": 75.0,
+      "props_accuracy_pct": 75.0,
+      "polarity_accuracy_pct": 100.0
+    },
+    "STRUCTURAL_NEGATIVE": {
+      "total": 8,
+      "passed": 7,
+      "accuracy_pct": 87.5,
+      "ops_accuracy_pct": 87.5,
+      "rels_accuracy_pct": 100.0,
+      "props_accuracy_pct": 100.0,
+      "polarity_accuracy_pct": 87.5
+    }
+  },
+  "case_details": [
+    {
+      "id": "ATOM_01",
+      "category": "ATOMIC",
+      "query": "generar nueva memoria en el sistema",
+      "description": "Atómica: CREATE puro",
+      "passed": true,
+      "structural_form": {
+        "operations": [
+          "CREATE"
+        ],
+        "relations": [
+          "CAUSES"
+        ],
+        "properties": [
+          "COMPUTATIONAL"
+        ],
+        "db_action_dims": [
+          "accion_persistencia_computacion",
+          "accion_rutina_automatica"
+        ],
+        "modality": "DECLARATIVE",
+        "polarity": 1,
+        "confidence": 0.45,
+        "raw_tokens": [
+          "generar",
+          "memoria",
+          "nueva",
+          "sistema"
+        ],
+        "missing": []
+      },
+      "n_hypotheses": 3,
+      "hypotheses_names": [
+        "H1_FULL(CREATE+CAUSES+COMPUTATIONAL)",
+        "H2_OPS(CREATE+COMPUTATIONAL)",
+        "H4_OP_PROP(CREATE×COMPUTATIONAL)"
+      ],
+      "ops_match": true,
+      "rels_match": true,
+      "props_match": true,
+      "pol_match": true
+    },
+    {
+      "id": "ATOM_02",
+      "category": "ATOMIC",
+      "query": "modificar los parámetros internos",
+      "description": "Atómica: MODIFY puro",
+      "passed": true,
+      "structural_form": {
+        "operations": [
+          "MODIFY"
+        ],
+        "relations": [
+          "PURPOSE_OF"
+        ],
+        "properties": [],
+        "db_action_dims": [
+          "accion_cognitiva",
+          "accion_evaluar"
+        ],
+        "modality": "DECLARATIVE",
+        "polarity": 1,
+        "confidence": 0.375,
+        "raw_tokens": [
+          "internos",
+          "modificar",
+          "parametros"
+        ],
+        "missing": [
+          "PROPERTY (ninguna propiedad de estado/dominio detectada)"
+        ]
+      },
+      "n_hypotheses": 2,
+      "hypotheses_names": [
+        "H1_FULL(MODIFY+PURPOSE_OF+)",
+        "H2_OPS(MODIFY+)"
+      ],
+      "ops_match": true,
+      "rels_match": true,
+      "props_match": true,
+      "pol_match": true
+    },
+    {
+      "id": "ATOM_03",
+      "category": "ATOMIC",
+      "query": "eliminar registros obsoletos",
+      "description": "Atómica: REMOVE puro",
+      "passed": true,
+      "structural_form": {
+        "operations": [
+          "REMOVE",
+          "STORE"
+        ],
+        "relations": [],
+        "properties": [
+          "CHRONICLE",
+          "LIFECYCLE"
+        ],
+        "db_action_dims": [
+          "accion_persistencia_computacion",
+          "accion_rutina_automatica"
+        ],
+        "modality": "DECLARATIVE",
+        "polarity": 1,
+        "confidence": 0.65,
+        "raw_tokens": [
+          "eliminar",
+          "obsoletos",
+          "registros"
+        ],
+        "missing": [
+          "RELATION (ninguna relación detectada; composición mono-operacional)"
+        ]
+      },
+      "n_hypotheses": 4,
+      "hypotheses_names": [
+        "H1_FULL(REMOVE⊕STORE++CHRONICLE⊕LIFECYCLE)",
+        "H2_OPS(REMOVE⊕STORE+CHRONICLE⊕LIFECYCLE)",
+        "H3_PAIR(REMOVE⊕STORE)",
+        "H4_OP_PROP(REMOVE×CHRONICLE+LIFECYCLE)"
+      ],
+      "ops_match": true,
+      "rels_match": true,
+      "props_match": true,
+      "pol_match": true
+    },
+    {
+      "id": "ATOM_04",
+      "category": "ATOMIC",
+      "query": "evaluar el rendimiento computacional",
+      "description": "Atómica: EVALUATE + COMPUTATIONAL",
+      "passed": true,
+      "structural_form": {
+        "operations": [
+          "EVALUATE"
+        ],
+        "relations": [],
+        "properties": [
+          "COMPUTATIONAL"
+        ],
+        "db_action_dims": [
+          "accion_cognitiva",
+          "accion_evaluar"
+        ],
+        "modality": "DECLARATIVE",
+        "polarity": 1,
+        "confidence": 0.325,
+        "raw_tokens": [
+          "computacional",
+          "evaluar",
+          "rendimiento"
+        ],
+        "missing": [
+          "RELATION (ninguna relación detectada; composición mono-operacional)"
+        ]
+      },
+      "n_hypotheses": 3,
+      "hypotheses_names": [
+        "H1_FULL(EVALUATE++COMPUTATIONAL)",
+        "H2_OPS(EVALUATE+COMPUTATIONAL)",
+        "H4_OP_PROP(EVALUATE×COMPUTATIONAL)"
+      ],
+      "ops_match": true,
+      "rels_match": true,
+      "props_match": true,
+      "pol_match": true
+    },
+    {
+      "id": "ATOM_05",
+      "category": "ATOMIC",
+      "query": "fusionar los vectores de representación",
+      "description": "Atómica: COMBINE puro",
+      "passed": true,
+      "structural_form": {
+        "operations": [
+          "COMBINE"
+        ],
+        "relations": [],
+        "properties": [],
+        "db_action_dims": [
+          "accion_cognitiva",
+          "accion_persistencia_computacion"
+        ],
+        "modality": "DECLARATIVE",
+        "polarity": 1,
+        "confidence": 0.25,
+        "raw_tokens": [
+          "fusionar",
+          "representacion",
+          "vectores"
+        ],
+        "missing": [
+          "RELATION (ninguna relación detectada; composición mono-operacional)",
+          "PROPERTY (ninguna propiedad de estado/dominio detectada)"
+        ]
+      },
+      "n_hypotheses": 2,
+      "hypotheses_names": [
+        "H1_FULL(COMBINE++)",
+        "H2_OPS(COMBINE+)"
+      ],
+      "ops_match": true,
+      "rels_match": true,
+      "props_match": true,
+      "pol_match": true
+    },
+    {
+      "id": "ATOM_06",
+      "category": "ATOMIC",
+      "query": "particionar el espacio de memoria",
+      "description": "Atómica: SEPARATE + COMPUTATIONAL",
+      "passed": true,
+      "structural_form": {
+        "operations": [
+          "SEPARATE"
+        ],
+        "relations": [],
+        "properties": [
+          "COMPUTATIONAL"
+        ],
+        "db_action_dims": [
+          "accion_persistencia_computacion"
+        ],
+        "modality": "DECLARATIVE",
+        "polarity": 1,
+        "confidence": 0.325,
+        "raw_tokens": [
+          "espacio",
+          "memoria",
+          "particionar"
+        ],
+        "missing": [
+          "RELATION (ninguna relación detectada; composición mono-operacional)"
+        ]
+      },
+      "n_hypotheses": 3,
+      "hypotheses_names": [
+        "H1_FULL(SEPARATE++COMPUTATIONAL)",
+        "H2_OPS(SEPARATE+COMPUTATIONAL)",
+        "H4_OP_PROP(SEPARATE×COMPUTATIONAL)"
+      ],
+      "ops_match": true,
+      "rels_match": true,
+      "props_match": true,
+      "pol_match": true
+    },
+    {
+      "id": "ATOM_07",
+      "category": "ATOMIC",
+      "query": "enlazar nodos vecinos en la red",
+      "description": "Atómica: LINK + CONNECTIVE",
+      "passed": true,
+      "structural_form": {
+        "operations": [
+          "LINK"
+        ],
+        "relations": [],
+        "properties": [
+          "CONNECTIVE"
+        ],
+        "db_action_dims": [
+          "accion_cognitiva"
+        ],
+        "modality": "DECLARATIVE",
+        "polarity": 1,
+        "confidence": 0.325,
+        "raw_tokens": [
+          "enlazar",
+          "nodos",
+          "red",
+          "vecinos"
+        ],
+        "missing": [
+          "RELATION (ninguna relación detectada; composición mono-operacional)"
+        ]
+      },
+      "n_hypotheses": 3,
+      "hypotheses_names": [
+        "H1_FULL(LINK++CONNECTIVE)",
+        "H2_OPS(LINK+CONNECTIVE)",
+        "H4_OP_PROP(LINK×CONNECTIVE)"
+      ],
+      "ops_match": true,
+      "rels_match": true,
+      "props_match": true,
+      "pol_match": true
+    },
+    {
+      "id": "ATOM_08",
+      "category": "ATOMIC",
+      "query": "persistir los cambios en disco",
+      "description": "Atómica: PERSIST puro",
+      "passed": true,
+      "structural_form": {
+        "operations": [
+          "PERSIST",
+          "STORE"
+        ],
+        "relations": [],
+        "properties": [],
+        "db_action_dims": [
+          "accion_persistencia_computacion"
+        ],
+        "modality": "DECLARATIVE",
+        "polarity": 1,
+        "confidence": 0.5,
+        "raw_tokens": [
+          "cambios",
+          "disco",
+          "persistir"
+        ],
+        "missing": [
+          "RELATION (ninguna relación detectada; composición mono-operacional)",
+          "PROPERTY (ninguna propiedad de estado/dominio detectada)"
+        ]
+      },
+      "n_hypotheses": 3,
+      "hypotheses_names": [
+        "H1_FULL(PERSIST⊕STORE++)",
+        "H2_OPS(PERSIST⊕STORE+)",
+        "H3_PAIR(PERSIST⊕STORE)"
+      ],
+      "ops_match": true,
+      "rels_match": true,
+      "props_match": true,
+      "pol_match": true
+    },
+    {
+      "id": "ATOM_09",
+      "category": "ATOMIC",
+      "query": "extraer las memorias relevantes",
+      "description": "Atómica: RETRIEVE puro",
+      "passed": true,
+      "structural_form": {
+        "operations": [
+          "RETRIEVE"
+        ],
+        "relations": [
+          "BEFORE"
+        ],
+        "properties": [
+          "COMPUTATIONAL",
+          "METRIC"
+        ],
+        "db_action_dims": [
+          "accion_cognitiva"
+        ],
+        "modality": "REQUIRES",
+        "polarity": 1,
+        "confidence": 0.525,
+        "raw_tokens": [
+          "extraer",
+          "memorias",
+          "relevantes"
+        ],
+        "missing": []
+      },
+      "n_hypotheses": 3,
+      "hypotheses_names": [
+        "H1_FULL(RETRIEVE+BEFORE+COMPUTATIONAL⊕METRIC)",
+        "H2_OPS(RETRIEVE+COMPUTATIONAL⊕METRIC)",
+        "H4_OP_PROP(RETRIEVE×COMPUTATIONAL+METRIC)"
+      ],
+      "ops_match": true,
+      "rels_match": true,
+      "props_match": true,
+      "pol_match": true
+    },
+    {
+      "id": "ATOM_10",
+      "category": "ATOMIC",
+      "query": "clasificar según la taxonomía dimensional",
+      "description": "Atómica: CLASSIFY + DIMENSIONAL + HIERARCHICAL",
+      "passed": true,
+      "structural_form": {
+        "operations": [
+          "CLASSIFY"
+        ],
+        "relations": [],
+        "properties": [
+          "DIMENSIONAL",
+          "HIERARCHICAL"
+        ],
+        "db_action_dims": [
+          "accion_evaluar"
+        ],
+        "modality": "DECLARATIVE",
+        "polarity": 1,
+        "confidence": 0.4,
+        "raw_tokens": [
+          "clasificar",
+          "dimensional",
+          "segun",
+          "taxonomia"
+        ],
+        "missing": [
+          "RELATION (ninguna relación detectada; composición mono-operacional)"
+        ]
+      },
+      "n_hypotheses": 3,
+      "hypotheses_names": [
+        "H1_FULL(CLASSIFY++DIMENSIONAL⊕HIERARCHICAL)",
+        "H2_OPS(CLASSIFY+DIMENSIONAL⊕HIERARCHICAL)",
+        "H4_OP_PROP(CLASSIFY×DIMENSIONAL+HIERARCHICAL)"
+      ],
+      "ops_match": true,
+      "rels_match": true,
+      "props_match": true,
+      "pol_match": true
+    },
+    {
+      "id": "KNOWN_01",
+      "category": "KNOWN_COMPOSITION",
+      "query": "evaluar antes de modificar los pesos",
+      "description": "EVALUATE ⊕ BEFORE ⊕ MODIFY ⊕ METRIC",
+      "passed": true,
+      "structural_form": {
+        "operations": [
+          "EVALUATE",
+          "MODIFY"
+        ],
+        "relations": [
+          "BEFORE"
+        ],
+        "properties": [
+          "METRIC"
+        ],
+        "db_action_dims": [
+          "accion_cognitiva",
+          "accion_evaluar"
+        ],
+        "modality": "REQUIRES",
+        "polarity": 1,
+        "confidence": 0.7,
+        "raw_tokens": [
+          "evaluar",
+          "modificar",
+          "pesos"
+        ],
+        "missing": []
+      },
+      "n_hypotheses": 4,
+      "hypotheses_names": [
+        "H1_FULL(EVALUATE⊕MODIFY+BEFORE+METRIC)",
+        "H2_OPS(EVALUATE⊕MODIFY+METRIC)",
+        "H3_PAIR(EVALUATE⊕MODIFY)",
+        "H4_OP_PROP(EVALUATE×METRIC)"
+      ],
+      "ops_match": true,
+      "rels_match": true,
+      "props_match": true,
+      "pol_match": true
+    },
+    {
+      "id": "KNOWN_02",
+      "category": "KNOWN_COMPOSITION",
+      "query": "transformar señales para persistir en largo plazo",
+      "description": "TRANSFORM ⊕ PURPOSE_OF ⊕ PERSIST",
+      "passed": true,
+      "structural_form": {
+        "operations": [
+          "MODIFY",
+          "PERSIST",
+          "STORE",
+          "TRANSFORM"
+        ],
+        "relations": [
+          "PURPOSE_OF"
+        ],
+        "properties": [
+          "CONNECTIVE",
+          "TEMPORAL"
+        ],
+        "db_action_dims": [
+          "accion_cognitiva",
+          "accion_evaluar",
+          "accion_persistencia_computacion"
+        ],
+        "modality": "DECLARATIVE",
+        "polarity": 1,
+        "confidence": 1.0,
+        "raw_tokens": [
+          "largo",
+          "persistir",
+          "plazo",
+          "senales",
+          "transformar"
+        ],
+        "missing": []
+      },
+      "n_hypotheses": 9,
+      "hypotheses_names": [
+        "H1_FULL(MODIFY⊕PERSIST⊕STORE⊕TRANSFORM+PURPOSE_OF+CONNECTIVE⊕TEMPORAL)",
+        "H2_OPS(MODIFY⊕PERSIST⊕STORE⊕TRANSFORM+CONNECTIVE⊕TEMPORAL)",
+        "H3_PAIR(MODIFY⊕PERSIST)",
+        "H3_PAIR(MODIFY⊕STORE)",
+        "H3_PAIR(MODIFY⊕TRANSFORM)",
+        "H3_PAIR(PERSIST⊕STORE)",
+        "H3_PAIR(PERSIST⊕TRANSFORM)",
+        "H3_PAIR(STORE⊕TRANSFORM)",
+        "H4_OP_PROP(MODIFY×CONNECTIVE+TEMPORAL)"
+      ],
+      "ops_match": true,
+      "rels_match": true,
+      "props_match": true,
+      "pol_match": true
+    },
+    {
+      "id": "KNOWN_03",
+      "category": "KNOWN_COMPOSITION",
+      "query": "clasificar jerárquicamente y vincular con conceptos activos",
+      "description": "CLASSIFY ⊕ LINK ⊕ HIERARCHICAL",
+      "passed": true,
+      "structural_form": {
+        "operations": [
+          "ACTIVATE",
+          "CLASSIFY",
+          "LINK"
+        ],
+        "relations": [],
+        "properties": [
+          "CONNECTIVE",
+          "HIERARCHICAL",
+          "LIFECYCLE"
+        ],
+        "db_action_dims": [
+          "accion_cognitiva",
+          "accion_evaluar",
+          "accion_rutina_automatica"
+        ],
+        "modality": "DECLARATIVE",
+        "polarity": 1,
+        "confidence": 0.975,
+        "raw_tokens": [
+          "activos",
+          "clasificar",
+          "conceptos",
+          "jerarquicamente",
+          "vincular"
+        ],
+        "missing": [
+          "RELATION (ninguna relación detectada; composición mono-operacional)"
+        ]
+      },
+      "n_hypotheses": 6,
+      "hypotheses_names": [
+        "H1_FULL(ACTIVATE⊕CLASSIFY⊕LINK++CONNECTIVE⊕HIERARCHICAL⊕LIFECYCLE)",
+        "H2_OPS(ACTIVATE⊕CLASSIFY⊕LINK+CONNECTIVE⊕HIERARCHICAL⊕LIFECYCLE)",
+        "H3_PAIR(ACTIVATE⊕CLASSIFY)",
+        "H3_PAIR(ACTIVATE⊕LINK)",
+        "H3_PAIR(CLASSIFY⊕LINK)",
+        "H4_OP_PROP(ACTIVATE×CONNECTIVE+HIERARCHICAL)"
+      ],
+      "ops_match": true,
+      "rels_match": true,
+      "props_match": true,
+      "pol_match": true
+    },
+    {
+      "id": "KNOWN_04",
+      "category": "KNOWN_COMPOSITION",
+      "query": "desactivar rutinas temporales durante el ciclo de letargo",
+      "description": "DEACTIVATE ⊕ TEMPORAL ⊕ LIFECYCLE",
+      "passed": true,
+      "structural_form": {
+        "operations": [
+          "DEACTIVATE",
+          "REMOVE"
+        ],
+        "relations": [],
+        "properties": [
+          "LIFECYCLE",
+          "TEMPORAL"
+        ],
+        "db_action_dims": [
+          "accion_rutina_automatica"
+        ],
+        "modality": "DECLARATIVE",
+        "polarity": 1,
+        "confidence": 0.65,
+        "raw_tokens": [
+          "ciclo",
+          "desactivar",
+          "letargo",
+          "rutinas",
+          "temporales"
+        ],
+        "missing": [
+          "RELATION (ninguna relación detectada; composición mono-operacional)"
+        ]
+      },
+      "n_hypotheses": 4,
+      "hypotheses_names": [
+        "H1_FULL(DEACTIVATE⊕REMOVE++LIFECYCLE⊕TEMPORAL)",
+        "H2_OPS(DEACTIVATE⊕REMOVE+LIFECYCLE⊕TEMPORAL)",
+        "H3_PAIR(DEACTIVATE⊕REMOVE)",
+        "H4_OP_PROP(DEACTIVATE×LIFECYCLE+TEMPORAL)"
+      ],
+      "ops_match": true,
+      "rels_match": true,
+      "props_match": true,
+      "pol_match": true
+    },
+    {
+      "id": "KNOWN_05",
+      "category": "KNOWN_COMPOSITION",
+      "query": "combinar estimaciones estocásticas para calcular la varianza",
+      "description": "COMBINE ⊕ EVALUATE ⊕ STOCHASTIC",
+      "passed": true,
+      "structural_form": {
+        "operations": [
+          "COMBINE",
+          "EVALUATE"
+        ],
+        "relations": [
+          "PURPOSE_OF"
+        ],
+        "properties": [
+          "STOCHASTIC"
+        ],
+        "db_action_dims": [
+          "accion_cognitiva",
+          "accion_evaluar",
+          "accion_persistencia_computacion"
+        ],
+        "modality": "DECLARATIVE",
+        "polarity": 1,
+        "confidence": 0.7,
+        "raw_tokens": [
+          "calcular",
+          "combinar",
+          "estimaciones",
+          "estocasticas",
+          "varianza"
+        ],
+        "missing": []
+      },
+      "n_hypotheses": 4,
+      "hypotheses_names": [
+        "H1_FULL(COMBINE⊕EVALUATE+PURPOSE_OF+STOCHASTIC)",
+        "H2_OPS(COMBINE⊕EVALUATE+STOCHASTIC)",
+        "H3_PAIR(COMBINE⊕EVALUATE)",
+        "H4_OP_PROP(COMBINE×STOCHASTIC)"
+      ],
+      "ops_match": true,
+      "rels_match": true,
+      "props_match": true,
+      "pol_match": true
+    },
+    {
+      "id": "KNOWN_06",
+      "category": "KNOWN_COMPOSITION",
+      "query": "separar clusters antes de generar nuevos enlaces",
+      "description": "SEPARATE ⊕ BEFORE ⊕ (CREATE ⊕ LINK)",
+      "passed": false,
+      "structural_form": {
+        "operations": [
+          "CREATE",
+          "SEPARATE"
+        ],
+        "relations": [
+          "BEFORE",
+          "CAUSES",
+          "PURPOSE_OF"
+        ],
+        "properties": [
+          "CONNECTIVE"
+        ],
+        "db_action_dims": [
+          "accion_persistencia_computacion",
+          "accion_rutina_automatica"
+        ],
+        "modality": "REQUIRES",
+        "polarity": 1,
+        "confidence": 0.95,
+        "raw_tokens": [
+          "clusters",
+          "enlaces",
+          "generar",
+          "nuevos",
+          "separar"
+        ],
+        "missing": []
+      },
+      "n_hypotheses": 4,
+      "hypotheses_names": [
+        "H1_FULL(CREATE⊕SEPARATE+BEFORE⊕CAUSES⊕PURPOSE_OF+CONNECTIVE)",
+        "H2_OPS(CREATE⊕SEPARATE+CONNECTIVE)",
+        "H3_PAIR(CREATE⊕SEPARATE)",
+        "H4_OP_PROP(CREATE×CONNECTIVE)"
+      ],
+      "ops_match": false,
+      "rels_match": true,
+      "props_match": true,
+      "pol_match": true
+    },
+    {
+      "id": "KNOWN_07",
+      "category": "KNOWN_COMPOSITION",
+      "query": "registrar eventos en la bitácora cronológica después de evaluar",
+      "description": "STORE ⊕ AFTER ⊕ EVALUATE ⊕ CHRONICLE",
+      "passed": true,
+      "structural_form": {
+        "operations": [
+          "EVALUATE",
+          "STORE"
+        ],
+        "relations": [
+          "AFTER"
+        ],
+        "properties": [
+          "CHRONICLE",
+          "TEMPORAL"
+        ],
+        "db_action_dims": [
+          "accion_cognitiva",
+          "accion_evaluar",
+          "accion_persistencia_computacion"
+        ],
+        "modality": "DECLARATIVE",
+        "polarity": 1,
+        "confidence": 0.775,
+        "raw_tokens": [
+          "bitacora",
+          "cronologica",
+          "despues",
+          "evaluar",
+          "eventos",
+          "registrar"
+        ],
+        "missing": []
+      },
+      "n_hypotheses": 4,
+      "hypotheses_names": [
+        "H1_FULL(EVALUATE⊕STORE+AFTER+CHRONICLE⊕TEMPORAL)",
+        "H2_OPS(EVALUATE⊕STORE+CHRONICLE⊕TEMPORAL)",
+        "H3_PAIR(EVALUATE⊕STORE)",
+        "H4_OP_PROP(EVALUATE×CHRONICLE+TEMPORAL)"
+      ],
+      "ops_match": true,
+      "rels_match": true,
+      "props_match": true,
+      "pol_match": true
+    },
+    {
+      "id": "KNOWN_08",
+      "category": "KNOWN_COMPOSITION",
+      "query": "activar mecanismos neurales que causan plasticidad sináptica",
+      "description": "ACTIVATE ⊕ CAUSES ⊕ COGNITIVE",
+      "passed": true,
+      "structural_form": {
+        "operations": [
+          "ACTIVATE"
+        ],
+        "relations": [
+          "CAUSES"
+        ],
+        "properties": [
+          "COGNITIVE",
+          "LIFECYCLE"
+        ],
+        "db_action_dims": [
+          "accion_rutina_automatica"
+        ],
+        "modality": "DECLARATIVE",
+        "polarity": 1,
+        "confidence": 0.525,
+        "raw_tokens": [
+          "activar",
+          "causan",
+          "mecanismos",
+          "neurales",
+          "plasticidad",
+          "sinaptica"
+        ],
+        "missing": []
+      },
+      "n_hypotheses": 3,
+      "hypotheses_names": [
+        "H1_FULL(ACTIVATE+CAUSES+COGNITIVE⊕LIFECYCLE)",
+        "H2_OPS(ACTIVATE+COGNITIVE⊕LIFECYCLE)",
+        "H4_OP_PROP(ACTIVATE×COGNITIVE+LIFECYCLE)"
+      ],
+      "ops_match": true,
+      "rels_match": true,
+      "props_match": true,
+      "pol_match": true
+    },
+    {
+      "id": "HELDOUT_01",
+      "category": "HELDOUT_COMPOSITION",
+      "query": "particionar hardware estocástico después de registrar el hito cronológico",
+      "description": "SEPARATE(COMPUTATIONAL ∧ STOCHASTIC) AFTER STORE(CHRONICLE)",
+      "passed": true,
+      "structural_form": {
+        "operations": [
+          "SEPARATE",
+          "STORE"
+        ],
+        "relations": [
+          "AFTER"
+        ],
+        "properties": [
+          "CHRONICLE",
+          "COMPUTATIONAL",
+          "STOCHASTIC",
+          "TEMPORAL"
+        ],
+        "db_action_dims": [
+          "accion_persistencia_computacion"
+        ],
+        "modality": "DECLARATIVE",
+        "polarity": 1,
+        "confidence": 0.925,
+        "raw_tokens": [
+          "cronologico",
+          "despues",
+          "estocastico",
+          "hardware",
+          "hito",
+          "particionar",
+          "registrar"
+        ],
+        "missing": []
+      },
+      "n_hypotheses": 4,
+      "hypotheses_names": [
+        "H1_FULL(SEPARATE⊕STORE+AFTER+CHRONICLE⊕COMPUTATIONAL⊕STOCHASTIC⊕TEMPORAL)",
+        "H2_OPS(SEPARATE⊕STORE+CHRONICLE⊕COMPUTATIONAL⊕STOCHASTIC⊕TEMPORAL)",
+        "H3_PAIR(SEPARATE⊕STORE)",
+        "H4_OP_PROP(SEPARATE×CHRONICLE+COMPUTATIONAL)"
+      ],
+      "ops_match": true,
+      "rels_match": true,
+      "props_match": true,
+      "pol_match": true
+    },
+    {
+      "id": "HELDOUT_02",
+      "category": "HELDOUT_COMPOSITION",
+      "query": "desactivar la jerarquía dimensional antes de fusionar matrices",
+      "description": "DEACTIVATE(HIERARCHICAL ∧ DIMENSIONAL) BEFORE COMBINE",
+      "passed": true,
+      "structural_form": {
+        "operations": [
+          "CLASSIFY",
+          "COMBINE",
+          "DEACTIVATE",
+          "REMOVE"
+        ],
+        "relations": [
+          "BEFORE"
+        ],
+        "properties": [
+          "DIMENSIONAL",
+          "HIERARCHICAL",
+          "LIFECYCLE"
+        ],
+        "db_action_dims": [
+          "accion_cognitiva",
+          "accion_evaluar",
+          "accion_persistencia_computacion",
+          "accion_rutina_automatica"
+        ],
+        "modality": "REQUIRES",
+        "polarity": 1,
+        "confidence": 1.0,
+        "raw_tokens": [
+          "desactivar",
+          "dimensional",
+          "fusionar",
+          "jerarquia",
+          "matrices"
+        ],
+        "missing": []
+      },
+      "n_hypotheses": 9,
+      "hypotheses_names": [
+        "H1_FULL(CLASSIFY⊕COMBINE⊕DEACTIVATE⊕REMOVE+BEFORE+DIMENSIONAL⊕HIERARCHICAL⊕LIFECYCLE)",
+        "H2_OPS(CLASSIFY⊕COMBINE⊕DEACTIVATE⊕REMOVE+DIMENSIONAL⊕HIERARCHICAL⊕LIFECYCLE)",
+        "H3_PAIR(CLASSIFY⊕COMBINE)",
+        "H3_PAIR(CLASSIFY⊕DEACTIVATE)",
+        "H3_PAIR(CLASSIFY⊕REMOVE)",
+        "H3_PAIR(COMBINE⊕DEACTIVATE)",
+        "H3_PAIR(COMBINE⊕REMOVE)",
+        "H3_PAIR(DEACTIVATE⊕REMOVE)",
+        "H4_OP_PROP(CLASSIFY×DIMENSIONAL+HIERARCHICAL)"
+      ],
+      "ops_match": true,
+      "rels_match": true,
+      "props_match": true,
+      "pol_match": true
+    },
+    {
+      "id": "HELDOUT_03",
+      "category": "HELDOUT_COMPOSITION",
+      "query": "eliminar enlaces estocásticos para prevenir interferencia sináptica",
+      "description": "REMOVE(CONNECTIVE ∧ STOCHASTIC) BLOCKS COGNITIVE",
+      "passed": false,
+      "structural_form": {
+        "operations": [
+          "REMOVE"
+        ],
+        "relations": [
+          "PURPOSE_OF"
+        ],
+        "properties": [
+          "COGNITIVE",
+          "CONNECTIVE",
+          "LIFECYCLE",
+          "STOCHASTIC"
+        ],
+        "db_action_dims": [
+          "accion_rutina_automatica"
+        ],
+        "modality": "DECLARATIVE",
+        "polarity": 1,
+        "confidence": 0.675,
+        "raw_tokens": [
+          "eliminar",
+          "enlaces",
+          "estocasticos",
+          "interferencia",
+          "prevenir",
+          "sinaptica"
+        ],
+        "missing": []
+      },
+      "n_hypotheses": 3,
+      "hypotheses_names": [
+        "H1_FULL(REMOVE+PURPOSE_OF+COGNITIVE⊕CONNECTIVE⊕LIFECYCLE⊕STOCHASTIC)",
+        "H2_OPS(REMOVE+COGNITIVE⊕CONNECTIVE⊕LIFECYCLE⊕STOCHASTIC)",
+        "H4_OP_PROP(REMOVE×COGNITIVE+CONNECTIVE)"
+      ],
+      "ops_match": true,
+      "rels_match": false,
+      "props_match": true,
+      "pol_match": true
+    },
+    {
+      "id": "HELDOUT_04",
+      "category": "HELDOUT_COMPOSITION",
+      "query": "proyectar la bitácora temporal hacia unidades de cómputo virtual",
+      "description": "TRANSFORM(CHRONICLE ∧ TEMPORAL ∧ COMPUTATIONAL)",
+      "passed": true,
+      "structural_form": {
+        "operations": [
+          "TRANSFORM"
+        ],
+        "relations": [],
+        "properties": [
+          "CHRONICLE",
+          "COMPUTATIONAL",
+          "TEMPORAL"
+        ],
+        "db_action_dims": [
+          "accion_cognitiva"
+        ],
+        "modality": "DECLARATIVE",
+        "polarity": 1,
+        "confidence": 0.475,
+        "raw_tokens": [
+          "bitacora",
+          "computo",
+          "hacia",
+          "proyectar",
+          "temporal",
+          "unidades",
+          "virtual"
+        ],
+        "missing": [
+          "RELATION (ninguna relación detectada; composición mono-operacional)"
+        ]
+      },
+      "n_hypotheses": 3,
+      "hypotheses_names": [
+        "H1_FULL(TRANSFORM++CHRONICLE⊕COMPUTATIONAL⊕TEMPORAL)",
+        "H2_OPS(TRANSFORM+CHRONICLE⊕COMPUTATIONAL⊕TEMPORAL)",
+        "H4_OP_PROP(TRANSFORM×CHRONICLE+COMPUTATIONAL)"
+      ],
+      "ops_match": true,
+      "rels_match": true,
+      "props_match": true,
+      "pol_match": true
+    },
+    {
+      "id": "HELDOUT_05",
+      "category": "HELDOUT_COMPOSITION",
+      "query": "clasificar ponderaciones métricas junto con la activación de letargo",
+      "description": "CLASSIFY(METRIC) COORDINATES_WITH ACTIVATE(LIFECYCLE)",
+      "passed": true,
+      "structural_form": {
+        "operations": [
+          "ACTIVATE",
+          "CLASSIFY",
+          "DEACTIVATE"
+        ],
+        "relations": [
+          "COORDINATES_WITH"
+        ],
+        "properties": [
+          "LIFECYCLE",
+          "METRIC",
+          "TEMPORAL"
+        ],
+        "db_action_dims": [
+          "accion_evaluar",
+          "accion_rutina_automatica"
+        ],
+        "modality": "DECLARATIVE",
+        "polarity": 1,
+        "confidence": 1.0,
+        "raw_tokens": [
+          "activacion",
+          "clasificar",
+          "junto",
+          "letargo",
+          "metricas",
+          "ponderaciones"
+        ],
+        "missing": []
+      },
+      "n_hypotheses": 6,
+      "hypotheses_names": [
+        "H1_FULL(ACTIVATE⊕CLASSIFY⊕DEACTIVATE+COORDINATES_WITH+LIFECYCLE⊕METRIC⊕TEMPORAL)",
+        "H2_OPS(ACTIVATE⊕CLASSIFY⊕DEACTIVATE+LIFECYCLE⊕METRIC⊕TEMPORAL)",
+        "H3_PAIR(ACTIVATE⊕CLASSIFY)",
+        "H3_PAIR(ACTIVATE⊕DEACTIVATE)",
+        "H3_PAIR(CLASSIFY⊕DEACTIVATE)",
+        "H4_OP_PROP(ACTIVATE×LIFECYCLE+METRIC)"
+      ],
+      "ops_match": true,
+      "rels_match": true,
+      "props_match": true,
+      "pol_match": true
+    },
+    {
+      "id": "HELDOUT_06",
+      "category": "HELDOUT_COMPOSITION",
+      "query": "recuperar esquemas jerárquicos que requieren calibración previa",
+      "description": "RETRIEVE(HIERARCHICAL) REQUIRES (MODIFY BEFORE)",
+      "passed": true,
+      "structural_form": {
+        "operations": [
+          "CLASSIFY",
+          "MODIFY",
+          "RETRIEVE"
+        ],
+        "relations": [
+          "BEFORE",
+          "REQUIRES"
+        ],
+        "properties": [
+          "HIERARCHICAL"
+        ],
+        "db_action_dims": [
+          "accion_cognitiva",
+          "accion_evaluar"
+        ],
+        "modality": "REQUIRES",
+        "polarity": 1,
+        "confidence": 1.0,
+        "raw_tokens": [
+          "calibracion",
+          "esquemas",
+          "jerarquicos",
+          "previa",
+          "recuperar",
+          "requieren"
+        ],
+        "missing": []
+      },
+      "n_hypotheses": 6,
+      "hypotheses_names": [
+        "H1_FULL(CLASSIFY⊕MODIFY⊕RETRIEVE+BEFORE⊕REQUIRES+HIERARCHICAL)",
+        "H2_OPS(CLASSIFY⊕MODIFY⊕RETRIEVE+HIERARCHICAL)",
+        "H3_PAIR(CLASSIFY⊕MODIFY)",
+        "H3_PAIR(CLASSIFY⊕RETRIEVE)",
+        "H3_PAIR(MODIFY⊕RETRIEVE)",
+        "H4_OP_PROP(CLASSIFY×HIERARCHICAL)"
+      ],
+      "ops_match": true,
+      "rels_match": true,
+      "props_match": true,
+      "pol_match": true
+    },
+    {
+      "id": "HELDOUT_07",
+      "category": "HELDOUT_COMPOSITION",
+      "query": "construir topología cortical estocástica para persistir pesos",
+      "description": "CREATE(COGNITIVE ∧ CONNECTIVE ∧ STOCHASTIC) PURPOSE_OF PERSIST(METRIC)",
+      "passed": true,
+      "structural_form": {
+        "operations": [
+          "CREATE",
+          "PERSIST",
+          "STORE"
+        ],
+        "relations": [
+          "PURPOSE_OF"
+        ],
+        "properties": [
+          "COGNITIVE",
+          "CONNECTIVE",
+          "METRIC",
+          "STOCHASTIC"
+        ],
+        "db_action_dims": [
+          "accion_persistencia_computacion",
+          "accion_rutina_automatica"
+        ],
+        "modality": "DECLARATIVE",
+        "polarity": 1,
+        "confidence": 1.0,
+        "raw_tokens": [
+          "construir",
+          "cortical",
+          "estocastica",
+          "persistir",
+          "pesos",
+          "topologia"
+        ],
+        "missing": []
+      },
+      "n_hypotheses": 6,
+      "hypotheses_names": [
+        "H1_FULL(CREATE⊕PERSIST⊕STORE+PURPOSE_OF+COGNITIVE⊕CONNECTIVE⊕METRIC⊕STOCHASTIC)",
+        "H2_OPS(CREATE⊕PERSIST⊕STORE+COGNITIVE⊕CONNECTIVE⊕METRIC⊕STOCHASTIC)",
+        "H3_PAIR(CREATE⊕PERSIST)",
+        "H3_PAIR(CREATE⊕STORE)",
+        "H3_PAIR(PERSIST⊕STORE)",
+        "H4_OP_PROP(CREATE×COGNITIVE+CONNECTIVE)"
+      ],
+      "ops_match": true,
+      "rels_match": true,
+      "props_match": true,
+      "pol_match": true
+    },
+    {
+      "id": "HELDOUT_08",
+      "category": "HELDOUT_COMPOSITION",
+      "query": "medir la degradación de recursos antes de purgar registros caducos",
+      "description": "EVALUATE(COMPUTATIONAL) BEFORE REMOVE(LIFECYCLE)",
+      "passed": true,
+      "structural_form": {
+        "operations": [
+          "EVALUATE",
+          "REMOVE",
+          "STORE"
+        ],
+        "relations": [
+          "BEFORE"
+        ],
+        "properties": [
+          "CHRONICLE",
+          "COMPUTATIONAL",
+          "LIFECYCLE"
+        ],
+        "db_action_dims": [
+          "accion_cognitiva",
+          "accion_evaluar",
+          "accion_persistencia_computacion",
+          "accion_rutina_automatica"
+        ],
+        "modality": "REQUIRES",
+        "polarity": 1,
+        "confidence": 1.0,
+        "raw_tokens": [
+          "caducos",
+          "degradacion",
+          "medir",
+          "purgar",
+          "recursos",
+          "registros"
+        ],
+        "missing": []
+      },
+      "n_hypotheses": 6,
+      "hypotheses_names": [
+        "H1_FULL(EVALUATE⊕REMOVE⊕STORE+BEFORE+CHRONICLE⊕COMPUTATIONAL⊕LIFECYCLE)",
+        "H2_OPS(EVALUATE⊕REMOVE⊕STORE+CHRONICLE⊕COMPUTATIONAL⊕LIFECYCLE)",
+        "H3_PAIR(EVALUATE⊕REMOVE)",
+        "H3_PAIR(EVALUATE⊕STORE)",
+        "H3_PAIR(REMOVE⊕STORE)",
+        "H4_OP_PROP(EVALUATE×CHRONICLE+COMPUTATIONAL)"
+      ],
+      "ops_match": true,
+      "rels_match": true,
+      "props_match": true,
+      "pol_match": true
+    },
+    {
+      "id": "HELDOUT_09",
+      "category": "HELDOUT_COMPOSITION",
+      "query": "entrelazar memorias dimensionales con procesos computacionales",
+      "description": "LINK(DIMENSIONAL ∧ COMPUTATIONAL ∧ CONNECTIVE)",
+      "passed": false,
+      "structural_form": {
+        "operations": [
+          "LINK"
+        ],
+        "relations": [],
+        "properties": [
+          "COMPUTATIONAL",
+          "DIMENSIONAL"
+        ],
+        "db_action_dims": [
+          "accion_cognitiva"
+        ],
+        "modality": "DECLARATIVE",
+        "polarity": 1,
+        "confidence": 0.4,
+        "raw_tokens": [
+          "computacionales",
+          "dimensionales",
+          "entrelazar",
+          "memorias",
+          "procesos"
+        ],
+        "missing": [
+          "RELATION (ninguna relación detectada; composición mono-operacional)"
+        ]
+      },
+      "n_hypotheses": 3,
+      "hypotheses_names": [
+        "H1_FULL(LINK++COMPUTATIONAL⊕DIMENSIONAL)",
+        "H2_OPS(LINK+COMPUTATIONAL⊕DIMENSIONAL)",
+        "H4_OP_PROP(LINK×COMPUTATIONAL+DIMENSIONAL)"
+      ],
+      "ops_match": true,
+      "rels_match": true,
+      "props_match": false,
+      "pol_match": true
+    },
+    {
+      "id": "HELDOUT_10",
+      "category": "HELDOUT_COMPOSITION",
+      "query": "sintetizar múltiples hitos históricos en una sola representación cronológica",
+      "description": "CREATE ⊕ COMBINE ⊕ CHRONICLE ⊕ TEMPORAL",
+      "passed": false,
+      "structural_form": {
+        "operations": [
+          "CREATE"
+        ],
+        "relations": [],
+        "properties": [
+          "CHRONICLE",
+          "DIMENSIONAL",
+          "METRIC",
+          "TEMPORAL"
+        ],
+        "db_action_dims": [
+          "accion_persistencia_computacion",
+          "accion_rutina_automatica"
+        ],
+        "modality": "DECLARATIVE",
+        "polarity": 1,
+        "confidence": 0.55,
+        "raw_tokens": [
+          "cronologica",
+          "historicos",
+          "hitos",
+          "multiples",
+          "representacion",
+          "sintetizar",
+          "sola"
+        ],
+        "missing": [
+          "RELATION (ninguna relación detectada; composición mono-operacional)"
+        ]
+      },
+      "n_hypotheses": 3,
+      "hypotheses_names": [
+        "H1_FULL(CREATE++CHRONICLE⊕DIMENSIONAL⊕METRIC⊕TEMPORAL)",
+        "H2_OPS(CREATE+CHRONICLE⊕DIMENSIONAL⊕METRIC⊕TEMPORAL)",
+        "H4_OP_PROP(CREATE×CHRONICLE+DIMENSIONAL)"
+      ],
+      "ops_match": false,
+      "rels_match": true,
+      "props_match": true,
+      "pol_match": true
+    },
+    {
+      "id": "OPEN_01",
+      "category": "OPEN_COMPOSITION",
+      "query": "proceso que exige evaluar y calibrar la red sináptica antes de consolidar el cambio",
+      "description": "REQUIRES (EVALUATE ∧ MODIFY) BEFORE PERSIST",
+      "passed": true,
+      "structural_form": {
+        "operations": [
+          "EVALUATE",
+          "MODIFY",
+          "PERSIST"
+        ],
+        "relations": [
+          "BEFORE",
+          "REQUIRES"
+        ],
+        "properties": [
+          "COGNITIVE",
+          "COMPUTATIONAL",
+          "CONNECTIVE"
+        ],
+        "db_action_dims": [
+          "accion_cognitiva",
+          "accion_evaluar",
+          "accion_persistencia_computacion"
+        ],
+        "modality": "MANDATORY",
+        "polarity": 1,
+        "confidence": 1.0,
+        "raw_tokens": [
+          "calibrar",
+          "cambio",
+          "consolidar",
+          "evaluar",
+          "exige",
+          "proceso",
+          "red",
+          "sinaptica"
+        ],
+        "missing": []
+      },
+      "n_hypotheses": 6,
+      "hypotheses_names": [
+        "H1_FULL(EVALUATE⊕MODIFY⊕PERSIST+BEFORE⊕REQUIRES+COGNITIVE⊕COMPUTATIONAL⊕CONNECTIVE)",
+        "H2_OPS(EVALUATE⊕MODIFY⊕PERSIST+COGNITIVE⊕COMPUTATIONAL⊕CONNECTIVE)",
+        "H3_PAIR(EVALUATE⊕MODIFY)",
+        "H3_PAIR(EVALUATE⊕PERSIST)",
+        "H3_PAIR(MODIFY⊕PERSIST)",
+        "H4_OP_PROP(EVALUATE×COGNITIVE+COMPUTATIONAL)"
+      ],
+      "ops_match": true,
+      "rels_match": true,
+      "props_match": true,
+      "pol_match": true
+    },
+    {
+      "id": "OPEN_02",
+      "category": "OPEN_COMPOSITION",
+      "query": "organizar la taxonomía jerárquica para permitir que el módulo recupere hitos históricos",
+      "description": "CLASSIFY(HIERARCHICAL) ENABLES RETRIEVE(CHRONICLE)",
+      "passed": false,
+      "structural_form": {
+        "operations": [
+          "CLASSIFY",
+          "RETRIEVE"
+        ],
+        "relations": [
+          "PURPOSE_OF"
+        ],
+        "properties": [
+          "CHRONICLE",
+          "HIERARCHICAL"
+        ],
+        "db_action_dims": [
+          "accion_cognitiva",
+          "accion_evaluar"
+        ],
+        "modality": "DECLARATIVE",
+        "polarity": 1,
+        "confidence": 0.775,
+        "raw_tokens": [
+          "historicos",
+          "hitos",
+          "jerarquica",
+          "modulo",
+          "organizar",
+          "permitir",
+          "recupere",
+          "taxonomia"
+        ],
+        "missing": []
+      },
+      "n_hypotheses": 4,
+      "hypotheses_names": [
+        "H1_FULL(CLASSIFY⊕RETRIEVE+PURPOSE_OF+CHRONICLE⊕HIERARCHICAL)",
+        "H2_OPS(CLASSIFY⊕RETRIEVE+CHRONICLE⊕HIERARCHICAL)",
+        "H3_PAIR(CLASSIFY⊕RETRIEVE)",
+        "H4_OP_PROP(CLASSIFY×CHRONICLE+HIERARCHICAL)"
+      ],
+      "ops_match": true,
+      "rels_match": false,
+      "props_match": true,
+      "pol_match": true
+    },
+    {
+      "id": "OPEN_03",
+      "category": "OPEN_COMPOSITION",
+      "query": "segmentar núcleos de procesamiento y reajustar coeficientes tras la desactivación",
+      "description": "SEPARATE ⊕ MODIFY AFTER DEACTIVATE",
+      "passed": true,
+      "structural_form": {
+        "operations": [
+          "DEACTIVATE",
+          "MODIFY",
+          "REMOVE",
+          "SEPARATE"
+        ],
+        "relations": [
+          "AFTER"
+        ],
+        "properties": [
+          "COMPUTATIONAL",
+          "LIFECYCLE",
+          "METRIC"
+        ],
+        "db_action_dims": [
+          "accion_cognitiva",
+          "accion_evaluar",
+          "accion_persistencia_computacion",
+          "accion_rutina_automatica"
+        ],
+        "modality": "DECLARATIVE",
+        "polarity": 1,
+        "confidence": 1.0,
+        "raw_tokens": [
+          "coeficientes",
+          "desactivacion",
+          "nucleos",
+          "procesamiento",
+          "reajustar",
+          "segmentar"
+        ],
+        "missing": []
+      },
+      "n_hypotheses": 9,
+      "hypotheses_names": [
+        "H1_FULL(DEACTIVATE⊕MODIFY⊕REMOVE⊕SEPARATE+AFTER+COMPUTATIONAL⊕LIFECYCLE⊕METRIC)",
+        "H2_OPS(DEACTIVATE⊕MODIFY⊕REMOVE⊕SEPARATE+COMPUTATIONAL⊕LIFECYCLE⊕METRIC)",
+        "H3_PAIR(DEACTIVATE⊕MODIFY)",
+        "H3_PAIR(DEACTIVATE⊕REMOVE)",
+        "H3_PAIR(DEACTIVATE⊕SEPARATE)",
+        "H3_PAIR(MODIFY⊕REMOVE)",
+        "H3_PAIR(MODIFY⊕SEPARATE)",
+        "H3_PAIR(REMOVE⊕SEPARATE)",
+        "H4_OP_PROP(DEACTIVATE×COMPUTATIONAL+LIFECYCLE)"
+      ],
+      "ops_match": true,
+      "rels_match": true,
+      "props_match": true,
+      "pol_match": true
+    },
+    {
+      "id": "OPEN_04",
+      "category": "OPEN_COMPOSITION",
+      "query": "producir un mapa dimensional que previene el desbordamiento de memoria computacional",
+      "description": "CREATE ⊕ TRANSFORM BLOCKS OVERFLOW",
+      "passed": false,
+      "structural_form": {
+        "operations": [
+          "CREATE"
+        ],
+        "relations": [
+          "BLOCKS"
+        ],
+        "properties": [
+          "COMPUTATIONAL",
+          "DIMENSIONAL"
+        ],
+        "db_action_dims": [
+          "accion_persistencia_computacion",
+          "accion_rutina_automatica"
+        ],
+        "modality": "PROHIBITION",
+        "polarity": 1,
+        "confidence": 0.525,
+        "raw_tokens": [
+          "computacional",
+          "desbordamiento",
+          "dimensional",
+          "mapa",
+          "memoria",
+          "previene",
+          "producir"
+        ],
+        "missing": []
+      },
+      "n_hypotheses": 3,
+      "hypotheses_names": [
+        "H1_FULL(CREATE+BLOCKS+COMPUTATIONAL⊕DIMENSIONAL)",
+        "H2_OPS(CREATE+COMPUTATIONAL⊕DIMENSIONAL)",
+        "H4_OP_PROP(CREATE×COMPUTATIONAL+DIMENSIONAL)"
+      ],
+      "ops_match": false,
+      "rels_match": true,
+      "props_match": true,
+      "pol_match": true
+    },
+    {
+      "id": "OPEN_05",
+      "category": "OPEN_COMPOSITION",
+      "query": "conectar unidades neuronales en paralelo y registrar su trayectoria cronológica",
+      "description": "LINK ⊕ STORE COORDINATED",
+      "passed": false,
+      "structural_form": {
+        "operations": [
+          "LINK",
+          "STORE"
+        ],
+        "relations": [
+          "PURPOSE_OF"
+        ],
+        "properties": [
+          "CHRONICLE",
+          "COGNITIVE",
+          "CONNECTIVE",
+          "TEMPORAL"
+        ],
+        "db_action_dims": [
+          "accion_cognitiva",
+          "accion_persistencia_computacion"
+        ],
+        "modality": "DECLARATIVE",
+        "polarity": 1,
+        "confidence": 0.925,
+        "raw_tokens": [
+          "conectar",
+          "cronologica",
+          "neuronales",
+          "paralelo",
+          "registrar",
+          "trayectoria",
+          "unidades"
+        ],
+        "missing": []
+      },
+      "n_hypotheses": 4,
+      "hypotheses_names": [
+        "H1_FULL(LINK⊕STORE+PURPOSE_OF+CHRONICLE⊕COGNITIVE⊕CONNECTIVE⊕TEMPORAL)",
+        "H2_OPS(LINK⊕STORE+CHRONICLE⊕COGNITIVE⊕CONNECTIVE⊕TEMPORAL)",
+        "H3_PAIR(LINK⊕STORE)",
+        "H4_OP_PROP(LINK×CHRONICLE+COGNITIVE)"
+      ],
+      "ops_match": true,
+      "rels_match": false,
+      "props_match": true,
+      "pol_match": true
+    },
+    {
+      "id": "OPEN_06",
+      "category": "OPEN_COMPOSITION",
+      "query": "inspeccionar y depurar enlaces obsoletos para restaurar la topología del grafo",
+      "description": "EVALUATE ⊕ REMOVE PURPOSE_OF RESTORE TOPOLOGY",
+      "passed": false,
+      "structural_form": {
+        "operations": [
+          "REMOVE"
+        ],
+        "relations": [
+          "PURPOSE_OF"
+        ],
+        "properties": [
+          "CONNECTIVE"
+        ],
+        "db_action_dims": [
+          "accion_rutina_automatica"
+        ],
+        "modality": "DECLARATIVE",
+        "polarity": 1,
+        "confidence": 0.45,
+        "raw_tokens": [
+          "depurar",
+          "enlaces",
+          "grafo",
+          "inspeccionar",
+          "obsoletos",
+          "restaurar",
+          "topologia"
+        ],
+        "missing": []
+      },
+      "n_hypotheses": 3,
+      "hypotheses_names": [
+        "H1_FULL(REMOVE+PURPOSE_OF+CONNECTIVE)",
+        "H2_OPS(REMOVE+CONNECTIVE)",
+        "H4_OP_PROP(REMOVE×CONNECTIVE)"
+      ],
+      "ops_match": false,
+      "rels_match": true,
+      "props_match": false,
+      "pol_match": true
+    },
+    {
+      "id": "OPEN_07",
+      "category": "OPEN_COMPOSITION",
+      "query": "proyectar señales aleatorias sobre el espacio de estados y fijar los pesos",
+      "description": "TRANSFORM(STOCHASTIC) ⊕ PERSIST(METRIC)",
+      "passed": true,
+      "structural_form": {
+        "operations": [
+          "PERSIST",
+          "TRANSFORM"
+        ],
+        "relations": [],
+        "properties": [
+          "METRIC",
+          "STOCHASTIC"
+        ],
+        "db_action_dims": [
+          "accion_cognitiva",
+          "accion_persistencia_computacion"
+        ],
+        "modality": "DECLARATIVE",
+        "polarity": 1,
+        "confidence": 0.65,
+        "raw_tokens": [
+          "aleatorias",
+          "espacio",
+          "estados",
+          "fijar",
+          "pesos",
+          "proyectar",
+          "senales"
+        ],
+        "missing": [
+          "RELATION (ninguna relación detectada; composición mono-operacional)"
+        ]
+      },
+      "n_hypotheses": 4,
+      "hypotheses_names": [
+        "H1_FULL(PERSIST⊕TRANSFORM++METRIC⊕STOCHASTIC)",
+        "H2_OPS(PERSIST⊕TRANSFORM+METRIC⊕STOCHASTIC)",
+        "H3_PAIR(PERSIST⊕TRANSFORM)",
+        "H4_OP_PROP(PERSIST×METRIC+STOCHASTIC)"
+      ],
+      "ops_match": true,
+      "rels_match": true,
+      "props_match": true,
+      "pol_match": true
+    },
+    {
+      "id": "OPEN_08",
+      "category": "OPEN_COMPOSITION",
+      "query": "dividir recursos computacionales cuando se requiere suspender las tareas automáticas",
+      "description": "SEPARATE REQUIRES DEACTIVATE",
+      "passed": false,
+      "structural_form": {
+        "operations": [
+          "DEACTIVATE",
+          "SEPARATE"
+        ],
+        "relations": [
+          "REQUIRES"
+        ],
+        "properties": [
+          "COMPUTATIONAL"
+        ],
+        "db_action_dims": [
+          "accion_persistencia_computacion",
+          "accion_rutina_automatica"
+        ],
+        "modality": "MANDATORY",
+        "polarity": 1,
+        "confidence": 0.7,
+        "raw_tokens": [
+          "automaticas",
+          "computacionales",
+          "dividir",
+          "recursos",
+          "requiere",
+          "suspender",
+          "tareas"
+        ],
+        "missing": []
+      },
+      "n_hypotheses": 4,
+      "hypotheses_names": [
+        "H1_FULL(DEACTIVATE⊕SEPARATE+REQUIRES+COMPUTATIONAL)",
+        "H2_OPS(DEACTIVATE⊕SEPARATE+COMPUTATIONAL)",
+        "H3_PAIR(DEACTIVATE⊕SEPARATE)",
+        "H4_OP_PROP(DEACTIVATE×COMPUTATIONAL)"
+      ],
+      "ops_match": true,
+      "rels_match": true,
+      "props_match": false,
+      "pol_match": true
+    },
+    {
+      "id": "NEG_01",
+      "category": "STRUCTURAL_NEGATIVE",
+      "query": "no se debe modificar el estado sin previa verificación",
+      "description": "Prohibición deóntica (POLARITY=-1)",
+      "passed": true,
+      "structural_form": {
+        "operations": [
+          "EVALUATE",
+          "MODIFY"
+        ],
+        "relations": [
+          "BEFORE",
+          "REQUIRES"
+        ],
+        "properties": [],
+        "db_action_dims": [
+          "accion_cognitiva",
+          "accion_evaluar"
+        ],
+        "modality": "MANDATORY",
+        "polarity": -1,
+        "confidence": 0.75,
+        "raw_tokens": [
+          "debe",
+          "estado",
+          "modificar",
+          "previa",
+          "verificacion"
+        ],
+        "missing": [
+          "PROPERTY (ninguna propiedad de estado/dominio detectada)"
+        ]
+      },
+      "n_hypotheses": 4,
+      "hypotheses_names": [
+        "H1_FULL(EVALUATE⊕MODIFY+BEFORE⊕REQUIRES+)",
+        "H2_OPS(EVALUATE⊕MODIFY+)",
+        "H3_PAIR(EVALUATE⊕MODIFY)",
+        "H5_NEG_REL(BEFORE⊕REQUIRES)"
+      ],
+      "ops_match": true,
+      "rels_match": true,
+      "props_match": true,
+      "pol_match": true
+    },
+    {
+      "id": "NEG_02",
+      "category": "STRUCTURAL_NEGATIVE",
+      "query": "evitar la eliminación de memorias durante la vigilia",
+      "description": "Evitación explícita (POLARITY=-1)",
+      "passed": true,
+      "structural_form": {
+        "operations": [
+          "REMOVE"
+        ],
+        "relations": [
+          "BLOCKS"
+        ],
+        "properties": [
+          "COMPUTATIONAL",
+          "LIFECYCLE",
+          "TEMPORAL"
+        ],
+        "db_action_dims": [
+          "accion_rutina_automatica"
+        ],
+        "modality": "PROHIBITION",
+        "polarity": -1,
+        "confidence": 0.6,
+        "raw_tokens": [
+          "eliminacion",
+          "evitar",
+          "memorias",
+          "vigilia"
+        ],
+        "missing": []
+      },
+      "n_hypotheses": 4,
+      "hypotheses_names": [
+        "H1_FULL(REMOVE+BLOCKS+COMPUTATIONAL⊕LIFECYCLE⊕TEMPORAL)",
+        "H2_OPS(REMOVE+COMPUTATIONAL⊕LIFECYCLE⊕TEMPORAL)",
+        "H4_OP_PROP(REMOVE×COMPUTATIONAL+LIFECYCLE)",
+        "H5_NEG_REL(BLOCKS)"
+      ],
+      "ops_match": true,
+      "rels_match": true,
+      "props_match": true,
+      "pol_match": true
+    },
+    {
+      "id": "NEG_03",
+      "category": "STRUCTURAL_NEGATIVE",
+      "query": "prohibir la persistencia de datos estocásticos no validados",
+      "description": "Prohibición de persistencia (POLARITY=-1)",
+      "passed": true,
+      "structural_form": {
+        "operations": [
+          "PERSIST",
+          "STORE"
+        ],
+        "relations": [],
+        "properties": [
+          "STOCHASTIC"
+        ],
+        "db_action_dims": [
+          "accion_persistencia_computacion"
+        ],
+        "modality": "DECLARATIVE",
+        "polarity": -1,
+        "confidence": 0.575,
+        "raw_tokens": [
+          "datos",
+          "estocasticos",
+          "persistencia",
+          "prohibir",
+          "validados"
+        ],
+        "missing": [
+          "RELATION (ninguna relación detectada; composición mono-operacional)"
+        ]
+      },
+      "n_hypotheses": 4,
+      "hypotheses_names": [
+        "H1_FULL(PERSIST⊕STORE++STOCHASTIC)",
+        "H2_OPS(PERSIST⊕STORE+STOCHASTIC)",
+        "H3_PAIR(PERSIST⊕STORE)",
+        "H4_OP_PROP(PERSIST×STOCHASTIC)"
+      ],
+      "ops_match": true,
+      "rels_match": true,
+      "props_match": true,
+      "pol_match": true
+    },
+    {
+      "id": "NEG_04",
+      "category": "STRUCTURAL_NEGATIVE",
+      "query": "bloquear la creación de nuevos enlaces entre módulos desconectados",
+      "description": "Relación antagonista BLOCKS sobre CREATE⊕LINK",
+      "passed": false,
+      "structural_form": {
+        "operations": [],
+        "relations": [
+          "BLOCKS"
+        ],
+        "properties": [
+          "CONNECTIVE"
+        ],
+        "db_action_dims": [],
+        "modality": "PROHIBITION",
+        "polarity": 1,
+        "confidence": 0.0,
+        "raw_tokens": [
+          "bloquear",
+          "creacion",
+          "desconectados",
+          "enlaces",
+          "modulos",
+          "nuevos"
+        ],
+        "missing": [
+          "OPERATION (ninguna operación abstracta detectada)"
+        ]
+      },
+      "n_hypotheses": 0,
+      "hypotheses_names": [],
+      "ops_match": false,
+      "rels_match": true,
+      "props_match": true,
+      "pol_match": true
+    },
+    {
+      "id": "NEG_05",
+      "category": "STRUCTURAL_NEGATIVE",
+      "query": "palabras sueltas manzana azul cielo corriendo velozmente",
+      "description": "Ruido no proposicional -> ABSTENCIÓN REQUERIDA",
+      "passed": true,
+      "structural_form": {
+        "operations": [],
+        "relations": [],
+        "properties": [],
+        "db_action_dims": [],
+        "modality": "DECLARATIVE",
+        "polarity": 1,
+        "confidence": 0.0,
+        "raw_tokens": [
+          "azul",
+          "cielo",
+          "corriendo",
+          "manzana",
+          "palabras",
+          "sueltas",
+          "velozmente"
+        ],
+        "missing": [
+          "OPERATION (ninguna operación abstracta detectada)",
+          "RELATION (ninguna relación detectada; composición mono-operacional)",
+          "PROPERTY (ninguna propiedad de estado/dominio detectada)"
+        ]
+      },
+      "n_hypotheses": 0,
+      "hypotheses_names": [],
+      "ops_match": true,
+      "rels_match": true,
+      "props_match": true,
+      "pol_match": true
+    },
+    {
+      "id": "NEG_06",
+      "category": "STRUCTURAL_NEGATIVE",
+      "query": "sin registrar ni guardar información alguna",
+      "description": "Negación total de almacenamiento",
+      "passed": true,
+      "structural_form": {
+        "operations": [
+          "STORE"
+        ],
+        "relations": [],
+        "properties": [
+          "CHRONICLE"
+        ],
+        "db_action_dims": [
+          "accion_persistencia_computacion"
+        ],
+        "modality": "DECLARATIVE",
+        "polarity": -1,
+        "confidence": 0.325,
+        "raw_tokens": [
+          "alguna",
+          "guardar",
+          "informacion",
+          "registrar"
+        ],
+        "missing": [
+          "RELATION (ninguna relación detectada; composición mono-operacional)"
+        ]
+      },
+      "n_hypotheses": 3,
+      "hypotheses_names": [
+        "H1_FULL(STORE++CHRONICLE)",
+        "H2_OPS(STORE+CHRONICLE)",
+        "H4_OP_PROP(STORE×CHRONICLE)"
+      ],
+      "ops_match": true,
+      "rels_match": true,
+      "props_match": true,
+      "pol_match": true
+    },
+    {
+      "id": "NEG_07",
+      "category": "STRUCTURAL_NEGATIVE",
+      "query": "objeto abstracto sin acción verbo ni función clara",
+      "description": "Query no accional -> ABSTENCIÓN REQUERIDA",
+      "passed": true,
+      "structural_form": {
+        "operations": [],
+        "relations": [],
+        "properties": [],
+        "db_action_dims": [],
+        "modality": "DECLARATIVE",
+        "polarity": -1,
+        "confidence": 0.0,
+        "raw_tokens": [
+          "abstracto",
+          "accion",
+          "clara",
+          "funcion",
+          "objeto",
+          "verbo"
+        ],
+        "missing": [
+          "OPERATION (ninguna operación abstracta detectada)",
+          "RELATION (ninguna relación detectada; composición mono-operacional)",
+          "PROPERTY (ninguna propiedad de estado/dominio detectada)"
+        ]
+      },
+      "n_hypotheses": 0,
+      "hypotheses_names": [],
+      "ops_match": true,
+      "rels_match": true,
+      "props_match": true,
+      "pol_match": false
+    },
+    {
+      "id": "NEG_08",
+      "category": "STRUCTURAL_NEGATIVE",
+      "query": "impedir que se activen rutinas de letargo",
+      "description": "Inhibición de activación",
+      "passed": true,
+      "structural_form": {
+        "operations": [
+          "ACTIVATE",
+          "DEACTIVATE"
+        ],
+        "relations": [],
+        "properties": [
+          "LIFECYCLE",
+          "TEMPORAL"
+        ],
+        "db_action_dims": [
+          "accion_rutina_automatica"
+        ],
+        "modality": "DECLARATIVE",
+        "polarity": -1,
+        "confidence": 0.65,
+        "raw_tokens": [
+          "activen",
+          "impedir",
+          "letargo",
+          "rutinas"
+        ],
+        "missing": [
+          "RELATION (ninguna relación detectada; composición mono-operacional)"
+        ]
+      },
+      "n_hypotheses": 4,
+      "hypotheses_names": [
+        "H1_FULL(ACTIVATE⊕DEACTIVATE++LIFECYCLE⊕TEMPORAL)",
+        "H2_OPS(ACTIVATE⊕DEACTIVATE+LIFECYCLE⊕TEMPORAL)",
+        "H3_PAIR(ACTIVATE⊕DEACTIVATE)",
+        "H4_OP_PROP(ACTIVATE×LIFECYCLE+TEMPORAL)"
+      ],
+      "ops_match": true,
+      "rels_match": true,
+      "props_match": true,
+      "pol_match": true
+    }
+  ]
+}
