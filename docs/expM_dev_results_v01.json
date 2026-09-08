@@ -1,0 +1,420 @@
+{
+  "timestamp": "2026-09-08T12:15:47Z",
+  "experiment": "EXP-M Structural Generator v0.1 (DEV Only)",
+  "hashes": {
+    "db_snapshot_sha256": "676827f6b4abc3acaee10b14e273c3c50cae5b2c180593dedcd58048265a2800",
+    "labels_sha256": "325ead99c5a8eea63e8e92f10dae85e7f6ef7f858f18dd8e735b011bea56aa2f",
+    "script_sha256": "b014d6a7064c217f6fdd092bb25d474bedf12ef07717ec09565b4209ca4dd83e"
+  },
+  "k_primary": 10,
+  "k_curve_results": {
+    "CE@1": {
+      "full": "0/8 (0.0%)",
+      "no_action": "0/8 (0.0%)",
+      "no_domain": "0/8 (0.0%)"
+    },
+    "CE@5": {
+      "full": "0/8 (0.0%)",
+      "no_action": "0/8 (0.0%)",
+      "no_domain": "0/8 (0.0%)"
+    },
+    "CE@10": {
+      "full": "0/8 (0.0%)",
+      "no_action": "0/8 (0.0%)",
+      "no_domain": "0/8 (0.0%)"
+    },
+    "CE@20": {
+      "full": "0/8 (0.0%)",
+      "no_action": "0/8 (0.0%)",
+      "no_domain": "0/8 (0.0%)"
+    }
+  },
+  "case_details": [
+    {
+      "case_id": "OOF_POS_11",
+      "query": "particionar capacidad de computo en doce nucleos virtuales con tope en gigas",
+      "gold": "docker_infrastructure_rog",
+      "gold_island": 2,
+      "structure_extracted": {
+        "query_tokens": [
+          "tope",
+          "capacidad",
+          "nucleos",
+          "gigas",
+          "virtuales",
+          "particionar",
+          "doce",
+          "computo"
+        ],
+        "operadores_accion": [
+          [
+            "particionar",
+            "accion_persistencia_computacion"
+          ]
+        ],
+        "roles_detectados": [
+          "hardware",
+          "asignacion_recursos",
+          "segmentacion"
+        ],
+        "dominios_inferidos": [
+          "dominio_tecnico"
+        ],
+        "entidades_inferidas": [
+          "identidad_fisica_hardware",
+          "identidad_digital"
+        ]
+      },
+      "gold_in_pool_full": false,
+      "gold_rank_full": null,
+      "gold_score_full": 0.0,
+      "gold_trace_full": [],
+      "rank_no_action": null,
+      "rank_no_domain": null,
+      "causal_action_loss": false,
+      "causal_domain_loss": false,
+      "latency_ms": 39.81
+    },
+    {
+      "case_id": "OOF_POS_19",
+      "query": "calibrar coeficientes multiplicativos para combinar valores de relevancia heterogeneos",
+      "gold": "scoring_pesos_bm25",
+      "gold_island": 60,
+      "structure_extracted": {
+        "query_tokens": [
+          "combinar",
+          "calibrar",
+          "coeficientes",
+          "valores",
+          "heterogeneos",
+          "relevancia",
+          "multiplicativos"
+        ],
+        "operadores_accion": [
+          [
+            "combinar",
+            "accion_evaluar"
+          ],
+          [
+            "calibrar",
+            "accion_evaluar"
+          ]
+        ],
+        "roles_detectados": [
+          "ponderacion",
+          "fusion",
+          "relevancia",
+          "pesos",
+          "multiplicacion",
+          "ajuste_parametros"
+        ],
+        "dominios_inferidos": [
+          "dominio_tecnico"
+        ],
+        "entidades_inferidas": [
+          "identidad_concepto"
+        ]
+      },
+      "gold_in_pool_full": false,
+      "gold_rank_full": null,
+      "gold_score_full": 0.0,
+      "gold_trace_full": [],
+      "rank_no_action": null,
+      "rank_no_domain": null,
+      "causal_action_loss": false,
+      "causal_domain_loss": false,
+      "latency_ms": 29.06
+    },
+    {
+      "case_id": "OOF_POS_21",
+      "query": "entrelazamiento hiperdimensional binario proyectado a traves de pasarela situacional",
+      "gold": "coche_puente_condicional",
+      "gold_island": 76,
+      "structure_extracted": {
+        "query_tokens": [
+          "binario",
+          "traves",
+          "proyectado",
+          "entrelazamiento",
+          "hiperdimensional",
+          "situacional",
+          "pasarela"
+        ],
+        "operadores_accion": [
+          [
+            "proyectar",
+            "accion_cognitiva"
+          ],
+          [
+            "entrelazar",
+            "accion_cognitiva"
+          ]
+        ],
+        "roles_detectados": [
+          "espacio_vectorial",
+          "vinculo",
+          "transformacion",
+          "hipervector",
+          "mapeo",
+          "asociacion"
+        ],
+        "dominios_inferidos": [
+          "dominio_tecnico"
+        ],
+        "entidades_inferidas": [
+          "identidad_concepto",
+          "identidad_artificial",
+          "identidad_digital"
+        ]
+      },
+      "gold_in_pool_full": false,
+      "gold_rank_full": null,
+      "gold_score_full": 0.0,
+      "gold_trace_full": [],
+      "rank_no_action": null,
+      "rank_no_domain": null,
+      "causal_action_loss": false,
+      "causal_domain_loss": false,
+      "latency_ms": 32.34
+    },
+    {
+      "case_id": "OOF_POS_29",
+      "query": "generar conexiones estocasticas para consolidar grupos fuertemente entrelazados",
+      "gold": "desde_athena_biorag",
+      "gold_island": 10,
+      "structure_extracted": {
+        "query_tokens": [
+          "conexiones",
+          "generar",
+          "fuertemente",
+          "grupos",
+          "estocasticas",
+          "consolidar",
+          "entrelazados"
+        ],
+        "operadores_accion": [
+          [
+            "generar",
+            "accion_rutina_automatica"
+          ],
+          [
+            "consolidar",
+            "accion_persistencia_computacion"
+          ],
+          [
+            "entrelazar",
+            "accion_cognitiva"
+          ]
+        ],
+        "roles_detectados": [
+          "creacion",
+          "sintesis",
+          "fijacion",
+          "vinculo",
+          "agrupacion",
+          "hipervector",
+          "topologia",
+          "proceso_dinamico",
+          "asociacion"
+        ],
+        "dominios_inferidos": [
+          "dominio_tecnico"
+        ],
+        "entidades_inferidas": [
+          "identidad_organizacional",
+          "identidad_concepto"
+        ]
+      },
+      "gold_in_pool_full": false,
+      "gold_rank_full": null,
+      "gold_score_full": 0.0,
+      "gold_trace_full": [],
+      "rank_no_action": null,
+      "rank_no_domain": null,
+      "causal_action_loss": false,
+      "causal_domain_loss": false,
+      "latency_ms": 34.41
+    },
+    {
+      "case_id": "OOF_POS_30",
+      "query": "transicion de vigilia a letargo con eliminacion de elementos caducos",
+      "gold": "activos_dormidos_hermana",
+      "gold_island": 6,
+      "structure_extracted": {
+        "query_tokens": [
+          "elementos",
+          "transicion",
+          "eliminacion",
+          "caducos",
+          "letargo",
+          "vigilia"
+        ],
+        "operadores_accion": [
+          [
+            "transicionar",
+            "accion_rutina_automatica"
+          ],
+          [
+            "eliminar",
+            "accion_rutina_automatica"
+          ]
+        ],
+        "roles_detectados": [
+          "cambio_estado",
+          "poda",
+          "limpieza",
+          "depuracion",
+          "letargo",
+          "ciclo_vigilia_sueño"
+        ],
+        "dominios_inferidos": [
+          "dominio_profesional",
+          "dominio_espiritual"
+        ],
+        "entidades_inferidas": [
+          "identidad_concepto",
+          "identidad_artificial",
+          "identidad_individual"
+        ]
+      },
+      "gold_in_pool_full": false,
+      "gold_rank_full": null,
+      "gold_score_full": 0.0,
+      "gold_trace_full": [],
+      "rank_no_action": null,
+      "rank_no_domain": null,
+      "causal_action_loss": false,
+      "causal_domain_loss": false,
+      "latency_ms": 38.08
+    },
+    {
+      "case_id": "OOF_POS_40",
+      "query": "procedimiento de clasificacion dimensional sobre tejido cortical",
+      "gold": "clasificacion_dimensional_completa_corteza_20260702",
+      "gold_island": 54,
+      "structure_extracted": {
+        "query_tokens": [
+          "clasificacion",
+          "cortical",
+          "tejido",
+          "dimensional",
+          "procedimiento"
+        ],
+        "operadores_accion": [
+          [
+            "clasificar",
+            "accion_evaluar"
+          ]
+        ],
+        "roles_detectados": [
+          "dimensiones",
+          "taxonomia",
+          "categorizacion"
+        ],
+        "dominios_inferidos": [
+          "dominio_tecnico"
+        ],
+        "entidades_inferidas": [
+          "identidad_natural",
+          "identidad_artificial"
+        ]
+      },
+      "gold_in_pool_full": false,
+      "gold_rank_full": null,
+      "gold_score_full": 0.0,
+      "gold_trace_full": [],
+      "rank_no_action": null,
+      "rank_no_domain": null,
+      "causal_action_loss": false,
+      "causal_domain_loss": false,
+      "latency_ms": 38.87
+    },
+    {
+      "case_id": "OOF_POS_48",
+      "query": "malla neuronal con topologia de enlaces sinapticos transversales",
+      "gold": "cuaternidad-logica-oec",
+      "gold_island": 2,
+      "structure_extracted": {
+        "query_tokens": [
+          "neuronal",
+          "enlaces",
+          "malla",
+          "sinapticos",
+          "topologia",
+          "transversales"
+        ],
+        "operadores_accion": [
+          [
+            "transicionar",
+            "accion_rutina_automatica"
+          ]
+        ],
+        "roles_detectados": [
+          "letargo",
+          "ciclo_vigilia_sueño",
+          "cambio_estado"
+        ],
+        "dominios_inferidos": [
+          "dominio_profesional",
+          "dominio_tecnico"
+        ],
+        "entidades_inferidas": [
+          "identidad_natural",
+          "identidad_artificial"
+        ]
+      },
+      "gold_in_pool_full": false,
+      "gold_rank_full": null,
+      "gold_score_full": 0.0,
+      "gold_trace_full": [],
+      "rank_no_action": null,
+      "rank_no_domain": null,
+      "causal_action_loss": false,
+      "causal_domain_loss": false,
+      "latency_ms": 32.71
+    },
+    {
+      "case_id": "OOF_POS_49",
+      "query": "registro cronologico de hitos alcanzados por el agente",
+      "gold": "trayectoria_completa_cronologica",
+      "gold_island": 10,
+      "structure_extracted": {
+        "query_tokens": [
+          "alcanzados",
+          "registro",
+          "hitos",
+          "cronologico",
+          "agente"
+        ],
+        "operadores_accion": [
+          [
+            "registrar",
+            "accion_persistencia_computacion"
+          ]
+        ],
+        "roles_detectados": [
+          "historial",
+          "hitos_temporales",
+          "cronologia"
+        ],
+        "dominios_inferidos": [
+          "dominio_profesional"
+        ],
+        "entidades_inferidas": [
+          "identidad_natural",
+          "identidad_individual",
+          "identidad_evento"
+        ]
+      },
+      "gold_in_pool_full": false,
+      "gold_rank_full": null,
+      "gold_score_full": 0.0,
+      "gold_trace_full": [],
+      "rank_no_action": null,
+      "rank_no_domain": null,
+      "causal_action_loss": false,
+      "causal_domain_loss": false,
+      "latency_ms": 27.3
+    }
+  ]
+}
