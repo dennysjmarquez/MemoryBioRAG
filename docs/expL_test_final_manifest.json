@@ -1,0 +1,20 @@
+{
+  "manifest_name": "EXP-L Test Final Frozen Cryptographic Manifest",
+  "created_at": "2026-09-08T03:53:15.510305+00:00",
+  "git_commit": "999d3efb84d6ac9c24756b888f6e0f1b83739e3f",
+  "artifacts_sha256": {
+    "snapshots/qa_escape_qcr_20260811.db": "676827f6b4abc3acaee10b14e273c3c50cae5b2c180593dedcd58048265a2800",
+    "scripts/experimentos/expA_labels.json": "325ead99c5a8eea63e8e92f10dae85e7f6ef7f858f18dd8e735b011bea56aa2f",
+    "docs/final_test_dataset_proposed.json": "16855bd3fcde703bfdf9a258fb11352383c4f5f530cf3d929982228fdb2e0f6c",
+    "scripts/experimentos/expL_test_final.py": "9251a892de7e463aac3e32583af9406dc32382d772acda1589bd7e14301851f5"
+  },
+  "models_evaluated": [
+    "M0_PPMI_solo",
+    "M1_AC_PPMI_13D",
+    "M2_AD_PPMI_HDC",
+    "M3_ACD_ponderado",
+    "M4_union_truncada_Top6"
+  ],
+  "total_test_cases": 55,
+  "status": "FROZEN_AND_EXECUTED"
+}
