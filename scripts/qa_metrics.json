@@ -1,7 +1,7 @@
 {
-  "version": "v30.2",
-  "generado_en": "2026-09-09T09:24:09",
-  "elapsed_seconds": 1117.02,
+  "version": "v31.0",
+  "generado_en": "2026-09-09T15:12:59",
+  "elapsed_seconds": 1261.46,
   "casos_file": "casos_qa_baseline_v1.jsonl",
   "casos_total": 921,
   "db_src": "/mnt/recursos_compartidos_y_otros/MemoryBioRAG/MemoryBioRAG_Data/memory_biorag_qa_run.db",
@@ -9,7 +9,7 @@
     "queries": 875,
     "recall_at_5": 97.49,
     "recall_at_1": 89.6,
-    "mrr": 0.9267,
+    "mrr": 0.9264,
     "fallos": 22,
     "negativos_total": 40,
     "negativos_fp": 0,
@@ -19,8 +19,8 @@
     "etiquetas_obsoletas_resueltas": 3,
     "etiquetas_irreparables": 0,
     "queries_ambiguas": 3,
-    "nodos_dormidos_iniciales": 87,
-    "nodos_restaurados_entre_casos": 136,
+    "nodos_dormidos_iniciales": 74,
+    "nodos_restaurados_entre_casos": 115,
     "orden_no_monotonico": 0
   },
   "categorias": {
@@ -63,14 +63,14 @@
       "total": 55,
       "recall_at_5": 80.0,
       "recall_at_1": 41.82,
-      "mrr": 0.5497,
+      "mrr": 0.5482,
       "fallos": 11
     },
     "typo": {
       "total": 65,
       "recall_at_5": 98.46,
       "recall_at_1": 83.08,
-      "mrr": 0.8962,
+      "mrr": 0.8936,
       "fallos": 1
     },
     "variante_gramatical": {

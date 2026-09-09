@@ -3882,6 +3882,18 @@ class SQLiteMemoryBioRAG:
         Atenúa recursivamente los scores de los vecinos encontrados.
         Deduplica nodos de forma estricta.
 
+        Freno de seguridad estricto y delimitación de profundidad:
+          Como le pusimos un freno de seguridad estricto para que la búsqueda nunca se
+          congele ni se ponga lenta (fíjate que la expansión toma apenas ~0.019s en producción),
+          el algoritmo se detiene honestamente si a 2 saltos no lo encuentra, en vez de
+          quedarse buscando en bucle o causando explosión combinatoria.
+
+        Hoja de ruta / Futuras mejoras algorítmicas:
+          Esto queda documentado para que más adelante se pueda diseñar e implementar un
+          algoritmo que recorra distancias mayores o explore todo el grafo de forma
+          eficiente sin congelar el sistema (por ejemplo: Random Walk with Restart / Personalized
+          PageRank, BFS bidireccional con poda estocástica, o A* heurístico guiado por dimensiones).
+
         Ordenamiento level-first (EXP-Q-R3, 2026-09-09):
           Ordena los contextos por (nivel_descubierto ASC, score DESC) en vez de
           solo score DESC. Principio: un nodo más cercano en el grafo siempre

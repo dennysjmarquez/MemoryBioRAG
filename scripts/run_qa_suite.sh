@@ -112,21 +112,25 @@ fi
 
 if [ "$RUN_UNIT" = true ]; then
     echo ""
-    echo "─── [1/4] TESTS UNITARIOS (Pytest) ─────────────────────────────────────────────"
+    echo "─── [1/5] TESTS UNITARIOS (Pytest) ─────────────────────────────────────────────"
     python3 -m pytest "$PARENT_DIR/tests/" -v
 
     echo ""
-    echo "─── [2/4] INVARIANTES DE SCORING HÍBRIDO (Monotonía y Preservación) ────────────"
+    echo "─── [2/5] INVARIANTES DE SCORING HÍBRIDO (Monotonía y Preservación) ────────────"
     python3 "$PARENT_DIR/scripts/test_regresion_scoring.py"
 
     echo ""
-    echo "─── [3/4] SUITE CONCEPT HUB (Búsqueda Semántica Pura sin Overlap Léxico) ───────"
+    echo "─── [3/5] SUITE CONCEPT HUB (Búsqueda Semántica Pura sin Overlap Léxico) ───────"
     python3 "$PARENT_DIR/scripts/test_concept_hub.py"
+
+    echo ""
+    echo "─── [4/5] SUITE ABISMO LÉXICO (EXP-Q Rescate por Grafo Sináptico) ──────────────"
+    python3 "$PARENT_DIR/scripts/test_abismo_lexico.py"
 fi
 
 if [ "$RUN_QA_921" = true ]; then
     echo ""
-    echo "─── [4/4] EVALUACIÓN GLOBAL QA (921 Casos de Regresión) ────────────────────────"
+    echo "─── [5/5] EVALUACIÓN GLOBAL QA (921 Casos de Regresión Canónica) ───────────────"
     python3 "$PARENT_DIR/scripts/evaluar_qa.py" "$@"
 fi
 

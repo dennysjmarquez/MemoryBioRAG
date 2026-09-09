@@ -29,6 +29,7 @@
 | **DMN reflection (La Hormiguita)** | `python3 sleep_cycle.py` |
 | **Install/verify** | `python3 install.py` |
 | **Run QA suite wrapper** | `./scripts/run_qa_suite.sh` (loads `.env.local`, runs eval) |
+| **Lexical Abyss (EXP-Q)** | `BIORAG_PATH=snapshots/qa_escape_qcr_20260811.db python3 scripts/test_abismo_lexico.py` |
 | **Recalibrate FP guarantee (manual)** | MCP tool `calibrar` (alpha, n_negativos, forzar) — or `cerebro.calibrar_y_persistir()` |
 
 **Critical**: Always use `BIORAG_PATH` pointing to a **snapshot** for reproducible eval. The live DB (`MemoryBioRAG_Data/memory_biorag.db`) is mutated by eval (temp copy) and daemons.
@@ -95,6 +96,8 @@ Copy `.env.example` → `.env.local` and uncomment. Key vars:
 | `BIORAG_QA_RESOLVER_ETIQUETAS` | Resolve stale gold labels against the DB under evaluation | `1` |
 | `BIORAG_QA_ETIQUETA_DIFUSA` | Min similarity ratio for fuzzy gold-label resolution | `0.94` |
 | `BIORAG_QA_ETIQUETA_MARGEN` | Min margin over the runner-up candidate before fuzzy-resolving | `0.02` |
+| `BIORAG_MAX_VECINOS_POR_NODO` | Max neighbors per node in each BFS step (Lexical Abyss rescue) | `6` |
+| `BIORAG_MAX_CONTEXTOS` | Base budget for context expansion (× depth) | `15` |
 
 **.env.local is gitignored**. Never commit secrets. `.env.example` documents all options.
 
@@ -169,6 +172,7 @@ Primary tools agents use:
 | `scripts/casos_qa_baseline_v1.jsonl` | 921 frozen test cases |
 | `snapshots/qa_escape_qcr_20260811.db` | Frozen snapshot for reproducible eval |
 | `scripts/run_qa_suite.sh` | Wrapper (loads `.env.local`, runs eval) |
+| `scripts/test_abismo_lexico.py` | Lexical Abyss (EXP-Q) evaluation suite (3 cases) |
 | `.env.local` | Local overrides (gitignored) |
 | `requirements.txt` | `numpy`, `pytest`, `fastapi`, `uvicorn` |
 
@@ -176,7 +180,7 @@ Primary tools agents use:
 
 ## Version / Release
 
-- `VERSION` file: `v30.1`
+- `VERSION` file: `v31.0`
 - `CHANGELOG.md` — detailed history with metrics
 - Version bump: update `VERSION`, `CHANGELOG.md`, tag commit
 
