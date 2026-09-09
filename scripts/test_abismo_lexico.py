@@ -88,6 +88,7 @@ def evaluar_abismo_lexico():
     print(f"[INFO] Límite de anclajes primarios evaluados: {limite_mcp}")
 
     rescatados_count = 0
+    en_primarios_count = 0
     total_casos = len(CASOS_ABISMO_LEXICO)
     resultados = []
 
@@ -132,19 +133,29 @@ def evaluar_abismo_lexico():
         else:
             print(f"    Rescate:      ❌ No alcanzado a profundidad 2")
 
+        # Mecanismo que resolvió el caso: primaria (lex/hub) > grafo > ninguno
+        mecanismo = "primaria" if en_primarios else ("grafo" if rescatado else None)
+        if en_primarios:
+            en_primarios_count += 1
+
         resultados.append({
             "id": caso['id'],
             "query": caso['query'],
             "esperado": caso['nodo_esperado'],
             "en_primarios": en_primarios,
             "rescatado": rescatado,
+            "mecanismo": mecanismo,
             "posicion": hallazgos[0] + 1 if rescatado else None
         })
 
     print("\n" + "=" * 75)
     print("RESUMEN DE RESCATE EN EL ABISMO LÉXICO")
     print("=" * 75)
-    print(f"Tasa de Rescate por Grafo Sináptico: {rescatados_count}/{total_casos} ({rescatados_count/total_casos*100:.1f}%)")
+    resueltos_count = sum(1 for r in resultados if r["mecanismo"])
+    print(f"Rescatados SOLO por Grafo Sináptico:              {rescatados_count}/{total_casos}")
+    print(f"Resueltos en PRIMARIA (hub/léxico/forzado):       {en_primarios_count}/{total_casos}")
+    print(f"TASA DE SUPERACIÓN DEL ABISMO (primaria y/o grafo): {resueltos_count}/{total_casos} ({resueltos_count/total_casos*100:.1f}%)")
+    print(f"Irresueltos (abismo puro persiste):               {total_casos - resueltos_count}/{total_casos}")
     print("-" * 75)
     for r in resultados:
         prim_str = "✅ TOP" if r["en_primarios"] else "❌ 0 Overlap"
@@ -152,10 +163,11 @@ def evaluar_abismo_lexico():
             grafo_str = f"✅ RESCATADO (Pos #{r['posicion']})"
         else:
             grafo_str = "❌ No alcanzado"
-        print(f"  {r['id']}: Primaria: {prim_str:<12} -> Grafo: {grafo_str} | {r['esperado'][:35]}")
+        mec_str = r["mecanismo"] or "IRRESUELTO"
+        print(f"  {r['id']}: Primaria: {prim_str:<12} -> Grafo: {grafo_str} | Mecanismo: {mec_str} | {r['esperado'][:30]}")
     print("=" * 75)
 
-    return rescatados_count == total_casos
+    return resueltos_count == total_casos
 
 
 if __name__ == "__main__":

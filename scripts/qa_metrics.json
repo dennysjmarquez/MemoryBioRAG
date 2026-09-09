@@ -1,15 +1,15 @@
 {
   "version": "v31.0",
-  "generado_en": "2026-09-09T15:12:59",
-  "elapsed_seconds": 1261.46,
+  "generado_en": "2026-09-09T15:57:28",
+  "elapsed_seconds": 1035.83,
   "casos_file": "casos_qa_baseline_v1.jsonl",
   "casos_total": 921,
   "db_src": "/mnt/recursos_compartidos_y_otros/MemoryBioRAG/MemoryBioRAG_Data/memory_biorag_qa_run.db",
   "global": {
     "queries": 875,
     "recall_at_5": 97.49,
-    "recall_at_1": 89.6,
-    "mrr": 0.9264,
+    "recall_at_1": 89.49,
+    "mrr": 0.9261,
     "fallos": 22,
     "negativos_total": 40,
     "negativos_fp": 0,
@@ -55,8 +55,8 @@
     "pregunta_natural": {
       "total": 65,
       "recall_at_5": 100.0,
-      "recall_at_1": 90.77,
-      "mrr": 0.9397,
+      "recall_at_1": 89.23,
+      "mrr": 0.9321,
       "fallos": 0
     },
     "sinonimo": {
@@ -70,7 +70,7 @@
       "total": 65,
       "recall_at_5": 98.46,
       "recall_at_1": 83.08,
-      "mrr": 0.8936,
+      "mrr": 0.8962,
       "fallos": 1
     },
     "variante_gramatical": {
