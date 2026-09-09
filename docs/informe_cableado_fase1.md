@@ -34,8 +34,7 @@
 - `[desde_agente-oec]_jerarquía_de_restricciones_del_agente_en_opencode` $\to$ `naturaleza_sistema_oec_cerebro_memoria`
 
 ### Dictamen de Fuente Canónica:
-
-La tabla `sinapsis` contiene pesos, tipología, metadatos y dirección. Se confirma como la **única fuente canónica** recomendada para el grafo. El campo `largo_plazo.asociaciones` es un residuo histórico no tipado.
+La tabla `sinapsis` contiene pesos, tipología, metadatos y dirección. Queda **propuesta como la fuente canónica estructurada** para el grafo en la arquitectura futura, mientras que el campo `largo_plazo.asociaciones` queda clasificado como una representación histórica plana pendiente de deprecación y conciliación.
 
 ## 2. Auditoría de Interfaces (MCP / CLI / Dashboard)
 
