@@ -1,951 +1,202 @@
 {
-  "timestamp": "2026-09-09T01:33:42Z",
-  "experiment": "EXP-P / FASE 2.2: Abstract Episodic Transfer",
+  "timestamp": "2026-09-09T01:38:06Z",
+  "experiment": "EXP-P-R1: Modular Abstract Episodic Transfer",
   "hashes": {
     "db_snapshot": "676827f6b4abc3acaee10b14e273c3c50cae5b2c180593dedcd58048265a2800"
   },
-  "ablation_results": {
-    "OP_ONLY": {
-      "code": "A",
-      "description": "Operador solamente (Baseline Fase 2.1)",
-      "gen_rescues": 1,
-      "rerank_rescues": 2,
-      "true_zero_cue_transfers": 0,
-      "negative_fps": 0,
-      "R@1": 3,
-      "R@5": 3,
-      "R@10": 3,
-      "R@20": 3,
-      "cases": [
-        {
-          "case_id": "CASE_01",
-          "gold": "scoring_pesos_bm25",
-          "sim_H": 0.0,
-          "stem_overlap": [],
-          "operator_overlap": [],
-          "ep_activated": false,
-          "gold_in_m0": true,
-          "gold_added_by_episode": false,
-          "episode_was_necessary": false,
-          "rank_m0": 64,
-          "rank_m2_nobonus": 64,
-          "rank_m2_bonus": 64,
-          "candidate_provenance": [
-            "BASE_FTS",
-            "C1"
-          ],
-          "transfer_type": "NOT_TRANSFERRED",
-          "verdict": "NO_EPISODE_ACTIVATION"
-        },
-        {
-          "case_id": "CASE_02",
-          "gold": "desde_athena_biorag",
-          "sim_H": 1.0,
-          "stem_overlap": [],
-          "operator_overlap": [
-            "LINK"
-          ],
-          "ep_activated": true,
-          "gold_in_m0": true,
-          "gold_added_by_episode": false,
-          "episode_was_necessary": false,
-          "rank_m0": 68,
-          "rank_m2_nobonus": 68,
-          "rank_m2_bonus": 1,
-          "candidate_provenance": [
-            "BASE_FTS",
-            "C1"
-          ],
-          "transfer_type": "LEXICAL_ZERO_STRUCTURAL_CUE",
-          "verdict": "EPISODE_RERANK_ONLY"
-        },
-        {
-          "case_id": "CASE_03",
-          "gold": "docker_infrastructure_rog",
-          "sim_H": 1.0,
-          "stem_overlap": [],
-          "operator_overlap": [
-            "SEPARATE"
-          ],
-          "ep_activated": true,
-          "gold_in_m0": false,
-          "gold_added_by_episode": true,
-          "episode_was_necessary": true,
-          "rank_m0": null,
-          "rank_m2_nobonus": 4,
-          "rank_m2_bonus": 1,
-          "candidate_provenance": [
-            "EPISODIC"
-          ],
-          "transfer_type": "LEXICAL_ZERO_STRUCTURAL_CUE",
-          "verdict": "EPISODE_GENERATED_CANDIDATE"
-        },
-        {
-          "case_id": "CASE_04",
-          "gold": "coche_puente_condicional",
-          "sim_H": 0.0,
-          "stem_overlap": [],
-          "operator_overlap": [],
-          "ep_activated": false,
-          "gold_in_m0": true,
-          "gold_added_by_episode": false,
-          "episode_was_necessary": false,
-          "rank_m0": 24,
-          "rank_m2_nobonus": 24,
-          "rank_m2_bonus": 24,
-          "candidate_provenance": [
-            "BASE_FTS",
-            "C1"
-          ],
-          "transfer_type": "NOT_TRANSFERRED",
-          "verdict": "NO_EPISODE_ACTIVATION"
-        },
-        {
-          "case_id": "CASE_05",
-          "gold": "activos_dormidos_hermana",
-          "sim_H": 1.0,
-          "stem_overlap": [],
-          "operator_overlap": [
-            "MODIFY"
-          ],
-          "ep_activated": true,
-          "gold_in_m0": true,
-          "gold_added_by_episode": false,
-          "episode_was_necessary": false,
-          "rank_m0": 33,
-          "rank_m2_nobonus": 33,
-          "rank_m2_bonus": 1,
-          "candidate_provenance": [
-            "BASE_FTS",
-            "C1"
-          ],
-          "transfer_type": "LEXICAL_ZERO_STRUCTURAL_CUE",
-          "verdict": "EPISODE_RERANK_ONLY"
-        }
-      ]
-    },
-    "DIM_13D_ONLY": {
-      "code": "B",
-      "description": "13-D dimensiones semánticas solamente",
-      "gen_rescues": 0,
-      "rerank_rescues": 0,
-      "true_zero_cue_transfers": 0,
-      "negative_fps": 0,
-      "R@1": 0,
-      "R@5": 0,
-      "R@10": 0,
-      "R@20": 0,
-      "cases": [
-        {
-          "case_id": "CASE_01",
-          "gold": "scoring_pesos_bm25",
-          "sim_H": 0.0,
-          "stem_overlap": [],
-          "operator_overlap": [],
-          "ep_activated": false,
-          "gold_in_m0": true,
-          "gold_added_by_episode": false,
-          "episode_was_necessary": false,
-          "rank_m0": 64,
-          "rank_m2_nobonus": 64,
-          "rank_m2_bonus": 64,
-          "candidate_provenance": [
-            "BASE_FTS",
-            "C1"
-          ],
-          "transfer_type": "NOT_TRANSFERRED",
-          "verdict": "NO_EPISODE_ACTIVATION"
-        },
-        {
-          "case_id": "CASE_02",
-          "gold": "desde_athena_biorag",
-          "sim_H": 0.0,
-          "stem_overlap": [],
-          "operator_overlap": [
-            "LINK"
-          ],
-          "ep_activated": false,
-          "gold_in_m0": true,
-          "gold_added_by_episode": false,
-          "episode_was_necessary": false,
-          "rank_m0": 68,
-          "rank_m2_nobonus": 68,
-          "rank_m2_bonus": 68,
-          "candidate_provenance": [
-            "BASE_FTS",
-            "C1"
-          ],
-          "transfer_type": "NOT_TRANSFERRED",
-          "verdict": "NO_EPISODE_ACTIVATION"
-        },
-        {
-          "case_id": "CASE_03",
-          "gold": "docker_infrastructure_rog",
-          "sim_H": 0.0,
-          "stem_overlap": [],
-          "operator_overlap": [
-            "SEPARATE"
-          ],
-          "ep_activated": false,
-          "gold_in_m0": false,
-          "gold_added_by_episode": false,
-          "episode_was_necessary": false,
-          "rank_m0": null,
-          "rank_m2_nobonus": null,
-          "rank_m2_bonus": null,
-          "candidate_provenance": [],
-          "transfer_type": "NOT_TRANSFERRED",
-          "verdict": "NO_EPISODE_ACTIVATION"
-        },
-        {
-          "case_id": "CASE_04",
-          "gold": "coche_puente_condicional",
-          "sim_H": 0.0,
-          "stem_overlap": [],
-          "operator_overlap": [],
-          "ep_activated": false,
-          "gold_in_m0": true,
-          "gold_added_by_episode": false,
-          "episode_was_necessary": false,
-          "rank_m0": 24,
-          "rank_m2_nobonus": 24,
-          "rank_m2_bonus": 24,
-          "candidate_provenance": [
-            "BASE_FTS",
-            "C1"
-          ],
-          "transfer_type": "NOT_TRANSFERRED",
-          "verdict": "NO_EPISODE_ACTIVATION"
-        },
-        {
-          "case_id": "CASE_05",
-          "gold": "activos_dormidos_hermana",
-          "sim_H": 0.0,
-          "stem_overlap": [],
-          "operator_overlap": [
-            "MODIFY"
-          ],
-          "ep_activated": false,
-          "gold_in_m0": true,
-          "gold_added_by_episode": false,
-          "episode_was_necessary": false,
-          "rank_m0": 33,
-          "rank_m2_nobonus": 33,
-          "rank_m2_bonus": 33,
-          "candidate_provenance": [
-            "BASE_FTS",
-            "C1"
-          ],
-          "transfer_type": "NOT_TRANSFERRED",
-          "verdict": "NO_EPISODE_ACTIVATION"
-        }
-      ]
-    },
-    "HDC_ONLY": {
-      "code": "C",
-      "description": "HDC (2048-bit hypervectors) solamente",
-      "gen_rescues": 0,
-      "rerank_rescues": 0,
-      "true_zero_cue_transfers": 0,
-      "negative_fps": 0,
-      "R@1": 0,
-      "R@5": 0,
-      "R@10": 0,
-      "R@20": 0,
-      "cases": [
-        {
-          "case_id": "CASE_01",
-          "gold": "scoring_pesos_bm25",
-          "sim_H": 0.0,
-          "stem_overlap": [],
-          "operator_overlap": [],
-          "ep_activated": false,
-          "gold_in_m0": true,
-          "gold_added_by_episode": false,
-          "episode_was_necessary": false,
-          "rank_m0": 64,
-          "rank_m2_nobonus": 64,
-          "rank_m2_bonus": 64,
-          "candidate_provenance": [
-            "BASE_FTS",
-            "C1"
-          ],
-          "transfer_type": "NOT_TRANSFERRED",
-          "verdict": "NO_EPISODE_ACTIVATION"
-        },
-        {
-          "case_id": "CASE_02",
-          "gold": "desde_athena_biorag",
-          "sim_H": 0.0,
-          "stem_overlap": [],
-          "operator_overlap": [
-            "LINK"
-          ],
-          "ep_activated": false,
-          "gold_in_m0": true,
-          "gold_added_by_episode": false,
-          "episode_was_necessary": false,
-          "rank_m0": 68,
-          "rank_m2_nobonus": 68,
-          "rank_m2_bonus": 68,
-          "candidate_provenance": [
-            "BASE_FTS",
-            "C1"
-          ],
-          "transfer_type": "NOT_TRANSFERRED",
-          "verdict": "NO_EPISODE_ACTIVATION"
-        },
-        {
-          "case_id": "CASE_03",
-          "gold": "docker_infrastructure_rog",
-          "sim_H": 0.0,
-          "stem_overlap": [],
-          "operator_overlap": [
-            "SEPARATE"
-          ],
-          "ep_activated": false,
-          "gold_in_m0": false,
-          "gold_added_by_episode": false,
-          "episode_was_necessary": false,
-          "rank_m0": null,
-          "rank_m2_nobonus": null,
-          "rank_m2_bonus": null,
-          "candidate_provenance": [],
-          "transfer_type": "NOT_TRANSFERRED",
-          "verdict": "NO_EPISODE_ACTIVATION"
-        },
-        {
-          "case_id": "CASE_04",
-          "gold": "coche_puente_condicional",
-          "sim_H": 0.0,
-          "stem_overlap": [],
-          "operator_overlap": [],
-          "ep_activated": false,
-          "gold_in_m0": true,
-          "gold_added_by_episode": false,
-          "episode_was_necessary": false,
-          "rank_m0": 24,
-          "rank_m2_nobonus": 24,
-          "rank_m2_bonus": 24,
-          "candidate_provenance": [
-            "BASE_FTS",
-            "C1"
-          ],
-          "transfer_type": "NOT_TRANSFERRED",
-          "verdict": "NO_EPISODE_ACTIVATION"
-        },
-        {
-          "case_id": "CASE_05",
-          "gold": "activos_dormidos_hermana",
-          "sim_H": 0.0,
-          "stem_overlap": [],
-          "operator_overlap": [
-            "MODIFY"
-          ],
-          "ep_activated": false,
-          "gold_in_m0": true,
-          "gold_added_by_episode": false,
-          "episode_was_necessary": false,
-          "rank_m0": 33,
-          "rank_m2_nobonus": 33,
-          "rank_m2_bonus": 33,
-          "candidate_provenance": [
-            "BASE_FTS",
-            "C1"
-          ],
-          "transfer_type": "NOT_TRANSFERRED",
-          "verdict": "NO_EPISODE_ACTIVATION"
-        }
-      ]
-    },
-    "ISLAND_ONLY": {
-      "code": "D",
-      "description": "PPMI Island community projection solamente",
-      "gen_rescues": 1,
-      "rerank_rescues": 1,
-      "true_zero_cue_transfers": 0,
-      "negative_fps": 2,
-      "R@1": 1,
-      "R@5": 2,
-      "R@10": 2,
-      "R@20": 2,
-      "cases": [
-        {
-          "case_id": "CASE_01",
-          "gold": "scoring_pesos_bm25",
-          "sim_H": 0.0,
-          "stem_overlap": [],
-          "operator_overlap": [],
-          "ep_activated": false,
-          "gold_in_m0": true,
-          "gold_added_by_episode": false,
-          "episode_was_necessary": false,
-          "rank_m0": 64,
-          "rank_m2_nobonus": 64,
-          "rank_m2_bonus": 64,
-          "candidate_provenance": [
-            "BASE_FTS",
-            "C1"
-          ],
-          "transfer_type": "NOT_TRANSFERRED",
-          "verdict": "NO_EPISODE_ACTIVATION"
-        },
-        {
-          "case_id": "CASE_02",
-          "gold": "desde_athena_biorag",
-          "sim_H": 0.0,
-          "stem_overlap": [],
-          "operator_overlap": [
-            "LINK"
-          ],
-          "ep_activated": false,
-          "gold_in_m0": true,
-          "gold_added_by_episode": false,
-          "episode_was_necessary": false,
-          "rank_m0": 68,
-          "rank_m2_nobonus": 68,
-          "rank_m2_bonus": 68,
-          "candidate_provenance": [
-            "BASE_FTS",
-            "C1"
-          ],
-          "transfer_type": "NOT_TRANSFERRED",
-          "verdict": "NO_EPISODE_ACTIVATION"
-        },
-        {
-          "case_id": "CASE_03",
-          "gold": "docker_infrastructure_rog",
-          "sim_H": 0.4773,
-          "stem_overlap": [],
-          "operator_overlap": [
-            "SEPARATE"
-          ],
-          "ep_activated": true,
-          "gold_in_m0": false,
-          "gold_added_by_episode": true,
-          "episode_was_necessary": true,
-          "rank_m0": null,
-          "rank_m2_nobonus": 4,
-          "rank_m2_bonus": 2,
-          "candidate_provenance": [
-            "EPISODIC"
-          ],
-          "transfer_type": "LEXICAL_ZERO_STRUCTURAL_CUE",
-          "verdict": "EPISODE_GENERATED_CANDIDATE"
-        },
-        {
-          "case_id": "CASE_04",
-          "gold": "coche_puente_condicional",
-          "sim_H": 0.0,
-          "stem_overlap": [],
-          "operator_overlap": [],
-          "ep_activated": false,
-          "gold_in_m0": true,
-          "gold_added_by_episode": false,
-          "episode_was_necessary": false,
-          "rank_m0": 24,
-          "rank_m2_nobonus": 24,
-          "rank_m2_bonus": 24,
-          "candidate_provenance": [
-            "BASE_FTS",
-            "C1"
-          ],
-          "transfer_type": "NOT_TRANSFERRED",
-          "verdict": "NO_EPISODE_ACTIVATION"
-        },
-        {
-          "case_id": "CASE_05",
-          "gold": "activos_dormidos_hermana",
-          "sim_H": 0.5702,
-          "stem_overlap": [],
-          "operator_overlap": [
-            "MODIFY"
-          ],
-          "ep_activated": true,
-          "gold_in_m0": true,
-          "gold_added_by_episode": false,
-          "episode_was_necessary": false,
-          "rank_m0": 33,
-          "rank_m2_nobonus": 33,
-          "rank_m2_bonus": 1,
-          "candidate_provenance": [
-            "BASE_FTS",
-            "C1"
-          ],
-          "transfer_type": "LEXICAL_ZERO_STRUCTURAL_CUE",
-          "verdict": "EPISODE_RERANK_ONLY"
-        }
-      ]
-    },
-    "DIM_13D_PLUS_HDC": {
-      "code": "E",
-      "description": "13-D + HDC",
-      "gen_rescues": 0,
-      "rerank_rescues": 0,
-      "true_zero_cue_transfers": 0,
-      "negative_fps": 0,
-      "R@1": 0,
-      "R@5": 0,
-      "R@10": 0,
-      "R@20": 0,
-      "cases": [
-        {
-          "case_id": "CASE_01",
-          "gold": "scoring_pesos_bm25",
-          "sim_H": 0.0,
-          "stem_overlap": [],
-          "operator_overlap": [],
-          "ep_activated": false,
-          "gold_in_m0": true,
-          "gold_added_by_episode": false,
-          "episode_was_necessary": false,
-          "rank_m0": 64,
-          "rank_m2_nobonus": 64,
-          "rank_m2_bonus": 64,
-          "candidate_provenance": [
-            "BASE_FTS",
-            "C1"
-          ],
-          "transfer_type": "NOT_TRANSFERRED",
-          "verdict": "NO_EPISODE_ACTIVATION"
-        },
-        {
-          "case_id": "CASE_02",
-          "gold": "desde_athena_biorag",
-          "sim_H": 0.0,
-          "stem_overlap": [],
-          "operator_overlap": [
-            "LINK"
-          ],
-          "ep_activated": false,
-          "gold_in_m0": true,
-          "gold_added_by_episode": false,
-          "episode_was_necessary": false,
-          "rank_m0": 68,
-          "rank_m2_nobonus": 68,
-          "rank_m2_bonus": 68,
-          "candidate_provenance": [
-            "BASE_FTS",
-            "C1"
-          ],
-          "transfer_type": "NOT_TRANSFERRED",
-          "verdict": "NO_EPISODE_ACTIVATION"
-        },
-        {
-          "case_id": "CASE_03",
-          "gold": "docker_infrastructure_rog",
-          "sim_H": 0.0,
-          "stem_overlap": [],
-          "operator_overlap": [
-            "SEPARATE"
-          ],
-          "ep_activated": false,
-          "gold_in_m0": false,
-          "gold_added_by_episode": false,
-          "episode_was_necessary": false,
-          "rank_m0": null,
-          "rank_m2_nobonus": null,
-          "rank_m2_bonus": null,
-          "candidate_provenance": [],
-          "transfer_type": "NOT_TRANSFERRED",
-          "verdict": "NO_EPISODE_ACTIVATION"
-        },
-        {
-          "case_id": "CASE_04",
-          "gold": "coche_puente_condicional",
-          "sim_H": 0.0,
-          "stem_overlap": [],
-          "operator_overlap": [],
-          "ep_activated": false,
-          "gold_in_m0": true,
-          "gold_added_by_episode": false,
-          "episode_was_necessary": false,
-          "rank_m0": 24,
-          "rank_m2_nobonus": 24,
-          "rank_m2_bonus": 24,
-          "candidate_provenance": [
-            "BASE_FTS",
-            "C1"
-          ],
-          "transfer_type": "NOT_TRANSFERRED",
-          "verdict": "NO_EPISODE_ACTIVATION"
-        },
-        {
-          "case_id": "CASE_05",
-          "gold": "activos_dormidos_hermana",
-          "sim_H": 0.0,
-          "stem_overlap": [],
-          "operator_overlap": [
-            "MODIFY"
-          ],
-          "ep_activated": false,
-          "gold_in_m0": true,
-          "gold_added_by_episode": false,
-          "episode_was_necessary": false,
-          "rank_m0": 33,
-          "rank_m2_nobonus": 33,
-          "rank_m2_bonus": 33,
-          "candidate_provenance": [
-            "BASE_FTS",
-            "C1"
-          ],
-          "transfer_type": "NOT_TRANSFERRED",
-          "verdict": "NO_EPISODE_ACTIVATION"
-        }
-      ]
-    },
-    "DIM_13D_PLUS_ISLAND": {
-      "code": "F",
-      "description": "13-D + Island",
+  "sweep_results": {
+    "tau_0.10": {
+      "tau": 0.1,
       "gen_rescues": 0,
       "rerank_rescues": 1,
-      "true_zero_cue_transfers": 0,
-      "negative_fps": 2,
-      "R@1": 1,
+      "zero_zero_activations": 1,
+      "R@1": 0,
       "R@5": 1,
-      "R@10": 1,
-      "R@20": 1,
-      "cases": [
-        {
-          "case_id": "CASE_01",
-          "gold": "scoring_pesos_bm25",
-          "sim_H": 0.0,
-          "stem_overlap": [],
-          "operator_overlap": [],
-          "ep_activated": false,
-          "gold_in_m0": true,
-          "gold_added_by_episode": false,
-          "episode_was_necessary": false,
-          "rank_m0": 64,
-          "rank_m2_nobonus": 64,
-          "rank_m2_bonus": 64,
-          "candidate_provenance": [
-            "BASE_FTS",
-            "C1"
-          ],
-          "transfer_type": "NOT_TRANSFERRED",
-          "verdict": "NO_EPISODE_ACTIVATION"
-        },
-        {
-          "case_id": "CASE_02",
-          "gold": "desde_athena_biorag",
-          "sim_H": 0.0,
-          "stem_overlap": [],
-          "operator_overlap": [
-            "LINK"
-          ],
-          "ep_activated": false,
-          "gold_in_m0": true,
-          "gold_added_by_episode": false,
-          "episode_was_necessary": false,
-          "rank_m0": 68,
-          "rank_m2_nobonus": 68,
-          "rank_m2_bonus": 68,
-          "candidate_provenance": [
-            "BASE_FTS",
-            "C1"
-          ],
-          "transfer_type": "NOT_TRANSFERRED",
-          "verdict": "NO_EPISODE_ACTIVATION"
-        },
-        {
-          "case_id": "CASE_03",
-          "gold": "docker_infrastructure_rog",
-          "sim_H": 0.2386,
-          "stem_overlap": [],
-          "operator_overlap": [
-            "SEPARATE"
-          ],
-          "ep_activated": false,
-          "gold_in_m0": false,
-          "gold_added_by_episode": false,
-          "episode_was_necessary": false,
-          "rank_m0": null,
-          "rank_m2_nobonus": null,
-          "rank_m2_bonus": null,
-          "candidate_provenance": [],
-          "transfer_type": "NOT_TRANSFERRED",
-          "verdict": "NO_EPISODE_ACTIVATION"
-        },
-        {
-          "case_id": "CASE_04",
-          "gold": "coche_puente_condicional",
-          "sim_H": 0.0,
-          "stem_overlap": [],
-          "operator_overlap": [],
-          "ep_activated": false,
-          "gold_in_m0": true,
-          "gold_added_by_episode": false,
-          "episode_was_necessary": false,
-          "rank_m0": 24,
-          "rank_m2_nobonus": 24,
-          "rank_m2_bonus": 24,
-          "candidate_provenance": [
-            "BASE_FTS",
-            "C1"
-          ],
-          "transfer_type": "NOT_TRANSFERRED",
-          "verdict": "NO_EPISODE_ACTIVATION"
-        },
-        {
-          "case_id": "CASE_05",
-          "gold": "activos_dormidos_hermana",
-          "sim_H": 0.2851,
-          "stem_overlap": [],
-          "operator_overlap": [
-            "MODIFY"
-          ],
-          "ep_activated": true,
-          "gold_in_m0": true,
-          "gold_added_by_episode": false,
-          "episode_was_necessary": false,
-          "rank_m0": 33,
-          "rank_m2_nobonus": 33,
-          "rank_m2_bonus": 1,
-          "candidate_provenance": [
-            "BASE_FTS",
-            "C1"
-          ],
-          "transfer_type": "LEXICAL_ZERO_STRUCTURAL_CUE",
-          "verdict": "EPISODE_RERANK_ONLY"
-        }
-      ]
+      "negative_fps": 2
     },
-    "HDC_PLUS_ISLAND": {
-      "code": "G",
-      "description": "HDC + Island",
+    "tau_0.15": {
+      "tau": 0.15,
       "gen_rescues": 0,
       "rerank_rescues": 1,
-      "true_zero_cue_transfers": 0,
-      "negative_fps": 2,
-      "R@1": 1,
+      "zero_zero_activations": 1,
+      "R@1": 0,
       "R@5": 1,
-      "R@10": 1,
-      "R@20": 1,
-      "cases": [
-        {
-          "case_id": "CASE_01",
-          "gold": "scoring_pesos_bm25",
-          "sim_H": 0.0,
-          "stem_overlap": [],
-          "operator_overlap": [],
-          "ep_activated": false,
-          "gold_in_m0": true,
-          "gold_added_by_episode": false,
-          "episode_was_necessary": false,
-          "rank_m0": 64,
-          "rank_m2_nobonus": 64,
-          "rank_m2_bonus": 64,
-          "candidate_provenance": [
-            "BASE_FTS",
-            "C1"
-          ],
-          "transfer_type": "NOT_TRANSFERRED",
-          "verdict": "NO_EPISODE_ACTIVATION"
-        },
-        {
-          "case_id": "CASE_02",
-          "gold": "desde_athena_biorag",
-          "sim_H": 0.0,
-          "stem_overlap": [],
-          "operator_overlap": [
-            "LINK"
-          ],
-          "ep_activated": false,
-          "gold_in_m0": true,
-          "gold_added_by_episode": false,
-          "episode_was_necessary": false,
-          "rank_m0": 68,
-          "rank_m2_nobonus": 68,
-          "rank_m2_bonus": 68,
-          "candidate_provenance": [
-            "BASE_FTS",
-            "C1"
-          ],
-          "transfer_type": "NOT_TRANSFERRED",
-          "verdict": "NO_EPISODE_ACTIVATION"
-        },
-        {
-          "case_id": "CASE_03",
-          "gold": "docker_infrastructure_rog",
-          "sim_H": 0.2386,
-          "stem_overlap": [],
-          "operator_overlap": [
-            "SEPARATE"
-          ],
-          "ep_activated": false,
-          "gold_in_m0": false,
-          "gold_added_by_episode": false,
-          "episode_was_necessary": false,
-          "rank_m0": null,
-          "rank_m2_nobonus": null,
-          "rank_m2_bonus": null,
-          "candidate_provenance": [],
-          "transfer_type": "NOT_TRANSFERRED",
-          "verdict": "NO_EPISODE_ACTIVATION"
-        },
-        {
-          "case_id": "CASE_04",
-          "gold": "coche_puente_condicional",
-          "sim_H": 0.0,
-          "stem_overlap": [],
-          "operator_overlap": [],
-          "ep_activated": false,
-          "gold_in_m0": true,
-          "gold_added_by_episode": false,
-          "episode_was_necessary": false,
-          "rank_m0": 24,
-          "rank_m2_nobonus": 24,
-          "rank_m2_bonus": 24,
-          "candidate_provenance": [
-            "BASE_FTS",
-            "C1"
-          ],
-          "transfer_type": "NOT_TRANSFERRED",
-          "verdict": "NO_EPISODE_ACTIVATION"
-        },
-        {
-          "case_id": "CASE_05",
-          "gold": "activos_dormidos_hermana",
-          "sim_H": 0.2851,
-          "stem_overlap": [],
-          "operator_overlap": [
-            "MODIFY"
-          ],
-          "ep_activated": true,
-          "gold_in_m0": true,
-          "gold_added_by_episode": false,
-          "episode_was_necessary": false,
-          "rank_m0": 33,
-          "rank_m2_nobonus": 33,
-          "rank_m2_bonus": 1,
-          "candidate_provenance": [
-            "BASE_FTS",
-            "C1"
-          ],
-          "transfer_type": "LEXICAL_ZERO_STRUCTURAL_CUE",
-          "verdict": "EPISODE_RERANK_ONLY"
-        }
-      ]
+      "negative_fps": 2
     },
-    "DIM_HDC_ISLAND": {
-      "code": "H",
-      "description": "13-D + HDC + Island (Híbrido completo)",
+    "tau_0.20": {
+      "tau": 0.2,
+      "gen_rescues": 0,
+      "rerank_rescues": 1,
+      "zero_zero_activations": 1,
+      "R@1": 0,
+      "R@5": 1,
+      "negative_fps": 1
+    },
+    "tau_0.25": {
+      "tau": 0.25,
+      "gen_rescues": 0,
+      "rerank_rescues": 1,
+      "zero_zero_activations": 1,
+      "R@1": 0,
+      "R@5": 1,
+      "negative_fps": 1
+    },
+    "tau_0.30": {
+      "tau": 0.3,
       "gen_rescues": 0,
       "rerank_rescues": 0,
-      "true_zero_cue_transfers": 0,
-      "negative_fps": 0,
+      "zero_zero_activations": 0,
       "R@1": 0,
       "R@5": 0,
-      "R@10": 0,
-      "R@20": 0,
-      "cases": [
-        {
-          "case_id": "CASE_01",
-          "gold": "scoring_pesos_bm25",
-          "sim_H": 0.0,
-          "stem_overlap": [],
-          "operator_overlap": [],
-          "ep_activated": false,
-          "gold_in_m0": true,
-          "gold_added_by_episode": false,
-          "episode_was_necessary": false,
-          "rank_m0": 64,
-          "rank_m2_nobonus": 64,
-          "rank_m2_bonus": 64,
-          "candidate_provenance": [
-            "BASE_FTS",
-            "C1"
-          ],
-          "transfer_type": "NOT_TRANSFERRED",
-          "verdict": "NO_EPISODE_ACTIVATION"
-        },
-        {
-          "case_id": "CASE_02",
-          "gold": "desde_athena_biorag",
-          "sim_H": 0.0,
-          "stem_overlap": [],
-          "operator_overlap": [
-            "LINK"
-          ],
-          "ep_activated": false,
-          "gold_in_m0": true,
-          "gold_added_by_episode": false,
-          "episode_was_necessary": false,
-          "rank_m0": 68,
-          "rank_m2_nobonus": 68,
-          "rank_m2_bonus": 68,
-          "candidate_provenance": [
-            "BASE_FTS",
-            "C1"
-          ],
-          "transfer_type": "NOT_TRANSFERRED",
-          "verdict": "NO_EPISODE_ACTIVATION"
-        },
-        {
-          "case_id": "CASE_03",
-          "gold": "docker_infrastructure_rog",
-          "sim_H": 0.1591,
-          "stem_overlap": [],
-          "operator_overlap": [
-            "SEPARATE"
-          ],
-          "ep_activated": false,
-          "gold_in_m0": false,
-          "gold_added_by_episode": false,
-          "episode_was_necessary": false,
-          "rank_m0": null,
-          "rank_m2_nobonus": null,
-          "rank_m2_bonus": null,
-          "candidate_provenance": [],
-          "transfer_type": "NOT_TRANSFERRED",
-          "verdict": "NO_EPISODE_ACTIVATION"
-        },
-        {
-          "case_id": "CASE_04",
-          "gold": "coche_puente_condicional",
-          "sim_H": 0.0,
-          "stem_overlap": [],
-          "operator_overlap": [],
-          "ep_activated": false,
-          "gold_in_m0": true,
-          "gold_added_by_episode": false,
-          "episode_was_necessary": false,
-          "rank_m0": 24,
-          "rank_m2_nobonus": 24,
-          "rank_m2_bonus": 24,
-          "candidate_provenance": [
-            "BASE_FTS",
-            "C1"
-          ],
-          "transfer_type": "NOT_TRANSFERRED",
-          "verdict": "NO_EPISODE_ACTIVATION"
-        },
-        {
-          "case_id": "CASE_05",
-          "gold": "activos_dormidos_hermana",
-          "sim_H": 0.1901,
-          "stem_overlap": [],
-          "operator_overlap": [
-            "MODIFY"
-          ],
-          "ep_activated": false,
-          "gold_in_m0": true,
-          "gold_added_by_episode": false,
-          "episode_was_necessary": false,
-          "rank_m0": 33,
-          "rank_m2_nobonus": 33,
-          "rank_m2_bonus": 33,
-          "candidate_provenance": [
-            "BASE_FTS",
-            "C1"
-          ],
-          "transfer_type": "NOT_TRANSFERRED",
-          "verdict": "NO_EPISODE_ACTIVATION"
-        }
-      ]
+      "negative_fps": 0
+    },
+    "tau_0.35": {
+      "tau": 0.35,
+      "gen_rescues": 0,
+      "rerank_rescues": 0,
+      "zero_zero_activations": 0,
+      "R@1": 0,
+      "R@5": 0,
+      "negative_fps": 0
+    },
+    "tau_0.40": {
+      "tau": 0.4,
+      "gen_rescues": 0,
+      "rerank_rescues": 0,
+      "zero_zero_activations": 0,
+      "R@1": 0,
+      "R@5": 0,
+      "negative_fps": 0
     }
   },
+  "selected_tau": 0.2,
+  "detailed_cases": [
+    {
+      "case_id": "CASE_01",
+      "gold": "scoring_pesos_bm25",
+      "group_type": "TRUE_ZERO_ZERO",
+      "sim_H_no_op": 0.0605,
+      "meta_sim": {
+        "channel_scores": {
+          "ISLAND": 0.0,
+          "HDC": 0.1738
+        },
+        "total_valid_weight": 2.3,
+        "valid_channels_count": 2
+      },
+      "ep_activated": false,
+      "gold_in_m0": true,
+      "gold_added_by_ep": false,
+      "rank_m0": 64,
+      "rank_m2_nobonus": 64,
+      "rank_m2_bonus": 64,
+      "candidate_provenance": [
+        "BASE_FTS",
+        "C1"
+      ],
+      "verdict": "NO_EPISODE_ACTIVATION"
+    },
+    {
+      "case_id": "CASE_02",
+      "gold": "desde_athena_biorag",
+      "group_type": "LEXICAL_ZERO_STRUCTURAL_CUE",
+      "sim_H_no_op": 0.013,
+      "meta_sim": {
+        "channel_scores": {
+          "ISLAND": 0.0,
+          "DIM_13D": 0.0,
+          "HDC": 0.0537
+        },
+        "total_valid_weight": 3.3,
+        "valid_channels_count": 3
+      },
+      "ep_activated": false,
+      "gold_in_m0": true,
+      "gold_added_by_ep": false,
+      "rank_m0": 68,
+      "rank_m2_nobonus": 68,
+      "rank_m2_bonus": 68,
+      "candidate_provenance": [
+        "BASE_FTS",
+        "C1"
+      ],
+      "verdict": "NO_EPISODE_ACTIVATION"
+    },
+    {
+      "case_id": "CASE_03",
+      "gold": "docker_infrastructure_rog",
+      "group_type": "LEXICAL_ZERO_STRUCTURAL_CUE",
+      "sim_H_no_op": 0.0064,
+      "meta_sim": {
+        "channel_scores": {
+          "ISLAND": 0.0,
+          "DIM_13D": 0.0,
+          "HDC": 0.0264
+        },
+        "total_valid_weight": 3.3,
+        "valid_channels_count": 3
+      },
+      "ep_activated": false,
+      "gold_in_m0": false,
+      "gold_added_by_ep": false,
+      "rank_m0": null,
+      "rank_m2_nobonus": null,
+      "rank_m2_bonus": null,
+      "candidate_provenance": [],
+      "verdict": "NO_EPISODE_ACTIVATION"
+    },
+    {
+      "case_id": "CASE_04",
+      "gold": "coche_puente_condicional",
+      "group_type": "TRUE_ZERO_ZERO",
+      "sim_H_no_op": 0.2746,
+      "meta_sim": {
+        "channel_scores": {
+          "ISLAND": 0.3429,
+          "HDC": 0.1465
+        },
+        "total_valid_weight": 2.3,
+        "valid_channels_count": 2
+      },
+      "ep_activated": true,
+      "gold_in_m0": true,
+      "gold_added_by_ep": false,
+      "rank_m0": 24,
+      "rank_m2_nobonus": 24,
+      "rank_m2_bonus": 4,
+      "candidate_provenance": [
+        "BASE_FTS",
+        "C1"
+      ],
+      "verdict": "EPISODE_RERANK_ONLY"
+    },
+    {
+      "case_id": "CASE_05",
+      "gold": "activos_dormidos_hermana",
+      "group_type": "LEXICAL_ZERO_STRUCTURAL_CUE",
+      "sim_H_no_op": 0.0154,
+      "meta_sim": {
+        "channel_scores": {
+          "ISLAND": 0.0,
+          "DIM_13D": 0.0,
+          "HDC": 0.0635
+        },
+        "total_valid_weight": 3.3,
+        "valid_channels_count": 3
+      },
+      "ep_activated": false,
+      "gold_in_m0": true,
+      "gold_added_by_ep": false,
+      "rank_m0": 33,
+      "rank_m2_nobonus": 33,
+      "rank_m2_bonus": 33,
+      "candidate_provenance": [
+        "BASE_FTS",
+        "C1"
+      ],
+      "verdict": "NO_EPISODE_ACTIVATION"
+    }
+  ],
   "leakage_audit": {
     "total_flags": 0,
     "gold_dependent_flags": 0
