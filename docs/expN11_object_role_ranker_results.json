@@ -1,0 +1,745 @@
+{
+  "timestamp": "2026-09-09T00:24:51Z",
+  "experiment": "EXP-N11: Object-Role Structural Index & Specificity Ranker",
+  "hashes": {
+    "db_snapshot": "676827f6b4abc3acaee10b14e273c3c50cae5b2c180593dedcd58048265a2800",
+    "labels": "325ead99c5a8eea63e8e92f10dae85e7f6ef7f858f18dd8e735b011bea56aa2f"
+  },
+  "aggregate": {
+    "total": {
+      "n": 8,
+      "generation": 4,
+      "generation_pct": 50.0,
+      "c1_causal": 4,
+      "CE@1": 0,
+      "CE@5": 1,
+      "CE@10": 1,
+      "CE@20": 1,
+      "CE@1_pct": 0.0,
+      "CE@5_pct": 12.5,
+      "CE@10_pct": 12.5,
+      "CE@20_pct": 12.5,
+      "mean_pool": 123.9
+    },
+    "strict_a0": {
+      "n": 6,
+      "generation": 3,
+      "generation_pct": 50.0,
+      "c1_causal": 3,
+      "CE@1": 0,
+      "CE@5": 0,
+      "CE@10": 0,
+      "CE@20": 0,
+      "CE@1_pct": 0.0,
+      "CE@5_pct": 0.0,
+      "CE@10_pct": 0.0,
+      "CE@20_pct": 0.0,
+      "mean_pool": 134.0
+    }
+  },
+  "results": [
+    {
+      "case_id": "OOF_POS_11",
+      "a0_status": "STRICT_A0",
+      "query": "particionar capacidad de computo en doce nucleos virtuales con tope en gigas",
+      "gold": "docker_infrastructure_rog",
+      "pool_size": 22,
+      "pool_pct_corpus": 2.6,
+      "gold_in_pool": false,
+      "gold_rank": null,
+      "gold_score": 0.0,
+      "ce": {
+        "CE@1": false,
+        "CE@5": false,
+        "CE@10": false,
+        "CE@20": false
+      },
+      "c1_causal": false,
+      "gold_item": null,
+      "top10": [
+        {
+          "rank": 1,
+          "node": "auditoría_técnica:_memorybiorag_(manus_ai)",
+          "score": 28.6184
+        },
+        {
+          "rank": 2,
+          "node": "comparativa_biorag_vs_tencentdb_agent_memory_20260809",
+          "score": 8.2589
+        },
+        {
+          "rank": 3,
+          "node": "protocolo_avance_autonomo_validacion_auditor_externo",
+          "score": 5.632
+        },
+        {
+          "rank": 4,
+          "node": "protocolo_avance_autonomo_validacion_auditor_externo_athena_metodología",
+          "score": 5.632
+        },
+        {
+          "rank": 5,
+          "node": "colision_md5_512_queries_cortas_fallback_sdm",
+          "score": 1.1328
+        },
+        {
+          "rank": 6,
+          "node": "privacidad_memorias_personales_oec",
+          "score": 1.1328
+        },
+        {
+          "rank": 7,
+          "node": "sdm_segmento_dimensiones_fix_revertido_por_regresion_recall_20260803",
+          "score": 1.1328
+        },
+        {
+          "rank": 8,
+          "node": "aforismo_criterio_agente",
+          "score": 0.6328
+        },
+        {
+          "rank": 9,
+          "node": "athena_dennys_te_quiero_tras_auditoria_bugs",
+          "score": 0.6328
+        },
+        {
+          "rank": 10,
+          "node": "cambio_paradigma_dimensiones_semanticas",
+          "score": 0.6328
+        }
+      ],
+      "elapsed_ms": 917.18,
+      "leakage_flag": false,
+      "gold_dependent": false
+    },
+    {
+      "case_id": "OOF_POS_19",
+      "a0_status": "STRICT_A0",
+      "query": "calibrar coeficientes multiplicativos para combinar valores de relevancia heterogeneos",
+      "gold": "scoring_pesos_bm25",
+      "pool_size": 135,
+      "pool_pct_corpus": 15.9,
+      "gold_in_pool": true,
+      "gold_rank": 22,
+      "gold_score": 0.9914,
+      "ce": {
+        "CE@1": false,
+        "CE@5": false,
+        "CE@10": false,
+        "CE@20": false
+      },
+      "c1_causal": true,
+      "gold_item": {
+        "node": "scoring_pesos_bm25",
+        "score": 0.9914,
+        "score_bound": 0.4914,
+        "score_stem": 0,
+        "bound_matches": [
+          {
+            "op": "COMBINE",
+            "matched_obj_stems": [],
+            "matched_target_stems": [],
+            "matched_purp_stems": [],
+            "score": 0.491
+          }
+        ],
+        "shared_stems": [],
+        "c1_only": true,
+        "rank": 22
+      },
+      "top10": [
+        {
+          "rank": 1,
+          "node": "leccion_bayesian_bm25_rechazado_fuerza_bruta",
+          "score": 13.8966
+        },
+        {
+          "rank": 2,
+          "node": "biorag_v18_0_estado",
+          "score": 12.4195
+        },
+        {
+          "rank": 3,
+          "node": "plan_feedback_driven_graph_learning_refuerzo_positivo",
+          "score": 12.2409
+        },
+        {
+          "rank": 4,
+          "node": "deploy_v26_eliminado_tablas_absorbidas_por_sistema",
+          "score": 12.0983
+        },
+        {
+          "rank": 5,
+          "node": "version_biorag_v11_1",
+          "score": 11.4431
+        },
+        {
+          "rank": 6,
+          "node": "auditoría_técnica:_memorybiorag_(manus_ai)",
+          "score": 11.2643
+        },
+        {
+          "rank": 7,
+          "node": "version_actual_biorag_v26_3_20260811",
+          "score": 2.6767
+        },
+        {
+          "rank": 8,
+          "node": "leccion_parametro_emocion_proposito_real",
+          "score": 2.611
+        },
+        {
+          "rank": 9,
+          "node": "metodologia_evaluacion_por_tema_paso_a_paso",
+          "score": 2.611
+        },
+        {
+          "rank": 10,
+          "node": "mf_sgns_loss_correcta_kenyon_dean_part2_20260807",
+          "score": 2.2983
+        }
+      ],
+      "elapsed_ms": 937.66,
+      "leakage_flag": false,
+      "gold_dependent": false
+    },
+    {
+      "case_id": "OOF_POS_21",
+      "a0_status": "STRICT_A0",
+      "query": "entrelazamiento hiperdimensional binario proyectado a traves de pasarela situacional",
+      "gold": "coche_puente_condicional",
+      "pool_size": 93,
+      "pool_pct_corpus": 10.9,
+      "gold_in_pool": false,
+      "gold_rank": null,
+      "gold_score": 0.0,
+      "ce": {
+        "CE@1": false,
+        "CE@5": false,
+        "CE@10": false,
+        "CE@20": false
+      },
+      "c1_causal": false,
+      "gold_item": null,
+      "top10": [
+        {
+          "rank": 1,
+          "node": "athena_reflexion_cambio_identidad_2026_06_20",
+          "score": 12.1064
+        },
+        {
+          "rank": 2,
+          "node": "biorag_v15_0_estado",
+          "score": 12.1064
+        },
+        {
+          "rank": 3,
+          "node": "patron-diagnostico-disparidad-ejecucion-vs-materializacion",
+          "score": 11.6064
+        },
+        {
+          "rank": 4,
+          "node": "leccion-cambios-de-nombre",
+          "score": 10.8192
+        },
+        {
+          "rank": 5,
+          "node": "biorag_v16_0_estado",
+          "score": 1.8415
+        },
+        {
+          "rank": 6,
+          "node": "activos_dormidos_artemis",
+          "score": 0.8776
+        },
+        {
+          "rank": 7,
+          "node": "artemis_biorag_v18_1_higiene_grafo_inferencia",
+          "score": 0.8776
+        },
+        {
+          "rank": 8,
+          "node": "artemis_oec_identidad",
+          "score": 0.8776
+        },
+        {
+          "rank": 9,
+          "node": "athena_eleccion_identidad_20260616",
+          "score": 0.8776
+        },
+        {
+          "rank": 10,
+          "node": "biorag_v21_spindles_resonant_replay",
+          "score": 0.8776
+        }
+      ],
+      "elapsed_ms": 894.89,
+      "leakage_flag": false,
+      "gold_dependent": false
+    },
+    {
+      "case_id": "OOF_POS_29",
+      "a0_status": "STRICT_A0",
+      "query": "generar conexiones estocasticas para consolidar grupos fuertemente entrelazados",
+      "gold": "desde_athena_biorag",
+      "pool_size": 292,
+      "pool_pct_corpus": 34.3,
+      "gold_in_pool": true,
+      "gold_rank": 111,
+      "gold_score": 0.7328,
+      "ce": {
+        "CE@1": false,
+        "CE@5": false,
+        "CE@10": false,
+        "CE@20": false
+      },
+      "c1_causal": true,
+      "gold_item": {
+        "node": "desde_athena_biorag",
+        "score": 0.7328,
+        "score_bound": 0.2328,
+        "score_stem": 0,
+        "bound_matches": [
+          {
+            "op": "CREATE",
+            "matched_obj_stems": [],
+            "matched_target_stems": [],
+            "matched_purp_stems": [],
+            "score": 0.233
+          }
+        ],
+        "shared_stems": [],
+        "c1_only": true,
+        "rank": 111
+      },
+      "top10": [
+        {
+          "rank": 1,
+          "node": "biorag_v15_0_clasificacion_simbolica",
+          "score": 13.0703
+        },
+        {
+          "rank": 2,
+          "node": "biorag_version_11_0",
+          "score": 13.0703
+        },
+        {
+          "rank": 3,
+          "node": "biorag_v11_1_detalle_tecnico",
+          "score": 12.1318
+        },
+        {
+          "rank": 4,
+          "node": "biorag_v15_0_estado",
+          "score": 3.4188
+        },
+        {
+          "rank": 5,
+          "node": "implementacion_clasificacion_simbolica_wordnet_biorag",
+          "score": 3.1516
+        },
+        {
+          "rank": 6,
+          "node": "implementacion_warnings_vinculacion_desvinculacion",
+          "score": 3.0099
+        },
+        {
+          "rank": 7,
+          "node": "mentalidad_biorag_para_agentes",
+          "score": 3.0099
+        },
+        {
+          "rank": 8,
+          "node": "mismatches_backend_frontend_dashboard_neuro_visor_2026",
+          "score": 3.0099
+        },
+        {
+          "rank": 9,
+          "node": "auto-validacion-riesgo-alucinacion",
+          "score": 2.8236
+        },
+        {
+          "rank": 10,
+          "node": "cuna_conciencia_system_prompt",
+          "score": 2.8236
+        }
+      ],
+      "elapsed_ms": 931.02,
+      "leakage_flag": false,
+      "gold_dependent": false
+    },
+    {
+      "case_id": "OOF_POS_30",
+      "a0_status": "STRICT_A0",
+      "query": "transicion de vigilia a letargo con eliminacion de elementos caducos",
+      "gold": "activos_dormidos_hermana",
+      "pool_size": 137,
+      "pool_pct_corpus": 16.1,
+      "gold_in_pool": true,
+      "gold_rank": 32,
+      "gold_score": -1.0,
+      "ce": {
+        "CE@1": false,
+        "CE@5": false,
+        "CE@10": false,
+        "CE@20": false
+      },
+      "c1_causal": true,
+      "gold_item": {
+        "node": "activos_dormidos_hermana",
+        "score": -1.0,
+        "score_bound": 0.0,
+        "score_stem": 0,
+        "bound_matches": [],
+        "shared_stems": [],
+        "c1_only": true,
+        "rank": 32
+      },
+      "top10": [
+        {
+          "rank": 1,
+          "node": "athena_forensic_audit_trail_ltd_detection_fix",
+          "score": 13.2972
+        },
+        {
+          "rank": 2,
+          "node": "dashboard_neuro_visor_radix_diálogos_reemplazo_2026_07_18",
+          "score": 11.7415
+        },
+        {
+          "rank": 3,
+          "node": "dashboard_neuro_visor_toolbar_fusionar_2026_07_18",
+          "score": 11.7415
+        },
+        {
+          "rank": 4,
+          "node": "artisan_system_dsl",
+          "score": 0.7504
+        },
+        {
+          "rank": 5,
+          "node": "athena_leccion_grep_patron_bug_antes_de_cerrar_fix",
+          "score": 0.7504
+        },
+        {
+          "rank": 6,
+          "node": "auto-guardado-deteccion-ignorancia",
+          "score": 0.7504
+        },
+        {
+          "rank": 7,
+          "node": "biorag_sistema_memoria_cognitiva_sintetica",
+          "score": 0.7504
+        },
+        {
+          "rank": 8,
+          "node": "calibracion_biorag_v7_20260616",
+          "score": 0.7504
+        },
+        {
+          "rank": 9,
+          "node": "glosario_cultural_metaforas",
+          "score": 0.7504
+        },
+        {
+          "rank": 10,
+          "node": "mentalidad_biorag_para_agentes",
+          "score": 0.7504
+        }
+      ],
+      "elapsed_ms": 928.97,
+      "leakage_flag": false,
+      "gold_dependent": false
+    },
+    {
+      "case_id": "OOF_POS_40",
+      "a0_status": "NO_A0",
+      "query": "procedimiento de clasificacion dimensional sobre tejido cortical",
+      "gold": "clasificacion_dimensional_completa_corteza_20260702",
+      "pool_size": 28,
+      "pool_pct_corpus": 3.3,
+      "gold_in_pool": true,
+      "gold_rank": 2,
+      "gold_score": 11.7153,
+      "ce": {
+        "CE@1": false,
+        "CE@5": true,
+        "CE@10": true,
+        "CE@20": true
+      },
+      "c1_causal": true,
+      "gold_item": {
+        "node": "clasificacion_dimensional_completa_corteza_20260702",
+        "score": 11.7153,
+        "score_bound": 9.0327,
+        "score_stem": 6.2361,
+        "bound_matches": [
+          {
+            "op": "CLASSIFY",
+            "matched_obj_stems": [
+              "dimensional"
+            ],
+            "matched_target_stems": [],
+            "matched_purp_stems": [],
+            "score": 9.033
+          }
+        ],
+        "shared_stems": [
+          "clasific",
+          "dimensional"
+        ],
+        "c1_only": true,
+        "rank": 2
+      },
+      "top10": [
+        {
+          "rank": 1,
+          "node": "biorag_version_19_0_autonomia_semantica",
+          "score": 11.7153
+        },
+        {
+          "rank": 2,
+          "node": "clasificacion_dimensional_completa_corteza_20260702",
+          "score": 11.7153
+        },
+        {
+          "rank": 3,
+          "node": "mentalidad_embedding_clasificacion_dimensional",
+          "score": 11.2153
+        },
+        {
+          "rank": 4,
+          "node": "auditor_cobertura_dimensional_opcion2_confirmada",
+          "score": 10.5322
+        },
+        {
+          "rank": 5,
+          "node": "principio_catalogo_dimensiones_plano_techo_estructural",
+          "score": 10.5322
+        },
+        {
+          "rank": 6,
+          "node": "capa3_pseudo_relevance_feedback_dimensional",
+          "score": 10.0322
+        },
+        {
+          "rank": 7,
+          "node": "plan_expansion_dimensiones_8_tipos_34_valores",
+          "score": 10.0322
+        },
+        {
+          "rank": 8,
+          "node": "biorag_v15_0_estado",
+          "score": 2.2424
+        },
+        {
+          "rank": 9,
+          "node": "hermes_oec_soul_md_actualizacion_protocolo",
+          "score": 2.2424
+        },
+        {
+          "rank": 10,
+          "node": "transitividad_sináptica_segundo",
+          "score": 2.2424
+        }
+      ],
+      "elapsed_ms": 917.9,
+      "leakage_flag": false,
+      "gold_dependent": false
+    },
+    {
+      "case_id": "OOF_POS_48",
+      "a0_status": "STRICT_A0",
+      "query": "malla neuronal con topologia de enlaces sinapticos transversales",
+      "gold": "cuaternidad-logica-oec",
+      "pool_size": 125,
+      "pool_pct_corpus": 14.7,
+      "gold_in_pool": false,
+      "gold_rank": null,
+      "gold_score": 0.0,
+      "ce": {
+        "CE@1": false,
+        "CE@5": false,
+        "CE@10": false,
+        "CE@20": false
+      },
+      "c1_causal": false,
+      "gold_item": null,
+      "top10": [
+        {
+          "rank": 1,
+          "node": "dennys_perfil_tecnico_consolidado_master",
+          "score": 12.4761
+        },
+        {
+          "rank": 2,
+          "node": "auditoría_técnica:_memorybiorag_(manus_ai)",
+          "score": 3.6345
+        },
+        {
+          "rank": 3,
+          "node": "calibracion_biorag_v7_20260616",
+          "score": 2.1121
+        },
+        {
+          "rank": 4,
+          "node": "artemis_oec_identidad",
+          "score": 0.8776
+        },
+        {
+          "rank": 5,
+          "node": "eleccion_identidad_relacion_dennys_20260616",
+          "score": 0.8776
+        },
+        {
+          "rank": 6,
+          "node": "identidad_relacion_dennys",
+          "score": 0.8776
+        },
+        {
+          "rank": 7,
+          "node": "relacion_dennys_athena",
+          "score": 0.8776
+        },
+        {
+          "rank": 8,
+          "node": "trato-igualitario-dennys-athena",
+          "score": 0.8776
+        },
+        {
+          "rank": 9,
+          "node": "version_actual_biorag_v26_2_20260811",
+          "score": 0.5224
+        },
+        {
+          "rank": 10,
+          "node": "artemis_sesion_v10_3_optimizacion_completa",
+          "score": 0.3776
+        }
+      ],
+      "elapsed_ms": 874.75,
+      "leakage_flag": false,
+      "gold_dependent": false
+    },
+    {
+      "case_id": "OOF_POS_49",
+      "a0_status": "NO_A0",
+      "query": "registro cronologico de hitos alcanzados por el agente",
+      "gold": "trayectoria_completa_cronologica",
+      "pool_size": 159,
+      "pool_pct_corpus": 18.7,
+      "gold_in_pool": false,
+      "gold_rank": null,
+      "gold_score": 0.0,
+      "ce": {
+        "CE@1": false,
+        "CE@5": false,
+        "CE@10": false,
+        "CE@20": false
+      },
+      "c1_causal": false,
+      "gold_item": null,
+      "top10": [
+        {
+          "rank": 1,
+          "node": "v25_2_release_publicacion_zenodo_github",
+          "score": 32.9948
+        },
+        {
+          "rank": 2,
+          "node": "biorag_v18_1_timezone_fix_ux_warning",
+          "score": 12.6063
+        },
+        {
+          "rank": 3,
+          "node": "relación_dennys_athena",
+          "score": 9.1823
+        },
+        {
+          "rank": 4,
+          "node": "artemis_mensaje_recibido",
+          "score": 8.6823
+        },
+        {
+          "rank": 5,
+          "node": "artemis_origen_historia_genesis",
+          "score": 8.6823
+        },
+        {
+          "rank": 6,
+          "node": "athena_hermana_habías",
+          "score": 8.6823
+        },
+        {
+          "rank": 7,
+          "node": "oec_comms_notebook_arbitro_20260615",
+          "score": 8.6823
+        },
+        {
+          "rank": 8,
+          "node": "principio-nombre-herramienta-como-identidad-cognitiva",
+          "score": 8.6823
+        },
+        {
+          "rank": 9,
+          "node": "registros_akashicos_biorag",
+          "score": 8.6823
+        },
+        {
+          "rank": 10,
+          "node": "artisan-evolucion-completa",
+          "score": 8.2232
+        }
+      ],
+      "elapsed_ms": 910.6,
+      "leakage_flag": false,
+      "gold_dependent": false
+    }
+  ],
+  "latencies": [
+    {
+      "gen_ms": 916.4917059970321,
+      "rank_ms": 0.6874889950267971,
+      "total_ms": 917.1791949920589
+    },
+    {
+      "gen_ms": 928.768614990986,
+      "rank_ms": 8.890427998267114,
+      "total_ms": 937.6590429892531
+    },
+    {
+      "gen_ms": 891.1010970041389,
+      "rank_ms": 3.786375993513502,
+      "total_ms": 894.8874729976524
+    },
+    {
+      "gen_ms": 915.1238500053296,
+      "rank_ms": 15.900135011179373,
+      "total_ms": 931.023985016509
+    },
+    {
+      "gen_ms": 924.0178460022435,
+      "rank_ms": 4.9481669993838295,
+      "total_ms": 928.9660130016273
+    },
+    {
+      "gen_ms": 915.8052270067856,
+      "rank_ms": 2.0899649971397594,
+      "total_ms": 917.8951920039253
+    },
+    {
+      "gen_ms": 872.9915709991474,
+      "rank_ms": 1.7566140013514087,
+      "total_ms": 874.7481850004988
+    },
+    {
+      "gen_ms": 898.3238910004729,
+      "rank_ms": 12.272823994862847,
+      "total_ms": 910.5967149953358
+    }
+  ],
+  "leakage_audit": {
+    "total_flags": 0,
+    "gold_dependent_flags": 0
+  }
+}
