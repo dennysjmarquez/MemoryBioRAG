@@ -1,7 +1,7 @@
 {
   "experimento": "EXP-Q-R4",
-  "fecha": "2026-09-09T10:24:13",
-  "db_sha256": "f5f7331e3420919f0f0956b62b59d87b330c35ac0a64e316afc3a809eafd1feb",
+  "fecha": "2026-09-09T10:45:44",
+  "db_sha256": "c54c4df7169dbbd0a99367a97bc391648bc749ae0c578ce7324d189837735c70",
   "gammas_evaluated": [
     0.25,
     0.5,
@@ -31,12 +31,12 @@
         "q2_summary": {
           "r1": 0.0,
           "r5": 0.0,
-          "mrr": 0.0111
+          "mrr": 0.0118
         },
         "q3_summary": {
           "r1": 0.0,
           "r5": 0.0,
-          "mrr": 0.0111
+          "mrr": 0.0
         },
         "delta_q0_to_q1": {
           "delta_r1_pp": 0.0,
@@ -46,7 +46,7 @@
         "delta_q1_to_q2": {
           "delta_r1_pp": 0.0,
           "delta_r5_pp": 0.0,
-          "delta_mrr": 0.0
+          "delta_mrr": 0.0006
         },
         "casos": [
           {
@@ -85,7 +85,7 @@
               "score": 0.0,
               "provenance": "NOT_FOUND"
             },
-            "latencia_ms": 4258.07
+            "latencia_ms": 4996.74
           },
           {
             "id": "CASE_02",
@@ -114,16 +114,16 @@
               "provenance": "GRAPH_NEIGHBOR"
             },
             "q2": {
-              "rank": 18,
-              "score": 0.3928,
+              "rank": 17,
+              "score": 0.4429,
               "provenance": "GRAPH_NEIGHBOR"
             },
             "q3": {
-              "rank": 18,
-              "score": 0.3928,
-              "provenance": "GRAPH_NEIGHBOR"
+              "rank": null,
+              "score": 0.0,
+              "provenance": "NOT_FOUND"
             },
-            "latencia_ms": 2871.66
+            "latencia_ms": 4347.52
           },
           {
             "id": "CASE_03",
@@ -161,7 +161,7 @@
               "score": 0.0,
               "provenance": "NOT_FOUND"
             },
-            "latencia_ms": 3106.22
+            "latencia_ms": 4438.49
           },
           {
             "id": "CASE_04",
@@ -199,7 +199,7 @@
               "score": 0.0,
               "provenance": "NOT_FOUND"
             },
-            "latencia_ms": 2258.21
+            "latencia_ms": 3532.03
           },
           {
             "id": "CASE_05",
@@ -228,16 +228,16 @@
               "provenance": "GRAPH_NEIGHBOR"
             },
             "q2": {
-              "rank": 35,
-              "score": 0.3896,
+              "rank": 32,
+              "score": 0.4605,
               "provenance": "GRAPH_NEIGHBOR"
             },
             "q3": {
-              "rank": 35,
-              "score": 0.3896,
-              "provenance": "GRAPH_NEIGHBOR"
+              "rank": null,
+              "score": 0.0,
+              "provenance": "NOT_FOUND"
             },
-            "latencia_ms": 4269.35
+            "latencia_ms": 4938.5
           },
           {
             "id": "CASE_06",
@@ -275,7 +275,7 @@
               "score": 0.0,
               "provenance": "NOT_FOUND"
             },
-            "latencia_ms": 2999.69
+            "latencia_ms": 2722.45
           },
           {
             "id": "CASE_07",
@@ -313,7 +313,7 @@
               "score": 0.0,
               "provenance": "NOT_FOUND"
             },
-            "latencia_ms": 4513.01
+            "latencia_ms": 4461.03
           },
           {
             "id": "CASE_08",
@@ -351,7 +351,7 @@
               "score": 0.0,
               "provenance": "NOT_FOUND"
             },
-            "latencia_ms": 4374.65
+            "latencia_ms": 4402.62
           },
           {
             "id": "CASE_09",
@@ -389,7 +389,7 @@
               "score": 0.0,
               "provenance": "NOT_FOUND"
             },
-            "latencia_ms": 3559.31
+            "latencia_ms": 3318.12
           },
           {
             "id": "CASE_10",
@@ -419,15 +419,15 @@
             },
             "q2": {
               "rank": 43,
-              "score": 0.3433,
+              "score": 0.4142,
               "provenance": "GRAPH_NEIGHBOR"
             },
             "q3": {
-              "rank": 43,
-              "score": 0.3433,
-              "provenance": "GRAPH_NEIGHBOR"
+              "rank": null,
+              "score": 0.0,
+              "provenance": "NOT_FOUND"
             },
-            "latencia_ms": 2171.47
+            "latencia_ms": 2111.0
           },
           {
             "id": "CASE_11",
@@ -465,7 +465,7 @@
               "score": 0.0,
               "provenance": "NOT_FOUND"
             },
-            "latencia_ms": 3119.57
+            "latencia_ms": 2899.1
           },
           {
             "id": "CASE_12",
@@ -494,16 +494,16 @@
               "provenance": "GRAPH_NEIGHBOR"
             },
             "q2": {
-              "rank": 38,
-              "score": 0.3695,
+              "rank": 36,
+              "score": 0.4404,
               "provenance": "GRAPH_NEIGHBOR"
             },
             "q3": {
-              "rank": 38,
-              "score": 0.3695,
-              "provenance": "GRAPH_NEIGHBOR"
+              "rank": null,
+              "score": 0.0,
+              "provenance": "NOT_FOUND"
             },
-            "latencia_ms": 4140.73
+            "latencia_ms": 3977.22
           }
         ]
       },
@@ -517,7 +517,7 @@
             "id": "NEG_01",
             "query": "receta culinaria de cocina mediterranea con aceite de oliva",
             "q0_max_score": 0.4331,
-            "q2_max_score": 0.4905,
+            "q2_max_score": 0.5108,
             "top_concept": "activos_dormidos_hermana",
             "top_provenance": "GRAPH_NEIGHBOR",
             "is_graph_fp": false,
@@ -527,7 +527,7 @@
             "id": "NEG_02",
             "query": "mantenimiento preventivo de vehiculos hibridos y cambio de frenos",
             "q0_max_score": 0.5127,
-            "q2_max_score": 0.5382,
+            "q2_max_score": 0.5585,
             "top_concept": "decision_word2vec_hdc_puente_condicional_v2",
             "top_provenance": "GRAPH_NEIGHBOR",
             "is_graph_fp": false,
@@ -537,7 +537,7 @@
             "id": "NEG_03",
             "query": "estrategias de cultivo hidroponico para tomates en invernadero",
             "q0_max_score": 0.3425,
-            "q2_max_score": 0.4796,
+            "q2_max_score": 0.5093,
             "top_concept": "biorag_v15_0_estado",
             "top_provenance": "GRAPH_NEIGHBOR",
             "is_graph_fp": false,
@@ -547,7 +547,7 @@
             "id": "NEG_04",
             "query": "tecnicas de respiracion para buceo libre y apnea profunda",
             "q0_max_score": 0.2289,
-            "q2_max_score": 0.4342,
+            "q2_max_score": 0.4847,
             "top_concept": "agente_usabilidad_mcp_biorag_feedback",
             "top_provenance": "GRAPH_NEIGHBOR",
             "is_graph_fp": true,
@@ -557,7 +557,7 @@
             "id": "NEG_05",
             "query": "historia del arte renacentista en florencia del siglo xv",
             "q0_max_score": 0.4351,
-            "q2_max_score": 0.4843,
+            "q2_max_score": 0.5046,
             "top_concept": "dashboard_neuro_visor_toolbar_fusionar_2026_07_18",
             "top_provenance": "GRAPH_NEIGHBOR",
             "is_graph_fp": false,
@@ -567,7 +567,7 @@
             "id": "NEG_06",
             "query": "manual de reparacion de transmisiones automaticas y embragues",
             "q0_max_score": 0.4312,
-            "q2_max_score": 0.4893,
+            "q2_max_score": 0.5096,
             "top_concept": "auditoria_tecnica_v14_0_readme",
             "top_provenance": "GRAPH_NEIGHBOR",
             "is_graph_fp": false,
@@ -577,7 +577,7 @@
             "id": "NEG_07",
             "query": "guia de senderismo de alta montaña en los alpes suizos",
             "q0_max_score": 0.3873,
-            "q2_max_score": 0.4746,
+            "q2_max_score": 0.5053,
             "top_concept": "athena_oec",
             "top_provenance": "GRAPH_NEIGHBOR",
             "is_graph_fp": false,
@@ -587,8 +587,8 @@
             "id": "NEG_08",
             "query": "preparacion de masa madre para reposteria artesanal",
             "q0_max_score": 0.3556,
-            "q2_max_score": 0.3934,
-            "top_concept": "artis_oec_dennys_solo",
+            "q2_max_score": 0.4731,
+            "top_concept": "colega_echar_producto",
             "top_provenance": "GRAPH_NEIGHBOR",
             "is_graph_fp": false,
             "is_total_fp": true
@@ -597,7 +597,7 @@
             "id": "NEG_09",
             "query": "composicion quimica de fertilizantes organicos para jardineria",
             "q0_max_score": 0.4867,
-            "q2_max_score": 0.5226,
+            "q2_max_score": 0.5429,
             "top_concept": "regla_verificar_codigo_real_antes_de_diagnostico",
             "top_provenance": "GRAPH_NEIGHBOR",
             "is_graph_fp": false,
@@ -607,7 +607,7 @@
             "id": "NEG_10",
             "query": "reglas oficiales de arbitraje en torneos internacionales de ajedrez",
             "q0_max_score": 0.4004,
-            "q2_max_score": 0.4708,
+            "q2_max_score": 0.4911,
             "top_concept": "alguien_vs_algo_identidad",
             "top_provenance": "GRAPH_NEIGHBOR",
             "is_graph_fp": false,
@@ -634,12 +634,12 @@
         "q2_summary": {
           "r1": 0.0,
           "r5": 0.0,
-          "mrr": 0.0111
+          "mrr": 0.0101
         },
         "q3_summary": {
           "r1": 0.0,
           "r5": 0.0,
-          "mrr": 0.0109
+          "mrr": 0.0
         },
         "delta_q0_to_q1": {
           "delta_r1_pp": 0.0,
@@ -649,7 +649,7 @@
         "delta_q1_to_q2": {
           "delta_r1_pp": 0.0,
           "delta_r5_pp": 0.0,
-          "delta_mrr": 0.0
+          "delta_mrr": -0.0011
         },
         "casos": [
           {
@@ -688,7 +688,7 @@
               "score": 0.0,
               "provenance": "NOT_FOUND"
             },
-            "latencia_ms": 4190.82
+            "latencia_ms": 3864.26
           },
           {
             "id": "CASE_02",
@@ -717,16 +717,16 @@
               "provenance": "GRAPH_NEIGHBOR"
             },
             "q2": {
-              "rank": 18,
-              "score": 0.3928,
+              "rank": 26,
+              "score": 0.493,
               "provenance": "GRAPH_NEIGHBOR"
             },
             "q3": {
-              "rank": 18,
-              "score": 0.3928,
-              "provenance": "GRAPH_NEIGHBOR"
+              "rank": null,
+              "score": 0.0,
+              "provenance": "NOT_FOUND"
             },
-            "latencia_ms": 2937.64
+            "latencia_ms": 2651.83
           },
           {
             "id": "CASE_03",
@@ -764,7 +764,7 @@
               "score": 0.0,
               "provenance": "NOT_FOUND"
             },
-            "latencia_ms": 2862.6
+            "latencia_ms": 2940.28
           },
           {
             "id": "CASE_04",
@@ -802,7 +802,7 @@
               "score": 0.0,
               "provenance": "NOT_FOUND"
             },
-            "latencia_ms": 2231.56
+            "latencia_ms": 2131.76
           },
           {
             "id": "CASE_05",
@@ -831,16 +831,16 @@
               "provenance": "GRAPH_NEIGHBOR"
             },
             "q2": {
-              "rank": 35,
-              "score": 0.3896,
+              "rank": 32,
+              "score": 0.5313,
               "provenance": "GRAPH_NEIGHBOR"
             },
             "q3": {
-              "rank": 38,
-              "score": 0.3896,
-              "provenance": "GRAPH_NEIGHBOR"
+              "rank": null,
+              "score": 0.0,
+              "provenance": "NOT_FOUND"
             },
-            "latencia_ms": 4141.0
+            "latencia_ms": 4010.93
           },
           {
             "id": "CASE_06",
@@ -878,7 +878,7 @@
               "score": 0.0,
               "provenance": "NOT_FOUND"
             },
-            "latencia_ms": 2802.34
+            "latencia_ms": 2839.53
           },
           {
             "id": "CASE_07",
@@ -916,7 +916,7 @@
               "score": 0.0,
               "provenance": "NOT_FOUND"
             },
-            "latencia_ms": 5256.41
+            "latencia_ms": 4627.11
           },
           {
             "id": "CASE_08",
@@ -954,7 +954,7 @@
               "score": 0.0,
               "provenance": "NOT_FOUND"
             },
-            "latencia_ms": 4470.64
+            "latencia_ms": 4365.71
           },
           {
             "id": "CASE_09",
@@ -992,7 +992,7 @@
               "score": 0.0,
               "provenance": "NOT_FOUND"
             },
-            "latencia_ms": 3603.25
+            "latencia_ms": 3735.77
           },
           {
             "id": "CASE_10",
@@ -1022,15 +1022,15 @@
             },
             "q2": {
               "rank": 43,
-              "score": 0.3433,
+              "score": 0.485,
               "provenance": "GRAPH_NEIGHBOR"
             },
             "q3": {
-              "rank": 43,
-              "score": 0.3433,
-              "provenance": "GRAPH_NEIGHBOR"
+              "rank": null,
+              "score": 0.0,
+              "provenance": "NOT_FOUND"
             },
-            "latencia_ms": 2254.65
+            "latencia_ms": 3292.87
           },
           {
             "id": "CASE_11",
@@ -1068,7 +1068,7 @@
               "score": 0.0,
               "provenance": "NOT_FOUND"
             },
-            "latencia_ms": 2992.57
+            "latencia_ms": 3851.02
           },
           {
             "id": "CASE_12",
@@ -1097,16 +1097,16 @@
               "provenance": "GRAPH_NEIGHBOR"
             },
             "q2": {
-              "rank": 38,
-              "score": 0.3695,
+              "rank": 36,
+              "score": 0.5112,
               "provenance": "GRAPH_NEIGHBOR"
             },
             "q3": {
-              "rank": 39,
-              "score": 0.3695,
-              "provenance": "GRAPH_NEIGHBOR"
+              "rank": null,
+              "score": 0.0,
+              "provenance": "NOT_FOUND"
             },
-            "latencia_ms": 4096.41
+            "latencia_ms": 5385.82
           }
         ]
       },
@@ -1120,7 +1120,7 @@
             "id": "NEG_01",
             "query": "receta culinaria de cocina mediterranea con aceite de oliva",
             "q0_max_score": 0.4331,
-            "q2_max_score": 0.5412,
+            "q2_max_score": 0.5816,
             "top_concept": "activos_dormidos_hermana",
             "top_provenance": "GRAPH_NEIGHBOR",
             "is_graph_fp": false,
@@ -1130,8 +1130,8 @@
             "id": "NEG_02",
             "query": "mantenimiento preventivo de vehiculos hibridos y cambio de frenos",
             "q0_max_score": 0.5127,
-            "q2_max_score": 0.5889,
-            "top_concept": "decision_word2vec_hdc_puente_condicional_v2",
+            "q2_max_score": 0.6318,
+            "top_concept": "test_lap07",
             "top_provenance": "GRAPH_NEIGHBOR",
             "is_graph_fp": false,
             "is_total_fp": true
@@ -1140,7 +1140,7 @@
             "id": "NEG_03",
             "query": "estrategias de cultivo hidroponico para tomates en invernadero",
             "q0_max_score": 0.3425,
-            "q2_max_score": 0.5005,
+            "q2_max_score": 0.5598,
             "top_concept": "biorag_v15_0_estado",
             "top_provenance": "GRAPH_NEIGHBOR",
             "is_graph_fp": false,
@@ -1150,7 +1150,7 @@
             "id": "NEG_04",
             "query": "tecnicas de respiracion para buceo libre y apnea profunda",
             "q0_max_score": 0.2289,
-            "q2_max_score": 0.4342,
+            "q2_max_score": 0.5352,
             "top_concept": "agente_usabilidad_mcp_biorag_feedback",
             "top_provenance": "GRAPH_NEIGHBOR",
             "is_graph_fp": true,
@@ -1160,8 +1160,8 @@
             "id": "NEG_05",
             "query": "historia del arte renacentista en florencia del siglo xv",
             "q0_max_score": 0.4351,
-            "q2_max_score": 0.535,
-            "top_concept": "dashboard_neuro_visor_toolbar_fusionar_2026_07_18",
+            "q2_max_score": 0.5863,
+            "top_concept": "colega_echar_producto",
             "top_provenance": "GRAPH_NEIGHBOR",
             "is_graph_fp": false,
             "is_total_fp": true
@@ -1170,7 +1170,7 @@
             "id": "NEG_06",
             "query": "manual de reparacion de transmisiones automaticas y embragues",
             "q0_max_score": 0.4312,
-            "q2_max_score": 0.54,
+            "q2_max_score": 0.5804,
             "top_concept": "auditoria_tecnica_v14_0_readme",
             "top_provenance": "GRAPH_NEIGHBOR",
             "is_graph_fp": false,
@@ -1180,7 +1180,7 @@
             "id": "NEG_07",
             "query": "guia de senderismo de alta montaña en los alpes suizos",
             "q0_max_score": 0.3873,
-            "q2_max_score": 0.5059,
+            "q2_max_score": 0.5671,
             "top_concept": "athena_oec",
             "top_provenance": "GRAPH_NEIGHBOR",
             "is_graph_fp": false,
@@ -1190,8 +1190,8 @@
             "id": "NEG_08",
             "query": "preparacion de masa madre para reposteria artesanal",
             "q0_max_score": 0.3556,
-            "q2_max_score": 0.3934,
-            "top_concept": "artis_oec_dennys_solo",
+            "q2_max_score": 0.5606,
+            "top_concept": "colega_echar_producto",
             "top_provenance": "GRAPH_NEIGHBOR",
             "is_graph_fp": false,
             "is_total_fp": true
@@ -1200,7 +1200,7 @@
             "id": "NEG_09",
             "query": "composicion quimica de fertilizantes organicos para jardineria",
             "q0_max_score": 0.4867,
-            "q2_max_score": 0.5733,
+            "q2_max_score": 0.6137,
             "top_concept": "regla_verificar_codigo_real_antes_de_diagnostico",
             "top_provenance": "GRAPH_NEIGHBOR",
             "is_graph_fp": false,
@@ -1210,7 +1210,7 @@
             "id": "NEG_10",
             "query": "reglas oficiales de arbitraje en torneos internacionales de ajedrez",
             "q0_max_score": 0.4004,
-            "q2_max_score": 0.5215,
+            "q2_max_score": 0.5619,
             "top_concept": "alguien_vs_algo_identidad",
             "top_provenance": "GRAPH_NEIGHBOR",
             "is_graph_fp": false,
@@ -1237,12 +1237,12 @@
         "q2_summary": {
           "r1": 0.0,
           "r5": 0.0,
-          "mrr": 0.0111
+          "mrr": 0.0135
         },
         "q3_summary": {
           "r1": 0.0,
           "r5": 0.0,
-          "mrr": 0.0106
+          "mrr": 0.0
         },
         "delta_q0_to_q1": {
           "delta_r1_pp": 0.0,
@@ -1252,7 +1252,7 @@
         "delta_q1_to_q2": {
           "delta_r1_pp": 0.0,
           "delta_r5_pp": 0.0,
-          "delta_mrr": 0.0
+          "delta_mrr": 0.0023
         },
         "casos": [
           {
@@ -1291,7 +1291,7 @@
               "score": 0.0,
               "provenance": "NOT_FOUND"
             },
-            "latencia_ms": 4323.17
+            "latencia_ms": 4079.38
           },
           {
             "id": "CASE_02",
@@ -1320,16 +1320,16 @@
               "provenance": "GRAPH_NEIGHBOR"
             },
             "q2": {
-              "rank": 18,
-              "score": 0.3928,
+              "rank": 32,
+              "score": 0.5431,
               "provenance": "GRAPH_NEIGHBOR"
             },
             "q3": {
-              "rank": 18,
-              "score": 0.3928,
-              "provenance": "GRAPH_NEIGHBOR"
+              "rank": null,
+              "score": 0.0,
+              "provenance": "NOT_FOUND"
             },
-            "latencia_ms": 2788.22
+            "latencia_ms": 2678.19
           },
           {
             "id": "CASE_03",
@@ -1367,7 +1367,7 @@
               "score": 0.0,
               "provenance": "NOT_FOUND"
             },
-            "latencia_ms": 3001.47
+            "latencia_ms": 2844.3
           },
           {
             "id": "CASE_04",
@@ -1405,7 +1405,7 @@
               "score": 0.0,
               "provenance": "NOT_FOUND"
             },
-            "latencia_ms": 2216.69
+            "latencia_ms": 2255.85
           },
           {
             "id": "CASE_05",
@@ -1434,16 +1434,16 @@
               "provenance": "GRAPH_NEIGHBOR"
             },
             "q2": {
-              "rank": 35,
-              "score": 0.3896,
+              "rank": 32,
+              "score": 0.6022,
               "provenance": "GRAPH_NEIGHBOR"
             },
             "q3": {
-              "rank": 42,
-              "score": 0.3896,
-              "provenance": "GRAPH_NEIGHBOR"
+              "rank": null,
+              "score": 0.0,
+              "provenance": "NOT_FOUND"
             },
-            "latencia_ms": 4218.36
+            "latencia_ms": 3894.38
           },
           {
             "id": "CASE_06",
@@ -1481,7 +1481,7 @@
               "score": 0.0,
               "provenance": "NOT_FOUND"
             },
-            "latencia_ms": 2627.62
+            "latencia_ms": 2682.47
           },
           {
             "id": "CASE_07",
@@ -1519,7 +1519,7 @@
               "score": 0.0,
               "provenance": "NOT_FOUND"
             },
-            "latencia_ms": 4345.53
+            "latencia_ms": 4597.57
           },
           {
             "id": "CASE_08",
@@ -1557,7 +1557,7 @@
               "score": 0.0,
               "provenance": "NOT_FOUND"
             },
-            "latencia_ms": 4522.01
+            "latencia_ms": 5097.29
           },
           {
             "id": "CASE_09",
@@ -1595,7 +1595,7 @@
               "score": 0.0,
               "provenance": "NOT_FOUND"
             },
-            "latencia_ms": 3461.66
+            "latencia_ms": 3834.56
           },
           {
             "id": "CASE_10",
@@ -1624,16 +1624,16 @@
               "provenance": "GRAPH_NEIGHBOR"
             },
             "q2": {
-              "rank": 43,
-              "score": 0.3433,
+              "rank": 14,
+              "score": 0.5559,
               "provenance": "GRAPH_NEIGHBOR"
             },
             "q3": {
-              "rank": 43,
-              "score": 0.3433,
-              "provenance": "GRAPH_NEIGHBOR"
+              "rank": null,
+              "score": 0.0,
+              "provenance": "NOT_FOUND"
             },
-            "latencia_ms": 2212.85
+            "latencia_ms": 2527.17
           },
           {
             "id": "CASE_11",
@@ -1671,7 +1671,7 @@
               "score": 0.0,
               "provenance": "NOT_FOUND"
             },
-            "latencia_ms": 3051.1
+            "latencia_ms": 3353.57
           },
           {
             "id": "CASE_12",
@@ -1700,16 +1700,16 @@
               "provenance": "GRAPH_NEIGHBOR"
             },
             "q2": {
-              "rank": 38,
-              "score": 0.3695,
+              "rank": 36,
+              "score": 0.5821,
               "provenance": "GRAPH_NEIGHBOR"
             },
             "q3": {
-              "rank": 41,
-              "score": 0.3695,
-              "provenance": "GRAPH_NEIGHBOR"
+              "rank": null,
+              "score": 0.0,
+              "provenance": "NOT_FOUND"
             },
-            "latencia_ms": 4207.35
+            "latencia_ms": 4437.63
           }
         ]
       },
@@ -1723,7 +1723,7 @@
             "id": "NEG_01",
             "query": "receta culinaria de cocina mediterranea con aceite de oliva",
             "q0_max_score": 0.4331,
-            "q2_max_score": 0.5918,
+            "q2_max_score": 0.6525,
             "top_concept": "activos_dormidos_hermana",
             "top_provenance": "GRAPH_NEIGHBOR",
             "is_graph_fp": false,
@@ -1733,7 +1733,7 @@
             "id": "NEG_02",
             "query": "mantenimiento preventivo de vehiculos hibridos y cambio de frenos",
             "q0_max_score": 0.5127,
-            "q2_max_score": 0.6443,
+            "q2_max_score": 0.7193,
             "top_concept": "test_lap07",
             "top_provenance": "GRAPH_NEIGHBOR",
             "is_graph_fp": false,
@@ -1743,8 +1743,8 @@
             "id": "NEG_03",
             "query": "estrategias de cultivo hidroponico para tomates en invernadero",
             "q0_max_score": 0.3425,
-            "q2_max_score": 0.5213,
-            "top_concept": "biorag_v15_0_estado",
+            "q2_max_score": 0.6169,
+            "top_concept": "athena_oec",
             "top_provenance": "GRAPH_NEIGHBOR",
             "is_graph_fp": false,
             "is_total_fp": true
@@ -1753,7 +1753,7 @@
             "id": "NEG_04",
             "query": "tecnicas de respiracion para buceo libre y apnea profunda",
             "q0_max_score": 0.2289,
-            "q2_max_score": 0.4342,
+            "q2_max_score": 0.5858,
             "top_concept": "agente_usabilidad_mcp_biorag_feedback",
             "top_provenance": "GRAPH_NEIGHBOR",
             "is_graph_fp": true,
@@ -1763,8 +1763,8 @@
             "id": "NEG_05",
             "query": "historia del arte renacentista en florencia del siglo xv",
             "q0_max_score": 0.4351,
-            "q2_max_score": 0.5856,
-            "top_concept": "dashboard_neuro_visor_toolbar_fusionar_2026_07_18",
+            "q2_max_score": 0.6738,
+            "top_concept": "colega_echar_producto",
             "top_provenance": "GRAPH_NEIGHBOR",
             "is_graph_fp": false,
             "is_total_fp": true
@@ -1773,8 +1773,8 @@
             "id": "NEG_06",
             "query": "manual de reparacion de transmisiones automaticas y embragues",
             "q0_max_score": 0.4312,
-            "q2_max_score": 0.5906,
-            "top_concept": "auditoria_tecnica_v14_0_readme",
+            "q2_max_score": 0.6534,
+            "top_concept": "protocolo_avance_autonomo_validacion_auditor_externo",
             "top_provenance": "GRAPH_NEIGHBOR",
             "is_graph_fp": false,
             "is_total_fp": true
@@ -1783,7 +1783,7 @@
             "id": "NEG_07",
             "query": "guia de senderismo de alta montaña en los alpes suizos",
             "q0_max_score": 0.3873,
-            "q2_max_score": 0.5372,
+            "q2_max_score": 0.629,
             "top_concept": "athena_oec",
             "top_provenance": "GRAPH_NEIGHBOR",
             "is_graph_fp": false,
@@ -1793,8 +1793,8 @@
             "id": "NEG_08",
             "query": "preparacion de masa madre para reposteria artesanal",
             "q0_max_score": 0.3556,
-            "q2_max_score": 0.3934,
-            "top_concept": "artis_oec_dennys_solo",
+            "q2_max_score": 0.6481,
+            "top_concept": "colega_echar_producto",
             "top_provenance": "GRAPH_NEIGHBOR",
             "is_graph_fp": false,
             "is_total_fp": true
@@ -1803,7 +1803,7 @@
             "id": "NEG_09",
             "query": "composicion quimica de fertilizantes organicos para jardineria",
             "q0_max_score": 0.4867,
-            "q2_max_score": 0.6239,
+            "q2_max_score": 0.6846,
             "top_concept": "regla_verificar_codigo_real_antes_de_diagnostico",
             "top_provenance": "GRAPH_NEIGHBOR",
             "is_graph_fp": false,
@@ -1813,7 +1813,7 @@
             "id": "NEG_10",
             "query": "reglas oficiales de arbitraje en torneos internacionales de ajedrez",
             "q0_max_score": 0.4004,
-            "q2_max_score": 0.5721,
+            "q2_max_score": 0.6328,
             "top_concept": "alguien_vs_algo_identidad",
             "top_provenance": "GRAPH_NEIGHBOR",
             "is_graph_fp": false,
@@ -1840,12 +1840,12 @@
         "q2_summary": {
           "r1": 0.0,
           "r5": 0.0,
-          "mrr": 0.0111
+          "mrr": 0.0135
         },
         "q3_summary": {
           "r1": 0.0,
           "r5": 0.0,
-          "mrr": 0.0101
+          "mrr": 0.0
         },
         "delta_q0_to_q1": {
           "delta_r1_pp": 0.0,
@@ -1855,7 +1855,7 @@
         "delta_q1_to_q2": {
           "delta_r1_pp": 0.0,
           "delta_r5_pp": 0.0,
-          "delta_mrr": 0.0
+          "delta_mrr": 0.0023
         },
         "casos": [
           {
@@ -1894,7 +1894,7 @@
               "score": 0.0,
               "provenance": "NOT_FOUND"
             },
-            "latencia_ms": 4292.38
+            "latencia_ms": 4210.06
           },
           {
             "id": "CASE_02",
@@ -1923,16 +1923,16 @@
               "provenance": "GRAPH_NEIGHBOR"
             },
             "q2": {
-              "rank": 18,
-              "score": 0.3928,
+              "rank": 32,
+              "score": 0.5933,
               "provenance": "GRAPH_NEIGHBOR"
             },
             "q3": {
-              "rank": 18,
-              "score": 0.3928,
-              "provenance": "GRAPH_NEIGHBOR"
+              "rank": null,
+              "score": 0.0,
+              "provenance": "NOT_FOUND"
             },
-            "latencia_ms": 2872.88
+            "latencia_ms": 2897.27
           },
           {
             "id": "CASE_03",
@@ -1970,7 +1970,7 @@
               "score": 0.0,
               "provenance": "NOT_FOUND"
             },
-            "latencia_ms": 2995.47
+            "latencia_ms": 2973.52
           },
           {
             "id": "CASE_04",
@@ -2008,7 +2008,7 @@
               "score": 0.0,
               "provenance": "NOT_FOUND"
             },
-            "latencia_ms": 2197.76
+            "latencia_ms": 2309.18
           },
           {
             "id": "CASE_05",
@@ -2037,16 +2037,16 @@
               "provenance": "GRAPH_NEIGHBOR"
             },
             "q2": {
-              "rank": 35,
-              "score": 0.3896,
+              "rank": 32,
+              "score": 0.6731,
               "provenance": "GRAPH_NEIGHBOR"
             },
             "q3": {
-              "rank": 45,
-              "score": 0.3896,
-              "provenance": "GRAPH_NEIGHBOR"
+              "rank": null,
+              "score": 0.0,
+              "provenance": "NOT_FOUND"
             },
-            "latencia_ms": 4210.32
+            "latencia_ms": 3990.92
           },
           {
             "id": "CASE_06",
@@ -2084,7 +2084,7 @@
               "score": 0.0,
               "provenance": "NOT_FOUND"
             },
-            "latencia_ms": 2757.26
+            "latencia_ms": 2700.98
           },
           {
             "id": "CASE_07",
@@ -2122,7 +2122,7 @@
               "score": 0.0,
               "provenance": "NOT_FOUND"
             },
-            "latencia_ms": 4134.83
+            "latencia_ms": 4255.02
           },
           {
             "id": "CASE_08",
@@ -2160,7 +2160,7 @@
               "score": 0.0,
               "provenance": "NOT_FOUND"
             },
-            "latencia_ms": 4266.47
+            "latencia_ms": 5715.09
           },
           {
             "id": "CASE_09",
@@ -2198,7 +2198,7 @@
               "score": 0.0,
               "provenance": "NOT_FOUND"
             },
-            "latencia_ms": 3451.36
+            "latencia_ms": 5379.72
           },
           {
             "id": "CASE_10",
@@ -2227,16 +2227,16 @@
               "provenance": "GRAPH_NEIGHBOR"
             },
             "q2": {
-              "rank": 43,
-              "score": 0.3433,
+              "rank": 14,
+              "score": 0.6268,
               "provenance": "GRAPH_NEIGHBOR"
             },
             "q3": {
-              "rank": 45,
-              "score": 0.3433,
-              "provenance": "GRAPH_NEIGHBOR"
+              "rank": null,
+              "score": 0.0,
+              "provenance": "NOT_FOUND"
             },
-            "latencia_ms": 2262.4
+            "latencia_ms": 3417.31
           },
           {
             "id": "CASE_11",
@@ -2274,7 +2274,7 @@
               "score": 0.0,
               "provenance": "NOT_FOUND"
             },
-            "latencia_ms": 3110.21
+            "latencia_ms": 3164.16
           },
           {
             "id": "CASE_12",
@@ -2303,16 +2303,16 @@
               "provenance": "GRAPH_NEIGHBOR"
             },
             "q2": {
-              "rank": 38,
-              "score": 0.3695,
+              "rank": 36,
+              "score": 0.653,
               "provenance": "GRAPH_NEIGHBOR"
             },
             "q3": {
-              "rank": 47,
-              "score": 0.3695,
-              "provenance": "GRAPH_NEIGHBOR"
+              "rank": null,
+              "score": 0.0,
+              "provenance": "NOT_FOUND"
             },
-            "latencia_ms": 4268.93
+            "latencia_ms": 6326.88
           }
         ]
       },
@@ -2326,7 +2326,7 @@
             "id": "NEG_01",
             "query": "receta culinaria de cocina mediterranea con aceite de oliva",
             "q0_max_score": 0.4331,
-            "q2_max_score": 0.6424,
+            "q2_max_score": 0.7234,
             "top_concept": "activos_dormidos_hermana",
             "top_provenance": "GRAPH_NEIGHBOR",
             "is_graph_fp": false,
@@ -2336,7 +2336,7 @@
             "id": "NEG_02",
             "query": "mantenimiento preventivo de vehiculos hibridos y cambio de frenos",
             "q0_max_score": 0.5127,
-            "q2_max_score": 0.7068,
+            "q2_max_score": 0.8068,
             "top_concept": "test_lap07",
             "top_provenance": "GRAPH_NEIGHBOR",
             "is_graph_fp": false,
@@ -2346,8 +2346,8 @@
             "id": "NEG_03",
             "query": "estrategias de cultivo hidroponico para tomates en invernadero",
             "q0_max_score": 0.3425,
-            "q2_max_score": 0.5421,
-            "top_concept": "biorag_v15_0_estado",
+            "q2_max_score": 0.6788,
+            "top_concept": "athena_oec",
             "top_provenance": "GRAPH_NEIGHBOR",
             "is_graph_fp": false,
             "is_total_fp": true
@@ -2356,8 +2356,8 @@
             "id": "NEG_04",
             "query": "tecnicas de respiracion para buceo libre y apnea profunda",
             "q0_max_score": 0.2289,
-            "q2_max_score": 0.4342,
-            "top_concept": "agente_usabilidad_mcp_biorag_feedback",
+            "q2_max_score": 0.6379,
+            "top_concept": "athena_oec",
             "top_provenance": "GRAPH_NEIGHBOR",
             "is_graph_fp": true,
             "is_total_fp": true
@@ -2366,8 +2366,8 @@
             "id": "NEG_05",
             "query": "historia del arte renacentista en florencia del siglo xv",
             "q0_max_score": 0.4351,
-            "q2_max_score": 0.6362,
-            "top_concept": "dashboard_neuro_visor_toolbar_fusionar_2026_07_18",
+            "q2_max_score": 0.7613,
+            "top_concept": "colega_echar_producto",
             "top_provenance": "GRAPH_NEIGHBOR",
             "is_graph_fp": false,
             "is_total_fp": true
@@ -2376,8 +2376,8 @@
             "id": "NEG_06",
             "query": "manual de reparacion de transmisiones automaticas y embragues",
             "q0_max_score": 0.4312,
-            "q2_max_score": 0.6412,
-            "top_concept": "auditoria_tecnica_v14_0_readme",
+            "q2_max_score": 0.7341,
+            "top_concept": "protocolo_avance_autonomo_validacion_auditor_externo",
             "top_provenance": "GRAPH_NEIGHBOR",
             "is_graph_fp": false,
             "is_total_fp": true
@@ -2386,8 +2386,8 @@
             "id": "NEG_07",
             "query": "guia de senderismo de alta montaña en los alpes suizos",
             "q0_max_score": 0.3873,
-            "q2_max_score": 0.5684,
-            "top_concept": "athena_oec",
+            "q2_max_score": 0.6959,
+            "top_concept": "athena_alma",
             "top_provenance": "GRAPH_NEIGHBOR",
             "is_graph_fp": false,
             "is_total_fp": true
@@ -2396,8 +2396,8 @@
             "id": "NEG_08",
             "query": "preparacion de masa madre para reposteria artesanal",
             "q0_max_score": 0.3556,
-            "q2_max_score": 0.3934,
-            "top_concept": "artis_oec_dennys_solo",
+            "q2_max_score": 0.7356,
+            "top_concept": "colega_echar_producto",
             "top_provenance": "GRAPH_NEIGHBOR",
             "is_graph_fp": false,
             "is_total_fp": true
@@ -2406,7 +2406,7 @@
             "id": "NEG_09",
             "query": "composicion quimica de fertilizantes organicos para jardineria",
             "q0_max_score": 0.4867,
-            "q2_max_score": 0.6745,
+            "q2_max_score": 0.7555,
             "top_concept": "regla_verificar_codigo_real_antes_de_diagnostico",
             "top_provenance": "GRAPH_NEIGHBOR",
             "is_graph_fp": false,
@@ -2416,7 +2416,7 @@
             "id": "NEG_10",
             "query": "reglas oficiales de arbitraje en torneos internacionales de ajedrez",
             "q0_max_score": 0.4004,
-            "q2_max_score": 0.6227,
+            "q2_max_score": 0.7037,
             "top_concept": "alguien_vs_algo_identidad",
             "top_provenance": "GRAPH_NEIGHBOR",
             "is_graph_fp": false,
@@ -2443,12 +2443,12 @@
         "q2_summary": {
           "r1": 0.0,
           "r5": 0.0,
-          "mrr": 0.0111
+          "mrr": 0.0134
         },
         "q3_summary": {
           "r1": 0.0,
           "r5": 0.0,
-          "mrr": 0.0064
+          "mrr": 0.0
         },
         "delta_q0_to_q1": {
           "delta_r1_pp": 0.0,
@@ -2458,7 +2458,7 @@
         "delta_q1_to_q2": {
           "delta_r1_pp": 0.0,
           "delta_r5_pp": 0.0,
-          "delta_mrr": 0.0
+          "delta_mrr": 0.0023
         },
         "casos": [
           {
@@ -2497,7 +2497,7 @@
               "score": 0.0,
               "provenance": "NOT_FOUND"
             },
-            "latencia_ms": 4089.46
+            "latencia_ms": 3954.81
           },
           {
             "id": "CASE_02",
@@ -2526,16 +2526,16 @@
               "provenance": "GRAPH_NEIGHBOR"
             },
             "q2": {
-              "rank": 18,
-              "score": 0.3928,
+              "rank": 32,
+              "score": 0.6935,
               "provenance": "GRAPH_NEIGHBOR"
             },
             "q3": {
-              "rank": 18,
-              "score": 0.3928,
-              "provenance": "GRAPH_NEIGHBOR"
+              "rank": null,
+              "score": 0.0,
+              "provenance": "NOT_FOUND"
             },
-            "latencia_ms": 2807.18
+            "latencia_ms": 2862.99
           },
           {
             "id": "CASE_03",
@@ -2573,7 +2573,7 @@
               "score": 0.0,
               "provenance": "NOT_FOUND"
             },
-            "latencia_ms": 2957.73
+            "latencia_ms": 2814.5
           },
           {
             "id": "CASE_04",
@@ -2611,7 +2611,7 @@
               "score": 0.0,
               "provenance": "NOT_FOUND"
             },
-            "latencia_ms": 2893.67
+            "latencia_ms": 2087.15
           },
           {
             "id": "CASE_05",
@@ -2640,8 +2640,8 @@
               "provenance": "GRAPH_NEIGHBOR"
             },
             "q2": {
-              "rank": 35,
-              "score": 0.3896,
+              "rank": 33,
+              "score": 0.8149,
               "provenance": "GRAPH_NEIGHBOR"
             },
             "q3": {
@@ -2649,7 +2649,7 @@
               "score": 0.0,
               "provenance": "NOT_FOUND"
             },
-            "latencia_ms": 4423.51
+            "latencia_ms": 4566.34
           },
           {
             "id": "CASE_06",
@@ -2687,7 +2687,7 @@
               "score": 0.0,
               "provenance": "NOT_FOUND"
             },
-            "latencia_ms": 2601.83
+            "latencia_ms": 2663.49
           },
           {
             "id": "CASE_07",
@@ -2725,7 +2725,7 @@
               "score": 0.0,
               "provenance": "NOT_FOUND"
             },
-            "latencia_ms": 4721.47
+            "latencia_ms": 4414.5
           },
           {
             "id": "CASE_08",
@@ -2763,7 +2763,7 @@
               "score": 0.0,
               "provenance": "NOT_FOUND"
             },
-            "latencia_ms": 4589.95
+            "latencia_ms": 6191.87
           },
           {
             "id": "CASE_09",
@@ -2801,7 +2801,7 @@
               "score": 0.0,
               "provenance": "NOT_FOUND"
             },
-            "latencia_ms": 3618.65
+            "latencia_ms": 3539.6
           },
           {
             "id": "CASE_10",
@@ -2830,16 +2830,16 @@
               "provenance": "GRAPH_NEIGHBOR"
             },
             "q2": {
-              "rank": 43,
-              "score": 0.3433,
+              "rank": 14,
+              "score": 0.7686,
               "provenance": "GRAPH_NEIGHBOR"
             },
             "q3": {
-              "rank": 48,
-              "score": 0.3433,
-              "provenance": "GRAPH_NEIGHBOR"
+              "rank": null,
+              "score": 0.0,
+              "provenance": "NOT_FOUND"
             },
-            "latencia_ms": 2231.66
+            "latencia_ms": 2548.31
           },
           {
             "id": "CASE_11",
@@ -2877,7 +2877,7 @@
               "score": 0.0,
               "provenance": "NOT_FOUND"
             },
-            "latencia_ms": 2952.0
+            "latencia_ms": 3505.46
           },
           {
             "id": "CASE_12",
@@ -2906,8 +2906,8 @@
               "provenance": "GRAPH_NEIGHBOR"
             },
             "q2": {
-              "rank": 38,
-              "score": 0.3695,
+              "rank": 36,
+              "score": 0.7948,
               "provenance": "GRAPH_NEIGHBOR"
             },
             "q3": {
@@ -2915,7 +2915,7 @@
               "score": 0.0,
               "provenance": "NOT_FOUND"
             },
-            "latencia_ms": 4121.74
+            "latencia_ms": 4053.95
           }
         ]
       },
@@ -2929,7 +2929,7 @@
             "id": "NEG_01",
             "query": "receta culinaria de cocina mediterranea con aceite de oliva",
             "q0_max_score": 0.4331,
-            "q2_max_score": 0.7437,
+            "q2_max_score": 0.8652,
             "top_concept": "activos_dormidos_hermana",
             "top_provenance": "GRAPH_NEIGHBOR",
             "is_graph_fp": false,
@@ -2939,7 +2939,7 @@
             "id": "NEG_02",
             "query": "mantenimiento preventivo de vehiculos hibridos y cambio de frenos",
             "q0_max_score": 0.5127,
-            "q2_max_score": 0.8318,
+            "q2_max_score": 0.9818,
             "top_concept": "test_lap07",
             "top_provenance": "GRAPH_NEIGHBOR",
             "is_graph_fp": false,
@@ -2949,8 +2949,8 @@
             "id": "NEG_03",
             "query": "estrategias de cultivo hidroponico para tomates en invernadero",
             "q0_max_score": 0.3425,
-            "q2_max_score": 0.5838,
-            "top_concept": "biorag_v15_0_estado",
+            "q2_max_score": 0.8108,
+            "top_concept": "kilo_vscode_extension_principal",
             "top_provenance": "GRAPH_NEIGHBOR",
             "is_graph_fp": false,
             "is_total_fp": true
@@ -2959,8 +2959,8 @@
             "id": "NEG_04",
             "query": "tecnicas de respiracion para buceo libre y apnea profunda",
             "q0_max_score": 0.2289,
-            "q2_max_score": 0.4342,
-            "top_concept": "agente_usabilidad_mcp_biorag_feedback",
+            "q2_max_score": 0.7616,
+            "top_concept": "athena_oec",
             "top_provenance": "GRAPH_NEIGHBOR",
             "is_graph_fp": true,
             "is_total_fp": true
@@ -2969,8 +2969,8 @@
             "id": "NEG_05",
             "query": "historia del arte renacentista en florencia del siglo xv",
             "q0_max_score": 0.4351,
-            "q2_max_score": 0.7375,
-            "top_concept": "dashboard_neuro_visor_toolbar_fusionar_2026_07_18",
+            "q2_max_score": 0.9363,
+            "top_concept": "colega_echar_producto",
             "top_provenance": "GRAPH_NEIGHBOR",
             "is_graph_fp": false,
             "is_total_fp": true
@@ -2979,8 +2979,8 @@
             "id": "NEG_06",
             "query": "manual de reparacion de transmisiones automaticas y embragues",
             "q0_max_score": 0.4312,
-            "q2_max_score": 0.7425,
-            "top_concept": "auditoria_tecnica_v14_0_readme",
+            "q2_max_score": 0.8953,
+            "top_concept": "protocolo_avance_autonomo_validacion_auditor_externo",
             "top_provenance": "GRAPH_NEIGHBOR",
             "is_graph_fp": false,
             "is_total_fp": true
@@ -2989,8 +2989,8 @@
             "id": "NEG_07",
             "query": "guia de senderismo de alta montaña en los alpes suizos",
             "q0_max_score": 0.3873,
-            "q2_max_score": 0.6309,
-            "top_concept": "athena_oec",
+            "q2_max_score": 0.8377,
+            "top_concept": "athena_alma",
             "top_provenance": "GRAPH_NEIGHBOR",
             "is_graph_fp": false,
             "is_total_fp": true
@@ -2999,8 +2999,8 @@
             "id": "NEG_08",
             "query": "preparacion de masa madre para reposteria artesanal",
             "q0_max_score": 0.3556,
-            "q2_max_score": 0.3934,
-            "top_concept": "artis_oec_dennys_solo",
+            "q2_max_score": 0.9106,
+            "top_concept": "colega_echar_producto",
             "top_provenance": "GRAPH_NEIGHBOR",
             "is_graph_fp": false,
             "is_total_fp": true
@@ -3009,7 +3009,7 @@
             "id": "NEG_09",
             "query": "composicion quimica de fertilizantes organicos para jardineria",
             "q0_max_score": 0.4867,
-            "q2_max_score": 0.7758,
+            "q2_max_score": 0.8973,
             "top_concept": "regla_verificar_codigo_real_antes_de_diagnostico",
             "top_provenance": "GRAPH_NEIGHBOR",
             "is_graph_fp": false,
@@ -3019,7 +3019,7 @@
             "id": "NEG_10",
             "query": "reglas oficiales de arbitraje en torneos internacionales de ajedrez",
             "q0_max_score": 0.4004,
-            "q2_max_score": 0.724,
+            "q2_max_score": 0.8455,
             "top_concept": "alguien_vs_algo_identidad",
             "top_provenance": "GRAPH_NEIGHBOR",
             "is_graph_fp": false,
@@ -3046,12 +3046,12 @@
         "q2_summary": {
           "r1": 0.0,
           "r5": 0.0,
-          "mrr": 0.0111
+          "mrr": 0.0139
         },
         "q3_summary": {
           "r1": 0.0,
           "r5": 0.0,
-          "mrr": 0.0061
+          "mrr": 0.0
         },
         "delta_q0_to_q1": {
           "delta_r1_pp": 0.0,
@@ -3061,7 +3061,7 @@
         "delta_q1_to_q2": {
           "delta_r1_pp": 0.0,
           "delta_r5_pp": 0.0,
-          "delta_mrr": 0.0
+          "delta_mrr": 0.0027
         },
         "casos": [
           {
@@ -3100,7 +3100,7 @@
               "score": 0.0,
               "provenance": "NOT_FOUND"
             },
-            "latencia_ms": 4019.82
+            "latencia_ms": 4087.63
           },
           {
             "id": "CASE_02",
@@ -3129,16 +3129,16 @@
               "provenance": "GRAPH_NEIGHBOR"
             },
             "q2": {
-              "rank": 18,
-              "score": 0.3928,
+              "rank": 32,
+              "score": 0.7937,
               "provenance": "GRAPH_NEIGHBOR"
             },
             "q3": {
-              "rank": 19,
-              "score": 0.3928,
-              "provenance": "GRAPH_NEIGHBOR"
+              "rank": null,
+              "score": 0.0,
+              "provenance": "NOT_FOUND"
             },
-            "latencia_ms": 2761.98
+            "latencia_ms": 2814.52
           },
           {
             "id": "CASE_03",
@@ -3176,7 +3176,7 @@
               "score": 0.0,
               "provenance": "NOT_FOUND"
             },
-            "latencia_ms": 3080.75
+            "latencia_ms": 2922.57
           },
           {
             "id": "CASE_04",
@@ -3214,7 +3214,7 @@
               "score": 0.0,
               "provenance": "NOT_FOUND"
             },
-            "latencia_ms": 2268.79
+            "latencia_ms": 2197.23
           },
           {
             "id": "CASE_05",
@@ -3243,8 +3243,8 @@
               "provenance": "GRAPH_NEIGHBOR"
             },
             "q2": {
-              "rank": 35,
-              "score": 0.3896,
+              "rank": 33,
+              "score": 0.9566,
               "provenance": "GRAPH_NEIGHBOR"
             },
             "q3": {
@@ -3252,7 +3252,7 @@
               "score": 0.0,
               "provenance": "NOT_FOUND"
             },
-            "latencia_ms": 4344.0
+            "latencia_ms": 3977.25
           },
           {
             "id": "CASE_06",
@@ -3290,7 +3290,7 @@
               "score": 0.0,
               "provenance": "NOT_FOUND"
             },
-            "latencia_ms": 2672.21
+            "latencia_ms": 2692.29
           },
           {
             "id": "CASE_07",
@@ -3328,7 +3328,7 @@
               "score": 0.0,
               "provenance": "NOT_FOUND"
             },
-            "latencia_ms": 4163.51
+            "latencia_ms": 4244.73
           },
           {
             "id": "CASE_08",
@@ -3366,7 +3366,7 @@
               "score": 0.0,
               "provenance": "NOT_FOUND"
             },
-            "latencia_ms": 5265.31
+            "latencia_ms": 4271.36
           },
           {
             "id": "CASE_09",
@@ -3404,7 +3404,7 @@
               "score": 0.0,
               "provenance": "NOT_FOUND"
             },
-            "latencia_ms": 3451.15
+            "latencia_ms": 3364.64
           },
           {
             "id": "CASE_10",
@@ -3433,16 +3433,16 @@
               "provenance": "GRAPH_NEIGHBOR"
             },
             "q2": {
-              "rank": 43,
-              "score": 0.3433,
+              "rank": 13,
+              "score": 0.9103,
               "provenance": "GRAPH_NEIGHBOR"
             },
             "q3": {
-              "rank": 48,
-              "score": 0.3433,
-              "provenance": "GRAPH_NEIGHBOR"
+              "rank": null,
+              "score": 0.0,
+              "provenance": "NOT_FOUND"
             },
-            "latencia_ms": 2295.56
+            "latencia_ms": 2215.03
           },
           {
             "id": "CASE_11",
@@ -3480,7 +3480,7 @@
               "score": 0.0,
               "provenance": "NOT_FOUND"
             },
-            "latencia_ms": 3028.5
+            "latencia_ms": 3126.53
           },
           {
             "id": "CASE_12",
@@ -3509,8 +3509,8 @@
               "provenance": "GRAPH_NEIGHBOR"
             },
             "q2": {
-              "rank": 38,
-              "score": 0.3695,
+              "rank": 36,
+              "score": 0.9365,
               "provenance": "GRAPH_NEIGHBOR"
             },
             "q3": {
@@ -3518,7 +3518,7 @@
               "score": 0.0,
               "provenance": "NOT_FOUND"
             },
-            "latencia_ms": 4197.28
+            "latencia_ms": 3964.16
           }
         ]
       },
@@ -3532,7 +3532,7 @@
             "id": "NEG_01",
             "query": "receta culinaria de cocina mediterranea con aceite de oliva",
             "q0_max_score": 0.4331,
-            "q2_max_score": 0.8449,
+            "q2_max_score": 1.0,
             "top_concept": "activos_dormidos_hermana",
             "top_provenance": "GRAPH_NEIGHBOR",
             "is_graph_fp": false,
@@ -3542,8 +3542,8 @@
             "id": "NEG_02",
             "query": "mantenimiento preventivo de vehiculos hibridos y cambio de frenos",
             "q0_max_score": 0.5127,
-            "q2_max_score": 0.9568,
-            "top_concept": "test_lap07",
+            "q2_max_score": 1.0,
+            "top_concept": "decision_word2vec_hdc_puente_condicional_v2",
             "top_provenance": "GRAPH_NEIGHBOR",
             "is_graph_fp": false,
             "is_total_fp": true
@@ -3552,8 +3552,8 @@
             "id": "NEG_03",
             "query": "estrategias de cultivo hidroponico para tomates en invernadero",
             "q0_max_score": 0.3425,
-            "q2_max_score": 0.6255,
-            "top_concept": "biorag_v15_0_estado",
+            "q2_max_score": 0.9525,
+            "top_concept": "kilo_vscode_extension_principal",
             "top_provenance": "GRAPH_NEIGHBOR",
             "is_graph_fp": false,
             "is_total_fp": true
@@ -3562,8 +3562,8 @@
             "id": "NEG_04",
             "query": "tecnicas de respiracion para buceo libre y apnea profunda",
             "q0_max_score": 0.2289,
-            "q2_max_score": 0.4342,
-            "top_concept": "agente_usabilidad_mcp_biorag_feedback",
+            "q2_max_score": 0.8854,
+            "top_concept": "athena_oec",
             "top_provenance": "GRAPH_NEIGHBOR",
             "is_graph_fp": true,
             "is_total_fp": true
@@ -3572,7 +3572,7 @@
             "id": "NEG_05",
             "query": "historia del arte renacentista en florencia del siglo xv",
             "q0_max_score": 0.4351,
-            "q2_max_score": 0.8387,
+            "q2_max_score": 1.0,
             "top_concept": "dashboard_neuro_visor_toolbar_fusionar_2026_07_18",
             "top_provenance": "GRAPH_NEIGHBOR",
             "is_graph_fp": false,
@@ -3582,7 +3582,7 @@
             "id": "NEG_06",
             "query": "manual de reparacion de transmisiones automaticas y embragues",
             "q0_max_score": 0.4312,
-            "q2_max_score": 0.8437,
+            "q2_max_score": 1.0,
             "top_concept": "auditoria_tecnica_v14_0_readme",
             "top_provenance": "GRAPH_NEIGHBOR",
             "is_graph_fp": false,
@@ -3592,8 +3592,8 @@
             "id": "NEG_07",
             "query": "guia de senderismo de alta montaña en los alpes suizos",
             "q0_max_score": 0.3873,
-            "q2_max_score": 0.6934,
-            "top_concept": "athena_oec",
+            "q2_max_score": 0.9794,
+            "top_concept": "athena_alma",
             "top_provenance": "GRAPH_NEIGHBOR",
             "is_graph_fp": false,
             "is_total_fp": true
@@ -3602,8 +3602,8 @@
             "id": "NEG_08",
             "query": "preparacion de masa madre para reposteria artesanal",
             "q0_max_score": 0.3556,
-            "q2_max_score": 0.3934,
-            "top_concept": "artis_oec_dennys_solo",
+            "q2_max_score": 1.0,
+            "top_concept": "colega_echar_producto",
             "top_provenance": "GRAPH_NEIGHBOR",
             "is_graph_fp": false,
             "is_total_fp": true
@@ -3612,7 +3612,7 @@
             "id": "NEG_09",
             "query": "composicion quimica de fertilizantes organicos para jardineria",
             "q0_max_score": 0.4867,
-            "q2_max_score": 0.877,
+            "q2_max_score": 1.0,
             "top_concept": "regla_verificar_codigo_real_antes_de_diagnostico",
             "top_provenance": "GRAPH_NEIGHBOR",
             "is_graph_fp": false,
@@ -3622,7 +3622,7 @@
             "id": "NEG_10",
             "query": "reglas oficiales de arbitraje en torneos internacionales de ajedrez",
             "q0_max_score": 0.4004,
-            "q2_max_score": 0.8252,
+            "q2_max_score": 0.9872,
             "top_concept": "alguien_vs_algo_identidad",
             "top_provenance": "GRAPH_NEIGHBOR",
             "is_graph_fp": false,

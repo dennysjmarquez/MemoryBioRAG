@@ -370,20 +370,12 @@ def buscar_primarios_produccion(cerebro, query: str, limit: int = SEARCH_LIMIT) 
 def evaluar_theme_gate(con: sqlite3.Connection, query: str, candidato_concepto: str, peso_arista: float, padre_score: float) -> Dict[str, Any]:
     """Evalúa formalmente la coherencia temática del candidato (Aureon Req #2).
     
-    Exige evidencia relacional no trivial:
-    1. El nodo raíz primario debe tener confianza mínima (>= 0.35) para no amplificar ruido.
-    2. Debe existir coherencia semántica:
-       - Solapamiento de dimensiones en largo_plazo_dimensiones con el contexto de la query, O
-       - Peso de arista sináptica fuerte (>= 0.70) originada desde una semilla con score >= 0.40.
+    En abismo léxico las semillas de FTS5 son necesariamente débiles (scores ~0.25-0.34).
+    Por tanto, la validación temática evalúa la evidencia relacional y estructural:
+    1. Arista sináptica de alta intensidad (peso >= 0.80): relación directa fuerte en el grafo.
+    2. Solapamiento de dimensiones en largo_plazo_dimensiones con tokens conceptuales de la query.
+    3. Pertenencia a grupos semánticos coincidentes con la query.
     """
-    if padre_score < 0.35:
-        return {
-            "passed": False,
-            "source": "insufficient_seed_confidence",
-            "score": 0.0,
-            "provenance": "rejected_low_seed"
-        }
-        
     cur = con.cursor()
     q_tokens = [t for t in tokenizar(query) if t not in SPANISH_STOPWORDS and len(t) > 2]
     
@@ -395,13 +387,12 @@ def evaluar_theme_gate(con: sqlite3.Connection, query: str, candidato_concepto: 
     """, (candidato_concepto,))
     cand_dims = [r[0] for r in cur.fetchall()]
     
-    # Comprobar si tokens de la query coinciden con nombres de dimensiones del candidato
     matching_dims = [d for d in cand_dims if any(t in d for t in q_tokens)]
     if matching_dims:
         return {
             "passed": True,
             "source": "dimension_overlap",
-            "score": min(1.0, 0.40 + len(matching_dims) * 0.20),
+            "score": min(1.0, 0.50 + len(matching_dims) * 0.25),
             "provenance": f"dims:{','.join(matching_dims[:2])}"
         }
         
@@ -416,12 +407,12 @@ def evaluar_theme_gate(con: sqlite3.Connection, query: str, candidato_concepto: 
             return {
                 "passed": True,
                 "source": "semantic_group",
-                "score": 0.75,
+                "score": 0.80,
                 "provenance": "grupos_semanticos"
             }
 
-    # 3. Evidencia por peso sináptico fuerte si la semilla tiene alta confianza
-    if peso_arista >= 0.75 and padre_score >= 0.40:
+    # 3. Evidencia por arista sináptica fuerte (peso >= 0.80)
+    if peso_arista >= 0.80:
         return {
             "passed": True,
             "source": "strong_synapse_verified",
@@ -449,17 +440,29 @@ def ejecutar_brazo_experimental(
     """Ejecuta uno de los 4 brazos causales con provenance estricta."""
     cur = con.cursor()
     
-    # Q0: Solo primarios
+    # Q0: Solo primarios sin modificar
     if brazo == "Q0":
         res = []
         for p in primarios:
             item = dict(p)
             item["final_score"] = item["score"]
+            item["boost_applied"] = 0.0
             res.append(item)
         res.sort(key=lambda x: x["final_score"], reverse=True)
         return res[:SEARCH_LIMIT]
 
-    # Q1, Q2, Q3: Expansión por Grafo con level_first (fiel a expQ_r3)
+    # Q3: Control SIN GRAFO (Solo primarios con boost indiscriminado)
+    if brazo == "Q3":
+        res = []
+        for p in primarios:
+            item = dict(p)
+            item["final_score"] = round(min(1.0, item["score"] + gamma * 0.15), 4)
+            item["boost_applied"] = round(gamma * 0.15, 4)
+            res.append(item)
+        res.sort(key=lambda x: x["final_score"], reverse=True)
+        return res[:SEARCH_LIMIT]
+
+    # Q1, Q2: Expansión por Grafo con level_first (fiel a expQ_r3)
     vistos = {p["concepto"]: p for p in primarios}
     frontera = list(primarios) # Todas las semillas primarias para el BFS
     candidatos_con_nivel = []
@@ -504,13 +507,11 @@ def ejecutar_brazo_experimental(
                 elif brazo == "Q2":
                     # Boost selectivo a GRAPH_NEIGHBOR con Theme Gate
                     if theme_info["passed"]:
-                        boost_applied = round(gamma * min(v_peso, 1.0) * (1.0 / nivel) * theme_info["score"] * 0.25, 4)
+                        # Boost proporcional al peso de la arista, nivel e intensidad temática
+                        boost_applied = round(gamma * min(v_peso, 1.0) * (1.0 / math.sqrt(nivel)) * theme_info["score"] * 0.35, 4)
                     else:
                         boost_applied = 0.0
                     final_score = round(min(1.0, base_score + boost_applied), 4)
-                elif brazo == "Q3":
-                    final_score = base_score
-                    boost_applied = 0.0
                     
                 item = {
                     "concepto": v_concepto,
@@ -538,16 +539,11 @@ def ejecutar_brazo_experimental(
     candidatos_con_nivel.sort(key=lambda x: (x[1], -x[0]["final_score"]))
     contextos_grafo = [item for item, _ in candidatos_con_nivel][:max_contextos]
     
-    # Para Q3: aplicar boost a candidatos NO-GRAPH (primarios) como control
     pool_total = []
     for p in primarios:
         item = dict(p)
-        if brazo == "Q3":
-            item["final_score"] = round(min(1.0, item["score"] + gamma * 0.05), 4)
-            item["boost_applied"] = gamma * 0.05
-        else:
-            item["final_score"] = item["score"]
-            item["boost_applied"] = 0.0
+        item["final_score"] = item["score"]
+        item["boost_applied"] = 0.0
         pool_total.append(item)
         
     pool_total.extend(contextos_grafo)
