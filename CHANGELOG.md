@@ -1,5 +1,100 @@
 # BioRAG Changelog
 
+## [v31.0] — 2026-09-09 — Abismo Léxico: Rescate por Grafo Sináptico (EXP-Q)
+
+Release de **corrección de infraestructura del grafo sináptico** y **rescate relacional para queries
+sin solapamiento léxico** ("Abismo Léxico").
+
+### Problema resuelto
+
+Cuando un agente busca un concepto usando palabras que **no comparten ningún stem** con el
+nodo gold almacenado (ej: buscar "extensión principal de VS Code para Kilo" cuando el nodo
+se titula `kilo_vscode_extension_principal` con contenido en vocabulario completamente diferente),
+ni FTS5, ni PPMI+SVD, ni los sinónimos de WordNet pueden encontrarlo — el "Abismo Léxico".
+
+El mecanismo de rescate existente (BFS sobre el grafo sináptico vía `_expandir_contexto_bfs`)
+**no funcionaba** por 3 bugs de infraestructura descubiertos en esta versión:
+
+1. **Trampa Alfabética de SQLite UNION** — SQLite optimiza `UNION` con `ORDER BY` usando
+   el índice del `concept` (alfanumérico), no el `weight DESC` solicitado. Resultado: los
+   vecinos devueltos eran los primeros alfabéticamente, no los más relevantes. Un nodo como
+   `zsh_config` (peso 0.95) perdía contra `api_design_patterns` (peso 0.10) simplemente
+   por la letra 'a' < 'z'. Esto **silenciaba al 70%+ de los vecinos legítimos**.
+
+2. **MCP server descartaba contexto en página 1** — `mcp_server.py` solo exponía
+   `contexto_expandido` cuando `pagina > 1`, haciendo que el agente nunca viera el
+   rescate relacional en su primera búsqueda.
+
+3. **Límites por defecto insuficientes** — `BIORAG_MAX_VECINOS_POR_NODO` era 3, limitando
+   artificialmente la amplitud del BFS.
+
+### Cambios (`core/memory_store.py`)
+
+- **`_expandir_contexto_bfs()`** — Reescrito con `UNION ALL` + `ORDER BY rowid DESC`
+  para evitar la optimización alfabética de SQLite, con deduplicación en memoria
+  (`dict.setdefault`) por orden de inserción.
+- **Refuerzo Hebbiano multi-padre** — Nodos alcanzados por múltiples padres en el BFS
+  reciben boost acumulativo: `boost = 0.15 * min(num_padres, 3)`.
+- **Límites configurables** — `BIORAG_MAX_VECINOS_POR_NODO` (default: 6, antes: 3),
+  `BIORAG_MAX_CONTEXTOS` (default: 15) × profundidad.
+
+### Cambios (`mcp_server.py`)
+
+- **Exposición de contexto en página 1** — Condición corregida: `contexto_expandido` se
+  incluye cuando `context_window > 0` (independiente de la página), permitiendo que el
+  agente reciba el rescate relacional desde la primera búsqueda.
+
+### Suite de pruebas: EXP-Q (Abismo Léxico)
+
+- **`scripts/test_abismo_lexico.py`** — 3 casos de rescate relacional puro:
+  - EXP-Q-01: `kilo_vscode_extension_principal` (query sin solapamiento)
+  - EXP-Q-02: `regla_verificar_antes_que_asumir` (query sin solapamiento)
+  - EXP-Q-03: `ajuste_tejedora_de_estrellas` (query sin solapamiento)
+- **`scripts/run_qa_suite.sh`** — Integrado como paso 4/5 de la suite de QA.
+
+### Métricas EXP-Q (snapshot `qa_escape_qcr_20260811.db`, 851 nodos activos)
+
+| Caso | Query | Gold | Sin grafo | Con grafo (depth=2) |
+|------|-------|------|:---------:|:-------------------:|
+| EXP-Q-01 | "extensión principal VS Code Kilo" | `kilo_vscode_extension_principal` | ❌ no encontrado | ✅ **pos 4** |
+| EXP-Q-02 | "verificar antes de asumir" | `regla_verificar_antes_que_asumir` | ❌ no encontrado | ✅ **pos 21** |
+| EXP-Q-03 | "ajuste tejedora estrellas" | `ajuste_tejedora_de_estrellas` | ❌ no encontrado | ✅ **pos 19** |
+
+**Tasa de rescate (snapshot): 3/3 (100%)**
+
+### Limitaciones documentadas (honestidad epistémica)
+
+El rescate por grafo sináptico tiene limitaciones inherentes a cualquier BFS con presupuesto finito:
+
+- **Sensibilidad al tamaño del corpus**: a mayor corpus, más candidatos compiten por los
+  slots del BFS. Un nodo gold a profundidad 2 puede quedar fuera del corte de
+  `BIORAG_MAX_CONTEXTOS` si el corpus crece significativamente.
+- **Cobertura parcial en DB viva** (936 nodos, verificación dual): 1/3 rescatados dentro
+  del top-15 (kilo_vscode pos 12), los otros 2 requieren presupuesto BFS mayor o
+  profundidad > 2 en la DB más grande.
+- **El Concept Hub sigue siendo necesario** para patrones de búsqueda conocidos donde
+  el grafo no tiene ruta relacional directa al gold.
+
+### Archivos modificados
+
+| Archivo | Cambio |
+|---------|--------|
+| `core/memory_store.py` | BFS reescrito, UNION ALL, Hebbian multi-padre, límites configurables |
+| `mcp_server.py` | Exposición de contexto en página 1 |
+| `scripts/test_abismo_lexico.py` | Suite de evaluación EXP-Q (3 casos) |
+| `scripts/run_qa_suite.sh` | Integración de EXP-Q como paso 4/5 |
+| `VERSION` | `v30.2` → `v31.0` |
+| `pyproject.toml` | `30.1.0` → `31.0.0` |
+
+### Variables de entorno nuevas
+
+| Variable | Default | Propósito |
+|----------|---------|-----------|
+| `BIORAG_MAX_VECINOS_POR_NODO` | `6` | Máx vecinos por nodo en cada paso BFS |
+| `BIORAG_MAX_CONTEXTOS` | `15` | Base del presupuesto de contextos (× profundidad) |
+
+---
+
 ## [v30.2] — 2026-09-05 — B2+B3 Quality Gate: Desacople FTS y Fallback Semántico
 
 Release de **mejora arquitectónica del pipeline de búsqueda** mediante el desacople del

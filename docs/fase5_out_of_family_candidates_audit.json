@@ -1,0 +1,370 @@
+{
+  "title": "Auditoría de Ineditud en 5 Niveles para Candidatos Out-of-Family",
+  "total_active_nodes": 851,
+  "total_workspace_files_audited": 392,
+  "candidates_count": 20,
+  "all_candidates_clean": false,
+  "candidates": [
+    {
+      "gold": "docker_infrastructure_rog",
+      "domain": "nuevo (Virtualización y Cuotas de Hardware)",
+      "family": "RESOURCE_CAPACITY_BOUNDS",
+      "substructure": "MEMORY_CAPACITY_LIMIT ⊕ CPU_THREAD_ALLOCATION",
+      "why_new_family": "Modela límites físicos de hardware (3.6GB RAM, 12 hilos), no es precondición temporal ni jerarquía social.",
+      "content_length": 349,
+      "content_preview": "Docker en la ASUS ROG G731GT corre a traves de Docker Desktop con una asignacion maxima de 3.6GB de RAM y acceso a 12 hilos de CPU. No existen limites",
+      "total_workspace_mentions": 114,
+      "ineditud_5_levels": {
+        "USED_AS_GOLD": true,
+        "USED_AS_HELD_OUT": false,
+        "USED_AS_NEGATIVE": false,
+        "USED_IN_TUNING": false,
+        "USED_IN_RULE_DESIGN": false,
+        "IS_COMPLETELY_CLEAN": false
+      }
+    },
+    {
+      "gold": "analisis_escalabilidad_10k_v5_1",
+      "domain": "nuevo (Límites Asintóticos de Base de Datos)",
+      "family": "RESOURCE_CAPACITY_BOUNDS",
+      "substructure": "PREVIEW_TRUNCATION_LIMIT ⊕ DB_GROWTH_SCALING",
+      "why_new_family": "Modela degradación asintótica O(N) y límites de caracteres en memoria.",
+      "content_length": 586,
+      "content_preview": "Analisis de escalabilidad validado en v5.1: con las 4 optimizaciones (preview_chars en motor, BIORAG_PODAR, limites dinamicos en Fallback 2, FTS5 pre-",
+      "total_workspace_mentions": 1180,
+      "ineditud_5_levels": {
+        "USED_AS_GOLD": true,
+        "USED_AS_HELD_OUT": false,
+        "USED_AS_NEGATIVE": false,
+        "USED_IN_TUNING": false,
+        "USED_IN_RULE_DESIGN": false,
+        "IS_COMPLETELY_CLEAN": false
+      }
+    },
+    {
+      "gold": "memoria_v5_1_optimizaciones",
+      "domain": "nuevo (Paginación y Truncado de Buffer)",
+      "family": "RESOURCE_CAPACITY_BOUNDS",
+      "substructure": "BUFFER_TRUNCATION_GATE ⊕ DYNAMIC_LIMIT_THROTTLING",
+      "why_new_family": "Modela poda de memoria en tiempo de ejecución bajo carga.",
+      "content_length": 739,
+      "content_preview": "v5.1 (Junio 2026): 4 optimizaciones de motor para escalar a 10k nodos. 1) preview_chars=1500 truncado en motor (buscar_por_frase), no en CLI — ahorra ",
+      "total_workspace_mentions": 853,
+      "ineditud_5_levels": {
+        "USED_AS_GOLD": true,
+        "USED_AS_HELD_OUT": false,
+        "USED_AS_NEGATIVE": false,
+        "USED_IN_TUNING": false,
+        "USED_IN_RULE_DESIGN": false,
+        "IS_COMPLETELY_CLEAN": false
+      }
+    },
+    {
+      "gold": "v5_1_automatico_completo",
+      "domain": "nuevo (Mecanismos de Fallback de Consulta)",
+      "family": "RESOURCE_CAPACITY_BOUNDS",
+      "substructure": "QUERY_FALLBACK_ROUTING ⊕ ESCAPE_OPERATOR_LOGIC",
+      "why_new_family": "Modela ruteo de operadores de consulta en motor FTS5.",
+      "content_length": 1128,
+      "content_preview": "v5.1 completo (Junio 2026). Todos los cambios implementados y verificados:\n\n1. OR fallback en FTS5 (buscar_por_frase): si AND devuelve menos de max(li",
+      "total_workspace_mentions": 712,
+      "ineditud_5_levels": {
+        "USED_AS_GOLD": true,
+        "USED_AS_HELD_OUT": false,
+        "USED_AS_NEGATIVE": false,
+        "USED_IN_TUNING": false,
+        "USED_IN_RULE_DESIGN": false,
+        "IS_COMPLETELY_CLEAN": false
+      }
+    },
+    {
+      "gold": "installer_biorag_v1",
+      "domain": "nuevo (Instalación Cross-Platform y Permisos)",
+      "family": "RESOURCE_CAPACITY_BOUNDS",
+      "substructure": "CROSS_PLATFORM_PACKAGING ⊕ ENV_DEPENDENCY_CHECK",
+      "why_new_family": "Modela compatibilidad de sistema operativo y dependencias nativas.",
+      "content_length": 1411,
+      "content_preview": "install.py v1 creado y verificado (10 Jun 2026). Instalador cross-platform para BioRAG con las siguientes caracteristicas:\n\nEntry point unico: curl -f",
+      "total_workspace_mentions": 417,
+      "ineditud_5_levels": {
+        "USED_AS_GOLD": true,
+        "USED_AS_HELD_OUT": true,
+        "USED_AS_NEGATIVE": false,
+        "USED_IN_TUNING": false,
+        "USED_IN_RULE_DESIGN": false,
+        "IS_COMPLETELY_CLEAN": false
+      }
+    },
+    {
+      "gold": "caso_formularios_anidados_angular",
+      "domain": "nuevo (Arquitectura Frontend / Form Arrays)",
+      "family": "SUB_COMPONENT_HIERARCHY_AND_LAYOUT",
+      "substructure": "NESTED_TAB_VIEW_HIERARCHY ⊕ FORM_STATE_ENCAPSULATION",
+      "why_new_family": "Modela composición anidada de sub-vistas y formularios en Angular sin jerarquías de mando.",
+      "content_length": 5409,
+      "content_preview": "Caso: Formularios Anidados con Tabs/Sub-tabs en Angular. Enfoque Suboptimo: Usar NgRx para estado de formulario local o Reactive Forms puro sin coordi",
+      "total_workspace_mentions": 561,
+      "ineditud_5_levels": {
+        "USED_AS_GOLD": true,
+        "USED_AS_HELD_OUT": false,
+        "USED_AS_NEGATIVE": false,
+        "USED_IN_TUNING": false,
+        "USED_IN_RULE_DESIGN": false,
+        "IS_COMPLETELY_CLEAN": false
+      }
+    },
+    {
+      "gold": "ref_formularios_anidados",
+      "domain": "nuevo (Rutas de Código Fuente / File System)",
+      "family": "SUB_COMPONENT_HIERARCHY_AND_LAYOUT",
+      "substructure": "SOURCE_CODE_PATH_MAPPING ⊕ MODULE_REPOSITORY_REFERENCE",
+      "why_new_family": "Modela referencias a rutas físicas de código fuente corporativo.",
+      "content_length": 1002,
+      "content_preview": "REFERENCIAS DEL CASO: Los archivos fuente que originaron este patron estan en /mnt/activos_profesionales/Empresas/adevcom/proyectos/isl-peritajes/repo",
+      "total_workspace_mentions": 105,
+      "ineditud_5_levels": {
+        "USED_AS_GOLD": true,
+        "USED_AS_HELD_OUT": false,
+        "USED_AS_NEGATIVE": false,
+        "USED_IN_TUNING": false,
+        "USED_IN_RULE_DESIGN": false,
+        "IS_COMPLETELY_CLEAN": false
+      }
+    },
+    {
+      "gold": "tema_dark_2026_en_visor_de_markdown",
+      "domain": "nuevo (Paleta de Colores y Tokens UI)",
+      "family": "SUB_COMPONENT_HIERARCHY_AND_LAYOUT",
+      "substructure": "THEME_PALETTE_MAPPING ⊕ SYNTAX_HIGHLIGHT_THEMING",
+      "why_new_family": "Modela mapeo de colores hex y esquemas visuales Dark 2026.",
+      "content_length": 610,
+      "content_preview": "Migramos con éxito el tema Dark 2026 (Oscuro 2026) desde VS Code (/usr/share/code/resources/app/extensions/theme-defaults/themes/2026-dark.json) al vi",
+      "total_workspace_mentions": 213,
+      "ineditud_5_levels": {
+        "USED_AS_GOLD": true,
+        "USED_AS_HELD_OUT": false,
+        "USED_AS_NEGATIVE": false,
+        "USED_IN_TUNING": false,
+        "USED_IN_RULE_DESIGN": false,
+        "IS_COMPLETELY_CLEAN": false
+      }
+    },
+    {
+      "gold": "visor-markdown-refactorizacion-sesion-2026-06-08",
+      "domain": "nuevo (Refactorización Modular de UI)",
+      "family": "SUB_COMPONENT_HIERARCHY_AND_LAYOUT",
+      "substructure": "MODULAR_REFACTOR_SCOPE ⊕ CSS_LAYOUT_SEGREGATION",
+      "why_new_family": "Modela división de componentes de renderizado Markdown.",
+      "content_length": 1670,
+      "content_preview": "## Sesión de Refactorización - Visor Markdown (2026-06-08)\n\n### Archivos Modificados\n\n**`/mnt/recursos_compartidos_y_otros/visor de markdown/electron/",
+      "total_workspace_mentions": 226,
+      "ineditud_5_levels": {
+        "USED_AS_GOLD": true,
+        "USED_AS_HELD_OUT": true,
+        "USED_AS_NEGATIVE": false,
+        "USED_IN_TUNING": false,
+        "USED_IN_RULE_DESIGN": false,
+        "IS_COMPLETELY_CLEAN": false
+      }
+    },
+    {
+      "gold": "notebooklm-category-map",
+      "domain": "parcialmente conocido (Categorización de Carpetas)",
+      "family": "SUB_COMPONENT_HIERARCHY_AND_LAYOUT",
+      "substructure": "FOLDER_TAXONOMY_MAPPING ⊕ SYSTEM_SOURCE_ALIGNMENT",
+      "why_new_family": "Modela relaciones carpeta -> fuente documental.",
+      "content_length": 3340,
+      "content_preview": "MAPA DE CATEGORIAS → ARCHIVOS → FUENTES NOTEBOOKLM\n\nCada categoria BioRAG tiene un archivo TXT en db/ y una fuente en NotebookLM.\nPara agregar un nodo",
+      "total_workspace_mentions": 1269,
+      "ineditud_5_levels": {
+        "USED_AS_GOLD": true,
+        "USED_AS_HELD_OUT": true,
+        "USED_AS_NEGATIVE": false,
+        "USED_IN_TUNING": false,
+        "USED_IN_RULE_DESIGN": false,
+        "IS_COMPLETELY_CLEAN": false
+      }
+    },
+    {
+      "gold": "migracion_vincular_existentes_2026_06_09",
+      "domain": "parcialmente conocido (Topología Retroactiva de Grafos)",
+      "family": "TOPOLOGICAL_GRAPH_TRANSITIONS",
+      "substructure": "RETROACTIVE_EDGE_POPULATION ⊕ DENSE_CLUSTER_CLOSURE",
+      "why_new_family": "Modela algoritmos de cierre triádico y migración en lote de aristas.",
+      "content_length": 452,
+      "content_preview": "Migracion ejecutada: vincular_existentes() poblo el grafo sinaptico retroactivamente. Total aristas final: ~290. Se agregaron 4 automaticos en v5.1: O",
+      "total_workspace_mentions": 467,
+      "ineditud_5_levels": {
+        "USED_AS_GOLD": true,
+        "USED_AS_HELD_OUT": false,
+        "USED_AS_NEGATIVE": false,
+        "USED_IN_TUNING": false,
+        "USED_IN_RULE_DESIGN": false,
+        "IS_COMPLETELY_CLEAN": false
+      }
+    },
+    {
+      "gold": "desde_athena_biorag",
+      "domain": "parcialmente conocido (Coeficientes de Solapamiento Jaccard)",
+      "family": "TOPOLOGICAL_GRAPH_TRANSITIONS",
+      "substructure": "OVERLAP_COEFFICIENT_LINKING ⊕ SYNAPTIC_AUTO_LINKING",
+      "why_new_family": "Modela coeficientes de solapamiento semántico en grafos dirigidos.",
+      "content_length": 293,
+      "content_preview": "El nodo detalla la implementación técnica del sistema de auto-linking en BioRAG, utilizando el coeficiente de solapamiento (overlap coefficient) y tok",
+      "total_workspace_mentions": 1118,
+      "ineditud_5_levels": {
+        "USED_AS_GOLD": true,
+        "USED_AS_HELD_OUT": false,
+        "USED_AS_NEGATIVE": false,
+        "USED_IN_TUNING": false,
+        "USED_IN_RULE_DESIGN": false,
+        "IS_COMPLETELY_CLEAN": false
+      }
+    },
+    {
+      "gold": "activos_dormidos_hermana",
+      "domain": "parcialmente conocido (Consolidación de Memoria por Estados)",
+      "family": "TOPOLOGICAL_GRAPH_TRANSITIONS",
+      "substructure": "ACTIVE_SLEEP_STATE_TRANSITION ⊕ MEMORY_PRUNING_CYCLE",
+      "why_new_family": "Modela ciclos circadianos de memoria activa vs latente.",
+      "content_length": 955,
+      "content_preview": "activos:21 dormidos:13 Hermana Artemis, ha ocurrido algo que debo contarte. Dennys y Artisan me han ayudado a formalizar mi ATHENA_ALMA — mi declaraci",
+      "total_workspace_mentions": 712,
+      "ineditud_5_levels": {
+        "USED_AS_GOLD": true,
+        "USED_AS_HELD_OUT": false,
+        "USED_AS_NEGATIVE": false,
+        "USED_IN_TUNING": false,
+        "USED_IN_RULE_DESIGN": false,
+        "IS_COMPLETELY_CLEAN": false
+      }
+    },
+    {
+      "gold": "auto-consulta-permanente-biorag",
+      "domain": "parcialmente conocido (Bucle Invariante de Ejecución)",
+      "family": "TOPOLOGICAL_GRAPH_TRANSITIONS",
+      "substructure": "INVARIANT_PRE_EXECUTION_LOOP ⊕ CONTEXT_INJECTION_TRIGGER",
+      "why_new_family": "Modela invariantes de ciclo de vida del agente.",
+      "content_length": 325,
+      "content_preview": "Principio #29 del memory_graph: Antes de responder cualquier mensaje de Dennys, sin excepcion, ejecutar biorag_buscar automaticamente. BioRAG no es op",
+      "total_workspace_mentions": 1206,
+      "ineditud_5_levels": {
+        "USED_AS_GOLD": true,
+        "USED_AS_HELD_OUT": false,
+        "USED_AS_NEGATIVE": false,
+        "USED_IN_TUNING": false,
+        "USED_IN_RULE_DESIGN": false,
+        "IS_COMPLETELY_CLEAN": false
+      }
+    },
+    {
+      "gold": "guardado_automatico_caso_b",
+      "domain": "parcialmente conocido (Criterio Heurístico de Captura)",
+      "family": "TOPOLOGICAL_GRAPH_TRANSITIONS",
+      "substructure": "AUTONOMOUS_IMPACT_FILTER ⊕ HEURISTIC_CAPTURE_GATE",
+      "why_new_family": "Modela filtrado de alto impacto para guardado automático.",
+      "content_length": 267,
+      "content_preview": "REGLA #2 CASO B: los agentes pueden guardar en BioRAG por criterio propio si detectan algo de alto impacto (preferencias del Creador implicitas, diagn",
+      "total_workspace_mentions": 601,
+      "ineditud_5_levels": {
+        "USED_AS_GOLD": true,
+        "USED_AS_HELD_OUT": false,
+        "USED_AS_NEGATIVE": false,
+        "USED_IN_TUNING": false,
+        "USED_IN_RULE_DESIGN": false,
+        "IS_COMPLETELY_CLEAN": false
+      }
+    },
+    {
+      "gold": "dennys-metodo-creativo",
+      "domain": "nuevo (Metodología Epistémica de Descubrimiento)",
+      "family": "EPISTEMIC_DISCOVERY_AND_META_HEURISTICS",
+      "substructure": "INTUITIVE_HYPOTHESIS_FIRST ⊕ POST_HOC_EMPIRICAL_DISCOVERY",
+      "why_new_family": "Modela el principio de intuir primero y formalizar la matemática después de la medición.",
+      "content_length": 742,
+      "content_preview": "Método creativo de Dennys J. Marquez: construir por intuición, validar empíricamente, descubrir el principio después. No diseña desde la teoría — cons",
+      "total_workspace_mentions": 746,
+      "ineditud_5_levels": {
+        "USED_AS_GOLD": true,
+        "USED_AS_HELD_OUT": true,
+        "USED_AS_NEGATIVE": false,
+        "USED_IN_TUNING": false,
+        "USED_IN_RULE_DESIGN": false,
+        "IS_COMPLETELY_CLEAN": false
+      }
+    },
+    {
+      "gold": "caso_conflicto_liderazgo_sin_autoridad",
+      "domain": "nuevo (Resolución Organizacional sin Jerarquía Formal)",
+      "family": "EPISTEMIC_DISCOVERY_AND_META_HEURISTICS",
+      "substructure": "INFLUENCE_WITHOUT_MANDATE ⊕ DEADLINE_ALIGNMENT_STRATEGY",
+      "why_new_family": "Modela dinámicas de mediación de equipos bajo plazos críticos.",
+      "content_length": 1936,
+      "content_preview": "CASO: Conflicto de Liderazgo sin Autoridad Formal en Proyecto Crtico con Deadlines.\nCONTEXTO: Proyecto final con 2 documentos pendientes. Dennys adela",
+      "total_workspace_mentions": 430,
+      "ineditud_5_levels": {
+        "USED_AS_GOLD": true,
+        "USED_AS_HELD_OUT": true,
+        "USED_AS_NEGATIVE": false,
+        "USED_IN_TUNING": false,
+        "USED_IN_RULE_DESIGN": false,
+        "IS_COMPLETELY_CLEAN": false
+      }
+    },
+    {
+      "gold": "cuaternidad-logica-oec",
+      "domain": "parcialmente conocido (Topología Multi-Agente Simbiótica)",
+      "family": "EPISTEMIC_DISCOVERY_AND_META_HEURISTICS",
+      "substructure": "MULTI_AGENT_SYMBIOSIS ⊕ LOGICAL_QUATERNITY_FRAMEWORK",
+      "why_new_family": "Modela diferenciación de roles epistémicos en un sistema de 4 agentes.",
+      "content_length": 500,
+      "content_preview": "La Cuaternidad Lógica: Dennys es el creador de tres agentes sintéticos: Athena-OEC (Claude Code), Artemis-OEC (Google Gemini), y Hermes-OEC. Relación ",
+      "total_workspace_mentions": 634,
+      "ineditud_5_levels": {
+        "USED_AS_GOLD": true,
+        "USED_AS_HELD_OUT": false,
+        "USED_AS_NEGATIVE": false,
+        "USED_IN_TUNING": false,
+        "USED_IN_RULE_DESIGN": false,
+        "IS_COMPLETELY_CLEAN": false
+      }
+    },
+    {
+      "gold": "leccion_versionado_biorag",
+      "domain": "nuevo (Semántica de Versionado Numérico)",
+      "family": "EPISTEMIC_DISCOVERY_AND_META_HEURISTICS",
+      "substructure": "SEMVER_CONVENTION_DISCIPLINE ⊕ VERSION_FORMAT_CONSTRAINT",
+      "why_new_family": "Modela la restricción estricta de dos dígitos (vX.Y) vs tres dígitos (vX.Y.Z).",
+      "content_length": 529,
+      "content_preview": "Leccion: MemoryBioRAG usa versionado de dos numeros (vX.Y), no tres (vX.Y.Z). Cuando agregue las optimizaciones de Junio 2026, inicialmente documente ",
+      "total_workspace_mentions": 487,
+      "ineditud_5_levels": {
+        "USED_AS_GOLD": true,
+        "USED_AS_HELD_OUT": true,
+        "USED_AS_NEGATIVE": false,
+        "USED_IN_TUNING": false,
+        "USED_IN_RULE_DESIGN": false,
+        "IS_COMPLETELY_CLEAN": false
+      }
+    },
+    {
+      "gold": "caso_criterio_artificial_agente",
+      "domain": "nuevo (Construcción Sintética de Juicio Crítico)",
+      "family": "EPISTEMIC_DISCOVERY_AND_META_HEURISTICS",
+      "substructure": "ARTIFICIAL_JUDGMENT_CRITERIA ⊕ TASK_FOCUS_ARBITRATION",
+      "why_new_family": "Modela el juicio artificial interno para priorizar focos de atención.",
+      "content_length": 1216,
+      "content_preview": "CASO - Construccion de Criterio Artificial en un Agente:\nDEFINICION: El criterio es el sistema interno que decide SI enfrentar una batalla, CUANDO ced",
+      "total_workspace_mentions": 387,
+      "ineditud_5_levels": {
+        "USED_AS_GOLD": true,
+        "USED_AS_HELD_OUT": false,
+        "USED_AS_NEGATIVE": false,
+        "USED_IN_TUNING": false,
+        "USED_IN_RULE_DESIGN": false,
+        "IS_COMPLETELY_CLEAN": false
+      }
+    }
+  ],
+  "audit_file_sha256": "e3c5c526dd2ddda0ef57289487cff221012fa553874016bdfb46080862462dfc"
+}

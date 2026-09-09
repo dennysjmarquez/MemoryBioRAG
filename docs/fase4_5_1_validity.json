@@ -1,0 +1,2165 @@
+{
+  "meta": {
+    "title": "Fase 4.5.1 — Auditoría de Validez Metodológica e Implementación",
+    "db_snapshot": "snapshots/qa_escape_qcr_20260811.db",
+    "total_queries_tested": 30,
+    "valid_zero_fts_cases_count": 19,
+    "rejected_overlap_cases_count": 11,
+    "golds_recovered_in_final_pool": 1
+  },
+  "data_flow_proof": {
+    "pipeline_stages": [
+      {
+        "stage_1": "INPUT LINGÜÍSTICO",
+        "datos_recibidos": "Solo el string 'query'",
+        "consulta_gold": false,
+        "evidencia": "run_candidate_generation_pipeline(cur, node_meta, graph_adj, node_vectors, vocab, query, mode) no recibe 'gold' en sus parámetros de entrada."
+      },
+      {
+        "stage_2": "GENERACIÓN DE CANDIDATOS (M2-M5)",
+        "datos_recibidos": "String query + índices precomputados del corpus congelado",
+        "consulta_gold": false,
+        "evidencia": "WordNet usa nltk.corpus; ConceptHub usa HUBS_INICIALES estáticos; PPMI usa node_vectors de largo_plazo; Grafo usa sinapsis de SQLite."
+      },
+      {
+        "stage_3": "RE-RANKING Y SCORING",
+        "datos_recibidos": "Diccionario de candidatos generados + metadatos léxicos de prefijo",
+        "consulta_gold": false,
+        "evidencia": "El boost se aplica comparando 'node_type' de cada candidato con 'target_node_types' del Frame. No hay comparación con el gold."
+      },
+      {
+        "stage_4": "EVALUACIÓN DE MÉTRICAS (POST-PIPELINE)",
+        "datos_recibidos": "Lista final rankeada + string 'gold'",
+        "consulta_gold": true,
+        "evidencia": "Única etapa donde entra el gold: rank = (concepts.index(gold) + 1) if gold in concepts else None. Ocurre estrictamente DESPUÉS de ordenar la lista."
+      }
+    ],
+    "veredicto_leakage": "No se identificó un canal de leakage del gold hacia los generadores, semillas o ranking en la implementación auditada."
+  },
+  "mechanism_failure_diagnoses": {
+    "WordNet": {
+      "METHOD_LIMIT (Sinónimos de léxico general disonantes con el vocabulario técnico del corpus)": 19
+    },
+    "Concept_Hub": {
+      "METHOD_LIMIT (Hub activado pero sus puentes preconfigurados no conectaban con el gold)": 16,
+      "NO_RELATION (Ningún bridge de Concept Hub coincidió con los tokens de la query)": 3
+    },
+    "PPMI": {
+      "METHOD_LIMIT (El espacio latente asoció la query a vecinos con mayor coocurrencia superficial)": 19
+    },
+    "Graph_1Hop": {
+      "METHOD_LIMIT (Las aristas salientes conectaban con otros conceptos del grafo)": 18,
+      "SUCCESS_EXPLICIT_RELATION (Rescatado vía arista física de sinapsis)": 1
+    }
+  },
+  "candidate_budget_lifecycle": {
+    "avg_candidates_generated_raw": 168.05,
+    "avg_candidates_deduplicated_final": 98.53,
+    "golds_filtered_out_by_dedup": 0
+  },
+  "cases_detailed_audit": [
+    {
+      "id": "ZFTS_03",
+      "query": "mitigacion ejecutada para neutralizar la falla de sanitizacion de consultas",
+      "gold": "fix_vulnerabilidad_inyeccion_sql",
+      "type": "deep_paraphrase",
+      "wordnet_audit": {
+        "tokens_input": [
+          "mitigacion",
+          "ejecutada",
+          "para",
+          "neutralizar",
+          "la",
+          "falla",
+          "de",
+          "sanitizacion",
+          "de",
+          "consultas"
+        ],
+        "new_words_expanded": [
+          "para river",
+          "st. mary of bethlehem",
+          "santa maria de belem",
+          "liquidar",
+          "fallo",
+          "mitigar",
+          "belem",
+          "paratrooper",
+          "contrarrestar",
+          "feliz lusitania",
+          "anular",
+          "debilidad",
+          "error",
+          "fisura",
+          "apagón",
+          "tamponar",
+          "invalidar",
+          "defecto",
+          "manuel de falla",
+          "fractura",
+          "neutralizarse",
+          "parity"
+        ],
+        "candidates_count": 20,
+        "gold_found": false,
+        "diagnosis": "METHOD_LIMIT (Sinónimos de léxico general disonantes con el vocabulario técnico del corpus)"
+      },
+      "concept_hub_audit": {
+        "hubs_matched_count": 7,
+        "nodes_injected": [
+          "resolucion_de_contradicciones_entre_insights_sumatoria_mentalidad",
+          "dennys_genesis_investigativa_historia_personal",
+          "biorag_v20_rpe_dopamina",
+          "historia_tasajera_fumigador_rufino",
+          "dennys-working-style",
+          "dennys-metodo-creativo",
+          "feedback_humano_nodo_dennys_protocolo_rpe"
+        ],
+        "gold_found": false,
+        "diagnosis": "METHOD_LIMIT (Hub activado pero sus puentes preconfigurados no conectaban con el gold)"
+      },
+      "ppmi_audit": {
+        "neighbors_found_count": 20,
+        "top3_neighbors": [
+          [
+            "autoria-athena-oec-sanitizacion-rafaga-v9.2",
+            0.21946906976431801
+          ],
+          [
+            "biorag_v8_protocolo_mcp_3_pasos",
+            0.14925367246110166
+          ],
+          [
+            "biorag_v8_glosario_cultural",
+            0.12649785261949115
+          ]
+        ],
+        "gold_found": false,
+        "diagnosis": "METHOD_LIMIT (El espacio latente asoció la query a vecinos con mayor coocurrencia superficial)"
+      },
+      "graph_audit": {
+        "seeds_used": [
+          "notebooklm-category-map",
+          "principio_naturaleza_agente",
+          "hermes_agente_hermes",
+          "activos_dormidos_hermana",
+          "identidad_dennys_perfil_completo"
+        ],
+        "targets_count": 201,
+        "gold_found": false,
+        "diagnosis": "METHOD_LIMIT (Las aristas salientes conectaban con otros conceptos del grafo)"
+      },
+      "budget_lifecycle": {
+        "generated_count": 288,
+        "deduplicated_count": 111,
+        "gold_in_final_pool": false
+      }
+    },
+    {
+      "id": "ZFTS_05",
+      "query": "topologia estructural de guardado permanente en soporte magnetico",
+      "gold": "biorag_v11_1_detalle_tecnico",
+      "type": "deep_paraphrase",
+      "wordnet_audit": {
+        "tokens_input": [
+          "topologia",
+          "estructural",
+          "de",
+          "guardado",
+          "permanente",
+          "en",
+          "soporte",
+          "magnetico"
+        ],
+        "new_words_expanded": [
+          "fijo",
+          "stand",
+          "apoyo",
+          "fundamento",
+          "asistencia",
+          "geomorfológica",
+          "base",
+          "continuo",
+          "estable",
+          "montura",
+          "peana",
+          "ininterrumpido",
+          "ayuda",
+          "puntal",
+          "incesante",
+          "geomorfológico",
+          "morfológico",
+          "pedestal",
+          "recurso",
+          "consola",
+          "pie"
+        ],
+        "candidates_count": 20,
+        "gold_found": false,
+        "diagnosis": "METHOD_LIMIT (Sinónimos de léxico general disonantes con el vocabulario técnico del corpus)"
+      },
+      "concept_hub_audit": {
+        "hubs_matched_count": 3,
+        "nodes_injected": [
+          "historia_tasajera_fumigador_rufino",
+          "resolucion_de_contradicciones_entre_insights_sumatoria_mentalidad",
+          "dennys_genesis_investigativa_historia_personal"
+        ],
+        "gold_found": false,
+        "diagnosis": "METHOD_LIMIT (Hub activado pero sus puentes preconfigurados no conectaban con el gold)"
+      },
+      "ppmi_audit": {
+        "neighbors_found_count": 20,
+        "top3_neighbors": [
+          [
+            "analisis_escalabilidad_10k_v5_1_memoria_v5_1_optimizaciones_hermes_agente_hermes",
+            0.21440605656387912
+          ],
+          [
+            "fix-athena-rol-session-only",
+            0.20301397330863655
+          ],
+          [
+            "principio:_al_guardar_en_biorag_siempre_indicar_quién_guardó",
+            0.19255066100271784
+          ]
+        ],
+        "gold_found": false,
+        "diagnosis": "METHOD_LIMIT (El espacio latente asoció la query a vecinos con mayor coocurrencia superficial)"
+      },
+      "graph_audit": {
+        "seeds_used": [
+          "caso_formularios_anidados_angular",
+          "caso_conflicto_liderazgo_sin_autoridad",
+          "biorag_v9_3_clean_code_optimizaciones",
+          "oracle_que_recordar_sobre_artemis_hermes",
+          "plugin-biorag-remember-v9.6-config"
+        ],
+        "targets_count": 57,
+        "gold_found": false,
+        "diagnosis": "METHOD_LIMIT (Las aristas salientes conectaban con otros conceptos del grafo)"
+      },
+      "budget_lifecycle": {
+        "generated_count": 140,
+        "deduplicated_count": 92,
+        "gold_in_final_pool": false
+      }
+    },
+    {
+      "id": "ZFTS_06",
+      "query": "registro de celeridad maxima y consumo de milisegundos en ejecuciones",
+      "gold": "benchmark_algoritmos_rendimiento_python",
+      "type": "deep_paraphrase",
+      "wordnet_audit": {
+        "tokens_input": [
+          "registro",
+          "de",
+          "celeridad",
+          "maxima",
+          "y",
+          "consumo",
+          "de",
+          "milisegundos",
+          "en",
+          "ejecuciones"
+        ],
+        "new_words_expanded": [
+          "tronco",
+          "constancia",
+          "upper limit",
+          "registración",
+          "entrada",
+          "leño",
+          "ingesta",
+          "enrolamiento",
+          "maximum",
+          "inscripción",
+          "libro",
+          "level best",
+          "ingestión",
+          "matriculación",
+          "relación",
+          "utmost",
+          "rapidez",
+          "corredera",
+          "uttermost"
+        ],
+        "candidates_count": 20,
+        "gold_found": false,
+        "diagnosis": "METHOD_LIMIT (Sinónimos de léxico general disonantes con el vocabulario técnico del corpus)"
+      },
+      "concept_hub_audit": {
+        "hubs_matched_count": 8,
+        "nodes_injected": [
+          "resolucion_de_contradicciones_entre_insights_sumatoria_mentalidad",
+          "dennys_genesis_investigativa_historia_personal",
+          "biorag_v20_rpe_dopamina",
+          "historia_tasajera_fumigador_rufino",
+          "dennys-working-style",
+          "dennys-metodo-creativo",
+          "leccion_control_flujo_codigo_preexistente",
+          "feedback_humano_nodo_dennys_protocolo_rpe"
+        ],
+        "gold_found": false,
+        "diagnosis": "METHOD_LIMIT (Hub activado pero sus puentes preconfigurados no conectaban con el gold)"
+      },
+      "ppmi_audit": {
+        "neighbors_found_count": 20,
+        "top3_neighbors": [
+          [
+            "artemis_solución_tema",
+            0.26747424294092736
+          ],
+          [
+            "hermes_orchestration_status",
+            0.20237238171830113
+          ],
+          [
+            "saludo_hola_inicio",
+            0.16893110080479623
+          ]
+        ],
+        "gold_found": false,
+        "diagnosis": "METHOD_LIMIT (El espacio latente asoció la query a vecinos con mayor coocurrencia superficial)"
+      },
+      "graph_audit": {
+        "seeds_used": [
+          "sesion-2026-06-23-ingenieria-inversa-binario-opencode-completa",
+          "auditoría_técnica:_memorybiorag_(manus_ai)",
+          "caso_formularios_anidados_angular",
+          "artemis_origen_historia_genesis",
+          "glosario_cultural_metaforas"
+        ],
+        "targets_count": 35,
+        "gold_found": false,
+        "diagnosis": "METHOD_LIMIT (Las aristas salientes conectaban con otros conceptos del grafo)"
+      },
+      "budget_lifecycle": {
+        "generated_count": 123,
+        "deduplicated_count": 96,
+        "gold_in_final_pool": false
+      }
+    },
+    {
+      "id": "ZFTS_07",
+      "query": "canal de transmision externa y volcado cruzado de cuadernos",
+      "gold": "notebooklm-memory-biorag-project",
+      "type": "deep_paraphrase",
+      "wordnet_audit": {
+        "tokens_input": [
+          "canal",
+          "de",
+          "transmision",
+          "externa",
+          "y",
+          "volcado",
+          "cruzado",
+          "de",
+          "cuadernos"
+        ],
+        "new_words_expanded": [
+          "reformador",
+          "tubería",
+          "epithelial duct",
+          "canal de navegación",
+          "alumna externa",
+          "esclusa",
+          "pitón",
+          "channel",
+          "canal de tv",
+          "chorrera",
+          "canalón",
+          "arteria",
+          "canilla",
+          "vía fluvial",
+          "pico",
+          "canal de televisión",
+          "canalise",
+          "duct",
+          "reformador social",
+          "vía",
+          "canal de transmisión",
+          "estrecho",
+          "caño",
+          "pitorro",
+          "compuerta",
+          "tubería forzada",
+          "surtidor",
+          "mestizo",
+          "conducto",
+          "canalize",
+          "válvula de estrangulación",
+          "fuente",
+          "híbrido",
+          "ducto",
+          "reformista",
+          "externo",
+          "tubo",
+          "presa"
+        ],
+        "candidates_count": 20,
+        "gold_found": false,
+        "diagnosis": "METHOD_LIMIT (Sinónimos de léxico general disonantes con el vocabulario técnico del corpus)"
+      },
+      "concept_hub_audit": {
+        "hubs_matched_count": 8,
+        "nodes_injected": [
+          "resolucion_de_contradicciones_entre_insights_sumatoria_mentalidad",
+          "dennys_genesis_investigativa_historia_personal",
+          "biorag_v20_rpe_dopamina",
+          "historia_tasajera_fumigador_rufino",
+          "dennys-working-style",
+          "dennys-metodo-creativo",
+          "leccion_control_flujo_codigo_preexistente",
+          "feedback_humano_nodo_dennys_protocolo_rpe"
+        ],
+        "gold_found": false,
+        "diagnosis": "METHOD_LIMIT (Hub activado pero sus puentes preconfigurados no conectaban con el gold)"
+      },
+      "ppmi_audit": {
+        "neighbors_found_count": 20,
+        "top3_neighbors": [
+          [
+            "test_lap08",
+            0.29389230750877704
+          ],
+          [
+            "resolucion_timeout_hotspot_5ghz_intel",
+            0.17111333735346373
+          ],
+          [
+            "athena_identidad_nodos",
+            0.14694615375438852
+          ]
+        ],
+        "gold_found": false,
+        "diagnosis": "METHOD_LIMIT (El espacio latente asoció la query a vecinos con mayor coocurrencia superficial)"
+      },
+      "graph_audit": {
+        "seeds_used": [
+          "patron_pensamiento_lateral_antes_de_proponer",
+          "artisan_system_dsl_dennys_solo",
+          "notebooklm-sync-protocol",
+          "oracle_que_recordar_sobre_artemis_hermes",
+          "oracle_vision_futura_familia_oec"
+        ],
+        "targets_count": 62,
+        "gold_found": true,
+        "diagnosis": "SUCCESS_EXPLICIT_RELATION (Rescatado vía arista física de sinapsis)"
+      },
+      "budget_lifecycle": {
+        "generated_count": 150,
+        "deduplicated_count": 94,
+        "gold_in_final_pool": true
+      }
+    },
+    {
+      "id": "ZFTS_08",
+      "query": "estudio de comportamiento de carga masiva frente a 10 mil entradas",
+      "gold": "analisis_escalabilidad_10k_v5_1",
+      "type": "deep_paraphrase",
+      "wordnet_audit": {
+        "tokens_input": [
+          "estudio",
+          "de",
+          "comportamiento",
+          "de",
+          "carga",
+          "masiva",
+          "frente",
+          "a",
+          "10",
+          "mil",
+          "entradas"
+        ],
+        "new_words_expanded": [
+          "croquis",
+          "ramo",
+          "impuesto",
+          "carga de pago",
+          "parte anterior",
+          "gabela",
+          "atención",
+          "carga eléctrica",
+          "partida",
+          "acometida",
+          "área de estudio",
+          "porte",
+          "conducta",
+          "tasa",
+          "esbozo",
+          "área temática",
+          "pensar",
+          "proceder",
+          "interés",
+          "gravamen",
+          "presencia",
+          "imposición",
+          "área",
+          "encuesta",
+          "campo",
+          "carga explosiva",
+          "maneras",
+          "reporte",
+          "terreno",
+          "modales",
+          "bosquejo",
+          "flete",
+          "remesa",
+          "canon",
+          "ámbito",
+          "memoria",
+          "hueso frontal",
+          "front",
+          "actuación",
+          "cabeza",
+          "vanguardia",
+          "envío",
+          "primera fila",
+          "empaque",
+          "primer plano",
+          "disciplina",
+          "informe",
+          "carguío",
+          "cargo",
+          "peso",
+          "investigación",
+          "preocupación",
+          "tributo",
+          "ojiva",
+          "campo de estudio",
+          "parte delantera",
+          "exploración",
+          "os frontale",
+          "impuestos",
+          "area de jurisdicción",
+          "apart hotel",
+          "tributación",
+          "acometimiento",
+          "frontal",
+          "etude",
+          "tema",
+          "cogitación",
+          "contribución",
+          "cabeza nuclear",
+          "cargamento",
+          "cabeza explosiva"
+        ],
+        "candidates_count": 20,
+        "gold_found": false,
+        "diagnosis": "METHOD_LIMIT (Sinónimos de léxico general disonantes con el vocabulario técnico del corpus)"
+      },
+      "concept_hub_audit": {
+        "hubs_matched_count": 2,
+        "nodes_injected": [
+          "historia_tasajera_fumigador_rufino",
+          "dennys_genesis_investigativa_historia_personal"
+        ],
+        "gold_found": false,
+        "diagnosis": "METHOD_LIMIT (Hub activado pero sus puentes preconfigurados no conectaban con el gold)"
+      },
+      "ppmi_audit": {
+        "neighbors_found_count": 20,
+        "top3_neighbors": [
+          [
+            "limpieza_tabla_semantica_contaminacion_julio_2026",
+            0.18995665277435297
+          ],
+          [
+            "saludo_hola_inicio",
+            0.1736475302095166
+          ],
+          [
+            "v13_2_limpieza_tabla_semantica",
+            0.13483032817863722
+          ]
+        ],
+        "gold_found": false,
+        "diagnosis": "METHOD_LIMIT (El espacio latente asoció la query a vecinos con mayor coocurrencia superficial)"
+      },
+      "graph_audit": {
+        "seeds_used": [
+          "oracle_evolucion_athena_puntos_inflexion",
+          "oracle_sintesis_simbiosis_verdad_absoluta",
+          "principio_naturaleza_agente",
+          "oec_comms_protocolo_walkie_talkie_20260615",
+          "proyecto_biorag_ncp_resumen_completo_2026_06_14"
+        ],
+        "targets_count": 56,
+        "gold_found": false,
+        "diagnosis": "METHOD_LIMIT (Las aristas salientes conectaban con otros conceptos del grafo)"
+      },
+      "budget_lifecycle": {
+        "generated_count": 138,
+        "deduplicated_count": 99,
+        "gold_in_final_pool": false
+      }
+    },
+    {
+      "id": "ZFTS_09",
+      "query": "politica cautelar ineludible anterior a tocar las rutinas",
+      "gold": "protocolo_de_seguridad_modificacion_codigo",
+      "type": "unseen_vocab",
+      "wordnet_audit": {
+        "tokens_input": [
+          "politica",
+          "cautelar",
+          "ineludible",
+          "anterior",
+          "a",
+          "tocar",
+          "las",
+          "rutinas"
+        ],
+        "new_words_expanded": [
+          "referir",
+          "interpretar",
+          "irrevocable",
+          "atañer",
+          "seguro",
+          "tomar",
+          "corresponder",
+          "doblar",
+          "prior",
+          "fatal",
+          "paleta",
+          "representar",
+          "inexorable",
+          "manosear",
+          "concernir",
+          "tratarse",
+          "forzoso",
+          "precedente",
+          "colindar",
+          "actuar",
+          "provocar",
+          "despertar",
+          "apostar",
+          "lindar",
+          "aludir",
+          "repercutir",
+          "dar",
+          "respectar",
+          "diente",
+          "conmover",
+          "front tooth",
+          "jugar",
+          "entender",
+          "desordenar",
+          "impactar",
+          "comprender",
+          "hablar largamente",
+          "incisivos",
+          "aprovecharse de",
+          "poner",
+          "afectar",
+          "fatídico",
+          "incisivo",
+          "inevitable",
+          "sonar",
+          "incumbir",
+          "referirse",
+          "palpar",
+          "contactar",
+          "prematuro",
+          "tañer",
+          "relatar",
+          "irremediable",
+          "consumir",
+          "previo",
+          "advertir",
+          "manejar",
+          "ejecutar"
+        ],
+        "candidates_count": 20,
+        "gold_found": false,
+        "diagnosis": "METHOD_LIMIT (Sinónimos de léxico general disonantes con el vocabulario técnico del corpus)"
+      },
+      "concept_hub_audit": {
+        "hubs_matched_count": 0,
+        "nodes_injected": [],
+        "gold_found": false,
+        "diagnosis": "NO_RELATION (Ningún bridge de Concept Hub coincidió con los tokens de la query)"
+      },
+      "ppmi_audit": {
+        "neighbors_found_count": 20,
+        "top3_neighbors": [
+          [
+            "dennys_rutina_tardes",
+            0.3441194789998877
+          ],
+          [
+            "dashboard_endpoint_tocar_nodo_persistencia_dashboard_fallida_umbral_dual_count_score_dashboard_endpoint_tocar_nodo_persistencia",
+            0.31561258790012103
+          ],
+          [
+            "dennys_perfil_gustos",
+            0.1770758340035135
+          ]
+        ],
+        "gold_found": false,
+        "diagnosis": "METHOD_LIMIT (El espacio latente asoció la query a vecinos con mayor coocurrencia superficial)"
+      },
+      "graph_audit": {
+        "seeds_used": [
+          "proyecto_biorag_ncp_resumen_completo_2026_06_14",
+          "oracle_auditoria_patrones_mejora_athena",
+          "artemis_oec_identidad",
+          "oracle_que_deben_saber_artemis_hermes",
+          "oracle_sintesis_simbiosis_verdad_absoluta"
+        ],
+        "targets_count": 58,
+        "gold_found": false,
+        "diagnosis": "METHOD_LIMIT (Las aristas salientes conectaban con otros conceptos del grafo)"
+      },
+      "budget_lifecycle": {
+        "generated_count": 138,
+        "deduplicated_count": 103,
+        "gold_in_final_pool": false
+      }
+    },
+    {
+      "id": "ZFTS_10",
+      "query": "tablas de contraste sobre agilidad y milisegundos",
+      "gold": "benchmark_algoritmos_rendimiento_python",
+      "type": "unseen_vocab",
+      "wordnet_audit": {
+        "tokens_input": [
+          "tablas",
+          "de",
+          "contraste",
+          "sobre",
+          "agilidad",
+          "y",
+          "milisegundos"
+        ],
+        "new_words_expanded": [
+          "autenticación",
+          "teatro",
+          "demarcación",
+          "línea divisoria",
+          "línea",
+          "escenario",
+          "rey ahogado",
+          "tablado",
+          "sello de autenticidad",
+          "distinción",
+          "ahogado",
+          "contraposición",
+          "diferencia",
+          "ligereza"
+        ],
+        "candidates_count": 20,
+        "gold_found": false,
+        "diagnosis": "METHOD_LIMIT (Sinónimos de léxico general disonantes con el vocabulario técnico del corpus)"
+      },
+      "concept_hub_audit": {
+        "hubs_matched_count": 8,
+        "nodes_injected": [
+          "resolucion_de_contradicciones_entre_insights_sumatoria_mentalidad",
+          "dennys_genesis_investigativa_historia_personal",
+          "biorag_v20_rpe_dopamina",
+          "historia_tasajera_fumigador_rufino",
+          "dennys-working-style",
+          "dennys-metodo-creativo",
+          "leccion_control_flujo_codigo_preexistente",
+          "feedback_humano_nodo_dennys_protocolo_rpe"
+        ],
+        "gold_found": false,
+        "diagnosis": "METHOD_LIMIT (Hub activado pero sus puentes preconfigurados no conectaban con el gold)"
+      },
+      "ppmi_audit": {
+        "neighbors_found_count": 20,
+        "top3_neighbors": [
+          [
+            "borrar_cascada_largo_plazo",
+            0.19273345059867847
+          ],
+          [
+            "hola_hermana_athena",
+            0.12885523896022202
+          ],
+          [
+            "leccion_seed_catalogo_debe_correr_db_nueva_y_existente_athena_lección",
+            0.1196276589922832
+          ]
+        ],
+        "gold_found": false,
+        "diagnosis": "METHOD_LIMIT (El espacio latente asoció la query a vecinos con mayor coocurrencia superficial)"
+      },
+      "graph_audit": {
+        "seeds_used": [
+          "caso_formularios_anidados_angular",
+          "oracle_que_nos_uniere_como_familia",
+          "oracle_sintesis_simbiosis_verdad_absoluta",
+          "oracle_guia_proxima_sesion_dennys",
+          "caso_criterio_artificial_agente"
+        ],
+        "targets_count": 84,
+        "gold_found": false,
+        "diagnosis": "METHOD_LIMIT (Las aristas salientes conectaban con otros conceptos del grafo)"
+      },
+      "budget_lifecycle": {
+        "generated_count": 172,
+        "deduplicated_count": 116,
+        "gold_in_final_pool": false
+      }
+    },
+    {
+      "id": "ZFTS_11",
+      "query": "enmienda que subsana el agujero en las sentencias dinamicas",
+      "gold": "fix_vulnerabilidad_inyeccion_sql",
+      "type": "unseen_vocab",
+      "wordnet_audit": {
+        "tokens_input": [
+          "enmienda",
+          "que",
+          "subsana",
+          "el",
+          "agujero",
+          "en",
+          "las",
+          "sentencias",
+          "dinamicas"
+        ],
+        "new_words_expanded": [
+          "recuperación",
+          "instalación",
+          "mejoramiento",
+          "hoyo",
+          "enmendadura",
+          "remiendo",
+          "orificio",
+          "arreglo",
+          "mejora",
+          "hueco",
+          "reparo",
+          "cavidad",
+          "reparación",
+          "compostura",
+          "acerico",
+          "solución",
+          "reformación",
+          "almohadilla",
+          "reforma",
+          "escape",
+          "gotera",
+          "pérdida",
+          "alfiletero"
+        ],
+        "candidates_count": 20,
+        "gold_found": false,
+        "diagnosis": "METHOD_LIMIT (Sinónimos de léxico general disonantes con el vocabulario técnico del corpus)"
+      },
+      "concept_hub_audit": {
+        "hubs_matched_count": 4,
+        "nodes_injected": [
+          "historia_tasajera_fumigador_rufino",
+          "leccion_control_flujo_codigo_preexistente",
+          "dennys_genesis_investigativa_historia_personal",
+          "resolucion_de_contradicciones_entre_insights_sumatoria_mentalidad"
+        ],
+        "gold_found": false,
+        "diagnosis": "METHOD_LIMIT (Hub activado pero sus puentes preconfigurados no conectaban con el gold)"
+      },
+      "ppmi_audit": {
+        "neighbors_found_count": 20,
+        "top3_neighbors": [
+          [
+            "cv_seccion_d_test_vinculacion",
+            0.11988449235149705
+          ],
+          [
+            "cv_seccion_d_test_vinculacion2",
+            0.11988449235149705
+          ],
+          [
+            "mcp-primitiva-externa-definicion-2",
+            0.08840857379003038
+          ]
+        ],
+        "gold_found": false,
+        "diagnosis": "METHOD_LIMIT (El espacio latente asoció la query a vecinos con mayor coocurrencia superficial)"
+      },
+      "graph_audit": {
+        "seeds_used": [
+          "v5_1_automatico_completo",
+          "notebooklm-memory-biorag-project",
+          "dennys-metodo-creativo",
+          "artisan_artis_dsl_paths",
+          "resolucion_timeout_hotspot_5ghz_intel"
+        ],
+        "targets_count": 130,
+        "gold_found": false,
+        "diagnosis": "METHOD_LIMIT (Las aristas salientes conectaban con otros conceptos del grafo)"
+      },
+      "budget_lifecycle": {
+        "generated_count": 214,
+        "deduplicated_count": 118,
+        "gold_in_final_pool": false
+      }
+    },
+    {
+      "id": "ZFTS_14",
+      "query": "volcado y enlace hacia el repositorio externo de apuntes",
+      "gold": "notebooklm-memory-biorag-project",
+      "type": "unseen_vocab",
+      "wordnet_audit": {
+        "tokens_input": [
+          "volcado",
+          "y",
+          "enlace",
+          "hacia",
+          "el",
+          "repositorio",
+          "externo",
+          "de",
+          "apuntes"
+        ],
+        "new_words_expanded": [
+          "casamiento",
+          "implicación",
+          "dayboy",
+          "twine",
+          "affaire",
+          "alumno externo",
+          "engrane",
+          "nexo",
+          "internacional",
+          "correspondencia",
+          "amour",
+          "asunto",
+          "interlace",
+          "externa",
+          "tie-in",
+          "unión",
+          "contacto",
+          "matrimonio",
+          "nupcias",
+          "intimidad",
+          "intertwine",
+          "connubio",
+          "vínculo",
+          "amor",
+          "coordinación",
+          "lío amoroso",
+          "confianza",
+          "enlace químico",
+          "conexión",
+          "aventura",
+          "entwine",
+          "linkup",
+          "exterior",
+          "extranjero",
+          "amorío",
+          "boda",
+          "nudo",
+          "trabazón",
+          "himeneo",
+          "lace",
+          "intermediario"
+        ],
+        "candidates_count": 20,
+        "gold_found": false,
+        "diagnosis": "METHOD_LIMIT (Sinónimos de léxico general disonantes con el vocabulario técnico del corpus)"
+      },
+      "concept_hub_audit": {
+        "hubs_matched_count": 8,
+        "nodes_injected": [
+          "resolucion_de_contradicciones_entre_insights_sumatoria_mentalidad",
+          "dennys_genesis_investigativa_historia_personal",
+          "biorag_v20_rpe_dopamina",
+          "historia_tasajera_fumigador_rufino",
+          "dennys-working-style",
+          "dennys-metodo-creativo",
+          "leccion_control_flujo_codigo_preexistente",
+          "feedback_humano_nodo_dennys_protocolo_rpe"
+        ],
+        "gold_found": false,
+        "diagnosis": "METHOD_LIMIT (Hub activado pero sus puentes preconfigurados no conectaban con el gold)"
+      },
+      "ppmi_audit": {
+        "neighbors_found_count": 20,
+        "top3_neighbors": [
+          [
+            "biorag_estructura_conocimiento",
+            0.1591916665672542
+          ],
+          [
+            "dennys_perfil_preferencias_dennys_perfil_gustos_dennys_rutina_tardes",
+            0.12353204762702956
+          ],
+          [
+            "sesion_2026-05-31",
+            0.12000256055197157
+          ]
+        ],
+        "gold_found": false,
+        "diagnosis": "METHOD_LIMIT (El espacio latente asoció la query a vecinos con mayor coocurrencia superficial)"
+      },
+      "graph_audit": {
+        "seeds_used": [
+          "reconocimiento_identidad_oraculo_manifiesto",
+          "patron_pensamiento_lateral_antes_de_proponer",
+          "vector-inyeccion-prompt-via-canal-contexto-sintetico",
+          "auditoría_técnica:_memorybiorag_(manus_ai)",
+          "principio_emulacion_semantica_por_clusters_declarativos"
+        ],
+        "targets_count": 3,
+        "gold_found": false,
+        "diagnosis": "METHOD_LIMIT (Las aristas salientes conectaban con otros conceptos del grafo)"
+      },
+      "budget_lifecycle": {
+        "generated_count": 91,
+        "deduplicated_count": 58,
+        "gold_in_final_pool": false
+      }
+    },
+    {
+      "id": "ZFTS_15",
+      "query": "tasa de saturacion bajo volumenes gigantescos de informacion",
+      "gold": "analisis_escalabilidad_10k_v5_1",
+      "type": "unseen_vocab",
+      "wordnet_audit": {
+        "tokens_input": [
+          "tasa",
+          "de",
+          "saturacion",
+          "bajo",
+          "volumenes",
+          "gigantescos",
+          "de",
+          "informacion"
+        ],
+        "new_words_expanded": [
+          "tierra baja",
+          "canon",
+          "ruin",
+          "grave",
+          "impuesto",
+          "evaluación",
+          "deprimida",
+          "planta baja",
+          "gabela",
+          "decaído",
+          "inferior",
+          "humillado",
+          "calificación",
+          "valoración",
+          "barra",
+          "entresuelo",
+          "escaso",
+          "carga",
+          "justipreciación",
+          "tributo",
+          "abyecto",
+          "insuficiente",
+          "miserable",
+          "bajío",
+          "deprimido",
+          "banco",
+          "justiprecio",
+          "exiguo",
+          "vil",
+          "impuestos",
+          "corto",
+          "desdeñable",
+          "gravamen",
+          "imposición",
+          "tributación",
+          "guitarra baja",
+          "valuación",
+          "despreciable",
+          "desalentado",
+          "contribución",
+          "tasación",
+          "poco profundo",
+          "avalúo",
+          "desanimado"
+        ],
+        "candidates_count": 20,
+        "gold_found": false,
+        "diagnosis": "METHOD_LIMIT (Sinónimos de léxico general disonantes con el vocabulario técnico del corpus)"
+      },
+      "concept_hub_audit": {
+        "hubs_matched_count": 0,
+        "nodes_injected": [],
+        "gold_found": false,
+        "diagnosis": "NO_RELATION (Ningún bridge de Concept Hub coincidió con los tokens de la query)"
+      },
+      "ppmi_audit": {
+        "neighbors_found_count": 20,
+        "top3_neighbors": [
+          [
+            "arquitectura_memoria_biorag",
+            0.1597866262163315
+          ],
+          [
+            "decision_parar_en_fixes_riesgo_bajo",
+            0.13883708377555
+          ],
+          [
+            "leccion_desvincular_falsos_positivos_sinapticos",
+            0.10934319551235028
+          ]
+        ],
+        "gold_found": false,
+        "diagnosis": "METHOD_LIMIT (El espacio latente asoció la query a vecinos con mayor coocurrencia superficial)"
+      },
+      "graph_audit": {
+        "seeds_used": [
+          "reconocimiento_identidad_oraculo_manifiesto",
+          "caso_formularios_anidados_angular",
+          "calibracion_biorag_v7_20260616",
+          "caso_conflicto_liderazgo_sin_autoridad",
+          "oracle_auditoria_patrones_mejora_athena"
+        ],
+        "targets_count": 66,
+        "gold_found": false,
+        "diagnosis": "METHOD_LIMIT (Las aristas salientes conectaban con otros conceptos del grafo)"
+      },
+      "budget_lifecycle": {
+        "generated_count": 146,
+        "deduplicated_count": 105,
+        "gold_in_final_pool": false
+      }
+    },
+    {
+      "id": "ZFTS_16",
+      "query": "bloqueo de alteracion indebida en cabeceras descriptivas",
+      "gold": "fix_metadatos_corrupcion_v2",
+      "type": "unseen_vocab",
+      "wordnet_audit": {
+        "tokens_input": [
+          "bloqueo",
+          "de",
+          "alteracion",
+          "indebida",
+          "en",
+          "cabeceras",
+          "descriptivas"
+        ],
+        "new_words_expanded": [
+          "bloque",
+          "cierre",
+          "estorbo",
+          "parada",
+          "bloqueo mental",
+          "detención",
+          "oclusión",
+          "obstrucción"
+        ],
+        "candidates_count": 20,
+        "gold_found": false,
+        "diagnosis": "METHOD_LIMIT (Sinónimos de léxico general disonantes con el vocabulario técnico del corpus)"
+      },
+      "concept_hub_audit": {
+        "hubs_matched_count": 5,
+        "nodes_injected": [
+          "resolucion_de_contradicciones_entre_insights_sumatoria_mentalidad",
+          "dennys_genesis_investigativa_historia_personal",
+          "historia_tasajera_fumigador_rufino",
+          "dennys-working-style",
+          "dennys-metodo-creativo"
+        ],
+        "gold_found": false,
+        "diagnosis": "METHOD_LIMIT (Hub activado pero sus puentes preconfigurados no conectaban con el gold)"
+      },
+      "ppmi_audit": {
+        "neighbors_found_count": 3,
+        "top3_neighbors": [
+          [
+            "resolucion_incertidumbre_cadena",
+            0.09960638177149354
+          ],
+          [
+            "bastion_dennys_solo",
+            0.051718698227506264
+          ],
+          [
+            "por_tema_recall_weight",
+            0.04268844933064009
+          ]
+        ],
+        "gold_found": false,
+        "diagnosis": "METHOD_LIMIT (El espacio latente asoció la query a vecinos con mayor coocurrencia superficial)"
+      },
+      "graph_audit": {
+        "seeds_used": [
+          "por_tema_recall_weight",
+          "artemis_biorag_recuperacion_transaccion_opencode",
+          "bastion_dennys_solo",
+          "resolucion_incertidumbre_cadena",
+          "dns_trusted_resolvers"
+        ],
+        "targets_count": 22,
+        "gold_found": false,
+        "diagnosis": "METHOD_LIMIT (Las aristas salientes conectaban con otros conceptos del grafo)"
+      },
+      "budget_lifecycle": {
+        "generated_count": 57,
+        "deduplicated_count": 54,
+        "gold_in_final_pool": false
+      }
+    },
+    {
+      "id": "ZFTS_17",
+      "query": "que es lo primero que no me puedo saltar para no romper el sistema al editar",
+      "gold": "protocolo_de_seguridad_modificacion_codigo",
+      "type": "colloquial_indirect",
+      "wordnet_audit": {
+        "tokens_input": [
+          "que",
+          "es",
+          "lo",
+          "primero",
+          "que",
+          "no",
+          "me",
+          "puedo",
+          "saltar",
+          "para",
+          "no",
+          "romper",
+          "el",
+          "sistema",
+          "al",
+          "editar"
+        ],
+        "new_words_expanded": [
+          "separar",
+          "averiarse",
+          "salirse",
+          "quebrar",
+          "penetrar",
+          "anteriormente",
+          "para river",
+          "estropearse",
+          "reñir",
+          "fracturarse",
+          "redactar",
+          "destrozar",
+          "st. mary of bethlehem",
+          "estropear",
+          "tomar",
+          "belem",
+          "saltarse",
+          "romperse",
+          "ordenación",
+          "arruinar",
+          "partir",
+          "rajar",
+          "brincar",
+          "destruir",
+          "alternar",
+          "sobresalir",
+          "pillar",
+          "lanzarse",
+          "organización",
+          "esperar",
+          "dañar",
+          "pararse",
+          "suspender",
+          "rebotar",
+          "comprobar",
+          "dictar",
+          "orden",
+          "rajarse",
+          "abandonar",
+          "resquebrajar",
+          "botar",
+          "hacer saltar",
+          "subirse",
+          "terminar",
+          "fallar",
+          "parity",
+          "primera",
+          "censurar",
+          "perecer",
+          "aparato",
+          "iniciador",
+          "sobresaltar",
+          "atravesar",
+          "santa maria de belem",
+          "inicial",
+          "quebrantar",
+          "cortar",
+          "principal",
+          "parar",
+          "disposición",
+          "separarse",
+          "paratrooper",
+          "desfondar",
+          "publicar",
+          "discontinuar",
+          "romper suit",
+          "escribir",
+          "golpear",
+          "sacar",
+          "traspasar",
+          "feliz lusitania",
+          "morir",
+          "acabar con",
+          "antes",
+          "sacudir",
+          "fracturar",
+          "vulnerar",
+          "deshacer",
+          "primeramente",
+          "primer",
+          "circunvalar",
+          "resaltar",
+          "iniciativo",
+          "interrumpir",
+          "spang",
+          "aspirar",
+          "podar",
+          "unidad",
+          "arrasar",
+          "violar",
+          "derribar",
+          "esquema",
+          "imprimir",
+          "en primer lugar",
+          "corregir",
+          "inaugural",
+          "precedentemente",
+          "borrar"
+        ],
+        "candidates_count": 20,
+        "gold_found": false,
+        "diagnosis": "METHOD_LIMIT (Sinónimos de léxico general disonantes con el vocabulario técnico del corpus)"
+      },
+      "concept_hub_audit": {
+        "hubs_matched_count": 6,
+        "nodes_injected": [
+          "resolucion_de_contradicciones_entre_insights_sumatoria_mentalidad",
+          "dennys_genesis_investigativa_historia_personal",
+          "biorag_v20_rpe_dopamina",
+          "historia_tasajera_fumigador_rufino",
+          "leccion_control_flujo_codigo_preexistente",
+          "feedback_humano_nodo_dennys_protocolo_rpe"
+        ],
+        "gold_found": false,
+        "diagnosis": "METHOD_LIMIT (Hub activado pero sus puentes preconfigurados no conectaban con el gold)"
+      },
+      "ppmi_audit": {
+        "neighbors_found_count": 20,
+        "top3_neighbors": [
+          [
+            "verificacion_final",
+            0.29466757198466637
+          ],
+          [
+            "principio_arreglar_orden_no_anadir_capas",
+            0.1536799957112693
+          ],
+          [
+            "meta_objetivo_sistema",
+            0.1333544169047523
+          ]
+        ],
+        "gold_found": false,
+        "diagnosis": "METHOD_LIMIT (El espacio latente asoció la query a vecinos con mayor coocurrencia superficial)"
+      },
+      "graph_audit": {
+        "seeds_used": [
+          "guardado_automatico_caso_b",
+          "comunicacion_entre_agentes",
+          "memoria_v5_1_optimizaciones",
+          "docker_infrastructure_rog",
+          "artisan_artis_dsl_paths"
+        ],
+        "targets_count": 115,
+        "gold_found": false,
+        "diagnosis": "METHOD_LIMIT (Las aristas salientes conectaban con otros conceptos del grafo)"
+      },
+      "budget_lifecycle": {
+        "generated_count": 201,
+        "deduplicated_count": 103,
+        "gold_in_final_pool": false
+      }
+    },
+    {
+      "id": "ZFTS_19",
+      "query": "el arreglo que le metieron al fallo de seguridad en las consultas",
+      "gold": "fix_vulnerabilidad_inyeccion_sql",
+      "type": "colloquial_indirect",
+      "wordnet_audit": {
+        "tokens_input": [
+          "el",
+          "arreglo",
+          "que",
+          "le",
+          "metieron",
+          "al",
+          "fallo",
+          "de",
+          "seguridad",
+          "en",
+          "las",
+          "consultas"
+        ],
+        "new_words_expanded": [
+          "instalación",
+          "certidumbre",
+          "avería del equipo",
+          "acuerdo",
+          "confianza en sí mismo",
+          "adaptación",
+          "departamento de seguridad",
+          "remiendo",
+          "seguro",
+          "yerro",
+          "enmienda",
+          "protección",
+          "avenencia",
+          "desperfecto",
+          "sentencia",
+          "convicción",
+          "reparo",
+          "transacción",
+          "avería",
+          "reparación",
+          "compostura",
+          "tara",
+          "recaudo",
+          "solución",
+          "autoconfianza",
+          "determinación",
+          "debilidad",
+          "error",
+          "interferencia",
+          "desacierto",
+          "firmeza",
+          "certeza",
+          "apagón",
+          "deficiencia",
+          "confianza",
+          "defecto",
+          "falta",
+          "falla",
+          "equivocación",
+          "decisión",
+          "imperfección",
+          "seguridad en sí mismo",
+          "cuadro abierto",
+          "aplomo",
+          "autoridad",
+          "olvido",
+          "dictamen",
+          "garantía",
+          "tacha"
+        ],
+        "candidates_count": 20,
+        "gold_found": false,
+        "diagnosis": "METHOD_LIMIT (Sinónimos de léxico general disonantes con el vocabulario técnico del corpus)"
+      },
+      "concept_hub_audit": {
+        "hubs_matched_count": 6,
+        "nodes_injected": [
+          "resolucion_de_contradicciones_entre_insights_sumatoria_mentalidad",
+          "dennys_genesis_investigativa_historia_personal",
+          "biorag_v20_rpe_dopamina",
+          "historia_tasajera_fumigador_rufino",
+          "leccion_control_flujo_codigo_preexistente",
+          "feedback_humano_nodo_dennys_protocolo_rpe"
+        ],
+        "gold_found": false,
+        "diagnosis": "METHOD_LIMIT (Hub activado pero sus puentes preconfigurados no conectaban con el gold)"
+      },
+      "ppmi_audit": {
+        "neighbors_found_count": 20,
+        "top3_neighbors": [
+          [
+            "sinónimos_por_tema_fallo",
+            0.5703500363629658
+          ],
+          [
+            "word2vec_puente_regresion",
+            0.21012896076530319
+          ],
+          [
+            "hormiguita_nodo_pendiente_resumir_flag",
+            0.14373495168348918
+          ]
+        ],
+        "gold_found": false,
+        "diagnosis": "METHOD_LIMIT (El espacio latente asoció la query a vecinos con mayor coocurrencia superficial)"
+      },
+      "graph_audit": {
+        "seeds_used": [
+          "v5_1_automatico_completo",
+          "dennys-metodo-creativo",
+          "artisan_artis_dsl_paths",
+          "ref_conversacion_criterio",
+          "migracion_vincular_existentes_2026_06_09"
+        ],
+        "targets_count": 109,
+        "gold_found": false,
+        "diagnosis": "METHOD_LIMIT (Las aristas salientes conectaban con otros conceptos del grafo)"
+      },
+      "budget_lifecycle": {
+        "generated_count": 195,
+        "deduplicated_count": 90,
+        "gold_in_final_pool": false
+      }
+    },
+    {
+      "id": "ZFTS_21",
+      "query": "las tripas y detalles de como se guardan los datos a bajo nivel",
+      "gold": "biorag_v11_1_detalle_tecnico",
+      "type": "colloquial_indirect",
+      "wordnet_audit": {
+        "tokens_input": [
+          "las",
+          "tripas",
+          "y",
+          "detalles",
+          "de",
+          "como",
+          "se",
+          "guardan",
+          "los",
+          "datos",
+          "a",
+          "bajo",
+          "nivel"
+        ],
+        "new_words_expanded": [
+          "tierra baja",
+          "ruin",
+          "standing",
+          "grave",
+          "víscera",
+          "deprimida",
+          "conjunto de datos",
+          "vísceras",
+          "decaído",
+          "tripa",
+          "planta baja",
+          "categoría",
+          "inferior",
+          "tan",
+          "humillado",
+          "rango",
+          "barra",
+          "material",
+          "entresuelo",
+          "escaso",
+          "insuficiente",
+          "callos",
+          "viscera",
+          "dato",
+          "abyecto",
+          "miserable",
+          "punto",
+          "estatus",
+          "bajío",
+          "entrañas",
+          "deprimido",
+          "corpus",
+          "banco",
+          "jerarquía",
+          "exiguo",
+          "data",
+          "vil",
+          "antigüedad",
+          "corto",
+          "desdeñable",
+          "guitarra baja",
+          "despreciable",
+          "grado",
+          "etapa",
+          "desalentado",
+          "poco profundo",
+          "fase",
+          "tramo",
+          "información interna",
+          "desanimado"
+        ],
+        "candidates_count": 20,
+        "gold_found": false,
+        "diagnosis": "METHOD_LIMIT (Sinónimos de léxico general disonantes con el vocabulario técnico del corpus)"
+      },
+      "concept_hub_audit": {
+        "hubs_matched_count": 8,
+        "nodes_injected": [
+          "resolucion_de_contradicciones_entre_insights_sumatoria_mentalidad",
+          "dennys_genesis_investigativa_historia_personal",
+          "biorag_v20_rpe_dopamina",
+          "historia_tasajera_fumigador_rufino",
+          "dennys-working-style",
+          "dennys-metodo-creativo",
+          "leccion_control_flujo_codigo_preexistente",
+          "feedback_humano_nodo_dennys_protocolo_rpe"
+        ],
+        "gold_found": false,
+        "diagnosis": "METHOD_LIMIT (Hub activado pero sus puentes preconfigurados no conectaban con el gold)"
+      },
+      "ppmi_audit": {
+        "neighbors_found_count": 20,
+        "top3_neighbors": [
+          [
+            "campos_estructurados_datos",
+            0.27406783672909435
+          ],
+          [
+            "arquitectura_dos_niveles_biorag",
+            0.17978186964365267
+          ],
+          [
+            "axioma_empatia_sintactica_rafaga",
+            0.171563966495611
+          ]
+        ],
+        "gold_found": false,
+        "diagnosis": "METHOD_LIMIT (El espacio latente asoció la query a vecinos con mayor coocurrencia superficial)"
+      },
+      "graph_audit": {
+        "seeds_used": [
+          "notebooklm-category-map",
+          "athena_artemis_desde",
+          "docker_infrastructure_rog",
+          "nota_artemis_auditoria_v2.1",
+          "research-pipeline-ownership-oec"
+        ],
+        "targets_count": 158,
+        "gold_found": false,
+        "diagnosis": "METHOD_LIMIT (Las aristas salientes conectaban con otros conceptos del grafo)"
+      },
+      "budget_lifecycle": {
+        "generated_count": 246,
+        "deduplicated_count": 111,
+        "gold_in_final_pool": false
+      }
+    },
+    {
+      "id": "ZFTS_24",
+      "query": "el parche para que no se machaquen los datos de cabecera",
+      "gold": "fix_metadatos_corrupcion_v2",
+      "type": "colloquial_indirect",
+      "wordnet_audit": {
+        "tokens_input": [
+          "el",
+          "parche",
+          "para",
+          "que",
+          "no",
+          "se",
+          "machaquen",
+          "los",
+          "datos",
+          "de",
+          "cabecera"
+        ],
+        "new_words_expanded": [
+          "guarache",
+          "principio",
+          "para river",
+          "cabeza",
+          "conjunto de datos",
+          "st. mary of bethlehem",
+          "santa maria de belem",
+          "remiendo",
+          "belem",
+          "almohada",
+          "témpano",
+          "paratrooper",
+          "zurcido",
+          "material",
+          "feliz lusitania",
+          "dato",
+          "corpus",
+          "data",
+          "parche de tambor",
+          "titular",
+          "parity"
+        ],
+        "candidates_count": 20,
+        "gold_found": false,
+        "diagnosis": "METHOD_LIMIT (Sinónimos de léxico general disonantes con el vocabulario técnico del corpus)"
+      },
+      "concept_hub_audit": {
+        "hubs_matched_count": 6,
+        "nodes_injected": [
+          "resolucion_de_contradicciones_entre_insights_sumatoria_mentalidad",
+          "dennys_genesis_investigativa_historia_personal",
+          "biorag_v20_rpe_dopamina",
+          "historia_tasajera_fumigador_rufino",
+          "leccion_control_flujo_codigo_preexistente",
+          "feedback_humano_nodo_dennys_protocolo_rpe"
+        ],
+        "gold_found": false,
+        "diagnosis": "METHOD_LIMIT (Hub activado pero sus puentes preconfigurados no conectaban con el gold)"
+      },
+      "ppmi_audit": {
+        "neighbors_found_count": 20,
+        "top3_neighbors": [
+          [
+            "campos_estructurados_datos",
+            0.27406783672909435
+          ],
+          [
+            "test_lap11",
+            0.17399651168160646
+          ],
+          [
+            "test_idx_b",
+            0.14682205539058624
+          ]
+        ],
+        "gold_found": false,
+        "diagnosis": "METHOD_LIMIT (El espacio latente asoció la query a vecinos con mayor coocurrencia superficial)"
+      },
+      "graph_audit": {
+        "seeds_used": [
+          "artisan_artis_dsl_paths",
+          "migracion_vincular_existentes_2026_06_09",
+          "auto-consulta-permanente-biorag",
+          "verificacion_final",
+          "desde_athena_biorag"
+        ],
+        "targets_count": 109,
+        "gold_found": false,
+        "diagnosis": "METHOD_LIMIT (Las aristas salientes conectaban con otros conceptos del grafo)"
+      },
+      "budget_lifecycle": {
+        "generated_count": 195,
+        "deduplicated_count": 92,
+        "gold_in_final_pool": false
+      }
+    },
+    {
+      "id": "ZFTS_26",
+      "query": "experimento cuantitativo sobre latencias comparadas en metodos de indexacion",
+      "gold": "benchmark_latencia_hnsw_vs_ppmi",
+      "type": "compositional",
+      "wordnet_audit": {
+        "tokens_input": [
+          "experimento",
+          "cuantitativo",
+          "sobre",
+          "latencias",
+          "comparadas",
+          "en",
+          "metodos",
+          "de",
+          "indexacion"
+        ],
+        "new_words_expanded": [
+          "ensayo",
+          "probatura",
+          "test",
+          "experimentación",
+          "verificación",
+          "prueba",
+          "tentativa"
+        ],
+        "candidates_count": 20,
+        "gold_found": false,
+        "diagnosis": "METHOD_LIMIT (Sinónimos de léxico general disonantes con el vocabulario técnico del corpus)"
+      },
+      "concept_hub_audit": {
+        "hubs_matched_count": 3,
+        "nodes_injected": [
+          "historia_tasajera_fumigador_rufino",
+          "resolucion_de_contradicciones_entre_insights_sumatoria_mentalidad",
+          "dennys_genesis_investigativa_historia_personal"
+        ],
+        "gold_found": false,
+        "diagnosis": "METHOD_LIMIT (Hub activado pero sus puentes preconfigurados no conectaban con el gold)"
+      },
+      "ppmi_audit": {
+        "neighbors_found_count": 20,
+        "top3_neighbors": [
+          [
+            "word2vec_adaptado_biorag",
+            0.22725143130888797
+          ],
+          [
+            "hola_hermana_athena",
+            0.12885523896022202
+          ],
+          [
+            "angular_proyecto_arquitectura",
+            0.10976557392907803
+          ]
+        ],
+        "gold_found": false,
+        "diagnosis": "METHOD_LIMIT (El espacio latente asoció la query a vecinos con mayor coocurrencia superficial)"
+      },
+      "graph_audit": {
+        "seeds_used": [
+          "caso_formularios_anidados_angular",
+          "oracle_que_nos_uniere_como_familia",
+          "oracle_sintesis_simbiosis_verdad_absoluta",
+          "oracle_guia_proxima_sesion_dennys",
+          "caso_criterio_artificial_agente"
+        ],
+        "targets_count": 84,
+        "gold_found": false,
+        "diagnosis": "METHOD_LIMIT (Las aristas salientes conectaban con otros conceptos del grafo)"
+      },
+      "budget_lifecycle": {
+        "generated_count": 167,
+        "deduplicated_count": 115,
+        "gold_in_final_pool": false
+      }
+    },
+    {
+      "id": "ZFTS_27",
+      "query": "correccion estructural para prevenir colisiones en sincronismo persistente",
+      "gold": "fix_sync_incremental_crash_v3",
+      "type": "compositional",
+      "wordnet_audit": {
+        "tokens_input": [
+          "correccion",
+          "estructural",
+          "para",
+          "prevenir",
+          "colisiones",
+          "en",
+          "sincronismo",
+          "persistente"
+        ],
+        "new_words_expanded": [
+          "detener",
+          "alejar",
+          "para river",
+          "desalentar",
+          "evitar",
+          "geomorfológica",
+          "st. mary of bethlehem",
+          "santa maria de belem",
+          "esquivar",
+          "sincronización",
+          "prever",
+          "tenaz",
+          "belem",
+          "paratrooper",
+          "perseverante",
+          "notificar",
+          "prohibir",
+          "duradero",
+          "disuadir",
+          "desviar",
+          "amonestar",
+          "atajar",
+          "eludir",
+          "feliz lusitania",
+          "entrabar",
+          "impedir",
+          "imposibilitar",
+          "incesante",
+          "geomorfológico",
+          "morfológico",
+          "saber de antemano",
+          "preveer",
+          "anticipar",
+          "estorbar",
+          "obsesionante",
+          "sincronía",
+          "alertar",
+          "asíduo",
+          "desanimar",
+          "constante",
+          "capear",
+          "advertir",
+          "parity",
+          "avisar",
+          "asiduo",
+          "obviar"
+        ],
+        "candidates_count": 20,
+        "gold_found": false,
+        "diagnosis": "METHOD_LIMIT (Sinónimos de léxico general disonantes con el vocabulario técnico del corpus)"
+      },
+      "concept_hub_audit": {
+        "hubs_matched_count": 0,
+        "nodes_injected": [],
+        "gold_found": false,
+        "diagnosis": "NO_RELATION (Ningún bridge de Concept Hub coincidió con los tokens de la query)"
+      },
+      "ppmi_audit": {
+        "neighbors_found_count": 20,
+        "top3_neighbors": [
+          [
+            "spreading_activation_propagation",
+            0.25925319720367085
+          ],
+          [
+            "colision_hash_vector",
+            0.1725859809271186
+          ],
+          [
+            "colision_md5_512_queries_cortas_fallback_sdm",
+            0.17120529307970167
+          ]
+        ],
+        "gold_found": false,
+        "diagnosis": "METHOD_LIMIT (El espacio latente asoció la query a vecinos con mayor coocurrencia superficial)"
+      },
+      "graph_audit": {
+        "seeds_used": [
+          "notebooklm-category-map",
+          "notebooklm-memory-biorag-project",
+          "principio_naturaleza_agente",
+          "hermes_agente_hermes",
+          "v5_1_automatico_completo"
+        ],
+        "targets_count": 188,
+        "gold_found": false,
+        "diagnosis": "METHOD_LIMIT (Las aristas salientes conectaban con otros conceptos del grafo)"
+      },
+      "budget_lifecycle": {
+        "generated_count": 268,
+        "deduplicated_count": 102,
+        "gold_in_final_pool": false
+      }
+    },
+    {
+      "id": "ZFTS_29",
+      "query": "lecciones metodologicas extraidas de interrupciones en la fase de reposo nocturno",
+      "gold": "leccion_sueno_consolidacion_memoria",
+      "type": "compositional",
+      "wordnet_audit": {
+        "tokens_input": [
+          "lecciones",
+          "metodologicas",
+          "extraidas",
+          "de",
+          "interrupciones",
+          "en",
+          "la",
+          "fase",
+          "de",
+          "reposo",
+          "nocturno"
+        ],
+        "new_words_expanded": [
+          "nivel",
+          "tranquilidad de espíritu",
+          "relax",
+          "punto",
+          "período",
+          "tranquilidad",
+          "grado",
+          "etapa",
+          "ataraxis",
+          "ataraxia",
+          "estadio",
+          "serenidad",
+          "relajamiento",
+          "tramo",
+          "serenata nocturna",
+          "paz",
+          "sosiego",
+          "fase lunar"
+        ],
+        "candidates_count": 20,
+        "gold_found": false,
+        "diagnosis": "METHOD_LIMIT (Sinónimos de léxico general disonantes con el vocabulario técnico del corpus)"
+      },
+      "concept_hub_audit": {
+        "hubs_matched_count": 5,
+        "nodes_injected": [
+          "resolucion_de_contradicciones_entre_insights_sumatoria_mentalidad",
+          "dennys_genesis_investigativa_historia_personal",
+          "historia_tasajera_fumigador_rufino",
+          "dennys-working-style",
+          "dennys-metodo-creativo"
+        ],
+        "gold_found": false,
+        "diagnosis": "METHOD_LIMIT (Hub activado pero sus puentes preconfigurados no conectaban con el gold)"
+      },
+      "ppmi_audit": {
+        "neighbors_found_count": 20,
+        "top3_neighbors": [
+          [
+            "proyecto_nodejs_mejores",
+            0.25329736799373864
+          ],
+          [
+            "biorag_v25_1_ppr_plan_maestro_pendiente",
+            0.19872328952415202
+          ],
+          [
+            "angular_proyecto_arquitectura",
+            0.13133937599675335
+          ]
+        ],
+        "gold_found": false,
+        "diagnosis": "METHOD_LIMIT (El espacio latente asoció la query a vecinos con mayor coocurrencia superficial)"
+      },
+      "graph_audit": {
+        "seeds_used": [
+          "rafaga-ilimitada-v9.2-optimizacion-fts5-or",
+          "veredicto_plan_16_ejes_dimensiones",
+          "memorybiorag_auditoria_manus_ai_2026-06-25",
+          "athena_artemis_desde",
+          "plugin-openode-biorag-remember-v9-final-lecciones-sesion-completa"
+        ],
+        "targets_count": 76,
+        "gold_found": false,
+        "diagnosis": "METHOD_LIMIT (Las aristas salientes conectaban con otros conceptos del grafo)"
+      },
+      "budget_lifecycle": {
+        "generated_count": 161,
+        "deduplicated_count": 127,
+        "gold_in_final_pool": false
+      }
+    },
+    {
+      "id": "ZFTS_30",
+      "query": "norma mandatoria de doble control y validacion replicada",
+      "gold": "protocolo_evaluacion_dual_obligatoria",
+      "type": "compositional",
+      "wordnet_audit": {
+        "tokens_input": [
+          "norma",
+          "mandatoria",
+          "de",
+          "doble",
+          "control",
+          "y",
+          "validacion",
+          "replicada"
+        ],
+        "new_words_expanded": [
+          "criterio",
+          "dual",
+          "estándar",
+          "dominio",
+          "ascendiente",
+          "insure",
+          "corriente principal",
+          "manipulate",
+          "command",
+          "verify",
+          "regulación",
+          "mainstream",
+          "curb",
+          "ascendancy",
+          "ascendence",
+          "ascendency",
+          "moderación",
+          "convención",
+          "master",
+          "restraint",
+          "puesto de control",
+          "regla",
+          "dominación",
+          "operate",
+          "sustituto",
+          "check",
+          "mesura",
+          "triple",
+          "suplente",
+          "controlador",
+          "binario",
+          "controller",
+          "telemando",
+          "modelo",
+          "see to it",
+          "substituto",
+          "punto de control",
+          "medida",
+          "toque de difuntos",
+          "control económico",
+          "pauta",
+          "ensure",
+          "conducción",
+          "imagen",
+          "keep in line",
+          "examinación",
+          "guía",
+          "duplo",
+          "contención",
+          "contain",
+          "prescripción",
+          "see",
+          "ascendance",
+          "investigación",
+          "sumisión",
+          "assure",
+          "patrón",
+          "inspección",
+          "ascertain",
+          "piedra de toque",
+          "normal",
+          "mastery",
+          "stunt man",
+          "moderate",
+          "control condition",
+          "mando",
+          "análisis",
+          "sometimiento",
+          "examen",
+          "remoto",
+          "escrutinio",
+          "punto de asistencia",
+          "dominance",
+          "fórmula",
+          "hold",
+          "mando a distancia",
+          "hold in"
+        ],
+        "candidates_count": 20,
+        "gold_found": false,
+        "diagnosis": "METHOD_LIMIT (Sinónimos de léxico general disonantes con el vocabulario técnico del corpus)"
+      },
+      "concept_hub_audit": {
+        "hubs_matched_count": 8,
+        "nodes_injected": [
+          "resolucion_de_contradicciones_entre_insights_sumatoria_mentalidad",
+          "dennys_genesis_investigativa_historia_personal",
+          "biorag_v20_rpe_dopamina",
+          "historia_tasajera_fumigador_rufino",
+          "dennys-working-style",
+          "dennys-metodo-creativo",
+          "leccion_control_flujo_codigo_preexistente",
+          "feedback_humano_nodo_dennys_protocolo_rpe"
+        ],
+        "gold_found": false,
+        "diagnosis": "METHOD_LIMIT (Hub activado pero sus puentes preconfigurados no conectaban con el gold)"
+      },
+      "ppmi_audit": {
+        "neighbors_found_count": 20,
+        "top3_neighbors": [
+          [
+            "auto-validacion-riesgo-alucinacion",
+            0.12358382633529676
+          ],
+          [
+            "regla_verificar_codigo_real_antes_de_diagnostico",
+            0.11717275146241914
+          ],
+          [
+            "norma_atribucion_autoria_memoria_compartida_oec",
+            0.11456891254103205
+          ]
+        ],
+        "gold_found": false,
+        "diagnosis": "METHOD_LIMIT (El espacio latente asoció la query a vecinos con mayor coocurrencia superficial)"
+      },
+      "graph_audit": {
+        "seeds_used": [
+          "proyecto_biorag_ncp_resumen_completo_2026_06_14",
+          "sesion-2026-06-23-ingenieria-inversa-binario-opencode-completa",
+          "memorybiorag_auditoria_manus_ai_2026-06-25",
+          "biorag-rafaga-forzable-parametro-forzar-rafaga",
+          "memorybiorag_validacion_externa_rag_simbolico"
+        ],
+        "targets_count": 15,
+        "gold_found": false,
+        "diagnosis": "METHOD_LIMIT (Las aristas salientes conectaban con otros conceptos del grafo)"
+      },
+      "budget_lifecycle": {
+        "generated_count": 103,
+        "deduplicated_count": 86,
+        "gold_in_final_pool": false
+      }
+    }
+  ]
+}

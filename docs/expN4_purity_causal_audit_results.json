@@ -1,0 +1,511 @@
+{
+  "timestamp": "2026-09-08T16:32:34Z",
+  "experiment": "EXP-N4: Purity and Causality Audit of SCG-RC",
+  "hashes": {
+    "db_snapshot": "676827f6b4abc3acaee10b14e273c3c50cae5b2c180593dedcd58048265a2800",
+    "labels": "325ead99c5a8eea63e8e92f10dae85e7f6ef7f858f18dd8e735b011bea56aa2f"
+  },
+  "rule_catalog_audit": [
+    {
+      "rule_id": "RULE_01_OP_ACTION_MAPPING",
+      "name": "Mapeo de Operador a Dimensión de Acción",
+      "code_snippet": "matched_act = op_def['required_db_action'].intersection(nodo_accion)",
+      "origin": "Mapeo formal de operadores funcionales a tipos de dimensión de acción de SQLite (tipos_dimension)",
+      "pre_existing": true,
+      "depends_on_concrete_dim": true,
+      "depends_on_dev_case": false,
+      "depends_on_gold": false,
+      "from_frozen_doc": true,
+      "created_specifically_for_scg": false,
+      "classification": "A",
+      "rationale": "Primitiva formal de la gramática que vincula un verbo de acción con la categoría funcional de la base de datos."
+    },
+    {
+      "rule_id": "RULE_02_OP_HARD_INCOMPATIBILITY",
+      "name": "Prohibición Dimensional por Operador (SEPARATE excluye individual/espiritual)",
+      "code_snippet": "incomp_matched = op_def['incompatible_dims'].intersection(nodo_all_dims)",
+      "origin": "Restricción negativa manual agregada en N3 para SEPARATE",
+      "pre_existing": false,
+      "depends_on_concrete_dim": true,
+      "depends_on_dev_case": true,
+      "depends_on_gold": false,
+      "from_frozen_doc": false,
+      "created_specifically_for_scg": true,
+      "classification": "D",
+      "rationale": "Regla nueva introducida durante N3 que funciona como poda heurística manual no documentada previamente."
+    },
+    {
+      "rule_id": "RULE_03_ROLE_DOMAIN_MAPPING",
+      "name": "Mapeo de Dominio de Rol a Ejes Semánticos",
+      "code_snippet": "matched_r_dims = r_def['required_db_dims'].intersection(nodo_all_dims)",
+      "origin": "Ejes semánticos preexistentes en docs/teoria_de_ejes_semanticos.md y core/memory_store.py",
+      "pre_existing": true,
+      "depends_on_concrete_dim": true,
+      "depends_on_dev_case": false,
+      "depends_on_gold": false,
+      "from_frozen_doc": true,
+      "created_specifically_for_scg": false,
+      "classification": "C",
+      "rationale": "Conocimiento ontológico preexistente de los 13 ejes dimensionales del sistema BioRAG."
+    },
+    {
+      "rule_id": "RULE_04_ROLE_HARD_INCOMPATIBILITY",
+      "name": "Prohibición por Dominio de Rol (COMPUTATIONAL excluye espiritual/afecto)",
+      "code_snippet": "incomp_role = r_def['incompatible_dims'].intersection(nodo_all_dims)",
+      "origin": "Restricción negativa manual agregada en N3 para el rol COMPUTATIONAL",
+      "pre_existing": false,
+      "depends_on_concrete_dim": true,
+      "depends_on_dev_case": true,
+      "depends_on_gold": false,
+      "from_frozen_doc": false,
+      "created_specifically_for_scg": true,
+      "classification": "D",
+      "rationale": "Regla nueva de poda semántica creada durante N3. Clasificada como D (debe excluirse en condición PURE)."
+    },
+    {
+      "rule_id": "RULE_05_POLARITY_NEGATION_CONTROL",
+      "name": "Restricción Lógica de Polaridad Negativa / Antagonismo",
+      "code_snippet": "if sig.polarity == -1 or sig.relation == 'BLOCKS': requires evaluate/routine",
+      "origin": "Consecuencia lógica estructural de la polaridad deóntica / relación de bloqueo",
+      "pre_existing": true,
+      "depends_on_concrete_dim": false,
+      "depends_on_dev_case": false,
+      "depends_on_gold": false,
+      "from_frozen_doc": true,
+      "created_specifically_for_scg": false,
+      "classification": "B",
+      "rationale": "Consecuencia formal de la estructura proposicional: una prohibición requiere capacidad de inhibición/evaluación."
+    },
+    {
+      "rule_id": "RULE_06_HEAD_TAIL_COMPOSITION_DISJUNCTION",
+      "name": "Disyunción Causal Head / Tail",
+      "code_snippet": "if not matched_act: if sig.tail_op: check tail action",
+      "origin": "Lógica formal de satisfacción de operadores encadenados en una firma relacional",
+      "pre_existing": true,
+      "depends_on_concrete_dim": false,
+      "depends_on_dev_case": false,
+      "depends_on_gold": false,
+      "from_frozen_doc": true,
+      "created_specifically_for_scg": false,
+      "classification": "B",
+      "rationale": "Consecuencia lógica de la composición multiclausual: si la acción principal es mediada por la subordinada, se admite coincidencia de tail."
+    }
+  ],
+  "condition_A_B_pure": {
+    "summary": {
+      "candidate_gen_recall_total": "3/8",
+      "candidate_gen_recall_strict_a0": "2/6",
+      "avg_pool_size": 352.2,
+      "avg_pool_pct": 41.4
+    },
+    "cases": [
+      {
+        "case_id": "OOF_POS_11",
+        "is_strict_a0": true,
+        "gold": "docker_infrastructure_rog",
+        "pool_size": 358,
+        "pool_pct": 42.1,
+        "gold_in_pool": true,
+        "abstain": false
+      },
+      {
+        "case_id": "OOF_POS_19",
+        "is_strict_a0": true,
+        "gold": "scoring_pesos_bm25",
+        "pool_size": 557,
+        "pool_pct": 65.5,
+        "gold_in_pool": false,
+        "abstain": false
+      },
+      {
+        "case_id": "OOF_POS_21",
+        "is_strict_a0": true,
+        "gold": "coche_puente_condicional",
+        "pool_size": 249,
+        "pool_pct": 29.3,
+        "gold_in_pool": false,
+        "abstain": false
+      },
+      {
+        "case_id": "OOF_POS_29",
+        "is_strict_a0": true,
+        "gold": "desde_athena_biorag",
+        "pool_size": 528,
+        "pool_pct": 62.0,
+        "gold_in_pool": true,
+        "abstain": false
+      },
+      {
+        "case_id": "OOF_POS_30",
+        "is_strict_a0": true,
+        "gold": "activos_dormidos_hermana",
+        "pool_size": 374,
+        "pool_pct": 43.9,
+        "gold_in_pool": false,
+        "abstain": false
+      },
+      {
+        "case_id": "OOF_POS_40",
+        "is_strict_a0": false,
+        "gold": "clasificacion_dimensional_completa_corteza_20260702",
+        "pool_size": 165,
+        "pool_pct": 19.4,
+        "gold_in_pool": true,
+        "abstain": false
+      },
+      {
+        "case_id": "OOF_POS_48",
+        "is_strict_a0": true,
+        "gold": "cuaternidad-logica-oec",
+        "pool_size": 229,
+        "pool_pct": 26.9,
+        "gold_in_pool": false,
+        "abstain": false
+      },
+      {
+        "case_id": "OOF_POS_49",
+        "is_strict_a0": false,
+        "gold": "trayectoria_completa_cronologica",
+        "pool_size": 358,
+        "pool_pct": 42.1,
+        "gold_in_pool": false,
+        "abstain": false
+      }
+    ]
+  },
+  "condition_A_B_C_onto": {
+    "summary": {
+      "candidate_gen_recall_total": "3/8",
+      "candidate_gen_recall_strict_a0": "2/6",
+      "avg_pool_size": 320.6,
+      "avg_pool_pct": 37.7
+    },
+    "cases": [
+      {
+        "case_id": "OOF_POS_11",
+        "is_strict_a0": true,
+        "gold": "docker_infrastructure_rog",
+        "pool_size": 358,
+        "pool_pct": 42.1,
+        "gold_in_pool": true,
+        "abstain": false
+      },
+      {
+        "case_id": "OOF_POS_19",
+        "is_strict_a0": true,
+        "gold": "scoring_pesos_bm25",
+        "pool_size": 372,
+        "pool_pct": 43.7,
+        "gold_in_pool": false,
+        "abstain": false
+      },
+      {
+        "case_id": "OOF_POS_21",
+        "is_strict_a0": true,
+        "gold": "coche_puente_condicional",
+        "pool_size": 246,
+        "pool_pct": 28.9,
+        "gold_in_pool": false,
+        "abstain": false
+      },
+      {
+        "case_id": "OOF_POS_29",
+        "is_strict_a0": true,
+        "gold": "desde_athena_biorag",
+        "pool_size": 523,
+        "pool_pct": 61.5,
+        "gold_in_pool": true,
+        "abstain": false
+      },
+      {
+        "case_id": "OOF_POS_30",
+        "is_strict_a0": true,
+        "gold": "activos_dormidos_hermana",
+        "pool_size": 374,
+        "pool_pct": 43.9,
+        "gold_in_pool": false,
+        "abstain": false
+      },
+      {
+        "case_id": "OOF_POS_40",
+        "is_strict_a0": false,
+        "gold": "clasificacion_dimensional_completa_corteza_20260702",
+        "pool_size": 165,
+        "pool_pct": 19.4,
+        "gold_in_pool": true,
+        "abstain": false
+      },
+      {
+        "case_id": "OOF_POS_48",
+        "is_strict_a0": true,
+        "gold": "cuaternidad-logica-oec",
+        "pool_size": 229,
+        "pool_pct": 26.9,
+        "gold_in_pool": false,
+        "abstain": false
+      },
+      {
+        "case_id": "OOF_POS_49",
+        "is_strict_a0": false,
+        "gold": "trayectoria_completa_cronologica",
+        "pool_size": 298,
+        "pool_pct": 35.0,
+        "gold_in_pool": false,
+        "abstain": false
+      }
+    ]
+  },
+  "diff_causal_n1_n3": [
+    {
+      "case_id": "OOF_POS_11",
+      "gold": "docker_infrastructure_rog",
+      "is_strict_a0": true,
+      "n1_inpool": true,
+      "n3_inpool": true,
+      "pool_n1": 358,
+      "pool_n3": 344,
+      "reason_and_rule": "Permanece generado en N1 y N3. En N3, la regla SEPARATE+COMPUTATIONAL seleccionó directamente la acción persistencia_computación + hardware. Queda en rank >20 porque dentro del pool de 344 hay múltiples nodos con la misma tupla dimensional exacta."
+    },
+    {
+      "case_id": "OOF_POS_19",
+      "gold": "scoring_pesos_bm25",
+      "is_strict_a0": true,
+      "n1_inpool": false,
+      "n3_inpool": false,
+      "pool_n1": 377,
+      "pool_n3": 372,
+      "reason_and_rule": "En N1, obtuvo score 0.825 < 1.20 (umbral) por coincidencia parcial de acción. En N3, la firma MODIFY(METRIC) requirió accion_evaluar + accion_cognitiva. El nodo posee accion_evaluar, pero no posee la propiedad métrica en su perfil explícito de SQLite, resultando en rechazo ontológico."
+    },
+    {
+      "case_id": "OOF_POS_21",
+      "gold": "coche_puente_condicional",
+      "is_strict_a0": true,
+      "n1_inpool": false,
+      "n3_inpool": false,
+      "pool_n1": 229,
+      "pool_n3": 246,
+      "reason_and_rule": "Permanece no generado en N1 y N3. El Gold posee acción 'accion_comunicacion' en SQLite, pero la query fue clasificada con LINK('accion_cognitiva') y TRANSFORM('accion_cognitiva'). Falla por desajuste de granularidad de acción."
+    },
+    {
+      "case_id": "OOF_POS_29",
+      "gold": "desde_athena_biorag",
+      "is_strict_a0": true,
+      "n1_inpool": true,
+      "n3_inpool": true,
+      "pool_n1": 278,
+      "pool_n3": 523,
+      "reason_and_rule": "Permanece generado. El pool creció de 278 a 523 en N3 porque CREATE mapeó a 'accion_rutina_automatica' + 'accion_persistencia_computacion', admitiendo a casi todo el subgrafo de persistencia. Falta restricción de argumento (Argument Binding) entre CREATE y PERSIST."
+    },
+    {
+      "case_id": "OOF_POS_30",
+      "gold": "activos_dormidos_hermana",
+      "is_strict_a0": true,
+      "n1_inpool": true,
+      "n3_inpool": false,
+      "pool_n1": 321,
+      "pool_n3": 374,
+      "reason_and_rule": "CAMBIO CRÍTICO: En N1 entró por unión plana excesivamente amplia (transición -> MODIFY -> accion_evaluar). En N3, la firma relacional tipada extrajo HEAD_OP=REMOVE con rol LIFECYCLE ('accion_rutina_automatica'). El Gold carece de accion_rutina_automatica en SQLite (tiene cognitiva/evaluar) y fue rechazado por RULE_01."
+    },
+    {
+      "case_id": "OOF_POS_40",
+      "gold": "clasificacion_dimensional_completa_corteza_20260702",
+      "is_strict_a0": false,
+      "n1_inpool": true,
+      "n3_inpool": true,
+      "pool_n1": 165,
+      "pool_n3": 156,
+      "reason_and_rule": "Permanece generado y en Top-10 (Rank 10) en N1 y N3. Caso NO-A0 con solapamiento léxico en 'clasificación' y 'dimensional'."
+    },
+    {
+      "case_id": "OOF_POS_48",
+      "gold": "cuaternidad-logica-oec",
+      "is_strict_a0": true,
+      "n1_inpool": false,
+      "n3_inpool": false,
+      "pool_n1": 302,
+      "pool_n3": 229,
+      "reason_and_rule": "Permanece no generado. La query extrae TRANSFORM y LINK sobre COGNITIVE. El Gold posee categoría filosófica/conceptual sin acción de enlace formal en DB."
+    },
+    {
+      "case_id": "OOF_POS_49",
+      "gold": "trayectoria_completa_cronologica",
+      "is_strict_a0": false,
+      "n1_inpool": false,
+      "n3_inpool": false,
+      "pool_n1": 358,
+      "pool_n3": 298,
+      "reason_and_rule": "Permanece no generado. STORE requirió 'accion_persistencia_computacion'. El Gold posee 'intencion_documentar' y coordenada cronológica, pero carece de la acción computacional."
+    }
+  ],
+  "heldout_audit_n2": [
+    {
+      "case_id": "HELDOUT_01",
+      "query": "particionar hardware estocástico después de registrar el hito cronológico",
+      "expected_ops": [
+        "SEPARATE",
+        "STORE"
+      ],
+      "expected_rels": [
+        "AFTER"
+      ],
+      "expected_props": [
+        "CHRONICLE",
+        "COMPUTATIONAL",
+        "STOCHASTIC"
+      ],
+      "classification": "PURE_HELDOUT",
+      "rationale": "Combinación completamente ortogonal de operadores y roles cruzados que jamás coexisten en reglas de parser ni en DEV."
+    },
+    {
+      "case_id": "HELDOUT_02",
+      "query": "desactivar la jerarquía dimensional antes de fusionar matrices",
+      "expected_ops": [
+        "COMBINE",
+        "DEACTIVATE"
+      ],
+      "expected_rels": [
+        "BEFORE"
+      ],
+      "expected_props": [
+        "DIMENSIONAL",
+        "HIERARCHICAL"
+      ],
+      "classification": "PURE_HELDOUT",
+      "rationale": "Combinación completamente ortogonal de operadores y roles cruzados que jamás coexisten en reglas de parser ni en DEV."
+    },
+    {
+      "case_id": "HELDOUT_03",
+      "query": "eliminar enlaces estocásticos para prevenir interferencia sináptica",
+      "expected_ops": [
+        "REMOVE"
+      ],
+      "expected_rels": [
+        "BLOCKS",
+        "PURPOSE_OF"
+      ],
+      "expected_props": [
+        "COGNITIVE",
+        "CONNECTIVE",
+        "STOCHASTIC"
+      ],
+      "classification": "PARTIAL_HELDOUT",
+      "rationale": "Sub-componentes evaluados independientemente."
+    },
+    {
+      "case_id": "HELDOUT_04",
+      "query": "proyectar la bitácora temporal hacia unidades de cómputo virtual",
+      "expected_ops": [
+        "TRANSFORM"
+      ],
+      "expected_rels": [],
+      "expected_props": [
+        "CHRONICLE",
+        "COMPUTATIONAL",
+        "TEMPORAL"
+      ],
+      "classification": "PARTIAL_HELDOUT",
+      "rationale": "Los operadores son independientes, pero el orden o rol comparte sub-estructuras con ejemplos teóricos de RCRD."
+    },
+    {
+      "case_id": "HELDOUT_05",
+      "query": "clasificar ponderaciones métricas junto con la activación de letargo",
+      "expected_ops": [
+        "ACTIVATE",
+        "CLASSIFY"
+      ],
+      "expected_rels": [
+        "COORDINATES_WITH"
+      ],
+      "expected_props": [
+        "LIFECYCLE",
+        "METRIC",
+        "TEMPORAL"
+      ],
+      "classification": "PARTIAL_HELDOUT",
+      "rationale": "Los operadores son independientes, pero el orden o rol comparte sub-estructuras con ejemplos teóricos de RCRD."
+    },
+    {
+      "case_id": "HELDOUT_06",
+      "query": "recuperar esquemas jerárquicos que requieren calibración previa",
+      "expected_ops": [
+        "MODIFY",
+        "RETRIEVE"
+      ],
+      "expected_rels": [
+        "BEFORE",
+        "REQUIRES"
+      ],
+      "expected_props": [
+        "HIERARCHICAL"
+      ],
+      "classification": "PARTIAL_HELDOUT",
+      "rationale": "Los operadores son independientes, pero el orden o rol comparte sub-estructuras con ejemplos teóricos de RCRD."
+    },
+    {
+      "case_id": "HELDOUT_07",
+      "query": "construir topología cortical estocástica para persistir pesos",
+      "expected_ops": [
+        "CREATE",
+        "PERSIST"
+      ],
+      "expected_rels": [
+        "PURPOSE_OF"
+      ],
+      "expected_props": [
+        "COGNITIVE",
+        "CONNECTIVE",
+        "METRIC",
+        "STOCHASTIC"
+      ],
+      "classification": "PURE_HELDOUT",
+      "rationale": "Combinación completamente ortogonal de operadores y roles cruzados que jamás coexisten en reglas de parser ni en DEV."
+    },
+    {
+      "case_id": "HELDOUT_08",
+      "query": "medir la degradación de recursos antes de purgar registros caducos",
+      "expected_ops": [
+        "EVALUATE",
+        "REMOVE"
+      ],
+      "expected_rels": [
+        "BEFORE"
+      ],
+      "expected_props": [
+        "COMPUTATIONAL",
+        "LIFECYCLE"
+      ],
+      "classification": "PURE_HELDOUT",
+      "rationale": "Combinación completamente ortogonal de operadores y roles cruzados que jamás coexisten en reglas de parser ni en DEV."
+    },
+    {
+      "case_id": "HELDOUT_09",
+      "query": "entrelazar memorias dimensionales con procesos computacionales",
+      "expected_ops": [
+        "LINK"
+      ],
+      "expected_rels": [],
+      "expected_props": [
+        "COMPUTATIONAL",
+        "CONNECTIVE",
+        "DIMENSIONAL"
+      ],
+      "classification": "PARTIAL_HELDOUT",
+      "rationale": "Los operadores son independientes, pero el orden o rol comparte sub-estructuras con ejemplos teóricos de RCRD."
+    },
+    {
+      "case_id": "HELDOUT_10",
+      "query": "sintetizar múltiples hitos históricos en una sola representación cronológica",
+      "expected_ops": [
+        "COMBINE",
+        "CREATE"
+      ],
+      "expected_rels": [],
+      "expected_props": [
+        "CHRONICLE",
+        "TEMPORAL"
+      ],
+      "classification": "PURE_HELDOUT",
+      "rationale": "Combinación completamente ortogonal de operadores y roles cruzados que jamás coexisten en reglas de parser ni en DEV."
+    }
+  ]
+}

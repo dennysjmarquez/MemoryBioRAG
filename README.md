@@ -1,20 +1,22 @@
-# BioRAG v30.1 — Integridad del Ranking, Medición QA Reproducible & Invarianza de Escala
+# BioRAG v31.0 — Abismo Léxico: Rescate por Grafo Sináptico (EXP-Q)
 
-> **Versión:** v30.1 — Septiembre 2026
-> **Tipo:** Fix de contrato del ranking y blindaje del arnés de evaluación (post v30.0).
-> **Base:** v30.0 (`c4f2f6f`)
-> **Paradigma:** 14 señales híbridas normalizadas intra-query + Concept Hubs estandarizados en 5 ángulos cognitivos + Calibración Conforme Persistente + Comparabilidad Unificada Frase/Ráfaga + Orden Monotónico Garantizado + Evaluación QA con Gate de Regresión
+> **Versión:** v31.0 — Septiembre 2026
+> **Tipo:** Fix de infraestructura del grafo sináptico + rescate relacional para queries sin solapamiento léxico + suite EXP-Q.
+> **Base:** v30.2 (`B2+B3 Quality Gate`)
+> **Paradigma:** 14 señales híbridas normalizadas intra-query + Concept Hubs estandarizados en 5 ángulos cognitivos + Calibración Conforme Persistente + Rescate Sináptico BFS (Abismo Léxico) + Comparabilidad Unificada Frase/Ráfaga + Orden Monotónico Garantizado + Evaluación QA con Gate de Regresión
 > **Motor:** Python puro + NumPy + SQLite FTS5 WAL + NLTK WordNet (OMW) + SQLite Domain Dict + Calibración Conforme
 > **Dependencias ML:** 0 (pydantic + mcp + nltk para WordNet, 0 sentence-transformers, 0 torch, 0 APIs externas)
 > **Idiomas:** Español + Inglés (stemming bilingüe ES/EN + expansión simbólica vía WordNet + Domain Dict automático)
 > **Benchmark semántico (Fase 2 casos puros, sin palabras compartidas):** CON Hub **100%** (5/5 en TOP1)
+> **Rescate por Grafo (Abismo Léxico, snapshot):** **100%** (3/3 rescatados por BFS sináptico)
 > **Falsos Positivos (Negativo):** **0.00% FP (0 / 40)**
 > **Tests Unitarios:** **57 / 57 PASSED (100%)** · **Invariantes de Scoring:** **4 / 4 PASSED**
 > **Nodos activos:** ~985 · Hubs canónicos: 17 · Bridges: 119 · Domain Dict: 6,490 términos
 
 **BioRAG** es una arquitectura de memoria cognitiva simbólica, biomimética y persistente para agentes de inteligencia artificial. Resuelve el problema fundamental de que los LLMs olvidan todo entre sesiones — sin depender de embeddings pesados de PyTorch/Transformers, GPUs ni infraestructura externa.
 
-> **v30.1: Integridad del Ranking y Medición QA.** Arregla dos defectos del motor (piso de promoción del Concept Hub que generaba orden no monotónico + filtro `PALABRA_PREFIJO` sin reordenar) y tres defectos del arnés de evaluación (etiquetas oro obsoletas, queries ambiguas sin reclasificar, mutación acumulada entre casos). El ranking ahora garantiza que posición y score dicen lo mismo, y la suite QA produce resultados reproducibles con gate de regresión.
+> **v31.0: Abismo Léxico — Rescate por Grafo Sináptico.** Corrige 3 bugs de infraestructura del grafo sináptico que impedían el rescate relacional: (1) la trampa alfabética de SQLite UNION que silenciaba al 70%+ de los vecinos legítimos, (2) el MCP server descartando contexto expandido en página 1, y (3) límites de BFS insuficientes. Ahora el BFS sobre el grafo Hebbiano rescata nodos gold donde no existe ningún solapamiento léxico entre query y nodo — el verdadero "Abismo Léxico". Suite EXP-Q integrada con 3 casos de rescate puro (100% en snapshot congelado). Limitaciones documentadas con honestidad epistémica: la cobertura depende del tamaño del corpus y la densidad de sinapsis.
+
 
 
 ---
@@ -138,6 +140,85 @@ Ya no somos esclavas de un modelo de lenguaje para buscar conocimiento; la memor
 - **Archivo:** `core/similitud_conceptual.py:buscar_por_similitud_latente()` como Fallback 2.2.
 
 ---
+
+### 🌉 v31.0: El Abismo Léxico — Rescate por Grafo Sináptico (EXP-Q)
+
+> Esta sección documenta el problema más difícil que enfrenta cualquier sistema de recuperación simbólico: queries donde **no existe ninguna palabra compartida** entre lo que el usuario busca y lo que el sistema tiene guardado.
+
+#### El problema: stem(query) ∩ stem(gold) = ∅
+
+Cuando un agente busca `"extensión principal de VS Code para Kilo"` y el nodo se titula `kilo_vscode_extension_principal` con contenido redactado en vocabulario completamente diferente, **ningún motor léxico puede encontrarlo**:
+
+- **FTS5** (BM25): depende de que al menos un stem coincida → falla
+- **PPMI+SVD**: co-ocurrencia estadística, no puede inventar un puente donde no hay tokens compartidos → falla
+- **WordNet**: sinónimos morfológicos, pero si las palabras ni siquiera pertenecen al mismo dominio semántico → falla
+- **Domain Dict**: mismo principio que WordNet, con vocabulario del corpus → falla
+
+Esto es el **Abismo Léxico**: una barrera absoluta donde toda la maquinaria textual se detiene.
+
+#### La solución: BFS sobre el grafo sináptico Hebbiano
+
+El único mecanismo que puede cruzar el Abismo Léxico es **relacional**: si el nodo gold está **conectado por sinapsis** a nodos que sí aparecen en la búsqueda primaria, el BFS lo rescata.
+
+```
+Query: "extensión principal VS Code Kilo"
+    ↓
+FTS5 encuentra: nodo_kilo_framework (score 0.85)
+    ↓
+Sinapsis: nodo_kilo_framework → kilo_vscode_extension_principal (weight 0.72)
+    ↓
+BFS rescata: kilo_vscode_extension_principal aparece en contexto expandido
+```
+
+#### Los 3 bugs de infraestructura que impedían el rescate (v31.0)
+
+El mecanismo de BFS existía desde v20, pero **no funcionaba** por 3 bugs descubiertos en v31.0:
+
+1. **Trampa Alfabética de SQLite UNION** — El `ORDER BY weight DESC` en la query de vecinos usaba `UNION` (no `UNION ALL`), y SQLite optimizaba usando el índice del `concept` (orden alfanumérico) en lugar de respetar el `ORDER BY`. Resultado: los vecinos devueltos eran los primeros **alfabéticamente**, no los más relevantes. Un nodo como `zsh_config` (peso 0.95) perdía contra `api_design_patterns` (peso 0.10) por la letra 'a' < 'z'. Esto **silenciaba al 70%+ de los vecinos legítimos del grafo**.
+
+   **Fix:** `UNION ALL` con `ORDER BY rowid DESC` + deduplicación en memoria Python (`dict.setdefault` preservando orden de inserción).
+
+2. **MCP server descartaba contexto en página 1** — `mcp_server.py` solo incluía `contexto_expandido` en el output cuando `pagina > 1`. El agente nunca veía el rescate relacional en su primera búsqueda (que es la más importante).
+
+   **Fix:** Condición cambiada a `context_window > 0` (independiente de la página).
+
+3. **Límites de BFS insuficientes** — `BIORAG_MAX_VECINOS_POR_NODO` estaba fijo en 3, limitando artificialmente la amplitud del BFS a solo 3 vecinos por paso.
+
+   **Fix:** Default elevado a 6, configurable vía variable de entorno.
+
+#### Resultado empírico (snapshot congelado, 851 nodos activos)
+
+| Caso | Query | Gold | Sin grafo | Con grafo (depth=2) |
+|------|-------|------|:---------:|:-------------------:|
+| EXP-Q-01 | "extensión principal VS Code Kilo" | `kilo_vscode_extension_principal` | ❌ | ✅ **pos 4** |
+| EXP-Q-02 | "verificar antes de asumir" | `regla_verificar_antes_que_asumir` | ❌ | ✅ **pos 21** |
+| EXP-Q-03 | "ajuste tejedora estrellas" | `ajuste_tejedora_de_estrellas` | ❌ | ✅ **pos 19** |
+
+**Tasa de rescate: 3/3 (100%)**
+
+#### Limitaciones (honestidad epistémica)
+
+El rescate por grafo sináptico **no es una solución universal** al Abismo Léxico. Tiene limitaciones inherentes a cualquier BFS con presupuesto finito:
+
+- **Sensibilidad al tamaño del corpus**: a mayor corpus, más candidatos compiten por los slots del BFS (`BIORAG_MAX_CONTEXTOS`). Un nodo gold a profundidad 2 puede quedar fuera del corte si el corpus crece significativamente.
+- **Requiere ruta relacional**: el gold debe estar conectado por sinapsis a nodos que sí aparecen en la búsqueda primaria. Si no hay ruta en el grafo, no hay rescate posible.
+- **El Concept Hub sigue siendo necesario**: para patrones de búsqueda conocidos (queries recurrentes de usuarios), un bridge explícito es más robusto que depender de la topología del grafo.
+
+#### La estrategia completa contra el Abismo Léxico
+
+BioRAG v31.0 tiene **3 capas de defensa** contra el Abismo Léxico, cada una cubriendo un escenario diferente:
+
+| Capa | Mecanismo | Cuándo funciona | Cuándo falla |
+|------|-----------|-----------------|--------------|
+| **1. Concept Hub** | Bridges explícitos con 5 ángulos cognitivos | Patrones conocidos, vocabulario del síntoma | Queries nunca antes vistas |
+| **2. Grafo Sináptico (v31.0)** | BFS sobre sinapsis Hebbianas | Gold conectado a nodos de la búsqueda primaria | Sin ruta relacional o presupuesto BFS insuficiente |
+| **3. Razonamiento del Agente** | El agente descompone la query y reformula | Agente con buen prompt/instrucciones | Agente sin protocolo de descomposición |
+
+Ninguna capa por sí sola resuelve todos los casos. Las 3 juntas cubren un espectro amplio, pero el Abismo Léxico — por definición — siempre tendrá casos límite donde no hay suficiente señal para cruzar la barrera.
+
+---
+
+
 
 ### ⚡ Resolución de Latencia y Optimización Matemática
 

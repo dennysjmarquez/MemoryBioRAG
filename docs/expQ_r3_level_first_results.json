@@ -1,0 +1,409 @@
+{
+  "experimento": "EXP-Q-R3: Level-First Ordering",
+  "fecha": "2026-09-09T07:35:01",
+  "db_sha256_inicio": "7866902863d2362d20ce5c6eff8b56022c5308aa39975c597d99dacd10b6a775",
+  "db_sha256_final": "7866902863d2362d20ce5c6eff8b56022c5308aa39975c597d99dacd10b6a775",
+  "sha_estable": true,
+  "resultados_por_modo": {
+    "score_desc": {
+      "mode": "score_desc",
+      "label": "Baseline (core/ actual)",
+      "graph_generations": 2,
+      "monotonic_violations": 2,
+      "false_positives_neg": 0,
+      "casos": [
+        {
+          "case_id": "CASE_01",
+          "gold": "scoring_pesos_bm25",
+          "niveles": {
+            "cw_0": {
+              "gold_in_pool": false,
+              "gold_rank": null,
+              "gold_score": null,
+              "gold_source": "NOT_FOUND",
+              "pool_size": 50,
+              "classification": "BASELINE"
+            },
+            "cw_1": {
+              "gold_in_pool": false,
+              "gold_rank": null,
+              "gold_score": null,
+              "gold_source": "NOT_FOUND",
+              "pool_size": 50,
+              "classification": "NO_CHANGE"
+            },
+            "cw_2": {
+              "gold_in_pool": false,
+              "gold_rank": null,
+              "gold_score": null,
+              "gold_source": "NOT_FOUND",
+              "pool_size": 50,
+              "classification": "NO_CHANGE"
+            },
+            "cw_3": {
+              "gold_in_pool": false,
+              "gold_rank": null,
+              "gold_score": null,
+              "gold_source": "NOT_FOUND",
+              "pool_size": 50,
+              "classification": "NO_CHANGE"
+            }
+          }
+        },
+        {
+          "case_id": "CASE_02",
+          "gold": "desde_athena_biorag",
+          "niveles": {
+            "cw_0": {
+              "gold_in_pool": false,
+              "gold_rank": null,
+              "gold_score": null,
+              "gold_source": "NOT_FOUND",
+              "pool_size": 5,
+              "classification": "BASELINE"
+            },
+            "cw_1": {
+              "gold_in_pool": false,
+              "gold_rank": null,
+              "gold_score": null,
+              "gold_source": "NOT_FOUND",
+              "pool_size": 20,
+              "classification": "NO_CHANGE"
+            },
+            "cw_2": {
+              "gold_in_pool": true,
+              "gold_rank": 23,
+              "gold_score": 0.3928,
+              "gold_source": "GRAPH_NEIGHBOR",
+              "pool_size": 35,
+              "classification": "GRAPH_GENERATION"
+            },
+            "cw_3": {
+              "gold_in_pool": false,
+              "gold_rank": null,
+              "gold_score": null,
+              "gold_source": "NOT_FOUND",
+              "pool_size": 50,
+              "classification": "REGRESION_MONOTONICA"
+            }
+          }
+        },
+        {
+          "case_id": "CASE_03",
+          "gold": "docker_infrastructure_rog",
+          "niveles": {
+            "cw_0": {
+              "gold_in_pool": false,
+              "gold_rank": null,
+              "gold_score": null,
+              "gold_source": "NOT_FOUND",
+              "pool_size": 41,
+              "classification": "BASELINE"
+            },
+            "cw_1": {
+              "gold_in_pool": false,
+              "gold_rank": null,
+              "gold_score": null,
+              "gold_source": "NOT_FOUND",
+              "pool_size": 50,
+              "classification": "NO_CHANGE"
+            },
+            "cw_2": {
+              "gold_in_pool": false,
+              "gold_rank": null,
+              "gold_score": null,
+              "gold_source": "NOT_FOUND",
+              "pool_size": 50,
+              "classification": "NO_CHANGE"
+            },
+            "cw_3": {
+              "gold_in_pool": false,
+              "gold_rank": null,
+              "gold_score": null,
+              "gold_source": "NOT_FOUND",
+              "pool_size": 50,
+              "classification": "NO_CHANGE"
+            }
+          }
+        },
+        {
+          "case_id": "CASE_04",
+          "gold": "coche_puente_condicional",
+          "niveles": {
+            "cw_0": {
+              "gold_in_pool": false,
+              "gold_rank": null,
+              "gold_score": null,
+              "gold_source": "NOT_FOUND",
+              "pool_size": 6,
+              "classification": "BASELINE"
+            },
+            "cw_1": {
+              "gold_in_pool": false,
+              "gold_rank": null,
+              "gold_score": null,
+              "gold_source": "NOT_FOUND",
+              "pool_size": 21,
+              "classification": "NO_CHANGE"
+            },
+            "cw_2": {
+              "gold_in_pool": false,
+              "gold_rank": null,
+              "gold_score": null,
+              "gold_source": "NOT_FOUND",
+              "pool_size": 36,
+              "classification": "NO_CHANGE"
+            },
+            "cw_3": {
+              "gold_in_pool": false,
+              "gold_rank": null,
+              "gold_score": null,
+              "gold_source": "NOT_FOUND",
+              "pool_size": 50,
+              "classification": "NO_CHANGE"
+            }
+          }
+        },
+        {
+          "case_id": "CASE_05",
+          "gold": "activos_dormidos_hermana",
+          "niveles": {
+            "cw_0": {
+              "gold_in_pool": false,
+              "gold_rank": null,
+              "gold_score": null,
+              "gold_source": "NOT_FOUND",
+              "pool_size": 3,
+              "classification": "BASELINE"
+            },
+            "cw_1": {
+              "gold_in_pool": true,
+              "gold_rank": 7,
+              "gold_score": 0.3989,
+              "gold_source": "GRAPH_NEIGHBOR",
+              "pool_size": 12,
+              "classification": "GRAPH_GENERATION"
+            },
+            "cw_2": {
+              "gold_in_pool": false,
+              "gold_rank": null,
+              "gold_score": null,
+              "gold_source": "NOT_FOUND",
+              "pool_size": 33,
+              "classification": "REGRESION_MONOTONICA"
+            },
+            "cw_3": {
+              "gold_in_pool": false,
+              "gold_rank": null,
+              "gold_score": null,
+              "gold_source": "NOT_FOUND",
+              "pool_size": 48,
+              "classification": "NO_CHANGE"
+            }
+          }
+        }
+      ]
+    },
+    "level_first": {
+      "mode": "level_first",
+      "label": "Opción C — nivel primero",
+      "graph_generations": 2,
+      "monotonic_violations": 0,
+      "false_positives_neg": 0,
+      "casos": [
+        {
+          "case_id": "CASE_01",
+          "gold": "scoring_pesos_bm25",
+          "niveles": {
+            "cw_0": {
+              "gold_in_pool": false,
+              "gold_rank": null,
+              "gold_score": null,
+              "gold_source": "NOT_FOUND",
+              "pool_size": 50,
+              "classification": "BASELINE"
+            },
+            "cw_1": {
+              "gold_in_pool": false,
+              "gold_rank": null,
+              "gold_score": null,
+              "gold_source": "NOT_FOUND",
+              "pool_size": 50,
+              "classification": "NO_CHANGE"
+            },
+            "cw_2": {
+              "gold_in_pool": false,
+              "gold_rank": null,
+              "gold_score": null,
+              "gold_source": "NOT_FOUND",
+              "pool_size": 50,
+              "classification": "NO_CHANGE"
+            },
+            "cw_3": {
+              "gold_in_pool": false,
+              "gold_rank": null,
+              "gold_score": null,
+              "gold_source": "NOT_FOUND",
+              "pool_size": 50,
+              "classification": "NO_CHANGE"
+            }
+          }
+        },
+        {
+          "case_id": "CASE_02",
+          "gold": "desde_athena_biorag",
+          "niveles": {
+            "cw_0": {
+              "gold_in_pool": false,
+              "gold_rank": null,
+              "gold_score": null,
+              "gold_source": "NOT_FOUND",
+              "pool_size": 5,
+              "classification": "BASELINE"
+            },
+            "cw_1": {
+              "gold_in_pool": false,
+              "gold_rank": null,
+              "gold_score": null,
+              "gold_source": "NOT_FOUND",
+              "pool_size": 20,
+              "classification": "NO_CHANGE"
+            },
+            "cw_2": {
+              "gold_in_pool": false,
+              "gold_rank": null,
+              "gold_score": null,
+              "gold_source": "NOT_FOUND",
+              "pool_size": 35,
+              "classification": "NO_CHANGE"
+            },
+            "cw_3": {
+              "gold_in_pool": true,
+              "gold_rank": 38,
+              "gold_score": 0.3928,
+              "gold_source": "GRAPH_NEIGHBOR",
+              "pool_size": 50,
+              "classification": "GRAPH_GENERATION"
+            }
+          }
+        },
+        {
+          "case_id": "CASE_03",
+          "gold": "docker_infrastructure_rog",
+          "niveles": {
+            "cw_0": {
+              "gold_in_pool": false,
+              "gold_rank": null,
+              "gold_score": null,
+              "gold_source": "NOT_FOUND",
+              "pool_size": 41,
+              "classification": "BASELINE"
+            },
+            "cw_1": {
+              "gold_in_pool": false,
+              "gold_rank": null,
+              "gold_score": null,
+              "gold_source": "NOT_FOUND",
+              "pool_size": 50,
+              "classification": "NO_CHANGE"
+            },
+            "cw_2": {
+              "gold_in_pool": false,
+              "gold_rank": null,
+              "gold_score": null,
+              "gold_source": "NOT_FOUND",
+              "pool_size": 50,
+              "classification": "NO_CHANGE"
+            },
+            "cw_3": {
+              "gold_in_pool": false,
+              "gold_rank": null,
+              "gold_score": null,
+              "gold_source": "NOT_FOUND",
+              "pool_size": 50,
+              "classification": "NO_CHANGE"
+            }
+          }
+        },
+        {
+          "case_id": "CASE_04",
+          "gold": "coche_puente_condicional",
+          "niveles": {
+            "cw_0": {
+              "gold_in_pool": false,
+              "gold_rank": null,
+              "gold_score": null,
+              "gold_source": "NOT_FOUND",
+              "pool_size": 6,
+              "classification": "BASELINE"
+            },
+            "cw_1": {
+              "gold_in_pool": false,
+              "gold_rank": null,
+              "gold_score": null,
+              "gold_source": "NOT_FOUND",
+              "pool_size": 21,
+              "classification": "NO_CHANGE"
+            },
+            "cw_2": {
+              "gold_in_pool": false,
+              "gold_rank": null,
+              "gold_score": null,
+              "gold_source": "NOT_FOUND",
+              "pool_size": 36,
+              "classification": "NO_CHANGE"
+            },
+            "cw_3": {
+              "gold_in_pool": false,
+              "gold_rank": null,
+              "gold_score": null,
+              "gold_source": "NOT_FOUND",
+              "pool_size": 50,
+              "classification": "NO_CHANGE"
+            }
+          }
+        },
+        {
+          "case_id": "CASE_05",
+          "gold": "activos_dormidos_hermana",
+          "niveles": {
+            "cw_0": {
+              "gold_in_pool": false,
+              "gold_rank": null,
+              "gold_score": null,
+              "gold_source": "NOT_FOUND",
+              "pool_size": 3,
+              "classification": "BASELINE"
+            },
+            "cw_1": {
+              "gold_in_pool": true,
+              "gold_rank": 7,
+              "gold_score": 0.3989,
+              "gold_source": "GRAPH_NEIGHBOR",
+              "pool_size": 12,
+              "classification": "GRAPH_GENERATION"
+            },
+            "cw_2": {
+              "gold_in_pool": true,
+              "gold_rank": 7,
+              "gold_score": 0.3989,
+              "gold_source": "GRAPH_NEIGHBOR",
+              "pool_size": 33,
+              "classification": "MAINTAINED"
+            },
+            "cw_3": {
+              "gold_in_pool": true,
+              "gold_rank": 7,
+              "gold_score": 0.3989,
+              "gold_source": "GRAPH_NEIGHBOR",
+              "pool_size": 48,
+              "classification": "MAINTAINED"
+            }
+          }
+        }
+      ]
+    }
+  },
+  "veredicto": "LEVEL_FIRST_MEJORA_PARCIAL",
+  "interpretacion": "Level_first mejora monotonía (2→0) sin perder generaciones. Pero CASE_02 NO aparece en cw=2. Mejora sobre baseline pero no resuelve completamente el problema estructural."
+}

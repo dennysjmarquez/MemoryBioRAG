@@ -1,0 +1,679 @@
+{
+  "meta": {
+    "title": "Fase 5 — RCIL v0.1 Smoke Test de Trazabilidad Causal",
+    "date": "2026-09-05",
+    "snapshot": "snapshots/qa_escape_qcr_20260811.db",
+    "weights_frozen": {
+      "w_F": 0.3,
+      "w_P": 0.25,
+      "w_D": 0.15,
+      "w_R": 0.15,
+      "w_sigma": 0.15
+    }
+  },
+  "smoke_cases": [
+    {
+      "id": "SMOKE_01",
+      "query": "estrategia para mitigar degradacion y descarte indebido en sqlite",
+      "gold": "corrupcion_sqlite_poda",
+      "fcc_q": {
+        "raw_query": "estrategia para mitigar degradacion y descarte indebido en sqlite",
+        "tokens_detected": [
+          "estrategia",
+          "para",
+          "mitigar",
+          "degradacion",
+          "y",
+          "descarte",
+          "indebido",
+          "en",
+          "sqlite"
+        ],
+        "frame": "ARQUITECTURA/DOCS",
+        "predicate": {
+          "sujeto": "AGENT_OR_DEVELOPER",
+          "accion": "REMEDIATE",
+          "objeto": "SECURITY_INJECTION",
+          "modalidad": "DESCRIPTIVE"
+        },
+        "dimensions": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "topology_signature": {
+          "in_degree_expected": 2,
+          "out_degree_expected": 2
+        },
+        "initial_energy": 1.0
+      },
+      "rank_rcil": 53,
+      "gold_scores_breakdown": {
+        "concepto": "corrupcion_sqlite_poda",
+        "S_F": 1.0,
+        "S_P": 0.5,
+        "S_D": 0.0,
+        "S_R": 0.129,
+        "S_sigma": 0.0,
+        "S_RCIL": 0.4444,
+        "fcc_m": {
+          "concepto": "corrupcion_sqlite_poda",
+          "frame": "ARQUITECTURA/DOCS",
+          "predicate": {
+            "sujeto": "SYSTEM",
+            "accion": "DOCUMENT",
+            "objeto": "SECURITY_INJECTION",
+            "modalidad": "DECLARATIVE"
+          },
+          "dimensions": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "topology_signature": {
+            "in_degree": 8,
+            "out_degree": 23
+          },
+          "intrinsic_mass": 0.22392725897047894
+        }
+      },
+      "path_causal_documented": "query -> FCC(FIX, REMEDIATE, COGNITIVE_ARCHITECTURE) -> Inverted Structural Index -> corrupcion_sqlite_poda",
+      "classification_epistemologica": "E1 (Recuperación por Equivalencia Estructural FCC)",
+      "top3_candidates": [
+        {
+          "rank": 1,
+          "concepto": "bastion_dennys_solo",
+          "S_RCIL": 0.525,
+          "S_F": 1.0,
+          "S_P": 0.5
+        },
+        {
+          "rank": 2,
+          "concepto": "fts5-sanitizacion-comillas-dobles-filter",
+          "S_RCIL": 0.5107,
+          "S_F": 1.0,
+          "S_P": 0.5
+        },
+        {
+          "rank": 3,
+          "concepto": "oracle_custom_prompt_arsitecura_que_funciona",
+          "S_RCIL": 0.5107,
+          "S_F": 1.0,
+          "S_P": 0.5
+        }
+      ]
+    },
+    {
+      "id": "SMOKE_02",
+      "query": "canalizacion y transmision de modulos remotos hacia almacenamiento central",
+      "gold": "notebooklm-memory-biorag-project",
+      "fcc_q": {
+        "raw_query": "canalizacion y transmision de modulos remotos hacia almacenamiento central",
+        "tokens_detected": [
+          "canalizacion",
+          "y",
+          "transmision",
+          "de",
+          "modulos",
+          "remotos",
+          "hacia",
+          "almacenamiento",
+          "central"
+        ],
+        "frame": "ARQUITECTURA/DOCS",
+        "predicate": {
+          "sujeto": "AGENT_OR_DEVELOPER",
+          "accion": "GENERAL_ACTION",
+          "objeto": "SYNC_PIPELINE",
+          "modalidad": "DESCRIPTIVE"
+        },
+        "dimensions": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "topology_signature": {
+          "in_degree_expected": 2,
+          "out_degree_expected": 2
+        },
+        "initial_energy": 1.0
+      },
+      "rank_rcil": 28,
+      "gold_scores_breakdown": {
+        "concepto": "notebooklm-memory-biorag-project",
+        "S_F": 1.0,
+        "S_P": 0.5,
+        "S_D": 0.0,
+        "S_R": 0.0444,
+        "S_sigma": 0.0,
+        "S_RCIL": 0.4317,
+        "fcc_m": {
+          "concepto": "notebooklm-memory-biorag-project",
+          "frame": "ARQUITECTURA/DOCS",
+          "predicate": {
+            "sujeto": "SYSTEM",
+            "accion": "DOCUMENT",
+            "objeto": "SYNC_PIPELINE",
+            "modalidad": "DECLARATIVE"
+          },
+          "dimensions": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "topology_signature": {
+            "in_degree": 37,
+            "out_degree": 53
+          },
+          "intrinsic_mass": 0.18145989728416287
+        }
+      },
+      "path_causal_documented": "hermes_mcp_servers_configuracion -> sync_incremental_implementation -> notebooklm-memory-biorag-project",
+      "classification_epistemologica": "D (Composición Simbólica Multi-Hop Transitiva)",
+      "top3_candidates": [
+        {
+          "rank": 1,
+          "concepto": "test_lap01",
+          "S_RCIL": 0.545,
+          "S_F": 1.0,
+          "S_P": 0.5
+        },
+        {
+          "rank": 2,
+          "concepto": "install_py_skill_install_logic",
+          "S_RCIL": 0.525,
+          "S_F": 1.0,
+          "S_P": 0.5
+        },
+        {
+          "rank": 3,
+          "concepto": "pendiente-renombrar-nombres-biologicos-v9.1",
+          "S_RCIL": 0.5107,
+          "S_F": 1.0,
+          "S_P": 0.5
+        }
+      ]
+    },
+    {
+      "id": "SMOKE_03",
+      "query": "principio de equidad y reciprocidad en trato colaborativo con athena",
+      "gold": "trato-igualitario-dennys-athena",
+      "fcc_q": {
+        "raw_query": "principio de equidad y reciprocidad en trato colaborativo con athena",
+        "tokens_detected": [
+          "principio",
+          "de",
+          "equidad",
+          "y",
+          "reciprocidad",
+          "en",
+          "trato",
+          "colaborativo",
+          "con",
+          "athena"
+        ],
+        "frame": "GOBERNANZA/CASO",
+        "predicate": {
+          "sujeto": "AGENT_OR_DEVELOPER",
+          "accion": "GENERAL_ACTION",
+          "objeto": "GOVERNANCE_ROLE",
+          "modalidad": "DESCRIPTIVE"
+        },
+        "dimensions": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          1.0,
+          0.8,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "topology_signature": {
+          "in_degree_expected": 2,
+          "out_degree_expected": 2
+        },
+        "initial_energy": 1.0
+      },
+      "rank_rcil": 3,
+      "gold_scores_breakdown": {
+        "concepto": "trato-igualitario-dennys-athena",
+        "S_F": 1.0,
+        "S_P": 0.5,
+        "S_D": 0.0,
+        "S_R": 0.0615,
+        "S_sigma": 0.0,
+        "S_RCIL": 0.4342,
+        "fcc_m": {
+          "concepto": "trato-igualitario-dennys-athena",
+          "frame": "GOBERNANZA/CASO",
+          "predicate": {
+            "sujeto": "SYSTEM",
+            "accion": "DOCUMENT",
+            "objeto": "GOVERNANCE_ROLE",
+            "modalidad": "DECLARATIVE"
+          },
+          "dimensions": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "topology_signature": {
+            "in_degree": 57,
+            "out_degree": 8
+          },
+          "intrinsic_mass": 0.19269104588054464
+        }
+      },
+      "path_causal_documented": "hermes_mcp_servers_configuracion -> oracle_que_deben_saber_artemis_hermes -> trato-igualitario-dennys-athena",
+      "classification_epistemologica": "D (Composición Simbólica Multi-Hop Transitiva)",
+      "top3_candidates": [
+        {
+          "rank": 1,
+          "concepto": "principio-rename-es-interno-no-contrato-usuario",
+          "S_RCIL": 0.4625,
+          "S_F": 1.0,
+          "S_P": 0.5
+        },
+        {
+          "rank": 2,
+          "concepto": "caso_conflicto_liderazgo_sin_autoridad",
+          "S_RCIL": 0.4372,
+          "S_F": 1.0,
+          "S_P": 0.5
+        },
+        {
+          "rank": 3,
+          "concepto": "trato-igualitario-dennys-athena",
+          "S_RCIL": 0.4342,
+          "S_F": 1.0,
+          "S_P": 0.5
+        }
+      ]
+    },
+    {
+      "id": "SMOKE_04",
+      "query": "normativa formal de comunicacion y sincronizacion entre instancias",
+      "gold": "notebooklm-sync-protocol",
+      "fcc_q": {
+        "raw_query": "normativa formal de comunicacion y sincronizacion entre instancias",
+        "tokens_detected": [
+          "normativa",
+          "formal",
+          "de",
+          "comunicacion",
+          "y",
+          "sincronizacion",
+          "entre",
+          "instancias"
+        ],
+        "frame": "NORMA/PROTOCOLO",
+        "predicate": {
+          "sujeto": "AGENT_OR_DEVELOPER",
+          "accion": "GENERAL_ACTION",
+          "objeto": "SYNC_PIPELINE",
+          "modalidad": "MANDATORY"
+        },
+        "dimensions": [
+          1.0,
+          0.8,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "topology_signature": {
+          "in_degree_expected": 2,
+          "out_degree_expected": 2
+        },
+        "initial_energy": 1.0
+      },
+      "rank_rcil": 1,
+      "gold_scores_breakdown": {
+        "concepto": "notebooklm-sync-protocol",
+        "S_F": 1.0,
+        "S_P": 0.5,
+        "S_D": 0.0,
+        "S_R": 0.0519,
+        "S_sigma": 0.0,
+        "S_RCIL": 0.4328,
+        "fcc_m": {
+          "concepto": "notebooklm-sync-protocol",
+          "frame": "NORMA/PROTOCOLO",
+          "predicate": {
+            "sujeto": "SYSTEM",
+            "accion": "DEFINE",
+            "objeto": "SYNC_PIPELINE",
+            "modalidad": "DECLARATIVE"
+          },
+          "dimensions": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "topology_signature": {
+            "in_degree": 56,
+            "out_degree": 21
+          },
+          "intrinsic_mass": 0.1866817914420771
+        }
+      },
+      "path_causal_documented": "hermes_mcp_servers_configuracion -> proyecto_biorag_ncp_resumen_completo_2026_06_14 -> notebooklm-sync-protocol",
+      "classification_epistemologica": "D (Composición Simbólica Multi-Hop Transitiva)",
+      "top3_candidates": [
+        {
+          "rank": 1,
+          "concepto": "notebooklm-sync-protocol",
+          "S_RCIL": 0.4328,
+          "S_F": 1.0,
+          "S_P": 0.5
+        },
+        {
+          "rank": 2,
+          "concepto": "pre_action_protocol_gaps_nueve_secciones",
+          "S_RCIL": 0.42,
+          "S_F": 1.0,
+          "S_P": 0.0
+        },
+        {
+          "rank": 3,
+          "concepto": "normalizacion_unificada_abs_abs+1",
+          "S_RCIL": 0.4,
+          "S_F": 1.0,
+          "S_P": 0.0
+        }
+      ]
+    },
+    {
+      "id": "SMOKE_05",
+      "query": "resolucion para mitigar discrepancias tecnicas entre coordinadores sin mando",
+      "gold": "caso_conflicto_liderazgo_sin_autoridad",
+      "fcc_q": {
+        "raw_query": "resolucion para mitigar discrepancias tecnicas entre coordinadores sin mando",
+        "tokens_detected": [
+          "resolucion",
+          "para",
+          "mitigar",
+          "discrepancias",
+          "tecnicas",
+          "entre",
+          "coordinadores",
+          "sin",
+          "mando"
+        ],
+        "frame": "ARQUITECTURA/DOCS",
+        "predicate": {
+          "sujeto": "AGENT_OR_DEVELOPER",
+          "accion": "REMEDIATE",
+          "objeto": "GENERAL_OBJECT",
+          "modalidad": "CORRECTIVE"
+        },
+        "dimensions": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "topology_signature": {
+          "in_degree_expected": 2,
+          "out_degree_expected": 2
+        },
+        "initial_energy": 1.0
+      },
+      "rank_rcil": null,
+      "gold_scores_breakdown": {},
+      "path_causal_documented": "oracle_evolucion_athena_puntos_inflexion -> proyecto_biorag_ncp_resumen_completo_2026_06_14 -> caso_conflicto_liderazgo_sin_autoridad",
+      "classification_epistemologica": "D (Composición Simbólica Multi-Hop Transitiva)",
+      "top3_candidates": [
+        {
+          "rank": 1,
+          "concepto": "lesson_recharts_customdot_selected_highlight_pattern",
+          "S_RCIL": 0.575,
+          "S_F": 1.0,
+          "S_P": 0.5
+        },
+        {
+          "rank": 2,
+          "concepto": "patron_mas_mas_mas_dennys",
+          "S_RCIL": 0.545,
+          "S_F": 1.0,
+          "S_P": 0.5
+        },
+        {
+          "rank": 3,
+          "concepto": "daemon_lifecycle_mcp_server_cross_platform",
+          "S_RCIL": 0.545,
+          "S_F": 1.0,
+          "S_P": 0.5
+        }
+      ]
+    }
+  ],
+  "smoke_negatives": [
+    {
+      "id": "SMOKE_NEG_N1",
+      "type": "N1_cross_domain",
+      "query": "controlador de vuelos comerciales y aterrizaje boeing",
+      "fcc_q": {
+        "raw_query": "controlador de vuelos comerciales y aterrizaje boeing",
+        "tokens_detected": [
+          "controlador",
+          "de",
+          "vuelos",
+          "comerciales",
+          "y",
+          "aterrizaje",
+          "boeing"
+        ],
+        "frame": "IDENTIDAD/ROL",
+        "predicate": {
+          "sujeto": "AGENT_OR_DEVELOPER",
+          "accion": "GENERAL_ACTION",
+          "objeto": "GENERAL_OBJECT",
+          "modalidad": "DESCRIPTIVE"
+        },
+        "dimensions": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "topology_signature": {
+          "in_degree_expected": 2,
+          "out_degree_expected": 2
+        },
+        "initial_energy": 1.0
+      },
+      "max_score_rcil": 0.4712,
+      "top_candidate_activated": "hermes_orchestration_status",
+      "is_fp_triggered": false
+    },
+    {
+      "id": "SMOKE_NEG_N2",
+      "type": "N2_frame_mismatch",
+      "query": "normativa mandatoria sobre tablas de latencia y medicion",
+      "fcc_q": {
+        "raw_query": "normativa mandatoria sobre tablas de latencia y medicion",
+        "tokens_detected": [
+          "normativa",
+          "mandatoria",
+          "sobre",
+          "tablas",
+          "de",
+          "latencia",
+          "y",
+          "medicion"
+        ],
+        "frame": "NORMA/PROTOCOLO",
+        "predicate": {
+          "sujeto": "AGENT_OR_DEVELOPER",
+          "accion": "GENERAL_ACTION",
+          "objeto": "PERFORMANCE_METRICS",
+          "modalidad": "MANDATORY"
+        },
+        "dimensions": [
+          1.0,
+          0.8,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "topology_signature": {
+          "in_degree_expected": 2,
+          "out_degree_expected": 2
+        },
+        "initial_energy": 1.0
+      },
+      "max_score_rcil": 0.26,
+      "top_candidate_activated": "visor-markdown-refactorizacion-sesion-2026-06-08",
+      "is_fp_triggered": false
+    },
+    {
+      "id": "SMOKE_NEG_N3",
+      "type": "N3_object_mismatch",
+      "query": "parche urgente para subsanar agujero sql aplicado a cabeceras",
+      "fcc_q": {
+        "raw_query": "parche urgente para subsanar agujero sql aplicado a cabeceras",
+        "tokens_detected": [
+          "parche",
+          "urgente",
+          "para",
+          "subsanar",
+          "agujero",
+          "sql",
+          "aplicado",
+          "a",
+          "cabeceras"
+        ],
+        "frame": "FIX/MITIGACION",
+        "predicate": {
+          "sujeto": "AGENT_OR_DEVELOPER",
+          "accion": "REMEDIATE",
+          "objeto": "HEADER_METADATA",
+          "modalidad": "CORRECTIVE"
+        },
+        "dimensions": [
+          0.0,
+          0.0,
+          1.0,
+          0.9,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "topology_signature": {
+          "in_degree_expected": 2,
+          "out_degree_expected": 2
+        },
+        "initial_energy": 1.0
+      },
+      "max_score_rcil": 0.2537,
+      "top_candidate_activated": "installer_biorag_v1",
+      "is_fp_triggered": false
+    }
+  ]
+}

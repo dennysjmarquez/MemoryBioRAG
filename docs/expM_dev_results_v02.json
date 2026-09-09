@@ -1,0 +1,226 @@
+{
+  "timestamp": "2026-09-08T12:31:38Z",
+  "experiment": "EXP-M Structural Generator v0.2 (DEV Two-Stage Pipeline)",
+  "hashes": {
+    "db_snapshot_sha256": "676827f6b4abc3acaee10b14e273c3c50cae5b2c180593dedcd58048265a2800",
+    "labels_sha256": "325ead99c5a8eea63e8e92f10dae85e7f6ef7f858f18dd8e735b011bea56aa2f",
+    "script_sha256": "aa797275400dda9eb85f64fb8713cf413f8a4fec9abfb8aca4625a1f85ffff7b"
+  },
+  "k_primary": 10,
+  "avg_prescore_pool_size": 592.9,
+  "k_curve_results": {
+    "Node-CE@1": {
+      "full": "0/8 (0.0%)",
+      "no_synapse": "0/8 (0.0%)",
+      "no_action": "0/8 (0.0%)",
+      "no_domain": "0/8 (0.0%)"
+    },
+    "Node-CE@5": {
+      "full": "0/8 (0.0%)",
+      "no_synapse": "1/8 (12.5%)",
+      "no_action": "1/8 (12.5%)",
+      "no_domain": "0/8 (0.0%)"
+    },
+    "Node-CE@10": {
+      "full": "0/8 (0.0%)",
+      "no_synapse": "1/8 (12.5%)",
+      "no_action": "1/8 (12.5%)",
+      "no_domain": "0/8 (0.0%)"
+    },
+    "Node-CE@20": {
+      "full": "1/8 (12.5%)",
+      "no_synapse": "1/8 (12.5%)",
+      "no_action": "3/8 (37.5%)",
+      "no_domain": "1/8 (12.5%)"
+    }
+  },
+  "case_details": [
+    {
+      "case_id": "OOF_POS_11",
+      "query": "particionar capacidad de computo en doce nucleos virtuales con tope en gigas",
+      "gold": "docker_infrastructure_rog",
+      "pool_size_prescore": 719,
+      "rules_candidate_counts": {
+        "R1_conjuntiva": 329,
+        "R2_rol_sinonimo": 3,
+        "R3_sinapsis_fuerte": 672
+      },
+      "gold_in_prescore_pool": true,
+      "gold_generation_rules": [],
+      "gold_rank_top20": null,
+      "gold_score": 0.0,
+      "rank_no_synapse": null,
+      "rank_no_action": null,
+      "rank_no_domain": null,
+      "top1_candidate": "artemis_oec_identidad",
+      "top1_score": 10.0,
+      "latency_generation_ms": 9.24,
+      "latency_ranking_ms": 5.2,
+      "latency_total_ms": 14.45
+    },
+    {
+      "case_id": "OOF_POS_19",
+      "query": "calibrar coeficientes multiplicativos para combinar valores de relevancia heterogeneos",
+      "gold": "scoring_pesos_bm25",
+      "pool_size_prescore": 655,
+      "rules_candidate_counts": {
+        "R1_conjuntiva": 145,
+        "R2_rol_sinonimo": 14,
+        "R3_sinapsis_fuerte": 644
+      },
+      "gold_in_prescore_pool": true,
+      "gold_generation_rules": [],
+      "gold_rank_top20": null,
+      "gold_score": 0.0,
+      "rank_no_synapse": null,
+      "rank_no_action": null,
+      "rank_no_domain": null,
+      "top1_candidate": "comparativa_biorag_vs_tencentdb_agent_memory_20260809",
+      "top1_score": 11.5,
+      "latency_generation_ms": 12.42,
+      "latency_ranking_ms": 3.02,
+      "latency_total_ms": 15.44
+    },
+    {
+      "case_id": "OOF_POS_21",
+      "query": "entrelazamiento hiperdimensional binario proyectado a traves de pasarela situacional",
+      "gold": "coche_puente_condicional",
+      "pool_size_prescore": 728,
+      "rules_candidate_counts": {
+        "R1_conjuntiva": 219,
+        "R2_rol_sinonimo": 13,
+        "R3_sinapsis_fuerte": 717
+      },
+      "gold_in_prescore_pool": false,
+      "gold_generation_rules": [],
+      "gold_rank_top20": null,
+      "gold_score": 0.0,
+      "rank_no_synapse": null,
+      "rank_no_action": null,
+      "rank_no_domain": null,
+      "top1_candidate": "patrones_aprendizaje_humano_vs_agente",
+      "top1_score": 12.5,
+      "latency_generation_ms": 11.68,
+      "latency_ranking_ms": 7.99,
+      "latency_total_ms": 19.67
+    },
+    {
+      "case_id": "OOF_POS_29",
+      "query": "generar conexiones estocasticas para consolidar grupos fuertemente entrelazados",
+      "gold": "desde_athena_biorag",
+      "pool_size_prescore": 789,
+      "rules_candidate_counts": {
+        "R1_conjuntiva": 461,
+        "R2_rol_sinonimo": 17,
+        "R3_sinapsis_fuerte": 759
+      },
+      "gold_in_prescore_pool": true,
+      "gold_generation_rules": [],
+      "gold_rank_top20": null,
+      "gold_score": 0.0,
+      "rank_no_synapse": null,
+      "rank_no_action": null,
+      "rank_no_domain": null,
+      "top1_candidate": "biorag_v20_0_circuito_cerrado",
+      "top1_score": 10.5,
+      "latency_generation_ms": 14.39,
+      "latency_ranking_ms": 10.12,
+      "latency_total_ms": 24.51
+    },
+    {
+      "case_id": "OOF_POS_30",
+      "query": "transicion de vigilia a letargo con eliminacion de elementos caducos",
+      "gold": "activos_dormidos_hermana",
+      "pool_size_prescore": 439,
+      "rules_candidate_counts": {
+        "R1_conjuntiva": 60,
+        "R2_rol_sinonimo": 23,
+        "R3_sinapsis_fuerte": 419
+      },
+      "gold_in_prescore_pool": true,
+      "gold_generation_rules": [],
+      "gold_rank_top20": null,
+      "gold_score": 0.0,
+      "rank_no_synapse": null,
+      "rank_no_action": 15,
+      "rank_no_domain": null,
+      "top1_candidate": "hormiguita_v24_1_sistema_mantenimiento_seguro",
+      "top1_score": 10.5,
+      "latency_generation_ms": 8.89,
+      "latency_ranking_ms": 1.71,
+      "latency_total_ms": 10.6
+    },
+    {
+      "case_id": "OOF_POS_40",
+      "query": "procedimiento de clasificacion dimensional sobre tejido cortical",
+      "gold": "clasificacion_dimensional_completa_corteza_20260702",
+      "pool_size_prescore": 681,
+      "rules_candidate_counts": {
+        "R1_conjuntiva": 156,
+        "R2_rol_sinonimo": 41,
+        "R3_sinapsis_fuerte": 669
+      },
+      "gold_in_prescore_pool": true,
+      "gold_generation_rules": [
+        "R1:InterseccionConjuntiva(Accion ∧ Dominio/Entidad)",
+        "R2:RolSinonimo(['taxonomia'])"
+      ],
+      "gold_rank_top20": 18,
+      "gold_score": 9.0,
+      "rank_no_synapse": 2,
+      "rank_no_action": 19,
+      "rank_no_domain": 18,
+      "top1_candidate": "boost_dimensional_toco_techo_discriminacion_evidencia",
+      "top1_score": 10.0,
+      "latency_generation_ms": 10.0,
+      "latency_ranking_ms": 7.06,
+      "latency_total_ms": 17.06
+    },
+    {
+      "case_id": "OOF_POS_48",
+      "query": "malla neuronal con topologia de enlaces sinapticos transversales",
+      "gold": "cuaternidad-logica-oec",
+      "pool_size_prescore": 398,
+      "rules_candidate_counts": {
+        "R1_conjuntiva": 67,
+        "R2_rol_sinonimo": 0,
+        "R3_sinapsis_fuerte": 372
+      },
+      "gold_in_prescore_pool": true,
+      "gold_generation_rules": [],
+      "gold_rank_top20": null,
+      "gold_score": 0.0,
+      "rank_no_synapse": null,
+      "rank_no_action": null,
+      "rank_no_domain": null,
+      "top1_candidate": "research-pipeline-ownership-oec",
+      "top1_score": 8.5,
+      "latency_generation_ms": 6.97,
+      "latency_ranking_ms": 2.26,
+      "latency_total_ms": 9.24
+    },
+    {
+      "case_id": "OOF_POS_49",
+      "query": "registro cronologico de hitos alcanzados por el agente",
+      "gold": "trayectoria_completa_cronologica",
+      "pool_size_prescore": 334,
+      "rules_candidate_counts": {
+        "R1_conjuntiva": 46,
+        "R2_rol_sinonimo": 6,
+        "R3_sinapsis_fuerte": 320
+      },
+      "gold_in_prescore_pool": true,
+      "gold_generation_rules": [],
+      "gold_rank_top20": null,
+      "gold_score": 0.0,
+      "rank_no_synapse": null,
+      "rank_no_action": 2,
+      "rank_no_domain": null,
+      "top1_candidate": "memorybiorag_publicacion_colaborativa_dennys_athena",
+      "top1_score": 8.5,
+      "latency_generation_ms": 4.92,
+      "latency_ranking_ms": 1.11,
+      "latency_total_ms": 6.03
+    }
+  ]
+}

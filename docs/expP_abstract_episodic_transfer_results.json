@@ -1,0 +1,204 @@
+{
+  "timestamp": "2026-09-09T01:38:06Z",
+  "experiment": "EXP-P-R1: Modular Abstract Episodic Transfer",
+  "hashes": {
+    "db_snapshot": "676827f6b4abc3acaee10b14e273c3c50cae5b2c180593dedcd58048265a2800"
+  },
+  "sweep_results": {
+    "tau_0.10": {
+      "tau": 0.1,
+      "gen_rescues": 0,
+      "rerank_rescues": 1,
+      "zero_zero_activations": 1,
+      "R@1": 0,
+      "R@5": 1,
+      "negative_fps": 2
+    },
+    "tau_0.15": {
+      "tau": 0.15,
+      "gen_rescues": 0,
+      "rerank_rescues": 1,
+      "zero_zero_activations": 1,
+      "R@1": 0,
+      "R@5": 1,
+      "negative_fps": 2
+    },
+    "tau_0.20": {
+      "tau": 0.2,
+      "gen_rescues": 0,
+      "rerank_rescues": 1,
+      "zero_zero_activations": 1,
+      "R@1": 0,
+      "R@5": 1,
+      "negative_fps": 1
+    },
+    "tau_0.25": {
+      "tau": 0.25,
+      "gen_rescues": 0,
+      "rerank_rescues": 1,
+      "zero_zero_activations": 1,
+      "R@1": 0,
+      "R@5": 1,
+      "negative_fps": 1
+    },
+    "tau_0.30": {
+      "tau": 0.3,
+      "gen_rescues": 0,
+      "rerank_rescues": 0,
+      "zero_zero_activations": 0,
+      "R@1": 0,
+      "R@5": 0,
+      "negative_fps": 0
+    },
+    "tau_0.35": {
+      "tau": 0.35,
+      "gen_rescues": 0,
+      "rerank_rescues": 0,
+      "zero_zero_activations": 0,
+      "R@1": 0,
+      "R@5": 0,
+      "negative_fps": 0
+    },
+    "tau_0.40": {
+      "tau": 0.4,
+      "gen_rescues": 0,
+      "rerank_rescues": 0,
+      "zero_zero_activations": 0,
+      "R@1": 0,
+      "R@5": 0,
+      "negative_fps": 0
+    }
+  },
+  "selected_tau": 0.2,
+  "detailed_cases": [
+    {
+      "case_id": "CASE_01",
+      "gold": "scoring_pesos_bm25",
+      "group_type": "TRUE_ZERO_ZERO",
+      "sim_H_no_op": 0.0605,
+      "meta_sim": {
+        "channel_scores": {
+          "ISLAND": 0.0,
+          "HDC": 0.1738
+        },
+        "total_valid_weight": 2.3,
+        "valid_channels_count": 2
+      },
+      "ep_activated": false,
+      "gold_in_m0": true,
+      "gold_added_by_ep": false,
+      "rank_m0": 64,
+      "rank_m2_nobonus": 64,
+      "rank_m2_bonus": 64,
+      "candidate_provenance": [
+        "BASE_FTS",
+        "C1"
+      ],
+      "verdict": "NO_EPISODE_ACTIVATION"
+    },
+    {
+      "case_id": "CASE_02",
+      "gold": "desde_athena_biorag",
+      "group_type": "LEXICAL_ZERO_STRUCTURAL_CUE",
+      "sim_H_no_op": 0.013,
+      "meta_sim": {
+        "channel_scores": {
+          "ISLAND": 0.0,
+          "DIM_13D": 0.0,
+          "HDC": 0.0537
+        },
+        "total_valid_weight": 3.3,
+        "valid_channels_count": 3
+      },
+      "ep_activated": false,
+      "gold_in_m0": true,
+      "gold_added_by_ep": false,
+      "rank_m0": 68,
+      "rank_m2_nobonus": 68,
+      "rank_m2_bonus": 68,
+      "candidate_provenance": [
+        "BASE_FTS",
+        "C1"
+      ],
+      "verdict": "NO_EPISODE_ACTIVATION"
+    },
+    {
+      "case_id": "CASE_03",
+      "gold": "docker_infrastructure_rog",
+      "group_type": "LEXICAL_ZERO_STRUCTURAL_CUE",
+      "sim_H_no_op": 0.0064,
+      "meta_sim": {
+        "channel_scores": {
+          "ISLAND": 0.0,
+          "DIM_13D": 0.0,
+          "HDC": 0.0264
+        },
+        "total_valid_weight": 3.3,
+        "valid_channels_count": 3
+      },
+      "ep_activated": false,
+      "gold_in_m0": false,
+      "gold_added_by_ep": false,
+      "rank_m0": null,
+      "rank_m2_nobonus": null,
+      "rank_m2_bonus": null,
+      "candidate_provenance": [],
+      "verdict": "NO_EPISODE_ACTIVATION"
+    },
+    {
+      "case_id": "CASE_04",
+      "gold": "coche_puente_condicional",
+      "group_type": "TRUE_ZERO_ZERO",
+      "sim_H_no_op": 0.2746,
+      "meta_sim": {
+        "channel_scores": {
+          "ISLAND": 0.3429,
+          "HDC": 0.1465
+        },
+        "total_valid_weight": 2.3,
+        "valid_channels_count": 2
+      },
+      "ep_activated": true,
+      "gold_in_m0": true,
+      "gold_added_by_ep": false,
+      "rank_m0": 24,
+      "rank_m2_nobonus": 24,
+      "rank_m2_bonus": 4,
+      "candidate_provenance": [
+        "BASE_FTS",
+        "C1"
+      ],
+      "verdict": "EPISODE_RERANK_ONLY"
+    },
+    {
+      "case_id": "CASE_05",
+      "gold": "activos_dormidos_hermana",
+      "group_type": "LEXICAL_ZERO_STRUCTURAL_CUE",
+      "sim_H_no_op": 0.0154,
+      "meta_sim": {
+        "channel_scores": {
+          "ISLAND": 0.0,
+          "DIM_13D": 0.0,
+          "HDC": 0.0635
+        },
+        "total_valid_weight": 3.3,
+        "valid_channels_count": 3
+      },
+      "ep_activated": false,
+      "gold_in_m0": true,
+      "gold_added_by_ep": false,
+      "rank_m0": 33,
+      "rank_m2_nobonus": 33,
+      "rank_m2_bonus": 33,
+      "candidate_provenance": [
+        "BASE_FTS",
+        "C1"
+      ],
+      "verdict": "NO_EPISODE_ACTIVATION"
+    }
+  ],
+  "leakage_audit": {
+    "total_flags": 0,
+    "gold_dependent_flags": 0
+  }
+}

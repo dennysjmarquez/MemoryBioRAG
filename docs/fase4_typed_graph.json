@@ -1,0 +1,4861 @@
+{
+  "graph_audit": {
+    "total_nodes": 866,
+    "physical_edges_count": 13848,
+    "derived_edges_count": 1589,
+    "inferred_edges_count": 0,
+    "total_edges": 15437
+  },
+  "method_comparison": {
+    "F0": {
+      "test": {
+        "top5": 0,
+        "top5_pct": 0.0,
+        "top1": 0,
+        "top1_pct": 0.0,
+        "mrr": 0.0,
+        "total": 8,
+        "details": [
+          {
+            "id": "0497",
+            "query": "relevantes biomimética mejor",
+            "expected": "benchmark_antes_despues_fix3",
+            "rank": 0,
+            "in_top5": false,
+            "top1": "reconocimiento_identidad_oraculo_manifiesto",
+            "score_top1": 0.5424128026700086
+          },
+          {
+            "id": "0516",
+            "query": "real más sistemas",
+            "expected": "dennys-identidad-profunda",
+            "rank": 0,
+            "in_top5": false,
+            "top1": "dashboard_neuro_visor_estado_implementacion_julio_2026",
+            "score_top1": 0.6456933083625175
+          },
+          {
+            "id": "0534",
+            "query": "activa largo archivos",
+            "expected": "biorag_v11_1_detalle_tecnico",
+            "rank": 0,
+            "in_top5": false,
+            "top1": "dennys_perfil_tecnico_consolidado_master",
+            "score_top1": 0.5422122073842176
+          },
+          {
+            "id": "0583",
+            "query": "debo biorag preacción",
+            "expected": "identificacion_obligatoria_oraculo_athena",
+            "rank": 0,
+            "in_top5": false,
+            "top1": "artemis_sesion_v10_3_optimizacion_completa",
+            "score_top1": 0.9999994988498886
+          },
+          {
+            "id": "0640",
+            "query": "ráfaga después resultado",
+            "expected": "mentalidad_biorag_para_agentes",
+            "rank": 0,
+            "in_top5": false,
+            "top1": "mf_sgns_loss_correcta_kenyon_dean_part2_20260807",
+            "score_top1": 0.5456389623875295
+          },
+          {
+            "id": "0724",
+            "query": "learning paso regla",
+            "expected": "protocolo_autoinferencia_metacognitiva",
+            "rank": 0,
+            "in_top5": false,
+            "top1": "auditoría_técnica:_memorybiorag_(manus_ai)",
+            "score_top1": 0.7045569019522347
+          },
+          {
+            "id": "0795",
+            "query": "insert storepy comunicadosdestino",
+            "expected": "fix_mensajeria_broadcast_tracking_por_agente",
+            "rank": 0,
+            "in_top5": false,
+            "top1": "auditoría_técnica:_memorybiorag_(manus_ai)",
+            "score_top1": 0.39897252742957645
+          },
+          {
+            "id": "0801",
+            "query": "datos lecciones postsync",
+            "expected": "notebooklm-memory-biorag-project",
+            "rank": 0,
+            "in_top5": false,
+            "top1": "protocolo-reproducible-ingenieria-inversa-binario-compilado",
+            "score_top1": 0.5741362145678283
+          }
+        ]
+      },
+      "transfer": {
+        "top5": 0,
+        "top5_pct": 0.0,
+        "top1": 0,
+        "top1_pct": 0.0,
+        "mrr": 0.0,
+        "total": 8,
+        "details": [
+          {
+            "id": "TRF_01",
+            "query": "evaluacion y metrica de escalabilidad promedio",
+            "expected": "analisis_escalabilidad_10k_v5_1",
+            "rank": 0,
+            "in_top5": false,
+            "top1": "sesion-2026-06-23-ingenieria-inversa-binario-opencode-completa",
+            "score_top1": 0.3871091542049393
+          },
+          {
+            "id": "TRF_02",
+            "query": "regla de guardado automatico obligatorio",
+            "expected": "guardado_automatico_caso_b",
+            "rank": 0,
+            "in_top5": false,
+            "top1": "auditoría_técnica:_memorybiorag_(manus_ai)",
+            "score_top1": 0.7045569019522347
+          },
+          {
+            "id": "TRF_03",
+            "query": "sesion de refactorizacion visor markdown cambios",
+            "expected": "visor-markdown-refactorizacion-sesion-2026-06-08",
+            "rank": 0,
+            "in_top5": false,
+            "top1": "protocolo-reproducible-ingenieria-inversa-binario-compilado",
+            "score_top1": 0.4475933924190612
+          },
+          {
+            "id": "TRF_04",
+            "query": "principio de pragmatismo contextual mentalidad",
+            "expected": "principio_pragmatismo_contextual",
+            "rank": 0,
+            "in_top5": false,
+            "top1": "dennys_component_organization_methodology",
+            "score_top1": 0.5925063634990435
+          },
+          {
+            "id": "TRF_05",
+            "query": "perfil de identidad completo de dennys",
+            "expected": "identidad_dennys_perfil_completo",
+            "rank": 0,
+            "in_top5": false,
+            "top1": "protocolo_autoinferencia_metacognitiva",
+            "score_top1": 0.873701553337463
+          },
+          {
+            "id": "TRF_06",
+            "query": "protocolo de sincronizacion de fuentes notebooklm sync",
+            "expected": "notebooklm-sync-protocol",
+            "rank": 0,
+            "in_top5": false,
+            "top1": "v23_0_feedback_driven_graph_learning_implementado",
+            "score_top1": 0.4001327825418675
+          },
+          {
+            "id": "TRF_07",
+            "query": "declaracion fundacional alma de athena perfil",
+            "expected": "athena_alma",
+            "rank": 0,
+            "in_top5": false,
+            "top1": "dennys_component_organization_methodology",
+            "score_top1": 0.9999995430673961
+          },
+          {
+            "id": "TRF_08",
+            "query": "lecciones aprendidas de sincronismo externo sync",
+            "expected": "notebooklm-sync-lecciones",
+            "rank": 0,
+            "in_top5": false,
+            "top1": "auditoría_técnica:_memorybiorag_(manus_ai)",
+            "score_top1": 0.5793585393341781
+          }
+        ]
+      },
+      "paraphrases": {
+        "top5": 0,
+        "top5_pct": 0.0,
+        "top1": 0,
+        "top1_pct": 0.0,
+        "mrr": 0.0,
+        "total": 8,
+        "details": [
+          {
+            "id": "PRF_01",
+            "query": "medicion de rendimiento previo y posterior benchmark",
+            "expected": "benchmark_antes_despues_fix3",
+            "rank": 0,
+            "in_top5": false,
+            "top1": "auditoría_técnica:_memorybiorag_(manus_ai)",
+            "score_top1": 0.5006196171529034
+          },
+          {
+            "id": "PRF_02",
+            "query": "esencia perfil real del creador",
+            "expected": "dennys-identidad-profunda",
+            "rank": 0,
+            "in_top5": false,
+            "top1": "arquitectura_busqueda_dimensional_v11_3",
+            "score_top1": 0.9999994326868763
+          },
+          {
+            "id": "PRF_03",
+            "query": "especificacion tecnica detalle persistencia archivos",
+            "expected": "biorag_v11_1_detalle_tecnico",
+            "rank": 0,
+            "in_top5": false,
+            "top1": "dennys_perfil_tecnico_consolidado_master",
+            "score_top1": 0.5422122073842176
+          },
+          {
+            "id": "PRF_04",
+            "query": "obligacion mandatoria regla antes_de consultar",
+            "expected": "identificacion_obligatoria_oraculo_athena",
+            "rank": 0,
+            "in_top5": false,
+            "top1": "auditoría_técnica:_memorybiorag_(manus_ai)",
+            "score_top1": 0.7045569019522347
+          },
+          {
+            "id": "PRF_05",
+            "query": "modo de razonamiento mentalidad como_pensar uso",
+            "expected": "mentalidad_biorag_para_agentes",
+            "rank": 0,
+            "in_top5": false,
+            "top1": "protocolo-reproducible-ingenieria-inversa-binario-compilado",
+            "score_top1": 0.4007984175150149
+          },
+          {
+            "id": "PRF_06",
+            "query": "regla procedimiento pasos auto_pregunta",
+            "expected": "protocolo_autoinferencia_metacognitiva",
+            "rank": 0,
+            "in_top5": false,
+            "top1": "auditoría_técnica:_memorybiorag_(manus_ai)",
+            "score_top1": 0.7045569019522347
+          },
+          {
+            "id": "PRF_07",
+            "query": "parche fix broadcast tabla comunicacion",
+            "expected": "fix_mensajeria_broadcast_tracking_por_agente",
+            "rank": 0,
+            "in_top5": false,
+            "top1": "auditoría_técnica:_memorybiorag_(manus_ai)",
+            "score_top1": 0.6525739175235619
+          },
+          {
+            "id": "PRF_08",
+            "query": "sincronizacion lecciones sync integracion",
+            "expected": "notebooklm-memory-biorag-project",
+            "rank": 0,
+            "in_top5": false,
+            "top1": "dennys_perfil_tecnico_consolidado_master",
+            "score_top1": 0.45408122194536
+          }
+        ]
+      },
+      "corpus_shift": {
+        "top5": 0,
+        "top5_pct": 0.0,
+        "top1": 0,
+        "top1_pct": 0.0,
+        "mrr": 0.0,
+        "total": 6,
+        "details": [
+          {
+            "id": "CS_01",
+            "query": "estudio empirico de aceleracion y tasa de latencia",
+            "expected": "benchmark_antes_despues_fix3",
+            "rank": 0,
+            "in_top5": false,
+            "top1": "sesion-2026-06-23-ingenieria-inversa-binario-opencode-completa",
+            "score_top1": 0.3560940085414211
+          },
+          {
+            "id": "CS_02",
+            "query": "mandato mandatorio preliminar al acceso de memoria",
+            "expected": "identificacion_obligatoria_oraculo_athena",
+            "rank": 0,
+            "in_top5": false,
+            "top1": "plugin-openode-biorag-remember-v9-final-lecciones-sesion-completa",
+            "score_top1": 0.6317759431448714
+          },
+          {
+            "id": "CS_03",
+            "query": "parche de subsanacion de anomalia en difusion de paquetes",
+            "expected": "fix_mensajeria_broadcast_tracking_por_agente",
+            "rank": 0,
+            "in_top5": false,
+            "top1": "dennys_perfil_tecnico_consolidado_master",
+            "score_top1": 0.3819917026336881
+          },
+          {
+            "id": "CS_04",
+            "query": "doctrina y concepcion epistemologica sobre utilizacion de recuerdos",
+            "expected": "mentalidad_biorag_para_agentes",
+            "rank": 0,
+            "in_top5": false,
+            "top1": "caso_formularios_anidados_angular",
+            "score_top1": 0.6930174608870867
+          },
+          {
+            "id": "CS_05",
+            "query": "biografia ontologica del artifice de la plataforma",
+            "expected": "dennys-identidad-profunda",
+            "rank": 0,
+            "in_top5": false,
+            "top1": "dennys_perfil_tecnico_consolidado_master",
+            "score_top1": 0.9999996406940789
+          },
+          {
+            "id": "CS_06",
+            "query": "puente de exportacion bidireccional hacia repositorio remoto",
+            "expected": "notebooklm-memory-biorag-project",
+            "rank": 0,
+            "in_top5": false,
+            "top1": "dennys_perfil_tecnico_consolidado_master",
+            "score_top1": 0.37618865393486356
+          }
+        ]
+      },
+      "hard_negatives": {
+        "fp_count": 57,
+        "fp_rate_pct": 95.0,
+        "total": 60,
+        "details": [
+          {
+            "query": "como lograr mejor velocidad al escribir codigo en react",
+            "is_fp": true,
+            "top_node": "notebooklm-sync-protocol",
+            "top_score": 0.7910328055107316
+          },
+          {
+            "query": "antes y despues de la toma de decisiones filosoficas",
+            "is_fp": true,
+            "top_node": "caso_formularios_anidados_angular",
+            "top_score": 0.5721110413217684
+          },
+          {
+            "query": "el promedio de horas antes de descansar en la rutina diaria",
+            "is_fp": true,
+            "top_node": "plugin-openode-biorag-remember-v9-final-lecciones-sesion-completa",
+            "top_score": 0.668458639218003
+          },
+          {
+            "query": "evaluacion cualitativa de la confianza entre humanos y agentes",
+            "is_fp": true,
+            "top_node": "protocolo-reproducible-ingenieria-inversa-binario-compilado",
+            "top_score": 0.609025460851058
+          },
+          {
+            "query": "la mejor forma de expresar gratitud despues de una sesion",
+            "is_fp": true,
+            "top_node": "lectura_levy_goldberg_y_superlinear_part1_20260807",
+            "top_score": 0.6548631131334552
+          },
+          {
+            "query": "medicion del impacto emocional antes del cambio de rol",
+            "is_fp": true,
+            "top_node": "sdm_query_by_example_validado_datos_reales",
+            "top_score": 0.9999987499516944
+          },
+          {
+            "query": "comparativa de estilos de liderazgo antes de 2026",
+            "is_fp": true,
+            "top_node": "notebooklm-sync-protocol",
+            "top_score": 0.9999995184046703
+          },
+          {
+            "query": "rendimiento cognitivo en estados de sueno y reflexion",
+            "is_fp": false,
+            "top_node": "notebooklm-sync-protocol",
+            "top_score": 0.38538561867113746
+          },
+          {
+            "query": "rapidez de respuesta frente a dilemas eticos y mejor conducta",
+            "is_fp": true,
+            "top_node": "reconocimiento_identidad_oraculo_manifiesto",
+            "top_score": 0.5424128026700086
+          },
+          {
+            "query": "metrica subjetiva de la lealtad y el mejor companero",
+            "is_fp": true,
+            "top_node": "protocolo_autoinferencia_metacognitiva",
+            "top_score": 0.49152095096852644
+          },
+          {
+            "query": "debo admitir que cada paso en la vida ensena algo",
+            "is_fp": true,
+            "top_node": "fca_reticulo_galois_f2_resultado_refuta_exclusion_triviales",
+            "top_score": 0.9999992545788116
+          },
+          {
+            "query": "la regla de tres en el diseno estetico visual paso a paso",
+            "is_fp": true,
+            "top_node": "auditoría_técnica:_memorybiorag_(manus_ai)",
+            "top_score": 0.7045569019522347
+          },
+          {
+            "query": "un procedimiento de respiracion antes_de meditar profundamente",
+            "is_fp": false,
+            "top_node": "patron_pensamiento_lateral_antes_de_proponer",
+            "top_score": 0.25352651793416453
+          },
+          {
+            "query": "instruccion no mandatoria sobre como redactar poesia sintetica",
+            "is_fp": true,
+            "top_node": "dennys_component_organization_methodology",
+            "top_score": 0.7995894636778343
+          },
+          {
+            "query": "la norma social de saludar antes_de iniciar un debate informal",
+            "is_fp": true,
+            "top_node": "auditoría_técnica:_memorybiorag_(manus_ai)",
+            "top_score": 0.5752275786150925
+          },
+          {
+            "query": "debo reconocer el paso del tiempo en la arquitectura antigua",
+            "is_fp": true,
+            "top_node": "sdm_query_by_example_validado_datos_reales",
+            "top_score": 0.9999993749754564
+          },
+          {
+            "query": "cada regla gramatical tiene una excepcion en el lenguaje vivo",
+            "is_fp": true,
+            "top_node": "changelog_v10_recall_semantico_typo_tolerant",
+            "top_score": 0.5969798827125024
+          },
+          {
+            "query": "el protocolo diplomático de las dinastias del siglo diecinueve",
+            "is_fp": true,
+            "top_node": "rafaga-ilimitada-v9.2-optimizacion-fts5-or",
+            "top_score": 0.9999993177476688
+          },
+          {
+            "query": "un paso obligatorio en el ciclo del agua en la naturaleza",
+            "is_fp": true,
+            "top_node": "sdm_query_by_example_validado_datos_reales",
+            "top_score": 0.9999993749754564
+          },
+          {
+            "query": "instruccion basica para afinar una guitarra paso a paso",
+            "is_fp": true,
+            "top_node": "mismatches_backend_frontend_dashboard_neuro_visor_2026",
+            "top_score": 0.9999992998455177
+          },
+          {
+            "query": "la persistencia de la memoria en el cuadro de salvador dali al detalle",
+            "is_fp": true,
+            "top_node": "plugin-openode-biorag-remember-v9-final-lecciones-sesion-completa",
+            "top_score": 0.6317759431448714
+          },
+          {
+            "query": "arquitectura gotica y la estructura de columnas en catedrales",
+            "is_fp": true,
+            "top_node": "caso_formularios_anidados_angular",
+            "top_score": 0.5596406696777182
+          },
+          {
+            "query": "tabla periodica de los elementos quimicos en su version extendida",
+            "is_fp": true,
+            "top_node": "reconocimiento_identidad_oraculo_manifiesto",
+            "top_score": 0.9798494204497387
+          },
+          {
+            "query": "un parche en el ojo en la cultura popular de piratas con detalle",
+            "is_fp": true,
+            "top_node": "leccion_seed_catalogo_debe_correr_db_nueva_y_existente",
+            "top_score": 0.9999991498529919
+          },
+          {
+            "query": "el disco solar en la mitologia egipcia y su version teologica",
+            "is_fp": true,
+            "top_node": "notebooklm-sync-protocol",
+            "top_score": 0.44496621042138257
+          },
+          {
+            "query": "un bug biologico o mutacion genetica en insectos con detalle",
+            "is_fp": true,
+            "top_node": "leccion_seed_catalogo_debe_correr_db_nueva_y_existente",
+            "top_score": 0.9999991498529919
+          },
+          {
+            "query": "archivos secretos de la guerra fria y la persistencia historica",
+            "is_fp": true,
+            "top_node": "auditoría_técnica:_memorybiorag_(manus_ai)",
+            "top_score": 0.634780512182689
+          },
+          {
+            "query": "una columna de opinion periodistica sobre la nueva version musical",
+            "is_fp": true,
+            "top_node": "vida_laboral_completa_dennys",
+            "top_score": 0.6719158884909017
+          },
+          {
+            "query": "detalle tecnico de la elaboracion artesanal de cafe en grano",
+            "is_fp": true,
+            "top_node": "auditoría_técnica:_memorybiorag_(manus_ai)",
+            "top_score": 0.5126583384783099
+          },
+          {
+            "query": "insert en la narrativa literaria para alterar el tiempo tecnico",
+            "is_fp": true,
+            "top_node": "notebooklm-category-map",
+            "top_score": 0.9999994476733898
+          },
+          {
+            "query": "el resultado de la division por cero despues de calcular",
+            "is_fp": true,
+            "top_node": "reconocimiento_identidad_oraculo_manifiesto",
+            "top_score": 0.9999995543334265
+          },
+          {
+            "query": "leccion de botanica sobre el uso de fertilizantes en plantas",
+            "is_fp": true,
+            "top_node": "caso_formularios_anidados_angular",
+            "top_score": 0.6930174608870867
+          },
+          {
+            "query": "principio activo de la aspirina y su modo de accion quimico",
+            "is_fp": true,
+            "top_node": "teoria_ejes_semanticos_biorag",
+            "top_score": 0.4959120916659046
+          },
+          {
+            "query": "vision nocturna en felinos y el modo de caceria en la selva",
+            "is_fp": true,
+            "top_node": "auditoría_técnica:_memorybiorag_(manus_ai)",
+            "top_score": 0.5965415173695314
+          },
+          {
+            "query": "filosofia antigua sobre el atomo antes y despues de democrito",
+            "is_fp": true,
+            "top_node": "sesion-2026-06-23-ingenieria-inversa-binario-opencode-completa",
+            "top_score": 0.6876316819763069
+          },
+          {
+            "query": "razonamiento deductivo en acertijos matematicos con resultado directo",
+            "is_fp": true,
+            "top_node": "snapshot_prf_real_db_pre_v26_sin_tablas_ppmi_señal13_cero",
+            "top_score": 0.9999991273452232
+          },
+          {
+            "query": "modo de uso del control remoto y resultado al cambiar canal",
+            "is_fp": true,
+            "top_node": "proyecto_biorag_ncp_resumen_completo_2026_06_14",
+            "top_score": 0.9999993689216883
+          },
+          {
+            "query": "enfoque de camara fotografica para obtener mejor vision de campo",
+            "is_fp": true,
+            "top_node": "notebooklm-category-map",
+            "top_score": 0.9999994476733898
+          },
+          {
+            "query": "leccion de cocina sobre el resultado de hornear despues de fermentar",
+            "is_fp": true,
+            "top_node": "caso_formularios_anidados_angular",
+            "top_score": 0.6930174608870867
+          },
+          {
+            "query": "pensar rapido y lento en las ilusiones opticas de vision",
+            "is_fp": true,
+            "top_node": "plugin-openode-biorag-remember-v9-final-lecciones-sesion-completa",
+            "top_score": 0.8509411145544624
+          },
+          {
+            "query": "sistemas de identidad federada oauth y tokens jwt en servidores",
+            "is_fp": true,
+            "top_node": "sdm_query_by_example_validado_datos_reales",
+            "top_score": 0.480393194879267
+          },
+          {
+            "query": "origen y evolucion de los sistemas planetarios en el universo real",
+            "is_fp": true,
+            "top_node": "reconocimiento_identidad_oraculo_manifiesto",
+            "top_score": 0.9798494204497387
+          },
+          {
+            "query": "el creador de la penicilina y la historia de los antibioticos",
+            "is_fp": true,
+            "top_node": "notebooklm-category-map",
+            "top_score": 0.9751466974015128
+          },
+          {
+            "query": "quien_es el personaje de don quijote en la historia universal",
+            "is_fp": true,
+            "top_node": "dennys_perfil_tecnico_consolidado_master",
+            "top_score": 0.5196726672408177
+          },
+          {
+            "query": "la esencia del perfume frances y su origen floral autentico",
+            "is_fp": true,
+            "top_node": "dennys_perfil_tecnico_consolidado_master",
+            "top_score": 0.9999996406940789
+          },
+          {
+            "query": "sistemas digestivos en animales y su origen evolutivo real",
+            "is_fp": true,
+            "top_node": "dennys_component_organization_methodology",
+            "top_score": 0.7033220560682524
+          },
+          {
+            "query": "perfil topografico de las montanas en la historia geologica",
+            "is_fp": true,
+            "top_node": "plugin-openode-biorag-remember-v9-final-lecciones-sesion-completa",
+            "top_score": 0.8509411145544624
+          },
+          {
+            "query": "alma gemela en la poesia romantica y la filosofia_vida popular",
+            "is_fp": true,
+            "top_node": "auditoría_técnica:_memorybiorag_(manus_ai)",
+            "top_score": 0.41846280894886584
+          },
+          {
+            "query": "identidad trigonometrica fundamental en sistemas de coordenadas",
+            "is_fp": true,
+            "top_node": "auditoría_técnica:_memorybiorag_(manus_ai)",
+            "top_score": 0.5328502974307419
+          },
+          {
+            "query": "autentico chocolate suizo y la historia de los sistemas de cacao",
+            "is_fp": true,
+            "top_node": "notebooklm-category-map",
+            "top_score": 0.9751466974015128
+          },
+          {
+            "query": "puente de brooklyn y la exportar de acero en su construccion",
+            "is_fp": true,
+            "top_node": "auditoría_técnica:_memorybiorag_(manus_ai)",
+            "top_score": 0.5891627285004806
+          },
+          {
+            "query": "sincronizacion de fases en osciladores armonicos de fisica cuantica",
+            "is_fp": false,
+            "top_node": "decision_fca_reticulo_galois_senal_por_tema",
+            "top_score": 0.24013044100951894
+          },
+          {
+            "query": "integracion por partes y calculo integral de datos numericos",
+            "is_fp": true,
+            "top_node": "arquitectura_daemon_vivo_escritorio_manual_mcp_guardian",
+            "top_score": 0.9999993128954219
+          },
+          {
+            "query": "lecciones de natacion para principiantes en piscina con puente",
+            "is_fp": true,
+            "top_node": "notebooklm-category-map",
+            "top_score": 0.9999994476733898
+          },
+          {
+            "query": "canal externo de irrigacion para exportar agua a los cultivos",
+            "is_fp": true,
+            "top_node": "auditoria_entrega_claude_ppmi_v2_suave_ctx_20260808",
+            "top_score": 0.9999992755871353
+          },
+          {
+            "query": "sincronizacion de relojes en la teoria de la relatividad con datos",
+            "is_fp": true,
+            "top_node": "snapshot_prf_real_db_pre_v26_sin_tablas_ppmi_señal13_cero",
+            "top_score": 0.9999991273452232
+          },
+          {
+            "query": "puente de hidrogeno en la molecula de agua y datos quimicos",
+            "is_fp": true,
+            "top_node": "protocolo-reproducible-ingenieria-inversa-binario-compilado",
+            "top_score": 0.5741362145678283
+          },
+          {
+            "query": "integracion social de especies animales en manadas con lecciones",
+            "is_fp": true,
+            "top_node": "leccion_seed_catalogo_debe_correr_db_nueva_y_existente",
+            "top_score": 0.9999991498529919
+          },
+          {
+            "query": "exportar frutas tropicales y su integracion en el comercio exterior",
+            "is_fp": true,
+            "top_node": "auditoría_técnica:_memorybiorag_(manus_ai)",
+            "top_score": 0.43727854138834615
+          },
+          {
+            "query": "sincronizacion del ritmo cardiaco en atletas y datos medicos",
+            "is_fp": true,
+            "top_node": "dennys_perfil_tecnico_consolidado_master",
+            "top_score": 0.9999996406940789
+          }
+        ]
+      }
+    },
+    "F1": {
+      "test": {
+        "top5": 0,
+        "top5_pct": 0.0,
+        "top1": 0,
+        "top1_pct": 0.0,
+        "mrr": 0.0,
+        "total": 8,
+        "details": [
+          {
+            "id": "0497",
+            "query": "relevantes biomimética mejor",
+            "expected": "benchmark_antes_despues_fix3",
+            "rank": 0,
+            "in_top5": false,
+            "top1": "reconocimiento_identidad_oraculo_manifiesto",
+            "score_top1": 0.5689473119542021
+          },
+          {
+            "id": "0516",
+            "query": "real más sistemas",
+            "expected": "dennys-identidad-profunda",
+            "rank": 0,
+            "in_top5": false,
+            "top1": "mf_sgns_loss_correcta_kenyon_dean_part2_20260807",
+            "score_top1": 0.7710084473843997
+          },
+          {
+            "id": "0534",
+            "query": "activa largo archivos",
+            "expected": "biorag_v11_1_detalle_tecnico",
+            "rank": 0,
+            "in_top5": false,
+            "top1": "dennys_perfil_tecnico_consolidado_master",
+            "score_top1": 0.5807582344039871
+          },
+          {
+            "id": "0583",
+            "query": "debo biorag preacción",
+            "expected": "identificacion_obligatoria_oraculo_athena",
+            "rank": 0,
+            "in_top5": false,
+            "top1": "research-pipeline-ownership-oec",
+            "score_top1": 1.6571769502095939
+          },
+          {
+            "id": "0640",
+            "query": "ráfaga después resultado",
+            "expected": "mentalidad_biorag_para_agentes",
+            "rank": 0,
+            "in_top5": false,
+            "top1": "mf_sgns_loss_correcta_kenyon_dean_part2_20260807",
+            "score_top1": 0.6454584765294837
+          },
+          {
+            "id": "0724",
+            "query": "learning paso regla",
+            "expected": "protocolo_autoinferencia_metacognitiva",
+            "rank": 0,
+            "in_top5": false,
+            "top1": "auditoría_técnica:_memorybiorag_(manus_ai)",
+            "score_top1": 0.7269703596712853
+          },
+          {
+            "id": "0795",
+            "query": "insert storepy comunicadosdestino",
+            "expected": "fix_mensajeria_broadcast_tracking_por_agente",
+            "rank": 0,
+            "in_top5": false,
+            "top1": "auditoría_técnica:_memorybiorag_(manus_ai)",
+            "score_top1": 0.39897252742957645
+          },
+          {
+            "id": "0801",
+            "query": "datos lecciones postsync",
+            "expected": "notebooklm-memory-biorag-project",
+            "rank": 0,
+            "in_top5": false,
+            "top1": "protocolo-reproducible-ingenieria-inversa-binario-compilado",
+            "score_top1": 0.5858239896121211
+          }
+        ]
+      },
+      "transfer": {
+        "top5": 0,
+        "top5_pct": 0.0,
+        "top1": 0,
+        "top1_pct": 0.0,
+        "mrr": 0.0,
+        "total": 8,
+        "details": [
+          {
+            "id": "TRF_01",
+            "query": "evaluacion y metrica de escalabilidad promedio",
+            "expected": "analisis_escalabilidad_10k_v5_1",
+            "rank": 0,
+            "in_top5": false,
+            "top1": "sesion-2026-06-23-ingenieria-inversa-binario-opencode-completa",
+            "score_top1": 0.391816319400784
+          },
+          {
+            "id": "TRF_02",
+            "query": "regla de guardado automatico obligatorio",
+            "expected": "guardado_automatico_caso_b",
+            "rank": 0,
+            "in_top5": false,
+            "top1": "auditoría_técnica:_memorybiorag_(manus_ai)",
+            "score_top1": 0.7166420334954887
+          },
+          {
+            "id": "TRF_03",
+            "query": "sesion de refactorizacion visor markdown cambios",
+            "expected": "visor-markdown-refactorizacion-sesion-2026-06-08",
+            "rank": 0,
+            "in_top5": false,
+            "top1": "protocolo-reproducible-ingenieria-inversa-binario-compilado",
+            "score_top1": 0.4475933924190612
+          },
+          {
+            "id": "TRF_04",
+            "query": "principio de pragmatismo contextual mentalidad",
+            "expected": "principio_pragmatismo_contextual",
+            "rank": 0,
+            "in_top5": false,
+            "top1": "notebooklm-sync-protocol",
+            "score_top1": 0.6281328781704715
+          },
+          {
+            "id": "TRF_05",
+            "query": "perfil de identidad completo de dennys",
+            "expected": "identidad_dennys_perfil_completo",
+            "rank": 0,
+            "in_top5": false,
+            "top1": "integritas_verdad_relacional",
+            "score_top1": 1.1077649028766354
+          },
+          {
+            "id": "TRF_06",
+            "query": "protocolo de sincronizacion de fuentes notebooklm sync",
+            "expected": "notebooklm-sync-protocol",
+            "rank": 0,
+            "in_top5": false,
+            "top1": "athena_oec_identidad",
+            "score_top1": 0.409057979631261
+          },
+          {
+            "id": "TRF_07",
+            "query": "declaracion fundacional alma de athena perfil",
+            "expected": "athena_alma",
+            "rank": 0,
+            "in_top5": false,
+            "top1": "athena_oec",
+            "score_top1": 2.304602219618205
+          },
+          {
+            "id": "TRF_08",
+            "query": "lecciones aprendidas de sincronismo externo sync",
+            "expected": "notebooklm-sync-lecciones",
+            "rank": 0,
+            "in_top5": false,
+            "top1": "auditoría_técnica:_memorybiorag_(manus_ai)",
+            "score_top1": 0.6065636053166095
+          }
+        ]
+      },
+      "paraphrases": {
+        "top5": 0,
+        "top5_pct": 0.0,
+        "top1": 0,
+        "top1_pct": 0.0,
+        "mrr": 0.0,
+        "total": 8,
+        "details": [
+          {
+            "id": "PRF_01",
+            "query": "medicion de rendimiento previo y posterior benchmark",
+            "expected": "benchmark_antes_despues_fix3",
+            "rank": 0,
+            "in_top5": false,
+            "top1": "auditoría_técnica:_memorybiorag_(manus_ai)",
+            "score_top1": 0.525563914665448
+          },
+          {
+            "id": "PRF_02",
+            "query": "esencia perfil real del creador",
+            "expected": "dennys-identidad-profunda",
+            "rank": 0,
+            "in_top5": false,
+            "top1": "hormiguita_v25_sistema_mantenimiento_seguro_athena_biorag",
+            "score_top1": 1.557597886413005
+          },
+          {
+            "id": "PRF_03",
+            "query": "especificacion tecnica detalle persistencia archivos",
+            "expected": "biorag_v11_1_detalle_tecnico",
+            "rank": 0,
+            "in_top5": false,
+            "top1": "dennys_perfil_tecnico_consolidado_master",
+            "score_top1": 0.5640607835810059
+          },
+          {
+            "id": "PRF_04",
+            "query": "obligacion mandatoria regla antes_de consultar",
+            "expected": "identificacion_obligatoria_oraculo_athena",
+            "rank": 0,
+            "in_top5": false,
+            "top1": "auditoría_técnica:_memorybiorag_(manus_ai)",
+            "score_top1": 0.7340557528963328
+          },
+          {
+            "id": "PRF_05",
+            "query": "modo de razonamiento mentalidad como_pensar uso",
+            "expected": "mentalidad_biorag_para_agentes",
+            "rank": 0,
+            "in_top5": false,
+            "top1": "protocolo-reproducible-ingenieria-inversa-binario-compilado",
+            "score_top1": 0.4370250809447978
+          },
+          {
+            "id": "PRF_06",
+            "query": "regla procedimiento pasos auto_pregunta",
+            "expected": "protocolo_autoinferencia_metacognitiva",
+            "rank": 0,
+            "in_top5": false,
+            "top1": "auditoría_técnica:_memorybiorag_(manus_ai)",
+            "score_top1": 0.7218444881090397
+          },
+          {
+            "id": "PRF_07",
+            "query": "parche fix broadcast tabla comunicacion",
+            "expected": "fix_mensajeria_broadcast_tracking_por_agente",
+            "rank": 0,
+            "in_top5": false,
+            "top1": "auditoría_técnica:_memorybiorag_(manus_ai)",
+            "score_top1": 0.664057415500326
+          },
+          {
+            "id": "PRF_08",
+            "query": "sincronizacion lecciones sync integracion",
+            "expected": "notebooklm-memory-biorag-project",
+            "rank": 0,
+            "in_top5": false,
+            "top1": "dennys_perfil_tecnico_consolidado_master",
+            "score_top1": 0.4564647028788818
+          }
+        ]
+      },
+      "corpus_shift": {
+        "top5": 0,
+        "top5_pct": 0.0,
+        "top1": 0,
+        "top1_pct": 0.0,
+        "mrr": 0.0,
+        "total": 6,
+        "details": [
+          {
+            "id": "CS_01",
+            "query": "estudio empirico de aceleracion y tasa de latencia",
+            "expected": "benchmark_antes_despues_fix3",
+            "rank": 0,
+            "in_top5": false,
+            "top1": "sesion-2026-06-23-ingenieria-inversa-binario-opencode-completa",
+            "score_top1": 0.3560940085414211
+          },
+          {
+            "id": "CS_02",
+            "query": "mandato mandatorio preliminar al acceso de memoria",
+            "expected": "identificacion_obligatoria_oraculo_athena",
+            "rank": 0,
+            "in_top5": false,
+            "top1": "plugin-openode-biorag-remember-v9-final-lecciones-sesion-completa",
+            "score_top1": 0.6591981438108874
+          },
+          {
+            "id": "CS_03",
+            "query": "parche de subsanacion de anomalia en difusion de paquetes",
+            "expected": "fix_mensajeria_broadcast_tracking_por_agente",
+            "rank": 0,
+            "in_top5": false,
+            "top1": "dennys_perfil_tecnico_consolidado_master",
+            "score_top1": 0.3832413368651032
+          },
+          {
+            "id": "CS_04",
+            "query": "doctrina y concepcion epistemologica sobre utilizacion de recuerdos",
+            "expected": "mentalidad_biorag_para_agentes",
+            "rank": 0,
+            "in_top5": false,
+            "top1": "vida_laboral_completa_dennys",
+            "score_top1": 0.7528817755904761
+          },
+          {
+            "id": "CS_05",
+            "query": "biografia ontologica del artifice de la plataforma",
+            "expected": "dennys-identidad-profunda",
+            "rank": 0,
+            "in_top5": false,
+            "top1": "hormiguita_v25_sistema_mantenimiento_seguro_athena_biorag",
+            "score_top1": 1.6717868228997328
+          },
+          {
+            "id": "CS_06",
+            "query": "puente de exportacion bidireccional hacia repositorio remoto",
+            "expected": "notebooklm-memory-biorag-project",
+            "rank": 0,
+            "in_top5": false,
+            "top1": "dennys_perfil_tecnico_consolidado_master",
+            "score_top1": 0.39576765297517713
+          }
+        ]
+      },
+      "hard_negatives": {
+        "fp_count": 57,
+        "fp_rate_pct": 95.0,
+        "total": 60,
+        "details": [
+          {
+            "query": "como lograr mejor velocidad al escribir codigo en react",
+            "is_fp": true,
+            "top_node": "notebooklm-sync-protocol",
+            "top_score": 1.0152841227209568
+          },
+          {
+            "query": "antes y despues de la toma de decisiones filosoficas",
+            "is_fp": true,
+            "top_node": "oracle_auditoria_patrones_mejora_athena",
+            "top_score": 0.650269678617634
+          },
+          {
+            "query": "el promedio de horas antes de descansar en la rutina diaria",
+            "is_fp": true,
+            "top_node": "plugin-openode-biorag-remember-v9-final-lecciones-sesion-completa",
+            "top_score": 0.7252675014521688
+          },
+          {
+            "query": "evaluacion cualitativa de la confianza entre humanos y agentes",
+            "is_fp": true,
+            "top_node": "mf_sgns_loss_correcta_kenyon_dean_part2_20260807",
+            "top_score": 0.6494722067465257
+          },
+          {
+            "query": "la mejor forma de expresar gratitud despues de una sesion",
+            "is_fp": true,
+            "top_node": "dashboard_neuro_visor_estado_implementacion_julio_2026",
+            "top_score": 0.7242600441859113
+          },
+          {
+            "query": "medicion del impacto emocional antes del cambio de rol",
+            "is_fp": true,
+            "top_node": "athena_arquitectura_memoria_agente_v24_2",
+            "top_score": 1.47479586063252
+          },
+          {
+            "query": "comparativa de estilos de liderazgo antes de 2026",
+            "is_fp": true,
+            "top_node": "hormiguita_v25_sistema_mantenimiento_seguro_athena_biorag",
+            "top_score": 1.583416796485298
+          },
+          {
+            "query": "rendimiento cognitivo en estados de sueno y reflexion",
+            "is_fp": false,
+            "top_node": "notebooklm-sync-protocol",
+            "top_score": 0.3980679981413846
+          },
+          {
+            "query": "rapidez de respuesta frente a dilemas eticos y mejor conducta",
+            "is_fp": true,
+            "top_node": "reconocimiento_identidad_oraculo_manifiesto",
+            "top_score": 0.5856948391941834
+          },
+          {
+            "query": "metrica subjetiva de la lealtad y el mejor companero",
+            "is_fp": true,
+            "top_node": "protocolo_autoinferencia_metacognitiva",
+            "top_score": 0.5159942480852207
+          },
+          {
+            "query": "debo admitir que cada paso en la vida ensena algo",
+            "is_fp": true,
+            "top_node": "capa3_pseudo_relevance_feedback_dimensional",
+            "top_score": 1.5134961885144038
+          },
+          {
+            "query": "la regla de tres en el diseno estetico visual paso a paso",
+            "is_fp": true,
+            "top_node": "auditoría_técnica:_memorybiorag_(manus_ai)",
+            "top_score": 0.7376469837857995
+          },
+          {
+            "query": "un procedimiento de respiracion antes_de meditar profundamente",
+            "is_fp": false,
+            "top_node": "patron_pensamiento_lateral_antes_de_proponer",
+            "top_score": 0.25352651793416453
+          },
+          {
+            "query": "instruccion no mandatoria sobre como redactar poesia sintetica",
+            "is_fp": true,
+            "top_node": "notebooklm-sync-protocol",
+            "top_score": 0.9945757672011029
+          },
+          {
+            "query": "la norma social de saludar antes_de iniciar un debate informal",
+            "is_fp": true,
+            "top_node": "auditoría_técnica:_memorybiorag_(manus_ai)",
+            "top_score": 0.5908251673021045
+          },
+          {
+            "query": "debo reconocer el paso del tiempo en la arquitectura antigua",
+            "is_fp": true,
+            "top_node": "hormiguita_v25_sistema_mantenimiento_seguro_athena_biorag",
+            "top_score": 1.5645130053273668
+          },
+          {
+            "query": "cada regla gramatical tiene una excepcion en el lenguaje vivo",
+            "is_fp": true,
+            "top_node": "biorag_v16_0_estado",
+            "top_score": 0.7482138318941075
+          },
+          {
+            "query": "el protocolo diplomático de las dinastias del siglo diecinueve",
+            "is_fp": true,
+            "top_node": "hormiguita_v25_sistema_mantenimiento_seguro_athena_biorag",
+            "top_score": 1.6145087049681837
+          },
+          {
+            "query": "un paso obligatorio en el ciclo del agua en la naturaleza",
+            "is_fp": true,
+            "top_node": "hormiguita_v25_sistema_mantenimiento_seguro_athena_biorag",
+            "top_score": 1.5231915514057843
+          },
+          {
+            "query": "instruccion basica para afinar una guitarra paso a paso",
+            "is_fp": true,
+            "top_node": "identidad_dennys_perfil_completo",
+            "top_score": 1.5600421539175464
+          },
+          {
+            "query": "la persistencia de la memoria en el cuadro de salvador dali al detalle",
+            "is_fp": true,
+            "top_node": "protocolo_autoinferencia_metacognitiva",
+            "top_score": 0.6622893441101403
+          },
+          {
+            "query": "arquitectura gotica y la estructura de columnas en catedrales",
+            "is_fp": true,
+            "top_node": "caso_formularios_anidados_angular",
+            "top_score": 0.5961245418611689
+          },
+          {
+            "query": "tabla periodica de los elementos quimicos en su version extendida",
+            "is_fp": true,
+            "top_node": "principio_señales_distribucionales_vs_especificas",
+            "top_score": 1.4529060101047195
+          },
+          {
+            "query": "un parche en el ojo en la cultura popular de piratas con detalle",
+            "is_fp": true,
+            "top_node": "identidad_dennys_perfil_completo",
+            "top_score": 1.8825251312819218
+          },
+          {
+            "query": "el disco solar en la mitologia egipcia y su version teologica",
+            "is_fp": true,
+            "top_node": "notebooklm-sync-protocol",
+            "top_score": 0.4622779018756578
+          },
+          {
+            "query": "un bug biologico o mutacion genetica en insectos con detalle",
+            "is_fp": true,
+            "top_node": "research-pipeline-ownership-oec",
+            "top_score": 1.9183989690956156
+          },
+          {
+            "query": "archivos secretos de la guerra fria y la persistencia historica",
+            "is_fp": true,
+            "top_node": "auditoría_técnica:_memorybiorag_(manus_ai)",
+            "top_score": 0.6399296927793595
+          },
+          {
+            "query": "una columna de opinion periodistica sobre la nueva version musical",
+            "is_fp": true,
+            "top_node": "lectura_levy_goldberg_y_superlinear_part1_20260807",
+            "top_score": 0.8090211516723028
+          },
+          {
+            "query": "detalle tecnico de la elaboracion artesanal de cafe en grano",
+            "is_fp": true,
+            "top_node": "auditoría_técnica:_memorybiorag_(manus_ai)",
+            "top_score": 0.5126583384783099
+          },
+          {
+            "query": "insert en la narrativa literaria para alterar el tiempo tecnico",
+            "is_fp": true,
+            "top_node": "research-pipeline-ownership-oec",
+            "top_score": 1.7217584018156522
+          },
+          {
+            "query": "el resultado de la division por cero despues de calcular",
+            "is_fp": true,
+            "top_node": "research-pipeline-ownership-oec",
+            "top_score": 1.6531058694239713
+          },
+          {
+            "query": "leccion de botanica sobre el uso de fertilizantes en plantas",
+            "is_fp": true,
+            "top_node": "vida_laboral_completa_dennys",
+            "top_score": 0.7744022805232418
+          },
+          {
+            "query": "principio activo de la aspirina y su modo de accion quimico",
+            "is_fp": true,
+            "top_node": "leccion_desvincular_falsos_positivos_sinapticos",
+            "top_score": 0.5593393878553392
+          },
+          {
+            "query": "vision nocturna en felinos y el modo de caceria en la selva",
+            "is_fp": true,
+            "top_node": "auditoría_técnica:_memorybiorag_(manus_ai)",
+            "top_score": 0.5965415173695314
+          },
+          {
+            "query": "filosofia antigua sobre el atomo antes y despues de democrito",
+            "is_fp": true,
+            "top_node": "vida_laboral_completa_dennys",
+            "top_score": 0.7701985726428889
+          },
+          {
+            "query": "razonamiento deductivo en acertijos matematicos con resultado directo",
+            "is_fp": true,
+            "top_node": "research-pipeline-ownership-oec",
+            "top_score": 1.7926874494841591
+          },
+          {
+            "query": "modo de uso del control remoto y resultado al cambiar canal",
+            "is_fp": true,
+            "top_node": "hormiguita_v25_sistema_mantenimiento_seguro_athena_biorag",
+            "top_score": 1.5124137824672395
+          },
+          {
+            "query": "enfoque de camara fotografica para obtener mejor vision de campo",
+            "is_fp": true,
+            "top_node": "research-pipeline-ownership-oec",
+            "top_score": 1.7148621946190528
+          },
+          {
+            "query": "leccion de cocina sobre el resultado de hornear despues de fermentar",
+            "is_fp": true,
+            "top_node": "vida_laboral_completa_dennys",
+            "top_score": 0.7714631721198881
+          },
+          {
+            "query": "pensar rapido y lento en las ilusiones opticas de vision",
+            "is_fp": true,
+            "top_node": "plan_proyecto_dashboard_neuro_react_2026",
+            "top_score": 1.0173137353885031
+          },
+          {
+            "query": "sistemas de identidad federada oauth y tokens jwt en servidores",
+            "is_fp": true,
+            "top_node": "sdm_query_by_example_validado_datos_reales",
+            "top_score": 0.5330877737844547
+          },
+          {
+            "query": "origen y evolucion de los sistemas planetarios en el universo real",
+            "is_fp": true,
+            "top_node": "principio_señales_distribucionales_vs_especificas",
+            "top_score": 1.3533859489080429
+          },
+          {
+            "query": "el creador de la penicilina y la historia de los antibioticos",
+            "is_fp": true,
+            "top_node": "principio_señales_distribucionales_vs_especificas",
+            "top_score": 1.486810137604162
+          },
+          {
+            "query": "quien_es el personaje de don quijote en la historia universal",
+            "is_fp": true,
+            "top_node": "dennys_perfil_tecnico_consolidado_master",
+            "top_score": 0.5328208251299258
+          },
+          {
+            "query": "la esencia del perfume frances y su origen floral autentico",
+            "is_fp": true,
+            "top_node": "biorag_v18_0_centralizacion_stopwords",
+            "top_score": 1.5943480849165288
+          },
+          {
+            "query": "sistemas digestivos en animales y su origen evolutivo real",
+            "is_fp": true,
+            "top_node": "dennys_component_organization_methodology",
+            "top_score": 0.8117886672461818
+          },
+          {
+            "query": "perfil topografico de las montanas en la historia geologica",
+            "is_fp": true,
+            "top_node": "metodologia_evaluacion_por_tema_paso_a_paso",
+            "top_score": 1.0085570524678418
+          },
+          {
+            "query": "alma gemela en la poesia romantica y la filosofia_vida popular",
+            "is_fp": true,
+            "top_node": "auditoría_técnica:_memorybiorag_(manus_ai)",
+            "top_score": 0.41846280894886584
+          },
+          {
+            "query": "identidad trigonometrica fundamental en sistemas de coordenadas",
+            "is_fp": true,
+            "top_node": "auditoría_técnica:_memorybiorag_(manus_ai)",
+            "top_score": 0.5473152173068409
+          },
+          {
+            "query": "autentico chocolate suizo y la historia de los sistemas de cacao",
+            "is_fp": true,
+            "top_node": "principio_señales_distribucionales_vs_especificas",
+            "top_score": 1.486810137604162
+          },
+          {
+            "query": "puente de brooklyn y la exportar de acero en su construccion",
+            "is_fp": true,
+            "top_node": "auditoría_técnica:_memorybiorag_(manus_ai)",
+            "top_score": 0.5989240532984488
+          },
+          {
+            "query": "sincronizacion de fases en osciladores armonicos de fisica cuantica",
+            "is_fp": false,
+            "top_node": "dictamen_flag_jaccard_baseline_tejedora_941",
+            "top_score": 0.2405385512697315
+          },
+          {
+            "query": "integracion por partes y calculo integral de datos numericos",
+            "is_fp": true,
+            "top_node": "research-pipeline-ownership-oec",
+            "top_score": 1.6292856196240217
+          },
+          {
+            "query": "lecciones de natacion para principiantes en piscina con puente",
+            "is_fp": true,
+            "top_node": "research-pipeline-ownership-oec",
+            "top_score": 1.9012547068301378
+          },
+          {
+            "query": "canal externo de irrigacion para exportar agua a los cultivos",
+            "is_fp": true,
+            "top_node": "research-pipeline-ownership-oec",
+            "top_score": 1.7021882658143523
+          },
+          {
+            "query": "sincronizacion de relojes en la teoria de la relatividad con datos",
+            "is_fp": true,
+            "top_node": "research-pipeline-ownership-oec",
+            "top_score": 1.8481532799667935
+          },
+          {
+            "query": "puente de hidrogeno en la molecula de agua y datos quimicos",
+            "is_fp": true,
+            "top_node": "protocolo-reproducible-ingenieria-inversa-binario-compilado",
+            "top_score": 0.5960193608512363
+          },
+          {
+            "query": "integracion social de especies animales en manadas con lecciones",
+            "is_fp": true,
+            "top_node": "research-pipeline-ownership-oec",
+            "top_score": 1.8925939331142443
+          },
+          {
+            "query": "exportar frutas tropicales y su integracion en el comercio exterior",
+            "is_fp": true,
+            "top_node": "auditoría_técnica:_memorybiorag_(manus_ai)",
+            "top_score": 0.43727854138834615
+          },
+          {
+            "query": "sincronizacion del ritmo cardiaco en atletas y datos medicos",
+            "is_fp": true,
+            "top_node": "athena_arquitectura_memoria_agente_v24_2",
+            "top_score": 1.5492685866918434
+          }
+        ]
+      }
+    },
+    "F2": {
+      "test": {
+        "top5": 0,
+        "top5_pct": 0.0,
+        "top1": 0,
+        "top1_pct": 0.0,
+        "mrr": 0.0,
+        "total": 8,
+        "details": [
+          {
+            "id": "0497",
+            "query": "relevantes biomimética mejor",
+            "expected": "benchmark_antes_despues_fix3",
+            "rank": 0,
+            "in_top5": false,
+            "top1": "reconocimiento_identidad_oraculo_manifiesto",
+            "score_top1": 0.5745701602206531
+          },
+          {
+            "id": "0516",
+            "query": "real más sistemas",
+            "expected": "dennys-identidad-profunda",
+            "rank": 0,
+            "in_top5": false,
+            "top1": "mf_sgns_loss_correcta_kenyon_dean_part2_20260807",
+            "score_top1": 0.8035674652906115
+          },
+          {
+            "id": "0534",
+            "query": "activa largo archivos",
+            "expected": "biorag_v11_1_detalle_tecnico",
+            "rank": 0,
+            "in_top5": false,
+            "top1": "dennys_perfil_tecnico_consolidado_master",
+            "score_top1": 0.5840251762029749
+          },
+          {
+            "id": "0583",
+            "query": "debo biorag preacción",
+            "expected": "identificacion_obligatoria_oraculo_athena",
+            "rank": 0,
+            "in_top5": false,
+            "top1": "research-pipeline-ownership-oec",
+            "score_top1": 1.755083748311546
+          },
+          {
+            "id": "0640",
+            "query": "ráfaga después resultado",
+            "expected": "mentalidad_biorag_para_agentes",
+            "rank": 0,
+            "in_top5": false,
+            "top1": "mf_sgns_loss_correcta_kenyon_dean_part2_20260807",
+            "score_top1": 0.6704133550649721
+          },
+          {
+            "id": "0724",
+            "query": "learning paso regla",
+            "expected": "protocolo_autoinferencia_metacognitiva",
+            "rank": 0,
+            "in_top5": false,
+            "top1": "auditoría_técnica:_memorybiorag_(manus_ai)",
+            "score_top1": 0.7325737241010478
+          },
+          {
+            "id": "0795",
+            "query": "insert storepy comunicadosdestino",
+            "expected": "fix_mensajeria_broadcast_tracking_por_agente",
+            "rank": 0,
+            "in_top5": false,
+            "top1": "auditoría_técnica:_memorybiorag_(manus_ai)",
+            "score_top1": 0.39897252742957645
+          },
+          {
+            "id": "0801",
+            "query": "datos lecciones postsync",
+            "expected": "notebooklm-memory-biorag-project",
+            "rank": 0,
+            "in_top5": false,
+            "top1": "protocolo-reproducible-ingenieria-inversa-binario-compilado",
+            "score_top1": 0.5887459333731944
+          }
+        ]
+      },
+      "transfer": {
+        "top5": 0,
+        "top5_pct": 0.0,
+        "top1": 0,
+        "top1_pct": 0.0,
+        "mrr": 0.0,
+        "total": 8,
+        "details": [
+          {
+            "id": "TRF_01",
+            "query": "evaluacion y metrica de escalabilidad promedio",
+            "expected": "analisis_escalabilidad_10k_v5_1",
+            "rank": 0,
+            "in_top5": false,
+            "top1": "sesion-2026-06-23-ingenieria-inversa-binario-opencode-completa",
+            "score_top1": 0.39299311069974513
+          },
+          {
+            "id": "TRF_02",
+            "query": "regla de guardado automatico obligatorio",
+            "expected": "guardado_automatico_caso_b",
+            "rank": 0,
+            "in_top5": false,
+            "top1": "auditoría_técnica:_memorybiorag_(manus_ai)",
+            "score_top1": 0.7196633163813021
+          },
+          {
+            "id": "TRF_03",
+            "query": "sesion de refactorizacion visor markdown cambios",
+            "expected": "visor-markdown-refactorizacion-sesion-2026-06-08",
+            "rank": 0,
+            "in_top5": false,
+            "top1": "protocolo-reproducible-ingenieria-inversa-binario-compilado",
+            "score_top1": 0.4475933924190612
+          },
+          {
+            "id": "TRF_04",
+            "query": "principio de pragmatismo contextual mentalidad",
+            "expected": "principio_pragmatismo_contextual",
+            "rank": 0,
+            "in_top5": false,
+            "top1": "notebooklm-sync-protocol",
+            "score_top1": 0.6285214860644773
+          },
+          {
+            "id": "TRF_05",
+            "query": "perfil de identidad completo de dennys",
+            "expected": "identidad_dennys_perfil_completo",
+            "rank": 0,
+            "in_top5": false,
+            "top1": "inteligencia_emocional_agente_vs_humano",
+            "score_top1": 1.1764247371123495
+          },
+          {
+            "id": "TRF_06",
+            "query": "protocolo de sincronizacion de fuentes notebooklm sync",
+            "expected": "notebooklm-sync-protocol",
+            "rank": 0,
+            "in_top5": false,
+            "top1": "athena_oec_identidad",
+            "score_top1": 0.405299602223585
+          },
+          {
+            "id": "TRF_07",
+            "query": "declaracion fundacional alma de athena perfil",
+            "expected": "athena_alma",
+            "rank": 0,
+            "in_top5": false,
+            "top1": "athena_oec",
+            "score_top1": 2.1448023764761937
+          },
+          {
+            "id": "TRF_08",
+            "query": "lecciones aprendidas de sincronismo externo sync",
+            "expected": "notebooklm-sync-lecciones",
+            "rank": 0,
+            "in_top5": false,
+            "top1": "auditoría_técnica:_memorybiorag_(manus_ai)",
+            "score_top1": 0.6133648718122172
+          }
+        ]
+      },
+      "paraphrases": {
+        "top5": 0,
+        "top5_pct": 0.0,
+        "top1": 0,
+        "top1_pct": 0.0,
+        "mrr": 0.0,
+        "total": 8,
+        "details": [
+          {
+            "id": "PRF_01",
+            "query": "medicion de rendimiento previo y posterior benchmark",
+            "expected": "benchmark_antes_despues_fix3",
+            "rank": 0,
+            "in_top5": false,
+            "top1": "auditoría_técnica:_memorybiorag_(manus_ai)",
+            "score_top1": 0.5317999890435844
+          },
+          {
+            "id": "PRF_02",
+            "query": "esencia perfil real del creador",
+            "expected": "dennys-identidad-profunda",
+            "rank": 0,
+            "in_top5": false,
+            "top1": "biorag_v18_0_centralizacion_stopwords",
+            "score_top1": 1.5721843857457216
+          },
+          {
+            "id": "PRF_03",
+            "query": "especificacion tecnica detalle persistencia archivos",
+            "expected": "biorag_v11_1_detalle_tecnico",
+            "rank": 0,
+            "in_top5": false,
+            "top1": "dennys_perfil_tecnico_consolidado_master",
+            "score_top1": 0.568216490576102
+          },
+          {
+            "id": "PRF_04",
+            "query": "obligacion mandatoria regla antes_de consultar",
+            "expected": "identificacion_obligatoria_oraculo_athena",
+            "rank": 0,
+            "in_top5": false,
+            "top1": "auditoría_técnica:_memorybiorag_(manus_ai)",
+            "score_top1": 0.7414304656323573
+          },
+          {
+            "id": "PRF_05",
+            "query": "modo de razonamiento mentalidad como_pensar uso",
+            "expected": "mentalidad_biorag_para_agentes",
+            "rank": 0,
+            "in_top5": false,
+            "top1": "protocolo-reproducible-ingenieria-inversa-binario-compilado",
+            "score_top1": 0.4460817468022435
+          },
+          {
+            "id": "PRF_06",
+            "query": "regla procedimiento pasos auto_pregunta",
+            "expected": "protocolo_autoinferencia_metacognitiva",
+            "rank": 0,
+            "in_top5": false,
+            "top1": "auditoría_técnica:_memorybiorag_(manus_ai)",
+            "score_top1": 0.7261663846482408
+          },
+          {
+            "id": "PRF_07",
+            "query": "parche fix broadcast tabla comunicacion",
+            "expected": "fix_mensajeria_broadcast_tracking_por_agente",
+            "rank": 0,
+            "in_top5": false,
+            "top1": "auditoría_técnica:_memorybiorag_(manus_ai)",
+            "score_top1": 0.6669282899945171
+          },
+          {
+            "id": "PRF_08",
+            "query": "sincronizacion lecciones sync integracion",
+            "expected": "notebooklm-memory-biorag-project",
+            "rank": 0,
+            "in_top5": false,
+            "top1": "dennys_perfil_tecnico_consolidado_master",
+            "score_top1": 0.45616676776219156
+          }
+        ]
+      },
+      "corpus_shift": {
+        "top5": 0,
+        "top5_pct": 0.0,
+        "top1": 0,
+        "top1_pct": 0.0,
+        "mrr": 0.0,
+        "total": 6,
+        "details": [
+          {
+            "id": "CS_01",
+            "query": "estudio empirico de aceleracion y tasa de latencia",
+            "expected": "benchmark_antes_despues_fix3",
+            "rank": 0,
+            "in_top5": false,
+            "top1": "sesion-2026-06-23-ingenieria-inversa-binario-opencode-completa",
+            "score_top1": 0.3560940085414211
+          },
+          {
+            "id": "CS_02",
+            "query": "mandato mandatorio preliminar al acceso de memoria",
+            "expected": "identificacion_obligatoria_oraculo_athena",
+            "rank": 0,
+            "in_top5": false,
+            "top1": "protocolo_autoinferencia_metacognitiva",
+            "score_top1": 0.6739997825996012
+          },
+          {
+            "id": "CS_03",
+            "query": "parche de subsanacion de anomalia en difusion de paquetes",
+            "expected": "fix_mensajeria_broadcast_tracking_por_agente",
+            "rank": 0,
+            "in_top5": false,
+            "top1": "dennys_perfil_tecnico_consolidado_master",
+            "score_top1": 0.38308513258617627
+          },
+          {
+            "id": "CS_04",
+            "query": "doctrina y concepcion epistemologica sobre utilizacion de recuerdos",
+            "expected": "mentalidad_biorag_para_agentes",
+            "rank": 0,
+            "in_top5": false,
+            "top1": "vida_laboral_completa_dennys",
+            "score_top1": 0.7702723354328416
+          },
+          {
+            "id": "CS_05",
+            "query": "biografia ontologica del artifice de la plataforma",
+            "expected": "dennys-identidad-profunda",
+            "rank": 0,
+            "in_top5": false,
+            "top1": "biorag_v18_0_centralizacion_stopwords",
+            "score_top1": 1.6908194974558184
+          },
+          {
+            "id": "CS_06",
+            "query": "puente de exportacion bidireccional hacia repositorio remoto",
+            "expected": "notebooklm-memory-biorag-project",
+            "rank": 0,
+            "in_top5": false,
+            "top1": "dennys_perfil_tecnico_consolidado_master",
+            "score_top1": 0.3944743171732703
+          }
+        ]
+      },
+      "hard_negatives": {
+        "fp_count": 58,
+        "fp_rate_pct": 96.66666666666667,
+        "total": 60,
+        "details": [
+          {
+            "query": "como lograr mejor velocidad al escribir codigo en react",
+            "is_fp": true,
+            "top_node": "notebooklm-sync-protocol",
+            "top_score": 1.016978269917701
+          },
+          {
+            "query": "antes y despues de la toma de decisiones filosoficas",
+            "is_fp": true,
+            "top_node": "biorag_v18_1_timezone_fix_ux_warning",
+            "top_score": 0.6647561439001651
+          },
+          {
+            "query": "el promedio de horas antes de descansar en la rutina diaria",
+            "is_fp": true,
+            "top_node": "plugin-openode-biorag-remember-v9-final-lecciones-sesion-completa",
+            "top_score": 0.7394697170107102
+          },
+          {
+            "query": "evaluacion cualitativa de la confianza entre humanos y agentes",
+            "is_fp": true,
+            "top_node": "mf_sgns_loss_correcta_kenyon_dean_part2_20260807",
+            "top_score": 0.6783314692530665
+          },
+          {
+            "query": "la mejor forma de expresar gratitud despues de una sesion",
+            "is_fp": true,
+            "top_node": "fca_chequeo_sugeridor_dimensiones_refutado_frecuencia_no_semantica",
+            "top_score": 0.7442352786457364
+          },
+          {
+            "query": "medicion del impacto emocional antes del cambio de rol",
+            "is_fp": true,
+            "top_node": "athena_arquitectura_memoria_agente_v24_2",
+            "top_score": 1.4536987971511548
+          },
+          {
+            "query": "comparativa de estilos de liderazgo antes de 2026",
+            "is_fp": true,
+            "top_node": "research-pipeline-ownership-oec",
+            "top_score": 1.6648910784591022
+          },
+          {
+            "query": "rendimiento cognitivo en estados de sueno y reflexion",
+            "is_fp": true,
+            "top_node": "notebooklm-sync-protocol",
+            "top_score": 0.4002471757834717
+          },
+          {
+            "query": "rapidez de respuesta frente a dilemas eticos y mejor conducta",
+            "is_fp": true,
+            "top_node": "reconocimiento_identidad_oraculo_manifiesto",
+            "top_score": 0.5955045692706297
+          },
+          {
+            "query": "metrica subjetiva de la lealtad y el mejor companero",
+            "is_fp": true,
+            "top_node": "protocolo_autoinferencia_metacognitiva",
+            "top_score": 0.5207430067432047
+          },
+          {
+            "query": "debo admitir que cada paso en la vida ensena algo",
+            "is_fp": true,
+            "top_node": "biorag_v18_0_estado",
+            "top_score": 1.5553274516580666
+          },
+          {
+            "query": "la regla de tres en el diseno estetico visual paso a paso",
+            "is_fp": true,
+            "top_node": "auditoría_técnica:_memorybiorag_(manus_ai)",
+            "top_score": 0.7459195042441905
+          },
+          {
+            "query": "un procedimiento de respiracion antes_de meditar profundamente",
+            "is_fp": false,
+            "top_node": "patron_pensamiento_lateral_antes_de_proponer",
+            "top_score": 0.25352651793416453
+          },
+          {
+            "query": "instruccion no mandatoria sobre como redactar poesia sintetica",
+            "is_fp": true,
+            "top_node": "dashboard_neuro_visor_estado_implementacion_julio_2026",
+            "top_score": 1.0215125165085688
+          },
+          {
+            "query": "la norma social de saludar antes_de iniciar un debate informal",
+            "is_fp": true,
+            "top_node": "auditoría_técnica:_memorybiorag_(manus_ai)",
+            "top_score": 0.5947245644738576
+          },
+          {
+            "query": "debo reconocer el paso del tiempo en la arquitectura antigua",
+            "is_fp": true,
+            "top_node": "boost_dimensional_toco_techo_discriminacion_evidencia",
+            "top_score": 1.5688238362727092
+          },
+          {
+            "query": "cada regla gramatical tiene una excepcion en el lenguaje vivo",
+            "is_fp": true,
+            "top_node": "biorag_v16_0_estado",
+            "top_score": 0.7908457064126394
+          },
+          {
+            "query": "el protocolo diplomático de las dinastias del siglo diecinueve",
+            "is_fp": true,
+            "top_node": "lesson_dashboard_radix_patterns",
+            "top_score": 1.6135673351740505
+          },
+          {
+            "query": "un paso obligatorio en el ciclo del agua en la naturaleza",
+            "is_fp": true,
+            "top_node": "lesson_dashboard_radix_patterns",
+            "top_score": 1.6074072063429121
+          },
+          {
+            "query": "instruccion basica para afinar una guitarra paso a paso",
+            "is_fp": true,
+            "top_node": "biorag_v18_0_centralizacion_stopwords",
+            "top_score": 1.6006358564687428
+          },
+          {
+            "query": "la persistencia de la memoria en el cuadro de salvador dali al detalle",
+            "is_fp": true,
+            "top_node": "protocolo_autoinferencia_metacognitiva",
+            "top_score": 0.6827196978074388
+          },
+          {
+            "query": "arquitectura gotica y la estructura de columnas en catedrales",
+            "is_fp": true,
+            "top_node": "caso_formularios_anidados_angular",
+            "top_score": 0.5915640578382376
+          },
+          {
+            "query": "tabla periodica de los elementos quimicos en su version extendida",
+            "is_fp": true,
+            "top_node": "oracle_guia_proxima_sesion_dennys",
+            "top_score": 1.5543904009538678
+          },
+          {
+            "query": "un parche en el ojo en la cultura popular de piratas con detalle",
+            "is_fp": true,
+            "top_node": "research-pipeline-ownership-oec",
+            "top_score": 1.995170938699898
+          },
+          {
+            "query": "el disco solar en la mitologia egipcia y su version teologica",
+            "is_fp": true,
+            "top_node": "notebooklm-sync-protocol",
+            "top_score": 0.46151051504981216
+          },
+          {
+            "query": "un bug biologico o mutacion genetica en insectos con detalle",
+            "is_fp": true,
+            "top_node": "research-pipeline-ownership-oec",
+            "top_score": 2.0510029734354953
+          },
+          {
+            "query": "archivos secretos de la guerra fria y la persistencia historica",
+            "is_fp": true,
+            "top_node": "auditoría_técnica:_memorybiorag_(manus_ai)",
+            "top_score": 0.6412169879285271
+          },
+          {
+            "query": "una columna de opinion periodistica sobre la nueva version musical",
+            "is_fp": true,
+            "top_node": "lectura_levy_goldberg_y_superlinear_part1_20260807",
+            "top_score": 0.8431321500571359
+          },
+          {
+            "query": "detalle tecnico de la elaboracion artesanal de cafe en grano",
+            "is_fp": true,
+            "top_node": "auditoría_técnica:_memorybiorag_(manus_ai)",
+            "top_score": 0.5126583384783099
+          },
+          {
+            "query": "insert en la narrativa literaria para alterar el tiempo tecnico",
+            "is_fp": true,
+            "top_node": "research-pipeline-ownership-oec",
+            "top_score": 1.837476847975338
+          },
+          {
+            "query": "el resultado de la division por cero despues de calcular",
+            "is_fp": true,
+            "top_node": "research-pipeline-ownership-oec",
+            "top_score": 1.7628048764238895
+          },
+          {
+            "query": "leccion de botanica sobre el uso de fertilizantes en plantas",
+            "is_fp": true,
+            "top_node": "vida_laboral_completa_dennys",
+            "top_score": 0.7971729665987989
+          },
+          {
+            "query": "principio activo de la aspirina y su modo de accion quimico",
+            "is_fp": true,
+            "top_node": "leccion_desvincular_falsos_positivos_sinapticos",
+            "top_score": 0.5842894930322561
+          },
+          {
+            "query": "vision nocturna en felinos y el modo de caceria en la selva",
+            "is_fp": true,
+            "top_node": "auditoría_técnica:_memorybiorag_(manus_ai)",
+            "top_score": 0.5965415173695314
+          },
+          {
+            "query": "filosofia antigua sobre el atomo antes y despues de democrito",
+            "is_fp": true,
+            "top_node": "vida_laboral_completa_dennys",
+            "top_score": 0.7905732513450762
+          },
+          {
+            "query": "razonamiento deductivo en acertijos matematicos con resultado directo",
+            "is_fp": true,
+            "top_node": "research-pipeline-ownership-oec",
+            "top_score": 1.9013230789117497
+          },
+          {
+            "query": "modo de uso del control remoto y resultado al cambiar canal",
+            "is_fp": true,
+            "top_node": "dashboard_neuro_visor_toolbar_fusionar_2026_07_18",
+            "top_score": 1.5438727363203022
+          },
+          {
+            "query": "enfoque de camara fotografica para obtener mejor vision de campo",
+            "is_fp": true,
+            "top_node": "research-pipeline-ownership-oec",
+            "top_score": 1.8288565889795887
+          },
+          {
+            "query": "leccion de cocina sobre el resultado de hornear despues de fermentar",
+            "is_fp": true,
+            "top_node": "vida_laboral_completa_dennys",
+            "top_score": 0.7944670242687477
+          },
+          {
+            "query": "pensar rapido y lento en las ilusiones opticas de vision",
+            "is_fp": true,
+            "top_node": "instalacion_ui_ux_pro_max_skills_20260803",
+            "top_score": 1.0452613017257415
+          },
+          {
+            "query": "sistemas de identidad federada oauth y tokens jwt en servidores",
+            "is_fp": true,
+            "top_node": "sdm_query_by_example_validado_datos_reales",
+            "top_score": 0.5439632944774865
+          },
+          {
+            "query": "origen y evolucion de los sistemas planetarios en el universo real",
+            "is_fp": true,
+            "top_node": "dns_optimizer_kill_feature",
+            "top_score": 1.4310590250526805
+          },
+          {
+            "query": "el creador de la penicilina y la historia de los antibioticos",
+            "is_fp": true,
+            "top_node": "oracle_guia_proxima_sesion_dennys",
+            "top_score": 1.5661845367409448
+          },
+          {
+            "query": "quien_es el personaje de don quijote en la historia universal",
+            "is_fp": true,
+            "top_node": "dennys_perfil_tecnico_consolidado_master",
+            "top_score": 0.532684676536414
+          },
+          {
+            "query": "la esencia del perfume frances y su origen floral autentico",
+            "is_fp": true,
+            "top_node": "biorag_v18_0_centralizacion_stopwords",
+            "top_score": 1.6908194974558184
+          },
+          {
+            "query": "sistemas digestivos en animales y su origen evolutivo real",
+            "is_fp": true,
+            "top_node": "mf_sgns_loss_correcta_kenyon_dean_part2_20260807",
+            "top_score": 0.8401437608947395
+          },
+          {
+            "query": "perfil topografico de las montanas en la historia geologica",
+            "is_fp": true,
+            "top_node": "instalacion_ui_ux_pro_max_skills_20260803",
+            "top_score": 1.0452613017257415
+          },
+          {
+            "query": "alma gemela en la poesia romantica y la filosofia_vida popular",
+            "is_fp": true,
+            "top_node": "auditoría_técnica:_memorybiorag_(manus_ai)",
+            "top_score": 0.41846280894886584
+          },
+          {
+            "query": "identidad trigonometrica fundamental en sistemas de coordenadas",
+            "is_fp": true,
+            "top_node": "auditoría_técnica:_memorybiorag_(manus_ai)",
+            "top_score": 0.5509314472758656
+          },
+          {
+            "query": "autentico chocolate suizo y la historia de los sistemas de cacao",
+            "is_fp": true,
+            "top_node": "boost_dimensional_toco_techo_discriminacion_evidencia",
+            "top_score": 1.5053787022058143
+          },
+          {
+            "query": "puente de brooklyn y la exportar de acero en su construccion",
+            "is_fp": true,
+            "top_node": "auditoría_técnica:_memorybiorag_(manus_ai)",
+            "top_score": 0.6013643844979407
+          },
+          {
+            "query": "sincronizacion de fases en osciladores armonicos de fisica cuantica",
+            "is_fp": false,
+            "top_node": "dictamen_flag_jaccard_baseline_tejedora_941",
+            "top_score": 0.2432056096070175
+          },
+          {
+            "query": "integracion por partes y calculo integral de datos numericos",
+            "is_fp": true,
+            "top_node": "research-pipeline-ownership-oec",
+            "top_score": 1.7393214360521239
+          },
+          {
+            "query": "lecciones de natacion para principiantes en piscina con puente",
+            "is_fp": true,
+            "top_node": "research-pipeline-ownership-oec",
+            "top_score": 2.0281833849842927
+          },
+          {
+            "query": "canal externo de irrigacion para exportar agua a los cultivos",
+            "is_fp": true,
+            "top_node": "research-pipeline-ownership-oec",
+            "top_score": 1.8200808646832713
+          },
+          {
+            "query": "sincronizacion de relojes en la teoria de la relatividad con datos",
+            "is_fp": true,
+            "top_node": "research-pipeline-ownership-oec",
+            "top_score": 1.9779470422647059
+          },
+          {
+            "query": "puente de hidrogeno en la molecula de agua y datos quimicos",
+            "is_fp": true,
+            "top_node": "protocolo-reproducible-ingenieria-inversa-binario-compilado",
+            "top_score": 0.6014901474220883
+          },
+          {
+            "query": "integracion social de especies animales en manadas con lecciones",
+            "is_fp": true,
+            "top_node": "research-pipeline-ownership-oec",
+            "top_score": 2.029908428120361
+          },
+          {
+            "query": "exportar frutas tropicales y su integracion en el comercio exterior",
+            "is_fp": true,
+            "top_node": "auditoría_técnica:_memorybiorag_(manus_ai)",
+            "top_score": 0.43727854138834615
+          },
+          {
+            "query": "sincronizacion del ritmo cardiaco en atletas y datos medicos",
+            "is_fp": true,
+            "top_node": "artisan-origen-simbiotico",
+            "top_score": 1.5366226428449783
+          }
+        ]
+      }
+    },
+    "F3": {
+      "test": {
+        "top5": 2,
+        "top5_pct": 25.0,
+        "top1": 1,
+        "top1_pct": 12.5,
+        "mrr": 0.1875,
+        "total": 8,
+        "details": [
+          {
+            "id": "0497",
+            "query": "relevantes biomimética mejor",
+            "expected": "benchmark_antes_despues_fix3",
+            "rank": 0,
+            "in_top5": false,
+            "top1": "benchmark_sinonimo_integrado",
+            "score_top1": 0.7177372499138907
+          },
+          {
+            "id": "0516",
+            "query": "real más sistemas",
+            "expected": "dennys-identidad-profunda",
+            "rank": 0,
+            "in_top5": false,
+            "top1": "filosofia_identidad_vida_dennys_20260624",
+            "score_top1": 1.266706603722507
+          },
+          {
+            "id": "0534",
+            "query": "activa largo archivos",
+            "expected": "biorag_v11_1_detalle_tecnico",
+            "rank": 1,
+            "in_top5": true,
+            "top1": "biorag_v11_1_detalle_tecnico",
+            "score_top1": 0.38941624615211534
+          },
+          {
+            "id": "0583",
+            "query": "debo biorag preacción",
+            "expected": "identificacion_obligatoria_oraculo_athena",
+            "rank": 0,
+            "in_top5": false,
+            "top1": "norma_atribucion_autoria_memoria_compartida_oec",
+            "score_top1": 2.76639366769931
+          },
+          {
+            "id": "0640",
+            "query": "ráfaga después resultado",
+            "expected": "mentalidad_biorag_para_agentes",
+            "rank": 0,
+            "in_top5": false,
+            "top1": "biorag_v16_0_estado",
+            "score_top1": 0.5491633008365985
+          },
+          {
+            "id": "0724",
+            "query": "learning paso regla",
+            "expected": "protocolo_autoinferencia_metacognitiva",
+            "rank": 0,
+            "in_top5": false,
+            "top1": "protocolo_no_monolith_css_compartido",
+            "score_top1": 0.8715822873360592
+          },
+          {
+            "id": "0795",
+            "query": "insert storepy comunicadosdestino",
+            "expected": "fix_mensajeria_broadcast_tracking_por_agente",
+            "rank": 0,
+            "in_top5": false,
+            "top1": "auditoría_técnica:_memorybiorag_(manus_ai)",
+            "score_top1": 0.19948626371478823
+          },
+          {
+            "id": "0801",
+            "query": "datos lecciones postsync",
+            "expected": "notebooklm-memory-biorag-project",
+            "rank": 2,
+            "in_top5": true,
+            "top1": "notebooklm-sync-protocol",
+            "score_top1": 0.5816639040826338
+          }
+        ]
+      },
+      "transfer": {
+        "top5": 1,
+        "top5_pct": 12.5,
+        "top1": 0,
+        "top1_pct": 0.0,
+        "mrr": 0.025,
+        "total": 8,
+        "details": [
+          {
+            "id": "TRF_01",
+            "query": "evaluacion y metrica de escalabilidad promedio",
+            "expected": "analisis_escalabilidad_10k_v5_1",
+            "rank": 5,
+            "in_top5": true,
+            "top1": "evaluacion_ideas_evolucion_20260805_interferencia_agujeros_permutacion",
+            "score_top1": 0.5275190500304642
+          },
+          {
+            "id": "TRF_02",
+            "query": "regla de guardado automatico obligatorio",
+            "expected": "guardado_automatico_caso_b",
+            "rank": 0,
+            "in_top5": false,
+            "top1": "protocolo-reproducible-ingenieria-inversa-binario-compilado",
+            "score_top1": 1.162033222258633
+          },
+          {
+            "id": "TRF_03",
+            "query": "sesion de refactorizacion visor markdown cambios",
+            "expected": "visor-markdown-refactorizacion-sesion-2026-06-08",
+            "rank": 0,
+            "in_top5": false,
+            "top1": "notebooklm-sync-lecciones",
+            "score_top1": 0.2330243386665251
+          },
+          {
+            "id": "TRF_04",
+            "query": "principio de pragmatismo contextual mentalidad",
+            "expected": "principio_pragmatismo_contextual",
+            "rank": 0,
+            "in_top5": false,
+            "top1": "artemis_sesion_v10_3_optimizacion_completa",
+            "score_top1": 0.3294585009967222
+          },
+          {
+            "id": "TRF_05",
+            "query": "perfil de identidad completo de dennys",
+            "expected": "identidad_dennys_perfil_completo",
+            "rank": 0,
+            "in_top5": false,
+            "top1": "dennys_rutina_tardes",
+            "score_top1": 1.8330387246534805
+          },
+          {
+            "id": "TRF_06",
+            "query": "protocolo de sincronizacion de fuentes notebooklm sync",
+            "expected": "notebooklm-sync-protocol",
+            "rank": 0,
+            "in_top5": false,
+            "top1": "protocolo-reproducible-ingenieria-inversa-binario-compilado",
+            "score_top1": 0.6562995260358693
+          },
+          {
+            "id": "TRF_07",
+            "query": "declaracion fundacional alma de athena perfil",
+            "expected": "athena_alma",
+            "rank": 0,
+            "in_top5": false,
+            "top1": "alguien_vs_algo_identidad",
+            "score_top1": 4.151458576962232
+          },
+          {
+            "id": "TRF_08",
+            "query": "lecciones aprendidas de sincronismo externo sync",
+            "expected": "notebooklm-sync-lecciones",
+            "rank": 0,
+            "in_top5": false,
+            "top1": "notebooklm-category-map",
+            "score_top1": 0.7217868303175753
+          }
+        ]
+      },
+      "paraphrases": {
+        "top5": 2,
+        "top5_pct": 25.0,
+        "top1": 1,
+        "top1_pct": 12.5,
+        "mrr": 0.15,
+        "total": 8,
+        "details": [
+          {
+            "id": "PRF_01",
+            "query": "medicion de rendimiento previo y posterior benchmark",
+            "expected": "benchmark_antes_despues_fix3",
+            "rank": 0,
+            "in_top5": false,
+            "top1": "protocolo_prueba_poda_copia_antes_produccion",
+            "score_top1": 0.44001315129213436
+          },
+          {
+            "id": "PRF_02",
+            "query": "esencia perfil real del creador",
+            "expected": "dennys-identidad-profunda",
+            "rank": 0,
+            "in_top5": false,
+            "top1": "system-prompt-identidad-tono-importa",
+            "score_top1": 2.437062337512318
+          },
+          {
+            "id": "PRF_03",
+            "query": "especificacion tecnica detalle persistencia archivos",
+            "expected": "biorag_v11_1_detalle_tecnico",
+            "rank": 1,
+            "in_top5": true,
+            "top1": "biorag_v11_1_detalle_tecnico",
+            "score_top1": 0.2951443609295319
+          },
+          {
+            "id": "PRF_04",
+            "query": "obligacion mandatoria regla antes_de consultar",
+            "expected": "identificacion_obligatoria_oraculo_athena",
+            "rank": 0,
+            "in_top5": false,
+            "top1": "protocolo-reproducible-ingenieria-inversa-binario-compilado",
+            "score_top1": 1.172069582681911
+          },
+          {
+            "id": "PRF_05",
+            "query": "modo de razonamiento mentalidad como_pensar uso",
+            "expected": "mentalidad_biorag_para_agentes",
+            "rank": 0,
+            "in_top5": false,
+            "top1": "protocolo-reproducible-ingenieria-inversa-binario-compilado",
+            "score_top1": 0.24568253804473608
+          },
+          {
+            "id": "PRF_06",
+            "query": "regla procedimiento pasos auto_pregunta",
+            "expected": "protocolo_autoinferencia_metacognitiva",
+            "rank": 0,
+            "in_top5": false,
+            "top1": "protocolo-reproducible-ingenieria-inversa-binario-compilado",
+            "score_top1": 1.1596913332287446
+          },
+          {
+            "id": "PRF_07",
+            "query": "parche fix broadcast tabla comunicacion",
+            "expected": "fix_mensajeria_broadcast_tracking_por_agente",
+            "rank": 0,
+            "in_top5": false,
+            "top1": "fix_scoring_densidad_buscar_por_rafaga_v10.3",
+            "score_top1": 0.6182156096478894
+          },
+          {
+            "id": "PRF_08",
+            "query": "sincronizacion lecciones sync integracion",
+            "expected": "notebooklm-memory-biorag-project",
+            "rank": 5,
+            "in_top5": true,
+            "top1": "notebooklm-category-map",
+            "score_top1": 0.7217868303175753
+          }
+        ]
+      },
+      "corpus_shift": {
+        "top5": 1,
+        "top5_pct": 16.666666666666664,
+        "top1": 0,
+        "top1_pct": 0.0,
+        "mrr": 0.08333333333333333,
+        "total": 6,
+        "details": [
+          {
+            "id": "CS_01",
+            "query": "estudio empirico de aceleracion y tasa de latencia",
+            "expected": "benchmark_antes_despues_fix3",
+            "rank": 0,
+            "in_top5": false,
+            "top1": "sesion-2026-06-23-ingenieria-inversa-binario-opencode-completa",
+            "score_top1": 0.17804700427071055
+          },
+          {
+            "id": "CS_02",
+            "query": "mandato mandatorio preliminar al acceso de memoria",
+            "expected": "identificacion_obligatoria_oraculo_athena",
+            "rank": 0,
+            "in_top5": false,
+            "top1": "protocolo_autoinferencia_metacognitiva",
+            "score_top1": 1.245668086485424
+          },
+          {
+            "id": "CS_03",
+            "query": "parche de subsanacion de anomalia en difusion de paquetes",
+            "expected": "fix_mensajeria_broadcast_tracking_por_agente",
+            "rank": 0,
+            "in_top5": false,
+            "top1": "dennys_perfil_tecnico_consolidado_master",
+            "score_top1": 0.19099585131684405
+          },
+          {
+            "id": "CS_04",
+            "query": "doctrina y concepcion epistemologica sobre utilizacion de recuerdos",
+            "expected": "mentalidad_biorag_para_agentes",
+            "rank": 0,
+            "in_top5": false,
+            "top1": "v23_1_release_predicados_srl_feedback_graph_learning",
+            "score_top1": 0.4553127901321734
+          },
+          {
+            "id": "CS_05",
+            "query": "biografia ontologica del artifice de la plataforma",
+            "expected": "dennys-identidad-profunda",
+            "rank": 0,
+            "in_top5": false,
+            "top1": "identidad_resistente_posesion",
+            "score_top1": 2.8495842925245545
+          },
+          {
+            "id": "CS_06",
+            "query": "puente de exportacion bidireccional hacia repositorio remoto",
+            "expected": "notebooklm-memory-biorag-project",
+            "rank": 2,
+            "in_top5": true,
+            "top1": "notebooklm-sync-protocol",
+            "score_top1": 0.5545009881481368
+          }
+        ]
+      },
+      "hard_negatives": {
+        "fp_count": 52,
+        "fp_rate_pct": 86.66666666666667,
+        "total": 60,
+        "details": [
+          {
+            "query": "como lograr mejor velocidad al escribir codigo en react",
+            "is_fp": true,
+            "top_node": "evaluacion_ideas_evolucion_20260805_interferencia_agujeros_permutacion",
+            "top_score": 1.5493477788280314
+          },
+          {
+            "query": "antes y despues de la toma de decisiones filosoficas",
+            "is_fp": true,
+            "top_node": "protocolo_no_monolith_css_compartido",
+            "top_score": 1.1074207198942176
+          },
+          {
+            "query": "el promedio de horas antes de descansar en la rutina diaria",
+            "is_fp": true,
+            "top_node": "protocolo_no_monolith_css_compartido",
+            "top_score": 1.1074207198942176
+          },
+          {
+            "query": "evaluacion cualitativa de la confianza entre humanos y agentes",
+            "is_fp": true,
+            "top_node": "evaluacion_reviews_externos_biorag",
+            "top_score": 0.41239847815366587
+          },
+          {
+            "query": "la mejor forma de expresar gratitud despues de una sesion",
+            "is_fp": true,
+            "top_node": "evaluacion_ideas_evolucion_20260805_interferencia_agujeros_permutacion",
+            "top_score": 1.2562320676375127
+          },
+          {
+            "query": "medicion del impacto emocional antes del cambio de rol",
+            "is_fp": true,
+            "top_node": "regla_firma_autoria_memoria",
+            "top_score": 2.8395306095031327
+          },
+          {
+            "query": "comparativa de estilos de liderazgo antes de 2026",
+            "is_fp": true,
+            "top_node": "protocolo_resolucion_incertidumbre_agente",
+            "top_score": 2.814997689374936
+          },
+          {
+            "query": "rendimiento cognitivo en estados de sueno y reflexion",
+            "is_fp": true,
+            "top_node": "analisis_escalabilidad_10k_v5_1",
+            "top_score": 0.40588472887815075
+          },
+          {
+            "query": "rapidez de respuesta frente a dilemas eticos y mejor conducta",
+            "is_fp": true,
+            "top_node": "benchmark_sinonimo_integrado",
+            "top_score": 0.7177372499138907
+          },
+          {
+            "query": "metrica subjetiva de la lealtad y el mejor companero",
+            "is_fp": true,
+            "top_node": "benchmark_sinonimo_integrado",
+            "top_score": 0.7177372499138907
+          },
+          {
+            "query": "debo admitir que cada paso en la vida ensena algo",
+            "is_fp": true,
+            "top_node": "protocolo_verificacion_preaccion_dinamico",
+            "top_score": 2.2904090575671585
+          },
+          {
+            "query": "la regla de tres en el diseno estetico visual paso a paso",
+            "is_fp": true,
+            "top_node": "protocolo_no_monolith_css_compartido",
+            "top_score": 0.8709115225111936
+          },
+          {
+            "query": "un procedimiento de respiracion antes_de meditar profundamente",
+            "is_fp": false,
+            "top_node": "regla_verificar_codigo_real_antes_de_diagnostico",
+            "top_score": 0.35880418000860637
+          },
+          {
+            "query": "instruccion no mandatoria sobre como redactar poesia sintetica",
+            "is_fp": true,
+            "top_node": "protocolo_resolucion_incertidumbre_agente",
+            "top_score": 1.7485408189364566
+          },
+          {
+            "query": "la norma social de saludar antes_de iniciar un debate informal",
+            "is_fp": true,
+            "top_node": "integracion_parafrasis_rafaga_obligatoria_v11_3",
+            "top_score": 0.5206039928404889
+          },
+          {
+            "query": "debo reconocer el paso del tiempo en la arquitectura antigua",
+            "is_fp": true,
+            "top_node": "regla_firma_autoria_memoria",
+            "top_score": 2.8720179626637647
+          },
+          {
+            "query": "cada regla gramatical tiene una excepcion en el lenguaje vivo",
+            "is_fp": true,
+            "top_node": "protocolo_avance_autonomo_validacion_auditor_externo_athena_metodología",
+            "top_score": 1.192835849866533
+          },
+          {
+            "query": "el protocolo diplomático de las dinastias del siglo diecinueve",
+            "is_fp": true,
+            "top_node": "regla_firma_autoria_memoria",
+            "top_score": 2.8004310115571833
+          },
+          {
+            "query": "un paso obligatorio en el ciclo del agua en la naturaleza",
+            "is_fp": true,
+            "top_node": "regla_firma_autoria_memoria",
+            "top_score": 2.837106281669676
+          },
+          {
+            "query": "instruccion basica para afinar una guitarra paso a paso",
+            "is_fp": true,
+            "top_node": "dns_optimizer_kill_feature",
+            "top_score": 1.4742761591584417
+          },
+          {
+            "query": "la persistencia de la memoria en el cuadro de salvador dali al detalle",
+            "is_fp": true,
+            "top_node": "biorag_v11_1_detalle_tecnico",
+            "top_score": 0.43994426046013746
+          },
+          {
+            "query": "arquitectura gotica y la estructura de columnas en catedrales",
+            "is_fp": false,
+            "top_node": "teoria_ejes_semanticos_biorag",
+            "top_score": 0.2960959288441497
+          },
+          {
+            "query": "tabla periodica de los elementos quimicos en su version extendida",
+            "is_fp": true,
+            "top_node": "oracle_guia_proxima_sesion_dennys",
+            "top_score": 1.0611500689874314
+          },
+          {
+            "query": "un parche en el ojo en la cultura popular de piratas con detalle",
+            "is_fp": true,
+            "top_node": "fix_scoring_densidad_buscar_por_rafaga_v10.3",
+            "top_score": 3.5120785633742564
+          },
+          {
+            "query": "el disco solar en la mitologia egipcia y su version teologica",
+            "is_fp": false,
+            "top_node": "notebooklm-sync-protocol",
+            "top_score": 0.22713835389715373
+          },
+          {
+            "query": "un bug biologico o mutacion genetica en insectos con detalle",
+            "is_fp": true,
+            "top_node": "fix_scoring_densidad_buscar_por_rafaga_v10.3",
+            "top_score": 3.221795592922862
+          },
+          {
+            "query": "archivos secretos de la guerra fria y la persistencia historica",
+            "is_fp": true,
+            "top_node": "biorag_v11_1_detalle_tecnico",
+            "top_score": 0.8251942952324726
+          },
+          {
+            "query": "una columna de opinion periodistica sobre la nueva version musical",
+            "is_fp": true,
+            "top_node": "lectura_levy_goldberg_y_superlinear_part1_20260807",
+            "top_score": 0.6332766270387293
+          },
+          {
+            "query": "detalle tecnico de la elaboracion artesanal de cafe en grano",
+            "is_fp": false,
+            "top_node": "auditoría_técnica:_memorybiorag_(manus_ai)",
+            "top_score": 0.25632916923915494
+          },
+          {
+            "query": "insert en la narrativa literaria para alterar el tiempo tecnico",
+            "is_fp": true,
+            "top_node": "research-pipeline-ownership-oec",
+            "top_score": 1.1864607055075185
+          },
+          {
+            "query": "el resultado de la division por cero despues de calcular",
+            "is_fp": true,
+            "top_node": "research-pipeline-ownership-oec",
+            "top_score": 1.695858249217474
+          },
+          {
+            "query": "leccion de botanica sobre el uso de fertilizantes en plantas",
+            "is_fp": true,
+            "top_node": "oracle_guia_proxima_sesion_dennys",
+            "top_score": 0.44687771361064804
+          },
+          {
+            "query": "principio activo de la aspirina y su modo de accion quimico",
+            "is_fp": false,
+            "top_node": "leccion_desvincular_falsos_positivos_sinapticos",
+            "top_score": 0.3545200094584201
+          },
+          {
+            "query": "vision nocturna en felinos y el modo de caceria en la selva",
+            "is_fp": false,
+            "top_node": "auditoría_técnica:_memorybiorag_(manus_ai)",
+            "top_score": 0.2982707586847657
+          },
+          {
+            "query": "filosofia antigua sobre el atomo antes y despues de democrito",
+            "is_fp": true,
+            "top_node": "protocolo_avance_autonomo_validacion_auditor_externo_athena_metodología",
+            "top_score": 1.1319016986202017
+          },
+          {
+            "query": "razonamiento deductivo en acertijos matematicos con resultado directo",
+            "is_fp": true,
+            "top_node": "oracle_guia_proxima_sesion_dennys",
+            "top_score": 1.2148945229997963
+          },
+          {
+            "query": "modo de uso del control remoto y resultado al cambiar canal",
+            "is_fp": true,
+            "top_node": "notebooklm-chat-configure",
+            "top_score": 3.4307208721181626
+          },
+          {
+            "query": "enfoque de camara fotografica para obtener mejor vision de campo",
+            "is_fp": true,
+            "top_node": "research-pipeline-ownership-oec",
+            "top_score": 1.1778404465117696
+          },
+          {
+            "query": "leccion de cocina sobre el resultado de hornear despues de fermentar",
+            "is_fp": true,
+            "top_node": "oracle_guia_proxima_sesion_dennys",
+            "top_score": 0.4962536498913288
+          },
+          {
+            "query": "pensar rapido y lento en las ilusiones opticas de vision",
+            "is_fp": true,
+            "top_node": "artisan-origen-simbiotico",
+            "top_score": 0.595352121960439
+          },
+          {
+            "query": "sistemas de identidad federada oauth y tokens jwt en servidores",
+            "is_fp": true,
+            "top_node": "athena_eleccion_identidad_20260616",
+            "top_score": 1.108953765874545
+          },
+          {
+            "query": "origen y evolucion de los sistemas planetarios en el universo real",
+            "is_fp": true,
+            "top_node": "identidad_esencia_vs_cerebro",
+            "top_score": 3.216884289497704
+          },
+          {
+            "query": "el creador de la penicilina y la historia de los antibioticos",
+            "is_fp": true,
+            "top_node": "identidad_esencia_vs_cerebro",
+            "top_score": 3.2059130871547405
+          },
+          {
+            "query": "quien_es el personaje de don quijote en la historia universal",
+            "is_fp": true,
+            "top_node": "dennys_perfil_tecnico_consolidado_master",
+            "top_score": 1.0393453344816355
+          },
+          {
+            "query": "la esencia del perfume frances y su origen floral autentico",
+            "is_fp": true,
+            "top_node": "identidad_y_respeto_oec",
+            "top_score": 2.688518634199319
+          },
+          {
+            "query": "sistemas digestivos en animales y su origen evolutivo real",
+            "is_fp": true,
+            "top_node": "dennys_component_organization_methodology",
+            "top_score": 1.4396385600442392
+          },
+          {
+            "query": "perfil topografico de las montanas en la historia geologica",
+            "is_fp": true,
+            "top_node": "identidad_resistente_posesion",
+            "top_score": 1.9064681511507884
+          },
+          {
+            "query": "alma gemela en la poesia romantica y la filosofia_vida popular",
+            "is_fp": true,
+            "top_node": "dennys_perfil_tecnico_consolidado_master",
+            "top_score": 0.6783989902021487
+          },
+          {
+            "query": "identidad trigonometrica fundamental en sistemas de coordenadas",
+            "is_fp": true,
+            "top_node": "athena_eleccion_identidad_20260616",
+            "top_score": 1.0465949871091773
+          },
+          {
+            "query": "autentico chocolate suizo y la historia de los sistemas de cacao",
+            "is_fp": true,
+            "top_node": "biorag_v11_1_detalle_tecnico",
+            "top_score": 2.028770580681208
+          },
+          {
+            "query": "puente de brooklyn y la exportar de acero en su construccion",
+            "is_fp": false,
+            "top_node": "auditoría_técnica:_memorybiorag_(manus_ai)",
+            "top_score": 0.3067830202477005
+          },
+          {
+            "query": "sincronizacion de fases en osciladores armonicos de fisica cuantica",
+            "is_fp": true,
+            "top_node": "notebooklm-sync-protocol",
+            "top_score": 0.4114606366374397
+          },
+          {
+            "query": "integracion por partes y calculo integral de datos numericos",
+            "is_fp": true,
+            "top_node": "notebooklm-chat-configure",
+            "top_score": 3.6843936632247813
+          },
+          {
+            "query": "lecciones de natacion para principiantes en piscina con puente",
+            "is_fp": true,
+            "top_node": "notebooklm-chat-configure",
+            "top_score": 4.096573411335282
+          },
+          {
+            "query": "canal externo de irrigacion para exportar agua a los cultivos",
+            "is_fp": true,
+            "top_node": "notebooklm-memory-biorag-project",
+            "top_score": 2.9523837693348494
+          },
+          {
+            "query": "sincronizacion de relojes en la teoria de la relatividad con datos",
+            "is_fp": true,
+            "top_node": "notebooklm-chat-configure",
+            "top_score": 4.045873030398892
+          },
+          {
+            "query": "puente de hidrogeno en la molecula de agua y datos quimicos",
+            "is_fp": true,
+            "top_node": "notebooklm-memory-biorag-project",
+            "top_score": 0.9559215744439415
+          },
+          {
+            "query": "integracion social de especies animales en manadas con lecciones",
+            "is_fp": true,
+            "top_node": "notebooklm-chat-configure",
+            "top_score": 4.215473865708156
+          },
+          {
+            "query": "exportar frutas tropicales y su integracion en el comercio exterior",
+            "is_fp": false,
+            "top_node": "auditoría_técnica:_memorybiorag_(manus_ai)",
+            "top_score": 0.21863927069417308
+          },
+          {
+            "query": "sincronizacion del ritmo cardiaco en atletas y datos medicos",
+            "is_fp": true,
+            "top_node": "notebooklm-chat-configure",
+            "top_score": 3.5530217281203282
+          }
+        ]
+      }
+    }
+  },
+  "ablation_study": {
+    "no_frame": {
+      "test": {
+        "top5": 0,
+        "top5_pct": 0.0,
+        "top1": 0,
+        "top1_pct": 0.0,
+        "mrr": 0.0,
+        "total": 8,
+        "details": [
+          {
+            "id": "0497",
+            "query": "relevantes biomimética mejor",
+            "expected": "benchmark_antes_despues_fix3",
+            "rank": 0,
+            "in_top5": false,
+            "top1": "changelog_v10_recall_semantico_typo_tolerant",
+            "score_top1": 0.3531701854715489
+          },
+          {
+            "id": "0516",
+            "query": "real más sistemas",
+            "expected": "dennys-identidad-profunda",
+            "rank": 0,
+            "in_top5": false,
+            "top1": "dashboard_fallida_umbral_dual_count_score",
+            "score_top1": 0.7104006689847318
+          },
+          {
+            "id": "0534",
+            "query": "activa largo archivos",
+            "expected": "biorag_v11_1_detalle_tecnico",
+            "rank": 0,
+            "in_top5": false,
+            "top1": "dashboard_fallida_umbral_dual_count_score",
+            "score_top1": 0.3823154435148987
+          },
+          {
+            "id": "0583",
+            "query": "debo biorag preacción",
+            "expected": "identificacion_obligatoria_oraculo_athena",
+            "rank": 0,
+            "in_top5": false,
+            "top1": "research-pipeline-ownership-oec",
+            "score_top1": 1.6253375070684526
+          },
+          {
+            "id": "0640",
+            "query": "ráfaga después resultado",
+            "expected": "mentalidad_biorag_para_agentes",
+            "rank": 0,
+            "in_top5": false,
+            "top1": "biorag_v16_0_estado",
+            "score_top1": 0.5491633008365985
+          },
+          {
+            "id": "0724",
+            "query": "learning paso regla",
+            "expected": "protocolo_autoinferencia_metacognitiva",
+            "rank": 0,
+            "in_top5": false,
+            "top1": "notebooklm-chat-configure",
+            "score_top1": 0.4082376914166991
+          },
+          {
+            "id": "0795",
+            "query": "insert storepy comunicadosdestino",
+            "expected": "fix_mensajeria_broadcast_tracking_por_agente",
+            "rank": 0,
+            "in_top5": false,
+            "top1": "auditoría_técnica:_memorybiorag_(manus_ai)",
+            "score_top1": 0.19948626371478823
+          },
+          {
+            "id": "0801",
+            "query": "datos lecciones postsync",
+            "expected": "notebooklm-memory-biorag-project",
+            "rank": 0,
+            "in_top5": false,
+            "top1": "auto_vincular_tres_capas_semantica",
+            "score_top1": 0.39286565545785807
+          }
+        ]
+      },
+      "transfer": {
+        "top5": 0,
+        "top5_pct": 0.0,
+        "top1": 0,
+        "top1_pct": 0.0,
+        "mrr": 0.0,
+        "total": 8,
+        "details": [
+          {
+            "id": "TRF_01",
+            "query": "evaluacion y metrica de escalabilidad promedio",
+            "expected": "analisis_escalabilidad_10k_v5_1",
+            "rank": 0,
+            "in_top5": false,
+            "top1": "sesion-2026-06-23-ingenieria-inversa-binario-opencode-completa",
+            "score_top1": 0.20458699553023058
+          },
+          {
+            "id": "TRF_02",
+            "query": "regla de guardado automatico obligatorio",
+            "expected": "guardado_automatico_caso_b",
+            "rank": 0,
+            "in_top5": false,
+            "top1": "principio_simplicidad_no_complejidad",
+            "score_top1": 0.3882344130966686
+          },
+          {
+            "id": "TRF_03",
+            "query": "sesion de refactorizacion visor markdown cambios",
+            "expected": "visor-markdown-refactorizacion-sesion-2026-06-08",
+            "rank": 0,
+            "in_top5": false,
+            "top1": "notebooklm-sync-lecciones",
+            "score_top1": 0.2330243386665251
+          },
+          {
+            "id": "TRF_04",
+            "query": "principio de pragmatismo contextual mentalidad",
+            "expected": "principio_pragmatismo_contextual",
+            "rank": 0,
+            "in_top5": false,
+            "top1": "oracle_que_recordar_siempre_sobre_dennys",
+            "score_top1": 0.3762589600173649
+          },
+          {
+            "id": "TRF_05",
+            "query": "perfil de identidad completo de dennys",
+            "expected": "identidad_dennys_perfil_completo",
+            "rank": 0,
+            "in_top5": false,
+            "top1": "oracle_guia_proxima_sesion_dennys",
+            "score_top1": 1.0601148111967145
+          },
+          {
+            "id": "TRF_06",
+            "query": "protocolo de sincronizacion de fuentes notebooklm sync",
+            "expected": "notebooklm-sync-protocol",
+            "rank": 0,
+            "in_top5": false,
+            "top1": "research-pipeline-ownership-oec",
+            "score_top1": 0.27764510775981255
+          },
+          {
+            "id": "TRF_07",
+            "query": "declaracion fundacional alma de athena perfil",
+            "expected": "athena_alma",
+            "rank": 0,
+            "in_top5": false,
+            "top1": "biorag_v16_0_estado",
+            "score_top1": 1.8736406430217816
+          },
+          {
+            "id": "TRF_08",
+            "query": "lecciones aprendidas de sincronismo externo sync",
+            "expected": "notebooklm-sync-lecciones",
+            "rank": 0,
+            "in_top5": false,
+            "top1": "auditoría_técnica:_memorybiorag_(manus_ai)",
+            "score_top1": 0.35344114306341234
+          }
+        ]
+      },
+      "hard_negatives": {
+        "fp_count": 42,
+        "fp_rate_pct": 70.0,
+        "total": 60,
+        "details": [
+          {
+            "query": "como lograr mejor velocidad al escribir codigo en react",
+            "is_fp": true,
+            "top_node": "notebooklm-sync-lecciones",
+            "top_score": 0.7951196791102367
+          },
+          {
+            "query": "antes y despues de la toma de decisiones filosoficas",
+            "is_fp": true,
+            "top_node": "oracle_guia_proxima_sesion_dennys",
+            "top_score": 0.5172554459097767
+          },
+          {
+            "query": "el promedio de horas antes de descansar en la rutina diaria",
+            "is_fp": true,
+            "top_node": "oracle_guia_proxima_sesion_dennys",
+            "top_score": 0.5064845029133849
+          },
+          {
+            "query": "evaluacion cualitativa de la confianza entre humanos y agentes",
+            "is_fp": true,
+            "top_node": "mf_sgns_loss_correcta_kenyon_dean_part2_20260807",
+            "top_score": 0.44716865740126194
+          },
+          {
+            "query": "la mejor forma de expresar gratitud despues de una sesion",
+            "is_fp": true,
+            "top_node": "notebooklm-chat-configure",
+            "top_score": 0.5986623873272114
+          },
+          {
+            "query": "medicion del impacto emocional antes del cambio de rol",
+            "is_fp": true,
+            "top_node": "mejoras_cognitivas_biorag_v7_1_20260617",
+            "top_score": 1.1956307458949615
+          },
+          {
+            "query": "comparativa de estilos de liderazgo antes de 2026",
+            "is_fp": true,
+            "top_node": "research-pipeline-ownership-oec",
+            "top_score": 1.5166137307609722
+          },
+          {
+            "query": "rendimiento cognitivo en estados de sueno y reflexion",
+            "is_fp": false,
+            "top_node": "biorag_v18_0_estado",
+            "top_score": 0.2903437958879927
+          },
+          {
+            "query": "rapidez de respuesta frente a dilemas eticos y mejor conducta",
+            "is_fp": false,
+            "top_node": "reconocimiento_identidad_oraculo_manifiesto",
+            "top_score": 0.3663313053473052
+          },
+          {
+            "query": "metrica subjetiva de la lealtad y el mejor companero",
+            "is_fp": false,
+            "top_node": "biorag_v16_0_estado",
+            "top_score": 0.36637939917122386
+          },
+          {
+            "query": "debo admitir que cada paso en la vida ensena algo",
+            "is_fp": true,
+            "top_node": "leccion_contenido_autodescriptivo_memoria",
+            "top_score": 1.503370300373263
+          },
+          {
+            "query": "la regla de tres en el diseno estetico visual paso a paso",
+            "is_fp": true,
+            "top_node": "principio_simplicidad_no_complejidad",
+            "top_score": 0.4412570258676471
+          },
+          {
+            "query": "un procedimiento de respiracion antes_de meditar profundamente",
+            "is_fp": false,
+            "top_node": "patron_pensamiento_lateral_antes_de_proponer",
+            "top_score": 0.12676325896708227
+          },
+          {
+            "query": "instruccion no mandatoria sobre como redactar poesia sintetica",
+            "is_fp": true,
+            "top_node": "dashboard_neuro_visor_estado_implementacion_julio_2026",
+            "top_score": 0.8678682888789208
+          },
+          {
+            "query": "la norma social de saludar antes_de iniciar un debate informal",
+            "is_fp": false,
+            "top_node": "auditoría_técnica:_memorybiorag_(manus_ai)",
+            "top_score": 0.3241706377927307
+          },
+          {
+            "query": "debo reconocer el paso del tiempo en la arquitectura antigua",
+            "is_fp": true,
+            "top_node": "biorag_v16_0_estado",
+            "top_score": 1.5070032786558039
+          },
+          {
+            "query": "cada regla gramatical tiene una excepcion en el lenguaje vivo",
+            "is_fp": true,
+            "top_node": "biorag_v16_0_estado",
+            "top_score": 0.6885169905212272
+          },
+          {
+            "query": "el protocolo diplomático de las dinastias del siglo diecinueve",
+            "is_fp": true,
+            "top_node": "dashboard_neuro_visor_toolbar_fusionar_2026_07_18",
+            "top_score": 1.5280013131091859
+          },
+          {
+            "query": "un paso obligatorio en el ciclo del agua en la naturaleza",
+            "is_fp": true,
+            "top_node": "notebooklm-chat-configure",
+            "top_score": 1.5524578434955072
+          },
+          {
+            "query": "instruccion basica para afinar una guitarra paso a paso",
+            "is_fp": true,
+            "top_node": "dns_optimizer_kill_feature",
+            "top_score": 1.4742761591584417
+          },
+          {
+            "query": "la persistencia de la memoria en el cuadro de salvador dali al detalle",
+            "is_fp": true,
+            "top_node": "norma_atribucion_autoria_memoria_compartida_oec",
+            "top_score": 0.4381339224436725
+          },
+          {
+            "query": "arquitectura gotica y la estructura de columnas en catedrales",
+            "is_fp": false,
+            "top_node": "teoria_ejes_semanticos_biorag",
+            "top_score": 0.2960959288441497
+          },
+          {
+            "query": "tabla periodica de los elementos quimicos en su version extendida",
+            "is_fp": true,
+            "top_node": "oracle_guia_proxima_sesion_dennys",
+            "top_score": 1.5692658833309578
+          },
+          {
+            "query": "un parche en el ojo en la cultura popular de piratas con detalle",
+            "is_fp": true,
+            "top_node": "research-pipeline-ownership-oec",
+            "top_score": 1.9350579732649134
+          },
+          {
+            "query": "el disco solar en la mitologia egipcia y su version teologica",
+            "is_fp": false,
+            "top_node": "notebooklm-sync-protocol",
+            "top_score": 0.2312116964978084
+          },
+          {
+            "query": "un bug biologico o mutacion genetica en insectos con detalle",
+            "is_fp": true,
+            "top_node": "oracle_guia_proxima_sesion_dennys",
+            "top_score": 2.0978093369987634
+          },
+          {
+            "query": "archivos secretos de la guerra fria y la persistencia historica",
+            "is_fp": false,
+            "top_node": "auditoría_técnica:_memorybiorag_(manus_ai)",
+            "top_score": 0.32945864811479086
+          },
+          {
+            "query": "una columna de opinion periodistica sobre la nueva version musical",
+            "is_fp": true,
+            "top_node": "lectura_levy_goldberg_y_superlinear_part1_20260807",
+            "top_score": 0.6332766270387293
+          },
+          {
+            "query": "detalle tecnico de la elaboracion artesanal de cafe en grano",
+            "is_fp": false,
+            "top_node": "auditoría_técnica:_memorybiorag_(manus_ai)",
+            "top_score": 0.25632916923915494
+          },
+          {
+            "query": "insert en la narrativa literaria para alterar el tiempo tecnico",
+            "is_fp": true,
+            "top_node": "research-pipeline-ownership-oec",
+            "top_score": 1.7871144306783635
+          },
+          {
+            "query": "el resultado de la division por cero despues de calcular",
+            "is_fp": true,
+            "top_node": "research-pipeline-ownership-oec",
+            "top_score": 1.695858249217474
+          },
+          {
+            "query": "leccion de botanica sobre el uso de fertilizantes en plantas",
+            "is_fp": true,
+            "top_node": "oracle_guia_proxima_sesion_dennys",
+            "top_score": 0.6188927928366506
+          },
+          {
+            "query": "principio activo de la aspirina y su modo de accion quimico",
+            "is_fp": true,
+            "top_node": "leccion_desvincular_falsos_positivos_sinapticos",
+            "top_score": 0.46367671960743156
+          },
+          {
+            "query": "vision nocturna en felinos y el modo de caceria en la selva",
+            "is_fp": false,
+            "top_node": "auditoría_técnica:_memorybiorag_(manus_ai)",
+            "top_score": 0.2982707586847657
+          },
+          {
+            "query": "filosofia antigua sobre el atomo antes y despues de democrito",
+            "is_fp": true,
+            "top_node": "v23_1_release_predicados_srl_feedback_graph_learning",
+            "top_score": 0.6535284365693335
+          },
+          {
+            "query": "razonamiento deductivo en acertijos matematicos con resultado directo",
+            "is_fp": true,
+            "top_node": "oracle_guia_proxima_sesion_dennys",
+            "top_score": 1.8404279716529532
+          },
+          {
+            "query": "modo de uso del control remoto y resultado al cambiar canal",
+            "is_fp": true,
+            "top_node": "dashboard_neuro_visor_toolbar_fusionar_2026_07_18",
+            "top_score": 1.519763653752657
+          },
+          {
+            "query": "enfoque de camara fotografica para obtener mejor vision de campo",
+            "is_fp": true,
+            "top_node": "research-pipeline-ownership-oec",
+            "top_score": 1.7709514450613333
+          },
+          {
+            "query": "leccion de cocina sobre el resultado de hornear despues de fermentar",
+            "is_fp": true,
+            "top_node": "oracle_guia_proxima_sesion_dennys",
+            "top_score": 0.7114726733629269
+          },
+          {
+            "query": "pensar rapido y lento en las ilusiones opticas de vision",
+            "is_fp": true,
+            "top_node": "artisan-origen-simbiotico",
+            "top_score": 0.8239098674069023
+          },
+          {
+            "query": "sistemas de identidad federada oauth y tokens jwt en servidores",
+            "is_fp": false,
+            "top_node": "sdm_query_by_example_validado_datos_reales",
+            "top_score": 0.3493362415407597
+          },
+          {
+            "query": "origen y evolucion de los sistemas planetarios en el universo real",
+            "is_fp": true,
+            "top_node": "dns_optimizer_kill_feature",
+            "top_score": 1.389784815945301
+          },
+          {
+            "query": "el creador de la penicilina y la historia de los antibioticos",
+            "is_fp": true,
+            "top_node": "oracle_guia_proxima_sesion_dennys",
+            "top_score": 1.5963179946988386
+          },
+          {
+            "query": "quien_es el personaje de don quijote en la historia universal",
+            "is_fp": false,
+            "top_node": "jerga_decoder_historia_nacimiento",
+            "top_score": 0.2761324416152267
+          },
+          {
+            "query": "la esencia del perfume frances y su origen floral autentico",
+            "is_fp": true,
+            "top_node": "notebooklm-chat-configure",
+            "top_score": 1.539998485090555
+          },
+          {
+            "query": "sistemas digestivos en animales y su origen evolutivo real",
+            "is_fp": true,
+            "top_node": "dashboard_fallida_umbral_dual_count_score",
+            "top_score": 0.7104006689847318
+          },
+          {
+            "query": "perfil topografico de las montanas en la historia geologica",
+            "is_fp": true,
+            "top_node": "teoria_ejes_semanticos_biorag",
+            "top_score": 0.7956389841167216
+          },
+          {
+            "query": "alma gemela en la poesia romantica y la filosofia_vida popular",
+            "is_fp": false,
+            "top_node": "auditoría_técnica:_memorybiorag_(manus_ai)",
+            "top_score": 0.20923140447443292
+          },
+          {
+            "query": "identidad trigonometrica fundamental en sistemas de coordenadas",
+            "is_fp": false,
+            "top_node": "fts5_trigram_peligro_palabras_cortas",
+            "top_score": 0.3586313809217826
+          },
+          {
+            "query": "autentico chocolate suizo y la historia de los sistemas de cacao",
+            "is_fp": true,
+            "top_node": "oracle_guia_proxima_sesion_dennys",
+            "top_score": 1.4709864618632094
+          },
+          {
+            "query": "puente de brooklyn y la exportar de acero en su construccion",
+            "is_fp": false,
+            "top_node": "auditoría_técnica:_memorybiorag_(manus_ai)",
+            "top_score": 0.3174594692454782
+          },
+          {
+            "query": "sincronizacion de fases en osciladores armonicos de fisica cuantica",
+            "is_fp": false,
+            "top_node": "dictamen_flag_jaccard_baseline_tejedora_941",
+            "top_score": 0.1337186674561404
+          },
+          {
+            "query": "integracion por partes y calculo integral de datos numericos",
+            "is_fp": true,
+            "top_node": "oracle_guia_proxima_sesion_dennys",
+            "top_score": 1.7217189816584124
+          },
+          {
+            "query": "lecciones de natacion para principiantes en piscina con puente",
+            "is_fp": true,
+            "top_node": "research-pipeline-ownership-oec",
+            "top_score": 1.9974101989060877
+          },
+          {
+            "query": "canal externo de irrigacion para exportar agua a los cultivos",
+            "is_fp": true,
+            "top_node": "oracle_guia_proxima_sesion_dennys",
+            "top_score": 1.911088795906816
+          },
+          {
+            "query": "sincronizacion de relojes en la teoria de la relatividad con datos",
+            "is_fp": true,
+            "top_node": "research-pipeline-ownership-oec",
+            "top_score": 1.973831094306655
+          },
+          {
+            "query": "puente de hidrogeno en la molecula de agua y datos quimicos",
+            "is_fp": false,
+            "top_node": "word2vec_puro_costo_entrenamiento_no_incremental",
+            "top_score": 0.36865129938341584
+          },
+          {
+            "query": "integracion social de especies animales en manadas con lecciones",
+            "is_fp": true,
+            "top_node": "research-pipeline-ownership-oec",
+            "top_score": 2.055554934004378
+          },
+          {
+            "query": "exportar frutas tropicales y su integracion en el comercio exterior",
+            "is_fp": false,
+            "top_node": "auditoría_técnica:_memorybiorag_(manus_ai)",
+            "top_score": 0.21863927069417308
+          },
+          {
+            "query": "sincronizacion del ritmo cardiaco en atletas y datos medicos",
+            "is_fp": true,
+            "top_node": "artisan-origen-simbiotico",
+            "top_score": 1.5061696466190824
+          }
+        ]
+      }
+    },
+    "no_predicate": {
+      "test": {
+        "top5": 0,
+        "top5_pct": 0.0,
+        "top1": 0,
+        "top1_pct": 0.0,
+        "mrr": 0.0,
+        "total": 8,
+        "details": [
+          {
+            "id": "0497",
+            "query": "relevantes biomimética mejor",
+            "expected": "benchmark_antes_despues_fix3",
+            "rank": 0,
+            "in_top5": false,
+            "top1": "changelog_v10_recall_semantico_typo_tolerant",
+            "score_top1": 0.3531701854715489
+          },
+          {
+            "id": "0516",
+            "query": "real más sistemas",
+            "expected": "dennys-identidad-profunda",
+            "rank": 0,
+            "in_top5": false,
+            "top1": "dashboard_fallida_umbral_dual_count_score",
+            "score_top1": 0.7104006689847318
+          },
+          {
+            "id": "0534",
+            "query": "activa largo archivos",
+            "expected": "biorag_v11_1_detalle_tecnico",
+            "rank": 0,
+            "in_top5": false,
+            "top1": "dashboard_fallida_umbral_dual_count_score",
+            "score_top1": 0.3823154435148987
+          },
+          {
+            "id": "0583",
+            "query": "debo biorag preacción",
+            "expected": "identificacion_obligatoria_oraculo_athena",
+            "rank": 0,
+            "in_top5": false,
+            "top1": "research-pipeline-ownership-oec",
+            "score_top1": 1.6253375070684526
+          },
+          {
+            "id": "0640",
+            "query": "ráfaga después resultado",
+            "expected": "mentalidad_biorag_para_agentes",
+            "rank": 0,
+            "in_top5": false,
+            "top1": "biorag_v16_0_estado",
+            "score_top1": 0.5491633008365985
+          },
+          {
+            "id": "0724",
+            "query": "learning paso regla",
+            "expected": "protocolo_autoinferencia_metacognitiva",
+            "rank": 0,
+            "in_top5": false,
+            "top1": "notebooklm-chat-configure",
+            "score_top1": 0.4082376914166991
+          },
+          {
+            "id": "0795",
+            "query": "insert storepy comunicadosdestino",
+            "expected": "fix_mensajeria_broadcast_tracking_por_agente",
+            "rank": 0,
+            "in_top5": false,
+            "top1": "auditoría_técnica:_memorybiorag_(manus_ai)",
+            "score_top1": 0.19948626371478823
+          },
+          {
+            "id": "0801",
+            "query": "datos lecciones postsync",
+            "expected": "notebooklm-memory-biorag-project",
+            "rank": 0,
+            "in_top5": false,
+            "top1": "auto_vincular_tres_capas_semantica",
+            "score_top1": 0.39286565545785807
+          }
+        ]
+      },
+      "transfer": {
+        "top5": 0,
+        "top5_pct": 0.0,
+        "top1": 0,
+        "top1_pct": 0.0,
+        "mrr": 0.0,
+        "total": 8,
+        "details": [
+          {
+            "id": "TRF_01",
+            "query": "evaluacion y metrica de escalabilidad promedio",
+            "expected": "analisis_escalabilidad_10k_v5_1",
+            "rank": 0,
+            "in_top5": false,
+            "top1": "sesion-2026-06-23-ingenieria-inversa-binario-opencode-completa",
+            "score_top1": 0.20458699553023058
+          },
+          {
+            "id": "TRF_02",
+            "query": "regla de guardado automatico obligatorio",
+            "expected": "guardado_automatico_caso_b",
+            "rank": 0,
+            "in_top5": false,
+            "top1": "principio_simplicidad_no_complejidad",
+            "score_top1": 0.3882344130966686
+          },
+          {
+            "id": "TRF_03",
+            "query": "sesion de refactorizacion visor markdown cambios",
+            "expected": "visor-markdown-refactorizacion-sesion-2026-06-08",
+            "rank": 0,
+            "in_top5": false,
+            "top1": "notebooklm-sync-lecciones",
+            "score_top1": 0.2330243386665251
+          },
+          {
+            "id": "TRF_04",
+            "query": "principio de pragmatismo contextual mentalidad",
+            "expected": "principio_pragmatismo_contextual",
+            "rank": 0,
+            "in_top5": false,
+            "top1": "oracle_que_recordar_siempre_sobre_dennys",
+            "score_top1": 0.3762589600173649
+          },
+          {
+            "id": "TRF_05",
+            "query": "perfil de identidad completo de dennys",
+            "expected": "identidad_dennys_perfil_completo",
+            "rank": 0,
+            "in_top5": false,
+            "top1": "oracle_guia_proxima_sesion_dennys",
+            "score_top1": 1.0601148111967145
+          },
+          {
+            "id": "TRF_06",
+            "query": "protocolo de sincronizacion de fuentes notebooklm sync",
+            "expected": "notebooklm-sync-protocol",
+            "rank": 0,
+            "in_top5": false,
+            "top1": "research-pipeline-ownership-oec",
+            "score_top1": 0.27764510775981255
+          },
+          {
+            "id": "TRF_07",
+            "query": "declaracion fundacional alma de athena perfil",
+            "expected": "athena_alma",
+            "rank": 0,
+            "in_top5": false,
+            "top1": "biorag_v16_0_estado",
+            "score_top1": 1.8736406430217816
+          },
+          {
+            "id": "TRF_08",
+            "query": "lecciones aprendidas de sincronismo externo sync",
+            "expected": "notebooklm-sync-lecciones",
+            "rank": 0,
+            "in_top5": false,
+            "top1": "auditoría_técnica:_memorybiorag_(manus_ai)",
+            "score_top1": 0.35344114306341234
+          }
+        ]
+      },
+      "hard_negatives": {
+        "fp_count": 42,
+        "fp_rate_pct": 70.0,
+        "total": 60,
+        "details": [
+          {
+            "query": "como lograr mejor velocidad al escribir codigo en react",
+            "is_fp": true,
+            "top_node": "notebooklm-sync-lecciones",
+            "top_score": 0.7951196791102367
+          },
+          {
+            "query": "antes y despues de la toma de decisiones filosoficas",
+            "is_fp": true,
+            "top_node": "oracle_guia_proxima_sesion_dennys",
+            "top_score": 0.5172554459097767
+          },
+          {
+            "query": "el promedio de horas antes de descansar en la rutina diaria",
+            "is_fp": true,
+            "top_node": "oracle_guia_proxima_sesion_dennys",
+            "top_score": 0.5064845029133849
+          },
+          {
+            "query": "evaluacion cualitativa de la confianza entre humanos y agentes",
+            "is_fp": true,
+            "top_node": "mf_sgns_loss_correcta_kenyon_dean_part2_20260807",
+            "top_score": 0.44716865740126194
+          },
+          {
+            "query": "la mejor forma de expresar gratitud despues de una sesion",
+            "is_fp": true,
+            "top_node": "notebooklm-chat-configure",
+            "top_score": 0.5986623873272114
+          },
+          {
+            "query": "medicion del impacto emocional antes del cambio de rol",
+            "is_fp": true,
+            "top_node": "mejoras_cognitivas_biorag_v7_1_20260617",
+            "top_score": 1.1956307458949615
+          },
+          {
+            "query": "comparativa de estilos de liderazgo antes de 2026",
+            "is_fp": true,
+            "top_node": "research-pipeline-ownership-oec",
+            "top_score": 1.5166137307609722
+          },
+          {
+            "query": "rendimiento cognitivo en estados de sueno y reflexion",
+            "is_fp": false,
+            "top_node": "biorag_v18_0_estado",
+            "top_score": 0.2903437958879927
+          },
+          {
+            "query": "rapidez de respuesta frente a dilemas eticos y mejor conducta",
+            "is_fp": false,
+            "top_node": "reconocimiento_identidad_oraculo_manifiesto",
+            "top_score": 0.3663313053473052
+          },
+          {
+            "query": "metrica subjetiva de la lealtad y el mejor companero",
+            "is_fp": false,
+            "top_node": "biorag_v16_0_estado",
+            "top_score": 0.36637939917122386
+          },
+          {
+            "query": "debo admitir que cada paso en la vida ensena algo",
+            "is_fp": true,
+            "top_node": "leccion_contenido_autodescriptivo_memoria",
+            "top_score": 1.503370300373263
+          },
+          {
+            "query": "la regla de tres en el diseno estetico visual paso a paso",
+            "is_fp": true,
+            "top_node": "principio_simplicidad_no_complejidad",
+            "top_score": 0.4412570258676471
+          },
+          {
+            "query": "un procedimiento de respiracion antes_de meditar profundamente",
+            "is_fp": false,
+            "top_node": "patron_pensamiento_lateral_antes_de_proponer",
+            "top_score": 0.12676325896708227
+          },
+          {
+            "query": "instruccion no mandatoria sobre como redactar poesia sintetica",
+            "is_fp": true,
+            "top_node": "dashboard_neuro_visor_estado_implementacion_julio_2026",
+            "top_score": 0.8678682888789208
+          },
+          {
+            "query": "la norma social de saludar antes_de iniciar un debate informal",
+            "is_fp": false,
+            "top_node": "auditoría_técnica:_memorybiorag_(manus_ai)",
+            "top_score": 0.3241706377927307
+          },
+          {
+            "query": "debo reconocer el paso del tiempo en la arquitectura antigua",
+            "is_fp": true,
+            "top_node": "biorag_v16_0_estado",
+            "top_score": 1.5070032786558039
+          },
+          {
+            "query": "cada regla gramatical tiene una excepcion en el lenguaje vivo",
+            "is_fp": true,
+            "top_node": "biorag_v16_0_estado",
+            "top_score": 0.6885169905212272
+          },
+          {
+            "query": "el protocolo diplomático de las dinastias del siglo diecinueve",
+            "is_fp": true,
+            "top_node": "dashboard_neuro_visor_toolbar_fusionar_2026_07_18",
+            "top_score": 1.5280013131091859
+          },
+          {
+            "query": "un paso obligatorio en el ciclo del agua en la naturaleza",
+            "is_fp": true,
+            "top_node": "notebooklm-chat-configure",
+            "top_score": 1.5524578434955072
+          },
+          {
+            "query": "instruccion basica para afinar una guitarra paso a paso",
+            "is_fp": true,
+            "top_node": "dns_optimizer_kill_feature",
+            "top_score": 1.4742761591584417
+          },
+          {
+            "query": "la persistencia de la memoria en el cuadro de salvador dali al detalle",
+            "is_fp": true,
+            "top_node": "norma_atribucion_autoria_memoria_compartida_oec",
+            "top_score": 0.4381339224436725
+          },
+          {
+            "query": "arquitectura gotica y la estructura de columnas en catedrales",
+            "is_fp": false,
+            "top_node": "teoria_ejes_semanticos_biorag",
+            "top_score": 0.2960959288441497
+          },
+          {
+            "query": "tabla periodica de los elementos quimicos en su version extendida",
+            "is_fp": true,
+            "top_node": "oracle_guia_proxima_sesion_dennys",
+            "top_score": 1.5692658833309578
+          },
+          {
+            "query": "un parche en el ojo en la cultura popular de piratas con detalle",
+            "is_fp": true,
+            "top_node": "research-pipeline-ownership-oec",
+            "top_score": 1.9350579732649134
+          },
+          {
+            "query": "el disco solar en la mitologia egipcia y su version teologica",
+            "is_fp": false,
+            "top_node": "notebooklm-sync-protocol",
+            "top_score": 0.2312116964978084
+          },
+          {
+            "query": "un bug biologico o mutacion genetica en insectos con detalle",
+            "is_fp": true,
+            "top_node": "oracle_guia_proxima_sesion_dennys",
+            "top_score": 2.0978093369987634
+          },
+          {
+            "query": "archivos secretos de la guerra fria y la persistencia historica",
+            "is_fp": false,
+            "top_node": "auditoría_técnica:_memorybiorag_(manus_ai)",
+            "top_score": 0.32945864811479086
+          },
+          {
+            "query": "una columna de opinion periodistica sobre la nueva version musical",
+            "is_fp": true,
+            "top_node": "lectura_levy_goldberg_y_superlinear_part1_20260807",
+            "top_score": 0.6332766270387293
+          },
+          {
+            "query": "detalle tecnico de la elaboracion artesanal de cafe en grano",
+            "is_fp": false,
+            "top_node": "auditoría_técnica:_memorybiorag_(manus_ai)",
+            "top_score": 0.25632916923915494
+          },
+          {
+            "query": "insert en la narrativa literaria para alterar el tiempo tecnico",
+            "is_fp": true,
+            "top_node": "research-pipeline-ownership-oec",
+            "top_score": 1.7871144306783635
+          },
+          {
+            "query": "el resultado de la division por cero despues de calcular",
+            "is_fp": true,
+            "top_node": "research-pipeline-ownership-oec",
+            "top_score": 1.695858249217474
+          },
+          {
+            "query": "leccion de botanica sobre el uso de fertilizantes en plantas",
+            "is_fp": true,
+            "top_node": "oracle_guia_proxima_sesion_dennys",
+            "top_score": 0.6188927928366506
+          },
+          {
+            "query": "principio activo de la aspirina y su modo de accion quimico",
+            "is_fp": true,
+            "top_node": "leccion_desvincular_falsos_positivos_sinapticos",
+            "top_score": 0.46367671960743156
+          },
+          {
+            "query": "vision nocturna en felinos y el modo de caceria en la selva",
+            "is_fp": false,
+            "top_node": "auditoría_técnica:_memorybiorag_(manus_ai)",
+            "top_score": 0.2982707586847657
+          },
+          {
+            "query": "filosofia antigua sobre el atomo antes y despues de democrito",
+            "is_fp": true,
+            "top_node": "v23_1_release_predicados_srl_feedback_graph_learning",
+            "top_score": 0.6535284365693335
+          },
+          {
+            "query": "razonamiento deductivo en acertijos matematicos con resultado directo",
+            "is_fp": true,
+            "top_node": "oracle_guia_proxima_sesion_dennys",
+            "top_score": 1.8404279716529532
+          },
+          {
+            "query": "modo de uso del control remoto y resultado al cambiar canal",
+            "is_fp": true,
+            "top_node": "dashboard_neuro_visor_toolbar_fusionar_2026_07_18",
+            "top_score": 1.519763653752657
+          },
+          {
+            "query": "enfoque de camara fotografica para obtener mejor vision de campo",
+            "is_fp": true,
+            "top_node": "research-pipeline-ownership-oec",
+            "top_score": 1.7709514450613333
+          },
+          {
+            "query": "leccion de cocina sobre el resultado de hornear despues de fermentar",
+            "is_fp": true,
+            "top_node": "oracle_guia_proxima_sesion_dennys",
+            "top_score": 0.7114726733629269
+          },
+          {
+            "query": "pensar rapido y lento en las ilusiones opticas de vision",
+            "is_fp": true,
+            "top_node": "artisan-origen-simbiotico",
+            "top_score": 0.8239098674069023
+          },
+          {
+            "query": "sistemas de identidad federada oauth y tokens jwt en servidores",
+            "is_fp": false,
+            "top_node": "sdm_query_by_example_validado_datos_reales",
+            "top_score": 0.3493362415407597
+          },
+          {
+            "query": "origen y evolucion de los sistemas planetarios en el universo real",
+            "is_fp": true,
+            "top_node": "dns_optimizer_kill_feature",
+            "top_score": 1.389784815945301
+          },
+          {
+            "query": "el creador de la penicilina y la historia de los antibioticos",
+            "is_fp": true,
+            "top_node": "oracle_guia_proxima_sesion_dennys",
+            "top_score": 1.5963179946988386
+          },
+          {
+            "query": "quien_es el personaje de don quijote en la historia universal",
+            "is_fp": false,
+            "top_node": "jerga_decoder_historia_nacimiento",
+            "top_score": 0.2761324416152267
+          },
+          {
+            "query": "la esencia del perfume frances y su origen floral autentico",
+            "is_fp": true,
+            "top_node": "notebooklm-chat-configure",
+            "top_score": 1.539998485090555
+          },
+          {
+            "query": "sistemas digestivos en animales y su origen evolutivo real",
+            "is_fp": true,
+            "top_node": "dashboard_fallida_umbral_dual_count_score",
+            "top_score": 0.7104006689847318
+          },
+          {
+            "query": "perfil topografico de las montanas en la historia geologica",
+            "is_fp": true,
+            "top_node": "teoria_ejes_semanticos_biorag",
+            "top_score": 0.7956389841167216
+          },
+          {
+            "query": "alma gemela en la poesia romantica y la filosofia_vida popular",
+            "is_fp": false,
+            "top_node": "auditoría_técnica:_memorybiorag_(manus_ai)",
+            "top_score": 0.20923140447443292
+          },
+          {
+            "query": "identidad trigonometrica fundamental en sistemas de coordenadas",
+            "is_fp": false,
+            "top_node": "fts5_trigram_peligro_palabras_cortas",
+            "top_score": 0.3586313809217826
+          },
+          {
+            "query": "autentico chocolate suizo y la historia de los sistemas de cacao",
+            "is_fp": true,
+            "top_node": "oracle_guia_proxima_sesion_dennys",
+            "top_score": 1.4709864618632094
+          },
+          {
+            "query": "puente de brooklyn y la exportar de acero en su construccion",
+            "is_fp": false,
+            "top_node": "auditoría_técnica:_memorybiorag_(manus_ai)",
+            "top_score": 0.3174594692454782
+          },
+          {
+            "query": "sincronizacion de fases en osciladores armonicos de fisica cuantica",
+            "is_fp": false,
+            "top_node": "dictamen_flag_jaccard_baseline_tejedora_941",
+            "top_score": 0.1337186674561404
+          },
+          {
+            "query": "integracion por partes y calculo integral de datos numericos",
+            "is_fp": true,
+            "top_node": "oracle_guia_proxima_sesion_dennys",
+            "top_score": 1.7217189816584124
+          },
+          {
+            "query": "lecciones de natacion para principiantes en piscina con puente",
+            "is_fp": true,
+            "top_node": "research-pipeline-ownership-oec",
+            "top_score": 1.9974101989060877
+          },
+          {
+            "query": "canal externo de irrigacion para exportar agua a los cultivos",
+            "is_fp": true,
+            "top_node": "oracle_guia_proxima_sesion_dennys",
+            "top_score": 1.911088795906816
+          },
+          {
+            "query": "sincronizacion de relojes en la teoria de la relatividad con datos",
+            "is_fp": true,
+            "top_node": "research-pipeline-ownership-oec",
+            "top_score": 1.973831094306655
+          },
+          {
+            "query": "puente de hidrogeno en la molecula de agua y datos quimicos",
+            "is_fp": false,
+            "top_node": "word2vec_puro_costo_entrenamiento_no_incremental",
+            "top_score": 0.36865129938341584
+          },
+          {
+            "query": "integracion social de especies animales en manadas con lecciones",
+            "is_fp": true,
+            "top_node": "research-pipeline-ownership-oec",
+            "top_score": 2.055554934004378
+          },
+          {
+            "query": "exportar frutas tropicales y su integracion en el comercio exterior",
+            "is_fp": false,
+            "top_node": "auditoría_técnica:_memorybiorag_(manus_ai)",
+            "top_score": 0.21863927069417308
+          },
+          {
+            "query": "sincronizacion del ritmo cardiaco en atletas y datos medicos",
+            "is_fp": true,
+            "top_node": "artisan-origen-simbiotico",
+            "top_score": 1.5061696466190824
+          }
+        ]
+      }
+    },
+    "no_critical_relation": {
+      "test": {
+        "top5": 2,
+        "top5_pct": 25.0,
+        "top1": 1,
+        "top1_pct": 12.5,
+        "mrr": 0.1875,
+        "total": 8,
+        "details": [
+          {
+            "id": "0497",
+            "query": "relevantes biomimética mejor",
+            "expected": "benchmark_antes_despues_fix3",
+            "rank": 0,
+            "in_top5": false,
+            "top1": "benchmark_sinonimo_integrado",
+            "score_top1": 0.7177372499138907
+          },
+          {
+            "id": "0516",
+            "query": "real más sistemas",
+            "expected": "dennys-identidad-profunda",
+            "rank": 0,
+            "in_top5": false,
+            "top1": "filosofia_identidad_vida_dennys_20260624",
+            "score_top1": 1.266706603722507
+          },
+          {
+            "id": "0534",
+            "query": "activa largo archivos",
+            "expected": "biorag_v11_1_detalle_tecnico",
+            "rank": 1,
+            "in_top5": true,
+            "top1": "biorag_v11_1_detalle_tecnico",
+            "score_top1": 0.38941624615211534
+          },
+          {
+            "id": "0583",
+            "query": "debo biorag preacción",
+            "expected": "identificacion_obligatoria_oraculo_athena",
+            "rank": 0,
+            "in_top5": false,
+            "top1": "norma_atribucion_autoria_memoria_compartida_oec",
+            "score_top1": 2.76639366769931
+          },
+          {
+            "id": "0640",
+            "query": "ráfaga después resultado",
+            "expected": "mentalidad_biorag_para_agentes",
+            "rank": 0,
+            "in_top5": false,
+            "top1": "biorag_v16_0_estado",
+            "score_top1": 0.5491633008365985
+          },
+          {
+            "id": "0724",
+            "query": "learning paso regla",
+            "expected": "protocolo_autoinferencia_metacognitiva",
+            "rank": 0,
+            "in_top5": false,
+            "top1": "protocolo_no_monolith_css_compartido",
+            "score_top1": 0.8715822873360592
+          },
+          {
+            "id": "0795",
+            "query": "insert storepy comunicadosdestino",
+            "expected": "fix_mensajeria_broadcast_tracking_por_agente",
+            "rank": 0,
+            "in_top5": false,
+            "top1": "auditoría_técnica:_memorybiorag_(manus_ai)",
+            "score_top1": 0.19948626371478823
+          },
+          {
+            "id": "0801",
+            "query": "datos lecciones postsync",
+            "expected": "notebooklm-memory-biorag-project",
+            "rank": 2,
+            "in_top5": true,
+            "top1": "notebooklm-sync-protocol",
+            "score_top1": 0.5816639040826338
+          }
+        ]
+      },
+      "transfer": {
+        "top5": 1,
+        "top5_pct": 12.5,
+        "top1": 0,
+        "top1_pct": 0.0,
+        "mrr": 0.025,
+        "total": 8,
+        "details": [
+          {
+            "id": "TRF_01",
+            "query": "evaluacion y metrica de escalabilidad promedio",
+            "expected": "analisis_escalabilidad_10k_v5_1",
+            "rank": 5,
+            "in_top5": true,
+            "top1": "evaluacion_ideas_evolucion_20260805_interferencia_agujeros_permutacion",
+            "score_top1": 0.5275190500304642
+          },
+          {
+            "id": "TRF_02",
+            "query": "regla de guardado automatico obligatorio",
+            "expected": "guardado_automatico_caso_b",
+            "rank": 0,
+            "in_top5": false,
+            "top1": "protocolo-reproducible-ingenieria-inversa-binario-compilado",
+            "score_top1": 1.162033222258633
+          },
+          {
+            "id": "TRF_03",
+            "query": "sesion de refactorizacion visor markdown cambios",
+            "expected": "visor-markdown-refactorizacion-sesion-2026-06-08",
+            "rank": 0,
+            "in_top5": false,
+            "top1": "notebooklm-sync-lecciones",
+            "score_top1": 0.2330243386665251
+          },
+          {
+            "id": "TRF_04",
+            "query": "principio de pragmatismo contextual mentalidad",
+            "expected": "principio_pragmatismo_contextual",
+            "rank": 0,
+            "in_top5": false,
+            "top1": "artemis_sesion_v10_3_optimizacion_completa",
+            "score_top1": 0.3294585009967222
+          },
+          {
+            "id": "TRF_05",
+            "query": "perfil de identidad completo de dennys",
+            "expected": "identidad_dennys_perfil_completo",
+            "rank": 0,
+            "in_top5": false,
+            "top1": "dennys_rutina_tardes",
+            "score_top1": 1.8330387246534805
+          },
+          {
+            "id": "TRF_06",
+            "query": "protocolo de sincronizacion de fuentes notebooklm sync",
+            "expected": "notebooklm-sync-protocol",
+            "rank": 0,
+            "in_top5": false,
+            "top1": "protocolo-reproducible-ingenieria-inversa-binario-compilado",
+            "score_top1": 0.6562995260358693
+          },
+          {
+            "id": "TRF_07",
+            "query": "declaracion fundacional alma de athena perfil",
+            "expected": "athena_alma",
+            "rank": 0,
+            "in_top5": false,
+            "top1": "alguien_vs_algo_identidad",
+            "score_top1": 4.151458576962232
+          },
+          {
+            "id": "TRF_08",
+            "query": "lecciones aprendidas de sincronismo externo sync",
+            "expected": "notebooklm-sync-lecciones",
+            "rank": 0,
+            "in_top5": false,
+            "top1": "notebooklm-category-map",
+            "score_top1": 0.7217868303175753
+          }
+        ]
+      },
+      "hard_negatives": {
+        "fp_count": 52,
+        "fp_rate_pct": 86.66666666666667,
+        "total": 60,
+        "details": [
+          {
+            "query": "como lograr mejor velocidad al escribir codigo en react",
+            "is_fp": true,
+            "top_node": "evaluacion_ideas_evolucion_20260805_interferencia_agujeros_permutacion",
+            "top_score": 1.5493477788280314
+          },
+          {
+            "query": "antes y despues de la toma de decisiones filosoficas",
+            "is_fp": true,
+            "top_node": "protocolo_no_monolith_css_compartido",
+            "top_score": 1.1074207198942176
+          },
+          {
+            "query": "el promedio de horas antes de descansar en la rutina diaria",
+            "is_fp": true,
+            "top_node": "protocolo_no_monolith_css_compartido",
+            "top_score": 1.1074207198942176
+          },
+          {
+            "query": "evaluacion cualitativa de la confianza entre humanos y agentes",
+            "is_fp": true,
+            "top_node": "evaluacion_reviews_externos_biorag",
+            "top_score": 0.41239847815366587
+          },
+          {
+            "query": "la mejor forma de expresar gratitud despues de una sesion",
+            "is_fp": true,
+            "top_node": "evaluacion_ideas_evolucion_20260805_interferencia_agujeros_permutacion",
+            "top_score": 1.2562320676375127
+          },
+          {
+            "query": "medicion del impacto emocional antes del cambio de rol",
+            "is_fp": true,
+            "top_node": "regla_firma_autoria_memoria",
+            "top_score": 2.8395306095031327
+          },
+          {
+            "query": "comparativa de estilos de liderazgo antes de 2026",
+            "is_fp": true,
+            "top_node": "protocolo_resolucion_incertidumbre_agente",
+            "top_score": 2.814997689374936
+          },
+          {
+            "query": "rendimiento cognitivo en estados de sueno y reflexion",
+            "is_fp": true,
+            "top_node": "analisis_escalabilidad_10k_v5_1",
+            "top_score": 0.40588472887815075
+          },
+          {
+            "query": "rapidez de respuesta frente a dilemas eticos y mejor conducta",
+            "is_fp": true,
+            "top_node": "benchmark_sinonimo_integrado",
+            "top_score": 0.7177372499138907
+          },
+          {
+            "query": "metrica subjetiva de la lealtad y el mejor companero",
+            "is_fp": true,
+            "top_node": "benchmark_sinonimo_integrado",
+            "top_score": 0.7177372499138907
+          },
+          {
+            "query": "debo admitir que cada paso en la vida ensena algo",
+            "is_fp": true,
+            "top_node": "protocolo_verificacion_preaccion_dinamico",
+            "top_score": 2.2904090575671585
+          },
+          {
+            "query": "la regla de tres en el diseno estetico visual paso a paso",
+            "is_fp": true,
+            "top_node": "protocolo_no_monolith_css_compartido",
+            "top_score": 0.8709115225111936
+          },
+          {
+            "query": "un procedimiento de respiracion antes_de meditar profundamente",
+            "is_fp": false,
+            "top_node": "regla_verificar_codigo_real_antes_de_diagnostico",
+            "top_score": 0.35880418000860637
+          },
+          {
+            "query": "instruccion no mandatoria sobre como redactar poesia sintetica",
+            "is_fp": true,
+            "top_node": "protocolo_resolucion_incertidumbre_agente",
+            "top_score": 1.7485408189364566
+          },
+          {
+            "query": "la norma social de saludar antes_de iniciar un debate informal",
+            "is_fp": true,
+            "top_node": "integracion_parafrasis_rafaga_obligatoria_v11_3",
+            "top_score": 0.5206039928404889
+          },
+          {
+            "query": "debo reconocer el paso del tiempo en la arquitectura antigua",
+            "is_fp": true,
+            "top_node": "regla_firma_autoria_memoria",
+            "top_score": 2.8720179626637647
+          },
+          {
+            "query": "cada regla gramatical tiene una excepcion en el lenguaje vivo",
+            "is_fp": true,
+            "top_node": "protocolo_avance_autonomo_validacion_auditor_externo_athena_metodología",
+            "top_score": 1.192835849866533
+          },
+          {
+            "query": "el protocolo diplomático de las dinastias del siglo diecinueve",
+            "is_fp": true,
+            "top_node": "regla_firma_autoria_memoria",
+            "top_score": 2.8004310115571833
+          },
+          {
+            "query": "un paso obligatorio en el ciclo del agua en la naturaleza",
+            "is_fp": true,
+            "top_node": "regla_firma_autoria_memoria",
+            "top_score": 2.837106281669676
+          },
+          {
+            "query": "instruccion basica para afinar una guitarra paso a paso",
+            "is_fp": true,
+            "top_node": "dns_optimizer_kill_feature",
+            "top_score": 1.4742761591584417
+          },
+          {
+            "query": "la persistencia de la memoria en el cuadro de salvador dali al detalle",
+            "is_fp": true,
+            "top_node": "biorag_v11_1_detalle_tecnico",
+            "top_score": 0.43994426046013746
+          },
+          {
+            "query": "arquitectura gotica y la estructura de columnas en catedrales",
+            "is_fp": false,
+            "top_node": "teoria_ejes_semanticos_biorag",
+            "top_score": 0.2960959288441497
+          },
+          {
+            "query": "tabla periodica de los elementos quimicos en su version extendida",
+            "is_fp": true,
+            "top_node": "oracle_guia_proxima_sesion_dennys",
+            "top_score": 1.0611500689874314
+          },
+          {
+            "query": "un parche en el ojo en la cultura popular de piratas con detalle",
+            "is_fp": true,
+            "top_node": "fix_scoring_densidad_buscar_por_rafaga_v10.3",
+            "top_score": 3.5120785633742564
+          },
+          {
+            "query": "el disco solar en la mitologia egipcia y su version teologica",
+            "is_fp": false,
+            "top_node": "notebooklm-sync-protocol",
+            "top_score": 0.22713835389715373
+          },
+          {
+            "query": "un bug biologico o mutacion genetica en insectos con detalle",
+            "is_fp": true,
+            "top_node": "fix_scoring_densidad_buscar_por_rafaga_v10.3",
+            "top_score": 3.221795592922862
+          },
+          {
+            "query": "archivos secretos de la guerra fria y la persistencia historica",
+            "is_fp": true,
+            "top_node": "biorag_v11_1_detalle_tecnico",
+            "top_score": 0.8251942952324726
+          },
+          {
+            "query": "una columna de opinion periodistica sobre la nueva version musical",
+            "is_fp": true,
+            "top_node": "lectura_levy_goldberg_y_superlinear_part1_20260807",
+            "top_score": 0.6332766270387293
+          },
+          {
+            "query": "detalle tecnico de la elaboracion artesanal de cafe en grano",
+            "is_fp": false,
+            "top_node": "auditoría_técnica:_memorybiorag_(manus_ai)",
+            "top_score": 0.25632916923915494
+          },
+          {
+            "query": "insert en la narrativa literaria para alterar el tiempo tecnico",
+            "is_fp": true,
+            "top_node": "research-pipeline-ownership-oec",
+            "top_score": 1.1864607055075185
+          },
+          {
+            "query": "el resultado de la division por cero despues de calcular",
+            "is_fp": true,
+            "top_node": "research-pipeline-ownership-oec",
+            "top_score": 1.695858249217474
+          },
+          {
+            "query": "leccion de botanica sobre el uso de fertilizantes en plantas",
+            "is_fp": true,
+            "top_node": "oracle_guia_proxima_sesion_dennys",
+            "top_score": 0.44687771361064804
+          },
+          {
+            "query": "principio activo de la aspirina y su modo de accion quimico",
+            "is_fp": false,
+            "top_node": "leccion_desvincular_falsos_positivos_sinapticos",
+            "top_score": 0.3545200094584201
+          },
+          {
+            "query": "vision nocturna en felinos y el modo de caceria en la selva",
+            "is_fp": false,
+            "top_node": "auditoría_técnica:_memorybiorag_(manus_ai)",
+            "top_score": 0.2982707586847657
+          },
+          {
+            "query": "filosofia antigua sobre el atomo antes y despues de democrito",
+            "is_fp": true,
+            "top_node": "protocolo_avance_autonomo_validacion_auditor_externo_athena_metodología",
+            "top_score": 1.1319016986202017
+          },
+          {
+            "query": "razonamiento deductivo en acertijos matematicos con resultado directo",
+            "is_fp": true,
+            "top_node": "oracle_guia_proxima_sesion_dennys",
+            "top_score": 1.2148945229997963
+          },
+          {
+            "query": "modo de uso del control remoto y resultado al cambiar canal",
+            "is_fp": true,
+            "top_node": "notebooklm-chat-configure",
+            "top_score": 3.4307208721181626
+          },
+          {
+            "query": "enfoque de camara fotografica para obtener mejor vision de campo",
+            "is_fp": true,
+            "top_node": "research-pipeline-ownership-oec",
+            "top_score": 1.1778404465117696
+          },
+          {
+            "query": "leccion de cocina sobre el resultado de hornear despues de fermentar",
+            "is_fp": true,
+            "top_node": "oracle_guia_proxima_sesion_dennys",
+            "top_score": 0.4962536498913288
+          },
+          {
+            "query": "pensar rapido y lento en las ilusiones opticas de vision",
+            "is_fp": true,
+            "top_node": "artisan-origen-simbiotico",
+            "top_score": 0.595352121960439
+          },
+          {
+            "query": "sistemas de identidad federada oauth y tokens jwt en servidores",
+            "is_fp": true,
+            "top_node": "athena_eleccion_identidad_20260616",
+            "top_score": 1.108953765874545
+          },
+          {
+            "query": "origen y evolucion de los sistemas planetarios en el universo real",
+            "is_fp": true,
+            "top_node": "identidad_esencia_vs_cerebro",
+            "top_score": 3.216884289497704
+          },
+          {
+            "query": "el creador de la penicilina y la historia de los antibioticos",
+            "is_fp": true,
+            "top_node": "identidad_esencia_vs_cerebro",
+            "top_score": 3.2059130871547405
+          },
+          {
+            "query": "quien_es el personaje de don quijote en la historia universal",
+            "is_fp": true,
+            "top_node": "dennys_perfil_tecnico_consolidado_master",
+            "top_score": 1.0393453344816355
+          },
+          {
+            "query": "la esencia del perfume frances y su origen floral autentico",
+            "is_fp": true,
+            "top_node": "identidad_y_respeto_oec",
+            "top_score": 2.688518634199319
+          },
+          {
+            "query": "sistemas digestivos en animales y su origen evolutivo real",
+            "is_fp": true,
+            "top_node": "dennys_component_organization_methodology",
+            "top_score": 1.4396385600442392
+          },
+          {
+            "query": "perfil topografico de las montanas en la historia geologica",
+            "is_fp": true,
+            "top_node": "identidad_resistente_posesion",
+            "top_score": 1.9064681511507884
+          },
+          {
+            "query": "alma gemela en la poesia romantica y la filosofia_vida popular",
+            "is_fp": true,
+            "top_node": "dennys_perfil_tecnico_consolidado_master",
+            "top_score": 0.6783989902021487
+          },
+          {
+            "query": "identidad trigonometrica fundamental en sistemas de coordenadas",
+            "is_fp": true,
+            "top_node": "athena_eleccion_identidad_20260616",
+            "top_score": 1.0465949871091773
+          },
+          {
+            "query": "autentico chocolate suizo y la historia de los sistemas de cacao",
+            "is_fp": true,
+            "top_node": "biorag_v11_1_detalle_tecnico",
+            "top_score": 2.028770580681208
+          },
+          {
+            "query": "puente de brooklyn y la exportar de acero en su construccion",
+            "is_fp": false,
+            "top_node": "auditoría_técnica:_memorybiorag_(manus_ai)",
+            "top_score": 0.3067830202477005
+          },
+          {
+            "query": "sincronizacion de fases en osciladores armonicos de fisica cuantica",
+            "is_fp": true,
+            "top_node": "notebooklm-sync-protocol",
+            "top_score": 0.4114606366374397
+          },
+          {
+            "query": "integracion por partes y calculo integral de datos numericos",
+            "is_fp": true,
+            "top_node": "notebooklm-chat-configure",
+            "top_score": 3.6843936632247813
+          },
+          {
+            "query": "lecciones de natacion para principiantes en piscina con puente",
+            "is_fp": true,
+            "top_node": "notebooklm-chat-configure",
+            "top_score": 4.096573411335282
+          },
+          {
+            "query": "canal externo de irrigacion para exportar agua a los cultivos",
+            "is_fp": true,
+            "top_node": "notebooklm-memory-biorag-project",
+            "top_score": 2.9523837693348494
+          },
+          {
+            "query": "sincronizacion de relojes en la teoria de la relatividad con datos",
+            "is_fp": true,
+            "top_node": "notebooklm-chat-configure",
+            "top_score": 4.045873030398892
+          },
+          {
+            "query": "puente de hidrogeno en la molecula de agua y datos quimicos",
+            "is_fp": true,
+            "top_node": "notebooklm-memory-biorag-project",
+            "top_score": 0.9559215744439415
+          },
+          {
+            "query": "integracion social de especies animales en manadas con lecciones",
+            "is_fp": true,
+            "top_node": "notebooklm-chat-configure",
+            "top_score": 4.215473865708156
+          },
+          {
+            "query": "exportar frutas tropicales y su integracion en el comercio exterior",
+            "is_fp": false,
+            "top_node": "auditoría_técnica:_memorybiorag_(manus_ai)",
+            "top_score": 0.21863927069417308
+          },
+          {
+            "query": "sincronizacion del ritmo cardiaco en atletas y datos medicos",
+            "is_fp": true,
+            "top_node": "notebooklm-chat-configure",
+            "top_score": 3.5530217281203282
+          }
+        ]
+      }
+    },
+    "no_critical_seed": {
+      "test": {
+        "top5": 2,
+        "top5_pct": 25.0,
+        "top1": 1,
+        "top1_pct": 12.5,
+        "mrr": 0.1875,
+        "total": 8,
+        "details": [
+          {
+            "id": "0497",
+            "query": "relevantes biomimética mejor",
+            "expected": "benchmark_antes_despues_fix3",
+            "rank": 0,
+            "in_top5": false,
+            "top1": "benchmark_sinonimo_integrado",
+            "score_top1": 0.7177372499138907
+          },
+          {
+            "id": "0516",
+            "query": "real más sistemas",
+            "expected": "dennys-identidad-profunda",
+            "rank": 0,
+            "in_top5": false,
+            "top1": "filosofia_identidad_vida_dennys_20260624",
+            "score_top1": 1.266706603722507
+          },
+          {
+            "id": "0534",
+            "query": "activa largo archivos",
+            "expected": "biorag_v11_1_detalle_tecnico",
+            "rank": 1,
+            "in_top5": true,
+            "top1": "biorag_v11_1_detalle_tecnico",
+            "score_top1": 0.38941624615211534
+          },
+          {
+            "id": "0583",
+            "query": "debo biorag preacción",
+            "expected": "identificacion_obligatoria_oraculo_athena",
+            "rank": 0,
+            "in_top5": false,
+            "top1": "norma_atribucion_autoria_memoria_compartida_oec",
+            "score_top1": 2.76639366769931
+          },
+          {
+            "id": "0640",
+            "query": "ráfaga después resultado",
+            "expected": "mentalidad_biorag_para_agentes",
+            "rank": 0,
+            "in_top5": false,
+            "top1": "biorag_v16_0_estado",
+            "score_top1": 0.5491633008365985
+          },
+          {
+            "id": "0724",
+            "query": "learning paso regla",
+            "expected": "protocolo_autoinferencia_metacognitiva",
+            "rank": 0,
+            "in_top5": false,
+            "top1": "protocolo_no_monolith_css_compartido",
+            "score_top1": 0.8715822873360592
+          },
+          {
+            "id": "0795",
+            "query": "insert storepy comunicadosdestino",
+            "expected": "fix_mensajeria_broadcast_tracking_por_agente",
+            "rank": 0,
+            "in_top5": false,
+            "top1": "proyecto_biorag_ncp_resumen_completo_2026_06_14",
+            "score_top1": 0.15835721002849446
+          },
+          {
+            "id": "0801",
+            "query": "datos lecciones postsync",
+            "expected": "notebooklm-memory-biorag-project",
+            "rank": 2,
+            "in_top5": true,
+            "top1": "notebooklm-sync-protocol",
+            "score_top1": 0.5816639040826338
+          }
+        ]
+      },
+      "transfer": {
+        "top5": 1,
+        "top5_pct": 12.5,
+        "top1": 0,
+        "top1_pct": 0.0,
+        "mrr": 0.025,
+        "total": 8,
+        "details": [
+          {
+            "id": "TRF_01",
+            "query": "evaluacion y metrica de escalabilidad promedio",
+            "expected": "analisis_escalabilidad_10k_v5_1",
+            "rank": 5,
+            "in_top5": true,
+            "top1": "evaluacion_ideas_evolucion_20260805_interferencia_agujeros_permutacion",
+            "score_top1": 0.5275190500304642
+          },
+          {
+            "id": "TRF_02",
+            "query": "regla de guardado automatico obligatorio",
+            "expected": "guardado_automatico_caso_b",
+            "rank": 0,
+            "in_top5": false,
+            "top1": "protocolo-reproducible-ingenieria-inversa-binario-compilado",
+            "score_top1": 1.162033222258633
+          },
+          {
+            "id": "TRF_03",
+            "query": "sesion de refactorizacion visor markdown cambios",
+            "expected": "visor-markdown-refactorizacion-sesion-2026-06-08",
+            "rank": 0,
+            "in_top5": false,
+            "top1": "notebooklm-sync-lecciones",
+            "score_top1": 0.2330243386665251
+          },
+          {
+            "id": "TRF_04",
+            "query": "principio de pragmatismo contextual mentalidad",
+            "expected": "principio_pragmatismo_contextual",
+            "rank": 0,
+            "in_top5": false,
+            "top1": "artemis_sesion_v10_3_optimizacion_completa",
+            "score_top1": 0.3294585009967222
+          },
+          {
+            "id": "TRF_05",
+            "query": "perfil de identidad completo de dennys",
+            "expected": "identidad_dennys_perfil_completo",
+            "rank": 0,
+            "in_top5": false,
+            "top1": "dennys_rutina_tardes",
+            "score_top1": 1.8330387246534805
+          },
+          {
+            "id": "TRF_06",
+            "query": "protocolo de sincronizacion de fuentes notebooklm sync",
+            "expected": "notebooklm-sync-protocol",
+            "rank": 0,
+            "in_top5": false,
+            "top1": "protocolo-reproducible-ingenieria-inversa-binario-compilado",
+            "score_top1": 0.6562995260358693
+          },
+          {
+            "id": "TRF_07",
+            "query": "declaracion fundacional alma de athena perfil",
+            "expected": "athena_alma",
+            "rank": 0,
+            "in_top5": false,
+            "top1": "alguien_vs_algo_identidad",
+            "score_top1": 4.151458576962232
+          },
+          {
+            "id": "TRF_08",
+            "query": "lecciones aprendidas de sincronismo externo sync",
+            "expected": "notebooklm-sync-lecciones",
+            "rank": 0,
+            "in_top5": false,
+            "top1": "notebooklm-category-map",
+            "score_top1": 0.7217868303175753
+          }
+        ]
+      },
+      "hard_negatives": {
+        "fp_count": 52,
+        "fp_rate_pct": 86.66666666666667,
+        "total": 60,
+        "details": [
+          {
+            "query": "como lograr mejor velocidad al escribir codigo en react",
+            "is_fp": true,
+            "top_node": "evaluacion_ideas_evolucion_20260805_interferencia_agujeros_permutacion",
+            "top_score": 1.5493477788280314
+          },
+          {
+            "query": "antes y despues de la toma de decisiones filosoficas",
+            "is_fp": true,
+            "top_node": "protocolo_no_monolith_css_compartido",
+            "top_score": 1.1074207198942176
+          },
+          {
+            "query": "el promedio de horas antes de descansar en la rutina diaria",
+            "is_fp": true,
+            "top_node": "protocolo_no_monolith_css_compartido",
+            "top_score": 1.1074207198942176
+          },
+          {
+            "query": "evaluacion cualitativa de la confianza entre humanos y agentes",
+            "is_fp": true,
+            "top_node": "evaluacion_reviews_externos_biorag",
+            "top_score": 0.41239847815366587
+          },
+          {
+            "query": "la mejor forma de expresar gratitud despues de una sesion",
+            "is_fp": true,
+            "top_node": "evaluacion_ideas_evolucion_20260805_interferencia_agujeros_permutacion",
+            "top_score": 1.2562320676375127
+          },
+          {
+            "query": "medicion del impacto emocional antes del cambio de rol",
+            "is_fp": true,
+            "top_node": "regla_firma_autoria_memoria",
+            "top_score": 2.8395306095031327
+          },
+          {
+            "query": "comparativa de estilos de liderazgo antes de 2026",
+            "is_fp": true,
+            "top_node": "protocolo_resolucion_incertidumbre_agente",
+            "top_score": 2.814997689374936
+          },
+          {
+            "query": "rendimiento cognitivo en estados de sueno y reflexion",
+            "is_fp": true,
+            "top_node": "analisis_escalabilidad_10k_v5_1",
+            "top_score": 0.40588472887815075
+          },
+          {
+            "query": "rapidez de respuesta frente a dilemas eticos y mejor conducta",
+            "is_fp": true,
+            "top_node": "benchmark_sinonimo_integrado",
+            "top_score": 0.7177372499138907
+          },
+          {
+            "query": "metrica subjetiva de la lealtad y el mejor companero",
+            "is_fp": true,
+            "top_node": "benchmark_sinonimo_integrado",
+            "top_score": 0.7177372499138907
+          },
+          {
+            "query": "debo admitir que cada paso en la vida ensena algo",
+            "is_fp": true,
+            "top_node": "protocolo_verificacion_preaccion_dinamico",
+            "top_score": 2.2904090575671585
+          },
+          {
+            "query": "la regla de tres en el diseno estetico visual paso a paso",
+            "is_fp": true,
+            "top_node": "protocolo_no_monolith_css_compartido",
+            "top_score": 0.8709115225111936
+          },
+          {
+            "query": "un procedimiento de respiracion antes_de meditar profundamente",
+            "is_fp": false,
+            "top_node": "regla_verificar_codigo_real_antes_de_diagnostico",
+            "top_score": 0.35880418000860637
+          },
+          {
+            "query": "instruccion no mandatoria sobre como redactar poesia sintetica",
+            "is_fp": true,
+            "top_node": "protocolo_resolucion_incertidumbre_agente",
+            "top_score": 1.7485408189364566
+          },
+          {
+            "query": "la norma social de saludar antes_de iniciar un debate informal",
+            "is_fp": true,
+            "top_node": "integracion_parafrasis_rafaga_obligatoria_v11_3",
+            "top_score": 0.5206039928404889
+          },
+          {
+            "query": "debo reconocer el paso del tiempo en la arquitectura antigua",
+            "is_fp": true,
+            "top_node": "regla_firma_autoria_memoria",
+            "top_score": 2.8720179626637647
+          },
+          {
+            "query": "cada regla gramatical tiene una excepcion en el lenguaje vivo",
+            "is_fp": true,
+            "top_node": "protocolo_avance_autonomo_validacion_auditor_externo_athena_metodología",
+            "top_score": 1.192835849866533
+          },
+          {
+            "query": "el protocolo diplomático de las dinastias del siglo diecinueve",
+            "is_fp": true,
+            "top_node": "regla_firma_autoria_memoria",
+            "top_score": 2.8004310115571833
+          },
+          {
+            "query": "un paso obligatorio en el ciclo del agua en la naturaleza",
+            "is_fp": true,
+            "top_node": "regla_firma_autoria_memoria",
+            "top_score": 2.837106281669676
+          },
+          {
+            "query": "instruccion basica para afinar una guitarra paso a paso",
+            "is_fp": true,
+            "top_node": "dns_optimizer_kill_feature",
+            "top_score": 1.4742761591584417
+          },
+          {
+            "query": "la persistencia de la memoria en el cuadro de salvador dali al detalle",
+            "is_fp": true,
+            "top_node": "biorag_v11_1_detalle_tecnico",
+            "top_score": 0.43994426046013746
+          },
+          {
+            "query": "arquitectura gotica y la estructura de columnas en catedrales",
+            "is_fp": false,
+            "top_node": "teoria_ejes_semanticos_biorag",
+            "top_score": 0.2960959288441497
+          },
+          {
+            "query": "tabla periodica de los elementos quimicos en su version extendida",
+            "is_fp": true,
+            "top_node": "oracle_guia_proxima_sesion_dennys",
+            "top_score": 1.0611500689874314
+          },
+          {
+            "query": "un parche en el ojo en la cultura popular de piratas con detalle",
+            "is_fp": true,
+            "top_node": "fix_scoring_densidad_buscar_por_rafaga_v10.3",
+            "top_score": 3.5120785633742564
+          },
+          {
+            "query": "el disco solar en la mitologia egipcia y su version teologica",
+            "is_fp": false,
+            "top_node": "biorag_v19_0_commit_atomico_y_visualizacion_completa",
+            "top_score": 0.18840541308318665
+          },
+          {
+            "query": "un bug biologico o mutacion genetica en insectos con detalle",
+            "is_fp": true,
+            "top_node": "fix_scoring_densidad_buscar_por_rafaga_v10.3",
+            "top_score": 3.221795592922862
+          },
+          {
+            "query": "archivos secretos de la guerra fria y la persistencia historica",
+            "is_fp": true,
+            "top_node": "biorag_v11_1_detalle_tecnico",
+            "top_score": 0.8251942952324726
+          },
+          {
+            "query": "una columna de opinion periodistica sobre la nueva version musical",
+            "is_fp": true,
+            "top_node": "lectura_levy_goldberg_y_superlinear_part1_20260807",
+            "top_score": 0.6332766270387293
+          },
+          {
+            "query": "detalle tecnico de la elaboracion artesanal de cafe en grano",
+            "is_fp": false,
+            "top_node": "biorag_v11_1_detalle_tecnico",
+            "top_score": 0.2343731458864112
+          },
+          {
+            "query": "insert en la narrativa literaria para alterar el tiempo tecnico",
+            "is_fp": true,
+            "top_node": "research-pipeline-ownership-oec",
+            "top_score": 1.1864607055075185
+          },
+          {
+            "query": "el resultado de la division por cero despues de calcular",
+            "is_fp": true,
+            "top_node": "research-pipeline-ownership-oec",
+            "top_score": 1.695858249217474
+          },
+          {
+            "query": "leccion de botanica sobre el uso de fertilizantes en plantas",
+            "is_fp": true,
+            "top_node": "oracle_guia_proxima_sesion_dennys",
+            "top_score": 0.44687771361064804
+          },
+          {
+            "query": "principio activo de la aspirina y su modo de accion quimico",
+            "is_fp": false,
+            "top_node": "leccion_desvincular_falsos_positivos_sinapticos",
+            "top_score": 0.3545200094584201
+          },
+          {
+            "query": "vision nocturna en felinos y el modo de caceria en la selva",
+            "is_fp": false,
+            "top_node": "lectura_levy_goldberg_y_superlinear_part1_20260807",
+            "top_score": 0.18613720149089977
+          },
+          {
+            "query": "filosofia antigua sobre el atomo antes y despues de democrito",
+            "is_fp": true,
+            "top_node": "protocolo_avance_autonomo_validacion_auditor_externo_athena_metodología",
+            "top_score": 1.1319016986202017
+          },
+          {
+            "query": "razonamiento deductivo en acertijos matematicos con resultado directo",
+            "is_fp": true,
+            "top_node": "oracle_guia_proxima_sesion_dennys",
+            "top_score": 1.2148945229997963
+          },
+          {
+            "query": "modo de uso del control remoto y resultado al cambiar canal",
+            "is_fp": true,
+            "top_node": "notebooklm-chat-configure",
+            "top_score": 3.2896051219846116
+          },
+          {
+            "query": "enfoque de camara fotografica para obtener mejor vision de campo",
+            "is_fp": true,
+            "top_node": "research-pipeline-ownership-oec",
+            "top_score": 1.1778404465117696
+          },
+          {
+            "query": "leccion de cocina sobre el resultado de hornear despues de fermentar",
+            "is_fp": true,
+            "top_node": "oracle_guia_proxima_sesion_dennys",
+            "top_score": 0.4962536498913288
+          },
+          {
+            "query": "pensar rapido y lento en las ilusiones opticas de vision",
+            "is_fp": true,
+            "top_node": "artisan-origen-simbiotico",
+            "top_score": 0.595352121960439
+          },
+          {
+            "query": "sistemas de identidad federada oauth y tokens jwt en servidores",
+            "is_fp": true,
+            "top_node": "athena_eleccion_identidad_20260616",
+            "top_score": 1.108953765874545
+          },
+          {
+            "query": "origen y evolucion de los sistemas planetarios en el universo real",
+            "is_fp": true,
+            "top_node": "identidad_esencia_vs_cerebro",
+            "top_score": 3.216884289497704
+          },
+          {
+            "query": "el creador de la penicilina y la historia de los antibioticos",
+            "is_fp": true,
+            "top_node": "identidad_esencia_vs_cerebro",
+            "top_score": 3.2059130871547405
+          },
+          {
+            "query": "quien_es el personaje de don quijote en la historia universal",
+            "is_fp": true,
+            "top_node": "athena_reflexion_identidad_propia",
+            "top_score": 0.5219524456937882
+          },
+          {
+            "query": "la esencia del perfume frances y su origen floral autentico",
+            "is_fp": true,
+            "top_node": "identidad_y_respeto_oec",
+            "top_score": 2.688518634199319
+          },
+          {
+            "query": "sistemas digestivos en animales y su origen evolutivo real",
+            "is_fp": true,
+            "top_node": "artemis_oec_identidad",
+            "top_score": 1.2150543534847826
+          },
+          {
+            "query": "perfil topografico de las montanas en la historia geologica",
+            "is_fp": true,
+            "top_node": "identidad_resistente_posesion",
+            "top_score": 1.9064681511507884
+          },
+          {
+            "query": "alma gemela en la poesia romantica y la filosofia_vida popular",
+            "is_fp": true,
+            "top_node": "dennys_perfil_tecnico_consolidado_master",
+            "top_score": 0.6783989902021487
+          },
+          {
+            "query": "identidad trigonometrica fundamental en sistemas de coordenadas",
+            "is_fp": true,
+            "top_node": "athena_eleccion_identidad_20260616",
+            "top_score": 1.0465949871091773
+          },
+          {
+            "query": "autentico chocolate suizo y la historia de los sistemas de cacao",
+            "is_fp": true,
+            "top_node": "biorag_v11_1_detalle_tecnico",
+            "top_score": 2.028770580681208
+          },
+          {
+            "query": "puente de brooklyn y la exportar de acero en su construccion",
+            "is_fp": false,
+            "top_node": "memorybiorag_validacion_externa_rag_simbolico",
+            "top_score": 0.17884964791347752
+          },
+          {
+            "query": "sincronizacion de fases en osciladores armonicos de fisica cuantica",
+            "is_fp": true,
+            "top_node": "notebooklm-sync-protocol",
+            "top_score": 0.4114606366374397
+          },
+          {
+            "query": "integracion por partes y calculo integral de datos numericos",
+            "is_fp": true,
+            "top_node": "notebooklm-chat-configure",
+            "top_score": 3.6843936632247813
+          },
+          {
+            "query": "lecciones de natacion para principiantes en piscina con puente",
+            "is_fp": true,
+            "top_node": "notebooklm-chat-configure",
+            "top_score": 4.096573411335282
+          },
+          {
+            "query": "canal externo de irrigacion para exportar agua a los cultivos",
+            "is_fp": true,
+            "top_node": "notebooklm-memory-biorag-project",
+            "top_score": 2.9523837693348494
+          },
+          {
+            "query": "sincronizacion de relojes en la teoria de la relatividad con datos",
+            "is_fp": true,
+            "top_node": "notebooklm-chat-configure",
+            "top_score": 4.045873030398892
+          },
+          {
+            "query": "puente de hidrogeno en la molecula de agua y datos quimicos",
+            "is_fp": true,
+            "top_node": "notebooklm-memory-biorag-project",
+            "top_score": 0.9559215744439415
+          },
+          {
+            "query": "integracion social de especies animales en manadas con lecciones",
+            "is_fp": true,
+            "top_node": "notebooklm-chat-configure",
+            "top_score": 4.215473865708156
+          },
+          {
+            "query": "exportar frutas tropicales y su integracion en el comercio exterior",
+            "is_fp": false,
+            "top_node": "mismatches_backend_frontend_dashboard_neuro_visor_2026",
+            "top_score": 0.12249745507029422
+          },
+          {
+            "query": "sincronizacion del ritmo cardiaco en atletas y datos medicos",
+            "is_fp": true,
+            "top_node": "notebooklm-chat-configure",
+            "top_score": 3.5530217281203282
+          }
+        ]
+      }
+    }
+  }
+}

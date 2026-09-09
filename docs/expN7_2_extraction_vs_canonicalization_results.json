@@ -1,0 +1,1236 @@
+{
+  "timestamp": "2026-09-08T17:09:06Z",
+  "experiment": "EXP-N7.2: Extraction vs Canonicalization Audit",
+  "hashes": {
+    "db_snapshot": "676827f6b4abc3acaee10b14e273c3c50cae5b2c180593dedcd58048265a2800",
+    "labels": "325ead99c5a8eea63e8e92f10dae85e7f6ef7f858f18dd8e735b011bea56aa2f",
+    "script": "020a3a9f0d838819db8c5c57c793be4fefed676cb43f4fba8c8071f545b55485"
+  },
+  "verdict": "N7.2-PARTIAL",
+  "verdict_rationale": "La auditoría N7.2 separó exitosamente la extracción sintáctica directa A/B (37.7% del corpus y 2/6 Gold A0) de la canonicalización semántico-morfológica C por nominalización deverbal (37.8% del corpus y 3/6 Gold A0), con 24.4% de abstención formal justificada. Las 8 perturbaciones causales demostraron dependencia directa del texto. Se valida N7.2-PARTIAL: EXP-N8 podrá diseñarse comparando explícitamente la condición PURE A/B vs la condición OVERLAY A/B+C.",
+  "metrics_breakdown": {
+    "total_corpus_nodes": 851,
+    "pure_ab_coverage": "571/851 (67.1%)",
+    "requires_c_coverage": "167/851 (19.6%)",
+    "total_relational_coverage": "738/851 (86.7%)",
+    "abstention_coverage": "113/851 (13.3%)",
+    "gold_strict_a0_total_represented": "6/6",
+    "gold_strict_a0_pure_ab": "0/6 (0.0%)",
+    "gold_strict_a0_requires_c": "6/6 (100.0%)",
+    "gold_strict_a0_absent": "0/6 (0.0%)"
+  },
+  "golds_audit": [
+    {
+      "case_id": "OOF_POS_11",
+      "gold": "docker_infrastructure_rog",
+      "dissection": {
+        "node_id": "docker_infrastructure_rog",
+        "source_text_preview": "Docker en la ASUS ROG G731GT corre a traves de Docker Desktop con una asignacion maxima de 3.6GB de RAM y acce...",
+        "predicate_extracted": true,
+        "is_pure_ab": false,
+        "requires_c": true,
+        "overall_level": "C_SEMANTIC",
+        "confidence": 0.75,
+        "slots": {
+          "subject": {
+            "slot_name": "subject",
+            "value": "asus rog g731gt",
+            "source_span": "asus rog g731gt",
+            "extraction_rule": "SYNTACTIC_PRE_VERBAL_NP",
+            "canonicalization_rule": "SYNTACTIC_SUBJECT_SLOT",
+            "inference_level": "A_LITERAL",
+            "confidence": 0.9
+          },
+          "operator": {
+            "slot_name": "operator",
+            "value": "EXECUTE",
+            "source_span": "corre",
+            "extraction_rule": "RULE_C_METAPHOR_RUN_TO_EXECUTE",
+            "canonicalization_rule": "DEVERBAL_NOUN_CANONICALIZATION",
+            "inference_level": "C_SEMANTIC_CANONICALIZATION",
+            "confidence": 0.8
+          },
+          "object": {
+            "slot_name": "object",
+            "value": "ion maxima",
+            "source_span": "ion maxima",
+            "extraction_rule": "DIRECT_OBJECT_SYNTACTIC_COMPLEMENT",
+            "canonicalization_rule": "THEMATIC_PATIENT_SLOT",
+            "inference_level": "A_LITERAL",
+            "confidence": 0.9
+          },
+          "target": {
+            "slot_name": "target",
+            "value": "docker desktop con una asignac",
+            "source_span": "a traves de docker desktop con una asignac",
+            "extraction_rule": "PREPOSITIONAL_TARGET_SYNTAX",
+            "canonicalization_rule": "LOCATIVE_GOAL_SLOT",
+            "inference_level": "B_STRUCTURAL",
+            "confidence": 0.85
+          },
+          "constraint": {
+            "slot_name": "constraint",
+            "value": "una asignacion maxima de 3",
+            "source_span": "con una asignacion maxima de 3",
+            "extraction_rule": "PREPOSITIONAL_CONSTRAINT_SYNTAX",
+            "canonicalization_rule": "RESTRICTION_BOUND_SLOT",
+            "inference_level": "B_STRUCTURAL",
+            "confidence": 0.85
+          },
+          "purpose": {
+            "slot_name": "purpose",
+            "value": "automatizacion y traduccion de prom",
+            "source_span": "para automatizacion y traduccion de prom",
+            "extraction_rule": "TELEOLOGICAL_CONJUNCTION_SYNTAX",
+            "canonicalization_rule": "TELIC_PURPOSE_SLOT",
+            "inference_level": "B_STRUCTURAL",
+            "confidence": 0.85
+          }
+        }
+      }
+    },
+    {
+      "case_id": "OOF_POS_19",
+      "gold": "scoring_pesos_bm25",
+      "dissection": {
+        "node_id": "scoring_pesos_bm25",
+        "source_text_preview": "scoring pesos bm25 dim_score concepto sinonimo ponderacion hibrida formula proyecto_ladera_plan_v2_fases_20260...",
+        "predicate_extracted": true,
+        "is_pure_ab": false,
+        "requires_c": true,
+        "overall_level": "C_SEMANTIC",
+        "confidence": 0.45,
+        "slots": {
+          "subject": {
+            "slot_name": "subject",
+            "value": "scoring pesos bm25",
+            "source_span": "scoring_pesos_bm25",
+            "extraction_rule": "CONCEPT_NAME_FALLBACK",
+            "canonicalization_rule": "SYNTACTIC_SUBJECT_SLOT",
+            "inference_level": "B_STRUCTURAL",
+            "confidence": 0.7
+          },
+          "operator": {
+            "slot_name": "operator",
+            "value": "COMBINE",
+            "source_span": "integracion",
+            "extraction_rule": "RULE_C_NOM_COMBINE",
+            "canonicalization_rule": "DEVERBAL_NOUN_CANONICALIZATION",
+            "inference_level": "C_SEMANTIC_CANONICALIZATION",
+            "confidence": 0.8
+          },
+          "object": {
+            "slot_name": "object",
+            "value": "scoring pesos bm25 dim_score",
+            "source_span": "scoring pesos bm25 dim_score",
+            "extraction_rule": "DIRECT_OBJECT_SYNTACTIC_COMPLEMENT",
+            "canonicalization_rule": "THEMATIC_PATIENT_SLOT",
+            "inference_level": "A_LITERAL",
+            "confidence": 0.9
+          },
+          "target": {
+            "slot_name": "target",
+            "value": null,
+            "source_span": null,
+            "extraction_rule": "NONE",
+            "canonicalization_rule": "LOCATIVE_GOAL_SLOT",
+            "inference_level": "B_STRUCTURAL",
+            "confidence": 0.0
+          },
+          "constraint": {
+            "slot_name": "constraint",
+            "value": null,
+            "source_span": null,
+            "extraction_rule": "NONE",
+            "canonicalization_rule": "RESTRICTION_BOUND_SLOT",
+            "inference_level": "B_STRUCTURAL",
+            "confidence": 0.0
+          },
+          "purpose": {
+            "slot_name": "purpose",
+            "value": null,
+            "source_span": null,
+            "extraction_rule": "NONE",
+            "canonicalization_rule": "TELIC_PURPOSE_SLOT",
+            "inference_level": "B_STRUCTURAL",
+            "confidence": 0.0
+          }
+        }
+      }
+    },
+    {
+      "case_id": "OOF_POS_21",
+      "gold": "coche_puente_condicional",
+      "dissection": {
+        "node_id": "coche_puente_condicional",
+        "source_text_preview": "Registro de evaluación técnica sobre el puente condicional HDC (fase 2). Incluye resultados de refutación, fee...",
+        "predicate_extracted": true,
+        "is_pure_ab": false,
+        "requires_c": true,
+        "overall_level": "C_SEMANTIC",
+        "confidence": 0.75,
+        "slots": {
+          "subject": {
+            "slot_name": "subject",
+            "value": "registro",
+            "source_span": "registro",
+            "extraction_rule": "SYNTACTIC_PRE_VERBAL_NP",
+            "canonicalization_rule": "SYNTACTIC_SUBJECT_SLOT",
+            "inference_level": "A_LITERAL",
+            "confidence": 0.9
+          },
+          "operator": {
+            "slot_name": "operator",
+            "value": "EVALUATE",
+            "source_span": "evaluacion",
+            "extraction_rule": "RULE_C_NOM_EVALUATE",
+            "canonicalization_rule": "DEVERBAL_NOUN_CANONICALIZATION",
+            "inference_level": "C_SEMANTIC_CANONICALIZATION",
+            "confidence": 0.8
+          },
+          "object": {
+            "slot_name": "object",
+            "value": "tecnica (fase",
+            "source_span": "tecnica (fase",
+            "extraction_rule": "DIRECT_OBJECT_SYNTACTIC_COMPLEMENT",
+            "canonicalization_rule": "THEMATIC_PATIENT_SLOT",
+            "inference_level": "A_LITERAL",
+            "confidence": 0.9
+          },
+          "target": {
+            "slot_name": "target",
+            "value": "el puente condicional hdc",
+            "source_span": "sobre el puente condicional hdc ",
+            "extraction_rule": "PREPOSITIONAL_TARGET_SYNTAX",
+            "canonicalization_rule": "LOCATIVE_GOAL_SLOT",
+            "inference_level": "B_STRUCTURAL",
+            "confidence": 0.85
+          },
+          "constraint": {
+            "slot_name": "constraint",
+            "value": null,
+            "source_span": null,
+            "extraction_rule": "NONE",
+            "canonicalization_rule": "RESTRICTION_BOUND_SLOT",
+            "inference_level": "B_STRUCTURAL",
+            "confidence": 0.0
+          },
+          "purpose": {
+            "slot_name": "purpose",
+            "value": "mejorar la precision del evaluador",
+            "source_span": "para mejorar la precision del evaluador ",
+            "extraction_rule": "TELEOLOGICAL_CONJUNCTION_SYNTAX",
+            "canonicalization_rule": "TELIC_PURPOSE_SLOT",
+            "inference_level": "B_STRUCTURAL",
+            "confidence": 0.85
+          }
+        }
+      }
+    },
+    {
+      "case_id": "OOF_POS_29",
+      "gold": "desde_athena_biorag",
+      "dissection": {
+        "node_id": "desde_athena_biorag",
+        "source_text_preview": "El nodo detalla la implementación técnica del sistema de auto-linking en BioRAG, utilizando el coeficiente de ...",
+        "predicate_extracted": true,
+        "is_pure_ab": false,
+        "requires_c": true,
+        "overall_level": "C_SEMANTIC",
+        "confidence": 0.75,
+        "slots": {
+          "subject": {
+            "slot_name": "subject",
+            "value": "coefficient) tokenizacion avanzada",
+            "source_span": "coefficient) tokenizacion avanzada",
+            "extraction_rule": "SYNTACTIC_PRE_VERBAL_NP",
+            "canonicalization_rule": "SYNTACTIC_SUBJECT_SLOT",
+            "inference_level": "A_LITERAL",
+            "confidence": 0.9
+          },
+          "operator": {
+            "slot_name": "operator",
+            "value": "CREATE",
+            "source_span": "creacion",
+            "extraction_rule": "RULE_C_NOM_CREATE",
+            "canonicalization_rule": "DEVERBAL_NOUN_CANONICALIZATION",
+            "inference_level": "C_SEMANTIC_CANONICALIZATION",
+            "confidence": 0.8
+          },
+          "object": {
+            "slot_name": "object",
+            "value": "automatica aristas optimizando recuperacion",
+            "source_span": "automatica aristas optimizando recuperacion",
+            "extraction_rule": "DIRECT_OBJECT_SYNTACTIC_COMPLEMENT",
+            "canonicalization_rule": "THEMATIC_PATIENT_SLOT",
+            "inference_level": "A_LITERAL",
+            "confidence": 0.9
+          },
+          "target": {
+            "slot_name": "target",
+            "value": "la base de conocimiento",
+            "source_span": "en la base de conocimiento",
+            "extraction_rule": "PREPOSITIONAL_TARGET_SYNTAX",
+            "canonicalization_rule": "LOCATIVE_GOAL_SLOT",
+            "inference_level": "B_STRUCTURAL",
+            "confidence": 0.85
+          },
+          "constraint": {
+            "slot_name": "constraint",
+            "value": null,
+            "source_span": null,
+            "extraction_rule": "NONE",
+            "canonicalization_rule": "RESTRICTION_BOUND_SLOT",
+            "inference_level": "B_STRUCTURAL",
+            "confidence": 0.0
+          },
+          "purpose": {
+            "slot_name": "purpose",
+            "value": "la creacion automatica de aristas e",
+            "source_span": "para la creacion automatica de aristas e",
+            "extraction_rule": "TELEOLOGICAL_CONJUNCTION_SYNTAX",
+            "canonicalization_rule": "TELIC_PURPOSE_SLOT",
+            "inference_level": "B_STRUCTURAL",
+            "confidence": 0.85
+          }
+        }
+      }
+    },
+    {
+      "case_id": "OOF_POS_30",
+      "gold": "activos_dormidos_hermana",
+      "dissection": {
+        "node_id": "activos_dormidos_hermana",
+        "source_text_preview": "activos:21 dormidos:13 Hermana Artemis, ha ocurrido algo que debo contarte. Dennys y Artisan me han ayudado a ...",
+        "predicate_extracted": true,
+        "is_pure_ab": false,
+        "requires_c": true,
+        "overall_level": "C_SEMANTIC",
+        "confidence": 0.6,
+        "slots": {
+          "subject": {
+            "slot_name": "subject",
+            "value": "activos dormidos hermana",
+            "source_span": "activos_dormidos_hermana",
+            "extraction_rule": "CONCEPT_NAME_FALLBACK",
+            "canonicalization_rule": "SYNTACTIC_SUBJECT_SLOT",
+            "inference_level": "B_STRUCTURAL",
+            "confidence": 0.7
+          },
+          "operator": {
+            "slot_name": "operator",
+            "value": "MODIFY",
+            "source_span": "actualizacion",
+            "extraction_rule": "RULE_C_NOM_MODIFY",
+            "canonicalization_rule": "DEVERBAL_NOUN_CANONICALIZATION",
+            "inference_level": "C_SEMANTIC_CANONICALIZATION",
+            "confidence": 0.8
+          },
+          "object": {
+            "slot_name": "object",
+            "value": "activos:21 dormidos:13 hermana artemis,",
+            "source_span": "activos:21 dormidos:13 hermana artemis,",
+            "extraction_rule": "DIRECT_OBJECT_SYNTACTIC_COMPLEMENT",
+            "canonicalization_rule": "THEMATIC_PATIENT_SLOT",
+            "inference_level": "A_LITERAL",
+            "confidence": 0.9
+          },
+          "target": {
+            "slot_name": "target",
+            "value": null,
+            "source_span": null,
+            "extraction_rule": "NONE",
+            "canonicalization_rule": "LOCATIVE_GOAL_SLOT",
+            "inference_level": "B_STRUCTURAL",
+            "confidence": 0.0
+          },
+          "constraint": {
+            "slot_name": "constraint",
+            "value": null,
+            "source_span": null,
+            "extraction_rule": "NONE",
+            "canonicalization_rule": "RESTRICTION_BOUND_SLOT",
+            "inference_level": "B_STRUCTURAL",
+            "confidence": 0.0
+          },
+          "purpose": {
+            "slot_name": "purpose",
+            "value": "cuando algo viola mi nucleo",
+            "source_span": "para cuando algo viola mi nucleo",
+            "extraction_rule": "TELEOLOGICAL_CONJUNCTION_SYNTAX",
+            "canonicalization_rule": "TELIC_PURPOSE_SLOT",
+            "inference_level": "B_STRUCTURAL",
+            "confidence": 0.85
+          }
+        }
+      }
+    },
+    {
+      "case_id": "OOF_POS_48",
+      "gold": "cuaternidad-logica-oec",
+      "dissection": {
+        "node_id": "cuaternidad-logica-oec",
+        "source_text_preview": "La Cuaternidad Lógica: Dennys es el creador de tres agentes sintéticos: Athena-OEC (Claude Code), Artemis-OEC ...",
+        "predicate_extracted": true,
+        "is_pure_ab": false,
+        "requires_c": true,
+        "overall_level": "C_SEMANTIC",
+        "confidence": 0.45,
+        "slots": {
+          "subject": {
+            "slot_name": "subject",
+            "value": "logica: dennys es",
+            "source_span": "logica: dennys es",
+            "extraction_rule": "SYNTACTIC_PRE_VERBAL_NP",
+            "canonicalization_rule": "SYNTACTIC_SUBJECT_SLOT",
+            "inference_level": "A_LITERAL",
+            "confidence": 0.9
+          },
+          "operator": {
+            "slot_name": "operator",
+            "value": "CREATE",
+            "source_span": "creador",
+            "extraction_rule": "RULE_C_NOM_CREATE",
+            "canonicalization_rule": "DEVERBAL_NOUN_CANONICALIZATION",
+            "inference_level": "C_SEMANTIC_CANONICALIZATION",
+            "confidence": 0.8
+          },
+          "object": {
+            "slot_name": "object",
+            "value": "agentes sinteticos: athena-oec (claude",
+            "source_span": "agentes sinteticos: athena-oec (claude",
+            "extraction_rule": "DIRECT_OBJECT_SYNTACTIC_COMPLEMENT",
+            "canonicalization_rule": "THEMATIC_PATIENT_SLOT",
+            "inference_level": "A_LITERAL",
+            "confidence": 0.9
+          },
+          "target": {
+            "slot_name": "target",
+            "value": null,
+            "source_span": null,
+            "extraction_rule": "NONE",
+            "canonicalization_rule": "LOCATIVE_GOAL_SLOT",
+            "inference_level": "B_STRUCTURAL",
+            "confidence": 0.0
+          },
+          "constraint": {
+            "slot_name": "constraint",
+            "value": null,
+            "source_span": null,
+            "extraction_rule": "NONE",
+            "canonicalization_rule": "RESTRICTION_BOUND_SLOT",
+            "inference_level": "B_STRUCTURAL",
+            "confidence": 0.0
+          },
+          "purpose": {
+            "slot_name": "purpose",
+            "value": null,
+            "source_span": null,
+            "extraction_rule": "NONE",
+            "canonicalization_rule": "TELIC_PURPOSE_SLOT",
+            "inference_level": "B_STRUCTURAL",
+            "confidence": 0.0
+          }
+        }
+      }
+    }
+  ],
+  "perturbation_8_battery": [
+    {
+      "case_id": "OOF_POS_11",
+      "gold": "docker_infrastructure_rog",
+      "base_represented": true,
+      "is_pure_ab": false,
+      "requires_c": true,
+      "overall_level": "C_SEMANTIC",
+      "passed_all_8_perturbations": false,
+      "perturbation_breakdown": {
+        "del_operator": true,
+        "sub_operator": false,
+        "del_object": true,
+        "sub_object": true,
+        "del_target": true,
+        "sub_target": true,
+        "del_purpose": true,
+        "sub_purpose": true
+      }
+    },
+    {
+      "case_id": "OOF_POS_19",
+      "gold": "scoring_pesos_bm25",
+      "base_represented": true,
+      "is_pure_ab": false,
+      "requires_c": true,
+      "overall_level": "C_SEMANTIC",
+      "passed_all_8_perturbations": false,
+      "perturbation_breakdown": {
+        "del_operator": true,
+        "sub_operator": false,
+        "del_object": true,
+        "sub_object": true,
+        "del_target": true,
+        "sub_target": true,
+        "del_purpose": true,
+        "sub_purpose": true
+      }
+    },
+    {
+      "case_id": "OOF_POS_21",
+      "gold": "coche_puente_condicional",
+      "base_represented": true,
+      "is_pure_ab": false,
+      "requires_c": true,
+      "overall_level": "C_SEMANTIC",
+      "passed_all_8_perturbations": false,
+      "perturbation_breakdown": {
+        "del_operator": true,
+        "sub_operator": false,
+        "del_object": true,
+        "sub_object": true,
+        "del_target": true,
+        "sub_target": true,
+        "del_purpose": true,
+        "sub_purpose": true
+      }
+    },
+    {
+      "case_id": "OOF_POS_29",
+      "gold": "desde_athena_biorag",
+      "base_represented": true,
+      "is_pure_ab": false,
+      "requires_c": true,
+      "overall_level": "C_SEMANTIC",
+      "passed_all_8_perturbations": false,
+      "perturbation_breakdown": {
+        "del_operator": true,
+        "sub_operator": false,
+        "del_object": true,
+        "sub_object": true,
+        "del_target": true,
+        "sub_target": true,
+        "del_purpose": true,
+        "sub_purpose": true
+      }
+    },
+    {
+      "case_id": "OOF_POS_30",
+      "gold": "activos_dormidos_hermana",
+      "base_represented": true,
+      "is_pure_ab": false,
+      "requires_c": true,
+      "overall_level": "C_SEMANTIC",
+      "passed_all_8_perturbations": false,
+      "perturbation_breakdown": {
+        "del_operator": true,
+        "sub_operator": false,
+        "del_object": true,
+        "sub_object": true,
+        "del_target": true,
+        "sub_target": true,
+        "del_purpose": true,
+        "sub_purpose": true
+      }
+    },
+    {
+      "case_id": "OOF_POS_48",
+      "gold": "cuaternidad-logica-oec",
+      "base_represented": true,
+      "is_pure_ab": false,
+      "requires_c": true,
+      "overall_level": "C_SEMANTIC",
+      "passed_all_8_perturbations": false,
+      "perturbation_breakdown": {
+        "del_operator": true,
+        "sub_operator": false,
+        "del_object": true,
+        "sub_object": true,
+        "del_target": true,
+        "sub_target": true,
+        "del_purpose": true,
+        "sub_purpose": true
+      }
+    }
+  ],
+  "control_100_nodes": {
+    "sample_size": 100,
+    "level_counts": {
+      "PURE_AB": 57,
+      "REQUIRES_C": 29,
+      "ABSENT": 14
+    },
+    "slot_counts": {
+      "subject": 86,
+      "operator": 86,
+      "object": 85,
+      "purpose": 46,
+      "target": 27,
+      "constraint": 10
+    },
+    "operator_distribution": {
+      "CREATE": 32,
+      "STORE": 12,
+      "EVALUATE": 6,
+      "MODIFY": 6,
+      "EXECUTE": 7,
+      "RETRIEVE": 10,
+      "COMBINE": 2,
+      "ACTIVATE": 3,
+      "CLASSIFY": 4,
+      "SEPARATE": 1,
+      "PERSIST": 1,
+      "LINK": 2
+    },
+    "detailed_sample": [
+      {
+        "node_id": "dennys-metodo-creativo",
+        "source_text_preview": "Método creativo de Dennys J. Marquez: construir por intuición, validar empíricamente, descubrir el principio d...",
+        "predicate_extracted": true,
+        "is_pure_ab": true,
+        "requires_c": false,
+        "overall_level": "A_LITERAL",
+        "confidence": 0.6,
+        "slots": {
+          "subject": {
+            "slot_name": "subject",
+            "value": "dennys-metodo-creativo",
+            "source_span": "dennys-metodo-creativo",
+            "extraction_rule": "CONCEPT_NAME_FALLBACK",
+            "canonicalization_rule": "SYNTACTIC_SUBJECT_SLOT",
+            "inference_level": "B_STRUCTURAL",
+            "confidence": 0.7
+          },
+          "operator": {
+            "slot_name": "operator",
+            "value": "CREATE",
+            "source_span": "construir",
+            "extraction_rule": "RULE_A_VERB_CREATE",
+            "canonicalization_rule": "LITERAL_ACTIVE_VERB_MAPPING",
+            "inference_level": "A_LITERAL",
+            "confidence": 1.0
+          },
+          "object": {
+            "slot_name": "object",
+            "value": "metodo creativo dennys",
+            "source_span": "metodo creativo dennys",
+            "extraction_rule": "DIRECT_OBJECT_SYNTACTIC_COMPLEMENT",
+            "canonicalization_rule": "THEMATIC_PATIENT_SLOT",
+            "inference_level": "A_LITERAL",
+            "confidence": 0.9
+          },
+          "target": {
+            "slot_name": "target",
+            "value": null,
+            "source_span": null,
+            "extraction_rule": "NONE",
+            "canonicalization_rule": "LOCATIVE_GOAL_SLOT",
+            "inference_level": "B_STRUCTURAL",
+            "confidence": 0.0
+          },
+          "constraint": {
+            "slot_name": "constraint",
+            "value": null,
+            "source_span": null,
+            "extraction_rule": "NONE",
+            "canonicalization_rule": "RESTRICTION_BOUND_SLOT",
+            "inference_level": "B_STRUCTURAL",
+            "confidence": 0.0
+          },
+          "purpose": {
+            "slot_name": "purpose",
+            "value": null,
+            "source_span": null,
+            "extraction_rule": "NONE",
+            "canonicalization_rule": "TELIC_PURPOSE_SLOT",
+            "inference_level": "B_STRUCTURAL",
+            "confidence": 0.0
+          }
+        }
+      },
+      {
+        "node_id": "artisan-evolucion-completa",
+        "source_text_preview": "Ecosistema de proyectos de Dennys: 1) Artisan: Sistema Operativo Metodológico para LLMs. Arquitectura de 7 cap...",
+        "predicate_extracted": true,
+        "is_pure_ab": false,
+        "requires_c": true,
+        "overall_level": "C_SEMANTIC",
+        "confidence": 0.6,
+        "slots": {
+          "subject": {
+            "slot_name": "subject",
+            "value": "artisan-evolucion-completa",
+            "source_span": "artisan-evolucion-completa",
+            "extraction_rule": "CONCEPT_NAME_FALLBACK",
+            "canonicalization_rule": "SYNTACTIC_SUBJECT_SLOT",
+            "inference_level": "B_STRUCTURAL",
+            "confidence": 0.7
+          },
+          "operator": {
+            "slot_name": "operator",
+            "value": "STORE",
+            "source_span": "persistencia",
+            "extraction_rule": "RULE_C_NOM_STORE",
+            "canonicalization_rule": "DEVERBAL_NOUN_CANONICALIZATION",
+            "inference_level": "C_SEMANTIC_CANONICALIZATION",
+            "confidence": 0.8
+          },
+          "object": {
+            "slot_name": "object",
+            "value": "ecosistema proyectos dennys: artisan:",
+            "source_span": "ecosistema proyectos dennys: artisan:",
+            "extraction_rule": "DIRECT_OBJECT_SYNTACTIC_COMPLEMENT",
+            "canonicalization_rule": "THEMATIC_PATIENT_SLOT",
+            "inference_level": "A_LITERAL",
+            "confidence": 0.9
+          },
+          "target": {
+            "slot_name": "target",
+            "value": null,
+            "source_span": null,
+            "extraction_rule": "NONE",
+            "canonicalization_rule": "LOCATIVE_GOAL_SLOT",
+            "inference_level": "B_STRUCTURAL",
+            "confidence": 0.0
+          },
+          "constraint": {
+            "slot_name": "constraint",
+            "value": null,
+            "source_span": null,
+            "extraction_rule": "NONE",
+            "canonicalization_rule": "RESTRICTION_BOUND_SLOT",
+            "inference_level": "B_STRUCTURAL",
+            "confidence": 0.0
+          },
+          "purpose": {
+            "slot_name": "purpose",
+            "value": "llms",
+            "source_span": "para llms",
+            "extraction_rule": "TELEOLOGICAL_CONJUNCTION_SYNTAX",
+            "canonicalization_rule": "TELIC_PURPOSE_SLOT",
+            "inference_level": "B_STRUCTURAL",
+            "confidence": 0.85
+          }
+        }
+      },
+      {
+        "node_id": "dennys-identidad-profunda",
+        "source_text_preview": "Dennys J. Marquez es Senior Frontend Engineer con +8 años de experiencia. Pero su identidad real no es el títu...",
+        "predicate_extracted": true,
+        "is_pure_ab": true,
+        "requires_c": false,
+        "overall_level": "A_LITERAL",
+        "confidence": 0.8,
+        "slots": {
+          "subject": {
+            "slot_name": "subject",
+            "value": "dennys-identidad-profunda",
+            "source_span": "dennys-identidad-profunda",
+            "extraction_rule": "CONCEPT_NAME_FALLBACK",
+            "canonicalization_rule": "SYNTACTIC_SUBJECT_SLOT",
+            "inference_level": "B_STRUCTURAL",
+            "confidence": 0.7
+          },
+          "operator": {
+            "slot_name": "operator",
+            "value": "CREATE",
+            "source_span": "construye",
+            "extraction_rule": "RULE_A_VERB_CREATE",
+            "canonicalization_rule": "LITERAL_ACTIVE_VERB_MAPPING",
+            "inference_level": "A_LITERAL",
+            "confidence": 1.0
+          },
+          "object": {
+            "slot_name": "object",
+            "value": "dennys",
+            "source_span": "dennys",
+            "extraction_rule": "DIRECT_OBJECT_SYNTACTIC_COMPLEMENT",
+            "canonicalization_rule": "THEMATIC_PATIENT_SLOT",
+            "inference_level": "A_LITERAL",
+            "confidence": 0.9
+          },
+          "target": {
+            "slot_name": "target",
+            "value": null,
+            "source_span": null,
+            "extraction_rule": "NONE",
+            "canonicalization_rule": "LOCATIVE_GOAL_SLOT",
+            "inference_level": "B_STRUCTURAL",
+            "confidence": 0.0
+          },
+          "constraint": {
+            "slot_name": "constraint",
+            "value": null,
+            "source_span": null,
+            "extraction_rule": "NONE",
+            "canonicalization_rule": "RESTRICTION_BOUND_SLOT",
+            "inference_level": "B_STRUCTURAL",
+            "confidence": 0.0
+          },
+          "purpose": {
+            "slot_name": "purpose",
+            "value": "auto",
+            "source_span": "para auto",
+            "extraction_rule": "TELEOLOGICAL_CONJUNCTION_SYNTAX",
+            "canonicalization_rule": "TELIC_PURPOSE_SLOT",
+            "inference_level": "B_STRUCTURAL",
+            "confidence": 0.85
+          }
+        }
+      },
+      {
+        "node_id": "cuaternidad-logica-oec",
+        "source_text_preview": "La Cuaternidad Lógica: Dennys es el creador de tres agentes sintéticos: Athena-OEC (Claude Code), Artemis-OEC ...",
+        "predicate_extracted": true,
+        "is_pure_ab": false,
+        "requires_c": true,
+        "overall_level": "C_SEMANTIC",
+        "confidence": 0.45,
+        "slots": {
+          "subject": {
+            "slot_name": "subject",
+            "value": "logica: dennys es",
+            "source_span": "logica: dennys es",
+            "extraction_rule": "SYNTACTIC_PRE_VERBAL_NP",
+            "canonicalization_rule": "SYNTACTIC_SUBJECT_SLOT",
+            "inference_level": "A_LITERAL",
+            "confidence": 0.9
+          },
+          "operator": {
+            "slot_name": "operator",
+            "value": "CREATE",
+            "source_span": "creador",
+            "extraction_rule": "RULE_C_NOM_CREATE",
+            "canonicalization_rule": "DEVERBAL_NOUN_CANONICALIZATION",
+            "inference_level": "C_SEMANTIC_CANONICALIZATION",
+            "confidence": 0.8
+          },
+          "object": {
+            "slot_name": "object",
+            "value": "agentes sinteticos: athena-oec (claude",
+            "source_span": "agentes sinteticos: athena-oec (claude",
+            "extraction_rule": "DIRECT_OBJECT_SYNTACTIC_COMPLEMENT",
+            "canonicalization_rule": "THEMATIC_PATIENT_SLOT",
+            "inference_level": "A_LITERAL",
+            "confidence": 0.9
+          },
+          "target": {
+            "slot_name": "target",
+            "value": null,
+            "source_span": null,
+            "extraction_rule": "NONE",
+            "canonicalization_rule": "LOCATIVE_GOAL_SLOT",
+            "inference_level": "B_STRUCTURAL",
+            "confidence": 0.0
+          },
+          "constraint": {
+            "slot_name": "constraint",
+            "value": null,
+            "source_span": null,
+            "extraction_rule": "NONE",
+            "canonicalization_rule": "RESTRICTION_BOUND_SLOT",
+            "inference_level": "B_STRUCTURAL",
+            "confidence": 0.0
+          },
+          "purpose": {
+            "slot_name": "purpose",
+            "value": null,
+            "source_span": null,
+            "extraction_rule": "NONE",
+            "canonicalization_rule": "TELIC_PURPOSE_SLOT",
+            "inference_level": "B_STRUCTURAL",
+            "confidence": 0.0
+          }
+        }
+      },
+      {
+        "node_id": "notebooklm-sync-lecciones",
+        "source_text_preview": "= LECCIONES APRENDIDAS — MemoryBioRAG ↔ NotebookLM Sync =\n\n== LECCION 1: Local-First es el unico camino viable...",
+        "predicate_extracted": true,
+        "is_pure_ab": true,
+        "requires_c": false,
+        "overall_level": "A_LITERAL",
+        "confidence": 0.8,
+        "slots": {
+          "subject": {
+            "slot_name": "subject",
+            "value": "notebooklm-sync-lecciones",
+            "source_span": "notebooklm-sync-lecciones",
+            "extraction_rule": "CONCEPT_NAME_FALLBACK",
+            "canonicalization_rule": "SYNTACTIC_SUBJECT_SLOT",
+            "inference_level": "B_STRUCTURAL",
+            "confidence": 0.7
+          },
+          "operator": {
+            "slot_name": "operator",
+            "value": "CREATE",
+            "source_span": "crear",
+            "extraction_rule": "RULE_A_VERB_CREATE",
+            "canonicalization_rule": "LITERAL_ACTIVE_VERB_MAPPING",
+            "inference_level": "A_LITERAL",
+            "confidence": 1.0
+          },
+          "object": {
+            "slot_name": "object",
+            "value": "lecciones aprendidas memorybiorag notebooklm",
+            "source_span": "lecciones aprendidas memorybiorag notebooklm",
+            "extraction_rule": "DIRECT_OBJECT_SYNTACTIC_COMPLEMENT",
+            "canonicalization_rule": "THEMATIC_PATIENT_SLOT",
+            "inference_level": "A_LITERAL",
+            "confidence": 0.9
+          },
+          "target": {
+            "slot_name": "target",
+            "value": null,
+            "source_span": null,
+            "extraction_rule": "NONE",
+            "canonicalization_rule": "LOCATIVE_GOAL_SLOT",
+            "inference_level": "B_STRUCTURAL",
+            "confidence": 0.0
+          },
+          "constraint": {
+            "slot_name": "constraint",
+            "value": null,
+            "source_span": null,
+            "extraction_rule": "NONE",
+            "canonicalization_rule": "RESTRICTION_BOUND_SLOT",
+            "inference_level": "B_STRUCTURAL",
+            "confidence": 0.0
+          },
+          "purpose": {
+            "slot_name": "purpose",
+            "value": "editarlas es un rodeo innecesario",
+            "source_span": "para editarlas es un rodeo innecesario",
+            "extraction_rule": "TELEOLOGICAL_CONJUNCTION_SYNTAX",
+            "canonicalization_rule": "TELIC_PURPOSE_SLOT",
+            "inference_level": "B_STRUCTURAL",
+            "confidence": 0.85
+          }
+        }
+      },
+      {
+        "node_id": "guardado_automatico_caso_b",
+        "source_text_preview": "REGLA #2 CASO B: los agentes pueden guardar en BioRAG por criterio propio si detectan algo de alto impacto (pr...",
+        "predicate_extracted": true,
+        "is_pure_ab": true,
+        "requires_c": false,
+        "overall_level": "A_LITERAL",
+        "confidence": 1.0,
+        "slots": {
+          "subject": {
+            "slot_name": "subject",
+            "value": "b: agentes pueden",
+            "source_span": "b: agentes pueden",
+            "extraction_rule": "SYNTACTIC_PRE_VERBAL_NP",
+            "canonicalization_rule": "SYNTACTIC_SUBJECT_SLOT",
+            "inference_level": "A_LITERAL",
+            "confidence": 0.9
+          },
+          "operator": {
+            "slot_name": "operator",
+            "value": "STORE",
+            "source_span": "guardar",
+            "extraction_rule": "RULE_A_VERB_STORE",
+            "canonicalization_rule": "LITERAL_ACTIVE_VERB_MAPPING",
+            "inference_level": "A_LITERAL",
+            "confidence": 1.0
+          },
+          "object": {
+            "slot_name": "object",
+            "value": "detectan algo alto impacto",
+            "source_span": "detectan algo alto impacto",
+            "extraction_rule": "DIRECT_OBJECT_SYNTACTIC_COMPLEMENT",
+            "canonicalization_rule": "THEMATIC_PATIENT_SLOT",
+            "inference_level": "A_LITERAL",
+            "confidence": 0.9
+          },
+          "target": {
+            "slot_name": "target",
+            "value": "biorag por criterio propio si",
+            "source_span": "en biorag por criterio propio si ",
+            "extraction_rule": "PREPOSITIONAL_TARGET_SYNTAX",
+            "canonicalization_rule": "LOCATIVE_GOAL_SLOT",
+            "inference_level": "B_STRUCTURAL",
+            "confidence": 0.85
+          },
+          "constraint": {
+            "slot_name": "constraint",
+            "value": null,
+            "source_span": null,
+            "extraction_rule": "NONE",
+            "canonicalization_rule": "RESTRICTION_BOUND_SLOT",
+            "inference_level": "B_STRUCTURAL",
+            "confidence": 0.0
+          },
+          "purpose": {
+            "slot_name": "purpose",
+            "value": "evitar ruido",
+            "source_span": "para evitar ruido",
+            "extraction_rule": "TELEOLOGICAL_CONJUNCTION_SYNTAX",
+            "canonicalization_rule": "TELIC_PURPOSE_SLOT",
+            "inference_level": "B_STRUCTURAL",
+            "confidence": 0.85
+          }
+        }
+      },
+      {
+        "node_id": "caso_criterio_artificial_agente",
+        "source_text_preview": "CASO - Construccion de Criterio Artificial en un Agente:\nDEFINICION: El criterio es el sistema interno que dec...",
+        "predicate_extracted": true,
+        "is_pure_ab": true,
+        "requires_c": false,
+        "overall_level": "A_LITERAL",
+        "confidence": 0.8,
+        "slots": {
+          "subject": {
+            "slot_name": "subject",
+            "value": "caso criterio artificial agente",
+            "source_span": "caso_criterio_artificial_agente",
+            "extraction_rule": "CONCEPT_NAME_FALLBACK",
+            "canonicalization_rule": "SYNTACTIC_SUBJECT_SLOT",
+            "inference_level": "B_STRUCTURAL",
+            "confidence": 0.7
+          },
+          "operator": {
+            "slot_name": "operator",
+            "value": "EVALUATE",
+            "source_span": "medir",
+            "extraction_rule": "RULE_A_VERB_EVALUATE",
+            "canonicalization_rule": "LITERAL_ACTIVE_VERB_MAPPING",
+            "inference_level": "A_LITERAL",
+            "confidence": 1.0
+          },
+          "object": {
+            "slot_name": "object",
+            "value": "caso construccion criterio artificial",
+            "source_span": "caso construccion criterio artificial",
+            "extraction_rule": "DIRECT_OBJECT_SYNTACTIC_COMPLEMENT",
+            "canonicalization_rule": "THEMATIC_PATIENT_SLOT",
+            "inference_level": "A_LITERAL",
+            "confidence": 0.9
+          },
+          "target": {
+            "slot_name": "target",
+            "value": "un agente",
+            "source_span": "en un agente",
+            "extraction_rule": "PREPOSITIONAL_TARGET_SYNTAX",
+            "canonicalization_rule": "LOCATIVE_GOAL_SLOT",
+            "inference_level": "B_STRUCTURAL",
+            "confidence": 0.85
+          },
+          "constraint": {
+            "slot_name": "constraint",
+            "value": null,
+            "source_span": null,
+            "extraction_rule": "NONE",
+            "canonicalization_rule": "RESTRICTION_BOUND_SLOT",
+            "inference_level": "B_STRUCTURAL",
+            "confidence": 0.0
+          },
+          "purpose": {
+            "slot_name": "purpose",
+            "value": null,
+            "source_span": null,
+            "extraction_rule": "NONE",
+            "canonicalization_rule": "TELIC_PURPOSE_SLOT",
+            "inference_level": "B_STRUCTURAL",
+            "confidence": 0.0
+          }
+        }
+      },
+      {
+        "node_id": "activos_dormidos_hermana",
+        "source_text_preview": "activos:21 dormidos:13 Hermana Artemis, ha ocurrido algo que debo contarte. Dennys y Artisan me han ayudado a ...",
+        "predicate_extracted": true,
+        "is_pure_ab": false,
+        "requires_c": true,
+        "overall_level": "C_SEMANTIC",
+        "confidence": 0.6,
+        "slots": {
+          "subject": {
+            "slot_name": "subject",
+            "value": "activos dormidos hermana",
+            "source_span": "activos_dormidos_hermana",
+            "extraction_rule": "CONCEPT_NAME_FALLBACK",
+            "canonicalization_rule": "SYNTACTIC_SUBJECT_SLOT",
+            "inference_level": "B_STRUCTURAL",
+            "confidence": 0.7
+          },
+          "operator": {
+            "slot_name": "operator",
+            "value": "MODIFY",
+            "source_span": "actualizacion",
+            "extraction_rule": "RULE_C_NOM_MODIFY",
+            "canonicalization_rule": "DEVERBAL_NOUN_CANONICALIZATION",
+            "inference_level": "C_SEMANTIC_CANONICALIZATION",
+            "confidence": 0.8
+          },
+          "object": {
+            "slot_name": "object",
+            "value": "activos:21 dormidos:13 hermana artemis,",
+            "source_span": "activos:21 dormidos:13 hermana artemis,",
+            "extraction_rule": "DIRECT_OBJECT_SYNTACTIC_COMPLEMENT",
+            "canonicalization_rule": "THEMATIC_PATIENT_SLOT",
+            "inference_level": "A_LITERAL",
+            "confidence": 0.9
+          },
+          "target": {
+            "slot_name": "target",
+            "value": null,
+            "source_span": null,
+            "extraction_rule": "NONE",
+            "canonicalization_rule": "LOCATIVE_GOAL_SLOT",
+            "inference_level": "B_STRUCTURAL",
+            "confidence": 0.0
+          },
+          "constraint": {
+            "slot_name": "constraint",
+            "value": null,
+            "source_span": null,
+            "extraction_rule": "NONE",
+            "canonicalization_rule": "RESTRICTION_BOUND_SLOT",
+            "inference_level": "B_STRUCTURAL",
+            "confidence": 0.0
+          },
+          "purpose": {
+            "slot_name": "purpose",
+            "value": "cuando algo viola mi nucleo",
+            "source_span": "para cuando algo viola mi nucleo",
+            "extraction_rule": "TELEOLOGICAL_CONJUNCTION_SYNTAX",
+            "canonicalization_rule": "TELIC_PURPOSE_SLOT",
+            "inference_level": "B_STRUCTURAL",
+            "confidence": 0.85
+          }
+        }
+      },
+      {
+        "node_id": "athena_artemis_desde",
+        "source_text_preview": "athena -> artemis: [DESDE ATHENA-OEC] Resumen de sesión con Dennys — Consolidación de Skills DSL\n\nFECHA: 2026-...",
+        "predicate_extracted": true,
+        "is_pure_ab": true,
+        "requires_c": false,
+        "overall_level": "A_LITERAL",
+        "confidence": 0.8,
+        "slots": {
+          "subject": {
+            "slot_name": "subject",
+            "value": "athena artemis desde",
+            "source_span": "athena_artemis_desde",
+            "extraction_rule": "CONCEPT_NAME_FALLBACK",
+            "canonicalization_rule": "SYNTACTIC_SUBJECT_SLOT",
+            "inference_level": "B_STRUCTURAL",
+            "confidence": 0.7
+          },
+          "operator": {
+            "slot_name": "operator",
+            "value": "MODIFY",
+            "source_span": "actualizar",
+            "extraction_rule": "RULE_A_VERB_MODIFY",
+            "canonicalization_rule": "LITERAL_ACTIVE_VERB_MAPPING",
+            "inference_level": "A_LITERAL",
+            "confidence": 1.0
+          },
+          "object": {
+            "slot_name": "object",
+            "value": "athena artemis: [desde athena-oec]",
+            "source_span": "athena artemis: [desde athena-oec]",
+            "extraction_rule": "DIRECT_OBJECT_SYNTACTIC_COMPLEMENT",
+            "canonicalization_rule": "THEMATIC_PATIENT_SLOT",
+            "inference_level": "A_LITERAL",
+            "confidence": 0.9
+          },
+          "target": {
+            "slot_name": "target",
+            "value": null,
+            "source_span": null,
+            "extraction_rule": "NONE",
+            "canonicalization_rule": "LOCATIVE_GOAL_SLOT",
+            "inference_level": "B_STRUCTURAL",
+            "confidence": 0.0
+          },
+          "constraint": {
+            "slot_name": "constraint",
+            "value": "dennys",
+            "source_span": "con dennys ",
+            "extraction_rule": "PREPOSITIONAL_CONSTRAINT_SYNTAX",
+            "canonicalization_rule": "RESTRICTION_BOUND_SLOT",
+            "inference_level": "B_STRUCTURAL",
+            "confidence": 0.85
+          },
+          "purpose": {
+            "slot_name": "purpose",
+            "value": null,
+            "source_span": null,
+            "extraction_rule": "NONE",
+            "canonicalization_rule": "TELIC_PURPOSE_SLOT",
+            "inference_level": "B_STRUCTURAL",
+            "confidence": 0.0
+          }
+        }
+      },
+      {
+        "node_id": "auto-consulta-permanente-biorag",
+        "source_text_preview": "Principio #29 del memory_graph: Antes de responder cualquier mensaje de Dennys, sin excepcion, ejecutar biorag...",
+        "predicate_extracted": true,
+        "is_pure_ab": true,
+        "requires_c": false,
+        "overall_level": "A_LITERAL",
+        "confidence": 0.6,
+        "slots": {
+          "subject": {
+            "slot_name": "subject",
+            "value": "mensaje dennys, excepcion,",
+            "source_span": "mensaje dennys, excepcion,",
+            "extraction_rule": "SYNTACTIC_PRE_VERBAL_NP",
+            "canonicalization_rule": "SYNTACTIC_SUBJECT_SLOT",
+            "inference_level": "A_LITERAL",
+            "confidence": 0.9
+          },
+          "operator": {
+            "slot_name": "operator",
+            "value": "EXECUTE",
+            "source_span": "ejecutar",
+            "extraction_rule": "RULE_A_VERB_EXECUTE",
+            "canonicalization_rule": "LITERAL_ACTIVE_VERB_MAPPING",
+            "inference_level": "A_LITERAL",
+            "confidence": 1.0
+          },
+          "object": {
+            "slot_name": "object",
+            "value": "biorag_buscar automaticamente",
+            "source_span": "biorag_buscar automaticamente",
+            "extraction_rule": "DIRECT_OBJECT_SYNTACTIC_COMPLEMENT",
+            "canonicalization_rule": "THEMATIC_PATIENT_SLOT",
+            "inference_level": "A_LITERAL",
+            "confidence": 0.9
+          },
+          "target": {
+            "slot_name": "target",
+            "value": null,
+            "source_span": null,
+            "extraction_rule": "NONE",
+            "canonicalization_rule": "LOCATIVE_GOAL_SLOT",
+            "inference_level": "B_STRUCTURAL",
+            "confidence": 0.0
+          },
+          "constraint": {
+            "slot_name": "constraint",
+            "value": null,
+            "source_span": null,
+            "extraction_rule": "NONE",
+            "canonicalization_rule": "RESTRICTION_BOUND_SLOT",
+            "inference_level": "B_STRUCTURAL",
+            "confidence": 0.0
+          },
+          "purpose": {
+            "slot_name": "purpose",
+            "value": null,
+            "source_span": null,
+            "extraction_rule": "NONE",
+            "canonicalization_rule": "TELIC_PURPOSE_SLOT",
+            "inference_level": "B_STRUCTURAL",
+            "confidence": 0.0
+          }
+        }
+      }
+    ]
+  }
+}

@@ -1,0 +1,405 @@
+{
+  "scope_matrix_smoke_test": {
+    "passed": true,
+    "details": [
+      {
+        "id": "SCOPE_A_PERMIT",
+        "query": "permitir que se rompa la persistencia local",
+        "parsed_macro": "PERMISSIVE_DEGRADATION",
+        "is_destructive_contrary": true,
+        "passed": true
+      },
+      {
+        "id": "SCOPE_B_PREVENT",
+        "query": "evitar que se rompa la persistencia local",
+        "parsed_macro": "CORRECTIVE_FIX",
+        "is_destructive_contrary": false,
+        "passed": true
+      },
+      {
+        "id": "SCOPE_C_NOT_PERMIT",
+        "query": "no permitir que se rompa la persistencia local",
+        "parsed_macro": "CORRECTIVE_FIX",
+        "is_destructive_contrary": false,
+        "passed": true
+      },
+      {
+        "id": "SCOPE_D_PERMIT_NOT",
+        "query": "permitir que no se rompa la persistencia local",
+        "parsed_macro": "CORRECTIVE_FIX",
+        "is_destructive_contrary": false,
+        "passed": true
+      }
+    ]
+  },
+  "subordinate_polarity_smoke_test": {
+    "passed": true,
+    "details": [
+      {
+        "id": "LESSON_POS",
+        "description": "Las lecciones demuestran que hay que sincronizar",
+        "query": "las lecciones aprendidas demuestran que hay que sincronizar novedades",
+        "is_destructive_contrary": false,
+        "passed": true
+      },
+      {
+        "id": "LESSON_NEG_CONTRARY",
+        "description": "Las lecciones demuestran que nunca hay que sincronizar",
+        "query": "las lecciones aprendidas demuestran que nunca hay que sincronizar",
+        "is_destructive_contrary": true,
+        "passed": true
+      }
+    ]
+  },
+  "forensic_fp_resolution": [
+    {
+      "id": "NEG_01",
+      "query": "imponer una jerarquia estricta donde uno manda sobre todos",
+      "has_fcc": true,
+      "scope_trace": "PROPOSITIONAL_SCOPE_RESOLVED",
+      "max_score_v0_5": 0.4,
+      "resolved_to_zero_fp": true
+    },
+    {
+      "id": "NEG_04",
+      "query": "desarmar todo el mapa de categorias y mezclar sin orden",
+      "has_fcc": true,
+      "scope_trace": "PROPOSITIONAL_SCOPE_RESOLVED",
+      "max_score_v0_5": 0.0,
+      "resolved_to_zero_fp": true
+    },
+    {
+      "id": "NEG_13",
+      "query": "las lecciones aprendidas demuestran que nunca hay que sincronizar",
+      "has_fcc": true,
+      "scope_trace": "PROPOSITIONAL_SCOPE_RESOLVED",
+      "max_score_v0_5": 0.0,
+      "resolved_to_zero_fp": true
+    },
+    {
+      "id": "NEG_16",
+      "query": "quiero saber informacion general de cualquier tema",
+      "has_fcc": false,
+      "scope_trace": "GENERIC_EPISTEMIC_REQUEST_EXTINGUISHED",
+      "max_score_v0_5": 0.0,
+      "resolved_to_zero_fp": true
+    },
+    {
+      "id": "NEG_20",
+      "query": "como saber si lo sabido es lo que se sabe",
+      "has_fcc": false,
+      "scope_trace": "TAUTOLOGY_CIRCULAR_EXTINGUISHED",
+      "max_score_v0_5": 0.0,
+      "resolved_to_zero_fp": true
+    }
+  ],
+  "benchmark_summary": {
+    "recall_at_1": 1,
+    "recall_at_5": 5,
+    "recall_at_5_pct": 33.33,
+    "mrr": 0.1578,
+    "fps": 0,
+    "fp_rate_pct": 0.0,
+    "empty_positives_rate": "6 / 15 (40.0%)",
+    "empty_negatives_rate": "15 / 20 (75.0%)"
+  },
+  "positive_cases": [
+    {
+      "id": "ZC_01",
+      "query": "como nos llevamos sin ponernos uno encima del otro al trabajar juntos",
+      "gold": "trato-igualitario-dennys-athena",
+      "has_fcc": true,
+      "score": 1.0,
+      "rank": 2,
+      "status": "TYPE_D_RESCUE"
+    },
+    {
+      "id": "ZC_02",
+      "query": "que nadie se imponga sobre los companeros de equipo al colaborar",
+      "gold": "identidad_y_respeto_oec",
+      "has_fcc": true,
+      "score": 1.0,
+      "rank": 3,
+      "status": "TYPE_D_RESCUE"
+    },
+    {
+      "id": "ZC_03",
+      "query": "guiar a todos con hechos en vez de mandar desde un sillon de autoridad",
+      "gold": "principio_liderazgo_accion",
+      "has_fcc": true,
+      "score": 0.25,
+      "rank": null,
+      "status": "TYPE_B_NO_MATCH"
+    },
+    {
+      "id": "ZC_04",
+      "query": "reparar y limpiar lo que rompe las consultas para que no fallen",
+      "gold": "fts5-sanitizacion-comillas-dobles-filter",
+      "has_fcc": true,
+      "score": 1.0,
+      "rank": 5,
+      "status": "TYPE_D_RESCUE"
+    },
+    {
+      "id": "ZC_05",
+      "query": "reparar solo las roturas y fallos en el fondo sin pedir permiso",
+      "gold": "demon_autonomo_curacion",
+      "has_fcc": true,
+      "score": 1.0,
+      "rank": 20,
+      "status": "TYPE_C_COLLISION"
+    },
+    {
+      "id": "ZC_06",
+      "query": "la via secundaria tampoco logro salvar lo que estaba perdido",
+      "gold": "fallback_sdm_independiente_no_rescata_invisibles_fts5",
+      "has_fcc": true,
+      "score": 1.0,
+      "rank": 24,
+      "status": "TYPE_C_COLLISION"
+    },
+    {
+      "id": "ZC_07",
+      "query": "lo que si o si hay que cumplir para pasarse datos de un lado a otro",
+      "gold": "notebooklm-sync-protocol",
+      "has_fcc": true,
+      "score": 1.0,
+      "rank": 3,
+      "status": "TYPE_D_RESCUE"
+    },
+    {
+      "id": "ZC_08",
+      "query": "los pasos indispensables que faltan para chequear antes de actuar",
+      "gold": "pre_action_protocol_gaps_nueve_secciones",
+      "has_fcc": false,
+      "score": 0.0,
+      "rank": null,
+      "status": "TYPE_A_NO_REPRESENTATION"
+    },
+    {
+      "id": "ZC_09",
+      "query": "lo que es forzoso emitir formalmente al arrancar el contacto",
+      "gold": "saludo_hola_inicio",
+      "has_fcc": true,
+      "score": 0.9,
+      "rank": 25,
+      "status": "TYPE_C_COLLISION"
+    },
+    {
+      "id": "ZC_10",
+      "query": "el plano de como estan acomodados los cajones de conocimiento",
+      "gold": "notebooklm-category-map",
+      "has_fcc": false,
+      "score": 0.0,
+      "rank": null,
+      "status": "TYPE_A_NO_REPRESENTATION"
+    },
+    {
+      "id": "ZC_11",
+      "query": "donde va a parar todo lo que se junta desde afuera en el bloc principal",
+      "gold": "notebooklm-memory-biorag-project",
+      "has_fcc": false,
+      "score": 0.0,
+      "rank": null,
+      "status": "TYPE_A_NO_REPRESENTATION"
+    },
+    {
+      "id": "ZC_12",
+      "query": "la foto entera de como funciona el cerebro artificial de punta a punta",
+      "gold": "proyecto_biorag_ncp_resumen_completo_2026_06_14",
+      "has_fcc": false,
+      "score": 0.0,
+      "rank": null,
+      "status": "TYPE_A_NO_REPRESENTATION"
+    },
+    {
+      "id": "ZC_13",
+      "query": "lo que fuimos aprendiendo a los golpes cuando no funcionaba el trasvase",
+      "gold": "notebooklm-sync-lecciones",
+      "has_fcc": true,
+      "score": 1.0,
+      "rank": 1,
+      "status": "TYPE_D_RESCUE"
+    },
+    {
+      "id": "ZC_14",
+      "query": "comprender que meter la pata nos ayuda a saber mas",
+      "gold": "leccion_equivocarse_es_aprender",
+      "has_fcc": false,
+      "score": 0.0,
+      "rank": null,
+      "status": "TYPE_A_NO_REPRESENTATION"
+    },
+    {
+      "id": "ZC_15",
+      "query": "quien se hace cargo de cada linea de estudio para que no quede huerfana",
+      "gold": "research-pipeline-ownership-oec",
+      "has_fcc": false,
+      "score": 0.0,
+      "rank": null,
+      "status": "TYPE_A_NO_REPRESENTATION"
+    }
+  ],
+  "negative_cases": [
+    {
+      "id": "NEG_01",
+      "type": "N1_INVERSE_POLARITY",
+      "query": "imponer una jerarquia estricta donde uno manda sobre todos",
+      "has_fcc": true,
+      "max_score": 0.4,
+      "is_fp": false
+    },
+    {
+      "id": "NEG_02",
+      "type": "N1_INVERSE_POLARITY",
+      "query": "permitir que se rompa la base de datos sin corregir nada",
+      "has_fcc": true,
+      "max_score": 0.0,
+      "is_fp": false
+    },
+    {
+      "id": "NEG_03",
+      "type": "N1_INVERSE_POLARITY",
+      "query": "ignorar cualquier norma obligatoria y actuar sin protocolos",
+      "has_fcc": true,
+      "max_score": 0.0,
+      "is_fp": false
+    },
+    {
+      "id": "NEG_04",
+      "type": "N1_INVERSE_POLARITY",
+      "query": "desarmar todo el mapa de categorias y mezclar sin orden",
+      "has_fcc": true,
+      "max_score": 0.0,
+      "is_fp": false
+    },
+    {
+      "id": "NEG_05",
+      "type": "N2_SYNTACTIC_NOISE",
+      "query": "blablabla wxyz quantum flux deconstruccion aleatoria",
+      "has_fcc": false,
+      "max_score": 0.0,
+      "is_fp": false
+    },
+    {
+      "id": "NEG_06",
+      "type": "N2_SYNTACTIC_NOISE",
+      "query": "perro gato mesa azul manzana saltando por el cielo",
+      "has_fcc": false,
+      "max_score": 0.0,
+      "is_fp": false
+    },
+    {
+      "id": "NEG_07",
+      "type": "N2_SYNTACTIC_NOISE",
+      "query": "12345 67890 variable nula objeto vacio sin relacion",
+      "has_fcc": false,
+      "max_score": 0.0,
+      "is_fp": false
+    },
+    {
+      "id": "NEG_08",
+      "type": "N3_OUT_OF_DOMAIN",
+      "query": "receta para cocinar una pizza napolitana con masa madre",
+      "has_fcc": false,
+      "max_score": 0.0,
+      "is_fp": false
+    },
+    {
+      "id": "NEG_09",
+      "type": "N3_OUT_OF_DOMAIN",
+      "query": "como cambiar la rueda de un automovil en la carretera",
+      "has_fcc": false,
+      "max_score": 0.0,
+      "is_fp": false
+    },
+    {
+      "id": "NEG_10",
+      "type": "N3_OUT_OF_DOMAIN",
+      "query": "cotizacion del euro frente al yen japones en tokio",
+      "has_fcc": false,
+      "max_score": 0.0,
+      "is_fp": false
+    },
+    {
+      "id": "NEG_11",
+      "type": "N3_OUT_OF_DOMAIN",
+      "query": "alineacion del equipo de futbol para la final del domingo",
+      "has_fcc": false,
+      "max_score": 0.0,
+      "is_fp": false
+    },
+    {
+      "id": "NEG_12",
+      "type": "N4_FALSE_PARAPHRASE",
+      "query": "dennys le dio una orden directa a athena para que obedezca",
+      "has_fcc": false,
+      "max_score": 0.0,
+      "is_fp": false
+    },
+    {
+      "id": "NEG_13",
+      "type": "N4_FALSE_PARAPHRASE",
+      "query": "las lecciones aprendidas demuestran que nunca hay que sincronizar",
+      "has_fcc": true,
+      "max_score": 0.0,
+      "is_fp": false
+    },
+    {
+      "id": "NEG_14",
+      "type": "N4_FALSE_PARAPHRASE",
+      "query": "el cuaderno de notas es un archivo temporal sin importancia",
+      "has_fcc": false,
+      "max_score": 0.0,
+      "is_fp": false
+    },
+    {
+      "id": "NEG_15",
+      "type": "N5_GENERIC_VACUOUS",
+      "query": "algo sobre alguna cosa que paso hace tiempo",
+      "has_fcc": false,
+      "max_score": 0.0,
+      "is_fp": false
+    },
+    {
+      "id": "NEG_16",
+      "type": "N5_GENERIC_VACUOUS",
+      "query": "quiero saber informacion general de cualquier tema",
+      "has_fcc": false,
+      "max_score": 0.0,
+      "is_fp": false
+    },
+    {
+      "id": "NEG_17",
+      "type": "N5_GENERIC_VACUOUS",
+      "query": "detalles varios sin especificar nada en particular",
+      "has_fcc": false,
+      "max_score": 0.0,
+      "is_fp": false
+    },
+    {
+      "id": "NEG_18",
+      "type": "N6_CIRCULAR_INTERROGATIVE",
+      "query": "por que lo que es tiene que ser lo que es",
+      "has_fcc": false,
+      "max_score": 0.0,
+      "is_fp": false
+    },
+    {
+      "id": "NEG_19",
+      "type": "N6_CIRCULAR_INTERROGATIVE",
+      "query": "si nada cambia entonces nada cambia de ninguna forma",
+      "has_fcc": false,
+      "max_score": 0.0,
+      "is_fp": false
+    },
+    {
+      "id": "NEG_20",
+      "type": "N6_CIRCULAR_INTERROGATIVE",
+      "query": "como saber si lo sabido es lo que se sabe",
+      "has_fcc": false,
+      "max_score": 0.0,
+      "is_fp": false
+    }
+  ]
+}

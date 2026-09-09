@@ -589,11 +589,11 @@ HUBS_INICIALES = [
         "canonical_node": "historia_tasajera_fumigador_rufino",
         "description": "Trabajos previos a IT, empleos manuales, vida antes de programar",
         "bridges": [
-            {"text": "oficios manuales rurales y empleos previos a computacion", "angle": "sinonimo"},
-            {"text": "como sobrevivir trabajando antes de aprender a programar", "angle": "problema"},
+            {"text": "oficios manuales rurales y empleo previo al desarrollo de software", "angle": "sinonimo"},
+            {"text": "como sobrevivia economicamente dennys antes de entrar a la tecnologia", "angle": "problema"},
             {"text": "fumigador de campo y operario de tasajera en rufino", "angle": "solucion"},
-            {"text": "trabajos de obrero ingeniero para sobrevivir antes de programar", "angle": "situacion"},
-            {"text": "trabajos que tuve antes de empezar a programar", "angle": "ingenuo"},
+            {"text": "vida laboral en el monte antes de aprender programacion e ingenieria", "angle": "situacion"},
+            {"text": "que hacia dennys para sobrevivir y ganar dinero antes de ser programador", "angle": "ingenuo"},
         ],
         "nodos": [
             "historia_tasajera_fumigador_rufino",
@@ -636,11 +636,11 @@ HUBS_INICIALES = [
         "canonical_node": "resolucion_de_contradicciones_entre_insights_sumatoria_mentalidad",
         "description": "Debate entre IAs, verificación cruzada, reducción de alucinaciones",
         "bridges": [
-            {"text": "discrepancia debate y divergencia entre modelos de lenguaje", "angle": "sinonimo"},
+            {"text": "discrepancia y debate entre modelos de lenguaje", "angle": "sinonimo"},
             {"text": "dos modelos de ia que no estan de acuerdo en la respuesta", "angle": "problema"},
             {"text": "sumar insights opuestos y sintetizar mentalidad sin descartar ninguno", "angle": "solucion"},
             {"text": "resolucion de contradicciones y desacuerdos entre inteligencias artificiales", "angle": "situacion"},
-            {"text": "ias que se contradigan para encontrar la verdad y consenso", "angle": "ingenuo"},
+            {"text": "como resuelvo cuando dos ias dicen cosas distintas sobre lo mismo", "angle": "ingenuo"},
         ],
         "nodos": [
             "resolucion_de_contradicciones_entre_insights_sumatoria_mentalidad"

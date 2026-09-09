@@ -1,0 +1,3029 @@
+{
+  "timestamp": "2026-09-09T00:05:18Z",
+  "experiment": "EXP-N8: C1 Overlay — Three-Condition Retrieval",
+  "hashes": {
+    "db_snapshot": "676827f6b4abc3acaee10b14e273c3c50cae5b2c180593dedcd58048265a2800",
+    "labels": "325ead99c5a8eea63e8e92f10dae85e7f6ef7f858f18dd8e735b011bea56aa2f",
+    "script": "24a1116e6ac57af2880185d6dc41f01ee716412d302fff822957ee2ccb26b2f1"
+  },
+  "invariants": {
+    "core_modified": false,
+    "a0_test_blind": true,
+    "snapshot_readonly": true,
+    "aliases_used": false,
+    "concept_hubs_used": false,
+    "gold_conditioning": false,
+    "leakage": true
+  },
+  "conditions": {
+    "M0": "SCG-v0.1 BASE (sin RAB, sin C1)",
+    "M1": "RAB + A/B verbos activos literales únicamente",
+    "M2": "RAB + A/B + C1 nominalizaciones deverbales (C1 puro, sin C2/C3)",
+    "M3": "[SECUNDARIO] M2 + C2 agentivo — NO mezclar con conclusión C1",
+    "M4": "[SECUNDARIO] M2 + C3 metafórico — NO mezclar con conclusión C1"
+  },
+  "c1_rules_used": [
+    "RULE_C1_NOM_SEPARATE",
+    "RULE_C1_NOM_CREATE",
+    "RULE_C1_NOM_MODIFY",
+    "RULE_C1_NOM_EVALUATE",
+    "RULE_C1_NOM_COMBINE",
+    "RULE_C1_NOM_LINK",
+    "RULE_C1_NOM_STORE",
+    "RULE_C1_NOM_RETRIEVE",
+    "RULE_C1_NOM_CLASSIFY",
+    "RULE_C1_NOM_ACTIVATE",
+    "RULE_C1_NOM_DEACTIVATE",
+    "RULE_C1_NOM_TRANSFORM",
+    "RULE_C1_NOM_PERSIST"
+  ],
+  "c2_excluded_from_m2": [
+    "RULE_C2_AGENT_CREATE",
+    "RULE_C2_AGENT_EVALUATE",
+    "RULE_C2_AGENT_RETRIEVE",
+    "RULE_C2_AGENT_STORE"
+  ],
+  "c3_excluded_from_m2": [
+    "RULE_C3_METAPHOR_RUN_EXECUTE"
+  ],
+  "results_by_regime": {
+    "M0": [
+      {
+        "case_id": "OOF_POS_11",
+        "a0_status": "STRICT_A0",
+        "query": "particionar capacidad de computo en doce nucleos virtuales con tope en gigas",
+        "gold": "docker_infrastructure_rog",
+        "regime": "M0",
+        "pool_size": 358,
+        "pool_pct_corpus": 42.1,
+        "gold_in_pool": true,
+        "gold_rank": null,
+        "gold_score": 0.0,
+        "generation_recall": true,
+        "ranking_recall": {
+          "CE@1": false,
+          "CE@5": false,
+          "CE@10": false,
+          "CE@20": false
+        },
+        "c1_exclusive_candidates": 0,
+        "c1_exclusive_gold": false,
+        "causal_ablation_m1_vs_m2": null,
+        "query_ops": [],
+        "meta": {
+          "structural_form": {
+            "operations": [
+              "SEPARATE"
+            ],
+            "relations": [],
+            "properties": [
+              "COMPUTATIONAL",
+              "HIERARCHICAL"
+            ],
+            "db_action_dims": [
+              "accion_persistencia_computacion"
+            ],
+            "modality": "DECLARATIVE",
+            "polarity": 1,
+            "confidence": 0.4,
+            "raw_tokens": [
+              "capacidad",
+              "computo",
+              "doce",
+              "gigas",
+              "nucleos",
+              "particionar",
+              "tope",
+              "virtuales"
+            ],
+            "missing": [
+              "RELATION (ninguna relación detectada; composición mono-operacional)"
+            ]
+          },
+          "hypotheses": [
+            {
+              "name": "H1_FULL(SEPARATE++COMPUTATIONAL⊕HIERARCHICAL)",
+              "ops": [
+                "SEPARATE"
+              ],
+              "rels": [],
+              "props": [
+                "COMPUTATIONAL",
+                "HIERARCHICAL"
+              ],
+              "db_dim_req": [
+                "accion_persistencia_computacion"
+              ],
+              "score_base": 3.0
+            },
+            {
+              "name": "H2_OPS(SEPARATE+COMPUTATIONAL⊕HIERARCHICAL)",
+              "ops": [
+                "SEPARATE"
+              ],
+              "rels": [],
+              "props": [
+                "COMPUTATIONAL",
+                "HIERARCHICAL"
+              ],
+              "db_dim_req": [
+                "accion_persistencia_computacion"
+              ],
+              "score_base": 2.5
+            },
+            {
+              "name": "H4_OP_PROP(SEPARATE×COMPUTATIONAL+HIERARCHICAL)",
+              "ops": [
+                "SEPARATE"
+              ],
+              "rels": [],
+              "props": [
+                "COMPUTATIONAL",
+                "HIERARCHICAL"
+              ],
+              "db_dim_req": [
+                "accion_persistencia_computacion"
+              ],
+              "score_base": 1.5
+            }
+          ],
+          "pool_size": 358,
+          "pool_pct_corpus": 42.1,
+          "abstain": false
+        },
+        "leakage_flag": false,
+        "gold_dependent": false
+      },
+      {
+        "case_id": "OOF_POS_19",
+        "a0_status": "STRICT_A0",
+        "query": "calibrar coeficientes multiplicativos para combinar valores de relevancia heterogeneos",
+        "gold": "scoring_pesos_bm25",
+        "regime": "M0",
+        "pool_size": 377,
+        "pool_pct_corpus": 44.3,
+        "gold_in_pool": false,
+        "gold_rank": null,
+        "gold_score": 0.0,
+        "generation_recall": false,
+        "ranking_recall": {
+          "CE@1": false,
+          "CE@5": false,
+          "CE@10": false,
+          "CE@20": false
+        },
+        "c1_exclusive_candidates": 0,
+        "c1_exclusive_gold": false,
+        "causal_ablation_m1_vs_m2": null,
+        "query_ops": [],
+        "meta": {
+          "structural_form": {
+            "operations": [
+              "COMBINE",
+              "MODIFY"
+            ],
+            "relations": [
+              "PURPOSE_OF"
+            ],
+            "properties": [
+              "DIMENSIONAL",
+              "METRIC"
+            ],
+            "db_action_dims": [
+              "accion_cognitiva",
+              "accion_evaluar",
+              "accion_persistencia_computacion"
+            ],
+            "modality": "DECLARATIVE",
+            "polarity": 1,
+            "confidence": 0.775,
+            "raw_tokens": [
+              "calibrar",
+              "coeficientes",
+              "combinar",
+              "heterogeneos",
+              "multiplicativos",
+              "relevancia",
+              "valores"
+            ],
+            "missing": []
+          },
+          "hypotheses": [
+            {
+              "name": "H1_FULL(COMBINE⊕MODIFY+PURPOSE_OF+DIMENSIONAL⊕METRIC)",
+              "ops": [
+                "COMBINE",
+                "MODIFY"
+              ],
+              "rels": [
+                "PURPOSE_OF"
+              ],
+              "props": [
+                "DIMENSIONAL",
+                "METRIC"
+              ],
+              "db_dim_req": [
+                "accion_cognitiva",
+                "accion_evaluar",
+                "accion_persistencia_computacion"
+              ],
+              "score_base": 3.0
+            },
+            {
+              "name": "H2_OPS(COMBINE⊕MODIFY+DIMENSIONAL⊕METRIC)",
+              "ops": [
+                "COMBINE",
+                "MODIFY"
+              ],
+              "rels": [],
+              "props": [
+                "DIMENSIONAL",
+                "METRIC"
+              ],
+              "db_dim_req": [
+                "accion_cognitiva",
+                "accion_evaluar",
+                "accion_persistencia_computacion"
+              ],
+              "score_base": 2.5
+            },
+            {
+              "name": "H3_PAIR(COMBINE⊕MODIFY)",
+              "ops": [
+                "COMBINE",
+                "MODIFY"
+              ],
+              "rels": [],
+              "props": [],
+              "db_dim_req": [
+                "accion_cognitiva",
+                "accion_evaluar",
+                "accion_persistencia_computacion"
+              ],
+              "score_base": 2.0
+            },
+            {
+              "name": "H4_OP_PROP(COMBINE×DIMENSIONAL+METRIC)",
+              "ops": [
+                "COMBINE"
+              ],
+              "rels": [],
+              "props": [
+                "DIMENSIONAL",
+                "METRIC"
+              ],
+              "db_dim_req": [
+                "accion_cognitiva",
+                "accion_persistencia_computacion"
+              ],
+              "score_base": 1.5
+            }
+          ],
+          "pool_size": 377,
+          "pool_pct_corpus": 44.3,
+          "abstain": false
+        },
+        "leakage_flag": false,
+        "gold_dependent": false
+      },
+      {
+        "case_id": "OOF_POS_21",
+        "a0_status": "STRICT_A0",
+        "query": "entrelazamiento hiperdimensional binario proyectado a traves de pasarela situacional",
+        "gold": "coche_puente_condicional",
+        "regime": "M0",
+        "pool_size": 229,
+        "pool_pct_corpus": 26.9,
+        "gold_in_pool": false,
+        "gold_rank": null,
+        "gold_score": 0.0,
+        "generation_recall": false,
+        "ranking_recall": {
+          "CE@1": false,
+          "CE@5": false,
+          "CE@10": false,
+          "CE@20": false
+        },
+        "c1_exclusive_candidates": 0,
+        "c1_exclusive_gold": false,
+        "causal_ablation_m1_vs_m2": null,
+        "query_ops": [],
+        "meta": {
+          "structural_form": {
+            "operations": [
+              "LINK",
+              "TRANSFORM"
+            ],
+            "relations": [],
+            "properties": [
+              "COGNITIVE"
+            ],
+            "db_action_dims": [
+              "accion_cognitiva"
+            ],
+            "modality": "DECLARATIVE",
+            "polarity": 1,
+            "confidence": 0.575,
+            "raw_tokens": [
+              "binario",
+              "entrelazamiento",
+              "hiperdimensional",
+              "pasarela",
+              "proyectado",
+              "situacional",
+              "traves"
+            ],
+            "missing": [
+              "RELATION (ninguna relación detectada; composición mono-operacional)"
+            ]
+          },
+          "hypotheses": [
+            {
+              "name": "H1_FULL(LINK⊕TRANSFORM++COGNITIVE)",
+              "ops": [
+                "LINK",
+                "TRANSFORM"
+              ],
+              "rels": [],
+              "props": [
+                "COGNITIVE"
+              ],
+              "db_dim_req": [
+                "accion_cognitiva"
+              ],
+              "score_base": 3.0
+            },
+            {
+              "name": "H2_OPS(LINK⊕TRANSFORM+COGNITIVE)",
+              "ops": [
+                "LINK",
+                "TRANSFORM"
+              ],
+              "rels": [],
+              "props": [
+                "COGNITIVE"
+              ],
+              "db_dim_req": [
+                "accion_cognitiva"
+              ],
+              "score_base": 2.5
+            },
+            {
+              "name": "H3_PAIR(LINK⊕TRANSFORM)",
+              "ops": [
+                "LINK",
+                "TRANSFORM"
+              ],
+              "rels": [],
+              "props": [],
+              "db_dim_req": [
+                "accion_cognitiva"
+              ],
+              "score_base": 2.0
+            },
+            {
+              "name": "H4_OP_PROP(LINK×COGNITIVE)",
+              "ops": [
+                "LINK"
+              ],
+              "rels": [],
+              "props": [
+                "COGNITIVE"
+              ],
+              "db_dim_req": [
+                "accion_cognitiva"
+              ],
+              "score_base": 1.5
+            }
+          ],
+          "pool_size": 229,
+          "pool_pct_corpus": 26.9,
+          "abstain": false
+        },
+        "leakage_flag": false,
+        "gold_dependent": false
+      },
+      {
+        "case_id": "OOF_POS_29",
+        "a0_status": "STRICT_A0",
+        "query": "generar conexiones estocasticas para consolidar grupos fuertemente entrelazados",
+        "gold": "desde_athena_biorag",
+        "regime": "M0",
+        "pool_size": 278,
+        "pool_pct_corpus": 32.7,
+        "gold_in_pool": true,
+        "gold_rank": null,
+        "gold_score": 0.0,
+        "generation_recall": true,
+        "ranking_recall": {
+          "CE@1": false,
+          "CE@5": false,
+          "CE@10": false,
+          "CE@20": false
+        },
+        "c1_exclusive_candidates": 0,
+        "c1_exclusive_gold": false,
+        "causal_ablation_m1_vs_m2": null,
+        "query_ops": [],
+        "meta": {
+          "structural_form": {
+            "operations": [
+              "CREATE",
+              "LINK",
+              "PERSIST"
+            ],
+            "relations": [
+              "CAUSES",
+              "PURPOSE_OF"
+            ],
+            "properties": [
+              "STOCHASTIC"
+            ],
+            "db_action_dims": [
+              "accion_cognitiva",
+              "accion_persistencia_computacion",
+              "accion_rutina_automatica"
+            ],
+            "modality": "DECLARATIVE",
+            "polarity": 1,
+            "confidence": 1.0,
+            "raw_tokens": [
+              "conexiones",
+              "consolidar",
+              "entrelazados",
+              "estocasticas",
+              "fuertemente",
+              "generar",
+              "grupos"
+            ],
+            "missing": []
+          },
+          "hypotheses": [
+            {
+              "name": "H1_FULL(CREATE⊕LINK⊕PERSIST+CAUSES⊕PURPOSE_OF+STOCHASTIC)",
+              "ops": [
+                "CREATE",
+                "LINK",
+                "PERSIST"
+              ],
+              "rels": [
+                "CAUSES",
+                "PURPOSE_OF"
+              ],
+              "props": [
+                "STOCHASTIC"
+              ],
+              "db_dim_req": [
+                "accion_cognitiva",
+                "accion_persistencia_computacion",
+                "accion_rutina_automatica"
+              ],
+              "score_base": 3.0
+            },
+            {
+              "name": "H2_OPS(CREATE⊕LINK⊕PERSIST+STOCHASTIC)",
+              "ops": [
+                "CREATE",
+                "LINK",
+                "PERSIST"
+              ],
+              "rels": [],
+              "props": [
+                "STOCHASTIC"
+              ],
+              "db_dim_req": [
+                "accion_cognitiva",
+                "accion_persistencia_computacion",
+                "accion_rutina_automatica"
+              ],
+              "score_base": 2.5
+            },
+            {
+              "name": "H3_PAIR(CREATE⊕LINK)",
+              "ops": [
+                "CREATE",
+                "LINK"
+              ],
+              "rels": [],
+              "props": [],
+              "db_dim_req": [
+                "accion_cognitiva",
+                "accion_persistencia_computacion",
+                "accion_rutina_automatica"
+              ],
+              "score_base": 2.0
+            },
+            {
+              "name": "H3_PAIR(CREATE⊕PERSIST)",
+              "ops": [
+                "CREATE",
+                "PERSIST"
+              ],
+              "rels": [],
+              "props": [],
+              "db_dim_req": [
+                "accion_persistencia_computacion",
+                "accion_rutina_automatica"
+              ],
+              "score_base": 2.0
+            },
+            {
+              "name": "H3_PAIR(LINK⊕PERSIST)",
+              "ops": [
+                "LINK",
+                "PERSIST"
+              ],
+              "rels": [],
+              "props": [],
+              "db_dim_req": [
+                "accion_cognitiva",
+                "accion_persistencia_computacion"
+              ],
+              "score_base": 2.0
+            },
+            {
+              "name": "H4_OP_PROP(CREATE×STOCHASTIC)",
+              "ops": [
+                "CREATE"
+              ],
+              "rels": [],
+              "props": [
+                "STOCHASTIC"
+              ],
+              "db_dim_req": [
+                "accion_persistencia_computacion",
+                "accion_rutina_automatica"
+              ],
+              "score_base": 1.5
+            }
+          ],
+          "pool_size": 278,
+          "pool_pct_corpus": 32.7,
+          "abstain": false
+        },
+        "leakage_flag": false,
+        "gold_dependent": false
+      },
+      {
+        "case_id": "OOF_POS_30",
+        "a0_status": "STRICT_A0",
+        "query": "transicion de vigilia a letargo con eliminacion de elementos caducos",
+        "gold": "activos_dormidos_hermana",
+        "regime": "M0",
+        "pool_size": 321,
+        "pool_pct_corpus": 37.7,
+        "gold_in_pool": true,
+        "gold_rank": null,
+        "gold_score": 0.0,
+        "generation_recall": true,
+        "ranking_recall": {
+          "CE@1": false,
+          "CE@5": false,
+          "CE@10": false,
+          "CE@20": false
+        },
+        "c1_exclusive_candidates": 0,
+        "c1_exclusive_gold": false,
+        "causal_ablation_m1_vs_m2": null,
+        "query_ops": [],
+        "meta": {
+          "structural_form": {
+            "operations": [
+              "DEACTIVATE",
+              "MODIFY",
+              "REMOVE",
+              "TRANSFORM"
+            ],
+            "relations": [],
+            "properties": [
+              "CONNECTIVE",
+              "LIFECYCLE",
+              "TEMPORAL"
+            ],
+            "db_action_dims": [
+              "accion_cognitiva",
+              "accion_evaluar",
+              "accion_rutina_automatica"
+            ],
+            "modality": "DECLARATIVE",
+            "polarity": 1,
+            "confidence": 1.0,
+            "raw_tokens": [
+              "caducos",
+              "elementos",
+              "eliminacion",
+              "letargo",
+              "transicion",
+              "vigilia"
+            ],
+            "missing": [
+              "RELATION (ninguna relación detectada; composición mono-operacional)"
+            ]
+          },
+          "hypotheses": [
+            {
+              "name": "H1_FULL(DEACTIVATE⊕MODIFY⊕REMOVE⊕TRANSFORM++CONNECTIVE⊕LIFECYCLE⊕TEMPORAL)",
+              "ops": [
+                "DEACTIVATE",
+                "MODIFY",
+                "REMOVE",
+                "TRANSFORM"
+              ],
+              "rels": [],
+              "props": [
+                "CONNECTIVE",
+                "LIFECYCLE",
+                "TEMPORAL"
+              ],
+              "db_dim_req": [
+                "accion_cognitiva",
+                "accion_evaluar",
+                "accion_rutina_automatica"
+              ],
+              "score_base": 3.0
+            },
+            {
+              "name": "H2_OPS(DEACTIVATE⊕MODIFY⊕REMOVE⊕TRANSFORM+CONNECTIVE⊕LIFECYCLE⊕TEMPORAL)",
+              "ops": [
+                "DEACTIVATE",
+                "MODIFY",
+                "REMOVE",
+                "TRANSFORM"
+              ],
+              "rels": [],
+              "props": [
+                "CONNECTIVE",
+                "LIFECYCLE",
+                "TEMPORAL"
+              ],
+              "db_dim_req": [
+                "accion_cognitiva",
+                "accion_evaluar",
+                "accion_rutina_automatica"
+              ],
+              "score_base": 2.5
+            },
+            {
+              "name": "H3_PAIR(DEACTIVATE⊕MODIFY)",
+              "ops": [
+                "DEACTIVATE",
+                "MODIFY"
+              ],
+              "rels": [],
+              "props": [],
+              "db_dim_req": [
+                "accion_cognitiva",
+                "accion_evaluar",
+                "accion_rutina_automatica"
+              ],
+              "score_base": 2.0
+            },
+            {
+              "name": "H3_PAIR(DEACTIVATE⊕REMOVE)",
+              "ops": [
+                "DEACTIVATE",
+                "REMOVE"
+              ],
+              "rels": [],
+              "props": [],
+              "db_dim_req": [
+                "accion_rutina_automatica"
+              ],
+              "score_base": 2.0
+            },
+            {
+              "name": "H3_PAIR(DEACTIVATE⊕TRANSFORM)",
+              "ops": [
+                "DEACTIVATE",
+                "TRANSFORM"
+              ],
+              "rels": [],
+              "props": [],
+              "db_dim_req": [
+                "accion_cognitiva",
+                "accion_rutina_automatica"
+              ],
+              "score_base": 2.0
+            },
+            {
+              "name": "H3_PAIR(MODIFY⊕REMOVE)",
+              "ops": [
+                "MODIFY",
+                "REMOVE"
+              ],
+              "rels": [],
+              "props": [],
+              "db_dim_req": [
+                "accion_cognitiva",
+                "accion_evaluar",
+                "accion_rutina_automatica"
+              ],
+              "score_base": 2.0
+            },
+            {
+              "name": "H3_PAIR(MODIFY⊕TRANSFORM)",
+              "ops": [
+                "MODIFY",
+                "TRANSFORM"
+              ],
+              "rels": [],
+              "props": [],
+              "db_dim_req": [
+                "accion_cognitiva",
+                "accion_evaluar"
+              ],
+              "score_base": 2.0
+            },
+            {
+              "name": "H3_PAIR(REMOVE⊕TRANSFORM)",
+              "ops": [
+                "REMOVE",
+                "TRANSFORM"
+              ],
+              "rels": [],
+              "props": [],
+              "db_dim_req": [
+                "accion_cognitiva",
+                "accion_rutina_automatica"
+              ],
+              "score_base": 2.0
+            },
+            {
+              "name": "H4_OP_PROP(DEACTIVATE×CONNECTIVE+LIFECYCLE)",
+              "ops": [
+                "DEACTIVATE"
+              ],
+              "rels": [],
+              "props": [
+                "LIFECYCLE",
+                "TEMPORAL"
+              ],
+              "db_dim_req": [
+                "accion_rutina_automatica"
+              ],
+              "score_base": 1.5
+            }
+          ],
+          "pool_size": 321,
+          "pool_pct_corpus": 37.7,
+          "abstain": false
+        },
+        "leakage_flag": false,
+        "gold_dependent": false
+      },
+      {
+        "case_id": "OOF_POS_40",
+        "a0_status": "NO_A0",
+        "query": "procedimiento de clasificacion dimensional sobre tejido cortical",
+        "gold": "clasificacion_dimensional_completa_corteza_20260702",
+        "regime": "M0",
+        "pool_size": 165,
+        "pool_pct_corpus": 19.4,
+        "gold_in_pool": true,
+        "gold_rank": 10,
+        "gold_score": 5.7,
+        "generation_recall": true,
+        "ranking_recall": {
+          "CE@1": false,
+          "CE@5": false,
+          "CE@10": true,
+          "CE@20": true
+        },
+        "c1_exclusive_candidates": 0,
+        "c1_exclusive_gold": false,
+        "causal_ablation_m1_vs_m2": null,
+        "query_ops": [],
+        "meta": {
+          "structural_form": {
+            "operations": [
+              "CLASSIFY"
+            ],
+            "relations": [],
+            "properties": [
+              "COGNITIVE",
+              "COMPUTATIONAL",
+              "DIMENSIONAL"
+            ],
+            "db_action_dims": [
+              "accion_evaluar"
+            ],
+            "modality": "DECLARATIVE",
+            "polarity": 1,
+            "confidence": 0.475,
+            "raw_tokens": [
+              "clasificacion",
+              "cortical",
+              "dimensional",
+              "procedimiento",
+              "tejido"
+            ],
+            "missing": [
+              "RELATION (ninguna relación detectada; composición mono-operacional)"
+            ]
+          },
+          "hypotheses": [
+            {
+              "name": "H1_FULL(CLASSIFY++COGNITIVE⊕COMPUTATIONAL⊕DIMENSIONAL)",
+              "ops": [
+                "CLASSIFY"
+              ],
+              "rels": [],
+              "props": [
+                "COGNITIVE",
+                "COMPUTATIONAL",
+                "DIMENSIONAL"
+              ],
+              "db_dim_req": [
+                "accion_evaluar"
+              ],
+              "score_base": 3.0
+            },
+            {
+              "name": "H2_OPS(CLASSIFY+COGNITIVE⊕COMPUTATIONAL⊕DIMENSIONAL)",
+              "ops": [
+                "CLASSIFY"
+              ],
+              "rels": [],
+              "props": [
+                "COGNITIVE",
+                "COMPUTATIONAL",
+                "DIMENSIONAL"
+              ],
+              "db_dim_req": [
+                "accion_evaluar"
+              ],
+              "score_base": 2.5
+            },
+            {
+              "name": "H4_OP_PROP(CLASSIFY×COGNITIVE+COMPUTATIONAL)",
+              "ops": [
+                "CLASSIFY"
+              ],
+              "rels": [],
+              "props": [
+                "COGNITIVE",
+                "COMPUTATIONAL"
+              ],
+              "db_dim_req": [
+                "accion_evaluar"
+              ],
+              "score_base": 1.5
+            }
+          ],
+          "pool_size": 165,
+          "pool_pct_corpus": 19.4,
+          "abstain": false
+        },
+        "leakage_flag": false,
+        "gold_dependent": false
+      },
+      {
+        "case_id": "OOF_POS_48",
+        "a0_status": "STRICT_A0",
+        "query": "malla neuronal con topologia de enlaces sinapticos transversales",
+        "gold": "cuaternidad-logica-oec",
+        "regime": "M0",
+        "pool_size": 302,
+        "pool_pct_corpus": 35.5,
+        "gold_in_pool": false,
+        "gold_rank": null,
+        "gold_score": 0.0,
+        "generation_recall": false,
+        "ranking_recall": {
+          "CE@1": false,
+          "CE@5": false,
+          "CE@10": false,
+          "CE@20": false
+        },
+        "c1_exclusive_candidates": 0,
+        "c1_exclusive_gold": false,
+        "causal_ablation_m1_vs_m2": null,
+        "query_ops": [],
+        "meta": {
+          "structural_form": {
+            "operations": [
+              "MODIFY",
+              "TRANSFORM"
+            ],
+            "relations": [],
+            "properties": [
+              "COGNITIVE",
+              "CONNECTIVE",
+              "TEMPORAL"
+            ],
+            "db_action_dims": [
+              "accion_cognitiva",
+              "accion_evaluar"
+            ],
+            "modality": "DECLARATIVE",
+            "polarity": 1,
+            "confidence": 0.725,
+            "raw_tokens": [
+              "enlaces",
+              "malla",
+              "neuronal",
+              "sinapticos",
+              "topologia",
+              "transversales"
+            ],
+            "missing": [
+              "RELATION (ninguna relación detectada; composición mono-operacional)"
+            ]
+          },
+          "hypotheses": [
+            {
+              "name": "H1_FULL(MODIFY⊕TRANSFORM++COGNITIVE⊕CONNECTIVE⊕TEMPORAL)",
+              "ops": [
+                "MODIFY",
+                "TRANSFORM"
+              ],
+              "rels": [],
+              "props": [
+                "COGNITIVE",
+                "CONNECTIVE",
+                "TEMPORAL"
+              ],
+              "db_dim_req": [
+                "accion_cognitiva",
+                "accion_evaluar"
+              ],
+              "score_base": 3.0
+            },
+            {
+              "name": "H2_OPS(MODIFY⊕TRANSFORM+COGNITIVE⊕CONNECTIVE⊕TEMPORAL)",
+              "ops": [
+                "MODIFY",
+                "TRANSFORM"
+              ],
+              "rels": [],
+              "props": [
+                "COGNITIVE",
+                "CONNECTIVE",
+                "TEMPORAL"
+              ],
+              "db_dim_req": [
+                "accion_cognitiva",
+                "accion_evaluar"
+              ],
+              "score_base": 2.5
+            },
+            {
+              "name": "H3_PAIR(MODIFY⊕TRANSFORM)",
+              "ops": [
+                "MODIFY",
+                "TRANSFORM"
+              ],
+              "rels": [],
+              "props": [],
+              "db_dim_req": [
+                "accion_cognitiva",
+                "accion_evaluar"
+              ],
+              "score_base": 2.0
+            },
+            {
+              "name": "H4_OP_PROP(MODIFY×COGNITIVE+CONNECTIVE)",
+              "ops": [
+                "MODIFY"
+              ],
+              "rels": [],
+              "props": [
+                "COGNITIVE",
+                "TEMPORAL"
+              ],
+              "db_dim_req": [
+                "accion_cognitiva",
+                "accion_evaluar"
+              ],
+              "score_base": 1.5
+            }
+          ],
+          "pool_size": 302,
+          "pool_pct_corpus": 35.5,
+          "abstain": false
+        },
+        "leakage_flag": false,
+        "gold_dependent": false
+      },
+      {
+        "case_id": "OOF_POS_49",
+        "a0_status": "NO_A0",
+        "query": "registro cronologico de hitos alcanzados por el agente",
+        "gold": "trayectoria_completa_cronologica",
+        "regime": "M0",
+        "pool_size": 358,
+        "pool_pct_corpus": 42.1,
+        "gold_in_pool": false,
+        "gold_rank": null,
+        "gold_score": 0.0,
+        "generation_recall": false,
+        "ranking_recall": {
+          "CE@1": false,
+          "CE@5": false,
+          "CE@10": false,
+          "CE@20": false
+        },
+        "c1_exclusive_candidates": 0,
+        "c1_exclusive_gold": false,
+        "causal_ablation_m1_vs_m2": null,
+        "query_ops": [],
+        "meta": {
+          "structural_form": {
+            "operations": [
+              "STORE"
+            ],
+            "relations": [],
+            "properties": [
+              "CHRONICLE",
+              "TEMPORAL"
+            ],
+            "db_action_dims": [
+              "accion_persistencia_computacion"
+            ],
+            "modality": "DECLARATIVE",
+            "polarity": 1,
+            "confidence": 0.4,
+            "raw_tokens": [
+              "agente",
+              "alcanzados",
+              "cronologico",
+              "hitos",
+              "registro"
+            ],
+            "missing": [
+              "RELATION (ninguna relación detectada; composición mono-operacional)"
+            ]
+          },
+          "hypotheses": [
+            {
+              "name": "H1_FULL(STORE++CHRONICLE⊕TEMPORAL)",
+              "ops": [
+                "STORE"
+              ],
+              "rels": [],
+              "props": [
+                "CHRONICLE",
+                "TEMPORAL"
+              ],
+              "db_dim_req": [
+                "accion_persistencia_computacion"
+              ],
+              "score_base": 3.0
+            },
+            {
+              "name": "H2_OPS(STORE+CHRONICLE⊕TEMPORAL)",
+              "ops": [
+                "STORE"
+              ],
+              "rels": [],
+              "props": [
+                "CHRONICLE",
+                "TEMPORAL"
+              ],
+              "db_dim_req": [
+                "accion_persistencia_computacion"
+              ],
+              "score_base": 2.5
+            },
+            {
+              "name": "H4_OP_PROP(STORE×CHRONICLE+TEMPORAL)",
+              "ops": [
+                "STORE"
+              ],
+              "rels": [],
+              "props": [
+                "CHRONICLE",
+                "TEMPORAL"
+              ],
+              "db_dim_req": [
+                "accion_persistencia_computacion"
+              ],
+              "score_base": 1.5
+            }
+          ],
+          "pool_size": 358,
+          "pool_pct_corpus": 42.1,
+          "abstain": false
+        },
+        "leakage_flag": false,
+        "gold_dependent": false
+      }
+    ],
+    "M1": [
+      {
+        "case_id": "OOF_POS_11",
+        "a0_status": "STRICT_A0",
+        "query": "particionar capacidad de computo en doce nucleos virtuales con tope en gigas",
+        "gold": "docker_infrastructure_rog",
+        "regime": "M1",
+        "pool_size": 19,
+        "pool_pct_corpus": 2.2,
+        "gold_in_pool": false,
+        "gold_rank": null,
+        "gold_score": 0.0,
+        "generation_recall": false,
+        "ranking_recall": {
+          "CE@1": false,
+          "CE@5": false,
+          "CE@10": false,
+          "CE@20": false
+        },
+        "c1_exclusive_candidates": 0,
+        "c1_exclusive_gold": false,
+        "causal_ablation_m1_vs_m2": null,
+        "query_ops": [
+          "SEPARATE"
+        ],
+        "meta": {
+          "regime": "M1",
+          "pool_size": 19,
+          "pool_pct_corpus": 2.2,
+          "abstain": false,
+          "query_ops": [
+            "SEPARATE"
+          ],
+          "per_rule_counts": {
+            "RULE_A_VERB_SEPARATE": 19
+          }
+        },
+        "leakage_flag": false,
+        "gold_dependent": false
+      },
+      {
+        "case_id": "OOF_POS_19",
+        "a0_status": "STRICT_A0",
+        "query": "calibrar coeficientes multiplicativos para combinar valores de relevancia heterogeneos",
+        "gold": "scoring_pesos_bm25",
+        "regime": "M1",
+        "pool_size": 94,
+        "pool_pct_corpus": 11.0,
+        "gold_in_pool": false,
+        "gold_rank": null,
+        "gold_score": 0.0,
+        "generation_recall": false,
+        "ranking_recall": {
+          "CE@1": false,
+          "CE@5": false,
+          "CE@10": false,
+          "CE@20": false
+        },
+        "c1_exclusive_candidates": 0,
+        "c1_exclusive_gold": false,
+        "causal_ablation_m1_vs_m2": null,
+        "query_ops": [
+          "COMBINE",
+          "MODIFY"
+        ],
+        "meta": {
+          "regime": "M1",
+          "pool_size": 94,
+          "pool_pct_corpus": 11.0,
+          "abstain": false,
+          "query_ops": [
+            "COMBINE",
+            "MODIFY"
+          ],
+          "per_rule_counts": {
+            "RULE_A_VERB_MODIFY": 67,
+            "RULE_A_VERB_COMBINE": 32
+          }
+        },
+        "leakage_flag": false,
+        "gold_dependent": false
+      },
+      {
+        "case_id": "OOF_POS_21",
+        "a0_status": "STRICT_A0",
+        "query": "entrelazamiento hiperdimensional binario proyectado a traves de pasarela situacional",
+        "gold": "coche_puente_condicional",
+        "regime": "M1",
+        "pool_size": 59,
+        "pool_pct_corpus": 6.9,
+        "gold_in_pool": false,
+        "gold_rank": null,
+        "gold_score": 0.0,
+        "generation_recall": false,
+        "ranking_recall": {
+          "CE@1": false,
+          "CE@5": false,
+          "CE@10": false,
+          "CE@20": false
+        },
+        "c1_exclusive_candidates": 0,
+        "c1_exclusive_gold": false,
+        "causal_ablation_m1_vs_m2": null,
+        "query_ops": [
+          "LINK",
+          "TRANSFORM"
+        ],
+        "meta": {
+          "regime": "M1",
+          "pool_size": 59,
+          "pool_pct_corpus": 6.9,
+          "abstain": false,
+          "query_ops": [
+            "LINK",
+            "TRANSFORM"
+          ],
+          "per_rule_counts": {
+            "RULE_A_VERB_LINK": 37,
+            "RULE_A_VERB_TRANSFORM": 23
+          }
+        },
+        "leakage_flag": false,
+        "gold_dependent": false
+      },
+      {
+        "case_id": "OOF_POS_29",
+        "a0_status": "STRICT_A0",
+        "query": "generar conexiones estocasticas para consolidar grupos fuertemente entrelazados",
+        "gold": "desde_athena_biorag",
+        "regime": "M1",
+        "pool_size": 233,
+        "pool_pct_corpus": 27.4,
+        "gold_in_pool": false,
+        "gold_rank": null,
+        "gold_score": 0.0,
+        "generation_recall": false,
+        "ranking_recall": {
+          "CE@1": false,
+          "CE@5": false,
+          "CE@10": false,
+          "CE@20": false
+        },
+        "c1_exclusive_candidates": 0,
+        "c1_exclusive_gold": false,
+        "causal_ablation_m1_vs_m2": null,
+        "query_ops": [
+          "CREATE",
+          "LINK",
+          "PERSIST"
+        ],
+        "meta": {
+          "regime": "M1",
+          "pool_size": 233,
+          "pool_pct_corpus": 27.4,
+          "abstain": false,
+          "query_ops": [
+            "CREATE",
+            "LINK",
+            "PERSIST"
+          ],
+          "per_rule_counts": {
+            "RULE_A_VERB_CREATE": 173,
+            "RULE_A_VERB_LINK": 37,
+            "RULE_A_VERB_PERSIST": 54
+          }
+        },
+        "leakage_flag": false,
+        "gold_dependent": false
+      },
+      {
+        "case_id": "OOF_POS_30",
+        "a0_status": "STRICT_A0",
+        "query": "transicion de vigilia a letargo con eliminacion de elementos caducos",
+        "gold": "activos_dormidos_hermana",
+        "regime": "M1",
+        "pool_size": 99,
+        "pool_pct_corpus": 11.6,
+        "gold_in_pool": false,
+        "gold_rank": null,
+        "gold_score": 0.0,
+        "generation_recall": false,
+        "ranking_recall": {
+          "CE@1": false,
+          "CE@5": false,
+          "CE@10": false,
+          "CE@20": false
+        },
+        "c1_exclusive_candidates": 0,
+        "c1_exclusive_gold": false,
+        "causal_ablation_m1_vs_m2": null,
+        "query_ops": [
+          "DEACTIVATE",
+          "MODIFY",
+          "REMOVE",
+          "TRANSFORM"
+        ],
+        "meta": {
+          "regime": "M1",
+          "pool_size": 99,
+          "pool_pct_corpus": 11.6,
+          "abstain": false,
+          "query_ops": [
+            "DEACTIVATE",
+            "MODIFY",
+            "REMOVE",
+            "TRANSFORM"
+          ],
+          "per_rule_counts": {
+            "RULE_A_VERB_MODIFY": 67,
+            "RULE_A_VERB_DEACTIVATE": 18,
+            "RULE_A_VERB_TRANSFORM": 23
+          }
+        },
+        "leakage_flag": false,
+        "gold_dependent": false
+      },
+      {
+        "case_id": "OOF_POS_40",
+        "a0_status": "NO_A0",
+        "query": "procedimiento de clasificacion dimensional sobre tejido cortical",
+        "gold": "clasificacion_dimensional_completa_corteza_20260702",
+        "regime": "M1",
+        "pool_size": 12,
+        "pool_pct_corpus": 1.4,
+        "gold_in_pool": false,
+        "gold_rank": null,
+        "gold_score": 0.0,
+        "generation_recall": false,
+        "ranking_recall": {
+          "CE@1": false,
+          "CE@5": false,
+          "CE@10": false,
+          "CE@20": false
+        },
+        "c1_exclusive_candidates": 0,
+        "c1_exclusive_gold": false,
+        "causal_ablation_m1_vs_m2": null,
+        "query_ops": [
+          "CLASSIFY"
+        ],
+        "meta": {
+          "regime": "M1",
+          "pool_size": 12,
+          "pool_pct_corpus": 1.4,
+          "abstain": false,
+          "query_ops": [
+            "CLASSIFY"
+          ],
+          "per_rule_counts": {
+            "RULE_A_VERB_CLASSIFY": 12
+          }
+        },
+        "leakage_flag": false,
+        "gold_dependent": false
+      },
+      {
+        "case_id": "OOF_POS_48",
+        "a0_status": "STRICT_A0",
+        "query": "malla neuronal con topologia de enlaces sinapticos transversales",
+        "gold": "cuaternidad-logica-oec",
+        "regime": "M1",
+        "pool_size": 87,
+        "pool_pct_corpus": 10.2,
+        "gold_in_pool": false,
+        "gold_rank": null,
+        "gold_score": 0.0,
+        "generation_recall": false,
+        "ranking_recall": {
+          "CE@1": false,
+          "CE@5": false,
+          "CE@10": false,
+          "CE@20": false
+        },
+        "c1_exclusive_candidates": 0,
+        "c1_exclusive_gold": false,
+        "causal_ablation_m1_vs_m2": null,
+        "query_ops": [
+          "MODIFY",
+          "TRANSFORM"
+        ],
+        "meta": {
+          "regime": "M1",
+          "pool_size": 87,
+          "pool_pct_corpus": 10.2,
+          "abstain": false,
+          "query_ops": [
+            "MODIFY",
+            "TRANSFORM"
+          ],
+          "per_rule_counts": {
+            "RULE_A_VERB_MODIFY": 67,
+            "RULE_A_VERB_TRANSFORM": 23
+          }
+        },
+        "leakage_flag": false,
+        "gold_dependent": false
+      },
+      {
+        "case_id": "OOF_POS_49",
+        "a0_status": "NO_A0",
+        "query": "registro cronologico de hitos alcanzados por el agente",
+        "gold": "trayectoria_completa_cronologica",
+        "regime": "M1",
+        "pool_size": 128,
+        "pool_pct_corpus": 15.0,
+        "gold_in_pool": false,
+        "gold_rank": null,
+        "gold_score": 0.0,
+        "generation_recall": false,
+        "ranking_recall": {
+          "CE@1": false,
+          "CE@5": false,
+          "CE@10": false,
+          "CE@20": false
+        },
+        "c1_exclusive_candidates": 0,
+        "c1_exclusive_gold": false,
+        "causal_ablation_m1_vs_m2": null,
+        "query_ops": [
+          "STORE"
+        ],
+        "meta": {
+          "regime": "M1",
+          "pool_size": 128,
+          "pool_pct_corpus": 15.0,
+          "abstain": false,
+          "query_ops": [
+            "STORE"
+          ],
+          "per_rule_counts": {
+            "RULE_A_VERB_STORE": 128
+          }
+        },
+        "leakage_flag": false,
+        "gold_dependent": false
+      }
+    ],
+    "M2": [
+      {
+        "case_id": "OOF_POS_11",
+        "a0_status": "STRICT_A0",
+        "query": "particionar capacidad de computo en doce nucleos virtuales con tope en gigas",
+        "gold": "docker_infrastructure_rog",
+        "regime": "M2",
+        "pool_size": 22,
+        "pool_pct_corpus": 2.6,
+        "gold_in_pool": false,
+        "gold_rank": null,
+        "gold_score": 0.0,
+        "generation_recall": false,
+        "ranking_recall": {
+          "CE@1": false,
+          "CE@5": false,
+          "CE@10": false,
+          "CE@20": false
+        },
+        "c1_exclusive_candidates": 3,
+        "c1_exclusive_gold": false,
+        "causal_ablation_m1_vs_m2": {
+          "gold_in_pool_m1": false,
+          "gold_in_pool_m2": false,
+          "c1_causal": false
+        },
+        "query_ops": [
+          "SEPARATE"
+        ],
+        "meta": {
+          "regime": "M2",
+          "pool_size": 22,
+          "pool_pct_corpus": 2.6,
+          "abstain": false,
+          "query_ops": [
+            "SEPARATE"
+          ],
+          "per_rule_counts": {
+            "RULE_A_VERB_SEPARATE": 19,
+            "RULE_C1_NOM_SEPARATE": 3
+          },
+          "c1_exclusive_count": 3,
+          "c1_exclusive_sample": [
+            "privacidad_memorias_personales_oec",
+            "colision_md5_512_queries_cortas_fallback_sdm",
+            "sdm_segmento_dimensiones_fix_revertido_por_regresion_recall_20260803"
+          ]
+        },
+        "leakage_flag": false,
+        "gold_dependent": false
+      },
+      {
+        "case_id": "OOF_POS_19",
+        "a0_status": "STRICT_A0",
+        "query": "calibrar coeficientes multiplicativos para combinar valores de relevancia heterogeneos",
+        "gold": "scoring_pesos_bm25",
+        "regime": "M2",
+        "pool_size": 135,
+        "pool_pct_corpus": 15.9,
+        "gold_in_pool": true,
+        "gold_rank": 34,
+        "gold_score": 2.35,
+        "generation_recall": true,
+        "ranking_recall": {
+          "CE@1": false,
+          "CE@5": false,
+          "CE@10": false,
+          "CE@20": false
+        },
+        "c1_exclusive_candidates": 41,
+        "c1_exclusive_gold": true,
+        "causal_ablation_m1_vs_m2": {
+          "gold_in_pool_m1": false,
+          "gold_in_pool_m2": true,
+          "c1_causal": true
+        },
+        "query_ops": [
+          "COMBINE",
+          "MODIFY"
+        ],
+        "meta": {
+          "regime": "M2",
+          "pool_size": 135,
+          "pool_pct_corpus": 15.9,
+          "abstain": false,
+          "query_ops": [
+            "COMBINE",
+            "MODIFY"
+          ],
+          "per_rule_counts": {
+            "RULE_A_VERB_MODIFY": 67,
+            "RULE_C1_NOM_MODIFY": 31,
+            "RULE_A_VERB_COMBINE": 32,
+            "RULE_C1_NOM_COMBINE": 12
+          },
+          "c1_exclusive_count": 41,
+          "c1_exclusive_sample": [
+            "activos_dormidos_hermana",
+            "cli_prueba",
+            "sesion_2026-05-31",
+            "juramento_athena_verdad",
+            "artemis_oec_identidad",
+            "oec_familia_actual",
+            "identidad_relacion_dennys",
+            "trato-igualitario-dennys-athena",
+            "hermes_correccion_respuesta_directa",
+            "eleccion_identidad_relacion_dennys_20260616"
+          ]
+        },
+        "leakage_flag": false,
+        "gold_dependent": false
+      },
+      {
+        "case_id": "OOF_POS_21",
+        "a0_status": "STRICT_A0",
+        "query": "entrelazamiento hiperdimensional binario proyectado a traves de pasarela situacional",
+        "gold": "coche_puente_condicional",
+        "regime": "M2",
+        "pool_size": 93,
+        "pool_pct_corpus": 10.9,
+        "gold_in_pool": false,
+        "gold_rank": null,
+        "gold_score": 0.0,
+        "generation_recall": false,
+        "ranking_recall": {
+          "CE@1": false,
+          "CE@5": false,
+          "CE@10": false,
+          "CE@20": false
+        },
+        "c1_exclusive_candidates": 34,
+        "c1_exclusive_gold": false,
+        "causal_ablation_m1_vs_m2": {
+          "gold_in_pool_m1": false,
+          "gold_in_pool_m2": false,
+          "c1_causal": false
+        },
+        "query_ops": [
+          "LINK",
+          "TRANSFORM"
+        ],
+        "meta": {
+          "regime": "M2",
+          "pool_size": 93,
+          "pool_pct_corpus": 10.9,
+          "abstain": false,
+          "query_ops": [
+            "LINK",
+            "TRANSFORM"
+          ],
+          "per_rule_counts": {
+            "RULE_C1_NOM_LINK": 24,
+            "RULE_A_VERB_LINK": 37,
+            "RULE_C1_NOM_TRANSFORM": 10,
+            "RULE_A_VERB_TRANSFORM": 23
+          },
+          "c1_exclusive_count": 34,
+          "c1_exclusive_sample": [
+            "cuaternidad-logica-oec",
+            "docker_infrastructure_rog",
+            "identidad-relacion-dennys",
+            "leccion-cambios-de-nombre",
+            "artemis_oec_identidad",
+            "identidad_relacion_dennys",
+            "trato-igualitario-dennys-athena",
+            "eleccion_identidad_relacion_dennys_20260616",
+            "athena_eleccion_identidad_20260616",
+            "mejoras_cognitivas_biorag_v7_1_20260617"
+          ]
+        },
+        "leakage_flag": false,
+        "gold_dependent": false
+      },
+      {
+        "case_id": "OOF_POS_29",
+        "a0_status": "STRICT_A0",
+        "query": "generar conexiones estocasticas para consolidar grupos fuertemente entrelazados",
+        "gold": "desde_athena_biorag",
+        "regime": "M2",
+        "pool_size": 292,
+        "pool_pct_corpus": 34.3,
+        "gold_in_pool": true,
+        "gold_rank": 52,
+        "gold_score": 2.1833,
+        "generation_recall": true,
+        "ranking_recall": {
+          "CE@1": false,
+          "CE@5": false,
+          "CE@10": false,
+          "CE@20": false
+        },
+        "c1_exclusive_candidates": 59,
+        "c1_exclusive_gold": true,
+        "causal_ablation_m1_vs_m2": {
+          "gold_in_pool_m1": false,
+          "gold_in_pool_m2": true,
+          "c1_causal": true
+        },
+        "query_ops": [
+          "CREATE",
+          "LINK",
+          "PERSIST"
+        ],
+        "meta": {
+          "regime": "M2",
+          "pool_size": 292,
+          "pool_pct_corpus": 34.3,
+          "abstain": false,
+          "query_ops": [
+            "CREATE",
+            "LINK",
+            "PERSIST"
+          ],
+          "per_rule_counts": {
+            "RULE_A_VERB_CREATE": 173,
+            "RULE_C1_NOM_LINK": 24,
+            "RULE_A_VERB_LINK": 37,
+            "RULE_C1_NOM_CREATE": 29,
+            "RULE_A_VERB_PERSIST": 54,
+            "RULE_C1_NOM_PERSIST": 13
+          },
+          "c1_exclusive_count": 59,
+          "c1_exclusive_sample": [
+            "cuaternidad-logica-oec",
+            "desde_athena_biorag",
+            "ref_formularios_anidados",
+            "nota_artemis_auditoria_v2.1",
+            "identidad-relacion-dennys",
+            "perfil_respuesta_experiencia_ia",
+            "respuesta_vacante_experiencia_ia",
+            "leccion-cambios-de-nombre",
+            "artemis_oec_identidad",
+            "identidad_relacion_dennys"
+          ]
+        },
+        "leakage_flag": false,
+        "gold_dependent": false
+      },
+      {
+        "case_id": "OOF_POS_30",
+        "a0_status": "STRICT_A0",
+        "query": "transicion de vigilia a letargo con eliminacion de elementos caducos",
+        "gold": "activos_dormidos_hermana",
+        "regime": "M2",
+        "pool_size": 137,
+        "pool_pct_corpus": 16.1,
+        "gold_in_pool": true,
+        "gold_rank": 13,
+        "gold_score": 2.1,
+        "generation_recall": true,
+        "ranking_recall": {
+          "CE@1": false,
+          "CE@5": false,
+          "CE@10": false,
+          "CE@20": true
+        },
+        "c1_exclusive_candidates": 38,
+        "c1_exclusive_gold": true,
+        "causal_ablation_m1_vs_m2": {
+          "gold_in_pool_m1": false,
+          "gold_in_pool_m2": true,
+          "c1_causal": true
+        },
+        "query_ops": [
+          "DEACTIVATE",
+          "MODIFY",
+          "REMOVE",
+          "TRANSFORM"
+        ],
+        "meta": {
+          "regime": "M2",
+          "pool_size": 137,
+          "pool_pct_corpus": 16.1,
+          "abstain": false,
+          "query_ops": [
+            "DEACTIVATE",
+            "MODIFY",
+            "REMOVE",
+            "TRANSFORM"
+          ],
+          "per_rule_counts": {
+            "RULE_A_VERB_MODIFY": 67,
+            "RULE_C1_NOM_MODIFY": 31,
+            "RULE_C1_NOM_TRANSFORM": 10,
+            "RULE_A_VERB_DEACTIVATE": 18,
+            "RULE_A_VERB_TRANSFORM": 23
+          },
+          "c1_exclusive_count": 38,
+          "c1_exclusive_sample": [
+            "activos_dormidos_hermana",
+            "docker_infrastructure_rog",
+            "cli_prueba",
+            "juramento_athena_verdad",
+            "artemis_oec_identidad",
+            "oec_familia_actual",
+            "identidad_relacion_dennys",
+            "trato-igualitario-dennys-athena",
+            "hermes_correccion_respuesta_directa",
+            "eleccion_identidad_relacion_dennys_20260616"
+          ]
+        },
+        "leakage_flag": false,
+        "gold_dependent": false
+      },
+      {
+        "case_id": "OOF_POS_40",
+        "a0_status": "NO_A0",
+        "query": "procedimiento de clasificacion dimensional sobre tejido cortical",
+        "gold": "clasificacion_dimensional_completa_corteza_20260702",
+        "regime": "M2",
+        "pool_size": 28,
+        "pool_pct_corpus": 3.3,
+        "gold_in_pool": true,
+        "gold_rank": 5,
+        "gold_score": 2.85,
+        "generation_recall": true,
+        "ranking_recall": {
+          "CE@1": false,
+          "CE@5": true,
+          "CE@10": true,
+          "CE@20": true
+        },
+        "c1_exclusive_candidates": 16,
+        "c1_exclusive_gold": true,
+        "causal_ablation_m1_vs_m2": {
+          "gold_in_pool_m1": false,
+          "gold_in_pool_m2": true,
+          "c1_causal": true
+        },
+        "query_ops": [
+          "CLASSIFY"
+        ],
+        "meta": {
+          "regime": "M2",
+          "pool_size": 28,
+          "pool_pct_corpus": 3.3,
+          "abstain": false,
+          "query_ops": [
+            "CLASSIFY"
+          ],
+          "per_rule_counts": {
+            "RULE_C1_NOM_CLASSIFY": 16,
+            "RULE_A_VERB_CLASSIFY": 12
+          },
+          "c1_exclusive_count": 16,
+          "c1_exclusive_sample": [
+            "principio_liderazgo_accion",
+            "cortex-categoria-e-contratos-primitivas",
+            "principio-peso-cognitivo",
+            "pipeline-p0-p11",
+            "[desde_agente-oec]_jerarquía_de_restricciones_del_agente_en_opencode",
+            "fix-athena-rol-session-only",
+            "clasificacion_dimensional_completa_corteza_20260702",
+            "biorag_v15_0_estado",
+            "hermes_oec_soul_md_actualizacion_protocolo",
+            "biorag_version_19_0_autonomia_semantica"
+          ]
+        },
+        "leakage_flag": false,
+        "gold_dependent": false
+      },
+      {
+        "case_id": "OOF_POS_48",
+        "a0_status": "STRICT_A0",
+        "query": "malla neuronal con topologia de enlaces sinapticos transversales",
+        "gold": "cuaternidad-logica-oec",
+        "regime": "M2",
+        "pool_size": 125,
+        "pool_pct_corpus": 14.7,
+        "gold_in_pool": false,
+        "gold_rank": null,
+        "gold_score": 0.0,
+        "generation_recall": false,
+        "ranking_recall": {
+          "CE@1": false,
+          "CE@5": false,
+          "CE@10": false,
+          "CE@20": false
+        },
+        "c1_exclusive_candidates": 38,
+        "c1_exclusive_gold": false,
+        "causal_ablation_m1_vs_m2": {
+          "gold_in_pool_m1": false,
+          "gold_in_pool_m2": false,
+          "c1_causal": false
+        },
+        "query_ops": [
+          "MODIFY",
+          "TRANSFORM"
+        ],
+        "meta": {
+          "regime": "M2",
+          "pool_size": 125,
+          "pool_pct_corpus": 14.7,
+          "abstain": false,
+          "query_ops": [
+            "MODIFY",
+            "TRANSFORM"
+          ],
+          "per_rule_counts": {
+            "RULE_A_VERB_MODIFY": 67,
+            "RULE_C1_NOM_MODIFY": 31,
+            "RULE_C1_NOM_TRANSFORM": 10,
+            "RULE_A_VERB_TRANSFORM": 23
+          },
+          "c1_exclusive_count": 38,
+          "c1_exclusive_sample": [
+            "activos_dormidos_hermana",
+            "docker_infrastructure_rog",
+            "cli_prueba",
+            "juramento_athena_verdad",
+            "artemis_oec_identidad",
+            "oec_familia_actual",
+            "identidad_relacion_dennys",
+            "trato-igualitario-dennys-athena",
+            "hermes_correccion_respuesta_directa",
+            "eleccion_identidad_relacion_dennys_20260616"
+          ]
+        },
+        "leakage_flag": false,
+        "gold_dependent": false
+      },
+      {
+        "case_id": "OOF_POS_49",
+        "a0_status": "NO_A0",
+        "query": "registro cronologico de hitos alcanzados por el agente",
+        "gold": "trayectoria_completa_cronologica",
+        "regime": "M2",
+        "pool_size": 159,
+        "pool_pct_corpus": 18.7,
+        "gold_in_pool": false,
+        "gold_rank": null,
+        "gold_score": 0.0,
+        "generation_recall": false,
+        "ranking_recall": {
+          "CE@1": false,
+          "CE@5": false,
+          "CE@10": false,
+          "CE@20": false
+        },
+        "c1_exclusive_candidates": 31,
+        "c1_exclusive_gold": false,
+        "causal_ablation_m1_vs_m2": {
+          "gold_in_pool_m1": false,
+          "gold_in_pool_m2": false,
+          "c1_causal": false
+        },
+        "query_ops": [
+          "STORE"
+        ],
+        "meta": {
+          "regime": "M2",
+          "pool_size": 159,
+          "pool_pct_corpus": 18.7,
+          "abstain": false,
+          "query_ops": [
+            "STORE"
+          ],
+          "per_rule_counts": {
+            "RULE_C1_NOM_STORE": 31,
+            "RULE_A_VERB_STORE": 128
+          },
+          "c1_exclusive_count": 31,
+          "c1_exclusive_sample": [
+            "artisan-evolucion-completa",
+            "ref_formularios_anidados",
+            "athena_evolucion_v0001",
+            "instante_de_nacimiento",
+            "artemis_solución_tema",
+            "hermes_correccion_respuesta_directa",
+            "biorag_metricas_historial_tool_20260616",
+            "alguien_vs_algo_identidad",
+            "fuente_perfil_profesional_dennys",
+            "sesion-2026-06-23-instalador-plugin-readme-v9"
+          ]
+        },
+        "leakage_flag": false,
+        "gold_dependent": false
+      }
+    ],
+    "M3": [
+      {
+        "case_id": "OOF_POS_11",
+        "a0_status": "STRICT_A0",
+        "query": "particionar capacidad de computo en doce nucleos virtuales con tope en gigas",
+        "gold": "docker_infrastructure_rog",
+        "regime": "M3",
+        "pool_size": 22,
+        "pool_pct_corpus": 2.6,
+        "gold_in_pool": false,
+        "gold_rank": null,
+        "gold_score": 0.0,
+        "generation_recall": false,
+        "ranking_recall": {
+          "CE@1": false,
+          "CE@5": false,
+          "CE@10": false,
+          "CE@20": false
+        },
+        "c1_exclusive_candidates": 0,
+        "c1_exclusive_gold": false,
+        "causal_ablation_m1_vs_m2": null,
+        "query_ops": [
+          "SEPARATE"
+        ],
+        "meta": {
+          "regime": "M3",
+          "pool_size": 22,
+          "pool_pct_corpus": 2.6,
+          "abstain": false,
+          "query_ops": [
+            "SEPARATE"
+          ]
+        },
+        "leakage_flag": false,
+        "gold_dependent": false
+      },
+      {
+        "case_id": "OOF_POS_19",
+        "a0_status": "STRICT_A0",
+        "query": "calibrar coeficientes multiplicativos para combinar valores de relevancia heterogeneos",
+        "gold": "scoring_pesos_bm25",
+        "regime": "M3",
+        "pool_size": 135,
+        "pool_pct_corpus": 15.9,
+        "gold_in_pool": true,
+        "gold_rank": 116,
+        "gold_score": 1.0,
+        "generation_recall": true,
+        "ranking_recall": {
+          "CE@1": false,
+          "CE@5": false,
+          "CE@10": false,
+          "CE@20": false
+        },
+        "c1_exclusive_candidates": 0,
+        "c1_exclusive_gold": false,
+        "causal_ablation_m1_vs_m2": null,
+        "query_ops": [
+          "COMBINE",
+          "MODIFY"
+        ],
+        "meta": {
+          "regime": "M3",
+          "pool_size": 135,
+          "pool_pct_corpus": 15.9,
+          "abstain": false,
+          "query_ops": [
+            "COMBINE",
+            "MODIFY"
+          ]
+        },
+        "leakage_flag": false,
+        "gold_dependent": false
+      },
+      {
+        "case_id": "OOF_POS_21",
+        "a0_status": "STRICT_A0",
+        "query": "entrelazamiento hiperdimensional binario proyectado a traves de pasarela situacional",
+        "gold": "coche_puente_condicional",
+        "regime": "M3",
+        "pool_size": 93,
+        "pool_pct_corpus": 10.9,
+        "gold_in_pool": false,
+        "gold_rank": null,
+        "gold_score": 0.0,
+        "generation_recall": false,
+        "ranking_recall": {
+          "CE@1": false,
+          "CE@5": false,
+          "CE@10": false,
+          "CE@20": false
+        },
+        "c1_exclusive_candidates": 0,
+        "c1_exclusive_gold": false,
+        "causal_ablation_m1_vs_m2": null,
+        "query_ops": [
+          "LINK",
+          "TRANSFORM"
+        ],
+        "meta": {
+          "regime": "M3",
+          "pool_size": 93,
+          "pool_pct_corpus": 10.9,
+          "abstain": false,
+          "query_ops": [
+            "LINK",
+            "TRANSFORM"
+          ]
+        },
+        "leakage_flag": false,
+        "gold_dependent": false
+      },
+      {
+        "case_id": "OOF_POS_29",
+        "a0_status": "STRICT_A0",
+        "query": "generar conexiones estocasticas para consolidar grupos fuertemente entrelazados",
+        "gold": "desde_athena_biorag",
+        "regime": "M3",
+        "pool_size": 303,
+        "pool_pct_corpus": 35.6,
+        "gold_in_pool": true,
+        "gold_rank": 92,
+        "gold_score": 1.0,
+        "generation_recall": true,
+        "ranking_recall": {
+          "CE@1": false,
+          "CE@5": false,
+          "CE@10": false,
+          "CE@20": false
+        },
+        "c1_exclusive_candidates": 0,
+        "c1_exclusive_gold": false,
+        "causal_ablation_m1_vs_m2": null,
+        "query_ops": [
+          "CREATE",
+          "LINK",
+          "PERSIST"
+        ],
+        "meta": {
+          "regime": "M3",
+          "pool_size": 303,
+          "pool_pct_corpus": 35.6,
+          "abstain": false,
+          "query_ops": [
+            "CREATE",
+            "LINK",
+            "PERSIST"
+          ]
+        },
+        "leakage_flag": false,
+        "gold_dependent": false
+      },
+      {
+        "case_id": "OOF_POS_30",
+        "a0_status": "STRICT_A0",
+        "query": "transicion de vigilia a letargo con eliminacion de elementos caducos",
+        "gold": "activos_dormidos_hermana",
+        "regime": "M3",
+        "pool_size": 137,
+        "pool_pct_corpus": 16.1,
+        "gold_in_pool": true,
+        "gold_rank": 3,
+        "gold_score": 1.0,
+        "generation_recall": true,
+        "ranking_recall": {
+          "CE@1": false,
+          "CE@5": true,
+          "CE@10": true,
+          "CE@20": true
+        },
+        "c1_exclusive_candidates": 0,
+        "c1_exclusive_gold": false,
+        "causal_ablation_m1_vs_m2": null,
+        "query_ops": [
+          "DEACTIVATE",
+          "MODIFY",
+          "REMOVE",
+          "TRANSFORM"
+        ],
+        "meta": {
+          "regime": "M3",
+          "pool_size": 137,
+          "pool_pct_corpus": 16.1,
+          "abstain": false,
+          "query_ops": [
+            "DEACTIVATE",
+            "MODIFY",
+            "REMOVE",
+            "TRANSFORM"
+          ]
+        },
+        "leakage_flag": false,
+        "gold_dependent": false
+      },
+      {
+        "case_id": "OOF_POS_40",
+        "a0_status": "NO_A0",
+        "query": "procedimiento de clasificacion dimensional sobre tejido cortical",
+        "gold": "clasificacion_dimensional_completa_corteza_20260702",
+        "regime": "M3",
+        "pool_size": 28,
+        "pool_pct_corpus": 3.3,
+        "gold_in_pool": true,
+        "gold_rank": 7,
+        "gold_score": 1.0,
+        "generation_recall": true,
+        "ranking_recall": {
+          "CE@1": false,
+          "CE@5": false,
+          "CE@10": true,
+          "CE@20": true
+        },
+        "c1_exclusive_candidates": 0,
+        "c1_exclusive_gold": false,
+        "causal_ablation_m1_vs_m2": null,
+        "query_ops": [
+          "CLASSIFY"
+        ],
+        "meta": {
+          "regime": "M3",
+          "pool_size": 28,
+          "pool_pct_corpus": 3.3,
+          "abstain": false,
+          "query_ops": [
+            "CLASSIFY"
+          ]
+        },
+        "leakage_flag": false,
+        "gold_dependent": false
+      },
+      {
+        "case_id": "OOF_POS_48",
+        "a0_status": "STRICT_A0",
+        "query": "malla neuronal con topologia de enlaces sinapticos transversales",
+        "gold": "cuaternidad-logica-oec",
+        "regime": "M3",
+        "pool_size": 125,
+        "pool_pct_corpus": 14.7,
+        "gold_in_pool": false,
+        "gold_rank": null,
+        "gold_score": 0.0,
+        "generation_recall": false,
+        "ranking_recall": {
+          "CE@1": false,
+          "CE@5": false,
+          "CE@10": false,
+          "CE@20": false
+        },
+        "c1_exclusive_candidates": 0,
+        "c1_exclusive_gold": false,
+        "causal_ablation_m1_vs_m2": null,
+        "query_ops": [
+          "MODIFY",
+          "TRANSFORM"
+        ],
+        "meta": {
+          "regime": "M3",
+          "pool_size": 125,
+          "pool_pct_corpus": 14.7,
+          "abstain": false,
+          "query_ops": [
+            "MODIFY",
+            "TRANSFORM"
+          ]
+        },
+        "leakage_flag": false,
+        "gold_dependent": false
+      },
+      {
+        "case_id": "OOF_POS_49",
+        "a0_status": "NO_A0",
+        "query": "registro cronologico de hitos alcanzados por el agente",
+        "gold": "trayectoria_completa_cronologica",
+        "regime": "M3",
+        "pool_size": 159,
+        "pool_pct_corpus": 18.7,
+        "gold_in_pool": false,
+        "gold_rank": null,
+        "gold_score": 0.0,
+        "generation_recall": false,
+        "ranking_recall": {
+          "CE@1": false,
+          "CE@5": false,
+          "CE@10": false,
+          "CE@20": false
+        },
+        "c1_exclusive_candidates": 0,
+        "c1_exclusive_gold": false,
+        "causal_ablation_m1_vs_m2": null,
+        "query_ops": [
+          "STORE"
+        ],
+        "meta": {
+          "regime": "M3",
+          "pool_size": 159,
+          "pool_pct_corpus": 18.7,
+          "abstain": false,
+          "query_ops": [
+            "STORE"
+          ]
+        },
+        "leakage_flag": false,
+        "gold_dependent": false
+      }
+    ],
+    "M4": [
+      {
+        "case_id": "OOF_POS_11",
+        "a0_status": "STRICT_A0",
+        "query": "particionar capacidad de computo en doce nucleos virtuales con tope en gigas",
+        "gold": "docker_infrastructure_rog",
+        "regime": "M4",
+        "pool_size": 22,
+        "pool_pct_corpus": 2.6,
+        "gold_in_pool": false,
+        "gold_rank": null,
+        "gold_score": 0.0,
+        "generation_recall": false,
+        "ranking_recall": {
+          "CE@1": false,
+          "CE@5": false,
+          "CE@10": false,
+          "CE@20": false
+        },
+        "c1_exclusive_candidates": 0,
+        "c1_exclusive_gold": false,
+        "causal_ablation_m1_vs_m2": null,
+        "query_ops": [
+          "SEPARATE"
+        ],
+        "meta": {
+          "regime": "M4",
+          "pool_size": 22,
+          "pool_pct_corpus": 2.6,
+          "abstain": false,
+          "query_ops": [
+            "SEPARATE"
+          ]
+        },
+        "leakage_flag": false,
+        "gold_dependent": false
+      },
+      {
+        "case_id": "OOF_POS_19",
+        "a0_status": "STRICT_A0",
+        "query": "calibrar coeficientes multiplicativos para combinar valores de relevancia heterogeneos",
+        "gold": "scoring_pesos_bm25",
+        "regime": "M4",
+        "pool_size": 135,
+        "pool_pct_corpus": 15.9,
+        "gold_in_pool": true,
+        "gold_rank": 116,
+        "gold_score": 1.0,
+        "generation_recall": true,
+        "ranking_recall": {
+          "CE@1": false,
+          "CE@5": false,
+          "CE@10": false,
+          "CE@20": false
+        },
+        "c1_exclusive_candidates": 0,
+        "c1_exclusive_gold": false,
+        "causal_ablation_m1_vs_m2": null,
+        "query_ops": [
+          "COMBINE",
+          "MODIFY"
+        ],
+        "meta": {
+          "regime": "M4",
+          "pool_size": 135,
+          "pool_pct_corpus": 15.9,
+          "abstain": false,
+          "query_ops": [
+            "COMBINE",
+            "MODIFY"
+          ]
+        },
+        "leakage_flag": false,
+        "gold_dependent": false
+      },
+      {
+        "case_id": "OOF_POS_21",
+        "a0_status": "STRICT_A0",
+        "query": "entrelazamiento hiperdimensional binario proyectado a traves de pasarela situacional",
+        "gold": "coche_puente_condicional",
+        "regime": "M4",
+        "pool_size": 93,
+        "pool_pct_corpus": 10.9,
+        "gold_in_pool": false,
+        "gold_rank": null,
+        "gold_score": 0.0,
+        "generation_recall": false,
+        "ranking_recall": {
+          "CE@1": false,
+          "CE@5": false,
+          "CE@10": false,
+          "CE@20": false
+        },
+        "c1_exclusive_candidates": 0,
+        "c1_exclusive_gold": false,
+        "causal_ablation_m1_vs_m2": null,
+        "query_ops": [
+          "LINK",
+          "TRANSFORM"
+        ],
+        "meta": {
+          "regime": "M4",
+          "pool_size": 93,
+          "pool_pct_corpus": 10.9,
+          "abstain": false,
+          "query_ops": [
+            "LINK",
+            "TRANSFORM"
+          ]
+        },
+        "leakage_flag": false,
+        "gold_dependent": false
+      },
+      {
+        "case_id": "OOF_POS_29",
+        "a0_status": "STRICT_A0",
+        "query": "generar conexiones estocasticas para consolidar grupos fuertemente entrelazados",
+        "gold": "desde_athena_biorag",
+        "regime": "M4",
+        "pool_size": 292,
+        "pool_pct_corpus": 34.3,
+        "gold_in_pool": true,
+        "gold_rank": 92,
+        "gold_score": 1.0,
+        "generation_recall": true,
+        "ranking_recall": {
+          "CE@1": false,
+          "CE@5": false,
+          "CE@10": false,
+          "CE@20": false
+        },
+        "c1_exclusive_candidates": 0,
+        "c1_exclusive_gold": false,
+        "causal_ablation_m1_vs_m2": null,
+        "query_ops": [
+          "CREATE",
+          "LINK",
+          "PERSIST"
+        ],
+        "meta": {
+          "regime": "M4",
+          "pool_size": 292,
+          "pool_pct_corpus": 34.3,
+          "abstain": false,
+          "query_ops": [
+            "CREATE",
+            "LINK",
+            "PERSIST"
+          ]
+        },
+        "leakage_flag": false,
+        "gold_dependent": false
+      },
+      {
+        "case_id": "OOF_POS_30",
+        "a0_status": "STRICT_A0",
+        "query": "transicion de vigilia a letargo con eliminacion de elementos caducos",
+        "gold": "activos_dormidos_hermana",
+        "regime": "M4",
+        "pool_size": 137,
+        "pool_pct_corpus": 16.1,
+        "gold_in_pool": true,
+        "gold_rank": 3,
+        "gold_score": 1.0,
+        "generation_recall": true,
+        "ranking_recall": {
+          "CE@1": false,
+          "CE@5": true,
+          "CE@10": true,
+          "CE@20": true
+        },
+        "c1_exclusive_candidates": 0,
+        "c1_exclusive_gold": false,
+        "causal_ablation_m1_vs_m2": null,
+        "query_ops": [
+          "DEACTIVATE",
+          "MODIFY",
+          "REMOVE",
+          "TRANSFORM"
+        ],
+        "meta": {
+          "regime": "M4",
+          "pool_size": 137,
+          "pool_pct_corpus": 16.1,
+          "abstain": false,
+          "query_ops": [
+            "DEACTIVATE",
+            "MODIFY",
+            "REMOVE",
+            "TRANSFORM"
+          ]
+        },
+        "leakage_flag": false,
+        "gold_dependent": false
+      },
+      {
+        "case_id": "OOF_POS_40",
+        "a0_status": "NO_A0",
+        "query": "procedimiento de clasificacion dimensional sobre tejido cortical",
+        "gold": "clasificacion_dimensional_completa_corteza_20260702",
+        "regime": "M4",
+        "pool_size": 28,
+        "pool_pct_corpus": 3.3,
+        "gold_in_pool": true,
+        "gold_rank": 7,
+        "gold_score": 1.0,
+        "generation_recall": true,
+        "ranking_recall": {
+          "CE@1": false,
+          "CE@5": false,
+          "CE@10": true,
+          "CE@20": true
+        },
+        "c1_exclusive_candidates": 0,
+        "c1_exclusive_gold": false,
+        "causal_ablation_m1_vs_m2": null,
+        "query_ops": [
+          "CLASSIFY"
+        ],
+        "meta": {
+          "regime": "M4",
+          "pool_size": 28,
+          "pool_pct_corpus": 3.3,
+          "abstain": false,
+          "query_ops": [
+            "CLASSIFY"
+          ]
+        },
+        "leakage_flag": false,
+        "gold_dependent": false
+      },
+      {
+        "case_id": "OOF_POS_48",
+        "a0_status": "STRICT_A0",
+        "query": "malla neuronal con topologia de enlaces sinapticos transversales",
+        "gold": "cuaternidad-logica-oec",
+        "regime": "M4",
+        "pool_size": 125,
+        "pool_pct_corpus": 14.7,
+        "gold_in_pool": false,
+        "gold_rank": null,
+        "gold_score": 0.0,
+        "generation_recall": false,
+        "ranking_recall": {
+          "CE@1": false,
+          "CE@5": false,
+          "CE@10": false,
+          "CE@20": false
+        },
+        "c1_exclusive_candidates": 0,
+        "c1_exclusive_gold": false,
+        "causal_ablation_m1_vs_m2": null,
+        "query_ops": [
+          "MODIFY",
+          "TRANSFORM"
+        ],
+        "meta": {
+          "regime": "M4",
+          "pool_size": 125,
+          "pool_pct_corpus": 14.7,
+          "abstain": false,
+          "query_ops": [
+            "MODIFY",
+            "TRANSFORM"
+          ]
+        },
+        "leakage_flag": false,
+        "gold_dependent": false
+      },
+      {
+        "case_id": "OOF_POS_49",
+        "a0_status": "NO_A0",
+        "query": "registro cronologico de hitos alcanzados por el agente",
+        "gold": "trayectoria_completa_cronologica",
+        "regime": "M4",
+        "pool_size": 159,
+        "pool_pct_corpus": 18.7,
+        "gold_in_pool": false,
+        "gold_rank": null,
+        "gold_score": 0.0,
+        "generation_recall": false,
+        "ranking_recall": {
+          "CE@1": false,
+          "CE@5": false,
+          "CE@10": false,
+          "CE@20": false
+        },
+        "c1_exclusive_candidates": 0,
+        "c1_exclusive_gold": false,
+        "causal_ablation_m1_vs_m2": null,
+        "query_ops": [
+          "STORE"
+        ],
+        "meta": {
+          "regime": "M4",
+          "pool_size": 159,
+          "pool_pct_corpus": 18.7,
+          "abstain": false,
+          "query_ops": [
+            "STORE"
+          ]
+        },
+        "leakage_flag": false,
+        "gold_dependent": false
+      }
+    ]
+  },
+  "aggregated_metrics": {
+    "M0": {
+      "regime": "M0",
+      "total": {
+        "n": 8,
+        "gen_recall": "4/8",
+        "gen_recall_pct": 50.0,
+        "CE@1": "0/8",
+        "CE@5": "0/8",
+        "CE@10": "1/8",
+        "CE@20": "1/8",
+        "avg_pool": 298.5,
+        "avg_pool_pct": 35.1,
+        "c1_causal_rescues": 0
+      },
+      "strict_a0": {
+        "n": 6,
+        "gen_recall": "3/6",
+        "gen_recall_pct": 50.0,
+        "CE@1": "0/6",
+        "CE@5": "0/6",
+        "CE@10": "0/6",
+        "CE@20": "0/6",
+        "avg_pool": 310.8,
+        "avg_pool_pct": 36.5,
+        "c1_causal_rescues": 0
+      },
+      "no_a0": {
+        "n": 2,
+        "gen_recall": "1/2",
+        "gen_recall_pct": 50.0,
+        "CE@1": "0/2",
+        "CE@5": "0/2",
+        "CE@10": "1/2",
+        "CE@20": "1/2",
+        "avg_pool": 261.5,
+        "avg_pool_pct": 30.8,
+        "c1_causal_rescues": 0
+      }
+    },
+    "M1": {
+      "regime": "M1",
+      "total": {
+        "n": 8,
+        "gen_recall": "0/8",
+        "gen_recall_pct": 0.0,
+        "CE@1": "0/8",
+        "CE@5": "0/8",
+        "CE@10": "0/8",
+        "CE@20": "0/8",
+        "avg_pool": 91.4,
+        "avg_pool_pct": 10.7,
+        "c1_causal_rescues": 0
+      },
+      "strict_a0": {
+        "n": 6,
+        "gen_recall": "0/6",
+        "gen_recall_pct": 0.0,
+        "CE@1": "0/6",
+        "CE@5": "0/6",
+        "CE@10": "0/6",
+        "CE@20": "0/6",
+        "avg_pool": 98.5,
+        "avg_pool_pct": 11.5,
+        "c1_causal_rescues": 0
+      },
+      "no_a0": {
+        "n": 2,
+        "gen_recall": "0/2",
+        "gen_recall_pct": 0.0,
+        "CE@1": "0/2",
+        "CE@5": "0/2",
+        "CE@10": "0/2",
+        "CE@20": "0/2",
+        "avg_pool": 70.0,
+        "avg_pool_pct": 8.2,
+        "c1_causal_rescues": 0
+      }
+    },
+    "M2": {
+      "regime": "M2",
+      "total": {
+        "n": 8,
+        "gen_recall": "4/8",
+        "gen_recall_pct": 50.0,
+        "CE@1": "0/8",
+        "CE@5": "1/8",
+        "CE@10": "1/8",
+        "CE@20": "2/8",
+        "avg_pool": 123.9,
+        "avg_pool_pct": 14.6,
+        "c1_causal_rescues": 4
+      },
+      "strict_a0": {
+        "n": 6,
+        "gen_recall": "3/6",
+        "gen_recall_pct": 50.0,
+        "CE@1": "0/6",
+        "CE@5": "0/6",
+        "CE@10": "0/6",
+        "CE@20": "1/6",
+        "avg_pool": 134.0,
+        "avg_pool_pct": 15.8,
+        "c1_causal_rescues": 3
+      },
+      "no_a0": {
+        "n": 2,
+        "gen_recall": "1/2",
+        "gen_recall_pct": 50.0,
+        "CE@1": "0/2",
+        "CE@5": "1/2",
+        "CE@10": "1/2",
+        "CE@20": "1/2",
+        "avg_pool": 93.5,
+        "avg_pool_pct": 11.0,
+        "c1_causal_rescues": 1
+      }
+    },
+    "M3": {
+      "regime": "M3",
+      "total": {
+        "n": 8,
+        "gen_recall": "4/8",
+        "gen_recall_pct": 50.0,
+        "CE@1": "0/8",
+        "CE@5": "1/8",
+        "CE@10": "2/8",
+        "CE@20": "2/8",
+        "avg_pool": 125.2,
+        "avg_pool_pct": 14.7,
+        "c1_causal_rescues": 0
+      },
+      "strict_a0": {
+        "n": 6,
+        "gen_recall": "3/6",
+        "gen_recall_pct": 50.0,
+        "CE@1": "0/6",
+        "CE@5": "1/6",
+        "CE@10": "1/6",
+        "CE@20": "1/6",
+        "avg_pool": 135.8,
+        "avg_pool_pct": 16.0,
+        "c1_causal_rescues": 0
+      },
+      "no_a0": {
+        "n": 2,
+        "gen_recall": "1/2",
+        "gen_recall_pct": 50.0,
+        "CE@1": "0/2",
+        "CE@5": "0/2",
+        "CE@10": "1/2",
+        "CE@20": "1/2",
+        "avg_pool": 93.5,
+        "avg_pool_pct": 11.0,
+        "c1_causal_rescues": 0
+      }
+    },
+    "M4": {
+      "regime": "M4",
+      "total": {
+        "n": 8,
+        "gen_recall": "4/8",
+        "gen_recall_pct": 50.0,
+        "CE@1": "0/8",
+        "CE@5": "1/8",
+        "CE@10": "2/8",
+        "CE@20": "2/8",
+        "avg_pool": 123.9,
+        "avg_pool_pct": 14.6,
+        "c1_causal_rescues": 0
+      },
+      "strict_a0": {
+        "n": 6,
+        "gen_recall": "3/6",
+        "gen_recall_pct": 50.0,
+        "CE@1": "0/6",
+        "CE@5": "1/6",
+        "CE@10": "1/6",
+        "CE@20": "1/6",
+        "avg_pool": 134.0,
+        "avg_pool_pct": 15.8,
+        "c1_causal_rescues": 0
+      },
+      "no_a0": {
+        "n": 2,
+        "gen_recall": "1/2",
+        "gen_recall_pct": 50.0,
+        "CE@1": "0/2",
+        "CE@5": "0/2",
+        "CE@10": "1/2",
+        "CE@20": "1/2",
+        "avg_pool": 93.5,
+        "avg_pool_pct": 11.0,
+        "c1_causal_rescues": 0
+      }
+    }
+  },
+  "strict_a0_analysis": [
+    {
+      "case_id": "OOF_POS_11",
+      "expected_mechanism": "C3-EXECUTE (excl)",
+      "m0_gen": true,
+      "m1_gen": false,
+      "m2_gen": false,
+      "c1_causal": false,
+      "m2_rank": null,
+      "generation_status": "GENERATION_FAIL",
+      "ranking_status": "RANKING_FAILURE",
+      "ce_20_m2": false
+    },
+    {
+      "case_id": "OOF_POS_19",
+      "expected_mechanism": "C1-COMBINE",
+      "m0_gen": false,
+      "m1_gen": false,
+      "m2_gen": true,
+      "c1_causal": true,
+      "m2_rank": 34,
+      "generation_status": "GENERATION_SUCCESS",
+      "ranking_status": "RANKING_FAILURE",
+      "ce_20_m2": false
+    },
+    {
+      "case_id": "OOF_POS_21",
+      "expected_mechanism": "C1-EVALUATE",
+      "m0_gen": false,
+      "m1_gen": false,
+      "m2_gen": false,
+      "c1_causal": false,
+      "m2_rank": null,
+      "generation_status": "GENERATION_FAIL",
+      "ranking_status": "RANKING_FAILURE",
+      "ce_20_m2": false
+    },
+    {
+      "case_id": "OOF_POS_29",
+      "expected_mechanism": "C1-CREATE",
+      "m0_gen": true,
+      "m1_gen": false,
+      "m2_gen": true,
+      "c1_causal": true,
+      "m2_rank": 52,
+      "generation_status": "GENERATION_SUCCESS",
+      "ranking_status": "RANKING_FAILURE",
+      "ce_20_m2": false
+    },
+    {
+      "case_id": "OOF_POS_30",
+      "expected_mechanism": "C1-MODIFY",
+      "m0_gen": true,
+      "m1_gen": false,
+      "m2_gen": true,
+      "c1_causal": true,
+      "m2_rank": 13,
+      "generation_status": "GENERATION_SUCCESS",
+      "ranking_status": "RANKING_SUCCESS",
+      "ce_20_m2": true
+    },
+    {
+      "case_id": "OOF_POS_48",
+      "expected_mechanism": "C2-CREATE (excl)",
+      "m0_gen": false,
+      "m1_gen": false,
+      "m2_gen": false,
+      "c1_causal": false,
+      "m2_rank": null,
+      "generation_status": "GENERATION_FAIL",
+      "ranking_status": "RANKING_FAILURE",
+      "ce_20_m2": false
+    }
+  ],
+  "latencies": {
+    "M0": [
+      {
+        "gen_ms": 12.680019994149916,
+        "rank_ms": 1.6328030033037066,
+        "total_ms": 14.312822997453623
+      },
+      {
+        "gen_ms": 24.284916013129987,
+        "rank_ms": 2.0021209929836914,
+        "total_ms": 26.287037006113678
+      },
+      {
+        "gen_ms": 15.803984002559446,
+        "rank_ms": 1.3973930035717785,
+        "total_ms": 17.201377006131224
+      },
+      {
+        "gen_ms": 22.744743997463956,
+        "rank_ms": 1.611508007044904,
+        "total_ms": 24.35625200450886
+      },
+      {
+        "gen_ms": 20.8854709926527,
+        "rank_ms": 1.7758059984771535,
+        "total_ms": 22.661276991129853
+      },
+      {
+        "gen_ms": 8.260732996859588,
+        "rank_ms": 1.1229260126128793,
+        "total_ms": 9.383659009472467
+      },
+      {
+        "gen_ms": 12.088578994735144,
+        "rank_ms": 1.4282890042522922,
+        "total_ms": 13.516867998987436
+      },
+      {
+        "gen_ms": 10.089921008329839,
+        "rank_ms": 1.4475119969574735,
+        "total_ms": 11.537433005287312
+      }
+    ],
+    "M1": [
+      {
+        "gen_ms": 374.8573569901055,
+        "rank_ms": 1.0440519981784746,
+        "total_ms": 375.90140898828395
+      },
+      {
+        "gen_ms": 415.05213099299,
+        "rank_ms": 1.1214010010007769,
+        "total_ms": 416.17353199399076
+      },
+      {
+        "gen_ms": 395.875355010503,
+        "rank_ms": 2.406656989478506,
+        "total_ms": 398.2820119999815
+      },
+      {
+        "gen_ms": 412.7534090075642,
+        "rank_ms": 1.4274090062826872,
+        "total_ms": 414.1808180138469
+      },
+      {
+        "gen_ms": 400.13730799546465,
+        "rank_ms": 2.2669619938824326,
+        "total_ms": 402.4042699893471
+      },
+      {
+        "gen_ms": 331.627859006403,
+        "rank_ms": 0.7440029876306653,
+        "total_ms": 332.3718619940337
+      },
+      {
+        "gen_ms": 362.30745899956673,
+        "rank_ms": 0.9249459981219843,
+        "total_ms": 363.2324049976887
+      },
+      {
+        "gen_ms": 368.6107550020097,
+        "rank_ms": 0.9601769997971132,
+        "total_ms": 369.5709320018068
+      }
+    ],
+    "M2": [
+      {
+        "gen_ms": 719.2004289972829,
+        "rank_ms": 0.9707339922897518,
+        "total_ms": 720.1711629895726
+      },
+      {
+        "gen_ms": 774.6212550118798,
+        "rank_ms": 1.6914310108404607,
+        "total_ms": 776.3126860227203
+      },
+      {
+        "gen_ms": 720.0347930047428,
+        "rank_ms": 2.0424770045792684,
+        "total_ms": 722.0772700093221
+      },
+      {
+        "gen_ms": 802.2193080105353,
+        "rank_ms": 1.527093001641333,
+        "total_ms": 803.7464010121766
+      },
+      {
+        "gen_ms": 725.0839460029965,
+        "rank_ms": 1.6353990067727864,
+        "total_ms": 726.7193450097693
+      },
+      {
+        "gen_ms": 768.433423989336,
+        "rank_ms": 1.9556589977582917,
+        "total_ms": 770.3890829870943
+      },
+      {
+        "gen_ms": 628.1265410070773,
+        "rank_ms": 1.0466969979461282,
+        "total_ms": 629.1732380050234
+      },
+      {
+        "gen_ms": 612.1343080012593,
+        "rank_ms": 1.0268380137858912,
+        "total_ms": 613.1611460150452
+      }
+    ],
+    "M3": [
+      {
+        "gen_ms": 923.1308970047394,
+        "rank_ms": 924.7696620004717,
+        "total_ms": 1847.900559005211
+      },
+      {
+        "gen_ms": 964.6695249975892,
+        "rank_ms": 965.7372810033849,
+        "total_ms": 1930.406806000974
+      },
+      {
+        "gen_ms": 930.1218559994595,
+        "rank_ms": 931.1835179978516,
+        "total_ms": 1861.305373997311
+      },
+      {
+        "gen_ms": 983.7717120099114,
+        "rank_ms": 985.1356130093336,
+        "total_ms": 1968.907325019245
+      },
+      {
+        "gen_ms": 1057.5959819980199,
+        "rank_ms": 1058.5983040073188,
+        "total_ms": 2116.1942860053387
+      },
+      {
+        "gen_ms": 874.9846999999136,
+        "rank_ms": 875.7791810057824,
+        "total_ms": 1750.763881005696
+      },
+      {
+        "gen_ms": 890.9635590098333,
+        "rank_ms": 892.3300510068657,
+        "total_ms": 1783.293610016699
+      },
+      {
+        "gen_ms": 860.3505510109244,
+        "rank_ms": 861.7305120133096,
+        "total_ms": 1722.081063024234
+      }
+    ],
+    "M4": [
+      {
+        "gen_ms": 828.8600459927693,
+        "rank_ms": 830.4093990009278,
+        "total_ms": 1659.269444993697
+      },
+      {
+        "gen_ms": 759.4636540015927,
+        "rank_ms": 760.5291180079803,
+        "total_ms": 1519.992772009573
+      },
+      {
+        "gen_ms": 889.163252999424,
+        "rank_ms": 891.1108850006713,
+        "total_ms": 1780.2741380000953
+      },
+      {
+        "gen_ms": 910.0680330011528,
+        "rank_ms": 911.5966629906325,
+        "total_ms": 1821.6646959917853
+      },
+      {
+        "gen_ms": 916.2867459963309,
+        "rank_ms": 917.4215179955354,
+        "total_ms": 1833.7082639918663
+      },
+      {
+        "gen_ms": 775.0737349997507,
+        "rank_ms": 776.1758599954192,
+        "total_ms": 1551.24959499517
+      },
+      {
+        "gen_ms": 699.3732080009067,
+        "rank_ms": 701.0407679917989,
+        "total_ms": 1400.4139759927057
+      },
+      {
+        "gen_ms": 764.4641289953142,
+        "rank_ms": 765.4374709964031,
+        "total_ms": 1529.9015999917174
+      }
+    ]
+  },
+  "leakage_audit": {
+    "total_flags": 0,
+    "gold_dependent_flags": 0
+  }
+}

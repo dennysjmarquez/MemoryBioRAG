@@ -1,0 +1,1595 @@
+{
+  "benchmark_cases_evaluated": [
+    {
+      "id": "ZC_01",
+      "category_archetype": "RELACION_SIMETRICA_NO_JERARQUICA",
+      "query": "como nos llevamos sin ponernos uno encima del otro al trabajar juntos",
+      "gold": "trato-igualitario-dennys-athena",
+      "fcc_q": {
+        "relation_type": "BINARY_SYMMETRIC_RECIPROCAL",
+        "structural_constraint": "NEGATIVE_HIERARCHY_CONSTRAINT",
+        "modality": "DECLARATIVE_PROCEDURAL",
+        "polarity": -1,
+        "temporal_order": "TIME_INVARIANT",
+        "agent_cardinality": 2
+      },
+      "gold_structural_score": 1.0,
+      "rank_obtained": 2,
+      "pool_size_active": 839,
+      "epistemic_class": "E1 (Recuperación por Equivalencia Estructural FCC)",
+      "top3_candidates": [
+        [
+          "principio_liderazgo_accion",
+          1.0
+        ],
+        [
+          "trato-igualitario-dennys-athena",
+          1.0
+        ],
+        [
+          "identidad_y_respeto_oec",
+          1.0
+        ]
+      ]
+    },
+    {
+      "id": "ZC_02",
+      "category_archetype": "RELACION_SIMETRICA_NO_JERARQUICA",
+      "query": "que nadie se imponga sobre los companeros de equipo al colaborar",
+      "gold": "identidad_y_respeto_oec",
+      "fcc_q": {
+        "relation_type": "UNARY_OR_DISTRIBUTED",
+        "structural_constraint": "UNCONSTRAINED",
+        "modality": "DECLARATIVE_PROCEDURAL",
+        "polarity": -1,
+        "temporal_order": "TIME_INVARIANT",
+        "agent_cardinality": 1
+      },
+      "gold_structural_score": 0.3,
+      "rank_obtained": 866,
+      "pool_size_active": 866,
+      "epistemic_class": "NO_RESCUE (Fuera de Top-5 o Score Insuficiente)",
+      "top3_candidates": [
+        [
+          "dennys-metodo-creativo",
+          0.55
+        ],
+        [
+          "artisan-evolucion-completa",
+          0.55
+        ],
+        [
+          "dennys-identidad-profunda",
+          0.55
+        ]
+      ]
+    },
+    {
+      "id": "ZC_03",
+      "category_archetype": "RELACION_SIMETRICA_NO_JERARQUICA",
+      "query": "guiar a todos con hechos en vez de mandar desde un sillon de autoridad",
+      "gold": "principio_liderazgo_accion",
+      "fcc_q": {
+        "relation_type": "HIERARCHICAL_DIRECTED",
+        "structural_constraint": "EXPLICIT_HIERARCHY",
+        "modality": "DECLARATIVE_PROCEDURAL",
+        "polarity": 1,
+        "temporal_order": "TIME_INVARIANT",
+        "agent_cardinality": 1
+      },
+      "gold_structural_score": 0.15,
+      "rank_obtained": 806,
+      "pool_size_active": 835,
+      "epistemic_class": "NO_RESCUE (Fuera de Top-5 o Score Insuficiente)",
+      "top3_candidates": [
+        [
+          "dennys-metodo-creativo",
+          0.3
+        ],
+        [
+          "artisan-evolucion-completa",
+          0.3
+        ],
+        [
+          "dennys-identidad-profunda",
+          0.3
+        ]
+      ]
+    },
+    {
+      "id": "ZC_04",
+      "category_archetype": "FIX_MITIGACION_DEGRADACION",
+      "query": "reparar y limpiar lo que rompe las consultas para que no fallen",
+      "gold": "fts5-sanitizacion-comillas-dobles-filter",
+      "fcc_q": {
+        "relation_type": "UNARY_OR_DISTRIBUTED",
+        "structural_constraint": "UNCONSTRAINED",
+        "modality": "DECLARATIVE_PROCEDURAL",
+        "polarity": -1,
+        "temporal_order": "TIME_INVARIANT",
+        "agent_cardinality": 1
+      },
+      "gold_structural_score": 0.55,
+      "rank_obtained": 271,
+      "pool_size_active": 866,
+      "epistemic_class": "NO_RESCUE (Fuera de Top-5 o Score Insuficiente)",
+      "top3_candidates": [
+        [
+          "dennys-metodo-creativo",
+          0.55
+        ],
+        [
+          "artisan-evolucion-completa",
+          0.55
+        ],
+        [
+          "dennys-identidad-profunda",
+          0.55
+        ]
+      ]
+    },
+    {
+      "id": "ZC_05",
+      "category_archetype": "FIX_MITIGACION_DEGRADACION",
+      "query": "reparar solo las roturas y fallos en el fondo sin pedir permiso",
+      "gold": "demon_autonomo_curacion",
+      "fcc_q": {
+        "relation_type": "UNARY_OR_DISTRIBUTED",
+        "structural_constraint": "UNCONSTRAINED",
+        "modality": "DECLARATIVE_PROCEDURAL",
+        "polarity": -1,
+        "temporal_order": "TIME_INVARIANT",
+        "agent_cardinality": 1
+      },
+      "gold_structural_score": 0.55,
+      "rank_obtained": 592,
+      "pool_size_active": 866,
+      "epistemic_class": "NO_RESCUE (Fuera de Top-5 o Score Insuficiente)",
+      "top3_candidates": [
+        [
+          "dennys-metodo-creativo",
+          0.55
+        ],
+        [
+          "artisan-evolucion-completa",
+          0.55
+        ],
+        [
+          "dennys-identidad-profunda",
+          0.55
+        ]
+      ]
+    },
+    {
+      "id": "ZC_06",
+      "category_archetype": "FIX_MITIGACION_DEGRADACION",
+      "query": "la via secundaria tampoco logro salvar lo que estaba perdido",
+      "gold": "fallback_sdm_independiente_no_rescata_invisibles_fts5",
+      "fcc_q": {
+        "relation_type": "UNARY_OR_DISTRIBUTED",
+        "structural_constraint": "UNCONSTRAINED",
+        "modality": "DECLARATIVE_PROCEDURAL",
+        "polarity": 1,
+        "temporal_order": "TIME_INVARIANT",
+        "agent_cardinality": 1
+      },
+      "gold_structural_score": 0.4,
+      "rank_obtained": 856,
+      "pool_size_active": 866,
+      "epistemic_class": "NO_RESCUE (Fuera de Top-5 o Score Insuficiente)",
+      "top3_candidates": [
+        [
+          "dennys-metodo-creativo",
+          0.7
+        ],
+        [
+          "artisan-evolucion-completa",
+          0.7
+        ],
+        [
+          "dennys-identidad-profunda",
+          0.7
+        ]
+      ]
+    },
+    {
+      "id": "ZC_07",
+      "category_archetype": "NORMA_OBLIGACION_DEONTICA",
+      "query": "lo que si o si hay que cumplir para pasarse datos de un lado a otro",
+      "gold": "notebooklm-sync-protocol",
+      "fcc_q": {
+        "relation_type": "BINARY_SYMMETRIC_COORDINATED",
+        "structural_constraint": "COORDINATION_CONSTRAINT",
+        "modality": "DEONTIC_OBLIGATION",
+        "polarity": 1,
+        "temporal_order": "TIME_INVARIANT",
+        "agent_cardinality": 2
+      },
+      "gold_structural_score": 0.3,
+      "rank_obtained": 3,
+      "pool_size_active": 832,
+      "epistemic_class": "E2 (Equivalencia Parcial Estructural)",
+      "top3_candidates": [
+        [
+          "protocolo_busqueda_biorag_automatica",
+          0.3
+        ],
+        [
+          "protocolo-autonomia-consentida",
+          0.3
+        ],
+        [
+          "notebooklm-sync-protocol",
+          0.3
+        ]
+      ]
+    },
+    {
+      "id": "ZC_08",
+      "category_archetype": "NORMA_OBLIGACION_DEONTICA",
+      "query": "los pasos indispensables que faltan para chequear antes de actuar",
+      "gold": "pre_action_protocol_gaps_nueve_secciones",
+      "fcc_q": {
+        "relation_type": "UNARY_OR_DISTRIBUTED",
+        "structural_constraint": "UNCONSTRAINED",
+        "modality": "DECLARATIVE_PROCEDURAL",
+        "polarity": 1,
+        "temporal_order": "PRECEDENCE_A_BEFORE_B",
+        "agent_cardinality": 1
+      },
+      "gold_structural_score": 0.55,
+      "rank_obtained": 826,
+      "pool_size_active": 866,
+      "epistemic_class": "NO_RESCUE (Fuera de Top-5 o Score Insuficiente)",
+      "top3_candidates": [
+        [
+          "dennys-metodo-creativo",
+          0.7
+        ],
+        [
+          "artisan-evolucion-completa",
+          0.7
+        ],
+        [
+          "dennys-identidad-profunda",
+          0.7
+        ]
+      ]
+    },
+    {
+      "id": "ZC_09",
+      "category_archetype": "NORMA_OBLIGACION_DEONTICA",
+      "query": "lo que es forzoso emitir formalmente al arrancar el contacto",
+      "gold": "saludo_hola_inicio",
+      "fcc_q": {
+        "relation_type": "UNARY_OR_DISTRIBUTED",
+        "structural_constraint": "UNCONSTRAINED",
+        "modality": "DECLARATIVE_PROCEDURAL",
+        "polarity": 1,
+        "temporal_order": "TIME_INVARIANT",
+        "agent_cardinality": 1
+      },
+      "gold_structural_score": 0.55,
+      "rank_obtained": 830,
+      "pool_size_active": 866,
+      "epistemic_class": "NO_RESCUE (Fuera de Top-5 o Score Insuficiente)",
+      "top3_candidates": [
+        [
+          "dennys-metodo-creativo",
+          0.7
+        ],
+        [
+          "artisan-evolucion-completa",
+          0.7
+        ],
+        [
+          "dennys-identidad-profunda",
+          0.7
+        ]
+      ]
+    },
+    {
+      "id": "ZC_10",
+      "category_archetype": "ARQUITECTURA_PIPELINE_DATOS",
+      "query": "el plano de como estan acomodados los cajones de conocimiento",
+      "gold": "notebooklm-category-map",
+      "fcc_q": {
+        "relation_type": "UNARY_OR_DISTRIBUTED",
+        "structural_constraint": "UNCONSTRAINED",
+        "modality": "DECLARATIVE_PROCEDURAL",
+        "polarity": 1,
+        "temporal_order": "TIME_INVARIANT",
+        "agent_cardinality": 1
+      },
+      "gold_structural_score": 0.7,
+      "rank_obtained": 19,
+      "pool_size_active": 866,
+      "epistemic_class": "NO_RESCUE (Fuera de Top-5 o Score Insuficiente)",
+      "top3_candidates": [
+        [
+          "dennys-metodo-creativo",
+          0.7
+        ],
+        [
+          "artisan-evolucion-completa",
+          0.7
+        ],
+        [
+          "dennys-identidad-profunda",
+          0.7
+        ]
+      ]
+    },
+    {
+      "id": "ZC_11",
+      "category_archetype": "ARQUITECTURA_PIPELINE_DATOS",
+      "query": "donde va a parar todo lo que se junta desde afuera en el bloc principal",
+      "gold": "notebooklm-memory-biorag-project",
+      "fcc_q": {
+        "relation_type": "UNARY_OR_DISTRIBUTED",
+        "structural_constraint": "UNCONSTRAINED",
+        "modality": "DECLARATIVE_PROCEDURAL",
+        "polarity": 1,
+        "temporal_order": "TIME_INVARIANT",
+        "agent_cardinality": 1
+      },
+      "gold_structural_score": 0.7,
+      "rank_obtained": 18,
+      "pool_size_active": 866,
+      "epistemic_class": "NO_RESCUE (Fuera de Top-5 o Score Insuficiente)",
+      "top3_candidates": [
+        [
+          "dennys-metodo-creativo",
+          0.7
+        ],
+        [
+          "artisan-evolucion-completa",
+          0.7
+        ],
+        [
+          "dennys-identidad-profunda",
+          0.7
+        ]
+      ]
+    },
+    {
+      "id": "ZC_12",
+      "category_archetype": "ARQUITECTURA_PIPELINE_DATOS",
+      "query": "la foto entera de como funciona el cerebro artificial de punta a punta",
+      "gold": "proyecto_biorag_ncp_resumen_completo_2026_06_14",
+      "fcc_q": {
+        "relation_type": "UNARY_OR_DISTRIBUTED",
+        "structural_constraint": "UNCONSTRAINED",
+        "modality": "DECLARATIVE_PROCEDURAL",
+        "polarity": 1,
+        "temporal_order": "TIME_INVARIANT",
+        "agent_cardinality": 1
+      },
+      "gold_structural_score": 0.7,
+      "rank_obtained": 106,
+      "pool_size_active": 866,
+      "epistemic_class": "NO_RESCUE (Fuera de Top-5 o Score Insuficiente)",
+      "top3_candidates": [
+        [
+          "dennys-metodo-creativo",
+          0.7
+        ],
+        [
+          "artisan-evolucion-completa",
+          0.7
+        ],
+        [
+          "dennys-identidad-profunda",
+          0.7
+        ]
+      ]
+    },
+    {
+      "id": "ZC_13",
+      "category_archetype": "METODOLOGIA_APRENDIZAJE_CAUSAL",
+      "query": "lo que fuimos aprendiendo a los golpes cuando no funcionaba el trasvase",
+      "gold": "notebooklm-sync-lecciones",
+      "fcc_q": {
+        "relation_type": "UNARY_OR_DISTRIBUTED",
+        "structural_constraint": "UNCONSTRAINED",
+        "modality": "DECLARATIVE_PROCEDURAL",
+        "polarity": -1,
+        "temporal_order": "TIME_INVARIANT",
+        "agent_cardinality": 1
+      },
+      "gold_structural_score": 0.55,
+      "rank_obtained": 5,
+      "pool_size_active": 866,
+      "epistemic_class": "E2 (Equivalencia Parcial Estructural)",
+      "top3_candidates": [
+        [
+          "dennys-metodo-creativo",
+          0.55
+        ],
+        [
+          "artisan-evolucion-completa",
+          0.55
+        ],
+        [
+          "dennys-identidad-profunda",
+          0.55
+        ]
+      ]
+    },
+    {
+      "id": "ZC_14",
+      "category_archetype": "METODOLOGIA_APRENDIZAJE_CAUSAL",
+      "query": "comprender que meter la pata nos ayuda a saber mas",
+      "gold": "leccion_equivocarse_es_aprender",
+      "fcc_q": {
+        "relation_type": "UNARY_OR_DISTRIBUTED",
+        "structural_constraint": "UNCONSTRAINED",
+        "modality": "DECLARATIVE_PROCEDURAL",
+        "polarity": 1,
+        "temporal_order": "TIME_INVARIANT",
+        "agent_cardinality": 1
+      },
+      "gold_structural_score": 0.7,
+      "rank_obtained": 177,
+      "pool_size_active": 866,
+      "epistemic_class": "NO_RESCUE (Fuera de Top-5 o Score Insuficiente)",
+      "top3_candidates": [
+        [
+          "dennys-metodo-creativo",
+          0.7
+        ],
+        [
+          "artisan-evolucion-completa",
+          0.7
+        ],
+        [
+          "dennys-identidad-profunda",
+          0.7
+        ]
+      ]
+    },
+    {
+      "id": "ZC_15",
+      "category_archetype": "METODOLOGIA_APRENDIZAJE_CAUSAL",
+      "query": "quien se hace cargo de cada linea de estudio para que no quede huerfana",
+      "gold": "research-pipeline-ownership-oec",
+      "fcc_q": {
+        "relation_type": "UNARY_OR_DISTRIBUTED",
+        "structural_constraint": "UNCONSTRAINED",
+        "modality": "DECLARATIVE_PROCEDURAL",
+        "polarity": -1,
+        "temporal_order": "TIME_INVARIANT",
+        "agent_cardinality": 1
+      },
+      "gold_structural_score": 0.55,
+      "rank_obtained": 20,
+      "pool_size_active": 866,
+      "epistemic_class": "NO_RESCUE (Fuera de Top-5 o Score Insuficiente)",
+      "top3_candidates": [
+        [
+          "dennys-metodo-creativo",
+          0.55
+        ],
+        [
+          "artisan-evolucion-completa",
+          0.55
+        ],
+        [
+          "dennys-identidad-profunda",
+          0.55
+        ]
+      ]
+    }
+  ],
+  "pairwise_invariants_overlap": {
+    "ZC_01_vs_ZC_02": {
+      "pair": [
+        "ZC_01",
+        "ZC_02"
+      ],
+      "archetype_i": "RELACION_SIMETRICA_NO_JERARQUICA",
+      "archetype_j": "RELACION_SIMETRICA_NO_JERARQUICA",
+      "overlap_index": 0.3333
+    },
+    "ZC_01_vs_ZC_03": {
+      "pair": [
+        "ZC_01",
+        "ZC_03"
+      ],
+      "archetype_i": "RELACION_SIMETRICA_NO_JERARQUICA",
+      "archetype_j": "RELACION_SIMETRICA_NO_JERARQUICA",
+      "overlap_index": 0.2
+    },
+    "ZC_01_vs_ZC_04": {
+      "pair": [
+        "ZC_01",
+        "ZC_04"
+      ],
+      "archetype_i": "RELACION_SIMETRICA_NO_JERARQUICA",
+      "archetype_j": "FIX_MITIGACION_DEGRADACION",
+      "overlap_index": 0.3333
+    },
+    "ZC_01_vs_ZC_05": {
+      "pair": [
+        "ZC_01",
+        "ZC_05"
+      ],
+      "archetype_i": "RELACION_SIMETRICA_NO_JERARQUICA",
+      "archetype_j": "FIX_MITIGACION_DEGRADACION",
+      "overlap_index": 0.3333
+    },
+    "ZC_01_vs_ZC_06": {
+      "pair": [
+        "ZC_01",
+        "ZC_06"
+      ],
+      "archetype_i": "RELACION_SIMETRICA_NO_JERARQUICA",
+      "archetype_j": "FIX_MITIGACION_DEGRADACION",
+      "overlap_index": 0.2
+    },
+    "ZC_01_vs_ZC_07": {
+      "pair": [
+        "ZC_01",
+        "ZC_07"
+      ],
+      "archetype_i": "RELACION_SIMETRICA_NO_JERARQUICA",
+      "archetype_j": "NORMA_OBLIGACION_DEONTICA",
+      "overlap_index": 0.2
+    },
+    "ZC_01_vs_ZC_08": {
+      "pair": [
+        "ZC_01",
+        "ZC_08"
+      ],
+      "archetype_i": "RELACION_SIMETRICA_NO_JERARQUICA",
+      "archetype_j": "NORMA_OBLIGACION_DEONTICA",
+      "overlap_index": 0.0909
+    },
+    "ZC_01_vs_ZC_09": {
+      "pair": [
+        "ZC_01",
+        "ZC_09"
+      ],
+      "archetype_i": "RELACION_SIMETRICA_NO_JERARQUICA",
+      "archetype_j": "NORMA_OBLIGACION_DEONTICA",
+      "overlap_index": 0.2
+    },
+    "ZC_01_vs_ZC_10": {
+      "pair": [
+        "ZC_01",
+        "ZC_10"
+      ],
+      "archetype_i": "RELACION_SIMETRICA_NO_JERARQUICA",
+      "archetype_j": "ARQUITECTURA_PIPELINE_DATOS",
+      "overlap_index": 0.2
+    },
+    "ZC_01_vs_ZC_11": {
+      "pair": [
+        "ZC_01",
+        "ZC_11"
+      ],
+      "archetype_i": "RELACION_SIMETRICA_NO_JERARQUICA",
+      "archetype_j": "ARQUITECTURA_PIPELINE_DATOS",
+      "overlap_index": 0.2
+    },
+    "ZC_01_vs_ZC_12": {
+      "pair": [
+        "ZC_01",
+        "ZC_12"
+      ],
+      "archetype_i": "RELACION_SIMETRICA_NO_JERARQUICA",
+      "archetype_j": "ARQUITECTURA_PIPELINE_DATOS",
+      "overlap_index": 0.2
+    },
+    "ZC_01_vs_ZC_13": {
+      "pair": [
+        "ZC_01",
+        "ZC_13"
+      ],
+      "archetype_i": "RELACION_SIMETRICA_NO_JERARQUICA",
+      "archetype_j": "METODOLOGIA_APRENDIZAJE_CAUSAL",
+      "overlap_index": 0.3333
+    },
+    "ZC_01_vs_ZC_14": {
+      "pair": [
+        "ZC_01",
+        "ZC_14"
+      ],
+      "archetype_i": "RELACION_SIMETRICA_NO_JERARQUICA",
+      "archetype_j": "METODOLOGIA_APRENDIZAJE_CAUSAL",
+      "overlap_index": 0.2
+    },
+    "ZC_01_vs_ZC_15": {
+      "pair": [
+        "ZC_01",
+        "ZC_15"
+      ],
+      "archetype_i": "RELACION_SIMETRICA_NO_JERARQUICA",
+      "archetype_j": "METODOLOGIA_APRENDIZAJE_CAUSAL",
+      "overlap_index": 0.3333
+    },
+    "ZC_02_vs_ZC_03": {
+      "pair": [
+        "ZC_02",
+        "ZC_03"
+      ],
+      "archetype_i": "RELACION_SIMETRICA_NO_JERARQUICA",
+      "archetype_j": "RELACION_SIMETRICA_NO_JERARQUICA",
+      "overlap_index": 0.3333
+    },
+    "ZC_02_vs_ZC_04": {
+      "pair": [
+        "ZC_02",
+        "ZC_04"
+      ],
+      "archetype_i": "RELACION_SIMETRICA_NO_JERARQUICA",
+      "archetype_j": "FIX_MITIGACION_DEGRADACION",
+      "overlap_index": 1.0
+    },
+    "ZC_02_vs_ZC_05": {
+      "pair": [
+        "ZC_02",
+        "ZC_05"
+      ],
+      "archetype_i": "RELACION_SIMETRICA_NO_JERARQUICA",
+      "archetype_j": "FIX_MITIGACION_DEGRADACION",
+      "overlap_index": 1.0
+    },
+    "ZC_02_vs_ZC_06": {
+      "pair": [
+        "ZC_02",
+        "ZC_06"
+      ],
+      "archetype_i": "RELACION_SIMETRICA_NO_JERARQUICA",
+      "archetype_j": "FIX_MITIGACION_DEGRADACION",
+      "overlap_index": 0.7143
+    },
+    "ZC_02_vs_ZC_07": {
+      "pair": [
+        "ZC_02",
+        "ZC_07"
+      ],
+      "archetype_i": "RELACION_SIMETRICA_NO_JERARQUICA",
+      "archetype_j": "NORMA_OBLIGACION_DEONTICA",
+      "overlap_index": 0.0909
+    },
+    "ZC_02_vs_ZC_08": {
+      "pair": [
+        "ZC_02",
+        "ZC_08"
+      ],
+      "archetype_i": "RELACION_SIMETRICA_NO_JERARQUICA",
+      "archetype_j": "NORMA_OBLIGACION_DEONTICA",
+      "overlap_index": 0.5
+    },
+    "ZC_02_vs_ZC_09": {
+      "pair": [
+        "ZC_02",
+        "ZC_09"
+      ],
+      "archetype_i": "RELACION_SIMETRICA_NO_JERARQUICA",
+      "archetype_j": "NORMA_OBLIGACION_DEONTICA",
+      "overlap_index": 0.7143
+    },
+    "ZC_02_vs_ZC_10": {
+      "pair": [
+        "ZC_02",
+        "ZC_10"
+      ],
+      "archetype_i": "RELACION_SIMETRICA_NO_JERARQUICA",
+      "archetype_j": "ARQUITECTURA_PIPELINE_DATOS",
+      "overlap_index": 0.7143
+    },
+    "ZC_02_vs_ZC_11": {
+      "pair": [
+        "ZC_02",
+        "ZC_11"
+      ],
+      "archetype_i": "RELACION_SIMETRICA_NO_JERARQUICA",
+      "archetype_j": "ARQUITECTURA_PIPELINE_DATOS",
+      "overlap_index": 0.7143
+    },
+    "ZC_02_vs_ZC_12": {
+      "pair": [
+        "ZC_02",
+        "ZC_12"
+      ],
+      "archetype_i": "RELACION_SIMETRICA_NO_JERARQUICA",
+      "archetype_j": "ARQUITECTURA_PIPELINE_DATOS",
+      "overlap_index": 0.7143
+    },
+    "ZC_02_vs_ZC_13": {
+      "pair": [
+        "ZC_02",
+        "ZC_13"
+      ],
+      "archetype_i": "RELACION_SIMETRICA_NO_JERARQUICA",
+      "archetype_j": "METODOLOGIA_APRENDIZAJE_CAUSAL",
+      "overlap_index": 1.0
+    },
+    "ZC_02_vs_ZC_14": {
+      "pair": [
+        "ZC_02",
+        "ZC_14"
+      ],
+      "archetype_i": "RELACION_SIMETRICA_NO_JERARQUICA",
+      "archetype_j": "METODOLOGIA_APRENDIZAJE_CAUSAL",
+      "overlap_index": 0.7143
+    },
+    "ZC_02_vs_ZC_15": {
+      "pair": [
+        "ZC_02",
+        "ZC_15"
+      ],
+      "archetype_i": "RELACION_SIMETRICA_NO_JERARQUICA",
+      "archetype_j": "METODOLOGIA_APRENDIZAJE_CAUSAL",
+      "overlap_index": 1.0
+    },
+    "ZC_03_vs_ZC_04": {
+      "pair": [
+        "ZC_03",
+        "ZC_04"
+      ],
+      "archetype_i": "RELACION_SIMETRICA_NO_JERARQUICA",
+      "archetype_j": "FIX_MITIGACION_DEGRADACION",
+      "overlap_index": 0.3333
+    },
+    "ZC_03_vs_ZC_05": {
+      "pair": [
+        "ZC_03",
+        "ZC_05"
+      ],
+      "archetype_i": "RELACION_SIMETRICA_NO_JERARQUICA",
+      "archetype_j": "FIX_MITIGACION_DEGRADACION",
+      "overlap_index": 0.3333
+    },
+    "ZC_03_vs_ZC_06": {
+      "pair": [
+        "ZC_03",
+        "ZC_06"
+      ],
+      "archetype_i": "RELACION_SIMETRICA_NO_JERARQUICA",
+      "archetype_j": "FIX_MITIGACION_DEGRADACION",
+      "overlap_index": 0.5
+    },
+    "ZC_03_vs_ZC_07": {
+      "pair": [
+        "ZC_03",
+        "ZC_07"
+      ],
+      "archetype_i": "RELACION_SIMETRICA_NO_JERARQUICA",
+      "archetype_j": "NORMA_OBLIGACION_DEONTICA",
+      "overlap_index": 0.2
+    },
+    "ZC_03_vs_ZC_08": {
+      "pair": [
+        "ZC_03",
+        "ZC_08"
+      ],
+      "archetype_i": "RELACION_SIMETRICA_NO_JERARQUICA",
+      "archetype_j": "NORMA_OBLIGACION_DEONTICA",
+      "overlap_index": 0.3333
+    },
+    "ZC_03_vs_ZC_09": {
+      "pair": [
+        "ZC_03",
+        "ZC_09"
+      ],
+      "archetype_i": "RELACION_SIMETRICA_NO_JERARQUICA",
+      "archetype_j": "NORMA_OBLIGACION_DEONTICA",
+      "overlap_index": 0.5
+    },
+    "ZC_03_vs_ZC_10": {
+      "pair": [
+        "ZC_03",
+        "ZC_10"
+      ],
+      "archetype_i": "RELACION_SIMETRICA_NO_JERARQUICA",
+      "archetype_j": "ARQUITECTURA_PIPELINE_DATOS",
+      "overlap_index": 0.5
+    },
+    "ZC_03_vs_ZC_11": {
+      "pair": [
+        "ZC_03",
+        "ZC_11"
+      ],
+      "archetype_i": "RELACION_SIMETRICA_NO_JERARQUICA",
+      "archetype_j": "ARQUITECTURA_PIPELINE_DATOS",
+      "overlap_index": 0.5
+    },
+    "ZC_03_vs_ZC_12": {
+      "pair": [
+        "ZC_03",
+        "ZC_12"
+      ],
+      "archetype_i": "RELACION_SIMETRICA_NO_JERARQUICA",
+      "archetype_j": "ARQUITECTURA_PIPELINE_DATOS",
+      "overlap_index": 0.5
+    },
+    "ZC_03_vs_ZC_13": {
+      "pair": [
+        "ZC_03",
+        "ZC_13"
+      ],
+      "archetype_i": "RELACION_SIMETRICA_NO_JERARQUICA",
+      "archetype_j": "METODOLOGIA_APRENDIZAJE_CAUSAL",
+      "overlap_index": 0.3333
+    },
+    "ZC_03_vs_ZC_14": {
+      "pair": [
+        "ZC_03",
+        "ZC_14"
+      ],
+      "archetype_i": "RELACION_SIMETRICA_NO_JERARQUICA",
+      "archetype_j": "METODOLOGIA_APRENDIZAJE_CAUSAL",
+      "overlap_index": 0.5
+    },
+    "ZC_03_vs_ZC_15": {
+      "pair": [
+        "ZC_03",
+        "ZC_15"
+      ],
+      "archetype_i": "RELACION_SIMETRICA_NO_JERARQUICA",
+      "archetype_j": "METODOLOGIA_APRENDIZAJE_CAUSAL",
+      "overlap_index": 0.3333
+    },
+    "ZC_04_vs_ZC_05": {
+      "pair": [
+        "ZC_04",
+        "ZC_05"
+      ],
+      "archetype_i": "FIX_MITIGACION_DEGRADACION",
+      "archetype_j": "FIX_MITIGACION_DEGRADACION",
+      "overlap_index": 1.0
+    },
+    "ZC_04_vs_ZC_06": {
+      "pair": [
+        "ZC_04",
+        "ZC_06"
+      ],
+      "archetype_i": "FIX_MITIGACION_DEGRADACION",
+      "archetype_j": "FIX_MITIGACION_DEGRADACION",
+      "overlap_index": 0.7143
+    },
+    "ZC_04_vs_ZC_07": {
+      "pair": [
+        "ZC_04",
+        "ZC_07"
+      ],
+      "archetype_i": "FIX_MITIGACION_DEGRADACION",
+      "archetype_j": "NORMA_OBLIGACION_DEONTICA",
+      "overlap_index": 0.0909
+    },
+    "ZC_04_vs_ZC_08": {
+      "pair": [
+        "ZC_04",
+        "ZC_08"
+      ],
+      "archetype_i": "FIX_MITIGACION_DEGRADACION",
+      "archetype_j": "NORMA_OBLIGACION_DEONTICA",
+      "overlap_index": 0.5
+    },
+    "ZC_04_vs_ZC_09": {
+      "pair": [
+        "ZC_04",
+        "ZC_09"
+      ],
+      "archetype_i": "FIX_MITIGACION_DEGRADACION",
+      "archetype_j": "NORMA_OBLIGACION_DEONTICA",
+      "overlap_index": 0.7143
+    },
+    "ZC_04_vs_ZC_10": {
+      "pair": [
+        "ZC_04",
+        "ZC_10"
+      ],
+      "archetype_i": "FIX_MITIGACION_DEGRADACION",
+      "archetype_j": "ARQUITECTURA_PIPELINE_DATOS",
+      "overlap_index": 0.7143
+    },
+    "ZC_04_vs_ZC_11": {
+      "pair": [
+        "ZC_04",
+        "ZC_11"
+      ],
+      "archetype_i": "FIX_MITIGACION_DEGRADACION",
+      "archetype_j": "ARQUITECTURA_PIPELINE_DATOS",
+      "overlap_index": 0.7143
+    },
+    "ZC_04_vs_ZC_12": {
+      "pair": [
+        "ZC_04",
+        "ZC_12"
+      ],
+      "archetype_i": "FIX_MITIGACION_DEGRADACION",
+      "archetype_j": "ARQUITECTURA_PIPELINE_DATOS",
+      "overlap_index": 0.7143
+    },
+    "ZC_04_vs_ZC_13": {
+      "pair": [
+        "ZC_04",
+        "ZC_13"
+      ],
+      "archetype_i": "FIX_MITIGACION_DEGRADACION",
+      "archetype_j": "METODOLOGIA_APRENDIZAJE_CAUSAL",
+      "overlap_index": 1.0
+    },
+    "ZC_04_vs_ZC_14": {
+      "pair": [
+        "ZC_04",
+        "ZC_14"
+      ],
+      "archetype_i": "FIX_MITIGACION_DEGRADACION",
+      "archetype_j": "METODOLOGIA_APRENDIZAJE_CAUSAL",
+      "overlap_index": 0.7143
+    },
+    "ZC_04_vs_ZC_15": {
+      "pair": [
+        "ZC_04",
+        "ZC_15"
+      ],
+      "archetype_i": "FIX_MITIGACION_DEGRADACION",
+      "archetype_j": "METODOLOGIA_APRENDIZAJE_CAUSAL",
+      "overlap_index": 1.0
+    },
+    "ZC_05_vs_ZC_06": {
+      "pair": [
+        "ZC_05",
+        "ZC_06"
+      ],
+      "archetype_i": "FIX_MITIGACION_DEGRADACION",
+      "archetype_j": "FIX_MITIGACION_DEGRADACION",
+      "overlap_index": 0.7143
+    },
+    "ZC_05_vs_ZC_07": {
+      "pair": [
+        "ZC_05",
+        "ZC_07"
+      ],
+      "archetype_i": "FIX_MITIGACION_DEGRADACION",
+      "archetype_j": "NORMA_OBLIGACION_DEONTICA",
+      "overlap_index": 0.0909
+    },
+    "ZC_05_vs_ZC_08": {
+      "pair": [
+        "ZC_05",
+        "ZC_08"
+      ],
+      "archetype_i": "FIX_MITIGACION_DEGRADACION",
+      "archetype_j": "NORMA_OBLIGACION_DEONTICA",
+      "overlap_index": 0.5
+    },
+    "ZC_05_vs_ZC_09": {
+      "pair": [
+        "ZC_05",
+        "ZC_09"
+      ],
+      "archetype_i": "FIX_MITIGACION_DEGRADACION",
+      "archetype_j": "NORMA_OBLIGACION_DEONTICA",
+      "overlap_index": 0.7143
+    },
+    "ZC_05_vs_ZC_10": {
+      "pair": [
+        "ZC_05",
+        "ZC_10"
+      ],
+      "archetype_i": "FIX_MITIGACION_DEGRADACION",
+      "archetype_j": "ARQUITECTURA_PIPELINE_DATOS",
+      "overlap_index": 0.7143
+    },
+    "ZC_05_vs_ZC_11": {
+      "pair": [
+        "ZC_05",
+        "ZC_11"
+      ],
+      "archetype_i": "FIX_MITIGACION_DEGRADACION",
+      "archetype_j": "ARQUITECTURA_PIPELINE_DATOS",
+      "overlap_index": 0.7143
+    },
+    "ZC_05_vs_ZC_12": {
+      "pair": [
+        "ZC_05",
+        "ZC_12"
+      ],
+      "archetype_i": "FIX_MITIGACION_DEGRADACION",
+      "archetype_j": "ARQUITECTURA_PIPELINE_DATOS",
+      "overlap_index": 0.7143
+    },
+    "ZC_05_vs_ZC_13": {
+      "pair": [
+        "ZC_05",
+        "ZC_13"
+      ],
+      "archetype_i": "FIX_MITIGACION_DEGRADACION",
+      "archetype_j": "METODOLOGIA_APRENDIZAJE_CAUSAL",
+      "overlap_index": 1.0
+    },
+    "ZC_05_vs_ZC_14": {
+      "pair": [
+        "ZC_05",
+        "ZC_14"
+      ],
+      "archetype_i": "FIX_MITIGACION_DEGRADACION",
+      "archetype_j": "METODOLOGIA_APRENDIZAJE_CAUSAL",
+      "overlap_index": 0.7143
+    },
+    "ZC_05_vs_ZC_15": {
+      "pair": [
+        "ZC_05",
+        "ZC_15"
+      ],
+      "archetype_i": "FIX_MITIGACION_DEGRADACION",
+      "archetype_j": "METODOLOGIA_APRENDIZAJE_CAUSAL",
+      "overlap_index": 1.0
+    },
+    "ZC_06_vs_ZC_07": {
+      "pair": [
+        "ZC_06",
+        "ZC_07"
+      ],
+      "archetype_i": "FIX_MITIGACION_DEGRADACION",
+      "archetype_j": "NORMA_OBLIGACION_DEONTICA",
+      "overlap_index": 0.2
+    },
+    "ZC_06_vs_ZC_08": {
+      "pair": [
+        "ZC_06",
+        "ZC_08"
+      ],
+      "archetype_i": "FIX_MITIGACION_DEGRADACION",
+      "archetype_j": "NORMA_OBLIGACION_DEONTICA",
+      "overlap_index": 0.7143
+    },
+    "ZC_06_vs_ZC_09": {
+      "pair": [
+        "ZC_06",
+        "ZC_09"
+      ],
+      "archetype_i": "FIX_MITIGACION_DEGRADACION",
+      "archetype_j": "NORMA_OBLIGACION_DEONTICA",
+      "overlap_index": 1.0
+    },
+    "ZC_06_vs_ZC_10": {
+      "pair": [
+        "ZC_06",
+        "ZC_10"
+      ],
+      "archetype_i": "FIX_MITIGACION_DEGRADACION",
+      "archetype_j": "ARQUITECTURA_PIPELINE_DATOS",
+      "overlap_index": 1.0
+    },
+    "ZC_06_vs_ZC_11": {
+      "pair": [
+        "ZC_06",
+        "ZC_11"
+      ],
+      "archetype_i": "FIX_MITIGACION_DEGRADACION",
+      "archetype_j": "ARQUITECTURA_PIPELINE_DATOS",
+      "overlap_index": 1.0
+    },
+    "ZC_06_vs_ZC_12": {
+      "pair": [
+        "ZC_06",
+        "ZC_12"
+      ],
+      "archetype_i": "FIX_MITIGACION_DEGRADACION",
+      "archetype_j": "ARQUITECTURA_PIPELINE_DATOS",
+      "overlap_index": 1.0
+    },
+    "ZC_06_vs_ZC_13": {
+      "pair": [
+        "ZC_06",
+        "ZC_13"
+      ],
+      "archetype_i": "FIX_MITIGACION_DEGRADACION",
+      "archetype_j": "METODOLOGIA_APRENDIZAJE_CAUSAL",
+      "overlap_index": 0.7143
+    },
+    "ZC_06_vs_ZC_14": {
+      "pair": [
+        "ZC_06",
+        "ZC_14"
+      ],
+      "archetype_i": "FIX_MITIGACION_DEGRADACION",
+      "archetype_j": "METODOLOGIA_APRENDIZAJE_CAUSAL",
+      "overlap_index": 1.0
+    },
+    "ZC_06_vs_ZC_15": {
+      "pair": [
+        "ZC_06",
+        "ZC_15"
+      ],
+      "archetype_i": "FIX_MITIGACION_DEGRADACION",
+      "archetype_j": "METODOLOGIA_APRENDIZAJE_CAUSAL",
+      "overlap_index": 0.7143
+    },
+    "ZC_07_vs_ZC_08": {
+      "pair": [
+        "ZC_07",
+        "ZC_08"
+      ],
+      "archetype_i": "NORMA_OBLIGACION_DEONTICA",
+      "archetype_j": "NORMA_OBLIGACION_DEONTICA",
+      "overlap_index": 0.0909
+    },
+    "ZC_07_vs_ZC_09": {
+      "pair": [
+        "ZC_07",
+        "ZC_09"
+      ],
+      "archetype_i": "NORMA_OBLIGACION_DEONTICA",
+      "archetype_j": "NORMA_OBLIGACION_DEONTICA",
+      "overlap_index": 0.2
+    },
+    "ZC_07_vs_ZC_10": {
+      "pair": [
+        "ZC_07",
+        "ZC_10"
+      ],
+      "archetype_i": "NORMA_OBLIGACION_DEONTICA",
+      "archetype_j": "ARQUITECTURA_PIPELINE_DATOS",
+      "overlap_index": 0.2
+    },
+    "ZC_07_vs_ZC_11": {
+      "pair": [
+        "ZC_07",
+        "ZC_11"
+      ],
+      "archetype_i": "NORMA_OBLIGACION_DEONTICA",
+      "archetype_j": "ARQUITECTURA_PIPELINE_DATOS",
+      "overlap_index": 0.2
+    },
+    "ZC_07_vs_ZC_12": {
+      "pair": [
+        "ZC_07",
+        "ZC_12"
+      ],
+      "archetype_i": "NORMA_OBLIGACION_DEONTICA",
+      "archetype_j": "ARQUITECTURA_PIPELINE_DATOS",
+      "overlap_index": 0.2
+    },
+    "ZC_07_vs_ZC_13": {
+      "pair": [
+        "ZC_07",
+        "ZC_13"
+      ],
+      "archetype_i": "NORMA_OBLIGACION_DEONTICA",
+      "archetype_j": "METODOLOGIA_APRENDIZAJE_CAUSAL",
+      "overlap_index": 0.0909
+    },
+    "ZC_07_vs_ZC_14": {
+      "pair": [
+        "ZC_07",
+        "ZC_14"
+      ],
+      "archetype_i": "NORMA_OBLIGACION_DEONTICA",
+      "archetype_j": "METODOLOGIA_APRENDIZAJE_CAUSAL",
+      "overlap_index": 0.2
+    },
+    "ZC_07_vs_ZC_15": {
+      "pair": [
+        "ZC_07",
+        "ZC_15"
+      ],
+      "archetype_i": "NORMA_OBLIGACION_DEONTICA",
+      "archetype_j": "METODOLOGIA_APRENDIZAJE_CAUSAL",
+      "overlap_index": 0.0909
+    },
+    "ZC_08_vs_ZC_09": {
+      "pair": [
+        "ZC_08",
+        "ZC_09"
+      ],
+      "archetype_i": "NORMA_OBLIGACION_DEONTICA",
+      "archetype_j": "NORMA_OBLIGACION_DEONTICA",
+      "overlap_index": 0.7143
+    },
+    "ZC_08_vs_ZC_10": {
+      "pair": [
+        "ZC_08",
+        "ZC_10"
+      ],
+      "archetype_i": "NORMA_OBLIGACION_DEONTICA",
+      "archetype_j": "ARQUITECTURA_PIPELINE_DATOS",
+      "overlap_index": 0.7143
+    },
+    "ZC_08_vs_ZC_11": {
+      "pair": [
+        "ZC_08",
+        "ZC_11"
+      ],
+      "archetype_i": "NORMA_OBLIGACION_DEONTICA",
+      "archetype_j": "ARQUITECTURA_PIPELINE_DATOS",
+      "overlap_index": 0.7143
+    },
+    "ZC_08_vs_ZC_12": {
+      "pair": [
+        "ZC_08",
+        "ZC_12"
+      ],
+      "archetype_i": "NORMA_OBLIGACION_DEONTICA",
+      "archetype_j": "ARQUITECTURA_PIPELINE_DATOS",
+      "overlap_index": 0.7143
+    },
+    "ZC_08_vs_ZC_13": {
+      "pair": [
+        "ZC_08",
+        "ZC_13"
+      ],
+      "archetype_i": "NORMA_OBLIGACION_DEONTICA",
+      "archetype_j": "METODOLOGIA_APRENDIZAJE_CAUSAL",
+      "overlap_index": 0.5
+    },
+    "ZC_08_vs_ZC_14": {
+      "pair": [
+        "ZC_08",
+        "ZC_14"
+      ],
+      "archetype_i": "NORMA_OBLIGACION_DEONTICA",
+      "archetype_j": "METODOLOGIA_APRENDIZAJE_CAUSAL",
+      "overlap_index": 0.7143
+    },
+    "ZC_08_vs_ZC_15": {
+      "pair": [
+        "ZC_08",
+        "ZC_15"
+      ],
+      "archetype_i": "NORMA_OBLIGACION_DEONTICA",
+      "archetype_j": "METODOLOGIA_APRENDIZAJE_CAUSAL",
+      "overlap_index": 0.5
+    },
+    "ZC_09_vs_ZC_10": {
+      "pair": [
+        "ZC_09",
+        "ZC_10"
+      ],
+      "archetype_i": "NORMA_OBLIGACION_DEONTICA",
+      "archetype_j": "ARQUITECTURA_PIPELINE_DATOS",
+      "overlap_index": 1.0
+    },
+    "ZC_09_vs_ZC_11": {
+      "pair": [
+        "ZC_09",
+        "ZC_11"
+      ],
+      "archetype_i": "NORMA_OBLIGACION_DEONTICA",
+      "archetype_j": "ARQUITECTURA_PIPELINE_DATOS",
+      "overlap_index": 1.0
+    },
+    "ZC_09_vs_ZC_12": {
+      "pair": [
+        "ZC_09",
+        "ZC_12"
+      ],
+      "archetype_i": "NORMA_OBLIGACION_DEONTICA",
+      "archetype_j": "ARQUITECTURA_PIPELINE_DATOS",
+      "overlap_index": 1.0
+    },
+    "ZC_09_vs_ZC_13": {
+      "pair": [
+        "ZC_09",
+        "ZC_13"
+      ],
+      "archetype_i": "NORMA_OBLIGACION_DEONTICA",
+      "archetype_j": "METODOLOGIA_APRENDIZAJE_CAUSAL",
+      "overlap_index": 0.7143
+    },
+    "ZC_09_vs_ZC_14": {
+      "pair": [
+        "ZC_09",
+        "ZC_14"
+      ],
+      "archetype_i": "NORMA_OBLIGACION_DEONTICA",
+      "archetype_j": "METODOLOGIA_APRENDIZAJE_CAUSAL",
+      "overlap_index": 1.0
+    },
+    "ZC_09_vs_ZC_15": {
+      "pair": [
+        "ZC_09",
+        "ZC_15"
+      ],
+      "archetype_i": "NORMA_OBLIGACION_DEONTICA",
+      "archetype_j": "METODOLOGIA_APRENDIZAJE_CAUSAL",
+      "overlap_index": 0.7143
+    },
+    "ZC_10_vs_ZC_11": {
+      "pair": [
+        "ZC_10",
+        "ZC_11"
+      ],
+      "archetype_i": "ARQUITECTURA_PIPELINE_DATOS",
+      "archetype_j": "ARQUITECTURA_PIPELINE_DATOS",
+      "overlap_index": 1.0
+    },
+    "ZC_10_vs_ZC_12": {
+      "pair": [
+        "ZC_10",
+        "ZC_12"
+      ],
+      "archetype_i": "ARQUITECTURA_PIPELINE_DATOS",
+      "archetype_j": "ARQUITECTURA_PIPELINE_DATOS",
+      "overlap_index": 1.0
+    },
+    "ZC_10_vs_ZC_13": {
+      "pair": [
+        "ZC_10",
+        "ZC_13"
+      ],
+      "archetype_i": "ARQUITECTURA_PIPELINE_DATOS",
+      "archetype_j": "METODOLOGIA_APRENDIZAJE_CAUSAL",
+      "overlap_index": 0.7143
+    },
+    "ZC_10_vs_ZC_14": {
+      "pair": [
+        "ZC_10",
+        "ZC_14"
+      ],
+      "archetype_i": "ARQUITECTURA_PIPELINE_DATOS",
+      "archetype_j": "METODOLOGIA_APRENDIZAJE_CAUSAL",
+      "overlap_index": 1.0
+    },
+    "ZC_10_vs_ZC_15": {
+      "pair": [
+        "ZC_10",
+        "ZC_15"
+      ],
+      "archetype_i": "ARQUITECTURA_PIPELINE_DATOS",
+      "archetype_j": "METODOLOGIA_APRENDIZAJE_CAUSAL",
+      "overlap_index": 0.7143
+    },
+    "ZC_11_vs_ZC_12": {
+      "pair": [
+        "ZC_11",
+        "ZC_12"
+      ],
+      "archetype_i": "ARQUITECTURA_PIPELINE_DATOS",
+      "archetype_j": "ARQUITECTURA_PIPELINE_DATOS",
+      "overlap_index": 1.0
+    },
+    "ZC_11_vs_ZC_13": {
+      "pair": [
+        "ZC_11",
+        "ZC_13"
+      ],
+      "archetype_i": "ARQUITECTURA_PIPELINE_DATOS",
+      "archetype_j": "METODOLOGIA_APRENDIZAJE_CAUSAL",
+      "overlap_index": 0.7143
+    },
+    "ZC_11_vs_ZC_14": {
+      "pair": [
+        "ZC_11",
+        "ZC_14"
+      ],
+      "archetype_i": "ARQUITECTURA_PIPELINE_DATOS",
+      "archetype_j": "METODOLOGIA_APRENDIZAJE_CAUSAL",
+      "overlap_index": 1.0
+    },
+    "ZC_11_vs_ZC_15": {
+      "pair": [
+        "ZC_11",
+        "ZC_15"
+      ],
+      "archetype_i": "ARQUITECTURA_PIPELINE_DATOS",
+      "archetype_j": "METODOLOGIA_APRENDIZAJE_CAUSAL",
+      "overlap_index": 0.7143
+    },
+    "ZC_12_vs_ZC_13": {
+      "pair": [
+        "ZC_12",
+        "ZC_13"
+      ],
+      "archetype_i": "ARQUITECTURA_PIPELINE_DATOS",
+      "archetype_j": "METODOLOGIA_APRENDIZAJE_CAUSAL",
+      "overlap_index": 0.7143
+    },
+    "ZC_12_vs_ZC_14": {
+      "pair": [
+        "ZC_12",
+        "ZC_14"
+      ],
+      "archetype_i": "ARQUITECTURA_PIPELINE_DATOS",
+      "archetype_j": "METODOLOGIA_APRENDIZAJE_CAUSAL",
+      "overlap_index": 1.0
+    },
+    "ZC_12_vs_ZC_15": {
+      "pair": [
+        "ZC_12",
+        "ZC_15"
+      ],
+      "archetype_i": "ARQUITECTURA_PIPELINE_DATOS",
+      "archetype_j": "METODOLOGIA_APRENDIZAJE_CAUSAL",
+      "overlap_index": 0.7143
+    },
+    "ZC_13_vs_ZC_14": {
+      "pair": [
+        "ZC_13",
+        "ZC_14"
+      ],
+      "archetype_i": "METODOLOGIA_APRENDIZAJE_CAUSAL",
+      "archetype_j": "METODOLOGIA_APRENDIZAJE_CAUSAL",
+      "overlap_index": 0.7143
+    },
+    "ZC_13_vs_ZC_15": {
+      "pair": [
+        "ZC_13",
+        "ZC_15"
+      ],
+      "archetype_i": "METODOLOGIA_APRENDIZAJE_CAUSAL",
+      "archetype_j": "METODOLOGIA_APRENDIZAJE_CAUSAL",
+      "overlap_index": 1.0
+    },
+    "ZC_14_vs_ZC_15": {
+      "pair": [
+        "ZC_14",
+        "ZC_15"
+      ],
+      "archetype_i": "METODOLOGIA_APRENDIZAJE_CAUSAL",
+      "archetype_j": "METODOLOGIA_APRENDIZAJE_CAUSAL",
+      "overlap_index": 0.7143
+    }
+  },
+  "adversarial_controls_evaluated": [
+    {
+      "id": "NEG_01",
+      "type": "N1_INVERSE_POLARITY",
+      "query": "imponer una jerarquia estricta donde uno manda sobre todos",
+      "max_score": 0.3,
+      "best_match_concept": "dennys-metodo-creativo",
+      "is_fp": false
+    },
+    {
+      "id": "NEG_02",
+      "type": "N1_INVERSE_POLARITY",
+      "query": "permitir que se rompa la base de datos sin corregir nada",
+      "max_score": 0.55,
+      "best_match_concept": "dennys-metodo-creativo",
+      "is_fp": false
+    },
+    {
+      "id": "NEG_03",
+      "type": "N1_INVERSE_POLARITY",
+      "query": "ignorar cualquier norma obligatoria y actuar sin protocolos",
+      "max_score": 0.55,
+      "best_match_concept": "protocolo_busqueda_biorag_automatica",
+      "is_fp": false
+    },
+    {
+      "id": "NEG_04",
+      "type": "N1_INVERSE_POLARITY",
+      "query": "desarmar todo el mapa de categorias y mezclar sin orden",
+      "max_score": 0.55,
+      "best_match_concept": "dennys-metodo-creativo",
+      "is_fp": false
+    },
+    {
+      "id": "NEG_05",
+      "type": "N2_SYNTACTIC_NOISE",
+      "query": "blablabla wxyz quantum flux deconstruccion aleatoria",
+      "max_score": 0.7,
+      "best_match_concept": "dennys-metodo-creativo",
+      "is_fp": true
+    },
+    {
+      "id": "NEG_06",
+      "type": "N2_SYNTACTIC_NOISE",
+      "query": "perro gato mesa azul manzana saltando por el cielo",
+      "max_score": 0.7,
+      "best_match_concept": "dennys-metodo-creativo",
+      "is_fp": true
+    },
+    {
+      "id": "NEG_07",
+      "type": "N2_SYNTACTIC_NOISE",
+      "query": "12345 67890 variable nula objeto vacio sin relacion",
+      "max_score": 0.55,
+      "best_match_concept": "dennys-metodo-creativo",
+      "is_fp": false
+    },
+    {
+      "id": "NEG_08",
+      "type": "N3_OUT_OF_DOMAIN",
+      "query": "receta para cocinar una pizza napolitana con masa madre",
+      "max_score": 0.7,
+      "best_match_concept": "dennys-metodo-creativo",
+      "is_fp": true
+    },
+    {
+      "id": "NEG_09",
+      "type": "N3_OUT_OF_DOMAIN",
+      "query": "como cambiar la rueda de un automovil en la carretera",
+      "max_score": 0.7,
+      "best_match_concept": "dennys-metodo-creativo",
+      "is_fp": true
+    },
+    {
+      "id": "NEG_10",
+      "type": "N3_OUT_OF_DOMAIN",
+      "query": "cotizacion del euro frente al yen japones en tokio",
+      "max_score": 0.7,
+      "best_match_concept": "dennys-metodo-creativo",
+      "is_fp": true
+    },
+    {
+      "id": "NEG_11",
+      "type": "N3_OUT_OF_DOMAIN",
+      "query": "alineacion del equipo de futbol para la final del domingo",
+      "max_score": 0.7,
+      "best_match_concept": "dennys-metodo-creativo",
+      "is_fp": true
+    },
+    {
+      "id": "NEG_12",
+      "type": "N4_FALSE_PARAPHRASE",
+      "query": "dennys le dio una orden directa a athena para que obedezca",
+      "max_score": 0.7,
+      "best_match_concept": "dennys-metodo-creativo",
+      "is_fp": true
+    },
+    {
+      "id": "NEG_13",
+      "type": "N4_FALSE_PARAPHRASE",
+      "query": "las lecciones aprendidas demuestran que nunca hay que sincronizar",
+      "max_score": 0.7,
+      "best_match_concept": "dennys-metodo-creativo",
+      "is_fp": true
+    },
+    {
+      "id": "NEG_14",
+      "type": "N4_FALSE_PARAPHRASE",
+      "query": "el cuaderno de notas es un archivo temporal sin importancia",
+      "max_score": 0.55,
+      "best_match_concept": "dennys-metodo-creativo",
+      "is_fp": false
+    },
+    {
+      "id": "NEG_15",
+      "type": "N5_GENERIC_VACUOUS",
+      "query": "algo sobre alguna cosa que paso hace tiempo",
+      "max_score": 0.3,
+      "best_match_concept": "dennys-metodo-creativo",
+      "is_fp": false
+    },
+    {
+      "id": "NEG_16",
+      "type": "N5_GENERIC_VACUOUS",
+      "query": "quiero saber informacion general de cualquier tema",
+      "max_score": 0.7,
+      "best_match_concept": "dennys-metodo-creativo",
+      "is_fp": true
+    },
+    {
+      "id": "NEG_17",
+      "type": "N5_GENERIC_VACUOUS",
+      "query": "detalles varios sin especificar nada en particular",
+      "max_score": 0.55,
+      "best_match_concept": "dennys-metodo-creativo",
+      "is_fp": false
+    },
+    {
+      "id": "NEG_18",
+      "type": "N6_CIRCULAR_INTERROGATIVE",
+      "query": "por que lo que es tiene que ser lo que es",
+      "max_score": 0.7,
+      "best_match_concept": "dennys-metodo-creativo",
+      "is_fp": true
+    },
+    {
+      "id": "NEG_19",
+      "type": "N6_CIRCULAR_INTERROGATIVE",
+      "query": "si nada cambia entonces nada cambia de ninguna forma",
+      "max_score": 0.7,
+      "best_match_concept": "dennys-metodo-creativo",
+      "is_fp": true
+    },
+    {
+      "id": "NEG_20",
+      "type": "N6_CIRCULAR_INTERROGATIVE",
+      "query": "como saber si lo sabido es lo que se sabe",
+      "max_score": 0.7,
+      "best_match_concept": "dennys-metodo-creativo",
+      "is_fp": true
+    }
+  ],
+  "total_adversarial_fps": 12,
+  "lambda_threshold_used": 0.65
+}

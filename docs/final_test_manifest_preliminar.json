@@ -1,0 +1,77 @@
+{
+  "status": "PRE_FREEZE_REVIEW_PENDING",
+  "generated_at_utc": "2026-09-08T03:05:13.411459+00:00",
+  "hashes_inmutables": {
+    "db_snapshot_sha256": "676827f6b4abc3acaee10b14e273c3c50cae5b2c180593dedcd58048265a2800",
+    "expA_labels_sha256": "325ead99c5a8eea63e8e92f10dae85e7f6ef7f858f18dd8e735b011bea56aa2f",
+    "baseline_cases_sha256": "5362948476151ee32a804eda69b2d68da195313c86777c1a82bb3c5440b4d662",
+    "oof_dataset_sha256": "aca55e9cca841cf1824b744982ce4a9fe72ff24e298aca42a0d676cc37b69f93",
+    "builder_script_sha256": "ffa20ccbed87a7a88a7a82f2064510bb1513a26ad2529c78f22268aaea1a801f"
+  },
+  "reconciliacion_corpus": {
+    "db_largo_plazo_total": 866,
+    "db_largo_plazo_activos": 851,
+    "db_largo_plazo_dormidos": 15,
+    "labels_conceptos_total": 866,
+    "labels_unique_islands": 105,
+    "explicacion": "851 activos + 15 dormidos = 866 registros totales indexados en expA_labels"
+  },
+  "formula_audit_interleaved": {
+    "expK_case_loop_formula": "s_merged = 0.5 * (0.5*MinMax(sA) + 0.5*MinMax(sC)) + 0.5 * (0.5*MinMax(sA) + 0.5*MinMax(sD))",
+    "expK_simplified_linear_form": "0.50 * MinMax(sA) + 0.25 * MinMax(sC) + 0.25 * MinMax(sD)",
+    "expK_strategy_table_lambda_discrepancy": "usó 0.5*min_max(sA+sC) + 0.5*min_max(sA+sD) en el diccionario de estrategias",
+    "pre_registered_canonical_formula": "S_merged(I) = 0.50*MinMax(S_A(I)) + 0.25*MinMax(S_C(I)) + 0.25*MinMax(S_D(I))",
+    "pre_registered_beam_k": 6,
+    "pre_registered_lambda": 0.25
+  },
+  "pre_registered_ablations": [
+    {
+      "id": "M0",
+      "name": "Canal A Solo (PPMI 1-vector)",
+      "weights": {
+        "A": 1.0,
+        "C": 0.0,
+        "D": 0.0
+      }
+    },
+    {
+      "id": "M1",
+      "name": "Canal A + C (PPMI + 13-D)",
+      "weights": {
+        "A": 0.5,
+        "C": 0.5,
+        "D": 0.0
+      }
+    },
+    {
+      "id": "M2",
+      "name": "Canal A + D (PPMI + HDC)",
+      "weights": {
+        "A": 0.5,
+        "C": 0.0,
+        "D": 0.5
+      }
+    },
+    {
+      "id": "M3",
+      "name": "Multicanal Ponderado A+C+D",
+      "weights": {
+        "A": 0.5,
+        "C": 0.25,
+        "D": 0.25
+      }
+    },
+    {
+      "id": "M4",
+      "name": "Unión Intercalada Top-6 (expK canonico)",
+      "weights": "Ranked Top-6 from s_merged"
+    }
+  ],
+  "conteos_propuestos": {
+    "A0_zero_overlap_estricto": 20,
+    "A1_puente_sinonimo_definido": 18,
+    "B_asociacion_tematica": 20,
+    "C_negativo": 15,
+    "total_benchmark": 73
+  }
+}

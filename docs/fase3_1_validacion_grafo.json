@@ -1,0 +1,430 @@
+{
+  "grafo_stats": {
+    "nodos_con_aristas_salientes": 625,
+    "total_aristas_reales_dirigidas": 13848,
+    "total_aristas_con_inversas_derivadas": 26898
+  },
+  "type2_detailed_audit": [
+    {
+      "id": "0497",
+      "query": "relevantes biomimética mejor",
+      "gold": "benchmark_antes_despues_fix3",
+      "seeds_per_token": {
+        "relevantes": 23,
+        "biomimética": 9,
+        "mejor": 113
+      },
+      "total_unique_seeds": 131,
+      "lexical_match": {
+        "is_direct_seed": true,
+        "tokens_in_name": [],
+        "tokens_in_content": [
+          "relevantes",
+          "biomimética",
+          "mejor"
+        ]
+      },
+      "path_a_shortest": {
+        "hops": 1,
+        "path": [
+          "leccion_scoring_peso_bm25_vs_concepto_ratio",
+          "benchmark_antes_despues_fix3"
+        ]
+      },
+      "path_b_max_weight": {
+        "weight": 0.9,
+        "path": [
+          "causa_raiz_por_tema_pooling_plano_diluye_senal_word2vec",
+          "benchmark_antes_despues_fix3"
+        ]
+      },
+      "path_c_relation_aware": {
+        "score": 0.675,
+        "path": [
+          "causa_raiz_por_tema_pooling_plano_diluye_senal_word2vec",
+          "benchmark_antes_despues_fix3"
+        ]
+      }
+    },
+    {
+      "id": "0516",
+      "query": "real más sistemas",
+      "gold": "dennys-identidad-profunda",
+      "seeds_per_token": {
+        "real": 246,
+        "más": 139,
+        "sistemas": 23
+      },
+      "total_unique_seeds": 344,
+      "lexical_match": {
+        "is_direct_seed": true,
+        "tokens_in_name": [],
+        "tokens_in_content": [
+          "real",
+          "más",
+          "sistemas"
+        ]
+      },
+      "path_a_shortest": {
+        "hops": 1,
+        "path": [
+          "dennys-metodo-creativo",
+          "dennys-identidad-profunda"
+        ]
+      },
+      "path_b_max_weight": {
+        "weight": 0.9,
+        "path": [
+          "dennys-metodo-creativo",
+          "dennys-identidad-profunda"
+        ]
+      },
+      "path_c_relation_aware": {
+        "score": 0.675,
+        "path": [
+          "instinto_primera_vez_agencia_real",
+          "dennys-identidad-profunda"
+        ]
+      }
+    },
+    {
+      "id": "0534",
+      "query": "activa largo archivos",
+      "gold": "biorag_v11_1_detalle_tecnico",
+      "seeds_per_token": {
+        "activa": 98,
+        "largo": 57,
+        "archivos": 75
+      },
+      "total_unique_seeds": 205,
+      "lexical_match": {
+        "is_direct_seed": true,
+        "tokens_in_name": [],
+        "tokens_in_content": [
+          "activa",
+          "largo",
+          "archivos"
+        ]
+      },
+      "path_a_shortest": {
+        "hops": 1,
+        "path": [
+          "biorag_v18_2_categoria_dominante_fix",
+          "biorag_v11_1_detalle_tecnico"
+        ]
+      },
+      "path_b_max_weight": {
+        "weight": 0.9,
+        "path": [
+          "leccion_syn_obligatorio_aprender",
+          "biorag_v11_1_detalle_tecnico"
+        ]
+      },
+      "path_c_relation_aware": {
+        "score": 0.675,
+        "path": [
+          "leccion_syn_obligatorio_aprender",
+          "biorag_v11_1_detalle_tecnico"
+        ]
+      }
+    },
+    {
+      "id": "0583",
+      "query": "debo biorag preacción",
+      "gold": "identificacion_obligatoria_oraculo_athena",
+      "seeds_per_token": {
+        "debo": 16,
+        "biorag": 462,
+        "preacción": 0
+      },
+      "total_unique_seeds": 469,
+      "lexical_match": {
+        "is_direct_seed": true,
+        "tokens_in_name": [],
+        "tokens_in_content": [
+          "debo",
+          "biorag"
+        ]
+      },
+      "path_a_shortest": {
+        "hops": 1,
+        "path": [
+          "fix_mensajeria_leido_por_completado",
+          "identificacion_obligatoria_oraculo_athena"
+        ]
+      },
+      "path_b_max_weight": {
+        "weight": 0.9,
+        "path": [
+          "biorag_metricas_historial_tool_20260616",
+          "identificacion_obligatoria_oraculo_athena"
+        ]
+      },
+      "path_c_relation_aware": {
+        "score": 0.675,
+        "path": [
+          "biorag_metricas_historial_tool_20260616",
+          "identificacion_obligatoria_oraculo_athena"
+        ]
+      }
+    },
+    {
+      "id": "0640",
+      "query": "ráfaga después resultado",
+      "gold": "mentalidad_biorag_para_agentes",
+      "seeds_per_token": {
+        "ráfaga": 48,
+        "después": 89,
+        "resultado": 175
+      },
+      "total_unique_seeds": 264,
+      "lexical_match": {
+        "is_direct_seed": true,
+        "tokens_in_name": [],
+        "tokens_in_content": [
+          "ráfaga",
+          "después",
+          "resultado"
+        ]
+      },
+      "path_a_shortest": {
+        "hops": 1,
+        "path": [
+          "ajuste_tejedora_valencia_desempate_fase1",
+          "mentalidad_biorag_para_agentes"
+        ]
+      },
+      "path_b_max_weight": {
+        "weight": 0.9,
+        "path": [
+          "ajuste_tejedora_valencia_desempate_fase1",
+          "mentalidad_biorag_para_agentes"
+        ]
+      },
+      "path_c_relation_aware": {
+        "score": 0.675,
+        "path": [
+          "ajuste_tejedora_valencia_desempate_fase1",
+          "mentalidad_biorag_para_agentes"
+        ]
+      }
+    },
+    {
+      "id": "0724",
+      "query": "learning paso regla",
+      "gold": "protocolo_autoinferencia_metacognitiva",
+      "seeds_per_token": {
+        "learning": 15,
+        "paso": 76,
+        "regla": 132
+      },
+      "total_unique_seeds": 203,
+      "lexical_match": {
+        "is_direct_seed": true,
+        "tokens_in_name": [],
+        "tokens_in_content": [
+          "learning",
+          "paso",
+          "regla"
+        ]
+      },
+      "path_a_shortest": {
+        "hops": 1,
+        "path": [
+          "leccion_guardar_interacciones_significativas",
+          "protocolo_autoinferencia_metacognitiva"
+        ]
+      },
+      "path_b_max_weight": {
+        "weight": 0.81,
+        "path": [
+          "kilo_vscode_extension_principal",
+          "leccion_motivacion_intrinseca_biorag",
+          "protocolo_autoinferencia_metacognitiva"
+        ]
+      },
+      "path_c_relation_aware": {
+        "score": 0.4556,
+        "path": [
+          "kilo_vscode_extension_principal",
+          "leccion_motivacion_intrinseca_biorag",
+          "protocolo_autoinferencia_metacognitiva"
+        ]
+      }
+    },
+    {
+      "id": "0795",
+      "query": "insert storepy comunicadosdestino",
+      "gold": "fix_mensajeria_broadcast_tracking_por_agente",
+      "seeds_per_token": {
+        "insert": 27,
+        "storepy": 0,
+        "comunicadosdestino": 0
+      },
+      "total_unique_seeds": 27,
+      "lexical_match": {
+        "is_direct_seed": true,
+        "tokens_in_name": [],
+        "tokens_in_content": [
+          "insert"
+        ]
+      },
+      "path_a_shortest": {
+        "hops": 2,
+        "path": [
+          "biorag_v18_0_baseline_sin_duplicados",
+          "biorag_v17_0_estado",
+          "fix_mensajeria_broadcast_tracking_por_agente"
+        ]
+      },
+      "path_b_max_weight": {
+        "weight": 0.729,
+        "path": [
+          "athena_consistencia_sdm_mutaciones_hormiguita_hooks_reindex_20260803",
+          "hormiguita_arquitectura_6_capas_2026_07_27",
+          "biorag_v17_0_estado",
+          "fix_mensajeria_broadcast_tracking_por_agente"
+        ]
+      },
+      "path_c_relation_aware": {
+        "score": 0.3075,
+        "path": [
+          "athena_consistencia_sdm_mutaciones_hormiguita_hooks_reindex_20260803",
+          "hormiguita_arquitectura_6_capas_2026_07_27",
+          "biorag_v17_0_estado",
+          "fix_mensajeria_broadcast_tracking_por_agente"
+        ]
+      }
+    },
+    {
+      "id": "0801",
+      "query": "datos lecciones postsync",
+      "gold": "notebooklm-memory-biorag-project",
+      "seeds_per_token": {
+        "datos": 138,
+        "lecciones": 25,
+        "postsync": 0
+      },
+      "total_unique_seeds": 158,
+      "lexical_match": {
+        "is_direct_seed": true,
+        "tokens_in_name": [],
+        "tokens_in_content": [
+          "datos",
+          "lecciones"
+        ]
+      },
+      "path_a_shortest": {
+        "hops": 1,
+        "path": [
+          "oracle_que_recordar_sobre_artemis_hermes",
+          "notebooklm-memory-biorag-project"
+        ]
+      },
+      "path_b_max_weight": {
+        "weight": 0.9,
+        "path": [
+          "analisis_escalabilidad_10k_v5_1",
+          "notebooklm-memory-biorag-project"
+        ]
+      },
+      "path_c_relation_aware": {
+        "score": 0.675,
+        "path": [
+          "leccion_syn_obligatorio_aprender",
+          "notebooklm-memory-biorag-project"
+        ]
+      }
+    }
+  ],
+  "evaluacion_m0_m1_m2_m3": [
+    {
+      "id": "0497",
+      "query": "relevantes biomimética mejor",
+      "gold": "benchmark_antes_despues_fix3",
+      "m0_rank": 0,
+      "m1_rank": 0,
+      "m2_rank": 0,
+      "m3_rank": 0,
+      "m0_top1": "reconocimiento_identidad_oraculo_manifiesto",
+      "m1_top1": "reconocimiento_identidad_oraculo_manifiesto"
+    },
+    {
+      "id": "0516",
+      "query": "real más sistemas",
+      "gold": "dennys-identidad-profunda",
+      "m0_rank": 0,
+      "m1_rank": 0,
+      "m2_rank": 0,
+      "m3_rank": 0,
+      "m0_top1": "dashboard_neuro_visor_estado_implementacion_julio_2026",
+      "m1_top1": "mf_sgns_loss_correcta_kenyon_dean_part2_20260807"
+    },
+    {
+      "id": "0534",
+      "query": "activa largo archivos",
+      "gold": "biorag_v11_1_detalle_tecnico",
+      "m0_rank": 0,
+      "m1_rank": 0,
+      "m2_rank": 0,
+      "m3_rank": 0,
+      "m0_top1": "dennys_perfil_tecnico_consolidado_master",
+      "m1_top1": "dennys_perfil_tecnico_consolidado_master"
+    },
+    {
+      "id": "0583",
+      "query": "debo biorag preacción",
+      "gold": "identificacion_obligatoria_oraculo_athena",
+      "m0_rank": 0,
+      "m1_rank": 0,
+      "m2_rank": 0,
+      "m3_rank": 0,
+      "m0_top1": "artemis_sesion_v10_3_optimizacion_completa",
+      "m1_top1": "research-pipeline-ownership-oec"
+    },
+    {
+      "id": "0640",
+      "query": "ráfaga después resultado",
+      "gold": "mentalidad_biorag_para_agentes",
+      "m0_rank": 0,
+      "m1_rank": 0,
+      "m2_rank": 0,
+      "m3_rank": 0,
+      "m0_top1": "mf_sgns_loss_correcta_kenyon_dean_part2_20260807",
+      "m1_top1": "mf_sgns_loss_correcta_kenyon_dean_part2_20260807"
+    },
+    {
+      "id": "0724",
+      "query": "learning paso regla",
+      "gold": "protocolo_autoinferencia_metacognitiva",
+      "m0_rank": 0,
+      "m1_rank": 0,
+      "m2_rank": 0,
+      "m3_rank": 0,
+      "m0_top1": "auditoría_técnica:_memorybiorag_(manus_ai)",
+      "m1_top1": "auditoría_técnica:_memorybiorag_(manus_ai)"
+    },
+    {
+      "id": "0795",
+      "query": "insert storepy comunicadosdestino",
+      "gold": "fix_mensajeria_broadcast_tracking_por_agente",
+      "m0_rank": 0,
+      "m1_rank": 0,
+      "m2_rank": 0,
+      "m3_rank": 0,
+      "m0_top1": "auditoría_técnica:_memorybiorag_(manus_ai)",
+      "m1_top1": "auditoría_técnica:_memorybiorag_(manus_ai)"
+    },
+    {
+      "id": "0801",
+      "query": "datos lecciones postsync",
+      "gold": "notebooklm-memory-biorag-project",
+      "m0_rank": 0,
+      "m1_rank": 0,
+      "m2_rank": 0,
+      "m3_rank": 0,
+      "m0_top1": "protocolo-reproducible-ingenieria-inversa-binario-compilado",
+      "m1_top1": "protocolo-reproducible-ingenieria-inversa-binario-compilado"
+    }
+  ]
+}

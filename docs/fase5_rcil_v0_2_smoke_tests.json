@@ -1,0 +1,393 @@
+{
+  "meta": {
+    "title": "Fase 5 — RCIL v0.2: Smoke Tests de Invarianza de Paráfrasis y Contraste Estructural",
+    "date": "2026-09-05",
+    "architecture": "Representación Estructural Independiente de Etiquetas de Dominio",
+    "zero_lexical_dictionary_enforced": true
+  },
+  "smoke_test_1_paraphrase_invariance": {
+    "queries_analyzed": [
+      {
+        "id": "Q1",
+        "description": "Formulación coloquial de negación de jerarquía directa",
+        "raw_query": "no dejemos que uno mande sobre el otro",
+        "tokens": [
+          "no",
+          "dejemos",
+          "que",
+          "uno",
+          "mande",
+          "sobre",
+          "el",
+          "otro"
+        ],
+        "g_q": {
+          "nodes": [
+            {
+              "id": "PARTICIPANT_A",
+              "role": "AGENT"
+            },
+            {
+              "id": "PARTICIPANT_B",
+              "role": "AGENT"
+            }
+          ],
+          "edges": [
+            {
+              "source": "PARTICIPANT_A",
+              "target": "PARTICIPANT_B",
+              "relation": "BINARY_SYMMETRIC_RECIPROCAL",
+              "constraint": "NEGATIVE_HIERARCHY_CONSTRAINT",
+              "polarity": -1
+            }
+          ]
+        },
+        "fcc_v2": {
+          "relation_type": "BINARY_SYMMETRIC_RECIPROCAL",
+          "structural_constraint": "NEGATIVE_HIERARCHY_CONSTRAINT",
+          "modality": "DECLARATIVE_PROCEDURAL",
+          "polarity": -1,
+          "temporal_order": "TIME_INVARIANT",
+          "agent_cardinality": 2
+        },
+        "evidence_trace": {
+          "polarity_evidence": [
+            "no"
+          ],
+          "modality_evidence": [
+            "default_structural_inference"
+          ],
+          "symmetry_evidence": [
+            "negation + dual_participants + hierarchical_verb"
+          ],
+          "temporal_evidence": [
+            "no_temporal_sequence_marker"
+          ]
+        },
+        "lexical_domain_cues_used": 0,
+        "l_cue": 0.0
+      },
+      {
+        "id": "Q2",
+        "description": "Formulación con verbo mitigativo y concepto de partes",
+        "raw_query": "evitar que una parte domine a la otra",
+        "tokens": [
+          "evitar",
+          "que",
+          "una",
+          "parte",
+          "domine",
+          "a",
+          "la",
+          "otra"
+        ],
+        "g_q": {
+          "nodes": [
+            {
+              "id": "PARTICIPANT_A",
+              "role": "AGENT"
+            },
+            {
+              "id": "PARTICIPANT_B",
+              "role": "AGENT"
+            }
+          ],
+          "edges": [
+            {
+              "source": "PARTICIPANT_A",
+              "target": "PARTICIPANT_B",
+              "relation": "BINARY_SYMMETRIC_RECIPROCAL",
+              "constraint": "NEGATIVE_HIERARCHY_CONSTRAINT",
+              "polarity": -1
+            }
+          ]
+        },
+        "fcc_v2": {
+          "relation_type": "BINARY_SYMMETRIC_RECIPROCAL",
+          "structural_constraint": "NEGATIVE_HIERARCHY_CONSTRAINT",
+          "modality": "DECLARATIVE_PROCEDURAL",
+          "polarity": -1,
+          "temporal_order": "TIME_INVARIANT",
+          "agent_cardinality": 2
+        },
+        "evidence_trace": {
+          "polarity_evidence": [
+            "evitar"
+          ],
+          "modality_evidence": [
+            "default_structural_inference"
+          ],
+          "symmetry_evidence": [
+            "negation + dual_participants + hierarchical_verb"
+          ],
+          "temporal_evidence": [
+            "no_temporal_sequence_marker"
+          ]
+        },
+        "lexical_domain_cues_used": 0,
+        "l_cue": 0.0
+      },
+      {
+        "id": "Q3",
+        "description": "Formulación modal deóntica negativa con compañero",
+        "raw_query": "ninguno debe imponerse al compañero",
+        "tokens": [
+          "ninguno",
+          "debe",
+          "imponerse",
+          "al",
+          "compañero"
+        ],
+        "g_q": {
+          "nodes": [
+            {
+              "id": "PARTICIPANT_A",
+              "role": "AGENT"
+            },
+            {
+              "id": "PARTICIPANT_B",
+              "role": "AGENT"
+            }
+          ],
+          "edges": [
+            {
+              "source": "PARTICIPANT_A",
+              "target": "PARTICIPANT_B",
+              "relation": "BINARY_SYMMETRIC_RECIPROCAL",
+              "constraint": "NEGATIVE_HIERARCHY_CONSTRAINT",
+              "polarity": -1
+            }
+          ]
+        },
+        "fcc_v2": {
+          "relation_type": "BINARY_SYMMETRIC_RECIPROCAL",
+          "structural_constraint": "NEGATIVE_HIERARCHY_CONSTRAINT",
+          "modality": "DEONTIC_OBLIGATION",
+          "polarity": -1,
+          "temporal_order": "TIME_INVARIANT",
+          "agent_cardinality": 2
+        },
+        "evidence_trace": {
+          "polarity_evidence": [
+            "ninguno"
+          ],
+          "modality_evidence": [
+            "debe"
+          ],
+          "symmetry_evidence": [
+            "negation + dual_participants + hierarchical_verb"
+          ],
+          "temporal_evidence": [
+            "no_temporal_sequence_marker"
+          ]
+        },
+        "lexical_domain_cues_used": 0,
+        "l_cue": 0.0
+      },
+      {
+        "id": "Q4",
+        "description": "Formulación sustantiva explícita de relación sin jerarquía",
+        "raw_query": "mantener una relacion sin jerarquia entre ambos",
+        "tokens": [
+          "mantener",
+          "una",
+          "relacion",
+          "sin",
+          "jerarquia",
+          "entre",
+          "ambos"
+        ],
+        "g_q": {
+          "nodes": [
+            {
+              "id": "PARTICIPANT_A",
+              "role": "AGENT"
+            },
+            {
+              "id": "PARTICIPANT_B",
+              "role": "AGENT"
+            }
+          ],
+          "edges": [
+            {
+              "source": "PARTICIPANT_A",
+              "target": "PARTICIPANT_B",
+              "relation": "BINARY_SYMMETRIC_RECIPROCAL",
+              "constraint": "NEGATIVE_HIERARCHY_CONSTRAINT",
+              "polarity": -1
+            }
+          ]
+        },
+        "fcc_v2": {
+          "relation_type": "BINARY_SYMMETRIC_RECIPROCAL",
+          "structural_constraint": "NEGATIVE_HIERARCHY_CONSTRAINT",
+          "modality": "DECLARATIVE_PROCEDURAL",
+          "polarity": -1,
+          "temporal_order": "TIME_INVARIANT",
+          "agent_cardinality": 2
+        },
+        "evidence_trace": {
+          "polarity_evidence": [
+            "sin"
+          ],
+          "modality_evidence": [
+            "default_structural_inference"
+          ],
+          "symmetry_evidence": [
+            "negation + dual_participants + hierarchical_verb"
+          ],
+          "temporal_evidence": [
+            "no_temporal_sequence_marker"
+          ]
+        },
+        "lexical_domain_cues_used": 0,
+        "l_cue": 0.0
+      }
+    ],
+    "pairwise_structural_distances": {
+      "Q1_vs_Q2": 0.0,
+      "Q1_vs_Q3": 0.1667,
+      "Q1_vs_Q4": 0.0,
+      "Q2_vs_Q3": 0.1667,
+      "Q2_vs_Q4": 0.0,
+      "Q3_vs_Q4": 0.1667
+    },
+    "average_paraphrase_distance": 0.0833,
+    "is_invariance_achieved": true,
+    "convergence_invariants": {
+      "relation_type_shared": true,
+      "negative_hierarchy_shared": true,
+      "polarity_shared": true,
+      "l_cue_all_zero": true
+    }
+  },
+  "smoke_test_2_structural_contrast": [
+    {
+      "pair_name": "PAIR_A_POLARITY",
+      "dimension_tested": "Polaridad (Afirmación vs Negación)",
+      "q1": {
+        "text": "permitir que una parte domine a la otra",
+        "fcc_v2": {
+          "relation_type": "HIERARCHICAL_DIRECTED",
+          "structural_constraint": "EXPLICIT_HIERARCHY",
+          "modality": "DECLARATIVE_PROCEDURAL",
+          "polarity": 1,
+          "temporal_order": "TIME_INVARIANT",
+          "agent_cardinality": 2
+        }
+      },
+      "q2": {
+        "text": "evitar que una parte domine a la otra",
+        "fcc_v2": {
+          "relation_type": "BINARY_SYMMETRIC_RECIPROCAL",
+          "structural_constraint": "NEGATIVE_HIERARCHY_CONSTRAINT",
+          "modality": "DECLARATIVE_PROCEDURAL",
+          "polarity": -1,
+          "temporal_order": "TIME_INVARIANT",
+          "agent_cardinality": 2
+        }
+      },
+      "structural_distance": 0.6667,
+      "fields_shifted": [
+        "relation_type (HIERARCHICAL_DIRECTED -> BINARY_SYMMETRIC_RECIPROCAL)",
+        "structural_constraint (EXPLICIT_HIERARCHY -> NEGATIVE_HIERARCHY_CONSTRAINT)",
+        "polarity (1 -> -1)"
+      ],
+      "is_selective_separation": true
+    },
+    {
+      "pair_name": "PAIR_B_SYMMETRY",
+      "dimension_tested": "Simetría vs Jerarquía (Coordinación entre pares vs Subordinación)",
+      "q1": {
+        "text": "coordinar la actividad entre ambos pares",
+        "fcc_v2": {
+          "relation_type": "BINARY_SYMMETRIC_COORDINATED",
+          "structural_constraint": "COORDINATION_CONSTRAINT",
+          "modality": "DECLARATIVE_PROCEDURAL",
+          "polarity": 1,
+          "temporal_order": "TIME_INVARIANT",
+          "agent_cardinality": 2
+        }
+      },
+      "q2": {
+        "text": "subordinar la actividad de uno sobre el otro",
+        "fcc_v2": {
+          "relation_type": "HIERARCHICAL_DIRECTED",
+          "structural_constraint": "EXPLICIT_HIERARCHY",
+          "modality": "DECLARATIVE_PROCEDURAL",
+          "polarity": 1,
+          "temporal_order": "TIME_INVARIANT",
+          "agent_cardinality": 2
+        }
+      },
+      "structural_distance": 0.5,
+      "fields_shifted": [
+        "relation_type (BINARY_SYMMETRIC_COORDINATED -> HIERARCHICAL_DIRECTED)",
+        "structural_constraint (COORDINATION_CONSTRAINT -> EXPLICIT_HIERARCHY)"
+      ],
+      "is_selective_separation": true
+    },
+    {
+      "pair_name": "PAIR_C_DEONTIC_MODALITY",
+      "dimension_tested": "Modalidad Deóntica (Obligación vs Posibilidad)",
+      "q1": {
+        "text": "es obligatorio cumplir la pauta acordada",
+        "fcc_v2": {
+          "relation_type": "UNARY_OR_DISTRIBUTED",
+          "structural_constraint": "UNCONSTRAINED",
+          "modality": "DEONTIC_OBLIGATION",
+          "polarity": 1,
+          "temporal_order": "TIME_INVARIANT",
+          "agent_cardinality": 1
+        }
+      },
+      "q2": {
+        "text": "es posible que se cumpla la pauta acordada",
+        "fcc_v2": {
+          "relation_type": "UNARY_OR_DISTRIBUTED",
+          "structural_constraint": "UNCONSTRAINED",
+          "modality": "DEONTIC_POSSIBILITY",
+          "polarity": 1,
+          "temporal_order": "TIME_INVARIANT",
+          "agent_cardinality": 1
+        }
+      },
+      "structural_distance": 0.1667,
+      "fields_shifted": [
+        "modality (DEONTIC_OBLIGATION -> DEONTIC_POSSIBILITY)"
+      ],
+      "is_selective_separation": true
+    },
+    {
+      "pair_name": "PAIR_D_TEMPORAL_SEQUENCE",
+      "dimension_tested": "Orden Temporal (A antes de B vs B antes de A)",
+      "q1": {
+        "text": "guardar el estado antes de transferir datos",
+        "fcc_v2": {
+          "relation_type": "UNARY_OR_DISTRIBUTED",
+          "structural_constraint": "UNCONSTRAINED",
+          "modality": "DECLARATIVE_PROCEDURAL",
+          "polarity": 1,
+          "temporal_order": "PRECEDENCE_A_BEFORE_B",
+          "agent_cardinality": 1
+        }
+      },
+      "q2": {
+        "text": "guardar el estado despues de transferir datos",
+        "fcc_v2": {
+          "relation_type": "UNARY_OR_DISTRIBUTED",
+          "structural_constraint": "UNCONSTRAINED",
+          "modality": "DECLARATIVE_PROCEDURAL",
+          "polarity": 1,
+          "temporal_order": "SEQUENCE_B_AFTER_A",
+          "agent_cardinality": 1
+        }
+      },
+      "structural_distance": 0.0833,
+      "fields_shifted": [
+        "temporal_order (PRECEDENCE_A_BEFORE_B -> SEQUENCE_B_AFTER_A)"
+      ],
+      "is_selective_separation": true
+    }
+  ]
+}

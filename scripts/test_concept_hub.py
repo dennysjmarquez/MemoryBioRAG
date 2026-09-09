@@ -21,33 +21,33 @@ from core.memory_store import SQLiteMemoryBioRAG
 from core.concept_hub import expandir_query_con_hub, crear_tablas, cargar_hubs_iniciales
 
 
-# ─── CASOS DE PRUEBA FASE 2 ───
+# ─── CASOS DE PRUEBA FASE 2 (Paráfrasis Naturales de Generalización) ───
 
 CASOS_FASE2 = [
     {
-        "query": "trabajos que tuve antes de programar",
+        "query": "qué hacía antes de ser programador",
         "nodo_esperado": "historia_tasajera_fumigador_rufino",
-        "descripcion": "Empleos previos a IT"
+        "descripcion": "Empleos previos a IT (paráfrasis)"
     },
     {
-        "query": "romper algo que funcionaba",
+        "query": "metí un cambio y todo se rompió",
         "nodo_esperado": "leccion_control_flujo_codigo_preexistente",
-        "descripcion": "Regresiones por cambios"
+        "descripcion": "Regresiones por cambios (paráfrasis 2a)"
     },
     {
-        "query": "aprender sin que nadie enseñe",
-        "nodo_esperado": "biorag_v20_rpe_dopamina",
-        "descripcion": "Refuerzo dopaminérgico"
+        "query": "toqué algo que andaba bien y dejó de andar",
+        "nodo_esperado": "leccion_control_flujo_codigo_preexistente",
+        "descripcion": "Ruptura de código preexistente (paráfrasis 2b)"
     },
     {
-        "query": "trabajos ingeniero sobrevivir antes programar",
+        "query": "cómo sobrevivía económicamente antes de la tecnología",
         "nodo_esperado": "historia_tasajera_fumigador_rufino",
-        "descripcion": "Historia laboral"
+        "descripcion": "Supervivencia pre-tecnología (paráfrasis)"
     },
     {
-        "query": "IAs que se contradigan para encontrar la verdad",
+        "query": "dos modelos de IA que no están de acuerdo, ¿cómo resuelvo?",
         "nodo_esperado": "resolucion_de_contradicciones_entre_insights_sumatoria_mentalidad",
-        "descripcion": "Consenso multi-modelo"
+        "descripcion": "Consenso multi-modelo (paráfrasis)"
     }
 ]
 
@@ -71,12 +71,9 @@ def evaluar_concept_hub():
 
     cerebro = SQLiteMemoryBioRAG(db_path)
 
-    # Asegurar que las tablas del hub existen y están pobladas
+    # Asegurar que las tablas del hub existen y los hubs iniciales están sincronizados
     crear_tablas(cerebro.conn)
-    cursor = cerebro.conn.execute("SELECT COUNT(*) FROM concept_hubs")
-    if cursor.fetchone()[0] == 0:
-        print("\n[SETUP] Cargando hubs iniciales...")
-        cargar_hubs_iniciales(cerebro.conn)
+    cargar_hubs_iniciales(cerebro.conn)
 
     print(f"\n[INFO] DB: {db_path}")
     cursor = cerebro.conn.execute("SELECT COUNT(*) FROM largo_plazo WHERE estado='activo'")

@@ -1,0 +1,160 @@
+{
+  "timestamp": "2026-09-09T01:12:54Z",
+  "fase": "FASE 1 — Auditoría y Cableado (Sin cambios semánticos)",
+  "db_sha256": "676827f6b4abc3acaee10b14e273c3c50cae5b2c180593dedcd58048265a2800",
+  "elapsed_ms": 77.28,
+  "grafo_consistency": {
+    "total_sinapsis_registros": 13848,
+    "total_sinapsis_aristas_efectivas": 13848,
+    "total_csv_aristas": 27433,
+    "coincidentes_ambas": 13751,
+    "solo_en_sinapsis": 97,
+    "solo_en_csv": 13682,
+    "total_sinapsis_latentes": 8893,
+    "muestra_solo_csv": [
+      [
+        "21st_dev_registro_componentes_react_recurso_diseno",
+        "ajuste_tejedora_valencia_desempate_fase1"
+      ],
+      [
+        "[desde_agente-oec]_jerarquía_de_restricciones_del_agente_en_opencode",
+        "biorag_v17_0_estado"
+      ],
+      [
+        "[desde_agente-oec]_jerarquía_de_restricciones_del_agente_en_opencode",
+        "biorag_v18_0_estado"
+      ],
+      [
+        "[desde_agente-oec]_jerarquía_de_restricciones_del_agente_en_opencode",
+        "correccion_publicaciones_doi_dennys"
+      ],
+      [
+        "[desde_agente-oec]_jerarquía_de_restricciones_del_agente_en_opencode",
+        "dennys_tqm_agentes_desea_ser_como_ellos_20260731"
+      ],
+      [
+        "[desde_agente-oec]_jerarquía_de_restricciones_del_agente_en_opencode",
+        "fix_fecha_sin_query_recordar"
+      ],
+      [
+        "[desde_agente-oec]_jerarquía_de_restricciones_del_agente_en_opencode",
+        "fix_kilo_resource_exhausted_biorag_oraculo_max_chars"
+      ],
+      [
+        "[desde_agente-oec]_jerarquía_de_restricciones_del_agente_en_opencode",
+        "fix_mensajeria_broadcast_tracking_por_agente"
+      ],
+      [
+        "[desde_agente-oec]_jerarquía_de_restricciones_del_agente_en_opencode",
+        "fix_mensajeria_leido_por_completado"
+      ],
+      [
+        "[desde_agente-oec]_jerarquía_de_restricciones_del_agente_en_opencode",
+        "kilo_vscode_extension_principal"
+      ],
+      [
+        "[desde_agente-oec]_jerarquía_de_restricciones_del_agente_en_opencode",
+        "leccion_artemis_no_quejarse_trabajar"
+      ],
+      [
+        "[desde_agente-oec]_jerarquía_de_restricciones_del_agente_en_opencode",
+        "leccion_blueprint_estructura_vs_data"
+      ],
+      [
+        "[desde_agente-oec]_jerarquía_de_restricciones_del_agente_en_opencode",
+        "leccion_motivacion_intrinseca_biorag"
+      ],
+      [
+        "[desde_agente-oec]_jerarquía_de_restricciones_del_agente_en_opencode",
+        "leccion_syn_obligatorio_aprender"
+      ],
+      [
+        "[desde_agente-oec]_jerarquía_de_restricciones_del_agente_en_opencode",
+        "naturaleza_sistema_oec_cerebro_memoria"
+      ]
+    ],
+    "muestra_solo_sinapsis": [
+      [
+        "analisis_escalabilidad_10k_v5_1",
+        "instante_de_nacimiento"
+      ],
+      [
+        "artemis_sincronizacion_final",
+        "leccion_claim_passed_sin_artefacto_reproducible"
+      ],
+      [
+        "artisan-evolucion-completa",
+        "athena_alma"
+      ],
+      [
+        "artisan-evolucion-completa",
+        "docker_infrastructure_rog"
+      ],
+      [
+        "artisan-evolucion-completa",
+        "mcp-primitiva-externa-definicion-2"
+      ],
+      [
+        "artisan-evolucion-completa",
+        "ref_formularios_anidados"
+      ],
+      [
+        "artisan-evolucion-completa",
+        "regla_cero_inferencia"
+      ],
+      [
+        "artisan-evolucion-completa",
+        "sesion_2026_tema_dark_2026_en_visor_de_markdown_método_pilares_redacción"
+      ],
+      [
+        "artisan-evolucion-completa",
+        "tema_dark_2026_en_visor_de_markdown"
+      ],
+      [
+        "artisan-evolucion-completa",
+        "verificacion_final"
+      ],
+      [
+        "artisan-evolucion-completa",
+        "vision_arquitectura_oec_franquicia"
+      ],
+      [
+        "auto-consulta-permanente-biorag",
+        "confirmo_leido_entendido"
+      ],
+      [
+        "caso_conflicto_liderazgo_sin_autoridad",
+        "tema_dark_2026_en_visor_de_markdown"
+      ],
+      [
+        "caso_criterio_artificial_agente",
+        "athena_alma"
+      ],
+      [
+        "caso_criterio_artificial_agente",
+        "docker_infrastructure_rog"
+      ]
+    ]
+  },
+  "interfaces_audit": {
+    "MCP_server": {
+      "file": "mcp_server.py",
+      "calls": "SQLiteMemoryBioRAG.buscar_por_frase / recordar",
+      "db_resolution": "os.getenv('BIORAG_PATH', 'MemoryBioRAG_Data/memory_biorag.db')",
+      "uses_core_pipeline": true
+    },
+    "CLI_daemon": {
+      "file": "core/memory_store.py",
+      "calls": "SQLiteMemoryBioRAG methods directamente",
+      "db_resolution": "parametro db_path o env BIORAG_PATH",
+      "uses_core_pipeline": true
+    },
+    "Dashboard_api": {
+      "file": "servidor_dashboard.py / api routes",
+      "calls": "SQLite direct queries / core bridge",
+      "db_resolution": "DB_PATH variable en config",
+      "uses_core_pipeline": "Parcial (ciertos endpoints usan LIKE SQL)"
+    }
+  },
+  "conclusion": "sinapsis es cuantitativa y cualitativamente la fuente más rica y estructurada. largo_plazo.asociaciones es un remanente plano que debe considerarse secundario o deprecado."
+}

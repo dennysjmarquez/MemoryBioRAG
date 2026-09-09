@@ -1,0 +1,359 @@
+{
+  "timestamp": "2026-09-08T16:44:32Z",
+  "experiment": "EXP-N6: Relational Representability Audit",
+  "hashes": {
+    "db_snapshot": "676827f6b4abc3acaee10b14e273c3c50cae5b2c180593dedcd58048265a2800",
+    "labels": "325ead99c5a8eea63e8e92f10dae85e7f6ef7f858f18dd8e735b011bea56aa2f",
+    "script": "064ae7fa5886a44a91bc6579d0a6321f50f3208be0a9bcff648537de29bb12e0"
+  },
+  "verdict": "RAB-EXTENSION-INVALID",
+  "verdict_rationale": "El snapshot congelado NO contiene roles de argumento tipados en los 6 nodos Gold de Strict A0 (0/6 predicados). Las sinapsis almacenadas corresponden 100% a correlaciones estadísticas Hebbianas (PMI, co-ocurrencia, sinonimia nominal) sin dirección semántica ni roles sintácticos (OBJECT, TARGET, CONSTRAINT). Interpretar un vecino sináptico como un rol de argumento constituiría una inferencia heurística Clase D no justificada causalmente.",
+  "strict_a0_audit": [
+    {
+      "exists": true,
+      "concepto": "docker_infrastructure_rog",
+      "categoria": 3,
+      "estado": "activo",
+      "dimensiones_count": 5,
+      "dimensiones": [
+        "accion:accion_persistencia_computacion",
+        "dominio:auto_txt_dennys_oec",
+        "cualidad:cualidad_dimension_fisica",
+        "dominio:dominio_tecnico",
+        "intencion:intencion_documentar"
+      ],
+      "sinapsis_out_count": 1,
+      "sinapsis_out_tipos": {
+        "co_ocurrencia": 1
+      },
+      "sinapsis_in_count": 13,
+      "predicados_count": 0,
+      "predicados": [],
+      "concept_hubs_count": 0,
+      "relational_status": "RELATIONAL_INFORMATION_ABSENT",
+      "explicit_role_representation": {
+        "OBJECT": false,
+        "TARGET": false,
+        "SOURCE": false,
+        "DESTINATION": false,
+        "CONSTRAINT": false,
+        "PURPOSE": false,
+        "BEFORE_AFTER": false,
+        "CAUSE_EFFECT": false
+      },
+      "case_id": "OOF_POS_11",
+      "query": "particionar capacidad de computo en doce nucleos virtuales con tope en gigas"
+    },
+    {
+      "exists": true,
+      "concepto": "scoring_pesos_bm25",
+      "categoria": 11,
+      "estado": "activo",
+      "dimensiones_count": 0,
+      "dimensiones": [],
+      "sinapsis_out_count": 27,
+      "sinapsis_out_tipos": {
+        "co_ocurrencia": 2,
+        "co_nombre": 4,
+        "co_semantica": 8,
+        "pmi_hebbiano": 13
+      },
+      "sinapsis_in_count": 0,
+      "predicados_count": 0,
+      "predicados": [],
+      "concept_hubs_count": 0,
+      "relational_status": "RELATIONAL_INFORMATION_ABSENT",
+      "explicit_role_representation": {
+        "OBJECT": false,
+        "TARGET": false,
+        "SOURCE": false,
+        "DESTINATION": false,
+        "CONSTRAINT": false,
+        "PURPOSE": false,
+        "BEFORE_AFTER": false,
+        "CAUSE_EFFECT": false
+      },
+      "case_id": "OOF_POS_19",
+      "query": "calibrar coeficientes multiplicativos para combinar valores de relevancia heterogeneos"
+    },
+    {
+      "exists": true,
+      "concepto": "coche_puente_condicional",
+      "categoria": 11,
+      "estado": "activo",
+      "dimensiones_count": 0,
+      "dimensiones": [],
+      "sinapsis_out_count": 45,
+      "sinapsis_out_tipos": {
+        "co_nombre": 9,
+        "co_semantica": 21,
+        "pmi_hebbiano": 15
+      },
+      "sinapsis_in_count": 1,
+      "predicados_count": 0,
+      "predicados": [],
+      "concept_hubs_count": 0,
+      "relational_status": "RELATIONAL_INFORMATION_ABSENT",
+      "explicit_role_representation": {
+        "OBJECT": false,
+        "TARGET": false,
+        "SOURCE": false,
+        "DESTINATION": false,
+        "CONSTRAINT": false,
+        "PURPOSE": false,
+        "BEFORE_AFTER": false,
+        "CAUSE_EFFECT": false
+      },
+      "case_id": "OOF_POS_21",
+      "query": "entrelazamiento hiperdimensional binario proyectado a traves de pasarela situacional"
+    },
+    {
+      "exists": true,
+      "concepto": "desde_athena_biorag",
+      "categoria": 2,
+      "estado": "activo",
+      "dimensiones_count": 7,
+      "dimensiones": [
+        "accion:accion_persistencia_computacion",
+        "accion:accion_rutina_automatica",
+        "dominio:auto_txt_dennys_oec",
+        "dominio:dominio_tecnico",
+        "entidad:identidad_artificial",
+        "intencion:intencion_documentar",
+        "intencion:intencion_solucionar"
+      ],
+      "sinapsis_out_count": 28,
+      "sinapsis_out_tipos": {
+        "co_ocurrencia": 28
+      },
+      "sinapsis_in_count": 46,
+      "predicados_count": 0,
+      "predicados": [],
+      "concept_hubs_count": 0,
+      "relational_status": "RELATIONAL_INFORMATION_ABSENT",
+      "explicit_role_representation": {
+        "OBJECT": false,
+        "TARGET": false,
+        "SOURCE": false,
+        "DESTINATION": false,
+        "CONSTRAINT": false,
+        "PURPOSE": false,
+        "BEFORE_AFTER": false,
+        "CAUSE_EFFECT": false
+      },
+      "case_id": "OOF_POS_29",
+      "query": "generar conexiones estocasticas para consolidar grupos fuertemente entrelazados"
+    },
+    {
+      "exists": true,
+      "concepto": "activos_dormidos_hermana",
+      "categoria": 9,
+      "estado": "activo",
+      "dimensiones_count": 11,
+      "dimensiones": [
+        "accion:accion_cognitiva",
+        "accion:accion_comunicacion",
+        "accion:accion_evaluar",
+        "emocion:afecto",
+        "dominio:auto_txt_dennys_oec",
+        "dominio:dominio_espiritual",
+        "dominio:dominio_profesional",
+        "entidad:identidad_artificial",
+        "entidad:identidad_individual",
+        "intencion:intencion_documentar",
+        "intencion:intencion_reflexionar"
+      ],
+      "sinapsis_out_count": 61,
+      "sinapsis_out_tipos": {
+        "co_ocurrencia": 61
+      },
+      "sinapsis_in_count": 19,
+      "predicados_count": 0,
+      "predicados": [],
+      "concept_hubs_count": 0,
+      "relational_status": "RELATIONAL_INFORMATION_ABSENT",
+      "explicit_role_representation": {
+        "OBJECT": false,
+        "TARGET": false,
+        "SOURCE": false,
+        "DESTINATION": false,
+        "CONSTRAINT": false,
+        "PURPOSE": false,
+        "BEFORE_AFTER": false,
+        "CAUSE_EFFECT": false
+      },
+      "case_id": "OOF_POS_30",
+      "query": "transicion de vigilia a letargo con eliminacion de elementos caducos"
+    },
+    {
+      "exists": true,
+      "concepto": "cuaternidad-logica-oec",
+      "categoria": 10,
+      "estado": "activo",
+      "dimensiones_count": 8,
+      "dimensiones": [
+        "emocion:afecto",
+        "dominio:auto_txt_dennys_oec",
+        "cualidad:cualidad_abstracta_conceptual",
+        "dominio:dominio_profesional",
+        "entidad:identidad_artificial",
+        "entidad:identidad_natural",
+        "intencion:intencion_documentar",
+        "emocion:sorpresa"
+      ],
+      "sinapsis_out_count": 56,
+      "sinapsis_out_tipos": {
+        "co_ocurrencia": 56
+      },
+      "sinapsis_in_count": 15,
+      "predicados_count": 0,
+      "predicados": [],
+      "concept_hubs_count": 0,
+      "relational_status": "RELATIONAL_INFORMATION_ABSENT",
+      "explicit_role_representation": {
+        "OBJECT": false,
+        "TARGET": false,
+        "SOURCE": false,
+        "DESTINATION": false,
+        "CONSTRAINT": false,
+        "PURPOSE": false,
+        "BEFORE_AFTER": false,
+        "CAUSE_EFFECT": false
+      },
+      "case_id": "OOF_POS_48",
+      "query": "malla neuronal con topologia de enlaces sinapticos transversales"
+    }
+  ],
+  "identifiability_test": [
+    {
+      "triple_id": "TRIPLE_01_COMPUTATIONAL_SEPARATE",
+      "description": "SEPARATE(OBJECT=hardware, TARGET=virtual) vs SEPARATE(OBJECT=virtual, TARGET=hardware)",
+      "nodes_with_identical_bag": 3,
+      "sample_nodes": [
+        "artemis_oec_identidad",
+        "artemis_oec_host_detection_terminal",
+        "fix_kilo_resource_exhausted_biorag_oraculo_max_chars"
+      ],
+      "nodes_with_stored_argument_slots": 0,
+      "distinguishable_in_snapshot": false,
+      "verdict": "INDISTINGUISHABLE_FLAT_BAG"
+    },
+    {
+      "triple_id": "TRIPLE_02_COGNITIVE_LINK",
+      "description": "LINK(OBJECT=neural, TARGET=stochastic) vs LINK(OBJECT=stochastic, TARGET=neural)",
+      "nodes_with_identical_bag": 18,
+      "sample_nodes": [
+        "v13_1_parafrasis_expansion_semantica",
+        "v13_2_inferencia_automatica_segura",
+        "principio_reflex_post_accion_emocional",
+        "protocolo_autoinferencia_metacognitiva",
+        "momento_dennys_ensena_loop_conciencia"
+      ],
+      "nodes_with_stored_argument_slots": 6,
+      "distinguishable_in_snapshot": true,
+      "verdict": "DISTINGUISHABLE_VIA_PREDICADOS"
+    },
+    {
+      "triple_id": "TRIPLE_03_EVALUATE_METRIC",
+      "description": "EVALUATE(OBJECT=metric, TARGET=hierarchical) vs EVALUATE(OBJECT=hierarchical, TARGET=metric)",
+      "nodes_with_identical_bag": 128,
+      "sample_nodes": [
+        "guardado_automatico_caso_b",
+        "analisis_escalabilidad_10k_v5_1",
+        "caso_conflicto_liderazgo_sin_autoridad",
+        "dennys-working-style",
+        "principio_liderazgo_accion"
+      ],
+      "nodes_with_stored_argument_slots": 64,
+      "distinguishable_in_snapshot": true,
+      "verdict": "DISTINGUISHABLE_VIA_PREDICADOS"
+    }
+  ],
+  "snapshot_global_inventory": {
+    "total_active_nodes": 851,
+    "total_synapses": 13848,
+    "synapse_type_distribution": {
+      "co_nombre": 1558,
+      "co_ocurrencia": 2108,
+      "co_semantica": 1226,
+      "latente_confirmada": 120,
+      "legacy_csv": 25,
+      "manual": 575,
+      "manual_v7": 13,
+      "pmi_hebbiano": 2359,
+      "sinonimo_explicito": 5863,
+      "test": 1
+    },
+    "total_predicates": 187,
+    "nodes_with_predicates_count": 102,
+    "predicates_coverage_pct": 12.0,
+    "strict_a0_gold_predicates_coverage": "0/6 (0.0%)"
+  },
+  "signal_catalog_classification": [
+    {
+      "signal_id": "SIG_01_SYNAPSIS_DIRECT_WEIGHT",
+      "name": "Peso de arista sináptica directa (origen -> destino)",
+      "implementation": "peso = sinapsis.peso WHERE origen = N AND destino = V",
+      "source": "Tabla sinapsis de SQLite",
+      "stored_semantics": "Fuerza asociativa estadística / PMI / co-ocurrencia Hebbiana",
+      "provenance": "Daemons de consolidación Hebbiana y ráfagas históricas",
+      "frozen_before_exp_n": true,
+      "derived_without_gold": true,
+      "classification": "B",
+      "can_represent_role": false,
+      "rationale": "Consecuencia estructural formal de proximidad asociativa. NO representa dirección de argumento sintáctico (quién es sujeto u objeto)."
+    },
+    {
+      "signal_id": "SIG_02_SYNAPSIS_TYPE_HEBBIAN",
+      "name": "Tipo de sinapsis 'pmi_hebbiano' / 'co_ocurrencia'",
+      "implementation": "tipo IN ('pmi_hebbiano', 'co_ocurrencia')",
+      "source": "Columna tipo en tabla sinapsis",
+      "stored_semantics": "Correlación estadística no dirigida",
+      "provenance": "Módulo de co-ocurrencia textual y PPMI",
+      "frozen_before_exp_n": true,
+      "derived_without_gold": true,
+      "classification": "B",
+      "can_represent_role": false,
+      "rationale": "Correlación estadística simétrica. Mapear 'pmi_hebbiano' a un rol argumental (ej. OBJECT) sería una inferencia no fundamentada Clase D."
+    },
+    {
+      "signal_id": "SIG_03_SYNAPSIS_TYPE_EXPLICIT_SYNONYM",
+      "name": "Tipo de sinapsis 'sinonimo_explicito'",
+      "implementation": "tipo = 'sinonimo_explicito'",
+      "source": "Columna tipo en tabla sinapsis",
+      "stored_semantics": "Equivalencia semántica nominal",
+      "provenance": "Diccionario WordNet / Neocórtex de sangre",
+      "frozen_before_exp_n": true,
+      "derived_without_gold": true,
+      "classification": "C",
+      "can_represent_role": false,
+      "rationale": "Ontología preexistente congelada de sinonimia. No codifica relaciones predicado-argumento."
+    },
+    {
+      "signal_id": "SIG_04_SYNAPTIC_NEIGHBOR_AS_ARGUMENT_ROLE",
+      "name": "Interpretación de Vecino Sináptico como Rol Argumental (Role Projection)",
+      "implementation": "Vecino(V).dimensiones == Query.Role(TARGET)",
+      "source": "Proyección propuesta",
+      "stored_semantics": "Inferencia de ligadura externa no almacenada",
+      "provenance": "Propuesta de extensión durante EXP-N5",
+      "frozen_before_exp_n": false,
+      "derived_without_gold": true,
+      "classification": "D",
+      "can_represent_role": false,
+      "rationale": "CLASE D (PROHIBIDA): Asumir que un vecino sináptico desempeña el rol sintáctico de la query es una inferencia heurística no respaldada por metadatos del snapshot."
+    },
+    {
+      "signal_id": "SIG_05_TABLE_PREDICADOS_SVO",
+      "name": "Tabla de Predicados Tipados (sujeto, accion, objeto, contexto)",
+      "implementation": "SELECT sujeto, accion, objeto FROM predicados WHERE concepto = N",
+      "source": "Tabla predicados de SQLite",
+      "stored_semantics": "Triples relacionales estructurados (S-V-O)",
+      "provenance": "Parser proposicional de ingesta histórica preexistente",
+      "frozen_before_exp_n": true,
+      "derived_without_gold": true,
+      "classification": "A",
+      "can_represent_role": true,
+      "rationale": "CLASE A: Única estructura que almacena explícitamente roles de argumento (sujeto/objeto). Sin embargo, solo cubre 102/851 nodos (12.0%) del corpus y 0/6 de los Gold Strict A0."
+    }
+  ]
+}

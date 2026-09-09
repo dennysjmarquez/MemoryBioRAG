@@ -1,0 +1,248 @@
+{
+  "meta": {
+    "experiment": "Fase 4.5.2 — Prototipo de Inferencia Simbólica Composicional",
+    "date": "2026-09-05",
+    "snapshot": "snapshots/qa_escape_qcr_20260811.db",
+    "total_benchmark_cases": 20,
+    "adversarial_negative_controls": 20
+  },
+  "metrics_summary": {
+    "M0_Baseline_Actual": {
+      "r1_count": "0/20",
+      "r1_pct": 0.0,
+      "r5_count": "7/20",
+      "r5_pct": 35.0,
+      "mrr": 0.1259,
+      "avg_pool_size": 20.25,
+      "latency_ms": 12.86,
+      "false_positives": "1/20"
+    },
+    "M1_Simbólico_Puro": {
+      "r1_count": "0/20",
+      "r1_pct": 0.0,
+      "r5_count": "6/20",
+      "r5_pct": 30.0,
+      "mrr": 0.1256,
+      "avg_pool_size": 77.1,
+      "latency_ms": 17.5,
+      "false_positives": "1/20"
+    },
+    "M2_Pipeline_Completo_Simbólico_Mas_ReRanking": {
+      "r1_count": "3/20",
+      "r1_pct": 15.0,
+      "r5_count": "9/20",
+      "r5_pct": 45.0,
+      "mrr": 0.2817,
+      "avg_pool_size": 77.1,
+      "latency_ms": 16.99,
+      "false_positives": "1/20"
+    }
+  },
+  "epistemological_classifications_m2": {
+    "NO_RESCUE": 11,
+    "D (Composición Simbólica Multi-Hop Transitiva)": 3,
+    "C (Propagación 1-Hop)": 6
+  },
+  "cases_detail": [
+    {
+      "id": "COMP_01",
+      "query": "canalizacion y conexion de modulos remotos hacia almacenamiento central",
+      "gold": "notebooklm-memory-biorag-project",
+      "path_expected": "hermes_mcp_servers_configuracion -> sync_incremental_implementation -> notebooklm-memory-biorag-project",
+      "rank_m0": null,
+      "rank_m1": 8,
+      "rank_m2": 8,
+      "rescue_category_m2": "NO_RESCUE"
+    },
+    {
+      "id": "COMP_02",
+      "query": "lecciones metodologicas aprendidas durante sincronizacion incremental remota",
+      "gold": "notebooklm-sync-lecciones",
+      "path_expected": "hermes_mcp_servers_configuracion -> proyecto_biorag_ncp_resumen_completo_2026_06_14 -> notebooklm-sync-lecciones",
+      "rank_m0": 2,
+      "rank_m1": 2,
+      "rank_m2": 1,
+      "rescue_category_m2": "D (Composición Simbólica Multi-Hop Transitiva)"
+    },
+    {
+      "id": "COMP_03",
+      "query": "normativa formal de comunicacion y protocolo de sincronizacion entre instancias",
+      "gold": "notebooklm-sync-protocol",
+      "path_expected": "hermes_mcp_servers_configuracion -> proyecto_biorag_ncp_resumen_completo_2026_06_14 -> notebooklm-sync-protocol",
+      "rank_m0": null,
+      "rank_m1": null,
+      "rank_m2": null,
+      "rescue_category_m2": "NO_RESCUE"
+    },
+    {
+      "id": "COMP_04",
+      "query": "estrategia de resolucion y caso para gestion de liderazgo sin jerarquia impuesta",
+      "gold": "caso_conflicto_liderazgo_sin_autoridad",
+      "path_expected": "hermes_mcp_servers_configuracion -> proyecto_biorag_ncp_resumen_completo_2026_06_14 -> caso_conflicto_liderazgo_sin_autoridad",
+      "rank_m0": 4,
+      "rank_m1": 4,
+      "rank_m2": 1,
+      "rescue_category_m2": "C (Propagación 1-Hop)"
+    },
+    {
+      "id": "COMP_05",
+      "query": "principio de equidad y reciprocidad en trato colaborativo con athena",
+      "gold": "trato-igualitario-dennys-athena",
+      "path_expected": "hermes_mcp_servers_configuracion -> oracle_que_deben_saber_artemis_hermes -> trato-igualitario-dennys-athena",
+      "rank_m0": null,
+      "rank_m1": 24,
+      "rank_m2": 4,
+      "rescue_category_m2": "D (Composición Simbólica Multi-Hop Transitiva)"
+    },
+    {
+      "id": "COMP_06",
+      "query": "estructura del grafo y organizacion de conexiones cognitivas del agente",
+      "gold": "memory_graph_athena_oec",
+      "path_expected": "hermes_mcp_servers_configuracion -> oracle_que_deben_saber_artemis_hermes -> memory_graph_athena_oec",
+      "rank_m0": 11,
+      "rank_m1": 48,
+      "rank_m2": 42,
+      "rescue_category_m2": "NO_RESCUE"
+    },
+    {
+      "id": "COMP_07",
+      "query": "directriz de difusion y preferencia de publicacion tecnica en redes",
+      "gold": "preferencia-post-linkedin-contenido",
+      "path_expected": "hermes_mcp_servers_configuracion -> oracle_que_deben_saber_artemis_hermes -> preferencia-post-linkedin-contenido",
+      "rank_m0": null,
+      "rank_m1": null,
+      "rank_m2": null,
+      "rescue_category_m2": "NO_RESCUE"
+    },
+    {
+      "id": "COMP_08",
+      "query": "repositorio de documentacion y base de notas analiticas de biorag",
+      "gold": "notebooklm-memory-biorag-project",
+      "path_expected": "oracle_evolucion_athena_puntos_inflexion -> sync_incremental_implementation -> notebooklm-memory-biorag-project",
+      "rank_m0": null,
+      "rank_m1": 19,
+      "rank_m2": 2,
+      "rescue_category_m2": "D (Composición Simbólica Multi-Hop Transitiva)"
+    },
+    {
+      "id": "COMP_09",
+      "query": "lecciones metodologicas y aprendizajes de fallos corregidos en el pipeline de sincronia",
+      "gold": "notebooklm-sync-lecciones",
+      "path_expected": "oracle_evolucion_athena_puntos_inflexion -> proyecto_biorag_ncp_resumen_completo_2026_06_14 -> notebooklm-sync-lecciones",
+      "rank_m0": null,
+      "rank_m1": null,
+      "rank_m2": null,
+      "rescue_category_m2": "NO_RESCUE"
+    },
+    {
+      "id": "COMP_10",
+      "query": "norma mandatoria y estandar formal para sincronizar memoria entre agentes",
+      "gold": "notebooklm-sync-protocol",
+      "path_expected": "oracle_evolucion_athena_puntos_inflexion -> proyecto_biorag_ncp_resumen_completo_2026_06_14 -> notebooklm-sync-protocol",
+      "rank_m0": null,
+      "rank_m1": null,
+      "rank_m2": null,
+      "rescue_category_m2": "NO_RESCUE"
+    },
+    {
+      "id": "COMP_11",
+      "query": "manifiesto y caso sobre colaboracion distribuida y debate profesional abierto",
+      "gold": "impugn-post-linkedin-colaboracion",
+      "path_expected": "oracle_evolucion_athena_puntos_inflexion -> proyecto_biorag_ncp_resumen_completo_2026_06_14 -> impugn-post-linkedin-colaboracion",
+      "rank_m0": 3,
+      "rank_m1": 3,
+      "rank_m2": 3,
+      "rescue_category_m2": "C (Propagación 1-Hop)"
+    },
+    {
+      "id": "COMP_12",
+      "query": "caso practico y resolucion para mitigar discrepancias tecnicas entre coordinadores sin mando",
+      "gold": "caso_conflicto_liderazgo_sin_autoridad",
+      "path_expected": "oracle_evolucion_athena_puntos_inflexion -> proyecto_biorag_ncp_resumen_completo_2026_06_14 -> caso_conflicto_liderazgo_sin_autoridad",
+      "rank_m0": 3,
+      "rank_m1": 3,
+      "rank_m2": 1,
+      "rescue_category_m2": "C (Propagación 1-Hop)"
+    },
+    {
+      "id": "COMP_13",
+      "query": "distribucion arquitectonica y catalogo de categorias de conocimiento estructurado",
+      "gold": "notebooklm-category-map",
+      "path_expected": "oracle_evolucion_athena_puntos_inflexion -> proyecto_biorag_ncp_resumen_completo_2026_06_14 -> notebooklm-category-map",
+      "rank_m0": null,
+      "rank_m1": 59,
+      "rank_m2": 59,
+      "rescue_category_m2": "NO_RESCUE"
+    },
+    {
+      "id": "COMP_14",
+      "query": "politica de gobernanza sobre propiedad y responsabilidad en lineas de investigacion",
+      "gold": "research-pipeline-ownership-oec",
+      "path_expected": "hermes_optimizacion_completada_20260615 -> sync_incremental_implementation -> research-pipeline-ownership-oec",
+      "rank_m0": null,
+      "rank_m1": 27,
+      "rank_m2": 37,
+      "rescue_category_m2": "NO_RESCUE"
+    },
+    {
+      "id": "COMP_15",
+      "query": "bitacora consolidada y resumen de arquitectura del sistema ncp",
+      "gold": "proyecto_biorag_ncp_resumen_completo_2026_06_14",
+      "path_expected": "hermes_optimizacion_completada_20260615 -> sync_incremental_implementation -> proyecto_biorag_ncp_resumen_completo_2026_06_14",
+      "rank_m0": null,
+      "rank_m1": null,
+      "rank_m2": null,
+      "rescue_category_m2": "NO_RESCUE"
+    },
+    {
+      "id": "COMP_16",
+      "query": "asistente interactivo para parametrizar conexiones y variables",
+      "gold": "notebooklm-chat-configure",
+      "path_expected": "hermes_optimizacion_completada_20260615 -> sync_incremental_implementation -> notebooklm-chat-configure",
+      "rank_m0": null,
+      "rank_m1": null,
+      "rank_m2": null,
+      "rescue_category_m2": "NO_RESCUE"
+    },
+    {
+      "id": "COMP_17",
+      "query": "documento de alineacion sobre estilo de interaccion y comunicacion",
+      "gold": "dennys-working-style",
+      "path_expected": "hermes_optimizacion_completada_20260615 -> sync_incremental_implementation -> dennys-working-style",
+      "rank_m0": 9,
+      "rank_m1": 41,
+      "rank_m2": 41,
+      "rescue_category_m2": "NO_RESCUE"
+    },
+    {
+      "id": "COMP_18",
+      "query": "norma de procedimiento para busqueda automatica y exploracion no guiada de memoria",
+      "gold": "protocolo_busqueda_biorag_automatica",
+      "path_expected": "hermes_optimizacion_completada_20260615 -> sync_incremental_implementation -> protocolo_busqueda_biorag_automatica",
+      "rank_m0": 5,
+      "rank_m1": 5,
+      "rank_m2": 2,
+      "rescue_category_m2": "C (Propagación 1-Hop)"
+    },
+    {
+      "id": "COMP_19",
+      "query": "descripcion ontologica del rol de coordinacion e identidad nuclear de athena",
+      "gold": "athena_oec_identidad",
+      "path_expected": "hermes_optimizacion_completada_20260615 -> sync_incremental_implementation -> athena_oec_identidad",
+      "rank_m0": 2,
+      "rank_m1": 2,
+      "rank_m2": 2,
+      "rescue_category_m2": "C (Propagación 1-Hop)"
+    },
+    {
+      "id": "COMP_20",
+      "query": "organizacion y arbol genealogico del conjunto de agentes activos en la familia oec",
+      "gold": "oec_familia_actual",
+      "path_expected": "hermes_optimizacion_completada_20260615 -> sync_incremental_implementation -> oec_familia_actual",
+      "rank_m0": 5,
+      "rank_m1": 13,
+      "rank_m2": 3,
+      "rescue_category_m2": "C (Propagación 1-Hop)"
+    }
+  ]
+}

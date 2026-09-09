@@ -1,0 +1,68 @@
+[
+  {
+    "id": "RULE_BENCHMARK_EVAL",
+    "name": "EVALUACION_Y_BENCHMARK_COMPARATIVO",
+    "intent": "Buscar mediciones de rendimiento, métricas antes/después o benchmarks comparativos",
+    "triggers": [
+      "benchmark", "rendimiento", "medicion", "medición", "metrica", "métrica",
+      "ms", "promedio", "velocidad", "rapidez", "mejor", "comparativa", "evaluacion", "evaluación", "despues", "después", "antes"
+    ],
+    "min_trigger_matches": 2,
+    "sql_filter": "concepto LIKE '%benchmark%' OR concepto LIKE '%metrica%' OR concepto LIKE '%evaluacion%' OR contenido LIKE '%Benchmark%' OR contenido LIKE '%promedio%ms%'"
+  },
+  {
+    "id": "RULE_PROTOCOLO_REGULACION",
+    "name": "NORMA_Y_PROTOCOLO_ACCION",
+    "intent": "Buscar normas obligatorias, reglas de procedimiento o protocolos de interacción",
+    "triggers": [
+      "debo", "obligatorio", "obligatoria", "regla", "norma", "protocolo",
+      "paso", "pasos", "preaccion", "preacción", "antes_de", "procedimiento", "instruccion", "instrucción", "mandatorio", "mandatoria"
+    ],
+    "min_trigger_matches": 2,
+    "sql_filter": "concepto LIKE '%protocolo%' OR concepto LIKE '%regla%' OR concepto LIKE '%norma%' OR concepto LIKE '%identificacion%' OR contenido LIKE '%REGLA%' OR contenido LIKE '%PROTOCOLO%'"
+  },
+  {
+    "id": "RULE_CHANGELOG_BUGFIX",
+    "name": "REGISTRO_TECNICO_Y_BUGFIX",
+    "intent": "Buscar documentación de cambios técnicos, fixes de arquitectura o resolución de bugs",
+    "triggers": [
+      "fix", "bug", "parche", "corregido", "detalle", "tecnico", "técnico",
+      "arquitectura", "changelog", "archivos", "persistencia", "disco", "version", "versión", "insert", "tabla", "columna"
+    ],
+    "min_trigger_matches": 2,
+    "sql_filter": "concepto LIKE '%fix%' OR concepto LIKE '%detalle_tecnico%' OR concepto LIKE '%changelog%' OR concepto LIKE '%v%_0%' OR concepto LIKE '%v%_1%' OR contenido LIKE '%Fix%' OR contenido LIKE '%Detalle técnico%'"
+  },
+  {
+    "id": "RULE_FILOSOFIA_MENTALIDAD",
+    "name": "FILOSOFIA_Y_PRINCIPIO_MENTALIDAD",
+    "intent": "Buscar principios rectores, guías de pensamiento, mentalidad de uso o lecciones conceptuales",
+    "triggers": [
+      "pensar", "mentalidad", "filosofia", "filosofía", "principio", "leccion",
+      "lección", "como_pensar", "enfoque", "razonamiento", "modo", "vision", "visión", "uso", "resultado", "despues", "después"
+    ],
+    "min_trigger_matches": 2,
+    "sql_filter": "concepto LIKE '%mentalidad%' OR concepto LIKE '%principio%' OR concepto LIKE '%filosofia%' OR concepto LIKE '%leccion%' OR contenido LIKE '%CÓMO PENSAR%' OR contenido LIKE '%PRINCIPIO CENTRAL%'"
+  },
+  {
+    "id": "RULE_IDENTIDAD_CREADOR",
+    "name": "IDENTIDAD_Y_PERFIL_ORIGEN",
+    "intent": "Buscar definiciones ontológicas, perfil, identidad profunda o biografía del creador/agente",
+    "triggers": [
+      "identidad", "creador", "perfil", "esencia", "real", "alma", "historia",
+      "origen", "autentico", "auténtica", "filosofia_vida", "quien_es", "sistemas"
+    ],
+    "min_trigger_matches": 2,
+    "sql_filter": "concepto LIKE '%identidad%' OR concepto LIKE '%perfil%' OR concepto LIKE '%dennys%' OR contenido LIKE '%identidad real%' OR contenido LIKE '%Senior Frontend%'"
+  },
+  {
+    "id": "RULE_INTEGRACION_SYNC",
+    "name": "PROYECTO_SYNC_INTEGRACION_EXTERNA",
+    "intent": "Buscar proyectos o especificaciones de sincronización e integración con herramientas externas",
+    "triggers": [
+      "sync", "postsync", "sincronizacion", "sincronización", "notebooklm",
+      "externo", "externa", "integracion", "integración", "exportar", "puente", "lecciones", "datos"
+    ],
+    "min_trigger_matches": 2,
+    "sql_filter": "concepto LIKE '%sync%' OR concepto LIKE '%notebooklm%' OR contenido LIKE '%NOTEBOOKLM SYNC%' OR contenido LIKE '%sincronizacion%'"
+  }
+]

@@ -1,0 +1,165 @@
+{
+  "timestamp": "2026-09-09T01:23:53Z",
+  "experiment": "FASE 2.1: Auditoría Causal Rigurosa de Aprendizaje Episódico",
+  "hashes": {
+    "db_snapshot": "676827f6b4abc3acaee10b14e273c3c50cae5b2c180593dedcd58048265a2800"
+  },
+  "aggregate": {
+    "total_cases": 5,
+    "episode_generated_candidate_count": 1,
+    "episode_rerank_only_count": 2,
+    "no_episode_activation_count": 2,
+    "false_positive_count": 0
+  },
+  "cases": [
+    {
+      "case_id": "CASE_01",
+      "gold": "scoring_pesos_bm25",
+      "stimulus_a": "coeficientes multiplicativos de ponderacion",
+      "query_b": "calibrar ajuste escalar para combinar relevancia heterogenea",
+      "stem_overlap_a_b": [],
+      "literal_overlap_a_b": [],
+      "operator_overlap_a_b": [],
+      "transfer_type": "NOT_TRANSFERRED",
+      "m0_pool_size": 135,
+      "gold_in_m0_pool": true,
+      "rank_m0": 64,
+      "episode_activated": false,
+      "activation_type": "NONE",
+      "gold_added_by_episode": false,
+      "gold_in_m2_pool": true,
+      "episode_was_necessary": false,
+      "rank_m2_nobonus": 64,
+      "rank_m2_bonus": 64,
+      "delta_rank_bonus": 0,
+      "c1_path_used": true,
+      "synonym_path_used": false,
+      "association_path_used": false,
+      "verdict": "NO_EPISODE_ACTIVATION"
+    },
+    {
+      "case_id": "CASE_02",
+      "gold": "desde_athena_biorag",
+      "stimulus_a": "aristas estocasticas de vinculacion",
+      "query_b": "construir enlaces probabilistas de fusion de subgrafos",
+      "stem_overlap_a_b": [],
+      "literal_overlap_a_b": [],
+      "operator_overlap_a_b": [
+        "LINK"
+      ],
+      "transfer_type": "LEXICAL_ZERO_STRUCTURAL_CUE",
+      "m0_pool_size": 235,
+      "gold_in_m0_pool": true,
+      "rank_m0": 68,
+      "episode_activated": true,
+      "activation_type": "OPERATOR_STRUCTURAL_CUE",
+      "gold_added_by_episode": false,
+      "gold_in_m2_pool": true,
+      "episode_was_necessary": false,
+      "rank_m2_nobonus": 68,
+      "rank_m2_bonus": 1,
+      "delta_rank_bonus": 67,
+      "c1_path_used": true,
+      "synonym_path_used": false,
+      "association_path_used": false,
+      "verdict": "EPISODE_RERANK_ONLY"
+    },
+    {
+      "case_id": "CASE_03",
+      "gold": "docker_infrastructure_rog",
+      "stimulus_a": "separacion en contenedores de computo",
+      "query_b": "segmentacion de recursos de hardware en hilos de cpu",
+      "stem_overlap_a_b": [],
+      "literal_overlap_a_b": [],
+      "operator_overlap_a_b": [
+        "SEPARATE"
+      ],
+      "transfer_type": "LEXICAL_ZERO_STRUCTURAL_CUE",
+      "m0_pool_size": 22,
+      "gold_in_m0_pool": false,
+      "rank_m0": null,
+      "episode_activated": true,
+      "activation_type": "OPERATOR_STRUCTURAL_CUE",
+      "gold_added_by_episode": true,
+      "gold_in_m2_pool": true,
+      "episode_was_necessary": true,
+      "rank_m2_nobonus": 4,
+      "rank_m2_bonus": 1,
+      "delta_rank_bonus": 0,
+      "c1_path_used": false,
+      "synonym_path_used": false,
+      "association_path_used": false,
+      "verdict": "EPISODE_GENERATED_CANDIDATE"
+    },
+    {
+      "case_id": "CASE_04",
+      "gold": "coche_puente_condicional",
+      "stimulus_a": "evaluador de pasarela situacional",
+      "query_b": "diagnostico de compuerta de transicion contextual",
+      "stem_overlap_a_b": [],
+      "literal_overlap_a_b": [],
+      "operator_overlap_a_b": [],
+      "transfer_type": "NOT_TRANSFERRED",
+      "m0_pool_size": 265,
+      "gold_in_m0_pool": true,
+      "rank_m0": 24,
+      "episode_activated": false,
+      "activation_type": "NONE",
+      "gold_added_by_episode": false,
+      "gold_in_m2_pool": true,
+      "episode_was_necessary": false,
+      "rank_m2_nobonus": 24,
+      "rank_m2_bonus": 24,
+      "delta_rank_bonus": 0,
+      "c1_path_used": true,
+      "synonym_path_used": false,
+      "association_path_used": false,
+      "verdict": "NO_EPISODE_ACTIVATION"
+    },
+    {
+      "case_id": "CASE_05",
+      "gold": "activos_dormidos_hermana",
+      "stimulus_a": "modificacion de elementos obsoletos",
+      "query_b": "actualizacion de registros caducos en estado de letargo",
+      "stem_overlap_a_b": [],
+      "literal_overlap_a_b": [],
+      "operator_overlap_a_b": [
+        "MODIFY"
+      ],
+      "transfer_type": "LEXICAL_ZERO_STRUCTURAL_CUE",
+      "m0_pool_size": 248,
+      "gold_in_m0_pool": true,
+      "rank_m0": 33,
+      "episode_activated": true,
+      "activation_type": "OPERATOR_STRUCTURAL_CUE",
+      "gold_added_by_episode": false,
+      "gold_in_m2_pool": true,
+      "episode_was_necessary": false,
+      "rank_m2_nobonus": 33,
+      "rank_m2_bonus": 1,
+      "delta_rank_bonus": 32,
+      "c1_path_used": true,
+      "synonym_path_used": false,
+      "association_path_used": false,
+      "verdict": "EPISODE_RERANK_ONLY"
+    }
+  ],
+  "negative_controls": [
+    {
+      "id": "NEG_01",
+      "query": "receta culinaria de cocina mediterranea con aceite de oliva",
+      "episodes_activated": 0,
+      "false_positive": false
+    },
+    {
+      "id": "NEG_02",
+      "query": "mantenimiento preventivo de vehiculos hibridos y cambio de frenos",
+      "episodes_activated": 0,
+      "false_positive": false
+    }
+  ],
+  "leakage_audit": {
+    "total_flags": 0,
+    "gold_dependent_flags": 0
+  }
+}

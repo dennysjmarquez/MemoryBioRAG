@@ -1,0 +1,1993 @@
+{
+  "timestamp": "2026-09-08T16:25:27Z",
+  "experiment": "EXP-N1: Forensic Audit of SCG-v0.1 on A0-DEV",
+  "hashes": {
+    "db_snapshot": "676827f6b4abc3acaee10b14e273c3c50cae5b2c180593dedcd58048265a2800",
+    "labels": "325ead99c5a8eea63e8e92f10dae85e7f6ef7f858f18dd8e735b011bea56aa2f"
+  },
+  "cases": [
+    {
+      "case_id": "OOF_POS_11",
+      "is_strict_a0": true,
+      "query": "particionar capacidad de computo en doce nucleos virtuales con tope en gigas",
+      "gold": "docker_infrastructure_rog",
+      "gold_metadata": {
+        "exists": true,
+        "estado": "activo",
+        "categoria": 3,
+        "degree": 1,
+        "action_dims": [
+          "accion_persistencia_computacion"
+        ],
+        "all_dims": [
+          "accion:accion_persistencia_computacion",
+          "cualidad:cualidad_dimension_fisica",
+          "dominio:auto_txt_dennys_oec",
+          "dominio:dominio_tecnico",
+          "intencion:intencion_documentar"
+        ],
+        "synonyms": [
+          "desktop",
+          "docker",
+          "g731gt",
+          "linux",
+          "ram",
+          "rog"
+        ]
+      },
+      "structural_parse": {
+        "raw_tokens": [
+          "capacidad",
+          "computo",
+          "doce",
+          "gigas",
+          "nucleos",
+          "particionar",
+          "tope",
+          "virtuales"
+        ],
+        "operations": [
+          "SEPARATE"
+        ],
+        "relations": [],
+        "properties": [
+          "COMPUTATIONAL",
+          "HIERARCHICAL"
+        ],
+        "modality": "DECLARATIVE",
+        "polarity": 1,
+        "confidence": 0.4,
+        "missing": [
+          "RELATION (ninguna relación detectada; composición mono-operacional)"
+        ]
+      },
+      "hypotheses_generated": [
+        {
+          "name": "H1_FULL(SEPARATE++COMPUTATIONAL⊕HIERARCHICAL)",
+          "ops_req": [
+            "SEPARATE"
+          ],
+          "rels_req": [],
+          "props_req": [
+            "COMPUTATIONAL",
+            "HIERARCHICAL"
+          ],
+          "db_dim_req": [
+            "accion_persistencia_computacion"
+          ],
+          "score_base": 3.0
+        },
+        {
+          "name": "H2_OPS(SEPARATE+COMPUTATIONAL⊕HIERARCHICAL)",
+          "ops_req": [
+            "SEPARATE"
+          ],
+          "rels_req": [],
+          "props_req": [
+            "COMPUTATIONAL",
+            "HIERARCHICAL"
+          ],
+          "db_dim_req": [
+            "accion_persistencia_computacion"
+          ],
+          "score_base": 2.5
+        },
+        {
+          "name": "H4_OP_PROP(SEPARATE×COMPUTATIONAL+HIERARCHICAL)",
+          "ops_req": [
+            "SEPARATE"
+          ],
+          "rels_req": [],
+          "props_req": [
+            "COMPUTATIONAL",
+            "HIERARCHICAL"
+          ],
+          "db_dim_req": [
+            "accion_persistencia_computacion"
+          ],
+          "score_base": 1.5
+        }
+      ],
+      "generation_metrics": {
+        "pool_size": 358,
+        "pool_pct_corpus": 42.1,
+        "gold_in_pool": true,
+        "gold_compat_score": 3.8,
+        "gold_best_hypothesis": "H1_FULL(SEPARATE++COMPUTATIONAL⊕HIERARCHICAL)",
+        "gold_trails": [
+          "ACTION_DIM_MATCH(1.00): frozenset({'accion_persistencia_computacion'})",
+          "PROP_MATCH(COMPUTATIONAL): {'accion_persistencia_computacion'}",
+          "PROP_MISS(HIERARCHICAL)"
+        ],
+        "gold_rank": null
+      },
+      "hypothesis_admission_breakdown": {
+        "H1_FULL(SEPARATE++COMPUTATIONAL⊕HIERARCHICAL)": 358
+      },
+      "lexical_audit": {
+        "lexical_dependency": false,
+        "direct_title_overlap": [],
+        "synonym_overlap": [],
+        "prefix_stem_overlap": [],
+        "content_overlap_tokens_count": 0,
+        "category_overlap": [],
+        "is_strict_a0": true
+      },
+      "top20_non_gold_sample": [
+        {
+          "rank": 1,
+          "node": "analisis_escalabilidad_10k_v5_1",
+          "is_gold": false,
+          "score_final": 4.9,
+          "score_compatibilidad": 4.6,
+          "mejor_hipotesis": "H1_FULL(SEPARATE++COMPUTATIONAL⊕HIERARCHICAL)",
+          "dims_sample": [
+            "accion:accion_evaluar",
+            "accion:accion_persistencia_computacion",
+            "cualidad:cualidad_abstracta_conceptual",
+            "cualidad:cualidad_dimension_fisica"
+          ],
+          "trails": [
+            "ACTION_DIM_MATCH(1.00): frozenset({'accion_persistencia_computacion'})",
+            "PROP_MATCH(COMPUTATIONAL): {'accion_persistencia_computacion'}",
+            "PROP_MATCH(HIERARCHICAL): {'accion_evaluar'}"
+          ]
+        },
+        {
+          "rank": 2,
+          "node": "athena_arquitectura_memoria_agente_v24_2",
+          "is_gold": false,
+          "score_final": 4.9,
+          "score_compatibilidad": 4.6,
+          "mejor_hipotesis": "H1_FULL(SEPARATE++COMPUTATIONAL⊕HIERARCHICAL)",
+          "dims_sample": [
+            "accion:accion_cognitiva",
+            "accion:accion_evaluar",
+            "accion:accion_persistencia_computacion",
+            "accion:accion_rutina_automatica"
+          ],
+          "trails": [
+            "ACTION_DIM_MATCH(1.00): frozenset({'accion_persistencia_computacion'})",
+            "PROP_MATCH(COMPUTATIONAL): {'accion_persistencia_computacion'}",
+            "PROP_MATCH(HIERARCHICAL): {'accion_evaluar'}"
+          ]
+        },
+        {
+          "rank": 3,
+          "node": "athena_leccion_auditoria_bugs_cuarentena_y_ltd",
+          "is_gold": false,
+          "score_final": 4.9,
+          "score_compatibilidad": 4.6,
+          "mejor_hipotesis": "H1_FULL(SEPARATE++COMPUTATIONAL⊕HIERARCHICAL)",
+          "dims_sample": [
+            "accion:accion_cognitiva",
+            "accion:accion_evaluar",
+            "accion:accion_fallar",
+            "accion:accion_persistencia_computacion"
+          ],
+          "trails": [
+            "ACTION_DIM_MATCH(1.00): frozenset({'accion_persistencia_computacion'})",
+            "PROP_MATCH(COMPUTATIONAL): {'accion_persistencia_computacion'}",
+            "PROP_MATCH(HIERARCHICAL): {'accion_evaluar'}"
+          ]
+        },
+        {
+          "rank": 4,
+          "node": "auditoria_entrega_claude_ppmi_v2_suave_ctx_20260808",
+          "is_gold": false,
+          "score_final": 4.9,
+          "score_compatibilidad": 4.6,
+          "mejor_hipotesis": "H1_FULL(SEPARATE++COMPUTATIONAL⊕HIERARCHICAL)",
+          "dims_sample": [
+            "accion:accion_cognitiva",
+            "accion:accion_evaluar",
+            "accion:accion_persistencia_computacion",
+            "centralidad_identitaria:relevante_contextual"
+          ],
+          "trails": [
+            "ACTION_DIM_MATCH(1.00): frozenset({'accion_persistencia_computacion'})",
+            "PROP_MATCH(COMPUTATIONAL): {'accion_persistencia_computacion'}",
+            "PROP_MATCH(HIERARCHICAL): {'accion_evaluar'}"
+          ]
+        },
+        {
+          "rank": 5,
+          "node": "auditoria_tecnica_v14_0_readme",
+          "is_gold": false,
+          "score_final": 4.9,
+          "score_compatibilidad": 4.6,
+          "mejor_hipotesis": "H1_FULL(SEPARATE++COMPUTATIONAL⊕HIERARCHICAL)",
+          "dims_sample": [
+            "accion:accion_evaluar",
+            "accion:accion_persistencia_computacion",
+            "dominio:dominio_tecnico",
+            "entidad:identidad_concepto"
+          ],
+          "trails": [
+            "ACTION_DIM_MATCH(1.00): frozenset({'accion_persistencia_computacion'})",
+            "PROP_MATCH(COMPUTATIONAL): {'accion_persistencia_computacion'}",
+            "PROP_MATCH(HIERARCHICAL): {'accion_evaluar'}"
+          ]
+        }
+      ]
+    },
+    {
+      "case_id": "OOF_POS_19",
+      "is_strict_a0": true,
+      "query": "calibrar coeficientes multiplicativos para combinar valores de relevancia heterogeneos",
+      "gold": "scoring_pesos_bm25",
+      "gold_metadata": {
+        "exists": true,
+        "estado": "activo",
+        "categoria": 11,
+        "degree": 27,
+        "action_dims": [],
+        "all_dims": [],
+        "synonyms": [
+          "bm25",
+          "hibrida",
+          "hibrido",
+          "ponderacion",
+          "scoring"
+        ]
+      },
+      "structural_parse": {
+        "raw_tokens": [
+          "calibrar",
+          "coeficientes",
+          "combinar",
+          "heterogeneos",
+          "multiplicativos",
+          "relevancia",
+          "valores"
+        ],
+        "operations": [
+          "COMBINE",
+          "MODIFY"
+        ],
+        "relations": [
+          "PURPOSE_OF"
+        ],
+        "properties": [
+          "DIMENSIONAL",
+          "METRIC"
+        ],
+        "modality": "DECLARATIVE",
+        "polarity": 1,
+        "confidence": 0.775,
+        "missing": []
+      },
+      "hypotheses_generated": [
+        {
+          "name": "H1_FULL(COMBINE⊕MODIFY+PURPOSE_OF+DIMENSIONAL⊕METRIC)",
+          "ops_req": [
+            "COMBINE",
+            "MODIFY"
+          ],
+          "rels_req": [
+            "PURPOSE_OF"
+          ],
+          "props_req": [
+            "DIMENSIONAL",
+            "METRIC"
+          ],
+          "db_dim_req": [
+            "accion_cognitiva",
+            "accion_evaluar",
+            "accion_persistencia_computacion"
+          ],
+          "score_base": 3.0
+        },
+        {
+          "name": "H2_OPS(COMBINE⊕MODIFY+DIMENSIONAL⊕METRIC)",
+          "ops_req": [
+            "COMBINE",
+            "MODIFY"
+          ],
+          "rels_req": [],
+          "props_req": [
+            "DIMENSIONAL",
+            "METRIC"
+          ],
+          "db_dim_req": [
+            "accion_cognitiva",
+            "accion_evaluar",
+            "accion_persistencia_computacion"
+          ],
+          "score_base": 2.5
+        },
+        {
+          "name": "H3_PAIR(COMBINE⊕MODIFY)",
+          "ops_req": [
+            "COMBINE",
+            "MODIFY"
+          ],
+          "rels_req": [],
+          "props_req": [],
+          "db_dim_req": [
+            "accion_cognitiva",
+            "accion_evaluar",
+            "accion_persistencia_computacion"
+          ],
+          "score_base": 2.0
+        },
+        {
+          "name": "H4_OP_PROP(COMBINE×DIMENSIONAL+METRIC)",
+          "ops_req": [
+            "COMBINE"
+          ],
+          "rels_req": [],
+          "props_req": [
+            "DIMENSIONAL",
+            "METRIC"
+          ],
+          "db_dim_req": [
+            "accion_cognitiva",
+            "accion_persistencia_computacion"
+          ],
+          "score_base": 1.5
+        }
+      ],
+      "generation_metrics": {
+        "pool_size": 377,
+        "pool_pct_corpus": 44.3,
+        "gold_in_pool": false,
+        "gold_compat_score": 0.0,
+        "gold_best_hypothesis": null,
+        "gold_trails": [],
+        "gold_rank": null
+      },
+      "hypothesis_admission_breakdown": {
+        "H1_FULL(COMBINE⊕MODIFY+PURPOSE_OF+DIMENSIONAL⊕METRIC)": 377
+      },
+      "lexical_audit": {
+        "lexical_dependency": false,
+        "direct_title_overlap": [],
+        "synonym_overlap": [],
+        "prefix_stem_overlap": [],
+        "content_overlap_tokens_count": 0,
+        "category_overlap": [],
+        "is_strict_a0": true
+      },
+      "top20_non_gold_sample": [
+        {
+          "rank": 1,
+          "node": "athena_arquitectura_memoria_agente_v24_2",
+          "is_gold": false,
+          "score_final": 5.8,
+          "score_compatibilidad": 4.6,
+          "mejor_hipotesis": "H1_FULL(COMBINE⊕MODIFY+PURPOSE_OF+DIMENSIONAL⊕METRIC)",
+          "dims_sample": [
+            "accion:accion_cognitiva",
+            "accion:accion_evaluar",
+            "accion:accion_persistencia_computacion",
+            "accion:accion_rutina_automatica"
+          ],
+          "trails": [
+            "ACTION_DIM_MATCH(1.00): frozenset({'accion_evaluar', 'accion_persistencia_computacion', 'accion_cognitiva'})",
+            "PROP_MATCH(DIMENSIONAL): {'accion_evaluar', 'cualidad_abstracta_conceptual'}",
+            "PROP_MATCH(METRIC): {'accion_evaluar'}"
+          ]
+        },
+        {
+          "rank": 2,
+          "node": "athena_leccion_auditoria_bugs_cuarentena_y_ltd",
+          "is_gold": false,
+          "score_final": 5.8,
+          "score_compatibilidad": 4.6,
+          "mejor_hipotesis": "H1_FULL(COMBINE⊕MODIFY+PURPOSE_OF+DIMENSIONAL⊕METRIC)",
+          "dims_sample": [
+            "accion:accion_cognitiva",
+            "accion:accion_evaluar",
+            "accion:accion_fallar",
+            "accion:accion_persistencia_computacion"
+          ],
+          "trails": [
+            "ACTION_DIM_MATCH(1.00): frozenset({'accion_evaluar', 'accion_persistencia_computacion', 'accion_cognitiva'})",
+            "PROP_MATCH(DIMENSIONAL): {'accion_evaluar', 'cualidad_abstracta_conceptual'}",
+            "PROP_MATCH(METRIC): {'accion_evaluar'}"
+          ]
+        },
+        {
+          "rank": 3,
+          "node": "auditoria_entrega_claude_ppmi_v2_suave_ctx_20260808",
+          "is_gold": false,
+          "score_final": 5.8,
+          "score_compatibilidad": 4.6,
+          "mejor_hipotesis": "H1_FULL(COMBINE⊕MODIFY+PURPOSE_OF+DIMENSIONAL⊕METRIC)",
+          "dims_sample": [
+            "accion:accion_cognitiva",
+            "accion:accion_evaluar",
+            "accion:accion_persistencia_computacion",
+            "centralidad_identitaria:relevante_contextual"
+          ],
+          "trails": [
+            "ACTION_DIM_MATCH(1.00): frozenset({'accion_evaluar', 'accion_persistencia_computacion', 'accion_cognitiva'})",
+            "PROP_MATCH(DIMENSIONAL): {'accion_evaluar', 'cualidad_abstracta_conceptual'}",
+            "PROP_MATCH(METRIC): {'accion_evaluar'}"
+          ]
+        },
+        {
+          "rank": 4,
+          "node": "biorag_v14_0_estado",
+          "is_gold": false,
+          "score_final": 5.8,
+          "score_compatibilidad": 4.6,
+          "mejor_hipotesis": "H1_FULL(COMBINE⊕MODIFY+PURPOSE_OF+DIMENSIONAL⊕METRIC)",
+          "dims_sample": [
+            "accion:accion_cognitiva",
+            "accion:accion_evaluar",
+            "accion:accion_persistencia_computacion",
+            "coordenada:coordenada_cronologia_absoluta"
+          ],
+          "trails": [
+            "ACTION_DIM_MATCH(1.00): frozenset({'accion_evaluar', 'accion_persistencia_computacion', 'accion_cognitiva'})",
+            "PROP_MATCH(DIMENSIONAL): {'accion_evaluar', 'cualidad_abstracta_conceptual'}",
+            "PROP_MATCH(METRIC): {'accion_evaluar'}"
+          ]
+        },
+        {
+          "rank": 5,
+          "node": "decision_diseno_actualizar_nodo_canonico_no_reordenar_por_recencia",
+          "is_gold": false,
+          "score_final": 5.8,
+          "score_compatibilidad": 4.6,
+          "mejor_hipotesis": "H1_FULL(COMBINE⊕MODIFY+PURPOSE_OF+DIMENSIONAL⊕METRIC)",
+          "dims_sample": [
+            "accion:accion_cognitiva",
+            "accion:accion_evaluar",
+            "accion:accion_persistencia_computacion",
+            "centralidad_identitaria:relevante_contextual"
+          ],
+          "trails": [
+            "ACTION_DIM_MATCH(1.00): frozenset({'accion_evaluar', 'accion_persistencia_computacion', 'accion_cognitiva'})",
+            "PROP_MATCH(DIMENSIONAL): {'accion_evaluar', 'cualidad_abstracta_conceptual'}",
+            "PROP_MATCH(METRIC): {'accion_evaluar'}"
+          ]
+        }
+      ]
+    },
+    {
+      "case_id": "OOF_POS_21",
+      "is_strict_a0": true,
+      "query": "entrelazamiento hiperdimensional binario proyectado a traves de pasarela situacional",
+      "gold": "coche_puente_condicional",
+      "gold_metadata": {
+        "exists": true,
+        "estado": "activo",
+        "categoria": 11,
+        "degree": 45,
+        "action_dims": [],
+        "all_dims": [],
+        "synonyms": [
+          "condicional",
+          "distribucional",
+          "hdc",
+          "puente"
+        ]
+      },
+      "structural_parse": {
+        "raw_tokens": [
+          "binario",
+          "entrelazamiento",
+          "hiperdimensional",
+          "pasarela",
+          "proyectado",
+          "situacional",
+          "traves"
+        ],
+        "operations": [
+          "LINK",
+          "TRANSFORM"
+        ],
+        "relations": [],
+        "properties": [
+          "COGNITIVE"
+        ],
+        "modality": "DECLARATIVE",
+        "polarity": 1,
+        "confidence": 0.575,
+        "missing": [
+          "RELATION (ninguna relación detectada; composición mono-operacional)"
+        ]
+      },
+      "hypotheses_generated": [
+        {
+          "name": "H1_FULL(LINK⊕TRANSFORM++COGNITIVE)",
+          "ops_req": [
+            "LINK",
+            "TRANSFORM"
+          ],
+          "rels_req": [],
+          "props_req": [
+            "COGNITIVE"
+          ],
+          "db_dim_req": [
+            "accion_cognitiva"
+          ],
+          "score_base": 3.0
+        },
+        {
+          "name": "H2_OPS(LINK⊕TRANSFORM+COGNITIVE)",
+          "ops_req": [
+            "LINK",
+            "TRANSFORM"
+          ],
+          "rels_req": [],
+          "props_req": [
+            "COGNITIVE"
+          ],
+          "db_dim_req": [
+            "accion_cognitiva"
+          ],
+          "score_base": 2.5
+        },
+        {
+          "name": "H3_PAIR(LINK⊕TRANSFORM)",
+          "ops_req": [
+            "LINK",
+            "TRANSFORM"
+          ],
+          "rels_req": [],
+          "props_req": [],
+          "db_dim_req": [
+            "accion_cognitiva"
+          ],
+          "score_base": 2.0
+        },
+        {
+          "name": "H4_OP_PROP(LINK×COGNITIVE)",
+          "ops_req": [
+            "LINK"
+          ],
+          "rels_req": [],
+          "props_req": [
+            "COGNITIVE"
+          ],
+          "db_dim_req": [
+            "accion_cognitiva"
+          ],
+          "score_base": 1.5
+        }
+      ],
+      "generation_metrics": {
+        "pool_size": 229,
+        "pool_pct_corpus": 26.9,
+        "gold_in_pool": false,
+        "gold_compat_score": 0.0,
+        "gold_best_hypothesis": null,
+        "gold_trails": [],
+        "gold_rank": null
+      },
+      "hypothesis_admission_breakdown": {
+        "H1_FULL(LINK⊕TRANSFORM++COGNITIVE)": 229
+      },
+      "lexical_audit": {
+        "lexical_dependency": false,
+        "direct_title_overlap": [],
+        "synonym_overlap": [],
+        "prefix_stem_overlap": [],
+        "content_overlap_tokens_count": 0,
+        "category_overlap": [],
+        "is_strict_a0": true
+      },
+      "top20_non_gold_sample": [
+        {
+          "rank": 1,
+          "node": "21st_dev_registro_componentes_react_recurso_diseno",
+          "is_gold": false,
+          "score_final": 4.4,
+          "score_compatibilidad": 3.8,
+          "mejor_hipotesis": "H1_FULL(LINK⊕TRANSFORM++COGNITIVE)",
+          "dims_sample": [
+            "accion:accion_cognitiva",
+            "accion:accion_comunicacion",
+            "accion:accion_persistencia_computacion",
+            "centralidad_identitaria:relevante_contextual"
+          ],
+          "trails": [
+            "ACTION_DIM_MATCH(1.00): frozenset({'accion_cognitiva'})",
+            "PROP_MATCH(COGNITIVE): {'accion_cognitiva'}",
+            "ACTION_DIM_MATCH(1.00): frozenset({'accion_cognitiva'})"
+          ]
+        },
+        {
+          "rank": 2,
+          "node": "aciertos_word2vec_top5_coincidencia_lexica_no_semantica_20260808",
+          "is_gold": false,
+          "score_final": 4.4,
+          "score_compatibilidad": 3.8,
+          "mejor_hipotesis": "H1_FULL(LINK⊕TRANSFORM++COGNITIVE)",
+          "dims_sample": [
+            "accion:accion_cognitiva",
+            "accion:accion_evaluar",
+            "centralidad_identitaria:relevante_contextual",
+            "coordenada:coordenada_cronologia_absoluta"
+          ],
+          "trails": [
+            "ACTION_DIM_MATCH(1.00): frozenset({'accion_cognitiva'})",
+            "PROP_MATCH(COGNITIVE): {'accion_cognitiva', 'identidad_artificial'}",
+            "ACTION_DIM_MATCH(1.00): frozenset({'accion_cognitiva'})"
+          ]
+        },
+        {
+          "rank": 3,
+          "node": "activos_dormidos_hermana",
+          "is_gold": false,
+          "score_final": 4.4,
+          "score_compatibilidad": 3.8,
+          "mejor_hipotesis": "H1_FULL(LINK⊕TRANSFORM++COGNITIVE)",
+          "dims_sample": [
+            "accion:accion_cognitiva",
+            "accion:accion_comunicacion",
+            "accion:accion_evaluar",
+            "dominio:auto_txt_dennys_oec"
+          ],
+          "trails": [
+            "ACTION_DIM_MATCH(1.00): frozenset({'accion_cognitiva'})",
+            "PROP_MATCH(COGNITIVE): {'accion_cognitiva', 'identidad_artificial'}",
+            "ACTION_DIM_MATCH(1.00): frozenset({'accion_cognitiva'})"
+          ]
+        },
+        {
+          "rank": 4,
+          "node": "aforismo_criterio_agente",
+          "is_gold": false,
+          "score_final": 4.4,
+          "score_compatibilidad": 3.8,
+          "mejor_hipotesis": "H1_FULL(LINK⊕TRANSFORM++COGNITIVE)",
+          "dims_sample": [
+            "accion:accion_cognitiva",
+            "accion:accion_evaluar",
+            "cualidad:cualidad_abstracta_conceptual",
+            "dominio:auto_txt_dennys_oec"
+          ],
+          "trails": [
+            "ACTION_DIM_MATCH(1.00): frozenset({'accion_cognitiva'})",
+            "PROP_MATCH(COGNITIVE): {'accion_cognitiva', 'identidad_artificial'}",
+            "ACTION_DIM_MATCH(1.00): frozenset({'accion_cognitiva'})"
+          ]
+        },
+        {
+          "rank": 5,
+          "node": "agente_usabilidad_mcp_biorag_feedback",
+          "is_gold": false,
+          "score_final": 4.4,
+          "score_compatibilidad": 3.8,
+          "mejor_hipotesis": "H1_FULL(LINK⊕TRANSFORM++COGNITIVE)",
+          "dims_sample": [
+            "accion:accion_cognitiva",
+            "cualidad:cualidad_abstracta_conceptual",
+            "dominio:dominio_profesional",
+            "entidad:identidad_artificial"
+          ],
+          "trails": [
+            "ACTION_DIM_MATCH(1.00): frozenset({'accion_cognitiva'})",
+            "PROP_MATCH(COGNITIVE): {'accion_cognitiva', 'identidad_artificial'}",
+            "ACTION_DIM_MATCH(1.00): frozenset({'accion_cognitiva'})"
+          ]
+        }
+      ]
+    },
+    {
+      "case_id": "OOF_POS_29",
+      "is_strict_a0": true,
+      "query": "generar conexiones estocasticas para consolidar grupos fuertemente entrelazados",
+      "gold": "desde_athena_biorag",
+      "gold_metadata": {
+        "exists": true,
+        "estado": "activo",
+        "categoria": 2,
+        "degree": 28,
+        "action_dims": [
+          "accion_persistencia_computacion",
+          "accion_rutina_automatica"
+        ],
+        "all_dims": [
+          "accion:accion_persistencia_computacion",
+          "accion:accion_rutina_automatica",
+          "dominio:auto_txt_dennys_oec",
+          "dominio:dominio_tecnico",
+          "entidad:identidad_artificial",
+          "intencion:intencion_documentar",
+          "intencion:intencion_solucionar"
+        ],
+        "synonyms": [
+          "auto",
+          "biorag",
+          "linking"
+        ]
+      },
+      "structural_parse": {
+        "raw_tokens": [
+          "conexiones",
+          "consolidar",
+          "entrelazados",
+          "estocasticas",
+          "fuertemente",
+          "generar",
+          "grupos"
+        ],
+        "operations": [
+          "CREATE",
+          "LINK",
+          "PERSIST"
+        ],
+        "relations": [
+          "CAUSES",
+          "PURPOSE_OF"
+        ],
+        "properties": [
+          "STOCHASTIC"
+        ],
+        "modality": "DECLARATIVE",
+        "polarity": 1,
+        "confidence": 1.0,
+        "missing": []
+      },
+      "hypotheses_generated": [
+        {
+          "name": "H1_FULL(CREATE⊕LINK⊕PERSIST+CAUSES⊕PURPOSE_OF+STOCHASTIC)",
+          "ops_req": [
+            "CREATE",
+            "LINK",
+            "PERSIST"
+          ],
+          "rels_req": [
+            "CAUSES",
+            "PURPOSE_OF"
+          ],
+          "props_req": [
+            "STOCHASTIC"
+          ],
+          "db_dim_req": [
+            "accion_cognitiva",
+            "accion_persistencia_computacion",
+            "accion_rutina_automatica"
+          ],
+          "score_base": 3.0
+        },
+        {
+          "name": "H2_OPS(CREATE⊕LINK⊕PERSIST+STOCHASTIC)",
+          "ops_req": [
+            "CREATE",
+            "LINK",
+            "PERSIST"
+          ],
+          "rels_req": [],
+          "props_req": [
+            "STOCHASTIC"
+          ],
+          "db_dim_req": [
+            "accion_cognitiva",
+            "accion_persistencia_computacion",
+            "accion_rutina_automatica"
+          ],
+          "score_base": 2.5
+        },
+        {
+          "name": "H3_PAIR(CREATE⊕LINK)",
+          "ops_req": [
+            "CREATE",
+            "LINK"
+          ],
+          "rels_req": [],
+          "props_req": [],
+          "db_dim_req": [
+            "accion_cognitiva",
+            "accion_persistencia_computacion",
+            "accion_rutina_automatica"
+          ],
+          "score_base": 2.0
+        },
+        {
+          "name": "H3_PAIR(CREATE⊕PERSIST)",
+          "ops_req": [
+            "CREATE",
+            "PERSIST"
+          ],
+          "rels_req": [],
+          "props_req": [],
+          "db_dim_req": [
+            "accion_persistencia_computacion",
+            "accion_rutina_automatica"
+          ],
+          "score_base": 2.0
+        },
+        {
+          "name": "H3_PAIR(LINK⊕PERSIST)",
+          "ops_req": [
+            "LINK",
+            "PERSIST"
+          ],
+          "rels_req": [],
+          "props_req": [],
+          "db_dim_req": [
+            "accion_cognitiva",
+            "accion_persistencia_computacion"
+          ],
+          "score_base": 2.0
+        },
+        {
+          "name": "H4_OP_PROP(CREATE×STOCHASTIC)",
+          "ops_req": [
+            "CREATE"
+          ],
+          "rels_req": [],
+          "props_req": [
+            "STOCHASTIC"
+          ],
+          "db_dim_req": [
+            "accion_persistencia_computacion",
+            "accion_rutina_automatica"
+          ],
+          "score_base": 1.5
+        }
+      ],
+      "generation_metrics": {
+        "pool_size": 278,
+        "pool_pct_corpus": 32.7,
+        "gold_in_pool": true,
+        "gold_compat_score": 2.8,
+        "gold_best_hypothesis": "H1_FULL(CREATE⊕LINK⊕PERSIST+CAUSES⊕PURPOSE_OF+STOCHASTIC)",
+        "gold_trails": [
+          "ACTION_DIM_MATCH(0.67): frozenset({'accion_persistencia_computacion', 'accion_rutina_automatica'})",
+          "PROP_MATCH(STOCHASTIC): {'accion_rutina_automatica'}"
+        ],
+        "gold_rank": null
+      },
+      "hypothesis_admission_breakdown": {
+        "H1_FULL(CREATE⊕LINK⊕PERSIST+CAUSES⊕PURPOSE_OF+STOCHASTIC)": 278
+      },
+      "lexical_audit": {
+        "lexical_dependency": false,
+        "direct_title_overlap": [],
+        "synonym_overlap": [],
+        "prefix_stem_overlap": [],
+        "content_overlap_tokens_count": 0,
+        "category_overlap": [],
+        "is_strict_a0": true
+      },
+      "top20_non_gold_sample": [
+        {
+          "rank": 1,
+          "node": "athena_arquitectura_memoria_agente_v24_2",
+          "is_gold": false,
+          "score_final": 5.0,
+          "score_compatibilidad": 3.8,
+          "mejor_hipotesis": "H1_FULL(CREATE⊕LINK⊕PERSIST+CAUSES⊕PURPOSE_OF+STOCHASTIC)",
+          "dims_sample": [
+            "accion:accion_cognitiva",
+            "accion:accion_evaluar",
+            "accion:accion_persistencia_computacion",
+            "accion:accion_rutina_automatica"
+          ],
+          "trails": [
+            "ACTION_DIM_MATCH(1.00): frozenset({'accion_persistencia_computacion', 'accion_cognitiva', 'accion_rutina_automatica'})",
+            "PROP_MATCH(STOCHASTIC): {'accion_cognitiva', 'accion_rutina_automatica'}",
+            "ACTION_DIM_MATCH(1.00): frozenset({'accion_persistencia_computacion', 'accion_cognitiva', 'accion_rutina_automatica'})"
+          ]
+        },
+        {
+          "rank": 2,
+          "node": "biorag_v20_0_circuito_cerrado",
+          "is_gold": false,
+          "score_final": 5.0,
+          "score_compatibilidad": 3.8,
+          "mejor_hipotesis": "H1_FULL(CREATE⊕LINK⊕PERSIST+CAUSES⊕PURPOSE_OF+STOCHASTIC)",
+          "dims_sample": [
+            "accion:accion_cognitiva",
+            "accion:accion_persistencia_computacion",
+            "accion:accion_rutina_automatica",
+            "cualidad:cualidad_abstracta_conceptual"
+          ],
+          "trails": [
+            "ACTION_DIM_MATCH(1.00): frozenset({'accion_persistencia_computacion', 'accion_cognitiva', 'accion_rutina_automatica'})",
+            "PROP_MATCH(STOCHASTIC): {'accion_cognitiva', 'accion_rutina_automatica'}",
+            "ACTION_DIM_MATCH(1.00): frozenset({'accion_persistencia_computacion', 'accion_cognitiva', 'accion_rutina_automatica'})"
+          ]
+        },
+        {
+          "rank": 3,
+          "node": "estrategia_entrenamiento_diferido_cuello_de_botella_word2vec_20260808",
+          "is_gold": false,
+          "score_final": 5.0,
+          "score_compatibilidad": 3.8,
+          "mejor_hipotesis": "H1_FULL(CREATE⊕LINK⊕PERSIST+CAUSES⊕PURPOSE_OF+STOCHASTIC)",
+          "dims_sample": [
+            "accion:accion_cognitiva",
+            "accion:accion_persistencia_computacion",
+            "accion:accion_rutina_automatica",
+            "centralidad_identitaria:nucleo_identitario"
+          ],
+          "trails": [
+            "ACTION_DIM_MATCH(1.00): frozenset({'accion_persistencia_computacion', 'accion_cognitiva', 'accion_rutina_automatica'})",
+            "PROP_MATCH(STOCHASTIC): {'accion_cognitiva', 'accion_rutina_automatica'}",
+            "ACTION_DIM_MATCH(1.00): frozenset({'accion_persistencia_computacion', 'accion_cognitiva', 'accion_rutina_automatica'})"
+          ]
+        },
+        {
+          "rank": 4,
+          "node": "plan_feedback_driven_graph_learning_refuerzo_positivo",
+          "is_gold": false,
+          "score_final": 5.0,
+          "score_compatibilidad": 3.8,
+          "mejor_hipotesis": "H1_FULL(CREATE⊕LINK⊕PERSIST+CAUSES⊕PURPOSE_OF+STOCHASTIC)",
+          "dims_sample": [
+            "accion:accion_cognitiva",
+            "accion:accion_evaluar",
+            "accion:accion_persistencia_computacion",
+            "accion:accion_rutina_automatica"
+          ],
+          "trails": [
+            "ACTION_DIM_MATCH(1.00): frozenset({'accion_persistencia_computacion', 'accion_cognitiva', 'accion_rutina_automatica'})",
+            "PROP_MATCH(STOCHASTIC): {'accion_cognitiva', 'accion_rutina_automatica'}",
+            "ACTION_DIM_MATCH(1.00): frozenset({'accion_persistencia_computacion', 'accion_cognitiva', 'accion_rutina_automatica'})"
+          ]
+        },
+        {
+          "rank": 5,
+          "node": "tejedora_fase0_baseline_921_casos",
+          "is_gold": false,
+          "score_final": 5.0,
+          "score_compatibilidad": 3.8,
+          "mejor_hipotesis": "H1_FULL(CREATE⊕LINK⊕PERSIST+CAUSES⊕PURPOSE_OF+STOCHASTIC)",
+          "dims_sample": [
+            "accion:accion_cognitiva",
+            "accion:accion_evaluar",
+            "accion:accion_persistencia_computacion",
+            "accion:accion_rutina_automatica"
+          ],
+          "trails": [
+            "ACTION_DIM_MATCH(1.00): frozenset({'accion_persistencia_computacion', 'accion_cognitiva', 'accion_rutina_automatica'})",
+            "PROP_MATCH(STOCHASTIC): {'accion_cognitiva', 'accion_rutina_automatica'}",
+            "ACTION_DIM_MATCH(1.00): frozenset({'accion_persistencia_computacion', 'accion_cognitiva', 'accion_rutina_automatica'})"
+          ]
+        }
+      ]
+    },
+    {
+      "case_id": "OOF_POS_30",
+      "is_strict_a0": true,
+      "query": "transicion de vigilia a letargo con eliminacion de elementos caducos",
+      "gold": "activos_dormidos_hermana",
+      "gold_metadata": {
+        "exists": true,
+        "estado": "activo",
+        "categoria": 9,
+        "degree": 61,
+        "action_dims": [
+          "accion_cognitiva",
+          "accion_comunicacion",
+          "accion_evaluar"
+        ],
+        "all_dims": [
+          "accion:accion_cognitiva",
+          "accion:accion_comunicacion",
+          "accion:accion_evaluar",
+          "dominio:auto_txt_dennys_oec",
+          "dominio:dominio_espiritual",
+          "dominio:dominio_profesional",
+          "emocion:afecto",
+          "entidad:identidad_artificial",
+          "entidad:identidad_individual",
+          "intencion:intencion_documentar",
+          "intencion:intencion_reflexionar"
+        ],
+        "synonyms": [
+          "athena",
+          "declaracion",
+          "evolucion",
+          "identidad"
+        ]
+      },
+      "structural_parse": {
+        "raw_tokens": [
+          "caducos",
+          "elementos",
+          "eliminacion",
+          "letargo",
+          "transicion",
+          "vigilia"
+        ],
+        "operations": [
+          "DEACTIVATE",
+          "MODIFY",
+          "REMOVE",
+          "TRANSFORM"
+        ],
+        "relations": [],
+        "properties": [
+          "CONNECTIVE",
+          "LIFECYCLE",
+          "TEMPORAL"
+        ],
+        "modality": "DECLARATIVE",
+        "polarity": 1,
+        "confidence": 1.0,
+        "missing": [
+          "RELATION (ninguna relación detectada; composición mono-operacional)"
+        ]
+      },
+      "hypotheses_generated": [
+        {
+          "name": "H1_FULL(DEACTIVATE⊕MODIFY⊕REMOVE⊕TRANSFORM++CONNECTIVE⊕LIFECYCLE⊕TEMPORAL)",
+          "ops_req": [
+            "DEACTIVATE",
+            "MODIFY",
+            "REMOVE",
+            "TRANSFORM"
+          ],
+          "rels_req": [],
+          "props_req": [
+            "CONNECTIVE",
+            "LIFECYCLE",
+            "TEMPORAL"
+          ],
+          "db_dim_req": [
+            "accion_cognitiva",
+            "accion_evaluar",
+            "accion_rutina_automatica"
+          ],
+          "score_base": 3.0
+        },
+        {
+          "name": "H2_OPS(DEACTIVATE⊕MODIFY⊕REMOVE⊕TRANSFORM+CONNECTIVE⊕LIFECYCLE⊕TEMPORAL)",
+          "ops_req": [
+            "DEACTIVATE",
+            "MODIFY",
+            "REMOVE",
+            "TRANSFORM"
+          ],
+          "rels_req": [],
+          "props_req": [
+            "CONNECTIVE",
+            "LIFECYCLE",
+            "TEMPORAL"
+          ],
+          "db_dim_req": [
+            "accion_cognitiva",
+            "accion_evaluar",
+            "accion_rutina_automatica"
+          ],
+          "score_base": 2.5
+        },
+        {
+          "name": "H3_PAIR(DEACTIVATE⊕MODIFY)",
+          "ops_req": [
+            "DEACTIVATE",
+            "MODIFY"
+          ],
+          "rels_req": [],
+          "props_req": [],
+          "db_dim_req": [
+            "accion_cognitiva",
+            "accion_evaluar",
+            "accion_rutina_automatica"
+          ],
+          "score_base": 2.0
+        },
+        {
+          "name": "H3_PAIR(DEACTIVATE⊕REMOVE)",
+          "ops_req": [
+            "DEACTIVATE",
+            "REMOVE"
+          ],
+          "rels_req": [],
+          "props_req": [],
+          "db_dim_req": [
+            "accion_rutina_automatica"
+          ],
+          "score_base": 2.0
+        },
+        {
+          "name": "H3_PAIR(DEACTIVATE⊕TRANSFORM)",
+          "ops_req": [
+            "DEACTIVATE",
+            "TRANSFORM"
+          ],
+          "rels_req": [],
+          "props_req": [],
+          "db_dim_req": [
+            "accion_cognitiva",
+            "accion_rutina_automatica"
+          ],
+          "score_base": 2.0
+        },
+        {
+          "name": "H3_PAIR(MODIFY⊕REMOVE)",
+          "ops_req": [
+            "MODIFY",
+            "REMOVE"
+          ],
+          "rels_req": [],
+          "props_req": [],
+          "db_dim_req": [
+            "accion_cognitiva",
+            "accion_evaluar",
+            "accion_rutina_automatica"
+          ],
+          "score_base": 2.0
+        },
+        {
+          "name": "H3_PAIR(MODIFY⊕TRANSFORM)",
+          "ops_req": [
+            "MODIFY",
+            "TRANSFORM"
+          ],
+          "rels_req": [],
+          "props_req": [],
+          "db_dim_req": [
+            "accion_cognitiva",
+            "accion_evaluar"
+          ],
+          "score_base": 2.0
+        },
+        {
+          "name": "H3_PAIR(REMOVE⊕TRANSFORM)",
+          "ops_req": [
+            "REMOVE",
+            "TRANSFORM"
+          ],
+          "rels_req": [],
+          "props_req": [],
+          "db_dim_req": [
+            "accion_cognitiva",
+            "accion_rutina_automatica"
+          ],
+          "score_base": 2.0
+        },
+        {
+          "name": "H4_OP_PROP(DEACTIVATE×CONNECTIVE+LIFECYCLE)",
+          "ops_req": [
+            "DEACTIVATE"
+          ],
+          "rels_req": [],
+          "props_req": [
+            "LIFECYCLE",
+            "TEMPORAL"
+          ],
+          "db_dim_req": [
+            "accion_rutina_automatica"
+          ],
+          "score_base": 1.5
+        }
+      ],
+      "generation_metrics": {
+        "pool_size": 321,
+        "pool_pct_corpus": 37.7,
+        "gold_in_pool": true,
+        "gold_compat_score": 2.8,
+        "gold_best_hypothesis": "H1_FULL(DEACTIVATE⊕MODIFY⊕REMOVE⊕TRANSFORM++CONNECTIVE⊕LIFECYCLE⊕TEMPORAL)",
+        "gold_trails": [
+          "ACTION_DIM_MATCH(0.67): frozenset({'accion_evaluar', 'accion_cognitiva'})",
+          "PROP_MISS(LIFECYCLE)",
+          "PROP_MISS(TEMPORAL)",
+          "PROP_MATCH(CONNECTIVE): {'accion_cognitiva'}"
+        ],
+        "gold_rank": null
+      },
+      "hypothesis_admission_breakdown": {
+        "H1_FULL(DEACTIVATE⊕MODIFY⊕REMOVE⊕TRANSFORM++CONNECTIVE⊕LIFECYCLE⊕TEMPORAL)": 319,
+        "H4_OP_PROP(DEACTIVATE×CONNECTIVE+LIFECYCLE)": 2
+      },
+      "lexical_audit": {
+        "lexical_dependency": false,
+        "direct_title_overlap": [],
+        "synonym_overlap": [],
+        "prefix_stem_overlap": [],
+        "content_overlap_tokens_count": 0,
+        "category_overlap": [],
+        "is_strict_a0": true
+      },
+      "top20_non_gold_sample": [
+        {
+          "rank": 1,
+          "node": "athena_arquitectura_memoria_agente_v24_2",
+          "is_gold": false,
+          "score_final": 6.9,
+          "score_compatibilidad": 5.4,
+          "mejor_hipotesis": "H1_FULL(DEACTIVATE⊕MODIFY⊕REMOVE⊕TRANSFORM++CONNECTIVE⊕LIFECYCLE⊕TEMPORAL)",
+          "dims_sample": [
+            "accion:accion_cognitiva",
+            "accion:accion_evaluar",
+            "accion:accion_persistencia_computacion",
+            "accion:accion_rutina_automatica"
+          ],
+          "trails": [
+            "ACTION_DIM_MATCH(1.00): frozenset({'accion_evaluar', 'accion_cognitiva', 'accion_rutina_automatica'})",
+            "PROP_MATCH(LIFECYCLE): {'accion_rutina_automatica'}",
+            "PROP_MATCH(TEMPORAL): {'accion_rutina_automatica'}"
+          ]
+        },
+        {
+          "rank": 2,
+          "node": "plan_feedback_driven_graph_learning_refuerzo_positivo",
+          "is_gold": false,
+          "score_final": 6.9,
+          "score_compatibilidad": 5.4,
+          "mejor_hipotesis": "H1_FULL(DEACTIVATE⊕MODIFY⊕REMOVE⊕TRANSFORM++CONNECTIVE⊕LIFECYCLE⊕TEMPORAL)",
+          "dims_sample": [
+            "accion:accion_cognitiva",
+            "accion:accion_evaluar",
+            "accion:accion_persistencia_computacion",
+            "accion:accion_rutina_automatica"
+          ],
+          "trails": [
+            "ACTION_DIM_MATCH(1.00): frozenset({'accion_evaluar', 'accion_cognitiva', 'accion_rutina_automatica'})",
+            "PROP_MATCH(LIFECYCLE): {'accion_rutina_automatica'}",
+            "PROP_MATCH(TEMPORAL): {'accion_rutina_automatica'}"
+          ]
+        },
+        {
+          "rank": 3,
+          "node": "tejedora_fase0_baseline_921_casos",
+          "is_gold": false,
+          "score_final": 6.9,
+          "score_compatibilidad": 5.4,
+          "mejor_hipotesis": "H1_FULL(DEACTIVATE⊕MODIFY⊕REMOVE⊕TRANSFORM++CONNECTIVE⊕LIFECYCLE⊕TEMPORAL)",
+          "dims_sample": [
+            "accion:accion_cognitiva",
+            "accion:accion_evaluar",
+            "accion:accion_persistencia_computacion",
+            "accion:accion_rutina_automatica"
+          ],
+          "trails": [
+            "ACTION_DIM_MATCH(1.00): frozenset({'accion_evaluar', 'accion_cognitiva', 'accion_rutina_automatica'})",
+            "PROP_MATCH(LIFECYCLE): {'accion_rutina_automatica'}",
+            "PROP_MATCH(TEMPORAL): {'coordenada_cronologia_absoluta', 'accion_rutina_automatica'}"
+          ]
+        },
+        {
+          "rank": 4,
+          "node": "v13_1_parafrasis_expansion_semantica",
+          "is_gold": false,
+          "score_final": 6.9,
+          "score_compatibilidad": 5.4,
+          "mejor_hipotesis": "H1_FULL(DEACTIVATE⊕MODIFY⊕REMOVE⊕TRANSFORM++CONNECTIVE⊕LIFECYCLE⊕TEMPORAL)",
+          "dims_sample": [
+            "accion:accion_cognitiva",
+            "accion:accion_evaluar",
+            "accion:accion_persistencia_computacion",
+            "accion:accion_rutina_automatica"
+          ],
+          "trails": [
+            "ACTION_DIM_MATCH(1.00): frozenset({'accion_evaluar', 'accion_cognitiva', 'accion_rutina_automatica'})",
+            "PROP_MATCH(LIFECYCLE): {'accion_rutina_automatica'}",
+            "PROP_MATCH(TEMPORAL): {'accion_rutina_automatica'}"
+          ]
+        },
+        {
+          "rank": 5,
+          "node": "athena_forensic_audit_trail_ltd_detection_fix",
+          "is_gold": false,
+          "score_final": 5.6,
+          "score_compatibilidad": 4.4,
+          "mejor_hipotesis": "H1_FULL(DEACTIVATE⊕MODIFY⊕REMOVE⊕TRANSFORM++CONNECTIVE⊕LIFECYCLE⊕TEMPORAL)",
+          "dims_sample": [
+            "accion:accion_cognitiva",
+            "accion:accion_fallar",
+            "accion:accion_rutina_automatica",
+            "cualidad:cualidad_abstracta_conceptual"
+          ],
+          "trails": [
+            "ACTION_DIM_MATCH(0.67): frozenset({'accion_cognitiva', 'accion_rutina_automatica'})",
+            "PROP_MATCH(LIFECYCLE): {'accion_rutina_automatica'}",
+            "PROP_MATCH(TEMPORAL): {'accion_rutina_automatica'}"
+          ]
+        }
+      ]
+    },
+    {
+      "case_id": "OOF_POS_40",
+      "is_strict_a0": false,
+      "query": "procedimiento de clasificacion dimensional sobre tejido cortical",
+      "gold": "clasificacion_dimensional_completa_corteza_20260702",
+      "gold_metadata": {
+        "exists": true,
+        "estado": "activo",
+        "categoria": 7,
+        "degree": 1,
+        "action_dims": [
+          "accion_evaluar",
+          "accion_persistencia_computacion"
+        ],
+        "all_dims": [
+          "accion:accion_evaluar",
+          "accion:accion_persistencia_computacion",
+          "coordenada:coordenada_cronologia_absoluta",
+          "cualidad:cualidad_abstracta_conceptual",
+          "dominio:dominio_tecnico",
+          "entidad:identidad_artificial",
+          "intencion:intencion_documentar"
+        ],
+        "synonyms": [
+          "2026",
+          "semantica",
+          "taxonomia"
+        ]
+      },
+      "structural_parse": {
+        "raw_tokens": [
+          "clasificacion",
+          "cortical",
+          "dimensional",
+          "procedimiento",
+          "tejido"
+        ],
+        "operations": [
+          "CLASSIFY"
+        ],
+        "relations": [],
+        "properties": [
+          "COGNITIVE",
+          "COMPUTATIONAL",
+          "DIMENSIONAL"
+        ],
+        "modality": "DECLARATIVE",
+        "polarity": 1,
+        "confidence": 0.475,
+        "missing": [
+          "RELATION (ninguna relación detectada; composición mono-operacional)"
+        ]
+      },
+      "hypotheses_generated": [
+        {
+          "name": "H1_FULL(CLASSIFY++COGNITIVE⊕COMPUTATIONAL⊕DIMENSIONAL)",
+          "ops_req": [
+            "CLASSIFY"
+          ],
+          "rels_req": [],
+          "props_req": [
+            "COGNITIVE",
+            "COMPUTATIONAL",
+            "DIMENSIONAL"
+          ],
+          "db_dim_req": [
+            "accion_evaluar"
+          ],
+          "score_base": 3.0
+        },
+        {
+          "name": "H2_OPS(CLASSIFY+COGNITIVE⊕COMPUTATIONAL⊕DIMENSIONAL)",
+          "ops_req": [
+            "CLASSIFY"
+          ],
+          "rels_req": [],
+          "props_req": [
+            "COGNITIVE",
+            "COMPUTATIONAL",
+            "DIMENSIONAL"
+          ],
+          "db_dim_req": [
+            "accion_evaluar"
+          ],
+          "score_base": 2.5
+        },
+        {
+          "name": "H4_OP_PROP(CLASSIFY×COGNITIVE+COMPUTATIONAL)",
+          "ops_req": [
+            "CLASSIFY"
+          ],
+          "rels_req": [],
+          "props_req": [
+            "COMPUTATIONAL",
+            "DIMENSIONAL"
+          ],
+          "db_dim_req": [
+            "accion_evaluar"
+          ],
+          "score_base": 1.5
+        }
+      ],
+      "generation_metrics": {
+        "pool_size": 165,
+        "pool_pct_corpus": 19.4,
+        "gold_in_pool": true,
+        "gold_compat_score": 5.4,
+        "gold_best_hypothesis": "H1_FULL(CLASSIFY++COGNITIVE⊕COMPUTATIONAL⊕DIMENSIONAL)",
+        "gold_trails": [
+          "ACTION_DIM_MATCH(1.00): frozenset({'accion_evaluar'})",
+          "PROP_MATCH(DIMENSIONAL): {'accion_evaluar', 'cualidad_abstracta_conceptual'}",
+          "PROP_MATCH(COMPUTATIONAL): {'accion_persistencia_computacion'}",
+          "PROP_MATCH(COGNITIVE): {'identidad_artificial'}"
+        ],
+        "gold_rank": 10
+      },
+      "hypothesis_admission_breakdown": {
+        "H1_FULL(CLASSIFY++COGNITIVE⊕COMPUTATIONAL⊕DIMENSIONAL)": 165
+      },
+      "lexical_audit": {
+        "lexical_dependency": true,
+        "direct_title_overlap": [
+          "clasificacion",
+          "dimensional"
+        ],
+        "synonym_overlap": [],
+        "prefix_stem_overlap": [
+          "clasificacion~clasificacion",
+          "cortical~corteza",
+          "dimensional~dimensional"
+        ],
+        "content_overlap_tokens_count": 1,
+        "category_overlap": [],
+        "is_strict_a0": false
+      },
+      "top20_non_gold_sample": [
+        {
+          "rank": 1,
+          "node": "analisis_escalabilidad_10k_v5_1",
+          "is_gold": false,
+          "score_final": 5.7,
+          "score_compatibilidad": 5.4,
+          "mejor_hipotesis": "H1_FULL(CLASSIFY++COGNITIVE⊕COMPUTATIONAL⊕DIMENSIONAL)",
+          "dims_sample": [
+            "accion:accion_evaluar",
+            "accion:accion_persistencia_computacion",
+            "cualidad:cualidad_abstracta_conceptual",
+            "cualidad:cualidad_dimension_fisica"
+          ],
+          "trails": [
+            "ACTION_DIM_MATCH(1.00): frozenset({'accion_evaluar'})",
+            "PROP_MATCH(DIMENSIONAL): {'accion_evaluar', 'cualidad_abstracta_conceptual'}",
+            "PROP_MATCH(COMPUTATIONAL): {'accion_persistencia_computacion'}"
+          ]
+        },
+        {
+          "rank": 2,
+          "node": "athena_arquitectura_memoria_agente_v24_2",
+          "is_gold": false,
+          "score_final": 5.7,
+          "score_compatibilidad": 5.4,
+          "mejor_hipotesis": "H1_FULL(CLASSIFY++COGNITIVE⊕COMPUTATIONAL⊕DIMENSIONAL)",
+          "dims_sample": [
+            "accion:accion_cognitiva",
+            "accion:accion_evaluar",
+            "accion:accion_persistencia_computacion",
+            "accion:accion_rutina_automatica"
+          ],
+          "trails": [
+            "ACTION_DIM_MATCH(1.00): frozenset({'accion_evaluar'})",
+            "PROP_MATCH(DIMENSIONAL): {'accion_evaluar', 'cualidad_abstracta_conceptual'}",
+            "PROP_MATCH(COMPUTATIONAL): {'accion_persistencia_computacion'}"
+          ]
+        },
+        {
+          "rank": 3,
+          "node": "athena_leccion_auditoria_bugs_cuarentena_y_ltd",
+          "is_gold": false,
+          "score_final": 5.7,
+          "score_compatibilidad": 5.4,
+          "mejor_hipotesis": "H1_FULL(CLASSIFY++COGNITIVE⊕COMPUTATIONAL⊕DIMENSIONAL)",
+          "dims_sample": [
+            "accion:accion_cognitiva",
+            "accion:accion_evaluar",
+            "accion:accion_fallar",
+            "accion:accion_persistencia_computacion"
+          ],
+          "trails": [
+            "ACTION_DIM_MATCH(1.00): frozenset({'accion_evaluar'})",
+            "PROP_MATCH(DIMENSIONAL): {'accion_evaluar', 'cualidad_abstracta_conceptual'}",
+            "PROP_MATCH(COMPUTATIONAL): {'accion_persistencia_computacion'}"
+          ]
+        },
+        {
+          "rank": 4,
+          "node": "auditoria_entrega_claude_ppmi_v2_suave_ctx_20260808",
+          "is_gold": false,
+          "score_final": 5.7,
+          "score_compatibilidad": 5.4,
+          "mejor_hipotesis": "H1_FULL(CLASSIFY++COGNITIVE⊕COMPUTATIONAL⊕DIMENSIONAL)",
+          "dims_sample": [
+            "accion:accion_cognitiva",
+            "accion:accion_evaluar",
+            "accion:accion_persistencia_computacion",
+            "centralidad_identitaria:relevante_contextual"
+          ],
+          "trails": [
+            "ACTION_DIM_MATCH(1.00): frozenset({'accion_evaluar'})",
+            "PROP_MATCH(DIMENSIONAL): {'accion_evaluar', 'cualidad_abstracta_conceptual'}",
+            "PROP_MATCH(COMPUTATIONAL): {'accion_persistencia_computacion'}"
+          ]
+        },
+        {
+          "rank": 5,
+          "node": "biorag_v14_0_estado",
+          "is_gold": false,
+          "score_final": 5.7,
+          "score_compatibilidad": 5.4,
+          "mejor_hipotesis": "H1_FULL(CLASSIFY++COGNITIVE⊕COMPUTATIONAL⊕DIMENSIONAL)",
+          "dims_sample": [
+            "accion:accion_cognitiva",
+            "accion:accion_evaluar",
+            "accion:accion_persistencia_computacion",
+            "coordenada:coordenada_cronologia_absoluta"
+          ],
+          "trails": [
+            "ACTION_DIM_MATCH(1.00): frozenset({'accion_evaluar'})",
+            "PROP_MATCH(DIMENSIONAL): {'accion_evaluar', 'cualidad_abstracta_conceptual'}",
+            "PROP_MATCH(COMPUTATIONAL): {'accion_persistencia_computacion'}"
+          ]
+        }
+      ]
+    },
+    {
+      "case_id": "OOF_POS_48",
+      "is_strict_a0": true,
+      "query": "malla neuronal con topologia de enlaces sinapticos transversales",
+      "gold": "cuaternidad-logica-oec",
+      "gold_metadata": {
+        "exists": true,
+        "estado": "activo",
+        "categoria": 10,
+        "degree": 56,
+        "action_dims": [],
+        "all_dims": [
+          "cualidad:cualidad_abstracta_conceptual",
+          "dominio:auto_txt_dennys_oec",
+          "dominio:dominio_profesional",
+          "emocion:afecto",
+          "emocion:sorpresa",
+          "entidad:identidad_artificial",
+          "entidad:identidad_natural",
+          "intencion:intencion_documentar"
+        ],
+        "synonyms": [
+          "artemis",
+          "athena",
+          "familia",
+          "hermes",
+          "sintetica"
+        ]
+      },
+      "structural_parse": {
+        "raw_tokens": [
+          "enlaces",
+          "malla",
+          "neuronal",
+          "sinapticos",
+          "topologia",
+          "transversales"
+        ],
+        "operations": [
+          "MODIFY",
+          "TRANSFORM"
+        ],
+        "relations": [],
+        "properties": [
+          "COGNITIVE",
+          "CONNECTIVE",
+          "TEMPORAL"
+        ],
+        "modality": "DECLARATIVE",
+        "polarity": 1,
+        "confidence": 0.725,
+        "missing": [
+          "RELATION (ninguna relación detectada; composición mono-operacional)"
+        ]
+      },
+      "hypotheses_generated": [
+        {
+          "name": "H1_FULL(MODIFY⊕TRANSFORM++COGNITIVE⊕CONNECTIVE⊕TEMPORAL)",
+          "ops_req": [
+            "MODIFY",
+            "TRANSFORM"
+          ],
+          "rels_req": [],
+          "props_req": [
+            "COGNITIVE",
+            "CONNECTIVE",
+            "TEMPORAL"
+          ],
+          "db_dim_req": [
+            "accion_cognitiva",
+            "accion_evaluar"
+          ],
+          "score_base": 3.0
+        },
+        {
+          "name": "H2_OPS(MODIFY⊕TRANSFORM+COGNITIVE⊕CONNECTIVE⊕TEMPORAL)",
+          "ops_req": [
+            "MODIFY",
+            "TRANSFORM"
+          ],
+          "rels_req": [],
+          "props_req": [
+            "COGNITIVE",
+            "CONNECTIVE",
+            "TEMPORAL"
+          ],
+          "db_dim_req": [
+            "accion_cognitiva",
+            "accion_evaluar"
+          ],
+          "score_base": 2.5
+        },
+        {
+          "name": "H3_PAIR(MODIFY⊕TRANSFORM)",
+          "ops_req": [
+            "MODIFY",
+            "TRANSFORM"
+          ],
+          "rels_req": [],
+          "props_req": [],
+          "db_dim_req": [
+            "accion_cognitiva",
+            "accion_evaluar"
+          ],
+          "score_base": 2.0
+        },
+        {
+          "name": "H4_OP_PROP(MODIFY×COGNITIVE+CONNECTIVE)",
+          "ops_req": [
+            "MODIFY"
+          ],
+          "rels_req": [],
+          "props_req": [
+            "CONNECTIVE",
+            "TEMPORAL"
+          ],
+          "db_dim_req": [
+            "accion_cognitiva",
+            "accion_evaluar"
+          ],
+          "score_base": 1.5
+        }
+      ],
+      "generation_metrics": {
+        "pool_size": 302,
+        "pool_pct_corpus": 35.5,
+        "gold_in_pool": false,
+        "gold_compat_score": 0.0,
+        "gold_best_hypothesis": null,
+        "gold_trails": [],
+        "gold_rank": null
+      },
+      "hypothesis_admission_breakdown": {
+        "H1_FULL(MODIFY⊕TRANSFORM++COGNITIVE⊕CONNECTIVE⊕TEMPORAL)": 302
+      },
+      "lexical_audit": {
+        "lexical_dependency": false,
+        "direct_title_overlap": [],
+        "synonym_overlap": [],
+        "prefix_stem_overlap": [],
+        "content_overlap_tokens_count": 0,
+        "category_overlap": [],
+        "is_strict_a0": true
+      },
+      "top20_non_gold_sample": [
+        {
+          "rank": 1,
+          "node": "aciertos_word2vec_top5_coincidencia_lexica_no_semantica_20260808",
+          "is_gold": false,
+          "score_final": 6.3,
+          "score_compatibilidad": 5.4,
+          "mejor_hipotesis": "H1_FULL(MODIFY⊕TRANSFORM++COGNITIVE⊕CONNECTIVE⊕TEMPORAL)",
+          "dims_sample": [
+            "accion:accion_cognitiva",
+            "accion:accion_evaluar",
+            "centralidad_identitaria:relevante_contextual",
+            "coordenada:coordenada_cronologia_absoluta"
+          ],
+          "trails": [
+            "ACTION_DIM_MATCH(1.00): frozenset({'accion_evaluar', 'accion_cognitiva'})",
+            "PROP_MATCH(TEMPORAL): {'coordenada_cronologia_absoluta'}",
+            "PROP_MATCH(CONNECTIVE): {'accion_cognitiva'}"
+          ]
+        },
+        {
+          "rank": 2,
+          "node": "ajuste_tejedora_valencia_desempate_fase1",
+          "is_gold": false,
+          "score_final": 6.3,
+          "score_compatibilidad": 5.4,
+          "mejor_hipotesis": "H1_FULL(MODIFY⊕TRANSFORM++COGNITIVE⊕CONNECTIVE⊕TEMPORAL)",
+          "dims_sample": [
+            "accion:accion_cognitiva",
+            "accion:accion_evaluar",
+            "centralidad_identitaria:relevante_contextual",
+            "coordenada:coordenada_cronologia_absoluta"
+          ],
+          "trails": [
+            "ACTION_DIM_MATCH(1.00): frozenset({'accion_evaluar', 'accion_cognitiva'})",
+            "PROP_MATCH(TEMPORAL): {'coordenada_cronologia_absoluta'}",
+            "PROP_MATCH(CONNECTIVE): {'accion_cognitiva'}"
+          ]
+        },
+        {
+          "rank": 3,
+          "node": "athena_arquitectura_memoria_agente_v24_2",
+          "is_gold": false,
+          "score_final": 6.3,
+          "score_compatibilidad": 5.4,
+          "mejor_hipotesis": "H1_FULL(MODIFY⊕TRANSFORM++COGNITIVE⊕CONNECTIVE⊕TEMPORAL)",
+          "dims_sample": [
+            "accion:accion_cognitiva",
+            "accion:accion_evaluar",
+            "accion:accion_persistencia_computacion",
+            "accion:accion_rutina_automatica"
+          ],
+          "trails": [
+            "ACTION_DIM_MATCH(1.00): frozenset({'accion_evaluar', 'accion_cognitiva'})",
+            "PROP_MATCH(TEMPORAL): {'accion_rutina_automatica'}",
+            "PROP_MATCH(CONNECTIVE): {'accion_persistencia_computacion', 'accion_cognitiva'}"
+          ]
+        },
+        {
+          "rank": 4,
+          "node": "auditoria_entrega_claude_ppmi_v2_suave_ctx_20260808",
+          "is_gold": false,
+          "score_final": 6.3,
+          "score_compatibilidad": 5.4,
+          "mejor_hipotesis": "H1_FULL(MODIFY⊕TRANSFORM++COGNITIVE⊕CONNECTIVE⊕TEMPORAL)",
+          "dims_sample": [
+            "accion:accion_cognitiva",
+            "accion:accion_evaluar",
+            "accion:accion_persistencia_computacion",
+            "centralidad_identitaria:relevante_contextual"
+          ],
+          "trails": [
+            "ACTION_DIM_MATCH(1.00): frozenset({'accion_evaluar', 'accion_cognitiva'})",
+            "PROP_MATCH(TEMPORAL): {'coordenada_cronologia_absoluta'}",
+            "PROP_MATCH(CONNECTIVE): {'accion_persistencia_computacion', 'accion_cognitiva'}"
+          ]
+        },
+        {
+          "rank": 5,
+          "node": "biorag_v14_0_estado",
+          "is_gold": false,
+          "score_final": 6.3,
+          "score_compatibilidad": 5.4,
+          "mejor_hipotesis": "H1_FULL(MODIFY⊕TRANSFORM++COGNITIVE⊕CONNECTIVE⊕TEMPORAL)",
+          "dims_sample": [
+            "accion:accion_cognitiva",
+            "accion:accion_evaluar",
+            "accion:accion_persistencia_computacion",
+            "coordenada:coordenada_cronologia_absoluta"
+          ],
+          "trails": [
+            "ACTION_DIM_MATCH(1.00): frozenset({'accion_evaluar', 'accion_cognitiva'})",
+            "PROP_MATCH(TEMPORAL): {'coordenada_cronologia_absoluta'}",
+            "PROP_MATCH(CONNECTIVE): {'accion_persistencia_computacion', 'accion_cognitiva'}"
+          ]
+        }
+      ]
+    },
+    {
+      "case_id": "OOF_POS_49",
+      "is_strict_a0": false,
+      "query": "registro cronologico de hitos alcanzados por el agente",
+      "gold": "trayectoria_completa_cronologica",
+      "gold_metadata": {
+        "exists": true,
+        "estado": "activo",
+        "categoria": 5,
+        "degree": 2,
+        "action_dims": [],
+        "all_dims": [
+          "dominio:dominio_profesional",
+          "entidad:identidad_natural",
+          "intencion:intencion_documentar"
+        ],
+        "synonyms": [
+          "cronologia",
+          "empresas",
+          "experiencia",
+          "trabajos",
+          "trayectoria"
+        ]
+      },
+      "structural_parse": {
+        "raw_tokens": [
+          "agente",
+          "alcanzados",
+          "cronologico",
+          "hitos",
+          "registro"
+        ],
+        "operations": [
+          "STORE"
+        ],
+        "relations": [],
+        "properties": [
+          "CHRONICLE",
+          "TEMPORAL"
+        ],
+        "modality": "DECLARATIVE",
+        "polarity": 1,
+        "confidence": 0.4,
+        "missing": [
+          "RELATION (ninguna relación detectada; composición mono-operacional)"
+        ]
+      },
+      "hypotheses_generated": [
+        {
+          "name": "H1_FULL(STORE++CHRONICLE⊕TEMPORAL)",
+          "ops_req": [
+            "STORE"
+          ],
+          "rels_req": [],
+          "props_req": [
+            "CHRONICLE",
+            "TEMPORAL"
+          ],
+          "db_dim_req": [
+            "accion_persistencia_computacion"
+          ],
+          "score_base": 3.0
+        },
+        {
+          "name": "H2_OPS(STORE+CHRONICLE⊕TEMPORAL)",
+          "ops_req": [
+            "STORE"
+          ],
+          "rels_req": [],
+          "props_req": [
+            "CHRONICLE",
+            "TEMPORAL"
+          ],
+          "db_dim_req": [
+            "accion_persistencia_computacion"
+          ],
+          "score_base": 2.5
+        },
+        {
+          "name": "H4_OP_PROP(STORE×CHRONICLE+TEMPORAL)",
+          "ops_req": [
+            "STORE"
+          ],
+          "rels_req": [],
+          "props_req": [
+            "CHRONICLE",
+            "TEMPORAL"
+          ],
+          "db_dim_req": [
+            "accion_persistencia_computacion"
+          ],
+          "score_base": 1.5
+        }
+      ],
+      "generation_metrics": {
+        "pool_size": 358,
+        "pool_pct_corpus": 42.1,
+        "gold_in_pool": false,
+        "gold_compat_score": 0.0,
+        "gold_best_hypothesis": null,
+        "gold_trails": [],
+        "gold_rank": null
+      },
+      "hypothesis_admission_breakdown": {
+        "H1_FULL(STORE++CHRONICLE⊕TEMPORAL)": 358
+      },
+      "lexical_audit": {
+        "lexical_dependency": false,
+        "direct_title_overlap": [],
+        "synonym_overlap": [],
+        "prefix_stem_overlap": [
+          "cronologico~cronologia",
+          "cronologico~cronologica"
+        ],
+        "content_overlap_tokens_count": 0,
+        "category_overlap": [],
+        "is_strict_a0": false
+      },
+      "top20_non_gold_sample": [
+        {
+          "rank": 1,
+          "node": "21st_dev_registro_componentes_react_recurso_diseno",
+          "is_gold": false,
+          "score_final": 4.9,
+          "score_compatibilidad": 4.6,
+          "mejor_hipotesis": "H1_FULL(STORE++CHRONICLE⊕TEMPORAL)",
+          "dims_sample": [
+            "accion:accion_cognitiva",
+            "accion:accion_comunicacion",
+            "accion:accion_persistencia_computacion",
+            "centralidad_identitaria:relevante_contextual"
+          ],
+          "trails": [
+            "ACTION_DIM_MATCH(1.00): frozenset({'accion_persistencia_computacion'})",
+            "PROP_MATCH(TEMPORAL): {'coordenada_cronologia_absoluta'}",
+            "PROP_MATCH(CHRONICLE): {'coordenada_cronologia_absoluta', 'intencion_documentar'}"
+          ]
+        },
+        {
+          "rank": 2,
+          "node": "[desde_agente-oec]_jerarquía_de_restricciones_del_agente_en_opencode",
+          "is_gold": false,
+          "score_final": 4.9,
+          "score_compatibilidad": 4.6,
+          "mejor_hipotesis": "H1_FULL(STORE++CHRONICLE⊕TEMPORAL)",
+          "dims_sample": [
+            "accion:accion_persistencia_computacion",
+            "accion:accion_rutina_automatica",
+            "coordenada:coordenada_cronologia_absoluta",
+            "cualidad:cualidad_abstracta_conceptual"
+          ],
+          "trails": [
+            "ACTION_DIM_MATCH(1.00): frozenset({'accion_persistencia_computacion'})",
+            "PROP_MATCH(TEMPORAL): {'coordenada_cronologia_absoluta', 'accion_rutina_automatica'}",
+            "PROP_MATCH(CHRONICLE): {'coordenada_cronologia_absoluta', 'intencion_documentar'}"
+          ]
+        },
+        {
+          "rank": 3,
+          "node": "arquitectura_daemon_vivo_escritorio_manual_mcp_guardian",
+          "is_gold": false,
+          "score_final": 4.9,
+          "score_compatibilidad": 4.6,
+          "mejor_hipotesis": "H1_FULL(STORE++CHRONICLE⊕TEMPORAL)",
+          "dims_sample": [
+            "accion:accion_persistencia_computacion",
+            "accion:accion_rutina_automatica",
+            "cualidad:cualidad_abstracta_conceptual",
+            "dominio:dominio_tecnico"
+          ],
+          "trails": [
+            "ACTION_DIM_MATCH(1.00): frozenset({'accion_persistencia_computacion'})",
+            "PROP_MATCH(TEMPORAL): {'accion_rutina_automatica'}",
+            "PROP_MATCH(CHRONICLE): {'intencion_documentar'}"
+          ]
+        },
+        {
+          "rank": 4,
+          "node": "arquitectura_hormiguita_daemon_singleton",
+          "is_gold": false,
+          "score_final": 4.9,
+          "score_compatibilidad": 4.6,
+          "mejor_hipotesis": "H1_FULL(STORE++CHRONICLE⊕TEMPORAL)",
+          "dims_sample": [
+            "accion:accion_persistencia_computacion",
+            "accion:accion_rutina_automatica",
+            "cualidad:cualidad_abstracta_conceptual",
+            "dominio:dominio_tecnico"
+          ],
+          "trails": [
+            "ACTION_DIM_MATCH(1.00): frozenset({'accion_persistencia_computacion'})",
+            "PROP_MATCH(TEMPORAL): {'accion_rutina_automatica'}",
+            "PROP_MATCH(CHRONICLE): {'intencion_documentar'}"
+          ]
+        },
+        {
+          "rank": 5,
+          "node": "artemis_install_ponytail_ecosistema",
+          "is_gold": false,
+          "score_final": 4.9,
+          "score_compatibilidad": 4.6,
+          "mejor_hipotesis": "H1_FULL(STORE++CHRONICLE⊕TEMPORAL)",
+          "dims_sample": [
+            "accion:accion_persistencia_computacion",
+            "coordenada:coordenada_cronologia_absoluta",
+            "cualidad:cualidad_dimension_fisica",
+            "dominio:dominio_tecnico"
+          ],
+          "trails": [
+            "ACTION_DIM_MATCH(1.00): frozenset({'accion_persistencia_computacion'})",
+            "PROP_MATCH(TEMPORAL): {'coordenada_cronologia_absoluta'}",
+            "PROP_MATCH(CHRONICLE): {'coordenada_cronologia_absoluta', 'intencion_documentar'}"
+          ]
+        }
+      ]
+    }
+  ]
+}

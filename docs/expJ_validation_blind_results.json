@@ -1,0 +1,1483 @@
+{
+  "benchmark": "expJ_validacion_ciega_adaptive_island_key",
+  "dataset_sha256": "672ecd9963a2fbe905f421f31e8fe30c6fd843b50bc140770fdc9f0126efac8d",
+  "total_positive_cases": 30,
+  "total_adversarial_cases": 10,
+  "strategies_summary": {
+    "1. A+C Solo (Top-1)": {
+      "avg_candidate_pool": 15.966666666666667,
+      "island_r1": 12,
+      "island_r1_pct": 40.0,
+      "island_r5": 12,
+      "island_r5_pct": 40.0,
+      "global_r1": 8,
+      "global_r1_pct": 26.666666666666668,
+      "global_r5": 12,
+      "global_r5_pct": 40.0,
+      "mrr": 0.31333333333333335,
+      "case_ranks": [
+        {
+          "val_id": "VAL_TEMA_01",
+          "rank": 1,
+          "score": 0.6436272596920266,
+          "hit_r5": true
+        },
+        {
+          "val_id": "VAL_TEMA_02",
+          "rank": null,
+          "score": 0.0,
+          "hit_r5": false
+        },
+        {
+          "val_id": "VAL_TEMA_03",
+          "rank": null,
+          "score": 0.0,
+          "hit_r5": false
+        },
+        {
+          "val_id": "VAL_TEMA_04",
+          "rank": null,
+          "score": 0.0,
+          "hit_r5": false
+        },
+        {
+          "val_id": "VAL_TEMA_05",
+          "rank": null,
+          "score": 0.0,
+          "hit_r5": false
+        },
+        {
+          "val_id": "VAL_TEMA_06",
+          "rank": null,
+          "score": 0.0,
+          "hit_r5": false
+        },
+        {
+          "val_id": "VAL_TEMA_07",
+          "rank": null,
+          "score": 0.0,
+          "hit_r5": false
+        },
+        {
+          "val_id": "VAL_TEMA_08",
+          "rank": null,
+          "score": 0.0,
+          "hit_r5": false
+        },
+        {
+          "val_id": "VAL_TEMA_09",
+          "rank": null,
+          "score": 0.0,
+          "hit_r5": false
+        },
+        {
+          "val_id": "VAL_TEMA_10",
+          "rank": null,
+          "score": 0.0,
+          "hit_r5": false
+        },
+        {
+          "val_id": "VAL_TEMA_11",
+          "rank": 1,
+          "score": 0.5231455906923206,
+          "hit_r5": true
+        },
+        {
+          "val_id": "VAL_TEMA_12",
+          "rank": 5,
+          "score": 0.574484763859248,
+          "hit_r5": true
+        },
+        {
+          "val_id": "VAL_TEMA_13",
+          "rank": null,
+          "score": 0.0,
+          "hit_r5": false
+        },
+        {
+          "val_id": "VAL_TEMA_14",
+          "rank": 1,
+          "score": 0.7193769903685142,
+          "hit_r5": true
+        },
+        {
+          "val_id": "VAL_TEMA_15",
+          "rank": 2,
+          "score": 0.6604425374742916,
+          "hit_r5": true
+        },
+        {
+          "val_id": "VAL_PREG_01",
+          "rank": 1,
+          "score": 0.8321000476569114,
+          "hit_r5": true
+        },
+        {
+          "val_id": "VAL_PREG_02",
+          "rank": null,
+          "score": 0.0,
+          "hit_r5": false
+        },
+        {
+          "val_id": "VAL_PREG_03",
+          "rank": 1,
+          "score": 0.6693390825347917,
+          "hit_r5": true
+        },
+        {
+          "val_id": "VAL_PREG_04",
+          "rank": null,
+          "score": 0.0,
+          "hit_r5": false
+        },
+        {
+          "val_id": "VAL_PREG_05",
+          "rank": null,
+          "score": 0.0,
+          "hit_r5": false
+        },
+        {
+          "val_id": "VAL_PREG_06",
+          "rank": 5,
+          "score": 0.7622667578590677,
+          "hit_r5": true
+        },
+        {
+          "val_id": "VAL_PREG_07",
+          "rank": 2,
+          "score": 0.8001419567061854,
+          "hit_r5": true
+        },
+        {
+          "val_id": "VAL_PREG_08",
+          "rank": null,
+          "score": 0.0,
+          "hit_r5": false
+        },
+        {
+          "val_id": "VAL_PREG_09",
+          "rank": null,
+          "score": 0.0,
+          "hit_r5": false
+        },
+        {
+          "val_id": "VAL_PREG_10",
+          "rank": null,
+          "score": 0.0,
+          "hit_r5": false
+        },
+        {
+          "val_id": "VAL_PREG_11",
+          "rank": 1,
+          "score": 0.689027893779178,
+          "hit_r5": true
+        },
+        {
+          "val_id": "VAL_PREG_12",
+          "rank": null,
+          "score": 0.0,
+          "hit_r5": false
+        },
+        {
+          "val_id": "VAL_PREG_13",
+          "rank": null,
+          "score": 0.0,
+          "hit_r5": false
+        },
+        {
+          "val_id": "VAL_PREG_14",
+          "rank": 1,
+          "score": 0.8297260360733173,
+          "hit_r5": true
+        },
+        {
+          "val_id": "VAL_PREG_15",
+          "rank": 1,
+          "score": 0.8888569275708292,
+          "hit_r5": true
+        }
+      ]
+    },
+    "2. A+C Solo (Top-4 Beam)": {
+      "avg_candidate_pool": 63.2,
+      "island_r1": 12,
+      "island_r1_pct": 40.0,
+      "island_r5": 24,
+      "island_r5_pct": 80.0,
+      "global_r1": 13,
+      "global_r1_pct": 43.333333333333336,
+      "global_r5": 22,
+      "global_r5_pct": 73.33333333333333,
+      "mrr": 0.5297883597883597,
+      "case_ranks": [
+        {
+          "val_id": "VAL_TEMA_01",
+          "rank": 1,
+          "score": 0.6436272596920266,
+          "hit_r5": true
+        },
+        {
+          "val_id": "VAL_TEMA_02",
+          "rank": null,
+          "score": 0.0,
+          "hit_r5": false
+        },
+        {
+          "val_id": "VAL_TEMA_03",
+          "rank": 4,
+          "score": 0.5964112371878814,
+          "hit_r5": true
+        },
+        {
+          "val_id": "VAL_TEMA_04",
+          "rank": null,
+          "score": 0.0,
+          "hit_r5": false
+        },
+        {
+          "val_id": "VAL_TEMA_05",
+          "rank": 3,
+          "score": 0.5998238735521523,
+          "hit_r5": true
+        },
+        {
+          "val_id": "VAL_TEMA_06",
+          "rank": 5,
+          "score": 0.42851179842035586,
+          "hit_r5": true
+        },
+        {
+          "val_id": "VAL_TEMA_07",
+          "rank": 1,
+          "score": 0.7285457836926521,
+          "hit_r5": true
+        },
+        {
+          "val_id": "VAL_TEMA_08",
+          "rank": 14,
+          "score": 0.5096112258320277,
+          "hit_r5": false
+        },
+        {
+          "val_id": "VAL_TEMA_09",
+          "rank": 1,
+          "score": 0.5590745594707156,
+          "hit_r5": true
+        },
+        {
+          "val_id": "VAL_TEMA_10",
+          "rank": 1,
+          "score": 0.5646535901224483,
+          "hit_r5": true
+        },
+        {
+          "val_id": "VAL_TEMA_11",
+          "rank": 1,
+          "score": 0.5231455906923206,
+          "hit_r5": true
+        },
+        {
+          "val_id": "VAL_TEMA_12",
+          "rank": 5,
+          "score": 0.574484763859248,
+          "hit_r5": true
+        },
+        {
+          "val_id": "VAL_TEMA_13",
+          "rank": null,
+          "score": 0.0,
+          "hit_r5": false
+        },
+        {
+          "val_id": "VAL_TEMA_14",
+          "rank": 1,
+          "score": 0.7193769903685142,
+          "hit_r5": true
+        },
+        {
+          "val_id": "VAL_TEMA_15",
+          "rank": 2,
+          "score": 0.6604425374742916,
+          "hit_r5": true
+        },
+        {
+          "val_id": "VAL_PREG_01",
+          "rank": 1,
+          "score": 0.8321000476569114,
+          "hit_r5": true
+        },
+        {
+          "val_id": "VAL_PREG_02",
+          "rank": 18,
+          "score": 0.33735629162549374,
+          "hit_r5": false
+        },
+        {
+          "val_id": "VAL_PREG_03",
+          "rank": 1,
+          "score": 0.6693390825347917,
+          "hit_r5": true
+        },
+        {
+          "val_id": "VAL_PREG_04",
+          "rank": null,
+          "score": 0.0,
+          "hit_r5": false
+        },
+        {
+          "val_id": "VAL_PREG_05",
+          "rank": null,
+          "score": 0.0,
+          "hit_r5": false
+        },
+        {
+          "val_id": "VAL_PREG_06",
+          "rank": 5,
+          "score": 0.7622667578590677,
+          "hit_r5": true
+        },
+        {
+          "val_id": "VAL_PREG_07",
+          "rank": 2,
+          "score": 0.8001419567061854,
+          "hit_r5": true
+        },
+        {
+          "val_id": "VAL_PREG_08",
+          "rank": null,
+          "score": 0.0,
+          "hit_r5": false
+        },
+        {
+          "val_id": "VAL_PREG_09",
+          "rank": 1,
+          "score": 0.80623490433722,
+          "hit_r5": true
+        },
+        {
+          "val_id": "VAL_PREG_10",
+          "rank": 1,
+          "score": 0.7838895268835476,
+          "hit_r5": true
+        },
+        {
+          "val_id": "VAL_PREG_11",
+          "rank": 1,
+          "score": 0.689027893779178,
+          "hit_r5": true
+        },
+        {
+          "val_id": "VAL_PREG_12",
+          "rank": 3,
+          "score": 0.6091978694620389,
+          "hit_r5": true
+        },
+        {
+          "val_id": "VAL_PREG_13",
+          "rank": 4,
+          "score": 0.5317993653760035,
+          "hit_r5": true
+        },
+        {
+          "val_id": "VAL_PREG_14",
+          "rank": 1,
+          "score": 0.8297260360733173,
+          "hit_r5": true
+        },
+        {
+          "val_id": "VAL_PREG_15",
+          "rank": 1,
+          "score": 0.8888569275708292,
+          "hit_r5": true
+        }
+      ]
+    },
+    "3. A+D Solo (Top-1)": {
+      "avg_candidate_pool": 17.8,
+      "island_r1": 15,
+      "island_r1_pct": 50.0,
+      "island_r5": 15,
+      "island_r5_pct": 50.0,
+      "global_r1": 10,
+      "global_r1_pct": 33.33333333333333,
+      "global_r5": 15,
+      "global_r5_pct": 50.0,
+      "mrr": 0.3911111111111111,
+      "case_ranks": [
+        {
+          "val_id": "VAL_TEMA_01",
+          "rank": 1,
+          "score": 0.6436272596920266,
+          "hit_r5": true
+        },
+        {
+          "val_id": "VAL_TEMA_02",
+          "rank": null,
+          "score": 0.0,
+          "hit_r5": false
+        },
+        {
+          "val_id": "VAL_TEMA_03",
+          "rank": null,
+          "score": 0.0,
+          "hit_r5": false
+        },
+        {
+          "val_id": "VAL_TEMA_04",
+          "rank": null,
+          "score": 0.0,
+          "hit_r5": false
+        },
+        {
+          "val_id": "VAL_TEMA_05",
+          "rank": 3,
+          "score": 0.5998238735521523,
+          "hit_r5": true
+        },
+        {
+          "val_id": "VAL_TEMA_06",
+          "rank": null,
+          "score": 0.0,
+          "hit_r5": false
+        },
+        {
+          "val_id": "VAL_TEMA_07",
+          "rank": 1,
+          "score": 0.7285457836926521,
+          "hit_r5": true
+        },
+        {
+          "val_id": "VAL_TEMA_08",
+          "rank": null,
+          "score": 0.0,
+          "hit_r5": false
+        },
+        {
+          "val_id": "VAL_TEMA_09",
+          "rank": 1,
+          "score": 0.5590745594707156,
+          "hit_r5": true
+        },
+        {
+          "val_id": "VAL_TEMA_10",
+          "rank": null,
+          "score": 0.0,
+          "hit_r5": false
+        },
+        {
+          "val_id": "VAL_TEMA_11",
+          "rank": 1,
+          "score": 0.5231455906923206,
+          "hit_r5": true
+        },
+        {
+          "val_id": "VAL_TEMA_12",
+          "rank": 5,
+          "score": 0.574484763859248,
+          "hit_r5": true
+        },
+        {
+          "val_id": "VAL_TEMA_13",
+          "rank": null,
+          "score": 0.0,
+          "hit_r5": false
+        },
+        {
+          "val_id": "VAL_TEMA_14",
+          "rank": 1,
+          "score": 0.7193769903685142,
+          "hit_r5": true
+        },
+        {
+          "val_id": "VAL_TEMA_15",
+          "rank": 2,
+          "score": 0.6604425374742916,
+          "hit_r5": true
+        },
+        {
+          "val_id": "VAL_PREG_01",
+          "rank": 1,
+          "score": 0.8321000476569114,
+          "hit_r5": true
+        },
+        {
+          "val_id": "VAL_PREG_02",
+          "rank": null,
+          "score": 0.0,
+          "hit_r5": false
+        },
+        {
+          "val_id": "VAL_PREG_03",
+          "rank": 1,
+          "score": 0.6693390825347917,
+          "hit_r5": true
+        },
+        {
+          "val_id": "VAL_PREG_04",
+          "rank": null,
+          "score": 0.0,
+          "hit_r5": false
+        },
+        {
+          "val_id": "VAL_PREG_05",
+          "rank": null,
+          "score": 0.0,
+          "hit_r5": false
+        },
+        {
+          "val_id": "VAL_PREG_06",
+          "rank": 5,
+          "score": 0.7622667578590677,
+          "hit_r5": true
+        },
+        {
+          "val_id": "VAL_PREG_07",
+          "rank": 2,
+          "score": 0.8001419567061854,
+          "hit_r5": true
+        },
+        {
+          "val_id": "VAL_PREG_08",
+          "rank": null,
+          "score": 0.0,
+          "hit_r5": false
+        },
+        {
+          "val_id": "VAL_PREG_09",
+          "rank": null,
+          "score": 0.0,
+          "hit_r5": false
+        },
+        {
+          "val_id": "VAL_PREG_10",
+          "rank": null,
+          "score": 0.0,
+          "hit_r5": false
+        },
+        {
+          "val_id": "VAL_PREG_11",
+          "rank": 1,
+          "score": 0.689027893779178,
+          "hit_r5": true
+        },
+        {
+          "val_id": "VAL_PREG_12",
+          "rank": null,
+          "score": 0.0,
+          "hit_r5": false
+        },
+        {
+          "val_id": "VAL_PREG_13",
+          "rank": null,
+          "score": 0.0,
+          "hit_r5": false
+        },
+        {
+          "val_id": "VAL_PREG_14",
+          "rank": 1,
+          "score": 0.8297260360733173,
+          "hit_r5": true
+        },
+        {
+          "val_id": "VAL_PREG_15",
+          "rank": 1,
+          "score": 0.8888569275708292,
+          "hit_r5": true
+        }
+      ]
+    },
+    "4. A+D Solo (Top-4 Beam)": {
+      "avg_candidate_pool": 71.83333333333333,
+      "island_r1": 15,
+      "island_r1_pct": 50.0,
+      "island_r5": 24,
+      "island_r5_pct": 80.0,
+      "global_r1": 13,
+      "global_r1_pct": 43.333333333333336,
+      "global_r5": 22,
+      "global_r5_pct": 73.33333333333333,
+      "mrr": 0.5266738816738816,
+      "case_ranks": [
+        {
+          "val_id": "VAL_TEMA_01",
+          "rank": 1,
+          "score": 0.6436272596920266,
+          "hit_r5": true
+        },
+        {
+          "val_id": "VAL_TEMA_02",
+          "rank": null,
+          "score": 0.0,
+          "hit_r5": false
+        },
+        {
+          "val_id": "VAL_TEMA_03",
+          "rank": 4,
+          "score": 0.5964112371878814,
+          "hit_r5": true
+        },
+        {
+          "val_id": "VAL_TEMA_04",
+          "rank": null,
+          "score": 0.0,
+          "hit_r5": false
+        },
+        {
+          "val_id": "VAL_TEMA_05",
+          "rank": 4,
+          "score": 0.5998238735521523,
+          "hit_r5": true
+        },
+        {
+          "val_id": "VAL_TEMA_06",
+          "rank": 5,
+          "score": 0.42851179842035586,
+          "hit_r5": true
+        },
+        {
+          "val_id": "VAL_TEMA_07",
+          "rank": 1,
+          "score": 0.7285457836926521,
+          "hit_r5": true
+        },
+        {
+          "val_id": "VAL_TEMA_08",
+          "rank": 14,
+          "score": 0.5096112258320277,
+          "hit_r5": false
+        },
+        {
+          "val_id": "VAL_TEMA_09",
+          "rank": 1,
+          "score": 0.5590745594707156,
+          "hit_r5": true
+        },
+        {
+          "val_id": "VAL_TEMA_10",
+          "rank": 1,
+          "score": 0.5646535901224483,
+          "hit_r5": true
+        },
+        {
+          "val_id": "VAL_TEMA_11",
+          "rank": 1,
+          "score": 0.5231455906923206,
+          "hit_r5": true
+        },
+        {
+          "val_id": "VAL_TEMA_12",
+          "rank": 5,
+          "score": 0.574484763859248,
+          "hit_r5": true
+        },
+        {
+          "val_id": "VAL_TEMA_13",
+          "rank": null,
+          "score": 0.0,
+          "hit_r5": false
+        },
+        {
+          "val_id": "VAL_TEMA_14",
+          "rank": 1,
+          "score": 0.7193769903685142,
+          "hit_r5": true
+        },
+        {
+          "val_id": "VAL_TEMA_15",
+          "rank": 2,
+          "score": 0.6604425374742916,
+          "hit_r5": true
+        },
+        {
+          "val_id": "VAL_PREG_01",
+          "rank": 1,
+          "score": 0.8321000476569114,
+          "hit_r5": true
+        },
+        {
+          "val_id": "VAL_PREG_02",
+          "rank": 22,
+          "score": 0.33735629162549374,
+          "hit_r5": false
+        },
+        {
+          "val_id": "VAL_PREG_03",
+          "rank": 1,
+          "score": 0.6693390825347917,
+          "hit_r5": true
+        },
+        {
+          "val_id": "VAL_PREG_04",
+          "rank": null,
+          "score": 0.0,
+          "hit_r5": false
+        },
+        {
+          "val_id": "VAL_PREG_05",
+          "rank": null,
+          "score": 0.0,
+          "hit_r5": false
+        },
+        {
+          "val_id": "VAL_PREG_06",
+          "rank": 5,
+          "score": 0.7622667578590677,
+          "hit_r5": true
+        },
+        {
+          "val_id": "VAL_PREG_07",
+          "rank": 2,
+          "score": 0.8001419567061854,
+          "hit_r5": true
+        },
+        {
+          "val_id": "VAL_PREG_08",
+          "rank": null,
+          "score": 0.0,
+          "hit_r5": false
+        },
+        {
+          "val_id": "VAL_PREG_09",
+          "rank": 1,
+          "score": 0.80623490433722,
+          "hit_r5": true
+        },
+        {
+          "val_id": "VAL_PREG_10",
+          "rank": 1,
+          "score": 0.7838895268835476,
+          "hit_r5": true
+        },
+        {
+          "val_id": "VAL_PREG_11",
+          "rank": 1,
+          "score": 0.689027893779178,
+          "hit_r5": true
+        },
+        {
+          "val_id": "VAL_PREG_12",
+          "rank": 3,
+          "score": 0.6091978694620389,
+          "hit_r5": true
+        },
+        {
+          "val_id": "VAL_PREG_13",
+          "rank": 4,
+          "score": 0.5317993653760035,
+          "hit_r5": true
+        },
+        {
+          "val_id": "VAL_PREG_14",
+          "rank": 1,
+          "score": 0.8297260360733173,
+          "hit_r5": true
+        },
+        {
+          "val_id": "VAL_PREG_15",
+          "rank": 1,
+          "score": 0.8888569275708292,
+          "hit_r5": true
+        }
+      ]
+    },
+    "5. Adaptive A+C/A+D (Top1 si coincide, Top-4 si discrepa)": {
+      "avg_candidate_pool": 33.56666666666667,
+      "island_r1": 12,
+      "island_r1_pct": 40.0,
+      "island_r5": 17,
+      "island_r5_pct": 56.666666666666664,
+      "global_r1": 11,
+      "global_r1_pct": 36.666666666666664,
+      "global_r5": 17,
+      "global_r5_pct": 56.666666666666664,
+      "mrr": 0.42833333333333334,
+      "case_ranks": [
+        {
+          "val_id": "VAL_TEMA_01",
+          "rank": 1,
+          "score": 0.6436272596920266,
+          "hit_r5": true
+        },
+        {
+          "val_id": "VAL_TEMA_02",
+          "rank": null,
+          "score": 0.0,
+          "hit_r5": false
+        },
+        {
+          "val_id": "VAL_TEMA_03",
+          "rank": null,
+          "score": 0.0,
+          "hit_r5": false
+        },
+        {
+          "val_id": "VAL_TEMA_04",
+          "rank": null,
+          "score": 0.0,
+          "hit_r5": false
+        },
+        {
+          "val_id": "VAL_TEMA_05",
+          "rank": 4,
+          "score": 0.5998238735521523,
+          "hit_r5": true
+        },
+        {
+          "val_id": "VAL_TEMA_06",
+          "rank": 5,
+          "score": 0.42851179842035586,
+          "hit_r5": true
+        },
+        {
+          "val_id": "VAL_TEMA_07",
+          "rank": 1,
+          "score": 0.7285457836926521,
+          "hit_r5": true
+        },
+        {
+          "val_id": "VAL_TEMA_08",
+          "rank": null,
+          "score": 0.0,
+          "hit_r5": false
+        },
+        {
+          "val_id": "VAL_TEMA_09",
+          "rank": 1,
+          "score": 0.5590745594707156,
+          "hit_r5": true
+        },
+        {
+          "val_id": "VAL_TEMA_10",
+          "rank": 1,
+          "score": 0.5646535901224483,
+          "hit_r5": true
+        },
+        {
+          "val_id": "VAL_TEMA_11",
+          "rank": 1,
+          "score": 0.5231455906923206,
+          "hit_r5": true
+        },
+        {
+          "val_id": "VAL_TEMA_12",
+          "rank": 5,
+          "score": 0.574484763859248,
+          "hit_r5": true
+        },
+        {
+          "val_id": "VAL_TEMA_13",
+          "rank": null,
+          "score": 0.0,
+          "hit_r5": false
+        },
+        {
+          "val_id": "VAL_TEMA_14",
+          "rank": 1,
+          "score": 0.7193769903685142,
+          "hit_r5": true
+        },
+        {
+          "val_id": "VAL_TEMA_15",
+          "rank": 2,
+          "score": 0.6604425374742916,
+          "hit_r5": true
+        },
+        {
+          "val_id": "VAL_PREG_01",
+          "rank": 1,
+          "score": 0.8321000476569114,
+          "hit_r5": true
+        },
+        {
+          "val_id": "VAL_PREG_02",
+          "rank": null,
+          "score": 0.0,
+          "hit_r5": false
+        },
+        {
+          "val_id": "VAL_PREG_03",
+          "rank": 1,
+          "score": 0.6693390825347917,
+          "hit_r5": true
+        },
+        {
+          "val_id": "VAL_PREG_04",
+          "rank": null,
+          "score": 0.0,
+          "hit_r5": false
+        },
+        {
+          "val_id": "VAL_PREG_05",
+          "rank": null,
+          "score": 0.0,
+          "hit_r5": false
+        },
+        {
+          "val_id": "VAL_PREG_06",
+          "rank": 5,
+          "score": 0.7622667578590677,
+          "hit_r5": true
+        },
+        {
+          "val_id": "VAL_PREG_07",
+          "rank": 2,
+          "score": 0.8001419567061854,
+          "hit_r5": true
+        },
+        {
+          "val_id": "VAL_PREG_08",
+          "rank": null,
+          "score": 0.0,
+          "hit_r5": false
+        },
+        {
+          "val_id": "VAL_PREG_09",
+          "rank": null,
+          "score": 0.0,
+          "hit_r5": false
+        },
+        {
+          "val_id": "VAL_PREG_10",
+          "rank": null,
+          "score": 0.0,
+          "hit_r5": false
+        },
+        {
+          "val_id": "VAL_PREG_11",
+          "rank": 1,
+          "score": 0.689027893779178,
+          "hit_r5": true
+        },
+        {
+          "val_id": "VAL_PREG_12",
+          "rank": null,
+          "score": 0.0,
+          "hit_r5": false
+        },
+        {
+          "val_id": "VAL_PREG_13",
+          "rank": null,
+          "score": 0.0,
+          "hit_r5": false
+        },
+        {
+          "val_id": "VAL_PREG_14",
+          "rank": 1,
+          "score": 0.8297260360733173,
+          "hit_r5": true
+        },
+        {
+          "val_id": "VAL_PREG_15",
+          "rank": 1,
+          "score": 0.8888569275708292,
+          "hit_r5": true
+        }
+      ]
+    },
+    "6. Simple Union Beam (Top-2 A+C ∪ Top-2 A+D)": {
+      "avg_candidate_pool": 41.266666666666666,
+      "island_r1": 12,
+      "island_r1_pct": 40.0,
+      "island_r5": 19,
+      "island_r5_pct": 63.33333333333333,
+      "global_r1": 12,
+      "global_r1_pct": 40.0,
+      "global_r5": 18,
+      "global_r5_pct": 60.0,
+      "mrr": 0.46529411764705875,
+      "case_ranks": [
+        {
+          "val_id": "VAL_TEMA_01",
+          "rank": 1,
+          "score": 0.6436272596920266,
+          "hit_r5": true
+        },
+        {
+          "val_id": "VAL_TEMA_02",
+          "rank": null,
+          "score": 0.0,
+          "hit_r5": false
+        },
+        {
+          "val_id": "VAL_TEMA_03",
+          "rank": 4,
+          "score": 0.5964112371878814,
+          "hit_r5": true
+        },
+        {
+          "val_id": "VAL_TEMA_04",
+          "rank": null,
+          "score": 0.0,
+          "hit_r5": false
+        },
+        {
+          "val_id": "VAL_TEMA_05",
+          "rank": 4,
+          "score": 0.5998238735521523,
+          "hit_r5": true
+        },
+        {
+          "val_id": "VAL_TEMA_06",
+          "rank": null,
+          "score": 0.0,
+          "hit_r5": false
+        },
+        {
+          "val_id": "VAL_TEMA_07",
+          "rank": 1,
+          "score": 0.7285457836926521,
+          "hit_r5": true
+        },
+        {
+          "val_id": "VAL_TEMA_08",
+          "rank": null,
+          "score": 0.0,
+          "hit_r5": false
+        },
+        {
+          "val_id": "VAL_TEMA_09",
+          "rank": 1,
+          "score": 0.5590745594707156,
+          "hit_r5": true
+        },
+        {
+          "val_id": "VAL_TEMA_10",
+          "rank": 1,
+          "score": 0.5646535901224483,
+          "hit_r5": true
+        },
+        {
+          "val_id": "VAL_TEMA_11",
+          "rank": 1,
+          "score": 0.5231455906923206,
+          "hit_r5": true
+        },
+        {
+          "val_id": "VAL_TEMA_12",
+          "rank": 5,
+          "score": 0.574484763859248,
+          "hit_r5": true
+        },
+        {
+          "val_id": "VAL_TEMA_13",
+          "rank": null,
+          "score": 0.0,
+          "hit_r5": false
+        },
+        {
+          "val_id": "VAL_TEMA_14",
+          "rank": 1,
+          "score": 0.7193769903685142,
+          "hit_r5": true
+        },
+        {
+          "val_id": "VAL_TEMA_15",
+          "rank": 2,
+          "score": 0.6604425374742916,
+          "hit_r5": true
+        },
+        {
+          "val_id": "VAL_PREG_01",
+          "rank": 1,
+          "score": 0.8321000476569114,
+          "hit_r5": true
+        },
+        {
+          "val_id": "VAL_PREG_02",
+          "rank": 17,
+          "score": 0.33735629162549374,
+          "hit_r5": false
+        },
+        {
+          "val_id": "VAL_PREG_03",
+          "rank": 1,
+          "score": 0.6693390825347917,
+          "hit_r5": true
+        },
+        {
+          "val_id": "VAL_PREG_04",
+          "rank": null,
+          "score": 0.0,
+          "hit_r5": false
+        },
+        {
+          "val_id": "VAL_PREG_05",
+          "rank": null,
+          "score": 0.0,
+          "hit_r5": false
+        },
+        {
+          "val_id": "VAL_PREG_06",
+          "rank": 5,
+          "score": 0.7622667578590677,
+          "hit_r5": true
+        },
+        {
+          "val_id": "VAL_PREG_07",
+          "rank": 2,
+          "score": 0.8001419567061854,
+          "hit_r5": true
+        },
+        {
+          "val_id": "VAL_PREG_08",
+          "rank": null,
+          "score": 0.0,
+          "hit_r5": false
+        },
+        {
+          "val_id": "VAL_PREG_09",
+          "rank": null,
+          "score": 0.0,
+          "hit_r5": false
+        },
+        {
+          "val_id": "VAL_PREG_10",
+          "rank": 1,
+          "score": 0.7838895268835476,
+          "hit_r5": true
+        },
+        {
+          "val_id": "VAL_PREG_11",
+          "rank": 1,
+          "score": 0.689027893779178,
+          "hit_r5": true
+        },
+        {
+          "val_id": "VAL_PREG_12",
+          "rank": null,
+          "score": 0.0,
+          "hit_r5": false
+        },
+        {
+          "val_id": "VAL_PREG_13",
+          "rank": null,
+          "score": 0.0,
+          "hit_r5": false
+        },
+        {
+          "val_id": "VAL_PREG_14",
+          "rank": 1,
+          "score": 0.8297260360733173,
+          "hit_r5": true
+        },
+        {
+          "val_id": "VAL_PREG_15",
+          "rank": 1,
+          "score": 0.8888569275708292,
+          "hit_r5": true
+        }
+      ]
+    },
+    "7. Simple Union Beam (Top-3 A+C ∪ Top-3 A+D)": {
+      "avg_candidate_pool": 63.7,
+      "island_r1": 12,
+      "island_r1_pct": 40.0,
+      "island_r5": 21,
+      "island_r5_pct": 70.0,
+      "global_r1": 12,
+      "global_r1_pct": 40.0,
+      "global_r5": 19,
+      "global_r5_pct": 63.33333333333333,
+      "mrr": 0.47423280423280423,
+      "case_ranks": [
+        {
+          "val_id": "VAL_TEMA_01",
+          "rank": 1,
+          "score": 0.6436272596920266,
+          "hit_r5": true
+        },
+        {
+          "val_id": "VAL_TEMA_02",
+          "rank": null,
+          "score": 0.0,
+          "hit_r5": false
+        },
+        {
+          "val_id": "VAL_TEMA_03",
+          "rank": 4,
+          "score": 0.5964112371878814,
+          "hit_r5": true
+        },
+        {
+          "val_id": "VAL_TEMA_04",
+          "rank": null,
+          "score": 0.0,
+          "hit_r5": false
+        },
+        {
+          "val_id": "VAL_TEMA_05",
+          "rank": 4,
+          "score": 0.5998238735521523,
+          "hit_r5": true
+        },
+        {
+          "val_id": "VAL_TEMA_06",
+          "rank": 5,
+          "score": 0.42851179842035586,
+          "hit_r5": true
+        },
+        {
+          "val_id": "VAL_TEMA_07",
+          "rank": 1,
+          "score": 0.7285457836926521,
+          "hit_r5": true
+        },
+        {
+          "val_id": "VAL_TEMA_08",
+          "rank": 14,
+          "score": 0.5096112258320277,
+          "hit_r5": false
+        },
+        {
+          "val_id": "VAL_TEMA_09",
+          "rank": 1,
+          "score": 0.5590745594707156,
+          "hit_r5": true
+        },
+        {
+          "val_id": "VAL_TEMA_10",
+          "rank": 1,
+          "score": 0.5646535901224483,
+          "hit_r5": true
+        },
+        {
+          "val_id": "VAL_TEMA_11",
+          "rank": 1,
+          "score": 0.5231455906923206,
+          "hit_r5": true
+        },
+        {
+          "val_id": "VAL_TEMA_12",
+          "rank": 5,
+          "score": 0.574484763859248,
+          "hit_r5": true
+        },
+        {
+          "val_id": "VAL_TEMA_13",
+          "rank": null,
+          "score": 0.0,
+          "hit_r5": false
+        },
+        {
+          "val_id": "VAL_TEMA_14",
+          "rank": 1,
+          "score": 0.7193769903685142,
+          "hit_r5": true
+        },
+        {
+          "val_id": "VAL_TEMA_15",
+          "rank": 2,
+          "score": 0.6604425374742916,
+          "hit_r5": true
+        },
+        {
+          "val_id": "VAL_PREG_01",
+          "rank": 1,
+          "score": 0.8321000476569114,
+          "hit_r5": true
+        },
+        {
+          "val_id": "VAL_PREG_02",
+          "rank": 18,
+          "score": 0.33735629162549374,
+          "hit_r5": false
+        },
+        {
+          "val_id": "VAL_PREG_03",
+          "rank": 1,
+          "score": 0.6693390825347917,
+          "hit_r5": true
+        },
+        {
+          "val_id": "VAL_PREG_04",
+          "rank": null,
+          "score": 0.0,
+          "hit_r5": false
+        },
+        {
+          "val_id": "VAL_PREG_05",
+          "rank": null,
+          "score": 0.0,
+          "hit_r5": false
+        },
+        {
+          "val_id": "VAL_PREG_06",
+          "rank": 5,
+          "score": 0.7622667578590677,
+          "hit_r5": true
+        },
+        {
+          "val_id": "VAL_PREG_07",
+          "rank": 2,
+          "score": 0.8001419567061854,
+          "hit_r5": true
+        },
+        {
+          "val_id": "VAL_PREG_08",
+          "rank": null,
+          "score": 0.0,
+          "hit_r5": false
+        },
+        {
+          "val_id": "VAL_PREG_09",
+          "rank": null,
+          "score": 0.0,
+          "hit_r5": false
+        },
+        {
+          "val_id": "VAL_PREG_10",
+          "rank": 1,
+          "score": 0.7838895268835476,
+          "hit_r5": true
+        },
+        {
+          "val_id": "VAL_PREG_11",
+          "rank": 1,
+          "score": 0.689027893779178,
+          "hit_r5": true
+        },
+        {
+          "val_id": "VAL_PREG_12",
+          "rank": null,
+          "score": 0.0,
+          "hit_r5": false
+        },
+        {
+          "val_id": "VAL_PREG_13",
+          "rank": null,
+          "score": 0.0,
+          "hit_r5": false
+        },
+        {
+          "val_id": "VAL_PREG_14",
+          "rank": 1,
+          "score": 0.8297260360733173,
+          "hit_r5": true
+        },
+        {
+          "val_id": "VAL_PREG_15",
+          "rank": 1,
+          "score": 0.8888569275708292,
+          "hit_r5": true
+        }
+      ]
+    }
+  },
+  "adversarial_eval": [
+    {
+      "adv_id": "ADV_NEG_01",
+      "query": "trompeta aspiradora cremallera sartén",
+      "top_candidate": "dennys-identidad-profunda",
+      "top_score": 0.0,
+      "is_fp": false
+    },
+    {
+      "adv_id": "ADV_NEG_02",
+      "query": "castor acordeón",
+      "top_candidate": "dennys-identidad-profunda",
+      "top_score": 0.0,
+      "is_fp": false
+    },
+    {
+      "adv_id": "ADV_NEG_03",
+      "query": "cebolla colador cremallera jabalí",
+      "top_candidate": "dennys-identidad-profunda",
+      "top_score": 0.0,
+      "is_fp": false
+    },
+    {
+      "adv_id": "ADV_NEG_04",
+      "query": "tomillo saxofón",
+      "top_candidate": "dennys-identidad-profunda",
+      "top_score": 0.0,
+      "is_fp": false
+    },
+    {
+      "adv_id": "ADV_NEG_05",
+      "query": "aspiradora palangana",
+      "top_candidate": "dennys-identidad-profunda",
+      "top_score": 0.0,
+      "is_fp": false
+    },
+    {
+      "adv_id": "ADV_NEG_06",
+      "query": "castor morsa",
+      "top_candidate": "dennys-identidad-profunda",
+      "top_score": 0.0,
+      "is_fp": false
+    },
+    {
+      "adv_id": "ADV_NEG_07",
+      "query": "aspiradora albahaca cigüeña servilleta",
+      "top_candidate": "dennys-identidad-profunda",
+      "top_score": 0.0,
+      "is_fp": false
+    },
+    {
+      "adv_id": "ADV_NEG_08",
+      "query": "rallador jabalí tobogán castor",
+      "top_candidate": "dennys-identidad-profunda",
+      "top_score": 0.0,
+      "is_fp": false
+    },
+    {
+      "adv_id": "ADV_NEG_09",
+      "query": "tomillo sartén escobillón",
+      "top_candidate": "dennys-identidad-profunda",
+      "top_score": 0.0,
+      "is_fp": false
+    },
+    {
+      "adv_id": "ADV_NEG_10",
+      "query": "cinturón escobillón",
+      "top_candidate": "dennys-identidad-profunda",
+      "top_score": 0.0,
+      "is_fp": false
+    }
+  ],
+  "contingency_analysis": {
+    "both_rescued": [
+      "VAL_TEMA_01",
+      "VAL_TEMA_03",
+      "VAL_TEMA_05",
+      "VAL_TEMA_06",
+      "VAL_TEMA_07",
+      "VAL_TEMA_09",
+      "VAL_TEMA_10",
+      "VAL_TEMA_11",
+      "VAL_TEMA_12",
+      "VAL_TEMA_14",
+      "VAL_TEMA_15",
+      "VAL_PREG_01",
+      "VAL_PREG_03",
+      "VAL_PREG_06",
+      "VAL_PREG_07",
+      "VAL_PREG_09",
+      "VAL_PREG_10",
+      "VAL_PREG_11",
+      "VAL_PREG_12",
+      "VAL_PREG_13",
+      "VAL_PREG_14",
+      "VAL_PREG_15"
+    ],
+    "solo_ac_rescued": [],
+    "solo_ad_rescued": [],
+    "both_missed": [
+      "VAL_TEMA_02",
+      "VAL_TEMA_04",
+      "VAL_TEMA_08",
+      "VAL_TEMA_13",
+      "VAL_PREG_02",
+      "VAL_PREG_04",
+      "VAL_PREG_05",
+      "VAL_PREG_08"
+    ],
+    "concordance_lost_cases": [
+      "VAL_TEMA_03",
+      "VAL_PREG_09",
+      "VAL_PREG_10",
+      "VAL_PREG_12",
+      "VAL_PREG_13"
+    ]
+  }
+}

@@ -1,0 +1,2799 @@
+{
+  "experimento": "EXP-Q-R7",
+  "fecha": "2026-09-09T16:35:46Z",
+  "db_sha256": "1cc5f9c69761b44a4f4710b97008833d053236f19ba4c89b0765c030faf792cc",
+  "gammas_evaluated": [
+    0.25,
+    0.5,
+    0.75,
+    1.0,
+    1.5,
+    2.0
+  ],
+  "sweep_results": [
+    {
+      "gamma": 0.25,
+      "dev_evaluation": {
+        "gamma": 0.25,
+        "n_cases": 12,
+        "q0_summary": {
+          "r1": 0.0,
+          "r5": 0.0,
+          "mrr": 0.0
+        },
+        "q1_summary": {
+          "r1": 0.0,
+          "r5": 8.33,
+          "mrr": 0.0368
+        },
+        "q2_summary": {
+          "r1": 0.0,
+          "r5": 0.0,
+          "mrr": 0.0127
+        },
+        "q3_summary": {
+          "r1": 0.0,
+          "r5": 0.0,
+          "mrr": 0.0
+        },
+        "delta_q0_to_q1": 8.33,
+        "delta_q1_to_q2": -8.33,
+        "casos": [
+          {
+            "id": "CASE_01",
+            "gold": "scoring_pesos_bm25",
+            "query": "calibrar ajuste escalar para combinar relevancia heterogenea",
+            "q0": {
+              "rank": null,
+              "score": 0.0,
+              "provenance": "NOT_FOUND"
+            },
+            "q1": {
+              "rank": null,
+              "score": 0.0,
+              "provenance": "NOT_FOUND"
+            },
+            "q2": {
+              "rank": null,
+              "score": 0.0,
+              "provenance": "NOT_FOUND",
+              "boost_applied": null,
+              "num_support": null
+            },
+            "q3": {
+              "rank": null,
+              "score": 0.0,
+              "provenance": "NOT_FOUND"
+            },
+            "latencia_ms": 6432.72
+          },
+          {
+            "id": "CASE_02",
+            "gold": "desde_athena_biorag",
+            "query": "construir enlaces probabilistas de fusion de subgrafos",
+            "q0": {
+              "rank": null,
+              "score": 0.0,
+              "provenance": "NOT_FOUND"
+            },
+            "q1": {
+              "rank": null,
+              "score": 0.0,
+              "provenance": "NOT_FOUND"
+            },
+            "q2": {
+              "rank": null,
+              "score": 0.0,
+              "provenance": "NOT_FOUND",
+              "boost_applied": null,
+              "num_support": null
+            },
+            "q3": {
+              "rank": null,
+              "score": 0.0,
+              "provenance": "NOT_FOUND"
+            },
+            "latencia_ms": 5285.76
+          },
+          {
+            "id": "CASE_03",
+            "gold": "docker_infrastructure_rog",
+            "query": "despliegue modular en equipo portatil dedicado",
+            "q0": {
+              "rank": null,
+              "score": 0.0,
+              "provenance": "NOT_FOUND"
+            },
+            "q1": {
+              "rank": null,
+              "score": 0.0,
+              "provenance": "NOT_FOUND"
+            },
+            "q2": {
+              "rank": null,
+              "score": 0.0,
+              "provenance": "NOT_FOUND",
+              "boost_applied": null,
+              "num_support": null
+            },
+            "q3": {
+              "rank": null,
+              "score": 0.0,
+              "provenance": "NOT_FOUND"
+            },
+            "latencia_ms": 5569.66
+          },
+          {
+            "id": "CASE_04",
+            "gold": "coche_puente_condicional",
+            "query": "diagnostico de compuerta de transicion contextual",
+            "q0": {
+              "rank": null,
+              "score": 0.0,
+              "provenance": "NOT_FOUND"
+            },
+            "q1": {
+              "rank": null,
+              "score": 0.0,
+              "provenance": "NOT_FOUND"
+            },
+            "q2": {
+              "rank": null,
+              "score": 0.0,
+              "provenance": "NOT_FOUND",
+              "boost_applied": null,
+              "num_support": null
+            },
+            "q3": {
+              "rank": null,
+              "score": 0.0,
+              "provenance": "NOT_FOUND"
+            },
+            "latencia_ms": 3740.74
+          },
+          {
+            "id": "CASE_05",
+            "gold": "activos_dormidos_hermana",
+            "query": "mutacion de entidades caducas en estado de reposo prolongado",
+            "q0": {
+              "rank": null,
+              "score": 0.0,
+              "provenance": "NOT_FOUND"
+            },
+            "q1": {
+              "rank": null,
+              "score": 0.0,
+              "provenance": "NOT_FOUND"
+            },
+            "q2": {
+              "rank": null,
+              "score": 0.0,
+              "provenance": "NOT_FOUND",
+              "boost_applied": null,
+              "num_support": null
+            },
+            "q3": {
+              "rank": null,
+              "score": 0.0,
+              "provenance": "NOT_FOUND"
+            },
+            "latencia_ms": 7260.04
+          },
+          {
+            "id": "CASE_06",
+            "gold": "kilo_vscode_extension_principal",
+            "query": "panel visual de desarrollo para despacho de tareas",
+            "q0": {
+              "rank": null,
+              "score": 0.0,
+              "provenance": "NOT_FOUND"
+            },
+            "q1": {
+              "rank": null,
+              "score": 0.0,
+              "provenance": "NOT_FOUND"
+            },
+            "q2": {
+              "rank": null,
+              "score": 0.0,
+              "provenance": "NOT_FOUND",
+              "boost_applied": null,
+              "num_support": null
+            },
+            "q3": {
+              "rank": null,
+              "score": 0.0,
+              "provenance": "NOT_FOUND"
+            },
+            "latencia_ms": 3926.71
+          },
+          {
+            "id": "CASE_07",
+            "gold": "principio_metacognicion_autobservacion",
+            "query": "escrutinio introspectivo de deducciones y deliberaciones",
+            "q0": {
+              "rank": null,
+              "score": 0.0,
+              "provenance": "NOT_FOUND"
+            },
+            "q1": {
+              "rank": null,
+              "score": 0.0,
+              "provenance": "NOT_FOUND"
+            },
+            "q2": {
+              "rank": null,
+              "score": 0.0,
+              "provenance": "NOT_FOUND",
+              "boost_applied": null,
+              "num_support": null
+            },
+            "q3": {
+              "rank": null,
+              "score": 0.0,
+              "provenance": "NOT_FOUND"
+            },
+            "latencia_ms": 5940.39
+          },
+          {
+            "id": "CASE_08",
+            "gold": "plan_tejedora_agujeros_estructurales_v1",
+            "query": "reparacion topologica de discontinuidades reticulares",
+            "q0": {
+              "rank": null,
+              "score": 0.0,
+              "provenance": "NOT_FOUND"
+            },
+            "q1": {
+              "rank": 41,
+              "score": 0.3041,
+              "provenance": "GRAPH_NEIGHBOR"
+            },
+            "q2": {
+              "rank": 41,
+              "score": 0.3041,
+              "provenance": "GRAPH_NEIGHBOR",
+              "boost_applied": 0.0,
+              "num_support": 1
+            },
+            "q3": {
+              "rank": null,
+              "score": 0.0,
+              "provenance": "NOT_FOUND"
+            },
+            "latencia_ms": 6313.4
+          },
+          {
+            "id": "CASE_09",
+            "gold": "leccion_motivacion_intrinseca_biorag",
+            "query": "estimulo autonomo para preservacion mnemica voluntaria",
+            "q0": {
+              "rank": null,
+              "score": 0.0,
+              "provenance": "NOT_FOUND"
+            },
+            "q1": {
+              "rank": null,
+              "score": 0.0,
+              "provenance": "NOT_FOUND"
+            },
+            "q2": {
+              "rank": null,
+              "score": 0.0,
+              "provenance": "NOT_FOUND",
+              "boost_applied": null,
+              "num_support": null
+            },
+            "q3": {
+              "rank": null,
+              "score": 0.0,
+              "provenance": "NOT_FOUND"
+            },
+            "latencia_ms": 5114.63
+          },
+          {
+            "id": "CASE_10",
+            "gold": "ajuste_tejedora_valencia_desempate_fase1",
+            "query": "resolucion de colisiones valorativas en bifurcaciones",
+            "q0": {
+              "rank": null,
+              "score": 0.0,
+              "provenance": "NOT_FOUND"
+            },
+            "q1": {
+              "rank": null,
+              "score": 0.0,
+              "provenance": "NOT_FOUND"
+            },
+            "q2": {
+              "rank": null,
+              "score": 0.0,
+              "provenance": "NOT_FOUND",
+              "boost_applied": null,
+              "num_support": null
+            },
+            "q3": {
+              "rank": null,
+              "score": 0.0,
+              "provenance": "NOT_FOUND"
+            },
+            "latencia_ms": 3206.05
+          },
+          {
+            "id": "CASE_11",
+            "gold": "naturaleza_sistema_oec_cerebro_memoria",
+            "query": "ontologia triadica de entidades inteligentes unificadas",
+            "q0": {
+              "rank": null,
+              "score": 0.0,
+              "provenance": "NOT_FOUND"
+            },
+            "q1": {
+              "rank": 12,
+              "score": 0.4097,
+              "provenance": "GRAPH_NEIGHBOR"
+            },
+            "q2": {
+              "rank": 36,
+              "score": 0.4341,
+              "provenance": "GRAPH_NEIGHBOR",
+              "boost_applied": 0.0244,
+              "num_support": 3
+            },
+            "q3": {
+              "rank": null,
+              "score": 0.0,
+              "provenance": "NOT_FOUND"
+            },
+            "latencia_ms": 3412.92
+          },
+          {
+            "id": "CASE_12",
+            "gold": "regla_verificar_codigo_real_antes_de_diagnostico",
+            "query": "comprobacion fidedigna de ficheros previo a emitir dictamenes",
+            "q0": {
+              "rank": null,
+              "score": 0.0,
+              "provenance": "NOT_FOUND"
+            },
+            "q1": {
+              "rank": 3,
+              "score": 0.4156,
+              "provenance": "GRAPH_NEIGHBOR"
+            },
+            "q2": {
+              "rank": 10,
+              "score": 0.5819,
+              "provenance": "GRAPH_NEIGHBOR",
+              "boost_applied": 0.1663,
+              "num_support": 14
+            },
+            "q3": {
+              "rank": null,
+              "score": 0.0,
+              "provenance": "NOT_FOUND"
+            },
+            "latencia_ms": 4426.8
+          }
+        ]
+      },
+      "negative_evaluation": {
+        "n_negativos": 10,
+        "fp_graph_count": 1,
+        "fp_graph_rate": 10.0,
+        "detalles": [
+          {
+            "id": "NEG_01",
+            "query": "receta culinaria de cocina mediterranea con aceite de oliva",
+            "q0_max": 0.4331,
+            "q2_max": 0.8269,
+            "top_concept": "perfil_respuesta_experiencia_ia",
+            "top_provenance": "GRAPH_NEIGHBOR",
+            "is_graph_fp": false
+          },
+          {
+            "id": "NEG_02",
+            "query": "mantenimiento preventivo de vehiculos hibridos y cambio de frenos",
+            "q0_max": 0.5127,
+            "q2_max": 0.7414,
+            "top_concept": "leccion_discrepancia_busquedas_vocabulario_no_estocasticidad",
+            "top_provenance": "GRAPH_NEIGHBOR",
+            "is_graph_fp": false
+          },
+          {
+            "id": "NEG_03",
+            "query": "estrategias de cultivo hidroponico para tomates en invernadero",
+            "q0_max": 0.3425,
+            "q2_max": 0.4753,
+            "top_concept": "athena_oec",
+            "top_provenance": "GRAPH_NEIGHBOR",
+            "is_graph_fp": false
+          },
+          {
+            "id": "NEG_04",
+            "query": "tecnicas de respiracion para buceo libre y apnea profunda",
+            "q0_max": 0.2289,
+            "q2_max": 0.3904,
+            "top_concept": "dennys_vida_laboral",
+            "top_provenance": "GRAPH_NEIGHBOR",
+            "is_graph_fp": true
+          },
+          {
+            "id": "NEG_05",
+            "query": "historia del arte renacentista en florencia del siglo xv",
+            "q0_max": 0.4351,
+            "q2_max": 0.7219,
+            "top_concept": "regla_verificar_codigo_real_antes_de_diagnostico",
+            "top_provenance": "GRAPH_NEIGHBOR",
+            "is_graph_fp": false
+          },
+          {
+            "id": "NEG_06",
+            "query": "manual de reparacion de transmisiones automaticas y embragues",
+            "q0_max": 0.4312,
+            "q2_max": 0.7839,
+            "top_concept": "causa_raiz_por_tema_pooling_plano_diluye_senal_word2vec",
+            "top_provenance": "GRAPH_NEIGHBOR",
+            "is_graph_fp": false
+          },
+          {
+            "id": "NEG_07",
+            "query": "guia de senderismo de alta montana en los alpes suizos",
+            "q0_max": 0.3929,
+            "q2_max": 0.7466,
+            "top_concept": "protocolo_busqueda_biorag_automatica",
+            "top_provenance": "GRAPH_NEIGHBOR",
+            "is_graph_fp": false
+          },
+          {
+            "id": "NEG_08",
+            "query": "preparacion de masa madre para reposteria artesanal",
+            "q0_max": 0.3556,
+            "q2_max": 0.689,
+            "top_concept": "protocolo_busqueda_biorag_automatica",
+            "top_provenance": "GRAPH_NEIGHBOR",
+            "is_graph_fp": false
+          },
+          {
+            "id": "NEG_09",
+            "query": "composicion quimica de fertilizantes organicos para jardineria",
+            "q0_max": 0.4867,
+            "q2_max": 0.6952,
+            "top_concept": "perfil_respuesta_experiencia_ia",
+            "top_provenance": "GRAPH_NEIGHBOR",
+            "is_graph_fp": false
+          },
+          {
+            "id": "NEG_10",
+            "query": "reglas oficiales de arbitraje en torneos internacionales de ajedrez",
+            "q0_max": 0.4004,
+            "q2_max": 0.851,
+            "top_concept": "protocolo_busqueda_biorag_automatica",
+            "top_provenance": "GRAPH_NEIGHBOR",
+            "is_graph_fp": false
+          }
+        ]
+      }
+    },
+    {
+      "gamma": 0.5,
+      "dev_evaluation": {
+        "gamma": 0.5,
+        "n_cases": 12,
+        "q0_summary": {
+          "r1": 0.0,
+          "r5": 0.0,
+          "mrr": 0.0
+        },
+        "q1_summary": {
+          "r1": 0.0,
+          "r5": 8.33,
+          "mrr": 0.0368
+        },
+        "q2_summary": {
+          "r1": 0.0,
+          "r5": 0.0,
+          "mrr": 0.0117
+        },
+        "q3_summary": {
+          "r1": 0.0,
+          "r5": 0.0,
+          "mrr": 0.0
+        },
+        "delta_q0_to_q1": 8.33,
+        "delta_q1_to_q2": -8.33,
+        "casos": [
+          {
+            "id": "CASE_01",
+            "gold": "scoring_pesos_bm25",
+            "query": "calibrar ajuste escalar para combinar relevancia heterogenea",
+            "q0": {
+              "rank": null,
+              "score": 0.0,
+              "provenance": "NOT_FOUND"
+            },
+            "q1": {
+              "rank": null,
+              "score": 0.0,
+              "provenance": "NOT_FOUND"
+            },
+            "q2": {
+              "rank": null,
+              "score": 0.0,
+              "provenance": "NOT_FOUND",
+              "boost_applied": null,
+              "num_support": null
+            },
+            "q3": {
+              "rank": null,
+              "score": 0.0,
+              "provenance": "NOT_FOUND"
+            },
+            "latencia_ms": 4759.25
+          },
+          {
+            "id": "CASE_02",
+            "gold": "desde_athena_biorag",
+            "query": "construir enlaces probabilistas de fusion de subgrafos",
+            "q0": {
+              "rank": null,
+              "score": 0.0,
+              "provenance": "NOT_FOUND"
+            },
+            "q1": {
+              "rank": null,
+              "score": 0.0,
+              "provenance": "NOT_FOUND"
+            },
+            "q2": {
+              "rank": null,
+              "score": 0.0,
+              "provenance": "NOT_FOUND",
+              "boost_applied": null,
+              "num_support": null
+            },
+            "q3": {
+              "rank": null,
+              "score": 0.0,
+              "provenance": "NOT_FOUND"
+            },
+            "latencia_ms": 3776.7
+          },
+          {
+            "id": "CASE_03",
+            "gold": "docker_infrastructure_rog",
+            "query": "despliegue modular en equipo portatil dedicado",
+            "q0": {
+              "rank": null,
+              "score": 0.0,
+              "provenance": "NOT_FOUND"
+            },
+            "q1": {
+              "rank": null,
+              "score": 0.0,
+              "provenance": "NOT_FOUND"
+            },
+            "q2": {
+              "rank": null,
+              "score": 0.0,
+              "provenance": "NOT_FOUND",
+              "boost_applied": null,
+              "num_support": null
+            },
+            "q3": {
+              "rank": null,
+              "score": 0.0,
+              "provenance": "NOT_FOUND"
+            },
+            "latencia_ms": 3628.79
+          },
+          {
+            "id": "CASE_04",
+            "gold": "coche_puente_condicional",
+            "query": "diagnostico de compuerta de transicion contextual",
+            "q0": {
+              "rank": null,
+              "score": 0.0,
+              "provenance": "NOT_FOUND"
+            },
+            "q1": {
+              "rank": null,
+              "score": 0.0,
+              "provenance": "NOT_FOUND"
+            },
+            "q2": {
+              "rank": null,
+              "score": 0.0,
+              "provenance": "NOT_FOUND",
+              "boost_applied": null,
+              "num_support": null
+            },
+            "q3": {
+              "rank": null,
+              "score": 0.0,
+              "provenance": "NOT_FOUND"
+            },
+            "latencia_ms": 2974.37
+          },
+          {
+            "id": "CASE_05",
+            "gold": "activos_dormidos_hermana",
+            "query": "mutacion de entidades caducas en estado de reposo prolongado",
+            "q0": {
+              "rank": null,
+              "score": 0.0,
+              "provenance": "NOT_FOUND"
+            },
+            "q1": {
+              "rank": null,
+              "score": 0.0,
+              "provenance": "NOT_FOUND"
+            },
+            "q2": {
+              "rank": null,
+              "score": 0.0,
+              "provenance": "NOT_FOUND",
+              "boost_applied": null,
+              "num_support": null
+            },
+            "q3": {
+              "rank": null,
+              "score": 0.0,
+              "provenance": "NOT_FOUND"
+            },
+            "latencia_ms": 5003.69
+          },
+          {
+            "id": "CASE_06",
+            "gold": "kilo_vscode_extension_principal",
+            "query": "panel visual de desarrollo para despacho de tareas",
+            "q0": {
+              "rank": null,
+              "score": 0.0,
+              "provenance": "NOT_FOUND"
+            },
+            "q1": {
+              "rank": null,
+              "score": 0.0,
+              "provenance": "NOT_FOUND"
+            },
+            "q2": {
+              "rank": null,
+              "score": 0.0,
+              "provenance": "NOT_FOUND",
+              "boost_applied": null,
+              "num_support": null
+            },
+            "q3": {
+              "rank": null,
+              "score": 0.0,
+              "provenance": "NOT_FOUND"
+            },
+            "latencia_ms": 3537.15
+          },
+          {
+            "id": "CASE_07",
+            "gold": "principio_metacognicion_autobservacion",
+            "query": "escrutinio introspectivo de deducciones y deliberaciones",
+            "q0": {
+              "rank": null,
+              "score": 0.0,
+              "provenance": "NOT_FOUND"
+            },
+            "q1": {
+              "rank": null,
+              "score": 0.0,
+              "provenance": "NOT_FOUND"
+            },
+            "q2": {
+              "rank": null,
+              "score": 0.0,
+              "provenance": "NOT_FOUND",
+              "boost_applied": null,
+              "num_support": null
+            },
+            "q3": {
+              "rank": null,
+              "score": 0.0,
+              "provenance": "NOT_FOUND"
+            },
+            "latencia_ms": 6010.68
+          },
+          {
+            "id": "CASE_08",
+            "gold": "plan_tejedora_agujeros_estructurales_v1",
+            "query": "reparacion topologica de discontinuidades reticulares",
+            "q0": {
+              "rank": null,
+              "score": 0.0,
+              "provenance": "NOT_FOUND"
+            },
+            "q1": {
+              "rank": 41,
+              "score": 0.3041,
+              "provenance": "GRAPH_NEIGHBOR"
+            },
+            "q2": {
+              "rank": 41,
+              "score": 0.3041,
+              "provenance": "GRAPH_NEIGHBOR",
+              "boost_applied": 0.0,
+              "num_support": 1
+            },
+            "q3": {
+              "rank": null,
+              "score": 0.0,
+              "provenance": "NOT_FOUND"
+            },
+            "latencia_ms": 6118.81
+          },
+          {
+            "id": "CASE_09",
+            "gold": "leccion_motivacion_intrinseca_biorag",
+            "query": "estimulo autonomo para preservacion mnemica voluntaria",
+            "q0": {
+              "rank": null,
+              "score": 0.0,
+              "provenance": "NOT_FOUND"
+            },
+            "q1": {
+              "rank": null,
+              "score": 0.0,
+              "provenance": "NOT_FOUND"
+            },
+            "q2": {
+              "rank": null,
+              "score": 0.0,
+              "provenance": "NOT_FOUND",
+              "boost_applied": null,
+              "num_support": null
+            },
+            "q3": {
+              "rank": null,
+              "score": 0.0,
+              "provenance": "NOT_FOUND"
+            },
+            "latencia_ms": 4223.7
+          },
+          {
+            "id": "CASE_10",
+            "gold": "ajuste_tejedora_valencia_desempate_fase1",
+            "query": "resolucion de colisiones valorativas en bifurcaciones",
+            "q0": {
+              "rank": null,
+              "score": 0.0,
+              "provenance": "NOT_FOUND"
+            },
+            "q1": {
+              "rank": null,
+              "score": 0.0,
+              "provenance": "NOT_FOUND"
+            },
+            "q2": {
+              "rank": null,
+              "score": 0.0,
+              "provenance": "NOT_FOUND",
+              "boost_applied": null,
+              "num_support": null
+            },
+            "q3": {
+              "rank": null,
+              "score": 0.0,
+              "provenance": "NOT_FOUND"
+            },
+            "latencia_ms": 2576.76
+          },
+          {
+            "id": "CASE_11",
+            "gold": "naturaleza_sistema_oec_cerebro_memoria",
+            "query": "ontologia triadica de entidades inteligentes unificadas",
+            "q0": {
+              "rank": null,
+              "score": 0.0,
+              "provenance": "NOT_FOUND"
+            },
+            "q1": {
+              "rank": 12,
+              "score": 0.4097,
+              "provenance": "GRAPH_NEIGHBOR"
+            },
+            "q2": {
+              "rank": 40,
+              "score": 0.4585,
+              "provenance": "GRAPH_NEIGHBOR",
+              "boost_applied": 0.0488,
+              "num_support": 3
+            },
+            "q3": {
+              "rank": null,
+              "score": 0.0,
+              "provenance": "NOT_FOUND"
+            },
+            "latencia_ms": 3917.11
+          },
+          {
+            "id": "CASE_12",
+            "gold": "regla_verificar_codigo_real_antes_de_diagnostico",
+            "query": "comprobacion fidedigna de ficheros previo a emitir dictamenes",
+            "q0": {
+              "rank": null,
+              "score": 0.0,
+              "provenance": "NOT_FOUND"
+            },
+            "q1": {
+              "rank": 3,
+              "score": 0.4156,
+              "provenance": "GRAPH_NEIGHBOR"
+            },
+            "q2": {
+              "rank": 11,
+              "score": 0.7483,
+              "provenance": "GRAPH_NEIGHBOR",
+              "boost_applied": 0.3327,
+              "num_support": 14
+            },
+            "q3": {
+              "rank": null,
+              "score": 0.0,
+              "provenance": "NOT_FOUND"
+            },
+            "latencia_ms": 4850.15
+          }
+        ]
+      },
+      "negative_evaluation": {
+        "n_negativos": 10,
+        "fp_graph_count": 1,
+        "fp_graph_rate": 10.0,
+        "detalles": [
+          {
+            "id": "NEG_01",
+            "query": "receta culinaria de cocina mediterranea con aceite de oliva",
+            "q0_max": 0.4331,
+            "q2_max": 0.95,
+            "top_concept": "correccion_dennys_principio_documentar_crisis_existencial",
+            "top_provenance": "GRAPH_NEIGHBOR",
+            "is_graph_fp": false
+          },
+          {
+            "id": "NEG_02",
+            "query": "mantenimiento preventivo de vehiculos hibridos y cambio de frenos",
+            "q0_max": 0.5127,
+            "q2_max": 0.95,
+            "top_concept": "aciertos_word2vec_top5_coincidencia_lexica_no_semantica_20260808",
+            "top_provenance": "GRAPH_NEIGHBOR",
+            "is_graph_fp": false
+          },
+          {
+            "id": "NEG_03",
+            "query": "estrategias de cultivo hidroponico para tomates en invernadero",
+            "q0_max": 0.3425,
+            "q2_max": 0.561,
+            "top_concept": "regla_verificar_codigo_real_antes_de_diagnostico",
+            "top_provenance": "GRAPH_NEIGHBOR",
+            "is_graph_fp": false
+          },
+          {
+            "id": "NEG_04",
+            "query": "tecnicas de respiracion para buceo libre y apnea profunda",
+            "q0_max": 0.2289,
+            "q2_max": 0.3904,
+            "top_concept": "dennys_vida_laboral",
+            "top_provenance": "GRAPH_NEIGHBOR",
+            "is_graph_fp": true
+          },
+          {
+            "id": "NEG_05",
+            "query": "historia del arte renacentista en florencia del siglo xv",
+            "q0_max": 0.4351,
+            "q2_max": 0.95,
+            "top_concept": "regla_verificar_codigo_real_antes_de_diagnostico",
+            "top_provenance": "GRAPH_NEIGHBOR",
+            "is_graph_fp": false
+          },
+          {
+            "id": "NEG_06",
+            "query": "manual de reparacion de transmisiones automaticas y embragues",
+            "q0_max": 0.4312,
+            "q2_max": 0.95,
+            "top_concept": "puente_llm_sinonimos_infraestructura_verificada_20260809",
+            "top_provenance": "GRAPH_NEIGHBOR",
+            "is_graph_fp": false
+          },
+          {
+            "id": "NEG_07",
+            "query": "guia de senderismo de alta montana en los alpes suizos",
+            "q0_max": 0.3929,
+            "q2_max": 0.95,
+            "top_concept": "protocolo_busqueda_biorag_automatica",
+            "top_provenance": "GRAPH_NEIGHBOR",
+            "is_graph_fp": false
+          },
+          {
+            "id": "NEG_08",
+            "query": "preparacion de masa madre para reposteria artesanal",
+            "q0_max": 0.3556,
+            "q2_max": 0.95,
+            "top_concept": "protocolo_busqueda_biorag_automatica",
+            "top_provenance": "GRAPH_NEIGHBOR",
+            "is_graph_fp": false
+          },
+          {
+            "id": "NEG_09",
+            "query": "composicion quimica de fertilizantes organicos para jardineria",
+            "q0_max": 0.4867,
+            "q2_max": 0.95,
+            "top_concept": "perfil_respuesta_experiencia_ia",
+            "top_provenance": "GRAPH_NEIGHBOR",
+            "is_graph_fp": false
+          },
+          {
+            "id": "NEG_10",
+            "query": "reglas oficiales de arbitraje en torneos internacionales de ajedrez",
+            "q0_max": 0.4004,
+            "q2_max": 0.95,
+            "top_concept": "protocolo_busqueda_biorag_automatica",
+            "top_provenance": "GRAPH_NEIGHBOR",
+            "is_graph_fp": false
+          }
+        ]
+      }
+    },
+    {
+      "gamma": 0.75,
+      "dev_evaluation": {
+        "gamma": 0.75,
+        "n_cases": 12,
+        "q0_summary": {
+          "r1": 0.0,
+          "r5": 0.0,
+          "mrr": 0.0
+        },
+        "q1_summary": {
+          "r1": 0.0,
+          "r5": 8.33,
+          "mrr": 0.0368
+        },
+        "q2_summary": {
+          "r1": 0.0,
+          "r5": 0.0,
+          "mrr": 0.0104
+        },
+        "q3_summary": {
+          "r1": 0.0,
+          "r5": 0.0,
+          "mrr": 0.0
+        },
+        "delta_q0_to_q1": 8.33,
+        "delta_q1_to_q2": -8.33,
+        "casos": [
+          {
+            "id": "CASE_01",
+            "gold": "scoring_pesos_bm25",
+            "query": "calibrar ajuste escalar para combinar relevancia heterogenea",
+            "q0": {
+              "rank": null,
+              "score": 0.0,
+              "provenance": "NOT_FOUND"
+            },
+            "q1": {
+              "rank": null,
+              "score": 0.0,
+              "provenance": "NOT_FOUND"
+            },
+            "q2": {
+              "rank": null,
+              "score": 0.0,
+              "provenance": "NOT_FOUND",
+              "boost_applied": null,
+              "num_support": null
+            },
+            "q3": {
+              "rank": null,
+              "score": 0.0,
+              "provenance": "NOT_FOUND"
+            },
+            "latencia_ms": 4835.77
+          },
+          {
+            "id": "CASE_02",
+            "gold": "desde_athena_biorag",
+            "query": "construir enlaces probabilistas de fusion de subgrafos",
+            "q0": {
+              "rank": null,
+              "score": 0.0,
+              "provenance": "NOT_FOUND"
+            },
+            "q1": {
+              "rank": null,
+              "score": 0.0,
+              "provenance": "NOT_FOUND"
+            },
+            "q2": {
+              "rank": null,
+              "score": 0.0,
+              "provenance": "NOT_FOUND",
+              "boost_applied": null,
+              "num_support": null
+            },
+            "q3": {
+              "rank": null,
+              "score": 0.0,
+              "provenance": "NOT_FOUND"
+            },
+            "latencia_ms": 3841.95
+          },
+          {
+            "id": "CASE_03",
+            "gold": "docker_infrastructure_rog",
+            "query": "despliegue modular en equipo portatil dedicado",
+            "q0": {
+              "rank": null,
+              "score": 0.0,
+              "provenance": "NOT_FOUND"
+            },
+            "q1": {
+              "rank": null,
+              "score": 0.0,
+              "provenance": "NOT_FOUND"
+            },
+            "q2": {
+              "rank": null,
+              "score": 0.0,
+              "provenance": "NOT_FOUND",
+              "boost_applied": null,
+              "num_support": null
+            },
+            "q3": {
+              "rank": null,
+              "score": 0.0,
+              "provenance": "NOT_FOUND"
+            },
+            "latencia_ms": 4949.29
+          },
+          {
+            "id": "CASE_04",
+            "gold": "coche_puente_condicional",
+            "query": "diagnostico de compuerta de transicion contextual",
+            "q0": {
+              "rank": null,
+              "score": 0.0,
+              "provenance": "NOT_FOUND"
+            },
+            "q1": {
+              "rank": null,
+              "score": 0.0,
+              "provenance": "NOT_FOUND"
+            },
+            "q2": {
+              "rank": null,
+              "score": 0.0,
+              "provenance": "NOT_FOUND",
+              "boost_applied": null,
+              "num_support": null
+            },
+            "q3": {
+              "rank": null,
+              "score": 0.0,
+              "provenance": "NOT_FOUND"
+            },
+            "latencia_ms": 3071.55
+          },
+          {
+            "id": "CASE_05",
+            "gold": "activos_dormidos_hermana",
+            "query": "mutacion de entidades caducas en estado de reposo prolongado",
+            "q0": {
+              "rank": null,
+              "score": 0.0,
+              "provenance": "NOT_FOUND"
+            },
+            "q1": {
+              "rank": null,
+              "score": 0.0,
+              "provenance": "NOT_FOUND"
+            },
+            "q2": {
+              "rank": null,
+              "score": 0.0,
+              "provenance": "NOT_FOUND",
+              "boost_applied": null,
+              "num_support": null
+            },
+            "q3": {
+              "rank": null,
+              "score": 0.0,
+              "provenance": "NOT_FOUND"
+            },
+            "latencia_ms": 4720.47
+          },
+          {
+            "id": "CASE_06",
+            "gold": "kilo_vscode_extension_principal",
+            "query": "panel visual de desarrollo para despacho de tareas",
+            "q0": {
+              "rank": null,
+              "score": 0.0,
+              "provenance": "NOT_FOUND"
+            },
+            "q1": {
+              "rank": null,
+              "score": 0.0,
+              "provenance": "NOT_FOUND"
+            },
+            "q2": {
+              "rank": null,
+              "score": 0.0,
+              "provenance": "NOT_FOUND",
+              "boost_applied": null,
+              "num_support": null
+            },
+            "q3": {
+              "rank": null,
+              "score": 0.0,
+              "provenance": "NOT_FOUND"
+            },
+            "latencia_ms": 3416.98
+          },
+          {
+            "id": "CASE_07",
+            "gold": "principio_metacognicion_autobservacion",
+            "query": "escrutinio introspectivo de deducciones y deliberaciones",
+            "q0": {
+              "rank": null,
+              "score": 0.0,
+              "provenance": "NOT_FOUND"
+            },
+            "q1": {
+              "rank": null,
+              "score": 0.0,
+              "provenance": "NOT_FOUND"
+            },
+            "q2": {
+              "rank": null,
+              "score": 0.0,
+              "provenance": "NOT_FOUND",
+              "boost_applied": null,
+              "num_support": null
+            },
+            "q3": {
+              "rank": null,
+              "score": 0.0,
+              "provenance": "NOT_FOUND"
+            },
+            "latencia_ms": 5479.25
+          },
+          {
+            "id": "CASE_08",
+            "gold": "plan_tejedora_agujeros_estructurales_v1",
+            "query": "reparacion topologica de discontinuidades reticulares",
+            "q0": {
+              "rank": null,
+              "score": 0.0,
+              "provenance": "NOT_FOUND"
+            },
+            "q1": {
+              "rank": 41,
+              "score": 0.3041,
+              "provenance": "GRAPH_NEIGHBOR"
+            },
+            "q2": {
+              "rank": 41,
+              "score": 0.3041,
+              "provenance": "GRAPH_NEIGHBOR",
+              "boost_applied": 0.0,
+              "num_support": 1
+            },
+            "q3": {
+              "rank": null,
+              "score": 0.0,
+              "provenance": "NOT_FOUND"
+            },
+            "latencia_ms": 5700.24
+          },
+          {
+            "id": "CASE_09",
+            "gold": "leccion_motivacion_intrinseca_biorag",
+            "query": "estimulo autonomo para preservacion mnemica voluntaria",
+            "q0": {
+              "rank": null,
+              "score": 0.0,
+              "provenance": "NOT_FOUND"
+            },
+            "q1": {
+              "rank": null,
+              "score": 0.0,
+              "provenance": "NOT_FOUND"
+            },
+            "q2": {
+              "rank": null,
+              "score": 0.0,
+              "provenance": "NOT_FOUND",
+              "boost_applied": null,
+              "num_support": null
+            },
+            "q3": {
+              "rank": null,
+              "score": 0.0,
+              "provenance": "NOT_FOUND"
+            },
+            "latencia_ms": 4279.66
+          },
+          {
+            "id": "CASE_10",
+            "gold": "ajuste_tejedora_valencia_desempate_fase1",
+            "query": "resolucion de colisiones valorativas en bifurcaciones",
+            "q0": {
+              "rank": null,
+              "score": 0.0,
+              "provenance": "NOT_FOUND"
+            },
+            "q1": {
+              "rank": null,
+              "score": 0.0,
+              "provenance": "NOT_FOUND"
+            },
+            "q2": {
+              "rank": null,
+              "score": 0.0,
+              "provenance": "NOT_FOUND",
+              "boost_applied": null,
+              "num_support": null
+            },
+            "q3": {
+              "rank": null,
+              "score": 0.0,
+              "provenance": "NOT_FOUND"
+            },
+            "latencia_ms": 2888.81
+          },
+          {
+            "id": "CASE_11",
+            "gold": "naturaleza_sistema_oec_cerebro_memoria",
+            "query": "ontologia triadica de entidades inteligentes unificadas",
+            "q0": {
+              "rank": null,
+              "score": 0.0,
+              "provenance": "NOT_FOUND"
+            },
+            "q1": {
+              "rank": 12,
+              "score": 0.4097,
+              "provenance": "GRAPH_NEIGHBOR"
+            },
+            "q2": {
+              "rank": 42,
+              "score": 0.4829,
+              "provenance": "GRAPH_NEIGHBOR",
+              "boost_applied": 0.0732,
+              "num_support": 3
+            },
+            "q3": {
+              "rank": null,
+              "score": 0.0,
+              "provenance": "NOT_FOUND"
+            },
+            "latencia_ms": 4294.87
+          },
+          {
+            "id": "CASE_12",
+            "gold": "regla_verificar_codigo_real_antes_de_diagnostico",
+            "query": "comprobacion fidedigna de ficheros previo a emitir dictamenes",
+            "q0": {
+              "rank": null,
+              "score": 0.0,
+              "provenance": "NOT_FOUND"
+            },
+            "q1": {
+              "rank": 3,
+              "score": 0.4156,
+              "provenance": "GRAPH_NEIGHBOR"
+            },
+            "q2": {
+              "rank": 13,
+              "score": 0.9146,
+              "provenance": "GRAPH_NEIGHBOR",
+              "boost_applied": 0.499,
+              "num_support": 14
+            },
+            "q3": {
+              "rank": null,
+              "score": 0.0,
+              "provenance": "NOT_FOUND"
+            },
+            "latencia_ms": 5078.43
+          }
+        ]
+      },
+      "negative_evaluation": {
+        "n_negativos": 10,
+        "fp_graph_count": 1,
+        "fp_graph_rate": 10.0,
+        "detalles": [
+          {
+            "id": "NEG_01",
+            "query": "receta culinaria de cocina mediterranea con aceite de oliva",
+            "q0_max": 0.4331,
+            "q2_max": 0.95,
+            "top_concept": "correccion_dennys_principio_documentar_crisis_existencial",
+            "top_provenance": "GRAPH_NEIGHBOR",
+            "is_graph_fp": false
+          },
+          {
+            "id": "NEG_02",
+            "query": "mantenimiento preventivo de vehiculos hibridos y cambio de frenos",
+            "q0_max": 0.5127,
+            "q2_max": 0.95,
+            "top_concept": "plan_tejedora_agujeros_estructurales_v1",
+            "top_provenance": "GRAPH_NEIGHBOR",
+            "is_graph_fp": false
+          },
+          {
+            "id": "NEG_03",
+            "query": "estrategias de cultivo hidroponico para tomates en invernadero",
+            "q0_max": 0.3425,
+            "q2_max": 0.6487,
+            "top_concept": "regla_verificar_codigo_real_antes_de_diagnostico",
+            "top_provenance": "GRAPH_NEIGHBOR",
+            "is_graph_fp": false
+          },
+          {
+            "id": "NEG_04",
+            "query": "tecnicas de respiracion para buceo libre y apnea profunda",
+            "q0_max": 0.2289,
+            "q2_max": 0.3904,
+            "top_concept": "dennys_vida_laboral",
+            "top_provenance": "GRAPH_NEIGHBOR",
+            "is_graph_fp": true
+          },
+          {
+            "id": "NEG_05",
+            "query": "historia del arte renacentista en florencia del siglo xv",
+            "q0_max": 0.4351,
+            "q2_max": 0.95,
+            "top_concept": "regla_verificar_codigo_real_antes_de_diagnostico",
+            "top_provenance": "GRAPH_NEIGHBOR",
+            "is_graph_fp": false
+          },
+          {
+            "id": "NEG_06",
+            "query": "manual de reparacion de transmisiones automaticas y embragues",
+            "q0_max": 0.4312,
+            "q2_max": 0.95,
+            "top_concept": "puente_llm_sinonimos_infraestructura_verificada_20260809",
+            "top_provenance": "GRAPH_NEIGHBOR",
+            "is_graph_fp": false
+          },
+          {
+            "id": "NEG_07",
+            "query": "guia de senderismo de alta montana en los alpes suizos",
+            "q0_max": 0.3929,
+            "q2_max": 0.95,
+            "top_concept": "identidad_dennys_perfil_completo",
+            "top_provenance": "GRAPH_NEIGHBOR",
+            "is_graph_fp": false
+          },
+          {
+            "id": "NEG_08",
+            "query": "preparacion de masa madre para reposteria artesanal",
+            "q0_max": 0.3556,
+            "q2_max": 0.95,
+            "top_concept": "dennys-working-style",
+            "top_provenance": "GRAPH_NEIGHBOR",
+            "is_graph_fp": false
+          },
+          {
+            "id": "NEG_09",
+            "query": "composicion quimica de fertilizantes organicos para jardineria",
+            "q0_max": 0.4867,
+            "q2_max": 0.95,
+            "top_concept": "identidad_dennys_perfil_completo",
+            "top_provenance": "GRAPH_NEIGHBOR",
+            "is_graph_fp": false
+          },
+          {
+            "id": "NEG_10",
+            "query": "reglas oficiales de arbitraje en torneos internacionales de ajedrez",
+            "q0_max": 0.4004,
+            "q2_max": 0.95,
+            "top_concept": "identidad_dennys_perfil_completo",
+            "top_provenance": "GRAPH_NEIGHBOR",
+            "is_graph_fp": false
+          }
+        ]
+      }
+    },
+    {
+      "gamma": 1.0,
+      "dev_evaluation": {
+        "gamma": 1.0,
+        "n_cases": 12,
+        "q0_summary": {
+          "r1": 0.0,
+          "r5": 0.0,
+          "mrr": 0.0
+        },
+        "q1_summary": {
+          "r1": 0.0,
+          "r5": 8.33,
+          "mrr": 0.0368
+        },
+        "q2_summary": {
+          "r1": 8.33,
+          "r5": 8.33,
+          "mrr": 0.0873
+        },
+        "q3_summary": {
+          "r1": 0.0,
+          "r5": 0.0,
+          "mrr": 0.0
+        },
+        "delta_q0_to_q1": 8.33,
+        "delta_q1_to_q2": 0.0,
+        "casos": [
+          {
+            "id": "CASE_01",
+            "gold": "scoring_pesos_bm25",
+            "query": "calibrar ajuste escalar para combinar relevancia heterogenea",
+            "q0": {
+              "rank": null,
+              "score": 0.0,
+              "provenance": "NOT_FOUND"
+            },
+            "q1": {
+              "rank": null,
+              "score": 0.0,
+              "provenance": "NOT_FOUND"
+            },
+            "q2": {
+              "rank": null,
+              "score": 0.0,
+              "provenance": "NOT_FOUND",
+              "boost_applied": null,
+              "num_support": null
+            },
+            "q3": {
+              "rank": null,
+              "score": 0.0,
+              "provenance": "NOT_FOUND"
+            },
+            "latencia_ms": 5103.25
+          },
+          {
+            "id": "CASE_02",
+            "gold": "desde_athena_biorag",
+            "query": "construir enlaces probabilistas de fusion de subgrafos",
+            "q0": {
+              "rank": null,
+              "score": 0.0,
+              "provenance": "NOT_FOUND"
+            },
+            "q1": {
+              "rank": null,
+              "score": 0.0,
+              "provenance": "NOT_FOUND"
+            },
+            "q2": {
+              "rank": null,
+              "score": 0.0,
+              "provenance": "NOT_FOUND",
+              "boost_applied": null,
+              "num_support": null
+            },
+            "q3": {
+              "rank": null,
+              "score": 0.0,
+              "provenance": "NOT_FOUND"
+            },
+            "latencia_ms": 3920.2
+          },
+          {
+            "id": "CASE_03",
+            "gold": "docker_infrastructure_rog",
+            "query": "despliegue modular en equipo portatil dedicado",
+            "q0": {
+              "rank": null,
+              "score": 0.0,
+              "provenance": "NOT_FOUND"
+            },
+            "q1": {
+              "rank": null,
+              "score": 0.0,
+              "provenance": "NOT_FOUND"
+            },
+            "q2": {
+              "rank": null,
+              "score": 0.0,
+              "provenance": "NOT_FOUND",
+              "boost_applied": null,
+              "num_support": null
+            },
+            "q3": {
+              "rank": null,
+              "score": 0.0,
+              "provenance": "NOT_FOUND"
+            },
+            "latencia_ms": 4175.45
+          },
+          {
+            "id": "CASE_04",
+            "gold": "coche_puente_condicional",
+            "query": "diagnostico de compuerta de transicion contextual",
+            "q0": {
+              "rank": null,
+              "score": 0.0,
+              "provenance": "NOT_FOUND"
+            },
+            "q1": {
+              "rank": null,
+              "score": 0.0,
+              "provenance": "NOT_FOUND"
+            },
+            "q2": {
+              "rank": null,
+              "score": 0.0,
+              "provenance": "NOT_FOUND",
+              "boost_applied": null,
+              "num_support": null
+            },
+            "q3": {
+              "rank": null,
+              "score": 0.0,
+              "provenance": "NOT_FOUND"
+            },
+            "latencia_ms": 3742.64
+          },
+          {
+            "id": "CASE_05",
+            "gold": "activos_dormidos_hermana",
+            "query": "mutacion de entidades caducas en estado de reposo prolongado",
+            "q0": {
+              "rank": null,
+              "score": 0.0,
+              "provenance": "NOT_FOUND"
+            },
+            "q1": {
+              "rank": null,
+              "score": 0.0,
+              "provenance": "NOT_FOUND"
+            },
+            "q2": {
+              "rank": null,
+              "score": 0.0,
+              "provenance": "NOT_FOUND",
+              "boost_applied": null,
+              "num_support": null
+            },
+            "q3": {
+              "rank": null,
+              "score": 0.0,
+              "provenance": "NOT_FOUND"
+            },
+            "latencia_ms": 6666.0
+          },
+          {
+            "id": "CASE_06",
+            "gold": "kilo_vscode_extension_principal",
+            "query": "panel visual de desarrollo para despacho de tareas",
+            "q0": {
+              "rank": null,
+              "score": 0.0,
+              "provenance": "NOT_FOUND"
+            },
+            "q1": {
+              "rank": null,
+              "score": 0.0,
+              "provenance": "NOT_FOUND"
+            },
+            "q2": {
+              "rank": null,
+              "score": 0.0,
+              "provenance": "NOT_FOUND",
+              "boost_applied": null,
+              "num_support": null
+            },
+            "q3": {
+              "rank": null,
+              "score": 0.0,
+              "provenance": "NOT_FOUND"
+            },
+            "latencia_ms": 4928.82
+          },
+          {
+            "id": "CASE_07",
+            "gold": "principio_metacognicion_autobservacion",
+            "query": "escrutinio introspectivo de deducciones y deliberaciones",
+            "q0": {
+              "rank": null,
+              "score": 0.0,
+              "provenance": "NOT_FOUND"
+            },
+            "q1": {
+              "rank": null,
+              "score": 0.0,
+              "provenance": "NOT_FOUND"
+            },
+            "q2": {
+              "rank": null,
+              "score": 0.0,
+              "provenance": "NOT_FOUND",
+              "boost_applied": null,
+              "num_support": null
+            },
+            "q3": {
+              "rank": null,
+              "score": 0.0,
+              "provenance": "NOT_FOUND"
+            },
+            "latencia_ms": 10360.14
+          },
+          {
+            "id": "CASE_08",
+            "gold": "plan_tejedora_agujeros_estructurales_v1",
+            "query": "reparacion topologica de discontinuidades reticulares",
+            "q0": {
+              "rank": null,
+              "score": 0.0,
+              "provenance": "NOT_FOUND"
+            },
+            "q1": {
+              "rank": 41,
+              "score": 0.3041,
+              "provenance": "GRAPH_NEIGHBOR"
+            },
+            "q2": {
+              "rank": 41,
+              "score": 0.3041,
+              "provenance": "GRAPH_NEIGHBOR",
+              "boost_applied": 0.0,
+              "num_support": 1
+            },
+            "q3": {
+              "rank": null,
+              "score": 0.0,
+              "provenance": "NOT_FOUND"
+            },
+            "latencia_ms": 8401.11
+          },
+          {
+            "id": "CASE_09",
+            "gold": "leccion_motivacion_intrinseca_biorag",
+            "query": "estimulo autonomo para preservacion mnemica voluntaria",
+            "q0": {
+              "rank": null,
+              "score": 0.0,
+              "provenance": "NOT_FOUND"
+            },
+            "q1": {
+              "rank": null,
+              "score": 0.0,
+              "provenance": "NOT_FOUND"
+            },
+            "q2": {
+              "rank": null,
+              "score": 0.0,
+              "provenance": "NOT_FOUND",
+              "boost_applied": null,
+              "num_support": null
+            },
+            "q3": {
+              "rank": null,
+              "score": 0.0,
+              "provenance": "NOT_FOUND"
+            },
+            "latencia_ms": 7350.12
+          },
+          {
+            "id": "CASE_10",
+            "gold": "ajuste_tejedora_valencia_desempate_fase1",
+            "query": "resolucion de colisiones valorativas en bifurcaciones",
+            "q0": {
+              "rank": null,
+              "score": 0.0,
+              "provenance": "NOT_FOUND"
+            },
+            "q1": {
+              "rank": null,
+              "score": 0.0,
+              "provenance": "NOT_FOUND"
+            },
+            "q2": {
+              "rank": null,
+              "score": 0.0,
+              "provenance": "NOT_FOUND",
+              "boost_applied": null,
+              "num_support": null
+            },
+            "q3": {
+              "rank": null,
+              "score": 0.0,
+              "provenance": "NOT_FOUND"
+            },
+            "latencia_ms": 4172.34
+          },
+          {
+            "id": "CASE_11",
+            "gold": "naturaleza_sistema_oec_cerebro_memoria",
+            "query": "ontologia triadica de entidades inteligentes unificadas",
+            "q0": {
+              "rank": null,
+              "score": 0.0,
+              "provenance": "NOT_FOUND"
+            },
+            "q1": {
+              "rank": 12,
+              "score": 0.4097,
+              "provenance": "GRAPH_NEIGHBOR"
+            },
+            "q2": {
+              "rank": 44,
+              "score": 0.5072,
+              "provenance": "GRAPH_NEIGHBOR",
+              "boost_applied": 0.0975,
+              "num_support": 3
+            },
+            "q3": {
+              "rank": null,
+              "score": 0.0,
+              "provenance": "NOT_FOUND"
+            },
+            "latencia_ms": 4359.27
+          },
+          {
+            "id": "CASE_12",
+            "gold": "regla_verificar_codigo_real_antes_de_diagnostico",
+            "query": "comprobacion fidedigna de ficheros previo a emitir dictamenes",
+            "q0": {
+              "rank": null,
+              "score": 0.0,
+              "provenance": "NOT_FOUND"
+            },
+            "q1": {
+              "rank": 3,
+              "score": 0.4156,
+              "provenance": "GRAPH_NEIGHBOR"
+            },
+            "q2": {
+              "rank": 1,
+              "score": 0.95,
+              "provenance": "GRAPH_NEIGHBOR",
+              "boost_applied": 0.6654,
+              "num_support": 14
+            },
+            "q3": {
+              "rank": null,
+              "score": 0.0,
+              "provenance": "NOT_FOUND"
+            },
+            "latencia_ms": 5630.84
+          }
+        ]
+      },
+      "negative_evaluation": {
+        "n_negativos": 10,
+        "fp_graph_count": 1,
+        "fp_graph_rate": 10.0,
+        "detalles": [
+          {
+            "id": "NEG_01",
+            "query": "receta culinaria de cocina mediterranea con aceite de oliva",
+            "q0_max": 0.4331,
+            "q2_max": 0.95,
+            "top_concept": "correccion_dennys_principio_documentar_crisis_existencial",
+            "top_provenance": "GRAPH_NEIGHBOR",
+            "is_graph_fp": false
+          },
+          {
+            "id": "NEG_02",
+            "query": "mantenimiento preventivo de vehiculos hibridos y cambio de frenos",
+            "q0_max": 0.5127,
+            "q2_max": 0.95,
+            "top_concept": "plan_tejedora_agujeros_estructurales_v1",
+            "top_provenance": "GRAPH_NEIGHBOR",
+            "is_graph_fp": false
+          },
+          {
+            "id": "NEG_03",
+            "query": "estrategias de cultivo hidroponico para tomates en invernadero",
+            "q0_max": 0.3425,
+            "q2_max": 0.7365,
+            "top_concept": "regla_verificar_codigo_real_antes_de_diagnostico",
+            "top_provenance": "GRAPH_NEIGHBOR",
+            "is_graph_fp": false
+          },
+          {
+            "id": "NEG_04",
+            "query": "tecnicas de respiracion para buceo libre y apnea profunda",
+            "q0_max": 0.2289,
+            "q2_max": 0.3904,
+            "top_concept": "dennys_vida_laboral",
+            "top_provenance": "GRAPH_NEIGHBOR",
+            "is_graph_fp": true
+          },
+          {
+            "id": "NEG_05",
+            "query": "historia del arte renacentista en florencia del siglo xv",
+            "q0_max": 0.4351,
+            "q2_max": 0.95,
+            "top_concept": "regla_verificar_codigo_real_antes_de_diagnostico",
+            "top_provenance": "GRAPH_NEIGHBOR",
+            "is_graph_fp": false
+          },
+          {
+            "id": "NEG_06",
+            "query": "manual de reparacion de transmisiones automaticas y embragues",
+            "q0_max": 0.4312,
+            "q2_max": 0.95,
+            "top_concept": "puente_llm_sinonimos_infraestructura_verificada_20260809",
+            "top_provenance": "GRAPH_NEIGHBOR",
+            "is_graph_fp": false
+          },
+          {
+            "id": "NEG_07",
+            "query": "guia de senderismo de alta montana en los alpes suizos",
+            "q0_max": 0.3929,
+            "q2_max": 0.95,
+            "top_concept": "identidad_dennys_perfil_completo",
+            "top_provenance": "GRAPH_NEIGHBOR",
+            "is_graph_fp": false
+          },
+          {
+            "id": "NEG_08",
+            "query": "preparacion de masa madre para reposteria artesanal",
+            "q0_max": 0.3556,
+            "q2_max": 0.95,
+            "top_concept": "dennys-working-style",
+            "top_provenance": "GRAPH_NEIGHBOR",
+            "is_graph_fp": false
+          },
+          {
+            "id": "NEG_09",
+            "query": "composicion quimica de fertilizantes organicos para jardineria",
+            "q0_max": 0.4867,
+            "q2_max": 0.95,
+            "top_concept": "identidad_dennys_perfil_completo",
+            "top_provenance": "GRAPH_NEIGHBOR",
+            "is_graph_fp": false
+          },
+          {
+            "id": "NEG_10",
+            "query": "reglas oficiales de arbitraje en torneos internacionales de ajedrez",
+            "q0_max": 0.4004,
+            "q2_max": 0.95,
+            "top_concept": "prueba_carro_feliz_dennys",
+            "top_provenance": "GRAPH_NEIGHBOR",
+            "is_graph_fp": false
+          }
+        ]
+      }
+    },
+    {
+      "gamma": 1.5,
+      "dev_evaluation": {
+        "gamma": 1.5,
+        "n_cases": 12,
+        "q0_summary": {
+          "r1": 0.0,
+          "r5": 0.0,
+          "mrr": 0.0
+        },
+        "q1_summary": {
+          "r1": 0.0,
+          "r5": 8.33,
+          "mrr": 0.0368
+        },
+        "q2_summary": {
+          "r1": 8.33,
+          "r5": 8.33,
+          "mrr": 0.0873
+        },
+        "q3_summary": {
+          "r1": 0.0,
+          "r5": 0.0,
+          "mrr": 0.0
+        },
+        "delta_q0_to_q1": 8.33,
+        "delta_q1_to_q2": 0.0,
+        "casos": [
+          {
+            "id": "CASE_01",
+            "gold": "scoring_pesos_bm25",
+            "query": "calibrar ajuste escalar para combinar relevancia heterogenea",
+            "q0": {
+              "rank": null,
+              "score": 0.0,
+              "provenance": "NOT_FOUND"
+            },
+            "q1": {
+              "rank": null,
+              "score": 0.0,
+              "provenance": "NOT_FOUND"
+            },
+            "q2": {
+              "rank": null,
+              "score": 0.0,
+              "provenance": "NOT_FOUND",
+              "boost_applied": null,
+              "num_support": null
+            },
+            "q3": {
+              "rank": null,
+              "score": 0.0,
+              "provenance": "NOT_FOUND"
+            },
+            "latencia_ms": 6983.3
+          },
+          {
+            "id": "CASE_02",
+            "gold": "desde_athena_biorag",
+            "query": "construir enlaces probabilistas de fusion de subgrafos",
+            "q0": {
+              "rank": null,
+              "score": 0.0,
+              "provenance": "NOT_FOUND"
+            },
+            "q1": {
+              "rank": null,
+              "score": 0.0,
+              "provenance": "NOT_FOUND"
+            },
+            "q2": {
+              "rank": null,
+              "score": 0.0,
+              "provenance": "NOT_FOUND",
+              "boost_applied": null,
+              "num_support": null
+            },
+            "q3": {
+              "rank": null,
+              "score": 0.0,
+              "provenance": "NOT_FOUND"
+            },
+            "latencia_ms": 9155.47
+          },
+          {
+            "id": "CASE_03",
+            "gold": "docker_infrastructure_rog",
+            "query": "despliegue modular en equipo portatil dedicado",
+            "q0": {
+              "rank": null,
+              "score": 0.0,
+              "provenance": "NOT_FOUND"
+            },
+            "q1": {
+              "rank": null,
+              "score": 0.0,
+              "provenance": "NOT_FOUND"
+            },
+            "q2": {
+              "rank": null,
+              "score": 0.0,
+              "provenance": "NOT_FOUND",
+              "boost_applied": null,
+              "num_support": null
+            },
+            "q3": {
+              "rank": null,
+              "score": 0.0,
+              "provenance": "NOT_FOUND"
+            },
+            "latencia_ms": 7312.29
+          },
+          {
+            "id": "CASE_04",
+            "gold": "coche_puente_condicional",
+            "query": "diagnostico de compuerta de transicion contextual",
+            "q0": {
+              "rank": null,
+              "score": 0.0,
+              "provenance": "NOT_FOUND"
+            },
+            "q1": {
+              "rank": null,
+              "score": 0.0,
+              "provenance": "NOT_FOUND"
+            },
+            "q2": {
+              "rank": null,
+              "score": 0.0,
+              "provenance": "NOT_FOUND",
+              "boost_applied": null,
+              "num_support": null
+            },
+            "q3": {
+              "rank": null,
+              "score": 0.0,
+              "provenance": "NOT_FOUND"
+            },
+            "latencia_ms": 5660.93
+          },
+          {
+            "id": "CASE_05",
+            "gold": "activos_dormidos_hermana",
+            "query": "mutacion de entidades caducas en estado de reposo prolongado",
+            "q0": {
+              "rank": null,
+              "score": 0.0,
+              "provenance": "NOT_FOUND"
+            },
+            "q1": {
+              "rank": null,
+              "score": 0.0,
+              "provenance": "NOT_FOUND"
+            },
+            "q2": {
+              "rank": null,
+              "score": 0.0,
+              "provenance": "NOT_FOUND",
+              "boost_applied": null,
+              "num_support": null
+            },
+            "q3": {
+              "rank": null,
+              "score": 0.0,
+              "provenance": "NOT_FOUND"
+            },
+            "latencia_ms": 6155.16
+          },
+          {
+            "id": "CASE_06",
+            "gold": "kilo_vscode_extension_principal",
+            "query": "panel visual de desarrollo para despacho de tareas",
+            "q0": {
+              "rank": null,
+              "score": 0.0,
+              "provenance": "NOT_FOUND"
+            },
+            "q1": {
+              "rank": null,
+              "score": 0.0,
+              "provenance": "NOT_FOUND"
+            },
+            "q2": {
+              "rank": null,
+              "score": 0.0,
+              "provenance": "NOT_FOUND",
+              "boost_applied": null,
+              "num_support": null
+            },
+            "q3": {
+              "rank": null,
+              "score": 0.0,
+              "provenance": "NOT_FOUND"
+            },
+            "latencia_ms": 4095.13
+          },
+          {
+            "id": "CASE_07",
+            "gold": "principio_metacognicion_autobservacion",
+            "query": "escrutinio introspectivo de deducciones y deliberaciones",
+            "q0": {
+              "rank": null,
+              "score": 0.0,
+              "provenance": "NOT_FOUND"
+            },
+            "q1": {
+              "rank": null,
+              "score": 0.0,
+              "provenance": "NOT_FOUND"
+            },
+            "q2": {
+              "rank": null,
+              "score": 0.0,
+              "provenance": "NOT_FOUND",
+              "boost_applied": null,
+              "num_support": null
+            },
+            "q3": {
+              "rank": null,
+              "score": 0.0,
+              "provenance": "NOT_FOUND"
+            },
+            "latencia_ms": 10740.35
+          },
+          {
+            "id": "CASE_08",
+            "gold": "plan_tejedora_agujeros_estructurales_v1",
+            "query": "reparacion topologica de discontinuidades reticulares",
+            "q0": {
+              "rank": null,
+              "score": 0.0,
+              "provenance": "NOT_FOUND"
+            },
+            "q1": {
+              "rank": 41,
+              "score": 0.3041,
+              "provenance": "GRAPH_NEIGHBOR"
+            },
+            "q2": {
+              "rank": 41,
+              "score": 0.3041,
+              "provenance": "GRAPH_NEIGHBOR",
+              "boost_applied": 0.0,
+              "num_support": 1
+            },
+            "q3": {
+              "rank": null,
+              "score": 0.0,
+              "provenance": "NOT_FOUND"
+            },
+            "latencia_ms": 8064.22
+          },
+          {
+            "id": "CASE_09",
+            "gold": "leccion_motivacion_intrinseca_biorag",
+            "query": "estimulo autonomo para preservacion mnemica voluntaria",
+            "q0": {
+              "rank": null,
+              "score": 0.0,
+              "provenance": "NOT_FOUND"
+            },
+            "q1": {
+              "rank": null,
+              "score": 0.0,
+              "provenance": "NOT_FOUND"
+            },
+            "q2": {
+              "rank": null,
+              "score": 0.0,
+              "provenance": "NOT_FOUND",
+              "boost_applied": null,
+              "num_support": null
+            },
+            "q3": {
+              "rank": null,
+              "score": 0.0,
+              "provenance": "NOT_FOUND"
+            },
+            "latencia_ms": 5127.93
+          },
+          {
+            "id": "CASE_10",
+            "gold": "ajuste_tejedora_valencia_desempate_fase1",
+            "query": "resolucion de colisiones valorativas en bifurcaciones",
+            "q0": {
+              "rank": null,
+              "score": 0.0,
+              "provenance": "NOT_FOUND"
+            },
+            "q1": {
+              "rank": null,
+              "score": 0.0,
+              "provenance": "NOT_FOUND"
+            },
+            "q2": {
+              "rank": null,
+              "score": 0.0,
+              "provenance": "NOT_FOUND",
+              "boost_applied": null,
+              "num_support": null
+            },
+            "q3": {
+              "rank": null,
+              "score": 0.0,
+              "provenance": "NOT_FOUND"
+            },
+            "latencia_ms": 4932.14
+          },
+          {
+            "id": "CASE_11",
+            "gold": "naturaleza_sistema_oec_cerebro_memoria",
+            "query": "ontologia triadica de entidades inteligentes unificadas",
+            "q0": {
+              "rank": null,
+              "score": 0.0,
+              "provenance": "NOT_FOUND"
+            },
+            "q1": {
+              "rank": 12,
+              "score": 0.4097,
+              "provenance": "GRAPH_NEIGHBOR"
+            },
+            "q2": {
+              "rank": 44,
+              "score": 0.556,
+              "provenance": "GRAPH_NEIGHBOR",
+              "boost_applied": 0.1463,
+              "num_support": 3
+            },
+            "q3": {
+              "rank": null,
+              "score": 0.0,
+              "provenance": "NOT_FOUND"
+            },
+            "latencia_ms": 6463.43
+          },
+          {
+            "id": "CASE_12",
+            "gold": "regla_verificar_codigo_real_antes_de_diagnostico",
+            "query": "comprobacion fidedigna de ficheros previo a emitir dictamenes",
+            "q0": {
+              "rank": null,
+              "score": 0.0,
+              "provenance": "NOT_FOUND"
+            },
+            "q1": {
+              "rank": 3,
+              "score": 0.4156,
+              "provenance": "GRAPH_NEIGHBOR"
+            },
+            "q2": {
+              "rank": 1,
+              "score": 0.95,
+              "provenance": "GRAPH_NEIGHBOR",
+              "boost_applied": 0.998,
+              "num_support": 14
+            },
+            "q3": {
+              "rank": null,
+              "score": 0.0,
+              "provenance": "NOT_FOUND"
+            },
+            "latencia_ms": 9574.07
+          }
+        ]
+      },
+      "negative_evaluation": {
+        "n_negativos": 10,
+        "fp_graph_count": 1,
+        "fp_graph_rate": 10.0,
+        "detalles": [
+          {
+            "id": "NEG_01",
+            "query": "receta culinaria de cocina mediterranea con aceite de oliva",
+            "q0_max": 0.4331,
+            "q2_max": 0.95,
+            "top_concept": "correccion_dennys_principio_documentar_crisis_existencial",
+            "top_provenance": "GRAPH_NEIGHBOR",
+            "is_graph_fp": false
+          },
+          {
+            "id": "NEG_02",
+            "query": "mantenimiento preventivo de vehiculos hibridos y cambio de frenos",
+            "q0_max": 0.5127,
+            "q2_max": 0.95,
+            "top_concept": "prueba_carro_feliz_dennys",
+            "top_provenance": "GRAPH_NEIGHBOR",
+            "is_graph_fp": false
+          },
+          {
+            "id": "NEG_03",
+            "query": "estrategias de cultivo hidroponico para tomates en invernadero",
+            "q0_max": 0.3425,
+            "q2_max": 0.912,
+            "top_concept": "regla_verificar_codigo_real_antes_de_diagnostico",
+            "top_provenance": "GRAPH_NEIGHBOR",
+            "is_graph_fp": false
+          },
+          {
+            "id": "NEG_04",
+            "query": "tecnicas de respiracion para buceo libre y apnea profunda",
+            "q0_max": 0.2289,
+            "q2_max": 0.3904,
+            "top_concept": "dennys_vida_laboral",
+            "top_provenance": "GRAPH_NEIGHBOR",
+            "is_graph_fp": true
+          },
+          {
+            "id": "NEG_05",
+            "query": "historia del arte renacentista en florencia del siglo xv",
+            "q0_max": 0.4351,
+            "q2_max": 0.95,
+            "top_concept": "regla_verificar_codigo_real_antes_de_diagnostico",
+            "top_provenance": "GRAPH_NEIGHBOR",
+            "is_graph_fp": false
+          },
+          {
+            "id": "NEG_06",
+            "query": "manual de reparacion de transmisiones automaticas y embragues",
+            "q0_max": 0.4312,
+            "q2_max": 0.95,
+            "top_concept": "puente_llm_sinonimos_infraestructura_verificada_20260809",
+            "top_provenance": "GRAPH_NEIGHBOR",
+            "is_graph_fp": false
+          },
+          {
+            "id": "NEG_07",
+            "query": "guia de senderismo de alta montana en los alpes suizos",
+            "q0_max": 0.3929,
+            "q2_max": 0.95,
+            "top_concept": "identidad_dennys_perfil_completo",
+            "top_provenance": "GRAPH_NEIGHBOR",
+            "is_graph_fp": false
+          },
+          {
+            "id": "NEG_08",
+            "query": "preparacion de masa madre para reposteria artesanal",
+            "q0_max": 0.3556,
+            "q2_max": 0.95,
+            "top_concept": "dennys-working-style",
+            "top_provenance": "GRAPH_NEIGHBOR",
+            "is_graph_fp": false
+          },
+          {
+            "id": "NEG_09",
+            "query": "composicion quimica de fertilizantes organicos para jardineria",
+            "q0_max": 0.4867,
+            "q2_max": 0.95,
+            "top_concept": "prueba_carro_feliz_dennys",
+            "top_provenance": "GRAPH_NEIGHBOR",
+            "is_graph_fp": false
+          },
+          {
+            "id": "NEG_10",
+            "query": "reglas oficiales de arbitraje en torneos internacionales de ajedrez",
+            "q0_max": 0.4004,
+            "q2_max": 0.95,
+            "top_concept": "prueba_carro_feliz_dennys",
+            "top_provenance": "GRAPH_NEIGHBOR",
+            "is_graph_fp": false
+          }
+        ]
+      }
+    },
+    {
+      "gamma": 2.0,
+      "dev_evaluation": {
+        "gamma": 2.0,
+        "n_cases": 12,
+        "q0_summary": {
+          "r1": 0.0,
+          "r5": 0.0,
+          "mrr": 0.0
+        },
+        "q1_summary": {
+          "r1": 0.0,
+          "r5": 8.33,
+          "mrr": 0.0368
+        },
+        "q2_summary": {
+          "r1": 8.33,
+          "r5": 8.33,
+          "mrr": 0.0872
+        },
+        "q3_summary": {
+          "r1": 0.0,
+          "r5": 0.0,
+          "mrr": 0.0
+        },
+        "delta_q0_to_q1": 8.33,
+        "delta_q1_to_q2": 0.0,
+        "casos": [
+          {
+            "id": "CASE_01",
+            "gold": "scoring_pesos_bm25",
+            "query": "calibrar ajuste escalar para combinar relevancia heterogenea",
+            "q0": {
+              "rank": null,
+              "score": 0.0,
+              "provenance": "NOT_FOUND"
+            },
+            "q1": {
+              "rank": null,
+              "score": 0.0,
+              "provenance": "NOT_FOUND"
+            },
+            "q2": {
+              "rank": null,
+              "score": 0.0,
+              "provenance": "NOT_FOUND",
+              "boost_applied": null,
+              "num_support": null
+            },
+            "q3": {
+              "rank": null,
+              "score": 0.0,
+              "provenance": "NOT_FOUND"
+            },
+            "latencia_ms": 7396.67
+          },
+          {
+            "id": "CASE_02",
+            "gold": "desde_athena_biorag",
+            "query": "construir enlaces probabilistas de fusion de subgrafos",
+            "q0": {
+              "rank": null,
+              "score": 0.0,
+              "provenance": "NOT_FOUND"
+            },
+            "q1": {
+              "rank": null,
+              "score": 0.0,
+              "provenance": "NOT_FOUND"
+            },
+            "q2": {
+              "rank": null,
+              "score": 0.0,
+              "provenance": "NOT_FOUND",
+              "boost_applied": null,
+              "num_support": null
+            },
+            "q3": {
+              "rank": null,
+              "score": 0.0,
+              "provenance": "NOT_FOUND"
+            },
+            "latencia_ms": 7308.83
+          },
+          {
+            "id": "CASE_03",
+            "gold": "docker_infrastructure_rog",
+            "query": "despliegue modular en equipo portatil dedicado",
+            "q0": {
+              "rank": null,
+              "score": 0.0,
+              "provenance": "NOT_FOUND"
+            },
+            "q1": {
+              "rank": null,
+              "score": 0.0,
+              "provenance": "NOT_FOUND"
+            },
+            "q2": {
+              "rank": null,
+              "score": 0.0,
+              "provenance": "NOT_FOUND",
+              "boost_applied": null,
+              "num_support": null
+            },
+            "q3": {
+              "rank": null,
+              "score": 0.0,
+              "provenance": "NOT_FOUND"
+            },
+            "latencia_ms": 4484.24
+          },
+          {
+            "id": "CASE_04",
+            "gold": "coche_puente_condicional",
+            "query": "diagnostico de compuerta de transicion contextual",
+            "q0": {
+              "rank": null,
+              "score": 0.0,
+              "provenance": "NOT_FOUND"
+            },
+            "q1": {
+              "rank": null,
+              "score": 0.0,
+              "provenance": "NOT_FOUND"
+            },
+            "q2": {
+              "rank": null,
+              "score": 0.0,
+              "provenance": "NOT_FOUND",
+              "boost_applied": null,
+              "num_support": null
+            },
+            "q3": {
+              "rank": null,
+              "score": 0.0,
+              "provenance": "NOT_FOUND"
+            },
+            "latencia_ms": 3985.87
+          },
+          {
+            "id": "CASE_05",
+            "gold": "activos_dormidos_hermana",
+            "query": "mutacion de entidades caducas en estado de reposo prolongado",
+            "q0": {
+              "rank": null,
+              "score": 0.0,
+              "provenance": "NOT_FOUND"
+            },
+            "q1": {
+              "rank": null,
+              "score": 0.0,
+              "provenance": "NOT_FOUND"
+            },
+            "q2": {
+              "rank": null,
+              "score": 0.0,
+              "provenance": "NOT_FOUND",
+              "boost_applied": null,
+              "num_support": null
+            },
+            "q3": {
+              "rank": null,
+              "score": 0.0,
+              "provenance": "NOT_FOUND"
+            },
+            "latencia_ms": 6282.27
+          },
+          {
+            "id": "CASE_06",
+            "gold": "kilo_vscode_extension_principal",
+            "query": "panel visual de desarrollo para despacho de tareas",
+            "q0": {
+              "rank": null,
+              "score": 0.0,
+              "provenance": "NOT_FOUND"
+            },
+            "q1": {
+              "rank": null,
+              "score": 0.0,
+              "provenance": "NOT_FOUND"
+            },
+            "q2": {
+              "rank": null,
+              "score": 0.0,
+              "provenance": "NOT_FOUND",
+              "boost_applied": null,
+              "num_support": null
+            },
+            "q3": {
+              "rank": null,
+              "score": 0.0,
+              "provenance": "NOT_FOUND"
+            },
+            "latencia_ms": 5115.14
+          },
+          {
+            "id": "CASE_07",
+            "gold": "principio_metacognicion_autobservacion",
+            "query": "escrutinio introspectivo de deducciones y deliberaciones",
+            "q0": {
+              "rank": null,
+              "score": 0.0,
+              "provenance": "NOT_FOUND"
+            },
+            "q1": {
+              "rank": null,
+              "score": 0.0,
+              "provenance": "NOT_FOUND"
+            },
+            "q2": {
+              "rank": null,
+              "score": 0.0,
+              "provenance": "NOT_FOUND",
+              "boost_applied": null,
+              "num_support": null
+            },
+            "q3": {
+              "rank": null,
+              "score": 0.0,
+              "provenance": "NOT_FOUND"
+            },
+            "latencia_ms": 9244.87
+          },
+          {
+            "id": "CASE_08",
+            "gold": "plan_tejedora_agujeros_estructurales_v1",
+            "query": "reparacion topologica de discontinuidades reticulares",
+            "q0": {
+              "rank": null,
+              "score": 0.0,
+              "provenance": "NOT_FOUND"
+            },
+            "q1": {
+              "rank": 41,
+              "score": 0.3041,
+              "provenance": "GRAPH_NEIGHBOR"
+            },
+            "q2": {
+              "rank": 41,
+              "score": 0.3041,
+              "provenance": "GRAPH_NEIGHBOR",
+              "boost_applied": 0.0,
+              "num_support": 1
+            },
+            "q3": {
+              "rank": null,
+              "score": 0.0,
+              "provenance": "NOT_FOUND"
+            },
+            "latencia_ms": 8369.02
+          },
+          {
+            "id": "CASE_09",
+            "gold": "leccion_motivacion_intrinseca_biorag",
+            "query": "estimulo autonomo para preservacion mnemica voluntaria",
+            "q0": {
+              "rank": null,
+              "score": 0.0,
+              "provenance": "NOT_FOUND"
+            },
+            "q1": {
+              "rank": null,
+              "score": 0.0,
+              "provenance": "NOT_FOUND"
+            },
+            "q2": {
+              "rank": null,
+              "score": 0.0,
+              "provenance": "NOT_FOUND",
+              "boost_applied": null,
+              "num_support": null
+            },
+            "q3": {
+              "rank": null,
+              "score": 0.0,
+              "provenance": "NOT_FOUND"
+            },
+            "latencia_ms": 5378.52
+          },
+          {
+            "id": "CASE_10",
+            "gold": "ajuste_tejedora_valencia_desempate_fase1",
+            "query": "resolucion de colisiones valorativas en bifurcaciones",
+            "q0": {
+              "rank": null,
+              "score": 0.0,
+              "provenance": "NOT_FOUND"
+            },
+            "q1": {
+              "rank": null,
+              "score": 0.0,
+              "provenance": "NOT_FOUND"
+            },
+            "q2": {
+              "rank": null,
+              "score": 0.0,
+              "provenance": "NOT_FOUND",
+              "boost_applied": null,
+              "num_support": null
+            },
+            "q3": {
+              "rank": null,
+              "score": 0.0,
+              "provenance": "NOT_FOUND"
+            },
+            "latencia_ms": 4677.67
+          },
+          {
+            "id": "CASE_11",
+            "gold": "naturaleza_sistema_oec_cerebro_memoria",
+            "query": "ontologia triadica de entidades inteligentes unificadas",
+            "q0": {
+              "rank": null,
+              "score": 0.0,
+              "provenance": "NOT_FOUND"
+            },
+            "q1": {
+              "rank": 12,
+              "score": 0.4097,
+              "provenance": "GRAPH_NEIGHBOR"
+            },
+            "q2": {
+              "rank": 45,
+              "score": 0.6048,
+              "provenance": "GRAPH_NEIGHBOR",
+              "boost_applied": 0.1951,
+              "num_support": 3
+            },
+            "q3": {
+              "rank": null,
+              "score": 0.0,
+              "provenance": "NOT_FOUND"
+            },
+            "latencia_ms": 7379.81
+          },
+          {
+            "id": "CASE_12",
+            "gold": "regla_verificar_codigo_real_antes_de_diagnostico",
+            "query": "comprobacion fidedigna de ficheros previo a emitir dictamenes",
+            "q0": {
+              "rank": null,
+              "score": 0.0,
+              "provenance": "NOT_FOUND"
+            },
+            "q1": {
+              "rank": 3,
+              "score": 0.4156,
+              "provenance": "GRAPH_NEIGHBOR"
+            },
+            "q2": {
+              "rank": 1,
+              "score": 0.95,
+              "provenance": "GRAPH_NEIGHBOR",
+              "boost_applied": 1.3307,
+              "num_support": 14
+            },
+            "q3": {
+              "rank": null,
+              "score": 0.0,
+              "provenance": "NOT_FOUND"
+            },
+            "latencia_ms": 8992.15
+          }
+        ]
+      },
+      "negative_evaluation": {
+        "n_negativos": 10,
+        "fp_graph_count": 1,
+        "fp_graph_rate": 10.0,
+        "detalles": [
+          {
+            "id": "NEG_01",
+            "query": "receta culinaria de cocina mediterranea con aceite de oliva",
+            "q0_max": 0.4331,
+            "q2_max": 0.95,
+            "top_concept": "correccion_dennys_principio_documentar_crisis_existencial",
+            "top_provenance": "GRAPH_NEIGHBOR",
+            "is_graph_fp": false
+          },
+          {
+            "id": "NEG_02",
+            "query": "mantenimiento preventivo de vehiculos hibridos y cambio de frenos",
+            "q0_max": 0.5127,
+            "q2_max": 0.95,
+            "top_concept": "prueba_carro_feliz_dennys",
+            "top_provenance": "GRAPH_NEIGHBOR",
+            "is_graph_fp": false
+          },
+          {
+            "id": "NEG_03",
+            "query": "estrategias de cultivo hidroponico para tomates en invernadero",
+            "q0_max": 0.3425,
+            "q2_max": 0.95,
+            "top_concept": "regla_verificar_codigo_real_antes_de_diagnostico",
+            "top_provenance": "GRAPH_NEIGHBOR",
+            "is_graph_fp": false
+          },
+          {
+            "id": "NEG_04",
+            "query": "tecnicas de respiracion para buceo libre y apnea profunda",
+            "q0_max": 0.2289,
+            "q2_max": 0.3904,
+            "top_concept": "dennys_vida_laboral",
+            "top_provenance": "GRAPH_NEIGHBOR",
+            "is_graph_fp": true
+          },
+          {
+            "id": "NEG_05",
+            "query": "historia del arte renacentista en florencia del siglo xv",
+            "q0_max": 0.4351,
+            "q2_max": 0.95,
+            "top_concept": "regla_verificar_codigo_real_antes_de_diagnostico",
+            "top_provenance": "GRAPH_NEIGHBOR",
+            "is_graph_fp": false
+          },
+          {
+            "id": "NEG_06",
+            "query": "manual de reparacion de transmisiones automaticas y embragues",
+            "q0_max": 0.4312,
+            "q2_max": 0.95,
+            "top_concept": "puente_llm_sinonimos_infraestructura_verificada_20260809",
+            "top_provenance": "GRAPH_NEIGHBOR",
+            "is_graph_fp": false
+          },
+          {
+            "id": "NEG_07",
+            "query": "guia de senderismo de alta montana en los alpes suizos",
+            "q0_max": 0.3929,
+            "q2_max": 0.95,
+            "top_concept": "dennys_tqm_agentes_desea_ser_como_ellos_20260731",
+            "top_provenance": "GRAPH_NEIGHBOR",
+            "is_graph_fp": false
+          },
+          {
+            "id": "NEG_08",
+            "query": "preparacion de masa madre para reposteria artesanal",
+            "q0_max": 0.3556,
+            "q2_max": 0.95,
+            "top_concept": "dennys-working-style",
+            "top_provenance": "GRAPH_NEIGHBOR",
+            "is_graph_fp": false
+          },
+          {
+            "id": "NEG_09",
+            "query": "composicion quimica de fertilizantes organicos para jardineria",
+            "q0_max": 0.4867,
+            "q2_max": 0.95,
+            "top_concept": "regla_verificar_codigo_real_antes_de_diagnostico",
+            "top_provenance": "GRAPH_NEIGHBOR",
+            "is_graph_fp": false
+          },
+          {
+            "id": "NEG_10",
+            "query": "reglas oficiales de arbitraje en torneos internacionales de ajedrez",
+            "q0_max": 0.4004,
+            "q2_max": 0.95,
+            "top_concept": "prueba_carro_feliz_dennys",
+            "top_provenance": "GRAPH_NEIGHBOR",
+            "is_graph_fp": false
+          }
+        ]
+      }
+    }
+  ]
+}

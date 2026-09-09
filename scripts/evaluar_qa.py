@@ -522,9 +522,18 @@ def run_evaluation():
     metrics_file = os.environ.get(
         "BIORAG_QA_METRICS", os.path.join(base_dir, "scripts", "qa_metrics.json")
     )
+    version_file = os.path.join(base_dir, "VERSION")
+    version_str = "v30.2"
+    if os.path.exists(version_file):
+        try:
+            with open(version_file, "r", encoding="utf-8") as vf:
+                version_str = vf.read().strip()
+        except Exception:
+            pass
+
     global_fallos = total_queries - total_hits_at_5
     metrics = {
-        "version": "v30.1",
+        "version": version_str,
         "generado_en": time.strftime("%Y-%m-%dT%H:%M:%S"),
         "elapsed_seconds": round(elapsed_time, 2),
         "casos_file": cases_filename,

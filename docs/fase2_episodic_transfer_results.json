@@ -1,0 +1,116 @@
+{
+  "timestamp": "2026-09-09T01:15:43Z",
+  "experiment": "FASE 2: Prototipo Aislado de Aprendizaje Léxico Episódico y Transferencia",
+  "hashes": {
+    "db_snapshot": "676827f6b4abc3acaee10b14e273c3c50cae5b2c180593dedcd58048265a2800"
+  },
+  "aggregate": {
+    "n_transfer_cases": 5,
+    "zero_cue_passed": 5,
+    "m0_baseline_valid": 5,
+    "m1_integrity_valid": 5,
+    "m2_transfer_success": 1,
+    "m2_transfer_pct": 20.0,
+    "m3_negative_fp_count": 0
+  },
+  "transfer_results": [
+    {
+      "id": "TRANS_01",
+      "gold": "scoring_pesos_bm25",
+      "stimulus_a": "coeficientes multiplicativos de ponderacion",
+      "query_b": "calibrar ajuste escalar para combinar relevancia heterogenea",
+      "zero_cue_passed": true,
+      "m0_rank": 64,
+      "m0_passed_baseline": true,
+      "m1_rank": 1,
+      "m1_passed_integrity": true,
+      "m2_rank": 64,
+      "m2_passed_transfer": false,
+      "delta_rank_m0_to_m2": 0,
+      "episode_path_used": false,
+      "leakage_flag": false
+    },
+    {
+      "id": "TRANS_02",
+      "gold": "desde_athena_biorag",
+      "stimulus_a": "aristas estocasticas de vinculacion",
+      "query_b": "construir enlaces probabilistas de fusion de subgrafos",
+      "zero_cue_passed": true,
+      "m0_rank": 68,
+      "m0_passed_baseline": true,
+      "m1_rank": 1,
+      "m1_passed_integrity": true,
+      "m2_rank": 1,
+      "m2_passed_transfer": true,
+      "delta_rank_m0_to_m2": 67,
+      "episode_path_used": true,
+      "leakage_flag": false
+    },
+    {
+      "id": "TRANS_03",
+      "gold": "docker_infrastructure_rog",
+      "stimulus_a": "aislamiento en contenedores de computo",
+      "query_b": "segmentacion de recursos de hardware en hilos de cpu",
+      "zero_cue_passed": true,
+      "m0_rank": null,
+      "m0_passed_baseline": true,
+      "m1_rank": 1,
+      "m1_passed_integrity": true,
+      "m2_rank": null,
+      "m2_passed_transfer": false,
+      "delta_rank_m0_to_m2": 0,
+      "episode_path_used": false,
+      "leakage_flag": false
+    },
+    {
+      "id": "TRANS_04",
+      "gold": "coche_puente_condicional",
+      "stimulus_a": "evaluador de pasarela situacional",
+      "query_b": "diagnostico de compuerta de transicion contextual",
+      "zero_cue_passed": true,
+      "m0_rank": 24,
+      "m0_passed_baseline": true,
+      "m1_rank": 1,
+      "m1_passed_integrity": true,
+      "m2_rank": 24,
+      "m2_passed_transfer": false,
+      "delta_rank_m0_to_m2": 0,
+      "episode_path_used": false,
+      "leakage_flag": false
+    },
+    {
+      "id": "TRANS_05",
+      "gold": "activos_dormidos_hermana",
+      "stimulus_a": "purga de elementos obsoletos",
+      "query_b": "remocion de registros caducos en estado de letargo",
+      "zero_cue_passed": true,
+      "m0_rank": null,
+      "m0_passed_baseline": true,
+      "m1_rank": 1,
+      "m1_passed_integrity": true,
+      "m2_rank": null,
+      "m2_passed_transfer": false,
+      "delta_rank_m0_to_m2": 0,
+      "episode_path_used": false,
+      "leakage_flag": false
+    }
+  ],
+  "negative_controls": [
+    {
+      "id": "NEG_01",
+      "query": "receta culinaria de cocina mediterranea con aceite de oliva",
+      "episodes_activated": 0,
+      "false_positive": false
+    },
+    {
+      "id": "NEG_02",
+      "query": "mantenimiento preventivo de vehiculos hibridos y cambio de frenos",
+      "episodes_activated": 0,
+      "false_positive": false
+    }
+  ],
+  "leakage_audit": {
+    "total_flags": 0,
+    "gold_dependent_flags": 0
+  }
+}

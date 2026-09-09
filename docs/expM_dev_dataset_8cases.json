@@ -1,0 +1,45 @@
+{
+  "benchmark": "EXP-M A0-DEV (8 Casos)",
+  "cases": [
+    {
+      "id": "OOF_POS_11",
+      "query": "particionar capacidad de computo en doce nucleos virtuales con tope en gigas",
+      "gold": "docker_infrastructure_rog"
+    },
+    {
+      "id": "OOF_POS_19",
+      "query": "calibrar coeficientes multiplicativos para combinar valores de relevancia heterogeneos",
+      "gold": "scoring_pesos_bm25"
+    },
+    {
+      "id": "OOF_POS_21",
+      "query": "entrelazamiento hiperdimensional binario proyectado a traves de pasarela situacional",
+      "gold": "coche_puente_condicional"
+    },
+    {
+      "id": "OOF_POS_29",
+      "query": "generar conexiones estocasticas para consolidar grupos fuertemente entrelazados",
+      "gold": "desde_athena_biorag"
+    },
+    {
+      "id": "OOF_POS_30",
+      "query": "transicion de vigilia a letargo con eliminacion de elementos caducos",
+      "gold": "activos_dormidos_hermana"
+    },
+    {
+      "id": "OOF_POS_40",
+      "query": "procedimiento de clasificacion dimensional sobre tejido cortical",
+      "gold": "clasificacion_dimensional_completa_corteza_20260702"
+    },
+    {
+      "id": "OOF_POS_48",
+      "query": "malla neuronal con topologia de enlaces sinapticos transversales",
+      "gold": "cuaternidad-logica-oec"
+    },
+    {
+      "id": "OOF_POS_49",
+      "query": "registro cronologico de hitos alcanzados por el agente",
+      "gold": "trayectoria_completa_cronologica"
+    }
+  ]
+}
