@@ -3881,6 +3881,14 @@ class SQLiteMemoryBioRAG:
         """Búsqueda BFS real en la red sináptica hasta una profundidad 'depth' (máx 3).
         Atenúa recursivamente los scores de los vecinos encontrados.
         Deduplica nodos de forma estricta.
+
+        Ordenamiento level-first (EXP-Q-R3, 2026-09-09):
+          Ordena los contextos por (nivel_descubierto ASC, score DESC) en vez de
+          solo score DESC. Principio: un nodo más cercano en el grafo siempre
+          gana a uno más lejano, independientemente del peso de una arista puntual.
+          La regla de orden es agnóstica al cap — no introduce hiperparámetros.
+          Resultado en EXP-Q-R3: 0 violaciones monotónicas, 0 FP, mismas generaciones.
+          Referencia: scripts/experimentos/expQ_r3_level_first_ordering.py
         """
         if not depth or depth <= 0 or not pagina_resultados:
             return pagina_resultados, []
@@ -3891,7 +3899,8 @@ class SQLiteMemoryBioRAG:
             vistos[r[0]] = r
 
         frontera = list(pagina_resultados)
-        contextos = []
+        # Cada entrada guarda (item, nivel_descubierto) para el ordenamiento level-first
+        contextos_con_nivel = []
         filtro_estado = " AND l.estado = 'activo'" if profundidad != "profundo" else ""
 
         for nivel in range(1, depth + 1):
@@ -3933,7 +3942,7 @@ class SQLiteMemoryBioRAG:
                             vecino_contenido = vecino_contenido[:preview_chars] + "..."
                             
                     new_item = (vecino_concepto, vecino_contenido, row[2], row[3], score_contexto, row[4] or "")
-                    contextos.append(new_item)
+                    contextos_con_nivel.append((new_item, nivel))  # guarda nivel para level-first sort
                     vistos[vecino_concepto] = new_item
                     siguiente_frontera.append(new_item)
                     agregados += 1
@@ -3942,8 +3951,12 @@ class SQLiteMemoryBioRAG:
             if not frontera:
                 break
 
-        # Ordenar contextos por score descendente
-        contextos.sort(key=lambda x: x[4], reverse=True)
+        # Level-first ordering: nodos más cercanos al grafo de primarios siempre
+        # tienen prioridad sobre nodos más lejanos. Dentro del mismo nivel, el
+        # score decide. Esto garantiza que un nodo de nivel-2 nunca sea desplazado
+        # por uno de nivel-3, independientemente del peso de sus aristas.
+        contextos_con_nivel.sort(key=lambda x: (x[1], -x[0][4]))
+        contextos = [item for item, _nivel in contextos_con_nivel]
         return list(pagina_resultados), contextos
 
     def _rerank_jaccard_protect_r0(self, resultados, frase_limpia, preview_chars=1500):
