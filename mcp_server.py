@@ -1084,10 +1084,10 @@ def _build_server():
                         if asociados else [],
                 })
 
-            # Contexto expandido (adjunto): solo se expone en página > 1.
-            # Página 1 es 100% pura (solo primarios). No altera total/paginas_totales.
+            # Contexto expandido (adjunto): se expone cuando context_window > 0 o en página > 1.
+            # Página 1 mantiene resultados primarios intactos; el contexto va en contexto_expandido.
             contexto_items = []
-            if pagina > 1 and contexto_expandido:
+            if (pagina > 1 or context_window > 0) and contexto_expandido:
                 for concepto, contenido, peso, estado, score, asociaciones in contexto_expandido:
                     creado_ts = _edad_map.get(concepto, 0)
                     edad_dias = (ahora - creado_ts) / 86400 if creado_ts else 0

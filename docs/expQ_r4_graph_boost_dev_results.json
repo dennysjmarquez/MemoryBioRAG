@@ -1,7 +1,7 @@
 {
   "experimento": "EXP-Q-R4",
-  "fecha": "2026-09-09T10:45:44",
-  "db_sha256": "c54c4df7169dbbd0a99367a97bc391648bc749ae0c578ce7324d189837735c70",
+  "fecha": "2026-09-09T11:24:34",
+  "db_sha256": "ac828ce955fb44e3922d7a0232fea0855d1603eacfa5739eed3e37baa56fbeba",
   "gammas_evaluated": [
     0.25,
     0.5,
@@ -85,7 +85,7 @@
               "score": 0.0,
               "provenance": "NOT_FOUND"
             },
-            "latencia_ms": 4996.74
+            "latencia_ms": 5404.26
           },
           {
             "id": "CASE_02",
@@ -123,7 +123,7 @@
               "score": 0.0,
               "provenance": "NOT_FOUND"
             },
-            "latencia_ms": 4347.52
+            "latencia_ms": 3771.08
           },
           {
             "id": "CASE_03",
@@ -161,7 +161,7 @@
               "score": 0.0,
               "provenance": "NOT_FOUND"
             },
-            "latencia_ms": 4438.49
+            "latencia_ms": 3794.37
           },
           {
             "id": "CASE_04",
@@ -199,7 +199,7 @@
               "score": 0.0,
               "provenance": "NOT_FOUND"
             },
-            "latencia_ms": 3532.03
+            "latencia_ms": 3402.1
           },
           {
             "id": "CASE_05",
@@ -237,7 +237,7 @@
               "score": 0.0,
               "provenance": "NOT_FOUND"
             },
-            "latencia_ms": 4938.5
+            "latencia_ms": 5541.3
           },
           {
             "id": "CASE_06",
@@ -275,7 +275,7 @@
               "score": 0.0,
               "provenance": "NOT_FOUND"
             },
-            "latencia_ms": 2722.45
+            "latencia_ms": 3551.79
           },
           {
             "id": "CASE_07",
@@ -313,7 +313,7 @@
               "score": 0.0,
               "provenance": "NOT_FOUND"
             },
-            "latencia_ms": 4461.03
+            "latencia_ms": 5697.35
           },
           {
             "id": "CASE_08",
@@ -351,7 +351,7 @@
               "score": 0.0,
               "provenance": "NOT_FOUND"
             },
-            "latencia_ms": 4402.62
+            "latencia_ms": 6505.03
           },
           {
             "id": "CASE_09",
@@ -389,7 +389,7 @@
               "score": 0.0,
               "provenance": "NOT_FOUND"
             },
-            "latencia_ms": 3318.12
+            "latencia_ms": 4894.98
           },
           {
             "id": "CASE_10",
@@ -427,7 +427,7 @@
               "score": 0.0,
               "provenance": "NOT_FOUND"
             },
-            "latencia_ms": 2111.0
+            "latencia_ms": 3404.94
           },
           {
             "id": "CASE_11",
@@ -465,7 +465,7 @@
               "score": 0.0,
               "provenance": "NOT_FOUND"
             },
-            "latencia_ms": 2899.1
+            "latencia_ms": 4602.29
           },
           {
             "id": "CASE_12",
@@ -503,7 +503,7 @@
               "score": 0.0,
               "provenance": "NOT_FOUND"
             },
-            "latencia_ms": 3977.22
+            "latencia_ms": 5282.97
           }
         ]
       },
@@ -688,7 +688,7 @@
               "score": 0.0,
               "provenance": "NOT_FOUND"
             },
-            "latencia_ms": 3864.26
+            "latencia_ms": 4580.16
           },
           {
             "id": "CASE_02",
@@ -726,7 +726,7 @@
               "score": 0.0,
               "provenance": "NOT_FOUND"
             },
-            "latencia_ms": 2651.83
+            "latencia_ms": 3114.01
           },
           {
             "id": "CASE_03",
@@ -764,7 +764,7 @@
               "score": 0.0,
               "provenance": "NOT_FOUND"
             },
-            "latencia_ms": 2940.28
+            "latencia_ms": 2976.65
           },
           {
             "id": "CASE_04",
@@ -802,7 +802,7 @@
               "score": 0.0,
               "provenance": "NOT_FOUND"
             },
-            "latencia_ms": 2131.76
+            "latencia_ms": 2357.61
           },
           {
             "id": "CASE_05",
@@ -840,7 +840,7 @@
               "score": 0.0,
               "provenance": "NOT_FOUND"
             },
-            "latencia_ms": 4010.93
+            "latencia_ms": 4263.9
           },
           {
             "id": "CASE_06",
@@ -878,7 +878,7 @@
               "score": 0.0,
               "provenance": "NOT_FOUND"
             },
-            "latencia_ms": 2839.53
+            "latencia_ms": 3100.86
           },
           {
             "id": "CASE_07",
@@ -916,7 +916,7 @@
               "score": 0.0,
               "provenance": "NOT_FOUND"
             },
-            "latencia_ms": 4627.11
+            "latencia_ms": 6411.56
           },
           {
             "id": "CASE_08",
@@ -954,7 +954,7 @@
               "score": 0.0,
               "provenance": "NOT_FOUND"
             },
-            "latencia_ms": 4365.71
+            "latencia_ms": 6551.42
           },
           {
             "id": "CASE_09",
@@ -992,7 +992,7 @@
               "score": 0.0,
               "provenance": "NOT_FOUND"
             },
-            "latencia_ms": 3735.77
+            "latencia_ms": 4608.75
           },
           {
             "id": "CASE_10",
@@ -1030,7 +1030,7 @@
               "score": 0.0,
               "provenance": "NOT_FOUND"
             },
-            "latencia_ms": 3292.87
+            "latencia_ms": 3708.29
           },
           {
             "id": "CASE_11",
@@ -1068,7 +1068,7 @@
               "score": 0.0,
               "provenance": "NOT_FOUND"
             },
-            "latencia_ms": 3851.02
+            "latencia_ms": 4717.23
           },
           {
             "id": "CASE_12",
@@ -1106,7 +1106,7 @@
               "score": 0.0,
               "provenance": "NOT_FOUND"
             },
-            "latencia_ms": 5385.82
+            "latencia_ms": 5363.73
           }
         ]
       },
@@ -1291,7 +1291,7 @@
               "score": 0.0,
               "provenance": "NOT_FOUND"
             },
-            "latencia_ms": 4079.38
+            "latencia_ms": 4634.16
           },
           {
             "id": "CASE_02",
@@ -1329,7 +1329,7 @@
               "score": 0.0,
               "provenance": "NOT_FOUND"
             },
-            "latencia_ms": 2678.19
+            "latencia_ms": 3684.03
           },
           {
             "id": "CASE_03",
@@ -1367,7 +1367,7 @@
               "score": 0.0,
               "provenance": "NOT_FOUND"
             },
-            "latencia_ms": 2844.3
+            "latencia_ms": 3914.87
           },
           {
             "id": "CASE_04",
@@ -1405,7 +1405,7 @@
               "score": 0.0,
               "provenance": "NOT_FOUND"
             },
-            "latencia_ms": 2255.85
+            "latencia_ms": 2647.14
           },
           {
             "id": "CASE_05",
@@ -1443,7 +1443,7 @@
               "score": 0.0,
               "provenance": "NOT_FOUND"
             },
-            "latencia_ms": 3894.38
+            "latencia_ms": 4580.65
           },
           {
             "id": "CASE_06",
@@ -1481,7 +1481,7 @@
               "score": 0.0,
               "provenance": "NOT_FOUND"
             },
-            "latencia_ms": 2682.47
+            "latencia_ms": 3980.88
           },
           {
             "id": "CASE_07",
@@ -1519,7 +1519,7 @@
               "score": 0.0,
               "provenance": "NOT_FOUND"
             },
-            "latencia_ms": 4597.57
+            "latencia_ms": 8574.53
           },
           {
             "id": "CASE_08",
@@ -1557,7 +1557,7 @@
               "score": 0.0,
               "provenance": "NOT_FOUND"
             },
-            "latencia_ms": 5097.29
+            "latencia_ms": 7272.01
           },
           {
             "id": "CASE_09",
@@ -1595,7 +1595,7 @@
               "score": 0.0,
               "provenance": "NOT_FOUND"
             },
-            "latencia_ms": 3834.56
+            "latencia_ms": 3865.63
           },
           {
             "id": "CASE_10",
@@ -1633,7 +1633,7 @@
               "score": 0.0,
               "provenance": "NOT_FOUND"
             },
-            "latencia_ms": 2527.17
+            "latencia_ms": 2702.35
           },
           {
             "id": "CASE_11",
@@ -1671,7 +1671,7 @@
               "score": 0.0,
               "provenance": "NOT_FOUND"
             },
-            "latencia_ms": 3353.57
+            "latencia_ms": 3435.7
           },
           {
             "id": "CASE_12",
@@ -1709,7 +1709,7 @@
               "score": 0.0,
               "provenance": "NOT_FOUND"
             },
-            "latencia_ms": 4437.63
+            "latencia_ms": 8938.9
           }
         ]
       },
@@ -1894,7 +1894,7 @@
               "score": 0.0,
               "provenance": "NOT_FOUND"
             },
-            "latencia_ms": 4210.06
+            "latencia_ms": 5734.34
           },
           {
             "id": "CASE_02",
@@ -1932,7 +1932,7 @@
               "score": 0.0,
               "provenance": "NOT_FOUND"
             },
-            "latencia_ms": 2897.27
+            "latencia_ms": 3179.45
           },
           {
             "id": "CASE_03",
@@ -1970,7 +1970,7 @@
               "score": 0.0,
               "provenance": "NOT_FOUND"
             },
-            "latencia_ms": 2973.52
+            "latencia_ms": 3295.51
           },
           {
             "id": "CASE_04",
@@ -2008,7 +2008,7 @@
               "score": 0.0,
               "provenance": "NOT_FOUND"
             },
-            "latencia_ms": 2309.18
+            "latencia_ms": 2683.39
           },
           {
             "id": "CASE_05",
@@ -2046,7 +2046,7 @@
               "score": 0.0,
               "provenance": "NOT_FOUND"
             },
-            "latencia_ms": 3990.92
+            "latencia_ms": 4450.91
           },
           {
             "id": "CASE_06",
@@ -2084,7 +2084,7 @@
               "score": 0.0,
               "provenance": "NOT_FOUND"
             },
-            "latencia_ms": 2700.98
+            "latencia_ms": 3089.15
           },
           {
             "id": "CASE_07",
@@ -2122,7 +2122,7 @@
               "score": 0.0,
               "provenance": "NOT_FOUND"
             },
-            "latencia_ms": 4255.02
+            "latencia_ms": 5018.7
           },
           {
             "id": "CASE_08",
@@ -2160,7 +2160,7 @@
               "score": 0.0,
               "provenance": "NOT_FOUND"
             },
-            "latencia_ms": 5715.09
+            "latencia_ms": 4892.07
           },
           {
             "id": "CASE_09",
@@ -2198,7 +2198,7 @@
               "score": 0.0,
               "provenance": "NOT_FOUND"
             },
-            "latencia_ms": 5379.72
+            "latencia_ms": 3895.52
           },
           {
             "id": "CASE_10",
@@ -2236,7 +2236,7 @@
               "score": 0.0,
               "provenance": "NOT_FOUND"
             },
-            "latencia_ms": 3417.31
+            "latencia_ms": 2237.89
           },
           {
             "id": "CASE_11",
@@ -2274,7 +2274,7 @@
               "score": 0.0,
               "provenance": "NOT_FOUND"
             },
-            "latencia_ms": 3164.16
+            "latencia_ms": 3871.22
           },
           {
             "id": "CASE_12",
@@ -2312,7 +2312,7 @@
               "score": 0.0,
               "provenance": "NOT_FOUND"
             },
-            "latencia_ms": 6326.88
+            "latencia_ms": 5947.35
           }
         ]
       },
@@ -2497,7 +2497,7 @@
               "score": 0.0,
               "provenance": "NOT_FOUND"
             },
-            "latencia_ms": 3954.81
+            "latencia_ms": 5661.92
           },
           {
             "id": "CASE_02",
@@ -2535,7 +2535,7 @@
               "score": 0.0,
               "provenance": "NOT_FOUND"
             },
-            "latencia_ms": 2862.99
+            "latencia_ms": 4041.33
           },
           {
             "id": "CASE_03",
@@ -2573,7 +2573,7 @@
               "score": 0.0,
               "provenance": "NOT_FOUND"
             },
-            "latencia_ms": 2814.5
+            "latencia_ms": 4417.63
           },
           {
             "id": "CASE_04",
@@ -2611,7 +2611,7 @@
               "score": 0.0,
               "provenance": "NOT_FOUND"
             },
-            "latencia_ms": 2087.15
+            "latencia_ms": 2987.63
           },
           {
             "id": "CASE_05",
@@ -2649,7 +2649,7 @@
               "score": 0.0,
               "provenance": "NOT_FOUND"
             },
-            "latencia_ms": 4566.34
+            "latencia_ms": 4479.58
           },
           {
             "id": "CASE_06",
@@ -2687,7 +2687,7 @@
               "score": 0.0,
               "provenance": "NOT_FOUND"
             },
-            "latencia_ms": 2663.49
+            "latencia_ms": 2996.72
           },
           {
             "id": "CASE_07",
@@ -2725,7 +2725,7 @@
               "score": 0.0,
               "provenance": "NOT_FOUND"
             },
-            "latencia_ms": 4414.5
+            "latencia_ms": 4897.56
           },
           {
             "id": "CASE_08",
@@ -2763,7 +2763,7 @@
               "score": 0.0,
               "provenance": "NOT_FOUND"
             },
-            "latencia_ms": 6191.87
+            "latencia_ms": 4664.94
           },
           {
             "id": "CASE_09",
@@ -2801,7 +2801,7 @@
               "score": 0.0,
               "provenance": "NOT_FOUND"
             },
-            "latencia_ms": 3539.6
+            "latencia_ms": 3521.85
           },
           {
             "id": "CASE_10",
@@ -2839,7 +2839,7 @@
               "score": 0.0,
               "provenance": "NOT_FOUND"
             },
-            "latencia_ms": 2548.31
+            "latencia_ms": 2381.07
           },
           {
             "id": "CASE_11",
@@ -2877,7 +2877,7 @@
               "score": 0.0,
               "provenance": "NOT_FOUND"
             },
-            "latencia_ms": 3505.46
+            "latencia_ms": 3401.7
           },
           {
             "id": "CASE_12",
@@ -2915,7 +2915,7 @@
               "score": 0.0,
               "provenance": "NOT_FOUND"
             },
-            "latencia_ms": 4053.95
+            "latencia_ms": 4245.66
           }
         ]
       },
@@ -3100,7 +3100,7 @@
               "score": 0.0,
               "provenance": "NOT_FOUND"
             },
-            "latencia_ms": 4087.63
+            "latencia_ms": 5224.41
           },
           {
             "id": "CASE_02",
@@ -3138,7 +3138,7 @@
               "score": 0.0,
               "provenance": "NOT_FOUND"
             },
-            "latencia_ms": 2814.52
+            "latencia_ms": 4033.28
           },
           {
             "id": "CASE_03",
@@ -3176,7 +3176,7 @@
               "score": 0.0,
               "provenance": "NOT_FOUND"
             },
-            "latencia_ms": 2922.57
+            "latencia_ms": 4099.33
           },
           {
             "id": "CASE_04",
@@ -3214,7 +3214,7 @@
               "score": 0.0,
               "provenance": "NOT_FOUND"
             },
-            "latencia_ms": 2197.23
+            "latencia_ms": 3892.59
           },
           {
             "id": "CASE_05",
@@ -3252,7 +3252,7 @@
               "score": 0.0,
               "provenance": "NOT_FOUND"
             },
-            "latencia_ms": 3977.25
+            "latencia_ms": 7393.79
           },
           {
             "id": "CASE_06",
@@ -3290,7 +3290,7 @@
               "score": 0.0,
               "provenance": "NOT_FOUND"
             },
-            "latencia_ms": 2692.29
+            "latencia_ms": 3680.86
           },
           {
             "id": "CASE_07",
@@ -3328,7 +3328,7 @@
               "score": 0.0,
               "provenance": "NOT_FOUND"
             },
-            "latencia_ms": 4244.73
+            "latencia_ms": 8322.32
           },
           {
             "id": "CASE_08",
@@ -3366,7 +3366,7 @@
               "score": 0.0,
               "provenance": "NOT_FOUND"
             },
-            "latencia_ms": 4271.36
+            "latencia_ms": 9818.02
           },
           {
             "id": "CASE_09",
@@ -3404,7 +3404,7 @@
               "score": 0.0,
               "provenance": "NOT_FOUND"
             },
-            "latencia_ms": 3364.64
+            "latencia_ms": 6470.43
           },
           {
             "id": "CASE_10",
@@ -3442,7 +3442,7 @@
               "score": 0.0,
               "provenance": "NOT_FOUND"
             },
-            "latencia_ms": 2215.03
+            "latencia_ms": 2790.87
           },
           {
             "id": "CASE_11",
@@ -3480,7 +3480,7 @@
               "score": 0.0,
               "provenance": "NOT_FOUND"
             },
-            "latencia_ms": 3126.53
+            "latencia_ms": 3943.22
           },
           {
             "id": "CASE_12",
@@ -3518,7 +3518,7 @@
               "score": 0.0,
               "provenance": "NOT_FOUND"
             },
-            "latencia_ms": 3964.16
+            "latencia_ms": 5126.64
           }
         ]
       },

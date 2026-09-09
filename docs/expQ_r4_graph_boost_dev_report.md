@@ -1,7 +1,7 @@
 # EXP-Q-R4: Informe de Fase DEV — Causal Graph Boost & Ranking
 ## Supervisión Metodológica de Aureon (2026-09-09)
 
-- **SHA-256 DB Snapshot**: `c54c4df7169dbbd0a99367a97bc391648bc749ae0c578ce7324d189837735c70`
+- **SHA-256 DB Snapshot**: `ac828ce955fb44e3922d7a0232fea0855d1603eacfa5739eed3e37baa56fbeba`
 - **Casos DEV**: 12 casos (True Zero Stem)
 - **Controles Negativos**: 10 queries out-of-domain
 

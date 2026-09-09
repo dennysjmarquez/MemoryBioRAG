@@ -3909,31 +3909,46 @@ class SQLiteMemoryBioRAG:
                 concepto = r[0]
                 score_actual = r[4]
                 
-                # Recuperar vecinos directos de la base de datos
+                # Recuperar vecinos directos de la base de datos (anti-trampa alfabética de SQLite)
                 self.cursor.execute(f"""
                     SELECT l.concepto, l.contenido, l.peso_sinaptico, l.estado, l.asociaciones, s.peso
-                    FROM sinapsis s
-                    JOIN largo_plazo l ON l.concepto = s.destino
-                    WHERE s.origen = ?{filtro_estado}
-                    UNION
-                    SELECT l.concepto, l.contenido, l.peso_sinaptico, l.estado, l.asociaciones, s.peso
-                    FROM sinapsis s
-                    JOIN largo_plazo l ON l.concepto = s.origen
-                    WHERE s.destino = ?{filtro_estado}
-                    ORDER BY s.peso DESC
+                    FROM (
+                        SELECT destino as vecino, peso, rowid FROM sinapsis WHERE origen = ?
+                        UNION ALL
+                        SELECT origen as vecino, peso, rowid FROM sinapsis WHERE destino = ?
+                    ) s
+                    JOIN largo_plazo l ON l.concepto = s.vecino
+                    WHERE 1=1{filtro_estado}
+                    ORDER BY s.peso DESC, s.rowid DESC
                 """, (concepto, concepto))
                 
                 agregados = 0
-                # Límite local para evitar explosión combinatoria (máximo 3 vecinos con mayor peso por nodo)
+                max_vecinos_nodo = int(os.environ.get("BIORAG_MAX_VECINOS_POR_NODO", "6"))
+                vecinos_padre_vistos = set()
                 for row in self.cursor.fetchall():
-                    if agregados >= 3:
+                    if agregados >= max_vecinos_nodo:
                         break
                     vecino_concepto = row[0]
-                    if vecino_concepto in vistos:
+                    if vecino_concepto in vecinos_padre_vistos:
                         continue
+                    vecinos_padre_vistos.add(vecino_concepto)
                     
                     # Atenuación del score híbrido según la distancia
                     score_contexto = round(min(1.0, score_actual * 0.6 + min(row[5], 1.0) * 0.2), 4)
+
+                    if vecino_concepto in vistos:
+                        # Refuerzo Hebbiano multi-padre: si múltiples caminos convergen en este nodo, reforzar su score
+                        old_item = vistos[vecino_concepto]
+                        if isinstance(old_item, tuple) and len(old_item) >= 6:
+                            boost_multi = round(min(0.08, score_contexto * 0.15), 4)
+                            nuevo_score = round(min(1.0, old_item[4] + boost_multi), 4)
+                            updated_item = (old_item[0], old_item[1], old_item[2], old_item[3], nuevo_score, old_item[5])
+                            vistos[vecino_concepto] = updated_item
+                            for idx_ctx, (ci, niv) in enumerate(contextos_con_nivel):
+                                if ci[0] == vecino_concepto:
+                                    contextos_con_nivel[idx_ctx] = (updated_item, niv)
+                                    break
+                        continue
                     
                     # Limitar caracteres del contenido de los vecinos si preview_chars está definido
                     vecino_contenido = row[1] or ""
