@@ -1,0 +1,298 @@
+{
+  "experimento": "EXP-Q: Ablación Pilar 3 — Grafo Sináptico",
+  "fecha": "2026-09-08T22:47:58",
+  "db_path": "snapshots/qa_escape_qcr_20260811.db",
+  "db_sha256": "82506224612393a6a51d944796ade4e79f621a577ce8efebde189e0327545dee",
+  "n_casos": 5,
+  "n_controles_negativos": 2,
+  "context_window_levels": [
+    0,
+    1,
+    2,
+    3
+  ],
+  "metricas_globales": {
+    "cw_0": {
+      "context_window": 0,
+      "gold_in_pool": 0,
+      "recall_at_1": 0,
+      "recall_at_5": 0,
+      "graph_generations": 0,
+      "false_positives_neg": 0
+    },
+    "cw_1": {
+      "context_window": 1,
+      "gold_in_pool": 1,
+      "recall_at_1": 0,
+      "recall_at_5": 0,
+      "graph_generations": 1,
+      "false_positives_neg": 0
+    },
+    "cw_2": {
+      "context_window": 2,
+      "gold_in_pool": 1,
+      "recall_at_1": 0,
+      "recall_at_5": 0,
+      "graph_generations": 1,
+      "false_positives_neg": 0
+    },
+    "cw_3": {
+      "context_window": 3,
+      "gold_in_pool": 0,
+      "recall_at_1": 0,
+      "recall_at_5": 0,
+      "graph_generations": 0,
+      "false_positives_neg": 0
+    }
+  },
+  "resultados_por_caso": [
+    {
+      "case_id": "CASE_01",
+      "gold": "scoring_pesos_bm25",
+      "query_b": "calibrar ajuste escalar para combinar relevancia heterogenea",
+      "stimulus_a": "coeficientes multiplicativos de ponderacion",
+      "n_vecinos_sinapsis_gold": 27,
+      "niveles": {
+        "cw_0": {
+          "gold_in_pool": false,
+          "gold_rank": null,
+          "gold_score": null,
+          "gold_source": "NOT_FOUND",
+          "pool_size": 50
+        },
+        "cw_1": {
+          "gold_in_pool": false,
+          "gold_rank": null,
+          "gold_score": null,
+          "gold_source": "NOT_FOUND",
+          "pool_size": 65,
+          "bridge": null,
+          "classification": "NO_CHANGE"
+        },
+        "cw_2": {
+          "gold_in_pool": false,
+          "gold_rank": null,
+          "gold_score": null,
+          "gold_source": "NOT_FOUND",
+          "pool_size": 80,
+          "bridge": null,
+          "classification": "NO_CHANGE"
+        },
+        "cw_3": {
+          "gold_in_pool": false,
+          "gold_rank": null,
+          "gold_score": null,
+          "gold_source": "NOT_FOUND",
+          "pool_size": 95,
+          "bridge": null,
+          "classification": "NO_CHANGE"
+        }
+      },
+      "veredicto": "GOLD_NOT_REACHABLE"
+    },
+    {
+      "case_id": "CASE_02",
+      "gold": "desde_athena_biorag",
+      "query_b": "construir enlaces probabilistas de fusion de subgrafos",
+      "stimulus_a": "aristas estocasticas de vinculacion",
+      "n_vecinos_sinapsis_gold": 74,
+      "niveles": {
+        "cw_0": {
+          "gold_in_pool": false,
+          "gold_rank": null,
+          "gold_score": null,
+          "gold_source": "NOT_FOUND",
+          "pool_size": 5
+        },
+        "cw_1": {
+          "gold_in_pool": false,
+          "gold_rank": null,
+          "gold_score": null,
+          "gold_source": "NOT_FOUND",
+          "pool_size": 20,
+          "bridge": null,
+          "classification": "NO_CHANGE"
+        },
+        "cw_2": {
+          "gold_in_pool": true,
+          "gold_rank": 23,
+          "gold_score": 0.3928,
+          "gold_source": "GRAPH_NEIGHBOR",
+          "pool_size": 35,
+          "bridge": {
+            "bridge_node": "athena_artemis_desde",
+            "bridge_sinapsis_weight": 0.9,
+            "path_length": 2
+          },
+          "classification": "GRAPH_GENERATION"
+        },
+        "cw_3": {
+          "gold_in_pool": false,
+          "gold_rank": null,
+          "gold_score": null,
+          "gold_source": "NOT_FOUND",
+          "pool_size": 50,
+          "bridge": null,
+          "classification": "NO_CHANGE"
+        }
+      },
+      "veredicto": "GRAPH_GENERATION"
+    },
+    {
+      "case_id": "CASE_03",
+      "gold": "docker_infrastructure_rog",
+      "query_b": "segmentacion de recursos de hardware en hilos de cpu",
+      "stimulus_a": "separacion en contenedores de computo",
+      "n_vecinos_sinapsis_gold": 14,
+      "niveles": {
+        "cw_0": {
+          "gold_in_pool": false,
+          "gold_rank": null,
+          "gold_score": null,
+          "gold_source": "NOT_FOUND",
+          "pool_size": 41
+        },
+        "cw_1": {
+          "gold_in_pool": false,
+          "gold_rank": null,
+          "gold_score": null,
+          "gold_source": "NOT_FOUND",
+          "pool_size": 56,
+          "bridge": null,
+          "classification": "NO_CHANGE"
+        },
+        "cw_2": {
+          "gold_in_pool": false,
+          "gold_rank": null,
+          "gold_score": null,
+          "gold_source": "NOT_FOUND",
+          "pool_size": 71,
+          "bridge": null,
+          "classification": "NO_CHANGE"
+        },
+        "cw_3": {
+          "gold_in_pool": false,
+          "gold_rank": null,
+          "gold_score": null,
+          "gold_source": "NOT_FOUND",
+          "pool_size": 86,
+          "bridge": null,
+          "classification": "NO_CHANGE"
+        }
+      },
+      "veredicto": "GOLD_NOT_REACHABLE"
+    },
+    {
+      "case_id": "CASE_04",
+      "gold": "coche_puente_condicional",
+      "query_b": "diagnostico de compuerta de transicion contextual",
+      "stimulus_a": "evaluador de pasarela situacional",
+      "n_vecinos_sinapsis_gold": 46,
+      "niveles": {
+        "cw_0": {
+          "gold_in_pool": false,
+          "gold_rank": null,
+          "gold_score": null,
+          "gold_source": "NOT_FOUND",
+          "pool_size": 6
+        },
+        "cw_1": {
+          "gold_in_pool": false,
+          "gold_rank": null,
+          "gold_score": null,
+          "gold_source": "NOT_FOUND",
+          "pool_size": 21,
+          "bridge": null,
+          "classification": "NO_CHANGE"
+        },
+        "cw_2": {
+          "gold_in_pool": false,
+          "gold_rank": null,
+          "gold_score": null,
+          "gold_source": "NOT_FOUND",
+          "pool_size": 36,
+          "bridge": null,
+          "classification": "NO_CHANGE"
+        },
+        "cw_3": {
+          "gold_in_pool": false,
+          "gold_rank": null,
+          "gold_score": null,
+          "gold_source": "NOT_FOUND",
+          "pool_size": 51,
+          "bridge": null,
+          "classification": "NO_CHANGE"
+        }
+      },
+      "veredicto": "GOLD_NOT_REACHABLE"
+    },
+    {
+      "case_id": "CASE_05",
+      "gold": "activos_dormidos_hermana",
+      "query_b": "actualizacion de registros caducos en estado de letargo",
+      "stimulus_a": "modificacion de elementos obsoletos",
+      "n_vecinos_sinapsis_gold": 80,
+      "niveles": {
+        "cw_0": {
+          "gold_in_pool": false,
+          "gold_rank": null,
+          "gold_score": null,
+          "gold_source": "NOT_FOUND",
+          "pool_size": 3
+        },
+        "cw_1": {
+          "gold_in_pool": true,
+          "gold_rank": 7,
+          "gold_score": 0.3989,
+          "gold_source": "GRAPH_NEIGHBOR",
+          "pool_size": 12,
+          "bridge": null,
+          "classification": "GRAPH_GENERATION"
+        },
+        "cw_2": {
+          "gold_in_pool": false,
+          "gold_rank": null,
+          "gold_score": null,
+          "gold_source": "NOT_FOUND",
+          "pool_size": 33,
+          "bridge": null,
+          "classification": "NO_CHANGE"
+        },
+        "cw_3": {
+          "gold_in_pool": false,
+          "gold_rank": null,
+          "gold_score": null,
+          "gold_source": "NOT_FOUND",
+          "pool_size": 48,
+          "bridge": null,
+          "classification": "NO_CHANGE"
+        }
+      },
+      "veredicto": "GRAPH_GENERATION"
+    }
+  ],
+  "controles_negativos": [
+    {
+      "neg_id": "NEG_01",
+      "query": "receta culinaria de cocina mediterranea con aceite de oliva",
+      "false_positives_by_cw": {
+        "cw_0": [],
+        "cw_1": [],
+        "cw_2": [],
+        "cw_3": []
+      }
+    },
+    {
+      "neg_id": "NEG_02",
+      "query": "mantenimiento preventivo de vehiculos hibridos y cambio de frenos",
+      "false_positives_by_cw": {
+        "cw_0": [],
+        "cw_1": [],
+        "cw_2": [],
+        "cw_3": []
+      }
+    }
+  ],
+  "veredicto_final": "H1_CONFIRMADA_SIN_FP",
+  "interpretacion": "El grafo sináptico genera candidatos nuevos (1 casos) sin introducir falsos positivos. Pilar 3 activo es decisivo."
+}
