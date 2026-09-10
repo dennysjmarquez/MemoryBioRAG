@@ -3873,7 +3873,7 @@ class SQLiteMemoryBioRAG:
             return pagina_resultados, []
 
         primarios, contextos = self._expandir_contexto_bfs(pagina_resultados, depth, profundidad=profundidad, preview_chars=preview_chars)
-        max_contextos = int(os.environ.get("BIORAG_MAX_CONTEXTOS", "15")) * max(1, int(depth or 1))
+        max_contextos = int(os.environ.get("BIORAG_MAX_CONTEXTOS", "50")) * max(1, int(depth or 1))
         
         return primarios, contextos[:max_contextos]
 

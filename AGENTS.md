@@ -97,7 +97,7 @@ Copy `.env.example` → `.env.local` and uncomment. Key vars:
 | `BIORAG_QA_ETIQUETA_DIFUSA` | Min similarity ratio for fuzzy gold-label resolution | `0.94` |
 | `BIORAG_QA_ETIQUETA_MARGEN` | Min margin over the runner-up candidate before fuzzy-resolving | `0.02` |
 | `BIORAG_MAX_VECINOS_POR_NODO` | Max neighbors per node in each BFS step (Lexical Abyss rescue) | `6` |
-| `BIORAG_MAX_CONTEXTOS` | Base budget for context expansion (× depth) | `15` |
+| `BIORAG_MAX_CONTEXTOS` | Base budget for context expansion (× depth) | `50` |
 
 **.env.local is gitignored**. Never commit secrets. `.env.example` documents all options.
 
