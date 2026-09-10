@@ -27,6 +27,9 @@ Uso:
 import sys
 import os
 import time
+import sqlite3
+import tempfile
+import shutil
 
 # Agregar el directorio raíz al path
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -61,38 +64,51 @@ CASOS_ABISMO_LEXICO = [
 
 
 def evaluar_abismo_lexico():
-    """Ejecuta la evaluación de rescate por grafo sináptico."""
+    """Ejecuta la evaluación de rescate por grafo sináptico sobre una copia aislada."""
     print("=" * 75)
     print("EVALUACIÓN ABISMO LÉXICO (EXP-Q): Rescate por Grafo Sináptico")
     print("=" * 75)
 
-    db_path = os.environ.get("BIORAG_PATH") or os.path.join(
+    src_db = os.environ.get("BIORAG_PATH") or os.path.join(
         os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
         "snapshots", "qa_escape_qcr_20260811.db"
     )
 
-    if not os.path.exists(db_path):
-        db_path = os.path.join(
+    if not os.path.exists(src_db):
+        src_db = os.path.join(
             os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
             "MemoryBioRAG_Data", "memory_biorag.db"
         )
 
+    # Crear copia temporal aislada para garantizar que el archivo fuente NUNCA mute
+    temp_dir = tempfile.mkdtemp(prefix="biorag_expq_")
+    temp_db = os.path.join(temp_dir, "isolated_eval.db")
+    
+    conn_src = sqlite3.connect(f"file:{os.path.abspath(src_db)}?mode=ro", uri=True)
+    conn_dst = sqlite3.connect(temp_db)
+    conn_src.backup(conn_dst)
+    conn_dst.close()
+    conn_src.close()
+
+    os.environ["BIORAG_NO_LOG"] = "1"
     limite_mcp = int(os.environ.get("BIORAG_LIMITE_MCP", "10"))
-    cerebro = SQLiteMemoryBioRAG(db_path)
+    cerebro = SQLiteMemoryBioRAG(temp_db)
 
-    print(f"\n[INFO] DB Evaluada: {db_path}")
-    cursor = cerebro.conn.execute("SELECT COUNT(*) FROM largo_plazo WHERE estado='activo'")
-    print(f"[INFO] Nodos activos: {cursor.fetchone()[0]}")
-    cursor = cerebro.conn.execute("SELECT COUNT(*) FROM sinapsis")
-    print(f"[INFO] Sinapsis en el grafo: {cursor.fetchone()[0]}")
-    print(f"[INFO] Límite de anclajes primarios evaluados: {limite_mcp}")
+    try:
+        print(f"\n[INFO] DB Origen: {src_db}")
+        print(f"[INFO] Copia Aislada: {temp_db}")
+        cursor = cerebro.conn.execute("SELECT COUNT(*) FROM largo_plazo WHERE estado='activo'")
+        print(f"[INFO] Nodos activos: {cursor.fetchone()[0]}")
+        cursor = cerebro.conn.execute("SELECT COUNT(*) FROM sinapsis")
+        print(f"[INFO] Sinapsis en el grafo: {cursor.fetchone()[0]}")
+        print(f"[INFO] Límite de anclajes primarios evaluados: {limite_mcp}")
 
-    rescatados_count = 0
-    en_primarios_count = 0
-    total_casos = len(CASOS_ABISMO_LEXICO)
-    resultados = []
+        rescatados_count = 0
+        en_primarios_count = 0
+        total_casos = len(CASOS_ABISMO_LEXICO)
+        resultados = []
 
-    for i, caso in enumerate(CASOS_ABISMO_LEXICO, 1):
+        for i, caso in enumerate(CASOS_ABISMO_LEXICO, 1):
         print(f"\n{'─' * 75}")
         print(f"CASO {i} [{caso['id']}]: {caso['descripcion']}")
         print(f"  Categoría:  {caso['categoria']}")
@@ -148,26 +164,36 @@ def evaluar_abismo_lexico():
             "posicion": hallazgos[0] + 1 if rescatado else None
         })
 
-    print("\n" + "=" * 75)
-    print("RESUMEN DE RESCATE EN EL ABISMO LÉXICO")
-    print("=" * 75)
-    resueltos_count = sum(1 for r in resultados if r["mecanismo"])
-    print(f"Rescatados SOLO por Grafo Sináptico:              {rescatados_count}/{total_casos}")
-    print(f"Resueltos en PRIMARIA (hub/léxico/forzado):       {en_primarios_count}/{total_casos}")
-    print(f"TASA DE SUPERACIÓN DEL ABISMO (primaria y/o grafo): {resueltos_count}/{total_casos} ({resueltos_count/total_casos*100:.1f}%)")
-    print(f"Irresueltos (abismo puro persiste):               {total_casos - resueltos_count}/{total_casos}")
-    print("-" * 75)
-    for r in resultados:
-        prim_str = "✅ TOP" if r["en_primarios"] else "❌ 0 Overlap"
-        if r["rescatado"]:
-            grafo_str = f"✅ RESCATADO (Pos #{r['posicion']})"
-        else:
-            grafo_str = "❌ No alcanzado"
-        mec_str = r["mecanismo"] or "IRRESUELTO"
-        print(f"  {r['id']}: Primaria: {prim_str:<12} -> Grafo: {grafo_str} | Mecanismo: {mec_str} | {r['esperado'][:30]}")
-    print("=" * 75)
+        print("\n" + "=" * 75)
+        print("RESUMEN DE RESCATE EN EL ABISMO LÉXICO")
+        print("=" * 75)
+        resueltos_count = sum(1 for r in resultados if r["mecanismo"])
+        print(f"Rescatados SOLO por Grafo Sináptico:              {rescatados_count}/{total_casos}")
+        print(f"Resueltos en PRIMARIA (hub/léxico/forzado):       {en_primarios_count}/{total_casos}")
+        print(f"TASA DE SUPERACIÓN DEL ABISMO (primaria y/o grafo): {resueltos_count}/{total_casos} ({resueltos_count/total_casos*100:.1f}%)")
+        print(f"Irresueltos (abismo puro persiste):               {total_casos - resueltos_count}/{total_casos}")
+        print("-" * 75)
+        for r in resultados:
+            prim_str = "✅ TOP" if r["en_primarios"] else "❌ 0 Overlap"
+            if r["rescatado"]:
+                grafo_str = f"✅ RESCATADO (Pos #{r['posicion']})"
+            else:
+                grafo_str = "❌ No alcanzado"
+            mec_str = r["mecanismo"] or "IRRESUELTO"
+            print(f"  {r['id']}: Primaria: {prim_str:<12} -> Grafo: {grafo_str} | Mecanismo: {mec_str} | {r['esperado'][:30]}")
+        print("=" * 75)
 
-    return resueltos_count == total_casos
+        return resueltos_count == total_casos
+    finally:
+        try:
+            cerebro.cerrar_sistema()
+        except Exception:
+            pass
+        if os.path.exists(temp_dir):
+            try:
+                shutil.rmtree(temp_dir)
+            except Exception:
+                pass
 
 
 if __name__ == "__main__":
