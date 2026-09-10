@@ -94,6 +94,12 @@ Override: export BIORAG_RERANKING_JACCARD_TOPK=20"""
 
 RERANKING_JACCARD_WINDOW = int(os.environ.get('BIORAG_RERANKING_JACCARD_WINDOW', '50'))
 
+# E1: SDM Kanerva (2048 bits) como Fallback 2.5. Solo generación cuando el
+# pool léxico es pobre. OFF con BIORAG_SDM_FALLBACK=0. No es señal de scoring
+# (eso es E2, paso aparte).
+SDM_FALLBACK_ACTIVO = os.environ.get('BIORAG_SDM_FALLBACK', '1').lower() in ('1', 'true', 'yes')
+SDM_FALLBACK_K = int(os.environ.get('BIORAG_SDM_FALLBACK_K', '5'))
+
 GABA_ACTIVO = os.environ.get('BIORAG_GABA_ACTIVO', '1').lower() in ('1', 'true', 'yes')
 """Activar inhibición lateral GABA (Edelman 1987): atenúa competidores secundarios cuando top-1 es atractor fuerte.
 Default ON. Ablación: export BIORAG_GABA_ACTIVO=0"""
@@ -5078,6 +5084,42 @@ class SQLiteMemoryBioRAG:
             except Exception:
                 pass
 
+        # ─── Fallback 2.5 (E1): SDM binario 2048 bits ───
+        # POR QUÉ aquí y no en scoring: el gold ausente del pool no se recupera
+        # reordenando. Solo se activa si FTS+fallbacks dejaron < 3 candidatos y
+        # la consulta tiene ≥ 3 tokens (consultas negativas cortas no disparan).
+        # No toca layout SDM. No fusiona nodos. QCR sigue activo (FP).
+        if (
+            SDM_FALLBACK_ACTIVO
+            and not modo_estricto
+            and len(todos) < 3
+            and len(re.findall(r"\w{2,}", query or "")) >= 3
+        ):
+            try:
+                from core.sdm import rescatar_fallback_sdm
+                _sdm_hits = rescatar_fallback_sdm(
+                    self, query, limite=max(SDM_FALLBACK_K, limite or 5)
+                )
+                _seen_sdm = {r[1] for r in todos}
+                for hit in _sdm_hits:
+                    conc = hit["concepto"]
+                    if conc in _seen_sdm:
+                        if conc not in origen_scores:
+                            origen_scores[conc] = ("sdm", float(hit["similitud"]))
+                        continue
+                    self.cursor.execute(
+                        "SELECT rowid, concepto, contenido, peso_sinaptico, estado, asociaciones "
+                        "FROM largo_plazo WHERE concepto = ?",
+                        (conc,),
+                    )
+                    row = self.cursor.fetchone()
+                    if row and (profundidad == "profundo" or row[4] == "activo"):
+                        todos.append(row)
+                        _seen_sdm.add(conc)
+                        origen_scores[conc] = ("sdm", float(hit["similitud"]))
+            except Exception:
+                pass
+
         # ─── Merge: inyectar resultados de concepto no encontrados por FTS5 ───
 
         if resultados_concepto:
@@ -5860,7 +5902,7 @@ class SQLiteMemoryBioRAG:
         # Solo aplica a resultados de capas literales (AND/OR/NEAR/unicode/snap/substring).
         # Resultados de capas no literales se preservan para no romper tolerancia a typos,
         # búsqueda semántica/conceptual, ni el fallback simbólico (que normaliza acentos).
-        _ORIGENES_NO_LITERALES = {"typo", "expansion", "latente", "cadena", "simbolico", "dimensional_fallback", "semantica", "unicode", "lexico_aprendido"}
+        _ORIGENES_NO_LITERALES = {"typo", "expansion", "latente", "cadena", "simbolico", "dimensional_fallback", "semantica", "unicode", "lexico_aprendido", "sdm"}
         query_words = re.findall(r'\w{3,}', query.lower())
         if len(query_words) == 1 and resultados_con_hibrido:
             token = query_words[0]

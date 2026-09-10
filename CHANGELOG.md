@@ -1,5 +1,12 @@
 # BioRAG Changelog
 
+## [v31.1-unreleased] — 2026-09-10 — E1 SDM Fallback 2.5 (un paso)
+
+SDM Kanerva (2048 bits) entra como **generación** cuando `buscar_por_frase`
+deja el pool < 3 y la query tiene ≥ 3 tokens. No es señal de scoring (E2).
+No reindexa en el path caliente. QCR sigue filtrando (FP). Flag:
+`BIORAG_SDM_FALLBACK` (default ON), `BIORAG_SDM_FALLBACK_SIM_MIN` (0.22).
+
 ## [v31.1-unreleased] — 2026-09-10 — Lexical Learning Episode + cableado único
 
 Un cambio medible: registrar «expresión A refiere a concepto B» y generar
