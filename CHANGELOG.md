@@ -1,13 +1,26 @@
 # BioRAG Changelog
 
+## [v31.1-unreleased] — 2026-09-10 — E7 JSD adaptativo (un paso)
+
+`jsd_weight` en `buscar_por_frase` segun Nt (tokens >=3): *2.5 si Nt>=4
+(tematico), *0.5 si Nt<4 (sinonimos). Base 0.05 si `JSD_WEIGHT` estatico
+sigue en 0. `base_weight = (1-jsd_w)/total_base`. Flag
+`BIORAG_JSD_ADAPTATIVO` default ON. Rafaga no cambia.
+
+A/B 921 vs E6: R@5 **96.91** R@1 **90.40** MRR 0.9297 FP 15%.
+`por_tema` R@5 86.15 hold, R@1 64.62→**66.15**. `sinonimo` R@5 83.64 hold,
+R@1 43.64→41.82. Gate global OK. Competitive 100% P95 6.4ms.
+Tests `tests/test_jsd_adaptativo_e7.py`.
+
 ## [v31.1-unreleased] — 2026-09-10 — E6 NCD zlib (un paso)
 
 Senal #15: Sim_NCD=1-NCD con zlib.compress level 6 (Li et al. 2004).
 Solo pool O(k): query vs concepto+contenido. Peso 0.05 (cap 0.08) en
 numerador y denominador del hibrido. Cero scan O(N), solo stdlib.
 
-A/B 921 (pendiente de confirmar en este arbol E1-E5; default ON 0.05).
-OFF: BIORAG_NCD_PESO=0. Tests tests/test_ncd_e6.py.
+A/B 921 vs E3: R@5 **96.91** (hold) R@1 **90.40** (+0.23) MRR **0.9298**
+FP **15%** 27 fallos. Gate OK. Default **ON** `BIORAG_NCD_PESO=0.05`.
+OFF: `=0`. Tests `tests/test_ncd_e6.py`.
 
 ## [v31.1-unreleased] — 2026-09-10 — E5 resonancia multi-semilla (un paso)
 

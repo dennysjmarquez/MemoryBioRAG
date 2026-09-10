@@ -65,6 +65,14 @@ JSD_WEIGHT = float(os.environ.get('BIORAG_JSD_WEIGHT', '0.0'))
 """Peso de JSD (señal #11) en la fórmula de scoring. 0.0=desactivado, 0.05=default activo.
 Override: export BIORAG_JSD_WEIGHT=0.05"""
 
+# E7: JSD adaptativo por Nt (tokens >=3). Default ON.
+# Base 0.05 si JSD_WEIGHT==0 (JSD estatico sigue OFF en rafaga).
+JSD_ADAPTATIVO = os.environ.get('BIORAG_JSD_ADAPTATIVO', '1').lower() in ('1', 'true', 'yes')
+JSD_ADAPT_BASE = float(os.environ.get('BIORAG_JSD_ADAPT_BASE', '0.05'))
+JSD_ADAPT_LARGO = float(os.environ.get('BIORAG_JSD_ADAPT_LARGO', '2.5'))
+JSD_ADAPT_CORTO = float(os.environ.get('BIORAG_JSD_ADAPT_CORTO', '0.5'))
+JSD_ADAPT_NT = int(os.environ.get('BIORAG_JSD_ADAPT_NT', '4'))
+
 BAYESIAN_BM25 = os.environ.get('BIORAG_BAYESIAN_BM25', 'false').lower() == 'true'
 """Activar calibración Bayesian BM25 (sigmoid) en vez de normalización fija x/(x+3).
 Override: export BIORAG_BAYESIAN_BM25=true"""
@@ -3346,6 +3354,20 @@ class SQLiteMemoryBioRAG:
             out[conc] = self._ncd_sim(q, f"{conc} {texto or ''}")
         return out
 
+    @staticmethod
+    def _jsd_weight_adaptativo(query, n_tokens=None):
+        """E7: JSD_WEIGHT * 2.5 si Nt>=4, *0.5 si Nt<4. OFF: JSD_WEIGHT estatico."""
+        if not JSD_ADAPTATIVO:
+            return float(JSD_WEIGHT)
+        if n_tokens is None:
+            n_tokens = len(re.findall(r"\w{3,}", query or ""))
+        base = JSD_WEIGHT if JSD_WEIGHT > 0.0 else JSD_ADAPT_BASE
+        if n_tokens >= JSD_ADAPT_NT:
+            w = base * JSD_ADAPT_LARGO
+        else:
+            w = base * JSD_ADAPT_CORTO
+        return max(0.0, min(0.20, w))
+
     def _generar_variaciones(self, query, historial_fallos=None):
         """Genera variaciones de la query basadas en el historial de fallos.
         
@@ -5881,6 +5903,9 @@ class SQLiteMemoryBioRAG:
             except Exception:
                 ncd_map = {}
 
+        # E7: JSD adaptativo una vez por query (Nt tokens >=3).
+        _jsd_w_e7 = self._jsd_weight_adaptativo(query)
+
         # Calcular score hibrido para cada resultado (fórmula única 9 señales)
         total = len(todos)
         resultados_con_hibrido = []
@@ -5961,7 +5986,7 @@ class SQLiteMemoryBioRAG:
 
             # Signal #11: Jensen-Shannon Divergence (distributional overlap)
             jsd_val = 0.0
-            if JSD_WEIGHT > 0.0:
+            if _jsd_w_e7 > 0.0:
                 node_text = f"{concepto} {contenido or ''}"
                 jsd_val = self._calcular_jsd(query, node_text)
 
@@ -6025,7 +6050,7 @@ class SQLiteMemoryBioRAG:
                 grupo_score=grupo_scores_map.get(concepto, 0.0),
                 tematico_score=tematico_score,
                 jsd_score=jsd_val,
-                jsd_weight=JSD_WEIGHT,
+                jsd_weight=_jsd_w_e7,
                 pred_score=pred_val,
                 ppmi_score=ppmi_val,
                 hub_match=hub_val,
