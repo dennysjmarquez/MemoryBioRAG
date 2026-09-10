@@ -681,7 +681,23 @@ python3 scripts/test_hdc_stress_versionado.py
 
 ---
 
-### Test 9 — Ablación de Mecanismos Neuro-Narrativos
+### Test 9 — Auditoría Causal A/B Diferencial (Propagación Hebbiana & Abismo Léxico)
+
+**Qué verifica:** Evaluación diferencial estricta A/B (1 a 1 sobre los 921 casos) para aislar el impacto causal del refuerzo Hebbiano:
+- **Modo A (Baseline):** Sin propagación Hebbiana a primarios en BFS.
+- **Modo B (Actual):** Con propagación Hebbiana a primarios en BFS.
+- **Métricas:** Rescates a Top-5, regresiones, movimientos de ranking, auditoría de spreading activation y cálculo formal de `Graph-Candidates-Found` vs `Graph-Rescue@5`.
+
+```bash
+# Ejecutar auditoría causal A/B sobre snapshot congelado:
+python3 scripts/auditoria_causal_hebbiano.py
+```
+
+**Salida generada:** `scripts/auditoria_causal_report.json` (reporte estructurado de deltas).
+
+---
+
+### Test 10 — Ablación de Mecanismos Neuro-Narrativos
 
 **Qué verifica:** La contribución real (en Recall@5) de cada mecanismo que tiene naming "neuro-narrativo" — GABA, PPMI+SVD, Re-ranking Jaccard y DMN. Responde directamente la pregunta: *"¿Estos mecanismos en verdad aportan, o son solo marketing?"*
 

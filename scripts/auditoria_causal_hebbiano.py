@@ -141,9 +141,9 @@ def auditar_causal_ab():
         
         for idx, caso in enumerate(casos, 1):
             query = caso["query"]
-            expected_raw = caso.get("expected") or caso.get("esperado")
-            categoria = caso.get("category") or caso.get("categoria", "general")
-            profundidad = "profundo" if categoria == "dormido" else "activos"
+            expected_raw = caso.get("concepto_esperado") or caso.get("expected") or caso.get("esperado")
+            categoria = caso.get("categoria") or caso.get("category", "general")
+            profundidad = "profundo" if (categoria == "dormido" or caso.get("deep") is True) else "activos"
             
             es_negativo = (categoria == "negativo" or expected_raw is None)
             expected = _resolver_etiqueta_oro(cerebro, expected_raw) if not es_negativo else None
