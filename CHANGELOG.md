@@ -1,5 +1,16 @@
 # BioRAG Changelog
 
+## [v31.1-unreleased] — 2026-09-10 — E9 IDF dimensional (un paso)
+
+`dim_score` pondera cada eje por IDF cacheado:
+`ln(1+(N-DF+0.5)/(DF+0.5))`. Un GROUP BY al primer uso, O(1) por
+candidato. Flag `BIORAG_DIM_IDF_ACTIVO` default **OFF**.
+
+A/B 921 vs E7: R@5 **97.14** (+0.23, 25 fallos) R@1 **89.71** (−0.69)
+MRR 0.9265 FP 15%. `por_tema` R@5 86.15→**87.69**. `sinonimo` R@5
+83.64→81.82. Gate R@1 no. ON: `=1`. Competitive 100% P95 7.8ms.
+Tests `tests/test_dim_idf_e9.py`.
+
 ## [v31.1-unreleased] — 2026-09-10 — E8 SRL gate condicional (un paso)
 
 `pred_score` (Signal #12, peso 0.20) solo si Nt>=3 o el extractor

@@ -77,6 +77,9 @@ JSD_ADAPT_NT = int(os.environ.get('BIORAG_JSD_ADAPT_NT', '4'))
 SRL_CONDICIONAL = os.environ.get('BIORAG_SRL_CONDICIONAL', '0').lower() in ('1', 'true', 'yes')
 SRL_COND_NT = int(os.environ.get('BIORAG_SRL_COND_NT', '3'))
 
+# E9: IDF de dimensiones. Cache por instancia (1 GROUP BY), O(1) por candidato.
+DIM_IDF_ACTIVO = os.environ.get('BIORAG_DIM_IDF_ACTIVO', '0').lower() in ('1', 'true', 'yes')
+
 BAYESIAN_BM25 = os.environ.get('BIORAG_BAYESIAN_BM25', 'false').lower() == 'true'
 """Activar calibración Bayesian BM25 (sigmoid) en vez de normalización fija x/(x+3).
 Override: export BIORAG_BAYESIAN_BM25=true"""
@@ -3388,6 +3391,33 @@ class SQLiteMemoryBioRAG:
         except Exception:
             return False
 
+    def _asegurar_idf_dimensiones(self):
+        """E9: DF por dimension_id una vez. IDF = ln(1+(N-DF+0.5)/(DF+0.5))."""
+        if getattr(self, "_dim_idf_map", None) is not None:
+            return self._dim_idf_map
+        idf = {}
+        try:
+            n = int(self.cursor.execute("SELECT COUNT(*) FROM largo_plazo").fetchone()[0] or 1)
+            n = max(1, n)
+            self.cursor.execute(
+                "SELECT dimension_id, COUNT(*) FROM largo_plazo_dimensiones GROUP BY dimension_id"
+            )
+            for dim_id, df in self.cursor.fetchall():
+                d = float(df or 0)
+                idf[int(dim_id)] = math.log(1.0 + (n - d + 0.5) / (d + 0.5))
+            self._dim_idf_n = n
+        except Exception:
+            idf = {}
+            self._dim_idf_n = 1
+        self._dim_idf_map = idf
+        return idf
+
+    def _peso_dim_con_idf(self, d_id, base=1.0):
+        if not DIM_IDF_ACTIVO:
+            return float(base)
+        mp = self._asegurar_idf_dimensiones()
+        return float(base) * float(mp.get(int(d_id), 1.0))
+
     def _generar_variaciones(self, query, historial_fallos=None):
         """Genera variaciones de la query basadas en el historial de fallos.
         
@@ -5631,12 +5661,12 @@ class SQLiteMemoryBioRAG:
                     try:
                         self.cursor.execute(f"SELECT id, auto_generada, confianza FROM dimensiones_semanticas WHERE id IN ({dim_ids_str})")
                         for d_id, auto_gen, conf in self.cursor.fetchall():
-                            w_map[d_id] = conf if auto_gen else 1.0
+                            w_map[d_id] = self._peso_dim_con_idf(d_id, conf if auto_gen else 1.0)
                     except Exception:
                         pass
                     for d_id in query_dim_set:
                         if d_id not in w_map:
-                            w_map[d_id] = 1.0
+                            w_map[d_id] = self._peso_dim_con_idf(d_id, 1.0)
                             
                     sum_q2 = sum(w_map[d_id]**2 for d_id in query_dim_set)
                     for concepto, doc_ids in concepto_dim_ids.items():
@@ -5695,12 +5725,12 @@ class SQLiteMemoryBioRAG:
                 try:
                     self.cursor.execute(f"SELECT id, auto_generada, confianza FROM dimensiones_semanticas WHERE id IN ({dim_ids_str})")
                     for d_id, auto_gen, conf in self.cursor.fetchall():
-                        w_map_fb[d_id] = conf if auto_gen else 1.0
+                        w_map_fb[d_id] = self._peso_dim_con_idf(d_id, conf if auto_gen else 1.0)
                 except Exception:
                     pass
                 for d_id in query_dim_set:
                     if d_id not in w_map_fb:
-                        w_map_fb[d_id] = 1.0
+                        w_map_fb[d_id] = self._peso_dim_con_idf(d_id, 1.0)
                 sum_q2_fb = sum(w_map_fb[d_id]**2 for d_id in query_dim_set)
                 
                 for concepto, doc_ids in concepto_fb_ids.items():
