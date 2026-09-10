@@ -1,5 +1,17 @@
 # BioRAG Changelog
 
+## [v31.1-unreleased] — 2026-09-10 — E5 resonancia multi-semilla (un paso)
+
+Scoring (no generación): vecinos Hebbianos (`peso>=0.30`) de las top-8
+semillas del pool. `Score = sum Act(s→n) * (1 + β*(k-1))`, β=0.50, peso 0.08
+cap. Solo nodos ya en el pool (O(k) SELECTs, no O(N)). Entra en el
+denominador del híbrido (lección E2).
+
+A/B 921 ON vs E3: R@5 **97.14** (+0.23, 25 fallos) R@1 **89.83** (−0.34)
+MRR **0.9261** FP **15%**. Gate R@5 OK; R@1 baja. Default **OFF**
+(`BIORAG_RESONANCIA_ACTIVA=0`). ON: `=1`. Competitive 100% P95 7.8ms.
+Tests `tests/test_resonancia_e5.py`.
+
 ## [v31.1-unreleased] — 2026-09-10 — E4 spreading proactivo (un paso)
 
 Generación 1–2 hop desde top-40 del pool léxico (`peso >= 0.30`, γ=0.65),

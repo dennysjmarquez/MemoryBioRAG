@@ -123,6 +123,15 @@ SPREADING_ENERGIA_MIN = float(os.environ.get('BIORAG_SPREADING_ENERGIA_MIN', '0.
 SPREADING_MAX_INJECT = int(os.environ.get('BIORAG_SPREADING_MAX_INJECT', '12'))
 SPREADING_QCR_MIN = float(os.environ.get('BIORAG_SPREADING_QCR_MIN', '0.35'))
 
+# E5: resonancia multi-semilla (interferencia constructiva). Solo vecinos del
+# top-K lexico que YA estan en el pool. No scan O(N). Peso 0 = OFF.
+RESONANCIA_ACTIVA = os.environ.get('BIORAG_RESONANCIA_ACTIVA', '0').lower() in ('1', 'true', 'yes')
+_res_peso_raw = float(os.environ.get('BIORAG_RESONANCIA_PESO', '0.08'))
+RESONANCIA_PESO = 0.0 if (not RESONANCIA_ACTIVA or _res_peso_raw <= 0) else min(_res_peso_raw, 0.08)
+RESONANCIA_BETA = float(os.environ.get('BIORAG_RESONANCIA_BETA', '0.50'))
+RESONANCIA_TOP_K = int(os.environ.get('BIORAG_RESONANCIA_TOP_K', '8'))
+RESONANCIA_PESO_MIN = float(os.environ.get('BIORAG_RESONANCIA_PESO_MIN', '0.30'))
+
 GABA_ACTIVO = os.environ.get('BIORAG_GABA_ACTIVO', '1').lower() in ('1', 'true', 'yes')
 """Activar inhibición lateral GABA (Edelman 1987): atenúa competidores secundarios cuando top-1 es atractor fuerte.
 Default ON. Ablación: export BIORAG_GABA_ACTIVO=0"""
@@ -3254,6 +3263,54 @@ class SQLiteMemoryBioRAG:
         ranked = sorted(found.items(), key=lambda x: x[1], reverse=True)
         return ranked, parent_map
 
+    def _resonancia_multi_semilla(self, semillas, pool):
+        """E5: Act(s->n) sumada x (1+beta*(k-1)) sobre vecinos del pool.
+
+        POR QUE no corpus: cada semilla hace 1 SELECT de aristas; n solo cuenta
+        si ya esta en `pool`. k=semillas distintas que alcanzan n.
+        """
+        if not semillas or not pool:
+            return {}
+        pool = set(pool)
+        act = {}
+        hits = {}
+        peso_min = RESONANCIA_PESO_MIN
+        max_vecinos = int(os.environ.get("BIORAG_MAX_VECINOS_POR_NODO", "6"))
+        for s in semillas:
+            if not s:
+                continue
+            self.cursor.execute(
+                "SELECT destino, peso FROM sinapsis WHERE origen = ? AND peso >= ? "
+                "UNION ALL "
+                "SELECT origen, peso FROM sinapsis WHERE destino = ? AND peso >= ?",
+                (s, peso_min, s, peso_min),
+            )
+            edges = sorted(self.cursor.fetchall(), key=lambda e: float(e[1] or 0), reverse=True)
+            n_ok = 0
+            vistos = set()
+            for vecino, peso in edges:
+                if vecino in vistos or vecino == s or vecino not in pool:
+                    continue
+                vistos.add(vecino)
+                n_ok += 1
+                if n_ok > max_vecinos:
+                    break
+                w = float(peso or 0.0)
+                act[vecino] = act.get(vecino, 0.0) + w
+                hits.setdefault(vecino, set()).add(s)
+        out = {}
+        beta = RESONANCIA_BETA
+        mx = 0.0
+        for n, a in act.items():
+            k = len(hits.get(n, ()))
+            val = a * (1.0 + beta * max(0, k - 1))
+            out[n] = val
+            if val > mx:
+                mx = val
+        if mx > 0:
+            out = {n: min(1.0, v / mx) for n, v in out.items()}
+        return out
+
     def _generar_variaciones(self, query, historial_fallos=None):
         """Genera variaciones de la query basadas en el historial de fallos.
         
@@ -3397,8 +3454,9 @@ class SQLiteMemoryBioRAG:
                                 pred_score: float = 0.0,
                                 ppmi_score: float = 0.0,
                                 hub_match: float = 0.0,
-                                sdm_score: float = 0.0):
-        """Score híbrido unificado: señales ortogonales + JSD #11 + Predicados #12 + PPMI #13 + Hub + SDM Kanerva (E2).
+                                sdm_score: float = 0.0,
+                                resonancia_score: float = 0.0):
+        """Score hibrido: senales + JSD + Predicados + PPMI + Hub + SDM (E2) + resonancia (E5).
         grupo_score: similitud por grupo semántico WordNet (coseno binario).
         tematico_score: similitud temática por ausencia/presencia de dimensiones (IDF).
         match_exacto: preserva precisión en búsquedas por nombre exacto (floor 0.5).
@@ -3429,7 +3487,7 @@ class SQLiteMemoryBioRAG:
         }
         _base_sum = sum(_base_weights.values())  # 1.39
         # E2: SDM entra en el denominador para que el peso no infle el total.
-        total_base = _base_sum + PPMI_VECTOR_WEIGHT + SDM_SCORING_PESO
+        total_base = _base_sum + PPMI_VECTOR_WEIGHT + SDM_SCORING_PESO + RESONANCIA_PESO
         base_weight = (1.0 - jsd_weight) / total_base if total_base > 0 else 0.0
 
         score = (
@@ -3447,7 +3505,8 @@ class SQLiteMemoryBioRAG:
                 0.20 * pred_score +          # Signal #12: Predicados SRL
                 PPMI_VECTOR_WEIGHT * ppmi_score +  # Signal #13: PPMI+SVD
                 0.20 * hub_match +            # Signal #14: Concept Hub
-                SDM_SCORING_PESO * sdm_score  # E2: Hamming 2048 bits, solo pool
+                SDM_SCORING_PESO * sdm_score +  # E2: Hamming 2048 bits, solo pool
+                RESONANCIA_PESO * resonancia_score  # E5: convergencia multi-semilla, solo pool
             ) +
             jsd_weight * jsd_score           # Signal #11: JSD distributional overlap
         )
@@ -5764,6 +5823,16 @@ class SQLiteMemoryBioRAG:
             except Exception:
                 sdm_sim_map = {}
 
+        # E5: resonancia sobre vecinos del top-K que ya estan en el pool.
+        resonancia_map = {}
+        if RESONANCIA_PESO > 0.0 and todos:
+            try:
+                _pool_e5 = [r[1] for r in todos if r[1]]
+                _sem_e5 = _pool_e5[:RESONANCIA_TOP_K]
+                resonancia_map = self._resonancia_multi_semilla(_sem_e5, _pool_e5)
+            except Exception:
+                resonancia_map = {}
+
         # Calcular score hibrido para cada resultado (fórmula única 9 señales)
         total = len(todos)
         resultados_con_hibrido = []
@@ -5913,6 +5982,7 @@ class SQLiteMemoryBioRAG:
                 ppmi_score=ppmi_val,
                 hub_match=hub_val,
                 sdm_score=sdm_sim_map.get(concepto, 0.0),
+                resonancia_score=resonancia_map.get(concepto, 0.0),
             )
 
 
