@@ -4,8 +4,13 @@
 
 Señal binaria 2048 bits en `_calcular_score_hibrido` **solo para candidatos ya
 en el pool**. Coste O(k) por PRIMARY KEY, no O(N) del corpus (1 nodo o 10^6).
-Peso `BIORAG_SDM_SCORING_PESO` default 0.06, cap 0.08, 0 = OFF. No fusiona
+Peso `BIORAG_SDM_SCORING_PESO` default **0** (OFF) tras A/B con señal viva:
+R@5 96.91 (−0.12pp / +1 fallo), R@1 90.06 (+0.12pp), MRR 0.9282, FP 15%.
+Cap 0.08. ON: `BIORAG_SDM_SCORING_PESO=0.06`. No fusiona
 nodos, no reindexa, no embeddings.
+
+Fix post-auditoría `761779c`: `sdm_score` se recibía y **no se sumaba**.
+Ahora entra en `total_base` y en la suma ponderada (`SDM_SCORING_PESO * sdm_score`).
 
 ## [v31.1-unreleased] — 2026-09-10 — E1 SDM Fallback 2.5 (un paso)
 

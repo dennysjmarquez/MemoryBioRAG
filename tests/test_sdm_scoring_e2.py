@@ -33,6 +33,18 @@ def test_peso_cap_y_off():
     assert 0.0 <= SDM_SCORING_PESO <= 0.08
 
 
+def test_formula_suma_sdm_score(tmp_path):
+    """El parámetro sdm_score debe cambiar el híbrido (bug 761779c: se ignoraba)."""
+    c = SQLiteMemoryBioRAG(str(tmp_path / "e2formula.db"))
+    s0 = c._calcular_score_hibrido(bm25_norm=0.5, sdm_score=0.0)
+    s1 = c._calcular_score_hibrido(bm25_norm=0.5, sdm_score=1.0)
+    c.cerrar_sistema()
+    if SDM_SCORING_PESO > 0:
+        assert s1 > s0
+    else:
+        assert s1 == s0
+
+
 def test_scoring_no_fusiona(tmp_path):
     c = SQLiteMemoryBioRAG(str(tmp_path / "e2nf.db"))
     c.percibir_corto_plazo("n1", "uno dos tres cuatro")

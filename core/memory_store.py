@@ -103,7 +103,9 @@ SDM_FALLBACK_K = int(os.environ.get('BIORAG_SDM_FALLBACK_K', '5'))
 # E2: SDM como señal de scoring sobre el POOL, no sobre el corpus.
 # Peso suave 0.05–0.08 (cap 0.08). 0 = OFF, cero overhead.
 # Independiente del tamaño N: un SELECT por PK del pool.
-_sdm_peso_raw = float(os.environ.get('BIORAG_SDM_SCORING_PESO', '0.06'))
+# Default 0: A/B 921 con 0.06 bajó R@5 97.03→96.91 (1 fallo extra).
+# Fórmula sí suma sdm_score; ON con BIORAG_SDM_SCORING_PESO=0.06.
+_sdm_peso_raw = float(os.environ.get('BIORAG_SDM_SCORING_PESO', '0'))
 SDM_SCORING_PESO = 0.0 if _sdm_peso_raw <= 0 else min(_sdm_peso_raw, 0.08)
 
 GABA_ACTIVO = os.environ.get('BIORAG_GABA_ACTIVO', '1').lower() in ('1', 'true', 'yes')
@@ -3323,8 +3325,9 @@ class SQLiteMemoryBioRAG:
             "temporal": 0.04, "asoc": 0.02, "pred": 0.20, "hub": 0.20,
         }
         _base_sum = sum(_base_weights.values())  # 1.39
-        total_base = _base_sum + PPMI_VECTOR_WEIGHT  # 1.54
-        base_weight = (1.0 - jsd_weight) / total_base
+        # E2: SDM entra en el denominador para que el peso no infle el total.
+        total_base = _base_sum + PPMI_VECTOR_WEIGHT + SDM_SCORING_PESO
+        base_weight = (1.0 - jsd_weight) / total_base if total_base > 0 else 0.0
 
         score = (
             base_weight * (
@@ -3340,7 +3343,8 @@ class SQLiteMemoryBioRAG:
                 0.02 * asoc_norm +           # Asociaciones
                 0.20 * pred_score +          # Signal #12: Predicados SRL
                 PPMI_VECTOR_WEIGHT * ppmi_score +  # Signal #13: PPMI+SVD
-                0.20 * hub_match              # Signal #14: Concept Hub
+                0.20 * hub_match +            # Signal #14: Concept Hub
+                SDM_SCORING_PESO * sdm_score  # E2: Hamming 2048 bits, solo pool
             ) +
             jsd_weight * jsd_score           # Signal #11: JSD distributional overlap
         )
