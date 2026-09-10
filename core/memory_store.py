@@ -80,6 +80,11 @@ SRL_COND_NT = int(os.environ.get('BIORAG_SRL_COND_NT', '3'))
 # E9: IDF de dimensiones. Cache por instancia (1 GROUP BY), O(1) por candidato.
 DIM_IDF_ACTIVO = os.environ.get('BIORAG_DIM_IDF_ACTIVO', '0').lower() in ('1', 'true', 'yes')
 
+# E10: sinapsis de sintesis DMN (peso 0.30, tope por ciclo). Default ON hasta gate.
+DMN_SINTESIS_ACTIVA = os.environ.get('BIORAG_DMN_SINTESIS_ACTIVA', '1').lower() in ('1', 'true', 'yes')
+DMN_SINTESIS_MAX = int(os.environ.get('BIORAG_DMN_SINTESIS_MAX', '8'))
+DMN_SINTESIS_PESO = float(os.environ.get('BIORAG_DMN_SINTESIS_PESO', '0.30'))
+
 BAYESIAN_BM25 = os.environ.get('BIORAG_BAYESIAN_BM25', 'false').lower() == 'true'
 """Activar calibración Bayesian BM25 (sigmoid) en vez de normalización fija x/(x+3).
 Override: export BIORAG_BAYESIAN_BM25=true"""
@@ -254,6 +259,14 @@ class SQLiteMemoryBioRAG:
         # Buffer circular de memoria de trabajo (v19.0 Context Window)
         self._context_window = deque(maxlen=10)
         self.dmn = None
+        self._dmn_sintesis_hecha = False
+        if DMN_SINTESIS_ACTIVA:
+            try:
+                from core.dmn_engine import sintetizar_sinapsis_dmn
+                sintetizar_sinapsis_dmn(self, max_n=DMN_SINTESIS_MAX)
+                self._dmn_sintesis_hecha = True
+            except Exception:
+                pass
         # v22.1: Cache for thematic scores (precomputed once)
         self._thematic_scores_cache = None
         self._thematic_profiles_cache = None
@@ -2283,6 +2296,14 @@ class SQLiteMemoryBioRAG:
         # Si dos conceptos aparecieron en la misma sesión (corto_plazo), co-ocurren.
         # También analiza comunicaciones para detectar co-ocurrencia en mensajes.
         self._auto_generar_co_ocurrencia(recuerdos_sesion)
+
+        # E10: aristas dmn_synthesized (tope, nodos activos, dim o co-ocurrencia).
+        if DMN_SINTESIS_ACTIVA:
+            try:
+                from core.dmn_engine import sintetizar_sinapsis_dmn
+                sintetizar_sinapsis_dmn(self, max_n=DMN_SINTESIS_MAX)
+            except Exception:
+                pass
 
         # Inferencia transitiva: recalcular sinapsis latentes (v16.0)
         # max_saltos=2: cubre A→B→C (transitivo de 1 intermediario), cobertura suficiente

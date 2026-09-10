@@ -23,6 +23,109 @@ import sqlite3
 
 logger = logging.getLogger("BioRAG.DMN")
 
+DMN_SINTESIS_ACTIVA = os.environ.get("BIORAG_DMN_SINTESIS_ACTIVA", "1").lower() in ("1", "true", "yes")
+DMN_SINTESIS_MAX = int(os.environ.get("BIORAG_DMN_SINTESIS_MAX", "8"))
+DMN_SINTESIS_PESO = float(os.environ.get("BIORAG_DMN_SINTESIS_PESO", "0.30"))
+
+
+def sintetizar_sinapsis_dmn(cerebro, max_n=None, peso=None):
+    """E10: pares activos con dim comun o tokens compartidos, sin arista directa.
+
+    Tope max_n (default 8). No fusiona nodos. tipo='dmn_synthesized'.
+    """
+    if not DMN_SINTESIS_ACTIVA:
+        return 0
+    max_n = int(max_n if max_n is not None else DMN_SINTESIS_MAX)
+    peso = float(peso if peso is not None else DMN_SINTESIS_PESO)
+    if max_n <= 0:
+        return 0
+    cur = cerebro.cursor
+    ahora = time.time()
+    creadas = 0
+    try:
+        cur.execute(
+            """
+            WITH seeds AS (
+                SELECT concepto FROM largo_plazo
+                WHERE estado = 'activo'
+                ORDER BY peso_sinaptico DESC
+                LIMIT 40
+            )
+            SELECT d1.concepto, d2.concepto, COUNT(*) AS n
+            FROM largo_plazo_dimensiones d1
+            JOIN seeds s1 ON s1.concepto = d1.concepto
+            JOIN largo_plazo_dimensiones d2
+              ON d1.dimension_id = d2.dimension_id AND d1.concepto < d2.concepto
+            JOIN seeds s2 ON s2.concepto = d2.concepto
+            WHERE NOT EXISTS (
+                SELECT 1 FROM sinapsis s
+                WHERE (s.origen = d1.concepto AND s.destino = d2.concepto)
+                   OR (s.origen = d2.concepto AND s.destino = d1.concepto)
+            )
+            GROUP BY d1.concepto, d2.concepto
+            HAVING n >= 1
+            ORDER BY n DESC
+            LIMIT ?
+            """,
+            (max_n,),
+        )
+        pares = list(cur.fetchall())
+    except Exception:
+        pares = []
+    if len(pares) < max_n:
+        falta = max_n - len(pares)
+        ya = {(p[0], p[1]) for p in pares}
+        try:
+            cur.execute(
+                "SELECT concepto, contenido FROM largo_plazo WHERE estado = 'activo' "
+                "ORDER BY peso_sinaptico DESC LIMIT 40"
+            )
+            nodos = cur.fetchall()
+            import re
+            toks = {c: set(re.findall(r"\w{4,}", (txt or "").lower())) for c, txt in nodos}
+            extra = []
+            for i, (c1, _) in enumerate(nodos):
+                for c2, _ in nodos[i + 1 :]:
+                    if (c1, c2) in ya or (c2, c1) in ya:
+                        continue
+                    if len(toks.get(c1, set()) & toks.get(c2, set())) < 2:
+                        continue
+                    cur.execute(
+                        "SELECT 1 FROM sinapsis WHERE "
+                        "(origen=? AND destino=?) OR (origen=? AND destino=?)",
+                        (c1, c2, c2, c1),
+                    )
+                    if cur.fetchone():
+                        continue
+                    extra.append((c1, c2, 1))
+                    ya.add((c1, c2))
+                    if len(extra) >= falta:
+                        break
+                if len(extra) >= falta:
+                    break
+            pares.extend(extra)
+        except Exception:
+            pass
+    for origen, destino, *_rest in pares[:max_n]:
+        try:
+            cur.execute(
+                "INSERT INTO sinapsis (origen, destino, peso, tipo, creado_en) "
+                "VALUES (?, ?, ?, 'dmn_synthesized', ?) "
+                "ON CONFLICT(origen, destino) DO NOTHING",
+                (origen, destino, peso, ahora),
+            )
+            if cur.rowcount:
+                creadas += 1
+        except Exception:
+            continue
+    if creadas:
+        try:
+            cerebro.conn.commit()
+        except Exception:
+            pass
+    return creadas
+
+
 class DMNEngine:
     def __init__(self, cerebro, idle_seconds=300, check_interval=2.0):
         """
@@ -213,6 +316,17 @@ class DMNEngine:
                 INSERT OR REPLACE INTO sinapsis_latentes (origen, destino, peso_atenuado, saltos, calculado_en, pmi_score, tiene_dim_comun)
                 VALUES (?, ?, 0.75, 2, ?, 0.5, ?)
             """, (c1, c2, time.time(), 1 if dims_compartidas else 0))
+
+            if DMN_SINTESIS_ACTIVA and dims_compartidas:
+                try:
+                    cursor.execute(
+                        "INSERT INTO sinapsis (origen, destino, peso, tipo, creado_en) "
+                        "VALUES (?, ?, ?, 'dmn_synthesized', ?) "
+                        "ON CONFLICT(origen, destino) DO NOTHING",
+                        (c1, c2, DMN_SINTESIS_PESO, time.time()),
+                    )
+                except Exception:
+                    pass
 
             conn.commit()
 
