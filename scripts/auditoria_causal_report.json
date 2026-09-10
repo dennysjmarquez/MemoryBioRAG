@@ -1,23 +1,23 @@
 {
   "snapshot": "/mnt/recursos_compartidos_y_otros/MemoryBioRAG/snapshots/qa_escape_qcr_20260811.db",
-  "timestamp": "2026-09-10 09:24:05",
+  "timestamp": "2026-09-10 10:16:53",
   "stats_A_sin_boost": {
-    "r1": 0,
-    "r5": 0,
-    "mrr_sum": 0.0,
-    "total": 0,
-    "fallos": 0,
-    "fp": 874,
-    "neg_total": 921
+    "r1": 790,
+    "r5": 850,
+    "mrr_sum": 813.1833333333342,
+    "total": 881,
+    "fallos": 31,
+    "fp": 0,
+    "neg_total": 40
   },
   "stats_B_con_boost": {
-    "r1": 0,
-    "r5": 0,
-    "mrr_sum": 0.0,
-    "total": 0,
-    "fallos": 0,
-    "fp": 874,
-    "neg_total": 921
+    "r1": 790,
+    "r5": 850,
+    "mrr_sum": 813.1833333333342,
+    "total": 881,
+    "fallos": 31,
+    "fp": 0,
+    "neg_total": 40
   },
   "deltas": {
     "num_rescates_top5": 0,
@@ -26,7 +26,7 @@
     "num_regresiones_top1": 0,
     "num_mejoras": 0,
     "num_empeoras": 0,
-    "num_no_ops": 0,
+    "num_no_ops": 881,
     "num_spreading_activation": 8
   }
 }

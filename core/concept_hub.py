@@ -417,6 +417,31 @@ def _tokenizar(texto: str) -> set:
     return tokens
 
 
+def _tokenizar_stems(texto: str) -> set:
+    """Tokeniza, normaliza, filtra stopwords y aplica stemming para matching semántico robusto."""
+    if not texto:
+        return set()
+    import unicodedata
+    from core.stopwords import STOPWORDS_ES
+    from core.stemmer_es import stem
+
+    texto = unicodedata.normalize('NFD', texto)
+    texto = ''.join(c for c in texto if unicodedata.category(c) != 'Mn')
+    texto = texto.lower().strip()
+    texto = re.sub(r'[^\w\s]', ' ', texto)
+    tokens = set()
+    for w in texto.split():
+        w = w.strip()
+        if len(w) >= 2 and w not in STOPWORDS_ES:
+            tokens.add(stem(w))
+    if not tokens and texto.strip():
+        for w in texto.split():
+            w = w.strip()
+            if len(w) >= 2:
+                tokens.add(stem(w))
+    return tokens
+
+
 def _jaccard(set_a: set, set_b: set) -> float:
     """Jaccard similarity entre dos sets de tokens."""
     if not set_a or not set_b:
@@ -443,6 +468,7 @@ def expandir_query_con_hub(query_text: str, conn: sqlite3.Connection, threshold:
         return None
 
     query_tokens = _tokenizar(query_text)
+    query_stems = _tokenizar_stems(query_text)
     if not query_tokens:
         return None
 
@@ -495,35 +521,27 @@ def expandir_query_con_hub(query_text: str, conn: sqlite3.Connection, threshold:
 
         for bridge_text, bridge_weight, angle in hub_data["bridges"]:
             bridge_tokens = _tokenizar(bridge_text)
+            bridge_stems = _tokenizar_stems(bridge_text)
             if not bridge_tokens:
                 continue
 
-            jacc = _jaccard(query_tokens, bridge_tokens)
+            jacc_raw = _jaccard(query_tokens, bridge_tokens)
+            jacc_stem = _jaccard(query_stems, bridge_stems)
+            jacc = max(jacc_raw, jacc_stem)
             mult = ANGLE_MULT.get(angle, 1.0)
 
-            # Para queries largas (> 10 tokens), Jaccard es injusto: la unión crece
-            # con la longitud de la query, aplastando el score aunque el bridge esté
-            # 100% cubierto por la query. Ejemplo: query 29 tokens, bridge 5 tokens,
-            # todos en común → Jaccard = 5/29 = 0.17 aunque el bridge describe perfecto
-            # el tema. Recall asimétrico sobre el bridge = tokens_bridge_en_query / len(bridge)
-            # mide exactamente eso: ¿cuánto del bridge aparece en la query?
-            # Se combina con max() para preservar el comportamiento original en queries cortas.
-            recall_bridge = (
-                len(query_tokens & bridge_tokens) / len(bridge_tokens)
-                if bridge_tokens else 0.0
-            )
-            if len(query_tokens) > 10:
-                # Queries largas: recall asimétrico ponderado al 0.85 para no ignorar
-                # la longitud del bridge (recall puro favorecería bridges de 1 token)
-                sim = max(jacc, recall_bridge * 0.85)
-            else:
-                sim = jacc
+            # Recall asimétrico bidireccional sobre stems (filtrando stopwords):
+            # 1. rec_q: qué fracción de la query está en el bridge (queries concisas)
+            # 2. rec_b: qué fracción del bridge está en la query (queries explicativas/largas)
+            rec_q = (len(query_stems & bridge_stems) / len(query_stems)) if query_stems else 0.0
+            rec_b = (len(query_stems & bridge_stems) / len(bridge_stems)) if bridge_stems else 0.0
 
+            sim = max(jacc, rec_q * 0.80, rec_b * 0.80)
             score = sim * bridge_weight * mult
 
             if score > mejor_bridge_score:
                 mejor_bridge_score = score
-            # Umbral de match: > 0.10 en la similitud combinada (no solo Jaccard)
+            # Umbral de match: > 0.10 en la similitud combinada
             if sim > 0.10:
                 bridges_matcheados.append(bridge_text)
                 total_bridge_weight += bridge_weight
@@ -545,16 +563,11 @@ def expandir_query_con_hub(query_text: str, conn: sqlite3.Connection, threshold:
         elif hub_score > segundo_score:
             segundo_score = hub_score
 
-    # Guard de ambigüedad: si el margen entre el mejor y el segundo hub es muy pequeño,
-    # el sistema está confuso entre dos candidatos — abstenerse es más seguro.
-    # EXCEPCIÓN: si el mejor hub ya superó el threshold de calidad (>= threshold),
-    # la ambigüedad no importa — el sistema tiene suficiente confianza para decidir.
-    # Sin esta excepción, matches legítimos de alta confianza quedan suprimidos cuando
-    # un segundo hub también tiene score bajo pero cercano.
-    if mejor_hub and mejor_hub["hub_confidence"] < threshold and (mejor_score - segundo_score) < 0.08:
+    # Guard de ambigüedad con tolerancia de coma flotante
+    if mejor_hub and mejor_hub["hub_confidence"] < (threshold - 1e-6) and (mejor_score - segundo_score) < 0.08:
         return None
 
-    if mejor_hub and mejor_hub["hub_confidence"] >= threshold:
+    if mejor_hub and mejor_hub["hub_confidence"] >= (threshold - 1e-6):
         expanded_terms = []
 
         for bridge in mejor_hub["bridges_matched"]:

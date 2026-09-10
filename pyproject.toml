@@ -58,3 +58,9 @@ py-modules = ["biorag", "mcp_server", "install"]
 [tool.setuptools.packages.find]
 where = ["."]
 include = ["core*"]
+
+[tool.pytest.ini_options]
+# pythonpath agrega la raíz del proyecto a sys.path automáticamente.
+# Esto permite que `import core` funcione sin exportar PYTHONPATH manualmente.
+pythonpath = ["."]
+testpaths = ["tests"]
