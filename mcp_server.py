@@ -177,7 +177,8 @@ AGENTES_VALIDOS = set()
 # --- Helpers ----------------------------------------------------------------
 
 def _get_cerebro() -> SQLiteMemoryBioRAG:
-    return SQLiteMemoryBioRAG(db_path=os.environ.get("BIORAG_PATH") or _DEFAULT_DB)
+    """Reusa la corteza (singleton). No reconstruir 6–11s por tool."""
+    return _svc_get_cerebro(os.environ.get("BIORAG_PATH") or None)
 
 
 # _load_catalogo_dimensiones, _CATALOGO_DIMENSIONES, _ensure_catalogo_loaded

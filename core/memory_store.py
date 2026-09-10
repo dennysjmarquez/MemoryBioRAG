@@ -166,7 +166,9 @@ class SQLiteMemoryBioRAG:
         if self.db_path != ":memory:":
             os.makedirs(os.path.dirname(self.db_path), exist_ok=True)
         # Conectar a SQLite
-        self.conn = sqlite3.connect(self.db_path, timeout=60)
+        # check_same_thread=False: MCP/WAL reutiliza la instancia entre tools.
+        self.conn = sqlite3.connect(self.db_path, timeout=60, check_same_thread=False)
+        self._persistente = False
         self.conn.execute("PRAGMA journal_mode=WAL")
         self.conn.execute("PRAGMA synchronous=NORMAL")
         self.conn.execute("PRAGMA busy_timeout=5000")
@@ -5839,19 +5841,34 @@ class SQLiteMemoryBioRAG:
         if hub_expansion and hub_expansion.get("hub_confidence", 0) >= 0.4:
             hub_canonical_set = set(hub_expansion.get("canonical_nodes", []))
         q_tokens_qcr = [t.lower() for t in re.findall(r'\w{3,}', query)]
+        _qcr_idf_map = {}
+        if QCR_ACTIVO and QCR_IDF_ACTIVO and q_tokens_qcr:
+            try:
+                _qcr_idf_map = self._idf_tokens_qcr(q_tokens_qcr)
+            except Exception:
+                _qcr_idf_map = {}
+        _qcr_umbral = QCR_IDF_UMBRAL if (QCR_IDF_ACTIVO and _qcr_idf_map) else 0.50
         if QCR_ACTIVO and len(q_tokens_qcr) >= 2 and resultados_con_hibrido:
             filtrados_qcr = []
+            _idf_den = sum(_qcr_idf_map.get(t, 1.0) for t in q_tokens_qcr) if _qcr_idf_map else float(len(q_tokens_qcr))
             for conc, cont, peso, est, sc, asoc in resultados_con_hibrido:
                 # Bypass QCR para nodos canónicos del hub
                 if conc in hub_canonical_set:
                     filtrados_qcr.append((conc, cont, peso, est, sc, asoc))
                     continue
                 text_target = f"{conc} {cont} {concepto_sinonimos_map.get(conc, '')}".lower()
-                matches_qcr = sum(1 for t in q_tokens_qcr if t in text_target)
-                ratio_qcr = matches_qcr / len(q_tokens_qcr)
+                if _qcr_idf_map:
+                    _num = sum(_qcr_idf_map.get(t, 1.0) for t in q_tokens_qcr if t in text_target)
+                    ratio_qcr = (_num / _idf_den) if _idf_den > 0 else 0.0
+                else:
+                    matches_qcr = sum(1 for t in q_tokens_qcr if t in text_target)
+                    ratio_qcr = matches_qcr / len(q_tokens_qcr)
                 origen_tipo, score_capa = origen_scores.get(conc, ("literal", 0.0))
-                if ratio_qcr >= 0.50 or (
-                    origen_tipo in ("semantica", "simbolico", "expansion", "dimensional_fallback", "typo", "concepto")
+                if ratio_qcr >= _qcr_umbral or (
+                    origen_tipo in (
+                        "semantica", "simbolico", "expansion", "dimensional_fallback",
+                        "typo", "concepto", "lexico_aprendido",
+                    )
                     and score_capa >= QCR_ESCAPE_CAPA_MIN
                 ):
                     filtrados_qcr.append((conc, cont, peso, est, sc, asoc))
@@ -6843,5 +6860,10 @@ class SQLiteMemoryBioRAG:
         return self.cursor.fetchall()
 
     def cerrar_sistema(self):
-        """Cierra de forma segura la conexión con la base de datos SQLite."""
-        self.conn.close()
+        """Cierra SQLite. No-op si la instancia es el singleton MCP (_persistente)."""
+        if getattr(self, "_persistente", False):
+            return
+        try:
+            self.conn.close()
+        except Exception:
+            pass

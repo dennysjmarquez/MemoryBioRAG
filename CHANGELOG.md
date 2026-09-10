@@ -7,6 +7,16 @@ IDF vía FTS5 COUNT (O(tokens), no O(N) corpus). Umbral `BIORAG_QCR_IDF_UMBRAL`
 default 0.40. OFF: `BIORAG_QCR_IDF=0` (ratio 0.50 plano). Escapes de capa
 (semantica/simbolico/typo/lexico_aprendido/…) y bypass Concept Hub intactos.
 
+`68a8240` dejó `_idf_tokens_qcr` muerto: el loop QCR seguía `matches/len`.
+Ahora `buscar_por_frase` usa el mapa IDF + umbral 0.40 (fallback 0.50 si OFF).
+
+MCP: `get_cerebro()` singleton WAL (`check_same_thread=False`); `cerrar_sistema`
+no cierra la conexión persistente (evita -32001 en tools paralelas).
+
+A/B 921 snapshot **con el loop cableado** (631s): R@5 **96.91** R@1 **90.17**
+MRR **0.9287** FP **15%** (6/40) 27 fallos. vs E1 97.03/89.94/0.928/15%/26:
+R@5 −0.12pp, FP hold, R@1 +0.23pp. Competitive 100% P95 7.8ms. Gate OK.
+
 ## [v31.1-unreleased] — 2026-09-10 — E2 SDM scoring sobre el pool (un paso)
 
 Señal binaria 2048 bits en `_calcular_score_hibrido` **solo para candidatos ya

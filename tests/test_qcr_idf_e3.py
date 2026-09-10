@@ -31,6 +31,14 @@ def test_qcr_idf_no_fusiona(tmp_path):
     assert n == 2
 
 
+def test_buscar_por_frase_llama_idf():
+    import inspect
+    from core.memory_store import SQLiteMemoryBioRAG
+    src = inspect.getsource(SQLiteMemoryBioRAG.buscar_por_frase)
+    assert "_idf_tokens_qcr" in src
+    assert "QCR_IDF_UMBRAL" in src or "_qcr_umbral" in src
+
+
 def test_escape_typo_sigue(tmp_path):
     c = SQLiteMemoryBioRAG(str(tmp_path / "e3esc.db"))
     c.percibir_corto_plazo("cuando_usar_dimensiones_biorag", "guia de cuando usar dimensiones en biorag")

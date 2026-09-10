@@ -7,20 +7,56 @@ no cambia la inteligencia: solo cablea las mismas primitivas del motor.
 `sinapsis` es la fuente canónica del grafo. `largo_plazo.asociaciones` es
 espejo histórico (core.sinapsis._sincronizar_asociaciones), no se muta
 directamente desde este servicio.
+
+Singleton: Kilo/VS Code dispara tools en paralelo. Reconstruir
+SQLiteMemoryBioRAG en cada tool (~6–11s) causa MCP -32001 timeout.
+Una instancia por db_path; cerrar_sistema() es no-op en ella.
 """
 from __future__ import annotations
 
+import threading
 from typing import Optional
 
 from core.paths import resolve_db_path
 
+_lock = threading.RLock()
+_cerebro = None
+_path = None
+
+
+def reset_cerebro():
+    """Tests / cambio de BIORAG_PATH: suelta el singleton."""
+    global _cerebro, _path
+    with _lock:
+        if _cerebro is not None:
+            try:
+                _cerebro._persistente = False
+                _cerebro.cerrar_sistema()
+            except Exception:
+                pass
+        _cerebro = None
+        _path = None
+
 
 def get_cerebro(db_path: Optional[str] = None):
-    """Instancia SQLiteMemoryBioRAG sobre el DB_PATH canónico."""
+    """Instancia persistente de SQLiteMemoryBioRAG (thread-safe)."""
+    global _cerebro, _path
     from core.memory_store import SQLiteMemoryBioRAG
 
     path = resolve_db_path(db_path)
-    return SQLiteMemoryBioRAG(path)
+    with _lock:
+        if _cerebro is not None and _path == path:
+            return _cerebro
+        if _cerebro is not None:
+            try:
+                _cerebro._persistente = False
+                _cerebro.cerrar_sistema()
+            except Exception:
+                pass
+        _cerebro = SQLiteMemoryBioRAG(path)
+        _cerebro._persistente = True
+        _path = path
+        return _cerebro
 
 
 def buscar(cerebro, frase: str, **kwargs):
