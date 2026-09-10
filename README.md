@@ -190,9 +190,9 @@ El mecanismo de BFS existía desde v20, pero **no funcionaba** por 3 bugs descub
 
 | Caso | Query | Gold | Sin grafo | Con grafo (depth=2) |
 |------|-------|------|:---------:|:-------------------:|
-| EXP-Q-01 | "extensión principal VS Code Kilo" | `kilo_vscode_extension_principal` | ❌ | ✅ **pos 4** |
-| EXP-Q-02 | "verificar antes de asumir" | `regla_verificar_antes_que_asumir` | ❌ | ✅ **pos 21** |
-| EXP-Q-03 | "ajuste tejedora estrellas" | `ajuste_tejedora_de_estrellas` | ❌ | ✅ **pos 19** |
+| EXP-Q-01 | "panel visual de desarrollo para despacho de tareas" | `kilo_vscode_extension_principal` | ❌ | ✅ **pos 4** |
+| EXP-Q-02 | "comprobacion fidedigna de ficheros previo a emitir dictamenes" | `regla_verificar_codigo_real_antes_de_diagnostico` | ❌ | ✅ **pos 21** |
+| EXP-Q-03 | "resolucion de colisiones valorativas en bifurcaciones" | `ajuste_tejedora_valencia_desempate_fase1` | ❌ | ✅ **pos 19** |
 
 **Tasa de rescate: 3/3 (100%)**
 

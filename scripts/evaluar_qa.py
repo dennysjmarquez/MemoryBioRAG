@@ -320,12 +320,14 @@ def run_evaluation():
         # 3. Evaluation phase
         if expected is None:
             # Negative control case: check if we retrieved any matches with high score
-            # DEUDA TÉCNICA CONOCIDA: evaluar_qa.py evalúa FP con el corte estático BIORAG_FP_THRESHOLD=0.25
-            # y no consulta la tabla calibracion_estado ni pasa por _debe_responder() / nivel_certeza() de
-            # biorag_recordar(). Para validar el umbral conforme empírico (ej. 0.5233) en producción,
-            # se requiere una suite dedicada que evalúe el pipeline de producción MCP.
-            # Noise threshold: configurable via BIORAG_FP_THRESHOLD (default 0.25)
-            fp_threshold = float(os.environ.get('BIORAG_FP_THRESHOLD', '0.25'))
+            # Umbral de falso positivo: prioriza override explícito BIORAG_FP_THRESHOLD,
+            # luego el umbral conforme persistido en calibracion_estado si existe, y finalmente fallback 0.25.
+            if 'BIORAG_FP_THRESHOLD' in os.environ:
+                fp_threshold = float(os.environ['BIORAG_FP_THRESHOLD'])
+            elif getattr(db, '_umbral_conforme', None) and getattr(db._umbral_conforme, 'umbral', None):
+                fp_threshold = float(db._umbral_conforme.umbral)
+            else:
+                fp_threshold = 0.25
 
             # Detección de control contaminado: si algún token de la query ya
             # existe como palabra en el corpus, el control dejó de ser "negativo"

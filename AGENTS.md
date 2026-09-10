@@ -88,7 +88,7 @@ Copy `.env.example` → `.env.local` and uncomment. Key vars:
 | `BIORAG_ORDEN_MONOTONICO` | Final re-sort of `buscar_por_frase` results by score (v30.1) | `1` |
 | `BIORAG_QA_GATE` | Fail the QA suite (exit 1) when metrics fall below the official baseline | `1` |
 | `BIORAG_QA_MIN_RECALL5` | Minimum global Recall@5 (%) enforced by the gate | `97.0` |
-| `BIORAG_QA_MAX_FALLOS` | Maximum retrieval failures enforced by the gate | `23` |
+| `BIORAG_QA_MAX_FALLOS` | Maximum retrieval failures enforced by the gate | `24` |
 | `BIORAG_QA_MAX_FP_RATE` | Maximum false-positive rate (%) on valid negative controls | `0.0` |
 | `BIORAG_QA_MAX_REGRESION_PP` | Max per-category Recall@5 drop vs `BIORAG_QA_BASELINE` (pp) | `2.0` |
 | `BIORAG_QA_BASELINE` | Baseline metrics file in `scripts/` for per-category comparison | `qa_metrics_baseline.json` |

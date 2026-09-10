@@ -3295,8 +3295,8 @@ class SQLiteMemoryBioRAG:
         # Base weights (sum to 1.0 when jsd_weight=0, PPMI_VECTOR_WEIGHT folded in)
         # Weights dict: bm25=0.25, dim=0.14, concepto=0.08, sinonimos=0.08,
         # peso=0.10, jaccard=0.10, grupo=0.10, tematico=0.08,
-        # temporal=0.04, asoc=0.02, pred=0.20 = 1.19
-        # PPMI_VECTOR_WEIGHT = 0.15 -> total 1.34
+        # temporal=0.04, asoc=0.02, pred=0.20, hub=0.20 = 1.39
+        # PPMI_VECTOR_WEIGHT = 0.15 -> total 1.54
         # Re-normalizamos todos los pesos para que sumen 1.0 - jsd_weight
         # Derivamos la suma base del dict para evitar hardcoding
         _base_weights = {
@@ -3304,8 +3304,8 @@ class SQLiteMemoryBioRAG:
             "peso": 0.10, "jaccard": 0.10, "grupo": 0.10, "tematico": 0.08,
             "temporal": 0.04, "asoc": 0.02, "pred": 0.20, "hub": 0.20,
         }
-        _base_sum = sum(_base_weights.values())  # 1.19
-        total_base = _base_sum + PPMI_VECTOR_WEIGHT  # 1.34
+        _base_sum = sum(_base_weights.values())  # 1.39
+        total_base = _base_sum + PPMI_VECTOR_WEIGHT  # 1.54
         base_weight = (1.0 - jsd_weight) / total_base
 
         score = (
@@ -3951,10 +3951,12 @@ class SQLiteMemoryBioRAG:
                     if vecino_concepto in vistos:
                         # Refuerzo Hebbiano multi-padre: si múltiples caminos convergen en este nodo, reforzar su score
                         old_item = vistos[vecino_concepto]
-                        if isinstance(old_item, tuple) and len(old_item) >= 6:
+                        if isinstance(old_item, (tuple, list)) and len(old_item) >= 5:
                             boost_multi = round(min(0.08, score_contexto * 0.15), 4)
                             nuevo_score = round(min(1.0, old_item[4] + boost_multi), 4)
-                            updated_item = (old_item[0], old_item[1], old_item[2], old_item[3], nuevo_score, old_item[5])
+                            list_item = list(old_item)
+                            list_item[4] = nuevo_score
+                            updated_item = tuple(list_item)
                             vistos[vecino_concepto] = updated_item
                             for idx_ctx, (ci, niv) in enumerate(contextos_con_nivel):
                                 if ci[0] == vecino_concepto:
@@ -3984,7 +3986,13 @@ class SQLiteMemoryBioRAG:
         # por uno de nivel-3, independientemente del peso de sus aristas.
         contextos_con_nivel.sort(key=lambda x: (x[1], -x[0][4]))
         contextos = [item for item, _nivel in contextos_con_nivel]
-        return list(pagina_resultados), contextos
+
+        # Propagar refuerzo Hebbiano multi-padre a los primarios (Fix P1 / Auditoría 2026-09-09):
+        # Nodos primarios que recibieron convergencia Hebbiana son actualizados con su
+        # nuevo score desde 'vistos' y reordenados para mantener monotonía estricta.
+        primarios_actualizados = [vistos.get(r[0], r) for r in pagina_resultados]
+        primarios_actualizados.sort(key=lambda r: r[4], reverse=True)
+        return primarios_actualizados, contextos
 
     def _rerank_jaccard_protect_r0(self, resultados, frase_limpia, preview_chars=1500):
         """Re-ranking jaccard léxico (Fase C) con protección de rank 0.

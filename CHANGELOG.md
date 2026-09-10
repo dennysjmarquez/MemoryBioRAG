@@ -48,17 +48,17 @@ El mecanismo de rescate existente (BFS sobre el grafo sináptico vía `_expandir
 
 - **`scripts/test_abismo_lexico.py`** — 3 casos de rescate relacional puro:
   - EXP-Q-01: `kilo_vscode_extension_principal` (query sin solapamiento)
-  - EXP-Q-02: `regla_verificar_antes_que_asumir` (query sin solapamiento)
-  - EXP-Q-03: `ajuste_tejedora_de_estrellas` (query sin solapamiento)
+  - EXP-Q-02: `regla_verificar_codigo_real_antes_de_diagnostico` (query sin solapamiento)
+  - EXP-Q-03: `ajuste_tejedora_valencia_desempate_fase1` (query sin solapamiento)
 - **`scripts/run_qa_suite.sh`** — Integrado como paso 4/5 de la suite de QA.
 
 ### Métricas EXP-Q (snapshot `qa_escape_qcr_20260811.db`, 851 nodos activos)
 
 | Caso | Query | Gold | Sin grafo | Con grafo (depth=2) |
 |------|-------|------|:---------:|:-------------------:|
-| EXP-Q-01 | "extensión principal VS Code Kilo" | `kilo_vscode_extension_principal` | ❌ no encontrado | ✅ **pos 4** |
-| EXP-Q-02 | "verificar antes de asumir" | `regla_verificar_antes_que_asumir` | ❌ no encontrado | ✅ **pos 21** |
-| EXP-Q-03 | "ajuste tejedora estrellas" | `ajuste_tejedora_de_estrellas` | ❌ no encontrado | ✅ **pos 19** |
+| EXP-Q-01 | "panel visual de desarrollo para despacho de tareas" | `kilo_vscode_extension_principal` | ❌ no encontrado | ✅ **pos 4** |
+| EXP-Q-02 | "comprobacion fidedigna de ficheros previo a emitir dictamenes" | `regla_verificar_codigo_real_antes_de_diagnostico` | ❌ no encontrado | ✅ **pos 21** |
+| EXP-Q-03 | "resolucion de colisiones valorativas en bifurcaciones" | `ajuste_tejedora_valencia_desempate_fase1` | ❌ no encontrado | ✅ **pos 19** |
 
 **Tasa de rescate (snapshot): 3/3 (100%)**
 
