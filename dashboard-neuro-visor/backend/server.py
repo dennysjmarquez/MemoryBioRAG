@@ -12,7 +12,7 @@ import uvicorn
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 PROJECT_ROOT = os.path.dirname(os.path.dirname(BASE_DIR))
-DB_PATH = os.path.join(PROJECT_ROOT, "MemoryBioRAG_Data", "memory_biorag.db")
+# DB_PATH se resuelve vía core.paths (canónico MCP/CLI/dashboard).
 
 # Dashboard ports from env (with defaults)
 DASHBOARD_BACKEND_PORT = int(os.environ.get('BIORAG_DASHBOARD_BACKEND_PORT', '8001'))
@@ -25,7 +25,15 @@ sys.path.insert(0, PROJECT_ROOT)
 from config import _load_env_local
 _load_env_local()
 
-cerebro = None  # Use raw SQLite directly
+from core.paths import resolve_db_path
+from core.memory_service import get_cerebro, buscar as svc_buscar, aprender as svc_aprender
+
+DB_PATH = resolve_db_path()
+try:
+    cerebro = get_cerebro(DB_PATH)
+except Exception as _e_cb:
+    print(f"[dashboard] motor no inicializado: {_e_cb}")
+    cerebro = None
 
 app = FastAPI(title="BioRAG Neuro-Visor v2")
 app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["*"], allow_headers=["*"])
@@ -589,7 +597,7 @@ def buscar_conceptos(q: str = "", limit: int = 20):
 
     if cerebro is not None:
         try:
-            resultados, total = cerebro.buscar_por_frase(q, profundidad="profundo", limite=limit)
+            resultados, total = svc_buscar(cerebro, q, profundidad="profundo", limite=limit)
             mapped = []
             for r in resultados:
                 mapped.append({
@@ -599,7 +607,7 @@ def buscar_conceptos(q: str = "", limit: int = 20):
                     "estado": r[3] or "activo"
                 })
             conn.close()
-            return {"resultados": mapped, "total": total}
+            return {"resultados": mapped, "total": total, "via": "buscar_por_frase"}
         except Exception:
             pass
 
@@ -1143,7 +1151,7 @@ def consolidar_cerebro():
         limite = 50
 
     try:
-        resultado = cerebro.consolidar(limite_energia=limite)
+        resultado = cerebro.ciclo_sueno_consolidacion()
         return {"status": "ok", "mensaje": "Cerebro consolidado", "resultado": str(resultado)}
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error al consolidar: {e}")

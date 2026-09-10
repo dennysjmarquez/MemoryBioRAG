@@ -1,5 +1,23 @@
 # BioRAG Changelog
 
+## [v31.1-unreleased] — 2026-09-10 — Lexical Learning Episode + cableado único
+
+Un cambio medible: registrar «expresión A refiere a concepto B» y generar
+candidatos **antes** del ranking. Sin embeddings densos, sin fusionar nodos,
+sin tocar layout SDM.
+
+### Fase A — Cableado
+- `core/paths.py`: `BIORAG_PATH` / `MemoryBioRAG_Data/memory_biorag.db`.
+- `core/memory_service.py`: `buscar` / `aprender` / `ensenar_lexico` / `consolidar_ciclo`.
+- Dashboard y MCP (`_get_cerebro`) usan el mismo servicio.
+
+### Fase B–C — Episodio + índice invertido
+- Tablas `lexical_learning_episode`, `lexical_form_index`, `lexical_audit_event`.
+- Inyección en `buscar_por_frase` (origen `lexico_aprendido`), bypass QCR, piso de score, no fusión.
+
+### Fase D
+- Tests `tests/test_lexical_learning.py`; benches `scripts/benchmark_aprendizaje_lexico.py`, `scripts/benchmark_competitivo.py`.
+
 ## [v31.0] — 2026-09-09 — Abismo Léxico: Rescate por Grafo Sináptico (EXP-Q)
 
 Release de **corrección de infraestructura del grafo sináptico** y **rescate relacional para queries

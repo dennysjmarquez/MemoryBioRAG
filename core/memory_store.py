@@ -142,10 +142,8 @@ class SQLiteMemoryBioRAG:
         if db_path:
             self.db_path = db_path
         else:
-            self.db_path = os.environ.get('BIORAG_PATH') or os.path.join(
-                os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
-                "MemoryBioRAG_Data", "memory_biorag.db"
-            )
+            from core.paths import resolve_db_path
+            self.db_path = resolve_db_path()
         if self.db_path != ":memory:":
             os.makedirs(os.path.dirname(self.db_path), exist_ok=True)
         # Conectar a SQLite
@@ -1101,6 +1099,12 @@ class SQLiteMemoryBioRAG:
             _crear_concept_hub_tablas(self.conn)
         except Exception as _e_ch:
             logger.warning(f"No se pudieron inicializar tablas de Concept Hub: {_e_ch}")
+
+        try:
+            from core.lexical_learning import inicializar_tablas_lexicas
+            inicializar_tablas_lexicas(self)
+        except Exception as _e_lex:
+            logger.warning(f"No se pudieron inicializar tablas léxicas: {_e_lex}")
 
         self.conn.commit()
 
@@ -5134,6 +5138,32 @@ class SQLiteMemoryBioRAG:
                         todos.append(row)
                         origen_scores[concepto] = ("semantica", match_ratio)
 
+        # ── Fase C: índice invertido de formas aprendidas (GENERACIÓN, no ranking).
+        # POR QUÉ aquí: el gold debe entrar al pool ANTES de _calcular_score_hibrido.
+        # No toca FTS ni pesos. Solo inyecta nodos canónicos de episodios explicit/consolidated.
+        try:
+            from core.lexical_learning import resolver_formas_aprendidas
+            _lex_hits = resolver_formas_aprendidas(self, frase_limpia or query or frase)
+            if _lex_hits:
+                _seen_lex = {r[1] for r in todos}
+                for hit in _lex_hits:
+                    conc = hit["canonical_concept"]
+                    if conc in _seen_lex:
+                        origen_scores[conc] = ("lexico_aprendido", hit["confidence"])
+                        continue
+                    self.cursor.execute(
+                        "SELECT rowid, concepto, contenido, peso_sinaptico, estado, asociaciones "
+                        "FROM largo_plazo WHERE concepto = ?",
+                        (conc,),
+                    )
+                    row = self.cursor.fetchone()
+                    if row and (profundidad == "profundo" or row[4] == "activo"):
+                        todos.append(row)
+                        _seen_lex.add(conc)
+                        origen_scores[conc] = ("lexico_aprendido", hit["confidence"])
+        except Exception:
+            pass
+
             # v22.1: Content-based expansion for por_tema queries ───
         # Find nodes where query words appear in content, but ONLY when FTS returns
         # few results (indicates the query is thematic, not literal).
@@ -5374,7 +5404,7 @@ class SQLiteMemoryBioRAG:
         # preservando la escala intra-query para mantener 0% falsos positivos en ruido.
         escala_activa = self._last_bm25_bounds[2] if (self._last_bm25_bounds and self._last_bm25_bounds[2] > 0.3) else 0.8
         for conc, (origen, sc_capa) in origen_scores.items():
-            if conc not in bm25_norm_map and origen in ("typo", "simbolico", "dimensional_fallback", "concepto"):
+            if conc not in bm25_norm_map and origen in ("typo", "simbolico", "dimensional_fallback", "concepto", "lexico_aprendido"):
                 bm25_norm_map[conc] = min(1.0, escala_activa * float(sc_capa or 0.5))
 
 
@@ -5672,6 +5702,20 @@ class SQLiteMemoryBioRAG:
         # Reordenar por score hibrido descendente
         resultados_con_hibrido.sort(key=lambda r: r[4], reverse=True)
 
+        # Promoción de candidatos generados por episodio léxico explícito.
+        # POR QUÉ: el gold entra al pool (generación) pero el ranker híbrido no
+        # conoce la enseñanza. No es un ranker genérico (EXP-N9); es el contrato
+        # de «A significa B» con evidencia explicit/consolidated.
+        if resultados_con_hibrido:
+            _prom = []
+            for conc, cont, peso, est, sc, asoc in resultados_con_hibrido:
+                orig, conf_l = origen_scores.get(conc, ("", 0.0))
+                if orig == "lexico_aprendido":
+                    sc = max(sc, min(0.99, 0.88 + 0.10 * float(conf_l or 0.0)))
+                _prom.append((conc, cont, peso, est, sc, asoc))
+            resultados_con_hibrido = _prom
+            resultados_con_hibrido.sort(key=lambda r: r[4], reverse=True)
+
         # v26.2: Puerta QCR (Query Coverage Ratio) para consultas compuestas (>= 2 palabras)
         # Exige que al menos el 50% de los tokens de la consulta coincidan en el nodo/sinónimos/metadatos
         # para prevenir que 1 sola palabra accidental en textos largos genere Falsos Positivos.
@@ -5816,7 +5860,7 @@ class SQLiteMemoryBioRAG:
         # Solo aplica a resultados de capas literales (AND/OR/NEAR/unicode/snap/substring).
         # Resultados de capas no literales se preservan para no romper tolerancia a typos,
         # búsqueda semántica/conceptual, ni el fallback simbólico (que normaliza acentos).
-        _ORIGENES_NO_LITERALES = {"typo", "expansion", "latente", "cadena", "simbolico", "dimensional_fallback", "semantica", "unicode"}
+        _ORIGENES_NO_LITERALES = {"typo", "expansion", "latente", "cadena", "simbolico", "dimensional_fallback", "semantica", "unicode", "lexico_aprendido"}
         query_words = re.findall(r'\w{3,}', query.lower())
         if len(query_words) == 1 and resultados_con_hibrido:
             token = query_words[0]
