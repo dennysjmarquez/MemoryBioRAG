@@ -1,5 +1,14 @@
 # BioRAG Changelog
 
+## [v31.1-unreleased] — 2026-09-10 — E10 DMN síntesis (un paso)
+
+Sinapsis `dmn_synthesized` peso 0.30, tope 8 por ciclo. Solo pares activos
+con dimensión común o ≥2 tokens. No fusiona nodos. Flag
+`BIORAG_DMN_SINTESIS_ACTIVA` default **ON**.
+
+A/B 921 vs E7: R@5 **96.91** R@1 **90.40** MRR 0.9297 FP 15% (27). Gate
+sí. Competitive 100% P95 8.1ms. Tests `tests/test_dmn_sintesis_e10.py`.
+
 ## [v31.1-unreleased] — 2026-09-10 — E9 IDF dimensional (un paso)
 
 `dim_score` pondera cada eje por IDF cacheado:
