@@ -10,7 +10,7 @@
 > **Benchmark semántico (Fase 2 casos puros, sin palabras compartidas):** CON Hub **100%** (5/5 en TOP1)
 > **Rescate por Grafo (Abismo Léxico, snapshot):** **100%** (3/3 rescatados por BFS sináptico)
 > **Falsos Positivos (Negativo):** **0.00% FP (0 / 40)**
-> **Tests Unitarios:** **57 / 57 PASSED (100%)** · **Invariantes de Scoring:** **4 / 4 PASSED**
+> **Tests Unitarios:** **70 / 70 PASSED (100%)** · **Invariantes de Scoring:** **4 / 4 PASSED**
 > **Nodos activos:** ~985 · Hubs canónicos: 17 · Bridges: 119 · Domain Dict: 6,490 términos
 
 **BioRAG** es una arquitectura de memoria cognitiva simbólica, biomimética y persistente para agentes de inteligencia artificial. Resuelve el problema fundamental de que los LLMs olvidan todo entre sesiones — sin depender de embeddings pesados de PyTorch/Transformers, GPUs ni infraestructura externa.
@@ -196,6 +196,11 @@ El mecanismo de BFS existía desde v20, pero **no funcionaba** por 3 bugs descub
 
 **Tasa de rescate: 3/3 (100%)**
 
+```bash
+# Ejecutar la suite de Abismo Léxico (Paso [4/5] del orquestador):
+BIORAG_PATH=snapshots/qa_escape_qcr_20260811.db python3 scripts/test_abismo_lexico.py
+```
+
 #### Limitaciones (honestidad epistémica)
 
 El rescate por grafo sináptico **no es una solución universal** al Abismo Léxico. Tiene limitaciones inherentes a cualquier BFS con presupuesto finito:
@@ -215,6 +220,33 @@ BioRAG v31.0 tiene **3 capas de defensa** contra el Abismo Léxico, cada una cub
 | **3. Razonamiento del Agente** | El agente descompone la query y reformula | Agente con buen prompt/instrucciones | Agente sin protocolo de descomposición |
 
 Ninguna capa por sí sola resuelve todos los casos. Las 3 juntas cubren un espectro amplio, pero el Abismo Léxico — por definición — siempre tendrá casos límite donde no hay suficiente señal para cruzar la barrera.
+
+---
+
+### 🧩 Comparativa Fundamental: Sinónimos al Guardar vs. Concept Hub vs. Grafo Sináptico
+
+Es crucial no confundir estos tres mecanismos de recuperación semántica, ya que operan en niveles cognitivos y etapas de ejecución completamente distintas:
+
+| Dimensión | 📝 Sinónimos al Guardar (`aprender`) | 🧠 Concept Hub (Paso [3/5]) | 🕸️ Grafo Sináptico / EXP-Q (Paso [4/5]) |
+|---|---|---|---|
+| **Nivel Cognitivo** | **Léxico / Morfológico** (Palabra a Palabra) | **Semántico / Conceptual** (Modelo Mental) | **Topológico / Asociativo** (Red Hebbiana) |
+| **¿Dónde actúa?** | Expansión FTS5 / BM25 de términos directos. | **Búsqueda Primaria** (Inyección de Bridges). | **Expansión de Contexto** (BFS en el Grafo). |
+| **Entrada típica** | Palabras equivalentes: `"borrar"` $\rightarrow$ `"eliminar"`. | Frases de síntoma/metáfora: `"interfaz pierde datos al cambiar tab"`. | Query imprevista con **0 palabras compartidas**: `"resolución de colisiones valorativas"`. |
+| **¿Qué requiere?** | Vocabularios cercanos o diccionarios (WordNet). | Bridges estructurados en **5 ángulos cognitivos** guardados a priori. | **Conexiones sinápticas** activas entre nodos en el grafo de memoria. |
+| **Resultado esperado** | Match léxico directo en FTS5. | Nodo canónico promovido a **Top-1 Primario**. | Nodo rescatado en **Contexto Expandido (Pos #4-#21)**. |
+| **Metáfora** | Buscar un libro por **sinónimos de su título** (ej. *Cálculo* vs *Análisis Matemático*). | Ponerle un **cartel o alias por síntoma** en la entrada de la biblioteca (*"Para cuando la ecuación no converge"*). | Encontrar un libro intermedio y seguir las **citas y referencias cruzadas** hacia el libro deseado. |
+
+#### 1. Sinónimos al Guardar (`sinonimos` en `aprender` / WordNet / Domain Dict)
+- **Alcance:** Es puramente léxico. Si guardas un nodo sobre `optimización_bd` con el sinónimo `"tunning"`, el sistema sabrá que `"tunning"` = `optimización`.
+- **Por qué no basta:** Falla cuando el usuario no usa un sinónimo morfológico, sino una descripción abstracta o un síntoma funcional donde ninguna palabra coincide (ej: *"la aplicación tarda 10 segundos cuando entran muchos usuarios"*).
+
+#### 2. Concept Hub (Paso [3/5] de la Suite)
+- **Alcance:** Es conceptual y explícito. Cubre la brecha entre cómo un desarrollador documenta un nodo (vocabulario técnico de implementación) y cómo un usuario sufre un problema (vocabulario del síntoma, metáforas, contraste o jerga).
+- **Mecanismo:** Un Concept Hub centraliza hasta 5 puentes cognitivos por concepto. Cuando el usuario busca con cualquier metáfora o síntoma cubierto por el bridge, el sistema lo reconoce en la búsqueda primaria y lo indexa con score alto hacia el nodo canónico.
+
+#### 3. Rescate por Grafo Sináptico (Paso [4/5] - Abismo Léxico EXP-Q)
+- **Alcance:** Es relacional, asociativo e implícito. Es la red de seguridad cuando **no existe ningún Concept Hub previo** y tampoco hay sinónimos morfológicos posibles.
+- **Mecanismo:** La query encuentra un nodo intermedio (ancla) por coincidencia parcial de dominio; acto seguido, el algoritmo BFS navega a través de las sinapsis Hebbianas ($w_{ij}$) propagando activación para rescatar el nodo de destino en el contexto expandido.
 
 ---
 
