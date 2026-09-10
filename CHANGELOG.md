@@ -1,5 +1,16 @@
 # BioRAG Changelog
 
+## [v31.1-unreleased] — 2026-09-10 — E8 SRL gate condicional (un paso)
+
+`pred_score` (Signal #12, peso 0.20) solo si Nt>=3 o el extractor
+determinista saca >=1 predicado. Mono-token/sinonimo corto: pred=0.
+Flag `BIORAG_SRL_CONDICIONAL` default **OFF** (R@5 no cumple).
+
+A/B 921 vs E7: R@5 **96.80** (−0.11, 28 fallos; typo +1) R@1 **90.63** (+0.23)
+MRR **0.9306** FP 15%. `sinonimo` R@5 83.64 hold, R@1 41.82→**45.45**.
+Gate R@5 no. ON: `BIORAG_SRL_CONDICIONAL=1`. Competitive 100% P95 6.7ms.
+Tests `tests/test_srl_condicional_e8.py`.
+
 ## [v31.1-unreleased] — 2026-09-10 — E7 JSD adaptativo (un paso)
 
 `jsd_weight` en `buscar_por_frase` segun Nt (tokens >=3): *2.5 si Nt>=4
