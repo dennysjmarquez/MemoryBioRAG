@@ -108,6 +108,11 @@ SDM_FALLBACK_K = int(os.environ.get('BIORAG_SDM_FALLBACK_K', '5'))
 _sdm_peso_raw = float(os.environ.get('BIORAG_SDM_SCORING_PESO', '0'))
 SDM_SCORING_PESO = 0.0 if _sdm_peso_raw <= 0 else min(_sdm_peso_raw, 0.08)
 
+# E3: QCR ponderado por IDF. Default ON. Umbral 0.30–0.45 (default 0.40).
+# OFF: BIORAG_QCR_IDF=0 vuelve al ratio no ponderado 0.50.
+QCR_IDF_ACTIVO = os.environ.get('BIORAG_QCR_IDF', '1').lower() in ('1', 'true', 'yes')
+QCR_IDF_UMBRAL = float(os.environ.get('BIORAG_QCR_IDF_UMBRAL', '0.40'))
+
 GABA_ACTIVO = os.environ.get('BIORAG_GABA_ACTIVO', '1').lower() in ('1', 'true', 'yes')
 """Activar inhibición lateral GABA (Edelman 1987): atenúa competidores secundarios cuando top-1 es atractor fuerte.
 Default ON. Ablación: export BIORAG_GABA_ACTIVO=0"""
@@ -1290,6 +1295,39 @@ class SQLiteMemoryBioRAG:
                 ('capacidad', 'Soy capaz o no soy capaz de hacerlo: poder de hecho', (SELECT id FROM tipos_dimension WHERE nombre='modalidad'))
         """)
         self.conn.commit()
+
+    def _idf_tokens_qcr(self, tokens):
+        """IDF de tokens de query para QCR. Cache por instancia. DF vía FTS5 MATCH (índice), no scan del corpus."""
+        if not getattr(self, "_qcr_idf_cache", None):
+            self._qcr_idf_cache = {}
+        if getattr(self, "_qcr_n_docs", None) is None:
+            try:
+                self._qcr_n_docs = max(
+                    1, int(self.cursor.execute("SELECT COUNT(*) FROM largo_plazo").fetchone()[0] or 1)
+                )
+            except Exception:
+                self._qcr_n_docs = 1
+        out = {}
+        n = self._qcr_n_docs
+        for t in tokens:
+            if t in self._qcr_idf_cache:
+                out[t] = self._qcr_idf_cache[t]
+                continue
+            df = 0
+            try:
+                safe = (t or "").replace('"', "")
+                if safe:
+                    self.cursor.execute(
+                        "SELECT COUNT(*) FROM largo_plazo_fts WHERE largo_plazo_fts MATCH ?",
+                        (f'"{safe}"',),
+                    )
+                    df = int(self.cursor.fetchone()[0] or 0)
+            except Exception:
+                df = 0
+            idf = math.log((n + 1) / (df + 1)) + 1.0
+            self._qcr_idf_cache[t] = idf
+            out[t] = idf
+        return out
 
     def _calcular_jaccard(self, str1, str2):
         """Calcula la similitud de Jaccard entre dos cadenas en base a sub-palabras de 3 caracteres (Trigramas)."""

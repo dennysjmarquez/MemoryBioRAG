@@ -1,5 +1,12 @@
 # BioRAG Changelog
 
+## [v31.1-unreleased] — 2026-09-10 — E3 QCR ponderado por IDF (un paso)
+
+Cobertura QCR: `sum IDF(match) / sum IDF(query)` en vez de contar tokens iguales.
+IDF vía FTS5 COUNT (O(tokens), no O(N) corpus). Umbral `BIORAG_QCR_IDF_UMBRAL`
+default 0.40. OFF: `BIORAG_QCR_IDF=0` (ratio 0.50 plano). Escapes de capa
+(semantica/simbolico/typo/lexico_aprendido/…) y bypass Concept Hub intactos.
+
 ## [v31.1-unreleased] — 2026-09-10 — E2 SDM scoring sobre el pool (un paso)
 
 Señal binaria 2048 bits en `_calcular_score_hibrido` **solo para candidatos ya
