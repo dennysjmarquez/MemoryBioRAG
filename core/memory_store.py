@@ -100,6 +100,12 @@ RERANKING_JACCARD_WINDOW = int(os.environ.get('BIORAG_RERANKING_JACCARD_WINDOW',
 SDM_FALLBACK_ACTIVO = os.environ.get('BIORAG_SDM_FALLBACK', '1').lower() in ('1', 'true', 'yes')
 SDM_FALLBACK_K = int(os.environ.get('BIORAG_SDM_FALLBACK_K', '5'))
 
+# E2: SDM como señal de scoring sobre el POOL, no sobre el corpus.
+# Peso suave 0.05–0.08 (cap 0.08). 0 = OFF, cero overhead.
+# Independiente del tamaño N: un SELECT por PK del pool.
+_sdm_peso_raw = float(os.environ.get('BIORAG_SDM_SCORING_PESO', '0.06'))
+SDM_SCORING_PESO = 0.0 if _sdm_peso_raw <= 0 else min(_sdm_peso_raw, 0.08)
+
 GABA_ACTIVO = os.environ.get('BIORAG_GABA_ACTIVO', '1').lower() in ('1', 'true', 'yes')
 """Activar inhibición lateral GABA (Edelman 1987): atenúa competidores secundarios cuando top-1 es atractor fuerte.
 Default ON. Ablación: export BIORAG_GABA_ACTIVO=0"""
@@ -3285,15 +3291,17 @@ class SQLiteMemoryBioRAG:
                                 jsd_weight: float = 0.0,
                                 pred_score: float = 0.0,
                                 ppmi_score: float = 0.0,
-                                hub_match: float = 0.0):
-        """Score híbrido unificado: 10 señales ortogonales + JSD (signal #11) + Predicados (signal #12) + PPMI+SVD (signal #13) + Concept Hub (signal #14).
+                                hub_match: float = 0.0,
+                                sdm_score: float = 0.0):
+        """Score híbrido unificado: señales ortogonales + JSD #11 + Predicados #12 + PPMI #13 + Hub + SDM Kanerva (E2).
         grupo_score: similitud por grupo semántico WordNet (coseno binario).
         tematico_score: similitud temática por ausencia/presencia de dimensiones (IDF).
         match_exacto: preserva precisión en búsquedas por nombre exacto (floor 0.5).
         jsd_score: Jensen-Shannon Divergence como similitud [0,1].
         jsd_weight: peso de JSD en la fórmula (0.0 = desactivado, 0.05 = default activo).
         pred_score: matching de query tokens contra predicados SRL [0,1].
-        ppmi_score: similitud vectorial PPMI+SVD+Retrofitting normalizada [0,1]. Signal #13 (v26.0)."""
+        ppmi_score: similitud vectorial PPMI+SVD+Retrofitting normalizada [0,1]. Signal #13 (v26.0).
+        sdm_score: Jaccard ponderado del vector binario 2048 bits vs query [0,1]. Solo pool."""
         asoc_norm = min(1.0, asoc_count / 20.0)
         peso_norm = min(1.0, peso_sinaptico)
 
@@ -5586,6 +5594,19 @@ class SQLiteMemoryBioRAG:
                 pass
 
 
+        # E2: similitud SDM del pool (O(k) PK), no barrido del corpus.
+        # POR QUÉ aquí: el query_vec se genera UNA vez; cada candidato es un
+        # lookup por PRIMARY KEY. N=1 o N=10^6 no cambia el coste, solo |pool|.
+        sdm_sim_map = {}
+        if SDM_SCORING_PESO > 0.0 and todos:
+            try:
+                from core.sdm import similitudes_sdm_pool
+                sdm_sim_map = similitudes_sdm_pool(
+                    self, query, [r[1] for r in todos if r[1]]
+                )
+            except Exception:
+                sdm_sim_map = {}
+
         # Calcular score hibrido para cada resultado (fórmula única 9 señales)
         total = len(todos)
         resultados_con_hibrido = []
@@ -5733,7 +5754,8 @@ class SQLiteMemoryBioRAG:
                 jsd_weight=JSD_WEIGHT,
                 pred_score=pred_val,
                 ppmi_score=ppmi_val,
-                hub_match=hub_val
+                hub_match=hub_val,
+                sdm_score=sdm_sim_map.get(concepto, 0.0),
             )
 
 

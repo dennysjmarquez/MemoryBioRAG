@@ -1,11 +1,24 @@
 # BioRAG Changelog
 
+## [v31.1-unreleased] — 2026-09-10 — E2 SDM scoring sobre el pool (un paso)
+
+Señal binaria 2048 bits en `_calcular_score_hibrido` **solo para candidatos ya
+en el pool**. Coste O(k) por PRIMARY KEY, no O(N) del corpus (1 nodo o 10^6).
+Peso `BIORAG_SDM_SCORING_PESO` default 0.06, cap 0.08, 0 = OFF. No fusiona
+nodos, no reindexa, no embeddings.
+
 ## [v31.1-unreleased] — 2026-09-10 — E1 SDM Fallback 2.5 (un paso)
 
 SDM Kanerva (2048 bits) entra como **generación** cuando `buscar_por_frase`
 deja el pool < 3 y la query tiene ≥ 3 tokens. No es señal de scoring (E2).
 No reindexa en el path caliente. QCR sigue filtrando (FP). Flag:
 `BIORAG_SDM_FALLBACK` (default ON), `BIORAG_SDM_FALLBACK_SIM_MIN` (0.22).
+
+Medido snapshot `qa_escape_qcr_20260811.db` (921): E1 OFF vs ON **idéntico**
+R@5 97.03% R@1 89.94% MRR 0.928 FP 15% (6/40). El FP no lo introduce E1
+(mismos 6 negativos con flag OFF; pool casi nunca queda < 3). vs petición
+96.48/89.67: recall OK; FP 0% no se cumple en este snapshot ni sin E1.
+E2 no arranca en este commit.
 
 ## [v31.1-unreleased] — 2026-09-10 — Lexical Learning Episode + cableado único
 

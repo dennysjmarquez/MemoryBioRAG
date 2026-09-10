@@ -573,6 +573,43 @@ def rescatar_fallback_sdm(cerebro, query: str, *, limite: int = 5,
     return [h for h in hits if float(h.get("similitud") or 0.0) >= float(sim_min)]
 
 
+def similitudes_sdm_pool(cerebro, query: str, conceptos) -> dict:
+    """Similitud SDM query↔nodo SOLO para el pool (E2 scoring).
+
+    Complejidad: O(k) lookups por PRIMARY KEY, no O(N) del corpus.
+    Con 1 nodo o 10^6 nodos el coste es el del pool de candidatos
+    (típicamente decenas–cientos), no el tamaño de la corteza.
+    Sin vectores persistidos → {} (degradación silenciosa, corpus ajeno).
+    """
+    if not query or not conceptos:
+        return {}
+    unicos = []
+    seen = set()
+    for c in conceptos:
+        if c and c not in seen:
+            seen.add(c)
+            unicos.append(c)
+    if not unicos:
+        return {}
+    query_vec = generar_vector_sdm(concepto=query, contenido=query)
+    out = {}
+    chunk = 400
+    for i in range(0, len(unicos), chunk):
+        lote = unicos[i : i + chunk]
+        ph = ",".join("?" * len(lote))
+        try:
+            filas = cerebro.cursor.execute(
+                f"SELECT concepto, vector FROM nodos_sdm WHERE concepto IN ({ph})",
+                lote,
+            ).fetchall()
+        except Exception:
+            return {}
+        for conc, blob in filas:
+            if blob:
+                out[conc] = similitud_sdm(query_vec, blob)
+    return out
+
+
 def buscar_similares_a(cerebro, concepto_semilla: str, radio_max: int = None,
                        limite: int = 10) -> list:
     """Busca nodos similares a un nodo conocido — query-by-example.
