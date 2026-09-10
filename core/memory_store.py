@@ -113,6 +113,16 @@ SDM_SCORING_PESO = 0.0 if _sdm_peso_raw <= 0 else min(_sdm_peso_raw, 0.08)
 QCR_IDF_ACTIVO = os.environ.get('BIORAG_QCR_IDF', '1').lower() in ('1', 'true', 'yes')
 QCR_IDF_UMBRAL = float(os.environ.get('BIORAG_QCR_IDF_UMBRAL', '0.40'))
 
+# E4 spreading proactivo: generacion 1-2 hop desde el pool lexico (no solo pool<3).
+SPREADING_PROACTIVO = os.environ.get('BIORAG_SPREADING_PROACTIVO', '0').lower() in ('1', 'true', 'yes')
+SPREADING_TOP_N = int(os.environ.get('BIORAG_SPREADING_TOP_N', '40'))
+SPREADING_HOPS = int(os.environ.get('BIORAG_SPREADING_HOPS', '2'))
+SPREADING_GAMMA = float(os.environ.get('BIORAG_SPREADING_GAMMA', '0.65'))
+SPREADING_PESO_MIN = float(os.environ.get('BIORAG_SPREADING_PESO_MIN', '0.30'))
+SPREADING_ENERGIA_MIN = float(os.environ.get('BIORAG_SPREADING_ENERGIA_MIN', '0.18'))
+SPREADING_MAX_INJECT = int(os.environ.get('BIORAG_SPREADING_MAX_INJECT', '12'))
+SPREADING_QCR_MIN = float(os.environ.get('BIORAG_SPREADING_QCR_MIN', '0.35'))
+
 GABA_ACTIVO = os.environ.get('BIORAG_GABA_ACTIVO', '1').lower() in ('1', 'true', 'yes')
 """Activar inhibición lateral GABA (Edelman 1987): atenúa competidores secundarios cuando top-1 es atractor fuerte.
 Default ON. Ablación: export BIORAG_GABA_ACTIVO=0"""
@@ -3191,6 +3201,59 @@ class SQLiteMemoryBioRAG:
         resultados.sort(key=lambda x: x[1], reverse=True)
         return resultados[:limite], parent_map
 
+    def _spreading_proactivo(self, semillas, max_hops=None, gamma=None, peso_min=None):
+        """E4 BFS Hebbiano desde semillas. UNION ALL, no UNION alfabetico.
+
+        Fallback 1.9/2.2 solo corre si pool < 3. Aqui 1-2 hop desde top-N.
+        No fusiona nodos. No reescribe SDM.
+        """
+        if max_hops is None:
+            max_hops = SPREADING_HOPS
+        if gamma is None:
+            gamma = SPREADING_GAMMA
+        if peso_min is None:
+            peso_min = SPREADING_PESO_MIN
+        max_vecinos = int(os.environ.get("BIORAG_MAX_VECINOS_POR_NODO", "6"))
+        visitados = set(semillas)
+        frontera = list(semillas)
+        found = {}
+        parent_map = {}
+        for salto in range(max_hops):
+            decay = gamma ** (salto + 1)
+            nxt = []
+            for nodo in frontera:
+                self.cursor.execute(
+                    "SELECT destino, peso FROM sinapsis WHERE origen = ? AND peso >= ? "
+                    "UNION ALL "
+                    "SELECT origen, peso FROM sinapsis WHERE destino = ? AND peso >= ?",
+                    (nodo, peso_min, nodo, peso_min),
+                )
+                edges = sorted(self.cursor.fetchall(), key=lambda e: float(e[1] or 0), reverse=True)
+                vistos_local = set()
+                n_ok = 0
+                for vecino, peso in edges:
+                    if vecino in vistos_local or vecino in visitados:
+                        continue
+                    vistos_local.add(vecino)
+                    n_ok += 1
+                    if n_ok > max_vecinos:
+                        break
+                    energia = float(peso or 0.0) * decay
+                    if energia < SPREADING_ENERGIA_MIN:
+                        continue
+                    prev = found.get(vecino, 0.0)
+                    if energia > prev:
+                        found[vecino] = energia
+                        parent_map[vecino] = (nodo, float(peso or 0.0))
+                    nxt.append(vecino)
+            for v in nxt:
+                visitados.add(v)
+            frontera = nxt
+            if not frontera:
+                break
+        ranked = sorted(found.items(), key=lambda x: x[1], reverse=True)
+        return ranked, parent_map
+
     def _generar_variaciones(self, query, historial_fallos=None):
         """Genera variaciones de la query basadas en el historial de fallos.
         
@@ -5319,6 +5382,56 @@ class SQLiteMemoryBioRAG:
                 except sqlite3.OperationalError:
                     pass
 
+        # E4 spreading proactivo despues del pool lexico, aunque |todos| >= 3.
+        if (
+            os.environ.get("BIORAG_SPREADING_PROACTIVO", "0").lower() in ("1", "true", "yes")
+            and not modo_estricto
+            and todos
+            and len(query or "") >= 2
+        ):
+            try:
+                _sem_ok = {
+                    "literal", "concepto", "parafrasis", "protegido", "unicode",
+                    "contenido", "lexico_aprendido",
+                }
+                _semillas_e4 = []
+                for r in todos:
+                    conc = r[1]
+                    if not conc:
+                        continue
+                    orig = origen_scores.get(conc, ("literal", 0.0))[0]
+                    if orig in _sem_ok or conc in (fts5_conceptos or []):
+                        _semillas_e4.append(conc)
+                    if len(_semillas_e4) >= SPREADING_TOP_N:
+                        break
+                if _semillas_e4:
+                    _ev_e4, _pm_e4 = self._spreading_proactivo(_semillas_e4)
+                    if _pm_e4:
+                        self.last_parent_map = {**getattr(self, "last_parent_map", {}), **_pm_e4}
+                    _seen_e4 = {r[1] for r in todos}
+                    _iny = 0
+                    for conc_ev, energia in _ev_e4:
+                        if conc_ev in _seen_e4:
+                            continue
+                        self.cursor.execute(
+                            "SELECT rowid, concepto, contenido, peso_sinaptico, "
+                            "estado, asociaciones FROM largo_plazo WHERE concepto = ?",
+                            (conc_ev,),
+                        )
+                        row = self.cursor.fetchone()
+                        if not row:
+                            continue
+                        if profundidad != "profundo" and row[4] != "activo":
+                            continue
+                        todos.append(row)
+                        _seen_e4.add(conc_ev)
+                        origen_scores[conc_ev] = ("spreading_proactivo", float(energia))
+                        _iny += 1
+                        if _iny >= SPREADING_MAX_INJECT:
+                            break
+            except Exception:
+                pass
+
         # [AUDIT #15 — PPMI Vector Retrieval: DESCARTADO tras 3 iteraciones]
         # Iteración 1 (pool < 3, antes de SA): mató SA (27→1 queries). Revertido.
         # Iteración 2 (pool < 3, después de SA): neutral, 0 rescates (pool siempre >= 3).
@@ -5870,6 +5983,9 @@ class SQLiteMemoryBioRAG:
                         "typo", "concepto", "lexico_aprendido",
                     )
                     and score_capa >= QCR_ESCAPE_CAPA_MIN
+                ) or (
+                    origen_tipo == "spreading_proactivo"
+                    and score_capa >= SPREADING_QCR_MIN
                 ):
                     filtrados_qcr.append((conc, cont, peso, est, sc, asoc))
             if filtrados_qcr:
@@ -5983,7 +6099,7 @@ class SQLiteMemoryBioRAG:
         # Solo aplica a resultados de capas literales (AND/OR/NEAR/unicode/snap/substring).
         # Resultados de capas no literales se preservan para no romper tolerancia a typos,
         # búsqueda semántica/conceptual, ni el fallback simbólico (que normaliza acentos).
-        _ORIGENES_NO_LITERALES = {"typo", "expansion", "latente", "cadena", "simbolico", "dimensional_fallback", "semantica", "unicode", "lexico_aprendido", "sdm"}
+        _ORIGENES_NO_LITERALES = {"typo", "expansion", "latente", "cadena", "simbolico", "dimensional_fallback", "semantica", "unicode", "lexico_aprendido", "sdm", "spreading_proactivo"}
         query_words = re.findall(r'\w{3,}', query.lower())
         if len(query_words) == 1 and resultados_con_hibrido:
             token = query_words[0]

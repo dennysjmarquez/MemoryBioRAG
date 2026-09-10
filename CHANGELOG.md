@@ -1,5 +1,17 @@
 # BioRAG Changelog
 
+## [v31.1-unreleased] — 2026-09-10 — E4 spreading proactivo (un paso)
+
+Generación 1–2 hop desde top-40 del pool léxico (`peso >= 0.30`, γ=0.65),
+aunque `|todos| ≥ 3`. UNION ALL. Máx 12 inyectados. Origen
+`spreading_proactivo` con escape QCR propio (`SPREADING_QCR_MIN=0.35`).
+No PPR, no fusión, no SDM layout.
+
+A/B 921 snapshot ON: R@5 **96.80** (−0.11pp vs E3) R@1 **89.83** (−0.34)
+MRR **0.9255** FP **0%** (0/40, era 15%). Gate R@5 no se cumple; FP sí baja.
+Default **OFF** (`BIORAG_SPREADING_PROACTIVO=0`); ON con `=1`. Competitive
+100% P95 7.1ms (corpus sintético). Tests `tests/test_spreading_e4.py`.
+
 ## [v31.1-unreleased] — 2026-09-10 — E3 QCR ponderado por IDF (un paso)
 
 Cobertura QCR: `sum IDF(match) / sum IDF(query)` en vez de contar tokens iguales.
