@@ -1,5 +1,14 @@
 # BioRAG Changelog
 
+## [v31.1-unreleased] — 2026-09-10 — E6 NCD zlib (un paso)
+
+Senal #15: Sim_NCD=1-NCD con zlib.compress level 6 (Li et al. 2004).
+Solo pool O(k): query vs concepto+contenido. Peso 0.05 (cap 0.08) en
+numerador y denominador del hibrido. Cero scan O(N), solo stdlib.
+
+A/B 921 (pendiente de confirmar en este arbol E1-E5; default ON 0.05).
+OFF: BIORAG_NCD_PESO=0. Tests tests/test_ncd_e6.py.
+
 ## [v31.1-unreleased] — 2026-09-10 — E5 resonancia multi-semilla (un paso)
 
 Scoring (no generación): vecinos Hebbianos (`peso>=0.30`) de las top-8

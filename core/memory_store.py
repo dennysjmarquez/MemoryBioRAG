@@ -132,6 +132,12 @@ RESONANCIA_BETA = float(os.environ.get('BIORAG_RESONANCIA_BETA', '0.50'))
 RESONANCIA_TOP_K = int(os.environ.get('BIORAG_RESONANCIA_TOP_K', '8'))
 RESONANCIA_PESO_MIN = float(os.environ.get('BIORAG_RESONANCIA_PESO_MIN', '0.30'))
 
+# E6: NCD zlib (Li et al. 2004). Senal O(k) sobre el pool, no O(N).
+# Default peso 0.05; 0 = OFF. Cap 0.08. Solo stdlib zlib.
+_ncd_peso_raw = float(os.environ.get('BIORAG_NCD_PESO', '0.05'))
+NCD_PESO = 0.0 if _ncd_peso_raw <= 0 else min(_ncd_peso_raw, 0.08)
+NCD_ZLIB_LEVEL = int(os.environ.get('BIORAG_NCD_ZLIB_LEVEL', '6'))
+
 GABA_ACTIVO = os.environ.get('BIORAG_GABA_ACTIVO', '1').lower() in ('1', 'true', 'yes')
 """Activar inhibición lateral GABA (Edelman 1987): atenúa competidores secundarios cuando top-1 es atractor fuerte.
 Default ON. Ablación: export BIORAG_GABA_ACTIVO=0"""
@@ -3311,6 +3317,35 @@ class SQLiteMemoryBioRAG:
             out = {n: min(1.0, v / mx) for n, v in out.items()}
         return out
 
+    @staticmethod
+    def _ncd_sim(a, b, level=None):
+        """Sim_NCD = 1 - NCD(x,y) con zlib. C(s)=len(compress(utf-8))."""
+        import zlib
+        if level is None:
+            level = NCD_ZLIB_LEVEL
+        xa = (a or "").encode("utf-8", errors="ignore")
+        yb = (b or "").encode("utf-8", errors="ignore")
+        if not xa or not yb:
+            return 0.0
+        def _c(blob):
+            return max(1, len(zlib.compress(blob, level)))
+        cx, cy = _c(xa), _c(yb)
+        cxy = _c(xa + yb)
+        ncd = (cxy - min(cx, cy)) / float(max(cx, cy))
+        return max(0.0, min(1.0, 1.0 - ncd))
+
+    def _ncd_sims_pool(self, query, filas):
+        """NCD query vs concepto+contenido de cada fila del pool. O(k)."""
+        if not query or not filas:
+            return {}
+        q = (query or "").strip()
+        out = {}
+        for conc, texto in filas:
+            if not conc:
+                continue
+            out[conc] = self._ncd_sim(q, f"{conc} {texto or ''}")
+        return out
+
     def _generar_variaciones(self, query, historial_fallos=None):
         """Genera variaciones de la query basadas en el historial de fallos.
         
@@ -3455,7 +3490,8 @@ class SQLiteMemoryBioRAG:
                                 ppmi_score: float = 0.0,
                                 hub_match: float = 0.0,
                                 sdm_score: float = 0.0,
-                                resonancia_score: float = 0.0):
+                                resonancia_score: float = 0.0,
+                                ncd_score: float = 0.0):
         """Score hibrido: senales + JSD + Predicados + PPMI + Hub + SDM (E2) + resonancia (E5).
         grupo_score: similitud por grupo semántico WordNet (coseno binario).
         tematico_score: similitud temática por ausencia/presencia de dimensiones (IDF).
@@ -3487,7 +3523,7 @@ class SQLiteMemoryBioRAG:
         }
         _base_sum = sum(_base_weights.values())  # 1.39
         # E2: SDM entra en el denominador para que el peso no infle el total.
-        total_base = _base_sum + PPMI_VECTOR_WEIGHT + SDM_SCORING_PESO + RESONANCIA_PESO
+        total_base = _base_sum + PPMI_VECTOR_WEIGHT + SDM_SCORING_PESO + RESONANCIA_PESO + NCD_PESO
         base_weight = (1.0 - jsd_weight) / total_base if total_base > 0 else 0.0
 
         score = (
@@ -3506,7 +3542,8 @@ class SQLiteMemoryBioRAG:
                 PPMI_VECTOR_WEIGHT * ppmi_score +  # Signal #13: PPMI+SVD
                 0.20 * hub_match +            # Signal #14: Concept Hub
                 SDM_SCORING_PESO * sdm_score +  # E2: Hamming 2048 bits, solo pool
-                RESONANCIA_PESO * resonancia_score  # E5: convergencia multi-semilla, solo pool
+                RESONANCIA_PESO * resonancia_score +  # E5: convergencia multi-semilla, solo pool
+                NCD_PESO * ncd_score  # E6: 1-NCD zlib, solo pool
             ) +
             jsd_weight * jsd_score           # Signal #11: JSD distributional overlap
         )
@@ -5833,6 +5870,17 @@ class SQLiteMemoryBioRAG:
             except Exception:
                 resonancia_map = {}
 
+        # E6: NCD zlib O(k) sobre el pool (query vs concepto+contenido).
+        ncd_map = {}
+        if NCD_PESO > 0.0 and todos:
+            try:
+                ncd_map = self._ncd_sims_pool(
+                    query,
+                    [(r[1], r[2]) for r in todos if r[1]],
+                )
+            except Exception:
+                ncd_map = {}
+
         # Calcular score hibrido para cada resultado (fórmula única 9 señales)
         total = len(todos)
         resultados_con_hibrido = []
@@ -5983,6 +6031,7 @@ class SQLiteMemoryBioRAG:
                 hub_match=hub_val,
                 sdm_score=sdm_sim_map.get(concepto, 0.0),
                 resonancia_score=resonancia_map.get(concepto, 0.0),
+                ncd_score=ncd_map.get(concepto, 0.0),
             )
 
 
