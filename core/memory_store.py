@@ -3865,34 +3865,46 @@ class SQLiteMemoryBioRAG:
 
     def expandir_contexto_vecinos(self, pagina_resultados, depth, profundidad="activos", preview_chars=None):
         """Expande el contexto de una página devolviendo (primarios, contextos).
-        Usa BFS. Capa los contextos con un corte duro
-        que escala con depth: BIORAG_MAX_CONTEXTOS * max(1, depth).
+        Usa BFS. Capa los contextos con un corte configurable que escala con depth:
+        BIORAG_MAX_CONTEXTOS * max(1, depth).
+        
+        Configuración de Freno / Retención:
+          - Histórico: max_contextos = 15 * depth
+          - Actual: max_contextos = int(os.environ.get("BIORAG_MAX_CONTEXTOS", "50")) * max(1, depth)
+          - Si BIORAG_MAX_CONTEXTOS <= 0, no se aplica corte (pool BFS completo sin truncar).
         """
         import os
         if not depth or depth <= 0 or not pagina_resultados:
             return pagina_resultados, []
 
         primarios, contextos = self._expandir_contexto_bfs(pagina_resultados, depth, profundidad=profundidad, preview_chars=preview_chars)
-        max_contextos = int(os.environ.get("BIORAG_MAX_CONTEXTOS", "50")) * max(1, int(depth or 1))
         
-        return primarios, contextos[:max_contextos]
+        # ── Control de Retención de Contextos ─────────────────────────────────
+        # HISTÓRICO: max_contextos = 15 * max(1, int(depth or 1))
+        # Para restaurar el comportamiento original estricto, definir BIORAG_MAX_CONTEXTOS=15
+        cap_base = int(os.environ.get("BIORAG_MAX_CONTEXTOS", "50"))
+        if cap_base > 0:
+            max_contextos = cap_base * max(1, int(depth or 1))
+            return primarios, contextos[:max_contextos]
+        
+        # Si cap_base <= 0, entrega el conjunto completo sin límite de retención
+        return primarios, contextos
 
     def _expandir_contexto_bfs(self, pagina_resultados, depth, profundidad="activos", preview_chars=None):
-        """Búsqueda BFS real en la red sináptica hasta una profundidad 'depth' (máx 3).
+        """Búsqueda BFS real en la red sináptica hasta una profundidad 'depth'.
         Atenúa recursivamente los scores de los vecinos encontrados.
         Deduplica nodos de forma estricta.
 
-        Freno de seguridad estricto y delimitación de profundidad:
-          Como le pusimos un freno de seguridad estricto para que la búsqueda nunca se
-          congele ni se ponga lenta (fíjate que la expansión toma apenas ~0.019s en producción),
-          el algoritmo se detiene honestamente si a 2 saltos no lo encuentra, en vez de
-          quedarse buscando en bucle o causando explosión combinatoria.
-
-        Hoja de ruta / Futuras mejoras algorítmicas:
-          Esto queda documentado para que más adelante se pueda diseñar e implementar un
-          algoritmo que recorra distancias mayores o explore todo el grafo de forma
-          eficiente sin congelar el sistema (por ejemplo: Random Walk with Restart / Personalized
-          PageRank, BFS bidireccional con poda estocástica, o A* heurístico guiado por dimensiones).
+        Freno de seguridad y delimitación de profundidad:
+          - HISTÓRICO (Hardcap rígido):
+              depth = min(int(depth), 3)
+            Este freno evitaba recorridos profundos en grafos grandes.
+          - ACTUAL (Configurable con guardia):
+              max_bfs_depth = int(os.environ.get("BIORAG_MAX_BFS_DEPTH", "5"))
+              depth = min(int(depth), max_bfs_depth) if max_bfs_depth > 0 else int(depth)
+            Permite explorar saltos mayores (ej. depth=4 o 5) si se solicita, manteniendo
+            un tope de seguridad por defecto para prevenir bucles o explosión combinatoria.
+            Para desactivar el techo completamente: BIORAG_MAX_BFS_DEPTH=0.
 
         Ordenamiento level-first (EXP-Q-R3, 2026-09-09):
           Ordena los contextos por (nivel_descubierto ASC, score DESC) en vez de
@@ -3905,7 +3917,15 @@ class SQLiteMemoryBioRAG:
         if not depth or depth <= 0 or not pagina_resultados:
             return pagina_resultados, []
 
-        depth = min(int(depth), 3)
+        # ── Freno de Seguridad de Profundidad (Configurable y Reversible) ─────
+        # HISTÓRICO: depth = min(int(depth), 3)
+        # Para reactivar el límite rígido histórico de 3 saltos, exportar BIORAG_MAX_BFS_DEPTH=3
+        max_bfs_depth = int(os.environ.get("BIORAG_MAX_BFS_DEPTH", "5"))
+        if max_bfs_depth > 0:
+            depth = min(int(depth), max_bfs_depth)
+        else:
+            depth = int(depth)
+
         vistos = {}  # concepto -> item
         for r in pagina_resultados:
             vistos[r[0]] = r
