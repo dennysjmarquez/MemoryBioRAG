@@ -109,60 +109,60 @@ def evaluar_abismo_lexico():
         resultados = []
 
         for i, caso in enumerate(CASOS_ABISMO_LEXICO, 1):
-        print(f"\n{'─' * 75}")
-        print(f"CASO {i} [{caso['id']}]: {caso['descripcion']}")
-        print(f"  Categoría:  {caso['categoria']}")
-        print(f"  Query:      \"{caso['query']}\"")
-        print(f"  Esperado:   {caso['nodo_esperado']}")
+            print(f"\n{'─' * 75}")
+            print(f"CASO {i} [{caso['id']}]: {caso['descripcion']}")
+            print(f"  Categoría:  {caso['categoria']}")
+            print(f"  Query:      \"{caso['query']}\"")
+            print(f"  Esperado:   {caso['nodo_esperado']}")
 
-        # 1. Búsqueda primaria FTS5 / PPMI estándar (context_window=0)
-        start_prim = time.time()
-        primarios, _ = cerebro.buscar_por_frase(caso['query'], context_window=0, limite=limite_mcp)
-        tiempo_prim = time.time() - start_prim
+            # 1. Búsqueda primaria FTS5 / PPMI estándar (context_window=0)
+            start_prim = time.time()
+            primarios, _ = cerebro.buscar_por_frase(caso['query'], context_window=0, limite=limite_mcp)
+            tiempo_prim = time.time() - start_prim
 
-        en_primarios = any(r[0] == caso['nodo_esperado'] for r in primarios)
-        top1_primario = primarios[0][0] if primarios else "Ninguno"
-        score_top1 = primarios[0][4] if primarios else 0.0
+            en_primarios = any(r[0] == caso['nodo_esperado'] for r in primarios)
+            top1_primario = primarios[0][0] if primarios else "Ninguno"
+            score_top1 = primarios[0][4] if primarios else 0.0
 
-        print(f"\n  [BÚSQUEDA PRIMARIA - FTS5 / Léxica]")
-        print(f"    Tiempo:       {tiempo_prim:.3f}s")
-        print(f"    Top-1:        {top1_primario} (score: {score_top1:.4f})")
-        print(f"    Encontrado:   {'✅ Sí' if en_primarios else '❌ No (Abismo Léxico puro: 0 overlap)'}")
+            print(f"\n  [BÚSQUEDA PRIMARIA - FTS5 / Léxica]")
+            print(f"    Tiempo:       {tiempo_prim:.3f}s")
+            print(f"    Top-1:        {top1_primario} (score: {score_top1:.4f})")
+            print(f"    Encontrado:   {'✅ Sí' if en_primarios else '❌ No (Abismo Léxico puro: 0 overlap)'}")
 
-        # 2. Expansión por Grafo Sináptico (context_window=2)
-        start_grafo = time.time()
-        _, contexto_vecinos = cerebro.expandir_contexto_vecinos(primarios, depth=2)
-        tiempo_grafo = time.time() - start_grafo
+            # 2. Expansión por Grafo Sináptico (context_window=2)
+            start_grafo = time.time()
+            _, contexto_vecinos = cerebro.expandir_contexto_vecinos(primarios, depth=2)
+            tiempo_grafo = time.time() - start_grafo
 
-        hallazgos = [idx for idx, v in enumerate(contexto_vecinos) if v[0] == caso['nodo_esperado']]
-        rescatado = len(hallazgos) > 0
+            hallazgos = [idx for idx, v in enumerate(contexto_vecinos) if v[0] == caso['nodo_esperado']]
+            rescatado = len(hallazgos) > 0
 
-        print(f"\n  [EXPANSIÓN POR GRAFO SINÁPTICO - Anti-Sesgo Alfabético + Hebbiano]")
-        print(f"    Tiempo:       {tiempo_grafo:.3f}s")
-        print(f"    Vecinos BFS:  {len(contexto_vecinos)} candidatos relacionales")
+            print(f"\n  [EXPANSIÓN POR GRAFO SINÁPTICO - Anti-Sesgo Alfabético + Hebbiano]")
+            print(f"    Tiempo:       {tiempo_grafo:.3f}s")
+            print(f"    Vecinos BFS:  {len(contexto_vecinos)} candidatos relacionales")
 
-        if rescatado:
-            pos = hallazgos[0] + 1
-            score_ctx = contexto_vecinos[hallazgos[0]][4]
-            print(f"    Rescate:      ✅ RESCATADO en posición {pos} (score contextual: {score_ctx:.4f})")
-            rescatados_count += 1
-        else:
-            print(f"    Rescate:      ❌ No alcanzado a profundidad 2")
+            if rescatado:
+                pos = hallazgos[0] + 1
+                score_ctx = contexto_vecinos[hallazgos[0]][4]
+                print(f"    Rescate:      ✅ RESCATADO en posición {pos} (score contextual: {score_ctx:.4f})")
+                rescatados_count += 1
+            else:
+                print(f"    Rescate:      ❌ No alcanzado a profundidad 2")
 
-        # Mecanismo que resolvió el caso: primaria (lex/hub) > grafo > ninguno
-        mecanismo = "primaria" if en_primarios else ("grafo" if rescatado else None)
-        if en_primarios:
-            en_primarios_count += 1
+            # Mecanismo que resolvió el caso: primaria (lex/hub) > grafo > ninguno
+            mecanismo = "primaria" if en_primarios else ("grafo" if rescatado else None)
+            if en_primarios:
+                en_primarios_count += 1
 
-        resultados.append({
-            "id": caso['id'],
-            "query": caso['query'],
-            "esperado": caso['nodo_esperado'],
-            "en_primarios": en_primarios,
-            "rescatado": rescatado,
-            "mecanismo": mecanismo,
-            "posicion": hallazgos[0] + 1 if rescatado else None
-        })
+            resultados.append({
+                "id": caso['id'],
+                "query": caso['query'],
+                "esperado": caso['nodo_esperado'],
+                "en_primarios": en_primarios,
+                "rescatado": rescatado,
+                "mecanismo": mecanismo,
+                "posicion": hallazgos[0] + 1 if rescatado else None
+            })
 
         print("\n" + "=" * 75)
         print("RESUMEN DE RESCATE EN EL ABISMO LÉXICO")
