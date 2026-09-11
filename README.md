@@ -1,4 +1,4 @@
-# BioRAG v31.1 — Plan Maestro E1–E13 + Invención F1
+# BioRAG v31.1 — Plan Maestro E1–E13 + Invenciones F1 y F2
 
 > **Versión:** v31.1 — Septiembre 2026 — **lista para merge a `master`**
 > **Base de medición:** linaje v30.1 (QA gate) + v31.0 (Abismo Léxico) + snapshot `snapshots/qa_escape_qcr_20260811.db` (**921** casos)
@@ -25,7 +25,7 @@ La DB viva (Dennys) ha dado **97.49 / 89.26 / FP 0%** — **no es el gate de mer
 
 **ON en master (sin flags extra):** E1, E3, E6, E7, E10.
 
-**OFF a propósito (código + tests, no borrados):** E2, E4, E5, E8, E9, E11, E12, E13, F1.
+**OFF a propósito (código + tests, no borrados):** E2, E4, E5, E8, E9, E11, E12, E13, F1, F2 (expansión; la señal de afinidad F2 está ON con peso 0.05).
 
 | Paso | Flag | Default | 921 ON (R@5 / R@1 / FP) | Veredicto |
 |---|---|---|---|---|
@@ -43,6 +43,7 @@ La DB viva (Dennys) ha dado **97.49 / 89.26 / FP 0%** — **no es el gate de mer
 | E12 Hopfield vacío | `BIORAG_HOPFIELD_FALLBACK` | **OFF** | 96.80 / 90.40 / 15% | solo ranking vacío |
 | E13 metacognición | `BIORAG_METACOGNICION_ACTIVA` | **OFF** | **91.77 / 86.17 / 15%** | tau 0.35; FP no baja; R@5 −5pp |
 | F1 coherencia SRL | `BIORAG_COHERENCIA_NARRATIVA` | **0** | 96.91 / 90.17 / 15% | peso 0.05; R@1 −0.23 |
+| F2 episodio temporal | `BIORAG_EPISODIO_TEMPORAL_PESO` / `BIORAG_EPISODIO_TEMPORAL` | **0.05** / **0** | **pendiente gate 921** | afinidad ON (0.05); expansión OFF |
 
 ### Qué hace cada paso (código real)
 
@@ -62,6 +63,7 @@ La DB viva (Dennys) ha dado **97.49 / 89.26 / FP 0%** — **no es el gate de mer
 | **E12** | `rescatar_hopfield_ultimo_recurso` | SDM/Hamming **solo si ranking vacío**, cap 0.45, sim_min 0.28 | OFF: R@5 96.80; typo R@5 98.46→96.92 |
 | **E13** | `_evaluar_metacognicion` **después de ADN** | abstiene si top-1 &lt; 0.35 y origen no es `lexico_aprendido`/`protegido`/`concepto`≥0.95. **No** protege `simbolico` | OFF: 91.77/86.17; los 6 FP del snapshot tienen top≥0.35 |
 | **F1** | `_evaluar_coherencia_narrativa` | bono 0.05 si en top-10 hay transición objeto↔sujeto en predicados. O(k²) | OFF: R@1 90.17 |
+| **F2** | `_afinidad_temporal_pool` + `_expandir_episodio_temporal` | señal 1.0 si el nodo comparte bucket temporal (día/sesión) con otro del pool (O(k)); expansión del episodio ±24h (misma categoría/dimensión) | afinidad ON (0.05); expansión OFF — gate pendiente |
 
 ### Cómo reproducir el 921
 
@@ -2101,7 +2103,7 @@ DESPUES DE CADA PASO: Leer resultados y explicar con propias palabras
 |---|---|---|
 | `BIORAG_PATH` | `./MemoryBioRAG_Data/memory_biorag.db` | Ruta al archivo .db |
 
-### Plan Maestro v31.1 (E1–E13 + F1)
+### Plan Maestro v31.1 (E1–E13 + F1 + F2)
 
 Ver tabla de defaults al inicio del README. Resumen:
 
@@ -2121,6 +2123,11 @@ Ver tabla de defaults al inicio del README. Resumen:
 | `BIORAG_HOPFIELD_FALLBACK` | `0` | E12 |
 | `BIORAG_METACOGNICION_ACTIVA` | `0` | E13 tau 0.35 |
 | `BIORAG_COHERENCIA_NARRATIVA` | `0` | F1 |
+| `BIORAG_EPISODIO_TEMPORAL_PESO` | `0.05` | F2 afinidad (0=OFF, cap 0.08) |
+| `BIORAG_EPISODIO_TEMPORAL` | `0` | F2 expansión |
+| `BIORAG_EPISODIO_VENTANA_HORAS` | `24` | F2 |
+| `BIORAG_EPISODIO_LIMITE` | `5` | F2 |
+| `BIORAG_EPISODIO_BUCKET_SEG` | `86400` | F2 |
 
 ### Búsqueda y Rendimiento
 
@@ -2318,9 +2325,9 @@ En v13.4 el catálogo tenía **7 ejes × 73 sub-valores**: emoción (qué se sie
 
 ## Historial de Versiones
 
-### v31.1 — Plan Maestro E1–E13 + F1 (Septiembre 2026)
+### v31.1 — Plan Maestro E1–E13 + F1 + F2 (Septiembre 2026)
 
-Release de **un flag por paso** sobre el snapshot 921. Default ON: E1, E3, E6, E7, E10. Gate: R@5 **96.91** R@1 **90.40** FP **15%**. Ver sección inicial del README. Commits: E12 `764c36b`, E13 `5e31e32`, F1 `86f3895`, docs este archivo.
+Release de **un flag por paso** sobre el snapshot 921. Default ON: E1, E3, E6, E7, E10. Gate: R@5 **96.91** R@1 **90.40** FP **15%**. Ver sección inicial del README. Commits: E12 `764c36b`, E13 `5e31e32`, F1 `86f3895`, F2 `7c62994`, docs este archivo.
 
 ### v28.0 — Canal 2 Integrado: Asociaciones Enriquecidas del Neocórtex de Sangre (Agosto 2026)
 
