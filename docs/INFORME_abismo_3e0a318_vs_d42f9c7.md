@@ -90,3 +90,41 @@ cd /tmp/wt_d42f9c7  && BIORAG_PATH=/tmp/run_B.db python scripts/test_abismo_lexi
 ```
 
 Limpieza: worktrees `/tmp/wt_*` removidos con `git worktree remove --force` y DBs `/tmp/*.db` borradas al cerrar el informe. Los objetos de ambos commits quedan en `.git` local (fetch), sin ramas creadas ni cambios de HEAD.
+
+## 8. Profundización (2026-09-11): timeline, rescatabilidad y maquinaria de despertar (VERIFICADO)
+
+### 8.1 Timeline por nodo clave (estado/peso medidos en 4 DBs)
+
+| Nodo | SNAP 11-ago | 3e0a318 10-sep | d42f9c7 10-sep → viva hoy |
+|---|---|---|---|
+| Q01-puente (`memorybiorag_osf_preregistration`, cat Project decay 1.5) | activo 0.42 | activo 0.13 | **dormido 0.05** |
+| Q03-target (`ajuste_tejedora_valencia_desempate_fase1`, cat Lesson decay 1.0) | activo 0.10 | activo 0.10 | **dormido 0.05** |
+| Q01-target (`kilo_vscode_extension_principal`, cat Protocol) | activo 0.20 | activo 0.20 | activo 0.20 (ult_acc congelado 27-jul) |
+| Q02-target (`regla_verificar_codigo_real…`, cat Principle, valencia 1.0) | activo 1.00 | activo 1.00 | activo 1.00 |
+| Q01-ancla (`ejemplo_star_cv_dennys…`) | AUSENTE | activo 1.00 | activo 1.00 |
+
+Regla que los durmió: sin protección (prioridad 3, valencia 0, categorías normales; el puente encima con decay 1.5 = olvido rápido). De los 622 dormidos, 288 quedaron con peso <0.05 (muerte por LTD puro, incluye 128 en 0.0) y 334 en exactamente 0.05 (firma del `MAX(0.05,…)` de inhibición lateral y/o aterrizaje exacto del LTD). Contraste: Q01-target (Protocol) y Q02-target (Principle + valencia 1.0) son **inmunes al olvido por diseño** — el sistema de protección funciona; las víctimas no calificaban. Que una sola corrida de consolidación el 10-sep hiciera todo el daño es HIPÓTESIS (inferencia desde la matemática de pesos, no log-verificado).
+
+### 8.2 Rescatabilidad en la viva actual (código actual, copias /tmp, VERIFICADO)
+
+| Config BFS | Q-01 (target despierto) | Q-03 (target dormido) |
+|---|---|---|
+| d2/v6 activos (config del eval) | NO (pool 42) | NO (pool 100) |
+| d3/v6 activos | **SÍ pos 74** | NO |
+| d4–d5/v6 activos | SÍ pos 82/84 | NO (ni con pool 250) |
+| d2/v12–v20 activos | NO (cap 100) | NO |
+| d3/v12 activos | NO (cap 150 + level-first entierra nivel 3) | NO |
+| **d2/v6 profundo (con dormidos)** | **SÍ pos 12 (= posición original era GOOD)** | **SÍ pos 4** |
+
+Ruta Q-01 a depth 3 (100% activa, medido): `ejemplo_star_cv_dennys_resultado_final → dennys-identidad-molecular → artemis_oec_perfil_identidad_estabilidad → kilo_vscode_extension_principal`. Conclusión: nada se destruyó — es visibilidad, no pérdida.
+
+### 8.3 La "multiplicación" de depth existe, pero multiplica pool, no visibilidad (VERIFICADO)
+
+`max_contextos = BIORAG_MAX_CONTEXTOS(50) × depth` (`core/memory_store.py` L4515-4517; fan-out `BIORAG_MAX_VECINOS_POR_NODO=6`, riel `BIORAG_MAX_BFS_DEPTH=5`). Pools medidos: 100/150/200/250 exactos. Pero los dormidos se filtran en el SQL del BFS: ninguna profundidad/cap alcanza al target de Q-03. Depth ayuda a Q-01 (depth 3), jamás a Q-03.
+
+### 8.4 El sistema YA sabe despertar — el rescate no lo usa (VERIFICADO, hueco de diseño)
+
+- `buscar_recuerdo_profundo` (L1778): "Búsqueda en toda la corteza (activos + dormidos). Si encuentra un nodo dormido, lo despierta y aplica LTP."
+- `buscar_por_rafaga` (L7144): "para encontrar nodos dormidos o aislados… crea sinapsis automáticamente y despierta el nodo."
+- `buscar_recuerdo_microsegundos` (L1494): "Solo busca en nodos activos. Si esta dormido, no lo despierta."
+- El path del abismo (`buscar_por_frase` + `expandir_contexto_vecinos(depth=2, profundidad="activos")`) es de los que NO ven ni despiertan. El sueño se diseñó como "archivado recuperable" pero el rescate se diseñó como "solo-activos" → el sueño se vuelve borrado silencioso. Ese desajuste es lo que el test expone.
