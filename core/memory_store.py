@@ -117,6 +117,12 @@ _an_raw = float(os.environ.get('BIORAG_ANALOGIA_PESO', '0'))
 ANALOGIA_PESO = 0.0 if _an_raw <= 0 else min(_an_raw, 0.08)
 ANALOGIA_DETECTAR = os.environ.get('BIORAG_ANALOGIA_DETECTAR', '0').lower() in ('1', 'true', 'yes')
 
+# F5: campo semantico PPMI. Peso 0 = OFF. Cap 0.08.
+_cp_raw = float(os.environ.get('BIORAG_CAMPO_POTENCIAL_PESO', '0.05'))
+CAMPO_POTENCIAL_PESO = 0.0 if _cp_raw <= 0 else min(_cp_raw, 0.08)
+CAMPO_SIGMA = float(os.environ.get('BIORAG_CAMPO_SIGMA', '1.0'))
+CAMPO_K = int(os.environ.get('BIORAG_CAMPO_K', '64'))
+
 BAYESIAN_BM25 = os.environ.get('BIORAG_BAYESIAN_BM25', 'false').lower() == 'true'
 """Activar calibración Bayesian BM25 (sigmoid) en vez de normalización fija x/(x+3).
 Override: export BIORAG_BAYESIAN_BM25=true"""
@@ -3889,7 +3895,8 @@ class SQLiteMemoryBioRAG:
                                 ncd_score: float = 0.0,
                                 comunidad_score: float = 0.0,
                                 episodio_score: float = 0.0,
-                                analogia_score: float = 0.0):
+                                analogia_score: float = 0.0,
+                                campo_score: float = 0.0):
         """Score hibrido: senales + JSD + Predicados + PPMI + Hub + SDM (E2) + resonancia (E5).
         grupo_score: similitud por grupo semántico WordNet (coseno binario).
         tematico_score: similitud temática por ausencia/presencia de dimensiones (IDF).
@@ -3921,7 +3928,7 @@ class SQLiteMemoryBioRAG:
         }
         _base_sum = sum(_base_weights.values())  # 1.39
         # E2: SDM entra en el denominador para que el peso no infle el total.
-        total_base = _base_sum + PPMI_VECTOR_WEIGHT + SDM_SCORING_PESO + RESONANCIA_PESO + NCD_PESO + COMUNIDAD_PESO + EPISODIO_TEMPORAL_PESO + ANALOGIA_PESO
+        total_base = _base_sum + PPMI_VECTOR_WEIGHT + SDM_SCORING_PESO + RESONANCIA_PESO + NCD_PESO + COMUNIDAD_PESO + EPISODIO_TEMPORAL_PESO + ANALOGIA_PESO + CAMPO_POTENCIAL_PESO
         base_weight = (1.0 - jsd_weight) / total_base if total_base > 0 else 0.0
 
         score = (
@@ -3944,7 +3951,8 @@ class SQLiteMemoryBioRAG:
                 NCD_PESO * ncd_score +  # E6: 1-NCD zlib, solo pool
                 COMUNIDAD_PESO * comunidad_score +  # E11
                 EPISODIO_TEMPORAL_PESO * episodio_score +  # F2: afinidad temporal pool
-                ANALOGIA_PESO * analogia_score  # F3: analogia relacional PPMI
+                ANALOGIA_PESO * analogia_score +  # F3: analogia relacional PPMI
+                CAMPO_POTENCIAL_PESO * campo_score  # F5: campo semantico PPMI
             ) +
             jsd_weight * jsd_score           # Signal #11: JSD distributional overlap
         )
@@ -6316,6 +6324,19 @@ class SQLiteMemoryBioRAG:
             except Exception:
                 analogia_map = {}
 
+        # F5: campo semantico. Peso 0 -> dict vacio, ni gauss ni matmul.
+        campo_map = {}
+        if CAMPO_POTENCIAL_PESO > 0.0 and todos and _ppmi_vq is not None:
+            try:
+                from core.ppmi_hybrid_search import calcular_campo_potencial_ppmi
+                _pool_c = [r[1] for r in todos if r[1]][:CAMPO_K if CAMPO_K > 0 else 0]
+                if _pool_c:
+                    campo_map = calcular_campo_potencial_ppmi(
+                        self, _ppmi_vq, _pool_c, sigma=CAMPO_SIGMA
+                    )
+            except Exception:
+                campo_map = {}
+
         comunidad_map_scores = {}
         if COMUNIDAD_PESO > 0.0 and todos:
             try:
@@ -6482,6 +6503,7 @@ class SQLiteMemoryBioRAG:
                 comunidad_score=comunidad_map_scores.get(concepto, 0.0),
                 episodio_score=episodio_map.get(concepto, 0.0),
                 analogia_score=analogia_map.get(concepto, 0.0),
+                campo_score=campo_map.get(concepto, 0.0),
             )
 
 

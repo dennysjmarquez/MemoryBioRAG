@@ -259,3 +259,75 @@ def resolver_analogia_simbolica(cerebro, a: str, b: str, c: str, limite: int = 5
         return scored[: max(1, int(limite))]
     except Exception:
         return []
+
+
+# ---------------------------------------------------------------------------
+# F5: Campo Semántico Contextual (Plan Maestro, INVENCIÓN 3).
+# Φ(c) = gauss(v_c, v_q) + Σ_{k∈pool,k≠c} gauss(v_c, v_k),
+# gauss(a,b) = exp(-||a-b||²/(2σ²)). Vecs a norma unidad (libre de escala:
+# snapshot min 0.276/max 1.559). Max-normalizado a [0,1]. O(m²·d), m=pool
+# capado por el caller (CAMPO_K). 100% local. Cero GPU/embeddings/API.
+# ---------------------------------------------------------------------------
+
+def _unit(v):
+    if v is None:
+        return None
+    try:
+        a = np.asarray(v, dtype="float64").ravel()
+    except Exception:
+        return None
+    if a.size == 0:
+        return None
+    n = float(np.linalg.norm(a))
+    if not np.isfinite(n) or n < 1e-10:
+        return None
+    u = a / n
+    if not np.all(np.isfinite(u)):
+        return None
+    return u
+
+
+def calcular_campo_potencial_ppmi(cerebro, query_vec, candidatos_pool, sigma=1.0):
+    """F5: densidad de campo gaussiano por candidato. Dict {concepto: [0,1]}.
+
+    Sin vecs / sigma<=0 / pool vacío → {}. Candidatos sin vector → 0.0.
+    """
+    try:
+        sig = float(sigma)
+        if sig <= 0:
+            return {}
+        idx = getattr(cerebro, "_ppmi_index", None)
+        vecs = (idx.vecs or {}) if idx is not None else {}
+        if not vecs:
+            return {}
+        pool = [c for c in (candidatos_pool or []) if c]
+        if not pool:
+            return {}
+        mat, names = [], []
+        for c in pool:
+            u = _unit(vecs.get(c))
+            if u is not None:
+                mat.append(u)
+                names.append(c)
+        if not names:
+            return {c: 0.0 for c in pool}
+        V = np.stack(mat)  # (m, d), unitarios
+        # Gauss pool: D² = 2-2·G (unitarios), diagonal 0 (k≠c).
+        G = V @ V.T
+        D2 = np.maximum(0.0, 2.0 - 2.0 * G)
+        np.fill_diagonal(D2, np.inf)
+        Phi = np.exp(-D2 / (2.0 * sig * sig)).sum(axis=1)
+        # Término fuente query.
+        q = _unit(query_vec)
+        if q is not None:
+            if q.size == V.shape[1]:
+                D2q = np.maximum(0.0, 2.0 - 2.0 * (V @ q))
+                Phi = Phi + np.exp(-D2q / (2.0 * sig * sig))
+        m = float(np.max(Phi)) if Phi.size else 0.0
+        out = {c: 0.0 for c in pool}
+        if m > 1e-12:
+            for c, v in zip(names, Phi):
+                out[c] = min(1.0, max(0.0, float(v) / m))
+        return out
+    except Exception:
+        return {}
