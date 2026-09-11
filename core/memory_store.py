@@ -4564,6 +4564,7 @@ class SQLiteMemoryBioRAG:
         # Cada entrada guarda (item, nivel_descubierto) para el ordenamiento level-first
         contextos_con_nivel = []
         filtro_estado = " AND l.estado = 'activo'" if profundidad != "profundo" else ""
+        hubo_despertar = False
 
         for nivel in range(1, depth + 1):
             siguiente_frontera = []
@@ -4595,6 +4596,23 @@ class SQLiteMemoryBioRAG:
                         continue
                     vecinos_padre_vistos.add(vecino_concepto)
                     
+                    # Despertar bajo demanda (wake-on-access con refuerzo LTP) si la búsqueda es profunda:
+                    # Cuando la búsqueda solicita profundidad="profundo", los nodos en estado 'dormido'
+                    # alcanzados por resonancia sináptica son reactivados, reciben incremento LTP (+0.15)
+                    # y se actualiza su marca temporal de acceso, respetando la intención de búsqueda.
+                    if profundidad == "profundo" and row[3] == "dormido":
+                        nuevo_peso = min(1.0, (row[2] or 0.5) + 0.15)
+                        self.cursor.execute(
+                            "UPDATE largo_plazo SET estado = 'activo', peso_sinaptico = ?, ultimo_acceso = ? WHERE concepto = ?",
+                            (nuevo_peso, time.time(), vecino_concepto),
+                        )
+                        vecino_peso = nuevo_peso
+                        vecino_estado = "activo"
+                        hubo_despertar = True
+                    else:
+                        vecino_peso = row[2]
+                        vecino_estado = row[3]
+
                     # Atenuación del score híbrido según la distancia
                     score_contexto = round(min(1.0, score_actual * 0.6 + min(row[5], 1.0) * 0.2), 4)
 
@@ -4606,6 +4624,10 @@ class SQLiteMemoryBioRAG:
                             nuevo_score = round(min(1.0, old_item[4] + boost_multi), 4)
                             list_item = list(old_item)
                             list_item[4] = nuevo_score
+                            # Si despertó en esta pasada, reflejar estado activo y peso actualizado
+                            if profundidad == "profundo" and list_item[3] == "dormido":
+                                list_item[2] = vecino_peso
+                                list_item[3] = "activo"
                             updated_item = tuple(list_item)
                             vistos[vecino_concepto] = updated_item
                             for idx_ctx, (ci, niv) in enumerate(contextos_con_nivel):
@@ -4620,7 +4642,7 @@ class SQLiteMemoryBioRAG:
                         if len(vecino_contenido) > preview_chars:
                             vecino_contenido = vecino_contenido[:preview_chars] + "..."
                             
-                    new_item = (vecino_concepto, vecino_contenido, row[2], row[3], score_contexto, row[4] or "")
+                    new_item = (vecino_concepto, vecino_contenido, vecino_peso, vecino_estado, score_contexto, row[4] or "")
                     contextos_con_nivel.append((new_item, nivel))  # guarda nivel para level-first sort
                     vistos[vecino_concepto] = new_item
                     siguiente_frontera.append(new_item)
@@ -4629,6 +4651,9 @@ class SQLiteMemoryBioRAG:
             frontera = siguiente_frontera
             if not frontera:
                 break
+
+        if hubo_despertar:
+            self.conn.commit()
 
         # Level-first ordering: nodos más cercanos al grafo de primarios siempre
         # tienen prioridad sobre nodos más lejanos. Dentro del mismo nivel, el
