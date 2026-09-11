@@ -8,6 +8,7 @@ Combina:
   3. Multi-hop synapse propagation (decay=0.4) para rescatar nodos conectados hebbianamente.
 """
 import math
+import re
 import sqlite3
 import numpy as np
 from pathlib import Path
@@ -177,3 +178,84 @@ def buscar_hibrido(query: str, con_or_db, top_k: int = 10) -> list[dict]:
 
     resultados.sort(key=lambda x: -x['score'])
     return resultados[:top_k]
+
+
+# ---------------------------------------------------------------------------
+# F3: Analogía Relacional Simbólica (Plan Maestro, INVENCIÓN 5).
+# A:B :: C:D  →  v = vec(C) + (vec(B) - vec(A)), ranking por coseno.
+# 100% local sobre vecs PPMI+SVD 100-dim existentes. Cero GPU/embeddings/API.
+# ---------------------------------------------------------------------------
+
+_PATRON_ANALOGIA_1 = re.compile(
+    r"^\s*(?:como\s+)?(.+?)\s+es\s+a\s+(.+?)\s+como\s+(.+?)"
+    r"\s+(?:es\s+a|qu[eé]\s+es)\s*\??\s*$",
+    re.IGNORECASE,
+)
+_PATRON_ANALOGIA_2 = re.compile(
+    r"^\s*como\s+(.+?)\s+es\s+a\s+(.+?)\s*,\s*qu[eé]\s+es\s+(.+?)\s*\??\s*$",
+    re.IGNORECASE,
+)
+
+
+def detectar_analogia(query: str):
+    """F3: (a, b, c) si la query es analogía explícita, None si no.
+
+    Formas: "A es a B como C es a ?" / "A es a B como C qué es" /
+    "como A es a B, qué es C". Grupos strippeados de espacios/comillas.
+    """
+    if not query or not isinstance(query, str):
+        return None
+    for pat in (_PATRON_ANALOGIA_1, _PATRON_ANALOGIA_2):
+        m = pat.match(query)
+        if not m:
+            continue
+        abc = tuple(g.strip().strip("\"'“”‘’¿?") for g in m.groups())
+        if all(abc):
+            return abc
+    return None
+
+
+def _vec_concepto(vecs: dict, nombre: str):
+    """Lookup exacto + fallback lower/strip. None si no hay vector."""
+    if not vecs or not nombre:
+        return None
+    v = vecs.get(nombre)
+    if v is None:
+        v = vecs.get(str(nombre).lower().strip())
+    return v
+
+
+def resolver_analogia_simbolica(cerebro, a: str, b: str, c: str, limite: int = 5):
+    """F3: resuelve A:B :: C:? por álgebra PPMI local.
+
+    v = vec(c) + (vec(b) - vec(a)); ranking por coseno sobre idx.vecs
+    excluyendo a/b/c y nodos sin vector. Si falta vec(a|b|c) → [].
+    Devuelve [(concepto, score_cos)] ordenado desc, top `limite`.
+    """
+    try:
+        idx = getattr(cerebro, "_ppmi_index", None)
+        vecs = (idx.vecs or {}) if idx is not None else {}
+        va = _vec_concepto(vecs, a)
+        vb = _vec_concepto(vecs, b)
+        vc = _vec_concepto(vecs, c)
+        if va is None or vb is None or vc is None:
+            return []
+        v_target = np.asarray(vc, dtype="float64") + (
+            np.asarray(vb, dtype="float64") - np.asarray(va, dtype="float64")
+        )
+        if float(np.linalg.norm(v_target)) < 1e-10:
+            return []
+        excl = {str(a).lower().strip(), str(b).lower().strip(), str(c).lower().strip()}
+        scored = []
+        for concepto, v in vecs.items():
+            if concepto is None or str(concepto).lower().strip() in excl:
+                continue
+            try:
+                s = _coseno(v_target, np.asarray(v, dtype="float64"))
+            except Exception:
+                continue
+            scored.append((concepto, float(s)))
+        scored.sort(key=lambda x: -x[1])
+        return scored[: max(1, int(limite))]
+    except Exception:
+        return []

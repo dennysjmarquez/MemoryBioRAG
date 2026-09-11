@@ -112,6 +112,11 @@ EPISODIO_VENTANA_HORAS = float(os.environ.get('BIORAG_EPISODIO_VENTANA_HORAS', '
 EPISODIO_LIMITE = int(os.environ.get('BIORAG_EPISODIO_LIMITE', '5'))
 EPISODIO_BUCKET_SEG = float(os.environ.get('BIORAG_EPISODIO_BUCKET_SEG', str(86400)))
 
+# F3: analogia relacional simbolica sobre PPMI 100-dim. Peso 0 = OFF. Cap 0.08.
+_an_raw = float(os.environ.get('BIORAG_ANALOGIA_PESO', '0'))
+ANALOGIA_PESO = 0.0 if _an_raw <= 0 else min(_an_raw, 0.08)
+ANALOGIA_DETECTAR = os.environ.get('BIORAG_ANALOGIA_DETECTAR', '0').lower() in ('1', 'true', 'yes')
+
 BAYESIAN_BM25 = os.environ.get('BIORAG_BAYESIAN_BM25', 'false').lower() == 'true'
 """Activar calibración Bayesian BM25 (sigmoid) en vez de normalización fija x/(x+3).
 Override: export BIORAG_BAYESIAN_BM25=true"""
@@ -3671,6 +3676,33 @@ class SQLiteMemoryBioRAG:
             out[c] = 1.0 if counts.get(int(t // buck), 0) >= 2 else 0.0
         return out
 
+    def _analogia_scores_pool(self, v_target, pool):
+        """F3: coseno de cada candidato vs vector analogia v_target. O(k*d), clamp [0,1]."""
+        if ANALOGIA_PESO <= 0 or v_target is None or not pool:
+            return {}
+        try:
+            import numpy as np
+            vecs = (self._ppmi_index.vecs or {}) if self._ppmi_index else {}
+            vt = np.asarray(v_target, dtype="float64")
+            nvt = float(np.linalg.norm(vt))
+            if nvt < 1e-10 or not vecs:
+                return {}
+            out = {}
+            for c in pool:
+                if not c:
+                    continue
+                v = vecs.get(c)
+                if v is None:
+                    out[c] = 0.0
+                    continue
+                vv = np.asarray(v, dtype="float64")
+                nv = float(np.linalg.norm(vv))
+                s = float(np.dot(vt, vv) / (nvt * nv)) if nv > 1e-10 else 0.0
+                out[c] = min(1.0, max(0.0, s))
+            return out
+        except Exception:
+            return {}
+
     def _asegurar_idf_dimensiones(self):
         """E9: DF por dimension_id una vez. IDF = ln(1+(N-DF+0.5)/(DF+0.5))."""
         if getattr(self, "_dim_idf_map", None) is not None:
@@ -3845,7 +3877,8 @@ class SQLiteMemoryBioRAG:
                                 resonancia_score: float = 0.0,
                                 ncd_score: float = 0.0,
                                 comunidad_score: float = 0.0,
-                                episodio_score: float = 0.0):
+                                episodio_score: float = 0.0,
+                                analogia_score: float = 0.0):
         """Score hibrido: senales + JSD + Predicados + PPMI + Hub + SDM (E2) + resonancia (E5).
         grupo_score: similitud por grupo semántico WordNet (coseno binario).
         tematico_score: similitud temática por ausencia/presencia de dimensiones (IDF).
@@ -3877,7 +3910,7 @@ class SQLiteMemoryBioRAG:
         }
         _base_sum = sum(_base_weights.values())  # 1.39
         # E2: SDM entra en el denominador para que el peso no infle el total.
-        total_base = _base_sum + PPMI_VECTOR_WEIGHT + SDM_SCORING_PESO + RESONANCIA_PESO + NCD_PESO + COMUNIDAD_PESO + EPISODIO_TEMPORAL_PESO
+        total_base = _base_sum + PPMI_VECTOR_WEIGHT + SDM_SCORING_PESO + RESONANCIA_PESO + NCD_PESO + COMUNIDAD_PESO + EPISODIO_TEMPORAL_PESO + ANALOGIA_PESO
         base_weight = (1.0 - jsd_weight) / total_base if total_base > 0 else 0.0
 
         score = (
@@ -3899,7 +3932,8 @@ class SQLiteMemoryBioRAG:
                 RESONANCIA_PESO * resonancia_score +  # E5: convergencia multi-semilla, solo pool
                 NCD_PESO * ncd_score +  # E6: 1-NCD zlib, solo pool
                 COMUNIDAD_PESO * comunidad_score +  # E11
-                EPISODIO_TEMPORAL_PESO * episodio_score  # F2: afinidad temporal pool
+                EPISODIO_TEMPORAL_PESO * episodio_score +  # F2: afinidad temporal pool
+                ANALOGIA_PESO * analogia_score  # F3: analogia relacional PPMI
             ) +
             jsd_weight * jsd_score           # Signal #11: JSD distributional overlap
         )
@@ -4780,7 +4814,7 @@ class SQLiteMemoryBioRAG:
             resultado[raiz] = filtradas
         return resultado
 
-    def buscar_por_frase(self, frase, profundidad="activos", pagina=1, limite=None, categoria=None, preview_chars=1500, historial_fallos=None, context_window=0, dimensiones_dict=None, dimensiones_ids=None, parafrasis_list=None, desde_ts=None, hasta_ts=None, modo_estricto=False, usar_inferencia=True, buscar_por_rol=None, ignore_peso_sinaptico=False, ordenar_por="relevancia", permitir_expansion_empate=False, expandir_episodio=False):
+    def buscar_por_frase(self, frase, profundidad="activos", pagina=1, limite=None, categoria=None, preview_chars=1500, historial_fallos=None, context_window=0, dimensiones_dict=None, dimensiones_ids=None, parafrasis_list=None, desde_ts=None, hasta_ts=None, modo_estricto=False, usar_inferencia=True, buscar_por_rol=None, ignore_peso_sinaptico=False, ordenar_por="relevancia", permitir_expansion_empate=False, expandir_episodio=False, analogia=False):
         """Busqueda hibrida: FTS5 trigram + peso sinaptico + asociaciones + scoring dimensional.
 
         frase: texto en lenguaje natural. Trigrams nativos de FTS5 manejan
@@ -6249,6 +6283,28 @@ class SQLiteMemoryBioRAG:
             except Exception:
                 episodio_map = {}
 
+        # F3: analogia relacional. Con flags 0 ni regex ni coseno (byte-identico).
+        analogia_map = {}
+        if (analogia or ANALOGIA_DETECTAR) and ANALOGIA_PESO > 0.0 and todos:
+            try:
+                from core.ppmi_hybrid_search import detectar_analogia, _vec_concepto
+                _abc = detectar_analogia(query)
+                if _abc and self._ppmi_index is not None:
+                    _vecs = self._ppmi_index.vecs or {}
+                    _va = _vec_concepto(_vecs, _abc[0])
+                    _vb = _vec_concepto(_vecs, _abc[1])
+                    _vc = _vec_concepto(_vecs, _abc[2])
+                    if _va is not None and _vb is not None and _vc is not None:
+                        import numpy as _np
+                        _vt = _np.asarray(_vc, dtype="float64") + (
+                            _np.asarray(_vb, dtype="float64") - _np.asarray(_va, dtype="float64")
+                        )
+                        analogia_map = self._analogia_scores_pool(
+                            _vt, [r[1] for r in todos if r[1]]
+                        )
+            except Exception:
+                analogia_map = {}
+
         comunidad_map_scores = {}
         if COMUNIDAD_PESO > 0.0 and todos:
             try:
@@ -6414,6 +6470,7 @@ class SQLiteMemoryBioRAG:
                 ncd_score=ncd_map.get(concepto, 0.0),
                 comunidad_score=comunidad_map_scores.get(concepto, 0.0),
                 episodio_score=episodio_map.get(concepto, 0.0),
+                analogia_score=analogia_map.get(concepto, 0.0),
             )
 
 
