@@ -65,6 +65,45 @@ JSD_WEIGHT = float(os.environ.get('BIORAG_JSD_WEIGHT', '0.0'))
 """Peso de JSD (señal #11) en la fórmula de scoring. 0.0=desactivado, 0.05=default activo.
 Override: export BIORAG_JSD_WEIGHT=0.05"""
 
+# E7: JSD adaptativo por Nt (tokens >=3). Default ON.
+# Base 0.05 si JSD_WEIGHT==0 (JSD estatico sigue OFF en rafaga).
+JSD_ADAPTATIVO = os.environ.get('BIORAG_JSD_ADAPTATIVO', '1').lower() in ('1', 'true', 'yes')
+JSD_ADAPT_BASE = float(os.environ.get('BIORAG_JSD_ADAPT_BASE', '0.05'))
+JSD_ADAPT_LARGO = float(os.environ.get('BIORAG_JSD_ADAPT_LARGO', '2.5'))
+JSD_ADAPT_CORTO = float(os.environ.get('BIORAG_JSD_ADAPT_CORTO', '0.5'))
+JSD_ADAPT_NT = int(os.environ.get('BIORAG_JSD_ADAPT_NT', '4'))
+
+# E8: pred_score (SRL) solo si hay predicado extraido o Nt>=3.
+SRL_CONDICIONAL = os.environ.get('BIORAG_SRL_CONDICIONAL', '0').lower() in ('1', 'true', 'yes')
+SRL_COND_NT = int(os.environ.get('BIORAG_SRL_COND_NT', '3'))
+
+# E9: IDF de dimensiones. Cache por instancia (1 GROUP BY), O(1) por candidato.
+DIM_IDF_ACTIVO = os.environ.get('BIORAG_DIM_IDF_ACTIVO', '0').lower() in ('1', 'true', 'yes')
+
+# E10: sinapsis de sintesis DMN (peso 0.30, tope por ciclo). Default ON hasta gate.
+DMN_SINTESIS_ACTIVA = os.environ.get('BIORAG_DMN_SINTESIS_ACTIVA', '1').lower() in ('1', 'true', 'yes')
+DMN_SINTESIS_MAX = int(os.environ.get('BIORAG_DMN_SINTESIS_MAX', '8'))
+DMN_SINTESIS_PESO = float(os.environ.get('BIORAG_DMN_SINTESIS_PESO', '0.30'))
+
+# E11: coherencia de comunidad (LPA cacheado). Lookup O(1) por candidato.
+_com_peso_raw = float(os.environ.get('BIORAG_COMUNIDAD_PESO', '0'))
+COMUNIDAD_PESO = 0.0 if _com_peso_raw <= 0 else min(_com_peso_raw, 0.08)
+COMUNIDAD_TOP_K = int(os.environ.get('BIORAG_COMUNIDAD_TOP_K', '5'))
+
+# E12: Hopfield/SDM solo si ranking vacio. Cero costo si hay >=1 hit.
+HOPFIELD_FALLBACK = os.environ.get('BIORAG_HOPFIELD_FALLBACK', '0').lower() in ('1', 'true', 'yes')
+HOPFIELD_SIM_MIN = float(os.environ.get('BIORAG_HOPFIELD_SIM_MIN', '0.28'))
+HOPFIELD_SCORE_CAP = float(os.environ.get('BIORAG_HOPFIELD_SCORE_CAP', '0.45'))
+
+# E13: abstencion si top-1 < tau y origen no protegido. Default ON hasta gate.
+METACOGNICION_ACTIVA = os.environ.get('BIORAG_METACOGNICION_ACTIVA', '0').lower() in ('1', 'true', 'yes')
+METACOG_TAU = float(os.environ.get('BIORAG_METACOG_TAU', '0.35'))
+
+# F1: coherencia narrativa SRL sobre top-k (no O(N)).
+_coh_raw = float(os.environ.get('BIORAG_COHERENCIA_NARRATIVA', '0'))
+COHERENCIA_NARRATIVA_PESO = 0.0 if _coh_raw <= 0 else min(_coh_raw, 0.08)
+COHERENCIA_NARRATIVA_K = int(os.environ.get('BIORAG_COHERENCIA_NARRATIVA_K', '10'))
+
 BAYESIAN_BM25 = os.environ.get('BIORAG_BAYESIAN_BM25', 'false').lower() == 'true'
 """Activar calibración Bayesian BM25 (sigmoid) en vez de normalización fija x/(x+3).
 Override: export BIORAG_BAYESIAN_BM25=true"""
@@ -93,6 +132,50 @@ RERANKING_JACCARD_TOPK = int(os.environ.get('BIORAG_RERANKING_JACCARD_TOPK', '20
 Override: export BIORAG_RERANKING_JACCARD_TOPK=20"""
 
 RERANKING_JACCARD_WINDOW = int(os.environ.get('BIORAG_RERANKING_JACCARD_WINDOW', '50'))
+
+# E1: SDM Kanerva (2048 bits) como Fallback 2.5. Solo generación cuando el
+# pool léxico es pobre. OFF con BIORAG_SDM_FALLBACK=0. No es señal de scoring
+# (eso es E2, paso aparte).
+SDM_FALLBACK_ACTIVO = os.environ.get('BIORAG_SDM_FALLBACK', '1').lower() in ('1', 'true', 'yes')
+SDM_FALLBACK_K = int(os.environ.get('BIORAG_SDM_FALLBACK_K', '5'))
+
+# E2: SDM como señal de scoring sobre el POOL, no sobre el corpus.
+# Peso suave 0.05–0.08 (cap 0.08). 0 = OFF, cero overhead.
+# Independiente del tamaño N: un SELECT por PK del pool.
+# Default 0: A/B 921 con 0.06 bajó R@5 97.03→96.91 (1 fallo extra).
+# Fórmula sí suma sdm_score; ON con BIORAG_SDM_SCORING_PESO=0.06.
+_sdm_peso_raw = float(os.environ.get('BIORAG_SDM_SCORING_PESO', '0'))
+SDM_SCORING_PESO = 0.0 if _sdm_peso_raw <= 0 else min(_sdm_peso_raw, 0.08)
+
+# E3: QCR ponderado por IDF. Default ON. Umbral 0.30–0.45 (default 0.40).
+# OFF: BIORAG_QCR_IDF=0 vuelve al ratio no ponderado 0.50.
+QCR_IDF_ACTIVO = os.environ.get('BIORAG_QCR_IDF', '1').lower() in ('1', 'true', 'yes')
+QCR_IDF_UMBRAL = float(os.environ.get('BIORAG_QCR_IDF_UMBRAL', '0.40'))
+
+# E4 spreading proactivo: generacion 1-2 hop desde el pool lexico (no solo pool<3).
+SPREADING_PROACTIVO = os.environ.get('BIORAG_SPREADING_PROACTIVO', '0').lower() in ('1', 'true', 'yes')
+SPREADING_TOP_N = int(os.environ.get('BIORAG_SPREADING_TOP_N', '40'))
+SPREADING_HOPS = int(os.environ.get('BIORAG_SPREADING_HOPS', '2'))
+SPREADING_GAMMA = float(os.environ.get('BIORAG_SPREADING_GAMMA', '0.65'))
+SPREADING_PESO_MIN = float(os.environ.get('BIORAG_SPREADING_PESO_MIN', '0.30'))
+SPREADING_ENERGIA_MIN = float(os.environ.get('BIORAG_SPREADING_ENERGIA_MIN', '0.18'))
+SPREADING_MAX_INJECT = int(os.environ.get('BIORAG_SPREADING_MAX_INJECT', '12'))
+SPREADING_QCR_MIN = float(os.environ.get('BIORAG_SPREADING_QCR_MIN', '0.35'))
+
+# E5: resonancia multi-semilla (interferencia constructiva). Solo vecinos del
+# top-K lexico que YA estan en el pool. No scan O(N). Peso 0 = OFF.
+RESONANCIA_ACTIVA = os.environ.get('BIORAG_RESONANCIA_ACTIVA', '0').lower() in ('1', 'true', 'yes')
+_res_peso_raw = float(os.environ.get('BIORAG_RESONANCIA_PESO', '0.08'))
+RESONANCIA_PESO = 0.0 if (not RESONANCIA_ACTIVA or _res_peso_raw <= 0) else min(_res_peso_raw, 0.08)
+RESONANCIA_BETA = float(os.environ.get('BIORAG_RESONANCIA_BETA', '0.50'))
+RESONANCIA_TOP_K = int(os.environ.get('BIORAG_RESONANCIA_TOP_K', '8'))
+RESONANCIA_PESO_MIN = float(os.environ.get('BIORAG_RESONANCIA_PESO_MIN', '0.30'))
+
+# E6: NCD zlib (Li et al. 2004). Senal O(k) sobre el pool, no O(N).
+# Default peso 0.05; 0 = OFF. Cap 0.08. Solo stdlib zlib.
+_ncd_peso_raw = float(os.environ.get('BIORAG_NCD_PESO', '0.05'))
+NCD_PESO = 0.0 if _ncd_peso_raw <= 0 else min(_ncd_peso_raw, 0.08)
+NCD_ZLIB_LEVEL = int(os.environ.get('BIORAG_NCD_ZLIB_LEVEL', '6'))
 
 GABA_ACTIVO = os.environ.get('BIORAG_GABA_ACTIVO', '1').lower() in ('1', 'true', 'yes')
 """Activar inhibición lateral GABA (Edelman 1987): atenúa competidores secundarios cuando top-1 es atractor fuerte.
@@ -142,14 +225,14 @@ class SQLiteMemoryBioRAG:
         if db_path:
             self.db_path = db_path
         else:
-            self.db_path = os.environ.get('BIORAG_PATH') or os.path.join(
-                os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
-                "MemoryBioRAG_Data", "memory_biorag.db"
-            )
+            from core.paths import resolve_db_path
+            self.db_path = resolve_db_path()
         if self.db_path != ":memory:":
             os.makedirs(os.path.dirname(self.db_path), exist_ok=True)
         # Conectar a SQLite
-        self.conn = sqlite3.connect(self.db_path, timeout=60)
+        # check_same_thread=False: MCP/WAL reutiliza la instancia entre tools.
+        self.conn = sqlite3.connect(self.db_path, timeout=60, check_same_thread=False)
+        self._persistente = False
         self.conn.execute("PRAGMA journal_mode=WAL")
         self.conn.execute("PRAGMA synchronous=NORMAL")
         self.conn.execute("PRAGMA busy_timeout=5000")
@@ -195,6 +278,14 @@ class SQLiteMemoryBioRAG:
         # Buffer circular de memoria de trabajo (v19.0 Context Window)
         self._context_window = deque(maxlen=10)
         self.dmn = None
+        self._dmn_sintesis_hecha = False
+        if DMN_SINTESIS_ACTIVA:
+            try:
+                from core.dmn_engine import sintetizar_sinapsis_dmn
+                sintetizar_sinapsis_dmn(self, max_n=DMN_SINTESIS_MAX)
+                self._dmn_sintesis_hecha = True
+            except Exception:
+                pass
         # v22.1: Cache for thematic scores (precomputed once)
         self._thematic_scores_cache = None
         self._thematic_profiles_cache = None
@@ -1102,6 +1193,12 @@ class SQLiteMemoryBioRAG:
         except Exception as _e_ch:
             logger.warning(f"No se pudieron inicializar tablas de Concept Hub: {_e_ch}")
 
+        try:
+            from core.lexical_learning import inicializar_tablas_lexicas
+            inicializar_tablas_lexicas(self)
+        except Exception as _e_lex:
+            logger.warning(f"No se pudieron inicializar tablas léxicas: {_e_lex}")
+
         self.conn.commit()
 
     def _asegurar_catalogo_dimensiones(self):
@@ -1272,6 +1369,39 @@ class SQLiteMemoryBioRAG:
                 ('capacidad', 'Soy capaz o no soy capaz de hacerlo: poder de hecho', (SELECT id FROM tipos_dimension WHERE nombre='modalidad'))
         """)
         self.conn.commit()
+
+    def _idf_tokens_qcr(self, tokens):
+        """IDF de tokens de query para QCR. Cache por instancia. DF vía FTS5 MATCH (índice), no scan del corpus."""
+        if not getattr(self, "_qcr_idf_cache", None):
+            self._qcr_idf_cache = {}
+        if getattr(self, "_qcr_n_docs", None) is None:
+            try:
+                self._qcr_n_docs = max(
+                    1, int(self.cursor.execute("SELECT COUNT(*) FROM largo_plazo").fetchone()[0] or 1)
+                )
+            except Exception:
+                self._qcr_n_docs = 1
+        out = {}
+        n = self._qcr_n_docs
+        for t in tokens:
+            if t in self._qcr_idf_cache:
+                out[t] = self._qcr_idf_cache[t]
+                continue
+            df = 0
+            try:
+                safe = (t or "").replace('"', "")
+                if safe:
+                    self.cursor.execute(
+                        "SELECT COUNT(*) FROM largo_plazo_fts WHERE largo_plazo_fts MATCH ?",
+                        (f'"{safe}"',),
+                    )
+                    df = int(self.cursor.fetchone()[0] or 0)
+            except Exception:
+                df = 0
+            idf = math.log((n + 1) / (df + 1)) + 1.0
+            self._qcr_idf_cache[t] = idf
+            out[t] = idf
+        return out
 
     def _calcular_jaccard(self, str1, str2):
         """Calcula la similitud de Jaccard entre dos cadenas en base a sub-palabras de 3 caracteres (Trigramas)."""
@@ -2185,6 +2315,14 @@ class SQLiteMemoryBioRAG:
         # Si dos conceptos aparecieron en la misma sesión (corto_plazo), co-ocurren.
         # También analiza comunicaciones para detectar co-ocurrencia en mensajes.
         self._auto_generar_co_ocurrencia(recuerdos_sesion)
+
+        # E10: aristas dmn_synthesized (tope, nodos activos, dim o co-ocurrencia).
+        if DMN_SINTESIS_ACTIVA:
+            try:
+                from core.dmn_engine import sintetizar_sinapsis_dmn
+                sintetizar_sinapsis_dmn(self, max_n=DMN_SINTESIS_MAX)
+            except Exception:
+                pass
 
         # Inferencia transitiva: recalcular sinapsis latentes (v16.0)
         # max_saltos=2: cubre A→B→C (transitivo de 1 intermediario), cobertura suficiente
@@ -3133,6 +3271,308 @@ class SQLiteMemoryBioRAG:
         resultados.sort(key=lambda x: x[1], reverse=True)
         return resultados[:limite], parent_map
 
+    def _spreading_proactivo(self, semillas, max_hops=None, gamma=None, peso_min=None):
+        """E4 BFS Hebbiano desde semillas. UNION ALL, no UNION alfabetico.
+
+        Fallback 1.9/2.2 solo corre si pool < 3. Aqui 1-2 hop desde top-N.
+        No fusiona nodos. No reescribe SDM.
+        """
+        if max_hops is None:
+            max_hops = SPREADING_HOPS
+        if gamma is None:
+            gamma = SPREADING_GAMMA
+        if peso_min is None:
+            peso_min = SPREADING_PESO_MIN
+        max_vecinos = int(os.environ.get("BIORAG_MAX_VECINOS_POR_NODO", "6"))
+        visitados = set(semillas)
+        frontera = list(semillas)
+        found = {}
+        parent_map = {}
+        for salto in range(max_hops):
+            decay = gamma ** (salto + 1)
+            nxt = []
+            for nodo in frontera:
+                self.cursor.execute(
+                    "SELECT destino, peso FROM sinapsis WHERE origen = ? AND peso >= ? "
+                    "UNION ALL "
+                    "SELECT origen, peso FROM sinapsis WHERE destino = ? AND peso >= ?",
+                    (nodo, peso_min, nodo, peso_min),
+                )
+                edges = sorted(self.cursor.fetchall(), key=lambda e: float(e[1] or 0), reverse=True)
+                vistos_local = set()
+                n_ok = 0
+                for vecino, peso in edges:
+                    if vecino in vistos_local or vecino in visitados:
+                        continue
+                    vistos_local.add(vecino)
+                    n_ok += 1
+                    if n_ok > max_vecinos:
+                        break
+                    energia = float(peso or 0.0) * decay
+                    if energia < SPREADING_ENERGIA_MIN:
+                        continue
+                    prev = found.get(vecino, 0.0)
+                    if energia > prev:
+                        found[vecino] = energia
+                        parent_map[vecino] = (nodo, float(peso or 0.0))
+                    nxt.append(vecino)
+            for v in nxt:
+                visitados.add(v)
+            frontera = nxt
+            if not frontera:
+                break
+        ranked = sorted(found.items(), key=lambda x: x[1], reverse=True)
+        return ranked, parent_map
+
+    def _resonancia_multi_semilla(self, semillas, pool):
+        """E5: Act(s->n) sumada x (1+beta*(k-1)) sobre vecinos del pool.
+
+        POR QUE no corpus: cada semilla hace 1 SELECT de aristas; n solo cuenta
+        si ya esta en `pool`. k=semillas distintas que alcanzan n.
+        """
+        if not semillas or not pool:
+            return {}
+        pool = set(pool)
+        act = {}
+        hits = {}
+        peso_min = RESONANCIA_PESO_MIN
+        max_vecinos = int(os.environ.get("BIORAG_MAX_VECINOS_POR_NODO", "6"))
+        for s in semillas:
+            if not s:
+                continue
+            self.cursor.execute(
+                "SELECT destino, peso FROM sinapsis WHERE origen = ? AND peso >= ? "
+                "UNION ALL "
+                "SELECT origen, peso FROM sinapsis WHERE destino = ? AND peso >= ?",
+                (s, peso_min, s, peso_min),
+            )
+            edges = sorted(self.cursor.fetchall(), key=lambda e: float(e[1] or 0), reverse=True)
+            n_ok = 0
+            vistos = set()
+            for vecino, peso in edges:
+                if vecino in vistos or vecino == s or vecino not in pool:
+                    continue
+                vistos.add(vecino)
+                n_ok += 1
+                if n_ok > max_vecinos:
+                    break
+                w = float(peso or 0.0)
+                act[vecino] = act.get(vecino, 0.0) + w
+                hits.setdefault(vecino, set()).add(s)
+        out = {}
+        beta = RESONANCIA_BETA
+        mx = 0.0
+        for n, a in act.items():
+            k = len(hits.get(n, ()))
+            val = a * (1.0 + beta * max(0, k - 1))
+            out[n] = val
+            if val > mx:
+                mx = val
+        if mx > 0:
+            out = {n: min(1.0, v / mx) for n, v in out.items()}
+        return out
+
+    @staticmethod
+    def _ncd_sim(a, b, level=None):
+        """Sim_NCD = 1 - NCD(x,y) con zlib. C(s)=len(compress(utf-8))."""
+        import zlib
+        if level is None:
+            level = NCD_ZLIB_LEVEL
+        xa = (a or "").encode("utf-8", errors="ignore")
+        yb = (b or "").encode("utf-8", errors="ignore")
+        if not xa or not yb:
+            return 0.0
+        def _c(blob):
+            return max(1, len(zlib.compress(blob, level)))
+        cx, cy = _c(xa), _c(yb)
+        cxy = _c(xa + yb)
+        ncd = (cxy - min(cx, cy)) / float(max(cx, cy))
+        return max(0.0, min(1.0, 1.0 - ncd))
+
+    def _ncd_sims_pool(self, query, filas):
+        """NCD query vs concepto+contenido de cada fila del pool. O(k)."""
+        if not query or not filas:
+            return {}
+        q = (query or "").strip()
+        out = {}
+        for conc, texto in filas:
+            if not conc:
+                continue
+            out[conc] = self._ncd_sim(q, f"{conc} {texto or ''}")
+        return out
+
+    def _asegurar_mapa_comunidades(self):
+        """E11: LPA una vez. Mapa concepto -> community_id. Path caliente O(1)."""
+        if getattr(self, "_comunidad_map", None) is not None:
+            return self._comunidad_map
+        labels = {}
+        try:
+            self.cursor.execute(
+                "SELECT concepto FROM largo_plazo WHERE estado = 'activo'"
+            )
+            nodos = [r[0] for r in self.cursor.fetchall()]
+            nodos_set = set(nodos)
+            adj = {n: {} for n in nodos}
+            self.cursor.execute(
+                "SELECT origen, destino, peso FROM sinapsis WHERE peso >= 0.1"
+            )
+            for orig, dest, peso in self.cursor.fetchall():
+                if orig in nodos_set and dest in nodos_set:
+                    w = float(peso or 0.0)
+                    adj[orig][dest] = max(adj[orig].get(dest, 0.0), w)
+                    adj[dest][orig] = max(adj[dest].get(orig, 0.0), w)
+            labels = {n: n for n in nodos}
+            import random
+            rng = random.Random(42)
+            for _ in range(20):
+                cambios = 0
+                orden = list(nodos)
+                rng.shuffle(orden)
+                for u in orden:
+                    vecinos = adj.get(u) or {}
+                    if not vecinos:
+                        continue
+                    pesos_lbl = {}
+                    for v, w in vecinos.items():
+                        lbl = labels[v]
+                        pesos_lbl[lbl] = pesos_lbl.get(lbl, 0.0) + w
+                    if not pesos_lbl:
+                        continue
+                    max_lbl = max(pesos_lbl.items(), key=lambda x: x[1])[0]
+                    if labels[u] != max_lbl:
+                        labels[u] = max_lbl
+                        cambios += 1
+                if cambios == 0:
+                    break
+        except Exception:
+            labels = {}
+        self._comunidad_map = labels
+        return labels
+
+    def _comunidad_scores_pool(self, semillas, pool):
+        """1.0 si el candidato comparte la comunidad mayoritaria de semillas."""
+        if COMUNIDAD_PESO <= 0 or not pool:
+            return {}
+        mp = self._asegurar_mapa_comunidades()
+        from collections import Counter
+        votes = Counter()
+        for s in semillas[:COMUNIDAD_TOP_K]:
+            cid = mp.get(s)
+            if cid is not None:
+                votes[cid] += 1
+        if not votes:
+            return {c: 0.0 for c in pool}
+        top_c = votes.most_common(1)[0][0]
+        return {c: (1.0 if mp.get(c) == top_c else 0.0) for c in pool}
+
+    @staticmethod
+    def _jsd_weight_adaptativo(query, n_tokens=None):
+        """E7: JSD_WEIGHT * 2.5 si Nt>=4, *0.5 si Nt<4. OFF: JSD_WEIGHT estatico."""
+        if not JSD_ADAPTATIVO:
+            return float(JSD_WEIGHT)
+        if n_tokens is None:
+            n_tokens = len(re.findall(r"\w{3,}", query or ""))
+        base = JSD_WEIGHT if JSD_WEIGHT > 0.0 else JSD_ADAPT_BASE
+        if n_tokens >= JSD_ADAPT_NT:
+            w = base * JSD_ADAPT_LARGO
+        else:
+            w = base * JSD_ADAPT_CORTO
+        return max(0.0, min(0.20, w))
+
+    @staticmethod
+    def _srl_predicado_informativo(query, n_tokens=None):
+        """E8: True si extrae >=1 predicado o Nt>=3. OFF: siempre True."""
+        if not SRL_CONDICIONAL:
+            return True
+        if n_tokens is None:
+            n_tokens = len(re.findall(r"\w{3,}", query or ""))
+        if n_tokens >= SRL_COND_NT:
+            return True
+        try:
+            from core.srl_extractor import extraer_predicados_determinista
+            preds = extraer_predicados_determinista(query or "")
+            return bool(preds)
+        except Exception:
+            return False
+
+    def _evaluar_coherencia_narrativa(self, conceptos):
+        """F1: 1.0 si hay transicion causal SRL (objeto<->sujeto) entre el top-k."""
+        if COHERENCIA_NARRATIVA_PESO <= 0 or not conceptos:
+            return {}
+        stop = {"desconocido", "evento", "general", "el", "la", "los", "las"}
+        out = {c: 0.0 for c in conceptos if c}
+        ph = ",".join("?" * len(out))
+        if not ph:
+            return {}
+        by_c = {}
+        try:
+            self.cursor.execute(
+                f"SELECT concepto, sujeto, accion, objeto FROM predicados "
+                f"WHERE concepto IN ({ph})",
+                list(out.keys()),
+            )
+            for conc, suj, acc, obj in self.cursor.fetchall():
+                by_c.setdefault(conc, []).append((suj or "", acc or "", obj or ""))
+        except Exception:
+            return out
+
+        def _toks(s):
+            return {w for w in re.findall(r"\w{3,}", (s or "").lower()) if w not in stop}
+
+        keys = list(out.keys())
+        for i, a in enumerate(keys):
+            pa = by_c.get(a) or []
+            if not pa:
+                continue
+            for b in keys[i + 1 :]:
+                pb = by_c.get(b) or []
+                if not pb:
+                    continue
+                hit = False
+                for sa, aa, oa in pa:
+                    ta, toa = _toks(sa), _toks(oa)
+                    for sb, ab, ob in pb:
+                        tb, tob = _toks(sb), _toks(ob)
+                        if (toa and tb and toa & tb) or (tob and ta and tob & ta):
+                            hit = True
+                            break
+                        if aa and ab and aa == ab and (toa & tob or ta & tb):
+                            hit = True
+                            break
+                    if hit:
+                        break
+                if hit:
+                    out[a] = 1.0
+                    out[b] = 1.0
+        return out
+
+    def _asegurar_idf_dimensiones(self):
+        """E9: DF por dimension_id una vez. IDF = ln(1+(N-DF+0.5)/(DF+0.5))."""
+        if getattr(self, "_dim_idf_map", None) is not None:
+            return self._dim_idf_map
+        idf = {}
+        try:
+            n = int(self.cursor.execute("SELECT COUNT(*) FROM largo_plazo").fetchone()[0] or 1)
+            n = max(1, n)
+            self.cursor.execute(
+                "SELECT dimension_id, COUNT(*) FROM largo_plazo_dimensiones GROUP BY dimension_id"
+            )
+            for dim_id, df in self.cursor.fetchall():
+                d = float(df or 0)
+                idf[int(dim_id)] = math.log(1.0 + (n - d + 0.5) / (d + 0.5))
+            self._dim_idf_n = n
+        except Exception:
+            idf = {}
+            self._dim_idf_n = 1
+        self._dim_idf_map = idf
+        return idf
+
+    def _peso_dim_con_idf(self, d_id, base=1.0):
+        if not DIM_IDF_ACTIVO:
+            return float(base)
+        mp = self._asegurar_idf_dimensiones()
+        return float(base) * float(mp.get(int(d_id), 1.0))
+
     def _generar_variaciones(self, query, historial_fallos=None):
         """Genera variaciones de la query basadas en el historial de fallos.
         
@@ -3275,15 +3715,20 @@ class SQLiteMemoryBioRAG:
                                 jsd_weight: float = 0.0,
                                 pred_score: float = 0.0,
                                 ppmi_score: float = 0.0,
-                                hub_match: float = 0.0):
-        """Score híbrido unificado: 10 señales ortogonales + JSD (signal #11) + Predicados (signal #12) + PPMI+SVD (signal #13) + Concept Hub (signal #14).
+                                hub_match: float = 0.0,
+                                sdm_score: float = 0.0,
+                                resonancia_score: float = 0.0,
+                                ncd_score: float = 0.0,
+                                comunidad_score: float = 0.0):
+        """Score hibrido: senales + JSD + Predicados + PPMI + Hub + SDM (E2) + resonancia (E5).
         grupo_score: similitud por grupo semántico WordNet (coseno binario).
         tematico_score: similitud temática por ausencia/presencia de dimensiones (IDF).
         match_exacto: preserva precisión en búsquedas por nombre exacto (floor 0.5).
         jsd_score: Jensen-Shannon Divergence como similitud [0,1].
         jsd_weight: peso de JSD en la fórmula (0.0 = desactivado, 0.05 = default activo).
         pred_score: matching de query tokens contra predicados SRL [0,1].
-        ppmi_score: similitud vectorial PPMI+SVD+Retrofitting normalizada [0,1]. Signal #13 (v26.0)."""
+        ppmi_score: similitud vectorial PPMI+SVD+Retrofitting normalizada [0,1]. Signal #13 (v26.0).
+        sdm_score: Jaccard ponderado del vector binario 2048 bits vs query [0,1]. Solo pool."""
         asoc_norm = min(1.0, asoc_count / 20.0)
         peso_norm = min(1.0, peso_sinaptico)
 
@@ -3305,8 +3750,9 @@ class SQLiteMemoryBioRAG:
             "temporal": 0.04, "asoc": 0.02, "pred": 0.20, "hub": 0.20,
         }
         _base_sum = sum(_base_weights.values())  # 1.39
-        total_base = _base_sum + PPMI_VECTOR_WEIGHT  # 1.54
-        base_weight = (1.0 - jsd_weight) / total_base
+        # E2: SDM entra en el denominador para que el peso no infle el total.
+        total_base = _base_sum + PPMI_VECTOR_WEIGHT + SDM_SCORING_PESO + RESONANCIA_PESO + NCD_PESO + COMUNIDAD_PESO
+        base_weight = (1.0 - jsd_weight) / total_base if total_base > 0 else 0.0
 
         score = (
             base_weight * (
@@ -3322,7 +3768,11 @@ class SQLiteMemoryBioRAG:
                 0.02 * asoc_norm +           # Asociaciones
                 0.20 * pred_score +          # Signal #12: Predicados SRL
                 PPMI_VECTOR_WEIGHT * ppmi_score +  # Signal #13: PPMI+SVD
-                0.20 * hub_match              # Signal #14: Concept Hub
+                0.20 * hub_match +            # Signal #14: Concept Hub
+                SDM_SCORING_PESO * sdm_score +  # E2: Hamming 2048 bits, solo pool
+                RESONANCIA_PESO * resonancia_score +  # E5: convergencia multi-semilla, solo pool
+                NCD_PESO * ncd_score +  # E6: 1-NCD zlib, solo pool
+                COMUNIDAD_PESO * comunidad_score  # E11: LPA mayoritaria, O(1)
             ) +
             jsd_weight * jsd_score           # Signal #11: JSD distributional overlap
         )
@@ -5074,6 +5524,42 @@ class SQLiteMemoryBioRAG:
             except Exception:
                 pass
 
+        # ─── Fallback 2.5 (E1): SDM binario 2048 bits ───
+        # POR QUÉ aquí y no en scoring: el gold ausente del pool no se recupera
+        # reordenando. Solo se activa si FTS+fallbacks dejaron < 3 candidatos y
+        # la consulta tiene ≥ 3 tokens (consultas negativas cortas no disparan).
+        # No toca layout SDM. No fusiona nodos. QCR sigue activo (FP).
+        if (
+            SDM_FALLBACK_ACTIVO
+            and not modo_estricto
+            and len(todos) < 3
+            and len(re.findall(r"\w{2,}", query or "")) >= 3
+        ):
+            try:
+                from core.sdm import rescatar_fallback_sdm
+                _sdm_hits = rescatar_fallback_sdm(
+                    self, query, limite=max(SDM_FALLBACK_K, limite or 5)
+                )
+                _seen_sdm = {r[1] for r in todos}
+                for hit in _sdm_hits:
+                    conc = hit["concepto"]
+                    if conc in _seen_sdm:
+                        if conc not in origen_scores:
+                            origen_scores[conc] = ("sdm", float(hit["similitud"]))
+                        continue
+                    self.cursor.execute(
+                        "SELECT rowid, concepto, contenido, peso_sinaptico, estado, asociaciones "
+                        "FROM largo_plazo WHERE concepto = ?",
+                        (conc,),
+                    )
+                    row = self.cursor.fetchone()
+                    if row and (profundidad == "profundo" or row[4] == "activo"):
+                        todos.append(row)
+                        _seen_sdm.add(conc)
+                        origen_scores[conc] = ("sdm", float(hit["similitud"]))
+            except Exception:
+                pass
+
         # ─── Merge: inyectar resultados de concepto no encontrados por FTS5 ───
 
         if resultados_concepto:
@@ -5133,6 +5619,32 @@ class SQLiteMemoryBioRAG:
                     if row and (profundidad == "profundo" or row[4] == "activo"):
                         todos.append(row)
                         origen_scores[concepto] = ("semantica", match_ratio)
+
+        # ── Fase C: índice invertido de formas aprendidas (GENERACIÓN, no ranking).
+        # POR QUÉ aquí: el gold debe entrar al pool ANTES de _calcular_score_hibrido.
+        # No toca FTS ni pesos. Solo inyecta nodos canónicos de episodios explicit/consolidated.
+        try:
+            from core.lexical_learning import resolver_formas_aprendidas
+            _lex_hits = resolver_formas_aprendidas(self, frase_limpia or query or frase)
+            if _lex_hits:
+                _seen_lex = {r[1] for r in todos}
+                for hit in _lex_hits:
+                    conc = hit["canonical_concept"]
+                    if conc in _seen_lex:
+                        origen_scores[conc] = ("lexico_aprendido", hit["confidence"])
+                        continue
+                    self.cursor.execute(
+                        "SELECT rowid, concepto, contenido, peso_sinaptico, estado, asociaciones "
+                        "FROM largo_plazo WHERE concepto = ?",
+                        (conc,),
+                    )
+                    row = self.cursor.fetchone()
+                    if row and (profundidad == "profundo" or row[4] == "activo"):
+                        todos.append(row)
+                        _seen_lex.add(conc)
+                        origen_scores[conc] = ("lexico_aprendido", hit["confidence"])
+        except Exception:
+            pass
 
             # v22.1: Content-based expansion for por_tema queries ───
         # Find nodes where query words appear in content, but ONLY when FTS returns
@@ -5195,6 +5707,56 @@ class SQLiteMemoryBioRAG:
                 except sqlite3.OperationalError:
                     pass
 
+        # E4 spreading proactivo despues del pool lexico, aunque |todos| >= 3.
+        if (
+            os.environ.get("BIORAG_SPREADING_PROACTIVO", "0").lower() in ("1", "true", "yes")
+            and not modo_estricto
+            and todos
+            and len(query or "") >= 2
+        ):
+            try:
+                _sem_ok = {
+                    "literal", "concepto", "parafrasis", "protegido", "unicode",
+                    "contenido", "lexico_aprendido",
+                }
+                _semillas_e4 = []
+                for r in todos:
+                    conc = r[1]
+                    if not conc:
+                        continue
+                    orig = origen_scores.get(conc, ("literal", 0.0))[0]
+                    if orig in _sem_ok or conc in (fts5_conceptos or []):
+                        _semillas_e4.append(conc)
+                    if len(_semillas_e4) >= SPREADING_TOP_N:
+                        break
+                if _semillas_e4:
+                    _ev_e4, _pm_e4 = self._spreading_proactivo(_semillas_e4)
+                    if _pm_e4:
+                        self.last_parent_map = {**getattr(self, "last_parent_map", {}), **_pm_e4}
+                    _seen_e4 = {r[1] for r in todos}
+                    _iny = 0
+                    for conc_ev, energia in _ev_e4:
+                        if conc_ev in _seen_e4:
+                            continue
+                        self.cursor.execute(
+                            "SELECT rowid, concepto, contenido, peso_sinaptico, "
+                            "estado, asociaciones FROM largo_plazo WHERE concepto = ?",
+                            (conc_ev,),
+                        )
+                        row = self.cursor.fetchone()
+                        if not row:
+                            continue
+                        if profundidad != "profundo" and row[4] != "activo":
+                            continue
+                        todos.append(row)
+                        _seen_e4.add(conc_ev)
+                        origen_scores[conc_ev] = ("spreading_proactivo", float(energia))
+                        _iny += 1
+                        if _iny >= SPREADING_MAX_INJECT:
+                            break
+            except Exception:
+                pass
+
         # [AUDIT #15 — PPMI Vector Retrieval: DESCARTADO tras 3 iteraciones]
         # Iteración 1 (pool < 3, antes de SA): mató SA (27→1 queries). Revertido.
         # Iteración 2 (pool < 3, después de SA): neutral, 0 rescates (pool siempre >= 3).
@@ -5256,12 +5818,12 @@ class SQLiteMemoryBioRAG:
                     try:
                         self.cursor.execute(f"SELECT id, auto_generada, confianza FROM dimensiones_semanticas WHERE id IN ({dim_ids_str})")
                         for d_id, auto_gen, conf in self.cursor.fetchall():
-                            w_map[d_id] = conf if auto_gen else 1.0
+                            w_map[d_id] = self._peso_dim_con_idf(d_id, conf if auto_gen else 1.0)
                     except Exception:
                         pass
                     for d_id in query_dim_set:
                         if d_id not in w_map:
-                            w_map[d_id] = 1.0
+                            w_map[d_id] = self._peso_dim_con_idf(d_id, 1.0)
                             
                     sum_q2 = sum(w_map[d_id]**2 for d_id in query_dim_set)
                     for concepto, doc_ids in concepto_dim_ids.items():
@@ -5320,12 +5882,12 @@ class SQLiteMemoryBioRAG:
                 try:
                     self.cursor.execute(f"SELECT id, auto_generada, confianza FROM dimensiones_semanticas WHERE id IN ({dim_ids_str})")
                     for d_id, auto_gen, conf in self.cursor.fetchall():
-                        w_map_fb[d_id] = conf if auto_gen else 1.0
+                        w_map_fb[d_id] = self._peso_dim_con_idf(d_id, conf if auto_gen else 1.0)
                 except Exception:
                     pass
                 for d_id in query_dim_set:
                     if d_id not in w_map_fb:
-                        w_map_fb[d_id] = 1.0
+                        w_map_fb[d_id] = self._peso_dim_con_idf(d_id, 1.0)
                 sum_q2_fb = sum(w_map_fb[d_id]**2 for d_id in query_dim_set)
                 
                 for concepto, doc_ids in concepto_fb_ids.items():
@@ -5374,7 +5936,7 @@ class SQLiteMemoryBioRAG:
         # preservando la escala intra-query para mantener 0% falsos positivos en ruido.
         escala_activa = self._last_bm25_bounds[2] if (self._last_bm25_bounds and self._last_bm25_bounds[2] > 0.3) else 0.8
         for conc, (origen, sc_capa) in origen_scores.items():
-            if conc not in bm25_norm_map and origen in ("typo", "simbolico", "dimensional_fallback", "concepto"):
+            if conc not in bm25_norm_map and origen in ("typo", "simbolico", "dimensional_fallback", "concepto", "lexico_aprendido"):
                 bm25_norm_map[conc] = min(1.0, escala_activa * float(sc_capa or 0.5))
 
 
@@ -5514,6 +6076,57 @@ class SQLiteMemoryBioRAG:
                 pass
 
 
+        # E2: similitud SDM del pool (O(k) PK), no barrido del corpus.
+        # POR QUÉ aquí: el query_vec se genera UNA vez; cada candidato es un
+        # lookup por PRIMARY KEY. N=1 o N=10^6 no cambia el coste, solo |pool|.
+        sdm_sim_map = {}
+        if SDM_SCORING_PESO > 0.0 and todos:
+            try:
+                from core.sdm import similitudes_sdm_pool
+                sdm_sim_map = similitudes_sdm_pool(
+                    self, query, [r[1] for r in todos if r[1]]
+                )
+            except Exception:
+                sdm_sim_map = {}
+
+        # E5: resonancia sobre vecinos del top-K que ya estan en el pool.
+        resonancia_map = {}
+        if RESONANCIA_PESO > 0.0 and todos:
+            try:
+                _pool_e5 = [r[1] for r in todos if r[1]]
+                _sem_e5 = _pool_e5[:RESONANCIA_TOP_K]
+                resonancia_map = self._resonancia_multi_semilla(_sem_e5, _pool_e5)
+            except Exception:
+                resonancia_map = {}
+
+        # E6: NCD zlib O(k) sobre el pool (query vs concepto+contenido).
+        ncd_map = {}
+        if NCD_PESO > 0.0 and todos:
+            try:
+                ncd_map = self._ncd_sims_pool(
+                    query,
+                    [(r[1], r[2]) for r in todos if r[1]],
+                )
+            except Exception:
+                ncd_map = {}
+
+        # E7: JSD adaptativo una vez por query (Nt tokens >=3).
+        _jsd_w_e7 = self._jsd_weight_adaptativo(query)
+        # E8: gate SRL una vez por query.
+        _srl_e8 = self._srl_predicado_informativo(query)
+
+        comunidad_map_scores = {}
+        if COMUNIDAD_PESO > 0.0 and todos:
+            try:
+                _sem_e11 = list(fts5_conceptos[:COMUNIDAD_TOP_K]) if fts5_conceptos else []
+                if len(_sem_e11) < 2:
+                    _sem_e11 = [r[1] for r in todos[:COMUNIDAD_TOP_K] if r[1]]
+                comunidad_map_scores = self._comunidad_scores_pool(
+                    _sem_e11, [r[1] for r in todos if r[1]]
+                )
+            except Exception:
+                comunidad_map_scores = {}
+
         # Calcular score hibrido para cada resultado (fórmula única 9 señales)
         total = len(todos)
         resultados_con_hibrido = []
@@ -5594,7 +6207,7 @@ class SQLiteMemoryBioRAG:
 
             # Signal #11: Jensen-Shannon Divergence (distributional overlap)
             jsd_val = 0.0
-            if JSD_WEIGHT > 0.0:
+            if _jsd_w_e7 > 0.0:
                 node_text = f"{concepto} {contenido or ''}"
                 jsd_val = self._calcular_jsd(query, node_text)
 
@@ -5606,7 +6219,7 @@ class SQLiteMemoryBioRAG:
             # NO enganchada. Ver nodo biorag: backfill_predicados_restaura_parcial_no_84_62_y_canibaliza_con_jaccard.
             pred_val = 0.0
             pred_tokens = pred_contexto_map.get(concepto, set())
-            if pred_tokens and tokens_query:
+            if _srl_e8 and pred_tokens and tokens_query:
                 matches = sum(1 for t in tokens_query if t in pred_tokens)
                 pred_val = min(1.0, matches / max(1, len(tokens_query)))
 
@@ -5658,10 +6271,14 @@ class SQLiteMemoryBioRAG:
                 grupo_score=grupo_scores_map.get(concepto, 0.0),
                 tematico_score=tematico_score,
                 jsd_score=jsd_val,
-                jsd_weight=JSD_WEIGHT,
+                jsd_weight=_jsd_w_e7,
                 pred_score=pred_val,
                 ppmi_score=ppmi_val,
-                hub_match=hub_val
+                hub_match=hub_val,
+                sdm_score=sdm_sim_map.get(concepto, 0.0),
+                resonancia_score=resonancia_map.get(concepto, 0.0),
+                ncd_score=ncd_map.get(concepto, 0.0),
+                comunidad_score=comunidad_map_scores.get(concepto, 0.0),
             )
 
 
@@ -5671,6 +6288,37 @@ class SQLiteMemoryBioRAG:
 
         # Reordenar por score hibrido descendente
         resultados_con_hibrido.sort(key=lambda r: r[4], reverse=True)
+
+        # F1: bono causal SRL solo sobre el head (O(k^2), k<=10).
+        if COHERENCIA_NARRATIVA_PESO > 0.0 and resultados_con_hibrido:
+            try:
+                _head = resultados_con_hibrido[:COHERENCIA_NARRATIVA_K]
+                _coh = self._evaluar_coherencia_narrativa([r[0] for r in _head])
+                if any(_coh.get(r[0], 0.0) > 0 for r in _head):
+                    _boosted = []
+                    for conc, cont, peso, est, sc, asoc in resultados_con_hibrido:
+                        b = float(_coh.get(conc, 0.0))
+                        if b > 0:
+                            sc = min(1.0, float(sc) + COHERENCIA_NARRATIVA_PESO * b)
+                        _boosted.append((conc, cont, peso, est, sc, asoc))
+                    resultados_con_hibrido = _boosted
+                    resultados_con_hibrido.sort(key=lambda r: r[4], reverse=True)
+            except Exception:
+                pass
+
+        # Promoción de candidatos generados por episodio léxico explícito.
+        # POR QUÉ: el gold entra al pool (generación) pero el ranker híbrido no
+        # conoce la enseñanza. No es un ranker genérico (EXP-N9); es el contrato
+        # de «A significa B» con evidencia explicit/consolidated.
+        if resultados_con_hibrido:
+            _prom = []
+            for conc, cont, peso, est, sc, asoc in resultados_con_hibrido:
+                orig, conf_l = origen_scores.get(conc, ("", 0.0))
+                if orig == "lexico_aprendido":
+                    sc = max(sc, min(0.99, 0.88 + 0.10 * float(conf_l or 0.0)))
+                _prom.append((conc, cont, peso, est, sc, asoc))
+            resultados_con_hibrido = _prom
+            resultados_con_hibrido.sort(key=lambda r: r[4], reverse=True)
 
         # v26.2: Puerta QCR (Query Coverage Ratio) para consultas compuestas (>= 2 palabras)
         # Exige que al menos el 50% de los tokens de la consulta coincidan en el nodo/sinónimos/metadatos
@@ -5689,20 +6337,38 @@ class SQLiteMemoryBioRAG:
         if hub_expansion and hub_expansion.get("hub_confidence", 0) >= 0.4:
             hub_canonical_set = set(hub_expansion.get("canonical_nodes", []))
         q_tokens_qcr = [t.lower() for t in re.findall(r'\w{3,}', query)]
+        _qcr_idf_map = {}
+        if QCR_ACTIVO and QCR_IDF_ACTIVO and q_tokens_qcr:
+            try:
+                _qcr_idf_map = self._idf_tokens_qcr(q_tokens_qcr)
+            except Exception:
+                _qcr_idf_map = {}
+        _qcr_umbral = QCR_IDF_UMBRAL if (QCR_IDF_ACTIVO and _qcr_idf_map) else 0.50
         if QCR_ACTIVO and len(q_tokens_qcr) >= 2 and resultados_con_hibrido:
             filtrados_qcr = []
+            _idf_den = sum(_qcr_idf_map.get(t, 1.0) for t in q_tokens_qcr) if _qcr_idf_map else float(len(q_tokens_qcr))
             for conc, cont, peso, est, sc, asoc in resultados_con_hibrido:
                 # Bypass QCR para nodos canónicos del hub
                 if conc in hub_canonical_set:
                     filtrados_qcr.append((conc, cont, peso, est, sc, asoc))
                     continue
                 text_target = f"{conc} {cont} {concepto_sinonimos_map.get(conc, '')}".lower()
-                matches_qcr = sum(1 for t in q_tokens_qcr if t in text_target)
-                ratio_qcr = matches_qcr / len(q_tokens_qcr)
+                if _qcr_idf_map:
+                    _num = sum(_qcr_idf_map.get(t, 1.0) for t in q_tokens_qcr if t in text_target)
+                    ratio_qcr = (_num / _idf_den) if _idf_den > 0 else 0.0
+                else:
+                    matches_qcr = sum(1 for t in q_tokens_qcr if t in text_target)
+                    ratio_qcr = matches_qcr / len(q_tokens_qcr)
                 origen_tipo, score_capa = origen_scores.get(conc, ("literal", 0.0))
-                if ratio_qcr >= 0.50 or (
-                    origen_tipo in ("semantica", "simbolico", "expansion", "dimensional_fallback", "typo", "concepto")
+                if ratio_qcr >= _qcr_umbral or (
+                    origen_tipo in (
+                        "semantica", "simbolico", "expansion", "dimensional_fallback",
+                        "typo", "concepto", "lexico_aprendido",
+                    )
                     and score_capa >= QCR_ESCAPE_CAPA_MIN
+                ) or (
+                    origen_tipo == "spreading_proactivo"
+                    and score_capa >= SPREADING_QCR_MIN
                 ):
                     filtrados_qcr.append((conc, cont, peso, est, sc, asoc))
             if filtrados_qcr:
@@ -5816,7 +6482,7 @@ class SQLiteMemoryBioRAG:
         # Solo aplica a resultados de capas literales (AND/OR/NEAR/unicode/snap/substring).
         # Resultados de capas no literales se preservan para no romper tolerancia a typos,
         # búsqueda semántica/conceptual, ni el fallback simbólico (que normaliza acentos).
-        _ORIGENES_NO_LITERALES = {"typo", "expansion", "latente", "cadena", "simbolico", "dimensional_fallback", "semantica", "unicode"}
+        _ORIGENES_NO_LITERALES = {"typo", "expansion", "latente", "cadena", "simbolico", "dimensional_fallback", "semantica", "unicode", "lexico_aprendido", "sdm", "spreading_proactivo"}
         query_words = re.findall(r'\w{3,}', query.lower())
         if len(query_words) == 1 and resultados_con_hibrido:
             token = query_words[0]
@@ -5961,6 +6627,37 @@ class SQLiteMemoryBioRAG:
                 pagina_resultados = res_srl
                 total = len(res_srl)
 
+        # E12: Hopfield ultimo recurso. Solo si sigue vacio. No toca ranking con hits.
+        if (
+            HOPFIELD_FALLBACK
+            and not pagina_resultados
+            and (query or "").strip()
+            and not buscar_por_rol
+        ):
+            try:
+                from core.sdm import rescatar_hopfield_ultimo_recurso
+                _hf = rescatar_hopfield_ultimo_recurso(
+                    self, query, limite=1, sim_min=HOPFIELD_SIM_MIN
+                )
+                if _hf:
+                    conc = _hf[0]["concepto"]
+                    sim = float(_hf[0].get("similitud") or 0.0)
+                    self.cursor.execute(
+                        "SELECT concepto, contenido, peso_sinaptico, estado, asociaciones "
+                        "FROM largo_plazo WHERE concepto = ?",
+                        (conc,),
+                    )
+                    row = self.cursor.fetchone()
+                    if row and (profundidad == "profundo" or row[3] == "activo"):
+                        sc = min(HOPFIELD_SCORE_CAP, max(0.0, sim))
+                        pagina_resultados = [
+                            (row[0], row[1], row[2], row[3], sc, row[4] or "")
+                        ]
+                        total = 1
+                        origen_scores[conc] = ("hopfield_ultimo_recurso", sim)
+            except Exception:
+                pass
+
         # Guardar trazabilidad para mcp_server.py
         self.last_todos = todos
         self.last_origen_scores = origen_scores
@@ -5973,6 +6670,26 @@ class SQLiteMemoryBioRAG:
             pagina_resultados, metadatos_epi = self._enriquecer_con_adn(query, pagina_resultados, limite)
             self.last_estado_epistemico = metadatos_epi
             total = len(pagina_resultados)
+
+        # E13: metacognicion. Abstiene si top-1 < tau y origen no protegido.
+        if METACOGNICION_ACTIVA and pagina_resultados:
+            try:
+                _top_sc = float(pagina_resultados[0][4] or 0.0)
+                _top_c = pagina_resultados[0][0]
+                _orig, _capa = origen_scores.get(_top_c, ("literal", 0.0))
+                _protegido = _orig in ("lexico_aprendido", "protegido") or (
+                    _orig == "concepto" and float(_capa or 0.0) >= 0.95
+                )
+                if _top_sc < METACOG_TAU and not _protegido:
+                    pagina_resultados = []
+                    total = 0
+                    self.last_estado_epistemico = {
+                        **getattr(self, "last_estado_epistemico", {}),
+                        "estado": "sin_evidencia_directa",
+                        "confianza_epistemica": float(_top_sc),
+                    }
+            except Exception:
+                pass
 
         # Phase 2D: Telemetría de búsquedas (non-blocking)
         # Respeta BIORAG_NO_LOG=1 para no contaminar el log con consultas de test/benchmark
@@ -6693,5 +7410,10 @@ class SQLiteMemoryBioRAG:
         return self.cursor.fetchall()
 
     def cerrar_sistema(self):
-        """Cierra de forma segura la conexión con la base de datos SQLite."""
-        self.conn.close()
+        """Cierra SQLite. No-op si la instancia es el singleton MCP (_persistente)."""
+        if getattr(self, "_persistente", False):
+            return
+        try:
+            self.conn.close()
+        except Exception:
+            pass

@@ -1,5 +1,181 @@
 # BioRAG Changelog
 
+## [v31.1-unreleased] — 2026-09-11 — F1 coherencia narrativa SRL (un paso)
+
+Bono 0.05 si top-k (≤10) tiene transicion objeto↔sujeto en predicados.
+O(k²). Flag `BIORAG_COHERENCIA_NARRATIVA` default **0**.
+
+A/B 921 vs E10: R@5 **96.91** R@1 **90.17** (−0.23) MRR 0.9279 FP 15%.
+Gate R@1 no. ON: `=0.05`. Competitive 100% P95 6.7ms.
+Tests `tests/test_coherencia_narrativa_f1.py`.
+
+## [v31.1-unreleased] — 2026-09-11 — E13 metacognicion (un paso)
+
+Abstiene si top-1 < tau 0.35 y origen no protegido
+(`lexico_aprendido`/`protegido`/`concepto`>=0.95). Flag
+`BIORAG_METACOGNICION_ACTIVA` default **OFF**.
+
+A/B 921 vs E10: R@5 **91.77** (−5.14, 72 fallos) R@1 **86.17** FP **15%**
+(los 6 negativos tienen top≥0.35). `por_tema` 86.15→52.31. Gate no.
+ON: `=1`. Tests `tests/test_metacognicion_e13.py`.
+
+## [v31.1-unreleased] — 2026-09-11 — E12 Hopfield ultimo recurso (un paso)
+
+SDM/Hamming solo si ranking vacio (`hopfield_ultimo_recurso`, cap 0.45,
+sim_min 0.28). Cero costo si hay ≥1 hit. Flag `BIORAG_HOPFIELD_FALLBACK`
+default **OFF**.
+
+A/B 921 vs E10: R@5 **96.80** (−0.11, 28 fallos) R@1 **90.40** MRR 0.9294
+FP **15%**. typo R@5 98.46→96.92. Gate R@5 no. ON: `=1`. Competitive 100%
+P95 8.4ms. Tests `tests/test_hopfield_e12.py`.
+
+## [v31.1-unreleased] — 2026-09-10 — E11 comunidad LPA (un paso)
+
+`comunidad_score` 1.0 si el candidato comparte la comunidad mayoritaria
+del top-5 léxico (LPA cacheado, O(1) por candidato). Peso en num/den.
+Flag `BIORAG_COMUNIDAD_PESO` default **0** (OFF).
+
+A/B 921 vs E10: R@5 **96.57** (−0.34, 30 fallos) R@1 **89.60** (−0.80)
+MRR 0.9236 FP 15%. `por_tema` 86.15→84.62. Gate no. ON: `=0.05`.
+Competitive 100% P95 7.6ms. Tests `tests/test_comunidad_e11.py`.
+
+## [v31.1-unreleased] — 2026-09-10 — E10 DMN síntesis (un paso)
+
+Sinapsis `dmn_synthesized` peso 0.30, tope 8 por ciclo. Solo pares activos
+con dimensión común o ≥2 tokens. No fusiona nodos. Flag
+`BIORAG_DMN_SINTESIS_ACTIVA` default **ON**.
+
+A/B 921 vs E7: R@5 **96.91** R@1 **90.40** MRR 0.9297 FP 15% (27). Gate
+sí. Competitive 100% P95 8.1ms. Tests `tests/test_dmn_sintesis_e10.py`.
+
+## [v31.1-unreleased] — 2026-09-10 — E9 IDF dimensional (un paso)
+
+`dim_score` pondera cada eje por IDF cacheado:
+`ln(1+(N-DF+0.5)/(DF+0.5))`. Un GROUP BY al primer uso, O(1) por
+candidato. Flag `BIORAG_DIM_IDF_ACTIVO` default **OFF**.
+
+A/B 921 vs E7: R@5 **97.14** (+0.23, 25 fallos) R@1 **89.71** (−0.69)
+MRR 0.9265 FP 15%. `por_tema` R@5 86.15→**87.69**. `sinonimo` R@5
+83.64→81.82. Gate R@1 no. ON: `=1`. Competitive 100% P95 7.8ms.
+Tests `tests/test_dim_idf_e9.py`.
+
+## [v31.1-unreleased] — 2026-09-10 — E8 SRL gate condicional (un paso)
+
+`pred_score` (Signal #12, peso 0.20) solo si Nt>=3 o el extractor
+determinista saca >=1 predicado. Mono-token/sinonimo corto: pred=0.
+Flag `BIORAG_SRL_CONDICIONAL` default **OFF** (R@5 no cumple).
+
+A/B 921 vs E7: R@5 **96.80** (−0.11, 28 fallos; typo +1) R@1 **90.63** (+0.23)
+MRR **0.9306** FP 15%. `sinonimo` R@5 83.64 hold, R@1 41.82→**45.45**.
+Gate R@5 no. ON: `BIORAG_SRL_CONDICIONAL=1`. Competitive 100% P95 6.7ms.
+Tests `tests/test_srl_condicional_e8.py`.
+
+## [v31.1-unreleased] — 2026-09-10 — E7 JSD adaptativo (un paso)
+
+`jsd_weight` en `buscar_por_frase` segun Nt (tokens >=3): *2.5 si Nt>=4
+(tematico), *0.5 si Nt<4 (sinonimos). Base 0.05 si `JSD_WEIGHT` estatico
+sigue en 0. `base_weight = (1-jsd_w)/total_base`. Flag
+`BIORAG_JSD_ADAPTATIVO` default ON. Rafaga no cambia.
+
+A/B 921 vs E6: R@5 **96.91** R@1 **90.40** MRR 0.9297 FP 15%.
+`por_tema` R@5 86.15 hold, R@1 64.62→**66.15**. `sinonimo` R@5 83.64 hold,
+R@1 43.64→41.82. Gate global OK. Competitive 100% P95 6.4ms.
+Tests `tests/test_jsd_adaptativo_e7.py`.
+
+## [v31.1-unreleased] — 2026-09-10 — E6 NCD zlib (un paso)
+
+Senal #15: Sim_NCD=1-NCD con zlib.compress level 6 (Li et al. 2004).
+Solo pool O(k): query vs concepto+contenido. Peso 0.05 (cap 0.08) en
+numerador y denominador del hibrido. Cero scan O(N), solo stdlib.
+
+A/B 921 vs E3: R@5 **96.91** (hold) R@1 **90.40** (+0.23) MRR **0.9298**
+FP **15%** 27 fallos. Gate OK. Default **ON** `BIORAG_NCD_PESO=0.05`.
+OFF: `=0`. Tests `tests/test_ncd_e6.py`.
+
+## [v31.1-unreleased] — 2026-09-10 — E5 resonancia multi-semilla (un paso)
+
+Scoring (no generación): vecinos Hebbianos (`peso>=0.30`) de las top-8
+semillas del pool. `Score = sum Act(s→n) * (1 + β*(k-1))`, β=0.50, peso 0.08
+cap. Solo nodos ya en el pool (O(k) SELECTs, no O(N)). Entra en el
+denominador del híbrido (lección E2).
+
+A/B 921 ON vs E3: R@5 **97.14** (+0.23, 25 fallos) R@1 **89.83** (−0.34)
+MRR **0.9261** FP **15%**. Gate R@5 OK; R@1 baja. Default **OFF**
+(`BIORAG_RESONANCIA_ACTIVA=0`). ON: `=1`. Competitive 100% P95 7.8ms.
+Tests `tests/test_resonancia_e5.py`.
+
+## [v31.1-unreleased] — 2026-09-10 — E4 spreading proactivo (un paso)
+
+Generación 1–2 hop desde top-40 del pool léxico (`peso >= 0.30`, γ=0.65),
+aunque `|todos| ≥ 3`. UNION ALL. Máx 12 inyectados. Origen
+`spreading_proactivo` con escape QCR propio (`SPREADING_QCR_MIN=0.35`).
+No PPR, no fusión, no SDM layout.
+
+A/B 921 snapshot ON: R@5 **96.80** (−0.11pp vs E3) R@1 **89.83** (−0.34)
+MRR **0.9255** FP **0%** (0/40, era 15%). Gate R@5 no se cumple; FP sí baja.
+Default **OFF** (`BIORAG_SPREADING_PROACTIVO=0`); ON con `=1`. Competitive
+100% P95 7.1ms (corpus sintético). Tests `tests/test_spreading_e4.py`.
+
+## [v31.1-unreleased] — 2026-09-10 — E3 QCR ponderado por IDF (un paso)
+
+Cobertura QCR: `sum IDF(match) / sum IDF(query)` en vez de contar tokens iguales.
+IDF vía FTS5 COUNT (O(tokens), no O(N) corpus). Umbral `BIORAG_QCR_IDF_UMBRAL`
+default 0.40. OFF: `BIORAG_QCR_IDF=0` (ratio 0.50 plano). Escapes de capa
+(semantica/simbolico/typo/lexico_aprendido/…) y bypass Concept Hub intactos.
+
+`68a8240` dejó `_idf_tokens_qcr` muerto: el loop QCR seguía `matches/len`.
+Ahora `buscar_por_frase` usa el mapa IDF + umbral 0.40 (fallback 0.50 si OFF).
+
+MCP: `get_cerebro()` singleton WAL (`check_same_thread=False`); `cerrar_sistema`
+no cierra la conexión persistente (evita -32001 en tools paralelas).
+
+A/B 921 snapshot **con el loop cableado** (631s): R@5 **96.91** R@1 **90.17**
+MRR **0.9287** FP **15%** (6/40) 27 fallos. vs E1 97.03/89.94/0.928/15%/26:
+R@5 −0.12pp, FP hold, R@1 +0.23pp. Competitive 100% P95 7.8ms. Gate OK.
+
+## [v31.1-unreleased] — 2026-09-10 — E2 SDM scoring sobre el pool (un paso)
+
+Señal binaria 2048 bits en `_calcular_score_hibrido` **solo para candidatos ya
+en el pool**. Coste O(k) por PRIMARY KEY, no O(N) del corpus (1 nodo o 10^6).
+Peso `BIORAG_SDM_SCORING_PESO` default **0** (OFF) tras A/B con señal viva:
+R@5 96.91 (−0.12pp / +1 fallo), R@1 90.06 (+0.12pp), MRR 0.9282, FP 15%.
+Cap 0.08. ON: `BIORAG_SDM_SCORING_PESO=0.06`. No fusiona
+nodos, no reindexa, no embeddings.
+
+Fix post-auditoría `761779c`: `sdm_score` se recibía y **no se sumaba**.
+Ahora entra en `total_base` y en la suma ponderada (`SDM_SCORING_PESO * sdm_score`).
+
+## [v31.1-unreleased] — 2026-09-10 — E1 SDM Fallback 2.5 (un paso)
+
+SDM Kanerva (2048 bits) entra como **generación** cuando `buscar_por_frase`
+deja el pool < 3 y la query tiene ≥ 3 tokens. No es señal de scoring (E2).
+No reindexa en el path caliente. QCR sigue filtrando (FP). Flag:
+`BIORAG_SDM_FALLBACK` (default ON), `BIORAG_SDM_FALLBACK_SIM_MIN` (0.22).
+
+Medido snapshot `qa_escape_qcr_20260811.db` (921): E1 OFF vs ON **idéntico**
+R@5 97.03% R@1 89.94% MRR 0.928 FP 15% (6/40). El FP no lo introduce E1
+(mismos 6 negativos con flag OFF; pool casi nunca queda < 3). vs petición
+96.48/89.67: recall OK; FP 0% no se cumple en este snapshot ni sin E1.
+E2 no arranca en este commit.
+
+## [v31.1-unreleased] — 2026-09-10 — Lexical Learning Episode + cableado único
+
+Un cambio medible: registrar «expresión A refiere a concepto B» y generar
+candidatos **antes** del ranking. Sin embeddings densos, sin fusionar nodos,
+sin tocar layout SDM.
+
+### Fase A — Cableado
+- `core/paths.py`: `BIORAG_PATH` / `MemoryBioRAG_Data/memory_biorag.db`.
+- `core/memory_service.py`: `buscar` / `aprender` / `ensenar_lexico` / `consolidar_ciclo`.
+- Dashboard y MCP (`_get_cerebro`) usan el mismo servicio.
+
+### Fase B–C — Episodio + índice invertido
+- Tablas `lexical_learning_episode`, `lexical_form_index`, `lexical_audit_event`.
+- Inyección en `buscar_por_frase` (origen `lexico_aprendido`), bypass QCR, piso de score, no fusión.
+
+### Fase D
+- Tests `tests/test_lexical_learning.py`; benches `scripts/benchmark_aprendizaje_lexico.py`, `scripts/benchmark_competitivo.py`.
+
 ## [v31.0] — 2026-09-09 — Abismo Léxico: Rescate por Grafo Sináptico (EXP-Q)
 
 Release de **corrección de infraestructura del grafo sináptico** y **rescate relacional para queries

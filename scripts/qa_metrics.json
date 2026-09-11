@@ -1,35 +1,35 @@
 {
-  "version": "v31.0",
-  "generado_en": "2026-09-10T08:48:50",
-  "elapsed_seconds": 1380.05,
+  "version": "v31.1-unreleased",
+  "generado_en": "2026-09-10T17:31:06",
+  "elapsed_seconds": 631.64,
   "casos_file": "casos_qa_baseline_v1.jsonl",
   "casos_total": 921,
-  "db_src": "/mnt/recursos_compartidos_y_otros/MemoryBioRAG/MemoryBioRAG_Data/memory_biorag_qa_run.db",
+  "db_src": "snapshots/qa_escape_qcr_20260811.db",
   "global": {
     "queries": 875,
-    "recall_at_5": 97.49,
-    "recall_at_1": 89.26,
-    "mrr": 0.9246,
-    "fallos": 22,
+    "recall_at_5": 96.91,
+    "recall_at_1": 90.17,
+    "mrr": 0.9287,
+    "fallos": 27,
     "negativos_total": 40,
-    "negativos_fp": 0,
-    "negativos_fp_rate": 0.0,
+    "negativos_fp": 6,
+    "negativos_fp_rate": 15.0,
     "negativos_contaminados": 0,
-    "spreading_activation": 10,
+    "spreading_activation": 8,
     "etiquetas_obsoletas_resueltas": 3,
     "etiquetas_irreparables": 0,
     "queries_ambiguas": 3,
-    "nodos_dormidos_iniciales": 48,
-    "nodos_restaurados_entre_casos": 79,
+    "nodos_dormidos_iniciales": 15,
+    "nodos_restaurados_entre_casos": 64,
     "orden_no_monotonico": 0
   },
   "categorias": {
     "cruce_idioma": {
       "total": 8,
-      "recall_at_5": 87.5,
-      "recall_at_1": 50.0,
-      "mrr": 0.6562,
-      "fallos": 1
+      "recall_at_5": 75.0,
+      "recall_at_1": 37.5,
+      "mrr": 0.5417,
+      "fallos": 2
     },
     "dormido": {
       "total": 65,
@@ -41,44 +41,44 @@
     "literal": {
       "total": 487,
       "recall_at_5": 100.0,
-      "recall_at_1": 99.79,
-      "mrr": 0.999,
+      "recall_at_1": 99.59,
+      "mrr": 0.9979,
       "fallos": 0
     },
     "por_tema": {
       "total": 65,
-      "recall_at_5": 89.23,
+      "recall_at_5": 86.15,
       "recall_at_1": 64.62,
-      "mrr": 0.7441,
-      "fallos": 7
+      "mrr": 0.7351,
+      "fallos": 9
     },
     "pregunta_natural": {
       "total": 65,
-      "recall_at_5": 100.0,
-      "recall_at_1": 87.69,
-      "mrr": 0.9236,
-      "fallos": 0
+      "recall_at_5": 98.46,
+      "recall_at_1": 95.38,
+      "mrr": 0.9692,
+      "fallos": 1
     },
     "sinonimo": {
       "total": 55,
-      "recall_at_5": 80.0,
+      "recall_at_5": 83.64,
       "recall_at_1": 41.82,
-      "mrr": 0.5497,
-      "fallos": 11
+      "mrr": 0.5748,
+      "fallos": 9
     },
     "typo": {
       "total": 65,
       "recall_at_5": 98.46,
       "recall_at_1": 83.08,
-      "mrr": 0.8936,
+      "mrr": 0.8915,
       "fallos": 1
     },
     "variante_gramatical": {
       "total": 65,
-      "recall_at_5": 96.92,
-      "recall_at_1": 76.92,
-      "mrr": 0.8544,
-      "fallos": 2
+      "recall_at_5": 92.31,
+      "recall_at_1": 84.62,
+      "mrr": 0.8756,
+      "fallos": 5
     }
   }
 }

@@ -500,12 +500,15 @@ def _registrar_sdm_full_reindex(cerebro):
 # =============================================================================
 
 def buscar_sdm(cerebro, query: str = "", radio_max: int = None, limite: int = 10,
-               vector_fijo: bytes = None) -> list:
+               vector_fijo: bytes = None, reindex_if_empty: bool = True) -> list:
     """Busca nodos conceptualmente similares usando Jaccard ponderado.
 
     Modos de operación:
     1. Query por texto (vector_fijo=None): genera vector desde el query text.
     2. Query por ejemplo (vector_fijo=bytes): usa el vector proporcionado directamente.
+
+    reindex_if_empty: el path caliente de búsqueda (Fallback 2.5) pasa False para
+    no mutar la DB ni pagar un full-reindex de 800+ nodos por consulta vacía.
 
     Retorna lista de dicts: [{'concepto': str, 'distancia': int, 'similitud': float}]
     """
@@ -523,6 +526,8 @@ def buscar_sdm(cerebro, query: str = "", radio_max: int = None, limite: int = 10
     filas = cur.fetchall()
 
     if not filas:
+        if not reindex_if_empty:
+            return []
         indexar_todos_sdm(cerebro)
         cur = cerebro.cursor.execute("SELECT concepto, vector FROM nodos_sdm")
         filas = cur.fetchall()
@@ -543,6 +548,91 @@ def buscar_sdm(cerebro, query: str = "", radio_max: int = None, limite: int = 10
 
     resultados.sort(key=lambda x: x['similitud'], reverse=True)
     return resultados[:limite]
+
+
+def rescatar_hopfield_ultimo_recurso(cerebro, query: str, *, limite: int = 1,
+                                     sim_min=None) -> list:
+    """E12: atractor Hamming/Hopfield solo si el ranking ya dio 0 hits.
+
+    Un paso: el estado almacenado de minima energia (max overlap bipolar)
+    es el vecino SDM mas cercano. No reindexa. No toca layout de 2048 bits.
+    """
+    if not query or not str(query).strip():
+        return []
+    if sim_min is None:
+        sim_min = float(os.environ.get("BIORAG_HOPFIELD_SIM_MIN", "0.28"))
+    hits = buscar_sdm(
+        cerebro,
+        query=query,
+        limite=max(int(limite), 1),
+        reindex_if_empty=False,
+    )
+    out = [h for h in hits if float(h.get("similitud") or 0.0) >= float(sim_min)]
+    if not out:
+        return []
+    best = out[0]
+    best["origen"] = "hopfield_ultimo_recurso"
+    return [best]
+
+
+def rescatar_fallback_sdm(cerebro, query: str, *, limite: int = 5,
+                          sim_min=None, radio_max=None) -> list:
+    """Fallback 2.5: rescate Hamming/Jaccard cuando el pool léxico es pobre.
+
+    POR QUÉ no reindexa: E1 es generación en el path caliente. Un full-reindex
+    aquí mutaría la copia de eval. Si no hay vectores, no hay señal.
+
+    sim_min recorta ruido en consultas negativas (Gate FP 0%).
+    """
+    if not query or not str(query).strip():
+        return []
+    if sim_min is None:
+        sim_min = float(os.environ.get("BIORAG_SDM_FALLBACK_SIM_MIN", "0.22"))
+    hits = buscar_sdm(
+        cerebro,
+        query=query,
+        radio_max=radio_max,
+        limite=max(int(limite), 1),
+        reindex_if_empty=False,
+    )
+    return [h for h in hits if float(h.get("similitud") or 0.0) >= float(sim_min)]
+
+
+def similitudes_sdm_pool(cerebro, query: str, conceptos) -> dict:
+    """Similitud SDM query↔nodo SOLO para el pool (E2 scoring).
+
+    Complejidad: O(k) lookups por PRIMARY KEY, no O(N) del corpus.
+    Con 1 nodo o 10^6 nodos el coste es el del pool de candidatos
+    (típicamente decenas–cientos), no el tamaño de la corteza.
+    Sin vectores persistidos → {} (degradación silenciosa, corpus ajeno).
+    """
+    if not query or not conceptos:
+        return {}
+    unicos = []
+    seen = set()
+    for c in conceptos:
+        if c and c not in seen:
+            seen.add(c)
+            unicos.append(c)
+    if not unicos:
+        return {}
+    query_vec = generar_vector_sdm(concepto=query, contenido=query)
+    out = {}
+    chunk = 400
+    for i in range(0, len(unicos), chunk):
+        lote = unicos[i : i + chunk]
+        ph = ",".join("?" * len(lote))
+        try:
+            filas = cerebro.cursor.execute(
+                f"SELECT concepto, vector FROM nodos_sdm WHERE concepto IN ({ph})",
+                lote,
+            ).fetchall()
+        except Exception:
+            return {}
+        for conc, blob in filas:
+            if blob:
+                out[conc] = similitud_sdm(query_vec, blob)
+    return out
 
 
 def buscar_similares_a(cerebro, concepto_semilla: str, radio_max: int = None,

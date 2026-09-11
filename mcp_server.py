@@ -71,12 +71,11 @@ from pydantic import Field  # ← agregado para documentación de parámetros
 
 # --- Boot -------------------------------------------------------------------
 
-_DEFAULT_DB = os.path.join(
-    os.path.dirname(os.path.abspath(__file__)),
-    "MemoryBioRAG_Data",
-    "memory_biorag.db",
-)
-DB_PATH = os.environ.get("BIORAG_PATH") or _DEFAULT_DB
+from core.paths import resolve_db_path
+from core.memory_service import get_cerebro as _svc_get_cerebro
+
+_DEFAULT_DB = resolve_db_path()
+DB_PATH = _DEFAULT_DB
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from core.memory_store import SQLiteMemoryBioRAG
@@ -178,7 +177,8 @@ AGENTES_VALIDOS = set()
 # --- Helpers ----------------------------------------------------------------
 
 def _get_cerebro() -> SQLiteMemoryBioRAG:
-    return SQLiteMemoryBioRAG(db_path=os.environ.get("BIORAG_PATH") or _DEFAULT_DB)
+    """Reusa la corteza (singleton). No reconstruir 6–11s por tool."""
+    return _svc_get_cerebro(os.environ.get("BIORAG_PATH") or None)
 
 
 # _load_catalogo_dimensiones, _CATALOGO_DIMENSIONES, _ensure_catalogo_loaded
