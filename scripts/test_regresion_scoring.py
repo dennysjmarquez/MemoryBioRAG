@@ -117,6 +117,10 @@ def test_normalizacion_coherente(scorer) -> None:
         peso_sinaptico=1.0, score_latente=1.0, grupo_score=1.0,
         tematico_score=1.0, temporal=1.0, asoc_count=20, pred_score=1.0,
         ppmi_score=1.0, hub_match=1.0,
+        # Señales pool E2/E5/E6/E11 + F2/F3/F5 (E6/F2/F5 ON aportan; resto 0).
+        sdm_score=1.0, resonancia_score=1.0, ncd_score=1.0,
+        comunidad_score=1.0, episodio_score=1.0, analogia_score=1.0,
+        campo_score=1.0,
     )
     print(f"        todas las señales al máximo -> score={maxi:.4f}")
     # sinonimos_ratio=0 para no disparar la rama de bono; el resto al máximo.
@@ -144,7 +148,9 @@ def test_monotonia_por_senal(scorer) -> None:
     print("\nTEST 4 — monotonía por señal individual")
     senales = ["bm25_norm", "dim_score", "concepto_ratio", "peso_sinaptico",
                "grupo_score", "tematico_score", "temporal", "pred_score",
-               "ppmi_score"]
+               "ppmi_score", "sdm_score", "resonancia_score", "ncd_score",
+               "comunidad_score", "episodio_score", "analogia_score",
+               "campo_score"]
     for s in senales:
         bajo = scorer(**{s: 0.0})
         alto = scorer(**{s: 1.0})
