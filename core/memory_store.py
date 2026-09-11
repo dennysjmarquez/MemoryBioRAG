@@ -252,9 +252,14 @@ class SQLiteMemoryBioRAG:
         # check_same_thread=False: MCP/WAL reutiliza la instancia entre tools.
         self.conn = sqlite3.connect(self.db_path, timeout=60, check_same_thread=False)
         self._persistente = False
-        self.conn.execute("PRAGMA journal_mode=WAL")
-        self.conn.execute("PRAGMA synchronous=NORMAL")
-        self.conn.execute("PRAGMA busy_timeout=5000")
+        try:
+            self.conn.execute("PRAGMA journal_mode=WAL")
+            self.conn.execute("PRAGMA synchronous=NORMAL")
+            self.conn.execute("PRAGMA busy_timeout=30000")
+            self.conn.execute("PRAGMA cache_size=-64000")
+            self.conn.execute("PRAGMA mmap_size=268435456")
+        except sqlite3.OperationalError:
+            pass
         self.cursor = self.conn.cursor()
         # Función personalizada: word boundary check del lado de la DB
         def palabra_completa(token, texto):
