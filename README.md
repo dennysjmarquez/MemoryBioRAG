@@ -1,38 +1,67 @@
 # BioRAG v31.1 — Plan Maestro E1–E13 + Invención F1
 
-> **Versión:** v31.1 — Septiembre 2026 (lista para merge a `master`)
-> **Base de medición:** v30.1 / v31.0 + snapshot `snapshots/qa_escape_qcr_20260811.db` (921 casos)
-> **Tipo:** un flag por paso, A/B 921, default ON solo si el gate R@5≥96.91 y R@1≥90.40 se sostiene.
-> **Paradigma:** Python puro + SQLite FTS5. Cero embeddings densos, cero GPU, cero APIs en el path de búsqueda.
+> **Versión:** v31.1 — Septiembre 2026 — **lista para merge a `master`**
+> **Base de medición:** linaje v30.1 (QA gate) + v31.0 (Abismo Léxico) + snapshot `snapshots/qa_escape_qcr_20260811.db` (**921** casos)
+> **Método:** un flag por paso, A/B 921, default ON **solo** si se sostiene el gate **R@5 ≥ 96.91** y **R@1 ≥ 90.40**
+> **Paradigma:** Python puro + SQLite FTS5. **Cero embeddings densos, cero GPU, cero APIs** en el path de búsqueda. No se fusionan nodos. No se toca el layout SDM 2048 bits.
 
 ---
 
 ## 📦 v31.1 — Qué se hizo (para pasar a master)
 
-**Baseline de gate (E7/E10, snapshot 921):** R@5 **96.91%** · R@1 **90.40%** · MRR **0.9297** · FP **15%** (6/40) · 27 fallos.
+**Gate vivo de producción (E3+E6+E7+E10, snapshot 921):**
 
-Esto **no es 100%**. El snapshot no da FP 0% (eso es la DB viva / calibración MCP). No se fusionan nodos ni se toca el layout SDM 2048 bits.
+| Métrica | Valor | Honestidad |
+|---|---|---|
+| Recall@5 | **96.91%** | 27 fallos / 881 positivas |
+| Recall@1 | **90.40%** | no es 100% |
+| MRR | **0.9297** | |
+| FP (40 negativos) | **15%** (6/40) | **no es 0%** en este snapshot |
+| Competitive F1 (default) | 100% cats, FP 0/15, P95 ~6.7–8.1 ms | otra suite, no sustituye el 921 |
+
+La DB viva (Dennys) ha dado **97.49 / 89.26 / FP 0%** — **no es el gate de merge**. El merge se decide con el snapshot 921.
 
 ### Defaults de producción (v31.1)
 
-| Paso | Flag | Default | 921 ON vs gate | Por qué |
-|---|---|---|---|---|
-| E1 SDM generación | `BIORAG_SDM_FALLBACK` | **ON** | 97.03 / 89.94 | pool&lt;3; no scoring |
-| E2 SDM scoring | `BIORAG_SDM_SCORING_PESO` | **0** | 96.91 / 90.06 | R@5 −0.12 |
-| E3 QCR-IDF | `BIORAG_QCR_IDF` | **ON** (umbral 0.40) | 96.91 / 90.17 | hold R@5, R@1 +0.23 |
-| E4 spreading | `BIORAG_SPREADING_PROACTIVO` | **OFF** | 96.80 / 89.83 | R@5 falla; FP 0% en ON |
-| E5 resonancia | `BIORAG_RESONANCIA_ACTIVA` | **OFF** | 97.14 / 89.83 | R@5 sube, R@1 baja |
-| E6 NCD zlib | `BIORAG_NCD_PESO` | **0.05 ON** | 96.91 / **90.40** | gate OK |
-| E7 JSD adaptativo | `BIORAG_JSD_ADAPTATIVO` | **ON** | 96.91 / 90.40 | `por_tema` R@1 66.15 |
-| E8 SRL condicional | `BIORAG_SRL_CONDICIONAL` | **OFF** | 96.80 / 90.63 | R@5 −0.11; sinonimo R@1 45.45 |
-| E9 IDF dimensional | `BIORAG_DIM_IDF_ACTIVO` | **OFF** | 97.14 / 89.71 | R@5 97.14; R@1 baja |
-| E10 DMN síntesis | `BIORAG_DMN_SINTESIS_ACTIVA` | **ON** | 96.91 / 90.40 | tope 8 aristas `dmn_synthesized` |
-| E11 comunidad LPA | `BIORAG_COMUNIDAD_PESO` | **0** | 96.57 / 89.60 | ruido modular |
-| E12 Hopfield vacío | `BIORAG_HOPFIELD_FALLBACK` | **OFF** | 96.80 / 90.40 | solo 0 hits |
-| E13 metacognición | `BIORAG_METACOGNICION_ACTIVA` | **OFF** | 91.77 / 86.17 | FP sigue 15%; R@5 −5pp |
-| F1 coherencia SRL | `BIORAG_COHERENCIA_NARRATIVA` | **0** | 96.91 / 90.17 | R@1 −0.23 |
+**ON en master (sin flags extra):** E1, E3, E6, E7, E10.
 
-**ON en master (sin flags extra):** E1, E3, E6, E7, E10. El resto está en código y tests, apagado.
+**OFF a propósito (código + tests, no borrados):** E2, E4, E5, E8, E9, E11, E12, E13, F1.
+
+| Paso | Flag | Default | 921 ON (R@5 / R@1 / FP) | Veredicto |
+|---|---|---|---|---|
+| E1 SDM generación | `BIORAG_SDM_FALLBACK` | **ON** | 97.03 / 89.94 / 15% | pool&lt;3; no scoring |
+| E2 SDM scoring | `BIORAG_SDM_SCORING_PESO` | **0** | 96.91 / 90.06 / 15% | R@5 −0.12 vs gate |
+| E3 QCR-IDF | `BIORAG_QCR_IDF` | **ON** (umbral 0.40) | 96.91 / 90.17 / 15% | hold R@5, R@1 +0.23 |
+| E4 spreading | `BIORAG_SPREADING_PROACTIVO` | **OFF** | 96.80 / 89.83 / **0%** | R@5 falla; FP 0% solo con ON |
+| E5 resonancia | `BIORAG_RESONANCIA_ACTIVA` | **OFF** | 97.14 / 89.83 / 15% | R@5 sube, R@1 baja |
+| E6 NCD zlib | `BIORAG_NCD_PESO` | **0.05 ON** | 96.91 / **90.40** / 15% | **gate OK** |
+| E7 JSD adaptativo | `BIORAG_JSD_ADAPTATIVO` | **ON** | 96.91 / 90.40 / 15% | `por_tema` R@1 66.15; **gate 921** |
+| E8 SRL condicional | `BIORAG_SRL_CONDICIONAL` | **OFF** | 96.80 / 90.63 / 15% | R@5 −0.11; sinonimo R@1 45.45 |
+| E9 IDF dimensional | `BIORAG_DIM_IDF_ACTIVO` | **OFF** | 97.14 / 89.71 / 15% | R@5 97.14; R@1 baja |
+| E10 DMN síntesis | `BIORAG_DMN_SINTESIS_ACTIVA` | **ON** | 96.91 / 90.40 / 15% | tope 8 aristas `dmn_synthesized`; **ON** |
+| E11 comunidad LPA | `BIORAG_COMUNIDAD_PESO` | **0** | 96.57 / 89.60 / 15% | ruido modular |
+| E12 Hopfield vacío | `BIORAG_HOPFIELD_FALLBACK` | **OFF** | 96.80 / 90.40 / 15% | solo ranking vacío |
+| E13 metacognición | `BIORAG_METACOGNICION_ACTIVA` | **OFF** | **91.77 / 86.17 / 15%** | tau 0.35; FP no baja; R@5 −5pp |
+| F1 coherencia SRL | `BIORAG_COHERENCIA_NARRATIVA` | **0** | 96.91 / 90.17 / 15% | peso 0.05; R@1 −0.23 |
+
+### Qué hace cada paso (código real)
+
+| Paso | Dónde | Qué hace | Por qué OFF/ON |
+|---|---|---|---|
+| **E1** | `core/sdm.py` + pool de `buscar_por_frase` | SDM fallback de **generación** si el pool tiene &lt;3 candidatos | ON: no toca scoring |
+| **E2** | `_calcular_score_hibrido` | Hamming SDM como señal extra (num **y** den) | OFF: R@5 no cumple |
+| **E3** | QCR gate | IDF sobre tokens de cobertura; umbral 0.40 | ON: R@1 +0.23, R@5 hold |
+| **E4** | spreading | activación proactiva extra | OFF: R@5 96.80. ON baja FP a 0% en 921 (trade-off) |
+| **E5** | resonancia | boost de resonancia activa | OFF: R@1 89.83 |
+| **E6** | NCD zlib | `ncd_score` peso 0.05 en num/den | ON: R@1 llega a **90.40** |
+| **E7** | JSD | `jsd_weight` ×2.5 si Nt≥4, ×0.5 si Nt&lt;4 | ON: hold + `por_tema` |
+| **E8** | pred_score #12 | pred=0 si query corta (Nt&lt;3 y 0 predicados) | OFF: R@5 −0.11 |
+| **E9** | `dim_score` | IDF por eje: `ln(1+(N-DF+0.5)/(DF+0.5))` | OFF: R@1 89.71 |
+| **E10** | `core/dmn_engine.py` | sinapsis `dmn_synthesized` peso 0.30, **tope 8**/ciclo; no fusiona nodos | ON: hold gate |
+| **E11** | LPA | `comunidad_score` 1.0 si comparte comunidad del top-5 | OFF: 96.57/89.60 |
+| **E12** | `rescatar_hopfield_ultimo_recurso` | SDM/Hamming **solo si ranking vacío**, cap 0.45, sim_min 0.28 | OFF: R@5 96.80; typo R@5 98.46→96.92 |
+| **E13** | `_evaluar_metacognicion` **después de ADN** | abstiene si top-1 &lt; 0.35 y origen no es `lexico_aprendido`/`protegido`/`concepto`≥0.95. **No** protege `simbolico` | OFF: 91.77/86.17; los 6 FP del snapshot tienen top≥0.35 |
+| **F1** | `_evaluar_coherencia_narrativa` | bono 0.05 si en top-10 hay transición objeto↔sujeto en predicados. O(k²) | OFF: R@1 90.17 |
 
 ### Cómo reproducir el 921
 
@@ -42,13 +71,19 @@ BIORAG_PATH=snapshots/qa_escape_qcr_20260811.db python3 scripts/evaluar_qa.py
 BIORAG_QA_GATE=0 BIORAG_PATH=snapshots/qa_escape_qcr_20260811.db python3 scripts/evaluar_qa.py
 ```
 
-Ablación de un paso: el flag de la tabla. Un cambio a la vez; DB fresca (copia aislada del evaluador).
+Ablación: un flag de la tabla. **Un cambio a la vez.** El evaluador usa copia aislada de la DB.
 
-### Tests nuevos (E/F)
+### Tests de Plan Maestro
 
 `tests/test_ncd_e6.py` · `test_jsd_adaptativo_e7.py` · `test_srl_condicional_e8.py` · `test_dim_idf_e9.py` · `test_dmn_sintesis_e10.py` · `test_comunidad_e11.py` · `test_hopfield_e12.py` · `test_metacognicion_e13.py` · `test_coherencia_narrativa_f1.py`
 
-Detalle por commit: `CHANGELOG.md` sección `v31.1-unreleased`.
+Detalle por commit: `CHANGELOG.md` (`v31.1-unreleased` consolidado en **v31.1**).
+
+### Qué NO se afirma
+
+- El sistema **no** es perfecto. 921 **no** es 100%.
+- Snapshot **no** tiene FP 0% (15%). FP 0% es DB viva / calibración MCP / E4 ON (con pérdida de R@5).
+- Flags OFF **no** son deuda olvidada: son experimentos medidos que no pasaron el gate.
 
 ---
 
@@ -1926,7 +1961,7 @@ MemoryBioRAG/
   ├── deploy_v26.py              # Script de despliegue y verificación v26.x
   ├── requirements.txt           # numpy, nltk, mcp, fastapi, uvicorn, pytest
   ├── vocabulario_inicial.json   # 239 términos del dominio para expansión semántica
-  ├── VERSION                    # Versión actual: v28.0
+  ├── VERSION                    # Versión actual: v31.1
   ├── CHANGELOG.md               # Historial completo de cambios técnicos
   ├── EXPERIMENTS.md             # Bitácora de hipótesis probadas y descartadas
   ├── test_memory.py             # Suite principal: 112 tests biológicos automatizados
@@ -2282,6 +2317,10 @@ En v13.4 el catálogo tenía **7 ejes × 73 sub-valores**: emoción (qué se sie
 ---
 
 ## Historial de Versiones
+
+### v31.1 — Plan Maestro E1–E13 + F1 (Septiembre 2026)
+
+Release de **un flag por paso** sobre el snapshot 921. Default ON: E1, E3, E6, E7, E10. Gate: R@5 **96.91** R@1 **90.40** FP **15%**. Ver sección inicial del README. Commits: E12 `764c36b`, E13 `5e31e32`, F1 `86f3895`, docs este archivo.
 
 ### v28.0 — Canal 2 Integrado: Asociaciones Enriquecidas del Neocórtex de Sangre (Agosto 2026)
 
