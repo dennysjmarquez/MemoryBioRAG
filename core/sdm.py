@@ -550,6 +550,31 @@ def buscar_sdm(cerebro, query: str = "", radio_max: int = None, limite: int = 10
     return resultados[:limite]
 
 
+def rescatar_hopfield_ultimo_recurso(cerebro, query: str, *, limite: int = 1,
+                                     sim_min=None) -> list:
+    """E12: atractor Hamming/Hopfield solo si el ranking ya dio 0 hits.
+
+    Un paso: el estado almacenado de minima energia (max overlap bipolar)
+    es el vecino SDM mas cercano. No reindexa. No toca layout de 2048 bits.
+    """
+    if not query or not str(query).strip():
+        return []
+    if sim_min is None:
+        sim_min = float(os.environ.get("BIORAG_HOPFIELD_SIM_MIN", "0.28"))
+    hits = buscar_sdm(
+        cerebro,
+        query=query,
+        limite=max(int(limite), 1),
+        reindex_if_empty=False,
+    )
+    out = [h for h in hits if float(h.get("similitud") or 0.0) >= float(sim_min)]
+    if not out:
+        return []
+    best = out[0]
+    best["origen"] = "hopfield_ultimo_recurso"
+    return [best]
+
+
 def rescatar_fallback_sdm(cerebro, query: str, *, limite: int = 5,
                           sim_min=None, radio_max=None) -> list:
     """Fallback 2.5: rescate Hamming/Jaccard cuando el pool léxico es pobre.

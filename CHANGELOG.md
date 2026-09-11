@@ -1,5 +1,15 @@
 # BioRAG Changelog
 
+## [v31.1-unreleased] — 2026-09-11 — E12 Hopfield ultimo recurso (un paso)
+
+SDM/Hamming solo si ranking vacio (`hopfield_ultimo_recurso`, cap 0.45,
+sim_min 0.28). Cero costo si hay ≥1 hit. Flag `BIORAG_HOPFIELD_FALLBACK`
+default **OFF**.
+
+A/B 921 vs E10: R@5 **96.80** (−0.11, 28 fallos) R@1 **90.40** MRR 0.9294
+FP **15%**. typo R@5 98.46→96.92. Gate R@5 no. ON: `=1`. Competitive 100%
+P95 8.4ms. Tests `tests/test_hopfield_e12.py`.
+
 ## [v31.1-unreleased] — 2026-09-10 — E11 comunidad LPA (un paso)
 
 `comunidad_score` 1.0 si el candidato comparte la comunidad mayoritaria
