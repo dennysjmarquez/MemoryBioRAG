@@ -1,3 +1,57 @@
+# BioRAG v31.1 — Plan Maestro E1–E13 + Invención F1
+
+> **Versión:** v31.1 — Septiembre 2026 (lista para merge a `master`)
+> **Base de medición:** v30.1 / v31.0 + snapshot `snapshots/qa_escape_qcr_20260811.db` (921 casos)
+> **Tipo:** un flag por paso, A/B 921, default ON solo si el gate R@5≥96.91 y R@1≥90.40 se sostiene.
+> **Paradigma:** Python puro + SQLite FTS5. Cero embeddings densos, cero GPU, cero APIs en el path de búsqueda.
+
+---
+
+## 📦 v31.1 — Qué se hizo (para pasar a master)
+
+**Baseline de gate (E7/E10, snapshot 921):** R@5 **96.91%** · R@1 **90.40%** · MRR **0.9297** · FP **15%** (6/40) · 27 fallos.
+
+Esto **no es 100%**. El snapshot no da FP 0% (eso es la DB viva / calibración MCP). No se fusionan nodos ni se toca el layout SDM 2048 bits.
+
+### Defaults de producción (v31.1)
+
+| Paso | Flag | Default | 921 ON vs gate | Por qué |
+|---|---|---|---|---|
+| E1 SDM generación | `BIORAG_SDM_FALLBACK` | **ON** | 97.03 / 89.94 | pool&lt;3; no scoring |
+| E2 SDM scoring | `BIORAG_SDM_SCORING_PESO` | **0** | 96.91 / 90.06 | R@5 −0.12 |
+| E3 QCR-IDF | `BIORAG_QCR_IDF` | **ON** (umbral 0.40) | 96.91 / 90.17 | hold R@5, R@1 +0.23 |
+| E4 spreading | `BIORAG_SPREADING_PROACTIVO` | **OFF** | 96.80 / 89.83 | R@5 falla; FP 0% en ON |
+| E5 resonancia | `BIORAG_RESONANCIA_ACTIVA` | **OFF** | 97.14 / 89.83 | R@5 sube, R@1 baja |
+| E6 NCD zlib | `BIORAG_NCD_PESO` | **0.05 ON** | 96.91 / **90.40** | gate OK |
+| E7 JSD adaptativo | `BIORAG_JSD_ADAPTATIVO` | **ON** | 96.91 / 90.40 | `por_tema` R@1 66.15 |
+| E8 SRL condicional | `BIORAG_SRL_CONDICIONAL` | **OFF** | 96.80 / 90.63 | R@5 −0.11; sinonimo R@1 45.45 |
+| E9 IDF dimensional | `BIORAG_DIM_IDF_ACTIVO` | **OFF** | 97.14 / 89.71 | R@5 97.14; R@1 baja |
+| E10 DMN síntesis | `BIORAG_DMN_SINTESIS_ACTIVA` | **ON** | 96.91 / 90.40 | tope 8 aristas `dmn_synthesized` |
+| E11 comunidad LPA | `BIORAG_COMUNIDAD_PESO` | **0** | 96.57 / 89.60 | ruido modular |
+| E12 Hopfield vacío | `BIORAG_HOPFIELD_FALLBACK` | **OFF** | 96.80 / 90.40 | solo 0 hits |
+| E13 metacognición | `BIORAG_METACOGNICION_ACTIVA` | **OFF** | 91.77 / 86.17 | FP sigue 15%; R@5 −5pp |
+| F1 coherencia SRL | `BIORAG_COHERENCIA_NARRATIVA` | **0** | 96.91 / 90.17 | R@1 −0.23 |
+
+**ON en master (sin flags extra):** E1, E3, E6, E7, E10. El resto está en código y tests, apagado.
+
+### Cómo reproducir el 921
+
+```bash
+BIORAG_PATH=snapshots/qa_escape_qcr_20260811.db python3 scripts/evaluar_qa.py
+# Exploratorio (sin gate CI):
+BIORAG_QA_GATE=0 BIORAG_PATH=snapshots/qa_escape_qcr_20260811.db python3 scripts/evaluar_qa.py
+```
+
+Ablación de un paso: el flag de la tabla. Un cambio a la vez; DB fresca (copia aislada del evaluador).
+
+### Tests nuevos (E/F)
+
+`tests/test_ncd_e6.py` · `test_jsd_adaptativo_e7.py` · `test_srl_condicional_e8.py` · `test_dim_idf_e9.py` · `test_dmn_sintesis_e10.py` · `test_comunidad_e11.py` · `test_hopfield_e12.py` · `test_metacognicion_e13.py` · `test_coherencia_narrativa_f1.py`
+
+Detalle por commit: `CHANGELOG.md` sección `v31.1-unreleased`.
+
+---
+
 # BioRAG v31.0 — Abismo Léxico: Rescate por Grafo Sináptico (EXP-Q)
 
 > **Versión:** v31.0 — Septiembre 2026
@@ -2011,6 +2065,27 @@ DESPUES DE CADA PASO: Leer resultados y explicar con propias palabras
 | Variable | Default | Descripción |
 |---|---|---|
 | `BIORAG_PATH` | `./MemoryBioRAG_Data/memory_biorag.db` | Ruta al archivo .db |
+
+### Plan Maestro v31.1 (E1–E13 + F1)
+
+Ver tabla de defaults al inicio del README. Resumen:
+
+| Variable | Default v31.1 | Notas |
+|---|---|---|
+| `BIORAG_SDM_FALLBACK` | `1` | E1 generación si pool&lt;3 |
+| `BIORAG_SDM_SCORING_PESO` | `0` | E2 |
+| `BIORAG_QCR_IDF` | `1` | E3 umbral `BIORAG_QCR_IDF_UMBRAL=0.40` |
+| `BIORAG_SPREADING_PROACTIVO` | `0` | E4 |
+| `BIORAG_RESONANCIA_ACTIVA` | `0` | E5 |
+| `BIORAG_NCD_PESO` | `0.05` | E6 |
+| `BIORAG_JSD_ADAPTATIVO` | `1` | E7 |
+| `BIORAG_SRL_CONDICIONAL` | `0` | E8 |
+| `BIORAG_DIM_IDF_ACTIVO` | `0` | E9 |
+| `BIORAG_DMN_SINTESIS_ACTIVA` | `1` | E10 tope 8 |
+| `BIORAG_COMUNIDAD_PESO` | `0` | E11 |
+| `BIORAG_HOPFIELD_FALLBACK` | `0` | E12 |
+| `BIORAG_METACOGNICION_ACTIVA` | `0` | E13 tau 0.35 |
+| `BIORAG_COHERENCIA_NARRATIVA` | `0` | F1 |
 
 ### Búsqueda y Rendimiento
 
