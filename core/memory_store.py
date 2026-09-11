@@ -2380,8 +2380,19 @@ class SQLiteMemoryBioRAG:
             WHERE ultimo_uso IS NOT NULL
               AND ultimo_uso < strftime('%s', 'now') - 604800
         """)
-        # Podar sinapsis muertas
-        self.cursor.execute("DELETE FROM sinapsis WHERE peso < 0.05")
+        # Podar sinapsis muertas (F4: guiado termodinamico si flag ON).
+        try:
+            from core.dmn_engine import TERMODINAMICA_DMN, podar_ltd_guiado
+            _f4_ltd = bool(TERMODINAMICA_DMN)
+        except Exception:
+            _f4_ltd = False
+        if _f4_ltd:
+            try:
+                podar_ltd_guiado(self)
+            except Exception:
+                self.cursor.execute("DELETE FROM sinapsis WHERE peso < 0.05")
+        else:
+            self.cursor.execute("DELETE FROM sinapsis WHERE peso < 0.05")
 
         # 3. Poda selectiva por umbral de fuerza (Dormir recuerdos <= 0.05)
         # Snapshot ANTES de dormir (para detectar quiénes se duermen)
