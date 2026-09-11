@@ -104,6 +104,14 @@ _coh_raw = float(os.environ.get('BIORAG_COHERENCIA_NARRATIVA', '0'))
 COHERENCIA_NARRATIVA_PESO = 0.0 if _coh_raw <= 0 else min(_coh_raw, 0.08)
 COHERENCIA_NARRATIVA_K = int(os.environ.get('BIORAG_COHERENCIA_NARRATIVA_K', '10'))
 
+# F2: episodio temporal. Peso 0 = OFF. Cap 0.08.
+_ep_raw = float(os.environ.get('BIORAG_EPISODIO_TEMPORAL_PESO', '0.05'))
+EPISODIO_TEMPORAL_PESO = 0.0 if _ep_raw <= 0 else min(_ep_raw, 0.08)
+EPISODIO_TEMPORAL_ACTIVO = os.environ.get('BIORAG_EPISODIO_TEMPORAL', '0').lower() in ('1', 'true', 'yes')
+EPISODIO_VENTANA_HORAS = float(os.environ.get('BIORAG_EPISODIO_VENTANA_HORAS', '24'))
+EPISODIO_LIMITE = int(os.environ.get('BIORAG_EPISODIO_LIMITE', '5'))
+EPISODIO_BUCKET_SEG = float(os.environ.get('BIORAG_EPISODIO_BUCKET_SEG', str(86400)))
+
 BAYESIAN_BM25 = os.environ.get('BIORAG_BAYESIAN_BM25', 'false').lower() == 'true'
 """Activar calibración Bayesian BM25 (sigmoid) en vez de normalización fija x/(x+3).
 Override: export BIORAG_BAYESIAN_BM25=true"""
@@ -3546,6 +3554,123 @@ class SQLiteMemoryBioRAG:
                     out[b] = 1.0
         return out
 
+    def _ts_nodo(self, concepto):
+        """Epoch de vivencia: creado_en, sino ultimo_acceso."""
+        try:
+            self.cursor.execute(
+                "SELECT COALESCE(NULLIF(creado_en, 0), ultimo_acceso, 0) "
+                "FROM largo_plazo WHERE concepto = ?",
+                (concepto,),
+            )
+            row = self.cursor.fetchone()
+            return float(row[0] or 0.0) if row else 0.0
+        except Exception:
+            return 0.0
+
+    def _expandir_episodio_temporal(self, nodo_ancla, ventana_horas=None, limite_episodio=None):
+        """F2: nodos cronologicamente adyacentes al ancla (misma categoria o dim)."""
+        if not nodo_ancla:
+            return []
+        vh = float(ventana_horas if ventana_horas is not None else EPISODIO_VENTANA_HORAS)
+        lim = int(limite_episodio if limite_episodio is not None else EPISODIO_LIMITE)
+        ts = self._ts_nodo(nodo_ancla)
+        if ts <= 0:
+            return []
+        delta = max(1.0, vh) * 3600.0
+        lo, hi = ts - delta, ts + delta
+        try:
+            self.cursor.execute(
+                "SELECT l.concepto, l.contenido, l.peso_sinaptico, l.estado, l.asociaciones, "
+                "COALESCE(NULLIF(l.creado_en, 0), l.ultimo_acceso, 0) AS ts "
+                "FROM largo_plazo l WHERE l.concepto != ? AND l.estado = 'activo' "
+                "AND COALESCE(NULLIF(l.creado_en, 0), l.ultimo_acceso, 0) BETWEEN ? AND ? "
+                "ORDER BY ABS(COALESCE(NULLIF(l.creado_en, 0), l.ultimo_acceso, 0) - ?) "
+                "LIMIT ?",
+                (nodo_ancla, lo, hi, ts, max(lim * 4, 20)),
+            )
+            cands = self.cursor.fetchall()
+        except Exception:
+            return []
+        cat_a = None
+        dims_a = set()
+        try:
+            self.cursor.execute("SELECT categoria FROM largo_plazo WHERE concepto = ?", (nodo_ancla,))
+            r = self.cursor.fetchone()
+            cat_a = r[0] if r else None
+            self.cursor.execute(
+                "SELECT dimension_id FROM largo_plazo_dimensiones WHERE concepto = ?",
+                (nodo_ancla,),
+            )
+            dims_a = {row[0] for row in self.cursor.fetchall()}
+        except Exception:
+            pass
+        out = []
+        for conc, cont, peso, est, asoc, cts in cands:
+            ok = False
+            try:
+                self.cursor.execute("SELECT categoria FROM largo_plazo WHERE concepto = ?", (conc,))
+                rc = self.cursor.fetchone()
+                if cat_a is not None and rc and rc[0] == cat_a:
+                    ok = True
+                if not ok and dims_a:
+                    self.cursor.execute(
+                        "SELECT dimension_id FROM largo_plazo_dimensiones WHERE concepto = ?",
+                        (conc,),
+                    )
+                    if dims_a & {row[0] for row in self.cursor.fetchall()}:
+                        ok = True
+            except Exception:
+                ok = True
+            if not ok:
+                continue
+            out.append({
+                "concepto": conc,
+                "contenido": cont,
+                "peso": peso,
+                "estado": est,
+                "asociaciones": asoc or "",
+                "ts": float(cts or 0.0),
+            })
+            if len(out) >= lim:
+                break
+        return out
+
+    def _afinidad_temporal_pool(self, conceptos):
+        """F2: 1.0 si comparte bucket dia/sesion con otro del pool. O(k)."""
+        if EPISODIO_TEMPORAL_PESO <= 0 or not conceptos:
+            return {}
+        uniq = [c for c in conceptos if c]
+        if len(uniq) < 2:
+            return {c: 0.0 for c in uniq}
+        ph = ",".join("?" * len(uniq))
+        ts_map = {}
+        try:
+            self.cursor.execute(
+                f"SELECT concepto, COALESCE(NULLIF(creado_en, 0), ultimo_acceso, 0) "
+                f"FROM largo_plazo WHERE concepto IN ({ph})",
+                uniq,
+            )
+            for conc, ts in self.cursor.fetchall():
+                ts_map[conc] = float(ts or 0.0)
+        except Exception:
+            return {c: 0.0 for c in uniq}
+        buck = EPISODIO_BUCKET_SEG if EPISODIO_BUCKET_SEG > 0 else 86400.0
+        counts = {}
+        for c in uniq:
+            t = ts_map.get(c, 0.0)
+            if t <= 0:
+                continue
+            b = int(t // buck)
+            counts[b] = counts.get(b, 0) + 1
+        out = {}
+        for c in uniq:
+            t = ts_map.get(c, 0.0)
+            if t <= 0:
+                out[c] = 0.0
+                continue
+            out[c] = 1.0 if counts.get(int(t // buck), 0) >= 2 else 0.0
+        return out
+
     def _asegurar_idf_dimensiones(self):
         """E9: DF por dimension_id una vez. IDF = ln(1+(N-DF+0.5)/(DF+0.5))."""
         if getattr(self, "_dim_idf_map", None) is not None:
@@ -3719,7 +3844,8 @@ class SQLiteMemoryBioRAG:
                                 sdm_score: float = 0.0,
                                 resonancia_score: float = 0.0,
                                 ncd_score: float = 0.0,
-                                comunidad_score: float = 0.0):
+                                comunidad_score: float = 0.0,
+                                episodio_score: float = 0.0):
         """Score hibrido: senales + JSD + Predicados + PPMI + Hub + SDM (E2) + resonancia (E5).
         grupo_score: similitud por grupo semántico WordNet (coseno binario).
         tematico_score: similitud temática por ausencia/presencia de dimensiones (IDF).
@@ -3751,7 +3877,7 @@ class SQLiteMemoryBioRAG:
         }
         _base_sum = sum(_base_weights.values())  # 1.39
         # E2: SDM entra en el denominador para que el peso no infle el total.
-        total_base = _base_sum + PPMI_VECTOR_WEIGHT + SDM_SCORING_PESO + RESONANCIA_PESO + NCD_PESO + COMUNIDAD_PESO
+        total_base = _base_sum + PPMI_VECTOR_WEIGHT + SDM_SCORING_PESO + RESONANCIA_PESO + NCD_PESO + COMUNIDAD_PESO + EPISODIO_TEMPORAL_PESO
         base_weight = (1.0 - jsd_weight) / total_base if total_base > 0 else 0.0
 
         score = (
@@ -3772,7 +3898,8 @@ class SQLiteMemoryBioRAG:
                 SDM_SCORING_PESO * sdm_score +  # E2: Hamming 2048 bits, solo pool
                 RESONANCIA_PESO * resonancia_score +  # E5: convergencia multi-semilla, solo pool
                 NCD_PESO * ncd_score +  # E6: 1-NCD zlib, solo pool
-                COMUNIDAD_PESO * comunidad_score  # E11: LPA mayoritaria, O(1)
+                COMUNIDAD_PESO * comunidad_score +  # E11
+                EPISODIO_TEMPORAL_PESO * episodio_score  # F2: afinidad temporal pool
             ) +
             jsd_weight * jsd_score           # Signal #11: JSD distributional overlap
         )
@@ -4653,7 +4780,7 @@ class SQLiteMemoryBioRAG:
             resultado[raiz] = filtradas
         return resultado
 
-    def buscar_por_frase(self, frase, profundidad="activos", pagina=1, limite=None, categoria=None, preview_chars=1500, historial_fallos=None, context_window=0, dimensiones_dict=None, dimensiones_ids=None, parafrasis_list=None, desde_ts=None, hasta_ts=None, modo_estricto=False, usar_inferencia=True, buscar_por_rol=None, ignore_peso_sinaptico=False, ordenar_por="relevancia", permitir_expansion_empate=False):
+    def buscar_por_frase(self, frase, profundidad="activos", pagina=1, limite=None, categoria=None, preview_chars=1500, historial_fallos=None, context_window=0, dimensiones_dict=None, dimensiones_ids=None, parafrasis_list=None, desde_ts=None, hasta_ts=None, modo_estricto=False, usar_inferencia=True, buscar_por_rol=None, ignore_peso_sinaptico=False, ordenar_por="relevancia", permitir_expansion_empate=False, expandir_episodio=False):
         """Busqueda hibrida: FTS5 trigram + peso sinaptico + asociaciones + scoring dimensional.
 
         frase: texto en lenguaje natural. Trigrams nativos de FTS5 manejan
@@ -6115,6 +6242,13 @@ class SQLiteMemoryBioRAG:
         # E8: gate SRL una vez por query.
         _srl_e8 = self._srl_predicado_informativo(query)
 
+        episodio_map = {}
+        if EPISODIO_TEMPORAL_PESO > 0.0 and todos:
+            try:
+                episodio_map = self._afinidad_temporal_pool([r[1] for r in todos if r[1]])
+            except Exception:
+                episodio_map = {}
+
         comunidad_map_scores = {}
         if COMUNIDAD_PESO > 0.0 and todos:
             try:
@@ -6279,6 +6413,7 @@ class SQLiteMemoryBioRAG:
                 resonancia_score=resonancia_map.get(concepto, 0.0),
                 ncd_score=ncd_map.get(concepto, 0.0),
                 comunidad_score=comunidad_map_scores.get(concepto, 0.0),
+                episodio_score=episodio_map.get(concepto, 0.0),
             )
 
 
@@ -6661,6 +6796,26 @@ class SQLiteMemoryBioRAG:
         # Guardar trazabilidad para mcp_server.py
         self.last_todos = todos
         self.last_origen_scores = origen_scores
+
+        _exp_ep = expandir_episodio or EPISODIO_TEMPORAL_ACTIVO
+        if _exp_ep and pagina_resultados:
+            try:
+                _ancla = pagina_resultados[0][0]
+                _eps = self._expandir_episodio_temporal(_ancla)
+                _seen = {r[0] for r in pagina_resultados}
+                for hit in _eps:
+                    if hit["concepto"] in _seen:
+                        continue
+                    sc = min(0.45, float(pagina_resultados[0][4] or 0.0) * 0.85)
+                    pagina_resultados.append((
+                        hit["concepto"], hit["contenido"], hit["peso"],
+                        hit["estado"], sc, hit["asociaciones"],
+                    ))
+                    _seen.add(hit["concepto"])
+                    origen_scores[hit["concepto"]] = ("episodio_temporal", 1.0)
+                total = max(total, len(pagina_resultados))
+            except Exception:
+                pass
 
         # Signal #14 (v29): Enriquecer candidatos con ADN Conceptual bajo flag.
         # Flag OFF por defecto → esta rama no altera la ruta del baseline.
