@@ -1,5 +1,15 @@
 # BioRAG Changelog
 
+## [v31.1-unreleased] — 2026-09-11 — E13 metacognicion (un paso)
+
+Abstiene si top-1 < tau 0.35 y origen no protegido
+(`lexico_aprendido`/`protegido`/`concepto`>=0.95). Flag
+`BIORAG_METACOGNICION_ACTIVA` default **OFF**.
+
+A/B 921 vs E10: R@5 **91.77** (−5.14, 72 fallos) R@1 **86.17** FP **15%**
+(los 6 negativos tienen top≥0.35). `por_tema` 86.15→52.31. Gate no.
+ON: `=1`. Tests `tests/test_metacognicion_e13.py`.
+
 ## [v31.1-unreleased] — 2026-09-11 — E12 Hopfield ultimo recurso (un paso)
 
 SDM/Hamming solo si ranking vacio (`hopfield_ultimo_recurso`, cap 0.45,
