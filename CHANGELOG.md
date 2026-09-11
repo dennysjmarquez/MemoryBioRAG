@@ -1,5 +1,15 @@
 # BioRAG Changelog
 
+## [v31.1-unreleased] — 2026-09-10 — E11 comunidad LPA (un paso)
+
+`comunidad_score` 1.0 si el candidato comparte la comunidad mayoritaria
+del top-5 léxico (LPA cacheado, O(1) por candidato). Peso en num/den.
+Flag `BIORAG_COMUNIDAD_PESO` default **0** (OFF).
+
+A/B 921 vs E10: R@5 **96.57** (−0.34, 30 fallos) R@1 **89.60** (−0.80)
+MRR 0.9236 FP 15%. `por_tema` 86.15→84.62. Gate no. ON: `=0.05`.
+Competitive 100% P95 7.6ms. Tests `tests/test_comunidad_e11.py`.
+
 ## [v31.1-unreleased] — 2026-09-10 — E10 DMN síntesis (un paso)
 
 Sinapsis `dmn_synthesized` peso 0.30, tope 8 por ciclo. Solo pares activos

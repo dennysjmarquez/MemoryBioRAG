@@ -85,6 +85,11 @@ DMN_SINTESIS_ACTIVA = os.environ.get('BIORAG_DMN_SINTESIS_ACTIVA', '1').lower() 
 DMN_SINTESIS_MAX = int(os.environ.get('BIORAG_DMN_SINTESIS_MAX', '8'))
 DMN_SINTESIS_PESO = float(os.environ.get('BIORAG_DMN_SINTESIS_PESO', '0.30'))
 
+# E11: coherencia de comunidad (LPA cacheado). Lookup O(1) por candidato.
+_com_peso_raw = float(os.environ.get('BIORAG_COMUNIDAD_PESO', '0'))
+COMUNIDAD_PESO = 0.0 if _com_peso_raw <= 0 else min(_com_peso_raw, 0.08)
+COMUNIDAD_TOP_K = int(os.environ.get('BIORAG_COMUNIDAD_TOP_K', '5'))
+
 BAYESIAN_BM25 = os.environ.get('BIORAG_BAYESIAN_BM25', 'false').lower() == 'true'
 """Activar calibración Bayesian BM25 (sigmoid) en vez de normalización fija x/(x+3).
 Override: export BIORAG_BAYESIAN_BM25=true"""
@@ -3382,6 +3387,70 @@ class SQLiteMemoryBioRAG:
             out[conc] = self._ncd_sim(q, f"{conc} {texto or ''}")
         return out
 
+    def _asegurar_mapa_comunidades(self):
+        """E11: LPA una vez. Mapa concepto -> community_id. Path caliente O(1)."""
+        if getattr(self, "_comunidad_map", None) is not None:
+            return self._comunidad_map
+        labels = {}
+        try:
+            self.cursor.execute(
+                "SELECT concepto FROM largo_plazo WHERE estado = 'activo'"
+            )
+            nodos = [r[0] for r in self.cursor.fetchall()]
+            nodos_set = set(nodos)
+            adj = {n: {} for n in nodos}
+            self.cursor.execute(
+                "SELECT origen, destino, peso FROM sinapsis WHERE peso >= 0.1"
+            )
+            for orig, dest, peso in self.cursor.fetchall():
+                if orig in nodos_set and dest in nodos_set:
+                    w = float(peso or 0.0)
+                    adj[orig][dest] = max(adj[orig].get(dest, 0.0), w)
+                    adj[dest][orig] = max(adj[dest].get(orig, 0.0), w)
+            labels = {n: n for n in nodos}
+            import random
+            rng = random.Random(42)
+            for _ in range(20):
+                cambios = 0
+                orden = list(nodos)
+                rng.shuffle(orden)
+                for u in orden:
+                    vecinos = adj.get(u) or {}
+                    if not vecinos:
+                        continue
+                    pesos_lbl = {}
+                    for v, w in vecinos.items():
+                        lbl = labels[v]
+                        pesos_lbl[lbl] = pesos_lbl.get(lbl, 0.0) + w
+                    if not pesos_lbl:
+                        continue
+                    max_lbl = max(pesos_lbl.items(), key=lambda x: x[1])[0]
+                    if labels[u] != max_lbl:
+                        labels[u] = max_lbl
+                        cambios += 1
+                if cambios == 0:
+                    break
+        except Exception:
+            labels = {}
+        self._comunidad_map = labels
+        return labels
+
+    def _comunidad_scores_pool(self, semillas, pool):
+        """1.0 si el candidato comparte la comunidad mayoritaria de semillas."""
+        if COMUNIDAD_PESO <= 0 or not pool:
+            return {}
+        mp = self._asegurar_mapa_comunidades()
+        from collections import Counter
+        votes = Counter()
+        for s in semillas[:COMUNIDAD_TOP_K]:
+            cid = mp.get(s)
+            if cid is not None:
+                votes[cid] += 1
+        if not votes:
+            return {c: 0.0 for c in pool}
+        top_c = votes.most_common(1)[0][0]
+        return {c: (1.0 if mp.get(c) == top_c else 0.0) for c in pool}
+
     @staticmethod
     def _jsd_weight_adaptativo(query, n_tokens=None):
         """E7: JSD_WEIGHT * 2.5 si Nt>=4, *0.5 si Nt<4. OFF: JSD_WEIGHT estatico."""
@@ -3584,7 +3653,8 @@ class SQLiteMemoryBioRAG:
                                 hub_match: float = 0.0,
                                 sdm_score: float = 0.0,
                                 resonancia_score: float = 0.0,
-                                ncd_score: float = 0.0):
+                                ncd_score: float = 0.0,
+                                comunidad_score: float = 0.0):
         """Score hibrido: senales + JSD + Predicados + PPMI + Hub + SDM (E2) + resonancia (E5).
         grupo_score: similitud por grupo semántico WordNet (coseno binario).
         tematico_score: similitud temática por ausencia/presencia de dimensiones (IDF).
@@ -3616,7 +3686,7 @@ class SQLiteMemoryBioRAG:
         }
         _base_sum = sum(_base_weights.values())  # 1.39
         # E2: SDM entra en el denominador para que el peso no infle el total.
-        total_base = _base_sum + PPMI_VECTOR_WEIGHT + SDM_SCORING_PESO + RESONANCIA_PESO + NCD_PESO
+        total_base = _base_sum + PPMI_VECTOR_WEIGHT + SDM_SCORING_PESO + RESONANCIA_PESO + NCD_PESO + COMUNIDAD_PESO
         base_weight = (1.0 - jsd_weight) / total_base if total_base > 0 else 0.0
 
         score = (
@@ -3636,7 +3706,8 @@ class SQLiteMemoryBioRAG:
                 0.20 * hub_match +            # Signal #14: Concept Hub
                 SDM_SCORING_PESO * sdm_score +  # E2: Hamming 2048 bits, solo pool
                 RESONANCIA_PESO * resonancia_score +  # E5: convergencia multi-semilla, solo pool
-                NCD_PESO * ncd_score  # E6: 1-NCD zlib, solo pool
+                NCD_PESO * ncd_score +  # E6: 1-NCD zlib, solo pool
+                COMUNIDAD_PESO * comunidad_score  # E11: LPA mayoritaria, O(1)
             ) +
             jsd_weight * jsd_score           # Signal #11: JSD distributional overlap
         )
@@ -5979,6 +6050,18 @@ class SQLiteMemoryBioRAG:
         # E8: gate SRL una vez por query.
         _srl_e8 = self._srl_predicado_informativo(query)
 
+        comunidad_map_scores = {}
+        if COMUNIDAD_PESO > 0.0 and todos:
+            try:
+                _sem_e11 = list(fts5_conceptos[:COMUNIDAD_TOP_K]) if fts5_conceptos else []
+                if len(_sem_e11) < 2:
+                    _sem_e11 = [r[1] for r in todos[:COMUNIDAD_TOP_K] if r[1]]
+                comunidad_map_scores = self._comunidad_scores_pool(
+                    _sem_e11, [r[1] for r in todos if r[1]]
+                )
+            except Exception:
+                comunidad_map_scores = {}
+
         # Calcular score hibrido para cada resultado (fórmula única 9 señales)
         total = len(todos)
         resultados_con_hibrido = []
@@ -6130,6 +6213,7 @@ class SQLiteMemoryBioRAG:
                 sdm_score=sdm_sim_map.get(concepto, 0.0),
                 resonancia_score=resonancia_map.get(concepto, 0.0),
                 ncd_score=ncd_map.get(concepto, 0.0),
+                comunidad_score=comunidad_map_scores.get(concepto, 0.0),
             )
 
 
