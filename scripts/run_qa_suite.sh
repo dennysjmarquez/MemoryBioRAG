@@ -14,13 +14,17 @@ if [ -f "$PARENT_DIR/.env.local" ]; then
     set +a
 fi
 
-# 2. Resolver DB origen: BIORAG_PATH explícito del entorno > DB viva del repo
+# 2. Resolver DB origen: BIORAG_PATH explícito > Snapshot oficial > DB viva del repo
+DEFAULT_SNAPSHOT="$PARENT_DIR/snapshots/qa_escape_qcr_20260811.db"
 if [ -n "$BIORAG_PATH" ]; then
     SRC_DB="$BIORAG_PATH"
     echo "Usando BIORAG_PATH explícito como origen: $SRC_DB"
+elif [ -f "$DEFAULT_SNAPSHOT" ]; then
+    SRC_DB="$DEFAULT_SNAPSHOT"
+    echo "BIORAG_PATH no definido -> Usando snapshot oficial: $SRC_DB"
 else
     SRC_DB="$PARENT_DIR/MemoryBioRAG_Data/memory_biorag.db"
-    echo "BIORAG_PATH no definido -> Usando DB viva del repo: $SRC_DB"
+    echo "BIORAG_PATH no definido ni snapshot encontrado -> Usando DB viva del repo: $SRC_DB"
 fi
 
 if [ ! -f "$SRC_DB" ]; then
@@ -75,8 +79,8 @@ on_error() {
     echo "Si es una corrida exploratoria (ablación, experimento) y esperabas este resultado:" >&2
     echo "  BIORAG_QA_GATE=0 ./scripts/run_qa_suite.sh" >&2
     echo "" >&2
-    echo "Otras causas posibles: un test de pytest fallido o un error en los pasos [2/4]" >&2
-    echo "y [3/4]. Revisa la salida anterior a este mensaje." >&2
+    echo "Otras causas posibles: un test de pytest fallido o un error en los pasos [2/5]," >&2
+    echo "[3/5] o [4/5]. Revisa la salida anterior a este mensaje." >&2
     echo "================================================================================" >&2
 }
 trap on_error ERR
