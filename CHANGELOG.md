@@ -1,5 +1,14 @@
 # BioRAG Changelog
 
+## [v31.1-unreleased] — 2026-09-11 — F1 coherencia narrativa SRL (un paso)
+
+Bono 0.05 si top-k (≤10) tiene transicion objeto↔sujeto en predicados.
+O(k²). Flag `BIORAG_COHERENCIA_NARRATIVA` default **0**.
+
+A/B 921 vs E10: R@5 **96.91** R@1 **90.17** (−0.23) MRR 0.9279 FP 15%.
+Gate R@1 no. ON: `=0.05`. Competitive 100% P95 6.7ms.
+Tests `tests/test_coherencia_narrativa_f1.py`.
+
 ## [v31.1-unreleased] — 2026-09-11 — E13 metacognicion (un paso)
 
 Abstiene si top-1 < tau 0.35 y origen no protegido

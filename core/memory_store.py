@@ -99,6 +99,11 @@ HOPFIELD_SCORE_CAP = float(os.environ.get('BIORAG_HOPFIELD_SCORE_CAP', '0.45'))
 METACOGNICION_ACTIVA = os.environ.get('BIORAG_METACOGNICION_ACTIVA', '0').lower() in ('1', 'true', 'yes')
 METACOG_TAU = float(os.environ.get('BIORAG_METACOG_TAU', '0.35'))
 
+# F1: coherencia narrativa SRL sobre top-k (no O(N)).
+_coh_raw = float(os.environ.get('BIORAG_COHERENCIA_NARRATIVA', '0'))
+COHERENCIA_NARRATIVA_PESO = 0.0 if _coh_raw <= 0 else min(_coh_raw, 0.08)
+COHERENCIA_NARRATIVA_K = int(os.environ.get('BIORAG_COHERENCIA_NARRATIVA_K', '10'))
+
 BAYESIAN_BM25 = os.environ.get('BIORAG_BAYESIAN_BM25', 'false').lower() == 'true'
 """Activar calibración Bayesian BM25 (sigmoid) en vez de normalización fija x/(x+3).
 Override: export BIORAG_BAYESIAN_BM25=true"""
@@ -3490,6 +3495,57 @@ class SQLiteMemoryBioRAG:
         except Exception:
             return False
 
+    def _evaluar_coherencia_narrativa(self, conceptos):
+        """F1: 1.0 si hay transicion causal SRL (objeto<->sujeto) entre el top-k."""
+        if COHERENCIA_NARRATIVA_PESO <= 0 or not conceptos:
+            return {}
+        stop = {"desconocido", "evento", "general", "el", "la", "los", "las"}
+        out = {c: 0.0 for c in conceptos if c}
+        ph = ",".join("?" * len(out))
+        if not ph:
+            return {}
+        by_c = {}
+        try:
+            self.cursor.execute(
+                f"SELECT concepto, sujeto, accion, objeto FROM predicados "
+                f"WHERE concepto IN ({ph})",
+                list(out.keys()),
+            )
+            for conc, suj, acc, obj in self.cursor.fetchall():
+                by_c.setdefault(conc, []).append((suj or "", acc or "", obj or ""))
+        except Exception:
+            return out
+
+        def _toks(s):
+            return {w for w in re.findall(r"\w{3,}", (s or "").lower()) if w not in stop}
+
+        keys = list(out.keys())
+        for i, a in enumerate(keys):
+            pa = by_c.get(a) or []
+            if not pa:
+                continue
+            for b in keys[i + 1 :]:
+                pb = by_c.get(b) or []
+                if not pb:
+                    continue
+                hit = False
+                for sa, aa, oa in pa:
+                    ta, toa = _toks(sa), _toks(oa)
+                    for sb, ab, ob in pb:
+                        tb, tob = _toks(sb), _toks(ob)
+                        if (toa and tb and toa & tb) or (tob and ta and tob & ta):
+                            hit = True
+                            break
+                        if aa and ab and aa == ab and (toa & tob or ta & tb):
+                            hit = True
+                            break
+                    if hit:
+                        break
+                if hit:
+                    out[a] = 1.0
+                    out[b] = 1.0
+        return out
+
     def _asegurar_idf_dimensiones(self):
         """E9: DF por dimension_id una vez. IDF = ln(1+(N-DF+0.5)/(DF+0.5))."""
         if getattr(self, "_dim_idf_map", None) is not None:
@@ -6232,6 +6288,23 @@ class SQLiteMemoryBioRAG:
 
         # Reordenar por score hibrido descendente
         resultados_con_hibrido.sort(key=lambda r: r[4], reverse=True)
+
+        # F1: bono causal SRL solo sobre el head (O(k^2), k<=10).
+        if COHERENCIA_NARRATIVA_PESO > 0.0 and resultados_con_hibrido:
+            try:
+                _head = resultados_con_hibrido[:COHERENCIA_NARRATIVA_K]
+                _coh = self._evaluar_coherencia_narrativa([r[0] for r in _head])
+                if any(_coh.get(r[0], 0.0) > 0 for r in _head):
+                    _boosted = []
+                    for conc, cont, peso, est, sc, asoc in resultados_con_hibrido:
+                        b = float(_coh.get(conc, 0.0))
+                        if b > 0:
+                            sc = min(1.0, float(sc) + COHERENCIA_NARRATIVA_PESO * b)
+                        _boosted.append((conc, cont, peso, est, sc, asoc))
+                    resultados_con_hibrido = _boosted
+                    resultados_con_hibrido.sort(key=lambda r: r[4], reverse=True)
+            except Exception:
+                pass
 
         # Promoción de candidatos generados por episodio léxico explícito.
         # POR QUÉ: el gold entra al pool (generación) pero el ranker híbrido no
