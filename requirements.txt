@@ -1,8 +1,12 @@
-fastapi>=0.104.0
-uvicorn>=0.24.0
-numpy>=1.24.0
-pytest>=7.0.0
-pydantic>=2.0.0
-nltk>=3.8,<3.10
-mcp>=1.0.0,<2
-python-dotenv>=1.0.0
+# BioRAG deps PINNED (==) — lección 2026-09-12: un reinstall con rangos (>=)
+# movió el 921 de 97.37/90.74/0.9331/23/FP15% a 97.60/90.51/0.9323/21/FP0
+# SIN cambiar ni código ni DB (deriva de entorno: numpy 2.4.6 et al).
+# Medir siempre con este freeze; cambiar versiones = re-baseline explícito.
+fastapi==0.141.1
+uvicorn==0.52.4
+numpy==2.4.6
+pytest==9.1.1
+pydantic==2.13.5
+nltk==3.9.4
+mcp==1.30.0
+python-dotenv==1.2.3
