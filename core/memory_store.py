@@ -164,9 +164,6 @@ SDM_FALLBACK_K = int(os.environ.get('BIORAG_SDM_FALLBACK_K', '5'))
 # Peso suave 0.05–0.08 (cap 0.08). 0 = OFF, cero overhead.
 # Independiente del tamaño N: un SELECT por PK del pool.
 # Default 0: A/B 921 con 0.06 bajó R@5 97.03→96.91 (1 fallo extra).
-# Fórmula sí suma sdm_score; ON con BIORAG_SDM_SCORING_PESO=0.06.
-_sdm_peso_raw = float(os.environ.get('BIORAG_SDM_SCORING_PESO', '0'))
-SDM_SCORING_PESO = 0.0 if _sdm_peso_raw <= 0 else min(_sdm_peso_raw, 0.08)
 
 # E3: QCR ponderado por IDF. Default ON. Umbral 0.30–0.45 (default 0.40).
 # OFF: BIORAG_QCR_IDF=0 vuelve al ratio no ponderado 0.50.
@@ -3843,22 +3840,20 @@ class SQLiteMemoryBioRAG:
                                 pred_score: float = 0.0,
                                 ppmi_score: float = 0.0,
                                 hub_match: float = 0.0,
-                                sdm_score: float = 0.0,
                                 resonancia_score: float = 0.0,
                                 ncd_score: float = 0.0,
                                 comunidad_score: float = 0.0,
                                 episodio_score: float = 0.0,
                                 analogia_score: float = 0.0,
                                 campo_score: float = 0.0):
-        """Score hibrido: senales + JSD + Predicados + PPMI + Hub + SDM (E2) + resonancia (E5).
+        """Score hibrido: senales + JSD + Predicados + PPMI + Hub + resonancia (E5).
         grupo_score: similitud por grupo semántico WordNet (coseno binario).
         tematico_score: similitud temática por ausencia/presencia de dimensiones (IDF).
         match_exacto: preserva precisión en búsquedas por nombre exacto (floor 0.5).
         jsd_score: Jensen-Shannon Divergence como similitud [0,1].
         jsd_weight: peso de JSD en la fórmula (0.0 = desactivado, 0.05 = default activo).
         pred_score: matching de query tokens contra predicados SRL [0,1].
-        ppmi_score: similitud vectorial PPMI+SVD+Retrofitting normalizada [0,1]. Signal #13 (v26.0).
-        sdm_score: Jaccard ponderado del vector binario 2048 bits vs query [0,1]. Solo pool."""
+        ppmi_score: similitud vectorial PPMI+SVD+Retrofitting normalizada [0,1]. Signal #13 (v26.0)."""
         asoc_norm = min(1.0, asoc_count / 20.0)
         peso_norm = min(1.0, peso_sinaptico)
 
@@ -3881,7 +3876,7 @@ class SQLiteMemoryBioRAG:
         }
         _base_sum = sum(_base_weights.values())  # 1.39
         # E2: SDM entra en el denominador para que el peso no infle el total.
-        total_base = _base_sum + PPMI_VECTOR_WEIGHT + SDM_SCORING_PESO + RESONANCIA_PESO + NCD_PESO + COMUNIDAD_PESO + EPISODIO_TEMPORAL_PESO + ANALOGIA_PESO + CAMPO_POTENCIAL_PESO
+        total_base = _base_sum + PPMI_VECTOR_WEIGHT + RESONANCIA_PESO + NCD_PESO + COMUNIDAD_PESO + EPISODIO_TEMPORAL_PESO + ANALOGIA_PESO + CAMPO_POTENCIAL_PESO
         base_weight = (1.0 - jsd_weight) / total_base if total_base > 0 else 0.0
 
         score = (
@@ -3899,7 +3894,6 @@ class SQLiteMemoryBioRAG:
                 0.20 * pred_score +          # Signal #12: Predicados SRL
                 PPMI_VECTOR_WEIGHT * ppmi_score +  # Signal #13: PPMI+SVD
                 0.20 * hub_match +            # Signal #14: Concept Hub
-                SDM_SCORING_PESO * sdm_score +  # E2: Hamming 2048 bits, solo pool
                 RESONANCIA_PESO * resonancia_score +  # E5: convergencia multi-semilla, solo pool
                 NCD_PESO * ncd_score +  # E6: 1-NCD zlib, solo pool
                 COMUNIDAD_PESO * comunidad_score +  # E11
@@ -6408,19 +6402,6 @@ class SQLiteMemoryBioRAG:
             except Exception:
                 pass
 
-        # E2: similitud SDM del pool (O(k) PK), no barrido del corpus.
-        # POR QUÉ aquí: el query_vec se genera UNA vez; cada candidato es un
-        # lookup por PRIMARY KEY. N=1 o N=10^6 no cambia el coste, solo |pool|.
-        sdm_sim_map = {}
-        if SDM_SCORING_PESO > 0.0 and todos:
-            try:
-                from core.sdm import similitudes_sdm_pool
-                sdm_sim_map = similitudes_sdm_pool(
-                    self, query, [r[1] for r in todos if r[1]]
-                )
-            except Exception:
-                sdm_sim_map = {}
-
         # E5: resonancia sobre vecinos del top-K que ya estan en el pool.
         resonancia_map = {}
         if RESONANCIA_PESO > 0.0 and todos:
@@ -6647,7 +6628,6 @@ class SQLiteMemoryBioRAG:
                 pred_score=pred_val,
                 ppmi_score=ppmi_val,
                 hub_match=hub_val,
-                sdm_score=sdm_sim_map.get(concepto, 0.0),
                 resonancia_score=resonancia_map.get(concepto, 0.0),
                 ncd_score=ncd_map.get(concepto, 0.0),
                 comunidad_score=comunidad_map_scores.get(concepto, 0.0),
