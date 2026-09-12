@@ -1,3 +1,4 @@
+import logging
 """
 Tests de OPT-NUEVA-5: etiquetado epistemico sin abstencion + puente DMN.
 
@@ -142,3 +143,33 @@ def test_encolado_dedup_y_merge_preserva_adn(cerebro_tmp):
     assert cz.last_estado_epistemico["estado"] == "x_adn"
     assert cz.last_estado_epistemico["confianza_epistemica"] == 0.5
     assert cz.last_estado_epistemico["estado_epistemico"] == "vacio_cognitivo"
+def test_fallo_epistemico_deja_rastro_y_no_rompe_busqueda(cerebro_tmp, monkeypatch, caplog):
+    """Protocolo #12: el fallo epistémico loguea WARNING y la búsqueda intacta."""
+    import core.memory_store as ms
+    cz = cerebro_tmp
+    assert ms.EPISTEMICO_METADATA == 1
+    cz.cursor.execute(
+        "INSERT INTO largo_plazo (concepto, contenido, peso_sinaptico, estado)"
+        " VALUES ('manzana_roja', 'una manzana roja y jugosa', 0.9, 'activo')"
+    )
+    cz.conn.commit()
+
+    def _boom(self, pagina):
+        raise RuntimeError("tabla dimensiones ausente (simulado)")
+    monkeypatch.setattr(ms.SQLiteMemoryBioRAG, "_epistemico_evaluar", _boom)
+    with caplog.at_level(logging.WARNING, logger="BioRAG.MemoryStore"):
+        res, total = cz.buscar_por_frase("manzana roja", limite=5)
+    assert total >= 1 and len(res) >= 1  # ranking intacto pese al fallo
+    assert any("epistemico" in r.message for r in caplog.records
+               if r.name == "BioRAG.MemoryStore"), "sin rastro en log"
+
+    # Puente DMN roto -> tambien deja rastro, no rompe
+    monkeypatch.setattr(ms.SQLiteMemoryBioRAG, "_epistemico_evaluar",
+                        ms.SQLiteMemoryBioRAG._epistemico_evaluar)
+    import core.dmn_reflexion as dmn
+    monkeypatch.setattr(dmn, "_guardar_estado",
+                        lambda s: (_ for _ in ()).throw(IOError("disco lleno (simulado)")))
+    caplog.clear()
+    with caplog.at_level(logging.WARNING, logger="BioRAG.MemoryStore"):
+        cz._epistemico_encolar_vacio("vacio con dmn roto", 0.05)
+    assert any("encolar vacio DMN fallo" in r.message for r in caplog.records)

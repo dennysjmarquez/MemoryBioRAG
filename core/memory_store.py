@@ -4890,7 +4890,8 @@ class SQLiteMemoryBioRAG:
                 return 0.0
             resto = top_conceptos[1:]
             return sum(1 for c in resto if (dims.get(c) or set()) & base) / len(resto)
-        except Exception:
+        except Exception as e:
+            logger.warning("epistemico: coherencia_dimensional fallo, coh=0 (%s: %s)", type(e).__name__, e)
             return 0.0
 
     def _epistemico_evaluar(self, pagina_resultados):
@@ -4904,7 +4905,8 @@ class SQLiteMemoryBioRAG:
         def _clip(x):
             try:
                 return max(0.0, min(1.0, float(x or 0.0)))
-            except Exception:
+            except Exception as e:
+                logger.warning("epistemico: clip score fallo, score=0 (%s: %s)", type(e).__name__, e)
                 return 0.0
 
         scores = [_clip(r[4]) for r in top]
@@ -4927,7 +4929,8 @@ class SQLiteMemoryBioRAG:
         JAMAS muta pagina_resultados. Devuelve None."""
         try:
             info = self._epistemico_evaluar(pagina_resultados)
-        except Exception:
+        except Exception as e:
+            logger.warning("epistemico: evaluar fallo, sin metadatos (%s: %s)", type(e).__name__, e)
             return
         try:
             base = getattr(self, "last_estado_epistemico", {}) or {}
@@ -4937,8 +4940,8 @@ class SQLiteMemoryBioRAG:
             merged.update(info)
             merged["epistemico_n_resultados"] = len(pagina_resultados or [])
             self.last_estado_epistemico = merged
-        except Exception:
-            pass
+        except Exception as e:
+            logger.warning("epistemico: merge metadatos fallo (%s: %s)", type(e).__name__, e)
         if info.get("estado_epistemico") == "vacio_cognitivo":
             self._epistemico_encolar_vacio(frase, info.get("Ce", 0.0))
 
@@ -4952,8 +4955,8 @@ class SQLiteMemoryBioRAG:
             merged.update({"estado_epistemico": "sin_consulta", "Ce": 0.0,
                            "epistemico_n_resultados": 0})
             self.last_estado_epistemico = merged
-        except Exception:
-            pass
+        except Exception as e:
+            logger.warning("epistemico: sin_consulta fallo (%s: %s)", type(e).__name__, e)
 
     def _epistemico_encolar_vacio(self, frase, ce):
         """Encola termino no resuelto en estado_hormiga.json (vacios_cognitivos).
@@ -4973,8 +4976,8 @@ class SQLiteMemoryBioRAG:
             cola.append({"termino": termino, "Ce": float(ce or 0.0), "ts": _t.time()})
             estado["vacios_cognitivos"] = cola[-self.EPISTEMICO_VACIOS_CAP:]
             _guardar_estado(estado)
-        except Exception:
-            pass
+        except Exception as e:
+            logger.warning("epistemico: encolar vacio DMN fallo (%s: %s)", type(e).__name__, e)
 
     def buscar_por_frase(self, frase, profundidad="activos", pagina=1, limite=None, categoria=None, preview_chars=1500, historial_fallos=None, context_window=0, dimensiones_dict=None, dimensiones_ids=None, parafrasis_list=None, desde_ts=None, hasta_ts=None, modo_estricto=False, usar_inferencia=True, buscar_por_rol=None, ignore_peso_sinaptico=False, ordenar_por="relevancia", permitir_expansion_empate=False, expandir_episodio=False, analogia=False):
         """Busqueda hibrida: FTS5 trigram + peso sinaptico + asociaciones + scoring dimensional.
