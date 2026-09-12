@@ -73,10 +73,6 @@ JSD_ADAPT_LARGO = float(os.environ.get('BIORAG_JSD_ADAPT_LARGO', '2.5'))
 JSD_ADAPT_CORTO = float(os.environ.get('BIORAG_JSD_ADAPT_CORTO', '0.5'))
 JSD_ADAPT_NT = int(os.environ.get('BIORAG_JSD_ADAPT_NT', '4'))
 
-# E8: pred_score (SRL) solo si hay predicado extraido o Nt>=3.
-SRL_CONDICIONAL = os.environ.get('BIORAG_SRL_CONDICIONAL', '0').lower() in ('1', 'true', 'yes')
-SRL_COND_NT = int(os.environ.get('BIORAG_SRL_COND_NT', '3'))
-
 # E9: IDF de dimensiones. Cache por instancia (1 GROUP BY), O(1) por candidato.
 DIM_IDF_ACTIVO = os.environ.get('BIORAG_DIM_IDF_ACTIVO', '0').lower() in ('1', 'true', 'yes')
 
@@ -3441,22 +3437,6 @@ class SQLiteMemoryBioRAG:
             w = base * JSD_ADAPT_CORTO
         return max(0.0, min(0.20, w))
 
-    @staticmethod
-    def _srl_predicado_informativo(query, n_tokens=None):
-        """E8: True si extrae >=1 predicado o Nt>=3. OFF: siempre True."""
-        if not SRL_CONDICIONAL:
-            return True
-        if n_tokens is None:
-            n_tokens = len(re.findall(r"\w{3,}", query or ""))
-        if n_tokens >= SRL_COND_NT:
-            return True
-        try:
-            from core.srl_extractor import extraer_predicados_determinista
-            preds = extraer_predicados_determinista(query or "")
-            return bool(preds)
-        except Exception:
-            return False
-
     def _ts_nodo(self, concepto):
         """Epoch de vivencia: creado_en, sino ultimo_acceso."""
         try:
@@ -6354,8 +6334,6 @@ class SQLiteMemoryBioRAG:
 
         # E7: JSD adaptativo una vez por query (Nt tokens >=3).
         _jsd_w_e7 = self._jsd_weight_adaptativo(query)
-        # E8: gate SRL una vez por query.
-        _srl_e8 = self._srl_predicado_informativo(query)
 
         episodio_map = {}
         if EPISODIO_TEMPORAL_PESO > 0.0 and todos:
@@ -6491,7 +6469,7 @@ class SQLiteMemoryBioRAG:
             # NO enganchada. Ver nodo biorag: backfill_predicados_restaura_parcial_no_84_62_y_canibaliza_con_jaccard.
             pred_val = 0.0
             pred_tokens = pred_contexto_map.get(concepto, set())
-            if _srl_e8 and pred_tokens and tokens_query:
+            if pred_tokens and tokens_query:
                 matches = sum(1 for t in tokens_query if t in pred_tokens)
                 pred_val = min(1.0, matches / max(1, len(tokens_query)))
 
