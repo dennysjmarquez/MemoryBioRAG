@@ -97,3 +97,10 @@ def ensenar_lexico(cerebro, expression_surface: str, canonical_concept: str, **k
 def consolidar_ciclo(cerebro):
     """Sueño completo. Todas las interfaces deben llamar esto, no SQL suelto."""
     return cerebro.ciclo_sueno_consolidacion()
+
+
+def resolver_analogia(cerebro, a: str, b: str, c: str, limite: int = 5):
+    """F3: A:B :: C:? por álgebra PPMI local (Plan Maestro, INVENCIÓN 5)."""
+    from core.ppmi_hybrid_search import resolver_analogia_simbolica
+
+    return resolver_analogia_simbolica(cerebro, a, b, c, limite=limite)

@@ -1,5 +1,22 @@
 # BioRAG Changelog
 
+## [v31.1-unreleased] — 2026-09-11 — F2 memoria episódica temporal (un paso)
+
+Recuperación episódica: nodos creados en la misma ventana temporal (±24h)
+forman un episodio. Dos piezas:
+
+1. **Señal de afinidad** `_afinidad_temporal_pool` — 1.0 si el nodo comparte
+   bucket temporal (día/sesión, `EPISODIO_BUCKET_SEG`) con otro del pool. O(k).
+   Peso `BIORAG_EPISODIO_TEMPORAL_PESO` default **0.05** (0=OFF, cap 0.08),
+   entra en num/den del score híbrido.
+2. **Expansión** `_expandir_episodio_temporal` — expande el episodio del nodo
+   ancla (misma categoría o dimensión), score cap 0.45. Flag
+   `BIORAG_EPISODIO_TEMPORAL` default **0** (OFF).
+
+A/B 921: **pendiente** (no medido aún contra el snapshot). Flags adicionales:
+`BIORAG_EPISODIO_VENTANA_HORAS=24`, `BIORAG_EPISODIO_LIMITE=5`,
+`BIORAG_EPISODIO_BUCKET_SEG=86400`. Tests `tests/test_episodio_temporal_f2.py`.
+
 ## [v31.1-unreleased] — 2026-09-11 — F1 coherencia narrativa SRL (un paso)
 
 Bono 0.05 si top-k (≤10) tiene transicion objeto↔sujeto en predicados.

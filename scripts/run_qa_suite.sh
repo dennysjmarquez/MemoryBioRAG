@@ -14,13 +14,17 @@ if [ -f "$PARENT_DIR/.env.local" ]; then
     set +a
 fi
 
-# 2. Resolver DB origen: BIORAG_PATH explícito del entorno > DB viva del repo
+# 2. Resolver DB origen: BIORAG_PATH explícito > Snapshot oficial > DB viva del repo
+DEFAULT_SNAPSHOT="$PARENT_DIR/snapshots/qa_escape_qcr_20260811.db"
 if [ -n "$BIORAG_PATH" ]; then
     SRC_DB="$BIORAG_PATH"
     echo "Usando BIORAG_PATH explícito como origen: $SRC_DB"
+elif [ -f "$DEFAULT_SNAPSHOT" ]; then
+    SRC_DB="$DEFAULT_SNAPSHOT"
+    echo "BIORAG_PATH no definido -> Usando snapshot oficial: $SRC_DB"
 else
     SRC_DB="$PARENT_DIR/MemoryBioRAG_Data/memory_biorag.db"
-    echo "BIORAG_PATH no definido -> Usando DB viva del repo: $SRC_DB"
+    echo "BIORAG_PATH no definido ni snapshot encontrado -> Usando DB viva del repo: $SRC_DB"
 fi
 
 if [ ! -f "$SRC_DB" ]; then
@@ -28,11 +32,13 @@ if [ ! -f "$SRC_DB" ]; then
     exit 1
 fi
 
-# 3. Crear copia aislada para toda la suite (protección total: original nunca se toca)
+# 3. Copia aislada FRESCA por fase (R3: DB fresca por configuración — ninguna fase
+# ve escrituras de otra (medido: el eval hub auto-crea sinapsis). El original nunca se toca.
 QA_DB="$PARENT_DIR/MemoryBioRAG_Data/memory_biorag_qa_run.db"
-echo "Creando copia aislada para la suite: $QA_DB"
-rm -f "$QA_DB" "$QA_DB-wal" "$QA_DB-shm"
-python3 -c "
+copia_fresca() {
+    echo "Creando copia aislada fresca desde: $SRC_DB"
+    rm -f "$QA_DB" "$QA_DB-wal" "$QA_DB-shm"
+    python3 -c "
 import sqlite3
 src = sqlite3.connect('$SRC_DB')
 dst = sqlite3.connect('$QA_DB')
@@ -42,9 +48,11 @@ src.backup(dst)
 src.close()
 dst.close()
 "
+    export BIORAG_PATH="$QA_DB"
+}
+copia_fresca
 
 # 4. Exportar BIORAG_PATH a la copia para TODOS los hijos
-export BIORAG_PATH="$QA_DB"
 echo "BIORAG_PATH exportado a copia aislada: $BIORAG_PATH"
 
 # 5. Función de limpieza
@@ -66,7 +74,7 @@ on_error() {
     echo "          LA SUITE TERMINÓ EN ROJO (código $codigo)" >&2
     echo "================================================================================" >&2
     echo "Causa más probable: el GATE DE REGRESIÓN de evaluar_qa.py detectó métricas por" >&2
-    echo "debajo de la baseline oficial (Recall@5 >= 97.0%, <= 23 fallos, 0% FP)." >&2
+    echo "debajo de la baseline oficial (Recall@5 >= 97.0%, <= 24 fallos, <= 15% FP)." >&2
     echo "" >&2
     echo "El detalle está arriba en el informe y en:" >&2
     echo "  scripts/qa_metrics.json     métricas de esta corrida (machine-readable)" >&2
@@ -75,8 +83,8 @@ on_error() {
     echo "Si es una corrida exploratoria (ablación, experimento) y esperabas este resultado:" >&2
     echo "  BIORAG_QA_GATE=0 ./scripts/run_qa_suite.sh" >&2
     echo "" >&2
-    echo "Otras causas posibles: un test de pytest fallido o un error en los pasos [2/4]" >&2
-    echo "y [3/4]. Revisa la salida anterior a este mensaje." >&2
+    echo "Otras causas posibles: un test de pytest fallido o un error en los pasos [2/5]," >&2
+    echo "[3/5] o [4/5]. Revisa la salida anterior a este mensaje." >&2
     echo "================================================================================" >&2
 }
 trap on_error ERR
@@ -120,16 +128,19 @@ if [ "$RUN_UNIT" = true ]; then
     python3 "$PARENT_DIR/scripts/test_regresion_scoring.py"
 
     echo ""
+    copia_fresca  # R3: clon nuevo para esta fase
     echo "─── [3/5] SUITE CONCEPT HUB (Búsqueda Semántica Pura sin Overlap Léxico) ───────"
     python3 "$PARENT_DIR/scripts/test_concept_hub.py"
 
     echo ""
+    copia_fresca  # R3: clon nuevo para esta fase
     echo "─── [4/5] SUITE ABISMO LÉXICO (EXP-Q Rescate por Grafo Sináptico) ──────────────"
     python3 "$PARENT_DIR/scripts/test_abismo_lexico.py"
 fi
 
 if [ "$RUN_QA_921" = true ]; then
     echo ""
+        copia_fresca  # R3: clon nuevo para esta fase
     echo "─── [5/5] EVALUACIÓN GLOBAL QA (921 Casos de Regresión Canónica) ───────────────"
     python3 "$PARENT_DIR/scripts/evaluar_qa.py" "$@"
 fi

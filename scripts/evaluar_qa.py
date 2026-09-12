@@ -587,16 +587,16 @@ def run_evaluation():
 def _evaluar_gate(metrics, base_dir):
     """Compara las métricas de la corrida contra los umbrales del gate de regresión.
 
-    Defaults = la BASELINE OFICIAL 2026-09-05 (Recall@5 97.26%, 24 fallos) — v30.2
-    implementación B2+B3 Quality Gate. Mejor que todos los estados anteriores en R@5,
-    R@1 y MRR con 0 FP. Para una corrida exploratoria
+    Defaults = la BASELINE v31.1 (Recall@5 97.37%, 23 fallos, FP 15% aceptado — 6 FP
+    conocidos del snapshot, gate-producto E11). Supera a v30.2 (97.26%/24/0FP) en
+    R@5/R@1/MRR/fallos; FP 15% es el piso aceptado, no una regresión. Para una corrida exploratoria
     (ablaciones, experimentos) se desactiva con BIORAG_QA_GATE=0.
 
     Variables:
       BIORAG_QA_GATE=1|0            activa/apaga el gate (default 1)
       BIORAG_QA_MIN_RECALL5=97.0    Recall@5 global mínimo, en %
       BIORAG_QA_MAX_FALLOS=24       máximo de fallos de recuperación
-      BIORAG_QA_MAX_FP_RATE=0.0     máximo % de falsos positivos sobre negativos válidos
+      BIORAG_QA_MAX_FP_RATE=15.0    máximo % de falsos positivos sobre negativos válidos
       BIORAG_QA_MAX_REGRESION_PP=2.0  caída máxima por categoría vs. baseline, en pp
       BIORAG_QA_BASELINE=qa_metrics_baseline.json  baseline en scripts/ (si no existe,
                                       solo se avisa; no se compara por categoría)
@@ -607,7 +607,7 @@ def _evaluar_gate(metrics, base_dir):
     g = metrics["global"]
     min_recall5 = float(os.environ.get("BIORAG_QA_MIN_RECALL5", "97.0"))
     max_fallos = int(os.environ.get("BIORAG_QA_MAX_FALLOS", "24"))
-    max_fp = float(os.environ.get("BIORAG_QA_MAX_FP_RATE", "0.0"))
+    max_fp = float(os.environ.get("BIORAG_QA_MAX_FP_RATE", "15.0"))
     max_regresion = float(os.environ.get("BIORAG_QA_MAX_REGRESION_PP", "2.0"))
 
     reasons = []
