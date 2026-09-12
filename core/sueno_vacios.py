@@ -34,6 +34,9 @@ SUENO_SALTOS = 2
 SUENO_MAX_VACIOS = 50
 SUENO_TOP_CANDIDATOS = 3
 SUENO_PROCESADOS_CAP = 200
+# HIPOTESIS provisional v2: umbral coseno PPMI para rescate semantico.
+# Se calibra contra la distribucion real de la cola antes de consolidar.
+SUENO_PPMI_UMBRAL = 0.25
 
 _TOKEN_RE = re.compile(r"[\w]+", re.UNICODE)
 
@@ -103,6 +106,52 @@ def _latentes_have(cursor):
         return set(_LAT_VAL_FIJO)
 
 
+def afinidad_semantica(cerebro, termino, k=SUENO_TOP_CANDIDATOS,
+                       umbral=SUENO_PPMI_UMBRAL, idx=None, activos=None):
+    """Fallback PPMI v2: Top-k nodos activos por coseno query-vector.
+
+    Solo lectura. Determinista (desempate por nombre). Solo se invoca
+    cuando FTS5 devuelve <2 candidatos. Devuelve [(concepto, coseno)].
+    `idx` permite inyectar vectores en tests (patron F3 aprobado).
+    """
+    try:
+        from core.ppmi_hybrid_search import IndicesBioRAG, _coseno, _tokenizar
+    except Exception as e:
+        logger.warning("sueno: import ppmi fallo (%s: %s)", type(e).__name__, e)
+        return []
+    try:
+        if idx is None:
+            idx = IndicesBioRAG(cerebro.conn)
+        toks = [t for t in _tokenizar(termino or "")]
+        if not toks:
+            return []
+        vq = idx.vector_query(toks)
+        if float((vq * vq).sum()) < 1e-12:
+            return []  # sin tokens conocidos: sin info semantica
+        if activos is None:
+            activos = {
+                r[0]
+                for r in cerebro.cursor.execute(
+                    "SELECT concepto FROM largo_plazo WHERE estado='activo'"
+                )
+            }
+        cand = []
+        for c in idx.todos_los_conceptos:
+            if c not in activos:
+                continue
+            v = idx.vecs.get(c)
+            if v is None or float((v * v).sum()) < 1e-12:
+                continue
+            cos = float(_coseno(vq, v))
+            if cos >= umbral:
+                cand.append((c, round(cos, 4)))
+        cand.sort(key=lambda item: (-item[1], item[0]))
+        return cand[:k]
+    except Exception as e:
+        logger.warning("sueno: afinidad semantica fallo (%s: %s)", type(e).__name__, e)
+        return []
+
+
 def _dim_comun(cursor, a, b):
     try:
         row = cursor.execute(
@@ -134,7 +183,7 @@ def _existe(cursor, tabla, a, b):
         return True
 
 
-def consolidar_vacios(cerebro, max_vacios=None):
+def consolidar_vacios(cerebro, max_vacios=None, idx_sem=None):
     """Consume la cola vacios_cognitivos y consolida hipotesis. Nunca lanza.
 
     Devuelve resumen dict con atendidos/omitidos/sin_pares/sinapsis_nuevas/
@@ -167,6 +216,9 @@ def consolidar_vacios(cerebro, max_vacios=None):
         procesados = []
     ahora = time.time()
     lat_have = _latentes_have(cerebro.cursor)
+    idx_shared = idx_sem  # seam tests (vectores inyectados patron F3)
+    activos_sem = None
+    ppmi_roto = False
     lote = cola[:max_vacios]
     resto = cola[max_vacios:]
     for item in lote:
@@ -186,6 +238,35 @@ def consolidar_vacios(cerebro, max_vacios=None):
             )
             resumen["omitidos"] += 1
             continue
+        # v2: fallback semantico PPMI si FTS aporta <k (complementa, no reemplaza)
+        via = "lexica"
+        if len(cands) < SUENO_TOP_CANDIDATOS and not ppmi_roto:
+            try:
+                if idx_shared is None:
+                    from core.ppmi_hybrid_search import IndicesBioRAG
+
+                    idx_shared = IndicesBioRAG(cerebro.conn)
+                if activos_sem is None:
+                    activos_sem = {
+                        r[0]
+                        for r in cerebro.cursor.execute(
+                            "SELECT concepto FROM largo_plazo WHERE estado='activo'"
+                        )
+                    }
+                faltan = SUENO_TOP_CANDIDATOS - len(cands)
+                sem = afinidad_semantica(
+                    cerebro, termino, faltan, SUENO_PPMI_UMBRAL,
+                    idx=idx_shared, activos=activos_sem,
+                )
+                n_prev = len(cands)
+                nuevos = [c for c, _ in sem if c not in cands][:faltan]
+                cands = cands + nuevos
+                if nuevos:
+                    via = "mixta" if n_prev > 0 else "semantica"
+            except Exception as e:
+                logger.warning("sueno: fallback ppmi deshabilitado (%s: %s)",
+                               type(e).__name__, e)
+                ppmi_roto = True
         nuevas_s, nuevas_l, pares = 0, 0, []
         if len(cands) >= 2:
             for i in range(len(cands)):
@@ -251,6 +332,7 @@ def consolidar_vacios(cerebro, max_vacios=None):
                 "pares": pares,
                 "sinapsis_nuevas": nuevas_s,
                 "latentes_nuevas": nuevas_l,
+                "via": via,
             }
         )
     # Items venenosos (vacíos/corruptos) se descartan: jamás atascan la cola.

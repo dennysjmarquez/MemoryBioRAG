@@ -169,3 +169,131 @@ def test_sin_pares_drena_igual(cerebro_tmp, hormiga_tmp):
     est = json.load(open(hormiga_tmp, encoding="utf-8"))
     assert est["vacios_cognitivos"] == []
     assert est["vacios_procesados"][0]["candidatos"] == []
+# ---------------- v2: fallback semantico PPMI ----------------
+import numpy as np
+
+
+def _idx_fake(termino, nombres, cosenos):
+    """IndicesBioRAG con vectores inyectados (patron F3 aprobado).
+
+    `cosenos`: dict nombre -> coseno deseado aprox (1.0/0.0/-1.0).
+    """
+    from core.ppmi_hybrid_search import IndicesBioRAG, _tokenizar
+    toks = [t for t in _tokenizar(termino or "")]
+    assert toks, "tokenizer vacio para %r" % termino
+    base = np.array([1.0, 0.0, 0.0, 0.0])
+    orto = np.array([0.0, 1.0, 0.0, 0.0])
+    token_vecs = {t: base.copy() for t in toks}
+    vecs = {}
+    for n in nombres:
+        c = cosenos.get(n, 1.0)
+        vecs[n] = base.copy() if c >= 0.9 else (orto.copy() if c >= -0.1 else -base.copy())
+    idx = IndicesBioRAG.__new__(IndicesBioRAG)
+    idx.token_vecs = token_vecs
+    idx.token_freq = {t: 1 for t in toks}
+    idx.vecs = vecs
+    idx.todos_los_conceptos = list(nombres)
+    idx.n_docs = max(len(nombres), 1)
+    return idx
+
+
+def test_fallback_semantico_rescata_sin_pares(cerebro_tmp, hormiga_tmp):
+    """0 hits FTS + vecinos PPMI -> 3 pares via semantica, cola drenada."""
+    from core.sueno_vacios import consolidar_vacios
+    cz = cerebro_tmp
+    cz.cursor.execute(
+        "INSERT INTO largo_plazo (concepto, contenido, peso_sinaptico, estado)"
+        " VALUES ('sem_a', 'manzana pera fruta', 0.5, 'activo')"
+    )
+    cz.cursor.execute(
+        "INSERT INTO largo_plazo (concepto, contenido, peso_sinaptico, estado)"
+        " VALUES ('sem_b', 'naranja uva citrico', 0.5, 'activo')"
+    )
+    cz.cursor.execute(
+        "INSERT INTO largo_plazo (concepto, contenido, peso_sinaptico, estado)"
+        " VALUES ('sem_c', 'sandia melon dulce', 0.5, 'activo')"
+    )
+    cz.conn.commit()
+    termino = "zzzqqq kkkvvv"
+    _encolar(hormiga_tmp, [{"termino": termino, "Ce": 0.1, "ts": 1}])
+    idx = _idx_fake(termino, ["sem_a", "sem_b", "sem_c"], {})
+    r = consolidar_vacios(cz, idx_sem=idx)
+    assert r["atendidos"] == 1 and r["sin_pares"] == 0
+    assert r["sinapsis_nuevas"] == 3 and r["latentes_nuevas"] == 3
+    est = json.load(open(hormiga_tmp, encoding="utf-8"))
+    assert est["vacios_cognitivos"] == []
+    assert est["vacios_procesados"][0]["via"] == "semantica"
+
+
+def test_umbral_rechaza_lejanos(cerebro_tmp, hormiga_tmp):
+    """Vecinos ortogonales/opuestos bajo umbral -> sin_pares, 0 aristas."""
+    from core.sueno_vacios import consolidar_vacios
+    cz = cerebro_tmp
+    cz.cursor.execute(
+        "INSERT INTO largo_plazo (concepto, contenido, peso_sinaptico, estado)"
+        " VALUES ('lej_a', 'tornillo tuerca metal', 0.5, 'activo')"
+    )
+    cz.cursor.execute(
+        "INSERT INTO largo_plazo (concepto, contenido, peso_sinaptico, estado)"
+        " VALUES ('lej_b', 'martillo clavo golpe', 0.5, 'activo')"
+    )
+    cz.conn.commit()
+    termino = "zzzqqq kkkvvv"
+    _encolar(hormiga_tmp, [{"termino": termino, "Ce": 0.1, "ts": 1}])
+    idx = _idx_fake(termino, ["lej_a", "lej_b"], {"lej_a": 0.0, "lej_b": -1.0})
+    r = consolidar_vacios(cz, idx_sem=idx)
+    assert r["atendidos"] == 1 and r["sin_pares"] == 1
+    assert r["sinapsis_nuevas"] == 0 and r["latentes_nuevas"] == 0
+    est = json.load(open(hormiga_tmp, encoding="utf-8"))
+    assert est["vacios_cognitivos"] == []
+
+
+def test_mixta_complementa_fts(cerebro_tmp, hormiga_tmp):
+    """1 hit FTS + relleno PPMI -> via mixta con fuentes trazadas."""
+    from core.sueno_vacios import consolidar_vacios
+    cz = cerebro_tmp
+    cz.cursor.execute(
+        "INSERT INTO largo_plazo (concepto, contenido, peso_sinaptico, estado)"
+        " VALUES ('mix_fts', 'contiene zzzqqq literal', 0.5, 'activo')"
+    )
+    cz.cursor.execute(
+        "INSERT INTO largo_plazo (concepto, contenido, peso_sinaptico, estado)"
+        " VALUES ('mix_s1', 'nada relacionado aqui', 0.5, 'activo')"
+    )
+    cz.cursor.execute(
+        "INSERT INTO largo_plazo (concepto, contenido, peso_sinaptico, estado)"
+        " VALUES ('mix_s2', 'otro texto distinto', 0.5, 'activo')"
+    )
+    cz.conn.commit()
+    termino = "zzzqqq kkkvvv"
+    _encolar(hormiga_tmp, [{"termino": termino, "Ce": 0.1, "ts": 1}])
+    idx = _idx_fake(termino, ["mix_fts", "mix_s1", "mix_s2"], {})
+    r = consolidar_vacios(cz, idx_sem=idx)
+    assert r["atendidos"] == 1 and r["sin_pares"] == 0
+    est = json.load(open(hormiga_tmp, encoding="utf-8"))
+    proc = est["vacios_procesados"][0]
+    assert proc["via"] == "mixta"
+    assert proc["candidatos"][0] == "mix_fts"  # FTS primero, PPMI rellena
+
+
+def test_v1_intacto_fallback_solo_si_falta(monkeypatch, cerebro_tmp, hormiga_tmp):
+    """FTS>=2 -> fallback jamas invocado; FTS<2 -> exactamente 1 llamada."""
+    import core.sueno_vacios as sv
+    llamadas = []
+
+    def _spy(cerebro, termino, k, umbral, idx=None, activos=None):
+        llamadas.append(termino)
+        return []
+
+    monkeypatch.setattr(sv, "afinidad_semantica", _spy)
+    cz = cerebro_tmp
+    _sembrar_trio(cz, con_dims=False)
+    _encolar(hormiga_tmp, [{"termino": "puente resonante w", "Ce": 0.2, "ts": 1}])
+    r = sv.consolidar_vacios(cz)
+    assert r["sinapsis_nuevas"] == 3 and llamadas == []
+    est = json.load(open(hormiga_tmp, encoding="utf-8"))
+    assert est["vacios_procesados"][0]["via"] == "lexica"
+    _encolar(hormiga_tmp, [{"termino": "zzzqqq inexistente kkk", "Ce": 0.05, "ts": 2}])
+    # idx inyectado: evita el build real (tmp DB no tiene tabla tokens PPMI)
+    sv.consolidar_vacios(cz, idx_sem=_idx_fake("zzzqqq inexistente kkk", [], {}))
+    assert llamadas == ["zzzqqq inexistente kkk"]
