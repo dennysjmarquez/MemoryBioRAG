@@ -127,6 +127,13 @@ CAMPO_K = int(os.environ.get('BIORAG_CAMPO_K', '64'))
 # (last_estado_epistemico) + cola DMN. NUNCA toca ranking/pool (R9 vs E13).
 EPISTEMICO_METADATA = os.environ.get('BIORAG_EPISTEMICO_METADATA', '1').lower() in ('1', 'true', 'yes')
 
+# Multihop v1: expansion 1-salto en retrieval. Default OFF (gate decide).
+# Detras del flag el path es byte-identico (estandar F3). Caps via env.
+MULTIHOP_EXPANSION = os.environ.get('BIORAG_MULTIHOP_EXPANSION', '0').lower() in ('1', 'true', 'yes')
+MULTIHOP_MAX_TOTAL = int(os.environ.get('BIORAG_MULTIHOP_MAX_TOTAL', '64'))
+# HIPOTESIS v1: prior fijo atenuado; el ranking real lo aportan las demas senales.
+MULTIHOP_PRIOR = float(os.environ.get('BIORAG_MULTIHOP_PRIOR', '0.05'))
+
 BAYESIAN_BM25 = os.environ.get('BIORAG_BAYESIAN_BM25', 'false').lower() == 'true'
 """Activar calibración Bayesian BM25 (sigmoid) en vez de normalización fija x/(x+3).
 Override: export BIORAG_BAYESIAN_BM25=true"""
@@ -4979,6 +4986,39 @@ class SQLiteMemoryBioRAG:
         except Exception as e:
             logger.warning("epistemico: encolar vacio DMN fallo (%s: %s)", type(e).__name__, e)
 
+    def _multihop_vecinos(self, semillas, excluir, limite):
+        """Vecinos 1-salto ordenados (peso DESC, concepto ASC). Solo lectura.
+
+        Determinista per DB bytes. Nunca lanza (devuelve []).
+        """
+        try:
+            semillas = [s for s in dict.fromkeys(semillas or []) if s]
+            if not semillas or limite <= 0:
+                return []
+            ph = ",".join("?" * len(semillas))
+            rows = self.cursor.execute(
+                "SELECT destino, peso FROM sinapsis WHERE origen IN (%s)"
+                " UNION SELECT origen, peso FROM sinapsis WHERE destino IN (%s)"
+                " ORDER BY 2 DESC, 1 ASC" % (ph, ph),
+                tuple(semillas) * 2,
+            ).fetchall()
+            out, vistos = [], set(excluir or ())
+            for concepto, peso in rows:
+                if concepto in vistos:
+                    continue
+                vistos.add(concepto)
+                try:
+                    _p = float(peso or 0.0)
+                except Exception:
+                    _p = 0.0
+                out.append((concepto, _p))
+                if len(out) >= limite:
+                    break
+            return out
+        except Exception as e:
+            logger.warning("multihop: vecinos fallo (%s: %s)", type(e).__name__, e)
+            return []
+
     def buscar_por_frase(self, frase, profundidad="activos", pagina=1, limite=None, categoria=None, preview_chars=1500, historial_fallos=None, context_window=0, dimensiones_dict=None, dimensiones_ids=None, parafrasis_list=None, desde_ts=None, hasta_ts=None, modo_estricto=False, usar_inferencia=True, buscar_por_rol=None, ignore_peso_sinaptico=False, ordenar_por="relevancia", permitir_expansion_empate=False, expandir_episodio=False, analogia=False):
         """Busqueda hibrida: FTS5 trigram + peso sinaptico + asociaciones + scoring dimensional.
 
@@ -6086,6 +6126,37 @@ class SQLiteMemoryBioRAG:
                             break
             except Exception:
                 pass
+
+        # Multihop v1: expansion 1-salto (flag OFF default; gate decide).
+        # Solo activos+activos: jamas inyecta en dormido/profundo/negativo-921.
+        if MULTIHOP_EXPANSION and profundidad == "activos" and todos:
+            try:
+                _mh_nuevos = self._multihop_vecinos(
+                    [r[1] for r in todos if r[1]],
+                    {r[1] for r in todos if r[1]},
+                    MULTIHOP_MAX_TOTAL,
+                )
+                if _mh_nuevos:
+                    _mh_nombres = [c for c, _ in _mh_nuevos]
+                    _mh_ph = ",".join("?" * len(_mh_nombres))
+                    _mh_rows = {
+                        row[1]: row
+                        for row in self.cursor.execute(
+                            "SELECT rowid, concepto, contenido, peso_sinaptico,"
+                            " estado, asociaciones FROM largo_plazo"
+                            " WHERE concepto IN (%s) AND estado='activo'" % _mh_ph,
+                            tuple(_mh_nombres),
+                        )
+                    }
+                    for _c in _mh_nombres:
+                        _row = _mh_rows.get(_c)
+                        if _row is None:
+                            continue
+                        todos.append(_row)
+                        if _c not in origen_scores:
+                            origen_scores[_c] = ("expansion", MULTIHOP_PRIOR)
+            except Exception as e:
+                logger.warning("multihop: expansion fallo (%s: %s)", type(e).__name__, e)
 
         # [AUDIT #15 — PPMI Vector Retrieval: DESCARTADO tras 3 iteraciones]
         # Iteración 1 (pool < 3, antes de SA): mató SA (27→1 queries). Revertido.
