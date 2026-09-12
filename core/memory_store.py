@@ -78,11 +78,6 @@ DMN_SINTESIS_ACTIVA = os.environ.get('BIORAG_DMN_SINTESIS_ACTIVA', '1').lower() 
 DMN_SINTESIS_MAX = int(os.environ.get('BIORAG_DMN_SINTESIS_MAX', '8'))
 DMN_SINTESIS_PESO = float(os.environ.get('BIORAG_DMN_SINTESIS_PESO', '0.30'))
 
-# E12: Hopfield/SDM solo si ranking vacio. Cero costo si hay >=1 hit.
-HOPFIELD_FALLBACK = os.environ.get('BIORAG_HOPFIELD_FALLBACK', '0').lower() in ('1', 'true', 'yes')
-HOPFIELD_SIM_MIN = float(os.environ.get('BIORAG_HOPFIELD_SIM_MIN', '0.28'))
-HOPFIELD_SCORE_CAP = float(os.environ.get('BIORAG_HOPFIELD_SCORE_CAP', '0.45'))
-
 # F2: episodio temporal. Peso 0 = OFF. Cap 0.08.
 _ep_raw = float(os.environ.get('BIORAG_EPISODIO_TEMPORAL_PESO', '0.05'))
 EPISODIO_TEMPORAL_PESO = 0.0 if _ep_raw <= 0 else min(_ep_raw, 0.08)
@@ -6824,37 +6819,6 @@ class SQLiteMemoryBioRAG:
             if res_srl:
                 pagina_resultados = res_srl
                 total = len(res_srl)
-
-        # E12: Hopfield ultimo recurso. Solo si sigue vacio. No toca ranking con hits.
-        if (
-            HOPFIELD_FALLBACK
-            and not pagina_resultados
-            and (query or "").strip()
-            and not buscar_por_rol
-        ):
-            try:
-                from core.sdm import rescatar_hopfield_ultimo_recurso
-                _hf = rescatar_hopfield_ultimo_recurso(
-                    self, query, limite=1, sim_min=HOPFIELD_SIM_MIN
-                )
-                if _hf:
-                    conc = _hf[0]["concepto"]
-                    sim = float(_hf[0].get("similitud") or 0.0)
-                    self.cursor.execute(
-                        "SELECT concepto, contenido, peso_sinaptico, estado, asociaciones "
-                        "FROM largo_plazo WHERE concepto = ?",
-                        (conc,),
-                    )
-                    row = self.cursor.fetchone()
-                    if row and (profundidad == "profundo" or row[3] == "activo"):
-                        sc = min(HOPFIELD_SCORE_CAP, max(0.0, sim))
-                        pagina_resultados = [
-                            (row[0], row[1], row[2], row[3], sc, row[4] or "")
-                        ]
-                        total = 1
-                        origen_scores[conc] = ("hopfield_ultimo_recurso", sim)
-            except Exception:
-                pass
 
         # Guardar trazabilidad para mcp_server.py
         self.last_todos = todos
