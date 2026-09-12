@@ -74,7 +74,7 @@ on_error() {
     echo "          LA SUITE TERMINÓ EN ROJO (código $codigo)" >&2
     echo "================================================================================" >&2
     echo "Causa más probable: el GATE DE REGRESIÓN de evaluar_qa.py detectó métricas por" >&2
-    echo "debajo de la baseline oficial (Recall@5 >= 97.0%, <= 23 fallos, 0% FP)." >&2
+    echo "debajo de la baseline oficial (Recall@5 >= 97.0%, <= 24 fallos, <= 15% FP)." >&2
     echo "" >&2
     echo "El detalle está arriba en el informe y en:" >&2
     echo "  scripts/qa_metrics.json     métricas de esta corrida (machine-readable)" >&2
