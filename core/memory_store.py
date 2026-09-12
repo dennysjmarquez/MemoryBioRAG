@@ -95,10 +95,6 @@ HOPFIELD_FALLBACK = os.environ.get('BIORAG_HOPFIELD_FALLBACK', '0').lower() in (
 HOPFIELD_SIM_MIN = float(os.environ.get('BIORAG_HOPFIELD_SIM_MIN', '0.28'))
 HOPFIELD_SCORE_CAP = float(os.environ.get('BIORAG_HOPFIELD_SCORE_CAP', '0.45'))
 
-# E13: abstencion si top-1 < tau y origen no protegido. Default ON hasta gate.
-METACOGNICION_ACTIVA = os.environ.get('BIORAG_METACOGNICION_ACTIVA', '0').lower() in ('1', 'true', 'yes')
-METACOG_TAU = float(os.environ.get('BIORAG_METACOG_TAU', '0.35'))
-
 # F2: episodio temporal. Peso 0 = OFF. Cap 0.08.
 _ep_raw = float(os.environ.get('BIORAG_EPISODIO_TEMPORAL_PESO', '0.05'))
 EPISODIO_TEMPORAL_PESO = 0.0 if _ep_raw <= 0 else min(_ep_raw, 0.08)
@@ -7048,26 +7044,6 @@ class SQLiteMemoryBioRAG:
             pagina_resultados, metadatos_epi = self._enriquecer_con_adn(query, pagina_resultados, limite)
             self.last_estado_epistemico = metadatos_epi
             total = len(pagina_resultados)
-
-        # E13: metacognicion. Abstiene si top-1 < tau y origen no protegido.
-        if METACOGNICION_ACTIVA and pagina_resultados:
-            try:
-                _top_sc = float(pagina_resultados[0][4] or 0.0)
-                _top_c = pagina_resultados[0][0]
-                _orig, _capa = origen_scores.get(_top_c, ("literal", 0.0))
-                _protegido = _orig in ("lexico_aprendido", "protegido") or (
-                    _orig == "concepto" and float(_capa or 0.0) >= 0.95
-                )
-                if _top_sc < METACOG_TAU and not _protegido:
-                    pagina_resultados = []
-                    total = 0
-                    self.last_estado_epistemico = {
-                        **getattr(self, "last_estado_epistemico", {}),
-                        "estado": "sin_evidencia_directa",
-                        "confianza_epistemica": float(_top_sc),
-                    }
-            except Exception:
-                pass
 
         # Phase 2D: Telemetría de búsquedas (non-blocking)
         # Respeta BIORAG_NO_LOG=1 para no contaminar el log con consultas de test/benchmark
