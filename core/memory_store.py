@@ -99,11 +99,6 @@ HOPFIELD_SCORE_CAP = float(os.environ.get('BIORAG_HOPFIELD_SCORE_CAP', '0.45'))
 METACOGNICION_ACTIVA = os.environ.get('BIORAG_METACOGNICION_ACTIVA', '0').lower() in ('1', 'true', 'yes')
 METACOG_TAU = float(os.environ.get('BIORAG_METACOG_TAU', '0.35'))
 
-# F1: coherencia narrativa SRL sobre top-k (no O(N)).
-_coh_raw = float(os.environ.get('BIORAG_COHERENCIA_NARRATIVA', '0'))
-COHERENCIA_NARRATIVA_PESO = 0.0 if _coh_raw <= 0 else min(_coh_raw, 0.08)
-COHERENCIA_NARRATIVA_K = int(os.environ.get('BIORAG_COHERENCIA_NARRATIVA_K', '10'))
-
 # F2: episodio temporal. Peso 0 = OFF. Cap 0.08.
 _ep_raw = float(os.environ.get('BIORAG_EPISODIO_TEMPORAL_PESO', '0.05'))
 EPISODIO_TEMPORAL_PESO = 0.0 if _ep_raw <= 0 else min(_ep_raw, 0.08)
@@ -242,7 +237,6 @@ ADN_UMBRAL_ASOCIACION = float(os.environ.get('BIORAG_ADN_UMBRAL_ASOCIACION', '0.
 
 # =============================================================================
 
-
 class SQLiteMemoryBioRAG:
     """
     Motor de Almacenamiento Cognitivo BioRAG basado en SQLite.
@@ -367,7 +361,6 @@ class SQLiteMemoryBioRAG:
                 self._cargar_calibracion_persistida()
         except Exception as _e_cal:
             logger.debug(f"Calibración persistida no cargada: {_e_cal}")
-
 
     def notificar_actividad_usuario(self):
         """Notifica actividad del usuario al motor DMN si está activo."""
@@ -2717,7 +2710,6 @@ class SQLiteMemoryBioRAG:
 
         print("[MemoryBioRAG] Proceso de consolidación y equilibrio sináptico completado con éxito.")
 
-
     def aplicar_refuerzo_dopaminergico(self, concepto: str, exito: bool, motivo: str = None) -> bool:
         """
         Refuerzo Dopaminérgico por Error de Predicción de Recompensa (RPE v20.0 - Schultz 1997).
@@ -3540,57 +3532,6 @@ class SQLiteMemoryBioRAG:
             return bool(preds)
         except Exception:
             return False
-
-    def _evaluar_coherencia_narrativa(self, conceptos):
-        """F1: 1.0 si hay transicion causal SRL (objeto<->sujeto) entre el top-k."""
-        if COHERENCIA_NARRATIVA_PESO <= 0 or not conceptos:
-            return {}
-        stop = {"desconocido", "evento", "general", "el", "la", "los", "las"}
-        out = {c: 0.0 for c in conceptos if c}
-        ph = ",".join("?" * len(out))
-        if not ph:
-            return {}
-        by_c = {}
-        try:
-            self.cursor.execute(
-                f"SELECT concepto, sujeto, accion, objeto FROM predicados "
-                f"WHERE concepto IN ({ph})",
-                list(out.keys()),
-            )
-            for conc, suj, acc, obj in self.cursor.fetchall():
-                by_c.setdefault(conc, []).append((suj or "", acc or "", obj or ""))
-        except Exception:
-            return out
-
-        def _toks(s):
-            return {w for w in re.findall(r"\w{3,}", (s or "").lower()) if w not in stop}
-
-        keys = list(out.keys())
-        for i, a in enumerate(keys):
-            pa = by_c.get(a) or []
-            if not pa:
-                continue
-            for b in keys[i + 1 :]:
-                pb = by_c.get(b) or []
-                if not pb:
-                    continue
-                hit = False
-                for sa, aa, oa in pa:
-                    ta, toa = _toks(sa), _toks(oa)
-                    for sb, ab, ob in pb:
-                        tb, tob = _toks(sb), _toks(ob)
-                        if (toa and tb and toa & tb) or (tob and ta and tob & ta):
-                            hit = True
-                            break
-                        if aa and ab and aa == ab and (toa & tob or ta & tb):
-                            hit = True
-                            break
-                    if hit:
-                        break
-                if hit:
-                    out[a] = 1.0
-                    out[b] = 1.0
-        return out
 
     def _ts_nodo(self, concepto):
         """Epoch de vivencia: creado_en, sino ultimo_acceso."""
@@ -4507,7 +4448,6 @@ class SQLiteMemoryBioRAG:
             except Exception:
                 pass
         return float(score)
-
 
     def expandir_contexto_vecinos(self, pagina_resultados, depth, profundidad="activos", preview_chars=None):
         """Expande el contexto de una página devolviendo (primarios, contextos).
@@ -5755,7 +5695,6 @@ class SQLiteMemoryBioRAG:
             except sqlite3.OperationalError:
                 pass
 
-
         # Fallback 1.9: Evocación por cadena (multi-hop con decay logarítmico)
         # Dynamic Multiplicator: registrar como "cadena" con score de decay
         if not modo_estricto and len(todos) < 3 and len(query) >= 2:
@@ -6340,9 +6279,6 @@ class SQLiteMemoryBioRAG:
             if conc not in bm25_norm_map and origen in ("typo", "simbolico", "dimensional_fallback", "concepto", "lexico_aprendido"):
                 bm25_norm_map[conc] = min(1.0, escala_activa * float(sc_capa or 0.5))
 
-
-
-
         # ─── Capa 4.5: Precompute predicate data for scoring ───
         # Fetch predicate contexto (keywords) for all candidates
         conceptos_todos = [r[1] for r in todos if r[1]]
@@ -6475,7 +6411,6 @@ class SQLiteMemoryBioRAG:
                         cadena_scores_map[conc_ev] = max(cadena_scores_map.get(conc_ev, 0.0), decay_score)
             except Exception:
                 pass
-
 
         # E2: similitud SDM del pool (O(k) PK), no barrido del corpus.
         # POR QUÉ aquí: el query_vec se genera UNA vez; cada candidato es un
@@ -6681,8 +6616,6 @@ class SQLiteMemoryBioRAG:
                     # Normalizar: el score bruto de score_candidato ronda 0-2 para query corta (dividir por 2.0), 0-1 para larga
                     ppmi_val = min(1.0, max(0.0, _raw_ppmi / (2.0 if es_corta else 1.0)))
 
-
-
                 except Exception:
                     ppmi_val = 0.0
 
@@ -6727,30 +6660,12 @@ class SQLiteMemoryBioRAG:
                 campo_score=campo_map.get(concepto, 0.0),
             )
 
-
             resultados_con_hibrido.append(
                 (concepto, contenido, peso, estado, score_hibrido, asociaciones or "")
             )
 
         # Reordenar por score hibrido descendente
         resultados_con_hibrido.sort(key=lambda r: r[4], reverse=True)
-
-        # F1: bono causal SRL solo sobre el head (O(k^2), k<=10).
-        if COHERENCIA_NARRATIVA_PESO > 0.0 and resultados_con_hibrido:
-            try:
-                _head = resultados_con_hibrido[:COHERENCIA_NARRATIVA_K]
-                _coh = self._evaluar_coherencia_narrativa([r[0] for r in _head])
-                if any(_coh.get(r[0], 0.0) > 0 for r in _head):
-                    _boosted = []
-                    for conc, cont, peso, est, sc, asoc in resultados_con_hibrido:
-                        b = float(_coh.get(conc, 0.0))
-                        if b > 0:
-                            sc = min(1.0, float(sc) + COHERENCIA_NARRATIVA_PESO * b)
-                        _boosted.append((conc, cont, peso, est, sc, asoc))
-                    resultados_con_hibrido = _boosted
-                    resultados_con_hibrido.sort(key=lambda r: r[4], reverse=True)
-            except Exception:
-                pass
 
         # Promoción de candidatos generados por episodio léxico explícito.
         # POR QUÉ: el gold entra al pool (generación) pero el ranker híbrido no
@@ -6896,8 +6811,6 @@ class SQLiteMemoryBioRAG:
                             resultados_con_hibrido.insert(0, tuple(nodo_mod))
                         # Si no hub_gana: el canónico ya está en su posición natural,
                         # no lo movemos — el léxico merece el TOP1
-
-
 
         # Fase C (v22.2): Re-ranking jaccard léxico condicional.
         # OFF por defecto (BIORAG_RERANKING_JACCARD_ENABLED=0) — activación gradual
@@ -7046,7 +6959,6 @@ class SQLiteMemoryBioRAG:
                 preview_chars=preview_chars
             )
             pagina_resultados = primarios_ctx + vecinos_ctx
-
 
         # Truncar preview a nivel de motor (ahorra RAM en CLI/MCP)
         if preview_chars and preview_chars > 0:
@@ -7561,9 +7473,6 @@ class SQLiteMemoryBioRAG:
             }
         else:
             bm25_norm_map = {}
-
-
-
 
         scored = []
         for r in todos:
