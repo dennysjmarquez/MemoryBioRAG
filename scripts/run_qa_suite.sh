@@ -32,11 +32,13 @@ if [ ! -f "$SRC_DB" ]; then
     exit 1
 fi
 
-# 3. Crear copia aislada para toda la suite (protección total: original nunca se toca)
+# 3. Copia aislada FRESCA por fase (R3: DB fresca por configuración — ninguna fase
+# ve escrituras de otra (medido: el eval hub auto-crea sinapsis). El original nunca se toca.
 QA_DB="$PARENT_DIR/MemoryBioRAG_Data/memory_biorag_qa_run.db"
-echo "Creando copia aislada para la suite: $QA_DB"
-rm -f "$QA_DB" "$QA_DB-wal" "$QA_DB-shm"
-python3 -c "
+copia_fresca() {
+    echo "Creando copia aislada fresca desde: $SRC_DB"
+    rm -f "$QA_DB" "$QA_DB-wal" "$QA_DB-shm"
+    python3 -c "
 import sqlite3
 src = sqlite3.connect('$SRC_DB')
 dst = sqlite3.connect('$QA_DB')
@@ -46,9 +48,11 @@ src.backup(dst)
 src.close()
 dst.close()
 "
+    export BIORAG_PATH="$QA_DB"
+}
+copia_fresca
 
 # 4. Exportar BIORAG_PATH a la copia para TODOS los hijos
-export BIORAG_PATH="$QA_DB"
 echo "BIORAG_PATH exportado a copia aislada: $BIORAG_PATH"
 
 # 5. Función de limpieza
@@ -124,16 +128,19 @@ if [ "$RUN_UNIT" = true ]; then
     python3 "$PARENT_DIR/scripts/test_regresion_scoring.py"
 
     echo ""
+    copia_fresca  # R3: clon nuevo para esta fase
     echo "─── [3/5] SUITE CONCEPT HUB (Búsqueda Semántica Pura sin Overlap Léxico) ───────"
     python3 "$PARENT_DIR/scripts/test_concept_hub.py"
 
     echo ""
+    copia_fresca  # R3: clon nuevo para esta fase
     echo "─── [4/5] SUITE ABISMO LÉXICO (EXP-Q Rescate por Grafo Sináptico) ──────────────"
     python3 "$PARENT_DIR/scripts/test_abismo_lexico.py"
 fi
 
 if [ "$RUN_QA_921" = true ]; then
     echo ""
+        copia_fresca  # R3: clon nuevo para esta fase
     echo "─── [5/5] EVALUACIÓN GLOBAL QA (921 Casos de Regresión Canónica) ───────────────"
     python3 "$PARENT_DIR/scripts/evaluar_qa.py" "$@"
 fi
