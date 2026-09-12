@@ -76,7 +76,6 @@ def _cargar_hebbianos():
         }
     return _hebbian_data
 
-
 def _obtener_cluster_dim(dim_id):
     """Retorna el índice del cluster Hebbiano al que pertenece una dimensión."""
     data = _cargar_hebbianos()
@@ -86,12 +85,10 @@ def _obtener_cluster_dim(dim_id):
             return i
     return -1  # Dimensión aislada (cluster propio)
 
-
 def _obtener_idf_dim(dim_id):
     """Retorna el IDF de una dimensión (raro = alto, común = bajo)."""
     data = _cargar_hebbianos()
     return data.get('idf', {}).get(str(dim_id), 1.0)
-
 
 def _calcular_rango_cluster(cluster_idx, total_clusters):
     """Calcula el rango de bits asignado a un cluster Hebbiano."""
@@ -101,7 +98,6 @@ def _calcular_rango_cluster(cluster_idx, total_clusters):
     inicio_cluster = inicio + (cluster_idx * tamano_cluster)
     fin_cluster = min(inicio_cluster + tamano_cluster, fin)
     return (inicio_cluster, fin_cluster)
-
 
 # =============================================================================
 # Funciones de hashing
@@ -121,7 +117,6 @@ def _hash_token_a_bit(token: str, min_bit: int, max_bit: int, seed: int = 0) -> 
     h = int(hashlib.md5(entrada.encode('utf-8')).hexdigest(), 16)
     return min_bit + (h % rango)
 
-
 def _activar_proyecciones(bit_array, token: str, rango_inicio: int, rango_fin: int, k: int):
     """Activa k posiciones INDEPENDIENTES por token (multi-proyección).
 
@@ -138,7 +133,6 @@ def _activar_proyecciones(bit_array, token: str, rango_inicio: int, rango_fin: i
         if 0 <= pos < len(bit_array):
             bit_array[pos] = 1
 
-
 def _activar_ventana(bit_array, pos_base, rango_inicio, rango_fin, n_bits):
     """Activa una ventana de n_bits alrededor de pos_base dentro del rango."""
     rango_tam = rango_fin - rango_inicio
@@ -148,7 +142,6 @@ def _activar_ventana(bit_array, pos_base, rango_inicio, rango_fin, n_bits):
         pos = rango_inicio + ((pos_base + i) % rango_tam)
         if 0 <= pos < len(bit_array):
             bit_array[pos] = 1
-
 
 def hdc_bind_bytes(vec_a: bytes, vec_b: bytes) -> bytes:
     """Realiza la vinculación hiperdimensional HDC (Kanerva 1988) mediante XOR bit a bit.
@@ -160,7 +153,6 @@ def hdc_bind_bytes(vec_a: bytes, vec_b: bytes) -> bytes:
         return vec_a or vec_b or b''
     length = min(len(vec_a), len(vec_b))
     return bytes(a ^ b for a, b in zip(vec_a[:length], vec_b[:length]))
-
 
 # =============================================================================
 # Generación de vectores
@@ -241,7 +233,6 @@ def generar_vector_sdm(concepto: str, contenido: str = "", categoria: str = "",
 
     return bytes(bytes_list)
 
-
 # =============================================================================
 # Similitud
 # =============================================================================
@@ -259,7 +250,6 @@ def _obtener_peso_bit(pos_bit):
     else:
         return PESO_VECINO
 
-
 def distancia_hamming(vec1: bytes, vec2: bytes) -> int:
     """Calcula la distancia Hamming (bits diferentes) entre dos vectores."""
     if len(vec1) != len(vec2):
@@ -267,7 +257,6 @@ def distancia_hamming(vec1: bytes, vec2: bytes) -> int:
     int1 = int.from_bytes(vec1, 'big')
     int2 = int.from_bytes(vec2, 'big')
     return (int1 ^ int2).bit_count()
-
 
 def similitud_sdm(vec1: bytes, vec2: bytes) -> float:
     """Jaccard PONDERADO sobre bits activos.
@@ -319,7 +308,6 @@ def similitud_sdm(vec1: bytes, vec2: bytes) -> float:
 
     return round(interseccion_ponderada / union_ponderada, 4)
 
-
 def similitud_sdm_legacy(vec1: bytes, vec2: bytes) -> float:
     """Jaccard simple (sin ponderación) — para compatibilidad v1."""
     if len(vec1) != len(vec2):
@@ -329,7 +317,6 @@ def similitud_sdm_legacy(vec1: bytes, vec2: bytes) -> float:
     inter = (int1 & int2).bit_count()
     union = (int1 | int2).bit_count()
     return round(inter / union, 4) if union > 0 else 0.0
-
 
 # =============================================================================
 # Indexación
@@ -371,7 +358,6 @@ def indexar_nodo_sdm(cerebro, concepto: str) -> bool:
     except Exception:
         return False
 
-
 def indexar_todos_sdm(cerebro) -> int:
     """Recalcula los vectores SDM para todos los nodos activos de largo plazo."""
     cur = cerebro.cursor.execute("SELECT concepto FROM largo_plazo WHERE estado = 'activo'")
@@ -381,7 +367,6 @@ def indexar_todos_sdm(cerebro) -> int:
         if indexar_nodo_sdm(cerebro, concepto):
             count += 1
     return count
-
 
 # =============================================================================
 # Reindexación selectiva por dirty-set
@@ -393,7 +378,6 @@ def indexar_todos_sdm(cerebro) -> int:
 # Solución: dirty-set explícito — cada creación de sinapsis nueva marca AMBOS
 # extremos; el reindex selectivo consume el set sin consultar timestamps.
 # indexar_todos_sdm se conserva como red de seguridad periódica (cada 24h).
-
 
 def _asegurar_tablas_reindex(cerebro):
     """Crea las tablas de seguimiento del reindex SDM selectivo si faltan."""
@@ -410,7 +394,6 @@ def _asegurar_tablas_reindex(cerebro):
         )
     """)
     cerebro.conn.commit()
-
 
 def marcar_sdm_dirty(cerebro, conceptos):
     """Marca conceptos como pendientes de reindexación SDM.
@@ -431,7 +414,6 @@ def marcar_sdm_dirty(cerebro, conceptos):
         cerebro.conn.commit()
     except Exception:
         pass
-
 
 def reindex_selectivo_sdm(cerebro) -> int:
     """Reindexa SOLO los nodos del dirty-set y lo vacía por completo.
@@ -455,7 +437,6 @@ def reindex_selectivo_sdm(cerebro) -> int:
     except Exception:
         return 0
 
-
 def limpiar_sdm_dirty(cerebro):
     """Vacía el dirty-set sin reindexar (tras un full reindex que ya cubrió todo)."""
     try:
@@ -465,9 +446,7 @@ def limpiar_sdm_dirty(cerebro):
     except Exception:
         pass
 
-
 SDM_FULL_REINTERVAL = float(os.environ.get('BIORAG_SDM_FULL_REINTERVAL', '86400'))
-
 
 def _sdm_full_reindex_due(cerebro) -> bool:
     """True si nunca hubo un full reindex o pasó el intervalo configurado."""
@@ -481,7 +460,6 @@ def _sdm_full_reindex_due(cerebro) -> bool:
     except Exception:
         return True
 
-
 def _registrar_sdm_full_reindex(cerebro):
     """Registra el timestamp del último full reindex en sdm_meta."""
     try:
@@ -493,7 +471,6 @@ def _registrar_sdm_full_reindex(cerebro):
         cerebro.conn.commit()
     except Exception:
         pass
-
 
 # =============================================================================
 # Búsqueda
@@ -549,32 +526,6 @@ def buscar_sdm(cerebro, query: str = "", radio_max: int = None, limite: int = 10
     resultados.sort(key=lambda x: x['similitud'], reverse=True)
     return resultados[:limite]
 
-
-def rescatar_hopfield_ultimo_recurso(cerebro, query: str, *, limite: int = 1,
-                                     sim_min=None) -> list:
-    """E12: atractor Hamming/Hopfield solo si el ranking ya dio 0 hits.
-
-    Un paso: el estado almacenado de minima energia (max overlap bipolar)
-    es el vecino SDM mas cercano. No reindexa. No toca layout de 2048 bits.
-    """
-    if not query or not str(query).strip():
-        return []
-    if sim_min is None:
-        sim_min = float(os.environ.get("BIORAG_HOPFIELD_SIM_MIN", "0.28"))
-    hits = buscar_sdm(
-        cerebro,
-        query=query,
-        limite=max(int(limite), 1),
-        reindex_if_empty=False,
-    )
-    out = [h for h in hits if float(h.get("similitud") or 0.0) >= float(sim_min)]
-    if not out:
-        return []
-    best = out[0]
-    best["origen"] = "hopfield_ultimo_recurso"
-    return [best]
-
-
 def rescatar_fallback_sdm(cerebro, query: str, *, limite: int = 5,
                           sim_min=None, radio_max=None) -> list:
     """Fallback 2.5: rescate Hamming/Jaccard cuando el pool léxico es pobre.
@@ -597,44 +548,6 @@ def rescatar_fallback_sdm(cerebro, query: str, *, limite: int = 5,
     )
     return [h for h in hits if float(h.get("similitud") or 0.0) >= float(sim_min)]
 
-
-def similitudes_sdm_pool(cerebro, query: str, conceptos) -> dict:
-    """Similitud SDM query↔nodo SOLO para el pool (E2 scoring).
-
-    Complejidad: O(k) lookups por PRIMARY KEY, no O(N) del corpus.
-    Con 1 nodo o 10^6 nodos el coste es el del pool de candidatos
-    (típicamente decenas–cientos), no el tamaño de la corteza.
-    Sin vectores persistidos → {} (degradación silenciosa, corpus ajeno).
-    """
-    if not query or not conceptos:
-        return {}
-    unicos = []
-    seen = set()
-    for c in conceptos:
-        if c and c not in seen:
-            seen.add(c)
-            unicos.append(c)
-    if not unicos:
-        return {}
-    query_vec = generar_vector_sdm(concepto=query, contenido=query)
-    out = {}
-    chunk = 400
-    for i in range(0, len(unicos), chunk):
-        lote = unicos[i : i + chunk]
-        ph = ",".join("?" * len(lote))
-        try:
-            filas = cerebro.cursor.execute(
-                f"SELECT concepto, vector FROM nodos_sdm WHERE concepto IN ({ph})",
-                lote,
-            ).fetchall()
-        except Exception:
-            return {}
-        for conc, blob in filas:
-            if blob:
-                out[conc] = similitud_sdm(query_vec, blob)
-    return out
-
-
 def buscar_similares_a(cerebro, concepto_semilla: str, radio_max: int = None,
                        limite: int = 10) -> list:
     """Busca nodos similares a un nodo conocido — query-by-example.
@@ -653,7 +566,6 @@ def buscar_similares_a(cerebro, concepto_semilla: str, radio_max: int = None,
     vector_semilla = row[0]
     return buscar_sdm(cerebro, radio_max=radio_max, limite=limite,
                       vector_fijo=vector_semilla)
-
 
 # =============================================================================
 # Info / Diagnóstico

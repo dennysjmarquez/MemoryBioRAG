@@ -2110,19 +2110,10 @@ Ver tabla de defaults al inicio del README. Resumen:
 | Variable | Default v31.1 | Notas |
 |---|---|---|
 | `BIORAG_SDM_FALLBACK` | `1` | E1 generación si pool&lt;3 |
-| `BIORAG_SDM_SCORING_PESO` | `0` | E2 |
 | `BIORAG_QCR_IDF` | `1` | E3 umbral `BIORAG_QCR_IDF_UMBRAL=0.40` |
-| `BIORAG_SPREADING_PROACTIVO` | `0` | E4 |
-| `BIORAG_RESONANCIA_ACTIVA` | `0` | E5 |
 | `BIORAG_NCD_PESO` | `0.05` | E6 |
 | `BIORAG_JSD_ADAPTATIVO` | `1` | E7 |
-| `BIORAG_SRL_CONDICIONAL` | `0` | E8 |
-| `BIORAG_DIM_IDF_ACTIVO` | `0` | E9 |
 | `BIORAG_DMN_SINTESIS_ACTIVA` | `1` | E10 tope 8 |
-| `BIORAG_COMUNIDAD_PESO` | `0` | E11 |
-| `BIORAG_HOPFIELD_FALLBACK` | `0` | E12 |
-| `BIORAG_METACOGNICION_ACTIVA` | `0` | E13 tau 0.35 |
-| `BIORAG_COHERENCIA_NARRATIVA` | `0` | F1 |
 | `BIORAG_EPISODIO_TEMPORAL_PESO` | `0.05` | F2 afinidad (0=OFF, cap 0.08) |
 | `BIORAG_EPISODIO_TEMPORAL` | `0` | F2 expansión |
 | `BIORAG_EPISODIO_VENTANA_HORAS` | `24` | F2 |
