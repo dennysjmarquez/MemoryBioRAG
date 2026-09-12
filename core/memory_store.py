@@ -123,6 +123,10 @@ CAMPO_POTENCIAL_PESO = 0.0 if _cp_raw <= 0 else min(_cp_raw, 0.08)
 CAMPO_SIGMA = float(os.environ.get('BIORAG_CAMPO_SIGMA', '1.0'))
 CAMPO_K = int(os.environ.get('BIORAG_CAMPO_K', '64'))
 
+# OPT-NUEVA-5: etiquetado epistemico. Solo metadatos via side-channel
+# (last_estado_epistemico) + cola DMN. NUNCA toca ranking/pool (R9 vs E13).
+EPISTEMICO_METADATA = os.environ.get('BIORAG_EPISTEMICO_METADATA', '1').lower() in ('1', 'true', 'yes')
+
 BAYESIAN_BM25 = os.environ.get('BIORAG_BAYESIAN_BM25', 'false').lower() == 'true'
 """Activar calibración Bayesian BM25 (sigmoid) en vez de normalización fija x/(x+3).
 Override: export BIORAG_BAYESIAN_BM25=true"""
@@ -4863,6 +4867,115 @@ class SQLiteMemoryBioRAG:
             resultado[raiz] = filtradas
         return resultado
 
+    # OPT-NUEVA-5: constates de evaluacion epistemica (Ce). Umbrales = HIPOTESIS
+    # inicial documentada (sin set calibrado); ranking intacto por construccion.
+    EPISTEMICO_TOP_K = 5
+    EPISTEMICO_UMBRAL_CONOCIDO = 0.55
+    EPISTEMICO_UMBRAL_INCERTIDUMBRE = 0.30
+    EPISTEMICO_VACIOS_CAP = 200
+
+    def _epistemico_coherencia_dimensional(self, top_conceptos):
+        """Fraccion del top-k (sin top-1) que comparte >=1 dimension con top-1."""
+        if not top_conceptos or len(top_conceptos) < 2:
+            return 0.0
+        try:
+            ph = ",".join("?" for _ in top_conceptos)
+            dims = {}
+            for concepto, dim_id in self.cursor.execute(
+                    "SELECT concepto, dimension_id FROM largo_plazo_dimensiones WHERE concepto IN (%s)" % ph,
+                    tuple(top_conceptos)):
+                dims.setdefault(concepto, set()).add(dim_id)
+            base = dims.get(top_conceptos[0]) or set()
+            if not base:
+                return 0.0
+            resto = top_conceptos[1:]
+            return sum(1 for c in resto if (dims.get(c) or set()) & base) / len(resto)
+        except Exception:
+            return 0.0
+
+    def _epistemico_evaluar(self, pagina_resultados):
+        """Ce = 0.5*top1 + 0.3*densidad_top5 + 0.2*coherencia_dim. Solo lectura."""
+        top = list(pagina_resultados or [])[:self.EPISTEMICO_TOP_K]
+        if not top:
+            return {"estado_epistemico": "vacio_cognitivo", "Ce": 0.0,
+                    "top1_score": 0.0, "densidad_pool": 0.0,
+                    "coherencia_dimensional": 0.0}
+
+        def _clip(x):
+            try:
+                return max(0.0, min(1.0, float(x or 0.0)))
+            except Exception:
+                return 0.0
+
+        scores = [_clip(r[4]) for r in top]
+        s1 = scores[0]
+        densidad = sum(scores) / len(scores)
+        dim_coh = self._epistemico_coherencia_dimensional([r[0] for r in top])
+        ce = round(0.5 * s1 + 0.3 * densidad + 0.2 * dim_coh, 4)
+        if ce >= self.EPISTEMICO_UMBRAL_CONOCIDO:
+            estado = "conocido"
+        elif ce >= self.EPISTEMICO_UMBRAL_INCERTIDUMBRE:
+            estado = "incertidumbre_parcial"
+        else:
+            estado = "vacio_cognitivo"
+        return {"estado_epistemico": estado, "Ce": ce,
+                "top1_score": round(s1, 4), "densidad_pool": round(densidad, 4),
+                "coherencia_dimensional": round(dim_coh, 4)}
+
+    def _epistemico_publicar(self, frase, pagina_resultados, total):
+        """Hook de cola: merge metadatos en last_estado_epistemico + encola vacios.
+        JAMAS muta pagina_resultados. Devuelve None."""
+        try:
+            info = self._epistemico_evaluar(pagina_resultados)
+        except Exception:
+            return
+        try:
+            base = getattr(self, "last_estado_epistemico", {}) or {}
+            if not isinstance(base, dict):
+                base = {}
+            merged = dict(base)
+            merged.update(info)
+            merged["epistemico_n_resultados"] = len(pagina_resultados or [])
+            self.last_estado_epistemico = merged
+        except Exception:
+            pass
+        if info.get("estado_epistemico") == "vacio_cognitivo":
+            self._epistemico_encolar_vacio(frase, info.get("Ce", 0.0))
+
+    def _epistemico_publicar_sin_consulta(self):
+        """Early-exit (query vacia/basura): no hubo busqueda, no es vacio."""
+        try:
+            base = getattr(self, "last_estado_epistemico", {}) or {}
+            if not isinstance(base, dict):
+                base = {}
+            merged = dict(base)
+            merged.update({"estado_epistemico": "sin_consulta", "Ce": 0.0,
+                           "epistemico_n_resultados": 0})
+            self.last_estado_epistemico = merged
+        except Exception:
+            pass
+
+    def _epistemico_encolar_vacio(self, frase, ce):
+        """Encola termino no resuelto en estado_hormiga.json (vacios_cognitivos).
+        Best-effort con dedup exacto y cap FIFO: jamas rompe la busqueda."""
+        try:
+            termino = (frase or "").strip()[:200]
+            if not termino:
+                return
+            from core.dmn_reflexion import _cargar_estado, _guardar_estado
+            import time as _t
+            estado = _cargar_estado()
+            cola = estado.get("vacios_cognitivos")
+            if not isinstance(cola, list):
+                cola = []
+            if any(isinstance(e, dict) and e.get("termino") == termino for e in cola):
+                return
+            cola.append({"termino": termino, "Ce": float(ce or 0.0), "ts": _t.time()})
+            estado["vacios_cognitivos"] = cola[-self.EPISTEMICO_VACIOS_CAP:]
+            _guardar_estado(estado)
+        except Exception:
+            pass
+
     def buscar_por_frase(self, frase, profundidad="activos", pagina=1, limite=None, categoria=None, preview_chars=1500, historial_fallos=None, context_window=0, dimensiones_dict=None, dimensiones_ids=None, parafrasis_list=None, desde_ts=None, hasta_ts=None, modo_estricto=False, usar_inferencia=True, buscar_por_rol=None, ignore_peso_sinaptico=False, ordenar_por="relevancia", permitir_expansion_empate=False, expandir_episodio=False, analogia=False):
         """Busqueda hibrida: FTS5 trigram + peso sinaptico + asociaciones + scoring dimensional.
 
@@ -4934,6 +5047,8 @@ class SQLiteMemoryBioRAG:
         # Si no hay frase Y no hay dimensiones Y no hay rol, retornar vacío
         # PERO si hay dimensiones o rol (aunque no haya frase), continuar
         if not frase.strip() and not dimensiones_ids and not buscar_por_rol:
+            if EPISTEMICO_METADATA:
+                self._epistemico_publicar_sin_consulta()
             return [], 0
 
         # Parsear términos entre comillas dobles ("CV", "IA") para bypass de trigram
@@ -5119,6 +5234,8 @@ class SQLiteMemoryBioRAG:
         if es_basura:
             # Log para auditoría
             # print(f"[EARLY-EXIT] Query basura detectada, saltando cascada fallbacks: '{frase[:50]}...'")
+            if EPISTEMICO_METADATA:
+                self._epistemico_publicar_sin_consulta()
             return [], 0
 
         # Calcular pesos diferenciales de tokens por centralidad en la red
@@ -7003,6 +7120,9 @@ class SQLiteMemoryBioRAG:
         #
         # buscar_por_frase es motor de búsqueda puro: devuelve todo lo que
         # encuentre, sin filtro de calidad. El consumidor decide.
+        # OPT-NUEVA-5: solo publica metadatos (side-channel); ranking intacto.
+        if EPISTEMICO_METADATA:
+            self._epistemico_publicar(frase, pagina_resultados, total)
         return pagina_resultados, total
 
     def _enriquecer_con_adn(self, query, resultados_base, limite=None):
