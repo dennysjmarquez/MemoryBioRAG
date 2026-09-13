@@ -1,5 +1,35 @@
 # BioRAG Changelog
 
+## [v31.3] — 2026-09-13 — D4 QCR-typo default ON (récord 921)
+
+Segunda oportunidad QCR tolerante a typos (all-near): un candidato con
+score ≥ piso (0.35) que falla cobertura exacta sobrevive si CADA token
+tiene hit exacto o near-match (lev ≤ 2, len ≥ 4). Flag `BIORAG_QCR_TYPO`
+default **1** (ON); piso/dist con `BIORAG_QCR_TYPO_PISO=0.35`,
+`BIORAG_QCR_TYPO_DIST=2`.
+
+A/B 921 vs v31.2 (copias limpias, Gate de Oro R@5≥97.60/MRR≥0.9323/FP=0/
+fallos<21): R@5 **98.06** (+0.46) R@1 **90.74** (+0.23) MRR **0.9355**
+(+0.0032) fallos **17** (−4) FP **0**. Rescatados 0518/0531/0636/0803
+(3× #1 + 1× #3); rotos 0. Coste +2.1% (651.92→665.79s). **Récord
+histórico absoluto.** Tests `tests/test_qcr_typo_d4.py` (7). Suite 160.
+Precede ranking-autopsy 21/21 (20 in-pool solo-ranking + 0497 pre-pool).
+Docs: `docs/AUDITORIA_POSICIONAMIENTO_20260913.md`.
+
+Investigado y NO shippeado (revertido tras fallar gate): C1 grafo→pool
+(96.57/30); D1 QCR-escape (97.26/24); D2 QCR-frame (97.83/19 pero MRR
+0.9286); Fase-2 pool-gate contenido (gold-0497 entra pero rankea 65,
+A/B nulo 17→17); Fase-3 renorm dinámica (97.26/24, regresa D4-0531).
+
+## [v31.2] — 2026-09-12 — Purga E-OFF + freeze de entorno
+
+Eliminados experimentos default-OFF E2/E4/E5/E8/E9/E11/E12/E13/F1
+(código + tests + ramas huérfanas SDM/Zombie). Suite 153.
+921 post-purga GLOBAL-IDENTICO: R@5 **97.60** R@1 **90.51** MRR **0.9323**
+fallos **21** FP **0**. Freeze `requirements.txt` (numpy 2.4.6 et al):
+un reinstall con rangos había movido el 921 de 97.37/23/FP15% a
+97.60/21/FP0 sin cambiar código ni DB (deriva de entorno).
+
 ## [v31.1-unreleased] — 2026-09-11 — F2 memoria episódica temporal (un paso)
 
 Recuperación episódica: nodos creados en la misma ventana temporal (±24h)

@@ -1,3 +1,45 @@
+# BioRAG v31.3 — Purga E-OFF + D4 QCR-typo (récord 921)
+
+> **Versión:** v31.3 — Septiembre 2026 — **lista para merge a `master`**
+> **Base de medición:** snapshot `snapshots/qa_escape_qcr_20260811.db` (**921** casos: 875 positivas + 40 negativos + 6 ambiguas) + freeze `requirements.txt` (numpy 2.4.6 et al)
+> **Método:** un flag por paso, A/B 921 en copias limpias, default ON **solo** si pasa el gate (detalles por paso en `CHANGELOG.md`)
+> **Paradigma:** Python puro + SQLite FTS5. **Cero embeddings densos, cero GPU, cero APIs** en el path de búsqueda. No se fusionan nodos. No se toca el layout SDM 2048 bits.
+
+---
+
+## 📦 v31.3 — Récord + qué cambió (para pasar a master)
+
+**Gate vivo de producción (snapshot 921, `db4152c`):**
+
+| Métrica | Valor | Honestidad |
+|---|---|---|
+| Recall@5 | **98.06%** | 17 fallos / 875 positivas — récord absoluto |
+| Recall@1 | **90.74%** | no es 100% |
+| MRR | **0.9355** | |
+| FP (40 negativos) | **0%** (0/40) | 0% real en este snapshot |
+| Suite pytest | **160 passed** | `tests/` |
+| Coste D4 | +2.1% medido (665.79s vs 651.92s) | A/B 921 |
+
+**v31.2 — purga (2026-09-12):** eliminados E2/E4/E5/E8/E9/E11/E12/E13/F1 default-OFF + ramas huérfanas; 921 post-purga idéntico (97.60/21/FP0); freeze de entorno (la deriva numpy movía ±0.23 R@5 sin cambiar código).
+
+**v31.3 — D4 QCR-typo (2026-09-13):** segunda oportunidad QCR all-near (piso 0.35, lev≤2, len≥4), default ON (`BIORAG_QCR_TYPO=1`); rescata 0518/0531/0636/0803, 0 rotos. **ON en producción (sin flags extra):** E1, E3, E6 (0.05), E7, E10, F2-afinidad (0.05), F5-campo (0.05), NCD (0.05), EPISTEMICO-metadata, D4 (F4 termodinámica presente, ver código/`CHANGELOG.md`). **OFF:** F2-expansión, F3, multihop. **Revertidos tras fallar gate (no están):** C1, D1, D2, pool-gate-F2, renorm-F3. **Borrados (purga):** E2, E4, E5, E8, E9, E11, E12, E13, F1.
+
+### Cómo reproducir el 921
+
+```bash
+BIORAG_PATH=snapshots/qa_escape_qcr_20260811.db python3 scripts/evaluar_qa.py
+# Exploratorio (sin gate CI):
+BIORAG_QA_GATE=0 BIORAG_PATH=snapshots/qa_escape_qcr_20260811.db python3 scripts/evaluar_qa.py
+```
+
+### Qué NO se afirma (v31.3)
+
+- El sistema **no** es perfecto: 17 fallos restantes (0497 pre-pool + 16 ranking; ver historial del PR).
+- 0718/0763 solo se rescatan con renorm experimental que regresa 9 casos (no shippeado).
+- El gate interno del script (`BIORAG_QA_*`, defaults v31.1) va por detrás del récord — seguimiento pendiente, no bloquea merge.
+
+---
+
 # BioRAG v31.1 — Plan Maestro E1–E13 + Invenciones F1 y F2
 
 > **Versión:** v31.1 — Septiembre 2026 — **lista para merge a `master`**
