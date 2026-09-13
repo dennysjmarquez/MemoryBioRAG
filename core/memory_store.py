@@ -108,14 +108,6 @@ MULTIHOP_MAX_TOTAL = int(os.environ.get('BIORAG_MULTIHOP_MAX_TOTAL', '64'))
 # HIPOTESIS v1: prior fijo atenuado; el ranking real lo aportan las demas senales.
 MULTIHOP_PRIOR = float(os.environ.get('BIORAG_MULTIHOP_PRIOR', '0.05'))
 
-# Conexion #1: grafo -> pool primario con admision estricta (convergencia).
-# OFF default. v1: solo activos, >=2 tokens, >=K semillas, cap, escape QCR.
-GRAFO_POOL_ACTIVO = os.environ.get('BIORAG_GRAFO_POOL_ACTIVO', '0').lower() in ('1', 'true', 'yes')
-GRAFO_POOL_K_SEEDS = int(os.environ.get('BIORAG_GRAFO_POOL_K_SEEDS', '2'))
-GRAFO_POOL_MAX = int(os.environ.get('BIORAG_GRAFO_POOL_MAX', '6'))
-GRAFO_POOL_PESO_MIN = float(os.environ.get('BIORAG_GRAFO_POOL_PESO_MIN', '0.30'))
-GRAFO_POOL_SEEDS = int(os.environ.get('BIORAG_GRAFO_POOL_SEEDS', '40'))
-
 BAYESIAN_BM25 = os.environ.get('BIORAG_BAYESIAN_BM25', 'false').lower() == 'true'
 """Activar calibración Bayesian BM25 (sigmoid) en vez de normalización fija x/(x+3).
 Override: export BIORAG_BAYESIAN_BM25=true"""
@@ -5971,65 +5963,12 @@ class SQLiteMemoryBioRAG:
             bm25_norm_map = {}
             self._last_bm25_bounds = None
 
-        # Conexion #1 v1: candidatos del grafo al pool primario (admision estricta).
-        # Convergencia >=K semillas + arista >= PESO_MIN + cap + solo activos.
-        # Los admitidos compiten 100% nativo (sin prior debil): entran a todos
-        # los precomputes + hibrido + QCR (escape por energia, origen grafo_rescate).
-        if (GRAFO_POOL_ACTIVO and not modo_estricto and todos
-                and profundidad == "activos"
-                and len(re.findall(r"\w{2,}", query or "")) >= 2):
-            try:
-                _sem_c1 = [r[1] for r in todos if r[1]][:max(0, GRAFO_POOL_SEEDS)]
-                _seen_c1 = {r[1] for r in todos}
-                _maxvec = int(os.environ.get("BIORAG_MAX_VECINOS_POR_NODO", "6"))
-                _ev_c1 = {}
-                for _s in _sem_c1:
-                    self.cursor.execute(
-                        "SELECT destino, peso FROM sinapsis WHERE origen = ? AND peso >= ? "
-                        "UNION ALL "
-                        "SELECT origen, peso FROM sinapsis WHERE destino = ? AND peso >= ? "
-                        "ORDER BY peso DESC LIMIT ?",
-                        (_s, GRAFO_POOL_PESO_MIN, _s, GRAFO_POOL_PESO_MIN, _maxvec),
-                    )
-                    for _vec, _pe in self.cursor.fetchall():
-                        if not _vec or _vec in _seen_c1:
-                            continue
-                        _e = _ev_c1.setdefault(_vec, [set(), 0.0, (None, 0.0)])
-                        if _s not in _e[0]:
-                            _e[0].add(_s)
-                            _e[1] += float(_pe or 0.0)
-                            if float(_pe or 0.0) > _e[2][1]:
-                                _e[2] = (_s, float(_pe or 0.0))
-                _adm = sorted(
-                    ((c, e[0], e[1], e[2]) for c, e in _ev_c1.items()
-                     if len(e[0]) >= GRAFO_POOL_K_SEEDS),
-                    key=lambda t: (-len(t[1]), -t[2], t[0]),
-                )[:max(0, GRAFO_POOL_MAX)]
-                for _conc, _ss, _sp, (_padre, _pp) in _adm:
-                    self.cursor.execute(
-                        "SELECT rowid, concepto, contenido, peso_sinaptico, estado, asociaciones "
-                        "FROM largo_plazo WHERE concepto = ?",
-                        (_conc,),
-                    )
-                    _row = self.cursor.fetchone()
-                    if not _row or _row[4] != "activo":
-                        continue
-                    todos.append(_row)
-                    _seen_c1.add(_conc)
-                    origen_scores[_conc] = ("grafo_rescate", min(1.0, _sp / 2.0))
-                    if _padre:
-                        _pm = dict(getattr(self, "last_parent_map", {}) or {})
-                        _pm[_conc] = (_padre, _pp)
-                        self.last_parent_map = _pm
-            except Exception:
-                pass
-
         # Asignar BM25 sintético a candidatos de rescate (typo, simbólico, dimensional_fallback, concepto)
         # para que no compitan con bm25=0 frente a matches parciales débiles,
         # preservando la escala intra-query para mantener 0% falsos positivos en ruido.
         escala_activa = self._last_bm25_bounds[2] if (self._last_bm25_bounds and self._last_bm25_bounds[2] > 0.3) else 0.8
         for conc, (origen, sc_capa) in origen_scores.items():
-            if conc not in bm25_norm_map and origen in ("typo", "simbolico", "dimensional_fallback", "concepto", "lexico_aprendido", "grafo_rescate"):
+            if conc not in bm25_norm_map and origen in ("typo", "simbolico", "dimensional_fallback", "concepto", "lexico_aprendido"):
                 bm25_norm_map[conc] = min(1.0, escala_activa * float(sc_capa or 0.5))
 
         # ─── Capa 4.5: Precompute predicate data for scoring ───
@@ -6437,7 +6376,7 @@ class SQLiteMemoryBioRAG:
                 if ratio_qcr >= _qcr_umbral or (
                     origen_tipo in (
                         "semantica", "simbolico", "expansion", "dimensional_fallback",
-                        "typo", "concepto", "lexico_aprendido", "grafo_rescate",
+                        "typo", "concepto", "lexico_aprendido",
                     )
                     and score_capa >= QCR_ESCAPE_CAPA_MIN
                 ):
@@ -6551,7 +6490,7 @@ class SQLiteMemoryBioRAG:
         # Solo aplica a resultados de capas literales (AND/OR/NEAR/unicode/snap/substring).
         # Resultados de capas no literales se preservan para no romper tolerancia a typos,
         # búsqueda semántica/conceptual, ni el fallback simbólico (que normaliza acentos).
-        _ORIGENES_NO_LITERALES = {"typo", "expansion", "latente", "cadena", "simbolico", "dimensional_fallback", "semantica", "unicode", "lexico_aprendido", "sdm", "grafo_rescate"}
+        _ORIGENES_NO_LITERALES = {"typo", "expansion", "latente", "cadena", "simbolico", "dimensional_fallback", "semantica", "unicode", "lexico_aprendido", "sdm"}
         query_words = re.findall(r'\w{3,}', query.lower())
         if len(query_words) == 1 and resultados_con_hibrido:
             token = query_words[0]
