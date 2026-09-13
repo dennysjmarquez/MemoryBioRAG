@@ -163,6 +163,8 @@ QCR_IDF_UMBRAL = float(os.environ.get('BIORAG_QCR_IDF_UMBRAL', '0.40'))
 QCR_TYPO_ACTIVA = os.environ.get('BIORAG_QCR_TYPO', '1').lower() in ('1', 'true', 'yes')
 DIM_RESONANCIA = os.environ.get('BIORAG_DIM_RESONANCIA', '0').lower() in ('1', 'true', 'yes')
 DIM_RESONANCIA_K = int(os.environ.get('BIORAG_DIM_RESONANCIA_K', '50'))
+DIM_ESCAPE = os.environ.get('BIORAG_DIM_ESCAPE', '0').lower() in ('1', 'true', 'yes')
+DIM_ESCAPE_T = float(os.environ.get('BIORAG_DIM_ESCAPE_T', '0.45'))
 QCR_TYPO_PISO = float(os.environ.get('BIORAG_QCR_TYPO_PISO', '0.35'))
 QCR_TYPO_DIST = int(os.environ.get('BIORAG_QCR_TYPO_DIST', '2'))
 
@@ -6470,6 +6472,11 @@ class SQLiteMemoryBioRAG:
                         "typo", "concepto", "lexico_aprendido",
                     )
                     and score_capa >= QCR_ESCAPE_CAPA_MIN
+                ) or (
+                    # Fase B (resonancia dimensional): escape calibrado T=0.45
+                    # (40 neg max 0.0; Q-01 0.488). OFF = cortocircuito.
+                    DIM_ESCAPE and origen_tipo == "dimensional_fallback"
+                    and score_capa >= DIM_ESCAPE_T
                 ):
                     filtrados_qcr.append((conc, cont, peso, est, sc, asoc))
                 elif (QCR_TYPO_ACTIVA and sc >= QCR_TYPO_PISO
