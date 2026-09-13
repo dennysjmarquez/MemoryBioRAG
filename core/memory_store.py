@@ -161,6 +161,8 @@ QCR_IDF_UMBRAL = float(os.environ.get('BIORAG_QCR_IDF_UMBRAL', '0.40'))
 # Default ON: gate Fase 1 pasado 2026-09-13 (R@5 98.06, 17 fallos, FP 0).
 # Override: export BIORAG_QCR_TYPO=0
 QCR_TYPO_ACTIVA = os.environ.get('BIORAG_QCR_TYPO', '1').lower() in ('1', 'true', 'yes')
+DIM_RESONANCIA = os.environ.get('BIORAG_DIM_RESONANCIA', '0').lower() in ('1', 'true', 'yes')
+DIM_RESONANCIA_K = int(os.environ.get('BIORAG_DIM_RESONANCIA_K', '50'))
 QCR_TYPO_PISO = float(os.environ.get('BIORAG_QCR_TYPO_PISO', '0.35'))
 QCR_TYPO_DIST = int(os.environ.get('BIORAG_QCR_TYPO_DIST', '2'))
 
@@ -5953,21 +5955,42 @@ class SQLiteMemoryBioRAG:
             if profundidad != "profundo":
                 fb_filtros_extra.append("l.estado = 'activo'")
             fb_where_extra = (" AND " + " AND ".join(fb_filtros_extra)) if fb_filtros_extra else ""
-            fallback_sql = f"""
-                SELECT d.concepto, d.dimension_id
-                FROM largo_plazo_dimensiones d
-                JOIN largo_plazo l ON l.concepto = d.concepto
-                WHERE d.dimension_id IN ({dim_ids_str}){fb_where_extra}
-                LIMIT 500
-            """
+            if DIM_RESONANCIA:
+                # Fase A (resonancia dimensional): candidatura por merito
+                # (shared DESC), sin sesgo rowid del LIMIT-500. EXP-Q: los 3
+                # golds pasaban el umbral pero caian fuera de la ventana.
+                fallback_sql = f"""
+                    SELECT d.concepto, GROUP_CONCAT(d.dimension_id)
+                    FROM largo_plazo_dimensiones d
+                    JOIN largo_plazo l ON l.concepto = d.concepto
+                    WHERE d.dimension_id IN ({dim_ids_str}){fb_where_extra}
+                    GROUP BY d.concepto
+                    HAVING COUNT(*) >= ?
+                    ORDER BY COUNT(*) DESC, l.peso_sinaptico DESC, d.concepto ASC
+                    LIMIT ?
+                """
+            else:
+                fallback_sql = f"""
+                    SELECT d.concepto, d.dimension_id
+                    FROM largo_plazo_dimensiones d
+                    JOIN largo_plazo l ON l.concepto = d.concepto
+                    WHERE d.dimension_id IN ({dim_ids_str}){fb_where_extra}
+                    LIMIT 500
+                """
             try:
-                self.cursor.execute(fallback_sql, tuple(fb_filtros_params))
-                concepto_fb_ids = {}
-                for concepto, dim_id in self.cursor.fetchall():
-                    if concepto not in concepto_fb_ids:
-                        concepto_fb_ids[concepto] = []
-                    concepto_fb_ids[concepto].append(dim_id)
-                if len(concepto_fb_ids) > 50:
+                if DIM_RESONANCIA:
+                    self.cursor.execute(fallback_sql, tuple(fb_filtros_params) + (umbral_efectivo, DIM_RESONANCIA_K))
+                    concepto_fb_ids = {}
+                    for concepto, dims_csv in self.cursor.fetchall():
+                        concepto_fb_ids[concepto] = [int(x) for x in (dims_csv or "").split(",") if x]
+                else:
+                    self.cursor.execute(fallback_sql, tuple(fb_filtros_params))
+                    concepto_fb_ids = {}
+                    for concepto, dim_id in self.cursor.fetchall():
+                        if concepto not in concepto_fb_ids:
+                            concepto_fb_ids[concepto] = []
+                        concepto_fb_ids[concepto].append(dim_id)
+                if not DIM_RESONANCIA and len(concepto_fb_ids) > 50:
                     # Ordenar por cantidad de dimensiones compartidas (top 50)
                     from collections import Counter
                     dim_counts = Counter({c: len(ds) for c, ds in concepto_fb_ids.items()})
