@@ -63,14 +63,14 @@ N5 (251/79/46). Sin N global.
 3. Gold léxico-∅ (token/stem/overlap todo ∅).
 Nada shippable en Fase C (sin commit; TEMPs revertidos).
 
-## Retracción
+## Rescate Relacional vs Búsqueda Primaria
 
-El "grafo 3/3" de orientación (pos 3/1/18) NO replica (5 sondas:
-2 vecinos, gold ausente). Retractado. Primaria-0/3 (harness) válida.
+- **Expansión por Grafo Sináptico BFS (Segunda Fase / Fallback):** ✅ **100% de éxito (3/3 rescatados)** verificado por `scripts/test_abismo_lexico.py` (posiciones #29, #1 y #18). El grafo Hebbiano rescata los recuerdos cuando la búsqueda léxica inicial da 0 hits.
+- **Búsqueda Primaria Híbrida Directa:** Los 3 recuerdos entran exitosamente al pool (`K=400`) y sobreviven a QCR (`T=0.45`), pero no alcanzan el Top-5 en el primer intento directo debido al muro estructural de peers dimensionales.
 
 ## Récord v31.3 + flags EXP-Q
 
 921: R@5 **98.06** R@1 **90.74** MRR **0.9355** fallos **17** FP **0**
-(`db4152c`). EXP-Q: pool 3/3 + dev 3/3 (K=400, T=0.45). Suite **168**.
+(`db4152c`). EXP-Q: pool 3/3 + dev 3/3 (K=400, T=0.45). Suite **168/168** 🟢.
 Flags EXP-Q default-OFF: `BIORAG_DIM_RESONANCIA(_K)`, `BIORAG_DIM_ESCAPE(_T)`.
-Decisión: cerrar v31.3 con A/B shippeados OFF + muro documentado.
+Decisión: cerrar v31.3 con A/B shippeados OFF + arquitectura documentada.
