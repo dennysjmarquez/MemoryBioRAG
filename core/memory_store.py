@@ -153,6 +153,17 @@ SDM_FALLBACK_K = int(os.environ.get('BIORAG_SDM_FALLBACK_K', '5'))
 QCR_IDF_ACTIVO = os.environ.get('BIORAG_QCR_IDF', '1').lower() in ('1', 'true', 'yes')
 QCR_IDF_UMBRAL = float(os.environ.get('BIORAG_QCR_IDF_UMBRAL', '0.40'))
 
+# F-QCR-D4 (Fase 1): segunda oportunidad QCR tolerante a typos (all-near).
+# Un candidato con score alto que falla cobertura exacta sobrevive si CADA
+# token tiene hit exacto (substring) o near-match (lev<=DIST, len>=4).
+# Calibrado 19/19 con tokens LIVE: rescata Clase-A 4/4, 0/14 distractores,
+# 0738 a salvo. Piso 0.35: max negativo < 0.25 (separacion Paso 0).
+# Default ON: gate Fase 1 pasado 2026-09-13 (R@5 98.06, 17 fallos, FP 0).
+# Override: export BIORAG_QCR_TYPO=0
+QCR_TYPO_ACTIVA = os.environ.get('BIORAG_QCR_TYPO', '1').lower() in ('1', 'true', 'yes')
+QCR_TYPO_PISO = float(os.environ.get('BIORAG_QCR_TYPO_PISO', '0.35'))
+QCR_TYPO_DIST = int(os.environ.get('BIORAG_QCR_TYPO_DIST', '2'))
+
 # E6: NCD zlib (Li et al. 2004). Senal O(k) sobre el pool, no O(N).
 # Default peso 0.05; 0 = OFF. Cap 0.08. Solo stdlib zlib.
 _ncd_peso_raw = float(os.environ.get('BIORAG_NCD_PESO', '0.05'))
@@ -193,6 +204,63 @@ ADN_MAX_EXPANSION = int(os.environ.get('BIORAG_ADN_MAX_EXPANSION', '24'))
 ADN_UMBRAL_ASOCIACION = float(os.environ.get('BIORAG_ADN_UMBRAL_ASOCIACION', '0.35'))
 
 # =============================================================================
+
+
+def _qcr_levenshtein(a, b, dist_max=2):
+    """Levenshtein acotado: early-exit si excede dist_max. Solo stdlib."""
+    if a == b:
+        return 0
+    la, lb = len(a), len(b)
+    if abs(la - lb) > dist_max:
+        return dist_max + 1
+    prev = list(range(lb + 1))
+    for i in range(1, la + 1):
+        cur = [i] + [0] * lb
+        ai = a[i - 1]
+        row_min = cur[0]
+        for j in range(1, lb + 1):
+            cur[j] = min(prev[j] + 1, cur[j - 1] + 1,
+                         prev[j - 1] + (0 if ai == b[j - 1] else 1))
+            if cur[j] < row_min:
+                row_min = cur[j]
+        if row_min > dist_max:
+            return dist_max + 1
+        prev = cur
+    return prev[lb]
+
+
+def _qcr_todos_cercanos(q_tokens, text_target, dist_max=2, palabras_max=1500):
+    """D4: True si CADA token tiene hit exacto o near-match en el texto.
+
+    Hit exacto = substring (igual que QCR). Near-match = lev <= dist_max
+    contra alguna palabra para tokens len>=4; tokens cortos solo exacto
+    (evita colisiones espurias: 'moe'~'de'). Palabras = split [a-z]+
+    (parte por '_' y digitos). Tope de palabras acota el peor caso."""
+    if not q_tokens:
+        return True
+    pendientes = []
+    for t in q_tokens:
+        if t in text_target:
+            continue
+        if len(t) < 4:
+            return False
+        pendientes.append(t)
+    if not pendientes:
+        return True
+    words = [w for w in re.findall(r'[a-záéíóúñü]+', text_target)
+             if len(w) >= 3][:palabras_max]
+    for t in pendientes:
+        lt = len(t)
+        ok = False
+        for w in words:
+            if abs(len(w) - lt) > dist_max:
+                continue
+            if _qcr_levenshtein(t, w, dist_max) <= dist_max:
+                ok = True
+                break
+        if not ok:
+            return False
+    return True
 
 class SQLiteMemoryBioRAG:
     """
@@ -6380,6 +6448,11 @@ class SQLiteMemoryBioRAG:
                     )
                     and score_capa >= QCR_ESCAPE_CAPA_MIN
                 ):
+                    filtrados_qcr.append((conc, cont, peso, est, sc, asoc))
+                elif (QCR_TYPO_ACTIVA and sc >= QCR_TYPO_PISO
+                        and _qcr_todos_cercanos(q_tokens_qcr, text_target, QCR_TYPO_DIST)):
+                    # F-QCR-D4: segunda oportunidad por typos (ver flags). Flag OFF:
+                    # cortocircuito, path byte-identico.
                     filtrados_qcr.append((conc, cont, peso, est, sc, asoc))
             if filtrados_qcr:
                 resultados_con_hibrido = filtrados_qcr
