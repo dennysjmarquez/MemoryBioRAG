@@ -17,12 +17,14 @@
 | Recall@1 | **90.74%** | no es 100% |
 | MRR | **0.9355** | |
 | FP (40 negativos) | **0%** (0/40) | 0% real en este snapshot |
-| Suite pytest | **160 passed** | `tests/` |
+| Suite pytest | **168 passed** | `tests/` (160 + 8 EXP-Q A/B) |
 | Coste D4 | +2.1% medido (665.79s vs 651.92s) | A/B 921 |
+
+**EXP-Q Abismo Léxico (2026-09-13, default-OFF):** candidatura dim por mérito K=400 (3/3 en pool) + escape QCR T=0.45 calibrado 40-neg (3/3 en dev, ranks 251/79/46); Fase C: 10 palancas sin Top-5 (muro estructural documentado). Informe: `docs/INFORME_ABISMO_LEXICO_EXPQ_v31.3.md`.
 
 **v31.2 — purga (2026-09-12):** eliminados E2/E4/E5/E8/E9/E11/E12/E13/F1 default-OFF + ramas huérfanas; 921 post-purga idéntico (97.60/21/FP0); freeze de entorno (la deriva numpy movía ±0.23 R@5 sin cambiar código).
 
-**v31.3 — D4 QCR-typo (2026-09-13):** segunda oportunidad QCR all-near (piso 0.35, lev≤2, len≥4), default ON (`BIORAG_QCR_TYPO=1`); rescata 0518/0531/0636/0803, 0 rotos. **ON en producción (sin flags extra):** E1, E3, E6 (0.05), E7, E10, F2-afinidad (0.05), F5-campo (0.05), NCD (0.05), EPISTEMICO-metadata, D4 (F4 termodinámica presente, ver código/`CHANGELOG.md`). **OFF:** F2-expansión, F3, multihop. **Revertidos tras fallar gate (no están):** C1, D1, D2, pool-gate-F2, renorm-F3. **Borrados (purga):** E2, E4, E5, E8, E9, E11, E12, E13, F1.
+**v31.3 — D4 QCR-typo (2026-09-13):** segunda oportunidad QCR all-near (piso 0.35, lev≤2, len≥4), default ON (`BIORAG_QCR_TYPO=1`); rescata 0518/0531/0636/0803, 0 rotos. **ON en producción (sin flags extra):** E1, E3, E6 (0.05), E7, E10, F2-afinidad (0.05), F5-campo (0.05), NCD (0.05), EPISTEMICO-metadata, D4 (F4 termodinámica presente, ver código/`CHANGELOG.md`). **OFF:** F2-expansión, F3, multihop, DIM_RESONANCIA(_K), DIM_ESCAPE(_T). **Revertidos tras fallar gate (no están):** C1, D1, D2, pool-gate-F2, renorm-F3. **Borrados (purga):** E2, E4, E5, E8, E9, E11, E12, E13, F1.
 
 ### Cómo reproducir el 921
 
@@ -37,6 +39,7 @@ BIORAG_QA_GATE=0 BIORAG_PATH=snapshots/qa_escape_qcr_20260811.db python3 scripts
 - El sistema **no** es perfecto: 17 fallos restantes (0497 pre-pool + 16 ranking; ver historial del PR).
 - 0718/0763 solo se rescatan con renorm experimental que regresa 9 casos (no shippeado).
 - El gate interno del script (`BIORAG_QA_*`, defaults v31.1) va por detrás del récord — seguimiento pendiente, no bloquea merge.
+- EXP-Q Abismo Léxico: pool 3/3 + dev 3/3 (flags OFF) pero Top-5 inalcanzado (muro estructural, 10 palancas refutadas) — ver informe.
 
 ---
 

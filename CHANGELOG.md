@@ -21,6 +21,16 @@ Investigado y NO shippeado (revertido tras fallar gate): C1 grafo→pool
 0.9286); Fase-2 pool-gate contenido (gold-0497 entra pero rankea 65,
 A/B nulo 17→17); Fase-3 renorm dinámica (97.26/24, regresa D4-0531).
 
+Misión Abismo Léxico EXP-Q (shippeado default-OFF + documentado):
+Fase A candidatura dim por mérito (`BIORAG_DIM_RESONANCIA(_K)`,
+`3c7e4f9`): K=400 mete 3/3 al pool (rangos #372/#95/#18). Fase B
+escape QCR calibrado (`BIORAG_DIM_ESCAPE(_T=0.45)`, `623f3cf`):
+40 negativos max 0.0, dev-entry 3/3 (ranks 251/79/46). Fase C:
+10 palancas medidas, ninguna llega a Top-5 (muro estructural:
+adelantados léxicos 0.47-0.49 + peers-dim por encima + gold
+léxico-∅; mejor: Q-02 #16 con PRF-N1 asimétrico). Suite 168.
+Informe: `docs/INFORME_ABISMO_LEXICO_EXPQ_v31.3.md`.
+
 ## [v31.2] — 2026-09-12 — Purga E-OFF + freeze de entorno
 
 Eliminados experimentos default-OFF E2/E4/E5/E8/E9/E11/E12/E13/F1
