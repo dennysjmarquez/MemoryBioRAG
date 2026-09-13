@@ -3629,7 +3629,7 @@ class SQLiteMemoryBioRAG:
             "temporal": 0.04, "asoc": 0.02, "pred": 0.20, "hub": 0.20,
         }
         _base_sum = sum(_base_weights.values())  # 1.39
-        # E2: SDM entra en el denominador para que el peso no infle el total.
+        # Pesos pool (E6/F2/F3/F5) entran en el denominador para no inflar el total.
         total_base = _base_sum + PPMI_VECTOR_WEIGHT + NCD_PESO + EPISODIO_TEMPORAL_PESO + ANALOGIA_PESO + CAMPO_POTENCIAL_PESO
         base_weight = (1.0 - jsd_weight) / total_base if total_base > 0 else 0.0
 
