@@ -17,6 +17,7 @@ import time
 import threading
 import logging
 import os
+import re
 import json
 import random
 import sqlite3
@@ -39,6 +40,8 @@ def sintetizar_sinapsis_dmn(cerebro, max_n=None, peso=None):
     peso = float(peso if peso is not None else DMN_SINTESIS_PESO)
     if max_n <= 0:
         return 0
+    # F4: pool amplio para rankear por ΔF. OFF → pool_n == max_n (idéntico).
+    pool_n = max_n * TERMODINAMICA_POOL_X if TERMODINAMICA_DMN else max_n
     cur = cerebro.cursor
     ahora = time.time()
     creadas = 0
@@ -67,13 +70,13 @@ def sintetizar_sinapsis_dmn(cerebro, max_n=None, peso=None):
             ORDER BY n DESC
             LIMIT ?
             """,
-            (max_n,),
+            (pool_n,),
         )
         pares = list(cur.fetchall())
     except Exception:
         pares = []
-    if len(pares) < max_n:
-        falta = max_n - len(pares)
+    if len(pares) < pool_n:
+        falta = pool_n - len(pares)
         ya = {(p[0], p[1]) for p in pares}
         try:
             cur.execute(
@@ -104,6 +107,18 @@ def sintetizar_sinapsis_dmn(cerebro, max_n=None, peso=None):
                 if len(extra) >= falta:
                     break
             pares.extend(extra)
+        except Exception:
+            pass
+    # F4: mismo conteo max_n, pero elegidos por ΔF mínima. OFF → orden E10.
+    if TERMODINAMICA_DMN and pares:
+        try:
+            _rank = rankear_pares_por_delta_f(
+                cerebro, [(p[0], p[1]) for p in pares],
+                temperatura=TERMODINAMICA_TEMP,
+                n_semillas=TERMODINAMICA_SEMILLAS, modo="agregar",
+            )
+            if _rank:
+                pares = [(a, b, 0) for a, b, _ in _rank[:max_n]]
         except Exception:
             pass
     for origen, destino, *_rest in pares[:max_n]:
@@ -389,3 +404,198 @@ class DMNEngine:
             "max_ideas_por_reposo": self.max_ideas_por_reposo,
             "ultima_idea": self.ultima_idea
         }
+
+
+# ---------------------------------------------------------------------------
+# F4: Termodinámica Cognitiva (Plan Maestro, INVENCIÓN 4). F = E - T·S.
+# E = tensión de pares co-activos sin arista (mala). S = 1 - densidad del
+# grafo cortical (dispersión estructural: 1=vacío, 0=completo). T = temp.
+# Crear arista: ΔE<0 vs -T·ΔS>0 → se crea si la tensión supera T×orden.
+# Podar: ΔE>=0 vs -T·ΔS<0 → se poda si T×dispersión supera la tensión.
+# T alta=explorar, T baja=sueño.
+# POR QUÉ densidad y no Shannon-de-grados: remover arista casi siempre
+# REDUCE H(grados) (concentra la distribución) → ΔF_remover>=0 siempre y
+# la poda quedaba muerta por construcción. La densidad es monótona en |E|
+# y hace funcionar síntesis y poda en la dirección pedida.
+# 100% local, determinista, stdlib. Cero GPU/embeddings/API.
+# ---------------------------------------------------------------------------
+
+TERMODINAMICA_DMN = os.environ.get("BIORAG_TERMODINAMICA_DMN", "0").lower() in ("1", "true", "yes")
+TERMODINAMICA_TEMP = float(os.environ.get("BIORAG_TERMODINAMICA_TEMP", "1.0"))
+TERMODINAMICA_SEMILLAS = int(os.environ.get("BIORAG_TERMODINAMICA_SEMILLAS", "40"))
+TERMODINAMICA_POOL_X = 10  # pool candidatos = max_n * 10 cuando ON
+
+
+def _contexto_corteza(cerebro, n_semillas=40):
+    """Top-N activos determinista + pesos, tokens, dims, aristas, grados."""
+    cur = cerebro.cursor
+    n = max(2, int(n_semillas))
+    cur.execute(
+        "SELECT concepto, COALESCE(peso_sinaptico, 0.0), COALESCE(contenido, '') "
+        "FROM largo_plazo WHERE estado = 'activo' "
+        "ORDER BY peso_sinaptico DESC, concepto ASC LIMIT ?",
+        (n,),
+    )
+    rows = cur.fetchall()
+    seeds = [r[0] for r in rows]
+    peso = {r[0]: float(r[1] or 0.0) for r in rows}
+    toks = {r[0]: set(re.findall(r"\w{4,}", (r[2] or "").lower())) for r in rows}
+    ndims = {}
+    if seeds:
+        ph = ",".join("?" * len(seeds))
+        try:
+            cur.execute(
+                "SELECT d1.concepto, d2.concepto, COUNT(*) FROM largo_plazo_dimensiones d1 "
+                "JOIN largo_plazo_dimensiones d2 ON d1.dimension_id = d2.dimension_id "
+                "AND d1.concepto < d2.concepto "
+                f"WHERE d1.concepto IN ({ph}) AND d2.concepto IN ({ph}) "
+                "GROUP BY d1.concepto, d2.concepto",
+                seeds + seeds,
+            )
+            for a, b, k in cur.fetchall():
+                if a in peso and b in peso:
+                    ndims[(a, b)] = int(k)
+        except Exception:
+            pass
+    aristas = set()
+    grados = {s: 0 for s in seeds}
+    if seeds:
+        ph = ",".join("?" * len(seeds))
+        try:
+            cur.execute(
+                f"SELECT origen, destino FROM sinapsis WHERE origen IN ({ph}) AND destino IN ({ph})",
+                seeds + seeds,
+            )
+            for a, b in cur.fetchall():
+                if a == b or a not in peso or b not in peso:
+                    continue
+                key = (a, b) if a < b else (b, a)
+                if key not in aristas:
+                    aristas.add(key)
+                    grados[a] += 1
+                    grados[b] += 1
+        except Exception:
+            pass
+    return {"seeds": seeds, "peso": peso, "toks": toks, "ndims": ndims,
+            "aristas": aristas, "grados": grados}
+
+
+def _afinidad_par(ctx, a, b):
+    """n_dims + 0.5*min(shared_toks,4). Independiente de aristas."""
+    key = (a, b) if a < b else (b, a)
+    nd = float(ctx["ndims"].get(key, 0))
+    nt = min(len(ctx["toks"].get(a, set()) & ctx["toks"].get(b, set())), 4)
+    return nd + 0.5 * nt
+
+
+def _es_candidato(ctx, a, b):
+    """Mismo criterio E10: >=1 dim compartida o >=2 tokens compartidos."""
+    key = (a, b) if a < b else (b, a)
+    if ctx["ndims"].get(key, 0) >= 1:
+        return True
+    return len(ctx["toks"].get(a, set()) & ctx["toks"].get(b, set())) >= 2
+
+
+def _tension_par(ctx, a, b):
+    """w_a*w_b*afinidad si par candidato SIN arista; 0.0 si no."""
+    key = (a, b) if a < b else (b, a)
+    if key in ctx["aristas"]:
+        return 0.0
+    if not _es_candidato(ctx, a, b):
+        return 0.0
+    return float(ctx["peso"].get(a, 0.0)) * float(ctx["peso"].get(b, 0.0)) * _afinidad_par(ctx, a, b)
+
+
+def _entropia_densidad(n, n_aristas):
+    """1 - densidad no dirigida, [0,1]. Determinista, O(1)."""
+    if n < 2:
+        return 0.0
+    dens = 2.0 * max(0, n_aristas) / (n * (n - 1))
+    return max(0.0, min(1.0, 1.0 - dens))
+
+
+def calcular_energia_libre_corteza(cerebro, temperatura=1.0, n_semillas=40):
+    """F4: F = E - T·S sobre la corteza (top-N activos). Dict determinista."""
+    ctx = _contexto_corteza(cerebro, n_semillas)
+    seeds = ctx["seeds"]
+    e = 0.0
+    for i, a in enumerate(seeds):
+        for b in seeds[i + 1:]:
+            e += _tension_par(ctx, a, b)
+    s = _entropia_densidad(len(seeds), len(ctx["aristas"]))
+    t = float(temperatura)
+    aislados = sum(1 for x in seeds if ctx["grados"].get(x, 0) == 0)
+    return {"F": e - t * s, "E": e, "S": s, "T": t, "n": len(seeds),
+            "aristas": len(ctx["aristas"]), "aislados": aislados}
+
+
+def _delta_s_grados(ctx, a, b, agregar=True):
+    n = len(ctx["seeds"])
+    na = len(ctx["aristas"])
+    na1 = na + 1 if agregar else max(0, na - 1)
+    return _entropia_densidad(n, na1) - _entropia_densidad(n, na)
+
+
+def delta_f_agregar(ctx, a, b, temperatura=1.0):
+    """ΔF al crear arista a-b. +inf si ya existe (no re-elegir)."""
+    key = (a, b) if a < b else (b, a)
+    if key in ctx["aristas"]:
+        return float("inf")
+    de = -_tension_par(ctx, a, b)
+    ds = _delta_s_grados(ctx, a, b, agregar=True)
+    return de - float(temperatura) * ds
+
+
+def delta_f_remover(ctx, a, b, temperatura=1.0):
+    """ΔF al borrar arista a-b. 0.0 si no existe o fuera de corteza."""
+    key = (a, b) if a < b else (b, a)
+    if key not in ctx["aristas"]:
+        return 0.0
+    if _es_candidato(ctx, a, b):
+        de = float(ctx["peso"].get(a, 0.0)) * float(ctx["peso"].get(b, 0.0)) * _afinidad_par(ctx, a, b)
+    else:
+        de = 0.0
+    ds = _delta_s_grados(ctx, a, b, agregar=False)
+    return de - float(temperatura) * ds
+
+
+def rankear_pares_por_delta_f(cerebro, pares, temperatura=1.0, n_semillas=40, modo="agregar"):
+    """F4: [(a,b,ΔF)] ascendente determinista. modo agregar|remover."""
+    ctx = _contexto_corteza(cerebro, n_semillas)
+    fn = delta_f_agregar if modo == "agregar" else delta_f_remover
+    out = []
+    for p in pares:
+        a, b = p[0], p[1]
+        try:
+            df = float(fn(ctx, a, b, temperatura))
+        except Exception:
+            df = float("inf")
+        out.append((a, b, df))
+    out.sort(key=lambda x: (x[2], str(x[0]), str(x[1])))
+    return out
+
+
+def podar_ltd_guiado(cerebro, temperatura=None, peso_umbral=0.05):
+    """F4: borra peso<umbral EXCEPTO aristas cuya remoción aumenta F (ΔF>0).
+
+    Sin commit (el caller commitea, igual que el DELETE legacy). Devuelve n.
+    """
+    if temperatura is None:
+        temperatura = TERMODINAMICA_TEMP
+    cur = cerebro.cursor
+    cur.execute("SELECT origen, destino FROM sinapsis WHERE peso < ?", (float(peso_umbral),))
+    cands = sorted({(r[0], r[1]) for r in cur.fetchall() if r[0] and r[1]})
+    if not cands:
+        return 0
+    ctx = _contexto_corteza(cerebro, TERMODINAMICA_SEMILLAS)
+    borrar = []
+    for a, b in cands:
+        try:
+            df = delta_f_remover(ctx, a, b, temperatura)
+        except Exception:
+            df = 0.0
+        if df <= 0.0:
+            borrar.append((a, b))
+    for a, b in borrar:
+        cur.execute("DELETE FROM sinapsis WHERE origen = ? AND destino = ?", (a, b))
+    return len(borrar)

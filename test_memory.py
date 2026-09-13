@@ -1181,6 +1181,8 @@ def test_sistema():
         assert err_data.get("status") == "error", "Error: no reportó error al faltar parámetros"
         print("  OK: Integración con el servidor MCP y serialización JSON verificada con éxito")
     finally:
+        from core.memory_service import reset_cerebro
+        reset_cerebro()  # Suelta el singleton MCP sobre db_test_path (evita lock en Test 70)
         if orig_biorag_path:
             os.environ["BIORAG_PATH"] = orig_biorag_path
         else:

@@ -158,6 +158,8 @@ def ensure_daemon_alive(
 ) -> bool:
     """
     Check + spawn si necesario. Llamar al arrancar el MCP server.
+    Usa un lock no bloqueante para evitar que múltiples instancias MCP concurrentes
+    intenten spawnear daemons simultáneamente en arranques simultáneos.
     
     Retorna True si el daemon está vivo (o se spawneó exitosamente).
     """
@@ -166,8 +168,38 @@ def ensure_daemon_alive(
         logger.info("Daemon ya vivo (PID %s)", pid)
         return True
     
-    logger.info("Daemon muerto o ausente — spawning...")
-    return spawn_daemon_detached(
-        intervalo_horas=intervalo_horas,
-        max_nodos=max_nodos,
-    )
+    lock_file = os.path.join(PROJECT_ROOT, ".hormiguita.lock")
+    try:
+        if sys.platform != "win32":
+            import fcntl
+            with open(lock_file, "w") as f:
+                try:
+                    fcntl.flock(f, fcntl.LOCK_EX | fcntl.LOCK_NB)
+                except (BlockingIOError, OSError):
+                    # Otra instancia ya está en proceso de spawnear el daemon
+                    logger.info("Otra instancia MCP está gestionando el spawn del daemon")
+                    time.sleep(1.0)
+                    return is_daemon_alive()
+                
+                # Doble chequeo una vez adquirido el lock
+                if is_daemon_alive():
+                    return True
+                
+                logger.info("Daemon muerto o ausente — spawning...")
+                return spawn_daemon_detached(
+                    intervalo_horas=intervalo_horas,
+                    max_nodos=max_nodos,
+                )
+        else:
+            return spawn_daemon_detached(
+                intervalo_horas=intervalo_horas,
+                max_nodos=max_nodos,
+            )
+    except Exception as e:
+        logger.warning("Error en lock de daemon: %s", e)
+        if is_daemon_alive():
+            return True
+        return spawn_daemon_detached(
+            intervalo_horas=intervalo_horas,
+            max_nodos=max_nodos,
+        )

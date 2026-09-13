@@ -1,4 +1,49 @@
-# BioRAG v31.1 — Plan Maestro E1–E13 + Invención F1
+# BioRAG v31.3 — Purga E-OFF + D4 QCR-typo (récord 921)
+
+> **Versión:** v31.3 — Septiembre 2026 — **lista para merge a `master`**
+> **Base de medición:** snapshot `snapshots/qa_escape_qcr_20260811.db` (**921** casos: 875 positivas + 40 negativos + 6 ambiguas) + freeze `requirements.txt` (numpy 2.4.6 et al)
+> **Método:** un flag por paso, A/B 921 en copias limpias, default ON **solo** si pasa el gate (detalles por paso en `CHANGELOG.md`)
+> **Paradigma:** Python puro + SQLite FTS5. **Cero embeddings densos, cero GPU, cero APIs** en el path de búsqueda. No se fusionan nodos. No se toca el layout SDM 2048 bits.
+
+---
+
+## 📦 v31.3 — Récord + qué cambió (para pasar a master)
+
+**Gate vivo de producción (snapshot 921, `db4152c`):**
+
+| Métrica | Valor | Honestidad |
+|---|---|---|
+| Recall@5 | **98.06%** | 17 fallos / 875 positivas — récord absoluto |
+| Recall@1 | **90.74%** | no es 100% |
+| MRR | **0.9355** | |
+| FP (40 negativos) | **0%** (0/40) | 0% real en este snapshot |
+| Suite pytest | **168 passed** | `tests/` (160 + 8 EXP-Q A/B) |
+| Coste D4 | +2.1% medido (665.79s vs 651.92s) | A/B 921 |
+
+**EXP-Q Abismo Léxico (2026-09-13, default-OFF):** candidatura dim por mérito K=400 (3/3 en pool) + escape QCR T=0.45 calibrado 40-neg (3/3 en dev, ranks 251/79/46); Fase C: 10 palancas sin Top-5 (muro estructural documentado). Informe: `docs/INFORME_ABISMO_LEXICO_EXPQ_v31.3.md`.
+
+**v31.2 — purga (2026-09-12):** eliminados E2/E4/E5/E8/E9/E11/E12/E13/F1 default-OFF + ramas huérfanas; 921 post-purga idéntico (97.60/21/FP0); freeze de entorno (la deriva numpy movía ±0.23 R@5 sin cambiar código).
+
+**v31.3 — D4 QCR-typo (2026-09-13):** segunda oportunidad QCR all-near (piso 0.35, lev≤2, len≥4), default ON (`BIORAG_QCR_TYPO=1`); rescata 0518/0531/0636/0803, 0 rotos. **ON en producción (sin flags extra):** E1, E3, E6 (0.05), E7, E10, F2-afinidad (0.05), F5-campo (0.05), NCD (0.05), EPISTEMICO-metadata, D4 (F4 termodinámica presente, ver código/`CHANGELOG.md`). **OFF:** F2-expansión, F3, multihop, DIM_RESONANCIA(_K), DIM_ESCAPE(_T). **Revertidos tras fallar gate (no están):** C1, D1, D2, pool-gate-F2, renorm-F3. **Borrados (purga):** E2, E4, E5, E8, E9, E11, E12, E13, F1.
+
+### Cómo reproducir el 921
+
+```bash
+BIORAG_PATH=snapshots/qa_escape_qcr_20260811.db python3 scripts/evaluar_qa.py
+# Exploratorio (sin gate CI):
+BIORAG_QA_GATE=0 BIORAG_PATH=snapshots/qa_escape_qcr_20260811.db python3 scripts/evaluar_qa.py
+```
+
+### Qué NO se afirma (v31.3)
+
+- El sistema **no** es perfecto: 17 fallos restantes (0497 pre-pool + 16 ranking; ver historial del PR).
+- 0718/0763 solo se rescatan con renorm experimental que regresa 9 casos (no shippeado).
+- El gate interno del script (`BIORAG_QA_*`, defaults v31.1) va por detrás del récord — seguimiento pendiente, no bloquea merge.
+- EXP-Q Abismo Léxico: pool 3/3 + dev 3/3 (flags OFF) pero Top-5 inalcanzado (muro estructural, 10 palancas refutadas) — ver informe.
+
+---
+
+# BioRAG v31.1 — Plan Maestro E1–E13 + Invenciones F1 y F2
 
 > **Versión:** v31.1 — Septiembre 2026 — **lista para merge a `master`**
 > **Base de medición:** linaje v30.1 (QA gate) + v31.0 (Abismo Léxico) + snapshot `snapshots/qa_escape_qcr_20260811.db` (**921** casos)
@@ -25,7 +70,7 @@ La DB viva (Dennys) ha dado **97.49 / 89.26 / FP 0%** — **no es el gate de mer
 
 **ON en master (sin flags extra):** E1, E3, E6, E7, E10.
 
-**OFF a propósito (código + tests, no borrados):** E2, E4, E5, E8, E9, E11, E12, E13, F1.
+**OFF a propósito (código + tests, no borrados):** E2, E4, E5, E8, E9, E11, E12, E13, F1, F2 (expansión; la señal de afinidad F2 está ON con peso 0.05).
 
 | Paso | Flag | Default | 921 ON (R@5 / R@1 / FP) | Veredicto |
 |---|---|---|---|---|
@@ -43,6 +88,7 @@ La DB viva (Dennys) ha dado **97.49 / 89.26 / FP 0%** — **no es el gate de mer
 | E12 Hopfield vacío | `BIORAG_HOPFIELD_FALLBACK` | **OFF** | 96.80 / 90.40 / 15% | solo ranking vacío |
 | E13 metacognición | `BIORAG_METACOGNICION_ACTIVA` | **OFF** | **91.77 / 86.17 / 15%** | tau 0.35; FP no baja; R@5 −5pp |
 | F1 coherencia SRL | `BIORAG_COHERENCIA_NARRATIVA` | **0** | 96.91 / 90.17 / 15% | peso 0.05; R@1 −0.23 |
+| F2 episodio temporal | `BIORAG_EPISODIO_TEMPORAL_PESO` / `BIORAG_EPISODIO_TEMPORAL` | **0.05** / **0** | **pendiente gate 921** | afinidad ON (0.05); expansión OFF |
 
 ### Qué hace cada paso (código real)
 
@@ -62,6 +108,7 @@ La DB viva (Dennys) ha dado **97.49 / 89.26 / FP 0%** — **no es el gate de mer
 | **E12** | `rescatar_hopfield_ultimo_recurso` | SDM/Hamming **solo si ranking vacío**, cap 0.45, sim_min 0.28 | OFF: R@5 96.80; typo R@5 98.46→96.92 |
 | **E13** | `_evaluar_metacognicion` **después de ADN** | abstiene si top-1 &lt; 0.35 y origen no es `lexico_aprendido`/`protegido`/`concepto`≥0.95. **No** protege `simbolico` | OFF: 91.77/86.17; los 6 FP del snapshot tienen top≥0.35 |
 | **F1** | `_evaluar_coherencia_narrativa` | bono 0.05 si en top-10 hay transición objeto↔sujeto en predicados. O(k²) | OFF: R@1 90.17 |
+| **F2** | `_afinidad_temporal_pool` + `_expandir_episodio_temporal` | señal 1.0 si el nodo comparte bucket temporal (día/sesión) con otro del pool (O(k)); expansión del episodio ±24h (misma categoría/dimensión) | afinidad ON (0.05); expansión OFF — gate pendiente |
 
 ### Cómo reproducir el 921
 
@@ -2101,26 +2148,22 @@ DESPUES DE CADA PASO: Leer resultados y explicar con propias palabras
 |---|---|---|
 | `BIORAG_PATH` | `./MemoryBioRAG_Data/memory_biorag.db` | Ruta al archivo .db |
 
-### Plan Maestro v31.1 (E1–E13 + F1)
+### Plan Maestro v31.1 (E1–E13 + F1 + F2)
 
 Ver tabla de defaults al inicio del README. Resumen:
 
 | Variable | Default v31.1 | Notas |
 |---|---|---|
 | `BIORAG_SDM_FALLBACK` | `1` | E1 generación si pool&lt;3 |
-| `BIORAG_SDM_SCORING_PESO` | `0` | E2 |
 | `BIORAG_QCR_IDF` | `1` | E3 umbral `BIORAG_QCR_IDF_UMBRAL=0.40` |
-| `BIORAG_SPREADING_PROACTIVO` | `0` | E4 |
-| `BIORAG_RESONANCIA_ACTIVA` | `0` | E5 |
 | `BIORAG_NCD_PESO` | `0.05` | E6 |
 | `BIORAG_JSD_ADAPTATIVO` | `1` | E7 |
-| `BIORAG_SRL_CONDICIONAL` | `0` | E8 |
-| `BIORAG_DIM_IDF_ACTIVO` | `0` | E9 |
 | `BIORAG_DMN_SINTESIS_ACTIVA` | `1` | E10 tope 8 |
-| `BIORAG_COMUNIDAD_PESO` | `0` | E11 |
-| `BIORAG_HOPFIELD_FALLBACK` | `0` | E12 |
-| `BIORAG_METACOGNICION_ACTIVA` | `0` | E13 tau 0.35 |
-| `BIORAG_COHERENCIA_NARRATIVA` | `0` | F1 |
+| `BIORAG_EPISODIO_TEMPORAL_PESO` | `0.05` | F2 afinidad (0=OFF, cap 0.08) |
+| `BIORAG_EPISODIO_TEMPORAL` | `0` | F2 expansión |
+| `BIORAG_EPISODIO_VENTANA_HORAS` | `24` | F2 |
+| `BIORAG_EPISODIO_LIMITE` | `5` | F2 |
+| `BIORAG_EPISODIO_BUCKET_SEG` | `86400` | F2 |
 
 ### Búsqueda y Rendimiento
 
@@ -2318,9 +2361,9 @@ En v13.4 el catálogo tenía **7 ejes × 73 sub-valores**: emoción (qué se sie
 
 ## Historial de Versiones
 
-### v31.1 — Plan Maestro E1–E13 + F1 (Septiembre 2026)
+### v31.1 — Plan Maestro E1–E13 + F1 + F2 (Septiembre 2026)
 
-Release de **un flag por paso** sobre el snapshot 921. Default ON: E1, E3, E6, E7, E10. Gate: R@5 **96.91** R@1 **90.40** FP **15%**. Ver sección inicial del README. Commits: E12 `764c36b`, E13 `5e31e32`, F1 `86f3895`, docs este archivo.
+Release de **un flag por paso** sobre el snapshot 921. Default ON: E1, E3, E6, E7, E10. Gate: R@5 **96.91** R@1 **90.40** FP **15%**. Ver sección inicial del README. Commits: E12 `764c36b`, E13 `5e31e32`, F1 `86f3895`, F2 `7c62994`, docs este archivo.
 
 ### v28.0 — Canal 2 Integrado: Asociaciones Enriquecidas del Neocórtex de Sangre (Agosto 2026)
 

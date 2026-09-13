@@ -1,5 +1,62 @@
 # BioRAG Changelog
 
+## [v31.3] — 2026-09-13 — D4 QCR-typo default ON (récord 921)
+
+Segunda oportunidad QCR tolerante a typos (all-near): un candidato con
+score ≥ piso (0.35) que falla cobertura exacta sobrevive si CADA token
+tiene hit exacto o near-match (lev ≤ 2, len ≥ 4). Flag `BIORAG_QCR_TYPO`
+default **1** (ON); piso/dist con `BIORAG_QCR_TYPO_PISO=0.35`,
+`BIORAG_QCR_TYPO_DIST=2`.
+
+A/B 921 vs v31.2 (copias limpias, Gate de Oro R@5≥97.60/MRR≥0.9323/FP=0/
+fallos<21): R@5 **98.06** (+0.46) R@1 **90.74** (+0.23) MRR **0.9355**
+(+0.0032) fallos **17** (−4) FP **0**. Rescatados 0518/0531/0636/0803
+(3× #1 + 1× #3); rotos 0. Coste +2.1% (651.92→665.79s). **Récord
+histórico absoluto.** Tests `tests/test_qcr_typo_d4.py` (7). Suite 160.
+Precede ranking-autopsy 21/21 (20 in-pool solo-ranking + 0497 pre-pool).
+Docs: `docs/AUDITORIA_POSICIONAMIENTO_20260913.md`.
+
+Investigado y NO shippeado (revertido tras fallar gate): C1 grafo→pool
+(96.57/30); D1 QCR-escape (97.26/24); D2 QCR-frame (97.83/19 pero MRR
+0.9286); Fase-2 pool-gate contenido (gold-0497 entra pero rankea 65,
+A/B nulo 17→17); Fase-3 renorm dinámica (97.26/24, regresa D4-0531).
+
+Misión Abismo Léxico EXP-Q (shippeado default-OFF + documentado):
+Fase A candidatura dim por mérito (`BIORAG_DIM_RESONANCIA(_K)`,
+`3c7e4f9`): K=400 mete 3/3 al pool (rangos #372/#95/#18). Fase B
+escape QCR calibrado (`BIORAG_DIM_ESCAPE(_T=0.45)`, `623f3cf`):
+40 negativos max 0.0, dev-entry 3/3 (ranks 251/79/46). Fase C:
+10 palancas medidas, ninguna llega a Top-5 (muro estructural:
+adelantados léxicos 0.47-0.49 + peers-dim por encima + gold
+léxico-∅; mejor: Q-02 #16 con PRF-N1 asimétrico). Suite 168.
+Informe: `docs/INFORME_ABISMO_LEXICO_EXPQ_v31.3.md`.
+
+## [v31.2] — 2026-09-12 — Purga E-OFF + freeze de entorno
+
+Eliminados experimentos default-OFF E2/E4/E5/E8/E9/E11/E12/E13/F1
+(código + tests + ramas huérfanas SDM/Zombie). Suite 153.
+921 post-purga GLOBAL-IDENTICO: R@5 **97.60** R@1 **90.51** MRR **0.9323**
+fallos **21** FP **0**. Freeze `requirements.txt` (numpy 2.4.6 et al):
+un reinstall con rangos había movido el 921 de 97.37/23/FP15% a
+97.60/21/FP0 sin cambiar código ni DB (deriva de entorno).
+
+## [v31.1-unreleased] — 2026-09-11 — F2 memoria episódica temporal (un paso)
+
+Recuperación episódica: nodos creados en la misma ventana temporal (±24h)
+forman un episodio. Dos piezas:
+
+1. **Señal de afinidad** `_afinidad_temporal_pool` — 1.0 si el nodo comparte
+   bucket temporal (día/sesión, `EPISODIO_BUCKET_SEG`) con otro del pool. O(k).
+   Peso `BIORAG_EPISODIO_TEMPORAL_PESO` default **0.05** (0=OFF, cap 0.08),
+   entra en num/den del score híbrido.
+2. **Expansión** `_expandir_episodio_temporal` — expande el episodio del nodo
+   ancla (misma categoría o dimensión), score cap 0.45. Flag
+   `BIORAG_EPISODIO_TEMPORAL` default **0** (OFF).
+
+A/B 921: **pendiente** (no medido aún contra el snapshot). Flags adicionales:
+`BIORAG_EPISODIO_VENTANA_HORAS=24`, `BIORAG_EPISODIO_LIMITE=5`,
+`BIORAG_EPISODIO_BUCKET_SEG=86400`. Tests `tests/test_episodio_temporal_f2.py`.
+
 ## [v31.1-unreleased] — 2026-09-11 — F1 coherencia narrativa SRL (un paso)
 
 Bono 0.05 si top-k (≤10) tiene transicion objeto↔sujeto en predicados.

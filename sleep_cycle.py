@@ -33,6 +33,17 @@ def ejecutar_sueño():
     
     # 2. Ejecutar Consolidación y Poda Sináptica
     cerebro.ciclo_sueno_consolidacion()
+
+    # 2.5 Consolidación de vacíos epistémicos (Misión c): hipótesis de sueño.
+    # Solo escribe hipótesis débiles + drena la cola DMN; jamás toca retrieval.
+    try:
+        from core.sueno_vacios import consolidar_vacios
+        _res_sueno = consolidar_vacios(cerebro)
+        print(f"[sueño-vacíos] atendidos={_res_sueno['atendidos']} omitidos={_res_sueno['omitidos']} "
+              f"sin_pares={_res_sueno['sin_pares']} sinapsis+{_res_sueno['sinapsis_nuevas']} "
+              f"latentes+{_res_sueno['latentes_nuevas']} ({_res_sueno['elapsed_s']}s)")
+    except Exception as _e:
+        print(f"[sueño-vacíos] OMITIDO por error: {_e}")
     
     # 3. Mostrar estado post-consolidación
     cerebro.cursor.execute("SELECT COUNT(*) FROM largo_plazo WHERE estado = 'activo'")
