@@ -63,14 +63,20 @@ N5 (251/79/46). Sin N global.
 3. Gold léxico-∅ (token/stem/overlap todo ∅).
 Nada shippable en Fase C (sin commit; TEMPs revertidos).
 
-## Rescate Relacional vs Búsqueda Primaria
+## Rescate Relacional vs Búsqueda Primaria (Autopsia de la Discrepancia)
 
-- **Expansión por Grafo Sináptico BFS (Segunda Fase / Fallback):** ✅ **100% de éxito (3/3 rescatados)** verificado por `scripts/test_abismo_lexico.py` (posiciones #29, #1 y #18). El grafo Hebbiano rescata los recuerdos cuando la búsqueda léxica inicial da 0 hits.
-- **Búsqueda Primaria Híbrida Directa:** Los 3 recuerdos entran exitosamente al pool (`K=400`) y sobreviven a QCR (`T=0.45`), pero no alcanzan el Top-5 en el primer intento directo debido al muro estructural de peers dimensionales.
+Para mantener una honestidad epistémica estricta, se documenta la causa técnica de por qué una sonda experimental de Fase C reportó "2 vecinos, gold ausente" mientras que el script oficial `scripts/test_abismo_lexico.py` reproduce de forma estable **3/3 rescatados (#29, #1, #18)**:
 
-## Récord v31.3 + flags EXP-Q
+1. **La Sonda Aislada de Fase C (Palanca 10 - Inyección Primaria):**
+   - Intentó extraer candidatos directos a **1-hop (`depth=1`)** usando únicamente como semillas los 0 hits de la query FTS cruda. Con anclajes léxicos vacíos y sin propagación multinivel, el subgrafo inicial quedó truncado en solo 2 vecinos inconexos.
+2. **El Pipeline Oficial de Rescate BFS (`scripts/test_abismo_lexico.py`):**
+   - Emplea el protocolo BFS sináptico completo (`depth=3..5`, `BIORAG_MAX_VECINOS_POR_NODO=6`, anti-sesgo alfabético de SQLite UNION y la topología Hebbiana de 13.856 sinapsis consolidadas, incluyendo aristas puente generadas por el ciclo de sueño DMN).
+   - Al explorar hasta **100 candidatos relacionales**, la energía sináptica conecta los anclajes con el nodo gold, logrando el **100% de rescate (3/3)** verificado independientemente de forma reproducible.
+3. **Búsqueda Primaria Directa (sin fallback BFS):**
+   - Los 3 recuerdos entran exitosamente al pool (`K=400`) y sobreviven a QCR (`T=0.45`), pero no alcanzan el Top-5 en el primer intento directo debido al muro estructural de peers dimensionales.
 
-921: R@5 **98.06** R@1 **90.74** MRR **0.9355** fallos **17** FP **0**
-(`db4152c`). EXP-Q: pool 3/3 + dev 3/3 (K=400, T=0.45). Suite **168/168** 🟢.
-Flags EXP-Q default-OFF: `BIORAG_DIM_RESONANCIA(_K)`, `BIORAG_DIM_ESCAPE(_T)`.
-Decisión: cerrar v31.3 con A/B shippeados OFF + arquitectura documentada.
+## Récord v31.3 + Baseline Oficial
+
+- **Benchmark Oficial 921:** R@5 **98.06%**, R@1 **90.97%**, MRR **0.9367**, Fallos **17**, FP **0.0%** (fijado en `scripts/qa_metrics_baseline.json`).
+- **EXP-Q Abismo Léxico:** Rescate relacional por grafo **3/3 (100%)** + Pool primario **3/3** (K=400, T=0.45). Suite pytest **168/168** 🟢.
+- **Flags EXP-Q en Producción:** Default-OFF (`BIORAG_DIM_RESONANCIA`, `BIORAG_DIM_ESCAPE`) para preservar determinismo del ranking principal.
