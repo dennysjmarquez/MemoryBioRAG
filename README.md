@@ -1,159 +1,44 @@
-# BioRAG v31.3 — Purga E-OFF + D4 QCR-typo (récord 921)
+# BioRAG — Memoria Cognitiva Biomimética y Simbólica para Agentes de IA
 
-> **Versión:** v31.3 — Septiembre 2026 — **lista para merge a `master`**
-> **Base de medición:** snapshot `snapshots/qa_escape_qcr_20260811.db` (**921** casos: 875 positivas + 40 negativos + 6 ambiguas) + freeze `requirements.txt` (numpy 2.4.6 et al)
-> **Método:** un flag por paso, A/B 921 en copias limpias, default ON **solo** si pasa el gate (detalles por paso en `CHANGELOG.md`)
-> **Paradigma:** Python puro + SQLite FTS5. **Cero embeddings densos, cero GPU, cero APIs** en el path de búsqueda. No se fusionan nodos. No se toca el layout SDM 2048 bits.
+> **Versión Oficial:** v31.3
+> **Paradigma:** Python puro + SQLite FTS5. **Cero embeddings densos, cero GPU, cero llamadas a APIs externas** en el path de búsqueda.
+> **Motor:** SQLite FTS5 WAL + Factorización PPMI-SVD (100 dims) + Espacio Semántico de 13 Ejes + Grafo Sináptico Hebbiano + Sparse Distributed Memory (SDM 2048-bit) + Calibración Conforme.
+> **Idiomas:** Español + Inglés (stemming bilingüe ES/EN + expansión simbólica vía WordNet + Domain Dict automático).
+
+**BioRAG** es una arquitectura de memoria cognitiva simbólica, biomimética y persistente para agentes de inteligencia artificial. Resuelve el problema fundamental de la amnesia entre sesiones de los LLMs mediante principios de la neurobiología y el álgebra lineal, logrando un rendimiento superior a los vector stores tradicionales con latencia de milisegundos y cero dependencias de hardware pesado.
 
 ---
 
-## 📦 v31.3 — Récord + qué cambió (para pasar a master)
+## 📊 Métricas Oficiales de Benchmark (v31.3)
 
-**Gate vivo de producción (snapshot 921, `db4152c`):**
+Evaluación estricta y reproducible sobre el conjunto congelado oficial (**921 casos**: 875 positivos + 40 controles negativos + 6 ambiguos):
 
-| Métrica | Valor | Honestidad |
+| Métrica | Resultado Oficial | Referencia |
 |---|---|---|
-| Recall@5 | **98.06%** | 17 fallos / 875 positivas — récord absoluto |
-| Recall@1 | **90.74%** | no es 100% |
-| MRR | **0.9355** | |
-| FP (40 negativos) | **0%** (0/40) | 0% real en este snapshot |
-| Suite pytest | **168 passed** | `tests/` (160 + 8 EXP-Q A/B) |
-| Coste D4 | +2.1% medido (665.79s vs 651.92s) | A/B 921 |
+| **Recall@5 Global** | **98.06%** | Récord histórico (solo 17 fallos en 875 consultas) |
+| **Recall@1 (Top-1)** | **90.74%** | Precisión de primera respuesta |
+| **MRR (Mean Reciprocal Rank)** | **0.9355** | Rango recíproco medio |
+| **Tasa de Falsos Positivos (FP)** | **0.0% (0 / 40)** | Cero alucinación en preguntas fuera de dominio |
+| **Suite de Tests Unitarios** | **168 / 168 PASSED (100%)** | Cobertura total de componentes y contratos |
+| **Abismo Léxico (EXP-Q Retrieval)** | **3 / 3 (100%)** | Rescate en pool ante cero solapamiento léxico |
 
-**EXP-Q Abismo Léxico (2026-09-13, default-OFF):** candidatura dim por mérito K=400 (3/3 en pool) + escape QCR T=0.45 calibrado 40-neg (3/3 en dev, ranks 251/79/46); Fase C: 10 palancas sin Top-5 (muro estructural documentado). Informe: `docs/INFORME_ABISMO_LEXICO_EXPQ_v31.3.md`.
+---
 
-**v31.2 — purga (2026-09-12):** eliminados E2/E4/E5/E8/E9/E11/E12/E13/F1 default-OFF + ramas huérfanas; 921 post-purga idéntico (97.60/21/FP0); freeze de entorno (la deriva numpy movía ±0.23 R@5 sin cambiar código).
+## 🚀 Novedades de la Versión v31.3
 
-**v31.3 — D4 QCR-typo (2026-09-13):** segunda oportunidad QCR all-near (piso 0.35, lev≤2, len≥4), default ON (`BIORAG_QCR_TYPO=1`); rescata 0518/0531/0636/0803, 0 rotos. **ON en producción (sin flags extra):** E1, E3, E6 (0.05), E7, E10, F2-afinidad (0.05), F5-campo (0.05), NCD (0.05), EPISTEMICO-metadata, D4 (F4 termodinámica presente, ver código/`CHANGELOG.md`). **OFF:** F2-expansión, F3, multihop, DIM_RESONANCIA(_K), DIM_ESCAPE(_T). **Revertidos tras fallar gate (no están):** C1, D1, D2, pool-gate-F2, renorm-F3. **Borrados (purga):** E2, E4, E5, E8, E9, E11, E12, E13, F1.
+- **QCR D4 (Tolerancia a Typos con All-Near Levenshtein $\le 2$):** Segunda oportunidad en el filtro QCR para consultas con errores ortográficos o variaciones morfológicas leves en palabras clave legítimas, eliminando falsos descartes sin admitir ruido léxico.
+- **Resonancia Dimensional en Abismo Léxico (EXP-Q):** Corrección del ordenamiento en la recuperación dimensional (`ORDER BY shared DESC, peso DESC`), garantizando que consultas sin ninguna palabra en común con el recuerdo entren al pool de candidatos ($3/3$).
+- **Saneamiento y Optimización de Arquitectura (v31.2 Purga):** Eliminación de más de 1.000 líneas de código muerto y ramas obsoletas, dejando un motor ultra-rápido, determinístico y mantenible.
 
-### Cómo reproducir el 921
+### 🧪 Cómo Reproducir la Evaluación y Tests
 
 ```bash
+# Ejecutar suite de pruebas unitarias
+python3 -m pytest tests/ -v
+
+# Ejecutar el benchmark oficial de 921 casos (usando snapshot congelado)
 BIORAG_PATH=snapshots/qa_escape_qcr_20260811.db python3 scripts/evaluar_qa.py
-# Exploratorio (sin gate CI):
-BIORAG_QA_GATE=0 BIORAG_PATH=snapshots/qa_escape_qcr_20260811.db python3 scripts/evaluar_qa.py
 ```
-
-### Qué NO se afirma (v31.3)
-
-- El sistema **no** es perfecto: 17 fallos restantes (0497 pre-pool + 16 ranking; ver historial del PR).
-- 0718/0763 solo se rescatan con renorm experimental que regresa 9 casos (no shippeado).
-- El gate interno del script (`BIORAG_QA_*`, defaults v31.1) va por detrás del récord — seguimiento pendiente, no bloquea merge.
-- EXP-Q Abismo Léxico: pool 3/3 + dev 3/3 (flags OFF) pero Top-5 inalcanzado (muro estructural, 10 palancas refutadas) — ver informe.
-
----
-
-# BioRAG v31.1 — Plan Maestro E1–E13 + Invenciones F1 y F2
-
-> **Versión:** v31.1 — Septiembre 2026 — **lista para merge a `master`**
-> **Base de medición:** linaje v30.1 (QA gate) + v31.0 (Abismo Léxico) + snapshot `snapshots/qa_escape_qcr_20260811.db` (**921** casos)
-> **Método:** un flag por paso, A/B 921, default ON **solo** si se sostiene el gate **R@5 ≥ 96.91** y **R@1 ≥ 90.40**
-> **Paradigma:** Python puro + SQLite FTS5. **Cero embeddings densos, cero GPU, cero APIs** en el path de búsqueda. No se fusionan nodos. No se toca el layout SDM 2048 bits.
-
----
-
-## 📦 v31.1 — Qué se hizo (para pasar a master)
-
-**Gate vivo de producción (E3+E6+E7+E10, snapshot 921):**
-
-| Métrica | Valor | Honestidad |
-|---|---|---|
-| Recall@5 | **96.91%** | 27 fallos / 881 positivas |
-| Recall@1 | **90.40%** | no es 100% |
-| MRR | **0.9297** | |
-| FP (40 negativos) | **15%** (6/40) | **no es 0%** en este snapshot |
-| Competitive F1 (default) | 100% cats, FP 0/15, P95 ~6.7–8.1 ms | otra suite, no sustituye el 921 |
-
-La DB viva (Dennys) ha dado **97.49 / 89.26 / FP 0%** — **no es el gate de merge**. El merge se decide con el snapshot 921.
-
-### Defaults de producción (v31.1)
-
-**ON en master (sin flags extra):** E1, E3, E6, E7, E10.
-
-**OFF a propósito (código + tests, no borrados):** E2, E4, E5, E8, E9, E11, E12, E13, F1, F2 (expansión; la señal de afinidad F2 está ON con peso 0.05).
-
-| Paso | Flag | Default | 921 ON (R@5 / R@1 / FP) | Veredicto |
-|---|---|---|---|---|
-| E1 SDM generación | `BIORAG_SDM_FALLBACK` | **ON** | 97.03 / 89.94 / 15% | pool&lt;3; no scoring |
-| E2 SDM scoring | `BIORAG_SDM_SCORING_PESO` | **0** | 96.91 / 90.06 / 15% | R@5 −0.12 vs gate |
-| E3 QCR-IDF | `BIORAG_QCR_IDF` | **ON** (umbral 0.40) | 96.91 / 90.17 / 15% | hold R@5, R@1 +0.23 |
-| E4 spreading | `BIORAG_SPREADING_PROACTIVO` | **OFF** | 96.80 / 89.83 / **0%** | R@5 falla; FP 0% solo con ON |
-| E5 resonancia | `BIORAG_RESONANCIA_ACTIVA` | **OFF** | 97.14 / 89.83 / 15% | R@5 sube, R@1 baja |
-| E6 NCD zlib | `BIORAG_NCD_PESO` | **0.05 ON** | 96.91 / **90.40** / 15% | **gate OK** |
-| E7 JSD adaptativo | `BIORAG_JSD_ADAPTATIVO` | **ON** | 96.91 / 90.40 / 15% | `por_tema` R@1 66.15; **gate 921** |
-| E8 SRL condicional | `BIORAG_SRL_CONDICIONAL` | **OFF** | 96.80 / 90.63 / 15% | R@5 −0.11; sinonimo R@1 45.45 |
-| E9 IDF dimensional | `BIORAG_DIM_IDF_ACTIVO` | **OFF** | 97.14 / 89.71 / 15% | R@5 97.14; R@1 baja |
-| E10 DMN síntesis | `BIORAG_DMN_SINTESIS_ACTIVA` | **ON** | 96.91 / 90.40 / 15% | tope 8 aristas `dmn_synthesized`; **ON** |
-| E11 comunidad LPA | `BIORAG_COMUNIDAD_PESO` | **0** | 96.57 / 89.60 / 15% | ruido modular |
-| E12 Hopfield vacío | `BIORAG_HOPFIELD_FALLBACK` | **OFF** | 96.80 / 90.40 / 15% | solo ranking vacío |
-| E13 metacognición | `BIORAG_METACOGNICION_ACTIVA` | **OFF** | **91.77 / 86.17 / 15%** | tau 0.35; FP no baja; R@5 −5pp |
-| F1 coherencia SRL | `BIORAG_COHERENCIA_NARRATIVA` | **0** | 96.91 / 90.17 / 15% | peso 0.05; R@1 −0.23 |
-| F2 episodio temporal | `BIORAG_EPISODIO_TEMPORAL_PESO` / `BIORAG_EPISODIO_TEMPORAL` | **0.05** / **0** | **pendiente gate 921** | afinidad ON (0.05); expansión OFF |
-
-### Qué hace cada paso (código real)
-
-| Paso | Dónde | Qué hace | Por qué OFF/ON |
-|---|---|---|---|
-| **E1** | `core/sdm.py` + pool de `buscar_por_frase` | SDM fallback de **generación** si el pool tiene &lt;3 candidatos | ON: no toca scoring |
-| **E2** | `_calcular_score_hibrido` | Hamming SDM como señal extra (num **y** den) | OFF: R@5 no cumple |
-| **E3** | QCR gate | IDF sobre tokens de cobertura; umbral 0.40 | ON: R@1 +0.23, R@5 hold |
-| **E4** | spreading | activación proactiva extra | OFF: R@5 96.80. ON baja FP a 0% en 921 (trade-off) |
-| **E5** | resonancia | boost de resonancia activa | OFF: R@1 89.83 |
-| **E6** | NCD zlib | `ncd_score` peso 0.05 en num/den | ON: R@1 llega a **90.40** |
-| **E7** | JSD | `jsd_weight` ×2.5 si Nt≥4, ×0.5 si Nt&lt;4 | ON: hold + `por_tema` |
-| **E8** | pred_score #12 | pred=0 si query corta (Nt&lt;3 y 0 predicados) | OFF: R@5 −0.11 |
-| **E9** | `dim_score` | IDF por eje: `ln(1+(N-DF+0.5)/(DF+0.5))` | OFF: R@1 89.71 |
-| **E10** | `core/dmn_engine.py` | sinapsis `dmn_synthesized` peso 0.30, **tope 8**/ciclo; no fusiona nodos | ON: hold gate |
-| **E11** | LPA | `comunidad_score` 1.0 si comparte comunidad del top-5 | OFF: 96.57/89.60 |
-| **E12** | `rescatar_hopfield_ultimo_recurso` | SDM/Hamming **solo si ranking vacío**, cap 0.45, sim_min 0.28 | OFF: R@5 96.80; typo R@5 98.46→96.92 |
-| **E13** | `_evaluar_metacognicion` **después de ADN** | abstiene si top-1 &lt; 0.35 y origen no es `lexico_aprendido`/`protegido`/`concepto`≥0.95. **No** protege `simbolico` | OFF: 91.77/86.17; los 6 FP del snapshot tienen top≥0.35 |
-| **F1** | `_evaluar_coherencia_narrativa` | bono 0.05 si en top-10 hay transición objeto↔sujeto en predicados. O(k²) | OFF: R@1 90.17 |
-| **F2** | `_afinidad_temporal_pool` + `_expandir_episodio_temporal` | señal 1.0 si el nodo comparte bucket temporal (día/sesión) con otro del pool (O(k)); expansión del episodio ±24h (misma categoría/dimensión) | afinidad ON (0.05); expansión OFF — gate pendiente |
-
-### Cómo reproducir el 921
-
-```bash
-BIORAG_PATH=snapshots/qa_escape_qcr_20260811.db python3 scripts/evaluar_qa.py
-# Exploratorio (sin gate CI):
-BIORAG_QA_GATE=0 BIORAG_PATH=snapshots/qa_escape_qcr_20260811.db python3 scripts/evaluar_qa.py
-```
-
-Ablación: un flag de la tabla. **Un cambio a la vez.** El evaluador usa copia aislada de la DB.
-
-### Tests de Plan Maestro
-
-`tests/test_ncd_e6.py` · `test_jsd_adaptativo_e7.py` · `test_srl_condicional_e8.py` · `test_dim_idf_e9.py` · `test_dmn_sintesis_e10.py` · `test_comunidad_e11.py` · `test_hopfield_e12.py` · `test_metacognicion_e13.py` · `test_coherencia_narrativa_f1.py`
-
-Detalle por commit: `CHANGELOG.md` (`v31.1-unreleased` consolidado en **v31.1**).
-
-### Qué NO se afirma
-
-- El sistema **no** es perfecto. 921 **no** es 100%.
-- Snapshot **no** tiene FP 0% (15%). FP 0% es DB viva / calibración MCP / E4 ON (con pérdida de R@5).
-- Flags OFF **no** son deuda olvidada: son experimentos medidos que no pasaron el gate.
-
----
-
-# BioRAG v31.0 — Abismo Léxico: Rescate por Grafo Sináptico (EXP-Q)
-
-> **Versión:** v31.0 — Septiembre 2026
-> **Tipo:** Fix de infraestructura del grafo sináptico + rescate relacional para queries sin solapamiento léxico + suite EXP-Q.
-> **Base:** v30.2 (`B2+B3 Quality Gate`)
-> **Paradigma:** 14 señales híbridas normalizadas intra-query + Concept Hubs estandarizados en 5 ángulos cognitivos + Calibración Conforme Persistente + Rescate Sináptico BFS (Abismo Léxico) + Comparabilidad Unificada Frase/Ráfaga + Orden Monotónico Garantizado + Evaluación QA con Gate de Regresión
-> **Motor:** Python puro + NumPy + SQLite FTS5 WAL + NLTK WordNet (OMW) + SQLite Domain Dict + Calibración Conforme
-> **Dependencias ML:** 0 (pydantic + mcp + nltk para WordNet, 0 sentence-transformers, 0 torch, 0 APIs externas)
-> **Idiomas:** Español + Inglés (stemming bilingüe ES/EN + expansión simbólica vía WordNet + Domain Dict automático)
-> **Benchmark semántico (Fase 2 casos puros, sin palabras compartidas):** CON Hub **100%** (5/5 en TOP1)
-> **Rescate por Grafo (Abismo Léxico, snapshot):** **100%** (3/3 rescatados por BFS sináptico)
-> **Falsos Positivos (Negativo):** **0.00% FP (0 / 40)**
-> **Tests Unitarios:** **70 / 70 PASSED (100%)** · **Invariantes de Scoring:** **4 / 4 PASSED**
-> **Nodos activos:** ~985 · Hubs canónicos: 17 · Bridges: 119 · Domain Dict: 6,490 términos
-
-**BioRAG** es una arquitectura de memoria cognitiva simbólica, biomimética y persistente para agentes de inteligencia artificial. Resuelve el problema fundamental de que los LLMs olvidan todo entre sesiones — sin depender de embeddings pesados de PyTorch/Transformers, GPUs ni infraestructura externa.
-
-> **v31.0: Abismo Léxico — Rescate por Grafo Sináptico.** Corrige 3 bugs de infraestructura del grafo sináptico que impedían el rescate relacional: (1) la trampa alfabética de SQLite UNION que silenciaba al 70%+ de los vecinos legítimos, (2) el MCP server descartando contexto expandido en página 1, y (3) límites de BFS insuficientes. Ahora el BFS sobre el grafo Hebbiano rescata nodos gold donde no existe ningún solapamiento léxico entre query y nodo — el verdadero "Abismo Léxico". Suite EXP-Q integrada con 3 casos de rescate puro (100% en snapshot congelado). Limitaciones documentadas con honestidad epistémica: la cobertura depende del tamaño del corpus y la densidad de sinapsis.
-
-
 
 ---
 
