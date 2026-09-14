@@ -2,6 +2,7 @@ import os
 import sqlite3
 import time
 import re
+import unicodedata
 import sys
 import math
 import json
@@ -4211,7 +4212,101 @@ class SQLiteMemoryBioRAG:
             "fecha": time.time(),
         }
 
-    def nivel_certeza(self, score: float) -> str:
+    def _entidad_existe_en_corpus(self, query: str) -> bool:
+        """Comprueba si la consulta contiene una entidad respaldada por el corpus.
+
+        NEG es una guardia de *certeza*, no de ranking. Una mención de una entidad
+        externa dentro del contenido de un nodo no convierte a esa entidad en una
+        memoria recuperable: para tokens con apariencia de nombre propio o entidad
+        técnica se exige presencia como token en ``concepto`` (la etiqueta canónica).
+        Para consultas sin una entidad marcada, basta una coincidencia léxica real en
+        algún campo del nodo. Todo se normaliza sin tildes y con límites de token.
+
+        Esta distinción es deliberada: en la consulta ``... Pinecone ...`` el corpus
+        puede mencionar Pinecone al explicar otra arquitectura, pero no por eso
+        existe un nodo canónico sobre una integración Pinecone.
+        """
+        if not isinstance(query, str) or not query.strip():
+            return False
+
+        from core.stopwords import STOPWORDS_CONTROL, _STOPWORDS_QUERY
+
+        def normalizar(texto: str) -> str:
+            texto = unicodedata.normalize("NFKD", texto.lower())
+            return "".join(c for c in texto if not unicodedata.combining(c))
+
+        genericos = {
+            "biorag", "sistema", "memoria", "como", "funciona", "hacer",
+            "buscar", "busqueda", "consulta", "informacion", "respuesta",
+        }
+        stopwords = {
+            normalizar(token)
+            for token in (_STOPWORDS_QUERY | STOPWORDS_CONTROL | genericos)
+        }
+
+        # Mantener la forma original permite detectar marcas/nombres escritos con
+        # mayúscula (Pinecone, OpenAI, BioRAG); la comprobación de corpus usa la forma
+        # normalizada. Guiones y guiones bajos se separan como palabras independientes.
+        tokens_query = []
+        for bruto in re.findall(r"[\w]+", query, flags=re.UNICODE):
+            token = normalizar(bruto)
+            if len(token) < 2 or token in stopwords:
+                continue
+            tokens_query.append((bruto, token))
+        if not tokens_query:
+            return False
+
+        # Las entidades nombradas no se certifican por una mención en contenido o
+        # sinónimos: deben existir en el nombre canónico de algún nodo. Esto evita el
+        # falso positivo medido con Pinecone en la DB viva.
+        entidades_marcadas = [
+            token
+            for bruto, token in tokens_query
+            if bruto[:1].isupper() or any(c.isupper() for c in bruto[1:])
+        ]
+
+        # El índice se reutiliza entre los varios resultados de una misma respuesta.
+        # `total_changes` cubre mutaciones de esta conexión y `data_version` cubre
+        # cambios hechos por otra conexión; así una nueva memoria no deja el guard
+        # con un vocabulario obsoleto.
+        try:
+            corpus_version = (
+                self.conn.total_changes,
+                self.cursor.execute("PRAGMA data_version").fetchone()[0],
+            )
+        except Exception:
+            corpus_version = None
+        cache = getattr(self, "_neg_entity_index_cache", None)
+        if not cache or cache[0] != corpus_version:
+            filas = self.cursor.execute(
+                "SELECT concepto, COALESCE(contenido, ''), COALESCE(sinonimos, '') "
+                "FROM largo_plazo"
+            ).fetchall()
+            tokens_concepto = set()
+            tokens_corpus = set()
+            for concepto, contenido, sinonimos in filas:
+                for valor, destino in (
+                    (concepto, tokens_concepto),
+                    (contenido, tokens_corpus),
+                    (sinonimos, tokens_corpus),
+                ):
+                    texto = normalizar(valor or "").replace("_", " ").replace("-", " ")
+                    destino.update(re.findall(r"[\w]{2,}", texto, flags=re.UNICODE))
+            # La etiqueta canónica también es parte del vocabulario general.
+            tokens_corpus.update(tokens_concepto)
+            self._neg_entity_index_cache = (
+                corpus_version,
+                tokens_concepto,
+                tokens_corpus,
+            )
+        else:
+            _, tokens_concepto, tokens_corpus = cache
+
+        if entidades_marcadas:
+            return any(token in tokens_concepto for token in entidades_marcadas)
+        return any(token in tokens_corpus for _, token in tokens_query)
+
+    def nivel_certeza(self, score: float, query: str = None) -> str:
         """Clasifica un score crudo en los 3 niveles de honestidad epistémica.
 
         Regla del Neocórtex de Sangre (Dennys, 2026-08-14): nunca silencio vacío.
@@ -4232,6 +4327,12 @@ class SQLiteMemoryBioRAG:
         la calibración reemplaza por cuantiles derivados de la distribución
         real de negativos. No reintroducir umbrales absolutos sin evidencia.
         """
+        # NEG actúa únicamente sobre la etiqueta epistémica. No cambia el pool ni el
+        # score de recuperación; si no hay entidad respaldada por el corpus, nunca
+        # se presenta una respuesta como evidencia directa o relación confiable.
+        if query is not None and not self._entidad_existe_en_corpus(query):
+            return "sin_evidencia_directa"
+
         u = self._umbral_conforme
         if u and u.umbral > 0:
             if float(score) > u.umbral:

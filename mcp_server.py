@@ -258,11 +258,13 @@ def _confianza_calibrada(cerebro, score) -> float:
     return float(score)
 
 
-def _nivel_certeza(cerebro, score) -> str:
-    """Nivel de honestidad epistémica: evidencia_directa / relacionado_confianza_media / sin_evidencia_directa."""
+def _nivel_certeza(cerebro, score, query=None) -> str:
+    """Nivel epistémico con guardia NEG basada en la consulta original."""
     try:
         if hasattr(cerebro, "nivel_certeza"):
-            return cerebro.nivel_certeza(score)
+            if query is None:
+                return cerebro.nivel_certeza(score)
+            return cerebro.nivel_certeza(score, query=query)
     except Exception:
         pass
     if score >= 0.60:
@@ -1073,7 +1075,7 @@ def _build_server():
                     "estado": estado,
                     "score_hibrido": score,
                     "confianza_calibrada": _confianza_calibrada(cerebro, score),
-                    "nivel_certeza": _nivel_certeza(cerebro, score),
+                    "nivel_certeza": _nivel_certeza(cerebro, score, query),
                     "edad_dias": round(edad_dias, 1),
                     "timestamp_creado": creado_ts,
                     "fecha_legible": datetime.fromtimestamp(creado_ts).strftime("%Y-%m-%d %H:%M") if creado_ts else None,
@@ -1100,7 +1102,7 @@ def _build_server():
                         "estado": estado,
                         "score_hibrido": score,
                         "confianza_calibrada": _confianza_calibrada(cerebro, score),
-                        "nivel_certeza": _nivel_certeza(cerebro, score),
+                        "nivel_certeza": _nivel_certeza(cerebro, score, query),
                         "edad_dias": round(edad_dias, 1),
                         "timestamp_creado": creado_ts,
                         "fecha_legible": datetime.fromtimestamp(creado_ts).strftime("%Y-%m-%d %H:%M") if creado_ts else None,
