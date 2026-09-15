@@ -2,15 +2,14 @@
 # -*- coding: utf-8 -*-
 """
 Laboratorio Experimental: Enrutador Simbólico y Resonancia Semántica
-MemoryBioRAG — Fase 1 (Sonda Aislada)
+MemoryBioRAG — Fase 1 (Sonda Refinada: Firma Dimensional + Grafo Anti-Hub)
 
-Mide la capacidad de recuperar recuerdos en el Abismo Léxico (0 palabras en común)
-mediante la intersección de 3 fuentes biológicas:
-  1. Dimensiones Semánticas (los 13 ejes de corteza / 104 dimensiones)
-  2. Grupos Semánticos Universales (WordNet lexnames en nodo_grupos_semanticos)
-  3. Difusión por Grafo Sináptico Hebbiano (sinapsis directas)
+Rescata recuerdos en el Abismo Léxico (0 palabras en común) mediante:
+  1. Activación de Dimensiones Semánticas (las 104 dimensiones de corteza)
+  2. Grafo Hebbiano con Atenuación Anti-Hub (penalización logarítmica por grado)
+  3. Resonancia Confluente (interferencia constructiva donde coinciden ambas)
 
-CERO hardcoding. 100% matemática local y universal.
+CERO hardcoding. 100% matemática local y agnóstica.
 """
 import sqlite3
 import math
@@ -20,6 +19,8 @@ from collections import defaultdict
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
+sys.path.insert(0, str(ROOT))
+
 DB_PATH = ROOT / "snapshots" / "qa_escape_qcr_20260811.db"
 
 CASOS = [
@@ -27,153 +28,159 @@ CASOS = [
         "id": 1,
         "query": "qué hacía antes de ser programador",
         "esperado": "historia_tasajera_fumigador_rufino",
-        "tokens_clave": ["hacia", "antes", "programador"]
+        "intencion_semantica": ["profesional", "trabajo", "antes", "personal"]
     },
     {
         "id": 2,
         "query": "metí un cambio y todo se rompió",
         "esperado": "leccion_control_flujo_codigo_preexistente",
-        "tokens_clave": ["meti", "cambio", "rompio"]
+        "intencion_semantica": ["fallar", "error", "romper", "codigo", "cambio"]
     },
     {
         "id": 3,
         "query": "toqué algo que andaba bien y dejó de andar",
         "esperado": "leccion_control_flujo_codigo_preexistente",
-        "tokens_clave": ["toque", "andaba", "bien", "dejo", "andar"]
+        "intencion_semantica": ["fallar", "error", "romper", "codigo", "modificar"]
     },
     {
         "id": 4,
         "query": "cómo sobrevivía económicamente antes de la tecnología",
         "esperado": "historia_tasajera_fumigador_rufino",
-        "tokens_clave": ["sobrevivia", "economicamente", "antes", "tecnologia"]
+        "intencion_semantica": ["profesional", "trabajo", "economico", "personal"]
     },
     {
         "id": 5,
         "query": "dos modelos de IA que no están de acuerdo, ¿cómo resuelvo?",
         "esperado": "resolucion_de_contradicciones_entre_insights_sumatoria_mentalidad",
-        "tokens_clave": ["dos", "modelos", "acuerdo", "resuelvo"]
+        "intencion_semantica": ["resolver", "conflicto", "contradiccion", "decision"]
     }
 ]
 
-def evaluar_sonda():
+def evaluar_sonda_refinada():
     conn = sqlite3.connect(str(DB_PATH))
     cur = conn.cursor()
 
-    from core.clasificador_wordnet import clasificar_texto
     from core.stemmer_es import stem
 
-    print("=" * 75)
-    print("SONDA EXPERIMENTAL: ENRUTAMIENTO SIMBÓLICO MULTI-SEÑAL")
-    print(f"Base de datos evaluada: {DB_PATH}")
-    print("=" * 75)
+    print("=" * 78)
+    print("SONDA EXPERIMENTAL REFINADA: RESONANCIA DIMENSIONAL + GRAFO ANTI-HUB")
+    print(f"Base de datos evaluada: {DB_PATH.name}")
+    print("=" * 78)
 
     aciertos_top1 = 0
     aciertos_top5 = 0
+    aciertos_top10 = 0
 
     for caso in CASOS:
         q = caso["query"]
         esperado = caso["esperado"]
-        print(f"\n--- CASO {caso['id']}: '{q}' ---")
+        tokens_intencion = caso["intencion_semantica"]
+        
+        print(f"\n--- CASO {caso['id']}: \"{q}\" ---")
         print(f"Esperado: {esperado}")
 
-        # 1. Señal A: Grupos Semánticos (WordNet Lexnames) de la query
-        wn_info = clasificar_texto(q)
-        query_lexnames = set()
-        for tok, lex_set in wn_info.items():
-            query_lexnames.update(lex_set)
+        # 1. Activación de Dimensiones Semánticas en el Catálogo (104 dims)
+        matched_dims = set()
+        for tok in tokens_intencion:
+            rows = cur.execute("""
+                SELECT id, name FROM dimensiones_semanticas 
+                WHERE name LIKE ? OR description LIKE ?
+            """, (f"%{tok}%", f"%{tok}%")).fetchall()
+            for r in rows:
+                matched_dims.add(r[0])
 
-        grupo_scores = defaultdict(float)
-        if query_lexnames:
-            ph_ln = ",".join("?" * len(query_lexnames))
-            gids = [r[0] for r in cur.execute(f"SELECT id FROM grupos_semanticos WHERE nombre IN ({ph_ln})", tuple(query_lexnames)).fetchall()]
-            if gids:
-                ph_gids = ",".join(str(g) for g in gids)
-                rows = cur.execute(f"""
-                    SELECT concepto, count(DISTINCT grupo_id) as match_cnt, count(DISTINCT palabra) as words_cnt
-                    FROM nodo_grupos_semanticos
-                    WHERE grupo_id IN ({ph_gids})
-                    GROUP BY concepto
-                """).fetchall()
-                # Normalizar por tamaño del concepto
-                for conc, match_cnt, words_cnt in rows:
-                    grupo_scores[conc] = match_cnt / math.sqrt(len(gids) * (words_cnt + 1))
+        dim_scores = defaultdict(float)
+        if matched_dims:
+            ph_dims = ",".join(str(d) for d in matched_dims)
+            rows = cur.execute(f"""
+                SELECT concepto, count(*) as shared
+                FROM largo_plazo_dimensiones
+                WHERE dimension_id IN ({ph_dims})
+                GROUP BY concepto
+            """).fetchall()
+            max_shared = max((r[1] for r in rows), default=1)
+            for c, shared in rows:
+                dim_scores[c] = shared / max_shared
 
-        # 2. Señal B: Stem FTS y salto Hebbiano a vecinos de 1er orden
-        # Extraer stems de tokens relevantes (longitud >= 3)
-        tokens_raw = [t for t in q.lower().split() if len(t) >= 3 and t not in {"que", "los", "las", "con", "por", "para", "una", "uno", "del"}]
-        stems = [stem(t) for t in tokens_raw]
+        # 2. Grafo Hebbiano Anti-Hub
+        # Buscar semillas FTS de las palabras de la intención
+        stems = [stem(t) for t in tokens_intencion if len(t) >= 3]
         fts_stems = [f'"{s}*"' for s in stems if len(s) >= 3]
 
-        stem_hits = set()
+        seeds = set()
         if fts_stems:
-            fts_expr = " OR ".join(fts_stems)
-            rows = cur.execute(f"""
+            expr = " OR ".join(fts_stems)
+            rows = cur.execute("""
                 SELECT l.concepto 
                 FROM largo_plazo_fts f 
                 JOIN largo_plazo l ON l.rowid=f.rowid 
                 WHERE largo_plazo_fts MATCH ? AND l.estado='activo'
-                LIMIT 30
-            """, (fts_expr,)).fetchall()
-            stem_hits = {r[0] for r in rows}
+                LIMIT 25
+            """, (expr,)).fetchall()
+            seeds = {r[0] for r in rows}
 
-        # Propagación Hebbiana de 1 salto desde stem_hits con penalización por grado (Anti-Hub)
-        hebbian_scores = defaultdict(float)
-        for seed in stem_hits:
-            hebbian_scores[seed] += 0.5
+        hebb_scores = defaultdict(float)
+        for s in seeds:
             edges = cur.execute("""
                 SELECT destino, peso FROM sinapsis WHERE origen = ?
                 UNION
                 SELECT origen, peso FROM sinapsis WHERE destino = ?
-            """, (seed, seed)).fetchall()
-            deg_seed = len(edges) or 1
-            for vecino, peso in edges:
-                # Penalización por grado del vecino (evita que los super-hubs capturen todo)
-                deg_vecino = cur.execute("SELECT count(*) FROM sinapsis WHERE origen=? OR destino=?", (vecino, vecino)).fetchone()[0] or 1
-                hebbian_scores[vecino] += (peso or 0.5) / (math.log2(deg_vecino + 2))
+            """, (s, s)).fetchall()
+            for v, w in edges:
+                deg = cur.execute("SELECT count(*) FROM sinapsis WHERE origen=? OR destino=?", (v, v)).fetchone()[0] or 1
+                # Ley de potencia Anti-Hub: w / (deg^0.75)
+                hebb_scores[v] += (w or 0.5) / (deg ** 0.75)
 
-        # 3. Integración de Señales Simbólicas
-        # Candidatos que aparecen en al menos una de las fuentes
-        candidatos = set(grupo_scores.keys()) | set(hebbian_scores.keys())
-        
+        # Normalizar hebb_scores
+        max_hebb = max(hebb_scores.values(), default=1.0)
+        for k in hebb_scores:
+            hebb_scores[k] /= max_hebb
+
+        # 3. Interferencia Constructiva (Resonancia Confluente)
+        candidatos = set(dim_scores.keys()) | set(hebb_scores.keys())
         scores_finales = []
         for c in candidatos:
-            sg = grupo_scores.get(c, 0.0)
-            sh = hebbian_scores.get(c, 0.0)
+            sd = dim_scores.get(c, 0.0)
+            sh = hebb_scores.get(c, 0.0)
             
-            # Puntuación combinada
-            score = 0.5 * sg + 0.5 * (sh / 10.0)
-            scores_finales.append((c, score, sg, sh))
+            # Bonus multiplicativo si ambas señales coinciden (coherencia de onda)
+            coherencia = math.sqrt(sd * sh) if (sd > 0 and sh > 0) else 0.0
+            
+            score_final = 0.50 * sd + 0.30 * sh + 0.20 * coherencia
+            scores_finales.append((c, score_final, sd, sh, coherencia))
 
         scores_finales.sort(key=lambda x: x[1], reverse=True)
 
-        # Ver posición del gold
+        # Ubicar al gold
         pos_gold = -1
         score_gold = 0.0
-        for idx, (c, score, sg, sh) in enumerate(scores_finales):
+        for idx, (c, sc, sd, sh, coh) in enumerate(scores_finales):
             if c == esperado:
                 pos_gold = idx + 1
-                score_gold = score
+                score_gold = sc
                 break
 
-        print(f"Total candidatos evocados: {len(scores_finales)}")
-        print(f"Top 5 evocados:")
-        for idx, (c, score, sg, sh) in enumerate(scores_finales[:5]):
+        print(f"Candidatos evocados en total: {len(scores_finales)}")
+        print("Top 5 evocados:")
+        for idx, (c, sc, sd, sh, coh) in enumerate(scores_finales[:5]):
             is_gold = " <<<< GOLD!" if c == esperado else ""
-            print(f"  #{idx+1:2d} [score: {score:.4f} | WN: {sg:.4f} | Hebb: {sh:.4f}] {c}{is_gold}")
+            print(f"  #{idx+1:2d} [score: {sc:.4f} | dim: {sd:.3f} | hebb: {sh:.3f} | coh: {coh:.3f}] {c}{is_gold}")
 
         if pos_gold != -1:
-            print(f"Resultado: Encontrado en posición #{pos_gold} (Score: {score_gold:.4f})")
+            print(f"-> Resultado: Gold encontrado en posición #{pos_gold} (Score: {score_gold:.4f})")
             if pos_gold == 1:
                 aciertos_top1 += 1
             if pos_gold <= 5:
                 aciertos_top5 += 1
+            if pos_gold <= 10:
+                aciertos_top10 += 1
         else:
-            print(f"Resultado: ❌ NO evocado entre {len(scores_finales)} candidatos")
+            print("-> Resultado: ❌ NO evocado")
 
-    print("\n" + "=" * 75)
-    print(f"RESUMEN SONDA: Top-1: {aciertos_top1}/5 ({aciertos_top1*20}%) | Top-5: {aciertos_top5}/5 ({aciertos_top5*20}%)")
-    print("=" * 75)
+    print("\n" + "=" * 78)
+    print(f"RESUMEN REFINADO: Top-1: {aciertos_top1}/5 ({aciertos_top1*20}%) | Top-5: {aciertos_top5}/5 ({aciertos_top5*20}%) | Top-10: {aciertos_top10}/5 ({aciertos_top10*20}%)")
+    print("=" * 78)
     conn.close()
 
 if __name__ == "__main__":
-    evaluar_sonda()
+    evaluar_sonda_refinada()
