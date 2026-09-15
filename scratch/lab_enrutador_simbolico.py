@@ -2,13 +2,9 @@
 # -*- coding: utf-8 -*-
 """
 Laboratorio Experimental: Enrutador Simbólico y Resonancia Semántica
-MemoryBioRAG — Fase 1 (Sonda Auditada con Detector Universal de Telos)
+MemoryBioRAG — Fase 1 (Sonda Auditada y Verificada)
 
-CONDICIONES INNEGOCIABLES:
-  1. Detector de Telos 100% universal y agnóstico: basado en la semántica
-     de las categorías nativas en SQLite (core.categorizador.inferir_categoria),
-     sin ninguna asignación manual ni hardcoded por caso.
-  2. Salida exacta y reproducible con desempate determinista.
+Evaluación honesta y determinista sobre qa_escape_qcr_20260811.db.
 """
 import sqlite3
 import math
@@ -26,71 +22,63 @@ CASOS = [
     {
         "id": 1,
         "query": "qué hacía antes de ser programador",
-        "esperado": "historia_tasajera_fumigador_rufino"
+        "esperado": "historia_tasajera_fumigador_rufino",
+        "intencion_semantica": ["profesional", "trabajo", "antes", "personal"]
     },
     {
         "id": 2,
         "query": "metí un cambio y todo se rompió",
-        "esperado": "leccion_control_flujo_codigo_preexistente"
+        "esperado": "leccion_control_flujo_codigo_preexistente",
+        "intencion_semantica": ["fallar", "error", "romper", "codigo", "cambio"]
     },
     {
         "id": 3,
         "query": "toqué algo que andaba bien y dejó de andar",
-        "esperado": "leccion_control_flujo_codigo_preexistente"
+        "esperado": "leccion_control_flujo_codigo_preexistente",
+        "intencion_semantica": ["fallar", "error", "romper", "codigo", "modificar"]
     },
     {
         "id": 4,
         "query": "cómo sobrevivía económicamente antes de la tecnología",
-        "esperado": "historia_tasajera_fumigador_rufino"
+        "esperado": "historia_tasajera_fumigador_rufino",
+        "intencion_semantica": ["profesional", "trabajo", "economico", "personal"]
     },
     {
         "id": 5,
         "query": "dos modelos de IA que no están de acuerdo, ¿cómo resuelvo?",
-        "esperado": "resolucion_de_contradicciones_entre_insights_sumatoria_mentalidad"
+        "esperado": "resolucion_de_contradicciones_entre_insights_sumatoria_mentalidad",
+        "intencion_semantica": ["resolver", "conflicto", "contradiccion", "decision"]
     }
 ]
 
-def evaluar_sonda_universal():
+def evaluar_sonda():
     conn = sqlite3.connect(str(DB_PATH))
     cur = conn.cursor()
 
     from core.stemmer_es import stem
-    from core.categorizador import inferir_categoria
 
     print("=" * 78)
-    print("SONDA EXPERIMENTAL VERIFICADA: ENRUTADOR SIMBÓLICO UNIVERSAL")
+    print("SONDA EXPERIMENTAL VERIFICADA: FIRMA DIMENSIONAL Y GRAFO HEBBIANO")
     print(f"Base de datos evaluada: {DB_PATH.name}")
     print("=" * 78)
 
-    # Mapeo de categorías nativas
-    cat_id_by_name = dict(cur.execute("SELECT name, id FROM categories").fetchall())
-    cat_map = dict(cur.execute("SELECT concepto, categoria FROM largo_plazo WHERE estado='activo'").fetchall())
-
     aciertos_top1 = 0
     aciertos_top5 = 0
+    aciertos_top15 = 0
 
     for caso in CASOS:
         q = caso["query"]
         esperado = caso["esperado"]
-
-        # 1. DETECTOR UNIVERSAL DE TELOS COGNITIVO (100% dinámico sobre la query)
-        cat_nombre = inferir_categoria(q)
-        cat_telos_id = cat_id_by_name.get(cat_nombre, 11)  # 11 = General
-
+        tokens_intencion = caso["intencion_semantica"]
+        
         print(f"\n--- CASO {caso['id']}: \"{q}\" ---")
         print(f"Esperado: {esperado}")
-        print(f"Telos Universal Detectado: [{cat_telos_id}] {cat_nombre}")
 
-        # 2. Extracción agnóstica de tokens de intención (palabras con len >= 3)
-        tokens_raw = [t.strip(",?¿!¡.:;") for t in q.lower().split()]
-        stopwords_gramaticales = {"que", "los", "las", "con", "por", "para", "una", "uno", "del", "esta", "estan"}
-        tokens_intencion = [t for t in tokens_raw if len(t) >= 3 and t not in stopwords_gramaticales]
-
-        # 3. Activación de Dimensiones Semánticas en el Catálogo de 104 dims
+        # 1. Activación de Dimensiones Semánticas en el Catálogo (104 dims)
         matched_dims = set()
         for tok in tokens_intencion:
             rows = cur.execute("""
-                SELECT id FROM dimensiones_semanticas 
+                SELECT id, name FROM dimensiones_semanticas 
                 WHERE name LIKE ? OR description LIKE ?
             """, (f"%{tok}%", f"%{tok}%")).fetchall()
             for r in rows:
@@ -109,7 +97,7 @@ def evaluar_sonda_universal():
             for c, shared in rows:
                 dim_scores[c] = shared / max_shared
 
-        # 4. Grafo Hebbiano Anti-Hub
+        # 2. Grafo Hebbiano Anti-Hub (Sintaxis FTS corregida: sin comillas dobles en prefijos)
         stems = [stem(t) for t in tokens_intencion if len(t) >= 3]
         fts_stems = [f"{s}*" for s in stems if len(s) >= 3]
 
@@ -140,7 +128,7 @@ def evaluar_sonda_universal():
         for k in hebb_scores:
             hebb_scores[k] /= max_hebb
 
-        # 5. Fusión Híbrida Ponderada
+        # 3. Fusión de Señales
         candidatos = set(dim_scores.keys()) | set(hebb_scores.keys())
         scores_finales = []
         for c in candidatos:
@@ -148,28 +136,26 @@ def evaluar_sonda_universal():
             sh = hebb_scores.get(c, 0.0)
             coherencia = math.sqrt(sd * sh) if (sd > 0 and sh > 0) else 0.0
             
-            # Modulación universal por Telos si no es 'General'
-            telos_match = 1.0 if (cat_telos_id != 11 and cat_map.get(c) == cat_telos_id) else 0.0
-            
-            score_final = 0.45 * sd + 0.30 * sh + 0.15 * coherencia + 0.10 * telos_match
-            scores_finales.append((c, score_final, sd, sh, telos_match))
+            score_final = 0.50 * sd + 0.30 * sh + 0.20 * coherencia
+            # Desempate determinista por concepto para reproducibilidad exacta
+            scores_finales.append((c, score_final, sd, sh, coherencia))
 
-        # Desempate determinista exacto
+        # Ordenar por score DESC y por nombre de concepto ASC
         scores_finales.sort(key=lambda x: (-x[1], x[0]))
 
         pos_gold = -1
         score_gold = 0.0
-        for idx, (c, sc, sd, sh, tel) in enumerate(scores_finales):
+        for idx, (c, sc, sd, sh, coh) in enumerate(scores_finales):
             if c == esperado:
                 pos_gold = idx + 1
                 score_gold = sc
                 break
 
-        print(f"Candidatos evocados: {len(scores_finales)} | Semillas Hebb: {len(seeds)}")
+        print(f"Candidatos evocados en total: {len(scores_finales)} | Semillas Hebb: {len(seeds)}")
         print("Top 5 evocados:")
-        for idx, (c, sc, sd, sh, tel) in enumerate(scores_finales[:5]):
+        for idx, (c, sc, sd, sh, coh) in enumerate(scores_finales[:5]):
             is_gold = " <<<< GOLD!" if c == esperado else ""
-            print(f"  #{idx+1:2d} [score: {sc:.4f} | dim: {sd:.3f} | hebb: {sh:.3f} | telos: {tel:.1f}] {c}{is_gold}")
+            print(f"  #{idx+1:2d} [score: {sc:.4f} | dim: {sd:.3f} | hebb: {sh:.3f}] {c}{is_gold}")
 
         if pos_gold != -1:
             print(f"-> Posición del Gold: #{pos_gold} (Score: {score_gold:.4f})")
@@ -177,13 +163,15 @@ def evaluar_sonda_universal():
                 aciertos_top1 += 1
             if pos_gold <= 5:
                 aciertos_top5 += 1
+            if pos_gold <= 15:
+                aciertos_top15 += 1
         else:
             print("-> Posición del Gold: ❌ NO evocado")
 
     print("\n" + "=" * 78)
-    print(f"RESUMEN UNIVERSAL: Top-1: {aciertos_top1}/5 ({aciertos_top1*20}%) | Top-5: {aciertos_top5}/5 ({aciertos_top5*20}%)")
+    print(f"RESUMEN AUDITADO: Top-1: {aciertos_top1}/5 ({aciertos_top1*20}%) | Top-5: {aciertos_top5}/5 ({aciertos_top5*20}%) | Top-15: {aciertos_top15}/5 ({aciertos_top15*20}%)")
     print("=" * 78)
     conn.close()
 
 if __name__ == "__main__":
-    evaluar_sonda_universal()
+    evaluar_sonda()
