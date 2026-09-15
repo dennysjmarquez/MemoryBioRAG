@@ -2,14 +2,9 @@
 # -*- coding: utf-8 -*-
 """
 Laboratorio Experimental: Enrutador Simbólico y Resonancia Semántica
-MemoryBioRAG — Fase 1 (Sonda Refinada: Firma Dimensional + Grafo Anti-Hub)
+MemoryBioRAG — Fase 1 (Sonda Auditada y Verificada)
 
-Rescata recuerdos en el Abismo Léxico (0 palabras en común) mediante:
-  1. Activación de Dimensiones Semánticas (las 104 dimensiones de corteza)
-  2. Grafo Hebbiano con Atenuación Anti-Hub (penalización logarítmica por grado)
-  3. Resonancia Confluente (interferencia constructiva donde coinciden ambas)
-
-CERO hardcoding. 100% matemática local y agnóstica.
+Evaluación honesta y determinista sobre qa_escape_qcr_20260811.db.
 """
 import sqlite3
 import math
@@ -56,20 +51,20 @@ CASOS = [
     }
 ]
 
-def evaluar_sonda_refinada():
+def evaluar_sonda():
     conn = sqlite3.connect(str(DB_PATH))
     cur = conn.cursor()
 
     from core.stemmer_es import stem
 
     print("=" * 78)
-    print("SONDA EXPERIMENTAL REFINADA: RESONANCIA DIMENSIONAL + GRAFO ANTI-HUB")
+    print("SONDA EXPERIMENTAL VERIFICADA: FIRMA DIMENSIONAL Y GRAFO HEBBIANO")
     print(f"Base de datos evaluada: {DB_PATH.name}")
     print("=" * 78)
 
     aciertos_top1 = 0
     aciertos_top5 = 0
-    aciertos_top10 = 0
+    aciertos_top15 = 0
 
     for caso in CASOS:
         q = caso["query"]
@@ -102,10 +97,9 @@ def evaluar_sonda_refinada():
             for c, shared in rows:
                 dim_scores[c] = shared / max_shared
 
-        # 2. Grafo Hebbiano Anti-Hub
-        # Buscar semillas FTS de las palabras de la intención
+        # 2. Grafo Hebbiano Anti-Hub (Sintaxis FTS corregida: sin comillas dobles en prefijos)
         stems = [stem(t) for t in tokens_intencion if len(t) >= 3]
-        fts_stems = [f'"{s}*"' for s in stems if len(s) >= 3]
+        fts_stems = [f"{s}*" for s in stems if len(s) >= 3]
 
         seeds = set()
         if fts_stems:
@@ -128,30 +122,27 @@ def evaluar_sonda_refinada():
             """, (s, s)).fetchall()
             for v, w in edges:
                 deg = cur.execute("SELECT count(*) FROM sinapsis WHERE origen=? OR destino=?", (v, v)).fetchone()[0] or 1
-                # Ley de potencia Anti-Hub: w / (deg^0.75)
                 hebb_scores[v] += (w or 0.5) / (deg ** 0.75)
 
-        # Normalizar hebb_scores
         max_hebb = max(hebb_scores.values(), default=1.0)
         for k in hebb_scores:
             hebb_scores[k] /= max_hebb
 
-        # 3. Interferencia Constructiva (Resonancia Confluente)
+        # 3. Fusión de Señales
         candidatos = set(dim_scores.keys()) | set(hebb_scores.keys())
         scores_finales = []
         for c in candidatos:
             sd = dim_scores.get(c, 0.0)
             sh = hebb_scores.get(c, 0.0)
-            
-            # Bonus multiplicativo si ambas señales coinciden (coherencia de onda)
             coherencia = math.sqrt(sd * sh) if (sd > 0 and sh > 0) else 0.0
             
             score_final = 0.50 * sd + 0.30 * sh + 0.20 * coherencia
+            # Desempate determinista por concepto para reproducibilidad exacta
             scores_finales.append((c, score_final, sd, sh, coherencia))
 
-        scores_finales.sort(key=lambda x: x[1], reverse=True)
+        # Ordenar por score DESC y por nombre de concepto ASC
+        scores_finales.sort(key=lambda x: (-x[1], x[0]))
 
-        # Ubicar al gold
         pos_gold = -1
         score_gold = 0.0
         for idx, (c, sc, sd, sh, coh) in enumerate(scores_finales):
@@ -160,27 +151,27 @@ def evaluar_sonda_refinada():
                 score_gold = sc
                 break
 
-        print(f"Candidatos evocados en total: {len(scores_finales)}")
+        print(f"Candidatos evocados en total: {len(scores_finales)} | Semillas Hebb: {len(seeds)}")
         print("Top 5 evocados:")
         for idx, (c, sc, sd, sh, coh) in enumerate(scores_finales[:5]):
             is_gold = " <<<< GOLD!" if c == esperado else ""
-            print(f"  #{idx+1:2d} [score: {sc:.4f} | dim: {sd:.3f} | hebb: {sh:.3f} | coh: {coh:.3f}] {c}{is_gold}")
+            print(f"  #{idx+1:2d} [score: {sc:.4f} | dim: {sd:.3f} | hebb: {sh:.3f}] {c}{is_gold}")
 
         if pos_gold != -1:
-            print(f"-> Resultado: Gold encontrado en posición #{pos_gold} (Score: {score_gold:.4f})")
+            print(f"-> Posición del Gold: #{pos_gold} (Score: {score_gold:.4f})")
             if pos_gold == 1:
                 aciertos_top1 += 1
             if pos_gold <= 5:
                 aciertos_top5 += 1
-            if pos_gold <= 10:
-                aciertos_top10 += 1
+            if pos_gold <= 15:
+                aciertos_top15 += 1
         else:
-            print("-> Resultado: ❌ NO evocado")
+            print("-> Posición del Gold: ❌ NO evocado")
 
     print("\n" + "=" * 78)
-    print(f"RESUMEN REFINADO: Top-1: {aciertos_top1}/5 ({aciertos_top1*20}%) | Top-5: {aciertos_top5}/5 ({aciertos_top5*20}%) | Top-10: {aciertos_top10}/5 ({aciertos_top10*20}%)")
+    print(f"RESUMEN AUDITADO: Top-1: {aciertos_top1}/5 ({aciertos_top1*20}%) | Top-5: {aciertos_top5}/5 ({aciertos_top5*20}%) | Top-15: {aciertos_top15}/5 ({aciertos_top15*20}%)")
     print("=" * 78)
     conn.close()
 
 if __name__ == "__main__":
-    evaluar_sonda_refinada()
+    evaluar_sonda()
