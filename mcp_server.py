@@ -44,7 +44,7 @@ import subprocess
 import sys
 import threading
 import time
-from typing import Annotated, Any, Optional, List
+from typing import Annotated, Any, Optional, List, Union
 
 # Cargar .env.local explícitamente para que el MCP server no dependa de que
 # el entorno de ejecución (OpenCode, VS Code, etc.) lo inyecte.
@@ -589,6 +589,7 @@ def _build_server():
         usar_inferencia: bool = True,
         ordenar_por: str = "relevancia",
         asociaciones_max: Optional[int] = None,
+        relacionados: Optional[Union[List[str], str]] = None,
     ) -> str:
         if limite is None:
             limite = LIMITE_MCP
@@ -746,7 +747,26 @@ def _build_server():
                     "modo": "cronologico",
                 }, ensure_ascii=False)
 
+            # Anclajes de relación contextual aportados por la Corteza Prefrontal (Agente)
+            relacionados_list = None
+            if relacionados:
+                if isinstance(relacionados, str):
+                    relacionados_list = [r.strip() for r in relacionados.split(",") if r.strip()]
+                elif isinstance(relacionados, list):
+                    relacionados_list = [str(r).strip() for r in relacionados if str(r).strip()]
+
+            # Nutrir paráfrasis y ráfaga asociativa con los anclajes relacionales
+            if relacionados_list:
+                if not parafrasis:
+                    parafrasis = ", ".join(relacionados_list)
+                if not rafaga_palabras:
+                    rafaga_palabras = ", ".join(relacionados_list)
+
             rafaga_list = [w.strip() for w in rafaga_palabras.split(",")] if rafaga_palabras else None
+            if relacionados_list and rafaga_list:
+                for r_item in relacionados_list:
+                    if r_item not in rafaga_list:
+                        rafaga_list.append(r_item)
 
             # Parsear dimensiones via helper compartido
             dimensiones_dict, dimensiones_ids, dim_error = _resolver_dimensiones(cerebro, dimensiones)
@@ -788,7 +808,7 @@ def _build_server():
                 except Exception:
                     pass
 
-            if query and not dimensiones_ids:
+            if query and not dimensiones_ids and not relacionados_list:
                 try:
                     from core.pmi_semantico import _tokenizar
                     from core.stemmer_es import stem
@@ -1734,13 +1754,22 @@ def _build_server():
                 "Las páginas 2, 3, etc. siguen el mismo orden cronológico."
             )
         )] = "relevancia",
+        relacionados: Annotated[Optional[Union[List[str], str]], Field(
+            description=(
+                "ANCLAJES RELACIONALES DEL AGENTE (Corteza Prefrontal): "
+                "Lista de términos, conceptos o temas clave que el agente deduce "
+                "que están directamente relacionados con la intención del usuario. "
+                "Permite al motor navegar el grafo sináptico y las dimensiones cuando el usuario "
+                "se expresa con metáforas, deícticos ('eso que pasó') o lenguaje abstracto sin keywords directas."
+            )
+        )] = None,
     ) -> str:
         return _recordar_impl(
             query, deep, cat, completo, asociados, limite, preview_chars,
             context_window, forzar_rafaga, rafaga_palabras, pagina, parafrasis,
             dimensiones, dias, desde, hasta, autor, modo_estricto,
             buscar_por_rol=buscar_por_rol, usar_inferencia=usar_inferencia,
-            ordenar_por=ordenar_por,
+            ordenar_por=ordenar_por, relacionados=relacionados,
         )
 
     @mcp.tool(
@@ -1858,6 +1887,7 @@ def _build_server():
         dimensiones: Optional[Any] = None,
         predicados: Optional[Any] = None,
         valencia_somatica: Optional[float] = None,
+        relacionados: Optional[Union[List[str], str]] = None,
     ) -> str:
         clave = concepto.lower().replace(" ", "_")
 
@@ -1971,7 +2001,21 @@ def _build_server():
                 except (json.JSONDecodeError, TypeError):
                     predicados_list = None
 
-            cerebro.percibir_corto_plazo(clave, contenido, syn or "", categoria, dimensiones_dict, predicados=predicados_list, valencia_somatica=val_somatica)
+            # Procesar anclajes de relacion contextual aportados por la Corteza Prefrontal
+            rel_tokens = []
+            if relacionados:
+                if isinstance(relacionados, str):
+                    rel_tokens = [r.strip() for r in relacionados.split(",") if r.strip()]
+                elif isinstance(relacionados, list):
+                    rel_tokens = [str(r).strip() for r in relacionados if str(r).strip()]
+            
+            # Enriquecer los sinonimos con los terminos relacionados para forjar sinapsis asociativas
+            syn_completo = syn or ""
+            if rel_tokens:
+                rel_str = ", ".join(rel_tokens)
+                syn_completo = f"{syn_completo}, {rel_str}" if syn_completo else rel_str
+
+            cerebro.percibir_corto_plazo(clave, contenido, syn_completo, categoria, dimensiones_dict, predicados=predicados_list, valencia_somatica=val_somatica)
 
             enlaces = auto_vincular(cerebro, clave, contenido)
             sinapsis_count = len(enlaces)
@@ -2274,7 +2318,7 @@ def _build_server():
             )
         )] = None,
     ) -> str:
-        return _aprender_impl(concepto, contenido, bridges, syn=syn, cat=cat, dimensiones=dimensiones, predicados=predicados, valencia_somatica=valencia_somatica)
+        return _aprender_impl(concepto, contenido, bridges, syn=syn, cat=cat, dimensiones=dimensiones, predicados=predicados, valencia_somatica=valencia_somatica, relacionados=relacionados)
 
     @mcp.tool(
         name="guardar",
@@ -2308,6 +2352,15 @@ def _build_server():
         )] = None,
         valencia_somatica: Annotated[Optional[float], Field(
             description="Valencia emocional/somática (0.0 a 1.0)."
+        )] = None,
+        relacionados: Annotated[Optional[Union[List[str], str]], Field(
+            description=(
+                "ANCLAJES DE RELACIÓN CONTEXTUAL (Corteza Prefrontal): "
+                "Lista de terminos, conceptos o temas clave que contextualizan este recuerdo "
+                "(ej: para un bug de desarrollo: ['codigo', 'software', 'flujo', 'regresion']). "
+                "Permite diferenciar recuerdos con vocabulario similar pero en dominios distintos "
+                "y forja las sinapsis de rescate asociativo."
+            )
         )] = None,
         bridges: Annotated[Optional[Any], Field(
             description=(
