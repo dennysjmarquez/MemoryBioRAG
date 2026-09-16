@@ -11,6 +11,8 @@ from collections import deque
 
 logger = logging.getLogger("BioRAG.MemoryStore")
 
+from core.stemmer_es import _quitar_acentos
+
 # Auto-cargar .env.local al importar (antes de leer cualquier variable de entorno)
 from config import _load_env_local
 
@@ -265,6 +267,32 @@ def _qcr_todos_cercanos(q_tokens, text_target, dist_max=2, palabras_max=1500):
         if not ok:
             return False
     return True
+
+
+def normalizar_sustantivos_clave(raw: str) -> str:
+    """Normaliza sustantivos_clave: lowercase, quitar tildes, trim, dedup, colapsar comas.
+
+    RF-10 (spec 001): normaliza a minúsculas, elimina espacios alrededor de comas,
+    quita tildes (á→a, é→e, í→i, ó→o, ú→u) preservando la ñ. Colapsa comas
+    múltiples (',,' → ',') y auto-dedup preservando el orden de primera aparición.
+
+    Detalle empírico verificado (T1): `_quitar_acentos` de core/stemmer_es.py usa
+    unicodedata NFKD, que DESCOMPONE también la ñ (U+00F1 → n + U+0303 tilde comb.)
+    y la filtra. Para cumplir RF-10 ("preservando la ñ") se protege la ñ con un
+    marcador de control (\x01) antes de `_quitar_acentos` y se restaura después.
+    El marcador no es alfanumérico, así que jamás pasa la validación de formato (T3).
+    """
+    sk = [t.strip().lower() for t in raw.split(",") if t.strip()]
+    sk = [t.replace("ñ", "\x01") for t in sk]
+    sk = [_quitar_acentos(t).replace("\x01", "ñ") for t in sk]
+    seen = set()
+    unique = []
+    for t in sk:
+        if t not in seen:
+            seen.add(t)
+            unique.append(t)
+    return ",".join(unique)
+
 
 class SQLiteMemoryBioRAG:
     """
@@ -569,7 +597,8 @@ class SQLiteMemoryBioRAG:
                 contenido TEXT,
                 timestamp REAL,
                 sinonimos TEXT DEFAULT '',
-                categoria INTEGER DEFAULT 1
+                categoria INTEGER DEFAULT 1,
+                sustantivos_clave TEXT DEFAULT ''
             )
         """)
         # Migración: si categoria es TEXT, recrear con INTEGER
@@ -584,7 +613,8 @@ class SQLiteMemoryBioRAG:
                     contenido TEXT,
                     timestamp REAL,
                     sinonimos TEXT DEFAULT '',
-                    categoria INTEGER DEFAULT 1
+                    categoria INTEGER DEFAULT 1,
+                    sustantivos_clave TEXT DEFAULT ''
                 )
             """)
             self.cursor.execute("""
@@ -961,7 +991,7 @@ class SQLiteMemoryBioRAG:
         # v13: índices para queries rápidos por estado y fecha
         self.cursor.execute("CREATE INDEX IF NOT EXISTS idx_estado ON largo_plazo (estado)")
         self.cursor.execute("CREATE INDEX IF NOT EXISTS idx_creado_en ON largo_plazo (creado_en)")
-        # --- Migración v20.0 (Valencia Somática y Dopamina RPE) ---
+# --- Migración v20.0 (Valencia Somática y Dopamina RPE) ---
         self.cursor.execute("PRAGMA table_info(largo_plazo)")
         lp_cols_v20 = [row[1] for row in self.cursor.fetchall()]
         if 'valencia_somatica' not in lp_cols_v20:
@@ -970,11 +1000,18 @@ class SQLiteMemoryBioRAG:
             self.cursor.execute("ALTER TABLE largo_plazo ADD COLUMN exitos_dopamina INTEGER DEFAULT 0")
         if 'fallos_dopamina' not in lp_cols_v20:
             self.cursor.execute("ALTER TABLE largo_plazo ADD COLUMN fallos_dopamina INTEGER DEFAULT 0")
+        # v25: sustantivos_clave (T2 spec 001) — solo si falta; sin backfill (RF-15). ALTER condicional
+        # porque las recreaciones de largo_plazo (needs_recreate) pueden haberla descartado.
+        if 'sustantivos_clave' not in lp_cols_v20:
+            self.cursor.execute("ALTER TABLE largo_plazo ADD COLUMN sustantivos_clave TEXT DEFAULT ''")
 
         self.cursor.execute("PRAGMA table_info(corto_plazo)")
         cp_cols_v20 = [row[1] for row in self.cursor.fetchall()]
         if 'valencia_somatica' not in cp_cols_v20:
             self.cursor.execute("ALTER TABLE corto_plazo ADD COLUMN valencia_somatica REAL DEFAULT 0.0")
+        # v25: sustantivos_clave (T2 spec 001) — solo si falta; sin backfill (RF-15).
+        if 'sustantivos_clave' not in cp_cols_v20:
+            self.cursor.execute("ALTER TABLE corto_plazo ADD COLUMN sustantivos_clave TEXT DEFAULT ''")
 
         # --- Migración v24.2 (Cuarentena y Prioridad para arquitectura de memoria agente) ---
         self.cursor.execute("PRAGMA table_info(largo_plazo)")
@@ -1122,11 +1159,15 @@ class SQLiteMemoryBioRAG:
             self.cursor.execute("ALTER TABLE largo_plazo ADD COLUMN exitos_dopamina INTEGER DEFAULT 0")
         if 'fallos_dopamina' not in lp_cols_v20:
             self.cursor.execute("ALTER TABLE largo_plazo ADD COLUMN fallos_dopamina INTEGER DEFAULT 0")
+        if 'sustantivos_clave' not in lp_cols_v20:
+            self.cursor.execute("ALTER TABLE largo_plazo ADD COLUMN sustantivos_clave TEXT DEFAULT ''")
 
         self.cursor.execute("PRAGMA table_info(corto_plazo)")
         cp_cols_v20 = [row[1] for row in self.cursor.fetchall()]
         if 'valencia_somatica' not in cp_cols_v20:
             self.cursor.execute("ALTER TABLE corto_plazo ADD COLUMN valencia_somatica REAL DEFAULT 0.0")
+        if 'sustantivos_clave' not in cp_cols_v20:
+            self.cursor.execute("ALTER TABLE corto_plazo ADD COLUMN sustantivos_clave TEXT DEFAULT ''")
 
         # --- Migración v24.2 (Cuarentena y Prioridad para arquitectura de memoria agente) ---
         if 'fecha_expiracion' not in lp_cols_v20:
@@ -1255,6 +1296,10 @@ class SQLiteMemoryBioRAG:
             inicializar_tablas_lexicas(self)
         except Exception as _e_lex:
             logger.warning(f"No se pudieron inicializar tablas léxicas: {_e_lex}")
+
+        # v25: asegurar FTS con columna sustantivos_clave en DB existentes — idempotente,
+        # reconstruye solo si falta la 4ª columna (mismo check que en _crear_estructura_cerebral).
+        self._crear_tabla_fts()
 
         self.conn.commit()
 
@@ -1900,12 +1945,16 @@ class SQLiteMemoryBioRAG:
         print(f"[MemoryBioRAG] Evocado exitosamente '{key}' en {(fin - inicio) * 1000000:.2f} microsegundos.")
         return contenido
 
-    def percibir_corto_plazo(self, concepto, contenido, sinonimos="", categoria="General", dimensiones=None, predicados=None, valencia_somatica=0.0):
+    def percibir_corto_plazo(self, concepto, contenido, sinonimos="", categoria="General", dimensiones=None, predicados=None, valencia_somatica=0.0, sustantivos_clave=""):
         """Almacena temporalmente una percepción o hecho en la memoria de trabajo (Corto Plazo).
         Si el concepto ya existe en corto plazo, concatena contenido y mergea sinónimos.
         dimensiones: dict {tipo_nombre: [valores]} para indexación de 5 ejes.
         predicados: list[dict] con {sujeto, accion, objeto, contexto} para SRL v16.0.
-        valencia_somatica: float [0.0, 1.0] para marcadores somáticos (v20.0)."""
+        valencia_somatica: float [0.0, 1.0] para marcadores somáticos (v20.0).
+        sustantivos_clave: str (v25 spec 001) — centro de gravedad temático, ya normalizado por
+        la tool (aprender/guardar). Sobrescribe el valor previo (no merge): si el tema cambió,
+        los sustantivos se reemplazan (Decisión 2 del plan 001). Aditivo: default '' = nodos
+        legacy sin sustantivos, el comportamiento previo no cambia."""
         key = concepto.lower().strip()
         cat_id = self._resolver_categoria_id(categoria)
         
@@ -1926,9 +1975,9 @@ class SQLiteMemoryBioRAG:
             sinonimos_final = sinonimos
 
         self.cursor.execute("""
-            INSERT OR REPLACE INTO corto_plazo (concepto, contenido, timestamp, sinonimos, categoria, valencia_somatica)
-            VALUES (?, ?, ?, ?, ?, ?)
-        """, (key, contenido_final, time.time(), sinonimos_final, cat_id, float(valencia_somatica or 0.0)))
+            INSERT OR REPLACE INTO corto_plazo (concepto, contenido, timestamp, sinonimos, categoria, valencia_somatica, sustantivos_clave)
+            VALUES (?, ?, ?, ?, ?, ?, ?)
+        """, (key, contenido_final, time.time(), sinonimos_final, cat_id, float(valencia_somatica or 0.0), sustantivos_clave or ""))
 
         # SRL v16.0: Almacenar predicados en corto_plazo_predicados (se propagan al consolidar)
         if predicados:
@@ -2281,10 +2330,10 @@ class SQLiteMemoryBioRAG:
         acciones_ciclo = []
 
         # 1. Transferencia y Fusión de Corto a Largo Plazo
-        self.cursor.execute("SELECT concepto, contenido, sinonimos, categoria, COALESCE(valencia_somatica, 0.0) FROM corto_plazo")
+        self.cursor.execute("SELECT concepto, contenido, sinonimos, categoria, COALESCE(valencia_somatica, 0.0), COALESCE(sustantivos_clave, '') FROM corto_plazo")
         recuerdos_sesion = self.cursor.fetchall()
         
-        for concepto, contenido, sinonimos, cat_id, val_somatica in recuerdos_sesion:
+        for concepto, contenido, sinonimos, cat_id, val_somatica, sk_corto in recuerdos_sesion:
             existente = snapshot_inicial.get(concepto)
             
             # Si categoria es Principle o Protocol, forzar valencia_somatica = 1.0
@@ -2301,7 +2350,7 @@ class SQLiteMemoryBioRAG:
                 peso_anterior = existente['peso']
                 nuevo_peso = min(1.0, existente['peso'] + 0.20)
                 
-                self.cursor.execute("SELECT contenido, sinonimos, categoria, COALESCE(valencia_somatica, 0.0) FROM largo_plazo WHERE concepto = ?", (concepto,))
+                self.cursor.execute("SELECT contenido, sinonimos, categoria, COALESCE(valencia_somatica, 0.0), COALESCE(sustantivos_clave, '') FROM largo_plazo WHERE concepto = ?", (concepto,))
                 datos_actuales = self.cursor.fetchone()
                 nuevo_contenido = datos_actuales[0] + f" | Actualización: {contenido}"
                 sinonimos_exist = [s.strip() for s in (datos_actuales[1] or "").split(",") if s.strip()]
@@ -2309,12 +2358,15 @@ class SQLiteMemoryBioRAG:
                 sinonimos_final = ",".join(sinonimos_exist + sinonimos_nuevos)
                 cat_id = datos_actuales[2] or cat_id
                 val_final = max(datos_actuales[3], val_somatica)
+                # CL-6 (RF-6): sustantivos_clave del largo se sobrescribe SOLO si corto_plazo trae valor no vacío.
+                # Si corto_plazo viene vacío, se preserva el valor ya consolidado en largo_plazo (RF-15).
+                sk_final = (sk_corto or "").strip() if (sk_corto or "").strip() else (datos_actuales[4] or "")
                 
                 self.cursor.execute("""
                     UPDATE largo_plazo 
-                    SET contenido = ?, peso_sinaptico = ?, estado = 'activo', ultimo_acceso = ?, sinonimos = ?, categoria = ?, valencia_somatica = ?
+                    SET contenido = ?, peso_sinaptico = ?, estado = 'activo', ultimo_acceso = ?, sinonimos = ?, categoria = ?, valencia_somatica = ?, sustantivos_clave = ?
                     WHERE concepto = ?
-                """, (nuevo_contenido, nuevo_peso, time.time(), sinonimos_final, cat_id, val_final, concepto))
+                """, (nuevo_contenido, nuevo_peso, time.time(), sinonimos_final, cat_id, val_final, sk_final, concepto))
                 
                 acciones_ciclo.append({
                     'concepto': concepto, 'accion': 'actualizado',
@@ -2328,9 +2380,9 @@ class SQLiteMemoryBioRAG:
                 # Creación de un nuevo nodo en el grafo con peso inicial máximo
                 ahora = time.time()
                 self.cursor.execute("""
-                    INSERT INTO largo_plazo (concepto, categoria, contenido, peso_sinaptico, estado, asociaciones, ultimo_acceso, sinonimos, creado_en, valencia_somatica)
-                    VALUES (?, ?, ?, 1.0, 'activo', '', ?, ?, ?, ?)
-                """, (concepto, cat_id or 1, contenido, ahora, sinonimos or "", ahora, val_somatica))
+                    INSERT INTO largo_plazo (concepto, categoria, contenido, peso_sinaptico, estado, asociaciones, ultimo_acceso, sinonimos, creado_en, valencia_somatica, sustantivos_clave)
+                    VALUES (?, ?, ?, 1.0, 'activo', '', ?, ?, ?, ?, ?)
+                """, (concepto, cat_id or 1, contenido, ahora, sinonimos or "", ahora, val_somatica, (sk_corto or "").strip()))
                 
                 acciones_ciclo.append({
                     'concepto': concepto, 'accion': 'nuevo',
@@ -2361,11 +2413,11 @@ class SQLiteMemoryBioRAG:
 
         # Auto-vincular cada concepto consolidado (aristas por solapamiento de tokens)
         from core.sinapsis import auto_vincular
-        for concepto, contenido, _, _, _ in recuerdos_sesion:
+        for concepto, contenido, _, _, _, _ in recuerdos_sesion:
             auto_vincular(self, concepto, contenido)
 
         # Clasificación simbólica: WordNet lexnames para cada nodo consolidado
-        for concepto, contenido, sinonimos, _, _ in recuerdos_sesion:
+        for concepto, contenido, sinonimos, _, _, _ in recuerdos_sesion:
             self._clasificar_nodo_wordnet(concepto, contenido, sinonimos or "")
 
         # Fase 2: Auto-generar sinapsis por co-ocurrencia
@@ -3007,6 +3059,13 @@ class SQLiteMemoryBioRAG:
             except sqlite3.OperationalError:
                 fts_existe = False  # Rebuild needed
 
+        if fts_existe:
+            # v25: verificar columna sustantivos_clave (T2) — si falta, rebuild para agregar la 4ª columna
+            try:
+                self.cursor.execute("SELECT sustantivos_clave FROM largo_plazo_fts LIMIT 0")
+            except sqlite3.OperationalError:
+                fts_existe = False  # Rebuild needed
+
         if not fts_existe:
             # Drop existing FTS if any
             self.cursor.execute("DROP TABLE IF EXISTS largo_plazo_fts")
@@ -3020,6 +3079,7 @@ class SQLiteMemoryBioRAG:
                     concepto,
                     contenido,
                     sinonimos,
+                    sustantivos_clave,
                     tokenize='trigram'
                 )
             """)
@@ -3031,8 +3091,8 @@ class SQLiteMemoryBioRAG:
         self.cursor.execute("DROP TRIGGER IF EXISTS largo_plazo_au")
         self.cursor.execute("""
             CREATE TRIGGER largo_plazo_ai AFTER INSERT ON largo_plazo BEGIN
-                INSERT INTO largo_plazo_fts(rowid, concepto, contenido, sinonimos)
-                VALUES (new.rowid, new.concepto, new.contenido, new.sinonimos);
+                INSERT INTO largo_plazo_fts(rowid, concepto, contenido, sinonimos, sustantivos_clave)
+                VALUES (new.rowid, new.concepto, new.contenido, new.sinonimos, COALESCE(new.sustantivos_clave, ''));
             END
         """)
         self.cursor.execute("""
@@ -3070,8 +3130,8 @@ class SQLiteMemoryBioRAG:
         self.cursor.execute("""
             CREATE TRIGGER largo_plazo_au AFTER UPDATE ON largo_plazo BEGIN
                 DELETE FROM largo_plazo_fts WHERE rowid = old.rowid;
-                INSERT INTO largo_plazo_fts(rowid, concepto, contenido, sinonimos)
-                VALUES (new.rowid, new.concepto, new.contenido, new.sinonimos);
+                INSERT INTO largo_plazo_fts(rowid, concepto, contenido, sinonimos, sustantivos_clave)
+                VALUES (new.rowid, new.concepto, new.contenido, new.sinonimos, COALESCE(new.sustantivos_clave, ''));
             END
         """)
 
@@ -3173,20 +3233,21 @@ class SQLiteMemoryBioRAG:
         """)
 
     def _poblar_fts(self):
-        """Puebla la FTS desde datos existentes, incluyendo sinonimos."""
+        """Puebla la FTS desde datos existentes, incluyendo sinonimos y sustantivos_clave."""
         self.cursor.execute("SELECT COUNT(*) FROM largo_plazo_fts")
         if self.cursor.fetchone()[0] > 0:
             return
         try:
-            self.cursor.execute("SELECT rowid, concepto, contenido, sinonimos FROM largo_plazo")
+            self.cursor.execute("SELECT rowid, concepto, contenido, sinonimos, COALESCE(sustantivos_clave, '') FROM largo_plazo")
         except sqlite3.OperationalError:
-            self.cursor.execute("SELECT rowid, concepto, contenido, '' as sinonimos FROM largo_plazo")
+            self.cursor.execute("SELECT rowid, concepto, contenido, '' as sinonimos, '' as sustantivos_clave FROM largo_plazo")
         for row in self.cursor.fetchall():
             rowid, concepto, contenido = row[0], row[1], row[2]
             sinonimos = row[3] if len(row) > 3 else ""
+            sust_sk = row[4] if len(row) > 4 else ""
             self.cursor.execute(
-                "INSERT INTO largo_plazo_fts(rowid, concepto, contenido, sinonimos) VALUES (?, ?, ?, ?)",
-                (rowid, concepto or "", contenido or "", sinonimos or "")
+                "INSERT INTO largo_plazo_fts(rowid, concepto, contenido, sinonimos, sustantivos_clave) VALUES (?, ?, ?, ?, ?)",
+                (rowid, concepto or "", contenido or "", sinonimos or "", sust_sk or "")
             )
         self.conn.commit()
 
