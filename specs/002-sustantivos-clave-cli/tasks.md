@@ -64,9 +64,9 @@
 - **RF cubiertos**: RF-1 a RF-25, RND-1 a RND-3, CL-1 a CL-4
 - **Descripción**: Ejecutar la suite completa de integración `tests/test_biorag_cli.py` y verificar la suite global de tests unitarios y benchmarks oficiales para garantizar cero regresiones.
 - **Hecho cuando**:
-  - [ ] `pytest tests/test_biorag_cli.py` pasa al 100% con todos los casos de prueba de integración CLI.
-  - [ ] `pytest tests/ -v` pasa al 100% (221 tests existentes + nuevos tests CLI).
-- [ ] **Estado**: pendiente
+  - [x] `pytest tests/test_biorag_cli.py` pasa al 100% con todos los casos de prueba de integración CLI (42/42 tests en verde).
+  - [x] `pytest tests/ -v` pasa al 100% (263/263 tests en verde sin regresiones).
+- [x] **Estado**: hecha
 
 ---
 

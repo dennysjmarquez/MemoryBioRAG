@@ -456,4 +456,83 @@ class TestCmdVisibilidadYAyuda:
         assert "núcleo temático" in doc.lower() or "nucleo tematico" in doc.lower() or "trata" in doc.lower()
 
 
+# ─── T6: Integración E2E, casos límite y verificación global ────────────────
+
+class TestIntegracionCompletaYE2E:
+    """T6: Casos límite, flujo end-to-end y no regresión de comandos preexistentes."""
+
+    def test_cl1_sustantivos_con_espacios_y_tildes_normaliza_correctamente(self, cerebro_tmp, capsys):
+        """CL-1: Sustantivos con espacios alrededor de comas y tildes."""
+        rc = biorag.cmd_guardar(cerebro_tmp, [
+            "nodo_tildes", "Texto con términos acentuados.",
+            "--sustantivos-clave", "  energía  ,  física ,  código  "
+        ])
+        assert rc == 0
+        out = capsys.readouterr().out
+        assert "energia" in out
+        assert "fisica" in out
+        assert "codigo" in out
+
+    def test_cl4_sustantivos_sin_comillas_en_args(self, cerebro_tmp, capsys):
+        """CL-4: Sustantivos pasados como token único sin comillas."""
+        rc = biorag.cmd_guardar(cerebro_tmp, [
+            "nodo_sin_comillas", "Contenido sin comillas.",
+            "--sustantivos-clave", "token1,token2"
+        ])
+        assert rc == 0
+
+    def test_flujo_e2e_guardar_sueno_buscar_y_actualizar(self, cerebro_tmp, capsys):
+        """Flujo E2E completo: guardar -> sueno -> buscar -> actualizar sustantivos -> verificar."""
+        # 1. Guardar
+        rc1 = biorag.cmd_guardar(cerebro_tmp, [
+            "recuerdo_e2e", "BioRAG implementa memoria asociativa bio-inspirada.",
+            "--sustantivos-clave", "memoria,asociativa,grafo"
+        ])
+        assert rc1 == 0
+
+        # 2. Sueño
+        rc2 = biorag.cmd_sueno(cerebro_tmp, [])
+        assert rc2 == 0
+
+        # 3. Buscar con sesgo temático
+        rc3 = biorag.cmd_buscar(cerebro_tmp, ["memoria bio-inspirada", "--sustantivos-clave", "memoria,grafo", "--completo"])
+        out_buscar = capsys.readouterr().out
+        assert rc3 == 0
+        assert "recuerdo_e2e" in out_buscar
+        assert "Sustantivos clave:" in out_buscar
+
+        # 4. Consultar sustantivos
+        rc4 = biorag.cmd_sustantivos(cerebro_tmp, ["recuerdo_e2e"])
+        out_sust = capsys.readouterr().out
+        assert rc4 == 0
+        assert "memoria" in out_sust
+
+        # 5. Agregar/actualizar sustantivos
+        rc5 = biorag.cmd_agregar_sustantivos(cerebro_tmp, ["recuerdo_e2e", "sinapsis,plasticidad"])
+        assert rc5 == 0
+
+        # 6. Re-consultar sustantivos actualizados
+        rc6 = biorag.cmd_sustantivos(cerebro_tmp, ["recuerdo_e2e"])
+        out_sust2 = capsys.readouterr().out
+        assert rc6 == 0
+        assert "sinapsis" in out_sust2
+        assert "plasticidad" in out_sust2
+
+    def test_comandos_existentes_no_regresion(self, cerebro_tmp, capsys):
+        """RND-2: Comandos existentes (asociar, sueno, comunicar, leer_mensajes) funcionan sin alteración."""
+        # Asociar
+        rc_asoc = biorag.cmd_asociar(cerebro_tmp, ["concepto_a", "concepto_b"])
+        assert rc_asoc == 0
+
+        # Comunicar
+        with patch.dict(os.environ, {"AGENT_NAME": "artemis"}):
+            rc_com = biorag.cmd_comunicar(cerebro_tmp, ["hermes", "Mensaje de prueba inter-agente"])
+            assert rc_com == 0
+
+        # Leer mensajes
+        rc_leer = biorag.cmd_leer_mensajes(cerebro_tmp, ["--para", "hermes"])
+        assert rc_leer == 0
+
+
+
 
