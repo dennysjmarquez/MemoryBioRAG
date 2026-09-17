@@ -53,14 +53,14 @@
 - **RF cubiertos**: RF-16, RF-17
 - **Descripción**: Dos tools nuevas en `mcp_server.py`. Ambas buscan en largo_plazo con fallback a corto_plazo. `agregar_sustantivos` valida y actualiza (trigger `_au` sincroniza FTS5). `sustantivos` lee el campo.
 - **Hecho cuando**:
-  - [ ] `biorag_agregar_sustantivos(concepto="nodo_test", sustantivos_clave="a,b")` → `{"status":"ok","sustantivos_anteriores":"","sustantivos_nuevos":"a,b"}`
-  - [ ] `biorag_agregar_sustantivos(concepto="nodo_inexistente", ...)` → error `NODO_NO_ENCONTRADO`
-  - [ ] `biorag_agregar_sustantivos` con nodo que ya tiene campo → muestra `sustantivos_anteriores` vs `sustantivos_nuevos`
-  - [ ] `biorag_sustantivos(concepto="nodo_test")` → `{"status":"ok","sustantivos_clave":"a,b","items":["a","b"]}`
-  - [ ] `biorag_sustantivos(concepto="nodo_inexistente")` → error `NODO_NO_ENCONTRADO`
-  - [ ] `biorag_sustantivos` con nodo sin campo → `{"status":"ok","sustantivos_clave":"","items":[]}`
-  - [ ] Tests pasan en verde
-- [ ] **Estado**: pendiente
+  - [x] `biorag_agregar_sustantivos(concepto="nodo_test", sustantivos_clave="a,b")` → `{"status":"ok","sustantivos_anteriores":"","sustantivos_nuevos":"a,b"}`
+  - [x] `biorag_agregar_sustantivos(concepto="nodo_inexistente", ...)` → error `NODO_NO_ENCONTRADO`
+  - [x] `biorag_agregar_sustantivos` con nodo que ya tiene campo → muestra `sustantivos_anteriores` vs `sustantivos_nuevos`
+  - [x] `biorag_sustantivos(concepto="nodo_test")` → `{"status":"ok","sustantivos_clave":"a,b","items":["a","b"]}`
+  - [x] `biorag_sustantivos(concepto="nodo_inexistente")` → error `NODO_NO_ENCONTRADO`
+  - [x] `biorag_sustantivos` con nodo sin campo → `{"status":"ok","sustantivos_clave":"","items":[]}`
+  - [x] Tests pasan en verde (`tests/test_sustantivos_clave_tools.py` 9/9 PASSED; suite completa 201/201 PASSED en 69.91s)
+- [x] **Estado**: hecha — **2026-09-16**: `biorag_agregar_sustantivos` y `biorag_sustantivos` implementadas en `mcp_server.py` con validación completa (fail-fast, dedup, min/max 2-4 términos, formato), búsqueda en `largo_plazo` con fallback a `corto_plazo` y manejo transparente de triggers FTS5. Cobertura: 9 tests unitarios en verde, suite global 201/201 passed (0 regresiones).
 
 ---
 
