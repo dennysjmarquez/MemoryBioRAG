@@ -4834,7 +4834,7 @@ class SQLiteMemoryBioRAG:
             logger.warning("multihop: vecinos fallo (%s: %s)", type(e).__name__, e)
             return []
 
-    def buscar_por_frase(self, frase, profundidad="activos", pagina=1, limite=None, categoria=None, preview_chars=1500, historial_fallos=None, context_window=0, dimensiones_dict=None, dimensiones_ids=None, parafrasis_list=None, desde_ts=None, hasta_ts=None, modo_estricto=False, usar_inferencia=True, buscar_por_rol=None, ignore_peso_sinaptico=False, ordenar_por="relevancia", permitir_expansion_empate=False, expandir_episodio=False, analogia=False):
+    def buscar_por_frase(self, frase, profundidad="activos", pagina=1, limite=None, categoria=None, preview_chars=1500, historial_fallos=None, context_window=0, dimensiones_dict=None, dimensiones_ids=None, parafrasis_list=None, desde_ts=None, hasta_ts=None, modo_estricto=False, usar_inferencia=True, buscar_por_rol=None, ignore_peso_sinaptico=False, ordenar_por="relevancia", permitir_expansion_empate=False, expandir_episodio=False, analogia=False, sustantivos_clave_boost=None):
         """Busqueda hibrida: FTS5 trigram + peso sinaptico + asociaciones + scoring dimensional.
 
         frase: texto en lenguaje natural. Trigrams nativos de FTS5 manejan
@@ -5127,29 +5127,48 @@ class SQLiteMemoryBioRAG:
             """Apply _fts_safe_term to each whitespace-separated token in a phrase."""
             return " ".join(_fts_safe_term(t) for t in phrase.split())
 
+        # RF-18 (spec 001): simetría de acentos. FTS5 trigram es accent-SENSITIVE
+        # (verificado empíricamente: MATCH 'conexion' y 'conexión' no coinciden).
+        # Normalizamos la frase y las paráfrasis SOLO para construir el fts_match,
+        # de modo que una query con tilde matchee lo almacenado sin tilde (y viceversa).
+        # La frase original se conserva para los fallbacks LIKE y routers (no-regresión).
+        frase_fts = _quitar_acentos(frase) if frase else frase
+        parafrasis_fts = [_quitar_acentos(p) for p in parafrasis_list] if parafrasis_list else None
+
         # ponytail: no semantic expansion table — agent passes synonyms as parafrasis_list directly
         if modo_estricto:
-            if parafrasis_list:
-                fts_match = " OR ".join(f"({' AND '.join(_fts_safe_phrase(v).split())})" for v in [frase] + parafrasis_list)
-            elif len(frase.split()) > 1:
-                fts_match = " AND ".join(_fts_safe_phrase(frase).split())
+            if parafrasis_fts:
+                fts_match = " OR ".join(f"({' AND '.join(_fts_safe_phrase(v).split())})" for v in [frase_fts] + parafrasis_fts)
+            elif len(frase_fts.split()) > 1:
+                fts_match = " AND ".join(_fts_safe_phrase(frase_fts).split())
             else:
-                fts_match = _fts_safe_phrase(frase)
-        elif parafrasis_list:
-            fts_variantes = [f'"{_fts_safe_phrase(frase)}"'] + [f'"{_fts_safe_phrase(p)}"' for p in parafrasis_list]
+                fts_match = _fts_safe_phrase(frase_fts)
+        elif parafrasis_fts:
+            fts_variantes = [f'"{_fts_safe_phrase(frase_fts)}"'] + [f'"{_fts_safe_phrase(p)}"' for p in parafrasis_fts]
             fts_match = " OR ".join(fts_variantes)
-        elif len(frase.split()) > 1:
-            fts_match = " OR ".join(_fts_safe_phrase(frase).split())
+        elif len(frase_fts.split()) > 1:
+            fts_match = " OR ".join(_fts_safe_phrase(frase_fts).split())
         else:
-            fts_match = _fts_safe_phrase(frase)
+            fts_match = _fts_safe_phrase(frase_fts)
+
+        # RF-19 (spec 001): boost por sustantivos_clave — condición MATCH adicional en la
+        # columna dedicada (peso BM25 4.0x según RF-5). Solo en modo no estricto (path
+        # default): en estricto un OR debilitaría la semántica AND. Solo se construye cuando
+        # se provee, porque el FTS de snapshots legacy (3 columnas) no tiene la columna.
+        if sustantivos_clave_boost and not modo_estricto:
+            sk_tokens = [t for t in _quitar_acentos(str(sustantivos_clave_boost)).split(",") if t]
+            if sk_tokens:
+                sk_fts = " OR ".join(f'"{_fts_safe_term(t)}"' for t in sk_tokens)
+                boost_match = f"sustantivos_clave:({sk_fts})"
+                fts_match = f"({fts_match}) OR {boost_match}" if fts_match else boost_match
         sql = """
             SELECT l.rowid, l.concepto, l.contenido, l.peso_sinaptico,
                    l.estado, l.asociaciones,
-                   bm25(largo_plazo_fts, 5.0, 1.0, 2.0) AS bm25_val
+                   bm25(largo_plazo_fts, 5.0, 1.0, 2.0, 4.0) AS bm25_val
             FROM largo_plazo_fts f
             CROSS JOIN largo_plazo l ON l.rowid = f.rowid
             WHERE largo_plazo_fts MATCH ?{filtro}
-            ORDER BY bm25(largo_plazo_fts, 5.0, 1.0, 2.0) * (0.5 + 0.5 * l.peso_sinaptico)
+            ORDER BY bm25(largo_plazo_fts, 5.0, 1.0, 2.0, 4.0) * (0.5 + 0.5 * l.peso_sinaptico)
         """.format(filtro=clause)
 
         todos = []
@@ -5555,8 +5574,8 @@ class SQLiteMemoryBioRAG:
         if not modo_estricto and len(todos) < 3 and len(query) >= 2:
             limite_tiempo = time.time() - (7 * 86400)
             # sql_con_pc ya incluye el filtro PALABRA_COMPLETA — previene falsos positivos
-            sql_snap = sql_con_pc.replace("ORDER BY bm25(largo_plazo_fts, 5.0, 1.0, 2.0) * (0.5 + 0.5 * l.peso_sinaptico)",
-                                          "AND l.ultimo_acceso > ? ORDER BY bm25(largo_plazo_fts, 5.0, 1.0, 2.0) * (0.5 + 0.5 * l.peso_sinaptico) LIMIT 5")
+            sql_snap = sql_con_pc.replace("ORDER BY bm25(largo_plazo_fts, 5.0, 1.0, 2.0, 4.0) * (0.5 + 0.5 * l.peso_sinaptico)",
+                                          "AND l.ultimo_acceso > ? ORDER BY bm25(largo_plazo_fts, 5.0, 1.0, 2.0, 4.0) * (0.5 + 0.5 * l.peso_sinaptico) LIMIT 5")
             try:
                 self.cursor.execute(sql_snap, (query,) + tuple(temporal_params) + tuple(pc_params) + (limite_tiempo,))
                 snap_r = self.cursor.fetchall()
@@ -6654,6 +6673,9 @@ class SQLiteMemoryBioRAG:
         # Solo aplica a resultados de capas literales (AND/OR/NEAR/unicode/snap/substring).
         # Resultados de capas no literales se preservan para no romper tolerancia a typos,
         # búsqueda semántica/conceptual, ni el fallback simbólico (que normaliza acentos).
+        # RF-19 (spec 001): incluye la columna sustantivos_clave — un nodo boosteado por esa
+        # columna dedicada (match en FTS con peso BM25 4.0x) no debe ser descartado aquí por no
+        # ser prefijo del contenido/concepto/sinónimos.
         _ORIGENES_NO_LITERALES = {"typo", "expansion", "latente", "cadena", "simbolico", "dimensional_fallback", "semantica", "unicode", "lexico_aprendido", "sdm"}
         query_words = re.findall(r'\w{3,}', query.lower())
         if len(query_words) == 1 and resultados_con_hibrido:
@@ -6668,9 +6690,10 @@ class SQLiteMemoryBioRAG:
                 placeholders = ",".join("?" * len(conceptos_literal))
                 self.cursor.execute(
                     f"SELECT concepto FROM largo_plazo WHERE "
-                    f"(PALABRA_PREFIJO(?, concepto) = 1 OR PALABRA_PREFIJO(?, contenido) = 1 OR PALABRA_PREFIJO(?, COALESCE(sinonimos, '')) = 1) "
+                    f"(PALABRA_PREFIJO(?, concepto) = 1 OR PALABRA_PREFIJO(?, contenido) = 1 OR PALABRA_PREFIJO(?, COALESCE(sinonimos, '')) = 1 "
+                    f"OR PALABRA_PREFIJO(?, COALESCE(sustantivos_clave, '')) = 1) "
                     f"AND concepto IN ({placeholders})",
-                    (token, token, token) + tuple(conceptos_literal)
+                    (token, token, token, token) + tuple(conceptos_literal)
                 )
                 validos = {row[0] for row in self.cursor.fetchall()}
                 resultados_con_hibrido = [r for r in literal_results if r[0] in validos] + non_literal_results
@@ -7108,7 +7131,7 @@ class SQLiteMemoryBioRAG:
             self.cursor.execute(
                 "SELECT l.rowid, l.concepto, l.contenido, l.peso_sinaptico, "
                 "l.estado, l.asociaciones, "
-                "bm25(largo_plazo_fts, 5.0, 1.0, 2.0) AS bm25_val "
+                "bm25(largo_plazo_fts, 5.0, 1.0, 2.0, 4.0) AS bm25_val "
                 "FROM largo_plazo_fts f CROSS JOIN largo_plazo l ON l.rowid = f.rowid "
                 "WHERE largo_plazo_fts MATCH ? AND l.estado = 'activo' "
                 + pc_rafaga_clause + " LIMIT ?",
@@ -7135,7 +7158,7 @@ class SQLiteMemoryBioRAG:
             self.cursor.execute(
                 "SELECT l.rowid, l.concepto, l.contenido, l.peso_sinaptico, "
                 "l.estado, l.asociaciones, "
-                "bm25(largo_plazo_fts, 5.0, 1.0, 2.0) AS bm25_val "
+                "bm25(largo_plazo_fts, 5.0, 1.0, 2.0, 4.0) AS bm25_val "
                 "FROM largo_plazo_fts f CROSS JOIN largo_plazo l ON l.rowid = f.rowid "
                 "WHERE largo_plazo_fts MATCH ? AND l.estado = 'dormido' "
                 + pc_rafaga_clause + " LIMIT ?",
@@ -7538,11 +7561,11 @@ class SQLiteMemoryBioRAG:
         self.cursor.execute(
             """
             SELECT l.concepto, l.contenido, l.peso_sinaptico,
-                   bm25(largo_plazo_fts, 5.0, 1.0, 2.0) AS bm25_val
+                   bm25(largo_plazo_fts, 5.0, 1.0, 2.0, 4.0) AS bm25_val
             FROM largo_plazo_fts f
             CROSS JOIN largo_plazo l ON l.rowid = f.rowid
             WHERE largo_plazo_fts MATCH ? AND l.estado = 'cuarentena'
-            ORDER BY bm25(largo_plazo_fts, 5.0, 1.0, 2.0)
+            ORDER BY bm25(largo_plazo_fts, 5.0, 1.0, 2.0, 4.0)
             LIMIT ?
             """,
             (fts_match, limite)

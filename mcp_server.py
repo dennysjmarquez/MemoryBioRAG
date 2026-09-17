@@ -589,6 +589,7 @@ def _build_server():
         usar_inferencia: bool = True,
         ordenar_por: str = "relevancia",
         asociaciones_max: Optional[int] = None,
+        sustantivos_clave: Optional[str] = None,
     ) -> str:
         if limite is None:
             limite = LIMITE_MCP
@@ -632,6 +633,35 @@ def _build_server():
                 rafaga_palabras = rafaga_palabras[:500]
             partes = rafaga_palabras.split(",")
             rafaga_palabras = ",".join([_sanitizar_string(p.strip()) for p in partes if p.strip()])
+
+        # ── RF-20 (spec 001): validación de sustantivos_clave en recordar ──
+        # Opcional. None o vacío = búsqueda normal sin boost (RF-19). Si se provee,
+        # se normaliza igual que en aprender/guardar y se valida el FORMATO por término
+        # (2-15 chars, sin espacios, solo alfanuméricos + guion bajo). NO se valida
+        # cantidad (eso solo aplica al guardar). Si un término es inválido → error
+        # accionable y la búsqueda NO se ejecuta (early return, fail-fast).
+        sustantivos_clave_norm = None
+        if sustantivos_clave is not None:
+            sk_raw = str(sustantivos_clave).strip()
+            if sk_raw != "":
+                from core.memory_store import normalizar_sustantivos_clave
+                sustantivos_clave_norm = normalizar_sustantivos_clave(sk_raw)
+                sk_unicos = [t for t in sustantivos_clave_norm.split(",") if t] if sustantivos_clave_norm else []
+                for _sk_term in sk_unicos:
+                    if not re.fullmatch(r"[a-z0-9_ñ]{2,15}", _sk_term):
+                        return json.dumps({
+                            "status": "error",
+                            "codigo": "SUSTANTIVOS_CLAVE_FORMATO_INVALIDO",
+                            "mensaje": (
+                                f"❌ SUSTANTIVOS_CLAVE_FORMATO_INVALIDO — búsqueda NO ejecutada.\n\n"
+                                f"SUSTANTIVOS_CLAVE_FORMATO_INVALIDO: el término '{_sk_term}' no cumple "
+                                "(2-15 chars, sin espacios, solo alfanuméricos y guion bajo)."
+                            ),
+                            "parametro": "sustantivos_clave",
+                            "termino_invalido": _sk_term,
+                        }, ensure_ascii=False)
+                if not sk_unicos:
+                    sustantivos_clave_norm = None
 
         # Validaciones de tipos y rangos numéricos
         if not isinstance(pagina, int):
@@ -857,6 +887,7 @@ def _build_server():
                     modo_estricto=modo_estricto,
                     usar_inferencia=usar_inferencia,
                     ordenar_por=ordenar_por,
+                    sustantivos_clave_boost=sustantivos_clave_norm,
                 )
             score_top = resultados[0][4] if resultados else 0
 
@@ -1734,13 +1765,24 @@ def _build_server():
                 "Las páginas 2, 3, etc. siguen el mismo orden cronológico."
             )
         )] = "relevancia",
+        sustantivos_clave: Annotated[Optional[str], Field(
+            description=(
+                "(!) Opcional — sustantivos clave para boost de precisión (RF-19, spec 001).\n"
+                "Si se provee (separados por coma), la búsqueda prioriza nodos que matchean esos "
+                "términos en su columna 'sustantivos_clave' — por lo que TRATAN, no solo por lo que MENCIONAN.\n"
+                "None o '' = búsqueda normal sin boost.\n"
+                "Formato por término: 2-15 chars, sin espacios, solo alfanuméricos y guion bajo. "
+                "Si algún término no cumple → error y la búsqueda NO se ejecuta.\n"
+                "Ejemplo: query='timeout', sustantivos_clave='servidor,conexion'."
+            )
+        )] = None,
     ) -> str:
         return _recordar_impl(
             query, deep, cat, completo, asociados, limite, preview_chars,
             context_window, forzar_rafaga, rafaga_palabras, pagina, parafrasis,
             dimensiones, dias, desde, hasta, autor, modo_estricto,
             buscar_por_rol=buscar_por_rol, usar_inferencia=usar_inferencia,
-            ordenar_por=ordenar_por,
+            ordenar_por=ordenar_por, sustantivos_clave=sustantivos_clave,
         )
 
     @mcp.tool(

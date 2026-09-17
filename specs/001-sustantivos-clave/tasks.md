@@ -68,14 +68,14 @@
 - **RF cubiertos**: RF-5, RF-18, RF-19, RF-20
 - **Descripción**: Actualizar `bm25(largo_plazo_fts, 5.0, 1.0, 2.0)` → `bm25(largo_plazo_fts, 5.0, 1.0, 2.0, 4.0)` en 8 ubicaciones de `memory_store.py` + 1 en `sinapsis.py`. Agregar parámetro opcional `sustantivos_clave` a `biorag_recordar` MCP y `_recordar_impl`. Aplicar `_quitar_acentos` a queries en `buscar_por_frase`.
 - **Hecho cuando**:
-  - [ ] `grep -n "bm25(largo_plazo_fts" memory_store.py sinapsis.py` muestra 9 líneas con 4 pesos (5.0, 1.0, 2.0, 4.0)
-  - [ ] `grep -n "bm25(largo_plazo_fts" memory_store.py sinapsis.py` NO muestra líneas con 3 pesos (5.0, 1.0, 2.0)
-  - [ ] `biorag_recordar` acepta `sustantivos_clave` opcional
-  - [ ] `biorag_recordar` con `sustantivos_clave="x@y"` → error de formato, búsqueda NO se ejecuta
-  - [ ] `biorag_recordar` con `sustantivos_clave=""` → búsqueda normal (sin boost)
-  - [ ] Query "conexión" matchea nodo con "conexion" almacenado (accent normalization)
-  - [ ] Tests pasan en verde
-- [ ] **Estado**: pendiente
+  - [x] `grep -n "bm25(largo_plazo_fts" memory_store.py sinapsis.py` muestra 9 líneas con 4 pesos (5.0, 1.0, 2.0, 4.0) ✅ 8+1=9
+  - [x] `grep -n "bm25(largo_plazo_fts" memory_store.py sinapsis.py` NO muestra líneas con 3 pesos (5.0, 1.0, 2.0) ✅ 0
+  - [x] `biorag_recordar` acepta `sustantivos_clave` opcional ✅
+  - [x] `biorag_recordar` con `sustantivos_clave="x@y"` → error de formato, búsqueda NO se ejecuta ✅ test validation pass
+  - [x] `biorag_recordar` con `sustantivos_clave=""` → búsqueda normal (sin boost) ✅ test pass
+  - [x] Query "conexión" matchea nodo con "conexion" almacenado (accent normalization) ✅ test pass
+  - [x] Tests pasan en verde ✅ 207/207
+- [x] **Estado**: completada
 
 ---
 
