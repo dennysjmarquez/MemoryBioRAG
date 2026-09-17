@@ -39,12 +39,12 @@
 - **RF cubiertos**: RF-14, RF-15, RF-16
 - **Descripción**: Actualizar `cmd_buscar` en `biorag.py` para aceptar `--sustantivos-clave` (alias `--sustantivos`), pasar los términos a `cerebro.buscar_por_frase`, mostrar la línea de núcleo temático en `--completo`/`--asociados`, sugerir el flag si no hay resultados, y enriquecer `cmd_familiaridad` para escanear `sustantivos_clave`.
 - **Hecho cuando**:
-  - [ ] `biorag.py buscar "query" --sustantivos-clave "s1,s2"` ejecuta la búsqueda filtrando/sesgando por núcleo temático.
-  - [ ] `biorag.py buscar ... --completo` imprime los sustantivos clave de cada resultado devuelto.
-  - [ ] Búsquedas sin resultados muestran el tip pedagógico de refinamiento con `--sustantivos-clave`.
-  - [ ] `cmd_familiaridad` detecta coincidencias sobre `sustantivos_clave`.
-  - [ ] `pytest tests/test_biorag_cli.py -k "buscar"` pasa en verde.
-- [ ] **Estado**: pendiente
+  - [x] `biorag.py buscar "query" --sustantivos-clave "s1,s2"` ejecuta la búsqueda filtrando/sesgando por núcleo temático.
+  - [x] `biorag.py buscar ... --completo` imprime los sustantivos clave de cada resultado devuelto.
+  - [x] Búsquedas sin resultados muestran el tip pedagógico de refinamiento con `--sustantivos-clave`.
+  - [x] `cmd_familiaridad` detecta coincidencias sobre `sustantivos_clave`.
+  - [x] `pytest tests/test_biorag_cli.py -k "buscar"` pasa en verde.
+- [x] **Estado**: hecha
 
 ---
 

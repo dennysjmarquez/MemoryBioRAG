@@ -307,3 +307,92 @@ class TestCmdAgregarSustantivos:
         assert hasattr(biorag, "cmd_sustantivos")
         assert hasattr(biorag, "cmd_agregar_sustantivos")
 
+
+# ─── T4: cmd_buscar y cmd_familiaridad ───────────────────────────────────────
+
+class TestCmdBuscar:
+    """T4: Pruebas para cmd_buscar con --sustantivos-clave y detalles enriquecidos."""
+
+    def test_buscar_con_flag_sustantivos_clave_sesga_busqueda(self, cerebro_tmp, capsys):
+        """RF-14: Búsqueda con --sustantivos-clave."""
+        # Insertar dos nodos: uno con sustantivos clave específicos
+        cerebro_tmp.cursor.execute(
+            "INSERT INTO largo_plazo (concepto, contenido, categoria, estado, peso_sinaptico, sustantivos_clave) "
+            "VALUES ('red_convolucional', 'CNN para procesamiento de imagenes y vision artificial.', 1, 'activo', 1.0, 'vision,imagen,cnn')"
+        )
+        cerebro_tmp.conn.commit()
+        cerebro_tmp._poblar_fts()
+
+        rc = biorag.cmd_buscar(cerebro_tmp, ["vision artificial", "--sustantivos-clave", "vision,cnn"])
+        out = capsys.readouterr().out
+        assert rc == 0
+        assert "red_convolucional" in out
+
+    def test_buscar_con_alias_sustantivos(self, cerebro_tmp, capsys):
+        """RF-1: Búsqueda con alias --sustantivos."""
+        cerebro_tmp.cursor.execute(
+            "INSERT INTO largo_plazo (concepto, contenido, categoria, estado, peso_sinaptico, sustantivos_clave) "
+            "VALUES ('banco_memoria', 'Estructura de almacenamiento de patrones.', 1, 'activo', 1.0, 'memoria,patron')"
+        )
+        cerebro_tmp.conn.commit()
+        cerebro_tmp._poblar_fts()
+
+        rc = biorag.cmd_buscar(cerebro_tmp, ["patrones", "--sustantivos", "memoria,patron"])
+        out = capsys.readouterr().out
+        assert rc == 0
+        assert "banco_memoria" in out
+
+    def test_buscar_completo_muestra_sustantivos_clave(self, cerebro_tmp, capsys):
+        """RF-15: --completo muestra la línea de sustantivos clave."""
+        cerebro_tmp.cursor.execute(
+            "INSERT INTO largo_plazo (concepto, contenido, categoria, estado, peso_sinaptico, sustantivos_clave) "
+            "VALUES ('nodo_detalle', 'Contenido completo para inspeccionar.', 1, 'activo', 1.0, 'detalle,inspeccion')"
+        )
+        cerebro_tmp.conn.commit()
+        cerebro_tmp._poblar_fts()
+
+        rc = biorag.cmd_buscar(cerebro_tmp, ["inspeccionar", "--completo"])
+        out = capsys.readouterr().out
+        assert rc == 0
+        assert "Sustantivos clave:" in out
+        assert "detalle" in out
+
+    def test_buscar_asociados_muestra_sustantivos_clave(self, cerebro_tmp, capsys):
+        """RF-15: --asociados muestra la línea de sustantivos clave."""
+        cerebro_tmp.cursor.execute(
+            "INSERT INTO largo_plazo (concepto, contenido, categoria, estado, peso_sinaptico, sustantivos_clave, asociaciones) "
+            "VALUES ('nodo_asoc', 'Contenido con asociaciones.', 1, 'activo', 1.0, 'grafo,enlace', 'otro_nodo')"
+        )
+        cerebro_tmp.conn.commit()
+        cerebro_tmp._poblar_fts()
+
+        rc = biorag.cmd_buscar(cerebro_tmp, ["asociaciones", "--asociados"])
+        out = capsys.readouterr().out
+        assert rc == 0
+        assert "Sustantivos clave:" in out or "grafo" in out
+
+    def test_buscar_sin_resultados_muestra_sugerencia_pedagogica(self, cerebro_tmp, capsys):
+        """RF-16: Búsqueda sin resultados muestra sugerencia con --sustantivos-clave."""
+        rc = biorag.cmd_buscar(cerebro_tmp, ["termino_totalmente_inexistente_xyz_123"])
+        out = capsys.readouterr().out
+        assert rc == 1
+        assert "--sustantivos-clave" in out or "núcleo temático" in out.lower() or "nucleo tematico" in out.lower()
+
+
+class TestCmdFamiliaridad:
+    """T4: Pruebas para familiaridad sobre sustantivos_clave."""
+
+    def test_familiaridad_detecta_coincidencia_en_sustantivos_clave(self, cerebro_tmp, capsys):
+        """Familiaridad detecta conceptos basándose en sustantivos_clave."""
+        cerebro_tmp.cursor.execute(
+            "INSERT INTO largo_plazo (concepto, contenido, categoria, estado, peso_sinaptico, sustantivos_clave) "
+            "VALUES ('algoritmo_dijkstra', 'Calculo de rutas optimas en grafos dirigidos.', 1, 'activo', 1.0, 'camino_corto,grafo,peso')"
+        )
+        cerebro_tmp.conn.commit()
+
+        rc = biorag.cmd_familiaridad(cerebro_tmp, ["necesito", "analizar", "camino_corto"])
+        out = capsys.readouterr().out
+        assert rc == 0
+        assert "algoritmo_dijkstra" in out
+
+

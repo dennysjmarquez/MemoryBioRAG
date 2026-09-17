@@ -320,6 +320,19 @@ def cmd_buscar(cerebro, args):
     asociados = False
     frase = False
 
+    # Extraer --sustantivos-clave / --sustantivos
+    sustantivos_boost = None
+    try:
+        raw_sustantivos, args = _extraer_flag_valor(
+            args, ["--sustantivos-clave", "--sustantivos"], default=""
+        )
+        if raw_sustantivos:
+            from core.memory_store import normalizar_sustantivos_clave
+            sustantivos_boost = normalizar_sustantivos_clave(raw_sustantivos)
+    except ValueError as e:
+        print(f"Error en flag de sustantivos: {e}")
+        return 1
+
     if "--deep" in args:
         deep = True
         args = [a for a in args if a != "--deep"]
@@ -382,10 +395,23 @@ def cmd_buscar(cerebro, args):
     concepto = " ".join(args)
 
     def _mostrar_resultados(resultados, total, subtitulo=""):
-        """Helper para display de resultados con --asociados.
+        """Helper para display de resultados con --asociados y sustantivos clave.
         El truncado se maneja a nivel del motor (preview_chars en buscar_por_frase)."""
         if not resultados:
             return
+
+        susts_map = {}
+        if resultados:
+            nombres = [r[0] for r in resultados]
+            placeholders = ",".join("?" * len(nombres))
+            cerebro.cursor.execute(
+                f"SELECT concepto, COALESCE(sustantivos_clave, '') FROM largo_plazo WHERE concepto IN ({placeholders})",
+                nombres
+            )
+            for c_nombre, sk in cerebro.cursor.fetchall():
+                if sk and sk.strip():
+                    susts_map[c_nombre] = sk
+
         total_paginas = max(1, (total + 2) // 3) if total > 0 else 1
         print(f"[MemoryBioRAG] {total} coincidencias encontradas (pagina {pagina}/{total_paginas})")
         if subtitulo:
@@ -394,6 +420,10 @@ def cmd_buscar(cerebro, args):
         for i, (nombre, contenido, peso, estado, score, asociaciones) in enumerate(resultados, 1):
             print(f"\n--- #{i}: {nombre} (peso:{peso:.2f}, estado:{estado}, score:{score:.2f}) ---")
             print(contenido or "")
+            if nombre in susts_map and (completo or asociados):
+                sk_items = [s.strip() for s in susts_map[nombre].split(",") if s.strip()]
+                if sk_items:
+                    print(f"     Sustantivos clave: {', '.join(sk_items)}")
             if asociados and asociaciones:
                 vecinos = [v.strip() for v in asociaciones.split(",") if v.strip()]
                 if vecinos:
@@ -405,9 +435,14 @@ def cmd_buscar(cerebro, args):
     if frase:
         preview = 0 if completo else None
         profundidad = "profundo" if deep else "activos"
-        resultados, total = cerebro.buscar_por_frase(concepto, profundidad=profundidad, pagina=pagina, categoria=filtro_cat, preview_chars=preview)
+        resultados, total = cerebro.buscar_por_frase(
+            concepto, profundidad=profundidad, pagina=pagina,
+            categoria=filtro_cat, preview_chars=preview,
+            sustantivos_clave_boost=sustantivos_boost
+        )
         if not resultados:
             print(f"No se encontraron coincidencias para la frase.")
+            print("\n💡 Sugerencia: Puedes refinar la búsqueda especificando su núcleo temático con --sustantivos-clave \"termino1,termino2\"")
             return 1
         subt = f"frase: {concepto[:60]}"
         if filtro_cat:
@@ -420,6 +455,7 @@ def cmd_buscar(cerebro, args):
         resultados, total = cerebro.buscar_por_tokens(tokens, modo=modo, profundidad=profundidad, pagina=pagina)
         if not resultados:
             print(f"No se encontraron coincidencias para los tokens especificados.")
+            print("\n💡 Sugerencia: Puedes refinar la búsqueda especificando su núcleo temático con --sustantivos-clave \"termino1,termino2\"")
             return 1
         _mostrar_resultados(resultados, total, "tokens: " + ",".join(tokens))
         return 0
@@ -427,9 +463,14 @@ def cmd_buscar(cerebro, args):
     if todos:
         preview = 0 if completo else None
         profundidad = "profundo" if deep else "activos"
-        resultados, total = cerebro.buscar_por_frase(concepto, profundidad=profundidad, pagina=pagina, limite=100, categoria=filtro_cat, preview_chars=preview)
+        resultados, total = cerebro.buscar_por_frase(
+            concepto, profundidad=profundidad, pagina=pagina, limite=100,
+            categoria=filtro_cat, preview_chars=preview,
+            sustantivos_clave_boost=sustantivos_boost
+        )
         if not resultados:
             print(f"No se encontro '{concepto}' en la corteza.")
+            print("\n💡 Sugerencia: Puedes refinar la búsqueda especificando su núcleo temático con --sustantivos-clave \"termino1,termino2\"")
             return 1
         subt = f"todos los resultados ({profundidad})"
         if filtro_cat:
@@ -448,6 +489,7 @@ def cmd_buscar(cerebro, args):
             print(resultado[:1500] + ("..." if len(resultado) > 1500 else ""))
         return 0
     print(f"No se encontro '{concepto}' en la corteza.")
+    print("\n💡 Sugerencia: Puedes refinar la búsqueda especificando su núcleo temático con --sustantivos-clave \"termino1,termino2\"")
     return 1
 
 

@@ -12,11 +12,11 @@ def escanear_familiaridad(user_input, cerebro):
     tokens = set(re.findall(r'\b\w{3,}\b', user_input.lower()))
     conceptos_familiares = []
 
-    # Cargar todos los conceptos activos de largo plazo con su contenido
-    cerebro.cursor.execute("SELECT concepto, contenido FROM largo_plazo WHERE estado = 'activo'")
+    # Cargar todos los conceptos activos de largo plazo con su contenido y sustantivos_clave
+    cerebro.cursor.execute("SELECT concepto, contenido, COALESCE(sustantivos_clave, '') FROM largo_plazo WHERE estado = 'activo'")
     nodos_activos = cerebro.cursor.fetchall()
 
-    for nodo, contenido in nodos_activos:
+    for nodo, contenido, sustantivos_clave in nodos_activos:
         # 1. Coincidencia exacta de token completo en clave
         if nodo in tokens:
             conceptos_familiares.append(nodo)
@@ -35,11 +35,23 @@ def escanear_familiaridad(user_input, cerebro):
             continue
 
         # 3. Buscar tokens en el contenido
-        contenido_lower = contenido.lower()
+        contenido_lower = (contenido or "").lower()
         for token in tokens:
             if token in contenido_lower:
                 conceptos_familiares.append(nodo)
+                encontrado = True
                 break
+
+        if encontrado:
+            continue
+
+        # 4. Buscar tokens en sustantivos_clave
+        if sustantivos_clave:
+            sk_tokens = [s.strip().lower() for s in sustantivos_clave.split(",") if s.strip()]
+            for token in tokens:
+                if token in sk_tokens:
+                    conceptos_familiares.append(nodo)
+                    break
 
     return list(set(conceptos_familiares))
 
