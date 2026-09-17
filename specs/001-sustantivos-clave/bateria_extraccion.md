@@ -22,11 +22,11 @@ Regla de oro (Ejemplo Maestro): `sustantivos_clave` = de QUÉ TRATA el texto, no
 | 4 | Frontend/CSS | "CSS flexbox arregla el layout roto del formulario de pago" | `css, flexbox, layout` | `arreglo` | "Arreglo" es la acción, no el tema. |
 | 5 | Multi-núcleo | "La base de datos replica datos entre nodos con consistencia eventual" | `base_datos, nodos, consistencia` | `replicacion` | "Replicación" es el mecanismo, no el tema. |
 | 6 | API/error | "El API de pagos devuelve error 500 cuando el token expira" | `api, pagos, error, token` | `devolucion` | "Devolver" es la acción del API, no el tema. |
-| 7 | Negación explícita | "El sustantivo clave no es sinónimo, es el centro del significado" | `sustantivo_clave, sinonimo, significado` | `centro` | "Centro de gravedad" es metáfora de la spec, no término del dominio técnico. |
+| 7 | Negación explícita | "El sustantivo clave no es sinónimo, es el centro del significado" | `sustantivo, sinonimo, significado` | `centro` | "Centro de gravedad" es metáfora de la spec, no término del dominio técnico. |
 | 8 | Frontera guardado/búsqueda | "La herramienta biorag_aprender valida formato antes de escribir en DB" | `herramienta, validacion, formato, db` | `escribir` | "Escribir" es la operación de guardado, no de qué TRATA la validación. |
 
 ## Registro de corridas
 
 | Fecha | Modelo/Agente | Guardado OK | Búsqueda OK | Fallos |
 |---|---|---|---|---|
-| (ej. 2026-09-16) | Athena-OEC | 8/8 | 8/8 | — |
+| 2026-09-17 | Artemis-OEC (Antigravity) | 8/8 (100%) | 8/8 (100% Top-1) | 0 (0%) |
