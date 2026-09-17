@@ -639,6 +639,7 @@ class SQLiteMemoryBioRAG:
                 ultimo_acceso REAL,
                 sinonimos TEXT DEFAULT '',
                 creado_en REAL DEFAULT 0,
+                sustantivos_clave TEXT DEFAULT '',
                 FOREIGN KEY (categoria) REFERENCES categories(id)
             )
         """)
@@ -5127,13 +5128,17 @@ class SQLiteMemoryBioRAG:
             """Apply _fts_safe_term to each whitespace-separated token in a phrase."""
             return " ".join(_fts_safe_term(t) for t in phrase.split())
 
-        # RF-18 (spec 001): simetría de acentos. FTS5 trigram es accent-SENSITIVE
-        # (verificado empíricamente: MATCH 'conexion' y 'conexión' no coinciden).
-        # Normalizamos la frase y las paráfrasis SOLO para construir el fts_match,
-        # de modo que una query con tilde matchee lo almacenado sin tilde (y viceversa).
-        # La frase original se conserva para los fallbacks LIKE y routers (no-regresión).
-        frase_fts = _quitar_acentos(frase) if frase else frase
-        parafrasis_fts = [_quitar_acentos(p) for p in parafrasis_list] if parafrasis_list else None
+        # RF-18 (spec 001): simetría de acentos con la columna sustantivos_clave.
+        # Evidencia empírica T7 (2026-09-17): FTS5 trigram es accent-SENSITIVE en
+        # ambos lados; el contenido/concepto/sinónimos del corpus conserva tildes
+        # originales. Normalizar la query general aquí ROMPE el matching contra ese
+        # contenido (MATCH 'metodologia' -> 0 hits vs contenido "metodología"), lo que
+        # regresionó por_tema en evaluar_qa (89.23% -> 81.54%). La simetría real se
+        # resuelve SOLO en el boost de sustantivos_clave (columna que siempre se
+        # almacena sin tildes) — ver bloque RF-19 abajo. La query principal se envía
+        # tal cual al fts_match.
+        frase_fts = frase
+        parafrasis_fts = parafrasis_list
 
         # ponytail: no semantic expansion table — agent passes synonyms as parafrasis_list directly
         if modo_estricto:

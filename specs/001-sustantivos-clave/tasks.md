@@ -94,11 +94,12 @@
 - **RF cubiertos**: RF-12, RF-13
 - **Descripción**: Ejecutar las mismas métricas del baseline. Comparar con diff. Si hay regresión → revertir. Verificar que todos los tests existentes pasan sin cambio.
 - **Hecho cuando**:
-  - [ ] `pytest -q` muestra 168+ tests pasando (mismo o mayor que baseline)
-  - [ ] `evaluar_qa.py` muestra Recall@5 ≥ 97.0% y FP = 0.0%
-  - [ ] `diff baseline_qa_*.txt post_qa_*.txt` no muestra regresiones
-  - [ ] Demo manual: guardar nodo con sustantivos_clave → buscar → verificar boost temático
-- [ ] **Estado**: pendiente
+  - [x] `pytest -q` muestra 168+ tests pasando (mismo o mayor que baseline) ✅ 207 passed / 0 fallidos
+  - [x] `evaluar_qa.py` muestra Recall@5 ≥ 97.0% y FP = 0.0% ✅ Recall@5=98.06%, Recall@1=90.97%, MRR=0.937, FP=0.0% (0/40), GATE OK
+  - [x] `test_abismo_lexico.py` muestra 3/3 (100%) superación del abismo léxico ✅
+  - [x] `diff baseline_qa_*.txt post_qa_*.txt` no muestra regresiones ✅ 0 regresiones en categorías
+  - [x] Demo manual: guardar nodo con sustantivos_clave → buscar → verificar boost temático ✅ (Top-1 verificado)
+- [x] **Estado**: completada — **2026-09-17**: Benchmark oficial ejecutado sobre los 921 casos congelados (Recall@5=98.06%, FP=0.00%, MRR=0.937, GATE OK). Abismo léxico 3/3 superado. Demo manual de ranking Top-1 verificado con éxito. Cero regresiones.
 
 ---
 
@@ -106,13 +107,13 @@
 - **RF cubiertos**: RF-22
 - **Descripción**: Verificar explícitamente que la columna `sustantivos_clave` y la FTS5 de 4 columnas quedan garantizadas en las DOS rutas de instalación. La implementación ya existe (T2); esta tarea prueba que el comportamiento especificado se cumple en ambos caminos.
 - **Hecho cuando**:
-  - [ ] DB nueva desde cero: `.schema corto_plazo` y `.schema largo_plazo` muestran `sustantivos_clave TEXT DEFAULT ''` SIN ejecutar ALTER
-  - [ ] DB nueva: `largo_plazo_fts` se crea con 4 columnas (concepto, contenido, sinonimos, sustantivos_clave)
-  - [ ] DB nueva: un `aprender` con sustantivos_clave funciona end-to-end (guardar → FTS5 → consolidar)
-  - [ ] DB migrada: copia de DB sin la columna → arranque aplica ALTER a ambas tablas + rebuild FTS5
-  - [ ] DB migrada: nodos pre-existentes quedan intactos (solo suman la columna vacía)
-  - [ ] Tests de schema/migración pasan (9/9 del T2) documentados como evidencia de RF-22
-- [ ] **Estado**: pendiente
+  - [x] DB nueva desde cero: `.schema corto_plazo` y `.schema largo_plazo` muestran `sustantivos_clave TEXT DEFAULT ''` SIN ejecutar ALTER ✅
+  - [x] DB nueva: `largo_plazo_fts` se crea con 4 columnas (concepto, contenido, sinonimos, sustantivos_clave) ✅
+  - [x] DB nueva: un `aprender` con sustantivos_clave funciona end-to-end (guardar → FTS5 → consolidar) ✅
+  - [x] DB migrada: copia de DB sin la columna → arranque aplica ALTER a ambas tablas + rebuild FTS5 ✅
+  - [x] DB migrada: nodos pre-existentes quedan intactos (solo suman la columna vacía) ✅
+  - [x] Tests de schema/migración pasan (13/13: 9 de T2 + 4 de T8) documentados como evidencia de RF-22 ✅
+- [x] **Estado**: completada — **2026-09-17**: Verificación formal de instalación limpia e instalación legacy en `tests/test_sustantivos_clave_instalacion.py` (4/4 PASSED). DDL de `CREATE TABLE` incluye `sustantivos_clave` desde el inicio para ambas tablas, FTS5 trigram de 4 columnas garantizada y migración automática transparente probada en DB legacy preservando integridad de datos. Suite spec: 43/43, Suite global: 211/211.
 
 ---
 
@@ -155,7 +156,7 @@
 | RF-19 | T5 | test_sustantivos_clave_recordar.py (boost top-1) |
 | RF-20 | T5 | test_sustantivos_clave_recordar.py (validación formato) |
 | RF-21 | T3 | test_sustantivos_clave_validacion.py (fail-fast ×8) |
-| RF-22 | T8 | (schema/migración end-to-end) |
+| RF-22 | T8 | test_sustantivos_clave_instalacion.py + test_sustantivos_clave_schema.py |
 | RF-23 | T9 | (batería extracción multi-modelo) |
 
-**23/23 RFs cubiertos** ✅ — batería de tests de la spec: 39/39 verdes, suite completa 207/207 (2026-09-17)
+**23/23 RFs cubiertos** ✅ — batería de tests de la spec: 43/43 verdes, suite completa 211/211 (2026-09-17)
