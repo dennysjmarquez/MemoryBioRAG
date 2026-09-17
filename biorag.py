@@ -451,59 +451,298 @@ def cmd_buscar(cerebro, args):
     return 1
 
 
+def _validar_sustantivos_clave(raw_sustantivos: str) -> str:
+    """
+    Valida y normaliza sustantivos clave para la CLI según Spec 002 (RF-5, RF-22, RF-23).
+    - Entre 1 y 5 términos separados por comas.
+    - Longitud de cada término entre 2 y 15 caracteres.
+    - Caracteres alfanuméricos y guiones bajos (preservando ñ).
+    """
+    if not raw_sustantivos or not str(raw_sustantivos).strip():
+        raise ValueError("Debe proporcionar al menos un sustantivo clave.")
+
+    from core.memory_store import normalizar_sustantivos_clave
+    norm = normalizar_sustantivos_clave(raw_sustantivos)
+    terminos = [t.strip() for t in norm.split(",") if t.strip()]
+
+    if not (1 <= len(terminos) <= 5):
+        raise ValueError(f"Debe especificar entre 1 y 5 sustantivos clave (recibidos: {len(terminos)}).")
+
+    for t in terminos:
+        if len(t) < 2 or len(t) > 15:
+            raise ValueError(f"El sustantivo '{t}' debe tener entre 2 y 15 caracteres (tiene {len(t)}).")
+        if not re.match(r'^[a-zA-Z0-9_ñ]+$', t):
+            raise ValueError(f"El sustantivo '{t}' contiene caracteres no permitidos. Solo se permiten letras, números y guiones bajos.")
+
+    return norm
+
+
 def cmd_guardar(cerebro, args):
+    """
+    Guarda un nuevo recuerdo en BioRAG con su núcleo temático obligatorio.
+
+    Uso:
+        biorag.py guardar <clave> <contenido> --sustantivos-clave "s1,s2,s3"
+
+    El flag --sustantivos-clave (alias: --sustantivos) es OBLIGATORIO.
+    Define el NÚCLEO TEMÁTICO: los 1-5 sustantivos que identifican de qué
+    TRATA el recuerdo (no lo que simplemente menciona).
+    """
+    # ── 1. Extraer flags opcionales: --syn, --cat ────────────────────────────
     sinonimos = ""
     categoria = None
-    if "--syn" in args:
-        idx = args.index("--syn")
-        if idx + 1 < len(args) and not args[idx + 1].startswith("--"):
-            sinonimos = args[idx + 1]
-            args = args[:idx] + args[idx + 2:]
-        else:
-            print("Error: --syn requiere una lista de terminos. Ej: --syn \"angular,forms\"")
-            return 1
-    if "--cat" in args:
-        idx = args.index("--cat")
-        if idx + 1 < len(args) and not args[idx + 1].startswith("--"):
-            categoria = args[idx + 1]
-            args = args[:idx] + args[idx + 2:]
-        else:
-            print("Error: --cat requiere un tipo. Ej: --cat proyecto")
-            return 1
-    if len(args) < 2:
-        print("Uso: biorag.py guardar <clave> <contenido> [--syn \"sinonimo1,sinonimo2\"] [--cat tipo]")
+
+    try:
+        sinonimos, args = _extraer_flag_valor(args, ["--syn"], default="")
+    except ValueError:
+        print("Error: --syn requiere una lista de terminos. Ej: --syn \"angular,forms\"")
         return 1
-    clave = args[0].lower().replace(" ", "_")
-    contenido = " ".join(args[1:])
+
+    try:
+        categoria_raw, args = _extraer_flag_valor(args, ["--cat"], default="")
+        categoria = categoria_raw if categoria_raw else None
+    except ValueError:
+        print("Error: --cat requiere un tipo. Ej: --cat proyecto")
+        return 1
+
+    # ── 2. Extraer --sustantivos-clave / --sustantivos (OBLIGATORIO) ─────────
+    try:
+        raw_sustantivos, args = _extraer_flag_valor(
+            args, ["--sustantivos-clave", "--sustantivos"], default=""
+        )
+    except ValueError as e:
+        _imprimir_guia_sustantivos_clave(str(e))
+        return 1
+
+    # ── 3. Verificar presencia del flag (obligatorio) ────────────────────────
+    if not raw_sustantivos:
+        _imprimir_guia_sustantivos_clave()
+        return 1
+
+    # ── 4. Validar argumentos posicionales: clave y contenido ────────────────
+    if len(args) < 2:
+        print("Uso: biorag.py guardar <clave> <contenido> --sustantivos-clave \"s1,s2\"")
+        return 1
+
+    # ── 5. Sanitizar entradas (OWASP A03) ────────────────────────────────────
+    try:
+        clave_raw = _sanitizar_entrada_cli(args[0], max_len=200, nombre_campo="concepto")
+        contenido_raw = _sanitizar_entrada_cli(" ".join(args[1:]), max_len=100000, nombre_campo="contenido")
+        raw_sustantivos = _sanitizar_entrada_cli(raw_sustantivos, max_len=500, nombre_campo="sustantivos_clave")
+    except ValueError as e:
+        print(f"Error de validación: {e}")
+        return 1
+
+    if not clave_raw:
+        print("Error: La clave no puede estar vacía.")
+        return 1
+
+    clave = clave_raw.lower().replace(" ", "_")
+
+    # ── 6. Validar y normalizar sustantivos vía función del Core ─────────────
+    try:
+        sustantivos_norm = _validar_sustantivos_clave(raw_sustantivos)
+    except ValueError as e:
+        print(f"\n❌ Error en --sustantivos-clave: {e}\n")
+        _imprimir_guia_sustantivos_clave()
+        return 1
+
+    # ── 7. Inferir categoría si no se proporcionó ─────────────────────────────
     if not categoria:
-        categoria = inferir_categoria(contenido)
-    cerebro.percibir_corto_plazo(clave, contenido, sinonimos, categoria)
-    enlaces = auto_vincular(cerebro, clave, contenido)
+        categoria = inferir_categoria(contenido_raw)
+
+    # ── 8. Almacenar en corto plazo ───────────────────────────────────────────
+    cerebro.percibir_corto_plazo(clave, contenido_raw, sinonimos, categoria,
+                                 sustantivos_clave=sustantivos_norm)
+
+    # ── 9. Auto-vincular y enlazar por sinónimos ──────────────────────────────
+    enlaces = auto_vincular(cerebro, clave, contenido_raw)
     if sinonimos:
         syn_enlaces = vincular_por_sinonimos(cerebro, clave, sinonimos)
         todas = list({e[0]: e for e in enlaces + syn_enlaces}.values())
         enlaces = todas
-    msg = f"'{clave}' guardado en corto plazo."
-    if sinonimos:
-        msg += f" Sinonimos: {sinonimos}."
-    if categoria != "general":
-        msg += f" Categoria: {categoria}."
-    if enlaces:
-        msg += f" Vinculado con {len(enlaces)} nodo(s): {', '.join(e[0] for e in enlaces)}."
-    msg += " Consolidalo con 'sueno' para hacerlo permanente."
 
-    tokens_nuevos = _tokenizar(clave + " " + contenido)
-    viejos = _buscar_nodos_viejos_relacionados(cerebro, tokens_nuevos, contenido, top_k=3, umbral=0.05)
+    # ── 10. Confirmación visual enriquecida ────────────────────────────────────
+    lista_sust = [s.strip() for s in sustantivos_norm.split(",") if s.strip()]
+    conteo = len(lista_sust)
+    msg = f"'{clave}' guardado en corto plazo.\n"
+    msg += f"Sustantivos clave: [{', '.join(lista_sust)}] ({conteo}/5)\n"
+    if sinonimos:
+        msg += f"Sinonimos: {sinonimos}.\n"
+    if categoria != "general":
+        msg += f"Categoria: {categoria}.\n"
+    if enlaces:
+        msg += f"Vinculado con {len(enlaces)} nodo(s): {', '.join(e[0] for e in enlaces)}.\n"
+    msg += "Consolidalo con 'sueno' para hacerlo permanente."
+
+    tokens_nuevos = _tokenizar(clave + " " + contenido_raw)
+    viejos = _buscar_nodos_viejos_relacionados(cerebro, tokens_nuevos, contenido_raw, top_k=3, umbral=0.05)
     if viejos:
         lineas_viejos = []
         for concepto_v, preview, dias_ant, sim in viejos:
             fecha = time.strftime("%d %b %Y", time.localtime(time.time() - dias_ant * 86400))
-            lineas_viejos.append("  \u2728 {} ({}d) \u00b7 {} (sim={}) \u00b7 {}".format(fecha, dias_ant, concepto_v, sim, preview))
-        msg += "\n\n\u2728 Conexiones con el pasado:"
+            lineas_viejos.append("  ✨ {} ({}d) · {} (sim={}) · {}".format(fecha, dias_ant, concepto_v, sim, preview))
+        msg += "\n\n✨ Conexiones con el pasado:"
         msg += "\n" + "\n".join(lineas_viejos)
 
     print(msg)
     return 0
+
+
+_GUIA_SUSTANTIVOS_CLAVE = """
+┌─────────────────────────────────────────────────────────────────┐
+│  ⚠️  --sustantivos-clave es OBLIGATORIO en 'guardar'            │
+├─────────────────────────────────────────────────────────────────┤
+│  ¿Qué es el Núcleo Temático?                                    │
+│                                                                 │
+│  Son los 1 a 5 sustantivos que identifican de qué TRATA         │
+│  el recuerdo — no lo que meramente menciona.                    │
+│                                                                 │
+│  Regla rápida: ¿De qué trata? ≠ ¿Qué aparece en el texto?      │
+│                                                                 │
+│  Ejemplo:                                                       │
+│    Texto: "Einstein demostró que E=mc² en 1905 en Berlín"       │
+│    TRATA de: relatividad, energia, masa                         │
+│    MENCIONA: Berlín, 1905 (fechas/lugares son contexto)         │
+│                                                                 │
+│  Uso correcto:                                                  │
+│    biorag.py guardar <clave> <contenido> \\                      │
+│      --sustantivos-clave "termino1,termino2,termino3"           │
+│                                                                 │
+│  Reglas de formato:                                             │
+│    • Entre 1 y 5 términos separados por coma                    │
+│    • Cada término: 2 a 15 caracteres alfanuméricos              │
+│    • Solo letras, números y guiones bajos                       │
+└─────────────────────────────────────────────────────────────────┘
+"""
+
+
+def _imprimir_guia_sustantivos_clave(razon: str = ""):
+    """
+    Imprime la guía pedagógica del Núcleo Temático en la terminal.
+    Siempre precedida por el motivo concreto del error si se proporciona.
+    """
+    if razon:
+        print(f"\n❌ {razon}")
+    print(_GUIA_SUSTANTIVOS_CLAVE)
+
+
+def cmd_sustantivos(cerebro, args):
+    """
+    Consulta los sustantivos clave asignados a un concepto en la corteza.
+    Uso:
+        biorag.py sustantivos <concepto>
+    """
+    if not args:
+        print("Uso: biorag.py sustantivos <concepto>")
+        return 1
+
+    try:
+        concepto_raw = _sanitizar_entrada_cli(args[0], max_len=200, nombre_campo="concepto")
+    except ValueError as e:
+        print(f"Error de validación: {e}")
+        return 1
+
+    clave = concepto_raw.lower().strip().replace(" ", "_")
+
+    # 1. Buscar en largo_plazo
+    cerebro.cursor.execute("SELECT sustantivos_clave FROM largo_plazo WHERE concepto = ?", (clave,))
+    row = cerebro.cursor.fetchone()
+
+    # 2. Fallback a corto_plazo
+    if row is None:
+        cerebro.cursor.execute("SELECT sustantivos_clave FROM corto_plazo WHERE concepto = ?", (clave,))
+        row = cerebro.cursor.fetchone()
+
+    if row is None:
+        print(f"Error: Concepto '{clave}' no encontrado en la corteza.")
+        return 1
+
+    sustantivos_str = row[0] or ""
+    if not sustantivos_str.strip():
+        print(f"El concepto '{clave}' no tiene sustantivos clave asignados (nodo legado).")
+        print(f"Puedes agregarlos con: biorag.py agregar_sustantivos {clave} \"termino1,termino2\"")
+        return 0
+
+    lista = [s.strip() for s in sustantivos_str.split(",") if s.strip()]
+    print(f"Sustantivos clave de '{clave}': [{', '.join(lista)}] ({len(lista)}/5)")
+    return 0
+
+
+def cmd_agregar_sustantivos(cerebro, args):
+    """
+    Asigna o actualiza los sustantivos clave de un concepto existente.
+    Uso:
+        biorag.py agregar_sustantivos <concepto> "termino1,termino2"
+        biorag.py agregar_sustantivos <concepto> --sustantivos-clave "termino1,termino2"
+    """
+    # 1. Extraer flag si se pasó con --sustantivos-clave o --sustantivos
+    raw_sustantivos = ""
+    try:
+        raw_sustantivos, args_restantes = _extraer_flag_valor(
+            args, ["--sustantivos-clave", "--sustantivos"], default=""
+        )
+    except ValueError as e:
+        _imprimir_guia_sustantivos_clave(str(e))
+        return 1
+
+    if not raw_sustantivos:
+        if len(args_restantes) < 2:
+            print("Uso: biorag.py agregar_sustantivos <concepto> \"sustantivo1,sustantivo2\"")
+            return 1
+        concepto_arg = args_restantes[0]
+        raw_sustantivos = " ".join(args_restantes[1:])
+    else:
+        if len(args_restantes) < 1:
+            print("Uso: biorag.py agregar_sustantivos <concepto> --sustantivos-clave \"sustantivo1,sustantivo2\"")
+            return 1
+        concepto_arg = args_restantes[0]
+
+    # 2. Sanitizar concepto y sustantivos
+    try:
+        concepto_raw = _sanitizar_entrada_cli(concepto_arg, max_len=200, nombre_campo="concepto")
+        raw_sustantivos = _sanitizar_entrada_cli(raw_sustantivos, max_len=500, nombre_campo="sustantivos_clave")
+    except ValueError as e:
+        print(f"Error de validación: {e}")
+        return 1
+
+    clave = concepto_raw.lower().strip().replace(" ", "_")
+
+    # 3. Validar sustantivos
+    try:
+        sustantivos_norm = _validar_sustantivos_clave(raw_sustantivos)
+    except ValueError as e:
+        print(f"\n❌ Error en sustantivos clave: {e}\n")
+        _imprimir_guia_sustantivos_clave()
+        return 1
+
+    # 4. Actualizar en largo_plazo o corto_plazo
+    cerebro.cursor.execute("SELECT sustantivos_clave FROM largo_plazo WHERE concepto = ?", (clave,))
+    row_lp = cerebro.cursor.fetchone()
+    if row_lp is not None:
+        anterior = row_lp[0] or ""
+        cerebro.cursor.execute("UPDATE largo_plazo SET sustantivos_clave = ? WHERE concepto = ?", (sustantivos_norm, clave))
+        cerebro.conn.commit()
+        if anterior:
+            print(f"Sustantivos clave actualizados para '{clave}': {sustantivos_norm} (anteriores: {anterior})")
+        else:
+            print(f"Sustantivos clave asignados para '{clave}': {sustantivos_norm}")
+        return 0
+
+    cerebro.cursor.execute("SELECT sustantivos_clave FROM corto_plazo WHERE concepto = ?", (clave,))
+    row_cp = cerebro.cursor.fetchone()
+    if row_cp is not None:
+        anterior = row_cp[0] or ""
+        cerebro.cursor.execute("UPDATE corto_plazo SET sustantivos_clave = ? WHERE concepto = ?", (sustantivos_norm, clave))
+        cerebro.conn.commit()
+        if anterior:
+            print(f"Sustantivos clave actualizados para '{clave}' (corto plazo): {sustantivos_norm} (anteriores: {anterior})")
+        else:
+            print(f"Sustantivos clave asignados para '{clave}' (corto plazo): {sustantivos_norm}")
+        return 0
+
+    print(f"Error: Concepto '{clave}' no encontrado en la corteza.")
+    return 1
 
 
 def cmd_asociar(cerebro, args):
@@ -813,6 +1052,12 @@ def main():
         "leer_mensajes": cmd_leer_mensajes,
         "listar": cmd_listar,
         "dashboard": cmd_dashboard,
+        "sustantivos": cmd_sustantivos,
+        "sustantivo": cmd_sustantivos,
+        "agregar_sustantivos": cmd_agregar_sustantivos,
+        "agregar-sustantivos": cmd_agregar_sustantivos,
+        "asignar_sustantivos": cmd_agregar_sustantivos,
+        "asignar-sustantivos": cmd_agregar_sustantivos,
     }
 
     if comando in ("help", "--help", "-h"):

@@ -15,11 +15,11 @@
 - **RF cubiertos**: RF-3, RF-4, RF-5
 - **Descripción**: Actualizar `cmd_guardar` en `biorag.py` para requerir obligatoriamente `--sustantivos-clave` (o alias `--sustantivos`), validar mediante `normalizar_sustantivos_clave`, mostrar salida pedagógica guiada en caso de omisión o formato inválido (exit code `1`) y confirmar visualmente los sustantivos almacenados con conteo (exit code `0`).
 - **Hecho cuando**:
-  - [ ] Ejecutar `guardar` sin `--sustantivos-clave` retorna exit code `1` y muestra la guía pedagógica de núcleo temático.
-  - [ ] Ejecutar `guardar` con sustantivos inválidos (<1, >5, o <2 / >15 chars) retorna exit code `1` con mensaje descriptivo.
-  - [ ] Ejecutar `guardar` con sustantivos válidos almacena el recuerdo en corto plazo y muestra confirmación enriquecida `Sustantivos clave: [s1, s2] (2/5)`.
-  - [ ] `pytest tests/test_biorag_cli.py -k "guardar"` pasa en verde.
-- [ ] **Estado**: pendiente
+  - [x] Ejecutar `guardar` sin `--sustantivos-clave` retorna exit code `1` y muestra la guía pedagógica de núcleo temático.
+  - [x] Ejecutar `guardar` con sustantivos inválidos (<1, >5, o <2 / >15 chars) retorna exit code `1` con mensaje descriptivo.
+  - [x] Ejecutar `guardar` con sustantivos válidos almacena el recuerdo en corto plazo y muestra confirmación enriquecida `Sustantivos clave: [s1, s2] (2/5)`.
+  - [x] `pytest tests/test_biorag_cli.py -k "guardar"` pasa en verde.
+- [x] **Estado**: hecha
 
 ---
 
@@ -27,11 +27,11 @@
 - **RF cubiertos**: RF-6, RF-7, RF-8, RF-9, RF-10, RF-11, RF-12, RF-13, CL-3
 - **Descripción**: Implementar los subcomandos `cmd_sustantivos` y `cmd_agregar_sustantivos` en `biorag.py` con queries SQL parametrizadas, gestión de nodos legados, normalización y registro de alias (`sustantivo`, `agregar-sustantivos`, `asignar_sustantivos`) en el enrutador `main()`.
 - **Hecho cuando**:
-  - [ ] `biorag.py sustantivos <concepto>` muestra los sustantivos del nodo o mensaje informativo si es legado (exit code `0`), o error si no existe (exit code `1`).
-  - [ ] `biorag.py agregar_sustantivos <concepto> "s1,s2"` valida y actualiza el nodo en base de datos, sincronizando FTS5 (exit code `0`).
-  - [ ] Los alias `sustantivo`, `agregar-sustantivos` y `asignar_sustantivos` funcionan de forma idéntica.
-  - [ ] `pytest tests/test_biorag_cli.py -k "sustantivos_cmd"` pasa en verde.
-- [ ] **Estado**: pendiente
+  - [x] `biorag.py sustantivos <concepto>` muestra los sustantivos del nodo o mensaje informativo si es legado (exit code `0`), o error si no existe (exit code `1`).
+  - [x] `biorag.py agregar_sustantivos <concepto> "s1,s2"` valida y actualiza el nodo en base de datos, sincronizando FTS5 (exit code `0`).
+  - [x] Los alias `sustantivo`, `agregar-sustantivos` y `asignar_sustantivos` funcionan de forma idéntica.
+  - [x] `pytest tests/test_biorag_cli.py -k "sustantivos_cmd"` pasa en verde.
+- [x] **Estado**: hecha
 
 ---
 
