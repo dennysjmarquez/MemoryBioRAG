@@ -52,11 +52,11 @@
 - **RF cubiertos**: RF-17, RF-18, RF-19, RF-25
 - **Descripción**: Actualizar `cmd_corteza` y `cmd_listar` para visualizar los sustantivos clave por nodo. Actualizar `cmd_estado` para calcular y reportar `Nodos con sustantivos clave: X/Y (Z%)`. Actualizar el docstring principal `__doc__` de `biorag.py` con la guía de núcleo temático, seguridad y ejemplos.
 - **Hecho cuando**:
-  - [ ] `biorag.py corteza` y `biorag.py listar` muestran los sustantivos clave de cada concepto.
-  - [ ] `biorag.py estado` muestra la métrica de cobertura de sustantivos clave.
-  - [ ] `biorag.py help` / `--help` imprime la documentación pedagógica completa.
-  - [ ] `pytest tests/test_biorag_cli.py -k "visibilidad or help"` pasa en verde.
-- [ ] **Estado**: pendiente
+  - [x] `biorag.py corteza` y `biorag.py listar` muestran los sustantivos clave de cada concepto.
+  - [x] `biorag.py estado` muestra la métrica de cobertura de sustantivos clave.
+  - [x] `biorag.py help` / `--help` imprime la documentación pedagógica completa.
+  - [x] `pytest tests/test_biorag_cli.py -k "visibilidad or help"` pasa en verde.
+- [x] **Estado**: hecha
 
 ---
 

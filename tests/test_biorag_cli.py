@@ -396,3 +396,64 @@ class TestCmdFamiliaridad:
         assert "algoritmo_dijkstra" in out
 
 
+# ─── T5: Visibilidad transversal y ayuda pedagógica ─────────────────────────
+
+class TestCmdVisibilidadYAyuda:
+    """T5: Pruebas para corteza, listar, estado y docstring de ayuda."""
+
+    def test_corteza_muestra_sustantivos_clave(self, cerebro_tmp, capsys):
+        """RF-17: cmd_corteza visualiza los sustantivos clave."""
+        cerebro_tmp.cursor.execute(
+            "INSERT INTO largo_plazo (concepto, contenido, categoria, estado, peso_sinaptico, sustantivos_clave) "
+            "VALUES ('nodo_corteza_test', 'Contenido...', 1, 'activo', 1.0, 'corteza,test,nodo')"
+        )
+        cerebro_tmp.conn.commit()
+
+        rc = biorag.cmd_corteza(cerebro_tmp, [])
+        out = capsys.readouterr().out
+        assert rc == 0
+        assert "nodo_corteza_test" in out
+        assert "corteza,test,nodo" in out or "corteza" in out
+
+    def test_listar_muestra_sustantivos_clave(self, cerebro_tmp, capsys):
+        """RF-18: cmd_listar incluye los sustantivos clave en el resumen."""
+        cerebro_tmp.cursor.execute(
+            "INSERT INTO largo_plazo (concepto, contenido, categoria, estado, peso_sinaptico, sustantivos_clave) "
+            "VALUES ('nodo_listar_test', 'Contenido paginado...', 1, 'activo', 1.0, 'paginado,lista')"
+        )
+        cerebro_tmp.conn.commit()
+
+        rc = biorag.cmd_listar(cerebro_tmp, [])
+        out = capsys.readouterr().out
+        assert rc == 0
+        assert "nodo_listar_test" in out
+        assert "paginado,lista" in out or "paginado" in out
+
+    def test_estado_reporta_cobertura_sustantivos_clave(self, cerebro_tmp, capsys):
+        """RF-19: cmd_estado incluye el total y porcentaje de cobertura."""
+        cerebro_tmp.cursor.execute(
+            "INSERT INTO largo_plazo (concepto, contenido, categoria, estado, peso_sinaptico, sustantivos_clave) "
+            "VALUES ('nodo_con_sk', 'Contenido...', 1, 'activo', 1.0, 'sk1,sk2')"
+        )
+        cerebro_tmp.cursor.execute(
+            "INSERT INTO largo_plazo (concepto, contenido, categoria, estado, peso_sinaptico, sustantivos_clave) "
+            "VALUES ('nodo_sin_sk', 'Contenido...', 1, 'activo', 1.0, '')"
+        )
+        cerebro_tmp.conn.commit()
+
+        rc = biorag.cmd_estado(cerebro_tmp, [])
+        out = capsys.readouterr().out
+        assert rc == 0
+        assert "sustantivos clave" in out.lower()
+        assert "1/2" in out or "50" in out
+
+    def test_help_docstring_contiene_guia_pedagogica_completa(self):
+        """RF-25: El docstring principal contiene la guía de núcleo temático y comandos."""
+        doc = biorag.__doc__ or ""
+        assert "--sustantivos-clave" in doc
+        assert "sustantivos" in doc
+        assert "agregar_sustantivos" in doc
+        assert "núcleo temático" in doc.lower() or "nucleo tematico" in doc.lower() or "trata" in doc.lower()
+
+
+

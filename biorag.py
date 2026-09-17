@@ -7,48 +7,66 @@ Basado en principios biologicos: potenciacion a largo plazo (LTP) para recuerdos
 frecuentes, depresion a largo plazo (LTD) para olvido pasivo, inhibicion lateral
 para control de saturacion, y nodos dormidos que se despiertan con busqueda profunda.
 
+CONCEPTO FUNDAMENTAL: NÚCLEO TEMÁTICO (--sustantivos-clave)
+  El Núcleo Temático define de qué TRATA un recuerdo (su centro de gravedad conceptual),
+  no lo que meramente menciona.
+  Regla rápida: ¿De qué trata? ≠ ¿Qué palabras aparecen en el texto?
+  Ejemplo:
+    Texto: "Einstein demostró que E=mc² en 1905 en Berlín"
+    TRATA de: relatividad, energia, masa (1 a 5 sustantivos nucleares)
+    MENCIONA: Berlín, 1905 (fechas y ciudades son contexto circunstancial)
+
 USO DESDE EL AGENTE (cada comando explicado):
 
-  python3 biorag.py buscar <concepto> [--deep] [--todos] [--tokens "raiz1,raiz2"] [--pagina N] [--modo strict|relaxed] [--cat tipo] [--completo] [--asociados]
+  python3 biorag.py buscar <concepto> [--sustantivos-clave "s1,s2"] [--deep] [--todos] [--tokens "raiz1,raiz2"] [--pagina N] [--modo strict|relaxed] [--cat tipo] [--completo] [--asociados]
     Busca un recuerdo en la corteza. Por defecto usa busqueda hibrida:
       - FTS5 con trigram tokenizer: tolera typos y variaciones morfologicas
         automaticamente. "formulariox" encuentra "formularios".
       - 60% calidad textual BM25 + 25% peso sinaptico + 15% riqueza de asociaciones
       - Los sinonimos del nodo (definidos en guardar --syn) se indexan y buscan tambien
-    --deep          Busca tambien en nodos dormidos. Si encuentra uno, lo despierta.
-    --todos         Devuelve TODAS las coincidencias ordenadas por relevancia.
-    --tokens        Lista de raices stemmeadas separadas por comas (busqueda multi-token).
-                    Activa Soft AND: deben coincidir todas en el mismo recuerdo (strict)
-                    o al menos una (relaxed). Ej: "puert,marron" para buscar "puerta marroncita".
-    --pagina N      Pagina de resultados 1-indexada (defecto: 1).
-    --modo M        strict | relaxed. strict solo devuelve recuerdos que matchean TODOS
-                    los tokens. relaxed devuelve cualquier match parcial. Defecto: relaxed.
-    --completo      Muestra el contenido completo sin truncar (defecto: 1500 chars).
-    --asociados     Muestra los nodos asociados a cada resultado.
-    --cat T         Filtrar por categoria (ej: --cat proyecto, --cat leccion).
-    Ej: biorag.py buscar formularios
+    --sustantivos-clave Lista de 1-5 sustantivos nucleares para sesgar y focalizar
+                        la búsqueda hacia el centro de gravedad deseado (alias: --sustantivos).
+    --deep              Busca tambien en nodos dormidos. Si encuentra uno, lo despierta.
+    --todos             Devuelve TODAS las coincidencias ordenadas por relevancia.
+    --tokens            Lista de raices stemmeadas separadas por comas (busqueda multi-token).
+                        Activa Soft AND: deben coincidir todas en el mismo recuerdo (strict)
+                        o al menos una (relaxed). Ej: "puert,marron" para buscar "puerta marroncita".
+    --pagina N          Pagina de resultados 1-indexada (defecto: 1).
+    --modo M            strict | relaxed. strict solo devuelve recuerdos que matchean TODOS
+                        los tokens. relaxed devuelve cualquier match parcial. Defecto: relaxed.
+    --completo          Muestra el contenido completo sin truncar y sus sustantivos clave.
+    --asociados         Muestra los nodos asociados y sus sustantivos clave.
+    --cat T             Filtrar por categoria (ej: --cat proyecto, --cat leccion).
+    Ej: biorag.py buscar formularios --sustantivos-clave "angular,formularios"
         biorag.py buscar angular --deep
         biorag.py buscar agente --todos
-        biorag.py buscar formularios con tabs
         biorag.py buscar "formularios con tabs" --completo --asociados
-        biorag.py buscar "puerta marroncita" --tokens "puert,marron"
-        biorag.py buscar "error compilacion" --tokens "error,compil" --modo strict
-        biorag.py buscar "formularios con tabs" --deep  (busca tambien en dormidos)
 
-  python3 biorag.py guardar <clave> <contenido> [--syn "sinonimo1,sinonimo2"] [--cat tipo]
+  python3 biorag.py guardar <clave> <contenido> --sustantivos-clave "s1,s2,s3" [--syn "sinonimo1,sinonimo2"] [--cat tipo]
     Almacena informacion en la memoria de corto plazo (memoria de trabajo).
     Usar 'sueno' para consolidar a largo plazo (corteza permanente).
-    --syn         Lista de terminos alternativos separados por comas para busqueda.
-                  Estos sinonimos se indexan en FTS5 y permiten encontrar el caso
-                  aunque el usuario use palabras diferentes.
-    --cat         Categoria explicita (proyecto, leccion, solucion, arquitectura,
-                  metacognicion, protocolo). Si no se especifica, se infiere del
-                  contenido automaticamente via categorizador.
+    --sustantivos-clave (OBLIGATORIO, alias: --sustantivos)
+                        Define el núcleo temático: 1 a 5 sustantivos (2-15 chars cada uno,
+                        alfanuméricos y guion bajo) que identifican de qué TRATA el recuerdo.
+    --syn               Lista de terminos alternativos separados por comas para busqueda.
+                        Estos sinonimos se indexan en FTS5 y permiten encontrar el caso
+                        aunque el usuario use palabras diferentes.
+    --cat               Categoria explicita (proyecto, leccion, solucion, arquitectura,
+                        metacognicion, protocolo). Si no se especifica, se infiere del
+                        contenido automaticamente via categorizador.
     NOTA: Al guardar, BioRAG auto-vincula el nuevo concepto con nodos existentes
     de tema similar (sinapsis por solapamiento de tokens en tabla sinapsis).
     La clave se normaliza a minusculas y guiones bajos.
-    Ej: biorag.py guardar leccion_importante "Lo aprendido hoy fue..." --syn "leccion,aprendizaje"
-        biorag.py guardar formularios_anidados "Caso completo..." --syn "nested,forms,tabs,angular" --cat proyecto
+    Ej: biorag.py guardar relatividad "Einstein demostro la equivalencia masa-energia" --sustantivos-clave "relatividad,energia,masa"
+
+  python3 biorag.py sustantivos <concepto>
+    Consulta los sustantivos clave asignados a un nodo de la corteza (alias: sustantivo).
+    Ej: biorag.py sustantivos relatividad
+
+  python3 biorag.py agregar_sustantivos <concepto> "sustantivo1,sustantivo2"
+    Asigna o actualiza los sustantivos clave de un nodo existente en la corteza
+    (aliases: agregar-sustantivos, asignar_sustantivos).
+    Ej: biorag.py agregar_sustantivos relatividad "relatividad,energia,masa"
 
   python3 biorag.py asociar <concepto_a> <concepto_b>
     Crea un enlace sinaptico bidireccional entre dos conceptos en el grafo.
@@ -77,26 +95,23 @@ USO DESDE EL AGENTE (cada comando explicado):
         biorag.py sueno 15.0  (limite de energia manual)
 
   python3 biorag.py corteza
-    Lista todos los nodos de la corteza permanente (activos y dormidos).
-    Muestra: concepto, categoria, peso sinaptico, estado y asociaciones.
-    Util para inspeccionar que recuerdos estan disponibles.
+    Lista todos los nodos de la corteza permanente (activos y dormidos)
+    mostrando concepto, categoria, peso sinaptico, estado, sustantivos clave y asociaciones.
     Ej: biorag.py corteza
 
   python3 biorag.py listar [--pagina N]
-    Lista los conceptos con snippet y metadatos, paginado de a 10.
-    Muestra: concepto, preview del contenido, peso sinaptico y estado.
+    Lista los conceptos con snippet, metadatos y sustantivos clave, paginado de a 10.
     Ej: biorag.py listar
         biorag.py listar --pagina 2
 
   python3 biorag.py familiaridad <texto>
     Escanea un texto en busca de conceptos familiares en la corteza.
-    Sirve para que el agente detecte si el usuario menciona algo conocido.
-    Busca en clave y en contenido de los recuerdos activos.
+    Busca en clave, contenido y sustantivos clave de los recuerdos activos.
     Ej: biorag.py familiaridad "necesito ayuda con formularios Angular"
 
   python3 biorag.py estado
     Muestra estadisticas de la corteza: nodos activos, dormidos,
-    items en memoria de trabajo, energia sinaptica total.
+    items en memoria de trabajo, energia sinaptica y porcentaje de nodos con sustantivos clave.
     Ej: biorag.py estado
 
   python3 biorag.py dashboard
@@ -113,19 +128,19 @@ PROTOCOLO PARA EL AGENTE (CUANDO USAR CADA COMANDO):
   Regla #1 (BUSCAR):
     IF el usuario menciona algo QUE YA HEMOS VISTO antes (un proyecto, una persona,
     un concepto, una leccion, una historia) THEN
-      Si la busqueda es por frase natural: python3 biorag.py buscar "frase" --frase
+      Si la busqueda es por frase natural: python3 biorag.py buscar "frase" --frase [--sustantivos-clave "s1,s2"]
       Si la busqueda es por raices (stemming): python3 biorag.py buscar "texto" --tokens "raiz1,raiz2"
       Si no sabes las raices exactas: usar --frase primero, fallback a --tokens
-      --completo para ver contenido sin truncar
+      --completo para ver contenido sin truncar y sus sustantivos clave
       --asociados para ver nodos relacionados
-    Ej: usuario dice "acuerdate del proyecto ese de Angular" -> buscar "Angular formularios tabs" --frase
+    Ej: usuario dice "acuerdate del proyecto ese de Angular" -> buscar "Angular formularios tabs" --frase --sustantivos-clave "angular,formularios"
         usuario dice "que paso con lo de DeepSeek" -> buscar "analisis DeepSeek BioRAG" --frase
 
   Regla #2 (GUARDAR):
     IF el usuario te ENSENA algo nuevo, comparte una leccion, o da una instruccion
     que DEBE RECORDAR en futuras sesiones THEN
-      python3 biorag.py guardar <clave> "texto completo"
-    Ej: usuario explica por que no usar NgRx -> guardar leccion_ngrx "texto..."
+      python3 biorag.py guardar <clave> "texto completo" --sustantivos-clave "termino1,termino2"
+    Ej: usuario explica por que no usar NgRx -> guardar leccion_ngrx "texto..." --sustantivos-clave "ngrx,estado,arquitectura"
     IMPORTANTE: Despues de guardar, ejecuta 'sueno' para que no se pierda.
 
   Regla #3 (ASOCIAR):
@@ -802,7 +817,7 @@ def cmd_sueno(cerebro, args):
 
 def cmd_corteza(cerebro, args):
     cerebro.cursor.execute(
-        "SELECT concepto, categoria, peso_sinaptico, estado, asociaciones "
+        "SELECT concepto, categoria, peso_sinaptico, estado, asociaciones, COALESCE(sustantivos_clave, '') "
         "FROM largo_plazo ORDER BY peso_sinaptico DESC, estado ASC"
     )
     filas = cerebro.cursor.fetchall()
@@ -810,11 +825,12 @@ def cmd_corteza(cerebro, args):
         print("La corteza esta vacia.")
         return 0
 
-    print(f"{'CONCEPTO':<25} {'CATEGORIA':<15} {'PESO':<8} {'ESTADO':<10} {'ASOCIACIONES'}")
-    print("-" * 80)
-    for c, cat, peso, est, asoc in filas:
-        print(f"{c:<25} {cat:<15} {peso:<8} {est:<10} {asoc}")
-    print("-" * 80)
+    print(f"{'CONCEPTO':<25} {'CATEGORIA':<12} {'PESO':<6} {'ESTADO':<9} {'SUSTANTIVOS CLAVE':<25} {'ASOCIACIONES'}")
+    print("-" * 105)
+    for c, cat, peso, est, asoc, sust in filas:
+        sust_str = f"[{sust}]" if sust else "-"
+        print(f"{c:<25} {str(cat):<12} {peso:<6.2f} {est:<9} {sust_str:<25} {asoc or ''}")
+    print("-" * 105)
     print(f"Total: {len(filas)} nodos corticales.")
     return 0
 
@@ -841,7 +857,7 @@ def cmd_listar(cerebro, args):
         return 0
 
     cerebro.cursor.execute(
-        "SELECT concepto, substr(contenido, 1, 200), peso_sinaptico, estado "
+        "SELECT concepto, substr(contenido, 1, 200), peso_sinaptico, estado, COALESCE(sustantivos_clave, '') "
         "FROM largo_plazo ORDER BY peso_sinaptico DESC, ultimo_acceso DESC "
         "LIMIT ? OFFSET ?",
         (limite, offset)
@@ -852,9 +868,10 @@ def cmd_listar(cerebro, args):
     print(f"[MemoryBioRAG] Corteza: {total} nodos (pagina {pagina}/{total_paginas})")
     print("=" * 70)
 
-    for concepto, snippet, peso, estado in filas:
+    for concepto, snippet, peso, estado, sust in filas:
         marca = "[ACTIVO]" if estado == "activo" else "[DORMIDO]"
-        print(f"  {marca} {concepto} (peso:{peso:.2f})")
+        sust_str = f" · Sustantivos: [{sust}]" if sust else ""
+        print(f"  {marca} {concepto} (peso:{peso:.2f}){sust_str}")
         if snippet:
             preview = snippet[:120].replace("\n", " ")
             print(f"         {preview}")
@@ -876,10 +893,16 @@ def cmd_estado(cerebro, args):
     cerebro.cursor.execute("SELECT ROUND(SUM(peso_sinaptico), 2) FROM largo_plazo WHERE estado = 'activo'")
     energia = cerebro.cursor.fetchone()[0] or 0.0
 
+    total_lp = activos + dormidos
+    cerebro.cursor.execute("SELECT COUNT(*) FROM largo_plazo WHERE sustantivos_clave IS NOT NULL AND trim(sustantivos_clave) != ''")
+    con_sust = cerebro.cursor.fetchone()[0]
+    pct = (con_sust / total_lp * 100.0) if total_lp > 0 else 0.0
+
     print(f"Nodos activos:      {activos}")
     print(f"Nodos dormidos:     {dormidos}")
     print(f"Memoria de trabajo: {corto} items")
     print(f"Energia sinaptica:  {energia}")
+    print(f"Nodos con sustantivos clave: {con_sust}/{total_lp} ({pct:.1f}%)")
     return 0
 
 
