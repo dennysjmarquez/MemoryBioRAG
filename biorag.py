@@ -214,12 +214,52 @@ import os
 import time
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
-from core.memory_store import SQLiteMemoryBioRAG
+import re
+from core.memory_store import SQLiteMemoryBioRAG, normalizar_sustantivos_clave
 from core.sinapsis import auto_vincular, vincular_por_sinonimos, _tokenizar, _peso_similitud
 from core.categorizador import inferir_categoria
 
 _DEFAULT_DB = os.path.join(os.path.dirname(os.path.abspath(__file__)), "MemoryBioRAG_Data", "memory_biorag.db")
 DB_PATH = os.environ.get('BIORAG_PATH') or _DEFAULT_DB
+
+
+def _sanitizar_entrada_cli(texto: str, max_len: int = 100000, nombre_campo: str = "entrada") -> str:
+    """
+    Sanitiza entradas del CLI según lineamientos OWASP (A03: Injection & Input Validation).
+    - Elimina bytes nulos (\\x00) y caracteres de control ASCII.
+    - Normaliza espacios en blanco repetidos.
+    - Valida límites duros de longitud para evitar DoS por memoria.
+    """
+    if texto is None:
+        return ""
+    sanitizado = re.sub(r'[\x00-\x08\x0b-\x1f\x7f]', '', str(texto))
+    sanitizado = re.sub(r'[ \t]+', ' ', sanitizado).strip()
+    if len(sanitizado) > max_len:
+        raise ValueError(f"El campo '{nombre_campo}' excede el límite máximo de {max_len} caracteres (recibidos: {len(sanitizado)}).")
+    return sanitizado
+
+
+def _extraer_flag_valor(args: list, flags: list, default: str = "") -> tuple:
+    """
+    Extrae un flag y su valor de una lista de argumentos de terminal,
+    sin importar su posición (inicio, medio, final).
+    Retorna (valor_extraido, lista_argumentos_restantes).
+    Lanza ValueError si el flag está presente pero no tiene valor o el valor es otro flag.
+    """
+    args_restantes = []
+    valor = default
+    i = 0
+    while i < len(args):
+        token = args[i]
+        if token in flags:
+            if i + 1 >= len(args) or args[i + 1].startswith("--"):
+                raise ValueError(f"El flag '{token}' requiere un valor.")
+            valor = args[i + 1]
+            i += 2
+        else:
+            args_restantes.append(token)
+            i += 1
+    return valor, args_restantes
 
 
 def _buscar_nodos_viejos_relacionados(cerebro, tokens_nuevos, contenido_nuevo, top_k=3, umbral=0.05):
