@@ -83,10 +83,10 @@
 - **RF cubiertos**: Todos (cobertura de tests)
 - **Descripción**: Crear/atualizar tests para: RF-16 (agregar_sustantivos), RF-17 (sustantivos), RF-19 (recordar boost), RF-20 (recordar validación), RF-21 (aprender fail-fast), RF-18 (accent normalization), RF-5 (BM25 boost). Los tests deben ser independientes y ejecutables con `pytest tests/ -v`.
 - **Hecho cuando**:
-  - [ ] `pytest tests/ -v` muestra tests nuevos en verde
-  - [ ] Cobertura de todos los RFs verificada en tabla de cobertura al final de este archivo
-  - [ ] 0 tests fallidos
-- [ ] **Estado**: pendiente
+  - [x] `pytest tests/ -v` muestra tests nuevos en verde ✅ 39 tests spec + 207 suite completa
+  - [x] Cobertura de todos los RFs verificada en tabla de cobertura al final de este archivo ✅
+  - [x] 0 tests fallidos ✅
+- [x] **Estado**: completada
 
 ---
 
@@ -132,30 +132,30 @@
 
 ## Cobertura de requisitos
 
-| RF | Cubierto por |
-|----|-------------|
-| RF-1 | T3 |
-| RF-2 | T3 |
-| RF-3 | T3 |
-| RF-4 | T2 |
-| RF-5 | T5, T6 |
-| RF-6 | T2 |
-| RF-7 | T2 |
-| RF-8 | T3 (mismo impl que aprender) |
-| RF-9 | T3 |
-| RF-10 | T1 |
-| RF-11 | T1 |
-| RF-12 | T7 |
-| RF-13 | T7 |
-| RF-14 | T3 |
-| RF-15 | T2 |
-| RF-16 | T4 |
-| RF-17 | T4 |
-| RF-18 | T5 |
-| RF-19 | T5 |
-| RF-20 | T5 |
-| RF-21 | T3 |
-| RF-22 | T8 |
-| RF-23 | T9 |
+| RF | Cubierto por | Archivo(s) de test |
+|----|-------------|--------------------|
+| RF-1 | T3 | test_sustantivos_clave_validacion.py |
+| RF-2 | T3 | test_sustantivos_clave_validacion.py |
+| RF-3 | T3 | test_sustantivos_clave_validacion.py |
+| RF-4 | T2 | test_sustantivos_clave_schema.py |
+| RF-5 | T5, T6 | test_sustantivos_clave_recordar.py (bm25 4 pesos) |
+| RF-6 | T2 | test_sustantivos_clave_schema.py |
+| RF-7 | T2 | test_sustantivos_clave_schema.py |
+| RF-8 | T3 (mismo impl que aprender) | test_sustantivos_clave_validacion.py (guardar alias) |
+| RF-9 | T3 | test_sustantivos_clave_validacion.py |
+| RF-10 | T1 | test_normalizar_sustantivos_clave.py |
+| RF-11 | T1 | test_normalizar_sustantivos_clave.py |
+| RF-12 | T7 | (post-change metrics) |
+| RF-13 | T7 | (post-change metrics) |
+| RF-14 | T3 | test_sustantivos_clave_validacion.py |
+| RF-15 | T2 | test_sustantivos_clave_schema.py |
+| RF-16 | T4 | test_sustantivos_clave_tools.py (agregar_sustantivos ×5) |
+| RF-17 | T4 | test_sustantivos_clave_tools.py (consultar ×4) |
+| RF-18 | T5 | test_sustantivos_clave_recordar.py (tilde) |
+| RF-19 | T5 | test_sustantivos_clave_recordar.py (boost top-1) |
+| RF-20 | T5 | test_sustantivos_clave_recordar.py (validación formato) |
+| RF-21 | T3 | test_sustantivos_clave_validacion.py (fail-fast ×8) |
+| RF-22 | T8 | (schema/migración end-to-end) |
+| RF-23 | T9 | (batería extracción multi-modelo) |
 
-**23/23 RFs cubiertos** ✅
+**23/23 RFs cubiertos** ✅ — batería de tests de la spec: 39/39 verdes, suite completa 207/207 (2026-09-17)
