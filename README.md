@@ -1,6 +1,6 @@
 # BioRAG — Memoria Cognitiva Biomimética y Simbólica para Agentes de IA
 
-> **Versión Oficial:** v31.3
+> **Versión Oficial:** v31.4
 > **Paradigma:** Python puro + SQLite FTS5. **Cero embeddings densos, cero GPU, cero llamadas a APIs externas** en el path de búsqueda.
 > **Motor:** SQLite FTS5 WAL + Factorización PPMI-SVD (100 dims) + Espacio Semántico de 13 Ejes + Grafo Sináptico Hebbiano + Sparse Distributed Memory (SDM 2048-bit) + Calibración Conforme.
 > **Idiomas:** Español + Inglés (stemming bilingüe ES/EN + expansión simbólica vía WordNet + Domain Dict automático).
@@ -9,7 +9,7 @@
 
 ---
 
-## 📊 Métricas Oficiales de Benchmark (v31.3)
+## 📊 Métricas Oficiales de Benchmark (v31.4)
 
 Evaluación estricta y reproducible sobre el conjunto congelado oficial (**921 casos**: 875 positivos + 40 controles negativos + 6 ambiguos):
 
@@ -19,12 +19,34 @@ Evaluación estricta y reproducible sobre el conjunto congelado oficial (**921 c
 | **Recall@1 (Top-1)** | **90.74%** | Precisión de primera respuesta |
 | **MRR (Mean Reciprocal Rank)** | **0.9355** | Rango recíproco medio |
 | **Tasa de Falsos Positivos (FP)** | **0.0% (0 / 40)** | Cero alucinación en preguntas fuera de dominio |
-| **Suite de Tests Unitarios** | **168 / 168 PASSED (100%)** | Cobertura total de componentes y contratos |
+| **Suite de Tests Unitarios** | **263 / 263 PASSED (100%)** | Cobertura total de componentes y contratos (incluye 42 tests CLI nuevos) |
 | **Abismo Léxico (EXP-Q Retrieval)** | **3 / 3 (100%)** | Rescate en pool ante cero solapamiento léxico |
 
 ---
 
-## 🚀 Novedades de la Versión v31.3
+## 🚀 Novedades de la Versión v31.4
+
+### 🏷️ Sustantivos Clave en CLI — Núcleo Temático completo en `biorag.py`
+
+La feature de **Sustantivos Clave** (Núcleo Temático), ya presente en el motor interno
+y en el servidor MCP desde v31.x, ahora está completamente expuesta en la **línea de comandos**:
+
+- **`guardar --sustantivos-clave "s1,s2"`** (alias `--sustantivos`): almacena el Núcleo
+  Temático del recuerdo. Obligatorio — su omisión dispara una guía pedagógica con ejemplo
+  ejecutable y sale con exit code `1`.
+- **`sustantivos <concepto>`** (alias `sustantivo`): consulta los sustantivos clave de
+  cualquier nodo; distingue nodo inexistente (exit 1) vs. nodo legado sin sustantivos (exit 0).
+- **`agregar_sustantivos <concepto> "s1,s2"`** (aliases `agregar-sustantivos`,
+  `asignar_sustantivos`): actualiza sustantivos de un nodo existente y sincroniza FTS5.
+- **`buscar --sustantivos-clave "s1,s2"`**: sesga la búsqueda semántica por núcleo temático.
+- **Visibilidad transversal:** `corteza`, `listar`, `buscar --completo` y `estado` muestran
+  sustantivos clave como metadato observable. `estado` reporta `Nodos con sustantivos clave: X/Y (Z%)`.
+- **Seguridad OWASP A03:** sanitización universal (bytes nulos, control chars), validación
+  `^[a-zA-Z0-9_]+$`, límites de tamaño estrictos y SQL parametrizado en todas las operaciones.
+- **42 tests de integración E2E** en `tests/test_biorag_cli.py` — **263/263** en la suite
+  global, cero regresiones en comandos existentes.
+
+### Novedades anteriores (v31.3)
 
 - **QCR D4 (Tolerancia a Typos con All-Near Levenshtein $\le 2$):** Segunda oportunidad en el filtro QCR para consultas con errores ortográficos o variaciones morfológicas leves en palabras clave legítimas, eliminando falsos descartes sin admitir ruido léxico.
 - **Resonancia Dimensional en Abismo Léxico (EXP-Q):** Corrección del ordenamiento en la recuperación dimensional (`ORDER BY shared DESC, peso DESC`), garantizando que consultas sin ninguna palabra en común con el recuerdo entren al pool de candidatos ($3/3$).

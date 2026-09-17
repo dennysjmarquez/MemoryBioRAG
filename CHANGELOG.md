@@ -1,6 +1,61 @@
 # BioRAG Changelog
 
+## [v31.4] — 2026-09-17 — Sustantivos Clave en CLI (biorag.py) · Spec 001+002
+
+**Feature completa de Núcleo Temático en la interfaz de línea de comandos.**
+
+Implementa la exposición completa del sistema de `sustantivos_clave` (ya presente en
+`core/memory_store.py` y `mcp_server.py`) en el CLI `biorag.py`, cubriendo 25 RFs,
+4 casos límite y 3 requisitos no funcionales validados con 42 tests de integración en verde.
+
+### Nuevos flags y subcomandos
+
+- **`guardar --sustantivos-clave "s1,s2"`** (alias `--sustantivos`): almacena el Núcleo
+  Temático del recuerdo. El flag es obligatorio; su omisión dispara una guía pedagógica
+  interactiva con ejemplo ejecutable y sale con exit code `1`.
+- **`biorag.py sustantivos <concepto>`** (alias `sustantivo`): consulta los sustantivos
+  clave de cualquier nodo existente; diferencia entre nodo inexistente (exit 1) y nodo
+  legado sin sustantivos (exit 0 + instrucción de `agregar_sustantivos`).
+- **`biorag.py agregar_sustantivos <concepto> "s1,s2"`** (aliases `agregar-sustantivos`,
+  `asignar_sustantivos`): actualiza sustantivos de un nodo existente y sincroniza FTS5.
+- **`buscar --sustantivos-clave "s1,s2"`**: sesga la búsqueda semántica por núcleo temático.
+
+### Visibilidad transversal
+
+- `corteza`, `listar` y `buscar --completo` / `--asociados` muestran los sustantivos
+  clave de cada nodo como metadato observable.
+- `estado` reporta cobertura: `Nodos con sustantivos clave: X/Y (Z%)`.
+- `help` / `--help` imprime la guía pedagógica completa del Núcleo Temático.
+
+### Seguridad OWASP (A03)
+
+- Sanitización universal: bytes nulos `\x00`, control chars y espacios invisibles
+  eliminados en todas las entradas antes de cualquier operación.
+- Solo caracteres `^[a-zA-Z0-9_]+$` permitidos en sustantivos; rechazo inmediato + exit 1.
+- Límites: concepto ≤ 200 chars, sustantivo 2–15 chars, contenido ≤ 100 000 chars.
+- SQL parametrizado en todas las operaciones; escape de metacaracteres FTS5.
+
+### Tolerancia de parser
+
+- Flags `--sustantivos-clave` / `--syn` / `--cat` aceptados en cualquier posición de la
+  línea (antes, entre o después de argumentos posicionales).
+- Sustantivos sin comillas procesados igual que con comillas.
+- Conceptos normalizados a minúsculas (insensible a mayúsculas).
+
+### Tests
+
+- `tests/test_biorag_cli.py`: **42 / 42 passed** (nueva suite, integración E2E).
+- Suite global: **263 / 263 passed** — cero regresiones en comandos existentes.
+
+### Specs
+
+- Spec 001: `specs/001-sustantivos-clave-motor/spec.md` (motor + MCP)
+- Spec 002: `specs/002-sustantivos-clave-cli/spec.md` (CLI)
+
+---
+
 ## [v31.3] — 2026-09-13 — D4 QCR-typo default ON (récord 921)
+
 
 Segunda oportunidad QCR tolerante a typos (all-near): un candidato con
 score ≥ piso (0.35) que falla cobertura exacta sobrevive si CADA token

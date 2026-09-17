@@ -589,6 +589,7 @@ def _build_server():
         usar_inferencia: bool = True,
         ordenar_por: str = "relevancia",
         asociaciones_max: Optional[int] = None,
+        sustantivos_clave: Optional[str] = None,
     ) -> str:
         if limite is None:
             limite = LIMITE_MCP
@@ -632,6 +633,35 @@ def _build_server():
                 rafaga_palabras = rafaga_palabras[:500]
             partes = rafaga_palabras.split(",")
             rafaga_palabras = ",".join([_sanitizar_string(p.strip()) for p in partes if p.strip()])
+
+        # ── RF-20 (spec 001): validación de sustantivos_clave en recordar ──
+        # Opcional. None o vacío = búsqueda normal sin boost (RF-19). Si se provee,
+        # se normaliza igual que en aprender/guardar y se valida el FORMATO por término
+        # (2-15 chars, sin espacios, solo alfanuméricos + guion bajo). NO se valida
+        # cantidad (eso solo aplica al guardar). Si un término es inválido → error
+        # accionable y la búsqueda NO se ejecuta (early return, fail-fast).
+        sustantivos_clave_norm = None
+        if sustantivos_clave is not None:
+            sk_raw = str(sustantivos_clave).strip()
+            if sk_raw != "":
+                from core.memory_store import normalizar_sustantivos_clave
+                sustantivos_clave_norm = normalizar_sustantivos_clave(sk_raw)
+                sk_unicos = [t for t in sustantivos_clave_norm.split(",") if t] if sustantivos_clave_norm else []
+                for _sk_term in sk_unicos:
+                    if not re.fullmatch(r"[a-z0-9_ñ]{2,15}", _sk_term):
+                        return json.dumps({
+                            "status": "error",
+                            "codigo": "SUSTANTIVOS_CLAVE_FORMATO_INVALIDO",
+                            "mensaje": (
+                                f"❌ SUSTANTIVOS_CLAVE_FORMATO_INVALIDO — búsqueda NO ejecutada.\n\n"
+                                f"SUSTANTIVOS_CLAVE_FORMATO_INVALIDO: el término '{_sk_term}' no cumple "
+                                "(2-15 chars, sin espacios, solo alfanuméricos y guion bajo)."
+                            ),
+                            "parametro": "sustantivos_clave",
+                            "termino_invalido": _sk_term,
+                        }, ensure_ascii=False)
+                if not sk_unicos:
+                    sustantivos_clave_norm = None
 
         # Validaciones de tipos y rangos numéricos
         if not isinstance(pagina, int):
@@ -857,6 +887,7 @@ def _build_server():
                     modo_estricto=modo_estricto,
                     usar_inferencia=usar_inferencia,
                     ordenar_por=ordenar_por,
+                    sustantivos_clave_boost=sustantivos_clave_norm,
                 )
             score_top = resultados[0][4] if resultados else 0
 
@@ -1734,13 +1765,24 @@ def _build_server():
                 "Las páginas 2, 3, etc. siguen el mismo orden cronológico."
             )
         )] = "relevancia",
+        sustantivos_clave: Annotated[Optional[str], Field(
+            description=(
+                "(!) Opcional — sustantivos clave para boost de precisión (RF-19, spec 001).\n"
+                "Si se provee (separados por coma), la búsqueda prioriza nodos que matchean esos "
+                "términos en su columna 'sustantivos_clave' — por lo que TRATAN, no solo por lo que MENCIONAN.\n"
+                "None o '' = búsqueda normal sin boost.\n"
+                "Formato por término: 2-15 chars, sin espacios, solo alfanuméricos y guion bajo. "
+                "Si algún término no cumple → error y la búsqueda NO se ejecuta.\n"
+                "Ejemplo: query='timeout', sustantivos_clave='servidor,conexion'."
+            )
+        )] = None,
     ) -> str:
         return _recordar_impl(
             query, deep, cat, completo, asociados, limite, preview_chars,
             context_window, forzar_rafaga, rafaga_palabras, pagina, parafrasis,
             dimensiones, dias, desde, hasta, autor, modo_estricto,
             buscar_por_rol=buscar_por_rol, usar_inferencia=usar_inferencia,
-            ordenar_por=ordenar_por,
+            ordenar_por=ordenar_por, sustantivos_clave=sustantivos_clave,
         )
 
     @mcp.tool(
@@ -1858,6 +1900,7 @@ def _build_server():
         dimensiones: Optional[Any] = None,
         predicados: Optional[Any] = None,
         valencia_somatica: Optional[float] = None,
+        sustantivos_clave: Optional[str] = None,
     ) -> str:
         clave = concepto.lower().replace(" ", "_")
 
@@ -1935,6 +1978,73 @@ def _build_server():
                 "bridges_rechazados": bridges_rechazados,
             }, ensure_ascii=False)
 
+        # ── VALIDACIÓN OBLIGATORIA — sustantivos_clave (T3 spec 001) ────────
+        # Fail-fast ANTES de _get_cerebro() (Algoritmo A del plan 001): si el
+        # intento falla aquí, NO se abre la DB ni se escribe nada. El agente
+        # reintenta repitiendo la llamada completa solo añadiendo el campo.
+        #
+        # REGLA DE ORO DE RECUPERABILIDAD: un nodo sin sustantivos_clave es un
+        # recuerdo sin centro de gravedad temático — solo lo encontraría la
+        # búsqueda textual. Los sustantivos son el "de QUÉ TRATA" y garantizan
+        # el boost BM25 (peso 4.0x) en recordar. Exigirlos obliga al agente a
+        # pensar en la esencia del nodo antes de guardarlo.
+        if not sustantivos_clave or not str(sustantivos_clave).strip():
+            return json.dumps({
+                "status": "error",
+                "codigo": "SUSTANTIVOS_CLAVE_AUSENTES",
+                "mensaje": (
+                    f"❌ SUSTANTIVOS_CLAVE_AUSENTES — el nodo '{clave}' NO fue guardado.\n\n"
+                    "Los parámetros concepto, contenido, dimensiones, syn y bridges ya llegaron correctamente. "
+                    "Solo falta el parámetro obligatorio 'sustantivos_clave'.\n\n"
+                    "ACCIÓN REQUERIDA: repetí la llamada a biorag_aprender con TODOS los mismos parámetros "
+                    "más el campo sustantivos_clave. No es necesario cambiar nada más — solo añadí "
+                    "sustantivos_clave.\n\n"
+                    "Protocolo: ¿De QUÉ TRATA este nodo? Identificá 2-4 sustantivos centrales. "
+                    "Formato: 'servidor,backend,timeout,conexion'"
+                ),
+                "concepto": clave,
+                "parametros_recibidos_ok": ["concepto", "contenido", "dimensiones", "syn", "cat", "bridges"],
+                "parametro_faltante": "sustantivos_clave",
+            }, ensure_ascii=False)
+
+        # Normalizar (RF-10) + auto-dedup preservando orden (RF-14) ANTES de validar
+        # cantidad: los duplicados se eliminan y luego se evalúa el número de únicos.
+        from core.memory_store import normalizar_sustantivos_clave
+        sustantivos_norm = normalizar_sustantivos_clave(str(sustantivos_clave))
+        sk_unicos = [t for t in sustantivos_norm.split(",") if t] if sustantivos_norm else []
+
+        # Cantidad (RF-2, RF-9): entre 2 y 4 términos únicos tras dedup
+        if len(sk_unicos) < 2 or len(sk_unicos) > 4:
+            return json.dumps({
+                "status": "error",
+                "codigo": "SUSTANTIVOS_CLAVE_CANTIDAD_INVALIDA",
+                "mensaje": (
+                    f"❌ SUSTANTIVOS_CLAVE_CANTIDAD_INVALIDA — el nodo '{clave}' NO fue guardado.\n\n"
+                    "SUSTANTIVOS_CLAVE_CANTIDAD_INVALIDA: se requieren entre 2 y 4 términos "
+                    f"únicos; se recibió {len(sk_unicos)} tras deduplicar. "
+                    "Formato: 'servidor,backend,timeout,conexion'"
+                ),
+                "concepto": clave,
+                "cantidad_recibida": len(sk_unicos),
+            }, ensure_ascii=False)
+
+        # Formato por término (RF-3): 2-15 chars inclusivos, sin espacios, solo
+        # alfanuméricos + guion bajo. La ñ se preserva (RF-10) y es alfanumérica
+        # en español — por eso se incluye explícitamente en la clase de caracteres.
+        for _sk_term in sk_unicos:
+            if not re.fullmatch(r"[a-z0-9_ñ]{2,15}", _sk_term):
+                return json.dumps({
+                    "status": "error",
+                    "codigo": "SUSTANTIVOS_CLAVE_FORMATO_INVALIDO",
+                    "mensaje": (
+                        f"❌ SUSTANTIVOS_CLAVE_FORMATO_INVALIDO — el nodo '{clave}' NO fue guardado.\n\n"
+                        f"SUSTANTIVOS_CLAVE_FORMATO_INVALIDO: el término '{_sk_term}' no cumple formato "
+                        "(2-15 chars, sin espacios, solo alfanuméricos y guion bajo)."
+                    ),
+                    "concepto": clave,
+                    "termino_invalido": _sk_term,
+                }, ensure_ascii=False)
+
         cerebro = _get_cerebro()
         try:
             clave = concepto.lower().replace(" ", "_")
@@ -1971,7 +2081,7 @@ def _build_server():
                 except (json.JSONDecodeError, TypeError):
                     predicados_list = None
 
-            cerebro.percibir_corto_plazo(clave, contenido, syn or "", categoria, dimensiones_dict, predicados=predicados_list, valencia_somatica=val_somatica)
+            cerebro.percibir_corto_plazo(clave, contenido, syn or "", categoria, dimensiones_dict, predicados=predicados_list, valencia_somatica=val_somatica, sustantivos_clave=sustantivos_norm)
 
             enlaces = auto_vincular(cerebro, clave, contenido)
             sinapsis_count = len(enlaces)
@@ -2273,8 +2383,17 @@ def _build_server():
                 "  ]"
             )
         )] = None,
+        sustantivos_clave: Annotated[Optional[str], Field(
+            description=(
+                "OBLIGATORIO — centro de gravedad semántico: 2-4 sustantivos "
+                "que definen de QUÉ TRATA el nodo (no qué menciona).\n"
+                "Formato: separados por coma, minúsculas, sin tildes.\n"
+                "Ejemplo: 'servidor,backend,timeout,conexion'\n"
+                "Mínimo 2, máximo 4 términos únicos (2-15 chars cada uno)."
+            )
+        )] = None,
     ) -> str:
-        return _aprender_impl(concepto, contenido, bridges, syn=syn, cat=cat, dimensiones=dimensiones, predicados=predicados, valencia_somatica=valencia_somatica)
+        return _aprender_impl(concepto, contenido, bridges, syn=syn, cat=cat, dimensiones=dimensiones, predicados=predicados, valencia_somatica=valencia_somatica, sustantivos_clave=sustantivos_clave)
 
     @mcp.tool(
         name="guardar",
@@ -2316,8 +2435,164 @@ def _build_server():
                 "Si se omite, la tool retorna error accionable con instrucciones exactas para reintentar."
             )
         )] = None,
+        sustantivos_clave: Annotated[Optional[str], Field(
+            description=(
+                "OBLIGATORIO — centro de gravedad semántico: 2-4 sustantivos "
+                "que definen de QUÉ TRATA el nodo (no qué menciona). "
+                "Mismo formato y reglas que en `aprender`. "
+                "Ejemplo: 'servidor,backend,timeout,conexion'"
+            )
+        )] = None,
     ) -> str:
-        return _aprender_impl(concepto, contenido, bridges, syn=syn, cat=cat, dimensiones=dimensiones, predicados=predicados, valencia_somatica=valencia_somatica)
+        return _aprender_impl(concepto, contenido, bridges, syn=syn, cat=cat, dimensiones=dimensiones, predicados=predicados, valencia_somatica=valencia_somatica, sustantivos_clave=sustantivos_clave)
+
+    # ── SUSTANTIVOS CLAVE TOOLS (T4 Spec 001) ────────────────────────────────
+
+    @mcp.tool(
+        name="agregar_sustantivos",
+        description=(
+            "Actualiza o agrega sustantivos_clave a un nodo existente en largo_plazo (o corto_plazo).\n"
+            "Permite enriquecer nodos legacy creados antes de la introducción de sustantivos_clave "
+            "o corregir/refinar el centro de gravedad semántico de un nodo.\n\n"
+            "Parámetros: concepto (str), sustantivos_clave (str: 2-4 términos separados por coma).\n"
+            "Retorna: {status: 'ok', concepto: str, sustantivos_anteriores: str, sustantivos_nuevos: str}\n"
+            "O error {status: 'error', codigo: '...', mensaje: '...'}"
+        ),
+    )
+    def biorag_agregar_sustantivos(
+        concepto: Annotated[str, Field(description="Nombre del nodo existente (se normaliza a snake_case).")],
+        sustantivos_clave: Annotated[str, Field(
+            description=(
+                "2-4 sustantivos clave que definen el centro de gravedad del nodo (de QUÉ TRATA).\n"
+                "Formato: separados por coma, minúsculas, sin tildes.\n"
+                "Ejemplo: 'servidor,backend,timeout,conexion'\n"
+                "Mínimo 2, máximo 4 términos únicos (2-15 chars cada uno)."
+            )
+        )],
+    ) -> str:
+        clave = concepto.lower().strip().replace(" ", "_")
+
+        if not sustantivos_clave or not str(sustantivos_clave).strip():
+            return json.dumps({
+                "status": "error",
+                "codigo": "SUSTANTIVOS_CLAVE_AUSENTES",
+                "mensaje": (
+                    f"❌ SUSTANTIVOS_CLAVE_AUSENTES — no se pudo actualizar '{clave}'.\n\n"
+                    "Falta el parámetro obligatorio 'sustantivos_clave'.\n"
+                    "Formato: 2-4 términos únicos separados por coma (ej: 'servidor,backend,timeout')."
+                ),
+                "concepto": clave,
+            }, ensure_ascii=False)
+
+        from core.memory_store import normalizar_sustantivos_clave
+        sustantivos_norm = normalizar_sustantivos_clave(str(sustantivos_clave))
+        sk_unicos = [t for t in sustantivos_norm.split(",") if t] if sustantivos_norm else []
+
+        if len(sk_unicos) < 2 or len(sk_unicos) > 4:
+            return json.dumps({
+                "status": "error",
+                "codigo": "SUSTANTIVOS_CLAVE_CANTIDAD_INVALIDA",
+                "mensaje": (
+                    f"❌ SUSTANTIVOS_CLAVE_CANTIDAD_INVALIDA — no se pudo actualizar '{clave}'.\n\n"
+                    "SUSTANTIVOS_CLAVE_CANTIDAD_INVALIDA: se requieren entre 2 y 4 términos "
+                    f"únicos; se recibió {len(sk_unicos)} tras deduplicar. "
+                    "Formato: 'servidor,backend,timeout,conexion'"
+                ),
+                "concepto": clave,
+                "cantidad_recibida": len(sk_unicos),
+            }, ensure_ascii=False)
+
+        for _sk_term in sk_unicos:
+            if not re.fullmatch(r"[a-z0-9_ñ]{2,15}", _sk_term):
+                return json.dumps({
+                    "status": "error",
+                    "codigo": "SUSTANTIVOS_CLAVE_FORMATO_INVALIDO",
+                    "mensaje": (
+                        f"❌ SUSTANTIVOS_CLAVE_FORMATO_INVALIDO — no se pudo actualizar '{clave}'.\n\n"
+                        f"SUSTANTIVOS_CLAVE_FORMATO_INVALIDO: el término '{_sk_term}' no cumple formato "
+                        "(2-15 chars, sin espacios, solo alfanuméricos y guion bajo)."
+                    ),
+                    "concepto": clave,
+                    "termino_invalido": _sk_term,
+                }, ensure_ascii=False)
+
+        cerebro = _get_cerebro()
+        try:
+            # 1. Buscar en largo_plazo
+            cerebro.cursor.execute("SELECT sustantivos_clave FROM largo_plazo WHERE concepto = ?", (clave,))
+            row_lp = cerebro.cursor.fetchone()
+            if row_lp is not None:
+                anterior = row_lp[0] or ""
+                cerebro.cursor.execute("UPDATE largo_plazo SET sustantivos_clave = ? WHERE concepto = ?", (sustantivos_norm, clave))
+                cerebro.conn.commit()
+                return json.dumps({
+                    "status": "ok",
+                    "concepto": clave,
+                    "sustantivos_anteriores": anterior,
+                    "sustantivos_nuevos": sustantivos_norm,
+                }, ensure_ascii=False)
+
+            # 2. Fallback a corto_plazo
+            cerebro.cursor.execute("SELECT sustantivos_clave FROM corto_plazo WHERE concepto = ?", (clave,))
+            row_cp = cerebro.cursor.fetchone()
+            if row_cp is not None:
+                anterior = row_cp[0] or ""
+                cerebro.cursor.execute("UPDATE corto_plazo SET sustantivos_clave = ? WHERE concepto = ?", (sustantivos_norm, clave))
+                cerebro.conn.commit()
+                return json.dumps({
+                    "status": "ok",
+                    "concepto": clave,
+                    "sustantivos_anteriores": anterior,
+                    "sustantivos_nuevos": sustantivos_norm,
+                }, ensure_ascii=False)
+
+            return json.dumps({
+                "status": "error",
+                "codigo": "NODO_NO_ENCONTRADO",
+                "mensaje": f"El concepto '{clave}' no existe en la base de datos.",
+            }, ensure_ascii=False)
+        finally:
+            cerebro.cerrar_sistema()
+
+    @mcp.tool(
+        name="sustantivos",
+        description=(
+            "Consulta los sustantivos_clave de un nodo existente en largo_plazo o corto_plazo.\n"
+            "Retorna: {status: 'ok', concepto: str, sustantivos_clave: str, items: [str]}\n"
+            "O error {status: 'error', codigo: 'NODO_NO_ENCONTRADO', mensaje: '...'}"
+        ),
+    )
+    def biorag_sustantivos(
+        concepto: Annotated[str, Field(description="Nombre del nodo a consultar (snake_case).")],
+    ) -> str:
+        clave = concepto.lower().strip().replace(" ", "_")
+        cerebro = _get_cerebro()
+        try:
+            # 1. Buscar en largo_plazo
+            cerebro.cursor.execute("SELECT sustantivos_clave FROM largo_plazo WHERE concepto = ?", (clave,))
+            row = cerebro.cursor.fetchone()
+            if row is None:
+                # 2. Fallback a corto_plazo
+                cerebro.cursor.execute("SELECT sustantivos_clave FROM corto_plazo WHERE concepto = ?", (clave,))
+                row = cerebro.cursor.fetchone()
+
+            if row is None:
+                return json.dumps({
+                    "status": "error",
+                    "codigo": "NODO_NO_ENCONTRADO",
+                    "mensaje": f"El concepto '{clave}' no existe en la base de datos.",
+                }, ensure_ascii=False)
+
+            val = row[0] or ""
+            items = [x.strip() for x in val.split(",") if x.strip()] if val else []
+            return json.dumps({
+                "status": "ok",
+                "concepto": clave,
+                "sustantivos_clave": val,
+                "items": items,
+            }, ensure_ascii=False)
+        finally:
+            cerebro.cerrar_sistema()
 
     @mcp.tool(
         name="feedback",
