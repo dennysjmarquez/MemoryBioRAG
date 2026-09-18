@@ -303,6 +303,7 @@ ORACLE_PROMPT = (
 
     "PASO 1 — Búsqueda Semántica:\n"
     "  recordar(query='sustantivos_concretos', "
+    "sustantivos_clave='nucleo1,nucleo2,nucleo3', "
     "parafrasis='N1_sinonimo,N2_tecnico,N3_perspectiva_opuesta,N4_abstracto,N5_emocion', "
     "dimensiones='{...}' SI busca propiedades ontológicas, asociados=true)\n"
     "  → Si total >= 1 → SÍNTESIS (listar TODOS los resultados, luego responder)\n"
@@ -367,6 +368,7 @@ ORACLE_PROMPT = (
     "• dias=7 O desde=YYYY-MM-DD SIEMPRE salvo búsqueda histórica explícita (sin filtro = basura mezclada)\n"
     "• syn MÍNIMO 8 al guardar (literal,técnico,inglés,problema,solución,relacionado,abstracto,emocional)\n"
     "• vincular() ANTES de consolidar() si hay relación con nodos existentes\n"
+    "• sustantivos_clave SIEMPRE que identifiques 2-4 términos núcleo — anclan de QUÉ TRATA el nodo, no qué menciona (BM25 4.0x, más relación, menos ruido)\n"
     "• NUNCA cat= salvo certeza absoluta (filtro estricto = ceguera)\n"
     "• NUNCA desvincular sin ⚠️ explícito del sistema con par (a,b) exacto\n"
     "• Score bajo ≠ falso positivo. Puede ser hub legítimo por propagación válida.\n\n"
@@ -1762,12 +1764,12 @@ def _build_server():
                 "o para desambiguar entre respuestas similares por antigüedad. "
                 "NO sirve para saber si algo es 'más importante' o 'más relevante' — para eso usá 'relevancia'.\n"
                 "El orden se aplica DESPUÉS del scoring, sobre el conjunto ya filtrado por relevancia. "
-                "Las páginas 2, 3, etc. siguen el mismo orden cronológico."
+                "Las páginas 2, 3, etc. siguen el mismo ordens cronológico."
             )
         )] = "relevancia",
         sustantivos_clave: Annotated[Optional[str], Field(
             description=(
-                "(!) Opcional — sustantivos clave para boost de precisión (RF-19, spec 001).\n"
+                "Sustantivos clave para boost de precisións.\n"
                 "Si se provee (separados por coma), la búsqueda prioriza nodos que matchean esos "
                 "términos en su columna 'sustantivos_clave' — por lo que TRATAN, no solo por lo que MENCIONAN.\n"
                 "None o '' = búsqueda normal sin boost.\n"
@@ -2386,7 +2388,7 @@ def _build_server():
         sustantivos_clave: Annotated[Optional[str], Field(
             description=(
                 "OBLIGATORIO — centro de gravedad semántico: 2-4 sustantivos "
-                "que definen de QUÉ TRATA el nodo (no qué menciona).\n"
+                "que definen de QUÉ TRATA el nodo ¿de QUÉ TRATA este recuerdo? (no qué menciona).\n"
                 "Formato: separados por coma, minúsculas, sin tildes.\n"
                 "Ejemplo: 'servidor,backend,timeout,conexion'\n"
                 "Mínimo 2, máximo 4 términos únicos (2-15 chars cada uno)."
