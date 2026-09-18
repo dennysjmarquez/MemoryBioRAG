@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "memory-biorag"
-version = "31.4.0"
+version = "31.5.0"
 description = "BioRAG — Memoria cognitiva biomimética persistente para agentes de IA"
 readme = "README.md"
 requires-python = ">=3.10"

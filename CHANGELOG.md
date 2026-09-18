@@ -1,5 +1,107 @@
 # BioRAG Changelog
 
+## [v31.5] — 2026-09-18 — Descubrimiento del Núcleo Temático por el Agente · Spec 003
+
+**Capa de descubrimiento de `sustantivos_clave`.** Las Specs 001/002 lo dejaron
+implementado en motor, MCP y CLI. Esta release cierra la capa que decide si la feature
+se usa: que el agente la **encuentre solo**, con el mismo nivel de exposición que ya
+tenían `deep` (búsqueda profunda) y `parafrasis` (parafraseo).
+
+Sin cambio en el motor de scoring, el esquema ni los pesos BM25 — es puramente exposición.
+
+### Hallazgos críticos corregidos
+
+- **Ejemplos de guardado inviables.** Los ejemplos de `biorag_aprender` en
+  `config/prompts.py` y `skills/biorag-sync/SKILL.md` no incluían `sustantivos_clave`.
+  Ejecutados verbatim devolvían `SUSTANTIVOS_CLAVE_AUSENTES` y **no guardaban el nodo**:
+  un agente que seguía la documentación oficial no podía persistir memoria.
+- **Placeholder inválido.** Esos ejemplos usaban `cat="tipo"`, que no es categoría válida
+  (`Categoria 'tipo' no existe`). Reemplazado por el catálogo real.
+- **Alias legacy sin paridad.** `buscar` no aceptaba `sustantivos_clave` mientras su
+  descripción prometía "misma funcionalidad y parámetros completos".
+- **Descripción de `guardar` incompleta**: no listaba el campo obligatorio.
+- **Conteo de tools desactualizado** en `config/prompts.py`: decía 23, el servidor
+  expone **42** (verificado contra el server real).
+
+### Descubrimiento en runtime
+
+- **⚠️ pedagógico** cuando `recordar`/`buscar` se llama con `query` y sin núcleo temático:
+  explica el efecto (BM25 4.0x), el criterio (TRATA vs MENCIONA), el formato y un ejemplo.
+  Mismo mecanismo que los avisos existentes de `parafrasis`/`dias`/`dimensiones`.
+  **No bloquea** la búsqueda (RF-19 Spec 001: opcional al buscar).
+- **Visibilidad en resultados**: cada item devuelve ahora `sustantivos_clave` y
+  `sustantivos_clave_items`. Cumple tres funciones — descubrimiento por observación,
+  circuito cerrado (ver por qué un nodo ganó el top) y mantenimiento (`""` delata un nodo
+  legacy enriquecible con `agregar_sustantivos`). Batch query, mismo patrón que
+  `dimensiones_semanticas`, con fallback `largo_plazo` → `corto_plazo`.
+- **Observabilidad**: `log_busquedas.params_json` registra el valor **normalizado**
+  realmente aplicado (`None` si se omitió) → permite auditar la adopción real por agente.
+
+### Instrucciones y descripciones
+
+- `ORACLE_PROMPT` (las `instructions=` que FastMCP inyecta al agente) gana
+  **PLANTILLA SUSTANTIVOS_CLAVE** al nivel de las de paráfrasis y ráfaga: prueba del
+  automóvil, distinción `sustantivos_clave` ≠ `syn`, formato, circuito cerrado. Más
+  4 entradas en errores comunes, 2 ramas en el árbol de decisión y 2 pasos en el
+  protocolo de guardado.
+- Descripciones de `recordar` (guía de modos, PASO 1, PARÁMETROS CLAVE), `buscar`,
+  `aprender` (regla crítica + prueba del automóvil) y `guardar`. Corregido el typo
+  "boost de precisións" y agregada la nota textual que exigía RF-19.
+- Prompt MCP `biorag-system-prompt`: regla del núcleo temático + tools hermanas.
+
+### Documentación orientada al agente
+
+- `config/prompts.py`: ejemplos corregidos, gobernanza y PASO 1/2 con el parámetro,
+  2 tools nuevas listadas, conteo corregido.
+- `AGENTS.md`: 4 filas nuevas en la tabla de *Common Pitfalls*.
+- `skills/biorag-sync/SKILL.md`: flujo INVARIANT (Pasos 1/2/4), ejemplos de `aprender`
+  corregidos, tabla de tools actualizada.
+- `plugin/opencode-biorag-remember-plugin.ts`: `REMINDER_RECALL` instruye el boost;
+  `REMINDER_BIORAG` advierte que sin el campo el guardado se rechaza.
+
+### Lo que deliberadamente NO se cambió
+
+Las rutas de auto-guardado (`middleware/auto_guardado.py`, `auto_save_plugin.py`,
+`middleware/interceptor.py`) escriben directo a `percibir_corto_plazo()` y crean nodos
+con núcleo vacío. Se evaluó derivarles un núcleo automático y se descartó: el Spec 001
+exige que el agente **extraiga** los sustantivos, no que los invente; RF-15 prohíbe el
+backfill automático; `AGENTS.md` prohíbe hardcodear vocabulario de dominio; y tocar la
+ruta de escritura cambiaría métricas (Invariant 2). En su lugar se hicieron **visibles**.
+
+### Tests
+
+- `tests/test_sustantivos_clave_descubrimiento.py`: **32 / 32 passed** (nueva suite).
+- Suite global: **295 / 295 passed** (263 previos + 32 nuevos, cero regresiones).
+
+### Métricas — cero regresión (suite oficial 921 casos)
+
+| Métrica | Antes | Después | Gate |
+|---|---|---|---|
+| Recall@5 Global | 98.06% | **98.06%** | ≥ 97.0% ✅ |
+| Recall@1 | 90.74% | **90.74%** | ≥ 88.0% ✅ |
+| MRR | 0.9355 | **0.9355** | ≥ 0.90 ✅ |
+| FP (negativos) | 0.00% (0/40) | **0.00%** | = 0.0% ✅ |
+| Fallos | 17/875 | **17** | ≤ 24 ✅ |
+| Concept Hub | 5/5 (100%) | **5/5 (100%)** | — ✅ |
+| Abismo léxico | 3/3 (100%) | **3/3 (100%)** | — ✅ |
+
+`bash scripts/run_qa_suite.sh` → `EXIT=0`, `[GATE] OK`.
+`scripts/test_regresion_scoring.py` → todos los tests pasan.
+
+### Nota de entorno
+
+La primera corrida QA en entorno limpio dio **roja** (hasta −12.50 pp por categoría).
+Causa: `nltk` no instalado — se usa en la ruta caliente de recuperación
+(`core/memory_store.py:5010` WordNet, `core/stemmer_es.py:102` Snowball) y su ausencia
+degrada en silencio. Tras `pip install -r requirements.txt` (freeze pineado), las
+métricas volvieron a la baseline exacta. **Lección**: medir siempre con el freeze; un
+entorno incompleto produce regresiones fantasma que no existen en el código.
+
+### Specs
+
+- Spec 003: `specs/003-sustantivos-clave-descubrimiento/spec.md` (+ `tasks.md` con evidencia)
+
+---
 ## [v31.4] — 2026-09-17 — Sustantivos Clave en CLI (biorag.py) · Spec 001+002
 
 **Feature completa de Núcleo Temático en la interfaz de línea de comandos.**

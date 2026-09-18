@@ -331,6 +331,33 @@ ORACLE_PROMPT = (
     "N4 Abstracto/concreto: generalización Y caso específico\n"
     "N5 Emoción/contexto: sentimiento asociado o situación de uso\n\n"
 
+    # ── PLANTILLA DE SUSTANTIVOS CLAVE (NÚCLEO TEMÁTICO) ────────────────
+    "═══ PLANTILLA SUSTANTIVOS_CLAVE — NÚCLEO TEMÁTICO (2-4 TÉRMINOS) ═══\n"
+    "MISMO parámetro, DOS direcciones. Es el único campo que se exige al guardar\n"
+    "y se recomienda al buscar — cerrá el circuito con las mismas palabras.\n\n"
+    "AL GUARDAR (aprender/guardar) → OBLIGATORIO. Sin él la tool retorna\n"
+    "  SUSTANTIVOS_CLAVE_AUSENTES y el nodo NO se guarda.\n"
+    "AL BUSCAR (recordar/buscar) → OPCIONAL pero es el boost más preciso:\n"
+    "  sube al top los nodos que TRATAN de eso (BM25 4.0x sobre la columna\n"
+    "  sustantivos_clave, contra 1.0x del contenido y 2.0x de sinónimos).\n\n"
+    "PREGUNTA ÚNICA: ¿De QUÉ TRATA? — no qué palabras MENCIONA.\n"
+    "✅ 'Los automóviles botan humo que contamina' → contaminacion\n"
+    "   (automovil es ejemplo secundario, NO el núcleo)\n"
+    "✅ 'El servidor backend cae por timeout' → servidor,backend,timeout\n"
+    "   (caida es consecuencia, NO el tema)\n"
+    "❌ NO van: verbos (arregla, cae), adjetivos abstractos (importante, critico),\n"
+    "   consecuencias, ejemplos secundarios, ni el nombre del propio concepto.\n\n"
+    "sustantivos_clave ≠ syn:\n"
+    "  syn              = otras PALABRAS para lo mismo (variedad de vocabulario)\n"
+    "  sustantivos_clave = el CENTRO DE GRAVEDAD temático (de qué trata el nodo)\n\n"
+    "FORMATO: 2-4 términos únicos, 2-15 chars, minúsculas, sin tildes (ñ sí),\n"
+    "  sin espacios, solo alfanuméricos y guion bajo, separados por coma.\n"
+    "  Ej: 'servidor,backend,timeout,conexion'\n\n"
+    "CIRCUITO CERRADO (hábito del agente):\n"
+    "  1. Guardaste con sustantivos_clave='a,b,c' → buscá con las MISMAS palabras.\n"
+    "  2. ¿Nodo legacy sin núcleo? → agregar_sustantivos(concepto, sustantivos_clave).\n"
+    "  3. ¿Dudás qué núcleo tiene un nodo? → sustantivos(concepto) te lo devuelve.\n\n"
+
     # ── PLANTILLA DE RÁFAGA (15 TÉRMINOS, 5 NIVELES) ────────────────────
     "═══ PLANTILLA RÁFAGA — 15 TÉRMINOS en rafaga_palabras= ═══\n"
     "N1_literal: 3 términos directos del dominio\n"
@@ -368,7 +395,7 @@ ORACLE_PROMPT = (
     "• dias=7 O desde=YYYY-MM-DD SIEMPRE salvo búsqueda histórica explícita (sin filtro = basura mezclada)\n"
     "• syn MÍNIMO 8 al guardar (literal,técnico,inglés,problema,solución,relacionado,abstracto,emocional)\n"
     "• vincular() ANTES de consolidar() si hay relación con nodos existentes\n"
-    "• sustantivos_clave SIEMPRE que identifiques 2-4 términos núcleo — anclan de QUÉ TRATA el nodo, no qué menciona (BM25 4.0x, más relación, menos ruido)\n"
+    "• sustantivos_clave SIEMPRE — OBLIGATORIO al guardar (2-4 términos núcleo), RECOMENDADO al buscar (boost BM25 4.0x): anclan de QUÉ TRATA el nodo, no qué menciona (más relación, menos ruido)\n"
     "• NUNCA cat= salvo certeza absoluta (filtro estricto = ceguera)\n"
     "• NUNCA desvincular sin ⚠️ explícito del sistema con par (a,b) exacto\n"
     "• Score bajo ≠ falso positivo. Puede ser hub legítimo por propagación válida.\n\n"
@@ -376,6 +403,10 @@ ORACLE_PROMPT = (
     # ── ERRORES COMUNES QUE DEBES EVITAR ─────────────────────────────────
     "═══ ERRORES COMUNES — NO COMETER ═══\n"
     "✗ Buscar sin parafrasis → recall cae -60%\n"
+    "✗ Guardar sin sustantivos_clave → ERROR SUSTANTIVOS_CLAVE_AUSENTES, el nodo NO se guarda (reintentá con el núcleo temático)\n"
+    "✗ Confundir sustantivos_clave con syn → syn son OTRAS PALABRAS; sustantivos_clave es DE QUÉ TRATA (el centro de gravedad)\n"
+    "✗ Poner en sustantivos_clave lo que el texto MENCIONA en vez de lo que TRATA → 'Los automóviles botan humo' es contaminacion, NO automovil\n"
+    "✗ Buscar por tema sin sustantivos_clave → perdés el boost de precisión (4.0x) que ordena los nodos por su núcleo\n"
     "✗ Inventar nombres de dimensiones → ERROR (usar la referencia de arriba o listar_dimensiones)\n"
     "✗ Pasar dimensiones como dict Python → ERROR (debe ser STRING JSON con comillas dobles)\n"
     "✗ Buscar sin filtro temporal → trae todo mezclado de meses\n"
@@ -387,11 +418,14 @@ ORACLE_PROMPT = (
     # ── ÁRBOL DE DECISIÓN RÁPIDO ─────────────────────────────────────────
     "═══ ÁRBOL DE DECISIÓN — ¿CÓMO BUSCO? ═══\n"
     "¿Busco por nombre exacto? → query='nombre_exacto' SIN dimensiones\n"
+    "¿Busco por TEMA ('qué sé de servidores/caídas')? → query + parafrasis + sustantivos_clave='nucleo1,nucleo2'\n"
     "¿Busco por 'qué me frustra/qué sé de X dominio'? → query + dimensiones + parafrasis\n"
+    "¿El resultado top tiene score bajo o trajo ruido? → agregá sustantivos_clave y volvé a buscar ANTES de la ráfaga\n"
     "¿No encuentro nada? → PASO 2: ráfaga con 15 términos en 5 niveles\n"
     "¿Busco todo lo reciente? → recordar(dias=7) sin query\n"
     "¿Busco por quién lo creó? → autor='nombre_agente'\n"
-    "¿Busco nodos dormidos? → deep=true\n\n"
+    "¿Busco nodos dormidos? → deep=true\n"
+    "¿Necesito ver/corregir el núcleo de un nodo? → sustantivos(concepto) / agregar_sustantivos(concepto, sustantivos_clave)\n\n"
 
     # ── PROTOCOLO DE FEEDBACK DOPAMINÉRGICO (RPE) ───────────────────────
     "═══ PROTOCOLO DE FEEDBACK DOPAMINÉRGICO (RPE - Schultz 1997) ═══\n"
@@ -417,10 +451,12 @@ ORACLE_PROMPT = (
     # ── PROTOCOLO AL GUARDAR ─────────────────────────────────────────────
     "═══ PROTOCOLO AL GUARDAR (aprender) ═══\n"
     "1. Pensá: '¿Con qué 5-8 palabras me buscaré en 3 meses?' → esas van en syn\n"
-    "2. Recorré los 13 ejes de dimensiones uno por uno — clasificá cada uno que aplique (mín 7-10)\n"
-    "3. Mostrá al usuario qué dimensiones y categoría le pusiste — sin confirmación no se ejecuta\n"
-    "4. Después de guardar: ¿hay nodos relacionados? → vincular() ANTES de consolidar()\n"
-    "5. syn cubre 3 capas: literal/técnico, relacionado/problema-solución, abstracto/emocional\n\n"
+    "2. Pensá: '¿De QUÉ TRATA esto?' → 2-4 sustantivos núcleo en sustantivos_clave (OBLIGATORIO, sin esto no se guarda)\n"
+    "3. Recorré los 13 ejes de dimensiones uno por uno — clasificá cada uno que aplique (mín 7-10)\n"
+    "4. Mostrá al usuario qué dimensiones, categoría y sustantivos_clave le pusiste — sin confirmación no se ejecuta\n"
+    "5. Después de guardar: ¿hay nodos relacionados? → vincular() ANTES de consolidar()\n"
+    "6. syn cubre 3 capas: literal/técnico, relacionado/problema-solución, abstracto/emocional\n"
+    "7. sustantivos_clave NO es syn: el mismo texto puede MENCIONAR 'automovil' y TRATAR de 'contaminacion' — guardá contaminacion\n\n"
 
     # ── REGLA FINAL ──────────────────────────────────────────────────────
     "═══ REGLA FINAL ═══\n"
@@ -728,6 +764,17 @@ def _build_server():
             if query is not None:
                 if parafrasis is None:
                     _warnings.append("⚠️ parafrasis=None — Sin parafrasis, el recall es ~40%. Generá 3-5 reformulaciones.")
+                if not sustantivos_clave_norm:
+                    # Pedagógico (RF-19 spec 001): el boost temático es OPCIONAL, así que
+                    # no bloquea la búsqueda — pero el agente tiene que SABER que existe.
+                    # Mismo mecanismo de descubrimiento en runtime que parafrasis/dimensiones.
+                    _warnings.append(
+                        "⚠️ sustantivos_clave=None — Sin boost temático (BM25 4.0x sobre la columna "
+                        "sustantivos_clave). La búsqueda funciona, pero ordena por lo que los nodos "
+                        "MENCIONAN, no por lo que TRATAN. Si identificás 2-4 sustantivos núcleo de tu "
+                        "consulta, pasalos: sustantivos_clave='servidor,timeout' (2-15 chars, sin "
+                        "espacios ni tildes, separados por coma)."
+                    )
                 if dias is None and desde is None:
                     _warnings.append("⚠️ dias=None, desde=None — Sin filtro temporal, traés TODO incluyendo cosas viejas.")
                 if not asociados:
@@ -1172,6 +1219,45 @@ def _build_server():
                     except sqlite3.OperationalError:
                         pass
 
+            # ── VISIBILIDAD DEL NÚCLEO TEMÁTICO (spec 003 · RF-D2) ────────
+            # Cada resultado muestra su propio sustantivos_clave. Tres motivos:
+            #   1. Descubrimiento: el agente VE el campo en la respuesta y aprende que existe
+            #      (mismo mecanismo que dimensiones_semanticas).
+            #   2. Circuito cerrado: si buscó con sustantivos_clave, puede comprobar por qué
+            #      ese nodo subió al top — el núcleo que matcheó está a la vista.
+            #   3. Mantenimiento: '' delata un nodo legacy sin núcleo → el agente sabe que
+            #      puede enriquecerlo con agregar_sustantivos() en vez de ignorarlo.
+            # Batch único (1 query por tabla), mismo patrón que las dimensiones.
+            _sk_map = {}
+            if _items_con_dim:
+                _conceptos_sk = [item["concepto"] for item in _items_con_dim if item["concepto"]]
+                if _conceptos_sk:
+                    _ph_sk = ",".join("?" * len(_conceptos_sk))
+                    for _tabla in ("largo_plazo", "corto_plazo"):
+                        _faltantes = [c for c in _conceptos_sk if c not in _sk_map]
+                        if not _faltantes:
+                            break
+                        _ph_f = ",".join("?" * len(_faltantes))
+                        try:
+                            cerebro.cursor.execute(
+                                f"SELECT concepto, COALESCE(sustantivos_clave, '') FROM {_tabla} "
+                                f"WHERE concepto IN ({_ph_f})",
+                                _faltantes,
+                            )
+                            for _c, _sk in cerebro.cursor.fetchall():
+                                _sk_map[_c] = _sk or ""
+                        except sqlite3.OperationalError:
+                            # DB anterior a la migración de la columna: el campo simplemente
+                            # no se adjunta. No rompe la búsqueda (RF-15: sin backfill).
+                            break
+                    for item in _items_con_dim:
+                        if item["concepto"] in _sk_map:
+                            _sk_val = _sk_map[item["concepto"]]
+                            item["sustantivos_clave"] = _sk_val
+                            item["sustantivos_clave_items"] = (
+                                [t for t in _sk_val.split(",") if t] if _sk_val else []
+                            )
+
             # ── WARNING DE STALE ───────────────────────────────────────
             if items and any(item.get("stale") for item in items):
                 stale_count = sum(1 for item in items if item.get("stale"))
@@ -1278,6 +1364,9 @@ def _build_server():
                 params_log = {
                     "query": query,
                     "parafrasis": parafrasis,
+                    # Normalizado (no el crudo): es lo que realmente se aplicó al boost.
+                    # Permite auditar adopción del parámetro y depurar rankings.
+                    "sustantivos_clave": sustantivos_clave_norm,
                     "rafaga_palabras": rafaga_palabras,
                     "forzar_rafaga": forzar_rafaga,
                     "dimensiones": dimensiones,
@@ -1390,16 +1479,24 @@ def _build_server():
             "│ Query + dimensiones              │ Ruido ⭐    │ Recall Medio  │ Filtrar por propiedades ontológicas\n"
             "│ Query + paráfrasis               │ Ruido ⭐⭐  │ Recall Alto   │ Búsqueda semántica estándar\n"
             "│ Query + paráfrasis + dimensiones  │ Ruido ⭐⭐  │ Recall Máximo │ MODO RECOMENDADO (mejor balance)\n"
+            "│ Query + sustantivos_clave         │ Ruido ⭐    │ Precisión Máx │ Buscar por TEMA: prioriza lo que el nodo TRATA\n"
             "│ Ráfaga                            │ Ruido ⭐⭐⭐⭐│ Recall Amplio │ Rescate cuando PASO 1 falla\n"
             "│ Ráfaga + paráfrasis               │ Ruido ⭐⭐⭐⭐⭐│Recall Máximo│ Último recurso — filtrar en síntesis\n"
             "CLAVE: Las dimensiones REDUCEN ruido (son filtro, no amplificador).\n"
             "       Las paráfrasis AMPLÍAN cobertura (más candidatos, posible ruido).\n"
+            "       Los sustantivos_clave ORDENAN por núcleo temático (BM25 4.0x sobre esa columna):\n"
+            "         mismo recall, MEJOR ranking — suben los nodos que TRATAN del tema y bajan los\n"
+            "         que solo lo MENCIONAN de paso. Es el parámetro de PRECISIÓN, no de cobertura.\n"
             "       La ráfaga es la red de rescate más amplia — evaluá resultados en síntesis.\n\n"
             "═══════════════════════════════════════════════════════\n"
             "FLUJO — 2 PASOS. NO SALTEAR.\n"
             "═══════════════════════════════════════════════════════\n\n"
             "PASO 1 — Búsqueda Semántica:\n"
             "  SIEMPRE incluir parafrasis desde el primer intento.\n"
+            "  sustantivos_clave: INCLUIR cuando sepas el TEMA de lo que buscás (2-4 sustantivos\n"
+            "    núcleo). Es el boost de precisión: ordena por lo que el nodo TRATA.\n"
+            "    Ej: '¿qué sé de caídas del backend?' → sustantivos_clave='servidor,timeout,conexion'\n"
+            "    OMITIR solo si no identificás ningún sustantivo núcleo (la búsqueda funciona igual).\n"
             "  dimensiones: INCLUIR cuando la query busca propiedades ontológicas\n"
             "    (emoción, entidad, acción, cualidad, coordenada, intención, dominio, cualia, epistemia, escala_abstraccion, centralidad_identitaria, textura_experiencial, modalidad).\n"
             "    OMITIR cuando busques por nombre exacto o keywords claras.\n"
@@ -1428,6 +1525,19 @@ def _build_server():
             "═══════════════════════════════════════════════════════\n"
             "- parafrasis: OBLIGATORIO. Reformulaciones separadas por coma.\n"
             "  Sin parafrasis = solo FTS5 crudo (pierde ~60% recall semántico).\n"
+            "- sustantivos_clave: boost de PRECISIÓN por núcleo temático (2-4 términos, coma).\n"
+            "  Opcional al buscar, OBLIGATORIO al guardar (aprender).\n"
+            "  Qué hace: agrega MATCH sobre la columna sustantivos_clave con peso BM25 4.0x\n"
+            "    (concepto=5.0x, contenido=1.0x, sinonimos=2.0x, sustantivos_clave=4.0x).\n"
+            "  Cuándo usarlo: cuando la consulta tiene un TEMA claro y querés que suban los\n"
+            "    nodos que TRATAN de eso, no los que apenas lo mencionan de paso.\n"
+            "    ✅ recordar(query='humo en la ciudad', sustantivos_clave='contaminacion,aire')\n"
+            "    ✅ recordar(query='timeout', sustantivos_clave='servidor,backend,conexion')\n"
+            "    ❌ recordar(query='error_http_500') → nombre exacto, no necesita núcleo\n"
+            "  Formato: 2-15 chars por término, minúsculas, sin espacios, sin tildes (ñ sí),\n"
+            "    solo alfanuméricos y guion bajo. Término inválido → ERROR, no se ejecuta la búsqueda.\n"
+            "  Los nodos legacy creados antes de este campo tienen sustantivos_clave='' →\n"
+            "    no reciben boost pero siguen apareciendo por el resto del pipeline.\n"
             "- dimensiones: Boost semántico por propiedades ontológicas.\n"
             "  ANTES de usar, llamá a listar_dimensiones para obtener nombres válidos.\n"
             "  Valores inexistentes = ERROR.\n"
@@ -1452,6 +1562,8 @@ def _build_server():
              "- cat: filtrar por categoría (opcional). Sin filtro = todas.\n"
             "- context_window: 1-2 para incluir vecinos sinápticos.\n"
             "- deep: True para incluir nodos dormidos.\n"
+            "- Tools hermanas del núcleo temático: sustantivos(concepto) lo consulta;\n"
+            "  agregar_sustantivos(concepto, sustantivos_clave) enriquece un nodo legacy.\n"
             "- asociados: True para ver las conexiones de cada resultado.\n"
             "  SIEMPRE usar asociados=True cuando buscas nodos relacionados.\n"
             "  Sin asociados, solo ves el nodo pero no sus vínculos.\n\n"
@@ -1769,9 +1881,18 @@ def _build_server():
         )] = "relevancia",
         sustantivos_clave: Annotated[Optional[str], Field(
             description=(
-                "Sustantivos clave para boost de precisións.\n"
+                "Núcleo temático de tu consulta — el centro de gravedad semántico.\n\n"
+                "Usar para potenciar la precisión de búsqueda. Los nodos con estos sustantivos en su "
+                "centro de gravedad temático suben al top.\n\n"
                 "Si se provee (separados por coma), la búsqueda prioriza nodos que matchean esos "
                 "términos en su columna 'sustantivos_clave' — por lo que TRATAN, no solo por lo que MENCIONAN.\n"
+                "Mecanismo: se agrega una condición MATCH sobre la columna sustantivos_clave, que en el "
+                "BM25 pesa 4.0x (concepto=5.0x, contenido=1.0x, sinonimos=2.0x, sustantivos_clave=4.0x). "
+                "No es un filtro excluyente: no recorta candidatos, ORDENA mejor los que ya venían.\n\n"
+                "CUÁNDO USARLO: cuando la consulta tiene un tema identificable. "
+                "Es el mismo campo que se exige al guardar (aprender), así que buscá con las mismas "
+                "palabras núcleo con las que guardarías el nodo — cerrás el circuito.\n"
+                "CUÁNDO OMITIRLO: nombre exacto de nodo o keyword ya precisa (ej: query='error_http_500').\n\n"
                 "None o '' = búsqueda normal sin boost.\n"
                 "Formato por término: 2-15 chars, sin espacios, solo alfanuméricos y guion bajo. "
                 "Si algún término no cumple → error y la búsqueda NO se ejecuta.\n"
@@ -1795,7 +1916,8 @@ def _build_server():
             "El flujo de 4 pasos aplica igualmente (ver descripción de 'recordar').\n\n"
             "Parámetros: query (str), dimensiones (str JSON), deep (bool), cat (str), completo (bool), asociados (bool), "
             "limite (int), preview_chars (int), context_window (int 0-2), "
-            "forzar_rafaga (bool), rafaga_palabras (str), pagina (int), parafrasis (str).\n\n"
+            "forzar_rafaga (bool), rafaga_palabras (str), pagina (int), parafrasis (str), "
+            "sustantivos_clave (str: 2-4 términos núcleo, boost BM25 4.0x).\n\n"
             "Retorna: {total, pagina_actual, paginas_totales, resultados[], sinapsis_creadas[], profundidad}"
         ),
     )
@@ -1875,13 +1997,25 @@ def _build_server():
         usar_inferencia: Annotated[bool, Field(
             description="Si True, utiliza inferencia transitiva sobre sinapsis latentes."
         )] = True,
+        sustantivos_clave: Annotated[Optional[str], Field(
+            description=(
+                "Núcleo temático para boost de precisión (idem 'recordar').\n"
+                "2-4 sustantivos separados por coma que describen de QUÉ TRATA lo que buscás "
+                "(no qué palabras menciona). Prioriza nodos cuyo campo 'sustantivos_clave' "
+                "coincida — BM25 4.0x sobre esa columna.\n"
+                "Formato por término: 2-15 chars, minúsculas, sin espacios, sin tildes (ñ sí), "
+                "solo alfanuméricos y guion bajo. Término inválido → error, la búsqueda NO se ejecuta.\n"
+                "None o '' = búsqueda normal sin boost.\n"
+                "Ejemplo: query='timeout', sustantivos_clave='servidor,conexion'."
+            )
+        )] = None,
     ) -> str:
         return _recordar_impl(
             query, deep, cat, completo, asociados, limite, preview_chars,
             context_window, forzar_rafaga, rafaga_palabras, pagina, parafrasis,
             dimensiones, modo_estricto=modo_estricto,
             buscar_por_rol=buscar_por_rol, usar_inferencia=usar_inferencia,
-            asociaciones_max=asociaciones_max
+            asociaciones_max=asociaciones_max, sustantivos_clave=sustantivos_clave,
         )
 
     # ── APRENDER ─────────────────────────────────────────────────────────────
@@ -2234,10 +2368,20 @@ def _build_server():
             "Cuando guardás un nodo, elegí las palabras correctas, conectalo con otros conceptos que tengan que ver, y etiquetalo con las dimensiones que alguien usaría para encontrarlo. "
             "La gente no busca igual — si guardás solo con tus palabras, quizás nadie lo recupere. "
             "Pensá: 'si en 3 meses alguien busca X, ¿este nodo aparece?' Con millones de nodos, el que no tiene conexiones ni dimensiones bien puestas se pierde. Es como tener un libro sin índice.\n\n"
+            "REGLA CRÍTICA — sustantivos_clave (núcleo temático): OBLIGATORIO. "
+            "2-4 sustantivos que dicen de QUÉ TRATA el nodo — no qué palabras menciona. "
+            "Sin este campo la tool retorna SUSTANTIVOS_CLAVE_AUSENTES y el nodo NO se guarda. "
+            "Es lo que después permite recuperarlo por tema con recordar(sustantivos_clave=...). "
+            "Prueba del automóvil: 'Los automóviles botan humo que contamina' → contaminacion, "
+            "NUNCA automovil (el automóvil es ejemplo secundario, el tema es la contaminación). "
+            "No son verbos, ni adjetivos, ni consecuencias, ni sinónimos.\n\n"
             "REGLA CRÍTICA — syn (sinónimos): Mínimo 5. Sin syn, el nodo solo es visible "
             "por nombre exacto. Nadie que busque con otras palabras lo encuentra. "
             "Cubrí tres capas: literal, relacionado, abstracto. "
-            "La tool lanza warning si no ponés syn o es insuficiente."
+            "La tool lanza warning si no ponés syn o es insuficiente.\n\n"
+            "sustantivos_clave ≠ syn: syn son OTRAS PALABRAS para lo mismo (amplían vocabulario); "
+            "sustantivos_clave es el CENTRO DE GRAVEDAD del tema (ordenan por relevancia temática, "
+            "BM25 4.0x). Los dos se piden, cumplen funciones distintas."
         ),
     )
     def biorag_aprender(
@@ -2402,8 +2546,11 @@ def _build_server():
         description=(
             "(legado) Alias de 'aprender' — preferir 'aprender' para identificar la operación cognitiva real. "
             "Misma funcionalidad y parámetros.\n\n"
-            "Parámetros: concepto (str), contenido (str), bridges (5 ángulos REQUERIDO), syn (str opcional), cat (str opcional), "
+            "Parámetros: concepto (str), contenido (str), bridges (5 ángulos REQUERIDO), "
+            "sustantivos_clave (str REQUERIDO: 2-4 términos del núcleo temático), syn (str opcional), cat (str opcional), "
             "dimensiones (str JSON opcional), predicados (str JSON opcional), valencia_somatica (float opcional).\n\n"
+            "Sin bridges o sin sustantivos_clave la tool retorna error y el nodo NO se guarda "
+            "(BRIDGES_INVALIDOS / SUSTANTIVOS_CLAVE_AUSENTES). Mismas reglas que 'aprender'.\n\n"
             "Retorna: {status, mensaje, concepto (str normalizado), sinapsis (int)}"
         ),
     )
@@ -4224,12 +4371,21 @@ def _build_server():
         return (
             ORACLE_PROMPT
             + "\n\n## Reglas de uso de BioRAG:\n\n"
-            "1. Algo ya visto → recordar"
-            "2. Algo nuevo → aprender + consolidar"
+            "1. Algo ya visto → recordar(query, parafrasis, sustantivos_clave, asociados=true)"
+            "2. Algo nuevo → aprender(sustantivos_clave OBLIGATORIO) + consolidar"
             "3. Dos conceptos relacionados → vincular"
             "4. Mensaje a otro agente → comunicar"
             "5. Ver mensajes al iniciar → leer_mensajes"
             "6. 2 búsquedas sin resultado → preguntar al humano"
+            ""
+            "NÚCLEO TEMÁTICO (sustantivos_clave):"
+            "  Al GUARDAR es obligatorio: 2-4 sustantivos de QUÉ TRATA el nodo (no qué menciona)."
+            "  Sin él → error SUSTANTIVOS_CLAVE_AUSENTES y el nodo no se guarda."
+            "  Al BUSCAR es opcional y es el boost de precisión (BM25 4.0x): pasá los mismos"
+            "  términos núcleo con los que guardarías el nodo."
+            "  Ejemplo: 'Los automóviles botan humo' → contaminacion (NUNCA automovil)."
+            "  Nodo legacy sin núcleo → agregar_sustantivos(concepto, sustantivos_clave)."
+            "  Ver el núcleo de un nodo → sustantivos(concepto)."
             ""
             "Al iniciar sesión importante → contexto_inicio"
             "Al terminar → contexto_fin"

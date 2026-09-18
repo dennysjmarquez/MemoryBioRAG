@@ -79,13 +79,19 @@ Busca en otra dimensión. No en el contenido — en la estructura. No en la pala
 Lee los resultados que te llegan no para ver si son la respuesta, sino para ver qué te dicen
 sobre DÓNDE está la respuesta."
 
-INVARIANT: Paso 1 — QUERY DIRECTO:
-    recordar(query='X')
+INVARIANT: Paso 1 — QUERY DIRECTO + NÚCLEO TEMÁTICO:
+    recordar(query='X', sustantivos_clave='nucleo1,nucleo2')
+    sustantivos_clave es el boost de PRECISIÓN (BM25 4.0x sobre esa columna):
+    prioriza nodos por lo que TRATAN, no por lo que MENCIONAN.
+    Mismo criterio que al guardar → buscá con las palabras núcleo con las que
+    guardarías el nodo. Formato: 2-4 términos, 2-15 chars, minúsculas, sin
+    espacios ni tildes (ñ sí), solo alfanuméricos y guion bajo.
+    PRUEBA DEL AUTOMÓVIL: 'Los automóviles botan humo' → contaminacion, NO automovil.
     ¿Resultado bueno? → ir a SÍNTESIS
     ¿Resultado malo/vacío? → PASO 2
 
 INVARIANT: Paso 2 — PARÁFRASIS:
-    recordar(query='X', parafrasis='var1,var2,var3')
+    recordar(query='X', parafrasis='var1,var2,var3', sustantivos_clave='nucleo1,nucleo2')
     Generar 3-5 reformulaciones con vocabulario diferente antes de llamar.
     NUNCA adjetivos abstractos (supremo, elevado, importante).
     SIEMPRE sustantivos literales del dominio (nivel, sync, biorag, sqlite).
@@ -101,7 +107,9 @@ INVARIANT: Paso 3 — RÁFAGA:
 
 INVARIANT: Paso 4 — MODO DIOS (parafrasis + ráfaga juntos):
     recordar(query='X', parafrasis='var1,var2,var3',
-             rafaga_palabras='t1,t2,t3', forzar_rafaga=True)
+             rafaga_palabras='t1,t2,t3', forzar_rafaga=True,
+             sustantivos_clave='nucleo1,nucleo2')
+    El núcleo temático se mantiene en los 4 pasos: no es excluyente con la ráfaga.
     ¿Resultado bueno? → ir a SÍNTESIS
     ¿Resultado malo/vacío? → CONTINGENCIA (buscar en contexto del chat)
 
@@ -156,7 +164,14 @@ que BioRAG (motor de busqueda) no puede generar.
 ```
 1. aprender (legacy: guardar) — percibir el concepto:
    aprender(concepto="NOMBRE", contenido="TEXTO",
-     cat="CATEGORIA", syn="sinonimos,separados,por,coma")
+     cat="CATEGORIA", syn="sinonimos,separados,por,coma",
+     bridges=[5 ángulos: sinonimo, problema, solucion, situacion, ingenuo],
+     sustantivos_clave="nucleo1,nucleo2")
+
+   OBLIGATORIOS: bridges (5 ángulos) y sustantivos_clave (2-4 términos núcleo).
+   Sin sustantivos_clave → error SUSTANTIVOS_CLAVE_AUSENTES y el nodo NO se guarda.
+   cat debe ser una categoría válida (Architecture, Cognition, General, Lesson,
+   Personal, Principle, Profile, Project, Protocol, Relation, System).
 
    NOTA: auto_vincular ya se ejecuta internamente en el motor (pre-filtro FTS5
    con umbral 0.3). Este paso manual es para vínculos semánticos ADICIONALES
@@ -277,7 +292,8 @@ Paso 4: Por cada insight candidato:
         SI existe nodo semanticamente equivalente:
             skip (el peso sinaptico se refuerza por el acceso)
         SI es genuinamente nuevo:
-            aprender(concepto, contenido, cat=<inferida>)
+            aprender(concepto, contenido, cat=<inferida>, bridges=<5 ángulos>,
+                     sustantivos_clave=<2-4 términos núcleo>)
 
 Paso 5: Re-exportar TXT de categorias afectadas:
         python3 scripts/export_biorag_to_jsonl.py
@@ -395,10 +411,12 @@ No se sincroniza automaticamente.
 
 | Herramienta | Alias | Parametros | Descripcion |
 |---|---|---|---|
-| `recordar` | `buscar` | `query, deep, cat, completo, asociados, limite, preview_chars, context_window, forzar_rafaga, rafaga_palabras, pagina` | Evocacion con pipeline 9 capas + rafaga de reminiscencia. Flujo obligatorio: Enriquecimiento → Rafaga si score<0.5 → Contingencia → Sintesis de Espectro (Paso 4 del protocolo). |
-| `aprender` | `guardar` | `concepto, contenido, syn, cat` | Codifica en corto plazo. auto_vincular se ejecuta internamente (pre-filtro FTS5 umbral 0.3). Usar `consolidar` despues. |
+| `recordar` | `buscar` | `query, deep, cat, completo, asociados, limite, preview_chars, context_window, forzar_rafaga, rafaga_palabras, pagina, parafrasis, dimensiones, sustantivos_clave` | Evocacion con pipeline 9 capas + rafaga de reminiscencia. Flujo obligatorio: Enriquecimiento → Rafaga si score<0.5 → Contingencia → Sintesis de Espectro (Paso 4 del protocolo). |
+| `aprender` | `guardar` | `concepto, contenido, syn, cat, dimensiones, bridges (OBLIG), sustantivos_clave (OBLIG)` | Codifica en corto plazo. auto_vincular se ejecuta internamente (pre-filtro FTS5 umbral 0.3). Usar `consolidar` despues. |
 | `vincular` | `asociar` | `a, b` | Asociacion hebbiana manual entre dos conceptos. Para vinculos semanticos adicionales que el motor no infiere. |
-| `consolidar` | `sueno` | `limite_energia` | Sueño cognitivo LTP/LTD. Fija corto plazo a largo plazo. |
+| `consolidar` | `sueno` | `limite_energia` | Sueño cognitivo LTP/LTD. Fija corto plazo a largo plazo. Propaga `sustantivos_clave` de corto a largo. |
+| `sustantivos` | — | `concepto` | Consulta el núcleo temático de un nodo. Devuelve `{sustantivos_clave, items[]}`. |
+| `agregar_sustantivos` | — | `concepto, sustantivos_clave` | Enriquece o corrige el núcleo temático de un nodo ya guardado (nodos legacy). Sincroniza FTS5. |
 
 ### Cognicion — Introspeccion
 

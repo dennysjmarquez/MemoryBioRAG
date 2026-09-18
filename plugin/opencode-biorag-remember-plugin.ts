@@ -42,6 +42,9 @@ const REMINDER_RECALL =
 	"DYNAMIC MEMORY PROTOCOL (mandatory):\n" +
 	"Before responding, ALWAYS execute recordar (née buscar) with forzar_rafaga=True " +
 	"and 10-15 rafaga_palabras covering the topic.\n" +
+	"ALWAYS add sustantivos_clave='nucleus1,nucleus2' (2-4 topic nouns, lowercase, no spaces/accents): " +
+	"it is the precision boost (BM25 4.0x) that ranks nodes by what they are ABOUT, " +
+	"not by what they merely mention. 'Cars emit smoke' -> contaminacion, never automovil.\n" +
 	"CATEGORIES TO SEARCH: Principle, Protocol, Project, Architecture, Lesson, Profile.\n" +
 	"COST: Local SQLite call (~5s). Zero API tokens. No reason to skip it.\n" +
 	"IF ZERO RESULTS: Proceed with your reasoning. Do NOT ask the user for context you could have searched.\n\n" +
@@ -68,6 +71,9 @@ function buildReminderBiorag(sessionID: string): string {
 		"The 'ZERO exceptions' rule in Plan Mode does NOT apply to BioRAG memory tools, " +
 		"as they are classified as session telemetry, not system modifications.\n\n" +
 		"If durable knowledge was created, you MUST save it now.\n" +
+		"SAVING REQUIRES sustantivos_clave: aprender() rejects the call with " +
+		"SUSTANTIVOS_CLAVE_AUSENTES and writes NOTHING unless you pass 2-4 topic-nucleus nouns " +
+		"(what the node is ABOUT, not what it mentions). bridges (5 angles) is required too.\n" +
 		"Always sign with your agent name.\n" +
 		"--- LRDF Filter ---\n" +
 		"Before saving, ask: does this change my WHY (mindset/principle) or only my WHAT (tactic/fact)?\n" +
