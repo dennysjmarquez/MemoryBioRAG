@@ -373,6 +373,19 @@ ORACLE_PROMPT = (
     "• NUNCA desvincular sin ⚠️ explícito del sistema con par (a,b) exacto\n"
     "• Score bajo ≠ falso positivo. Puede ser hub legítimo por propagación válida.\n\n"
 
+    # ── AXIOMA DE INDEXACIÓN — SUSTANTIVOS CLAVE ─────────────────────────
+    # Norma de selección de sustantivos_clave. Genérica para cualquier
+    # operador del sistema: no referencia roles, identidades ni proyectos
+    # específicos, solo el comportamiento de búsqueda del motor.
+    "═══ AXIOMA DE INDEXACIÓN — sustantivos_clave ═══\n"
+    "- CONTEXTO: Selección de sustantivos_clave en procesos de guardado/aprendizaje.\n"
+    "- MANDATO: Los sustantivos_clave deben ser estrictamente LÉXICOS, CONCRETOS y BUSCABLES.\n"
+    "- PROHIBICIÓN: Queda terminantemente prohibido el uso de abstracciones de segundo orden "
+    "(ej. 'transición', 'diferenciación', 'estrategia').\n"
+    "- REGLA OPERATIVA: Elegir palabras que quien consulta la memoria escribiría textualmente al buscar "
+    "el nodo, expandiendo la superficie de búsqueda sin duplicar términos ya presentes con alto peso "
+    "en el nombre del concepto.\n\n"
+
     # ── ERRORES COMUNES QUE DEBES EVITAR ─────────────────────────────────
     "═══ ERRORES COMUNES — NO COMETER ═══\n"
     "✗ Buscar sin parafrasis → recall cae -60%\n"
@@ -738,6 +751,12 @@ def _build_server():
                         "Usá dimensiones cuando busques por propiedades ontológicas "
                         "(emoción, entidad, acción, cualidad, coordenada, intención, dominio, cualia, epistemia, escala_abstraccion, centralidad_identitaria, textura_experiencial, modalidad). "
                         "Ejemplo: dimensiones='intencion_aprender' o dimensiones='dominio_tecnico'"
+                    )
+                if sustantivos_clave is None or (isinstance(sustantivos_clave, str) and not sustantivos_clave.strip()):
+                    _warnings.append(
+                        "⚠️ sustantivos_clave=None — Sin términos núcleo, el motor no sabe DE QUÉ TRATA la búsqueda. "
+                        "Identificá 2-4 sustantivos que representen el núcleo conceptual (no lo que mencionás, sino de qué TRATA). "
+                        "Ejemplo: query='timeout al conectar', sustantivos_clave='servidor,conexion,red'"
                     )
 
             # Sin query → log cronológico puro por creado_en
@@ -1775,7 +1794,9 @@ def _build_server():
                 "None o '' = búsqueda normal sin boost.\n"
                 "Formato por término: 2-15 chars, sin espacios, solo alfanuméricos y guion bajo. "
                 "Si algún término no cumple → error y la búsqueda NO se ejecuta.\n"
-                "Ejemplo: query='timeout', sustantivos_clave='servidor,conexion'."
+                "Ejemplo: query='timeout', sustantivos_clave='servidor,conexion'.\n"
+                "AXIOMA: usá términos LÉXICOS y CONCRETOS — palabras que la fuente de la consulta "
+                "escribiría literalmente; no abstracciones de segundo orden."
             )
         )] = None,
     ) -> str:
@@ -2388,10 +2409,14 @@ def _build_server():
         sustantivos_clave: Annotated[Optional[str], Field(
             description=(
                 "OBLIGATORIO — centro de gravedad semántico: 2-4 sustantivos "
-                "que definen de QUÉ TRATA el nodo ¿de QUÉ TRATA este recuerdo? (no qué menciona).\n"
+                "que definen de QUÉ TRATA el nodo (no qué menciona).\n"
                 "Formato: separados por coma, minúsculas, sin tildes.\n"
                 "Ejemplo: 'servidor,backend,timeout,conexion'\n"
-                "Mínimo 2, máximo 4 términos únicos (2-15 chars cada uno)."
+                "Mínimo 2, máximo 4 términos únicos (2-15 chars cada uno).\n"
+                "AXIOMA: términos LÉXICOS, CONCRETOS y BUSCABLES — las palabras que quien consulta "
+                "escribiría al buscar el nodo. PROHIBIDO abstracciones de segundo orden "
+                "(ej. 'transición', 'estrategia', 'diferenciación'). "
+                "No duplicar términos con alto peso ya presentes en el nombre del concepto."
             )
         )] = None,
     ) -> str:
@@ -2442,7 +2467,8 @@ def _build_server():
                 "OBLIGATORIO — centro de gravedad semántico: 2-4 sustantivos "
                 "que definen de QUÉ TRATA el nodo (no qué menciona). "
                 "Mismo formato y reglas que en `aprender`. "
-                "Ejemplo: 'servidor,backend,timeout,conexion'"
+                "Ejemplo: 'servidor,backend,timeout,conexion'. "
+                "AXIOMA: LÉXICOS, CONCRETOS y BUSCABLES; prohibido abstracciones de segundo orden."
             )
         )] = None,
     ) -> str:
@@ -2468,7 +2494,8 @@ def _build_server():
                 "2-4 sustantivos clave que definen el centro de gravedad del nodo (de QUÉ TRATA).\n"
                 "Formato: separados por coma, minúsculas, sin tildes.\n"
                 "Ejemplo: 'servidor,backend,timeout,conexion'\n"
-                "Mínimo 2, máximo 4 términos únicos (2-15 chars cada uno)."
+                "Mínimo 2, máximo 4 términos únicos (2-15 chars cada uno).\n"
+                "AXIOMA: LÉXICOS, CONCRETOS y BUSCABLES; prohibido abstracciones de segundo orden."
             )
         )],
     ) -> str:
