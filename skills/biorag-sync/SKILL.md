@@ -396,9 +396,21 @@ No se sincroniza automaticamente.
 | Herramienta | Alias | Parametros | Descripcion |
 |---|---|---|---|
 | `recordar` | `buscar` | `query, deep, cat, completo, asociados, limite, preview_chars, context_window, forzar_rafaga, rafaga_palabras, pagina` | Evocacion con pipeline 9 capas + rafaga de reminiscencia. Flujo obligatorio: Enriquecimiento → Rafaga si score<0.5 → Contingencia → Sintesis de Espectro (Paso 4 del protocolo). |
-| `aprender` | `guardar` | `concepto, contenido, syn, cat` | Codifica en corto plazo. auto_vincular se ejecuta internamente (pre-filtro FTS5 umbral 0.3). Usar `consolidar` despues. |
+| `aprender` | `guardar` | `concepto, contenido, syn, cat, sustantivos_clave, dimensiones, bridges, predicados` | Codifica en corto plazo. auto_vincular se ejecuta internamente (pre-filtro FTS5 umbral 0.3). Usar `consolidar` despues. |
 | `vincular` | `asociar` | `a, b` | Asociacion hebbiana manual entre dos conceptos. Para vinculos semanticos adicionales que el motor no infiere. |
 | `consolidar` | `sueno` | `limite_energia` | Sueño cognitivo LTP/LTD. Fija corto plazo a largo plazo. |
+
+#### Referencia Rápida de Parámetros al Guardar / Aprender:
+- `syn` = Formas alternativas de llamar al concepto (mismo rol gramatical). Ej: `"IAM, control de acceso, gestión de identidades"`. (❌ No poner sustantivos sueltos ni verbos).
+- `sustantivos_clave` = Sustantivos de contenido que enriquecen FTS5. Ej: `"políticas, roles, permisos, autenticación"`. (❌ No repetir el concepto).
+- `dimensiones` = Coordenadas semánticas canónicas (13 ejes). Ej: `"médico, patológico, diagnóstico"`. (❌ No inventar términos libres).
+- `bridges` = Exactamente 5 frases desde 5 ángulos para vencer el abismo léxico (Causal, Funcional, Teleológico, Contextual, Analógico).
+- `cat` = Categoría del concepto (System, Architecture, Project, Lesson, Profile, Personal, Principle, Protocol, Cognition, Relation, General).
+- `predicados` = Tripletas causales formales `[Sujeto, Predicado, Objeto]`. Ej: `[["Vacuna", "previene", "Infección"]]`.
+
+#### Cuándo Buscar y Cuándo NO Buscar (Eficiencia y Sentido Común):
+- ✅ **SÍ buscar (`recordar`)**: Consultas sobre decisiones pasadas, reglas, arquitectura, convenciones, lecciones aprendidas o continuidad entre sesiones.
+- ❌ **NO buscar**: Saludos ("Hola"), despedidas, confirmaciones breves ("Ok", "Gracias"), consultas de sintaxis general o cuando toda la información ya está explícita en la conversación.
 
 ### Cognicion — Introspeccion
 

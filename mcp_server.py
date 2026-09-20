@@ -437,7 +437,56 @@ ORACLE_PROMPT = (
 
     # ── REGLA FINAL ──────────────────────────────────────────────────────
     "═══ REGLA FINAL ═══\n"
-    "El RAG te da contexto, pero la respuesta la generás vos. No copies — usalo como punto de partida."
+    "El RAG te da contexto, pero la respuesta la generás vos. No copies — usalo como punto de partida.\n\n"
+
+    # ── CUÁNDO USAR CADA PARÁMETRO ───────────────────────────────────────
+    "═══ CUÁNDO USAR CADA PARÁMETRO — REFERENCIA RÁPIDA ═══\n\n"
+    "▸ syn  →  Palabras con las que alguien BUSCARÍA este nodo que NO están en el contenido.\n"
+    "   Pregunta clave: '¿Cómo lo buscaría alguien que no sabe que este nodo existe?'\n"
+    "   Ejemplo — contenido habla de 'keepalive en conexiones idle':\n"
+    "     syn='timeout,caida,servidor caido,connection lost,red cortada,http error,backend falla'\n"
+    "   Regla: mínimo 8. Cubre español + inglés + jerga + problema + solución.\n"
+    "   ❌ NO pongas palabras que ya están en el contenido (BM25 ya las indexa).\n\n"
+    "▸ sustantivos_clave  →  De qué TRATA el nodo en 2-4 palabras núcleo.\n"
+    "   Pregunta clave: 'Si tuviera que titular este nodo con 3 palabras, ¿cuáles son?'\n"
+    "   Ejemplo — nodo sobre preferencias de café de Angela:\n"
+    "     sustantivos_clave='angela,cafe,preferencia'\n"
+    "   Regla: 2-4 términos, concretos, buscables. Sin abstracciones ('estrategia', 'transición').\n"
+    "   ❌ NO repitas palabras que ya están en el nombre del concepto.\n\n"
+    "▸ dimensiones  →  Coordenadas de QUÉ ES el conocimiento, no qué palabras tiene.\n"
+    "   Pregunta clave: '¿Cómo buscaría alguien esto sin saber ninguna palabra del nodo?'\n"
+    "   Usar al GUARDAR para clasificar. Usar al BUSCAR para preguntas ontológicas.\n"
+    "   Ejemplo — guardar una regla obligatoria que generó frustración:\n"
+    "     dimensiones='{\"emocion\":[\"frustracion\"],\"modalidad\":[\"obligacion\"],\"dominio\":[\"dominio_tecnico\"]}'\n"
+    "   Ejemplo — buscar todos los principios técnicos:\n"
+    "     recordar(dimensiones='{\"escala_abstraccion\":[\"principio\"],\"dominio\":[\"dominio_tecnico\"]}')\n"
+    "   ❌ NO usar cuando ya tenés keywords exactas (recordar(query='error_http_500') no las necesita).\n\n"
+    "▸ bridges  →  5 frases que cruzan el abismo léxico: encuentran el nodo cuando la query no comparte palabras con el contenido.\n"
+    "   Pregunta clave: '¿Cómo describiría esto alguien sin vocabulario técnico?'\n"
+    "   Siempre 5, siempre los 5 ángulos: sinonimo / problema / solucion / situacion / ingenuo.\n"
+    "   ❌ NO uses vocabulario que ya está en el contenido (el bridge existe para el vocabulario alternativo).\n\n"
+    "▸ cat  →  Filtro ESTRICTO de categoría. Si el nodo tiene categoría mal puesta, desaparece de esa búsqueda.\n"
+    "   Usar SOLO con certeza absoluta. Si dudás, omitila (el sistema la infiere automáticamente).\n"
+    "   Valores: System | Architecture | Project | Lesson | Profile | Personal | Principle | Protocol | Cognition | Relation | General\n"
+    "   ❌ NO filtres por cat= en recordar() salvo certeza total. Sin filtro = busca en todas.\n\n"
+    "▸ predicados  →  Tripleta causal: quién hizo qué a qué. Permite buscar después por autoría o acción.\n"
+    "   Pregunta clave: '¿Hay un autor claro, una acción y un objeto en este recuerdo?'\n"
+    "   Ejemplo: predicados=[{'sujeto':'usuario','accion':'instruyo','objeto':'no_borrar_sin_confirmacion'}]\n"
+    "   Buscar después: recordar(buscar_por_rol='sujeto:usuario,accion:instruyo')\n"
+    "   ✅ USAR en: decisiones, reglas, acuerdos, instrucciones con autoría clara.\n"
+    "   ❌ OMITIR en: datos técnicos, preferencias, snippets de código sin autor explícito.\n\n"
+
+    # ── CUÁNDO BUSCAR Y CUÁNDO NO BUSCAR ─────────────────────────────────
+    "═══ CUÁNDO BUSCAR Y CUÁNDO NO BUSCAR (EFICIENCIA Y SENTIDO COMÚN) ═══\n"
+    "✅ SÍ BUSCAR (recordar) cuando:\n"
+    "  • El usuario consulta sobre decisiones pasadas, reglas, arquitectura, convenciones o preferencias.\n"
+    "  • La tarea requiere contexto histórico, lecciones aprendidas o continuidad entre sesiones.\n"
+    "  • Se necesita verificar si un concepto, bug o solución ya fue documentado previamente.\n\n"
+    "❌ NO BUSCAR (evitar llamadas innecesarias) cuando:\n"
+    "  • Saludos, despedidas o cortesía ('Hola', 'Buenos días', '¿Cómo estás?').\n"
+    "  • Confirmaciones o acuses de recibo breves ('Ok', 'Gracias', 'Entendido', 'Procedé').\n"
+    "  • Consultas de sintaxis estándar de lenguajes o tareas de lógica pura que no tocan el proyecto.\n"
+    "  • La información ya está 100% explícita y completa en el turno actual de la conversación.\n"
 )
 
 # --- Helpers compartidos ----------------------------------------------------
@@ -2353,7 +2402,9 @@ def _build_server():
                 "syn (lo que NO está en el contenido): "
                 "alineación,alignment,form,caja flexible,flexible box,layout roto,broken layout,"
                 "centrado vertical,vertical centering,bug visual,responsive,maquetación,"
-                "grid vs flex,posicionamiento,positioning,adevcom,peritaje"
+                "grid vs flex,posicionamiento,positioning,adevcom,peritaje\n\n"
+                "syn ≠ sustantivos_clave: syn = todas las formas de buscar el nodo (sin límite, cierra la brecha de vocabulario). "
+                "sustantivos_clave = de qué TRATA el nodo en 2-4 palabras núcleo (boost directo en recuperación)."
             )
         )] = None,
         cat: Annotated[Optional[str], Field(
