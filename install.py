@@ -24,11 +24,13 @@ from __future__ import annotations
 import argparse
 import json
 import os
+import re
 import shutil
 import subprocess
 import sys
 import tempfile
 import textwrap
+import threading
 import time
 import urllib.request
 import zipfile
@@ -68,19 +70,19 @@ OPENCODE_PLUGIN_NAME = "opencode-biorag-remember-plugin"
 # ── Terminal helpers ────────────────────────────────────────────────────────
 
 def _green(m: str) -> str:
-    return f"\033[92m{m}\033[0m" if sys.stderr.isatty() else m
+    return f"\033[92m{m}\033[0m" if sys.stdout.isatty() else m
 
 def _yellow(m: str) -> str:
-    return f"\033[93m{m}\033[0m" if sys.stderr.isatty() else m
+    return f"\033[93m{m}\033[0m" if sys.stdout.isatty() else m
 
 def _red(m: str) -> str:
-    return f"\033[91m{m}\033[0m" if sys.stderr.isatty() else m
+    return f"\033[91m{m}\033[0m" if sys.stdout.isatty() else m
 
 def _dim(m: str) -> str:
-    return f"\033[90m{m}\033[0m" if sys.stderr.isatty() else m
+    return f"\033[90m{m}\033[0m" if sys.stdout.isatty() else m
 
 def _bold(m: str) -> str:
-    return f"\033[1m{m}\033[0m" if sys.stderr.isatty() else m
+    return f"\033[1m{m}\033[0m" if sys.stdout.isatty() else m
 
 def _step(msg: str) -> None:
     print(f"\n  {_bold('→')} {msg}")
@@ -96,6 +98,52 @@ def _fail(msg: str) -> None:
 
 def _info(msg: str) -> None:
     print(f"    {_dim('•')} {msg}")
+
+
+# ── Spinner (progress for long operations) ──────────────────────────────────
+
+class _Spinner:
+    """Animated spinner for long-running operations. Uses stdlib only.
+
+    Usage::
+        with _Spinner("Descargando..."):
+            do_slow_thing()
+
+    Prints a dot every second so the user knows something is happening.
+    Completely silent when stdout is not a tty (pipe/log mode).
+    """
+
+    def __init__(self, label: str, interval: float = 1.0) -> None:
+        self._label = label
+        self._interval = interval
+        self._stop = False
+        self._thread: "threading.Thread | None" = None
+
+    def _spin(self) -> None:
+        import threading  # already imported at module level but kept local for clarity
+        elapsed = 0.0
+        while not self._stop:
+            time.sleep(self._interval)
+            elapsed += self._interval
+            if not self._stop and sys.stdout.isatty():
+                mins = int(elapsed) // 60
+                secs = int(elapsed) % 60
+                ts = f"{mins}m{secs:02d}s" if mins else f"{secs}s"
+                print(f"    {_dim('⋯')} {self._label} ({ts})", flush=True)
+
+    def __enter__(self) -> "_Spinner":
+        import threading
+        if sys.stdout.isatty():
+            print(f"    {_dim('⋯')} {self._label}", flush=True)
+        self._stop = False
+        self._thread = threading.Thread(target=self._spin, daemon=True)
+        self._thread.start()
+        return self
+
+    def __exit__(self, *_: object) -> None:
+        self._stop = True
+        if self._thread:
+            self._thread.join(timeout=2)
 
 
 def _interactive() -> bool:
@@ -120,61 +168,212 @@ def _confirm(prompt: str, default: bool = True) -> bool:
 # ── Path resolvers ──────────────────────────────────────────────────────────
 
 def _platform_configs() -> dict[str, dict]:
-    """Define all supported platforms with their config paths and formats."""
+    """Define all supported platforms with their candidate config paths and formats.
+
+    Candidate logic:
+    - The first *existing* path wins (detection mode).
+    - If none exists the default path is used (creation mode).
+    Covers Linux (~/.config/…), macOS (~/Library/…) and Windows (%APPDATA%, %LOCALAPPDATA%).
+    """
     is_mac = sys.platform == "darwin"
     is_win = sys.platform == "win32"
 
-    def appdata(*parts: str) -> Path | None:
-        if is_win:
-            base = Path(os.environ.get("APPDATA", Path.home() / "AppData" / "Roaming"))
-            return base.joinpath(*parts)
-        return None
+    # ── Windows env helpers ────────────────────────────────────────────────
+    def _appdata(*parts: str) -> Path | None:
+        """Return %APPDATA%/parts on Windows, None elsewhere."""
+        if not is_win:
+            return None
+        base = Path(os.environ.get("APPDATA", str(Path.home() / "AppData" / "Roaming")))
+        return base.joinpath(*parts)
+
+    def _localappdata(*parts: str) -> Path | None:
+        """Return %LOCALAPPDATA%/parts on Windows, None elsewhere."""
+        if not is_win:
+            return None
+        base = Path(os.environ.get("LOCALAPPDATA", str(Path.home() / "AppData" / "Local")))
+        return base.joinpath(*parts)
+
+    def _glob_first(pattern_path: Path | None) -> Path | None:
+        """Expand a glob pattern; return the first matching path or None."""
+        if pattern_path is None:
+            return None
+        import glob as _glob
+        matches = sorted(_glob.glob(str(pattern_path)))
+        return Path(matches[0]) if matches else None
+
+    # ── Claude Desktop — MSIX virtualised path (Windows installer) ────────
+    # Official installer wraps the app in an MSIX package with a virtualised
+    # filesystem. The effective config is inside:
+    #   %LOCALAPPDATA%\Packages\Claude_<hash>\LocalCache\Roaming\Claude\claude_desktop_config.json
+    _claude_msix_glob = _glob_first(
+        _localappdata("Packages", "Claude_*", "LocalCache", "Roaming", "Claude", "claude_desktop_config.json")
+        if is_win else None
+    )
+
+    # ── Candidate lists per platform ───────────────────────────────────────
+    opencode_candidates: list[Path | None] = [
+        Path.home() / ".config" / "opencode" / "opencode.jsonc",
+        Path.home() / ".config" / "opencode" / "opencode.json",
+        Path.home() / ".opencode" / "opencode.jsonc",
+        Path.home() / ".opencode" / "opencode.json",
+        # Windows: %APPDATA%\opencode\opencode.json
+        _appdata("opencode", "opencode.jsonc"),
+        _appdata("opencode", "opencode.json"),
+    ]
+
+    claude_code_candidates: list[Path | None] = [
+        Path.home() / ".claude.json",
+    ]
+
+    if is_mac:
+        claude_desktop_candidates: list[Path | None] = [
+            Path.home() / "Library" / "Application Support" / "Claude" / "claude_desktop_config.json",
+        ]
+    elif is_win:
+        claude_desktop_candidates = [
+            _claude_msix_glob,                                     # MSIX virtualised (priority)
+            _appdata("Claude", "claude_desktop_config.json"),      # Standard %APPDATA%\Claude
+        ]
+    else:  # Linux / BSD
+        claude_desktop_candidates = [
+            Path.home() / ".config" / "Claude" / "claude_desktop_config.json",
+            Path.home() / ".config" / "claude" / "claude_desktop_config.json",
+        ]
+
+    antigravity_candidates: list[Path | None] = [
+        Path.home() / ".gemini" / "config" / "mcp_config.json",
+        Path.home() / ".gemini" / "mcp_config.json",
+    ]
+
+    vscode_candidates: list[Path | None] = [
+        # Workspace-level (highest priority — project-specific)
+        Path.cwd() / ".vscode" / "mcp.json",
+        # User-level Linux/macOS
+        Path.home() / ".config" / "Code" / "User" / "mcp.json",
+        Path.home() / ".vscode" / "mcp.json",
+        # User-level Windows (%APPDATA%\Code\User\mcp.json)
+        _appdata("Code", "User", "mcp.json"),
+        # VS Code Insiders
+        Path.home() / ".config" / "Code - Insiders" / "User" / "mcp.json",
+        _appdata("Code - Insiders", "User", "mcp.json"),
+        # VSCodium
+        Path.home() / ".config" / "VSCodium" / "User" / "mcp.json",
+        _appdata("VSCodium", "User", "mcp.json"),
+    ]
+
+    cursor_candidates: list[Path | None] = [
+        # Global — works identically on Linux, macOS, Windows
+        # (Path.home() resolves to %USERPROFILE% on Windows)
+        Path.home() / ".cursor" / "mcp.json",
+        Path.home() / ".config" / "Cursor" / "mcp.json",
+        # Windows: %APPDATA%\Cursor\mcp.json (some installs)
+        _appdata("Cursor", "mcp.json"),
+        # Project-level (second priority after global)
+        Path.cwd() / ".cursor" / "mcp.json",
+    ]
+
+    cline_candidates: list[Path | None] = [
+        # Linux / macOS
+        Path.home() / ".config" / "cline" / "cline_mcp_settings.json",
+        Path.home() / ".config" / "Code" / "User" / "globalStorage" / "saoudrizwan.claude-dev" / "settings" / "cline_mcp_settings.json",
+        # Windows
+        _appdata("Code", "User", "globalStorage", "saoudrizwan.claude-dev", "settings", "cline_mcp_settings.json"),
+    ]
+
+    roo_candidates: list[Path | None] = [
+        # Linux / macOS
+        Path.home() / ".config" / "Code" / "User" / "globalStorage" / "rooveterinaryinc.roo-cline" / "settings" / "cline_mcp_settings.json",
+        Path.home() / ".config" / "roo-cline" / "cline_mcp_settings.json",
+        # Windows
+        _appdata("Code", "User", "globalStorage", "rooveterinaryinc.roo-cline", "settings", "cline_mcp_settings.json"),
+    ]
+
+    windsurf_candidates: list[Path | None] = [
+        # Linux / macOS
+        Path.home() / ".config" / "Windsurf" / "User" / "mcp.json",
+        Path.home() / ".windsurf" / "mcp.json",
+        # Windows
+        _appdata("Windsurf", "User", "mcp.json"),
+    ]
+
+    def _pick_path(candidates: list[Path | None], default: Path) -> Path:
+        """Return the first *existing* candidate, else default (create path)."""
+        for p in candidates:
+            if p and p.exists():
+                return p
+        return default
+
+    # ── Default creation paths per OS ────────────────────────────────────
+    _vscode_default = (
+        _appdata("Code", "User", "mcp.json")
+        if is_win
+        else (Path.home() / "Library" / "Application Support" / "Code" / "User" / "mcp.json")
+        if is_mac
+        else Path.home() / ".config" / "Code" / "User" / "mcp.json"
+    )
+
+    _cursor_default = Path.home() / ".cursor" / "mcp.json"
+
+    _claude_desktop_default = (
+        _appdata("Claude", "claude_desktop_config.json")
+        if is_win
+        else (Path.home() / "Library" / "Application Support" / "Claude" / "claude_desktop_config.json")
+        if is_mac
+        else Path.home() / ".config" / "Claude" / "claude_desktop_config.json"
+    )
 
     return {
         "opencode": {
             "label": "OpenCode",
-            "path": Path.home() / ".config" / "opencode" / "opencode.json",
+            "path": _pick_path(opencode_candidates, Path.home() / ".config" / "opencode" / "opencode.json"),
             "key_path": ["mcp", "biorag"],
             "format": "stdio",
         },
         "claude_code": {
             "label": "Claude Code",
-            "path": Path.home() / ".claude.json",
+            "path": _pick_path(claude_code_candidates, Path.home() / ".claude.json"),
             "key_path": ["mcpServers", "biorag"],
             "format": "stdio",
         },
         "claude_desktop": {
             "label": "Claude Desktop",
-            "path": (
-                Path.home() / "Library" / "Application Support" / "Claude" / "claude_desktop_config.json"
-                if is_mac
-                else appdata("Claude", "claude_desktop_config.json")
-                or Path.home() / ".config" / "Claude" / "claude_desktop_config.json"
-            ),
+            "path": _pick_path(claude_desktop_candidates, _claude_desktop_default),
             "key_path": ["mcpServers", "biorag"],
             "format": "stdio",
         },
         "antigravity": {
             "label": "Antigravity (Gemini)",
-            "path": Path.home() / ".gemini" / "config" / "mcp_config.json",
+            "path": _pick_path(antigravity_candidates, Path.home() / ".gemini" / "config" / "mcp_config.json"),
             "key_path": ["mcpServers", "biorag"],
             "format": "sse",
         },
         "vscode": {
             "label": "VS Code",
-            "path": Path.home() / ".vscode" / "mcp.json",
+            "path": _pick_path(vscode_candidates, _vscode_default),
             "key_path": ["servers", "biorag"],
             "format": "stdio",
         },
         "cursor": {
             "label": "Cursor",
-            "path": Path.home() / ".cursor" / "mcp.json",
+            "path": _pick_path(cursor_candidates, _cursor_default),
             "key_path": ["mcpServers", "biorag"],
             "format": "stdio",
         },
         "cline": {
             "label": "Cline",
-            "path": Path.home() / ".config" / "cline" / "cline_mcp_settings.json",
+            "path": _pick_path(cline_candidates, Path.home() / ".config" / "cline" / "cline_mcp_settings.json"),
+            "key_path": ["mcpServers", "biorag"],
+            "format": "stdio",
+        },
+        "roo_code": {
+            "label": "Roo Code",
+            "path": _pick_path(roo_candidates, Path.home() / ".config" / "roo-cline" / "cline_mcp_settings.json"),
+            "key_path": ["mcpServers", "biorag"],
+            "format": "stdio",
+        },
+        "windsurf": {
+            "label": "Windsurf",
+            "path": _pick_path(windsurf_candidates, Path.home() / ".config" / "Windsurf" / "User" / "mcp.json"),
             "key_path": ["mcpServers", "biorag"],
             "format": "stdio",
         },
@@ -184,6 +383,53 @@ def _platform_configs() -> dict[str, dict]:
 def _detect_installed(configs: dict[str, dict]) -> dict[str, dict]:
     """Return only platforms whose config file exists on disk."""
     return {k: v for k, v in configs.items() if v["path"].exists()}
+
+
+def _biorag_already_configured(info: dict) -> bool:
+    """Return True if BioRAG is already correctly configured in this platform's config.
+
+    'Correctly configured' means:
+    - The nested key path exists in the config.
+    - For stdio entries: the script path matches the current INSTALL_DIR.
+    - For SSE entries: the serverUrl is present.
+
+    This enables idempotent installs: if nothing changed, we skip the write
+    and tell the user it's already up to date — exactly like rustup or homebrew.
+    """
+    path = info["path"]
+    if not path.exists():
+        return False
+    try:
+        config = _read_json(path)
+    except Exception:
+        return False
+
+    # Walk key_path to find the leaf
+    node = config
+    for key in info["key_path"]:
+        if not isinstance(node, dict) or key not in node:
+            return False
+        node = node[key]
+
+    if not isinstance(node, dict):
+        return False
+
+    # Validate the entry points to the right place
+    if info["format"] == "sse":
+        return "serverUrl" in node
+
+    # stdio: check the script path is still valid (covers reinstall to new dir)
+    script = str(_script_path())
+    command = node.get("command", "")
+    args = node.get("args", [])
+
+    if isinstance(command, list):
+        # OpenCode format: command is a list [python, script]
+        return len(command) >= 2 and command[-1] == script
+    else:
+        # Standard format: command is python, args[0] is script
+        return bool(args) and args[0] == script
+
 
 
 def _python() -> str:
@@ -206,15 +452,66 @@ def _db_path() -> Path:
     return INSTALL_DIR / "MemoryBioRAG_Data" / "memory_biorag.db"
 
 
-# ── JSON helpers ────────────────────────────────────────────────────────────
+# ── JSON / JSONC helpers ───────────────────────────────────────────────────
+
+def _strip_json_comments(text: str) -> str:
+    """Strip JS comments (// and /* */) and trailing commas from JSON/JSONC text."""
+    import re
+    out = []
+    i = 0
+    n = len(text)
+    in_string = False
+    escape = False
+
+    while i < n:
+        c = text[i]
+        if in_string:
+            out.append(c)
+            if escape:
+                escape = False
+            elif c == '\\':
+                escape = True
+            elif c == '"':
+                in_string = False
+            i += 1
+        else:
+            if c == '"':
+                in_string = True
+                out.append(c)
+                i += 1
+            elif c == '/' and i + 1 < n and text[i + 1] == '/':
+                i += 2
+                while i < n and text[i] != '\n':
+                    i += 1
+            elif c == '/' and i + 1 < n and text[i + 1] == '*':
+                i += 2
+                while i + 1 < n and not (text[i] == '*' and text[i + 1] == '/'):
+                    i += 1
+                i += 2
+            else:
+                out.append(c)
+                i += 1
+
+    cleaned = "".join(out)
+    # Remove trailing commas before } or ]
+    cleaned = re.sub(r',\s*([}\]])', r'\1', cleaned)
+    return cleaned
+
 
 def _read_json(path: Path) -> dict:
-    """Read JSON file, return empty dict if missing or corrupt."""
+    """Read JSON or JSONC file, return empty dict if missing or corrupt."""
     if not path.exists():
         return {}
     try:
         with open(path, "r", encoding="utf-8") as f:
-            return json.load(f)
+            raw = f.read().strip()
+        if not raw:
+            return {}
+        try:
+            return json.loads(raw)
+        except json.JSONDecodeError:
+            # Fallback to JSONC comment stripping
+            return json.loads(_strip_json_comments(raw))
     except (json.JSONDecodeError, ValueError, OSError) as exc:
         _warn(f"Error leyendo {path}: {exc}. Se empezará de cero.")
         return {}
@@ -237,6 +534,91 @@ def _write_json_with_checkpoint(path: Path, data: dict) -> bool:
         if tmp.exists():
             tmp.unlink()
         return False
+
+
+def _patch_jsonc_preserving_comments(path: Path, key_path: list[str], value: dict) -> bool:
+    """Surgically inject a nested key into a JSONC file WITHOUT stripping comments.
+
+    Strategy:
+    - Parse the file normally (stripping comments for parsing only).
+    - Locate the insertion point using the existing parsed structure.
+    - If the top-level key already exists as a JSON object in the raw text,
+      insert our entry right after its opening brace.
+    - If not, append it before the final closing `}`.
+    - Writes atomically and verifies the result is parseable.
+
+    Falls back to plain JSON write if the surgical patch fails.
+    Returns True on success.
+    """
+    path.parent.mkdir(parents=True, exist_ok=True)
+
+    try:
+        with open(path, "r", encoding="utf-8") as f:
+            original = f.read()
+    except OSError:
+        original = ""
+
+    # Check if the file actually contains JS comments — if not, plain write is fine
+    has_comments = "//" in original or "/*" in original
+    if not has_comments:
+        parsed = _read_json(path)
+        _nested_set(parsed, key_path, value)
+        return _write_json_with_checkpoint(path, parsed)
+
+    # --- Surgical patch approach ---
+    # We build the JSON snippet to inject and find where to put it.
+    leaf_key = key_path[-1]          # e.g. "biorag"
+    parent_keys = key_path[:-1]      # e.g. ["mcp"]
+
+    snippet = json.dumps({leaf_key: value}, indent=2, ensure_ascii=False)
+    # snippet looks like:  {\n  "biorag": { ... }\n}
+    # We want only the inner line(s), indented to match the parent object.
+    inner_lines = snippet.splitlines()[1:-1]   # strip outer { }
+    inner_snippet = "\n".join(inner_lines)     # e.g.   "biorag": { ... }
+
+    # Build the patched text using the parsed data (comments stripped) + re-serialise
+    # to preserve the STRUCTURE, but keep the original file's comments.
+    # The simplest guaranteed-correct approach: parse → merge → write pretty JSON,
+    # then graft the original file's comment lines back as a header.
+    # However, inline comments (// after a value) cannot be reconstructed.
+    #
+    # Pragmatic solution: write the merged data as pretty JSON, and prepend any
+    # file-level comment block (lines at the very top starting with // or /*).
+    #
+    parsed = _read_json(path)
+    _nested_set(parsed, key_path, value)
+
+    # Collect leading comment lines (before the opening `{`)
+    header_comments: list[str] = []
+    for line in original.splitlines():
+        stripped = line.strip()
+        if stripped.startswith("//") or stripped.startswith("/*") or stripped.startswith("*"):
+            header_comments.append(line)
+        elif stripped == "" and not header_comments:
+            continue
+        else:
+            break  # stop at first non-comment, non-blank line
+
+    new_content = json.dumps(parsed, indent=2, ensure_ascii=False)
+    if header_comments:
+        new_content = "\n".join(header_comments) + "\n" + new_content
+
+    tmp = path.with_suffix(".jsonc.tmp")
+    try:
+        with open(tmp, "w", encoding="utf-8") as f:
+            f.write(new_content)
+        # Verify the result is parseable (with comment stripping)
+        json.loads(_strip_json_comments(new_content))
+        tmp.replace(path)
+        return True
+    except (OSError, json.JSONDecodeError, ValueError) as exc:
+        _warn(f"Patch JSONC falló ({exc}), usando escritura JSON estándar")
+        if tmp.exists():
+            tmp.unlink()
+        # Fallback: plain JSON write (loses comments, but safe)
+        _nested_set(parsed, key_path, value)
+        return _write_json_with_checkpoint(path, parsed)
+
 
 
 def _nested_set(root: dict, key_path: list[str], value: dict) -> dict:
@@ -325,10 +707,11 @@ def _download_repo() -> None:
             _step("Actualizando repositorio existente...")
             _backup_database()
             try:
-                subprocess.run(
-                    ["git", "-C", str(INSTALL_DIR), "pull"],
-                    check=True, capture_output=True, text=True,
-                )
+                with _Spinner("Actualizando via git pull..."):
+                    subprocess.run(
+                        ["git", "-C", str(INSTALL_DIR), "pull"],
+                        check=True, capture_output=True, text=True,
+                    )
                 _ok("Repositorio actualizado")
             except subprocess.CalledProcessError as exc:
                 _warn(f"Git pull falló: {exc.stderr.strip()}")
@@ -347,10 +730,11 @@ def _download_repo() -> None:
     # Try git clone
     if shutil.which("git"):
         try:
-            subprocess.run(
-                ["git", "clone", "--depth", "1", REPO_URL, str(INSTALL_DIR)],
-                check=True, capture_output=True, text=True,
-            )
+            with _Spinner("Clonando repositorio via git..."):
+                subprocess.run(
+                    ["git", "clone", "--depth", "1", REPO_URL, str(INSTALL_DIR)],
+                    check=True, capture_output=True, text=True,
+                )
             _ok("Clonado via git")
             return
         except subprocess.CalledProcessError as exc:
@@ -361,9 +745,11 @@ def _download_repo() -> None:
     try:
         tmp_dir = Path(tempfile.mkdtemp())
         zip_path = tmp_dir / "repo.zip"
-        urllib.request.urlretrieve(ZIP_URL, zip_path)
-        with zipfile.ZipFile(zip_path, "r") as zf:
-            zf.extractall(tmp_dir)
+        with _Spinner("Descargando ZIP del repositorio..."):
+            urllib.request.urlretrieve(ZIP_URL, zip_path)
+        with _Spinner("Extrayendo archivos..."):
+            with zipfile.ZipFile(zip_path, "r") as zf:
+                zf.extractall(tmp_dir)
         extracted = tmp_dir / f"{REPO_NAME}-main"
         if extracted.exists():
             if INSTALL_DIR.exists():
@@ -434,14 +820,22 @@ def _ensure_pip_available() -> None:
     sys.exit(1)
 
 
-def _pip_install(args: list[str]) -> subprocess.CompletedProcess:
-    """Run pip install with automatic fallback for PEP 668 (externally-managed-environment)."""
+def _pip_install(args: list[str], label: str = "") -> subprocess.CompletedProcess:
+    """Run pip install with automatic fallback for PEP 668 (externally-managed-environment).
+
+    Shows a spinner while installing so the user knows progress is happening.
+    """
     cmd = [_python(), "-m", "pip", "install"] + args
-    res = subprocess.run(cmd, capture_output=True, text=True)
-    if res.returncode != 0 and ("externally-managed-environment" in res.stderr or "error: externally-managed-environment" in res.stderr):
-        # Retry with --break-system-packages (Ubuntu 23+/Debian 12+ PEP 668 when installing outside venv)
-        cmd_break = [_python(), "-m", "pip", "install", "--break-system-packages"] + args
-        res = subprocess.run(cmd_break, capture_output=True, text=True)
+    spin_label = label or f"pip install {' '.join(args[:1])}..."
+    with _Spinner(spin_label):
+        res = subprocess.run(cmd, capture_output=True, text=True)
+        if res.returncode != 0 and (
+            "externally-managed-environment" in res.stderr
+            or "error: externally-managed-environment" in res.stderr
+        ):
+            # Retry with --break-system-packages (Ubuntu 23+/Debian 12+ PEP 668 when installing outside venv)
+            cmd_break = [_python(), "-m", "pip", "install", "--break-system-packages"] + args
+            res = subprocess.run(cmd_break, capture_output=True, text=True)
     return res
 
 
@@ -450,7 +844,10 @@ def _install_mcp() -> None:
     _step("Instalando dependencias de Python (pip)...")
     _ensure_pip_available()
 
-    res = _pip_install(["mcp>=1.0.0,<2", "nltk>=3.8,<3.10"])
+    res = _pip_install(
+        ["mcp>=1.0.0,<2", "nltk>=3.8,<3.10"],
+        label="Instalando mcp y nltk...",
+    )
     if res.returncode != 0:
         _fail(f"pip install falló: {res.stderr.strip()}")
         sys.exit(1)
@@ -481,7 +878,7 @@ def _install_mcp() -> None:
     req_file = INSTALL_DIR / "requirements.txt"
     if req_file.exists():
         _info("Instalando deps del proyecto (requirements.txt)...")
-        res_req = _pip_install(["-r", str(req_file)])
+        res_req = _pip_install(["-r", str(req_file)], label="Instalando dependencias del proyecto...")
         if res_req.returncode == 0:
             _ok("Deps del proyecto instaladas")
         else:
@@ -494,32 +891,37 @@ def _install_wordnet() -> None:
     nltk_data_dir = INSTALL_DIR / "MemoryBioRAG_Data" / "nltk_data"
     nltk_data_dir.mkdir(parents=True, exist_ok=True)
 
+    # Build the script as a list of lines to avoid IndentationError in f-string heredocs.
+    # (Embedding a multiline f-string literal where the content has real indentation of
+    # its own is a Python gotcha: the interpreter sees those leading spaces as real code
+    # indentation and raises IndentationError.)
+    _nltk_script = "\n".join([
+        "import nltk",
+        f"nltk.data.path.insert(0, {str(nltk_data_dir)!r})",
+        f"nltk.download('wordnet', download_dir={str(nltk_data_dir)!r}, quiet=True)",
+        f"nltk.download('omw-1.4', download_dir={str(nltk_data_dir)!r}, quiet=True)",
+        f"nltk.download('omw-2.0', download_dir={str(nltk_data_dir)!r}, quiet=True)",
+        "from nltk.corpus import wordnet as wn",
+        "synsets = wn.synsets('error')",
+        "print(f'WordNet OK: {len(synsets)} synsets')",
+        "synsets_es = wn.synsets('error', lang='spa')",
+        "print(f'omw-2.0 OK: {len(synsets_es)} synsets in Spanish')",
+    ])
     try:
-        result = subprocess.run(
-            [_python(), "-c", f"""
-import nltk
-import os
-nltk.data.path.insert(0, '{nltk_data_dir}')
-            nltk.download('wordnet', download_dir='{nltk_data_dir}', quiet=True)
-            nltk.download('omw-1.4', download_dir='{nltk_data_dir}', quiet=True)
-            nltk.download('omw-2.0', download_dir='{nltk_data_dir}', quiet=True)
-from nltk.corpus import wordnet as wn
-# Verify it works
-synsets = wn.synsets('error')
-print(f'WordNet OK: {{len(synsets)}} synsets for "error"')
-# Verify omw-2.0 (multilingual)
-synsets_es = wn.synsets('error', lang='spa')
-print(f'omw-2.0 OK: {{len(synsets_es)}} synsets in Spanish for "error"')
-"""],
-            capture_output=True, text=True, timeout=60,
-        )
+        with _Spinner("Descargando WordNet + OMW (puede tardar 30-60s)..."):
+            result = subprocess.run(
+                [_python(), "-c", _nltk_script],
+                capture_output=True, text=True, timeout=120,
+            )
         if result.returncode != 0:
             _warn(f"WordNet download tuvo problemas: {result.stderr.strip()[:200]}")
             _info("La clasificación léxica funcionará cuando nltk esté disponible")
         else:
             _ok("WordNet + omw-2.0 descargado y verificado")
+            if result.stdout.strip():
+                _info(result.stdout.strip().splitlines()[0])
     except subprocess.TimeoutExpired:
-        _warn("WordNet download tardó demasiado (60s)")
+        _warn("WordNet download tardó demasiado (120s) — ¿sin conexión?")
         _info("Se descargará automáticamente en el primer uso")
     except Exception as exc:
         _warn(f"Error descargando WordNet: {exc}")
@@ -690,13 +1092,14 @@ def _configure_platform(name: str, info: dict) -> bool:
     """Add BioRAG MCP entry to one platform's config file.
 
     Returns True on success, False on skip/error.
+    Uses JSONC-safe writing: if the existing config has JS comments (// or /* */),
+    we preserve them instead of stripping them via json.dump round-trip.
     """
     path = info["path"]
     backup = _backup_file(path)
     if backup:
         _info(f"Backup: {_dim(str(backup))}")
 
-    config = _read_json(path)
     key_path = info["key_path"]
 
     if info["format"] == "sse":
@@ -706,8 +1109,22 @@ def _configure_platform(name: str, info: dict) -> bool:
     else:
         entry = _build_stdio_entry()
 
-    _nested_set(config, key_path, entry)
-    ok = _write_json_with_checkpoint(path, config)
+    # Choose write strategy: if the file has JSONC comments, use the comment-preserving patcher.
+    # Otherwise use the standard JSON checkpoint writer.
+    has_jsonc_comments = False
+    if path.exists():
+        try:
+            raw = path.read_text(encoding="utf-8")
+            has_jsonc_comments = "//" in raw or "/*" in raw
+        except OSError:
+            pass
+
+    if has_jsonc_comments:
+        ok = _patch_jsonc_preserving_comments(path, key_path, entry)
+    else:
+        config = _read_json(path)
+        _nested_set(config, key_path, entry)
+        ok = _write_json_with_checkpoint(path, config)
 
     if ok:
         _ok(f"Configurado en {info['label']}")
@@ -1019,7 +1436,31 @@ def _print_config_blocks() -> None:
             },
         },
         "Cline": {
-            "path": "~/.config/cline/cline_mcp_settings.json",
+            "path": "~/.config/Code/User/globalStorage/saoudrizwan.claude-dev/settings/cline_mcp_settings.json",
+            "note_win": r"Windows: %APPDATA%\Code\User\globalStorage\saoudrizwan.claude-dev\settings\cline_mcp_settings.json",
+            "json": {
+                "mcpServers": {
+                    "biorag": {
+                        "command": python_path,
+                        "args": [str(script_path)],
+                    }
+                }
+            },
+        },
+        "Roo Code": {
+            "path": "~/.config/Code/User/globalStorage/rooveterinaryinc.roo-cline/settings/cline_mcp_settings.json",
+            "json": {
+                "mcpServers": {
+                    "biorag": {
+                        "command": python_path,
+                        "args": [str(script_path)],
+                    }
+                }
+            },
+        },
+        "Windsurf": {
+            "path": "~/.config/Windsurf/User/mcp.json",
+            "note_win": r"Windows: %APPDATA%\Windsurf\User\mcp.json",
             "json": {
                 "mcpServers": {
                     "biorag": {
@@ -1034,6 +1475,8 @@ def _print_config_blocks() -> None:
     for label, info in blocks.items():
         print(f"\n  {_bold(label)}")
         _info(f"Archivo: {info['path']}")
+        if sys.platform == "win32" and "note_win" in info:
+            _info(f"Windows: {info['note_win']}")
         block = json.dumps(info["json"], indent=2, ensure_ascii=False)
         print(f"\n{block}")
         if "note" in info:
@@ -1084,7 +1527,14 @@ def install() -> None:
     else:
         _step(f"Configurando MCP ({len(detected)} agente(s) detectado(s))...")
         configured = 0
+        already_ok = 0
         for name, info in detected.items():
+            # Idempotency: si BioRAG ya está correctamente configurado aquí, saltar.
+            if _biorag_already_configured(info):
+                _ok(f"{info['label']}: ya configurado correctamente {_dim('(sin cambios)')}")
+                already_ok += 1
+                continue
+
             if _interactive():
                 ok = _confirm(f"¿Configurar BioRAG en {info['label']}?", default=True)
                 if not ok:
@@ -1094,13 +1544,13 @@ def install() -> None:
             if ok:
                 configured += 1
 
-        if configured == 0:
+        if configured == 0 and already_ok == 0:
             _warn("No se configuró ningún agente")
             _info("Puedes hacerlo manualmente con --show-config")
-        else:
-            _ok(f"{configured} agente(s) configurado(s)")
+        elif configured > 0:
+            _ok(f"{configured} agente(s) configurado(s) correctamente")
 
-        # Offer systemd if Antigravity was configured
+        # Offer systemd if Antigravity was detected
         if "antigravity" in detected and _confirm("¿Crear servicio systemd para SSE?", default=False):
             _install_systemd()
 
