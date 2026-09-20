@@ -41,7 +41,25 @@ REPO_OWNER = "dennysjmarquez"
 REPO_NAME = "MemoryBioRAG"
 REPO_URL = f"https://github.com/{REPO_OWNER}/{REPO_NAME}.git"
 ZIP_URL = f"https://github.com/{REPO_OWNER}/{REPO_NAME}/archive/main.zip"
-INSTALL_DIR = Path.home() / "biorag"
+
+
+def _resolve_install_dir() -> Path:
+    """Determine the installation directory.
+
+    If running from within an existing clone of the repo (where mcp_server.py
+    and core/ exist alongside install.py), use that directory directly.
+    Otherwise (e.g. running via curl pipe), install to ~/biorag.
+    """
+    try:
+        here = Path(__file__).resolve().parent
+        if (here / "mcp_server.py").exists() and (here / "core").exists():
+            return here
+    except Exception:
+        pass
+    return Path.home() / "biorag"
+
+
+INSTALL_DIR = _resolve_install_dir()
 BACKUPS_DIR = Path.home() / ".biorag" / "backups"
 SSE_PORT = 8080
 OPENCODE_PLUGIN_NAME = "opencode-biorag-remember-plugin"
@@ -281,13 +299,30 @@ def _backup_database() -> Path | None:
 
 # ── Checkpoint 2: download + install ────────────────────────────────────────
 
+def _is_local_repo() -> bool:
+    """Return True if running directly from an existing cloned repository."""
+    try:
+        here = Path(__file__).resolve().parent
+        return (here / "mcp_server.py").exists() and (here / "core").exists()
+    except Exception:
+        return False
+
+
 def _download_repo() -> None:
-    """Clone or download BioRAG into INSTALL_DIR."""
+    """Clone or download BioRAG into INSTALL_DIR, or use local repo if already present."""
+    if _is_local_repo() and INSTALL_DIR == Path(__file__).resolve().parent:
+        _step("Verificando repositorio local...")
+        if not _script_path().exists():
+            _fail(f"Instalación corrupta: falta {_script_path().name}")
+            sys.exit(1)
+        _ok(f"Repositorio local detectado en: {_dim(str(INSTALL_DIR))} (no requiere descarga de código)")
+        return
+
     if INSTALL_DIR.exists():
-        # Already installed — check for .git to decide update vs error
+        # Already installed in target dir — check for .git to decide update vs verification
         git_dir = INSTALL_DIR / ".git"
         if git_dir.exists():
-            _step("Actualizando repositorio...")
+            _step("Actualizando repositorio existente...")
             _backup_database()
             try:
                 subprocess.run(
@@ -296,10 +331,10 @@ def _download_repo() -> None:
                 )
                 _ok("Repositorio actualizado")
             except subprocess.CalledProcessError as exc:
-                _fail(f"Git pull falló: {exc.stderr.strip()}")
-                sys.exit(1)
+                _warn(f"Git pull falló: {exc.stderr.strip()}")
+                _info("Continuando con la instalación local existente...")
         else:
-            _step("Repositorio ya existe (sin git). Verificando integridad...")
+            _step("Repositorio ya existe en destino. Verificando integridad...")
             if not _script_path().exists():
                 _fail(f"Instalación corrupta: falta {_script_path().name}")
                 _info(f"Elimina {INSTALL_DIR} y vuelve a ejecutar el instalador.")
@@ -307,7 +342,7 @@ def _download_repo() -> None:
             _ok("Instalación existente verificada")
         return
 
-    _step("Descargando BioRAG...")
+    _step(f"Descargando código fuente de BioRAG en {INSTALL_DIR}...")
 
     # Try git clone
     if shutil.which("git"):
@@ -348,7 +383,7 @@ def _download_repo() -> None:
 
 def _install_mcp() -> None:
     """Install the 'mcp' and 'nltk' packages using the same Python."""
-    _step("Instalando dependencias (mcp + nltk)...")
+    _step("Instalando dependencias de Python (pip)...")
     try:
         subprocess.run(
             [_python(), "-m", "pip", "install", "mcp>=1.0.0,<2", "nltk>=3.8,<3.10"],
@@ -396,7 +431,7 @@ def _install_mcp() -> None:
 
 def _install_wordnet() -> None:
     """Download WordNet data to local nltk_data directory."""
-    _step("Descargando WordNet + omw-2.0 (clasificación léxica)...")
+    _step("Descargando diccionarios semánticos WordNet + OMW (NLTK)...")
     nltk_data_dir = INSTALL_DIR / "MemoryBioRAG_Data" / "nltk_data"
     nltk_data_dir.mkdir(parents=True, exist_ok=True)
 
@@ -956,8 +991,8 @@ def install() -> None:
 
     # 1. Prerequisites
     _step("Verificando requisitos...")
-    if sys.version_info < (3, 8):
-        _fail("Python 3.8+ requerido")
+    if sys.version_info < (3, 10):
+        _fail("Python 3.10+ requerido")
         _info("Descarga: https://python.org/downloads/")
         sys.exit(1)
     _ok(f"Python {sys.version_info.major}.{sys.version_info.minor}.{sys.version_info.micro}")
@@ -1028,8 +1063,8 @@ def install() -> None:
         print(f"\n    {_dim('Si no ves las herramientas MCP, reinicia el agente.')}")
     if "antigravity" in detected and not _interactive():
         print(f"    {_yellow('⚠ Antigravity requiere servidor SSE corriendo.')}")
-        print(f"    {_dim('Ejecuta despues: python3 ~/biorag/install.py --systemd')}")
-        print(f"    {_dim('O inicia manual: python3 ~/biorag/mcp_server.py --sse --port 8080')}")
+        print(f"    {_dim(f'Ejecuta despues: python3 {INSTALL_DIR}/install.py --systemd')}")
+        print(f"    {_dim(f'O inicia manual: python3 {INSTALL_DIR}/mcp_server.py --sse --port 8080')}")
     print()
 
 
@@ -1053,12 +1088,12 @@ def uninstall() -> None:
     _remove_skill()
 
     _step("Datos locales")
-    if INSTALL_DIR.exists() and _confirm("¿Eliminar ~/biorag (incluye base de datos)?", default=False):
+    if INSTALL_DIR.exists() and _confirm(f"¿Eliminar {INSTALL_DIR} (incluye base de datos)?", default=False):
         _backup_database()
         shutil.rmtree(INSTALL_DIR)
-        _ok("~/biorag eliminado")
+        _ok(f"{INSTALL_DIR} eliminado")
     else:
-        _info("~/biorag conservado")
+        _info(f"{INSTALL_DIR} conservado")
 
     if BACKUPS_DIR.exists() and _confirm("¿Eliminar ~/.biorag/backups?", default=False):
         shutil.rmtree(BACKUPS_DIR)
