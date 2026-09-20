@@ -381,16 +381,59 @@ def _download_repo() -> None:
             shutil.rmtree(tmp_dir, ignore_errors=True)
 
 
+def _has_pip() -> bool:
+    """Check if pip is available and runnable."""
+    res = subprocess.run([_python(), "-m", "pip", "--version"], capture_output=True, text=True)
+    return res.returncode == 0
+
+
+def _ensure_pip_available() -> None:
+    """Ensure pip is installed; attempt auto-bootstrap via ensurepip if missing."""
+    if _has_pip():
+        return
+
+    _info("Módulo pip no encontrado. Intentando auto-instalación con ensurepip...")
+    try:
+        subprocess.run([_python(), "-m", "ensurepip", "--upgrade", "--default-pip"], capture_output=True, text=True)
+        if _has_pip():
+            _ok("pip instalado exitosamente vía ensurepip")
+            return
+    except Exception:
+        pass
+
+    # If still not available, provide clear OS-specific instructions
+    _fail("pip no está instalado en este sistema de Python.")
+    if sys.platform.startswith("linux"):
+        _info("En Ubuntu/Debian, ejecuta el siguiente comando para instalarlo:")
+        print(f"\n      {_bold('sudo apt update && sudo apt install -y python3-pip python3-venv')}\n")
+        _info("En Fedora/RHEL: sudo dnf install python3-pip")
+        _info("En Arch Linux:  sudo pacman -S python-pip")
+    elif sys.platform == "darwin":
+        _info("En macOS: ejecuta 'python3 -m ensurepip' o 'brew install python'")
+    elif sys.platform == "win32":
+        _info("En Windows: reinstala Python marcando la casilla 'Add python.exe to PATH' y 'pip'")
+    sys.exit(1)
+
+
+def _pip_install(args: list[str]) -> subprocess.CompletedProcess:
+    """Run pip install with automatic fallback for PEP 668 (externally-managed-environment)."""
+    cmd = [_python(), "-m", "pip", "install"] + args
+    res = subprocess.run(cmd, capture_output=True, text=True)
+    if res.returncode != 0 and ("externally-managed-environment" in res.stderr or "error: externally-managed-environment" in res.stderr):
+        # Retry with --break-system-packages (Ubuntu 23+/Debian 12+ PEP 668 when installing outside venv)
+        cmd_break = [_python(), "-m", "pip", "install", "--break-system-packages"] + args
+        res = subprocess.run(cmd_break, capture_output=True, text=True)
+    return res
+
+
 def _install_mcp() -> None:
     """Install the 'mcp' and 'nltk' packages using the same Python."""
     _step("Instalando dependencias de Python (pip)...")
-    try:
-        subprocess.run(
-            [_python(), "-m", "pip", "install", "mcp>=1.0.0,<2", "nltk>=3.8,<3.10"],
-            check=True, capture_output=True, text=True,
-        )
-    except subprocess.CalledProcessError as exc:
-        _fail(f"pip install falló: {exc.stderr.strip()}")
+    _ensure_pip_available()
+
+    res = _pip_install(["mcp>=1.0.0,<2", "nltk>=3.8,<3.10"])
+    if res.returncode != 0:
+        _fail(f"pip install falló: {res.stderr.strip()}")
         sys.exit(1)
 
     # Verify mcp
@@ -419,14 +462,11 @@ def _install_mcp() -> None:
     req_file = INSTALL_DIR / "requirements.txt"
     if req_file.exists():
         _info("Instalando deps del proyecto (requirements.txt)...")
-        try:
-            subprocess.run(
-                [_python(), "-m", "pip", "install", "-r", str(req_file)],
-                check=True, capture_output=True, text=True,
-            )
+        res_req = _pip_install(["-r", str(req_file)])
+        if res_req.returncode == 0:
             _ok("Deps del proyecto instaladas")
-        except subprocess.CalledProcessError as exc:
-            _warn(f"pip install -r requirements.txt falló: {exc.stderr.strip()[:200]}")
+        else:
+            _warn(f"pip install -r requirements.txt falló: {res_req.stderr.strip()[:200]}")
 
 
 def _install_wordnet() -> None:
