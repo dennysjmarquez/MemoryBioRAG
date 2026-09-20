@@ -388,11 +388,11 @@ def _has_pip() -> bool:
 
 
 def _ensure_pip_available() -> None:
-    """Ensure pip is installed; attempt auto-bootstrap via ensurepip if missing."""
+    """Ensure pip is installed; attempt auto-bootstrap via ensurepip and get-pip.py."""
     if _has_pip():
         return
 
-    _info("Módulo pip no encontrado. Intentando auto-instalación con ensurepip...")
+    _info("Módulo pip no detectado. Intentando auto-instalación con ensurepip...")
     try:
         subprocess.run([_python(), "-m", "ensurepip", "--upgrade", "--default-pip"], capture_output=True, text=True)
         if _has_pip():
@@ -401,17 +401,36 @@ def _ensure_pip_available() -> None:
     except Exception:
         pass
 
-    # If still not available, provide clear OS-specific instructions
-    _fail("pip no está instalado en este sistema de Python.")
+    # Method 2: Download get-pip.py (Official PyPA standalone bootstrapper)
+    _info("Descargando e instalando pip automáticamente (get-pip.py)...")
+    tmp_get_pip = None
+    try:
+        tmp_dir = Path(tempfile.mkdtemp())
+        tmp_get_pip = tmp_dir / "get-pip.py"
+        GET_PIP_URL = "https://bootstrap.pypa.io/get-pip.py"
+        urllib.request.urlretrieve(GET_PIP_URL, tmp_get_pip)
+
+        # Run get-pip.py (with --break-system-packages if needed for Debian/Ubuntu PEP 668)
+        cmd_pip = [_python(), str(tmp_get_pip), "--quiet"]
+        res = subprocess.run(cmd_pip, capture_output=True, text=True)
+        if res.returncode != 0 and ("externally-managed-environment" in res.stderr or "error: externally-managed-environment" in res.stderr):
+            cmd_pip_break = [_python(), str(tmp_get_pip), "--break-system-packages", "--quiet"]
+            res = subprocess.run(cmd_pip_break, capture_output=True, text=True)
+
+        if _has_pip():
+            _ok("pip instalado y configurado automáticamente")
+            return
+    except Exception as exc:
+        _warn(f"Auto-instalación de pip falló: {exc}")
+    finally:
+        if tmp_get_pip and tmp_get_pip.parent.exists():
+            shutil.rmtree(tmp_get_pip.parent, ignore_errors=True)
+
+    # Fallback only if totally offline and without pip
+    _fail("No se pudo auto-instalar pip (sistema sin conexión o permisos restringidos).")
     if sys.platform.startswith("linux"):
-        _info("En Ubuntu/Debian, ejecuta el siguiente comando para instalarlo:")
+        _info("Por favor ejecuta una vez:")
         print(f"\n      {_bold('sudo apt update && sudo apt install -y python3-pip python3-venv')}\n")
-        _info("En Fedora/RHEL: sudo dnf install python3-pip")
-        _info("En Arch Linux:  sudo pacman -S python-pip")
-    elif sys.platform == "darwin":
-        _info("En macOS: ejecuta 'python3 -m ensurepip' o 'brew install python'")
-    elif sys.platform == "win32":
-        _info("En Windows: reinstala Python marcando la casilla 'Add python.exe to PATH' y 'pip'")
     sys.exit(1)
 
 
