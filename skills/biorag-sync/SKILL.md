@@ -432,7 +432,7 @@ No se sincroniza automaticamente.
 
 | Herramienta | Alias | Parametros | Descripcion |
 |---|---|---|---|
-| `oraculo_inicio` | — | `agente, contexto_adicional` | OBLIGATORIO al iniciar sesion con Dennys. Consulta NotebookLM si esta configurado, si no consulta BioRAG local. |
+| `oraculo_inicio` | — | `agente, contexto_adicional` | Inicialización opcional con el oráculo NotebookLM. Si no está configurado, responde instantáneamente indicando usar `recordar`. |
 
 ### Gestion — Categorias
 

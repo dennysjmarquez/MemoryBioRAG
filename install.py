@@ -980,11 +980,11 @@ def _install_skill() -> None:
 
     Scans INSTALL_DIR/skills/ for folders containing SKILL.md
     and copies each to the skills directory of detected agents.
-    Silently skips if no skills found or no agent directories exist.
+    Automatically creates the target skill directories if needed.
     """
     skills_src = INSTALL_DIR / "skills"
     if not skills_src.exists():
-        _info("No se encontro carpeta skills/ en repo, saltando")
+        _info("No se encontró carpeta skills/ en repo, saltando")
         return
 
     skill_folders = [
@@ -995,21 +995,40 @@ def _install_skill() -> None:
         _info("No se encontraron skills con SKILL.md en repo")
         return
 
-    skill_dirs = [
+    # Candidatos base para skills de agentes:
+    # OpenCode: ~/.config/opencode/skills (estándar global) y ~/.opencode/skills
+    # Claude: ~/.claude/skills
+    # Antigravity: ~/.gemini/config/skills
+    # Standard Agents: ~/.agents/skills
+    # Kilo: ~/.config/kilo/skills
+    candidate_bases: list[Path] = [
         Path.home() / ".claude" / "skills",
         Path.home() / ".config" / "opencode" / "skills",
+        Path.home() / ".opencode" / "skills",
+        Path.home() / ".gemini" / "config" / "skills",
         Path.home() / ".agents" / "skills",
+        Path.home() / ".config" / "kilo" / "skills",
     ]
-    skill_dirs = [d for d in skill_dirs if d.exists()]
 
-    if not skill_dirs:
-        _info("No se detectaron carpetas de skills de agentes")
-        return
+    target_dirs: list[Path] = []
+    for cand in candidate_bases:
+        parent = cand.parent
+        # Si el directorio padre del agente existe, o si ya existe la carpeta de skills, incluirlo
+        if parent.exists() or cand.exists():
+            target_dirs.append(cand)
+
+    # Si ninguna carpeta de agente existía previamente, asegurar los destinos estándar
+    if not target_dirs:
+        target_dirs = [
+            Path.home() / ".claude" / "skills",
+            Path.home() / ".config" / "opencode" / "skills",
+            Path.home() / ".agents" / "skills",
+        ]
 
     installed = 0
     for skill_folder in skill_folders:
         skill_name = skill_folder.name
-        for target_base in skill_dirs:
+        for target_base in target_dirs:
             dest = target_base / skill_name / "SKILL.md"
             dest.parent.mkdir(parents=True, exist_ok=True)
             if dest.exists():
@@ -1026,7 +1045,10 @@ def _remove_skill() -> None:
     skill_dirs = [
         Path.home() / ".claude" / "skills",
         Path.home() / ".config" / "opencode" / "skills",
+        Path.home() / ".opencode" / "skills",
+        Path.home() / ".gemini" / "config" / "skills",
         Path.home() / ".agents" / "skills",
+        Path.home() / ".config" / "kilo" / "skills",
     ]
     removed = 0
     for d in skill_dirs:

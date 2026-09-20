@@ -3497,13 +3497,10 @@ def _build_server():
     @mcp.tool(
         name="oraculo_inicio",
         description=(
-            "Regra dura: Ejecutá esto PRIMERO, antes de cualquier cosa. Sin esto no tenés contexto de sesiones anteriores.\n\n"
-            "Esta tool es para INICIALIZACIÓN (identidad del agente, contexto de arranque). "
-            "NO es para hacer preguntas generales al oráculo — para eso usá biorag_oraculo_preguntar.\n\n"
-            "2 modos (se eligen automáticamente):\n\n"
-            "- MODO A — Si nlm está instalado y las variables están seteadas → te da la respuesta directa de NotebookLM. Usala como contexto.\n\n"
-            "- MODO B — Si no hay NotebookLM o nlm no está disponible → usá lo que BioRAG local tenga.\n\n"
-            "Si nlm no está instalado, se detecta automáticamente y se retorna modo 'biorag_local' con advertencia."
+            "Inicialización opcional con el oráculo NotebookLM. "
+            "Si NotebookLM no está configurado (BIORAG_NOTEBOOK_ID), responde instantáneamente indicando que se use la memoria local con recordar().\n\n"
+            "NO es obligatoria para operar. Para buscar recuerdos en la memoria local, usá directamente 'recordar(query=...)'.\n\n"
+            "Si se dispone de un cuaderno NotebookLM configurado con el CLI nlm, consulta el cuaderno para obtener el contexto inicial de arranque."
         ),
     )
     def biorag_oraculo_inicio(
@@ -3515,7 +3512,7 @@ def _build_server():
         contexto_adicional: Annotated[str, Field(
             description=(
                 "contexto_adicional: Contexto extra para que el oráculo sepa de qué va la sesión (ej: 'Refactor del módulo de autenticación'). "
-                "Solo sirve en Modo A (NotebookLM). En Modo B (BioRAG local) se ignora."
+                "Solo sirve si NotebookLM está configurado."
             )
         )] = "",
     ) -> str:
@@ -3535,114 +3532,65 @@ def _build_server():
         tiene_prompt = bool(PROMPT_INICIO_NOTEBOOKLM)
         tiene_notebook_id = bool(NOTEBOOK_ID_ORACULO)
 
-        if tiene_prompt and tiene_notebook_id:
-            # Verificar si nlm esta disponible antes de intentar.
-            if not _nlm_detectado():
-                # nlm no esta instalado → ir directo a BioRAG local.
-                cerebro = _get_cerebro()
-                try:
-                    contexto_biorag = _buscar_contexto_biorag_arranque(cerebro, agente_limpio)
-                    _interceptar(
-                        "oraculo_inicio",
-                        f"[{agente_limpio}] modo=biorag_local (nlm no instalado)",
-                        cerebro,
-                    )
-                    return json.dumps({
-                        "status": "ok",
-                        "modo": "biorag_local",
-                        "mensaje": "nlm no está instalado. Usando BioRAG local como contexto de arranque.",
-                        "agente": agente_limpio,
-                        "contexto_biorag": contexto_biorag,
-                        "advertencia": (
-                            "El CLI 'nlm' no está en el PATH. "
-                            "Instalalo con: pip install notebooklm-cli && nlm login"
-                        ),
-                    }, ensure_ascii=False, indent=2)
-                finally:
-                    cerebro.cerrar_sistema()
-
-            # nlm esta disponible: consultar NotebookLM directamente.
-            query_notebook = f"{agente.strip()}: {PROMPT_INICIO_NOTEBOOKLM}"
-            if contexto_adicional and contexto_adicional.strip():
-                query_notebook += f" Contexto adicional: {contexto_adicional.strip()}"
-
-            oraculo = _consultar_notebooklm(NOTEBOOK_ID_ORACULO, query_notebook)
-
-            if oraculo is None:
-                # nlm fallo (query muy largo, timeout, etc.) → BioRAG local.
-                cerebro = _get_cerebro()
-                try:
-                    contexto_biorag = _buscar_contexto_biorag_arranque(cerebro, agente_limpio)
-                    _interceptar(
-                        "oraculo_inicio",
-                        f"[{agente_limpio}] modo=biorag_local (nlm fallo)",
-                        cerebro,
-                    )
-                    return json.dumps({
-                        "status": "ok",
-                        "modo": "biorag_local",
-                        "mensaje": "nlm detectado pero falló la consulta. Usando BioRAG local.",
-                        "agente": agente_limpio,
-                        "contexto_biorag": contexto_biorag,
-                        "advertencia": (
-                            "nlm está instalado pero no pudo resolver el query "
-                            "(posiblemente timeout o query muy largo). "
-                            "Usá biorag_oraculo_preguntar para preguntas específicas."
-                        ),
-                    }, ensure_ascii=False, indent=2)
-                finally:
-                    cerebro.cerrar_sistema()
-
-            respuesta_oraculo = oraculo["respuesta"]
-            if ORACULO_MAX_CHARS > 0 and len(respuesta_oraculo) > ORACULO_MAX_CHARS:
-                respuesta_oraculo = (
-                    respuesta_oraculo[:ORACULO_MAX_CHARS].rstrip()
-                    + f"\n\n[ORACULO TRUNCADO: respuesta original de {len(oraculo['respuesta'])} "
-                    f"caracteres truncada a {ORACULO_MAX_CHARS}. "
-                    "Ajusta BIORAG_ORACULO_MAX_CHARS si necesitas mas contexto.]"
-                )
-
-            resultado = {
-                "status": "ok",
-                "modo": "notebooklm",
+        # Si NotebookLM no está configurado, responder DE INMEDIATO (<1ms) sin bloquear la sesión ni hacer búsquedas pesadas.
+        if not tiene_notebook_id or not tiene_prompt:
+            return json.dumps({
+                "status": "no_configurado",
+                "modo": "sin_oraculo",
+                "mensaje": (
+                    "El oráculo externo NotebookLM no está configurado (BIORAG_NOTEBOOK_ID no seteado). "
+                    "Para buscar recuerdos o contexto en BioRAG local, usá directamente 'recordar(query=...)'."
+                ),
                 "agente": agente_limpio,
-                "notebooklm_notebook_id": NOTEBOOK_ID_ORACULO,
-                "nlm_detectado": True,
-                "nlm_fallo": False,
-                "oraculo": respuesta_oraculo,
-                "mensaje": "Oraculo NotebookLM consultado. Usa la respuesta como contexto de arranque.",
-            }
-            return json.dumps(resultado, ensure_ascii=False, indent=2)
+            }, ensure_ascii=False, indent=2)
 
-        # Modo BioRAG local: consultar la corteza.
-        cerebro = _get_cerebro()
-        try:
-            contexto_biorag = _buscar_contexto_biorag_arranque(cerebro, agente_limpio)
-            partes_faltantes = []
-            if not tiene_prompt:
-                partes_faltantes.append("BIORAG_PROMPT_INICIO")
-            if not tiene_notebook_id:
-                partes_faltantes.append("BIORAG_NOTEBOOK_ID")
+        if not _nlm_detectado():
+            return json.dumps({
+                "status": "no_disponible",
+                "modo": "sin_oraculo",
+                "mensaje": (
+                    "El CLI 'nlm' de NotebookLM no está disponible en PATH. "
+                    "Para buscar recuerdos en BioRAG local, usá directamente 'recordar(query=...)'."
+                ),
+                "agente": agente_limpio,
+                "advertencia": "Instalalo con: pip install notebooklm-cli && nlm login",
+            }, ensure_ascii=False, indent=2)
 
-            _interceptar(
-                "oraculo_inicio",
-                f"[{agente_limpio}] modo=biorag_local faltan={','.join(partes_faltantes)}",
-                cerebro,
+        # nlm está disponible: consultar NotebookLM directamente.
+        query_notebook = f"{agente.strip()}: {PROMPT_INICIO_NOTEBOOKLM}"
+        if contexto_adicional and contexto_adicional.strip():
+            query_notebook += f" Contexto adicional: {contexto_adicional.strip()}"
+
+        oraculo = _consultar_notebooklm(NOTEBOOK_ID_ORACULO, query_notebook)
+
+        if oraculo is None:
+            return json.dumps({
+                "status": "error",
+                "modo": "sin_oraculo",
+                "mensaje": "nlm está instalado pero falló la consulta a NotebookLM. Usá 'recordar' directamente para buscar en BioRAG.",
+                "agente": agente_limpio,
+            }, ensure_ascii=False, indent=2)
+
+        respuesta_oraculo = oraculo["respuesta"]
+        if ORACULO_MAX_CHARS > 0 and len(respuesta_oraculo) > ORACULO_MAX_CHARS:
+            respuesta_oraculo = (
+                respuesta_oraculo[:ORACULO_MAX_CHARS].rstrip()
+                + f"\n\n[ORACULO TRUNCADO: respuesta original de {len(oraculo['respuesta'])} "
+                f"caracteres truncada a {ORACULO_MAX_CHARS}. "
+                "Ajusta BIORAG_ORACULO_MAX_CHARS si necesitas mas contexto.]"
             )
 
-            return json.dumps({
-                "status": "ok",
-                "modo": "biorag_local",
-                "mensaje": "NotebookLM no configurado. Contexto de arranque consultado en BioRAG local.",
-                "agente": agente_limpio,
-                "contexto_biorag": contexto_biorag,
-                "advertencia": (
-                    "Variables no seteadas: " + ", ".join(partes_faltantes) +
-                    ". Setealas en el entorno si querés habilitar el modo NotebookLM."
-                ),
-            }, ensure_ascii=False, indent=2)
-        finally:
-            cerebro.cerrar_sistema()
+        resultado = {
+            "status": "ok",
+            "modo": "notebooklm",
+            "agente": agente_limpio,
+            "notebooklm_notebook_id": NOTEBOOK_ID_ORACULO,
+            "nlm_detectado": True,
+            "nlm_fallo": False,
+            "oraculo": respuesta_oraculo,
+            "mensaje": "Oraculo NotebookLM consultado. Usa la respuesta como contexto de arranque.",
+        }
+        return json.dumps(resultado, ensure_ascii=False, indent=2)
 
     # ── ORACULO PREGUNTAR ────────────────────────────────────────────────────
 

@@ -25,7 +25,7 @@ SYSTEM_PROMPT_BIORAG = """[SYSTEM_PROMPT_BIOMEMORY_ACTIVE] {
     biorag_corteza — (legacy) Alias de mapear.
     biorag_contexto_inicio — Al iniciar interaccion, alimenta buffer de autoguardado.
     biorag_contexto_fin — Al finalizar, analiza buffer y consolida automaticamente + auto-sueño.
-    biorag_oraculo_inicio — Carga contexto de arranque desde NotebookLM o BioRAG local. LLAMAR OBLIGATORIAMENTE al inicio de cada interacción.
+    biorag_oraculo_inicio — Inicialización opcional si se usa el oráculo NotebookLM. Si no está configurado, usar directamente biorag_recordar.
     biorag_metricas_historial — Últimos N ciclos de sueño con tendencias.
     biorag_listar_categorias — Lista las 11 categorías madre.
     biorag_sync_status — Categorías pendientes de sync a NotebookLM.
