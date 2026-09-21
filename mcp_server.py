@@ -373,18 +373,37 @@ ORACLE_PROMPT = (
     "• NUNCA desvincular sin ⚠️ explícito del sistema con par (a,b) exacto\n"
     "• Score bajo ≠ falso positivo. Puede ser hub legítimo por propagación válida.\n\n"
 
-    # ── AXIOMA DE INDEXACIÓN — SUSTANTIVOS CLAVE ─────────────────────────
-    # Norma de selección de sustantivos_clave. Genérica para cualquier
-    # operador del sistema: no referencia roles, identidades ni proyectos
-    # específicos, solo el comportamiento de búsqueda del motor.
-    "═══ AXIOMA DE INDEXACIÓN — sustantivos_clave ═══\n"
-    "- CONTEXTO: Selección de sustantivos_clave en procesos de guardado/aprendizaje.\n"
-    "- MANDATO: Los sustantivos_clave deben ser estrictamente LÉXICOS, CONCRETOS y BUSCABLES.\n"
-    "- PROHIBICIÓN: Queda terminantemente prohibido el uso de abstracciones de segundo orden "
-    "(ej. 'transición', 'diferenciación', 'estrategia').\n"
-    "- REGLA OPERATIVA: Elegir palabras que quien consulta la memoria escribiría textualmente al buscar "
-    "el nodo, expandiendo la superficie de búsqueda sin duplicar términos ya presentes con alto peso "
-    "en el nombre del concepto.\n\n"
+    # ── AXIOMA DE INDEXACIÓN — SUSTANTIVOS CLAVE JERÁRQUICOS ─────────────
+    # Norma de selección de sustantivos_clave con precedencia jerárquica
+    # (Posición 1 = Sustantivo Rector/Principal, Posiciones 2-4 = Modificadores/Restricciones)
+    # y prohibiciones explícitas por exclusión para agentes de cualquier capacidad.
+    "═══ AXIOMA DE INDEXACIÓN — SUSTANTIVOS CLAVE JERÁRQUICOS ═══\n"
+    "- CONTEXTO: Selección de sustantivos_clave en procesos de guardado/aprendizaje (peso BM25 4.0x).\n"
+    "- JERARQUÍA POSICIONAL OBLIGATORIA (2 a 4 términos en minúsculas, separados por coma):\n"
+    "  1. POSICIÓN 1 (EL SUSTANTIVO RECTOR / PRINCIPAL): Es el núcleo ontológico, entidad física, regla o "
+    "recurso duro del que TRATA el nodo en su raíz. Si quitas esta palabra, el recuerdo colapsa.\n"
+    "  2. POSICIONES 2 A 4 (RESTRICCIONES Y COMPLEMENTOS): Entre 1 y 3 términos que fijan las variables de "
+    "ejecución, límites técnicos, salvaguardas legales, métricas o restricciones financieras que condicionan al principal.\n"
+    "- PROHIBICIONES ESTRICTAS (LO QUE NUNCA DEBES HACER):\n"
+    "  ✗ NUNCA REPETIR PALABRAS DEL NOMBRE DEL CONCEPTO: El concepto ya tiene peso 5.0x en BM25. Repetirlo "
+    "en sustantivos_clave desperdicia superficie de búsqueda (ej. si el concepto es 'metodologia_postulacion_workana_freelance', "
+    "las palabras 'metodologia', 'postulacion', 'workana' y 'freelance' quedan TERMINANTEMENTE PROHIBIDAS).\n"
+    "  ✗ NUNCA NOMINALIZAR VERBOS DEL FLUJO: Prohibido convertir la acción del proceso en sustantivo (ej. postular → 'postulacion', "
+    "analizar → 'analisis', crear → 'creacion', desarrollar → 'desarrollo').\n"
+    "  ✗ NUNCA ETIQUETAS GENÉRICAS DE CANAL O INTERFAZ: Prohibido usar palabras obvias del entorno que no alteran la arquitectura "
+    "(ej. 'cliente', 'plataforma', 'pantalla', 'texto', 'chat', 'archivo').\n"
+    "  ✗ NUNCA ABSTRACCIONES VACÍAS DE SEGUNDO ORDEN: Prohibido humo conceptual (ej. 'estrategia', 'transicion', "
+    "'diferenciacion', 'metodologia', 'proceso', 'filosofia').\n"
+    "- EJEMPLOS CONTRASTADOS (FEW-SHOT):\n"
+    "  • Ejemplo 1: Metodología de cobro y postulación freelance (hitos por fases, protección contractual, datos de salud).\n"
+    "    ✗ MAL: workana,postulacion,propuesta,presupuesto (duplica concepto, nominaliza verbos y añade rigidez).\n"
+    "    ✓ BIEN: tarifa,contrato,seguridad,ingreso (1: tarifa = cobro por fases; 2: contrato = salvaguarda; 3: seguridad = HIPAA; 4: ingreso = objetivo).\n"
+    "  • Ejemplo 2: Desacople de comunicaciones en app médica (WebSockets nativos para chat + colas SQS para email).\n"
+    "    ✗ MAL: chat,email,mensajeria,cliente (etiquetas superficiales de interfaz).\n"
+    "    ✓ BIEN: websocket,cola,arquitectura,latencia (1: websocket = protocolo real-time; 2: cola = persistencia SQS; 3: arquitectura = patrón; 4: latencia = cota).\n"
+    "  • Ejemplo 3: Perfiles térmicos y control de energía en hardware.\n"
+    "    ✗ MAL: computadora,sistema,driver,velocidad (vagas y genéricas).\n"
+    "    ✓ BIEN: hardware,energia,perfil,ventilador (1: hardware = capa física; 2: energia = restricción; 3: perfil = control; 4: ventilador = actuador).\n\n"
 
     # ── ERRORES COMUNES QUE DEBES EVITAR ─────────────────────────────────
     "═══ ERRORES COMUNES — NO COMETER ═══\n"
@@ -447,12 +466,12 @@ ORACLE_PROMPT = (
     "     syn='timeout,caida,servidor caido,connection lost,red cortada,http error,backend falla'\n"
     "   Regla: mínimo 8. Cubre español + inglés + jerga + problema + solución.\n"
     "   ❌ NO pongas palabras que ya están en el contenido (BM25 ya las indexa).\n\n"
-    "▸ sustantivos_clave  →  De qué TRATA el nodo en 2-4 palabras núcleo.\n"
-    "   Pregunta clave: 'Si tuviera que titular este nodo con 3 palabras, ¿cuáles son?'\n"
-    "   Ejemplo — nodo sobre preferencias de café de Angela:\n"
-    "     sustantivos_clave='angela,cafe,preferencia'\n"
-    "   Regla: 2-4 términos, concretos, buscables. Sin abstracciones ('estrategia', 'transición').\n"
-    "   ❌ NO repitas palabras que ya están en el nombre del concepto.\n\n"
+    "▸ sustantivos_clave  →  De qué TRATA el nodo en 2-4 palabras núcleo con orden jerárquico.\n"
+    "   Regla posicional: Posición 1 = Sustantivo Rector/Principal (entidad dura raíz). Posiciones 2-4 = Restricciones/Variables de control.\n"
+    "   Pregunta clave: '¿Cuál es el recurso duro del que trata (1), y qué variables técnicas o legales lo condicionan (2-4)?'\n"
+    "   Ejemplo — metodología de cobro/postulación defensiva:\n"
+    "     sustantivos_clave='tarifa,contrato,seguridad,ingreso'\n"
+    "   ❌ PROHIBIDO: Repetir palabras del nombre del concepto, nominalizar verbos ('postulación', 'análisis') o usar abstracciones ('estrategia', 'transición').\n\n"
     "▸ dimensiones  →  Coordenadas de QUÉ ES el conocimiento, no qué palabras tiene.\n"
     "   Pregunta clave: '¿Cómo buscaría alguien esto sin saber ninguna palabra del nodo?'\n"
     "   Usar al GUARDAR para clasificar. Usar al BUSCAR para preguntas ontológicas.\n"
@@ -2459,15 +2478,16 @@ def _build_server():
         )] = None,
         sustantivos_clave: Annotated[Optional[str], Field(
             description=(
-                "OBLIGATORIO — centro de gravedad semántico: 2-4 sustantivos "
-                "que definen de QUÉ TRATA el nodo (no qué menciona).\n"
-                "Formato: separados por coma, minúsculas, sin tildes.\n"
-                "Ejemplo: 'servidor,backend,timeout,conexion'\n"
-                "Mínimo 2, máximo 4 términos únicos (2-15 chars cada uno).\n"
-                "AXIOMA: términos LÉXICOS, CONCRETOS y BUSCABLES — las palabras que quien consulta "
-                "escribiría al buscar el nodo. PROHIBIDO abstracciones de segundo orden "
-                "(ej. 'transición', 'estrategia', 'diferenciación'). "
-                "No duplicar términos con alto peso ya presentes en el nombre del concepto."
+                "OBLIGATORIO — centro de gravedad semántico: 2-4 sustantivos jerárquicos "
+                "que definen de QUÉ TRATA el nodo (peso BM25 4.0x).\n"
+                "JERARQUÍA OBLIGATORIA: Posición 1 = Sustantivo Rector/Principal (entidad dura o recurso raíz); "
+                "Posiciones 2 a 4 = Restricciones, límites técnicos, legales o financieros que condicionan al principal.\n"
+                "Formato: 2-4 términos únicos separados por coma, minúsculas, sin tildes ni espacios (ej: 'tarifa,contrato,seguridad,ingreso').\n"
+                "PROHIBICIONES ESTRICTAS:\n"
+                "✗ NO repetir palabras ya presentes en el nombre del concepto (ya tienen peso 5.0x).\n"
+                "✗ NO nominalizar verbos del flujo (postular → 'postulacion', analizar → 'analisis').\n"
+                "✗ NO etiquetas genéricas de canal/entorno ('workana', 'cliente', 'plataforma', 'texto').\n"
+                "✗ NO abstracciones vacías de segundo orden ('estrategia', 'transicion', 'diferenciacion')."
             )
         )] = None,
     ) -> str:
@@ -2515,11 +2535,11 @@ def _build_server():
         )] = None,
         sustantivos_clave: Annotated[Optional[str], Field(
             description=(
-                "OBLIGATORIO — centro de gravedad semántico: 2-4 sustantivos "
-                "que definen de QUÉ TRATA el nodo (no qué menciona). "
-                "Mismo formato y reglas que en `aprender`. "
-                "Ejemplo: 'servidor,backend,timeout,conexion'. "
-                "AXIOMA: LÉXICOS, CONCRETOS y BUSCABLES; prohibido abstracciones de segundo orden."
+                "OBLIGATORIO — centro de gravedad semántico jerárquico: 2-4 sustantivos (peso BM25 4.0x). "
+                "Posición 1 = Sustantivo Rector/Principal; Posiciones 2-4 = Restricciones/Variables de control. "
+                "Formato: minúsculas, sin tildes ni espacios (ej: 'tarifa,contrato,seguridad,ingreso'). "
+                "PROHIBICIONES: No repetir palabras del concepto, no nominalizar verbos ('postulacion', 'analisis'), "
+                "no etiquetas de canal ('workana', 'cliente'), no abstracciones ('estrategia', 'transicion')."
             )
         )] = None,
     ) -> str:
@@ -2542,11 +2562,12 @@ def _build_server():
         concepto: Annotated[str, Field(description="Nombre del nodo existente (se normaliza a snake_case).")],
         sustantivos_clave: Annotated[str, Field(
             description=(
-                "2-4 sustantivos clave que definen el centro de gravedad del nodo (de QUÉ TRATA).\n"
-                "Formato: separados por coma, minúsculas, sin tildes.\n"
-                "Ejemplo: 'servidor,backend,timeout,conexion'\n"
+                "2-4 sustantivos clave jerárquicos que definen de QUÉ TRATA el nodo (peso BM25 4.0x).\n"
+                "Posición 1 = Sustantivo Rector/Principal; Posiciones 2 a 4 = Restricciones/Variables de control.\n"
+                "Formato: separados por coma, minúsculas, sin tildes ni espacios (ej: 'tarifa,contrato,seguridad,ingreso').\n"
                 "Mínimo 2, máximo 4 términos únicos (2-15 chars cada uno).\n"
-                "AXIOMA: LÉXICOS, CONCRETOS y BUSCABLES; prohibido abstracciones de segundo orden."
+                "PROHIBICIONES: No repetir palabras del concepto, no nominalizar verbos ('postulacion', 'analisis'), "
+                "no etiquetas de canal ('workana', 'cliente'), no abstracciones ('estrategia', 'transicion')."
             )
         )],
     ) -> str:
