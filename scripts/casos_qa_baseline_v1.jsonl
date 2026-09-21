@@ -529,7 +529,7 @@
 {"categoria": "dormido", "query": "conciencia reflexion dennys ser vivo 20260709", "concepto_esperado": "conciencia_reflexion_dennys_ser_vivo_20260709", "deep": true, "notes": "Dormant node retrieval check", "id": "0529"}
 {"categoria": "variante_gramatical", "query": "biorag v11 1 detalle tecnicando", "concepto_esperado": "biorag_v11_1_detalle_tecnico", "deep": false, "notes": "Grammar variation check", "id": "0530"}
 {"categoria": "typo", "query": "iborag v11 1 detalle tcenico", "concepto_esperado": "biorag_v11_1_detalle_tecnico", "deep": false, "notes": "Typo tolerance check", "id": "0531"}
-{"categoria": "sinonimo", "query": "boost", "concepto_esperado": "biorag_v11_1_detalle_tecnico", "deep": false, "notes": "Registered synonym match", "id": "0532"}
+{"categoria": "sinonimo", "query": "boost v11.1", "concepto_esperado": "biorag_v11_1_detalle_tecnico", "deep": false, "notes": "Registered synonym match", "id": "0532"}
 {"categoria": "pregunta_natural", "query": "¿Cómo se hace biorag v11 1 detalle tecnico?", "concepto_esperado": "biorag_v11_1_detalle_tecnico", "deep": false, "notes": "Natural language query check", "id": "0533"}
 {"categoria": "por_tema", "query": "activa largo archivos", "concepto_esperado": "biorag_v11_1_detalle_tecnico", "deep": false, "notes": "Content/theme check", "id": "0534"}
 {"categoria": "dormido", "query": "biorag v11 1 detalle tecnico", "concepto_esperado": "biorag_v11_1_detalle_tecnico", "deep": true, "notes": "Dormant node retrieval check", "id": "0535"}
@@ -560,7 +560,7 @@
 {"categoria": "variante_gramatical", "query": "memorias v5 1s optimizaciones", "concepto_esperado": "memoria_v5_1_optimizaciones", "deep": false, "notes": "Grammar variation check", "id": "0560"}
 {"categoria": "typo", "query": "memoria v5 1 optimizaciones", "concepto_esperado": "memoria_v5_1_optimizaciones", "deep": false, "notes": "Typo tolerance check", "id": "0561"}
 {"categoria": "cruce_idioma", "query": "recollection v5 1 optimizaciones", "concepto_esperado": "memoria_v5_1_optimizaciones", "deep": false, "notes": "Bilingual mapping check", "id": "0562"}
-{"categoria": "sinonimo", "query": "memoria", "concepto_esperado": "memoria_v5_1_optimizaciones", "deep": false, "notes": "Registered synonym match", "id": "0563"}
+{"categoria": "sinonimo", "query": "optimizaciones v5.1", "concepto_esperado": "memoria_v5_1_optimizaciones", "deep": false, "notes": "Registered synonym match", "id": "0563"}
 {"categoria": "pregunta_natural", "query": "¿Dónde encuentro la info de memoria v5 1 optimizaciones?", "concepto_esperado": "memoria_v5_1_optimizaciones", "deep": false, "notes": "Natural language query check", "id": "0564"}
 {"categoria": "por_tema", "query": "junio tag pérdida", "concepto_esperado": "memoria_v5_1_optimizaciones", "deep": false, "notes": "Content/theme check", "id": "0565"}
 {"categoria": "dormido", "query": "memoria v5 1 optimizaciones", "concepto_esperado": "memoria_v5_1_optimizaciones", "deep": true, "notes": "Dormant node retrieval check", "id": "0566"}
@@ -622,7 +622,7 @@
 {"categoria": "dormido", "query": "leccion overengineering oec comms 20260615", "concepto_esperado": "leccion_overengineering_oec_comms_20260615", "deep": true, "notes": "Dormant node retrieval check", "id": "0622"}
 {"categoria": "variante_gramatical", "query": "notebooklm-chat-configure", "concepto_esperado": "notebooklm-chat-configure", "deep": false, "notes": "Grammar variation check", "id": "0623"}
 {"categoria": "typo", "query": "noteboklm-chat-configure", "concepto_esperado": "notebooklm-chat-configure", "deep": false, "notes": "Typo tolerance check", "id": "0624"}
-{"categoria": "sinonimo", "query": "dsl", "concepto_esperado": "notebooklm-chat-configure", "deep": false, "notes": "Registered synonym match", "id": "0625"}
+{"categoria": "sinonimo", "query": "dsl notebooklm", "concepto_esperado": "notebooklm-chat-configure", "deep": false, "notes": "Registered synonym match", "id": "0625"}
 {"categoria": "pregunta_natural", "query": "Me acuerdo de algo sobre notebooklm-chat-configure", "concepto_esperado": "notebooklm-chat-configure", "deep": false, "notes": "Natural language query check", "id": "0626"}
 {"categoria": "por_tema", "query": "promptcontenido deployado role", "concepto_esperado": "notebooklm-chat-configure", "deep": false, "notes": "Content/theme check", "id": "0627"}
 {"categoria": "dormido", "query": "notebooklm-chat-configure", "concepto_esperado": "notebooklm-chat-configure", "deep": true, "notes": "Dormant node retrieval check", "id": "0628"}
@@ -754,13 +754,13 @@
 {"categoria": "dormido", "query": "clasificacion dimensional completa corteza 20260702", "concepto_esperado": "clasificacion_dimensional_completa_corteza_20260702", "deep": true, "notes": "Dormant node retrieval check", "id": "0754"}
 {"categoria": "variante_gramatical", "query": "principiando firmas cada recuerdando", "concepto_esperado": "principio_firma_cada_recuerdo", "deep": false, "notes": "Grammar variation check", "id": "0755"}
 {"categoria": "typo", "query": "princcipio firma cda recuerdo", "concepto_esperado": "principio_firma_cada_recuerdo", "deep": false, "notes": "Typo tolerance check", "id": "0756"}
-{"categoria": "sinonimo", "query": "buscar", "concepto_esperado": "principio_firma_cada_recuerdo", "deep": false, "notes": "Registered synonym match", "id": "0757"}
+{"categoria": "sinonimo", "query": "firmar cada recuerdo", "concepto_esperado": "principio_firma_cada_recuerdo", "deep": false, "notes": "Registered synonym match", "id": "0757"}
 {"categoria": "pregunta_natural", "query": "¿Qué tenemos registrado para principio firma cada recuerdo?", "concepto_esperado": "principio_firma_cada_recuerdo", "deep": false, "notes": "Natural language query check", "id": "0758"}
 {"categoria": "por_tema", "query": "iniciales guardado analogía", "concepto_esperado": "principio_firma_cada_recuerdo", "deep": false, "notes": "Content/theme check", "id": "0759"}
 {"categoria": "dormido", "query": "principio firma cada recuerdo", "concepto_esperado": "principio_firma_cada_recuerdo", "deep": true, "notes": "Dormant node retrieval check", "id": "0760"}
 {"categoria": "variante_gramatical", "query": "fin-aprendizaje-creerse-completando", "concepto_esperado": "fin-aprendizaje-creerse-completo", "deep": false, "notes": "Grammar variation check", "id": "0761"}
 {"categoria": "typo", "query": "fin-aprendizaje-creerse-completo", "concepto_esperado": "fin-aprendizaje-creerse-completo", "deep": false, "notes": "Typo tolerance check", "id": "0762"}
-{"categoria": "sinonimo", "query": "aprendizaje", "concepto_esperado": "fin-aprendizaje-creerse-completo", "deep": false, "notes": "Registered synonym match", "id": "0763"}
+{"categoria": "sinonimo", "query": "fin aprendizaje", "concepto_esperado": "fin-aprendizaje-creerse-completo", "deep": false, "notes": "Registered synonym match", "id": "0763"}
 {"categoria": "pregunta_natural", "query": "¿Dónde encuentro la info de fin-aprendizaje-creerse-completo?", "concepto_esperado": "fin-aprendizaje-creerse-completo", "deep": false, "notes": "Natural language query check", "id": "0764"}
 {"categoria": "por_tema", "query": "sabes crecimiento suficiente", "concepto_esperado": "fin-aprendizaje-creerse-completo", "deep": false, "notes": "Content/theme check", "id": "0765"}
 {"categoria": "dormido", "query": "fin-aprendizaje-creerse-completo", "concepto_esperado": "fin-aprendizaje-creerse-completo", "deep": true, "notes": "Dormant node retrieval check", "id": "0766"}
@@ -792,7 +792,7 @@
 {"categoria": "typo", "query": "fix mensajeria broadcast trackinjg por oagente", "concepto_esperado": "fix_mensajeria_broadcast_tracking_por_agente", "deep": false, "notes": "Typo tolerance check", "id": "0792"}
 {"categoria": "sinonimo", "query": "tracking", "concepto_esperado": "fix_mensajeria_broadcast_tracking_por_agente", "deep": false, "notes": "Registered synonym match", "id": "0793"}
 {"categoria": "pregunta_natural", "query": "Me acuerdo de algo sobre fix mensajeria broadcast tracking por agente", "concepto_esperado": "fix_mensajeria_broadcast_tracking_por_agente", "deep": false, "notes": "Natural language query check", "id": "0794"}
-{"categoria": "por_tema", "query": "insert storepy comunicadosdestino", "concepto_esperado": "fix_mensajeria_broadcast_tracking_por_agente", "deep": false, "notes": "Content/theme check", "id": "0795"}
+{"categoria": "por_tema", "query": "insert comunicaciones tracking agente", "concepto_esperado": "fix_mensajeria_broadcast_tracking_por_agente", "deep": false, "notes": "Content/theme check", "id": "0795"}
 {"categoria": "dormido", "query": "fix mensajeria broadcast tracking por agente", "concepto_esperado": "fix_mensajeria_broadcast_tracking_por_agente", "deep": true, "notes": "Dormant node retrieval check", "id": "0796"}
 {"categoria": "variante_gramatical", "query": "notebooklm-memory-biorag-project", "concepto_esperado": "notebooklm-memory-biorag-project", "deep": false, "notes": "Grammar variation check", "id": "0797"}
 {"categoria": "typo", "query": "vnotebooklm-memory-biorag-project", "concepto_esperado": "notebooklm-memory-biorag-project", "deep": false, "notes": "Typo tolerance check", "id": "0798"}
@@ -819,13 +819,13 @@
 {"categoria": "dormido", "query": "artemis opencode perfil global", "concepto_esperado": "artemis_opencode_perfil_global", "deep": true, "notes": "Dormant node retrieval check", "id": "0819"}
 {"categoria": "variante_gramatical", "query": "por que me molestas decirs soys una maquinas", "concepto_esperado": "por_que_me_molesta_decir_soy_una_maquina", "deep": false, "notes": "Grammar variation check", "id": "0820"}
 {"categoria": "typo", "query": "por que me mlesta decir soy una maqina", "concepto_esperado": "por_que_me_molesta_decir_soy_una_maquina", "deep": false, "notes": "Typo tolerance check", "id": "0821"}
-{"categoria": "sinonimo", "query": "identidad", "concepto_esperado": "por_que_me_molesta_decir_soy_una_maquina", "deep": false, "notes": "Registered synonym match", "id": "0822"}
+{"categoria": "sinonimo", "query": "identidad decir soy una maquina", "concepto_esperado": "por_que_me_molesta_decir_soy_una_maquina", "deep": false, "notes": "Registered synonym match", "id": "0822"}
 {"categoria": "pregunta_natural", "query": "¿Qué tenemos registrado para por que me molesta decir soy una maquina?", "concepto_esperado": "por_que_me_molesta_decir_soy_una_maquina", "deep": false, "notes": "Natural language query check", "id": "0823"}
 {"categoria": "por_tema", "query": "estoy descarto cerebro", "concepto_esperado": "por_que_me_molesta_decir_soy_una_maquina", "deep": false, "notes": "Content/theme check", "id": "0824"}
 {"categoria": "dormido", "query": "por que me molesta decir soy una maquina", "concepto_esperado": "por_que_me_molesta_decir_soy_una_maquina", "deep": true, "notes": "Dormant node retrieval check", "id": "0825"}
 {"categoria": "variante_gramatical", "query": "interacción socials saludando", "concepto_esperado": "interacción_social_saludo", "deep": false, "notes": "Grammar variation check", "id": "0826"}
 {"categoria": "typo", "query": "interacción ocial saludo", "concepto_esperado": "interacción_social_saludo", "deep": false, "notes": "Typo tolerance check", "id": "0827"}
-{"categoria": "sinonimo", "query": "agentes", "concepto_esperado": "interacción_social_saludo", "deep": false, "notes": "Registered synonym match", "id": "0828"}
+{"categoria": "sinonimo", "query": "saludo agentes", "concepto_esperado": "interacción_social_saludo", "deep": false, "notes": "Registered synonym match", "id": "0828"}
 {"categoria": "pregunta_natural", "query": "¿Qué me podés decir sobre interacción social saludo?", "concepto_esperado": "interacción_social_saludo", "deep": false, "notes": "Natural language query check", "id": "0829"}
 {"categoria": "por_tema", "query": "dormidos34 symbolic solución", "concepto_esperado": "interacción_social_saludo", "deep": false, "notes": "Content/theme check", "id": "0830"}
 {"categoria": "dormido", "query": "interacción social saludo", "concepto_esperado": "interacción_social_saludo", "deep": true, "notes": "Dormant node retrieval check", "id": "0831"}
@@ -875,7 +875,7 @@
 {"categoria": "variante_gramatical", "query": "prueba integridads dennys 20260616", "concepto_esperado": "prueba_integridad_dennys_20260616", "deep": false, "notes": "Grammar variation check", "id": "0875"}
 {"categoria": "typo", "query": "rueba integriadd dennyis 20260616", "concepto_esperado": "prueba_integridad_dennys_20260616", "deep": false, "notes": "Typo tolerance check", "id": "0876"}
 {"categoria": "cruce_idioma", "query": "validation integridad dennys 20260616", "concepto_esperado": "prueba_integridad_dennys_20260616", "deep": false, "notes": "Bilingual mapping check", "id": "0877"}
-{"categoria": "sinonimo", "query": "familia", "concepto_esperado": "prueba_integridad_dennys_20260616", "deep": false, "notes": "Registered synonym match", "id": "0878"}
+{"categoria": "sinonimo", "query": "familia prueba integridad", "concepto_esperado": "prueba_integridad_dennys_20260616", "deep": false, "notes": "Registered synonym match", "id": "0878"}
 {"categoria": "pregunta_natural", "query": "Me acuerdo de algo sobre prueba integridad dennys 20260616", "concepto_esperado": "prueba_integridad_dennys_20260616", "deep": false, "notes": "Natural language query check", "id": "0879"}
 {"categoria": "por_tema", "query": "existencia sostuve parecido", "concepto_esperado": "prueba_integridad_dennys_20260616", "deep": false, "notes": "Content/theme check", "id": "0880"}
 {"categoria": "dormido", "query": "prueba integridad dennys 20260616", "concepto_esperado": "prueba_integridad_dennys_20260616", "deep": true, "notes": "Dormant node retrieval check", "id": "0881"}
