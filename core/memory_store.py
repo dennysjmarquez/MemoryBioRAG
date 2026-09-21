@@ -5315,6 +5315,23 @@ class SQLiteMemoryBioRAG:
             except sqlite3.OperationalError:
                 pass
 
+        # NEAR early-exit fix: si NEAR devolvió candidatos pero con pool pequeño (3 <= len(todos) < limite),
+        # merge con los mejores candidatos de BM25 OR en vez de bloquear el fallback (caso 0497)
+        if not solo_protegidos and 3 <= len(todos) < limite and fts_match:
+            try:
+                self.cursor.execute(sql_con_pc, (fts_match,) + tuple(temporal_params) + tuple(pc_params))
+                _raw = self.cursor.fetchall()
+                seen_rowids = {r[0] for r in todos}
+                for r in _raw:
+                    if r[0] not in seen_rowids:
+                        todos.append(r[:6])
+                        bm25_raw[r[1]] = r[6]
+                        if r[1] not in origen_scores:
+                            origen_scores[r[1]] = ("literal", 0.0)
+                        seen_rowids.add(r[0])
+            except sqlite3.OperationalError:
+                pass
+
         # Store FTS5-only concepts for pseudo-relevance feedback (before content expansion)
         fts5_conceptos = [r[1] for r in todos if r[1]]
 
