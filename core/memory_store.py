@@ -6135,7 +6135,12 @@ class SQLiteMemoryBioRAG:
             lo, hi = min(raw_vals), max(raw_vals)
             rango = hi - lo if hi > lo else 1.0
             escala = min(1.0, hi) if hi > 0 else 1.0
-            bm25_norm_map = {c: ((abs(v) - lo) / rango) * escala for c, v in bm25_raw.items()}
+            if hi > lo:
+                bm25_norm_map = {c: ((abs(v) - lo) / rango) * escala for c, v in bm25_raw.items()}
+            elif len(bm25_raw) == 1 and hi >= 3.0:
+                bm25_norm_map = {c: escala for c, v in bm25_raw.items()}
+            else:
+                bm25_norm_map = {c: 0.0 for c, v in bm25_raw.items()}
             self._last_bm25_bounds = (lo, hi, escala)
         else:
             bm25_norm_map = {}
@@ -7258,9 +7263,14 @@ class SQLiteMemoryBioRAG:
                 lo, hi = r_lo, r_hi
             rango = hi - lo if hi > lo else 1.0
             escala = min(1.0, hi) if hi > 0 else 1.0
-            bm25_norm_map = {
-                r[1]: ((abs(r[6] if len(r) > 6 else 0.0) - lo) / rango) * escala for r in todos
-            }
+            if hi > lo:
+                bm25_norm_map = {
+                    r[1]: ((abs(r[6] if len(r) > 6 else 0.0) - lo) / rango) * escala for r in todos
+                }
+            elif len(todos) == 1 and hi >= 3.0:
+                bm25_norm_map = {r[1]: escala for r in todos}
+            else:
+                bm25_norm_map = {r[1]: 0.0 for r in todos}
         else:
             bm25_norm_map = {}
 
