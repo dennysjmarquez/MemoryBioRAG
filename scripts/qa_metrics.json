@@ -1,7 +1,7 @@
 {
   "version": "v32.0",
-  "generado_en": "2026-09-21T11:50:10",
-  "elapsed_seconds": 787.9,
+  "generado_en": "2026-09-21T13:23:16",
+  "elapsed_seconds": 760.25,
   "casos_file": "casos_qa_baseline_v1.jsonl",
   "casos_total": 921,
   "db_src": "/mnt/recursos_compartidos_y_otros/MemoryBioRAG/MemoryBioRAG_Data/memory_biorag_qa_run.db",
