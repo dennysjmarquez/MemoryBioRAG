@@ -1,6 +1,8 @@
 # BioRAG .gitignore
 
 # Generated databases (local data, not code)
+MemoryBioRAG_Data/nltk_data/corpora/omw-1.4/
+MemoryBioRAG_Data/nltk_data/corpora/wordnet/
 MemoryBioRAG_Data/**/*.db
 !MemoryBioRAG_Data/memory_biorag.db
 MemoryBioRAG_Data/obsolete_and_debug/

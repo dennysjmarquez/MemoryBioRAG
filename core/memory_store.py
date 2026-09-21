@@ -1089,6 +1089,15 @@ class SQLiteMemoryBioRAG:
                 conceptos_top TEXT
             )
         """)
+        # 10. Tabla de historial de accesos de nodos (ACT-R Power Law of Practice)
+        self.cursor.execute("""
+            CREATE TABLE IF NOT EXISTS nodo_accesos_historial (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                concepto TEXT NOT NULL,
+                acceso_timestamp REAL NOT NULL
+            )
+        """)
+        self.cursor.execute("CREATE INDEX IF NOT EXISTS idx_nodo_accesos_conc_ts ON nodo_accesos_historial(concepto, acceso_timestamp)")
         self._crear_tabla_data()
         self.conn.commit()
 
@@ -1133,8 +1142,81 @@ class SQLiteMemoryBioRAG:
                     (clave, valor, descripcion),
                 )
 
+    # =========================================================================
+    # TECNOLOGÍA COGNITIVA: Ley de Potencia de Práctica de ACT-R (Anderson & Lebiere, 1998)
+    # Modelo formal de activación de nivel base (Base-Level Activation) y retención biológica:
+    # B_i = ln( \sum_{k=1}^n t_k^{-d} ), con d = 0.5.
+    # Modula la tasa de olvido pasivo (LTD) en el ciclo de consolidación de sueño.
+    # =========================================================================
+
+    def _registrar_acceso_nodo(self, concepto: str, ts: float = None):
+        """Registra un evento de acceso para el cálculo de activación base ACT-R.
+        
+        Fundamento científico:
+            Ley de Potencia de la Práctica (Newell & Rosenbloom, 1981; Anderson & Lebiere, 1998).
+            Implementa un búfer circular de tamaño acotado (máximo 10 marcas temporales)
+            en la tabla `nodo_accesos_historial` con ordenamiento por recencia y evicción FIFO.
+        """
+        if not concepto:
+            return
+        if ts is None:
+            ts = time.time()
+        try:
+            self.cursor.execute(
+                "INSERT INTO nodo_accesos_historial (concepto, acceso_timestamp) VALUES (?, ?)",
+                (concepto, ts)
+            )
+            self.cursor.execute("""
+                DELETE FROM nodo_accesos_historial
+                WHERE concepto = ?
+                  AND id NOT IN (
+                      SELECT id FROM nodo_accesos_historial
+                      WHERE concepto = ?
+                      ORDER BY acceso_timestamp DESC
+                      LIMIT 10
+                  )
+            """, (concepto, concepto))
+        except Exception:
+            pass
+
+    def _calcular_base_level_actr(self, concepto: str, ahora: float = None):
+        r"""Calcula la activación de nivel base de la arquitectura cognitiva ACT-R:
+        
+        Ecuación:
+            B_i = ln( \sum_{k=1}^n t_k^{-d} ), con parámetro canónico d = 0.5
+            donde t_k es el tiempo transcurrido (en segundos) desde el k-ésimo acceso.
+            
+        Retorna:
+            float con el nivel de activación B_i, o None si el concepto no posee
+            registros de acceso previos en el historial.
+        """
+        if ahora is None:
+            ahora = time.time()
+        try:
+            self.cursor.execute(
+                "SELECT acceso_timestamp FROM nodo_accesos_historial WHERE concepto = ? ORDER BY acceso_timestamp DESC LIMIT 10",
+                (concepto,)
+            )
+            rows = self.cursor.fetchall()
+            if rows:
+                suma_potencias = sum(max(1.0, ahora - r[0]) ** (-0.5) for r in rows)
+                return math.log(max(1e-9, suma_potencias))
+        except Exception:
+            pass
+        return None
+
     def _crear_tablas_nuevas_si_faltan(self):
         """Crea tablas nuevas (Phase 2D) si no existen en esquemas existentes."""
+        # --- Tabla de historial de accesos de nodos (ACT-R Power Law of Practice) ---
+        self.cursor.execute("""
+            CREATE TABLE IF NOT EXISTS nodo_accesos_historial (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                concepto TEXT NOT NULL,
+                acceso_timestamp REAL NOT NULL
+            )
+        """)
+        self.cursor.execute("CREATE INDEX IF NOT EXISTS idx_nodo_accesos_conc_ts ON nodo_accesos_historial(concepto, acceso_timestamp)")
+
 # --- Migración v28.1 (Calibración persistente — garantía FP dinámica) ---
         self.cursor.execute("""
             CREATE TABLE IF NOT EXISTS calibracion_estado (
@@ -2446,29 +2528,47 @@ class SQLiteMemoryBioRAG:
         except Exception as e:
             print(f"[Inferencia Transitiva] Fallback silencioso: {e}")
 
-        # 2. Decaimiento Pasivo (LTD): Reducir peso según decay_rate de la categoría
-        # Nodos protegidos (valencia_somatica >= 0.8 o categoria Principle/Protocol) son inmunes a LTD pasivo
+        # 2. Decaimiento Pasivo (LTD): Power Law of Practice (ACT-R Base-Level Activation)
+        # B_i = ln(sum_{k=1}^n t_k^{-0.5}) modula la tasa de olvido en vez del -0.05 estático.
+        # Nodos protegidos (valencia_somatica >= 0.8 o categoria Principle/Protocol) son inmunes a LTD pasivo.
         # Prioridad P0-P1: inmunes. P2: 50% LTD. P3: normal (1.0). P4: 1.5x. P5: 2.5x.
         # Sin prioridad asignada (NULL): 1.5x (intermedio, no el más volátil).
-        # Nodos en cuarentena se excluyen del ciclo de olvido.
         self.cursor.execute("""
-            UPDATE largo_plazo
-            SET peso_sinaptico = ROUND(MAX(0.0, peso_sinaptico - 0.05 * (
-                SELECT COALESCE(c.decay_rate, 1.0) FROM categories c WHERE c.id = largo_plazo.categoria
-            ) * CASE
-                WHEN prioridad = 2 THEN 0.5
-                WHEN prioridad = 3 THEN 1.0
-                WHEN prioridad = 4 THEN 1.5
-                WHEN prioridad >= 5 THEN 2.5
-                WHEN prioridad IS NULL THEN 1.5
-                ELSE 0
-            END), 2)
-            WHERE estado = 'activo'
-              AND (prioridad IS NULL OR prioridad NOT IN (0, 1))
-              AND concepto NOT IN (SELECT concepto FROM corto_plazo)
-              AND COALESCE(valencia_somatica, 0.0) < 0.80
-              AND (categoria IS NULL OR categoria NOT IN (SELECT id FROM categories WHERE name IN ('Principle', 'Protocol')))
+            SELECT l.concepto, l.peso_sinaptico, COALESCE(c.decay_rate, 1.0),
+                   CASE
+                       WHEN l.prioridad = 2 THEN 0.5
+                       WHEN l.prioridad = 3 THEN 1.0
+                       WHEN l.prioridad = 4 THEN 1.5
+                       WHEN l.prioridad >= 5 THEN 2.5
+                       WHEN l.prioridad IS NULL THEN 1.5
+                       ELSE 0
+                   END AS mult_prio
+            FROM largo_plazo l
+            LEFT JOIN categories c ON c.id = l.categoria
+            WHERE l.estado = 'activo'
+              AND (l.prioridad IS NULL OR l.prioridad NOT IN (0, 1))
+              AND l.concepto NOT IN (SELECT concepto FROM corto_plazo)
+              AND COALESCE(l.valencia_somatica, 0.0) < 0.80
+              AND (l.categoria IS NULL OR l.categoria NOT IN (SELECT id FROM categories WHERE name IN ('Principle', 'Protocol')))
         """)
+        candidatos_ltd = self.cursor.fetchall()
+        ahora_sueno = time.time()
+        for concepto_ltd, peso_act, dec_cat, mult_prio in candidatos_ltd:
+            b_i = self._calcular_base_level_actr(concepto_ltd, ahora=ahora_sueno)
+            # Modulación ACT-R (Ley de Potencia de Práctica/Olvido de Anderson & Lebiere):
+            # Si hay accesos, B_i modula el decaimiento de forma exponencial inversa:
+            # - B_i alto (uso frecuente/reciente): decae menos (protección contra olvido).
+            # - B_i bajo (uso lejano): decae más rápido (olvido acelerado).
+            # - Sin accesos previos registrados: decae a la tasa estándar 0.05.
+            if b_i is not None:
+                decay_base = max(0.01, min(0.10, 0.05 * math.exp(-0.5 * b_i)))
+            else:
+                decay_base = 0.05
+            nuevo_peso = round(max(0.0, peso_act - decay_base * dec_cat * mult_prio), 2)
+            self.cursor.execute(
+                "UPDATE largo_plazo SET peso_sinaptico = ? WHERE concepto = ?",
+                (nuevo_peso, concepto_ltd)
+            )
 
         # 2b. Decay Sináptico: reducir peso de conexiones no usadas en 7+ días
         self.cursor.execute("""
@@ -3378,6 +3478,18 @@ class SQLiteMemoryBioRAG:
                     continue
                 visitados.add(nodo)
 
+                # Fan Effect (ACT-R): atenuación conservativa por grado de dispersión del nodo emisor
+                self.cursor.execute(
+                    "SELECT COUNT(*) FROM ("
+                    "SELECT destino FROM sinapsis WHERE origen = ? "
+                    "UNION "
+                    "SELECT origen FROM sinapsis WHERE destino = ?"
+                    ")",
+                    (nodo, nodo)
+                )
+                fan_grado = self.cursor.fetchone()[0] or 1
+                fan_factor = 1.0 / math.log(math.e + max(0, fan_grado - 1))
+
                 self.cursor.execute(
                     "SELECT destino, peso FROM sinapsis WHERE origen = ? "
                     "UNION "
@@ -3387,7 +3499,7 @@ class SQLiteMemoryBioRAG:
                 )
                 for vecino, peso in self.cursor.fetchall():
                     if vecino not in visitados:
-                        sv = score * (peso or 0.5) * decay
+                        sv = score * (peso or 0.5) * fan_factor * decay
                         if sv > 0.05:
                             siguientes.append((vecino, sv))
                             resultados.append((vecino, sv, salto + 1))
@@ -5303,6 +5415,23 @@ class SQLiteMemoryBioRAG:
             except sqlite3.OperationalError:
                 pass
 
+        # NEAR early-exit fix: si NEAR devolvió candidatos pero con pool pequeño (3 <= len(todos) < limite),
+        # merge con los mejores candidatos de BM25 OR en vez de bloquear el fallback (caso 0497)
+        if not solo_protegidos and 3 <= len(todos) < limite and fts_match:
+            try:
+                self.cursor.execute(sql_con_pc, (fts_match,) + tuple(temporal_params) + tuple(pc_params))
+                _raw = self.cursor.fetchall()
+                seen_rowids = {r[0] for r in todos}
+                for r in _raw:
+                    if r[0] not in seen_rowids:
+                        todos.append(r[:6])
+                        bm25_raw[r[1]] = r[6]
+                        if r[1] not in origen_scores:
+                            origen_scores[r[1]] = ("literal", 0.0)
+                        seen_rowids.add(r[0])
+            except sqlite3.OperationalError:
+                pass
+
         # Store FTS5-only concepts for pseudo-relevance feedback (before content expansion)
         fts5_conceptos = [r[1] for r in todos if r[1]]
 
@@ -5403,7 +5532,7 @@ class SQLiteMemoryBioRAG:
             where_fb = ("WHERE " + " AND ".join(filtros_fb)) if filtros_fb else ""
             try:
                 self.cursor.execute(
-                    f"SELECT rowid, concepto, contenido, peso_sinaptico, estado, asociaciones FROM largo_plazo {where_fb} LIMIT {sql_limit}"
+                    f"SELECT rowid, concepto, contenido, peso_sinaptico, estado, asociaciones FROM largo_plazo {where_fb} ORDER BY rowid LIMIT {sql_limit}"
                 )
                 filas = self.cursor.fetchall()
                 query_words = re.findall(r'\w{3,}', query.lower())
@@ -6135,7 +6264,12 @@ class SQLiteMemoryBioRAG:
             lo, hi = min(raw_vals), max(raw_vals)
             rango = hi - lo if hi > lo else 1.0
             escala = min(1.0, hi) if hi > 0 else 1.0
-            bm25_norm_map = {c: ((abs(v) - lo) / rango) * escala for c, v in bm25_raw.items()}
+            if hi > lo:
+                bm25_norm_map = {c: ((abs(v) - lo) / rango) * escala for c, v in bm25_raw.items()}
+            elif len(bm25_raw) == 1 and hi >= 3.0:
+                bm25_norm_map = {c: escala for c, v in bm25_raw.items()}
+            else:
+                bm25_norm_map = {c: 0.0 for c, v in bm25_raw.items()}
             self._last_bm25_bounds = (lo, hi, escala)
         else:
             bm25_norm_map = {}
@@ -6859,6 +6993,20 @@ class SQLiteMemoryBioRAG:
             self.last_estado_epistemico = metadatos_epi
             total = len(pagina_resultados)
 
+        # =====================================================================
+        # TECNOLOGÍA COGNITIVA: Registro de Acceso ACT-R (Anderson & Lebiere, 1998)
+        # Alimenta el cálculo de Base-Level Activation para la Ley de Potencia.
+        # Solo opera fuera del entorno de benchmarking o telemetría silenciada.
+        # =====================================================================
+        if pagina_resultados and os.environ.get("BIORAG_NO_LOG") != "1":
+            try:
+                ahora_acc = time.time()
+                for r in pagina_resultados:
+                    if r and r[0]:
+                        self._registrar_acceso_nodo(r[0], ahora_acc)
+            except Exception:
+                pass
+
         # Phase 2D: Telemetría de búsquedas (non-blocking)
         # Respeta BIORAG_NO_LOG=1 para no contaminar el log con consultas de test/benchmark
         if os.environ.get("BIORAG_NO_LOG") == "1":
@@ -7258,9 +7406,14 @@ class SQLiteMemoryBioRAG:
                 lo, hi = r_lo, r_hi
             rango = hi - lo if hi > lo else 1.0
             escala = min(1.0, hi) if hi > 0 else 1.0
-            bm25_norm_map = {
-                r[1]: ((abs(r[6] if len(r) > 6 else 0.0) - lo) / rango) * escala for r in todos
-            }
+            if hi > lo:
+                bm25_norm_map = {
+                    r[1]: ((abs(r[6] if len(r) > 6 else 0.0) - lo) / rango) * escala for r in todos
+                }
+            elif len(todos) == 1 and hi >= 3.0:
+                bm25_norm_map = {r[1]: escala for r in todos}
+            else:
+                bm25_norm_map = {r[1]: 0.0 for r in todos}
         else:
             bm25_norm_map = {}
 

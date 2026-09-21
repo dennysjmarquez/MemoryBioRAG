@@ -1,15 +1,25 @@
 """
 Concept Hub — Capa semántica que resuelve vocabulario sin overlap.
 
+Fundamentos científicos:
+    - Teoría de Prototipos y Categorización Conceptual (Rosch, 1975; Posner & Keele, 1968).
+    - Modelos de Redes Semánticas de Memoria Humana (Collins & Quillian, 1969; Collins & Loftus, 1975).
+    - Mediación Semántica y Zonas de Sentido (Vygotsky, 1934).
+
 Problema que resuelve:
-    Cuando la query y el nodo no comparten palabras pero comparten significado,
+    Cuando la query y el nodo no comparten palabras pero comparten significado (Abismo Léxico),
     BM25/FTS5 devuelve 0 resultados. Las dimensiones y PPMI/SVD tampoco rescatan
     porque el corpus es demasiado pequeño para aprender sinonimia estadística.
 
 Solución:
     Grafo de significado con bridges explícitos clasificados por 5 ángulos semánticos.
     No depende de estadística — construye la semántica determinista mediante
-    conceptos canónicos y frases puente estructuradas.
+    conceptos canónicos y frases puente estructuradas en 5 perspectivas canónicas:
+    1. 'sinonimo' (paráfrasis formal / denominación técnica alternativa)
+    2. 'problema' (formulación de la necesidad o síntoma)
+    3. 'solucion' (declaración resolutiva de la arquitectura)
+    4. 'situacion' (contexto de aplicación / caso de uso)
+    5. 'ingenuo'   (expresión profana / lenguaje no técnico / cross-lingual ES-EN)
 
 Arquitectura:
     1. concept_hubs: nodos canónicos agrupados por significado (valida existencia en largo_plazo/corto_plazo)
@@ -24,8 +34,8 @@ Nota sobre concept_hub_domain_dict:
     tiene Foreign Keys hacia hubs porque opera de forma desacoplada a nivel de tokens globales.
 
 Autor: Athena-OEC & Artemis-OEC
-Versión: v29.1
-Fecha: 2026-08-22
+Versión: v32.0
+Fecha: 2026-09-21
 """
 
 import re

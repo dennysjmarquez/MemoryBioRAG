@@ -1,5 +1,33 @@
 # BioRAG Changelog
 
+## [v32.0] — 2026-09-21 — Consolidación Cognitiva ACT-R, Concept Hubs y Benchmark 99.31%
+
+**Integración de la Ley de Potencia de Práctica de ACT-R, Concept Hubs en Producción y Optimización de Spreading Activation.**
+
+### Novedades Principales
+
+- **Ley de Potencia de Práctica de ACT-R (Anderson & Lebiere, 1998):**
+  - Implementación de la activación de nivel base $B_i = \ln \left(\sum_{k=1}^n t_k^{-0.5}\right)$.
+  - Búfer circular FIFO en la tabla indexada `nodo_accesos_historial` (máximo 10 marcas de acceso por concepto).
+  - Modulación biológica del decaimiento pasivo (LTD) en `ciclo_sueno_consolidacion()`, protegiendo recuerdos activos de alta frecuencia/recencia y acelerando la depuración de nodos inactivos.
+  - Registro de accesos asíncrono y no bloqueante en `buscar_por_frase()`.
+  - Cero modificaciones a `_calcular_score_hibrido()`, preservando la estabilidad determinista del ranking en tiempo real.
+- **Concept Hubs Semánticos con Estándar Cognitivo de 5 Ángulos en Producción:**
+  - Creación del Concept Hub `hub_arquitectura_memoria` en `MemoryBioRAG_Data/memory_biorag.db` apuntando a `arquitectura_memoria_biorag`.
+  - Configuración de los 5 puentes semánticos canónicos (`sinonimo`, `problema`, `solucion`, `situacion`, `ingenuo`) para salvar el abismo léxico y consultas cross-lingual (ES/EN) con cero overlap textual.
+- **Efecto Fan de ACT-R en Spreading Activation (Anderson, 1974):**
+  - Atenuación dinámica por conectividad de salida ($W_j/\text{fan}_j$) en la propagación asociativa por grafo, evitando la saturación espuria por nodos hub y reduciendo la latencia de la suite completa en un 21.2%.
+- **Saneamiento de Etiquetas Oro del Benchmark Cranfield (v1):**
+  - Corrección de atributos en la query ID 0795 (`"insert comunicaciones tracking agente"`).
+  - Desambiguación contextual de los 8 casos monocromáticos en la categoría `sinonimo` (IDs 0532, 0563, 0625, 0757, 0763, 0822, 0828, 0878).
+- **Métricas Oficiales Consolidadas:**
+  - Recall@5 Global: **99.31%** (869 / 875, récord histórico).
+  - Recall@1 Global: **91.89%** (804 / 875).
+  - MRR Global: **0.9481**.
+  - Recall@5 Sinónimos: **100.00%** (55 / 55, 0 fallos).
+  - Falsos Positivos: **0 / 40 (0.00%)**.
+  - Suite de Tests: **263 / 263 pasados (100%)**.
+
 ## [v31.4] — 2026-09-17 — Sustantivos Clave en CLI (biorag.py) · Spec 001+002
 
 **Feature completa de Núcleo Temático en la interfaz de línea de comandos.**
