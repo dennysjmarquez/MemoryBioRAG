@@ -5078,7 +5078,8 @@ class SQLiteMemoryBioRAG:
                         (_fts_and_probe,)
                     ).fetchone()[0]
                     _necesita_expansion = _cnt_probe == 0
-            except Exception:
+            except Exception as exc:
+                logger.debug(f"[BioRAG.Probe] Excepción en probe FTS5 AND (fallback a expandir=True): {exc}")
                 _necesita_expansion = True  # si el probe falla, más seguro expandir
 
         # ── CONCEPT HUB: Expansión semántica pre-FTS5 (condicional, igual que WordNet y DomainDict)
@@ -5109,7 +5110,8 @@ class SQLiteMemoryBioRAG:
                     # NOTA: NUNCA sobreescribir 'query = frase'.
                     # 'query' debe conservar los términos originales del usuario para
                     # evitar explosión combinatoria O(N*M) en el scoring simbólico (Levenshtein).
-            except Exception:
+            except Exception as exc:
+                logger.warning(f"[BioRAG.ConceptHub] Excepción en expandir_query_con_hub: {exc}")
                 hub_expansion = None
 
         # ── WORDNET EXPANDIDO: Expansión automática por sinónimos+hiperonimios ──
@@ -6760,6 +6762,7 @@ class SQLiteMemoryBioRAG:
                             if hub_gana:
                                 # Hub supera al mejor léxico → TOP1
                                 resultados_con_hibrido.insert(0, entrada)
+                                origen_scores[primary_canonical] = ("concept_hub", hub_expansion["hub_confidence"])
                             else:
                                 # Léxico supera al hub → insertar en posición que
                                 # preserve orden por score (presencia garantizada)
@@ -6768,18 +6771,20 @@ class SQLiteMemoryBioRAG:
                                     len(resultados_con_hibrido)
                                 )
                                 resultados_con_hibrido.insert(pos, entrada)
-                    except Exception:
-                        pass
+                                origen_scores[primary_canonical] = ("concept_hub", hub_expansion["hub_confidence"])
+                    except Exception as exc:
+                        logger.warning(f"[BioRAG.ConceptHub] Error recuperando canónico '{primary_canonical}' de DB: {exc}")
                 else:
                     # Canónico ya existe en resultados
                     idx = next(i for i, r in enumerate(resultados_con_hibrido) if r[0] == primary_canonical)
-                    if idx > 0:
-                        if hub_gana:
+                    if hub_gana:
+                        if idx > 0:
                             # Hub supera al mejor léxico → mover a TOP1
                             nodo = resultados_con_hibrido.pop(idx)
                             nodo_mod = list(nodo)
                             nodo_mod[4] = score_promocion
                             resultados_con_hibrido.insert(0, tuple(nodo_mod))
+                        origen_scores[primary_canonical] = ("concept_hub", hub_expansion["hub_confidence"])
                         # Si no hub_gana: el canónico ya está en su posición natural,
                         # no lo movemos — el léxico merece el TOP1
 
@@ -6960,9 +6965,11 @@ class SQLiteMemoryBioRAG:
                 pagina_resultados = res_srl
                 total = len(res_srl)
 
-        # Guardar trazabilidad para mcp_server.py
+        # Guardar trazabilidad para mcp_server.py y auditoría causal
         self.last_todos = todos
         self.last_origen_scores = origen_scores
+        self.last_query = query
+        self.last_hub_expansion = hub_expansion
 
         _exp_ep = expandir_episodio or EPISODIO_TEMPORAL_ACTIVO
         if _exp_ep and pagina_resultados:
@@ -7047,7 +7054,38 @@ class SQLiteMemoryBioRAG:
         # OPT-NUEVA-5: solo publica metadatos (side-channel); ranking intacto.
         if EPISTEMICO_METADATA:
             self._epistemico_publicar(frase, pagina_resultados, total)
+        self.last_pagina_resultados = pagina_resultados
         return pagina_resultados, total
+
+    def obtener_provenance_ultimo_resultado(self) -> dict:
+        """
+        Retorna telemetría estructurada y atribución causal de la última búsqueda.
+        Permite a la suite de tests, evaluadores y benchmarks verificar con precisión
+        qué subsistema (FTS5, Concept Hub, Grafo Hebbiano, Sustantivos Clave, SDM)
+        generó cada candidato y cuál definió su posición en el ranking final.
+        """
+        origenes = getattr(self, "last_origen_scores", {}) or {}
+        hub_exp = getattr(self, "last_hub_expansion", None)
+        candidatos_prov = []
+        for r in getattr(self, "last_pagina_resultados", []) or []:
+            if isinstance(r, (tuple, list)) and len(r) >= 5:
+                conc = r[0]
+                sc = r[4]
+                orig, conf_orig = origenes.get(conc, ("literal", 0.0))
+                candidatos_prov.append({
+                    "concepto": conc,
+                    "score_final": sc,
+                    "origen_candidato": orig,
+                    "confianza_origen": conf_orig,
+                    "es_canonico_hub": bool(hub_exp and conc in hub_exp.get("canonical_nodes", []))
+                })
+        return {
+            "query": getattr(self, "last_query", ""),
+            "hub_activado": bool(hub_exp is not None),
+            "hub_id": hub_exp.get("hub_id") if hub_exp else None,
+            "hub_confidence": hub_exp.get("hub_confidence", 0.0) if hub_exp else 0.0,
+            "candidatos": candidatos_prov
+        }
 
     def _enriquecer_con_adn(self, query, resultados_base, limite=None):
         """Signal #14 (v29): fusión ADN Conceptual con los resultados base (Política A).

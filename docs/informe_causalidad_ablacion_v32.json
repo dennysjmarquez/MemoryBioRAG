@@ -1,0 +1,217 @@
+{
+  "total_casos": 24,
+  "condiciones": {
+    "A": {
+      "hits_1": 13,
+      "hits_5": 22,
+      "mrr_sum": 16.666666666666664,
+      "total": 24,
+      "ranks": {
+        "0001": 1,
+        "0002": 1,
+        "0003": 1,
+        "0488": 1,
+        "0493": 2,
+        "0499": 3,
+        "0489": 1,
+        "0494": 2,
+        "0500": 1,
+        "0490": 1,
+        "0496": 2,
+        "0503": 2,
+        "0491": 2,
+        "0497": 3,
+        "0504": 1,
+        "0492": 1,
+        "0498": 1,
+        "0505": 1,
+        "0495": 4,
+        "0502": 1,
+        "0508": 1,
+        "0501": 4,
+        "0562": null,
+        "0593": null
+      }
+    },
+    "B": {
+      "hits_1": 12,
+      "hits_5": 23,
+      "mrr_sum": 15.866666666666665,
+      "total": 24,
+      "ranks": {
+        "0001": 1,
+        "0002": 1,
+        "0003": 1,
+        "0488": 1,
+        "0493": 3,
+        "0499": null,
+        "0489": 1,
+        "0494": 2,
+        "0500": 3,
+        "0490": 1,
+        "0496": 3,
+        "0503": 3,
+        "0491": 3,
+        "0497": 4,
+        "0504": 2,
+        "0492": 1,
+        "0498": 1,
+        "0505": 1,
+        "0495": 4,
+        "0502": 2,
+        "0508": 1,
+        "0501": 5,
+        "0562": 1,
+        "0593": 1
+      }
+    },
+    "C": {
+      "hits_1": 13,
+      "hits_5": 22,
+      "mrr_sum": 16.666666666666664,
+      "total": 24,
+      "ranks": {
+        "0001": 1,
+        "0002": 1,
+        "0003": 1,
+        "0488": 1,
+        "0493": 2,
+        "0499": 3,
+        "0489": 1,
+        "0494": 2,
+        "0500": 1,
+        "0490": 1,
+        "0496": 2,
+        "0503": 2,
+        "0491": 2,
+        "0497": 3,
+        "0504": 1,
+        "0492": 1,
+        "0498": 1,
+        "0505": 1,
+        "0495": 4,
+        "0502": 1,
+        "0508": 1,
+        "0501": 4,
+        "0562": null,
+        "0593": null
+      }
+    },
+    "D": {
+      "hits_1": 12,
+      "hits_5": 23,
+      "mrr_sum": 15.866666666666665,
+      "total": 24,
+      "ranks": {
+        "0001": 1,
+        "0002": 1,
+        "0003": 1,
+        "0488": 1,
+        "0493": 3,
+        "0499": null,
+        "0489": 1,
+        "0494": 2,
+        "0500": 3,
+        "0490": 1,
+        "0496": 3,
+        "0503": 3,
+        "0491": 3,
+        "0497": 4,
+        "0504": 2,
+        "0492": 1,
+        "0498": 1,
+        "0505": 1,
+        "0495": 4,
+        "0502": 2,
+        "0508": 1,
+        "0501": 5,
+        "0562": 1,
+        "0593": 1
+      }
+    }
+  },
+  "causalidad": {
+    "B": {
+      "rescates_count": 2,
+      "danos_count": 1,
+      "neutros_count": 21,
+      "balance_neto": 1,
+      "detalles_rescates": [
+        {
+          "id": "0562",
+          "rank_baseline": null,
+          "rank_experimental": 1
+        },
+        {
+          "id": "0593",
+          "rank_baseline": null,
+          "rank_experimental": 1
+        }
+      ],
+      "detalles_danos": [
+        {
+          "id": "0499",
+          "rank_baseline": 3,
+          "rank_experimental": null
+        }
+      ]
+    },
+    "C": {
+      "rescates_count": 0,
+      "danos_count": 0,
+      "neutros_count": 24,
+      "balance_neto": 0,
+      "detalles_rescates": [],
+      "detalles_danos": []
+    },
+    "D": {
+      "rescates_count": 2,
+      "danos_count": 1,
+      "neutros_count": 21,
+      "balance_neto": 1,
+      "detalles_rescates": [
+        {
+          "id": "0562",
+          "rank_baseline": null,
+          "rank_experimental": 1
+        },
+        {
+          "id": "0593",
+          "rank_baseline": null,
+          "rank_experimental": 1
+        }
+      ],
+      "detalles_danos": [
+        {
+          "id": "0499",
+          "rank_baseline": 3,
+          "rank_experimental": null
+        }
+      ]
+    }
+  },
+  "provenance": {
+    "A": {
+      "literal": 20,
+      "simbolico": 1,
+      "dimensional_fallback": 2,
+      "unicode": 1
+    },
+    "B": {
+      "literal": 14,
+      "concept_hub": 9,
+      "dimensional_fallback": 1
+    },
+    "C": {
+      "literal": 20,
+      "simbolico": 1,
+      "dimensional_fallback": 2,
+      "unicode": 1
+    },
+    "D": {
+      "literal": 14,
+      "concept_hub": 9,
+      "dimensional_fallback": 1
+    }
+  }
+}

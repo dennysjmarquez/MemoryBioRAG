@@ -41,8 +41,13 @@ Fecha: 2026-09-21
 import re
 import math
 import time
+import json
+import logging
 import sqlite3
 from typing import Optional, List, Dict, Any, Tuple, Union
+
+logger = logging.getLogger("BioRAG.ConceptHub")
+
 
 # Ángulos semánticos permitidos
 ANGULOS_OFICIALES = ('sinonimo', 'problema', 'solucion', 'situacion', 'ingenuo')
@@ -72,8 +77,8 @@ def validar_bridges(bridges: Any, clave: str) -> Tuple[List[Dict[str, Any]], Lis
         if s_val.startswith("[") and s_val.endswith("]"):
             try:
                 bridges = json.loads(s_val)
-            except Exception:
-                pass
+            except Exception as exc:
+                logger.debug(f"[ConceptHub.validar_bridges] Error parseando JSON de bridges: {exc}")
         elif "|" in s_val:
             bridges = [p.strip() for p in s_val.split("|") if p.strip()]
         else:
@@ -699,6 +704,6 @@ def cargar_hubs_iniciales(conn: sqlite3.Connection) -> dict:
             agregar_bridges(conn, hub["hub_id"], hub["bridges"])
             agregar_nodos(conn, hub["hub_id"], hub["nodos"], validar_existencia=False)
             creados += 1
-        except Exception:
-            pass
+        except Exception as exc:
+            logger.warning(f"[ConceptHub.cargar_hubs_iniciales] Error cargando hub inicial '{hub.get('hub_id')}': {exc}")
     return {"status": "ok", "hubs_creados": creados}

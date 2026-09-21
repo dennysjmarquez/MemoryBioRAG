@@ -234,3 +234,35 @@ def test_10_validar_bridges_funcion_directa():
     validos, rechazados = validar_bridges([{"text": "corto", "angle": "sinonimo"}], "demo")
     assert len(validos) == 0
     assert len(rechazados) > 0
+
+
+def test_11_provenance_telemetria_atribucion(tmp_path, monkeypatch):
+    """11. Trazabilidad y atribución causal: obtener_provenance_ultimo_resultado reporta origen de candidatos."""
+    db_path = str(tmp_path / "test_prov.db")
+    monkeypatch.setenv("BIORAG_PATH", db_path)
+    from core.memory_store import SQLiteMemoryBioRAG
+    bio = SQLiteMemoryBioRAG(db_path)
+    
+    # Insertar nodo y concept hub
+    bio.cursor.execute("INSERT INTO largo_plazo (concepto, contenido) VALUES ('nodo_canónico_demo', 'Contenido de mitigacion y guard')")
+    bio.conn.commit()
+    
+    crear_hub(bio.conn, "hub_prov_demo", "nodo_canónico_demo")
+    agregar_bridges(bio.conn, "hub_prov_demo", BRIDGES_5_VALIDOS)
+
+    res, total = bio.buscar_por_frase("estrategia de mitigacion y guard", limite=5)
+    prov = bio.obtener_provenance_ultimo_resultado()
+
+    assert isinstance(prov, dict)
+    assert "query" in prov
+    assert "hub_activado" in prov
+    assert "candidatos" in prov
+    assert isinstance(prov["candidatos"], list)
+    if prov["candidatos"]:
+        c0 = prov["candidatos"][0]
+        assert "concepto" in c0
+        assert "score_final" in c0
+        assert "origen_candidato" in c0
+        assert "confianza_origen" in c0
+        assert "es_canonico_hub" in c0
+    bio.cerrar_sistema()
