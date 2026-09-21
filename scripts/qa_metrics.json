@@ -1,15 +1,15 @@
 {
-  "version": "v31.4",
-  "generado_en": "2026-09-21T13:21:57",
-  "elapsed_seconds": 556.41,
+  "version": "v32.0",
+  "generado_en": "2026-09-21T11:50:10",
+  "elapsed_seconds": 787.9,
   "casos_file": "casos_qa_baseline_v1.jsonl",
   "casos_total": 921,
-  "db_src": "/home/user/MemoryBioRAG/MemoryBioRAG_Data/memory_biorag_qa_run.db",
+  "db_src": "/mnt/recursos_compartidos_y_otros/MemoryBioRAG/MemoryBioRAG_Data/memory_biorag_qa_run.db",
   "global": {
     "queries": 875,
     "recall_at_5": 99.31,
-    "recall_at_1": 91.89,
-    "mrr": 0.9481,
+    "recall_at_1": 92.11,
+    "mrr": 0.9492,
     "fallos": 6,
     "negativos_total": 40,
     "negativos_fp": 0,
@@ -48,8 +48,8 @@
     "por_tema": {
       "total": 65,
       "recall_at_5": 92.31,
-      "recall_at_1": 64.62,
-      "mrr": 0.7621,
+      "recall_at_1": 63.08,
+      "mrr": 0.7569,
       "fallos": 5
     },
     "pregunta_natural": {
@@ -63,21 +63,21 @@
       "total": 55,
       "recall_at_5": 100.0,
       "recall_at_1": 58.18,
-      "mrr": 0.7321,
+      "mrr": 0.7306,
       "fallos": 0
     },
     "typo": {
       "total": 65,
       "recall_at_5": 100.0,
-      "recall_at_1": 84.62,
-      "mrr": 0.9108,
+      "recall_at_1": 87.69,
+      "mrr": 0.9262,
       "fallos": 0
     },
     "variante_gramatical": {
       "total": 65,
       "recall_at_5": 100.0,
-      "recall_at_1": 87.69,
-      "mrr": 0.921,
+      "recall_at_1": 89.23,
+      "mrr": 0.9262,
       "fallos": 0
     }
   }

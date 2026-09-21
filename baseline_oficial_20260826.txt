@@ -1,9 +1,3 @@
-dennys@laptop-dennys:/mnt/recursos_compartidos_y_otros/MemoryBioRAG
-$ ./scripts/run_qa_suite.sh
-Cargando variables desde .env.local...
-BIORAG_PATH no definido -> Usando snapshot oficial: /mnt/recursos_compartidos_y_otros/MemoryBioRAG/snapshots/qa_escape_qcr_20260811.db
-Creando copia aislada fresca desde: /mnt/recursos_compartidos_y_otros/MemoryBioRAG/snapshots/qa_escape_qcr_20260811.db
-BIORAG_PATH exportado a copia aislada: /mnt/recursos_compartidos_y_otros/MemoryBioRAG/MemoryBioRAG_Data/memory_biorag_qa_run.db
 ================================================================================
           INICIANDO SUITE INTEGRAL DE CALIDAD Y REGRESIÓN BIORAG
 ================================================================================
@@ -15,178 +9,273 @@ cachedir: .pytest_cache
 rootdir: /mnt/recursos_compartidos_y_otros/MemoryBioRAG
 configfile: pyproject.toml
 plugins: anyio-4.13.0, langsmith-0.8.5
-collected 168 items                                                                                                                                                       
+collected 263 items                                                                                                                                                       
 
 tests/test_analogia_f3.py::test_aritmetica_pura PASSED                                                                                                              [  0%]
-tests/test_analogia_f3.py::test_falta_vector_devuelve_vacio PASSED                                                                                                  [  1%]
+tests/test_analogia_f3.py::test_falta_vector_devuelve_vacio PASSED                                                                                                  [  0%]
 tests/test_analogia_f3.py::test_deteccion_sintaxis PASSED                                                                                                           [  1%]
-tests/test_analogia_f3.py::test_default_off PASSED                                                                                                                  [  2%]
-tests/test_analogia_f3.py::test_scores_pool_metodo PASSED                                                                                                           [  2%]
-tests/test_analogia_f3.py::test_peso_cero_devuelve_vacio PASSED                                                                                                     [  3%]
-tests/test_analogia_f3.py::test_integracion_buscar_analogia PASSED                                                                                                  [  4%]
-tests/test_analogia_f3.py::test_servicio_resolver_analogia PASSED                                                                                                   [  4%]
-tests/test_bfs_hebbian_boost.py::test_refuerzo_hebbiano_propaga_a_primarios PASSED                                                                                  [  5%]
-tests/test_bfs_hebbian_boost.py::test_refuerzo_hebbiano_preserva_monotonia_primarios PASSED                                                                         [  5%]
-tests/test_bfs_hebbian_boost.py::test_refuerzo_hebbiano_multi_padre_en_contextos PASSED                                                                             [  6%]
-tests/test_bfs_wake_on_access.py::test_bfs_profundo_despierta_nodos_dormidos PASSED                                                                                 [  7%]
-tests/test_bfs_wake_on_access.py::test_bfs_activos_no_toca_nodos_dormidos PASSED                                                                                    [  7%]
-tests/test_calibracion_conforme.py::TestUmbralConforme::test_alpha_controla_fp PASSED                                                                               [  8%]
-tests/test_calibracion_conforme.py::TestUmbralConforme::test_platt_probabilidad_creciente_con_score PASSED                                                          [  8%]
-tests/test_calibracion_conforme.py::TestUmbralConforme::test_umbral_es_percentil_no_valor_absoluto PASSED                                                           [  9%]
-tests/test_calibracion_conforme.py::TestCalibracionPersistente::test_calibrar_y_persistir_crea_tabla PASSED                                                         [ 10%]
-tests/test_calibracion_conforme.py::TestCalibracionPersistente::test_confianza_calibrada_sin_calibrador_es_score_crudo PASSED                                       [ 10%]
-tests/test_calibracion_conforme.py::TestCalibracionPersistente::test_feedback_propaga_util_entre_instancias PASSED                                                  [ 11%]
-tests/test_calibracion_conforme.py::TestCalibracionPersistente::test_nivel_certeza_tres_niveles_sin_silencio PASSED                                                 [ 11%]
-tests/test_campo_semantico_f5.py::test_cluster_supera_outlier PASSED                                                                                                [ 12%]
-tests/test_campo_semantico_f5.py::test_query_atrae PASSED                                                                                                           [ 13%]
-tests/test_campo_semantico_f5.py::test_vacio_seguro PASSED                                                                                                          [ 13%]
-tests/test_campo_semantico_f5.py::test_sin_vector_cero PASSED                                                                                                       [ 14%]
-tests/test_campo_semantico_f5.py::test_sigma_afina PASSED                                                                                                           [ 14%]
-tests/test_campo_semantico_f5.py::test_peso_default_on_tras_gate PASSED                                                                                             [ 15%]
-tests/test_campo_semantico_f5.py::test_integracion_buscar PASSED                                                                                                    [ 16%]
-tests/test_concept_hub_5_angulos.py::test_01_hub_valido_5_angulos PASSED                                                                                            [ 16%]
-tests/test_concept_hub_5_angulos.py::test_02_hub_4_bridges_rechazado PASSED                                                                                         [ 17%]
-tests/test_concept_hub_5_angulos.py::test_03_bridges_duplicados_o_mismo_angulo_rechazados PASSED                                                                    [ 17%]
-tests/test_concept_hub_5_angulos.py::test_04_angle_invalido_rechazado PASSED                                                                                        [ 18%]
-tests/test_concept_hub_5_angulos.py::test_05_canonical_node_inexistente_rechazado PASSED                                                                            [ 19%]
-tests/test_concept_hub_5_angulos.py::test_06_eliminar_hub_cascade PASSED                                                                                            [ 19%]
-tests/test_concept_hub_5_angulos.py::test_07_actualizar_hub_preserva_bridges PASSED                                                                                 [ 20%]
-tests/test_concept_hub_5_angulos.py::test_08_query_coincide_bridge_recupera_canonical PASSED                                                                        [ 20%]
-tests/test_concept_hub_5_angulos.py::test_09_compatibilidad_formato_legacy PASSED                                                                                   [ 21%]
-tests/test_concept_hub_5_angulos.py::test_10_validar_bridges_funcion_directa PASSED                                                                                 [ 22%]
-tests/test_concept_hub_generalizacion.py::test_generalizacion_hub_expansion[paraf_2a_cambio_rompio] PASSED                                                          [ 22%]
-tests/test_concept_hub_generalizacion.py::test_generalizacion_hub_expansion[paraf_2b_tocar_estable] PASSED                                                          [ 23%]
-tests/test_concept_hub_generalizacion.py::test_generalizacion_hub_expansion[paraf_5_desacuerdo_ias] PASSED                                                          [ 23%]
-tests/test_concept_hub_generalizacion.py::test_generalizacion_hub_expansion[paraf_1_antes_programador] PASSED                                                       [ 24%]
-tests/test_concept_hub_generalizacion.py::test_generalizacion_hub_expansion[paraf_4_sobrevivir_sin_tecnologia] PASSED                                               [ 25%]
-tests/test_concept_hub_generalizacion.py::test_generalizacion_recuperacion_top5[paraf_2a_cambio_rompio] PASSED                                                      [ 25%]
-tests/test_concept_hub_generalizacion.py::test_generalizacion_recuperacion_top5[paraf_2b_tocar_estable] PASSED                                                      [ 26%]
-tests/test_concept_hub_generalizacion.py::test_generalizacion_recuperacion_top5[paraf_5_desacuerdo_ias] PASSED                                                      [ 26%]
-tests/test_concept_hub_generalizacion.py::test_generalizacion_recuperacion_top5[paraf_1_antes_programador] PASSED                                                   [ 27%]
-tests/test_concept_hub_generalizacion.py::test_generalizacion_recuperacion_top5[paraf_4_sobrevivir_sin_tecnologia] PASSED                                           [ 27%]
-tests/test_dim_escape.py::test_flags_default PASSED                                                                                                                 [ 28%]
-tests/test_dim_escape.py::test_enganche_en_qcr PASSED                                                                                                               [ 29%]
-tests/test_dim_escape.py::test_off_remueve_on_rescata PASSED                                                                                                        [ 29%]
-tests/test_dim_escape.py::test_piso_rechaza_bajo_t PASSED                                                                                                           [ 30%]
-tests/test_dim_resonancia.py::test_flags_default PASSED                                                                                                             [ 30%]
-tests/test_dim_resonancia.py::test_enganche_en_fallback PASSED                                                                                                      [ 31%]
-tests/test_dim_resonancia.py::test_off_excluye_on_incluye PASSED                                                                                                    [ 32%]
-tests/test_dim_resonancia.py::test_k1_solo_victima PASSED                                                                                                           [ 32%]
-tests/test_dmn_sintesis_e10.py::test_flag_off_cero PASSED                                                                                                           [ 33%]
-tests/test_dmn_sintesis_e10.py::test_crea_arista_con_dim_comun PASSED                                                                                               [ 33%]
-tests/test_dmn_sintesis_e10.py::test_tope_max PASSED                                                                                                                [ 34%]
-tests/test_episodio_temporal_f2.py::test_expandir_episodio_ventana_24h PASSED                                                                                       [ 35%]
-tests/test_episodio_temporal_f2.py::test_afinidad_pool_mismo_bucket PASSED                                                                                          [ 35%]
-tests/test_episodio_temporal_f2.py::test_peso_default_on_tras_gate PASSED                                                                                           [ 36%]
-tests/test_episodio_temporal_f2.py::test_expandir_episodio_en_buscar PASSED                                                                                         [ 36%]
-tests/test_epistemico.py::test_ranking_intacto_on_vs_off PASSED                                                                                                     [ 37%]
-tests/test_epistemico.py::test_pool_no_mutado_por_hook PASSED                                                                                                       [ 38%]
-tests/test_epistemico.py::test_pool_fuerte_es_conocido PASSED                                                                                                       [ 38%]
-tests/test_epistemico.py::test_pool_vacio_es_vacio_y_encola PASSED                                                                                                  [ 39%]
-tests/test_epistemico.py::test_flag_off_no_escribe_ni_encola PASSED                                                                                                 [ 39%]
-tests/test_epistemico.py::test_query_vacia_es_sin_consulta PASSED                                                                                                   [ 40%]
-tests/test_epistemico.py::test_encolado_dedup_y_merge_preserva_adn PASSED                                                                                           [ 41%]
-tests/test_epistemico.py::test_fallo_epistemico_deja_rastro_y_no_rompe_busqueda PASSED                                                                              [ 41%]
-tests/test_eval_causal_srl.py::TestEvalCausalSRL::test_buscar_por_frase_abstracta_con_fallback_srl PASSED                                                           [ 42%]
-tests/test_eval_causal_srl.py::TestEvalCausalSRL::test_extractor_srl_determinista PASSED                                                                            [ 42%]
-tests/test_eval_causal_srl.py::TestEvalCausalSRL::test_fallback_busqueda_predicados_directo PASSED                                                                  [ 43%]
-tests/test_jsd_adaptativo_e7.py::test_query_larga_boost PASSED                                                                                                      [ 44%]
-tests/test_jsd_adaptativo_e7.py::test_query_corta_protege PASSED                                                                                                    [ 44%]
-tests/test_jsd_adaptativo_e7.py::test_flag_off_usa_estatico PASSED                                                                                                  [ 45%]
-tests/test_jsd_adaptativo_e7.py::test_hibrido_respeta_jsd_weight PASSED                                                                                             [ 45%]
-tests/test_jsd_adaptativo_e7.py::test_fuente_buscar PASSED                                                                                                          [ 46%]
-tests/test_lexical_learning.py::test_paths_respects_env PASSED                                                                                                      [ 47%]
-tests/test_lexical_learning.py::test_ensenar_crea_episodio_e_indice PASSED                                                                                          [ 47%]
-tests/test_lexical_learning.py::test_forma_ensenada_top1 PASSED                                                                                                     [ 48%]
-tests/test_lexical_learning.py::test_no_fusiona_nodos PASSED                                                                                                        [ 48%]
-tests/test_lexical_learning.py::test_revertir_episodio PASSED                                                                                                       [ 49%]
-tests/test_mcp_singleton.py::test_get_cerebro_misma_instancia PASSED                                                                                                [ 50%]
-tests/test_mcp_singleton.py::test_cerrar_no_mata_singleton PASSED                                                                                                   [ 50%]
-tests/test_mcp_singleton.py::test_hilos_comparten_instancia PASSED                                                                                                  [ 51%]
-tests/test_memory_core.py::test_memoria_core PASSED                                                                                                                 [ 51%]
-tests/test_multihop_expansion.py::test_off_no_invoca_expansion PASSED                                                                                               [ 52%]
-tests/test_multihop_expansion.py::test_on_rescata_vecino_al_pool PASSED                                                                                             [ 52%]
+tests/test_analogia_f3.py::test_default_off PASSED                                                                                                                  [  1%]
+tests/test_analogia_f3.py::test_scores_pool_metodo PASSED                                                                                                           [  1%]
+tests/test_analogia_f3.py::test_peso_cero_devuelve_vacio PASSED                                                                                                     [  2%]
+tests/test_analogia_f3.py::test_integracion_buscar_analogia PASSED                                                                                                  [  2%]
+tests/test_analogia_f3.py::test_servicio_resolver_analogia PASSED                                                                                                   [  3%]
+tests/test_bateria_extraccion.py::TestT9BateriaExtraccion::test_bateria_casos_especificacion_completa PASSED                                                        [  3%]
+tests/test_bateria_extraccion.py::TestT9BateriaExtraccion::test_guardado_bateria_con_extraccion_esperada[caso_1_N\xfacleo expl\xedcito] PASSED                      [  3%]
+tests/test_bateria_extraccion.py::TestT9BateriaExtraccion::test_guardado_bateria_con_extraccion_esperada[caso_2_N\xfacleo impl\xedcito] PASSED                      [  4%]
+tests/test_bateria_extraccion.py::TestT9BateriaExtraccion::test_guardado_bateria_con_extraccion_esperada[caso_3_Servidor/backend] PASSED                            [  4%]
+tests/test_bateria_extraccion.py::TestT9BateriaExtraccion::test_guardado_bateria_con_extraccion_esperada[caso_4_Frontend/CSS] PASSED                                [  4%]
+tests/test_bateria_extraccion.py::TestT9BateriaExtraccion::test_guardado_bateria_con_extraccion_esperada[caso_5_Multi-n\xfacleo] PASSED                             [  5%]
+tests/test_bateria_extraccion.py::TestT9BateriaExtraccion::test_guardado_bateria_con_extraccion_esperada[caso_6_API/error] PASSED                                   [  5%]
+tests/test_bateria_extraccion.py::TestT9BateriaExtraccion::test_guardado_bateria_con_extraccion_esperada[caso_7_Negaci\xf3n expl\xedcita] PASSED                    [  6%]
+tests/test_bateria_extraccion.py::TestT9BateriaExtraccion::test_guardado_bateria_con_extraccion_esperada[caso_8_Frontera guardado/b\xfasqueda] PASSED               [  6%]
+tests/test_bateria_extraccion.py::TestT9BateriaExtraccion::test_bateria_end_to_end_guardar_consolidar_y_buscar PASSED                                               [  6%]
+tests/test_bfs_hebbian_boost.py::test_refuerzo_hebbiano_propaga_a_primarios PASSED                                                                                  [  7%]
+tests/test_bfs_hebbian_boost.py::test_refuerzo_hebbiano_preserva_monotonia_primarios PASSED                                                                         [  7%]
+tests/test_bfs_hebbian_boost.py::test_refuerzo_hebbiano_multi_padre_en_contextos PASSED                                                                             [  7%]
+tests/test_bfs_wake_on_access.py::test_bfs_profundo_despierta_nodos_dormidos PASSED                                                                                 [  8%]
+tests/test_bfs_wake_on_access.py::test_bfs_activos_no_toca_nodos_dormidos PASSED                                                                                    [  8%]
+tests/test_biorag_cli.py::TestCLISanitizacionYFlags::test_sanitizar_entrada_limpia_bytes_nulos_y_control PASSED                                                     [  9%]
+tests/test_biorag_cli.py::TestCLISanitizacionYFlags::test_sanitizar_entrada_excede_limite_lanza_value_error PASSED                                                  [  9%]
+tests/test_biorag_cli.py::TestCLISanitizacionYFlags::test_extraer_flag_valor_al_final PASSED                                                                        [  9%]
+tests/test_biorag_cli.py::TestCLISanitizacionYFlags::test_extraer_flag_valor_al_inicio PASSED                                                                       [ 10%]
+tests/test_biorag_cli.py::TestCLISanitizacionYFlags::test_extraer_flag_valor_en_medio PASSED                                                                        [ 10%]
+tests/test_biorag_cli.py::TestCLISanitizacionYFlags::test_extraer_flag_sin_valor_lanza_error PASSED                                                                 [ 11%]
+tests/test_biorag_cli.py::TestCLISanitizacionYFlags::test_extraer_flag_seguido_de_otro_flag_lanza_error PASSED                                                      [ 11%]
+tests/test_biorag_cli.py::TestCmdGuardar::test_guardar_sin_sustantivos_muestra_guia_pedagogica PASSED                                                               [ 11%]
+tests/test_biorag_cli.py::TestCmdGuardar::test_guardar_con_alias_sustantivos_acepta_flag PASSED                                                                     [ 12%]
+tests/test_biorag_cli.py::TestCmdGuardar::test_guardar_exitoso_muestra_confirmacion_con_sustantivos PASSED                                                          [ 12%]
+tests/test_biorag_cli.py::TestCmdGuardar::test_guardar_sustantivos_invalidos_caracteres_especiales PASSED                                                           [ 12%]
+tests/test_biorag_cli.py::TestCmdGuardar::test_guardar_mas_de_cinco_sustantivos_falla PASSED                                                                        [ 13%]
+tests/test_biorag_cli.py::TestCmdGuardar::test_guardar_sustantivo_muy_corto_falla PASSED                                                                            [ 13%]
+tests/test_biorag_cli.py::TestCmdGuardar::test_guardar_sustantivo_muy_largo_falla PASSED                                                                            [ 14%]
+tests/test_biorag_cli.py::TestCmdGuardar::test_guardar_flag_en_posicion_inicial PASSED                                                                              [ 14%]
+tests/test_biorag_cli.py::TestCmdGuardar::test_guardar_concepto_con_bytes_nulos_sanitizado PASSED                                                                   [ 14%]
+tests/test_biorag_cli.py::TestCmdGuardar::test_guardar_concepto_excede_limite_200_chars PASSED                                                                      [ 15%]
+tests/test_biorag_cli.py::TestCmdSustantivos::test_sustantivos_sin_argumento_retorna_error_uso PASSED                                                               [ 15%]
+tests/test_biorag_cli.py::TestCmdSustantivos::test_sustantivos_concepto_inexistente_retorna_error PASSED                                                            [ 15%]
+tests/test_biorag_cli.py::TestCmdSustantivos::test_sustantivos_nodo_legado_sin_sustantivos PASSED                                                                   [ 16%]
+tests/test_biorag_cli.py::TestCmdSustantivos::test_sustantivos_exito_muestra_sustantivos PASSED                                                                     [ 16%]
+tests/test_biorag_cli.py::TestCmdSustantivos::test_sustantivos_insensible_a_mayusculas PASSED                                                                       [ 17%]
+tests/test_biorag_cli.py::TestCmdAgregarSustantivos::test_agregar_sustantivos_sin_argumentos_retorna_error PASSED                                                   [ 17%]
+tests/test_biorag_cli.py::TestCmdAgregarSustantivos::test_agregar_sustantivos_concepto_inexistente_retorna_error PASSED                                             [ 17%]
+tests/test_biorag_cli.py::TestCmdAgregarSustantivos::test_agregar_sustantivos_exito_actualiza_nodo_en_largo_plazo PASSED                                            [ 18%]
+tests/test_biorag_cli.py::TestCmdAgregarSustantivos::test_agregar_sustantivos_en_corto_plazo_funciona PASSED                                                        [ 18%]
+tests/test_biorag_cli.py::TestCmdAgregarSustantivos::test_agregar_sustantivos_invalidos_retorna_error_y_guia PASSED                                                 [ 19%]
+tests/test_biorag_cli.py::TestCmdAgregarSustantivos::test_main_router_contiene_aliases_sustantivos PASSED                                                           [ 19%]
+tests/test_biorag_cli.py::TestCmdBuscar::test_buscar_con_flag_sustantivos_clave_sesga_busqueda PASSED                                                               [ 19%]
+tests/test_biorag_cli.py::TestCmdBuscar::test_buscar_con_alias_sustantivos PASSED                                                                                   [ 20%]
+tests/test_biorag_cli.py::TestCmdBuscar::test_buscar_completo_muestra_sustantivos_clave PASSED                                                                      [ 20%]
+tests/test_biorag_cli.py::TestCmdBuscar::test_buscar_asociados_muestra_sustantivos_clave PASSED                                                                     [ 20%]
+tests/test_biorag_cli.py::TestCmdBuscar::test_buscar_sin_resultados_muestra_sugerencia_pedagogica PASSED                                                            [ 21%]
+tests/test_biorag_cli.py::TestCmdFamiliaridad::test_familiaridad_detecta_coincidencia_en_sustantivos_clave PASSED                                                   [ 21%]
+tests/test_biorag_cli.py::TestCmdVisibilidadYAyuda::test_corteza_muestra_sustantivos_clave PASSED                                                                   [ 22%]
+tests/test_biorag_cli.py::TestCmdVisibilidadYAyuda::test_listar_muestra_sustantivos_clave PASSED                                                                    [ 22%]
+tests/test_biorag_cli.py::TestCmdVisibilidadYAyuda::test_estado_reporta_cobertura_sustantivos_clave PASSED                                                          [ 22%]
+tests/test_biorag_cli.py::TestCmdVisibilidadYAyuda::test_help_docstring_contiene_guia_pedagogica_completa PASSED                                                    [ 23%]
+tests/test_biorag_cli.py::TestIntegracionCompletaYE2E::test_cl1_sustantivos_con_espacios_y_tildes_normaliza_correctamente PASSED                                    [ 23%]
+tests/test_biorag_cli.py::TestIntegracionCompletaYE2E::test_cl4_sustantivos_sin_comillas_en_args PASSED                                                             [ 23%]
+tests/test_biorag_cli.py::TestIntegracionCompletaYE2E::test_flujo_e2e_guardar_sueno_buscar_y_actualizar PASSED                                                      [ 24%]
+tests/test_biorag_cli.py::TestIntegracionCompletaYE2E::test_comandos_existentes_no_regresion PASSED                                                                 [ 24%]
+tests/test_calibracion_conforme.py::TestUmbralConforme::test_alpha_controla_fp PASSED                                                                               [ 25%]
+tests/test_calibracion_conforme.py::TestUmbralConforme::test_platt_probabilidad_creciente_con_score PASSED                                                          [ 25%]
+tests/test_calibracion_conforme.py::TestUmbralConforme::test_umbral_es_percentil_no_valor_absoluto PASSED                                                           [ 25%]
+tests/test_calibracion_conforme.py::TestCalibracionPersistente::test_calibrar_y_persistir_crea_tabla PASSED                                                         [ 26%]
+tests/test_calibracion_conforme.py::TestCalibracionPersistente::test_confianza_calibrada_sin_calibrador_es_score_crudo PASSED                                       [ 26%]
+tests/test_calibracion_conforme.py::TestCalibracionPersistente::test_feedback_propaga_util_entre_instancias PASSED                                                  [ 26%]
+tests/test_calibracion_conforme.py::TestCalibracionPersistente::test_nivel_certeza_tres_niveles_sin_silencio PASSED                                                 [ 27%]
+tests/test_campo_semantico_f5.py::test_cluster_supera_outlier PASSED                                                                                                [ 27%]
+tests/test_campo_semantico_f5.py::test_query_atrae PASSED                                                                                                           [ 28%]
+tests/test_campo_semantico_f5.py::test_vacio_seguro PASSED                                                                                                          [ 28%]
+tests/test_campo_semantico_f5.py::test_sin_vector_cero PASSED                                                                                                       [ 28%]
+tests/test_campo_semantico_f5.py::test_sigma_afina PASSED                                                                                                           [ 29%]
+tests/test_campo_semantico_f5.py::test_peso_default_on_tras_gate PASSED                                                                                             [ 29%]
+tests/test_campo_semantico_f5.py::test_integracion_buscar PASSED                                                                                                    [ 30%]
+tests/test_concept_hub_5_angulos.py::test_01_hub_valido_5_angulos PASSED                                                                                            [ 30%]
+tests/test_concept_hub_5_angulos.py::test_02_hub_4_bridges_rechazado PASSED                                                                                         [ 30%]
+tests/test_concept_hub_5_angulos.py::test_03_bridges_duplicados_o_mismo_angulo_rechazados PASSED                                                                    [ 31%]
+tests/test_concept_hub_5_angulos.py::test_04_angle_invalido_rechazado PASSED                                                                                        [ 31%]
+tests/test_concept_hub_5_angulos.py::test_05_canonical_node_inexistente_rechazado PASSED                                                                            [ 31%]
+tests/test_concept_hub_5_angulos.py::test_06_eliminar_hub_cascade PASSED                                                                                            [ 32%]
+tests/test_concept_hub_5_angulos.py::test_07_actualizar_hub_preserva_bridges PASSED                                                                                 [ 32%]
+tests/test_concept_hub_5_angulos.py::test_08_query_coincide_bridge_recupera_canonical PASSED                                                                        [ 33%]
+tests/test_concept_hub_5_angulos.py::test_09_compatibilidad_formato_legacy PASSED                                                                                   [ 33%]
+tests/test_concept_hub_5_angulos.py::test_10_validar_bridges_funcion_directa PASSED                                                                                 [ 33%]
+tests/test_concept_hub_generalizacion.py::test_generalizacion_hub_expansion[paraf_2a_cambio_rompio] PASSED                                                          [ 34%]
+tests/test_concept_hub_generalizacion.py::test_generalizacion_hub_expansion[paraf_2b_tocar_estable] PASSED                                                          [ 34%]
+tests/test_concept_hub_generalizacion.py::test_generalizacion_hub_expansion[paraf_5_desacuerdo_ias] PASSED                                                          [ 34%]
+tests/test_concept_hub_generalizacion.py::test_generalizacion_hub_expansion[paraf_1_antes_programador] PASSED                                                       [ 35%]
+tests/test_concept_hub_generalizacion.py::test_generalizacion_hub_expansion[paraf_4_sobrevivir_sin_tecnologia] PASSED                                               [ 35%]
+tests/test_concept_hub_generalizacion.py::test_generalizacion_recuperacion_top5[paraf_2a_cambio_rompio] PASSED                                                      [ 36%]
+tests/test_concept_hub_generalizacion.py::test_generalizacion_recuperacion_top5[paraf_2b_tocar_estable] PASSED                                                      [ 36%]
+tests/test_concept_hub_generalizacion.py::test_generalizacion_recuperacion_top5[paraf_5_desacuerdo_ias] PASSED                                                      [ 36%]
+tests/test_concept_hub_generalizacion.py::test_generalizacion_recuperacion_top5[paraf_1_antes_programador] PASSED                                                   [ 37%]
+tests/test_concept_hub_generalizacion.py::test_generalizacion_recuperacion_top5[paraf_4_sobrevivir_sin_tecnologia] PASSED                                           [ 37%]
+tests/test_dim_escape.py::test_flags_default PASSED                                                                                                                 [ 38%]
+tests/test_dim_escape.py::test_enganche_en_qcr PASSED                                                                                                               [ 38%]
+tests/test_dim_escape.py::test_off_remueve_on_rescata PASSED                                                                                                        [ 38%]
+tests/test_dim_escape.py::test_piso_rechaza_bajo_t PASSED                                                                                                           [ 39%]
+tests/test_dim_resonancia.py::test_flags_default PASSED                                                                                                             [ 39%]
+tests/test_dim_resonancia.py::test_enganche_en_fallback PASSED                                                                                                      [ 39%]
+tests/test_dim_resonancia.py::test_off_excluye_on_incluye PASSED                                                                                                    [ 40%]
+tests/test_dim_resonancia.py::test_k1_solo_victima PASSED                                                                                                           [ 40%]
+tests/test_dmn_sintesis_e10.py::test_flag_off_cero PASSED                                                                                                           [ 41%]
+tests/test_dmn_sintesis_e10.py::test_crea_arista_con_dim_comun PASSED                                                                                               [ 41%]
+tests/test_dmn_sintesis_e10.py::test_tope_max PASSED                                                                                                                [ 41%]
+tests/test_episodio_temporal_f2.py::test_expandir_episodio_ventana_24h PASSED                                                                                       [ 42%]
+tests/test_episodio_temporal_f2.py::test_afinidad_pool_mismo_bucket PASSED                                                                                          [ 42%]
+tests/test_episodio_temporal_f2.py::test_peso_default_on_tras_gate PASSED                                                                                           [ 42%]
+tests/test_episodio_temporal_f2.py::test_expandir_episodio_en_buscar PASSED                                                                                         [ 43%]
+tests/test_epistemico.py::test_ranking_intacto_on_vs_off PASSED                                                                                                     [ 43%]
+tests/test_epistemico.py::test_pool_no_mutado_por_hook PASSED                                                                                                       [ 44%]
+tests/test_epistemico.py::test_pool_fuerte_es_conocido PASSED                                                                                                       [ 44%]
+tests/test_epistemico.py::test_pool_vacio_es_vacio_y_encola PASSED                                                                                                  [ 44%]
+tests/test_epistemico.py::test_flag_off_no_escribe_ni_encola PASSED                                                                                                 [ 45%]
+tests/test_epistemico.py::test_query_vacia_es_sin_consulta PASSED                                                                                                   [ 45%]
+tests/test_epistemico.py::test_encolado_dedup_y_merge_preserva_adn PASSED                                                                                           [ 46%]
+tests/test_epistemico.py::test_fallo_epistemico_deja_rastro_y_no_rompe_busqueda PASSED                                                                              [ 46%]
+tests/test_eval_causal_srl.py::TestEvalCausalSRL::test_buscar_por_frase_abstracta_con_fallback_srl PASSED                                                           [ 46%]
+tests/test_eval_causal_srl.py::TestEvalCausalSRL::test_extractor_srl_determinista PASSED                                                                            [ 47%]
+tests/test_eval_causal_srl.py::TestEvalCausalSRL::test_fallback_busqueda_predicados_directo PASSED                                                                  [ 47%]
+tests/test_jsd_adaptativo_e7.py::test_query_larga_boost PASSED                                                                                                      [ 47%]
+tests/test_jsd_adaptativo_e7.py::test_query_corta_protege PASSED                                                                                                    [ 48%]
+tests/test_jsd_adaptativo_e7.py::test_flag_off_usa_estatico PASSED                                                                                                  [ 48%]
+tests/test_jsd_adaptativo_e7.py::test_hibrido_respeta_jsd_weight PASSED                                                                                             [ 49%]
+tests/test_jsd_adaptativo_e7.py::test_fuente_buscar PASSED                                                                                                          [ 49%]
+tests/test_lexical_learning.py::test_paths_respects_env PASSED                                                                                                      [ 49%]
+tests/test_lexical_learning.py::test_ensenar_crea_episodio_e_indice PASSED                                                                                          [ 50%]
+tests/test_lexical_learning.py::test_forma_ensenada_top1 PASSED                                                                                                     [ 50%]
+tests/test_lexical_learning.py::test_no_fusiona_nodos PASSED                                                                                                        [ 50%]
+tests/test_lexical_learning.py::test_revertir_episodio PASSED                                                                                                       [ 51%]
+tests/test_mcp_singleton.py::test_get_cerebro_misma_instancia PASSED                                                                                                [ 51%]
+tests/test_mcp_singleton.py::test_cerrar_no_mata_singleton PASSED                                                                                                   [ 52%]
+tests/test_mcp_singleton.py::test_hilos_comparten_instancia PASSED                                                                                                  [ 52%]
+tests/test_memory_core.py::test_memoria_core PASSED                                                                                                                 [ 52%]
+tests/test_multihop_expansion.py::test_off_no_invoca_expansion PASSED                                                                                               [ 53%]
+tests/test_multihop_expansion.py::test_on_rescata_vecino_al_pool PASSED                                                                                             [ 53%]
 tests/test_multihop_expansion.py::test_cap_total_acota_inyeccion PASSED                                                                                             [ 53%]
 tests/test_multihop_expansion.py::test_solo_nodos_activos PASSED                                                                                                    [ 54%]
 tests/test_multihop_expansion.py::test_gate_profundidad_no_activos PASSED                                                                                           [ 54%]
 tests/test_multihop_expansion.py::test_determinismo_doble_corrida PASSED                                                                                            [ 55%]
 tests/test_ncd_e6.py::test_ncd_identidad_alta PASSED                                                                                                                [ 55%]
-tests/test_ncd_e6.py::test_ncd_textos_distintos_menor PASSED                                                                                                        [ 56%]
-tests/test_ncd_e6.py::test_ncd_solo_pool PASSED                                                                                                                     [ 57%]
-tests/test_ncd_e6.py::test_formula_suma_ncd PASSED                                                                                                                  [ 57%]
-tests/test_ncd_e6.py::test_fuente_buscar PASSED                                                                                                                     [ 58%]
-tests/test_orden_monotonico.py::TestPisoPromocionHub::test_hub_gana_con_score_menor_que_lexico_se_eleva_al_piso PASSED                                              [ 58%]
-tests/test_orden_monotonico.py::TestPisoPromocionHub::test_hub_gana_con_score_mayor_no_se_reduce PASSED                                                             [ 59%]
+tests/test_ncd_e6.py::test_ncd_textos_distintos_menor PASSED                                                                                                        [ 55%]
+tests/test_ncd_e6.py::test_ncd_solo_pool PASSED                                                                                                                     [ 56%]
+tests/test_ncd_e6.py::test_formula_suma_ncd PASSED                                                                                                                  [ 56%]
+tests/test_ncd_e6.py::test_fuente_buscar PASSED                                                                                                                     [ 57%]
+tests/test_normalizar_sustantivos_clave.py::test_basico_lowercase_trim_dedup PASSED                                                                                 [ 57%]
+tests/test_normalizar_sustantivos_clave.py::test_tildes_eliminadas_y_enie_preservada PASSED                                                                         [ 57%]
+tests/test_normalizar_sustantivos_clave.py::test_n_acentos_y_enie PASSED                                                                                            [ 58%]
+tests/test_normalizar_sustantivos_clave.py::test_dedup_preserva_orden PASSED                                                                                        [ 58%]
+tests/test_normalizar_sustantivos_clave.py::test_espacios_adyacentes_a_comas PASSED                                                                                 [ 58%]
+tests/test_normalizar_sustantivos_clave.py::test_vacio_no_excepcion PASSED                                                                                          [ 59%]
+tests/test_normalizar_sustantivos_clave.py::test_solo_comas_y_espacios PASSED                                                                                       [ 59%]
+tests/test_orden_monotonico.py::TestPisoPromocionHub::test_hub_gana_con_score_menor_que_lexico_se_eleva_al_piso PASSED                                              [ 60%]
+tests/test_orden_monotonico.py::TestPisoPromocionHub::test_hub_gana_con_score_mayor_no_se_reduce PASSED                                                             [ 60%]
 tests/test_orden_monotonico.py::TestPisoPromocionHub::test_hub_pierde_no_aplica_piso PASSED                                                                         [ 60%]
-tests/test_orden_monotonico.py::TestPisoPromocionHub::test_piso_nunca_supera_uno PASSED                                                                             [ 60%]
+tests/test_orden_monotonico.py::TestPisoPromocionHub::test_piso_nunca_supera_uno PASSED                                                                             [ 61%]
 tests/test_orden_monotonico.py::TestPisoPromocionHub::test_piso_es_monotonamente_determinista PASSED                                                                [ 61%]
 tests/test_orden_monotonico.py::TestOrdenMonotonicoReal::test_scores_no_crecientes[perfil] PASSED                                                                   [ 61%]
 tests/test_orden_monotonico.py::TestOrdenMonotonicoReal::test_scores_no_crecientes[dimensiones] PASSED                                                              [ 62%]
-tests/test_orden_monotonico.py::TestOrdenMonotonicoReal::test_scores_no_crecientes[identidad] PASSED                                                                [ 63%]
+tests/test_orden_monotonico.py::TestOrdenMonotonicoReal::test_scores_no_crecientes[identidad] PASSED                                                                [ 62%]
 tests/test_orden_monotonico.py::TestOrdenMonotonicoReal::test_scores_no_crecientes[familia] PASSED                                                                  [ 63%]
-tests/test_orden_monotonico.py::TestOrdenMonotonicoReal::test_scores_no_crecientes[arquitectura memovria biroag] PASSED                                             [ 64%]
-tests/test_orden_monotonico.py::TestOrdenMonotonicoReal::test_scores_no_crecientes[IAs que se contradigan para encontrar la verdad] PASSED                          [ 64%]
-tests/test_orden_monotonico.py::TestOrdenMonotonicoReal::test_scores_no_crecientes[protocolo busquedas biorag automatica] PASSED                                    [ 65%]
-tests/test_orden_monotonico.py::TestOrdenMonotonicoReal::test_scores_no_crecientes[lecci\xf3n: guardar todo lo importante inmediatamente, no esperar] PASSED        [ 66%]
-tests/test_orden_monotonico.py::TestOrdenMonotonicoReal::test_top1_es_el_maximo[perfil] PASSED                                                                      [ 66%]
-tests/test_orden_monotonico.py::TestOrdenMonotonicoReal::test_top1_es_el_maximo[dimensiones] PASSED                                                                 [ 67%]
-tests/test_orden_monotonico.py::TestOrdenMonotonicoReal::test_top1_es_el_maximo[identidad] PASSED                                                                   [ 67%]
-tests/test_orden_monotonico.py::TestOrdenMonotonicoReal::test_top1_es_el_maximo[familia] PASSED                                                                     [ 68%]
-tests/test_orden_monotonico.py::TestOrdenMonotonicoReal::test_top1_es_el_maximo[arquitectura memovria biroag] PASSED                                                [ 69%]
-tests/test_orden_monotonico.py::TestOrdenMonotonicoReal::test_top1_es_el_maximo[IAs que se contradigan para encontrar la verdad] PASSED                             [ 69%]
-tests/test_orden_monotonico.py::TestOrdenMonotonicoReal::test_top1_es_el_maximo[protocolo busquedas biorag automatica] PASSED                                       [ 70%]
-tests/test_orden_monotonico.py::TestOrdenMonotonicoReal::test_top1_es_el_maximo[lecci\xf3n: guardar todo lo importante inmediatamente, no esperar] PASSED           [ 70%]
-tests/test_orden_monotonico.py::TestOrdenMonotonicoReal::test_invariante_con_guardia_desactivada_documenta_el_bypass PASSED                                         [ 71%]
-tests/test_orden_monotonico.py::TestOrdenMonotonicoReal::test_ordenar_por_recencia_sigue_mandando PASSED                                                            [ 72%]
-tests/test_qcr_idf_e3.py::test_flags_rango PASSED                                                                                                                   [ 72%]
-tests/test_qcr_idf_e3.py::test_idf_raro_mayor_que_comun PASSED                                                                                                      [ 73%]
-tests/test_qcr_idf_e3.py::test_qcr_idf_no_fusiona PASSED                                                                                                            [ 73%]
-tests/test_qcr_idf_e3.py::test_buscar_por_frase_llama_idf PASSED                                                                                                    [ 74%]
-tests/test_qcr_idf_e3.py::test_escape_typo_sigue PASSED                                                                                                             [ 75%]
-tests/test_qcr_typo_d4.py::test_flags_default PASSED                                                                                                                [ 75%]
-tests/test_qcr_typo_d4.py::test_enganche_en_qcr PASSED                                                                                                              [ 76%]
-tests/test_qcr_typo_d4.py::test_levenshtein PASSED                                                                                                                  [ 76%]
-tests/test_qcr_typo_d4.py::test_todos_cercanos_casos PASSED                                                                                                         [ 77%]
-tests/test_qcr_typo_d4.py::test_todos_cercanos_caso_0733 PASSED                                                                                                     [ 77%]
-tests/test_qcr_typo_d4.py::test_off_remueve_on_rescata PASSED                                                                                                       [ 78%]
-tests/test_qcr_typo_d4.py::test_piso_respeta_bajo_umbral PASSED                                                                                                     [ 79%]
-tests/test_sdm_completo.py::test_01_vectores_con_contenido PASSED                                                                                                   [ 79%]
-tests/test_sdm_completo.py::test_02_datos_reales_completos PASSED                                                                                                   [ 80%]
-tests/test_sdm_completo.py::test_03_busqueda_query_by_example PASSED                                                                                                [ 80%]
-tests/test_sdm_diverso.py::test_01_sononimos_tecnicos PASSED                                                                                                        [ 81%]
-tests/test_sdm_diverso.py::test_02_abreviaturas PASSED                                                                                                              [ 82%]
-tests/test_sdm_diverso.py::test_03_cross_domain PASSED                                                                                                              [ 82%]
-tests/test_sdm_diverso.py::test_04_texto_largo_vs_corto PASSED                                                                                                      [ 83%]
-tests/test_sdm_diverso.py::test_05_query_by_example_real PASSED                                                                                                     [ 83%]
-tests/test_sdm_fallback_e1.py::test_rescatar_no_reindexa_tabla_vacia PASSED                                                                                         [ 84%]
-tests/test_sdm_fallback_e1.py::test_rescatar_encuentra_nodo_indexado PASSED                                                                                         [ 85%]
-tests/test_sdm_fallback_e1.py::test_fallback_inyecta_cuando_pool_pobre PASSED                                                                                       [ 85%]
-tests/test_sdm_fallback_e1.py::test_fallback_off_no_marca_sdm PASSED                                                                                                [ 86%]
-tests/test_sdm_fallback_e1.py::test_no_fusiona_nodos PASSED                                                                                                         [ 86%]
-tests/test_sdm_query_by_example.py::test_01_vectores_mismas_dimensiones PASSED                                                                                      [ 87%]
-tests/test_sdm_query_by_example.py::test_02_vectores_mismos_vecinos PASSED                                                                                          [ 88%]
-tests/test_sdm_query_by_example.py::test_03_bit_masking PASSED                                                                                                      [ 88%]
-tests/test_sdm_query_by_example.py::test_04_reponderar_vectores PASSED                                                                                              [ 89%]
-tests/test_sdm_query_by_example.py::test_05_datos_reales PASSED                                                                                                     [ 89%]
-tests/test_sueno_vacios.py::test_cola_vacia_noop PASSED                                                                                                             [ 90%]
-tests/test_sueno_vacios.py::test_consolida_pares_y_drena PASSED                                                                                                     [ 91%]
-tests/test_sueno_vacios.py::test_idempotencia_segunda_vuelta_cero PASSED                                                                                            [ 91%]
-tests/test_sueno_vacios.py::test_dedup_respeta_conexion_existente_cualquier_tipo PASSED                                                                             [ 92%]
-tests/test_sueno_vacios.py::test_items_malos_no_abortan_ni_atascan PASSED                                                                                           [ 92%]
-tests/test_sueno_vacios.py::test_sin_pares_drena_igual PASSED                                                                                                       [ 93%]
-tests/test_sueno_vacios.py::test_fallback_semantico_rescata_sin_pares PASSED                                                                                        [ 94%]
-tests/test_sueno_vacios.py::test_umbral_rechaza_lejanos PASSED                                                                                                      [ 94%]
-tests/test_sueno_vacios.py::test_mixta_complementa_fts PASSED                                                                                                       [ 95%]
-tests/test_sueno_vacios.py::test_v1_intacto_fallback_solo_si_falta PASSED                                                                                           [ 95%]
-tests/test_termodinamica_f4.py::test_default_off PASSED                                                                                                             [ 96%]
-tests/test_termodinamica_f4.py::test_f_determinista PASSED                                                                                                          [ 97%]
-tests/test_termodinamica_f4.py::test_crear_arista_baja_f PASSED                                                                                                     [ 97%]
+tests/test_orden_monotonico.py::TestOrdenMonotonicoReal::test_scores_no_crecientes[arquitectura memovria biroag] PASSED                                             [ 63%]
+tests/test_orden_monotonico.py::TestOrdenMonotonicoReal::test_scores_no_crecientes[IAs que se contradigan para encontrar la verdad] PASSED                          [ 63%]
+tests/test_orden_monotonico.py::TestOrdenMonotonicoReal::test_scores_no_crecientes[protocolo busquedas biorag automatica] PASSED                                    [ 64%]
+tests/test_orden_monotonico.py::TestOrdenMonotonicoReal::test_scores_no_crecientes[lecci\xf3n: guardar todo lo importante inmediatamente, no esperar] PASSED        [ 64%]
+tests/test_orden_monotonico.py::TestOrdenMonotonicoReal::test_top1_es_el_maximo[perfil] PASSED                                                                      [ 65%]
+tests/test_orden_monotonico.py::TestOrdenMonotonicoReal::test_top1_es_el_maximo[dimensiones] PASSED                                                                 [ 65%]
+tests/test_orden_monotonico.py::TestOrdenMonotonicoReal::test_top1_es_el_maximo[identidad] PASSED                                                                   [ 65%]
+tests/test_orden_monotonico.py::TestOrdenMonotonicoReal::test_top1_es_el_maximo[familia] PASSED                                                                     [ 66%]
+tests/test_orden_monotonico.py::TestOrdenMonotonicoReal::test_top1_es_el_maximo[arquitectura memovria biroag] PASSED                                                [ 66%]
+tests/test_orden_monotonico.py::TestOrdenMonotonicoReal::test_top1_es_el_maximo[IAs que se contradigan para encontrar la verdad] PASSED                             [ 66%]
+tests/test_orden_monotonico.py::TestOrdenMonotonicoReal::test_top1_es_el_maximo[protocolo busquedas biorag automatica] PASSED                                       [ 67%]
+tests/test_orden_monotonico.py::TestOrdenMonotonicoReal::test_top1_es_el_maximo[lecci\xf3n: guardar todo lo importante inmediatamente, no esperar] PASSED           [ 67%]
+tests/test_orden_monotonico.py::TestOrdenMonotonicoReal::test_invariante_con_guardia_desactivada_documenta_el_bypass PASSED                                         [ 68%]
+tests/test_orden_monotonico.py::TestOrdenMonotonicoReal::test_ordenar_por_recencia_sigue_mandando PASSED                                                            [ 68%]
+tests/test_qcr_idf_e3.py::test_flags_rango PASSED                                                                                                                   [ 68%]
+tests/test_qcr_idf_e3.py::test_idf_raro_mayor_que_comun PASSED                                                                                                      [ 69%]
+tests/test_qcr_idf_e3.py::test_qcr_idf_no_fusiona PASSED                                                                                                            [ 69%]
+tests/test_qcr_idf_e3.py::test_buscar_por_frase_llama_idf PASSED                                                                                                    [ 69%]
+tests/test_qcr_idf_e3.py::test_escape_typo_sigue PASSED                                                                                                             [ 70%]
+tests/test_qcr_typo_d4.py::test_flags_default PASSED                                                                                                                [ 70%]
+tests/test_qcr_typo_d4.py::test_enganche_en_qcr PASSED                                                                                                              [ 71%]
+tests/test_qcr_typo_d4.py::test_levenshtein PASSED                                                                                                                  [ 71%]
+tests/test_qcr_typo_d4.py::test_todos_cercanos_casos PASSED                                                                                                         [ 71%]
+tests/test_qcr_typo_d4.py::test_todos_cercanos_caso_0733 PASSED                                                                                                     [ 72%]
+tests/test_qcr_typo_d4.py::test_off_remueve_on_rescata PASSED                                                                                                       [ 72%]
+tests/test_qcr_typo_d4.py::test_piso_respeta_bajo_umbral PASSED                                                                                                     [ 73%]
+tests/test_sdm_completo.py::test_01_vectores_con_contenido PASSED                                                                                                   [ 73%]
+tests/test_sdm_completo.py::test_02_datos_reales_completos PASSED                                                                                                   [ 73%]
+tests/test_sdm_completo.py::test_03_busqueda_query_by_example PASSED                                                                                                [ 74%]
+tests/test_sdm_diverso.py::test_01_sononimos_tecnicos PASSED                                                                                                        [ 74%]
+tests/test_sdm_diverso.py::test_02_abreviaturas PASSED                                                                                                              [ 74%]
+tests/test_sdm_diverso.py::test_03_cross_domain PASSED                                                                                                              [ 75%]
+tests/test_sdm_diverso.py::test_04_texto_largo_vs_corto PASSED                                                                                                      [ 75%]
+tests/test_sdm_diverso.py::test_05_query_by_example_real PASSED                                                                                                     [ 76%]
+tests/test_sdm_fallback_e1.py::test_rescatar_no_reindexa_tabla_vacia PASSED                                                                                         [ 76%]
+tests/test_sdm_fallback_e1.py::test_rescatar_encuentra_nodo_indexado PASSED                                                                                         [ 76%]
+tests/test_sdm_fallback_e1.py::test_fallback_inyecta_cuando_pool_pobre PASSED                                                                                       [ 77%]
+tests/test_sdm_fallback_e1.py::test_fallback_off_no_marca_sdm PASSED                                                                                                [ 77%]
+tests/test_sdm_fallback_e1.py::test_no_fusiona_nodos PASSED                                                                                                         [ 77%]
+tests/test_sdm_query_by_example.py::test_01_vectores_mismas_dimensiones PASSED                                                                                      [ 78%]
+tests/test_sdm_query_by_example.py::test_02_vectores_mismos_vecinos PASSED                                                                                          [ 78%]
+tests/test_sdm_query_by_example.py::test_03_bit_masking PASSED                                                                                                      [ 79%]
+tests/test_sdm_query_by_example.py::test_04_reponderar_vectores PASSED                                                                                              [ 79%]
+tests/test_sdm_query_by_example.py::test_05_datos_reales PASSED                                                                                                     [ 79%]
+tests/test_sueno_vacios.py::test_cola_vacia_noop PASSED                                                                                                             [ 80%]
+tests/test_sueno_vacios.py::test_consolida_pares_y_drena PASSED                                                                                                     [ 80%]
+tests/test_sueno_vacios.py::test_idempotencia_segunda_vuelta_cero PASSED                                                                                            [ 80%]
+tests/test_sueno_vacios.py::test_dedup_respeta_conexion_existente_cualquier_tipo PASSED                                                                             [ 81%]
+tests/test_sueno_vacios.py::test_items_malos_no_abortan_ni_atascan PASSED                                                                                           [ 81%]
+tests/test_sueno_vacios.py::test_sin_pares_drena_igual PASSED                                                                                                       [ 82%]
+tests/test_sueno_vacios.py::test_fallback_semantico_rescata_sin_pares PASSED                                                                                        [ 82%]
+tests/test_sueno_vacios.py::test_umbral_rechaza_lejanos PASSED                                                                                                      [ 82%]
+tests/test_sueno_vacios.py::test_mixta_complementa_fts PASSED                                                                                                       [ 83%]
+tests/test_sueno_vacios.py::test_v1_intacto_fallback_solo_si_falta PASSED                                                                                           [ 83%]
+tests/test_sustantivos_clave_instalacion.py::TestT8DBNuevaDesdeCero::test_db_nueva_schema_tablas_incluye_sustantivos_clave_en_ddl PASSED                            [ 84%]
+tests/test_sustantivos_clave_instalacion.py::TestT8DBNuevaDesdeCero::test_db_nueva_fts5_tiene_4_columnas PASSED                                                     [ 84%]
+tests/test_sustantivos_clave_instalacion.py::TestT8DBNuevaDesdeCero::test_db_nueva_flujo_e2e_guardar_consolidar_fts PASSED                                          [ 84%]
+tests/test_sustantivos_clave_instalacion.py::TestT8DBMigradaLegacy::test_migracion_agrega_columnas_rebuild_fts_y_preserva_datos PASSED                              [ 85%]
+tests/test_sustantivos_clave_recordar.py::TestT5BM25CuatroPesos::test_bm25_4_pesos_prioriza_sustantivos_clave PASSED                                                [ 85%]
+tests/test_sustantivos_clave_recordar.py::TestT5RecordarSustantivosBoost::test_recordar_con_sustantivos_clave_subiria_top PASSED                                    [ 85%]
+tests/test_sustantivos_clave_recordar.py::TestT5AcentosEnQuery::test_query_con_tilde_matchea_sin_tilde PASSED                                                       [ 86%]
+tests/test_sustantivos_clave_recordar.py::TestT5RecordarValidacion::test_formato_invalido_no_ejecuta_busqueda PASSED                                                [ 86%]
+tests/test_sustantivos_clave_recordar.py::TestT5RecordarValidacion::test_vacio_es_busqueda_normal PASSED                                                            [ 87%]
+tests/test_sustantivos_clave_recordar.py::TestT5RecordarValidacion::test_omitido_es_busqueda_normal PASSED                                                          [ 87%]
+tests/test_sustantivos_clave_schema.py::test_migracion_db_vieja_agrega_columnas PASSED                                                                              [ 87%]
+tests/test_sustantivos_clave_schema.py::test_schema_corto_plazo_tiene_columna PASSED                                                                                [ 88%]
+tests/test_sustantivos_clave_schema.py::test_schema_largo_plazo_tiene_columna PASSED                                                                                [ 88%]
+tests/test_sustantivos_clave_schema.py::test_fts_tiene_4_columnas PASSED                                                                                            [ 88%]
+tests/test_sustantivos_clave_schema.py::test_trigger_au_incluye_sustantivos_clave PASSED                                                                            [ 89%]
+tests/test_sustantivos_clave_schema.py::test_consolidacion_propaga_sustantivos_clave PASSED                                                                         [ 89%]
+tests/test_sustantivos_clave_schema.py::test_consolidacion_no_sobrescribe_si_vacio PASSED                                                                           [ 90%]
+tests/test_sustantivos_clave_schema.py::test_consolidacion_sobrescribe_si_valor_nuevo PASSED                                                                        [ 90%]
+tests/test_sustantivos_clave_schema.py::test_consolidacion_fts_indexa_sustantivos_clave PASSED                                                                      [ 90%]
+tests/test_sustantivos_clave_tools.py::TestT4AgregarSustantivos::test_agregar_sustantivos_nodo_existente_vacio PASSED                                               [ 91%]
+tests/test_sustantivos_clave_tools.py::TestT4AgregarSustantivos::test_agregar_sustantivos_nodo_inexistente PASSED                                                   [ 91%]
+tests/test_sustantivos_clave_tools.py::TestT4AgregarSustantivos::test_agregar_sustantivos_sobrescribe_existente PASSED                                              [ 92%]
+tests/test_sustantivos_clave_tools.py::TestT4AgregarSustantivos::test_agregar_sustantivos_fallback_corto_plazo PASSED                                               [ 92%]
+tests/test_sustantivos_clave_tools.py::TestT4AgregarSustantivos::test_agregar_sustantivos_validaciones PASSED                                                       [ 92%]
+tests/test_sustantivos_clave_tools.py::TestT4ConsultarSustantivos::test_consultar_sustantivos_existente PASSED                                                      [ 93%]
+tests/test_sustantivos_clave_tools.py::TestT4ConsultarSustantivos::test_consultar_sustantivos_sin_campo PASSED                                                      [ 93%]
+tests/test_sustantivos_clave_tools.py::TestT4ConsultarSustantivos::test_consultar_sustantivos_inexistente PASSED                                                    [ 93%]
+tests/test_sustantivos_clave_tools.py::TestT4ConsultarSustantivos::test_consultar_sustantivos_en_corto_plazo PASSED                                                 [ 94%]
+tests/test_sustantivos_clave_validacion.py::TestT3Validacion::test_ausente_nodo_no_se_guarda PASSED                                                                 [ 94%]
+tests/test_sustantivos_clave_validacion.py::TestT3Validacion::test_un_termino_cantidad_invalida PASSED                                                              [ 95%]
+tests/test_sustantivos_clave_validacion.py::TestT3Validacion::test_cinco_terminos_cantidad_invalida PASSED                                                          [ 95%]
+tests/test_sustantivos_clave_validacion.py::TestT3Validacion::test_un_termino_con_arroba_cantidad PASSED                                                            [ 95%]
+tests/test_sustantivos_clave_validacion.py::TestT3Validacion::test_formato_con_espacio PASSED                                                                       [ 96%]
+tests/test_sustantivos_clave_validacion.py::TestT3Validacion::test_formato_caracter_especial PASSED                                                                 [ 96%]
+tests/test_sustantivos_clave_validacion.py::TestT3Validacion::test_dedup_valido_nodo_se_guarda PASSED                                                               [ 96%]
+tests/test_sustantivos_clave_validacion.py::TestT3Validacion::test_guardar_alias_sin_campo PASSED                                                                   [ 97%]
+tests/test_termodinamica_f4.py::test_default_off PASSED                                                                                                             [ 97%]
+tests/test_termodinamica_f4.py::test_f_determinista PASSED                                                                                                          [ 98%]
+tests/test_termodinamica_f4.py::test_crear_arista_baja_f PASSED                                                                                                     [ 98%]
 tests/test_termodinamica_f4.py::test_ranking_prefiere_mayor_tension PASSED                                                                                          [ 98%]
-tests/test_termodinamica_f4.py::test_t_cero_solo_energia PASSED                                                                                                     [ 98%]
+tests/test_termodinamica_f4.py::test_t_cero_solo_energia PASSED                                                                                                     [ 99%]
 tests/test_termodinamica_f4.py::test_off_vs_on_sintesis PASSED                                                                                                      [ 99%]
 tests/test_termodinamica_f4.py::test_ltd_protege_arista_estructural PASSED                                                                                          [100%]
 
-========================================================================== 168 passed in 52.76s ===========================================================================
+===================================================================== 263 passed in 64.23s (0:01:04) ======================================================================
 
 ─── [2/5] INVARIANTES DE SCORING HÍBRIDO (Monotonía y Preservación) ────────────
 ==================================================================
@@ -252,15 +341,15 @@ CASO 1: Empleos previos a IT (paráfrasis)
   Esperado: historia_tasajera_fumigador_rufino
 
   [SIN HUB]
-    Resultados: 311 | Tiempo: 1.125s
+    Resultados: 311 | Tiempo: 1.285s
     Nodo esperado: ❌ No encontrado
     TOP-3: ['artemis_oec_identidad', 'oracle_que_recordar_sobre_artemis_hermes', 'trato-igualitario-dennys-athena']
 
   [CON HUB]
     Hub matcheado: trabajo_previo (confianza: 0.880)
     Bridges: ['como sobrevivia economicamente dennys antes de entrar a la tecnologia', 'que hacia dennys para sobrevivir y ganar dinero antes de ser programador', 'vida laboral en el monte antes de aprender programacion e ingenieria']
-    Términos expandidos: ['de', 'aprender', 'antes', 'sobrevivia', 'genesis', 'economicamente', 'la', 'investigativa', 'tasajera', 'hacia']...
-    Resultados: 311 | Tiempo: 0.946s
+    Términos expandidos: ['fumigador', 'como', 'genesis', 'laboral', 'programacion', 'entrar', 'historia', 'ganar', 'tecnologia', 'ser']...
+    Resultados: 311 | Tiempo: 1.035s
     Nodo esperado: ✅ TOP1
     TOP-3: ['historia_tasajera_fumigador_rufino', 'dennys_genesis_investigativa_historia_personal', 'artemis_oec_identidad']
 
@@ -270,15 +359,15 @@ CASO 2: Regresiones por cambios (paráfrasis 2a)
   Esperado: leccion_control_flujo_codigo_preexistente
 
   [SIN HUB]
-    Resultados: 170 | Tiempo: 0.353s
+    Resultados: 170 | Tiempo: 0.412s
     Nodo esperado: ❌ No encontrado
     TOP-3: ['principio_impacto_lateral_antes_de_cambiar', 'reglas_trabajo_equipo_dennys_athena', 'dennys-working-style']
 
   [CON HUB]
     Hub matcheado: control_flujo (confianza: 1.000)
     Bridges: ['meti un cambio en codigo que andaba bien y todo se rompio', 'por que se rompe todo cuando cambio una sola linea que andaba']
-    Términos expandidos: ['todo', 'rompio', 'por', 'preexistente', 'control', 'cuando', 'bien', 'meti', 'linea', 'andaba']...
-    Resultados: 796 | Tiempo: 1.406s
+    Términos expandidos: ['rompio', 'un', 'codigo', 'cambio', 'que', 'andaba', 'meti', 'cuando', 'bien', 'en']...
+    Resultados: 796 | Tiempo: 1.500s
     Nodo esperado: ✅ TOP1
     TOP-3: ['leccion_control_flujo_codigo_preexistente', 'reglas_trabajo_equipo_dennys_athena']
 
@@ -288,15 +377,15 @@ CASO 3: Ruptura de código preexistente (paráfrasis 2b)
   Esperado: leccion_control_flujo_codigo_preexistente
 
   [SIN HUB]
-    Resultados: 106 | Tiempo: 1.806s
+    Resultados: 106 | Tiempo: 2.244s
     Nodo esperado: ❌ No encontrado
-    TOP-3: ['principio_naturaleza_agente', 'protocolo-autonomia-consentida', 'aforismo_criterio_agente']
+    TOP-3: ['principio_naturaleza_agente', 'protocolo-autonomia-consentida', 'athena_artemis_desde']
 
   [CON HUB]
     Hub matcheado: control_flujo (confianza: 1.000)
     Bridges: ['meti un cambio en codigo que andaba bien y todo se rompio', 'por que se rompe todo cuando cambio una sola linea que andaba', 'toque algo que andaba bien y dejo de andar al refactorizar']
-    Términos expandidos: ['todo', 'de', 'rompio', 'por', 'preexistente', 'control', 'cuando', 'bien', 'meti', 'linea']...
-    Resultados: 799 | Tiempo: 3.128s
+    Términos expandidos: ['rompio', 'un', 'codigo', 'algo', 'cambio', 'que', 'andaba', 'refactorizar', 'meti', 'cuando']...
+    Resultados: 799 | Tiempo: 3.321s
     Nodo esperado: ✅ TOP1
     TOP-3: ['leccion_control_flujo_codigo_preexistente']
 
@@ -306,15 +395,15 @@ CASO 4: Supervivencia pre-tecnología (paráfrasis)
   Esperado: historia_tasajera_fumigador_rufino
 
   [SIN HUB]
-    Resultados: 61 | Tiempo: 1.587s
+    Resultados: 61 | Tiempo: 1.700s
     Nodo esperado: ❌ No encontrado
     TOP-3: ['principio-mente-creativa-sin-limites', 'principio_simplicidad_no_complejidad', 'identidad_dennys_perfil_completo']
 
   [CON HUB]
     Hub matcheado: trabajo_previo (confianza: 1.000)
     Bridges: ['como sobrevivia economicamente dennys antes de entrar a la tecnologia', 'que hacia dennys para sobrevivir y ganar dinero antes de ser programador', 'vida laboral en el monte antes de aprender programacion e ingenieria']
-    Términos expandidos: ['de', 'aprender', 'antes', 'sobrevivia', 'genesis', 'economicamente', 'la', 'investigativa', 'tasajera', 'hacia']...
-    Resultados: 814 | Tiempo: 2.961s
+    Términos expandidos: ['fumigador', 'como', 'genesis', 'laboral', 'programacion', 'entrar', 'historia', 'ganar', 'tecnologia', 'ser']...
+    Resultados: 814 | Tiempo: 3.308s
     Nodo esperado: ✅ TOP1
     TOP-3: ['historia_tasajera_fumigador_rufino', 'dennys_genesis_investigativa_historia_personal']
 
@@ -324,15 +413,15 @@ CASO 5: Consenso multi-modelo (paráfrasis)
   Esperado: resolucion_de_contradicciones_entre_insights_sumatoria_mentalidad
 
   [SIN HUB]
-    Resultados: 672 | Tiempo: 2.741s
+    Resultados: 672 | Tiempo: 2.698s
     Nodo esperado: ❌ No encontrado
     TOP-3: ['principio_emulacion_semantica_por_clusters_declarativos', 'contexto-humano-tecnico-dennys', 'auditoría_técnica:_memorybiorag_(manus_ai)']
 
   [CON HUB]
     Hub matcheado: consenso_multi_modelo (confianza: 1.000)
     Bridges: ['como resuelvo cuando dos ias dicen cosas distintas sobre lo mismo', 'discrepancia y debate entre modelos de lenguaje', 'dos modelos de ia que no estan de acuerdo en la respuesta']
-    Términos expandidos: ['lo', 'de', 'ia', 'modelos', 'sumatoria', 'resuelvo', 'cuando', 'no', 'la', 'contradicciones']...
-    Resultados: 805 | Tiempo: 2.953s
+    Términos expandidos: ['sobre', 'insights', 'ia', 'respuesta', 'lo', 'como', 'resuelvo', 'lenguaje', 'ias', 'estan']...
+    Resultados: 805 | Tiempo: 3.441s
     Nodo esperado: ✅ TOP1
     TOP-3: ['resolucion_de_contradicciones_entre_insights_sumatoria_mentalidad', 'vida_laboral_completa_dennys', 'principio_emulacion_semantica_por_clusters_declarativos']
 
@@ -361,7 +450,7 @@ EVALUACIÓN ABISMO LÉXICO (EXP-Q): Rescate por Grafo Sináptico
 ===========================================================================
 
 [INFO] DB Origen: /mnt/recursos_compartidos_y_otros/MemoryBioRAG/MemoryBioRAG_Data/memory_biorag_qa_run.db
-[INFO] Copia Aislada: /tmp/biorag_expq_7m6a_bza/isolated_eval.db
+[INFO] Copia Aislada: /tmp/biorag_expq_by2asodr/isolated_eval.db
 [INFO] Nodos activos: 851
 [INFO] Sinapsis en el grafo: 13856
 [INFO] Límite de anclajes primarios evaluados: 10
@@ -373,12 +462,12 @@ CASO 1 [EXP-Q-01]: Extensión IDE y despacho de tareas en entorno visual
   Esperado:   kilo_vscode_extension_principal
 
   [BÚSQUEDA PRIMARIA - FTS5 / Léxica]
-    Tiempo:       2.639s
+    Tiempo:       3.119s
     Top-1:        athena_evolucion_v0001 (score: 0.4004)
     Encontrado:   ❌ No (Abismo Léxico puro: 0 overlap)
 
   [EXPANSIÓN POR GRAFO SINÁPTICO - Anti-Sesgo Alfabético + Hebbiano]
-    Tiempo:       0.043s
+    Tiempo:       0.048s
     Vecinos BFS:  100 candidatos relacionales
     Rescate:      ✅ RESCATADO en posición 29 (score contextual: 0.9980)
 
@@ -389,12 +478,12 @@ CASO 2 [EXP-Q-02]: Regla metodológica de verificación de código real (cero co
   Esperado:   regla_verificar_codigo_real_antes_de_diagnostico
 
   [BÚSQUEDA PRIMARIA - FTS5 / Léxica]
-    Tiempo:       3.515s
+    Tiempo:       4.144s
     Top-1:        protocolo_pre_accion_reglas_20260615 (score: 0.4330)
     Encontrado:   ❌ No (Abismo Léxico puro: 0 overlap)
 
   [EXPANSIÓN POR GRAFO SINÁPTICO - Anti-Sesgo Alfabético + Hebbiano]
-    Tiempo:       0.060s
+    Tiempo:       0.069s
     Vecinos BFS:  100 candidatos relacionales
     Rescate:      ✅ RESCATADO en posición 1 (score contextual: 1.0000)
 
@@ -405,12 +494,12 @@ CASO 3 [EXP-Q-03]: Desempate de valencia somática en bifurcaciones de red
   Esperado:   ajuste_tejedora_valencia_desempate_fase1
 
   [BÚSQUEDA PRIMARIA - FTS5 / Léxica]
-    Tiempo:       2.099s
+    Tiempo:       2.722s
     Top-1:        athena_evolucion_v0001 (score: 0.3516)
     Encontrado:   ❌ No (Abismo Léxico puro: 0 overlap)
 
   [EXPANSIÓN POR GRAFO SINÁPTICO - Anti-Sesgo Alfabético + Hebbiano]
-    Tiempo:       0.031s
+    Tiempo:       0.049s
     Vecinos BFS:  100 candidatos relacionales
     Rescate:      ✅ RESCATADO en posición 18 (score contextual: 0.6967)
 
@@ -440,22 +529,22 @@ Cleaning up temporary database copy at /mnt/recursos_compartidos_y_otros/MemoryB
 ================================================================================
                       BIORAG QA EVALUATION REPORT
 ================================================================================
-Total time elapsed: 719.61 seconds
+Total time elapsed: 787.90 seconds
 --------------------------------------------------------------------------------
 Category               | Total  | Recall@5  | Recall@1  | MRR      | Errors/FPs
 --------------------------------------------------------------------------------
 ambiguo                | 6      | N/A       | N/A       | N/A      | 2          (66.7% de cobertura sobre queries con etiqueta contradictoria; fuera del Recall global)
-cruce_idioma           | 8      |   87.50% |   37.50% |  0.567 | 1         
+cruce_idioma           | 8      |   87.50% |   50.00% |  0.656 | 1         
 dormido                | 65     |  100.00% |  100.00% |  1.000 | 0         
 literal                | 487    |  100.00% |   99.59% |  0.998 | 0         
 negativo               | 40     | N/A       | N/A       | N/A      | 0          (0.0% FP sobre 40 válidos; 0 contaminados)
-por_tema               | 65     |   89.23% |   61.54% |  0.734 | 7         
-pregunta_natural       | 65     |  100.00% |   98.46% |  0.990 | 0         
-sinonimo               | 55     |   85.45% |   45.45% |  0.594 | 8         
+por_tema               | 65     |   92.31% |   63.08% |  0.757 | 5         
+pregunta_natural       | 65     |  100.00% |   98.46% |  0.992 | 0         
+sinonimo               | 55     |  100.00% |   58.18% |  0.731 | 0         
 typo                   | 65     |  100.00% |   87.69% |  0.926 | 0         
-variante_gramatical    | 65     |   98.46% |   87.69% |  0.911 | 1         
+variante_gramatical    | 65     |  100.00% |   89.23% |  0.926 | 0         
 --------------------------------------------------------------------------------
-GLOBAL SUMMARY (Retrieval) | 875    |   98.06% |   90.97% |  0.937 | 17        
+GLOBAL SUMMARY (Retrieval) | 875    |   99.31% |   92.11% |  0.949 | 6         
 GLOBAL SUMMARY (Noise/FP) | 40     | N/A       | N/A       | N/A      | 0          (0.00% FP sobre 40 válidos; 0 contaminados)
 SPREADING ACTIVATION   | 8/921 queries (0.9%)
 AISLAMIENTO POR CASO   | 64 mutaciones de estado revertidas (15 nodos arrancaron dormidos)
@@ -500,41 +589,19 @@ SAMPLE FAILURES BY CATEGORY FOR ACTIONABLE DIAGNOSIS:
 [Category: dormido] (0 total failures)
 ----------------------------------------
 
-[Category: por_tema] (7 total failures)
+[Category: por_tema] (5 total failures)
 ----------------------------------------
-  #1 [ID 0497] Query: "relevantes biomimética mejor"
-      Expected:  benchmark_antes_despues_fix3
-      Returned:  ['causa_raiz_por_tema_pooling_plano_diluye_senal_word2vec', 'word2vec_pooling_promedio', 'metodología_evaluación_por_tema'] (scores: [0.449, 0.395, 0.379])
-      Reason:    Expected concept not found in top 5 results
-  #2 [ID 0534] Query: "activa largo archivos"
+  #1 [ID 0534] Query: "activa largo archivos"
       Expected:  biorag_v11_1_detalle_tecnico
       Returned:  ['version_actual_biorag_v26_3_20260811', 'lesson_biorag_hook_retroactivo', 'proyecto_biorag_ncp_resumen_completo_2026_06_14'] (scores: [0.449, 0.433, 0.416])
       Reason:    Expected concept not found in top 5 results
-  #3 [ID 0640] Query: "ráfaga después resultado"
+  #2 [ID 0640] Query: "ráfaga después resultado"
       Expected:  mentalidad_biorag_para_agentes
       Returned:  ['biorag-rafaga-forzable-parametro-forzar-rafaga', 'rafaga-ilimitada-v9.2-optimizacion-fts5-or', 'rafaga_palabras-guia-completa-apis-y-mecanismo'] (scores: [0.425, 0.41, 0.408])
       Reason:    Expected concept not found in top 5 results
-
-[Category: sinonimo] (8 total failures)
-----------------------------------------
-  #1 [ID 0532] Query: "boost"
-      Expected:  biorag_v11_1_detalle_tecnico
-      Returned:  ['v13_3_dimensiones_boost_aditivo', 'boost_dimensional_toco_techo_discriminacion_evidencia_athena_experimento', 'boost_dimensional_toco_techo_discriminacion_evidencia'] (scores: [0.799, 0.754, 0.748])
-      Reason:    Expected concept not found in top 5 results
-  #2 [ID 0563] Query: "memoria"
-      Expected:  memoria_v5_1_optimizaciones
-      Returned:  ['principio_memoria_biologica_eleccion', 'arquitectura_memoria_biorag', 'memoria_aprendizaje_personal_artemis'] (scores: [0.75, 0.745, 0.742])
-      Reason:    Expected concept not found in top 5 results
-  #3 [ID 0625] Query: "dsl"
-      Expected:  notebooklm-chat-configure
-      Returned:  ['cortex-dsl-governance-06-ventaja-causal', 'artisan_dsl_documentacion_completa', 'artisan_system_dsl_dennys_solo'] (scores: [0.806, 0.793, 0.793])
-      Reason:    Expected concept not found in top 5 results
-
-[Category: variante_gramatical] (1 total failures)
-----------------------------------------
-  #1 [ID 0666] Query: "identidad ys respeto oec"
-      Expected:  identidad_y_respeto_oec
-      Returned:  ['athena_oec_identidad', 'oracle_que_nos_uniere_como_familia', 'identidad_athena_no_deshumanizarse'] (scores: [0.391, 0.387, 0.37])
+  #3 [ID 0718] Query: "rector diagnostico red"
+      Expected:  principio_compresion_cognitiva_boveda_5d
+      Returned:  ['auditoria_busqueda_abril_2026_diagnostico', 'diagnostico_empirico_vs_teorico', 'regla_verificar_codigo_real_antes_de_diagnostico'] (scores: [0.438, 0.406, 0.404])
       Reason:    Expected concept not found in top 5 results
 ================================================================================
 Note: All failed cases have been saved to /mnt/recursos_compartidos_y_otros/MemoryBioRAG/scripts/casos_fallidos.jsonl for full debug analysis.
@@ -547,5 +614,3 @@ Métricas exportadas a: /mnt/recursos_compartidos_y_otros/MemoryBioRAG/scripts/q
           SUITE DE EVALUACIÓN BIORAG FINALIZADA CON ÉXITO
 ================================================================================
 Limpiando copia temporal...
-dennys@laptop-dennys:/mnt/recursos_compartidos_y_otros/MemoryBioRAG
-$ 
