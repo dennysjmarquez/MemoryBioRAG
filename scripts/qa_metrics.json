@@ -1,16 +1,16 @@
 {
   "version": "v32.0",
-  "generado_en": "2026-09-21T13:23:16",
-  "elapsed_seconds": 760.25,
+  "generado_en": "2026-09-21T18:15:45",
+  "elapsed_seconds": 920.3,
   "casos_file": "casos_qa_baseline_v1.jsonl",
   "casos_total": 921,
   "db_src": "/mnt/recursos_compartidos_y_otros/MemoryBioRAG/MemoryBioRAG_Data/memory_biorag_qa_run.db",
   "global": {
     "queries": 875,
-    "recall_at_5": 99.31,
-    "recall_at_1": 92.11,
-    "mrr": 0.9492,
-    "fallos": 6,
+    "recall_at_5": 100.0,
+    "recall_at_1": 91.77,
+    "mrr": 0.9496,
+    "fallos": 0,
     "negativos_total": 40,
     "negativos_fp": 0,
     "negativos_fp_rate": 0.0,
@@ -26,10 +26,10 @@
   "categorias": {
     "cruce_idioma": {
       "total": 8,
-      "recall_at_5": 87.5,
-      "recall_at_1": 50.0,
-      "mrr": 0.6562,
-      "fallos": 1
+      "recall_at_5": 100.0,
+      "recall_at_1": 62.5,
+      "mrr": 0.7396,
+      "fallos": 0
     },
     "dormido": {
       "total": 65,
@@ -47,37 +47,37 @@
     },
     "por_tema": {
       "total": 65,
-      "recall_at_5": 92.31,
-      "recall_at_1": 63.08,
-      "mrr": 0.7569,
-      "fallos": 5
+      "recall_at_5": 100.0,
+      "recall_at_1": 67.69,
+      "mrr": 0.8108,
+      "fallos": 0
     },
     "pregunta_natural": {
       "total": 65,
       "recall_at_5": 100.0,
-      "recall_at_1": 98.46,
-      "mrr": 0.9923,
+      "recall_at_1": 95.38,
+      "mrr": 0.9718,
       "fallos": 0
     },
     "sinonimo": {
       "total": 55,
       "recall_at_5": 100.0,
-      "recall_at_1": 58.18,
-      "mrr": 0.7306,
+      "recall_at_1": 56.36,
+      "mrr": 0.7215,
       "fallos": 0
     },
     "typo": {
       "total": 65,
       "recall_at_5": 100.0,
-      "recall_at_1": 87.69,
-      "mrr": 0.9262,
+      "recall_at_1": 84.62,
+      "mrr": 0.9108,
       "fallos": 0
     },
     "variante_gramatical": {
       "total": 65,
       "recall_at_5": 100.0,
-      "recall_at_1": 89.23,
-      "mrr": 0.9262,
+      "recall_at_1": 86.15,
+      "mrr": 0.9108,
       "fallos": 0
     }
   }
