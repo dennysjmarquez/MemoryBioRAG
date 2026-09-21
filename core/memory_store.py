@@ -3378,6 +3378,18 @@ class SQLiteMemoryBioRAG:
                     continue
                 visitados.add(nodo)
 
+                # Fan Effect (ACT-R): atenuación conservativa por grado de dispersión del nodo emisor
+                self.cursor.execute(
+                    "SELECT COUNT(*) FROM ("
+                    "SELECT destino FROM sinapsis WHERE origen = ? "
+                    "UNION "
+                    "SELECT origen FROM sinapsis WHERE destino = ?"
+                    ")",
+                    (nodo, nodo)
+                )
+                fan_grado = self.cursor.fetchone()[0] or 1
+                fan_factor = 1.0 / math.log(math.e + max(0, fan_grado - 1))
+
                 self.cursor.execute(
                     "SELECT destino, peso FROM sinapsis WHERE origen = ? "
                     "UNION "
@@ -3387,7 +3399,7 @@ class SQLiteMemoryBioRAG:
                 )
                 for vecino, peso in self.cursor.fetchall():
                     if vecino not in visitados:
-                        sv = score * (peso or 0.5) * decay
+                        sv = score * (peso or 0.5) * fan_factor * decay
                         if sv > 0.05:
                             siguientes.append((vecino, sv))
                             resultados.append((vecino, sv, salto + 1))
