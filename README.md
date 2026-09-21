@@ -443,7 +443,27 @@ El grafo de vectores PPMI se **auto-organiza en islas semánticas** — nadie la
 
 > **Nota de veracidad:** el `84.62%` histórico de v23.1 provenía de un snapshot con `por_tema` en un corpus de 614 nodos y backfill parcial de predicados. Medido sobre el corpus real actual (921 casos QA, 2026-08-04), el baseline real de `por_tema` es **67.69%**, y el re-ranking jaccard lo eleva a **81.54%** (+13.85pp) con protecciones (protect-r0, gate 0.04, topk 20) que eliminan las regresiones. Ver `EXPERIMENTS.md` para la narrativa completa.
 
-### Desglose Completo por Categoría de Recuperación — v26.2 (921 Casos QA, Snapshot Aislado)
+### Desglose Consolidado por Categoría de Recuperación — v32.0 (921 Casos QA, Snapshot Canónico)
+
+| Categoría | Total Casos | Recall@5 v32.0 | Recall@1 v32.0 | MRR v32.0 | Errores / FPs | Estado |
+|---|---|---|---|---|---|---|
+| **literal** | 487 | **100.00%** | **99.59%** | **0.998** | 0 | 🏆 Perfecto |
+| **dormido** | 65 | **100.00%** | **100.00%** | **1.000** | 0 | 🏆 Perfecto |
+| **pregunta_natural** | 65 | **100.00%** | **98.46%** | **0.992** | 0 | 🏆 Perfecto |
+| **variante_gramatical** | 65 | **100.00%** | **87.69%** | **0.921** | 0 | 🏆 Perfecto |
+| **typo** | 65 | **100.00%** | **84.62%** | **0.911** | 0 | 🏆 Perfecto |
+| **sinonimo** | 55 | **100.00%** | **58.18%** | **0.732** | 0 | 🏆 Perfecto (0 errores vs 8 en baseline) |
+| **por_tema** | 65 | **92.31%** | **64.62%** | **0.762** | 5 | 🚀 Récord histórico |
+| **cruce_idioma** | 8 | **87.50%** | **50.00%** | **0.656** | 1 | ✅ Resuelto en prod vía Concept Hub |
+| **negativo (Falsos Positivos)** | 40 | N/A | N/A | N/A | **0 FP (0.00%)** | 🛡️ Cero Alucinación |
+| **ambiguo (Contradictorias)** | 6 | N/A | N/A | N/A | 2 | ⚠️ Fuera de recall global por ambigüedad |
+| **GLOBAL RETRIEVAL** | **875** | **99.31%** | **91.89%** | **0.948** | **6 fallos** | 🚀 **Récord Histórico Absoluto** |
+
+> **GLOBAL SUMMARY v32.0 (snapshot canónico, 921 casos):** Global Recall@5: **99.31%** (869/875) | Global Recall@1: **91.89%** (804/875) | MRR: **0.9481** | Tasa de Falsos Positivos: **0.00% (0 / 40)** | Latencia Suite: **556.4s** (-21.2% reducción de tiempo).
+
+---
+
+### Desglose Histórico por Categoría de Recuperación — v26.2 (921 Casos QA, Snapshot Aislado)
 
 | Categoría | R@5 v26.1 | R@5 v26.2 | R@1 v26.1 | R@1 v26.2 | Δ R@1 |
 |---|---|---|---|---|---|
@@ -856,16 +876,21 @@ cp scripts/qa_metrics.json scripts/qa_metrics_baseline.json
 | **Retrofitting Hebbiano** | Graph-Constrained Vector Retrofitting (Faruqui 2015) | Promedia vectores PPMI con vecinos de sinapsis `sinonimo_explicito` — λ=0.2, 5 iters | `--no-retrofit` en ppmi_svd_retro.py |
 | **PPMI+SVD** | Pointwise Mutual Information + Truncated SVD 100 dims | Coseno entre vector IDF-weighted de query y vectores espectrales de nodos (señal #13) | `BIORAG_PPMI_WEIGHT=0.0` |
 | **Re-ranking Jaccard** | Léxico Rescue (Jaccard léxico de tokens sobre head del ranking) | `score + 0.25 × (jaccard/max_j)` sobre top-20, con protect-r0 | `BIORAG_RERANKING_JACCARD_ENABLED=0` |
-| **LTP/LTD Sináptico** | Long-Term Potentiation/Depression (Hebb 1949) | `peso_sinaptico` ∈ [0.05, 1.0] se incrementa con accesos exitosos, decae con olvido | `ignore_peso_sinaptico=True` |
+| **LTP/LTD Modulado ACT-R** | Base-Level Activation & Power Law (Anderson & Lebiere 1998) | $B_i = \ln(\sum t_k^{-0.5})$ en `nodo_accesos_historial` (máx 10); modula decaimiento LTD en sueño $\text{decay} = 0.05 \cdot e^{-0.5 B_i}$ | `BIORAG_NO_LOG=1` / DB |
+| **Concept Hubs Semánticos** | Categorización Prototípica y 5 Ángulos (Rosch 1975, Collins 1969) | Puentes ontológicos deterministas pre-FTS5 (`sinonimo`, `problema`, `solucion`, `situacion`, `ingenuo`) para abismo léxico y cruce ES/EN | Tablas `concept_hubs` / `concept_hub_bridges` |
+| **Efecto Fan ACT-R** | Fan Effect Attentional Modulation (Anderson 1974) | Ponderación asociativa multi-salto dividida entre el abanico de conectividad saliente ($W_j/\text{fan}_j$) en `_evocacion_por_cadena()` | Nativo en BFS sináptico |
+| **Calibración Conforme** | Split Conformal Prediction & Platt Scaling (Vovk 2005, Platt 1999) | Umbral de corte no paramétrico calculado con garantía estadística finita $1-\alpha$ sobre controles negativos y sigmoide | Tabla `calibracion_estado` |
+| **Saturación Dinámica BM25** | Dynamic BM25 Normalization (Robertson & Zaragoza 2009) | Función monótona de saturación $S(x) = \frac{x}{x+k}$ para consultas singleton en `_calcular_score_hibrido()` | Nativo en scoring híbrido |
 | **DMN** | Default Mode Network (spindles replay en reposo) | Daemon thread que genera insights cruzando nodos distantes cuando el agente lleva ≥5 min inactivo | `BIORAG_DMN_IDLE_SECONDS=999999` |
 
-> **Nota sobre LTP/LTD:** La suite QA de 921 casos ya corre con `ignore_peso_sinaptico=True` por diseño (campo de juego nivelado). El efecto del LTP/LTD sináptico se mide en producción real, no en benchmark sintético, porque los pesos solo se diferencian con meses de uso acumulado.
+> **Nota sobre LTP/LTD y Activación ACT-R:** La suite QA de 921 casos corre con `ignore_peso_sinaptico=True` por diseño metodológico de campo nivelado. La activación base ACT-R ($B_i$) y la modulación de decaimiento biológico pasivo operan en el ciclo de consolidación de sueño y en la interacción continua en vivo.
 
 **Resultados Empíricos del Estudio de Ablación (921 casos QA, snapshot congelado):**
 
 | Escenario de Ablación | GLOBAL R@5 | `por_tema` R@5 | `sinonimo` R@5 | Frecuencia de Activación / Comportamiento |
 |---|---|---|---|---|
-| **Baseline (todos ON)** | **95.57%** | **84.62%** | **70.49%** | Punto de referencia calibrado |
+| **v32.0 Consolidado (Actual)** | **99.31%** | **92.31%** | **100.00%** | **Récord histórico oficial: solo 6 fallos en 875 consultas (0.0% FP)** |
+| **Baseline histórico v26 (todos ON)** | 95.57% | 84.62% | 70.49% | Punto de referencia calibrado original |
 | **Sin GABA (inhibición lateral OFF)** | 95.57% (0.0pp) | 84.62% (0.0pp) | 70.49% (0.0pp) | **Se activa en el 68.2% de las búsquedas** (601/881 casos con top-1 ≥ 0.80). Atenúa competidores (×0.60) en 62.9% de las queries (554/881) sin alterar la membresía Top-5 en Recall@5. |
 | **Sin Re-ranking Jaccard** | **94.67% (-0.90pp)** | **67.69% (-16.93pp)** | 72.13% (+1.64pp) | **Aporte crítico (+16.93pp por_tema):** Mecanismo principal que rescata candidatos hundidos por ruido semántico. |
 | **Sin PPMI+SVD (weight=0.0)** | 95.46% (-0.11pp) | 84.62% (0.0pp) | 70.49% (0.0pp) | Aporte vectorial espectral fino en el score de desempate global. |
@@ -3058,7 +3083,11 @@ El baseline evalúa las siguientes categorías distribuidas para estresar el pip
 **Resumen de evolución por versión:**
 - **v18.0 Baseline:** `por_tema` 36.92% Recall@5 | GLOBAL 92.96% | Negativo FP 12.5%
 - **v22.1 Fix:** `por_tema` 43.08% (+6.16 pp) | GLOBAL 93.64% | Negativo FP 7.5%
-- **v22.2 Fix (PRF Capa 3 + exclusión de peso en scoring):** `por_tema` **58.46%** (+21.54 pp sobre v18.0) | GLOBAL **94.55%** | Negativo FP **7.5%** (estable)
+- **v22.2 Fix (PRF Capa 3 + exclusión de peso en scoring):** `por_tema` **58.46%** (+21.54 pp sobre v18.0) | GLOBAL **94.55%** | Negativo FP **7.5%**
+- **v26.2 (Motor Híbrido PPMI+SVD + QCR Gate):** `por_tema` **67.69%** | GLOBAL **96.03%** | Negativo FP **7.5%**
+- **v28.1 (Calibración Conforme + Canal 2):** `por_tema` **86.15%** | GLOBAL **96.71%** | Negativo FP **0.0%**
+- **v31.4 (Sustantivos Clave CLI + Tolerancia QCR D4):** `por_tema` **89.23%** | GLOBAL **98.06%** | Negativo FP **0.0%**
+- **v32.0 (ACT-R Power Law + Concept Hubs + Fan Effect):** `por_tema` **92.31%** | `sinonimo` **100.00%** | GLOBAL **99.31%** | Negativo FP **0.00%** (Cero Alucinación)
 
 **Nota de metodología (leccion consolidada):**
 - El baseline decaído de 41.54% era un artefacto de LTD pasivo sin valencia somática.
