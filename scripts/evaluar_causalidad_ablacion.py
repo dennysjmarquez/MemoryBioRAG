@@ -6,10 +6,10 @@ Responde directamente al escrutinio científico y a la auditoría metodológica:
 ¿Cuál es el impacto causal individual y conjunto de cada mecanismo cognitivo?
 
 Condiciones experimentales evaluadas:
-  [A] BASELINE RAW:        Sin Concept Hub, sin boost de sustantivos_clave
-  [B] CONCEPT HUB ONLY:    Con Concept Hub (5 ángulos), sin boost sustantivos
-  [C] SUSTANTIVOS ONLY:    Sin Concept Hub, con boost sustantivos_clave (1.5x)
-  [D] FULL v32.0:          BioRAG v32.0 completo (Hub + Sustantivos + ACT-R)
+  [A] Motor base sin Hub ni boost de sustantivos
+  [B] Motor base + Concept Hub
+  [C] Motor base + Sustantivos Clave
+  [D] Motor base + Hub + Sustantivos (v32.0)
 
 Métricas reportadas por condición:
   - Recall@1, Recall@5, MRR
@@ -95,10 +95,10 @@ def ejecutar_evaluacion_causal(db_path, casos, verbose=False):
     }
 
     condiciones = [
-        {"id": "A", "nombre": "BASELINE RAW (Sin Hub, Sin Sustantivos)", "hub": "0", "boost": None},
-        {"id": "B", "nombre": "CONCEPT HUB ONLY",                       "hub": "1", "boost": None},
-        {"id": "C", "nombre": "SUSTANTIVOS CLAVE ONLY",                 "hub": "0", "boost": 1.5},
-        {"id": "D", "nombre": "FULL v32.0 (Hub + Sustantivos)",         "hub": "1", "boost": 1.5},
+        {"id": "A", "nombre": "Motor base sin Hub ni boost de sustantivos", "hub": "0", "boost": None},
+        {"id": "B", "nombre": "Motor base + Concept Hub",                  "hub": "1", "boost": None},
+        {"id": "C", "nombre": "Motor base + Sustantivos Clave",            "hub": "0", "boost": 1.5},
+        {"id": "D", "nombre": "Motor base + Hub + Sustantivos (v32.0)",    "hub": "1", "boost": 1.5},
     ]
 
     resultados_condicion = {c["id"]: {"hits_1": 0, "hits_5": 0, "mrr_sum": 0.0, "total": 0, "ranks": {}} for c in condiciones}
@@ -229,10 +229,10 @@ def imprimir_reporte(resultados, salida_md=None, salida_json=None):
     lineas.append("| :--- | :---: | :---: | :---: | :---: | :---: | :---: |")
 
     nombres = {
-        "A": "Baseline Raw (Sin Hub, Sin Sustantivos)",
-        "B": "Concept Hub Only",
-        "C": "Sustantivos Clave Only",
-        "D": "Full v32.0 (Hub + Sustantivos)"
+        "A": "Motor base sin Hub ni boost de sustantivos",
+        "B": "Motor base + Concept Hub",
+        "C": "Motor base + Sustantivos Clave",
+        "D": "Motor base + Hub + Sustantivos (v32.0)"
     }
 
     for cid in ["A", "B", "C", "D"]:
@@ -243,7 +243,7 @@ def imprimir_reporte(resultados, salida_md=None, salida_json=None):
         if cid == "A":
             rescates = "-"
             danos = "-"
-            neto = "Baseline"
+            neto = "Línea Base"
         else:
             c_info = causal[cid]
             rescates = str(c_info["rescates_count"])
@@ -261,17 +261,20 @@ def imprimir_reporte(resultados, salida_md=None, salida_json=None):
         lineas.append(f"- **Impacto Neto:** {'+' if c_info['balance_neto'] >= 0 else ''}{c_info['balance_neto']} casos ganados netos\n")
 
     lineas.append("## 3. Desglose de Procedencia de Candidatos Ganadores (Top-1 Provenance)\n")
-    lineas.append("Distribución del subsistema que generó el candidato ganador en la Condición D (Full v32.0):\n")
+    lineas.append("Distribución del subsistema que generó el candidato ganador en la Condición D (v32.0):\n")
     lineas.append("| Subsistema de Origen | Casos Top-1 | Porcentaje (%) |")
     lineas.append("| :--- | :---: | :---: |")
     for orig, cnt in sorted(prov["D"].items(), key=lambda x: x[1], reverse=True):
         pct = (cnt / total) * 100
         lineas.append(f"| `{orig}` | {cnt} | {pct:.1f}% |")
 
-    lineas.append("\n## 4. Conclusión Científica\n")
-    lineas.append("1. **Cero Regresiones Netas:** Ni Concept Hub ni el protocolo jerárquico de sustantivos clave provocan degradación en el baseline léxico probado.")
-    lineas.append("2. **Atribución Causal Demostrada:** La mejora métrica no es un artefacto estocástico ni ruido de arnés; cada subsistema rescata clases específicas de consultas con trazabilidad determinista.")
-    lineas.append("3. **Trazabilidad Completa:** El campo `provenance` ahora documenta empíricamente el canal cognitivo exacto que produce cada acierto.")
+    lineas.append("\n## 4. Conclusión Científica y Delimitación Metodológica\n")
+    d_info = causal["D"]
+    lineas.append(f"1. **Balance Causal Cuantificado:** En la condición integrada [D], se registraron {d_info['rescates_count']} rescates y {d_info['danos_count']} regresión(es) frente a la condición base [A], resultando en un balance neto de {'+' if d_info['balance_neto'] >= 0 else ''}{d_info['balance_neto']} casos ganados sobre la muestra evaluada (n={total}).")
+    if d_info['danos_count'] > 0:
+        lineas.append(f"   - Casos con regresión identificados: {', '.join(d['id'] for d in d_info['detalles_danos'])}. La telemetría de procedencia permite aislar el factor (p. ej. inyección de términos con solapamiento parcial / vocabulary drift) para guiar la optimización de guards.")
+    lineas.append("2. **Diferenciación Epistemológica:** Se distingue formalmente entre Candidate Provenance (subsistema que integró el candidato al pool) y Contribución Causal (demostrada mediante la diferencia experimental entre condiciones con el mecanismo activo vs inactivo).")
+    lineas.append("3. **Fundamentación vs. Calibración:** La jerarquía cualitativa de los 5 ángulos se apoya en la teoría de prototipos (Rosch, 1975) y redes semánticas (Collins & Quillian, 1969), mientras que sus multiplicadores escalares exactos corresponden a una calibración empírica en el corpus que debe validarse en pruebas de generalización continua.")
 
     texto_reporte = "\n".join(lineas)
     print("\n" + texto_reporte + "\n")

@@ -1,32 +1,32 @@
 # INFORME DE CAUSALIDAD Y ABLACIÓN EXPERIMENTAL — BioRAG v32.0
 
-**Fecha:** 2026-09-21 13:04:55  
+**Fecha:** 2026-09-21 14:49:51  
 **Total Casos Evaluados:** 24 consultas  
 
 ## 1. Rendimiento Comparativo por Condición Experimental
 
 | Condición | R@1 (%) | R@5 (%) | MRR | Rescates vs A | Daños vs A | Balance Neto |
 | :--- | :---: | :---: | :---: | :---: | :---: | :---: |
-| **[A] Baseline Raw (Sin Hub, Sin Sustantivos)** | 54.17% | 91.67% | 0.6944 | - | - | **Baseline** |
-| **[B] Concept Hub Only** | 50.00% | 95.83% | 0.6611 | 2 | 1 | **+1** |
-| **[C] Sustantivos Clave Only** | 54.17% | 91.67% | 0.6944 | 0 | 0 | **+0** |
-| **[D] Full v32.0 (Hub + Sustantivos)** | 50.00% | 95.83% | 0.6611 | 2 | 1 | **+1** |
+| **[A] Motor base sin Hub ni boost de sustantivos** | 54.17% | 91.67% | 0.6944 | - | - | **Línea Base** |
+| **[B] Motor base + Concept Hub** | 50.00% | 95.83% | 0.6611 | 2 | 1 | **+1** |
+| **[C] Motor base + Sustantivos Clave** | 54.17% | 91.67% | 0.6944 | 0 | 0 | **+0** |
+| **[D] Motor base + Hub + Sustantivos (v32.0)** | 50.00% | 95.83% | 0.6611 | 2 | 1 | **+1** |
 
 ## 2. Atribución Causal de Mecanismos (Veredicto de Rescates y Regresiones)
 
-### Condición [B] Concept Hub Only
+### Condición [B] Motor base + Concept Hub
 - **Casos Rescatados:** 2 consultas (que fallaban sin este mecanismo y ahora se recuperan en Top-5)
 - **Casos Perjudicados (Daños/Regresiones):** 1 consultas
 - **Casos Neutros:** 21 consultas
 - **Impacto Neto:** +1 casos ganados netos
 
-### Condición [C] Sustantivos Clave Only
+### Condición [C] Motor base + Sustantivos Clave
 - **Casos Rescatados:** 0 consultas (que fallaban sin este mecanismo y ahora se recuperan en Top-5)
 - **Casos Perjudicados (Daños/Regresiones):** 0 consultas
 - **Casos Neutros:** 24 consultas
 - **Impacto Neto:** +0 casos ganados netos
 
-### Condición [D] Full v32.0 (Hub + Sustantivos)
+### Condición [D] Motor base + Hub + Sustantivos (v32.0)
 - **Casos Rescatados:** 2 consultas (que fallaban sin este mecanismo y ahora se recuperan en Top-5)
 - **Casos Perjudicados (Daños/Regresiones):** 1 consultas
 - **Casos Neutros:** 21 consultas
@@ -34,7 +34,7 @@
 
 ## 3. Desglose de Procedencia de Candidatos Ganadores (Top-1 Provenance)
 
-Distribución del subsistema que generó el candidato ganador en la Condición D (Full v32.0):
+Distribución del subsistema que generó el candidato ganador en la Condición D (v32.0):
 
 | Subsistema de Origen | Casos Top-1 | Porcentaje (%) |
 | :--- | :---: | :---: |
@@ -42,8 +42,9 @@ Distribución del subsistema que generó el candidato ganador en la Condición D
 | `concept_hub` | 9 | 37.5% |
 | `dimensional_fallback` | 1 | 4.2% |
 
-## 4. Conclusión Científica
+## 4. Conclusión Científica y Delimitación Metodológica
 
-1. **Cero Regresiones Netas:** Ni Concept Hub ni el protocolo jerárquico de sustantivos clave provocan degradación en el baseline léxico probado.
-2. **Atribución Causal Demostrada:** La mejora métrica no es un artefacto estocástico ni ruido de arnés; cada subsistema rescata clases específicas de consultas con trazabilidad determinista.
-3. **Trazabilidad Completa:** El campo `provenance` ahora documenta empíricamente el canal cognitivo exacto que produce cada acierto.
+1. **Balance Causal Cuantificado:** En la condición integrada [D], se registraron 2 rescates y 1 regresión(es) frente a la condición base [A], resultando en un balance neto de +1 casos ganados sobre la muestra evaluada (n=24).
+   - Casos con regresión identificados: 0499. La telemetría de procedencia permite aislar el factor (p. ej. inyección de términos con solapamiento parcial / vocabulary drift) para guiar la optimización de guards.
+2. **Diferenciación Epistemológica:** Se distingue formalmente entre Candidate Provenance (subsistema que integró el candidato al pool) y Contribución Causal (demostrada mediante la diferencia experimental entre condiciones con el mecanismo activo vs inactivo).
+3. **Fundamentación vs. Calibración:** La jerarquía cualitativa de los 5 ángulos se apoya en la teoría de prototipos (Rosch, 1975) y redes semánticas (Collins & Quillian, 1969), mientras que sus multiplicadores escalares exactos corresponden a una calibración empírica en el corpus que debe validarse en pruebas de generalización continua.
