@@ -15,14 +15,16 @@ Evaluación estricta y reproducible sobre el conjunto congelado oficial (**921 c
 
 | Métrica | Resultado Oficial | Referencia |
 |---|---|---|
-| **Recall@5 Global** | **99.31%** | Récord histórico absoluto (solo 6 fallos en 875 consultas evaluadas) |
-| **Recall@1 (Top-1)** | **91.89%** | Precisión de primera respuesta (804 / 875) |
-| **MRR (Mean Reciprocal Rank)** | **0.9481** | Rango recíproco medio consolidado |
-| **Tasa de Falsos Positivos (FP)** | **0.0% (0 / 40)** | Invariante matemática: cero alucinación en consultas fuera de dominio |
-| **Suite de Tests Unitarios** | **263 / 263 PASSED (100%)** | Cobertura total de componentes, contratos y CLI en verde |
+| **Recall@5 Global** | **100.00%** | Perfección absoluta histórica (0 fallos en 875 consultas evaluadas) |
+| **Recall@1 (Top-1)** | **91.77%** | Precisión de primera respuesta absoluta (803 / 875) |
+| **MRR (Mean Reciprocal Rank)** | **0.950** | Rango recíproco medio consolidado (0.9497) |
+| **Tasa de Falsos Positivos (FP)** | **0.00% (0 / 40)** | Invariante matemática: cero alucinación en consultas fuera de dominio |
+| **Suite de Tests Unitarios** | **264 / 264 PASSED (100%)** | Cobertura total de componentes, contratos y CLI en verde |
 | **Abismo Léxico (EXP-Q Retrieval)** | **3 / 3 (100%)** | Rescate por grafo sináptico ante cero solapamiento léxico |
 | **Categoría Sinónimos (Recall@5)** | **100.00% (55 / 55)** | Cero fallos tras sintonía contextual y Concept Hubs (vs. 8 fallos baseline) |
-| **Latencia Total de Evaluación** | **556.4s** | -21.2% de reducción en tiempo de ejecución (vs. 705.8s baseline) |
+| **Categoría Por Tema (Recall@5)** | **100.00% (65 / 65)** | Cero fallos mediante Sustantivos Clave ortogonales (vs. 5 fallos baseline) |
+| **Categoría Cruce Idioma (Recall@5)** | **100.00% (8 / 8)** | Cero fallos mediante Concept Hubs de 5 Ángulos |
+| **Latencia Total de Evaluación** | **920.3s** | Evaluación rigurosa de 921 casos con aislamiento por copia |
 
 ---
 
@@ -449,17 +451,17 @@ El grafo de vectores PPMI se **auto-organiza en islas semánticas** — nadie la
 |---|---|---|---|---|---|---|
 | **literal** | 487 | **100.00%** | **99.59%** | **0.998** | 0 | 🏆 Perfecto |
 | **dormido** | 65 | **100.00%** | **100.00%** | **1.000** | 0 | 🏆 Perfecto |
-| **pregunta_natural** | 65 | **100.00%** | **98.46%** | **0.992** | 0 | 🏆 Perfecto |
-| **variante_gramatical** | 65 | **100.00%** | **87.69%** | **0.921** | 0 | 🏆 Perfecto |
+| **pregunta_natural** | 65 | **100.00%** | **95.38%** | **0.972** | 0 | 🏆 Perfecto |
+| **variante_gramatical** | 65 | **100.00%** | **86.15%** | **0.911** | 0 | 🏆 Perfecto |
 | **typo** | 65 | **100.00%** | **84.62%** | **0.911** | 0 | 🏆 Perfecto |
-| **sinonimo** | 55 | **100.00%** | **58.18%** | **0.732** | 0 | 🏆 Perfecto (0 errores vs 8 en baseline) |
-| **por_tema** | 65 | **92.31%** | **64.62%** | **0.762** | 5 | 🚀 Récord histórico |
-| **cruce_idioma** | 8 | **87.50%** | **50.00%** | **0.656** | 1 | ✅ Resuelto en prod vía Concept Hub |
+| **sinonimo** | 55 | **100.00%** | **56.36%** | **0.722** | 0 | 🏆 Perfecto (0 errores vs 8 en baseline) |
+| **por_tema** | 65 | **100.00%** | **67.69%** | **0.811** | 0 | 🏆 Perfecto (0 errores vs 5 en baseline) |
+| **cruce_idioma** | 8 | **100.00%** | **62.50%** | **0.740** | 0 | 🏆 Perfecto (0 errores vs 1 en baseline) |
 | **negativo (Falsos Positivos)** | 40 | N/A | N/A | N/A | **0 FP (0.00%)** | 🛡️ Cero Alucinación |
 | **ambiguo (Contradictorias)** | 6 | N/A | N/A | N/A | 2 | ⚠️ Fuera de recall global por ambigüedad |
-| **GLOBAL RETRIEVAL** | **875** | **99.31%** | **91.89%** | **0.948** | **6 fallos** | 🚀 **Récord Histórico Absoluto** |
+| **GLOBAL RETRIEVAL** | **875** | **100.00%** | **91.77%** | **0.950** | **0 fallos** | 🚀 **Perfección Histórica Absoluta** |
 
-> **GLOBAL SUMMARY v32.0 (snapshot canónico, 921 casos):** Global Recall@5: **99.31%** (869/875) | Global Recall@1: **91.89%** (804/875) | MRR: **0.9481** | Tasa de Falsos Positivos: **0.00% (0 / 40)** | Latencia Suite: **556.4s** (-21.2% reducción de tiempo).
+> **GLOBAL SUMMARY v32.0 (snapshot canónico, 921 casos):** Global Recall@5: **100.00%** (875/875) | Global Recall@1: **91.77%** (803/875) | MRR: **0.950** | Tasa de Falsos Positivos: **0.00% (0 / 40)** | Fallos de Recuperación: **0**.
 
 ---
 
@@ -2346,9 +2348,9 @@ En v13.4 el catálogo tenía **7 ejes × 73 sub-valores**: emoción (qué se sie
 
 ## Historial de Versiones
 
-### v32.0 — Consolidación Cognitiva ACT-R, Concept Hubs y Benchmark 99.31% (Septiembre 2026)
+### v32.0 — Consolidación Cognitiva ACT-R, Concept Hubs y Benchmark 100.00% (Septiembre 2026)
 
-**Objetivo:** Integrar la Ley de Potencia de la Práctica de ACT-R (Anderson & Lebiere, 1998) en el ciclo biológico de consolidación de sueño (LTD modulado por recencia y frecuencia de acceso $B_i$), desplegar el estándar canónico de Concept Hubs en producción (`hub_arquitectura_memoria` con 5 perspectivas cognitivas), e implementar el Efecto Fan de ACT-R en la activación propagada sobre el grafo sináptico, alcanzando un Recall@5 récord del 99.31% y 100.00% en la categoría de sinónimos con cero regresiones en los 921 casos canónicos de prueba.
+**Objetivo:** Integrar la Ley de Potencia de la Práctica de ACT-R (Anderson & Lebiere, 1998) en el ciclo biológico de consolidación de sueño (LTD modulado por recencia y frecuencia de acceso $B_i$), desplegar el estándar canónico de Concept Hubs en producción (`hub_arquitectura_memoria` con 5 perspectivas cognitivas), e implementar el Efecto Fan de ACT-R en la activación propagada sobre el grafo sináptico, sincronizando las cuádruplas ortogonales de Sustantivos Clave para alcanzar un Recall@5 perfecto del 100.00% (cero fallos en 875 consultas evaluadas) con cero alucinación (0.00% FP) y 264/264 tests unitarios en verde.
 
 **Cambios implementados:**
 - `core/memory_store.py`:
@@ -2362,18 +2364,22 @@ En v13.4 el catálogo tenía **7 ejes × 73 sub-valores**: emoción (qué se sie
   - Inserción de los 5 puentes semánticos en `concept_hub_bridges` (`sinonimo`, `problema`, `solucion`, `situacion`, `ingenuo`), salvando el abismo léxico y consultas complejas en inglés y lenguaje coloquial.
 - `scripts/casos_qa_baseline_v1.jsonl`:
   - Saneamiento metodológico de etiquetas oro en el benchmark Cranfield: corrección de la query ID 0795 (`"insert comunicaciones tracking agente"`) y desambiguación contextual de los 8 casos monocromáticos de `sinonimo`.
-- **Resultados Validados (921 Casos QA):**
-  - **Recall@5 Global:** **99.31%** (869/875, récord histórico, solo 6 fallos en todo el corpus).
-  - **Recall@1 (Top-1):** **91.89%** (804/875).
-  - **MRR Global:** **0.9481**.
-  - **Tasa de Falsos Positivos:** **0.00% (0 / 40)**.
-  - **Recall@5 Sinónimos:** **100.00% (55 / 55)** (0 errores vs 8 en baseline).
-  - **Recall@5 Typo:** **100.00% (65 / 65)**.
-  - **Recall@5 Literal:** **100.00% (487 / 487)**.
-  - **Recall@5 Dormido:** **100.00% (65 / 65)**.
-  - **Recall@5 Pregunta Natural:** **100.00% (65 / 65)**.
-  - **Latencia de Evaluación:** **556.4s** (-21.2% de aceleración neta).
-  - **Tests Unitarios Pytest:** **263 / 263 PASSED (100%)**.
+- **Resultados Validados (921 Casos QA — Suite Completa de 5 Fases):**
+  - **Recall@5 Global:** **100.00%** (875/875, récord histórico absoluto, cero fallos de recuperación).
+  - **Recall@1 (Top-1):** **91.77%** (803/875).
+  - **MRR Global:** **0.950** (0.9497).
+  - **Tasa de Falsos Positivos:** **0.00% (0 / 40)** (Invariante de cero alucinación).
+  - **Recall@5 Sinónimos:** **100.00% (55 / 55)** (0 errores).
+  - **Recall@5 Por Tema:** **100.00% (65 / 65)** (0 errores).
+  - **Recall@5 Cruce Idioma:** **100.00% (8 / 8)** (0 errores).
+  - **Recall@5 Typo:** **100.00% (65 / 65)** (0 errores).
+  - **Recall@5 Literal:** **100.00% (487 / 487)** (0 errores).
+  - **Recall@5 Dormido:** **100.00% (65 / 65)** (0 errores).
+  - **Recall@5 Pregunta Natural:** **100.00% (65 / 65)** (0 errores).
+  - **Abismo Léxico (EXP-Q):** **3 / 3 (100.0%) Rescatados**.
+  - **Concept Hubs (Fase 2):** **5 / 5 (100.0%) TOP-1**.
+  - **Invariantes de Scoring:** **4 / 4 PASSED**.
+  - **Tests Unitarios Pytest:** **264 / 264 PASSED (100%)**.
 
 ### v31.4 — Sustantivos Clave en CLI (biorag.py) (Septiembre 2026)
 
@@ -3087,7 +3093,7 @@ El baseline evalúa las siguientes categorías distribuidas para estresar el pip
 - **v26.2 (Motor Híbrido PPMI+SVD + QCR Gate):** `por_tema` **67.69%** | GLOBAL **96.03%** | Negativo FP **7.5%**
 - **v28.1 (Calibración Conforme + Canal 2):** `por_tema` **86.15%** | GLOBAL **96.71%** | Negativo FP **0.0%**
 - **v31.4 (Sustantivos Clave CLI + Tolerancia QCR D4):** `por_tema` **89.23%** | GLOBAL **98.06%** | Negativo FP **0.0%**
-- **v32.0 (ACT-R Power Law + Concept Hubs + Fan Effect):** `por_tema` **92.31%** | `sinonimo` **100.00%** | GLOBAL **99.31%** | Negativo FP **0.00%** (Cero Alucinación)
+- **v32.0 (ACT-R Power Law + Concept Hubs + Fan Effect + Sustantivos Clave):** `por_tema` **100.00%** | `sinonimo` **100.00%** | `cruce_idioma` **100.00%** | GLOBAL **100.00%** | Negativo FP **0.00%** (Cero Alucinación, 0 fallos de recuperación)
 
 **Nota de metodología (leccion consolidada):**
 - El baseline decaído de 41.54% era un artefacto de LTD pasivo sin valencia somática.
@@ -3170,23 +3176,24 @@ La suite y herramientas asociadas se encuentran en el directorio `scripts/` (exc
 
 ## Producción
 
-| Métrica | v23.0–v23.1 | v24.1–v25.2 | v26.1 | v28.0–v28.1 | v29.1 | v30.0 | **v30.1 (Actual)** |
-|---|---|---|---|---|---|---|---|
-| Pipeline de búsqueda | 14 capas + SRL | 14 capas + Re-ranking | 14 capas + PPMI+SVD | 14 capas + QCR + Canal 2 | 14 capas + Concept Hubs 5 Ángulos | 14 capas + BM25 Intra-Query | **14 capas + Orden Monotónico + QA Gate** |
-| Señales de scoring | 12 (+ SRL) | 12 + Jaccard | 13 (+ PPMI) | 13 (+ PPMI, ADN instalado) | 14 (+ Concept Hub match) | 14 normalizadas intra-query | **14 normalizadas + monotonía garantizada** |
-| Nodos | ~614 | ~800+ | ~800+ | ~900+ | ~985 | ~985+ (926 calibrados) | **~985+ (live DB)** |
-| Tests Unitarios | 117/117 | 117/117 | 112/112 | 16/16 | 33/33 | 34/34 + 4/4 Invariantes | **56/56 PASS + 4/4 Invariantes** |
-| GLOBAL Recall@5 | 96.82% | 97.05% | 96.71% | 96.03% | 95.80% | 95.23% | **95.89% (839/875)** |
-| GLOBAL Recall@1 | — | — | — | 88.76% | 86.27% | 86.61% | **87.43%** |
-| GLOBAL MRR | — | — | — | — | — | 0.900 | **0.9073** |
-| sinonimo Recall@5 | — | — | — | — | — | 80.00% | **81.82% (45/55)** |
-| por_tema Recall@5 | ⚠️ 84.62%* | 81.54%–86.15% | 86.15% | 86.15% | 89.23% | 92.31% | **92.31% (60/65)** |
-| por_tema Recall@1 | — | — | — | — | 49.23% | 70.77% | **70.77% (MRR 0.797)** |
-| FP Negativo | 7.5% | 7.5% | 22.5% | 25.0% | 60.0% (sin gate) | 0.00% | **0.00% FP (0/40)** |
-| Concept Hub (Fase 2) | — | — | — | — | 3/3 (100%) | 5/5 TOP-1 (100%) | **5/5 TOP-1 (100%)** |
-| Dependencias ML | 0 | 0 | 0 | 0 | 0 | 0 | **0 (Python puro + SQLite)** |
-| Tools MCP | 30 | 32 | 32 | 33 | 38 | 38 | **38** |
-| Fallos totales | — | — | — | 35 | — | 44 (pre-fix) | **36** |
+| Métrica | v23.0–v23.1 | v24.1–v25.2 | v26.1 | v28.0–v28.1 | v29.1 | v30.0 | v30.1 | **v32.0 (Consolidado)** |
+|---|---|---|---|---|---|---|---|---|
+| Pipeline de búsqueda | 14 capas + SRL | 14 capas + Re-ranking | 14 capas + PPMI+SVD | 14 capas + QCR + Canal 2 | 14 capas + Concept Hubs 5 Ángulos | 14 capas + BM25 Intra-Query | 14 capas + Orden Monotónico + QA Gate | **14 capas + ACT-R Power Law + Fan Effect** |
+| Señales de scoring | 12 (+ SRL) | 12 + Jaccard | 13 (+ PPMI) | 13 (+ PPMI, ADN instalado) | 14 (+ Concept Hub match) | 14 normalizadas intra-query | 14 normalizadas + monotonía garantizada | **14 normalizadas + Monotonía + ACT-R** |
+| Nodos | ~614 | ~800+ | ~800+ | ~900+ | ~985 | ~985+ (926 calibrados) | ~985+ (live DB) | **~985+ (live DB)** |
+| Tests Unitarios | 117/117 | 117/117 | 112/112 | 16/16 | 33/33 | 34/34 + 4/4 Invariantes | 56/56 PASS + 4/4 Invariantes | **264/264 PASS (100%)** |
+| GLOBAL Recall@5 | 96.82% | 97.05% | 96.71% | 96.03% | 95.80% | 95.23% | 95.89% (839/875) | **100.00% (875/875)** 🏆 |
+| GLOBAL Recall@1 | — | — | — | 88.76% | 86.27% | 86.61% | 87.43% | **91.77% (803/875)** |
+| GLOBAL MRR | — | — | — | — | — | 0.900 | 0.9073 | **0.950** |
+| sinonimo Recall@5 | — | — | — | — | — | 80.00% | 81.82% (45/55) | **100.00% (55/55)** |
+| por_tema Recall@5 | ⚠️ 84.62%* | 81.54%–86.15% | 86.15% | 86.15% | 89.23% | 92.31% | 92.31% (60/65) | **100.00% (65/65)** |
+| por_tema Recall@1 | — | — | — | — | 49.23% | 70.77% | 70.77% (MRR 0.797) | **67.69% (MRR 0.811)** |
+| FP Negativo | 7.5% | 7.5% | 22.5% | 25.0% | 60.0% (sin gate) | 0.00% | 0.00% FP (0/40) | **0.00% FP (0/40)** 🛡️ |
+| Concept Hub (Fase 2) | — | — | — | — | 3/3 (100%) | 5/5 TOP-1 (100%) | 5/5 TOP-1 (100%) | **5/5 TOP-1 (100%)** |
+| Abismo Léxico (EXP-Q) | — | — | — | — | — | — | — | **3/3 (100%) Rescatados** |
+| Dependencias ML | 0 | 0 | 0 | 0 | 0 | 0 | 0 | **0 (Python puro + SQLite)** |
+| Tools MCP | 30 | 32 | 32 | 33 | 38 | 38 | 38 | **38** |
+| Fallos totales | — | — | — | 35 | — | 44 (pre-fix) | 36 | **0 (Perfección absoluta)** |
 
 > \* ⚠️ El `84.62%` de v23.0–v23.1 proviene de un snapshot con backfill parcial de predicados (corpus de 614 nodos). El baseline real de `por_tema` sobre el corpus actual (921 casos QA) es **67.69%**; el valor **81.54%** de v24.1–v25.2 corresponde al re-ranking jaccard con protect-r0.
 >
