@@ -25,10 +25,10 @@
 - **RF cubiertos**: RF-15, RF-20
 - **Descripción**: Mantener intactos en su ubicación actual los archivos sensibles (tests en raíz, dashboards, benchmarks — RF-15). No editar docstrings ni comentarios en los monolitos (`mcp_server.py`, `core/memory_store.py`) para no ensuciar los diffs de mudanza. `ARCHITECTURE.md` se difiere a la existencia de los módulos. Verificar suite base.
 - **Hecho cuando**:
-  - [ ] `pytest tests/ -v` → 264 tests passed, 0 errores, 0 skipped
-  - [ ] Ningún docstring ni comentario en los monolitos ha sido modificado
-  - [ ] Un único commit de preparación si hay cambios necesarios
-- [ ] **Estado**: pendiente
+  - [x] `pytest tests/ -v` → 264 tests passed, 0 errores, 0 skipped
+  - [x] Ningún docstring ni comentario en los monolitos ha sido modificado
+  - [x] Un único commit de preparación si hay cambios necesarios
+- [x] **Estado**: completada
 
 ---
 
