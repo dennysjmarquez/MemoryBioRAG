@@ -49,13 +49,13 @@
 - **RF cubiertos**: RF-5, RF-6, CL-5
 - **Descripción**: Extraer `communication.py` (3 tools), `catalog.py` (4 tools) y `synapses.py` (4 tools) hacia `core/mcp_server/`. Cada submódulo expone `register(mcp)`. En `_build_server()`, sustituir inline por `register()` conforme se extrae cada módulo. Si un helper pasa a `_shared.py`, desaparece de `mcp_server.py` en el mismo commit. Un commit + Gate Nivel 0 por cada archivo.
 - **Hecho cuando**:
-  - [ ] `core/mcp_server/communication.py` existe con 3 tools + `register()`
-  - [ ] `core/mcp_server/catalog.py` existe con 4 tools + `register()`
-  - [ ] `core/mcp_server/synapses.py` existe con 4 tools + `register()`
-  - [ ] `_build_server()` devuelve exactamente 42 names + 2 resources + 1 prompt tras cada paso
-  - [ ] Gate Nivel 0 ✓ tras cada extracción (3 verificaciones)
-  - [ ] 3 commits atómicos + push
-- [ ] **Estado**: pendiente
+  - [x] `core/mcp_server/communication.py` existe con 3 tools + `register()`
+  - [x] `core/mcp_server/catalog.py` existe con 4 tools + `register()`
+  - [x] `core/mcp_server/synapses.py` existe con 4 tools + `register()`
+  - [x] `_build_server()` devuelve exactamente 42 names + 2 resources + 1 prompt tras cada paso
+  - [x] Gate Nivel 0 ✓ tras cada extracción
+  - [x] Commits atómicos (sin push)
+- [x] **Estado**: completada
 
 ---
 
