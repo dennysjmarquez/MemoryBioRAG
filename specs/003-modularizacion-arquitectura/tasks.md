@@ -10,14 +10,14 @@
 - **RF cubiertos**: RF-14, RF-16, RF-23
 - **Descripción**: Crear la rama `modularizacion-arquitectura`. Solicitar a Dennys la ruta externa y realizar backup completo del repo y snapshot inmutable de la **base viva real** (`MemoryBioRAG_Data/memory_biorag.db`) vía `sqlite3.backup()` + `PRAGMA wal_checkpoint(TRUNCATE)` fuera del árbol de trabajo (RF-14). Ejecutar el harness local determinista (`PYTHONHASHSEED=0`, `BIORAG_NO_LOG=1`, `BIORAG_DMN_ESTADO_PATH` fuera del repo) sobre `snapshots/qa_escape_qcr_20260811.db` para generar `golden_921.jsonl`, `golden_ids_reducido.txt` (~120 IDs) y `entorno_golden.json`. Verificar auto-identidad (segunda corrida = primera línea a línea). Prohibido commitear 6 scripts sueltos en `scripts/`.
 - **Hecho cuando**:
-  - [ ] Rama `modularizacion-arquitectura` creada y activa
-  - [ ] Backup del repo y snapshot ANTES de la base viva guardados fuera del árbol del repositorio
-  - [ ] `golden_921.jsonl` generado (921 casos con Top-5 y scores a 4 decimales sobre snapshot QA)
-  - [ ] `verificar_auto_identidad` pasa (segunda corrida 100% idéntica a la primera)
-  - [ ] `golden_ids_reducido.txt` contiene ~120 IDs proporcionales por categoría
-  - [ ] `entorno_golden.json` registra versiones exactas de Python, numpy, SQLite
-  - [ ] Gate Nivel 0 ✓ (pytest 264 + smoke + golden reducido)
-- [ ] **Estado**: pendiente
+  - [x] Rama `modularizacion-arquitectura` creada y activa
+  - [x] Backup del repo y snapshot ANTES de la base viva guardados fuera del árbol del repositorio
+  - [x] `golden_921.jsonl` generado (921 casos con Top-5 y scores a 4 decimales sobre snapshot QA)
+  - [x] `verificar_auto_identidad` pasa (segunda corrida 100% idéntica a la primera)
+  - [x] `golden_ids_reducido.txt` contiene ~120 IDs proporcionales por categoría (117 IDs)
+  - [x] `entorno_golden.json` registra versiones exactas de Python, numpy, SQLite
+  - [x] Gate Nivel 0 ✓ (pytest 264 + smoke + golden reducido)
+- [x] **Estado**: completada
 
 ---
 
