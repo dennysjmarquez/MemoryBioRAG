@@ -36,12 +36,12 @@
 - **RF cubiertos**: RF-5, RF-9, CL-9
 - **Descripción**: Crear `core/mcp_server/__init__.py` (vacío), `_shared.py` (vacío) y `server.py` (vacío). Nada de `_build_server()` inline en este paso (evita dos servidores vivos). `_shared.py` se llenará progresivamente conforme se extraigan helpers para evitar 2 copias vivas.
 - **Hecho cuando**:
-  - [ ] `core/mcp_server/__init__.py` existe y está vacío
-  - [ ] `core/mcp_server/_shared.py` existe y está vacío
-  - [ ] `core/mcp_server/server.py` existe y está vacío
-  - [ ] Gate Nivel 0 ✓ (pytest 264 + smoke + golden reducido + 42 tools / 2 resources / 1 prompt en raíz)
-  - [ ] 1 commit atómico + push
-- [ ] **Estado**: pendiente
+  - [x] `core/mcp_server/__init__.py` existe y está vacío
+  - [x] `core/mcp_server/_shared.py` existe y está vacío
+  - [x] `core/mcp_server/server.py` existe y está vacío
+  - [x] Gate Nivel 0 ✓ (pytest 264 + smoke + golden reducido + 42 tools / 2 resources / 1 prompt en raíz)
+  - [x] 1 commit atómico (sin push)
+- [x] **Estado**: completada
 
 ---
 
