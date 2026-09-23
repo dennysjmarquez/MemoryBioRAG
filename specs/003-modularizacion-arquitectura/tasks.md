@@ -292,7 +292,7 @@
   - [ ] `python3 scripts/fuzz_qa.py` → 33/33 passed
   - [ ] Verificación dual sobre snapshot congelado de la base viva: `antes.jsonl` == `despues.jsonl` (100% identidad caso a caso)
   - [ ] Informe final de Gate Nivel 2 redactado con tablas de auditoría `wc -l` y métricas entregado a Dennys
-  - [ ] Merge a `master` realizado exclusivamente por Dennys
+  - Nota: El merge a `master` lo ejecuta exclusivamente Dennys; el agente termina su labor con la entrega del informe.
 - [ ] **Estado**: pendiente
 
 ---

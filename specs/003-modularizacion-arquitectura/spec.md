@@ -141,7 +141,7 @@ El objetivo de esta especificación es descentralizar la base de código hacia m
 3. **Regla de Deuda Técnica (Mover $\neq$ Partir):**
    - Las funciones monolíticas preexistentes (ej. `buscar_por_frase` de 2.109 líneas, `_recordar_impl` de 753 líneas (L652–L1404 por AST), `_aprender_impl` de 321 líneas, `ciclo_sueno_consolidacion` de 505 líneas, `_crear_estructura_cerebral` de 513 líneas) se trasladan **completas e intactas** sin particionar ni reescribir. Nota: `_build_server` no entra en esta lista porque en Fase 2 se convierte en cableado puro (recorre `register(mcp)` por submódulo); lo que no se reescribe es el cuerpo de cada tool individual.
 4. **Fachada (`core/memory_store.py`):**
-   - Techo orientativo: $\le 400$ líneas. Tope duro: $\le 500$ líneas. Con 99 delegadores de una línea más el `__init__`, 400 duro no cabe y empujaría a partir delegadores. Pasar de 500 exige la misma justificación de una línea que el resto de archivos.
+   - Techo orientativo: $\le 400$ líneas. Tope duro: $\le 500$ líneas. Con 99 delegadores con firma completa (RF-8) más el `__init__`, 400 duro no cabe y empujaría a partir delegadores. Pasar de 500 exige la misma justificación de una línea que el resto de archivos.
 5. **Auditoría de Entrega:**
    - Cada cierre de módulo incluirá una tabla auditada de `archivo -> líneas` y `función -> líneas`, junto a la lista de deuda técnica (funciones $> 150$ líneas trasladadas intactas).
 
