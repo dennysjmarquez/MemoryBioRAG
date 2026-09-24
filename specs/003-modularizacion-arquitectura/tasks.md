@@ -78,13 +78,13 @@
 - **RF cubiertos**: RF-5, RF-6, CL-5, RF-7
 - **Descripción**: Extraer `daemon.py` (3 tools, `estado_hormiga.json` con `project_root()`), `session.py` (2 tools + `_preview()` local — A2), `oracle.py` (2 tools + 3 helpers en orden exacto: `_nlm_detectado` → `_consultar_notebooklm` → `_buscar_contexto_biorag_arranque` → `biorag_oraculo_inicio` → `biorag_oraculo_preguntar` — CL-5).
 - **Hecho cuando**:
-  - [ ] `core/mcp_server/daemon.py` existe con 3 tools + `register()`
-  - [ ] `core/mcp_server/session.py` existe con 2 tools + `_preview()` local + `register()`
-  - [ ] `core/mcp_server/oracle.py` existe con 5 funciones en orden exacto CL-5
-  - [ ] `_build_server()` devuelve exactamente 42 names + 2 resources + 1 prompt
-  - [ ] Gate Nivel 0 ✓ tras cada extracción (3 verificaciones)
-  - [ ] 3 commits atómicos + push
-- [ ] **Estado**: pendiente
+  - [x] `core/mcp_server/daemon.py` existe con 3 tools + `register()`
+  - [x] `core/mcp_server/session.py` existe con 2 tools + `_preview()` local + `register()`
+  - [x] `core/mcp_server/oracle.py` existe con 5 funciones en orden exacto CL-5
+  - [x] `_build_server()` devuelve exactamente 42 names + 2 resources + 1 prompt
+  - [x] Gate Nivel 0 ✓ tras cada extracción (3 verificaciones)
+  - [x] 3 commits atómicos + push
+- [x] **Estado**: completada
 
 ---
 
