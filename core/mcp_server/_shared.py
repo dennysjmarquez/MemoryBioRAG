@@ -1,6 +1,7 @@
 """Shared utilities and singleton accessors for core.mcp_server."""
 
 import os
+import json
 import logging
 from typing import Optional, Dict
 from core.memory_service import get_cerebro as _svc_get_cerebro
@@ -10,6 +11,9 @@ from middleware.auto_guardado import registrar_accion, analizar_y_autoguardar
 logger = logging.getLogger("BioRAG.MCP")
 
 _sesiones_activas: dict[str, float] = {}  # agente → timestamp de contexto_inicio
+
+VENTANA_CORRECCION = int(os.environ.get('BIORAG_VENTANA_CORRECCION_SEGUNDOS', '900'))
+"""Ventana de corrección en caliente (default 900s = 15min). Nodos más jóvenes se pueden actualizar directamente; más viejos requieren nodo nuevo + vincular."""
 
 ORACULO_MAX_CHARS = int(os.environ.get('BIORAG_ORACULO_MAX_CHARS', '12000'))
 """Máximo de caracteres devueltos por el oráculo NotebookLM.
@@ -62,3 +66,56 @@ def _interceptar(accion: str, texto: str, cerebro) -> Optional[dict]:
     if resultado:
         logger.info("auto-guardado: %s (%s)", resultado["concepto"], resultado["categoria"])
     return resultado
+
+
+def _resolver_dimensiones(cerebro, dimensiones):
+    """Parsea JSON de dimensiones, resuelve IDs, retorna (dict, ids_list, error_json).
+    Si hay error, error_json es un string JSON listo para retornar. Si no, es None."""
+    if not dimensiones:
+        return None, [], None
+    try:
+        dim_raw = json.loads(dimensiones) if isinstance(dimensiones, str) else dimensiones
+    except json.JSONDecodeError:
+        return None, [], json.dumps({
+            "status": "error",
+            "mensaje": f"dimensiones debe ser JSON válido. Ejemplo: {json.dumps({'emocion': ['afecto'], 'entidad': ['identidad_artificial']})}",
+        }, ensure_ascii=False)
+
+    if not isinstance(dim_raw, dict):
+        return None, [], json.dumps({
+            "status": "error",
+            "mensaje": "dimensiones debe ser un objeto JSON (diccionario) con comillas dobles. Ejemplo: {\"emocion\": [\"afecto\"]}",
+        }, ensure_ascii=False)
+
+    dimensiones_dict = {}
+    dimensiones_ids = []
+    dimensiones_invalidas = {}
+    for eje, valores in dim_raw.items():
+        if not isinstance(valores, list):
+            dimensiones_invalidas[eje] = "debe ser lista"
+            continue
+
+        valores_filtrados = []
+        for val in valores:
+            if isinstance(val, str):
+                valores_filtrados.append(val)
+            else:
+                dimensiones_invalidas[eje] = f"elemento inválido de tipo {type(val).__name__} (debe ser string)"
+
+        if eje in dimensiones_invalidas:
+            continue
+
+        ids, invalidos = cerebro._resolver_dimension_ids(eje, ",".join(valores_filtrados))
+        if invalidos:
+            dimensiones_invalidas[eje] = invalidos
+        if ids:
+            dimensiones_dict[eje] = ids
+            dimensiones_ids.extend(ids)
+    if dimensiones_invalidas:
+        return None, [], json.dumps({
+            "status": "error",
+            "mensaje": f"Dimensiones inválidas: {json.dumps(dimensiones_invalidas, ensure_ascii=False)}. "
+                       "Llamá `listar_dimensiones` para ver valores válidos.",
+            "dimensiones_invalidas": dimensiones_invalidas,
+        }, ensure_ascii=False)
+    return dimensiones_dict, dimensiones_ids, None
