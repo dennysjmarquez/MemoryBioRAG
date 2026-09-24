@@ -1,15 +1,17 @@
-"""MCP Tools for system introspection, graph mapping and DMN state.
+"""MCP Tools for system introspection, graph mapping and cognitive metrics history.
 
 Exposes tools:
 - introspeccion
 - estado
-- estado_dmn
 - mapear
 - corteza
+- metricas_historial
 """
 
+from datetime import datetime
 import json
-from typing import Any
+from typing import Annotated, Any
+from pydantic import Field
 
 from core.mcp_server._shared import _get_cerebro, _interceptar
 
@@ -61,20 +63,6 @@ def register(mcp: Any) -> None:
         return biorag_introspeccion()
 
     @mcp.tool(
-        name="estado_dmn",
-        description=(
-            "Consulta el estado operativo de la Red por Defecto (Default Mode Network - DMN) y la curiosidad espontánea autónoma de BioRAG v21.0. "
-            "Devuelve si el hilo autónomo está activo, el tiempo de inactividad actual y la última idea/insight generada en reposo."
-        ),
-    )
-    def biorag_estado_dmn() -> str:
-        cerebro = _get_cerebro()
-        if hasattr(cerebro, 'dmn') and cerebro.dmn is not None:
-            estado = cerebro.dmn.obtener_estado()
-            return json.dumps(estado, ensure_ascii=False, indent=2)
-        return json.dumps({"activo": False, "mensaje": "DMN no iniciado en esta instancia."}, ensure_ascii=False)
-
-    @mcp.tool(
         name="mapear",
         description=(
             "Listá todos los nodos de la memoria — activos y dormidos — ordenados de más fuerte a más débil. Para explorar qué hay, detectar nodos huérfanos, revisar categorías, o verificar que algo se guardó bien. Ojo: si hay muchos nodos, la respuesta es larga. Sin parámetros."
@@ -112,3 +100,97 @@ def register(mcp: Any) -> None:
     )
     def biorag_corteza() -> str:
         return biorag_mapear()
+
+    @mcp.tool(
+        name="metricas_historial",
+        description=(
+            "Mostrá el historial de ciclos de sueño — cuánto se consolidó, cuánto se olvidó, qué categoría se usa más, y si el cerebro está mejorando o empeorando. Requiere haber ejecutado consolidar al menos una vez."
+        ),
+    )
+    def biorag_metricas_historial(
+        n: Annotated[int, Field(
+            description=(
+                "Número de ciclos de sueño a incluir en el análisis (más recientes primero). "
+                "Default: 10. Aumentar para tendencias históricas más largas."
+            ),
+            ge=1,
+        )] = 10,
+    ) -> str:
+        cerebro = _get_cerebro()
+        try:
+            cur = cerebro.cursor
+            cur.execute("SELECT COUNT(*) FROM metricas_cognitivas")
+            total = cur.fetchone()[0]
+
+            if total == 0:
+                return json.dumps({
+                    "status": "ok",
+                    "mensaje": "No hay métricas registradas aún. Ejecuta un ciclo de sueño primero.",
+                    "total_registros": 0,
+                }, ensure_ascii=False)
+
+            cur.execute(
+                "SELECT timestamp, nodos_consolidados, nodos_dormidos_ciclo, "
+                "sinapsis_creadas, sinapsis_podadas, categoria_dominante, ratio_consolidacion "
+                "FROM metricas_cognitivas ORDER BY timestamp DESC LIMIT ?", (n,)
+            )
+            filas = cur.fetchall()
+
+            # Calcular promedios
+            n_filas = len(filas)
+            avg_consolidados = sum(f[1] for f in filas) / n_filas
+            avg_dormidos = sum(f[2] for f in filas) / n_filas
+            avg_creadas = sum(f[3] for f in filas) / n_filas
+            avg_podadas = sum(f[4] for f in filas) / n_filas
+            avg_ratio = sum(f[6] for f in filas) / n_filas if filas[0][6] else 0
+
+            # Categoría dominante histórica
+            cats = [f[5] for f in filas if f[5]]
+            cat_dominante = max(set(cats), key=cats.count) if cats else "N/A"
+
+            # Tendencia: comparar primera mitad vs segunda mitad
+            if n_filas >= 4:
+                mitad = n_filas // 2
+                recientes = filas[:mitad]
+                antiguos = filas[mitad:]
+                avg_rec_consolidados = sum(f[1] for f in recientes) / len(recientes)
+                avg_ant_consolidados = sum(f[1] for f in antiguos) / len(antiguos)
+                if avg_rec_consolidados > avg_ant_consolidados * 1.1:
+                    tendencia = "MEJORANDO (consolida más)"
+                elif avg_rec_consolidados < avg_ant_consolidados * 0.9:
+                    tendencia = "EMPEORANDO (consolida menos)"
+                else:
+                    tendencia = "ESTABLE"
+            else:
+                tendencia = "DATOS_INSUFICIENTES (menos de 4 ciclos)"
+
+            # Formatear tabla
+            tabla = "Fecha              Consol  Dormidos  Sin/Pod  Cat Dom     Ratio\n"
+            tabla += "─" * 70 + "\n"
+            for f in reversed(filas):
+                fecha = datetime.fromtimestamp(f[0]).strftime("%Y-%m-%d %H:%M")
+                tabla += f"{fecha}     {f[1]:<7}{f[2]:<9}{f[3]}/{f[4]}     {(f[5] or 'N/A'):<10}{f[6] or 0:.2f}\n"
+
+            resultado = {
+                "status": "ok",
+                "total_registros": total,
+                "ultimos_ciclos": n_filas,
+                "tabla": tabla,
+                "tendencias": {
+                    "consolidacion_promedio": round(avg_consolidados, 2),
+                    "olvido_promedio": round(avg_dormidos, 2),
+                    "sinapsis_creadas_promedio": round(avg_creadas, 1),
+                    "sinapsis_podadas_promedio": round(avg_podadas, 1),
+                    "ratio_promedio": round(avg_ratio, 3),
+                    "categoria_dominante": cat_dominante,
+                    "tendencia": tendencia,
+                },
+                "salud_sinaptica": {
+                    "creadas_total": sum(f[3] for f in filas),
+                    "podadas_total": sum(f[4] for f in filas),
+                    "ratio": round(sum(f[3] for f in filas) / max(1, sum(f[4] for f in filas)), 2),
+                },
+            }
+            return json.dumps(resultado, ensure_ascii=False, indent=2)
+        finally:
+            cerebro.cerrar_sistema()
