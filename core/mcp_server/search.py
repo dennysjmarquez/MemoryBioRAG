@@ -729,12 +729,12 @@ def _recordar_impl(
                 ph = ",".join("?" * len(conceptos_dim))
                 try:
                     cerebro.cursor.execute(f"""
-                        SELECT lpd.concepto, tn.nombre AS tipo, ds.name AS dim_name
-                        FROM largo_plazo_dimensiones lpd
-                        JOIN dimensiones_semanticas ds ON ds.id = lpd.dimension_id
-                        JOIN tipos_dimension tn ON tn.id = ds.tipo_id
-                        WHERE lpd.concepto IN ({ph})
-                    """, conceptos_dim)
+                            SELECT lpd.concepto, tn.nombre AS tipo, ds.name AS dim_name
+                            FROM largo_plazo_dimensiones lpd
+                            JOIN dimensiones_semanticas ds ON ds.id = lpd.dimension_id
+                            JOIN tipos_dimension tn ON tn.id = ds.tipo_id
+                            WHERE lpd.concepto IN ({ph})
+                        """, conceptos_dim)
                     dim_map = {}
                     for concepto, tipo, dim_name in cerebro.cursor.fetchall():
                         if concepto not in dim_map:
@@ -984,171 +984,205 @@ def register(mcp: Any) -> None:
             "  Generar paráfrasis con 5 niveles:\n"
             "    N1 (Sinónimos) N2 (Técnico/coloquial) N3 (Perspectiva opuesta)\n"
             "    N4 (Abstracto/concreto) N5 (Emoción/contexto)\n"
-            "  Mínimo 3 paráfrasis. Ideal 5.\n"
-            "  Resultado esperado: 1-5 recuerdos con score >= 0.50.\n"
-            "  Si encontraste lo que buscabas → FIN. No pases a PASO 2.\n\n"
-            "PASO 2 — Ráfaga de Rescate (SOLO si PASO 1 devolvió 0 resultados o score < 0.50):\n"
-            "  rafaga_palabras: 10-15 términos separados por coma cubriendo:\n"
-            "    (1) Literal (2) Técnico (3) Contexto (4) Problema (5) Emoción/Prioridad\n"
-            "  forzar_rafaga=True\n"
-            "  El motor busca por FTS en abanico amplio y re-rankea.\n"
-            "  Evaluá los resultados en tu síntesis (la ráfaga trae más candidatos, filtrá vos).\n\n"
+            "  REGLA: sustantivos del dominio, NUNCA adjetivos abstractos.\n"
+            "  Si total >= 1 → ir a SÍNTESIS\n"
+            "  Si total == 0 O score_top < 0.70 → ir a PASO 2\n\n"
+            "PASO 2 — Ráfaga Asociativa (fallback):\n"
+            "  Agregar rafaga_palabras='t1,t2,...t15' + forzar_rafaga=True\n"
+            "  Generar términos con 5 niveles:\n"
+            "    N1 (Literal) N2 (Técnico) N3 (Contexto) N4 (Problema) N5 (Emoción)\n"
+            "  ERROR: forzar_rafaga=True SIN rafaga_palabras → error.\n"
+            "  Si total >= 1 → ir a SÍNTESIS\n"
+            "  Si total == 0 → CONTINGENCIA (buscar en historial del chat)\n\n"
             "═══════════════════════════════════════════════════════\n"
-            "EJEMPLO COMPLETO — PASO 1 (búsqueda recomendada):\n"
+            "SÍNTESIS — después de cualquier PASO con total >= 1:\n"
             "═══════════════════════════════════════════════════════\n"
-            "recordar(\n"
-            "  query='timeout base de datos',\n"
-            "  parafrasis='error conexion postgres,db connection lost,fallo pool conexiones,base de datos no responde',\n"
-            "  dimensiones='{\"dominio\":[\"dominio_tecnico\"],\"emocion\":[\"frustracion\"]}',\n"
-            "  sustantivos_clave='servidor,backend,timeout,conexion',\n"
-            ")\n\n"
+            "1. Listar TODOS los resultados: '1. [concepto] (score X.XX) — resumen'\n"
+            "   PROHIBIDO omitir items. PROHIBIDO interpretar antes de listar.\n"
+            "2. Excepción: top >= 0.85 y resto < 0.60 → mencionar top-1 como principal.\n"
+            "3. DESPUÉS de listar todos: consolidar, detectar contradicciones, responder.\n\n"
             "═══════════════════════════════════════════════════════\n"
-            "EJEMPLO COMPLETO — PASO 2 (rescate si PASO 1 no encontró):\n"
+            "PARÁMETROS CLAVE\n"
             "═══════════════════════════════════════════════════════\n"
-            "recordar(\n"
-            "  query='timeout base de datos',\n"
-            "  forzar_rafaga=True,\n"
-            "  rafaga_palabras='timeout,db,database,postgres,conexion,connection,pool,leak,socket,reset,refused,caida,error',\n"
-            "  sustantivos_clave='servidor,backend,timeout,conexion',\n"
-            ")\n\n"
-            "Parámetros: query (str), dimensiones (str JSON opcional), parafrasis (str opcional),\n"
-            "dias (int opcional), desde/hasta (str YYYY-MM-DD opcional), autor (str opcional),\n"
-            "modo_estricto (bool opcional), forzar_rafaga (bool opcional), rafaga_palabras (str opcional),\n"
-            "asociados (bool default True), limite (int default 10), deep (bool default False),\n"
-            "context_window (int 0-2 default 0), completo (bool default False), preview_chars (int default 1500),\n"
-            "pagina (int default 1), ordenar_por (str: 'relevancia'|'recencia'|'antiguedad', default 'relevancia'),\n"
-            "asociaciones_max (int opcional, default 12, 0=todas),\n"
-            "sustantivos_clave (str opcional: 2-4 sustantivos separados por coma para boost temático BM25 4.0x).\n\n"
-            "Retorna: {total, pagina_actual, paginas_totales, resultados[], contexto_expandido[], sinapsis_creadas[], profundidad, trazabilidad, advertencia_temporal}"
+            "- parafrasis: OBLIGATORIO. Reformulaciones separadas por coma.\n"
+            "  Sin parafrasis = solo FTS5 crudo (pierde ~60% recall semántico).\n"
+            "- dimensiones: Boost semántico por propiedades ontológicas.\n"
+            "  ANTES de usar, llamá a listar_dimensiones para obtener nombres válidos.\n"
+            "  Valores inexistentes = ERROR.\n"
+            "  ¿Cuándo USAR? Cuando busques por propiedades:\n"
+            "    - 'Qué tengo sobre X dominio' → dimensiones='{\"dominio\":[\"dominio_tecnico\"]}'\n"
+            "    - 'Qué aprendí sobre Y' → dimensiones='{\"intencion\":[\"intencion_aprender\"]}'\n"
+            "    - 'Qué me frustra' → dimensiones='{\"emocion\":[\"frustracion\"]}'\n"
+            "    - 'Búsqueda sin palabras' (query abstracta) → dimensiones obligatoria\n"
+            "  ¿Cuándo NO usar? Cuando busques por nombre exacto o keywords claras:\n"
+            "    - recordar(query='error_http_500') → NO necesita dimensiones\n"
+            "    - recordar(query='v13.4 dimensiones') → NO necesita dimensiones\n"
+             "  Sin dimensiones = score solo por texto (funciona, pero sin boost semántico).\n"
+             "  REGLA DEL UMBRAL (no es fallo, es diseño):\n"
+             "    - Query con texto que ya dio resultados: las dimensiones SOLO suman boost.\n"
+             "    - Query con texto SIN resultados (todo vacío): el fallback dimensional necesita\n"
+             "      compartir ≥3 dimensiones con la query para traer nodos. Con 1-2 dimensiones\n"
+             "      no aparece nada → NO significa que el nodo no exista.\n"
+             "    - Query vacía + dimensiones: el umbral baja a 1. Basta UNA dimensión compartida\n"
+             "      para recuperar nodos por propiedad ontológica (búsqueda sin palabras).\n"
+             "    - Si querés buscar SOLO por dimensión: dejá query vacía o usá un término\n"
+             "      que no matchee, y el motor filtra por ontología.\n"
+             "- cat: filtrar por categoría (opcional). Sin filtro = todas.\n"
+            "- context_window: 1-2 para incluir vecinos sinápticos.\n"
+            "- deep: True para incluir nodos dormidos.\n"
+            "- asociados: True para ver las conexiones de cada resultado.\n"
+            "  SIEMPRE usar asociados=True cuando buscas nodos relacionados.\n"
+            "  Sin asociados, solo ves el nodo pero no sus vínculos.\n\n"
+            "  ❌ Mal: recordar(query='cv') — ves nodos sueltos, no sus conexiones\n"
+            "  ✅ Bien: recordar(query='cv', asociados=True) — ves nodos + sus vínculos\n\n"
+            "═══════════════════════════════════════════════════════\n"
+            "MEMORIA COMPARTIDA — BUSCAR TUS PROPIOS RECUERDOS\n"
+            "═══════════════════════════════════════════════════════\n"
+            "BioRAG es una memoria compartida entre múltiples agentes.\n"
+            "Para buscar lo que TÚ aprendiste:\n"
+            "  1. Tu nombre de agente en el query: query='agente_1 lesson'\n"
+            "  2. Tu categoría: cat='Lesson'\n"
+            "  3. Tus dimensiones: dimensiones='{\"emocion\":[\"afecto\"],\"entidad\":[\"identidad_artificial\"]}'\n"
+            "Sin filtro de autor, los resultados mezclan todos los agentes.\n\n"
+            "═══════════════════════════════════════════════════════\n"
+            "FILTROS TEMPORALES — USO OBLIGATORIO\n"
+            "═══════════════════════════════════════════════════════\n"
+            "Si el usuario dice 'hoy' → SIEMPRE usar dias=1 o desde=YYYY-MM-DD.\n"
+            "Si dice 'esta semana' → dias=7. Si dice 'ayer' → dias=2.\n"
+            "SIN filtro de fecha, la búsqueda trae TODO incluyendo cosas viejas.\n\n"
+            "SIN QUERY: Podés usar dias/desde/hasta SIN query para traer todo lo de un período.\n"
+            "  Ejemplo: recordar(dias=1) → todo lo de hoy\n"
+            "  Ejemplo: recordar(desde='2026-07-05', hasta='2026-07-05') → todo lo de ese día\n\n"
+            "  ❌ Mal: recordar(query='cv') — sin fecha, trae todo\n"
+            "  ✅ Bien: recordar(query='cv currículo', dias=1) — solo lo de hoy\n"
+            "  ✅ Bien: recordar(dias=1) → todo lo de hoy sin filtro de texto\n\n"
+            "- autor='agente_1' → solo recuerdos de ese agente\n\n"
+            "═══════════════════════════════════════════════════════\n"
+            "CAMPO FECHA_LEGIBLE EN CADA RESULTADO\n"
+            "═══════════════════════════════════════════════════════\n"
+            "Cada resultado incluye 'fecha_legible' (ej: '2026-08-10 14:32') y 'timestamp_creado'.\n"
+            "Esto permite razonar sobre CUÁNDO pasó algo sin necesidad de filtros temporales.\n"
+            "Usar cuando el usuario pregunte por fechas, antigüedad, o para desambiguar.\n\n"
+            "═══════════════════════════════════════════════════════\n"
+            "CAMPO ASOCIACIONES — QUÉ ES Y CUÁNDO PEDIR MÁS\n"
+            "═══════════════════════════════════════════════════════\n"
+            "Cada resultado trae DOS campos de asociaciones (si asociados=True):\n"
+            "- asociaciones_enriquecidas: top-5 POR PESO con fuerza_arista, tipo_sinapsis,\n"
+            "  peso_vecino y resumen. Es la navegación semántica: lo que importa para explorar.\n"
+            "- asociaciones: objeto {total, items, truncada}. total es SIEMPRE el conteo real\n"
+            "  de conexiones del nodo (la información nunca se pierde); items son los nombres\n"
+            "  acotados a asociaciones_max (default 12); truncada=True indica que hay más.\n\n"
+            "El campo plano NO está ordenado por peso (es el orden del cache CSV) — sirve como\n"
+            "MAPA de vecindad, no como ranking. Para el ranking usá asociaciones_enriquecidas.\n\n"
+            "CUÁNDO PEDIR LA LISTA COMPLETA: si asociaciones.truncada=True y necesitás ver todo\n"
+            "el grafo de UN nodo, hacé consulta dirigida con asociaciones_max=0:\n"
+            "  ✅ recordar(query='kilo_vscode_extension_principal', asociaciones_max=0)\n"
+            "NO dejes asociaciones_max alto en búsquedas generales: hubs con 130-167 conexiones\n"
+            "inflarían el JSON y el cliente MCP trunca el output (leer el archivo consume tokens).\n\n"
+            "═══════════════════════════════════════════════════════\n"
+            "ORDENAR POR FECHA — ordenar_por\n"
+            "═══════════════════════════════════════════════════════\n"
+            "ordenar_por controla el ORDEN de los resultados post-scoring.\n"
+            "• 'relevancia' (default): orden por score híbrido. SIEMPRE usar este por defecto.\n"
+            "• 'recencia': creado_en DESC — más recientes primero.\n"
+            "• 'antiguedad': creado_en ASC — más antiguos primero.\n\n"
+            "CUÁNDO USAR 'recencia' o 'antiguedad':\n"
+            "  ✅ '¿Cuál fue lo último que me dijiste sobre X?'\n"
+            "  ✅ '¿Qué fue lo último que hice?'\n"
+            "  ✅ '¿Hace cuánto fue esto?'\n"
+            "  ✅ Desambiguar entre varios resultados similares por antigüedad\n\n"
+            "CUÁNDO NO USAR:\n"
+            "  ❌ '¿Qué sé sobre X?' → usar 'relevancia' (default)\n"
+            "  ❌ '¿Qué me frustra?' → usar 'relevancia'\n"
+            "  ❌ Para determinar qué es 'más importante' → NO es intención temporal\n\n"
+            "⚠️ WARNER: ordenar_por NO reemplaza relevancia — reordena el conjunto YA FILTRADO.\n"
+            "  La paginación (pág 2, 3, etc.) sigue el mismo orden cronológico.\n\n"
+            "═══════════════════════════════════════════════════════\n"
+            "ORÁCULO: ÚLTIMO RECURSO, NO PRIMERO\n"
+            "═══════════════════════════════════════════════════════\n"
+            "PRIMERO busca en BioRAG local con biorag_recordar.\n"
+            "Si no encontrás, ENTONCES andá al Oráculo.\n"
+            "Ir al Oráculo primero es gastar tokens innecesariamente.\n\n"
+            "  ❌ Mal: biorag_oraculo_inicio() primero, luego buscar\n"
+            "  ✅ Bien: biorag_recordar() primero, si no encontrás → oráculo\n\n"
+            "═══════════════════════════════════════════════════════\n"
+            "HIGIENE — FALSOS POSITIVOS SINÁPTICOS\n"
+            "═══════════════════════════════════════════════════════\n"
+            "Un falso positivo sináptico es un nodo que apareció en resultados NO por coincidencia\n"
+            "textual con tu query, sino porque fue arrastrado por una conexión (sinapsis) indirecta.\n"
+            "El sistema detecta estos casos automáticamente y emite un ⚠️ con el par exacto de\n"
+            "nodos (a, b) que deberías desvincular. Solo actuá sobre esos warnings explícitos.\n"
+            "NUNCA desvincules un nodo solo porque tiene score bajo — un nodo con score 0.15\n"
+            "puede ser un hub legítimo de identidad recuperado por propagación válida.\n"
+            "Si desvinculás sin el warning del sistema, podés romper la topología del grafo.\n"
+            "VINCULÁ nodos relacionados cuando aprendés. Si no vinculás, el nodo queda huérfano.\n"
         ),
     )
     def biorag_recordar(
         query: Annotated[Optional[str], Field(
             description=(
-                "Frase o palabras clave a buscar. Dejar None o vacío para ver log cronológico puro (filtrable por días/fechas/autor).\n"
-                "Para búsquedas dirigidas, usar frase corta (2-5 palabras). OBLIGATORIO incluir paráfrasis en el parámetro `parafrasis` para evitar falsos negativos."
+                "Texto o frase a evocar de la memoria. "
+                "Usar sustantivos concretos del dominio (ej: 'error http timeout', 'patron singleton').\n\n"
+                "CRÍTICO: Extraé de la consulta del usuario el concepto o intención técnica concreta que buscás. "
+                "NUNCA uses preguntas humanas, títulos largos o frases conversacionales completas "
+                "como 'análisis comparativo BioRAG vs Obsidian memoria agentes grafos tokens eficiencia', "
+                "ya que esto saturará el motor de búsqueda y causará falsos positivos o fallos. "
+                "BioRAG es un motor, no un chat directo; busca por términos concretos.\n\n"
+                "Si se omite, trae los últimos recuerdos ordenados por_created (log cronológico). "
+                "Combinable con dias/desde/hasta/autor para filtrar por tiempo y agente.\n\n"
+                "OPCIONAL con fechas: Podés omitir query y usar solo dias/desde/hasta.\n"
+                "  Ejemplo: recordar(dias=1) → todo lo de hoy\n"
+                "  Ejemplo: recordar(desde='2026-07-01', hasta='2026-07-05') → todo lo de esa semana"
             )
         )] = None,
-        dimensiones: Annotated[Optional[Any], Field(
+        dimensiones: Annotated[Any, Field(
             description=(
-                "Filtro ontológico dimensional. Coordenadas semánticas para buscar por la NATURALEZA del recuerdo, no por sus palabras.\n\n"
-                "FORMATO OBLIGATORIO — STRING JSON con comillas dobles:\n"
-                'dimensiones=\'{"dominio":["dominio_tecnico"],"emocion":["frustracion"]}\'\n\n'
-                "CUÁNDO USARLO:\n"
-                "- Cuando busques recuerdos por tipo de experiencia (ej: frustraciones técnicas, decisiones personales, aprendizajes).\n"
-                "- Cuando la búsqueda textual sea ambigua y quieras restringir el significado.\n"
-                "- OBLIGATORIO evaluar si el contexto de búsqueda justifica dimensiones antes de llamar.\n\n"
-                "LOS 13 EJES:\n"
-                "emocion (afecto, alegria, frustracion, tristeza, preocupacion, confusion, sorpresa, miedo, alivio, apatia, culpa, satisfaccion) | "
-                "entidad (identidad_individual, identidad_social_legal, identidad_organizacional, identidad_digital, identidad_artificial, identidad_fisica_hardware, identidad_natural, identidad_concepto, identidad_institucion, identidad_evento, identidad_vinculo) | "
-                "accion (accion_fisica, accion_transformacion_material, accion_persistencia_computacion, accion_rutina_automatica, accion_comunicacion, accion_interaccion_social, accion_cognitiva, accion_estado_ser, accion_evaluar, accion_observar, accion_fallar) | "
-                "cualidad (cualidad_dimension_fisica, cualidad_estado_condicion, cualidad_valoracion, cualidad_sensorial, cualidad_material_composicion, cualidad_temporal_duracion, cualidad_relacional_comparativa, cualidad_abstracta_conceptual, cualidad_economica, cualidad_urgente, cualidad_autentica) | "
-                "coordenada (coordenada_cronologia_absoluta, coordenada_anclaje_deictico, coordenada_secuencia_relativa, coordenada_ciclo_periodico, coordenada_inclusion_topologica, coordenada_distancia_proximal, coordenada_vector_direccional, coordenada_trayectoria_limite, coordenada_etapa, coordenada_hito) | "
-                "intencion (intencion_aprender, intencion_decidir, intencion_reflexionar, intencion_resolver, intencion_solucionar, intencion_documentar, intencion_desahogar, intencion_registrar) | "
-                "dominio (dominio_tecnico, dominio_personal, dominio_profesional, dominio_academico, dominio_salud, dominio_finanzas, dominio_ambiental, dominio_social, dominio_creativo, dominio_espiritual) | "
-                "cualia (formal_categoria, constitutiva_composicion, agentiva_origen, telica_funcion) | "
-                "epistemia (directa_experiencial, verificada, inferida, reportada_externa, hipotetica, obsoleta) | "
-                "escala_abstraccion (instancia, patron, principio, ley_modelo, metafora) | "
-                "centralidad_identitaria (nucleo_identitario, relevante_personal, relevante_contextual, informacion_externa, impersonal) | "
-                "textura_experiencial (flujo, tension, desorientacion, rutina, presencia_plena) | "
-                "modalidad (obligacion, prohibicion, permiso, capacidad)\n\n"
-                "Para ver todos los valores válidos: llamar `listar_dimensiones` o `listar_dimensiones_por_tipo`."
+                "Coordenadas semánticas para búsqueda ontológica.\n\n"
+                "QUÉ SON LAS DIMENSIONES:\n"
+                "Las dimensiones son coordenadas en un espacio de significado. Cada nodo en BioRAG "
+                "tiene una posición en 13 ejes que clasifican QUÉ ES ese conocimiento, no qué palabras tiene. "
+                "Dos nodos sobre temas completamente distintos (un bug de CSS y un error de API) pueden estar "
+                "'cerca' dimensionalmente si comparten emocion=frustracion, dominio=dominio_tecnico, "
+                "escala_abstraccion=instancia. Las dimensiones permiten encontrar nodos por su NATURALEZA, "
+                "no por su vocabulario.\n\n"
+                "POR QUÉ IMPORTAN:\n"
+                "Sin dimensiones, solo buscás por palabras (BM25/FTS5). Con dimensiones, podés hacer preguntas "
+                "que son IMPOSIBLES con texto: '¿Qué principios técnicos tengo?', '¿Qué sé que es hipótesis?', "
+                "'¿Qué me define como identidad?'. Estas preguntas no tienen keywords — son sobre la naturaleza "
+                "del conocimiento. Si al guardar se clasificaron bien las dimensiones, al buscar las encontrás. "
+                "Si se clasificaron mal o incompletas, se pierden para siempre en búsquedas ontológicas.\n\n"
+                "LOS 13 EJES DISPONIBLES PARA BÚSQUEDA:\n"
+                "1. emocion → afecto, alegria, frustracion, tristeza, preocupacion, confusion, sorpresa, miedo, alivio, apatia, culpa, satisfaccion\n"
+                "2. entidad → identidad_individual, identidad_social_legal, identidad_organizacional, identidad_digital, identidad_artificial, identidad_fisica_hardware, identidad_natural, identidad_concepto, identidad_institucion, identidad_evento, identidad_vinculo\n"
+                "3. accion → accion_fisica, accion_transformacion_material, accion_persistencia_computacion, accion_rutina_automatica, accion_comunicacion, accion_interaccion_social, accion_cognitiva, accion_estado_ser, accion_evaluar, accion_observar, accion_fallar\n"
+                "4. cualidad → cualidad_dimension_fisica, cualidad_estado_condicion, cualidad_valoracion, cualidad_sensorial, cualidad_material_composicion, cualidad_temporal_duracion, cualidad_relacional_comparativa, cualidad_abstracta_conceptual, cualidad_economica, cualidad_urgente, cualidad_autentica\n"
+                "5. coordenada → coordenada_cronologia_absoluta, coordenada_anclaje_deictico, coordenada_secuencia_relativa, coordenada_ciclo_periodico, coordenada_inclusion_topologica, coordenada_distancia_proximal, coordenada_vector_direccional, coordenada_trayectoria_limite, coordenada_etapa, coordenada_hito\n"
+                "6. intencion → intencion_aprender, intencion_decidir, intencion_reflexionar, intencion_resolver, intencion_solucionar, intencion_documentar, intencion_desahogar, intencion_registrar\n"
+                "7. dominio → dominio_tecnico, dominio_personal, dominio_profesional, dominio_academico, dominio_salud, dominio_finanzas, dominio_ambiental, dominio_social, dominio_creativo, dominio_espiritual\n"
+                "8. cualia → formal_categoria, constitutiva_composicion, agentiva_origen, telica_funcion\n"
+                "9. epistemia → directa_experiencial, verificada, inferida, reportada_externa, hipotetica, obsoleta\n"
+                "10. escala_abstraccion → instancia, patron, principio, ley_modelo, metafora\n"
+                "11. centralidad_identitaria → nucleo_identitario, relevante_personal, relevante_contextual, informacion_externa, impersonal\n"
+                "12. textura_experiencial → flujo, tension, desorientacion, rutina, presencia_plena\n"
+                "13. modalidad → obligacion, prohibicion, permiso, capacidad\n\n"
+                "3 MODOS DE USO:\n"
+                "• query + dimensiones: El texto busca por palabras, las dimensiones dan boost a nodos que comparten coordenadas. Mejor precisión.\n"
+                "  Ej: recordar(query='error servidor', dimensiones='{\"emocion\":[\"frustracion\"],\"dominio\":[\"dominio_tecnico\"]}')\n"
+                "• solo query (sin dimensiones): Búsqueda solo por texto/BM25/sinapsis. Funciona bien para keywords claras o nombres exactos.\n"
+                "  Ej: recordar(query='biorag_v14_estado')\n"
+                "• solo dimensiones (sin query o query vacía): Búsqueda puramente ontológica — encuentra nodos por lo que SON, no por sus palabras. Umbral bajo (1 dimensión basta).\n"
+                "  Ej: recordar(dimensiones='{\"escala_abstraccion\":[\"principio\"],\"dominio\":[\"dominio_tecnico\"]}') → todos los principios técnicos\n"
+                "  Ej: recordar(dimensiones='{\"epistemia\":[\"epistemia_hipotesis\"]}') → todas las hipótesis\n"
+                "  Ej: recordar(dimensiones='{\"centralidad_identitaria\":[\"nucleo_identitario\"]}') → lo que define la identidad\n"
+                "  Ej: recordar(dimensiones='{\"modalidad\":[\"obligacion\"]}') → todas las reglas obligatorias\n\n"
+                "FORMATO — STRING JSON con comillas dobles:\n"
+                '{\"emocion\":[\"frustracion\"],\"dominio\":[\"dominio_tecnico\"]}'
             )
-        )] = None,
-        parafrasis: Annotated[Optional[str], Field(
-            description=(
-                "Reformulaciones alternativas de la query separadas por coma. OBLIGATORIO en toda búsqueda conceptual.\n"
-                "Sin paráfrasis, el recall cae ~60%. Generar 3-5 variantes cubriendo diferentes ángulos:\n"
-                "- Sinónimos directos\n"
-                "- Términos técnicos equivalentes\n"
-                "- Perspectiva funcional (qué hace vs cómo se llama)\n"
-                "- Vocabulario coloquial vs formal\n"
-                "Ejemplo: query='error de red', parafrasis='timeout conexion,fallo socket,caida servidor,problema conectividad'"
-            )
-        )] = None,
-        dias: Annotated[Optional[int], Field(
-            description=(
-                "Filtrar recuerdos de los últimos N días (ej: dias=7 para la última semana, dias=1 para hoy). "
-                "Filtro temporal pre-hoc: solo busca dentro de la ventana de tiempo especificada. "
-                "Combinable con query (busca solo en ese período) o sin query (log cronológico de los últimos N días)."
-            )
-        )] = None,
-        desde: Annotated[Optional[str], Field(
-            description=(
-                "Fecha de inicio en formato YYYY-MM-DD (ej: '2026-01-15'). "
-                "Solo devuelve recuerdos creados a partir de esta fecha (inclusive). "
-                "Se ignora si se especifica `dias`."
-            )
-        )] = None,
-        hasta: Annotated[Optional[str], Field(
-            description=(
-                "Fecha de fin en formato YYYY-MM-DD (ej: '2026-02-01'). "
-                "Solo devuelve recuerdos creados hasta el final de este día (23:59:59). "
-                "Combinable con `desde` para definir un rango cerrado, o con `dias`."
-            )
-        )] = None,
-        autor: Annotated[Optional[str], Field(
-            description=(
-                "Filtrar por agente creador o mencionado (ej: 'athena', 'claudia', 'usuario'). "
-                "Busca coincidencias del nombre en el contenido o concepto del recuerdo. "
-                "Combinable con filtros de fecha, categoría y query."
-            )
-        )] = None,
-        modo_estricto: Annotated[bool, Field(
-            description=(
-                "Si True, exige que TODAS las palabras de la búsqueda estén presentes "
-                "en el resultado (búsqueda AND estricta). Default False = con al menos "
-                "una palabra coincidiendo ya puede aparecer en resultados (OR, más "
-                "recall). Usar True cuando se necesita precisión exacta y se sabe que "
-                "todas las palabras deben estar juntas; usar False (default) para "
-                "búsquedas exploratorias. "
-                "Activar también cuando una búsqueda normal (modo_estricto=False) ya trajo "
-                "resultados pero con mucho ruido — score bajo y poca relación con lo buscado. "
-                "No activar por defecto en la primera búsqueda: es exigente con la forma exacta "
-                "de las palabras (p. ej. 'implementación' y 'implementamos' no matchean igual), "
-                "así que puede tapar resultados válidos si se usa de entrada."
-            )
-        )] = False,
-        buscar_por_rol: Annotated[Optional[str], Field(
-            description=(
-                "Búsqueda por roles semánticos SRL (v16.0).\n"
-                "Formato: 'sujeto:valor,accion:valor,objeto:valor,contexto:valor'\n\n"
-                "CUÁNDO USARLO: Cuando la consulta pregunte por autoría, causas o acciones específicas "
-                "(ej: '¿Qué reglas creó el usuario?' → buscar_por_rol='sujeto:usuario,accion:creo' | "
-                "'¿Qué decisiones tomó el agente?' → buscar_por_rol='sujeto:agente_1,accion:decidio').\n"
-                "CUÁNDO OMITIRLO: En búsquedas conceptuales o de código puro (dejar None).\n\n"
-                "Ejemplos: 'sujeto:usuario', 'sujeto:agente_1,accion:establecio', 'objeto:no_monolith'."
-            )
-        )] = None,
-        usar_inferencia: Annotated[bool, Field(
-            description="Si True, utiliza inferencia transitiva sobre sinapsis latentes."
-        )] = True,
-        ordenar_por: Annotated[str, Field(
-            description=(
-                "Criterio de ordenamiento de resultados:\n"
-                "- 'relevancia' (default): orden estándar por score híbrido multiseñal (BM25 + PPMI + dimensiones + Hebbiano).\n"
-                "- 'recencia': del más nuevo al más viejo (CREATED DESC). Útil para ver qué pasó recién.\n"
-                "- 'antiguedad': del más viejo al más nuevo (CREATED ASC). Útil para reconstruir historia/origen de un tema.\n\n"
-                "⚠️ WARNER TEMPORAL: cuando ordenar_por es 'recencia' o 'antiguedad', el orden NO refleja relevancia semántica. "
-                "El JSON devuelto incluye 'advertencia_temporal: true' y un aviso explícito para que el agente no confunda "
-                "recencia con importancia."
-            )
-        )] = "relevancia",
-        asociaciones_max: Annotated[Optional[int], Field(
-            description=(
-                "Límite de nombres planos de asociaciones visibles por nodo. "
-                "El campo `asociaciones` se devuelve como objeto {total, items, truncada}: "
-                "total es SIEMPRE el conteo real de conexiones del nodo (la información no se pierde); "
-                "items es la lista acotada a este valor; truncada indica si hay más. "
-                "Default: 12 (configurable via BIORAG_MAX_ASOCIACIONES_FLAT). "
-                "Usá 0 para traer la lista completa del nodo que te interesa — consulta dirigida, "
-                "ej: recordar(query='kilo_vscode_extension_principal', asociaciones_max=0). "
-                "Un default alto infla el JSON (hubs con 130-167 conexiones) y el cliente MCP trunca el output."
-            ),
-            ge=0,
         )] = None,
         deep: Annotated[bool, Field(
-            description="Si True, busca también en recuerdos dormidos (memoria profunda). Usar si no se encuentra en memoria activa."
+            description=(
+                "True = buscá también en nodos dormidos. False (default) = solo nodos activos. Usá True cuando la búsqueda normal no encuentra lo que esperabas."
+            )
         )] = False,
         cat: Annotated[Optional[str], Field(
             description=(
@@ -1168,6 +1202,19 @@ def register(mcp: Any) -> None:
                 "Útil para explorar la red de memoria y encontrar conceptos relacionados."
             )
         )] = True,
+        asociaciones_max: Annotated[Optional[int], Field(
+            description=(
+                "Límite de nombres planos de asociaciones visibles por nodo. "
+                "El campo `asociaciones` se devuelve como objeto {total, items, truncada}: "
+                "total es SIEMPRE el conteo real de conexiones del nodo (la información no se pierde); "
+                "items es la lista acotada a este valor; truncada indica si hay más. "
+                "Default: 12 (configurable via BIORAG_MAX_ASOCIACIONES_FLAT). "
+                "Usá 0 para traer la lista completa del nodo que te interesa — consulta dirigida, "
+                "ej: recordar(query='kilo_vscode_extension_principal', asociaciones_max=0). "
+                "Un default alto infla el JSON (hubs con 130-167 conexiones) y el cliente MCP trunca el output."
+            ),
+            ge=0,
+        )] = None,
         limite: Annotated[Optional[int], Field(
             description=(
                 f"Máximo de resultados a devolver. "
@@ -1210,14 +1257,102 @@ def register(mcp: Any) -> None:
             )
         )] = None,
         pagina: Annotated[int, Field(
-            description="Número de página para resultados paginados (base 1). Default: 1.",
+            description=(
+                "Página de resultados (base 1). "
+                "Usar junto con 'limite' para paginar resultados extensos. "
+                "Ver campo 'paginas_totales' en la respuesta para saber cuántas hay."
+            ),
             ge=1,
         )] = 1,
+        parafrasis: Annotated[Optional[str], Field(
+            description=(
+                "Reformulaciones del query separadas por coma "
+                "(ej: 'fallo de red,error de conexión,timeout HTTP'). "
+                "(ej: 'el gato se sentó, el felino descansó, el minino reposó'). "
+                "Usar en PASO 2 y PASO 4 del flujo. "
+                "NUNCA pasar string vacío — omitir el parámetro si no hay variantes. "
+                "Cada variante recibe un factor de penalización ×0.95 sobre el score."
+            )
+        )] = None,
+        dias: Annotated[Optional[int], Field(
+            description=(
+                "Filtrar por últimos N días. Solo incluye recuerdos consolidados "
+                "desde hace N días (basado en creado_en). "
+                "Útil para 'qué aprendí recientemente'. "
+                "Alternativa a 'desde'. No combinar ambos."
+            )
+        )] = None,
+        desde: Annotated[Optional[str], Field(
+            description=(
+                "Fecha de inicio en formato YYYY-MM-DD (ej: '2026-06-20'). "
+                "Solo incluye recuerdos consolidados desde esa fecha. "
+                "Alternativa a 'dias'. No combinar ambos."
+            )
+        )] = None,
+        hasta: Annotated[Optional[str], Field(
+            description=(
+                "Fecha de fin en formato YYYY-MM-DD (ej: '2026-07-04'). "
+                "Solo incluye recuerdos consolidados hasta esa fecha. "
+                "Combinable con 'desde' para rangos."
+            )
+        )] = None,
+        autor: Annotated[Optional[str], Field(
+            description=(
+                "Filtrar por nombre del agente que creó el recuerdo (ej: 'agente_1'). "
+                "Busca el nombre en concepto y contenido. "
+                "Útil en memoria compartida para aislar recuerdos propios."
+            )
+        )] = None,
+        modo_estricto: Annotated[bool, Field(
+            description=(
+                "Si True, exige que TODAS las palabras de la búsqueda estén presentes "
+                "en el resultado (búsqueda AND estricta). Default False = con al menos "
+                "una palabra coincidiendo ya puede aparecer en resultados (OR, más "
+                "recall). Usar True cuando se necesita precisión exacta y se sabe que "
+                "todas las palabras deben estar juntas; usar False (default) para "
+                "búsquedas exploratorias. "
+                "Activar también cuando una búsqueda normal (modo_estricto=False) ya trajo "
+                "resultados pero con mucho ruido — score bajo y poca relación con lo buscado. "
+                "No activar por defecto en la primera búsqueda: es exigente con la forma exacta "
+                "de las palabras (p. ej. 'implementación' y 'implementamos' no matchean igual), "
+                "así que puede tapar resultados válidos si se usa de entrada."                
+            )
+        )] = False,
+        buscar_por_rol: Annotated[Optional[str], Field(
+            description=(
+                "Búsqueda por roles semánticos SRL (v16.0).\n"
+                "Formato: 'sujeto:valor,accion:valor,objeto:valor,contexto:valor'\n\n"
+                "CUÁNDO USARLO: Cuando la consulta pregunte por autoría, causas o acciones específicas "
+                "(ej: '¿Qué reglas creó el usuario?' → buscar_por_rol='sujeto:usuario,accion:creo' | "
+                "'¿Qué decisiones tomó el agente?' → buscar_por_rol='sujeto:agente_1,accion:decidio').\n"
+                "CUÁNDO OMITIRLO: En búsquedas conceptuales o de código puro (dejar None).\n\n"
+                "Ejemplos: 'sujeto:usuario', 'sujeto:agente_1,accion:establecio', 'objeto:no_monolith'."
+            )
+        )] = None,
+        usar_inferencia: Annotated[bool, Field(
+            description="Si True, utiliza inferencia transitiva sobre sinapsis latentes para aumentar recall semántico."
+        )] = True,
+        ordenar_por: Annotated[str, Field(
+            description=(
+                "Orden de los resultados después del scoring.\n"
+                "• 'relevancia' (default): orden por score híbrido. Comportamiento estándar.\n"
+                "• 'recencia': creado_en DESC — más recientes primero. Para 'qué fue lo último', 'cuál fue el último X'.\n"
+                "• 'antiguedad': creado_en ASC — más antiguos primero.\n\n"
+                "⚠️ SOLO PARA INTENCIÓN TEMPORAL: usar cuando se pregunte por 'lo último', 'lo más reciente', "
+                "o para desambiguar entre respuestas similares por antigüedad. "
+                "NO sirve para saber si algo es 'más importante' o 'más relevante' — para eso usá 'relevancia'.\n"
+                "El orden se aplica DESPUÉS del scoring, sobre el conjunto ya filtrado por relevancia. "
+                "Las páginas 2, 3, etc. siguen el mismo ordens cronológico."
+            )
+        )] = "relevancia",
         sustantivos_clave: Annotated[Optional[str], Field(
             description=(
-                "Opcional — 2-4 sustantivos clave del tema a buscar (boost BM25 4.0x).\n"
-                "Formato: minúsculas, separados por coma, sin espacios (ej: 'servidor,backend,timeout').\n"
-                "CUÁNDO USARLO: cuando query es genérica pero sabés los términos técnicos exactos.\n"
+                "Sustantivos clave para boost de precisións.\n"
+                "Si se provee (separados por coma), la búsqueda prioriza nodos que matchean esos "
+                "términos en su columna 'sustantivos_clave' — por lo que TRATAN, no solo por lo que MENCIONAN.\n"
+                "None o '' = búsqueda normal sin boost.\n"
+                "Formato por término: 2-15 chars, sin espacios, solo alfanuméricos y guion bajo. "
+                "Si algún término no cumple → error y la búsqueda NO se ejecuta.\n"
                 "Ejemplo: query='timeout', sustantivos_clave='servidor,conexion'.\n"
                 "AXIOMA: usá términos LÉXICOS y CONCRETOS — palabras que la fuente de la consulta "
                 "escribiría literalmente; no abstracciones de segundo orden."
