@@ -107,12 +107,12 @@
 - **RF cubiertos**: RF-5, RF-6, RNF-1
 - **Descripción**: Extraer `core/mcp_server/write.py` conteniendo `_aprender_impl` (~321 líneas reales — deuda técnica trasladada intacta) + 5 tools (`biorag_aprender`, `biorag_guardar`, `biorag_agregar_sustantivos`, `biorag_sustantivos`, `biorag_actualizar`). Primera línea del docstring documenta deuda técnica.
 - **Hecho cuando**:
-  - [ ] `core/mcp_server/write.py` existe con 5 tools + `_aprender_impl` intacto (~321 líneas) + `register()`
-  - [ ] `wc -l core/mcp_server/write.py` ≈ 845 (excepción 800 por deuda técnica aplicada)
-  - [ ] `_build_server()` devuelve exactamente 42 names + 2 resources + 1 prompt
-  - [ ] Gate Nivel 0 ✓
-  - [ ] 1 commit atómico + push
-- [ ] **Estado**: pendiente
+  - [x] `core/mcp_server/write.py` existe con 5 tools + `_aprender_impl` intacto (~321 líneas) + `register()`
+  - [x] `wc -l core/mcp_server/write.py` ≈ 845 (excepción 800 por deuda técnica aplicada)
+  - [x] `_build_server()` devuelve exactamente 42 names + 2 resources + 1 prompt
+  - [x] Gate Nivel 0 ✓
+  - [x] 1 commit atómico (sin push automático)
+- [x] **Estado**: completada
 
 ---
 
