@@ -19,7 +19,13 @@ from typing import Annotated, Any
 
 from pydantic import Field
 
-import mcp_server as _root
+from core.mcp_server._shared import (
+    AGENTES_VALIDOS,
+    NOTEBOOK_ID_ORACULO,
+    ORACULO_MAX_CHARS,
+    PROMPT_INICIO_NOTEBOOKLM,
+    QUERIES_BIORAG_INICIO,
+)
 
 logger = logging.getLogger("BioRAG.MCP")
 
@@ -75,7 +81,7 @@ def _consultar_notebooklm(notebook_id: str, query: str) -> dict | None:
 def _buscar_contexto_biorag_arranque(cerebro, agente: str) -> dict:
     """Consulta BioRAG con queries predefinidas y devuelve un resumen."""
     hallazgos = []
-    for q in _root.QUERIES_BIORAG_INICIO:
+    for q in QUERIES_BIORAG_INICIO:
         try:
             resultados, _ = cerebro.buscar_por_frase(
                 q,
@@ -132,14 +138,14 @@ def register(mcp: Any) -> None:
             }, ensure_ascii=False)
 
         agente_limpio = agente.strip().lower()
-        if _root.AGENTES_VALIDOS and agente_limpio not in _root.AGENTES_VALIDOS:
+        if AGENTES_VALIDOS and agente_limpio not in AGENTES_VALIDOS:
             return json.dumps({
                 "status": "error",
-                "mensaje": f"Agente '{agente}' no reconocido. Agentes válidos: {', '.join(sorted(_root.AGENTES_VALIDOS))}.",
+                "mensaje": f"Agente '{agente}' no reconocido. Agentes válidos: {', '.join(sorted(AGENTES_VALIDOS))}.",
             }, ensure_ascii=False)
 
-        tiene_prompt = bool(_root.PROMPT_INICIO_NOTEBOOKLM)
-        tiene_notebook_id = bool(_root.NOTEBOOK_ID_ORACULO)
+        tiene_prompt = bool(PROMPT_INICIO_NOTEBOOKLM)
+        tiene_notebook_id = bool(NOTEBOOK_ID_ORACULO)
 
         # Si NotebookLM no está configurado, responder DE INMEDIATO (<1ms) sin bloquear la sesión ni hacer búsquedas pesadas.
         if not tiene_notebook_id or not tiene_prompt:
@@ -166,11 +172,11 @@ def register(mcp: Any) -> None:
             }, ensure_ascii=False, indent=2)
 
         # nlm está disponible: consultar NotebookLM directamente.
-        query_notebook = f"{agente.strip()}: {_root.PROMPT_INICIO_NOTEBOOKLM}"
+        query_notebook = f"{agente.strip()}: {PROMPT_INICIO_NOTEBOOKLM}"
         if contexto_adicional and contexto_adicional.strip():
             query_notebook += f" Contexto adicional: {contexto_adicional.strip()}"
 
-        oraculo = _consultar_notebooklm(_root.NOTEBOOK_ID_ORACULO, query_notebook)
+        oraculo = _consultar_notebooklm(NOTEBOOK_ID_ORACULO, query_notebook)
 
         if oraculo is None:
             return json.dumps({
@@ -181,11 +187,11 @@ def register(mcp: Any) -> None:
             }, ensure_ascii=False, indent=2)
 
         respuesta_oraculo = oraculo["respuesta"]
-        if _root.ORACULO_MAX_CHARS > 0 and len(respuesta_oraculo) > _root.ORACULO_MAX_CHARS:
+        if ORACULO_MAX_CHARS > 0 and len(respuesta_oraculo) > ORACULO_MAX_CHARS:
             respuesta_oraculo = (
-                respuesta_oraculo[:_root.ORACULO_MAX_CHARS].rstrip()
+                respuesta_oraculo[:ORACULO_MAX_CHARS].rstrip()
                 + f"\n\n[ORACULO TRUNCADO: respuesta original de {len(oraculo['respuesta'])} "
-                f"caracteres truncada a {_root.ORACULO_MAX_CHARS}. "
+                f"caracteres truncada a {ORACULO_MAX_CHARS}. "
                 "Ajusta BIORAG_ORACULO_MAX_CHARS si necesitas mas contexto.]"
             )
 
@@ -193,7 +199,7 @@ def register(mcp: Any) -> None:
             "status": "ok",
             "modo": "notebooklm",
             "agente": agente_limpio,
-            "notebooklm_notebook_id": _root.NOTEBOOK_ID_ORACULO,
+            "notebooklm_notebook_id": NOTEBOOK_ID_ORACULO,
             "nlm_detectado": True,
             "nlm_fallo": False,
             "oraculo": respuesta_oraculo,
@@ -236,10 +242,10 @@ def register(mcp: Any) -> None:
             }, ensure_ascii=False)
 
         agente_limpio = agente.strip().lower()
-        if _root.AGENTES_VALIDOS and agente_limpio not in _root.AGENTES_VALIDOS:
+        if AGENTES_VALIDOS and agente_limpio not in AGENTES_VALIDOS:
             return json.dumps({
                 "status": "error",
-                "mensaje": f"Agente '{agente}' no reconocido. Agentes válidos: {', '.join(sorted(_root.AGENTES_VALIDOS))}.",
+                "mensaje": f"Agente '{agente}' no reconocido. Agentes válidos: {', '.join(sorted(AGENTES_VALIDOS))}.",
             }, ensure_ascii=False)
 
         # Validar query.
@@ -260,7 +266,7 @@ def register(mcp: Any) -> None:
             }, ensure_ascii=False)
 
         # Verificar que BIORAG_NOTEBOOK_ID esté configurado.
-        if not _root.NOTEBOOK_ID_ORACULO:
+        if not NOTEBOOK_ID_ORACULO:
             return json.dumps({
                 "status": "error",
                 "mensaje": (
@@ -273,7 +279,7 @@ def register(mcp: Any) -> None:
         query_completa = f"{agente.strip()}: {query.strip()}"
 
         # Ejecutar consulta.
-        oraculo = _consultar_notebooklm(_root.NOTEBOOK_ID_ORACULO, query_completa)
+        oraculo = _consultar_notebooklm(NOTEBOOK_ID_ORACULO, query_completa)
 
         if oraculo is None:
             return json.dumps({
@@ -283,15 +289,15 @@ def register(mcp: Any) -> None:
                     "Posibles causas: query muy largo, timeout, o nlm no autenticado (ejecutá 'nlm login')."
                 ),
                 "nlm_detectado": True,
-                "notebooklm_notebook_id": _root.NOTEBOOK_ID_ORACULO,
+                "notebooklm_notebook_id": NOTEBOOK_ID_ORACULO,
             }, ensure_ascii=False)
 
         respuesta = oraculo["respuesta"]
-        if _root.ORACULO_MAX_CHARS > 0 and len(respuesta) > _root.ORACULO_MAX_CHARS:
+        if ORACULO_MAX_CHARS > 0 and len(respuesta) > ORACULO_MAX_CHARS:
             respuesta = (
-                respuesta[:_root.ORACULO_MAX_CHARS].rstrip()
+                respuesta[:ORACULO_MAX_CHARS].rstrip()
                 + f"\n\n[TRUNCADO: respuesta original de {len(oraculo['respuesta'])} "
-                f"caracteres truncada a {_root.ORACULO_MAX_CHARS}. "
+                f"caracteres truncada a {ORACULO_MAX_CHARS}. "
                 "Ajusta BIORAG_ORACULO_MAX_CHARS si necesitas más contexto.]"
             )
 
@@ -299,5 +305,5 @@ def register(mcp: Any) -> None:
             "status": "ok",
             "agente": agente_limpio,
             "respuesta": respuesta,
-            "notebooklm_notebook_id": _root.NOTEBOOK_ID_ORACULO,
+            "notebooklm_notebook_id": NOTEBOOK_ID_ORACULO,
         }, ensure_ascii=False, indent=2)

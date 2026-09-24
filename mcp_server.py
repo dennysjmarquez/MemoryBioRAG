@@ -118,14 +118,6 @@ PARAFRASIS_PENALTY = 0.95
 """Factor multiplicativo aplicado a resultados de variantes no exactas (paráfrasis).
 El query original (i==0) mantiene factor 1.0; variantes penalizan ×0.95."""
 
-ORACULO_MAX_CHARS = int(os.environ.get('BIORAG_ORACULO_MAX_CHARS', '12000'))
-"""Máximo de caracteres devueltos por el oráculo NotebookLM.
-
-Si la respuesta de NotebookLM excede este límite, se trunca y se agrega una
-nota indicando que el contenido fue recortado. Esto evita que el output de la
-tool sea truncado por el cliente MCP por exceso de tamaño.
-"""
-
 MAX_ASOCIACIONES_FLAT = int(os.environ.get('BIORAG_MAX_ASOCIACIONES_FLAT', '12'))
 """Máximo de nombres de asociaciones planas expuestos por nodo en la respuesta de
 recordar/buscar. El campo `asociaciones` de cada resultado se devuelve como objeto
@@ -137,39 +129,6 @@ inflen el JSON y disparen el truncado del cliente MCP. La tabla `sinapsis` (fuen
 canónica) y la columna `largo_plazo.asociaciones` quedan intactas — es decisión de
 serialización. Ver mcp_server.py _serializar_asociaciones.
 """
-
-# --- Arranque de sesión ----------------------------------------------------
-
-PROMPT_INICIO_NOTEBOOKLM = os.environ.get("BIORAG_PROMPT_INICIO", "").strip()
-"""Prompt base enviado al oráculo NotebookLM al iniciar sesión.
-
-Obligatorio si se desea generar el query para NotebookLM. Se configura mediante
-la variable de entorno BIORAG_PROMPT_INICIO. El nombre del agente se concatena
-al inicio con el formato 'Agente: prompt'. Si no esta seteada, la tool no
-armara el query para NotebookLM.
-"""
-
-NOTEBOOK_ID_ORACULO = os.environ.get("BIORAG_NOTEBOOK_ID", "").strip()
-"""Notebook ID del oráculo NotebookLM.
-
-Obligatorio si se desea generar el query para NotebookLM. Se configura mediante
-la variable de entorno BIORAG_NOTEBOOK_ID. Si no esta seteada, la tool no
-incluira el notebooklm_query.
-"""
-
-QUERIES_BIORAG_INICIO = [
-    "reglas comportamiento agentes OEC",
-    "pilares inmutables agente",
-    "protocolo pre-acción",
-    "reglas código anti-overengineering",
-    "lecciones clave programación",
-    "perfil profesional usuario stack",
-    "mapa almacenamiento memoria",
-]
-"""Búsquedas predefinidas que el oráculo de BioRAG ejecuta al arrancar."""
-
-AGENTES_VALIDOS = set()
-"""Agentes reconocidos por el sistema (vacío = permite cualquier agente)."""
 
 
 from core.mcp_server._shared import _get_cerebro, _interceptar, _sesiones_activas
