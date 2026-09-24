@@ -92,14 +92,14 @@
 - **RF cubiertos**: RF-5, RF-6
 - **Descripción**: Extraer `sync.py` (3 tools, ~120 líneas), `calibrar.py` (1 tool, ~55 líneas, nombrado `calibrar.py` para no colisionar con `core/calibracion.py`), `resources.py` (2 resources, ~120 líneas) y `prompt.py` (1 prompt, ~50 líneas).
 - **Hecho cuando**:
-  - [ ] `core/mcp_server/sync.py` existe con 3 tools + `register()`
-  - [ ] `core/mcp_server/calibrar.py` existe con 1 tool + `register()`
-  - [ ] `core/mcp_server/resources.py` existe con 2 resources + `register()`
-  - [ ] `core/mcp_server/prompt.py` existe con 1 prompt + `register()`
-  - [ ] `_build_server()` devuelve exactamente 42 names + 2 resources + 1 prompt
-  - [ ] Gate Nivel 0 ✓ tras cada extracción (4 verificaciones)
-  - [ ] 4 commits atómicos + push
-- [ ] **Estado**: pendiente
+  - [x] `core/mcp_server/sync.py` existe con 3 tools + `register()`
+  - [x] `core/mcp_server/calibrar.py` existe con 1 tool + `register()`
+  - [x] `core/mcp_server/resources.py` existe con 2 resources + `register()`
+  - [x] `core/mcp_server/prompt.py` existe con 1 prompt + `register()`
+  - [x] `_build_server()` devuelve exactamente 42 names + 2 resources + 1 prompt
+  - [x] Gate Nivel 0 ✓ tras cada extracción (4 verificaciones)
+  - [x] 4 commits atómicos + push
+- [x] **Estado**: completada
 
 ---
 
