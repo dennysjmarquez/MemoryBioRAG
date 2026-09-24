@@ -8,14 +8,13 @@ Exposes tools:
 """
 
 import json
-from typing import Annotated, Optional
+from typing import Annotated, Optional, Any
 from pydantic import Field
-from mcp.server.fastmcp import FastMCP
 
 from core.mcp_server._shared import _get_cerebro, _interceptar
 
 
-def register(mcp: FastMCP) -> None:
+def register(mcp: Any) -> None:
     @mcp.tool(
         name="feedback",
         description=(

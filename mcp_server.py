@@ -174,11 +174,7 @@ AGENTES_VALIDOS = set()
 """Agentes reconocidos por el sistema (vacío = permite cualquier agente)."""
 
 
-# --- Helpers ----------------------------------------------------------------
-
-def _get_cerebro() -> SQLiteMemoryBioRAG:
-    """Reusa la corteza (singleton). No reconstruir 6–11s por tool."""
-    return _svc_get_cerebro(os.environ.get("BIORAG_PATH") or None)
+from core.mcp_server._shared import _get_cerebro, _interceptar
 
 
 # _load_catalogo_dimensiones, _CATALOGO_DIMENSIONES, _ensure_catalogo_loaded
@@ -272,12 +268,6 @@ def _nivel_certeza(cerebro, score) -> str:
     return "sin_evidencia_directa"
 
 
-def _interceptar(accion: str, texto: str, cerebro) -> dict | None:
-    registrar_accion(accion, texto)
-    resultado = analizar_y_autoguardar(cerebro)
-    if resultado:
-        logger.info("auto-guardado: %s (%s)", resultado["concepto"], resultado["categoria"])
-    return resultado
 
 
 # =============================================================================

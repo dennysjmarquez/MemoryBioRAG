@@ -9,14 +9,13 @@ Exposes tools:
 import os
 import json
 import time
-from typing import Annotated, Optional
+from typing import Annotated, Optional, Any
 from pydantic import Field
-from mcp.server.fastmcp import FastMCP
 
 from core.mcp_server._shared import _get_cerebro, _interceptar
 
 
-def register(mcp: FastMCP) -> None:
+def register(mcp: Any) -> None:
     @mcp.tool(
         name="comunicar",
         description=(
@@ -78,7 +77,8 @@ def register(mcp: FastMCP) -> None:
             cerebro.marcar_como_leido(ids, nombre)
             return json.dumps({
                 "status": "ok",
-                "mensaje": f"Mensajes {ids} marcados como leídos por {nombre}.",
+                "mensaje": f"Mensajes marcados como leídos por {nombre}.",
+                "marcados": ids,
             }, ensure_ascii=False)
         finally:
             cerebro.cerrar_sistema()

@@ -6,16 +6,14 @@ Exposes tools:
 - listar_tipos_dimension
 - listar_dimensiones_por_tipo
 """
-
 import json
-from typing import Annotated
+from typing import Annotated, Any
 from pydantic import Field
-from mcp.server.fastmcp import FastMCP
 
 from core.mcp_server._shared import _get_cerebro
 
 
-def register(mcp: FastMCP) -> None:
+def register(mcp: Any) -> None:
     @mcp.tool(
         name="listar_categorias",
         description=(
