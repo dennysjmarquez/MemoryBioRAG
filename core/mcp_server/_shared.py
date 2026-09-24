@@ -12,6 +12,33 @@ logger = logging.getLogger("BioRAG.MCP")
 
 _sesiones_activas: dict[str, float] = {}  # agente → timestamp de contexto_inicio
 
+LIMITE_MCP = int(os.environ.get('BIORAG_LIMITE_MCP', '10'))
+"""Límite de resultados por defecto en búsquedas MCP."""
+
+THRESHOLD_RAFTAGA_MCP = float(os.environ.get('BIORAG_THRESHOLD_RAFTAGA', '0.5'))
+"""Score mínimo para activar ráfaga automáticamente en MCP."""
+
+STALE_DAYS = int(os.environ.get('BIORAG_STALE_DAYS', '90'))
+"""Días después de los cuales un nodo se marca como 'stale' (obsoleto).
+Resultados stale no se entregan como información vigente.
+Protegidos: categories Principle, Profile, Personal, Relation no se marcan stale."""
+
+STALE_HARD_CUTOFF_DAYS = int(os.environ.get('BIORAG_STALE_HARD_CUTOFF', '365'))
+"""Días después de los cuales un nodo se excluye de resultados (a menos que
+esté en categoría protegida). 0 = sin cutoff."""
+
+MAX_ASOCIACIONES_FLAT = int(os.environ.get('BIORAG_MAX_ASOCIACIONES_FLAT', '12'))
+"""Máximo de nombres de asociaciones planas expuestos por nodo en la respuesta de
+recordar/buscar. El campo `asociaciones` de cada resultado se devuelve como objeto
+{total, items, truncada}: total es el conteo REAL de conexiones del nodo (nunca se
+pierde información), items es la lista acotada a este límite, y truncada indica si
+hay más que no se muestran. Con asociaciones_max=0 el agente pide la lista completa
+del nodo que le interesa (consulta dirigida), evitando que hubs de 130-167 conexiones
+inflen el JSON y disparen el truncado del cliente MCP. La tabla `sinapsis` (fuente
+canónica) y la columna `largo_plazo.asociaciones` quedan intactas — es decisión de
+serialización. Ver mcp_server.py _serializar_asociaciones.
+"""
+
 VENTANA_CORRECCION = int(os.environ.get('BIORAG_VENTANA_CORRECCION_SEGUNDOS', '900'))
 """Ventana de corrección en caliente (default 900s = 15min). Nodos más jóvenes se pueden actualizar directamente; más viejos requieren nodo nuevo + vincular."""
 
