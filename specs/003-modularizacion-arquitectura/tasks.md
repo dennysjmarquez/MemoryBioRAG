@@ -63,14 +63,14 @@
 - **RF cubiertos**: RF-5, RF-6, CL-4, CL-5
 - **Descripción**: Extraer `concept_hub_tools.py` (6 tools, `concept_hub_cargar_iniciales_tool` sin `name=` — CL-4), `introspection.py` (5 tools, orden: introspeccion→estado, mapear→corteza — CL-5) y `consolidation.py` (2 tools, orden: consolidar→sueno — CL-5). `register()` en cada submódulo y cableado en `_build_server()`.
 - **Hecho cuando**:
-  - [ ] `core/mcp_server/concept_hub_tools.py` existe con 6 tools + `register()`
-  - [ ] `concept_hub_cargar_iniciales_tool` conserva su identificador implícito sin `name=`
-  - [ ] `core/mcp_server/introspection.py` existe con 5 tools en orden estricto CL-5
-  - [ ] `core/mcp_server/consolidation.py` existe con 2 tools en orden estricto CL-5
-  - [ ] `_build_server()` devuelve exactamente 42 names + 2 resources + 1 prompt
-  - [ ] Gate Nivel 0 ✓ tras cada extracción (3 verificaciones)
-  - [ ] 3 commits atómicos + push
-- [ ] **Estado**: pendiente
+  - [x] `core/mcp_server/concept_hub_tools.py` existe con 6 tools + `register()`
+  - [x] `concept_hub_cargar_iniciales_tool` conserva su identificador implícito sin `name=`
+  - [x] `core/mcp_server/introspection.py` existe con 5 tools en orden estricto CL-5
+  - [x] `core/mcp_server/consolidation.py` existe con 2 tools en orden estricto CL-5
+  - [x] `_build_server()` devuelve exactamente 42 names + 2 resources + 1 prompt
+  - [x] Gate Nivel 0 ✓ tras cada extracción (3 verificaciones)
+  - [x] 3 commits atómicos (sin push automático)
+- [x] **Estado**: completada
 
 ---
 
