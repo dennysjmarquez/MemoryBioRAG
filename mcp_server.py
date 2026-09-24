@@ -106,8 +106,6 @@ THRESHOLD_RAFTAGA_MCP = float(os.environ.get('BIORAG_THRESHOLD_RAFTAGA', '0.5'))
 VENTANA_CORRECCION = int(os.environ.get('BIORAG_VENTANA_CORRECCION_SEGUNDOS', '900'))
 """Ventana de corrección en caliente (default 900s = 15min). Nodos más jóvenes se pueden actualizar directamente; más viejos requieren nodo nuevo + vincular."""
 
-_sesiones_activas: dict[str, float] = {}  # agente → timestamp de contexto_inicio
-
 STALE_DAYS = int(os.environ.get('BIORAG_STALE_DAYS', '90'))
 """Días después de los cuales un nodo se marca como 'stale' (obsoleto).
 Resultados stale no se entregan como información vigente.
@@ -174,7 +172,7 @@ AGENTES_VALIDOS = set()
 """Agentes reconocidos por el sistema (vacío = permite cualquier agente)."""
 
 
-from core.mcp_server._shared import _get_cerebro, _interceptar
+from core.mcp_server._shared import _get_cerebro, _interceptar, _sesiones_activas
 
 
 # _load_catalogo_dimensiones, _CATALOGO_DIMENSIONES, _ensure_catalogo_loaded
@@ -625,6 +623,7 @@ from core.mcp_server import concept_hub_tools as _mcp_concept_hub_tools
 from core.mcp_server import introspection as _mcp_introspection
 from core.mcp_server import consolidation as _mcp_consolidation
 from core.mcp_server import daemon as _mcp_daemon
+from core.mcp_server import session as _mcp_session
 
 
 def _build_server():
@@ -651,6 +650,7 @@ def _build_server():
     _mcp_introspection.register(mcp)
     _mcp_consolidation.register(mcp)
     _mcp_daemon.register(mcp)
+    _mcp_session.register(mcp)
 
     # ── TOOLS ────────────────────────────────────────────────────────────────
 
@@ -2734,86 +2734,6 @@ def _build_server():
             cerebro.cerrar_sistema()
 
 
-    # ── TOOLS (Interceptor V2) ──────────────────────────────────────────────
-
-    @mcp.tool(
-        name="contexto_inicio",
-        description=(
-            "Avisá que empezó una sesión importante. Guardá el contexto para que el interceptor detecte automáticamente lecciones, errores y patrones durante la charla. Llamá al inicio de cada sesión de trabajo importante."
-        ),
-    )
-    def biorag_contexto_inicio(
-        agente: Annotated[str, Field(
-            description=(
-                "agente: Quién está hablando (ej: 'Agente 1', 'Agente 1', 'Agente 3', 'Etc..')"
-            )
-        )],
-        contexto: Annotated[str, Field(
-            description=(
-                "Descripción breve del contexto o tarea de la sesión "
-                "(ej: 'Refactor del módulo de autenticación', 'Análisis de logs de producción'). "
-                "Ayuda al interceptor a categorizar correctamente los autoguardados."
-            )
-        )] = "",
-    ) -> str:
-        cerebro = _get_cerebro()
-        try:
-            _sesiones_activas[agente] = time.time()
-            registrar_accion("inicio", f"[{agente}] {contexto}")
-            return json.dumps({"status": "ok", "mensaje": "Contexto de inicio registrado.", "ventana_extension": True}, ensure_ascii=False)
-        finally:
-            cerebro.cerrar_sistema()
-
-    @mcp.tool(
-        name="contexto_fin",
-        description=(
-            "Avisá que terminó la sesión. Revisá todo lo que pasó — si hay algo valioso (lecciones, errores, patrones), guardalo automáticamente. Si hay nodos nuevos sin consolidar, consolidalos. Llamá al final de cada sesión importante."
-        ),
-    )
-    def biorag_contexto_fin(
-        agente: Annotated[str, Field(
-            description="Nombre del agente que cierra la sesión (ej: 'agente_1')."
-        )],
-        resumen: Annotated[str, Field(
-            description=(
-                "resumen: Qué hiciste en la sesión en una línea (ej: 'Corregimos el bug de autenticación y actualizamos los tests'). Mejora el autoguardado del interceptor."
-            )
-        )] = "",
-    ) -> str:
-        cerebro = _get_cerebro()
-        try:
-            _sesiones_activas.pop(agente, None)
-            registrar_accion("fin", f"[{agente}] {resumen}")
-            resultado = analizar_y_autoguardar(cerebro, fuerza=True)
-            if resultado:
-                consolidado = cerebro.consolidar_concepto(resultado["concepto"])
-                if consolidado:
-                    msg = f"Auto-guardado y consolidado: '{resultado['concepto']}' ({resultado['categoria']}). Ya en corteza permanente."
-                else:
-                    msg = f"Auto-guardado en corto plazo: '{resultado['concepto']}'. Consolidacion pendiente."
-            else:
-                msg = "No se detecto nada nuevo que amerite guardado."
-
-            # Auto-sueño: consolidar si hay datos en corto_plazo
-            cerebro.cursor.execute("SELECT COUNT(*) FROM corto_plazo")
-            n_corto = cerebro.cursor.fetchone()[0]
-            if n_corto > 0:
-                old_stdout = sys.stdout
-                sys.stdout = captured = io.StringIO()
-                try:
-                    cerebro.ciclo_sueno_consolidacion()
-                finally:
-                    sys.stdout = old_stdout
-                sleep_output = captured.getvalue().strip()
-                msg += f" | Auto-sueño: {n_corto} nodo(s) consolidado(s)."
-
-            return json.dumps({
-                "status": "ok",
-                "mensaje": msg,
-                "auto_guardado": resultado,
-            }, ensure_ascii=False)
-        finally:
-            cerebro.cerrar_sistema()
 
     def _buscar_contexto_biorag_arranque(cerebro, agente: str) -> dict:
         """Consulta BioRAG con queries predefinidas y devuelve un resumen."""

@@ -9,6 +9,8 @@ from middleware.auto_guardado import registrar_accion, analizar_y_autoguardar
 
 logger = logging.getLogger("BioRAG.MCP")
 
+_sesiones_activas: dict[str, float] = {}  # agente → timestamp de contexto_inicio
+
 
 def _get_cerebro() -> SQLiteMemoryBioRAG:
     """Reusa la corteza (singleton). No reconstruir 6–11s por tool."""
