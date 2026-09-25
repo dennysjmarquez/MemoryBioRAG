@@ -203,12 +203,13 @@
 - **RF cubiertos**: RF-10, RF-8, RNF-1.3
 - **Descripción**: Extraer `core/memory/dmn.py` (~140 líneas: ciclo DMN y `_registrar_acceso_nodo`) y `core/memory/consolidation.py` (~694 líneas de cuerpo: `ciclo_sueno_consolidacion` de 505 líneas trasladada intacta por deuda técnica, `_auto_generar_co_ocurrencia`, `_clasificar_nodo_wordnet`, `_calcular_base_level_actr`). La excepción de deuda técnica aplica a `ciclo_sueno_consolidacion`; si el archivo supera 800 debido a esa función monolítica no se parte ni se recorta. Delegadores con firma completa en fachada. Gate Nivel 0 + Gate Nivel 1 tras consolidation.
 - **Hecho cuando**:
-  - [ ] `core/memory/dmn.py` existe con 7 funciones (~140 líneas)
-  - [ ] `core/memory/consolidation.py` existe con 4 funciones (~694 líneas) y docstring documentando deuda técnica
-  - [ ] Delegadores con firma completa en fachada
-  - [ ] Gate Nivel 0 ✓ (2 veces) + Gate Nivel 1 ✓ (tras consolidation)
-  - [ ] 2 commits atómicos + push
-- [ ] **Estado**: pendiente
+  - [x] `core/memory/dmn.py` existe con 7 funciones (~140 líneas)
+  - [x] `core/memory/consolidation.py` existe con 4 funciones (~694 líneas) y docstring documentando deuda técnica
+  - [x] Delegadores con firma completa en fachada
+  - [x] Gate Nivel 0 ✓ (2 veces) + Gate Nivel 1 ✓ (tras consolidation)
+  - [x] 2 commits atómicos (listos para push del usuario)
+- [x] **Estado**: completada
+
 
 ---
 
