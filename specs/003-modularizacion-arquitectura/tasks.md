@@ -148,15 +148,15 @@
 - **RF cubiertos**: RF-12, RF-3, RF-8, CL-8
 - **Descripción**: Paso 3.0: Crear `core/memory/__init__.py` (vacío, sin re-exportar la clase — CL-8). Paso 3.1: Extraer `core/memory/constants.py` (~225 líneas, ~55 constantes y flags + funciones puras de módulo: `normalizar_sustantivos_clave`, `_qcr_levenshtein`, `_qcr_todos_cercanos`). En `core/memory_store.py` (con las funciones todavía en la clase), calificar todas las lecturas de constantes como `constants.NOMBRE` (sin tocar ifs, SQLs ni fórmulas; `logger` no se prefija; `constants.py` no importa la fachada). En este mismo commit, mover los monkeypatches de los tests de `core.memory_store.FLAG` a `core.memory.constants.FLAG` y actualizar la cadena literal esperada en los 4 asserts: `test_dim_escape.py` (`DIM_ESCAPE` → `constants.DIM_ESCAPE`), `test_dim_resonancia.py` (`"if DIM_RESONANCIA:"` → `"if constants.DIM_RESONANCIA:"`), `test_ncd_e6.py` (`"NCD_PESO * ncd_score"` → `"constants.NCD_PESO * ncd_score"`) y `test_qcr_typo_d4.py` (llamada con `QCR_TYPO_DIST`). `core/memory_store.py` re-exporta constantes y `normalizar_sustantivos_clave`.
 - **Hecho cuando**:
-  - [ ] `core/memory/__init__.py` existe y está vacío
-  - [ ] `core/memory/constants.py` existe con constantes y funciones puras (~225 líneas)
-  - [ ] Todas las lecturas de constantes en `memory_store.py` calificadas como `constants.NOMBRE`
-  - [ ] Monkeypatches en tests sincronizados a `core.memory.constants.FLAG`
-  - [ ] Los 4 asserts literales actualizados y pasando en verde
-  - [ ] `from core.memory_store import normalizar_sustantivos_clave` sigue funcionando
-  - [ ] Gate Nivel 0 ✓
-  - [ ] 2 commits atómicos + push
-- [ ] **Estado**: pendiente
+  - [x] `core/memory/__init__.py` existe y está vacío
+  - [x] `core/memory/constants.py` existe con constantes y funciones puras (~225 líneas)
+  - [x] Todas las lecturas de constantes en `memory_store.py` calificadas como `constants.NOMBRE`
+  - [x] Monkeypatches en tests sincronizados a `core.memory.constants.FLAG`
+  - [x] Los 4 asserts literales actualizados y pasando en verde
+  - [x] `from core.memory_store import normalizar_sustantivos_clave` sigue funcionando
+  - [x] Gate Nivel 0 ✓
+  - [x] 2 commits atómicos + push
+- [x] **Estado**: completada
 
 ---
 
