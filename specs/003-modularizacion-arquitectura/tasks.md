@@ -230,18 +230,20 @@
 
 ---
 
-## T17: Extraer umbral.py, context.py, catalog_methods.py y adn.py (Pasos 3.4b–3.4e)
+## T17: Extraer umbral.py, context.py, catalog_methods.py, adn.py y rafaga.py (Pasos 3.4b–3.4f)
 - **RF cubiertos**: RF-10, RF-8
-- **Descripción**: Extraer `core/memory/umbral.py` (~430 líneas: calibración conforme y certeza epistémica separada de scoring), `core/memory/context.py` (~200 líneas: epistémico y coherencia dimensional), `core/memory/catalog_methods.py` (~110 líneas: categorías, dimensiones, sync — recordando que `cerrar_sistema` permanece en la fachada) y `core/memory/adn.py` (~90 líneas: 3 funciones de firma ADN pura). Delegadores con firma completa en fachada.
+- **Descripción**: Extraer `core/memory/umbral.py` (~430 líneas: calibración conforme y certeza epistémica separada de scoring), `core/memory/context.py` (~200 líneas: epistémico y coherencia dimensional), `core/memory/catalog_methods.py` (~110 líneas: categorías, dimensiones, sync — recordando que `cerrar_sistema` permanece en la fachada), `core/memory/adn.py` (~150 líneas: 3 funciones de firma ADN pura) y `core/memory/rafaga.py` (~370 líneas: `buscar_por_rafaga` y `validar_rafaga`). Delegadores con firma completa en fachada.
 - **Hecho cuando**:
-  - [ ] `core/memory/umbral.py` existe con cluster de calibración (~430 líneas)
-  - [ ] `core/memory/context.py` existe con funciones de contexto y epistémico (~200 líneas)
-  - [ ] `core/memory/catalog_methods.py` existe (~110 líneas) y `cerrar_sistema` permanece en la fachada
-  - [ ] `core/memory/adn.py` existe con 3 funciones ADN (~90 líneas)
-  - [ ] Delegadores con firma completa en fachada
-  - [ ] Gate Nivel 0 ✓ tras cada commit (4 verificaciones)
-  - [ ] 4 commits atómicos + push
-- [ ] **Estado**: pendiente
+  - [x] `core/memory/umbral.py` existe con cluster de calibración (~430 líneas)
+  - [x] `core/memory/context.py` existe con funciones de contexto y epistémico (~200 líneas)
+  - [x] `core/memory/catalog_methods.py` existe (~110 líneas) y `cerrar_sistema` permanece en la fachada
+  - [x] `core/memory/adn.py` existe con 3 funciones ADN (~150 líneas)
+  - [x] `core/memory/rafaga.py` existe con 2 funciones de ráfaga (~370 líneas)
+  - [x] Delegadores con firma completa en fachada
+  - [x] Gate Nivel 0 ✓ tras cada commit (5 verificaciones)
+  - [x] 5 commits atómicos (listos para push del usuario)
+- [x] **Estado**: completada
+
 
 ---
 
