@@ -190,12 +190,12 @@
 - **RF cubiertos**: RF-10, RF-8
 - **Descripción**: Extraer `core/memory/quarantine.py` (~180 líneas: ciclo cuarentena y evicción) e `core/memory/ingest.py` (~122 líneas: solo `percibir_corto_plazo` y `consolidar_concepto`). Patrón A1 con delegadores en fachada.
 - **Hecho cuando**:
-  - [ ] `core/memory/quarantine.py` existe con 6 funciones (~180 líneas)
-  - [ ] `core/memory/ingest.py` existe con 2 funciones (~122 líneas)
-  - [ ] Delegadores con firma completa en fachada
-  - [ ] Gate Nivel 0 ✓ tras cada commit (2 verificaciones)
-  - [ ] 2 commits atómicos + push
-- [ ] **Estado**: pendiente
+  - [x] `core/memory/quarantine.py` existe con 6 funciones (~180 líneas)
+  - [x] `core/memory/ingest.py` existe con 2 funciones (~122 líneas)
+  - [x] Delegadores con firma completa en fachada
+  - [x] Gate Nivel 0 ✓ tras cada commit (2 verificaciones: pytest 264 passed, 921 casos congruentes)
+  - [x] 2 commits atómicos (listos para push del usuario)
+- [x] **Estado**: completada
 
 ---
 
