@@ -50,5 +50,7 @@ def test_fuente_buscar():
     src = inspect.getsource(SQLiteMemoryBioRAG.buscar_por_frase)
     assert "_ncd_sims_pool" in src
     assert "ncd_score" in src
-    src_h = inspect.getsource(SQLiteMemoryBioRAG._calcular_score_hibrido)
+    from core.memory import scoring
+    src_h = inspect.getsource(scoring._calcular_score_hibrido)
     assert "constants.NCD_PESO * ncd_score" in src_h
+
