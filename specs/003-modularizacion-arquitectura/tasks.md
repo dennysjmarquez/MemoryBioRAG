@@ -220,12 +220,13 @@
   2. En este commit, redirigir ÚNICAMENTE el `inspect.getsource` de `_calcular_score_hibrido` (en `tests/test_ncd_e6.py`) hacia `core.memory.scoring._calcular_score_hibrido`. (`test_jsd_adaptativo_e7.py` mira `buscar_por_frase` y se mantiene vigilando esa función hasta T19).
   Gate Nivel 0 + Gate Nivel 1.
 - **Hecho cuando**:
-  - [ ] `core/memory/scoring.py` existe con 12 funciones de score (~420 líneas)
-  - [ ] Fachada conserva `@staticmethod` delegando a `scoring.<metodo>(...)`
-  - [ ] `inspect.getsource` de `_calcular_score_hibrido` en `test_ncd_e6.py` adaptado y en verde
+  - [x] `core/memory/scoring.py` existe con 12 funciones de score (~420 líneas)
+  - [x] Fachada conserva `@staticmethod` delegando a `scoring.<metodo>(...)`
+  - [x] `inspect.getsource` de `_calcular_score_hibrido` en `test_ncd_e6.py` adaptado y en verde
   - [ ] Gate Nivel 0 ✓ + Gate Nivel 1 ✓ (921 casos idénticos a 4 decimales)
-  - [ ] 1 commit atómico + push
-- [ ] **Estado**: pendiente
+  - [x] 1 commit atómico (listo para push del usuario)
+- [x] **Estado**: completada
+
 
 ---
 
