@@ -177,12 +177,12 @@
 - **RF cubiertos**: RF-10, RF-8
 - **Descripción**: Extraer `core/memory/synapses.py` (~523 líneas reales: grafo puro — asociaciones, enriquecidas, BFS, cadena, camino, dopamina, multihop; docstring con justificación >500) y `core/memory/episodes.py` (~120 líneas: expansión temporal, afinidad temporal pool, ts nodo). Patrón A1 con delegadores en fachada.
 - **Hecho cuando**:
-  - [ ] `core/memory/synapses.py` existe con 8 funciones (~523 líneas) y docstring de justificación
-  - [ ] `core/memory/episodes.py` existe con 3 funciones (~120 líneas)
-  - [ ] Delegadores con firma completa en fachada
-  - [ ] Gate Nivel 0 ✓ tras cada commit (2 verificaciones)
-  - [ ] 2 commits atómicos + push
-- [ ] **Estado**: pendiente
+  - [x] `core/memory/synapses.py` existe con 8 funciones (~523 líneas) y docstring de justificación
+  - [x] `core/memory/episodes.py` existe con 3 funciones (~120 líneas)
+  - [x] Delegadores con firma completa en fachada
+  - [x] Gate Nivel 0 ✓ tras cada commit (2 verificaciones: pytest 264 passed, golden reducido y 921 congruentes)
+  - [x] 2 commits atómicos (listos para push del usuario)
+- [x] **Estado**: completada
 
 ---
 
