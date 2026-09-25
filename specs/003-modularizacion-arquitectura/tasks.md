@@ -164,12 +164,12 @@
 - **RF cubiertos**: RF-10, RF-8
 - **Descripción**: Extraer `core/memory/comms.py` (~130 líneas: comunicaciones) y `core/memory/telemetry.py` (~170 líneas: historial, benchmark rendimiento, log búsqueda, provenance — sin co-ocurrencia ni WordNet). Patrón A1 (funciones con `self` como primer parámetro). Delegadores con firma completa en fachada.
 - **Hecho cuando**:
-  - [ ] `core/memory/comms.py` existe con 4 funciones (~130 líneas)
-  - [ ] `core/memory/telemetry.py` existe con 5 funciones (~170 líneas)
-  - [ ] Delegadores correspondientes con firma completa agregados en `core/memory_store.py`
-  - [ ] Gate Nivel 0 ✓ tras cada commit (2 verificaciones)
-  - [ ] 2 commits atómicos + push
-- [ ] **Estado**: pendiente
+  - [x] `core/memory/comms.py` existe con 4 funciones (~130 líneas)
+  - [x] `core/memory/telemetry.py` existe con 5 funciones (~170 líneas)
+  - [x] Delegadores correspondientes con firma completa agregados en `core/memory_store.py`
+  - [x] Gate Nivel 0 ✓ tras cada commit (2 verificaciones: pytest 264 passed, 921 casos congruentes con baseline)
+  - [x] 2 commits atómicos (listos para push del usuario)
+- [x] **Estado**: completada
 
 ---
 
