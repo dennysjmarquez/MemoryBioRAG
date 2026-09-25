@@ -20,6 +20,7 @@ _RAIZ = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 if _RAIZ not in sys.path:
     sys.path.insert(0, _RAIZ)
 
+import core.memory.constants as constants
 import core.memory_store as ms
 from core.memory_store import SQLiteMemoryBioRAG
 
@@ -28,7 +29,7 @@ from core.memory_store import SQLiteMemoryBioRAG
 def cerebro_tmp(tmp_path, monkeypatch):
     """DB aislada + hormiga aislada + flag ON explicito."""
     db_file = str(tmp_path / "test_epistemico.db")
-    monkeypatch.setattr(ms, "EPISTEMICO_METADATA", True)
+    monkeypatch.setattr(constants, "EPISTEMICO_METADATA", True)
     monkeypatch.setenv("BIORAG_DMN_ESTADO_PATH", str(tmp_path / "hormiga_test.json"))
     return SQLiteMemoryBioRAG(db_path=db_file)
 
@@ -54,9 +55,9 @@ def test_ranking_intacto_on_vs_off(tmp_path, monkeypatch):
         " VALUES ('tornillo_acero', 'tornillo de acero inoxidable', 0.8, 'activo')"
     )
     cz.conn.commit()
-    monkeypatch.setattr(ms, "EPISTEMICO_METADATA", True)
+    monkeypatch.setattr(constants, "EPISTEMICO_METADATA", True)
     pool_on, total_on = cz.buscar_por_frase("manzana roja", limite=5)
-    monkeypatch.setattr(ms, "EPISTEMICO_METADATA", False)
+    monkeypatch.setattr(constants, "EPISTEMICO_METADATA", False)
     pool_off, total_off = cz.buscar_por_frase("manzana roja", limite=5)
     assert pool_on == pool_off and total_on == total_off
 
@@ -110,7 +111,7 @@ def test_flag_off_no_escribe_ni_encola(tmp_path, monkeypatch):
     """Flag OFF: sin claves F6 ni archivo hormiga."""
     db_file = str(tmp_path / "test_epi_off.db")
     hpath = str(tmp_path / "hormiga_off.json")
-    monkeypatch.setattr(ms, "EPISTEMICO_METADATA", False)
+    monkeypatch.setattr(constants, "EPISTEMICO_METADATA", False)
     monkeypatch.setenv("BIORAG_DMN_ESTADO_PATH", hpath)
     cz = SQLiteMemoryBioRAG(db_path=db_file)
     cz.buscar_por_frase("algo", limite=5)

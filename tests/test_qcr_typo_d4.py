@@ -7,6 +7,7 @@ near-match (lev<=2, len>=4). Calibrado 19/19: rescata Clase-A 4/4,
 """
 import inspect
 
+import core.memory.constants as constants
 import core.memory_store as ms
 from core.memory_store import (
     SQLiteMemoryBioRAG,
@@ -42,14 +43,14 @@ def _score_por_concepto(monkeypatch, mapa):
 
 def test_flags_default():
     # Shipped ON: gate Fase 1 pasado (98.06/17/FP0). OFF solo por entorno.
-    assert ms.QCR_TYPO_ACTIVA is True
-    assert ms.QCR_TYPO_PISO == 0.35
-    assert ms.QCR_TYPO_DIST == 2
+    assert constants.QCR_TYPO_ACTIVA is True
+    assert constants.QCR_TYPO_PISO == 0.35
+    assert constants.QCR_TYPO_DIST == 2
 
 
 def test_enganche_en_qcr():
     src = inspect.getsource(SQLiteMemoryBioRAG.buscar_por_frase)
-    assert "_qcr_todos_cercanos(q_tokens_qcr, text_target, QCR_TYPO_DIST)" in src
+    assert "constants._qcr_todos_cercanos(q_tokens_qcr, text_target, constants.QCR_TYPO_DIST)" in src
 
 
 def test_levenshtein():
@@ -84,14 +85,14 @@ def test_off_remueve_on_rescata(tmp_path, monkeypatch):
     c = _db(tmp_path, "d4.db")
     _score_por_concepto(monkeypatch, {
         "a_topico_qcr": 0.9, "c_topico_qcr": 0.8, "d_topico_qcr": 0.9})
-    monkeypatch.setattr(ms, "QCR_TYPO_ACTIVA", False)
+    monkeypatch.setattr(constants, "QCR_TYPO_ACTIVA", False)
     res_off, _ = c.buscar_por_frase(QUERY, limite=5)
     dev_off = [r[0] for r in res_off]
     pool_off = [r[1] for r in (c.last_todos or [])]
     assert "c_topico_qcr" in dev_off
     assert "a_topico_qcr" in pool_off
     assert "a_topico_qcr" not in dev_off
-    monkeypatch.setattr(ms, "QCR_TYPO_ACTIVA", True)
+    monkeypatch.setattr(constants, "QCR_TYPO_ACTIVA", True)
     res_on, _ = c.buscar_por_frase(QUERY, limite=5)
     dev_on = [r[0] for r in res_on]
     assert "c_topico_qcr" in dev_on
@@ -104,7 +105,7 @@ def test_piso_respeta_bajo_umbral(tmp_path, monkeypatch):
     c = _db(tmp_path, "d4b.db")
     _score_por_concepto(monkeypatch, {
         "a_topico_qcr": 0.20, "c_topico_qcr": 0.8, "d_topico_qcr": 0.1})
-    monkeypatch.setattr(ms, "QCR_TYPO_ACTIVA", True)
+    monkeypatch.setattr(constants, "QCR_TYPO_ACTIVA", True)
     res, _ = c.buscar_por_frase(QUERY, limite=5)
     dev = [r[0] for r in res]
     assert "a_topico_qcr" not in dev

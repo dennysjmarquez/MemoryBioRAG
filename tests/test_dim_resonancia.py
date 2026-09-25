@@ -8,6 +8,7 @@ caian fuera de la ventana). OFF = path byte-identico.
 """
 import inspect
 
+import core.memory.constants as constants
 import core.memory_store as ms
 from core.memory_store import SQLiteMemoryBioRAG
 
@@ -53,25 +54,25 @@ def _dim_origenes(c):
 
 
 def test_flags_default():
-    assert ms.DIM_RESONANCIA is False
-    assert ms.DIM_RESONANCIA_K == 50
+    assert constants.DIM_RESONANCIA is False
+    assert constants.DIM_RESONANCIA_K == 50
 
 
 def test_enganche_en_fallback():
     src = inspect.getsource(SQLiteMemoryBioRAG.buscar_por_frase)
-    assert "if DIM_RESONANCIA:" in src
+    assert "if constants.DIM_RESONANCIA:" in src
     assert "GROUP_CONCAT(d.dimension_id)" in src
 
 
 def test_off_excluye_on_incluye(tmp_path, monkeypatch):
     c = _db(tmp_path, "dimr.db")
-    monkeypatch.setattr(ms, "DIM_RESONANCIA", False)
+    monkeypatch.setattr(constants, "DIM_RESONANCIA", False)
     c.buscar_por_frase(Q, limite=5, dimensiones_ids=QDIMS)
     pool_off = _pool(c)
     assert "v_resonancia" not in pool_off
     assert len(pool_off) == 51  # 1 FTS + 50 rivales (top-50 python)
-    monkeypatch.setattr(ms, "DIM_RESONANCIA", True)
-    monkeypatch.setattr(ms, "DIM_RESONANCIA_K", 50)
+    monkeypatch.setattr(constants, "DIM_RESONANCIA", True)
+    monkeypatch.setattr(constants, "DIM_RESONANCIA_K", 50)
     c.buscar_por_frase(Q, limite=5, dimensiones_ids=QDIMS)
     pool_on = _pool(c)
     assert "v_resonancia" in pool_on  # merito: shared 10 > 8 pese a peso 0.1
@@ -82,8 +83,8 @@ def test_off_excluye_on_incluye(tmp_path, monkeypatch):
 
 def test_k1_solo_victima(tmp_path, monkeypatch):
     c = _db(tmp_path, "dimr2.db")
-    monkeypatch.setattr(ms, "DIM_RESONANCIA", True)
-    monkeypatch.setattr(ms, "DIM_RESONANCIA_K", 1)
+    monkeypatch.setattr(constants, "DIM_RESONANCIA", True)
+    monkeypatch.setattr(constants, "DIM_RESONANCIA_K", 1)
     c.buscar_por_frase(Q, limite=5, dimensiones_ids=QDIMS)
     pool = _pool(c)
     assert pool.count("v_resonancia") == 1

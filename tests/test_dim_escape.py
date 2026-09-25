@@ -7,6 +7,7 @@ OFF = cortocircuito, path byte-identico.
 """
 import inspect
 
+import core.memory.constants as constants
 import core.memory_store as ms
 from core.memory_store import SQLiteMemoryBioRAG
 
@@ -43,23 +44,23 @@ def _pool(c):
 
 
 def test_flags_default():
-    assert ms.DIM_ESCAPE is False
-    assert ms.DIM_ESCAPE_T == 0.45
+    assert constants.DIM_ESCAPE is False
+    assert constants.DIM_ESCAPE_T == 0.45
 
 
 def test_enganche_en_qcr():
     src = inspect.getsource(SQLiteMemoryBioRAG.buscar_por_frase)
-    assert 'DIM_ESCAPE and origen_tipo == "dimensional_fallback"' in src
+    assert 'constants.DIM_ESCAPE and origen_tipo == "dimensional_fallback"' in src
 
 
 def test_off_remueve_on_rescata(tmp_path, monkeypatch):
     c = _db(tmp_path, "dime.db")
-    monkeypatch.setattr(ms, "DIM_RESONANCIA", True)
-    monkeypatch.setattr(ms, "DIM_ESCAPE", False)
+    monkeypatch.setattr(constants, "DIM_RESONANCIA", True)
+    monkeypatch.setattr(constants, "DIM_ESCAPE", False)
     res_off, _ = c.buscar_por_frase(Q, limite=5, dimensiones_ids=QDIMS)
     assert "v_escape" in _pool(c)
     assert "v_escape" not in [r[0] for r in res_off]
-    monkeypatch.setattr(ms, "DIM_ESCAPE", True)
+    monkeypatch.setattr(constants, "DIM_ESCAPE", True)
     res_on, _ = c.buscar_por_frase(Q, limite=5, dimensiones_ids=QDIMS)
     assert "v_escape" in [r[0] for r in res_on]
     c.cerrar_sistema()
@@ -67,8 +68,8 @@ def test_off_remueve_on_rescata(tmp_path, monkeypatch):
 
 def test_piso_rechaza_bajo_t(tmp_path, monkeypatch):
     c = _db(tmp_path, "dime2.db")
-    monkeypatch.setattr(ms, "DIM_RESONANCIA", True)
-    monkeypatch.setattr(ms, "DIM_ESCAPE", True)
+    monkeypatch.setattr(constants, "DIM_RESONANCIA", True)
+    monkeypatch.setattr(constants, "DIM_ESCAPE", True)
     res_on, _ = c.buscar_por_frase(Q, limite=5, dimensiones_ids=QDIMS)
     assert "c_piso" in _pool(c)
     assert "c_piso" not in [r[0] for r in res_on]

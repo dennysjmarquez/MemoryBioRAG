@@ -13,9 +13,9 @@ def test_flag_off_cero(tmp_path, monkeypatch):
 
 def test_crea_arista_con_dim_comun(tmp_path, monkeypatch):
     import core.dmn_engine as de
-    import core.memory_store as ms
+    import core.memory.constants as constants
     monkeypatch.setattr(de, "DMN_SINTESIS_ACTIVA", True)
-    monkeypatch.setattr(ms, "DMN_SINTESIS_ACTIVA", False)
+    monkeypatch.setattr(constants, "DMN_SINTESIS_ACTIVA", False)
     c = SQLiteMemoryBioRAG(str(tmp_path / "e10dim.db"))
     dim_id = c.cursor.execute(
         "SELECT id FROM dimensiones_semanticas ORDER BY id LIMIT 1"
@@ -48,9 +48,9 @@ def test_crea_arista_con_dim_comun(tmp_path, monkeypatch):
 
 def test_tope_max(tmp_path, monkeypatch):
     import core.dmn_engine as de
-    import core.memory_store as ms
+    import core.memory.constants as constants
     monkeypatch.setattr(de, "DMN_SINTESIS_ACTIVA", True)
-    monkeypatch.setattr(ms, "DMN_SINTESIS_ACTIVA", False)
+    monkeypatch.setattr(constants, "DMN_SINTESIS_ACTIVA", False)
     c = SQLiteMemoryBioRAG(str(tmp_path / "e10max.db"))
     dim_id = c.cursor.execute(
         "SELECT id FROM dimensiones_semanticas ORDER BY id LIMIT 1"

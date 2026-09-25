@@ -33,266 +33,33 @@ except Exception:
     pass  # WordNet opcional, ignorar si falla
 
 # =============================================================================
-# Configuración de Usuario (Override con variables de entorno)
-# =============================================================================
-# Los defaults están aquí. Para cambiar, setear la variable de entorno
-# correspondiente o crear .env.local en la raíz del proyecto.
+# Constantes, flags de configuración y re-exports hacia core.memory.constants
 # =============================================================================
 
-CANDIDATOS_SIMILITUD = int(os.environ.get('BIORAG_CANDIDATOS_SIMILITUD', '100'))
-"""Cuántos nodos considerar como candidatos en similitud conceptual."""
-
-MAX_SALTOS_CADENA = int(os.environ.get('BIORAG_MAX_SALTOS_CADENA', '3'))
-"""Máximo de saltos (hops) en evocación por cadena."""
-
-LIMITE_DEFAULT = int(os.environ.get('BIORAG_LIMITE_DEFAULT', '5'))
-"""Límite de resultados por capa de búsqueda."""
-
-UMBRAL_JACCARD = float(os.environ.get('BIORAG_UMBRAL_JACCARD', '0.15'))
-"""Umbral Jaccard para similitud conceptual (0.0-1.0)."""
-
-RAFTAGA_ACTIVA = os.environ.get('BIORAG_RAFTAGA_ACTIVA', 'true').lower() == 'true'
-"""Activar/desactivar ráfaga de reminiscencia."""
-
-THRESHOLD_RAFTAGA = float(os.environ.get('BIORAG_THRESHOLD_RAFTAGA', '0.5'))
-"""Score mínimo para activar ráfaga automáticamente."""
-
-LIMITE_RAFTAGA = int(os.environ.get('BIORAG_LIMITE_RAFTAGA', '5'))
-"""Límite de resultados en búsqueda por ráfaga."""
-
-LIMITE_EVOCACION = int(os.environ.get('BIORAG_LIMITE_EVOCACION', '5'))
-"""Límite de resultados en evocación por cadena."""
-
-JSD_WEIGHT = float(os.environ.get('BIORAG_JSD_WEIGHT', '0.0'))
-"""Peso de JSD (señal #11) en la fórmula de scoring. 0.0=desactivado, 0.05=default activo.
-Override: export BIORAG_JSD_WEIGHT=0.05"""
-
-# E7: JSD adaptativo por Nt (tokens >=3). Default ON.
-# Base 0.05 si JSD_WEIGHT==0 (JSD estatico sigue OFF en rafaga).
-JSD_ADAPTATIVO = os.environ.get('BIORAG_JSD_ADAPTATIVO', '1').lower() in ('1', 'true', 'yes')
-JSD_ADAPT_BASE = float(os.environ.get('BIORAG_JSD_ADAPT_BASE', '0.05'))
-JSD_ADAPT_LARGO = float(os.environ.get('BIORAG_JSD_ADAPT_LARGO', '2.5'))
-JSD_ADAPT_CORTO = float(os.environ.get('BIORAG_JSD_ADAPT_CORTO', '0.5'))
-JSD_ADAPT_NT = int(os.environ.get('BIORAG_JSD_ADAPT_NT', '4'))
-
-# E10: sinapsis de sintesis DMN (peso 0.30, tope por ciclo). Default ON hasta gate.
-DMN_SINTESIS_ACTIVA = os.environ.get('BIORAG_DMN_SINTESIS_ACTIVA', '1').lower() in ('1', 'true', 'yes')
-DMN_SINTESIS_MAX = int(os.environ.get('BIORAG_DMN_SINTESIS_MAX', '8'))
-DMN_SINTESIS_PESO = float(os.environ.get('BIORAG_DMN_SINTESIS_PESO', '0.30'))
-
-# F2: episodio temporal. Peso 0 = OFF. Cap 0.08.
-_ep_raw = float(os.environ.get('BIORAG_EPISODIO_TEMPORAL_PESO', '0.05'))
-EPISODIO_TEMPORAL_PESO = 0.0 if _ep_raw <= 0 else min(_ep_raw, 0.08)
-EPISODIO_TEMPORAL_ACTIVO = os.environ.get('BIORAG_EPISODIO_TEMPORAL', '0').lower() in ('1', 'true', 'yes')
-EPISODIO_VENTANA_HORAS = float(os.environ.get('BIORAG_EPISODIO_VENTANA_HORAS', '24'))
-EPISODIO_LIMITE = int(os.environ.get('BIORAG_EPISODIO_LIMITE', '5'))
-EPISODIO_BUCKET_SEG = float(os.environ.get('BIORAG_EPISODIO_BUCKET_SEG', str(86400)))
-
-# F3: analogia relacional simbolica sobre PPMI 100-dim. Peso 0 = OFF. Cap 0.08.
-_an_raw = float(os.environ.get('BIORAG_ANALOGIA_PESO', '0'))
-ANALOGIA_PESO = 0.0 if _an_raw <= 0 else min(_an_raw, 0.08)
-ANALOGIA_DETECTAR = os.environ.get('BIORAG_ANALOGIA_DETECTAR', '0').lower() in ('1', 'true', 'yes')
-
-# F5: campo semantico PPMI. Peso 0 = OFF. Cap 0.08.
-_cp_raw = float(os.environ.get('BIORAG_CAMPO_POTENCIAL_PESO', '0.05'))
-CAMPO_POTENCIAL_PESO = 0.0 if _cp_raw <= 0 else min(_cp_raw, 0.08)
-CAMPO_SIGMA = float(os.environ.get('BIORAG_CAMPO_SIGMA', '1.0'))
-CAMPO_K = int(os.environ.get('BIORAG_CAMPO_K', '64'))
-
-# OPT-NUEVA-5: etiquetado epistemico. Solo metadatos via side-channel
-# (last_estado_epistemico) + cola DMN. NUNCA toca ranking/pool (R9 vs E13).
-EPISTEMICO_METADATA = os.environ.get('BIORAG_EPISTEMICO_METADATA', '1').lower() in ('1', 'true', 'yes')
-
-# Multihop v1: expansion 1-salto en retrieval. Default OFF (gate decide).
-# Detras del flag el path es byte-identico (estandar F3). Caps via env.
-MULTIHOP_EXPANSION = os.environ.get('BIORAG_MULTIHOP_EXPANSION', '0').lower() in ('1', 'true', 'yes')
-MULTIHOP_MAX_TOTAL = int(os.environ.get('BIORAG_MULTIHOP_MAX_TOTAL', '64'))
-# HIPOTESIS v1: prior fijo atenuado; el ranking real lo aportan las demas senales.
-MULTIHOP_PRIOR = float(os.environ.get('BIORAG_MULTIHOP_PRIOR', '0.05'))
-
-BAYESIAN_BM25 = os.environ.get('BIORAG_BAYESIAN_BM25', 'false').lower() == 'true'
-"""Activar calibración Bayesian BM25 (sigmoid) en vez de normalización fija x/(x+3).
-Override: export BIORAG_BAYESIAN_BM25=true"""
-
-BAYESIAN_BM25_ALPHA = float(os.environ.get('BIORAG_BAYESIAN_BM25_ALPHA', '1.0'))
-"""Steepness de la sigmoid Bayesian BM25. Mayor = más sensible a diferencias de score.
-Override: export BIORAG_BAYESIAN_BM25_ALPHA=0.5"""
-
-# Fase C: re-ranking jaccard léxico como única señal de matching (v22.2)
-# Validado por holdout el 2026-08-04 (config: alpha=0.25, gate=0.04, topk=20, protect-r0).
-# OFF por defecto: activación gradual monitoreada contra el benchmark (lección PPR).
-RERANKING_JACCARD_ACTIVO = os.environ.get('BIORAG_RERANKING_JACCARD_ENABLED', '0').lower() in ('1', 'true', 'yes')
-"""Activar re-ranking jaccard en buscar_por_frase. Default OFF.
-Override: export BIORAG_RERANKING_JACCARD_ENABLED=1"""
-
-RERANKING_JACCARD_ALPHA = float(os.environ.get('BIORAG_RERANKING_JACCARD_ALPHA', '0.25'))
-"""Peso del boost jaccard en el re-sort del top-k (score + alpha*(jaccard/max_j)).
-Override: export BIORAG_RERANKING_JACCARD_ALPHA=0.25"""
-
-RERANKING_JACCARD_GATE = float(os.environ.get('BIORAG_RERANKING_JACCARD_GATE', '0.04'))
-"""Gate: si max jaccard del pool[:window] < gate, no re-ordenar.
-Override: export BIORAG_RERANKING_JACCARD_GATE=0.04"""
-
-RERANKING_JACCARD_TOPK = int(os.environ.get('BIORAG_RERANKING_JACCARD_TOPK', '20'))
-"""Tamaño del head sobre el que se aplica el re-sort jaccard.
-Override: export BIORAG_RERANKING_JACCARD_TOPK=20"""
-
-RERANKING_JACCARD_WINDOW = int(os.environ.get('BIORAG_RERANKING_JACCARD_WINDOW', '50'))
-
-# E1: SDM Kanerva (2048 bits) como Fallback 2.5. Solo generación cuando el
-# pool léxico es pobre. OFF con BIORAG_SDM_FALLBACK=0. No es señal de scoring
-# (eso es E2, paso aparte).
-SDM_FALLBACK_ACTIVO = os.environ.get('BIORAG_SDM_FALLBACK', '1').lower() in ('1', 'true', 'yes')
-SDM_FALLBACK_K = int(os.environ.get('BIORAG_SDM_FALLBACK_K', '5'))
-
-# E2: SDM como señal de scoring sobre el POOL, no sobre el corpus.
-# Peso suave 0.05–0.08 (cap 0.08). 0 = OFF, cero overhead.
-# Independiente del tamaño N: un SELECT por PK del pool.
-# Default 0: A/B 921 con 0.06 bajó R@5 97.03→96.91 (1 fallo extra).
-
-# E3: QCR ponderado por IDF. Default ON. Umbral 0.30–0.45 (default 0.40).
-# OFF: BIORAG_QCR_IDF=0 vuelve al ratio no ponderado 0.50.
-QCR_IDF_ACTIVO = os.environ.get('BIORAG_QCR_IDF', '1').lower() in ('1', 'true', 'yes')
-QCR_IDF_UMBRAL = float(os.environ.get('BIORAG_QCR_IDF_UMBRAL', '0.40'))
-
-# F-QCR-D4 (Fase 1): segunda oportunidad QCR tolerante a typos (all-near).
-# Un candidato con score alto que falla cobertura exacta sobrevive si CADA
-# token tiene hit exacto (substring) o near-match (lev<=DIST, len>=4).
-# Calibrado 19/19 con tokens LIVE: rescata Clase-A 4/4, 0/14 distractores,
-# 0738 a salvo. Piso 0.35: max negativo < 0.25 (separacion Paso 0).
-# Default ON: gate Fase 1 pasado 2026-09-13 (R@5 98.06, 17 fallos, FP 0).
-# Override: export BIORAG_QCR_TYPO=0
-QCR_TYPO_ACTIVA = os.environ.get('BIORAG_QCR_TYPO', '1').lower() in ('1', 'true', 'yes')
-DIM_RESONANCIA = os.environ.get('BIORAG_DIM_RESONANCIA', '0').lower() in ('1', 'true', 'yes')
-DIM_RESONANCIA_K = int(os.environ.get('BIORAG_DIM_RESONANCIA_K', '50'))
-DIM_ESCAPE = os.environ.get('BIORAG_DIM_ESCAPE', '0').lower() in ('1', 'true', 'yes')
-DIM_ESCAPE_T = float(os.environ.get('BIORAG_DIM_ESCAPE_T', '0.45'))
-QCR_TYPO_PISO = float(os.environ.get('BIORAG_QCR_TYPO_PISO', '0.35'))
-QCR_TYPO_DIST = int(os.environ.get('BIORAG_QCR_TYPO_DIST', '2'))
-
-# E6: NCD zlib (Li et al. 2004). Senal O(k) sobre el pool, no O(N).
-# Default peso 0.05; 0 = OFF. Cap 0.08. Solo stdlib zlib.
-_ncd_peso_raw = float(os.environ.get('BIORAG_NCD_PESO', '0.05'))
-NCD_PESO = 0.0 if _ncd_peso_raw <= 0 else min(_ncd_peso_raw, 0.08)
-NCD_ZLIB_LEVEL = int(os.environ.get('BIORAG_NCD_ZLIB_LEVEL', '6'))
-
-GABA_ACTIVO = os.environ.get('BIORAG_GABA_ACTIVO', '1').lower() in ('1', 'true', 'yes')
-"""Activar inhibición lateral GABA (Edelman 1987): atenúa competidores secundarios cuando top-1 es atractor fuerte.
-Default ON. Ablación: export BIORAG_GABA_ACTIVO=0"""
-"""Ventana del pool sobre la que se calcula max_jaccard para el gate.
-Override: export BIORAG_RERANKING_JACCARD_WINDOW=50"""
-
-# Signal #13: PPMI+SVD Vector Similarity (v26.0)
-# Activación gradual (lección PPR): primero OFF (0.0), luego validado en
-# snapshot congelado sobre los 921 casos QA: peso 0.15 óptimo (por_tema R@5
-# 78.46% → 86.15%, sinonimo 73.77% → 83.61%, global 95.23% → 96.71%,
-# FP +2.5pp 20.0% → 22.5%). Se deja ON por defecto a 0.15.
-PPMI_VECTOR_WEIGHT = float(os.environ.get('BIORAG_PPMI_WEIGHT', '0.15'))
-"""Peso de la señal PPMI+SVD en _calcular_score_hibrido. 0.15 = default (v26.0).
-Override: export BIORAG_PPMI_WEIGHT=0.0 para volver al comportamiento v25.2"""
-
-# Signal #14: ADN Conceptual (v29) como señal asociativa complementaria
-# Se instala APAGADA por defecto (lección PPR v25.1 y decisión Manus §3.1):
-# el ADN solo debe intervenir en el ranking tras ablación OFF/ON verificada
-# sobre el snapshot congelado. Primera configuración segura (§4.2 del plan):
-#   BIORAG_ADN_RANKING_ENABLED=false
-#   BIORAG_ADN_PESO=0.15
-#   BIORAG_ADN_MAX_EXPANSION=24
-#   BIORAG_ADN_UMBRAL_ASOCIACION=0.35
-# Fórmulas de fusión (§4.2):
-#   S_final_directo    = 0.85 * S_base + 0.15 * S_adn
-#   S_final_asociativo = min(0.49, 0.70 * S_base + 0.30 * S_adn)
-# La cota 0.49 es deliberada: una asociación de baja confianza nunca adelanta
-# a una coincidencia directa que el motor considera fiable.
-ADN_RANKING_ENABLED = os.environ.get('BIORAG_ADN_RANKING_ENABLED', 'false').lower() in ('1', 'true', 'yes')
-ADN_PESO = float(os.environ.get('BIORAG_ADN_PESO', '0.15'))
-ADN_MAX_EXPANSION = int(os.environ.get('BIORAG_ADN_MAX_EXPANSION', '24'))
-ADN_UMBRAL_ASOCIACION = float(os.environ.get('BIORAG_ADN_UMBRAL_ASOCIACION', '0.35'))
+from core.memory import constants
+from core.memory.constants import (
+    CANDIDATOS_SIMILITUD, MAX_SALTOS_CADENA, LIMITE_DEFAULT, UMBRAL_JACCARD,
+    RAFTAGA_ACTIVA, THRESHOLD_RAFTAGA, LIMITE_RAFTAGA, LIMITE_EVOCACION,
+    JSD_WEIGHT, JSD_ADAPTATIVO, JSD_ADAPT_BASE, JSD_ADAPT_LARGO, JSD_ADAPT_CORTO, JSD_ADAPT_NT,
+    DMN_SINTESIS_ACTIVA, DMN_SINTESIS_MAX, DMN_SINTESIS_PESO,
+    EPISODIO_TEMPORAL_PESO, EPISODIO_TEMPORAL_ACTIVO, EPISODIO_VENTANA_HORAS, EPISODIO_LIMITE, EPISODIO_BUCKET_SEG,
+    ANALOGIA_PESO, ANALOGIA_DETECTAR,
+    CAMPO_POTENCIAL_PESO, CAMPO_SIGMA, CAMPO_K,
+    EPISTEMICO_METADATA,
+    MULTIHOP_EXPANSION, MULTIHOP_MAX_TOTAL, MULTIHOP_PRIOR,
+    BAYESIAN_BM25, BAYESIAN_BM25_ALPHA,
+    RERANKING_JACCARD_ACTIVO, RERANKING_JACCARD_ALPHA, RERANKING_JACCARD_GATE, RERANKING_JACCARD_TOPK, RERANKING_JACCARD_WINDOW,
+    SDM_FALLBACK_ACTIVO, SDM_FALLBACK_K,
+    QCR_IDF_ACTIVO, QCR_IDF_UMBRAL,
+    QCR_TYPO_ACTIVA, DIM_RESONANCIA, DIM_RESONANCIA_K, DIM_ESCAPE, DIM_ESCAPE_T, QCR_TYPO_PISO, QCR_TYPO_DIST,
+    NCD_PESO, NCD_ZLIB_LEVEL,
+    GABA_ACTIVO,
+    PPMI_VECTOR_WEIGHT,
+    ADN_RANKING_ENABLED, ADN_PESO, ADN_MAX_EXPANSION, ADN_UMBRAL_ASOCIACION,
+    _qcr_levenshtein, _qcr_todos_cercanos, normalizar_sustantivos_clave,
+)
 
 # =============================================================================
-
-
-def _qcr_levenshtein(a, b, dist_max=2):
-    """Levenshtein acotado: early-exit si excede dist_max. Solo stdlib."""
-    if a == b:
-        return 0
-    la, lb = len(a), len(b)
-    if abs(la - lb) > dist_max:
-        return dist_max + 1
-    prev = list(range(lb + 1))
-    for i in range(1, la + 1):
-        cur = [i] + [0] * lb
-        ai = a[i - 1]
-        row_min = cur[0]
-        for j in range(1, lb + 1):
-            cur[j] = min(prev[j] + 1, cur[j - 1] + 1,
-                         prev[j - 1] + (0 if ai == b[j - 1] else 1))
-            if cur[j] < row_min:
-                row_min = cur[j]
-        if row_min > dist_max:
-            return dist_max + 1
-        prev = cur
-    return prev[lb]
-
-
-def _qcr_todos_cercanos(q_tokens, text_target, dist_max=2, palabras_max=1500):
-    """D4: True si CADA token tiene hit exacto o near-match en el texto.
-
-    Hit exacto = substring (igual que QCR). Near-match = lev <= dist_max
-    contra alguna palabra para tokens len>=4; tokens cortos solo exacto
-    (evita colisiones espurias: 'moe'~'de'). Palabras = split [a-z]+
-    (parte por '_' y digitos). Tope de palabras acota el peor caso."""
-    if not q_tokens:
-        return True
-    pendientes = []
-    for t in q_tokens:
-        if t in text_target:
-            continue
-        if len(t) < 4:
-            return False
-        pendientes.append(t)
-    if not pendientes:
-        return True
-    words = [w for w in re.findall(r'[a-záéíóúñü]+', text_target)
-             if len(w) >= 3][:palabras_max]
-    for t in pendientes:
-        lt = len(t)
-        ok = False
-        for w in words:
-            if abs(len(w) - lt) > dist_max:
-                continue
-            if _qcr_levenshtein(t, w, dist_max) <= dist_max:
-                ok = True
-                break
-        if not ok:
-            return False
-    return True
-
-
-def normalizar_sustantivos_clave(raw: str) -> str:
-    """Normaliza sustantivos_clave: lowercase, quitar tildes, trim, dedup, colapsar comas.
-
-    RF-10 (spec 001): normaliza a minúsculas, elimina espacios alrededor de comas,
-    quita tildes (á→a, é→e, í→i, ó→o, ú→u) preservando la ñ. Colapsa comas
-    múltiples (',,' → ',') y auto-dedup preservando el orden de primera aparición.
-
-    Detalle empírico verificado (T1): `_quitar_acentos` de core/stemmer_es.py usa
-    unicodedata NFKD, que DESCOMPONE también la ñ (U+00F1 → n + U+0303 tilde comb.)
-    y la filtra. Para cumplir RF-10 ("preservando la ñ") se protege la ñ con un
-    marcador de control (\x01) antes de `_quitar_acentos` y se restaura después.
-    El marcador no es alfanumérico, así que jamás pasa la validación de formato (T3).
-    """
-    sk = [t.strip().lower() for t in raw.split(",") if t.strip()]
-    sk = [t.replace("ñ", "\x01") for t in sk]
-    sk = [_quitar_acentos(t).replace("\x01", "ñ") for t in sk]
-    seen = set()
-    unique = []
-    for t in sk:
-        if t not in seen:
-            seen.add(t)
-            unique.append(t)
-    return ",".join(unique)
-
 
 class SQLiteMemoryBioRAG:
     """
@@ -365,10 +132,10 @@ class SQLiteMemoryBioRAG:
         self._context_window = deque(maxlen=10)
         self.dmn = None
         self._dmn_sintesis_hecha = False
-        if DMN_SINTESIS_ACTIVA:
+        if constants.DMN_SINTESIS_ACTIVA:
             try:
                 from core.dmn_engine import sintetizar_sinapsis_dmn
-                sintetizar_sinapsis_dmn(self, max_n=DMN_SINTESIS_MAX)
+                sintetizar_sinapsis_dmn(self, max_n=constants.DMN_SINTESIS_MAX)
                 self._dmn_sintesis_hecha = True
             except Exception:
                 pass
@@ -379,7 +146,7 @@ class SQLiteMemoryBioRAG:
         # Signal #13 (v26.0): Índice de vectores PPMI+SVD (lazy-loaded, ~320KB en RAM)
         # Solo se carga si BIORAG_PPMI_WEIGHT > 0 para cero overhead cuando está OFF
         self._ppmi_index = None
-        if PPMI_VECTOR_WEIGHT > 0.0:
+        if constants.PPMI_VECTOR_WEIGHT > 0.0:
             try:
                 from core.ppmi_hybrid_search import IndicesBioRAG
                 self._ppmi_index = IndicesBioRAG(str(self.db_path))
@@ -2509,10 +2276,10 @@ class SQLiteMemoryBioRAG:
         self._auto_generar_co_ocurrencia(recuerdos_sesion)
 
         # E10: aristas dmn_synthesized (tope, nodos activos, dim o co-ocurrencia).
-        if DMN_SINTESIS_ACTIVA:
+        if constants.DMN_SINTESIS_ACTIVA:
             try:
                 from core.dmn_engine import sintetizar_sinapsis_dmn
-                sintetizar_sinapsis_dmn(self, max_n=DMN_SINTESIS_MAX)
+                sintetizar_sinapsis_dmn(self, max_n=constants.DMN_SINTESIS_MAX)
             except Exception:
                 pass
 
@@ -3461,9 +3228,9 @@ class SQLiteMemoryBioRAG:
           - parent_map: dict {nodo: (nodo_padre, peso_arista)} para rastrear caminos
         """
         if max_saltos is None:
-            max_saltos = MAX_SALTOS_CADENA
+            max_saltos = constants.MAX_SALTOS_CADENA
         if limite is None:
-            limite = LIMITE_EVOCACION
+            limite = constants.LIMITE_EVOCACION
         visitados = set()
         resultados = []
         parent_map = {}  # {nodo: (nodo_padre, peso_arista)}
@@ -3517,7 +3284,7 @@ class SQLiteMemoryBioRAG:
         """Sim_NCD = 1 - NCD(x,y) con zlib. C(s)=len(compress(utf-8))."""
         import zlib
         if level is None:
-            level = NCD_ZLIB_LEVEL
+            level = constants.NCD_ZLIB_LEVEL
         xa = (a or "").encode("utf-8", errors="ignore")
         yb = (b or "").encode("utf-8", errors="ignore")
         if not xa or not yb:
@@ -3543,16 +3310,16 @@ class SQLiteMemoryBioRAG:
 
     @staticmethod
     def _jsd_weight_adaptativo(query, n_tokens=None):
-        """E7: JSD_WEIGHT * 2.5 si Nt>=4, *0.5 si Nt<4. OFF: JSD_WEIGHT estatico."""
-        if not JSD_ADAPTATIVO:
-            return float(JSD_WEIGHT)
+        """E7: constants.JSD_WEIGHT * 2.5 si Nt>=4, *0.5 si Nt<4. OFF: constants.JSD_WEIGHT estatico."""
+        if not constants.JSD_ADAPTATIVO:
+            return float(constants.JSD_WEIGHT)
         if n_tokens is None:
             n_tokens = len(re.findall(r"\w{3,}", query or ""))
-        base = JSD_WEIGHT if JSD_WEIGHT > 0.0 else JSD_ADAPT_BASE
-        if n_tokens >= JSD_ADAPT_NT:
-            w = base * JSD_ADAPT_LARGO
+        base = constants.JSD_WEIGHT if constants.JSD_WEIGHT > 0.0 else constants.JSD_ADAPT_BASE
+        if n_tokens >= constants.JSD_ADAPT_NT:
+            w = base * constants.JSD_ADAPT_LARGO
         else:
-            w = base * JSD_ADAPT_CORTO
+            w = base * constants.JSD_ADAPT_CORTO
         return max(0.0, min(0.20, w))
 
     def _ts_nodo(self, concepto):
@@ -3572,8 +3339,8 @@ class SQLiteMemoryBioRAG:
         """F2: nodos cronologicamente adyacentes al ancla (misma categoria o dim)."""
         if not nodo_ancla:
             return []
-        vh = float(ventana_horas if ventana_horas is not None else EPISODIO_VENTANA_HORAS)
-        lim = int(limite_episodio if limite_episodio is not None else EPISODIO_LIMITE)
+        vh = float(ventana_horas if ventana_horas is not None else constants.EPISODIO_VENTANA_HORAS)
+        lim = int(limite_episodio if limite_episodio is not None else constants.EPISODIO_LIMITE)
         ts = self._ts_nodo(nodo_ancla)
         if ts <= 0:
             return []
@@ -3638,7 +3405,7 @@ class SQLiteMemoryBioRAG:
 
     def _afinidad_temporal_pool(self, conceptos):
         """F2: 1.0 si comparte bucket dia/sesion con otro del pool. O(k)."""
-        if EPISODIO_TEMPORAL_PESO <= 0 or not conceptos:
+        if constants.EPISODIO_TEMPORAL_PESO <= 0 or not conceptos:
             return {}
         uniq = [c for c in conceptos if c]
         if len(uniq) < 2:
@@ -3655,7 +3422,7 @@ class SQLiteMemoryBioRAG:
                 ts_map[conc] = float(ts or 0.0)
         except Exception:
             return {c: 0.0 for c in uniq}
-        buck = EPISODIO_BUCKET_SEG if EPISODIO_BUCKET_SEG > 0 else 86400.0
+        buck = constants.EPISODIO_BUCKET_SEG if constants.EPISODIO_BUCKET_SEG > 0 else 86400.0
         counts = {}
         for c in uniq:
             t = ts_map.get(c, 0.0)
@@ -3674,7 +3441,7 @@ class SQLiteMemoryBioRAG:
 
     def _analogia_scores_pool(self, v_target, pool):
         """F3: coseno de cada candidato vs vector analogia v_target. O(k*d), clamp [0,1]."""
-        if ANALOGIA_PESO <= 0 or v_target is None or not pool:
+        if constants.ANALOGIA_PESO <= 0 or v_target is None or not pool:
             return {}
         try:
             import numpy as np
@@ -3862,11 +3629,11 @@ class SQLiteMemoryBioRAG:
         # tematico_score no debe poder mover el score sola.
         tematico_score_gated = tematico_score if (bm25_norm > 0.001 or concepto_ratio > 0.001) else 0.0
 
-        # Base weights (sum to 1.0 when jsd_weight=0, PPMI_VECTOR_WEIGHT folded in)
+        # Base weights (sum to 1.0 when jsd_weight=0, constants.PPMI_VECTOR_WEIGHT folded in)
         # Weights dict: bm25=0.25, dim=0.14, concepto=0.08, sinonimos=0.08,
         # peso=0.10, jaccard=0.10, grupo=0.10, tematico=0.08,
         # temporal=0.04, asoc=0.02, pred=0.20, hub=0.20 = 1.39
-        # PPMI_VECTOR_WEIGHT = 0.15 -> total 1.54
+        # constants.PPMI_VECTOR_WEIGHT = 0.15 -> total 1.54
         # Re-normalizamos todos los pesos para que sumen 1.0 - jsd_weight
         # Derivamos la suma base del dict para evitar hardcoding
         _base_weights = {
@@ -3876,7 +3643,7 @@ class SQLiteMemoryBioRAG:
         }
         _base_sum = sum(_base_weights.values())  # 1.39
         # Pesos pool (E6/F2/F3/F5) entran en el denominador para no inflar el total.
-        total_base = _base_sum + PPMI_VECTOR_WEIGHT + NCD_PESO + EPISODIO_TEMPORAL_PESO + ANALOGIA_PESO + CAMPO_POTENCIAL_PESO
+        total_base = _base_sum + constants.PPMI_VECTOR_WEIGHT + constants.NCD_PESO + constants.EPISODIO_TEMPORAL_PESO + constants.ANALOGIA_PESO + constants.CAMPO_POTENCIAL_PESO
         base_weight = (1.0 - jsd_weight) / total_base if total_base > 0 else 0.0
 
         score = (
@@ -3892,12 +3659,12 @@ class SQLiteMemoryBioRAG:
                 0.04 * temporal +            # Recencia
                 0.02 * asoc_norm +           # Asociaciones
                 0.20 * pred_score +          # Signal #12: Predicados SRL
-                PPMI_VECTOR_WEIGHT * ppmi_score +  # Signal #13: PPMI+SVD
+                constants.PPMI_VECTOR_WEIGHT * ppmi_score +  # Signal #13: PPMI+SVD
                 0.20 * hub_match +            # Signal #14: Concept Hub
-                NCD_PESO * ncd_score +  # E6: 1-NCD zlib, solo pool
-                EPISODIO_TEMPORAL_PESO * episodio_score +  # F2: afinidad temporal pool
-                ANALOGIA_PESO * analogia_score +  # F3: analogia relacional PPMI
-                CAMPO_POTENCIAL_PESO * campo_score  # F5: campo semantico PPMI
+                constants.NCD_PESO * ncd_score +  # E6: 1-NCD zlib, solo pool
+                constants.EPISODIO_TEMPORAL_PESO * episodio_score +  # F2: afinidad temporal pool
+                constants.ANALOGIA_PESO * analogia_score +  # F3: analogia relacional PPMI
+                constants.CAMPO_POTENCIAL_PESO * campo_score  # F5: campo semantico PPMI
             ) +
             jsd_weight * jsd_score           # Signal #11: JSD distributional overlap
         )
@@ -4658,21 +4425,21 @@ class SQLiteMemoryBioRAG:
         if not q_tok:
             return resultados
 
-        win = resultados[:RERANKING_JACCARD_WINDOW]
+        win = resultados[:constants.RERANKING_JACCARD_WINDOW]
         max_j = max(
             (jaccard(q_tok, tokens((r[1] or "")[:preview_chars])) for r in win),
             default=0.0,
         )
-        if max_j < RERANKING_JACCARD_GATE:
+        if max_j < constants.RERANKING_JACCARD_GATE:
             return resultados
 
         original_r0 = resultados[0]
-        head = resultados[:RERANKING_JACCARD_TOPK]
-        tail = resultados[RERANKING_JACCARD_TOPK:]
+        head = resultados[:constants.RERANKING_JACCARD_TOPK]
+        tail = resultados[constants.RERANKING_JACCARD_TOPK:]
         max_j_norm = max_j or 1e-9
         head = sorted(
             head,
-            key=lambda r: r[4] + RERANKING_JACCARD_ALPHA * (jaccard(q_tok, tokens((r[1] or "")[:preview_chars])) / max_j_norm),
+            key=lambda r: r[4] + constants.RERANKING_JACCARD_ALPHA * (jaccard(q_tok, tokens((r[1] or "")[:preview_chars])) / max_j_norm),
             reverse=True,
         )
         if head and head[0] is not original_r0:
@@ -5014,11 +4781,11 @@ class SQLiteMemoryBioRAG:
         if pagina < 1:
             pagina = 1
         if limite is None:
-            limite = LIMITE_DEFAULT
+            limite = constants.LIMITE_DEFAULT
         # Si no hay frase Y no hay dimensiones Y no hay rol, retornar vacío
         # PERO si hay dimensiones o rol (aunque no haya frase), continuar
         if not frase.strip() and not dimensiones_ids and not buscar_por_rol:
-            if EPISTEMICO_METADATA:
+            if constants.EPISTEMICO_METADATA:
                 self._epistemico_publicar_sin_consulta()
             return [], 0
 
@@ -5207,7 +4974,7 @@ class SQLiteMemoryBioRAG:
         if es_basura:
             # Log para auditoría
             # print(f"[EARLY-EXIT] Query basura detectada, saltando cascada fallbacks: '{frase[:50]}...'")
-            if EPISTEMICO_METADATA:
+            if constants.EPISTEMICO_METADATA:
                 self._epistemico_publicar_sin_consulta()
             return [], 0
 
@@ -5651,7 +5418,7 @@ class SQLiteMemoryBioRAG:
                                     "l.estado, l.asociaciones "
                                     "FROM largo_plazo_fts f CROSS JOIN largo_plazo l ON l.rowid = f.rowid "
                                     "WHERE largo_plazo_fts MATCH ?" + lat_clause + pc_lat_clause + " LIMIT ?",
-                                    (fts_q,) + pc_lat_params + (CANDIDATOS_SIMILITUD,)
+                                    (fts_q,) + pc_lat_params + (constants.CANDIDATOS_SIMILITUD,)
                                 )
                                 candidatos_lat = self.cursor.fetchall()
                                 
@@ -5869,7 +5636,7 @@ class SQLiteMemoryBioRAG:
         # la consulta tiene ≥ 3 tokens (consultas negativas cortas no disparan).
         # No toca layout SDM. No fusiona nodos. QCR sigue activo (FP).
         if (
-            SDM_FALLBACK_ACTIVO
+            constants.SDM_FALLBACK_ACTIVO
             and not modo_estricto
             and len(todos) < 3
             and len(re.findall(r"\w{2,}", query or "")) >= 3
@@ -5877,7 +5644,7 @@ class SQLiteMemoryBioRAG:
             try:
                 from core.sdm import rescatar_fallback_sdm
                 _sdm_hits = rescatar_fallback_sdm(
-                    self, query, limite=max(SDM_FALLBACK_K, limite or 5)
+                    self, query, limite=max(constants.SDM_FALLBACK_K, limite or 5)
                 )
                 _seen_sdm = {r[1] for r in todos}
                 for hit in _sdm_hits:
@@ -6048,12 +5815,12 @@ class SQLiteMemoryBioRAG:
 
         # Multihop v1: expansion 1-salto (flag OFF default; gate decide).
         # Solo activos+activos: jamas inyecta en dormido/profundo/negativo-921.
-        if MULTIHOP_EXPANSION and profundidad == "activos" and todos:
+        if constants.MULTIHOP_EXPANSION and profundidad == "activos" and todos:
             try:
                 _mh_nuevos = self._multihop_vecinos(
                     [r[1] for r in todos if r[1]],
                     {r[1] for r in todos if r[1]},
-                    MULTIHOP_MAX_TOTAL,
+                    constants.MULTIHOP_MAX_TOTAL,
                 )
                 if _mh_nuevos:
                     _mh_nombres = [c for c, _ in _mh_nuevos]
@@ -6073,7 +5840,7 @@ class SQLiteMemoryBioRAG:
                             continue
                         todos.append(_row)
                         if _c not in origen_scores:
-                            origen_scores[_c] = ("expansion", MULTIHOP_PRIOR)
+                            origen_scores[_c] = ("expansion", constants.MULTIHOP_PRIOR)
             except Exception as e:
                 logger.warning("multihop: expansion fallo (%s: %s)", type(e).__name__, e)
 
@@ -6173,7 +5940,7 @@ class SQLiteMemoryBioRAG:
             if profundidad != "profundo":
                 fb_filtros_extra.append("l.estado = 'activo'")
             fb_where_extra = (" AND " + " AND ".join(fb_filtros_extra)) if fb_filtros_extra else ""
-            if DIM_RESONANCIA:
+            if constants.DIM_RESONANCIA:
                 # Fase A (resonancia dimensional): candidatura por merito
                 # (shared DESC), sin sesgo rowid del LIMIT-500. EXP-Q: los 3
                 # golds pasaban el umbral pero caian fuera de la ventana.
@@ -6196,8 +5963,8 @@ class SQLiteMemoryBioRAG:
                     LIMIT 500
                 """
             try:
-                if DIM_RESONANCIA:
-                    self.cursor.execute(fallback_sql, tuple(fb_filtros_params) + (umbral_efectivo, DIM_RESONANCIA_K))
+                if constants.DIM_RESONANCIA:
+                    self.cursor.execute(fallback_sql, tuple(fb_filtros_params) + (umbral_efectivo, constants.DIM_RESONANCIA_K))
                     concepto_fb_ids = {}
                     for concepto, dims_csv in self.cursor.fetchall():
                         concepto_fb_ids[concepto] = [int(x) for x in (dims_csv or "").split(",") if x]
@@ -6208,7 +5975,7 @@ class SQLiteMemoryBioRAG:
                         if concepto not in concepto_fb_ids:
                             concepto_fb_ids[concepto] = []
                         concepto_fb_ids[concepto].append(dim_id)
-                if not DIM_RESONANCIA and len(concepto_fb_ids) > 50:
+                if not constants.DIM_RESONANCIA and len(concepto_fb_ids) > 50:
                     # Ordenar por cantidad de dimensiones compartidas (top 50)
                     from collections import Counter
                     dim_counts = Counter({c: len(ds) for c, ds in concepto_fb_ids.items()})
@@ -6378,7 +6145,7 @@ class SQLiteMemoryBioRAG:
         _ppmi_q_set = set(tokens_query) if tokens_query else set()
         _ppmi_es_corta = len(_ppmi_q_set) <= 2
         _ppmi_pool_set = {r[1] for r in todos}
-        if PPMI_VECTOR_WEIGHT > 0.0 and self._ppmi_index and tokens_query:
+        if constants.PPMI_VECTOR_WEIGHT > 0.0 and self._ppmi_index and tokens_query:
             try:
                 _ppmi_vq = self._ppmi_index.vector_query(list(tokens_query))
             except Exception:
@@ -6420,7 +6187,7 @@ class SQLiteMemoryBioRAG:
 
         # E6: NCD zlib O(k) sobre el pool (query vs concepto+contenido).
         ncd_map = {}
-        if NCD_PESO > 0.0 and todos:
+        if constants.NCD_PESO > 0.0 and todos:
             try:
                 ncd_map = self._ncd_sims_pool(
                     query,
@@ -6433,7 +6200,7 @@ class SQLiteMemoryBioRAG:
         _jsd_w_e7 = self._jsd_weight_adaptativo(query)
 
         episodio_map = {}
-        if EPISODIO_TEMPORAL_PESO > 0.0 and todos:
+        if constants.EPISODIO_TEMPORAL_PESO > 0.0 and todos:
             try:
                 episodio_map = self._afinidad_temporal_pool([r[1] for r in todos if r[1]])
             except Exception:
@@ -6441,7 +6208,7 @@ class SQLiteMemoryBioRAG:
 
         # F3: analogia relacional. Con flags 0 ni regex ni coseno (byte-identico).
         analogia_map = {}
-        if (analogia or ANALOGIA_DETECTAR) and ANALOGIA_PESO > 0.0 and todos:
+        if (analogia or constants.ANALOGIA_DETECTAR) and constants.ANALOGIA_PESO > 0.0 and todos:
             try:
                 from core.ppmi_hybrid_search import detectar_analogia, _vec_concepto
                 _abc = detectar_analogia(query)
@@ -6463,13 +6230,13 @@ class SQLiteMemoryBioRAG:
 
         # F5: campo semantico. Peso 0 -> dict vacio, ni gauss ni matmul.
         campo_map = {}
-        if CAMPO_POTENCIAL_PESO > 0.0 and todos and _ppmi_vq is not None:
+        if constants.CAMPO_POTENCIAL_PESO > 0.0 and todos and _ppmi_vq is not None:
             try:
                 from core.ppmi_hybrid_search import calcular_campo_potencial_ppmi
-                _pool_c = [r[1] for r in todos if r[1]][:CAMPO_K if CAMPO_K > 0 else 0]
+                _pool_c = [r[1] for r in todos if r[1]][:constants.CAMPO_K if constants.CAMPO_K > 0 else 0]
                 if _pool_c:
                     campo_map = calcular_campo_potencial_ppmi(
-                        self, _ppmi_vq, _pool_c, sigma=CAMPO_SIGMA
+                        self, _ppmi_vq, _pool_c, sigma=constants.CAMPO_SIGMA
                     )
             except Exception:
                 campo_map = {}
@@ -6571,7 +6338,7 @@ class SQLiteMemoryBioRAG:
                 pred_val = min(1.0, matches / max(1, len(tokens_query)))
 
             # Signal #13: PPMI+SVD vector similarity (v26.0)
-            # ON por defecto (PPMI_VECTOR_WEIGHT=0.15). Apagar con: export BIORAG_PPMI_WEIGHT=0.0
+            # ON por defecto (constants.PPMI_VECTOR_WEIGHT=0.15). Apagar con: export BIORAG_PPMI_WEIGHT=0.0
             ppmi_val = 0.0
             if _ppmi_vq is not None:
                 try:
@@ -6665,12 +6432,12 @@ class SQLiteMemoryBioRAG:
             hub_canonical_set = set(hub_expansion.get("canonical_nodes", []))
         q_tokens_qcr = [t.lower() for t in re.findall(r'\w{3,}', query)]
         _qcr_idf_map = {}
-        if QCR_ACTIVO and QCR_IDF_ACTIVO and q_tokens_qcr:
+        if QCR_ACTIVO and constants.QCR_IDF_ACTIVO and q_tokens_qcr:
             try:
                 _qcr_idf_map = self._idf_tokens_qcr(q_tokens_qcr)
             except Exception:
                 _qcr_idf_map = {}
-        _qcr_umbral = QCR_IDF_UMBRAL if (QCR_IDF_ACTIVO and _qcr_idf_map) else 0.50
+        _qcr_umbral = constants.QCR_IDF_UMBRAL if (constants.QCR_IDF_ACTIVO and _qcr_idf_map) else 0.50
         if QCR_ACTIVO and len(q_tokens_qcr) >= 2 and resultados_con_hibrido:
             filtrados_qcr = []
             _idf_den = sum(_qcr_idf_map.get(t, 1.0) for t in q_tokens_qcr) if _qcr_idf_map else float(len(q_tokens_qcr))
@@ -6696,12 +6463,12 @@ class SQLiteMemoryBioRAG:
                 ) or (
                     # Fase B (resonancia dimensional): escape calibrado T=0.45
                     # (40 neg max 0.0; Q-01 0.488). OFF = cortocircuito.
-                    DIM_ESCAPE and origen_tipo == "dimensional_fallback"
-                    and score_capa >= DIM_ESCAPE_T
+                    constants.DIM_ESCAPE and origen_tipo == "dimensional_fallback"
+                    and score_capa >= constants.DIM_ESCAPE_T
                 ):
                     filtrados_qcr.append((conc, cont, peso, est, sc, asoc))
-                elif (QCR_TYPO_ACTIVA and sc >= QCR_TYPO_PISO
-                        and _qcr_todos_cercanos(q_tokens_qcr, text_target, QCR_TYPO_DIST)):
+                elif (constants.QCR_TYPO_ACTIVA and sc >= constants.QCR_TYPO_PISO
+                        and constants._qcr_todos_cercanos(q_tokens_qcr, text_target, constants.QCR_TYPO_DIST)):
                     # F-QCR-D4: segunda oportunidad por typos (ver flags). Flag OFF:
                     # cortocircuito, path byte-identico.
                     filtrados_qcr.append((conc, cont, peso, est, sc, asoc))
@@ -6791,7 +6558,7 @@ class SQLiteMemoryBioRAG:
         # Fase C (v22.2): Re-ranking jaccard léxico condicional.
         # OFF por defecto (BIORAG_RERANKING_JACCARD_ENABLED=0) — activación gradual
         # monitoreada contra el benchmark. Config ganadora del holdout 2026-08-04.
-        if RERANKING_JACCARD_ACTIVO:
+        if constants.RERANKING_JACCARD_ACTIVO:
             resultados_con_hibrido = self._rerank_jaccard_protect_r0(
                 resultados_con_hibrido, frase_limpia, preview_chars=preview_chars
             )
@@ -6800,7 +6567,7 @@ class SQLiteMemoryBioRAG:
         # Si el candidato Top-1 es un atractor fuerte (score >= 0.80),
         # atenúa activamente a los competidores secundarios del mismo nicho (x0.60)
         # Ablación: export BIORAG_GABA_ACTIVO=0
-        if GABA_ACTIVO and resultados_con_hibrido and resultados_con_hibrido[0][4] >= 0.80:
+        if constants.GABA_ACTIVO and resultados_con_hibrido and resultados_con_hibrido[0][4] >= 0.80:
             top_score = resultados_con_hibrido[0][4]
             gaba_resultados = [resultados_con_hibrido[0]]
             for conc, cont, peso, est, sc, asoc in resultados_con_hibrido[1:]:
@@ -6971,7 +6738,7 @@ class SQLiteMemoryBioRAG:
         self.last_query = query
         self.last_hub_expansion = hub_expansion
 
-        _exp_ep = expandir_episodio or EPISODIO_TEMPORAL_ACTIVO
+        _exp_ep = expandir_episodio or constants.EPISODIO_TEMPORAL_ACTIVO
         if _exp_ep and pagina_resultados:
             try:
                 _ancla = pagina_resultados[0][0]
@@ -6995,7 +6762,7 @@ class SQLiteMemoryBioRAG:
         # Flag OFF por defecto → esta rama no altera la ruta del baseline.
         # Con flag ON aplica el contrato de degradación asociativa (§3 del plan):
         # nunca silencio vacío, etiqueta directo/asociativo, sin barridos globales.
-        if ADN_RANKING_ENABLED and pagina_resultados:
+        if constants.ADN_RANKING_ENABLED and pagina_resultados:
             pagina_resultados, metadatos_epi = self._enriquecer_con_adn(query, pagina_resultados, limite)
             self.last_estado_epistemico = metadatos_epi
             total = len(pagina_resultados)
@@ -7052,7 +6819,7 @@ class SQLiteMemoryBioRAG:
         # buscar_por_frase es motor de búsqueda puro: devuelve todo lo que
         # encuentre, sin filtro de calidad. El consumidor decide.
         # OPT-NUEVA-5: solo publica metadatos (side-channel); ranking intacto.
-        if EPISTEMICO_METADATA:
+        if constants.EPISTEMICO_METADATA:
             self._epistemico_publicar(frase, pagina_resultados, total)
         self.last_pagina_resultados = pagina_resultados
         return pagina_resultados, total
@@ -7152,7 +6919,7 @@ class SQLiteMemoryBioRAG:
         n_adn_consultados = 0
         for ancla in anclajes:
             try:
-                vecinos = self.adn_engine.buscar_por_esencia(ancla[0], top_k=ADN_MAX_EXPANSION)
+                vecinos = self.adn_engine.buscar_por_esencia(ancla[0], top_k=constants.ADN_MAX_EXPANSION)
             except Exception:
                 vecinos = []
             for v in vecinos:
@@ -7161,7 +6928,7 @@ class SQLiteMemoryBioRAG:
                 if not concepto_adn or concepto_adn in pool:
                     continue
                 s_adn = float(v.get("afinidad_genetica", 0.0))
-                if s_adn < ADN_UMBRAL_ASOCIACION:
+                if s_adn < constants.ADN_UMBRAL_ASOCIACION:
                     continue
                 pool[concepto_adn] = {
                     "concepto": concepto_adn, "contenido": "", "peso": 0.0, "estado": "activo",
@@ -7265,7 +7032,7 @@ class SQLiteMemoryBioRAG:
         if pagina < 1:
             pagina = 1
         if limite is None:
-            limite = LIMITE_RAFTAGA
+            limite = constants.LIMITE_RAFTAGA
         import re
         from itertools import combinations
         
@@ -7483,7 +7250,7 @@ class SQLiteMemoryBioRAG:
 
             # Signal #11: JSD (rafaga path)
             jsd_val = 0.0
-            if JSD_WEIGHT > 0.0:
+            if constants.JSD_WEIGHT > 0.0:
                 node_text = f"{concepto} {contenido or ''}"
                 jsd_val = self._calcular_jsd(query, node_text)
 
@@ -7499,7 +7266,7 @@ class SQLiteMemoryBioRAG:
                 match_exacto=match_exacto,
                 tematico_score=0.0,
                 jsd_score=jsd_val,
-                jsd_weight=JSD_WEIGHT,
+                jsd_weight=constants.JSD_WEIGHT,
                 pred_score=0.0,   # Rafaga path: no predicate data precomputed
                 ppmi_score=0.0    # Signal #13: neutral en ráfaga (queries ya son muy específicas)
             )

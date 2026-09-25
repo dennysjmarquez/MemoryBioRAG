@@ -28,8 +28,8 @@ def test_expandir_episodio_ventana_24h(tmp_path):
 
 
 def test_afinidad_pool_mismo_bucket(tmp_path, monkeypatch):
-    import core.memory_store as ms
-    monkeypatch.setattr(ms, "EPISODIO_TEMPORAL_PESO", 0.05)
+    import core.memory.constants as constants
+    monkeypatch.setattr(constants, "EPISODIO_TEMPORAL_PESO", 0.05)
     c = SQLiteMemoryBioRAG(str(tmp_path / "f2aff.db"))
     now = time.time()
     _nodo(c, "a", "uno", now)

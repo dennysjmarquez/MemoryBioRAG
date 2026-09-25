@@ -80,10 +80,10 @@ def test_peso_default_on_tras_gate():
 
 
 def test_integracion_buscar(tmp_path, monkeypatch):
-    import core.memory_store as ms
+    import core.memory.constants as constants
     from core.ppmi_hybrid_search import IndicesBioRAG
     from core.ppmi_vectorizer import reindexar_ppmi_svd
-    monkeypatch.setattr(ms, "CAMPO_POTENCIAL_PESO", 0.05)
+    monkeypatch.setattr(constants, "CAMPO_POTENCIAL_PESO", 0.05)
     c = SQLiteMemoryBioRAG(str(tmp_path / "f5.db"))
     for name, txt in (
         ("fldA", "campo magnetico alfa xyzcampo"),
