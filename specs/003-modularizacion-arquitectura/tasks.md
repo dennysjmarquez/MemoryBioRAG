@@ -120,12 +120,12 @@
 - **RF cubiertos**: RF-5, RF-6, RNF-1
 - **Descripción**: Extraer `core/mcp_server/search.py` conteniendo `_recordar_impl` (~753 líneas reales, L652–L1404 por AST — deuda técnica trasladada intacta) + 2 tools (`biorag_recordar`, `biorag_buscar`). Primera línea del docstring documenta deuda técnica. Módulo final MCP: Gate Nivel 0 + Gate Nivel 1.
 - **Hecho cuando**:
-  - [ ] `core/mcp_server/search.py` existe con 2 tools + `_recordar_impl` intacto (~753 líneas) + `register()`
-  - [ ] `wc -l core/mcp_server/search.py` ≈ 1135 (excepción 800 por deuda técnica aplicada)
-  - [ ] `_build_server()` devuelve exactamente 42 names + 2 resources + 1 prompt
+  - [x] `core/mcp_server/search.py` existe con 2 tools + `_recordar_impl` intacto (~753 líneas) + `register()`
+  - [x] `wc -l core/mcp_server/search.py` ≈ 1135 (excepción 800 por deuda técnica aplicada)
+  - [x] `_build_server()` devuelve exactamente 42 names + 2 resources + 1 prompt
   - [ ] Gate Nivel 0 ✓ + Gate Nivel 1 ✓ (921 casos idénticos a 4 decimales)
-  - [ ] 1 commit atómico + push
-- [ ] **Estado**: pendiente
+  - [x] 1 commit atómico + push
+- [x] **Estado**: completada
 
 ---
 
@@ -133,14 +133,14 @@
 - **RF cubiertos**: RF-3, RF-7, CL-6, CL-7
 - **Descripción**: Paso 2.3: Consolidar `core/mcp_server/server.py` como cableado puro (llama `register()` de los 15 submódulos de tools/resources/prompts, sin código inline). Efectos de arranque (`load_dotenv`, `logging.basicConfig`, warmup WordNet, `sys.path.insert` con `core.paths.project_root()`) corren al nivel de módulo al importar `server.py`; `FastMCP` se instancia dentro de `_build_server()`. Paso 2.4: Reemplazar el monolito raíz `mcp_server.py` por un shim de ≤ 15 líneas que re-exporta `_build_server` y `main` + `if __name__ == "__main__": sys.exit(main())`. Ejecutar test de validación CWD desde `/tmp` con `PYTHONPATH`. Grep previo confirma ausencia de otros imports externos a re-exportar.
 - **Hecho cuando**:
-  - [ ] `core/mcp_server/server.py` contiene exclusivamente `register()` × 15 submódulos + bootstrap
-  - [ ] `mcp_server.py` raíz es un shim ≤ 15 líneas
-  - [ ] `wc -l mcp_server.py` ≤ 15
-  - [ ] Test de validación CWD (`cwd=/tmp` con `PYTHONPATH`) pasa exitosamente
-  - [ ] `grep -r "from mcp_server import\|import mcp_server"` no muestra fallos de import
-  - [ ] Gate Nivel 1 ✓ (42 names + 2 resources + 1 prompt + 921 casos golden)
-  - [ ] 2 commits atómicos + push
-- [ ] **Estado**: pendiente
+  - [x] `core/mcp_server/server.py` contiene exclusivamente `register()` × 15 submódulos + bootstrap
+  - [x] `mcp_server.py` raíz es un shim ≤ 15 líneas
+  - [x] `wc -l mcp_server.py` ≤ 15
+  - [x] Test de validación CWD (`cwd=/tmp` con `PYTHONPATH`) pasa exitosamente
+  - [x] `grep -r "from mcp_server import\|import mcp_server"` no muestra fallos de import
+  - [x] Gate Nivel 1 ✓ (42 names + 2 resources + 1 prompt + 921 casos golden)
+  - [x] 2 commits atómicos + push
+- [x] **Estado**: completada
 
 ---
 
