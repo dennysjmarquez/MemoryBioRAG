@@ -1,17 +1,10 @@
 import os
 import sqlite3
-import time
 import re
-import sys
-import math
-import json
 import logging
-import numpy as np
 from collections import deque
 
 logger = logging.getLogger("BioRAG.MemoryStore")
-
-from core.stemmer_es import _quitar_acentos
 
 # Auto-cargar .env.local al importar (antes de leer cualquier variable de entorno)
 from config import _load_env_local
@@ -79,10 +72,12 @@ from core.memory import search
 
 class SQLiteMemoryBioRAG:
     """
-    Motor de Almacenamiento Cognitivo BioRAG basado en SQLite.
+    Motor de Almacenamiento Cognitivo BioRAG basado en SQLite (Fachada delgada).
     Implementa almacenamiento biomimético con persistencia de doble capa (Corto/Largo plazo),
     plasticidad sináptica (LTP/LTD), indexación por B-Tree ultrarrápida,
     búsqueda de familiaridad difusa por coincidencia de Jaccard y propagación de activación (Grafo).
+
+    Excepción de límite de líneas por deuda técnica documentada: la fachada supera 500 porque los delegadores conservan la firma completa.
     """
 
     def __init__(self, db_path=None):

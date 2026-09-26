@@ -251,12 +251,12 @@
 - **RF cubiertos**: RF-10, RF-8, RNF-1.3
 - **Descripción**: Extraer `core/memory/schema.py` (~1200 líneas: `_crear_estructura_cerebral` de 513 líneas trasladada intacta por deuda técnica, `_crear_tabla_data`, `_crear_tablas_nuevas_si_faltan`, `_asegurar_catalogo_dimensiones`, `_crear_tabla_fts`, `_poblar_fts`, `_poblar_fts_unicode` en el mismo commit). Excepción 800 por deuda técnica. Delegadores en fachada. Gate Nivel 0 + Gate Nivel 1.
 - **Hecho cuando**:
-  - [ ] `core/memory/schema.py` existe con 7 funciones de esquema (~1200 líneas)
-  - [ ] `_crear_estructura_cerebral` intacta + `_poblar_fts` y `_poblar_fts_unicode` presentes
-  - [ ] Docstring documenta deuda técnica
-  - [ ] Gate Nivel 0 ✓ + Gate Nivel 1 ✓
-  - [ ] 1 commit atómico + push
-- [ ] **Estado**: pendiente
+  - [x] `core/memory/schema.py` existe con 7 funciones de esquema (~1200 líneas)
+  - [x] `_crear_estructura_cerebral` intacta + `_poblar_fts` y `_poblar_fts_unicode` presentes
+  - [x] Docstring documenta deuda técnica
+  - [x] Gate Nivel 0 ✓ + Gate Nivel 1 ✓
+  - [x] 1 commit atómico + push
+- [x] **Estado**: completada
 
 ---
 
@@ -264,13 +264,13 @@
 - **RF cubiertos**: RF-10, RF-8, RNF-1.3, CL-1
 - **Descripción**: Paso 3.4g: Extraer `core/memory/rafaga.py` (~370 líneas: `buscar_por_rafaga` de 343 líneas de cuerpo y `validar_rafaga`). Paso 3.4h: Extraer `core/memory/search.py` (~2500 líneas: `buscar_por_frase` de 2109 líneas intacta con closures anidadas `_fts_safe_term`, `_fts_safe_phrase`, `strip_accents`, `_calc_strict_cov` + variaciones, microsegundos, tokens, predicados, búsqueda en contenido). En este commit, adaptar `inspect.getsource` en `tests/test_jsd_adaptativo_e7.py`, `tests/test_dim_escape.py`, `tests/test_dim_resonancia.py`, `tests/test_qcr_idf_e3.py` y `tests/test_qcr_typo_d4.py` hacia `core.memory.search.buscar_por_frase` o funciones movidas. Gate Nivel 0 + Gate Nivel 1.
 - **Hecho cuando**:
-  - [ ] `core/memory/rafaga.py` existe con `buscar_por_rafaga` y `validar_rafaga` (~370 líneas, bajo 500, no se parte)
-  - [ ] `core/memory/search.py` existe con `buscar_por_frase` intacta + closures anidadas (~2500 líneas)
-  - [ ] Docstrings documentan deuda técnica
-  - [ ] `inspect.getsource` en `test_jsd_adaptativo_e7.py`, tests de escape, resonancia y QCR adaptados y pasando al 100%
-  - [ ] Gate Nivel 0 ✓ + Gate Nivel 1 ✓ (921 casos idénticos a 4 decimales)
-  - [ ] 2 commits atómicos + push
-- [ ] **Estado**: pendiente
+  - [x] `core/memory/rafaga.py` existe con `buscar_por_rafaga` y `validar_rafaga` (~370 líneas, bajo 500, no se parte)
+  - [x] `core/memory/search.py` existe con `buscar_por_frase` intacta + closures anidadas (~2500 líneas)
+  - [x] Docstrings documentan deuda técnica
+  - [x] `inspect.getsource` en `test_jsd_adaptativo_e7.py`, tests de escape, resonancia y QCR adaptados y pasando al 100%
+  - [x] Gate Nivel 0 ✓ + Gate Nivel 1 ✓ (921 casos idénticos a 4 decimales)
+  - [x] 2 commits atómicos + push
+- [x] **Estado**: completada
 
 ---
 
