@@ -251,12 +251,13 @@
 - **RF cubiertos**: RF-10, RF-8, RNF-1.3
 - **Descripción**: Extraer `core/memory/schema.py` (~1200 líneas: `_crear_estructura_cerebral` de 513 líneas trasladada intacta por deuda técnica, `_crear_tabla_data`, `_crear_tablas_nuevas_si_faltan`, `_asegurar_catalogo_dimensiones`, `_crear_tabla_fts`, `_poblar_fts`, `_poblar_fts_unicode` en el mismo commit). Excepción 800 por deuda técnica. Delegadores en fachada. Gate Nivel 0 + Gate Nivel 1.
 - **Hecho cuando**:
-  - [ ] `core/memory/schema.py` existe con 7 funciones de esquema (~1200 líneas)
-  - [ ] `_crear_estructura_cerebral` intacta + `_poblar_fts` y `_poblar_fts_unicode` presentes
-  - [ ] Docstring documenta deuda técnica
-  - [ ] Gate Nivel 0 ✓ + Gate Nivel 1 ✓
-  - [ ] 1 commit atómico + push
-- [ ] **Estado**: pendiente
+  - [x] `core/memory/schema.py` existe con 7 funciones de esquema (~1200 líneas)
+  - [x] `_crear_estructura_cerebral` intacta + `_poblar_fts` y `_poblar_fts_unicode` presentes
+  - [x] Docstring documenta deuda técnica
+  - [x] Gate Nivel 0 ✓ + Gate Nivel 1 ✓
+  - [x] 1 commit atómico + push
+- [x] **Estado**: completada
+
 
 ---
 
