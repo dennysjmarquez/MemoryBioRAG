@@ -49,7 +49,8 @@ def test_flags_default():
 
 
 def test_enganche_en_qcr():
-    src = inspect.getsource(SQLiteMemoryBioRAG.buscar_por_frase)
+    from core.memory import search
+    src = inspect.getsource(search.buscar_por_frase)
     assert 'constants.DIM_ESCAPE and origen_tipo == "dimensional_fallback"' in src
 
 

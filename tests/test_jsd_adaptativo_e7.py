@@ -36,6 +36,7 @@ def test_hibrido_respeta_jsd_weight(tmp_path):
 
 
 def test_fuente_buscar():
-    src = inspect.getsource(SQLiteMemoryBioRAG.buscar_por_frase)
+    from core.memory import search
+    src = inspect.getsource(search.buscar_por_frase)
     assert "_jsd_weight_adaptativo" in src
     assert "_jsd_w_e7" in src

@@ -59,7 +59,8 @@ def test_flags_default():
 
 
 def test_enganche_en_fallback():
-    src = inspect.getsource(SQLiteMemoryBioRAG.buscar_por_frase)
+    from core.memory import search
+    src = inspect.getsource(search.buscar_por_frase)
     assert "if constants.DIM_RESONANCIA:" in src
     assert "GROUP_CONCAT(d.dimension_id)" in src
 

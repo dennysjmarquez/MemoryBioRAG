@@ -49,7 +49,8 @@ def test_flags_default():
 
 
 def test_enganche_en_qcr():
-    src = inspect.getsource(SQLiteMemoryBioRAG.buscar_por_frase)
+    from core.memory import search
+    src = inspect.getsource(search.buscar_por_frase)
     assert "constants._qcr_todos_cercanos(q_tokens_qcr, text_target, constants.QCR_TYPO_DIST)" in src
 
 

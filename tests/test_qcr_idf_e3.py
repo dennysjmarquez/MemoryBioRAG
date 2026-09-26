@@ -33,8 +33,8 @@ def test_qcr_idf_no_fusiona(tmp_path):
 
 def test_buscar_por_frase_llama_idf():
     import inspect
-    from core.memory_store import SQLiteMemoryBioRAG
-    src = inspect.getsource(SQLiteMemoryBioRAG.buscar_por_frase)
+    from core.memory import search
+    src = inspect.getsource(search.buscar_por_frase)
     assert "_idf_tokens_qcr" in src
     assert "QCR_IDF_UMBRAL" in src or "_qcr_umbral" in src
 
