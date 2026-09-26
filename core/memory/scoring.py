@@ -450,26 +450,3 @@ def _rerank_jaccard_protect_r0(self, resultados, frase_limpia, preview_chars=150
     if head and head[0] is not original_r0:
         head = [original_r0] + [it for it in head if it is not original_r0]
     return head + tail
-
-
-def _generar_variaciones(self, query, historial_fallos=None):
-    """Genera variaciones de la query basadas en el historial de fallos.
-
-    Si "angular formularios" falló, probar:
-    - Solo "angular" (más específico)
-    - "angular" + sinónimos
-    - Filtro por categoría probable
-    """
-    variaciones = []
-    palabras = re.findall(r'\w{3,}', query.lower())
-
-    # Excluir términos que ya fallaron
-    palabras_filtradas = [p for p in palabras if p not in (historial_fallos or [])]
-
-    # Solo la palabra más importante no fallida
-    if palabras_filtradas:
-        variaciones.append(palabras_filtradas[0])
-
-    # ponytail: removed semantica table lookup — agent provides synonyms via parafrasis_list
-
-    return variaciones[:3]
