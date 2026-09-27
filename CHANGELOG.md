@@ -1,4 +1,33 @@
 # BioRAG Changelog
+ 
+## [v32.1] — 2026-09-26 — Modularización de Arquitectura y Descomposición de Monolitos · Spec 003
+
+**Descentralización de componentes monolíticos hacia paquetes modulares de responsabilidad única (SRP) con contrato de no-regresión por identidad verificable al 100%.**
+
+### Novedades Principales
+
+- **Descomposición del Monolito de Memoria (`core/memory/`):**
+  - Descentralización de `core/memory_store.py` (de 7.778 líneas y 99 métodos) hacia 18 submódulos especializados en el paquete `core/memory/`:
+    - `search.py` (~2.603 líneas: `buscar_por_frase` intacta con closures anidadas).
+    - `scoring.py` (~452 líneas: `_calcular_score_hibrido` y señales puras).
+    - `synapses.py` (~560 líneas: conectoma y topología de grafos).
+    - `schema.py` (~1.161 líneas: inicialización DDL y tablas FTS5).
+    - `consolidation.py` (~719 líneas: ciclo de sueño, ACT-R y LTD modulado).
+    - `constants.py` (~248 líneas: pesos, umbrales y banderas de configuración).
+    - `umbral.py` (~523 líneas: calibración conforme Platt y umbral dinámico).
+    - `rafaga.py` (~383 líneas: ráfaga de reminiscencia).
+    - `ingest.py`, `episodes.py`, `quarantine.py`, `dmn.py`, `context.py`, `catalog_methods.py`, `comms.py`, `telemetry.py`, `adn.py`.
+  - Consolidación de `core/memory_store.py` como una **fachada delgada** (637 líneas) con delegación explícita método a método y firmas completas (prohibido `__getattr__` y `*args, **kwargs`).
+- **Modularización del Servidor MCP (`core/mcp_server/`):**
+  - Descentralización de `mcp_server.py` (de 4.358 líneas) hacia 15 submódulos organizados por dominio funcional en `core/mcp_server/` (`search.py`, `write.py`, `synapses.py`, `concept_hub_tools.py`, `catalog.py`, `introspection.py`, `communication.py`, `consolidation.py`, `daemon.py`, `session.py`, `oracle.py`, `sync.py`, `calibrar.py`, `resources.py`, `prompt.py`), coordinados por `server.py` y `_shared.py`.
+  - Reemplazo del monolito raíz `mcp_server.py` por un shim ligero que expone `_build_server` y `main` preservando 100% la compatibilidad con todas las integraciones existentes.
+- **Invarianza de Superficie Pública y Cero Regresión:**
+  - Preservación exacta de los 42 nombres de tools MCP, 2 resources y 1 prompt.
+  - Preservación de todas las firmas públicas de la API `SQLiteMemoryBioRAG`.
+  - 100% de identidad caso a caso demostrada sobre los 921 casos canónicos de evaluación (0 diferencias de score a 4 decimales).
+  - 264/264 tests unitarios en verde (`pytest tests/ -v`).
+  - 33/33 pruebas de fuzzing/adversariales aprobadas (`python3 scripts/fuzz_qa.py`).
+  - Recall@5 oficial: **100.00%** (875/875), **0.00% FP** (0/40).
 
 ## [v32.0] — 2026-09-21 — Consolidación Cognitiva ACT-R, Concept Hubs y Benchmark 99.31%
 
