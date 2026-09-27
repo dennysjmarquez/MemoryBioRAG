@@ -293,6 +293,8 @@
 - **Descripción**: Ejecutar la suite completa de validación final: `run_qa_suite.sh` (875/875 Recall@5, 0 FP sobre `snapshots/qa_escape_qcr_20260811.db`), `fuzz_qa.py` (33/33 passed), verificación dual no-tautológica usando el snapshot de la **base viva real** congelado en Fase 0 (`MemoryBioRAG_Data/memory_biorag.db`) como sustrato fijo e inmutable para ambas corridas (código pre-modularización en `antes.jsonl` vs código modularizado en `despues.jsonl` — 100% identidad caso a caso). Generar informe final auditado con tablas de líneas y métricas entregado directamente a Dennys. El merge a `master` lo ejecuta Dennys (RF-17).
 - **Hecho cuando**:
   - [x] T21 — Medición 1: run_qa_suite.sh sobre snapshot QA, R@5 875/875, FP 0/40 (scripts/qa_metrics.json en 31f0cbf). Medición 2: fuzz_qa.py 33/33. Medición 3: el snapshot de Fase 0 se perdió; se corrió un dual SUSTITUTO sobre el blob ae449de2 (MemoryBioRAG_Data/memory_biorag.db en git), copias aisladas fuera del repo, ANTES=df5d8db, DESPUÉS=31f0cbf, 921/921 casos, 0 diferencias de score, 2 empates exactos con orden invertido en pos 4-5 (0096, 0347), 38 vacíos = 38 controles negativos. No es el dual de Fase 0.
+  - [x] Informe final de Gate Nivel 2 redactado con tablas de auditoría `wc -l` y métricas entregado a Dennys
+  - Nota: El merge a `master` lo ejecuta exclusivamente Dennys; el agente termina su labor con la entrega del informe.
 - [x] **Estado**: completada
 
 ---
