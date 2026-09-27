@@ -278,13 +278,13 @@
 - **RF cubiertos**: RF-11, RF-8, RNF-1.4
 - **Descripción**: Consolidar `core/memory_store.py` como fachada delgada: `__init__` (bootstrap), `cerrar_sistema` (junto a `__init__`, sin delegar), re-exports de constantes/funciones puras y delegadores con firma completa explícita (prohibido `*args, **kwargs`). Estimado ~450 líneas (techo orientativo 400, tope 500 orientativo/justificado; si las firmas completas hacen que supere 500, la justificación de una línea en docstring basta). Auditoría completa `wc -l` de todos los submódulos. Gate Nivel 1.
 - **Hecho cuando**:
-  - [ ] `core/memory_store.py` contiene `__init__`, `cerrar_sistema`, re-exports y delegadores con firma completa
-  - [ ] Prohibido `__getattr__` y prohibido `*args, **kwargs` (RF-8, RF-11)
-  - [ ] Si `wc -l core/memory_store.py` > 400, docstring de justificación presente
-  - [ ] Tabla de auditoría `wc -l` de todos los archivos generada en el commit
-  - [ ] Gate Nivel 1 ✓
-  - [ ] 1 commit atómico + push
-- [ ] **Estado**: pendiente
+  - [x] `core/memory_store.py` contiene `__init__`, `cerrar_sistema`, re-exports y delegadores con firma completa
+  - [x] Prohibido `__getattr__` y prohibido `*args, **kwargs` (RF-8, RF-11)
+  - [x] Si `wc -l core/memory_store.py` > 400, docstring de justificación presente
+  - [x] Tabla de auditoría `wc -l` de todos los archivos generada en el commit
+  - [x] Gate Nivel 1 ✓
+  - [x] 1 commit atómico + push
+- [x] **Estado**: completada
 
 ---
 
