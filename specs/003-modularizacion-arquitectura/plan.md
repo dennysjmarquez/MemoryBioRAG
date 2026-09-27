@@ -71,7 +71,7 @@ Destino de la descomposición de `core/memory_store.py` (7 778 líneas actuales)
 | `ingest.py` | Solo ingesta directa: `percibir_corto_plazo`, `consolidar_concepto` | ~122 | RF-10 |
 | `episodes.py` | `_expandir_episodio_temporal`, `_afinidad_temporal_pool`, `_ts_nodo` | ~120 | RF-10 |
 | `quarantine.py` | `mover_a_cuarentena`, `rescatar_de_cuarentena`, `buscar_en_cuarentena`, `purgar_cuarentena_vencida`, `_candidatos_eviccion`, `_ejecutar_eviccion` | ~180 | RF-10 |
-| `consolidation.py` | `ciclo_sueno_consolidacion` (~505 líneas — **deuda técnica**), `_auto_generar_co_ocurrencia`, `_clasificar_nodo_wordnet`, `_calcular_base_level_actr` | ~694 **⚠ DEUDA — excepción 800 aplica (<800)** | RF-10, RNF-1.3 |
+| `consolidation.py` | `ciclo_sueno_consolidacion` (~505 líneas — **deuda técnica**), `_auto_generar_co_ocurrencia`, `_clasificar_nodo_wordnet`, `_calcular_base_level_actr` | ~694 **⚠ DEUDA — excepción 800 aplica** | RF-10, RNF-1.3 |
 | `telemetry.py` | `_crear_tabla_historial_si_falta`, `_benchmark_rendimiento`, `_ultimo_benchmark`, `actualizar_log_busqueda`, `obtener_provenance_ultimo_resultado` | ~170 | RF-10 |
 | `adn.py` | Solo las 3 funciones de firma ADN pura: `_cargar_firmas_adn`, `_persistir_firma_adn`, `_enriquecer_con_adn` | ~90 | RF-10 |
 | `scoring.py` | `_calcular_score_hibrido`, `_calcular_jsd`, `_jsd_weight_adaptativo`, `_ncd_sim`, `_ncd_sims_pool`, `_analogia_scores_pool`, `_idf_tokens_qcr`, `_calcular_jaccard`, `_calcular_bm25_bayesiano`, `_agregar_prefix_wildcards`, `_pesar_tokens_query`, `_rerank_jaccard_protect_r0` (closures intactos, CL-1) | ~420 | RF-10 |
@@ -97,7 +97,7 @@ Destino de la descomposición de `core/memory_store.py` (7 778 líneas actuales)
 |---|---|---|
 | `mcp_server.py` | Shim: re-exporta `_build_server` y `main` desde `core.mcp_server.server`, incluye bloque `if __name__ == "__main__": sys.exit(main())` (RF-3.1). Último commit Fase 2. | ≤ 15 líneas |
 | `biorag.py` | Sin cambios hasta validar Fase 3 completa. Re-exporta `SQLiteMemoryBioRAG`. | Sin tocar |
-| `core/memory_store.py` | Fachada delgada con `__init__`, re-exports y ~99 delegadores de una línea. | ~450 líneas |
+| `core/memory_store.py` | Fachada delgada con `__init__`, re-exports y ~99 delegadores con firma completa (RF-8). | ~450 líneas |
 
 ---
 

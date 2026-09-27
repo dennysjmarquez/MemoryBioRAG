@@ -1,15 +1,15 @@
 # BioRAG — Memoria Cognitiva Biomimética y Simbólica para Agentes de IA
 
-> **Versión Oficial:** v32.0
+> **Versión Oficial:** v32.1
 > **Paradigma:** Python puro + SQLite FTS5. **Cero embeddings densos, cero GPU, cero llamadas a APIs externas** en el path de búsqueda.
-> **Motor:** SQLite FTS5 WAL + Factorización PPMI-SVD (100 dims) + Espacio Semántico de 13 Ejes + Grafo Sináptico Hebbiano + Sparse Distributed Memory (SDM 2048-bit) + Calibración Conforme + Activación ACT-R + Concept Hubs.
+> **Motor:** Arquitectura Modularizada (18 submódulos `core/memory/` + 15 submódulos `core/mcp_server/` + Fachada delgada) + SQLite FTS5 WAL + Factorización PPMI-SVD (100 dims) + Espacio Semántico de 13 Ejes + Grafo Sináptico Hebbiano + Sparse Distributed Memory (SDM 2048-bit) + Calibración Conforme + Activación ACT-R + Concept Hubs.
 > **Idiomas:** Español + Inglés (stemming bilingüe ES/EN + expansión simbólica vía WordNet + Concept Hubs 5 Ángulos + Domain Dict automático).
 
 **BioRAG** es una arquitectura de memoria cognitiva simbólica, biomimética y persistente para agentes de inteligencia artificial. Resuelve el problema fundamental de la amnesia entre sesiones de los LLMs mediante principios de la neurobiología y el álgebra lineal, logrando un rendimiento superior a los vector stores tradicionales con latencia de milisegundos y cero dependencias de hardware pesado.
 
 ---
 
-## 📊 Métricas Oficiales de Benchmark (v32.0)
+## 📊 Métricas Oficiales de Benchmark (v32.1)
 
 Evaluación estricta y reproducible sobre el conjunto congelado oficial (**921 casos**: 875 positivos + 40 controles negativos + 6 ambiguos):
 
@@ -24,11 +24,27 @@ Evaluación estricta y reproducible sobre el conjunto congelado oficial (**921 c
 | **Categoría Sinónimos (Recall@5)** | **100.00% (55 / 55)** | Cero fallos tras sintonía contextual y Concept Hubs (vs. 8 fallos baseline) |
 | **Categoría Por Tema (Recall@5)** | **100.00% (65 / 65)** | Cero fallos mediante Sustantivos Clave ortogonales (vs. 5 fallos baseline) |
 | **Categoría Cruce Idioma (Recall@5)** | **100.00% (8 / 8)** | Cero fallos mediante Concept Hubs de 5 Ángulos |
-| **Latencia Total de Evaluación** | **920.3s** | Evaluación rigurosa de 921 casos con aislamiento por copia |
+| **Verificación Dual Sustituto** | **921 / 921 (100%)** | Identidad exacta caso a caso (0 diffs de score a 4 decimales) |
+| **Latencia Total de Evaluación** | **772.7s** | Evaluación rigurosa de 921 casos con aislamiento por copia |
 
 ---
 
-## 🚀 Novedades de la Versión v32.0
+## 🚀 Novedades de la Versión v32.1
+
+### 🏗️ Modularización de Arquitectura y Descomposición de Monolitos (Spec 003)
+- **Descomposición del Monolito de Memoria (`core/memory/`):**
+  - Descentralización de `core/memory_store.py` (de 7.778 líneas) hacia 18 submódulos de dominio cohesivo en `core/memory/` (`search.py`, `scoring.py`, `synapses.py`, `schema.py`, `consolidation.py`, `constants.py`, `umbral.py`, `rafaga.py`, `ingest.py`, `episodes.py`, `quarantine.py`, `dmn.py`, `context.py`, `catalog_methods.py`, `comms.py`, `telemetry.py`, `adn.py`).
+  - Consolidación de `core/memory_store.py` como una **fachada delgada** (637 líneas) con firmas explícitas completas y delegadores directos (prohibido `__getattr__` o introspección mágica).
+- **Descomposición del Servidor MCP (`core/mcp_server/`):**
+  - Descentralización de `mcp_server.py` (de 4.358 líneas) hacia 15 submódulos especializados en `core/mcp_server/` (`search.py`, `write.py`, `synapses.py`, `concept_hub_tools.py`, `catalog.py`, `introspection.py`, `communication.py`, `consolidation.py`, `daemon.py`, `session.py`, `oracle.py`, `sync.py`, `calibrar.py`, `resources.py`, `prompt.py`), orquestados limpiamente por `server.py` y `_shared.py`.
+  - Reemplazo de la raíz por un shim liviano `mcp_server.py` que preserva la compatibilidad al 100% con todos los clientes e integraciones existentes.
+- **Invarianza Estricta de Superficie Pública (Zero-Regression):**
+  - 42 tools MCP, 2 resources y 1 prompt con nombres y esquemas idénticos.
+  - Firmas de métodos de `SQLiteMemoryBioRAG` 100% preservadas.
+  - Verificación Dual exhaustiva caso a caso: 0 diferencias de score en los 921 casos del benchmark canónico.
+- **Por qué se hizo:** Superar la deuda técnica y el límite cognitivo impuesto por archivos de varios miles de líneas, habilitando mantenibilidad, extensibilidad y auditoría clara para desarrolladores humanos y agentes de IA, con verificación formal gobernada por Spec-Driven Development (SDD).
+
+### Novedades anteriores (v32.0)
 
 ### 🧠 Consolidación Cognitiva con Ley de Potencia de Práctica de ACT-R (Anderson & Lebiere, 1998)
 - **Activación de Nivel Base ($B_i$):** Implementación rigurosa de la ecuación formal de activación base de la teoría cognitiva ACT-R:
@@ -2347,6 +2363,23 @@ En v13.4 el catálogo tenía **7 ejes × 73 sub-valores**: emoción (qué se sie
 ---
 
 ## Historial de Versiones
+
+### v32.1 — Modularización de Arquitectura y Descomposición de Monolitos (Septiembre 2026)
+
+**Objetivo:** Descomponer los monolitos de memoria (`core/memory_store.py`, 7.778 líneas) y servidor MCP (`mcp_server.py`, 4.358 líneas) en submódulos de dominio cohesivos y legibles bajo el paquete `core/`, preservando al 100% las firmas públicas, herramientas y el comportamiento matemático determinista caso a caso sobre los 921 casos del benchmark canónico (Spec 003).
+
+**Cambios implementados:**
+- `core/memory/`:
+  - 18 submódulos especializados: `search.py`, `scoring.py`, `synapses.py`, `schema.py`, `consolidation.py`, `constants.py`, `umbral.py`, `rafaga.py`, `ingest.py`, `episodes.py`, `quarantine.py`, `dmn.py`, `context.py`, `catalog_methods.py`, `comms.py`, `telemetry.py`, `adn.py`.
+  - `core/memory_store.py`: Fachada delgada (637 líneas) con delegación explícita con firmas completas de 99 métodos hacia `core/memory/`.
+- `core/mcp_server/`:
+  - 15 submódulos de herramientas MCP organizados por dominio: `search.py`, `write.py`, `synapses.py`, `concept_hub_tools.py`, `catalog.py`, `introspection.py`, `communication.py`, `consolidation.py`, `daemon.py`, `session.py`, `oracle.py`, `sync.py`, `calibrar.py`, `resources.py`, `prompt.py`, coordinados por `server.py` y `_shared.py`.
+  - `mcp_server.py`: Shim ligero en la raíz del repositorio exportando `_build_server` y `main` para compatibilidad universal.
+- **Validación SDD (Fase 7):**
+  - **Verificación Dual Sustituto:** 921/921 casos evaluados con 0 diferencias numéricas de score.
+  - **Pytest:** 264/264 tests pasando al 100%.
+  - **Fuzzing QA:** 33/33 casos aprobados sin excepciones no controladas.
+  - **Suite Canónica QA:** 100.00% Recall@5 (875/875) y 0.00% FP (0/40).
 
 ### v32.0 — Consolidación Cognitiva ACT-R, Concept Hubs y Benchmark 100.00% (Septiembre 2026)
 

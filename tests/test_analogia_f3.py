@@ -83,8 +83,8 @@ def _cerebro_con_vecs(tmp_path):
 
 
 def test_scores_pool_metodo(tmp_path, monkeypatch):
-    import core.memory_store as ms
-    monkeypatch.setattr(ms, "ANALOGIA_PESO", 0.05)
+    import core.memory.constants as constants
+    monkeypatch.setattr(constants, "ANALOGIA_PESO", 0.05)
     c = _cerebro_con_vecs(tmp_path)
     vt = _v(0, 1)  # = vec(C) + (vec(B) - vec(A))
     m = c._analogia_scores_pool(vt, ["anclaa", "anclab", "anclac", "anclad", "fantasma"])
@@ -94,15 +94,15 @@ def test_scores_pool_metodo(tmp_path, monkeypatch):
 
 
 def test_peso_cero_devuelve_vacio(tmp_path, monkeypatch):
-    import core.memory_store as ms
-    monkeypatch.setattr(ms, "ANALOGIA_PESO", 0.0)
+    import core.memory.constants as constants
+    monkeypatch.setattr(constants, "ANALOGIA_PESO", 0.0)
     c = _cerebro_con_vecs(tmp_path)
     assert c._analogia_scores_pool(_v(0, 1), ["anclaD"]) == {}
 
 
 def test_integracion_buscar_analogia(tmp_path, monkeypatch):
-    import core.memory_store as ms
-    monkeypatch.setattr(ms, "ANALOGIA_PESO", 0.05)
+    import core.memory.constants as constants
+    monkeypatch.setattr(constants, "ANALOGIA_PESO", 0.05)
     c = _cerebro_con_vecs(tmp_path)
     r, _total = c.buscar_por_frase("anclaA es a anclaB como anclaC es a ?", analogia=True)
     names = [x[0] for x in r]

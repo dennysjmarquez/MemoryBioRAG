@@ -5,25 +5,25 @@ from core.memory_store import SQLiteMemoryBioRAG, JSD_ADAPT_BASE
 
 
 def test_query_larga_boost(monkeypatch):
-    import core.memory_store as ms
-    monkeypatch.setattr(ms, "JSD_ADAPTATIVO", True)
-    monkeypatch.setattr(ms, "JSD_WEIGHT", 0.0)
+    import core.memory.constants as constants
+    monkeypatch.setattr(constants, "JSD_ADAPTATIVO", True)
+    monkeypatch.setattr(constants, "JSD_WEIGHT", 0.0)
     w = SQLiteMemoryBioRAG._jsd_weight_adaptativo("uno dos tres cuatro cinco")
     assert abs(w - JSD_ADAPT_BASE * 2.5) < 1e-9
 
 
 def test_query_corta_protege(monkeypatch):
-    import core.memory_store as ms
-    monkeypatch.setattr(ms, "JSD_ADAPTATIVO", True)
-    monkeypatch.setattr(ms, "JSD_WEIGHT", 0.0)
+    import core.memory.constants as constants
+    monkeypatch.setattr(constants, "JSD_ADAPTATIVO", True)
+    monkeypatch.setattr(constants, "JSD_WEIGHT", 0.0)
     w = SQLiteMemoryBioRAG._jsd_weight_adaptativo("boost")
     assert abs(w - JSD_ADAPT_BASE * 0.5) < 1e-9
 
 
 def test_flag_off_usa_estatico(monkeypatch):
-    import core.memory_store as ms
-    monkeypatch.setattr(ms, "JSD_ADAPTATIVO", False)
-    monkeypatch.setattr(ms, "JSD_WEIGHT", 0.0)
+    import core.memory.constants as constants
+    monkeypatch.setattr(constants, "JSD_ADAPTATIVO", False)
+    monkeypatch.setattr(constants, "JSD_WEIGHT", 0.0)
     assert SQLiteMemoryBioRAG._jsd_weight_adaptativo("uno dos tres cuatro cinco") == 0.0
 
 
@@ -36,6 +36,7 @@ def test_hibrido_respeta_jsd_weight(tmp_path):
 
 
 def test_fuente_buscar():
-    src = inspect.getsource(SQLiteMemoryBioRAG.buscar_por_frase)
+    from core.memory import search
+    src = inspect.getsource(search.buscar_por_frase)
     assert "_jsd_weight_adaptativo" in src
     assert "_jsd_w_e7" in src
