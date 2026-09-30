@@ -565,15 +565,21 @@ def register(mcp: Any) -> None:
         )] = None,
         sustantivos_clave: Annotated[Optional[str], Field(
             description=(
-                "OBLIGATORIO — centro de gravedad semántico: 2-4 sustantivos jerárquicos "
-                "que definen de QUÉ TRATA el nodo (peso BM25 4.0x).\n"
-                "JERARQUÍA OBLIGATORIA: Posición 1 = Sustantivo Rector/Principal (entidad dura o recurso raíz); "
-                "Posiciones 2 a 4 = Restricciones, límites técnicos, legales o financieros que condicionan al principal.\n"
-                "Formato: 2-4 términos únicos separados por coma, minúsculas, sin tildes ni espacios (ej: 'tarifa,contrato,seguridad,ingreso').\n"
+                "OBLIGATORIO — centro de gravedad semántico: 2-4 sustantivos que definen de QUÉ TRATA el nodo (peso BM25 4.0x).\n"
+                "PROTOCOLO DE EXTRACCIÓN — sacalos SIEMPRE de lo que se está guardando, nunca los inventes. Tres preguntas:\n"
+                "  1. ¿Qué se hizo o qué estoy guardando? (la acción/objeto concreto)\n"
+                "  2. ¿De qué se trata? (el núcleo temático — por eso se llaman CLAVES)\n"
+                "  3. ¿Con qué se relaciona? (tema que otro nodo futuro también pueda tocar)\n"
+                "Ejemplos (contenido → sustantivos_clave):\n"
+                "  - perro/Manchita: 'Me gusta pasar por las tardes con mi perro mi perra que se llama manchita...' → 'tarde,perro,perra,manchita'\n"
+                "  - olvido del jefe: 'Se me olvidó que tenía que llamar a mi jefe, mañana...' → 'olvido,jefe,llamada'\n"
+                "  - arepitas: 'A Dennys le gusta hacer arepitas dulces y comerlas en la tarde...' → 'arepitas,comer,tarde,gustos'\n"
+                "  - trabajo sin parar: 'cuando trabajo demasiado sin parar y no puedo hacer pausa' → 'trabajo,pausa'\n"
+                "Relación a futuro: guardaste 'traduccion,script,deepseek' y mañana guardás 'traducción de un documento'\n"
+                "  → comparte 'traduccion' y al buscarlo lo clavás aunque los nodos no compartan más palabras.\n"
+                "Formato: 2-4 términos únicos separados por coma, minúsculas, sin tildes ni espacios.\n"
                 "PROHIBICIONES ESTRICTAS:\n"
-                "✗ NO repetir palabras ya presentes en el nombre del concepto (ya tienen peso 5.0x).\n"
                 "✗ NO nominalizar verbos del flujo (postular → 'postulacion', analizar → 'analisis').\n"
-                "✗ NO etiquetas genéricas de canal/entorno ('workana', 'cliente', 'plataforma', 'texto').\n"
                 "✗ NO abstracciones vacías de segundo orden ('estrategia', 'transicion', 'diferenciacion')."
             )
         )] = None,
@@ -622,9 +628,12 @@ def register(mcp: Any) -> None:
         )] = None,
         sustantivos_clave: Annotated[Optional[str], Field(
             description=(
-                "OBLIGATORIO — centro de gravedad semántico jerárquico: 2-4 sustantivos (peso BM25 4.0x). "
-                "Posición 1 = Sustantivo Rector/Principal; Posiciones 2-4 = Restricciones/Variables de control. "
-                "Formato: minúsculas, sin tildes ni espacios (ej: 'tarifa,contrato,seguridad,ingreso'). "
+                "OBLIGATORIO — centro de gravedad semántico: 2-4 sustantivos (peso BM25 4.0x). "
+                "PROTOCOLO DE EXTRACCIÓN: 1) ¿Qué se hizo / qué guardo? (acción/objeto concreto) "
+                "2) ¿De qué se trata? (el núcleo temático — por eso se llaman CLAVES) "
+                "3) ¿Con qué se relaciona? (tema que otro nodo futuro también pueda tocar). "
+                "Ver ejemplo completo en `aprender`. "
+                "Formato: minúsculas, sin tildes ni espacios. "
                 "PROHIBICIONES: No repetir palabras del concepto, no nominalizar verbos ('postulacion', 'analisis'), "
                 "no etiquetas de canal ('workana', 'cliente'), no abstracciones ('estrategia', 'transicion')."
             )
@@ -649,9 +658,17 @@ def register(mcp: Any) -> None:
         concepto: Annotated[str, Field(description="Nombre del nodo existente (se normaliza a snake_case).")],
         sustantivos_clave: Annotated[str, Field(
             description=(
-                "2-4 sustantivos clave jerárquicos que definen de QUÉ TRATA el nodo (peso BM25 4.0x).\n"
-                "Posición 1 = Sustantivo Rector/Principal; Posiciones 2 a 4 = Restricciones/Variables de control.\n"
-                "Formato: separados por coma, minúsculas, sin tildes ni espacios (ej: 'tarifa,contrato,seguridad,ingreso').\n"
+                "2-4 sustantivos clave que definen de QUÉ TRATA el nodo (peso BM25 4.0x).\n"
+                "PROTOCOLO DE EXTRACCIÓN (nodo ya existente — mirá qué contiene): 1) ¿Qué se hizo? (acción/objeto concreto) "
+                "2) ¿De qué se trata? (el núcleo temático — por eso se llaman CLAVES) "
+                "3) ¿Con qué se relaciona? (tema que otro nodo futuro también pueda tocar).\n"
+                "Ejemplos (contenido → sustantivos_clave):\n"
+                "  - perro/Manchita: 'Me gusta pasar por las tardes con mi perro mi perra que se llama manchita...' → 'tardes,perro,perra,manchita'\n"
+                "  - olvido del jefe: 'Se me olvidó que tenía que llamar a mi jefe, mañana...' → 'olvido,jefe,llamada'\n"
+                "  - arepitas: 'A Dennys le gusta hacer arepitas dulces y comerlas en la tarde...' → 'arepitas,comer,tarde,gustos'\n"
+                "  - trabajo sin parar: 'cuando trabajo demasiado sin parar y no puedo hacer pausa' → 'trabajo,pausa'\n"
+                "La relación a futuro entre nodos está explicada en `aprender`.\n"
+                "Formato: separados por coma, minúsculas, sin tildes ni espacios.\n"
                 "Mínimo 2, máximo 4 términos únicos (2-15 chars cada uno).\n"
                 "PROHIBICIONES: No repetir palabras del concepto, no nominalizar verbos ('postulacion', 'analisis'), "
                 "no etiquetas de canal ('workana', 'cliente'), no abstracciones ('estrategia', 'transicion')."

@@ -102,17 +102,18 @@ ORACLE_PROMPT = (
     "• NUNCA desvincular sin ⚠️ explícito del sistema con par (a,b) exacto\n"
     "• Score bajo ≠ falso positivo. Puede ser hub legítimo por propagación válida.\n\n"
 
-    # ── AXIOMA DE INDEXACIÓN — SUSTANTIVOS CLAVE JERÁRQUICOS ─────────────
-    # Norma de selección de sustantivos_clave con precedencia jerárquica
-    # (Posición 1 = Sustantivo Rector/Principal, Posiciones 2-4 = Modificadores/Restricciones)
-    # y prohibiciones explícitas por exclusión para agentes de cualquier capacidad.
-    "═══ AXIOMA DE INDEXACIÓN — SUSTANTIVOS CLAVE JERÁRQUICOS ═══\n"
+    # ── AXIOMA DE INDEXACIÓN — SUSTANTIVOS CLAVE ────────────────────────
+    # Norma de selección de sustantivos_clave por las 3 preguntas de extracción:
+    # (1) qué se hizo / qué guardo, (2) de qué trata (núcleo), (3) con qué se relaciona.
+    # Los términos se extraen de lo guardado, nunca se inventan. Prohibiciones por exclusión.
+    "═══ AXIOMA DE INDEXACIÓN — SUSTANTIVOS CLAVE ═══\n"
     "- CONTEXTO: Selección de sustantivos_clave en procesos de guardado/aprendizaje (peso BM25 4.0x).\n"
-    "- JERARQUÍA POSICIONAL OBLIGATORIA (2 a 4 términos en minúsculas, separados por coma):\n"
-    "  1. POSICIÓN 1 (EL SUSTANTIVO RECTOR / PRINCIPAL): Es el núcleo ontológico, entidad física, regla o "
-    "recurso duro del que TRATA el nodo en su raíz. Si quitas esta palabra, el recuerdo colapsa.\n"
-    "  2. POSICIONES 2 A 4 (RESTRICCIONES Y COMPLEMENTOS): Entre 1 y 3 términos que fijan las variables de "
-    "ejecución, límites técnicos, salvaguardas legales, métricas o restricciones financieras que condicionan al principal.\n"
+    "- PROTOCOLO DE EXTRACCIÓN (2 a 4 términos en minúsculas, separados por coma): se extraen SIEMPRE "
+    "de lo que se está guardando, nunca se inventan. Tres preguntas:\n"
+    "  1. ¿QUÉ SE HIZO O QUÉ ESTOY GUARDANDO? (la acción/objeto concreto)\n"
+    "  2. ¿DE QUÉ TRATA? (el núcleo temático — por eso se llaman CLAVES. Si quitás esta palabra, el recuerdo colapsa.)\n"
+    "  3. ¿CON QUÉ SE RELACIONA? (tema que otro nodo futuro también pueda tocar. Ahí está el poder: dos nodos "
+    "que no comparten palabras se encuentran por el mismo núcleo.)\n"
     "- PROHIBICIONES ESTRICTAS (LO QUE NUNCA DEBES HACER):\n"
     "  ✗ NUNCA REPETIR PALABRAS DEL NOMBRE DEL CONCEPTO: El concepto ya tiene peso 5.0x en BM25. Repetirlo "
     "en sustantivos_clave desperdicia superficie de búsqueda (ej. si el concepto es 'metodologia_postulacion_workana_freelance', "
@@ -124,9 +125,11 @@ ORACLE_PROMPT = (
     "  ✗ NUNCA ABSTRACCIONES VACÍAS DE SEGUNDO ORDEN: Prohibido humo conceptual (ej. 'estrategia', 'transicion', "
     "'diferenciacion', 'metodologia', 'proceso', 'filosofia').\n"
     "- EJEMPLOS CONTRASTADOS (FEW-SHOT):\n"
-    "  • Ejemplo 1: Metodología de cobro y postulación freelance (hitos por fases, protección contractual, datos de salud).\n"
-    "    ✗ MAL: workana,postulacion,propuesta,presupuesto (duplica concepto, nominaliza verbos y añade rigidez).\n"
-    "    ✓ BIEN: tarifa,contrato,seguridad,ingreso (1: tarifa = cobro por fases; 2: contrato = salvaguarda; 3: seguridad = HIPAA; 4: ingreso = objetivo).\n"
+    "  • Ejemplo 1: Nodo 'api_remota_idiomas_soporte' — se tradujo un script de ruso a español con modelos DeepSeek.\n"
+    "    ✗ MAL: idiomas,soporte,proceso,analisis (duplica el nombre, nominaliza y añade abstracciones).\n"
+    "    ✓ BIEN: traduccion,script,deepseek (1: traducción = lo que se hizo; 2: script = el artefacto; "
+    "3: deepseek = con qué se relaciona. Mañana un nodo sobre 'traducción de un documento' comparte 'traduccion' "
+    "y se encuentran aunque no compartan más palabras).\n"
     "  • Ejemplo 2: Desacople de comunicaciones en app médica (WebSockets nativos para chat + colas SQS para email).\n"
     "    ✗ MAL: chat,email,mensajeria,cliente (etiquetas superficiales de interfaz).\n"
     "    ✓ BIEN: websocket,cola,arquitectura,latencia (1: websocket = protocolo real-time; 2: cola = persistencia SQS; 3: arquitectura = patrón; 4: latencia = cota).\n"
@@ -195,11 +198,12 @@ ORACLE_PROMPT = (
     "     syn='timeout,caida,servidor caido,connection lost,red cortada,http error,backend falla'\n"
     "   Regla: mínimo 8. Cubre español + inglés + jerga + problema + solución.\n"
     "   ❌ NO pongas palabras que ya están en el contenido (BM25 ya las indexa).\n\n"
-    "▸ sustantivos_clave  →  De qué TRATA el nodo en 2-4 palabras núcleo con orden jerárquico.\n"
-    "   Regla posicional: Posición 1 = Sustantivo Rector/Principal (entidad dura raíz). Posiciones 2-4 = Restricciones/Variables de control.\n"
-    "   Pregunta clave: '¿Cuál es el recurso duro del que trata (1), y qué variables técnicas o legales lo condicionan (2-4)?'\n"
-    "   Ejemplo — metodología de cobro/postulación defensiva:\n"
-    "     sustantivos_clave='tarifa,contrato,seguridad,ingreso'\n"
+    "▸ sustantivos_clave  →  De qué TRATA el nodo en 2-4 palabras núcleo, extraídas de lo que se guarda.\n"
+    "   Tres preguntas: 1) ¿Qué se hizo / qué guardo? (acción/objeto concreto) "
+    "2) ¿De qué se trata? (el núcleo temático — por eso se llaman CLAVES) "
+    "3) ¿Con qué se relaciona? (tema que otro nodo futuro también pueda tocar).\n"
+    "   Ejemplo — nodo 'api_remota_idiomas_soporte': se tradujo un script de ruso a español con modelos DeepSeek.\n"
+    "     sustantivos_clave='traduccion,script,deepseek'\n"
     "   ❌ PROHIBIDO: Repetir palabras del nombre del concepto, nominalizar verbos ('postulación', 'análisis') o usar abstracciones ('estrategia', 'transición').\n\n"
     "▸ dimensiones  →  Coordenadas de QUÉ ES el conocimiento, no qué palabras tiene.\n"
     "   Pregunta clave: '¿Cómo buscaría alguien esto sin saber ninguna palabra del nodo?'\n"

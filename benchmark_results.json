@@ -1,5 +1,5 @@
 {
-  "fecha": "2026-08-21T20:10:56.369208",
+  "fecha": "2026-09-29T07:20:21.690165",
   "config": {
     "n_nodes": 100,
     "n_queries": 50
@@ -9,21 +9,21 @@
       "sistema": "BioRAG",
       "nodos": 100,
       "queries": 50,
-      "latencia_avg_ms": 17.34,
-      "latencia_min_ms": 12.1,
-      "latencia_max_ms": 26.74,
-      "memoria_mb": 319.5,
-      "throughput_qps": 57.7
+      "latencia_avg_ms": 21.11,
+      "latencia_min_ms": 15.03,
+      "latencia_max_ms": 76.72,
+      "memoria_mb": 324.2,
+      "throughput_qps": 47.4
     },
     {
       "sistema": "LangChain+Chroma",
       "nodos": 100,
       "queries": 50,
-      "latencia_avg_ms": 2.42,
-      "latencia_min_ms": 0.97,
-      "latencia_max_ms": 7.66,
-      "memoria_mb": 366.3,
-      "throughput_qps": 413.9
+      "latencia_avg_ms": 1.13,
+      "latencia_min_ms": 0.88,
+      "latencia_max_ms": 6.82,
+      "memoria_mb": 371.7,
+      "throughput_qps": 886.7
     }
   ]
 }
