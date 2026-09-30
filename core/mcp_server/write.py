@@ -566,6 +566,7 @@ def register(mcp: Any) -> None:
         sustantivos_clave: Annotated[Optional[str], Field(
             description=(
                 "OBLIGATORIO — centro de gravedad semántico: 2-4 sustantivos que definen de QUÉ TRATA el nodo (peso BM25 4.0x).\n"
+                "PROPÓSITO: hacen que nodos que NO comparten palabras se encuentren por el núcleo temático — un sustantivo mal puesto = nodo que jamás aparece.\n"
                 "PROTOCOLO DE EXTRACCIÓN — sacalos SIEMPRE de lo que se está guardando, nunca los inventes. Tres preguntas:\n"
                 "  1. ¿Qué se hizo o qué estoy guardando? (la acción/objeto concreto)\n"
                 "  2. ¿De qué se trata? (el núcleo temático — por eso se llaman CLAVES)\n"
@@ -578,7 +579,9 @@ def register(mcp: Any) -> None:
                 "Relación a futuro: guardaste 'traduccion,script,deepseek' y mañana guardás 'traducción de un documento'\n"
                 "  → comparte 'traduccion' y al buscarlo lo clavás aunque los nodos no compartan más palabras.\n"
                 "Formato: 2-4 términos únicos separados por coma, minúsculas, sin tildes ni espacios.\n"
-                "PROHIBICIONES ESTRICTAS:\n"
+                "🔒 INVARIANTE — MANDATORY (incumplir = nodo mal indexado, no se recupera):\n"
+                "✗ NO métricas, efectos ni consecuencias ('recall', 'ranking', 'dilucion', 'top1') — describen lo que PASÓ, no qué ES; van en contenido/syn.\n"
+                "✗ NO palabras que no estén LITERALMENTE en lo que guardás — si no la escribiste ahí, no existe para el índice.\n"
                 "✗ NO nominalizar verbos del flujo (postular → 'postulacion', analizar → 'analisis').\n"
                 "✗ NO abstracciones vacías de segundo orden ('estrategia', 'transicion', 'diferenciacion')."
             )
@@ -634,8 +637,9 @@ def register(mcp: Any) -> None:
                 "3) ¿Con qué se relaciona? (tema que otro nodo futuro también pueda tocar). "
                 "Ver ejemplo completo en `aprender`. "
                 "Formato: minúsculas, sin tildes ni espacios. "
-                "PROHIBICIONES: No repetir palabras del concepto, no nominalizar verbos ('postulacion', 'analisis'), "
-                "no etiquetas de canal ('workana', 'cliente'), no abstracciones ('estrategia', 'transicion')."
+                "🔒 INVARIANTE — MANDATORY: No repetir palabras del concepto, no nominalizar verbos ('postulacion', 'analisis'), "
+                "no etiquetas de canal ('workana', 'cliente'), no abstracciones ('estrategia', 'transicion'), "
+                "no métricas ni efectos ('recall', 'top1'), ni palabras ausentes del contenido."
             )
         )] = None,
     ) -> str:
@@ -670,8 +674,9 @@ def register(mcp: Any) -> None:
                 "La relación a futuro entre nodos está explicada en `aprender`.\n"
                 "Formato: separados por coma, minúsculas, sin tildes ni espacios.\n"
                 "Mínimo 2, máximo 4 términos únicos (2-15 chars cada uno).\n"
-                "PROHIBICIONES: No repetir palabras del concepto, no nominalizar verbos ('postulacion', 'analisis'), "
-                "no etiquetas de canal ('workana', 'cliente'), no abstracciones ('estrategia', 'transicion')."
+                "🔒 INVARIANTE — MANDATORY: No repetir palabras del concepto, no nominalizar verbos ('postulacion', 'analisis'), "
+                "no etiquetas de canal ('workana', 'cliente'), no abstracciones ('estrategia', 'transicion'), "
+                "no métricas ni efectos ('recall', 'top1'), ni palabras ausentes del contenido."
             )
         )],
     ) -> str:
