@@ -165,8 +165,8 @@ ADN_MAX_EXPANSION = int(os.environ.get('BIORAG_ADN_MAX_EXPANSION', '24'))
 ADN_UMBRAL_ASOCIACION = float(os.environ.get('BIORAG_ADN_UMBRAL_ASOCIACION', '0.35'))
 
 # Convergencia Multi-Campo (Spec-006)
-CONVERGENCIA_ACTIVA = os.environ.get('BIORAG_CONVERGENCIA_ACTIVA', '1').lower() in ('1', 'true', 'yes')
-"""Activar/desactivar multiplicador de convergencia multi-campo (Spec 006). Default ON."""
+CONVERGENCIA_ACTIVA = os.environ.get('BIORAG_CONVERGENCIA_ACTIVA', '0').lower() in ('1', 'true', 'yes')
+"""Activar/desactivar multiplicador de convergencia multi-campo (Spec 006). Default OFF (experimento)."""
 
 _alpha_raw = float(os.environ.get("BIORAG_CONVERGENCIA_ALPHA", "0.5"))
 if not (0.0 < _alpha_raw < 1.0):

@@ -1,0 +1,1744 @@
+{
+  "snapshot": "/mnt/recursos_compartidos_y_otros/MemoryBioRAG/snapshots/qa_escape_qcr_20260811.db",
+  "casos_evaluados": 7,
+  "off": [
+    {
+      "id": "0516",
+      "cat": "por_tema",
+      "query": "real más sistemas",
+      "expected": "dennys-identidad-profunda",
+      "total_encontrados": 295,
+      "top_5": [
+        {
+          "pos": 1,
+          "concepto": "biorag_v20_rpe_dopamina",
+          "score": 0.5193,
+          "detalle": {
+            "posicion": 1,
+            "score_final": 0.5193,
+            "origen": "concept_hub",
+            "origen_score_capa": 0.5466666666666666,
+            "match_exacto": false,
+            "mascara_canales": {
+              "concepto": 0,
+              "sinonimos": 0,
+              "sustantivos": 0,
+              "contenido": 0,
+              "total_canales": 0
+            },
+            "multiplicador": 0.5
+          }
+        },
+        {
+          "pos": 2,
+          "concepto": "identidad_dennys_perfil_completo",
+          "score": 0.4544,
+          "detalle": {
+            "posicion": 2,
+            "score_final": 0.4544,
+            "origen": "literal",
+            "origen_score_capa": 0.0,
+            "match_exacto": false,
+            "mascara_canales": {
+              "concepto": 0,
+              "sinonimos": 1,
+              "sustantivos": 0,
+              "contenido": 1,
+              "total_canales": 2
+            },
+            "multiplicador": 0.75
+          }
+        },
+        {
+          "pos": 3,
+          "concepto": "principio_dimensiones_genericas_no_nicho",
+          "score": 0.4294,
+          "detalle": {
+            "posicion": 3,
+            "score_final": 0.4294,
+            "origen": "literal",
+            "origen_score_capa": 0.0,
+            "match_exacto": false,
+            "mascara_canales": {
+              "concepto": 0,
+              "sinonimos": 0,
+              "sustantivos": 0,
+              "contenido": 1,
+              "total_canales": 1
+            },
+            "multiplicador": 0.625
+          }
+        },
+        {
+          "pos": 4,
+          "concepto": "cv_dennys_secciones_ab_finales_2026",
+          "score": 0.4174,
+          "detalle": {
+            "posicion": 4,
+            "score_final": 0.4174,
+            "origen": "literal",
+            "origen_score_capa": 0.0,
+            "match_exacto": false,
+            "mascara_canales": {
+              "concepto": 0,
+              "sinonimos": 0,
+              "sustantivos": 0,
+              "contenido": 1,
+              "total_canales": 1
+            },
+            "multiplicador": 0.625
+          }
+        },
+        {
+          "pos": 5,
+          "concepto": "vida_laboral_completa_dennys",
+          "score": 0.4119,
+          "detalle": {
+            "posicion": 5,
+            "score_final": 0.4119,
+            "origen": "literal",
+            "origen_score_capa": 0.0,
+            "match_exacto": false,
+            "mascara_canales": {
+              "concepto": 0,
+              "sinonimos": 0,
+              "sustantivos": 0,
+              "contenido": 1,
+              "total_canales": 1
+            },
+            "multiplicador": 0.625
+          }
+        }
+      ],
+      "detalle_esperado": {
+        "posicion": "NO_RECUPERADO",
+        "score_final": null,
+        "origen": "literal",
+        "origen_score_capa": 0.0,
+        "match_exacto": false,
+        "mascara_canales": {
+          "concepto": 0,
+          "sinonimos": 0,
+          "sustantivos": 0,
+          "contenido": 1,
+          "total_canales": 1
+        },
+        "multiplicador": 0.625
+      }
+    },
+    {
+      "id": "0514",
+      "cat": "sinonimo",
+      "query": "perfil",
+      "expected": "dennys-identidad-profunda",
+      "total_encontrados": 96,
+      "top_5": [
+        {
+          "pos": 1,
+          "concepto": "dennys_perfil_gustos",
+          "score": 0.7868,
+          "detalle": {
+            "posicion": 1,
+            "score_final": 0.7868,
+            "origen": "literal",
+            "origen_score_capa": 0.0,
+            "match_exacto": false,
+            "mascara_canales": {
+              "concepto": 1,
+              "sinonimos": 1,
+              "sustantivos": 0,
+              "contenido": 1,
+              "total_canales": 3
+            },
+            "multiplicador": 0.875
+          }
+        },
+        {
+          "pos": 2,
+          "concepto": "perfil_creador_rag_ruta",
+          "score": 0.7832,
+          "detalle": {
+            "posicion": 2,
+            "score_final": 0.7832,
+            "origen": "literal",
+            "origen_score_capa": 0.0,
+            "match_exacto": false,
+            "mascara_canales": {
+              "concepto": 1,
+              "sinonimos": 1,
+              "sustantivos": 0,
+              "contenido": 1,
+              "total_canales": 3
+            },
+            "multiplicador": 0.875
+          }
+        },
+        {
+          "pos": 3,
+          "concepto": "notebooklm_perfil_dennys_id",
+          "score": 0.7683,
+          "detalle": {
+            "posicion": 3,
+            "score_final": 0.7683,
+            "origen": "literal",
+            "origen_score_capa": 0.0,
+            "match_exacto": false,
+            "mascara_canales": {
+              "concepto": 1,
+              "sinonimos": 1,
+              "sustantivos": 0,
+              "contenido": 1,
+              "total_canales": 3
+            },
+            "multiplicador": 0.875
+          }
+        },
+        {
+          "pos": 4,
+          "concepto": "dennys-identidad-profunda",
+          "score": 0.7382,
+          "detalle": {
+            "posicion": 4,
+            "score_final": 0.7382,
+            "origen": "literal",
+            "origen_score_capa": 0.0,
+            "match_exacto": false,
+            "mascara_canales": {
+              "concepto": 0,
+              "sinonimos": 1,
+              "sustantivos": 0,
+              "contenido": 0,
+              "total_canales": 1
+            },
+            "multiplicador": 0.625
+          }
+        },
+        {
+          "pos": 5,
+          "concepto": "oracle_perfil_cognitivo_dennys",
+          "score": 0.7278,
+          "detalle": {
+            "posicion": 5,
+            "score_final": 0.7278,
+            "origen": "literal",
+            "origen_score_capa": 0.0,
+            "match_exacto": false,
+            "mascara_canales": {
+              "concepto": 1,
+              "sinonimos": 1,
+              "sustantivos": 0,
+              "contenido": 1,
+              "total_canales": 3
+            },
+            "multiplicador": 0.875
+          }
+        }
+      ],
+      "detalle_esperado": {
+        "posicion": 4,
+        "score_final": 0.7382,
+        "origen": "literal",
+        "origen_score_capa": 0.0,
+        "match_exacto": false,
+        "mascara_canales": {
+          "concepto": 0,
+          "sinonimos": 1,
+          "sustantivos": 0,
+          "contenido": 0,
+          "total_canales": 1
+        },
+        "multiplicador": 0.625
+      }
+    },
+    {
+      "id": "0489",
+      "cat": "typo",
+      "query": "oracle custom prompt arsitecura que fuciona",
+      "expected": "oracle_custom_prompt_arsitecura_que_funciona",
+      "total_encontrados": 151,
+      "top_5": [
+        {
+          "pos": 1,
+          "concepto": "oracle_custom_prompt_arsitecura_que_funciona",
+          "score": 0.4672,
+          "detalle": {
+            "posicion": 1,
+            "score_final": 0.4672,
+            "origen": "literal",
+            "origen_score_capa": 0.0,
+            "match_exacto": false,
+            "mascara_canales": {
+              "concepto": 1,
+              "sinonimos": 0,
+              "sustantivos": 0,
+              "contenido": 1,
+              "total_canales": 2
+            },
+            "multiplicador": 0.75
+          }
+        },
+        {
+          "pos": 2,
+          "concepto": "oracle_custom_prompt_config_actual",
+          "score": 0.4158,
+          "detalle": {
+            "posicion": 2,
+            "score_final": 0.4158,
+            "origen": "literal",
+            "origen_score_capa": 0.0,
+            "match_exacto": false,
+            "mascara_canales": {
+              "concepto": 1,
+              "sinonimos": 1,
+              "sustantivos": 0,
+              "contenido": 1,
+              "total_canales": 3
+            },
+            "multiplicador": 0.875
+          }
+        },
+        {
+          "pos": 3,
+          "concepto": "oracle_custom_prompt_failure_modes",
+          "score": 0.4089,
+          "detalle": {
+            "posicion": 3,
+            "score_final": 0.4089,
+            "origen": "literal",
+            "origen_score_capa": 0.0,
+            "match_exacto": false,
+            "mascara_canales": {
+              "concepto": 1,
+              "sinonimos": 1,
+              "sustantivos": 0,
+              "contenido": 1,
+              "total_canales": 3
+            },
+            "multiplicador": 0.875
+          }
+        },
+        {
+          "pos": 4,
+          "concepto": "vision_arquitectura_oec_franquicia",
+          "score": 0.3807,
+          "detalle": {
+            "posicion": 4,
+            "score_final": 0.3807,
+            "origen": "dimensional_fallback",
+            "origen_score_capa": 0.8819171036881969,
+            "match_exacto": false,
+            "mascara_canales": {
+              "concepto": 0,
+              "sinonimos": 0,
+              "sustantivos": 0,
+              "contenido": 0,
+              "total_canales": 0
+            },
+            "multiplicador": 0.5
+          }
+        },
+        {
+          "pos": 5,
+          "concepto": "identidad_dennys_perfil_completo",
+          "score": 0.3795,
+          "detalle": {
+            "posicion": 5,
+            "score_final": 0.3795,
+            "origen": "dimensional_fallback",
+            "origen_score_capa": 0.6666666666666666,
+            "match_exacto": false,
+            "mascara_canales": {
+              "concepto": 0,
+              "sinonimos": 0,
+              "sustantivos": 0,
+              "contenido": 0,
+              "total_canales": 0
+            },
+            "multiplicador": 0.5
+          }
+        }
+      ],
+      "detalle_esperado": {
+        "posicion": 1,
+        "score_final": 0.4672,
+        "origen": "literal",
+        "origen_score_capa": 0.0,
+        "match_exacto": false,
+        "mascara_canales": {
+          "concepto": 1,
+          "sinonimos": 0,
+          "sustantivos": 0,
+          "contenido": 1,
+          "total_canales": 2
+        },
+        "multiplicador": 0.75
+      }
+    },
+    {
+      "id": "0518",
+      "cat": "variante_gramatical",
+      "query": "cuando usado dimensione biorags",
+      "expected": "cuando_usar_dimensiones_biorag",
+      "total_encontrados": 181,
+      "top_5": [
+        {
+          "pos": 1,
+          "concepto": "mentalidad_biorag_para_agentes",
+          "score": 0.4572,
+          "detalle": {
+            "posicion": 1,
+            "score_final": 0.4572,
+            "origen": "simbolico",
+            "origen_score_capa": 0.9221,
+            "match_exacto": false,
+            "mascara_canales": {
+              "concepto": 0,
+              "sinonimos": 0,
+              "sustantivos": 0,
+              "contenido": 1,
+              "total_canales": 1
+            },
+            "multiplicador": 0.625
+          }
+        },
+        {
+          "pos": 2,
+          "concepto": "recuperacion_dimensional_sin_palabras_insight",
+          "score": 0.4044,
+          "detalle": {
+            "posicion": 2,
+            "score_final": 0.4044,
+            "origen": "literal",
+            "origen_score_capa": 0.0,
+            "match_exacto": false,
+            "mascara_canales": {
+              "concepto": 0,
+              "sinonimos": 0,
+              "sustantivos": 0,
+              "contenido": 0,
+              "total_canales": 0
+            },
+            "multiplicador": 0.5
+          }
+        },
+        {
+          "pos": 3,
+          "concepto": "cuando_usar_dimensiones_biorag",
+          "score": 0.3985,
+          "detalle": {
+            "posicion": 3,
+            "score_final": 0.3985,
+            "origen": "literal",
+            "origen_score_capa": 0.0,
+            "match_exacto": false,
+            "mascara_canales": {
+              "concepto": 0,
+              "sinonimos": 0,
+              "sustantivos": 0,
+              "contenido": 0,
+              "total_canales": 0
+            },
+            "multiplicador": 0.5
+          }
+        },
+        {
+          "pos": 4,
+          "concepto": "bio_rag_overview_completo",
+          "score": 0.3901,
+          "detalle": {
+            "posicion": 4,
+            "score_final": 0.3901,
+            "origen": "simbolico",
+            "origen_score_capa": 0.619,
+            "match_exacto": false,
+            "mascara_canales": {
+              "concepto": 0,
+              "sinonimos": 0,
+              "sustantivos": 0,
+              "contenido": 1,
+              "total_canales": 1
+            },
+            "multiplicador": 0.625
+          }
+        },
+        {
+          "pos": 5,
+          "concepto": "implementado_catalogo_13_tipos_104_dimensiones",
+          "score": 0.3896,
+          "detalle": {
+            "posicion": 5,
+            "score_final": 0.3896,
+            "origen": "literal",
+            "origen_score_capa": 0.0,
+            "match_exacto": false,
+            "mascara_canales": {
+              "concepto": 0,
+              "sinonimos": 0,
+              "sustantivos": 0,
+              "contenido": 0,
+              "total_canales": 0
+            },
+            "multiplicador": 0.5
+          }
+        }
+      ],
+      "detalle_esperado": {
+        "posicion": 3,
+        "score_final": 0.3985,
+        "origen": "literal",
+        "origen_score_capa": 0.0,
+        "match_exacto": false,
+        "mascara_canales": {
+          "concepto": 0,
+          "sinonimos": 0,
+          "sustantivos": 0,
+          "contenido": 0,
+          "total_canales": 0
+        },
+        "multiplicador": 0.5
+      }
+    },
+    {
+      "id": "0564",
+      "cat": "pregunta_natural",
+      "query": "¿Dónde encuentro la info de memoria v5 1 optimizaciones?",
+      "expected": "memoria_v5_1_optimizaciones",
+      "total_encontrados": 271,
+      "top_5": [
+        {
+          "pos": 1,
+          "concepto": "analisis_escalabilidad_10k_v5_1_memoria_v5_1_optimizaciones_hermes_agente_hermes",
+          "score": 0.4274,
+          "detalle": {
+            "posicion": 1,
+            "score_final": 0.4274,
+            "origen": "literal",
+            "origen_score_capa": 0.0,
+            "match_exacto": false,
+            "mascara_canales": {
+              "concepto": 1,
+              "sinonimos": 1,
+              "sustantivos": 0,
+              "contenido": 1,
+              "total_canales": 3
+            },
+            "multiplicador": 0.875
+          }
+        },
+        {
+          "pos": 2,
+          "concepto": "athena_principio_caducidad_temporal",
+          "score": 0.4263,
+          "detalle": {
+            "posicion": 2,
+            "score_final": 0.4263,
+            "origen": "literal",
+            "origen_score_capa": 0.0,
+            "match_exacto": false,
+            "mascara_canales": {
+              "concepto": 0,
+              "sinonimos": 1,
+              "sustantivos": 0,
+              "contenido": 1,
+              "total_canales": 2
+            },
+            "multiplicador": 0.75
+          }
+        },
+        {
+          "pos": 3,
+          "concepto": "principio_dimensiones_genericas_no_nicho",
+          "score": 0.4241,
+          "detalle": {
+            "posicion": 3,
+            "score_final": 0.4241,
+            "origen": "literal",
+            "origen_score_capa": 0.0,
+            "match_exacto": false,
+            "mascara_canales": {
+              "concepto": 0,
+              "sinonimos": 1,
+              "sustantivos": 0,
+              "contenido": 1,
+              "total_canales": 2
+            },
+            "multiplicador": 0.75
+          }
+        },
+        {
+          "pos": 4,
+          "concepto": "memoria_v5_1_optimizaciones",
+          "score": 0.4235,
+          "detalle": {
+            "posicion": 4,
+            "score_final": 0.4235,
+            "origen": "literal",
+            "origen_score_capa": 0.0,
+            "match_exacto": false,
+            "mascara_canales": {
+              "concepto": 1,
+              "sinonimos": 1,
+              "sustantivos": 0,
+              "contenido": 1,
+              "total_canales": 3
+            },
+            "multiplicador": 0.875
+          }
+        },
+        {
+          "pos": 5,
+          "concepto": "principio-memoria-hibrida-agente-naturalidad",
+          "score": 0.4072,
+          "detalle": {
+            "posicion": 5,
+            "score_final": 0.4072,
+            "origen": "literal",
+            "origen_score_capa": 0.0,
+            "match_exacto": false,
+            "mascara_canales": {
+              "concepto": 1,
+              "sinonimos": 1,
+              "sustantivos": 0,
+              "contenido": 1,
+              "total_canales": 3
+            },
+            "multiplicador": 0.875
+          }
+        }
+      ],
+      "detalle_esperado": {
+        "posicion": 4,
+        "score_final": 0.4235,
+        "origen": "literal",
+        "origen_score_capa": 0.0,
+        "match_exacto": false,
+        "mascara_canales": {
+          "concepto": 1,
+          "sinonimos": 1,
+          "sustantivos": 0,
+          "contenido": 1,
+          "total_canales": 3
+        },
+        "multiplicador": 0.875
+      }
+    },
+    {
+      "id": "0594",
+      "cat": "sinonimo",
+      "query": "arquitectura",
+      "expected": "arquitectura_memoria_biorag",
+      "total_encontrados": 142,
+      "top_5": [
+        {
+          "pos": 1,
+          "concepto": "angular_proyecto_arquitectura",
+          "score": 0.7895,
+          "detalle": {
+            "posicion": 1,
+            "score_final": 0.7895,
+            "origen": "literal",
+            "origen_score_capa": 0.0,
+            "match_exacto": false,
+            "mascara_canales": {
+              "concepto": 1,
+              "sinonimos": 1,
+              "sustantivos": 0,
+              "contenido": 1,
+              "total_canales": 3
+            },
+            "multiplicador": 0.875
+          }
+        },
+        {
+          "pos": 2,
+          "concepto": "react_arquitectura_estructura",
+          "score": 0.7531,
+          "detalle": {
+            "posicion": 2,
+            "score_final": 0.7531,
+            "origen": "literal",
+            "origen_score_capa": 0.0,
+            "match_exacto": false,
+            "mascara_canales": {
+              "concepto": 1,
+              "sinonimos": 1,
+              "sustantivos": 0,
+              "contenido": 1,
+              "total_canales": 3
+            },
+            "multiplicador": 0.875
+          }
+        },
+        {
+          "pos": 3,
+          "concepto": "arquitectura_memoria_biorag",
+          "score": 0.7464,
+          "detalle": {
+            "posicion": 3,
+            "score_final": 0.7464,
+            "origen": "literal",
+            "origen_score_capa": 0.0,
+            "match_exacto": false,
+            "mascara_canales": {
+              "concepto": 1,
+              "sinonimos": 1,
+              "sustantivos": 0,
+              "contenido": 0,
+              "total_canales": 2
+            },
+            "multiplicador": 0.75
+          }
+        },
+        {
+          "pos": 4,
+          "concepto": "cv_seccion_d_arquitectura_frontend_estado",
+          "score": 0.7313,
+          "detalle": {
+            "posicion": 4,
+            "score_final": 0.7313,
+            "origen": "literal",
+            "origen_score_capa": 0.0,
+            "match_exacto": false,
+            "mascara_canales": {
+              "concepto": 1,
+              "sinonimos": 1,
+              "sustantivos": 0,
+              "contenido": 1,
+              "total_canales": 3
+            },
+            "multiplicador": 0.875
+          }
+        },
+        {
+          "pos": 5,
+          "concepto": "vision_arquitectura_oec_franquicia",
+          "score": 0.7283,
+          "detalle": {
+            "posicion": 5,
+            "score_final": 0.7283,
+            "origen": "literal",
+            "origen_score_capa": 0.0,
+            "match_exacto": false,
+            "mascara_canales": {
+              "concepto": 1,
+              "sinonimos": 1,
+              "sustantivos": 0,
+              "contenido": 0,
+              "total_canales": 2
+            },
+            "multiplicador": 0.75
+          }
+        }
+      ],
+      "detalle_esperado": {
+        "posicion": 3,
+        "score_final": 0.7464,
+        "origen": "literal",
+        "origen_score_capa": 0.0,
+        "match_exacto": false,
+        "mascara_canales": {
+          "concepto": 1,
+          "sinonimos": 1,
+          "sustantivos": 0,
+          "contenido": 0,
+          "total_canales": 2
+        },
+        "multiplicador": 0.75
+      }
+    },
+    {
+      "id": "0638",
+      "cat": "sinonimo",
+      "query": "memoria compartida",
+      "expected": "mentalidad_biorag_para_agentes",
+      "total_encontrados": 130,
+      "top_5": [
+        {
+          "pos": 1,
+          "concepto": "norma_atribucion_autoria_memoria_compartida_oec",
+          "score": 0.8301,
+          "detalle": {
+            "posicion": 1,
+            "score_final": 0.8301,
+            "origen": "literal",
+            "origen_score_capa": 0.0,
+            "match_exacto": false,
+            "mascara_canales": {
+              "concepto": 1,
+              "sinonimos": 1,
+              "sustantivos": 0,
+              "contenido": 1,
+              "total_canales": 3
+            },
+            "multiplicador": 0.875
+          }
+        },
+        {
+          "pos": 2,
+          "concepto": "regla_firma_autoria_memoria",
+          "score": 0.7966,
+          "detalle": {
+            "posicion": 2,
+            "score_final": 0.7966,
+            "origen": "literal",
+            "origen_score_capa": 0.0,
+            "match_exacto": false,
+            "mascara_canales": {
+              "concepto": 1,
+              "sinonimos": 1,
+              "sustantivos": 0,
+              "contenido": 1,
+              "total_canales": 3
+            },
+            "multiplicador": 0.875
+          }
+        },
+        {
+          "pos": 3,
+          "concepto": "principio_firma_cada_recuerdo",
+          "score": 0.7943,
+          "detalle": {
+            "posicion": 3,
+            "score_final": 0.7943,
+            "origen": "literal",
+            "origen_score_capa": 0.0,
+            "match_exacto": false,
+            "mascara_canales": {
+              "concepto": 0,
+              "sinonimos": 1,
+              "sustantivos": 0,
+              "contenido": 1,
+              "total_canales": 2
+            },
+            "multiplicador": 0.75
+          }
+        },
+        {
+          "pos": 4,
+          "concepto": "artemis_oec_perfil_identidad_estabilidad",
+          "score": 0.7838,
+          "detalle": {
+            "posicion": 4,
+            "score_final": 0.7838,
+            "origen": "literal",
+            "origen_score_capa": 0.0,
+            "match_exacto": false,
+            "mascara_canales": {
+              "concepto": 0,
+              "sinonimos": 1,
+              "sustantivos": 0,
+              "contenido": 1,
+              "total_canales": 2
+            },
+            "multiplicador": 0.75
+          }
+        },
+        {
+          "pos": 5,
+          "concepto": "mentalidad_biorag_para_agentes",
+          "score": 0.7488,
+          "detalle": {
+            "posicion": 5,
+            "score_final": 0.7488,
+            "origen": "literal",
+            "origen_score_capa": 0.0,
+            "match_exacto": false,
+            "mascara_canales": {
+              "concepto": 0,
+              "sinonimos": 1,
+              "sustantivos": 0,
+              "contenido": 1,
+              "total_canales": 2
+            },
+            "multiplicador": 0.75
+          }
+        }
+      ],
+      "detalle_esperado": {
+        "posicion": 5,
+        "score_final": 0.7488,
+        "origen": "literal",
+        "origen_score_capa": 0.0,
+        "match_exacto": false,
+        "mascara_canales": {
+          "concepto": 0,
+          "sinonimos": 1,
+          "sustantivos": 0,
+          "contenido": 1,
+          "total_canales": 2
+        },
+        "multiplicador": 0.75
+      }
+    }
+  ],
+  "on": [
+    {
+      "id": "0516",
+      "cat": "por_tema",
+      "query": "real más sistemas",
+      "expected": "dennys-identidad-profunda",
+      "total_encontrados": 295,
+      "top_5": [
+        {
+          "pos": 1,
+          "concepto": "biorag_v20_rpe_dopamina",
+          "score": 0.5193,
+          "detalle": {
+            "posicion": 1,
+            "score_final": 0.5193,
+            "origen": "concept_hub",
+            "origen_score_capa": 0.5466666666666666,
+            "match_exacto": false,
+            "mascara_canales": {
+              "concepto": 0,
+              "sinonimos": 0,
+              "sustantivos": 0,
+              "contenido": 0,
+              "total_canales": 0
+            },
+            "multiplicador": 0.5
+          }
+        },
+        {
+          "pos": 2,
+          "concepto": "principio_naturaleza_agente",
+          "score": 0.3977,
+          "detalle": {
+            "posicion": 2,
+            "score_final": 0.3977,
+            "origen": "dimensional_fallback",
+            "origen_score_capa": 0.7539631808575206,
+            "match_exacto": false,
+            "mascara_canales": {
+              "concepto": 0,
+              "sinonimos": 0,
+              "sustantivos": 0,
+              "contenido": 0,
+              "total_canales": 0
+            },
+            "multiplicador": 0.5
+          }
+        },
+        {
+          "pos": 3,
+          "concepto": "dennys-working-style",
+          "score": 0.3964,
+          "detalle": {
+            "posicion": 3,
+            "score_final": 0.3964,
+            "origen": "dimensional_fallback",
+            "origen_score_capa": 0.6192858537850445,
+            "match_exacto": false,
+            "mascara_canales": {
+              "concepto": 0,
+              "sinonimos": 0,
+              "sustantivos": 0,
+              "contenido": 0,
+              "total_canales": 0
+            },
+            "multiplicador": 0.5
+          }
+        },
+        {
+          "pos": 4,
+          "concepto": "aforismo_criterio_agente",
+          "score": 0.3802,
+          "detalle": {
+            "posicion": 4,
+            "score_final": 0.3802,
+            "origen": "dimensional_fallback",
+            "origen_score_capa": 0.7539631808575206,
+            "match_exacto": false,
+            "mascara_canales": {
+              "concepto": 0,
+              "sinonimos": 0,
+              "sustantivos": 0,
+              "contenido": 0,
+              "total_canales": 0
+            },
+            "multiplicador": 0.5
+          }
+        },
+        {
+          "pos": 5,
+          "concepto": "paradigma-utilidad-contractual-genesis",
+          "score": 0.3709,
+          "detalle": {
+            "posicion": 5,
+            "score_final": 0.3709,
+            "origen": "dimensional_fallback",
+            "origen_score_capa": 0.7022734688434292,
+            "match_exacto": false,
+            "mascara_canales": {
+              "concepto": 0,
+              "sinonimos": 0,
+              "sustantivos": 0,
+              "contenido": 0,
+              "total_canales": 0
+            },
+            "multiplicador": 0.5
+          }
+        }
+      ],
+      "detalle_esperado": {
+        "posicion": "NO_RECUPERADO",
+        "score_final": null,
+        "origen": "literal",
+        "origen_score_capa": 0.0,
+        "match_exacto": false,
+        "mascara_canales": {
+          "concepto": 0,
+          "sinonimos": 0,
+          "sustantivos": 0,
+          "contenido": 1,
+          "total_canales": 1
+        },
+        "multiplicador": 0.625
+      }
+    },
+    {
+      "id": "0514",
+      "cat": "sinonimo",
+      "query": "perfil",
+      "expected": "dennys-identidad-profunda",
+      "total_encontrados": 96,
+      "top_5": [
+        {
+          "pos": 1,
+          "concepto": "dennys_perfil_gustos",
+          "score": 0.68845,
+          "detalle": {
+            "posicion": 1,
+            "score_final": 0.68845,
+            "origen": "literal",
+            "origen_score_capa": 0.0,
+            "match_exacto": false,
+            "mascara_canales": {
+              "concepto": 1,
+              "sinonimos": 1,
+              "sustantivos": 0,
+              "contenido": 1,
+              "total_canales": 3
+            },
+            "multiplicador": 0.875
+          }
+        },
+        {
+          "pos": 2,
+          "concepto": "perfil_creador_rag_ruta",
+          "score": 0.6853,
+          "detalle": {
+            "posicion": 2,
+            "score_final": 0.6853,
+            "origen": "literal",
+            "origen_score_capa": 0.0,
+            "match_exacto": false,
+            "mascara_canales": {
+              "concepto": 1,
+              "sinonimos": 1,
+              "sustantivos": 0,
+              "contenido": 1,
+              "total_canales": 3
+            },
+            "multiplicador": 0.875
+          }
+        },
+        {
+          "pos": 3,
+          "concepto": "notebooklm_perfil_dennys_id",
+          "score": 0.672262,
+          "detalle": {
+            "posicion": 3,
+            "score_final": 0.672262,
+            "origen": "literal",
+            "origen_score_capa": 0.0,
+            "match_exacto": false,
+            "mascara_canales": {
+              "concepto": 1,
+              "sinonimos": 1,
+              "sustantivos": 0,
+              "contenido": 1,
+              "total_canales": 3
+            },
+            "multiplicador": 0.875
+          }
+        },
+        {
+          "pos": 4,
+          "concepto": "oracle_perfil_cognitivo_dennys",
+          "score": 0.636825,
+          "detalle": {
+            "posicion": 4,
+            "score_final": 0.636825,
+            "origen": "literal",
+            "origen_score_capa": 0.0,
+            "match_exacto": false,
+            "mascara_canales": {
+              "concepto": 1,
+              "sinonimos": 1,
+              "sustantivos": 0,
+              "contenido": 1,
+              "total_canales": 3
+            },
+            "multiplicador": 0.875
+          }
+        },
+        {
+          "pos": 5,
+          "concepto": "dennys_perfil_tecnico_consolidado_master",
+          "score": 0.6118,
+          "detalle": {
+            "posicion": 5,
+            "score_final": 0.6118,
+            "origen": "literal",
+            "origen_score_capa": 0.0,
+            "match_exacto": false,
+            "mascara_canales": {
+              "concepto": 1,
+              "sinonimos": 1,
+              "sustantivos": 0,
+              "contenido": 1,
+              "total_canales": 3
+            },
+            "multiplicador": 0.875
+          }
+        }
+      ],
+      "detalle_esperado": {
+        "posicion": "NO_RECUPERADO",
+        "score_final": null,
+        "origen": "literal",
+        "origen_score_capa": 0.0,
+        "match_exacto": false,
+        "mascara_canales": {
+          "concepto": 0,
+          "sinonimos": 1,
+          "sustantivos": 0,
+          "contenido": 0,
+          "total_canales": 1
+        },
+        "multiplicador": 0.625
+      }
+    },
+    {
+      "id": "0489",
+      "cat": "typo",
+      "query": "oracle custom prompt arsitecura que fuciona",
+      "expected": "oracle_custom_prompt_arsitecura_que_funciona",
+      "total_encontrados": 151,
+      "top_5": [
+        {
+          "pos": 1,
+          "concepto": "vision_arquitectura_oec_franquicia",
+          "score": 0.3807,
+          "detalle": {
+            "posicion": 1,
+            "score_final": 0.3807,
+            "origen": "dimensional_fallback",
+            "origen_score_capa": 0.8819171036881969,
+            "match_exacto": false,
+            "mascara_canales": {
+              "concepto": 0,
+              "sinonimos": 0,
+              "sustantivos": 0,
+              "contenido": 0,
+              "total_canales": 0
+            },
+            "multiplicador": 0.5
+          }
+        },
+        {
+          "pos": 2,
+          "concepto": "identidad_dennys_perfil_completo",
+          "score": 0.3795,
+          "detalle": {
+            "posicion": 2,
+            "score_final": 0.3795,
+            "origen": "dimensional_fallback",
+            "origen_score_capa": 0.6666666666666666,
+            "match_exacto": false,
+            "mascara_canales": {
+              "concepto": 0,
+              "sinonimos": 0,
+              "sustantivos": 0,
+              "contenido": 0,
+              "total_canales": 0
+            },
+            "multiplicador": 0.5
+          }
+        },
+        {
+          "pos": 3,
+          "concepto": "aforismo_criterio_agente",
+          "score": 0.3762,
+          "detalle": {
+            "posicion": 3,
+            "score_final": 0.3762,
+            "origen": "dimensional_fallback",
+            "origen_score_capa": 0.8819171036881969,
+            "match_exacto": false,
+            "mascara_canales": {
+              "concepto": 0,
+              "sinonimos": 0,
+              "sustantivos": 0,
+              "contenido": 0,
+              "total_canales": 0
+            },
+            "multiplicador": 0.5
+          }
+        },
+        {
+          "pos": 4,
+          "concepto": "principio_naturaleza_agente",
+          "score": 0.3719,
+          "detalle": {
+            "posicion": 4,
+            "score_final": 0.3719,
+            "origen": "dimensional_fallback",
+            "origen_score_capa": 0.8164965809277259,
+            "match_exacto": false,
+            "mascara_canales": {
+              "concepto": 0,
+              "sinonimos": 0,
+              "sustantivos": 0,
+              "contenido": 0,
+              "total_canales": 0
+            },
+            "multiplicador": 0.5
+          }
+        },
+        {
+          "pos": 5,
+          "concepto": "oracle_custom_prompt_config_actual",
+          "score": 0.363825,
+          "detalle": {
+            "posicion": 5,
+            "score_final": 0.363825,
+            "origen": "literal",
+            "origen_score_capa": 0.0,
+            "match_exacto": false,
+            "mascara_canales": {
+              "concepto": 1,
+              "sinonimos": 1,
+              "sustantivos": 0,
+              "contenido": 1,
+              "total_canales": 3
+            },
+            "multiplicador": 0.875
+          }
+        }
+      ],
+      "detalle_esperado": {
+        "posicion": "NO_RECUPERADO",
+        "score_final": null,
+        "origen": "literal",
+        "origen_score_capa": 0.0,
+        "match_exacto": false,
+        "mascara_canales": {
+          "concepto": 1,
+          "sinonimos": 0,
+          "sustantivos": 0,
+          "contenido": 1,
+          "total_canales": 2
+        },
+        "multiplicador": 0.75
+      }
+    },
+    {
+      "id": "0518",
+      "cat": "variante_gramatical",
+      "query": "cuando usado dimensione biorags",
+      "expected": "cuando_usar_dimensiones_biorag",
+      "total_encontrados": 181,
+      "top_5": [
+        {
+          "pos": 1,
+          "concepto": "mentalidad_biorag_para_agentes",
+          "score": 0.4572,
+          "detalle": {
+            "posicion": 1,
+            "score_final": 0.4572,
+            "origen": "simbolico",
+            "origen_score_capa": 0.9221,
+            "match_exacto": false,
+            "mascara_canales": {
+              "concepto": 0,
+              "sinonimos": 0,
+              "sustantivos": 0,
+              "contenido": 1,
+              "total_canales": 1
+            },
+            "multiplicador": 0.625
+          }
+        },
+        {
+          "pos": 2,
+          "concepto": "bio_rag_overview_completo",
+          "score": 0.3901,
+          "detalle": {
+            "posicion": 2,
+            "score_final": 0.3901,
+            "origen": "simbolico",
+            "origen_score_capa": 0.619,
+            "match_exacto": false,
+            "mascara_canales": {
+              "concepto": 0,
+              "sinonimos": 0,
+              "sustantivos": 0,
+              "contenido": 1,
+              "total_canales": 1
+            },
+            "multiplicador": 0.625
+          }
+        },
+        {
+          "pos": 3,
+          "concepto": "artemis_ponytail_audit_biorag_v10_3_reporte",
+          "score": 0.36,
+          "detalle": {
+            "posicion": 3,
+            "score_final": 0.36,
+            "origen": "simbolico",
+            "origen_score_capa": 0.619,
+            "match_exacto": false,
+            "mascara_canales": {
+              "concepto": 0,
+              "sinonimos": 0,
+              "sustantivos": 0,
+              "contenido": 1,
+              "total_canales": 1
+            },
+            "multiplicador": 0.625
+          }
+        },
+        {
+          "pos": 4,
+          "concepto": "biorag_metricas_historial_tool_20260616",
+          "score": 0.3502,
+          "detalle": {
+            "posicion": 4,
+            "score_final": 0.3502,
+            "origen": "simbolico",
+            "origen_score_capa": 0.619,
+            "match_exacto": false,
+            "mascara_canales": {
+              "concepto": 0,
+              "sinonimos": 0,
+              "sustantivos": 0,
+              "contenido": 0,
+              "total_canales": 0
+            },
+            "multiplicador": 0.5
+          }
+        },
+        {
+          "pos": 5,
+          "concepto": "fca_chequeo_sugeridor_dimensiones_refutado_frecuencia_no_semantica",
+          "score": 0.3466,
+          "detalle": {
+            "posicion": 5,
+            "score_final": 0.3466,
+            "origen": "simbolico",
+            "origen_score_capa": 0.6364,
+            "match_exacto": false,
+            "mascara_canales": {
+              "concepto": 0,
+              "sinonimos": 0,
+              "sustantivos": 0,
+              "contenido": 0,
+              "total_canales": 0
+            },
+            "multiplicador": 0.5
+          }
+        }
+      ],
+      "detalle_esperado": {
+        "posicion": "NO_RECUPERADO",
+        "score_final": null,
+        "origen": "literal",
+        "origen_score_capa": 0.0,
+        "match_exacto": false,
+        "mascara_canales": {
+          "concepto": 0,
+          "sinonimos": 0,
+          "sustantivos": 0,
+          "contenido": 0,
+          "total_canales": 0
+        },
+        "multiplicador": 0.5
+      }
+    },
+    {
+      "id": "0564",
+      "cat": "pregunta_natural",
+      "query": "¿Dónde encuentro la info de memoria v5 1 optimizaciones?",
+      "expected": "memoria_v5_1_optimizaciones",
+      "total_encontrados": 271,
+      "top_5": [
+        {
+          "pos": 1,
+          "concepto": "aforismo_criterio_agente",
+          "score": 0.398,
+          "detalle": {
+            "posicion": 1,
+            "score_final": 0.398,
+            "origen": "dimensional_fallback",
+            "origen_score_capa": 0.7745966692414834,
+            "match_exacto": false,
+            "mascara_canales": {
+              "concepto": 0,
+              "sinonimos": 0,
+              "sustantivos": 0,
+              "contenido": 0,
+              "total_canales": 0
+            },
+            "multiplicador": 0.5
+          }
+        },
+        {
+          "pos": 2,
+          "concepto": "integritas_verdad_relacional",
+          "score": 0.3786,
+          "detalle": {
+            "posicion": 2,
+            "score_final": 0.3786,
+            "origen": "dimensional_fallback",
+            "origen_score_capa": 0.6324555320336758,
+            "match_exacto": false,
+            "mascara_canales": {
+              "concepto": 0,
+              "sinonimos": 0,
+              "sustantivos": 0,
+              "contenido": 0,
+              "total_canales": 0
+            },
+            "multiplicador": 0.5
+          }
+        },
+        {
+          "pos": 3,
+          "concepto": "notebooklm-sync-lecciones",
+          "score": 0.3784,
+          "detalle": {
+            "posicion": 3,
+            "score_final": 0.3784,
+            "origen": "dimensional_fallback",
+            "origen_score_capa": 0.6831300510639733,
+            "match_exacto": false,
+            "mascara_canales": {
+              "concepto": 0,
+              "sinonimos": 0,
+              "sustantivos": 0,
+              "contenido": 0,
+              "total_canales": 0
+            },
+            "multiplicador": 0.5
+          }
+        },
+        {
+          "pos": 4,
+          "concepto": "athena_artemis_desde",
+          "score": 0.3774,
+          "detalle": {
+            "posicion": 4,
+            "score_final": 0.3774,
+            "origen": "dimensional_fallback",
+            "origen_score_capa": 0.6831300510639733,
+            "match_exacto": false,
+            "mascara_canales": {
+              "concepto": 0,
+              "sinonimos": 0,
+              "sustantivos": 0,
+              "contenido": 0,
+              "total_canales": 0
+            },
+            "multiplicador": 0.5
+          }
+        },
+        {
+          "pos": 5,
+          "concepto": "analisis_escalabilidad_10k_v5_1_memoria_v5_1_optimizaciones_hermes_agente_hermes",
+          "score": 0.373975,
+          "detalle": {
+            "posicion": 5,
+            "score_final": 0.373975,
+            "origen": "literal",
+            "origen_score_capa": 0.0,
+            "match_exacto": false,
+            "mascara_canales": {
+              "concepto": 1,
+              "sinonimos": 1,
+              "sustantivos": 0,
+              "contenido": 1,
+              "total_canales": 3
+            },
+            "multiplicador": 0.875
+          }
+        }
+      ],
+      "detalle_esperado": {
+        "posicion": "NO_RECUPERADO",
+        "score_final": null,
+        "origen": "literal",
+        "origen_score_capa": 0.0,
+        "match_exacto": false,
+        "mascara_canales": {
+          "concepto": 1,
+          "sinonimos": 1,
+          "sustantivos": 0,
+          "contenido": 1,
+          "total_canales": 3
+        },
+        "multiplicador": 0.875
+      }
+    },
+    {
+      "id": "0594",
+      "cat": "sinonimo",
+      "query": "arquitectura",
+      "expected": "arquitectura_memoria_biorag",
+      "total_encontrados": 142,
+      "top_5": [
+        {
+          "pos": 1,
+          "concepto": "angular_proyecto_arquitectura",
+          "score": 0.690812,
+          "detalle": {
+            "posicion": 1,
+            "score_final": 0.690812,
+            "origen": "literal",
+            "origen_score_capa": 0.0,
+            "match_exacto": false,
+            "mascara_canales": {
+              "concepto": 1,
+              "sinonimos": 1,
+              "sustantivos": 0,
+              "contenido": 1,
+              "total_canales": 3
+            },
+            "multiplicador": 0.875
+          }
+        },
+        {
+          "pos": 2,
+          "concepto": "react_arquitectura_estructura",
+          "score": 0.658963,
+          "detalle": {
+            "posicion": 2,
+            "score_final": 0.658963,
+            "origen": "literal",
+            "origen_score_capa": 0.0,
+            "match_exacto": false,
+            "mascara_canales": {
+              "concepto": 1,
+              "sinonimos": 1,
+              "sustantivos": 0,
+              "contenido": 1,
+              "total_canales": 3
+            },
+            "multiplicador": 0.875
+          }
+        },
+        {
+          "pos": 3,
+          "concepto": "cv_seccion_d_arquitectura_frontend_estado",
+          "score": 0.639887,
+          "detalle": {
+            "posicion": 3,
+            "score_final": 0.639887,
+            "origen": "literal",
+            "origen_score_capa": 0.0,
+            "match_exacto": false,
+            "mascara_canales": {
+              "concepto": 1,
+              "sinonimos": 1,
+              "sustantivos": 0,
+              "contenido": 1,
+              "total_canales": 3
+            },
+            "multiplicador": 0.875
+          }
+        },
+        {
+          "pos": 4,
+          "concepto": "hormiguita_arquitectura_6_capas_2026_07_27",
+          "score": 0.626413,
+          "detalle": {
+            "posicion": 4,
+            "score_final": 0.626413,
+            "origen": "literal",
+            "origen_score_capa": 0.0,
+            "match_exacto": false,
+            "mascara_canales": {
+              "concepto": 1,
+              "sinonimos": 1,
+              "sustantivos": 0,
+              "contenido": 1,
+              "total_canales": 3
+            },
+            "multiplicador": 0.875
+          }
+        },
+        {
+          "pos": 5,
+          "concepto": "arquitectura_busqueda_dimensional_v11_3",
+          "score": 0.613112,
+          "detalle": {
+            "posicion": 5,
+            "score_final": 0.613112,
+            "origen": "literal",
+            "origen_score_capa": 0.0,
+            "match_exacto": false,
+            "mascara_canales": {
+              "concepto": 1,
+              "sinonimos": 1,
+              "sustantivos": 0,
+              "contenido": 1,
+              "total_canales": 3
+            },
+            "multiplicador": 0.875
+          }
+        }
+      ],
+      "detalle_esperado": {
+        "posicion": "NO_RECUPERADO",
+        "score_final": null,
+        "origen": "literal",
+        "origen_score_capa": 0.0,
+        "match_exacto": false,
+        "mascara_canales": {
+          "concepto": 1,
+          "sinonimos": 1,
+          "sustantivos": 0,
+          "contenido": 0,
+          "total_canales": 2
+        },
+        "multiplicador": 0.75
+      }
+    },
+    {
+      "id": "0638",
+      "cat": "sinonimo",
+      "query": "memoria compartida",
+      "expected": "mentalidad_biorag_para_agentes",
+      "total_encontrados": 130,
+      "top_5": [
+        {
+          "pos": 1,
+          "concepto": "norma_atribucion_autoria_memoria_compartida_oec",
+          "score": 0.726337,
+          "detalle": {
+            "posicion": 1,
+            "score_final": 0.726337,
+            "origen": "literal",
+            "origen_score_capa": 0.0,
+            "match_exacto": false,
+            "mascara_canales": {
+              "concepto": 1,
+              "sinonimos": 1,
+              "sustantivos": 0,
+              "contenido": 1,
+              "total_canales": 3
+            },
+            "multiplicador": 0.875
+          }
+        },
+        {
+          "pos": 2,
+          "concepto": "regla_firma_autoria_memoria",
+          "score": 0.697025,
+          "detalle": {
+            "posicion": 2,
+            "score_final": 0.697025,
+            "origen": "literal",
+            "origen_score_capa": 0.0,
+            "match_exacto": false,
+            "mascara_canales": {
+              "concepto": 1,
+              "sinonimos": 1,
+              "sustantivos": 0,
+              "contenido": 1,
+              "total_canales": 3
+            },
+            "multiplicador": 0.875
+          }
+        },
+        {
+          "pos": 3,
+          "concepto": "principio_firma_cada_recuerdo",
+          "score": 0.595725,
+          "detalle": {
+            "posicion": 3,
+            "score_final": 0.595725,
+            "origen": "literal",
+            "origen_score_capa": 0.0,
+            "match_exacto": false,
+            "mascara_canales": {
+              "concepto": 0,
+              "sinonimos": 1,
+              "sustantivos": 0,
+              "contenido": 1,
+              "total_canales": 2
+            },
+            "multiplicador": 0.75
+          }
+        },
+        {
+          "pos": 4,
+          "concepto": "artemis_oec_perfil_identidad_estabilidad",
+          "score": 0.58785,
+          "detalle": {
+            "posicion": 4,
+            "score_final": 0.58785,
+            "origen": "literal",
+            "origen_score_capa": 0.0,
+            "match_exacto": false,
+            "mascara_canales": {
+              "concepto": 0,
+              "sinonimos": 1,
+              "sustantivos": 0,
+              "contenido": 1,
+              "total_canales": 2
+            },
+            "multiplicador": 0.75
+          }
+        },
+        {
+          "pos": 5,
+          "concepto": "mentalidad_biorag_para_agentes",
+          "score": 0.5616,
+          "detalle": {
+            "posicion": 5,
+            "score_final": 0.5616,
+            "origen": "literal",
+            "origen_score_capa": 0.0,
+            "match_exacto": false,
+            "mascara_canales": {
+              "concepto": 0,
+              "sinonimos": 1,
+              "sustantivos": 0,
+              "contenido": 1,
+              "total_canales": 2
+            },
+            "multiplicador": 0.75
+          }
+        }
+      ],
+      "detalle_esperado": {
+        "posicion": 5,
+        "score_final": 0.5616,
+        "origen": "literal",
+        "origen_score_capa": 0.0,
+        "match_exacto": false,
+        "mascara_canales": {
+          "concepto": 0,
+          "sinonimos": 1,
+          "sustantivos": 0,
+          "contenido": 1,
+          "total_canales": 2
+        },
+        "multiplicador": 0.75
+      }
+    }
+  ]
+}
