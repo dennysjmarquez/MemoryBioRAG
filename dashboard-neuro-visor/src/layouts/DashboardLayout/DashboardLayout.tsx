@@ -18,7 +18,7 @@ export default function DashboardLayout() {
           <span className={styles.logoIcon}>🧠</span>
           <div className={styles.logoText}>
             <span className={styles.logoTitle}>BioRAG</span>
-            <span className={styles.logoVersion}>v18.3 · Neuro-Visor</span>
+            <span className={styles.logoVersion}>v32.2 · Neuro-Visor</span>
           </div>
         </div>
 
