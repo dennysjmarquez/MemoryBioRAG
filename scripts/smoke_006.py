@@ -22,7 +22,8 @@ sys.path.insert(0, str(ROOT))
 from core.memory_store import SQLiteMemoryBioRAG
 
 PROD_DB = ROOT / "MemoryBioRAG_Data" / "memory_biorag.db"
-OUTPUT_PATH = ROOT / "scripts" / "smoke_006_antes.json"
+OUTPUT_FILE = sys.argv[1] if len(sys.argv) > 1 else ("smoke_006_despues.json" if (ROOT / "scripts" / "smoke_006_antes.json").exists() else "smoke_006_antes.json")
+OUTPUT_PATH = ROOT / "scripts" / OUTPUT_FILE
 
 QUERY = "cual es la ultima version de biorag"
 
