@@ -1,10 +1,10 @@
 {
   "version": "v32.2",
-  "generado_en": "2026-10-01T09:32:23",
-  "elapsed_seconds": 1015.85,
+  "generado_en": "2026-10-01T13:56:25",
+  "elapsed_seconds": 734.36,
   "casos_file": "casos_qa_baseline_v1.jsonl",
   "casos_total": 921,
-  "db_src": "snapshots/qa_escape_qcr_20260811.db",
+  "db_src": "/mnt/recursos_compartidos_y_otros/MemoryBioRAG/MemoryBioRAG_Data/memory_biorag_qa_run.db",
   "global": {
     "queries": 875,
     "recall_at_5": 100.0,
