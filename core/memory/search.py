@@ -23,6 +23,11 @@ from core.memory import constants
 
 logger = logging.getLogger("BioRAG.MemoryStore")
 
+_ORIGENES_NO_LITERALES = {
+    "typo", "expansion", "latente", "cadena", "simbolico",
+    "dimensional_fallback", "semantica", "unicode", "lexico_aprendido", "sdm"
+}
+
 try:
     from core.calibracion import (zscore_por_query, fusion_rrf, FusionLogistica,
                                    CalibradorPlatt, calibracion_isotonica,
@@ -1453,9 +1458,30 @@ def buscar_por_frase(self, frase, profundidad="activos", pagina=1, limite=None, 
         except Exception:
             pass
 
-    # Prepare normalized query tokens for symbolic scoring
+    # Batch-fetch sustantivos_clave — mismo patrón que concepto_sinonimos_map (Spec-006)
+    sustantivos_map = {}
+    if conceptos_todos:
+        placeholders_sk = ",".join(["?" for _ in conceptos_todos])
+        try:
+            self.cursor.execute(
+                f"SELECT concepto, sustantivos_clave FROM largo_plazo WHERE concepto IN ({placeholders_sk})",
+                conceptos_todos
+            )
+            for conc, sustantivos in self.cursor.fetchall():
+                sustantivos_map[conc] = sustantivos or ""
+        except Exception:
+            pass
+
+    # Prepare normalized query tokens for symbolic scoring and field convergence
     from core.fallback_simbolico import _tokenizar_normalizado, score_simbolico_concepto, score_simbolico_sinonimos
     tokens_query = _tokenizar_normalizado(query)
+    q_set = set(tokens_query) if tokens_query else set()
+
+    def _campo_activo(texto: str) -> int:
+        """1 si algún token de la query aparece en el campo normalizado, 0 si no."""
+        if not texto or not q_set:
+            return 0
+        return 1 if q_set & set(_tokenizar_normalizado(texto)) else 0
 
     # ── Precompute PPMI Query Vector ONCE before candidate loop ──
     _ppmi_vq = None
@@ -1710,6 +1736,25 @@ def buscar_por_frase(self, frase, profundidad="activos", pagina=1, limite=None, 
             campo_score=campo_map.get(concepto, 0.0),
         )
 
+        # ── Convergencia Multi-Campo (Spec-006) ──────────────────────────────
+        if (constants.CONVERGENCIA_ACTIVA
+                and not match_exacto
+                and origen_scores.get(concepto, ("literal", 0.0))[0]
+                    not in _ORIGENES_NO_LITERALES):
+
+            sinonimos_str = concepto_sinonimos_map.get(concepto, "")
+            canales = (
+                _campo_activo(concepto)
+                + _campo_activo(sinonimos_str)
+                + _campo_activo(sustantivos_map.get(concepto, ""))
+                + _campo_activo(contenido)
+            )
+            convergencia = canales / 4.0
+            alpha = constants.CONVERGENCIA_ALPHA
+            multiplicador = alpha + (1.0 - alpha) * convergencia
+            score_hibrido = round(min(1.0, score_hibrido * multiplicador), 6)
+        # ─────────────────────────────────────────────────────────────────────
+
         resultados_con_hibrido.append(
             (concepto, contenido, peso, estado, score_hibrido, asociaciones or "")
         )
@@ -1904,7 +1949,6 @@ def buscar_por_frase(self, frase, profundidad="activos", pagina=1, limite=None, 
     # RF-19 (spec 001): incluye la columna sustantivos_clave — un nodo boosteado por esa
     # columna dedicada (match en FTS con peso BM25 4.0x) no debe ser descartado aquí por no
     # ser prefijo del contenido/concepto/sinónimos.
-    _ORIGENES_NO_LITERALES = {"typo", "expansion", "latente", "cadena", "simbolico", "dimensional_fallback", "semantica", "unicode", "lexico_aprendido", "sdm"}
     query_words = re.findall(r'\w{3,}', query.lower())
     if len(query_words) == 1 and resultados_con_hibrido:
         token = query_words[0]

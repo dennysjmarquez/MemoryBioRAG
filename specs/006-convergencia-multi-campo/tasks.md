@@ -54,16 +54,16 @@
   4. **Aplicar** el multiplicador post-scoring con el bypass correcto:
      no `match_exacto`, y origen consultado via `origen_scores.get(concepto, ...)`.
 - **Hecho cuando**:
-  - [ ] `_ORIGENES_NO_LITERALES` está a nivel de módulo (accesible desde el loop).
-  - [ ] `sustantivos_map` se construye con 1 sola query SQL usando `conceptos_todos`.
-  - [ ] `_campo_activo` usa `_tokenizar_normalizado` (conjunto, no substring).
-  - [ ] Nodo con tokens en 4/4 campos → multiplicador = 1.0.
-  - [ ] Nodo con tokens solo en `contenido` → multiplicador = 0.625 (alpha=0.5).
-  - [ ] `BIORAG_CONVERGENCIA_ACTIVA=0` → score idéntico al baseline.
-  - [ ] Origen `sdm` / `semantica` / `dimensional_fallback` → multiplicador = 1.0.
-  - [ ] `match_exacto=True` → multiplicador = 1.0.
-  - [ ] `pytest tests/test_convergencia_multi_campo.py -v` → 7 tests en verde.
-- [ ] **Estado**: pendiente
+  - [x] `_ORIGENES_NO_LITERALES` está a nivel de módulo (accesible desde el loop).
+  - [x] `sustantivos_map` se construye con 1 sola query SQL usando `conceptos_todos`.
+  - [x] `_campo_activo` usa `_tokenizar_normalizado` (conjunto, no substring).
+  - [x] Nodo con tokens en 4/4 campos → multiplicador = 1.0.
+  - [x] Nodo con tokens solo en `contenido` → multiplicador = 0.625 (alpha=0.5).
+  - [x] `BIORAG_CONVERGENCIA_ACTIVA=0` → score idéntico al baseline.
+  - [x] Origen `sdm` / `semantica` / `dimensional_fallback` → multiplicador = 1.0.
+  - [x] `match_exacto=True` → multiplicador = 1.0.
+  - [x] `pytest tests/test_convergencia_multi_campo.py -v` → 7 tests en verde.
+- [x] **Estado**: hecha
 
 ---
 
@@ -76,15 +76,15 @@
   Para probar distintos valores de `CONVERGENCIA_ALPHA`, usar `importlib.reload`
   o subprocess — no cambiar env vars después de importar.
 - **Hecho cuando**:
-  - [ ] `pytest tests/test_convergencia_multi_campo.py -v` → 7 tests en verde, 0 fallidos.
-  - [ ] Test 1: 4/4 campos activos da score final mayor que 1/4, con mismo score base.
-  - [ ] Test 2: El **multiplicador** es idéntico para 1 o 500 repeticiones en contenido.
-  - [ ] Test 3: Flag desactivado → multiplicador = 1.0.
-  - [ ] Test 4: `match_exacto=True` → multiplicador = 1.0.
-  - [ ] Test 5: origen `sdm` → multiplicador = 1.0.
-  - [ ] Test 6: tokens vacíos (query stopwords) → multiplicador = 1.0.
-  - [ ] Test 7: alpha=2.5 → warning en log + CONVERGENCIA_ALPHA = 0.99.
-- [ ] **Estado**: pendiente
+  - [x] `pytest tests/test_convergencia_multi_campo.py -v` → 7 tests en verde, 0 fallidos.
+  - [x] Test 1: 4/4 campos activos da score final mayor que 1/4, con mismo score base.
+  - [x] Test 2: El **multiplicador** es idéntico para 1 o 500 repeticiones en contenido.
+  - [x] Test 3: Flag desactivado → multiplicador = 1.0.
+  - [x] Test 4: `match_exacto=True` → multiplicador = 1.0.
+  - [x] Test 5: origen `sdm` → multiplicador = 1.0.
+  - [x] Test 6: tokens vacíos (query stopwords) → multiplicador = 1.0.
+  - [x] Test 7: alpha=2.5 → warning en log + CONVERGENCIA_ALPHA = 0.99.
+- [x] **Estado**: hecha
 
 ---
 
