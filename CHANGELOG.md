@@ -1,5 +1,25 @@
 # BioRAG Changelog
  
+## [v32.2] — 2026-09-30 — Protocolo Pre-flight Search Obligatorio, Vinculación Automática y Actualización Libre de Restricción Temporal · Spec 004
+
+**Blindaje ontológico del corpus mediante búsqueda previa obligatoria (`busqueda_previa=True`), vinculación sináptica atómica (`vincular_con`) y eliminación de restricción temporal en actualización de recuerdos.**
+
+### Novedades Principales
+
+- **Protocolo Pre-flight Search Obligatorio (`busqueda_previa=True`):**
+  - Implementación de la invariante en las tools MCP `aprender` y `guardar` (`core/mcp_server/write.py`).
+  - Previene la fragmentación de conocimiento y la creación de nodos huérfanos o duplicados forzando al agente a consultar el corpus antes de persistir información.
+  - Rechazo inmediato estructurado con `codigo: BUSQUEDA_PREVIA_REQUERIDA` si se intenta guardar sin búsqueda previa verificada.
+- **Vinculación Sináptica Atómica en Ingesta (`vincular_con: list[str]`):**
+  - Parámetro opcional en `aprender` y `guardar` para vincular automáticamente el concepto nuevo con conceptos existentes en el grafo sináptico en un solo paso atómico.
+  - Manejo resiliente de fallos (nodos destino inexistentes o errores sinápticos no abortan el guardado del nodo principal).
+- **Actualización Desacoplada de Restricción Temporal (`actualizar`):**
+  - Eliminación de la restricción de antigüedad (`dias=3`) en la tool `actualizar`.
+  - Permite enriquecer, corregir y sobrescribir recuerdos de cualquier fecha en el corpus a largo plazo.
+- **Suite de Pruebas Unitarias Expandida:**
+  - 283 / 283 tests unitarios en verde (19 nuevos tests específicos para Spec 004 en `tests/test_preflight_*.py` y `tests/test_actualizar_sin_restriccion_temporal.py`).
+  - Documentación normativa completa integrada en `AGENTS.md` (Sección 10).
+
 ## [v32.1] — 2026-09-26 — Modularización de Arquitectura y Descomposición de Monolitos · Spec 003
 
 **Descentralización de componentes monolíticos hacia paquetes modulares de responsabilidad única (SRP) con contrato de no-regresión por identidad verificable al 100%.**

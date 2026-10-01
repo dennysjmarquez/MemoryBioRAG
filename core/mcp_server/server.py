@@ -1,5 +1,4 @@
-#!/usr/bin/env python3
-"""BioRAG MCP Server — Memoria compartida OEC via Model Context Protocol.
+"""BioRAG MCP Server v32.2 — Memoria compartida OEC via Model Context Protocol.
 
 Expone la corteza biologica de BioRAG como herramientas MCP para que
 cualquier IDE/CLI (OpenCode, VS Code, Cursor, Cline) se conecte a la

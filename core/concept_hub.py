@@ -34,8 +34,8 @@ Nota sobre concept_hub_domain_dict:
     tiene Foreign Keys hacia hubs porque opera de forma desacoplada a nivel de tokens globales.
 
 Autor: Athena-OEC & Artemis-OEC
-Versión: v32.1 (Modularización y Descomposición de Monolitos)
-Fecha: 2026-09-21
+Versión: v32.2 (Protocolo Pre-flight Search & Vinculación Automática)
+Fecha: 2026-09-30
 """
 
 import re

@@ -199,3 +199,98 @@ Before claiming readiness to tackle any new feature or fix:
 3. [ ] Run `scripts/evaluar_qa.py` against the snapshot and record your baseline metrics.
 4. [ ] State clearly the hypothesis and isolated change you intend to make (One change at a time).
 5. [ ] Ensure your proposed solution adheres to the **"Antes de construir, justifica"** UX-first rule.
+6. [ ] Read Section 10 (Pre-flight Search Protocol) and confirm you understand the mandatory search invariant.
+
+---
+
+## 10. Protocolo Pre-flight Search (Invariante — Spec 004)
+
+> **🔒 REGLA INMUTABLE**: Ningún agente puede llamar `aprender` o `guardar` sin haber realizado una búsqueda previa y pasar `busqueda_previa=True`. Sin excepción. Nunca.
+
+### ¿Por qué existe esta regla?
+
+El corpus de BioRAG crece con cada sesión. Sin una búsqueda previa obligatoria, el sistema acumula:
+- **Nodos duplicados**: el mismo concepto guardado 3 veces con nombres ligeramente diferentes.
+- **Versiones fragmentadas**: "última versión" repartida en 10 nodos sin conexión entre sí.
+- **Grafo huérfano**: conocimiento nuevo que no conecta con lo ya almacenado.
+
+La búsqueda previa es la única manera de que el agente tome una decisión informada: ¿actualizo, vinculo, o creo nuevo?
+
+### Flujo de decisión obligatorio
+
+```
+ANTES de guardar/aprender
+         │
+         ▼
+┌─────────────────────────────┐
+│  biorag_buscar / recordar   │  ← OBLIGATORIO. Sin esto, no se puede guardar.
+│  (con tema o concepto)      │
+└────────────┬────────────────┘
+             │
+             ▼
+    ¿Hay resultados top-5?
+             │
+     ┌───────┴──────────┐
+     │ SÍ               │ NO
+     ▼                  ▼
+¿El top-1 tiene     Crear nodo nuevo
+score ≥ 0.80?       (aprender/guardar
+     │               + busqueda_previa=True)
+ ┌───┴────┐
+ │ SÍ    │ NO
+ ▼       ▼
+¿El    ¿El nodo top-1
+nodo   tiene mucho texto
+trata  o es muy distinto?
+del        │
+mismo  ┌───┴────┐
+tema?  │ SÍ    │ NO
+ │     ▼       ▼
+ │  Crear     Actualizar
+ │  nuevo +   nodo top-1
+ │  vincular  (actualizar
+ │  con top-1  + busqueda_previa=True)
+ │
+ ▼
+Actualizar nodo
+(actualizar +
+busqueda_previa=True)
+```
+
+### Tabla de decisión
+
+| Situación | Acción correcta | Tool MCP |
+|-----------|----------------|----------|
+| No hay resultados relevantes | Crear nodo nuevo | `aprender` / `guardar` con `busqueda_previa=True` |
+| Top-1 trata del mismo tema, score ≥ 0.80, contenido corto | Actualizar el nodo existente | `actualizar` |
+| Top-1 trata del mismo tema, pero ya tiene mucho texto | Crear nodo nuevo + vincular con top-1 | `aprender` con `busqueda_previa=True, vincular_con=[top-1]` |
+| Top-1 relacionado pero diferente tema | Crear nodo nuevo + vincular | `aprender` con `busqueda_previa=True, vincular_con=[top-1, ...]` |
+| Actualización parcial (ej: añadir sustantivos) | Enriquecer sin sobrescribir | `agregar_sustantivos` o `actualizar` |
+| Reemplazar completamente el nodo | Sobrescribir todo | `actualizar` con `sobrescribir=True` |
+
+### Parámetros del contrato Pre-flight
+
+```python
+# ✅ CORRECTO — busqueda_previa=True declarada explícitamente
+aprender(
+    concepto="nueva_idea",
+    contenido="...",
+    bridges=[...],           # 5 ángulos obligatorios
+    sustantivos_clave="...", # 2-4 sustantivos OBLIGATORIO
+    busqueda_previa=True,    # 🔒 INVARIANTE — debe ser True
+    vincular_con=["nodo_relacionado"],  # opcional pero recomendado
+)
+
+# ❌ INCORRECTO — se omite busqueda_previa (default=False → error inmediato)
+aprender(concepto="nueva_idea", contenido="...")
+# → Retorna: {"status": "error", "codigo": "BUSQUEDA_PREVIA_REQUERIDA"}
+```
+
+### Pitfalls específicos del Pre-flight
+
+| Error | Causa | Remediación |
+|-------|-------|-------------|
+| `BUSQUEDA_PREVIA_REQUERIDA` en respuesta | Se llamó `aprender`/`guardar` sin `busqueda_previa=True` | Buscar primero, luego llamar con `busqueda_previa=True` |
+| Nodos duplicados en el corpus | Se ignoró el top-5 y se creó nodo nuevo | Revisar top-5, decidir actualizar o vincular |
+| Conocimiento sin conexiones en el grafo | Se creó nodo sin `vincular_con` | Usar `vincular_con` con los nodos relacionados del top-5 |
+| Score alto en top-1 sin relación semántica real | Coincidencia de nombre (ej: `biorag_v32_1`) | El agente evalúa el contenido — si no es el mismo tema, crea nodo nuevo y vincula |

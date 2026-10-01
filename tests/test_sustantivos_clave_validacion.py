@@ -36,6 +36,7 @@ _BASE_ARGS = dict(
     syn="test,t3,validacion,sustantivo,sustantivos,validar,rechazar,aprender",
     cat="Lesson",
     bridges=VALID_BRIDGES,
+    busqueda_previa=True,
 )
 
 

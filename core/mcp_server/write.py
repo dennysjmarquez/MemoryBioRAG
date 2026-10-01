@@ -77,8 +77,34 @@ def _aprender_impl(
     predicados: Optional[Any] = None,
     valencia_somatica: Optional[float] = None,
     sustantivos_clave: Optional[str] = None,
+    busqueda_previa: bool = False,
+    vincular_con: Optional[Any] = None,
 ) -> str:
     clave = concepto.lower().replace(" ", "_")
+
+    # ── VALIDACIÓN OBLIGATORIA (INVARIANTE) — Pre-flight Search ─────
+    # Rechazar de inmediato si el agente no confirmó la búsqueda previa.
+    # No se evalúa ningún otro parámetro ni se accede a la base de datos.
+    if busqueda_previa is not True:
+        return json.dumps({
+            "status": "error",
+            "codigo": "BUSQUEDA_PREVIA_REQUERIDA",
+            "mensaje": (
+                f"❌ BÚSQUEDA PREVIA REQUERIDA — el nodo '{clave}' NO fue guardado.\n\n"
+                "INVARIANTE BIORAG: Ningún agente puede guardar o aprender información sin antes verificar "
+                "si ya existe o se relaciona con conocimientos previos en la memoria.\n\n"
+                "FLUJO OBLIGATORIO (3 pasos):\n"
+                "  1. Llamá primero a `biorag_buscar` o `biorag_recordar` con la consulta del tema a guardar.\n"
+                "  2. Evaluá los resultados:\n"
+                "     • Si ya existe un nodo idéntico/complementario → usá `biorag_actualizar`.\n"
+                "     • Si el tema es nuevo pero se relaciona con existentes → usá `biorag_aprender` con `vincular_con`.\n"
+                "     • Si es un tema completamente independiente → usá `biorag_aprender` con `busqueda_previa=True`.\n"
+                "  3. Repetí la llamada a `biorag_aprender` pasando explícitamente `busqueda_previa=True`.\n\n"
+                "ACCIÓN REQUERIDA: Realizá la búsqueda previa y reintentá con `busqueda_previa=True`."
+            ),
+            "concepto": clave,
+            "parametro_faltante": "busqueda_previa",
+        }, ensure_ascii=False)
 
     # ── VALIDACIÓN OBLIGATORIA — ANTES de tocar la DB ──────────────
     # Rechazar acá, antes de percibir_corto_plazo(), significa que un
@@ -267,12 +293,45 @@ def _aprender_impl(
             todas = list({e[0]: e for e in enlaces + syn_enlaces}.values())
             sinapsis_count = len(todas)
 
+        # ── VINCULAR_CON (T3 Spec 004): Enlace sináptico explícito en aprendizaje ──
+        vinculos_creados = []
+        if vincular_con:
+            raw_vinculos = []
+            if isinstance(vincular_con, str):
+                vinc_str = vincular_con.strip()
+                if vinc_str.startswith("["):
+                    try:
+                        parsed = json.loads(vinc_str)
+                        if isinstance(parsed, list):
+                            raw_vinculos = [str(x) for x in parsed if x]
+                    except Exception:
+                        raw_vinculos = [s for s in vinc_str.split(",") if s.strip()]
+                else:
+                    raw_vinculos = [s for s in vinc_str.split(",") if s.strip()]
+            elif isinstance(vincular_con, (list, tuple, set)):
+                raw_vinculos = [str(x) for x in vincular_con if x]
+
+            for item in raw_vinculos:
+                target = item.lower().replace(" ", "_").strip()
+                if not target or target == clave:
+                    continue
+                try:
+                    cerebro.establecer_asociacion(clave, target)
+                    vinculos_creados.append(target)
+                except Exception:
+                    pass
+
+            if vinculos_creados:
+                sinapsis_count += len(vinculos_creados)
+
         msg = f"'{clave}' aprendido en corto plazo."
         if syn:
             msg += f" Sinonimos: {syn}."
         if categoria != "general":
             msg += f" Categoria: {categoria}."
-        if sinapsis_count:
+        if vinculos_creados:
+            msg += f" Vinculado explícitamente con: {', '.join(vinculos_creados)}."
+        elif sinapsis_count:
             msg += f" Vinculado con {sinapsis_count} nodo(s)."
         if dimensiones_invalidas:
             msg += f" Dimensiones inválidas: {json.dumps(dimensiones_invalidas, ensure_ascii=False)}. Llamá `listar_dimensiones` para ver valores válidos."
@@ -586,15 +645,41 @@ def register(mcp: Any) -> None:
                 "✗ NO abstracciones vacías de segundo orden ('estrategia', 'transicion', 'diferenciacion')."
             )
         )] = None,
+        busqueda_previa: Annotated[Optional[bool], Field(
+            description=(
+                "🔒 OBLIGATORIO — Confirmación de búsqueda previa (Invariante Pre-flight Search).\n"
+                "Debe ser True obligatoriamente. Antes de aprender o guardar, el agente debe haber consultado "
+                "biorag_buscar o biorag_recordar para verificar duplicados o nodos relacionados."
+            )
+        )] = False,
+        vincular_con: Annotated[Optional[Any], Field(
+            description=(
+                "Lista o string de conceptos con los que vincular este nodo inmediatamente al crearlo "
+                "(ej: ['nodo_a', 'nodo_b'] o 'nodo_a,nodo_b'). Establece sinapsis bidireccionales en el connectome."
+            )
+        )] = None,
     ) -> str:
-        return _aprender_impl(concepto, contenido, bridges, syn=syn, cat=cat, dimensiones=dimensiones, predicados=predicados, valencia_somatica=valencia_somatica, sustantivos_clave=sustantivos_clave)
+        return _aprender_impl(
+            concepto,
+            contenido,
+            bridges,
+            syn=syn,
+            cat=cat,
+            dimensiones=dimensiones,
+            predicados=predicados,
+            valencia_somatica=valencia_somatica,
+            sustantivos_clave=sustantivos_clave,
+            busqueda_previa=bool(busqueda_previa),
+            vincular_con=vincular_con,
+        )
 
     @mcp.tool(
         name="guardar",
         description=(
             "(legado) Alias de 'aprender' — preferir 'aprender' para identificar la operación cognitiva real. "
             "Misma funcionalidad y parámetros.\n\n"
-            "Parámetros: concepto (str), contenido (str), bridges (5 ángulos REQUERIDO), syn (str opcional), cat (str opcional), "
+            "Parámetros: concepto (str), contenido (str), bridges (5 ángulos REQUERIDO), busqueda_previa (bool REQUERIDO True), "
+            "vincular_con (list/str opcional), syn (str opcional), cat (str opcional), "
             "dimensiones (str JSON opcional), predicados (str JSON opcional), valencia_somatica (float opcional).\n\n"
             "Retorna: {status, mensaje, concepto (str normalizado), sinapsis (int)}"
         ),
@@ -642,8 +727,33 @@ def register(mcp: Any) -> None:
                 "no métricas ni efectos ('recall', 'top1'), ni palabras ausentes del contenido."
             )
         )] = None,
+        busqueda_previa: Annotated[Optional[bool], Field(
+            description=(
+                "🔒 OBLIGATORIO — Confirmación de búsqueda previa (Invariante Pre-flight Search).\n"
+                "Debe ser True obligatoriamente. Antes de aprender o guardar, el agente debe haber consultado "
+                "biorag_buscar o biorag_recordar para verificar duplicados o nodos relacionados."
+            )
+        )] = False,
+        vincular_con: Annotated[Optional[Any], Field(
+            description=(
+                "Lista o string de conceptos con los que vincular este nodo inmediatamente al crearlo "
+                "(ej: ['nodo_a', 'nodo_b'] o 'nodo_a,nodo_b'). Establece sinapsis bidireccionales en el connectome."
+            )
+        )] = None,
     ) -> str:
-        return _aprender_impl(concepto, contenido, bridges, syn=syn, cat=cat, dimensiones=dimensiones, predicados=predicados, valencia_somatica=valencia_somatica, sustantivos_clave=sustantivos_clave)
+        return _aprender_impl(
+            concepto,
+            contenido,
+            bridges,
+            syn=syn,
+            cat=cat,
+            dimensiones=dimensiones,
+            predicados=predicados,
+            valencia_somatica=valencia_somatica,
+            sustantivos_clave=sustantivos_clave,
+            busqueda_previa=bool(busqueda_previa),
+            vincular_con=vincular_con,
+        )
 
     # ── SUSTANTIVOS CLAVE TOOLS (T4 Spec 001) ────────────────────────────────
 
@@ -807,12 +917,18 @@ def register(mcp: Any) -> None:
     @mcp.tool(
         name="actualizar",
         description=(
-            "Actualiza campos de un nodo existente en largo_plazo. "
-            "SOLO funciona dentro de la ventana de corrección (default 15min, configurable vía BIORAG_VENTANA_CORRECCION_SEGUNDOS). "
-            "Si hay sesión activa (contexto_inicio llamado), la ventana se triplica automáticamente. "
-            "Si el nodo está fuera de ventana, retorna 'fuera_de_ventana' con instrucciones para crear nodo nuevo. "
-            "Permitidos: contenido, peso_sinaptico, estado, sinonimos. "
-            "Si el nodo no existe retorna error 404. Si no se especifica ningún campo, retorna sin_cambios."
+            "Actualiza o sobrescribe campos de un nodo existente en largo_plazo sin restricción temporal.\n\n"
+            "Parámetros:\n"
+            "- concepto (str): Nombre del nodo a actualizar (snake_case).\n"
+            "- contenido (str, opcional): Nuevo contenido del nodo.\n"
+            "- peso_sinaptico (float, opcional): Nuevo peso sináptico (0.0 a 1.0).\n"
+            "- estado (str, opcional): Nuevo estado: 'activo', 'dormido', 'cuarentena'.\n"
+            "- sinonimos (str, opcional): Nuevos sinónimos separados por coma.\n"
+            "- sustantivos_clave (str, opcional): Nuevos sustantivos clave (2-4 términos separados por coma).\n"
+            "- dimensiones (str JSON / dict, opcional): Nuevas coordenadas dimensionales.\n"
+            "- categoria (str, opcional): Nueva categoría.\n"
+            "- sobrescribir (bool, default False): Si es True, reemplaza completamente el contenido y metadatos del nodo.\n\n"
+            "Retorna: {status: 'ok', mensaje, campos_modificados, sobrescrito: bool} o error si no existe."
         ),
     )
     def biorag_actualizar(
@@ -831,8 +947,20 @@ def register(mcp: Any) -> None:
         sinonimos: Annotated[Optional[str], Field(
             description="Nuevos sinónimos separados por coma."
         )] = None,
+        sustantivos_clave: Annotated[Optional[str], Field(
+            description="Nuevos sustantivos clave del nodo (2-4 términos separados por coma)."
+        )] = None,
+        dimensiones: Annotated[Optional[Any], Field(
+            description="Clasificación dimensional (JSON string o dict)."
+        )] = None,
+        categoria: Annotated[Optional[str], Field(
+            description="Nueva categoría del recuerdo."
+        )] = None,
+        sobrescribir: Annotated[Optional[bool], Field(
+            description="Si es True, sobrescribe por completo el contenido y metadatos del nodo."
+        )] = False,
         agente: Annotated[Optional[str], Field(
-            description="Tu nombre de agente (ej: 'athena'). Para extender la ventana si hay sesión activa."
+            description="Nombre del agente (opcional, para compatibilidad)."
         )] = None,
     ) -> str:
         cerebro = _get_cerebro()
@@ -844,30 +972,6 @@ def register(mcp: Any) -> None:
                 return json.dumps({
                     "status": "error",
                     "mensaje": f"Nodo '{concepto}' no encontrado",
-                }, ensure_ascii=False)
-
-            # ── Ventana de corrección ──
-            creado_ts = row[1] or 0
-            ahora = time.time()
-            elapsed = ahora - creado_ts if creado_ts > 0 else float('inf')
-
-            # Extender ventana si hay sesión activa para este agente
-            ventana = VENTANA_CORRECCION
-            sesion_activa = agente and agente in _sesiones_activas
-            if sesion_activa:
-                ventana = ventana * 3  # Sesión activa = 3x la ventana (45 min default)
-
-            if elapsed > ventana:
-                return json.dumps({
-                    "status": "fuera_de_ventana",
-                    "mensaje": (
-                        f"Nodo '{concepto}' tiene {int(elapsed/60)} minutos — supera la ventana de "
-                        f"corrección ({int(ventana/60)} min{'con sesión activa' if sesion_activa else ''}). "
-                        f"Usá biorag_aprender para crear un nodo nuevo y biorag_vincular para conectarlo."
-                    ),
-                    "edad_minutos": int(elapsed/60),
-                    "ventana_minutos": int(ventana/60),
-                    "sesion_activa": sesion_activa,
                 }, ensure_ascii=False)
 
             updates = []
@@ -895,26 +999,86 @@ def register(mcp: Any) -> None:
             if sinonimos is not None:
                 updates.append("sinonimos = ?")
                 params.append(sinonimos)
+            if sustantivos_clave is not None:
+                from core.memory_store import normalizar_sustantivos_clave
+                sk_norm = normalizar_sustantivos_clave(str(sustantivos_clave))
+                updates.append("sustantivos_clave = ?")
+                params.append(sk_norm)
+            if categoria is not None:
+                cat_id = cerebro._resolver_categoria_id(categoria)
+                updates.append("categoria = ?")
+                params.append(cat_id)
 
-            if not updates:
+            if sobrescribir:
+                updates.append("creado_en = ?")
+                params.append(time.time())
+
+            # Manejar dimensiones si fueron provistas
+            modifico_dimensiones = False
+            if dimensiones is not None:
+                if isinstance(dimensiones, str):
+                    try:
+                        dim_dict = json.loads(dimensiones)
+                    except Exception:
+                        dim_dict = {}
+                elif isinstance(dimensiones, dict):
+                    dim_dict = dimensiones
+                else:
+                    dim_dict = {}
+
+                cur.execute("DELETE FROM largo_plazo_dimensiones WHERE concepto = ?", (concepto,))
+                for tipo_nombre, valores in dim_dict.items():
+                    if not valores:
+                        continue
+                    if isinstance(valores[0], int):
+                        ids_validos = valores
+                    else:
+                        ids_validos, _ = cerebro._resolver_dimension_ids(
+                            tipo_nombre,
+                            ",".join(valores) if isinstance(valores, list) else valores,
+                        )
+                    for eid in ids_validos:
+                        cur.execute(
+                            "INSERT OR IGNORE INTO largo_plazo_dimensiones (concepto, dimension_id) VALUES (?, ?)",
+                            (concepto, eid),
+                        )
+                modifico_dimensiones = True
+
+            if not updates and not modifico_dimensiones:
                 return json.dumps({
                     "status": "sin_cambios",
                     "mensaje": "No se especificaron campos a actualizar",
                 }, ensure_ascii=False)
 
-            params.append(concepto)
-            cur.execute(
-                f"UPDATE largo_plazo SET {', '.join(updates)} WHERE concepto=?",
-                params,
-            )
+            if updates:
+                params.append(concepto)
+                cur.execute(
+                    f"UPDATE largo_plazo SET {', '.join(updates)} WHERE concepto=?",
+                    params,
+                )
             cerebro.conn.commit()
+
+            # Clasificación simbólica y SDM tras modificación
+            if contenido is not None or sinonimos is not None:
+                try:
+                    cur.execute("SELECT contenido, sinonimos FROM largo_plazo WHERE concepto = ?", (concepto,))
+                    row_c = cur.fetchone()
+                    if row_c:
+                        cerebro._clasificar_nodo_wordnet(concepto, row_c[0] or "", row_c[1] or "")
+                        from core.sdm import indexar_nodo_sdm
+                        indexar_nodo_sdm(cerebro, concepto)
+                except Exception:
+                    pass
+
+            campos_modificados = [u.split(" =")[0] for u in updates]
+            if modifico_dimensiones:
+                campos_modificados.append("dimensiones")
 
             return json.dumps({
                 "status": "ok",
                 "mensaje": f"Nodo '{concepto}' actualizado",
-                "campos_modificados": [u.split(" =")[0] for u in updates],
-                "dentro_de_ventana": True,
-                "edad_minutos": int(elapsed/60) if elapsed != float('inf') else None,
+                "campos_modificados": campos_modificados,
+                "sobrescrito": bool(sobrescribir),
             }, ensure_ascii=False)
         finally:
             cerebro.cerrar_sistema()

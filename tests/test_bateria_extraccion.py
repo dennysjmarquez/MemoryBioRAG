@@ -200,7 +200,8 @@ class TestT9BateriaExtraccion:
             sustantivos_clave=caso["esperado"],
             dimensiones='{"emocion":["satisfaccion"],"dominio":["dominio_tecnico"]}',
             bridges=caso["bridges"],
-            syn=syn_especifico
+            syn=syn_especifico,
+            busqueda_previa=True,
         )
         res = _raw_json(raw)
         assert res.get("status") == "ok", f"Fallo al guardar caso {caso['id']}: {res}"
@@ -218,7 +219,8 @@ class TestT9BateriaExtraccion:
                 sustantivos_clave=caso["esperado"],
                 dimensiones='{"emocion":["satisfaccion"],"dominio":["dominio_tecnico"]}',
                 bridges=caso["bridges"],
-                syn=syn_especifico
+                syn=syn_especifico,
+                busqueda_previa=True,
             )
             res = _raw_json(raw)
             assert res.get("status") == "ok", f"Fallo al guardar caso {caso['id']}: {res}"

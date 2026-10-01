@@ -1,6 +1,6 @@
 # BioRAG — Memoria Cognitiva Biomimética y Simbólica para Agentes de IA
 
-> **Versión Oficial:** v32.1
+> **Versión Oficial:** v32.2
 > **Paradigma:** Python puro + SQLite FTS5. **Cero embeddings densos, cero GPU, cero llamadas a APIs externas** en el path de búsqueda.
 > **Motor:** Arquitectura Modularizada (18 submódulos `core/memory/` + 15 submódulos `core/mcp_server/` + Fachada delgada) + SQLite FTS5 WAL + Factorización PPMI-SVD (100 dims) + Espacio Semántico de 13 Ejes + Grafo Sináptico Hebbiano + Sparse Distributed Memory (SDM 2048-bit) + Calibración Conforme + Activación ACT-R + Concept Hubs.
 > **Idiomas:** Español + Inglés (stemming bilingüe ES/EN + expansión simbólica vía WordNet + Concept Hubs 5 Ángulos + Domain Dict automático).
@@ -9,7 +9,7 @@
 
 ---
 
-## 📊 Métricas Oficiales de Benchmark (v32.1)
+## 📊 Métricas Oficiales de Benchmark (v32.2)
 
 Evaluación estricta y reproducible sobre el conjunto congelado oficial (**921 casos**: 875 positivos + 40 controles negativos + 6 ambiguos):
 
@@ -19,7 +19,7 @@ Evaluación estricta y reproducible sobre el conjunto congelado oficial (**921 c
 | **Recall@1 (Top-1)** | **91.77%** | Precisión de primera respuesta absoluta (803 / 875) |
 | **MRR (Mean Reciprocal Rank)** | **0.950** | Rango recíproco medio consolidado (0.9497) |
 | **Tasa de Falsos Positivos (FP)** | **0.00% (0 / 40)** | Invariante matemática: cero alucinación en consultas fuera de dominio |
-| **Suite de Tests Unitarios** | **264 / 264 PASSED (100%)** | Cobertura total de componentes, contratos y CLI en verde |
+| **Suite de Tests Unitarios** | **283 / 283 PASSED (100%)** | Cobertura total de componentes, contratos y CLI en verde |
 | **Abismo Léxico (EXP-Q Retrieval)** | **3 / 3 (100%)** | Rescate por grafo sináptico ante cero solapamiento léxico |
 | **Categoría Sinónimos (Recall@5)** | **100.00% (55 / 55)** | Cero fallos tras sintonía contextual y Concept Hubs (vs. 8 fallos baseline) |
 | **Categoría Por Tema (Recall@5)** | **100.00% (65 / 65)** | Cero fallos mediante Sustantivos Clave ortogonales (vs. 5 fallos baseline) |
@@ -29,7 +29,20 @@ Evaluación estricta y reproducible sobre el conjunto congelado oficial (**921 c
 
 ---
 
-## 🚀 Novedades de la Versión v32.1
+## 🚀 Novedades de la Versión v32.2
+
+### 🛡️ Protocolo Pre-flight Search Obligatorio, Vinculación Atómica y Actualización Libre (Spec 004)
+- **Protocolo Pre-flight Search Obligatorio (`busqueda_previa=True`):**
+  - Implementación de la invariante obligatoria en `aprender` y `guardar` para forzar la verificación previa del corpus antes de la inserción, eliminando la creación de nodos huérfanos, duplicados o versiones fragmentadas.
+  - Error formal inmediato `BUSQUEDA_PREVIA_REQUERIDA` ante omisiones de búsqueda previa.
+- **Vinculación Sináptica Atómica en Ingesta (`vincular_con`):**
+  - Parámetro de lista de conceptos para enlazar nuevos nodos con el conectoma existente en la misma llamada atómica, con tolerancia a fallos ante nodos inexistentes.
+- **Actualización sin Restricción Temporal (`actualizar`):**
+  - Desbloqueo de la ventana temporal de 3 días en `actualizar`, permitiendo la edición, enriquecimiento y sobrescritura de recuerdos de cualquier fecha en el corpus a largo plazo.
+- **Validación SDD y Suite Ampliada:**
+  - 283/283 tests unitarios superados al 100%.
+
+### Novedades anteriores (v32.1)
 
 ### 🏗️ Modularización de Arquitectura y Descomposición de Monolitos (Spec 003)
 - **Descomposición del Monolito de Memoria (`core/memory/`):**
@@ -2363,6 +2376,18 @@ En v13.4 el catálogo tenía **7 ejes × 73 sub-valores**: emoción (qué se sie
 ---
 
 ## Historial de Versiones
+
+### v32.2 — Protocolo Pre-flight Search Obligatorio, Vinculación Atómica y Actualización Libre (Septiembre 2026)
+
+**Objetivo:** Blindar ontológicamente el corpus contra la fragmentación de conocimiento y los nodos duplicados o huérfanos exigiendo búsqueda previa verificada (`busqueda_previa=True`), permitiendo vinculación asociativa atómica en un solo paso (`vincular_con: list[str]`) y eliminando la restricción de antigüedad en la tool `actualizar` (Spec 004).
+
+**Cambios implementados:**
+- **Invariante Pre-flight Search (`busqueda_previa=True`):** Requerimiento estricto en `aprender` y `guardar` para forzar la consulta previa al corpus con retorno de error explícito `BUSQUEDA_PREVIA_REQUERIDA`.
+- **Vinculación Sináptica Atómica (`vincular_con`):** Enlace directo de nuevos conceptos a nodos existentes durante la ingesta sin llamadas MCP adicionales.
+- **Actualización sin Restricción Temporal:** `actualizar` ahora puede modificar, enriquecer y sobrescribir nodos de cualquier antigüedad.
+- **Validación SDD (Fase 7):**
+  - **Pytest:** 283/283 tests unitarios aprobados al 100% (19 tests dedicados a Spec 004).
+  - **Suite Canónica QA:** 100.00% Recall@5 (875/875) y 0.00% FP (0/40).
 
 ### v32.1 — Modularización de Arquitectura y Descomposición de Monolitos (Septiembre 2026)
 
