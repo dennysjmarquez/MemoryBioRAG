@@ -2,9 +2,12 @@
 
 from __future__ import annotations
 
+import logging as _logging
 import os
 import re
 from core.stemmer_es import _quitar_acentos
+
+_log_constants = _logging.getLogger(__name__)
 
 # Auto-cargar .env.local al importar (antes de leer cualquier variable de entorno)
 from config import _load_env_local
@@ -160,6 +163,22 @@ ADN_RANKING_ENABLED = os.environ.get('BIORAG_ADN_RANKING_ENABLED', 'false').lowe
 ADN_PESO = float(os.environ.get('BIORAG_ADN_PESO', '0.15'))
 ADN_MAX_EXPANSION = int(os.environ.get('BIORAG_ADN_MAX_EXPANSION', '24'))
 ADN_UMBRAL_ASOCIACION = float(os.environ.get('BIORAG_ADN_UMBRAL_ASOCIACION', '0.35'))
+
+# Convergencia Multi-Campo (Spec-006)
+CONVERGENCIA_ACTIVA = os.environ.get('BIORAG_CONVERGENCIA_ACTIVA', '1').lower() in ('1', 'true', 'yes')
+"""Activar/desactivar multiplicador de convergencia multi-campo (Spec 006). Default ON."""
+
+_alpha_raw = float(os.environ.get("BIORAG_CONVERGENCIA_ALPHA", "0.5"))
+if not (0.0 < _alpha_raw < 1.0):
+    _alpha_clamped = max(0.01, min(0.99, _alpha_raw))
+    _log_constants.warning(
+        "[BioRAG.Convergencia] BIORAG_CONVERGENCIA_ALPHA=%.4f fuera de (0,1); "
+        "usando %.4f. alpha=0 puede llevar scores a 0; alpha=1 deshabilita el efecto.",
+        _alpha_raw, _alpha_clamped
+    )
+    _alpha_raw = _alpha_clamped
+CONVERGENCIA_ALPHA: float = _alpha_raw
+"""Piso mínimo de convergencia multi-campo en (0.0, 1.0) exclusive. Default 0.5."""
 
 
 # =============================================================================
