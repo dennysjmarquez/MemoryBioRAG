@@ -131,6 +131,32 @@ BIORAG_PATH=snapshots/qa_escape_qcr_20260811.db python3 scripts/evaluar_qa.py
 
 ---
 
+## 💾 Cómo Subir la Corteza (`MemoryBioRAG_Data/memory_biorag.db`)
+
+> La corteza SQLite es la memoria viva compartida por los agentes. Este repositorio la trackea a propósito como respaldo (decisión de Dennys, 2026-10). **Un solo comando** la sube:
+
+```bash
+# 1. Commitear la corteza (sube SOLO la DB, nada más del repo):
+./subir_cerebro.sh "chore(memory): actualizar corteza"
+
+# 2. Ver estado en 1 segundo (¿modificada? ¿push pendiente? ¿último commit?):
+./estado_cerebro.sh
+
+# 3. Push a GitHub: manual desde GitKraken.
+```
+
+**Reglas de oro:**
+
+- **Nunca** dar `discard` / `stash` / `checkout --` sobre `memory_biorag.db` en GitKraken — destruiría la memoria viva. `git status` la mostrará como *modificada* a menudo (los agentes escriben constantemente): **eso es normal**, es la señal de que está viva.
+- **Nunca** forzar un `git pull` con la DB sucia — git la bloqueará solo; no forzar.
+- Cualquier duda → `./estado_cerebro.sh`, o preguntar a los agentes: *"¿cómo subo la corteza?"*.
+
+> **Nota (2026-10-02):** la flag `skip-worktree` fue removida a petición de Dennys para que `git status` muestre los cambios de la DB (antes los ocultaba). Rollback de 1 línea si hiciera falta re-protegerla: `git update-index --skip-worktree MemoryBioRAG_Data/memory_biorag.db`.
+>
+> **Nota (plan futuro):** la DB quedará fuera de este repo público cuando el repositorio se publique para que otros lo usen con su propia memoria local; mientras tanto, se sube aquí a mano.
+
+---
+
 ## 🔄 El Inverso del Sistema: Quién Piensa y Quién Recuerda
 
 > Esta sección es la más importante para entender BioRAG correctamente — tanto si eres desarrollador como si eres un agente de IA integrándolo.
