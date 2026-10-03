@@ -1,7 +1,7 @@
 {
   "name": "dashboard-neuro-visor",
   "private": true,
-  "version": "32.2.0",
+  "version": "32.3.0",
   "type": "module",
   "scripts": {
     "dev": "vite",

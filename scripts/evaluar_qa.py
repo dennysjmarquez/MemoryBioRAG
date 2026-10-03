@@ -8,6 +8,7 @@ import time
 import unicodedata
 import difflib
 from collections import defaultdict
+from pathlib import Path
 
 # Add workspace root to sys.path
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -120,7 +121,10 @@ def run_evaluation():
     temp_db = os.path.join(base_dir, "MemoryBioRAG_Data", "memory_biorag_qa_temp.db")
     cases_filename = sys.argv[1] if len(sys.argv) > 1 else "casos_qa_baseline_v1.jsonl"
     cases_file = os.path.join(base_dir, "scripts", cases_filename)
-    failed_file = os.path.join(base_dir, "scripts", "casos_fallidos.jsonl")
+    failed_file = os.environ.get(
+        "BIORAG_QA_FAILED_CASES",
+        os.path.join(base_dir, "scripts", "casos_fallidos.jsonl"),
+    )
     
     if not os.path.exists(cases_file):
         print(f"Error: Test cases file not found at {cases_file}.")
@@ -134,12 +138,16 @@ def run_evaluation():
                 os.remove(f)
             except OSError:
                 pass
-    conn_src = sqlite3.connect(src_db)
-    conn_src.execute("PRAGMA wal_checkpoint(FULL);")
+    # La fuente es de solo lectura: la copia de respaldo incluye las transacciones
+    # confirmadas del WAL sin ejecutar wal_checkpoint ni escribir en la DB origen.
+    src_uri = Path(src_db).expanduser().resolve().as_uri() + "?mode=ro"
+    conn_src = sqlite3.connect(src_uri, uri=True)
     conn_dst = sqlite3.connect(temp_db)
-    conn_src.backup(conn_dst)
-    conn_dst.close()
-    conn_src.close()
+    try:
+        conn_src.backup(conn_dst)
+    finally:
+        conn_dst.close()
+        conn_src.close()
 
 
     

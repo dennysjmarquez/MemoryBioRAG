@@ -2,9 +2,13 @@
 
 from __future__ import annotations
 
+import logging
+import math
 import os
 import re
 from core.stemmer_es import _quitar_acentos
+
+_log_constants = logging.getLogger(__name__)
 
 # Auto-cargar .env.local al importar (antes de leer cualquier variable de entorno)
 from config import _load_env_local
@@ -114,6 +118,44 @@ Override: export BIORAG_RERANKING_JACCARD_TOPK=20"""
 
 RERANKING_JACCARD_WINDOW = int(os.environ.get('BIORAG_RERANKING_JACCARD_WINDOW', '50'))
 
+# Re-ranking por convergencia de evidencia en concepto, sinónimos,
+# sustantivos_clave y contenido. BIORAG_CONVERGENCIA_ACTIVA es el nombre público
+# usado por las Specs 006/007; se mantiene el alias EVIDENCIA para compatibilidad
+# con esta implementación. La variable pública tiene precedencia si ambas existen.
+_convergencia_activa_raw = os.environ.get(
+    'BIORAG_CONVERGENCIA_ACTIVA',
+    os.environ.get('BIORAG_CONVERGENCIA_EVIDENCIA', '1'),
+)
+CONVERGENCIA_EVIDENCIA_ACTIVA = str(_convergencia_activa_raw).lower() in (
+    '1', 'true', 'yes', 'on'
+)
+
+# Tope configurable: mantiene acotada la señal nueva frente al score híbrido. También
+# acepta el nombre de Spec 007; el alias EVIDENCIA sigue teniendo precedencia
+# cuando la variable pública de la spec no se especifica.
+_bonus_env = os.environ.get(
+    'BIORAG_CONVERGENCIA_BONUS_MAX',
+    os.environ.get('BIORAG_CONVERGENCIA_EVIDENCIA_MAX_BONUS', '0.085'),
+)
+try:
+    _bonus_requested = float(_bonus_env)
+except (TypeError, ValueError):
+    logging.getLogger('BioRAG.MemoryStore').warning(
+        'BIORAG_CONVERGENCIA_BONUS_MAX=%r no es numérico; se usa 0.085', _bonus_env
+    )
+    _bonus_requested = 0.085
+if not math.isfinite(_bonus_requested):
+    logging.getLogger('BioRAG.MemoryStore').warning(
+        'BIORAG_CONVERGENCIA_BONUS_MAX=%r no es finito; se usa 0.085', _bonus_env
+    )
+    _bonus_requested = 0.085
+CONVERGENCIA_EVIDENCIA_MAX_BONUS = min(0.12, max(0.0, _bonus_requested))
+if CONVERGENCIA_EVIDENCIA_MAX_BONUS != _bonus_requested:
+    logging.getLogger('BioRAG.MemoryStore').warning(
+        'BIORAG_CONVERGENCIA_BONUS_MAX=%r fuera de [0, 0.12]; se usa %.4f',
+        _bonus_env, CONVERGENCIA_EVIDENCIA_MAX_BONUS,
+    )
+
 # E1: SDM Kanerva (2048 bits) como Fallback 2.5. Solo generación cuando el
 # pool léxico es pobre. OFF con BIORAG_SDM_FALLBACK=0. No es señal de scoring
 # (eso es E2, paso aparte).
@@ -160,6 +202,23 @@ ADN_RANKING_ENABLED = os.environ.get('BIORAG_ADN_RANKING_ENABLED', 'false').lowe
 ADN_PESO = float(os.environ.get('BIORAG_ADN_PESO', '0.15'))
 ADN_MAX_EXPANSION = int(os.environ.get('BIORAG_ADN_MAX_EXPANSION', '24'))
 ADN_UMBRAL_ASOCIACION = float(os.environ.get('BIORAG_ADN_UMBRAL_ASOCIACION', '0.35'))
+
+# Experimento multiplicativo legado de Spec 006. Se aísla de la bandera pública
+# BIORAG_CONVERGENCIA_ACTIVA, que controla el reranker aditivo multi-campo actual.
+CONVERGENCIA_ACTIVA = os.environ.get('BIORAG_CONVERGENCIA_006_ACTIVA', '0').lower() in ('1', 'true', 'yes')
+"""Activar/desactivar multiplicador de convergencia multi-campo (Spec 006). Default OFF (experimento)."""
+
+_alpha_raw = float(os.environ.get("BIORAG_CONVERGENCIA_ALPHA", "0.5"))
+if not (0.0 < _alpha_raw < 1.0):
+    _alpha_clamped = max(0.01, min(0.99, _alpha_raw))
+    _log_constants.warning(
+        "[BioRAG.Convergencia] BIORAG_CONVERGENCIA_ALPHA=%.4f fuera de (0,1); "
+        "usando %.4f. alpha=0 puede llevar scores a 0; alpha=1 deshabilita el efecto.",
+        _alpha_raw, _alpha_clamped
+    )
+    _alpha_raw = _alpha_clamped
+CONVERGENCIA_ALPHA: float = _alpha_raw
+"""Piso mínimo de convergencia multi-campo en (0.0, 1.0) exclusive. Default 0.5."""
 
 
 # =============================================================================

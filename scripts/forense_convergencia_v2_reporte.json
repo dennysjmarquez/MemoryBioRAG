@@ -1,0 +1,1605 @@
+{
+  "config": {
+    "snapshot": "snapshots/qa_escape_qcr_20260811.db",
+    "alpha_v1": 0.5,
+    "dmn": "OFF"
+  },
+  "casos": [
+    {
+      "id": "0516",
+      "cat": "por_tema",
+      "query": "real más sistemas",
+      "gold": "dennys-identidad-profunda",
+      "tokens_query": [
+        "real",
+        "sistemas"
+      ],
+      "candidatos": [
+        {
+          "pos_off": 1,
+          "concepto": "biorag_v20_rpe_dopamina",
+          "es_gold": false,
+          "score_base": 0.5193,
+          "canales": {
+            "concepto": 0,
+            "sinonimos": 0,
+            "sustantivos": 0,
+            "contenido": 0,
+            "total": 0,
+            "mascara": "0000"
+          },
+          "origen_tipo": "concept_hub",
+          "origen_score_capa": 0.5467,
+          "match_exacto": false,
+          "bypass_v1": false,
+          "multiplicador_v1": 0.5,
+          "score_v1_efectivo": 0.25965,
+          "delta_v1": -0.25965,
+          "qcr": {
+            "ratio": 0.0,
+            "umbral": 0.4,
+            "pasa_ratio": false,
+            "pasa_escape": false,
+            "pasa_typo": false,
+            "pasa": false
+          },
+          "pos_v1": 8
+        },
+        {
+          "pos_off": 2,
+          "concepto": "identidad_dennys_perfil_completo",
+          "es_gold": false,
+          "score_base": 0.4544,
+          "canales": {
+            "concepto": 0,
+            "sinonimos": 1,
+            "sustantivos": 0,
+            "contenido": 1,
+            "total": 2,
+            "mascara": "0101"
+          },
+          "origen_tipo": "literal",
+          "origen_score_capa": 0.0,
+          "match_exacto": false,
+          "bypass_v1": false,
+          "multiplicador_v1": 0.75,
+          "score_v1_efectivo": 0.3408,
+          "delta_v1": -0.1136,
+          "qcr": {
+            "ratio": 0.4745,
+            "umbral": 0.4,
+            "pasa_ratio": true,
+            "pasa_escape": false,
+            "pasa_typo": false,
+            "pasa": true
+          },
+          "pos_v1": 3
+        },
+        {
+          "pos_off": 3,
+          "concepto": "principio_dimensiones_genericas_no_nicho",
+          "es_gold": false,
+          "score_base": 0.4294,
+          "canales": {
+            "concepto": 0,
+            "sinonimos": 0,
+            "sustantivos": 0,
+            "contenido": 1,
+            "total": 1,
+            "mascara": "0001"
+          },
+          "origen_tipo": "literal",
+          "origen_score_capa": 0.0,
+          "match_exacto": false,
+          "bypass_v1": false,
+          "multiplicador_v1": 0.625,
+          "score_v1_efectivo": 0.268375,
+          "delta_v1": -0.161025,
+          "qcr": {
+            "ratio": 0.4745,
+            "umbral": 0.4,
+            "pasa_ratio": true,
+            "pasa_escape": false,
+            "pasa_typo": false,
+            "pasa": true
+          },
+          "pos_v1": 6
+        },
+        {
+          "pos_off": 4,
+          "concepto": "cv_dennys_secciones_ab_finales_2026",
+          "es_gold": false,
+          "score_base": 0.4174,
+          "canales": {
+            "concepto": 0,
+            "sinonimos": 0,
+            "sustantivos": 0,
+            "contenido": 1,
+            "total": 1,
+            "mascara": "0001"
+          },
+          "origen_tipo": "literal",
+          "origen_score_capa": 0.0,
+          "match_exacto": false,
+          "bypass_v1": false,
+          "multiplicador_v1": 0.625,
+          "score_v1_efectivo": 0.260875,
+          "delta_v1": -0.156525,
+          "qcr": {
+            "ratio": 0.7079,
+            "umbral": 0.4,
+            "pasa_ratio": true,
+            "pasa_escape": false,
+            "pasa_typo": false,
+            "pasa": true
+          },
+          "pos_v1": 7
+        },
+        {
+          "pos_off": 5,
+          "concepto": "vida_laboral_completa_dennys",
+          "es_gold": false,
+          "score_base": 0.4119,
+          "canales": {
+            "concepto": 0,
+            "sinonimos": 0,
+            "sustantivos": 0,
+            "contenido": 1,
+            "total": 1,
+            "mascara": "0001"
+          },
+          "origen_tipo": "literal",
+          "origen_score_capa": 0.0,
+          "match_exacto": false,
+          "bypass_v1": false,
+          "multiplicador_v1": 0.625,
+          "score_v1_efectivo": 0.257437,
+          "delta_v1": -0.154463,
+          "qcr": {
+            "ratio": 0.2334,
+            "umbral": 0.4,
+            "pasa_ratio": false,
+            "pasa_escape": false,
+            "pasa_typo": false,
+            "pasa": false
+          },
+          "pos_v1": 9
+        },
+        {
+          "pos_off": 6,
+          "concepto": "dennys_genesis_investigativa_historia_personal",
+          "es_gold": false,
+          "score_base": 0.4061,
+          "canales": {
+            "concepto": 0,
+            "sinonimos": 0,
+            "sustantivos": 0,
+            "contenido": 0,
+            "total": 0,
+            "mascara": "0000"
+          },
+          "origen_tipo": "literal",
+          "origen_score_capa": 0.0,
+          "match_exacto": false,
+          "bypass_v1": false,
+          "multiplicador_v1": 0.5,
+          "score_v1_efectivo": 0.20305,
+          "delta_v1": -0.20305,
+          "qcr": {
+            "ratio": 0.0,
+            "umbral": 0.4,
+            "pasa_ratio": false,
+            "pasa_escape": false,
+            "pasa_typo": false,
+            "pasa": false
+          },
+          "pos_v1": 10
+        },
+        {
+          "pos_off": 7,
+          "concepto": "leccion_eliminacion_ppr_v251_tras_evidencia_real",
+          "es_gold": false,
+          "score_base": 0.4029,
+          "canales": {
+            "concepto": 1,
+            "sinonimos": 0,
+            "sustantivos": 0,
+            "contenido": 1,
+            "total": 2,
+            "mascara": "1001"
+          },
+          "origen_tipo": "literal",
+          "origen_score_capa": 0.0,
+          "match_exacto": false,
+          "bypass_v1": false,
+          "multiplicador_v1": 0.75,
+          "score_v1_efectivo": 0.302175,
+          "delta_v1": -0.100725,
+          "qcr": {
+            "ratio": 0.2334,
+            "umbral": 0.4,
+            "pasa_ratio": false,
+            "pasa_escape": false,
+            "pasa_typo": false,
+            "pasa": false
+          },
+          "pos_v1": 4
+        },
+        {
+          "pos_off": 8,
+          "concepto": "techo_real_clasificador_dimensional_menos_2pp",
+          "es_gold": false,
+          "score_base": 0.4026,
+          "canales": {
+            "concepto": 1,
+            "sinonimos": 0,
+            "sustantivos": 0,
+            "contenido": 1,
+            "total": 2,
+            "mascara": "1001"
+          },
+          "origen_tipo": "literal",
+          "origen_score_capa": 0.0,
+          "match_exacto": false,
+          "bypass_v1": false,
+          "multiplicador_v1": 0.75,
+          "score_v1_efectivo": 0.30195,
+          "delta_v1": -0.10065,
+          "qcr": {
+            "ratio": 0.2334,
+            "umbral": 0.4,
+            "pasa_ratio": false,
+            "pasa_escape": false,
+            "pasa_typo": false,
+            "pasa": false
+          },
+          "pos_v1": 5
+        },
+        {
+          "pos_off": 9,
+          "concepto": "principio_naturaleza_agente",
+          "es_gold": false,
+          "score_base": 0.3977,
+          "canales": {
+            "concepto": 0,
+            "sinonimos": 0,
+            "sustantivos": 0,
+            "contenido": 0,
+            "total": 0,
+            "mascara": "0000"
+          },
+          "origen_tipo": "dimensional_fallback",
+          "origen_score_capa": 0.754,
+          "match_exacto": false,
+          "bypass_v1": true,
+          "multiplicador_v1": 1.0,
+          "score_v1_efectivo": 0.3977,
+          "delta_v1": 0.0,
+          "qcr": {
+            "ratio": 0.0,
+            "umbral": 0.4,
+            "pasa_ratio": false,
+            "pasa_escape": true,
+            "pasa_typo": false,
+            "pasa": true
+          },
+          "pos_v1": 1
+        },
+        {
+          "pos_off": 10,
+          "concepto": "dennys-working-style",
+          "es_gold": false,
+          "score_base": 0.3964,
+          "canales": {
+            "concepto": 0,
+            "sinonimos": 0,
+            "sustantivos": 0,
+            "contenido": 0,
+            "total": 0,
+            "mascara": "0000"
+          },
+          "origen_tipo": "dimensional_fallback",
+          "origen_score_capa": 0.6193,
+          "match_exacto": false,
+          "bypass_v1": true,
+          "multiplicador_v1": 1.0,
+          "score_v1_efectivo": 0.3964,
+          "delta_v1": 0.0,
+          "qcr": {
+            "ratio": 0.2921,
+            "umbral": 0.4,
+            "pasa_ratio": false,
+            "pasa_escape": true,
+            "pasa_typo": false,
+            "pasa": true
+          },
+          "pos_v1": 2
+        }
+      ],
+      "gold_pos_off": null,
+      "gold_pos_v1": null,
+      "gold_encontrado_off": false,
+      "regresion_v1": false,
+      "mejora_v1": false
+    },
+    {
+      "id": "0514",
+      "cat": "sinonimo",
+      "query": "perfil",
+      "gold": "dennys-identidad-profunda",
+      "tokens_query": [
+        "perfil"
+      ],
+      "candidatos": [
+        {
+          "pos_off": 1,
+          "concepto": "dennys_perfil_gustos",
+          "es_gold": false,
+          "score_base": 0.7868,
+          "canales": {
+            "concepto": 1,
+            "sinonimos": 1,
+            "sustantivos": 0,
+            "contenido": 1,
+            "total": 3,
+            "mascara": "1101"
+          },
+          "origen_tipo": "literal",
+          "origen_score_capa": 0.0,
+          "match_exacto": false,
+          "bypass_v1": false,
+          "multiplicador_v1": 0.875,
+          "score_v1_efectivo": 0.68845,
+          "delta_v1": -0.09835,
+          "qcr": {
+            "ratio": 1.0,
+            "umbral": 0.5,
+            "pasa_ratio": true,
+            "pasa_escape": false,
+            "pasa_typo": true,
+            "pasa": true
+          },
+          "pos_v1": 1
+        },
+        {
+          "pos_off": 2,
+          "concepto": "perfil_creador_rag_ruta",
+          "es_gold": false,
+          "score_base": 0.7832,
+          "canales": {
+            "concepto": 1,
+            "sinonimos": 1,
+            "sustantivos": 0,
+            "contenido": 1,
+            "total": 3,
+            "mascara": "1101"
+          },
+          "origen_tipo": "literal",
+          "origen_score_capa": 0.0,
+          "match_exacto": false,
+          "bypass_v1": false,
+          "multiplicador_v1": 0.875,
+          "score_v1_efectivo": 0.6853,
+          "delta_v1": -0.0979,
+          "qcr": {
+            "ratio": 1.0,
+            "umbral": 0.5,
+            "pasa_ratio": true,
+            "pasa_escape": false,
+            "pasa_typo": true,
+            "pasa": true
+          },
+          "pos_v1": 2
+        },
+        {
+          "pos_off": 3,
+          "concepto": "notebooklm_perfil_dennys_id",
+          "es_gold": false,
+          "score_base": 0.7683,
+          "canales": {
+            "concepto": 1,
+            "sinonimos": 1,
+            "sustantivos": 0,
+            "contenido": 1,
+            "total": 3,
+            "mascara": "1101"
+          },
+          "origen_tipo": "literal",
+          "origen_score_capa": 0.0,
+          "match_exacto": false,
+          "bypass_v1": false,
+          "multiplicador_v1": 0.875,
+          "score_v1_efectivo": 0.672262,
+          "delta_v1": -0.096038,
+          "qcr": {
+            "ratio": 1.0,
+            "umbral": 0.5,
+            "pasa_ratio": true,
+            "pasa_escape": false,
+            "pasa_typo": true,
+            "pasa": true
+          },
+          "pos_v1": 3
+        },
+        {
+          "pos_off": 4,
+          "concepto": "dennys-identidad-profunda",
+          "es_gold": true,
+          "score_base": 0.7382,
+          "canales": {
+            "concepto": 0,
+            "sinonimos": 1,
+            "sustantivos": 0,
+            "contenido": 0,
+            "total": 1,
+            "mascara": "0100"
+          },
+          "origen_tipo": "literal",
+          "origen_score_capa": 0.0,
+          "match_exacto": false,
+          "bypass_v1": false,
+          "multiplicador_v1": 0.625,
+          "score_v1_efectivo": 0.461375,
+          "delta_v1": -0.276825,
+          "qcr": {
+            "ratio": 1.0,
+            "umbral": 0.5,
+            "pasa_ratio": true,
+            "pasa_escape": false,
+            "pasa_typo": true,
+            "pasa": true
+          },
+          "pos_v1": 8
+        },
+        {
+          "pos_off": 5,
+          "concepto": "oracle_perfil_cognitivo_dennys",
+          "es_gold": false,
+          "score_base": 0.7278,
+          "canales": {
+            "concepto": 1,
+            "sinonimos": 1,
+            "sustantivos": 0,
+            "contenido": 1,
+            "total": 3,
+            "mascara": "1101"
+          },
+          "origen_tipo": "literal",
+          "origen_score_capa": 0.0,
+          "match_exacto": false,
+          "bypass_v1": false,
+          "multiplicador_v1": 0.875,
+          "score_v1_efectivo": 0.636825,
+          "delta_v1": -0.090975,
+          "qcr": {
+            "ratio": 1.0,
+            "umbral": 0.5,
+            "pasa_ratio": true,
+            "pasa_escape": false,
+            "pasa_typo": true,
+            "pasa": true
+          },
+          "pos_v1": 4
+        },
+        {
+          "pos_off": 6,
+          "concepto": "contexto-humano-tecnico-dennys",
+          "es_gold": false,
+          "score_base": 0.7121,
+          "canales": {
+            "concepto": 0,
+            "sinonimos": 1,
+            "sustantivos": 0,
+            "contenido": 0,
+            "total": 1,
+            "mascara": "0100"
+          },
+          "origen_tipo": "literal",
+          "origen_score_capa": 0.0,
+          "match_exacto": false,
+          "bypass_v1": false,
+          "multiplicador_v1": 0.625,
+          "score_v1_efectivo": 0.445062,
+          "delta_v1": -0.267038,
+          "qcr": {
+            "ratio": 1.0,
+            "umbral": 0.5,
+            "pasa_ratio": true,
+            "pasa_escape": false,
+            "pasa_typo": true,
+            "pasa": true
+          },
+          "pos_v1": 9
+        },
+        {
+          "pos_off": 7,
+          "concepto": "cv_dennys_secciones_ab_finales_2026",
+          "es_gold": false,
+          "score_base": 0.7034,
+          "canales": {
+            "concepto": 0,
+            "sinonimos": 1,
+            "sustantivos": 0,
+            "contenido": 1,
+            "total": 2,
+            "mascara": "0101"
+          },
+          "origen_tipo": "literal",
+          "origen_score_capa": 0.0,
+          "match_exacto": false,
+          "bypass_v1": false,
+          "multiplicador_v1": 0.75,
+          "score_v1_efectivo": 0.52755,
+          "delta_v1": -0.17585,
+          "qcr": {
+            "ratio": 1.0,
+            "umbral": 0.5,
+            "pasa_ratio": true,
+            "pasa_escape": false,
+            "pasa_typo": true,
+            "pasa": true
+          },
+          "pos_v1": 6
+        },
+        {
+          "pos_off": 8,
+          "concepto": "dennys_perfil_tecnico_consolidado_master",
+          "es_gold": false,
+          "score_base": 0.6992,
+          "canales": {
+            "concepto": 1,
+            "sinonimos": 1,
+            "sustantivos": 0,
+            "contenido": 1,
+            "total": 3,
+            "mascara": "1101"
+          },
+          "origen_tipo": "literal",
+          "origen_score_capa": 0.0,
+          "match_exacto": false,
+          "bypass_v1": false,
+          "multiplicador_v1": 0.875,
+          "score_v1_efectivo": 0.6118,
+          "delta_v1": -0.0874,
+          "qcr": {
+            "ratio": 1.0,
+            "umbral": 0.5,
+            "pasa_ratio": true,
+            "pasa_escape": false,
+            "pasa_typo": true,
+            "pasa": true
+          },
+          "pos_v1": 5
+        },
+        {
+          "pos_off": 9,
+          "concepto": "fuente_perfil_profesional_dennys",
+          "es_gold": false,
+          "score_base": 0.6872,
+          "canales": {
+            "concepto": 1,
+            "sinonimos": 0,
+            "sustantivos": 0,
+            "contenido": 1,
+            "total": 2,
+            "mascara": "1001"
+          },
+          "origen_tipo": "literal",
+          "origen_score_capa": 0.0,
+          "match_exacto": false,
+          "bypass_v1": false,
+          "multiplicador_v1": 0.75,
+          "score_v1_efectivo": 0.5154,
+          "delta_v1": -0.1718,
+          "qcr": {
+            "ratio": 1.0,
+            "umbral": 0.5,
+            "pasa_ratio": true,
+            "pasa_escape": false,
+            "pasa_typo": true,
+            "pasa": true
+          },
+          "pos_v1": 7
+        },
+        {
+          "pos_off": 10,
+          "concepto": "cv_seccion_d_test_vinculacion",
+          "es_gold": false,
+          "score_base": 0.6839,
+          "canales": {
+            "concepto": 0,
+            "sinonimos": 1,
+            "sustantivos": 0,
+            "contenido": 0,
+            "total": 1,
+            "mascara": "0100"
+          },
+          "origen_tipo": "literal",
+          "origen_score_capa": 0.0,
+          "match_exacto": false,
+          "bypass_v1": false,
+          "multiplicador_v1": 0.625,
+          "score_v1_efectivo": 0.427437,
+          "delta_v1": -0.256463,
+          "qcr": {
+            "ratio": 1.0,
+            "umbral": 0.5,
+            "pasa_ratio": true,
+            "pasa_escape": false,
+            "pasa_typo": true,
+            "pasa": true
+          },
+          "pos_v1": 10
+        }
+      ],
+      "gold_pos_off": 4,
+      "gold_pos_v1": 8,
+      "gold_encontrado_off": true,
+      "regresion_v1": true,
+      "mejora_v1": false
+    },
+    {
+      "id": "0489",
+      "cat": "typo",
+      "query": "oracle custom prompt arsitecura que fuciona",
+      "gold": "oracle_custom_prompt_arsitecura_que_funciona",
+      "tokens_query": [
+        "arsitecura",
+        "custom",
+        "fuciona",
+        "oracle",
+        "prompt"
+      ],
+      "candidatos": [
+        {
+          "pos_off": 1,
+          "concepto": "oracle_custom_prompt_arsitecura_que_funciona",
+          "es_gold": true,
+          "score_base": 0.4672,
+          "canales": {
+            "concepto": 1,
+            "sinonimos": 0,
+            "sustantivos": 0,
+            "contenido": 1,
+            "total": 2,
+            "mascara": "1001"
+          },
+          "origen_tipo": "literal",
+          "origen_score_capa": 0.0,
+          "match_exacto": false,
+          "bypass_v1": false,
+          "multiplicador_v1": 0.75,
+          "score_v1_efectivo": 0.3504,
+          "delta_v1": -0.1168,
+          "qcr": {
+            "ratio": 0.7277,
+            "umbral": 0.4,
+            "pasa_ratio": true,
+            "pasa_escape": false,
+            "pasa_typo": true,
+            "pasa": true
+          },
+          "pos_v1": 10
+        },
+        {
+          "pos_off": 2,
+          "concepto": "oracle_custom_prompt_config_actual",
+          "es_gold": false,
+          "score_base": 0.4158,
+          "canales": {
+            "concepto": 1,
+            "sinonimos": 1,
+            "sustantivos": 0,
+            "contenido": 1,
+            "total": 3,
+            "mascara": "1101"
+          },
+          "origen_tipo": "literal",
+          "origen_score_capa": 0.0,
+          "match_exacto": false,
+          "bypass_v1": false,
+          "multiplicador_v1": 0.875,
+          "score_v1_efectivo": 0.363825,
+          "delta_v1": -0.051975,
+          "qcr": {
+            "ratio": 0.4798,
+            "umbral": 0.4,
+            "pasa_ratio": true,
+            "pasa_escape": false,
+            "pasa_typo": false,
+            "pasa": true
+          },
+          "pos_v1": 5
+        },
+        {
+          "pos_off": 3,
+          "concepto": "oracle_custom_prompt_failure_modes",
+          "es_gold": false,
+          "score_base": 0.4089,
+          "canales": {
+            "concepto": 1,
+            "sinonimos": 1,
+            "sustantivos": 0,
+            "contenido": 1,
+            "total": 3,
+            "mascara": "1101"
+          },
+          "origen_tipo": "literal",
+          "origen_score_capa": 0.0,
+          "match_exacto": false,
+          "bypass_v1": false,
+          "multiplicador_v1": 0.875,
+          "score_v1_efectivo": 0.357787,
+          "delta_v1": -0.051113,
+          "qcr": {
+            "ratio": 0.4798,
+            "umbral": 0.4,
+            "pasa_ratio": true,
+            "pasa_escape": false,
+            "pasa_typo": false,
+            "pasa": true
+          },
+          "pos_v1": 8
+        },
+        {
+          "pos_off": 4,
+          "concepto": "vision_arquitectura_oec_franquicia",
+          "es_gold": false,
+          "score_base": 0.3807,
+          "canales": {
+            "concepto": 0,
+            "sinonimos": 0,
+            "sustantivos": 0,
+            "contenido": 0,
+            "total": 0,
+            "mascara": "0000"
+          },
+          "origen_tipo": "dimensional_fallback",
+          "origen_score_capa": 0.8819,
+          "match_exacto": false,
+          "bypass_v1": true,
+          "multiplicador_v1": 1.0,
+          "score_v1_efectivo": 0.3807,
+          "delta_v1": 0.0,
+          "qcr": {
+            "ratio": 0.0431,
+            "umbral": 0.4,
+            "pasa_ratio": false,
+            "pasa_escape": true,
+            "pasa_typo": false,
+            "pasa": true
+          },
+          "pos_v1": 1
+        },
+        {
+          "pos_off": 5,
+          "concepto": "identidad_dennys_perfil_completo",
+          "es_gold": false,
+          "score_base": 0.3795,
+          "canales": {
+            "concepto": 0,
+            "sinonimos": 0,
+            "sustantivos": 0,
+            "contenido": 0,
+            "total": 0,
+            "mascara": "0000"
+          },
+          "origen_tipo": "dimensional_fallback",
+          "origen_score_capa": 0.6667,
+          "match_exacto": false,
+          "bypass_v1": true,
+          "multiplicador_v1": 1.0,
+          "score_v1_efectivo": 0.3795,
+          "delta_v1": 0.0,
+          "qcr": {
+            "ratio": 0.0431,
+            "umbral": 0.4,
+            "pasa_ratio": false,
+            "pasa_escape": true,
+            "pasa_typo": false,
+            "pasa": true
+          },
+          "pos_v1": 2
+        },
+        {
+          "pos_off": 6,
+          "concepto": "aforismo_criterio_agente",
+          "es_gold": false,
+          "score_base": 0.3762,
+          "canales": {
+            "concepto": 0,
+            "sinonimos": 0,
+            "sustantivos": 0,
+            "contenido": 0,
+            "total": 0,
+            "mascara": "0000"
+          },
+          "origen_tipo": "dimensional_fallback",
+          "origen_score_capa": 0.8819,
+          "match_exacto": false,
+          "bypass_v1": true,
+          "multiplicador_v1": 1.0,
+          "score_v1_efectivo": 0.3762,
+          "delta_v1": 0.0,
+          "qcr": {
+            "ratio": 0.0431,
+            "umbral": 0.4,
+            "pasa_ratio": false,
+            "pasa_escape": true,
+            "pasa_typo": false,
+            "pasa": true
+          },
+          "pos_v1": 3
+        },
+        {
+          "pos_off": 7,
+          "concepto": "principio_naturaleza_agente",
+          "es_gold": false,
+          "score_base": 0.3719,
+          "canales": {
+            "concepto": 0,
+            "sinonimos": 0,
+            "sustantivos": 0,
+            "contenido": 0,
+            "total": 0,
+            "mascara": "0000"
+          },
+          "origen_tipo": "dimensional_fallback",
+          "origen_score_capa": 0.8165,
+          "match_exacto": false,
+          "bypass_v1": true,
+          "multiplicador_v1": 1.0,
+          "score_v1_efectivo": 0.3719,
+          "delta_v1": 0.0,
+          "qcr": {
+            "ratio": 0.0431,
+            "umbral": 0.4,
+            "pasa_ratio": false,
+            "pasa_escape": true,
+            "pasa_typo": false,
+            "pasa": true
+          },
+          "pos_v1": 4
+        },
+        {
+          "pos_off": 8,
+          "concepto": "artisan_system_dsl_dennys_solo",
+          "es_gold": false,
+          "score_base": 0.3612,
+          "canales": {
+            "concepto": 0,
+            "sinonimos": 0,
+            "sustantivos": 0,
+            "contenido": 0,
+            "total": 0,
+            "mascara": "0000"
+          },
+          "origen_tipo": "dimensional_fallback",
+          "origen_score_capa": 0.8165,
+          "match_exacto": false,
+          "bypass_v1": true,
+          "multiplicador_v1": 1.0,
+          "score_v1_efectivo": 0.3612,
+          "delta_v1": 0.0,
+          "qcr": {
+            "ratio": 0.0431,
+            "umbral": 0.4,
+            "pasa_ratio": false,
+            "pasa_escape": true,
+            "pasa_typo": false,
+            "pasa": true
+          },
+          "pos_v1": 6
+        },
+        {
+          "pos_off": 9,
+          "concepto": "athena_artemis_desde",
+          "es_gold": false,
+          "score_base": 0.3585,
+          "canales": {
+            "concepto": 0,
+            "sinonimos": 0,
+            "sustantivos": 0,
+            "contenido": 0,
+            "total": 0,
+            "mascara": "0000"
+          },
+          "origen_tipo": "dimensional_fallback",
+          "origen_score_capa": 0.7454,
+          "match_exacto": false,
+          "bypass_v1": true,
+          "multiplicador_v1": 1.0,
+          "score_v1_efectivo": 0.3585,
+          "delta_v1": 0.0,
+          "qcr": {
+            "ratio": 0.0,
+            "umbral": 0.4,
+            "pasa_ratio": false,
+            "pasa_escape": true,
+            "pasa_typo": false,
+            "pasa": true
+          },
+          "pos_v1": 7
+        },
+        {
+          "pos_off": 10,
+          "concepto": "notebooklm-sync-lecciones",
+          "es_gold": false,
+          "score_base": 0.3515,
+          "canales": {
+            "concepto": 0,
+            "sinonimos": 0,
+            "sustantivos": 0,
+            "contenido": 0,
+            "total": 0,
+            "mascara": "0000"
+          },
+          "origen_tipo": "dimensional_fallback",
+          "origen_score_capa": 0.7454,
+          "match_exacto": false,
+          "bypass_v1": true,
+          "multiplicador_v1": 1.0,
+          "score_v1_efectivo": 0.3515,
+          "delta_v1": 0.0,
+          "qcr": {
+            "ratio": 0.0431,
+            "umbral": 0.4,
+            "pasa_ratio": false,
+            "pasa_escape": true,
+            "pasa_typo": false,
+            "pasa": true
+          },
+          "pos_v1": 9
+        }
+      ],
+      "gold_pos_off": 1,
+      "gold_pos_v1": 10,
+      "gold_encontrado_off": true,
+      "regresion_v1": true,
+      "mejora_v1": false
+    },
+    {
+      "id": "0518",
+      "cat": "variante_gramatical",
+      "query": "cuando usado dimensione biorags",
+      "gold": "cuando_usar_dimensiones_biorag",
+      "tokens_query": [
+        "biorags",
+        "dimensione",
+        "usado"
+      ],
+      "candidatos": [
+        {
+          "pos_off": 1,
+          "concepto": "mentalidad_biorag_para_agentes",
+          "es_gold": false,
+          "score_base": 0.4572,
+          "canales": {
+            "concepto": 0,
+            "sinonimos": 0,
+            "sustantivos": 0,
+            "contenido": 0,
+            "total": 0,
+            "mascara": "0000"
+          },
+          "origen_tipo": "simbolico",
+          "origen_score_capa": 0.9221,
+          "match_exacto": false,
+          "bypass_v1": true,
+          "multiplicador_v1": 1.0,
+          "score_v1_efectivo": 0.4572,
+          "delta_v1": 0.0,
+          "qcr": {
+            "ratio": 0.1554,
+            "umbral": 0.4,
+            "pasa_ratio": false,
+            "pasa_escape": true,
+            "pasa_typo": false,
+            "pasa": true
+          },
+          "pos_v1": 1
+        },
+        {
+          "pos_off": 2,
+          "concepto": "recuperacion_dimensional_sin_palabras_insight",
+          "es_gold": false,
+          "score_base": 0.4044,
+          "canales": {
+            "concepto": 0,
+            "sinonimos": 0,
+            "sustantivos": 0,
+            "contenido": 0,
+            "total": 0,
+            "mascara": "0000"
+          },
+          "origen_tipo": "literal",
+          "origen_score_capa": 0.0,
+          "match_exacto": false,
+          "bypass_v1": false,
+          "multiplicador_v1": 0.5,
+          "score_v1_efectivo": 0.2022,
+          "delta_v1": -0.2022,
+          "qcr": {
+            "ratio": 0.1554,
+            "umbral": 0.4,
+            "pasa_ratio": false,
+            "pasa_escape": false,
+            "pasa_typo": false,
+            "pasa": false
+          },
+          "pos_v1": 4
+        },
+        {
+          "pos_off": 3,
+          "concepto": "cuando_usar_dimensiones_biorag",
+          "es_gold": true,
+          "score_base": 0.3985,
+          "canales": {
+            "concepto": 0,
+            "sinonimos": 0,
+            "sustantivos": 0,
+            "contenido": 0,
+            "total": 0,
+            "mascara": "0000"
+          },
+          "origen_tipo": "literal",
+          "origen_score_capa": 0.0,
+          "match_exacto": false,
+          "bypass_v1": false,
+          "multiplicador_v1": 0.5,
+          "score_v1_efectivo": 0.19925,
+          "delta_v1": -0.19925,
+          "qcr": {
+            "ratio": 0.283,
+            "umbral": 0.4,
+            "pasa_ratio": false,
+            "pasa_escape": false,
+            "pasa_typo": true,
+            "pasa": true
+          },
+          "pos_v1": 5
+        },
+        {
+          "pos_off": 4,
+          "concepto": "bio_rag_overview_completo",
+          "es_gold": false,
+          "score_base": 0.3901,
+          "canales": {
+            "concepto": 0,
+            "sinonimos": 0,
+            "sustantivos": 0,
+            "contenido": 1,
+            "total": 1,
+            "mascara": "0001"
+          },
+          "origen_tipo": "simbolico",
+          "origen_score_capa": 0.619,
+          "match_exacto": false,
+          "bypass_v1": true,
+          "multiplicador_v1": 1.0,
+          "score_v1_efectivo": 0.3901,
+          "delta_v1": 0.0,
+          "qcr": {
+            "ratio": 0.3071,
+            "umbral": 0.4,
+            "pasa_ratio": false,
+            "pasa_escape": true,
+            "pasa_typo": false,
+            "pasa": true
+          },
+          "pos_v1": 2
+        },
+        {
+          "pos_off": 5,
+          "concepto": "implementado_catalogo_13_tipos_104_dimensiones",
+          "es_gold": false,
+          "score_base": 0.3896,
+          "canales": {
+            "concepto": 0,
+            "sinonimos": 0,
+            "sustantivos": 0,
+            "contenido": 0,
+            "total": 0,
+            "mascara": "0000"
+          },
+          "origen_tipo": "literal",
+          "origen_score_capa": 0.0,
+          "match_exacto": false,
+          "bypass_v1": false,
+          "multiplicador_v1": 0.5,
+          "score_v1_efectivo": 0.1948,
+          "delta_v1": -0.1948,
+          "qcr": {
+            "ratio": 0.1554,
+            "umbral": 0.4,
+            "pasa_ratio": false,
+            "pasa_escape": false,
+            "pasa_typo": false,
+            "pasa": false
+          },
+          "pos_v1": 6
+        },
+        {
+          "pos_off": 6,
+          "concepto": "fallo_clasificador_wordnet_query_dimensiones",
+          "es_gold": false,
+          "score_base": 0.3779,
+          "canales": {
+            "concepto": 0,
+            "sinonimos": 0,
+            "sustantivos": 0,
+            "contenido": 0,
+            "total": 0,
+            "mascara": "0000"
+          },
+          "origen_tipo": "literal",
+          "origen_score_capa": 0.0,
+          "match_exacto": false,
+          "bypass_v1": false,
+          "multiplicador_v1": 0.5,
+          "score_v1_efectivo": 0.18895,
+          "delta_v1": -0.18895,
+          "qcr": {
+            "ratio": 0.1554,
+            "umbral": 0.4,
+            "pasa_ratio": false,
+            "pasa_escape": false,
+            "pasa_typo": false,
+            "pasa": false
+          },
+          "pos_v1": 7
+        },
+        {
+          "pos_off": 7,
+          "concepto": "regla_umbral_fallback_dimensional_biorag",
+          "es_gold": false,
+          "score_base": 0.3688,
+          "canales": {
+            "concepto": 0,
+            "sinonimos": 0,
+            "sustantivos": 0,
+            "contenido": 0,
+            "total": 0,
+            "mascara": "0000"
+          },
+          "origen_tipo": "literal",
+          "origen_score_capa": 0.0,
+          "match_exacto": false,
+          "bypass_v1": false,
+          "multiplicador_v1": 0.5,
+          "score_v1_efectivo": 0.1844,
+          "delta_v1": -0.1844,
+          "qcr": {
+            "ratio": 0.1554,
+            "umbral": 0.4,
+            "pasa_ratio": false,
+            "pasa_escape": false,
+            "pasa_typo": false,
+            "pasa": false
+          },
+          "pos_v1": 8
+        },
+        {
+          "pos_off": 8,
+          "concepto": "artemis_ponytail_audit_biorag_v10_3_reporte",
+          "es_gold": false,
+          "score_base": 0.36,
+          "canales": {
+            "concepto": 0,
+            "sinonimos": 0,
+            "sustantivos": 0,
+            "contenido": 1,
+            "total": 1,
+            "mascara": "0001"
+          },
+          "origen_tipo": "simbolico",
+          "origen_score_capa": 0.619,
+          "match_exacto": false,
+          "bypass_v1": true,
+          "multiplicador_v1": 1.0,
+          "score_v1_efectivo": 0.36,
+          "delta_v1": 0.0,
+          "qcr": {
+            "ratio": 0.3071,
+            "umbral": 0.4,
+            "pasa_ratio": false,
+            "pasa_escape": true,
+            "pasa_typo": false,
+            "pasa": true
+          },
+          "pos_v1": 3
+        },
+        {
+          "pos_off": 9,
+          "concepto": "word2vec_puro_sgps_contenido_rompe_muro_sinonimo",
+          "es_gold": false,
+          "score_base": 0.3575,
+          "canales": {
+            "concepto": 0,
+            "sinonimos": 0,
+            "sustantivos": 0,
+            "contenido": 0,
+            "total": 0,
+            "mascara": "0000"
+          },
+          "origen_tipo": "literal",
+          "origen_score_capa": 0.0,
+          "match_exacto": false,
+          "bypass_v1": false,
+          "multiplicador_v1": 0.5,
+          "score_v1_efectivo": 0.17875,
+          "delta_v1": -0.17875,
+          "qcr": {
+            "ratio": 0.283,
+            "umbral": 0.4,
+            "pasa_ratio": false,
+            "pasa_escape": false,
+            "pasa_typo": true,
+            "pasa": true
+          },
+          "pos_v1": 9
+        },
+        {
+          "pos_off": 10,
+          "concepto": "principio_busqueda_por_dimension_implementado_catalogo_13_tipos_104_dimensiones_recuperacion_dimensional_sin_palabras_insight",
+          "es_gold": false,
+          "score_base": 0.3534,
+          "canales": {
+            "concepto": 0,
+            "sinonimos": 0,
+            "sustantivos": 0,
+            "contenido": 0,
+            "total": 0,
+            "mascara": "0000"
+          },
+          "origen_tipo": "literal",
+          "origen_score_capa": 0.0,
+          "match_exacto": false,
+          "bypass_v1": false,
+          "multiplicador_v1": 0.5,
+          "score_v1_efectivo": 0.1767,
+          "delta_v1": -0.1767,
+          "qcr": {
+            "ratio": 0.1554,
+            "umbral": 0.4,
+            "pasa_ratio": false,
+            "pasa_escape": false,
+            "pasa_typo": false,
+            "pasa": false
+          },
+          "pos_v1": 10
+        }
+      ],
+      "gold_pos_off": 3,
+      "gold_pos_v1": 5,
+      "gold_encontrado_off": true,
+      "regresion_v1": true,
+      "mejora_v1": false
+    },
+    {
+      "id": "0564",
+      "cat": "pregunta_natural",
+      "query": "¿Dónde encuentro la info de memoria v5 1 optimizaciones?",
+      "gold": "memoria_v5_1_optimizaciones",
+      "tokens_query": [
+        "info",
+        "memoria",
+        "optimizaciones",
+        "v5"
+      ],
+      "candidatos": [
+        {
+          "pos_off": 1,
+          "concepto": "analisis_escalabilidad_10k_v5_1_memoria_v5_1_optimizaciones_hermes_agente_hermes",
+          "es_gold": false,
+          "score_base": 0.4274,
+          "canales": {
+            "concepto": 1,
+            "sinonimos": 1,
+            "sustantivos": 0,
+            "contenido": 1,
+            "total": 3,
+            "mascara": "1101"
+          },
+          "origen_tipo": "literal",
+          "origen_score_capa": 0.0,
+          "match_exacto": false,
+          "bypass_v1": false,
+          "multiplicador_v1": 0.875,
+          "score_v1_efectivo": 0.373975,
+          "delta_v1": -0.053425,
+          "qcr": {
+            "ratio": 0.3282,
+            "umbral": 0.4,
+            "pasa_ratio": false,
+            "pasa_escape": false,
+            "pasa_typo": false,
+            "pasa": false
+          },
+          "pos_v1": 2
+        },
+        {
+          "pos_off": 2,
+          "concepto": "athena_principio_caducidad_temporal",
+          "es_gold": false,
+          "score_base": 0.4263,
+          "canales": {
+            "concepto": 0,
+            "sinonimos": 1,
+            "sustantivos": 0,
+            "contenido": 1,
+            "total": 2,
+            "mascara": "0101"
+          },
+          "origen_tipo": "literal",
+          "origen_score_capa": 0.0,
+          "match_exacto": false,
+          "bypass_v1": false,
+          "multiplicador_v1": 0.75,
+          "score_v1_efectivo": 0.319725,
+          "delta_v1": -0.106575,
+          "qcr": {
+            "ratio": 0.2492,
+            "umbral": 0.4,
+            "pasa_ratio": false,
+            "pasa_escape": false,
+            "pasa_typo": false,
+            "pasa": false
+          },
+          "pos_v1": 6
+        },
+        {
+          "pos_off": 3,
+          "concepto": "principio_dimensiones_genericas_no_nicho",
+          "es_gold": false,
+          "score_base": 0.4241,
+          "canales": {
+            "concepto": 0,
+            "sinonimos": 1,
+            "sustantivos": 0,
+            "contenido": 1,
+            "total": 2,
+            "mascara": "0101"
+          },
+          "origen_tipo": "literal",
+          "origen_score_capa": 0.0,
+          "match_exacto": false,
+          "bypass_v1": false,
+          "multiplicador_v1": 0.75,
+          "score_v1_efectivo": 0.318075,
+          "delta_v1": -0.106025,
+          "qcr": {
+            "ratio": 0.2492,
+            "umbral": 0.4,
+            "pasa_ratio": false,
+            "pasa_escape": false,
+            "pasa_typo": false,
+            "pasa": false
+          },
+          "pos_v1": 7
+        },
+        {
+          "pos_off": 4,
+          "concepto": "memoria_v5_1_optimizaciones",
+          "es_gold": true,
+          "score_base": 0.4235,
+          "canales": {
+            "concepto": 1,
+            "sinonimos": 1,
+            "sustantivos": 0,
+            "contenido": 1,
+            "total": 3,
+            "mascara": "1101"
+          },
+          "origen_tipo": "literal",
+          "origen_score_capa": 0.0,
+          "match_exacto": false,
+          "bypass_v1": false,
+          "multiplicador_v1": 0.875,
+          "score_v1_efectivo": 0.370563,
+          "delta_v1": -0.052937,
+          "qcr": {
+            "ratio": 0.3282,
+            "umbral": 0.4,
+            "pasa_ratio": false,
+            "pasa_escape": false,
+            "pasa_typo": false,
+            "pasa": false
+          },
+          "pos_v1": 3
+        },
+        {
+          "pos_off": 5,
+          "concepto": "principio-memoria-hibrida-agente-naturalidad",
+          "es_gold": false,
+          "score_base": 0.4072,
+          "canales": {
+            "concepto": 1,
+            "sinonimos": 1,
+            "sustantivos": 0,
+            "contenido": 1,
+            "total": 3,
+            "mascara": "1101"
+          },
+          "origen_tipo": "literal",
+          "origen_score_capa": 0.0,
+          "match_exacto": false,
+          "bypass_v1": false,
+          "multiplicador_v1": 0.875,
+          "score_v1_efectivo": 0.3563,
+          "delta_v1": -0.0509,
+          "qcr": {
+            "ratio": 0.2492,
+            "umbral": 0.4,
+            "pasa_ratio": false,
+            "pasa_escape": false,
+            "pasa_typo": false,
+            "pasa": false
+          },
+          "pos_v1": 4
+        },
+        {
+          "pos_off": 6,
+          "concepto": "norma_atribucion_autoria_memoria_compartida_oec",
+          "es_gold": false,
+          "score_base": 0.3991,
+          "canales": {
+            "concepto": 1,
+            "sinonimos": 1,
+            "sustantivos": 0,
+            "contenido": 1,
+            "total": 3,
+            "mascara": "1101"
+          },
+          "origen_tipo": "literal",
+          "origen_score_capa": 0.0,
+          "match_exacto": false,
+          "bypass_v1": false,
+          "multiplicador_v1": 0.875,
+          "score_v1_efectivo": 0.349213,
+          "delta_v1": -0.049887,
+          "qcr": {
+            "ratio": 0.2492,
+            "umbral": 0.4,
+            "pasa_ratio": false,
+            "pasa_escape": false,
+            "pasa_typo": false,
+            "pasa": false
+          },
+          "pos_v1": 5
+        },
+        {
+          "pos_off": 7,
+          "concepto": "aforismo_criterio_agente",
+          "es_gold": false,
+          "score_base": 0.398,
+          "canales": {
+            "concepto": 0,
+            "sinonimos": 0,
+            "sustantivos": 0,
+            "contenido": 0,
+            "total": 0,
+            "mascara": "0000"
+          },
+          "origen_tipo": "dimensional_fallback",
+          "origen_score_capa": 0.7746,
+          "match_exacto": false,
+          "bypass_v1": true,
+          "multiplicador_v1": 1.0,
+          "score_v1_efectivo": 0.398,
+          "delta_v1": 0.0,
+          "qcr": {
+            "ratio": 0.0,
+            "umbral": 0.4,
+            "pasa_ratio": false,
+            "pasa_escape": true,
+            "pasa_typo": false,
+            "pasa": true
+          },
+          "pos_v1": 1
+        },
+        {
+          "pos_off": 8,
+          "concepto": "comparativa_biorag_vs_tencentdb_agent_memory_20260809",
+          "es_gold": false,
+          "score_base": 0.3951,
+          "canales": {
+            "concepto": 0,
+            "sinonimos": 1,
+            "sustantivos": 0,
+            "contenido": 1,
+            "total": 2,
+            "mascara": "0101"
+          },
+          "origen_tipo": "literal",
+          "origen_score_capa": 0.0,
+          "match_exacto": false,
+          "bypass_v1": false,
+          "multiplicador_v1": 0.75,
+          "score_v1_efectivo": 0.296325,
+          "delta_v1": -0.098775,
+          "qcr": {
+            "ratio": 0.2492,
+            "umbral": 0.4,
+            "pasa_ratio": false,
+            "pasa_escape": false,
+            "pasa_typo": false,
+            "pasa": false
+          },
+          "pos_v1": 8
+        },
+        {
+          "pos_off": 9,
+          "concepto": "vida_laboral_completa_dennys",
+          "es_gold": false,
+          "score_base": 0.3937,
+          "canales": {
+            "concepto": 0,
+            "sinonimos": 1,
+            "sustantivos": 0,
+            "contenido": 0,
+            "total": 1,
+            "mascara": "0100"
+          },
+          "origen_tipo": "literal",
+          "origen_score_capa": 0.0,
+          "match_exacto": false,
+          "bypass_v1": false,
+          "multiplicador_v1": 0.625,
+          "score_v1_efectivo": 0.246062,
+          "delta_v1": -0.147638,
+          "qcr": {
+            "ratio": 0.2492,
+            "umbral": 0.4,
+            "pasa_ratio": false,
+            "pasa_escape": false,
+            "pasa_typo": false,
+            "pasa": false
+          },
+          "pos_v1": 10
+        },
+        {
+          "pos_off": 10,
+          "concepto": "ref_analisis_deepseek_biorag",
+          "es_gold": false,
+          "score_base": 0.3819,
+          "canales": {
+            "concepto": 0,
+            "sinonimos": 1,
+            "sustantivos": 0,
+            "contenido": 1,
+            "total": 2,
+            "mascara": "0101"
+          },
+          "origen_tipo": "literal",
+          "origen_score_capa": 0.0,
+          "match_exacto": false,
+          "bypass_v1": false,
+          "multiplicador_v1": 0.75,
+          "score_v1_efectivo": 0.286425,
+          "delta_v1": -0.095475,
+          "qcr": {
+            "ratio": 0.2492,
+            "umbral": 0.4,
+            "pasa_ratio": false,
+            "pasa_escape": false,
+            "pasa_typo": false,
+            "pasa": false
+          },
+          "pos_v1": 9
+        }
+      ],
+      "gold_pos_off": 4,
+      "gold_pos_v1": 3,
+      "gold_encontrado_off": true,
+      "regresion_v1": false,
+      "mejora_v1": true
+    }
+  ],
+  "resumen": {
+    "total": 5,
+    "regresiones_v1": 3,
+    "mejoras_v1": 1,
+    "sin_cambio_v1": 1
+  }
+}

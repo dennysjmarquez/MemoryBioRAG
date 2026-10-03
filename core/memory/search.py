@@ -23,6 +23,11 @@ from core.memory import constants
 
 logger = logging.getLogger("BioRAG.MemoryStore")
 
+_ORIGENES_NO_LITERALES = {
+    "typo", "expansion", "latente", "cadena", "simbolico",
+    "dimensional_fallback", "semantica", "unicode", "lexico_aprendido", "sdm"
+}
+
 try:
     from core.calibracion import (zscore_por_query, fusion_rrf, FusionLogistica,
                                    CalibradorPlatt, calibracion_isotonica,
@@ -31,7 +36,7 @@ except ImportError:
     zscore_por_query = fusion_rrf = FusionLogistica = CalibradorPlatt = None
     calibracion_isotonica = UmbralConforme = mmr = None
 
-def buscar_por_frase(self, frase, profundidad="activos", pagina=1, limite=None, categoria=None, preview_chars=1500, historial_fallos=None, context_window=0, dimensiones_dict=None, dimensiones_ids=None, parafrasis_list=None, desde_ts=None, hasta_ts=None, modo_estricto=False, usar_inferencia=True, buscar_por_rol=None, ignore_peso_sinaptico=False, ordenar_por="relevancia", permitir_expansion_empate=False, expandir_episodio=False, analogia=False, sustantivos_clave_boost=None):
+def buscar_por_frase(self, frase, profundidad="activos", pagina=1, limite=None, categoria=None, preview_chars=1500, historial_fallos=None, context_window=0, dimensiones_dict=None, dimensiones_ids=None, parafrasis_list=None, desde_ts=None, hasta_ts=None, modo_estricto=False, usar_inferencia=True, buscar_por_rol=None, ignore_peso_sinaptico=False, ordenar_por="relevancia", permitir_expansion_empate=False, expandir_episodio=False, analogia=False, sustantivos_clave_boost=None, convergencia_limite=None):
     """Busqueda hibrida: FTS5 trigram + peso sinaptico + asociaciones + scoring dimensional.
 
     frase: texto en lenguaje natural. Trigrams nativos de FTS5 manejan
@@ -60,11 +65,20 @@ def buscar_por_frase(self, frase, profundidad="activos", pagina=1, limite=None, 
                  del corte tienen score >= 90% del último incluido (Dynamic Multiplicator).
                  Default False: `limite` es un contrato estricto, el motor nunca devuelve
                  más resultados de los pedidos.
+    convergencia_limite: límite público que puede reordenarse cuando el llamador
+                 hace overfetch (por ejemplo, MCP busca 3x y luego trunca a top-k).
+                 No cambia la membresía del top-k que verá el usuario.
     Retorna (resultados, total) donde resultados es lista de
     (concepto, contenido, peso, estado, score, asociaciones)
     """
     self.notificar_actividad_usuario()
     self.last_parent_map = {}  # Reset parent pointers for this search
+    # Side-channels for the optional final rank adjustment. The public tuple
+    # keeps one coherent score (the score actually used for ordering); consumers
+    # that calibrate confidence/fallbacks can still use the pre-bonus score.
+    self.last_score_base_map = {}
+    self.last_score_bonus_map = {}
+    self.last_score_base_top = None
     # SRL v16.0: Filtrado por roles semánticos (buscar_por_rol)
     conceptos_validos_rol = None
     if buscar_por_rol:
@@ -1438,24 +1452,72 @@ def buscar_por_frase(self, frase, profundidad="activos", pagina=1, limite=None, 
     if conceptos_validos_rol is not None:
         todos = [r for r in todos if r[1].lower().strip() in conceptos_validos_rol]
 
-    # Batch fetch synonyms for all retrieved candidates before the final scoring loop
+    # Batch fetch per-field metadata for all retrieved candidates before scoring.
+    # sustantivos_clave may be absent in legacy snapshots; retain the old search
+    # path there, while current DBs expose it as the fourth FTS field.
     conceptos_todos = [r[1] for r in todos if r[1]]
     concepto_sinonimos_map = {}
+    concepto_sustantivos_map = {}
     if conceptos_todos:
         placeholders = ",".join(["?" for _ in conceptos_todos])
         try:
             self.cursor.execute(
-                f"SELECT concepto, sinonimos FROM largo_plazo WHERE concepto IN ({placeholders})",
+                f"SELECT concepto, COALESCE(sinonimos, ''), "
+                f"COALESCE(sustantivos_clave, '') FROM largo_plazo "
+                f"WHERE concepto IN ({placeholders})",
                 conceptos_todos
             )
-            for conc, sinonimos in self.cursor.fetchall():
+            for conc, sinonimos, sustantivos in self.cursor.fetchall():
                 concepto_sinonimos_map[conc] = sinonimos or ""
+                concepto_sustantivos_map[conc] = sustantivos or ""
+        except sqlite3.OperationalError:
+            try:
+                self.cursor.execute(
+                    f"SELECT concepto, COALESCE(sinonimos, '') FROM largo_plazo "
+                    f"WHERE concepto IN ({placeholders})",
+                    conceptos_todos
+                )
+                for conc, sinonimos in self.cursor.fetchall():
+                    concepto_sinonimos_map[conc] = sinonimos or ""
+            except Exception:
+                pass
         except Exception:
             pass
 
-    # Prepare normalized query tokens for symbolic scoring
+    # Prepare normalized query tokens for symbolic scoring and the optional
+    # field-convergence reranker. Each paraphrase is an alternative, not extra
+    # query mass: the best per-field coverage is used (no dilution by union).
     from core.fallback_simbolico import _tokenizar_normalizado, score_simbolico_concepto, score_simbolico_sinonimos
     tokens_query = _tokenizar_normalizado(query)
+    convergencia_query_token_set = set(tokens_query)
+    convergencia_query_sets = []
+    calcular_evidencia_multicampo = None
+    rerank_con_evidencia_multicampo = None
+    incorporar_delta_postprocesamiento = None
+    if constants.CONVERGENCIA_EVIDENCIA_ACTIVA:
+        from core.memory.evidence_convergence import (
+            evidencia_multicampo as calcular_evidencia_multicampo,
+            incorporar_delta_postprocesamiento,
+            rerank_con_evidencia_multicampo,
+        )
+        _variantes_evidencia = [query] + list(parafrasis_filtradas or [])
+        _sets_vistos = set()
+        for _variante in _variantes_evidencia:
+            _tokens_variante = frozenset(_tokenizar_normalizado(_variante))
+            if _tokens_variante and _tokens_variante not in _sets_vistos:
+                _sets_vistos.add(_tokens_variante)
+                convergencia_query_sets.append(_tokens_variante)
+    convergencia_query_size = max(
+        (len(tokens) for tokens in convergencia_query_sets), default=0
+    )
+
+    def _campo_activo(texto: str) -> int:
+        """1 si algún token de la query aparece en el campo normalizado, 0 si no."""
+        if not texto or not convergencia_query_token_set:
+            return 0
+        return int(bool(
+            convergencia_query_token_set & set(_tokenizar_normalizado(texto))
+        ))
 
     # ── Precompute PPMI Query Vector ONCE before candidate loop ──
     _ppmi_vq = None
@@ -1561,6 +1623,7 @@ def buscar_por_frase(self, frase, profundidad="activos", pagina=1, limite=None, 
     # Calcular score hibrido para cada resultado (fórmula única 9 señales)
     total = len(todos)
     resultados_con_hibrido = []
+    convergencia_evidencia_map = {}
     for _, (rowid, concepto, contenido, peso, estado, asociaciones) in enumerate(todos):
         origen, score_capa = origen_scores.get(concepto, ("literal", 0.0))
         dim_score = dim_scores_map.get(concepto, 0.0)
@@ -1710,6 +1773,25 @@ def buscar_por_frase(self, frase, profundidad="activos", pagina=1, limite=None, 
             campo_score=campo_map.get(concepto, 0.0),
         )
 
+        # ── Convergencia Multi-Campo (Spec-006) ──────────────────────────────
+        if (constants.CONVERGENCIA_ACTIVA
+                and not match_exacto
+                and origen_scores.get(concepto, ("literal", 0.0))[0]
+                    not in _ORIGENES_NO_LITERALES):
+
+            sinonimos_str = concepto_sinonimos_map.get(concepto, "")
+            canales = (
+                _campo_activo(concepto)
+                + _campo_activo(sinonimos_str)
+                + _campo_activo(concepto_sustantivos_map.get(concepto, ""))
+                + _campo_activo(contenido)
+            )
+            convergencia = canales / 4.0
+            alpha = constants.CONVERGENCIA_ALPHA
+            multiplicador = alpha + (1.0 - alpha) * convergencia
+            score_hibrido = round(min(1.0, score_hibrido * multiplicador), 6)
+        # ─────────────────────────────────────────────────────────────────────
+
         resultados_con_hibrido.append(
             (concepto, contenido, peso, estado, score_hibrido, asociaciones or "")
         )
@@ -1763,7 +1845,13 @@ def buscar_por_frase(self, frase, profundidad="activos", pagina=1, limite=None, 
             if conc in hub_canonical_set:
                 filtrados_qcr.append((conc, cont, peso, est, sc, asoc))
                 continue
-            text_target = f"{conc} {cont} {concepto_sinonimos_map.get(conc, '')}".lower()
+            # QCR debe mirar las mismas cuatro columnas consultables que el
+            # ranker/FTS; omitir sustantivos_clave descartaba hits válidos que
+            # entraban por el cuarto campo dedicado.
+            text_target = (
+                f"{conc} {cont} {concepto_sinonimos_map.get(conc, '')} "
+                f"{concepto_sustantivos_map.get(conc, '')}"
+            ).lower()
             if _qcr_idf_map:
                 _num = sum(_qcr_idf_map.get(t, 1.0) for t in q_tokens_qcr if t in text_target)
                 ratio_qcr = (_num / _idf_den) if _idf_den > 0 else 0.0
@@ -1904,7 +1992,6 @@ def buscar_por_frase(self, frase, profundidad="activos", pagina=1, limite=None, 
     # RF-19 (spec 001): incluye la columna sustantivos_clave — un nodo boosteado por esa
     # columna dedicada (match en FTS con peso BM25 4.0x) no debe ser descartado aquí por no
     # ser prefijo del contenido/concepto/sinónimos.
-    _ORIGENES_NO_LITERALES = {"typo", "expansion", "latente", "cadena", "simbolico", "dimensional_fallback", "semantica", "unicode", "lexico_aprendido", "sdm"}
     query_words = re.findall(r'\w{3,}', query.lower())
     if len(query_words) == 1 and resultados_con_hibrido:
         token = query_words[0]
@@ -1990,9 +2077,104 @@ def buscar_por_frase(self, frase, profundidad="activos", pagina=1, limite=None, 
                     break
             limite = limite_ampliado
 
-    # Paginar (sin truncar aun; se necesita contenido completo para context window)
+    # Seleccionar primero la página con el ranking-base. Cuando el llamador hace
+    # overfetch (MCP usa 3x), la convergencia solo reordena el top-k público; el
+    # pool auxiliar no puede cambiar la membresía visible ni las semillas candidatas.
     inicio = (pagina - 1) * limite
-    pagina_resultados = resultados_con_hibrido[inicio:inicio + limite]
+    fin = inicio + limite
+    pagina_base = resultados_con_hibrido[inicio:fin]
+    try:
+        limite_convergencia = int(
+            limite if convergencia_limite is None else convergencia_limite
+        )
+        limite_convergencia = max(0, min(int(limite), limite_convergencia))
+    except (TypeError, ValueError):
+        limite_convergencia = int(limite or 0)
+    pagina_para_reordenar = pagina_base[:limite_convergencia]
+    pagina_resultados = pagina_base
+
+    if constants.CONVERGENCIA_EVIDENCIA_ACTIVA and ordenar_por == "relevancia":
+        self.last_score_base_top = pagina_base[0][4] if pagina_base else None
+
+        # Reordenar solo el top-k que verá el llamador. MCP hace overfetch (3x)
+        # para recall, pero el bono no puede sustituir miembros de ese top-k con
+        # resultados que solo estaban en el pool auxiliar.
+        # Completar primero metadatos de canónicos insertados por Concept Hub.
+        faltantes_meta = [
+            r for r in pagina_para_reordenar
+            if r[0] and (
+                r[0] not in concepto_sinonimos_map
+                or r[0] not in concepto_sustantivos_map
+            )
+        ]
+        if faltantes_meta:
+            nombres_faltantes = list(dict.fromkeys(r[0] for r in faltantes_meta))
+            ph_faltantes = ",".join("?" * len(nombres_faltantes))
+            try:
+                self.cursor.execute(
+                    f"SELECT concepto, COALESCE(sinonimos, ''), "
+                    f"COALESCE(sustantivos_clave, '') FROM largo_plazo "
+                    f"WHERE concepto IN ({ph_faltantes})",
+                    tuple(nombres_faltantes),
+                )
+                for conc, syn, nouns in self.cursor.fetchall():
+                    concepto_sinonimos_map[conc] = syn or ""
+                    concepto_sustantivos_map[conc] = nouns or ""
+            except sqlite3.OperationalError:
+                try:
+                    self.cursor.execute(
+                        f"SELECT concepto, COALESCE(sinonimos, '') FROM largo_plazo "
+                        f"WHERE concepto IN ({ph_faltantes})",
+                        tuple(nombres_faltantes),
+                    )
+                    for conc, syn in self.cursor.fetchall():
+                        concepto_sinonimos_map[conc] = syn or ""
+                except Exception:
+                    pass
+            except Exception:
+                pass
+
+        if calcular_evidencia_multicampo is not None and convergencia_query_sets:
+            for fila in pagina_para_reordenar:
+                concepto = fila[0]
+                syn = concepto_sinonimos_map.get(concepto, "")
+                nouns = concepto_sustantivos_map.get(concepto, "")
+                concepto_ratio = max(
+                    resultados_concepto.get(concepto, 0.0),
+                    score_simbolico_concepto(tokens_query, concepto),
+                )
+                sinonimos_ratio = max(
+                    resultados_semantica.get(concepto, 0.0),
+                    score_simbolico_sinonimos(tokens_query, syn),
+                )
+                if not tokens_query and syn and palabras_like:
+                    sinonimos_ratio = max(
+                        sinonimos_ratio,
+                        sum(1 for word in palabras_like if word.lower() in syn.lower())
+                        / len(palabras_like),
+                    )
+                convergencia_evidencia_map[concepto] = calcular_evidencia_multicampo(
+                    convergencia_query_sets,
+                    concepto,
+                    syn,
+                    nouns,
+                    fila[1] or "",
+                    concepto_ratio=concepto_ratio,
+                    sinonimos_ratio=sinonimos_ratio,
+                )
+
+        if rerank_con_evidencia_multicampo is not None and pagina_para_reordenar:
+            (
+                pagina_reordenada,
+                self.last_score_base_map,
+                self.last_score_bonus_map,
+            ) = rerank_con_evidencia_multicampo(
+                pagina_para_reordenar,
+                convergencia_evidencia_map,
+                max_bonus=constants.CONVERGENCIA_EVIDENCIA_MAX_BONUS,
+                query_size=convergencia_query_size,
+            )
+            pagina_resultados = pagina_reordenada + pagina_base[len(pagina_para_reordenar):]
 
     if profundidad == "profundo":
         pagina_resultados_actualizada = []
@@ -2003,7 +2185,16 @@ def buscar_por_frase(self, frase, profundidad="activos", pagina=1, limite=None, 
                     "UPDATE largo_plazo SET estado = 'activo', peso_sinaptico = ?, ultimo_acceso = ? WHERE concepto = ?",
                     (nuevo_peso, time.time(), r[0]),
                 )
-                score_nuevo = round(min(1.0, r[4] + 0.10 * (nuevo_peso - r[2])), 4)
+                delta_activacion = 0.10 * (nuevo_peso - r[2])
+                score_nuevo = round(min(1.0, r[4] + delta_activacion), 4)
+                if r[0] in self.last_score_base_map:
+                    score_base_nuevo = round(
+                        min(1.0, self.last_score_base_map[r[0]] + delta_activacion), 4
+                    )
+                    self.last_score_base_map[r[0]] = score_base_nuevo
+                    self.last_score_bonus_map[r[0]] = round(
+                        max(0.0, score_nuevo - score_base_nuevo), 4
+                    )
                 pagina_resultados_actualizada.append(
                     (r[0], r[1], nuevo_peso, "activo", score_nuevo, r[5])
                 )
@@ -2013,6 +2204,8 @@ def buscar_por_frase(self, frase, profundidad="activos", pagina=1, limite=None, 
         self.conn.commit()
         if ordenar_por == "relevancia":
             pagina_resultados.sort(key=lambda r: r[4], reverse=True)
+        if self.last_score_base_map:
+            self.last_score_base_top = max(self.last_score_base_map.values(), default=None)
 
     # Context window: expandir cada resultado con vecinos por sinapsis
     if context_window and context_window > 0 and pagina_resultados:
@@ -2022,6 +2215,10 @@ def buscar_por_frase(self, frase, profundidad="activos", pagina=1, limite=None, 
             profundidad=profundidad,
             preview_chars=preview_chars
         )
+        if incorporar_delta_postprocesamiento is not None:
+            incorporar_delta_postprocesamiento(
+                primarios_ctx, self.last_score_base_map, self.last_score_bonus_map
+            )
         pagina_resultados = primarios_ctx + vecinos_ctx
 
     # Truncar preview a nivel de motor (ahorra RAM en CLI/MCP)
@@ -2081,6 +2278,10 @@ def buscar_por_frase(self, frase, profundidad="activos", pagina=1, limite=None, 
     # nunca silencio vacío, etiqueta directo/asociativo, sin barridos globales.
     if constants.ADN_RANKING_ENABLED and pagina_resultados:
         pagina_resultados, metadatos_epi = self._enriquecer_con_adn(query, pagina_resultados, limite)
+        if incorporar_delta_postprocesamiento is not None:
+            incorporar_delta_postprocesamiento(
+                pagina_resultados, self.last_score_base_map, self.last_score_bonus_map
+            )
         self.last_estado_epistemico = metadatos_epi
         total = len(pagina_resultados)
 

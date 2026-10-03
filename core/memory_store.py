@@ -550,7 +550,7 @@ class SQLiteMemoryBioRAG:
     def _multihop_vecinos(self, semillas, excluir, limite):
         return synapses._multihop_vecinos(self, semillas, excluir, limite)
 
-    def buscar_por_frase(self, frase, profundidad="activos", pagina=1, limite=None, categoria=None, preview_chars=1500, historial_fallos=None, context_window=0, dimensiones_dict=None, dimensiones_ids=None, parafrasis_list=None, desde_ts=None, hasta_ts=None, modo_estricto=False, usar_inferencia=True, buscar_por_rol=None, ignore_peso_sinaptico=False, ordenar_por="relevancia", permitir_expansion_empate=False, expandir_episodio=False, analogia=False, sustantivos_clave_boost=None):
+    def buscar_por_frase(self, frase, profundidad="activos", pagina=1, limite=None, categoria=None, preview_chars=1500, historial_fallos=None, context_window=0, dimensiones_dict=None, dimensiones_ids=None, parafrasis_list=None, desde_ts=None, hasta_ts=None, modo_estricto=False, usar_inferencia=True, buscar_por_rol=None, ignore_peso_sinaptico=False, ordenar_por="relevancia", permitir_expansion_empate=False, expandir_episodio=False, analogia=False, sustantivos_clave_boost=None, convergencia_limite=None):
         return search.buscar_por_frase(
             self,
             frase=frase,
@@ -575,6 +575,7 @@ class SQLiteMemoryBioRAG:
             expandir_episodio=expandir_episodio,
             analogia=analogia,
             sustantivos_clave_boost=sustantivos_clave_boost,
+            convergencia_limite=convergencia_limite,
         )
 
     def obtener_provenance_ultimo_resultado(self) -> dict:

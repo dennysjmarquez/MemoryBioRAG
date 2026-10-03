@@ -428,6 +428,9 @@ def _recordar_impl(
         # Emula el comportamiento de un RAG vectorial que rankea todo el índice.
         # Si no hay query pero hay dimensiones, usar string vacío para que buscar_por_frase no falle
         limite_interno = limite * 3
+        score_base_map = {}
+        score_base_top = None
+        score_bonus_map = {}
         if buscar_por_rol:
             # Parsear buscar_por_rol (formato: "sujeto:usuario,accion:corregir")
             sujeto = None
@@ -466,8 +469,16 @@ def _recordar_impl(
                 usar_inferencia=usar_inferencia,
                 ordenar_por=ordenar_por,
                 sustantivos_clave_boost=sustantivos_clave_norm,
+                convergencia_limite=limite,
             )
+            score_base_map = getattr(cerebro, "last_score_base_map", {}) or {}
+            score_base_top = getattr(cerebro, "last_score_base_top", None)
+            score_bonus_map = getattr(cerebro, "last_score_bonus_map", {}) or {}
         score_top = resultados[0][4] if resultados else 0
+        # El re-ranking modifica el orden y el score rank, pero no la señal
+        # calibrada que decide si se invoca ráfaga: conserva el gate anterior.
+        if score_base_top is not None:
+            score_top = score_base_top
 
         # Guardar total real ANTES de que filtros/truncación lo sobreescriban.
         # total se usa para paginas_totales y el campo "total" del JSON.
@@ -486,8 +497,9 @@ def _recordar_impl(
             _origen = getattr(cerebro, 'last_origen_scores', {})
             for r in resultados:
                 origen_info = _origen.get(r[0], ("", 0.0))
-                if origen_info[0] == "parafrasis" and r[4] > score_parafrasis_best:
-                    score_parafrasis_best = r[4]
+                score_traza = score_base_map.get(r[0], r[4])
+                if origen_info[0] == "parafrasis" and score_traza > score_parafrasis_best:
+                    score_parafrasis_best = score_traza
 
         sinapsis_creadas = []
         if forzar_rafaga:
@@ -558,7 +570,8 @@ def _recordar_impl(
         # FLUJO: _debe_responder usa umbral conforme si existe, o
         # UMBRAL_COLD_START (0.65) si no hay calibración (cold start).
         if resultados:
-            if not cerebro._debe_responder(resultados[0][4]):
+            score_base_decision = score_base_map.get(resultados[0][0], resultados[0][4])
+            if not cerebro._debe_responder(score_base_decision):
                 resultados = []  # abstención: no hay evidencia suficiente
             total = len(resultados)
 
@@ -614,6 +627,14 @@ def _recordar_impl(
                 profundidad=profundidad,
                 preview_chars=preview_chars
             )
+            if score_base_map:
+                try:
+                    from core.memory.evidence_convergence import incorporar_delta_postprocesamiento
+                    incorporar_delta_postprocesamiento(
+                        resultados, score_base_map, score_bonus_map
+                    )
+                except Exception:
+                    pass
 
         # ── CADUCIDAD TEMPORAL (staleness) ─────────────────────────
         # Marcar resultados viejos para que el agente no los entregue
@@ -675,14 +696,15 @@ def _recordar_impl(
             creado_ts = _edad_map.get(concepto, 0)
             edad_dias = (ahora - creado_ts) / 86400 if creado_ts else 0
             es_stale = edad_dias > STALE_DAYS and _cat_map.get(concepto, "") not in _CATEGORIAS_PROTEGIDAS
+            score_base = score_base_map.get(concepto, score)
             items.append({
                 "concepto": concepto,
                 "contenido": contenido,
                 "peso_sinaptico": peso,
                 "estado": estado,
                 "score_hibrido": score,
-                "confianza_calibrada": _confianza_calibrada(cerebro, score),
-                "nivel_certeza": _nivel_certeza(cerebro, score),
+                "confianza_calibrada": _confianza_calibrada(cerebro, score_base),
+                "nivel_certeza": _nivel_certeza(cerebro, score_base),
                 "edad_dias": round(edad_dias, 1),
                 "timestamp_creado": creado_ts,
                 "fecha_legible": datetime.fromtimestamp(creado_ts).strftime("%Y-%m-%d %H:%M") if creado_ts else None,
@@ -693,6 +715,9 @@ def _recordar_impl(
                 "asociaciones_enriquecidas": _asoc_enriquecidas.get(concepto, [])
                     if asociados else [],
             })
+            if concepto in score_base_map:
+                items[-1]["score_hibrido_base"] = score_base
+                items[-1]["bonus_convergencia_multicampo"] = score_bonus_map.get(concepto, 0.0)
 
         # Contexto expandido (adjunto): se expone cuando context_window > 0 o en página > 1.
         # Página 1 mantiene resultados primarios intactos; el contexto va en contexto_expandido.
@@ -702,14 +727,15 @@ def _recordar_impl(
                 creado_ts = _edad_map.get(concepto, 0)
                 edad_dias = (ahora - creado_ts) / 86400 if creado_ts else 0
                 es_stale = edad_dias > STALE_DAYS and _cat_map.get(concepto, "") not in _CATEGORIAS_PROTEGIDAS
+                score_base = score_base_map.get(concepto, score)
                 contexto_items.append({
                     "concepto": concepto,
                     "contenido": contenido,
                     "peso_sinaptico": peso,
                     "estado": estado,
                     "score_hibrido": score,
-                    "confianza_calibrada": _confianza_calibrada(cerebro, score),
-                    "nivel_certeza": _nivel_certeza(cerebro, score),
+                    "confianza_calibrada": _confianza_calibrada(cerebro, score_base),
+                    "nivel_certeza": _nivel_certeza(cerebro, score_base),
                     "edad_dias": round(edad_dias, 1),
                     "timestamp_creado": creado_ts,
                     "fecha_legible": datetime.fromtimestamp(creado_ts).strftime("%Y-%m-%d %H:%M") if creado_ts else None,
@@ -720,6 +746,9 @@ def _recordar_impl(
                     "asociaciones_enriquecidas": _asoc_enriquecidas.get(concepto, [])
                         if asociados else [],
                 })
+                if concepto in score_base_map:
+                    contexto_items[-1]["score_hibrido_base"] = score_base
+                    contexto_items[-1]["bonus_convergencia_multicampo"] = score_bonus_map.get(concepto, 0.0)
 
         # Batch query: adjuntar dimensiones semánticas a cada resultado
         _items_con_dim = items + contexto_items

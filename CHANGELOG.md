@@ -1,5 +1,26 @@
 # BioRAG Changelog
- 
+
+## [v32.3] — 2026-10-03 — Ranking aditivo por convergencia de evidencia multicampo
+
+**Mejora del orden de los candidatos existentes cuando una respuesta tiene evidencia pertinente distribuida entre campos estructurados y un competidor solo presenta una mención incidental en el contenido.**
+
+### Cambios
+
+- Se agrega un re-ranking aditivo basado en cobertura normalizada, morfológica y difusa de `concepto`, `sinonimos`, `sustantivos_clave` y `contenido`.
+- La señal pondera los campos según su peso de recuperación, no inspecciona IDs ni categorías y no penaliza campos vacíos. El bono por defecto queda en `0.085`, con límite configurable de `0.12` y atenuación en consultas muy cortas.
+- El ajuste no añade candidatos: conserva la membresía del top-k y del pool interno, y mantiene separados el score base y el bono para trazabilidad y consumidores MCP.
+- El multiplicador legado de Spec 006 permanece apagado por defecto y aislado en `BIORAG_CONVERGENCIA_006_ACTIVA`; el flag público activa el reranker aditivo.
+- No hay migración de esquema ni escritura a la DB canónica.
+
+### Validación
+
+- Smoke estricto sobre la DB local del usuario (SHA-256 `0e5b063810b79be56b076bba7d33a662e9afc259607e5f80e3049192c5cfdbd5`, abierta en solo lectura): `version_actual_biorag` pasó del puesto 2 al 1, con score ajustado `0.8341` frente a `0.8304` de `reindex_selectivo_dirty`; top-k y pool sin cambios. El caso normalizado mantuvo el objetivo en el puesto 1.
+- Suite integral reportada el 2026-10-03: **304/304 tests**, Recall@5 **100.00%** (875/875), Recall@1 **91.77%** (803/875), MRR **0.950** (salida redondeada), **0 FP / 40** y gate oficial **OK**. Tiempo de la evaluación global: **753.03 s**.
+- Los 6 casos `ambiguo` se informan fuera del Recall global; 2 no recuperaron una de las etiquetas contradictorias.
+- La corrida global con cap `0.09` había mostrado una pérdida de Recall@5 en un caso typo; `0.085` conserva Recall@5 de 100% en la suite reportada.
+
+**Alcance:** el cambio es un re-ranker, no un modelo de cerebro biológico ni una garantía de mejora para toda consulta posible. En el benchmark medido preservó Recall@5 y mejoró ligeramente Recall@1 frente a la baseline previa; no puede recuperar candidatos que no entraron al pool inicial.
+
 ## [v32.2] — 2026-09-30 — Protocolo Pre-flight Search Obligatorio, Vinculación Automática y Actualización Libre de Restricción Temporal · Spec 004
 
 **Blindaje ontológico del corpus mediante búsqueda previa obligatoria (`busqueda_previa=True`), vinculación sináptica atómica (`vincular_con`) y eliminación de restricción temporal en actualización de recuerdos.**
