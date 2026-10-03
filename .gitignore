@@ -9,9 +9,10 @@ MemoryBioRAG_Data/obsolete_and_debug/
 test_memory.db
 
 
-# Python cache
+# Python cache and local virtual environment
 __pycache__/
 *.pyc
+.venv/
 
 # IDE
 .vscode/
