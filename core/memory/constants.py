@@ -128,25 +128,25 @@ CONVERGENCIA_EVIDENCIA_ACTIVA = str(_convergencia_activa_raw).lower() in (
     '1', 'true', 'yes', 'on'
 )
 
-# Tope conservador: evita que una señal nueva domine al score híbrido. También
+# Tope configurable: mantiene acotada la señal nueva frente al score híbrido. También
 # acepta el nombre de Spec 007; el alias EVIDENCIA sigue teniendo precedencia
 # cuando la variable pública de la spec no se especifica.
 _bonus_env = os.environ.get(
     'BIORAG_CONVERGENCIA_BONUS_MAX',
-    os.environ.get('BIORAG_CONVERGENCIA_EVIDENCIA_MAX_BONUS', '0.06'),
+    os.environ.get('BIORAG_CONVERGENCIA_EVIDENCIA_MAX_BONUS', '0.085'),
 )
 try:
     _bonus_requested = float(_bonus_env)
 except (TypeError, ValueError):
     logging.getLogger('BioRAG.MemoryStore').warning(
-        'BIORAG_CONVERGENCIA_BONUS_MAX=%r no es numérico; se usa 0.06', _bonus_env
+        'BIORAG_CONVERGENCIA_BONUS_MAX=%r no es numérico; se usa 0.085', _bonus_env
     )
-    _bonus_requested = 0.06
+    _bonus_requested = 0.085
 if not math.isfinite(_bonus_requested):
     logging.getLogger('BioRAG.MemoryStore').warning(
-        'BIORAG_CONVERGENCIA_BONUS_MAX=%r no es finito; se usa 0.06', _bonus_env
+        'BIORAG_CONVERGENCIA_BONUS_MAX=%r no es finito; se usa 0.085', _bonus_env
     )
-    _bonus_requested = 0.06
+    _bonus_requested = 0.085
 CONVERGENCIA_EVIDENCIA_MAX_BONUS = min(0.12, max(0.0, _bonus_requested))
 if CONVERGENCIA_EVIDENCIA_MAX_BONUS != _bonus_requested:
     logging.getLogger('BioRAG.MemoryStore').warning(

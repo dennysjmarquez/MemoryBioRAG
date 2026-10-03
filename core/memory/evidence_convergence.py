@@ -132,7 +132,7 @@ def evidencia_multicampo(
 
 def calcular_bono_convergencia(
     evidencia: Mapping[str, float],
-    max_bonus: float = 0.06,
+    max_bonus: float = 0.085,
     query_size: int = 3,
 ) -> float:
     """Bono solo positivo que premia fuerza y distribución entre campos.
@@ -185,7 +185,7 @@ def calcular_bono_convergencia(
 def rerank_con_evidencia_multicampo(
     resultados: Sequence[tuple],
     evidencia_por_concepto: Mapping[str, Mapping[str, float]],
-    max_bonus: float = 0.06,
+    max_bonus: float = 0.085,
     query_size: int = 3,
 ) -> tuple[list[tuple], dict[str, float], dict[str, float]]:
     """Suma el bono tras los filtros, conserva score-base y ordena por score final.

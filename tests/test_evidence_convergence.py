@@ -85,6 +85,30 @@ def test_margen_reportado_se_resuelve_con_evidencia_distribuida_sin_id_rules():
     assert bonuses["objetivo"] - bonuses["incidental"] > 0.0391
 
 
+def test_margen_observado_en_db_local_se_resuelve_con_cap_calibrado():
+    """El margen real del smoke (0.8233 vs 0.7562) exige más que el cap 0.06.
+
+    La evidencia se midió en la DB local del usuario: objetivo (1, 1, 0.5, 1),
+    mención incidental solo en contenido (0, 0, 0, 1). Se valida la fórmula sin
+    introducir reglas para los IDs concretos.
+    """
+    objetivo = {"concepto": 1.0, "sinonimos": 1.0, "sustantivos_clave": 0.5, "contenido": 1.0}
+    incidental = {"concepto": 0.0, "sinonimos": 0.0, "sustantivos_clave": 0.0, "contenido": 1.0}
+    ranked, _, bonuses = rerank_con_evidencia_multicampo(
+        [
+            ("incidental", "body", 0.5, "activo", 0.8233, ""),
+            ("objetivo", "structured", 0.5, "activo", 0.7562, ""),
+        ],
+        {"objetivo": objetivo, "incidental": incidental},
+        query_size=4,
+    )
+
+    assert ranked[0][0] == "objetivo"
+    assert round(ranked[0][4], 4) == 0.8341
+    assert round(ranked[1][4], 4) == 0.8304
+    assert bonuses["objetivo"] - bonuses["incidental"] > 0.0671
+
+
 def test_un_campo_curado_aporta_mas_que_el_body_incidental():
     # Los pesos son los ya usados por BM25: concepto=5, synonyms=2,
     # sustantivos=4, contenido=1. Ningún canal aislado se descarta.
@@ -110,9 +134,9 @@ def test_escala_por_ambiguedad_de_consulta_corta():
     bonus_two = calcular_bono_convergencia(evidence, query_size=2)
     bonus_three = calcular_bono_convergencia(evidence, query_size=3)
     assert 0 < bonus_one < bonus_two < bonus_three
-    assert bonus_one == 0.006
-    assert bonus_two == 0.03
-    assert bonus_three == 0.06
+    assert bonus_one == 0.0085
+    assert bonus_two == 0.0425
+    assert bonus_three == 0.085
 
 
 def test_repetir_un_token_en_contenido_no_multiplica_la_evidencia():

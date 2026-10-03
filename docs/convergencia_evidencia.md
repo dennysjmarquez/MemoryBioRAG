@@ -33,8 +33,12 @@ La cobertura se pondera con los pesos de campos ya usados por BM25:
 | `contenido` | 1 |
 
 El bono combina cobertura ponderada y distribución entre campos. Es positivo,
-acotado por defecto a 0.06 (máximo configurable 0.12), y se reduce en consultas de
-uno o dos tokens. Los campos vacíos no restan puntos. El peso pequeño de `contenido`
+acotado por defecto a 0.085 (máximo configurable 0.12), y se reduce en consultas de
+uno o dos tokens. El cap se calibró con el smoke de la DB local: la brecha base era
+0.0671; cap 0.06 daba solo 0.05 de diferencial y no invertía el orden, mientras 0.085
+da 0.0708 y deja al objetivo primero por 0.0037. Una corrida global de 921 casos con
+0.09 perdió un caso typo (R@5 99.89%); con 0.085 recuperó R@5 100%, R@1 91.89%, MRR
+0.950 y 0 falsos positivos. Los campos vacíos no restan puntos. El peso pequeño de `contenido`
 permite una coincidencia real en ese campo, pero una mención corporal aislada no
 recibe el mismo apoyo que evidencia repartida en campos más específicos.
 
@@ -69,7 +73,7 @@ paralelos de score; no es una copia literal de Spec 007.
   Tiene precedencia sobre el alias `BIORAG_CONVERGENCIA_EVIDENCIA`.
 - `BIORAG_CONVERGENCIA_BONUS_MAX`: máximo del bono, limitado en esta implementación
 a `[0, 0.12]`; el alias anterior es `BIORAG_CONVERGENCIA_EVIDENCIA_MAX_BONUS`.
-- El valor por defecto del máximo es 0.06. El flag permite A/B sin editar el código.
+- El valor por defecto del máximo es 0.085. El flag permite A/B sin editar el código.
 
 ## Verificación local segura
 
