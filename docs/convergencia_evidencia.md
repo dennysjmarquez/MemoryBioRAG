@@ -69,8 +69,11 @@ paralelos de score; no es una copia literal de Spec 007.
 
 ## Flags
 
-- `BIORAG_CONVERGENCIA_ACTIVA=0|1`: flag público compatible con las Specs 006/007.
-  Tiene precedencia sobre el alias `BIORAG_CONVERGENCIA_EVIDENCIA`.
+- `BIORAG_CONVERGENCIA_ACTIVA=0|1`: flag público del reranker aditivo; tiene
+  precedencia sobre el alias `BIORAG_CONVERGENCIA_EVIDENCIA`.
+- El experimento multiplicativo legado de Spec 006 queda aislado bajo
+  `BIORAG_CONVERGENCIA_006_ACTIVA=1` (default OFF), para que la bandera pública no
+  active dos algoritmos incompatibles a la vez.
 - `BIORAG_CONVERGENCIA_BONUS_MAX`: máximo del bono, limitado en esta implementación
 a `[0, 0.12]`; el alias anterior es `BIORAG_CONVERGENCIA_EVIDENCIA_MAX_BONUS`.
 - El valor por defecto del máximo es 0.085. El flag permite A/B sin editar el código.

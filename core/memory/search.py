@@ -1489,6 +1489,7 @@ def buscar_por_frase(self, frase, profundidad="activos", pagina=1, limite=None, 
     # query mass: the best per-field coverage is used (no dilution by union).
     from core.fallback_simbolico import _tokenizar_normalizado, score_simbolico_concepto, score_simbolico_sinonimos
     tokens_query = _tokenizar_normalizado(query)
+    convergencia_query_token_set = set(tokens_query)
     convergencia_query_sets = []
     calcular_evidencia_multicampo = None
     rerank_con_evidencia_multicampo = None
@@ -1512,9 +1513,11 @@ def buscar_por_frase(self, frase, profundidad="activos", pagina=1, limite=None, 
 
     def _campo_activo(texto: str) -> int:
         """1 si algún token de la query aparece en el campo normalizado, 0 si no."""
-        if not texto or not q_set:
+        if not texto or not convergencia_query_token_set:
             return 0
-        return 1 if q_set & set(_tokenizar_normalizado(texto)) else 0
+        return int(bool(
+            convergencia_query_token_set & set(_tokenizar_normalizado(texto))
+        ))
 
     # ── Precompute PPMI Query Vector ONCE before candidate loop ──
     _ppmi_vq = None
@@ -1780,7 +1783,7 @@ def buscar_por_frase(self, frase, profundidad="activos", pagina=1, limite=None, 
             canales = (
                 _campo_activo(concepto)
                 + _campo_activo(sinonimos_str)
-                + _campo_activo(sustantivos_map.get(concepto, ""))
+                + _campo_activo(concepto_sustantivos_map.get(concepto, ""))
                 + _campo_activo(contenido)
             )
             convergencia = canales / 4.0

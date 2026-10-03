@@ -30,7 +30,7 @@
 sustantivos_map: dict[str, str]   # concepto -> sustantivos_clave (str cruda, puede ser "")
 
 # Constantes nuevas en constants.py
-CONVERGENCIA_ACTIVA: bool   # os.getenv("BIORAG_CONVERGENCIA_ACTIVA", "1") == "1"
+CONVERGENCIA_ACTIVA: bool   # os.getenv("BIORAG_CONVERGENCIA_006_ACTIVA", "0") == "1"
 CONVERGENCIA_ALPHA: float   # float en (0.0, 1.0) exclusive, default 0.5
 ```
 
@@ -251,7 +251,7 @@ print('R@1 y MRR: OK')
 ## Contrato de interfaces externas
 
 Sin cambios en ninguna interfaz pública. Variables de entorno nuevas:
-- `BIORAG_CONVERGENCIA_ACTIVA` → `"1"` (default) / `"0"` (desactivado)
+- `BIORAG_CONVERGENCIA_006_ACTIVA` → `"0"` (default) / `"1"` (experimental)
 - `BIORAG_CONVERGENCIA_ALPHA` → float en `(0.0, 1.0)`, default `"0.5"`
 
 Recomendado documentar en `.env.example` junto con las demás variables.

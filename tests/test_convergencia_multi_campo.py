@@ -51,17 +51,17 @@ def test_alpha_clamping(caplog):
     assert constants.CONVERGENCIA_ALPHA == 0.5
 
     # 6. Flag CONVERGENCIA_ACTIVA
-    os.environ["BIORAG_CONVERGENCIA_ACTIVA"] = "0"
+    os.environ["BIORAG_CONVERGENCIA_006_ACTIVA"] = "0"
     importlib.reload(constants)
     assert constants.CONVERGENCIA_ACTIVA is False
 
-    os.environ["BIORAG_CONVERGENCIA_ACTIVA"] = "1"
+    os.environ["BIORAG_CONVERGENCIA_006_ACTIVA"] = "1"
     importlib.reload(constants)
     assert constants.CONVERGENCIA_ACTIVA is True
 
     # Restaurar variables
     os.environ.pop("BIORAG_CONVERGENCIA_ALPHA", None)
-    os.environ.pop("BIORAG_CONVERGENCIA_ACTIVA", None)
+    os.environ.pop("BIORAG_CONVERGENCIA_006_ACTIVA", None)
     importlib.reload(constants)
 
 
@@ -137,7 +137,9 @@ def test_binario_frecuencia():
 
 
 def test_flag_desactivado(tmp_path, monkeypatch):
-    """Test 3: Con BIORAG_CONVERGENCIA_ACTIVA=0 no se aplica el multiplicador (RF-7, RF-7b)."""
+    """El flag experimental 006 controla solo el multiplicador legado."""
+    # Apagar la señal aditiva para medir exclusivamente el experimento Spec 006.
+    monkeypatch.setenv("BIORAG_CONVERGENCIA_ACTIVA", "0")
     db_file = str(tmp_path / "test_flag.db")
     c = SQLiteMemoryBioRAG(db_file)
     # Crear varios nodos para que FTS devuelva candidatos literales y no active fallback
@@ -159,14 +161,14 @@ def test_flag_desactivado(tmp_path, monkeypatch):
     c.consolidar_concepto("registro_secundario")
 
     # Búsqueda con flag activo (default ON)
-    monkeypatch.setenv("BIORAG_CONVERGENCIA_ACTIVA", "1")
+    monkeypatch.setenv("BIORAG_CONVERGENCIA_006_ACTIVA", "1")
     importlib.reload(constants)
     res_on, _ = c.buscar_por_frase("computacion cuantica", limite=5)
     scores_on = {r[0]: r[4] for r in res_on}
     score_on = scores_on["registro_secundario"]
 
     # Búsqueda con flag desactivado (OFF)
-    monkeypatch.setenv("BIORAG_CONVERGENCIA_ACTIVA", "0")
+    monkeypatch.setenv("BIORAG_CONVERGENCIA_006_ACTIVA", "0")
     importlib.reload(constants)
     res_off, _ = c.buscar_por_frase("computacion cuantica", limite=5)
     scores_off = {r[0]: r[4] for r in res_off}
@@ -174,7 +176,8 @@ def test_flag_desactivado(tmp_path, monkeypatch):
 
     c.cerrar_sistema()
 
-    # Restaurar
+    # Restaurar ambos modos al default: aditivo activo, multiplicador 006 inactivo.
+    monkeypatch.delenv("BIORAG_CONVERGENCIA_006_ACTIVA", raising=False)
     monkeypatch.delenv("BIORAG_CONVERGENCIA_ACTIVA", raising=False)
     importlib.reload(constants)
 

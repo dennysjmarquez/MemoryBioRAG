@@ -8,7 +8,7 @@ import os
 import re
 from core.stemmer_es import _quitar_acentos
 
-_log_constants = _logging.getLogger(__name__)
+_log_constants = logging.getLogger(__name__)
 
 # Auto-cargar .env.local al importar (antes de leer cualquier variable de entorno)
 from config import _load_env_local
@@ -203,8 +203,9 @@ ADN_PESO = float(os.environ.get('BIORAG_ADN_PESO', '0.15'))
 ADN_MAX_EXPANSION = int(os.environ.get('BIORAG_ADN_MAX_EXPANSION', '24'))
 ADN_UMBRAL_ASOCIACION = float(os.environ.get('BIORAG_ADN_UMBRAL_ASOCIACION', '0.35'))
 
-# Convergencia Multi-Campo (Spec-006)
-CONVERGENCIA_ACTIVA = os.environ.get('BIORAG_CONVERGENCIA_ACTIVA', '0').lower() in ('1', 'true', 'yes')
+# Experimento multiplicativo legado de Spec 006. Se aísla de la bandera pública
+# BIORAG_CONVERGENCIA_ACTIVA, que controla el reranker aditivo multi-campo actual.
+CONVERGENCIA_ACTIVA = os.environ.get('BIORAG_CONVERGENCIA_006_ACTIVA', '0').lower() in ('1', 'true', 'yes')
 """Activar/desactivar multiplicador de convergencia multi-campo (Spec 006). Default OFF (experimento)."""
 
 _alpha_raw = float(os.environ.get("BIORAG_CONVERGENCIA_ALPHA", "0.5"))

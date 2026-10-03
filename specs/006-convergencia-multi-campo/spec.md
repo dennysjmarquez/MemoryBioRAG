@@ -12,6 +12,11 @@ El objetivo es corregir esto: la relevancia real de un nodo se mide por en cuán
 estructurales independientes resuena la búsqueda, no por cuántas veces se repite en uno
 solo de ellos.
 
+**Nota de integración:** el multiplicador de esta Spec es un experimento legado, aislado
+y desactivado por defecto con `BIORAG_CONVERGENCIA_006_ACTIVA`. La bandera pública
+`BIORAG_CONVERGENCIA_ACTIVA` controla el reranker aditivo de evidencia y no activa este
+multiplicador.
+
 ---
 
 ## Usuarios / actores
@@ -69,10 +74,10 @@ solo de ellos.
   (con alpha=0.5: `0.5 + 0.5×0.25 = 0.625`).
 
 - **RF-7:** EL SISTEMA debe poder desactivar este mecanismo mediante la variable de
-  entorno `BIORAG_CONVERGENCIA_ACTIVA=0` sin necesidad de modificar código, restaurando
+  entorno `BIORAG_CONVERGENCIA_006_ACTIVA=0` sin necesidad de modificar código, restaurando
   el comportamiento anterior.
 
-- **RF-7b:** CUANDO `BIORAG_CONVERGENCIA_ACTIVA=0`, EL SISTEMA debe aplicar multiplicador
+- **RF-7b:** CUANDO `BIORAG_CONVERGENCIA_006_ACTIVA=0`, EL SISTEMA debe aplicar multiplicador
   = 1.0 a todos los candidatos (equivalente a no tener convergencia).
 
 - **RF-8:** EL SISTEMA debe poder ajustar el peso del alpha mediante la variable de
@@ -194,7 +199,7 @@ solo de ellos.
    dado el mismo score híbrido base.
 4. Test unitario: 500 repeticiones de un token en `contenido` producen el mismo
    multiplicador que 1 repetición (canal binario, RF-2).
-5. Test: `BIORAG_CONVERGENCIA_ACTIVA=0` restaura el comportamiento anterior exacto.
+5. Test: `BIORAG_CONVERGENCIA_006_ACTIVA=0` restaura el comportamiento anterior exacto.
 6. Test: `match_exacto=True` no aplica el multiplicador (RF-9).
 7. **Test de humo con la DB de producción real (sin modificarla) — Top-5 completo:**
    Query: `"cual es la ultima version de biorag"` (y paráfrasis: `"ultima version biorag"`,

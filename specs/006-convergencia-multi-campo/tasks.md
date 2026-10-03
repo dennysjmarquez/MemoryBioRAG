@@ -32,7 +32,7 @@
   leídas desde variables de entorno. Alpha restringido a **(0.0, 1.0) exclusive** —
   usar `logging.getLogger(__name__)` para el warning (no asumir `logger` preexistente).
 - **Hecho cuando**:
-  - [x] `BIORAG_CONVERGENCIA_ACTIVA=0` → `CONVERGENCIA_ACTIVA = False`
+  - [x] `BIORAG_CONVERGENCIA_006_ACTIVA=0` → `CONVERGENCIA_ACTIVA = False`
   - [x] `BIORAG_CONVERGENCIA_ALPHA=2.5` → `CONVERGENCIA_ALPHA = 0.99` + warning en log
   - [x] `BIORAG_CONVERGENCIA_ALPHA=0.0` → `CONVERGENCIA_ALPHA = 0.01` + warning en log
   - [x] `python3 -c "from core.memory import constants; print(constants.CONVERGENCIA_ALPHA)"` imprime `0.5` (sin warnings)
@@ -59,7 +59,7 @@
   - [x] `_campo_activo` usa `_tokenizar_normalizado` (conjunto, no substring).
   - [x] Nodo con tokens en 4/4 campos → multiplicador = 1.0.
   - [x] Nodo con tokens solo en `contenido` → multiplicador = 0.625 (alpha=0.5).
-  - [x] `BIORAG_CONVERGENCIA_ACTIVA=0` → score idéntico al baseline.
+  - [x] `BIORAG_CONVERGENCIA_006_ACTIVA=0` → score idéntico al baseline.
   - [x] Origen `sdm` / `semantica` / `dimensional_fallback` → multiplicador = 1.0.
   - [x] `match_exacto=True` → multiplicador = 1.0.
   - [x] `pytest tests/test_convergencia_multi_campo.py -v` → 7 tests en verde.

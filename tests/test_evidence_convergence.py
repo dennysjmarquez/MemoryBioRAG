@@ -18,13 +18,15 @@ def test_flags_publicos_006_007_controlan_esta_implementacion():
 
     codigo = (
         "from core.memory.constants import CONVERGENCIA_EVIDENCIA_ACTIVA, "
-        "CONVERGENCIA_EVIDENCIA_MAX_BONUS; "
-        "print(CONVERGENCIA_EVIDENCIA_ACTIVA, CONVERGENCIA_EVIDENCIA_MAX_BONUS)"
+        "CONVERGENCIA_EVIDENCIA_MAX_BONUS, CONVERGENCIA_ACTIVA; "
+        "print(CONVERGENCIA_EVIDENCIA_ACTIVA, "
+        "CONVERGENCIA_EVIDENCIA_MAX_BONUS, CONVERGENCIA_ACTIVA)"
     )
     for public_flag, legacy_flag, expected_active in (("0", "1", "False"), ("1", "0", "True")):
         env = os.environ.copy()
         env["BIORAG_CONVERGENCIA_ACTIVA"] = public_flag
         env["BIORAG_CONVERGENCIA_EVIDENCIA"] = legacy_flag
+        env["BIORAG_CONVERGENCIA_006_ACTIVA"] = "0"
         env["BIORAG_CONVERGENCIA_BONUS_MAX"] = "0.045"
         env["BIORAG_CONVERGENCIA_EVIDENCIA_MAX_BONUS"] = "0.08"
         salida = subprocess.check_output(
@@ -33,7 +35,7 @@ def test_flags_publicos_006_007_controlan_esta_implementacion():
             env=env,
             text=True,
         )
-        assert salida.strip() == f"{expected_active} 0.045"
+        assert salida.strip() == f"{expected_active} 0.045 False"
 
 
 def test_margen_reportado_se_resuelve_con_evidencia_distribuida_sin_id_rules():
