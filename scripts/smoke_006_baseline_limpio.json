@@ -1,0 +1,125 @@
+{
+  "metadata": {
+    "db_path": "/mnt/recursos_compartidos_y_otros/MemoryBioRAG/MemoryBioRAG_Data/memory_biorag.db",
+    "db_sha256": "134481c466fe7c85ef8dfea6be42fbe7ad6c15bf99287d0a56ca2b0497ffce1a",
+    "git_commit": "87a46ad56688948436126c6687cde9be11f475a5",
+    "flags": {
+      "BIORAG_CONVERGENCIA_ACTIVA": "0",
+      "CONVERGENCIA_ACTIVA_CONST": false,
+      "BIORAG_CONVERGENCIA_ALPHA": "0.5",
+      "CONVERGENCIA_ALPHA_CONST": 0.5,
+      "BIORAG_DMN_SINTESIS_ACTIVA": "0",
+      "BIORAG_NO_LOG": "1"
+    }
+  },
+  "queries": [
+    {
+      "query": "cual es la ultima version de biorag",
+      "total_encontrados": 540,
+      "top_5": [
+        {
+          "posicion": 1,
+          "concepto": "version_actual_biorag",
+          "score": 0.8292,
+          "origen": "literal"
+        },
+        {
+          "posicion": 2,
+          "concepto": "biorag_v14_0_estado",
+          "score": 0.631,
+          "origen": "literal"
+        },
+        {
+          "posicion": 3,
+          "concepto": "version_actual_biorag_v32_2_20260930",
+          "score": 0.3172,
+          "origen": "literal"
+        },
+        {
+          "posicion": 4,
+          "concepto": "version_actual_biorag_v26_3_20260811",
+          "score": 0.2807,
+          "origen": "literal"
+        },
+        {
+          "posicion": 5,
+          "concepto": "deploy_v26_eliminado_tablas_absorbidas_por_sistema",
+          "score": 0.2693,
+          "origen": "literal"
+        }
+      ]
+    },
+    {
+      "query": "version actual biorag",
+      "total_encontrados": 223,
+      "top_5": [
+        {
+          "posicion": 1,
+          "concepto": "reindex_selectivo_dirty",
+          "score": 0.95,
+          "origen": "concept_hub"
+        },
+        {
+          "posicion": 2,
+          "concepto": "version_actual_biorag",
+          "score": 0.948,
+          "origen": "literal"
+        },
+        {
+          "posicion": 3,
+          "concepto": "version_actual_biorag_v26_3_20260811",
+          "score": 0.7965,
+          "origen": "literal"
+        },
+        {
+          "posicion": 4,
+          "concepto": "version_actual_biorag_v26_4_20260811",
+          "score": 0.7193,
+          "origen": "literal"
+        },
+        {
+          "posicion": 5,
+          "concepto": "decision_diseno_actualizar_nodo_canonico_no_reordenar_por_recencia",
+          "score": 0.6931,
+          "origen": "literal"
+        }
+      ]
+    },
+    {
+      "query": "ultima version de biorag",
+      "total_encontrados": 540,
+      "top_5": [
+        {
+          "posicion": 1,
+          "concepto": "version_actual_biorag",
+          "score": 0.8292,
+          "origen": "literal"
+        },
+        {
+          "posicion": 2,
+          "concepto": "biorag_v14_0_estado",
+          "score": 0.631,
+          "origen": "literal"
+        },
+        {
+          "posicion": 3,
+          "concepto": "version_actual_biorag_v26_3_20260811",
+          "score": 0.5832,
+          "origen": "literal"
+        },
+        {
+          "posicion": 4,
+          "concepto": "deploy_v26_eliminado_tablas_absorbidas_por_sistema",
+          "score": 0.2693,
+          "origen": "literal"
+        },
+        {
+          "posicion": 5,
+          "concepto": "comparativa_biorag_vs_tencentdb_agent_memory_20260809",
+          "score": 0.2663,
+          "origen": "literal"
+        }
+      ]
+    }
+  ]
+}
