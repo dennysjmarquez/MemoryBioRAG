@@ -51,7 +51,7 @@ def test_margen_reportado_se_resuelve_con_evidencia_distribuida_sin_id_rules():
         concepto="version_actual_biorag",
         sinonimos="biorag version actual ultima release",
         sustantivos_clave="version repositorio protocolo conectoma",
-        contenido="BioRAG version actual v32.2",
+        contenido="BioRAG version actual v32.3",
     )
     incidental = evidencia_multicampo(
         query_variants,

@@ -1,35 +1,51 @@
 # BioRAG — Memoria Cognitiva Biomimética y Simbólica para Agentes de IA
 
-> **Versión Oficial:** v32.2
-> **Paradigma:** Python puro + SQLite FTS5. **Cero embeddings densos, cero GPU, cero llamadas a APIs externas** en el path de búsqueda.
-> **Motor:** Arquitectura Modularizada (18 submódulos `core/memory/` + 15 submódulos `core/mcp_server/` + Fachada delgada) + SQLite FTS5 WAL + Factorización PPMI-SVD (100 dims) + Espacio Semántico de 13 Ejes + Grafo Sináptico Hebbiano + Sparse Distributed Memory (SDM 2048-bit) + Calibración Conforme + Activación ACT-R + Concept Hubs.
-> **Idiomas:** Español + Inglés (stemming bilingüe ES/EN + expansión simbólica vía WordNet + Concept Hubs 5 Ángulos + Domain Dict automático).
+> **Versión Oficial:** v32.3
+> **Paradigma:** Motor Python + SQLite FTS5. **Sin embeddings densos, GPU ni llamadas a APIs externas** en el path de búsqueda.
+> **Motor:** Arquitectura modularizada (18 submódulos `core/memory/` + 15 submódulos `core/mcp_server/` + fachada delgada) + SQLite FTS5 WAL + PPMI-SVD (100 dimensiones) + espacio semántico de 13 ejes + grafo sináptico Hebbiano + SDM (2048 bits) + calibración conforme + activación ACT-R + Concept Hubs.
+> **Idiomas:** Español e inglés (stemming bilingüe, expansión simbólica con WordNet, Concept Hubs de 5 ángulos y Domain Dict).
 
-**BioRAG** es una arquitectura de memoria cognitiva simbólica, biomimética y persistente para agentes de inteligencia artificial. Resuelve el problema fundamental de la amnesia entre sesiones de los LLMs mediante principios de la neurobiología y el álgebra lineal, logrando un rendimiento superior a los vector stores tradicionales con latencia de milisegundos y cero dependencias de hardware pesado.
-
----
-
-## 📊 Métricas Oficiales de Benchmark (v32.2)
-
-Evaluación estricta y reproducible sobre el conjunto congelado oficial (**921 casos**: 875 positivos + 40 controles negativos + 6 ambiguos):
-
-| Métrica | Resultado Oficial | Referencia |
-|---|---|---|
-| **Recall@5 Global** | **100.00%** | Perfección absoluta histórica (0 fallos en 875 consultas evaluadas) |
-| **Recall@1 (Top-1)** | **91.77%** | Precisión de primera respuesta absoluta (803 / 875) |
-| **MRR (Mean Reciprocal Rank)** | **0.950** | Rango recíproco medio consolidado (0.9497) |
-| **Tasa de Falsos Positivos (FP)** | **0.00% (0 / 40)** | Invariante matemática: cero alucinación en consultas fuera de dominio |
-| **Suite de Tests Unitarios** | **283 / 283 PASSED (100%)** | Cobertura total de componentes, contratos y CLI en verde |
-| **Abismo Léxico (EXP-Q Retrieval)** | **3 / 3 (100%)** | Rescate por grafo sináptico ante cero solapamiento léxico |
-| **Categoría Sinónimos (Recall@5)** | **100.00% (55 / 55)** | Cero fallos tras sintonía contextual y Concept Hubs (vs. 8 fallos baseline) |
-| **Categoría Por Tema (Recall@5)** | **100.00% (65 / 65)** | Cero fallos mediante Sustantivos Clave ortogonales (vs. 5 fallos baseline) |
-| **Categoría Cruce Idioma (Recall@5)** | **100.00% (8 / 8)** | Cero fallos mediante Concept Hubs de 5 Ángulos |
-| **Verificación Dual Sustituto** | **921 / 921 (100%)** | Identidad exacta caso a caso (0 diffs de score a 4 decimales) |
-| **Latencia Total de Evaluación** | **772.7s** | Evaluación rigurosa de 921 casos con aislamiento por copia |
+**BioRAG** es una memoria simbólica persistente para agentes de IA que aborda la pérdida de contexto entre sesiones mediante recuperación híbrida. “Biomimética” describe una inspiración de diseño; no significa que el motor simule literalmente un cerebro humano. Los resultados de rendimiento se limitan a los benchmarks y snapshots indicados.
 
 ---
 
-## 🚀 Novedades de la Versión v32.2
+## 📊 Métricas de la suite oficial (v32.3 · 2026-10-03)
+
+Evaluación sobre el snapshot congelado oficial (**921 casos**: 875 consultas de recuperación, 40 controles negativos y 6 casos ambiguos). La suite reportó el cap efectivo `0.085`, reranker aditivo activo y experimento multiplicativo Spec 006 apagado.
+
+| Métrica | Resultado observado | Contexto |
+|---|---:|---|
+| **Recall@5 global** | **100.00% (875/875)** | Igual a la baseline oficial en este snapshot |
+| **Recall@1 (Top-1)** | **91.77% (803/875)** | +0.11 puntos porcentuales respecto a la baseline reportada (91.66%) |
+| **MRR** | **0.950** | Valor impreso redondeado a 3 decimales; baseline anterior: 0.9491 |
+| **Falsos positivos** | **0/40 (0.00%)** | Resultado observado solo en los 40 controles de este benchmark |
+| **Tests unitarios** | **304/304 aprobados** | Suite ejecutada con `run_qa_suite.sh` |
+| **Abismo léxico (EXP-Q)** | **3/3 (100%)** | Rescatados por expansión del grafo |
+| **Sinónimos · Recall@5** | **55/55 (100%)** | En el snapshot evaluado |
+| **Por tema · Recall@5** | **65/65 (100%)** | En el snapshot evaluado |
+| **Cruce de idioma · Recall@5** | **8/8 (100%)** | En el snapshot evaluado |
+| **Smoke multicampo en DB local** | **Objetivo #2 → #1** | Fuente solo lectura; SHA-256 `0e5b0638…b845c96`; top-k y pool sin cambios |
+| **Tiempo de la evaluación global** | **753.03 s** | Solo la fase de QA de 921 casos, no el tiempo total de las cinco fases |
+
+La suite reportó 6 casos `ambiguo` por separado; 2 no recuperaron una de las etiquetas contradictorias (cobertura 66.7%). No forman parte del Recall global ni de los 40 negativos.
+
+Frente a la baseline medida, R@5 y FP se mantuvieron; R@1 subió 0.11 puntos y MRR se reportó como 0.950 (redondeado). Esto es evidencia de no-regresión y una mejora pequeña **en este conjunto**, no una garantía de mejora para cualquier consulta.
+
+---
+
+## 🚀 Novedades de la Versión v32.3
+
+### 🧭 Re-ranking aditivo por convergencia de evidencia multicampo
+
+- Evalúa la pertinencia de la consulta en `concepto`, `sinonimos`, `sustantivos_clave` y `contenido`, combinando cobertura ponderada, distribución entre campos, stemming y matching difuso. Una repetición en el mismo campo no infla la señal; un campo vacío no resta.
+- El bono es aditivo, con máximo por defecto **0.085** (configurable hasta `0.12`) y atenuación para consultas de uno o dos tokens. No usa reglas por ID ni categoría.
+- Reordena candidatos existentes dentro del top-k público; no incorpora candidatos ni cambia la membresía del pool que alimenta el grafo. Se conservan score base y bono por separado para los consumidores MCP.
+- En el smoke real informado por el usuario, `version_actual_biorag` pasó de puesto 2 a 1: **0.8341** frente a **0.8304** de la mención incidental `reindex_selectivo_dirty`. La DB fuente permaneció intacta.
+- En la suite global reportada, Recall@5 se mantuvo en 100%; Recall@1 pasó de 91.66% a 91.77%, MRR se imprimió como 0.950 y hubo 0 FP.
+
+**Alcance y analogía biológica:** la convergencia de campos es una analogía de integración de señales, no un modelo neuronal ni una afirmación de que BioRAG mejore como un cerebro real. La mejora es más esperable cuando una respuesta tiene evidencia pertinente en campos estructurados y su rival solo una mención incidental. Como es un re-ranker, no rescata una respuesta que nunca entró al conjunto de candidatos ni garantiza ganar en todos los dominios.
+
+### Novedades anteriores (v32.2)
 
 ### 🛡️ Protocolo Pre-flight Search Obligatorio, Vinculación Atómica y Actualización Libre (Spec 004)
 - **Protocolo Pre-flight Search Obligatorio (`busqueda_previa=True`):**
@@ -125,9 +141,16 @@ y en el servidor MCP desde v31.x, ahora está completamente expuesta en la **lí
 # Ejecutar suite de pruebas unitarias
 python3 -m pytest tests/ -v
 
-# Ejecutar el benchmark oficial de 921 casos (usando snapshot congelado)
-BIORAG_PATH=snapshots/qa_escape_qcr_20260811.db python3 scripts/evaluar_qa.py
+# Smoke A/B multicampo (la DB se abre en solo lectura y se prueba sobre copias)
+BIORAG_CONVERGENCIA_006_ACTIVA=0 BIORAG_CONVERGENCIA_ACTIVA=1 BIORAG_CONVERGENCIA_BONUS_MAX=0.085 python3 scripts/smoke_convergencia_multicampo.py --db "$PWD/MemoryBioRAG_Data/memory_biorag.db" --strict
+
+# Gate oficial de 921 casos; usa el snapshot congelado, no la DB canónica
+BIORAG_PATH=snapshots/qa_escape_qcr_20260811.db BIORAG_CONVERGENCIA_006_ACTIVA=0 BIORAG_CONVERGENCIA_ACTIVA=1 BIORAG_CONVERGENCIA_BONUS_MAX=0.085 python3 scripts/evaluar_qa.py
 ```
+
+El smoke solo valida el caso histórico si la DB indicada contiene ese estado; la DB
+con SHA `0e5b0638…b845c96` no se distribuye en el repositorio. El benchmark global
+mide no-regresión del snapshot y no reemplaza ese smoke específico.
 
 ---
 
@@ -2015,7 +2038,7 @@ if qw_cortas:
 
 ```
 MemoryBioRAG/
-  ├── mcp_server.py              # MCP Server — 32 herramientas + ráfaga + contingencia
+  ├── mcp_server.py              # MCP Server — 42 herramientas + ráfaga + contingencia
   ├── biorag.py                  # CLI bridge (buscar, guardar, asociar, sueno, corteza, comunicar)
   ├── install.py                 # Instalador cross-platform para 7 plataformas
   ├── sleep_cycle.py             # Script autónomo de consolidación nocturna
@@ -2024,7 +2047,7 @@ MemoryBioRAG/
   ├── deploy_v26.py              # Script de despliegue y verificación v26.x
   ├── requirements.txt           # numpy, nltk, mcp, fastapi, uvicorn, pytest
   ├── vocabulario_inicial.json   # 239 términos del dominio para expansión semántica
-  ├── VERSION                    # Versión actual: v31.1
+  ├── VERSION                    # Versión actual: v32.3
   ├── CHANGELOG.md               # Historial completo de cambios técnicos
   ├── EXPERIMENTS.md             # Bitácora de hipótesis probadas y descartadas
   ├── test_memory.py             # Suite principal: 112 tests biológicos automatizados
@@ -2376,6 +2399,14 @@ En v13.4 el catálogo tenía **7 ejes × 73 sub-valores**: emoción (qué se sie
 ---
 
 ## Historial de Versiones
+
+### v32.3 — Re-ranking aditivo por convergencia de evidencia multicampo (Octubre 2026)
+
+**Objetivo:** mejorar el orden relativo de candidatos existentes cuando la respuesta pertinente coincide en varios campos estructurados y un distractor solo contiene una mención incidental, sin reglas por ID/categoría.
+
+**Implementación:** señal aditiva acotada (default `0.085`) sobre `concepto`, `sinonimos`, `sustantivos_clave` y `contenido`; cobertura gradual con stemming/fuzzy; campos vacíos neutrales; score base conservado para calibración y MCP. No cambia esquema ni membresía del top-k/pool.
+
+**Validación reportada:** smoke en DB local de usuario, fuente intacta, objetivo #2→#1 (`0.8341` vs. `0.8304`), y suite oficial 304/304 tests, R@5 100%, R@1 91.77%, MRR 0.950 (redondeado), FP 0; gate OK. Son resultados del snapshot evaluado, no una garantía para consultas fuera del benchmark ni una simulación de cerebro biológico.
 
 ### v32.2 — Protocolo Pre-flight Search Obligatorio, Vinculación Atómica y Actualización Libre (Septiembre 2026)
 
