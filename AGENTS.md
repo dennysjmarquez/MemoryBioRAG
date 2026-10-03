@@ -168,15 +168,7 @@ python3 mcp_server.py
 
 # 6. Background Consolidation Daemon:
 python3 graph_maintenance_daemon.py
-
-# 7. Upload the live cortex (commits ONLY MemoryBioRAG_Data/memory_biorag.db):
-./subir_cerebro.sh "chore(memory): update cortex"
-
-# 8. Cortex status check (read-only: modified? push pending? last commit?):
-./estado_cerebro.sh
 ```
-
-> **⚠️ Cortex upload rule:** the live cortex `MemoryBioRAG_Data/memory_biorag.db` is the **only** `.db` file allowed in commits, and it must be committed **exclusively** via `./subir_cerebro.sh` (never with a plain `git add .`). Push to GitHub is manual from GitKraken. **Never** `discard`/`stash`/`checkout --` the cortex file — it destroys shared agent memory. It appears as `modified` constantly (agents write to it live); that is expected, not an error.
 
 ### Official Baseline Target (v31.3 / State B):
 - **Global Recall@5**: ≥ 96.03% (Gate threshold: ≥ 97.0%)
@@ -195,7 +187,7 @@ python3 graph_maintenance_daemon.py
 | **Omitting `parafrasis` in searches** | Single queries lose ~60% recall on complex queries. | Always generate 3–5 diverse paraphrases in MCP search tools. |
 | **Hardcoding domain terms** | Temptation to patch a single test case with a lookup dict. | **STRICTLY FORBIDDEN**. Must be resolved via graph topology, PPMI, or universal heuristics. |
 | **Modifying scoring weights arbitrarily** | `_calcular_score_hibrido` weights are tightly normalized. | Re-normalize weights so total equals `1.0 - jsd_weight`; verify with complete QA eval. |
-| **Committing `.db` files (any except the cortex)** or `.env.local` | Repository hygiene. The live cortex `MemoryBioRAG_Data/memory_biorag.db` is the sole exception and must go through `./subir_cerebro.sh`. | Check `git status` before finishing any task. |
+| **Committing `.db` files (any except the cortex)** or `.env.local` | Repository hygiene. The live cortex `MemoryBioRAG_Data/memory_biorag.db` is the sole exception. | Check `git status` before finishing any task. |
 
 ---
 
