@@ -606,6 +606,17 @@ def _recordar_impl(
         if not resultados:
             cerebro.cerrar_sistema()
             # Señal de contingencia: la agente debe buscar en su contexto
+            # + WARNER DE BRECHA: 0 resultados = la memoria carece de info
+            # sobre lo consultado → impulso de nutrirse (fuente externa y
+            # guardar lo aprendido). Mismo trigger documentado al final del
+            # path principal (score_top < THRESHOLD_RAFTAGA_MCP).
+            if query and str(query).strip():
+                _warnings.append(
+                    f"🍽️ BRECHA DE CONOCIMIENTO (0 resultados): BioRAG no encontró nada sobre '{query}'. "
+                    "No respondas con hueco ni inventes. Impulso de nutrirte: investigá el tema en fuente "
+                    "externa (web, documentación) y GUARDÁ lo aprendido en BioRAG con biorag_aprender "
+                    "ANTES de responder. Cerrá la brecha — el aprendizaje queda tuyo."
+                )
             resultado = json.dumps({
                 "total": 0,
                 "resultados": [],
@@ -914,6 +925,29 @@ def _recordar_impl(
                 "El orden cronológico NO implica que un resultado sea más importante que otro. "
                 "Usá 'relevancia' (default) para recuperación estándar."
             )
+        # ── WARNER DE BRECHA DE CONOCIMIENTO (gap → nutrición externa) ──
+        # Trigger: la consulta devolvió cero resultados, o solo coincidencias
+        # débiles (score_top < THRESHOLD_RAFTAGA_MCP = 0.5, el mismo umbral
+        # que el motor usa para auto-disparar ráfaga). Señala al agente que su
+        # memoria carece de información sobre lo consultado y le da el impulso
+        # de nutrirse: investigar en fuente externa y GUARDAR lo aprendido.
+        # Inspirado en la curiosidad humana: brecha percibida → investigación →
+        # cierre con memoria persistente (Loewenstein 1994 / learning progress).
+        if query and str(query).strip():
+            if not items:
+                _warnings.append(
+                    f"🍽️ BRECHA DE CONOCIMIENTO (0 resultados): BioRAG no encontró nada sobre '{query}'. "
+                    "No respondas con hueco ni inventes. Impulso de nutrirte: investigá el tema en fuente "
+                    "externa (web, documentación) y GUARDÁ lo aprendido en BioRAG con biorag_aprender "
+                    "ANTES de responder. Cerrá la brecha — el aprendizaje queda tuyo."
+                )
+            elif score_top < THRESHOLD_RAFTAGA_MCP:
+                _warnings.append(
+                    f"🍽️ BRECHA DE CONOCIMIENTO (score_top={score_top:.2f} < {THRESHOLD_RAFTAGA_MCP}): "
+                    f"los resultados sobre '{query}' casi no cubren lo consultado. Primero probá PASO 2 "
+                    "(ráfaga con rafaga_palabras); si aún no cubre, investigá en fuente externa y GUARDÁ "
+                    "lo aprendido en BioRAG con biorag_aprender ANTES de responder."
+                )
         # Prepend warnings como texto plano ANTES del JSON
         if _warnings:
             return "\n".join(_warnings) + "\n\n" + resultado
