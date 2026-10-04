@@ -27,18 +27,32 @@ def register(mcp: Any) -> None:
     def biorag_comunicar(
         destino: Annotated[str, Field(
             description=(
-                "destino: Quién recibe. Los agentes son: athena, artemis, hermes, o 'todos' para mandarlo a todos."
-            )
+                "destino: QUIÉN RECIBE. QUÉ HACE: entrega el mensaje a ese agente, o a 'todos' "
+                "para la cartelera compartida. QUÉ NO HACE: NO acepta espacios, tildes, comillas "
+                "ni símbolos de SQL — solo [A-Za-z0-9_.-] hasta 64 caracteres. "
+                "Agentes conocidos: athena, artemis, hermes, o 'todos'.\n"
+                "Ejemplo: 'artemis' o 'todos'"
+            ),
+            pattern=r"^[A-Za-z0-9_\-.]{1,64}$",
         )],
         mensaje: Annotated[str, Field(
             description=(
-                "mensaje: El contenido. Escribí como si el receptor no tuviera contexto de la conversación — incluí lo necesario para que entienda solo."
-            )
+                "mensaje: EL CONTENIDO del texto. QUÉ HACE: guarda el cuerpo del mensaje tal cual. "
+                "QUÉ NO HACE: NO acepta vacíos ni más de 20000 caracteres. Escribí como si el "
+                "receptor no tuviera contexto de la conversación — incluí lo necesario para que "
+                "entienda solo."
+            ),
+            min_length=1,
+            max_length=20000,
         )],
         origen: Annotated[str, Field(
             description=(
-                "origen: Quién envía. SIEMPRE poné tu nombre (ej: 'athena', 'artemis', 'hermes'). Si no lo ponés, el mensaje aparece como 'desconocido'."
-            )
+                "origen: QUIÉN ENVÍA. QUÉ HACE: registra el remitente. QUÉ NO HACE: NO acepta "
+                "espacios ni símbolos — solo [A-Za-z0-9_.-] hasta 64 caracteres. SIEMPRE poné tu "
+                "nombre (ej: 'athena', 'artemis', 'hermes'). Si no lo ponés, el mensaje aparece "
+                "como 'desconocido'."
+            ),
+            pattern=r"^[A-Za-z0-9_\-.]{1,64}$",
         )],
     ) -> str:
         agente = origen.lower()
