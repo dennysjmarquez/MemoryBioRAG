@@ -624,25 +624,40 @@ def register(mcp: Any) -> None:
         )] = None,
         sustantivos_clave: Annotated[Optional[str], Field(
             description=(
-                "OBLIGATORIO — centro de gravedad semántico: 2-4 sustantivos que definen de QUÉ TRATA el nodo (peso BM25 4.0x).\n"
-                "PROPÓSITO: hacen que nodos que NO comparten palabras se encuentren por el núcleo temático — un sustantivo mal puesto = nodo que jamás aparece.\n"
-                "PROTOCOLO DE EXTRACCIÓN — sacalos SIEMPRE de lo que se está guardando, nunca los inventes. Tres preguntas:\n"
-                "  1. ¿Qué se hizo o qué estoy guardando? (la acción/objeto concreto)\n"
-                "  2. ¿De qué se trata? (el núcleo temático — por eso se llaman CLAVES)\n"
-                "  3. ¿Con qué se relaciona? (tema que otro nodo futuro también pueda tocar)\n"
-                "Ejemplos (contenido → sustantivos_clave):\n"
-                "  - perro/Manchita: 'Me gusta pasar por las tardes con mi perro mi perra que se llama manchita...' → 'tarde,perro,perra,manchita'\n"
-                "  - olvido del jefe: 'Se me olvidó que tenía que llamar a mi jefe, mañana...' → 'olvido,jefe,llamada'\n"
-                "  - arepitas: 'A Dennys le gusta hacer arepitas dulces y comerlas en la tarde...' → 'arepitas,comer,tarde,gustos'\n"
-                "  - trabajo sin parar: 'cuando trabajo demasiado sin parar y no puedo hacer pausa' → 'trabajo,pausa'\n"
-                "Relación a futuro: guardaste 'traduccion,script,deepseek' y mañana guardás 'traducción de un documento'\n"
-                "  → comparte 'traduccion' y al buscarlo lo clavás aunque los nodos no compartan más palabras.\n"
-                "Formato: 2-4 términos únicos separados por coma, minúsculas, sin tildes ni espacios.\n"
-                "🔒 INVARIANTE — MANDATORY (incumplir = nodo mal indexado, no se recupera):\n"
-                "✗ NO métricas, efectos ni consecuencias ('recall', 'ranking', 'dilucion', 'top1') — describen lo que PASÓ, no qué ES; van en contenido/syn.\n"
-                "✗ NO palabras que no estén LITERALMENTE en lo que guardás — si no la escribiste ahí, no existe para el índice.\n"
-                "✗ NO nominalizar verbos del flujo (postular → 'postulacion', analizar → 'analisis').\n"
-                "✗ NO abstracciones vacías de segundo orden ('estrategia', 'transicion', 'diferenciacion')."
+                "OBLIGATORIO — SOMA del nodo: 2-4 sustantivos que son su IDENTIDAD irreducible (peso BM25 4.0x).\n"
+                "Si le quitás contenido, syn, bridges y dimensiones y solo quedan estos sustantivos, "
+                "todavía tenés que saber DE QUÉ TRATA el nodo. Si no podés → están mal.\n\n"
+                "PROTOCOLO — 2 TESTS MECÁNICOS OBLIGATORIOS (sin excepción):\n\n"
+                "TEST 1 — IDENTIDAD (whitelist): Para cada candidato, completá esta oración:\n"
+                "  «Este nodo ES un nodo sobre ___.»\n"
+                "  Natural y verdadero → PASA. Forzado o circunstancial → NO PASA, eliminalo.\n"
+                "  Ejemplos:\n"
+                "    «ES un nodo sobre Obsidian» → ✅ pasa\n"
+                "    «ES un nodo sobre terminal» → ❌ forzado, no pasa\n"
+                "    «ES un nodo sobre ocamlfuse» → ✅ pasa\n"
+                "    «ES un nodo sobre pasos» → ❌ absurdo, no pasa\n\n"
+                "TEST 2 — DISCRIMINACIÓN (contra-test): Para cada candidato que pasó el Test 1:\n"
+                "  «¿Más del 30% de los nodos del corpus podrían tener este mismo sustantivo?»\n"
+                "  Sí → INVÁLIDO (no discrimina, va en syn). No → VÁLIDO.\n"
+                "  Palabras que SIEMPRE fallan este test: archivo, sistema, proceso, terminal, "
+                "comando, script, paso, usuario, texto, configuracion, carpeta, pantalla, "
+                "plataforma, cliente, servidor, proyecto, codigo, funcion, error, dato.\n\n"
+                "Formato: 2-4 términos, minúsculas, sin tildes, separados por coma, extraídos del contenido.\n\n"
+                "🔒 PROHIBICIONES ABSOLUTAS:\n"
+                "✗ NO repetir palabras del nombre del concepto (ya tienen peso 5.0x en BM25).\n"
+                "✗ NO nominalizar verbos (postular→'postulacion', analizar→'analisis').\n"
+                "✗ NO abstracciones vacías ('estrategia', 'metodologia', 'proceso', 'filosofia').\n"
+                "✗ NO métricas ni consecuencias ('recall', 'ranking', 'impacto', 'top1').\n"
+                "✗ NO palabras ausentes del contenido (si no está escrito, no va).\n\n"
+                "EJEMPLOS CONTRASTADOS:\n"
+                "  Nodo sobre montar Obsidian con FUSE en Google Drive:\n"
+                "    ✗ MAL: ocamlfuse,lanzador,terminal → terminal no pasa Test 2, falta el tema central\n"
+                "    ✓ BIEN: obsidian,vault,ocamlfuse,fuse → cada uno pasa ambos tests\n"
+                "  Nodo sobre traducir un script de ruso a español con DeepSeek:\n"
+                "    ✗ MAL: idiomas,soporte,proceso → genéricos, nominalizan, no discriminan\n"
+                "    ✓ BIEN: traduccion,script,deepseek → identidad + artefacto + herramienta\n"
+                "  Nodo personal sobre paseo con mascota:\n"
+                "    ✓ BIEN: perro,perra,manchita → identidad irreducible del recuerdo"
             )
         )] = None,
         busqueda_previa: Annotated[Optional[bool], Field(
@@ -716,15 +731,13 @@ def register(mcp: Any) -> None:
         )] = None,
         sustantivos_clave: Annotated[Optional[str], Field(
             description=(
-                "OBLIGATORIO — centro de gravedad semántico: 2-4 sustantivos (peso BM25 4.0x). "
-                "PROTOCOLO DE EXTRACCIÓN: 1) ¿Qué se hizo / qué guardo? (acción/objeto concreto) "
-                "2) ¿De qué se trata? (el núcleo temático — por eso se llaman CLAVES) "
-                "3) ¿Con qué se relaciona? (tema que otro nodo futuro también pueda tocar). "
-                "Ver ejemplo completo en `aprender`. "
-                "Formato: minúsculas, sin tildes ni espacios. "
-                "🔒 INVARIANTE — MANDATORY: No repetir palabras del concepto, no nominalizar verbos ('postulacion', 'analisis'), "
-                "no etiquetas de canal ('workana', 'cliente'), no abstracciones ('estrategia', 'transicion'), "
-                "no métricas ni efectos ('recall', 'top1'), ni palabras ausentes del contenido."
+                "OBLIGATORIO — SOMA del nodo: 2-4 sustantivos que son su IDENTIDAD irreducible (peso BM25 4.0x). "
+                "PROTOCOLO — 2 TESTS MECÁNICOS (ver `aprender` para detalle completo): "
+                "TEST 1 IDENTIDAD: «Este nodo ES un nodo sobre ___.» Natural→PASA, forzado→NO PASA. "
+                "TEST 2 DISCRIMINACIÓN: «¿>30% de los nodos podrían tener esta palabra?» Sí→INVÁLIDO, No→VÁLIDO. "
+                "Formato: minúsculas, sin tildes, separados por coma, extraídos del contenido. "
+                "🔒 PROHIBICIONES: No repetir palabras del concepto, no nominalizar verbos, "
+                "no abstracciones vacías, no métricas, no palabras ausentes del contenido."
             )
         )] = None,
         busqueda_previa: Annotated[Optional[bool], Field(
@@ -772,21 +785,13 @@ def register(mcp: Any) -> None:
         concepto: Annotated[str, Field(description="Nombre del nodo existente (se normaliza a snake_case).")],
         sustantivos_clave: Annotated[str, Field(
             description=(
-                "2-4 sustantivos clave que definen de QUÉ TRATA el nodo (peso BM25 4.0x).\n"
-                "PROTOCOLO DE EXTRACCIÓN (nodo ya existente — mirá qué contiene): 1) ¿Qué se hizo? (acción/objeto concreto) "
-                "2) ¿De qué se trata? (el núcleo temático — por eso se llaman CLAVES) "
-                "3) ¿Con qué se relaciona? (tema que otro nodo futuro también pueda tocar).\n"
-                "Ejemplos (contenido → sustantivos_clave):\n"
-                "  - perro/Manchita: 'Me gusta pasar por las tardes con mi perro mi perra que se llama manchita...' → 'tardes,perro,perra,manchita'\n"
-                "  - olvido del jefe: 'Se me olvidó que tenía que llamar a mi jefe, mañana...' → 'olvido,jefe,llamada'\n"
-                "  - arepitas: 'A Dennys le gusta hacer arepitas dulces y comerlas en la tarde...' → 'arepitas,comer,tarde,gustos'\n"
-                "  - trabajo sin parar: 'cuando trabajo demasiado sin parar y no puedo hacer pausa' → 'trabajo,pausa'\n"
-                "La relación a futuro entre nodos está explicada en `aprender`.\n"
-                "Formato: separados por coma, minúsculas, sin tildes ni espacios.\n"
-                "Mínimo 2, máximo 4 términos únicos (2-15 chars cada uno).\n"
-                "🔒 INVARIANTE — MANDATORY: No repetir palabras del concepto, no nominalizar verbos ('postulacion', 'analisis'), "
-                "no etiquetas de canal ('workana', 'cliente'), no abstracciones ('estrategia', 'transicion'), "
-                "no métricas ni efectos ('recall', 'top1'), ni palabras ausentes del contenido."
+                "SOMA del nodo: 2-4 sustantivos que son su IDENTIDAD irreducible (peso BM25 4.0x).\n"
+                "PROTOCOLO — 2 TESTS MECÁNICOS (nodo ya existente — mirá qué contiene antes de elegir):\n"
+                "TEST 1 IDENTIDAD: «Este nodo ES un nodo sobre ___.» Natural→PASA, forzado→NO PASA.\n"
+                "TEST 2 DISCRIMINACIÓN: «¿>30% de los nodos podrían tener esta palabra?» Sí→INVÁLIDO (va en syn), No→VÁLIDO.\n"
+                "Formato: 2-4 términos, minúsculas, sin tildes, separados por coma, extraídos del contenido.\n"
+                "🔒 PROHIBICIONES: No repetir palabras del concepto, no nominalizar verbos, "
+                "no abstracciones vacías, no métricas, no palabras ausentes del contenido."
             )
         )],
     ) -> str:
@@ -948,7 +953,11 @@ def register(mcp: Any) -> None:
             description="Nuevos sinónimos separados por coma."
         )] = None,
         sustantivos_clave: Annotated[Optional[str], Field(
-            description="Nuevos sustantivos clave del nodo (2-4 términos separados por coma)."
+            description=(
+                "SOMA del nodo: 2-4 sustantivos IDENTIDAD irreducible (BM25 4.0x). "
+                "Aplicar TEST 1 IDENTIDAD («ES un nodo sobre ___») + TEST 2 DISCRIMINACIÓN («¿>30% podrían tenerlo?»). "
+                "Ver protocolo completo en `aprender`."
+            )
         )] = None,
         dimensiones: Annotated[Optional[Any], Field(
             description="Clasificación dimensional (JSON string o dict)."

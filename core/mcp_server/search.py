@@ -1410,15 +1410,16 @@ def register(mcp: Any) -> None:
         )] = "relevancia",
         sustantivos_clave: Annotated[Optional[str], Field(
             description=(
-                "Sustantivos clave para boost de precisións.\n"
-                "Si se provee (separados por coma), la búsqueda prioriza nodos que matchean esos "
-                "términos en su columna 'sustantivos_clave' — por lo que TRATAN, no solo por lo que MENCIONAN.\n"
+                "PROTOCOLO ESPEJO — Boost de precisión sobre columna sustantivos_clave (BM25 4.0x).\n"
+                "NO extraigas de la query del usuario. PREDECÍ qué sustantivos tendría el NODO OBJETIVO:\n"
+                "  «Si este nodo existe en el corpus, ¿qué sustantivos_clave le pusieron al guardarlo?»\n"
+                "EJEMPLO: El usuario pregunta '¿cómo hago para que aparezcan mis notas en la nube?'\n"
+                "  → El nodo probablemente se guardó con: obsidian, vault, fuse, ocamlfuse\n"
+                "  → sustantivos_clave='obsidian,vault,fuse' (NO 'notas' ni 'nube' — esas van en query/parafrasis)\n"
+                "REGLA: máximo 3 sustantivos en búsqueda. Cada uno es filtro multiplicativo — "
+                "con 4+ podés excluir el nodo correcto si uno no matchea exactamente.\n"
                 "None o '' = búsqueda normal sin boost.\n"
-                "Formato por término: 2-15 chars, sin espacios, solo alfanuméricos y guion bajo. "
-                "Si algún término no cumple → error y la búsqueda NO se ejecuta.\n"
-                "Ejemplo: query='timeout', sustantivos_clave='servidor,conexion'.\n"
-                "AXIOMA: usá términos LÉXICOS y CONCRETOS — palabras que la fuente de la consulta "
-                "escribiría literalmente; no abstracciones de segundo orden."
+                "Formato: 2-3 términos, minúsculas, separados por coma, alfanuméricos y guion bajo."
             )
         )] = None,
     ) -> str:
