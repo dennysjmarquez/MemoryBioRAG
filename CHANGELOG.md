@@ -1,5 +1,30 @@
 # BioRAG Changelog
 
+## [v32.4] — 2026-10-07 — DimensionHub: semántica de mundo abierto para valores de dimensión
+
+**Auto-creación de valores de dimensión desconocidos: si un agente envía un valor que no existe en el catálogo, el sistema lo normaliza y lo registra automáticamente en lugar de descartarlo silenciosamente.**
+
+### Cambios
+
+- **`_normalizar_nombre_dimension(nombre)`** — nueva función en `core/memory/catalog_methods.py`: normaliza nombres a snake_case ASCII (NFD, sin diacríticos, minúsculas, separadores → guión bajo, caracteres no-alfanuméricos eliminados, truncado a 80 chars). Retorna `None` si el resultado es innormalizable (vacío, < 2 chars, empieza con dígito). No conoce ningún vocabulario de dominio.
+- **`_resolver_dimension_ids`** — refactoring completo: antes descartaba valores no presentes en el catálogo (mundo cerrado); ahora los normaliza y **los auto-crea** con `auto_generada=1, confianza=0.7` si no existen (mundo abierto). El constraint UNIQUE de SQLite garantiza ausencia de duplicados aun ante race-conditions. Retorno ampliado de 2 a 3 elementos: `(ids_validos, invalidos, creadas)`.
+- **`core/memory/ingest.py`** — desempaquetado actualizado al nuevo retorno de 3 valores.
+- **`test_memory.py`** — cuatro llamadas directas a `_resolver_dimension_ids` actualizadas a 3 valores.
+- **`tests/test_sustantivos_clave_validacion.py`** — `test_cinco_terminos_cantidad_invalida` renombrado a `test_once_terminos_cantidad_invalida` y caso de prueba corregido de `a,b,c,d,e` (5 términos) a 11 términos de formato válido, alineado al rango real 2-10.
+- **`tests/test_sustantivos_clave_tools.py`** — caso `# 5 términos` corregido a `# 11 términos` por la misma razón.
+
+### Motivación
+
+El modelo de mundo cerrado obligaba a los modelos a memorizar el catálogo de dimensiones exacto. Cualquier variación ortográfica (tilde vs sin tilde, espacio vs guión bajo) producía una pérdida silenciosa de semántica sin error visible, violando **Invariant 3 (Visible Failures)** del Arcadia Protocol. El mundo abierto con normalización automática elimina esta clase de error sin sacrificar el control del eje (los ejes — `tipos_dimension` — siguen siendo un conjunto cerrado).
+
+### Validación
+
+- **304/304 tests aprobados** (0 fallos). Los 2 tests que fallaban por desfase con el rango ampliado de `sustantivos_clave` (2-10) fueron corregidos en esta misma versión.
+- Scoring híbrido y pipeline de búsqueda **no impactados** — `_resolver_dimension_ids` opera únicamente en ingesta y catalogación.
+- Recall@5, Recall@1, MRR y FP sin cambios respecto a v32.3.
+
+---
+
 ## [v32.3] — 2026-10-03 — Ranking aditivo por convergencia de evidencia multicampo
 
 **Mejora del orden de los candidatos existentes cuando una respuesta tiene evidencia pertinente distribuida entre campos estructurados y un competidor solo presenta una mención incidental en el contenido.**

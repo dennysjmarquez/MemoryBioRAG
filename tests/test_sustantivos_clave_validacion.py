@@ -112,13 +112,14 @@ class TestT3Validacion:
         assert r["codigo"] == "SUSTANTIVOS_CLAVE_CANTIDAD_INVALIDA"
         assert r["cantidad_recibida"] == 1
 
-    def test_cinco_terminos_cantidad_invalida(self, ctx):
-        """RF-2, RF-9: 5 términos → CANTIDAD_INVALIDA."""
+    def test_once_terminos_cantidad_invalida(self, ctx):
+        """RF-2, RF-9: 11 términos → CANTIDAD_INVALIDA (máx permitido es 10)."""
         tools, _ = ctx
-        r = _call("aprender", tools, sustantivos_clave="a,b,c,d,e")
+        sk_11 = "aa,bb,cc,dd,ee,ff,gg,hh,ii,jj,kk"  # 11 términos únicos de formato válido
+        r = _call("aprender", tools, sustantivos_clave=sk_11)
         assert r["status"] == "error"
         assert r["codigo"] == "SUSTANTIVOS_CLAVE_CANTIDAD_INVALIDA"
-        assert r["cantidad_recibida"] == 5
+        assert r["cantidad_recibida"] == 11
 
     def test_un_termino_con_arroba_cantidad(self, ctx):
         """'server@backend' = 1 término → CANTIDAD_INVALIDA (viene antes que formato)."""

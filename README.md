@@ -1,6 +1,6 @@
 # BioRAG — Memoria Cognitiva Biomimética y Simbólica para Agentes de IA
 
-> **Versión Oficial:** v32.3
+> **Versión Oficial:** v32.4
 > **Paradigma:** Motor Python + SQLite FTS5. **Sin embeddings densos, GPU ni llamadas a APIs externas** en el path de búsqueda.
 > **Motor:** Arquitectura modularizada (18 submódulos `core/memory/` + 15 submódulos `core/mcp_server/` + fachada delgada) + SQLite FTS5 WAL + PPMI-SVD (100 dimensiones) + espacio semántico de 13 ejes + grafo sináptico Hebbiano + SDM (2048 bits) + calibración conforme + activación ACT-R + Concept Hubs.
 > **Idiomas:** Español e inglés (stemming bilingüe, expansión simbólica con WordNet, Concept Hubs de 5 ángulos y Domain Dict).
@@ -9,7 +9,7 @@
 
 ---
 
-## 📊 Métricas de la suite oficial (v32.3 · 2026-10-03)
+## 📊 Métricas de la suite oficial (v32.4 · 2026-10-07)
 
 Evaluación sobre el snapshot congelado oficial (**921 casos**: 875 consultas de recuperación, 40 controles negativos y 6 casos ambiguos). La suite reportó el cap efectivo `0.085`, reranker aditivo activo y experimento multiplicativo Spec 006 apagado.
 
@@ -19,7 +19,7 @@ Evaluación sobre el snapshot congelado oficial (**921 casos**: 875 consultas de
 | **Recall@1 (Top-1)** | **91.77% (803/875)** | +0.11 puntos porcentuales respecto a la baseline reportada (91.66%) |
 | **MRR** | **0.950** | Valor impreso redondeado a 3 decimales; baseline anterior: 0.9491 |
 | **Falsos positivos** | **0/40 (0.00%)** | Resultado observado solo en los 40 controles de este benchmark |
-| **Tests unitarios** | **304/304 aprobados** | Suite ejecutada con `run_qa_suite.sh` |
+| **Tests unitarios** | **304/304 aprobados** | Suite ejecutada con `run_qa_suite.sh` — ver v32.4 para actualización de conteo |
 | **Abismo léxico (EXP-Q)** | **3/3 (100%)** | Rescatados por expansión del grafo |
 | **Sinónimos · Recall@5** | **55/55 (100%)** | En el snapshot evaluado |
 | **Por tema · Recall@5** | **65/65 (100%)** | En el snapshot evaluado |
@@ -33,7 +33,45 @@ Frente a la baseline medida, R@5 y FP se mantuvieron; R@1 subió 0.11 puntos y M
 
 ---
 
-## 🚀 Novedades de la Versión v32.3
+## 🚀 Novedades de la Versión v32.4
+
+### 🌐 DimensionHub — Semántica de Mundo Abierto para Valores de Dimensión (`catalog_methods.py`)
+
+**Por qué se hizo:**
+El sistema de dimensiones semánticas tenía un modelo de **mundo cerrado rígido**: si un agente enviaba un valor de dimensión que no existía exactamente en el catálogo (ej: `"preocupacion_leve"` en lugar del valor registrado `"preocupacion"`), el sistema lo descartaba silenciosamente como inválido. Esto forzaba a los modelos a memorizar el catálogo exacto y rompía la recuperabilidad cuando el vocabulario del agente difería mínimamente del catálogo oficial.
+
+**Qué se cambió:**
+
+#### 1. Nueva función `_normalizar_nombre_dimension(nombre)` — Paso de sanitización universal
+- Aplica normalización **NFD + eliminación de diacríticos** → elimina tildes y cedillas automáticamente.
+- Convierte a **snake_case** ASCII: espacios, guiones y puntos → guión bajo; elimina todo carácter no alfanumérico.
+- Colapsa guiones bajos múltiples, elimina guiones al inicio/fin, trunca a 80 chars.
+- Valida integridad: retorna `None` si el resultado es vacío, menor a 2 chars, o empieza con dígito.
+- **Invariante de dominio-agnóstico garantizada**: la función no conoce ningún vocabulario de dominio; opera 100% a nivel de caracteres.
+
+#### 2. Refactoring completo de `_resolver_dimension_ids` — Mundo abierto
+- **Antes**: buscaba solo dimensiones **YA existentes** con `WHERE name IN (...)` y descartaba las que no encontraba.
+- **Ahora** (mundo abierto):
+  - Normaliza cada nombre vía `_normalizar_nombre_dimension`.
+  - Si el nombre normalizado **ya existe** en el catálogo → reutiliza su ID (anti-duplicado garantizado por UNIQUE constraint).
+  - Si **no existe** → lo **auto-crea** con `auto_generada=1, confianza=0.7` y retorna su nuevo ID.
+  - Si el nombre es **innormalizable** (emoji puro, cadena numérica, vacío) → lo agrega a la lista `invalidos`.
+- **Retorno ampliado**: ahora retorna `(ids_validos, invalidos, creadas)` en lugar de `(ids_validos, invalidos)` — el tercer elemento lista los nombres que fueron auto-creados en esa llamada para trazabilidad en logs.
+
+#### 3. Actualización de callers por el nuevo retorno de 3 elementos
+- [`core/memory/ingest.py`](core/memory/ingest.py): desempaquetado actualizado de `ids_validos, _, _ = _resolver_dimension_ids(...)`.
+- [`test_memory.py`](test_memory.py): cuatro llamadas directas en el test de ráfagas de dimensiones actualizadas a 3 valores.
+
+#### 4. Corrección de tests por ampliación del rango de `sustantivos_clave` (2→10)
+Dos tests asumían que el límite máximo era 4 términos (rango antiguo) y usaban `a,b,c,d,e` (5 términos de 1 char) como caso de prueba de `CANTIDAD_INVALIDA`. Al ampliar el rango a 2-10, ese caso ya no superaba el límite por cantidad — fallaba por formato (cada término tiene 1 char, mínimo requerido es 2). Corregidos para usar 11 términos de formato válido, que sí superan el límite de 10:
+- `tests/test_sustantivos_clave_validacion.py`: `test_cinco_terminos_cantidad_invalida` → `test_once_terminos_cantidad_invalida`.
+- `tests/test_sustantivos_clave_tools.py`: caso comentado `# 5 términos` → `# 11 términos`.
+
+**Resultado:** 304/304 tests aprobados (0 fallos). Recall@5 y métricas de scoring **no impactadas** — `_resolver_dimension_ids` opera exclusivamente en la fase de ingesta y catalogación, no en el pipeline de scoring híbrido.
+
+---
+
+### Novedades anteriores (v32.3)
 
 ### 🧭 Re-ranking aditivo por convergencia de evidencia multicampo
 

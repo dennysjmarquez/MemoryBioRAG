@@ -1273,10 +1273,10 @@ def test_sistema():
 
     print("\n--- 73. Probando Ráfaga con Dimensiones (integración completa) ---")
     # Guardar nodos con dimensiones conocidas
-    ids_afecto, _ = cerebro._resolver_dimension_ids("emocion", "afecto")
-    ids_preoc, _ = cerebro._resolver_dimension_ids("emocion", "preocupacion")
-    ids_ai, _ = cerebro._resolver_dimension_ids("entidad", "identidad_artificial")
-    ids_code, _ = cerebro._resolver_dimension_ids("entidad", "codigo")
+    ids_afecto, _, _ = cerebro._resolver_dimension_ids("emocion", "afecto")
+    ids_preoc, _, _ = cerebro._resolver_dimension_ids("emocion", "preocupacion")
+    ids_ai, _, _ = cerebro._resolver_dimension_ids("entidad", "identidad_artificial")
+    ids_code, _, _ = cerebro._resolver_dimension_ids("entidad", "codigo")
 
     cerebro.percibir_corto_plazo("rafaga_nodo_a", "Sistema de autenticación con JWT y tokens",
                                   "autenticacion,jwt,seguridad", "Architecture",

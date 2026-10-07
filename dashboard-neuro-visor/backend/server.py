@@ -203,7 +203,7 @@ def corteza_estado():
         "categorias": categorias,
         "dimensiones_top": dimensiones_top,
         "total_dim_mappings": total_dim_mappings,
-        "version": "v32.3"
+        "version": "v32.4"
     }
 
 

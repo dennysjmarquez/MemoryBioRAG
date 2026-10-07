@@ -263,10 +263,9 @@ def _aprender_impl(
             }, ensure_ascii=False)
 
         # Parsear dimensiones via helper compartido
-        dimensiones_dict, _, dim_error = _resolver_dimensiones(cerebro, dimensiones)
+        dimensiones_dict, _, dim_error, dim_meta = _resolver_dimensiones(cerebro, dimensiones)
         if dim_error:
             return dim_error
-        dimensiones_invalidas = {}  # ya validado por _resolver_dimensiones
 
         # Parsear predicados SRL v16.0
         predicados_list = None
@@ -333,8 +332,9 @@ def _aprender_impl(
             msg += f" Vinculado explícitamente con: {', '.join(vinculos_creados)}."
         elif sinapsis_count:
             msg += f" Vinculado con {sinapsis_count} nodo(s)."
-        if dimensiones_invalidas:
-            msg += f" Dimensiones inválidas: {json.dumps(dimensiones_invalidas, ensure_ascii=False)}. Llamá `listar_dimensiones` para ver valores válidos."
+        # Dimensiones auto-creadas → confirmar al agente
+        if dim_meta.get("dimensiones_creadas"):
+            msg += f" Dimensiones nuevas auto-creadas: {', '.join(dim_meta['dimensiones_creadas'])} (auto_generada=1, confianza=0.7)."
         msg += " Usa 'consolidar' para fijar a largo plazo."
 
         # ── WARNING DE VINCULACIÓN ──────────────────────────────────
@@ -435,13 +435,17 @@ def _aprender_impl(
             msg += "\n" + "\n".join(lineas_viejos)
 
         _interceptar("aprender", f"{clave}: {contenido}", cerebro)
-        resultado = json.dumps({
+        resultado_dict: dict = {
             "status": "ok",
             "mensaje": msg,
             "concepto": clave,
             "sinapsis": sinapsis_count,
-            "dimensiones_invalidas": dimensiones_invalidas if dimensiones_invalidas else None,
-        }, ensure_ascii=False)
+        }
+        if dim_meta.get("dimensiones_creadas"):
+            resultado_dict["dimensiones_creadas"] = dim_meta["dimensiones_creadas"]
+        if dim_meta.get("advertencias"):
+            resultado_dict["advertencias_dimensiones"] = dim_meta["advertencias"]
+        resultado = json.dumps(resultado_dict, ensure_ascii=False)
         if _warnings:
             return "\n".join(_warnings) + "\n\n" + resultado
         return resultado
@@ -493,6 +497,14 @@ def register(mcp: Any) -> None:
         )],
         dimensiones: Annotated[Any, Field(
             description=(
+                "⚠️  ANTES DE CLASIFICAR — ORIENTACIÓN AL CATÁLOGO VIVO:\n"
+                "Existe un catálogo de valores curados por eje. Consultá `listar_dimensiones_por_tipo`\n"
+                "con el nombre del eje (ej: 'emocion') para ver los valores existentes. Usá los\n"
+                "curados cuando apliquen: maximizás recuperabilidad y evitás fragmentar el espacio.\n"
+                "Si el valor que necesitás NO existe en el catálogo, mandalo igual en snake_case\n"
+                "sin tildes — se crea automáticamente (auto_generada=1, confianza=0.7). No hay\n"
+                "duplicados: si el nombre ya existe, se reutiliza su ID en silencio. Formato\n"
+                "inválido → advertencia no bloqueante. EJES: sistema CERRADO, no se pueden agregar.\n\n"
                 "Clasificación dimensional del recuerdo — coordenadas semánticas. OBLIGATORIO evaluar y clasificar el mayor número de ejes posible que estén justificados por el contenido. No inventes nombres.\n\n"
                 "QUÉ SON LAS DIMENSIONES:\n"
                 "Las dimensiones son coordenadas en un espacio de significado. Cada nodo tiene una posición en 13 ejes "
@@ -527,7 +539,7 @@ def register(mcp: Any) -> None:
                 "PROTOCOLO OBLIGATORIO:\n"
                 "- Recorré los 13 ejes uno por uno. Para cada uno preguntate: ¿el contenido lo justifica? Si sí → clasificalo.\n"
                 "- Mínimo esperable cuando el contenido es rico: 7-10 ejes. Si ponés menos de 6, revisá si no omitiste ejes justificables (ej: epistemia, escala_abstraccion, cualia, intencion, dominio).\n"
-                "- Usá los valores del catálogo listados arriba. Si no recordás alguno, llamá listar_dimensiones_por_tipo.\n\n"
+                "- Consultá `listar_dimensiones_por_tipo` antes de elegir. Los valores curados del catálogo tienen mayor peso en recuperación. Si el que necesitás no existe, podés mandarlo igual en snake_case.\n\n"
                 "FORMATO — STRING JSON con comillas dobles:\n"
                 '{"emocion":["satisfaccion"],"entidad":["identidad_artificial"],"accion":["accion_cognitiva"],'
                 '"cualidad":["cualidad_abstracta_conceptual"],"coordenada":["coordenada_cronologia_absoluta"],'
@@ -1051,7 +1063,7 @@ def register(mcp: Any) -> None:
                     if isinstance(valores[0], int):
                         ids_validos = valores
                     else:
-                        ids_validos, _ = cerebro._resolver_dimension_ids(
+                        ids_validos, _, _ = cerebro._resolver_dimension_ids(
                             tipo_nombre,
                             ",".join(valores) if isinstance(valores, list) else valores,
                         )

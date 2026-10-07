@@ -122,8 +122,8 @@ class TestT4AgregarSustantivos:
         assert r2["status"] == "error"
         assert r2["codigo"] == "SUSTANTIVOS_CLAVE_CANTIDAD_INVALIDA"
 
-        # Cantidad inválida (5 términos)
-        r3 = json.loads(tools["agregar_sustantivos"](concepto="nodo_validar", sustantivos_clave="a,b,c,d,e"))
+        # Cantidad inválida (11 términos — máx permitido es 10)
+        r3 = json.loads(tools["agregar_sustantivos"](concepto="nodo_validar", sustantivos_clave="aa,bb,cc,dd,ee,ff,gg,hh,ii,jj,kk"))
         assert r3["status"] == "error"
         assert r3["codigo"] == "SUSTANTIVOS_CLAVE_CANTIDAD_INVALIDA"
 

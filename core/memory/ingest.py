@@ -102,7 +102,7 @@ def percibir_corto_plazo(
         if isinstance(valores[0], int):
             ids_validos = valores
         else:
-            ids_validos, _ = self._resolver_dimension_ids(
+            ids_validos, _, _ = self._resolver_dimension_ids(
                 tipo_nombre,
                 ",".join(valores) if isinstance(valores, list) else valores,
             )

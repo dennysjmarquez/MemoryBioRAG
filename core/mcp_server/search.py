@@ -356,8 +356,8 @@ def _recordar_impl(
 
         rafaga_list = [w.strip() for w in rafaga_palabras.split(",")] if rafaga_palabras else None
 
-        # Parsear dimensiones via helper compartido
-        dimensiones_dict, dimensiones_ids, dim_error = _resolver_dimensiones(cerebro, dimensiones)
+        # Parsear dimensiones via helper compartido (meta se descarta en búsqueda)
+        dimensiones_dict, dimensiones_ids, dim_error, _ = _resolver_dimensiones(cerebro, dimensiones)
         if dim_error:
             return dim_error
 
