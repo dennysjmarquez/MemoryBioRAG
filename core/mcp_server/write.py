@@ -499,6 +499,7 @@ def register(mcp: Any) -> None:
             description=(
                 "🚨🚨🚨 DANGER — LEÉ ESTO ANTES DE ELEGIR CUALQUIER VALOR 🚨🚨🚨\n"
                 "═══════════════════════════════════════════════════════════════\n"
+                "Dimensiones Semánticas-> Pregunta que responde -> ¿QUÉ NATURALEZA tiene este recuerdo? -> Metáfora -> El sentimiento o la categoría ontológica (un momento de tensión, una regla que aprendí, una herramienta).\n\n"
                 "EL CATÁLOGO DE DIMENSIONES YA EXISTE. NO INVENTES VALORES.\n"
                 "PROTOCOLO OBLIGATORIO — ORDEN ESTRICTO:\n"
                 "  PASO 1: Leé la descripción de cada eje abajo. Entendé QUÉ clasifica.\n"
@@ -703,6 +704,7 @@ def register(mcp: Any) -> None:
         )] = None,
         sustantivos_clave: Annotated[Optional[str], Field(
             description=(
+                "Sustantivos Clave -> Pregunta que responde -> ¿DE QUÉ trata exactamente? -> Metáfora -> La huella dactilar o el rostro de alguien (específico, concreto, único).\n\n"
                 "Los sustantivos clave son el campo más importante al guardar un nodo. No es relleno: es lo que decide si el recuerdo se encuentra o no.\n"
                 "1. ¿De qué trata el nodo? — no qué palabras contiene, sino de qué se trata.\n"
                 "2. No repetir palabras que ya están en contenido o en syn: los pesos se suman y el nodo se infla.\n"
@@ -800,6 +802,7 @@ def register(mcp: Any) -> None:
         dimensiones: Annotated[Optional[Any], Field(
             description=(
                 "🚨 DANGER — LEE ESTO PRIMERO 🚨\n"
+                "Dimensiones Semánticas-> Pregunta que responde -> ¿QUÉ NATURALEZA tiene este recuerdo? -> Metáfora -> El sentimiento o la categoría ontológica (un momento de tensión, una regla que aprendí, una herramienta).\n\n"
                 "PASO 1: Usá valores curados del catálogo listados abajo.\n"
                 "PASO 2: Si encuentrás uno que aplica → USALO. Punto.\n"
                 "PASO 3: Si NINGÚN valor curado aplica → mandá tu valor en snake_case (se auto-crea). ÚLTIMO RECURSO.\n"
@@ -837,6 +840,7 @@ def register(mcp: Any) -> None:
         )] = None,
         sustantivos_clave: Annotated[Optional[str], Field(
             description=(
+                "Sustantivos Clave -> Pregunta que responde -> ¿DE QUÉ trata exactamente? -> Metáfora -> La huella dactilar o el rostro de alguien (específico, concreto, único).\n\n"
                 "OBLIGATORIO — SOMA del nodo: 2 a 10 sustantivos que son su IDENTIDAD irreducible (peso BM25 4.0x). "
                 "PROTOCOLO — 2 TESTS MECÁNICOS (ver `aprender` para detalle completo): "
                 "TEST 1 IDENTIDAD: «Este nodo ES un nodo sobre ___.» Natural→PASA, forzado→NO PASA. "
@@ -891,6 +895,7 @@ def register(mcp: Any) -> None:
         concepto: Annotated[str, Field(description="Nombre del nodo existente (se normaliza a snake_case).")],
         sustantivos_clave: Annotated[str, Field(
             description=(
+                "Sustantivos Clave -> Pregunta que responde -> ¿DE QUÉ trata exactamente? -> Metáfora -> La huella dactilar o el rostro de alguien (específico, concreto, único).\n\n"
                 "SOMA del nodo: 2 a 10 sustantivos que son su IDENTIDAD irreducible (peso BM25 4.0x).\n"
                 "PROTOCOLO — 2 TESTS MECÁNICOS (nodo ya existente — mirá qué contiene antes de elegir):\n"
                 "TEST 1 IDENTIDAD: «Este nodo ES un nodo sobre ___.» Natural→PASA, forzado→NO PASA.\n"
@@ -1060,6 +1065,7 @@ def register(mcp: Any) -> None:
         )] = None,
         sustantivos_clave: Annotated[Optional[str], Field(
             description=(
+                "Sustantivos Clave -> Pregunta que responde -> ¿DE QUÉ trata exactamente? -> Metáfora -> La huella dactilar o el rostro de alguien (específico, concreto, único).\n\n"
                 "SOMA del nodo: 2 a 10 sustantivos IDENTIDAD irreducible (BM25 4.0x). "
                 "Aplicar TEST 1 IDENTIDAD («ES un nodo sobre ___») + TEST 2 DISCRIMINACIÓN («¿>30% podrían tenerlo?»). "
                 "Ver protocolo completo en `aprender`."

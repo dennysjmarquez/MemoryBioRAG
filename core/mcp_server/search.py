@@ -1200,6 +1200,7 @@ def register(mcp: Any) -> None:
         )] = None,
         dimensiones: Annotated[Any, Field(
             description=(
+                "Dimensiones Semánticas-> Pregunta que responde -> ¿QUÉ NATURALEZA tiene este recuerdo? -> Metáfora -> El sentimiento o la categoría ontológica (un momento de tensión, una regla que aprendí, una herramienta).\n\n"
                 "Coordenadas semánticas para búsqueda ontológica.\n\n"
                 "QUÉ SON LAS DIMENSIONES:\n"
                 "Las dimensiones son coordenadas en un espacio de significado. Cada nodo en BioRAG "
@@ -1410,6 +1411,7 @@ def register(mcp: Any) -> None:
         )] = "relevancia",
         sustantivos_clave: Annotated[Optional[str], Field(
             description=(
+                "Sustantivos Clave -> Pregunta que responde -> ¿DE QUÉ trata exactamente? -> Metáfora -> La huella dactilar o el rostro de alguien (específico, concreto, único).\n\n"
                 "PROTOCOLO ESPEJO — Boost de precisión sobre columna sustantivos_clave (BM25 4.0x).\n"
                 "NO extraigas de la query del usuario. PREDECÍ qué sustantivos tendría el NODO OBJETIVO:\n"
                 "  «Si este nodo existe en el corpus, ¿qué sustantivos_clave le pusieron al guardarlo?»\n"
@@ -1457,6 +1459,7 @@ def register(mcp: Any) -> None:
         )],
         dimensiones: Annotated[Any, Field(
             description=(
+                "Dimensiones Semánticas-> Pregunta que responde -> ¿QUÉ NATURALEZA tiene este recuerdo? -> Metáfora -> El sentimiento o la categoría ontológica (un momento de tensión, una regla que aprendí, una herramienta).\n\n"
                 "PROTOCOLO DIMENSIONES:\n\n"
                 "Clasificación semántica del contexto de búsqueda. Valor: STRING JSON con comillas dobles.\n\n"
                 "MANDATORY: Llamá `listar_dimensiones` ANTES de buscar para obtener\n"
