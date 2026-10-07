@@ -201,7 +201,7 @@ def _aprender_impl(
                 "ACCIÓN REQUERIDA: repetí la llamada a biorag_aprender con TODOS los mismos parámetros "
                 "más el campo sustantivos_clave. No es necesario cambiar nada más — solo añadí "
                 "sustantivos_clave.\n\n"
-                "Protocolo: ¿De QUÉ TRATA este nodo? Identificá 2-4 sustantivos centrales. "
+                "Protocolo: ¿De QUÉ TRATA este nodo? Identificá 2 a 10 sustantivos centrales. "
                 "Formato: 'servidor,backend,timeout,conexion'"
             ),
             "concepto": clave,
@@ -215,14 +215,14 @@ def _aprender_impl(
     sustantivos_norm = normalizar_sustantivos_clave(str(sustantivos_clave))
     sk_unicos = [t for t in sustantivos_norm.split(",") if t] if sustantivos_norm else []
 
-    # Cantidad (RF-2, RF-9): entre 2 y 4 términos únicos tras dedup
-    if len(sk_unicos) < 2 or len(sk_unicos) > 4:
+    # Cantidad (RF-2, RF-9): entre 2 a 10 términos únicos tras dedup
+    if len(sk_unicos) < 2 or len(sk_unicos) > 10:
         return json.dumps({
             "status": "error",
             "codigo": "SUSTANTIVOS_CLAVE_CANTIDAD_INVALIDA",
             "mensaje": (
                 f"❌ SUSTANTIVOS_CLAVE_CANTIDAD_INVALIDA — el nodo '{clave}' NO fue guardado.\n\n"
-                "SUSTANTIVOS_CLAVE_CANTIDAD_INVALIDA: se requieren entre 2 y 4 términos "
+                "SUSTANTIVOS_CLAVE_CANTIDAD_INVALIDA: se requieren entre 2 a 10 términos "
                 f"únicos; se recibió {len(sk_unicos)} tras deduplicar. "
                 "Formato: 'servidor,backend,timeout,conexion'"
             ),
@@ -569,7 +569,7 @@ def register(mcp: Any) -> None:
                 "centrado vertical,vertical centering,bug visual,responsive,maquetación,"
                 "grid vs flex,posicionamiento,positioning,adevcom,peritaje\n\n"
                 "syn ≠ sustantivos_clave: syn = todas las formas de buscar el nodo (sin límite, cierra la brecha de vocabulario). "
-                "sustantivos_clave = de qué TRATA el nodo en 2-4 palabras núcleo (boost directo en recuperación)."
+                "sustantivos_clave = de qué TRATA el nodo en 2 a 10 palabras núcleo (boost directo en recuperación)."
             )
         )] = None,
         cat: Annotated[Optional[str], Field(
@@ -633,7 +633,7 @@ def register(mcp: Any) -> None:
                 "b. NO repitas palabras que ya están en contenido ni en syn.\n"
                 "c. Incluí: la herramienta, el artefacto y el dominio.\n"
                 "Ejemplo — nodo sobre un script que descarga fuentes de NotebookLM: descarga,fuente,cuaderno,notebooklm\n\n"
-                "OBLIGATORIO — centro de gravedad semántico: 2-4 sustantivos que definen de QUÉ TRATA el nodo (peso BM25 4.0x).\n"
+                "OBLIGATORIO — centro de gravedad semántico: 2 a 10 sustantivos que definen de QUÉ TRATA el nodo (peso BM25 4.0x).\n"
                 "PROPÓSITO: hacen que nodos que NO comparten palabras se encuentren por el núcleo temático — un sustantivo mal puesto = nodo que jamás aparece.\n"
                 "PROTOCOLO DE EXTRACCIÓN — sacalos SIEMPRE de lo que se está guardando, nunca los inventes. Tres preguntas:\n"
                 "  1. ¿Qué se hizo o qué estoy guardando? (la acción/objeto concreto)\n"
@@ -646,32 +646,13 @@ def register(mcp: Any) -> None:
                 "  - trabajo sin parar: 'cuando trabajo demasiado sin parar y no puedo hacer pausa' → 'trabajo,pausa'\n"
                 "Relación a futuro: guardaste 'traduccion,script,deepseek' y mañana guardás 'traducción de un documento'\n"
                 "  → comparte 'traduccion' y al buscarlo lo clavás aunque los nodos no compartan más palabras.\n"
-                "Formato: 2-4 términos únicos separados por coma, minúsculas, sin tildes ni espacios.\n"
+                "Formato: 2 a 10 términos únicos separados por coma, minúsculas, sin tildes ni espacios.\n"
+                "🔒 PROHIBICIONES ABSOLUTAS:\n"
                 "🔒 INVARIANTE — MANDATORY (incumplir = nodo mal indexado, no se recupera):\n"
                 "✗ NO métricas, efectos ni consecuencias ('recall', 'ranking', 'dilucion', 'top1') — describen lo que PASÓ, no qué ES; van en contenido/syn.\n"
                 "✗ NO palabras que no estén LITERALMENTE en lo que guardás — si no la escribiste ahí, no existe para el índice.\n"
                 "✗ NO nominalizar verbos del flujo (postular → 'postulacion', analizar → 'analisis').\n"
                 "✗ NO abstracciones vacías de segundo orden ('estrategia', 'transicion', 'diferenciacion').\n\n"
-                "OBLIGATORIO — SOMA del nodo: 2-4 sustantivos que son su IDENTIDAD irreducible (peso BM25 4.0x).\n"
-                "Si le quitás contenido, syn, bridges y dimensiones y solo quedan estos sustantivos, "
-                "todavía tenés que saber DE QUÉ TRATA el nodo. Si no podés → están mal.\n\n"
-                "PROTOCOLO — 2 TESTS MECÁNICOS OBLIGATORIOS (sin excepción):\n\n"
-                "TEST 1 — IDENTIDAD (whitelist): Para cada candidato, completá esta oración:\n"
-                "  «Este nodo ES un nodo sobre ___.»\n"
-                "  Natural y verdadero → PASA. Forzado o circunstancial → NO PASA, eliminalo.\n"
-                "  Ejemplos:\n"
-                "    «ES un nodo sobre Obsidian» → ✅ pasa\n"
-                "    «ES un nodo sobre terminal» → ❌ forzado, no pasa\n"
-                "    «ES un nodo sobre ocamlfuse» → ✅ pasa\n"
-                "    «ES un nodo sobre pasos» → ❌ absurdo, no pasa\n\n"
-                "TEST 2 — DISCRIMINACIÓN (contra-test): Para cada candidato que pasó el Test 1:\n"
-                "  «¿Más del 30% de los nodos del corpus podrían tener este mismo sustantivo?»\n"
-                "  Sí → INVÁLIDO (no discrimina, va en syn). No → VÁLIDO.\n"
-                "  Palabras que SIEMPRE fallan este test: archivo, sistema, proceso, terminal, "
-                "comando, script, paso, usuario, texto, configuracion, carpeta, pantalla, "
-                "plataforma, cliente, servidor, proyecto, codigo, funcion, error, dato.\n\n"
-                "Formato: 2-4 términos, minúsculas, sin tildes, separados por coma, extraídos del contenido.\n\n"
-                "🔒 PROHIBICIONES ABSOLUTAS:\n"
                 "✗ NO repetir palabras del nombre del concepto (ya tienen peso 5.0x en BM25).\n"
                 "✗ NO nominalizar verbos (postular→'postulacion', analizar→'analisis').\n"
                 "✗ NO abstracciones vacías ('estrategia', 'metodologia', 'proceso', 'filosofia').\n"
@@ -759,7 +740,7 @@ def register(mcp: Any) -> None:
         )] = None,
         sustantivos_clave: Annotated[Optional[str], Field(
             description=(
-                "OBLIGATORIO — SOMA del nodo: 2-4 sustantivos que son su IDENTIDAD irreducible (peso BM25 4.0x). "
+                "OBLIGATORIO — SOMA del nodo: 2 a 10 sustantivos que son su IDENTIDAD irreducible (peso BM25 4.0x). "
                 "PROTOCOLO — 2 TESTS MECÁNICOS (ver `aprender` para detalle completo): "
                 "TEST 1 IDENTIDAD: «Este nodo ES un nodo sobre ___.» Natural→PASA, forzado→NO PASA. "
                 "TEST 2 DISCRIMINACIÓN: «¿>30% de los nodos podrían tener esta palabra?» Sí→INVÁLIDO, No→VÁLIDO. "
@@ -804,7 +785,7 @@ def register(mcp: Any) -> None:
             "Actualiza o agrega sustantivos_clave a un nodo existente en largo_plazo (o corto_plazo).\n"
             "Permite enriquecer nodos legacy creados antes de la introducción de sustantivos_clave "
             "o corregir/refinar el centro de gravedad semántico de un nodo.\n\n"
-            "Parámetros: concepto (str), sustantivos_clave (str: 2-4 términos separados por coma).\n"
+            "Parámetros: concepto (str), sustantivos_clave (str: 2 a 10 términos separados por coma).\n"
             "Retorna: {status: 'ok', concepto: str, sustantivos_anteriores: str, sustantivos_nuevos: str}\n"
             "O error {status: 'error', codigo: '...', mensaje: '...'}"
         ),
@@ -813,11 +794,11 @@ def register(mcp: Any) -> None:
         concepto: Annotated[str, Field(description="Nombre del nodo existente (se normaliza a snake_case).")],
         sustantivos_clave: Annotated[str, Field(
             description=(
-                "SOMA del nodo: 2-4 sustantivos que son su IDENTIDAD irreducible (peso BM25 4.0x).\n"
+                "SOMA del nodo: 2 a 10 sustantivos que son su IDENTIDAD irreducible (peso BM25 4.0x).\n"
                 "PROTOCOLO — 2 TESTS MECÁNICOS (nodo ya existente — mirá qué contiene antes de elegir):\n"
                 "TEST 1 IDENTIDAD: «Este nodo ES un nodo sobre ___.» Natural→PASA, forzado→NO PASA.\n"
                 "TEST 2 DISCRIMINACIÓN: «¿>30% de los nodos podrían tener esta palabra?» Sí→INVÁLIDO (va en syn), No→VÁLIDO.\n"
-                "Formato: 2-4 términos, minúsculas, sin tildes, separados por coma, extraídos del contenido.\n"
+                "Formato: 2 a 10 términos, minúsculas, sin tildes, separados por coma, extraídos del contenido.\n"
                 "🔒 PROHIBICIONES: No repetir palabras del concepto, no nominalizar verbos, "
                 "no abstracciones vacías, no métricas, no palabras ausentes del contenido."
             )
@@ -832,7 +813,7 @@ def register(mcp: Any) -> None:
                 "mensaje": (
                     f"❌ SUSTANTIVOS_CLAVE_AUSENTES — no se pudo actualizar '{clave}'.\n\n"
                     "Falta el parámetro obligatorio 'sustantivos_clave'.\n"
-                    "Formato: 2-4 términos únicos separados por coma (ej: 'servidor,backend,timeout')."
+                    "Formato: 2 a 10 términos únicos separados por coma (ej: 'servidor,backend,timeout')."
                 ),
                 "concepto": clave,
             }, ensure_ascii=False)
@@ -841,13 +822,13 @@ def register(mcp: Any) -> None:
         sustantivos_norm = normalizar_sustantivos_clave(str(sustantivos_clave))
         sk_unicos = [t for t in sustantivos_norm.split(",") if t] if sustantivos_norm else []
 
-        if len(sk_unicos) < 2 or len(sk_unicos) > 4:
+        if len(sk_unicos) < 2 or len(sk_unicos) > 10:
             return json.dumps({
                 "status": "error",
                 "codigo": "SUSTANTIVOS_CLAVE_CANTIDAD_INVALIDA",
                 "mensaje": (
                     f"❌ SUSTANTIVOS_CLAVE_CANTIDAD_INVALIDA — no se pudo actualizar '{clave}'.\n\n"
-                    "SUSTANTIVOS_CLAVE_CANTIDAD_INVALIDA: se requieren entre 2 y 4 términos "
+                    "SUSTANTIVOS_CLAVE_CANTIDAD_INVALIDA: se requieren entre 2 a 10 términos "
                     f"únicos; se recibió {len(sk_unicos)} tras deduplicar. "
                     "Formato: 'servidor,backend,timeout,conexion'"
                 ),
@@ -957,7 +938,7 @@ def register(mcp: Any) -> None:
             "- peso_sinaptico (float, opcional): Nuevo peso sináptico (0.0 a 1.0).\n"
             "- estado (str, opcional): Nuevo estado: 'activo', 'dormido', 'cuarentena'.\n"
             "- sinonimos (str, opcional): Nuevos sinónimos separados por coma.\n"
-            "- sustantivos_clave (str, opcional): Nuevos sustantivos clave (2-4 términos separados por coma).\n"
+            "- sustantivos_clave (str, opcional): Nuevos sustantivos clave (2 a 10 términos separados por coma).\n"
             "- dimensiones (str JSON / dict, opcional): Nuevas coordenadas dimensionales.\n"
             "- categoria (str, opcional): Nueva categoría.\n"
             "- sobrescribir (bool, default False): Si es True, reemplaza completamente el contenido y metadatos del nodo.\n\n"
@@ -982,7 +963,7 @@ def register(mcp: Any) -> None:
         )] = None,
         sustantivos_clave: Annotated[Optional[str], Field(
             description=(
-                "SOMA del nodo: 2-4 sustantivos IDENTIDAD irreducible (BM25 4.0x). "
+                "SOMA del nodo: 2 a 10 sustantivos IDENTIDAD irreducible (BM25 4.0x). "
                 "Aplicar TEST 1 IDENTIDAD («ES un nodo sobre ___») + TEST 2 DISCRIMINACIÓN («¿>30% podrían tenerlo?»). "
                 "Ver protocolo completo en `aprender`."
             )
