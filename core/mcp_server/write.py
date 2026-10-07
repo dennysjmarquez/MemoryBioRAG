@@ -624,6 +624,15 @@ def register(mcp: Any) -> None:
         )] = None,
         sustantivos_clave: Annotated[Optional[str], Field(
             description=(
+                "Los sustantivos clave son el campo más importante al guardar un nodo. No es relleno: es lo que decide si el recuerdo se encuentra o no.\n"
+                "1. ¿De qué trata el nodo? — no qué palabras contiene, sino de qué se trata.\n"
+                "2. No repetir palabras que ya están en contenido o en syn: los pesos se suman y el nodo se infla.\n"
+                "3. Son la identidad del nodo: el artefacto, la herramienta, el dominio. Ejemplo: un script que bajaba fuentes de\n\n" "NotebookLM → descarga, fuente, cuaderno.\n\n"
+                "4. Criterio de éxito: ¿aparece este nodo cuando alguien lo busque dentro de 3 meses, con otras palabras?\n"
+                "a. Escribí de qué TRATA el nodo, no las palabras que aparecen en el texto.\n"
+                "b. NO repitas palabras que ya están en contenido ni en syn.\n"
+                "c. Incluí: la herramienta, el artefacto y el dominio.\n"
+                "Ejemplo — nodo sobre un script que descarga fuentes de NotebookLM: descarga,fuente,cuaderno,notebooklm\n\n"
                 "OBLIGATORIO — SOMA del nodo: 2-4 sustantivos que son su IDENTIDAD irreducible (peso BM25 4.0x).\n"
                 "Si le quitás contenido, syn, bridges y dimensiones y solo quedan estos sustantivos, "
                 "todavía tenés que saber DE QUÉ TRATA el nodo. Si no podés → están mal.\n\n"
@@ -657,7 +666,7 @@ def register(mcp: Any) -> None:
                 "    ✗ MAL: idiomas,soporte,proceso → genéricos, nominalizan, no discriminan\n"
                 "    ✓ BIEN: traduccion,script,deepseek → identidad + artefacto + herramienta\n"
                 "  Nodo personal sobre paseo con mascota:\n"
-                "    ✓ BIEN: perro,perra,manchita → identidad irreducible del recuerdo"
+                "    ✓ BIEN: perro,perra,manchita → identidad irreducible del recuerdo."
             )
         )] = None,
         busqueda_previa: Annotated[Optional[bool], Field(
