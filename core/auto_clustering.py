@@ -121,9 +121,12 @@ def detectar_comunidades(cerebro, min_densidad=0.3, min_nodos=5):
         
         if not top_tokens:
             # Fallback en caso de que no haya palabras útiles
-            nombre_cluster = f"auto_cluster_{abs(hash(frozenset(miembros))) % 100000}"
+            nombre_cluster = f"tema_cluster_{abs(hash(frozenset(miembros))) % 100000}"
         else:
-            nombre_cluster = "auto_" + "_".join(top_tokens)
+            # Prefijo 'tema_' (antes 'auto_'): el nombre se muestra en listar_dimensiones
+            # y en el árbol inyectado en la tool aprender, así que debe ser legible
+            # cuando un agente o un humano lo mencionen (Dennys, 2026-10-07).
+            nombre_cluster = "tema_" + "_".join(top_tokens)
             
         comunidades_detectadas.append({
             "nodos": miembros,
@@ -138,19 +141,38 @@ def asignar_dimensiones_emergentes(cerebro, comunidades):
     ahora = time.time()
     
     # 0. Migración de Limpieza Única (One-time cleanup)
-    cerebro.cursor.execute("SELECT id FROM dimensiones_semanticas WHERE name = 'migration_autoclustering_v1'")
+    # El flag vive en su propia tabla, no como falsa dimensión del catálogo
+    # (antes 'migration_autoclustering_v1' aparecía en listar_dimensiones y en el
+    # árbol de la tool aprender; Dennys, 2026-10-07).
+    cerebro.cursor.execute(
+        "CREATE TABLE IF NOT EXISTS migraciones_ejecutadas (clave TEXT PRIMARY KEY, ejecutado_en REAL)"
+    )
+    cerebro.cursor.execute(
+        "SELECT 1 FROM migraciones_ejecutadas WHERE clave = 'migration_autoclustering_v1'"
+    )
     if not cerebro.cursor.fetchone():
-        # Purgar todas las dimensiones auto-generadas legacy y sus asociaciones
-        cerebro.cursor.execute("""
-            DELETE FROM largo_plazo_dimensiones 
-            WHERE dimension_id IN (SELECT id FROM dimensiones_semanticas WHERE auto_generada = 1)
-        """)
-        cerebro.cursor.execute("DELETE FROM dimensiones_semanticas WHERE auto_generada = 1")
-        # Registrar la migración (tipo_id = 7: dominio, auto_generada = 0 para que no sea purgada)
-        cerebro.cursor.execute("""
-            INSERT INTO dimensiones_semanticas (name, description, tipo_id, auto_generada, confianza, generado_en)
-            VALUES ('migration_autoclustering_v1', 'Marcador de migración de limpieza de auto-clustering.', 7, 0, 1.0, ?)
-        """, (ahora,))
+        # ¿El flag viejo sigue en la tabla de dimensiones? → solo trasladarlo.
+        # NO se re-ejecuta el purge: la migración ya corrió; re-purgar borraría
+        # las dimensiones auto-generadas vivas (p.ej. la isla de clustering
+        # con sus membresías) — la limpieza legacy es de una sola vez.
+        cerebro.cursor.execute(
+            "SELECT 1 FROM dimensiones_semanticas WHERE name = 'migration_autoclustering_v1'"
+        )
+        if cerebro.cursor.fetchone():
+            cerebro.cursor.execute(
+                "DELETE FROM dimensiones_semanticas WHERE name = 'migration_autoclustering_v1'"
+            )
+        else:
+            # Primera ejecución real (BD nueva): purgar dimensiones auto-generadas legacy
+            cerebro.cursor.execute("""
+                DELETE FROM largo_plazo_dimensiones 
+                WHERE dimension_id IN (SELECT id FROM dimensiones_semanticas WHERE auto_generada = 1)
+            """)
+            cerebro.cursor.execute("DELETE FROM dimensiones_semanticas WHERE auto_generada = 1")
+        cerebro.cursor.execute(
+            "INSERT OR REPLACE INTO migraciones_ejecutadas (clave, ejecutado_en) VALUES ('migration_autoclustering_v1', ?)",
+            (ahora,),
+        )
         cerebro.conn.commit()
 
     umbral_solapamiento = float(os.environ.get("BIORAG_UMBRAL_SOLAPAMIENTO_CLUSTER", "0.5"))

@@ -1742,13 +1742,16 @@ def test_sistema():
     }]
     asignar_dimensiones_emergentes(cerebro, comunidades_test_1)
 
-    # Verificar migración inicial: la dimensión legacy debería estar borrada,
-    # y la dimensión de migración 'migration_autoclustering_v1' debería existir.
+    # Verificar migración: la dim legacy se purga, y el flag de migración NO
+    # debe vivir en el catálogo de dimensiones (ahora está en su propia tabla).
     cerebro.cursor.execute("SELECT COUNT(*) FROM dimensiones_semanticas WHERE name = 'auto_legacy_dim'")
-    assert cerebro.cursor.fetchone()[0] == 0, "Error: la dimensión legacy debería haber sido borrada por la migración"
+    assert cerebro.cursor.fetchone()[0] == 0, "Error: la dimensión legacy debería haber sido borrada por la limpieza global"
 
     cerebro.cursor.execute("SELECT COUNT(*) FROM dimensiones_semanticas WHERE name = 'migration_autoclustering_v1'")
-    assert cerebro.cursor.fetchone()[0] == 1, "Error: la dimensión de marcador de migración debería existir"
+    assert cerebro.cursor.fetchone()[0] == 0, "Error: el flag de migración no debe existir como dimensión del catálogo"
+
+    cerebro.cursor.execute("SELECT COUNT(*) FROM migraciones_ejecutadas WHERE clave = 'migration_autoclustering_v1'")
+    assert cerebro.cursor.fetchone()[0] == 1, "Error: el flag de migración debería existir en migraciones_ejecutadas"
 
     # Verificar que se creó la dimensión de la primera comunidad
     cerebro.cursor.execute("SELECT id FROM dimensiones_semanticas WHERE name = 'auto_test_cluster'")
