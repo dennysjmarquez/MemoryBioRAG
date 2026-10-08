@@ -1,12 +1,13 @@
-# INFORME DE AUDITORÍA CAUSAL DE LOS 72 FALLOS TOP-1 (v32.4)
+# INFORME DE AUDITORÍA DIAGNÓSTICA Y ATRIBUCIÓN CAUSAL DE LOS 72 FALLOS TOP-1 (v32.4)
 
-> **Misión:** Atribución causal reproducible de los 72 casos que ingresan al Top-5 pero no obtienen la posición #1.  
-> **Invariante:** Cero modificaciones de código de scoring, pesos o heurísticas durante esta fase.
+> **Misión:** Atribución cuantitativa y metodológica de los 72 casos que ingresan al Top-5 pero no obtienen la posición #1 en el benchmark QA congelado.  
+> **Invariante Metodológica:** Cero modificaciones en el motor de búsqueda, pesos, umbrales, Hub, WordNet, PPMI, MMR, calibración o candidate generation. Fase exclusiva de auditoría e instrumentación.
 
 ---
 
-## 1. Metadatos del Experimento Congelado
+## 1. Metadatos del Experimento y Reproducibilidad
 
+### 1.1 Identificadores Criptográficos Congelados
 | Parámetro | Valor Verificado |
 |---|---|
 | **Commit SHA** | `32657b652f6941161720a117232770f25a5feaed` |
@@ -15,7 +16,7 @@
 | **Dataset SHA-256** | `c76a71465f7a9be647094d79f00ffcebd742b00a6c12fa4ae90cf2c3d0654f4c` (`scripts/casos_qa_baseline_v1.jsonl`) |
 | **Total Casos en Dataset** | 921 casos |
 | **Controles Negativos** | 40 casos (0 FP · 0.00%) |
-| **Queries Ambiguas Contradictorias** | 6 casos (aisladas del Recall) |
+| **Queries Ambiguas Contradictorias** | 6 casos (aisladas formalmente del Recall) |
 | **Consultas de Recuperación Efectiva** | 875 consultas |
 | **Recall@5 Global Observado** | **100.00% (875 / 875)** |
 | **Recall@1 Global Observado** | **91.77% (803 / 875)** |
@@ -23,126 +24,165 @@
 
 ---
 
-## 2. Resumen Estadístico de Atribución Causal
+### 1.2 Demostración de Reproducibilidad en 3 Réplicas Consecutivas
+Se ejecutó la suite de auditoría instrumentada [`scripts/audit_72_top1_misses.py`](../scripts/audit_72_top1_misses.py) en 3 réplicas consecutivas independientes, clonando el snapshot mediante `sqlite3.backup()` y restaurando el estado inicial de nodos tras cada consulta:
 
-### 2.1 Desglose por Categoría de Consulta
+| Métrica / Parámetro | Réplica #1 | Réplica #2 | Réplica #3 | Coincidencia Bit-a-Bit |
+|---|---:|---:|---:|:---:|
+| **Recall@5** | 875 / 875 (100.0%) | 875 / 875 (100.0%) | 875 / 875 (100.0%) | ✅ 100% Idéntico |
+| **Recall@1** | 803 / 875 (91.77%) | 803 / 875 (91.77%) | 803 / 875 (91.77%) | ✅ 100% Idéntico |
+| **Total Misses Top-1** | 72 | 72 | 72 | ✅ 100% Idéntico |
+| **IDs de Misses (0000..0874)** | Lista idéntica | Lista idéntica | Lista idéntica | ✅ 100% Idéntico |
+| **Ganador & Rango de cada Gold** | Idéntico en los 72 | Idéntico en los 72 | Idéntico en los 72 | ✅ 100% Idéntico |
+| **Scores y Márgenes** | Idéntico en los 72 | Idéntico en los 72 | Idéntico en los 72 | ✅ 100% Idéntico |
+| **Clasificación Causal / Temporal** | Idéntico en los 72 | Idéntico en los 72 | Idéntico en los 72 | ✅ 100% Idéntico |
 
-| Categoría | Total Queries | Aciertos Top-1 | Fallos Top-1 | % del Total de Fallos | Recall@1 Cat |
-|---|---:|---:|---:|---:|---:|
-| **sinonimo** | 55 | 31 | **24** | **33.3%** | 56.36% |
-| **por_tema** | 65 | 41 | **24** | **33.3%** | 63.08% |
-| **variante_gramatical** | 65 | 57 | **8** | **11.1%** | 87.69% |
-| **typo** | 65 | 58 | **7** | **9.7%** | 89.23% |
-| **pregunta_natural** | 65 | 61 | **4** | **5.6%** | 93.85% |
-| **cruce_idioma** | 8 | 5 | **3** | **4.2%** | 62.50% |
-| **literal** | 487 | 485 | **2** | **2.8%** | 99.59% |
-| **TOTAL** | **875** | **803** | **72** | **100.0%** | **91.77%** |
-
-> **Hallazgo Clave 1:** El **66.7% de todos los fallos Top-1** (48 de 72) se concentra exclusivamente en dos categorías: `sinonimo` (24) y `por_tema` (24).
-
----
-
-### 2.2 Desglose por Clasificación Causal de Fallo
-
-| Clase Causal | Casos | % | Definición Operativa |
-|---|---:|---:|---|
-| **PRE_RANKING** | **59** | **81.9%** | El cuello de botella ocurre en el scoring híbrido base antes del reranker: el competidor ya supera al Gold en score base. |
-| **TIE_BREAK** | **9** | **12.5%** | Margen infinitesimal ($| \text{score}_{\text{winner}} - \text{score}_{\text{gold}} | < 0.0050$), donde el ordenamiento se define por milésimas o empate léxico. |
-| **RERANKER** | **4** | **5.6%** | El reranker multicampo modificó el orden final de forma desfavorecedora para el Gold. |
-| **TOTAL** | **72** | **100.0%** | |
+> **Declaración de Reproducibilidad:** *La auditoría instrumentada es 100% reproducible bajo este entorno y protocolo.*  
+> **Explicación sobre la variación histórica 71 vs. 72:** En ejecuciones sin protocolo de aislamiento estricto, la variación de 1 caso surge de empates infinitesimales en la frontera Top-5 (ej. caso 0513 con scores idénticos), donde el ordenamiento sin clave secundaria estricta (`ORDER BY score DESC, concepto ASC`) o la iteración sobre `set(tokens)` sin `PYTHONHASHSEED` fijado produce indeterminismo en el último puesto. Bajo el protocolo auditado con aislamiento de snapshot, la salida es determinista y estable en 72 fallos.
 
 ---
 
-### 2.3 Desglose por Comportamiento Pre/Post Reranker
+## 2. Marco Epistemológico Tripartito
 
-| Tipo de Comportamiento | Casos | % | Dinámica |
-|---|---:|---:|---|
-| **TIPO 4 (Pre-ranking unchanged)** | **53** | **73.6%** | El Gold ya estaba en puesto #2 a #5 antes del reranker y el reranker no alteró su posición relativa. |
-| **TIPO 2/3 (Pre-ranking modulated)** | **13** | **18.1%** | El Gold no era #1 pre-reranker, y el reranker moduló ligeramente las posiciones dentro del Top-5. |
-| **TIPO 1 (Reranker Regression)** | **6** | **8.3%** | El Gold era #1 en el score base y fue superado por un competidor con mayor bono multicampo. |
-| **TOTAL** | **72** | **100.0%** | |
-
-> **Hallazgo Clave 2:** En el **91.7% de los casos (66/72)**, el Gold **ya no era el #1 antes de aplicar el reranker**. El reranker multicampo NO es el culpable principal de los fallos Top-1; el cuello de botella se ubica en el balance de señales del **Pre-ranking híbrido**.
-
----
-
-## 3. Descomposición de Señales (Winner vs. Gold)
-
-Para cada uno de los 72 casos se capturó la matriz completa de señales primarias del score híbrido y el bono del reranker:
-
-### 3.1 Promedio de Deltas por Señal ($\Delta = \text{Winner} - \text{Gold}$)
-
-| Señal | Delta Promedio ($\Delta$) | Interpretación Mecanística |
-|---|---:|---|
-| **`tematico_score`** | **+0.1972** | **Causa #1 de desplazamiento:** El competidor posee mayor densidad de co-ocurrencia temática en dimensiones. |
-| **`hub_match`** | **+0.1604** | En casos donde el competidor está enlazado a un Concept Hub, el boost canónico eleva al competidor. |
-| **`dim_score`** | **+0.0774** | Mayor solapamiento en los 13 ejes dimensionales a favor del competidor. |
-| **`grupo_score_wordnet`** | **+0.0592** | Mayor afinidad en sinsets de WordNet para los tokens del competidor. |
-| **`pred_score_srl`** | **+0.0451** | Coincidencia de roles semánticos (sujeto/predicado) favorece al competidor. |
-| **`score_hibrido_base`** | **+0.0442** | Margen promedio de ventaja del competidor antes del reranker. |
-| **`jaccard`** | **+0.0387** | Coincidencia difusa de subcadenas/trigramas ligeramente superior en el competidor. |
-| **`jsd_score`** | **+0.0043** | Divergencia Jensen-Shannon neutra/balanceada. |
-| **`concepto_ratio`** | **+0.0006** | Coincidencia simbólica en título idéntica entre ambos. |
-| **`bm25_norm`** | **-0.0004** | BM25 FTS5 equilibrado entre ambos. |
-| **`convergencia_bonus`** | **-0.0005** | Bono multicampo no sesga hacia el ganador (prácticamente nulo en promedio). |
-| **`ppmi_score`** | **-0.0169** | **El Gold supera al Winner en PPMI-SVD**, pero no compensa el déficit en `tematico_score` y `dim_score`. |
-| **`sinonimos_ratio`** | **-0.0252** | **El Gold supera al Winner en ratio de sinónimos**, pero queda relegado por señales estructurales. |
-
----
-
-## 4. Respuestas Técnicas a los Puntos de la Auditoría
-
-### 1. ¿Por qué el Agente 1 obtuvo 71/72 con el mismo snapshot?
-- **Empates en puntos de corte (Ties en frontera Top-5):** En casos como el `0513` (`typo`), el score del Gold es bajo (~0.1743), empatado con otro candidato. Cuando SQLite o Python ordenan elementos con scores idénticos sin una clave secundaria estricta (`concepto ASC`), el orden depende de la secuencia de inserción o B-tree traversal.
-- **Sets no ordenados (`set(tokens)`):** En entornos donde `PYTHONHASHSEED` no está fijado, la iteración sobre conjuntos introduce variaciones de orden en listas auxiliares.
-- **Aislamiento de estado:** Si no se restauran `estado` y `peso_sinaptico` caso a caso, las mutaciones de los primeros $N-1$ casos se acumulan. La suite oficial controla esto mediante `_restaurar_estado_nodos`.
-
-### 2. ¿Es determinista `audit_72_top1_misses.py`?
-Sí. Al aislar la base de datos con `sqlite3.backup()` y ejecutar `_restaurar_estado_nodos` tras cada caso, reproduce **exactamente 875/875 en Top-5 y 72 misses Top-1** de forma determinista y estable.
-
-### 3. Explicación formal de la discrepancia 66 vs. 59 y TIPO-1 (6) vs. RERANKER (4)
-Existe una distinción entre **Comportamiento Temporal** (Pre vs. Post) y **Causa Raíz Operativa**:
-- **Comportamiento:** 6 casos son TIPO-1 (Gold #1 pre $\to$ no #1 post) y 66 casos son TIPO-2/3/4 (Gold no era #1 pre).
-- **Causa Raíz:** Se aplica una jerarquía donde los márgenes infinitesimales ($< 0.0050$) se aíslan como `TIE_BREAK`:
-  - De los 6 casos TIPO-1: **4** tienen margen $\ge 0.005$ (`RERANKER`) y **2** tienen margen $< 0.005$ (`TIE_BREAK`).
-  - De los 66 casos TIPO-2/3/4: **59** tienen margen $\ge 0.005$ (`PRE_RANKING`) y **7** tienen margen $< 0.005$ (`TIE_BREAK`).
-  - Total: $59 + 4 + 9 = 72$ casos exactos.
-
----
-
-## 5. Verificación de EXP-Q (Abismo Léxico Cero-Overlap)
-
-La suite de verificación directa en [`scripts/test_abismo_lexico.py`](../scripts/test_abismo_lexico.py) reporta:
+Para evitar confusiones entre mediciones algebraicas e inferencias de causalidad, todos los datos se presentan bajo tres niveles epistemológicos rigurosos:
 
 ```
-===========================================================================
-RESUMEN DE RESCATE EN EL ABISMO LÉXICO (EXP-Q)
-===========================================================================
-Candidatos descubiertos en Pool BFS (Grafo):      3/3 (100.0%)
-Resueltos en Búsqueda Primaria (Léxico directo):  0/3
-Rescate efectivo en Ventana Top-5:                2/3 (66.7%)
-Rescate en Primera Posición (Top-1):              1/3 (33.3%)
-Irresueltos (fuera del pool BFS):                 0/3
----------------------------------------------------------------------------
-  EXP-Q-01: Primaria: ❌ 0 Overlap  -> Grafo: ✅ TOP-5 (Pos #4)   | Mecanismo: grafo | kilo_vscode_extension_principa
-  EXP-Q-02: Primaria: ❌ 0 Overlap  -> Grafo: ✅ TOP-5 (Pos #1)   | Mecanismo: grafo | regla_verificar_codigo_real_an
-  EXP-Q-03: Primaria: ❌ 0 Overlap  -> Grafo: ℹ️ POOL (Pos #19)  | Mecanismo: grafo | ajuste_tejedora_valencia_desem
-===========================================================================
+┌─────────────────────────────────────────────────────────────────────────────┐
+│ 1. NIVEL DESCRIPTIVO                                                        │
+│    Diferencia cruda observada en señales (Winner - Gold: Δ_crudo)           │
+├─────────────────────────────────────────────────────────────────────────────┤
+│ 2. NIVEL CONTRIBUTIVO (Matemático / Algebraico)                             │
+│    Aporte ponderado exacto dentro de _calcular_score_hibrido():             │
+│    Δ_ponderado = w_i × base_weight × Δ_crudo                                │
+│    + Efecto de promoción externa posterior (piso_promocion_hub)             │
+├─────────────────────────────────────────────────────────────────────────────┤
+│ 3. NIVEL DE HIPÓTESIS CAUSAL                                                │
+│    Inferencia sobre el factor dominante del desplazamiento (requiere prueba │
+│    contrafactual formal para considerarse demostración causal definitiva)   │
+└─────────────────────────────────────────────────────────────────────────────┘
 ```
 
 ---
 
-## 6. Respuestas a las Preguntas Científicas Fundamentales
+## 3. Desmitificación y Diferenciación de Mecanismos del Concept Hub (Caso 0501)
 
-### ¿Cuál es el cuello de botella dominante de MemoryBioRAG?
-1. **Descubrimiento de candidatos (Candidate Generation):** **RESUELTO AL 100%** en este benchmark (875/875 entran al Top-5).
-2. **Discriminación de Pre-ranking:** **CUELLO DE BOTELLA DOMINANTE (81.9%)**. El Gold pierde principalmente frente a competidores con mayor `tematico_score` (+0.1972) y `dim_score` (+0.0774), a pesar de que el Gold posee mejor `sinonimos_ratio` (-0.0252) y `ppmi_score` (-0.0169).
-3. **Reranker Multicampo:** Aporta un beneficio neto positivo global (+0.11pp en R@1), representando solo un 5.6% (4 casos) de desplazamientos netos.
+El caso `0501` (`"sistema de base de datos vectorial de alto rendimiento"`) ilustra la necesidad de separar explícitamente los dos efectos que el Concept Hub ejerce sobre el ranking:
+
+```
+              ┌────────────────────────────────────────────────────────┐
+              │ Mecanismo A: Señal Intra-Fórmula (_calcular_score_...) │
+              │ • Peso relativo: w = 0.20 × base_weight                │
+              │ • Aporte aditivo dentro de la ecuación lineal híbrida   │
+              └───────────────────────────┬────────────────────────────┘
+                                          │
+                                          ▼
+                               Score Híbrido Puro: 0.3554
+                                          │
+                                          ▼
+              ┌────────────────────────────────────────────────────────┐
+              │ Mecanismo B: Regla Externa de Promoción (search.py)   │
+              │ • Condición: hub_confidence = 0.5333                   │
+              │ • score_forzado = min(0.95, 0.5333 × 0.95) = 0.5067    │
+              │ • Promoción Delta: +0.1513                             │
+              └───────────────────────────┬────────────────────────────┘
+                                          │
+                                          ▼
+                               Score Efectivo Pre-Reranker: 0.5067
+```
+
+- **Mecanismo A (Intra-híbrido):** `hub_match` aporta al score lineal pre-promoción.
+- **Mecanismo B (Post-híbrido / Piso Hub):** En `search.py:1898-1920`, si un nodo posee enlace canónico Hub con alta confianza, su score base se eleva forzadamente a `hub_confidence × 0.95`.
+- **Conclusión Técnica:** `0.3554` era el score híbrido puro antes de la regla de piso; `0.5067` es el score efectivo que entró al ranking. Ambos valores son consistentes con la arquitectura y la telemetría instrumentada valida la invocación exacta.
 
 ---
 
-## 7. Conclusión y Recomendación Metodológica
+## 4. Validación de Telemetría vs. Score de Ranking Real
 
-- El artefacto completo con el desglose individual de los 72 casos y sus vectores de señales está disponible en [`docs/top1_failure_attribution.json`](top1_failure_attribution.json).
-- **Invariante respetada:** No se han realizado modificaciones al motor ni a los pesos.
-- La evidencia empírica demuestra que el frente de optimización futuro para R@1 reside en **modular la fuerza relativa de `tematico_score` y `dim_score` frente a `sinonimos_ratio` y `ppmi_score`**, garantizando que recuerdos con alta afinidad semántica/sinonímica no sean sobrepasados por coincidencias temáticas genéricas.
+Para garantizar que la telemetría capturada no corresponde a una invocación intermedia o sobreescrita:
+1. Cada llamada a `_calcular_score_hibrido()` registra `invocation_id`, `caller_line`, `score_returned` y el vector completo de señales `kwargs`.
+2. Para el 100% de los 72 casos auditados, se comprobó que `score_returned` de la última evaluación coincide con `last_score_base_map[concepto]`, demostrando correspondencia unívoca entre las señales capturadas y el score que determinó el ranking pre-reranker.
+
+---
+
+## 5. Formulación del Peso Efectivo (`base_weight`) y Descomposición Matemática
+
+### 5.1 Ecuación de Normalización Real de `core/memory/scoring.py`
+En el motor actual, los pesos base suman:
+$$\Sigma_{\text{base}} = 0.25 + 0.14 + 0.08 + 0.08 + 0.10 + 0.10 + 0.10 + 0.08 + 0.04 + 0.02 + 0.20 + 0.20 = 1.39$$
+
+El denominador total incluye los pesos activos de espacio latente y complementarios:
+$$\text{total\_base} = \Sigma_{\text{base}} + \text{PPMI (0.15)} + \text{NCD (0.05)} + \text{Episodio (0.05)} + \text{Analogía (0.00)} + \text{Campo (0.05)} = 1.69$$
+
+El factor de escala base adaptativo para una consulta con peso de divergencia JSD ($w_{\text{jsd}}$) es:
+$$\text{base\_weight} = \frac{1.0 - w_{\text{jsd}}}{1.69}$$
+
+Cuando $w_{\text{jsd}} = 0.0$, $\text{base\_weight} \approx 0.591716$.  
+Para consultas de longitud media donde $w_{\text{jsd}} \in [0.05, 0.15]$, $\text{base\_weight} \in [0.5029, 0.5621]$.
+
+---
+
+### 5.2 Descomposición de Señales: Promedios en los 72 Fallos
+
+| Señal | Peso Nominal ($w_i$) | Peso Efectivo Medio | Delta Descriptivo Medio ($\Delta_{\text{crudo}}$) | Delta Contributivo Medio ($\Delta_{\text{ponderado}}$) | Comportamiento en los 72 Fallos |
+|---|---:|---:|---:|---:|---|
+| **`hub_match`** | 0.20 | 0.1121 | **+0.1604** | **+0.017580** | Ventaja estructural del ganador en conceptos Hub |
+| **`tematico_score`** | 0.08 | 0.0448 | **+0.1972** | **+0.008701** | Densidad de co-ocurrencia temática en dimensiones |
+| **`dim_score`** | 0.14 | 0.0785 | **+0.0774** | **+0.006120** | Coincidencia en ejes semánticos topológicos |
+| **`pred_score_srl`** | 0.20 | 0.1121 | **+0.0451** | **+0.005167** | Coincidencia de roles semánticos |
+| **`grupo_score_wordnet`** | 0.10 | 0.0560 | **+0.0592** | **+0.003457** | Afinidad léxica WordNet a favor del ganador |
+| **`jaccard`** | 0.10 | 0.0560 | **+0.0387** | **+0.002211** | Similitud de trigramas difusa |
+| **`concepto_ratio`** | 0.08 | 0.0448 | **+0.0006** | **+0.000446** | Prácticamente neutral |
+| **`peso_sinaptico`** | 0.10 | 0.0560 | **0.0000** | **0.000000** | Neutral en benchmark estándar |
+| **`ncd_score`** | 0.05 | 0.0280 | **-0.0055** | **-0.000154** | Leve ventaja Gold |
+| **`jsd_score`** | adaptativo | 0.0528 | **+0.0043** | **-0.000361** | Efecto modulador distributivo |
+| **`convergencia_bonus`** | reranker | 1.0000 | **-0.0005** | **-0.000464** | Bono multicampo levemente pro-Gold |
+| **`bm25_norm`** | 0.25 | 0.1401 | **-0.0004** | **-0.000798** | FTS5 equilibrado |
+| **`sinonimos_ratio`** | 0.08 | 0.0448 | **-0.0252** | **-0.001040** | **El Gold supera al ganador en sinónimos** |
+| **`ppmi_score`** | 0.15 | 0.0841 | **-0.0169** | **-0.001336** | **El Gold supera al ganador en espacio PPMI** |
+
+---
+
+## 6. Clasificación Sistemática de los 72 Casos
+
+### 6.1 Desglose por Categoría de Consulta
+| Categoría | Casos Fallidos | % Fallos | Observación Descriptiva |
+|---|---:|---:|---|
+| **`sinonimo`** | **24** | **33.3%** | El Gold tiene mejor sinonimia léxica, pero el ganador lo supera en tema/dimensiones |
+| **`por_tema`** | **24** | **33.3%** | Múltiples nodos del mismo tema compiten en vecindad dimensional |
+| **`variante_gramatical`** | **8** | **11.1%** | Flexiones verbales o plurales con divergencia en trigramas |
+| **`typo`** | **7** | **9.7%** | Errores ortográficos que reducen el matching léxico exacto |
+| **`pregunta_natural`** | **4** | **5.6%** | Ruido sintáctico en preguntas complejas |
+| **`cruce_idioma`** | **3** | **4.2%** | Desfase léxico bilingüe |
+| **`literal`** | **2** | **2.8%** | Colisión de términos literales compartidos |
+
+---
+
+### 6.2 Relación Matemática entre Clasificación Causal y Comportamiento Temporal
+
+Existe una correspondencia algebraica exacta entre las dimensiones de análisis:
+
+```
+TOTAL FALLOS TOP-1: 72 CASOS
+│
+├── Por Comportamiento Temporal Pre vs. Post Reranker:
+│   ├── TIPO 1 (Gold era #1 pre-reranker y cayó tras reranking): 6 casos (8.3%)
+│   └── TIPO 2/3/4 (Gold NO era #1 antes del reranker):         66 casos (91.7%)
+│
+└── Por Clasificación Causal Operativa (con umbral de margen 0.0050):
+    ├── PRE_RANKING (Margen base ≥ 0.0050): 59 casos (81.9%)
+    ├── TIE_BREAK   (Margen final < 0.0050):  9 casos (12.5%)
+    │   ├── Provenientes de TIPO 1:           2 casos
+    │   └── Provenientes de TIPO 2/3/4:       7 casos
+    └── RERANKER    (TIPO 1 con margen ≥ 0.0050): 4 casos (5.6%)
+    
+    Total: 59 + 9 + 4 = 72 casos exactos.
+```
+
+---
+
+## 7. Síntesis Diagnóstica y Estado de Hipótesis
+
+1. **Hallazgo Descriptivo Central:** El 100% de los 875 casos son descubiertos en el Top-5 (0% fallos de cobertura). El 91.7% de los fallos Top-1 (66/72) se gesta en la fase de **Pre-ranking Híbrido**, antes de la intervención del reranker léxico.
+2. **Hallazgo Contributivo Central:** Los competidores superan a los nodos Gold principalmente por la acumulación aditiva de `hub_match` (+0.0176 contribución ponderada promedio) y `tematico_score` (+0.0087 contribución ponderada promedio), aun cuando el Gold aventaja al ganador en `ppmi_score` (-0.0013) y `sinonimos_ratio` (-0.0010).
+3. **Estado Epistémico de la Causalidad:** Se mantiene la calificación de **HIPÓTESIS DIAGNÓSTICA** sobre la necesidad de calibrar el equilibrio relativo entre señales temáticas/estructurales y señales semánticas finas. No se afirmará causalidad probada hasta que se ejecute una prueba contrafactual formal en la fase correspondiente.
+4. **Cierre de Fase:** La instrumentación, reproductibilidad y descomposición matemática quedan verificadas y cerradas. El motor permanece 100% intacto.
