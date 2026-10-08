@@ -183,14 +183,14 @@ def asignar_dimensiones_emergentes(cerebro, comunidades):
         conf = comm["confianza"]
         nodos = comm["nodos"]
         
-        # Desambiguación de colisiones de nombres de dimensiones
+        # Desambiguación de colisiones de nombres de dimensiones dentro del eje tipo_id = 7 (dominio)
         nombre_final = nombre
         sufijo = 1
         while sufijo < 50:
-            cerebro.cursor.execute("SELECT id FROM dimensiones_semanticas WHERE name = ?", (nombre_final,))
+            cerebro.cursor.execute("SELECT id FROM dimensiones_semanticas WHERE tipo_id = 7 AND name = ?", (nombre_final,))
             row_dim = cerebro.cursor.fetchone()
             if not row_dim:
-                # El nombre no existe, se puede usar
+                # El nombre no existe en este eje, se puede usar
                 break
             dim_id = row_dim[0]
             # Obtener miembros actuales de esta dimensión en la DB
@@ -221,15 +221,15 @@ def asignar_dimensiones_emergentes(cerebro, comunidades):
             VALUES (?, ?, 7, 1, ?, ?)
         """, (nombre, f"Dimensión temática auto-generada vía clustering semántico con confianza {conf:.2f}.", conf, ahora))
         
-        # Si ya existe, actualizar confianza y fecha de generación
+        # Si ya existe, actualizar confianza y fecha de generación dentro del tipo_id = 7
         cerebro.cursor.execute("""
             UPDATE dimensiones_semanticas
             SET confianza = ?, generado_en = ?
-            WHERE name = ? AND auto_generada = 1
+            WHERE tipo_id = 7 AND name = ? AND auto_generada = 1
         """, (conf, ahora, nombre))
         
-        # Obtener el ID de la dimensión
-        cerebro.cursor.execute("SELECT id FROM dimensiones_semanticas WHERE name = ?", (nombre,))
+        # Obtener el ID de la dimensión en el eje tipo_id = 7
+        cerebro.cursor.execute("SELECT id FROM dimensiones_semanticas WHERE tipo_id = 7 AND name = ?", (nombre,))
         dim_id = cerebro.cursor.fetchone()[0]
         dim_ids_actuales.add(dim_id)
         
@@ -247,30 +247,30 @@ def asignar_dimensiones_emergentes(cerebro, comunidades):
             WHERE dimension_id = ? AND concepto NOT IN ({nodos_placeholder})
         """, [dim_id] + list(nodos))
             
-    # 3. Limpieza global de dimensiones auto-generadas desaparecidas
+    # 3. Limpieza global de dimensiones auto-generadas desaparecidas (restringido a tipo_id = 7)
     if dim_ids_actuales:
         placeholders = ",".join(["?"] * len(dim_ids_actuales))
-        # Eliminar membresías de dimensiones auto-generadas desaparecidas
+        # Eliminar membresías de dimensiones auto-generadas desaparecidas del eje tipo_id = 7
         cerebro.cursor.execute(f"""
             DELETE FROM largo_plazo_dimensiones
             WHERE dimension_id IN (
                 SELECT id FROM dimensiones_semanticas 
-                WHERE auto_generada = 1 AND id NOT IN ({placeholders})
+                WHERE auto_generada = 1 AND tipo_id = 7 AND id NOT IN ({placeholders})
             )
         """, list(dim_ids_actuales))
-        # Eliminar las dimensiones auto-generadas desaparecidas en sí
+        # Eliminar las dimensiones auto-generadas desaparecidas en sí del eje tipo_id = 7
         cerebro.cursor.execute(f"""
             DELETE FROM dimensiones_semanticas
-            WHERE auto_generada = 1 AND id NOT IN ({placeholders})
+            WHERE auto_generada = 1 AND tipo_id = 7 AND id NOT IN ({placeholders})
         """, list(dim_ids_actuales))
     else:
-        # Si no se detectó ninguna comunidad en este ciclo, eliminar todas las auto-generadas
+        # Si no se detectó ninguna comunidad en este ciclo, eliminar solo las auto-generadas de tipo_id = 7
         cerebro.cursor.execute("""
             DELETE FROM largo_plazo_dimensiones
             WHERE dimension_id IN (
-                SELECT id FROM dimensiones_semanticas WHERE auto_generada = 1
+                SELECT id FROM dimensiones_semanticas WHERE auto_generada = 1 AND tipo_id = 7
             )
         """)
-        cerebro.cursor.execute("DELETE FROM dimensiones_semanticas WHERE auto_generada = 1")
+        cerebro.cursor.execute("DELETE FROM dimensiones_semanticas WHERE auto_generada = 1 AND tipo_id = 7")
 
     cerebro.conn.commit()

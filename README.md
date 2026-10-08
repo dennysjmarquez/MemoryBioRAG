@@ -22,11 +22,11 @@ Evaluación sobre el snapshot congelado oficial (**921 casos**: 875 consultas de
 | **Tests unitarios** | **304/304 aprobados** | Cobertura completa de invariantes, contratos MCP, normalización y catálogo. |
 | **Abismo léxico (EXP-Q)** | **3/3 (100%)** | Rescatados en contexto expandido (posiciones #4 a #21) por BFS en grafo sináptico. |
 | **Sinónimos · Recall@5 / Recall@1** | **100% (55/55) / 56.36%** | Cobertura total en Top-5; el 43.64% restante queda entre Top-2 y Top-5. |
-| **Por tema · Recall@5 / Recall@1** | **100% (65/65) / 67.69%** | Cobertura total en Top-5; ordenamiento Top-1 guiado por Jaccard y PPMI-SVD. |
-| **Pregunta natural · R@5 / R@1** | **100% (65/65) / 95.38%** | Alta precisión Top-1 en formulaciones conversacionales. |
+| **Por tema · Recall@5 / Recall@1** | **100% (65/65) / 63.08%** | Cobertura total en Top-5; ordenamiento Top-1 guiado por Jaccard y PPMI-SVD. |
+| **Pregunta natural · R@5 / R@1** | **100% (65/65) / 93.85%** | Alta precisión Top-1 en formulaciones conversacionales. |
 | **Cruce de idioma · R@5 / R@1** | **100% (8/8) / 62.50%** | Rescate bilingüe en Top-5; Top-1 asistido por WordNet y Concept Hubs. |
 | **Smoke multicampo en DB local** | **Objetivo #2 → #1** | Promoción de `version_actual_biorag` de #2 a #1 por convergencia multicampo. |
-| **Tiempo de la evaluación global** | **753.03 s** | Ejecución determinista de la suite QA de 921 casos en CPU local (sin GPUs ni APIs). |
+| **Tiempo de la evaluación global** | **809.00 s** | Ejecución determinista de la suite QA de 921 casos en CPU local (sin GPUs ni APIs). |
 
 > **Interpretación Epistémica de R@5 vs. R@1:**
 > - **R@5 = 100.00% (875/875):** Demuestra que el conjunto híbrido (FTS5 BM25 + Sustantivos Clave + Grafo Sináptico Hebbiano + PPMI-SVD + Concept Hubs) es suficiente para **garantizar que el nodo correcto siempre entra en el contexto de trabajo del agente**.
