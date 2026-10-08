@@ -1,0 +1,383 @@
+{
+  "metadata": {
+    "timestamp": "2026-10-08T16:03:40",
+    "phase": "DISCOVERY",
+    "n_cases": 437,
+    "alpha_grid": [
+      0.05,
+      0.1,
+      0.15,
+      0.2,
+      0.25,
+      0.3,
+      0.4,
+      0.5
+    ],
+    "alpha_selected": 0.05
+  },
+  "baseline_A_global_ref": {
+    "r1": 803,
+    "r1_pct": 91.7714
+  },
+  "alpha_sweep": [
+    {
+      "alpha": 0.05,
+      "total": 437,
+      "top1_hits": 434,
+      "top5_hits": 437,
+      "r1_pct": 99.3135,
+      "r5_pct": 100.0,
+      "rescates": 0,
+      "regresiones": 1,
+      "net_delta": -1,
+      "transitions": [
+        {
+          "case_id": "0040",
+          "type": "REGRESSION",
+          "found_A": 1,
+          "found_J": 2,
+          "rule_fired": true,
+          "struct1": 1.8405,
+          "struct2": 1.0,
+          "lex1": 0.2382,
+          "lex2": 0.2722
+        }
+      ]
+    },
+    {
+      "alpha": 0.1,
+      "total": 437,
+      "top1_hits": 434,
+      "top5_hits": 437,
+      "r1_pct": 99.3135,
+      "r5_pct": 100.0,
+      "rescates": 0,
+      "regresiones": 1,
+      "net_delta": -1,
+      "transitions": [
+        {
+          "case_id": "0040",
+          "type": "REGRESSION",
+          "found_A": 1,
+          "found_J": 2,
+          "rule_fired": true,
+          "struct1": 1.8405,
+          "struct2": 1.0,
+          "lex1": 0.2382,
+          "lex2": 0.2722
+        }
+      ]
+    },
+    {
+      "alpha": 0.15,
+      "total": 437,
+      "top1_hits": 434,
+      "top5_hits": 437,
+      "r1_pct": 99.3135,
+      "r5_pct": 100.0,
+      "rescates": 0,
+      "regresiones": 1,
+      "net_delta": -1,
+      "transitions": [
+        {
+          "case_id": "0040",
+          "type": "REGRESSION",
+          "found_A": 1,
+          "found_J": 2,
+          "rule_fired": true,
+          "struct1": 1.8405,
+          "struct2": 1.0,
+          "lex1": 0.2382,
+          "lex2": 0.2722
+        }
+      ]
+    },
+    {
+      "alpha": 0.2,
+      "total": 437,
+      "top1_hits": 433,
+      "top5_hits": 437,
+      "r1_pct": 99.0847,
+      "r5_pct": 100.0,
+      "rescates": 0,
+      "regresiones": 2,
+      "net_delta": -2,
+      "transitions": [
+        {
+          "case_id": "0040",
+          "type": "REGRESSION",
+          "found_A": 1,
+          "found_J": 2,
+          "rule_fired": true,
+          "struct1": 1.8405,
+          "struct2": 1.0,
+          "lex1": 0.2382,
+          "lex2": 0.2722
+        },
+        {
+          "case_id": "0358",
+          "type": "REGRESSION",
+          "found_A": 1,
+          "found_J": 2,
+          "rule_fired": true,
+          "struct1": 1.3974,
+          "struct2": 0.562,
+          "lex1": 0.7486,
+          "lex2": 1.8037
+        }
+      ]
+    },
+    {
+      "alpha": 0.25,
+      "total": 437,
+      "top1_hits": 432,
+      "top5_hits": 437,
+      "r1_pct": 98.8558,
+      "r5_pct": 100.0,
+      "rescates": 0,
+      "regresiones": 3,
+      "net_delta": -3,
+      "transitions": [
+        {
+          "case_id": "0040",
+          "type": "REGRESSION",
+          "found_A": 1,
+          "found_J": 2,
+          "rule_fired": true,
+          "struct1": 1.8405,
+          "struct2": 1.0,
+          "lex1": 0.2382,
+          "lex2": 0.2722
+        },
+        {
+          "case_id": "0358",
+          "type": "REGRESSION",
+          "found_A": 1,
+          "found_J": 2,
+          "rule_fired": true,
+          "struct1": 1.3974,
+          "struct2": 0.562,
+          "lex1": 0.7486,
+          "lex2": 1.8037
+        },
+        {
+          "case_id": "0419",
+          "type": "REGRESSION",
+          "found_A": 1,
+          "found_J": 2,
+          "rule_fired": true,
+          "struct1": 1.3062,
+          "struct2": 0.3536,
+          "lex1": 0.5703,
+          "lex2": 1.6724
+        }
+      ]
+    },
+    {
+      "alpha": 0.3,
+      "total": 437,
+      "top1_hits": 431,
+      "top5_hits": 437,
+      "r1_pct": 98.627,
+      "r5_pct": 100.0,
+      "rescates": 0,
+      "regresiones": 4,
+      "net_delta": -4,
+      "transitions": [
+        {
+          "case_id": "0040",
+          "type": "REGRESSION",
+          "found_A": 1,
+          "found_J": 2,
+          "rule_fired": true,
+          "struct1": 1.8405,
+          "struct2": 1.0,
+          "lex1": 0.2382,
+          "lex2": 0.2722
+        },
+        {
+          "case_id": "0206",
+          "type": "REGRESSION",
+          "found_A": 1,
+          "found_J": 2,
+          "rule_fired": true,
+          "struct1": 1.0,
+          "struct2": 0.0,
+          "lex1": 0.0971,
+          "lex2": 2.0
+        },
+        {
+          "case_id": "0358",
+          "type": "REGRESSION",
+          "found_A": 1,
+          "found_J": 2,
+          "rule_fired": true,
+          "struct1": 1.3974,
+          "struct2": 0.562,
+          "lex1": 0.7486,
+          "lex2": 1.8037
+        },
+        {
+          "case_id": "0419",
+          "type": "REGRESSION",
+          "found_A": 1,
+          "found_J": 2,
+          "rule_fired": true,
+          "struct1": 1.3062,
+          "struct2": 0.3536,
+          "lex1": 0.5703,
+          "lex2": 1.6724
+        }
+      ]
+    },
+    {
+      "alpha": 0.4,
+      "total": 437,
+      "top1_hits": 431,
+      "top5_hits": 437,
+      "r1_pct": 98.627,
+      "r5_pct": 100.0,
+      "rescates": 0,
+      "regresiones": 4,
+      "net_delta": -4,
+      "transitions": [
+        {
+          "case_id": "0040",
+          "type": "REGRESSION",
+          "found_A": 1,
+          "found_J": 2,
+          "rule_fired": true,
+          "struct1": 1.8405,
+          "struct2": 1.0,
+          "lex1": 0.2382,
+          "lex2": 0.2722
+        },
+        {
+          "case_id": "0206",
+          "type": "REGRESSION",
+          "found_A": 1,
+          "found_J": 2,
+          "rule_fired": true,
+          "struct1": 1.0,
+          "struct2": 0.0,
+          "lex1": 0.0971,
+          "lex2": 2.0
+        },
+        {
+          "case_id": "0358",
+          "type": "REGRESSION",
+          "found_A": 1,
+          "found_J": 2,
+          "rule_fired": true,
+          "struct1": 1.3974,
+          "struct2": 0.562,
+          "lex1": 0.7486,
+          "lex2": 1.8037
+        },
+        {
+          "case_id": "0419",
+          "type": "REGRESSION",
+          "found_A": 1,
+          "found_J": 2,
+          "rule_fired": true,
+          "struct1": 1.3062,
+          "struct2": 0.3536,
+          "lex1": 0.5703,
+          "lex2": 1.6724
+        }
+      ]
+    },
+    {
+      "alpha": 0.5,
+      "total": 437,
+      "top1_hits": 430,
+      "top5_hits": 437,
+      "r1_pct": 98.3982,
+      "r5_pct": 100.0,
+      "rescates": 0,
+      "regresiones": 5,
+      "net_delta": -5,
+      "transitions": [
+        {
+          "case_id": "0040",
+          "type": "REGRESSION",
+          "found_A": 1,
+          "found_J": 2,
+          "rule_fired": true,
+          "struct1": 1.8405,
+          "struct2": 1.0,
+          "lex1": 0.2382,
+          "lex2": 0.2722
+        },
+        {
+          "case_id": "0206",
+          "type": "REGRESSION",
+          "found_A": 1,
+          "found_J": 2,
+          "rule_fired": true,
+          "struct1": 1.0,
+          "struct2": 0.0,
+          "lex1": 0.0971,
+          "lex2": 2.0
+        },
+        {
+          "case_id": "0258",
+          "type": "REGRESSION",
+          "found_A": 1,
+          "found_J": 2,
+          "rule_fired": true,
+          "struct1": 0.4899,
+          "struct2": 0.0,
+          "lex1": 1.133,
+          "lex2": 1.9082
+        },
+        {
+          "case_id": "0358",
+          "type": "REGRESSION",
+          "found_A": 1,
+          "found_J": 2,
+          "rule_fired": true,
+          "struct1": 1.3974,
+          "struct2": 0.562,
+          "lex1": 0.7486,
+          "lex2": 1.8037
+        },
+        {
+          "case_id": "0419",
+          "type": "REGRESSION",
+          "found_A": 1,
+          "found_J": 2,
+          "rule_fired": true,
+          "struct1": 1.3062,
+          "struct2": 0.3536,
+          "lex1": 0.5703,
+          "lex2": 1.6724
+        }
+      ]
+    }
+  ],
+  "best_alpha_result": {
+    "alpha": 0.05,
+    "total": 437,
+    "top1_hits": 434,
+    "top5_hits": 437,
+    "r1_pct": 99.3135,
+    "r5_pct": 100.0,
+    "rescates": 0,
+    "regresiones": 1,
+    "net_delta": -1,
+    "transitions": [
+      {
+        "case_id": "0040",
+        "type": "REGRESSION",
+        "found_A": 1,
+        "found_J": 2,
+        "rule_fired": true,
+        "struct1": 1.8405,
+        "struct2": 1.0,
+        "lex1": 0.2382,
+        "lex2": 0.2722
+      }
+    ]
+  }
+}

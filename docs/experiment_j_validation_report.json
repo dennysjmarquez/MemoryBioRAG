@@ -1,0 +1,191 @@
+{
+  "metadata": {
+    "timestamp": "2026-10-08T16:03:40",
+    "phase": "VALIDATION",
+    "n_cases": 438,
+    "alpha_applied": 0.05,
+    "alpha_derived_from": "discovery_independent_split"
+  },
+  "baseline_A_validation": {
+    "r1": 368,
+    "r5": 438,
+    "r1_pct": 84.0183,
+    "r5_pct": 100.0
+  },
+  "rule_j_validation": {
+    "r1": 377,
+    "r5": 438,
+    "r1_pct": 86.0731,
+    "r5_pct": 100.0,
+    "rescates": 12,
+    "regresiones": 3,
+    "net_delta": 9
+  },
+  "transitions": [
+    {
+      "case_id": "0488",
+      "type": "REGRESSION",
+      "found_A": 1,
+      "found_J": 2,
+      "rule_fired": true,
+      "struct1": 1.4448,
+      "struct2": 0.4973,
+      "lex1": 0.6837,
+      "lex2": 1.1209
+    },
+    {
+      "case_id": "0489",
+      "type": "REGRESSION",
+      "found_A": 1,
+      "found_J": 2,
+      "rule_fired": true,
+      "struct1": 1.6667,
+      "struct2": 0.7454,
+      "lex1": 0.7846,
+      "lex2": 1.391
+    },
+    {
+      "case_id": "0560",
+      "type": "RESCUE",
+      "found_A": 2,
+      "found_J": 1,
+      "rule_fired": true,
+      "struct1": 1.433,
+      "struct2": 0.5,
+      "lex1": 0.0,
+      "lex2": 0.5
+    },
+    {
+      "case_id": "0592",
+      "type": "RESCUE",
+      "found_A": 2,
+      "found_J": 1,
+      "rule_fired": true,
+      "struct1": 1.7588,
+      "struct2": 0.3892,
+      "lex1": 0.5686,
+      "lex2": 1.0866
+    },
+    {
+      "case_id": "0624",
+      "type": "RESCUE",
+      "found_A": 2,
+      "found_J": 1,
+      "rule_fired": true,
+      "struct1": 1.0,
+      "struct2": 0.0,
+      "lex1": 0.5783,
+      "lex2": 1.0241
+    },
+    {
+      "case_id": "0648",
+      "type": "RESCUE",
+      "found_A": 2,
+      "found_J": 1,
+      "rule_fired": true,
+      "struct1": 1.559,
+      "struct2": 0.5,
+      "lex1": 0.843,
+      "lex2": 1.2361
+    },
+    {
+      "case_id": "0667",
+      "type": "RESCUE",
+      "found_A": 2,
+      "found_J": 1,
+      "rule_fired": true,
+      "struct1": 1.4264,
+      "struct2": 0.3015,
+      "lex1": 1.0627,
+      "lex2": 1.3067
+    },
+    {
+      "case_id": "0738",
+      "type": "RESCUE",
+      "found_A": 2,
+      "found_J": 1,
+      "rule_fired": true,
+      "struct1": 1.6325,
+      "struct2": 0.3162,
+      "lex1": 0.81,
+      "lex2": 1.35
+    },
+    {
+      "case_id": "0742",
+      "type": "RESCUE",
+      "found_A": 2,
+      "found_J": 1,
+      "rule_fired": true,
+      "struct1": 1.5,
+      "struct2": 0.3536,
+      "lex1": 0.7343,
+      "lex2": 1.0733
+    },
+    {
+      "case_id": "0748",
+      "type": "RESCUE",
+      "found_A": 2,
+      "found_J": 1,
+      "rule_fired": true,
+      "struct1": 1.7276,
+      "struct2": 1.5941,
+      "lex1": 0.2971,
+      "lex2": 0.3359
+    },
+    {
+      "case_id": "0765",
+      "type": "RESCUE",
+      "found_A": 2,
+      "found_J": 1,
+      "rule_fired": true,
+      "struct1": 1.6268,
+      "struct2": 1.5,
+      "lex1": 0.1634,
+      "lex2": 0.4756
+    },
+    {
+      "case_id": "0767",
+      "type": "RESCUE",
+      "found_A": 2,
+      "found_J": 1,
+      "rule_fired": true,
+      "struct1": 1.3519,
+      "struct2": 0.4064,
+      "lex1": 0.3609,
+      "lex2": 1.6175
+    },
+    {
+      "case_id": "0815",
+      "type": "REGRESSION",
+      "found_A": 1,
+      "found_J": 2,
+      "rule_fired": true,
+      "struct1": 1.5774,
+      "struct2": 0.4472,
+      "lex1": 0.9811,
+      "lex2": 1.4452
+    },
+    {
+      "case_id": "0840",
+      "type": "RESCUE",
+      "found_A": 2,
+      "found_J": 1,
+      "rule_fired": true,
+      "struct1": 0.736,
+      "struct2": 0.4564,
+      "lex1": 1.3907,
+      "lex2": 1.4346
+    },
+    {
+      "case_id": "0855",
+      "type": "RESCUE",
+      "found_A": 2,
+      "found_J": 1,
+      "rule_fired": true,
+      "struct1": 2.0,
+      "struct2": 1.9129,
+      "lex1": 0.3375,
+      "lex2": 0.3563
+    }
+  ]
+}
