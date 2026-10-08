@@ -66,23 +66,51 @@
 
 ---
 
-## 3. Análisis Profundo de las Categorías Críticas
+## 3. Descomposición de Señales (Winner vs. Gold)
 
-### 3.1 Categoría `sinonimo` (24 casos)
-- **Dinámica:** La consulta utiliza vocabulario alternativo o paráfrasis conceptual sin coincidencia directa con el título o cuerpo del nodo.
-- **Entrada al Pool:** 100% de los nodos Gold entran al Top-5 a través de FTS5 trigrams, expansión simbólica y grafos Hebbianos.
-- **Causa de Pérdida en Top-1:** Un nodo competidor que posee coincidencia incidental de un token literal en `contenido` o `concepto` obtiene un BM25 y Jaccard léxico superior al aporte del espacio vectorial PPMI-SVD / WordNet del Gold.
-- **Margen Típico:** $\Delta \approx 0.04 - 0.12$.
+Para cada uno de los 72 casos se capturó la matriz completa de señales primarias del score híbrido y el bono del reranker:
 
-### 3.2 Categoría `por_tema` (24 casos)
-- **Dinámica:** Consultas abstractas que buscan afinidad por dominio o campo temático.
-- **Entrada al Pool:** El Gold entra al pool mediante similitud de 13 ejes dimensionales y spreading activation en el grafo.
-- **Causa de Pérdida en Top-1:** Nodos más genéricos o con mayor grado de sinapsis acumulan un baseline de activación o score de grupo que sobrepasa por estrecho margen la especificidad dimensional del Gold.
-- **Margen Típico:** $\Delta \approx 0.02 - 0.08$.
+### 3.1 Promedio de Deltas por Señal ($\Delta = \text{Winner} - \text{Gold}$)
+
+| Señal | Delta Promedio ($\Delta$) | Interpretación Mecanística |
+|---|---:|---|
+| **`tematico_score`** | **+0.1972** | **Causa #1 de desplazamiento:** El competidor posee mayor densidad de co-ocurrencia temática en dimensiones. |
+| **`hub_match`** | **+0.1604** | En casos donde el competidor está enlazado a un Concept Hub, el boost canónico eleva al competidor. |
+| **`dim_score`** | **+0.0774** | Mayor solapamiento en los 13 ejes dimensionales a favor del competidor. |
+| **`grupo_score_wordnet`** | **+0.0592** | Mayor afinidad en sinsets de WordNet para los tokens del competidor. |
+| **`pred_score_srl`** | **+0.0451** | Coincidencia de roles semánticos (sujeto/predicado) favorece al competidor. |
+| **`score_hibrido_base`** | **+0.0442** | Margen promedio de ventaja del competidor antes del reranker. |
+| **`jaccard`** | **+0.0387** | Coincidencia difusa de subcadenas/trigramas ligeramente superior en el competidor. |
+| **`jsd_score`** | **+0.0043** | Divergencia Jensen-Shannon neutra/balanceada. |
+| **`concepto_ratio`** | **+0.0006** | Coincidencia simbólica en título idéntica entre ambos. |
+| **`bm25_norm`** | **-0.0004** | BM25 FTS5 equilibrado entre ambos. |
+| **`convergencia_bonus`** | **-0.0005** | Bono multicampo no sesga hacia el ganador (prácticamente nulo en promedio). |
+| **`ppmi_score`** | **-0.0169** | **El Gold supera al Winner en PPMI-SVD**, pero no compensa el déficit en `tematico_score` y `dim_score`. |
+| **`sinonimos_ratio`** | **-0.0252** | **El Gold supera al Winner en ratio de sinónimos**, pero queda relegado por señales estructurales. |
 
 ---
 
-## 4. Verificación de EXP-Q (Abismo Léxico Cero-Overlap)
+## 4. Respuestas Técnicas a los Puntos de la Auditoría
+
+### 1. ¿Por qué el Agente 1 obtuvo 71/72 con el mismo snapshot?
+- **Empates en puntos de corte (Ties en frontera Top-5):** En casos como el `0513` (`typo`), el score del Gold es bajo (~0.1743), empatado con otro candidato. Cuando SQLite o Python ordenan elementos con scores idénticos sin una clave secundaria estricta (`concepto ASC`), el orden depende de la secuencia de inserción o B-tree traversal.
+- **Sets no ordenados (`set(tokens)`):** En entornos donde `PYTHONHASHSEED` no está fijado, la iteración sobre conjuntos introduce variaciones de orden en listas auxiliares.
+- **Aislamiento de estado:** Si no se restauran `estado` y `peso_sinaptico` caso a caso, las mutaciones de los primeros $N-1$ casos se acumulan. La suite oficial controla esto mediante `_restaurar_estado_nodos`.
+
+### 2. ¿Es determinista `audit_72_top1_misses.py`?
+Sí. Al aislar la base de datos con `sqlite3.backup()` y ejecutar `_restaurar_estado_nodos` tras cada caso, reproduce **exactamente 875/875 en Top-5 y 72 misses Top-1** de forma determinista y estable.
+
+### 3. Explicación formal de la discrepancia 66 vs. 59 y TIPO-1 (6) vs. RERANKER (4)
+Existe una distinción entre **Comportamiento Temporal** (Pre vs. Post) y **Causa Raíz Operativa**:
+- **Comportamiento:** 6 casos son TIPO-1 (Gold #1 pre $\to$ no #1 post) y 66 casos son TIPO-2/3/4 (Gold no era #1 pre).
+- **Causa Raíz:** Se aplica una jerarquía donde los márgenes infinitesimales ($< 0.0050$) se aíslan como `TIE_BREAK`:
+  - De los 6 casos TIPO-1: **4** tienen margen $\ge 0.005$ (`RERANKER`) y **2** tienen margen $< 0.005$ (`TIE_BREAK`).
+  - De los 66 casos TIPO-2/3/4: **59** tienen margen $\ge 0.005$ (`PRE_RANKING`) y **7** tienen margen $< 0.005$ (`TIE_BREAK`).
+  - Total: $59 + 4 + 9 = 72$ casos exactos.
+
+---
+
+## 5. Verificación de EXP-Q (Abismo Léxico Cero-Overlap)
 
 La suite de verificación directa en [`scripts/test_abismo_lexico.py`](../scripts/test_abismo_lexico.py) reporta:
 
@@ -104,17 +132,17 @@ Irresueltos (fuera del pool BFS):                 0/3
 
 ---
 
-## 5. Respuestas a las Preguntas Científicas Fundamentales
+## 6. Respuestas a las Preguntas Científicas Fundamentales
 
 ### ¿Cuál es el cuello de botella dominante de MemoryBioRAG?
 1. **Descubrimiento de candidatos (Candidate Generation):** **RESUELTO AL 100%** en este benchmark (875/875 entran al Top-5).
-2. **Discriminación de Ranking (Pre-ranking):** **CUELLO DE BOTELLA DOMINANTE (81.9%)**. Ocurre cuando el Gold ya está presente en el Top-5 pero un rival con solapamiento léxico incidental acumula mayor score base.
-3. **Reranker Multicampo:** Aporta un beneficio neto positivo global (+0.11pp en R@1), representando solo un 5.6%–8.3% de regresiones aisladas.
+2. **Discriminación de Pre-ranking:** **CUELLO DE BOTELLA DOMINANTE (81.9%)**. El Gold pierde principalmente frente a competidores con mayor `tematico_score` (+0.1972) y `dim_score` (+0.0774), a pesar de que el Gold posee mejor `sinonimos_ratio` (-0.0252) y `ppmi_score` (-0.0169).
+3. **Reranker Multicampo:** Aporta un beneficio neto positivo global (+0.11pp en R@1), representando solo un 5.6% (4 casos) de desplazamientos netos.
 
 ---
 
-## 6. Conclusión y Recomendación Metodológica
+## 7. Conclusión y Recomendación Metodológica
 
-- El artefacto completo con el desglose individual de los 72 casos está disponible en [`docs/top1_failure_attribution.json`](top1_failure_attribution.json).
+- El artefacto completo con el desglose individual de los 72 casos y sus vectores de señales está disponible en [`docs/top1_failure_attribution.json`](top1_failure_attribution.json).
 - **Invariante respetada:** No se han realizado modificaciones al motor ni a los pesos.
-- Cualquier optimización futura de R@1 debe enfocarse en la **discriminación fina entre candidatos semánticos vs. coincidencias incidentales**, preservando intacto el 100% de Recall@5 y el 0.0% de Falsos Positivos.
+- La evidencia empírica demuestra que el frente de optimización futuro para R@1 reside en **modular la fuerza relativa de `tematico_score` y `dim_score` frente a `sinonimos_ratio` y `ppmi_score`**, garantizando que recuerdos con alta afinidad semántica/sinonímica no sean sobrepasados por coincidencias temáticas genéricas.
