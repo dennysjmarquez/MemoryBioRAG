@@ -1,0 +1,157 @@
+{
+  "metadata": {
+    "timestamp": "2026-10-08T10:29:52",
+    "elapsed_seconds": 3464.75
+  },
+  "summary": {
+    "A_baseline": {
+      "r5": 100.0,
+      "r1": 91.77,
+      "mrr": 0.9497,
+      "misses": 72,
+      "fp": 0
+    },
+    "B_no_hub_match": {
+      "r5": 100.0,
+      "r1": 92.11,
+      "mrr": 0.9517,
+      "misses": 69,
+      "fp": 0
+    },
+    "C_no_piso_hub": {
+      "r5": 99.89,
+      "r1": 92.23,
+      "mrr": 0.9525,
+      "misses": 68,
+      "fp": 0
+    },
+    "D_no_hub_all": {
+      "r5": 99.89,
+      "r1": 92.23,
+      "mrr": 0.9525,
+      "misses": 68,
+      "fp": 0
+    }
+  },
+  "transitions": {
+    "B_no_hub_match": {
+      "name": "Contrafactual B (hub_match = 0)",
+      "gains_count": 3,
+      "losses_count": 0,
+      "net_delta_r1": 3,
+      "gains": [
+        [
+          "0534",
+          "biorag_v11_1_detalle_tecnico",
+          "arquitectura_memoria_biorag",
+          "biorag_v11_1_detalle_tecnico"
+        ],
+        [
+          "0551",
+          "patron_pensamiento_lateral_antes_de_proponer",
+          "dennys_genesis_investigativa_historia_personal",
+          "patron_pensamiento_lateral_antes_de_proponer"
+        ],
+        [
+          "0767",
+          "hermes_nvidia_nim_modelos_optimos",
+          "resolucion_de_contradicciones_entre_insights_sumatoria_mentalidad",
+          "hermes_nvidia_nim_modelos_optimos"
+        ]
+      ],
+      "losses": []
+    },
+    "C_no_piso_hub": {
+      "name": "Contrafactual C (No Piso Hub)",
+      "gains_count": 5,
+      "losses_count": 1,
+      "net_delta_r1": 4,
+      "gains": [
+        [
+          "0496",
+          "benchmark_antes_despues_fix3",
+          "historia_tasajera_fumigador_rufino",
+          "benchmark_antes_despues_fix3"
+        ],
+        [
+          "0534",
+          "biorag_v11_1_detalle_tecnico",
+          "arquitectura_memoria_biorag",
+          "biorag_v11_1_detalle_tecnico"
+        ],
+        [
+          "0551",
+          "patron_pensamiento_lateral_antes_de_proponer",
+          "dennys_genesis_investigativa_historia_personal",
+          "patron_pensamiento_lateral_antes_de_proponer"
+        ],
+        [
+          "0763",
+          "fin-aprendizaje-creerse-completo",
+          "biorag_v20_rpe_dopamina",
+          "fin-aprendizaje-creerse-completo"
+        ],
+        [
+          "0767",
+          "hermes_nvidia_nim_modelos_optimos",
+          "resolucion_de_contradicciones_entre_insights_sumatoria_mentalidad",
+          "hermes_nvidia_nim_modelos_optimos"
+        ]
+      ],
+      "losses": [
+        [
+          "0593",
+          "arquitectura_memoria_biorag",
+          "leccion_blueprint_estructura_vs_data"
+        ]
+      ]
+    },
+    "D_no_hub_all": {
+      "name": "Contrafactual D (No Hub)",
+      "gains_count": 5,
+      "losses_count": 1,
+      "net_delta_r1": 4,
+      "gains": [
+        [
+          "0496",
+          "benchmark_antes_despues_fix3",
+          "historia_tasajera_fumigador_rufino",
+          "benchmark_antes_despues_fix3"
+        ],
+        [
+          "0534",
+          "biorag_v11_1_detalle_tecnico",
+          "arquitectura_memoria_biorag",
+          "biorag_v11_1_detalle_tecnico"
+        ],
+        [
+          "0551",
+          "patron_pensamiento_lateral_antes_de_proponer",
+          "dennys_genesis_investigativa_historia_personal",
+          "patron_pensamiento_lateral_antes_de_proponer"
+        ],
+        [
+          "0763",
+          "fin-aprendizaje-creerse-completo",
+          "biorag_v20_rpe_dopamina",
+          "fin-aprendizaje-creerse-completo"
+        ],
+        [
+          "0767",
+          "hermes_nvidia_nim_modelos_optimos",
+          "resolucion_de_contradicciones_entre_insights_sumatoria_mentalidad",
+          "hermes_nvidia_nim_modelos_optimos"
+        ]
+      ],
+      "losses": [
+        [
+          "0593",
+          "arquitectura_memoria_biorag",
+          "leccion_blueprint_estructura_vs_data"
+        ]
+      ]
+    }
+  },
+  "lineage_validation_72_count": 72,
+  "lineage_validation_72_verified": 72
+}
