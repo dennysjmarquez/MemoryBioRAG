@@ -1,0 +1,266 @@
+{
+  "metadata": {
+    "version": "v32.6",
+    "seed": "biorag_split_seed_20261008_deterministic",
+    "snapshot": "/mnt/recursos_compartidos_y_otros/MemoryBioRAG/snapshots/qa_escape_qcr_20260811.db",
+    "dataset": "/mnt/recursos_compartidos_y_otros/MemoryBioRAG/scripts/casos_qa_baseline_v1.jsonl",
+    "frozen_rule_params": {
+      "alpha": 0.8,
+      "margin": 0.1,
+      "broad_weight": 0.75
+    }
+  },
+  "discovery": {
+    "n": 442,
+    "baseline_r1": 0.8981900452488688,
+    "gate_r1": 0.916289592760181,
+    "baseline_mrr": 0.9320889894419302,
+    "gate_mrr": 0.9433634992458519,
+    "gains": [
+      {
+        "id": "0497",
+        "query": "relevantes biomimética mejor",
+        "gold": "benchmark_antes_despues_fix3",
+        "old_winner": "causa_raiz_por_tema_pooling_plano_diluye_senal_word2vec",
+        "new_winner": "benchmark_antes_despues_fix3",
+        "score_gold_new": 0.4001,
+        "score_winner_new": 0.3844166301710581
+      },
+      {
+        "id": "0830",
+        "query": "dormidos34 symbolic solución",
+        "gold": "interacción_social_saludo",
+        "old_winner": "athena_evolucion_v0001",
+        "new_winner": "interacción_social_saludo",
+        "score_gold_new": 0.4116,
+        "score_winner_new": 0.3853
+      },
+      {
+        "id": "0577",
+        "query": "dennysjmarquezgmailcom formulario aísla",
+        "gold": "ngx_nested_forms_dennys_solo",
+        "old_winner": "caso_formularios_anidados_angular",
+        "new_winner": "ngx_nested_forms_dennys_solo",
+        "score_gold_new": 0.4616,
+        "score_winner_new": 0.4509
+      },
+      {
+        "id": "0624",
+        "query": "noteboklm-chat-configure",
+        "gold": "notebooklm-chat-configure",
+        "old_winner": "notebooklm-memory-biorag-project",
+        "new_winner": "notebooklm-chat-configure",
+        "score_gold_new": 0.3801,
+        "score_winner_new": 0.36029038442603467
+      },
+      {
+        "id": "0648",
+        "query": "plugins biorag-remember v8.3 -s adaptacións de dennys +s claude",
+        "gold": "plugin_biorag-remember_v8.3_-_adaptación_de_dennys_+_claude",
+        "old_winner": "biorag-remember-plugin-noreply-injection",
+        "new_winner": "plugin_biorag-remember_v8.3_-_adaptación_de_dennys_+_claude",
+        "score_gold_new": 0.4764,
+        "score_winner_new": 0.47198784333242283
+      }
+    ],
+    "losses": [
+      {
+        "id": "0627",
+        "query": "promptcontenido deployado role",
+        "gold": "notebooklm-chat-configure",
+        "old_winner": "notebooklm-chat-configure",
+        "new_winner": "protocolo_avance_autonomo_validacion_auditor_externo",
+        "score_gold_new": 0.4207,
+        "score_winner_new": 0.4579
+      },
+      {
+        "id": "0706",
+        "query": "smartphoneslaptops cambiar presenta",
+        "gold": "resolucion_timeout_hotspot_5ghz_intel",
+        "old_winner": "resolucion_timeout_hotspot_5ghz_intel",
+        "new_winner": "principio_impacto_lateral_antes_de_cambiar",
+        "score_gold_new": 0.3747,
+        "score_winner_new": 0.3774
+      },
+      {
+        "id": "0798",
+        "query": "vnotebooklm-memory-biorag-project",
+        "gold": "notebooklm-memory-biorag-project",
+        "old_winner": "notebooklm-memory-biorag-project",
+        "new_winner": "proyecto_biorag_ncp_resumen_completo_2026_06_14",
+        "score_gold_new": 0.4377,
+        "score_winner_new": 0.44907242797727115
+      },
+      {
+        "id": "0804",
+        "query": "cv secion d tets vinculacion",
+        "gold": "cv_seccion_d_test_vinculacion",
+        "old_winner": "cv_seccion_d_test_vinculacion",
+        "new_winner": "implementacion_warnings_vinculacion_desvinculacion",
+        "score_gold_new": 0.3389,
+        "score_winner_new": 0.3606
+      },
+      {
+        "id": "0513",
+        "query": "denys-identidad-profunda",
+        "gold": "dennys-identidad-profunda",
+        "old_winner": "dennys-identidad-profunda",
+        "new_winner": "correccion_dennys_principio_documentar_crisis_existencial",
+        "score_gold_new": 0.2503070200897744,
+        "score_winner_new": 0.2885
+      }
+    ],
+    "net_delta": 0
+  },
+  "validation": {
+    "n": 433,
+    "baseline_r1": 0.9076212471131639,
+    "gate_r1": 0.9053117782909931,
+    "baseline_mrr": 0.938260200153964,
+    "gate_mrr": 0.9397998460354113,
+    "gains": [
+      {
+        "id": "0748",
+        "query": "resultados autogeneradas clave",
+        "gold": "biorag_v16_0_estado",
+        "old_winner": "v23_0_weight_adjustment_resultados_validados",
+        "new_winner": "biorag_v16_0_estado",
+        "score_gold_new": 0.4343,
+        "score_winner_new": 0.4141
+      },
+      {
+        "id": "0765",
+        "query": "sabes crecimiento suficiente",
+        "gold": "fin-aprendizaje-creerse-completo",
+        "old_winner": "athena_evolucion_v0001",
+        "new_winner": "fin-aprendizaje-creerse-completo",
+        "score_gold_new": 0.3416,
+        "score_winner_new": 0.3090434574029052
+      },
+      {
+        "id": "0560",
+        "query": "memorias v5 1s optimizaciones",
+        "gold": "memoria_v5_1_optimizaciones",
+        "old_winner": "privacidad_memorias_personales_oec",
+        "new_winner": "memoria_v5_1_optimizaciones",
+        "score_gold_new": 0.3733,
+        "score_winner_new": 0.36978774467662856
+      },
+      {
+        "id": "0738",
+        "query": "fix busquedas solo dimensiones sin textando",
+        "gold": "fix_busqueda_solo_dimensiones_sin_texto",
+        "old_winner": "punto_medio_dimensiones_parciales_mueven_ranking_sdm",
+        "new_winner": "fix_busqueda_solo_dimensiones_sin_texto",
+        "score_gold_new": 0.4716,
+        "score_winner_new": 0.4511031576389614
+      }
+    ],
+    "losses": [
+      {
+        "id": "0593",
+        "query": "blueprint recollection biorag",
+        "gold": "arquitectura_memoria_biorag",
+        "old_winner": "arquitectura_memoria_biorag",
+        "new_winner": "leccion_blueprint_estructura_vs_data",
+        "score_gold_new": 0.3745039492773175,
+        "score_winner_new": 0.431
+      },
+      {
+        "id": "0040",
+        "query": "athena artemis desde",
+        "gold": "athena_artemis_desde",
+        "old_winner": "athena_artemis_desde",
+        "new_winner": "athena_artemis_athena",
+        "score_gold_new": 0.8932316138159216,
+        "score_winner_new": 0.907465398774666
+      },
+      {
+        "id": "0589",
+        "query": "ponytailhelp instalación decision",
+        "gold": "artemis_install_ponytail_ecosistema",
+        "old_winner": "artemis_install_ponytail_ecosistema",
+        "new_winner": "leccion_seed_catalogo_debe_correr_db_nueva_y_existente",
+        "score_gold_new": 0.3872,
+        "score_winner_new": 0.4303
+      },
+      {
+        "id": "0664",
+        "query": "surtio bodymessagestring matar",
+        "gold": "plugin-openode-biorag-remember-v9-final-lecciones-sesion-completa",
+        "old_winner": "plugin-openode-biorag-remember-v9-final-lecciones-sesion-completa",
+        "new_winner": "personas_maldades_mala",
+        "score_gold_new": 0.20948959980954535,
+        "score_winner_new": 0.3581
+      },
+      {
+        "id": "0540",
+        "query": "oraculo completo ustedes",
+        "gold": "principio-memoria-hibrida-agente-naturalidad",
+        "old_winner": "principio-memoria-hibrida-agente-naturalidad",
+        "new_winner": "hermes_soul_actualizado_con_oraculo_20260615",
+        "score_gold_new": 0.4219949185714267,
+        "score_winner_new": 0.4488
+      },
+      {
+        "id": "0821",
+        "query": "por que me mlesta decir soy una maqina",
+        "gold": "por_que_me_molesta_decir_soy_una_maquina",
+        "old_winner": "por_que_me_molesta_decir_soy_una_maquina",
+        "new_winner": "leccion_prueba_integridad_identidad_20260802",
+        "score_gold_new": 0.4253,
+        "score_winner_new": 0.4408
+      },
+      {
+        "id": "0739",
+        "query": "fix busuqeda solo dimenpsiones sin textko",
+        "gold": "fix_busqueda_solo_dimensiones_sin_texto",
+        "old_winner": "fix_busqueda_solo_dimensiones_sin_texto",
+        "new_winner": "athena_leccion_grep_patron_bug_antes_de_cerrar_fix",
+        "score_gold_new": 0.4029,
+        "score_winner_new": 0.4474013815821534
+      },
+      {
+        "id": "0488",
+        "query": "oracle custom prompts arsitecuras ques funciona",
+        "gold": "oracle_custom_prompt_arsitecura_que_funciona",
+        "old_winner": "oracle_custom_prompt_arsitecura_que_funciona",
+        "new_winner": "oracle_custom_prompt_config_actual",
+        "score_gold_new": 0.40609904701884,
+        "score_winner_new": 0.4097
+      },
+      {
+        "id": "0750",
+        "query": "clasificaciones dimensionals completas corteza 20260702s",
+        "gold": "clasificacion_dimensional_completa_corteza_20260702",
+        "old_winner": "clasificacion_dimensional_completa_corteza_20260702",
+        "new_winner": "biorag_v11_2_clasificacion_emocional_corteza",
+        "score_gold_new": 0.4142,
+        "score_winner_new": 0.4402
+      },
+      {
+        "id": "0820",
+        "query": "por que me molestas decirs soys una maquinas",
+        "gold": "por_que_me_molesta_decir_soy_una_maquina",
+        "old_winner": "por_que_me_molesta_decir_soy_una_maquina",
+        "new_winner": "leccion_prueba_integridad_identidad_20260802",
+        "score_gold_new": 0.3665,
+        "score_winner_new": 0.4177
+      }
+    ],
+    "net_delta": -6
+  },
+  "global": {
+    "n": 875,
+    "baseline_r1": 0.9028571428571428,
+    "gate_r1": 0.9108571428571428,
+    "baseline_r5": 0.9862857142857143,
+    "gate_r5": 0.9897142857142858,
+    "baseline_mrr": 0.935142857142858,
+    "gate_mrr": 0.9416000000000009,
+    "total_gains": 9,
+    "total_losses": 15,
+    "net_delta": -6,
+    "fp_negatives": 0
+  }
+}
