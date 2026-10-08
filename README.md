@@ -30,7 +30,7 @@ Evaluación sobre el snapshot congelado oficial (**921 casos**: 875 consultas de
 
 > **Interpretación Epistémica de R@5 vs. R@1:**
 > - **R@5 = 100.00% (875/875):** Demuestra que el conjunto híbrido (FTS5 BM25 + Sustantivos Clave + Grafo Sináptico Hebbiano + PPMI-SVD + Concept Hubs) es suficiente para **garantizar que el nodo correcto siempre entra en el contexto de trabajo del agente**.
-> - **R@1 = 91.77% (803/875):** Refleja la precisión exacta del primer candidato. En tareas con solapamiento léxico directo (`literal`, `pregunta_natural`), R@1 supera el 95%–99%. En tareas donde el vocabulario difiere radicalmente (`sinonimo` 56.36%, `por_tema` 67.69%), el sistema ubica el recuerdo dentro del Top-5 pero no siempre en Top-1. **R@1 es el verdadero frente de investigación continua para el desempate fino sin embeddings densos.**
+> - **R@1 = 91.77% (803/875):** Refleja la precisión exacta del primer candidato. En tareas con solapamiento léxico directo (`literal`, `pregunta_natural`), R@1 supera el 95%–99%. En tareas donde el vocabulario difiere radicalmente (`sinonimo` 56.36%, `por_tema` 63.08%), el sistema ubica el recuerdo dentro del Top-5 pero no siempre en Top-1. **R@1 es el verdadero frente de investigación continua para el desempate fino sin embeddings densos.**
 
 ---
 
