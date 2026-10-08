@@ -1,26 +1,26 @@
-# INFORME DE AUDITORÍA DIAGNÓSTICA, VERIFICACIÓN DE POOL Y ANÁLISIS DE TRANSICIONES (v32.4)
+# INFORME DE AUDITORÍA DIAGNÓSTICA, VERIFICACIÓN DE POOL Y ANÁLISIS DE TRANSICIONES (v32.5)
 
-> **Misión:** Demostración formal de identidad criptográfica del pool de candidatos (875/875) y caracterización matemática de la frontera entre las 17 ganancias y 5 pérdidas de la intervención contrafactual F (`tematico + dim = 0`).  
+> **Misión:** Registro reproducible de la verificación de identidad del pool observado (875/875) y análisis detallado de las 22 transiciones (17 ganancias y 5 pérdidas) de la intervención contrafactual F (`tematico + dim = 0`).  
 > **Invariante Metodológica:** Cero modificaciones en el motor de producción, pesos o scoring.
 
 ---
 
-## 1. Verificación Formal de Identidad Criptográfica del Pool de Candidatos (875/875)
+## 1. Verificación de Identidad de Secuencia de Candidatos en Scoring (875/875)
 
-Para cerrar de forma concluyente cualquier duda sobre la equivalencia del pool de candidatos en las 9 ramas contrafactuales (A hasta I), el script [`scripts/verify_frozen_pool_and_transitions.py`](../scripts/verify_frozen_pool_and_transitions.py) auditó y hasheó el conjunto exacto de candidatos que entra al scoring híbrido para cada una de las 875 consultas de recuperación:
+El script [`scripts/verify_frozen_pool_and_transitions.py`](../scripts/verify_frozen_pool_and_transitions.py) auditó y hasheó la secuencia exacta de conceptos que ingresaron a `_calcular_score_hibrido()` para cada una de las 875 consultas a través de 9 configuraciones contrafactuales (A hasta I):
 
-$$\text{pool\_hash}(q, M) = \text{SHA256}\left(\text{JSON}\left(\text{candidatos\_evaluados}(q, M)\right)\right)$$
+$$\text{pool\_hash}(q, M) = \text{SHA256}\left(\text{JSON}\left(\text{candidatos\_observados\_en\_scoring}(q, M)\right)\right)$$
 
-### Resultados de la Auditoría Criptográfica:
-* **Total Queries Evaluadas:** 875 consultas.
+### Resultados de la Verificación:
+* **Total de Consultas Evaluadas:** 875 consultas.
 * **Configuraciones Auditadas:** A (Baseline), B (`tematico=0`), C (`dim=0`), D (`sinonimos=0`), E (`ppmi=0`), F (`tematico+dim=0`), G (`sinonimos+ppmi=0`), H (`wordnet=0`), I (`srl=0`).
-* **Discrepancias de Pool:** **0 discrepancias (0 / 875)**.
-* **Dictamen:** $$\text{SHA256}(\text{pool}_A) \equiv \text{SHA256}(\text{pool}_B) \equiv \dots \equiv \text{SHA256}(\text{pool}_I) \quad \forall q \in [1, 875]$$
-* Queda **demostrado matemáticamente** que el experimento es una **ablación pura de scoring sobre pool de candidatos 100% congelado e idéntico**.
+* **Discrepancias de Secuencia Observada:** **0 discrepancias (0 / 875)**.
+* **Conclusión Técnica:** Se verificó la identidad de la secuencia de conceptos observados en las llamadas al scoring híbrido mediante SHA-256 en 875/875 consultas entre todas las configuraciones A–I.
+* Los cambios observados en el ranking corresponden estrictamente a la intervención en las funciones de ponderación de scoring sobre el conjunto de candidatos observado.
 
 ---
 
-## 2. Resumen de la Tabla Maestra de Ablación Contrafactual
+## 2. Resumen de la Tabla Maestra de Ablaciones Contrafactuales
 
 | Config | Intervención Contrafactual | R@5 | R@1 | MRR | Misses Top-1 | Ganancias Top-1 | Pérdidas Top-1 | $\Delta$ Neto R@1 |
 |:---:|---|:---:|:---:|:---:|:---:|:---:|:---:|:---:|
@@ -38,80 +38,85 @@ $$\text{pool\_hash}(q, M) = \text{SHA256}\left(\text{JSON}\left(\text{candidatos
 
 ---
 
-## 3. Caracterización Vectorial de las 22 Transiciones de la Configuración F
+## 3. Matriz Vectorial Real de las 22 Transiciones de la Configuración F
 
-La Configuración F (`tematico + dim = 0`) produce exactamente **17 rescates (Ganancias)** y **5 regresiones (Pérdidas)** respecto al Baseline A. Los datos vectoriales completos están registrados en [`docs/analisis_transiciones_config_f.json`](analisis_transiciones_config_f.json).
+Los datos a continuación provienen directamente del artefacto verificado [`docs/analisis_transiciones_config_f.json`](analisis_transiciones_config_f.json).
 
-### 3.1 Las 17 Ganancias Top-1 (Rescates)
-En los 17 casos rescatados, el Gold poseía una ventaja sustancial en evidencia semántica/léxica específica que en Baseline A era superada artificialmente por la acumulación de `tematico_score` o `dim_score` del competidor:
+### 3.1 Las 17 Ganancias (Rescates Top-1 en F)
 
-| Case ID | Categoría | Concepto Gold | Ganador en Baseline A | Ventaja del Gold | Factor de Distorsión en Baseline A |
-|---|---|---|---|---|---|
-| `0497` | `por_tema` | `benchmark_antes_despues_fix3` | `causa_raiz_por_tema_pooling_plano...` | `bm25`: 1.0 vs 0.63 | `dim_score` ganador (+0.58 ventaja) |
-| `0560` | `variante_gramatical` | `memoria_v5_1_optimizaciones` | `privacidad_memorias_personales_oec` | `sinonimos`: 0.50 vs 0.00 | `tematico_score` ganador (1.0 vs 0.0) |
-| `0592` | `typo` | `arquitectura_memoria_biorag` | `hito_biorag_v21_arquitectura_13_ejes` | `sinonimos`: 0.62 vs 0.29 \| `ppmi`: 0.46 vs 0.28 | `tematico_score` ganador (1.0 vs 0.0) |
-| `0617` | `typo` | `leccion_overengineering_oec_comms_20260615` | `oec_comms_protocolo_walkie_talkie_20260615` | `sinonimos`: 0.57 vs 0.40 | `tematico_score` ganador (1.0 vs 0.0) |
-| `0624` | `typo` | `notebooklm-chat-configure` | `notebooklm-memory-biorag-cortex` | `sinonimos`: 0.63 vs 0.30 \| `ppmi`: 0.39 vs 0.28 | `tematico_score` ganador (1.0 vs 0.0) |
-| `0648` | `variante_gramatical` | `plugin_biorag-remember_v8.3_-_...` | `biorag-remember-plugin-nodo-completo` | `sinonimos`: 0.68 vs 0.41 \| `ppmi`: 0.56 vs 0.43 | `tematico_score` ganador (1.0 vs 0.0) |
-| `0667` | `typo` | `identidad_y_respeto_oec` | `hermes_oec_identidad` | `sinonimos`: 0.59 vs 0.33 | `tematico_score` ganador (1.0 vs 0.0) |
-| `0672` | `variante_gramatical` | `compuerta-pre-validacion` | `oracle_auditoria_patrones` | `sinonimos`: 0.94 vs 0.28 | `tematico_score` ganador (1.0 vs 0.0) |
-| `0738` | `variante_gramatical` | `fix_busqueda_solo_dimensiones_...` | `punto_medio_dimensiones_persistencia` | `sinonimos`: 0.78 vs 0.40 \| `ppmi`: 0.57 vs 0.41 | `tematico_score` ganador (1.0 vs 0.0) |
-| `0742` | `por_tema` | `fix_busqueda_solo_dimensiones_...` | `plan_expansion_dimensiones_semanticas` | `sinonimos`: 0.61 vs 0.33 \| `ppmi`: 0.47 vs 0.40 | `tematico_score` ganador (1.0 vs 0.0) |
-| `0748` | `por_tema` | `biorag_v16_0_estado` | `v23_0_weight_adjustment_recall` | `ppmi`: 0.34 vs 0.30 | `dim_score` ganador (+0.14 ventaja) |
-| `0765` | `por_tema` | `fin-aprendizaje-creerse-completo` | `athena_evolucion_v0001` | `ppmi`: 0.48 vs 0.16 | `dim_score` ganador (+0.13 ventaja) |
-| `0767` | `variante_gramatical` | `hermes_nvidia_nim_modelos_optimos` | `resolucion_de_contradicciones...` | `sinonimos`: 0.77 vs 0.20 \| `ppmi`: 0.85 vs 0.16 | `tematico_score` ganador (1.0 vs 0.0) |
-| `0830` | `por_tema` | `interacción_social_saludo` | `athena_evolucion_v0001` | `ppmi`: 0.30 vs 0.14 | `dim_score` ganador (+0.31 ventaja) |
-| `0840` | `sinonimo` | `biorag_garantia_minima_or_fallback...` | `biorag_v25_1_ppr_plan_maestro` | `ppmi`: 0.43 vs 0.39 | `dim_score` ganador (+0.28 ventaja) |
-| `0848` | `por_tema` | `v13_2_limpieza_tabla_semantica` | `mentalidad_embedding_clasico...` | `sinonimos`: 0.63 vs 0.00 | `tematico_score` ganador (1.0 vs 0.0) |
-| `0855` | `por_tema` | `hermes_mcp_servers_configuracion...` | `oec_comms_notebook_arbitro...` | `ppmi`: 0.36 vs 0.34 | `dim_score` ganador (+0.09 ventaja) |
-
----
-
-### 3.2 Las 5 Pérdidas Top-1 (Regresiones)
-En los 5 casos donde la Configuración F pierde la primera posición:
-
-| Case ID | Categoría | Concepto Gold | Nuevo Ganador en F | Causa de la Pérdida en F |
-|---|---|---|---|---|
-| `0488` | `variante_gramatical` | `oracle_custom_prompt_arsitecura_que_funciona` | `oracle_custom_prompt_config_actual` | El Gold tenía múltiples variantes ("arsitecuras", "ques") y `sinonimos=0.0`. En Baseline A, `tematico=1.0` sostenía al Gold en #1. Al apagar temático, el competidor con `sinonimos=0.50` lo supera. |
-| `0513` | `typo` | `dennys-identidad-profunda` | `eleccion_identidad_relacion_dennys_...` | Query con typo ("denys"). El Gold tenía `bm25=0.0` y dependía exclusivamente de `tematico=1.0` para puntuar 0.3337. Al apagar temático, el score del Gold colapsa a 0.0. |
-| `0708` | `variante_gramatical` | `aforismo_criterio_agente` | `caso_criterio_artificial_agente` | Empate técnico estricto en sinonimia y PPMI. El Gold ganaba en Baseline A por resonancia dimensional (`dim=0.88` vs `0.56`). Al apagar `dim`, el competidor gana por 0.0023 en trigramas Jaccard. |
-| `0736` | `por_tema` | `plan_mode_biorag` | `arquitectura_memoria_biorag` | Sin temático ni dimensional, `arquitectura_memoria_biorag` se impone por mayor bono multicampo. |
-| `0803` | `variante_gramatical` | `cv_seccion_d_test_vinculacion` | `athena_forensic_audit_trail_...` | Query con plurales y typos ("cv seccion ds tests vinculaciones"). El Gold dependía de `tematico=1.0` para sostener el primer lugar frente al competidor FTS. |
+| Case ID | Categoría | Concepto Gold | Ganador Baseline A | BM25 (G / W) | Sinónimos (G / W) | PPMI (G / W) | DIM (G / W) | Temático (G / W) | Margen A (G - W) | Margen F (G - W) |
+|:---|:---|:---|:---|:---:|:---:|:---:|:---:|:---:|:---:|:---:|
+| `0497` | `por_tema` | `benchmark_antes_despues_fix3` | `causa_raiz_por_tema_pooling_plano_diluye_senal_word2vec` | 1.00 / 0.63 | 0.00 / 0.00 | 0.48 / 0.50 | 0.30 / 0.88 | 1.00 / 1.00 | -0.0182 | 0.0000 *(Tie)* |
+| `0560` | `variante_gramatical` | `memoria_v5_1_optimizaciones` | `privacidad_memorias_personales_oec` | 0.92 / 1.00 | 0.50 / 0.00 | 0.00 / 0.00 | 0.50 / 0.43 | 0.00 / 1.00 | -0.0055 | 0.0000 *(Tie)* |
+| `0592` | `typo` | `arquitectura_memoria_biorag` | `hito_biorag_v21_arquitectura_13_ejes` | 0.94 / 0.86 | 0.62 / 0.29 | 0.46 / 0.28 | 0.39 / 0.76 | 0.00 / 1.00 | -0.0213 | 0.0000 *(Tie)* |
+| `0617` | `typo` | `leccion_overengineering_oec_comms_20260615` | `oec_comms_protocolo_walkie_talkie_20260615` | 0.97 / 0.97 | 0.57 / 0.40 | 0.58 / 0.74 | 0.76 / 0.65 | 0.00 / 1.00 | -0.0327 | 0.0000 *(Tie)* |
+| `0624` | `typo` | `notebooklm-chat-configure` | `notebooklm-memory-biorag-project` | 0.76 / 0.76 | 0.63 / 0.30 | 0.39 / 0.28 | 0.00 / 0.00 | 0.00 / 1.00 | -0.0001 | 0.0000 *(Tie)* |
+| `0648` | `variante_gramatical` | `plugin_biorag-remember_v8.3_-_adaptación_de_dennys_+_claude` | `biorag-remember-plugin-noreply-injection` | 0.92 / 1.00 | 0.68 / 0.41 | 0.56 / 0.43 | 0.50 / 0.56 | 0.00 / 1.00 | -0.0028 | 0.0000 *(Tie)* |
+| `0667` | `typo` | `identidad_y_respeto_oec` | `hermes_oec_identidad` | 0.00 / 0.00 | 0.59 / 0.33 | 0.72 / 0.73 | 0.30 / 0.43 | 0.00 / 1.00 | -0.0460 | 0.0000 *(Tie)* |
+| `0672` | `variante_gramatical` | `compuerta-pre-validacion` | `oracle_auditoria_patrones_mejora_athena` | 0.72 / 0.64 | 0.94 / 0.28 | 0.66 / 0.62 | 0.00 / 0.00 | 0.00 / 1.00 | -0.0158 | 0.0000 *(Tie)* |
+| `0738` | `variante_gramatical` | `fix_busqueda_solo_dimensiones_sin_texto` | `punto_medio_dimensiones_parciales_mueven_ranking_sdm` | 1.00 / 0.86 | 0.78 / 0.40 | 0.57 / 0.41 | 0.32 / 0.63 | 0.00 / 1.00 | -0.0002 | 0.0000 *(Tie)* |
+| `0742` | `por_tema` | `fix_busqueda_solo_dimensiones_sin_texto` | `plan_expansion_dimensiones_8_tipos_34_valores` | 1.00 / 0.84 | 0.61 / 0.33 | 0.47 / 0.40 | 0.35 / 0.50 | 0.00 / 1.00 | -0.0191 | 0.0000 *(Tie)* |
+| `0748` | `por_tema` | `biorag_v16_0_estado` | `v23_0_weight_adjustment_resultados_validados` | 1.00 / 0.69 | 0.00 / 0.00 | 0.34 / 0.30 | 0.59 / 0.73 | 1.00 / 1.00 | -0.0022 | 0.0000 *(Tie)* |
+| `0765` | `por_tema` | `fin-aprendizaje-creerse-completo` | `athena_evolucion_v0001` | 1.00 / 0.63 | 0.00 / 0.00 | 0.48 / 0.16 | 0.50 / 0.63 | 1.00 / 1.00 | -0.0040 | 0.0000 *(Tie)* |
+| `0767` | `variante_gramatical` | `hermes_nvidia_nim_modelos_optimos` | `resolucion_de_contradicciones_entre_insights_sumatoria_mentalidad` | 0.55 / 1.00 | 0.77 / 0.20 | 0.85 / 0.16 | 0.41 / 0.35 | 0.00 / 1.00 | -0.0185 | 0.0000 *(Tie)* |
+| `0830` | `por_tema` | `interacción_social_saludo` | `athena_evolucion_v0001` | 1.00 / 0.74 | 0.00 / 0.26 | 0.30 / 0.14 | 0.43 / 0.74 | 1.00 / 1.00 | -0.0026 | 0.0000 *(Tie)* |
+| `0840` | `sinonimo` | `biorag_garantia_minima_or_fallback` | `biorag_v25_1_ppr_plan_maestro_pendiente` | 1.00 / 0.91 | 1.00 / 1.00 | 0.43 / 0.39 | 0.46 / 0.74 | 0.00 / 0.00 | -0.0050 | 0.0000 *(Tie)* |
+| `0848` | `por_tema` | `v13_2_limpieza_tabla_semantica` | `mentalidad_embedding_clasificacion_dimensional` | 0.78 / 1.00 | 0.63 / 0.00 | 0.00 / 0.00 | 0.35 / 0.42 | 0.00 / 1.00 | -0.0145 | 0.0000 *(Tie)* |
+| `0855` | `por_tema` | `hermes_mcp_servers_configuracion` | `oec_comms_notebook_arbitro_20260615` | 1.00 / 1.00 | 0.00 / 0.00 | 0.36 / 0.34 | 0.91 / 1.00 | 1.00 / 1.00 | -0.0012 | 0.0000 *(Tie)* |
 
 ---
 
-## 4. Formulación de la Condición de Frontera Separadora
+### 3.2 Las 5 Pérdidas (Regresiones Top-1 en F)
 
-El análisis de las 22 transiciones revela la regla matemática que separa las ganancias de las pérdidas:
-
-$$\text{Condición de Rescate (Ganancia)}: \quad \left(\text{sinonimos\_ratio}_{\text{gold}} > \text{sinonimos\_ratio}_{\text{win}}\right) \lor \left(\text{ppmi\_score}_{\text{gold}} > \text{ppmi\_score}_{\text{win}}\right)$$
-
-$$\text{Condición de Vulnerabilidad (Pérdida)}: \quad \left(\text{sinonimos\_ratio}_{\text{gold}} \approx 0\right) \land \left(\text{bm25\_norm}_{\text{gold}} \approx 0\right) \land \left(\text{tematico\_score}_{\text{gold}} = 1.0 \lor \text{dim\_score}_{\text{gold}} > 0.8\right)$$
-
-### Conclusión Teórica:
-* **Cuando existe evidencia semántica/léxica específica en el candidato:** `tematico_score` y `dim_score` actúan como **ruido de co-ocurrencia amplia** que permite a nodos vecinos sobrepasar al nodo correcto.
-* **Cuando la consulta sufre de degradación léxica severa (typos/múltiples flexiones sin sinónimo):** `tematico_score` y `dim_score` actúan como un **puente de rescate topológico indispensable**.
-* **Implicación para el Diseño:** La intervención óptima **NO es eliminar** `tematico` o `dim`, sino aplicar una **modulación competitiva condicional**: suprimir o atenuar el peso de `tematico` y `dim` *únicamente cuando un candidato presente evidencia léxico-sinonímica específica fuerte* ($\text{sinonimos\_ratio} \ge 0.50$ o $\text{concepto\_ratio} \ge 0.75$), permitiendo que el puente topológico siga funcionando en queries degradadas sin interferir en queries específicas.
+| Case ID | Categoría | Concepto Gold | Nuevo Ganador en F | BM25 (G / W_F) | Sinónimos (G / W_F) | PPMI (G / W_F) | DIM (G / W_F) | Temático (G / W_F) | Margen A (G - W_F) | Margen F (G - W_F) |
+|:---|:---|:---|:---|:---:|:---:|:---:|:---:|:---:|:---:|:---:|
+| `0488` | `variante_gramatical` | `oracle_custom_prompt_arsitecura_que_funciona` | `oracle_custom_prompt_config_actual` | 0.95 / 1.00 | 0.00 / 0.50 | 0.68 / 0.62 | 0.44 / 0.50 | 1.00 / 0.00 | +0.0480 | -0.0327 |
+| `0513` | `typo` | `dennys-identidad-profunda` | `eleccion_identidad_relacion_dennys_20260616` | 0.00 / 0.00 | 0.00 / 0.61 | 0.29 / 0.56 | 0.00 / 0.00 | 1.00 / 0.00 | +0.0791 | -0.3014 |
+| `0708` | `variante_gramatical` | `aforismo_criterio_agente` | `caso_criterio_artificial_agente` | 1.00 / 0.97 | 0.67 / 0.67 | 0.67 / 0.68 | 0.88 / 0.57 | 0.00 / 0.00 | +0.0703 | -0.0023 |
+| `0736` | `por_tema` | `plan_mode_biorag` | `arquitectura_memoria_biorag` | 1.00 / 0.24 | 0.00 / 0.00 | 0.52 / 0.25 | 0.35 / 0.42 | 1.00 / 1.00 | +0.0791 | -0.0690 |
+| `0803` | `variante_gramatical` | `cv_seccion_d_test_vinculacion` | `athena_forensic_audit_trail_ltd_detection_fix` | 1.00 / 0.93 | 0.20 / 0.00 | 0.62 / 0.12 | 0.35 / 0.49 | 1.00 / 1.00 | +0.0971 | -0.2506 |
 
 ---
 
-## 5. Matriz de Atribución Causal en los 72 Fallos Top-1
+## 4. Análisis de la Interacción Competitiva entre Señales
 
-| Mecanismo Causal Dominante | Casos Afectados | % de los 72 Fallos | Evidencia Demostrada |
-|---|---:|---:|---|
-| **Interferencia `tematico_score` + `dim_score`** | **17 casos** | **23.6%** | Rescatados al 100% en Configuración F (+12 neto global) |
-| **Interferencia `dim_score` exclusiva** | **9 casos netos** | **12.5%** | Rescatados en Configuración C |
-| **Interferencia `tematico_score` exclusiva** | **6 casos netos** | **8.3%** | Rescatados en Configuración B |
-| **Interferencia Concept Hub** | **4 casos netos** | **5.6%** | Rescatados en Configuración C/D de Hub |
-| **Empates y Discrepancias Finas ($< 0.005$)** | **9 casos** | **12.5%** | Diferencias marginales en subcadenas |
-| **Déficit Léxico Residual en Corpus** | **27 casos** | **37.5%** | Casos complejos donde el Gold requiere enriquecimiento de sustantivos o sinónimos |
-| **TOTAL** | **72 casos** | **100.0%** | |
+El análisis empírico de las 22 transiciones demuestra que:
+
+1. **No existe una regla separadora simple basada únicamente en $\text{sinonimos} > \text{winner}$ o $\text{PPMI} > \text{winner}$:**
+   - El caso `0497` es un contraejemplo directo: tanto Gold como Winner tienen `sinonimos = 0.0` y el Winner supera a Gold en PPMI (`0.50` vs `0.48`). El rescate en F ocurre porque Gold supera ampliamente al Winner en BM25 (`1.0` vs `0.63`), pero en Baseline A el Winner ganaba debido a una ventaja dimensional artificial (`DIM = 0.88` vs `0.30`).
+2. **Las pérdidas en F no se deben únicamente a ausencia de evidencia léxica:**
+   - 4 de las 5 pérdidas (`0488`, `0708`, `0736`, `0803`) tienen $\text{BM25}_{\text{gold}} \ge 0.947$.
+   - En `0708`, el Gold dependía legítimamente de su resonancia dimensional (`0.88` vs `0.57`) para desempatar a su favor. Al apagar `dim_score`, cae ante un competidor prácticamente empatado.
+   - Solo `0513` representa una consulta con fallo léxico total (`BM25 = 0.0`), donde `tematico_score` actuaba como mecanismo de rescate necesario.
+
+### Conclusión Arquitectónica:
+`tematico_score` y `dim_score` son señales de afinidad amplia valiosas para la desambiguación y rescate en ausencia de señales concluyentes, pero pueden generar interferencia en el ranking cuando sobrecompensan sobre candidatos que ya poseen evidencia léxico-semántica específica superior.
 
 ---
 
-## 6. Estado del Repositorio
-* **Invariante respetada:** Cero modificaciones en el motor de producción ni en archivos de scoring.
-* **Artefactos generados:**
-  - [`docs/analisis_transiciones_config_f.json`](analisis_transiciones_config_f.json): Detalle vectorial caso a caso de las 22 transiciones (17 ganancias, 5 pérdidas).
-  - [`docs/experimento_contrafactual_pool_congelado.json`](experimento_contrafactual_pool_congelado.json): Resultados de las 9 ramas de ablación.
-  - Script ejecutor: [`scripts/verify_frozen_pool_and_transitions.py`](file:///mnt/recursos_compartidos_y_otros/MemoryBioRAG/scripts/verify_frozen_pool_and_transitions.py).
+## 5. Caracterización de las Intervenciones Contrafactuales
+
+Las intervenciones evaluadas (A–I) representan sondas contrafactuales con efectos superpuestos, no categorías mutuamente excluyentes:
+
+* **Efecto de apagar `tematico_score` (B):** Rescata 11 casos y pierde 5 ($\Delta = +6$).
+* **Efecto de apagar `dim_score` (C):** Rescata 11 casos y pierde 2 ($\Delta = +9$).
+* **Efecto conjunto `tematico + dim = 0` (F):** Rescata 17 casos y pierde 5 ($\Delta = +12$, R@1 alcanza 93.14%).
+* **Efecto de apagar `sinonimos_ratio` (D) o `ppmi_score` (E):** Deteriora severamente el rendimiento (hasta -24 en G), confirmando que son pilares semánticos esenciales.
+
+---
+
+## 6. Siguiente Paso: Diseño de Gate Competitivo con Split Determinista
+
+Para evaluar una modulación contextual competitiva sin sobreajuste ni optimización circular:
+1. **Split Determinista y Congelado:** Se dividirá el dataset de 875 consultas en **Discovery (50%)** y **Validation (50%)**, estratificado únicamente por categoría de consulta y estado baseline (Top-1 Hit / Miss), **sin utilizar el resultado de la ablación F para construir la partición**.
+2. **Espacio de Diseño:** La regla de modulación deberá ser puramente *competitiva* (relativa entre candidatos), atenuando la ventaja de señales amplias únicamente cuando el competidor presente una desventaja en evidencia específica (BM25, sinónimos, PPMI).
+3. **Validación Ciega:** La formulación se fijará en el conjunto Discovery y se validará exactamente una vez en Validation.
+4. **Invariante:** Cero modificaciones en el motor de producción.
+
+---
+
+## 7. Estado de Archivos y Artefactos
+
+* [`docs/analisis_transiciones_config_f.json`](analisis_transiciones_config_f.json): Contiene los 22 vectores exactos verificados.
+* [`docs/experimento_contrafactual_pool_congelado.json`](experimento_contrafactual_pool_congelado.json): Registro de las 9 configuraciones contrafactuales A–I.
+* [`scripts/verify_frozen_pool_and_transitions.py`](file:///mnt/recursos_compartidos_y_otros/MemoryBioRAG/scripts/verify_frozen_pool_and_transitions.py): Script de verificación y auditoría de hashes.
