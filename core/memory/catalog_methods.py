@@ -103,9 +103,10 @@ def _resolver_dimension_ids(self, tipo_nombre, valores_str):
 
     Comportamiento (mundo abierto para valores, cerrado para ejes):
       - Normaliza cada nombre automáticamente (NFD, snake_case, lowercase).
-      - Si el nombre normalizado YA EXISTE en el catálogo → reutiliza su ID.
-        (No importa el eje: `name` es globalmente UNIQUE — anti-duplicado garantizado.)
-      - Si NO EXISTE → crea una nueva entrada con auto_generada=1, confianza=0.7.
+      - Si el nombre normalizado YA EXISTE en el catálogo PARA ESTE EJE (tipo_id)
+        → reutiliza su ID. El constraint UNIQUE(tipo_id, name) garantiza no duplicados
+        dentro del mismo eje sin prohibir homonimia entre ejes distintos.
+      - Si NO EXISTE en este eje → crea una nueva entrada con auto_generada=1, confianza=0.7.
       - Si el nombre es innormalizable (emojis, vacío, etc.) → lo agrega a `invalidos`.
 
     Retorna (ids_validos: list[int], invalidos: list[str], creadas: list[str]).
@@ -138,18 +139,18 @@ def _resolver_dimension_ids(self, tipo_nombre, valores_str):
             invalidos.append(nombre_raw)
             continue
 
-        # Búsqueda global por nombre normalizado (UNIQUE en toda la tabla)
+        # Búsqueda por (tipo_id, name) — respeta la unicidad por eje
         self.cursor.execute(
-            "SELECT id FROM dimensiones_semanticas WHERE name = ?",
-            (nombre_norm,)
+            "SELECT id FROM dimensiones_semanticas WHERE tipo_id = ? AND name = ?",
+            (tipo_id, nombre_norm)
         )
         row = self.cursor.fetchone()
 
         if row:
-            # Ya existe — reutilizar ID. Sin inserción. Anti-duplicado absoluto.
+            # Ya existe en este eje — reutilizar ID. Sin inserción.
             ids_validos.append(row[0])
         else:
-            # No existe — auto-crear con marcadores de confianza reducida
+            # No existe en este eje — auto-crear con marcadores de confianza reducida
             try:
                 self.cursor.execute(
                     """
@@ -161,8 +162,8 @@ def _resolver_dimension_ids(self, tipo_nombre, valores_str):
                 )
                 # SELECT incondicional: captura tanto inserción nueva como race-condition
                 self.cursor.execute(
-                    "SELECT id FROM dimensiones_semanticas WHERE name = ?",
-                    (nombre_norm,)
+                    "SELECT id FROM dimensiones_semanticas WHERE tipo_id = ? AND name = ?",
+                    (tipo_id, nombre_norm)
                 )
                 new_row = self.cursor.fetchone()
                 if new_row:

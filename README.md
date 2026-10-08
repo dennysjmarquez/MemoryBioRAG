@@ -50,14 +50,16 @@ El sistema de dimensiones semánticas tenía un modelo de **mundo cerrado rígid
 - Valida integridad: retorna `None` si el resultado es vacío, menor a 2 chars, o empieza con dígito.
 - **Invariante de dominio-agnóstico garantizada**: la función no conoce ningún vocabulario de dominio; opera 100% a nivel de caracteres.
 
-#### 1.2 Refactoring completo de `_resolver_dimension_ids` — Mundo abierto
-- **Antes**: buscaba solo dimensiones **YA existentes** con `WHERE name IN (...)` y descartaba las que no encontraba.
-- **Ahora** (mundo abierto):
+#### 1.2 Refactoring de `_resolver_dimension_ids` y Unicidad por Eje (`tipo_id, name`)
+- **Antes**: buscaba solo dimensiones **YA existentes** con `WHERE name IN (...)` sin filtrar por tipo de eje, y descartaba las que no encontraba. Además, el esquema usaba `name TEXT UNIQUE NOT NULL` global.
+- **Ahora** (mundo abierto con aislamiento por eje):
   - Normaliza cada nombre vía `_normalizar_nombre_dimension`.
-  - Si el nombre normalizado **ya existe** en el catálogo → reutiliza su ID (anti-duplicado garantizado por UNIQUE constraint).
-  - Si **no existe** → lo **auto-crea** con `auto_generada=1, confianza=0.7` y retorna su nuevo ID.
+  - Búsqueda e inserción con scope por eje: `WHERE name = ? AND tipo_id = ?` respaldado por el constraint `UNIQUE(tipo_id, name)` y migración automática. Dos ejes distintos (ej. `emocion` y `cualidad`) pueden albergar el mismo valor sin colisión cruzada.
+  - Si el valor **ya existe** en ese eje → reutiliza su ID.
+  - Si **no existe** → lo **auto-crea** en dicho eje con `auto_generada=1, confianza=0.7` y retorna su nuevo ID.
   - Si el nombre es **innormalizable** (emoji puro, cadena numérica, vacío) → lo agrega a la lista `invalidos`.
-- **Retorno ampliado**: ahora retorna `(ids_validos, invalidos, creadas)` en lugar de `(ids_validos, invalidos)` — el tercer elemento lista los nombres que fueron auto-creados en esa llamada para trazabilidad en logs.
+- **Retorno ampliado**: retorna `(ids_validos, invalidos, creadas)` — el tercer elemento lista los nombres auto-creados para trazabilidad en logs.
+- **Alcance y gobernanza ontológica**: DimensionHub elimina el descarte silencioso y hace recuperables los valores fuera del catálogo predeterminado. El control de fragmentación semántica se gestiona mediante el protocolo *catálogo-first* en los prompts y herramientas de consulta (`listar_dimensiones`).
 
 #### 1.3 Actualización de callers y pruebas unitarias
 - [`core/memory/ingest.py`](core/memory/ingest.py): desempaquetado actualizado de `ids_validos, _, _ = _resolver_dimension_ids(...)`.

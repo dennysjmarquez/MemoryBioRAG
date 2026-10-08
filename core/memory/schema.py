@@ -328,6 +328,40 @@ def _crear_estructura_cerebral(self):
     if 'generado_en' not in ds_cols:
         cur.execute("ALTER TABLE dimensiones_semanticas ADD COLUMN generado_en REAL")
 
+    # --- Migración v32.5: UNIQUE(name) global → UNIQUE(tipo_id, name) por eje ---
+    # SQLite no permite ALTER CONSTRAINT, así que se detecta el constraint actual
+    # inspeccionando el SQL de creación de la tabla y se recrea solo si es necesario.
+    cur.execute("SELECT sql FROM sqlite_master WHERE type='table' AND name='dimensiones_semanticas'")
+    ds_create_sql = (cur.fetchone() or [''])[0]
+    if 'UNIQUE (tipo_id, name)' not in ds_create_sql and 'unique (tipo_id, name)' not in ds_create_sql.lower():
+        # La tabla tiene unicidad global en name; hay que migrarla.
+        cur.execute("""
+            CREATE TABLE dimensiones_semanticas_new (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                name TEXT NOT NULL,
+                description TEXT DEFAULT '',
+                tipo_id INTEGER NOT NULL,
+                auto_generada INTEGER DEFAULT 0,
+                confianza REAL DEFAULT 1.0,
+                generado_en REAL,
+                UNIQUE (tipo_id, name),
+                FOREIGN KEY (tipo_id) REFERENCES tipos_dimension(id)
+            )
+        """)
+        # Copiar todos los datos; ON CONFLICT IGNORE descarta duplicados (tipo_id, name)
+        # que pudieran existir por la unicidad global anterior (en la práctica no hay ninguno).
+        cur.execute("""
+            INSERT OR IGNORE INTO dimensiones_semanticas_new
+                (id, name, description, tipo_id, auto_generada, confianza, generado_en)
+            SELECT id, name, description, tipo_id,
+                   COALESCE(auto_generada, 0), COALESCE(confianza, 1.0), generado_en
+            FROM dimensiones_semanticas
+        """)
+        cur.execute("DROP TABLE dimensiones_semanticas")
+        cur.execute("ALTER TABLE dimensiones_semanticas_new RENAME TO dimensiones_semanticas")
+        # Reconstruir el índice de cobertura que acelera búsquedas por tipo_id
+        cur.execute("CREATE INDEX IF NOT EXISTS idx_dim_tipo_id ON dimensiones_semanticas (tipo_id)")
+
     # --- corto_plazo ---
     cur.execute("PRAGMA table_info(corto_plazo)")
     cp_cols = [row[1] for row in cur.fetchall()]
@@ -795,9 +829,10 @@ def _asegurar_catalogo_dimensiones(self):
     self.cursor.execute("""
         CREATE TABLE IF NOT EXISTS dimensiones_semanticas (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
-            name TEXT UNIQUE NOT NULL,
+            name TEXT NOT NULL,
             description TEXT DEFAULT '',
             tipo_id INTEGER NOT NULL,
+            UNIQUE (tipo_id, name),
             FOREIGN KEY (tipo_id) REFERENCES tipos_dimension(id)
         )
     """)
