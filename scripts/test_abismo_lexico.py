@@ -165,22 +165,30 @@ def evaluar_abismo_lexico():
             })
 
         print("\n" + "=" * 75)
-        print("RESUMEN DE RESCATE EN EL ABISMO LÉXICO")
+        print("RESUMEN DE RESCATE EN EL ABISMO LÉXICO (EXP-Q)")
         print("=" * 75)
         resueltos_count = sum(1 for r in resultados if r["mecanismo"])
-        print(f"Rescatados SOLO por Grafo Sináptico:              {rescatados_count}/{total_casos}")
-        print(f"Resueltos en PRIMARIA (hub/léxico/forzado):       {en_primarios_count}/{total_casos}")
-        print(f"TASA DE SUPERACIÓN DEL ABISMO (primaria y/o grafo): {resueltos_count}/{total_casos} ({resueltos_count/total_casos*100:.1f}%)")
-        print(f"Irresueltos (abismo puro persiste):               {total_casos - resueltos_count}/{total_casos}")
+        top5_count = sum(1 for r in resultados if r["posicion"] is not None and r["posicion"] <= 5)
+        top1_count = sum(1 for r in resultados if r["posicion"] is not None and r["posicion"] == 1)
+
+        print(f"Candidatos descubiertos en Pool BFS (Grafo):      {rescatados_count}/{total_casos} ({rescatados_count/total_casos*100:.1f}%)")
+        print(f"Resueltos en Búsqueda Primaria (Léxico directo):  {en_primarios_count}/{total_casos}")
+        print(f"Rescate efectivo en Ventana Top-5:                {top5_count}/{total_casos} ({top5_count/total_casos*100:.1f}%)")
+        print(f"Rescate en Primera Posición (Top-1):              {top1_count}/{total_casos} ({top1_count/total_casos*100:.1f}%)")
+        print(f"Irresueltos (fuera del pool BFS):                 {total_casos - resueltos_count}/{total_casos}")
         print("-" * 75)
         for r in resultados:
             prim_str = "✅ TOP" if r["en_primarios"] else "❌ 0 Overlap"
             if r["rescatado"]:
-                grafo_str = f"✅ RESCATADO (Pos #{r['posicion']})"
+                pos_str = f"Pos #{r['posicion']}"
+                if r["posicion"] <= 5:
+                    grafo_str = f"✅ TOP-5 ({pos_str})"
+                else:
+                    grafo_str = f"ℹ️ POOL ({pos_str})"
             else:
                 grafo_str = "❌ No alcanzado"
             mec_str = r["mecanismo"] or "IRRESUELTO"
-            print(f"  {r['id']}: Primaria: {prim_str:<12} -> Grafo: {grafo_str} | Mecanismo: {mec_str} | {r['esperado'][:30]}")
+            print(f"  {r['id']}: Primaria: {prim_str:<12} -> Grafo: {grafo_str:<18} | Mecanismo: {mec_str} | {r['esperado'][:30]}")
         print("=" * 75)
 
         return resueltos_count == total_casos

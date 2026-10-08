@@ -20,7 +20,7 @@ Evaluación sobre el snapshot congelado oficial (**921 casos**: 875 consultas de
 | **MRR (Mean Reciprocal Rank)** | **0.950** | Posición recíproca promedio ponderada (0.9497 sin redondear; baseline anterior: 0.9491). |
 | **Falsos positivos** | **0/40 (0.00%)** | Calibración conforme efectiva en los 40 controles negativos del benchmark. |
 | **Tests unitarios** | **304/304 aprobados** | Cobertura completa de invariantes, contratos MCP, normalización y catálogo. |
-| **Abismo léxico (EXP-Q)** | **3/3 (100%)** | Rescatados en contexto expandido (posiciones #4 a #21) por BFS en grafo sináptico. |
+| **Abismo léxico (EXP-Q)** | **3/3 Pool · 2/3 Top-5** | 3/3 descubiertos en pool BFS de grafo; 2/3 en Top-5 (pos #1 y #4) y 1/3 en pool relacional (pos #19). |
 | **Sinónimos · Recall@5 / Recall@1** | **100% (55/55) / 56.36%** | Cobertura total en Top-5; el 43.64% restante queda entre Top-2 y Top-5. |
 | **Por tema · Recall@5 / Recall@1** | **100% (65/65) / 63.08%** | Cobertura total en Top-5; ordenamiento Top-1 guiado por Jaccard y PPMI-SVD. |
 | **Pregunta natural · R@5 / R@1** | **100% (65/65) / 93.85%** | Alta precisión Top-1 en formulaciones conversacionales. |
