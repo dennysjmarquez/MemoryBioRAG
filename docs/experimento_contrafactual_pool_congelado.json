@@ -1,0 +1,1463 @@
+{
+  "metadata": {
+    "timestamp": "2026-10-08T13:00:14",
+    "elapsed_seconds": 7928.23,
+    "total_cases": 921,
+    "retrieval_cases": 875,
+    "negative_cases": 40
+  },
+  "comparison_table": [
+    {
+      "code": "A",
+      "label": "Baseline (Motor Actual)",
+      "r5_pct": 100.0,
+      "r1_pct": 91.77,
+      "mrr": 0.9497,
+      "misses": 72,
+      "fp": 0,
+      "gains": 0,
+      "losses": 0,
+      "net_delta": 0
+    },
+    {
+      "code": "B",
+      "label": "tematico_score = 0",
+      "r5_pct": 99.54,
+      "r1_pct": 92.46,
+      "mrr": 0.9522,
+      "misses": 66,
+      "fp": 0,
+      "gains": 11,
+      "losses": 5,
+      "net_delta": 6
+    },
+    {
+      "code": "C",
+      "label": "dim_score = 0",
+      "r5_pct": 99.66,
+      "r1_pct": 92.8,
+      "mrr": 0.9536,
+      "misses": 63,
+      "fp": 0,
+      "gains": 11,
+      "losses": 2,
+      "net_delta": 9
+    },
+    {
+      "code": "D",
+      "label": "sinonimos_ratio = 0",
+      "r5_pct": 97.03,
+      "r1_pct": 90.74,
+      "mrr": 0.9329,
+      "misses": 81,
+      "fp": 0,
+      "gains": 8,
+      "losses": 17,
+      "net_delta": -9
+    },
+    {
+      "code": "E",
+      "label": "ppmi_score = 0",
+      "r5_pct": 99.09,
+      "r1_pct": 91.2,
+      "mrr": 0.9425,
+      "misses": 77,
+      "fp": 0,
+      "gains": 3,
+      "losses": 8,
+      "net_delta": -5
+    },
+    {
+      "code": "F",
+      "label": "tematico + dim = 0",
+      "r5_pct": 99.43,
+      "r1_pct": 93.14,
+      "mrr": 0.9546,
+      "misses": 60,
+      "fp": 0,
+      "gains": 17,
+      "losses": 5,
+      "net_delta": 12
+    },
+    {
+      "code": "G",
+      "label": "sinonimos + ppmi = 0",
+      "r5_pct": 95.66,
+      "r1_pct": 89.03,
+      "mrr": 0.9182,
+      "misses": 96,
+      "fp": 0,
+      "gains": 7,
+      "losses": 31,
+      "net_delta": -24
+    },
+    {
+      "code": "H",
+      "label": "wordnet_score = 0",
+      "r5_pct": 99.54,
+      "r1_pct": 92.11,
+      "mrr": 0.9503,
+      "misses": 69,
+      "fp": 0,
+      "gains": 5,
+      "losses": 2,
+      "net_delta": 3
+    },
+    {
+      "code": "I",
+      "label": "srl_pred_score = 0",
+      "r5_pct": 100.0,
+      "r1_pct": 92.11,
+      "mrr": 0.9515,
+      "misses": 69,
+      "fp": 0,
+      "gains": 3,
+      "losses": 0,
+      "net_delta": 3
+    }
+  ],
+  "by_category_detail": {
+    "A": {
+      "cruce_idioma": {
+        "hits": 5,
+        "total": 8,
+        "r1_pct": 62.5
+      },
+      "dormido": {
+        "hits": 65,
+        "total": 65,
+        "r1_pct": 100.0
+      },
+      "literal": {
+        "hits": 485,
+        "total": 487,
+        "r1_pct": 99.59
+      },
+      "por_tema": {
+        "hits": 41,
+        "total": 65,
+        "r1_pct": 63.08
+      },
+      "pregunta_natural": {
+        "hits": 61,
+        "total": 65,
+        "r1_pct": 93.85
+      },
+      "sinonimo": {
+        "hits": 31,
+        "total": 55,
+        "r1_pct": 56.36
+      },
+      "typo": {
+        "hits": 58,
+        "total": 65,
+        "r1_pct": 89.23
+      },
+      "variante_gramatical": {
+        "hits": 57,
+        "total": 65,
+        "r1_pct": 87.69
+      }
+    },
+    "B": {
+      "cruce_idioma": {
+        "hits": 5,
+        "total": 8,
+        "r1_pct": 62.5
+      },
+      "dormido": {
+        "hits": 65,
+        "total": 65,
+        "r1_pct": 100.0
+      },
+      "literal": {
+        "hits": 485,
+        "total": 487,
+        "r1_pct": 99.59
+      },
+      "por_tema": {
+        "hits": 42,
+        "total": 65,
+        "r1_pct": 64.62
+      },
+      "pregunta_natural": {
+        "hits": 61,
+        "total": 65,
+        "r1_pct": 93.85
+      },
+      "sinonimo": {
+        "hits": 31,
+        "total": 55,
+        "r1_pct": 56.36
+      },
+      "typo": {
+        "hits": 60,
+        "total": 65,
+        "r1_pct": 92.31
+      },
+      "variante_gramatical": {
+        "hits": 60,
+        "total": 65,
+        "r1_pct": 92.31
+      }
+    },
+    "C": {
+      "cruce_idioma": {
+        "hits": 5,
+        "total": 8,
+        "r1_pct": 62.5
+      },
+      "dormido": {
+        "hits": 65,
+        "total": 65,
+        "r1_pct": 100.0
+      },
+      "literal": {
+        "hits": 485,
+        "total": 487,
+        "r1_pct": 99.59
+      },
+      "por_tema": {
+        "hits": 45,
+        "total": 65,
+        "r1_pct": 69.23
+      },
+      "pregunta_natural": {
+        "hits": 62,
+        "total": 65,
+        "r1_pct": 95.38
+      },
+      "sinonimo": {
+        "hits": 32,
+        "total": 55,
+        "r1_pct": 58.18
+      },
+      "typo": {
+        "hits": 60,
+        "total": 65,
+        "r1_pct": 92.31
+      },
+      "variante_gramatical": {
+        "hits": 58,
+        "total": 65,
+        "r1_pct": 89.23
+      }
+    },
+    "D": {
+      "cruce_idioma": {
+        "hits": 4,
+        "total": 8,
+        "r1_pct": 50.0
+      },
+      "dormido": {
+        "hits": 65,
+        "total": 65,
+        "r1_pct": 100.0
+      },
+      "literal": {
+        "hits": 485,
+        "total": 487,
+        "r1_pct": 99.59
+      },
+      "por_tema": {
+        "hits": 44,
+        "total": 65,
+        "r1_pct": 67.69
+      },
+      "pregunta_natural": {
+        "hits": 62,
+        "total": 65,
+        "r1_pct": 95.38
+      },
+      "sinonimo": {
+        "hits": 23,
+        "total": 55,
+        "r1_pct": 41.82
+      },
+      "typo": {
+        "hits": 55,
+        "total": 65,
+        "r1_pct": 84.62
+      },
+      "variante_gramatical": {
+        "hits": 56,
+        "total": 65,
+        "r1_pct": 86.15
+      }
+    },
+    "E": {
+      "cruce_idioma": {
+        "hits": 5,
+        "total": 8,
+        "r1_pct": 62.5
+      },
+      "dormido": {
+        "hits": 65,
+        "total": 65,
+        "r1_pct": 100.0
+      },
+      "literal": {
+        "hits": 485,
+        "total": 487,
+        "r1_pct": 99.59
+      },
+      "por_tema": {
+        "hits": 38,
+        "total": 65,
+        "r1_pct": 58.46
+      },
+      "pregunta_natural": {
+        "hits": 61,
+        "total": 65,
+        "r1_pct": 93.85
+      },
+      "sinonimo": {
+        "hits": 33,
+        "total": 55,
+        "r1_pct": 60.0
+      },
+      "typo": {
+        "hits": 56,
+        "total": 65,
+        "r1_pct": 86.15
+      },
+      "variante_gramatical": {
+        "hits": 55,
+        "total": 65,
+        "r1_pct": 84.62
+      }
+    },
+    "F": {
+      "cruce_idioma": {
+        "hits": 5,
+        "total": 8,
+        "r1_pct": 62.5
+      },
+      "dormido": {
+        "hits": 65,
+        "total": 65,
+        "r1_pct": 100.0
+      },
+      "literal": {
+        "hits": 485,
+        "total": 487,
+        "r1_pct": 99.59
+      },
+      "por_tema": {
+        "hits": 47,
+        "total": 65,
+        "r1_pct": 72.31
+      },
+      "pregunta_natural": {
+        "hits": 61,
+        "total": 65,
+        "r1_pct": 93.85
+      },
+      "sinonimo": {
+        "hits": 32,
+        "total": 55,
+        "r1_pct": 58.18
+      },
+      "typo": {
+        "hits": 61,
+        "total": 65,
+        "r1_pct": 93.85
+      },
+      "variante_gramatical": {
+        "hits": 59,
+        "total": 65,
+        "r1_pct": 90.77
+      }
+    },
+    "G": {
+      "cruce_idioma": {
+        "hits": 5,
+        "total": 8,
+        "r1_pct": 62.5
+      },
+      "dormido": {
+        "hits": 65,
+        "total": 65,
+        "r1_pct": 100.0
+      },
+      "literal": {
+        "hits": 485,
+        "total": 487,
+        "r1_pct": 99.59
+      },
+      "por_tema": {
+        "hits": 39,
+        "total": 65,
+        "r1_pct": 60.0
+      },
+      "pregunta_natural": {
+        "hits": 60,
+        "total": 65,
+        "r1_pct": 92.31
+      },
+      "sinonimo": {
+        "hits": 19,
+        "total": 55,
+        "r1_pct": 34.55
+      },
+      "typo": {
+        "hits": 55,
+        "total": 65,
+        "r1_pct": 84.62
+      },
+      "variante_gramatical": {
+        "hits": 51,
+        "total": 65,
+        "r1_pct": 78.46
+      }
+    },
+    "H": {
+      "cruce_idioma": {
+        "hits": 5,
+        "total": 8,
+        "r1_pct": 62.5
+      },
+      "dormido": {
+        "hits": 65,
+        "total": 65,
+        "r1_pct": 100.0
+      },
+      "literal": {
+        "hits": 485,
+        "total": 487,
+        "r1_pct": 99.59
+      },
+      "por_tema": {
+        "hits": 40,
+        "total": 65,
+        "r1_pct": 61.54
+      },
+      "pregunta_natural": {
+        "hits": 61,
+        "total": 65,
+        "r1_pct": 93.85
+      },
+      "sinonimo": {
+        "hits": 32,
+        "total": 55,
+        "r1_pct": 58.18
+      },
+      "typo": {
+        "hits": 59,
+        "total": 65,
+        "r1_pct": 90.77
+      },
+      "variante_gramatical": {
+        "hits": 59,
+        "total": 65,
+        "r1_pct": 90.77
+      }
+    },
+    "I": {
+      "cruce_idioma": {
+        "hits": 5,
+        "total": 8,
+        "r1_pct": 62.5
+      },
+      "dormido": {
+        "hits": 65,
+        "total": 65,
+        "r1_pct": 100.0
+      },
+      "literal": {
+        "hits": 485,
+        "total": 487,
+        "r1_pct": 99.59
+      },
+      "por_tema": {
+        "hits": 41,
+        "total": 65,
+        "r1_pct": 63.08
+      },
+      "pregunta_natural": {
+        "hits": 61,
+        "total": 65,
+        "r1_pct": 93.85
+      },
+      "sinonimo": {
+        "hits": 33,
+        "total": 55,
+        "r1_pct": 60.0
+      },
+      "typo": {
+        "hits": 58,
+        "total": 65,
+        "r1_pct": 89.23
+      },
+      "variante_gramatical": {
+        "hits": 58,
+        "total": 65,
+        "r1_pct": 89.23
+      }
+    }
+  },
+  "transitions_detail": {
+    "A": {
+      "label": "Baseline (Motor Actual)",
+      "gains_count": 0,
+      "losses_count": 0,
+      "net_delta_r1": 0,
+      "gains": [],
+      "losses": []
+    },
+    "B": {
+      "label": "tematico_score = 0",
+      "gains_count": 11,
+      "losses_count": 5,
+      "net_delta_r1": 6,
+      "gains": [
+        {
+          "case_id": "0560",
+          "category": "variante_gramatical",
+          "gold": "memoria_v5_1_optimizaciones",
+          "winner_in_A": "privacidad_memorias_personales_oec",
+          "winner_in_ablation": "memoria_v5_1_optimizaciones"
+        },
+        {
+          "case_id": "0592",
+          "category": "typo",
+          "gold": "arquitectura_memoria_biorag",
+          "winner_in_A": "hito_biorag_v21_arquitectura_13_ejes",
+          "winner_in_ablation": "arquitectura_memoria_biorag"
+        },
+        {
+          "case_id": "0617",
+          "category": "typo",
+          "gold": "leccion_overengineering_oec_comms_20260615",
+          "winner_in_A": "oec_comms_protocolo_walkie_talkie_20260615",
+          "winner_in_ablation": "leccion_overengineering_oec_comms_20260615"
+        },
+        {
+          "case_id": "0624",
+          "category": "typo",
+          "gold": "notebooklm-chat-configure",
+          "winner_in_A": "notebooklm-memory-biorag-project",
+          "winner_in_ablation": "notebooklm-chat-configure"
+        },
+        {
+          "case_id": "0648",
+          "category": "variante_gramatical",
+          "gold": "plugin_biorag-remember_v8.3_-_adaptación_de_dennys_+_claude",
+          "winner_in_A": "biorag-remember-plugin-noreply-injection",
+          "winner_in_ablation": "plugin_biorag-remember_v8.3_-_adaptación_de_dennys_+_claude"
+        },
+        {
+          "case_id": "0667",
+          "category": "typo",
+          "gold": "identidad_y_respeto_oec",
+          "winner_in_A": "hermes_oec_identidad",
+          "winner_in_ablation": "identidad_y_respeto_oec"
+        },
+        {
+          "case_id": "0672",
+          "category": "variante_gramatical",
+          "gold": "compuerta-pre-validacion",
+          "winner_in_A": "oracle_auditoria_patrones_mejora_athena",
+          "winner_in_ablation": "compuerta-pre-validacion"
+        },
+        {
+          "case_id": "0738",
+          "category": "variante_gramatical",
+          "gold": "fix_busqueda_solo_dimensiones_sin_texto",
+          "winner_in_A": "punto_medio_dimensiones_parciales_mueven_ranking_sdm",
+          "winner_in_ablation": "fix_busqueda_solo_dimensiones_sin_texto"
+        },
+        {
+          "case_id": "0742",
+          "category": "por_tema",
+          "gold": "fix_busqueda_solo_dimensiones_sin_texto",
+          "winner_in_A": "plan_expansion_dimensiones_8_tipos_34_valores",
+          "winner_in_ablation": "fix_busqueda_solo_dimensiones_sin_texto"
+        },
+        {
+          "case_id": "0767",
+          "category": "variante_gramatical",
+          "gold": "hermes_nvidia_nim_modelos_optimos",
+          "winner_in_A": "resolucion_de_contradicciones_entre_insights_sumatoria_mentalidad",
+          "winner_in_ablation": "hermes_nvidia_nim_modelos_optimos"
+        },
+        {
+          "case_id": "0848",
+          "category": "por_tema",
+          "gold": "v13_2_limpieza_tabla_semantica",
+          "winner_in_A": "mentalidad_embedding_clasificacion_dimensional",
+          "winner_in_ablation": "v13_2_limpieza_tabla_semantica"
+        }
+      ],
+      "losses": [
+        {
+          "case_id": "0488",
+          "category": "variante_gramatical",
+          "gold": "oracle_custom_prompt_arsitecura_que_funciona",
+          "winner_in_ablation": "oracle_custom_prompt_config_actual"
+        },
+        {
+          "case_id": "0489",
+          "category": "typo",
+          "gold": "oracle_custom_prompt_arsitecura_que_funciona",
+          "winner_in_ablation": "oracle_custom_prompt_config_actual"
+        },
+        {
+          "case_id": "0513",
+          "category": "typo",
+          "gold": "dennys-identidad-profunda",
+          "winner_in_ablation": "athena_eleccion_identidad_20260616"
+        },
+        {
+          "case_id": "0736",
+          "category": "por_tema",
+          "gold": "plan_mode_biorag",
+          "winner_in_ablation": "arquitectura_memoria_biorag"
+        },
+        {
+          "case_id": "0803",
+          "category": "variante_gramatical",
+          "gold": "cv_seccion_d_test_vinculacion",
+          "winner_in_ablation": "athena_forensic_audit_trail_ltd_detection_fix"
+        }
+      ]
+    },
+    "C": {
+      "label": "dim_score = 0",
+      "gains_count": 11,
+      "losses_count": 2,
+      "net_delta_r1": 9,
+      "gains": [
+        {
+          "case_id": "0497",
+          "category": "por_tema",
+          "gold": "benchmark_antes_despues_fix3",
+          "winner_in_A": "causa_raiz_por_tema_pooling_plano_diluye_senal_word2vec",
+          "winner_in_ablation": "benchmark_antes_despues_fix3"
+        },
+        {
+          "case_id": "0592",
+          "category": "typo",
+          "gold": "arquitectura_memoria_biorag",
+          "winner_in_A": "hito_biorag_v21_arquitectura_13_ejes",
+          "winner_in_ablation": "arquitectura_memoria_biorag"
+        },
+        {
+          "case_id": "0648",
+          "category": "variante_gramatical",
+          "gold": "plugin_biorag-remember_v8.3_-_adaptación_de_dennys_+_claude",
+          "winner_in_A": "biorag-remember-plugin-noreply-injection",
+          "winner_in_ablation": "plugin_biorag-remember_v8.3_-_adaptación_de_dennys_+_claude"
+        },
+        {
+          "case_id": "0733",
+          "category": "typo",
+          "gold": "plan_mode_biorag",
+          "winner_in_A": "plan-mode-biorag-exception-criterion",
+          "winner_in_ablation": "plan_mode_biorag"
+        },
+        {
+          "case_id": "0735",
+          "category": "pregunta_natural",
+          "gold": "plan_mode_biorag",
+          "winner_in_A": "plan-mode-biorag-exception-criterion",
+          "winner_in_ablation": "plan_mode_biorag"
+        },
+        {
+          "case_id": "0738",
+          "category": "variante_gramatical",
+          "gold": "fix_busqueda_solo_dimensiones_sin_texto",
+          "winner_in_A": "punto_medio_dimensiones_parciales_mueven_ranking_sdm",
+          "winner_in_ablation": "fix_busqueda_solo_dimensiones_sin_texto"
+        },
+        {
+          "case_id": "0748",
+          "category": "por_tema",
+          "gold": "biorag_v16_0_estado",
+          "winner_in_A": "v23_0_weight_adjustment_resultados_validados",
+          "winner_in_ablation": "biorag_v16_0_estado"
+        },
+        {
+          "case_id": "0765",
+          "category": "por_tema",
+          "gold": "fin-aprendizaje-creerse-completo",
+          "winner_in_A": "athena_evolucion_v0001",
+          "winner_in_ablation": "fin-aprendizaje-creerse-completo"
+        },
+        {
+          "case_id": "0830",
+          "category": "por_tema",
+          "gold": "interacción_social_saludo",
+          "winner_in_A": "athena_evolucion_v0001",
+          "winner_in_ablation": "interacción_social_saludo"
+        },
+        {
+          "case_id": "0840",
+          "category": "sinonimo",
+          "gold": "biorag_garantia_minima_or_fallback",
+          "winner_in_A": "biorag_v25_1_ppr_plan_maestro_pendiente",
+          "winner_in_ablation": "biorag_garantia_minima_or_fallback"
+        },
+        {
+          "case_id": "0855",
+          "category": "por_tema",
+          "gold": "hermes_mcp_servers_configuracion",
+          "winner_in_A": "oec_comms_notebook_arbitro_20260615",
+          "winner_in_ablation": "hermes_mcp_servers_configuracion"
+        }
+      ],
+      "losses": [
+        {
+          "case_id": "0708",
+          "category": "variante_gramatical",
+          "gold": "aforismo_criterio_agente",
+          "winner_in_ablation": "caso_criterio_artificial_agente"
+        },
+        {
+          "case_id": "0736",
+          "category": "por_tema",
+          "gold": "plan_mode_biorag",
+          "winner_in_ablation": "arquitectura_memoria_biorag"
+        }
+      ]
+    },
+    "D": {
+      "label": "sinonimos_ratio = 0",
+      "gains_count": 8,
+      "losses_count": 17,
+      "net_delta_r1": -9,
+      "gains": [
+        {
+          "case_id": "0273",
+          "category": "literal",
+          "gold": "mcp-primitiva-externa-definicion",
+          "winner_in_A": "mcp-primitiva-externa-definicion-2",
+          "winner_in_ablation": "mcp-primitiva-externa-definicion"
+        },
+        {
+          "case_id": "0504",
+          "category": "por_tema",
+          "gold": "arquitectura_dimensiones_ortogonales",
+          "winner_in_A": "renombre_dimensiones_semanticas_v11_3",
+          "winner_in_ablation": "arquitectura_dimensiones_ortogonales"
+        },
+        {
+          "case_id": "0732",
+          "category": "variante_gramatical",
+          "gold": "plan_mode_biorag",
+          "winner_in_A": "plan-mode-biorag-exception-criterion",
+          "winner_in_ablation": "plan_mode_biorag"
+        },
+        {
+          "case_id": "0733",
+          "category": "typo",
+          "gold": "plan_mode_biorag",
+          "winner_in_A": "plan-mode-biorag-exception-criterion",
+          "winner_in_ablation": "plan_mode_biorag"
+        },
+        {
+          "case_id": "0735",
+          "category": "pregunta_natural",
+          "gold": "plan_mode_biorag",
+          "winner_in_A": "plan-mode-biorag-exception-criterion",
+          "winner_in_ablation": "plan_mode_biorag"
+        },
+        {
+          "case_id": "0753",
+          "category": "por_tema",
+          "gold": "clasificacion_dimensional_completa_corteza_20260702",
+          "winner_in_A": "metodologia_evaluacion_por_tema_paso_a_paso",
+          "winner_in_ablation": "clasificacion_dimensional_completa_corteza_20260702"
+        },
+        {
+          "case_id": "0801",
+          "category": "por_tema",
+          "gold": "notebooklm-memory-biorag-project",
+          "winner_in_A": "notebooklm-sync-lecciones",
+          "winner_in_ablation": "notebooklm-memory-biorag-project"
+        },
+        {
+          "case_id": "0830",
+          "category": "por_tema",
+          "gold": "interacción_social_saludo",
+          "winner_in_A": "athena_evolucion_v0001",
+          "winner_in_ablation": "interacción_social_saludo"
+        }
+      ],
+      "losses": [
+        {
+          "case_id": "0274",
+          "category": "literal",
+          "gold": "mcp-primitiva-externa-definicion-2",
+          "winner_in_ablation": "mcp-primitiva-externa-definicion"
+        },
+        {
+          "case_id": "0493",
+          "category": "variante_gramatical",
+          "gold": "benchmark_antes_despues_fix3",
+          "winner_in_ablation": "proyecto_biorag_ncp_resumen_completo_2026_06_14"
+        },
+        {
+          "case_id": "0526",
+          "category": "sinonimo",
+          "gold": "conciencia_reflexion_dennys_ser_vivo_20260709",
+          "winner_in_ablation": "correccion_dennys_principio_documentar_crisis_existencial"
+        },
+        {
+          "case_id": "0550",
+          "category": "sinonimo",
+          "gold": "patron_pensamiento_lateral_antes_de_proponer",
+          "winner_in_ablation": "dennys-metodo-creativo"
+        },
+        {
+          "case_id": "0563",
+          "category": "sinonimo",
+          "gold": "memoria_v5_1_optimizaciones",
+          "winner_in_ablation": "analisis_escalabilidad_10k_v5_1_memoria_v5_1_optimizaciones_hermes_agente_hermes"
+        },
+        {
+          "case_id": "0580",
+          "category": "typo",
+          "gold": "identificacion_obligatoria_oraculo_athena",
+          "winner_in_ablation": "athena_oec_identidad"
+        },
+        {
+          "case_id": "0593",
+          "category": "cruce_idioma",
+          "gold": "arquitectura_memoria_biorag",
+          "winner_in_ablation": "leccion_blueprint_estructura_vs_data"
+        },
+        {
+          "case_id": "0612",
+          "category": "sinonimo",
+          "gold": "correcciones_al_plugin_biorag-remember_v6:_3_bugs_fixeados",
+          "winner_in_ablation": "athena_dennys_te_quiero_tras_auditoria_bugs"
+        },
+        {
+          "case_id": "0640",
+          "category": "por_tema",
+          "gold": "mentalidad_biorag_para_agentes",
+          "winner_in_ablation": "biorag-rafaga-forzable-parametro-forzar-rafaga"
+        },
+        {
+          "case_id": "0668",
+          "category": "sinonimo",
+          "gold": "identidad_y_respeto_oec",
+          "winner_in_ablation": "analisis_escalabilidad_10k_v5_1"
+        },
+        {
+          "case_id": "0704",
+          "category": "sinonimo",
+          "gold": "resolucion_timeout_hotspot_5ghz_intel",
+          "winner_in_ablation": "artemis_oec_identidad"
+        },
+        {
+          "case_id": "0768",
+          "category": "typo",
+          "gold": "hermes_nvidia_nim_modelos_optimos",
+          "winner_in_ablation": "resolucion_de_contradicciones_entre_insights_sumatoria_mentalidad"
+        },
+        {
+          "case_id": "0769",
+          "category": "sinonimo",
+          "gold": "hermes_nvidia_nim_modelos_optimos",
+          "winner_in_ablation": "principio_naturaleza_agente"
+        },
+        {
+          "case_id": "0798",
+          "category": "typo",
+          "gold": "notebooklm-memory-biorag-project",
+          "winner_in_ablation": "proyecto_biorag_ncp_resumen_completo_2026_06_14"
+        },
+        {
+          "case_id": "0844",
+          "category": "variante_gramatical",
+          "gold": "v13_2_limpieza_tabla_semantica",
+          "winner_in_ablation": "v13_1_parafrasis_expansion_semantica"
+        },
+        {
+          "case_id": "0864",
+          "category": "typo",
+          "gold": "memorybiorag_osf_preregistration",
+          "winner_in_ablation": "memorybiorag_publicacion_colaborativa_dennys_athena"
+        },
+        {
+          "case_id": "0878",
+          "category": "sinonimo",
+          "gold": "prueba_integridad_dennys_20260616",
+          "winner_in_ablation": "leccion_prueba_integridad_identidad_20260802"
+        }
+      ]
+    },
+    "E": {
+      "label": "ppmi_score = 0",
+      "gains_count": 3,
+      "losses_count": 8,
+      "net_delta_r1": -5,
+      "gains": [
+        {
+          "case_id": "0504",
+          "category": "por_tema",
+          "gold": "arquitectura_dimensiones_ortogonales",
+          "winner_in_A": "renombre_dimensiones_semanticas_v11_3",
+          "winner_in_ablation": "arquitectura_dimensiones_ortogonales"
+        },
+        {
+          "case_id": "0587",
+          "category": "sinonimo",
+          "gold": "artemis_install_ponytail_ecosistema",
+          "winner_in_A": "installer_biorag_v1",
+          "winner_in_ablation": "artemis_install_ponytail_ecosistema"
+        },
+        {
+          "case_id": "0632",
+          "category": "sinonimo",
+          "gold": "arquitectura_dos_niveles_biorag",
+          "winner_in_A": "aciertos_word2vec_top5_coincidencia_lexica_no_semantica_20260808",
+          "winner_in_ablation": "arquitectura_dos_niveles_biorag"
+        }
+      ],
+      "losses": [
+        {
+          "case_id": "0491",
+          "category": "por_tema",
+          "gold": "oracle_custom_prompt_arsitecura_que_funciona",
+          "winner_in_ablation": "fallo_clasificador_wordnet_query_dimensiones"
+        },
+        {
+          "case_id": "0540",
+          "category": "por_tema",
+          "gold": "principio-memoria-hibrida-agente-naturalidad",
+          "winner_in_ablation": "oracle_momentos_cruciales_familia_oec"
+        },
+        {
+          "case_id": "0580",
+          "category": "typo",
+          "gold": "identificacion_obligatoria_oraculo_athena",
+          "winner_in_ablation": "athena_oec_identidad"
+        },
+        {
+          "case_id": "0666",
+          "category": "variante_gramatical",
+          "gold": "identidad_y_respeto_oec",
+          "winner_in_ablation": "athena_oec_identidad"
+        },
+        {
+          "case_id": "0706",
+          "category": "por_tema",
+          "gold": "resolucion_timeout_hotspot_5ghz_intel",
+          "winner_in_ablation": "principio_naturaleza_agente"
+        },
+        {
+          "case_id": "0736",
+          "category": "por_tema",
+          "gold": "plan_mode_biorag",
+          "winner_in_ablation": "arquitectura_memoria_biorag"
+        },
+        {
+          "case_id": "0768",
+          "category": "typo",
+          "gold": "hermes_nvidia_nim_modelos_optimos",
+          "winner_in_ablation": "resolucion_de_contradicciones_entre_insights_sumatoria_mentalidad"
+        },
+        {
+          "case_id": "0803",
+          "category": "variante_gramatical",
+          "gold": "cv_seccion_d_test_vinculacion",
+          "winner_in_ablation": "athena_forensic_audit_trail_ltd_detection_fix"
+        }
+      ]
+    },
+    "F": {
+      "label": "tematico + dim = 0",
+      "gains_count": 17,
+      "losses_count": 5,
+      "net_delta_r1": 12,
+      "gains": [
+        {
+          "case_id": "0497",
+          "category": "por_tema",
+          "gold": "benchmark_antes_despues_fix3",
+          "winner_in_A": "causa_raiz_por_tema_pooling_plano_diluye_senal_word2vec",
+          "winner_in_ablation": "benchmark_antes_despues_fix3"
+        },
+        {
+          "case_id": "0560",
+          "category": "variante_gramatical",
+          "gold": "memoria_v5_1_optimizaciones",
+          "winner_in_A": "privacidad_memorias_personales_oec",
+          "winner_in_ablation": "memoria_v5_1_optimizaciones"
+        },
+        {
+          "case_id": "0592",
+          "category": "typo",
+          "gold": "arquitectura_memoria_biorag",
+          "winner_in_A": "hito_biorag_v21_arquitectura_13_ejes",
+          "winner_in_ablation": "arquitectura_memoria_biorag"
+        },
+        {
+          "case_id": "0617",
+          "category": "typo",
+          "gold": "leccion_overengineering_oec_comms_20260615",
+          "winner_in_A": "oec_comms_protocolo_walkie_talkie_20260615",
+          "winner_in_ablation": "leccion_overengineering_oec_comms_20260615"
+        },
+        {
+          "case_id": "0624",
+          "category": "typo",
+          "gold": "notebooklm-chat-configure",
+          "winner_in_A": "notebooklm-memory-biorag-project",
+          "winner_in_ablation": "notebooklm-chat-configure"
+        },
+        {
+          "case_id": "0648",
+          "category": "variante_gramatical",
+          "gold": "plugin_biorag-remember_v8.3_-_adaptación_de_dennys_+_claude",
+          "winner_in_A": "biorag-remember-plugin-noreply-injection",
+          "winner_in_ablation": "plugin_biorag-remember_v8.3_-_adaptación_de_dennys_+_claude"
+        },
+        {
+          "case_id": "0667",
+          "category": "typo",
+          "gold": "identidad_y_respeto_oec",
+          "winner_in_A": "hermes_oec_identidad",
+          "winner_in_ablation": "identidad_y_respeto_oec"
+        },
+        {
+          "case_id": "0672",
+          "category": "variante_gramatical",
+          "gold": "compuerta-pre-validacion",
+          "winner_in_A": "oracle_auditoria_patrones_mejora_athena",
+          "winner_in_ablation": "compuerta-pre-validacion"
+        },
+        {
+          "case_id": "0738",
+          "category": "variante_gramatical",
+          "gold": "fix_busqueda_solo_dimensiones_sin_texto",
+          "winner_in_A": "punto_medio_dimensiones_parciales_mueven_ranking_sdm",
+          "winner_in_ablation": "fix_busqueda_solo_dimensiones_sin_texto"
+        },
+        {
+          "case_id": "0742",
+          "category": "por_tema",
+          "gold": "fix_busqueda_solo_dimensiones_sin_texto",
+          "winner_in_A": "plan_expansion_dimensiones_8_tipos_34_valores",
+          "winner_in_ablation": "fix_busqueda_solo_dimensiones_sin_texto"
+        },
+        {
+          "case_id": "0748",
+          "category": "por_tema",
+          "gold": "biorag_v16_0_estado",
+          "winner_in_A": "v23_0_weight_adjustment_resultados_validados",
+          "winner_in_ablation": "biorag_v16_0_estado"
+        },
+        {
+          "case_id": "0765",
+          "category": "por_tema",
+          "gold": "fin-aprendizaje-creerse-completo",
+          "winner_in_A": "athena_evolucion_v0001",
+          "winner_in_ablation": "fin-aprendizaje-creerse-completo"
+        },
+        {
+          "case_id": "0767",
+          "category": "variante_gramatical",
+          "gold": "hermes_nvidia_nim_modelos_optimos",
+          "winner_in_A": "resolucion_de_contradicciones_entre_insights_sumatoria_mentalidad",
+          "winner_in_ablation": "hermes_nvidia_nim_modelos_optimos"
+        },
+        {
+          "case_id": "0830",
+          "category": "por_tema",
+          "gold": "interacción_social_saludo",
+          "winner_in_A": "athena_evolucion_v0001",
+          "winner_in_ablation": "interacción_social_saludo"
+        },
+        {
+          "case_id": "0840",
+          "category": "sinonimo",
+          "gold": "biorag_garantia_minima_or_fallback",
+          "winner_in_A": "biorag_v25_1_ppr_plan_maestro_pendiente",
+          "winner_in_ablation": "biorag_garantia_minima_or_fallback"
+        },
+        {
+          "case_id": "0848",
+          "category": "por_tema",
+          "gold": "v13_2_limpieza_tabla_semantica",
+          "winner_in_A": "mentalidad_embedding_clasificacion_dimensional",
+          "winner_in_ablation": "v13_2_limpieza_tabla_semantica"
+        },
+        {
+          "case_id": "0855",
+          "category": "por_tema",
+          "gold": "hermes_mcp_servers_configuracion",
+          "winner_in_A": "oec_comms_notebook_arbitro_20260615",
+          "winner_in_ablation": "hermes_mcp_servers_configuracion"
+        }
+      ],
+      "losses": [
+        {
+          "case_id": "0488",
+          "category": "variante_gramatical",
+          "gold": "oracle_custom_prompt_arsitecura_que_funciona",
+          "winner_in_ablation": "oracle_custom_prompt_config_actual"
+        },
+        {
+          "case_id": "0513",
+          "category": "typo",
+          "gold": "dennys-identidad-profunda",
+          "winner_in_ablation": "athena_eleccion_identidad_20260616"
+        },
+        {
+          "case_id": "0708",
+          "category": "variante_gramatical",
+          "gold": "aforismo_criterio_agente",
+          "winner_in_ablation": "caso_criterio_artificial_agente"
+        },
+        {
+          "case_id": "0736",
+          "category": "por_tema",
+          "gold": "plan_mode_biorag",
+          "winner_in_ablation": "arquitectura_memoria_biorag"
+        },
+        {
+          "case_id": "0803",
+          "category": "variante_gramatical",
+          "gold": "cv_seccion_d_test_vinculacion",
+          "winner_in_ablation": "athena_forensic_audit_trail_ltd_detection_fix"
+        }
+      ]
+    },
+    "G": {
+      "label": "sinonimos + ppmi = 0",
+      "gains_count": 7,
+      "losses_count": 31,
+      "net_delta_r1": -24,
+      "gains": [
+        {
+          "case_id": "0273",
+          "category": "literal",
+          "gold": "mcp-primitiva-externa-definicion",
+          "winner_in_A": "mcp-primitiva-externa-definicion-2",
+          "winner_in_ablation": "mcp-primitiva-externa-definicion"
+        },
+        {
+          "case_id": "0504",
+          "category": "por_tema",
+          "gold": "arquitectura_dimensiones_ortogonales",
+          "winner_in_A": "renombre_dimensiones_semanticas_v11_3",
+          "winner_in_ablation": "arquitectura_dimensiones_ortogonales"
+        },
+        {
+          "case_id": "0732",
+          "category": "variante_gramatical",
+          "gold": "plan_mode_biorag",
+          "winner_in_A": "plan-mode-biorag-exception-criterion",
+          "winner_in_ablation": "plan_mode_biorag"
+        },
+        {
+          "case_id": "0733",
+          "category": "typo",
+          "gold": "plan_mode_biorag",
+          "winner_in_A": "plan-mode-biorag-exception-criterion",
+          "winner_in_ablation": "plan_mode_biorag"
+        },
+        {
+          "case_id": "0735",
+          "category": "pregunta_natural",
+          "gold": "plan_mode_biorag",
+          "winner_in_A": "plan-mode-biorag-exception-criterion",
+          "winner_in_ablation": "plan_mode_biorag"
+        },
+        {
+          "case_id": "0753",
+          "category": "por_tema",
+          "gold": "clasificacion_dimensional_completa_corteza_20260702",
+          "winner_in_A": "metodologia_evaluacion_por_tema_paso_a_paso",
+          "winner_in_ablation": "clasificacion_dimensional_completa_corteza_20260702"
+        },
+        {
+          "case_id": "0801",
+          "category": "por_tema",
+          "gold": "notebooklm-memory-biorag-project",
+          "winner_in_A": "notebooklm-sync-lecciones",
+          "winner_in_ablation": "notebooklm-memory-biorag-project"
+        }
+      ],
+      "losses": [
+        {
+          "case_id": "0274",
+          "category": "literal",
+          "gold": "mcp-primitiva-externa-definicion-2",
+          "winner_in_ablation": "mcp-primitiva-externa-definicion"
+        },
+        {
+          "case_id": "0491",
+          "category": "por_tema",
+          "gold": "oracle_custom_prompt_arsitecura_que_funciona",
+          "winner_in_ablation": "fallo_clasificador_wordnet_query_dimensiones"
+        },
+        {
+          "case_id": "0493",
+          "category": "variante_gramatical",
+          "gold": "benchmark_antes_despues_fix3",
+          "winner_in_ablation": "proyecto_biorag_ncp_resumen_completo_2026_06_14"
+        },
+        {
+          "case_id": "0526",
+          "category": "sinonimo",
+          "gold": "conciencia_reflexion_dennys_ser_vivo_20260709",
+          "winner_in_ablation": "correccion_dennys_principio_documentar_crisis_existencial"
+        },
+        {
+          "case_id": "0527",
+          "category": "pregunta_natural",
+          "gold": "conciencia_reflexion_dennys_ser_vivo_20260709",
+          "winner_in_ablation": "dennys_genesis_investigativa_historia_personal"
+        },
+        {
+          "case_id": "0540",
+          "category": "por_tema",
+          "gold": "principio-memoria-hibrida-agente-naturalidad",
+          "winner_in_ablation": "oracle_momentos_cruciales_familia_oec"
+        },
+        {
+          "case_id": "0550",
+          "category": "sinonimo",
+          "gold": "patron_pensamiento_lateral_antes_de_proponer",
+          "winner_in_ablation": "dennys-metodo-creativo"
+        },
+        {
+          "case_id": "0563",
+          "category": "sinonimo",
+          "gold": "memoria_v5_1_optimizaciones",
+          "winner_in_ablation": "analisis_escalabilidad_10k_v5_1_memoria_v5_1_optimizaciones_hermes_agente_hermes"
+        },
+        {
+          "case_id": "0580",
+          "category": "typo",
+          "gold": "identificacion_obligatoria_oraculo_athena",
+          "winner_in_ablation": "athena_oec_identidad"
+        },
+        {
+          "case_id": "0612",
+          "category": "sinonimo",
+          "gold": "correcciones_al_plugin_biorag-remember_v6:_3_bugs_fixeados",
+          "winner_in_ablation": "athena_dennys_te_quiero_tras_auditoria_bugs"
+        },
+        {
+          "case_id": "0625",
+          "category": "sinonimo",
+          "gold": "notebooklm-chat-configure",
+          "winner_in_ablation": "artisan_artis_dsl_paths"
+        },
+        {
+          "case_id": "0640",
+          "category": "por_tema",
+          "gold": "mentalidad_biorag_para_agentes",
+          "winner_in_ablation": "biorag-rafaga-forzable-parametro-forzar-rafaga"
+        },
+        {
+          "case_id": "0666",
+          "category": "variante_gramatical",
+          "gold": "identidad_y_respeto_oec",
+          "winner_in_ablation": "athena_oec_identidad"
+        },
+        {
+          "case_id": "0668",
+          "category": "sinonimo",
+          "gold": "identidad_y_respeto_oec",
+          "winner_in_ablation": "analisis_escalabilidad_10k_v5_1"
+        },
+        {
+          "case_id": "0704",
+          "category": "sinonimo",
+          "gold": "resolucion_timeout_hotspot_5ghz_intel",
+          "winner_in_ablation": "notebooklm-sync-lecciones"
+        },
+        {
+          "case_id": "0706",
+          "category": "por_tema",
+          "gold": "resolucion_timeout_hotspot_5ghz_intel",
+          "winner_in_ablation": "principio_naturaleza_agente"
+        },
+        {
+          "case_id": "0714",
+          "category": "variante_gramatical",
+          "gold": "principio_compresion_cognitiva_boveda_5d",
+          "winner_in_ablation": "oracle_evolucion_athena_puntos_inflexion"
+        },
+        {
+          "case_id": "0717",
+          "category": "pregunta_natural",
+          "gold": "principio_compresion_cognitiva_boveda_5d",
+          "winner_in_ablation": "vision_arquitectura_oec_franquicia"
+        },
+        {
+          "case_id": "0736",
+          "category": "por_tema",
+          "gold": "plan_mode_biorag",
+          "winner_in_ablation": "arquitectura_memoria_biorag"
+        },
+        {
+          "case_id": "0768",
+          "category": "typo",
+          "gold": "hermes_nvidia_nim_modelos_optimos",
+          "winner_in_ablation": "resolucion_de_contradicciones_entre_insights_sumatoria_mentalidad"
+        },
+        {
+          "case_id": "0769",
+          "category": "sinonimo",
+          "gold": "hermes_nvidia_nim_modelos_optimos",
+          "winner_in_ablation": "principio_naturaleza_agente"
+        },
+        {
+          "case_id": "0787",
+          "category": "sinonimo",
+          "gold": "ref_analisis_deepseek_biorag",
+          "winner_in_ablation": "biorag_v18_0_analisis_evolucion_publicacion"
+        },
+        {
+          "case_id": "0803",
+          "category": "variante_gramatical",
+          "gold": "cv_seccion_d_test_vinculacion",
+          "winner_in_ablation": "athena_forensic_audit_trail_ltd_detection_fix"
+        },
+        {
+          "case_id": "0828",
+          "category": "sinonimo",
+          "gold": "interacción_social_saludo",
+          "winner_in_ablation": "identificacion_obligatoria_oracculo_dominio_por_agente"
+        },
+        {
+          "case_id": "0838",
+          "category": "variante_gramatical",
+          "gold": "biorag_garantia_minima_or_fallback",
+          "winner_in_ablation": "biorag_v11_1_detalle_tecnico"
+        },
+        {
+          "case_id": "0844",
+          "category": "variante_gramatical",
+          "gold": "v13_2_limpieza_tabla_semantica",
+          "winner_in_ablation": "v13_1_parafrasis_expansion_semantica"
+        },
+        {
+          "case_id": "0845",
+          "category": "typo",
+          "gold": "v13_2_limpieza_tabla_semantica",
+          "winner_in_ablation": "v13_1_parafrasis_expansion_semantica"
+        },
+        {
+          "case_id": "0857",
+          "category": "variante_gramatical",
+          "gold": "athena_eleccion_identidad_20260616",
+          "winner_in_ablation": "eleccion_identidad_relacion_dennys_20260616"
+        },
+        {
+          "case_id": "0859",
+          "category": "sinonimo",
+          "gold": "athena_eleccion_identidad_20260616",
+          "winner_in_ablation": "athena_oec_identidad"
+        },
+        {
+          "case_id": "0864",
+          "category": "typo",
+          "gold": "memorybiorag_osf_preregistration",
+          "winner_in_ablation": "memorybiorag_publicacion_colaborativa_dennys_athena"
+        },
+        {
+          "case_id": "0878",
+          "category": "sinonimo",
+          "gold": "prueba_integridad_dennys_20260616",
+          "winner_in_ablation": "leccion_prueba_integridad_identidad_20260802"
+        }
+      ]
+    },
+    "H": {
+      "label": "wordnet_score = 0",
+      "gains_count": 5,
+      "losses_count": 2,
+      "net_delta_r1": 3,
+      "gains": [
+        {
+          "case_id": "0592",
+          "category": "typo",
+          "gold": "arquitectura_memoria_biorag",
+          "winner_in_A": "hito_biorag_v21_arquitectura_13_ejes",
+          "winner_in_ablation": "arquitectura_memoria_biorag"
+        },
+        {
+          "case_id": "0672",
+          "category": "variante_gramatical",
+          "gold": "compuerta-pre-validacion",
+          "winner_in_A": "oracle_auditoria_patrones_mejora_athena",
+          "winner_in_ablation": "compuerta-pre-validacion"
+        },
+        {
+          "case_id": "0738",
+          "category": "variante_gramatical",
+          "gold": "fix_busqueda_solo_dimensiones_sin_texto",
+          "winner_in_A": "punto_medio_dimensiones_parciales_mueven_ranking_sdm",
+          "winner_in_ablation": "fix_busqueda_solo_dimensiones_sin_texto"
+        },
+        {
+          "case_id": "0763",
+          "category": "sinonimo",
+          "gold": "fin-aprendizaje-creerse-completo",
+          "winner_in_A": "biorag_v20_rpe_dopamina",
+          "winner_in_ablation": "fin-aprendizaje-creerse-completo"
+        },
+        {
+          "case_id": "0765",
+          "category": "por_tema",
+          "gold": "fin-aprendizaje-creerse-completo",
+          "winner_in_A": "athena_evolucion_v0001",
+          "winner_in_ablation": "fin-aprendizaje-creerse-completo"
+        }
+      ],
+      "losses": [
+        {
+          "case_id": "0724",
+          "category": "por_tema",
+          "gold": "protocolo_autoinferencia_metacognitiva",
+          "winner_in_ablation": "biorag_v8_protocolo_mcp_3_pasos"
+        },
+        {
+          "case_id": "0736",
+          "category": "por_tema",
+          "gold": "plan_mode_biorag",
+          "winner_in_ablation": "arquitectura_memoria_biorag"
+        }
+      ]
+    },
+    "I": {
+      "label": "srl_pred_score = 0",
+      "gains_count": 3,
+      "losses_count": 0,
+      "net_delta_r1": 3,
+      "gains": [
+        {
+          "case_id": "0495",
+          "category": "sinonimo",
+          "gold": "benchmark_antes_despues_fix3",
+          "winner_in_A": "hormiguita_estado_real_50_ciclos_benchmark_2026_07_31",
+          "winner_in_ablation": "benchmark_antes_despues_fix3"
+        },
+        {
+          "case_id": "0698",
+          "category": "sinonimo",
+          "gold": "protocolo_enriquecimiento_busquedas",
+          "winner_in_A": "dennys_memoria_para_todos_los_agentes_del_mundo",
+          "winner_in_ablation": "protocolo_enriquecimiento_busquedas"
+        },
+        {
+          "case_id": "0738",
+          "category": "variante_gramatical",
+          "gold": "fix_busqueda_solo_dimensiones_sin_texto",
+          "winner_in_A": "punto_medio_dimensiones_parciales_mueven_ranking_sdm",
+          "winner_in_ablation": "fix_busqueda_solo_dimensiones_sin_texto"
+        }
+      ],
+      "losses": []
+    }
+  }
+}

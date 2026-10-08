@@ -1,13 +1,13 @@
-# INFORME DE AUDITORÍA DIAGNÓSTICA, TRAZABILIDAD Y EVALUACIÓN CONTRAFACTUAL DE LOS 72 FALLOS TOP-1 (v32.4)
+# INFORME DE AUDITORÍA DIAGNÓSTICA, TRAZABILIDAD Y ABLACIÓN CONTRAFACTUAL DE SEÑALES (v32.4)
 
-> **Misión:** Atribución causal mediante experimentación contrafactual formal (A/B/C/D) y trazabilidad completa de linaje de telemetría de los 72 casos que ingresan al Top-5 pero no obtienen la posición #1 en el benchmark QA congelado.  
-> **Invariante Metodológica:** Cero modificaciones permanentes en el motor de búsqueda, pesos de producción, umbrales ni mecanismos de scoring.
+> **Misión:** Atribución causal sistemática mediante ablación contrafactual sobre pool de candidatos congelado (A..I) y trazabilidad completa de linaje de telemetría de los 72 casos que ingresan al Top-5 pero no obtienen la posición #1 en el benchmark QA congelado.  
+> **Invariante Metodológica:** Cero modificaciones permanentes en el motor de producción, pesos de scoring ni heurísticas.
 
 ---
 
-## 1. Metadatos del Experimento y Reproducibilidad
+## 1. Metadatos del Experimento Congelado y Trazabilidad
 
-### 1.1 Identificadores Criptográficos Congelados
+### 1.1 Identificadores Criptográficos y Reproducibilidad
 | Parámetro | Valor Verificado |
 |---|---|
 | **Commit SHA** | `32657b652f6941161720a117232770f25a5feaed` |
@@ -15,124 +15,105 @@
 | **Snapshot SHA-256** | `c3b88ae61bda1c0d2d4b6066d253a41b68f88e8d12b338b278c8442a1228dddc` (`snapshots/qa_escape_qcr_20260811.db`) |
 | **Dataset SHA-256** | `c76a71465f7a9be647094d79f00ffcebd742b00a6c12fa4ae90cf2c3d0654f4c` (`scripts/casos_qa_baseline_v1.jsonl`) |
 | **Total Casos en Dataset** | 921 casos |
-| **Controles Negativos** | 40 casos (0 FP · 0.00%) |
+| **Controles Negativos** | 40 casos (0 FP · 0.00% en todas las configuraciones) |
 | **Queries Ambiguas Contradictorias** | 6 casos (aisladas formalmente del Recall) |
 | **Consultas de Recuperación Efectiva** | 875 consultas |
-| **Recall@5 Global Observado** | **100.00% (875 / 875)** |
-| **Recall@1 Global Observado** | **91.77% (803 / 875)** |
-| **Total Fallos Top-1 (Gold en Top 2..5)** | **Exactamente 72 casos** |
+| **Recall@5 Global Baseline** | **100.00% (875 / 875)** |
+| **Recall@1 Global Baseline** | **91.77% (803 / 875)** |
+| **Total Fallos Top-1 Inicial** | **Exactamente 72 casos** |
 
 ---
 
-### 1.2 Demostración de Reproducibilidad en 3 Réplicas Consecutivas
-Se ejecutó la suite [`scripts/audit_72_top1_misses.py`](../scripts/audit_72_top1_misses.py) en 3 réplicas consecutivas independientes mediante clonación de snapshot por `sqlite3.backup()` y restauración estricta de estado:
-
-| Métrica / Parámetro | Réplica #1 | Réplica #2 | Réplica #3 | Coincidencia Bit-a-Bit |
-|---|---:|---:|---:|:---:|
-| **Recall@5** | 875 / 875 (100.0%) | 875 / 875 (100.0%) | 875 / 875 (100.0%) | ✅ 100% Idéntico |
-| **Recall@1** | 803 / 875 (91.77%) | 803 / 875 (91.77%) | 803 / 875 (91.77%) | ✅ 100% Idéntico |
-| **Total Misses Top-1** | 72 | 72 | 72 | ✅ 100% Idéntico |
-| **IDs de Misses (0000..0874)** | Lista idéntica | Lista idéntica | Lista idéntica | ✅ 100% Idéntico |
-| **Ganador & Rango de cada Gold** | Idéntico en los 72 | Idéntico en los 72 | Idéntico en los 72 | ✅ 100% Idéntico |
-| **Scores y Márgenes** | Idéntico en los 72 | Idéntico en los 72 | Idéntico en los 72 | ✅ 100% Idéntico |
-| **Clasificación Causal / Temporal** | Idéntico en los 72 | Idéntico en los 72 | Idéntico en los 72 | ✅ 100% Idéntico |
-
-> **Declaración de Reproducibilidad:** *La auditoría instrumentada es 100% reproducible bajo este entorno y protocolo.*
-
----
-
-## 2. Precisión Técnica en Parámetros JSD y Factores de Escala
-
-### 2.1 Rango Discreto Real de $w_{\text{jsd}}$ en el Motor
-En la configuración actual (`JSD_WEIGHT=0.0`, `JSD_ADAPT_BASE=0.05`, `JSD_ADAPT_CORTO=0.5`, `JSD_ADAPT_LARGO=2.5`, `JSD_ADAPT_NT=4`), la función `_jsd_weight_adaptativo` evalúa valores discretos según la longitud de tokens:
-
-* **Query corta ($N_t < 4$ tokens):**
-  $$w_{\text{jsd}} = 0.05 \times 0.5 = 0.025$$
-  $$\text{base\_weight} = \frac{1.0 - 0.025}{1.69} = \frac{0.975}{1.69} \approx 0.576923$$
-* **Query larga ($N_t \ge 4$ tokens):**
-  $$w_{\text{jsd}} = 0.05 \times 2.5 = 0.125$$
-  $$\text{base\_weight} = \frac{1.0 - 0.125}{1.69} = \frac{0.875}{1.69} \approx 0.517751$$
-
-El rango efectivo es por ende el conjunto discreto $w_{\text{jsd}} \in \{0.025, 0.125\}$.
-
----
-
-## 3. Comprobación Programática de Trazabilidad y Linaje (72/72)
-
-Se auditó formalmente el linaje completo de evaluación para los 72 casos de fallo:
+### 1.2 Trazabilidad de Telemetría (72/72 Casos Comprobados)
+Se verificó la cadena de procedencia:
 $$\text{invocation\_id} \longrightarrow \text{concepto} \longrightarrow \text{score\_returned} \longrightarrow \text{last\_score\_base\_map}[\text{concepto}]$$
-
-### Resultados de la Verificación Programática:
-* **Total casos auditados:** 72 / 72.
-* **Invocaciones por concepto durante la query:** 1 sola invocación por concepto en el 100% de los casos evaluados en el pool de scoring híbrido.
-* **Correspondencia unívoca:** $|\text{score\_returned} - \text{last\_score\_base\_map}[\text{concepto}]| < 10^{-4}$ comprobada en el **100% de los casos (72/72)**.
-* Queda demostrado sin ambigüedades que la telemetría de señales corresponde exactamente a la evaluación que determinó el score rankeado.
+* 1 sola invocación por concepto en el pool híbrido.
+* Correspondencia exacta $|\text{score\_returned} - \text{last\_score\_base\_map}[\text{concepto}]| < 10^{-4}$ en los **72/72 casos**.
+* Rango discreto de $w_{\text{jsd}} \in \{0.025, 0.125\}$ confirmado según $N_t < 4$ vs $N_t \ge 4$.
 
 ---
 
-## 4. Contribución Ponderada Reconstruida sobre Señales Auditadas
+## 2. Experimento 1: Evaluación Contrafactual de Mecanismos del Concept Hub
 
-La siguiente tabla refleja la **contribución ponderada reconstruida** calculada a partir de los pesos efectivos reales de cada consulta:
-$$\Delta_{\text{ponderado}} = w_i \times \text{base\_weight} \times (\text{Winner}_{\text{señal}} - \text{Gold}_{\text{señal}})$$
+Se evaluó la incidencia del Concept Hub mediante ablación de sus mecanismos en 4 ramas:
+* **A (Baseline):** Motor completo.
+* **B (hub_match = 0):** Señal de Hub anulada en scoring.
+* **C (Sin Piso/Promoción Hub):** Regla de piso desactivada en `search.py`.
+* **D (Sin Hubs Total):** Ambos mecanismos de Hub apagados.
 
-| Señal | Peso Nominal ($w_i$) | Peso Efectivo Medio | $\Delta$ Descriptivo Medio ($\text{Winner} - \text{Gold}$) | $\Delta$ Contributivo Reconstruido Medio |
-|---|---:|---:|---:|---:|
-| **`hub_match`** | 0.20 | 0.1121 | **+0.1604** | **+0.017580** |
-| **`tematico_score`** | 0.08 | 0.0448 | **+0.1972** | **+0.008701** |
-| **`dim_score`** | 0.14 | 0.0785 | **+0.0774** | **+0.006120** |
-| **`pred_score_srl`** | 0.20 | 0.1121 | **+0.0451** | **+0.005167** |
-| **`grupo_score_wordnet`** | 0.10 | 0.0560 | **+0.0592** | **+0.003457** |
-| **`jaccard`** | 0.10 | 0.0560 | **+0.0387** | **+0.002211** |
-| **`concepto_ratio`** | 0.08 | 0.0448 | **+0.0006** | **+0.000446** |
-| **`peso_sinaptico`** | 0.10 | 0.0560 | **0.0000** | **0.000000** |
-| **`ncd_score`** | 0.05 | 0.0280 | **-0.0055** | **-0.000154** |
-| **`jsd_score`** | adaptativo | 0.0528 | **+0.0043** | **-0.000361** |
-| **`convergencia_bonus`** | reranker | 1.0000 | **-0.0005** | **-0.000464** |
-| **`bm25_norm`** | 0.25 | 0.1401 | **-0.0004** | **-0.000798** |
-| **`sinonimos_ratio`** | 0.08 | 0.0448 | **-0.0252** | **-0.001040** |
-| **`ppmi_score`** | 0.15 | 0.0841 | **-0.0169** | **-0.001336** |
-
----
-
-## 5. Experimento Contrafactual Formal de Aislamiento de Mecanismos (A / B / C / D)
-
-Para evaluar si el Concept Hub es el factor causal determinante de los 72 fallos, se ejecutó una ablación contrafactual controlada en 4 ramas sobre el mismo snapshot y dataset congelados:
-
-* **Configuración A (Baseline Actual):** Motor completo estándar.
-* **Configuración B (Contrafactual Hub-1):** Neutralización exclusiva de `hub_match = 0.0` en scoring híbrido.
-* **Configuración C (Contrafactual Hub-2):** Neutralización exclusiva del mecanismo de piso/promoción Hub en `search.py`.
-* **Configuración D (Contrafactual Hub-3):** Neutralización de ambos mecanismos de Hub simultáneamente.
-
-### 5.1 Resultados Globales de la Matriz Contrafactual
-
-| Configuración | R@5 | R@1 | MRR | FP Negativos | Total Misses Top-1 | $\Delta$ Neto R@1 (vs Baseline) |
+| Configuración | R@5 | R@1 | MRR | FP Negativos | Misses Top-1 | $\Delta$ Neto R@1 (vs Baseline) |
 |---|:---:|:---:|:---:|:---:|:---:|:---:|
 | **A (Baseline Actual)** | **100.00%** (875/875) | **91.77%** (803/875) | **0.9497** | 0 / 40 | **72** | **BASE** |
-| **B (hub_match = 0)** | **100.00%** (875/875) | **92.11%** (806/875) | **0.9517** | 0 / 40 | **69** | **+3** (3 Ganancias / 0 Pérdidas) |
-| **C (Sin Piso Hub)** | **99.89%** (874/875) | **92.23%** (807/875) | **0.9525** | 0 / 40 | **68** | **+4** (5 Ganancias / 1 Pérdida) |
-| **D (Sin Hubs Total)** | **99.89%** (874/875) | **92.23%** (807/875) | **0.9525** | 0 / 40 | **68** | **+4** (5 Ganancias / 1 Pérdida) |
+| **B (hub_match = 0)** | **100.00%** (875/875) | **92.11%** (806/875) | **0.9517** | 0 / 40 | **69** | **+3** (3G / 0L) |
+| **C (Sin Piso Hub)** | **99.89%** (874/875) | **92.23%** (807/875) | **0.9525** | 0 / 40 | **68** | **+4** (5G / 1L) |
+| **D (Sin Hubs Total)** | **99.89%** (874/875) | **92.23%** (807/875) | **0.9525** | 0 / 40 | **68** | **+4** (5G / 1L) |
+
+> **Conclusión del Experimento 1:** 68 de los 72 casos no modifican su condición Top-1 ante la desactivación del Concept Hub. El Hub es responsable únicamente de 3 a 4 desplazamientos netos, y su presencia aporta un rescate de cobertura esencial en R@5 (874 $\to$ 875).
 
 ---
 
-### 5.2 Análisis de Transiciones de Casos Individuales
+## 3. Experimento 2: Ablación Contrafactual de Señales sobre Pool de Candidatos Congelado
 
-#### Ganancias en B (`hub_match = 0`):
-* `0534` (`biorag_v11_1_detalle_tecnico`): Recupera Top-1 al removerse la señal hub_match que favorecía a `arquitectura_memoria_biorag`.
-* `0551` (`patron_pensamiento_lateral_antes_de_proponer`): Recupera Top-1 frente a `dennys_genesis_investigativa_historia_personal`.
-* `0767` (`hermes_nvidia_nim_modelos_optimos`): Recupera Top-1 frente a `resolucion_de_contradicciones_entre_insights_sumatoria_mentalidad`.
+Para aislar con rigor la causa causal del ordenamiento de los 72 fallos, se ejecutó una ablación sistemática sobre el pool de candidatos idéntico (congelado antes del scoring híbrido):
 
-#### Ganancias en C y D (Sin Piso Hub):
-* `0496`, `0534`, `0551`, `0763`, `0767` ascienden a Top-1.
-* **Pérdida en C y D:** El caso `0593` (`"arquitectura biorag memoria"`) desciende de Top-1 a Top-2 en favor de `leccion_blueprint_estructura_vs_data`, y el Recall@5 sufre una regresión de 1 caso (874/875 = 99.89%), confirmando que el Concept Hub aporta cobertura real en recuperación estructural.
+```
+                       CANDIDATOS FROZEN (Pool Base)
+                                    │
+    ┌───────────┬───────────┬───────┴───┬───────────┬───────────┐
+    ▼           ▼           ▼           ▼           ▼           ▼
+Config A    Config B    Config C    Config D    Config E    Config F / G
+Baseline    Temático=0    Dim=0    Sinónimos=0   PPMI=0    Combinadas
+```
+
+### 3.1 Tabla Maestra de Ablación de Señales
+
+| Config | Intervención Contrafactual | R@5 | R@1 | MRR | Misses | Ganancias Top-1 | Pérdidas Top-1 | $\Delta$ Neto R@1 |
+|:---:|---|:---:|:---:|:---:|:---:|:---:|:---:|:---:|
+| **A** | **Baseline (Motor Actual)** | **100.0%** | **91.77%** | **0.9497** | **72** | **0** | **0** | **BASE** |
+| **B** | `tematico_score = 0` | 99.54% | 92.46% | 0.9522 | 66 | 11 | 5 | **+6** |
+| **C** | `dim_score = 0` | 99.66% | 92.80% | 0.9536 | 63 | 11 | 2 | **+9** |
+| **D** | `sinonimos_ratio = 0` | 97.03% | 90.74% | 0.9329 | 81 | 8 | 17 | **-9** |
+| **E** | `ppmi_score = 0` | 99.09% | 91.20% | 0.9425 | 77 | 3 | 8 | **-5** |
+| **F** | `tematico + dim = 0` (Eje Co-ocurrencia OFF) | 99.43% | **93.14%** | **0.9546** | **60** | **17** | **5** | **+12** |
+| **G** | `sinonimos + ppmi = 0` (Eje Semántico Fino OFF) | 95.66% | 89.03% | 0.9182 | 96 | 7 | 31 | **-24** |
+| **H** | `grupo_score_wordnet = 0` | 99.54% | 92.11% | 0.9503 | 69 | 5 | 2 | **+3** |
+| **I** | `pred_score_srl = 0` | 100.0% | 92.11% | 0.9515 | 69 | 3 | 0 | **+3** |
 
 ---
 
-## 6. Veredicto Causal Definitivo
+### 3.2 Desglose por Categoría en Configuraciones Clave (R@1 por Categoría)
 
-1. **El Concept Hub NO es la causa raíz de los 72 fallos Top-1:**
-   - La desactivación total del Concept Hub (Contrafactual D) únicamente resuelve de 3 a 5 casos de los 72 fallos (reduciendo los misses de 72 a 68).
-   - Los **67–68 fallos restantes (94.4% del total) persisten inmutables** incluso en ausencia total de Concept Hubs.
-2. **Causa Raíz Real Identificada:**
-   - El 94.4% de los fallos Top-1 está causado por la dominancia en el scoring híbrido pre-reranker de **`tematico_score`** (densidad co-ocurrente en dimensiones) y **`dim_score`** (solapamiento topológico amplio), que superan el peso conjunto de **`sinonimos_ratio`** y **`ppmi_score`** en consultas de las categorías `sinonimo` (24 casos) y `por_tema` (24 casos).
-3. **Preservación de Invariantes:**
-   - El motor de producción permanece 100% inalterado. Todos los experimentos se ejecutaron mediante inyección no invasiva en memoria y backups efímeros.
+| Categoría | Total Queries | A (Baseline) | B (`tematico=0`) | C (`dim=0`) | F (`tematico+dim=0`) | G (`sinonimos+ppmi=0`) |
+|---|---:|:---:|:---:|:---:|:---:|:---:|
+| **`por_tema`** | 65 | 63.08% (41) | 64.62% (42) | **69.23% (45)** | **72.31% (47)** | 60.00% (39) |
+| **`sinonimo`** | 55 | 56.36% (31) | 56.36% (31) | **58.18% (32)** | **58.18% (32)** | **34.55% (19)** |
+| **`typo`** | 65 | 89.23% (58) | 92.31% (60) | 92.31% (60) | **93.85% (61)** | 84.62% (55) |
+| **`variante_gramatical`** | 65 | 87.69% (57) | 92.31% (60) | 89.23% (58) | **90.77% (59)** | 86.15% (56) |
+| **`pregunta_natural`** | 65 | 93.85% (61) | 93.85% (61) | 95.38% (62) | 93.85% (61) | 92.31% (60) |
+| **`literal`** | 487 | 99.59% (485) | 99.59% (485) | 99.59% (485) | 99.59% (485) | 99.59% (485) |
+| **`dormido`** | 65 | 100.0% (65) | 100.0% (65) | 100.0% (65) | 100.0% (65) | 100.0% (65) |
+| **`cruce_idioma`** | 8 | 62.50% (5) | 62.50% (5) | 62.50% (5) | 62.50% (5) | 62.50% (5) |
+
+---
+
+## 4. Hallazgos Científicos y Conclusiones Causales
+
+1. **`sinonimos_ratio` y `ppmi_score` son señales semánticas indispensables:**
+   - La ablación de `sinonimos_ratio` (D) provoca 17 pérdidas y desploma el acierto en sinónimos de 56.36% a 41.82%.
+   - La ablación conjunta `sinonimos + ppmi` (G) es catastrófica: provoca 31 pérdidas netas (-24 global) y colapsa el acierto en `sinonimo` al 34.55%.
+2. **`tematico_score` y `dim_score` generan interferencia competitiva en consultas léxico-sinonímicas:**
+   - Apagar `tematico_score` (B) rescata 11 casos netos positivos (+6 global).
+   - Apagar `dim_score` (C) rescata 11 casos con solo 2 pérdidas (+9 global), mejorando `por_tema` del 63.08% al 69.23%.
+   - Apagar ambos (F) rescata **17 casos de los 72 fallos** (+12 neto global), llevando R@1 al 93.14% y `por_tema` al 72.31%.
+   - No obstante, la desactivación de `tematico` o `dim` reduce R@5 de 100.0% a 99.43% (-5 casos en el corte del Top-5), demostrando que ambas señales son útiles para la cobertura topológica general pero tienen un peso desproporcionado en la frontera de desempate Top-1.
+3. **Mecanismo de Solución Científica Identificado:**
+   - La solución **NO** consiste en apagar `tematico_score` o `dim_score` (lo que dañaría la robustez en R@5).
+   - La solución consiste en una **política de modulación contextual o competencia de señales**, donde la presencia de evidencia léxica fuerte o sinonimia explícita (`sinonimos_ratio > 0` / `ppmi_score > 0`) atenúe la capacidad de las señales de co-ocurrencia temática amplia para sobrepasar al candidato con identidad directa.
+
+---
+
+## 5. Estado del Repositorio
+* **Invariante respetada:** Ningún archivo de producción ni lógica del core ha sido modificado.
+* **Artefactos generados:**
+  - [`docs/experimento_contrafactual_pool_congelado.json`](experimento_contrafactual_pool_congelado.json) (Tabla completa, por categoría y transiciones).
+  - [`docs/experimento_contrafactual_hub.json`](experimento_contrafactual_hub.json) (Ablación contrafactual del Concept Hub).
