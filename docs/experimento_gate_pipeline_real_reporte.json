@@ -1,0 +1,130 @@
+{
+  "metadata": {
+    "version": "v32.7",
+    "seed": "biorag_split_seed_20261008_deterministic",
+    "best_params": {
+      "tem_scale": 0.5,
+      "dim_scale": 0.75,
+      "spec_thresh": 0.2
+    }
+  },
+  "discovery": {
+    "n": 442,
+    "base_r1": 0.916289592760181,
+    "gate_r1": 0.9253393665158371,
+    "gains": 4,
+    "losses": 0,
+    "net_delta": 4
+  },
+  "validation": {
+    "n": 433,
+    "base_r1": 0.9191685912240185,
+    "gate_r1": 0.9330254041570438,
+    "gains": [
+      {
+        "id": "0748",
+        "gold": "biorag_v16_0_estado",
+        "old_winner": "v23_0_weight_adjustment_resultados_validados",
+        "new_winner": "biorag_v16_0_estado",
+        "old_rank": 2,
+        "new_rank": 1,
+        "query": "resultados autogeneradas clave"
+      },
+      {
+        "id": "0848",
+        "gold": "v13_2_limpieza_tabla_semantica",
+        "old_winner": "mentalidad_embedding_clasificacion_dimensional",
+        "new_winner": "v13_2_limpieza_tabla_semantica",
+        "old_rank": 4,
+        "new_rank": 1,
+        "query": "semánticas 849 embedding"
+      },
+      {
+        "id": "0742",
+        "gold": "fix_busqueda_solo_dimensiones_sin_texto",
+        "old_winner": "plan_expansion_dimensiones_8_tipos_34_valores",
+        "new_winner": "fix_busqueda_solo_dimensiones_sin_texto",
+        "old_rank": 2,
+        "new_rank": 1,
+        "query": "dimensional vacío bug"
+      },
+      {
+        "id": "0855",
+        "gold": "hermes_mcp_servers_configuracion",
+        "old_winner": "oec_comms_notebook_arbitro_20260615",
+        "new_winner": "hermes_mcp_servers_configuracion",
+        "old_rank": 2,
+        "new_rank": 1,
+        "query": "timeout homedennysnvmversionsnodev24130binpdfreadermcp familia"
+      },
+      {
+        "id": "0592",
+        "gold": "arquitectura_memoria_biorag",
+        "old_winner": "hito_biorag_v21_arquitectura_13_ejes",
+        "new_winner": "arquitectura_memoria_biorag",
+        "old_rank": 2,
+        "new_rank": 1,
+        "query": "arquitectura memovria biroag"
+      },
+      {
+        "id": "0560",
+        "gold": "memoria_v5_1_optimizaciones",
+        "old_winner": "privacidad_memorias_personales_oec",
+        "new_winner": "memoria_v5_1_optimizaciones",
+        "old_rank": 2,
+        "new_rank": 1,
+        "query": "memorias v5 1s optimizaciones"
+      },
+      {
+        "id": "0738",
+        "gold": "fix_busqueda_solo_dimensiones_sin_texto",
+        "old_winner": "punto_medio_dimensiones_parciales_mueven_ranking_sdm",
+        "new_winner": "fix_busqueda_solo_dimensiones_sin_texto",
+        "old_rank": 2,
+        "new_rank": 1,
+        "query": "fix busquedas solo dimensiones sin textando"
+      },
+      {
+        "id": "0672",
+        "gold": "compuerta-pre-validacion",
+        "old_winner": "oracle_auditoria_patrones_mejora_athena",
+        "new_winner": "compuerta-pre-validacion",
+        "old_rank": 3,
+        "new_rank": 1,
+        "query": "compuerta-pre-validaciones"
+      }
+    ],
+    "losses": [
+      {
+        "id": "0736",
+        "gold": "plan_mode_biorag",
+        "old_winner": "plan_mode_biorag",
+        "new_winner": "arquitectura_memoria_biorag",
+        "old_rank": 1,
+        "new_rank": 2,
+        "query": "criterio lectura activa"
+      },
+      {
+        "id": "0488",
+        "gold": "oracle_custom_prompt_arsitecura_que_funciona",
+        "old_winner": "oracle_custom_prompt_arsitecura_que_funciona",
+        "new_winner": "oracle_custom_prompt_config_actual",
+        "old_rank": 1,
+        "new_rank": 2,
+        "query": "oracle custom prompts arsitecuras ques funciona"
+      }
+    ],
+    "net_delta": 6
+  },
+  "global": {
+    "n": 875,
+    "base_r1": 0.9177142857142857,
+    "gate_r1": 0.9291428571428572,
+    "base_r5": 1.0,
+    "gate_r5": 0.9988571428571429,
+    "total_gains": 12,
+    "total_losses": 2,
+    "net_delta": 10,
+    "fp_negatives": 0
+  }
+}
