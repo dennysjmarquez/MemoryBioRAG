@@ -1,26 +1,90 @@
 {
   "metadata": {
     "version": "v32.7",
+    "timestamp": "2026-10-10T02:20:00",
     "seed": "biorag_split_seed_20261008_deterministic",
+    "snapshot": {
+      "path": "snapshots/qa_escape_qcr_20260811.db",
+      "sha256": "97d05b91bdbaac39447901e595c2bad63e2aa02d482248db2499d77148638b44"
+    },
+    "dataset": {
+      "path": "scripts/casos_qa_baseline_v1.jsonl",
+      "sha256": "c76a71465f7a9be647094d79f00ffcebd742b00a6c12fa4ae90cf2c3d0654f4c"
+    },
+    "effective_config": {
+      "BIORAG_NO_LOG": "1",
+      "BIORAG_RERANKING_JACCARD_ENABLED": "0",
+      "ignore_peso_sinaptico": true,
+      "umbral_calibrado_conformal": 0.4578
+    },
     "best_params": {
       "tem_scale": 0.5,
       "dim_scale": 0.75,
       "spec_thresh": 0.2
     }
   },
+  "baseline_verification": {
+    "status": "VERIFIED_IDENTICAL",
+    "n": 875,
+    "r1": 0.9177142857142857,
+    "r5": 1.0,
+    "mrr": 0.9497,
+    "top1_hits": 803,
+    "top5_hits": 875,
+    "top1_misses": 72
+  },
   "discovery": {
     "n": 442,
     "base_r1": 0.916289592760181,
     "gate_r1": 0.9253393665158371,
-    "gains": 4,
-    "losses": 0,
-    "net_delta": 4
+    "base_r5": 1.0,
+    "gate_r5": 0.997737556561086,
+    "base_mrr": 0.9483,
+    "gate_mrr": 0.9514,
+    "gains_top1": 4,
+    "losses_top1": 0,
+    "net_delta_top1": 4,
+    "losses_top5": 1,
+    "top5_loss_investigation": {
+      "case_id": "0518",
+      "query": "cuando usado dimensione biorags",
+      "gold": "cuando_usar_dimensiones_biorag",
+      "categoria": "variante_gramatical",
+      "base_rank": 2,
+      "gate_rank": 6,
+      "base_top5": [
+        "mentalidad_biorag_para_agentes",
+        "cuando_usar_dimensiones_biorag",
+        "regla_umbral_fallback_dimensional_biorag",
+        "bio_rag_overview_completo",
+        "artemis_ponytail_audit_biorag_v10_3_reporte"
+      ],
+      "gate_top5": [
+        "mentalidad_biorag_para_agentes",
+        "bio_rag_overview_completo",
+        "artemis_ponytail_audit_biorag_v10_3_reporte",
+        "arquitectura_busqueda_dimensional_v11_3",
+        "biorag_metricas_historial_tool_20260616"
+      ],
+      "gate_scores_top5": [
+        0.4306,
+        0.3696,
+        0.356,
+        0.3469,
+        0.3461
+      ],
+      "causa_mecanistica": "La consulta pregunta específicamente por el uso de dimensiones ('cuando usado dimensione biorags'). Al atenuar dim_score a 0.75 y tematico_score a 0.5 cuando spec_strength >= 0.2, el nodo oro cuando_usar_dimensiones_biorag vio penalizada su propia afinidad dimensional primaria, cayendo por milésimas por debajo del corte de Top-5 (0.3461)."
+    }
   },
   "validation": {
     "n": 433,
     "base_r1": 0.9191685912240185,
     "gate_r1": 0.9330254041570438,
-    "gains": [
+    "base_r5": 1.0,
+    "gate_r5": 1.0,
+    "base_mrr": 0.9512,
+    "gate_mrr": 0.9585,
+    "gains_top1": [
       {
         "id": "0748",
         "gold": "biorag_v16_0_estado",
@@ -94,7 +158,7 @@
         "query": "compuerta-pre-validaciones"
       }
     ],
-    "losses": [
+    "losses_top1": [
       {
         "id": "0736",
         "gold": "plan_mode_biorag",
@@ -114,7 +178,8 @@
         "query": "oracle custom prompts arsitecuras ques funciona"
       }
     ],
-    "net_delta": 6
+    "net_delta_top1": 6,
+    "losses_top5": 0
   },
   "global": {
     "n": 875,
@@ -122,9 +187,12 @@
     "gate_r1": 0.9291428571428572,
     "base_r5": 1.0,
     "gate_r5": 0.9988571428571429,
-    "total_gains": 12,
-    "total_losses": 2,
-    "net_delta": 10,
+    "base_mrr": 0.9497,
+    "gate_mrr": 0.9549,
+    "total_gains_top1": 12,
+    "total_losses_top1": 2,
+    "net_delta_top1": 10,
+    "total_losses_top5": 1,
     "fp_negatives": 0
   }
 }
