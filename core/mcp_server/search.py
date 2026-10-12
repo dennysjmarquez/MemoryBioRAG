@@ -1418,10 +1418,9 @@ def register(mcp: Any) -> None:
                 "EJEMPLO: El usuario pregunta '¿cómo hago para que aparezcan mis notas en la nube?'\n"
                 "  → El nodo probablemente se guardó con: obsidian, vault, fuse, ocamlfuse\n"
                 "  → sustantivos_clave='obsidian,vault,fuse' (NO 'notas' ni 'nube' — esas van en query/parafrasis)\n"
-                "REGLA: máximo 3 sustantivos en búsqueda. Cada uno es filtro multiplicativo — "
-                "con 4+ podés excluir el nodo correcto si uno no matchea exactamente.\n"
                 "None o '' = búsqueda normal sin boost.\n"
-                "Formato: 2-3 términos, minúsculas, separados por coma, alfanuméricos y guion bajo."
+                "Formato: uno o más términos, en minúsculas, sin tildes, separados por coma, usando solo caracteres alfanuméricos y guion bajo.\n"
+                "PROPÓSITO: Esto permite que los nodos se recuperen por vecindario semántico y no por coincidencia literal de palabras solamente"
             )
         )] = None,
     ) -> str:
