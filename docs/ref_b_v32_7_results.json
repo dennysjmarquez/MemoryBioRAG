@@ -1,0 +1,23 @@
+{
+  "metadata": {
+    "snapshot_sha256": "104dd2902aaf24c3ce93624492ea95a719acbdcca50f4f6bc123ac8317749796",
+    "dataset_sha256": "c76a71465f7a9be647094d79f00ffcebd742b00a6c12fa4ae90cf2c3d0654f4c",
+    "version": "v32.7_reference_check"
+  },
+  "discovery": {
+    "r1": 0.9253393665158371,
+    "r5": 0.997737556561086,
+    "mrr": 0.951357466063348,
+    "gains": 4,
+    "losses": 0,
+    "top5_losses": 1
+  },
+  "validation": {
+    "r1": 0.9330254041570438,
+    "r5": 1.0,
+    "mrr": 0.9585450346420318,
+    "gains": 8,
+    "losses": 2,
+    "top5_losses": 0
+  }
+}

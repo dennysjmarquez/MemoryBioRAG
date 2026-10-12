@@ -1,0 +1,21 @@
+{
+  "metadata": {
+    "snapshot_sha256": "104dd2902aaf24c3ce93624492ea95a719acbdcca50f4f6bc123ac8317749796",
+    "dataset_sha256": "c76a71465f7a9be647094d79f00ffcebd742b00a6c12fa4ae90cf2c3d0654f4c",
+    "version": "continuous_pilot_c",
+    "params": {
+      "saturation": 0.5,
+      "min_scale_tem": 0.5,
+      "min_scale_dim": 0.75
+    }
+  },
+  "discovery": {
+    "r1": 0.9230769230769231,
+    "r5": 0.997737556561086,
+    "mrr": 0.9501131221719453,
+    "gains": 4,
+    "losses": 1,
+    "net_delta": 3,
+    "top5_losses": 1
+  }
+}
