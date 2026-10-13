@@ -1,0 +1,77 @@
+{
+  "metadata": {
+    "version": "fase4_desempate_sdm_discovery_aureon",
+    "snapshot_sha256": "104dd2902aaf24c3ce93624492ea95a719acbdcca50f4f6bc123ac8317749796",
+    "dataset_sha256": "c76a71465f7a9be647094d79f00ffcebd742b00a6c12fa4ae90cf2c3d0654f4c",
+    "casos_discovery": 442,
+    "casos_negativos_dev": 20,
+    "timestamp": "2026-10-13T17:31:13"
+  },
+  "resumen_metricas": {
+    "top1_base": 405,
+    "top1_sdm": 405,
+    "delta_top1": 0,
+    "recall1_base_pct": 91.63,
+    "recall1_sdm_pct": 91.63,
+    "top5_base": 442,
+    "top5_sdm": 442,
+    "delta_top5": 0,
+    "mrr_base": 0.9483,
+    "mrr_sdm": 0.9483,
+    "desempates_activados": 2,
+    "ganancias_top1": 1,
+    "perdidas_top1": 1,
+    "falsos_positivos_base": 0,
+    "falsos_positivos_sdm": 0
+  },
+  "transiciones": [
+    {
+      "case_id": "0273",
+      "categoria": "literal",
+      "query": "mcp-primitiva-externa-definicion",
+      "gold": "mcp-primitiva-externa-definicion",
+      "winner_base": "mcp-primitiva-externa-definicion-2",
+      "winner_sdm": "mcp-primitiva-externa-definicion",
+      "rank_base": 2,
+      "rank_sdm": 1,
+      "detalle": "desempate_ejecutado_delta_sdm_0.0176"
+    },
+    {
+      "case_id": "0804",
+      "categoria": "typo",
+      "query": "cv secion d tets vinculacion",
+      "gold": "cv_seccion_d_test_vinculacion",
+      "winner_base": "cv_seccion_d_test_vinculacion",
+      "winner_sdm": "cv_seccion_d_test_vinculacion2",
+      "rank_base": 1,
+      "rank_sdm": 2,
+      "detalle": "desempate_ejecutado_delta_sdm_0.0047"
+    }
+  ],
+  "ganancias": [
+    {
+      "case_id": "0273",
+      "categoria": "literal",
+      "query": "mcp-primitiva-externa-definicion",
+      "gold": "mcp-primitiva-externa-definicion",
+      "winner_base": "mcp-primitiva-externa-definicion-2",
+      "winner_sdm": "mcp-primitiva-externa-definicion",
+      "rank_base": 2,
+      "rank_sdm": 1,
+      "detalle": "desempate_ejecutado_delta_sdm_0.0176"
+    }
+  ],
+  "perdidas": [
+    {
+      "case_id": "0804",
+      "categoria": "typo",
+      "query": "cv secion d tets vinculacion",
+      "gold": "cv_seccion_d_test_vinculacion",
+      "winner_base": "cv_seccion_d_test_vinculacion",
+      "winner_sdm": "cv_seccion_d_test_vinculacion2",
+      "rank_base": 1,
+      "rank_sdm": 2,
+      "detalle": "desempate_ejecutado_delta_sdm_0.0047"
+    }
+  ]
+}
