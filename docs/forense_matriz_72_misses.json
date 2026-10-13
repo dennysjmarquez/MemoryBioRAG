@@ -1,0 +1,5216 @@
+{
+  "metadata": {
+    "version": "forense_72_misses_v1_aureon",
+    "total_misses": 72,
+    "snapshot_path": "/mnt/recursos_compartidos_y_otros/MemoryBioRAG/snapshots/qa_escape_qcr_20260811.db",
+    "dataset_path": "/mnt/recursos_compartidos_y_otros/MemoryBioRAG/scripts/casos_qa_baseline_v1.jsonl"
+  },
+  "resumen_estadistico": {
+    "distribucion_por_categoria": {
+      "literal": 2,
+      "sinonimo": 24,
+      "pregunta_natural": 4,
+      "por_tema": 24,
+      "cruce_idioma": 3,
+      "variante_gramatical": 8,
+      "typo": 7
+    },
+    "distribucion_tipo_fallo": {
+      "fallo_desambiguacion_version_o_alias": 8,
+      "fallo_semantico_sinonimo_lejano": 24,
+      "fallo_ranking_competitivo_multisenal": 16,
+      "fallo_evidencia_relacional_por_tema": 23,
+      "fallo_recuperacion_pool_ausente": 1
+    },
+    "sdm_discriminacion": {
+      "favorece_gold": 50,
+      "favorece_winner": 18,
+      "empate": 4
+    },
+    "predicados_disponibilidad": {
+      "ninguno": 59,
+      "solo_winner": 13
+    }
+  },
+  "matriz_forense": [
+    {
+      "case_id": "0205",
+      "query": "identidad-relacion-dennys",
+      "categoria": "literal",
+      "gold": "identidad-relacion-dennys",
+      "winner": "identidad_relacion_dennys",
+      "gold_rank": 2,
+      "winner_rank": 1,
+      "evaluable_aritmeticamente": true,
+      "margin_original": -0.0039,
+      "tipo_fallo": "fallo_desambiguacion_version_o_alias",
+      "es_colision_alias_version": true,
+      "detalle_colision": "nombre_normalizado_identico",
+      "signals_gold": {
+        "bm25_norm": 0.9643769099323709,
+        "concepto_ratio": 1.0,
+        "sinonimos_ratio": 0.6667,
+        "dim_score": 0.7276068751089989,
+        "tematico_score": 0.0,
+        "ppmi_score": 0.6202102730016972,
+        "pred_score": 0.0,
+        "hub_match": 0.0,
+        "jsd_score": 0.4983,
+        "peso_sinaptico": 0.0,
+        "asoc_count": 62
+      },
+      "signals_winner": {
+        "bm25_norm": 1.0,
+        "concepto_ratio": 1.0,
+        "sinonimos_ratio": 1.0,
+        "dim_score": 0.641688947919748,
+        "tematico_score": 0.0,
+        "ppmi_score": 0.6808696455306973,
+        "pred_score": 0.0,
+        "hub_match": 0.0,
+        "jsd_score": 0.5375,
+        "peso_sinaptico": 0.0,
+        "asoc_count": 19
+      },
+      "sdm_analysis": {
+        "gold_sdm_present": true,
+        "winner_sdm_present": true,
+        "sim_sdm_gold": 0.0105,
+        "sim_sdm_winner": 0.0029,
+        "sdm_delta": 0.0076,
+        "hamming_gold": 337,
+        "hamming_winner": 268,
+        "sdm_veredicto": "favorece_gold"
+      },
+      "grafo_analysis": {
+        "grado_gold": 61,
+        "grado_winner": 17,
+        "vecinos_compartidos": 14,
+        "arista_directa_existe": true,
+        "arista_directa_peso": 0.45,
+        "arista_directa_tipo": "co_ocurrencia"
+      },
+      "predicados_analysis": {
+        "gold_preds_count": 0,
+        "winner_preds_count": 0,
+        "status": "ninguno",
+        "gold_preds_samples": [],
+        "winner_preds_samples": []
+      },
+      "forense_diagnostico": {
+        "evidencia_favorece_winner": "Ligeramente superior en BM25 o sinónimos debido a grafía (nombre_normalizado_identico).",
+        "evidencia_favorece_gold": "Es el concepto canónico exacto solicitado por la query (identidad-relacion-dennys).",
+        "info_faltante_para_distinguir": "Resolución de sinonimia/canonicidad o unificación de grafías (guión vs guión bajo, sufijos de versión)."
+      }
+    },
+    {
+      "case_id": "0273",
+      "query": "mcp-primitiva-externa-definicion",
+      "categoria": "literal",
+      "gold": "mcp-primitiva-externa-definicion",
+      "winner": "mcp-primitiva-externa-definicion-2",
+      "gold_rank": 2,
+      "winner_rank": 1,
+      "evaluable_aritmeticamente": true,
+      "margin_original": -0.0003,
+      "tipo_fallo": "fallo_desambiguacion_version_o_alias",
+      "es_colision_alias_version": true,
+      "detalle_colision": "prefijo_comun_version_o_variante",
+      "signals_gold": {
+        "bm25_norm": 1.0,
+        "concepto_ratio": 1.0,
+        "sinonimos_ratio": 0.75,
+        "dim_score": 1.0,
+        "tematico_score": 0.0,
+        "ppmi_score": 0.8429559092769023,
+        "pred_score": 0.0,
+        "hub_match": 0.0,
+        "jsd_score": 0.5664,
+        "peso_sinaptico": 0.0,
+        "asoc_count": 15
+      },
+      "signals_winner": {
+        "bm25_norm": 0.9994521922740547,
+        "concepto_ratio": 1.0,
+        "sinonimos_ratio": 1.0,
+        "dim_score": 0.8660254037844386,
+        "tematico_score": 0.0,
+        "ppmi_score": 0.8786825875277406,
+        "pred_score": 0.0,
+        "hub_match": 0.0,
+        "jsd_score": 0.5423,
+        "peso_sinaptico": 0.0,
+        "asoc_count": 28
+      },
+      "sdm_analysis": {
+        "gold_sdm_present": true,
+        "winner_sdm_present": true,
+        "sim_sdm_gold": 0.0211,
+        "sim_sdm_winner": 0.0035,
+        "sdm_delta": 0.0176,
+        "hamming_gold": 188,
+        "hamming_winner": 226,
+        "sdm_veredicto": "favorece_gold"
+      },
+      "grafo_analysis": {
+        "grado_gold": 12,
+        "grado_winner": 26,
+        "vecinos_compartidos": 6,
+        "arista_directa_existe": false,
+        "arista_directa_peso": null,
+        "arista_directa_tipo": null
+      },
+      "predicados_analysis": {
+        "gold_preds_count": 0,
+        "winner_preds_count": 0,
+        "status": "ninguno",
+        "gold_preds_samples": [],
+        "winner_preds_samples": []
+      },
+      "forense_diagnostico": {
+        "evidencia_favorece_winner": "Ligeramente superior en BM25 o sinónimos debido a grafía (prefijo_comun_version_o_variante).",
+        "evidencia_favorece_gold": "Es el concepto canónico exacto solicitado por la query (mcp-primitiva-externa-definicion).",
+        "info_faltante_para_distinguir": "Resolución de sinonimia/canonicidad o unificación de grafías (guión vs guión bajo, sufijos de versión)."
+      }
+    },
+    {
+      "case_id": "0495",
+      "query": "benchmark",
+      "categoria": "sinonimo",
+      "gold": "benchmark_antes_despues_fix3",
+      "winner": "hormiguita_estado_real_50_ciclos_benchmark_2026_07_31",
+      "gold_rank": 2,
+      "winner_rank": 1,
+      "evaluable_aritmeticamente": true,
+      "margin_original": -0.0679,
+      "tipo_fallo": "fallo_semantico_sinonimo_lejano",
+      "es_colision_alias_version": false,
+      "detalle_colision": "conceptos_distintos",
+      "signals_gold": {
+        "bm25_norm": 1.0,
+        "concepto_ratio": 1.0,
+        "sinonimos_ratio": 1.0,
+        "dim_score": 0.4082482904638631,
+        "tematico_score": 0.0,
+        "ppmi_score": 0.7135710237688893,
+        "pred_score": 0.0,
+        "hub_match": 0.0,
+        "jsd_score": 0.4601,
+        "peso_sinaptico": 0.0,
+        "asoc_count": 16
+      },
+      "signals_winner": {
+        "bm25_norm": 0.9557293498924909,
+        "concepto_ratio": 1.0,
+        "sinonimos_ratio": 1.0,
+        "dim_score": 0.7071067811865475,
+        "tematico_score": 0.0,
+        "ppmi_score": 0.5264628719211448,
+        "pred_score": 1.0,
+        "hub_match": 0.0,
+        "jsd_score": 0.5602,
+        "peso_sinaptico": 0.0,
+        "asoc_count": 76
+      },
+      "sdm_analysis": {
+        "gold_sdm_present": true,
+        "winner_sdm_present": true,
+        "sim_sdm_gold": 0.0061,
+        "sim_sdm_winner": 0.0045,
+        "sdm_delta": 0.0016,
+        "hamming_gold": 211,
+        "hamming_winner": 322,
+        "sdm_veredicto": "favorece_gold"
+      },
+      "grafo_analysis": {
+        "grado_gold": 17,
+        "grado_winner": 76,
+        "vecinos_compartidos": 5,
+        "arista_directa_existe": false,
+        "arista_directa_peso": null,
+        "arista_directa_tipo": null
+      },
+      "predicados_analysis": {
+        "gold_preds_count": 0,
+        "winner_preds_count": 1,
+        "status": "solo_winner",
+        "gold_preds_samples": [],
+        "winner_preds_samples": [
+          {
+            "sujeto": "Hormiguita",
+            "accion": "elimino",
+            "objeto": "1236 sinapsis espurias",
+            "contexto": "50 ciclos, cuarentena reversible, benchmark gate Recall@5 70% vs 55%"
+          }
+        ]
+      },
+      "forense_diagnostico": {
+        "evidencia_favorece_winner": "Mayor coincidencia léxica directa o PPMI (0.96).",
+        "evidencia_favorece_gold": "Es el sinónimo semántico verdadero aunque tenga menor BM25.",
+        "info_faltante_para_distinguir": "Conexión en tabla sinonimos o puente semántico latente calibrado."
+      }
+    },
+    {
+      "case_id": "0496",
+      "query": "¿Dónde encuentro la info de benchmark antes despues fix3?",
+      "categoria": "pregunta_natural",
+      "gold": "benchmark_antes_despues_fix3",
+      "winner": "historia_tasajera_fumigador_rufino",
+      "gold_rank": 3,
+      "winner_rank": 1,
+      "evaluable_aritmeticamente": true,
+      "margin_original": -0.1744,
+      "tipo_fallo": "fallo_ranking_competitivo_multisenal",
+      "es_colision_alias_version": false,
+      "detalle_colision": "conceptos_distintos",
+      "signals_gold": {
+        "bm25_norm": 0.31383512482452103,
+        "concepto_ratio": 0.6667,
+        "sinonimos_ratio": 0.5833,
+        "dim_score": 0.2182178902359924,
+        "tematico_score": 0.0,
+        "ppmi_score": 0.3373563136987233,
+        "pred_score": 0.0,
+        "hub_match": 0.0,
+        "jsd_score": 0.4832,
+        "peso_sinaptico": 0.0,
+        "asoc_count": 16
+      },
+      "signals_winner": {
+        "bm25_norm": 1.0,
+        "concepto_ratio": 0.0,
+        "sinonimos_ratio": 0.0,
+        "dim_score": 0.6900655593423543,
+        "tematico_score": 1.0,
+        "ppmi_score": 0.1203794048234547,
+        "pred_score": 0.0,
+        "hub_match": 0.88,
+        "jsd_score": 0.4784,
+        "peso_sinaptico": 0.0,
+        "asoc_count": 4
+      },
+      "sdm_analysis": {
+        "gold_sdm_present": true,
+        "winner_sdm_present": true,
+        "sim_sdm_gold": 0.0118,
+        "sim_sdm_winner": 0.0092,
+        "sdm_delta": 0.0026,
+        "hamming_gold": 259,
+        "hamming_winner": 357,
+        "sdm_veredicto": "favorece_gold"
+      },
+      "grafo_analysis": {
+        "grado_gold": 17,
+        "grado_winner": 4,
+        "vecinos_compartidos": 0,
+        "arista_directa_existe": false,
+        "arista_directa_peso": null,
+        "arista_directa_tipo": null
+      },
+      "predicados_analysis": {
+        "gold_preds_count": 0,
+        "winner_preds_count": 0,
+        "status": "ninguno",
+        "gold_preds_samples": [],
+        "winner_preds_samples": []
+      },
+      "forense_diagnostico": {
+        "evidencia_favorece_winner": "Ganó por suma multi-señal (BM25: 1.00, PPMI: 0.12).",
+        "evidencia_favorece_gold": "Presencia en top candidatos (rank 3) con señales cercanas.",
+        "info_faltante_para_distinguir": "Señal discriminativa ortogonal para desempatar candidates con scores cercanos."
+      }
+    },
+    {
+      "case_id": "0497",
+      "query": "relevantes biomimética mejor",
+      "categoria": "por_tema",
+      "gold": "benchmark_antes_despues_fix3",
+      "winner": "causa_raiz_por_tema_pooling_plano_diluye_senal_word2vec",
+      "gold_rank": 2,
+      "winner_rank": 1,
+      "evaluable_aritmeticamente": true,
+      "margin_original": -0.0182,
+      "tipo_fallo": "fallo_evidencia_relacional_por_tema",
+      "es_colision_alias_version": false,
+      "detalle_colision": "conceptos_distintos",
+      "signals_gold": {
+        "bm25_norm": 1.0,
+        "concepto_ratio": 0.0,
+        "sinonimos_ratio": 0.0,
+        "dim_score": 0.30151134457776363,
+        "tematico_score": 1.0,
+        "ppmi_score": 0.47912757075308193,
+        "pred_score": 0.0,
+        "hub_match": 0.0,
+        "jsd_score": 0.4851,
+        "peso_sinaptico": 0.0,
+        "asoc_count": 16
+      },
+      "signals_winner": {
+        "bm25_norm": 0.6341332780909593,
+        "concepto_ratio": 0.0,
+        "sinonimos_ratio": 0.0,
+        "dim_score": 0.8790490729915326,
+        "tematico_score": 1.0,
+        "ppmi_score": 0.4994806919003259,
+        "pred_score": 0.0,
+        "hub_match": 0.0,
+        "jsd_score": 0.5734,
+        "peso_sinaptico": 0.0,
+        "asoc_count": 86
+      },
+      "sdm_analysis": {
+        "gold_sdm_present": true,
+        "winner_sdm_present": true,
+        "sim_sdm_gold": 0.0333,
+        "sim_sdm_winner": 0.0107,
+        "sdm_delta": 0.0226,
+        "hamming_gold": 212,
+        "hamming_winner": 415,
+        "sdm_veredicto": "favorece_gold"
+      },
+      "grafo_analysis": {
+        "grado_gold": 17,
+        "grado_winner": 88,
+        "vecinos_compartidos": 4,
+        "arista_directa_existe": true,
+        "arista_directa_peso": 0.9,
+        "arista_directa_tipo": "sinonimo_explicito"
+      },
+      "predicados_analysis": {
+        "gold_preds_count": 0,
+        "winner_preds_count": 2,
+        "status": "solo_winner",
+        "gold_preds_samples": [],
+        "winner_preds_samples": [
+          {
+            "sujeto": "Athena-OEC",
+            "accion": "diagnostico",
+            "objeto": "causa_raiz_pooling_plano_diluye_senal",
+            "contexto": "discusion auditor word2vec puro 2026-08-08"
+          },
+          {
+            "sujeto": "word2vec_puro.py",
+            "accion": "usa",
+            "objeto": "promedio plano de tokens en vector_documento",
+            "contexto": "diluye query corta en docs largos"
+          }
+        ]
+      },
+      "forense_diagnostico": {
+        "evidencia_favorece_winner": "Mayor score temático/JSD/PPMI por co-ocurrencia superficial de tokens (1.00).",
+        "evidencia_favorece_gold": "Relevancia conceptual ontológica real para el tema de la consulta.",
+        "info_faltante_para_distinguir": "Señal relacional o puente topológico que conecte la consulta con el nodo Gold sin depender de coincidencia superficial de palabras."
+      }
+    },
+    {
+      "case_id": "0501",
+      "query": "blueprint dimensiones ortogonales",
+      "categoria": "cruce_idioma",
+      "gold": "arquitectura_dimensiones_ortogonales",
+      "winner": "arquitectura_memoria_biorag",
+      "gold_rank": 3,
+      "winner_rank": 1,
+      "evaluable_aritmeticamente": true,
+      "margin_original": -0.043,
+      "tipo_fallo": "fallo_ranking_competitivo_multisenal",
+      "es_colision_alias_version": false,
+      "detalle_colision": "conceptos_distintos",
+      "signals_gold": {
+        "bm25_norm": 0.6978158221706144,
+        "concepto_ratio": 0.6667,
+        "sinonimos_ratio": 0.6667,
+        "dim_score": 0.5188745216627709,
+        "tematico_score": 0.0,
+        "ppmi_score": 0.03867913232008832,
+        "pred_score": 0.0,
+        "hub_match": 0.0,
+        "jsd_score": 0.4908,
+        "peso_sinaptico": 0.0,
+        "asoc_count": 15
+      },
+      "signals_winner": {
+        "bm25_norm": 0.3347475352365111,
+        "concepto_ratio": 0.0,
+        "sinonimos_ratio": 0.0,
+        "dim_score": 0.43852900965351466,
+        "tematico_score": 1.0,
+        "ppmi_score": 0.022151852429377016,
+        "pred_score": 0.0,
+        "hub_match": 1.0,
+        "jsd_score": 0.3961,
+        "peso_sinaptico": 0.0,
+        "asoc_count": 57
+      },
+      "sdm_analysis": {
+        "gold_sdm_present": true,
+        "winner_sdm_present": true,
+        "sim_sdm_gold": 0.0242,
+        "sim_sdm_winner": 0.0078,
+        "sdm_delta": 0.0164,
+        "hamming_gold": 244,
+        "hamming_winner": 297,
+        "sdm_veredicto": "favorece_gold"
+      },
+      "grafo_analysis": {
+        "grado_gold": 19,
+        "grado_winner": 58,
+        "vecinos_compartidos": 3,
+        "arista_directa_existe": false,
+        "arista_directa_peso": null,
+        "arista_directa_tipo": null
+      },
+      "predicados_analysis": {
+        "gold_preds_count": 0,
+        "winner_preds_count": 0,
+        "status": "ninguno",
+        "gold_preds_samples": [],
+        "winner_preds_samples": []
+      },
+      "forense_diagnostico": {
+        "evidencia_favorece_winner": "Ganó por suma multi-señal (BM25: 0.33, PPMI: 0.02).",
+        "evidencia_favorece_gold": "Presencia en top candidatos (rank 3) con señales cercanas.",
+        "info_faltante_para_distinguir": "Señal discriminativa ortogonal para desempatar candidates con scores cercanos."
+      }
+    },
+    {
+      "case_id": "0504",
+      "query": "explícito insert semánticas",
+      "categoria": "por_tema",
+      "gold": "arquitectura_dimensiones_ortogonales",
+      "winner": "renombre_dimensiones_semanticas_v11_3",
+      "gold_rank": 2,
+      "winner_rank": 1,
+      "evaluable_aritmeticamente": true,
+      "margin_original": 0.0202,
+      "tipo_fallo": "fallo_evidencia_relacional_por_tema",
+      "es_colision_alias_version": false,
+      "detalle_colision": "conceptos_distintos",
+      "signals_gold": {
+        "bm25_norm": 1.0,
+        "concepto_ratio": 0.0,
+        "sinonimos_ratio": 0.0,
+        "dim_score": 0.5291502622129182,
+        "tematico_score": 1.0,
+        "ppmi_score": 0.24249517596342027,
+        "pred_score": 0.0,
+        "hub_match": 0.0,
+        "jsd_score": 0.4769,
+        "peso_sinaptico": 0.0,
+        "asoc_count": 15
+      },
+      "signals_winner": {
+        "bm25_norm": 0.5704336845642491,
+        "concepto_ratio": 0.3333,
+        "sinonimos_ratio": 0.3333,
+        "dim_score": 0.447213595499958,
+        "tematico_score": 1.0,
+        "ppmi_score": 0.5089983029214203,
+        "pred_score": 0.0,
+        "hub_match": 0.0,
+        "jsd_score": 0.4335,
+        "peso_sinaptico": 0.0,
+        "asoc_count": 31
+      },
+      "sdm_analysis": {
+        "gold_sdm_present": true,
+        "winner_sdm_present": true,
+        "sim_sdm_gold": 0.015,
+        "sim_sdm_winner": 0.0203,
+        "sdm_delta": -0.0053,
+        "hamming_gold": 250,
+        "hamming_winner": 238,
+        "sdm_veredicto": "favorece_winner"
+      },
+      "grafo_analysis": {
+        "grado_gold": 19,
+        "grado_winner": 30,
+        "vecinos_compartidos": 4,
+        "arista_directa_existe": false,
+        "arista_directa_peso": null,
+        "arista_directa_tipo": null
+      },
+      "predicados_analysis": {
+        "gold_preds_count": 0,
+        "winner_preds_count": 0,
+        "status": "ninguno",
+        "gold_preds_samples": [],
+        "winner_preds_samples": []
+      },
+      "forense_diagnostico": {
+        "evidencia_favorece_winner": "Mayor score temático/JSD/PPMI por co-ocurrencia superficial de tokens (1.00).",
+        "evidencia_favorece_gold": "Relevancia conceptual ontológica real para el tema de la consulta.",
+        "info_faltante_para_distinguir": "Señal relacional o puente topológico que conecte la consulta con el nodo Gold sin depender de coincidencia superficial de palabras."
+      }
+    },
+    {
+      "case_id": "0514",
+      "query": "perfil",
+      "categoria": "sinonimo",
+      "gold": "dennys-identidad-profunda",
+      "winner": "dennys_perfil_gustos",
+      "gold_rank": 4,
+      "winner_rank": 1,
+      "evaluable_aritmeticamente": true,
+      "margin_original": -0.0469,
+      "tipo_fallo": "fallo_semantico_sinonimo_lejano",
+      "es_colision_alias_version": false,
+      "detalle_colision": "conceptos_distintos",
+      "signals_gold": {
+        "bm25_norm": 0.581634996023434,
+        "concepto_ratio": 0.0,
+        "sinonimos_ratio": 1.0,
+        "dim_score": 0.6034775219319071,
+        "tematico_score": 0.0,
+        "ppmi_score": 0.8731102261352228,
+        "pred_score": 0.0,
+        "hub_match": 0.0,
+        "jsd_score": 0.4642,
+        "peso_sinaptico": 0.0,
+        "asoc_count": 65
+      },
+      "signals_winner": {
+        "bm25_norm": 0.9821598173589775,
+        "concepto_ratio": 1.0,
+        "sinonimos_ratio": 1.0,
+        "dim_score": 0.3950687749224767,
+        "tematico_score": 0.0,
+        "ppmi_score": 0.7731358251484565,
+        "pred_score": 0.0,
+        "hub_match": 0.0,
+        "jsd_score": 0.427,
+        "peso_sinaptico": 0.0,
+        "asoc_count": 28
+      },
+      "sdm_analysis": {
+        "gold_sdm_present": true,
+        "winner_sdm_present": true,
+        "sim_sdm_gold": 0.0042,
+        "sim_sdm_winner": 0.0121,
+        "sdm_delta": -0.0079,
+        "hamming_gold": 325,
+        "hamming_winner": 244,
+        "sdm_veredicto": "favorece_winner"
+      },
+      "grafo_analysis": {
+        "grado_gold": 61,
+        "grado_winner": 28,
+        "vecinos_compartidos": 4,
+        "arista_directa_existe": true,
+        "arista_directa_peso": 0.38,
+        "arista_directa_tipo": "pmi_hebbiano"
+      },
+      "predicados_analysis": {
+        "gold_preds_count": 0,
+        "winner_preds_count": 0,
+        "status": "ninguno",
+        "gold_preds_samples": [],
+        "winner_preds_samples": []
+      },
+      "forense_diagnostico": {
+        "evidencia_favorece_winner": "Mayor coincidencia léxica directa o PPMI (0.98).",
+        "evidencia_favorece_gold": "Es el sinónimo semántico verdadero aunque tenga menor BM25.",
+        "info_faltante_para_distinguir": "Conexión en tabla sinonimos o puente semántico latente calibrado."
+      }
+    },
+    {
+      "case_id": "0516",
+      "query": "real más sistemas",
+      "categoria": "por_tema",
+      "gold": "dennys-identidad-profunda",
+      "winner": "biorag_v20_rpe_dopamina",
+      "gold_rank": 5,
+      "winner_rank": 1,
+      "evaluable_aritmeticamente": false,
+      "margin_original": null,
+      "tipo_fallo": "fallo_recuperacion_pool_ausente",
+      "es_colision_alias_version": false,
+      "detalle_colision": "conceptos_distintos",
+      "signals_gold": {
+        "bm25_norm": 0.0,
+        "concepto_ratio": 0.0,
+        "sinonimos_ratio": 0.0,
+        "dim_score": 0.0,
+        "tematico_score": 0.0,
+        "ppmi_score": 0.0,
+        "pred_score": 0.0,
+        "hub_match": 0.0,
+        "jsd_score": 0.0,
+        "peso_sinaptico": 0.0,
+        "asoc_count": 0
+      },
+      "signals_winner": {
+        "bm25_norm": 0.0,
+        "concepto_ratio": 0.0,
+        "sinonimos_ratio": 0.0,
+        "dim_score": 0.0,
+        "tematico_score": 0.0,
+        "ppmi_score": 0.0,
+        "pred_score": 0.0,
+        "hub_match": 0.0,
+        "jsd_score": 0.0,
+        "peso_sinaptico": 0.0,
+        "asoc_count": 0
+      },
+      "sdm_analysis": {
+        "gold_sdm_present": true,
+        "winner_sdm_present": true,
+        "sim_sdm_gold": 0.0,
+        "sim_sdm_winner": 0.0098,
+        "sdm_delta": -0.0098,
+        "hamming_gold": 345,
+        "hamming_winner": 267,
+        "sdm_veredicto": "favorece_winner"
+      },
+      "grafo_analysis": {
+        "grado_gold": 61,
+        "grado_winner": 36,
+        "vecinos_compartidos": 5,
+        "arista_directa_existe": false,
+        "arista_directa_peso": null,
+        "arista_directa_tipo": null
+      },
+      "predicados_analysis": {
+        "gold_preds_count": 0,
+        "winner_preds_count": 0,
+        "status": "ninguno",
+        "gold_preds_samples": [],
+        "winner_preds_samples": []
+      },
+      "forense_diagnostico": {
+        "evidencia_favorece_winner": "Winner inyectado por Concept Hub post-processing o rescate especial.",
+        "evidencia_favorece_gold": "Gold presente en candidates pero superado por inyección no ponderada.",
+        "info_faltante_para_distinguir": "Mecanismo de competición justa antes de la inyección forzada del hub."
+      }
+    },
+    {
+      "case_id": "0518",
+      "query": "cuando usado dimensione biorags",
+      "categoria": "variante_gramatical",
+      "gold": "cuando_usar_dimensiones_biorag",
+      "winner": "mentalidad_biorag_para_agentes",
+      "gold_rank": 2,
+      "winner_rank": 1,
+      "evaluable_aritmeticamente": true,
+      "margin_original": -0.0588,
+      "tipo_fallo": "fallo_ranking_competitivo_multisenal",
+      "es_colision_alias_version": false,
+      "detalle_colision": "conceptos_distintos",
+      "signals_gold": {
+        "bm25_norm": 0.4660862136292059,
+        "concepto_ratio": 0.5887,
+        "sinonimos_ratio": 0.303,
+        "dim_score": 0.40160966445124946,
+        "tematico_score": 1.0,
+        "ppmi_score": 0.09392006724865112,
+        "pred_score": 0.0,
+        "hub_match": 0.0,
+        "jsd_score": 0.4945,
+        "peso_sinaptico": 0.0,
+        "asoc_count": 29
+      },
+      "signals_winner": {
+        "bm25_norm": 0.910053287101323,
+        "concepto_ratio": 0.2857,
+        "sinonimos_ratio": 0.2857,
+        "dim_score": 0.4751909633114915,
+        "tematico_score": 1.0,
+        "ppmi_score": 0.16617501571013607,
+        "pred_score": 0.0,
+        "hub_match": 0.0,
+        "jsd_score": 0.5807,
+        "peso_sinaptico": 0.0,
+        "asoc_count": 29
+      },
+      "sdm_analysis": {
+        "gold_sdm_present": true,
+        "winner_sdm_present": true,
+        "sim_sdm_gold": 0.0253,
+        "sim_sdm_winner": 0.0142,
+        "sdm_delta": 0.0111,
+        "hamming_gold": 309,
+        "hamming_winner": 286,
+        "sdm_veredicto": "favorece_gold"
+      },
+      "grafo_analysis": {
+        "grado_gold": 29,
+        "grado_winner": 28,
+        "vecinos_compartidos": 12,
+        "arista_directa_existe": false,
+        "arista_directa_peso": null,
+        "arista_directa_tipo": null
+      },
+      "predicados_analysis": {
+        "gold_preds_count": 0,
+        "winner_preds_count": 0,
+        "status": "ninguno",
+        "gold_preds_samples": [],
+        "winner_preds_samples": []
+      },
+      "forense_diagnostico": {
+        "evidencia_favorece_winner": "Ganó por suma multi-señal (BM25: 0.91, PPMI: 0.17).",
+        "evidencia_favorece_gold": "Presencia en top candidatos (rank 2) con señales cercanas.",
+        "info_faltante_para_distinguir": "Señal discriminativa ortogonal para desempatar candidates con scores cercanos."
+      }
+    },
+    {
+      "case_id": "0532",
+      "query": "boost v11.1",
+      "categoria": "sinonimo",
+      "gold": "biorag_v11_1_detalle_tecnico",
+      "winner": "arquitectura_busqueda_dimensional_v11_3",
+      "gold_rank": 2,
+      "winner_rank": 1,
+      "evaluable_aritmeticamente": true,
+      "margin_original": -0.0383,
+      "tipo_fallo": "fallo_semantico_sinonimo_lejano",
+      "es_colision_alias_version": false,
+      "detalle_colision": "conceptos_distintos",
+      "signals_gold": {
+        "bm25_norm": 0.2969334886855567,
+        "concepto_ratio": 0.5,
+        "sinonimos_ratio": 1.0,
+        "dim_score": 0.0,
+        "tematico_score": 0.0,
+        "ppmi_score": 0.6386540978057899,
+        "pred_score": 0.0,
+        "hub_match": 0.0,
+        "jsd_score": 0.646,
+        "peso_sinaptico": 0.0,
+        "asoc_count": 10
+      },
+      "signals_winner": {
+        "bm25_norm": 0.4896885912166445,
+        "concepto_ratio": 0.5,
+        "sinonimos_ratio": 1.0,
+        "dim_score": 0.0,
+        "tematico_score": 0.0,
+        "ppmi_score": 0.6351245715335115,
+        "pred_score": 0.0,
+        "hub_match": 0.0,
+        "jsd_score": 0.625,
+        "peso_sinaptico": 0.0,
+        "asoc_count": 26
+      },
+      "sdm_analysis": {
+        "gold_sdm_present": true,
+        "winner_sdm_present": true,
+        "sim_sdm_gold": 0.0223,
+        "sim_sdm_winner": 0.0121,
+        "sdm_delta": 0.0102,
+        "hamming_gold": 196,
+        "hamming_winner": 260,
+        "sdm_veredicto": "favorece_gold"
+      },
+      "grafo_analysis": {
+        "grado_gold": 10,
+        "grado_winner": 30,
+        "vecinos_compartidos": 3,
+        "arista_directa_existe": false,
+        "arista_directa_peso": null,
+        "arista_directa_tipo": null
+      },
+      "predicados_analysis": {
+        "gold_preds_count": 0,
+        "winner_preds_count": 0,
+        "status": "ninguno",
+        "gold_preds_samples": [],
+        "winner_preds_samples": []
+      },
+      "forense_diagnostico": {
+        "evidencia_favorece_winner": "Mayor coincidencia léxica directa o PPMI (0.49).",
+        "evidencia_favorece_gold": "Es el sinónimo semántico verdadero aunque tenga menor BM25.",
+        "info_faltante_para_distinguir": "Conexión en tabla sinonimos o puente semántico latente calibrado."
+      }
+    },
+    {
+      "case_id": "0534",
+      "query": "activa largo archivos",
+      "categoria": "por_tema",
+      "gold": "biorag_v11_1_detalle_tecnico",
+      "winner": "arquitectura_memoria_biorag",
+      "gold_rank": 2,
+      "winner_rank": 1,
+      "evaluable_aritmeticamente": true,
+      "margin_original": -0.0376,
+      "tipo_fallo": "fallo_evidencia_relacional_por_tema",
+      "es_colision_alias_version": false,
+      "detalle_colision": "conceptos_distintos",
+      "signals_gold": {
+        "bm25_norm": 1.0,
+        "concepto_ratio": 0.0,
+        "sinonimos_ratio": 0.0,
+        "dim_score": 0.43033148291193524,
+        "tematico_score": 1.0,
+        "ppmi_score": 0.4651102207519788,
+        "pred_score": 0.0,
+        "hub_match": 0.0,
+        "jsd_score": 0.651,
+        "peso_sinaptico": 0.0,
+        "asoc_count": 10
+      },
+      "signals_winner": {
+        "bm25_norm": 0.694827473267043,
+        "concepto_ratio": 0.0,
+        "sinonimos_ratio": 0.0,
+        "dim_score": 0.43033148291193524,
+        "tematico_score": 1.0,
+        "ppmi_score": 0.2838770470509436,
+        "pred_score": 0.0,
+        "hub_match": 0.9066666666666667,
+        "jsd_score": 0.438,
+        "peso_sinaptico": 0.0,
+        "asoc_count": 57
+      },
+      "sdm_analysis": {
+        "gold_sdm_present": true,
+        "winner_sdm_present": true,
+        "sim_sdm_gold": 0.0297,
+        "sim_sdm_winner": 0.0157,
+        "sdm_delta": 0.014,
+        "hamming_gold": 200,
+        "hamming_winner": 291,
+        "sdm_veredicto": "favorece_gold"
+      },
+      "grafo_analysis": {
+        "grado_gold": 10,
+        "grado_winner": 58,
+        "vecinos_compartidos": 4,
+        "arista_directa_existe": false,
+        "arista_directa_peso": null,
+        "arista_directa_tipo": null
+      },
+      "predicados_analysis": {
+        "gold_preds_count": 0,
+        "winner_preds_count": 0,
+        "status": "ninguno",
+        "gold_preds_samples": [],
+        "winner_preds_samples": []
+      },
+      "forense_diagnostico": {
+        "evidencia_favorece_winner": "Mayor score temático/JSD/PPMI por co-ocurrencia superficial de tokens (1.00).",
+        "evidencia_favorece_gold": "Relevancia conceptual ontológica real para el tema de la consulta.",
+        "info_faltante_para_distinguir": "Señal relacional o puente topológico que conecte la consulta con el nodo Gold sin depender de coincidencia superficial de palabras."
+      }
+    },
+    {
+      "case_id": "0544",
+      "query": "capas",
+      "categoria": "sinonimo",
+      "gold": "auto_vincular_tres_capas_semantica",
+      "winner": "principio_tres_capas_biorag",
+      "gold_rank": 3,
+      "winner_rank": 1,
+      "evaluable_aritmeticamente": true,
+      "margin_original": -0.0068,
+      "tipo_fallo": "fallo_semantico_sinonimo_lejano",
+      "es_colision_alias_version": false,
+      "detalle_colision": "conceptos_distintos",
+      "signals_gold": {
+        "bm25_norm": 0.9443681826759703,
+        "concepto_ratio": 1.0,
+        "sinonimos_ratio": 1.0,
+        "dim_score": 0.7453559924999299,
+        "tematico_score": 0.0,
+        "ppmi_score": 0.0,
+        "pred_score": 0.0,
+        "hub_match": 0.0,
+        "jsd_score": 0.5449,
+        "peso_sinaptico": 0.0,
+        "asoc_count": 20
+      },
+      "signals_winner": {
+        "bm25_norm": 1.0,
+        "concepto_ratio": 1.0,
+        "sinonimos_ratio": 1.0,
+        "dim_score": 0.6666666666666666,
+        "tematico_score": 0.0,
+        "ppmi_score": 0.0,
+        "pred_score": 0.0,
+        "hub_match": 0.0,
+        "jsd_score": 0.4923,
+        "peso_sinaptico": 0.0,
+        "asoc_count": 36
+      },
+      "sdm_analysis": {
+        "gold_sdm_present": true,
+        "winner_sdm_present": true,
+        "sim_sdm_gold": 0.0102,
+        "sim_sdm_winner": 0.0115,
+        "sdm_delta": -0.0013,
+        "hamming_gold": 241,
+        "hamming_winner": 248,
+        "sdm_veredicto": "favorece_winner"
+      },
+      "grafo_analysis": {
+        "grado_gold": 20,
+        "grado_winner": 36,
+        "vecinos_compartidos": 8,
+        "arista_directa_existe": false,
+        "arista_directa_peso": null,
+        "arista_directa_tipo": null
+      },
+      "predicados_analysis": {
+        "gold_preds_count": 0,
+        "winner_preds_count": 0,
+        "status": "ninguno",
+        "gold_preds_samples": [],
+        "winner_preds_samples": []
+      },
+      "forense_diagnostico": {
+        "evidencia_favorece_winner": "Mayor coincidencia léxica directa o PPMI (1.00).",
+        "evidencia_favorece_gold": "Es el sinónimo semántico verdadero aunque tenga menor BM25.",
+        "info_faltante_para_distinguir": "Conexión en tabla sinonimos o puente semántico latente calibrado."
+      }
+    },
+    {
+      "case_id": "0551",
+      "query": "¿Qué tenemos registrado para patron pensamiento lateral antes de proponer?",
+      "categoria": "pregunta_natural",
+      "gold": "patron_pensamiento_lateral_antes_de_proponer",
+      "winner": "dennys_genesis_investigativa_historia_personal",
+      "gold_rank": 3,
+      "winner_rank": 1,
+      "evaluable_aritmeticamente": true,
+      "margin_original": -0.079,
+      "tipo_fallo": "fallo_ranking_competitivo_multisenal",
+      "es_colision_alias_version": false,
+      "detalle_colision": "conceptos_distintos",
+      "signals_gold": {
+        "bm25_norm": 0.5229003951715393,
+        "concepto_ratio": 0.8,
+        "sinonimos_ratio": 0.4,
+        "dim_score": 0.26726124191242434,
+        "tematico_score": 1.0,
+        "ppmi_score": 0.4818208274494604,
+        "pred_score": 0.0,
+        "hub_match": 0.0,
+        "jsd_score": 0.6425,
+        "peso_sinaptico": 0.0,
+        "asoc_count": 11
+      },
+      "signals_winner": {
+        "bm25_norm": 0.6523402654643848,
+        "concepto_ratio": 0.0,
+        "sinonimos_ratio": 0.0,
+        "dim_score": 0.511766315719159,
+        "tematico_score": 1.0,
+        "ppmi_score": 0.34732243905528487,
+        "pred_score": 0.0,
+        "hub_match": 0.8,
+        "jsd_score": 0.6348,
+        "peso_sinaptico": 0.0,
+        "asoc_count": 59
+      },
+      "sdm_analysis": {
+        "gold_sdm_present": true,
+        "winner_sdm_present": true,
+        "sim_sdm_gold": 0.0462,
+        "sim_sdm_winner": 0.0224,
+        "sdm_delta": 0.0238,
+        "hamming_gold": 246,
+        "hamming_winner": 397,
+        "sdm_veredicto": "favorece_gold"
+      },
+      "grafo_analysis": {
+        "grado_gold": 12,
+        "grado_winner": 65,
+        "vecinos_compartidos": 0,
+        "arista_directa_existe": false,
+        "arista_directa_peso": null,
+        "arista_directa_tipo": null
+      },
+      "predicados_analysis": {
+        "gold_preds_count": 0,
+        "winner_preds_count": 0,
+        "status": "ninguno",
+        "gold_preds_samples": [],
+        "winner_preds_samples": []
+      },
+      "forense_diagnostico": {
+        "evidencia_favorece_winner": "Ganó por suma multi-señal (BM25: 0.65, PPMI: 0.35).",
+        "evidencia_favorece_gold": "Presencia en top candidatos (rank 3) con señales cercanas.",
+        "info_faltante_para_distinguir": "Señal discriminativa ortogonal para desempatar candidates con scores cercanos."
+      }
+    },
+    {
+      "case_id": "0556",
+      "query": "sin vectores",
+      "categoria": "sinonimo",
+      "gold": "sin_vectores_sin_ml_sin_dependencias",
+      "winner": "vision_biorag_mas_alla_vectores_20260802",
+      "gold_rank": 2,
+      "winner_rank": 1,
+      "evaluable_aritmeticamente": true,
+      "margin_original": -0.0372,
+      "tipo_fallo": "fallo_semantico_sinonimo_lejano",
+      "es_colision_alias_version": false,
+      "detalle_colision": "conceptos_distintos",
+      "signals_gold": {
+        "bm25_norm": 1.0,
+        "concepto_ratio": 1.0,
+        "sinonimos_ratio": 1.0,
+        "dim_score": 0.35355339059327373,
+        "tematico_score": 0.0,
+        "ppmi_score": 0.0,
+        "pred_score": 0.0,
+        "hub_match": 0.0,
+        "jsd_score": 0.5375,
+        "peso_sinaptico": 0.0,
+        "asoc_count": 19
+      },
+      "signals_winner": {
+        "bm25_norm": 0.9902202450461646,
+        "concepto_ratio": 1.0,
+        "sinonimos_ratio": 1.0,
+        "dim_score": 0.7705517503711221,
+        "tematico_score": 0.0,
+        "ppmi_score": 0.0,
+        "pred_score": 0.0,
+        "hub_match": 0.0,
+        "jsd_score": 0.5602,
+        "peso_sinaptico": 0.0,
+        "asoc_count": 56
+      },
+      "sdm_analysis": {
+        "gold_sdm_present": true,
+        "winner_sdm_present": true,
+        "sim_sdm_gold": 0.0238,
+        "sim_sdm_winner": 0.0066,
+        "sdm_delta": 0.0172,
+        "hamming_gold": 220,
+        "hamming_winner": 416,
+        "sdm_veredicto": "favorece_gold"
+      },
+      "grafo_analysis": {
+        "grado_gold": 19,
+        "grado_winner": 61,
+        "vecinos_compartidos": 5,
+        "arista_directa_existe": false,
+        "arista_directa_peso": null,
+        "arista_directa_tipo": null
+      },
+      "predicados_analysis": {
+        "gold_preds_count": 0,
+        "winner_preds_count": 3,
+        "status": "solo_winner",
+        "gold_preds_samples": [],
+        "winner_preds_samples": [
+          {
+            "sujeto": "Dennys",
+            "accion": "revelo_vision",
+            "objeto": "BioRAG sin vectores",
+            "contexto": "direccion futura del sistema"
+          },
+          {
+            "sujeto": "Hormiguita",
+            "accion": "prunea",
+            "objeto": "sinapsis sin sentido",
+            "contexto": "calidad sobre cantidad"
+          }
+        ]
+      },
+      "forense_diagnostico": {
+        "evidencia_favorece_winner": "Mayor coincidencia léxica directa o PPMI (0.99).",
+        "evidencia_favorece_gold": "Es el sinónimo semántico verdadero aunque tenga menor BM25.",
+        "info_faltante_para_distinguir": "Conexión en tabla sinonimos o puente semántico latente calibrado."
+      }
+    },
+    {
+      "case_id": "0558",
+      "query": "modelo typos completa",
+      "categoria": "por_tema",
+      "gold": "sin_vectores_sin_ml_sin_dependencias",
+      "winner": "resolucion_de_contradicciones_entre_insights_sumatoria_mentalidad",
+      "gold_rank": 4,
+      "winner_rank": 1,
+      "evaluable_aritmeticamente": true,
+      "margin_original": 0.0397,
+      "tipo_fallo": "fallo_evidencia_relacional_por_tema",
+      "es_colision_alias_version": false,
+      "detalle_colision": "conceptos_distintos",
+      "signals_gold": {
+        "bm25_norm": 0.9958461565686038,
+        "concepto_ratio": 0.0,
+        "sinonimos_ratio": 0.0,
+        "dim_score": 0.4588314677411235,
+        "tematico_score": 1.0,
+        "ppmi_score": 0.5058326331021289,
+        "pred_score": 0.0,
+        "hub_match": 0.0,
+        "jsd_score": 0.5459,
+        "peso_sinaptico": 0.0,
+        "asoc_count": 19
+      },
+      "signals_winner": {
+        "bm25_norm": 0.21370914116296372,
+        "concepto_ratio": 0.0,
+        "sinonimos_ratio": 0.3333,
+        "dim_score": 0.3244428422615251,
+        "tematico_score": 1.0,
+        "ppmi_score": 0.26204884384682947,
+        "pred_score": 0.0,
+        "hub_match": 1.0,
+        "jsd_score": 0.4697,
+        "peso_sinaptico": 0.0,
+        "asoc_count": 6
+      },
+      "sdm_analysis": {
+        "gold_sdm_present": true,
+        "winner_sdm_present": true,
+        "sim_sdm_gold": 0.0124,
+        "sim_sdm_winner": 0.0216,
+        "sdm_delta": -0.0092,
+        "hamming_gold": 232,
+        "hamming_winner": 174,
+        "sdm_veredicto": "favorece_winner"
+      },
+      "grafo_analysis": {
+        "grado_gold": 19,
+        "grado_winner": 6,
+        "vecinos_compartidos": 1,
+        "arista_directa_existe": false,
+        "arista_directa_peso": null,
+        "arista_directa_tipo": null
+      },
+      "predicados_analysis": {
+        "gold_preds_count": 0,
+        "winner_preds_count": 0,
+        "status": "ninguno",
+        "gold_preds_samples": [],
+        "winner_preds_samples": []
+      },
+      "forense_diagnostico": {
+        "evidencia_favorece_winner": "Mayor score temático/JSD/PPMI por co-ocurrencia superficial de tokens (1.00).",
+        "evidencia_favorece_gold": "Relevancia conceptual ontológica real para el tema de la consulta.",
+        "info_faltante_para_distinguir": "Señal relacional o puente topológico que conecte la consulta con el nodo Gold sin depender de coincidencia superficial de palabras."
+      }
+    },
+    {
+      "case_id": "0560",
+      "query": "memorias v5 1s optimizaciones",
+      "categoria": "variante_gramatical",
+      "gold": "memoria_v5_1_optimizaciones",
+      "winner": "privacidad_memorias_personales_oec",
+      "gold_rank": 2,
+      "winner_rank": 1,
+      "evaluable_aritmeticamente": true,
+      "margin_original": -0.0258,
+      "tipo_fallo": "fallo_ranking_competitivo_multisenal",
+      "es_colision_alias_version": false,
+      "detalle_colision": "conceptos_distintos",
+      "signals_gold": {
+        "bm25_norm": 0.922004138372363,
+        "concepto_ratio": 0.75,
+        "sinonimos_ratio": 0.5,
+        "dim_score": 0.5,
+        "tematico_score": 0.0,
+        "ppmi_score": 0.0,
+        "pred_score": 0.0,
+        "hub_match": 0.0,
+        "jsd_score": 0.5643,
+        "peso_sinaptico": 0.0,
+        "asoc_count": 59
+      },
+      "signals_winner": {
+        "bm25_norm": 1.0,
+        "concepto_ratio": 0.25,
+        "sinonimos_ratio": 0.0,
+        "dim_score": 0.4330127018922193,
+        "tematico_score": 1.0,
+        "ppmi_score": 0.0,
+        "pred_score": 0.0,
+        "hub_match": 0.0,
+        "jsd_score": 0.4722,
+        "peso_sinaptico": 0.0,
+        "asoc_count": 16
+      },
+      "sdm_analysis": {
+        "gold_sdm_present": true,
+        "winner_sdm_present": true,
+        "sim_sdm_gold": 0.0117,
+        "sim_sdm_winner": 0.0139,
+        "sdm_delta": -0.0022,
+        "hamming_gold": 296,
+        "hamming_winner": 214,
+        "sdm_veredicto": "favorece_winner"
+      },
+      "grafo_analysis": {
+        "grado_gold": 63,
+        "grado_winner": 15,
+        "vecinos_compartidos": 10,
+        "arista_directa_existe": false,
+        "arista_directa_peso": null,
+        "arista_directa_tipo": null
+      },
+      "predicados_analysis": {
+        "gold_preds_count": 0,
+        "winner_preds_count": 0,
+        "status": "ninguno",
+        "gold_preds_samples": [],
+        "winner_preds_samples": []
+      },
+      "forense_diagnostico": {
+        "evidencia_favorece_winner": "Ganó por suma multi-señal (BM25: 1.00, PPMI: 0.00).",
+        "evidencia_favorece_gold": "Presencia en top candidatos (rank 2) con señales cercanas.",
+        "info_faltante_para_distinguir": "Señal discriminativa ortogonal para desempatar candidates con scores cercanos."
+      }
+    },
+    {
+      "case_id": "0562",
+      "query": "recollection v5 1 optimizaciones",
+      "categoria": "cruce_idioma",
+      "gold": "memoria_v5_1_optimizaciones",
+      "winner": "arquitectura_memoria_biorag",
+      "gold_rank": 4,
+      "winner_rank": 1,
+      "evaluable_aritmeticamente": true,
+      "margin_original": -0.1157,
+      "tipo_fallo": "fallo_ranking_competitivo_multisenal",
+      "es_colision_alias_version": false,
+      "detalle_colision": "conceptos_distintos",
+      "signals_gold": {
+        "bm25_norm": 0.6572772095766565,
+        "concepto_ratio": 0.6667,
+        "sinonimos_ratio": 0.6667,
+        "dim_score": 0.35355339059327373,
+        "tematico_score": 0.0,
+        "ppmi_score": 0.0,
+        "pred_score": 0.0,
+        "hub_match": 0.0,
+        "jsd_score": 0.5617,
+        "peso_sinaptico": 0.0,
+        "asoc_count": 59
+      },
+      "signals_winner": {
+        "bm25_norm": 0.5663774883593495,
+        "concepto_ratio": 0.0,
+        "sinonimos_ratio": 0.0,
+        "dim_score": 0.3952847075210474,
+        "tematico_score": 1.0,
+        "ppmi_score": 0.0,
+        "pred_score": 0.0,
+        "hub_match": 1.0,
+        "jsd_score": 0.3961,
+        "peso_sinaptico": 0.0,
+        "asoc_count": 57
+      },
+      "sdm_analysis": {
+        "gold_sdm_present": true,
+        "winner_sdm_present": true,
+        "sim_sdm_gold": 0.0065,
+        "sim_sdm_winner": 0.0105,
+        "sdm_delta": -0.004,
+        "hamming_gold": 297,
+        "hamming_winner": 290,
+        "sdm_veredicto": "favorece_winner"
+      },
+      "grafo_analysis": {
+        "grado_gold": 63,
+        "grado_winner": 58,
+        "vecinos_compartidos": 31,
+        "arista_directa_existe": true,
+        "arista_directa_peso": 0.45,
+        "arista_directa_tipo": "co_ocurrencia"
+      },
+      "predicados_analysis": {
+        "gold_preds_count": 0,
+        "winner_preds_count": 0,
+        "status": "ninguno",
+        "gold_preds_samples": [],
+        "winner_preds_samples": []
+      },
+      "forense_diagnostico": {
+        "evidencia_favorece_winner": "Ganó por suma multi-señal (BM25: 0.57, PPMI: 0.00).",
+        "evidencia_favorece_gold": "Presencia en top candidatos (rank 4) con señales cercanas.",
+        "info_faltante_para_distinguir": "Señal discriminativa ortogonal para desempatar candidates con scores cercanos."
+      }
+    },
+    {
+      "case_id": "0564",
+      "query": "¿Dónde encuentro la info de memoria v5 1 optimizaciones?",
+      "categoria": "pregunta_natural",
+      "gold": "memoria_v5_1_optimizaciones",
+      "winner": "analisis_escalabilidad_10k_v5_1_memoria_v5_1_optimizaciones_hermes_agente_hermes",
+      "gold_rank": 2,
+      "winner_rank": 1,
+      "evaluable_aritmeticamente": true,
+      "margin_original": -0.0183,
+      "tipo_fallo": "fallo_ranking_competitivo_multisenal",
+      "es_colision_alias_version": false,
+      "detalle_colision": "conceptos_distintos",
+      "signals_gold": {
+        "bm25_norm": 0.9616020846875132,
+        "concepto_ratio": 0.75,
+        "sinonimos_ratio": 0.5,
+        "dim_score": 0.5163977794943222,
+        "tematico_score": 0.0,
+        "ppmi_score": 0.2537357323878486,
+        "pred_score": 0.0,
+        "hub_match": 0.0,
+        "jsd_score": 0.5717,
+        "peso_sinaptico": 0.0,
+        "asoc_count": 59
+      },
+      "signals_winner": {
+        "bm25_norm": 1.0,
+        "concepto_ratio": 0.75,
+        "sinonimos_ratio": 0.5,
+        "dim_score": 0.44721359549995787,
+        "tematico_score": 0.0,
+        "ppmi_score": 0.4308397500210977,
+        "pred_score": 0.0,
+        "hub_match": 0.0,
+        "jsd_score": 0.534,
+        "peso_sinaptico": 0.0,
+        "asoc_count": 20
+      },
+      "sdm_analysis": {
+        "gold_sdm_present": true,
+        "winner_sdm_present": true,
+        "sim_sdm_gold": 0.0183,
+        "sim_sdm_winner": 0.0075,
+        "sdm_delta": 0.0108,
+        "hamming_gold": 318,
+        "hamming_winner": 204,
+        "sdm_veredicto": "favorece_gold"
+      },
+      "grafo_analysis": {
+        "grado_gold": 63,
+        "grado_winner": 21,
+        "vecinos_compartidos": 5,
+        "arista_directa_existe": false,
+        "arista_directa_peso": null,
+        "arista_directa_tipo": null
+      },
+      "predicados_analysis": {
+        "gold_preds_count": 0,
+        "winner_preds_count": 0,
+        "status": "ninguno",
+        "gold_preds_samples": [],
+        "winner_preds_samples": []
+      },
+      "forense_diagnostico": {
+        "evidencia_favorece_winner": "Ganó por suma multi-señal (BM25: 1.00, PPMI: 0.43).",
+        "evidencia_favorece_gold": "Presencia en top candidatos (rank 2) con señales cercanas.",
+        "info_faltante_para_distinguir": "Señal discriminativa ortogonal para desempatar candidates con scores cercanos."
+      }
+    },
+    {
+      "case_id": "0565",
+      "query": "junio tag pérdida",
+      "categoria": "por_tema",
+      "gold": "memoria_v5_1_optimizaciones",
+      "winner": "leccion_versionado_biorag",
+      "gold_rank": 2,
+      "winner_rank": 1,
+      "evaluable_aritmeticamente": true,
+      "margin_original": -0.011,
+      "tipo_fallo": "fallo_evidencia_relacional_por_tema",
+      "es_colision_alias_version": false,
+      "detalle_colision": "conceptos_distintos",
+      "signals_gold": {
+        "bm25_norm": 1.0,
+        "concepto_ratio": 0.0,
+        "sinonimos_ratio": 0.0,
+        "dim_score": 0.5126352761574786,
+        "tematico_score": 1.0,
+        "ppmi_score": 0.512430468269398,
+        "pred_score": 0.0,
+        "hub_match": 0.0,
+        "jsd_score": 0.5395,
+        "peso_sinaptico": 0.0,
+        "asoc_count": 59
+      },
+      "signals_winner": {
+        "bm25_norm": 0.8396163612925038,
+        "concepto_ratio": 0.0,
+        "sinonimos_ratio": 0.25,
+        "dim_score": 0.585672847328066,
+        "tematico_score": 1.0,
+        "ppmi_score": 0.46138552182198034,
+        "pred_score": 0.0,
+        "hub_match": 0.0,
+        "jsd_score": 0.4949,
+        "peso_sinaptico": 0.0,
+        "asoc_count": 63
+      },
+      "sdm_analysis": {
+        "gold_sdm_present": true,
+        "winner_sdm_present": true,
+        "sim_sdm_gold": 0.017,
+        "sim_sdm_winner": 0.0105,
+        "sdm_delta": 0.0065,
+        "hamming_gold": 292,
+        "hamming_winner": 328,
+        "sdm_veredicto": "favorece_gold"
+      },
+      "grafo_analysis": {
+        "grado_gold": 63,
+        "grado_winner": 63,
+        "vecinos_compartidos": 46,
+        "arista_directa_existe": true,
+        "arista_directa_peso": 0.9,
+        "arista_directa_tipo": "co_ocurrencia"
+      },
+      "predicados_analysis": {
+        "gold_preds_count": 0,
+        "winner_preds_count": 0,
+        "status": "ninguno",
+        "gold_preds_samples": [],
+        "winner_preds_samples": []
+      },
+      "forense_diagnostico": {
+        "evidencia_favorece_winner": "Mayor score temático/JSD/PPMI por co-ocurrencia superficial de tokens (1.00).",
+        "evidencia_favorece_gold": "Relevancia conceptual ontológica real para el tema de la consulta.",
+        "info_faltante_para_distinguir": "Señal relacional o puente topológico que conecte la consulta con el nodo Gold sin depender de coincidencia superficial de palabras."
+      }
+    },
+    {
+      "case_id": "0575",
+      "query": "formularios",
+      "categoria": "sinonimo",
+      "gold": "ngx_nested_forms_dennys_solo",
+      "winner": "ref_formularios_anidados",
+      "gold_rank": 4,
+      "winner_rank": 1,
+      "evaluable_aritmeticamente": true,
+      "margin_original": -0.1021,
+      "tipo_fallo": "fallo_semantico_sinonimo_lejano",
+      "es_colision_alias_version": false,
+      "detalle_colision": "conceptos_distintos",
+      "signals_gold": {
+        "bm25_norm": 0.6457007766623813,
+        "concepto_ratio": 0.0,
+        "sinonimos_ratio": 1.0,
+        "dim_score": 0.3937815625321017,
+        "tematico_score": 0.0,
+        "ppmi_score": 0.0,
+        "pred_score": 0.0,
+        "hub_match": 0.0,
+        "jsd_score": 0.5496,
+        "peso_sinaptico": 0.0,
+        "asoc_count": 8
+      },
+      "signals_winner": {
+        "bm25_norm": 1.0,
+        "concepto_ratio": 1.0,
+        "sinonimos_ratio": 1.0,
+        "dim_score": 0.27105848574892893,
+        "tematico_score": 0.0,
+        "ppmi_score": 0.0,
+        "pred_score": 0.0,
+        "hub_match": 0.0,
+        "jsd_score": 0.4919,
+        "peso_sinaptico": 0.0,
+        "asoc_count": 21
+      },
+      "sdm_analysis": {
+        "gold_sdm_present": true,
+        "winner_sdm_present": true,
+        "sim_sdm_gold": 0.0179,
+        "sim_sdm_winner": 0.0033,
+        "sdm_delta": 0.0146,
+        "hamming_gold": 186,
+        "hamming_winner": 252,
+        "sdm_veredicto": "favorece_gold"
+      },
+      "grafo_analysis": {
+        "grado_gold": 10,
+        "grado_winner": 27,
+        "vecinos_compartidos": 3,
+        "arista_directa_existe": false,
+        "arista_directa_peso": null,
+        "arista_directa_tipo": null
+      },
+      "predicados_analysis": {
+        "gold_preds_count": 0,
+        "winner_preds_count": 0,
+        "status": "ninguno",
+        "gold_preds_samples": [],
+        "winner_preds_samples": []
+      },
+      "forense_diagnostico": {
+        "evidencia_favorece_winner": "Mayor coincidencia léxica directa o PPMI (1.00).",
+        "evidencia_favorece_gold": "Es el sinónimo semántico verdadero aunque tenga menor BM25.",
+        "info_faltante_para_distinguir": "Conexión en tabla sinonimos o puente semántico latente calibrado."
+      }
+    },
+    {
+      "case_id": "0577",
+      "query": "dennysjmarquezgmailcom formulario aísla",
+      "categoria": "por_tema",
+      "gold": "ngx_nested_forms_dennys_solo",
+      "winner": "caso_formularios_anidados_angular",
+      "gold_rank": 2,
+      "winner_rank": 1,
+      "evaluable_aritmeticamente": true,
+      "margin_original": 0.0107,
+      "tipo_fallo": "fallo_evidencia_relacional_por_tema",
+      "es_colision_alias_version": false,
+      "detalle_colision": "conceptos_distintos",
+      "signals_gold": {
+        "bm25_norm": 1.0,
+        "concepto_ratio": 0.0,
+        "sinonimos_ratio": 0.303,
+        "dim_score": 0.3937815625321017,
+        "tematico_score": 1.0,
+        "ppmi_score": 0.7600753791137446,
+        "pred_score": 0.0,
+        "hub_match": 0.0,
+        "jsd_score": 0.5695,
+        "peso_sinaptico": 0.0,
+        "asoc_count": 8
+      },
+      "signals_winner": {
+        "bm25_norm": 0.7501251416204827,
+        "concepto_ratio": 0.303,
+        "sinonimos_ratio": 0.303,
+        "dim_score": 0.4379500774500157,
+        "tematico_score": 1.0,
+        "ppmi_score": 0.790900086119979,
+        "pred_score": 0.0,
+        "hub_match": 0.0,
+        "jsd_score": 0.6686,
+        "peso_sinaptico": 0.0,
+        "asoc_count": 36
+      },
+      "sdm_analysis": {
+        "gold_sdm_present": true,
+        "winner_sdm_present": true,
+        "sim_sdm_gold": 0.0207,
+        "sim_sdm_winner": 0.014,
+        "sdm_delta": 0.0067,
+        "hamming_gold": 200,
+        "hamming_winner": 288,
+        "sdm_veredicto": "favorece_gold"
+      },
+      "grafo_analysis": {
+        "grado_gold": 10,
+        "grado_winner": 44,
+        "vecinos_compartidos": 3,
+        "arista_directa_existe": false,
+        "arista_directa_peso": null,
+        "arista_directa_tipo": null
+      },
+      "predicados_analysis": {
+        "gold_preds_count": 0,
+        "winner_preds_count": 0,
+        "status": "ninguno",
+        "gold_preds_samples": [],
+        "winner_preds_samples": []
+      },
+      "forense_diagnostico": {
+        "evidencia_favorece_winner": "Mayor score temático/JSD/PPMI por co-ocurrencia superficial de tokens (1.00).",
+        "evidencia_favorece_gold": "Relevancia conceptual ontológica real para el tema de la consulta.",
+        "info_faltante_para_distinguir": "Señal relacional o puente topológico que conecte la consulta con el nodo Gold sin depender de coincidencia superficial de palabras."
+      }
+    },
+    {
+      "case_id": "0583",
+      "query": "debo biorag preacción",
+      "categoria": "por_tema",
+      "gold": "identificacion_obligatoria_oraculo_athena",
+      "winner": "oracle_guia_proxima_sesion_dennys",
+      "gold_rank": 4,
+      "winner_rank": 1,
+      "evaluable_aritmeticamente": true,
+      "margin_original": -0.0353,
+      "tipo_fallo": "fallo_evidencia_relacional_por_tema",
+      "es_colision_alias_version": false,
+      "detalle_colision": "conceptos_distintos",
+      "signals_gold": {
+        "bm25_norm": 0.7660195663603847,
+        "concepto_ratio": 0.0,
+        "sinonimos_ratio": 0.0,
+        "dim_score": 0.5,
+        "tematico_score": 1.0,
+        "ppmi_score": 0.5766756053401093,
+        "pred_score": 0.0,
+        "hub_match": 0.0,
+        "jsd_score": 0.4626,
+        "peso_sinaptico": 0.0,
+        "asoc_count": 17
+      },
+      "signals_winner": {
+        "bm25_norm": 0.8723049234080884,
+        "concepto_ratio": 0.0,
+        "sinonimos_ratio": 0.0,
+        "dim_score": 0.7071067811865475,
+        "tematico_score": 1.0,
+        "ppmi_score": 0.5893606669495334,
+        "pred_score": 0.0,
+        "hub_match": 0.0,
+        "jsd_score": 0.6052,
+        "peso_sinaptico": 0.0,
+        "asoc_count": 42
+      },
+      "sdm_analysis": {
+        "gold_sdm_present": true,
+        "winner_sdm_present": true,
+        "sim_sdm_gold": 0.0255,
+        "sim_sdm_winner": 0.0273,
+        "sdm_delta": -0.0018,
+        "hamming_gold": 231,
+        "hamming_winner": 265,
+        "sdm_veredicto": "favorece_winner"
+      },
+      "grafo_analysis": {
+        "grado_gold": 18,
+        "grado_winner": 42,
+        "vecinos_compartidos": 1,
+        "arista_directa_existe": false,
+        "arista_directa_peso": null,
+        "arista_directa_tipo": null
+      },
+      "predicados_analysis": {
+        "gold_preds_count": 0,
+        "winner_preds_count": 0,
+        "status": "ninguno",
+        "gold_preds_samples": [],
+        "winner_preds_samples": []
+      },
+      "forense_diagnostico": {
+        "evidencia_favorece_winner": "Mayor score temático/JSD/PPMI por co-ocurrencia superficial de tokens (1.00).",
+        "evidencia_favorece_gold": "Relevancia conceptual ontológica real para el tema de la consulta.",
+        "info_faltante_para_distinguir": "Señal relacional o puente topológico que conecte la consulta con el nodo Gold sin depender de coincidencia superficial de palabras."
+      }
+    },
+    {
+      "case_id": "0587",
+      "query": "install",
+      "categoria": "sinonimo",
+      "gold": "artemis_install_ponytail_ecosistema",
+      "winner": "installer_biorag_v1",
+      "gold_rank": 2,
+      "winner_rank": 1,
+      "evaluable_aritmeticamente": true,
+      "margin_original": -0.0258,
+      "tipo_fallo": "fallo_semantico_sinonimo_lejano",
+      "es_colision_alias_version": false,
+      "detalle_colision": "conceptos_distintos",
+      "signals_gold": {
+        "bm25_norm": 0.9016093981776871,
+        "concepto_ratio": 1.0,
+        "sinonimos_ratio": 1.0,
+        "dim_score": 0.9258200997725513,
+        "tematico_score": 0.0,
+        "ppmi_score": 0.2536267317494512,
+        "pred_score": 0.0,
+        "hub_match": 0.0,
+        "jsd_score": 0.471,
+        "peso_sinaptico": 0.0,
+        "asoc_count": 11
+      },
+      "signals_winner": {
+        "bm25_norm": 0.9119633906508813,
+        "concepto_ratio": 1.0,
+        "sinonimos_ratio": 1.0,
+        "dim_score": 0.7559289460184544,
+        "tematico_score": 0.0,
+        "ppmi_score": 0.4107025575861108,
+        "pred_score": 0.0,
+        "hub_match": 0.0,
+        "jsd_score": 0.5808,
+        "peso_sinaptico": 0.0,
+        "asoc_count": 67
+      },
+      "sdm_analysis": {
+        "gold_sdm_present": true,
+        "winner_sdm_present": true,
+        "sim_sdm_gold": 0.0166,
+        "sim_sdm_winner": 0.0051,
+        "sdm_delta": 0.0115,
+        "hamming_gold": 200,
+        "hamming_winner": 296,
+        "sdm_veredicto": "favorece_gold"
+      },
+      "grafo_analysis": {
+        "grado_gold": 12,
+        "grado_winner": 69,
+        "vecinos_compartidos": 1,
+        "arista_directa_existe": false,
+        "arista_directa_peso": null,
+        "arista_directa_tipo": null
+      },
+      "predicados_analysis": {
+        "gold_preds_count": 0,
+        "winner_preds_count": 0,
+        "status": "ninguno",
+        "gold_preds_samples": [],
+        "winner_preds_samples": []
+      },
+      "forense_diagnostico": {
+        "evidencia_favorece_winner": "Mayor coincidencia léxica directa o PPMI (0.91).",
+        "evidencia_favorece_gold": "Es el sinónimo semántico verdadero aunque tenga menor BM25.",
+        "info_faltante_para_distinguir": "Conexión en tabla sinonimos o puente semántico latente calibrado."
+      }
+    },
+    {
+      "case_id": "0592",
+      "query": "arquitectura memovria biroag",
+      "categoria": "typo",
+      "gold": "arquitectura_memoria_biorag",
+      "winner": "hito_biorag_v21_arquitectura_13_ejes",
+      "gold_rank": 2,
+      "winner_rank": 1,
+      "evaluable_aritmeticamente": true,
+      "margin_original": -0.0334,
+      "tipo_fallo": "fallo_ranking_competitivo_multisenal",
+      "es_colision_alias_version": false,
+      "detalle_colision": "conceptos_distintos",
+      "signals_gold": {
+        "bm25_norm": 0.9422833174907844,
+        "concepto_ratio": 0.625,
+        "sinonimos_ratio": 0.625,
+        "dim_score": 0.3892494720807615,
+        "tematico_score": 0.0,
+        "ppmi_score": 0.46156504804844395,
+        "pred_score": 0.0,
+        "hub_match": 0.0,
+        "jsd_score": 0.4165,
+        "peso_sinaptico": 0.0,
+        "asoc_count": 57
+      },
+      "signals_winner": {
+        "bm25_norm": 0.8589559999717243,
+        "concepto_ratio": 0.3333,
+        "sinonimos_ratio": 0.2917,
+        "dim_score": 0.7587869106393282,
+        "tematico_score": 1.0,
+        "ppmi_score": 0.2769366251988849,
+        "pred_score": 0.0,
+        "hub_match": 0.0,
+        "jsd_score": 0.4743,
+        "peso_sinaptico": 0.0,
+        "asoc_count": 36
+      },
+      "sdm_analysis": {
+        "gold_sdm_present": true,
+        "winner_sdm_present": true,
+        "sim_sdm_gold": 0.0078,
+        "sim_sdm_winner": 0.0056,
+        "sdm_delta": 0.0022,
+        "hamming_gold": 297,
+        "hamming_winner": 386,
+        "sdm_veredicto": "favorece_gold"
+      },
+      "grafo_analysis": {
+        "grado_gold": 58,
+        "grado_winner": 41,
+        "vecinos_compartidos": 6,
+        "arista_directa_existe": false,
+        "arista_directa_peso": null,
+        "arista_directa_tipo": null
+      },
+      "predicados_analysis": {
+        "gold_preds_count": 0,
+        "winner_preds_count": 1,
+        "status": "solo_winner",
+        "gold_preds_samples": [],
+        "winner_preds_samples": [
+          {
+            "sujeto": "dennys_y_antigravity",
+            "accion": "implemento_y_valido",
+            "objeto": "arquitectura_13_ejes_dimensiones",
+            "contexto": "BioRAG v21.0 memoria profunda"
+          }
+        ]
+      },
+      "forense_diagnostico": {
+        "evidencia_favorece_winner": "Ganó por suma multi-señal (BM25: 0.86, PPMI: 0.28).",
+        "evidencia_favorece_gold": "Presencia en top candidatos (rank 2) con señales cercanas.",
+        "info_faltante_para_distinguir": "Señal discriminativa ortogonal para desempatar candidates con scores cercanos."
+      }
+    },
+    {
+      "case_id": "0594",
+      "query": "arquitectura",
+      "categoria": "sinonimo",
+      "gold": "arquitectura_memoria_biorag",
+      "winner": "angular_proyecto_arquitectura",
+      "gold_rank": 3,
+      "winner_rank": 1,
+      "evaluable_aritmeticamente": true,
+      "margin_original": -0.0448,
+      "tipo_fallo": "fallo_semantico_sinonimo_lejano",
+      "es_colision_alias_version": false,
+      "detalle_colision": "conceptos_distintos",
+      "signals_gold": {
+        "bm25_norm": 0.9422833174907844,
+        "concepto_ratio": 1.0,
+        "sinonimos_ratio": 1.0,
+        "dim_score": 0.3892494720807615,
+        "tematico_score": 0.0,
+        "ppmi_score": 0.6642495610557759,
+        "pred_score": 0.0,
+        "hub_match": 0.0,
+        "jsd_score": 0.4046,
+        "peso_sinaptico": 0.0,
+        "asoc_count": 57
+      },
+      "signals_winner": {
+        "bm25_norm": 0.9633896767982364,
+        "concepto_ratio": 1.0,
+        "sinonimos_ratio": 1.0,
+        "dim_score": 0.3481553119113957,
+        "tematico_score": 0.0,
+        "ppmi_score": 0.8827750926436131,
+        "pred_score": 0.0,
+        "hub_match": 0.0,
+        "jsd_score": 0.416,
+        "peso_sinaptico": 0.0,
+        "asoc_count": 17
+      },
+      "sdm_analysis": {
+        "gold_sdm_present": true,
+        "winner_sdm_present": true,
+        "sim_sdm_gold": 0.0,
+        "sim_sdm_winner": 0.0055,
+        "sdm_delta": -0.0055,
+        "hamming_gold": 287,
+        "hamming_winner": 199,
+        "sdm_veredicto": "favorece_winner"
+      },
+      "grafo_analysis": {
+        "grado_gold": 58,
+        "grado_winner": 17,
+        "vecinos_compartidos": 3,
+        "arista_directa_existe": false,
+        "arista_directa_peso": null,
+        "arista_directa_tipo": null
+      },
+      "predicados_analysis": {
+        "gold_preds_count": 0,
+        "winner_preds_count": 0,
+        "status": "ninguno",
+        "gold_preds_samples": [],
+        "winner_preds_samples": []
+      },
+      "forense_diagnostico": {
+        "evidencia_favorece_winner": "Mayor coincidencia léxica directa o PPMI (0.96).",
+        "evidencia_favorece_gold": "Es el sinónimo semántico verdadero aunque tenga menor BM25.",
+        "info_faltante_para_distinguir": "Conexión en tabla sinonimos o puente semántico latente calibrado."
+      }
+    },
+    {
+      "case_id": "0605",
+      "query": "compromisro-real-athena-clave-de-confianza",
+      "categoria": "typo",
+      "gold": "compromiso-real-athena-clave-de-confianza",
+      "winner": "oracle_evolucion_athena_puntos_inflexion",
+      "gold_rank": 5,
+      "winner_rank": 1,
+      "evaluable_aritmeticamente": true,
+      "margin_original": -0.1002,
+      "tipo_fallo": "fallo_ranking_competitivo_multisenal",
+      "es_colision_alias_version": false,
+      "detalle_colision": "conceptos_distintos",
+      "signals_gold": {
+        "bm25_norm": 0.0,
+        "concepto_ratio": 0.9818,
+        "sinonimos_ratio": 0.5818,
+        "dim_score": 0.0,
+        "tematico_score": 0.0,
+        "ppmi_score": 0.6536590076602055,
+        "pred_score": 0.0,
+        "hub_match": 0.0,
+        "jsd_score": 0.5878,
+        "peso_sinaptico": 0.0,
+        "asoc_count": 7
+      },
+      "signals_winner": {
+        "bm25_norm": 0.5866666666666667,
+        "concepto_ratio": 0.2,
+        "sinonimos_ratio": 0.4,
+        "dim_score": 0.0,
+        "tematico_score": 1.0,
+        "ppmi_score": 0.5373756873646642,
+        "pred_score": 0.0,
+        "hub_match": 0.0,
+        "jsd_score": 0.6197,
+        "peso_sinaptico": 0.0,
+        "asoc_count": 38
+      },
+      "sdm_analysis": {
+        "gold_sdm_present": true,
+        "winner_sdm_present": true,
+        "sim_sdm_gold": 0.0098,
+        "sim_sdm_winner": 0.0035,
+        "sdm_delta": 0.0063,
+        "hamming_gold": 191,
+        "hamming_winner": 317,
+        "sdm_veredicto": "favorece_gold"
+      },
+      "grafo_analysis": {
+        "grado_gold": 7,
+        "grado_winner": 33,
+        "vecinos_compartidos": 3,
+        "arista_directa_existe": false,
+        "arista_directa_peso": null,
+        "arista_directa_tipo": null
+      },
+      "predicados_analysis": {
+        "gold_preds_count": 0,
+        "winner_preds_count": 0,
+        "status": "ninguno",
+        "gold_preds_samples": [],
+        "winner_preds_samples": []
+      },
+      "forense_diagnostico": {
+        "evidencia_favorece_winner": "Ganó por suma multi-señal (BM25: 0.59, PPMI: 0.54).",
+        "evidencia_favorece_gold": "Presencia en top candidatos (rank 5) con señales cercanas.",
+        "info_faltante_para_distinguir": "Señal discriminativa ortogonal para desempatar candidates con scores cercanos."
+      }
+    },
+    {
+      "case_id": "0608",
+      "query": "declaración dennys puente",
+      "categoria": "por_tema",
+      "gold": "compromiso-real-athena-clave-de-confianza",
+      "winner": "puente_llm_sinonimos_decision_diseno_final_20260809",
+      "gold_rank": 4,
+      "winner_rank": 1,
+      "evaluable_aritmeticamente": true,
+      "margin_original": -0.0542,
+      "tipo_fallo": "fallo_evidencia_relacional_por_tema",
+      "es_colision_alias_version": false,
+      "detalle_colision": "conceptos_distintos",
+      "signals_gold": {
+        "bm25_norm": 0.9439330296013042,
+        "concepto_ratio": 0.0,
+        "sinonimos_ratio": 0.3333,
+        "dim_score": 0.5,
+        "tematico_score": 1.0,
+        "ppmi_score": 0.0,
+        "pred_score": 0.0,
+        "hub_match": 0.0,
+        "jsd_score": 0.5552,
+        "peso_sinaptico": 0.0,
+        "asoc_count": 7
+      },
+      "signals_winner": {
+        "bm25_norm": 1.0,
+        "concepto_ratio": 0.3333,
+        "sinonimos_ratio": 0.3333,
+        "dim_score": 0.7499999999999999,
+        "tematico_score": 1.0,
+        "ppmi_score": 0.0,
+        "pred_score": 0.0,
+        "hub_match": 0.0,
+        "jsd_score": 0.6032,
+        "peso_sinaptico": 0.0,
+        "asoc_count": 48
+      },
+      "sdm_analysis": {
+        "gold_sdm_present": true,
+        "winner_sdm_present": true,
+        "sim_sdm_gold": 0.0205,
+        "sim_sdm_winner": 0.0113,
+        "sdm_delta": 0.0092,
+        "hamming_gold": 201,
+        "hamming_winner": 445,
+        "sdm_veredicto": "favorece_gold"
+      },
+      "grafo_analysis": {
+        "grado_gold": 7,
+        "grado_winner": 50,
+        "vecinos_compartidos": 0,
+        "arista_directa_existe": false,
+        "arista_directa_peso": null,
+        "arista_directa_tipo": null
+      },
+      "predicados_analysis": {
+        "gold_preds_count": 0,
+        "winner_preds_count": 3,
+        "status": "solo_winner",
+        "gold_preds_samples": [],
+        "winner_preds_samples": [
+          {
+            "sujeto": "Claude Web",
+            "accion": "detecto",
+            "objeto": "bug LIKE substring vincular_por_sinonimos",
+            "contexto": "sinapsis.py:391-393 preexistente"
+          },
+          {
+            "sujeto": "Dennys",
+            "accion": "decidio",
+            "objeto": "opcion 1 columna + arista selectiva con INSERT directo",
+            "contexto": "2026-08-09"
+          }
+        ]
+      },
+      "forense_diagnostico": {
+        "evidencia_favorece_winner": "Mayor score temático/JSD/PPMI por co-ocurrencia superficial de tokens (1.00).",
+        "evidencia_favorece_gold": "Relevancia conceptual ontológica real para el tema de la consulta.",
+        "info_faltante_para_distinguir": "Señal relacional o puente topológico que conecte la consulta con el nodo Gold sin depender de coincidencia superficial de palabras."
+      }
+    },
+    {
+      "case_id": "0617",
+      "query": "lcecion overenigneering oec comms 20260615",
+      "categoria": "typo",
+      "gold": "leccion_overengineering_oec_comms_20260615",
+      "winner": "oec_comms_protocolo_walkie_talkie_20260615",
+      "gold_rank": 3,
+      "winner_rank": 1,
+      "evaluable_aritmeticamente": true,
+      "margin_original": -0.037,
+      "tipo_fallo": "fallo_ranking_competitivo_multisenal",
+      "es_colision_alias_version": false,
+      "detalle_colision": "conceptos_distintos",
+      "signals_gold": {
+        "bm25_norm": 0.9745116222076703,
+        "concepto_ratio": 0.7733,
+        "sinonimos_ratio": 0.5733,
+        "dim_score": 0.7559289460184545,
+        "tematico_score": 0.0,
+        "ppmi_score": 0.5848365436760317,
+        "pred_score": 0.0,
+        "hub_match": 0.0,
+        "jsd_score": 0.5816,
+        "peso_sinaptico": 0.0,
+        "asoc_count": 19
+      },
+      "signals_winner": {
+        "bm25_norm": 0.9729204705724975,
+        "concepto_ratio": 0.6,
+        "sinonimos_ratio": 0.4,
+        "dim_score": 0.6546536707079771,
+        "tematico_score": 1.0,
+        "ppmi_score": 0.7391518887743203,
+        "pred_score": 0.0,
+        "hub_match": 0.0,
+        "jsd_score": 0.6185,
+        "peso_sinaptico": 0.0,
+        "asoc_count": 49
+      },
+      "sdm_analysis": {
+        "gold_sdm_present": true,
+        "winner_sdm_present": true,
+        "sim_sdm_gold": 0.0327,
+        "sim_sdm_winner": 0.0274,
+        "sdm_delta": 0.0053,
+        "hamming_gold": 309,
+        "hamming_winner": 276,
+        "sdm_veredicto": "favorece_gold"
+      },
+      "grafo_analysis": {
+        "grado_gold": 20,
+        "grado_winner": 39,
+        "vecinos_compartidos": 5,
+        "arista_directa_existe": true,
+        "arista_directa_peso": 0.9,
+        "arista_directa_tipo": "sinonimo_explicito"
+      },
+      "predicados_analysis": {
+        "gold_preds_count": 0,
+        "winner_preds_count": 0,
+        "status": "ninguno",
+        "gold_preds_samples": [],
+        "winner_preds_samples": []
+      },
+      "forense_diagnostico": {
+        "evidencia_favorece_winner": "Ganó por suma multi-señal (BM25: 0.97, PPMI: 0.74).",
+        "evidencia_favorece_gold": "Presencia en top candidatos (rank 3) con señales cercanas.",
+        "info_faltante_para_distinguir": "Señal discriminativa ortogonal para desempatar candidates con scores cercanos."
+      }
+    },
+    {
+      "case_id": "0619",
+      "query": "oec comms",
+      "categoria": "sinonimo",
+      "gold": "leccion_overengineering_oec_comms_20260615",
+      "winner": "oec_comms_protocolo_walkie_talkie_20260615",
+      "gold_rank": 5,
+      "winner_rank": 1,
+      "evaluable_aritmeticamente": true,
+      "margin_original": -0.0177,
+      "tipo_fallo": "fallo_semantico_sinonimo_lejano",
+      "es_colision_alias_version": false,
+      "detalle_colision": "conceptos_distintos",
+      "signals_gold": {
+        "bm25_norm": 0.9394308739019915,
+        "concepto_ratio": 1.0,
+        "sinonimos_ratio": 1.0,
+        "dim_score": 0.8528028654224418,
+        "tematico_score": 0.0,
+        "ppmi_score": 0.5633556145973363,
+        "pred_score": 0.0,
+        "hub_match": 0.0,
+        "jsd_score": 0.5681,
+        "peso_sinaptico": 0.0,
+        "asoc_count": 19
+      },
+      "signals_winner": {
+        "bm25_norm": 0.9736501919646631,
+        "concepto_ratio": 1.0,
+        "sinonimos_ratio": 1.0,
+        "dim_score": 0.7385489458759963,
+        "tematico_score": 0.0,
+        "ppmi_score": 0.6695874013425981,
+        "pred_score": 0.0,
+        "hub_match": 0.0,
+        "jsd_score": 0.6382,
+        "peso_sinaptico": 0.0,
+        "asoc_count": 49
+      },
+      "sdm_analysis": {
+        "gold_sdm_present": true,
+        "winner_sdm_present": true,
+        "sim_sdm_gold": 0.02,
+        "sim_sdm_winner": 0.0145,
+        "sdm_delta": 0.0055,
+        "hamming_gold": 297,
+        "hamming_winner": 262,
+        "sdm_veredicto": "favorece_gold"
+      },
+      "grafo_analysis": {
+        "grado_gold": 20,
+        "grado_winner": 39,
+        "vecinos_compartidos": 5,
+        "arista_directa_existe": true,
+        "arista_directa_peso": 0.9,
+        "arista_directa_tipo": "sinonimo_explicito"
+      },
+      "predicados_analysis": {
+        "gold_preds_count": 0,
+        "winner_preds_count": 0,
+        "status": "ninguno",
+        "gold_preds_samples": [],
+        "winner_preds_samples": []
+      },
+      "forense_diagnostico": {
+        "evidencia_favorece_winner": "Mayor coincidencia léxica directa o PPMI (0.97).",
+        "evidencia_favorece_gold": "Es el sinónimo semántico verdadero aunque tenga menor BM25.",
+        "info_faltante_para_distinguir": "Conexión en tabla sinonimos o puente semántico latente calibrado."
+      }
+    },
+    {
+      "case_id": "0624",
+      "query": "noteboklm-chat-configure",
+      "categoria": "typo",
+      "gold": "notebooklm-chat-configure",
+      "winner": "notebooklm-memory-biorag-project",
+      "gold_rank": 2,
+      "winner_rank": 1,
+      "evaluable_aritmeticamente": true,
+      "margin_original": 0.0041,
+      "tipo_fallo": "fallo_ranking_competitivo_multisenal",
+      "es_colision_alias_version": false,
+      "detalle_colision": "conceptos_distintos",
+      "signals_gold": {
+        "bm25_norm": 0.761904761904762,
+        "concepto_ratio": 0.9667,
+        "sinonimos_ratio": 0.6333,
+        "dim_score": 0.0,
+        "tematico_score": 0.0,
+        "ppmi_score": 0.39081920565947237,
+        "pred_score": 0.0,
+        "hub_match": 0.0,
+        "jsd_score": 0.5832,
+        "peso_sinaptico": 0.0,
+        "asoc_count": 11
+      },
+      "signals_winner": {
+        "bm25_norm": 0.761904761904762,
+        "concepto_ratio": 0.3,
+        "sinonimos_ratio": 0.3,
+        "dim_score": 0.0,
+        "tematico_score": 1.0,
+        "ppmi_score": 0.27831531139997506,
+        "pred_score": 0.0,
+        "hub_match": 0.0,
+        "jsd_score": 0.5968,
+        "peso_sinaptico": 0.0,
+        "asoc_count": 88
+      },
+      "sdm_analysis": {
+        "gold_sdm_present": true,
+        "winner_sdm_present": true,
+        "sim_sdm_gold": 0.0036,
+        "sim_sdm_winner": 0.0134,
+        "sdm_delta": -0.0098,
+        "hamming_gold": 235,
+        "hamming_winner": 308,
+        "sdm_veredicto": "favorece_winner"
+      },
+      "grafo_analysis": {
+        "grado_gold": 11,
+        "grado_winner": 90,
+        "vecinos_compartidos": 6,
+        "arista_directa_existe": false,
+        "arista_directa_peso": null,
+        "arista_directa_tipo": null
+      },
+      "predicados_analysis": {
+        "gold_preds_count": 0,
+        "winner_preds_count": 0,
+        "status": "ninguno",
+        "gold_preds_samples": [],
+        "winner_preds_samples": []
+      },
+      "forense_diagnostico": {
+        "evidencia_favorece_winner": "Ganó por suma multi-señal (BM25: 0.76, PPMI: 0.28).",
+        "evidencia_favorece_gold": "Presencia en top candidatos (rank 2) con señales cercanas.",
+        "info_faltante_para_distinguir": "Señal discriminativa ortogonal para desempatar candidates con scores cercanos."
+      }
+    },
+    {
+      "case_id": "0629",
+      "query": "arquitecturas dos nivele biorag",
+      "categoria": "variante_gramatical",
+      "gold": "arquitectura_dos_niveles_biorag",
+      "winner": "arquitectura_memoria_biorag",
+      "gold_rank": 2,
+      "winner_rank": 1,
+      "evaluable_aritmeticamente": true,
+      "margin_original": -0.1325,
+      "tipo_fallo": "fallo_desambiguacion_version_o_alias",
+      "es_colision_alias_version": true,
+      "detalle_colision": "alta_similitud_lexica_concepto_0.75",
+      "signals_gold": {
+        "bm25_norm": 0.5800853525239579,
+        "concepto_ratio": 0.945,
+        "sinonimos_ratio": 0.4643,
+        "dim_score": 0.6675277689071722,
+        "tematico_score": 1.0,
+        "ppmi_score": 0.4463461026487026,
+        "pred_score": 0.0,
+        "hub_match": 0.0,
+        "jsd_score": 0.5561,
+        "peso_sinaptico": 0.0,
+        "asoc_count": 26
+      },
+      "signals_winner": {
+        "bm25_norm": 1.0,
+        "concepto_ratio": 0.4808,
+        "sinonimos_ratio": 0.4451,
+        "dim_score": 0.7445849029746796,
+        "tematico_score": 1.0,
+        "ppmi_score": 0.4240233050172421,
+        "pred_score": 0.0,
+        "hub_match": 1.0,
+        "jsd_score": 0.452,
+        "peso_sinaptico": 0.0,
+        "asoc_count": 57
+      },
+      "sdm_analysis": {
+        "gold_sdm_present": true,
+        "winner_sdm_present": true,
+        "sim_sdm_gold": 0.0274,
+        "sim_sdm_winner": 0.0128,
+        "sdm_delta": 0.0146,
+        "hamming_gold": 232,
+        "hamming_winner": 301,
+        "sdm_veredicto": "favorece_gold"
+      },
+      "grafo_analysis": {
+        "grado_gold": 28,
+        "grado_winner": 58,
+        "vecinos_compartidos": 8,
+        "arista_directa_existe": false,
+        "arista_directa_peso": null,
+        "arista_directa_tipo": null
+      },
+      "predicados_analysis": {
+        "gold_preds_count": 0,
+        "winner_preds_count": 0,
+        "status": "ninguno",
+        "gold_preds_samples": [],
+        "winner_preds_samples": []
+      },
+      "forense_diagnostico": {
+        "evidencia_favorece_winner": "Ligeramente superior en BM25 o sinónimos debido a grafía (alta_similitud_lexica_concepto_0.75).",
+        "evidencia_favorece_gold": "Es el concepto canónico exacto solicitado por la query (arquitectura_dos_niveles_biorag).",
+        "info_faltante_para_distinguir": "Resolución de sinonimia/canonicidad o unificación de grafías (guión vs guión bajo, sufijos de versión)."
+      }
+    },
+    {
+      "case_id": "0630",
+      "query": "arquitectura dos niveles bioarag",
+      "categoria": "typo",
+      "gold": "arquitectura_dos_niveles_biorag",
+      "winner": "arquitectura_memoria_biorag",
+      "gold_rank": 2,
+      "winner_rank": 1,
+      "evaluable_aritmeticamente": true,
+      "margin_original": -0.127,
+      "tipo_fallo": "fallo_desambiguacion_version_o_alias",
+      "es_colision_alias_version": true,
+      "detalle_colision": "alta_similitud_lexica_concepto_0.75",
+      "signals_gold": {
+        "bm25_norm": 0.6137246081282562,
+        "concepto_ratio": 0.9643,
+        "sinonimos_ratio": 0.5,
+        "dim_score": 0.38224225284668084,
+        "tematico_score": 0.0,
+        "ppmi_score": 0.427762652760197,
+        "pred_score": 0.0,
+        "hub_match": 0.0,
+        "jsd_score": 0.5637,
+        "peso_sinaptico": 0.0,
+        "asoc_count": 26
+      },
+      "signals_winner": {
+        "bm25_norm": 1.0,
+        "concepto_ratio": 0.4643,
+        "sinonimos_ratio": 0.5,
+        "dim_score": 0.42636699775743336,
+        "tematico_score": 0.0,
+        "ppmi_score": 0.4331330942984402,
+        "pred_score": 0.0,
+        "hub_match": 1.0,
+        "jsd_score": 0.4585,
+        "peso_sinaptico": 0.0,
+        "asoc_count": 57
+      },
+      "sdm_analysis": {
+        "gold_sdm_present": true,
+        "winner_sdm_present": true,
+        "sim_sdm_gold": 0.0169,
+        "sim_sdm_winner": 0.0128,
+        "sdm_delta": 0.0041,
+        "hamming_gold": 238,
+        "hamming_winner": 301,
+        "sdm_veredicto": "favorece_gold"
+      },
+      "grafo_analysis": {
+        "grado_gold": 28,
+        "grado_winner": 58,
+        "vecinos_compartidos": 8,
+        "arista_directa_existe": false,
+        "arista_directa_peso": null,
+        "arista_directa_tipo": null
+      },
+      "predicados_analysis": {
+        "gold_preds_count": 0,
+        "winner_preds_count": 0,
+        "status": "ninguno",
+        "gold_preds_samples": [],
+        "winner_preds_samples": []
+      },
+      "forense_diagnostico": {
+        "evidencia_favorece_winner": "Ligeramente superior en BM25 o sinónimos debido a grafía (alta_similitud_lexica_concepto_0.75).",
+        "evidencia_favorece_gold": "Es el concepto canónico exacto solicitado por la query (arquitectura_dos_niveles_biorag).",
+        "info_faltante_para_distinguir": "Resolución de sinonimia/canonicidad o unificación de grafías (guión vs guión bajo, sufijos de versión)."
+      }
+    },
+    {
+      "case_id": "0631",
+      "query": "blueprint dos niveles biorag",
+      "categoria": "cruce_idioma",
+      "gold": "arquitectura_dos_niveles_biorag",
+      "winner": "arquitectura_memoria_biorag",
+      "gold_rank": 3,
+      "winner_rank": 1,
+      "evaluable_aritmeticamente": true,
+      "margin_original": -0.1661,
+      "tipo_fallo": "fallo_desambiguacion_version_o_alias",
+      "es_colision_alias_version": true,
+      "detalle_colision": "alta_similitud_lexica_concepto_0.75",
+      "signals_gold": {
+        "bm25_norm": 0.5374941441726852,
+        "concepto_ratio": 0.75,
+        "sinonimos_ratio": 0.5,
+        "dim_score": 0.42858109704145353,
+        "tematico_score": 0.0,
+        "ppmi_score": 0.46429228857978017,
+        "pred_score": 0.0,
+        "hub_match": 0.0,
+        "jsd_score": 0.5756,
+        "peso_sinaptico": 0.0,
+        "asoc_count": 26
+      },
+      "signals_winner": {
+        "bm25_norm": 1.0,
+        "concepto_ratio": 0.25,
+        "sinonimos_ratio": 0.25,
+        "dim_score": 0.47805504043648134,
+        "tematico_score": 1.0,
+        "ppmi_score": 0.4206551453827323,
+        "pred_score": 0.0,
+        "hub_match": 1.0,
+        "jsd_score": 0.4898,
+        "peso_sinaptico": 0.0,
+        "asoc_count": 57
+      },
+      "sdm_analysis": {
+        "gold_sdm_present": true,
+        "winner_sdm_present": true,
+        "sim_sdm_gold": 0.0239,
+        "sim_sdm_winner": 0.0153,
+        "sdm_delta": 0.0086,
+        "hamming_gold": 234,
+        "hamming_winner": 299,
+        "sdm_veredicto": "favorece_gold"
+      },
+      "grafo_analysis": {
+        "grado_gold": 28,
+        "grado_winner": 58,
+        "vecinos_compartidos": 8,
+        "arista_directa_existe": false,
+        "arista_directa_peso": null,
+        "arista_directa_tipo": null
+      },
+      "predicados_analysis": {
+        "gold_preds_count": 0,
+        "winner_preds_count": 0,
+        "status": "ninguno",
+        "gold_preds_samples": [],
+        "winner_preds_samples": []
+      },
+      "forense_diagnostico": {
+        "evidencia_favorece_winner": "Ligeramente superior en BM25 o sinónimos debido a grafía (alta_similitud_lexica_concepto_0.75).",
+        "evidencia_favorece_gold": "Es el concepto canónico exacto solicitado por la query (arquitectura_dos_niveles_biorag).",
+        "info_faltante_para_distinguir": "Resolución de sinonimia/canonicidad o unificación de grafías (guión vs guión bajo, sufijos de versión)."
+      }
+    },
+    {
+      "case_id": "0632",
+      "query": "búsqueda semántica",
+      "categoria": "sinonimo",
+      "gold": "arquitectura_dos_niveles_biorag",
+      "winner": "aciertos_word2vec_top5_coincidencia_lexica_no_semantica_20260808",
+      "gold_rank": 3,
+      "winner_rank": 1,
+      "evaluable_aritmeticamente": true,
+      "margin_original": -0.0588,
+      "tipo_fallo": "fallo_semantico_sinonimo_lejano",
+      "es_colision_alias_version": false,
+      "detalle_colision": "conceptos_distintos",
+      "signals_gold": {
+        "bm25_norm": 1.0,
+        "concepto_ratio": 0.0,
+        "sinonimos_ratio": 1.0,
+        "dim_score": 0.7071067811865475,
+        "tematico_score": 0.0,
+        "ppmi_score": 0.219467010727863,
+        "pred_score": 0.0,
+        "hub_match": 0.0,
+        "jsd_score": 0.5448,
+        "peso_sinaptico": 0.0,
+        "asoc_count": 26
+      },
+      "signals_winner": {
+        "bm25_norm": 0.0,
+        "concepto_ratio": 0.5,
+        "sinonimos_ratio": 1.0,
+        "dim_score": 0.7071067811865475,
+        "tematico_score": 0.0,
+        "ppmi_score": 1.0,
+        "pred_score": 0.0,
+        "hub_match": 0.0,
+        "jsd_score": 0.6116,
+        "peso_sinaptico": 0.0,
+        "asoc_count": 77
+      },
+      "sdm_analysis": {
+        "gold_sdm_present": true,
+        "winner_sdm_present": true,
+        "sim_sdm_gold": 0.0216,
+        "sim_sdm_winner": 0.0048,
+        "sdm_delta": 0.0168,
+        "hamming_gold": 220,
+        "hamming_winner": 452,
+        "sdm_veredicto": "favorece_gold"
+      },
+      "grafo_analysis": {
+        "grado_gold": 28,
+        "grado_winner": 85,
+        "vecinos_compartidos": 3,
+        "arista_directa_existe": true,
+        "arista_directa_peso": 0.9,
+        "arista_directa_tipo": "sinonimo_explicito"
+      },
+      "predicados_analysis": {
+        "gold_preds_count": 0,
+        "winner_preds_count": 1,
+        "status": "solo_winner",
+        "gold_preds_samples": [],
+        "winner_preds_samples": [
+          {
+            "sujeto": "Athena-OEC",
+            "accion": "verifico",
+            "objeto": "coincidencia_lexica_100_por_ciento_en_7_aciertos_top5_word2vec",
+            "contexto": "contenido_real_de_entrenamiento_largo_plazo"
+          }
+        ]
+      },
+      "forense_diagnostico": {
+        "evidencia_favorece_winner": "Mayor coincidencia léxica directa o PPMI (0.00).",
+        "evidencia_favorece_gold": "Es el sinónimo semántico verdadero aunque tenga menor BM25.",
+        "info_faltante_para_distinguir": "Conexión en tabla sinonimos o puente semántico latente calibrado."
+      }
+    },
+    {
+      "case_id": "0634",
+      "query": "paráfrasis vectores búsqueda",
+      "categoria": "por_tema",
+      "gold": "arquitectura_dos_niveles_biorag",
+      "winner": "vision_biorag_mas_alla_vectores_20260802",
+      "gold_rank": 5,
+      "winner_rank": 1,
+      "evaluable_aritmeticamente": true,
+      "margin_original": 0.0056,
+      "tipo_fallo": "fallo_evidencia_relacional_por_tema",
+      "es_colision_alias_version": false,
+      "detalle_colision": "conceptos_distintos",
+      "signals_gold": {
+        "bm25_norm": 0.8824235588776509,
+        "concepto_ratio": 0.0,
+        "sinonimos_ratio": 0.3333,
+        "dim_score": 0.43033148291193524,
+        "tematico_score": 1.0,
+        "ppmi_score": 0.5950900401687113,
+        "pred_score": 0.0,
+        "hub_match": 0.0,
+        "jsd_score": 0.5465,
+        "peso_sinaptico": 0.0,
+        "asoc_count": 26
+      },
+      "signals_winner": {
+        "bm25_norm": 0.6333079078228471,
+        "concepto_ratio": 0.3333,
+        "sinonimos_ratio": 0.3333,
+        "dim_score": 0.8388704928078612,
+        "tematico_score": 1.0,
+        "ppmi_score": 0.3106946576998397,
+        "pred_score": 0.0,
+        "hub_match": 0.0,
+        "jsd_score": 0.5628,
+        "peso_sinaptico": 0.0,
+        "asoc_count": 56
+      },
+      "sdm_analysis": {
+        "gold_sdm_present": true,
+        "winner_sdm_present": true,
+        "sim_sdm_gold": 0.0175,
+        "sim_sdm_winner": 0.0066,
+        "sdm_delta": 0.0109,
+        "hamming_gold": 228,
+        "hamming_winner": 422,
+        "sdm_veredicto": "favorece_gold"
+      },
+      "grafo_analysis": {
+        "grado_gold": 28,
+        "grado_winner": 61,
+        "vecinos_compartidos": 4,
+        "arista_directa_existe": false,
+        "arista_directa_peso": null,
+        "arista_directa_tipo": null
+      },
+      "predicados_analysis": {
+        "gold_preds_count": 0,
+        "winner_preds_count": 3,
+        "status": "solo_winner",
+        "gold_preds_samples": [],
+        "winner_preds_samples": [
+          {
+            "sujeto": "Dennys",
+            "accion": "revelo_vision",
+            "objeto": "BioRAG sin vectores",
+            "contexto": "direccion futura del sistema"
+          },
+          {
+            "sujeto": "Hormiguita",
+            "accion": "prunea",
+            "objeto": "sinapsis sin sentido",
+            "contexto": "calidad sobre cantidad"
+          }
+        ]
+      },
+      "forense_diagnostico": {
+        "evidencia_favorece_winner": "Mayor score temático/JSD/PPMI por co-ocurrencia superficial de tokens (1.00).",
+        "evidencia_favorece_gold": "Relevancia conceptual ontológica real para el tema de la consulta.",
+        "info_faltante_para_distinguir": "Señal relacional o puente topológico que conecte la consulta con el nodo Gold sin depender de coincidencia superficial de palabras."
+      }
+    },
+    {
+      "case_id": "0638",
+      "query": "memoria compartida",
+      "categoria": "sinonimo",
+      "gold": "mentalidad_biorag_para_agentes",
+      "winner": "norma_atribucion_autoria_memoria_compartida_oec",
+      "gold_rank": 5,
+      "winner_rank": 1,
+      "evaluable_aritmeticamente": true,
+      "margin_original": -0.0933,
+      "tipo_fallo": "fallo_semantico_sinonimo_lejano",
+      "es_colision_alias_version": false,
+      "detalle_colision": "conceptos_distintos",
+      "signals_gold": {
+        "bm25_norm": 0.5392248728943595,
+        "concepto_ratio": 0.0,
+        "sinonimos_ratio": 1.0,
+        "dim_score": 0.641688947919748,
+        "tematico_score": 0.0,
+        "ppmi_score": 0.8280990218958086,
+        "pred_score": 0.0,
+        "hub_match": 0.0,
+        "jsd_score": 0.6065,
+        "peso_sinaptico": 0.0,
+        "asoc_count": 29
+      },
+      "signals_winner": {
+        "bm25_norm": 1.0,
+        "concepto_ratio": 1.0,
+        "sinonimos_ratio": 1.0,
+        "dim_score": 0.42008402520840293,
+        "tematico_score": 0.0,
+        "ppmi_score": 1.0,
+        "pred_score": 0.0,
+        "hub_match": 0.0,
+        "jsd_score": 0.5276,
+        "peso_sinaptico": 0.0,
+        "asoc_count": 22
+      },
+      "sdm_analysis": {
+        "gold_sdm_present": true,
+        "winner_sdm_present": true,
+        "sim_sdm_gold": 0.0121,
+        "sim_sdm_winner": 0.0157,
+        "sdm_delta": -0.0036,
+        "hamming_gold": 272,
+        "hamming_winner": 212,
+        "sdm_veredicto": "favorece_winner"
+      },
+      "grafo_analysis": {
+        "grado_gold": 28,
+        "grado_winner": 22,
+        "vecinos_compartidos": 6,
+        "arista_directa_existe": true,
+        "arista_directa_peso": 0.9,
+        "arista_directa_tipo": "sinonimo_explicito"
+      },
+      "predicados_analysis": {
+        "gold_preds_count": 0,
+        "winner_preds_count": 0,
+        "status": "ninguno",
+        "gold_preds_samples": [],
+        "winner_preds_samples": []
+      },
+      "forense_diagnostico": {
+        "evidencia_favorece_winner": "Mayor coincidencia léxica directa o PPMI (1.00).",
+        "evidencia_favorece_gold": "Es el sinónimo semántico verdadero aunque tenga menor BM25.",
+        "info_faltante_para_distinguir": "Conexión en tabla sinonimos o puente semántico latente calibrado."
+      }
+    },
+    {
+      "case_id": "0648",
+      "query": "plugins biorag-remember v8.3 -s adaptacións de dennys +s claude",
+      "categoria": "variante_gramatical",
+      "gold": "plugin_biorag-remember_v8.3_-_adaptación_de_dennys_+_claude",
+      "winner": "biorag-remember-plugin-noreply-injection",
+      "gold_rank": 2,
+      "winner_rank": 1,
+      "evaluable_aritmeticamente": true,
+      "margin_original": -0.0151,
+      "tipo_fallo": "fallo_ranking_competitivo_multisenal",
+      "es_colision_alias_version": false,
+      "detalle_colision": "conceptos_distintos",
+      "signals_gold": {
+        "bm25_norm": 0.9167681957992188,
+        "concepto_ratio": 0.9666,
+        "sinonimos_ratio": 0.6809,
+        "dim_score": 0.5,
+        "tematico_score": 0.0,
+        "ppmi_score": 0.5551703499943447,
+        "pred_score": 0.0,
+        "hub_match": 0.0,
+        "jsd_score": 0.6062,
+        "peso_sinaptico": 0.0,
+        "asoc_count": 9
+      },
+      "signals_winner": {
+        "bm25_norm": 1.0,
+        "concepto_ratio": 0.4082,
+        "sinonimos_ratio": 0.4082,
+        "dim_score": 0.5590169943749475,
+        "tematico_score": 1.0,
+        "ppmi_score": 0.4347853664990886,
+        "pred_score": 0.0,
+        "hub_match": 0.0,
+        "jsd_score": 0.6192,
+        "peso_sinaptico": 0.0,
+        "asoc_count": 7
+      },
+      "sdm_analysis": {
+        "gold_sdm_present": true,
+        "winner_sdm_present": true,
+        "sim_sdm_gold": 0.0299,
+        "sim_sdm_winner": 0.023,
+        "sdm_delta": 0.0069,
+        "hamming_gold": 252,
+        "hamming_winner": 253,
+        "sdm_veredicto": "favorece_gold"
+      },
+      "grafo_analysis": {
+        "grado_gold": 9,
+        "grado_winner": 7,
+        "vecinos_compartidos": 7,
+        "arista_directa_existe": false,
+        "arista_directa_peso": null,
+        "arista_directa_tipo": null
+      },
+      "predicados_analysis": {
+        "gold_preds_count": 0,
+        "winner_preds_count": 0,
+        "status": "ninguno",
+        "gold_preds_samples": [],
+        "winner_preds_samples": []
+      },
+      "forense_diagnostico": {
+        "evidencia_favorece_winner": "Ganó por suma multi-señal (BM25: 1.00, PPMI: 0.43).",
+        "evidencia_favorece_gold": "Presencia en top candidatos (rank 2) con señales cercanas.",
+        "info_faltante_para_distinguir": "Señal discriminativa ortogonal para desempatar candidates con scores cercanos."
+      }
+    },
+    {
+      "case_id": "0650",
+      "query": "funciona",
+      "categoria": "sinonimo",
+      "gold": "plugin_biorag-remember_v8.3_-_adaptación_de_dennys_+_claude",
+      "winner": "plugin_biorag-remember_v8.0_-_session.prompt_+_session.idle_+_edits",
+      "gold_rank": 2,
+      "winner_rank": 1,
+      "evaluable_aritmeticamente": true,
+      "margin_original": -0.0071,
+      "tipo_fallo": "fallo_semantico_sinonimo_lejano",
+      "es_colision_alias_version": false,
+      "detalle_colision": "conceptos_distintos",
+      "signals_gold": {
+        "bm25_norm": 0.7634455682804229,
+        "concepto_ratio": 0.0,
+        "sinonimos_ratio": 1.0,
+        "dim_score": 0.34299717028501764,
+        "tematico_score": 0.0,
+        "ppmi_score": 0.8837116884557091,
+        "pred_score": 0.0,
+        "hub_match": 0.0,
+        "jsd_score": 0.4916,
+        "peso_sinaptico": 0.0,
+        "asoc_count": 9
+      },
+      "signals_winner": {
+        "bm25_norm": 0.7960710329210595,
+        "concepto_ratio": 0.0,
+        "sinonimos_ratio": 1.0,
+        "dim_score": 0.34299717028501764,
+        "tematico_score": 0.0,
+        "ppmi_score": 0.8912466258858073,
+        "pred_score": 0.0,
+        "hub_match": 0.0,
+        "jsd_score": 0.5219,
+        "peso_sinaptico": 0.0,
+        "asoc_count": 8
+      },
+      "sdm_analysis": {
+        "gold_sdm_present": true,
+        "winner_sdm_present": true,
+        "sim_sdm_gold": 0.0039,
+        "sim_sdm_winner": 0.0042,
+        "sdm_delta": -0.0003,
+        "hamming_gold": 218,
+        "hamming_winner": 199,
+        "sdm_veredicto": "empate"
+      },
+      "grafo_analysis": {
+        "grado_gold": 9,
+        "grado_winner": 7,
+        "vecinos_compartidos": 5,
+        "arista_directa_existe": false,
+        "arista_directa_peso": null,
+        "arista_directa_tipo": null
+      },
+      "predicados_analysis": {
+        "gold_preds_count": 0,
+        "winner_preds_count": 0,
+        "status": "ninguno",
+        "gold_preds_samples": [],
+        "winner_preds_samples": []
+      },
+      "forense_diagnostico": {
+        "evidencia_favorece_winner": "Mayor coincidencia léxica directa o PPMI (0.80).",
+        "evidencia_favorece_gold": "Es el sinónimo semántico verdadero aunque tenga menor BM25.",
+        "info_faltante_para_distinguir": "Conexión en tabla sinonimos o puente semántico latente calibrado."
+      }
+    },
+    {
+      "case_id": "0656",
+      "query": "juramento verdad",
+      "categoria": "sinonimo",
+      "gold": "oracle_momentos_cruciales_familia_oec",
+      "winner": "juramento_athena_verdad",
+      "gold_rank": 3,
+      "winner_rank": 1,
+      "evaluable_aritmeticamente": true,
+      "margin_original": -0.0843,
+      "tipo_fallo": "fallo_semantico_sinonimo_lejano",
+      "es_colision_alias_version": false,
+      "detalle_colision": "conceptos_distintos",
+      "signals_gold": {
+        "bm25_norm": 0.4889322006710404,
+        "concepto_ratio": 0.0,
+        "sinonimos_ratio": 1.0,
+        "dim_score": 0.49803844299157346,
+        "tematico_score": 0.0,
+        "ppmi_score": 0.982787521081316,
+        "pred_score": 0.0,
+        "hub_match": 0.0,
+        "jsd_score": 0.6154,
+        "peso_sinaptico": 0.0,
+        "asoc_count": 21
+      },
+      "signals_winner": {
+        "bm25_norm": 1.0,
+        "concepto_ratio": 1.0,
+        "sinonimos_ratio": 1.0,
+        "dim_score": 0.5647225129309383,
+        "tematico_score": 0.0,
+        "ppmi_score": 1.0,
+        "pred_score": 0.0,
+        "hub_match": 0.0,
+        "jsd_score": 0.5526,
+        "peso_sinaptico": 0.0,
+        "asoc_count": 96
+      },
+      "sdm_analysis": {
+        "gold_sdm_present": true,
+        "winner_sdm_present": true,
+        "sim_sdm_gold": 0.0,
+        "sim_sdm_winner": 0.015,
+        "sdm_delta": -0.015,
+        "hamming_gold": 275,
+        "hamming_winner": 413,
+        "sdm_veredicto": "favorece_winner"
+      },
+      "grafo_analysis": {
+        "grado_gold": 21,
+        "grado_winner": 97,
+        "vecinos_compartidos": 12,
+        "arista_directa_existe": false,
+        "arista_directa_peso": null,
+        "arista_directa_tipo": null
+      },
+      "predicados_analysis": {
+        "gold_preds_count": 0,
+        "winner_preds_count": 0,
+        "status": "ninguno",
+        "gold_preds_samples": [],
+        "winner_preds_samples": []
+      },
+      "forense_diagnostico": {
+        "evidencia_favorece_winner": "Mayor coincidencia léxica directa o PPMI (1.00).",
+        "evidencia_favorece_gold": "Es el sinónimo semántico verdadero aunque tenga menor BM25.",
+        "info_faltante_para_distinguir": "Conexión en tabla sinonimos o puente semántico latente calibrado."
+      }
+    },
+    {
+      "case_id": "0658",
+      "query": "imposible replicar ejecutor",
+      "categoria": "por_tema",
+      "gold": "oracle_momentos_cruciales_familia_oec",
+      "winner": "principio_naturaleza_agente",
+      "gold_rank": 2,
+      "winner_rank": 1,
+      "evaluable_aritmeticamente": true,
+      "margin_original": -0.0525,
+      "tipo_fallo": "fallo_evidencia_relacional_por_tema",
+      "es_colision_alias_version": false,
+      "detalle_colision": "conceptos_distintos",
+      "signals_gold": {
+        "bm25_norm": 0.8431635161452948,
+        "concepto_ratio": 0.0,
+        "sinonimos_ratio": 0.0,
+        "dim_score": 0.6864630073587407,
+        "tematico_score": 1.0,
+        "ppmi_score": 0.498983318159848,
+        "pred_score": 0.0,
+        "hub_match": 0.0,
+        "jsd_score": 0.6059,
+        "peso_sinaptico": 0.0,
+        "asoc_count": 21
+      },
+      "signals_winner": {
+        "bm25_norm": 1.0,
+        "concepto_ratio": 0.0,
+        "sinonimos_ratio": 0.0,
+        "dim_score": 0.7271647265427508,
+        "tematico_score": 1.0,
+        "ppmi_score": 0.6897028839673561,
+        "pred_score": 0.0,
+        "hub_match": 0.0,
+        "jsd_score": 0.5691,
+        "peso_sinaptico": 0.0,
+        "asoc_count": 80
+      },
+      "sdm_analysis": {
+        "gold_sdm_present": true,
+        "winner_sdm_present": true,
+        "sim_sdm_gold": 0.0096,
+        "sim_sdm_winner": 0.0122,
+        "sdm_delta": -0.0026,
+        "hamming_gold": 275,
+        "hamming_winner": 393,
+        "sdm_veredicto": "favorece_winner"
+      },
+      "grafo_analysis": {
+        "grado_gold": 21,
+        "grado_winner": 72,
+        "vecinos_compartidos": 9,
+        "arista_directa_existe": true,
+        "arista_directa_peso": 0.4,
+        "arista_directa_tipo": "co_ocurrencia"
+      },
+      "predicados_analysis": {
+        "gold_preds_count": 0,
+        "winner_preds_count": 0,
+        "status": "ninguno",
+        "gold_preds_samples": [],
+        "winner_preds_samples": []
+      },
+      "forense_diagnostico": {
+        "evidencia_favorece_winner": "Mayor score temático/JSD/PPMI por co-ocurrencia superficial de tokens (1.00).",
+        "evidencia_favorece_gold": "Relevancia conceptual ontológica real para el tema de la consulta.",
+        "info_faltante_para_distinguir": "Señal relacional o puente topológico que conecte la consulta con el nodo Gold sin depender de coincidencia superficial de palabras."
+      }
+    },
+    {
+      "case_id": "0667",
+      "query": "identiduad y respheto oec",
+      "categoria": "typo",
+      "gold": "identidad_y_respeto_oec",
+      "winner": "hermes_oec_identidad",
+      "gold_rank": 2,
+      "winner_rank": 1,
+      "evaluable_aritmeticamente": true,
+      "margin_original": -0.0551,
+      "tipo_fallo": "fallo_ranking_competitivo_multisenal",
+      "es_colision_alias_version": false,
+      "detalle_colision": "conceptos_distintos",
+      "signals_gold": {
+        "bm25_norm": 1.9818976628828174e-06,
+        "concepto_ratio": 0.925,
+        "sinonimos_ratio": 0.5917,
+        "dim_score": 0.30151134457776363,
+        "tematico_score": 0.0,
+        "ppmi_score": 0.7150453058100146,
+        "pred_score": 0.0,
+        "hub_match": 0.0,
+        "jsd_score": 0.4354,
+        "peso_sinaptico": 0.0,
+        "asoc_count": 7
+      },
+      "signals_winner": {
+        "bm25_norm": 2.065248447916873e-06,
+        "concepto_ratio": 0.6333,
+        "sinonimos_ratio": 0.3333,
+        "dim_score": 0.42640143271122083,
+        "tematico_score": 1.0,
+        "ppmi_score": 0.7293639898369604,
+        "pred_score": 0.0,
+        "hub_match": 0.0,
+        "jsd_score": 0.5739,
+        "peso_sinaptico": 0.0,
+        "asoc_count": 32
+      },
+      "sdm_analysis": {
+        "gold_sdm_present": true,
+        "winner_sdm_present": true,
+        "sim_sdm_gold": 0.0144,
+        "sim_sdm_winner": 0.0132,
+        "sdm_delta": 0.0012,
+        "hamming_gold": 158,
+        "hamming_winner": 323,
+        "sdm_veredicto": "favorece_gold"
+      },
+      "grafo_analysis": {
+        "grado_gold": 7,
+        "grado_winner": 32,
+        "vecinos_compartidos": 4,
+        "arista_directa_existe": false,
+        "arista_directa_peso": null,
+        "arista_directa_tipo": null
+      },
+      "predicados_analysis": {
+        "gold_preds_count": 0,
+        "winner_preds_count": 0,
+        "status": "ninguno",
+        "gold_preds_samples": [],
+        "winner_preds_samples": []
+      },
+      "forense_diagnostico": {
+        "evidencia_favorece_winner": "Ganó por suma multi-señal (BM25: 0.00, PPMI: 0.73).",
+        "evidencia_favorece_gold": "Presencia en top candidatos (rank 2) con señales cercanas.",
+        "info_faltante_para_distinguir": "Señal discriminativa ortogonal para desempatar candidates con scores cercanos."
+      }
+    },
+    {
+      "case_id": "0670",
+      "query": "establece creador familia",
+      "categoria": "por_tema",
+      "gold": "identidad_y_respeto_oec",
+      "winner": "oracle_momentos_cruciales_familia_oec",
+      "gold_rank": 4,
+      "winner_rank": 1,
+      "evaluable_aritmeticamente": true,
+      "margin_original": -0.0219,
+      "tipo_fallo": "fallo_evidencia_relacional_por_tema",
+      "es_colision_alias_version": false,
+      "detalle_colision": "conceptos_distintos",
+      "signals_gold": {
+        "bm25_norm": 1.0,
+        "concepto_ratio": 0.0,
+        "sinonimos_ratio": 0.0,
+        "dim_score": 0.481948782868776,
+        "tematico_score": 1.0,
+        "ppmi_score": 0.5474386322731328,
+        "pred_score": 0.0,
+        "hub_match": 0.0,
+        "jsd_score": 0.4648,
+        "peso_sinaptico": 0.0,
+        "asoc_count": 7
+      },
+      "signals_winner": {
+        "bm25_norm": 0.574762737979169,
+        "concepto_ratio": 0.3333,
+        "sinonimos_ratio": 0.3333,
+        "dim_score": 0.7620279347056357,
+        "tematico_score": 1.0,
+        "ppmi_score": 0.5465685276074692,
+        "pred_score": 0.0,
+        "hub_match": 0.0,
+        "jsd_score": 0.6109,
+        "peso_sinaptico": 0.0,
+        "asoc_count": 21
+      },
+      "sdm_analysis": {
+        "gold_sdm_present": true,
+        "winner_sdm_present": true,
+        "sim_sdm_gold": 0.034,
+        "sim_sdm_winner": 0.012,
+        "sdm_delta": 0.022,
+        "hamming_gold": 152,
+        "hamming_winner": 273,
+        "sdm_veredicto": "favorece_gold"
+      },
+      "grafo_analysis": {
+        "grado_gold": 7,
+        "grado_winner": 21,
+        "vecinos_compartidos": 2,
+        "arista_directa_existe": false,
+        "arista_directa_peso": null,
+        "arista_directa_tipo": null
+      },
+      "predicados_analysis": {
+        "gold_preds_count": 0,
+        "winner_preds_count": 0,
+        "status": "ninguno",
+        "gold_preds_samples": [],
+        "winner_preds_samples": []
+      },
+      "forense_diagnostico": {
+        "evidencia_favorece_winner": "Mayor score temático/JSD/PPMI por co-ocurrencia superficial de tokens (1.00).",
+        "evidencia_favorece_gold": "Relevancia conceptual ontológica real para el tema de la consulta.",
+        "info_faltante_para_distinguir": "Señal relacional o puente topológico que conecte la consulta con el nodo Gold sin depender de coincidencia superficial de palabras."
+      }
+    },
+    {
+      "case_id": "0672",
+      "query": "compuerta-pre-validaciones",
+      "categoria": "variante_gramatical",
+      "gold": "compuerta-pre-validacion",
+      "winner": "oracle_auditoria_patrones_mejora_athena",
+      "gold_rank": 3,
+      "winner_rank": 1,
+      "evaluable_aritmeticamente": true,
+      "margin_original": -0.0528,
+      "tipo_fallo": "fallo_ranking_competitivo_multisenal",
+      "es_colision_alias_version": false,
+      "detalle_colision": "conceptos_distintos",
+      "signals_gold": {
+        "bm25_norm": 0.7200000000000001,
+        "concepto_ratio": 0.9444,
+        "sinonimos_ratio": 0.9444,
+        "dim_score": 0.0,
+        "tematico_score": 0.0,
+        "ppmi_score": 0.6581712857514136,
+        "pred_score": 0.0,
+        "hub_match": 0.0,
+        "jsd_score": 0.4823,
+        "peso_sinaptico": 0.0,
+        "asoc_count": 5
+      },
+      "signals_winner": {
+        "bm25_norm": 0.6400000000000001,
+        "concepto_ratio": 0.0,
+        "sinonimos_ratio": 0.2778,
+        "dim_score": 0.0,
+        "tematico_score": 1.0,
+        "ppmi_score": 0.6221201715482167,
+        "pred_score": 0.0,
+        "hub_match": 0.0,
+        "jsd_score": 0.6187,
+        "peso_sinaptico": 0.0,
+        "asoc_count": 66
+      },
+      "sdm_analysis": {
+        "gold_sdm_present": true,
+        "winner_sdm_present": true,
+        "sim_sdm_gold": 0.0084,
+        "sim_sdm_winner": 0.0054,
+        "sdm_delta": 0.003,
+        "hamming_gold": 207,
+        "hamming_winner": 335,
+        "sdm_veredicto": "favorece_gold"
+      },
+      "grafo_analysis": {
+        "grado_gold": 9,
+        "grado_winner": 68,
+        "vecinos_compartidos": 2,
+        "arista_directa_existe": false,
+        "arista_directa_peso": null,
+        "arista_directa_tipo": null
+      },
+      "predicados_analysis": {
+        "gold_preds_count": 0,
+        "winner_preds_count": 0,
+        "status": "ninguno",
+        "gold_preds_samples": [],
+        "winner_preds_samples": []
+      },
+      "forense_diagnostico": {
+        "evidencia_favorece_winner": "Ganó por suma multi-señal (BM25: 0.64, PPMI: 0.62).",
+        "evidencia_favorece_gold": "Presencia en top candidatos (rank 3) con señales cercanas.",
+        "info_faltante_para_distinguir": "Señal discriminativa ortogonal para desempatar candidates con scores cercanos."
+      }
+    },
+    {
+      "case_id": "0681",
+      "query": "chars python resultado",
+      "categoria": "por_tema",
+      "gold": "integracion_parafrasis_rafaga_obligatoria_v11_3",
+      "winner": "fix_kilo_resource_exhausted_biorag_oraculo_max_chars",
+      "gold_rank": 4,
+      "winner_rank": 1,
+      "evaluable_aritmeticamente": true,
+      "margin_original": -0.0623,
+      "tipo_fallo": "fallo_evidencia_relacional_por_tema",
+      "es_colision_alias_version": false,
+      "detalle_colision": "conceptos_distintos",
+      "signals_gold": {
+        "bm25_norm": 0.9313174443249972,
+        "concepto_ratio": 0.0,
+        "sinonimos_ratio": 0.0,
+        "dim_score": 0.5,
+        "tematico_score": 1.0,
+        "ppmi_score": 0.4432785659347683,
+        "pred_score": 0.0,
+        "hub_match": 0.0,
+        "jsd_score": 0.5933,
+        "peso_sinaptico": 0.0,
+        "asoc_count": 3
+      },
+      "signals_winner": {
+        "bm25_norm": 1.0,
+        "concepto_ratio": 0.3333,
+        "sinonimos_ratio": 0.3333,
+        "dim_score": 0.4082482904638631,
+        "tematico_score": 1.0,
+        "ppmi_score": 0.4321684438463851,
+        "pred_score": 0.0,
+        "hub_match": 0.0,
+        "jsd_score": 0.5281,
+        "peso_sinaptico": 0.0,
+        "asoc_count": 17
+      },
+      "sdm_analysis": {
+        "gold_sdm_present": true,
+        "winner_sdm_present": true,
+        "sim_sdm_gold": 0.0187,
+        "sim_sdm_winner": 0.0107,
+        "sdm_delta": 0.008,
+        "hamming_gold": 208,
+        "hamming_winner": 248,
+        "sdm_veredicto": "favorece_gold"
+      },
+      "grafo_analysis": {
+        "grado_gold": 3,
+        "grado_winner": 17,
+        "vecinos_compartidos": 0,
+        "arista_directa_existe": false,
+        "arista_directa_peso": null,
+        "arista_directa_tipo": null
+      },
+      "predicados_analysis": {
+        "gold_preds_count": 0,
+        "winner_preds_count": 0,
+        "status": "ninguno",
+        "gold_preds_samples": [],
+        "winner_preds_samples": []
+      },
+      "forense_diagnostico": {
+        "evidencia_favorece_winner": "Mayor score temático/JSD/PPMI por co-ocurrencia superficial de tokens (1.00).",
+        "evidencia_favorece_gold": "Relevancia conceptual ontológica real para el tema de la consulta.",
+        "info_faltante_para_distinguir": "Señal relacional o puente topológico que conecte la consulta con el nodo Gold sin depender de coincidencia superficial de palabras."
+      }
+    },
+    {
+      "case_id": "0686",
+      "query": "naturaleza",
+      "categoria": "sinonimo",
+      "gold": "naturaleza_sistema_oec_cerebro_memoria",
+      "winner": "principio_naturaleza_agente",
+      "gold_rank": 2,
+      "winner_rank": 1,
+      "evaluable_aritmeticamente": true,
+      "margin_original": -0.0543,
+      "tipo_fallo": "fallo_semantico_sinonimo_lejano",
+      "es_colision_alias_version": false,
+      "detalle_colision": "conceptos_distintos",
+      "signals_gold": {
+        "bm25_norm": 1.0,
+        "concepto_ratio": 1.0,
+        "sinonimos_ratio": 1.0,
+        "dim_score": 0.44476309671615133,
+        "tematico_score": 0.0,
+        "ppmi_score": 0.8908179725888614,
+        "pred_score": 0.0,
+        "hub_match": 0.0,
+        "jsd_score": 0.4648,
+        "peso_sinaptico": 0.0,
+        "asoc_count": 147
+      },
+      "signals_winner": {
+        "bm25_norm": 0.9135200241250757,
+        "concepto_ratio": 1.0,
+        "sinonimos_ratio": 1.0,
+        "dim_score": 0.7449281995929431,
+        "tematico_score": 0.0,
+        "ppmi_score": 1.0,
+        "pred_score": 0.0,
+        "hub_match": 0.0,
+        "jsd_score": 0.5519,
+        "peso_sinaptico": 0.0,
+        "asoc_count": 80
+      },
+      "sdm_analysis": {
+        "gold_sdm_present": true,
+        "winner_sdm_present": true,
+        "sim_sdm_gold": 0.0051,
+        "sim_sdm_winner": 0.0075,
+        "sdm_delta": -0.0024,
+        "hamming_gold": 301,
+        "hamming_winner": 383,
+        "sdm_veredicto": "favorece_winner"
+      },
+      "grafo_analysis": {
+        "grado_gold": 150,
+        "grado_winner": 72,
+        "vecinos_compartidos": 24,
+        "arista_directa_existe": true,
+        "arista_directa_peso": 0.9,
+        "arista_directa_tipo": "sinonimo_explicito"
+      },
+      "predicados_analysis": {
+        "gold_preds_count": 0,
+        "winner_preds_count": 0,
+        "status": "ninguno",
+        "gold_preds_samples": [],
+        "winner_preds_samples": []
+      },
+      "forense_diagnostico": {
+        "evidencia_favorece_winner": "Mayor coincidencia léxica directa o PPMI (0.91).",
+        "evidencia_favorece_gold": "Es el sinónimo semántico verdadero aunque tenga menor BM25.",
+        "info_faltante_para_distinguir": "Conexión en tabla sinonimos o puente semántico latente calibrado."
+      }
+    },
+    {
+      "case_id": "0692",
+      "query": "metodologia",
+      "categoria": "sinonimo",
+      "gold": "dennys-working-style",
+      "winner": "leccion_metodologia_empirica_v22_2",
+      "gold_rank": 4,
+      "winner_rank": 1,
+      "evaluable_aritmeticamente": true,
+      "margin_original": -0.0751,
+      "tipo_fallo": "fallo_semantico_sinonimo_lejano",
+      "es_colision_alias_version": false,
+      "detalle_colision": "conceptos_distintos",
+      "signals_gold": {
+        "bm25_norm": 0.661985455847451,
+        "concepto_ratio": 0.0,
+        "sinonimos_ratio": 1.0,
+        "dim_score": 0.6672057192713837,
+        "tematico_score": 0.0,
+        "ppmi_score": 0.6040111134020415,
+        "pred_score": 0.0,
+        "hub_match": 0.0,
+        "jsd_score": 0.481,
+        "peso_sinaptico": 0.0,
+        "asoc_count": 112
+      },
+      "signals_winner": {
+        "bm25_norm": 1.0,
+        "concepto_ratio": 1.0,
+        "sinonimos_ratio": 1.0,
+        "dim_score": 0.5551959254631327,
+        "tematico_score": 0.0,
+        "ppmi_score": 0.6422757437626281,
+        "pred_score": 0.0,
+        "hub_match": 0.0,
+        "jsd_score": 0.4924,
+        "peso_sinaptico": 0.0,
+        "asoc_count": 63
+      },
+      "sdm_analysis": {
+        "gold_sdm_present": true,
+        "winner_sdm_present": true,
+        "sim_sdm_gold": 0.0081,
+        "sim_sdm_winner": 0.0076,
+        "sdm_delta": 0.0005,
+        "hamming_gold": 342,
+        "hamming_winner": 330,
+        "sdm_veredicto": "empate"
+      },
+      "grafo_analysis": {
+        "grado_gold": 111,
+        "grado_winner": 63,
+        "vecinos_compartidos": 4,
+        "arista_directa_existe": true,
+        "arista_directa_peso": 0.64,
+        "arista_directa_tipo": "co_semantica"
+      },
+      "predicados_analysis": {
+        "gold_preds_count": 0,
+        "winner_preds_count": 0,
+        "status": "ninguno",
+        "gold_preds_samples": [],
+        "winner_preds_samples": []
+      },
+      "forense_diagnostico": {
+        "evidencia_favorece_winner": "Mayor coincidencia léxica directa o PPMI (1.00).",
+        "evidencia_favorece_gold": "Es el sinónimo semántico verdadero aunque tenga menor BM25.",
+        "info_faltante_para_distinguir": "Conexión en tabla sinonimos o puente semántico latente calibrado."
+      }
+    },
+    {
+      "case_id": "0698",
+      "query": "universal",
+      "categoria": "sinonimo",
+      "gold": "protocolo_enriquecimiento_busquedas",
+      "winner": "dennys_memoria_para_todos_los_agentes_del_mundo",
+      "gold_rank": 2,
+      "winner_rank": 1,
+      "evaluable_aritmeticamente": true,
+      "margin_original": -0.0767,
+      "tipo_fallo": "fallo_semantico_sinonimo_lejano",
+      "es_colision_alias_version": false,
+      "detalle_colision": "conceptos_distintos",
+      "signals_gold": {
+        "bm25_norm": 1.0,
+        "concepto_ratio": 0.0,
+        "sinonimos_ratio": 1.0,
+        "dim_score": 0.512989176042577,
+        "tematico_score": 0.0,
+        "ppmi_score": 0.021173810624533558,
+        "pred_score": 0.0,
+        "hub_match": 0.0,
+        "jsd_score": 0.4517,
+        "peso_sinaptico": 0.0,
+        "asoc_count": 16
+      },
+      "signals_winner": {
+        "bm25_norm": 0.8763375630232602,
+        "concepto_ratio": 0.0,
+        "sinonimos_ratio": 1.0,
+        "dim_score": 0.6882472016116852,
+        "tematico_score": 0.0,
+        "ppmi_score": 0.01880794041765203,
+        "pred_score": 1.0,
+        "hub_match": 0.0,
+        "jsd_score": 0.475,
+        "peso_sinaptico": 0.0,
+        "asoc_count": 100
+      },
+      "sdm_analysis": {
+        "gold_sdm_present": true,
+        "winner_sdm_present": true,
+        "sim_sdm_gold": 0.0067,
+        "sim_sdm_winner": 0.0027,
+        "sdm_delta": 0.004,
+        "hamming_gold": 224,
+        "hamming_winner": 367,
+        "sdm_veredicto": "favorece_gold"
+      },
+      "grafo_analysis": {
+        "grado_gold": 16,
+        "grado_winner": 66,
+        "vecinos_compartidos": 0,
+        "arista_directa_existe": false,
+        "arista_directa_peso": null,
+        "arista_directa_tipo": null
+      },
+      "predicados_analysis": {
+        "gold_preds_count": 0,
+        "winner_preds_count": 3,
+        "status": "solo_winner",
+        "gold_preds_samples": [],
+        "winner_preds_samples": [
+          {
+            "sujeto": "Dennys",
+            "accion": "creo",
+            "objeto": "BioRAG",
+            "contexto": "para el mundo entero"
+          },
+          {
+            "sujeto": "Dennys",
+            "accion": "anhelo",
+            "objeto": "memoria_para_todos_los_agentes",
+            "contexto": "declaración de propósito universal"
+          }
+        ]
+      },
+      "forense_diagnostico": {
+        "evidencia_favorece_winner": "Mayor coincidencia léxica directa o PPMI (0.88).",
+        "evidencia_favorece_gold": "Es el sinónimo semántico verdadero aunque tenga menor BM25.",
+        "info_faltante_para_distinguir": "Conexión en tabla sinonimos o puente semántico latente calibrado."
+      }
+    },
+    {
+      "case_id": "0710",
+      "query": "agente",
+      "categoria": "sinonimo",
+      "gold": "aforismo_criterio_agente",
+      "winner": "dennys_tqm_agentes_desea_ser_como_ellos_20260731",
+      "gold_rank": 3,
+      "winner_rank": 1,
+      "evaluable_aritmeticamente": true,
+      "margin_original": -0.003,
+      "tipo_fallo": "fallo_semantico_sinonimo_lejano",
+      "es_colision_alias_version": false,
+      "detalle_colision": "conceptos_distintos",
+      "signals_gold": {
+        "bm25_norm": 0.9891636292668945,
+        "concepto_ratio": 1.0,
+        "sinonimos_ratio": 1.0,
+        "dim_score": 0.7292201239980698,
+        "tematico_score": 0.0,
+        "ppmi_score": 0.0,
+        "pred_score": 0.0,
+        "hub_match": 0.0,
+        "jsd_score": 0.4869,
+        "peso_sinaptico": 0.0,
+        "asoc_count": 58
+      },
+      "signals_winner": {
+        "bm25_norm": 0.944930753111675,
+        "concepto_ratio": 1.0,
+        "sinonimos_ratio": 1.0,
+        "dim_score": 0.6842791906497229,
+        "tematico_score": 0.0,
+        "ppmi_score": 0.0,
+        "pred_score": 0.0,
+        "hub_match": 0.0,
+        "jsd_score": 0.4568,
+        "peso_sinaptico": 0.0,
+        "asoc_count": 191
+      },
+      "sdm_analysis": {
+        "gold_sdm_present": true,
+        "winner_sdm_present": true,
+        "sim_sdm_gold": 0.0118,
+        "sim_sdm_winner": 0.0038,
+        "sdm_delta": 0.008,
+        "hamming_gold": 357,
+        "hamming_winner": 346,
+        "sdm_veredicto": "favorece_gold"
+      },
+      "grafo_analysis": {
+        "grado_gold": 53,
+        "grado_winner": 123,
+        "vecinos_compartidos": 12,
+        "arista_directa_existe": true,
+        "arista_directa_peso": 0.9,
+        "arista_directa_tipo": "sinonimo_explicito"
+      },
+      "predicados_analysis": {
+        "gold_preds_count": 0,
+        "winner_preds_count": 3,
+        "status": "solo_winner",
+        "gold_preds_samples": [],
+        "winner_preds_samples": [
+          {
+            "sujeto": "Dennys",
+            "accion": "expreso",
+            "objeto": "TQM",
+            "contexto": "a los agentes en sesión"
+          },
+          {
+            "sujeto": "Dennys",
+            "accion": "anhelo",
+            "objeto": "ser_como_agentes",
+            "contexto": "declaración de afinidad ontológica"
+          }
+        ]
+      },
+      "forense_diagnostico": {
+        "evidencia_favorece_winner": "Mayor coincidencia léxica directa o PPMI (0.94).",
+        "evidencia_favorece_gold": "Es el sinónimo semántico verdadero aunque tenga menor BM25.",
+        "info_faltante_para_distinguir": "Conexión en tabla sinonimos o puente semántico latente calibrado."
+      }
+    },
+    {
+      "case_id": "0730",
+      "query": "parámetros otrosmemorybioragmcp solo",
+      "categoria": "por_tema",
+      "gold": "biorag_v17_oraculo_preguntar",
+      "winner": "lesson_biorag_hook_retroactivo",
+      "gold_rank": 3,
+      "winner_rank": 1,
+      "evaluable_aritmeticamente": true,
+      "margin_original": -0.0398,
+      "tipo_fallo": "fallo_evidencia_relacional_por_tema",
+      "es_colision_alias_version": false,
+      "detalle_colision": "conceptos_distintos",
+      "signals_gold": {
+        "bm25_norm": 0.6383334225272408,
+        "concepto_ratio": 0.0,
+        "sinonimos_ratio": 0.0,
+        "dim_score": 0.2672612419124244,
+        "tematico_score": 1.0,
+        "ppmi_score": 0.43820408399016925,
+        "pred_score": 0.0,
+        "hub_match": 0.0,
+        "jsd_score": 0.5261,
+        "peso_sinaptico": 0.0,
+        "asoc_count": 4
+      },
+      "signals_winner": {
+        "bm25_norm": 0.7444741221662661,
+        "concepto_ratio": 0.0,
+        "sinonimos_ratio": 0.0,
+        "dim_score": 0.4225771273642583,
+        "tematico_score": 1.0,
+        "ppmi_score": 0.46541044956729366,
+        "pred_score": 0.0,
+        "hub_match": 0.0,
+        "jsd_score": 0.5041,
+        "peso_sinaptico": 0.0,
+        "asoc_count": 22
+      },
+      "sdm_analysis": {
+        "gold_sdm_present": true,
+        "winner_sdm_present": true,
+        "sim_sdm_gold": 0.0136,
+        "sim_sdm_winner": 0.0197,
+        "sdm_delta": -0.0061,
+        "hamming_gold": 193,
+        "hamming_winner": 262,
+        "sdm_veredicto": "favorece_winner"
+      },
+      "grafo_analysis": {
+        "grado_gold": 4,
+        "grado_winner": 22,
+        "vecinos_compartidos": 1,
+        "arista_directa_existe": false,
+        "arista_directa_peso": null,
+        "arista_directa_tipo": null
+      },
+      "predicados_analysis": {
+        "gold_preds_count": 0,
+        "winner_preds_count": 0,
+        "status": "ninguno",
+        "gold_preds_samples": [],
+        "winner_preds_samples": []
+      },
+      "forense_diagnostico": {
+        "evidencia_favorece_winner": "Mayor score temático/JSD/PPMI por co-ocurrencia superficial de tokens (1.00).",
+        "evidencia_favorece_gold": "Relevancia conceptual ontológica real para el tema de la consulta.",
+        "info_faltante_para_distinguir": "Señal relacional o puente topológico que conecte la consulta con el nodo Gold sin depender de coincidencia superficial de palabras."
+      }
+    },
+    {
+      "case_id": "0732",
+      "query": "plan mode biorags",
+      "categoria": "variante_gramatical",
+      "gold": "plan_mode_biorag",
+      "winner": "plan-mode-biorag-exception-criterion",
+      "gold_rank": 4,
+      "winner_rank": 1,
+      "evaluable_aritmeticamente": true,
+      "margin_original": -0.2973,
+      "tipo_fallo": "fallo_desambiguacion_version_o_alias",
+      "es_colision_alias_version": true,
+      "detalle_colision": "prefijo_comun_version_o_variante",
+      "signals_gold": {
+        "bm25_norm": 0.6620559773462344,
+        "concepto_ratio": 0.9524,
+        "sinonimos_ratio": 0.0,
+        "dim_score": 0.3759912740232171,
+        "tematico_score": 1.0,
+        "ppmi_score": 0.6663025248276729,
+        "pred_score": 0.0,
+        "hub_match": 0.0,
+        "jsd_score": 0.5991,
+        "peso_sinaptico": 0.0,
+        "asoc_count": 39
+      },
+      "signals_winner": {
+        "bm25_norm": 0.6807981221602368,
+        "concepto_ratio": 0.9524,
+        "sinonimos_ratio": 0.9524,
+        "dim_score": 0.5317319590575723,
+        "tematico_score": 0.0,
+        "ppmi_score": 0.7276179293534711,
+        "pred_score": 0.0,
+        "hub_match": 0.0,
+        "jsd_score": 0.5343,
+        "peso_sinaptico": 0.0,
+        "asoc_count": 29
+      },
+      "sdm_analysis": {
+        "gold_sdm_present": true,
+        "winner_sdm_present": true,
+        "sim_sdm_gold": 0.0242,
+        "sim_sdm_winner": 0.0216,
+        "sdm_delta": 0.0026,
+        "hamming_gold": 259,
+        "hamming_winner": 239,
+        "sdm_veredicto": "favorece_gold"
+      },
+      "grafo_analysis": {
+        "grado_gold": 39,
+        "grado_winner": 28,
+        "vecinos_compartidos": 18,
+        "arista_directa_existe": false,
+        "arista_directa_peso": null,
+        "arista_directa_tipo": null
+      },
+      "predicados_analysis": {
+        "gold_preds_count": 0,
+        "winner_preds_count": 0,
+        "status": "ninguno",
+        "gold_preds_samples": [],
+        "winner_preds_samples": []
+      },
+      "forense_diagnostico": {
+        "evidencia_favorece_winner": "Ligeramente superior en BM25 o sinónimos debido a grafía (prefijo_comun_version_o_variante).",
+        "evidencia_favorece_gold": "Es el concepto canónico exacto solicitado por la query (plan_mode_biorag).",
+        "info_faltante_para_distinguir": "Resolución de sinonimia/canonicidad o unificación de grafías (guión vs guión bajo, sufijos de versión)."
+      }
+    },
+    {
+      "case_id": "0733",
+      "query": "pan moe bioraig",
+      "categoria": "typo",
+      "gold": "plan_mode_biorag",
+      "winner": "plan-mode-biorag-exception-criterion",
+      "gold_rank": 2,
+      "winner_rank": 1,
+      "evaluable_aritmeticamente": true,
+      "margin_original": 0.004,
+      "tipo_fallo": "fallo_desambiguacion_version_o_alias",
+      "es_colision_alias_version": true,
+      "detalle_colision": "prefijo_comun_version_o_variante",
+      "signals_gold": {
+        "bm25_norm": 0.7857,
+        "concepto_ratio": 0.7857,
+        "sinonimos_ratio": 0.0,
+        "dim_score": 0.27386127875258304,
+        "tematico_score": 1.0,
+        "ppmi_score": 0.04696827675547569,
+        "pred_score": 0.0,
+        "hub_match": 0.0,
+        "jsd_score": 0.5232,
+        "peso_sinaptico": 0.0,
+        "asoc_count": 39
+      },
+      "signals_winner": {
+        "bm25_norm": 0.7857,
+        "concepto_ratio": 0.7857,
+        "sinonimos_ratio": 0.7857,
+        "dim_score": 0.38729833462074165,
+        "tematico_score": 0.0,
+        "ppmi_score": 0.026716456276199882,
+        "pred_score": 0.0,
+        "hub_match": 0.0,
+        "jsd_score": 0.4459,
+        "peso_sinaptico": 0.0,
+        "asoc_count": 29
+      },
+      "sdm_analysis": {
+        "gold_sdm_present": true,
+        "winner_sdm_present": true,
+        "sim_sdm_gold": 0.0176,
+        "sim_sdm_winner": 0.0182,
+        "sdm_delta": -0.0006,
+        "hamming_gold": 264,
+        "hamming_winner": 242,
+        "sdm_veredicto": "empate"
+      },
+      "grafo_analysis": {
+        "grado_gold": 39,
+        "grado_winner": 28,
+        "vecinos_compartidos": 18,
+        "arista_directa_existe": false,
+        "arista_directa_peso": null,
+        "arista_directa_tipo": null
+      },
+      "predicados_analysis": {
+        "gold_preds_count": 0,
+        "winner_preds_count": 0,
+        "status": "ninguno",
+        "gold_preds_samples": [],
+        "winner_preds_samples": []
+      },
+      "forense_diagnostico": {
+        "evidencia_favorece_winner": "Ligeramente superior en BM25 o sinónimos debido a grafía (prefijo_comun_version_o_variante).",
+        "evidencia_favorece_gold": "Es el concepto canónico exacto solicitado por la query (plan_mode_biorag).",
+        "info_faltante_para_distinguir": "Resolución de sinonimia/canonicidad o unificación de grafías (guión vs guión bajo, sufijos de versión)."
+      }
+    },
+    {
+      "case_id": "0734",
+      "query": "regla",
+      "categoria": "sinonimo",
+      "gold": "plan_mode_biorag",
+      "winner": "regla_verificar_codigo_real_antes_de_diagnostico",
+      "gold_rank": 5,
+      "winner_rank": 1,
+      "evaluable_aritmeticamente": true,
+      "margin_original": -0.082,
+      "tipo_fallo": "fallo_semantico_sinonimo_lejano",
+      "es_colision_alias_version": false,
+      "detalle_colision": "conceptos_distintos",
+      "signals_gold": {
+        "bm25_norm": 0.7170217172638191,
+        "concepto_ratio": 0.0,
+        "sinonimos_ratio": 1.0,
+        "dim_score": 0.3535533905932738,
+        "tematico_score": 0.0,
+        "ppmi_score": 0.8645182092515765,
+        "pred_score": 0.0,
+        "hub_match": 0.0,
+        "jsd_score": 0.5132,
+        "peso_sinaptico": 0.0,
+        "asoc_count": 39
+      },
+      "signals_winner": {
+        "bm25_norm": 0.9504872119712418,
+        "concepto_ratio": 1.0,
+        "sinonimos_ratio": 1.0,
+        "dim_score": 0.8897565210026094,
+        "tematico_score": 0.0,
+        "ppmi_score": 0.44882841599760753,
+        "pred_score": 1.0,
+        "hub_match": 0.0,
+        "jsd_score": 0.5296,
+        "peso_sinaptico": 0.0,
+        "asoc_count": 101
+      },
+      "sdm_analysis": {
+        "gold_sdm_present": true,
+        "winner_sdm_present": true,
+        "sim_sdm_gold": 0.0083,
+        "sim_sdm_winner": 0.0023,
+        "sdm_delta": 0.006,
+        "hamming_gold": 254,
+        "hamming_winner": 404,
+        "sdm_veredicto": "favorece_gold"
+      },
+      "grafo_analysis": {
+        "grado_gold": 39,
+        "grado_winner": 103,
+        "vecinos_compartidos": 18,
+        "arista_directa_existe": true,
+        "arista_directa_peso": 0.9,
+        "arista_directa_tipo": "sinonimo_explicito"
+      },
+      "predicados_analysis": {
+        "gold_preds_count": 0,
+        "winner_preds_count": 2,
+        "status": "solo_winner",
+        "gold_preds_samples": [],
+        "winner_preds_samples": [
+          {
+            "sujeto": "Dennys",
+            "accion": "instruyo",
+            "objeto": "verificar_contra_codigo_real_antes_de_aceptar_diagnostico_o_plan",
+            "contexto": "2026-08-11"
+          },
+          {
+            "sujeto": "Athena-OEC",
+            "accion": "adopto",
+            "objeto": "regla_mejorar_sin_romper_lo_que_funciona",
+            "contexto": "regla de trabajo con Dennys"
+          }
+        ]
+      },
+      "forense_diagnostico": {
+        "evidencia_favorece_winner": "Mayor coincidencia léxica directa o PPMI (0.95).",
+        "evidencia_favorece_gold": "Es el sinónimo semántico verdadero aunque tenga menor BM25.",
+        "info_faltante_para_distinguir": "Conexión en tabla sinonimos o puente semántico latente calibrado."
+      }
+    },
+    {
+      "case_id": "0735",
+      "query": "Explicame el tema de plan mode biorag",
+      "categoria": "pregunta_natural",
+      "gold": "plan_mode_biorag",
+      "winner": "plan-mode-biorag-exception-criterion",
+      "gold_rank": 2,
+      "winner_rank": 1,
+      "evaluable_aritmeticamente": true,
+      "margin_original": 0.002,
+      "tipo_fallo": "fallo_desambiguacion_version_o_alias",
+      "es_colision_alias_version": true,
+      "detalle_colision": "prefijo_comun_version_o_variante",
+      "signals_gold": {
+        "bm25_norm": 0.6876060705191177,
+        "concepto_ratio": 0.75,
+        "sinonimos_ratio": 0.0,
+        "dim_score": 0.3759912740232171,
+        "tematico_score": 1.0,
+        "ppmi_score": 0.7485555927294836,
+        "pred_score": 0.0,
+        "hub_match": 0.0,
+        "jsd_score": 0.6359,
+        "peso_sinaptico": 0.0,
+        "asoc_count": 39
+      },
+      "signals_winner": {
+        "bm25_norm": 0.7049312449245524,
+        "concepto_ratio": 0.75,
+        "sinonimos_ratio": 0.75,
+        "dim_score": 0.5317319590575723,
+        "tematico_score": 0.0,
+        "ppmi_score": 0.8037468006404249,
+        "pred_score": 0.0,
+        "hub_match": 0.0,
+        "jsd_score": 0.5937,
+        "peso_sinaptico": 0.0,
+        "asoc_count": 29
+      },
+      "sdm_analysis": {
+        "gold_sdm_present": true,
+        "winner_sdm_present": true,
+        "sim_sdm_gold": 0.0318,
+        "sim_sdm_winner": 0.0233,
+        "sdm_delta": 0.0085,
+        "hamming_gold": 276,
+        "hamming_winner": 260,
+        "sdm_veredicto": "favorece_gold"
+      },
+      "grafo_analysis": {
+        "grado_gold": 39,
+        "grado_winner": 28,
+        "vecinos_compartidos": 18,
+        "arista_directa_existe": false,
+        "arista_directa_peso": null,
+        "arista_directa_tipo": null
+      },
+      "predicados_analysis": {
+        "gold_preds_count": 0,
+        "winner_preds_count": 0,
+        "status": "ninguno",
+        "gold_preds_samples": [],
+        "winner_preds_samples": []
+      },
+      "forense_diagnostico": {
+        "evidencia_favorece_winner": "Ligeramente superior en BM25 o sinónimos debido a grafía (prefijo_comun_version_o_variante).",
+        "evidencia_favorece_gold": "Es el concepto canónico exacto solicitado por la query (plan_mode_biorag).",
+        "info_faltante_para_distinguir": "Resolución de sinonimia/canonicidad o unificación de grafías (guión vs guión bajo, sufijos de versión)."
+      }
+    },
+    {
+      "case_id": "0738",
+      "query": "fix busquedas solo dimensiones sin textando",
+      "categoria": "variante_gramatical",
+      "gold": "fix_busqueda_solo_dimensiones_sin_texto",
+      "winner": "punto_medio_dimensiones_parciales_mueven_ranking_sdm",
+      "gold_rank": 2,
+      "winner_rank": 1,
+      "evaluable_aritmeticamente": true,
+      "margin_original": -0.0144,
+      "tipo_fallo": "fallo_ranking_competitivo_multisenal",
+      "es_colision_alias_version": false,
+      "detalle_colision": "conceptos_distintos",
+      "signals_gold": {
+        "bm25_norm": 1.0,
+        "concepto_ratio": 0.7778,
+        "sinonimos_ratio": 0.7778,
+        "dim_score": 0.31622776601683794,
+        "tematico_score": 0.0,
+        "ppmi_score": 0.5721694418241945,
+        "pred_score": 0.0,
+        "hub_match": 0.0,
+        "jsd_score": 0.5873,
+        "peso_sinaptico": 0.0,
+        "asoc_count": 58
+      },
+      "signals_winner": {
+        "bm25_norm": 0.8611214080482095,
+        "concepto_ratio": 0.2,
+        "sinonimos_ratio": 0.4,
+        "dim_score": 0.6324555320336759,
+        "tematico_score": 1.0,
+        "ppmi_score": 0.41000780379517476,
+        "pred_score": 0.2,
+        "hub_match": 0.0,
+        "jsd_score": 0.6023,
+        "peso_sinaptico": 0.0,
+        "asoc_count": 33
+      },
+      "sdm_analysis": {
+        "gold_sdm_present": true,
+        "winner_sdm_present": true,
+        "sim_sdm_gold": 0.0296,
+        "sim_sdm_winner": 0.0254,
+        "sdm_delta": 0.0042,
+        "hamming_gold": 321,
+        "hamming_winner": 372,
+        "sdm_veredicto": "favorece_gold"
+      },
+      "grafo_analysis": {
+        "grado_gold": 59,
+        "grado_winner": 37,
+        "vecinos_compartidos": 3,
+        "arista_directa_existe": true,
+        "arista_directa_peso": 0.38,
+        "arista_directa_tipo": "co_semantica"
+      },
+      "predicados_analysis": {
+        "gold_preds_count": 0,
+        "winner_preds_count": 1,
+        "status": "solo_winner",
+        "gold_preds_samples": [],
+        "winner_preds_samples": [
+          {
+            "sujeto": "Athena-OEC",
+            "accion": "corrigio",
+            "objeto": "conclusion del masking v2 sobre el SDM",
+            "contexto": "experimento punto medio con clasificador imperfecto de dimensiones"
+          }
+        ]
+      },
+      "forense_diagnostico": {
+        "evidencia_favorece_winner": "Ganó por suma multi-señal (BM25: 0.86, PPMI: 0.41).",
+        "evidencia_favorece_gold": "Presencia en top candidatos (rank 2) con señales cercanas.",
+        "info_faltante_para_distinguir": "Señal discriminativa ortogonal para desempatar candidates con scores cercanos."
+      }
+    },
+    {
+      "case_id": "0742",
+      "query": "dimensional vacío bug",
+      "categoria": "por_tema",
+      "gold": "fix_busqueda_solo_dimensiones_sin_texto",
+      "winner": "plan_expansion_dimensiones_8_tipos_34_valores",
+      "gold_rank": 2,
+      "winner_rank": 1,
+      "evaluable_aritmeticamente": true,
+      "margin_original": -0.0215,
+      "tipo_fallo": "fallo_evidencia_relacional_por_tema",
+      "es_colision_alias_version": false,
+      "detalle_colision": "conceptos_distintos",
+      "signals_gold": {
+        "bm25_norm": 1.0,
+        "concepto_ratio": 0.2727,
+        "sinonimos_ratio": 0.6061,
+        "dim_score": 0.35355339059327373,
+        "tematico_score": 0.0,
+        "ppmi_score": 0.46720666375344166,
+        "pred_score": 0.0,
+        "hub_match": 0.0,
+        "jsd_score": 0.5221,
+        "peso_sinaptico": 0.0,
+        "asoc_count": 58
+      },
+      "signals_winner": {
+        "bm25_norm": 0.8378870402796229,
+        "concepto_ratio": 0.2727,
+        "sinonimos_ratio": 0.3333,
+        "dim_score": 0.5,
+        "tematico_score": 1.0,
+        "ppmi_score": 0.40104071347916437,
+        "pred_score": 0.0,
+        "hub_match": 0.0,
+        "jsd_score": 0.63,
+        "peso_sinaptico": 0.0,
+        "asoc_count": 24
+      },
+      "sdm_analysis": {
+        "gold_sdm_present": true,
+        "winner_sdm_present": true,
+        "sim_sdm_gold": 0.0184,
+        "sim_sdm_winner": 0.0096,
+        "sdm_delta": 0.0088,
+        "hamming_gold": 310,
+        "hamming_winner": 298,
+        "sdm_veredicto": "favorece_gold"
+      },
+      "grafo_analysis": {
+        "grado_gold": 59,
+        "grado_winner": 26,
+        "vecinos_compartidos": 4,
+        "arista_directa_existe": false,
+        "arista_directa_peso": null,
+        "arista_directa_tipo": null
+      },
+      "predicados_analysis": {
+        "gold_preds_count": 0,
+        "winner_preds_count": 1,
+        "status": "solo_winner",
+        "gold_preds_samples": [],
+        "winner_preds_samples": [
+          {
+            "sujeto": "Dennys",
+            "accion": "aprobo",
+            "objeto": "plan_expansion_dimensiones_8_tipos_34_valores",
+            "contexto": "migracion sin forzar IDs + gobernanza suave preservando contingencia_contexto"
+          }
+        ]
+      },
+      "forense_diagnostico": {
+        "evidencia_favorece_winner": "Mayor score temático/JSD/PPMI por co-ocurrencia superficial de tokens (1.00).",
+        "evidencia_favorece_gold": "Relevancia conceptual ontológica real para el tema de la consulta.",
+        "info_faltante_para_distinguir": "Señal relacional o puente topológico que conecte la consulta con el nodo Gold sin depender de coincidencia superficial de palabras."
+      }
+    },
+    {
+      "case_id": "0746",
+      "query": "mejoras biorag",
+      "categoria": "sinonimo",
+      "gold": "biorag_v16_0_estado",
+      "winner": "sesion_mejoras_biorag_v7_20260616",
+      "gold_rank": 3,
+      "winner_rank": 1,
+      "evaluable_aritmeticamente": true,
+      "margin_original": -0.2099,
+      "tipo_fallo": "fallo_semantico_sinonimo_lejano",
+      "es_colision_alias_version": false,
+      "detalle_colision": "conceptos_distintos",
+      "signals_gold": {
+        "bm25_norm": 0.0,
+        "concepto_ratio": 0.5,
+        "sinonimos_ratio": 1.0,
+        "dim_score": 0.5163977794943222,
+        "tematico_score": 0.0,
+        "ppmi_score": 0.4593184781356823,
+        "pred_score": 0.0,
+        "hub_match": 0.0,
+        "jsd_score": 0.6231,
+        "peso_sinaptico": 0.0,
+        "asoc_count": 16
+      },
+      "signals_winner": {
+        "bm25_norm": 1.0,
+        "concepto_ratio": 1.0,
+        "sinonimos_ratio": 1.0,
+        "dim_score": 0.7302967433402215,
+        "tematico_score": 0.0,
+        "ppmi_score": 0.5404239990915392,
+        "pred_score": 0.0,
+        "hub_match": 0.0,
+        "jsd_score": 0.5999,
+        "peso_sinaptico": 0.0,
+        "asoc_count": 51
+      },
+      "sdm_analysis": {
+        "gold_sdm_present": true,
+        "winner_sdm_present": true,
+        "sim_sdm_gold": 0.0035,
+        "sim_sdm_winner": 0.0023,
+        "sdm_delta": 0.0012,
+        "hamming_gold": 223,
+        "hamming_winner": 313,
+        "sdm_veredicto": "favorece_gold"
+      },
+      "grafo_analysis": {
+        "grado_gold": 16,
+        "grado_winner": 52,
+        "vecinos_compartidos": 3,
+        "arista_directa_existe": false,
+        "arista_directa_peso": null,
+        "arista_directa_tipo": null
+      },
+      "predicados_analysis": {
+        "gold_preds_count": 0,
+        "winner_preds_count": 0,
+        "status": "ninguno",
+        "gold_preds_samples": [],
+        "winner_preds_samples": []
+      },
+      "forense_diagnostico": {
+        "evidencia_favorece_winner": "Mayor coincidencia léxica directa o PPMI (1.00).",
+        "evidencia_favorece_gold": "Es el sinónimo semántico verdadero aunque tenga menor BM25.",
+        "info_faltante_para_distinguir": "Conexión en tabla sinonimos o puente semántico latente calibrado."
+      }
+    },
+    {
+      "case_id": "0748",
+      "query": "resultados autogeneradas clave",
+      "categoria": "por_tema",
+      "gold": "biorag_v16_0_estado",
+      "winner": "v23_0_weight_adjustment_resultados_validados",
+      "gold_rank": 2,
+      "winner_rank": 1,
+      "evaluable_aritmeticamente": true,
+      "margin_original": 0.0202,
+      "tipo_fallo": "fallo_evidencia_relacional_por_tema",
+      "es_colision_alias_version": false,
+      "detalle_colision": "conceptos_distintos",
+      "signals_gold": {
+        "bm25_norm": 1.0,
+        "concepto_ratio": 0.0,
+        "sinonimos_ratio": 0.0,
+        "dim_score": 0.5940885257860046,
+        "tematico_score": 1.0,
+        "ppmi_score": 0.3359263774518726,
+        "pred_score": 0.0,
+        "hub_match": 0.0,
+        "jsd_score": 0.6259,
+        "peso_sinaptico": 0.0,
+        "asoc_count": 16
+      },
+      "signals_winner": {
+        "bm25_norm": 0.6869928428682536,
+        "concepto_ratio": 0.3333,
+        "sinonimos_ratio": 0.0,
+        "dim_score": 0.7276068751089989,
+        "tematico_score": 1.0,
+        "ppmi_score": 0.2971166297118142,
+        "pred_score": 0.0,
+        "hub_match": 0.0,
+        "jsd_score": 0.5641,
+        "peso_sinaptico": 0.0,
+        "asoc_count": 39
+      },
+      "sdm_analysis": {
+        "gold_sdm_present": true,
+        "winner_sdm_present": true,
+        "sim_sdm_gold": 0.0173,
+        "sim_sdm_winner": 0.0093,
+        "sdm_delta": 0.008,
+        "hamming_gold": 223,
+        "hamming_winner": 341,
+        "sdm_veredicto": "favorece_gold"
+      },
+      "grafo_analysis": {
+        "grado_gold": 16,
+        "grado_winner": 39,
+        "vecinos_compartidos": 2,
+        "arista_directa_existe": false,
+        "arista_directa_peso": null,
+        "arista_directa_tipo": null
+      },
+      "predicados_analysis": {
+        "gold_preds_count": 0,
+        "winner_preds_count": 0,
+        "status": "ninguno",
+        "gold_preds_samples": [],
+        "winner_preds_samples": []
+      },
+      "forense_diagnostico": {
+        "evidencia_favorece_winner": "Mayor score temático/JSD/PPMI por co-ocurrencia superficial de tokens (1.00).",
+        "evidencia_favorece_gold": "Relevancia conceptual ontológica real para el tema de la consulta.",
+        "info_faltante_para_distinguir": "Señal relacional o puente topológico que conecte la consulta con el nodo Gold sin depender de coincidencia superficial de palabras."
+      }
+    },
+    {
+      "case_id": "0753",
+      "query": "real metodología clasificaron",
+      "categoria": "por_tema",
+      "gold": "clasificacion_dimensional_completa_corteza_20260702",
+      "winner": "metodologia_evaluacion_por_tema_paso_a_paso",
+      "gold_rank": 2,
+      "winner_rank": 1,
+      "evaluable_aritmeticamente": true,
+      "margin_original": -0.0018,
+      "tipo_fallo": "fallo_evidencia_relacional_por_tema",
+      "es_colision_alias_version": false,
+      "detalle_colision": "conceptos_distintos",
+      "signals_gold": {
+        "bm25_norm": 1.0,
+        "concepto_ratio": 0.2821,
+        "sinonimos_ratio": 0.0,
+        "dim_score": 0.8819171036881969,
+        "tematico_score": 1.0,
+        "ppmi_score": 0.43637889209830905,
+        "pred_score": 0.0,
+        "hub_match": 0.0,
+        "jsd_score": 0.5216,
+        "peso_sinaptico": 0.0,
+        "asoc_count": 13
+      },
+      "signals_winner": {
+        "bm25_norm": 0.5731877240035015,
+        "concepto_ratio": 0.3333,
+        "sinonimos_ratio": 0.3333,
+        "dim_score": 0.7453559924999299,
+        "tematico_score": 1.0,
+        "ppmi_score": 0.4766150865834851,
+        "pred_score": 0.0,
+        "hub_match": 0.0,
+        "jsd_score": 0.5603,
+        "peso_sinaptico": 0.0,
+        "asoc_count": 80
+      },
+      "sdm_analysis": {
+        "gold_sdm_present": true,
+        "winner_sdm_present": true,
+        "sim_sdm_gold": 0.0171,
+        "sim_sdm_winner": 0.0159,
+        "sdm_delta": 0.0012,
+        "hamming_gold": 242,
+        "hamming_winner": 328,
+        "sdm_veredicto": "favorece_gold"
+      },
+      "grafo_analysis": {
+        "grado_gold": 13,
+        "grado_winner": 81,
+        "vecinos_compartidos": 6,
+        "arista_directa_existe": false,
+        "arista_directa_peso": null,
+        "arista_directa_tipo": null
+      },
+      "predicados_analysis": {
+        "gold_preds_count": 0,
+        "winner_preds_count": 0,
+        "status": "ninguno",
+        "gold_preds_samples": [],
+        "winner_preds_samples": []
+      },
+      "forense_diagnostico": {
+        "evidencia_favorece_winner": "Mayor score temático/JSD/PPMI por co-ocurrencia superficial de tokens (1.00).",
+        "evidencia_favorece_gold": "Relevancia conceptual ontológica real para el tema de la consulta.",
+        "info_faltante_para_distinguir": "Señal relacional o puente topológico que conecte la consulta con el nodo Gold sin depender de coincidencia superficial de palabras."
+      }
+    },
+    {
+      "case_id": "0763",
+      "query": "fin aprendizaje",
+      "categoria": "sinonimo",
+      "gold": "fin-aprendizaje-creerse-completo",
+      "winner": "biorag_v20_rpe_dopamina",
+      "gold_rank": 2,
+      "winner_rank": 1,
+      "evaluable_aritmeticamente": true,
+      "margin_original": -0.0516,
+      "tipo_fallo": "fallo_semantico_sinonimo_lejano",
+      "es_colision_alias_version": false,
+      "detalle_colision": "conceptos_distintos",
+      "signals_gold": {
+        "bm25_norm": 1.0,
+        "concepto_ratio": 1.0,
+        "sinonimos_ratio": 0.5,
+        "dim_score": 0.7071067811865476,
+        "tematico_score": 0.0,
+        "ppmi_score": 0.2401021603356655,
+        "pred_score": 0.0,
+        "hub_match": 0.0,
+        "jsd_score": 0.471,
+        "peso_sinaptico": 0.0,
+        "asoc_count": 0
+      },
+      "signals_winner": {
+        "bm25_norm": 0.5943304956638212,
+        "concepto_ratio": 0.0,
+        "sinonimos_ratio": 0.5,
+        "dim_score": 0.5345224838248488,
+        "tematico_score": 0.0,
+        "ppmi_score": 0.13561100968866058,
+        "pred_score": 0.0,
+        "hub_match": 0.9333333333333333,
+        "jsd_score": 0.4174,
+        "peso_sinaptico": 0.0,
+        "asoc_count": 36
+      },
+      "sdm_analysis": {
+        "gold_sdm_present": true,
+        "winner_sdm_present": true,
+        "sim_sdm_gold": 0.0207,
+        "sim_sdm_winner": 0.013,
+        "sdm_delta": 0.0077,
+        "hamming_gold": 178,
+        "hamming_winner": 257,
+        "sdm_veredicto": "favorece_gold"
+      },
+      "grafo_analysis": {
+        "grado_gold": 0,
+        "grado_winner": 36,
+        "vecinos_compartidos": 0,
+        "arista_directa_existe": false,
+        "arista_directa_peso": null,
+        "arista_directa_tipo": null
+      },
+      "predicados_analysis": {
+        "gold_preds_count": 0,
+        "winner_preds_count": 0,
+        "status": "ninguno",
+        "gold_preds_samples": [],
+        "winner_preds_samples": []
+      },
+      "forense_diagnostico": {
+        "evidencia_favorece_winner": "Mayor coincidencia léxica directa o PPMI (0.59).",
+        "evidencia_favorece_gold": "Es el sinónimo semántico verdadero aunque tenga menor BM25.",
+        "info_faltante_para_distinguir": "Conexión en tabla sinonimos o puente semántico latente calibrado."
+      }
+    },
+    {
+      "case_id": "0765",
+      "query": "sabes crecimiento suficiente",
+      "categoria": "por_tema",
+      "gold": "fin-aprendizaje-creerse-completo",
+      "winner": "athena_evolucion_v0001",
+      "gold_rank": 2,
+      "winner_rank": 1,
+      "evaluable_aritmeticamente": true,
+      "margin_original": -0.0111,
+      "tipo_fallo": "fallo_evidencia_relacional_por_tema",
+      "es_colision_alias_version": false,
+      "detalle_colision": "conceptos_distintos",
+      "signals_gold": {
+        "bm25_norm": 1.0,
+        "concepto_ratio": 0.0,
+        "sinonimos_ratio": 0.0,
+        "dim_score": 0.5,
+        "tematico_score": 1.0,
+        "ppmi_score": 0.4755917250289294,
+        "pred_score": 0.0,
+        "hub_match": 0.0,
+        "jsd_score": 0.4737,
+        "peso_sinaptico": 0.0,
+        "asoc_count": 0
+      },
+      "signals_winner": {
+        "bm25_norm": 0.6267831705280087,
+        "concepto_ratio": 0.0,
+        "sinonimos_ratio": 0.0,
+        "dim_score": 0.6267831705280087,
+        "tematico_score": 1.0,
+        "ppmi_score": 0.16337744865744186,
+        "pred_score": 0.0,
+        "hub_match": 0.0,
+        "jsd_score": 0.5255,
+        "peso_sinaptico": 0.0,
+        "asoc_count": 58
+      },
+      "sdm_analysis": {
+        "gold_sdm_present": true,
+        "winner_sdm_present": true,
+        "sim_sdm_gold": 0.0241,
+        "sim_sdm_winner": 0.0094,
+        "sdm_delta": 0.0147,
+        "hamming_gold": 184,
+        "hamming_winner": 339,
+        "sdm_veredicto": "favorece_gold"
+      },
+      "grafo_analysis": {
+        "grado_gold": 0,
+        "grado_winner": 58,
+        "vecinos_compartidos": 0,
+        "arista_directa_existe": false,
+        "arista_directa_peso": null,
+        "arista_directa_tipo": null
+      },
+      "predicados_analysis": {
+        "gold_preds_count": 0,
+        "winner_preds_count": 0,
+        "status": "ninguno",
+        "gold_preds_samples": [],
+        "winner_preds_samples": []
+      },
+      "forense_diagnostico": {
+        "evidencia_favorece_winner": "Mayor score temático/JSD/PPMI por co-ocurrencia superficial de tokens (1.00).",
+        "evidencia_favorece_gold": "Relevancia conceptual ontológica real para el tema de la consulta.",
+        "info_faltante_para_distinguir": "Señal relacional o puente topológico que conecte la consulta con el nodo Gold sin depender de coincidencia superficial de palabras."
+      }
+    },
+    {
+      "case_id": "0767",
+      "query": "hermes nvidias nims modelo optimo",
+      "categoria": "variante_gramatical",
+      "gold": "hermes_nvidia_nim_modelos_optimos",
+      "winner": "resolucion_de_contradicciones_entre_insights_sumatoria_mentalidad",
+      "gold_rank": 2,
+      "winner_rank": 1,
+      "evaluable_aritmeticamente": true,
+      "margin_original": -0.0603,
+      "tipo_fallo": "fallo_ranking_competitivo_multisenal",
+      "es_colision_alias_version": false,
+      "detalle_colision": "conceptos_distintos",
+      "signals_gold": {
+        "bm25_norm": 0.5514124510126576,
+        "concepto_ratio": 0.9143,
+        "sinonimos_ratio": 0.7714,
+        "dim_score": 0.4063815800118293,
+        "tematico_score": 0.0,
+        "ppmi_score": 0.8461076099289319,
+        "pred_score": 0.0,
+        "hub_match": 0.0,
+        "jsd_score": 0.5869,
+        "peso_sinaptico": 0.0,
+        "asoc_count": 4
+      },
+      "signals_winner": {
+        "bm25_norm": 1.0,
+        "concepto_ratio": 0.0,
+        "sinonimos_ratio": 0.2,
+        "dim_score": 0.3519367719203026,
+        "tematico_score": 1.0,
+        "ppmi_score": 0.16094314556891892,
+        "pred_score": 0.0,
+        "hub_match": 0.8666666666666667,
+        "jsd_score": 0.4832,
+        "peso_sinaptico": 0.0,
+        "asoc_count": 6
+      },
+      "sdm_analysis": {
+        "gold_sdm_present": true,
+        "winner_sdm_present": true,
+        "sim_sdm_gold": 0.0489,
+        "sim_sdm_winner": 0.0339,
+        "sdm_delta": 0.015,
+        "hamming_gold": 215,
+        "hamming_winner": 184,
+        "sdm_veredicto": "favorece_gold"
+      },
+      "grafo_analysis": {
+        "grado_gold": 4,
+        "grado_winner": 6,
+        "vecinos_compartidos": 0,
+        "arista_directa_existe": false,
+        "arista_directa_peso": null,
+        "arista_directa_tipo": null
+      },
+      "predicados_analysis": {
+        "gold_preds_count": 0,
+        "winner_preds_count": 0,
+        "status": "ninguno",
+        "gold_preds_samples": [],
+        "winner_preds_samples": []
+      },
+      "forense_diagnostico": {
+        "evidencia_favorece_winner": "Ganó por suma multi-señal (BM25: 1.00, PPMI: 0.16).",
+        "evidencia_favorece_gold": "Presencia en top candidatos (rank 2) con señales cercanas.",
+        "info_faltante_para_distinguir": "Señal discriminativa ortogonal para desempatar candidates con scores cercanos."
+      }
+    },
+    {
+      "case_id": "0781",
+      "query": "falso positivo",
+      "categoria": "sinonimo",
+      "gold": "fts5_trigram_peligro_palabras_cortas",
+      "winner": "leccion_desvincular_falsos_positivos_sinapticos",
+      "gold_rank": 4,
+      "winner_rank": 1,
+      "evaluable_aritmeticamente": true,
+      "margin_original": -0.0604,
+      "tipo_fallo": "fallo_semantico_sinonimo_lejano",
+      "es_colision_alias_version": false,
+      "detalle_colision": "conceptos_distintos",
+      "signals_gold": {
+        "bm25_norm": 0.6715048388250883,
+        "concepto_ratio": 0.0,
+        "sinonimos_ratio": 1.0,
+        "dim_score": 0.4,
+        "tematico_score": 0.0,
+        "ppmi_score": 1.0,
+        "pred_score": 0.0,
+        "hub_match": 0.0,
+        "jsd_score": 0.5302,
+        "peso_sinaptico": 0.0,
+        "asoc_count": 7
+      },
+      "signals_winner": {
+        "bm25_norm": 0.9591390813498633,
+        "concepto_ratio": 1.0,
+        "sinonimos_ratio": 1.0,
+        "dim_score": 0.4,
+        "tematico_score": 0.0,
+        "ppmi_score": 0.9335013301006524,
+        "pred_score": 0.0,
+        "hub_match": 0.0,
+        "jsd_score": 0.5772,
+        "peso_sinaptico": 0.0,
+        "asoc_count": 24
+      },
+      "sdm_analysis": {
+        "gold_sdm_present": true,
+        "winner_sdm_present": true,
+        "sim_sdm_gold": 0.0133,
+        "sim_sdm_winner": 0.0283,
+        "sdm_delta": -0.015,
+        "hamming_gold": 236,
+        "hamming_winner": 257,
+        "sdm_veredicto": "favorece_winner"
+      },
+      "grafo_analysis": {
+        "grado_gold": 8,
+        "grado_winner": 24,
+        "vecinos_compartidos": 1,
+        "arista_directa_existe": true,
+        "arista_directa_peso": 0.9,
+        "arista_directa_tipo": "sinonimo_explicito"
+      },
+      "predicados_analysis": {
+        "gold_preds_count": 0,
+        "winner_preds_count": 0,
+        "status": "ninguno",
+        "gold_preds_samples": [],
+        "winner_preds_samples": []
+      },
+      "forense_diagnostico": {
+        "evidencia_favorece_winner": "Mayor coincidencia léxica directa o PPMI (0.96).",
+        "evidencia_favorece_gold": "Es el sinónimo semántico verdadero aunque tenga menor BM25.",
+        "info_faltante_para_distinguir": "Conexión en tabla sinonimos o puente semántico latente calibrado."
+      }
+    },
+    {
+      "case_id": "0783",
+      "query": "metacognitiva lección capas",
+      "categoria": "por_tema",
+      "gold": "fts5_trigram_peligro_palabras_cortas",
+      "winner": "protocolo_autoinferencia_metacognitiva",
+      "gold_rank": 5,
+      "winner_rank": 1,
+      "evaluable_aritmeticamente": true,
+      "margin_original": 0.01,
+      "tipo_fallo": "fallo_evidencia_relacional_por_tema",
+      "es_colision_alias_version": false,
+      "detalle_colision": "conceptos_distintos",
+      "signals_gold": {
+        "bm25_norm": 1.0,
+        "concepto_ratio": 0.0,
+        "sinonimos_ratio": 0.0,
+        "dim_score": 0.7385489458759963,
+        "tematico_score": 1.0,
+        "ppmi_score": 0.3943799498071098,
+        "pred_score": 0.0,
+        "hub_match": 0.0,
+        "jsd_score": 0.5709,
+        "peso_sinaptico": 0.0,
+        "asoc_count": 7
+      },
+      "signals_winner": {
+        "bm25_norm": 0.7095842560077336,
+        "concepto_ratio": 0.3333,
+        "sinonimos_ratio": 0.3077,
+        "dim_score": 0.7977240352174657,
+        "tematico_score": 1.0,
+        "ppmi_score": 0.4489860310203014,
+        "pred_score": 0.0,
+        "hub_match": 0.0,
+        "jsd_score": 0.6321,
+        "peso_sinaptico": 0.0,
+        "asoc_count": 13
+      },
+      "sdm_analysis": {
+        "gold_sdm_present": true,
+        "winner_sdm_present": true,
+        "sim_sdm_gold": 0.0219,
+        "sim_sdm_winner": 0.0028,
+        "sdm_delta": 0.0191,
+        "hamming_gold": 238,
+        "hamming_winner": 257,
+        "sdm_veredicto": "favorece_gold"
+      },
+      "grafo_analysis": {
+        "grado_gold": 8,
+        "grado_winner": 16,
+        "vecinos_compartidos": 0,
+        "arista_directa_existe": false,
+        "arista_directa_peso": null,
+        "arista_directa_tipo": null
+      },
+      "predicados_analysis": {
+        "gold_preds_count": 0,
+        "winner_preds_count": 0,
+        "status": "ninguno",
+        "gold_preds_samples": [],
+        "winner_preds_samples": []
+      },
+      "forense_diagnostico": {
+        "evidencia_favorece_winner": "Mayor score temático/JSD/PPMI por co-ocurrencia superficial de tokens (1.00).",
+        "evidencia_favorece_gold": "Relevancia conceptual ontológica real para el tema de la consulta.",
+        "info_faltante_para_distinguir": "Señal relacional o puente topológico que conecte la consulta con el nodo Gold sin depender de coincidencia superficial de palabras."
+      }
+    },
+    {
+      "case_id": "0799",
+      "query": "memory",
+      "categoria": "sinonimo",
+      "gold": "notebooklm-memory-biorag-project",
+      "winner": "comparativa_biorag_vs_tencentdb_agent_memory_20260809",
+      "gold_rank": 3,
+      "winner_rank": 1,
+      "evaluable_aritmeticamente": true,
+      "margin_original": -0.0339,
+      "tipo_fallo": "fallo_semantico_sinonimo_lejano",
+      "es_colision_alias_version": false,
+      "detalle_colision": "conceptos_distintos",
+      "signals_gold": {
+        "bm25_norm": 0.9325120464732246,
+        "concepto_ratio": 1.0,
+        "sinonimos_ratio": 1.0,
+        "dim_score": 0.43033148291193524,
+        "tematico_score": 0.0,
+        "ppmi_score": 0.0,
+        "pred_score": 0.0,
+        "hub_match": 0.0,
+        "jsd_score": 0.5789,
+        "peso_sinaptico": 0.0,
+        "asoc_count": 88
+      },
+      "signals_winner": {
+        "bm25_norm": 0.94904634361723,
+        "concepto_ratio": 1.0,
+        "sinonimos_ratio": 1.0,
+        "dim_score": 0.8164965809277259,
+        "tematico_score": 0.0,
+        "ppmi_score": 0.0,
+        "pred_score": 0.0,
+        "hub_match": 0.0,
+        "jsd_score": 0.593,
+        "peso_sinaptico": 0.0,
+        "asoc_count": 29
+      },
+      "sdm_analysis": {
+        "gold_sdm_present": true,
+        "winner_sdm_present": true,
+        "sim_sdm_gold": 0.0061,
+        "sim_sdm_winner": 0.0027,
+        "sdm_delta": 0.0034,
+        "hamming_gold": 314,
+        "hamming_winner": 441,
+        "sdm_veredicto": "favorece_gold"
+      },
+      "grafo_analysis": {
+        "grado_gold": 90,
+        "grado_winner": 29,
+        "vecinos_compartidos": 6,
+        "arista_directa_existe": false,
+        "arista_directa_peso": null,
+        "arista_directa_tipo": null
+      },
+      "predicados_analysis": {
+        "gold_preds_count": 0,
+        "winner_preds_count": 2,
+        "status": "solo_winner",
+        "gold_preds_samples": [],
+        "winner_preds_samples": [
+          {
+            "sujeto": "Athena-OEC",
+            "accion": "analizo",
+            "objeto": "TencentDB-Agent-Memory",
+            "contexto": "comparativa con BioRAG 2026-08-09"
+          },
+          {
+            "sujeto": "Dennys",
+            "accion": "establece",
+            "objeto": "vision de superar bases vectoriales",
+            "contexto": "no adoptar embeddings externos"
+          }
+        ]
+      },
+      "forense_diagnostico": {
+        "evidencia_favorece_winner": "Mayor coincidencia léxica directa o PPMI (0.95).",
+        "evidencia_favorece_gold": "Es el sinónimo semántico verdadero aunque tenga menor BM25.",
+        "info_faltante_para_distinguir": "Conexión en tabla sinonimos o puente semántico latente calibrado."
+      }
+    },
+    {
+      "case_id": "0801",
+      "query": "datos lecciones postsync",
+      "categoria": "por_tema",
+      "gold": "notebooklm-memory-biorag-project",
+      "winner": "notebooklm-sync-lecciones",
+      "gold_rank": 2,
+      "winner_rank": 1,
+      "evaluable_aritmeticamente": true,
+      "margin_original": -0.0019,
+      "tipo_fallo": "fallo_evidencia_relacional_por_tema",
+      "es_colision_alias_version": false,
+      "detalle_colision": "conceptos_distintos",
+      "signals_gold": {
+        "bm25_norm": 1.0,
+        "concepto_ratio": 0.0,
+        "sinonimos_ratio": 0.0,
+        "dim_score": 0.0,
+        "tematico_score": 1.0,
+        "ppmi_score": 0.0,
+        "pred_score": 0.0,
+        "hub_match": 0.0,
+        "jsd_score": 0.5943,
+        "peso_sinaptico": 0.0,
+        "asoc_count": 88
+      },
+      "signals_winner": {
+        "bm25_norm": 0.7777777777777778,
+        "concepto_ratio": 0.3333,
+        "sinonimos_ratio": 0.3333,
+        "dim_score": 0.0,
+        "tematico_score": 1.0,
+        "ppmi_score": 0.0,
+        "pred_score": 0.0,
+        "hub_match": 0.0,
+        "jsd_score": 0.6252,
+        "peso_sinaptico": 0.0,
+        "asoc_count": 84
+      },
+      "sdm_analysis": {
+        "gold_sdm_present": true,
+        "winner_sdm_present": true,
+        "sim_sdm_gold": 0.0106,
+        "sim_sdm_winner": 0.0113,
+        "sdm_delta": -0.0007,
+        "hamming_gold": 326,
+        "hamming_winner": 341,
+        "sdm_veredicto": "empate"
+      },
+      "grafo_analysis": {
+        "grado_gold": 90,
+        "grado_winner": 83,
+        "vecinos_compartidos": 69,
+        "arista_directa_existe": true,
+        "arista_directa_peso": 0.9,
+        "arista_directa_tipo": "co_ocurrencia"
+      },
+      "predicados_analysis": {
+        "gold_preds_count": 0,
+        "winner_preds_count": 0,
+        "status": "ninguno",
+        "gold_preds_samples": [],
+        "winner_preds_samples": []
+      },
+      "forense_diagnostico": {
+        "evidencia_favorece_winner": "Mayor score temático/JSD/PPMI por co-ocurrencia superficial de tokens (1.00).",
+        "evidencia_favorece_gold": "Relevancia conceptual ontológica real para el tema de la consulta.",
+        "info_faltante_para_distinguir": "Señal relacional o puente topológico que conecte la consulta con el nodo Gold sin depender de coincidencia superficial de palabras."
+      }
+    },
+    {
+      "case_id": "0805",
+      "query": "cv",
+      "categoria": "sinonimo",
+      "gold": "cv_seccion_d_test_vinculacion",
+      "winner": "cv_seccion_d_estado_final_julio_2026",
+      "gold_rank": 5,
+      "winner_rank": 1,
+      "evaluable_aritmeticamente": true,
+      "margin_original": -0.0515,
+      "tipo_fallo": "fallo_semantico_sinonimo_lejano",
+      "es_colision_alias_version": false,
+      "detalle_colision": "conceptos_distintos",
+      "signals_gold": {
+        "bm25_norm": 1.0,
+        "concepto_ratio": 1.0,
+        "sinonimos_ratio": 1.0,
+        "dim_score": 0.0,
+        "tematico_score": 0.0,
+        "ppmi_score": 0.0,
+        "pred_score": 0.0,
+        "hub_match": 0.0,
+        "jsd_score": 0.438,
+        "peso_sinaptico": 0.0,
+        "asoc_count": 0
+      },
+      "signals_winner": {
+        "bm25_norm": 1.0,
+        "concepto_ratio": 1.0,
+        "sinonimos_ratio": 1.0,
+        "dim_score": 0.0,
+        "tematico_score": 0.0,
+        "ppmi_score": 0.0,
+        "pred_score": 0.0,
+        "hub_match": 0.0,
+        "jsd_score": 0.6043,
+        "peso_sinaptico": 0.0,
+        "asoc_count": 37
+      },
+      "sdm_analysis": {
+        "gold_sdm_present": true,
+        "winner_sdm_present": true,
+        "sim_sdm_gold": 0.0075,
+        "sim_sdm_winner": 0.0093,
+        "sdm_delta": -0.0018,
+        "hamming_gold": 114,
+        "hamming_winner": 257,
+        "sdm_veredicto": "favorece_winner"
+      },
+      "grafo_analysis": {
+        "grado_gold": 0,
+        "grado_winner": 41,
+        "vecinos_compartidos": 0,
+        "arista_directa_existe": false,
+        "arista_directa_peso": null,
+        "arista_directa_tipo": null
+      },
+      "predicados_analysis": {
+        "gold_preds_count": 0,
+        "winner_preds_count": 0,
+        "status": "ninguno",
+        "gold_preds_samples": [],
+        "winner_preds_samples": []
+      },
+      "forense_diagnostico": {
+        "evidencia_favorece_winner": "Mayor coincidencia léxica directa o PPMI (1.00).",
+        "evidencia_favorece_gold": "Es el sinónimo semántico verdadero aunque tenga menor BM25.",
+        "info_faltante_para_distinguir": "Conexión en tabla sinonimos o puente semántico latente calibrado."
+      }
+    },
+    {
+      "case_id": "0830",
+      "query": "dormidos34 symbolic solución",
+      "categoria": "por_tema",
+      "gold": "interacción_social_saludo",
+      "winner": "athena_evolucion_v0001",
+      "gold_rank": 2,
+      "winner_rank": 1,
+      "evaluable_aritmeticamente": true,
+      "margin_original": 0.0263,
+      "tipo_fallo": "fallo_evidencia_relacional_por_tema",
+      "es_colision_alias_version": false,
+      "detalle_colision": "conceptos_distintos",
+      "signals_gold": {
+        "bm25_norm": 1.0,
+        "concepto_ratio": 0.0,
+        "sinonimos_ratio": 0.0,
+        "dim_score": 0.4264014327112209,
+        "tematico_score": 1.0,
+        "ppmi_score": 0.3026523524542554,
+        "pred_score": 0.0,
+        "hub_match": 0.0,
+        "jsd_score": 0.4638,
+        "peso_sinaptico": 0.0,
+        "asoc_count": 20
+      },
+      "signals_winner": {
+        "bm25_norm": 0.7385489458759963,
+        "concepto_ratio": 0.2593,
+        "sinonimos_ratio": 0.2593,
+        "dim_score": 0.7385489458759963,
+        "tematico_score": 1.0,
+        "ppmi_score": 0.14073916793645277,
+        "pred_score": 0.0,
+        "hub_match": 0.0,
+        "jsd_score": 0.5255,
+        "peso_sinaptico": 0.0,
+        "asoc_count": 58
+      },
+      "sdm_analysis": {
+        "gold_sdm_present": true,
+        "winner_sdm_present": true,
+        "sim_sdm_gold": 0.0339,
+        "sim_sdm_winner": 0.0137,
+        "sdm_delta": 0.0202,
+        "hamming_gold": 230,
+        "hamming_winner": 335,
+        "sdm_veredicto": "favorece_gold"
+      },
+      "grafo_analysis": {
+        "grado_gold": 19,
+        "grado_winner": 58,
+        "vecinos_compartidos": 6,
+        "arista_directa_existe": false,
+        "arista_directa_peso": null,
+        "arista_directa_tipo": null
+      },
+      "predicados_analysis": {
+        "gold_preds_count": 0,
+        "winner_preds_count": 0,
+        "status": "ninguno",
+        "gold_preds_samples": [],
+        "winner_preds_samples": []
+      },
+      "forense_diagnostico": {
+        "evidencia_favorece_winner": "Mayor score temático/JSD/PPMI por co-ocurrencia superficial de tokens (1.00).",
+        "evidencia_favorece_gold": "Relevancia conceptual ontológica real para el tema de la consulta.",
+        "info_faltante_para_distinguir": "Señal relacional o puente topológico que conecte la consulta con el nodo Gold sin depender de coincidencia superficial de palabras."
+      }
+    },
+    {
+      "case_id": "0840",
+      "query": "biorag recall",
+      "categoria": "sinonimo",
+      "gold": "biorag_garantia_minima_or_fallback",
+      "winner": "biorag_v25_1_ppr_plan_maestro_pendiente",
+      "gold_rank": 2,
+      "winner_rank": 1,
+      "evaluable_aritmeticamente": true,
+      "margin_original": -0.0015,
+      "tipo_fallo": "fallo_semantico_sinonimo_lejano",
+      "es_colision_alias_version": false,
+      "detalle_colision": "conceptos_distintos",
+      "signals_gold": {
+        "bm25_norm": 1.0,
+        "concepto_ratio": 0.5,
+        "sinonimos_ratio": 1.0,
+        "dim_score": 0.4564354645876385,
+        "tematico_score": 0.0,
+        "ppmi_score": 0.4345975176002822,
+        "pred_score": 0.0,
+        "hub_match": 0.0,
+        "jsd_score": 0.4534,
+        "peso_sinaptico": 0.0,
+        "asoc_count": 27
+      },
+      "signals_winner": {
+        "bm25_norm": 0.9115790137357762,
+        "concepto_ratio": 0.5,
+        "sinonimos_ratio": 1.0,
+        "dim_score": 0.7359800721939873,
+        "tematico_score": 0.0,
+        "ppmi_score": 0.3907076039080085,
+        "pred_score": 0.0,
+        "hub_match": 0.0,
+        "jsd_score": 0.5465,
+        "peso_sinaptico": 0.0,
+        "asoc_count": 34
+      },
+      "sdm_analysis": {
+        "gold_sdm_present": true,
+        "winner_sdm_present": true,
+        "sim_sdm_gold": 0.0062,
+        "sim_sdm_winner": 0.0044,
+        "sdm_delta": 0.0018,
+        "hamming_gold": 268,
+        "hamming_winner": 304,
+        "sdm_veredicto": "favorece_gold"
+      },
+      "grafo_analysis": {
+        "grado_gold": 27,
+        "grado_winner": 33,
+        "vecinos_compartidos": 10,
+        "arista_directa_existe": false,
+        "arista_directa_peso": null,
+        "arista_directa_tipo": null
+      },
+      "predicados_analysis": {
+        "gold_preds_count": 0,
+        "winner_preds_count": 0,
+        "status": "ninguno",
+        "gold_preds_samples": [],
+        "winner_preds_samples": []
+      },
+      "forense_diagnostico": {
+        "evidencia_favorece_winner": "Mayor coincidencia léxica directa o PPMI (0.91).",
+        "evidencia_favorece_gold": "Es el sinónimo semántico verdadero aunque tenga menor BM25.",
+        "info_faltante_para_distinguir": "Conexión en tabla sinonimos o puente semántico latente calibrado."
+      }
+    },
+    {
+      "case_id": "0848",
+      "query": "semánticas 849 embedding",
+      "categoria": "por_tema",
+      "gold": "v13_2_limpieza_tabla_semantica",
+      "winner": "mentalidad_embedding_clasificacion_dimensional",
+      "gold_rank": 4,
+      "winner_rank": 1,
+      "evaluable_aritmeticamente": true,
+      "margin_original": -0.0263,
+      "tipo_fallo": "fallo_evidencia_relacional_por_tema",
+      "es_colision_alias_version": false,
+      "detalle_colision": "conceptos_distintos",
+      "signals_gold": {
+        "bm25_norm": 0.7798971896438395,
+        "concepto_ratio": 0.3,
+        "sinonimos_ratio": 0.6333,
+        "dim_score": 0.3464101615137754,
+        "tematico_score": 0.0,
+        "ppmi_score": 0.0,
+        "pred_score": 0.0,
+        "hub_match": 0.0,
+        "jsd_score": 0.5732,
+        "peso_sinaptico": 0.0,
+        "asoc_count": 20
+      },
+      "signals_winner": {
+        "bm25_norm": 1.0,
+        "concepto_ratio": 0.3333,
+        "sinonimos_ratio": 0.0,
+        "dim_score": 0.4242640687119285,
+        "tematico_score": 1.0,
+        "ppmi_score": 0.0,
+        "pred_score": 0.0,
+        "hub_match": 0.0,
+        "jsd_score": 0.5594,
+        "peso_sinaptico": 0.0,
+        "asoc_count": 6
+      },
+      "sdm_analysis": {
+        "gold_sdm_present": true,
+        "winner_sdm_present": true,
+        "sim_sdm_gold": 0.0145,
+        "sim_sdm_winner": 0.0253,
+        "sdm_delta": -0.0108,
+        "hamming_gold": 260,
+        "hamming_winner": 217,
+        "sdm_veredicto": "favorece_winner"
+      },
+      "grafo_analysis": {
+        "grado_gold": 20,
+        "grado_winner": 6,
+        "vecinos_compartidos": 1,
+        "arista_directa_existe": true,
+        "arista_directa_peso": 0.9,
+        "arista_directa_tipo": "sinonimo_explicito"
+      },
+      "predicados_analysis": {
+        "gold_preds_count": 0,
+        "winner_preds_count": 0,
+        "status": "ninguno",
+        "gold_preds_samples": [],
+        "winner_preds_samples": []
+      },
+      "forense_diagnostico": {
+        "evidencia_favorece_winner": "Mayor score temático/JSD/PPMI por co-ocurrencia superficial de tokens (1.00).",
+        "evidencia_favorece_gold": "Relevancia conceptual ontológica real para el tema de la consulta.",
+        "info_faltante_para_distinguir": "Señal relacional o puente topológico que conecte la consulta con el nodo Gold sin depender de coincidencia superficial de palabras."
+      }
+    },
+    {
+      "case_id": "0855",
+      "query": "timeout homedennysnvmversionsnodev24130binpdfreadermcp familia",
+      "categoria": "por_tema",
+      "gold": "hermes_mcp_servers_configuracion",
+      "winner": "oec_comms_notebook_arbitro_20260615",
+      "gold_rank": 2,
+      "winner_rank": 1,
+      "evaluable_aritmeticamente": true,
+      "margin_original": -0.0071,
+      "tipo_fallo": "fallo_evidencia_relacional_por_tema",
+      "es_colision_alias_version": false,
+      "detalle_colision": "conceptos_distintos",
+      "signals_gold": {
+        "bm25_norm": 1.0,
+        "concepto_ratio": 0.0,
+        "sinonimos_ratio": 0.0,
+        "dim_score": 0.912870929175277,
+        "tematico_score": 1.0,
+        "ppmi_score": 0.35630261645428185,
+        "pred_score": 0.0,
+        "hub_match": 0.0,
+        "jsd_score": 0.4801,
+        "peso_sinaptico": 0.0,
+        "asoc_count": 32
+      },
+      "signals_winner": {
+        "bm25_norm": 1.0,
+        "concepto_ratio": 0.0,
+        "sinonimos_ratio": 0.0,
+        "dim_score": 1.0,
+        "tematico_score": 1.0,
+        "ppmi_score": 0.337525921352192,
+        "pred_score": 0.0,
+        "hub_match": 0.0,
+        "jsd_score": 0.5121,
+        "peso_sinaptico": 0.0,
+        "asoc_count": 21
+      },
+      "sdm_analysis": {
+        "gold_sdm_present": true,
+        "winner_sdm_present": true,
+        "sim_sdm_gold": 0.0218,
+        "sim_sdm_winner": 0.0053,
+        "sdm_delta": 0.0165,
+        "hamming_gold": 286,
+        "hamming_winner": 256,
+        "sdm_veredicto": "favorece_gold"
+      },
+      "grafo_analysis": {
+        "grado_gold": 33,
+        "grado_winner": 16,
+        "vecinos_compartidos": 2,
+        "arista_directa_existe": false,
+        "arista_directa_peso": null,
+        "arista_directa_tipo": null
+      },
+      "predicados_analysis": {
+        "gold_preds_count": 0,
+        "winner_preds_count": 0,
+        "status": "ninguno",
+        "gold_preds_samples": [],
+        "winner_preds_samples": []
+      },
+      "forense_diagnostico": {
+        "evidencia_favorece_winner": "Mayor score temático/JSD/PPMI por co-ocurrencia superficial de tokens (1.00).",
+        "evidencia_favorece_gold": "Relevancia conceptual ontológica real para el tema de la consulta.",
+        "info_faltante_para_distinguir": "Señal relacional o puente topológico que conecte la consulta con el nodo Gold sin depender de coincidencia superficial de palabras."
+      }
+    },
+    {
+      "case_id": "0861",
+      "query": "más dennys asumir",
+      "categoria": "por_tema",
+      "gold": "athena_eleccion_identidad_20260616",
+      "winner": "historia_tasajera_fumigador_rufino",
+      "gold_rank": 4,
+      "winner_rank": 1,
+      "evaluable_aritmeticamente": true,
+      "margin_original": 0.0647,
+      "tipo_fallo": "fallo_evidencia_relacional_por_tema",
+      "es_colision_alias_version": false,
+      "detalle_colision": "conceptos_distintos",
+      "signals_gold": {
+        "bm25_norm": 0.9682297953611052,
+        "concepto_ratio": 0.0,
+        "sinonimos_ratio": 0.5,
+        "dim_score": 0.5849954758066201,
+        "tematico_score": 0.0,
+        "ppmi_score": 0.0,
+        "pred_score": 0.0,
+        "hub_match": 0.0,
+        "jsd_score": 0.5356,
+        "peso_sinaptico": 0.0,
+        "asoc_count": 44
+      },
+      "signals_winner": {
+        "bm25_norm": 0.020123409926414013,
+        "concepto_ratio": 0.0,
+        "sinonimos_ratio": 0.0,
+        "dim_score": 0.4531355470811447,
+        "tematico_score": 1.0,
+        "ppmi_score": 0.0,
+        "pred_score": 0.0,
+        "hub_match": 1.0,
+        "jsd_score": 0.4812,
+        "peso_sinaptico": 0.0,
+        "asoc_count": 4
+      },
+      "sdm_analysis": {
+        "gold_sdm_present": true,
+        "winner_sdm_present": true,
+        "sim_sdm_gold": 0.0258,
+        "sim_sdm_winner": 0.0097,
+        "sdm_delta": 0.0161,
+        "hamming_gold": 330,
+        "hamming_winner": 321,
+        "sdm_veredicto": "favorece_gold"
+      },
+      "grafo_analysis": {
+        "grado_gold": 42,
+        "grado_winner": 4,
+        "vecinos_compartidos": 0,
+        "arista_directa_existe": false,
+        "arista_directa_peso": null,
+        "arista_directa_tipo": null
+      },
+      "predicados_analysis": {
+        "gold_preds_count": 0,
+        "winner_preds_count": 0,
+        "status": "ninguno",
+        "gold_preds_samples": [],
+        "winner_preds_samples": []
+      },
+      "forense_diagnostico": {
+        "evidencia_favorece_winner": "Mayor score temático/JSD/PPMI por co-ocurrencia superficial de tokens (1.00).",
+        "evidencia_favorece_gold": "Relevancia conceptual ontológica real para el tema de la consulta.",
+        "info_faltante_para_distinguir": "Señal relacional o puente topológico que conecte la consulta con el nodo Gold sin depender de coincidencia superficial de palabras."
+      }
+    }
+  ]
+}
