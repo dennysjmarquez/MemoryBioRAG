@@ -288,7 +288,7 @@ class CorrectedBioRAGHarness:
                 "winner": returned[0] if returned else None,
                 "gold": expected,
                 "winner_score": scores[0] if scores else 0.0,
-                "gold_score": scores[found_at - 1] if found_at != -1 else 0.0,
+                "gold_score": scores[found_at - 1] if found_at != -1 else None,
                 "top5": returned[:5],
                 "top5_scores": scores[:5],
                 "categoria": category,
@@ -309,7 +309,7 @@ class CorrectedBioRAGHarness:
         }
 
     def eval_negatives_con_intervencion(self, neg_cases, gate_fn=None):
-        """Evalúa controles negativos asegurando que gate_fn esté activo."""
+        """Evalúa controles negativos asegurando que gate_fn esté activo y registrando total_candidates."""
         fp_count = 0
         details = []
         gate_calls = [0]
@@ -344,6 +344,7 @@ class CorrectedBioRAGHarness:
                 details.append({
                     "id": c["id"],
                     "query": query,
+                    "total_candidates": total,
                     "is_fp": is_fp,
                     "top_score": top_score,
                     "top_concept": top_concept

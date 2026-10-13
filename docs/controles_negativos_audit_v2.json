@@ -1,8 +1,9 @@
 {
   "metadata": {
+    "version": "v2_1_corregida_con_total_candidates",
     "snapshot_sha256": "104dd2902aaf24c3ce93624492ea95a719acbdcca50f4f6bc123ac8317749796",
     "dataset_sha256": "c76a71465f7a9be647094d79f00ffcebd742b00a6c12fa4ae90cf2c3d0654f4c",
-    "script_sha256": "4ef661c103c52611bf75e9c9bd0f6727f55cfe71c579dd232672864827409c12"
+    "script_sha256": "b155d331dbbc73bcd002bf3c5e3262bc2ccd72f04c39a81eaa865e0c78ec90de"
   },
   "negativos_dev_baseline": {
     "fp_count": 0,
@@ -13,6 +14,7 @@
       {
         "id": "0905",
         "query": "tamboril batidora macetero",
+        "total_candidates": 0,
         "is_fp": false,
         "top_score": 0.0,
         "top_concept": null
@@ -20,6 +22,7 @@
       {
         "id": "0906",
         "query": "macetero regadera",
+        "total_candidates": 0,
         "is_fp": false,
         "top_score": 0.0,
         "top_concept": null
@@ -27,6 +30,7 @@
       {
         "id": "0908",
         "query": "colador pandereta abrelatas jengibre",
+        "total_candidates": 0,
         "is_fp": false,
         "top_score": 0.0,
         "top_concept": null
@@ -34,6 +38,7 @@
       {
         "id": "0904",
         "query": "farola sartén",
+        "total_candidates": 0,
         "is_fp": false,
         "top_score": 0.0,
         "top_concept": null
@@ -41,6 +46,7 @@
       {
         "id": "0911",
         "query": "tamboril rallador albahaca",
+        "total_candidates": 0,
         "is_fp": false,
         "top_score": 0.0,
         "top_concept": null
@@ -48,6 +54,7 @@
       {
         "id": "0894",
         "query": "cebolla palangana farola",
+        "total_candidates": 0,
         "is_fp": false,
         "top_score": 0.0,
         "top_concept": null
@@ -55,6 +62,7 @@
       {
         "id": "0900",
         "query": "romero cigüeña servilleta",
+        "total_candidates": 0,
         "is_fp": false,
         "top_score": 0.0,
         "top_concept": null
@@ -62,6 +70,7 @@
       {
         "id": "0913",
         "query": "castor plumero",
+        "total_candidates": 0,
         "is_fp": false,
         "top_score": 0.0,
         "top_concept": null
@@ -69,6 +78,7 @@
       {
         "id": "0920",
         "query": "cisne cremallera tomillo saxofón",
+        "total_candidates": 0,
         "is_fp": false,
         "top_score": 0.0,
         "top_concept": null
@@ -76,6 +86,7 @@
       {
         "id": "0919",
         "query": "cremallera albahaca",
+        "total_candidates": 0,
         "is_fp": false,
         "top_score": 0.0,
         "top_concept": null
@@ -83,6 +94,7 @@
       {
         "id": "0918",
         "query": "cisne acordeón",
+        "total_candidates": 0,
         "is_fp": false,
         "top_score": 0.0,
         "top_concept": null
@@ -90,6 +102,7 @@
       {
         "id": "0887",
         "query": "castor morsa",
+        "total_candidates": 0,
         "is_fp": false,
         "top_score": 0.0,
         "top_concept": null
@@ -97,6 +110,7 @@
       {
         "id": "0884",
         "query": "cebolla colador cremallera jabalí",
+        "total_candidates": 0,
         "is_fp": false,
         "top_score": 0.0,
         "top_concept": null
@@ -104,6 +118,7 @@
       {
         "id": "0890",
         "query": "tomillo sartén escobillón",
+        "total_candidates": 0,
         "is_fp": false,
         "top_score": 0.0,
         "top_concept": null
@@ -111,6 +126,7 @@
       {
         "id": "0892",
         "query": "rallador saxofón",
+        "total_candidates": 0,
         "is_fp": false,
         "top_score": 0.0,
         "top_concept": null
@@ -118,6 +134,7 @@
       {
         "id": "0896",
         "query": "jengibre cisne escobillón",
+        "total_candidates": 0,
         "is_fp": false,
         "top_score": 0.0,
         "top_concept": null
@@ -125,6 +142,7 @@
       {
         "id": "0886",
         "query": "aspiradora palangana",
+        "total_candidates": 0,
         "is_fp": false,
         "top_score": 0.0,
         "top_concept": null
@@ -132,6 +150,7 @@
       {
         "id": "0912",
         "query": "colador hamaca",
+        "total_candidates": 0,
         "is_fp": false,
         "top_score": 0.0,
         "top_concept": null
@@ -139,6 +158,7 @@
       {
         "id": "0882",
         "query": "trompeta aspiradora cremallera sartén",
+        "total_candidates": 0,
         "is_fp": false,
         "top_score": 0.0,
         "top_concept": null
@@ -146,6 +166,7 @@
       {
         "id": "0885",
         "query": "tomillo saxofón",
+        "total_candidates": 0,
         "is_fp": false,
         "top_score": 0.0,
         "top_concept": null
@@ -161,6 +182,7 @@
       {
         "id": "0905",
         "query": "tamboril batidora macetero",
+        "total_candidates": 0,
         "is_fp": false,
         "top_score": 0.0,
         "top_concept": null
@@ -168,6 +190,7 @@
       {
         "id": "0906",
         "query": "macetero regadera",
+        "total_candidates": 0,
         "is_fp": false,
         "top_score": 0.0,
         "top_concept": null
@@ -175,6 +198,7 @@
       {
         "id": "0908",
         "query": "colador pandereta abrelatas jengibre",
+        "total_candidates": 0,
         "is_fp": false,
         "top_score": 0.0,
         "top_concept": null
@@ -182,6 +206,7 @@
       {
         "id": "0904",
         "query": "farola sartén",
+        "total_candidates": 0,
         "is_fp": false,
         "top_score": 0.0,
         "top_concept": null
@@ -189,6 +214,7 @@
       {
         "id": "0911",
         "query": "tamboril rallador albahaca",
+        "total_candidates": 0,
         "is_fp": false,
         "top_score": 0.0,
         "top_concept": null
@@ -196,6 +222,7 @@
       {
         "id": "0894",
         "query": "cebolla palangana farola",
+        "total_candidates": 0,
         "is_fp": false,
         "top_score": 0.0,
         "top_concept": null
@@ -203,6 +230,7 @@
       {
         "id": "0900",
         "query": "romero cigüeña servilleta",
+        "total_candidates": 0,
         "is_fp": false,
         "top_score": 0.0,
         "top_concept": null
@@ -210,6 +238,7 @@
       {
         "id": "0913",
         "query": "castor plumero",
+        "total_candidates": 0,
         "is_fp": false,
         "top_score": 0.0,
         "top_concept": null
@@ -217,6 +246,7 @@
       {
         "id": "0920",
         "query": "cisne cremallera tomillo saxofón",
+        "total_candidates": 0,
         "is_fp": false,
         "top_score": 0.0,
         "top_concept": null
@@ -224,6 +254,7 @@
       {
         "id": "0919",
         "query": "cremallera albahaca",
+        "total_candidates": 0,
         "is_fp": false,
         "top_score": 0.0,
         "top_concept": null
@@ -231,6 +262,7 @@
       {
         "id": "0918",
         "query": "cisne acordeón",
+        "total_candidates": 0,
         "is_fp": false,
         "top_score": 0.0,
         "top_concept": null
@@ -238,6 +270,7 @@
       {
         "id": "0887",
         "query": "castor morsa",
+        "total_candidates": 0,
         "is_fp": false,
         "top_score": 0.0,
         "top_concept": null
@@ -245,6 +278,7 @@
       {
         "id": "0884",
         "query": "cebolla colador cremallera jabalí",
+        "total_candidates": 0,
         "is_fp": false,
         "top_score": 0.0,
         "top_concept": null
@@ -252,6 +286,7 @@
       {
         "id": "0890",
         "query": "tomillo sartén escobillón",
+        "total_candidates": 0,
         "is_fp": false,
         "top_score": 0.0,
         "top_concept": null
@@ -259,6 +294,7 @@
       {
         "id": "0892",
         "query": "rallador saxofón",
+        "total_candidates": 0,
         "is_fp": false,
         "top_score": 0.0,
         "top_concept": null
@@ -266,6 +302,7 @@
       {
         "id": "0896",
         "query": "jengibre cisne escobillón",
+        "total_candidates": 0,
         "is_fp": false,
         "top_score": 0.0,
         "top_concept": null
@@ -273,6 +310,7 @@
       {
         "id": "0886",
         "query": "aspiradora palangana",
+        "total_candidates": 0,
         "is_fp": false,
         "top_score": 0.0,
         "top_concept": null
@@ -280,6 +318,7 @@
       {
         "id": "0912",
         "query": "colador hamaca",
+        "total_candidates": 0,
         "is_fp": false,
         "top_score": 0.0,
         "top_concept": null
@@ -287,6 +326,7 @@
       {
         "id": "0882",
         "query": "trompeta aspiradora cremallera sartén",
+        "total_candidates": 0,
         "is_fp": false,
         "top_score": 0.0,
         "top_concept": null
@@ -294,6 +334,7 @@
       {
         "id": "0885",
         "query": "tomillo saxofón",
+        "total_candidates": 0,
         "is_fp": false,
         "top_score": 0.0,
         "top_concept": null

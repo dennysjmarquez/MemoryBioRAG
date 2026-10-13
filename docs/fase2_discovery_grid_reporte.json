@@ -1,0 +1,4615 @@
+{
+  "metadata": {
+    "version": "fase2_discovery_grid_progress",
+    "snapshot_sha256": "104dd2902aaf24c3ce93624492ea95a719acbdcca50f4f6bc123ac8317749796",
+    "dataset_sha256": "c76a71465f7a9be647094d79f00ffcebd742b00a6c12fa4ae90cf2c3d0654f4c",
+    "script_sha256": "a9e88f6b064dc96e57cde00b2be3200ac7d28e784c51e70ccf94b67b78b3c610",
+    "completed_configs": 64,
+    "total_configs": 64,
+    "timestamp": "2026-10-13T08:52:25"
+  },
+  "baseline_discovery": {
+    "r1": 0.916289592760181,
+    "r5": 1.0,
+    "mrr": 0.9483408748114627,
+    "top1_hits": 405,
+    "top5_hits": 442,
+    "n": 442
+  },
+  "results": [
+    {
+      "config_id": "CFG_01",
+      "params": {
+        "saturation": 0.3,
+        "min_scale_tem": 0.25,
+        "min_scale_dim": 0.25
+      },
+      "r1": 0.9253393665158371,
+      "r5": 0.9932126696832579,
+      "mrr": 0.9498491704374054,
+      "top1_hits": 409,
+      "top5_hits": 439,
+      "total_cases": 442,
+      "gains_top1_count": 5,
+      "losses_top1_count": 1,
+      "net_delta_top1": 4,
+      "losses_top5_count": 3,
+      "fp_dev": 0,
+      "fp_dev_total": 20,
+      "elapsed_seconds": 390.4,
+      "losses_top5": [
+        {
+          "id": "0638",
+          "gold": "mentalidad_biorag_para_agentes",
+          "old_rank": 5,
+          "new_rank": -1,
+          "query": "memoria compartida"
+        },
+        {
+          "id": "0518",
+          "gold": "cuando_usar_dimensiones_biorag",
+          "old_rank": 2,
+          "new_rank": -1,
+          "query": "cuando usado dimensione biorags"
+        },
+        {
+          "id": "0803",
+          "gold": "cv_seccion_d_test_vinculacion",
+          "old_rank": 1,
+          "new_rank": -1,
+          "query": "cv seccion ds tests vinculaciones"
+        }
+      ],
+      "gains_top1": [
+        {
+          "id": "0497",
+          "gold": "benchmark_antes_despues_fix3",
+          "old_winner": "causa_raiz_por_tema_pooling_plano_diluye_senal_word2vec",
+          "new_winner": "benchmark_antes_despues_fix3",
+          "old_rank": 2,
+          "new_rank": 1,
+          "query": "relevantes biomimética mejor"
+        },
+        {
+          "id": "0830",
+          "gold": "interacción_social_saludo",
+          "old_winner": "athena_evolucion_v0001",
+          "new_winner": "interacción_social_saludo",
+          "old_rank": 2,
+          "new_rank": 1,
+          "query": "dormidos34 symbolic solución"
+        },
+        {
+          "id": "0624",
+          "gold": "notebooklm-chat-configure",
+          "old_winner": "notebooklm-memory-biorag-project",
+          "new_winner": "notebooklm-chat-configure",
+          "old_rank": 2,
+          "new_rank": 1,
+          "query": "noteboklm-chat-configure"
+        },
+        {
+          "id": "0767",
+          "gold": "hermes_nvidia_nim_modelos_optimos",
+          "old_winner": "resolucion_de_contradicciones_entre_insights_sumatoria_mentalidad",
+          "new_winner": "hermes_nvidia_nim_modelos_optimos",
+          "old_rank": 2,
+          "new_rank": 1,
+          "query": "hermes nvidias nims modelo optimo"
+        },
+        {
+          "id": "0648",
+          "gold": "plugin_biorag-remember_v8.3_-_adaptación_de_dennys_+_claude",
+          "old_winner": "biorag-remember-plugin-noreply-injection",
+          "new_winner": "plugin_biorag-remember_v8.3_-_adaptación_de_dennys_+_claude",
+          "old_rank": 2,
+          "new_rank": 1,
+          "query": "plugins biorag-remember v8.3 -s adaptacións de dennys +s claude"
+        }
+      ],
+      "losses_top1": [
+        {
+          "id": "0803",
+          "gold": "cv_seccion_d_test_vinculacion",
+          "old_winner": "cv_seccion_d_test_vinculacion",
+          "new_winner": "athena_forensic_audit_trail_ltd_detection_fix",
+          "old_rank": 1,
+          "new_rank": -1,
+          "query": "cv seccion ds tests vinculaciones"
+        }
+      ]
+    },
+    {
+      "config_id": "CFG_02",
+      "params": {
+        "saturation": 0.3,
+        "min_scale_tem": 0.25,
+        "min_scale_dim": 0.5
+      },
+      "r1": 0.9253393665158371,
+      "r5": 0.995475113122172,
+      "mrr": 0.9499999999999995,
+      "top1_hits": 409,
+      "top5_hits": 440,
+      "total_cases": 442,
+      "gains_top1_count": 5,
+      "losses_top1_count": 1,
+      "net_delta_top1": 4,
+      "losses_top5_count": 2,
+      "fp_dev": 0,
+      "fp_dev_total": 20,
+      "elapsed_seconds": 389.7,
+      "losses_top5": [
+        {
+          "id": "0518",
+          "gold": "cuando_usar_dimensiones_biorag",
+          "old_rank": 2,
+          "new_rank": -1,
+          "query": "cuando usado dimensione biorags"
+        },
+        {
+          "id": "0803",
+          "gold": "cv_seccion_d_test_vinculacion",
+          "old_rank": 1,
+          "new_rank": -1,
+          "query": "cv seccion ds tests vinculaciones"
+        }
+      ],
+      "gains_top1": [
+        {
+          "id": "0497",
+          "gold": "benchmark_antes_despues_fix3",
+          "old_winner": "causa_raiz_por_tema_pooling_plano_diluye_senal_word2vec",
+          "new_winner": "benchmark_antes_despues_fix3",
+          "old_rank": 2,
+          "new_rank": 1,
+          "query": "relevantes biomimética mejor"
+        },
+        {
+          "id": "0830",
+          "gold": "interacción_social_saludo",
+          "old_winner": "athena_evolucion_v0001",
+          "new_winner": "interacción_social_saludo",
+          "old_rank": 2,
+          "new_rank": 1,
+          "query": "dormidos34 symbolic solución"
+        },
+        {
+          "id": "0624",
+          "gold": "notebooklm-chat-configure",
+          "old_winner": "notebooklm-memory-biorag-project",
+          "new_winner": "notebooklm-chat-configure",
+          "old_rank": 2,
+          "new_rank": 1,
+          "query": "noteboklm-chat-configure"
+        },
+        {
+          "id": "0767",
+          "gold": "hermes_nvidia_nim_modelos_optimos",
+          "old_winner": "resolucion_de_contradicciones_entre_insights_sumatoria_mentalidad",
+          "new_winner": "hermes_nvidia_nim_modelos_optimos",
+          "old_rank": 2,
+          "new_rank": 1,
+          "query": "hermes nvidias nims modelo optimo"
+        },
+        {
+          "id": "0648",
+          "gold": "plugin_biorag-remember_v8.3_-_adaptación_de_dennys_+_claude",
+          "old_winner": "biorag-remember-plugin-noreply-injection",
+          "new_winner": "plugin_biorag-remember_v8.3_-_adaptación_de_dennys_+_claude",
+          "old_rank": 2,
+          "new_rank": 1,
+          "query": "plugins biorag-remember v8.3 -s adaptacións de dennys +s claude"
+        }
+      ],
+      "losses_top1": [
+        {
+          "id": "0803",
+          "gold": "cv_seccion_d_test_vinculacion",
+          "old_winner": "cv_seccion_d_test_vinculacion",
+          "new_winner": "athena_forensic_audit_trail_ltd_detection_fix",
+          "old_rank": 1,
+          "new_rank": -1,
+          "query": "cv seccion ds tests vinculaciones"
+        }
+      ]
+    },
+    {
+      "config_id": "CFG_03",
+      "params": {
+        "saturation": 0.3,
+        "min_scale_tem": 0.25,
+        "min_scale_dim": 0.75
+      },
+      "r1": 0.9230769230769231,
+      "r5": 0.995475113122172,
+      "mrr": 0.949095022624434,
+      "top1_hits": 408,
+      "top5_hits": 440,
+      "total_cases": 442,
+      "gains_top1_count": 4,
+      "losses_top1_count": 1,
+      "net_delta_top1": 3,
+      "losses_top5_count": 2,
+      "fp_dev": 0,
+      "fp_dev_total": 20,
+      "elapsed_seconds": 364.0,
+      "losses_top5": [
+        {
+          "id": "0518",
+          "gold": "cuando_usar_dimensiones_biorag",
+          "old_rank": 2,
+          "new_rank": -1,
+          "query": "cuando usado dimensione biorags"
+        },
+        {
+          "id": "0803",
+          "gold": "cv_seccion_d_test_vinculacion",
+          "old_rank": 1,
+          "new_rank": -1,
+          "query": "cv seccion ds tests vinculaciones"
+        }
+      ],
+      "gains_top1": [
+        {
+          "id": "0830",
+          "gold": "interacción_social_saludo",
+          "old_winner": "athena_evolucion_v0001",
+          "new_winner": "interacción_social_saludo",
+          "old_rank": 2,
+          "new_rank": 1,
+          "query": "dormidos34 symbolic solución"
+        },
+        {
+          "id": "0624",
+          "gold": "notebooklm-chat-configure",
+          "old_winner": "notebooklm-memory-biorag-project",
+          "new_winner": "notebooklm-chat-configure",
+          "old_rank": 2,
+          "new_rank": 1,
+          "query": "noteboklm-chat-configure"
+        },
+        {
+          "id": "0767",
+          "gold": "hermes_nvidia_nim_modelos_optimos",
+          "old_winner": "resolucion_de_contradicciones_entre_insights_sumatoria_mentalidad",
+          "new_winner": "hermes_nvidia_nim_modelos_optimos",
+          "old_rank": 2,
+          "new_rank": 1,
+          "query": "hermes nvidias nims modelo optimo"
+        },
+        {
+          "id": "0648",
+          "gold": "plugin_biorag-remember_v8.3_-_adaptación_de_dennys_+_claude",
+          "old_winner": "biorag-remember-plugin-noreply-injection",
+          "new_winner": "plugin_biorag-remember_v8.3_-_adaptación_de_dennys_+_claude",
+          "old_rank": 2,
+          "new_rank": 1,
+          "query": "plugins biorag-remember v8.3 -s adaptacións de dennys +s claude"
+        }
+      ],
+      "losses_top1": [
+        {
+          "id": "0803",
+          "gold": "cv_seccion_d_test_vinculacion",
+          "old_winner": "cv_seccion_d_test_vinculacion",
+          "new_winner": "athena_forensic_audit_trail_ltd_detection_fix",
+          "old_rank": 1,
+          "new_rank": -1,
+          "query": "cv seccion ds tests vinculaciones"
+        }
+      ]
+    },
+    {
+      "config_id": "CFG_04",
+      "params": {
+        "saturation": 0.3,
+        "min_scale_tem": 0.25,
+        "min_scale_dim": 1.0
+      },
+      "r1": 0.920814479638009,
+      "r5": 0.995475113122172,
+      "mrr": 0.9484162895927598,
+      "top1_hits": 407,
+      "top5_hits": 440,
+      "total_cases": 442,
+      "gains_top1_count": 3,
+      "losses_top1_count": 1,
+      "net_delta_top1": 2,
+      "losses_top5_count": 2,
+      "fp_dev": 0,
+      "fp_dev_total": 20,
+      "elapsed_seconds": 369.2,
+      "losses_top5": [
+        {
+          "id": "0518",
+          "gold": "cuando_usar_dimensiones_biorag",
+          "old_rank": 2,
+          "new_rank": -1,
+          "query": "cuando usado dimensione biorags"
+        },
+        {
+          "id": "0803",
+          "gold": "cv_seccion_d_test_vinculacion",
+          "old_rank": 1,
+          "new_rank": -1,
+          "query": "cv seccion ds tests vinculaciones"
+        }
+      ],
+      "gains_top1": [
+        {
+          "id": "0624",
+          "gold": "notebooklm-chat-configure",
+          "old_winner": "notebooklm-memory-biorag-project",
+          "new_winner": "notebooklm-chat-configure",
+          "old_rank": 2,
+          "new_rank": 1,
+          "query": "noteboklm-chat-configure"
+        },
+        {
+          "id": "0767",
+          "gold": "hermes_nvidia_nim_modelos_optimos",
+          "old_winner": "resolucion_de_contradicciones_entre_insights_sumatoria_mentalidad",
+          "new_winner": "hermes_nvidia_nim_modelos_optimos",
+          "old_rank": 2,
+          "new_rank": 1,
+          "query": "hermes nvidias nims modelo optimo"
+        },
+        {
+          "id": "0648",
+          "gold": "plugin_biorag-remember_v8.3_-_adaptación_de_dennys_+_claude",
+          "old_winner": "biorag-remember-plugin-noreply-injection",
+          "new_winner": "plugin_biorag-remember_v8.3_-_adaptación_de_dennys_+_claude",
+          "old_rank": 2,
+          "new_rank": 1,
+          "query": "plugins biorag-remember v8.3 -s adaptacións de dennys +s claude"
+        }
+      ],
+      "losses_top1": [
+        {
+          "id": "0803",
+          "gold": "cv_seccion_d_test_vinculacion",
+          "old_winner": "cv_seccion_d_test_vinculacion",
+          "new_winner": "athena_forensic_audit_trail_ltd_detection_fix",
+          "old_rank": 1,
+          "new_rank": -1,
+          "query": "cv seccion ds tests vinculaciones"
+        }
+      ]
+    },
+    {
+      "config_id": "CFG_05",
+      "params": {
+        "saturation": 0.3,
+        "min_scale_tem": 0.5,
+        "min_scale_dim": 0.25
+      },
+      "r1": 0.9230769230769231,
+      "r5": 0.9932126696832579,
+      "mrr": 0.9485294117647055,
+      "top1_hits": 408,
+      "top5_hits": 439,
+      "total_cases": 442,
+      "gains_top1_count": 4,
+      "losses_top1_count": 1,
+      "net_delta_top1": 3,
+      "losses_top5_count": 3,
+      "fp_dev": 0,
+      "fp_dev_total": 20,
+      "elapsed_seconds": 344.4,
+      "losses_top5": [
+        {
+          "id": "0638",
+          "gold": "mentalidad_biorag_para_agentes",
+          "old_rank": 5,
+          "new_rank": -1,
+          "query": "memoria compartida"
+        },
+        {
+          "id": "0518",
+          "gold": "cuando_usar_dimensiones_biorag",
+          "old_rank": 2,
+          "new_rank": -1,
+          "query": "cuando usado dimensione biorags"
+        },
+        {
+          "id": "0803",
+          "gold": "cv_seccion_d_test_vinculacion",
+          "old_rank": 1,
+          "new_rank": -1,
+          "query": "cv seccion ds tests vinculaciones"
+        }
+      ],
+      "gains_top1": [
+        {
+          "id": "0497",
+          "gold": "benchmark_antes_despues_fix3",
+          "old_winner": "causa_raiz_por_tema_pooling_plano_diluye_senal_word2vec",
+          "new_winner": "benchmark_antes_despues_fix3",
+          "old_rank": 2,
+          "new_rank": 1,
+          "query": "relevantes biomimética mejor"
+        },
+        {
+          "id": "0830",
+          "gold": "interacción_social_saludo",
+          "old_winner": "athena_evolucion_v0001",
+          "new_winner": "interacción_social_saludo",
+          "old_rank": 2,
+          "new_rank": 1,
+          "query": "dormidos34 symbolic solución"
+        },
+        {
+          "id": "0624",
+          "gold": "notebooklm-chat-configure",
+          "old_winner": "notebooklm-memory-biorag-project",
+          "new_winner": "notebooklm-chat-configure",
+          "old_rank": 2,
+          "new_rank": 1,
+          "query": "noteboklm-chat-configure"
+        },
+        {
+          "id": "0648",
+          "gold": "plugin_biorag-remember_v8.3_-_adaptación_de_dennys_+_claude",
+          "old_winner": "biorag-remember-plugin-noreply-injection",
+          "new_winner": "plugin_biorag-remember_v8.3_-_adaptación_de_dennys_+_claude",
+          "old_rank": 2,
+          "new_rank": 1,
+          "query": "plugins biorag-remember v8.3 -s adaptacións de dennys +s claude"
+        }
+      ],
+      "losses_top1": [
+        {
+          "id": "0803",
+          "gold": "cv_seccion_d_test_vinculacion",
+          "old_winner": "cv_seccion_d_test_vinculacion",
+          "new_winner": "athena_forensic_audit_trail_ltd_detection_fix",
+          "old_rank": 1,
+          "new_rank": -1,
+          "query": "cv seccion ds tests vinculaciones"
+        }
+      ]
+    },
+    {
+      "config_id": "CFG_06",
+      "params": {
+        "saturation": 0.3,
+        "min_scale_tem": 0.5,
+        "min_scale_dim": 0.5
+      },
+      "r1": 0.9253393665158371,
+      "r5": 0.995475113122172,
+      "mrr": 0.9499999999999995,
+      "top1_hits": 409,
+      "top5_hits": 440,
+      "total_cases": 442,
+      "gains_top1_count": 5,
+      "losses_top1_count": 1,
+      "net_delta_top1": 4,
+      "losses_top5_count": 2,
+      "fp_dev": 0,
+      "fp_dev_total": 20,
+      "elapsed_seconds": 314.1,
+      "losses_top5": [
+        {
+          "id": "0518",
+          "gold": "cuando_usar_dimensiones_biorag",
+          "old_rank": 2,
+          "new_rank": -1,
+          "query": "cuando usado dimensione biorags"
+        },
+        {
+          "id": "0803",
+          "gold": "cv_seccion_d_test_vinculacion",
+          "old_rank": 1,
+          "new_rank": -1,
+          "query": "cv seccion ds tests vinculaciones"
+        }
+      ],
+      "gains_top1": [
+        {
+          "id": "0497",
+          "gold": "benchmark_antes_despues_fix3",
+          "old_winner": "causa_raiz_por_tema_pooling_plano_diluye_senal_word2vec",
+          "new_winner": "benchmark_antes_despues_fix3",
+          "old_rank": 2,
+          "new_rank": 1,
+          "query": "relevantes biomimética mejor"
+        },
+        {
+          "id": "0830",
+          "gold": "interacción_social_saludo",
+          "old_winner": "athena_evolucion_v0001",
+          "new_winner": "interacción_social_saludo",
+          "old_rank": 2,
+          "new_rank": 1,
+          "query": "dormidos34 symbolic solución"
+        },
+        {
+          "id": "0624",
+          "gold": "notebooklm-chat-configure",
+          "old_winner": "notebooklm-memory-biorag-project",
+          "new_winner": "notebooklm-chat-configure",
+          "old_rank": 2,
+          "new_rank": 1,
+          "query": "noteboklm-chat-configure"
+        },
+        {
+          "id": "0767",
+          "gold": "hermes_nvidia_nim_modelos_optimos",
+          "old_winner": "resolucion_de_contradicciones_entre_insights_sumatoria_mentalidad",
+          "new_winner": "hermes_nvidia_nim_modelos_optimos",
+          "old_rank": 2,
+          "new_rank": 1,
+          "query": "hermes nvidias nims modelo optimo"
+        },
+        {
+          "id": "0648",
+          "gold": "plugin_biorag-remember_v8.3_-_adaptación_de_dennys_+_claude",
+          "old_winner": "biorag-remember-plugin-noreply-injection",
+          "new_winner": "plugin_biorag-remember_v8.3_-_adaptación_de_dennys_+_claude",
+          "old_rank": 2,
+          "new_rank": 1,
+          "query": "plugins biorag-remember v8.3 -s adaptacións de dennys +s claude"
+        }
+      ],
+      "losses_top1": [
+        {
+          "id": "0803",
+          "gold": "cv_seccion_d_test_vinculacion",
+          "old_winner": "cv_seccion_d_test_vinculacion",
+          "new_winner": "athena_forensic_audit_trail_ltd_detection_fix",
+          "old_rank": 1,
+          "new_rank": -1,
+          "query": "cv seccion ds tests vinculaciones"
+        }
+      ]
+    },
+    {
+      "config_id": "CFG_07",
+      "params": {
+        "saturation": 0.3,
+        "min_scale_tem": 0.5,
+        "min_scale_dim": 0.75
+      },
+      "r1": 0.9253393665158371,
+      "r5": 0.997737556561086,
+      "mrr": 0.951357466063348,
+      "top1_hits": 409,
+      "top5_hits": 441,
+      "total_cases": 442,
+      "gains_top1_count": 4,
+      "losses_top1_count": 0,
+      "net_delta_top1": 4,
+      "losses_top5_count": 1,
+      "fp_dev": 0,
+      "fp_dev_total": 20,
+      "elapsed_seconds": 299.4,
+      "losses_top5": [
+        {
+          "id": "0518",
+          "gold": "cuando_usar_dimensiones_biorag",
+          "old_rank": 2,
+          "new_rank": -1,
+          "query": "cuando usado dimensione biorags"
+        }
+      ],
+      "gains_top1": [
+        {
+          "id": "0830",
+          "gold": "interacción_social_saludo",
+          "old_winner": "athena_evolucion_v0001",
+          "new_winner": "interacción_social_saludo",
+          "old_rank": 2,
+          "new_rank": 1,
+          "query": "dormidos34 symbolic solución"
+        },
+        {
+          "id": "0624",
+          "gold": "notebooklm-chat-configure",
+          "old_winner": "notebooklm-memory-biorag-project",
+          "new_winner": "notebooklm-chat-configure",
+          "old_rank": 2,
+          "new_rank": 1,
+          "query": "noteboklm-chat-configure"
+        },
+        {
+          "id": "0767",
+          "gold": "hermes_nvidia_nim_modelos_optimos",
+          "old_winner": "resolucion_de_contradicciones_entre_insights_sumatoria_mentalidad",
+          "new_winner": "hermes_nvidia_nim_modelos_optimos",
+          "old_rank": 2,
+          "new_rank": 1,
+          "query": "hermes nvidias nims modelo optimo"
+        },
+        {
+          "id": "0648",
+          "gold": "plugin_biorag-remember_v8.3_-_adaptación_de_dennys_+_claude",
+          "old_winner": "biorag-remember-plugin-noreply-injection",
+          "new_winner": "plugin_biorag-remember_v8.3_-_adaptación_de_dennys_+_claude",
+          "old_rank": 2,
+          "new_rank": 1,
+          "query": "plugins biorag-remember v8.3 -s adaptacións de dennys +s claude"
+        }
+      ],
+      "losses_top1": []
+    },
+    {
+      "config_id": "CFG_08",
+      "params": {
+        "saturation": 0.3,
+        "min_scale_tem": 0.5,
+        "min_scale_dim": 1.0
+      },
+      "r1": 0.9230769230769231,
+      "r5": 0.997737556561086,
+      "mrr": 0.9506787330316738,
+      "top1_hits": 408,
+      "top5_hits": 441,
+      "total_cases": 442,
+      "gains_top1_count": 3,
+      "losses_top1_count": 0,
+      "net_delta_top1": 3,
+      "losses_top5_count": 1,
+      "fp_dev": 0,
+      "fp_dev_total": 20,
+      "elapsed_seconds": 342.0,
+      "losses_top5": [
+        {
+          "id": "0518",
+          "gold": "cuando_usar_dimensiones_biorag",
+          "old_rank": 2,
+          "new_rank": -1,
+          "query": "cuando usado dimensione biorags"
+        }
+      ],
+      "gains_top1": [
+        {
+          "id": "0624",
+          "gold": "notebooklm-chat-configure",
+          "old_winner": "notebooklm-memory-biorag-project",
+          "new_winner": "notebooklm-chat-configure",
+          "old_rank": 2,
+          "new_rank": 1,
+          "query": "noteboklm-chat-configure"
+        },
+        {
+          "id": "0767",
+          "gold": "hermes_nvidia_nim_modelos_optimos",
+          "old_winner": "resolucion_de_contradicciones_entre_insights_sumatoria_mentalidad",
+          "new_winner": "hermes_nvidia_nim_modelos_optimos",
+          "old_rank": 2,
+          "new_rank": 1,
+          "query": "hermes nvidias nims modelo optimo"
+        },
+        {
+          "id": "0648",
+          "gold": "plugin_biorag-remember_v8.3_-_adaptación_de_dennys_+_claude",
+          "old_winner": "biorag-remember-plugin-noreply-injection",
+          "new_winner": "plugin_biorag-remember_v8.3_-_adaptación_de_dennys_+_claude",
+          "old_rank": 2,
+          "new_rank": 1,
+          "query": "plugins biorag-remember v8.3 -s adaptacións de dennys +s claude"
+        }
+      ],
+      "losses_top1": []
+    },
+    {
+      "config_id": "CFG_09",
+      "params": {
+        "saturation": 0.3,
+        "min_scale_tem": 0.75,
+        "min_scale_dim": 0.25
+      },
+      "r1": 0.9253393665158371,
+      "r5": 0.995475113122172,
+      "mrr": 0.9509803921568624,
+      "top1_hits": 409,
+      "top5_hits": 440,
+      "total_cases": 442,
+      "gains_top1_count": 4,
+      "losses_top1_count": 0,
+      "net_delta_top1": 4,
+      "losses_top5_count": 2,
+      "fp_dev": 0,
+      "fp_dev_total": 20,
+      "elapsed_seconds": 330.8,
+      "losses_top5": [
+        {
+          "id": "0638",
+          "gold": "mentalidad_biorag_para_agentes",
+          "old_rank": 5,
+          "new_rank": -1,
+          "query": "memoria compartida"
+        },
+        {
+          "id": "0518",
+          "gold": "cuando_usar_dimensiones_biorag",
+          "old_rank": 2,
+          "new_rank": -1,
+          "query": "cuando usado dimensione biorags"
+        }
+      ],
+      "gains_top1": [
+        {
+          "id": "0497",
+          "gold": "benchmark_antes_despues_fix3",
+          "old_winner": "causa_raiz_por_tema_pooling_plano_diluye_senal_word2vec",
+          "new_winner": "benchmark_antes_despues_fix3",
+          "old_rank": 2,
+          "new_rank": 1,
+          "query": "relevantes biomimética mejor"
+        },
+        {
+          "id": "0830",
+          "gold": "interacción_social_saludo",
+          "old_winner": "athena_evolucion_v0001",
+          "new_winner": "interacción_social_saludo",
+          "old_rank": 2,
+          "new_rank": 1,
+          "query": "dormidos34 symbolic solución"
+        },
+        {
+          "id": "0624",
+          "gold": "notebooklm-chat-configure",
+          "old_winner": "notebooklm-memory-biorag-project",
+          "new_winner": "notebooklm-chat-configure",
+          "old_rank": 2,
+          "new_rank": 1,
+          "query": "noteboklm-chat-configure"
+        },
+        {
+          "id": "0648",
+          "gold": "plugin_biorag-remember_v8.3_-_adaptación_de_dennys_+_claude",
+          "old_winner": "biorag-remember-plugin-noreply-injection",
+          "new_winner": "plugin_biorag-remember_v8.3_-_adaptación_de_dennys_+_claude",
+          "old_rank": 2,
+          "new_rank": 1,
+          "query": "plugins biorag-remember v8.3 -s adaptacións de dennys +s claude"
+        }
+      ],
+      "losses_top1": []
+    },
+    {
+      "config_id": "CFG_10",
+      "params": {
+        "saturation": 0.3,
+        "min_scale_tem": 0.75,
+        "min_scale_dim": 0.5
+      },
+      "r1": 0.9253393665158371,
+      "r5": 0.997737556561086,
+      "mrr": 0.9512443438914023,
+      "top1_hits": 409,
+      "top5_hits": 441,
+      "total_cases": 442,
+      "gains_top1_count": 4,
+      "losses_top1_count": 0,
+      "net_delta_top1": 4,
+      "losses_top5_count": 1,
+      "fp_dev": 0,
+      "fp_dev_total": 20,
+      "elapsed_seconds": 313.0,
+      "losses_top5": [
+        {
+          "id": "0518",
+          "gold": "cuando_usar_dimensiones_biorag",
+          "old_rank": 2,
+          "new_rank": -1,
+          "query": "cuando usado dimensione biorags"
+        }
+      ],
+      "gains_top1": [
+        {
+          "id": "0497",
+          "gold": "benchmark_antes_despues_fix3",
+          "old_winner": "causa_raiz_por_tema_pooling_plano_diluye_senal_word2vec",
+          "new_winner": "benchmark_antes_despues_fix3",
+          "old_rank": 2,
+          "new_rank": 1,
+          "query": "relevantes biomimética mejor"
+        },
+        {
+          "id": "0830",
+          "gold": "interacción_social_saludo",
+          "old_winner": "athena_evolucion_v0001",
+          "new_winner": "interacción_social_saludo",
+          "old_rank": 2,
+          "new_rank": 1,
+          "query": "dormidos34 symbolic solución"
+        },
+        {
+          "id": "0624",
+          "gold": "notebooklm-chat-configure",
+          "old_winner": "notebooklm-memory-biorag-project",
+          "new_winner": "notebooklm-chat-configure",
+          "old_rank": 2,
+          "new_rank": 1,
+          "query": "noteboklm-chat-configure"
+        },
+        {
+          "id": "0648",
+          "gold": "plugin_biorag-remember_v8.3_-_adaptación_de_dennys_+_claude",
+          "old_winner": "biorag-remember-plugin-noreply-injection",
+          "new_winner": "plugin_biorag-remember_v8.3_-_adaptación_de_dennys_+_claude",
+          "old_rank": 2,
+          "new_rank": 1,
+          "query": "plugins biorag-remember v8.3 -s adaptacións de dennys +s claude"
+        }
+      ],
+      "losses_top1": []
+    },
+    {
+      "config_id": "CFG_11",
+      "params": {
+        "saturation": 0.3,
+        "min_scale_tem": 0.75,
+        "min_scale_dim": 0.75
+      },
+      "r1": 0.9230769230769231,
+      "r5": 0.997737556561086,
+      "mrr": 0.950226244343891,
+      "top1_hits": 408,
+      "top5_hits": 441,
+      "total_cases": 442,
+      "gains_top1_count": 3,
+      "losses_top1_count": 0,
+      "net_delta_top1": 3,
+      "losses_top5_count": 1,
+      "fp_dev": 0,
+      "fp_dev_total": 20,
+      "elapsed_seconds": 350.3,
+      "losses_top5": [
+        {
+          "id": "0518",
+          "gold": "cuando_usar_dimensiones_biorag",
+          "old_rank": 2,
+          "new_rank": -1,
+          "query": "cuando usado dimensione biorags"
+        }
+      ],
+      "gains_top1": [
+        {
+          "id": "0830",
+          "gold": "interacción_social_saludo",
+          "old_winner": "athena_evolucion_v0001",
+          "new_winner": "interacción_social_saludo",
+          "old_rank": 2,
+          "new_rank": 1,
+          "query": "dormidos34 symbolic solución"
+        },
+        {
+          "id": "0624",
+          "gold": "notebooklm-chat-configure",
+          "old_winner": "notebooklm-memory-biorag-project",
+          "new_winner": "notebooklm-chat-configure",
+          "old_rank": 2,
+          "new_rank": 1,
+          "query": "noteboklm-chat-configure"
+        },
+        {
+          "id": "0648",
+          "gold": "plugin_biorag-remember_v8.3_-_adaptación_de_dennys_+_claude",
+          "old_winner": "biorag-remember-plugin-noreply-injection",
+          "new_winner": "plugin_biorag-remember_v8.3_-_adaptación_de_dennys_+_claude",
+          "old_rank": 2,
+          "new_rank": 1,
+          "query": "plugins biorag-remember v8.3 -s adaptacións de dennys +s claude"
+        }
+      ],
+      "losses_top1": []
+    },
+    {
+      "config_id": "CFG_12",
+      "params": {
+        "saturation": 0.3,
+        "min_scale_tem": 0.75,
+        "min_scale_dim": 1.0
+      },
+      "r1": 0.920814479638009,
+      "r5": 1.0,
+      "mrr": 0.9507918552036195,
+      "top1_hits": 407,
+      "top5_hits": 442,
+      "total_cases": 442,
+      "gains_top1_count": 2,
+      "losses_top1_count": 0,
+      "net_delta_top1": 2,
+      "losses_top5_count": 0,
+      "fp_dev": 0,
+      "fp_dev_total": 20,
+      "elapsed_seconds": 320.2,
+      "losses_top5": [],
+      "gains_top1": [
+        {
+          "id": "0624",
+          "gold": "notebooklm-chat-configure",
+          "old_winner": "notebooklm-memory-biorag-project",
+          "new_winner": "notebooklm-chat-configure",
+          "old_rank": 2,
+          "new_rank": 1,
+          "query": "noteboklm-chat-configure"
+        },
+        {
+          "id": "0648",
+          "gold": "plugin_biorag-remember_v8.3_-_adaptación_de_dennys_+_claude",
+          "old_winner": "biorag-remember-plugin-noreply-injection",
+          "new_winner": "plugin_biorag-remember_v8.3_-_adaptación_de_dennys_+_claude",
+          "old_rank": 2,
+          "new_rank": 1,
+          "query": "plugins biorag-remember v8.3 -s adaptacións de dennys +s claude"
+        }
+      ],
+      "losses_top1": []
+    },
+    {
+      "config_id": "CFG_13",
+      "params": {
+        "saturation": 0.3,
+        "min_scale_tem": 1.0,
+        "min_scale_dim": 0.25
+      },
+      "r1": 0.9230769230769231,
+      "r5": 0.995475113122172,
+      "mrr": 0.9500377073906481,
+      "top1_hits": 408,
+      "top5_hits": 440,
+      "total_cases": 442,
+      "gains_top1_count": 3,
+      "losses_top1_count": 0,
+      "net_delta_top1": 3,
+      "losses_top5_count": 2,
+      "fp_dev": 0,
+      "fp_dev_total": 20,
+      "elapsed_seconds": 307.8,
+      "losses_top5": [
+        {
+          "id": "0638",
+          "gold": "mentalidad_biorag_para_agentes",
+          "old_rank": 5,
+          "new_rank": -1,
+          "query": "memoria compartida"
+        },
+        {
+          "id": "0518",
+          "gold": "cuando_usar_dimensiones_biorag",
+          "old_rank": 2,
+          "new_rank": -1,
+          "query": "cuando usado dimensione biorags"
+        }
+      ],
+      "gains_top1": [
+        {
+          "id": "0497",
+          "gold": "benchmark_antes_despues_fix3",
+          "old_winner": "causa_raiz_por_tema_pooling_plano_diluye_senal_word2vec",
+          "new_winner": "benchmark_antes_despues_fix3",
+          "old_rank": 2,
+          "new_rank": 1,
+          "query": "relevantes biomimética mejor"
+        },
+        {
+          "id": "0830",
+          "gold": "interacción_social_saludo",
+          "old_winner": "athena_evolucion_v0001",
+          "new_winner": "interacción_social_saludo",
+          "old_rank": 2,
+          "new_rank": 1,
+          "query": "dormidos34 symbolic solución"
+        },
+        {
+          "id": "0648",
+          "gold": "plugin_biorag-remember_v8.3_-_adaptación_de_dennys_+_claude",
+          "old_winner": "biorag-remember-plugin-noreply-injection",
+          "new_winner": "plugin_biorag-remember_v8.3_-_adaptación_de_dennys_+_claude",
+          "old_rank": 2,
+          "new_rank": 1,
+          "query": "plugins biorag-remember v8.3 -s adaptacións de dennys +s claude"
+        }
+      ],
+      "losses_top1": []
+    },
+    {
+      "config_id": "CFG_14",
+      "params": {
+        "saturation": 0.3,
+        "min_scale_tem": 1.0,
+        "min_scale_dim": 0.5
+      },
+      "r1": 0.920814479638009,
+      "r5": 0.997737556561086,
+      "mrr": 0.9487933634992455,
+      "top1_hits": 407,
+      "top5_hits": 441,
+      "total_cases": 442,
+      "gains_top1_count": 2,
+      "losses_top1_count": 0,
+      "net_delta_top1": 2,
+      "losses_top5_count": 1,
+      "fp_dev": 0,
+      "fp_dev_total": 20,
+      "elapsed_seconds": 305.9,
+      "losses_top5": [
+        {
+          "id": "0518",
+          "gold": "cuando_usar_dimensiones_biorag",
+          "old_rank": 2,
+          "new_rank": -1,
+          "query": "cuando usado dimensione biorags"
+        }
+      ],
+      "gains_top1": [
+        {
+          "id": "0497",
+          "gold": "benchmark_antes_despues_fix3",
+          "old_winner": "causa_raiz_por_tema_pooling_plano_diluye_senal_word2vec",
+          "new_winner": "benchmark_antes_despues_fix3",
+          "old_rank": 2,
+          "new_rank": 1,
+          "query": "relevantes biomimética mejor"
+        },
+        {
+          "id": "0830",
+          "gold": "interacción_social_saludo",
+          "old_winner": "athena_evolucion_v0001",
+          "new_winner": "interacción_social_saludo",
+          "old_rank": 2,
+          "new_rank": 1,
+          "query": "dormidos34 symbolic solución"
+        }
+      ],
+      "losses_top1": []
+    },
+    {
+      "config_id": "CFG_15",
+      "params": {
+        "saturation": 0.3,
+        "min_scale_tem": 1.0,
+        "min_scale_dim": 0.75
+      },
+      "r1": 0.918552036199095,
+      "r5": 1.0,
+      "mrr": 0.9489064856711912,
+      "top1_hits": 406,
+      "top5_hits": 442,
+      "total_cases": 442,
+      "gains_top1_count": 1,
+      "losses_top1_count": 0,
+      "net_delta_top1": 1,
+      "losses_top5_count": 0,
+      "fp_dev": 0,
+      "fp_dev_total": 20,
+      "elapsed_seconds": 303.9,
+      "losses_top5": [],
+      "gains_top1": [
+        {
+          "id": "0830",
+          "gold": "interacción_social_saludo",
+          "old_winner": "athena_evolucion_v0001",
+          "new_winner": "interacción_social_saludo",
+          "old_rank": 2,
+          "new_rank": 1,
+          "query": "dormidos34 symbolic solución"
+        }
+      ],
+      "losses_top1": []
+    },
+    {
+      "config_id": "CFG_16",
+      "params": {
+        "saturation": 0.3,
+        "min_scale_tem": 1.0,
+        "min_scale_dim": 1.0
+      },
+      "r1": 0.916289592760181,
+      "r5": 1.0,
+      "mrr": 0.9483408748114627,
+      "top1_hits": 405,
+      "top5_hits": 442,
+      "total_cases": 442,
+      "gains_top1_count": 0,
+      "losses_top1_count": 0,
+      "net_delta_top1": 0,
+      "losses_top5_count": 0,
+      "fp_dev": 0,
+      "fp_dev_total": 20,
+      "elapsed_seconds": 317.9,
+      "losses_top5": [],
+      "gains_top1": [],
+      "losses_top1": []
+    },
+    {
+      "config_id": "CFG_17",
+      "params": {
+        "saturation": 0.4,
+        "min_scale_tem": 0.25,
+        "min_scale_dim": 0.25
+      },
+      "r1": 0.9253393665158371,
+      "r5": 0.9932126696832579,
+      "mrr": 0.9496606334841625,
+      "top1_hits": 409,
+      "top5_hits": 439,
+      "total_cases": 442,
+      "gains_top1_count": 5,
+      "losses_top1_count": 1,
+      "net_delta_top1": 4,
+      "losses_top5_count": 3,
+      "fp_dev": 0,
+      "fp_dev_total": 20,
+      "elapsed_seconds": 306.4,
+      "losses_top5": [
+        {
+          "id": "0638",
+          "gold": "mentalidad_biorag_para_agentes",
+          "old_rank": 5,
+          "new_rank": -1,
+          "query": "memoria compartida"
+        },
+        {
+          "id": "0518",
+          "gold": "cuando_usar_dimensiones_biorag",
+          "old_rank": 2,
+          "new_rank": -1,
+          "query": "cuando usado dimensione biorags"
+        },
+        {
+          "id": "0803",
+          "gold": "cv_seccion_d_test_vinculacion",
+          "old_rank": 1,
+          "new_rank": -1,
+          "query": "cv seccion ds tests vinculaciones"
+        }
+      ],
+      "gains_top1": [
+        {
+          "id": "0497",
+          "gold": "benchmark_antes_despues_fix3",
+          "old_winner": "causa_raiz_por_tema_pooling_plano_diluye_senal_word2vec",
+          "new_winner": "benchmark_antes_despues_fix3",
+          "old_rank": 2,
+          "new_rank": 1,
+          "query": "relevantes biomimética mejor"
+        },
+        {
+          "id": "0830",
+          "gold": "interacción_social_saludo",
+          "old_winner": "athena_evolucion_v0001",
+          "new_winner": "interacción_social_saludo",
+          "old_rank": 2,
+          "new_rank": 1,
+          "query": "dormidos34 symbolic solución"
+        },
+        {
+          "id": "0624",
+          "gold": "notebooklm-chat-configure",
+          "old_winner": "notebooklm-memory-biorag-project",
+          "new_winner": "notebooklm-chat-configure",
+          "old_rank": 2,
+          "new_rank": 1,
+          "query": "noteboklm-chat-configure"
+        },
+        {
+          "id": "0767",
+          "gold": "hermes_nvidia_nim_modelos_optimos",
+          "old_winner": "resolucion_de_contradicciones_entre_insights_sumatoria_mentalidad",
+          "new_winner": "hermes_nvidia_nim_modelos_optimos",
+          "old_rank": 2,
+          "new_rank": 1,
+          "query": "hermes nvidias nims modelo optimo"
+        },
+        {
+          "id": "0648",
+          "gold": "plugin_biorag-remember_v8.3_-_adaptación_de_dennys_+_claude",
+          "old_winner": "biorag-remember-plugin-noreply-injection",
+          "new_winner": "plugin_biorag-remember_v8.3_-_adaptación_de_dennys_+_claude",
+          "old_rank": 2,
+          "new_rank": 1,
+          "query": "plugins biorag-remember v8.3 -s adaptacións de dennys +s claude"
+        }
+      ],
+      "losses_top1": [
+        {
+          "id": "0803",
+          "gold": "cv_seccion_d_test_vinculacion",
+          "old_winner": "cv_seccion_d_test_vinculacion",
+          "new_winner": "athena_forensic_audit_trail_ltd_detection_fix",
+          "old_rank": 1,
+          "new_rank": -1,
+          "query": "cv seccion ds tests vinculaciones"
+        }
+      ]
+    },
+    {
+      "config_id": "CFG_18",
+      "params": {
+        "saturation": 0.4,
+        "min_scale_tem": 0.25,
+        "min_scale_dim": 0.5
+      },
+      "r1": 0.9253393665158371,
+      "r5": 0.995475113122172,
+      "mrr": 0.9498868778280538,
+      "top1_hits": 409,
+      "top5_hits": 440,
+      "total_cases": 442,
+      "gains_top1_count": 5,
+      "losses_top1_count": 1,
+      "net_delta_top1": 4,
+      "losses_top5_count": 2,
+      "fp_dev": 0,
+      "fp_dev_total": 20,
+      "elapsed_seconds": 293.6,
+      "losses_top5": [
+        {
+          "id": "0518",
+          "gold": "cuando_usar_dimensiones_biorag",
+          "old_rank": 2,
+          "new_rank": -1,
+          "query": "cuando usado dimensione biorags"
+        },
+        {
+          "id": "0803",
+          "gold": "cv_seccion_d_test_vinculacion",
+          "old_rank": 1,
+          "new_rank": -1,
+          "query": "cv seccion ds tests vinculaciones"
+        }
+      ],
+      "gains_top1": [
+        {
+          "id": "0497",
+          "gold": "benchmark_antes_despues_fix3",
+          "old_winner": "causa_raiz_por_tema_pooling_plano_diluye_senal_word2vec",
+          "new_winner": "benchmark_antes_despues_fix3",
+          "old_rank": 2,
+          "new_rank": 1,
+          "query": "relevantes biomimética mejor"
+        },
+        {
+          "id": "0830",
+          "gold": "interacción_social_saludo",
+          "old_winner": "athena_evolucion_v0001",
+          "new_winner": "interacción_social_saludo",
+          "old_rank": 2,
+          "new_rank": 1,
+          "query": "dormidos34 symbolic solución"
+        },
+        {
+          "id": "0624",
+          "gold": "notebooklm-chat-configure",
+          "old_winner": "notebooklm-memory-biorag-project",
+          "new_winner": "notebooklm-chat-configure",
+          "old_rank": 2,
+          "new_rank": 1,
+          "query": "noteboklm-chat-configure"
+        },
+        {
+          "id": "0767",
+          "gold": "hermes_nvidia_nim_modelos_optimos",
+          "old_winner": "resolucion_de_contradicciones_entre_insights_sumatoria_mentalidad",
+          "new_winner": "hermes_nvidia_nim_modelos_optimos",
+          "old_rank": 2,
+          "new_rank": 1,
+          "query": "hermes nvidias nims modelo optimo"
+        },
+        {
+          "id": "0648",
+          "gold": "plugin_biorag-remember_v8.3_-_adaptación_de_dennys_+_claude",
+          "old_winner": "biorag-remember-plugin-noreply-injection",
+          "new_winner": "plugin_biorag-remember_v8.3_-_adaptación_de_dennys_+_claude",
+          "old_rank": 2,
+          "new_rank": 1,
+          "query": "plugins biorag-remember v8.3 -s adaptacións de dennys +s claude"
+        }
+      ],
+      "losses_top1": [
+        {
+          "id": "0803",
+          "gold": "cv_seccion_d_test_vinculacion",
+          "old_winner": "cv_seccion_d_test_vinculacion",
+          "new_winner": "athena_forensic_audit_trail_ltd_detection_fix",
+          "old_rank": 1,
+          "new_rank": -1,
+          "query": "cv seccion ds tests vinculaciones"
+        }
+      ]
+    },
+    {
+      "config_id": "CFG_19",
+      "params": {
+        "saturation": 0.4,
+        "min_scale_tem": 0.25,
+        "min_scale_dim": 0.75
+      },
+      "r1": 0.9230769230769231,
+      "r5": 0.995475113122172,
+      "mrr": 0.9489819004524883,
+      "top1_hits": 408,
+      "top5_hits": 440,
+      "total_cases": 442,
+      "gains_top1_count": 4,
+      "losses_top1_count": 1,
+      "net_delta_top1": 3,
+      "losses_top5_count": 2,
+      "fp_dev": 0,
+      "fp_dev_total": 20,
+      "elapsed_seconds": 359.4,
+      "losses_top5": [
+        {
+          "id": "0518",
+          "gold": "cuando_usar_dimensiones_biorag",
+          "old_rank": 2,
+          "new_rank": -1,
+          "query": "cuando usado dimensione biorags"
+        },
+        {
+          "id": "0803",
+          "gold": "cv_seccion_d_test_vinculacion",
+          "old_rank": 1,
+          "new_rank": -1,
+          "query": "cv seccion ds tests vinculaciones"
+        }
+      ],
+      "gains_top1": [
+        {
+          "id": "0830",
+          "gold": "interacción_social_saludo",
+          "old_winner": "athena_evolucion_v0001",
+          "new_winner": "interacción_social_saludo",
+          "old_rank": 2,
+          "new_rank": 1,
+          "query": "dormidos34 symbolic solución"
+        },
+        {
+          "id": "0624",
+          "gold": "notebooklm-chat-configure",
+          "old_winner": "notebooklm-memory-biorag-project",
+          "new_winner": "notebooklm-chat-configure",
+          "old_rank": 2,
+          "new_rank": 1,
+          "query": "noteboklm-chat-configure"
+        },
+        {
+          "id": "0767",
+          "gold": "hermes_nvidia_nim_modelos_optimos",
+          "old_winner": "resolucion_de_contradicciones_entre_insights_sumatoria_mentalidad",
+          "new_winner": "hermes_nvidia_nim_modelos_optimos",
+          "old_rank": 2,
+          "new_rank": 1,
+          "query": "hermes nvidias nims modelo optimo"
+        },
+        {
+          "id": "0648",
+          "gold": "plugin_biorag-remember_v8.3_-_adaptación_de_dennys_+_claude",
+          "old_winner": "biorag-remember-plugin-noreply-injection",
+          "new_winner": "plugin_biorag-remember_v8.3_-_adaptación_de_dennys_+_claude",
+          "old_rank": 2,
+          "new_rank": 1,
+          "query": "plugins biorag-remember v8.3 -s adaptacións de dennys +s claude"
+        }
+      ],
+      "losses_top1": [
+        {
+          "id": "0803",
+          "gold": "cv_seccion_d_test_vinculacion",
+          "old_winner": "cv_seccion_d_test_vinculacion",
+          "new_winner": "athena_forensic_audit_trail_ltd_detection_fix",
+          "old_rank": 1,
+          "new_rank": -1,
+          "query": "cv seccion ds tests vinculaciones"
+        }
+      ]
+    },
+    {
+      "config_id": "CFG_20",
+      "params": {
+        "saturation": 0.4,
+        "min_scale_tem": 0.25,
+        "min_scale_dim": 1.0
+      },
+      "r1": 0.920814479638009,
+      "r5": 0.995475113122172,
+      "mrr": 0.9485294117647055,
+      "top1_hits": 407,
+      "top5_hits": 440,
+      "total_cases": 442,
+      "gains_top1_count": 3,
+      "losses_top1_count": 1,
+      "net_delta_top1": 2,
+      "losses_top5_count": 2,
+      "fp_dev": 0,
+      "fp_dev_total": 20,
+      "elapsed_seconds": 378.7,
+      "losses_top5": [
+        {
+          "id": "0518",
+          "gold": "cuando_usar_dimensiones_biorag",
+          "old_rank": 2,
+          "new_rank": -1,
+          "query": "cuando usado dimensione biorags"
+        },
+        {
+          "id": "0803",
+          "gold": "cv_seccion_d_test_vinculacion",
+          "old_rank": 1,
+          "new_rank": -1,
+          "query": "cv seccion ds tests vinculaciones"
+        }
+      ],
+      "gains_top1": [
+        {
+          "id": "0624",
+          "gold": "notebooklm-chat-configure",
+          "old_winner": "notebooklm-memory-biorag-project",
+          "new_winner": "notebooklm-chat-configure",
+          "old_rank": 2,
+          "new_rank": 1,
+          "query": "noteboklm-chat-configure"
+        },
+        {
+          "id": "0767",
+          "gold": "hermes_nvidia_nim_modelos_optimos",
+          "old_winner": "resolucion_de_contradicciones_entre_insights_sumatoria_mentalidad",
+          "new_winner": "hermes_nvidia_nim_modelos_optimos",
+          "old_rank": 2,
+          "new_rank": 1,
+          "query": "hermes nvidias nims modelo optimo"
+        },
+        {
+          "id": "0648",
+          "gold": "plugin_biorag-remember_v8.3_-_adaptación_de_dennys_+_claude",
+          "old_winner": "biorag-remember-plugin-noreply-injection",
+          "new_winner": "plugin_biorag-remember_v8.3_-_adaptación_de_dennys_+_claude",
+          "old_rank": 2,
+          "new_rank": 1,
+          "query": "plugins biorag-remember v8.3 -s adaptacións de dennys +s claude"
+        }
+      ],
+      "losses_top1": [
+        {
+          "id": "0803",
+          "gold": "cv_seccion_d_test_vinculacion",
+          "old_winner": "cv_seccion_d_test_vinculacion",
+          "new_winner": "athena_forensic_audit_trail_ltd_detection_fix",
+          "old_rank": 1,
+          "new_rank": -1,
+          "query": "cv seccion ds tests vinculaciones"
+        }
+      ]
+    },
+    {
+      "config_id": "CFG_21",
+      "params": {
+        "saturation": 0.4,
+        "min_scale_tem": 0.5,
+        "min_scale_dim": 0.25
+      },
+      "r1": 0.9230769230769231,
+      "r5": 0.9932126696832579,
+      "mrr": 0.9484162895927598,
+      "top1_hits": 408,
+      "top5_hits": 439,
+      "total_cases": 442,
+      "gains_top1_count": 4,
+      "losses_top1_count": 1,
+      "net_delta_top1": 3,
+      "losses_top5_count": 3,
+      "fp_dev": 0,
+      "fp_dev_total": 20,
+      "elapsed_seconds": 364.0,
+      "losses_top5": [
+        {
+          "id": "0638",
+          "gold": "mentalidad_biorag_para_agentes",
+          "old_rank": 5,
+          "new_rank": -1,
+          "query": "memoria compartida"
+        },
+        {
+          "id": "0518",
+          "gold": "cuando_usar_dimensiones_biorag",
+          "old_rank": 2,
+          "new_rank": -1,
+          "query": "cuando usado dimensione biorags"
+        },
+        {
+          "id": "0803",
+          "gold": "cv_seccion_d_test_vinculacion",
+          "old_rank": 1,
+          "new_rank": -1,
+          "query": "cv seccion ds tests vinculaciones"
+        }
+      ],
+      "gains_top1": [
+        {
+          "id": "0497",
+          "gold": "benchmark_antes_despues_fix3",
+          "old_winner": "causa_raiz_por_tema_pooling_plano_diluye_senal_word2vec",
+          "new_winner": "benchmark_antes_despues_fix3",
+          "old_rank": 2,
+          "new_rank": 1,
+          "query": "relevantes biomimética mejor"
+        },
+        {
+          "id": "0830",
+          "gold": "interacción_social_saludo",
+          "old_winner": "athena_evolucion_v0001",
+          "new_winner": "interacción_social_saludo",
+          "old_rank": 2,
+          "new_rank": 1,
+          "query": "dormidos34 symbolic solución"
+        },
+        {
+          "id": "0624",
+          "gold": "notebooklm-chat-configure",
+          "old_winner": "notebooklm-memory-biorag-project",
+          "new_winner": "notebooklm-chat-configure",
+          "old_rank": 2,
+          "new_rank": 1,
+          "query": "noteboklm-chat-configure"
+        },
+        {
+          "id": "0648",
+          "gold": "plugin_biorag-remember_v8.3_-_adaptación_de_dennys_+_claude",
+          "old_winner": "biorag-remember-plugin-noreply-injection",
+          "new_winner": "plugin_biorag-remember_v8.3_-_adaptación_de_dennys_+_claude",
+          "old_rank": 2,
+          "new_rank": 1,
+          "query": "plugins biorag-remember v8.3 -s adaptacións de dennys +s claude"
+        }
+      ],
+      "losses_top1": [
+        {
+          "id": "0803",
+          "gold": "cv_seccion_d_test_vinculacion",
+          "old_winner": "cv_seccion_d_test_vinculacion",
+          "new_winner": "athena_forensic_audit_trail_ltd_detection_fix",
+          "old_rank": 1,
+          "new_rank": -1,
+          "query": "cv seccion ds tests vinculaciones"
+        }
+      ]
+    },
+    {
+      "config_id": "CFG_22",
+      "params": {
+        "saturation": 0.4,
+        "min_scale_tem": 0.5,
+        "min_scale_dim": 0.5
+      },
+      "r1": 0.9253393665158371,
+      "r5": 0.995475113122172,
+      "mrr": 0.9498868778280538,
+      "top1_hits": 409,
+      "top5_hits": 440,
+      "total_cases": 442,
+      "gains_top1_count": 5,
+      "losses_top1_count": 1,
+      "net_delta_top1": 4,
+      "losses_top5_count": 2,
+      "fp_dev": 0,
+      "fp_dev_total": 20,
+      "elapsed_seconds": 324.3,
+      "losses_top5": [
+        {
+          "id": "0518",
+          "gold": "cuando_usar_dimensiones_biorag",
+          "old_rank": 2,
+          "new_rank": -1,
+          "query": "cuando usado dimensione biorags"
+        },
+        {
+          "id": "0803",
+          "gold": "cv_seccion_d_test_vinculacion",
+          "old_rank": 1,
+          "new_rank": -1,
+          "query": "cv seccion ds tests vinculaciones"
+        }
+      ],
+      "gains_top1": [
+        {
+          "id": "0497",
+          "gold": "benchmark_antes_despues_fix3",
+          "old_winner": "causa_raiz_por_tema_pooling_plano_diluye_senal_word2vec",
+          "new_winner": "benchmark_antes_despues_fix3",
+          "old_rank": 2,
+          "new_rank": 1,
+          "query": "relevantes biomimética mejor"
+        },
+        {
+          "id": "0830",
+          "gold": "interacción_social_saludo",
+          "old_winner": "athena_evolucion_v0001",
+          "new_winner": "interacción_social_saludo",
+          "old_rank": 2,
+          "new_rank": 1,
+          "query": "dormidos34 symbolic solución"
+        },
+        {
+          "id": "0624",
+          "gold": "notebooklm-chat-configure",
+          "old_winner": "notebooklm-memory-biorag-project",
+          "new_winner": "notebooklm-chat-configure",
+          "old_rank": 2,
+          "new_rank": 1,
+          "query": "noteboklm-chat-configure"
+        },
+        {
+          "id": "0767",
+          "gold": "hermes_nvidia_nim_modelos_optimos",
+          "old_winner": "resolucion_de_contradicciones_entre_insights_sumatoria_mentalidad",
+          "new_winner": "hermes_nvidia_nim_modelos_optimos",
+          "old_rank": 2,
+          "new_rank": 1,
+          "query": "hermes nvidias nims modelo optimo"
+        },
+        {
+          "id": "0648",
+          "gold": "plugin_biorag-remember_v8.3_-_adaptación_de_dennys_+_claude",
+          "old_winner": "biorag-remember-plugin-noreply-injection",
+          "new_winner": "plugin_biorag-remember_v8.3_-_adaptación_de_dennys_+_claude",
+          "old_rank": 2,
+          "new_rank": 1,
+          "query": "plugins biorag-remember v8.3 -s adaptacións de dennys +s claude"
+        }
+      ],
+      "losses_top1": [
+        {
+          "id": "0803",
+          "gold": "cv_seccion_d_test_vinculacion",
+          "old_winner": "cv_seccion_d_test_vinculacion",
+          "new_winner": "athena_forensic_audit_trail_ltd_detection_fix",
+          "old_rank": 1,
+          "new_rank": -1,
+          "query": "cv seccion ds tests vinculaciones"
+        }
+      ]
+    },
+    {
+      "config_id": "CFG_23",
+      "params": {
+        "saturation": 0.4,
+        "min_scale_tem": 0.5,
+        "min_scale_dim": 0.75
+      },
+      "r1": 0.9253393665158371,
+      "r5": 0.997737556561086,
+      "mrr": 0.951357466063348,
+      "top1_hits": 409,
+      "top5_hits": 441,
+      "total_cases": 442,
+      "gains_top1_count": 4,
+      "losses_top1_count": 0,
+      "net_delta_top1": 4,
+      "losses_top5_count": 1,
+      "fp_dev": 0,
+      "fp_dev_total": 20,
+      "elapsed_seconds": 297.1,
+      "losses_top5": [
+        {
+          "id": "0518",
+          "gold": "cuando_usar_dimensiones_biorag",
+          "old_rank": 2,
+          "new_rank": -1,
+          "query": "cuando usado dimensione biorags"
+        }
+      ],
+      "gains_top1": [
+        {
+          "id": "0830",
+          "gold": "interacción_social_saludo",
+          "old_winner": "athena_evolucion_v0001",
+          "new_winner": "interacción_social_saludo",
+          "old_rank": 2,
+          "new_rank": 1,
+          "query": "dormidos34 symbolic solución"
+        },
+        {
+          "id": "0624",
+          "gold": "notebooklm-chat-configure",
+          "old_winner": "notebooklm-memory-biorag-project",
+          "new_winner": "notebooklm-chat-configure",
+          "old_rank": 2,
+          "new_rank": 1,
+          "query": "noteboklm-chat-configure"
+        },
+        {
+          "id": "0767",
+          "gold": "hermes_nvidia_nim_modelos_optimos",
+          "old_winner": "resolucion_de_contradicciones_entre_insights_sumatoria_mentalidad",
+          "new_winner": "hermes_nvidia_nim_modelos_optimos",
+          "old_rank": 2,
+          "new_rank": 1,
+          "query": "hermes nvidias nims modelo optimo"
+        },
+        {
+          "id": "0648",
+          "gold": "plugin_biorag-remember_v8.3_-_adaptación_de_dennys_+_claude",
+          "old_winner": "biorag-remember-plugin-noreply-injection",
+          "new_winner": "plugin_biorag-remember_v8.3_-_adaptación_de_dennys_+_claude",
+          "old_rank": 2,
+          "new_rank": 1,
+          "query": "plugins biorag-remember v8.3 -s adaptacións de dennys +s claude"
+        }
+      ],
+      "losses_top1": []
+    },
+    {
+      "config_id": "CFG_24",
+      "params": {
+        "saturation": 0.4,
+        "min_scale_tem": 0.5,
+        "min_scale_dim": 1.0
+      },
+      "r1": 0.9230769230769231,
+      "r5": 0.997737556561086,
+      "mrr": 0.9507918552036195,
+      "top1_hits": 408,
+      "top5_hits": 441,
+      "total_cases": 442,
+      "gains_top1_count": 3,
+      "losses_top1_count": 0,
+      "net_delta_top1": 3,
+      "losses_top5_count": 1,
+      "fp_dev": 0,
+      "fp_dev_total": 20,
+      "elapsed_seconds": 291.4,
+      "losses_top5": [
+        {
+          "id": "0518",
+          "gold": "cuando_usar_dimensiones_biorag",
+          "old_rank": 2,
+          "new_rank": -1,
+          "query": "cuando usado dimensione biorags"
+        }
+      ],
+      "gains_top1": [
+        {
+          "id": "0624",
+          "gold": "notebooklm-chat-configure",
+          "old_winner": "notebooklm-memory-biorag-project",
+          "new_winner": "notebooklm-chat-configure",
+          "old_rank": 2,
+          "new_rank": 1,
+          "query": "noteboklm-chat-configure"
+        },
+        {
+          "id": "0767",
+          "gold": "hermes_nvidia_nim_modelos_optimos",
+          "old_winner": "resolucion_de_contradicciones_entre_insights_sumatoria_mentalidad",
+          "new_winner": "hermes_nvidia_nim_modelos_optimos",
+          "old_rank": 2,
+          "new_rank": 1,
+          "query": "hermes nvidias nims modelo optimo"
+        },
+        {
+          "id": "0648",
+          "gold": "plugin_biorag-remember_v8.3_-_adaptación_de_dennys_+_claude",
+          "old_winner": "biorag-remember-plugin-noreply-injection",
+          "new_winner": "plugin_biorag-remember_v8.3_-_adaptación_de_dennys_+_claude",
+          "old_rank": 2,
+          "new_rank": 1,
+          "query": "plugins biorag-remember v8.3 -s adaptacións de dennys +s claude"
+        }
+      ],
+      "losses_top1": []
+    },
+    {
+      "config_id": "CFG_25",
+      "params": {
+        "saturation": 0.4,
+        "min_scale_tem": 0.75,
+        "min_scale_dim": 0.25
+      },
+      "r1": 0.9253393665158371,
+      "r5": 0.995475113122172,
+      "mrr": 0.9508672699849166,
+      "top1_hits": 409,
+      "top5_hits": 440,
+      "total_cases": 442,
+      "gains_top1_count": 4,
+      "losses_top1_count": 0,
+      "net_delta_top1": 4,
+      "losses_top5_count": 2,
+      "fp_dev": 0,
+      "fp_dev_total": 20,
+      "elapsed_seconds": 293.0,
+      "losses_top5": [
+        {
+          "id": "0638",
+          "gold": "mentalidad_biorag_para_agentes",
+          "old_rank": 5,
+          "new_rank": -1,
+          "query": "memoria compartida"
+        },
+        {
+          "id": "0518",
+          "gold": "cuando_usar_dimensiones_biorag",
+          "old_rank": 2,
+          "new_rank": -1,
+          "query": "cuando usado dimensione biorags"
+        }
+      ],
+      "gains_top1": [
+        {
+          "id": "0497",
+          "gold": "benchmark_antes_despues_fix3",
+          "old_winner": "causa_raiz_por_tema_pooling_plano_diluye_senal_word2vec",
+          "new_winner": "benchmark_antes_despues_fix3",
+          "old_rank": 2,
+          "new_rank": 1,
+          "query": "relevantes biomimética mejor"
+        },
+        {
+          "id": "0830",
+          "gold": "interacción_social_saludo",
+          "old_winner": "athena_evolucion_v0001",
+          "new_winner": "interacción_social_saludo",
+          "old_rank": 2,
+          "new_rank": 1,
+          "query": "dormidos34 symbolic solución"
+        },
+        {
+          "id": "0624",
+          "gold": "notebooklm-chat-configure",
+          "old_winner": "notebooklm-memory-biorag-project",
+          "new_winner": "notebooklm-chat-configure",
+          "old_rank": 2,
+          "new_rank": 1,
+          "query": "noteboklm-chat-configure"
+        },
+        {
+          "id": "0648",
+          "gold": "plugin_biorag-remember_v8.3_-_adaptación_de_dennys_+_claude",
+          "old_winner": "biorag-remember-plugin-noreply-injection",
+          "new_winner": "plugin_biorag-remember_v8.3_-_adaptación_de_dennys_+_claude",
+          "old_rank": 2,
+          "new_rank": 1,
+          "query": "plugins biorag-remember v8.3 -s adaptacións de dennys +s claude"
+        }
+      ],
+      "losses_top1": []
+    },
+    {
+      "config_id": "CFG_26",
+      "params": {
+        "saturation": 0.4,
+        "min_scale_tem": 0.75,
+        "min_scale_dim": 0.5
+      },
+      "r1": 0.9253393665158371,
+      "r5": 0.997737556561086,
+      "mrr": 0.9512443438914023,
+      "top1_hits": 409,
+      "top5_hits": 441,
+      "total_cases": 442,
+      "gains_top1_count": 4,
+      "losses_top1_count": 0,
+      "net_delta_top1": 4,
+      "losses_top5_count": 1,
+      "fp_dev": 0,
+      "fp_dev_total": 20,
+      "elapsed_seconds": 309.2,
+      "losses_top5": [
+        {
+          "id": "0518",
+          "gold": "cuando_usar_dimensiones_biorag",
+          "old_rank": 2,
+          "new_rank": -1,
+          "query": "cuando usado dimensione biorags"
+        }
+      ],
+      "gains_top1": [
+        {
+          "id": "0497",
+          "gold": "benchmark_antes_despues_fix3",
+          "old_winner": "causa_raiz_por_tema_pooling_plano_diluye_senal_word2vec",
+          "new_winner": "benchmark_antes_despues_fix3",
+          "old_rank": 2,
+          "new_rank": 1,
+          "query": "relevantes biomimética mejor"
+        },
+        {
+          "id": "0830",
+          "gold": "interacción_social_saludo",
+          "old_winner": "athena_evolucion_v0001",
+          "new_winner": "interacción_social_saludo",
+          "old_rank": 2,
+          "new_rank": 1,
+          "query": "dormidos34 symbolic solución"
+        },
+        {
+          "id": "0624",
+          "gold": "notebooklm-chat-configure",
+          "old_winner": "notebooklm-memory-biorag-project",
+          "new_winner": "notebooklm-chat-configure",
+          "old_rank": 2,
+          "new_rank": 1,
+          "query": "noteboklm-chat-configure"
+        },
+        {
+          "id": "0648",
+          "gold": "plugin_biorag-remember_v8.3_-_adaptación_de_dennys_+_claude",
+          "old_winner": "biorag-remember-plugin-noreply-injection",
+          "new_winner": "plugin_biorag-remember_v8.3_-_adaptación_de_dennys_+_claude",
+          "old_rank": 2,
+          "new_rank": 1,
+          "query": "plugins biorag-remember v8.3 -s adaptacións de dennys +s claude"
+        }
+      ],
+      "losses_top1": []
+    },
+    {
+      "config_id": "CFG_27",
+      "params": {
+        "saturation": 0.4,
+        "min_scale_tem": 0.75,
+        "min_scale_dim": 0.75
+      },
+      "r1": 0.9230769230769231,
+      "r5": 0.997737556561086,
+      "mrr": 0.950226244343891,
+      "top1_hits": 408,
+      "top5_hits": 441,
+      "total_cases": 442,
+      "gains_top1_count": 3,
+      "losses_top1_count": 0,
+      "net_delta_top1": 3,
+      "losses_top5_count": 1,
+      "fp_dev": 0,
+      "fp_dev_total": 20,
+      "elapsed_seconds": 308.2,
+      "losses_top5": [
+        {
+          "id": "0518",
+          "gold": "cuando_usar_dimensiones_biorag",
+          "old_rank": 2,
+          "new_rank": -1,
+          "query": "cuando usado dimensione biorags"
+        }
+      ],
+      "gains_top1": [
+        {
+          "id": "0830",
+          "gold": "interacción_social_saludo",
+          "old_winner": "athena_evolucion_v0001",
+          "new_winner": "interacción_social_saludo",
+          "old_rank": 2,
+          "new_rank": 1,
+          "query": "dormidos34 symbolic solución"
+        },
+        {
+          "id": "0624",
+          "gold": "notebooklm-chat-configure",
+          "old_winner": "notebooklm-memory-biorag-project",
+          "new_winner": "notebooklm-chat-configure",
+          "old_rank": 2,
+          "new_rank": 1,
+          "query": "noteboklm-chat-configure"
+        },
+        {
+          "id": "0648",
+          "gold": "plugin_biorag-remember_v8.3_-_adaptación_de_dennys_+_claude",
+          "old_winner": "biorag-remember-plugin-noreply-injection",
+          "new_winner": "plugin_biorag-remember_v8.3_-_adaptación_de_dennys_+_claude",
+          "old_rank": 2,
+          "new_rank": 1,
+          "query": "plugins biorag-remember v8.3 -s adaptacións de dennys +s claude"
+        }
+      ],
+      "losses_top1": []
+    },
+    {
+      "config_id": "CFG_28",
+      "params": {
+        "saturation": 0.4,
+        "min_scale_tem": 0.75,
+        "min_scale_dim": 1.0
+      },
+      "r1": 0.920814479638009,
+      "r5": 1.0,
+      "mrr": 0.9507918552036195,
+      "top1_hits": 407,
+      "top5_hits": 442,
+      "total_cases": 442,
+      "gains_top1_count": 2,
+      "losses_top1_count": 0,
+      "net_delta_top1": 2,
+      "losses_top5_count": 0,
+      "fp_dev": 0,
+      "fp_dev_total": 20,
+      "elapsed_seconds": 308.0,
+      "losses_top5": [],
+      "gains_top1": [
+        {
+          "id": "0624",
+          "gold": "notebooklm-chat-configure",
+          "old_winner": "notebooklm-memory-biorag-project",
+          "new_winner": "notebooklm-chat-configure",
+          "old_rank": 2,
+          "new_rank": 1,
+          "query": "noteboklm-chat-configure"
+        },
+        {
+          "id": "0648",
+          "gold": "plugin_biorag-remember_v8.3_-_adaptación_de_dennys_+_claude",
+          "old_winner": "biorag-remember-plugin-noreply-injection",
+          "new_winner": "plugin_biorag-remember_v8.3_-_adaptación_de_dennys_+_claude",
+          "old_rank": 2,
+          "new_rank": 1,
+          "query": "plugins biorag-remember v8.3 -s adaptacións de dennys +s claude"
+        }
+      ],
+      "losses_top1": []
+    },
+    {
+      "config_id": "CFG_29",
+      "params": {
+        "saturation": 0.4,
+        "min_scale_tem": 1.0,
+        "min_scale_dim": 0.25
+      },
+      "r1": 0.9230769230769231,
+      "r5": 0.995475113122172,
+      "mrr": 0.9498491704374054,
+      "top1_hits": 408,
+      "top5_hits": 440,
+      "total_cases": 442,
+      "gains_top1_count": 3,
+      "losses_top1_count": 0,
+      "net_delta_top1": 3,
+      "losses_top5_count": 2,
+      "fp_dev": 0,
+      "fp_dev_total": 20,
+      "elapsed_seconds": 313.0,
+      "losses_top5": [
+        {
+          "id": "0638",
+          "gold": "mentalidad_biorag_para_agentes",
+          "old_rank": 5,
+          "new_rank": -1,
+          "query": "memoria compartida"
+        },
+        {
+          "id": "0518",
+          "gold": "cuando_usar_dimensiones_biorag",
+          "old_rank": 2,
+          "new_rank": -1,
+          "query": "cuando usado dimensione biorags"
+        }
+      ],
+      "gains_top1": [
+        {
+          "id": "0497",
+          "gold": "benchmark_antes_despues_fix3",
+          "old_winner": "causa_raiz_por_tema_pooling_plano_diluye_senal_word2vec",
+          "new_winner": "benchmark_antes_despues_fix3",
+          "old_rank": 2,
+          "new_rank": 1,
+          "query": "relevantes biomimética mejor"
+        },
+        {
+          "id": "0830",
+          "gold": "interacción_social_saludo",
+          "old_winner": "athena_evolucion_v0001",
+          "new_winner": "interacción_social_saludo",
+          "old_rank": 2,
+          "new_rank": 1,
+          "query": "dormidos34 symbolic solución"
+        },
+        {
+          "id": "0648",
+          "gold": "plugin_biorag-remember_v8.3_-_adaptación_de_dennys_+_claude",
+          "old_winner": "biorag-remember-plugin-noreply-injection",
+          "new_winner": "plugin_biorag-remember_v8.3_-_adaptación_de_dennys_+_claude",
+          "old_rank": 2,
+          "new_rank": 1,
+          "query": "plugins biorag-remember v8.3 -s adaptacións de dennys +s claude"
+        }
+      ],
+      "losses_top1": []
+    },
+    {
+      "config_id": "CFG_30",
+      "params": {
+        "saturation": 0.4,
+        "min_scale_tem": 1.0,
+        "min_scale_dim": 0.5
+      },
+      "r1": 0.920814479638009,
+      "r5": 0.997737556561086,
+      "mrr": 0.9487933634992455,
+      "top1_hits": 407,
+      "top5_hits": 441,
+      "total_cases": 442,
+      "gains_top1_count": 2,
+      "losses_top1_count": 0,
+      "net_delta_top1": 2,
+      "losses_top5_count": 1,
+      "fp_dev": 0,
+      "fp_dev_total": 20,
+      "elapsed_seconds": 306.0,
+      "losses_top5": [
+        {
+          "id": "0518",
+          "gold": "cuando_usar_dimensiones_biorag",
+          "old_rank": 2,
+          "new_rank": -1,
+          "query": "cuando usado dimensione biorags"
+        }
+      ],
+      "gains_top1": [
+        {
+          "id": "0497",
+          "gold": "benchmark_antes_despues_fix3",
+          "old_winner": "causa_raiz_por_tema_pooling_plano_diluye_senal_word2vec",
+          "new_winner": "benchmark_antes_despues_fix3",
+          "old_rank": 2,
+          "new_rank": 1,
+          "query": "relevantes biomimética mejor"
+        },
+        {
+          "id": "0830",
+          "gold": "interacción_social_saludo",
+          "old_winner": "athena_evolucion_v0001",
+          "new_winner": "interacción_social_saludo",
+          "old_rank": 2,
+          "new_rank": 1,
+          "query": "dormidos34 symbolic solución"
+        }
+      ],
+      "losses_top1": []
+    },
+    {
+      "config_id": "CFG_31",
+      "params": {
+        "saturation": 0.4,
+        "min_scale_tem": 1.0,
+        "min_scale_dim": 0.75
+      },
+      "r1": 0.918552036199095,
+      "r5": 1.0,
+      "mrr": 0.9489064856711912,
+      "top1_hits": 406,
+      "top5_hits": 442,
+      "total_cases": 442,
+      "gains_top1_count": 1,
+      "losses_top1_count": 0,
+      "net_delta_top1": 1,
+      "losses_top5_count": 0,
+      "fp_dev": 0,
+      "fp_dev_total": 20,
+      "elapsed_seconds": 332.6,
+      "losses_top5": [],
+      "gains_top1": [
+        {
+          "id": "0830",
+          "gold": "interacción_social_saludo",
+          "old_winner": "athena_evolucion_v0001",
+          "new_winner": "interacción_social_saludo",
+          "old_rank": 2,
+          "new_rank": 1,
+          "query": "dormidos34 symbolic solución"
+        }
+      ],
+      "losses_top1": []
+    },
+    {
+      "config_id": "CFG_32",
+      "params": {
+        "saturation": 0.4,
+        "min_scale_tem": 1.0,
+        "min_scale_dim": 1.0
+      },
+      "r1": 0.916289592760181,
+      "r5": 1.0,
+      "mrr": 0.9483408748114627,
+      "top1_hits": 405,
+      "top5_hits": 442,
+      "total_cases": 442,
+      "gains_top1_count": 0,
+      "losses_top1_count": 0,
+      "net_delta_top1": 0,
+      "losses_top5_count": 0,
+      "fp_dev": 0,
+      "fp_dev_total": 20,
+      "elapsed_seconds": 306.8,
+      "losses_top5": [],
+      "gains_top1": [],
+      "losses_top1": []
+    },
+    {
+      "config_id": "CFG_33",
+      "params": {
+        "saturation": 0.5,
+        "min_scale_tem": 0.25,
+        "min_scale_dim": 0.25
+      },
+      "r1": 0.9230769230769231,
+      "r5": 0.9932126696832579,
+      "mrr": 0.9484162895927598,
+      "top1_hits": 408,
+      "top5_hits": 439,
+      "total_cases": 442,
+      "gains_top1_count": 5,
+      "losses_top1_count": 2,
+      "net_delta_top1": 3,
+      "losses_top5_count": 3,
+      "fp_dev": 0,
+      "fp_dev_total": 20,
+      "elapsed_seconds": 325.2,
+      "losses_top5": [
+        {
+          "id": "0638",
+          "gold": "mentalidad_biorag_para_agentes",
+          "old_rank": 5,
+          "new_rank": -1,
+          "query": "memoria compartida"
+        },
+        {
+          "id": "0518",
+          "gold": "cuando_usar_dimensiones_biorag",
+          "old_rank": 2,
+          "new_rank": -1,
+          "query": "cuando usado dimensione biorags"
+        },
+        {
+          "id": "0803",
+          "gold": "cv_seccion_d_test_vinculacion",
+          "old_rank": 1,
+          "new_rank": -1,
+          "query": "cv seccion ds tests vinculaciones"
+        }
+      ],
+      "gains_top1": [
+        {
+          "id": "0497",
+          "gold": "benchmark_antes_despues_fix3",
+          "old_winner": "causa_raiz_por_tema_pooling_plano_diluye_senal_word2vec",
+          "new_winner": "benchmark_antes_despues_fix3",
+          "old_rank": 2,
+          "new_rank": 1,
+          "query": "relevantes biomimética mejor"
+        },
+        {
+          "id": "0830",
+          "gold": "interacción_social_saludo",
+          "old_winner": "athena_evolucion_v0001",
+          "new_winner": "interacción_social_saludo",
+          "old_rank": 2,
+          "new_rank": 1,
+          "query": "dormidos34 symbolic solución"
+        },
+        {
+          "id": "0624",
+          "gold": "notebooklm-chat-configure",
+          "old_winner": "notebooklm-memory-biorag-project",
+          "new_winner": "notebooklm-chat-configure",
+          "old_rank": 2,
+          "new_rank": 1,
+          "query": "noteboklm-chat-configure"
+        },
+        {
+          "id": "0767",
+          "gold": "hermes_nvidia_nim_modelos_optimos",
+          "old_winner": "resolucion_de_contradicciones_entre_insights_sumatoria_mentalidad",
+          "new_winner": "hermes_nvidia_nim_modelos_optimos",
+          "old_rank": 2,
+          "new_rank": 1,
+          "query": "hermes nvidias nims modelo optimo"
+        },
+        {
+          "id": "0648",
+          "gold": "plugin_biorag-remember_v8.3_-_adaptación_de_dennys_+_claude",
+          "old_winner": "biorag-remember-plugin-noreply-injection",
+          "new_winner": "plugin_biorag-remember_v8.3_-_adaptación_de_dennys_+_claude",
+          "old_rank": 2,
+          "new_rank": 1,
+          "query": "plugins biorag-remember v8.3 -s adaptacións de dennys +s claude"
+        }
+      ],
+      "losses_top1": [
+        {
+          "id": "0513",
+          "gold": "dennys-identidad-profunda",
+          "old_winner": "dennys-identidad-profunda",
+          "new_winner": "correccion_dennys_principio_documentar_crisis_existencial",
+          "old_rank": 1,
+          "new_rank": 2,
+          "query": "denys-identidad-profunda"
+        },
+        {
+          "id": "0803",
+          "gold": "cv_seccion_d_test_vinculacion",
+          "old_winner": "cv_seccion_d_test_vinculacion",
+          "new_winner": "athena_forensic_audit_trail_ltd_detection_fix",
+          "old_rank": 1,
+          "new_rank": -1,
+          "query": "cv seccion ds tests vinculaciones"
+        }
+      ]
+    },
+    {
+      "config_id": "CFG_34",
+      "params": {
+        "saturation": 0.5,
+        "min_scale_tem": 0.25,
+        "min_scale_dim": 0.5
+      },
+      "r1": 0.9230769230769231,
+      "r5": 0.995475113122172,
+      "mrr": 0.9487556561085968,
+      "top1_hits": 408,
+      "top5_hits": 440,
+      "total_cases": 442,
+      "gains_top1_count": 5,
+      "losses_top1_count": 2,
+      "net_delta_top1": 3,
+      "losses_top5_count": 2,
+      "fp_dev": 0,
+      "fp_dev_total": 20,
+      "elapsed_seconds": 314.6,
+      "losses_top5": [
+        {
+          "id": "0518",
+          "gold": "cuando_usar_dimensiones_biorag",
+          "old_rank": 2,
+          "new_rank": -1,
+          "query": "cuando usado dimensione biorags"
+        },
+        {
+          "id": "0803",
+          "gold": "cv_seccion_d_test_vinculacion",
+          "old_rank": 1,
+          "new_rank": -1,
+          "query": "cv seccion ds tests vinculaciones"
+        }
+      ],
+      "gains_top1": [
+        {
+          "id": "0497",
+          "gold": "benchmark_antes_despues_fix3",
+          "old_winner": "causa_raiz_por_tema_pooling_plano_diluye_senal_word2vec",
+          "new_winner": "benchmark_antes_despues_fix3",
+          "old_rank": 2,
+          "new_rank": 1,
+          "query": "relevantes biomimética mejor"
+        },
+        {
+          "id": "0830",
+          "gold": "interacción_social_saludo",
+          "old_winner": "athena_evolucion_v0001",
+          "new_winner": "interacción_social_saludo",
+          "old_rank": 2,
+          "new_rank": 1,
+          "query": "dormidos34 symbolic solución"
+        },
+        {
+          "id": "0624",
+          "gold": "notebooklm-chat-configure",
+          "old_winner": "notebooklm-memory-biorag-project",
+          "new_winner": "notebooklm-chat-configure",
+          "old_rank": 2,
+          "new_rank": 1,
+          "query": "noteboklm-chat-configure"
+        },
+        {
+          "id": "0767",
+          "gold": "hermes_nvidia_nim_modelos_optimos",
+          "old_winner": "resolucion_de_contradicciones_entre_insights_sumatoria_mentalidad",
+          "new_winner": "hermes_nvidia_nim_modelos_optimos",
+          "old_rank": 2,
+          "new_rank": 1,
+          "query": "hermes nvidias nims modelo optimo"
+        },
+        {
+          "id": "0648",
+          "gold": "plugin_biorag-remember_v8.3_-_adaptación_de_dennys_+_claude",
+          "old_winner": "biorag-remember-plugin-noreply-injection",
+          "new_winner": "plugin_biorag-remember_v8.3_-_adaptación_de_dennys_+_claude",
+          "old_rank": 2,
+          "new_rank": 1,
+          "query": "plugins biorag-remember v8.3 -s adaptacións de dennys +s claude"
+        }
+      ],
+      "losses_top1": [
+        {
+          "id": "0513",
+          "gold": "dennys-identidad-profunda",
+          "old_winner": "dennys-identidad-profunda",
+          "new_winner": "correccion_dennys_principio_documentar_crisis_existencial",
+          "old_rank": 1,
+          "new_rank": 2,
+          "query": "denys-identidad-profunda"
+        },
+        {
+          "id": "0803",
+          "gold": "cv_seccion_d_test_vinculacion",
+          "old_winner": "cv_seccion_d_test_vinculacion",
+          "new_winner": "athena_forensic_audit_trail_ltd_detection_fix",
+          "old_rank": 1,
+          "new_rank": -1,
+          "query": "cv seccion ds tests vinculaciones"
+        }
+      ]
+    },
+    {
+      "config_id": "CFG_35",
+      "params": {
+        "saturation": 0.5,
+        "min_scale_tem": 0.25,
+        "min_scale_dim": 0.75
+      },
+      "r1": 0.920814479638009,
+      "r5": 0.995475113122172,
+      "mrr": 0.9478506787330313,
+      "top1_hits": 407,
+      "top5_hits": 440,
+      "total_cases": 442,
+      "gains_top1_count": 4,
+      "losses_top1_count": 2,
+      "net_delta_top1": 2,
+      "losses_top5_count": 2,
+      "fp_dev": 0,
+      "fp_dev_total": 20,
+      "elapsed_seconds": 312.5,
+      "losses_top5": [
+        {
+          "id": "0518",
+          "gold": "cuando_usar_dimensiones_biorag",
+          "old_rank": 2,
+          "new_rank": -1,
+          "query": "cuando usado dimensione biorags"
+        },
+        {
+          "id": "0803",
+          "gold": "cv_seccion_d_test_vinculacion",
+          "old_rank": 1,
+          "new_rank": -1,
+          "query": "cv seccion ds tests vinculaciones"
+        }
+      ],
+      "gains_top1": [
+        {
+          "id": "0830",
+          "gold": "interacción_social_saludo",
+          "old_winner": "athena_evolucion_v0001",
+          "new_winner": "interacción_social_saludo",
+          "old_rank": 2,
+          "new_rank": 1,
+          "query": "dormidos34 symbolic solución"
+        },
+        {
+          "id": "0624",
+          "gold": "notebooklm-chat-configure",
+          "old_winner": "notebooklm-memory-biorag-project",
+          "new_winner": "notebooklm-chat-configure",
+          "old_rank": 2,
+          "new_rank": 1,
+          "query": "noteboklm-chat-configure"
+        },
+        {
+          "id": "0767",
+          "gold": "hermes_nvidia_nim_modelos_optimos",
+          "old_winner": "resolucion_de_contradicciones_entre_insights_sumatoria_mentalidad",
+          "new_winner": "hermes_nvidia_nim_modelos_optimos",
+          "old_rank": 2,
+          "new_rank": 1,
+          "query": "hermes nvidias nims modelo optimo"
+        },
+        {
+          "id": "0648",
+          "gold": "plugin_biorag-remember_v8.3_-_adaptación_de_dennys_+_claude",
+          "old_winner": "biorag-remember-plugin-noreply-injection",
+          "new_winner": "plugin_biorag-remember_v8.3_-_adaptación_de_dennys_+_claude",
+          "old_rank": 2,
+          "new_rank": 1,
+          "query": "plugins biorag-remember v8.3 -s adaptacións de dennys +s claude"
+        }
+      ],
+      "losses_top1": [
+        {
+          "id": "0513",
+          "gold": "dennys-identidad-profunda",
+          "old_winner": "dennys-identidad-profunda",
+          "new_winner": "correccion_dennys_principio_documentar_crisis_existencial",
+          "old_rank": 1,
+          "new_rank": 2,
+          "query": "denys-identidad-profunda"
+        },
+        {
+          "id": "0803",
+          "gold": "cv_seccion_d_test_vinculacion",
+          "old_winner": "cv_seccion_d_test_vinculacion",
+          "new_winner": "athena_forensic_audit_trail_ltd_detection_fix",
+          "old_rank": 1,
+          "new_rank": -1,
+          "query": "cv seccion ds tests vinculaciones"
+        }
+      ]
+    },
+    {
+      "config_id": "CFG_36",
+      "params": {
+        "saturation": 0.5,
+        "min_scale_tem": 0.25,
+        "min_scale_dim": 1.0
+      },
+      "r1": 0.918552036199095,
+      "r5": 0.995475113122172,
+      "mrr": 0.946907993966817,
+      "top1_hits": 406,
+      "top5_hits": 440,
+      "total_cases": 442,
+      "gains_top1_count": 3,
+      "losses_top1_count": 2,
+      "net_delta_top1": 1,
+      "losses_top5_count": 2,
+      "fp_dev": 0,
+      "fp_dev_total": 20,
+      "elapsed_seconds": 337.9,
+      "losses_top5": [
+        {
+          "id": "0518",
+          "gold": "cuando_usar_dimensiones_biorag",
+          "old_rank": 2,
+          "new_rank": -1,
+          "query": "cuando usado dimensione biorags"
+        },
+        {
+          "id": "0803",
+          "gold": "cv_seccion_d_test_vinculacion",
+          "old_rank": 1,
+          "new_rank": -1,
+          "query": "cv seccion ds tests vinculaciones"
+        }
+      ],
+      "gains_top1": [
+        {
+          "id": "0624",
+          "gold": "notebooklm-chat-configure",
+          "old_winner": "notebooklm-memory-biorag-project",
+          "new_winner": "notebooklm-chat-configure",
+          "old_rank": 2,
+          "new_rank": 1,
+          "query": "noteboklm-chat-configure"
+        },
+        {
+          "id": "0767",
+          "gold": "hermes_nvidia_nim_modelos_optimos",
+          "old_winner": "resolucion_de_contradicciones_entre_insights_sumatoria_mentalidad",
+          "new_winner": "hermes_nvidia_nim_modelos_optimos",
+          "old_rank": 2,
+          "new_rank": 1,
+          "query": "hermes nvidias nims modelo optimo"
+        },
+        {
+          "id": "0648",
+          "gold": "plugin_biorag-remember_v8.3_-_adaptación_de_dennys_+_claude",
+          "old_winner": "biorag-remember-plugin-noreply-injection",
+          "new_winner": "plugin_biorag-remember_v8.3_-_adaptación_de_dennys_+_claude",
+          "old_rank": 2,
+          "new_rank": 1,
+          "query": "plugins biorag-remember v8.3 -s adaptacións de dennys +s claude"
+        }
+      ],
+      "losses_top1": [
+        {
+          "id": "0513",
+          "gold": "dennys-identidad-profunda",
+          "old_winner": "dennys-identidad-profunda",
+          "new_winner": "correccion_dennys_principio_documentar_crisis_existencial",
+          "old_rank": 1,
+          "new_rank": 2,
+          "query": "denys-identidad-profunda"
+        },
+        {
+          "id": "0803",
+          "gold": "cv_seccion_d_test_vinculacion",
+          "old_winner": "cv_seccion_d_test_vinculacion",
+          "new_winner": "athena_forensic_audit_trail_ltd_detection_fix",
+          "old_rank": 1,
+          "new_rank": -1,
+          "query": "cv seccion ds tests vinculaciones"
+        }
+      ]
+    },
+    {
+      "config_id": "CFG_37",
+      "params": {
+        "saturation": 0.5,
+        "min_scale_tem": 0.5,
+        "min_scale_dim": 0.25
+      },
+      "r1": 0.920814479638009,
+      "r5": 0.9932126696832579,
+      "mrr": 0.947171945701357,
+      "top1_hits": 407,
+      "top5_hits": 439,
+      "total_cases": 442,
+      "gains_top1_count": 4,
+      "losses_top1_count": 2,
+      "net_delta_top1": 2,
+      "losses_top5_count": 3,
+      "fp_dev": 0,
+      "fp_dev_total": 20,
+      "elapsed_seconds": 320.6,
+      "losses_top5": [
+        {
+          "id": "0638",
+          "gold": "mentalidad_biorag_para_agentes",
+          "old_rank": 5,
+          "new_rank": -1,
+          "query": "memoria compartida"
+        },
+        {
+          "id": "0518",
+          "gold": "cuando_usar_dimensiones_biorag",
+          "old_rank": 2,
+          "new_rank": -1,
+          "query": "cuando usado dimensione biorags"
+        },
+        {
+          "id": "0803",
+          "gold": "cv_seccion_d_test_vinculacion",
+          "old_rank": 1,
+          "new_rank": -1,
+          "query": "cv seccion ds tests vinculaciones"
+        }
+      ],
+      "gains_top1": [
+        {
+          "id": "0497",
+          "gold": "benchmark_antes_despues_fix3",
+          "old_winner": "causa_raiz_por_tema_pooling_plano_diluye_senal_word2vec",
+          "new_winner": "benchmark_antes_despues_fix3",
+          "old_rank": 2,
+          "new_rank": 1,
+          "query": "relevantes biomimética mejor"
+        },
+        {
+          "id": "0830",
+          "gold": "interacción_social_saludo",
+          "old_winner": "athena_evolucion_v0001",
+          "new_winner": "interacción_social_saludo",
+          "old_rank": 2,
+          "new_rank": 1,
+          "query": "dormidos34 symbolic solución"
+        },
+        {
+          "id": "0624",
+          "gold": "notebooklm-chat-configure",
+          "old_winner": "notebooklm-memory-biorag-project",
+          "new_winner": "notebooklm-chat-configure",
+          "old_rank": 2,
+          "new_rank": 1,
+          "query": "noteboklm-chat-configure"
+        },
+        {
+          "id": "0648",
+          "gold": "plugin_biorag-remember_v8.3_-_adaptación_de_dennys_+_claude",
+          "old_winner": "biorag-remember-plugin-noreply-injection",
+          "new_winner": "plugin_biorag-remember_v8.3_-_adaptación_de_dennys_+_claude",
+          "old_rank": 2,
+          "new_rank": 1,
+          "query": "plugins biorag-remember v8.3 -s adaptacións de dennys +s claude"
+        }
+      ],
+      "losses_top1": [
+        {
+          "id": "0513",
+          "gold": "dennys-identidad-profunda",
+          "old_winner": "dennys-identidad-profunda",
+          "new_winner": "correccion_dennys_principio_documentar_crisis_existencial",
+          "old_rank": 1,
+          "new_rank": 2,
+          "query": "denys-identidad-profunda"
+        },
+        {
+          "id": "0803",
+          "gold": "cv_seccion_d_test_vinculacion",
+          "old_winner": "cv_seccion_d_test_vinculacion",
+          "new_winner": "athena_forensic_audit_trail_ltd_detection_fix",
+          "old_rank": 1,
+          "new_rank": -1,
+          "query": "cv seccion ds tests vinculaciones"
+        }
+      ]
+    },
+    {
+      "config_id": "CFG_38",
+      "params": {
+        "saturation": 0.5,
+        "min_scale_tem": 0.5,
+        "min_scale_dim": 0.5
+      },
+      "r1": 0.9230769230769231,
+      "r5": 0.995475113122172,
+      "mrr": 0.9487556561085968,
+      "top1_hits": 408,
+      "top5_hits": 440,
+      "total_cases": 442,
+      "gains_top1_count": 5,
+      "losses_top1_count": 2,
+      "net_delta_top1": 3,
+      "losses_top5_count": 2,
+      "fp_dev": 0,
+      "fp_dev_total": 20,
+      "elapsed_seconds": 324.4,
+      "losses_top5": [
+        {
+          "id": "0518",
+          "gold": "cuando_usar_dimensiones_biorag",
+          "old_rank": 2,
+          "new_rank": -1,
+          "query": "cuando usado dimensione biorags"
+        },
+        {
+          "id": "0803",
+          "gold": "cv_seccion_d_test_vinculacion",
+          "old_rank": 1,
+          "new_rank": -1,
+          "query": "cv seccion ds tests vinculaciones"
+        }
+      ],
+      "gains_top1": [
+        {
+          "id": "0497",
+          "gold": "benchmark_antes_despues_fix3",
+          "old_winner": "causa_raiz_por_tema_pooling_plano_diluye_senal_word2vec",
+          "new_winner": "benchmark_antes_despues_fix3",
+          "old_rank": 2,
+          "new_rank": 1,
+          "query": "relevantes biomimética mejor"
+        },
+        {
+          "id": "0830",
+          "gold": "interacción_social_saludo",
+          "old_winner": "athena_evolucion_v0001",
+          "new_winner": "interacción_social_saludo",
+          "old_rank": 2,
+          "new_rank": 1,
+          "query": "dormidos34 symbolic solución"
+        },
+        {
+          "id": "0624",
+          "gold": "notebooklm-chat-configure",
+          "old_winner": "notebooklm-memory-biorag-project",
+          "new_winner": "notebooklm-chat-configure",
+          "old_rank": 2,
+          "new_rank": 1,
+          "query": "noteboklm-chat-configure"
+        },
+        {
+          "id": "0767",
+          "gold": "hermes_nvidia_nim_modelos_optimos",
+          "old_winner": "resolucion_de_contradicciones_entre_insights_sumatoria_mentalidad",
+          "new_winner": "hermes_nvidia_nim_modelos_optimos",
+          "old_rank": 2,
+          "new_rank": 1,
+          "query": "hermes nvidias nims modelo optimo"
+        },
+        {
+          "id": "0648",
+          "gold": "plugin_biorag-remember_v8.3_-_adaptación_de_dennys_+_claude",
+          "old_winner": "biorag-remember-plugin-noreply-injection",
+          "new_winner": "plugin_biorag-remember_v8.3_-_adaptación_de_dennys_+_claude",
+          "old_rank": 2,
+          "new_rank": 1,
+          "query": "plugins biorag-remember v8.3 -s adaptacións de dennys +s claude"
+        }
+      ],
+      "losses_top1": [
+        {
+          "id": "0513",
+          "gold": "dennys-identidad-profunda",
+          "old_winner": "dennys-identidad-profunda",
+          "new_winner": "correccion_dennys_principio_documentar_crisis_existencial",
+          "old_rank": 1,
+          "new_rank": 2,
+          "query": "denys-identidad-profunda"
+        },
+        {
+          "id": "0803",
+          "gold": "cv_seccion_d_test_vinculacion",
+          "old_winner": "cv_seccion_d_test_vinculacion",
+          "new_winner": "athena_forensic_audit_trail_ltd_detection_fix",
+          "old_rank": 1,
+          "new_rank": -1,
+          "query": "cv seccion ds tests vinculaciones"
+        }
+      ]
+    },
+    {
+      "config_id": "CFG_39",
+      "params": {
+        "saturation": 0.5,
+        "min_scale_tem": 0.5,
+        "min_scale_dim": 0.75
+      },
+      "r1": 0.9230769230769231,
+      "r5": 0.997737556561086,
+      "mrr": 0.9501131221719453,
+      "top1_hits": 408,
+      "top5_hits": 441,
+      "total_cases": 442,
+      "gains_top1_count": 4,
+      "losses_top1_count": 1,
+      "net_delta_top1": 3,
+      "losses_top5_count": 1,
+      "fp_dev": 0,
+      "fp_dev_total": 20,
+      "elapsed_seconds": 322.5,
+      "losses_top5": [
+        {
+          "id": "0518",
+          "gold": "cuando_usar_dimensiones_biorag",
+          "old_rank": 2,
+          "new_rank": -1,
+          "query": "cuando usado dimensione biorags"
+        }
+      ],
+      "gains_top1": [
+        {
+          "id": "0830",
+          "gold": "interacción_social_saludo",
+          "old_winner": "athena_evolucion_v0001",
+          "new_winner": "interacción_social_saludo",
+          "old_rank": 2,
+          "new_rank": 1,
+          "query": "dormidos34 symbolic solución"
+        },
+        {
+          "id": "0624",
+          "gold": "notebooklm-chat-configure",
+          "old_winner": "notebooklm-memory-biorag-project",
+          "new_winner": "notebooklm-chat-configure",
+          "old_rank": 2,
+          "new_rank": 1,
+          "query": "noteboklm-chat-configure"
+        },
+        {
+          "id": "0767",
+          "gold": "hermes_nvidia_nim_modelos_optimos",
+          "old_winner": "resolucion_de_contradicciones_entre_insights_sumatoria_mentalidad",
+          "new_winner": "hermes_nvidia_nim_modelos_optimos",
+          "old_rank": 2,
+          "new_rank": 1,
+          "query": "hermes nvidias nims modelo optimo"
+        },
+        {
+          "id": "0648",
+          "gold": "plugin_biorag-remember_v8.3_-_adaptación_de_dennys_+_claude",
+          "old_winner": "biorag-remember-plugin-noreply-injection",
+          "new_winner": "plugin_biorag-remember_v8.3_-_adaptación_de_dennys_+_claude",
+          "old_rank": 2,
+          "new_rank": 1,
+          "query": "plugins biorag-remember v8.3 -s adaptacións de dennys +s claude"
+        }
+      ],
+      "losses_top1": [
+        {
+          "id": "0513",
+          "gold": "dennys-identidad-profunda",
+          "old_winner": "dennys-identidad-profunda",
+          "new_winner": "correccion_dennys_principio_documentar_crisis_existencial",
+          "old_rank": 1,
+          "new_rank": 2,
+          "query": "denys-identidad-profunda"
+        }
+      ]
+    },
+    {
+      "config_id": "CFG_40",
+      "params": {
+        "saturation": 0.5,
+        "min_scale_tem": 0.5,
+        "min_scale_dim": 1.0
+      },
+      "r1": 0.920814479638009,
+      "r5": 0.997737556561086,
+      "mrr": 0.9492835595776768,
+      "top1_hits": 407,
+      "top5_hits": 441,
+      "total_cases": 442,
+      "gains_top1_count": 3,
+      "losses_top1_count": 1,
+      "net_delta_top1": 2,
+      "losses_top5_count": 1,
+      "fp_dev": 0,
+      "fp_dev_total": 20,
+      "elapsed_seconds": 300.3,
+      "losses_top5": [
+        {
+          "id": "0518",
+          "gold": "cuando_usar_dimensiones_biorag",
+          "old_rank": 2,
+          "new_rank": -1,
+          "query": "cuando usado dimensione biorags"
+        }
+      ],
+      "gains_top1": [
+        {
+          "id": "0624",
+          "gold": "notebooklm-chat-configure",
+          "old_winner": "notebooklm-memory-biorag-project",
+          "new_winner": "notebooklm-chat-configure",
+          "old_rank": 2,
+          "new_rank": 1,
+          "query": "noteboklm-chat-configure"
+        },
+        {
+          "id": "0767",
+          "gold": "hermes_nvidia_nim_modelos_optimos",
+          "old_winner": "resolucion_de_contradicciones_entre_insights_sumatoria_mentalidad",
+          "new_winner": "hermes_nvidia_nim_modelos_optimos",
+          "old_rank": 2,
+          "new_rank": 1,
+          "query": "hermes nvidias nims modelo optimo"
+        },
+        {
+          "id": "0648",
+          "gold": "plugin_biorag-remember_v8.3_-_adaptación_de_dennys_+_claude",
+          "old_winner": "biorag-remember-plugin-noreply-injection",
+          "new_winner": "plugin_biorag-remember_v8.3_-_adaptación_de_dennys_+_claude",
+          "old_rank": 2,
+          "new_rank": 1,
+          "query": "plugins biorag-remember v8.3 -s adaptacións de dennys +s claude"
+        }
+      ],
+      "losses_top1": [
+        {
+          "id": "0513",
+          "gold": "dennys-identidad-profunda",
+          "old_winner": "dennys-identidad-profunda",
+          "new_winner": "correccion_dennys_principio_documentar_crisis_existencial",
+          "old_rank": 1,
+          "new_rank": 2,
+          "query": "denys-identidad-profunda"
+        }
+      ]
+    },
+    {
+      "config_id": "CFG_41",
+      "params": {
+        "saturation": 0.5,
+        "min_scale_tem": 0.75,
+        "min_scale_dim": 0.25
+      },
+      "r1": 0.9253393665158371,
+      "r5": 0.995475113122172,
+      "mrr": 0.9506787330316738,
+      "top1_hits": 409,
+      "top5_hits": 440,
+      "total_cases": 442,
+      "gains_top1_count": 4,
+      "losses_top1_count": 0,
+      "net_delta_top1": 4,
+      "losses_top5_count": 2,
+      "fp_dev": 0,
+      "fp_dev_total": 20,
+      "elapsed_seconds": 320.0,
+      "losses_top5": [
+        {
+          "id": "0638",
+          "gold": "mentalidad_biorag_para_agentes",
+          "old_rank": 5,
+          "new_rank": -1,
+          "query": "memoria compartida"
+        },
+        {
+          "id": "0518",
+          "gold": "cuando_usar_dimensiones_biorag",
+          "old_rank": 2,
+          "new_rank": -1,
+          "query": "cuando usado dimensione biorags"
+        }
+      ],
+      "gains_top1": [
+        {
+          "id": "0497",
+          "gold": "benchmark_antes_despues_fix3",
+          "old_winner": "causa_raiz_por_tema_pooling_plano_diluye_senal_word2vec",
+          "new_winner": "benchmark_antes_despues_fix3",
+          "old_rank": 2,
+          "new_rank": 1,
+          "query": "relevantes biomimética mejor"
+        },
+        {
+          "id": "0830",
+          "gold": "interacción_social_saludo",
+          "old_winner": "athena_evolucion_v0001",
+          "new_winner": "interacción_social_saludo",
+          "old_rank": 2,
+          "new_rank": 1,
+          "query": "dormidos34 symbolic solución"
+        },
+        {
+          "id": "0624",
+          "gold": "notebooklm-chat-configure",
+          "old_winner": "notebooklm-memory-biorag-project",
+          "new_winner": "notebooklm-chat-configure",
+          "old_rank": 2,
+          "new_rank": 1,
+          "query": "noteboklm-chat-configure"
+        },
+        {
+          "id": "0648",
+          "gold": "plugin_biorag-remember_v8.3_-_adaptación_de_dennys_+_claude",
+          "old_winner": "biorag-remember-plugin-noreply-injection",
+          "new_winner": "plugin_biorag-remember_v8.3_-_adaptación_de_dennys_+_claude",
+          "old_rank": 2,
+          "new_rank": 1,
+          "query": "plugins biorag-remember v8.3 -s adaptacións de dennys +s claude"
+        }
+      ],
+      "losses_top1": []
+    },
+    {
+      "config_id": "CFG_42",
+      "params": {
+        "saturation": 0.5,
+        "min_scale_tem": 0.75,
+        "min_scale_dim": 0.5
+      },
+      "r1": 0.9253393665158371,
+      "r5": 0.997737556561086,
+      "mrr": 0.9510180995475108,
+      "top1_hits": 409,
+      "top5_hits": 441,
+      "total_cases": 442,
+      "gains_top1_count": 4,
+      "losses_top1_count": 0,
+      "net_delta_top1": 4,
+      "losses_top5_count": 1,
+      "fp_dev": 0,
+      "fp_dev_total": 20,
+      "elapsed_seconds": 54454.1,
+      "losses_top5": [
+        {
+          "id": "0518",
+          "gold": "cuando_usar_dimensiones_biorag",
+          "old_rank": 2,
+          "new_rank": -1,
+          "query": "cuando usado dimensione biorags"
+        }
+      ],
+      "gains_top1": [
+        {
+          "id": "0497",
+          "gold": "benchmark_antes_despues_fix3",
+          "old_winner": "causa_raiz_por_tema_pooling_plano_diluye_senal_word2vec",
+          "new_winner": "benchmark_antes_despues_fix3",
+          "old_rank": 2,
+          "new_rank": 1,
+          "query": "relevantes biomimética mejor"
+        },
+        {
+          "id": "0830",
+          "gold": "interacción_social_saludo",
+          "old_winner": "athena_evolucion_v0001",
+          "new_winner": "interacción_social_saludo",
+          "old_rank": 2,
+          "new_rank": 1,
+          "query": "dormidos34 symbolic solución"
+        },
+        {
+          "id": "0624",
+          "gold": "notebooklm-chat-configure",
+          "old_winner": "notebooklm-memory-biorag-project",
+          "new_winner": "notebooklm-chat-configure",
+          "old_rank": 2,
+          "new_rank": 1,
+          "query": "noteboklm-chat-configure"
+        },
+        {
+          "id": "0648",
+          "gold": "plugin_biorag-remember_v8.3_-_adaptación_de_dennys_+_claude",
+          "old_winner": "biorag-remember-plugin-noreply-injection",
+          "new_winner": "plugin_biorag-remember_v8.3_-_adaptación_de_dennys_+_claude",
+          "old_rank": 2,
+          "new_rank": 1,
+          "query": "plugins biorag-remember v8.3 -s adaptacións de dennys +s claude"
+        }
+      ],
+      "losses_top1": []
+    },
+    {
+      "config_id": "CFG_43",
+      "params": {
+        "saturation": 0.5,
+        "min_scale_tem": 0.75,
+        "min_scale_dim": 0.75
+      },
+      "r1": 0.9230769230769231,
+      "r5": 0.997737556561086,
+      "mrr": 0.950226244343891,
+      "top1_hits": 408,
+      "top5_hits": 441,
+      "total_cases": 442,
+      "gains_top1_count": 3,
+      "losses_top1_count": 0,
+      "net_delta_top1": 3,
+      "losses_top5_count": 1,
+      "fp_dev": 0,
+      "fp_dev_total": 20,
+      "elapsed_seconds": 388.0,
+      "losses_top5": [
+        {
+          "id": "0518",
+          "gold": "cuando_usar_dimensiones_biorag",
+          "old_rank": 2,
+          "new_rank": -1,
+          "query": "cuando usado dimensione biorags"
+        }
+      ],
+      "gains_top1": [
+        {
+          "id": "0830",
+          "gold": "interacción_social_saludo",
+          "old_winner": "athena_evolucion_v0001",
+          "new_winner": "interacción_social_saludo",
+          "old_rank": 2,
+          "new_rank": 1,
+          "query": "dormidos34 symbolic solución"
+        },
+        {
+          "id": "0624",
+          "gold": "notebooklm-chat-configure",
+          "old_winner": "notebooklm-memory-biorag-project",
+          "new_winner": "notebooklm-chat-configure",
+          "old_rank": 2,
+          "new_rank": 1,
+          "query": "noteboklm-chat-configure"
+        },
+        {
+          "id": "0648",
+          "gold": "plugin_biorag-remember_v8.3_-_adaptación_de_dennys_+_claude",
+          "old_winner": "biorag-remember-plugin-noreply-injection",
+          "new_winner": "plugin_biorag-remember_v8.3_-_adaptación_de_dennys_+_claude",
+          "old_rank": 2,
+          "new_rank": 1,
+          "query": "plugins biorag-remember v8.3 -s adaptacións de dennys +s claude"
+        }
+      ],
+      "losses_top1": []
+    },
+    {
+      "config_id": "CFG_44",
+      "params": {
+        "saturation": 0.5,
+        "min_scale_tem": 0.75,
+        "min_scale_dim": 1.0
+      },
+      "r1": 0.920814479638009,
+      "r5": 1.0,
+      "mrr": 0.9504147812971339,
+      "top1_hits": 407,
+      "top5_hits": 442,
+      "total_cases": 442,
+      "gains_top1_count": 2,
+      "losses_top1_count": 0,
+      "net_delta_top1": 2,
+      "losses_top5_count": 0,
+      "fp_dev": 0,
+      "fp_dev_total": 20,
+      "elapsed_seconds": 355.2,
+      "losses_top5": [],
+      "gains_top1": [
+        {
+          "id": "0624",
+          "gold": "notebooklm-chat-configure",
+          "old_winner": "notebooklm-memory-biorag-project",
+          "new_winner": "notebooklm-chat-configure",
+          "old_rank": 2,
+          "new_rank": 1,
+          "query": "noteboklm-chat-configure"
+        },
+        {
+          "id": "0648",
+          "gold": "plugin_biorag-remember_v8.3_-_adaptación_de_dennys_+_claude",
+          "old_winner": "biorag-remember-plugin-noreply-injection",
+          "new_winner": "plugin_biorag-remember_v8.3_-_adaptación_de_dennys_+_claude",
+          "old_rank": 2,
+          "new_rank": 1,
+          "query": "plugins biorag-remember v8.3 -s adaptacións de dennys +s claude"
+        }
+      ],
+      "losses_top1": []
+    },
+    {
+      "config_id": "CFG_45",
+      "params": {
+        "saturation": 0.5,
+        "min_scale_tem": 1.0,
+        "min_scale_dim": 0.25
+      },
+      "r1": 0.9230769230769231,
+      "r5": 0.995475113122172,
+      "mrr": 0.9498491704374054,
+      "top1_hits": 408,
+      "top5_hits": 440,
+      "total_cases": 442,
+      "gains_top1_count": 3,
+      "losses_top1_count": 0,
+      "net_delta_top1": 3,
+      "losses_top5_count": 2,
+      "fp_dev": 0,
+      "fp_dev_total": 20,
+      "elapsed_seconds": 321.2,
+      "losses_top5": [
+        {
+          "id": "0638",
+          "gold": "mentalidad_biorag_para_agentes",
+          "old_rank": 5,
+          "new_rank": -1,
+          "query": "memoria compartida"
+        },
+        {
+          "id": "0518",
+          "gold": "cuando_usar_dimensiones_biorag",
+          "old_rank": 2,
+          "new_rank": -1,
+          "query": "cuando usado dimensione biorags"
+        }
+      ],
+      "gains_top1": [
+        {
+          "id": "0497",
+          "gold": "benchmark_antes_despues_fix3",
+          "old_winner": "causa_raiz_por_tema_pooling_plano_diluye_senal_word2vec",
+          "new_winner": "benchmark_antes_despues_fix3",
+          "old_rank": 2,
+          "new_rank": 1,
+          "query": "relevantes biomimética mejor"
+        },
+        {
+          "id": "0830",
+          "gold": "interacción_social_saludo",
+          "old_winner": "athena_evolucion_v0001",
+          "new_winner": "interacción_social_saludo",
+          "old_rank": 2,
+          "new_rank": 1,
+          "query": "dormidos34 symbolic solución"
+        },
+        {
+          "id": "0648",
+          "gold": "plugin_biorag-remember_v8.3_-_adaptación_de_dennys_+_claude",
+          "old_winner": "biorag-remember-plugin-noreply-injection",
+          "new_winner": "plugin_biorag-remember_v8.3_-_adaptación_de_dennys_+_claude",
+          "old_rank": 2,
+          "new_rank": 1,
+          "query": "plugins biorag-remember v8.3 -s adaptacións de dennys +s claude"
+        }
+      ],
+      "losses_top1": []
+    },
+    {
+      "config_id": "CFG_46",
+      "params": {
+        "saturation": 0.5,
+        "min_scale_tem": 1.0,
+        "min_scale_dim": 0.5
+      },
+      "r1": 0.920814479638009,
+      "r5": 0.997737556561086,
+      "mrr": 0.9485671191553541,
+      "top1_hits": 407,
+      "top5_hits": 441,
+      "total_cases": 442,
+      "gains_top1_count": 2,
+      "losses_top1_count": 0,
+      "net_delta_top1": 2,
+      "losses_top5_count": 1,
+      "fp_dev": 0,
+      "fp_dev_total": 20,
+      "elapsed_seconds": 339.6,
+      "losses_top5": [
+        {
+          "id": "0518",
+          "gold": "cuando_usar_dimensiones_biorag",
+          "old_rank": 2,
+          "new_rank": -1,
+          "query": "cuando usado dimensione biorags"
+        }
+      ],
+      "gains_top1": [
+        {
+          "id": "0497",
+          "gold": "benchmark_antes_despues_fix3",
+          "old_winner": "causa_raiz_por_tema_pooling_plano_diluye_senal_word2vec",
+          "new_winner": "benchmark_antes_despues_fix3",
+          "old_rank": 2,
+          "new_rank": 1,
+          "query": "relevantes biomimética mejor"
+        },
+        {
+          "id": "0830",
+          "gold": "interacción_social_saludo",
+          "old_winner": "athena_evolucion_v0001",
+          "new_winner": "interacción_social_saludo",
+          "old_rank": 2,
+          "new_rank": 1,
+          "query": "dormidos34 symbolic solución"
+        }
+      ],
+      "losses_top1": []
+    },
+    {
+      "config_id": "CFG_47",
+      "params": {
+        "saturation": 0.5,
+        "min_scale_tem": 1.0,
+        "min_scale_dim": 0.75
+      },
+      "r1": 0.918552036199095,
+      "r5": 1.0,
+      "mrr": 0.9489064856711912,
+      "top1_hits": 406,
+      "top5_hits": 442,
+      "total_cases": 442,
+      "gains_top1_count": 1,
+      "losses_top1_count": 0,
+      "net_delta_top1": 1,
+      "losses_top5_count": 0,
+      "fp_dev": 0,
+      "fp_dev_total": 20,
+      "elapsed_seconds": 327.7,
+      "losses_top5": [],
+      "gains_top1": [
+        {
+          "id": "0830",
+          "gold": "interacción_social_saludo",
+          "old_winner": "athena_evolucion_v0001",
+          "new_winner": "interacción_social_saludo",
+          "old_rank": 2,
+          "new_rank": 1,
+          "query": "dormidos34 symbolic solución"
+        }
+      ],
+      "losses_top1": []
+    },
+    {
+      "config_id": "CFG_48",
+      "params": {
+        "saturation": 0.5,
+        "min_scale_tem": 1.0,
+        "min_scale_dim": 1.0
+      },
+      "r1": 0.916289592760181,
+      "r5": 1.0,
+      "mrr": 0.9483408748114627,
+      "top1_hits": 405,
+      "top5_hits": 442,
+      "total_cases": 442,
+      "gains_top1_count": 0,
+      "losses_top1_count": 0,
+      "net_delta_top1": 0,
+      "losses_top5_count": 0,
+      "fp_dev": 0,
+      "fp_dev_total": 20,
+      "elapsed_seconds": 348.8,
+      "losses_top5": [],
+      "gains_top1": [],
+      "losses_top1": []
+    },
+    {
+      "config_id": "CFG_49",
+      "params": {
+        "saturation": 0.6,
+        "min_scale_tem": 0.25,
+        "min_scale_dim": 0.25
+      },
+      "r1": 0.9230769230769231,
+      "r5": 0.9932126696832579,
+      "mrr": 0.9484162895927598,
+      "top1_hits": 408,
+      "top5_hits": 439,
+      "total_cases": 442,
+      "gains_top1_count": 5,
+      "losses_top1_count": 2,
+      "net_delta_top1": 3,
+      "losses_top5_count": 3,
+      "fp_dev": 0,
+      "fp_dev_total": 20,
+      "elapsed_seconds": 319.7,
+      "losses_top5": [
+        {
+          "id": "0638",
+          "gold": "mentalidad_biorag_para_agentes",
+          "old_rank": 5,
+          "new_rank": -1,
+          "query": "memoria compartida"
+        },
+        {
+          "id": "0518",
+          "gold": "cuando_usar_dimensiones_biorag",
+          "old_rank": 2,
+          "new_rank": -1,
+          "query": "cuando usado dimensione biorags"
+        },
+        {
+          "id": "0803",
+          "gold": "cv_seccion_d_test_vinculacion",
+          "old_rank": 1,
+          "new_rank": -1,
+          "query": "cv seccion ds tests vinculaciones"
+        }
+      ],
+      "gains_top1": [
+        {
+          "id": "0497",
+          "gold": "benchmark_antes_despues_fix3",
+          "old_winner": "causa_raiz_por_tema_pooling_plano_diluye_senal_word2vec",
+          "new_winner": "benchmark_antes_despues_fix3",
+          "old_rank": 2,
+          "new_rank": 1,
+          "query": "relevantes biomimética mejor"
+        },
+        {
+          "id": "0830",
+          "gold": "interacción_social_saludo",
+          "old_winner": "athena_evolucion_v0001",
+          "new_winner": "interacción_social_saludo",
+          "old_rank": 2,
+          "new_rank": 1,
+          "query": "dormidos34 symbolic solución"
+        },
+        {
+          "id": "0624",
+          "gold": "notebooklm-chat-configure",
+          "old_winner": "notebooklm-memory-biorag-project",
+          "new_winner": "notebooklm-chat-configure",
+          "old_rank": 2,
+          "new_rank": 1,
+          "query": "noteboklm-chat-configure"
+        },
+        {
+          "id": "0767",
+          "gold": "hermes_nvidia_nim_modelos_optimos",
+          "old_winner": "resolucion_de_contradicciones_entre_insights_sumatoria_mentalidad",
+          "new_winner": "hermes_nvidia_nim_modelos_optimos",
+          "old_rank": 2,
+          "new_rank": 1,
+          "query": "hermes nvidias nims modelo optimo"
+        },
+        {
+          "id": "0648",
+          "gold": "plugin_biorag-remember_v8.3_-_adaptación_de_dennys_+_claude",
+          "old_winner": "biorag-remember-plugin-noreply-injection",
+          "new_winner": "plugin_biorag-remember_v8.3_-_adaptación_de_dennys_+_claude",
+          "old_rank": 2,
+          "new_rank": 1,
+          "query": "plugins biorag-remember v8.3 -s adaptacións de dennys +s claude"
+        }
+      ],
+      "losses_top1": [
+        {
+          "id": "0513",
+          "gold": "dennys-identidad-profunda",
+          "old_winner": "dennys-identidad-profunda",
+          "new_winner": "correccion_dennys_principio_documentar_crisis_existencial",
+          "old_rank": 1,
+          "new_rank": 2,
+          "query": "denys-identidad-profunda"
+        },
+        {
+          "id": "0803",
+          "gold": "cv_seccion_d_test_vinculacion",
+          "old_winner": "cv_seccion_d_test_vinculacion",
+          "new_winner": "athena_forensic_audit_trail_ltd_detection_fix",
+          "old_rank": 1,
+          "new_rank": -1,
+          "query": "cv seccion ds tests vinculaciones"
+        }
+      ]
+    },
+    {
+      "config_id": "CFG_50",
+      "params": {
+        "saturation": 0.6,
+        "min_scale_tem": 0.25,
+        "min_scale_dim": 0.5
+      },
+      "r1": 0.9230769230769231,
+      "r5": 0.9932126696832579,
+      "mrr": 0.948303167420814,
+      "top1_hits": 408,
+      "top5_hits": 439,
+      "total_cases": 442,
+      "gains_top1_count": 5,
+      "losses_top1_count": 2,
+      "net_delta_top1": 3,
+      "losses_top5_count": 3,
+      "fp_dev": 0,
+      "fp_dev_total": 20,
+      "elapsed_seconds": 331.3,
+      "losses_top5": [
+        {
+          "id": "0516",
+          "gold": "dennys-identidad-profunda",
+          "old_rank": 5,
+          "new_rank": -1,
+          "query": "real más sistemas"
+        },
+        {
+          "id": "0518",
+          "gold": "cuando_usar_dimensiones_biorag",
+          "old_rank": 2,
+          "new_rank": -1,
+          "query": "cuando usado dimensione biorags"
+        },
+        {
+          "id": "0803",
+          "gold": "cv_seccion_d_test_vinculacion",
+          "old_rank": 1,
+          "new_rank": -1,
+          "query": "cv seccion ds tests vinculaciones"
+        }
+      ],
+      "gains_top1": [
+        {
+          "id": "0497",
+          "gold": "benchmark_antes_despues_fix3",
+          "old_winner": "causa_raiz_por_tema_pooling_plano_diluye_senal_word2vec",
+          "new_winner": "benchmark_antes_despues_fix3",
+          "old_rank": 2,
+          "new_rank": 1,
+          "query": "relevantes biomimética mejor"
+        },
+        {
+          "id": "0830",
+          "gold": "interacción_social_saludo",
+          "old_winner": "athena_evolucion_v0001",
+          "new_winner": "interacción_social_saludo",
+          "old_rank": 2,
+          "new_rank": 1,
+          "query": "dormidos34 symbolic solución"
+        },
+        {
+          "id": "0624",
+          "gold": "notebooklm-chat-configure",
+          "old_winner": "notebooklm-memory-biorag-project",
+          "new_winner": "notebooklm-chat-configure",
+          "old_rank": 2,
+          "new_rank": 1,
+          "query": "noteboklm-chat-configure"
+        },
+        {
+          "id": "0767",
+          "gold": "hermes_nvidia_nim_modelos_optimos",
+          "old_winner": "resolucion_de_contradicciones_entre_insights_sumatoria_mentalidad",
+          "new_winner": "hermes_nvidia_nim_modelos_optimos",
+          "old_rank": 2,
+          "new_rank": 1,
+          "query": "hermes nvidias nims modelo optimo"
+        },
+        {
+          "id": "0648",
+          "gold": "plugin_biorag-remember_v8.3_-_adaptación_de_dennys_+_claude",
+          "old_winner": "biorag-remember-plugin-noreply-injection",
+          "new_winner": "plugin_biorag-remember_v8.3_-_adaptación_de_dennys_+_claude",
+          "old_rank": 2,
+          "new_rank": 1,
+          "query": "plugins biorag-remember v8.3 -s adaptacións de dennys +s claude"
+        }
+      ],
+      "losses_top1": [
+        {
+          "id": "0513",
+          "gold": "dennys-identidad-profunda",
+          "old_winner": "dennys-identidad-profunda",
+          "new_winner": "correccion_dennys_principio_documentar_crisis_existencial",
+          "old_rank": 1,
+          "new_rank": 2,
+          "query": "denys-identidad-profunda"
+        },
+        {
+          "id": "0803",
+          "gold": "cv_seccion_d_test_vinculacion",
+          "old_winner": "cv_seccion_d_test_vinculacion",
+          "new_winner": "athena_forensic_audit_trail_ltd_detection_fix",
+          "old_rank": 1,
+          "new_rank": -1,
+          "query": "cv seccion ds tests vinculaciones"
+        }
+      ]
+    },
+    {
+      "config_id": "CFG_51",
+      "params": {
+        "saturation": 0.6,
+        "min_scale_tem": 0.25,
+        "min_scale_dim": 0.75
+      },
+      "r1": 0.920814479638009,
+      "r5": 0.9932126696832579,
+      "mrr": 0.9473981900452485,
+      "top1_hits": 407,
+      "top5_hits": 439,
+      "total_cases": 442,
+      "gains_top1_count": 4,
+      "losses_top1_count": 2,
+      "net_delta_top1": 2,
+      "losses_top5_count": 3,
+      "fp_dev": 0,
+      "fp_dev_total": 20,
+      "elapsed_seconds": 316.0,
+      "losses_top5": [
+        {
+          "id": "0516",
+          "gold": "dennys-identidad-profunda",
+          "old_rank": 5,
+          "new_rank": -1,
+          "query": "real más sistemas"
+        },
+        {
+          "id": "0518",
+          "gold": "cuando_usar_dimensiones_biorag",
+          "old_rank": 2,
+          "new_rank": -1,
+          "query": "cuando usado dimensione biorags"
+        },
+        {
+          "id": "0803",
+          "gold": "cv_seccion_d_test_vinculacion",
+          "old_rank": 1,
+          "new_rank": -1,
+          "query": "cv seccion ds tests vinculaciones"
+        }
+      ],
+      "gains_top1": [
+        {
+          "id": "0830",
+          "gold": "interacción_social_saludo",
+          "old_winner": "athena_evolucion_v0001",
+          "new_winner": "interacción_social_saludo",
+          "old_rank": 2,
+          "new_rank": 1,
+          "query": "dormidos34 symbolic solución"
+        },
+        {
+          "id": "0624",
+          "gold": "notebooklm-chat-configure",
+          "old_winner": "notebooklm-memory-biorag-project",
+          "new_winner": "notebooklm-chat-configure",
+          "old_rank": 2,
+          "new_rank": 1,
+          "query": "noteboklm-chat-configure"
+        },
+        {
+          "id": "0767",
+          "gold": "hermes_nvidia_nim_modelos_optimos",
+          "old_winner": "resolucion_de_contradicciones_entre_insights_sumatoria_mentalidad",
+          "new_winner": "hermes_nvidia_nim_modelos_optimos",
+          "old_rank": 2,
+          "new_rank": 1,
+          "query": "hermes nvidias nims modelo optimo"
+        },
+        {
+          "id": "0648",
+          "gold": "plugin_biorag-remember_v8.3_-_adaptación_de_dennys_+_claude",
+          "old_winner": "biorag-remember-plugin-noreply-injection",
+          "new_winner": "plugin_biorag-remember_v8.3_-_adaptación_de_dennys_+_claude",
+          "old_rank": 2,
+          "new_rank": 1,
+          "query": "plugins biorag-remember v8.3 -s adaptacións de dennys +s claude"
+        }
+      ],
+      "losses_top1": [
+        {
+          "id": "0513",
+          "gold": "dennys-identidad-profunda",
+          "old_winner": "dennys-identidad-profunda",
+          "new_winner": "correccion_dennys_principio_documentar_crisis_existencial",
+          "old_rank": 1,
+          "new_rank": 2,
+          "query": "denys-identidad-profunda"
+        },
+        {
+          "id": "0803",
+          "gold": "cv_seccion_d_test_vinculacion",
+          "old_winner": "cv_seccion_d_test_vinculacion",
+          "new_winner": "athena_forensic_audit_trail_ltd_detection_fix",
+          "old_rank": 1,
+          "new_rank": -1,
+          "query": "cv seccion ds tests vinculaciones"
+        }
+      ]
+    },
+    {
+      "config_id": "CFG_52",
+      "params": {
+        "saturation": 0.6,
+        "min_scale_tem": 0.25,
+        "min_scale_dim": 1.0
+      },
+      "r1": 0.918552036199095,
+      "r5": 0.9932126696832579,
+      "mrr": 0.9460784313725485,
+      "top1_hits": 406,
+      "top5_hits": 439,
+      "total_cases": 442,
+      "gains_top1_count": 3,
+      "losses_top1_count": 2,
+      "net_delta_top1": 1,
+      "losses_top5_count": 3,
+      "fp_dev": 0,
+      "fp_dev_total": 20,
+      "elapsed_seconds": 303.1,
+      "losses_top5": [
+        {
+          "id": "0516",
+          "gold": "dennys-identidad-profunda",
+          "old_rank": 5,
+          "new_rank": -1,
+          "query": "real más sistemas"
+        },
+        {
+          "id": "0518",
+          "gold": "cuando_usar_dimensiones_biorag",
+          "old_rank": 2,
+          "new_rank": -1,
+          "query": "cuando usado dimensione biorags"
+        },
+        {
+          "id": "0803",
+          "gold": "cv_seccion_d_test_vinculacion",
+          "old_rank": 1,
+          "new_rank": -1,
+          "query": "cv seccion ds tests vinculaciones"
+        }
+      ],
+      "gains_top1": [
+        {
+          "id": "0624",
+          "gold": "notebooklm-chat-configure",
+          "old_winner": "notebooklm-memory-biorag-project",
+          "new_winner": "notebooklm-chat-configure",
+          "old_rank": 2,
+          "new_rank": 1,
+          "query": "noteboklm-chat-configure"
+        },
+        {
+          "id": "0767",
+          "gold": "hermes_nvidia_nim_modelos_optimos",
+          "old_winner": "resolucion_de_contradicciones_entre_insights_sumatoria_mentalidad",
+          "new_winner": "hermes_nvidia_nim_modelos_optimos",
+          "old_rank": 2,
+          "new_rank": 1,
+          "query": "hermes nvidias nims modelo optimo"
+        },
+        {
+          "id": "0648",
+          "gold": "plugin_biorag-remember_v8.3_-_adaptación_de_dennys_+_claude",
+          "old_winner": "biorag-remember-plugin-noreply-injection",
+          "new_winner": "plugin_biorag-remember_v8.3_-_adaptación_de_dennys_+_claude",
+          "old_rank": 2,
+          "new_rank": 1,
+          "query": "plugins biorag-remember v8.3 -s adaptacións de dennys +s claude"
+        }
+      ],
+      "losses_top1": [
+        {
+          "id": "0513",
+          "gold": "dennys-identidad-profunda",
+          "old_winner": "dennys-identidad-profunda",
+          "new_winner": "correccion_dennys_principio_documentar_crisis_existencial",
+          "old_rank": 1,
+          "new_rank": 2,
+          "query": "denys-identidad-profunda"
+        },
+        {
+          "id": "0803",
+          "gold": "cv_seccion_d_test_vinculacion",
+          "old_winner": "cv_seccion_d_test_vinculacion",
+          "new_winner": "athena_forensic_audit_trail_ltd_detection_fix",
+          "old_rank": 1,
+          "new_rank": -1,
+          "query": "cv seccion ds tests vinculaciones"
+        }
+      ]
+    },
+    {
+      "config_id": "CFG_53",
+      "params": {
+        "saturation": 0.6,
+        "min_scale_tem": 0.5,
+        "min_scale_dim": 0.25
+      },
+      "r1": 0.920814479638009,
+      "r5": 0.9932126696832579,
+      "mrr": 0.9472850678733028,
+      "top1_hits": 407,
+      "top5_hits": 439,
+      "total_cases": 442,
+      "gains_top1_count": 4,
+      "losses_top1_count": 2,
+      "net_delta_top1": 2,
+      "losses_top5_count": 3,
+      "fp_dev": 0,
+      "fp_dev_total": 20,
+      "elapsed_seconds": 328.2,
+      "losses_top5": [
+        {
+          "id": "0638",
+          "gold": "mentalidad_biorag_para_agentes",
+          "old_rank": 5,
+          "new_rank": -1,
+          "query": "memoria compartida"
+        },
+        {
+          "id": "0518",
+          "gold": "cuando_usar_dimensiones_biorag",
+          "old_rank": 2,
+          "new_rank": -1,
+          "query": "cuando usado dimensione biorags"
+        },
+        {
+          "id": "0803",
+          "gold": "cv_seccion_d_test_vinculacion",
+          "old_rank": 1,
+          "new_rank": -1,
+          "query": "cv seccion ds tests vinculaciones"
+        }
+      ],
+      "gains_top1": [
+        {
+          "id": "0497",
+          "gold": "benchmark_antes_despues_fix3",
+          "old_winner": "causa_raiz_por_tema_pooling_plano_diluye_senal_word2vec",
+          "new_winner": "benchmark_antes_despues_fix3",
+          "old_rank": 2,
+          "new_rank": 1,
+          "query": "relevantes biomimética mejor"
+        },
+        {
+          "id": "0830",
+          "gold": "interacción_social_saludo",
+          "old_winner": "athena_evolucion_v0001",
+          "new_winner": "interacción_social_saludo",
+          "old_rank": 2,
+          "new_rank": 1,
+          "query": "dormidos34 symbolic solución"
+        },
+        {
+          "id": "0624",
+          "gold": "notebooklm-chat-configure",
+          "old_winner": "notebooklm-memory-biorag-project",
+          "new_winner": "notebooklm-chat-configure",
+          "old_rank": 2,
+          "new_rank": 1,
+          "query": "noteboklm-chat-configure"
+        },
+        {
+          "id": "0648",
+          "gold": "plugin_biorag-remember_v8.3_-_adaptación_de_dennys_+_claude",
+          "old_winner": "biorag-remember-plugin-noreply-injection",
+          "new_winner": "plugin_biorag-remember_v8.3_-_adaptación_de_dennys_+_claude",
+          "old_rank": 2,
+          "new_rank": 1,
+          "query": "plugins biorag-remember v8.3 -s adaptacións de dennys +s claude"
+        }
+      ],
+      "losses_top1": [
+        {
+          "id": "0513",
+          "gold": "dennys-identidad-profunda",
+          "old_winner": "dennys-identidad-profunda",
+          "new_winner": "correccion_dennys_principio_documentar_crisis_existencial",
+          "old_rank": 1,
+          "new_rank": 2,
+          "query": "denys-identidad-profunda"
+        },
+        {
+          "id": "0803",
+          "gold": "cv_seccion_d_test_vinculacion",
+          "old_winner": "cv_seccion_d_test_vinculacion",
+          "new_winner": "athena_forensic_audit_trail_ltd_detection_fix",
+          "old_rank": 1,
+          "new_rank": -1,
+          "query": "cv seccion ds tests vinculaciones"
+        }
+      ]
+    },
+    {
+      "config_id": "CFG_54",
+      "params": {
+        "saturation": 0.6,
+        "min_scale_tem": 0.5,
+        "min_scale_dim": 0.5
+      },
+      "r1": 0.9230769230769231,
+      "r5": 0.9932126696832579,
+      "mrr": 0.948303167420814,
+      "top1_hits": 408,
+      "top5_hits": 439,
+      "total_cases": 442,
+      "gains_top1_count": 5,
+      "losses_top1_count": 2,
+      "net_delta_top1": 3,
+      "losses_top5_count": 3,
+      "fp_dev": 0,
+      "fp_dev_total": 20,
+      "elapsed_seconds": 314.2,
+      "losses_top5": [
+        {
+          "id": "0516",
+          "gold": "dennys-identidad-profunda",
+          "old_rank": 5,
+          "new_rank": -1,
+          "query": "real más sistemas"
+        },
+        {
+          "id": "0518",
+          "gold": "cuando_usar_dimensiones_biorag",
+          "old_rank": 2,
+          "new_rank": -1,
+          "query": "cuando usado dimensione biorags"
+        },
+        {
+          "id": "0803",
+          "gold": "cv_seccion_d_test_vinculacion",
+          "old_rank": 1,
+          "new_rank": -1,
+          "query": "cv seccion ds tests vinculaciones"
+        }
+      ],
+      "gains_top1": [
+        {
+          "id": "0497",
+          "gold": "benchmark_antes_despues_fix3",
+          "old_winner": "causa_raiz_por_tema_pooling_plano_diluye_senal_word2vec",
+          "new_winner": "benchmark_antes_despues_fix3",
+          "old_rank": 2,
+          "new_rank": 1,
+          "query": "relevantes biomimética mejor"
+        },
+        {
+          "id": "0830",
+          "gold": "interacción_social_saludo",
+          "old_winner": "athena_evolucion_v0001",
+          "new_winner": "interacción_social_saludo",
+          "old_rank": 2,
+          "new_rank": 1,
+          "query": "dormidos34 symbolic solución"
+        },
+        {
+          "id": "0624",
+          "gold": "notebooklm-chat-configure",
+          "old_winner": "notebooklm-memory-biorag-project",
+          "new_winner": "notebooklm-chat-configure",
+          "old_rank": 2,
+          "new_rank": 1,
+          "query": "noteboklm-chat-configure"
+        },
+        {
+          "id": "0767",
+          "gold": "hermes_nvidia_nim_modelos_optimos",
+          "old_winner": "resolucion_de_contradicciones_entre_insights_sumatoria_mentalidad",
+          "new_winner": "hermes_nvidia_nim_modelos_optimos",
+          "old_rank": 2,
+          "new_rank": 1,
+          "query": "hermes nvidias nims modelo optimo"
+        },
+        {
+          "id": "0648",
+          "gold": "plugin_biorag-remember_v8.3_-_adaptación_de_dennys_+_claude",
+          "old_winner": "biorag-remember-plugin-noreply-injection",
+          "new_winner": "plugin_biorag-remember_v8.3_-_adaptación_de_dennys_+_claude",
+          "old_rank": 2,
+          "new_rank": 1,
+          "query": "plugins biorag-remember v8.3 -s adaptacións de dennys +s claude"
+        }
+      ],
+      "losses_top1": [
+        {
+          "id": "0513",
+          "gold": "dennys-identidad-profunda",
+          "old_winner": "dennys-identidad-profunda",
+          "new_winner": "correccion_dennys_principio_documentar_crisis_existencial",
+          "old_rank": 1,
+          "new_rank": 2,
+          "query": "denys-identidad-profunda"
+        },
+        {
+          "id": "0803",
+          "gold": "cv_seccion_d_test_vinculacion",
+          "old_winner": "cv_seccion_d_test_vinculacion",
+          "new_winner": "athena_forensic_audit_trail_ltd_detection_fix",
+          "old_rank": 1,
+          "new_rank": -1,
+          "query": "cv seccion ds tests vinculaciones"
+        }
+      ]
+    },
+    {
+      "config_id": "CFG_55",
+      "params": {
+        "saturation": 0.6,
+        "min_scale_tem": 0.5,
+        "min_scale_dim": 0.75
+      },
+      "r1": 0.9230769230769231,
+      "r5": 0.995475113122172,
+      "mrr": 0.9496606334841625,
+      "top1_hits": 408,
+      "top5_hits": 440,
+      "total_cases": 442,
+      "gains_top1_count": 4,
+      "losses_top1_count": 1,
+      "net_delta_top1": 3,
+      "losses_top5_count": 2,
+      "fp_dev": 0,
+      "fp_dev_total": 20,
+      "elapsed_seconds": 359.4,
+      "losses_top5": [
+        {
+          "id": "0516",
+          "gold": "dennys-identidad-profunda",
+          "old_rank": 5,
+          "new_rank": -1,
+          "query": "real más sistemas"
+        },
+        {
+          "id": "0518",
+          "gold": "cuando_usar_dimensiones_biorag",
+          "old_rank": 2,
+          "new_rank": -1,
+          "query": "cuando usado dimensione biorags"
+        }
+      ],
+      "gains_top1": [
+        {
+          "id": "0830",
+          "gold": "interacción_social_saludo",
+          "old_winner": "athena_evolucion_v0001",
+          "new_winner": "interacción_social_saludo",
+          "old_rank": 2,
+          "new_rank": 1,
+          "query": "dormidos34 symbolic solución"
+        },
+        {
+          "id": "0624",
+          "gold": "notebooklm-chat-configure",
+          "old_winner": "notebooklm-memory-biorag-project",
+          "new_winner": "notebooklm-chat-configure",
+          "old_rank": 2,
+          "new_rank": 1,
+          "query": "noteboklm-chat-configure"
+        },
+        {
+          "id": "0767",
+          "gold": "hermes_nvidia_nim_modelos_optimos",
+          "old_winner": "resolucion_de_contradicciones_entre_insights_sumatoria_mentalidad",
+          "new_winner": "hermes_nvidia_nim_modelos_optimos",
+          "old_rank": 2,
+          "new_rank": 1,
+          "query": "hermes nvidias nims modelo optimo"
+        },
+        {
+          "id": "0648",
+          "gold": "plugin_biorag-remember_v8.3_-_adaptación_de_dennys_+_claude",
+          "old_winner": "biorag-remember-plugin-noreply-injection",
+          "new_winner": "plugin_biorag-remember_v8.3_-_adaptación_de_dennys_+_claude",
+          "old_rank": 2,
+          "new_rank": 1,
+          "query": "plugins biorag-remember v8.3 -s adaptacións de dennys +s claude"
+        }
+      ],
+      "losses_top1": [
+        {
+          "id": "0513",
+          "gold": "dennys-identidad-profunda",
+          "old_winner": "dennys-identidad-profunda",
+          "new_winner": "correccion_dennys_principio_documentar_crisis_existencial",
+          "old_rank": 1,
+          "new_rank": 2,
+          "query": "denys-identidad-profunda"
+        }
+      ]
+    },
+    {
+      "config_id": "CFG_56",
+      "params": {
+        "saturation": 0.6,
+        "min_scale_tem": 0.5,
+        "min_scale_dim": 1.0
+      },
+      "r1": 0.920814479638009,
+      "r5": 0.995475113122172,
+      "mrr": 0.9483408748114626,
+      "top1_hits": 407,
+      "top5_hits": 440,
+      "total_cases": 442,
+      "gains_top1_count": 3,
+      "losses_top1_count": 1,
+      "net_delta_top1": 2,
+      "losses_top5_count": 2,
+      "fp_dev": 0,
+      "fp_dev_total": 20,
+      "elapsed_seconds": 302.9,
+      "losses_top5": [
+        {
+          "id": "0516",
+          "gold": "dennys-identidad-profunda",
+          "old_rank": 5,
+          "new_rank": -1,
+          "query": "real más sistemas"
+        },
+        {
+          "id": "0518",
+          "gold": "cuando_usar_dimensiones_biorag",
+          "old_rank": 2,
+          "new_rank": -1,
+          "query": "cuando usado dimensione biorags"
+        }
+      ],
+      "gains_top1": [
+        {
+          "id": "0624",
+          "gold": "notebooklm-chat-configure",
+          "old_winner": "notebooklm-memory-biorag-project",
+          "new_winner": "notebooklm-chat-configure",
+          "old_rank": 2,
+          "new_rank": 1,
+          "query": "noteboklm-chat-configure"
+        },
+        {
+          "id": "0767",
+          "gold": "hermes_nvidia_nim_modelos_optimos",
+          "old_winner": "resolucion_de_contradicciones_entre_insights_sumatoria_mentalidad",
+          "new_winner": "hermes_nvidia_nim_modelos_optimos",
+          "old_rank": 2,
+          "new_rank": 1,
+          "query": "hermes nvidias nims modelo optimo"
+        },
+        {
+          "id": "0648",
+          "gold": "plugin_biorag-remember_v8.3_-_adaptación_de_dennys_+_claude",
+          "old_winner": "biorag-remember-plugin-noreply-injection",
+          "new_winner": "plugin_biorag-remember_v8.3_-_adaptación_de_dennys_+_claude",
+          "old_rank": 2,
+          "new_rank": 1,
+          "query": "plugins biorag-remember v8.3 -s adaptacións de dennys +s claude"
+        }
+      ],
+      "losses_top1": [
+        {
+          "id": "0513",
+          "gold": "dennys-identidad-profunda",
+          "old_winner": "dennys-identidad-profunda",
+          "new_winner": "correccion_dennys_principio_documentar_crisis_existencial",
+          "old_rank": 1,
+          "new_rank": 2,
+          "query": "denys-identidad-profunda"
+        }
+      ]
+    },
+    {
+      "config_id": "CFG_57",
+      "params": {
+        "saturation": 0.6,
+        "min_scale_tem": 0.75,
+        "min_scale_dim": 0.25
+      },
+      "r1": 0.9253393665158371,
+      "r5": 0.995475113122172,
+      "mrr": 0.9506787330316738,
+      "top1_hits": 409,
+      "top5_hits": 440,
+      "total_cases": 442,
+      "gains_top1_count": 4,
+      "losses_top1_count": 0,
+      "net_delta_top1": 4,
+      "losses_top5_count": 2,
+      "fp_dev": 0,
+      "fp_dev_total": 20,
+      "elapsed_seconds": 304.0,
+      "losses_top5": [
+        {
+          "id": "0638",
+          "gold": "mentalidad_biorag_para_agentes",
+          "old_rank": 5,
+          "new_rank": -1,
+          "query": "memoria compartida"
+        },
+        {
+          "id": "0518",
+          "gold": "cuando_usar_dimensiones_biorag",
+          "old_rank": 2,
+          "new_rank": -1,
+          "query": "cuando usado dimensione biorags"
+        }
+      ],
+      "gains_top1": [
+        {
+          "id": "0497",
+          "gold": "benchmark_antes_despues_fix3",
+          "old_winner": "causa_raiz_por_tema_pooling_plano_diluye_senal_word2vec",
+          "new_winner": "benchmark_antes_despues_fix3",
+          "old_rank": 2,
+          "new_rank": 1,
+          "query": "relevantes biomimética mejor"
+        },
+        {
+          "id": "0830",
+          "gold": "interacción_social_saludo",
+          "old_winner": "athena_evolucion_v0001",
+          "new_winner": "interacción_social_saludo",
+          "old_rank": 2,
+          "new_rank": 1,
+          "query": "dormidos34 symbolic solución"
+        },
+        {
+          "id": "0624",
+          "gold": "notebooklm-chat-configure",
+          "old_winner": "notebooklm-memory-biorag-project",
+          "new_winner": "notebooklm-chat-configure",
+          "old_rank": 2,
+          "new_rank": 1,
+          "query": "noteboklm-chat-configure"
+        },
+        {
+          "id": "0648",
+          "gold": "plugin_biorag-remember_v8.3_-_adaptación_de_dennys_+_claude",
+          "old_winner": "biorag-remember-plugin-noreply-injection",
+          "new_winner": "plugin_biorag-remember_v8.3_-_adaptación_de_dennys_+_claude",
+          "old_rank": 2,
+          "new_rank": 1,
+          "query": "plugins biorag-remember v8.3 -s adaptacións de dennys +s claude"
+        }
+      ],
+      "losses_top1": []
+    },
+    {
+      "config_id": "CFG_58",
+      "params": {
+        "saturation": 0.6,
+        "min_scale_tem": 0.75,
+        "min_scale_dim": 0.5
+      },
+      "r1": 0.9253393665158371,
+      "r5": 0.997737556561086,
+      "mrr": 0.9510180995475108,
+      "top1_hits": 409,
+      "top5_hits": 441,
+      "total_cases": 442,
+      "gains_top1_count": 4,
+      "losses_top1_count": 0,
+      "net_delta_top1": 4,
+      "losses_top5_count": 1,
+      "fp_dev": 0,
+      "fp_dev_total": 20,
+      "elapsed_seconds": 297.1,
+      "losses_top5": [
+        {
+          "id": "0518",
+          "gold": "cuando_usar_dimensiones_biorag",
+          "old_rank": 2,
+          "new_rank": -1,
+          "query": "cuando usado dimensione biorags"
+        }
+      ],
+      "gains_top1": [
+        {
+          "id": "0497",
+          "gold": "benchmark_antes_despues_fix3",
+          "old_winner": "causa_raiz_por_tema_pooling_plano_diluye_senal_word2vec",
+          "new_winner": "benchmark_antes_despues_fix3",
+          "old_rank": 2,
+          "new_rank": 1,
+          "query": "relevantes biomimética mejor"
+        },
+        {
+          "id": "0830",
+          "gold": "interacción_social_saludo",
+          "old_winner": "athena_evolucion_v0001",
+          "new_winner": "interacción_social_saludo",
+          "old_rank": 2,
+          "new_rank": 1,
+          "query": "dormidos34 symbolic solución"
+        },
+        {
+          "id": "0624",
+          "gold": "notebooklm-chat-configure",
+          "old_winner": "notebooklm-memory-biorag-project",
+          "new_winner": "notebooklm-chat-configure",
+          "old_rank": 2,
+          "new_rank": 1,
+          "query": "noteboklm-chat-configure"
+        },
+        {
+          "id": "0648",
+          "gold": "plugin_biorag-remember_v8.3_-_adaptación_de_dennys_+_claude",
+          "old_winner": "biorag-remember-plugin-noreply-injection",
+          "new_winner": "plugin_biorag-remember_v8.3_-_adaptación_de_dennys_+_claude",
+          "old_rank": 2,
+          "new_rank": 1,
+          "query": "plugins biorag-remember v8.3 -s adaptacións de dennys +s claude"
+        }
+      ],
+      "losses_top1": []
+    },
+    {
+      "config_id": "CFG_59",
+      "params": {
+        "saturation": 0.6,
+        "min_scale_tem": 0.75,
+        "min_scale_dim": 0.75
+      },
+      "r1": 0.9230769230769231,
+      "r5": 0.997737556561086,
+      "mrr": 0.9501131221719453,
+      "top1_hits": 408,
+      "top5_hits": 441,
+      "total_cases": 442,
+      "gains_top1_count": 3,
+      "losses_top1_count": 0,
+      "net_delta_top1": 3,
+      "losses_top5_count": 1,
+      "fp_dev": 0,
+      "fp_dev_total": 20,
+      "elapsed_seconds": 294.5,
+      "losses_top5": [
+        {
+          "id": "0518",
+          "gold": "cuando_usar_dimensiones_biorag",
+          "old_rank": 2,
+          "new_rank": -1,
+          "query": "cuando usado dimensione biorags"
+        }
+      ],
+      "gains_top1": [
+        {
+          "id": "0830",
+          "gold": "interacción_social_saludo",
+          "old_winner": "athena_evolucion_v0001",
+          "new_winner": "interacción_social_saludo",
+          "old_rank": 2,
+          "new_rank": 1,
+          "query": "dormidos34 symbolic solución"
+        },
+        {
+          "id": "0624",
+          "gold": "notebooklm-chat-configure",
+          "old_winner": "notebooklm-memory-biorag-project",
+          "new_winner": "notebooklm-chat-configure",
+          "old_rank": 2,
+          "new_rank": 1,
+          "query": "noteboklm-chat-configure"
+        },
+        {
+          "id": "0648",
+          "gold": "plugin_biorag-remember_v8.3_-_adaptación_de_dennys_+_claude",
+          "old_winner": "biorag-remember-plugin-noreply-injection",
+          "new_winner": "plugin_biorag-remember_v8.3_-_adaptación_de_dennys_+_claude",
+          "old_rank": 2,
+          "new_rank": 1,
+          "query": "plugins biorag-remember v8.3 -s adaptacións de dennys +s claude"
+        }
+      ],
+      "losses_top1": []
+    },
+    {
+      "config_id": "CFG_60",
+      "params": {
+        "saturation": 0.6,
+        "min_scale_tem": 0.75,
+        "min_scale_dim": 1.0
+      },
+      "r1": 0.920814479638009,
+      "r5": 1.0,
+      "mrr": 0.9504147812971339,
+      "top1_hits": 407,
+      "top5_hits": 442,
+      "total_cases": 442,
+      "gains_top1_count": 2,
+      "losses_top1_count": 0,
+      "net_delta_top1": 2,
+      "losses_top5_count": 0,
+      "fp_dev": 0,
+      "fp_dev_total": 20,
+      "elapsed_seconds": 319.0,
+      "losses_top5": [],
+      "gains_top1": [
+        {
+          "id": "0624",
+          "gold": "notebooklm-chat-configure",
+          "old_winner": "notebooklm-memory-biorag-project",
+          "new_winner": "notebooklm-chat-configure",
+          "old_rank": 2,
+          "new_rank": 1,
+          "query": "noteboklm-chat-configure"
+        },
+        {
+          "id": "0648",
+          "gold": "plugin_biorag-remember_v8.3_-_adaptación_de_dennys_+_claude",
+          "old_winner": "biorag-remember-plugin-noreply-injection",
+          "new_winner": "plugin_biorag-remember_v8.3_-_adaptación_de_dennys_+_claude",
+          "old_rank": 2,
+          "new_rank": 1,
+          "query": "plugins biorag-remember v8.3 -s adaptacións de dennys +s claude"
+        }
+      ],
+      "losses_top1": []
+    },
+    {
+      "config_id": "CFG_61",
+      "params": {
+        "saturation": 0.6,
+        "min_scale_tem": 1.0,
+        "min_scale_dim": 0.25
+      },
+      "r1": 0.9230769230769231,
+      "r5": 0.995475113122172,
+      "mrr": 0.9495475113122168,
+      "top1_hits": 408,
+      "top5_hits": 440,
+      "total_cases": 442,
+      "gains_top1_count": 3,
+      "losses_top1_count": 0,
+      "net_delta_top1": 3,
+      "losses_top5_count": 2,
+      "fp_dev": 0,
+      "fp_dev_total": 20,
+      "elapsed_seconds": 308.5,
+      "losses_top5": [
+        {
+          "id": "0638",
+          "gold": "mentalidad_biorag_para_agentes",
+          "old_rank": 5,
+          "new_rank": -1,
+          "query": "memoria compartida"
+        },
+        {
+          "id": "0518",
+          "gold": "cuando_usar_dimensiones_biorag",
+          "old_rank": 2,
+          "new_rank": -1,
+          "query": "cuando usado dimensione biorags"
+        }
+      ],
+      "gains_top1": [
+        {
+          "id": "0497",
+          "gold": "benchmark_antes_despues_fix3",
+          "old_winner": "causa_raiz_por_tema_pooling_plano_diluye_senal_word2vec",
+          "new_winner": "benchmark_antes_despues_fix3",
+          "old_rank": 2,
+          "new_rank": 1,
+          "query": "relevantes biomimética mejor"
+        },
+        {
+          "id": "0830",
+          "gold": "interacción_social_saludo",
+          "old_winner": "athena_evolucion_v0001",
+          "new_winner": "interacción_social_saludo",
+          "old_rank": 2,
+          "new_rank": 1,
+          "query": "dormidos34 symbolic solución"
+        },
+        {
+          "id": "0648",
+          "gold": "plugin_biorag-remember_v8.3_-_adaptación_de_dennys_+_claude",
+          "old_winner": "biorag-remember-plugin-noreply-injection",
+          "new_winner": "plugin_biorag-remember_v8.3_-_adaptación_de_dennys_+_claude",
+          "old_rank": 2,
+          "new_rank": 1,
+          "query": "plugins biorag-remember v8.3 -s adaptacións de dennys +s claude"
+        }
+      ],
+      "losses_top1": []
+    },
+    {
+      "config_id": "CFG_62",
+      "params": {
+        "saturation": 0.6,
+        "min_scale_tem": 1.0,
+        "min_scale_dim": 0.5
+      },
+      "r1": 0.920814479638009,
+      "r5": 0.997737556561086,
+      "mrr": 0.9485671191553541,
+      "top1_hits": 407,
+      "top5_hits": 441,
+      "total_cases": 442,
+      "gains_top1_count": 2,
+      "losses_top1_count": 0,
+      "net_delta_top1": 2,
+      "losses_top5_count": 1,
+      "fp_dev": 0,
+      "fp_dev_total": 20,
+      "elapsed_seconds": 307.2,
+      "losses_top5": [
+        {
+          "id": "0518",
+          "gold": "cuando_usar_dimensiones_biorag",
+          "old_rank": 2,
+          "new_rank": -1,
+          "query": "cuando usado dimensione biorags"
+        }
+      ],
+      "gains_top1": [
+        {
+          "id": "0497",
+          "gold": "benchmark_antes_despues_fix3",
+          "old_winner": "causa_raiz_por_tema_pooling_plano_diluye_senal_word2vec",
+          "new_winner": "benchmark_antes_despues_fix3",
+          "old_rank": 2,
+          "new_rank": 1,
+          "query": "relevantes biomimética mejor"
+        },
+        {
+          "id": "0830",
+          "gold": "interacción_social_saludo",
+          "old_winner": "athena_evolucion_v0001",
+          "new_winner": "interacción_social_saludo",
+          "old_rank": 2,
+          "new_rank": 1,
+          "query": "dormidos34 symbolic solución"
+        }
+      ],
+      "losses_top1": []
+    },
+    {
+      "config_id": "CFG_63",
+      "params": {
+        "saturation": 0.6,
+        "min_scale_tem": 1.0,
+        "min_scale_dim": 0.75
+      },
+      "r1": 0.918552036199095,
+      "r5": 1.0,
+      "mrr": 0.9489064856711912,
+      "top1_hits": 406,
+      "top5_hits": 442,
+      "total_cases": 442,
+      "gains_top1_count": 1,
+      "losses_top1_count": 0,
+      "net_delta_top1": 1,
+      "losses_top5_count": 0,
+      "fp_dev": 0,
+      "fp_dev_total": 20,
+      "elapsed_seconds": 309.7,
+      "losses_top5": [],
+      "gains_top1": [
+        {
+          "id": "0830",
+          "gold": "interacción_social_saludo",
+          "old_winner": "athena_evolucion_v0001",
+          "new_winner": "interacción_social_saludo",
+          "old_rank": 2,
+          "new_rank": 1,
+          "query": "dormidos34 symbolic solución"
+        }
+      ],
+      "losses_top1": []
+    },
+    {
+      "config_id": "CFG_64",
+      "params": {
+        "saturation": 0.6,
+        "min_scale_tem": 1.0,
+        "min_scale_dim": 1.0
+      },
+      "r1": 0.916289592760181,
+      "r5": 1.0,
+      "mrr": 0.9483408748114627,
+      "top1_hits": 405,
+      "top5_hits": 442,
+      "total_cases": 442,
+      "gains_top1_count": 0,
+      "losses_top1_count": 0,
+      "net_delta_top1": 0,
+      "losses_top5_count": 0,
+      "fp_dev": 0,
+      "fp_dev_total": 20,
+      "elapsed_seconds": 313.2,
+      "losses_top5": [],
+      "gains_top1": [],
+      "losses_top1": []
+    }
+  ]
+}
