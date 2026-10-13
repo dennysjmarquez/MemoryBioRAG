@@ -1,0 +1,264 @@
+{
+  "metadata": {
+    "version": "fase3_validacion_ciega_confirmatoria",
+    "decision": "NO_CONFIRMADA",
+    "timestamp": "2026-10-13T16:09:07",
+    "snapshot_sha256": "104dd2902aaf24c3ce93624492ea95a719acbdcca50f4f6bc123ac8317749796",
+    "dataset_sha256": "c76a71465f7a9be647094d79f00ffcebd742b00a6c12fa4ae90cf2c3d0654f4c",
+    "script_sha256": "c4b135465d28739b6bcc9f3bb1d10887a6b6d1b43ab0dff9f89f842e76091a97",
+    "config_evaluada": {
+      "id": "CFG_12",
+      "params": {
+        "saturation": 0.3,
+        "min_scale_tem": 0.75,
+        "min_scale_dim": 1.0
+      }
+    }
+  },
+  "criterios_aceptacion_prefijados": {
+    "cero_perdidas_top5": {
+      "cumplido": true,
+      "perdidas_top5": 0
+    },
+    "mejora_neta_top1": {
+      "cumplido": false,
+      "net_delta": 0
+    },
+    "cero_falsos_positivos_reservados": {
+      "cumplido": true,
+      "fp_count": 0
+    }
+  },
+  "baseline_validacion": {
+    "n": 433,
+    "top1_hits": 398,
+    "top5_hits": 433,
+    "r1": 0.9191685912240185,
+    "r5": 1.0,
+    "mrr": 0.951154734411085,
+    "elapsed_seconds": 388.5
+  },
+  "cfg12_validacion": {
+    "n": 433,
+    "top1_hits": 398,
+    "top5_hits": 433,
+    "r1": 0.9191685912240185,
+    "r5": 1.0,
+    "mrr": 0.951154734411085,
+    "gains_count": 2,
+    "losses_count": 2,
+    "net_delta": 0,
+    "losses_top5_count": 0,
+    "elapsed_seconds": 397.8,
+    "gains": [
+      {
+        "id": "0560",
+        "gold": "memoria_v5_1_optimizaciones",
+        "old_winner": "privacidad_memorias_personales_oec",
+        "new_winner": "memoria_v5_1_optimizaciones",
+        "old_rank": 2,
+        "new_rank": 1,
+        "query": "memorias v5 1s optimizaciones"
+      },
+      {
+        "id": "0738",
+        "gold": "fix_busqueda_solo_dimensiones_sin_texto",
+        "old_winner": "punto_medio_dimensiones_parciales_mueven_ranking_sdm",
+        "new_winner": "fix_busqueda_solo_dimensiones_sin_texto",
+        "old_rank": 2,
+        "new_rank": 1,
+        "query": "fix busquedas solo dimensiones sin textando"
+      }
+    ],
+    "losses": [
+      {
+        "id": "0736",
+        "gold": "plan_mode_biorag",
+        "old_winner": "plan_mode_biorag",
+        "new_winner": "arquitectura_memoria_biorag",
+        "old_rank": 1,
+        "new_rank": 2,
+        "query": "criterio lectura activa"
+      },
+      {
+        "id": "0488",
+        "gold": "oracle_custom_prompt_arsitecura_que_funciona",
+        "old_winner": "oracle_custom_prompt_arsitecura_que_funciona",
+        "new_winner": "oracle_custom_prompt_config_actual",
+        "old_rank": 1,
+        "new_rank": 2,
+        "query": "oracle custom prompts arsitecuras ques funciona"
+      }
+    ],
+    "top5_losses": []
+  },
+  "controles_negativos_reservados": {
+    "total": 20,
+    "fp_count": 0,
+    "gate_calls": 0,
+    "sin_candidatos_oov_count": 20,
+    "con_candidatos_count": 0,
+    "details": [
+      {
+        "id": "0895",
+        "query": "regadera exprimidor",
+        "total_candidates": 0,
+        "is_fp": false,
+        "top_score": 0.0,
+        "top_concept": null
+      },
+      {
+        "id": "0883",
+        "query": "castor acordeón",
+        "total_candidates": 0,
+        "is_fp": false,
+        "top_score": 0.0,
+        "top_concept": null
+      },
+      {
+        "id": "0903",
+        "query": "exprimidor castor",
+        "total_candidates": 0,
+        "is_fp": false,
+        "top_score": 0.0,
+        "top_concept": null
+      },
+      {
+        "id": "0917",
+        "query": "noria pandereta flauta",
+        "total_candidates": 0,
+        "is_fp": false,
+        "top_score": 0.0,
+        "top_concept": null
+      },
+      {
+        "id": "0915",
+        "query": "sartén abrelatas mapache",
+        "total_candidates": 0,
+        "is_fp": false,
+        "top_score": 0.0,
+        "top_concept": null
+      },
+      {
+        "id": "0898",
+        "query": "trompeta farola palangana albahaca",
+        "total_candidates": 0,
+        "is_fp": false,
+        "top_score": 0.0,
+        "top_concept": null
+      },
+      {
+        "id": "0921",
+        "query": "noria macetero castor acordeón",
+        "total_candidates": 0,
+        "is_fp": false,
+        "top_score": 0.0,
+        "top_concept": null
+      },
+      {
+        "id": "0899",
+        "query": "batidora tamboril canela",
+        "total_candidates": 0,
+        "is_fp": false,
+        "top_score": 0.0,
+        "top_concept": null
+      },
+      {
+        "id": "0910",
+        "query": "flauta farola",
+        "total_candidates": 0,
+        "is_fp": false,
+        "top_score": 0.0,
+        "top_concept": null
+      },
+      {
+        "id": "0909",
+        "query": "perejil jabalí alfiler avestruz",
+        "total_candidates": 0,
+        "is_fp": false,
+        "top_score": 0.0,
+        "top_concept": null
+      },
+      {
+        "id": "0893",
+        "query": "sartén colibrí mapache",
+        "total_candidates": 0,
+        "is_fp": false,
+        "top_score": 0.0,
+        "top_concept": null
+      },
+      {
+        "id": "0889",
+        "query": "rallador jabalí tobogán castor",
+        "total_candidates": 0,
+        "is_fp": false,
+        "top_score": 0.0,
+        "top_concept": null
+      },
+      {
+        "id": "0914",
+        "query": "escobillón hamaca",
+        "total_candidates": 0,
+        "is_fp": false,
+        "top_score": 0.0,
+        "top_concept": null
+      },
+      {
+        "id": "0916",
+        "query": "servilleta hamaca mapache pandereta",
+        "total_candidates": 0,
+        "is_fp": false,
+        "top_score": 0.0,
+        "top_concept": null
+      },
+      {
+        "id": "0902",
+        "query": "pañoleta cucharón",
+        "total_candidates": 0,
+        "is_fp": false,
+        "top_score": 0.0,
+        "top_concept": null
+      },
+      {
+        "id": "0891",
+        "query": "cinturón escobillón",
+        "total_candidates": 0,
+        "is_fp": false,
+        "top_score": 0.0,
+        "top_concept": null
+      },
+      {
+        "id": "0888",
+        "query": "aspiradora albahaca cigüeña servilleta",
+        "total_candidates": 0,
+        "is_fp": false,
+        "top_score": 0.0,
+        "top_concept": null
+      },
+      {
+        "id": "0897",
+        "query": "alfiler flauta",
+        "total_candidates": 0,
+        "is_fp": false,
+        "top_score": 0.0,
+        "top_concept": null
+      },
+      {
+        "id": "0901",
+        "query": "tocadiscos cacerola",
+        "total_candidates": 0,
+        "is_fp": false,
+        "top_score": 0.0,
+        "top_concept": null
+      },
+      {
+        "id": "0907",
+        "query": "cacerola sartén",
+        "total_candidates": 0,
+        "is_fp": false,
+        "top_score": 0.0,
+        "top_concept": null
+      }
+    ]
+  }
+}
