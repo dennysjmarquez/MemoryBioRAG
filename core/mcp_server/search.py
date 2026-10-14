@@ -206,12 +206,30 @@ def _recordar_impl(
         partes = rafaga_palabras.split(",")
         rafaga_palabras = ",".join([_sanitizar_string(p.strip()) for p in partes if p.strip()])
 
-    # ── RF-20 (spec 001): validación de sustantivos_clave en recordar ──
-    # Opcional. None o vacío = búsqueda normal sin boost (RF-19). Si se provee,
-    # se normaliza igual que en aprender/guardar y se valida el FORMATO por término
-    # (2-15 chars, sin espacios, solo alfanuméricos + guion bajo). NO se valida
-    # cantidad (eso solo aplica al guardar). Si un término es inválido → error
-    # accionable y la búsqueda NO se ejecuta (early return, fail-fast).
+    # ── VALIDACIÓN CONDICIONAL DE OBLIGATORIEDAD (Fase 6B / Aureon Spec) ──
+    # Es OBLIGATORIO en toda búsqueda textual (query no vacío).
+    # Excepciones legítimas:
+    #   1) Consulta cronológica pura: query is None o vacío, sin dimensiones
+    #   2) Consulta exclusivamente dimensional: query is None o vacío, con dimensiones
+    query_tiene_texto = query is not None and bool(str(query).strip())
+
+    if query_tiene_texto:
+        if sustantivos_clave is None or not str(sustantivos_clave).strip():
+            return json.dumps({
+                "status": "error",
+                "codigo": "SUSTANTIVOS_CLAVE_REQUERIDOS",
+                "mensaje": (
+                    "❌ SUSTANTIVOS_CLAVE_REQUERIDOS — búsqueda semántica NO ejecutada.\n\n"
+                    "El parámetro 'sustantivos_clave' es OBLIGATORIO en toda búsqueda textual.\n"
+                    "Debes interpretar qué intenta recordar el usuario y extraer conceptos centrales de esa intención.\n\n"
+                    "Pauta recomendada: habitualmente entre 2 y 4 conceptos centrales (permitido de 1 a 10 términos válidos).\n"
+                    "Ejemplo: query='¿qué fotos tomé en el paseo por la montaña?'\n"
+                    "         sustantivos_clave='fotografia,montana,paisaje,viaje'\n\n"
+                    "Formato: minúsculas, sin tildes, separados por coma (2-15 chars por término, solo alfanuméricos y guion bajo)."
+                ),
+                "parametro_faltante": "sustantivos_clave",
+            }, ensure_ascii=False)
+
     sustantivos_clave_norm = None
     if sustantivos_clave is not None:
         sk_raw = str(sustantivos_clave).strip()
@@ -219,6 +237,31 @@ def _recordar_impl(
             from core.memory_store import normalizar_sustantivos_clave
             sustantivos_clave_norm = normalizar_sustantivos_clave(sk_raw)
             sk_unicos = [t for t in sustantivos_clave_norm.split(",") if t] if sustantivos_clave_norm else []
+            if not sk_unicos and query_tiene_texto:
+                return json.dumps({
+                    "status": "error",
+                    "codigo": "SUSTANTIVOS_CLAVE_REQUERIDOS",
+                    "mensaje": (
+                        "❌ SUSTANTIVOS_CLAVE_REQUERIDOS — búsqueda semántica NO ejecutada.\n\n"
+                        "El parámetro 'sustantivos_clave' no contenía términos válidos tras normalizar.\n"
+                        "Pauta habitual: de 2 a 4 términos centrales (permitido de 1 a 10 conceptos válidos)."
+                    ),
+                    "parametro_faltante": "sustantivos_clave",
+                }, ensure_ascii=False)
+
+            if len(sk_unicos) > 10:
+                return json.dumps({
+                    "status": "error",
+                    "codigo": "SUSTANTIVOS_CLAVE_CANTIDAD_INVALIDA",
+                    "mensaje": (
+                        "❌ SUSTANTIVOS_CLAVE_CANTIDAD_INVALIDA — búsqueda NO ejecutada.\n\n"
+                        f"Se recibieron {len(sk_unicos)} términos; el máximo técnico permitido es 10.\n"
+                        "Pauta recomendada: habitualmente entre 2 y 4 conceptos centrales (o hasta 10 si cada uno aporta información distintiva)."
+                    ),
+                    "parametro": "sustantivos_clave",
+                    "cantidad_recibida": len(sk_unicos),
+                }, ensure_ascii=False)
+
             for _sk_term in sk_unicos:
                 if not re.fullmatch(r"[a-z0-9_ñ]{2,15}", _sk_term):
                     return json.dumps({
@@ -308,12 +351,6 @@ def _recordar_impl(
                     "Usá dimensiones cuando busques por propiedades ontológicas "
                     "(emoción, entidad, acción, cualidad, coordenada, intención, dominio, cualia, epistemia, escala_abstraccion, centralidad_identitaria, textura_experiencial, modalidad). "
                     "Ejemplo: dimensiones='intencion_aprender' o dimensiones='dominio_tecnico'"
-                )
-            if sustantivos_clave is None or (isinstance(sustantivos_clave, str) and not sustantivos_clave.strip()):
-                _warnings.append(
-                    "⚠️ sustantivos_clave=None — Sin términos núcleo, el motor no sabe DE QUÉ TRATA la búsqueda. "
-                    "Identificá 2-4 sustantivos que representen el núcleo conceptual (no lo que mencionás, sino de qué TRATA). "
-                    "Ejemplo: query='timeout al conectar', sustantivos_clave='servidor,conexion,red'"
                 )
 
         # Sin query → log cronológico puro por creado_en
@@ -956,6 +993,46 @@ def _recordar_impl(
         cerebro.cerrar_sistema()
 
 
+SUSTANTIVOS_CLAVE_BUSQUEDA_DESCRIPTION = (
+    "NÚCLEO TEMÁTICO DE LA INTENCIÓN — obligatorio cuando la consulta contiene texto.\n\n"
+    "QUÉ DEBES HACER:\n"
+    "Identifica de qué trata lo que el usuario intenta recordar y proporciona "
+    "términos conceptuales concretos que representen esa intención. "
+    "Utiliza la petición actual y el contexto conversacional disponible. "
+    "Si las palabras del usuario ya expresan bien el concepto, puedes conservarlas; "
+    "si hace falta, utiliza una denominación conceptual más precisa.\n\n"
+    "CANTIDAD:\n"
+    "Usa normalmente entre 2 y 4 conceptos centrales. No es un límite rígido: "
+    "puedes proporcionar de 5 a 10 cuando cada término aporte información "
+    "pertinente y distintiva. Un solo término es válido si representa "
+    "suficientemente una intención centrada en un único concepto. "
+    "No añadas términos para completar una cuota. "
+    "El límite técnico es de 10 términos únicos después de normalizar.\n\n"
+    "CRITERIO DE SELECCIÓN:\n"
+    "Prioriza el tema principal, los objetos relevantes, el proceso o problema "
+    "y el contexto que realmente distinguen la intención. "
+    "No incluyas palabras incidentales, conectores, frases completas ni listas "
+    "indiscriminadas de sinónimos. No confundas sustantivos_clave con paráfrasis: "
+    "las paráfrasis representan otras formas de expresar la búsqueda; "
+    "sustantivos_clave representa su núcleo temático.\n\n"
+    "PROHIBICIÓN DE ADIVINAR EL OBJETIVO:\n"
+    "No inventes los términos de un nodo que no has visto ni intentes predecir "
+    "su nombre, identificador o etiqueta esperada. No utilices resultados "
+    "candidatos ni información de evaluación para escoger los términos. "
+    "La selección debe poder justificarse únicamente por la intención y el "
+    "contexto disponible antes de efectuar la búsqueda.\n\n"
+    "EJEMPLO:\n"
+    "Pregunta: '¿Qué fotografías tomé durante aquella salida por la montaña en moto?'\n"
+    "sustantivos_clave='motocicleta,montana,paisaje,fotografia'\n\n"
+    "FORMATO Y REGLAS:\n"
+    "Envía los términos separados por comas, sin frases ni explicaciones. "
+    "Tras la normalización, cada término debe tener entre 2 y 15 caracteres "
+    "(alfanuméricos y guion bajo). Máximo 10 términos únicos.\n"
+    "Excepción: Opcional únicamente en consultas puramente cronológicas (dias/desde sin query) "
+    "o exclusivamente dimensionales (dimensiones sin query)."
+)
+
+
 def register(mcp: Any) -> None:
     @mcp.tool(
         name="recordar",
@@ -1410,18 +1487,7 @@ def register(mcp: Any) -> None:
             )
         )] = "relevancia",
         sustantivos_clave: Annotated[Optional[str], Field(
-            description=(
-                "Sustantivos Clave -> Pregunta que responde -> ¿DE QUÉ trata exactamente? -> Metáfora -> La huella dactilar o el rostro de alguien (específico, concreto, único).\n\n"
-                "PROTOCOLO ESPEJO — Boost de precisión sobre columna sustantivos_clave (BM25 4.0x).\n"
-                "NO extraigas de la query del usuario. PREDECÍ qué sustantivos tendría el NODO OBJETIVO:\n"
-                "  «Si este nodo existe en el corpus, ¿qué sustantivos_clave le pusieron al guardarlo?»\n"
-                "EJEMPLO: El usuario pregunta '¿cómo hago para que aparezcan mis notas en la nube?'\n"
-                "  → El nodo probablemente se guardó con: obsidian, vault, fuse, ocamlfuse\n"
-                "  → sustantivos_clave='obsidian,vault,fuse' (NO 'notas' ni 'nube' — esas van en query/parafrasis)\n"
-                "None o '' = búsqueda normal sin boost.\n"
-                "Formato: uno o más términos, en minúsculas, sin tildes, separados por coma, usando solo caracteres alfanuméricos y guion bajo.\n"
-                "PROPÓSITO: Esto permite que los nodos se recuperen por vecindario semántico y no por coincidencia literal de palabras solamente"
-            )
+            description=SUSTANTIVOS_CLAVE_BUSQUEDA_DESCRIPTION
         )] = None,
     ) -> str:
         return _recordar_impl(
@@ -1436,9 +1502,8 @@ def register(mcp: Any) -> None:
         name="buscar",
         description=(
             "(legado) Alias de 'recordar' — preferir 'recordar' para identificar la operación cognitiva real. "
-            "Misma funcionalidad y parámetros completos. "
-            "El flujo de 4 pasos aplica igualmente (ver descripción de 'recordar').\n\n"
-            "Parámetros: query (str), dimensiones (str JSON), deep (bool), cat (str), completo (bool), asociados (bool), "
+            "Misma funcionalidad y parámetros completos. Requiere sustantivos_clave obligatorios en búsquedas textuales.\n\n"
+            "Parámetros: query (str), sustantivos_clave (str), dimensiones (str JSON), deep (bool), cat (str), completo (bool), asociados (bool), "
             "limite (int), preview_chars (int), context_window (int 0-2), "
             "forzar_rafaga (bool), rafaga_palabras (str), pagina (int), parafrasis (str).\n\n"
             "Retorna: {total, pagina_actual, paginas_totales, resultados[], sinapsis_creadas[], profundidad}"
@@ -1456,6 +1521,9 @@ def register(mcp: Any) -> None:
                 "BioRAG es un motor, no un chat directo; busca por términos concretos."
             )
         )],
+        sustantivos_clave: Annotated[Optional[str], Field(
+            description=SUSTANTIVOS_CLAVE_BUSQUEDA_DESCRIPTION
+        )] = None,
         dimensiones: Annotated[Any, Field(
             description=(
                 "Dimensiones Semánticas-> Pregunta que responde -> ¿QUÉ NATURALEZA tiene este recuerdo? -> Metáfora -> El sentimiento o la categoría ontológica (un momento de tensión, una regla que aprendí, una herramienta).\n\n"
@@ -1527,5 +1595,6 @@ def register(mcp: Any) -> None:
             context_window, forzar_rafaga, rafaga_palabras, pagina, parafrasis,
             dimensiones, modo_estricto=modo_estricto,
             buscar_por_rol=buscar_por_rol, usar_inferencia=usar_inferencia,
-            asociaciones_max=asociaciones_max
+            asociaciones_max=asociaciones_max,
+            sustantivos_clave=sustantivos_clave,
         )

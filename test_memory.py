@@ -1148,7 +1148,7 @@ def test_sistema():
         biorag_recordar = next(t.fn for t in server_mcp._tool_manager.list_tools() if t.name == "recordar")
 
         # Testear JSON structure y paginación a nivel de MCP
-        mcp_json = biorag_recordar("paginacion angular", "{}", limite=2, pagina=1)
+        mcp_json = biorag_recordar("paginacion angular", "{}", limite=2, pagina=1, sustantivos_clave="paginacion,angular")
         # v13: warnings se prependen como texto antes del JSON — extraer JSON
         json_start = mcp_json.find("{")
         if json_start > 0:
@@ -1164,7 +1164,7 @@ def test_sistema():
         print(f"  biorag_recordar JSON: total={mcp_data['total']}, pagina={mcp_data['pagina_actual']}/{mcp_data['paginas_totales']}, resultados={len(mcp_data['resultados'])}")
 
         # Testear ráfaga forzada y error handling
-        mcp_raf_json = biorag_recordar("paginacion", "{}", limite=3, pagina=1, forzar_rafaga=True, rafaga_palabras="angular,ngx,pag")
+        mcp_raf_json = biorag_recordar("paginacion", "{}", limite=3, pagina=1, forzar_rafaga=True, rafaga_palabras="angular,ngx,pag", sustantivos_clave="paginacion,angular")
         json_start = mcp_raf_json.find("{")
         if json_start > 0:
             mcp_raf_json = mcp_raf_json[json_start:]
@@ -1173,7 +1173,7 @@ def test_sistema():
         assert len(mcp_raf_data["resultados"]) <= 3, f"Error: limite ráfaga excedido en MCP"
 
         # Testear error por falta de parámetros
-        err_json = biorag_recordar("paginacion", "{}", forzar_rafaga=True, rafaga_palabras=None)
+        err_json = biorag_recordar("paginacion", "{}", forzar_rafaga=True, rafaga_palabras=None, sustantivos_clave="paginacion,angular")
         json_start = err_json.find("{")
         if json_start > 0:
             err_json = err_json[json_start:]

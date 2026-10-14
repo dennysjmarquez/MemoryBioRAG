@@ -342,6 +342,7 @@ def test_mcp_publica_score_base_y_bono_tras_delta_del_grafo(tmp_path, monkeypatc
 
     raw = mcp_search._recordar_impl(
         query="biorag version actual ultima",
+        sustantivos_clave="biorag,version",
         parafrasis="version biorag,version actual biorag,ultima version biorag,biorag v version",
         limite=5,
         asociados=False,

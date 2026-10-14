@@ -17,27 +17,29 @@ BioRAG recupera nodos mediante BM25 sobre concepto (5.0x), contenido (1.0x) y si
 - **H4**: Como agente bioRAG, quiero que sustantivos_clave se propague de corto_plazo a largo_plazo durante la consolidación (sueño), para que el boost temático persista permanentemente.
 - **H5**: Como agente bioRAG, quiero una tool MCP para agregar `sustantivos_clave` a un nodo existente que no lo tenga, para que pueda enriquecer nodos legacy gradualmente sin backfill automático.
 - **H6**: Como agente bioRAG, quiero una tool MCP para consultar si un nodo tiene `sustantivos_clave` y devolverlos, para que pueda verificar el estado de cualquier nodo antes de usarlo o mejorarlo.
-- **H7**: Como agente bioRAG, quiero pasar `sustantivos_clave` como filtro opcional en `biorag_recordar` para potenciar mis búsquedas con el centro de gravedad temático, recuperando nodos por lo que TRATAN, no solo por lo que MENCIONAN.
+- **H7**: Como agente bioRAG, quiero proveer `sustantivos_clave` de forma simétrica al evocar recuerdos con `biorag_recordar` o `biorag_buscar`, asegurando que la búsqueda converge al centro de gravedad temático de la intención.
 
 ## Requisitos funcionales
 
 - **RF-1**: CUANDO un agente llama a `biorag_aprender` sin `sustantivos_clave` o con `sustantivos_clave` vacío, EL SISTEMA retorna error JSON con código `SUSTANTIVOS_CLAVE_AUSENTES` y mensaje accionable con el protocolo de extracción.
-- **RF-2**: CUANDO el agente envía menos de 2 o más de 4 términos, EL SISTEMA retorna error `SUSTANTIVOS_CLAVE_CANTIDAD_INVALIDA`.
-- **RF-3**: CUANDO algún término tiene <2 o >15 caracteres (límites inclusivos: 2 y 15 son válidos), contiene espacios, o caracteres especiales (excepto guion bajo), EL SISTEMA retorna error `SUSTANTIVOS_CLAVE_FORMATO_INVALIDO`.
+- **RF-2**: EN ESCRITURA (`biorag_aprender`, `biorag_guardar`, `biorag_agregar_sustantivos`), la pauta cognitiva habitual es de 2 a 4 conceptos centrales. El validador técnico admite entre 2 y 10 términos únicos tras normalizar y deduplicar. CUANDO el agente envía menos de 2 o más de 10 términos únicos, EL SISTEMA retorna error `SUSTANTIVOS_CLAVE_CANTIDAD_INVALIDA`.
+- **RF-3**: CUANDO algún término tiene <2 o >15 caracteres (límites inclusivos: 2 y 15 son válidos), contiene espacios, o caracteres especiales (excepto guion bajo y ñ), EL SISTEMA retorna error `SUSTANTIVOS_CLAVE_FORMATO_INVALIDO`.
 - **RF-4**: CUANDO `sustantivos_clave` es válido, EL SISTEMA almacena en `corto_plazo` y indexa en FTS5.
 - **RF-5**: EL SISTEMA indexa `sustantivos_clave` en FTS5 trigram. Los queries BM25 usan `bm25(largo_plazo_fts, 5.0, 1.0, 2.0, 4.0)` — concepto=5.0x, contenido=1.0x, sinonimos=2.0x, sustantivos_clave=4.0x. Para nodos sin campo (pre-migración), la columna aporta peso 0.0.
 - **RF-6**: MIENTRAS el nodo está en `corto_plazo`, EL SISTEMA propaga el campo a `largo_plazo` durante consolidación.
 - **RF-7**: CUANDO un nodo consolidado tiene `sustantivos_clave`, EL SISTEMA lo incluye en FTS5 de `largo_plazo`.
 - **RF-8**: `biorag_guardar` (alias legado) acepta `sustantivos_clave` como obligatorio con las mismas validaciones.
-- **RF-9**: CUANDO el agente envía >4 términos, EL SISTEMA retorna error (rechazo estricto, sin truncamiento silencioso).
+- **RF-9**: EN ESCRITURA, CUANDO el agente envía >10 términos únicos, EL SISTEMA retorna error `SUSTANTIVOS_CLAVE_CANTIDAD_INVALIDA` (rechazo preventivo estricto, sin truncamiento silencioso).
 - **RF-10**: EL SISTEMA normaliza a minúsculas, elimina espacios alrededor de comas, y quitas tildes (á→a, é→e, í→i, ó→o, ú→u) preservando la ñ.
-- **RF-14**: CUANDO el agente envía términos duplicados en `sustantivos_clave`, EL SISTEMA auto-deduplica preservando el orden original, y luego evalúa la cantidad (2-4 términos únicos). Si tras deduplicar quedan <2 o >4, retorna error `SUSTANTIVOS_CLAVE_CANTIDAD_INVALIDA`.
+- **RF-14**: CUANDO el agente envía términos duplicados en `sustantivos_clave`, EL SISTEMA auto-deduplica preservando el orden original, y luego evalúa la cantidad técnica de términos únicos. Si tras deduplicar no cumple los límites permitidos, retorna error `SUSTANTIVOS_CLAVE_CANTIDAD_INVALIDA`.
 - **RF-15**: EL SISTEMA NO ejecuta backfill automático de `sustantivos_clave` sobre nodos existentes. Los nodos pre-migración se quedan con `sustantivos_clave=""` hasta que un agente decida enriquecerlos manualmente usando la tool `biorag_agregar_sustantivos`.
-- **RF-16**: EL SISTEMA expone una tool MCP `biorag_agregar_sustantivos(concepto, sustantivos_clave)` que actualiza el campo de un nodo existente en `largo_plazo` (con fallback a `corto_plazo` si no está en largo) con las mismas validaciones que `biorag_aprender` (2-4 términos, formato, normalización). La actualización dispara el trigger `largo_plazo_au` (AFTER UPDATE) sincronizando `largo_plazo_fts` inmediatamente. Retorna error `NODO_NO_ENCONTRADO` si el nodo no existe en ninguna tabla. Si el nodo ya tiene `sustantivos_clave`, sobrescribe mostrando `"sustantivos_anteriores"` vs `"sustantivos_nuevos"` en la respuesta.
+- **RF-16**: EL SISTEMA expone una tool MCP `biorag_agregar_sustantivos(concepto, sustantivos_clave)` que actualiza el campo de un nodo existente en `largo_plazo` (con fallback a `corto_plazo` si no está en largo) con las mismas validaciones que `biorag_aprender` (2-10 términos únicos, formato, normalización). La actualización dispara el trigger `largo_plazo_au` (AFTER UPDATE) sincronizando `largo_plazo_fts` inmediatamente. Retorna error `NODO_NO_ENCONTRADO` si el nodo no existe en ninguna tabla. Si el nodo ya tiene `sustantivos_clave`, sobrescribe mostrando `"sustantivos_anteriores"` vs `"sustantivos_nuevos"` en la respuesta.
 - **RF-17**: EL SISTEMA expone una tool MCP `biorag_sustantivos(concepto)` que consulta un nodo por nombre y devuelve sus `sustantivos_clave`. Si el nodo no existe → error `NODO_NO_ENCONTRADO`. Si existe pero no tiene campo → `{"status": "ok", "sustantivos_clave": "", "items": []}`.
 - **RF-18**: EL SISTEMA aplica la misma normalización de acentos (`_quitar_acentos()`) a las queries de `biorag_recordar` antes de enviarlas a FTS5, asegurando simetría con lo almacenado en `sustantivos_clave`.
-- **RF-19**: `biorag_recordar` acepta un parámetro opcional `sustantivos_clave` (string, separados por coma). Cuando se provee, el sistema lo agrega como condición de boost en la query FTS5 — nodos cuyo `sustantivos_clave` coincida con los términos recibidos suben en el ranking. NO es obligatorio: si se omite, la búsqueda funciona normalmente. Incluir nota en la descripción del parámetro: *"Usar para potenciar la precisión de búsqueda. Los nodos con estos sustantivos en su centro de gravedad temático suben al top."*
-- **RF-20**: CUANDO el agente envía `sustantivos_clave` en `biorag_recordar`, EL SISTEMA valida el formato (2-15 chars, sin espacios, solo alfanuméricos + guion bajo, sin tildes) y retorna error accionable si falla. La búsqueda NO se ejecuta si la validación falla.
+- **RF-19**: EN RECUPERACIÓN (`biorag_recordar` y su alias `biorag_buscar`), `sustantivos_clave` es OBLIGATORIO en toda búsqueda textual (query no vacío). Si se omite o está vacío, retorna error accionable `SUSTANTIVOS_CLAVE_REQUERIDOS` ANTES de abrir el motor de memoria (`_get_cerebro()`).
+  - *Excepciones legítimas*: Búsquedas puramente cronológicas (sin query, con dias/desde) y exclusivamente dimensionales (sin query, con dimensiones) no requieren `sustantivos_clave`.
+  - *Esquema MCP*: En la firma Python se declara como `Optional[str] = None` para preservar la compatibilidad con dichas excepciones legítimas, pero en tiempo de ejecución se aplica validación estricta fail-fast condicional.
+- **RF-20**: EN RECUPERACIÓN, la pauta habitual es de 2 a 4 conceptos centrales. El validador técnico admite de 1 a 10 términos únicos válidos (1 término si la intención es atómica; de 5 a 10 si cada uno aporta diferenciación temática). CUANDO el agente envía más de 10 términos únicos, EL SISTEMA retorna error `SUSTANTIVOS_CLAVE_CANTIDAD_INVALIDA`. CUANDO algún término no cumple el formato (2-15 caracteres, alfanuméricos y guion bajo), retorna `SUSTANTIVOS_CLAVE_FORMATO_INVALIDO`. En ambos casos de error, la búsqueda NO se ejecuta y se retorna antes de acceder a la base de datos.
 - **RF-21**: EN `biorag_aprender`, la validación de `sustantivos_clave` (cantidad, formato, normalización) ocurre ANTES de escribir en `corto_plazo`. Si falla, el nodo NO se guarda y el agente recibe el error con el protocolo de extracción para que reformule y vuelva a intentar.
 - **RF-22**: CUANDO se crea una base de datos nueva desde cero (primera instalación), EL SISTEMA crea `corto_plazo` y `largo_plazo` con la columna `sustantivos_clave TEXT DEFAULT ''` incluida en el `CREATE TABLE`, y levanta `largo_plazo_fts` con las 4 columnas (concepto, contenido, sinonimos, sustantivos_clave). CUANDO se migra una base de datos existente (sin la columna), EL SISTEMA la agrega con `ALTER TABLE ADD COLUMN` en ambas tablas y reconstruye la FTS5 en 4 columnas, sin afectar los nodos previos.
 - **RF-23**: EL SISTEMA provee una batería de casos de extracción (`specs/001-sustantivos-clave/bateria_extraccion.md`) — set fijo de textos de prueba con núcleos temáticos esperados y términos prohibidos, basado en el Ejemplo Maestro — para verificar que cualquier modelo/agente extraiga el centro de gravedad semántico correctamente, tanto al guardar (`biorag_aprender`) como al buscar (`biorag_recordar`). La batería debe poder ejecutarse con el modelo principal y, si la configuración lo permite, con al menos un modelo/agente adicional para comparar.
@@ -47,16 +49,18 @@ BioRAG recupera nodos mediante BM25 sobre concepto (5.0x), contenido (1.0x) y si
 
 ## Requisitos no funcionales
 
-- **RNF-1**: Validación fail-fast ANTES de escribir en DB.
+- **RNF-1**: Validación fail-fast ANTES de escribir en DB y antes de abrir el motor en búsquedas.
 - **RNF-2**: Compatible con FTS5 trigram existente.
 - **RNF-3**: Sin degradación de rendimiento en búsquedas existentes.
 
 ## Casos límite
 
-- **CL-1**: String vacío `""` → error `SUSTANTIVOS_CLAVE_AUSENTES`.
+- **CL-1**: String vacío `""` en escritura → error `SUSTANTIVOS_CLAVE_AUSENTES`. En búsqueda textual → error `SUSTANTIVOS_CLAVE_REQUERIDOS`.
 - **CL-2**: Comas múltiples `"servidor,,backend"` → normalizar a `"servidor,backend"`.
 - **CL-3**: Espacios alrededor de comas `"servidor , backend"` → trim.
-- **CL-4**: 5 términos → error `SUSTANTIVOS_CLAVE_CANTIDAD_INVALIDA`.
+- **CL-4**: Cantidad técnica:
+  - En escritura: <2 términos o >10 términos únicos → error `SUSTANTIVOS_CLAVE_CANTIDAD_INVALIDA`.
+  - En recuperación: 1 a 10 términos únicos → válido; >10 términos únicos → error `SUSTANTIVOS_CLAVE_CANTIDAD_INVALIDA`.
 - **CL-5**: Nodo pre-migración sin campo → queda `""`, peso BM25 = 0.0 en esa columna.
 - **CL-6**: Fusión en consolidación → `sustantivos_clave` de `corto_plazo` sobrescribe el de `largo_plazo`.
 - **CL-7**: Guion bajo `_` permitido, guiones `-` no permitidos, mayúsculas → minúsculas.
@@ -141,34 +145,30 @@ diff /tmp/baseline_qa_*.txt /tmp/post_qa_*.txt
 
 ## Criterios de finalización
 
-- [x] RF-1: error `SUSTANTIVOS_CLAVE_AUSENTES` con mensaje + protocolo.
-- [x] RF-2: error `SUSTANTIVOS_CLAVE_CANTIDAD_INVALIDA` con 1 término.
-- [x] RF-3: error `SUSTANTIVOS_CLAVE_FORMATO_INVALIDO` con término inválido.
+- [x] RF-1: error `SUSTANTIVOS_CLAVE_AUSENTES` con mensaje + protocolo en escritura (`aprender`/`guardar`).
+- [x] RF-2: error `SUSTANTIVOS_CLAVE_CANTIDAD_INVALIDA` en escritura cuando se envían <2 términos (1 término).
+- [x] RF-3: error `SUSTANTIVOS_CLAVE_FORMATO_INVALIDO` cuando algún término no cumple 2-15 caracteres o contiene caracteres especiales.
 - [x] RF-4: guardado exitoso con `sustantivos_clave='servidor,backend,timeout'`.
-- [x] RF-5: BM25 prioriza nodos con match en `sustantivos_clave`.
+- [x] RF-5: BM25 prioriza nodos con match en `sustantivos_clave` (peso 4.0x en FTS5).
 - [x] RF-6: consolidación propaga campo a `largo_plazo`.
 - [x] RF-7: nodo consolidado aparece en `largo_plazo_fts`.
-- [x] RF-8: `biorag_guardar` sin campo retorna error.
-- [x] RF-9: 5 términos → error (sin truncamiento).
-- [x] RF-10: normalización a minúsculas funciona.
-- [x] RF-14: deduplicación silenciosa funciona (duplicados → únicos).
-- [x] RF-10: normalización de acentos funciona (conexión → conexion, preservando ñ).
-- [x] RF-11: baseline medido y registrado ANTES de implementar.
-- [x] RF-12: post-change medido y comparado. Cero regresiones.
-- [x] Tests existentes pasan sin regresión (221/221 PASSED).
-- [x] RF-15: nodo pre-migración se queda con `sustantivos_clave=""` (sin backfill).
-- [x] RF-16: `biorag_agregar_sustantivos` actualiza nodo existente con validación completa + FTS5 sincronizado.
-- [x] RF-16: `biorag_agregar_sustantivos` retorna `NODO_NO_ENCONTRADO` si el nodo no existe.
-- [x] RF-16: `biorag_agregar_sustantivos` muestra `sustantivos_anteriores` vs `sustantivos_nuevos` al sobrescribir.
+- [x] RF-8: `biorag_guardar` valida `sustantivos_clave` con las mismas reglas de escritura que `biorag_aprender`.
+- [x] RF-9: Rechazo preventivo ante >10 términos únicos en escritura y búsqueda con `SUSTANTIVOS_CLAVE_CANTIDAD_INVALIDA` (sin truncamiento silencioso; 5 a 10 términos es válido si aportan distinción).
+- [x] RF-10: normalización a minúsculas, trim de espacios y remoción de acentos preservando la ñ.
+- [x] RF-14: deduplicación preservando orden y evaluación posterior de términos únicos.
+- [x] RF-15: nodos pre-migración se conservan con `sustantivos_clave=""` sin backfill automático.
+- [x] RF-16: `biorag_agregar_sustantivos` actualiza nodo existente con validación completa y sincroniza FTS5 inmediatamente.
+- [x] RF-16: `biorag_agregar_sustantivos` retorna `NODO_NO_ENCONTRADO` si el concepto no existe.
+- [x] RF-16: `biorag_agregar_sustantivos` muestra `sustantivos_anteriores` vs `sustantivos_nuevos`.
 - [x] RF-17: `biorag_sustantivos` devuelve campo de nodo existente o `"", []`.
-- [x] RF-17: `biorag_sustantivos` retorna `NODO_NO_ENCONTRADO` si el nodo no existe.
-- [x] RF-18: normalización de acentos en queries de `biorag_recordar` simétrica con storage.
-- [x] RF-19: `biorag_recordar` acepta `sustantivos_clave` opcional y boostea resultados.
-- [x] RF-20: `biorag_recordar` valida `sustantivos_clave` y retorna error si formato inválido.
-- [x] RF-21: `biorag_aprender` valida `sustantivos_clave` ANTES de escribir en DB (fail-fast).
-- [x] RF-22: DB nueva desde cero → `.schema` muestra `sustantivos_clave` en ambas tablas, FTS5 con 4 columnas, sin ALTER.
-- [x] RF-22: DB existente migrada → columna agregada en ambas tablas, FTS5 reconstruida, nodos previos intactos.
-- [x] RF-23: `bateria_extraccion.md` existe con ≥6 casos (esperados + prohibidos).
-- [x] RF-23: corrida con modelo principal → casos guardados y buscados coinciden con núcleos esperados (8/8 Top-1).
-- [x] RF-23: corrida (si hay 2º modelo configurado) → comparación registrada en matriz.
-- [x] Demo manual: guardar → buscar → boost verifica.
+- [x] RF-17: `biorag_sustantivos` retorna `NODO_NO_ENCONTRADO` si el concepto no existe.
+- [x] RF-18: normalización simétrica de acentos en consultas de `recordar` y `buscar`.
+- [x] RF-19: `sustantivos_clave` es OBLIGATORIO en toda búsqueda textual de `recordar` y `buscar` (retorna `SUSTANTIVOS_CLAVE_REQUERIDOS` previo a abrir el motor de base de datos).
+- [x] RF-19: excepciones funcionales aprobadas para consultas puramente cronológicas (`dias`/`desde`/`hasta`) o dimensionales puras sin texto.
+- [x] RF-20: en recuperación se admite de 1 a 10 términos únicos válidos (1 término atómico válido; 5 a 10 permitidos; >10 rechazado) y se valida formato [2-15 chars] fail-fast.
+- [x] RF-21: validación fail-fast previa a la escritura en DB en `aprender` y `guardar`.
+- [x] RF-22: esquemas de DB nuevos nacen con columna en ambas tablas y FTS5 de 4 columnas; migración por `ALTER` y reconstrucción de FTS5 sin pérdida de nodos.
+- [x] RF-23: batería de extracción documentada y evaluada.
+- [x] Esquema MCP: tanto herramientas de escritura (`aprender`, `guardar`) como de búsqueda (`recordar`, `buscar`) exponen `sustantivos_clave` en el esquema publicado con descripciones canónicas sin contradicciones.
+- [x] Suite de tests unitarios pasa al 100% (incluyendo validaciones, cantidades 1-10, deduplicación, excepciones y esquema).
+- [x] QA Baseline (921 casos) verificado en snapshot congelado sin regresiones (`[GATE] OK`).
