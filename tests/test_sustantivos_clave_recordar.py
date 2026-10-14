@@ -315,6 +315,22 @@ class TestT5EsquemaMCP:
             assert "SUSTANTIVOS CLAVE — QUÉ SON Y PARA QUÉ SIRVEN" in desc
             assert "REGLA SOBRE EL NOMBRE DEL NODO" in desc
 
+    def test_esquema_mcp_expone_sustantivos_clave_agregar_sustantivos(self):
+        """Verifica que agregar_sustantivos exponga sustantivos_clave con sus reglas temáticas."""
+        import mcp_server as m
+        mcp = m._build_server()
+        tool_map = {t.name: t for t in mcp._tool_manager.list_tools()}
+        assert "agregar_sustantivos" in tool_map
+
+        tool = tool_map["agregar_sustantivos"]
+        schema = tool.parameters
+        props = schema.get("properties", {})
+        assert "sustantivos_clave" in props
+        desc = props["sustantivos_clave"].get("description", "")
+        assert "TEST 1 IDENTIDAD" in desc
+        assert "TEST 2 DISCRIMINACIÓN" in desc
+        assert "No copiar el identificador completo del nodo" in desc
+
     def test_aprender_y_guardar_rechazo_ejecucion_sustantivos_ausentes(self, ctx):
         """Verifica que la omisión de sustantivos_clave retorne error estructurado en ejecución."""
         tools, _ = ctx
