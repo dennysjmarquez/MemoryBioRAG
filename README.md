@@ -27,17 +27,17 @@ Evaluación sobre el snapshot congelado oficial canónico (**921 casos totales e
 | **Suite Concept Hub** | **5/5 TOP-1 (100.00%)** | Precisión perfecta en los 5 casos de prueba de puentes asociativos registrados. |
 | **Abismo léxico (EXP-Q)** | **3/3 Pool · 2/3 Top-5 · 1/3 Top-1** | 3/3 descubiertos en pool de grafo; 2/3 en Top-5 (pos #1 y #4) y 1/3 en Top-1 (pos #1). |
 | **Sinónimos · Recall@5 / Recall@1** | **100% (55/55) / 56.36%** | Cobertura total en Top-5; el 43.64% restante queda entre Top-2 y Top-5. |
-| **Por tema · Recall@5 / Recall@1** | **100% (65/65) / 67.69%** | Cobertura total en Top-5; ordenamiento Top-1 guiado por Jaccard y PPMI-SVD (MRR: 0.811). |
-| **Pregunta natural · R@5 / R@1** | **100% (65/65) / 95.38%** | Alta precisión Top-1 en formulaciones conversacionales. |
+| **Por tema · Recall@5 / Recall@1** | **100% (65/65) / 63.08%** | Cobertura total en Top-5; ordenamiento Top-1 guiado por Jaccard y PPMI-SVD (MRR: 0.772). |
+| **Pregunta natural · R@5 / R@1** | **100% (65/65) / 93.85%** | Alta precisión Top-1 en formulaciones conversacionales. |
 | **Cruce de idioma · R@5 / R@1** | **100% (8/8) / 62.50%** | Rescate bilingüe en Top-5; Top-1 asistido por WordNet y Concept Hubs. |
 | **Smoke multicampo en DB local** | **Objetivo #2 → #1** | Promoción de `version_actual_biorag` de #2 a #1 por convergencia multicampo. |
-| **Tiempo de la evaluación global** | **~809 s** | Ejecución determinista de la suite QA de 921 casos en CPU local (sin GPUs ni APIs). |
+| **Tiempo de la evaluación global** | **~877 s** | Ejecución determinista de la suite QA de 921 casos en CPU local (sin GPUs ni APIs). |
 
 > **Aclaración Metodológica — Umbrales de Gate vs. Métricas Observadas:**
 > - Los **umbrales formales del Gate** de calidad (`_evaluar_gate()` en `scripts/evaluar_qa.py`) exigen: Recall@5 $\ge$ 97.0%, Fallos $\le$ 24, Tasa de Falsos Positivos $\le$ 15.0%.
 > - **Recall@1 (91.77%)** y **MRR (0.9497)** son métricas complementarias observadas en el benchmark sobre este corpus congelado, no umbrales que el gate imponga ni garantías universales para cualquier consulta arbitraria.
 > - **R@5 = 100.00% (875/875):** Demuestra empíricamente que el conjunto híbrido (FTS5 BM25 + Sustantivos Clave + Grafo Sináptico Hebbiano + PPMI-SVD + Concept Hubs + Reranker Multicampo) logra **cobertura completa (875/875) dentro de la ventana Top-5 de trabajo del agente en este corpus evaluado**.
-> - **R@1 = 91.77% (803/875):** Refleja la precisión exacta del primer candidato. En tareas con solapamiento léxico directo (`literal`, `pregunta_natural`), R@1 supera el 95%–99%. En tareas donde el vocabulario difiere radicalmente (`sinonimo` 56.36%, `por_tema` 67.69%), el sistema ubica el recuerdo dentro del Top-5 pero no siempre en Top-1. R@1 representa el área de optimización continua para el desempate fino sin embeddings densos.
+> - **R@1 = 91.77% (803/875):** Refleja la precisión exacta del primer candidato. En tareas con solapamiento léxico directo (`literal`, `pregunta_natural`), R@1 supera el 95%–99%. En tareas donde el vocabulario difiere radicalmente (`sinonimo` 56.36%, `por_tema` 63.08%), el sistema ubica el recuerdo dentro del Top-5 pero no siempre en Top-1. R@1 representa el área de optimización continua para el desempate fino sin embeddings densos.
 
 ---
 
@@ -73,11 +73,18 @@ El motor distingue con rigor matemático la asimetría funcional entre la fase d
 
 ### 🛡️ 3. Validación Fail-Fast Antes de la Base de Datos (Pre-DB)
 
-Toda llamada MCP que involucre texto de búsqueda o almacenamiento es interceptada y validada **antes de abrir transacciones, solicitar locks o emitir I/O contra SQLite**. Si los términos clave no cumplen el contrato, la herramienta rechaza la ejecución de inmediato y responde con un error estructurado normalizado:
+Toda llamada MCP que involucre texto de búsqueda o almacenamiento es interceptada y validada **antes de abrir transacciones, solicitar locks o emitir I/O contra SQLite**. Si los términos clave no cumplen el contrato, la herramienta rechaza la ejecución de inmediato y responde con un **error estructurado normalizado**.
 
-- **`SUSTANTIVOS_CLAVE_REQUERIDOS`:** Emitido cuando una búsqueda textual o una operación de escritura omite el parámetro o envía una lista vacía.
-- **`SUSTANTIVOS_CLAVE_CANTIDAD_INVALIDA`:** Emitido cuando la cantidad de conceptos únicos queda fuera de los límites (menos de 2 en escritura, menos de 1 en búsqueda, o más de 10 en cualquier caso).
-- **`SUSTANTIVOS_CLAVE_FORMATO_INVALIDO`:** Emitido cuando el argumento no es una lista o cadena válida de términos textuales.
+**El parámetro `sustantivos_clave` es de tipo `Optional[str]`** — una cadena de texto con términos separados por comas (ej. `"arquitectura, componentes, biorag"`). No es una lista/array JSON.
+
+Los códigos de error son **distintos según la operación**:
+
+| Código | Emitido por | Condición |
+|---|---|---|
+| **`SUSTANTIVOS_CLAVE_REQUERIDOS`** | `recordar`, `buscar` (búsqueda textual) | Parámetro omitido o vacío en consulta con texto libre. |
+| **`SUSTANTIVOS_CLAVE_AUSENTES`** | `aprender`, `guardar`, `agregar_sustantivos` (escritura) | Parámetro omitido o vacío en operación de ingestión. |
+| **`SUSTANTIVOS_CLAVE_CANTIDAD_INVALIDA`** | Todas las herramientas | Términos únicos fuera del rango permitido (< 2 en escritura, < 1 en búsqueda, > 10 en ambas). |
+| **`SUSTANTIVOS_CLAVE_FORMATO_INVALIDO`** | Todas las herramientas | Algún término individual no cumple el formato (2–15 chars, sin espacios, solo alfanuméricos y guion bajo). |
 
 Este diseño *fail-fast* garantiza que el agente reciba retroalimentación diagnóstica inmediata sin degradar el rendimiento del motor ni dejar conexiones pendientes en el motor de persistencia.
 
@@ -102,12 +109,12 @@ El identificador o nombre canónico de un nodo (ej. `biorag_v33_0_arquitectura_c
 
 ##### 1. Búsqueda en memoria (`recordar`)
 ```json
-// LLAMADA VÁLIDA (v33.0)
+// LLAMADA VÁLIDA (v33.0) — sustantivos_clave es una cadena, no un array
 {
   "name": "recordar",
   "arguments": {
     "query": "¿Cuáles son los componentes de la arquitectura de BioRAG?",
-    "sustantivos_clave": ["arquitectura", "componentes", "biorag"],
+    "sustantivos_clave": "arquitectura, componentes, biorag",
     "limite": 5
   }
 }
@@ -115,12 +122,12 @@ El identificador o nombre canónico de un nodo (ej. `biorag_v33_0_arquitectura_c
 
 ##### 2. Búsqueda general (`buscar`)
 ```json
-// LLAMADA VÁLIDA (v33.0)
+// LLAMADA VÁLIDA (v33.0) — sustantivos_clave es una cadena, no un array
 {
   "name": "buscar",
   "arguments": {
     "texto": "protocolo de calibración conforme con percentil adaptativo",
-    "sustantivos_clave": ["calibracion", "percentil", "conforme"],
+    "sustantivos_clave": "calibracion, percentil, conforme",
     "limite": 5
   }
 }
@@ -128,20 +135,20 @@ El identificador o nombre canónico de un nodo (ej. `biorag_v33_0_arquitectura_c
 
 ##### 3. Ingestión de memoria (`aprender` / `guardar`)
 ```json
-// LLAMADA VÁLIDA (v33.0)
+// LLAMADA VÁLIDA (v33.0) — sustantivos_clave es una cadena, no un array
 {
   "name": "aprender",
   "arguments": {
     "concepto": "protocolo_sustantivos_clave_v33",
     "contenido": "Reglas de validación fail-fast para términos temáticos en búsquedas e ingestión.",
-    "sustantivos_clave": ["protocolo", "validacion", "sustantivos"],
+    "sustantivos_clave": "protocolo, validacion, sustantivos",
     "busqueda_previa": true,
     "bridges": [
-      "protocolo cognitivo temático",
-      "validacion fail fast pre db",
-      "contrato simetrico mcp",
-      "búsqueda textual estructurada",
-      "anclaje semántico conectoma"
+      {"text": "protocolo cognitivo temático de búsqueda", "angle": "sinonimo"},
+      {"text": "búsqueda sin términos clave falla silenciosamente", "angle": "problema"},
+      {"text": "validacion fail-fast pre-db con errores estructurados", "angle": "solucion"},
+      {"text": "agente necesita anclar conceptualmente la búsqueda", "angle": "situacion"},
+      {"text": "qué palabras clave debo poner al buscar en BioRAG", "angle": "ingenuo"}
     ]
   }
 }
@@ -149,7 +156,7 @@ El identificador o nombre canónico de un nodo (ej. `biorag_v33_0_arquitectura_c
 
 ##### 4. Enriquecimiento posterior (`agregar_sustantivos`)
 ```json
-// LLAMADA VÁLIDA (v33.0)
+// LLAMADA VÁLIDA (v33.0) — sustantivos como lista de strings
 {
   "name": "agregar_sustantivos",
   "arguments": {
@@ -690,11 +697,11 @@ El grafo de vectores PPMI se **auto-organiza en islas semánticas** — nadie la
 |---|---|---|---|---|---|---|
 | **literal** | 487 | **100.00%** | **99.59%** | **0.998** | 0 fallos | Coincidencia léxica directa en FTS5 + BM25 |
 | **dormido** | 65 | **100.00%** | **100.00%** | **1.000** | 0 fallos | Nodos consolidados recuperados con activación completa |
-| **pregunta_natural** | 65 | **100.00%** | **95.38%** | **0.972** | 0 fallos | Stemming + Sustantivos Clave + BM25 |
-| **variante_gramatical** | 65 | **100.00%** | **86.15%** | **0.911** | 0 fallos | Normalización morfológica y lematización |
-| **typo** | 65 | **100.00%** | **84.62%** | **0.911** | 0 fallos | Matching difuso por trigramas + PPMI |
-| **sinonimo** | 55 | **100.00%** | **56.36%** | **0.722** | 0 fallos | Cobertura total Top-5 vía WordNet + Grafo; R@1 en optimización |
-| **por_tema** | 65 | **100.00%** | **67.69%** | **0.811** | 0 fallos | Cobertura total Top-5 vía Jaccard dimensional + PPMI-SVD |
+| **pregunta_natural** | 65 | **100.00%** | **93.85%** | **0.964** | 0 fallos | Stemming + Sustantivos Clave + BM25 |
+| **variante_gramatical** | 65 | **100.00%** | **87.69%** | **0.932** | 0 fallos | Normalización morfológica y lematización |
+| **typo** | 65 | **100.00%** | **89.23%** | **0.939** | 0 fallos | Matching difuso por trigramas + PPMI |
+| **sinonimo** | 55 | **100.00%** | **56.36%** | **0.721** | 0 fallos | Cobertura total Top-5 vía WordNet + Grafo; R@1 en optimización |
+| **por_tema** | 65 | **100.00%** | **63.08%** | **0.772** | 0 fallos | Cobertura total Top-5 vía Jaccard dimensional + PPMI-SVD |
 | **cruce_idioma** | 8 | **100.00%** | **62.50%** | **0.740** | 0 fallos | Expansión bilingüe ES/EN + Concept Hubs |
 | **negativo (Falsos Positivos)** | 40 | N/A | N/A | N/A | **0 FP (0.00%)** | Calibración Conforme (Conformal Prediction $\alpha=0.05$) |
 | **ambiguo (Contradictorias)** | 6 | N/A | N/A | N/A | 2 incompletos | Evaluadas por separado fuera del recall global |
