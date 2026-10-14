@@ -1,5 +1,52 @@
 # BioRAG Changelog
 
+## [v33.0] — 2026-10-14 — Protocolo cognitivo simétrico de sustantivos_clave, validación fail-fast y estabilidad de recuperación
+
+**BREAKING CHANGE en herramientas de búsqueda MCP: `recordar` y `buscar` exigen obligatoriamente `sustantivos_clave` en consultas textuales en tiempo de ejecución. El agente debe interpretar la intención del usuario y proporcionar los conceptos temáticos centrales. Se introducen contratos simétricos de escritura y recuperación, validación fail-fast previa a la base de datos y la regla unificada sobre el nombre del nodo.**
+
+### Cambios principales
+
+- **Contrato cognitivo simétrico de `sustantivos_clave`:**
+  - **En Recuperación (`recordar`, `buscar`):** Obligatorio en toda búsqueda textual (query no vacío). El agente no adivina etiquetas de nodos desconocidos; interpreta la intención del usuario y su contexto conversacional. Pauta habitual: 2 a 4 conceptos centrales (admitido técnicamente de 1 a 10 términos únicos normalizados; 1 término si la intención es atómica, 5 a 10 si cada uno aporta discriminación real). Rechazo preventivo ante >10 términos.
+  - **Excepciones funcionales aprobadas:** Consultas puramente cronológicas (`dias`, `desde`, `hasta`) y dimensionales puras sin texto no requieren `sustantivos_clave`.
+  - **En Escritura (`aprender`, `guardar`, `agregar_sustantivos`):** Representa el SOMA del recuerdo (de qué trata realmente). Pauta habitual: 2 a 4 conceptos centrales (admitido técnicamente de 2 a 10 términos únicos normalizados). Aplica los 2 tests mecánicos (Identidad y Discriminación).
+- **Validaciones Fail-Fast estructuradas:**
+  - Se valida antes de abrir `_get_cerebro()` o acceder al almacenamiento en SQLite, retornando errores JSON estructurados y accionables:
+    - `SUSTANTIVOS_CLAVE_REQUERIDOS`: búsqueda textual sin sustantivos clave.
+    - `SUSTANTIVOS_CLAVE_AUSENTES`: guardado/aprendizaje sin sustantivos clave.
+    - `SUSTANTIVOS_CLAVE_CANTIDAD_INVALIDA`: fuera de rango permitido.
+    - `SUSTANTIVOS_CLAVE_FORMATO_INVALIDO`: términos con longitud fuera de [2, 15] caracteres o caracteres especiales no permitidos.
+- **Regla unificada sobre el nombre del nodo:**
+  - Prohibido copiar el identificador completo de forma indiscriminada (ej: `leccion_http_500_timeout`).
+  - Permitido y respaldado utilizar palabras individuales que formen parte del nombre del nodo cuando representen genuinamente el núcleo temático (ej: `timeout`, `servidor`). Lo que decide es su función temática, no si coincide con palabras del título o contenido.
+- **Armonización de Prompts y Esquemas MCP:**
+  - `ORACLE_PROMPT` en `core/mcp_server/prompt.py` e `instructions.md` actualizados eliminando el obsoleto "Protocolo Espejo" que inducía a predecir a ciegas etiquetas de nodos no vistos.
+  - Esquema MCP publicado expone `sustantivos_clave` en todas las herramientas de búsqueda y escritura (`recordar`, `buscar`, `aprender`, `guardar`, `agregar_sustantivos`) con descripciones canónicas coherentes.
+- **Fusión de Spec 001:**
+  - `specs/001-sustantivos-clave/spec.md` completamente alineado y cerrado.
+
+### Validación y Métricas Observadas
+
+- **Evaluación Global QA de 921 casos:** Ejecutada sobre el snapshot congelado oficial `snapshots/qa_escape_qcr_20260811.db` (SHA-256 `104dd2902aaf24c3ce93624492ea95a719acbdcca50f4f6bc123ac8317749796`, Git blob `ecc15b7513ff6ddd1356e934a0aa13821337bca4`).
+- **Métricas observadas en el benchmark:**
+  - **Recall@5 global:** **100.00%** (875/875 consultas de recuperación).
+  - **Recall@1 observado:** **91.77%** (803/875 consultas).
+  - **MRR observado:** **0.9497**.
+  - **Tasa de falsos positivos:** **0.00%** (0/40 controles negativos).
+  - **Fallos de recuperación:** **0** (todos los recuerdos gold recuperados en Top-5).
+  - **Casos ambiguos:** 6 casos evaluados fuera del Recall global (2 de ellos no cubren una de las etiquetas contradictorias).
+- **Suite Integral de 5 fases (`run_qa_suite.sh`):**
+  - **[1/5] Pytest:** 317 pruebas unitarias aprobadas (0 fallos).
+  - **[2/5] Invariantes de scoring:** 0 anomalías de monotonía.
+  - **[3/5] Concept Hub:** Top-1: 100.0% (5/5).
+  - **[4/5] Abismo Léxico (EXP-Q):** 3/3 candidatos descubiertos en el pool BFS; 2/3 en Top-5 (pos #1 y #4) y 1/3 en pool relacional (pos #19).
+  - **[5/5] Evaluación QA:** `[GATE] OK` bajo umbrales oficiales (Recall@5 ≥ 97%, fallos ≤ 24, FP ≤ 15%).
+- **Prueba Biológica Integral (`test_memory.py`):** Ejecutada de forma independiente sobre base temporal aislada: 112 secciones aprobadas al 100%.
+- **Cero alteraciones a algoritmos de core:** No se modificaron pesos BM25 ni fórmulas de ranking.
+- **Higiene de base de datos:** `MemoryBioRAG_Data/memory_biorag.db` mantiene 0 bytes de alteración respecto a `master`.
+
+---
+
 ## [v32.4] — 2026-10-07 — DimensionHub: semántica de mundo abierto para valores de dimensión
 
 **Auto-creación de valores de dimensión desconocidos: si un agente envía un valor que no existe en el catálogo, el sistema lo normaliza y lo registra automáticamente en lugar de descartarlo silenciosamente.**

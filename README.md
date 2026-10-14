@@ -1,36 +1,163 @@
 # BioRAG — Memoria Cognitiva Biomimética y Simbólica para Agentes de IA
 
-> **Versión Oficial:** v32.4
+> **Versión Oficial:** v33.0
 > **Paradigma:** Motor Python + SQLite FTS5. **Sin embeddings densos, GPU ni llamadas a APIs externas** en el path de búsqueda.
-> **Motor:** Arquitectura modularizada (18 submódulos `core/memory/` + 15 submódulos `core/mcp_server/` + fachada delgada) + SQLite FTS5 WAL + PPMI-SVD (100 dimensiones) + espacio semántico de 13 ejes + grafo sináptico Hebbiano + SDM (2048 bits) + calibración conforme + activación ACT-R + Concept Hubs.
+> **Motor:** Arquitectura modularizada (18 submódulos `core/memory/` + 15 submódulos `core/mcp_server/` + fachada delgada) + SQLite FTS5 WAL + PPMI-SVD (100 dimensiones) + espacio semántico de 13 ejes + grafo sináptico Hebbiano + SDM (2048 bits) + calibración conforme + activación ACT-R + Concept Hubs + validación simétrica fail-fast de sustantivos clave.
 > **Idiomas:** Español e inglés (stemming bilingüe, expansión simbólica con WordNet, Concept Hubs de 5 ángulos y Domain Dict).
 
 **BioRAG** es una memoria simbólica persistente para agentes de IA que aborda la pérdida de contexto entre sesiones mediante recuperación híbrida. “Biomimética” describe una inspiración de diseño; no significa que el motor simule literalmente un cerebro humano. Los resultados de rendimiento se limitan a los benchmarks y snapshots indicados.
 
 ---
 
-## 📊 Métricas de la suite oficial (v32.4 · 2026-10-07)
+## 📊 Métricas de la suite oficial (v33.0 · 2026-10-14)
 
-Evaluación sobre el snapshot congelado oficial (**921 casos**: 875 consultas de recuperación, 40 controles negativos y 6 casos ambiguos). La suite reportó el cap efectivo `0.085`, reranker aditivo activo y experimento multiplicativo Spec 006 apagado.
+Evaluación sobre el snapshot congelado oficial canónico (**921 casos totales en suite QA**):
+- **Archivo:** `snapshots/qa_escape_qcr_20260811.db`
+- **SHA-256:** `104dd2902aaf24c3ce93624492ea95a719acbdcca50f4f6bc123ac8317749796` (Git blob `ecc15b7513ff6ddd1356e934a0aa13821337bca4`).
+- **Composición del dataset:** **875 consultas de recuperación** evaluadas para Recall y MRR, **40 controles negativos** evaluados para tasa de falsos positivos, y **6 casos ambiguos** (consultas con etiquetas contradictorias) analizados por separado fuera del denominador de recuperación global.
 
 | Métrica | Resultado observado | Contexto y Significado Científico |
 |---|---:|---|
-| **Recall@5 global** | **100.00% (875/875)** | **100% de cobertura en ventana de trabajo**: todo recuerdo gold ingresa al Top-5 del agente sin fallos de recuperación. |
-| **Recall@1 (Top-1)** | **91.77% (803/875)** | **Precisión de primer resultado**: 803 de 875 casos quedan en primer lugar directo (+0.11pp vs baseline). |
-| **MRR (Mean Reciprocal Rank)** | **0.950** | Posición recíproca promedio ponderada (0.9497 sin redondear; baseline anterior: 0.9491). |
-| **Falsos positivos** | **0/40 (0.00%)** | Calibración conforme efectiva en los 40 controles negativos del benchmark. |
-| **Tests unitarios** | **304/304 aprobados** | Cobertura completa de invariantes, contratos MCP, normalización y catálogo. |
-| **Abismo léxico (EXP-Q)** | **3/3 Pool · 2/3 Top-5** | 3/3 descubiertos en pool BFS de grafo; 2/3 en Top-5 (pos #1 y #4) y 1/3 en pool relacional (pos #19). |
+| **Recall@5 global** | **100.00% (875/875)** | **100% de cobertura en ventana de trabajo**: todo recuerdo gold ingresa al Top-5 del agente sin fallos de recuperación (0 fallos). |
+| **Recall@1 (Top-1)** | **91.77% (803/875)** | **Precisión de primer resultado**: 803 de 875 casos quedan en primer lugar directo (métrica complementaria observada en benchmark). |
+| **MRR (Mean Reciprocal Rank)** | **0.950** | Posición recíproca promedio ponderada (0.9497 sin redondear; métrica complementaria observada). |
+| **Falsos positivos** | **0/40 (0.00%)** | Calibración conforme efectiva en los 40 controles negativos del benchmark (FP rate observada 0.00%). |
+| **Casos ambiguos (contradictorios)** | **6 casos (2 con cobertura parcial)** | Evaluados por separado del Recall global; 2 casos no cubren al menos una de las etiquetas contradictorias. |
+| **Tests unitarios** | **317/317 aprobados** | Cobertura completa de invariantes, validación pre-DB fail-fast, contratos MCP, normalización y catálogo. |
+| **Suite Concept Hub** | **5/5 TOP-1 (100.00%)** | Precisión perfecta en los 5 casos de prueba de puentes asociativos registrados. |
+| **Abismo léxico (EXP-Q)** | **3/3 Pool · 2/3 Top-5 · 1/3 Top-1** | 3/3 descubiertos en pool de grafo; 2/3 en Top-5 (pos #1 y #4) y 1/3 en Top-1 (pos #1). |
 | **Sinónimos · Recall@5 / Recall@1** | **100% (55/55) / 56.36%** | Cobertura total en Top-5; el 43.64% restante queda entre Top-2 y Top-5. |
-| **Por tema · Recall@5 / Recall@1** | **100% (65/65) / 63.08%** | Cobertura total en Top-5; ordenamiento Top-1 guiado por Jaccard y PPMI-SVD. |
-| **Pregunta natural · R@5 / R@1** | **100% (65/65) / 93.85%** | Alta precisión Top-1 en formulaciones conversacionales. |
+| **Por tema · Recall@5 / Recall@1** | **100% (65/65) / 67.69%** | Cobertura total en Top-5; ordenamiento Top-1 guiado por Jaccard y PPMI-SVD (MRR: 0.811). |
+| **Pregunta natural · R@5 / R@1** | **100% (65/65) / 95.38%** | Alta precisión Top-1 en formulaciones conversacionales. |
 | **Cruce de idioma · R@5 / R@1** | **100% (8/8) / 62.50%** | Rescate bilingüe en Top-5; Top-1 asistido por WordNet y Concept Hubs. |
 | **Smoke multicampo en DB local** | **Objetivo #2 → #1** | Promoción de `version_actual_biorag` de #2 a #1 por convergencia multicampo. |
-| **Tiempo de la evaluación global** | **809.00 s** | Ejecución determinista de la suite QA de 921 casos en CPU local (sin GPUs ni APIs). |
+| **Tiempo de la evaluación global** | **~809 s** | Ejecución determinista de la suite QA de 921 casos en CPU local (sin GPUs ni APIs). |
 
-> **Interpretación Epistémica de R@5 vs. R@1:**
-> - **R@5 = 100.00% (875/875):** Demuestra empíricamente que el conjunto híbrido (FTS5 BM25 + Sustantivos Clave + Grafo Sináptico Hebbiano + PPMI-SVD + Concept Hubs) logra **cobertura completa (875/875) dentro de la ventana Top-5 de trabajo del agente en este corpus evaluado**.
-> - **R@1 = 91.77% (803/875):** Refleja la precisión exacta del primer candidato. En tareas con solapamiento léxico directo (`literal`, `pregunta_natural`), R@1 supera el 95%–99%. En tareas donde el vocabulario difiere radicalmente (`sinonimo` 56.36%, `por_tema` 63.08%), el sistema ubica el recuerdo dentro del Top-5 pero no siempre en Top-1. **R@1 es el verdadero frente de investigación continua para el desempate fino sin embeddings densos.**
+> **Aclaración Metodológica — Umbrales de Gate vs. Métricas Observadas:**
+> - Los **umbrales formales del Gate** de calidad (`_evaluar_gate()` en `scripts/evaluar_qa.py`) exigen: Recall@5 $\ge$ 97.0%, Fallos $\le$ 24, Tasa de Falsos Positivos $\le$ 15.0%.
+> - **Recall@1 (91.77%)** y **MRR (0.9497)** son métricas complementarias observadas en el benchmark sobre este corpus congelado, no umbrales que el gate imponga ni garantías universales para cualquier consulta arbitraria.
+> - **R@5 = 100.00% (875/875):** Demuestra empíricamente que el conjunto híbrido (FTS5 BM25 + Sustantivos Clave + Grafo Sináptico Hebbiano + PPMI-SVD + Concept Hubs + Reranker Multicampo) logra **cobertura completa (875/875) dentro de la ventana Top-5 de trabajo del agente en este corpus evaluado**.
+> - **R@1 = 91.77% (803/875):** Refleja la precisión exacta del primer candidato. En tareas con solapamiento léxico directo (`literal`, `pregunta_natural`), R@1 supera el 95%–99%. En tareas donde el vocabulario difiere radicalmente (`sinonimo` 56.36%, `por_tema` 67.69%), el sistema ubica el recuerdo dentro del Top-5 pero no siempre en Top-1. R@1 representa el área de optimización continua para el desempate fino sin embeddings densos.
+
+---
+
+## 🚀 Novedades de la Versión v33.0 — Protocolo Cognitivo Simétrico de Sustantivos Clave
+
+La versión **v33.0** introduce un cambio arquitectónico y contractual mayor en el subsistema de ingestión y recuperación de BioRAG: la formalización del **protocolo cognitivo simétrico de `sustantivos_clave`** con validación anticipada (*fail-fast*) previa a la base de datos en todas las herramientas MCP del ciclo de vida de la memoria.
+
+### 🧠 1. El Contrato Cognitivo de `sustantivos_clave`
+
+En BioRAG, los `sustantivos_clave` **no constituyen un inventario sintáctico o automático de todas las palabras nominales** presentes en un texto, sino un **anclaje semántico de alto nivel que responde a la pregunta cognitiva fundamental:**
+
+> *"¿De qué conceptos temáticos trata centralmente este recuerdo o esta intención de búsqueda?"*
+
+- **Propósito:** Anclar los recuerdos en el conectoma asociativo y permitir el cruce de evidencia multicampo (FTS5 + Sustantivos + Grafo + PPMI-SVD).
+- **Pauta Cognitiva Recomendada:** Entre **2 y 4 términos centrales** de alta carga conceptual.
+- **Rango Técnico Aceptado:** El motor admite un rango más amplio (hasta 10 términos) para acomodar intenciones complejas o dominios con terminología multifacética, preservando la agilidad del agente.
+- **Normalización Automática:** Los términos se sanean de forma determinista (conversión a minúsculas, eliminación de espacios superfluos, deduplicación preservando orden).
+
+---
+
+### ⚖️ 2. Diferenciación Simétrica: Escritura vs. Búsqueda Textual
+
+El motor distingue con rigor matemático la asimetría funcional entre la fase de almacenamiento de conocimiento y la fase de consulta:
+
+| Operación | Herramientas MCP Afectadas | Rango de Términos Únicos | Justificación Cognitiva |
+|---|---|:---:|---|
+| **Escritura / Ingestión** | `aprender`, `guardar`, `agregar_sustantivos` | **2 a 10** | Un recuerdo persistente requiere al menos dos anclas conceptuales para poder integrarse en el conectoma y permitir el cierre asociativo triádico. |
+| **Búsqueda Textual** | `recordar`, `buscar` | **1 a 10** | Una consulta del usuario puede ser genuinamente atómica (ej. *"vacaciones"*, *"arquitectura"*, *"hipertensión"*), por lo que exigir un mínimo de dos términos bloquearía intenciones válidas. |
+| **Consultas Estructurales / Cronológicas** | `recordar(limite=N)` (sin texto) | **0 (Exento)** | Consultas puramente de exploración cronológica o navegacional sobre la memoria no requieren términos temáticos. |
+| **Consultas Dimensionales Puras** | `buscar(dimensiones=...)` (sin texto) | **0 (Exento)** | Filtrado estricto por coordenadas espaciales o ejes semánticos sin texto libre. |
+
+---
+
+### 🛡️ 3. Validación Fail-Fast Antes de la Base de Datos (Pre-DB)
+
+Toda llamada MCP que involucre texto de búsqueda o almacenamiento es interceptada y validada **antes de abrir transacciones, solicitar locks o emitir I/O contra SQLite**. Si los términos clave no cumplen el contrato, la herramienta rechaza la ejecución de inmediato y responde con un error estructurado normalizado:
+
+- **`SUSTANTIVOS_CLAVE_REQUERIDOS`:** Emitido cuando una búsqueda textual o una operación de escritura omite el parámetro o envía una lista vacía.
+- **`SUSTANTIVOS_CLAVE_CANTIDAD_INVALIDA`:** Emitido cuando la cantidad de conceptos únicos queda fuera de los límites (menos de 2 en escritura, menos de 1 en búsqueda, o más de 10 en cualquier caso).
+- **`SUSTANTIVOS_CLAVE_FORMATO_INVALIDO`:** Emitido cuando el argumento no es una lista o cadena válida de términos textuales.
+
+Este diseño *fail-fast* garantiza que el agente reciba retroalimentación diagnóstica inmediata sin degradar el rendimiento del motor ni dejar conexiones pendientes en el motor de persistencia.
+
+---
+
+### 🏷️ 4. Regla Ontológica sobre el Nombre del Nodo
+
+El identificador o nombre canónico de un nodo (ej. `biorag_v33_0_arquitectura_core`) cumple una función de clave única de identificación en el grafo, no de metadato asociativo:
+
+1. **Prohibición de copia indiscriminada:** No se debe volcar el slug o identificador técnico completo (con guiones bajos o numeración de versión) como una etiqueta monolítica.
+2. **Extracción temática autorizada:** Sí se autoriza y aconseja extraer palabras o raíces individuales del nombre cuando representen conceptos sustantivos reales del recuerdo (ej. `["biorag", "arquitectura"]`).
+
+---
+
+### ⚠️ 5. Compatibilidad y Guía de Migración MCP (Breaking Change v33.0)
+
+> [!WARNING]
+> **CAMBIO DE CONTRATO INCOMPATIBLE (BREAKING CHANGE):**
+> En versiones anteriores (`v32.x`), las herramientas de búsqueda textual (`recordar` y `buscar`) permitían consultas con solo el parámetro `query` o `texto`. A partir de **v33.0**, omitir `sustantivos_clave` en una búsqueda textual provoca un rechazo inmediato en tiempo de ejecución. Los clientes e integraciones MCP deben actualizarse.
+
+#### Ejemplos de Llamadas MCP Actualizadas
+
+##### 1. Búsqueda en memoria (`recordar`)
+```json
+// LLAMADA VÁLIDA (v33.0)
+{
+  "name": "recordar",
+  "arguments": {
+    "query": "¿Cuáles son los componentes de la arquitectura de BioRAG?",
+    "sustantivos_clave": ["arquitectura", "componentes", "biorag"],
+    "limite": 5
+  }
+}
+```
+
+##### 2. Búsqueda general (`buscar`)
+```json
+// LLAMADA VÁLIDA (v33.0)
+{
+  "name": "buscar",
+  "arguments": {
+    "texto": "protocolo de calibración conforme con percentil adaptativo",
+    "sustantivos_clave": ["calibracion", "percentil", "conforme"],
+    "limite": 5
+  }
+}
+```
+
+##### 3. Ingestión de memoria (`aprender` / `guardar`)
+```json
+// LLAMADA VÁLIDA (v33.0)
+{
+  "name": "aprender",
+  "arguments": {
+    "concepto": "protocolo_sustantivos_clave_v33",
+    "contenido": "Reglas de validación fail-fast para términos temáticos en búsquedas e ingestión.",
+    "sustantivos_clave": ["protocolo", "validacion", "sustantivos"],
+    "busqueda_previa": true,
+    "bridges": [
+      "protocolo cognitivo temático",
+      "validacion fail fast pre db",
+      "contrato simetrico mcp",
+      "búsqueda textual estructurada",
+      "anclaje semántico conectoma"
+    ]
+  }
+}
+```
+
+##### 4. Enriquecimiento posterior (`agregar_sustantivos`)
+```json
+// LLAMADA VÁLIDA (v33.0)
+{
+  "name": "agregar_sustantivos",
+  "arguments": {
+    "concepto": "protocolo_sustantivos_clave_v33",
+    "sustantivos": ["arquitectura", "contrato"]
+  }
+}
+```
 
 ---
 
@@ -557,7 +684,7 @@ El grafo de vectores PPMI se **auto-organiza en islas semánticas** — nadie la
 
 > **Nota de veracidad:** el `84.62%` histórico de v23.1 provenía de un snapshot con `por_tema` en un corpus de 614 nodos y backfill parcial de predicados. Medido sobre el corpus real actual (921 casos QA, 2026-08-04), el baseline real de `por_tema` es **67.69%**, y el re-ranking jaccard lo eleva a **81.54%** (+13.85pp) con protecciones (protect-r0, gate 0.04, topk 20) que eliminan las regresiones. Ver `EXPERIMENTS.md` para la narrativa completa.
 
-### Desglose Consolidado por Categoría de Recuperación — v32.4 (921 Casos QA, Snapshot Canónico)
+### Desglose Consolidado por Categoría de Recuperación — v33.0 (921 Casos QA, Snapshot Canónico)
 
 | Categoría | Total Casos | Recall@5 | Recall@1 | MRR | Errores Top-5 / FPs | Estado de Recuperación |
 |---|---|---|---|---|---|---|
@@ -573,7 +700,7 @@ El grafo de vectores PPMI se **auto-organiza en islas semánticas** — nadie la
 | **ambiguo (Contradictorias)** | 6 | N/A | N/A | N/A | 2 incompletos | Evaluadas por separado fuera del recall global |
 | **GLOBAL RETRIEVAL** | **875** | **100.00%** | **91.77%** | **0.950** | **0 fallos Top-5** | 🎯 **100% Cobertura Top-5 (803/875 en Top-1 directo)** |
 
-> **GLOBAL SUMMARY v32.4 (snapshot canónico, 921 casos):** Global Recall@5: **100.00%** (875/875) | Global Recall@1: **91.77%** (803/875) | MRR: **0.950** | Tasa de Falsos Positivos: **0.00% (0 / 40)** | Fallos de Recuperación Top-5: **0**.
+> **GLOBAL SUMMARY v33.0 (snapshot canónico, 921 casos):** Global Recall@5: **100.00%** (875/875) | Global Recall@1: **91.77%** (803/875) | MRR: **0.950** | Tasa de Falsos Positivos: **0.00% (0 / 40)** | Fallos de Recuperación Top-5: **0**.
 
 ---
 
@@ -2484,6 +2611,26 @@ En v13.4 el catálogo tenía **7 ejes × 73 sub-valores**: emoción (qué se sie
 
 ## Historial de Versiones
 
+### v33.0 — Protocolo Cognitivo Simétrico de Sustantivos Clave, Validación Fail-Fast y Compatibilidad MCP (Octubre 2026)
+
+**Objetivo:** Establecer un contrato semántico y simétrico riguroso para la captura e invocación de términos temáticos (`sustantivos_clave`) en todas las herramientas MCP del ciclo de vida de la memoria (`aprender`, `guardar`, `agregar_sustantivos`, `recordar`, `buscar`), con validación pre-DB anticipada (*fail-fast*).
+
+**Implementación:**
+- **Contrato simétrico con diferenciación de cardinalidad:** 2 a 10 conceptos únicos obligatorios para escritura/ingestión; 1 a 10 conceptos únicos obligatorios para búsqueda textual. Consultas puramente cronológicas o dimensionales exentas.
+- **Validación anticipada (Pre-DB):** Errores estructurados (`SUSTANTIVOS_CLAVE_REQUERIDOS`, `SUSTANTIVOS_CLAVE_CANTIDAD_INVALIDA`, `SUSTANTIVOS_CLAVE_FORMATO_INVALIDO`) devueltos de inmediato sin locks ni I/O en SQLite.
+- **Regla temática ontológica:** Prohibición de volcar slugs completos como etiquetas; extracción selectiva de términos temáticos autorizada.
+- **Breaking Change semver:** Las búsquedas textuales anteriores sin `sustantivos_clave` son rechazadas de forma incompatible en runtime para forzar la especificación temática por parte del agente.
+
+**Validación reportada:** Suite QA oficial (921 casos: 875 de recuperación, 40 negativos y 6 ambiguos) sobre snapshot canónico congelado (SHA-256 `104dd2902aaf24c3ce93624492ea95a719acbdcca50f4f6bc123ac8317749796`, Git blob `ecc15b7513ff6ddd1356e934a0aa13821337bca4`). Recall@5: 100.00% (875/875), Recall@1 observado: 91.77% (803/875), MRR: 0.9497, Falsos Positivos: 0/40 (0.00%), 317/317 tests unitarios aprobados, Concept Hub: 5/5 TOP-1 (100%), Abismo Léxico: 3/3 descubiertos en pool, 2/3 Top-5 y 1/3 Top-1.
+
+### v32.4 — DimensionHub y Semántica de Mundo Abierto para Ejes Semánticos (Octubre 2026)
+
+**Objetivo:** Reemplazar el modelo de mundo cerrado rígido de dimensiones semánticas por un esquema de mundo abierto (`DimensionHub`) con autocreación controlada, normalización universal NFD/snake_case e indización con unicidad por tipo de eje (`UNIQUE(tipo_id, name)`).
+
+**Implementación:** Sanitización universal vía `_normalizar_nombre_dimension`, auto-creación de valores no registrados con flag `auto_generada=1` y confianza calibrada (0.7), desacoplamiento de banderas de infraestructura hacia `migraciones_ejecutadas`, y prefijo semántico `tema_` para auto-clustering.
+
+**Validación reportada:** 304/304 tests unitarios aprobados; cero regresiones en la suite QA oficial; catálogo de dimensiones 100% semántico y legible.
+
 ### v32.3 — Re-ranking aditivo por convergencia de evidencia multicampo (Octubre 2026)
 
 **Objetivo:** mejorar el orden relativo de candidatos existentes cuando la respuesta pertinente coincide en varios campos estructurados y un distractor solo contiene una mención incidental, sin reglas por ID/categoría.
@@ -3349,12 +3496,12 @@ La suite y herramientas asociadas se encuentran en el directorio `scripts/` (exc
 
 ## Comparativa Histórica de Versiones y Evolución de Métricas
 
-| Métrica | v23.0–v23.1 | v24.1–v25.2 | v26.1 | v28.0–v28.1 | v29.1 | v30.0 | v30.1 | **v32.4 (Estado Actual)** |
+| Métrica | v23.0–v23.1 | v24.1–v25.2 | v26.1 | v28.0–v28.1 | v29.1 | v30.0 | v30.1 | **v33.0 (Estado Actual)** |
 |---|---|---|---|---|---|---|---|---|
-| Pipeline de búsqueda | 14 capas + SRL | 14 capas + Re-ranking | 14 capas + PPMI+SVD | 14 capas + QCR + Canal 2 | 14 capas + Concept Hubs 5 Ángulos | 14 capas + BM25 Intra-Query | 14 capas + Orden Monotónico + QA Gate | **14 capas + ACT-R + Reranker Multicampo + DimensionHub** |
+| Pipeline de búsqueda | 14 capas + SRL | 14 capas + Re-ranking | 14 capas + PPMI+SVD | 14 capas + QCR + Canal 2 | 14 capas + Concept Hubs 5 Ángulos | 14 capas + BM25 Intra-Query | 14 capas + Orden Monotónico + QA Gate | **14 capas + ACT-R + Reranker Multicampo + DimensionHub + Sustantivos Clave Pre-DB** |
 | Señales de scoring | 12 (+ SRL) | 12 + Jaccard | 13 (+ PPMI) | 13 (+ PPMI, ADN instalado) | 14 (+ Concept Hub match) | 14 normalizadas intra-query | 14 normalizadas + monotonía garantizada | **14 normalizadas + Monotonía + Multicampo** |
 | Nodos | ~614 | ~800+ | ~800+ | ~900+ | ~985 | ~985+ (926 calibrados) | ~985+ (live DB) | **~985+ (live DB)** |
-| Tests Unitarios | 117/117 | 117/117 | 112/112 | 16/16 | 33/33 | 34/34 + 4/4 Invariantes | 56/56 PASS + 4/4 Invariantes | **304/304 PASS (100%)** |
+| Tests Unitarios | 117/117 | 117/117 | 112/112 | 16/16 | 33/33 | 34/34 + 4/4 Invariantes | 56/56 PASS + 4/4 Invariantes | **317/317 PASS (100%)** |
 | GLOBAL Recall@5 | 96.82% | 97.05% | 96.71% | 96.03% | 95.80% | 95.23% | 95.89% (839/875) | **100.00% (875/875)** |
 | GLOBAL Recall@1 | — | — | — | 88.76% | 86.27% | 86.61% | 87.43% | **91.77% (803/875)** |
 | GLOBAL MRR | — | — | — | — | — | 0.900 | 0.9073 | **0.950** |
@@ -3365,7 +3512,7 @@ La suite y herramientas asociadas se encuentran en el directorio `scripts/` (exc
 | Concept Hub (Fase 2) | — | — | — | — | 3/3 (100%) | 5/5 TOP-1 (100%) | 5/5 TOP-1 (100%) | **5/5 TOP-1 (100% en puentes registrados)** |
 | Abismo Léxico (EXP-Q) | — | — | — | — | — | — | — | **3/3 (100%) Rescatados en contexto expandido** |
 | Dependencias ML | 0 | 0 | 0 | 0 | 0 | 0 | 0 | **0 (Python puro + SQLite)** |
-| Tools MCP | 30 | 32 | 32 | 33 | 38 | 38 | 38 | **42 tools (+ 2 resources, 1 prompt)** |
+| Tools MCP | 30 | 32 | 32 | 33 | 38 | 38 | 38 | **42 tools (+ 2 resources, 1 prompt) — Protocolo Simétrico Pre-DB** |
 | Fallos de Recuperación (Top-5) | — | — | — | 35 | — | 44 (pre-fix) | 36 | **0 / 875 (100% Cobertura Top-5)** |
 
 > \* ⚠️ El `84.62%` de v23.0–v23.1 proviene de un snapshot con backfill parcial de predicados (corpus de 614 nodos). El baseline real de `por_tema` sobre el corpus actual (921 casos QA) es **67.69%**; el valor **81.54%** de v24.1–v25.2 corresponde al re-ranking jaccard con protect-r0.
