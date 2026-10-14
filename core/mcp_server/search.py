@@ -221,9 +221,8 @@ def _recordar_impl(
                 "mensaje": (
                     "❌ SUSTANTIVOS_CLAVE_REQUERIDOS — búsqueda semántica NO ejecutada.\n\n"
                     "El parámetro 'sustantivos_clave' es OBLIGATORIO en toda búsqueda textual.\n"
-                    "Debes interpretar qué intenta recordar el usuario y extraer de 2 a 4 conceptos centrales "
-                    "de esa intención (no palabras incidentales de la query ni predecir a ciegas el nodo objetivo).\n\n"
-                    "Protocolo simétrico: Al buscar, identificá DE QUÉ TRATA lo que se quiere recordar.\n"
+                    "Debes interpretar qué intenta recordar el usuario y extraer conceptos centrales de esa intención.\n\n"
+                    "Pauta recomendada: habitualmente entre 2 y 4 conceptos centrales (permitido de 1 a 10 términos válidos).\n"
                     "Ejemplo: query='¿qué fotos tomé en el paseo por la montaña?'\n"
                     "         sustantivos_clave='fotografia,montana,paisaje,viaje'\n\n"
                     "Formato: minúsculas, sin tildes, separados por coma (2-15 chars por término, solo alfanuméricos y guion bajo)."
@@ -245,7 +244,7 @@ def _recordar_impl(
                     "mensaje": (
                         "❌ SUSTANTIVOS_CLAVE_REQUERIDOS — búsqueda semántica NO ejecutada.\n\n"
                         "El parámetro 'sustantivos_clave' no contenía términos válidos tras normalizar.\n"
-                        "Debes proporcionar de 2 a 4 términos centrales (ej: 'servidor,backend,timeout')."
+                        "Pauta habitual: de 2 a 4 términos centrales (permitido de 1 a 10 conceptos válidos)."
                     ),
                     "parametro_faltante": "sustantivos_clave",
                 }, ensure_ascii=False)
@@ -256,8 +255,8 @@ def _recordar_impl(
                     "codigo": "SUSTANTIVOS_CLAVE_CANTIDAD_INVALIDA",
                     "mensaje": (
                         "❌ SUSTANTIVOS_CLAVE_CANTIDAD_INVALIDA — búsqueda NO ejecutada.\n\n"
-                        f"Se recibieron {len(sk_unicos)} términos; el máximo permitido es 10.\n"
-                        "Preferir entre 2 a 4 conceptos discriminativos centrales."
+                        f"Se recibieron {len(sk_unicos)} términos; el máximo técnico permitido es 10.\n"
+                        "Pauta recomendada: habitualmente entre 2 y 4 conceptos centrales (o hasta 10 si cada uno aporta información distintiva)."
                     ),
                     "parametro": "sustantivos_clave",
                     "cantidad_recibida": len(sk_unicos),
@@ -994,6 +993,46 @@ def _recordar_impl(
         cerebro.cerrar_sistema()
 
 
+SUSTANTIVOS_CLAVE_BUSQUEDA_DESCRIPTION = (
+    "NÚCLEO TEMÁTICO DE LA INTENCIÓN — obligatorio cuando la consulta contiene texto.\n\n"
+    "QUÉ DEBES HACER:\n"
+    "Identifica de qué trata lo que el usuario intenta recordar y proporciona "
+    "términos conceptuales concretos que representen esa intención. "
+    "Utiliza la petición actual y el contexto conversacional disponible. "
+    "Si las palabras del usuario ya expresan bien el concepto, puedes conservarlas; "
+    "si hace falta, utiliza una denominación conceptual más precisa.\n\n"
+    "CANTIDAD:\n"
+    "Usa normalmente entre 2 y 4 conceptos centrales. No es un límite rígido: "
+    "puedes proporcionar de 5 a 10 cuando cada término aporte información "
+    "pertinente y distintiva. Un solo término es válido si representa "
+    "suficientemente una intención centrada en un único concepto. "
+    "No añadas términos para completar una cuota. "
+    "El límite técnico es de 10 términos únicos después de normalizar.\n\n"
+    "CRITERIO DE SELECCIÓN:\n"
+    "Prioriza el tema principal, los objetos relevantes, el proceso o problema "
+    "y el contexto que realmente distinguen la intención. "
+    "No incluyas palabras incidentales, conectores, frases completas ni listas "
+    "indiscriminadas de sinónimos. No confundas sustantivos_clave con paráfrasis: "
+    "las paráfrasis representan otras formas de expresar la búsqueda; "
+    "sustantivos_clave representa su núcleo temático.\n\n"
+    "PROHIBICIÓN DE ADIVINAR EL OBJETIVO:\n"
+    "No inventes los términos de un nodo que no has visto ni intentes predecir "
+    "su nombre, identificador o etiqueta esperada. No utilices resultados "
+    "candidatos ni información de evaluación para escoger los términos. "
+    "La selección debe poder justificarse únicamente por la intención y el "
+    "contexto disponible antes de efectuar la búsqueda.\n\n"
+    "EJEMPLO:\n"
+    "Pregunta: '¿Qué fotografías tomé durante aquella salida por la montaña en moto?'\n"
+    "sustantivos_clave='motocicleta,montana,paisaje,fotografia'\n\n"
+    "FORMATO Y REGLAS:\n"
+    "Envía los términos separados por comas, sin frases ni explicaciones. "
+    "Tras la normalización, cada término debe tener entre 2 y 15 caracteres "
+    "(alfanuméricos y guion bajo). Máximo 10 términos únicos.\n"
+    "Excepción: Opcional únicamente en consultas puramente cronológicas (dias/desde sin query) "
+    "o exclusivamente dimensionales (dimensiones sin query)."
+)
+
+
 def register(mcp: Any) -> None:
     @mcp.tool(
         name="recordar",
@@ -1448,23 +1487,7 @@ def register(mcp: Any) -> None:
             )
         )] = "relevancia",
         sustantivos_clave: Annotated[Optional[str], Field(
-            description=(
-                "Sustantivos Clave -> Pregunta que responde -> ¿DE QUÉ trata exactamente? -> Metáfora -> La huella dactilar o el rostro de alguien (específico, concreto, único).\n\n"
-                "PROTOCOLO COGNITIVO SIMÉTRICO — OBLIGATORIO en toda búsqueda textual (BM25 4.0x).\n\n"
-                "OPERACIÓN MENTAL:\n"
-                "Al recordar o buscar, interpreta qué intenta evocar la persona y extrae de 2 a 4 conceptos centrales "
-                "de esa intención, utilizando el contexto conversacional disponible.\n"
-                "NO selecciones palabras incidentales ni intentes predecir a ciegas qué le pusieron al nodo al guardarlo.\n\n"
-                "EJEMPLOS:\n"
-                "• Usuario: '¿qué fotos tomé en el paseo por la montaña?'\n"
-                "  → sustantivos_clave='fotografia,montana,paisaje,viaje'\n"
-                "• Usuario: '¿cómo resuelvo cuando dos modelos de IA se contradicen?'\n"
-                "  → sustantivos_clave='consenso,modelo,discrepancia,contradiccion'\n"
-                "• Usuario: '¿cómo hago para que aparezcan mis notas en la nube?'\n"
-                "  → sustantivos_clave='obsidian,vault,sincronizacion,nube'\n\n"
-                "Formato: minúsculas, sin tildes, separados por coma (2-15 chars, solo alfanuméricos y guion bajo).\n"
-                "Excepción: Opcional únicamente en consultas puramente cronológicas (dias/desde sin query) o exclusivamente dimensionales (dimensiones sin query)."
-            )
+            description=SUSTANTIVOS_CLAVE_BUSQUEDA_DESCRIPTION
         )] = None,
     ) -> str:
         return _recordar_impl(
@@ -1499,17 +1522,7 @@ def register(mcp: Any) -> None:
             )
         )],
         sustantivos_clave: Annotated[Optional[str], Field(
-            description=(
-                "Sustantivos Clave — OBLIGATORIO en toda búsqueda textual (BM25 4.0x).\n\n"
-                "PROTOCOLO COGNITIVO SIMÉTRICO:\n"
-                "Interpretar la intención del usuario y extraer de 2 a 4 conceptos centrales "
-                "de aquello que intenta recordar, usando el contexto conversacional disponible.\n"
-                "NO seleccionar palabras incidentales ni adivinar a ciegas qué le pusieron al nodo.\n\n"
-                "EJEMPLO: Consulta '¿qué fotos tomé en el paseo por la montaña?'\n"
-                "  → sustantivos_clave='fotografia,montana,paisaje,viaje'\n"
-                "Formato: minúsculas, sin tildes, separados por coma (2-15 chars, solo alfanuméricos y guion bajo).\n"
-                "Excepción: Opcional únicamente en consultas puramente dimensionales sin query."
-            )
+            description=SUSTANTIVOS_CLAVE_BUSQUEDA_DESCRIPTION
         )] = None,
         dimensiones: Annotated[Any, Field(
             description=(

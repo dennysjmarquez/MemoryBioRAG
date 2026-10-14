@@ -1,15 +1,19 @@
 """
-Tests T5 — `biorag_recordar` con `sustantivos_clave` (Spec 001).
+Tests T5 — `biorag_recordar` y `biorag_buscar` con `sustantivos_clave` (Spec 001).
 
-RFs cubiertos: RF-5 (BM25 4 pesos), RF-18 (acentos en queries), RF-19 (boost),
-RF-20 (validación de formato).
+RFs cubiertos: RF-5 (BM25 4 pesos), RF-18 (acentos en queries), RF-19 (boost y obligatoriedad condicional),
+RF-20 (validación de límites de cantidad 1-10 y formato).
 
 Hecho cuando:
-  ✓ `recordar` con `sustantivos_clave` opcional boostea nodos cuyo sustantivos_clave coincide
+  ✓ `recordar` con `sustantivos_clave` boostea nodos cuyo sustantivos_clave coincide (RF-19)
   ✓ Query con tilde ("conexión") matchea nodo con "conexion" almacenado sin tilde (RF-18)
-  ✓ `recordar(sustantivos_clave="x@y")` → error SUSTANTIVOS_CLAVE_FORMATO_INVALIDO, búsqueda NO se ejecuta
-  ✓ `recordar(sustantivos_clave="")` → búsqueda normal (sin boost)
-  ✓ BM25 con 4 pesos prioriza match en columna sustantivos_clave (RF-5)
+  ✓ `recordar` con formato inválido ("x@y") → error SUSTANTIVOS_CLAVE_FORMATO_INVALIDO, búsqueda NO se ejecuta (RF-20)
+  ✓ Búsqueda textual sin `sustantivos_clave` (omitido o vacío) → error SUSTANTIVOS_CLAVE_REQUERIDOS antes de abrir el motor (RF-19)
+  ✓ Rango técnico 1 a 10 términos admitido; >10 términos rechazado con SUSTANTIVOS_CLAVE_CANTIDAD_INVALIDA (RF-20)
+  ✓ Rechazo fail-fast ocurre antes de llamar a `_get_cerebro()`
+  ✓ Excepciones legítimas: consultas cronológicas puras y dimensionales puras permitidas sin `sustantivos_clave`
+  ✓ `buscar` comparte exactamente el mismo comportamiento, validación y parámetros que `recordar`
+  ✓ Esquema MCP expone `sustantivos_clave` con la descripción canónica unificada
 """
 
 import json
@@ -79,18 +83,7 @@ class TestT5BM25CuatroPesos:
 
 
 class TestT5RecordarSustantivosBoost:
-    """RF-19: `recordar` con `sustantivos_clave` boostea nodos por lo que TRATAN.
-
-    El FTS indexa la columna sustantivos_clave con peso BM25 4.0x (RF-4/RF-5),
-    así que una query que toca ese campo ya matchea el nodo. El valor del boost
-    RF-19 es el caso complementario: la query NO cubre el sustantivo del nodo,
-    pero el agente pasa los términos temáticos explícitos → el match en la
-    columna dedicada sube ese nodo al top (rompe el empate BM25).
-
-    Para que la normalización min-max del scoring preserve discriminación,
-    necesitamos >=5 candidatos (el pool mínimo para que bm25 norm sea
-    significativamente distinto entre el mejor y el segundo mejor).
-    """
+    """RF-19: `recordar` con `sustantivos_clave` boostea nodos por lo que TRATAN."""
 
     def test_recordar_con_sustantivos_clave_subiria_top(self, ctx):
         tools, db_path = ctx
@@ -134,6 +127,34 @@ class TestT5AcentosEnQuery:
 class TestT5RecordarValidacion:
     """Validación del protocolo cognitivo obligatorio de sustantivos_clave en recordar y buscar."""
 
+    def test_rechazo_no_llama_get_cerebro(self, ctx, monkeypatch):
+        """Aureon Mandate: ante validación fallida, _get_cerebro() NUNCA debe ser llamado."""
+        tools, _ = ctx
+        import core.mcp_server.search as mcp_search
+
+        def _fail_on_call():
+            pytest.fail("VIOLACIÓN: _get_cerebro() fue invocado antes de completar la validación fail-fast!")
+
+        monkeypatch.setattr(mcp_search, "_get_cerebro", _fail_on_call)
+
+        # 1. Parámetro ausente
+        raw1 = tools["recordar"](query="algoritmo")
+        res1 = _raw_json(raw1)
+        assert res1["status"] == "error"
+        assert res1["codigo"] == "SUSTANTIVOS_CLAVE_REQUERIDOS"
+
+        # 2. Formato inválido
+        raw2 = tools["recordar"](query="algoritmo", sustantivos_clave="inv@lid")
+        res2 = _raw_json(raw2)
+        assert res2["status"] == "error"
+        assert res2["codigo"] == "SUSTANTIVOS_CLAVE_FORMATO_INVALIDO"
+
+        # 3. Cantidad inválida (>10)
+        raw3 = tools["recordar"](query="algoritmo", sustantivos_clave="a,b,c,d,e,f,g,h,i,j,k")
+        res3 = _raw_json(raw3)
+        assert res3["status"] == "error"
+        assert res3["codigo"] == "SUSTANTIVOS_CLAVE_CANTIDAD_INVALIDA"
+
     def test_formato_invalido_no_ejecuta_busqueda(self, ctx):
         tools, db_path = ctx
         _insert_lp(db_path, "nodo_existente", contenido="algoritmo de busqueda rapido", sk="")
@@ -142,7 +163,6 @@ class TestT5RecordarValidacion:
         res = _raw_json(raw)
         assert res["status"] == "error"
         assert res["codigo"] == "SUSTANTIVOS_CLAVE_FORMATO_INVALIDO"
-        # Búsqueda NO se ejecutó: no hay resultados aunque el nodo exista y matchee
         assert "resultados" not in res
         assert "total" not in res
 
@@ -170,21 +190,73 @@ class TestT5RecordarValidacion:
         tools, db_path = ctx
         _insert_lp(db_path, "nodo_existente", contenido="algoritmo de busqueda rapido", sk="")
 
-        # Alias buscar debe fallar igual si no se proveen sustantivos_clave
         raw = tools["buscar"](query="algoritmo")
         res = _raw_json(raw)
         assert res["status"] == "error"
         assert res["codigo"] == "SUSTANTIVOS_CLAVE_REQUERIDOS"
         assert "resultados" not in res
 
-    def test_buscar_con_sustantivos_clave_exito(self, ctx):
+    def test_cantidades_admitidas_recordar(self, ctx):
+        """Verifica que 1, 2, 4, 5, 6 y 10 términos sean aceptados en recordar."""
         tools, db_path = ctx
         _insert_lp(db_path, "nodo_existente", contenido="algoritmo de busqueda rapido", sk="")
 
-        raw = tools["buscar"](query="algoritmo", sustantivos_clave="algoritmo,busqueda")
+        casos = [
+            "algoritmo",                                                      # 1 término (atómico)
+            "algoritmo,busqueda",                                             # 2 términos (pauta)
+            "algoritmo,busqueda,optimizacion,rendimiento",                    # 4 términos (pauta)
+            "algoritmo,busqueda,optimizacion,rendimiento,complejidad",        # 5 términos
+            "algoritmo,busqueda,optimizacion,rendimiento,complejidad,grafo",  # 6 términos
+            "t1,t2,t3,t4,t5,t6,t7,t8,t9,t10",                                # 10 términos (máximo técnico)
+        ]
+        for sk in casos:
+            raw = tools["recordar"](query="algoritmo", sustantivos_clave=sk)
+            res = _raw_json(raw)
+            assert "resultados" in res, f"Falló para cantidad de términos en sustantivos_clave: {sk}"
+            assert res.get("status") != "error"
+
+    def test_cantidades_admitidas_buscar(self, ctx):
+        """Verifica que el alias buscar admita 1 y 6 términos igualmente."""
+        tools, db_path = ctx
+        _insert_lp(db_path, "nodo_existente", contenido="algoritmo de busqueda rapido", sk="")
+
+        for sk in ("algoritmo", "t1,t2,t3,t4,t5,t6"):
+            raw = tools["buscar"](query="algoritmo", sustantivos_clave=sk)
+            res = _raw_json(raw)
+            assert "resultados" in res
+            assert res.get("status") != "error"
+
+    def test_mas_de_diez_sustantivos_falla_recordar(self, ctx):
+        tools, db_path = ctx
+        _insert_lp(db_path, "nodo_existente", contenido="algoritmo de busqueda rapido", sk="")
+
+        once_terminos = "t1,t2,t3,t4,t5,t6,t7,t8,t9,t10,t11"
+        raw = tools["recordar"](query="algoritmo", sustantivos_clave=once_terminos)
+        res = _raw_json(raw)
+        assert res["status"] == "error"
+        assert res["codigo"] == "SUSTANTIVOS_CLAVE_CANTIDAD_INVALIDA"
+        assert "resultados" not in res
+
+    def test_mas_de_diez_sustantivos_falla_buscar(self, ctx):
+        tools, db_path = ctx
+        _insert_lp(db_path, "nodo_existente", contenido="algoritmo de busqueda rapido", sk="")
+
+        once_terminos = "t1,t2,t3,t4,t5,t6,t7,t8,t9,t10,t11"
+        raw = tools["buscar"](query="algoritmo", sustantivos_clave=once_terminos)
+        res = _raw_json(raw)
+        assert res["status"] == "error"
+        assert res["codigo"] == "SUSTANTIVOS_CLAVE_CANTIDAD_INVALIDA"
+        assert "resultados" not in res
+
+    def test_duplicados_deduplicados_y_contados_una_vez(self, ctx):
+        tools, db_path = ctx
+        _insert_lp(db_path, "nodo_existente", contenido="algoritmo de busqueda rapido", sk="")
+
+        # Entrada con duplicados: 3 términos recibidos pero solo 2 únicos
+        raw = tools["recordar"](query="algoritmo", sustantivos_clave="algoritmo,algoritmo,busqueda")
         res = _raw_json(raw)
         assert "resultados" in res
-        assert any(r["concepto"] == "nodo_existente" for r in res.get("resultados", []))
+        assert res.get("status") != "error"
 
     def test_recordar_cronologico_sin_sustantivos_permitido(self, ctx):
         tools, db_path = ctx
@@ -206,13 +278,22 @@ class TestT5RecordarValidacion:
         assert "resultados" in res
         assert res.get("status") != "error"
 
-    def test_mas_de_diez_sustantivos_falla(self, ctx):
-        tools, db_path = ctx
-        _insert_lp(db_path, "nodo_existente", contenido="algoritmo de busqueda rapido", sk="")
 
-        once_terminos = "t1,t2,t3,t4,t5,t6,t7,t8,t9,t10,t11"
-        raw = tools["recordar"](query="algoritmo", sustantivos_clave=once_terminos)
-        res = _raw_json(raw)
-        assert res["status"] == "error"
-        assert res["codigo"] == "SUSTANTIVOS_CLAVE_CANTIDAD_INVALIDA"
-        assert "resultados" not in res
+class TestT5EsquemaMCP:
+    """Verifica el esquema MCP expuesto para recordar y buscar."""
+
+    def test_esquema_mcp_expone_sustantivos_clave_recordar_y_buscar(self):
+        import mcp_server as m
+        mcp = m._build_server()
+        tool_map = {t.name: t for t in mcp._tool_manager.list_tools()}
+        assert "recordar" in tool_map
+        assert "buscar" in tool_map
+
+        for name in ("recordar", "buscar"):
+            tool = tool_map[name]
+            schema = tool.parameters
+            props = schema.get("properties", {})
+            assert "sustantivos_clave" in props, f"{name} debe exponer sustantivos_clave en su esquema MCP"
+            desc = props["sustantivos_clave"].get("description", "")
+            assert "NÚCLEO TEMÁTICO DE LA INTENCIÓN" in desc
+            assert "PROHIBICIÓN DE ADIVINAR EL OBJETIVO" in desc

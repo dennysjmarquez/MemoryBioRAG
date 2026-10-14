@@ -453,6 +453,42 @@ def _aprender_impl(
         cerebro.cerrar_sistema()
 
 
+SUSTANTIVOS_CLAVE_ESCRITURA_DESCRIPTION = (
+    "SUSTANTIVOS CLAVE — QUÉ SON Y PARA QUÉ SIRVEN\n\n"
+    "Son las etiquetas que identifican DE QUÉ TRATA realmente un recuerdo. "
+    "Ayudan a encontrarlo por su tema principal, aunque la pregunta futura "
+    "esté formulada con palabras diferentes.\n\n"
+    "NO extraigas todos los sustantivos del texto. "
+    "Identifica el núcleo temático: qué recuerdo es y qué conceptos lo "
+    "distinguen de otros recuerdos.\n\n"
+    "CÓMO EXTRAERLOS:\n"
+    "1. Resume mentalmente el recuerdo en una frase: "
+    "'Este recuerdo trata principalmente de...'.\n"
+    "2. Elige normalmente entre 2 y 4 conceptos concretos que representen "
+    "el tema principal y sus rasgos distintivos.\n"
+    "3. Puedes usar más cuando el recuerdo tenga varios aspectos centrales "
+    "genuinos (el validador técnico admite entre 2 y 10 términos únicos). "
+    "No añadas términos solo para completar una cantidad.\n\n"
+    "QUÉ INCLUIR:\n"
+    "El tema principal, el objeto o acontecimiento central y los conceptos "
+    "que permitan distinguir ese recuerdo de otros parecidos.\n\n"
+    "QUÉ NO INCLUIR POR DEFECTO:\n"
+    "Nombres de personas, fechas, adjetivos, conectores, verbos genéricos "
+    "y detalles incidentales. Inclúyelos como conceptos clave solo cuando "
+    "sean esenciales para identificar de qué trata el recuerdo.\n\n"
+    "IMPORTANTE:\n"
+    "No elijas un término solo porque aparece en el texto. "
+    "Tampoco lo descartes por aparecer allí. Decide según su importancia "
+    "para el tema. Puedes nombrar un concepto directamente implicado por "
+    "el contenido, pero no inventes causas ni añadas ideas especulativas.\n\n"
+    "EJEMPLO:\n"
+    "Contenido: 'Ayer Dennys condujo por una carretera de montaña, vio "
+    "un paisaje espectacular y se detuvo junto a su motocicleta para tomar unas fotografías.'\n"
+    "sustantivos_clave='motocicleta,montana,paisaje,fotografia'\n\n"
+    "FORMATO: de 2 a 10 términos únicos, minúsculas, sin tildes, separados por coma (2-15 caracteres, alfanuméricos y guion bajo)."
+)
+
+
 def register(mcp: Any) -> None:
     @mcp.tool(
         name="aprender",
@@ -703,34 +739,7 @@ def register(mcp: Any) -> None:
             )
         )] = None,
         sustantivos_clave: Annotated[Optional[str], Field(
-            description=(
-                "Sustantivos clave: qué son y cómo extraerlos\n\n"
-                "Un sustantivo clave resume de qué trata realmente un nodo. Es lo que decide si alguien lo encuentra dentro de 3 meses. Lo sacás antes de vectorizar — si falla acá, la búsqueda falla.\n\n"
-                "Son la identidad del nodo: la herramienta, el artefacto, el dominio. Ejemplo: un script que baja fuentes de NotebookLM → descarga,fuente,cuaderno,notebooklm.\n\n"
-                "Cómo extraerlos (3 preguntas):\n"
-                "1. ¿Qué guardé? (la acción/objeto concreto)\n"
-                "2. ¿De qué trata? (el núcleo temático)\n"
-                "3. ¿Con qué se conecta? (tema que otro nodo futuro toque)\n\n"
-                "Ejemplos:\n"
-                "- Paseo con la perra → paseo,perra,manchita,tarde\n"
-                "- Olvido de llamar al jefe → olvido,jefe,llamada\n"
-                "- Arepitas dulces → arepitas,comer,tarde,gustos\n"
-                "- Trabajo sin pausa → trabajo,pausa\n\n"
-                "ANALOGÍA: en una base vectorial, primero se extraen las palabras clave de cada texto y luego se convierten en números; los nodos con significado parecido quedan juntos en el espacio y se buscan por vecindario. Acá solo hacés el primer paso: extraer esas palabras, SIN convertirlas en números. Dos nodos son vecinos cuando comparten palabras clave; si las extraés mal, el nodo cae en el vecindario equivocado y no se encuentra. los nodos se guarden con términos que permitan recuperarlos por vecindario semántico y no por coincidencia literal de palabras.\n\n"
-                "En una base de datos vectorial lo que se graba son vectores, es decir, números. Se extraen las palabras adecuadas de un elemento —sea una imagen, un video, un párrafo o lo que sea—, eso se pasa a vectores y se guarda. Los elementos se relacionan a través de estos vectores, por lo que quedan agrupados en un mismo espacio multidimensional, por decirlo así, permitiendo búsquedas por rango, dimensiones o grupos. Sin embargo, en nuestro caso, este sistema no guarda números, guarda palabras. Por eso, la extracción debe hacerse exactamente como lo haría un modelo embedding, pero deteniéndose en la etapa de extraer las palabras y omitiendo los números; son esas palabras las que van en este parámetro. Es exactamente ese proceso. Así es. Independientemente de si esto se contradice o no con reglas o normas posteriores, este es el mecanismo real.\n\n"
-                "Regla de oro: si usás los mismos términos hoy y mañana, los nodos se conectan solos aunque el texto cambie.\n\n"
-                "Formato: 2-10 palabras, minúsculas, sin tildes, separadas por coma.\n\n"
-                "NO uses:\n"
-                "- Métricas ni consecuencias (recall, ranking, top1)\n"
-                "- No uses conceptos inventados ni inferencias especulativas. Puedes incluir términos técnicos canónicos o equivalentes directos cuando ayuden a identificar el mismo objeto, herramienta o dominio.\n"
-                "- Verbos nominalizados (postulación, análisis)\n"
-                "- Abstracciones huecas (estrategia, metodología, proceso)\n"
-                "- No excluyas automáticamente palabras del título; inclúyelas si identifican la herramienta, el objeto o el tema principal.\n\n"
-                "Ejemplos bien/mal:\n"
-                "- Montar Obsidian con FUSE → ❌ ocamlfuse,lanzador,terminal → ✅ obsidian,vault,ocamlfuse,fuse\n"
-                "- Traducir script con DeepSeek hecho en Python → ❌ idiomas,soporte,proceso → ✅ traduccion,script,deepseek,python\n"
-                "- Paseo con mascota → ✅ paseo,perra,manchita\n"
-            )
+            description=SUSTANTIVOS_CLAVE_ESCRITURA_DESCRIPTION
         )] = None,
         busqueda_previa: Annotated[Optional[bool], Field(
             description=(
@@ -821,16 +830,7 @@ def register(mcp: Any) -> None:
             )
         )] = None,
         sustantivos_clave: Annotated[Optional[str], Field(
-            description=(
-                "Sustantivos Clave -> Pregunta que responde -> ¿DE QUÉ trata exactamente? -> Metáfora -> La huella dactilar o el rostro de alguien (específico, concreto, único).\n\n"
-                "OBLIGATORIO — SOMA del nodo: 2 a 10 sustantivos que son su IDENTIDAD irreducible (peso BM25 4.0x). "
-                "PROTOCOLO — 2 TESTS MECÁNICOS (ver `aprender` para detalle completo): "
-                "TEST 1 IDENTIDAD: «Este nodo ES un nodo sobre ___.» Natural→PASA, forzado→NO PASA. "
-                "TEST 2 DISCRIMINACIÓN: «¿>30% de los nodos podrían tener esta palabra?» Sí→INVÁLIDO, No→VÁLIDO. "
-                "Formato: minúsculas, sin tildes, separados por coma, extraídos del contenido. "
-                "🔒 PROHIBICIONES: No repetir palabras del concepto, no nominalizar verbos, "
-                "no abstracciones vacías, no métricas, no palabras ausentes del contenido."
-            )
+            description=SUSTANTIVOS_CLAVE_ESCRITURA_DESCRIPTION
         )] = None,
         busqueda_previa: Annotated[Optional[bool], Field(
             description=(
