@@ -280,7 +280,7 @@ class TestT5RecordarValidacion:
 
 
 class TestT5EsquemaMCP:
-    """Verifica el esquema MCP expuesto para recordar y buscar."""
+    """Verifica el esquema MCP expuesto para búsqueda y escritura, y su contrato."""
 
     def test_esquema_mcp_expone_sustantivos_clave_recordar_y_buscar(self):
         import mcp_server as m
@@ -297,3 +297,55 @@ class TestT5EsquemaMCP:
             desc = props["sustantivos_clave"].get("description", "")
             assert "NÚCLEO TEMÁTICO DE LA INTENCIÓN" in desc
             assert "PROHIBICIÓN DE ADIVINAR EL OBJETIVO" in desc
+
+    def test_esquema_mcp_expone_sustantivos_clave_aprender_y_guardar(self):
+        """Verifica que aprender y guardar expongan sustantivos_clave con descripción canónica."""
+        import mcp_server as m
+        mcp = m._build_server()
+        tool_map = {t.name: t for t in mcp._tool_manager.list_tools()}
+        assert "aprender" in tool_map
+        assert "guardar" in tool_map
+
+        for name in ("aprender", "guardar"):
+            tool = tool_map[name]
+            schema = tool.parameters
+            props = schema.get("properties", {})
+            assert "sustantivos_clave" in props, f"{name} debe exponer sustantivos_clave en su esquema MCP"
+            desc = props["sustantivos_clave"].get("description", "")
+            assert "SUSTANTIVOS CLAVE — QUÉ SON Y PARA QUÉ SIRVEN" in desc
+            assert "REGLA SOBRE EL NOMBRE DEL NODO" in desc
+
+    def test_aprender_y_guardar_rechazo_ejecucion_sustantivos_ausentes(self, ctx):
+        """Verifica que la omisión de sustantivos_clave retorne error estructurado en ejecución."""
+        tools, _ = ctx
+        valid_bridges = [
+            {"text": "sinonimo texto", "angle": "sinonimo"},
+            {"text": "problema texto", "angle": "problema"},
+            {"text": "solucion texto", "angle": "solucion"},
+            {"text": "situacion texto", "angle": "situacion"},
+            {"text": "ingenuo texto", "angle": "ingenuo"},
+        ]
+        # Test en aprender (dimensiones posicional, bridges provisto)
+        raw_ap = tools["aprender"](
+            concepto="nodo_test_sin_sk",
+            contenido="texto descriptivo sobre configuracion del servidor",
+            dimensiones='{"dominio":["dominio_tecnico"]}',
+            bridges=valid_bridges,
+            busqueda_previa=True,
+            sustantivos_clave=None,
+        )
+        res_ap = _raw_json(raw_ap)
+        assert res_ap["status"] == "error"
+        assert res_ap["codigo"] == "SUSTANTIVOS_CLAVE_AUSENTES"
+
+        # Test en guardar
+        raw_gd = tools["guardar"](
+            concepto="nodo_test_sin_sk_2",
+            contenido="texto descriptivo sobre configuracion del servidor",
+            bridges=valid_bridges,
+            busqueda_previa=True,
+            sustantivos_clave="",
+        )
+        res_gd = _raw_json(raw_gd)
+        assert res_gd["status"] == "error"
+        assert res_gd["codigo"] == "SUSTANTIVOS_CLAVE_AUSENTES"

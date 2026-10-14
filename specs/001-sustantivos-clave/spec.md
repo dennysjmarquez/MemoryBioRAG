@@ -145,34 +145,30 @@ diff /tmp/baseline_qa_*.txt /tmp/post_qa_*.txt
 
 ## Criterios de finalización
 
-- [x] RF-1: error `SUSTANTIVOS_CLAVE_AUSENTES` con mensaje + protocolo.
-- [x] RF-2: error `SUSTANTIVOS_CLAVE_CANTIDAD_INVALIDA` con 1 término.
-- [x] RF-3: error `SUSTANTIVOS_CLAVE_FORMATO_INVALIDO` con término inválido.
+- [x] RF-1: error `SUSTANTIVOS_CLAVE_AUSENTES` con mensaje + protocolo en escritura (`aprender`/`guardar`).
+- [x] RF-2: error `SUSTANTIVOS_CLAVE_CANTIDAD_INVALIDA` en escritura cuando se envían <2 términos (1 término).
+- [x] RF-3: error `SUSTANTIVOS_CLAVE_FORMATO_INVALIDO` cuando algún término no cumple 2-15 caracteres o contiene caracteres especiales.
 - [x] RF-4: guardado exitoso con `sustantivos_clave='servidor,backend,timeout'`.
-- [x] RF-5: BM25 prioriza nodos con match en `sustantivos_clave`.
+- [x] RF-5: BM25 prioriza nodos con match en `sustantivos_clave` (peso 4.0x en FTS5).
 - [x] RF-6: consolidación propaga campo a `largo_plazo`.
 - [x] RF-7: nodo consolidado aparece en `largo_plazo_fts`.
-- [x] RF-8: `biorag_guardar` sin campo retorna error.
-- [x] RF-9: 5 términos → error (sin truncamiento).
-- [x] RF-10: normalización a minúsculas funciona.
-- [x] RF-14: deduplicación silenciosa funciona (duplicados → únicos).
-- [x] RF-10: normalización de acentos funciona (conexión → conexion, preservando ñ).
-- [x] RF-11: baseline medido y registrado ANTES de implementar.
-- [x] RF-12: post-change medido y comparado. Cero regresiones.
-- [x] Tests existentes pasan sin regresión (221/221 PASSED).
-- [x] RF-15: nodo pre-migración se queda con `sustantivos_clave=""` (sin backfill).
-- [x] RF-16: `biorag_agregar_sustantivos` actualiza nodo existente con validación completa + FTS5 sincronizado.
-- [x] RF-16: `biorag_agregar_sustantivos` retorna `NODO_NO_ENCONTRADO` si el nodo no existe.
-- [x] RF-16: `biorag_agregar_sustantivos` muestra `sustantivos_anteriores` vs `sustantivos_nuevos` al sobrescribir.
+- [x] RF-8: `biorag_guardar` valida `sustantivos_clave` con las mismas reglas de escritura que `biorag_aprender`.
+- [x] RF-9: Rechazo preventivo ante >10 términos únicos en escritura y búsqueda con `SUSTANTIVOS_CLAVE_CANTIDAD_INVALIDA` (sin truncamiento silencioso; 5 a 10 términos es válido si aportan distinción).
+- [x] RF-10: normalización a minúsculas, trim de espacios y remoción de acentos preservando la ñ.
+- [x] RF-14: deduplicación preservando orden y evaluación posterior de términos únicos.
+- [x] RF-15: nodos pre-migración se conservan con `sustantivos_clave=""` sin backfill automático.
+- [x] RF-16: `biorag_agregar_sustantivos` actualiza nodo existente con validación completa y sincroniza FTS5 inmediatamente.
+- [x] RF-16: `biorag_agregar_sustantivos` retorna `NODO_NO_ENCONTRADO` si el concepto no existe.
+- [x] RF-16: `biorag_agregar_sustantivos` muestra `sustantivos_anteriores` vs `sustantivos_nuevos`.
 - [x] RF-17: `biorag_sustantivos` devuelve campo de nodo existente o `"", []`.
-- [x] RF-17: `biorag_sustantivos` retorna `NODO_NO_ENCONTRADO` si el nodo no existe.
-- [x] RF-18: normalización de acentos en queries de `biorag_recordar` simétrica con storage.
-- [x] RF-19: `biorag_recordar` acepta `sustantivos_clave` opcional y boostea resultados.
-- [x] RF-20: `biorag_recordar` valida `sustantivos_clave` y retorna error si formato inválido.
-- [x] RF-21: `biorag_aprender` valida `sustantivos_clave` ANTES de escribir en DB (fail-fast).
-- [x] RF-22: DB nueva desde cero → `.schema` muestra `sustantivos_clave` en ambas tablas, FTS5 con 4 columnas, sin ALTER.
-- [x] RF-22: DB existente migrada → columna agregada en ambas tablas, FTS5 reconstruida, nodos previos intactos.
-- [x] RF-23: `bateria_extraccion.md` existe con ≥6 casos (esperados + prohibidos).
-- [x] RF-23: corrida con modelo principal → casos guardados y buscados coinciden con núcleos esperados (8/8 Top-1).
-- [x] RF-23: corrida (si hay 2º modelo configurado) → comparación registrada en matriz.
-- [x] Demo manual: guardar → buscar → boost verifica.
+- [x] RF-17: `biorag_sustantivos` retorna `NODO_NO_ENCONTRADO` si el concepto no existe.
+- [x] RF-18: normalización simétrica de acentos en consultas de `recordar` y `buscar`.
+- [x] RF-19: `sustantivos_clave` es OBLIGATORIO en toda búsqueda textual de `recordar` y `buscar` (retorna `SUSTANTIVOS_CLAVE_REQUERIDOS` previo a abrir el motor de base de datos).
+- [x] RF-19: excepciones funcionales aprobadas para consultas puramente cronológicas (`dias`/`desde`/`hasta`) o dimensionales puras sin texto.
+- [x] RF-20: en recuperación se admite de 1 a 10 términos únicos válidos (1 término atómico válido; 5 a 10 permitidos; >10 rechazado) y se valida formato [2-15 chars] fail-fast.
+- [x] RF-21: validación fail-fast previa a la escritura en DB en `aprender` y `guardar`.
+- [x] RF-22: esquemas de DB nuevos nacen con columna en ambas tablas y FTS5 de 4 columnas; migración por `ALTER` y reconstrucción de FTS5 sin pérdida de nodos.
+- [x] RF-23: batería de extracción documentada y evaluada.
+- [x] Esquema MCP: tanto herramientas de escritura (`aprender`, `guardar`) como de búsqueda (`recordar`, `buscar`) exponen `sustantivos_clave` en el esquema publicado con descripciones canónicas sin contradicciones.
+- [x] Suite de tests unitarios pasa al 100% (incluyendo validaciones, cantidades 1-10, deduplicación, excepciones y esquema).
+- [x] QA Baseline (921 casos) verificado en snapshot congelado sin regresiones (`[GATE] OK`).

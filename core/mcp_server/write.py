@@ -480,7 +480,11 @@ SUSTANTIVOS_CLAVE_ESCRITURA_DESCRIPTION = (
     "No elijas un término solo porque aparece en el texto. "
     "Tampoco lo descartes por aparecer allí. Decide según su importancia "
     "para el tema. Puedes nombrar un concepto directamente implicado por "
-    "el contenido, pero no inventes causas ni añadas ideas especulativas.\n\n"
+    "el contenido, pero no inventes causas ni añadas ideas especulativas.\n"
+    "REGLA SOBRE EL NOMBRE DEL NODO: No copies indiscriminadamente el identificador "
+    "completo del nodo como etiqueta. Sí se permiten palabras individuales que "
+    "formen parte de su nombre cuando representen genuinamente el núcleo temático "
+    "(ej: en 'obsidian_fuse', 'obsidian' y 'fuse' son válidos si son el tema central).\n\n"
     "EJEMPLO:\n"
     "Contenido: 'Ayer Dennys condujo por una carretera de montaña, vio "
     "un paisaje espectacular y se detuvo junto a su motocicleta para tomar unas fotografías.'\n"
@@ -883,8 +887,7 @@ def register(mcp: Any) -> None:
                 "TEST 1 IDENTIDAD: «Este nodo ES un nodo sobre ___.» Natural→PASA, forzado→NO PASA.\n"
                 "TEST 2 DISCRIMINACIÓN: «¿>30% de los nodos podrían tener esta palabra?» Sí→INVÁLIDO (va en syn), No→VÁLIDO.\n"
                 "Formato: 2 a 10 términos, minúsculas, sin tildes, separados por coma, extraídos del contenido.\n"
-                "🔒 PROHIBICIONES: No repetir palabras del concepto, no nominalizar verbos, "
-                "no abstracciones vacías, no métricas, no palabras ausentes del contenido."
+                "🔒 PROHIBICIONES: No copiar el identificador completo del nodo como etiqueta (sí se permiten palabras individuales que formen parte de su nombre si representan el tema central). No nominalizar verbos genéricos, no abstracciones vacías, no métricas, no términos especulativos ajenos al contenido."
             )
         )],
     ) -> str:
