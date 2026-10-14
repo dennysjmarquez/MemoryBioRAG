@@ -100,8 +100,8 @@ class TestT5RecordarSustantivosBoost:
             _insert_lp(db_path, f"nodo_base_{i}", contenido="establecer conexion segura", sk="")
         _insert_lp(db_path, "nodo_boost", contenido="establecer conexion segura", sk="timeout,servidor")
 
-        # Sin boost: todos matchean por contenido → ranking estable (empate, orden motor)
-        raw = tools["recordar"](query="conexion")
+        # Sin boost temático en nodo_boost: pasamos sustantivos neutros de red
+        raw = tools["recordar"](query="conexion", sustantivos_clave="red,seguridad")
         res = _raw_json(raw)
         assert "resultados" in res
         sin_boost = [r["concepto"] for r in res.get("resultados", [])]
@@ -125,14 +125,14 @@ class TestT5AcentosEnQuery:
         tools, db_path = ctx
         _insert_lp(db_path, "nodo_conexion", contenido="establecer conexion con base de datos", sk="conexion,base_datos")
 
-        raw = tools["recordar"](query="conexión")
+        raw = tools["recordar"](query="conexión", sustantivos_clave="conexion,base_datos")
         res = _raw_json(raw)
         assert "resultados" in res
         assert any(r["concepto"] == "nodo_conexion" for r in res.get("resultados", []))
 
 
 class TestT5RecordarValidacion:
-    """RF-20: `recordar` valida formato de sustantivos_clave; error → búsqueda NO se ejecuta."""
+    """Validación del protocolo cognitivo obligatorio de sustantivos_clave en recordar y buscar."""
 
     def test_formato_invalido_no_ejecuta_busqueda(self, ctx):
         tools, db_path = ctx
@@ -146,20 +146,73 @@ class TestT5RecordarValidacion:
         assert "resultados" not in res
         assert "total" not in res
 
-    def test_vacio_es_busqueda_normal(self, ctx):
+    def test_vacio_falla_con_sustantivos_clave_requeridos(self, ctx):
         tools, db_path = ctx
         _insert_lp(db_path, "nodo_existente", contenido="algoritmo de busqueda rapido", sk="")
 
         raw = tools["recordar"](query="algoritmo", sustantivos_clave="")
         res = _raw_json(raw)
-        assert "resultados" in res
-        assert any(r["concepto"] == "nodo_existente" for r in res.get("resultados", []))
+        assert res["status"] == "error"
+        assert res["codigo"] == "SUSTANTIVOS_CLAVE_REQUERIDOS"
+        assert "resultados" not in res
 
-    def test_omitido_es_busqueda_normal(self, ctx):
+    def test_omitido_falla_con_sustantivos_clave_requeridos(self, ctx):
         tools, db_path = ctx
         _insert_lp(db_path, "nodo_existente", contenido="algoritmo de busqueda rapido", sk="")
 
         raw = tools["recordar"](query="algoritmo")
         res = _raw_json(raw)
+        assert res["status"] == "error"
+        assert res["codigo"] == "SUSTANTIVOS_CLAVE_REQUERIDOS"
+        assert "resultados" not in res
+
+    def test_buscar_sin_sustantivos_clave_falla(self, ctx):
+        tools, db_path = ctx
+        _insert_lp(db_path, "nodo_existente", contenido="algoritmo de busqueda rapido", sk="")
+
+        # Alias buscar debe fallar igual si no se proveen sustantivos_clave
+        raw = tools["buscar"](query="algoritmo")
+        res = _raw_json(raw)
+        assert res["status"] == "error"
+        assert res["codigo"] == "SUSTANTIVOS_CLAVE_REQUERIDOS"
+        assert "resultados" not in res
+
+    def test_buscar_con_sustantivos_clave_exito(self, ctx):
+        tools, db_path = ctx
+        _insert_lp(db_path, "nodo_existente", contenido="algoritmo de busqueda rapido", sk="")
+
+        raw = tools["buscar"](query="algoritmo", sustantivos_clave="algoritmo,busqueda")
+        res = _raw_json(raw)
         assert "resultados" in res
         assert any(r["concepto"] == "nodo_existente" for r in res.get("resultados", []))
+
+    def test_recordar_cronologico_sin_sustantivos_permitido(self, ctx):
+        tools, db_path = ctx
+        _insert_lp(db_path, "nodo_reciente", contenido="evento temporal registrado", sk="")
+
+        # Consulta puramente cronológica (sin query) es una excepción legítima
+        raw = tools["recordar"](dias=1)
+        res = _raw_json(raw)
+        assert "resultados" in res
+        assert res.get("status") != "error"
+
+    def test_recordar_dimensional_sin_sustantivos_permitido(self, ctx):
+        tools, db_path = ctx
+        _insert_lp(db_path, "nodo_dim", contenido="concepto puramente ontologico", sk="")
+
+        # Consulta puramente dimensional (sin query) es una excepción legítima
+        raw = tools["recordar"](dimensiones='{"escala_abstraccion":["principio"]}')
+        res = _raw_json(raw)
+        assert "resultados" in res
+        assert res.get("status") != "error"
+
+    def test_mas_de_diez_sustantivos_falla(self, ctx):
+        tools, db_path = ctx
+        _insert_lp(db_path, "nodo_existente", contenido="algoritmo de busqueda rapido", sk="")
+
+        once_terminos = "t1,t2,t3,t4,t5,t6,t7,t8,t9,t10,t11"
+        raw = tools["recordar"](query="algoritmo", sustantivos_clave=once_terminos)
+        res = _raw_json(raw)
+        assert res["status"] == "error"
+        assert res["codigo"] == "SUSTANTIVOS_CLAVE_CANTIDAD_INVALIDA"
+        assert "resultados" not in res
