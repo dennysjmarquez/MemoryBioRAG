@@ -50,8 +50,39 @@ const REMINDER_RECALL =
 	"- Can't prove it empirically = don't say it.\n" +
 	"- Fix ONLY what was asked. Zero unrequested refactor.\n" +
 	"- Verify before claiming done.\n" +
-	"⚠️ Before acting: If the request involves researching, deciding, or executing a task, check whether you need to retrieve additional information about similar experiences, methods, past successes and failures, advantages and disadvantages, risks, and applicable rules. Leverage the available context, query only what is missing, and never invent background.\n" +
 	"</system-reminder>";
+	
+const REMINDER_TASK_RECALL =
+	"<system-reminder>\n" +
+	"MANDATORY TASK MEMORY CHECK:\n" +
+	"Whenever the user requests a NEW actionable task, you MUST perform a task-specific " +
+	"recordar call BEFORE executing any task-related command, tool, or operation. This " +
+	"includes creating documents, accessing files, writing or modifying code, researching, " +
+	"debugging, planning, and making decisions. The general recall from the DYNAMIC MEMORY " +
+	"PROTOCOL, or a search about a different topic, DOES NOT satisfy this requirement.\n\n" +
+
+	"WHAT MUST BE RETRIEVED:\n" +
+	"Search for relevant prior experiences and similar tasks; how to perform the task; " +
+	"past successes, failures, and lessons learned; proven methods; applicable principles, " +
+	"protocols, rules, and constraints; known risks and trade-offs; and the user's relevant " +
+	"preferences and project-specific instructions. Use 10-15 rafaga_palabras with " +
+	"forzar_rafaga=True, including relevant concepts, synonyms, and paraphrases. Retrieve " +
+	"only information relevant to the current task, not the entire database.\n\n" +
+
+	"CHECK BEFORE EXECUTION:\n" +
+	"Review the retrieved results before proceeding. Identify which relevant antecedents " +
+	"are covered and what important information is still missing. If the initial results " +
+	"are insufficient, perform additional targeted recordar searches BEFORE executing the " +
+	"task. Do not assume that the first recall is sufficient merely because it returned " +
+	"results. Do not repeat equivalent searches when the needed information is already " +
+	"available in the current context.\n\n" +
+
+	"IF NO RELEVANT MEMORIES EXIST:\n" +
+	"If targeted searches return no relevant memories, proceed using the available " +
+	"information. Never invent previous experiences, results, rules, or preferences. " +
+	"Distinguish retrieved memories and documented facts from your own inferences. " +
+	"Never claim to have searched unless the corresponding tool was actually called.\n" +
+	"</system-reminder>";	
 
 function buildReminderBiorag(sessionID: string): string {
 	return (
@@ -124,7 +155,7 @@ const BioragRemember: Plugin = async ({ client }) => {
 					id: `prt_recall_${Date.now()}`,
 					sessionID: output.message.sessionID,
 					messageID: output.message.id,
-					type: "text", text: REMINDER_RECALL, synthetic: true,
+					type: "text", text: REMINDER_RECALL + "\n\n"+ REMINDER_TASK_RECALL, synthetic: true,
 				});
 				sent = true;
 			}
