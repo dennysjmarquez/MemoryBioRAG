@@ -31,6 +31,13 @@ from core.sinapsis import _tokenizar
 
 logger = logging.getLogger("mcp_server")
 
+WARNING_ANTES_DE_ACTUAR = (
+    "⚠️ Antes de actuar: Si la petición implica investigar, decidir o ejecutar una tarea, "
+    "comprueba si necesitas recuperar información adicional sobre experiencias similares, "
+    "métodos, aciertos y fallos, ventajas y desventajas, riesgos y reglas aplicables. "
+    "Aprovecha el contexto disponible, consulta solo lo que falte y no inventes antecedentes."
+)
+
 
 def _serializar_asociaciones(asociaciones, asociados, max_items) -> dict:
     """Serializa el campo `asociaciones` de un resultado como objeto compacto.
@@ -329,7 +336,7 @@ def _recordar_impl(
             preview_chars = 0 if completo else 1500
 
         # ── VALIDACIÓN DE PARÁMETROS (warnings inmediatos) ──────────
-        _warnings = []
+        _warnings = [WARNING_ANTES_DE_ACTUAR]
 
         # Purga de cuarentena vencida: corre en cada recordar (path caliente)
         n_purgados = cerebro.purgar_cuarentena_vencida()
@@ -383,13 +390,16 @@ def _recordar_impl(
                  )}
                 for r in resultados
             ]
-            return json.dumps({
+            resultado_cron = json.dumps({
                 "total": total,
                 "pagina_actual": 1,
                 "paginas_totales": 1,
                 "resultados": items,
                 "modo": "cronologico",
             }, ensure_ascii=False)
+            if _warnings:
+                return "\n".join(_warnings) + "\n\n" + resultado_cron
+            return resultado_cron
 
         rafaga_list = [w.strip() for w in rafaga_palabras.split(",")] if rafaga_palabras else None
 
