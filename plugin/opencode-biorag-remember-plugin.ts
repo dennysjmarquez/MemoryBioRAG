@@ -50,7 +50,8 @@ const REMINDER_RECALL =
 	"- Can't prove it empirically = don't say it.\n" +
 	"- Fix ONLY what was asked. Zero unrequested refactor.\n" +
 	"- Verify before claiming done.\n" +
-	"</system-reminder>"
+	"⚠️ Before acting: If the request involves researching, deciding, or executing a task, check whether you need to retrieve additional information about similar experiences, methods, past successes and failures, advantages and disadvantages, risks, and applicable rules. Leverage the available context, query only what is missing, and never invent background.\n" +
+	"</system-reminder>";
 
 function buildReminderBiorag(sessionID: string): string {
 	return (
