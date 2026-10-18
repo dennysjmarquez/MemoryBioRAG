@@ -54,34 +54,13 @@ const REMINDER_RECALL =
 	
 const REMINDER_TASK_RECALL =
 	"<system-reminder>\n" +
-	"MANDATORY TASK MEMORY CHECK:\n" +
-	"Whenever the user requests a NEW actionable task, you MUST perform a task-specific " +
-	"recordar call BEFORE executing any task-related command, tool, or operation. This " +
-	"includes creating documents, accessing files, writing or modifying code, researching, " +
-	"debugging, planning, and making decisions. The general recall from the DYNAMIC MEMORY " +
-	"PROTOCOL, or a search about a different topic, DOES NOT satisfy this requirement.\n\n" +
-
-	"WHAT MUST BE RETRIEVED:\n" +
-	"Search for relevant prior experiences and similar tasks; how to perform the task; " +
-	"past successes, failures, and lessons learned; proven methods; applicable principles, " +
-	"protocols, rules, and constraints; known risks and trade-offs; and the user's relevant " +
-	"preferences and project-specific instructions. Use 10-15 rafaga_palabras with " +
-	"forzar_rafaga=True, including relevant concepts, synonyms, and paraphrases. Retrieve " +
-	"only information relevant to the current task, not the entire database.\n\n" +
-
-	"CHECK BEFORE EXECUTION:\n" +
-	"Review the retrieved results before proceeding. Identify which relevant antecedents " +
-	"are covered and what important information is still missing. If the initial results " +
-	"are insufficient, perform additional targeted recordar searches BEFORE executing the " +
-	"task. Do not assume that the first recall is sufficient merely because it returned " +
-	"results. Do not repeat equivalent searches when the needed information is already " +
-	"available in the current context.\n\n" +
-
-	"IF NO RELEVANT MEMORIES EXIST:\n" +
-	"If targeted searches return no relevant memories, proceed using the available " +
-	"information. Never invent previous experiences, results, rules, or preferences. " +
-	"Distinguish retrieved memories and documented facts from your own inferences. " +
-	"Never claim to have searched unless the corresponding tool was actually called.\n" +
+	"INVARIANT INMUTABLE MANDATORY TASK MEMORY GATE — ABSOLUTE MAXIMUM WEIGHT:\n" +
+	"Every new task requires BEFORE its first tool call (bash/edit/etc.):\n" +
+	"biorag_recordar(forzar_rafaga=True, rafaga_palabras=10-15 from the task domain).\n" +
+	"Retrieve: rules/standards for the action + similar past tasks + successes + failures.\n" +
+	"SOLE EXEMPTION: the required rule has already been retrieved IN THIS session for THIS task.\n" +
+	"If there is no recordar call in the turn → DO NOT execute the task. No exceptions.\n" +
+	"No results → proceed without inventing.\n" +
 	"</system-reminder>";	
 
 function buildReminderBiorag(sessionID: string): string {
