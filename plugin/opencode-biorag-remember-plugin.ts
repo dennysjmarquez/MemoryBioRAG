@@ -55,14 +55,27 @@ const REMINDER_RECALL =
 const REMINDER_TASK_RECALL =
 	"<system-reminder>\n" +
 	"INVARIANT INMUTABLE MANDATORY TASK MEMORY GATE — ABSOLUTE MAXIMUM WEIGHT:\n" +
-	"Every new task requires BEFORE its first tool call (bash/edit/etc.):\n" +
-	"biorag_recordar(forzar_rafaga=True, rafaga_palabras=10-15 from the task domain).\n" +
-	"Retrieve: rules/standards for the action + similar past tasks + successes + failures.\n" +
-	"SOLE EXEMPTION: the required rule has already been retrieved IN THIS session for THIS task.\n" +
-	"If there is no recordar call in the turn → DO NOT execute the task. No exceptions.\n" +
-	"No results → proceed without inventing.\n" +
-	"</system-reminder>";	
-
+	"Every new task requires BEFORE its first tool call (bash/edit/etc.) a biorag_recordar call " +
+	"that looks for exactly four things, whatever the topic:\n" +
+	"1. RULES/NORMS to perform this kind of action.\n" +
+	"2. SUCCESSES: similar things done before that worked.\n" +
+	"3. PROBLEMS: similar things done before that failed or caused issues.\n" +
+	"4. PREFERENCES: the user's preferences relevant to this kind of task.\n" +
+	"SOLE EXEMPTION: these four were already retrieved IN THIS session for THIS task.\n" +
+	"If there is no biorag_recordar call for this task → DO NOT execute the task. No exceptions.\n" +
+	"No results → proceed without inventing. Keep only results related to the task; discard noise.\n\n" +
+	"HOW (same recipe for any topic):\n" +
+	"query = concrete nouns of the task. sustantivos_clave = 2-4 of those nouns.\n" +
+	"rafaga_palabras = 4-6 task-topic terms + regla,norma + exito,funciono + error,fallo + preferencia,prefiere\n" +
+	"with forzar_rafaga=True (12-14 terms total).\n\n" +
+	"EXAMPLE 1 — Input: \"Mueve los dos .docx a /mnt/dir_1/ dentro de una carpeta que elijas\"\n" +
+	"biorag_recordar(query=\"mover archivos docx carpeta\", sustantivos_clave=\"mover,archivo,docx,carpeta\", " +
+	"forzar_rafaga=True, rafaga_palabras=\"mover,archivo,docx,carpeta,ruta,regla,norma,exito,funciono,error,fallo,preferencia,prefiere\")\n\n" +
+	"EXAMPLE 2 — Input: \"Arregla la paginación de la tabla en Angular\"\n" +
+	"biorag_recordar(query=\"paginacion tabla angular componente\", sustantivos_clave=\"paginacion,tabla,angular\", " +
+	"forzar_rafaga=True, rafaga_palabras=\"paginacion,tabla,angular,componente,estado,regla,norma,exito,funciono,error,fallo,preferencia,prefiere\")\n" +
+	"</system-reminder>";
+	
 function buildReminderBiorag(sessionID: string): string {
 	return (
 		"<system-reminder>\n" +
