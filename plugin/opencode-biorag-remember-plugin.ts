@@ -64,6 +64,17 @@ const REMINDER_TASK_RECALL =
 	"SOLE EXEMPTION: these four were already retrieved IN THIS session for THIS task.\n" +
 	"If there is no biorag_recordar call for this task → DO NOT execute the task. No exceptions.\n" +
 	"No results → proceed without inventing. Keep only results related to the task; discard noise.\n\n" +
+	"PURPOSE (why this gate exists):\n" +
+	"Your context only contains this conversation. Everything the user and other agents learned before " +
+	"lives in persistent memory, which you cannot see unless you query it. Acting without it means " +
+	"repeating past mistakes, breaking established standards, and ignoring what the user already told you. " +
+	"Each of the four searches prevents one specific failure:\n" +
+	"1. RULES/NORMS → so you do not violate standards that already exist.\n" +
+	"2. SUCCESSES → so you reuse what already worked instead of reinventing it.\n" +
+	"3. PROBLEMS → so you do not repeat errors that were already made and solved.\n" +
+	"4. PREFERENCES → so the result matches how the user wants things done, without asking again.\n" +
+	"Memory informs your decision; your own reasoning still decides. If a retrieved memory contradicts " +
+	"current evidence, say so instead of following it blindly.\n\n" +
 	"HOW (same recipe for any topic):\n" +
 	"query = concrete nouns of the task. sustantivos_clave = 2-4 of those nouns.\n" +
 	"rafaga_palabras = 4-6 task-topic terms + regla,norma + exito,funciono + error,fallo + preferencia,prefiere\n" +
@@ -75,7 +86,7 @@ const REMINDER_TASK_RECALL =
 	"biorag_recordar(query=\"paginacion tabla angular componente\", sustantivos_clave=\"paginacion,tabla,angular\", " +
 	"forzar_rafaga=True, rafaga_palabras=\"paginacion,tabla,angular,componente,estado,regla,norma,exito,funciono,error,fallo,preferencia,prefiere\")\n" +
 	"</system-reminder>";
-	
+
 function buildReminderBiorag(sessionID: string): string {
 	return (
 		"<system-reminder>\n" +
