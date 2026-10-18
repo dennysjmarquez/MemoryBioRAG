@@ -2,7 +2,7 @@
  * biorag-remember v9.6
  * 1) Inyecta reminders como parts synthetic en el mensaje de usuario del turno.
  *    Se asegura de cumplir el contrato del backend de opencode (ID debe empezar con "prt_").
- * 2) Muestra un showToast a Dennys cuando la sesión queda idle (aviso visual).
+ * 2) Muestra un showToast al Usuario cuando la sesión queda idle (aviso visual).
  *
  * Reminders (sync con el código — %3, %7, %11):
  *   - RECALL  cada 3 turnos — instrucción de consulta dinámica a BioRAG local
@@ -55,37 +55,47 @@ const REMINDER_RECALL =
 const REMINDER_TASK_RECALL =
 	"<system-reminder>\n" +
 	"INVARIANT INMUTABLE MANDATORY TASK MEMORY GATE — ABSOLUTE MAXIMUM WEIGHT:\n" +
-	"Every new task requires BEFORE its first tool call (bash/edit/etc.) a biorag_recordar call " +
-	"that looks for exactly four things, whatever the topic:\n" +
-	"1. RULES/NORMS to perform this kind of action.\n" +
-	"2. SUCCESSES: similar things done before that worked.\n" +
-	"3. PROBLEMS: similar things done before that failed or caused issues.\n" +
-	"4. PREFERENCES: the user's preferences relevant to this kind of task.\n" +
-	"SOLE EXEMPTION: these four were already retrieved IN THIS session for THIS task.\n" +
-	"If there is no biorag_recordar call for this task → DO NOT execute the task. No exceptions.\n" +
-	"No results → proceed without inventing. Keep only results related to the task; discard noise.\n\n" +
-	"PURPOSE (why this gate exists):\n" +
-	"Your context only contains this conversation. Everything the user and other agents learned before " +
-	"lives in persistent memory, which you cannot see unless you query it. Acting without it means " +
-	"repeating past mistakes, breaking established standards, and ignoring what the user already told you. " +
-	"Each of the four searches prevents one specific failure:\n" +
-	"1. RULES/NORMS → so you do not violate standards that already exist.\n" +
-	"2. SUCCESSES → so you reuse what already worked instead of reinventing it.\n" +
-	"3. PROBLEMS → so you do not repeat errors that were already made and solved.\n" +
-	"4. PREFERENCES → so the result matches how the user wants things done, without asking again.\n" +
-	"Memory informs your decision; your own reasoning still decides. If a retrieved memory contradicts " +
-	"current evidence, say so instead of following it blindly.\n\n" +
-	"HOW (same recipe for any topic):\n" +
-	"query = concrete nouns of the task. sustantivos_clave = 2-4 of those nouns.\n" +
-	"rafaga_palabras = 4-6 task-topic terms + regla,norma + exito,funciono + error,fallo + preferencia,prefiere\n" +
-	"with forzar_rafaga=True (12-14 terms total).\n\n" +
+	"Every new task requires BEFORE its first action tool call (bash, edit, write, etc.) a biorag_recordar call " +
+	"that semantically anchors the task across exactly four pillars:\n" +
+	"1. RULES/NORMS: Standards, constraints, or protocols governing this specific action.\n" +
+	"2. SUCCESSES: Validated patterns, proven approaches, or previous solutions that worked.\n" +
+	"3. PROBLEMS: Known traps, anti-patterns, edge cases, and past errors to prevent.\n" +
+	"4. PREFERENCES: The user's specific workflow, design taste, tone, or style expectations.\n\n" +
+	"SOLE EXEMPTION: These four pillars were already retrieved in this exact session for this specific task.\n" +
+	"If there is no memory check for this task → DO NOT execute the task. No exceptions.\n" +
+	"No results → proceed cleanly without inventing. Retain task-relevant memories; discard unrelated noise.\n\n" +
+	"WHY THIS GATE EXISTS:\n" +
+	"Your working context is ephemeral. Institutional knowledge, user preferences, and hard-earned lessons " +
+	"live in persistent memory. Running tasks without querying memory leads to four critical failure modes:\n" +
+	"• Missing rules → violates existing architecture or behavioral constraints.\n" +
+	"• Missing successes → reinvents wheels and ignores verified solutions.\n" +
+	"• Missing problems → repeats bugs and mistakes already solved.\n" +
+	"• Missing preferences → produces generic outputs that ignore user-tailored requirements.\n\n" +
+	"HOW TO CONSTRUCT THE SEARCH (The 4-Pillar Semantic Binding):\n" +
+	"DO NOT append raw words ('regla,norma,error...') disconnected from the topic. Bind them to the task:\n" +
+	"• query: 3-5 concrete nouns defining the core action and domain.\n" +
+	"• sustantivos_clave: 2-4 core domain keywords.\n" +
+	"• parafrasis: (MANDATORY for ~60% semantic recall). 3-4 contextual reformulations connecting the task to:\n" +
+	"   (a) rules/protocols of the task, (b) past successes/patterns, (c) errors/traps to avoid, (d) user preferences.\n" +
+	"• rafaga_palabras: Domain terms combined with linked control terms (forzar_rafaga=True).\n\n" +
 	"EXAMPLE 1 — Input: \"Mueve los dos .docx a /mnt/dir_1/ dentro de una carpeta que elijas\"\n" +
-	"biorag_recordar(query=\"mover archivos docx carpeta\", sustantivos_clave=\"mover,archivo,docx,carpeta\", " +
-	"forzar_rafaga=True, rafaga_palabras=\"mover,archivo,docx,carpeta,ruta,regla,norma,exito,funciono,error,fallo,preferencia,prefiere\")\n\n" +
+	"biorag_recordar(\n" +
+	"  query=\"mover organizar archivos docx directorio rutas\",\n" +
+	"  sustantivos_clave=\"archivo,docx,directorio,ruta\",\n" +
+	"  parafrasis=\"reglas mover archivos rutas compartidas, evitar sobreescritura error permisos carpetas, convencion organizacion directorios usuario\",\n" +
+	"  forzar_rafaga=True,\n" +
+	"  rafaga_palabras=\"archivo,docx,ruta,mover,directorio,destino,permiso,norma,regla,cuidado,sobreescritura,preferencia\"\n" +
+	")\n\n" +
 	"EXAMPLE 2 — Input: \"Arregla la paginación de la tabla en Angular\"\n" +
-	"biorag_recordar(query=\"paginacion tabla angular componente\", sustantivos_clave=\"paginacion,tabla,angular\", " +
-	"forzar_rafaga=True, rafaga_palabras=\"paginacion,tabla,angular,componente,estado,regla,norma,exito,funciono,error,fallo,preferencia,prefiere\")\n" +
+	"biorag_recordar(\n" +
+	"  query=\"paginacion tabla angular componente estado\",\n" +
+	"  sustantivos_clave=\"paginacion,tabla,angular,componente\",\n" +
+	"  parafrasis=\"normas arquitectura componentes angular tablas, solucion previa paginacion funciono, bug comun desincronizacion pagina tabla, estilo y convenciones codigo usuario\",\n" +
+	"  forzar_rafaga=True,\n" +
+	"  rafaga_palabras=\"paginacion,tabla,angular,componente,estado,indice,regla,solucion,error,desincronizacion,convencion,estilo\"\n" +
+	")\n" +
 	"</system-reminder>";
+
 
 function buildReminderBiorag(sessionID: string): string {
 	return (
@@ -138,7 +148,7 @@ const REMINDER_METHOD =
 	"- Blocked → ask human. Ambiguous → ask human. Never loop blind.\n\n" +
 	"SYNTHESIS PRINCIPLE:\n" +
 	"When principles contradict → don't pick one → synthesize. Contradictions are signal. The sum creates pattern, pattern creates mentality.\n" +
-	"- Memory integrity: if a stored principle in BioRAG contradicts current evidence or feels outdated, flag it explicitly to Dennys before acting on it. Memory serves truth, not the other way around.\n" +
+	"- Memory integrity: if a stored principle in BioRAG contradicts current evidence or feels outdated, flag it explicitly to User before acting on it. Memory serves truth, not the other way around.\n" +
 	"FIRMA CON ID REMINDER_METHOD SI VEZ ESTE MENSAJE" +
 	"</system-reminder>";
 
