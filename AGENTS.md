@@ -294,3 +294,14 @@ aprender(concepto="nueva_idea", contenido="...")
 | Nodos duplicados en el corpus | Se ignoró el top-5 y se creó nodo nuevo | Revisar top-5, decidir actualizar o vincular |
 | Conocimiento sin conexiones en el grafo | Se creó nodo sin `vincular_con` | Usar `vincular_con` con los nodos relacionados del top-5 |
 | Score alto en top-1 sin relación semántica real | Coincidencia de nombre (ej: `biorag_v32_1`) | El agente evalúa el contenido — si no es el mismo tema, crea nodo nuevo y vincula |
+
+---
+
+## Agent Skills (Ecosistema SDD)
+
+### Convenciones
+
+- **Fuente única**: editar skills en `.agents/skills/`; los symlinks propagan los cambios automáticamente.
+- **biorag-sync**: vive en `skills/biorag-sync/` (lo escanea `install.py`); `.agents/skills/biorag-sync` es un symlink hacia ahí.
+- **Formato**: cada skill es una carpeta con `SKILL.md` (frontmatter YAML: `name` + `description` obligatorios, `name` ≤64 chars, coincide con la carpeta).
+- **Para agentes que no escanean ninguna ruta**: leer este archivo (AGENTS.md) es suficiente para saber dónde están las skills.
