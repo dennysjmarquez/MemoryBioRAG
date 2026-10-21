@@ -212,6 +212,76 @@ def _clasificar_nodo_wordnet(self, concepto, contenido, sinonimos=""):
     self.conn.commit()
 
 
+def fusionar_en_largo_plazo(self, concepto, contenido, sinonimos, cat_id,
+                            val_somatica=0.0, sk_corto=""):
+    """Regla única de paso corto → largo plazo para UN concepto.
+
+    La usan ``ciclo_sueno_consolidacion`` y ``consolidar_concepto`` para que
+    ambos caminos fusionen igual. Solo toca la fila de ``largo_plazo`` del
+    concepto: no aplica LTD, inhibición lateral ni toca otros nodos.
+
+    POR QUÉ UPDATE y no ``INSERT OR REPLACE``: REPLACE borra la fila vieja,
+    lo que cambia el ``id``, dispara los ``ON DELETE CASCADE`` (dimensiones,
+    métricas cognitivas, grupos semánticos), se salta el trigger
+    ``trg_backup_before_delete`` (REPLACE no dispara triggers DELETE con
+    recursive_triggers=0) y deja filas fantasma en los índices FTS5.
+
+    - Existe: contenido viejo + " | Actualización: " + nuevo; peso +0.20
+      (tope 1.0); sinónimos unidos sin duplicados; conserva la categoría
+      existente; valencia = max; sustantivos_clave solo se sobrescriben si
+      llegan no vacíos (CL-6/RF-15). Conserva id y creado_en.
+    - No existe: INSERT con peso 1.0.
+    - Categorías Principle/Protocol fuerzan valencia_somatica = 1.0.
+
+    Retorna (accion, peso_anterior, peso_nuevo, categoria_final), con
+    accion en {'actualizado', 'nuevo'}. No hace commit.
+    """
+    cat_name = ""
+    if cat_id:
+        res_cat = self.cursor.execute("SELECT name FROM categories WHERE id = ?", (cat_id,)).fetchone()
+        if res_cat:
+            cat_name = res_cat[0]
+    if cat_name in ('Principle', 'Protocol'):
+        val_somatica = 1.0
+
+    self.cursor.execute(
+        "SELECT peso_sinaptico, contenido, sinonimos, categoria, COALESCE(valencia_somatica, 0.0), "
+        "COALESCE(sustantivos_clave, '') FROM largo_plazo WHERE concepto = ?",
+        (concepto,),
+    )
+    datos_actuales = self.cursor.fetchone()
+
+    if datos_actuales:
+        # Fusión de información por adición semántica y subida de peso (LTP de consolidación)
+        peso_anterior = datos_actuales[0]
+        nuevo_peso = min(1.0, peso_anterior + 0.20)
+        nuevo_contenido = (datos_actuales[1] or "") + f" | Actualización: {contenido}"
+        sinonimos_exist = [s.strip() for s in (datos_actuales[2] or "").split(",") if s.strip()]
+        sinonimos_nuevos = [s.strip() for s in (sinonimos or "").split(",") if s.strip() and s.strip() not in sinonimos_exist]
+        sinonimos_final = ",".join(sinonimos_exist + sinonimos_nuevos)
+        cat_final = datos_actuales[3] or cat_id
+        val_final = max(datos_actuales[4], val_somatica or 0.0)
+        # CL-6 (RF-6): sustantivos_clave del largo se sobrescribe SOLO si corto_plazo trae valor no vacío.
+        # Si corto_plazo viene vacío, se preserva el valor ya consolidado en largo_plazo (RF-15).
+        sk_final = (sk_corto or "").strip() if (sk_corto or "").strip() else (datos_actuales[5] or "")
+
+        self.cursor.execute("""
+            UPDATE largo_plazo
+            SET contenido = ?, peso_sinaptico = ?, estado = 'activo', ultimo_acceso = ?, sinonimos = ?, categoria = ?, valencia_somatica = ?, sustantivos_clave = ?
+            WHERE concepto = ?
+        """, (nuevo_contenido, nuevo_peso, time.time(), sinonimos_final, cat_final, val_final, sk_final, concepto))
+        return 'actualizado', peso_anterior, nuevo_peso, cat_final
+
+    # Creación de un nuevo nodo en el grafo con peso inicial máximo
+    ahora = time.time()
+    cat_final = cat_id or 1
+    self.cursor.execute("""
+        INSERT INTO largo_plazo (concepto, categoria, contenido, peso_sinaptico, estado, asociaciones, ultimo_acceso, sinonimos, creado_en, valencia_somatica, sustantivos_clave)
+        VALUES (?, ?, ?, 1.0, 'activo', '', ?, ?, ?, ?, ?)
+    """, (concepto, cat_final, contenido, ahora, sinonimos or "", ahora, val_somatica or 0.0, (sk_corto or "").strip()))
+    return 'nuevo', 0.0, 1.0, cat_final
+
+
 def ciclo_sueno_consolidacion(self):
     """
     Consolida las experiencias de Corto Plazo a Largo Plazo (Corteza Permanente).
@@ -243,40 +313,10 @@ def ciclo_sueno_consolidacion(self):
     recuerdos_sesion = self.cursor.fetchall()
     
     for concepto, contenido, sinonimos, cat_id, val_somatica, sk_corto in recuerdos_sesion:
-        existente = snapshot_inicial.get(concepto)
-        
-        # Si categoria es Principle o Protocol, forzar valencia_somatica = 1.0
-        cat_name = ""
-        if cat_id:
-            res_cat = self.cursor.execute("SELECT name FROM categories WHERE id = ?", (cat_id,)).fetchone()
-            if res_cat:
-                cat_name = res_cat[0]
-        if cat_name in ('Principle', 'Protocol'):
-            val_somatica = 1.0
-
-        if existente:
-            # Fusión de información por adición semántica y subida de peso (LTP de consolidación)
-            peso_anterior = existente['peso']
-            nuevo_peso = min(1.0, existente['peso'] + 0.20)
-            
-            self.cursor.execute("SELECT contenido, sinonimos, categoria, COALESCE(valencia_somatica, 0.0), COALESCE(sustantivos_clave, '') FROM largo_plazo WHERE concepto = ?", (concepto,))
-            datos_actuales = self.cursor.fetchone()
-            nuevo_contenido = datos_actuales[0] + f" | Actualización: {contenido}"
-            sinonimos_exist = [s.strip() for s in (datos_actuales[1] or "").split(",") if s.strip()]
-            sinonimos_nuevos = [s.strip() for s in (sinonimos or "").split(",") if s.strip() and s.strip() not in sinonimos_exist]
-            sinonimos_final = ",".join(sinonimos_exist + sinonimos_nuevos)
-            cat_id = datos_actuales[2] or cat_id
-            val_final = max(datos_actuales[3], val_somatica)
-            # CL-6 (RF-6): sustantivos_clave del largo se sobrescribe SOLO si corto_plazo trae valor no vacío.
-            # Si corto_plazo viene vacío, se preserva el valor ya consolidado en largo_plazo (RF-15).
-            sk_final = (sk_corto or "").strip() if (sk_corto or "").strip() else (datos_actuales[4] or "")
-            
-            self.cursor.execute("""
-                UPDATE largo_plazo 
-                SET contenido = ?, peso_sinaptico = ?, estado = 'activo', ultimo_acceso = ?, sinonimos = ?, categoria = ?, valencia_somatica = ?, sustantivos_clave = ?
-                WHERE concepto = ?
-            """, (nuevo_contenido, nuevo_peso, time.time(), sinonimos_final, cat_id, val_final, sk_final, concepto))
-            
+        accion, peso_anterior, nuevo_peso, cat_final = fusionar_en_largo_plazo(
+            self, concepto, contenido, sinonimos, cat_id, val_somatica, sk_corto
+        )
+        if accion == 'actualizado':
             acciones_ciclo.append({
                 'concepto': concepto, 'accion': 'actualizado',
                 'contenido_preview': (contenido or '')[:100],
@@ -286,19 +326,12 @@ def ciclo_sueno_consolidacion(self):
                 'anomalo': 0
             })
         else:
-            # Creación de un nuevo nodo en el grafo con peso inicial máximo
-            ahora = time.time()
-            self.cursor.execute("""
-                INSERT INTO largo_plazo (concepto, categoria, contenido, peso_sinaptico, estado, asociaciones, ultimo_acceso, sinonimos, creado_en, valencia_somatica, sustantivos_clave)
-                VALUES (?, ?, ?, 1.0, 'activo', '', ?, ?, ?, ?, ?)
-            """, (concepto, cat_id or 1, contenido, ahora, sinonimos or "", ahora, val_somatica, (sk_corto or "").strip()))
-            
             acciones_ciclo.append({
                 'concepto': concepto, 'accion': 'nuevo',
                 'contenido_preview': (contenido or '')[:100],
                 'peso_anterior': 0.0, 'peso_nuevo': 1.0,
                 'razon': 'Nodo nuevo: no existia en largo_plazo, creado desde corto_plazo',
-                'contexto': f'categoria={cat_id or 1}, peso_inicial=1.0, estado=activo',
+                'contexto': f'categoria={cat_final}, peso_inicial=1.0, estado=activo',
                 'anomalo': 0
             })
 
