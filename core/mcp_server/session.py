@@ -13,14 +13,14 @@ from typing import Annotated, Any
 from pydantic import Field
 
 from core.mcp_server._shared import _get_cerebro, _sesiones_activas
-from middleware.auto_guardado import registrar_accion, analizar_y_autoguardar
+from middleware.auto_guardado import registrar_accion, autoguardar_fin_sesion
 
 
 def register(mcp: Any) -> None:
     @mcp.tool(
         name="contexto_inicio",
         description=(
-            "Avisá que empezó una sesión importante. Guardá el contexto para que el interceptor detecte automáticamente lecciones, errores y patrones durante la charla. Llamá al inicio de cada sesión de trabajo importante."
+            "Avisá que empezó una sesión importante. Registra el inicio de la sesión del agente. No guarda nada automáticamente: lo valioso guardalo con aprender. Llamá al inicio de cada sesión de trabajo importante."
         ),
     )
     def biorag_contexto_inicio(
@@ -48,7 +48,7 @@ def register(mcp: Any) -> None:
     @mcp.tool(
         name="contexto_fin",
         description=(
-            "Avisá que terminó la sesión. Revisá todo lo que pasó — si hay algo valioso (lecciones, errores, patrones), guardalo automáticamente. Si hay nodos nuevos sin consolidar, consolidalos. Llamá al final de cada sesión importante."
+            "Avisá que terminó la sesión. Guarda tu `resumen` como nodo de sesión (sesion_<agente>_<AAAAMMDD>) y consolida lo pendiente en corto plazo. No extrae nada de tus búsquedas ni de otras herramientas: las lecciones, errores y patrones guardalos con aprender antes de cerrar. Llamá al final de cada sesión importante."
         ),
     )
     def biorag_contexto_fin(
@@ -57,7 +57,7 @@ def register(mcp: Any) -> None:
         )],
         resumen: Annotated[str, Field(
             description=(
-                "resumen: Qué hiciste en la sesión en una línea (ej: 'Corregimos el bug de autenticación y actualizamos los tests'). Mejora el autoguardado del interceptor."
+                "resumen: Qué hiciste en la sesión en una línea (ej: 'Corregimos el bug de autenticación y actualizamos los tests'). Es lo único que se autoguarda; si va vacío no se guarda nada."
             )
         )] = "",
     ) -> str:
@@ -65,7 +65,7 @@ def register(mcp: Any) -> None:
         try:
             _sesiones_activas.pop(agente, None)
             registrar_accion("fin", f"[{agente}] {resumen}")
-            resultado = analizar_y_autoguardar(cerebro, fuerza=True)
+            resultado = autoguardar_fin_sesion(cerebro, agente, resumen)
             if resultado:
                 consolidado = cerebro.consolidar_concepto(resultado["concepto"])
                 if consolidado:

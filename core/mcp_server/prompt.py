@@ -307,7 +307,7 @@ def register(mcp: Any) -> None:
             ""
             "Al iniciar sesión importante → contexto_inicio"
             "Al terminar → contexto_fin"
-            "El interceptor guarda automáticamente lecciones, errores y patrones."
+            "contexto_fin solo guarda tu resumen; lecciones, errores y patrones guardalos con aprender."
             ""
             "TTL: 30 min de inactividad resetean el buffer."
             "La memoria decae sola (LTD). Los nodos no usados se duermen. Consolidá para fijar los nuevos."

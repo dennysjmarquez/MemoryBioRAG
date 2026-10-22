@@ -120,24 +120,26 @@ def percibir_corto_plazo(
 def consolidar_concepto(self, concepto):
     """Mueve un concepto de corto a largo plazo directamente.
     No ejecuta LTD, inhibición lateral ni toca otros nodos.
-    El trigger FTS5 se encarga del índice automáticamente."""
+
+    Si el concepto ya existe en largo_plazo lo FUSIONA (UPDATE) con la misma
+    regla que el ciclo de sueño (``consolidation.fusionar_en_largo_plazo``):
+    conserva id, creado_en, dimensiones, métricas y grupos. Antes usaba
+    ``INSERT OR REPLACE``, que borraba la fila vieja (cascadas, sin backup,
+    contenido perdido y filas fantasma en FTS5)."""
+    from core.memory.consolidation import fusionar_en_largo_plazo
+
     key = concepto.lower().strip()
     self.cursor.execute(
-        "SELECT contenido, sinonimos, categoria FROM corto_plazo WHERE concepto = ?",
+        "SELECT contenido, sinonimos, categoria, COALESCE(valencia_somatica, 0.0), "
+        "COALESCE(sustantivos_clave, '') FROM corto_plazo WHERE concepto = ?",
         (key,),
     )
     fila = self.cursor.fetchone()
     if not fila:
         return False
-    contenido, sinonimos, cat_id = fila
+    contenido, sinonimos, cat_id, val_somatica, sk_corto = fila
 
-    self.cursor.execute(
-        "INSERT OR REPLACE INTO largo_plazo "
-        "(concepto, categoria, contenido, peso_sinaptico, estado, sinonimos, creado_en) "
-        "VALUES (?, ?, ?, 1.0, 'activo', ?, ?)",
-        (key, cat_id, contenido, sinonimos or "", time.time()),
-    )
-    # ponytail: ultimo_acceso se actualiza en cada acceso, creado_en es el timestamp de consolidación
+    fusionar_en_largo_plazo(self, key, contenido, sinonimos, cat_id, val_somatica, sk_corto)
     # Propagar dimensiones de corto → largo plazo
     self.cursor.execute(
         """
