@@ -1,7 +1,50 @@
+"""Buffer de sesión + autoguardado.
+
+Historia: nació en v2.2 (Interceptor V2, 2026-05-31) para guardar lo que los
+agentes olvidaban guardar. Las reglas de escritura posteriores (búsqueda
+previa, bridges, sustantivos clave) solo se aplicaron a ``aprender``, y este
+camino quedó como el único que se las salta. En la práctica metía basura en la
+corteza: consultas de ``recordar`` encadenadas, la salida de consola del sueño,
+"activos:N dormidos:M", "a <--> b" y ecos de ``aprender`` (nodos duplicados),
+con claves armadas con las 3 primeras palabras largas del búfer.
+
+Comportamiento actual:
+- El guardado heurístico por herramienta queda APAGADO por defecto. Se activa
+  con ``BIORAG_AUTOGUARDADO_HEURISTICO=1`` (comportamiento histórico).
+- El texto de las acciones de ``_ACCIONES_SIN_TEXTO`` nunca entra al búfer
+  (solo queda la marca de la acción).
+- ``contexto_fin`` guarda únicamente el ``resumen`` que escribe el agente, en
+  la clave determinista ``sesion_<agente>_<AAAAMMDD>`` con el sinónimo
+  ``auto_guardado`` para poder identificarlo y auditarlo.
+- Las palabras clave y emociones se comparan como palabra completa ("mal" ya
+  no matchea "normal"; "clave" ya no matchea "sustantivos_clave").
+"""
+
+import os
 import re
 import time
 
 TTL = 1800
+
+# Acciones cuyo TEXTO no es conocimiento: consultas, ecos de lo ya guardado y
+# salidas de máquina. Se registra la acción (para la guarda "aprender
+# reciente") pero sin texto.
+_ACCIONES_SIN_TEXTO = frozenset({
+    "recordar",
+    "aprender",
+    "consolidar",
+    "introspeccion",
+    "mapear",
+    "vincular",
+})
+
+_SINONIMOS_RESUMEN_SESION = "auto_guardado,resumen_sesion"
+
+
+def autoguardado_heuristico_activo() -> bool:
+    """Flag leído en cada llamada (no al importar) para que tests y entornos
+    puedan cambiarlo sin reiniciar el proceso."""
+    return os.environ.get("BIORAG_AUTOGUARDADO_HEURISTICO", "0") == "1"
 
 _PALABRAS_CLAVE = {
     "aprendi": "Lesson",
@@ -101,10 +144,15 @@ class SesionBuffer:
 buffer_global = SesionBuffer()
 
 
+def _contiene_termino(texto_lower: str, termino: str) -> bool:
+    """Coincidencia por palabra completa (no subcadena)."""
+    return re.search(r"(?<!\w)" + re.escape(termino) + r"(?!\w)", texto_lower) is not None
+
+
 def _extraer_categoria(texto: str) -> str:
     texto_lower = texto.lower()
     for palabra, cat in _PALABRAS_CLAVE.items():
-        if palabra in texto_lower:
+        if _contiene_termino(texto_lower, palabra):
             return cat
     return "General"
 
@@ -120,6 +168,13 @@ def _generar_clave(texto: str) -> str | None:
 
 
 def analizar_y_autoguardar(cerebro, fuerza=False) -> dict | None:
+    """Guardado heurístico histórico a partir del búfer.
+
+    Sin ``fuerza`` solo corre si ``BIORAG_AUTOGUARDADO_HEURISTICO=1``.
+    Con ``fuerza=True`` corre siempre (llamada explícita).
+    """
+    if not fuerza and not autoguardado_heuristico_activo():
+        return None
     contexto = buffer_global.obtener()
     if not contexto:
         return None
@@ -132,8 +187,8 @@ def analizar_y_autoguardar(cerebro, fuerza=False) -> dict | None:
         return None
 
     textual = texto_completo.lower()
-    palabras_detectadas = {p for p in _PALABRAS_CLAVE if p in textual}
-    emociones_detectadas = {val for key, val in _EMOCIONES_CLAVE.items() if key in textual}
+    palabras_detectadas = {p for p in _PALABRAS_CLAVE if _contiene_termino(textual, p)}
+    emociones_detectadas = {val for key, val in _EMOCIONES_CLAVE.items() if _contiene_termino(textual, key)}
 
     if not palabras_detectadas and not emociones_detectadas and not fuerza:
         return None
@@ -163,6 +218,41 @@ def analizar_y_autoguardar(cerebro, fuerza=False) -> dict | None:
     return {"concepto": clave, "categoria": categoria, "sinonimos": sinonimos}
 
 
+def autoguardar_fin_sesion(cerebro, agente: str, resumen: str) -> dict | None:
+    """Autoguardado de ``contexto_fin``.
+
+    Por defecto guarda SOLO el ``resumen`` escrito por el agente, en la clave
+    determinista ``sesion_<agente>_<AAAAMMDD>`` (dos cierres del mismo agente
+    el mismo día se fusionan en el mismo nodo vía consolidar_concepto). Nada
+    del búfer (consultas, salidas de herramientas) entra al contenido.
+    Resumen vacío → no guarda nada.
+
+    Con ``BIORAG_AUTOGUARDADO_HEURISTICO=1`` conserva el comportamiento
+    histórico (``analizar_y_autoguardar(fuerza=True)``).
+    """
+    if autoguardado_heuristico_activo():
+        return analizar_y_autoguardar(cerebro, fuerza=True)
+
+    buffer_global.limpiar()
+    resumen = (resumen or "").strip()
+    if not resumen:
+        return None
+
+    agente_txt = (agente or "").strip() or "agente"
+    agente_slug = re.sub(r"\W+", "_", agente_txt.lower()).strip("_") or "agente"
+    fecha = time.strftime("%Y%m%d")
+    clave = f"sesion_{agente_slug}_{fecha}"
+    categoria = "General"
+    cerebro.percibir_corto_plazo(
+        concepto=clave,
+        contenido=f"Resumen de sesión de {agente_txt} ({time.strftime('%Y-%m-%d')}): {resumen}",
+        sinonimos=_SINONIMOS_RESUMEN_SESION,
+        categoria=categoria,
+    )
+    return {"concepto": clave, "categoria": categoria, "sinonimos": _SINONIMOS_RESUMEN_SESION}
+
 
 def registrar_accion(accion: str, texto: str = ""):
+    if accion in _ACCIONES_SIN_TEXTO:
+        texto = ""
     buffer_global.agregar({"accion": accion, "texto": texto})
