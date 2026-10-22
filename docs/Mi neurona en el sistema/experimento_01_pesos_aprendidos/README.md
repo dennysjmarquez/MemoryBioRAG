@@ -3,6 +3,7 @@
 - **Fecha:** 2026-10-22.
 - **Rama:** `arena/720a0807-memorybiorag`.
 - **Estado:** experimento offline. **No modifica el motor, la DB ni el snapshot.**
+- **Lectura recomendada:** [LA_NEURONA_EXPLICADA.md](LA_NEURONA_EXPLICADA.md) explica cada aguja, la retropropagación en el código, todas las curvas y qué se transfiere a la base de otra persona.
 - **Origen:** los dos videos de esta carpeta (`1--dddd.invento1-/`, `2--dddd.invento2-/`), que cuentan el camino de la neurona de 1943 al transformer, y la pregunta de Dennys: ¿pueden las señales de BioRAG funcionar como neuronas que aprenden?
 
 ---
@@ -179,6 +180,10 @@ for s in 7 11 23; do
   python "docs/Mi neurona en el sistema/experimento_01_pesos_aprendidos/entrenar_neurona.py" --semilla-folds $s \
     > "docs/Mi neurona en el sistema/experimento_01_pesos_aprendidos/resultados/particion_$s.txt"
 done
+
+# 3) Curva de aprendizaje y categoría nunca vista (~8 min) y figuras
+python "docs/Mi neurona en el sistema/experimento_01_pesos_aprendidos/curva_aprendizaje.py" --semilla-folds 7
+python "docs/Mi neurona en el sistema/experimento_01_pesos_aprendidos/dibujar_curvas.py"
 ```
 
 **Verificación hecha al publicar:**
@@ -192,4 +197,7 @@ done
 | `entrenar_neurona.py` | Paso 2: modelos M0, P, R1, R2 y R3 con validación cruzada por nodo. |
 | `resultados/particion_*.txt` | Salida completa de cada partición. |
 | `resultados/rangos_particion_*.json` | Rango del esperado por caso y por modelo, para auditar caso por caso. |
+| `curva_aprendizaje.py` | Curva de aprendizaje (cuántas preguntas necesita) y categoría nunca vista. Salida en `resultados/curva_aprendizaje_7.{txt,json}`. |
+| `dibujar_curvas.py` | Genera `figuras/*.png` a partir de los resultados (requiere matplotlib, que no es dependencia del motor). |
+| `LA_NEURONA_EXPLICADA.md` | Explicación completa: agujas, retropropagación, curvas, transferencia y límites. |
 | `datos/` | Exportación regenerable. No se versiona. |

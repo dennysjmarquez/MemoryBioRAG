@@ -1,0 +1,115 @@
+{
+ "semilla": 7,
+ "M0_R1": 90.17142857142856,
+ "curva": [
+  {
+   "fraccion": 0.05,
+   "casos_train": 36.0,
+   "R1": 90.85714285714286,
+   "gana": 40,
+   "pierde": 34
+  },
+  {
+   "fraccion": 0.1,
+   "casos_train": 69.6,
+   "R1": 92.80000000000001,
+   "gana": 36,
+   "pierde": 13
+  },
+  {
+   "fraccion": 0.25,
+   "casos_train": 169.2,
+   "R1": 93.02857142857142,
+   "gana": 41,
+   "pierde": 16
+  },
+  {
+   "fraccion": 0.5,
+   "casos_train": 342.4,
+   "R1": 93.82857142857142,
+   "gana": 42,
+   "pierde": 10
+  },
+  {
+   "fraccion": 1.0,
+   "casos_train": 700.0,
+   "R1": 93.94285714285714,
+   "gana": 41,
+   "pierde": 8
+  }
+ ],
+ "categoria_nunca_vista": [
+  {
+   "categoria": "cruce_idioma",
+   "n": 8,
+   "M0": 50.0,
+   "R2_sin_verla": 62.5,
+   "R2_viendola": 75.0,
+   "gana": 1,
+   "pierde": 0
+  },
+  {
+   "categoria": "dormido",
+   "n": 65,
+   "M0": 100.0,
+   "R2_sin_verla": 100.0,
+   "R2_viendola": 100.0,
+   "gana": 0,
+   "pierde": 0
+  },
+  {
+   "categoria": "literal",
+   "n": 487,
+   "M0": 99.58932238193019,
+   "R2_sin_verla": 99.58932238193019,
+   "R2_viendola": 99.58932238193019,
+   "gana": 0,
+   "pierde": 0
+  },
+  {
+   "categoria": "por_tema",
+   "n": 65,
+   "M0": 63.07692307692307,
+   "R2_sin_verla": 27.692307692307693,
+   "R2_viendola": 72.3076923076923,
+   "gana": 4,
+   "pierde": 27
+  },
+  {
+   "categoria": "pregunta_natural",
+   "n": 65,
+   "M0": 95.38461538461539,
+   "R2_sin_verla": 96.92307692307692,
+   "R2_viendola": 96.92307692307692,
+   "gana": 2,
+   "pierde": 1
+  },
+  {
+   "categoria": "sinonimo",
+   "n": 55,
+   "M0": 56.36363636363636,
+   "R2_sin_verla": 60.0,
+   "R2_viendola": 63.63636363636363,
+   "gana": 5,
+   "pierde": 3
+  },
+  {
+   "categoria": "typo",
+   "n": 65,
+   "M0": 73.84615384615385,
+   "R2_sin_verla": 93.84615384615384,
+   "R2_viendola": 95.38461538461539,
+   "gana": 13,
+   "pierde": 0
+  },
+  {
+   "categoria": "variante_gramatical",
+   "n": 65,
+   "M0": 81.53846153846153,
+   "R2_sin_verla": 89.23076923076924,
+   "R2_viendola": 90.76923076923077,
+   "gana": 7,
+   "pierde": 2
+  }
+ ]
+}

@@ -30,7 +30,7 @@ AQUI = Path(__file__).resolve().parent
 _ap = argparse.ArgumentParser()
 _ap.add_argument("--entrada", default=str(AQUI / "datos" / "pools_semilla1.jsonl.gz"))
 _ap.add_argument("--semilla-folds", type=int, default=int(os.environ.get("SEMILLA_FOLDS", "7")))
-ARGS = _ap.parse_args()
+ARGS = _ap.parse_known_args()[0]  # parse_known_args: permite importarlo desde otros scripts
 SEMILLA = ARGS.semilla_folds
 rng = np.random.default_rng(SEMILLA)
 F_SIG = ["bm25_norm", "dim_score", "concepto_ratio", "sinonimos_ratio", "latcad",
