@@ -2221,10 +2221,17 @@ def buscar_por_frase(self, frase, profundidad="activos", pagina=1, limite=None, 
 
     # Neurona: reordena SOLO el top-5 final (mismos nodos, mismos scores reasignados).
     # Sin campeón aprendido (DB nueva, BIORAG_NEURONA=0) devuelve la página intacta.
-    if _neurona_anotar:
-        neurona.entregar_rasgos(self, _neurona_rasgos)
-        if pagina == 1 and ordenar_por == "relevancia" and not _neurona_silencio:
-            pagina_resultados = neurona.reordenar(self, _neurona_frase, pagina_resultados, _neurona_rasgos)
+    # La MISMA vista sirve para aprender (autoexamen en silencio) y para servir:
+    # la neurona estudia exactamente la página que después reordena (desfase 0).
+    if _neurona_anotar and pagina == 1 and ordenar_por == "relevancia":
+        _neurona_vista = neurona.vista(
+            pagina_resultados, _neurona_rasgos, origen_scores,
+            self.last_score_bonus_map, convergencia_evidencia_map,
+            con_peso=not ignore_peso_sinaptico, con_agente=bool(sustantivos_clave_boost),
+            no_literales=_ORIGENES_NO_LITERALES, k=convergencia_limite)
+        neurona.entregar_vista(self, _neurona_vista)
+        if not _neurona_silencio:
+            pagina_resultados = neurona.reordenar(self, _neurona_frase, pagina_resultados, _neurona_vista)
 
     # Context window: expandir cada resultado con vecinos por sinapsis
     if context_window and context_window > 0 and pagina_resultados:

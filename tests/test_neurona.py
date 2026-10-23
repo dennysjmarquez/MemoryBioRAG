@@ -73,6 +73,11 @@ def _pagina(nombres, scores):
     return [(n, "contenido", 1.0, "activo", s, "") for n, s in zip(nombres, scores)]
 
 
+def _v(pag, rasgos):
+    """La vista que search.py entrega a la neurona para esta página (sin convergencia ni agente)."""
+    return N.vista(pag, rasgos, {}, {}, {}, con_peso=False, con_agente=False)
+
+
 # ───────────────────────── A. no daña el motor ─────────────────────────
 
 def test_db_vacia_no_falla(tmp_path):
@@ -103,11 +108,11 @@ def test_reordenar_solo_permuta_el_top5(chica):
     est.campeon = _campeon_rasgo0()
     nombres = [f"n{i}" for i in range(8)]
     scores = [.95, .9, .85, .8, .75, .7, .65, .6]
-    rasgos = {n: ([0.0] * len(N.F_SIG), s) for n, s in zip(nombres, scores)}
-    rasgos["n3"] = ([1.0] + [0.0] * (len(N.F_SIG) - 1), .8)   # el rasgo 0 delata a n3
-    rasgos["n6"] = ([1.0] + [0.0] * (len(N.F_SIG) - 1), .65)  # n6 está FUERA del top-5
+    rasgos = {n: ([0.0] * len(N.F_FORMULA), s) for n, s in zip(nombres, scores)}
+    rasgos["n3"] = ([1.0] + [0.0] * (len(N.F_FORMULA) - 1), .8)   # el rasgo 0 delata a n3
+    rasgos["n6"] = ([1.0] + [0.0] * (len(N.F_FORMULA) - 1), .65)  # n6 está FUERA del top-5
     pag = _pagina(nombres, scores)
-    nuevo = N.reordenar(chica, "consulta cualquiera", pag, rasgos)
+    nuevo = N.reordenar(chica, "consulta cualquiera", pag, _v(pag, rasgos))
     assert nuevo[0][0] == "n3"                                   # la neurona sí actúa
     assert sorted(r[0] for r in nuevo[:5]) == sorted(nombres[:5])  # mismos nodos en el top-5
     assert [r[4] for r in nuevo[:5]] == scores[:5]               # mismos números, en orden
@@ -120,11 +125,12 @@ def test_mcp_ve_los_mismos_numeros_por_posicion(chica):
     est = N.estado(chica)
     est.campeon = _campeon_rasgo0()
     nombres = ["n0", "n1", "n2"]
-    rasgos = {"n0": ([0.0] * len(N.F_SIG), .9), "n1": ([0.0] * len(N.F_SIG), .8),
-              "n2": ([1.0] + [0.0] * (len(N.F_SIG) - 1), .7)}
+    rasgos = {"n0": ([0.0] * len(N.F_FORMULA), .9), "n1": ([0.0] * len(N.F_FORMULA), .8),
+              "n2": ([1.0] + [0.0] * (len(N.F_FORMULA) - 1), .7)}
     chica.last_score_base_map = {"n0": .88, "n1": .79, "n2": .61}
     chica.last_score_bonus_map = {"n0": .02, "n1": .01}
-    nuevo = N.reordenar(chica, "x", _pagina(nombres, [.9, .8, .7]), rasgos)
+    pag = _pagina(nombres, [.9, .8, .7])
+    nuevo = N.reordenar(chica, "x", pag, _v(pag, rasgos))
     orden = [r[0] for r in nuevo]
     assert orden[0] == "n2"
     assert [chica.last_score_base_map[c] for c in orden] == [.88, .79, .61]
@@ -135,11 +141,11 @@ def test_regla_de_identidad(chica):
     est = N.estado(chica)
     est.campeon = _campeon_rasgo0(fuerza=50.0)
     nombres = ["caso_conflicto_liderazgo", "otro", "tercero"]
-    rasgos = {"caso_conflicto_liderazgo": ([0.0] * len(N.F_SIG), .9),
-              "otro": ([1.0] + [0.0] * (len(N.F_SIG) - 1), .8), "tercero": ([0.0] * len(N.F_SIG), .7)}
+    rasgos = {"caso_conflicto_liderazgo": ([0.0] * len(N.F_FORMULA), .9),
+              "otro": ([1.0] + [0.0] * (len(N.F_FORMULA) - 1), .8), "tercero": ([0.0] * len(N.F_FORMULA), .7)}
     pag = _pagina(nombres, [.9, .8, .7])
-    assert N.reordenar(chica, "Caso conflicto  liderazgo", pag, rasgos)[0][0] == "caso_conflicto_liderazgo"
-    assert N.reordenar(chica, "conflicto", pag, rasgos)[0][0] == "otro"
+    assert N.reordenar(chica, "Caso conflicto  liderazgo", pag, _v(pag, rasgos))[0][0] == "caso_conflicto_liderazgo"
+    assert N.reordenar(chica, "conflicto", pag, _v(pag, rasgos))[0][0] == "otro"
 
 
 def test_practica_es_silenciosa(chica):
@@ -260,12 +266,12 @@ def test_primero_no_danar_elige_el_menor_margen_seguro():
 def test_el_margen_se_respeta_al_servir(chica):
     est = N.estado(chica)
     est.campeon = _campeon_rasgo0(fuerza=1.0)                    # corrección máxima ~ +1
-    rasgos = {"a": ([0.0] * len(N.F_SIG), .80), "b": ([1.0] + [0.0] * (len(N.F_SIG) - 1), .79)}
+    rasgos = {"a": ([0.0] * len(N.F_FORMULA), .80), "b": ([1.0] + [0.0] * (len(N.F_FORMULA) - 1), .79)}
     pag = _pagina(["a", "b"], [.80, .79])
     est.margen = 0.0
-    assert N.reordenar(chica, "x", pag, rasgos)[0][0] == "b"
+    assert N.reordenar(chica, "x", pag, _v(pag, rasgos))[0][0] == "b"
     est.margen = 2.0                                              # no le alcanza la ventaja: no toca
-    assert N.reordenar(chica, "x", pag, rasgos) == pag
+    assert N.reordenar(chica, "x", pag, _v(pag, rasgos)) == pag
 
 
 def test_sin_datos_suficientes_no_entrena():
@@ -319,9 +325,9 @@ def test_pesos_rotos_no_se_usan_ni_se_cargan(chica):
     roto = _campeon_rasgo0()
     roto["v"][0] = np.nan
     est.campeon = roto
-    rasgos = {n: ([1.0] * len(N.F_SIG), s) for n, s in (("a", .9), ("b", .8))}
+    rasgos = {n: ([1.0] * len(N.F_FORMULA), s) for n, s in (("a", .9), ("b", .8))}
     pag = _pagina(["a", "b"], [.9, .8])
-    assert N.reordenar(chica, "x", pag, rasgos) == pag
+    assert N.reordenar(chica, "x", pag, _v(pag, rasgos)) == pag
     N._guardar(chica, est)
     chica._neurona_estado = None
     assert N.estado(chica).campeon is None
@@ -466,3 +472,108 @@ def test_presupuesto_de_tiempo(chica):
     t0 = time.time()
     res = N.practicar(chica, [], presupuesto_s=0.0)
     assert res["nuevas"] == 0 and time.time() - t0 < 2.0
+
+
+# ───────────────── F. desfase 0: estudia lo mismo que sirve (experimento 07) ─────────────────
+
+def _vista_servida(c, monkeypatch, consulta, **kw):
+    """Búsqueda NORMAL; captura la vista exacta que search.py le pasa a reordenar."""
+    vistas = []
+    real = N.reordenar
+
+    def espia(self, frase, pagina, v):
+        vistas.append(v)
+        return real(self, frase, pagina, v)
+    monkeypatch.setattr(N, "reordenar", espia)
+    c.buscar_por_frase(consulta, profundidad="activos", **kw)
+    monkeypatch.setattr(N, "reordenar", real)
+    return vistas[-1]
+
+
+@pytest.mark.parametrize("modo", N.MODOS)
+def test_el_examen_ve_exactamente_lo_que_se_sirve(chica, monkeypatch, modo):
+    from core.memory.neurona_examen import sustantivos_de
+    q = "insight backup repository inputs"          # devuelve varios recuerdos: hay qué ordenar
+    caso = N._preguntar(chica, "leccion_backup_base_datos", q, "literal", modo, 10)
+    assert caso is not None and caso["cat"] == f"literal@{modo}"
+    if modo == "agente":
+        kw = dict(limite=30, convergencia_limite=10, sustantivos_clave_boost=sustantivos_de(q))
+    else:
+        kw = dict(limite=5, ignore_peso_sinaptico=True)
+    N.estado(chica).campeon = _campeon_rasgo0(fuerza=0.0)    # neutro: obliga a servir con vista sin mover nada
+    v = _vista_servida(chica, monkeypatch, q, **kw)
+    assert v["nombres"][caso["y"]] == "leccion_backup_base_datos" and len(v["nombres"]) >= 2
+    assert np.array_equal(v["X"], caso["X"]) and np.array_equal(v["base"], caso["base"])
+    assert v["X"][0, N.F_SIG.index("con_agente")] == (1.0 if modo == "agente" else 0.0)
+    assert v["X"][0, N.F_SIG.index("con_peso")] == (1.0 if modo == "agente" else 0.0)
+
+
+def test_la_vista_de_otra_pagina_no_reordena(chica):
+    est = N.estado(chica)
+    est.campeon = _campeon_rasgo0(fuerza=50.0)
+    rasgos = {"a": ([0.0] * len(N.F_FORMULA), .9), "b": ([1.0] + [0.0] * (len(N.F_FORMULA) - 1), .8)}
+    pag = _pagina(["a", "b"], [.9, .8])
+    otra = _pagina(["b", "a"], [.9, .8])
+    assert N.reordenar(chica, "x", otra, _v(pag, rasgos)) == otra   # vista ajena: no toca
+    assert N.reordenar(chica, "x", pag, None) == pag                 # sin vista: no toca
+
+
+def test_nodo_sin_rasgos_va_en_cero_con_bandera_y_senales_del_agente():
+    pag = _pagina(["hub", "b"], [.9, .8])
+    v = N.vista(pag, {"b": ([.5] * len(N.F_FORMULA), .8)}, {"hub": ("concept_hub", 1.0)},
+                {"b": .085}, {"b": {"concepto": 1.0, "sustantivos_clave": .5}},
+                con_peso=True, con_agente=True)
+    f = dict(zip(N.F_SIG, v["X"][0]))
+    assert all(f[n] == 0.0 for n in N.F_FORMULA) and f["sin_rasgos"] == 1.0 and f["or_hub"] == 1.0
+    f = dict(zip(N.F_SIG, v["X"][1]))
+    assert f["sin_rasgos"] == 0.0 and f["bono_conv"] == pytest.approx(1.0) and f["ev_sustantivos"] == .5
+    assert f["con_agente"] == 1.0 and f["peso"] == 1.0
+    assert N.vista(_pagina(["solo"], [.9]), {}, {}, {}, {}, True, True) is None   # 1 resultado: nada que ordenar
+    assert N.vista([("x", "", "roto", "activo", .9, "")] * 2, {}, {}, {}, {}, True, True) is None  # nunca lanza
+
+
+def test_practica_los_dos_caminos(chica, monkeypatch):
+    modos, real = [], N._preguntar
+
+    def espia(self, concepto, q, cat, modo="crudo", limite_agente=10):
+        modos.append(modo)
+        return real(self, concepto, q, cat, modo, limite_agente)
+    monkeypatch.setattr(N, "_preguntar", espia)
+    for _ in range(3):
+        N.practicar(chica, [k for k, _ in NODOS[:6]])
+    assert set(modos) == set(N.MODOS) and abs(modos.count("agente") - modos.count("crudo")) <= 2
+    est = N.estado(chica)
+    assert all(c["X"].shape[1] == len(N.F_SIG) and len(c["base"]) <= N._cfg()["topk"] for c in est.estudio + est.guardia)
+
+
+def test_sustantivos_del_agente_salen_de_la_consulta():
+    from core.memory.neurona_examen import sustantivos_de
+    assert sustantivos_de("¿Cómo se configura el servidor de correo?") == "configura,servidor,correo"
+    assert sustantivos_de("de la el") == ""
+    assert all(len(t) <= 15 for t in sustantivos_de("supercalifragilisticoespialidoso palabra").split(","))
+
+
+def test_la_vista_cubre_lo_que_vera_quien_busca_con_tope():
+    nombres = [f"n{i}" for i in range(14)]
+    pag = _pagina(nombres, [1.0 - i * .05 for i in range(14)])
+    assert len(N.vista(pag, {}, {}, {}, {}, True, True)["nombres"]) == 5            # sin dato: topk
+    assert len(N.vista(pag, {}, {}, {}, {}, True, True, k=10)["nombres"]) == 10     # el MCP muestra 10
+    assert len(N.vista(pag, {}, {}, {}, {}, True, True, k=500)["nombres"]) == N._cfg()["topk_max"]  # costo fijo
+
+
+def test_con_vista_de_10_el_r5_no_puede_bajar():
+    """Un campeón que gana #1 en el estudio pero en la guardia empuja la respuesta del
+    puesto 5 al 6: con vistas de 10 eso bajaría el R@5. Ningún margen aceptado puede
+    sacar del top-5 a un caso de guardia que la fórmula tenía adentro."""
+    rng = np.random.default_rng(11)
+    estudio = [_caso(rng, "a", f"e{i}", y=1, n=8) for i in range(200)]
+    guardia = [_caso(rng, "a", f"g{i}", y=4, delator=5, n=8) for i in range(60)]
+    todos = estudio + guardia
+    r_mano = N._rangos(None, todos, 10)
+    p = _campeon_rasgo0(fuerza=3.0)
+    m, r = N._calibrar(p, todos, len(estudio), r_mano, N._por_cat(r_mano, todos), 0, 0, 10)
+    assert m is not None and m > 0                         # el margen 0 (que ganaba 200 #1) se rechaza
+    t5_mano, t5 = (r_mano >= 1) & (r_mano <= 5), (r >= 1) & (r <= 5)
+    assert not (t5_mano & ~t5)[len(estudio):].any()
+    sin = N._rangos(p, todos, 10, 0.0)                     # sin margen sí lo sacaría: la capa es necesaria
+    assert (r_mano[len(estudio):] == 5).all() and (sin[len(estudio):] > 5).sum() >= 10

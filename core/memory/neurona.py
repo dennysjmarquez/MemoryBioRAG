@@ -1,8 +1,10 @@
 """Neurona de BioRAG: aprende sola, en vivo, a ordenar mejor el top-5.
 
 QUÉ ES
-    Una pequeña red (17 agujas -> 6 neuronas ocultas -> 1 corrección) que se
-    SUMA a la fórmula a mano de `scoring.py`. Con la corrección en cero el motor
+    Una pequeña red (29 señales -> 6 neuronas ocultas -> 1 corrección) que se
+    SUMA a la fórmula a mano de `scoring.py`. Las 29 señales: las 17 agujas de la
+    fórmula + 12 de lo que pasa después de ella y de lo que aporta el agente
+    (bono y evidencia de convergencia, sustantivos_clave, peso, origen). Con la corrección en cero el motor
     es exactamente el de siempre: los pesos a mano son el ancla y el piso.
 
 CUÁNDO APRENDE (en vivo, costo fijo)
@@ -21,14 +23,29 @@ PISO Y TECHO (que aprenda, no que memorice)
       cumplirlo (la DB cambió), se retira y vuelven los pesos a mano.
     - Techo: el 20 % de los recuerdos (por hash del nombre) es GUARDIA y
       nunca se estudia. El retador solo asciende si mejora sin empeorar la
-      guardia; si estudia mejor pero la guardia no, se reinicia
-      (anti-memorización). Tras `PACIENCIA` ciclos sin mejora, la neurona queda
+      guardia; si estudia mejor pero la guardia no, se reinicia y NO asciende
+      ese ciclo, aunque un margen grande lo deje "sin dañar" (anti-memorización). Tras `PACIENCIA` ciclos sin mejora, la neurona queda
       "tranquila" y deja de entrenar. Si baja, o si entran muchas preguntas
       nuevas, se despierta sola.
 
+DESFASE 0: ESTUDIA LO MISMO QUE SIRVE (experimento 07)
+    Una sola función, `vista`, arma lo que ve la neurona a partir de la página
+    TAL COMO SE SIRVE (después de convergencia, hub, prefijo, despertar). El
+    autoexamen guarda esa vista y `reordenar` corrige esa misma vista: lo que se
+    aprende y lo que se usa es idéntico por construcción, no por casualidad.
+    Practica los dos caminos reales, alternando: "agente" (como llega por el MCP
+    `recordar`: pool 3x, convergencia, peso, sustantivos_clave sacados de la
+    consulta) y "crudo" (el motor solo, como la QA). El piso es por categoría Y
+    por camino: ninguno de los dos puede bajar.
+    La vista cubre lo que VERÁ quien busca: 10 por el MCP (`convergencia_limite`),
+    5 si no se sabe (tope `topk_max`). Con 10, la neurona podría sacar a alguien
+    del top-5, así que el piso cubre R@1, MRR y R@5, y ningún caso de guardia que
+    la fórmula tenía en el top-5 puede salir de él.
+
 CÓMO RESPONDE
-    Solo reordena los 5 primeros que ya eligió el motor (mismos nodos, mismos
-    números reasignados). El R@5 no puede bajar y ningún umbral absoluto
+    Solo reordena los k primeros que ya eligió el motor (mismos nodos, mismos
+    números reasignados). El R@k no puede bajar por construcción, el R@5 lo
+    protege el piso, y ningún umbral absoluto
     (GABA, abstención, FP) ve números distintos. Regla de identidad: si la
     consulta es el nombre de un recuerdo ("_" = espacio) y la fórmula ya lo
     puso #1, sigue siendo #1 (las búsquedas literales no pueden empeorar). DB vacía o sin datos suficientes: no hay campeón y el
@@ -60,7 +77,7 @@ CAPAS DE PROTECCIÓN (cada una con su prueba en tests/test_neurona.py)
 
 APAGADO TOTAL: BIORAG_NEURONA=0.
 Evidencia: docs/Mi neurona en el sistema/experimento_04_autoaprendizaje/, experimento_05_neurona_cableada/
-y experimento_06_capas_de_proteccion/.
+experimento_06_capas_de_proteccion/ y experimento_07_la_neurona_escucha/.
 """
 import hashlib
 import io
@@ -77,11 +94,18 @@ import numpy as np
 
 logger = logging.getLogger(__name__)
 
-F_SIG = ("bm25_norm", "dim_score", "concepto_ratio", "sinonimos_ratio", "latcad",
-         "grupo_score", "tematico_g", "asoc", "pred_score", "ppmi_score", "hub_match",
-         "ncd_score", "episodio_score", "campo_score", "jsd", "match_exacto", "sin95")
+F_FORMULA = ("bm25_norm", "dim_score", "concepto_ratio", "sinonimos_ratio", "latcad",
+             "grupo_score", "tematico_g", "asoc", "pred_score", "ppmi_score", "hub_match",
+             "ncd_score", "episodio_score", "campo_score", "jsd", "match_exacto", "sin95")
+# Lo que pasa DESPUÉS de la fórmula y lo que aporta el agente (v2, experimento 07):
+# bono de convergencia multicampo, evidencia por campo (incluye sustantivos_clave),
+# peso sináptico, si el score lo incluye, si el agente ayudó, y de dónde vino el recuerdo.
+F_VISTA = ("bono_conv", "ev_concepto", "ev_sinonimos", "ev_sustantivos", "ev_contenido",
+           "peso", "con_peso", "con_agente", "or_lexico", "or_hub", "or_no_literal", "sin_rasgos")
+F_SIG = F_FORMULA + F_VISTA
 OCULTAS = 6
-VERSION = 1
+VERSION = 2
+MODOS = ("agente", "crudo")   # agente = como llega por el MCP; crudo = motor solo (como la QA)
 
 
 def _env_int(nombre, defecto):
@@ -107,17 +131,18 @@ def _cfg():
         nodos=_env_int("BIORAG_NEURONA_NODOS", 2),
         preguntas=_env_int("BIORAG_NEURONA_PREGUNTAS", 2),
         presupuesto=_env_float("BIORAG_NEURONA_PRESUPUESTO_S", 3.0),
+        limite_agente=_env_int("BIORAG_NEURONA_LIMITE_AGENTE", 10),
         max_estudio=_env_int("BIORAG_NEURONA_MAX_ESTUDIO", 1200),
         max_guardia=_env_int("BIORAG_NEURONA_MAX_GUARDIA", 300),
         min_estudio=_env_int("BIORAG_NEURONA_MIN_ESTUDIO", 150),
         min_guardia=_env_int("BIORAG_NEURONA_MIN_GUARDIA", 40),
-        pool=_env_int("BIORAG_NEURONA_POOL", 40),
         pasos=_env_int("BIORAG_NEURONA_PASOS", 30),
         lr=_env_float("BIORAG_NEURONA_LR", 0.03),
         l2=_env_float("BIORAG_NEURONA_L2", 1e-3),
         paciencia=_env_int("BIORAG_NEURONA_PACIENCIA", 12),
         despertar=_env_int("BIORAG_NEURONA_DESPERTAR", 150),
-        topk=_env_int("BIORAG_NEURONA_TOPK", 5),
+        topk=_env_int("BIORAG_NEURONA_TOPK", 5),          # lo que ve quien busca sin decir cuánto verá
+        topk_max=_env_int("BIORAG_NEURONA_TOPK_MAX", 10),  # tope de la vista (lo que ve el agente por el MCP)
         tope_nodo=_env_int("BIORAG_NEURONA_TOPE_POR_NODO", 4),
         pausa=_env_float("BIORAG_NEURONA_PAUSA_S", 3600.0),
         refresco=_env_float("BIORAG_NEURONA_REFRESCO_S", 30.0),
@@ -229,6 +254,52 @@ def g(s):
 
 def _correccion(p, X):
     return np.tanh(X @ p["W"].T + p["b"]) @ p["v"]
+
+
+def _base(score):
+    """Escala de la fórmula para la neurona: logit del score SERVIDO (acotado)."""
+    return g(min(max(float(score), _EPS), 50.0))
+
+
+def vista(pagina, rasgos_pool, origen, bonos, evidencia, con_peso, con_agente, no_literales=(), k=None):
+    """Lo que ve la neurona: los primeros k de la página TAL COMO SE SIRVE.
+
+    Una sola función para aprender y para servir (desfase 0 por construcción):
+    el autoexamen guarda esta vista y `reordenar` corrige esta misma vista.
+    Por fila: las 17 agujas de la fórmula + lo que pasó después de la fórmula
+    (bono de convergencia, evidencia por campo, peso, origen) + el contexto de
+    la búsqueda (¿el score incluye peso? ¿vino con sustantivos del agente?).
+    k = lo que verá quien pidió la búsqueda (el MCP muestra `convergencia_limite`,
+    10); sin dato, `topk` (5). Tope `topk_max`: costo fijo.
+    Nunca lanza: si algo no cuadra devuelve None y nadie reordena.
+    """
+    try:
+        cfg = _cfg()
+        k = min(int(k or cfg["topk"]), cfg["topk_max"], len(pagina))
+        if k < 2:
+            return None
+        bonos, evidencia, origen = bonos or {}, evidencia or {}, origen or {}
+        filas, nombres = [], []
+        for r in pagina[:k]:
+            c = r[0]
+            f = (rasgos_pool or {}).get(c)
+            ev = evidencia.get(c) or {}
+            o = (origen.get(c) or ("literal", 0.0))[0]
+            filas.append(list(f[0] if f else [0.0] * len(F_FORMULA)) + [
+                min(1.5, max(0.0, float(bonos.get(c, 0.0) or 0.0) / 0.085)),
+                float(ev.get("concepto", 0.0) or 0.0), float(ev.get("sinonimos", 0.0) or 0.0),
+                float(ev.get("sustantivos_clave", 0.0) or 0.0), float(ev.get("contenido", 0.0) or 0.0),
+                min(1.0, max(0.0, float(r[2] or 0.0))), float(bool(con_peso)), float(bool(con_agente)),
+                float(o == "lexico_aprendido"), float(o == "concept_hub"), float(o in no_literales),
+                float(f is None)])
+            nombres.append(c)
+        X = np.array(filas, dtype=np.float32)
+        base = np.array([_base(r[4]) for r in pagina[:k]], dtype=np.float32)
+        if X.shape != (k, len(F_SIG)) or not (np.all(np.isfinite(X)) and np.all(np.isfinite(base))):
+            return None
+        return dict(nombres=nombres, X=X, base=base)
+    except Exception:
+        return None
 
 
 MARGENES = (0.0, 0.25, 0.5, 1.0, 1.5, 2.0, 3.0, 5.0, 8.0)
@@ -426,10 +497,10 @@ def silencio(self):
     return getattr(_hilo, "silencio_de", None) is self
 
 
-def entregar_rasgos(self, rasgos_por_concepto):
-    """search.py entrega aquí lo que vio cada aguja (solo se guarda en la búsqueda de práctica)."""
+def entregar_vista(self, v):
+    """search.py entrega aquí la vista servida (solo se guarda en la búsqueda de práctica)."""
     if silencio(self):
-        _hilo.rasgos = rasgos_por_concepto
+        _hilo.vista = v
 
 
 def necesita_rasgos(self):
@@ -446,30 +517,23 @@ def necesita_rasgos(self):
         return False
 
 
-def reordenar(self, frase, pagina, rasgos_por_concepto):
-    """Reordena SOLO los primeros k de la página con el campeón. Nunca lanza."""
+def reordenar(self, frase, pagina, v):
+    """Reordena SOLO los primeros k de la página con el campeón, sobre la MISMA vista
+    con la que aprendió. Nunca lanza."""
     try:
-        if not activa() or silencio(self) or len(pagina) < 2 or _en_pausa(self, "reordenar"):
+        if not activa() or silencio(self) or v is None or len(pagina) < 2 or _en_pausa(self, "reordenar"):
             return pagina
         est = estado(self)
         if est.campeon is None:
             return pagina
-        k = min(_cfg()["topk"], len(pagina))
+        k = len(v["nombres"])
         top = pagina[:k]
-        filas = [rasgos_por_concepto.get(r[0]) for r in top]
-        conocidas = [f for f in filas if f is not None]
-        if not conocidas:
+        if k < 2 or [r[0] for r in top] != v["nombres"]:
+            return pagina  # la vista no corresponde a esta página: no se toca nada
+        corr = _correccion(est.campeon, v["X"].astype(float))
+        if not np.all(np.isfinite(corr)):
             return pagina
-        X = np.array([f[0] for f in conocidas], dtype=float)
-        crudas = _correccion(est.campeon, X)
-        if not np.all(np.isfinite(crudas)):
-            return pagina
-        corr_conocidas = iter(crudas)
-        corr = [next(corr_conocidas) if f is not None else None for f in filas]
-        media = float(np.mean([c for c in corr if c is not None]))
-        prior = _prior(k, _margen_servir(est))
-        claves = [g(min(max(r[4], _EPS), 50.0)) + (c if c is not None else media) + prior[i]
-                  for i, (r, c) in enumerate(zip(top, corr))]
+        claves = v["base"].astype(float) + corr + _prior(k, _margen_servir(est))
         orden = sorted(range(k), key=lambda i: (-claves[i], i))
         if _es_su_nombre(frase, top[0][0]):
             orden = [0] + [i for i in orden if i != 0]  # regla de identidad
@@ -521,7 +585,7 @@ def _en_silencio(self):
     (si otro hilo los escribió mientras tanto, se respeta lo del otro hilo).
     """
     antes = {k: v for k, v in self.__dict__.items() if k.startswith("last_")}
-    _hilo.silencio_de, _hilo.rasgos = self, None
+    _hilo.silencio_de, _hilo.rasgos, _hilo.vista = self, None, None
     try:
         yield
     finally:
@@ -536,24 +600,29 @@ def _en_silencio(self):
                 self.__dict__[k] = viejo
 
 
-def _preguntar(self, concepto, consulta, cat, pool_max):
+def _preguntar(self, concepto, consulta, cat, modo="crudo", limite_agente=10):
+    """Una pregunta de práctica, respondida en silencio por el MISMO camino que en uso.
+
+    modo "agente": como llega por el MCP `recordar` (pool 3x, convergencia sobre el
+    top que ve el agente, peso sináptico, sustantivos_clave que extraería un agente
+    de la consulta, sin mirar la respuesta). modo "crudo": el motor solo, como la QA.
+    El caso es la vista servida: si la respuesta no está en el top-k, no hay nada
+    que reordenar y no se guarda.
+    """
+    if modo == "agente":
+        from core.memory.neurona_examen import sustantivos_de
+        kw = dict(limite=3 * limite_agente, convergencia_limite=limite_agente,
+                  sustantivos_clave_boost=sustantivos_de(consulta) or None)
+    else:
+        kw = dict(limite=5, ignore_peso_sinaptico=True)
     with _en_silencio(self):
-        self.buscar_por_frase(consulta, profundidad="activos", limite=5, ignore_peso_sinaptico=True)
-        pool = dict(_hilo.rasgos or {})
-        _hilo.rasgos = None
-    if concepto not in pool or len(pool) < 2:
+        self.buscar_por_frase(consulta, profundidad="activos", **kw)
+        v = getattr(_hilo, "vista", None)
+        _hilo.vista = None
+    if v is None or concepto not in v["nombres"]:
         return None
-    nombres = list(pool)
-    base = np.array([g(pool[n][1]) for n in nombres])
-    orden = np.argsort(-base, kind="stable")[:pool_max]
-    nombres = [nombres[i] for i in orden]
-    if concepto not in nombres:
-        return None
-    X = np.array([pool[n][0] for n in nombres], dtype=np.float32)
-    if not np.all(np.isfinite(X)) or not np.all(np.isfinite(base[orden])):
-        return None
-    return dict(cat=cat, nodo=concepto, q=consulta, y=nombres.index(concepto),
-                X=np.array([pool[n][0] for n in nombres], dtype=np.float32), base=base[orden].astype(np.float32))
+    return dict(cat=f"{cat}@{modo}", nodo=concepto, q=f"{modo}:{consulta}", y=v["nombres"].index(concepto),
+                X=v["X"].astype(np.float32), base=v["base"].astype(np.float32))
 
 
 def _nodos_a_examinar(self, conceptos, n, rng):
@@ -589,7 +658,7 @@ def _preparar(p, casos, topk):
     """Lo caro (top-k de la fórmula y corrección de la red) se calcula una vez por pesos."""
     prep = []
     for c in casos:
-        top = np.argsort(-c["base"], kind="stable")[:topk]
+        top = np.arange(min(topk, len(c["base"])))  # los casos YA vienen en el orden servido (k = lo que se vio)
         corr = _correccion(p, c["X"][top].astype(float)) if p is not None else None
         prep.append((top, c["base"][top].astype(float), corr, c["y"]))
     return prep
@@ -619,12 +688,20 @@ def _calibrar(p, todos, n_est, r_mano, piso, g_min, t_min, topk):
       - y alcanzan los mínimos pedidos de guardia y total.
     Devuelve (margen, rangos) o (None, None) si ningún margen lo logra."""
     a_mano = r_mano == 1
+    t5_mano = (r_mano >= 1) & (r_mano <= 5)
     prep = _preparar(p, todos, topk)
     for m in MARGENES:
         r = _rangos_desde(prep, m)
         a = r == 1
         pierde, gana = a_mano & ~a, ~a_mano & a
         if pierde[n_est:].any() or pierde.sum() > 0.05 * gana.sum():
+            continue
+        # con vistas de más de 5 (MCP) la neurona podría sacar a alguien del top-5:
+        # el R@5 tampoco puede bajar (ningún caso de guardia sale; en total, a lo sumo
+        # el 5 % de los que entran)
+        t5 = (r >= 1) & (r <= 5)
+        sale5, entra5 = t5_mano & ~t5, ~t5_mano & t5
+        if sale5[n_est:].any() or sale5.sum() > 0.05 * entra5.sum():
             continue
         if not _cumple_piso(_por_cat(r, todos), piso):
             continue
@@ -635,11 +712,13 @@ def _calibrar(p, todos, n_est, r_mano, piso, g_min, t_min, topk):
 
 
 def _por_cat(rangos, casos):
-    """Por categoría: (aciertos #1, suma de 1/puesto). El piso exige no bajar en ninguna de las dos."""
+    """Por categoría: (aciertos #1, suma de 1/puesto en el top-5, aciertos en el top-5).
+    Las mismas tres métricas de la QA (R@1, MRR, R@5): el piso exige no bajar en ninguna."""
     d = {}
     for r, c in zip(rangos, casos):
-        a1, rr = d.get(c["cat"], (0, 0.0))
-        d[c["cat"]] = (a1 + int(r == 1), rr + (1.0 / r if r else 0.0))
+        a1, rr, a5 = d.get(c["cat"], (0, 0.0, 0))
+        en5 = 1 <= r <= 5
+        d[c["cat"]] = (a1 + int(r == 1), rr + (1.0 / r if en5 else 0.0), a5 + int(en5))
     return d
 
 
@@ -648,8 +727,8 @@ def _r1(p, casos, topk):
 
 
 def _cumple_piso(pc, piso):
-    return all(pc.get(k, (0, 0.0))[0] >= v[0] and pc.get(k, (0, 0.0))[1] >= v[1] - 1e-9
-               for k, v in piso.items())
+    cero = (0, 0.0, 0)
+    return all(pc.get(k, cero)[i] >= v[i] - 1e-9 for k, v in piso.items() for i in range(len(v)))
 
 
 def _paso(est, P, lr, l2):
@@ -687,7 +766,7 @@ def _evaluar_y_decidir(est, cfg):
     if len(est.estudio) < cfg["min_estudio"] or len(est.guardia) < cfg["min_guardia"]:
         res["fase"] = "juntando examen"
         return res
-    r_mano = _rangos(None, todos, cfg["topk"])
+    r_mano = _rangos(None, todos, cfg["topk_max"])
     a_mano = r_mano == 1
     piso = _por_cat(r_mano, todos)
     ng, n_est = len(est.guardia), len(est.estudio)
@@ -698,7 +777,7 @@ def _evaluar_y_decidir(est, cfg):
     campeon_ref = a_mano
     if est.campeon is not None:
         # debe seguir GANANDO a la fórmula (si solo empata, sobra: se retira)
-        m, r_c = _calibrar(est.campeon, todos, n_est, r_mano, piso, g_mano, t_mano + 1, cfg["topk"])
+        m, r_c = _calibrar(est.campeon, todos, n_est, r_mano, piso, g_mano, t_mano + 1, cfg["topk_max"])
         if m is None:
             est.campeon, est.margen = None, 0.0
             est.stats["retiros"] += 1
@@ -731,11 +810,17 @@ def _evaluar_y_decidir(est, cfg):
         est.stats["reinicios"] += 1
         res.update(fase="estudiando", divergio=True)
         return res
-    a_r = _rangos(est.retador, todos, cfg["topk"]) == 1     # sin margen: diagnóstico de memorización
+    a_r = _rangos(est.retador, todos, cfg["topk_max"]) == 1     # sin margen: diagnóstico de memorización
     res.update(guardia_mano=g_mano / ng, guardia_retador=int(a_r[n_est:].sum()) / ng, guardia_campeon=g_ref / ng)
+    # anti-memorización: estudia cada vez mejor pero la guardia no lo sigue. Si la guardia
+    # lo delata, NO asciende aunque un margen grande lo deje "sin dañar": sus ganancias
+    # serían de memoria, no de generalizar (hueco hallado en el experimento 07).
+    brecha = a_r[:n_est].mean() - a_r[n_est:].mean()
+    brecha0 = a_mano[:n_est].mean() - a_mano[n_est:].mean()
+    memoriza = brecha - brecha0 > .05
     m, r_r = (None, None)
-    if _sano(est.retador):
-        m, r_r = _calibrar(est.retador, todos, n_est, r_mano, piso, g_ref, t_ref + 1, cfg["topk"])
+    if _sano(est.retador) and not memoriza:
+        m, r_r = _calibrar(est.retador, todos, n_est, r_mano, piso, g_ref, t_ref + 1, cfg["topk_max"])
 
     if m is not None:
         est.campeon, est.margen = _copiar(est.retador), m
@@ -745,10 +830,7 @@ def _evaluar_y_decidir(est, cfg):
     else:
         est.stats["sin_mejora"] += 1
         res["fase"] = "estudiando"
-        # anti-memorización: estudia cada vez mejor pero la guardia no lo sigue
-        brecha = a_r[:n_est].mean() - a_r[n_est:].mean()
-        brecha0 = a_mano[:n_est].mean() - a_mano[n_est:].mean()
-        if brecha - brecha0 > .05:
+        if memoriza:
             est.retador = _copiar(est.campeon) if est.campeon is not None else _Estado._nuevo(est.stats["reinicios"] + 1)
             est.adam = None
             est.stats["reinicios"] += 1
@@ -838,12 +920,13 @@ def _practicar(self, conceptos, nodos, presupuesto_s):
             from core.memory.neurona_examen import preguntas
             qs = preguntas(concepto, fila[0], fila[1])
             rng.shuffle(qs)
-            for cat, q in qs[:cfg["preguntas"]]:
+            for i_q, (cat, q) in enumerate(qs[:cfg["preguntas"]]):
+                modo = MODOS[(i_q + est.stats["ciclos"]) % len(MODOS)]  # aprende los dos caminos
                 # no empezar una pregunta que no cabe en el presupuesto (estimación: la más lenta hasta ahora)
                 if time.time() - t0 + lenta > presupuesto:
                     break
                 tq = time.time()
-                caso = _preguntar(self, concepto, q, cat, cfg["pool"])
+                caso = _preguntar(self, concepto, q, cat, modo, cfg["limite_agente"])
                 lenta = max(lenta, time.time() - tq)
                 if caso is None:
                     continue

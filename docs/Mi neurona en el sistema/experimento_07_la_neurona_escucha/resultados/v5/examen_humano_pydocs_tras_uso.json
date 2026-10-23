@@ -1,0 +1,25 @@
+{
+ "a_mano": {
+  "n": 164,
+  "r1": 42.07,
+  "r5": 56.1,
+  "mrr": 0.481
+ },
+ "neurona": {
+  "n": 164,
+  "r1": 43.29,
+  "r5": 56.1,
+  "mrr": 0.486
+ },
+ "gana": 3,
+ "pierde": 1,
+ "casos_ganados": [
+  "Nunca he programado antes. ¿Hay un tutorial de Python?",
+  "¿Cómo puedo crear un binario independiente a partir de un programa Python?",
+  "¿Por qué Python tarda en comenzar?"
+ ],
+ "casos_perdidos": [
+  "¿Cómo leo (o escribo) datos binarios?"
+ ],
+ "salen_del_top5": 0
+}

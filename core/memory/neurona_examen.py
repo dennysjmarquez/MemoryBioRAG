@@ -182,3 +182,17 @@ def preguntas(concepto, contenido, sinonimos=""):
         vistas.add(qn)
         limpias.append((cat, q.strip()))
     return limpias
+
+
+def sustantivos_de(consulta, n=3):
+    """sustantivos_clave como los extraería un agente mínimo DE LA CONSULTA (nunca de la
+    respuesta): las primeras `n` palabras con significado, normalizadas igual que el MCP
+    (minúsculas, sin tildes, 2-15 caracteres [a-z0-9_ñ]). '' si no queda ninguna."""
+    from core.memory_store import normalizar_sustantivos_clave
+    ws = [w for w in re.findall(r"\w+", (consulta or "").lower()) if w not in STOPWORDS]
+    try:
+        norm = normalizar_sustantivos_clave(",".join(ws)) or ""
+    except Exception:
+        return ""
+    ok = [t for t in norm.split(",") if re.fullmatch(r"[a-z0-9_ñ]{2,15}", t)]
+    return ",".join(list(dict.fromkeys(ok))[:n])
