@@ -27,7 +27,9 @@ def recordar(tmp_path, monkeypatch):
     monkeypatch.setenv("BIORAG_NEURONA", "0")
     from core.memory_service import reset_cerebro
     from core.memory_store import SQLiteMemoryBioRAG
+    from core.pmi_semantico import invalidar_cache
     reset_cerebro()
+    invalidar_cache()   # el caché PMI es global del proceso y no distingue DBs: otra prueba pudo llenarlo
     vistos = []
     real = SQLiteMemoryBioRAG.buscar_por_frase
 
@@ -44,6 +46,7 @@ def recordar(tmp_path, monkeypatch):
         return vistos[0]
     yield llamar
     reset_cerebro()
+    invalidar_cache()
 
 
 def test_por_defecto_no_inventa_parafrasis_ni_dimensiones(recordar, monkeypatch):
