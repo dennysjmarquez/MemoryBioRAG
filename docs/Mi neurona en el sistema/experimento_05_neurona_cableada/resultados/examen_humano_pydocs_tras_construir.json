@@ -1,0 +1,19 @@
+{
+ "a_mano": {
+  "n": 164,
+  "r1": 42.07,
+  "r5": 56.1,
+  "mrr": 0.481
+ },
+ "neurona": {
+  "n": 164,
+  "r1": 42.07,
+  "r5": 56.1,
+  "mrr": 0.481
+ },
+ "gana": 0,
+ "pierde": 0,
+ "casos_ganados": [],
+ "casos_perdidos": [],
+ "salen_del_top5": 0
+}

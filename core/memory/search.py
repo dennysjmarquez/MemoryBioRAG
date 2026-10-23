@@ -20,6 +20,7 @@ import numpy as np
 
 from core.stemmer_es import _quitar_acentos
 from core.memory import constants
+from core.memory import neurona
 
 logger = logging.getLogger("BioRAG.MemoryStore")
 
@@ -71,7 +72,14 @@ def buscar_por_frase(self, frase, profundidad="activos", pagina=1, limite=None, 
     Retorna (resultados, total) donde resultados es lista de
     (concepto, contenido, peso, estado, score, asociaciones)
     """
-    self.notificar_actividad_usuario()
+    # Neurona (core/memory/neurona.py): las búsquedas de práctica del autoexamen
+    # van "en silencio" — no cuentan como actividad del usuario.
+    _neurona_silencio = neurona.silencio(self)
+    if not _neurona_silencio:
+        self.notificar_actividad_usuario()
+    _neurona_anotar = neurona.necesita_rasgos(self)
+    _neurona_rasgos = {}
+    _neurona_frase = frase  # original: la regla de identidad compara con lo que escribió el usuario
     self.last_parent_map = {}  # Reset parent pointers for this search
     # Side-channels for the optional final rank adjustment. The public tuple
     # keeps one coherent score (the score actually used for ordering); consumers
@@ -1750,7 +1758,7 @@ def buscar_por_frase(self, frase, profundidad="activos", pagina=1, limite=None, 
                 # Nodo no relacionado: sin boost
                 hub_val = 0.0
 
-        score_hibrido = self._calcular_score_hibrido(
+        _kw_hibrido = dict(
             bm25_norm=bm25_norm_map.get(concepto, 0.0),
             dim_score=dim_score,
             peso_sinaptico=0.0 if ignore_peso_sinaptico else peso,
@@ -1772,6 +1780,10 @@ def buscar_por_frase(self, frase, profundidad="activos", pagina=1, limite=None, 
             analogia_score=analogia_map.get(concepto, 0.0),
             campo_score=campo_map.get(concepto, 0.0),
         )
+        score_hibrido = self._calcular_score_hibrido(**_kw_hibrido)
+        if _neurona_anotar and concepto not in _neurona_rasgos:
+            # Lo que vio cada aguja de este candidato (para la neurona); no cambia el score.
+            _neurona_rasgos[concepto] = (neurona.rasgos(_kw_hibrido), score_hibrido)
 
         # ── Convergencia Multi-Campo (Spec-006) ──────────────────────────────
         if (constants.CONVERGENCIA_ACTIVA
@@ -2207,6 +2219,13 @@ def buscar_por_frase(self, frase, profundidad="activos", pagina=1, limite=None, 
         if self.last_score_base_map:
             self.last_score_base_top = max(self.last_score_base_map.values(), default=None)
 
+    # Neurona: reordena SOLO el top-5 final (mismos nodos, mismos scores reasignados).
+    # Sin campeón aprendido (DB nueva, BIORAG_NEURONA=0) devuelve la página intacta.
+    if _neurona_anotar:
+        self.last_neurona_rasgos = _neurona_rasgos
+        if pagina == 1 and ordenar_por == "relevancia" and not _neurona_silencio:
+            pagina_resultados = neurona.reordenar(self, _neurona_frase, pagina_resultados, _neurona_rasgos)
+
     # Context window: expandir cada resultado con vecinos por sinapsis
     if context_window and context_window > 0 and pagina_resultados:
         primarios_ctx, vecinos_ctx = self.expandir_contexto_vecinos(
@@ -2290,7 +2309,7 @@ def buscar_por_frase(self, frase, profundidad="activos", pagina=1, limite=None, 
     # Alimenta el cálculo de Base-Level Activation para la Ley de Potencia.
     # Solo opera fuera del entorno de benchmarking o telemetría silenciada.
     # =====================================================================
-    if pagina_resultados and os.environ.get("BIORAG_NO_LOG") != "1":
+    if pagina_resultados and os.environ.get("BIORAG_NO_LOG") != "1" and not _neurona_silencio:
         try:
             ahora_acc = time.time()
             for r in pagina_resultados:
@@ -2301,7 +2320,7 @@ def buscar_por_frase(self, frase, profundidad="activos", pagina=1, limite=None, 
 
     # Phase 2D: Telemetría de búsquedas (non-blocking)
     # Respeta BIORAG_NO_LOG=1 para no contaminar el log con consultas de test/benchmark
-    if os.environ.get("BIORAG_NO_LOG") == "1":
+    if os.environ.get("BIORAG_NO_LOG") == "1" or _neurona_silencio:
         self.last_log_id = None
     else:
         try:
@@ -2337,7 +2356,7 @@ def buscar_por_frase(self, frase, profundidad="activos", pagina=1, limite=None, 
     # buscar_por_frase es motor de búsqueda puro: devuelve todo lo que
     # encuentre, sin filtro de calidad. El consumidor decide.
     # OPT-NUEVA-5: solo publica metadatos (side-channel); ranking intacto.
-    if constants.EPISTEMICO_METADATA:
+    if constants.EPISTEMICO_METADATA and not _neurona_silencio:
         self._epistemico_publicar(frase, pagina_resultados, total)
     self.last_pagina_resultados = pagina_resultados
     return pagina_resultados, total

@@ -750,3 +750,12 @@ def ciclo_sueno_consolidacion(self):
     # en el siguiente ciclo. Solo se invalida cuando auto_clustering agrega nuevas dims.
 
     print("[MemoryBioRAG] Proceso de consolidación y equilibrio sináptico completado con éxito.")
+
+    # Neurona: aprende en vivo de los recuerdos recién consolidados (costo fijo:
+    # examina BIORAG_NEURONA_NODOS recuerdos sin importar el tamaño de la DB).
+    try:
+        from core.memory import neurona
+
+        neurona.practicar(self, [c for c, *_ in (recuerdos_sesion or [])])
+    except Exception:
+        pass

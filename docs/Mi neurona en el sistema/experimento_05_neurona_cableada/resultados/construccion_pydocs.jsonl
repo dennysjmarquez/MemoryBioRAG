@@ -1,0 +1,279 @@
+{"n": 1, "ms_aprender": 76, "neurona": {"estudio": 0, "guardia": 0, "fase": "juntando examen", "nuevas": 0, "campeon": false, "ms": 28}}
+{"n": 2, "ms_aprender": 66, "neurona": {"estudio": 0, "guardia": 0, "fase": "juntando examen", "nuevas": 0, "campeon": false, "ms": 50}}
+{"n": 3, "ms_aprender": 56, "neurona": {"estudio": 0, "guardia": 0, "fase": "juntando examen", "nuevas": 0, "campeon": false, "ms": 43}}
+{"n": 4, "ms_aprender": 83, "neurona": {"estudio": 0, "guardia": 1, "fase": "juntando examen", "nuevas": 1, "campeon": false, "ms": 63}}
+{"n": 5, "ms_aprender": 106, "neurona": {"estudio": 0, "guardia": 1, "fase": "juntando examen", "nuevas": 0, "campeon": false, "ms": 88}}
+{"n": 6, "ms_aprender": 107, "neurona": {"estudio": 2, "guardia": 1, "fase": "juntando examen", "nuevas": 2, "campeon": false, "ms": 85}}
+{"n": 7, "ms_aprender": 96, "neurona": {"estudio": 3, "guardia": 1, "fase": "juntando examen", "nuevas": 1, "campeon": false, "ms": 82}}
+{"n": 8, "ms_aprender": 98, "neurona": {"estudio": 3, "guardia": 3, "fase": "juntando examen", "nuevas": 2, "campeon": false, "ms": 90}}
+{"n": 9, "ms_aprender": 111, "neurona": {"estudio": 3, "guardia": 6, "fase": "juntando examen", "nuevas": 3, "campeon": false, "ms": 57}}
+{"n": 10, "ms_aprender": 128, "neurona": {"estudio": 5, "guardia": 7, "fase": "juntando examen", "nuevas": 3, "campeon": false, "ms": 115}}
+{"n": 11, "ms_aprender": 130, "neurona": {"estudio": 5, "guardia": 10, "fase": "juntando examen", "nuevas": 3, "campeon": false, "ms": 106}}
+{"n": 12, "ms_aprender": 181, "neurona": {"estudio": 6, "guardia": 10, "fase": "juntando examen", "nuevas": 1, "campeon": false, "ms": 161}}
+{"n": 13, "ms_aprender": 188, "neurona": {"estudio": 6, "guardia": 12, "fase": "juntando examen", "nuevas": 2, "campeon": false, "ms": 176}}
+{"n": 14, "ms_aprender": 129, "neurona": {"estudio": 6, "guardia": 14, "fase": "juntando examen", "nuevas": 2, "campeon": false, "ms": 115}}
+{"n": 15, "ms_aprender": 89, "neurona": {"estudio": 6, "guardia": 15, "fase": "juntando examen", "nuevas": 1, "campeon": false, "ms": 80}}
+{"n": 16, "ms_aprender": 87, "neurona": {"estudio": 8, "guardia": 15, "fase": "juntando examen", "nuevas": 2, "campeon": false, "ms": 82}}
+{"n": 17, "ms_aprender": 122, "neurona": {"estudio": 9, "guardia": 17, "fase": "juntando examen", "nuevas": 3, "campeon": false, "ms": 115}}
+{"n": 18, "ms_aprender": 87, "neurona": {"estudio": 9, "guardia": 18, "fase": "juntando examen", "nuevas": 1, "campeon": false, "ms": 80}}
+{"n": 19, "ms_aprender": 73, "neurona": {"estudio": 9, "guardia": 22, "fase": "juntando examen", "nuevas": 4, "campeon": false, "ms": 61}}
+{"n": 20, "ms_aprender": 211, "neurona": {"estudio": 11, "guardia": 22, "fase": "juntando examen", "nuevas": 2, "campeon": false, "ms": 163}}
+{"n": 21, "ms_aprender": 125, "neurona": {"estudio": 13, "guardia": 22, "fase": "juntando examen", "nuevas": 2, "campeon": false, "ms": 108}}
+{"n": 22, "ms_aprender": 89, "neurona": {"estudio": 15, "guardia": 23, "fase": "juntando examen", "nuevas": 3, "campeon": false, "ms": 81}}
+{"n": 23, "ms_aprender": 37, "neurona": {"estudio": 17, "guardia": 25, "fase": "juntando examen", "nuevas": 4, "campeon": false, "ms": 25}}
+{"n": 24, "ms_aprender": 135, "neurona": {"estudio": 19, "guardia": 25, "fase": "juntando examen", "nuevas": 2, "campeon": false, "ms": 113}}
+{"n": 25, "ms_aprender": 205, "neurona": {"estudio": 19, "guardia": 28, "fase": "juntando examen", "nuevas": 3, "campeon": false, "ms": 190}}
+{"n": 26, "ms_aprender": 133, "neurona": {"estudio": 21, "guardia": 30, "fase": "juntando examen", "nuevas": 4, "campeon": false, "ms": 100}}
+{"n": 27, "ms_aprender": 225, "neurona": {"estudio": 22, "guardia": 30, "fase": "juntando examen", "nuevas": 1, "campeon": false, "ms": 205}}
+{"n": 28, "ms_aprender": 139, "neurona": {"estudio": 22, "guardia": 32, "fase": "juntando examen", "nuevas": 2, "campeon": false, "ms": 128}}
+{"n": 29, "ms_aprender": 147, "neurona": {"estudio": 24, "guardia": 32, "fase": "juntando examen", "nuevas": 2, "campeon": false, "ms": 131}}
+{"n": 30, "ms_aprender": 73, "neurona": {"estudio": 25, "guardia": 33, "fase": "juntando examen", "nuevas": 2, "campeon": false, "ms": 54}}
+{"n": 31, "ms_aprender": 58, "neurona": {"estudio": 27, "guardia": 35, "fase": "juntando examen", "nuevas": 4, "campeon": false, "ms": 46}}
+{"n": 32, "ms_aprender": 48, "neurona": {"estudio": 31, "guardia": 35, "fase": "juntando examen", "nuevas": 4, "campeon": false, "ms": 38}}
+{"n": 33, "ms_aprender": 168, "neurona": {"estudio": 33, "guardia": 35, "fase": "juntando examen", "nuevas": 2, "campeon": false, "ms": 152}}
+{"n": 34, "ms_aprender": 103, "neurona": {"estudio": 35, "guardia": 36, "fase": "juntando examen", "nuevas": 3, "campeon": false, "ms": 84}}
+{"n": 35, "ms_aprender": 243, "neurona": {"estudio": 36, "guardia": 37, "fase": "juntando examen", "nuevas": 2, "campeon": false, "ms": 219}}
+{"n": 36, "ms_aprender": 184, "neurona": {"estudio": 38, "guardia": 39, "fase": "juntando examen", "nuevas": 4, "campeon": false, "ms": 134}}
+{"n": 37, "ms_aprender": 234, "neurona": {"estudio": 42, "guardia": 39, "fase": "juntando examen", "nuevas": 4, "campeon": false, "ms": 201}}
+{"n": 38, "ms_aprender": 127, "neurona": {"estudio": 44, "guardia": 41, "fase": "juntando examen", "nuevas": 4, "campeon": false, "ms": 81}}
+{"n": 39, "ms_aprender": 327, "neurona": {"estudio": 47, "guardia": 41, "fase": "juntando examen", "nuevas": 3, "campeon": false, "ms": 290}}
+{"n": 40, "ms_aprender": 203, "neurona": {"estudio": 48, "guardia": 41, "fase": "juntando examen", "nuevas": 1, "campeon": false, "ms": 181}}
+{"n": 41, "ms_aprender": 236, "neurona": {"estudio": 50, "guardia": 41, "fase": "juntando examen", "nuevas": 2, "campeon": false, "ms": 193}}
+{"n": 42, "ms_aprender": 166, "neurona": {"estudio": 54, "guardia": 41, "fase": "juntando examen", "nuevas": 4, "campeon": false, "ms": 155}}
+{"n": 43, "ms_aprender": 120, "neurona": {"estudio": 58, "guardia": 41, "fase": "juntando examen", "nuevas": 4, "campeon": false, "ms": 93}}
+{"n": 44, "ms_aprender": 169, "neurona": {"estudio": 61, "guardia": 41, "fase": "juntando examen", "nuevas": 3, "campeon": false, "ms": 83}}
+{"n": 45, "ms_aprender": 239, "neurona": {"estudio": 63, "guardia": 41, "fase": "juntando examen", "nuevas": 2, "campeon": false, "ms": 221}}
+{"n": 46, "ms_aprender": 103, "neurona": {"estudio": 65, "guardia": 42, "fase": "juntando examen", "nuevas": 3, "campeon": false, "ms": 84}}
+{"n": 47, "ms_aprender": 137, "neurona": {"estudio": 68, "guardia": 42, "fase": "juntando examen", "nuevas": 3, "campeon": false, "ms": 120}}
+{"n": 48, "ms_aprender": 418, "neurona": {"estudio": 68, "guardia": 42, "fase": "juntando examen", "nuevas": 0, "campeon": false, "ms": 390}}
+{"n": 49, "ms_aprender": 341, "neurona": {"estudio": 70, "guardia": 42, "fase": "juntando examen", "nuevas": 2, "campeon": false, "ms": 317}}
+{"n": 50, "ms_aprender": 305, "neurona": {"estudio": 71, "guardia": 44, "fase": "juntando examen", "nuevas": 3, "campeon": false, "ms": 287}, "ms_sueno": 283, "neurona_sueno": {"estudio": 75, "guardia": 44, "fase": "juntando examen", "nuevas": 4, "campeon": false, "ms": 97}}
+{"n": 51, "ms_aprender": 220, "neurona": {"estudio": 77, "guardia": 45, "fase": "juntando examen", "nuevas": 3, "campeon": false, "ms": 196}}
+{"n": 52, "ms_aprender": 60, "neurona": {"estudio": 81, "guardia": 45, "fase": "juntando examen", "nuevas": 4, "campeon": false, "ms": 37}}
+{"n": 53, "ms_aprender": 179, "neurona": {"estudio": 84, "guardia": 45, "fase": "juntando examen", "nuevas": 3, "campeon": false, "ms": 153}}
+{"n": 54, "ms_aprender": 98, "neurona": {"estudio": 88, "guardia": 45, "fase": "juntando examen", "nuevas": 4, "campeon": false, "ms": 67}}
+{"n": 55, "ms_aprender": 299, "neurona": {"estudio": 91, "guardia": 45, "fase": "juntando examen", "nuevas": 3, "campeon": false, "ms": 267}}
+{"n": 56, "ms_aprender": 226, "neurona": {"estudio": 94, "guardia": 45, "fase": "juntando examen", "nuevas": 3, "campeon": false, "ms": 189}}
+{"n": 57, "ms_aprender": 323, "neurona": {"estudio": 95, "guardia": 45, "fase": "juntando examen", "nuevas": 1, "campeon": false, "ms": 301}}
+{"n": 58, "ms_aprender": 96, "neurona": {"estudio": 99, "guardia": 45, "fase": "juntando examen", "nuevas": 4, "campeon": false, "ms": 58}}
+{"n": 59, "ms_aprender": 159, "neurona": {"estudio": 101, "guardia": 45, "fase": "juntando examen", "nuevas": 2, "campeon": false, "ms": 126}}
+{"n": 60, "ms_aprender": 272, "neurona": {"estudio": 103, "guardia": 45, "fase": "juntando examen", "nuevas": 2, "campeon": false, "ms": 234}}
+{"n": 61, "ms_aprender": 67, "neurona": {"estudio": 107, "guardia": 45, "fase": "juntando examen", "nuevas": 4, "campeon": false, "ms": 36}}
+{"n": 62, "ms_aprender": 231, "neurona": {"estudio": 111, "guardia": 45, "fase": "juntando examen", "nuevas": 4, "campeon": false, "ms": 208}}
+{"n": 63, "ms_aprender": 247, "neurona": {"estudio": 114, "guardia": 45, "fase": "juntando examen", "nuevas": 3, "campeon": false, "ms": 203}}
+{"n": 64, "ms_aprender": 219, "neurona": {"estudio": 117, "guardia": 45, "fase": "juntando examen", "nuevas": 3, "campeon": false, "ms": 179}}
+{"n": 65, "ms_aprender": 299, "neurona": {"estudio": 117, "guardia": 47, "fase": "juntando examen", "nuevas": 2, "campeon": false, "ms": 262}}
+{"n": 66, "ms_aprender": 123, "neurona": {"estudio": 121, "guardia": 47, "fase": "juntando examen", "nuevas": 4, "campeon": false, "ms": 85}}
+{"n": 67, "ms_aprender": 205, "neurona": {"estudio": 121, "guardia": 50, "fase": "juntando examen", "nuevas": 3, "campeon": false, "ms": 161}}
+{"n": 68, "ms_aprender": 407, "neurona": {"estudio": 124, "guardia": 50, "fase": "juntando examen", "nuevas": 3, "campeon": false, "ms": 341}}
+{"n": 69, "ms_aprender": 252, "neurona": {"estudio": 128, "guardia": 50, "fase": "juntando examen", "nuevas": 4, "campeon": false, "ms": 232}}
+{"n": 70, "ms_aprender": 286, "neurona": {"estudio": 129, "guardia": 52, "fase": "juntando examen", "nuevas": 3, "campeon": false, "ms": 233}}
+{"n": 71, "ms_aprender": 222, "neurona": {"estudio": 132, "guardia": 52, "fase": "juntando examen", "nuevas": 3, "campeon": false, "ms": 180}}
+{"n": 72, "ms_aprender": 262, "neurona": {"estudio": 134, "guardia": 52, "fase": "juntando examen", "nuevas": 2, "campeon": false, "ms": 241}}
+{"n": 73, "ms_aprender": 404, "neurona": {"estudio": 136, "guardia": 52, "fase": "juntando examen", "nuevas": 2, "campeon": false, "ms": 378}}
+{"n": 74, "ms_aprender": 327, "neurona": {"estudio": 140, "guardia": 52, "fase": "juntando examen", "nuevas": 4, "campeon": false, "ms": 276}}
+{"n": 75, "ms_aprender": 155, "neurona": {"estudio": 144, "guardia": 52, "fase": "juntando examen", "nuevas": 4, "campeon": false, "ms": 99}}
+{"n": 76, "ms_aprender": 263, "neurona": {"estudio": 147, "guardia": 52, "fase": "juntando examen", "nuevas": 3, "campeon": false, "ms": 230}}
+{"n": 77, "ms_aprender": 88, "neurona": {"estudio": 151, "guardia": 52, "guardia_mano": 0.9615, "guardia_retador": 0.9423, "guardia_campeon": 0.9615, "fase": "estudiando", "nuevas": 4, "campeon": false, "ms": 60}}
+{"n": 78, "ms_aprender": 121, "neurona": {"estudio": 154, "guardia": 52, "guardia_mano": 0.9615, "guardia_retador": 0.9423, "guardia_campeon": 0.9615, "fase": "estudiando", "nuevas": 3, "campeon": false, "ms": 95}}
+{"n": 79, "ms_aprender": 120, "neurona": {"estudio": 156, "guardia": 54, "guardia_mano": 0.963, "guardia_retador": 0.9444, "guardia_campeon": 0.963, "fase": "estudiando", "nuevas": 4, "campeon": false, "ms": 44}}
+{"n": 80, "ms_aprender": 87, "neurona": {"estudio": 160, "guardia": 54, "guardia_mano": 0.963, "guardia_retador": 0.9444, "guardia_campeon": 0.963, "fase": "estudiando", "nuevas": 4, "campeon": false, "ms": 61}}
+{"n": 81, "ms_aprender": 265, "neurona": {"estudio": 163, "guardia": 54, "guardia_mano": 0.963, "guardia_retador": 0.9444, "guardia_campeon": 0.963, "fase": "estudiando", "nuevas": 3, "campeon": false, "ms": 234}}
+{"n": 82, "ms_aprender": 236, "neurona": {"estudio": 166, "guardia": 54, "guardia_mano": 0.963, "guardia_retador": 0.9444, "guardia_campeon": 0.963, "fase": "estudiando", "nuevas": 3, "campeon": false, "ms": 192}}
+{"n": 83, "ms_aprender": 372, "neurona": {"estudio": 168, "guardia": 54, "guardia_mano": 0.963, "guardia_retador": 0.9815, "guardia_campeon": 0.963, "fase": "estudiando", "nuevas": 2, "campeon": false, "ms": 308}}
+{"n": 84, "ms_aprender": 105, "neurona": {"estudio": 172, "guardia": 54, "guardia_mano": 0.963, "guardia_retador": 0.9815, "guardia_campeon": 0.9815, "fase": "ascenso", "nuevas": 4, "campeon": true, "ms": 68}}
+{"n": 85, "ms_aprender": 352, "neurona": {"estudio": 174, "guardia": 54, "guardia_mano": 0.963, "guardia_retador": 0.9815, "guardia_campeon": 0.9815, "fase": "estudiando", "nuevas": 2, "campeon": true, "ms": 294}}
+{"n": 86, "ms_aprender": 342, "neurona": {"estudio": 178, "guardia": 54, "guardia_mano": 0.963, "guardia_retador": 0.9815, "guardia_campeon": 0.9815, "fase": "estudiando", "nuevas": 4, "campeon": true, "ms": 307}}
+{"n": 87, "ms_aprender": 168, "neurona": {"estudio": 179, "guardia": 56, "guardia_mano": 0.9643, "guardia_retador": 0.9821, "guardia_campeon": 0.9821, "fase": "estudiando", "nuevas": 3, "campeon": true, "ms": 73}}
+{"n": 88, "ms_aprender": 310, "neurona": {"estudio": 180, "guardia": 56, "guardia_mano": 0.9643, "guardia_retador": 0.9821, "guardia_campeon": 0.9821, "fase": "ascenso", "nuevas": 1, "campeon": true, "ms": 241}}
+{"n": 89, "ms_aprender": 203, "neurona": {"estudio": 182, "guardia": 58, "guardia_mano": 0.9655, "guardia_retador": 0.9828, "guardia_campeon": 0.9828, "fase": "estudiando", "nuevas": 4, "campeon": true, "ms": 123}}
+{"n": 90, "ms_aprender": 524, "neurona": {"estudio": 184, "guardia": 60, "guardia_mano": 0.9667, "guardia_retador": 0.9833, "guardia_campeon": 0.9833, "fase": "estudiando", "nuevas": 4, "campeon": true, "ms": 488}}
+{"n": 91, "ms_aprender": 254, "neurona": {"estudio": 186, "guardia": 62, "guardia_mano": 0.9677, "guardia_retador": 0.9839, "guardia_campeon": 0.9839, "fase": "estudiando", "nuevas": 4, "campeon": true, "ms": 202}}
+{"n": 92, "ms_aprender": 185, "neurona": {"estudio": 188, "guardia": 63, "guardia_mano": 0.9683, "guardia_retador": 0.9841, "guardia_campeon": 0.9841, "fase": "estudiando", "nuevas": 3, "campeon": true, "ms": 155}}
+{"n": 93, "ms_aprender": 134, "neurona": {"estudio": 191, "guardia": 63, "guardia_mano": 0.9683, "guardia_retador": 0.9841, "guardia_campeon": 0.9841, "fase": "estudiando", "nuevas": 3, "campeon": true, "ms": 75}}
+{"n": 94, "ms_aprender": 628, "neurona": {"estudio": 193, "guardia": 63, "guardia_mano": 0.9683, "guardia_retador": 0.9841, "guardia_campeon": 0.9841, "fase": "estudiando", "nuevas": 2, "campeon": true, "ms": 582}}
+{"n": 95, "ms_aprender": 358, "neurona": {"estudio": 197, "guardia": 63, "guardia_mano": 0.9683, "guardia_retador": 0.9841, "guardia_campeon": 0.9841, "fase": "estudiando", "nuevas": 4, "campeon": true, "ms": 309}}
+{"n": 96, "ms_aprender": 427, "neurona": {"estudio": 200, "guardia": 63, "guardia_mano": 0.9683, "guardia_retador": 0.9841, "guardia_campeon": 0.9841, "fase": "estudiando", "nuevas": 3, "campeon": true, "ms": 367}}
+{"n": 97, "ms_aprender": 307, "neurona": {"estudio": 203, "guardia": 63, "guardia_mano": 0.9683, "guardia_retador": 0.9841, "guardia_campeon": 0.9841, "fase": "estudiando", "nuevas": 3, "campeon": true, "ms": 264}}
+{"n": 98, "ms_aprender": 366, "neurona": {"estudio": 205, "guardia": 65, "guardia_mano": 0.9692, "guardia_retador": 0.9846, "guardia_campeon": 0.9846, "fase": "estudiando", "nuevas": 4, "campeon": true, "ms": 322}}
+{"n": 99, "ms_aprender": 341, "neurona": {"estudio": 208, "guardia": 65, "guardia_mano": 0.9692, "guardia_retador": 0.9846, "guardia_campeon": 0.9846, "fase": "estudiando", "nuevas": 3, "campeon": true, "ms": 283}}
+{"n": 100, "ms_aprender": 243, "neurona": {"estudio": 210, "guardia": 67, "guardia_mano": 0.9701, "guardia_retador": 0.9851, "guardia_campeon": 0.9851, "fase": "tranquila (techo)", "nuevas": 4, "campeon": true, "ms": 204}, "ms_sueno": 304, "neurona_sueno": {"estudio": 212, "guardia": 67, "fase": "tranquila", "guardia_campeon": 0.9851, "guardia_mano": 0.9701, "nuevas": 2, "campeon": true, "ms": 74}}
+{"n": 101, "ms_aprender": 151, "neurona": {"estudio": 212, "guardia": 69, "fase": "tranquila", "guardia_campeon": 0.9855, "guardia_mano": 0.971, "nuevas": 2, "campeon": true, "ms": 99}}
+{"n": 102, "ms_aprender": 229, "neurona": {"estudio": 213, "guardia": 69, "fase": "tranquila", "guardia_campeon": 0.9855, "guardia_mano": 0.971, "nuevas": 1, "campeon": true, "ms": 183}}
+{"n": 103, "ms_aprender": 94, "neurona": {"estudio": 215, "guardia": 69, "fase": "tranquila", "guardia_campeon": 0.9855, "guardia_mano": 0.971, "nuevas": 2, "campeon": true, "ms": 47}}
+{"n": 104, "ms_aprender": 75, "neurona": {"estudio": 217, "guardia": 69, "fase": "tranquila", "guardia_campeon": 0.9855, "guardia_mano": 0.971, "nuevas": 2, "campeon": true, "ms": 30}}
+{"n": 105, "ms_aprender": 140, "neurona": {"estudio": 218, "guardia": 69, "fase": "tranquila", "guardia_campeon": 0.9855, "guardia_mano": 0.971, "nuevas": 1, "campeon": true, "ms": 102}}
+{"n": 106, "ms_aprender": 129, "neurona": {"estudio": 220, "guardia": 69, "fase": "tranquila", "guardia_campeon": 0.9855, "guardia_mano": 0.971, "nuevas": 2, "campeon": true, "ms": 47}}
+{"n": 107, "ms_aprender": 125, "neurona": {"estudio": 220, "guardia": 71, "fase": "tranquila", "guardia_campeon": 0.9859, "guardia_mano": 0.9718, "nuevas": 2, "campeon": true, "ms": 27}}
+{"n": 108, "ms_aprender": 370, "neurona": {"estudio": 222, "guardia": 71, "fase": "tranquila", "guardia_campeon": 0.9859, "guardia_mano": 0.9718, "nuevas": 2, "campeon": true, "ms": 263}}
+{"n": 109, "ms_aprender": 257, "neurona": {"estudio": 224, "guardia": 71, "fase": "tranquila", "guardia_campeon": 0.9859, "guardia_mano": 0.9718, "nuevas": 2, "campeon": true, "ms": 166}}
+{"n": 110, "ms_aprender": 198, "neurona": {"estudio": 225, "guardia": 71, "fase": "tranquila", "guardia_campeon": 0.9859, "guardia_mano": 0.9718, "nuevas": 1, "campeon": true, "ms": 158}}
+{"n": 111, "ms_aprender": 307, "neurona": {"estudio": 227, "guardia": 71, "fase": "tranquila", "guardia_campeon": 0.9859, "guardia_mano": 0.9718, "nuevas": 2, "campeon": true, "ms": 189}}
+{"n": 112, "ms_aprender": 259, "neurona": {"estudio": 228, "guardia": 71, "fase": "tranquila", "guardia_campeon": 0.9859, "guardia_mano": 0.9718, "nuevas": 1, "campeon": true, "ms": 190}}
+{"n": 113, "ms_aprender": 141, "neurona": {"estudio": 230, "guardia": 71, "fase": "tranquila", "guardia_campeon": 0.9859, "guardia_mano": 0.9718, "nuevas": 2, "campeon": true, "ms": 59}}
+{"n": 114, "ms_aprender": 92, "neurona": {"estudio": 232, "guardia": 71, "fase": "tranquila", "guardia_campeon": 0.9859, "guardia_mano": 0.9718, "nuevas": 2, "campeon": true, "ms": 26}}
+{"n": 115, "ms_aprender": 134, "neurona": {"estudio": 234, "guardia": 71, "fase": "tranquila", "guardia_campeon": 0.9859, "guardia_mano": 0.9718, "nuevas": 2, "campeon": true, "ms": 61}}
+{"n": 116, "ms_aprender": 126, "neurona": {"estudio": 234, "guardia": 73, "fase": "tranquila", "guardia_campeon": 0.9863, "guardia_mano": 0.9726, "nuevas": 2, "campeon": true, "ms": 37}}
+{"n": 117, "ms_aprender": 358, "neurona": {"estudio": 236, "guardia": 73, "fase": "tranquila", "guardia_campeon": 0.9863, "guardia_mano": 0.9726, "nuevas": 2, "campeon": true, "ms": 270}}
+{"n": 118, "ms_aprender": 103, "neurona": {"estudio": 236, "guardia": 75, "fase": "tranquila", "guardia_campeon": 0.9867, "guardia_mano": 0.9733, "nuevas": 2, "campeon": true, "ms": 40}}
+{"n": 119, "ms_aprender": 286, "neurona": {"estudio": 238, "guardia": 75, "fase": "tranquila", "guardia_campeon": 0.9867, "guardia_mano": 0.9733, "nuevas": 2, "campeon": true, "ms": 172}}
+{"n": 120, "ms_aprender": 191, "neurona": {"estudio": 240, "guardia": 75, "fase": "tranquila", "guardia_campeon": 0.9867, "guardia_mano": 0.9733, "nuevas": 2, "campeon": true, "ms": 145}}
+{"n": 121, "ms_aprender": 203, "neurona": {"estudio": 241, "guardia": 75, "fase": "tranquila", "guardia_campeon": 0.9867, "guardia_mano": 0.9733, "nuevas": 1, "campeon": true, "ms": 161}}
+{"n": 122, "ms_aprender": 294, "neurona": {"estudio": 241, "guardia": 76, "fase": "tranquila", "guardia_campeon": 0.9868, "guardia_mano": 0.9737, "nuevas": 1, "campeon": true, "ms": 231}}
+{"n": 123, "ms_aprender": 270, "neurona": {"estudio": 243, "guardia": 76, "fase": "tranquila", "guardia_campeon": 0.9868, "guardia_mano": 0.9737, "nuevas": 2, "campeon": true, "ms": 194}}
+{"n": 124, "ms_aprender": 226, "neurona": {"estudio": 245, "guardia": 76, "fase": "tranquila", "guardia_campeon": 0.9868, "guardia_mano": 0.9737, "nuevas": 2, "campeon": true, "ms": 161}}
+{"n": 125, "ms_aprender": 95, "neurona": {"estudio": 245, "guardia": 78, "fase": "tranquila", "guardia_campeon": 0.9872, "guardia_mano": 0.9744, "nuevas": 2, "campeon": true, "ms": 34}}
+{"n": 126, "ms_aprender": 312, "neurona": {"estudio": 246, "guardia": 78, "fase": "tranquila", "guardia_campeon": 0.9872, "guardia_mano": 0.9744, "nuevas": 1, "campeon": true, "ms": 227}}
+{"n": 127, "ms_aprender": 208, "neurona": {"estudio": 248, "guardia": 78, "fase": "tranquila", "guardia_campeon": 0.9872, "guardia_mano": 0.9744, "nuevas": 2, "campeon": true, "ms": 119}}
+{"n": 128, "ms_aprender": 235, "neurona": {"estudio": 250, "guardia": 78, "fase": "tranquila", "guardia_campeon": 0.9872, "guardia_mano": 0.9744, "nuevas": 2, "campeon": true, "ms": 152}}
+{"n": 129, "ms_aprender": 230, "neurona": {"estudio": 250, "guardia": 80, "fase": "tranquila", "guardia_campeon": 0.9875, "guardia_mano": 0.975, "nuevas": 2, "campeon": true, "ms": 154}}
+{"n": 130, "ms_aprender": 137, "neurona": {"estudio": 252, "guardia": 80, "fase": "tranquila", "guardia_campeon": 0.9875, "guardia_mano": 0.975, "nuevas": 2, "campeon": true, "ms": 71}}
+{"n": 131, "ms_aprender": 163, "neurona": {"estudio": 253, "guardia": 80, "fase": "tranquila", "guardia_campeon": 0.9875, "guardia_mano": 0.975, "nuevas": 1, "campeon": true, "ms": 112}}
+{"n": 132, "ms_aprender": 106, "neurona": {"estudio": 255, "guardia": 80, "fase": "tranquila", "guardia_campeon": 0.9875, "guardia_mano": 0.975, "nuevas": 2, "campeon": true, "ms": 39}}
+{"n": 133, "ms_aprender": 200, "neurona": {"estudio": 255, "guardia": 82, "fase": "tranquila", "guardia_campeon": 0.9878, "guardia_mano": 0.9634, "nuevas": 2, "campeon": true, "ms": 138}}
+{"n": 134, "ms_aprender": 195, "neurona": {"estudio": 256, "guardia": 82, "fase": "tranquila", "guardia_campeon": 0.9878, "guardia_mano": 0.9634, "nuevas": 1, "campeon": true, "ms": 114}}
+{"n": 135, "ms_aprender": 58, "neurona": {"estudio": 258, "guardia": 82, "fase": "tranquila", "guardia_campeon": 0.9878, "guardia_mano": 0.9634, "nuevas": 2, "campeon": true, "ms": 22}}
+{"n": 136, "ms_aprender": 190, "neurona": {"estudio": 260, "guardia": 82, "fase": "tranquila", "guardia_campeon": 0.9878, "guardia_mano": 0.9634, "nuevas": 2, "campeon": true, "ms": 119}}
+{"n": 137, "ms_aprender": 305, "neurona": {"estudio": 261, "guardia": 82, "fase": "tranquila", "guardia_campeon": 0.9878, "guardia_mano": 0.9634, "nuevas": 1, "campeon": true, "ms": 231}}
+{"n": 138, "ms_aprender": 302, "neurona": {"estudio": 261, "guardia": 84, "fase": "tranquila", "guardia_campeon": 0.9881, "guardia_mano": 0.9643, "nuevas": 2, "campeon": true, "ms": 208}}
+{"n": 139, "ms_aprender": 127, "neurona": {"estudio": 263, "guardia": 84, "fase": "tranquila", "guardia_campeon": 0.9881, "guardia_mano": 0.9643, "nuevas": 2, "campeon": true, "ms": 51}}
+{"n": 140, "ms_aprender": 193, "neurona": {"estudio": 264, "guardia": 84, "fase": "tranquila", "guardia_campeon": 0.9881, "guardia_mano": 0.9643, "nuevas": 1, "campeon": true, "ms": 120}}
+{"n": 141, "ms_aprender": 360, "neurona": {"estudio": 265, "guardia": 84, "fase": "tranquila", "guardia_campeon": 0.9881, "guardia_mano": 0.9643, "nuevas": 1, "campeon": true, "ms": 282}}
+{"n": 142, "ms_aprender": 367, "neurona": {"estudio": 266, "guardia": 84, "fase": "tranquila", "guardia_campeon": 0.9881, "guardia_mano": 0.9643, "nuevas": 1, "campeon": true, "ms": 312}}
+{"n": 143, "ms_aprender": 283, "neurona": {"estudio": 266, "guardia": 86, "fase": "tranquila", "guardia_campeon": 0.9767, "guardia_mano": 0.9535, "nuevas": 2, "campeon": true, "ms": 176}}
+{"n": 144, "ms_aprender": 292, "neurona": {"estudio": 267, "guardia": 86, "fase": "tranquila", "guardia_campeon": 0.9767, "guardia_mano": 0.9535, "nuevas": 1, "campeon": true, "ms": 219}}
+{"n": 145, "ms_aprender": 117, "neurona": {"estudio": 269, "guardia": 86, "fase": "tranquila", "guardia_campeon": 0.9767, "guardia_mano": 0.9535, "nuevas": 2, "campeon": true, "ms": 53}}
+{"n": 146, "ms_aprender": 252, "neurona": {"estudio": 271, "guardia": 86, "fase": "tranquila", "guardia_campeon": 0.9767, "guardia_mano": 0.9535, "nuevas": 2, "campeon": true, "ms": 143}}
+{"n": 147, "ms_aprender": 427, "neurona": {"estudio": 272, "guardia": 86, "fase": "tranquila", "guardia_campeon": 0.9767, "guardia_mano": 0.9535, "nuevas": 1, "campeon": true, "ms": 347}}
+{"n": 148, "ms_aprender": 713, "neurona": {"estudio": 274, "guardia": 86, "fase": "tranquila", "guardia_campeon": 0.9767, "guardia_mano": 0.9535, "nuevas": 2, "campeon": true, "ms": 575}}
+{"n": 149, "ms_aprender": 224, "neurona": {"estudio": 274, "guardia": 88, "fase": "tranquila", "guardia_campeon": 0.9773, "guardia_mano": 0.9545, "nuevas": 2, "campeon": true, "ms": 146}}
+{"n": 150, "ms_aprender": 200, "neurona": {"estudio": 275, "guardia": 88, "fase": "tranquila", "guardia_campeon": 0.9773, "guardia_mano": 0.9545, "nuevas": 1, "campeon": true, "ms": 115}, "ms_sueno": 723, "neurona_sueno": {"estudio": 277, "guardia": 88, "fase": "tranquila", "guardia_campeon": 0.9773, "guardia_mano": 0.9545, "nuevas": 2, "campeon": true, "ms": 324}}
+{"n": 151, "ms_aprender": 197, "neurona": {"estudio": 277, "guardia": 90, "fase": "tranquila", "guardia_campeon": 0.9778, "guardia_mano": 0.9556, "nuevas": 2, "campeon": true, "ms": 132}}
+{"n": 152, "ms_aprender": 125, "neurona": {"estudio": 277, "guardia": 92, "fase": "tranquila", "guardia_campeon": 0.9565, "guardia_mano": 0.9348, "nuevas": 2, "campeon": true, "ms": 49}}
+{"n": 153, "ms_aprender": 317, "neurona": {"estudio": 278, "guardia": 92, "fase": "tranquila", "guardia_campeon": 0.9565, "guardia_mano": 0.9348, "nuevas": 1, "campeon": true, "ms": 253}}
+{"n": 154, "ms_aprender": 147, "neurona": {"estudio": 280, "guardia": 92, "fase": "tranquila", "guardia_campeon": 0.9565, "guardia_mano": 0.9348, "nuevas": 2, "campeon": true, "ms": 69}}
+{"n": 155, "ms_aprender": 502, "neurona": {"estudio": 281, "guardia": 92, "fase": "tranquila", "guardia_campeon": 0.9565, "guardia_mano": 0.9348, "nuevas": 1, "campeon": true, "ms": 436}}
+{"n": 156, "ms_aprender": 259, "neurona": {"estudio": 282, "guardia": 92, "fase": "tranquila", "guardia_campeon": 0.9565, "guardia_mano": 0.9348, "nuevas": 1, "campeon": true, "ms": 171}}
+{"n": 157, "ms_aprender": 206, "neurona": {"estudio": 284, "guardia": 92, "fase": "tranquila", "guardia_campeon": 0.9565, "guardia_mano": 0.9348, "nuevas": 2, "campeon": true, "ms": 124}}
+{"n": 158, "ms_aprender": 148, "neurona": {"estudio": 286, "guardia": 92, "fase": "tranquila", "guardia_campeon": 0.9565, "guardia_mano": 0.9348, "nuevas": 2, "campeon": true, "ms": 73}}
+{"n": 159, "ms_aprender": 523, "neurona": {"estudio": 288, "guardia": 92, "fase": "tranquila", "guardia_campeon": 0.9565, "guardia_mano": 0.9348, "nuevas": 2, "campeon": true, "ms": 373}}
+{"n": 160, "ms_aprender": 196, "neurona": {"estudio": 288, "guardia": 94, "fase": "tranquila", "guardia_campeon": 0.9574, "guardia_mano": 0.9362, "nuevas": 2, "campeon": true, "ms": 127}}
+{"n": 161, "ms_aprender": 301, "neurona": {"estudio": 289, "guardia": 94, "fase": "tranquila", "guardia_campeon": 0.9574, "guardia_mano": 0.9362, "nuevas": 1, "campeon": true, "ms": 230}}
+{"n": 162, "ms_aprender": 158, "neurona": {"estudio": 291, "guardia": 94, "fase": "tranquila", "guardia_campeon": 0.9574, "guardia_mano": 0.9362, "nuevas": 2, "campeon": true, "ms": 92}}
+{"n": 163, "ms_aprender": 215, "neurona": {"estudio": 291, "guardia": 96, "fase": "tranquila", "guardia_campeon": 0.9583, "guardia_mano": 0.9375, "nuevas": 2, "campeon": true, "ms": 81}}
+{"n": 164, "ms_aprender": 129, "neurona": {"estudio": 293, "guardia": 96, "fase": "tranquila", "guardia_campeon": 0.9583, "guardia_mano": 0.9375, "nuevas": 2, "campeon": true, "ms": 55}}
+{"n": 165, "ms_aprender": 147, "neurona": {"estudio": 295, "guardia": 96, "fase": "tranquila", "guardia_campeon": 0.9583, "guardia_mano": 0.9375, "nuevas": 2, "campeon": true, "ms": 47}}
+{"n": 166, "ms_aprender": 336, "neurona": {"estudio": 297, "guardia": 96, "fase": "tranquila", "guardia_campeon": 0.9583, "guardia_mano": 0.9375, "nuevas": 2, "campeon": true, "ms": 257}}
+{"n": 167, "ms_aprender": 347, "neurona": {"estudio": 297, "guardia": 98, "fase": "tranquila", "guardia_campeon": 0.9592, "guardia_mano": 0.9388, "nuevas": 2, "campeon": true, "ms": 271}}
+{"n": 168, "ms_aprender": 160, "neurona": {"estudio": 299, "guardia": 98, "fase": "tranquila", "guardia_campeon": 0.9592, "guardia_mano": 0.9388, "nuevas": 2, "campeon": true, "ms": 55}}
+{"n": 169, "ms_aprender": 356, "neurona": {"estudio": 301, "guardia": 98, "fase": "tranquila", "guardia_campeon": 0.9592, "guardia_mano": 0.9388, "nuevas": 2, "campeon": true, "ms": 265}}
+{"n": 170, "ms_aprender": 203, "neurona": {"estudio": 303, "guardia": 98, "fase": "tranquila", "guardia_campeon": 0.9592, "guardia_mano": 0.9388, "nuevas": 2, "campeon": true, "ms": 131}}
+{"n": 171, "ms_aprender": 482, "neurona": {"estudio": 305, "guardia": 98, "fase": "tranquila", "guardia_campeon": 0.9592, "guardia_mano": 0.9388, "nuevas": 2, "campeon": true, "ms": 377}}
+{"n": 172, "ms_aprender": 313, "neurona": {"estudio": 305, "guardia": 100, "fase": "tranquila", "guardia_campeon": 0.96, "guardia_mano": 0.94, "nuevas": 2, "campeon": true, "ms": 211}}
+{"n": 173, "ms_aprender": 131, "neurona": {"estudio": 307, "guardia": 100, "fase": "tranquila", "guardia_campeon": 0.96, "guardia_mano": 0.94, "nuevas": 2, "campeon": true, "ms": 49}}
+{"n": 174, "ms_aprender": 448, "neurona": {"estudio": 309, "guardia": 100, "fase": "tranquila", "guardia_campeon": 0.96, "guardia_mano": 0.94, "nuevas": 2, "campeon": true, "ms": 369}}
+{"n": 175, "ms_aprender": 339, "neurona": {"estudio": 311, "guardia": 100, "fase": "tranquila", "guardia_campeon": 0.96, "guardia_mano": 0.94, "nuevas": 2, "campeon": true, "ms": 244}}
+{"n": 176, "ms_aprender": 119, "neurona": {"estudio": 311, "guardia": 102, "fase": "tranquila", "guardia_campeon": 0.9608, "guardia_mano": 0.9412, "nuevas": 2, "campeon": true, "ms": 31}}
+{"n": 177, "ms_aprender": 337, "neurona": {"estudio": 313, "guardia": 102, "fase": "tranquila", "guardia_campeon": 0.9608, "guardia_mano": 0.9412, "nuevas": 2, "campeon": true, "ms": 235}}
+{"n": 178, "ms_aprender": 403, "neurona": {"estudio": 313, "guardia": 103, "fase": "tranquila", "guardia_campeon": 0.9612, "guardia_mano": 0.9417, "nuevas": 1, "campeon": true, "ms": 324}}
+{"n": 179, "ms_aprender": 167, "neurona": {"estudio": 315, "guardia": 103, "fase": "tranquila", "guardia_campeon": 0.9612, "guardia_mano": 0.9417, "nuevas": 2, "campeon": true, "ms": 78}}
+{"n": 180, "ms_aprender": 129, "neurona": {"estudio": 315, "guardia": 105, "fase": "tranquila", "guardia_campeon": 0.9619, "guardia_mano": 0.9429, "nuevas": 2, "campeon": true, "ms": 34}}
+{"n": 181, "ms_aprender": 387, "neurona": {"estudio": 316, "guardia": 105, "fase": "tranquila", "guardia_campeon": 0.9619, "guardia_mano": 0.9429, "nuevas": 1, "campeon": true, "ms": 301}}
+{"n": 182, "ms_aprender": 159, "neurona": {"estudio": 318, "guardia": 105, "fase": "tranquila", "guardia_campeon": 0.9619, "guardia_mano": 0.9429, "nuevas": 2, "campeon": true, "ms": 67}}
+{"n": 183, "ms_aprender": 430, "neurona": {"estudio": 320, "guardia": 105, "fase": "tranquila", "guardia_campeon": 0.9619, "guardia_mano": 0.9429, "nuevas": 2, "campeon": true, "ms": 353}}
+{"n": 184, "ms_aprender": 340, "neurona": {"estudio": 322, "guardia": 105, "guardia_mano": 0.9429, "guardia_retador": 0.9429, "guardia_campeon": 0.9619, "fase": "estudiando", "nuevas": 2, "campeon": true, "ms": 243}}
+{"n": 185, "ms_aprender": 478, "neurona": {"estudio": 324, "guardia": 106, "guardia_mano": 0.9434, "guardia_retador": 0.9434, "guardia_campeon": 0.9623, "fase": "estudiando", "nuevas": 3, "campeon": true, "ms": 384}}
+{"n": 186, "ms_aprender": 599, "neurona": {"estudio": 328, "guardia": 106, "guardia_mano": 0.9434, "guardia_retador": 0.9434, "guardia_campeon": 0.9623, "fase": "estudiando", "nuevas": 4, "campeon": true, "ms": 511}}
+{"n": 187, "ms_aprender": 512, "neurona": {"estudio": 331, "guardia": 106, "guardia_mano": 0.9434, "guardia_retador": 0.9434, "guardia_campeon": 0.9623, "fase": "estudiando", "nuevas": 3, "campeon": true, "ms": 396}}
+{"n": 188, "ms_aprender": 246, "neurona": {"estudio": 331, "guardia": 110, "retiro": true, "guardia_mano": 0.9455, "guardia_retador": 0.9364, "guardia_campeon": 0.9455, "fase": "estudiando", "nuevas": 4, "campeon": false, "ms": 180}}
+{"n": 189, "ms_aprender": 784, "neurona": {"estudio": 335, "guardia": 110, "guardia_mano": 0.9455, "guardia_retador": 0.9364, "guardia_campeon": 0.9455, "fase": "estudiando", "nuevas": 4, "campeon": false, "ms": 696}}
+{"n": 190, "ms_aprender": 588, "neurona": {"estudio": 337, "guardia": 112, "guardia_mano": 0.9464, "guardia_retador": 0.9286, "guardia_campeon": 0.9464, "fase": "estudiando", "reinicio": true, "nuevas": 4, "campeon": false, "ms": 508}}
+{"n": 191, "ms_aprender": 1052, "neurona": {"estudio": 340, "guardia": 112, "guardia_mano": 0.9464, "guardia_retador": 0.9375, "guardia_campeon": 0.9464, "fase": "estudiando", "nuevas": 3, "campeon": false, "ms": 962}}
+{"n": 192, "ms_aprender": 205, "neurona": {"estudio": 342, "guardia": 114, "guardia_mano": 0.9474, "guardia_retador": 0.9386, "guardia_campeon": 0.9474, "fase": "estudiando", "nuevas": 4, "campeon": false, "ms": 104}}
+{"n": 193, "ms_aprender": 311, "neurona": {"estudio": 346, "guardia": 114, "guardia_mano": 0.9474, "guardia_retador": 0.9386, "guardia_campeon": 0.9474, "fase": "estudiando", "nuevas": 4, "campeon": false, "ms": 207}}
+{"n": 194, "ms_aprender": 251, "neurona": {"estudio": 350, "guardia": 114, "guardia_mano": 0.9474, "guardia_retador": 0.9386, "guardia_campeon": 0.9474, "fase": "estudiando", "nuevas": 4, "campeon": false, "ms": 162}}
+{"n": 195, "ms_aprender": 490, "neurona": {"estudio": 353, "guardia": 114, "guardia_mano": 0.9474, "guardia_retador": 0.9386, "guardia_campeon": 0.9474, "fase": "estudiando", "nuevas": 3, "campeon": false, "ms": 371}}
+{"n": 196, "ms_aprender": 1056, "neurona": {"estudio": 356, "guardia": 114, "guardia_mano": 0.9474, "guardia_retador": 0.9386, "guardia_campeon": 0.9474, "fase": "estudiando", "nuevas": 3, "campeon": false, "ms": 971}}
+{"n": 197, "ms_aprender": 455, "neurona": {"estudio": 360, "guardia": 114, "guardia_mano": 0.9474, "guardia_retador": 0.9298, "guardia_campeon": 0.9474, "fase": "estudiando", "nuevas": 4, "campeon": false, "ms": 360}}
+{"n": 198, "ms_aprender": 311, "neurona": {"estudio": 364, "guardia": 114, "guardia_mano": 0.9474, "guardia_retador": 0.9298, "guardia_campeon": 0.9474, "fase": "estudiando", "nuevas": 4, "campeon": false, "ms": 179}}
+{"n": 199, "ms_aprender": 711, "neurona": {"estudio": 364, "guardia": 115, "guardia_mano": 0.9478, "guardia_retador": 0.9304, "guardia_campeon": 0.9478, "fase": "tranquila (techo)", "reinicio": true, "nuevas": 1, "campeon": false, "ms": 648}}
+{"n": 200, "ms_aprender": 508, "neurona": {"estudio": 366, "guardia": 115, "fase": "tranquila", "guardia_campeon": 0.9478, "guardia_mano": 0.9478, "nuevas": 2, "campeon": false, "ms": 426}, "ms_sueno": 872, "neurona_sueno": {"estudio": 366, "guardia": 117, "fase": "tranquila", "guardia_campeon": 0.9487, "guardia_mano": 0.9487, "nuevas": 2, "campeon": false, "ms": 425}}
+{"n": 201, "ms_aprender": 271, "neurona": {"estudio": 366, "guardia": 119, "fase": "tranquila", "guardia_campeon": 0.9412, "guardia_mano": 0.9412, "nuevas": 2, "campeon": false, "ms": 173}}
+{"n": 202, "ms_aprender": 365, "neurona": {"estudio": 366, "guardia": 121, "fase": "tranquila", "guardia_campeon": 0.9421, "guardia_mano": 0.9421, "nuevas": 2, "campeon": false, "ms": 254}}
+{"n": 203, "ms_aprender": 407, "neurona": {"estudio": 368, "guardia": 121, "fase": "tranquila", "guardia_campeon": 0.9421, "guardia_mano": 0.9421, "nuevas": 2, "campeon": false, "ms": 308}}
+{"n": 204, "ms_aprender": 155, "neurona": {"estudio": 370, "guardia": 121, "fase": "tranquila", "guardia_campeon": 0.9421, "guardia_mano": 0.9421, "nuevas": 2, "campeon": false, "ms": 50}}
+{"n": 205, "ms_aprender": 384, "neurona": {"estudio": 372, "guardia": 121, "fase": "tranquila", "guardia_campeon": 0.9421, "guardia_mano": 0.9421, "nuevas": 2, "campeon": false, "ms": 288}}
+{"n": 206, "ms_aprender": 169, "neurona": {"estudio": 374, "guardia": 121, "fase": "tranquila", "guardia_campeon": 0.9421, "guardia_mano": 0.9421, "nuevas": 2, "campeon": false, "ms": 87}}
+{"n": 207, "ms_aprender": 311, "neurona": {"estudio": 376, "guardia": 121, "fase": "tranquila", "guardia_campeon": 0.9421, "guardia_mano": 0.9421, "nuevas": 2, "campeon": false, "ms": 215}}
+{"n": 208, "ms_aprender": 307, "neurona": {"estudio": 378, "guardia": 121, "fase": "tranquila", "guardia_campeon": 0.9421, "guardia_mano": 0.9421, "nuevas": 2, "campeon": false, "ms": 227}}
+{"n": 209, "ms_aprender": 185, "neurona": {"estudio": 380, "guardia": 121, "fase": "tranquila", "guardia_campeon": 0.9421, "guardia_mano": 0.9421, "nuevas": 2, "campeon": false, "ms": 108}}
+{"n": 210, "ms_aprender": 280, "neurona": {"estudio": 382, "guardia": 121, "fase": "tranquila", "guardia_campeon": 0.9421, "guardia_mano": 0.9421, "nuevas": 2, "campeon": false, "ms": 190}}
+{"n": 211, "ms_aprender": 112, "neurona": {"estudio": 382, "guardia": 122, "fase": "tranquila", "guardia_campeon": 0.9426, "guardia_mano": 0.9426, "nuevas": 1, "campeon": false, "ms": 35}}
+{"n": 212, "ms_aprender": 206, "neurona": {"estudio": 383, "guardia": 122, "fase": "tranquila", "guardia_campeon": 0.9426, "guardia_mano": 0.9426, "nuevas": 1, "campeon": false, "ms": 117}}
+{"n": 213, "ms_aprender": 164, "neurona": {"estudio": 385, "guardia": 122, "fase": "tranquila", "guardia_campeon": 0.9426, "guardia_mano": 0.9426, "nuevas": 2, "campeon": false, "ms": 37}}
+{"n": 214, "ms_aprender": 155, "neurona": {"estudio": 385, "guardia": 124, "fase": "tranquila", "guardia_campeon": 0.9435, "guardia_mano": 0.9435, "nuevas": 2, "campeon": false, "ms": 59}}
+{"n": 215, "ms_aprender": 138, "neurona": {"estudio": 387, "guardia": 124, "fase": "tranquila", "guardia_campeon": 0.9435, "guardia_mano": 0.9435, "nuevas": 2, "campeon": false, "ms": 45}}
+{"n": 216, "ms_aprender": 329, "neurona": {"estudio": 387, "guardia": 126, "fase": "tranquila", "guardia_campeon": 0.9365, "guardia_mano": 0.9365, "nuevas": 2, "campeon": false, "ms": 183}}
+{"n": 217, "ms_aprender": 139, "neurona": {"estudio": 387, "guardia": 128, "fase": "tranquila", "guardia_campeon": 0.9375, "guardia_mano": 0.9375, "nuevas": 2, "campeon": false, "ms": 39}}
+{"n": 218, "ms_aprender": 536, "neurona": {"estudio": 389, "guardia": 128, "fase": "tranquila", "guardia_campeon": 0.9375, "guardia_mano": 0.9375, "nuevas": 2, "campeon": false, "ms": 444}}
+{"n": 219, "ms_aprender": 747, "neurona": {"estudio": 389, "guardia": 129, "fase": "tranquila", "guardia_campeon": 0.938, "guardia_mano": 0.938, "nuevas": 1, "campeon": false, "ms": 631}}
+{"n": 220, "ms_aprender": 152, "neurona": {"estudio": 391, "guardia": 129, "fase": "tranquila", "guardia_campeon": 0.938, "guardia_mano": 0.938, "nuevas": 2, "campeon": false, "ms": 43}}
+{"n": 221, "ms_aprender": 462, "neurona": {"estudio": 393, "guardia": 129, "fase": "tranquila", "guardia_campeon": 0.938, "guardia_mano": 0.938, "nuevas": 2, "campeon": false, "ms": 372}}
+{"n": 222, "ms_aprender": 463, "neurona": {"estudio": 395, "guardia": 129, "fase": "tranquila", "guardia_campeon": 0.938, "guardia_mano": 0.938, "nuevas": 2, "campeon": false, "ms": 367}}
+{"n": 223, "ms_aprender": 466, "neurona": {"estudio": 395, "guardia": 130, "fase": "tranquila", "guardia_campeon": 0.9385, "guardia_mano": 0.9385, "nuevas": 1, "campeon": false, "ms": 363}}
+{"n": 224, "ms_aprender": 372, "neurona": {"estudio": 397, "guardia": 130, "fase": "tranquila", "guardia_campeon": 0.9385, "guardia_mano": 0.9385, "nuevas": 2, "campeon": false, "ms": 279}}
+{"n": 225, "ms_aprender": 418, "neurona": {"estudio": 399, "guardia": 130, "fase": "tranquila", "guardia_campeon": 0.9385, "guardia_mano": 0.9385, "nuevas": 2, "campeon": false, "ms": 285}}
+{"n": 226, "ms_aprender": 301, "neurona": {"estudio": 401, "guardia": 130, "fase": "tranquila", "guardia_campeon": 0.9385, "guardia_mano": 0.9385, "nuevas": 2, "campeon": false, "ms": 193}}
+{"n": 227, "ms_aprender": 453, "neurona": {"estudio": 401, "guardia": 132, "fase": "tranquila", "guardia_campeon": 0.9394, "guardia_mano": 0.9394, "nuevas": 2, "campeon": false, "ms": 310}}
+{"n": 228, "ms_aprender": 394, "neurona": {"estudio": 403, "guardia": 132, "fase": "tranquila", "guardia_campeon": 0.9394, "guardia_mano": 0.9394, "nuevas": 2, "campeon": false, "ms": 264}}
+{"n": 229, "ms_aprender": 151, "neurona": {"estudio": 404, "guardia": 132, "fase": "tranquila", "guardia_campeon": 0.9394, "guardia_mano": 0.9394, "nuevas": 1, "campeon": false, "ms": 45}}
+{"n": 230, "ms_aprender": 144, "neurona": {"estudio": 404, "guardia": 134, "fase": "tranquila", "guardia_campeon": 0.9328, "guardia_mano": 0.9328, "nuevas": 2, "campeon": false, "ms": 39}}
+{"n": 231, "ms_aprender": 380, "neurona": {"estudio": 405, "guardia": 134, "fase": "tranquila", "guardia_campeon": 0.9328, "guardia_mano": 0.9328, "nuevas": 1, "campeon": false, "ms": 265}}
+{"n": 232, "ms_aprender": 193, "neurona": {"estudio": 407, "guardia": 134, "fase": "tranquila", "guardia_campeon": 0.9328, "guardia_mano": 0.9328, "nuevas": 2, "campeon": false, "ms": 71}}
+{"n": 233, "ms_aprender": 169, "neurona": {"estudio": 407, "guardia": 136, "fase": "tranquila", "guardia_campeon": 0.9338, "guardia_mano": 0.9338, "nuevas": 2, "campeon": false, "ms": 59}}
+{"n": 234, "ms_aprender": 477, "neurona": {"estudio": 409, "guardia": 136, "fase": "tranquila", "guardia_campeon": 0.9338, "guardia_mano": 0.9338, "nuevas": 2, "campeon": false, "ms": 305}}
+{"n": 235, "ms_aprender": 287, "neurona": {"estudio": 409, "guardia": 136, "fase": "tranquila", "guardia_campeon": 0.9338, "guardia_mano": 0.9338, "nuevas": 0, "campeon": false, "ms": 192}}
+{"n": 236, "ms_aprender": 248, "neurona": {"estudio": 411, "guardia": 136, "fase": "tranquila", "guardia_campeon": 0.9338, "guardia_mano": 0.9338, "nuevas": 2, "campeon": false, "ms": 133}}
+{"n": 237, "ms_aprender": 578, "neurona": {"estudio": 411, "guardia": 138, "fase": "tranquila", "guardia_campeon": 0.9348, "guardia_mano": 0.9348, "nuevas": 2, "campeon": false, "ms": 455}}
+{"n": 238, "ms_aprender": 972, "neurona": {"estudio": 412, "guardia": 138, "fase": "tranquila", "guardia_campeon": 0.9348, "guardia_mano": 0.9348, "nuevas": 1, "campeon": false, "ms": 863}}
+{"n": 239, "ms_aprender": 151, "neurona": {"estudio": 414, "guardia": 138, "fase": "tranquila", "guardia_campeon": 0.9348, "guardia_mano": 0.9348, "nuevas": 2, "campeon": false, "ms": 47}}
+{"n": 240, "ms_aprender": 160, "neurona": {"estudio": 416, "guardia": 138, "fase": "tranquila", "guardia_campeon": 0.9348, "guardia_mano": 0.9348, "nuevas": 2, "campeon": false, "ms": 38}}
+{"n": 241, "ms_aprender": 407, "neurona": {"estudio": 418, "guardia": 138, "fase": "tranquila", "guardia_campeon": 0.9348, "guardia_mano": 0.9348, "nuevas": 2, "campeon": false, "ms": 271}}
+{"n": 242, "ms_aprender": 231, "neurona": {"estudio": 420, "guardia": 138, "fase": "tranquila", "guardia_campeon": 0.9348, "guardia_mano": 0.9348, "nuevas": 2, "campeon": false, "ms": 127}}
+{"n": 243, "ms_aprender": 644, "neurona": {"estudio": 421, "guardia": 138, "fase": "tranquila", "guardia_campeon": 0.9348, "guardia_mano": 0.9348, "nuevas": 1, "campeon": false, "ms": 493}}
+{"n": 244, "ms_aprender": 578, "neurona": {"estudio": 422, "guardia": 138, "fase": "tranquila", "guardia_campeon": 0.9348, "guardia_mano": 0.9348, "nuevas": 1, "campeon": false, "ms": 471}}
+{"n": 245, "ms_aprender": 183, "neurona": {"estudio": 422, "guardia": 140, "fase": "tranquila", "guardia_campeon": 0.9357, "guardia_mano": 0.9357, "nuevas": 2, "campeon": false, "ms": 101}}
+{"n": 246, "ms_aprender": 365, "neurona": {"estudio": 424, "guardia": 140, "fase": "tranquila", "guardia_campeon": 0.9357, "guardia_mano": 0.9357, "nuevas": 2, "campeon": false, "ms": 241}}
+{"n": 247, "ms_aprender": 407, "neurona": {"estudio": 426, "guardia": 140, "fase": "tranquila", "guardia_campeon": 0.9357, "guardia_mano": 0.9357, "nuevas": 2, "campeon": false, "ms": 272}}
+{"n": 248, "ms_aprender": 266, "neurona": {"estudio": 428, "guardia": 140, "fase": "tranquila", "guardia_campeon": 0.9357, "guardia_mano": 0.9357, "nuevas": 2, "campeon": false, "ms": 129}}
+{"n": 249, "ms_aprender": 358, "neurona": {"estudio": 428, "guardia": 142, "fase": "tranquila", "guardia_campeon": 0.9366, "guardia_mano": 0.9366, "nuevas": 2, "campeon": false, "ms": 254}}
+{"n": 250, "ms_aprender": 447, "neurona": {"estudio": 430, "guardia": 142, "fase": "tranquila", "guardia_campeon": 0.9366, "guardia_mano": 0.9366, "nuevas": 2, "campeon": false, "ms": 284}, "ms_sueno": 825, "neurona_sueno": {"estudio": 432, "guardia": 142, "fase": "tranquila", "guardia_campeon": 0.9366, "guardia_mano": 0.9366, "nuevas": 2, "campeon": false, "ms": 273}}
+{"n": 251, "ms_aprender": 182, "neurona": {"estudio": 432, "guardia": 144, "fase": "tranquila", "guardia_campeon": 0.9375, "guardia_mano": 0.9375, "nuevas": 2, "campeon": false, "ms": 83}}
+{"n": 252, "ms_aprender": 311, "neurona": {"estudio": 434, "guardia": 144, "fase": "tranquila", "guardia_campeon": 0.9375, "guardia_mano": 0.9375, "nuevas": 2, "campeon": false, "ms": 63}}
+{"n": 253, "ms_aprender": 666, "neurona": {"estudio": 436, "guardia": 144, "fase": "tranquila", "guardia_campeon": 0.9375, "guardia_mano": 0.9375, "nuevas": 2, "campeon": false, "ms": 543}}
+{"n": 254, "ms_aprender": 359, "neurona": {"estudio": 438, "guardia": 144, "fase": "tranquila", "guardia_campeon": 0.9375, "guardia_mano": 0.9375, "nuevas": 2, "campeon": false, "ms": 214}}
+{"n": 255, "ms_aprender": 603, "neurona": {"estudio": 439, "guardia": 144, "fase": "tranquila", "guardia_campeon": 0.9375, "guardia_mano": 0.9375, "nuevas": 1, "campeon": false, "ms": 485}}
+{"n": 256, "ms_aprender": 359, "neurona": {"estudio": 441, "guardia": 144, "fase": "tranquila", "guardia_campeon": 0.9375, "guardia_mano": 0.9375, "nuevas": 2, "campeon": false, "ms": 248}}
+{"n": 257, "ms_aprender": 521, "neurona": {"estudio": 442, "guardia": 144, "fase": "tranquila", "guardia_campeon": 0.9375, "guardia_mano": 0.9375, "nuevas": 1, "campeon": false, "ms": 414}}
+{"n": 258, "ms_aprender": 200, "neurona": {"estudio": 442, "guardia": 146, "fase": "tranquila", "guardia_campeon": 0.9384, "guardia_mano": 0.9384, "nuevas": 2, "campeon": false, "ms": 56}}
+{"n": 259, "ms_aprender": 363, "neurona": {"estudio": 444, "guardia": 146, "fase": "tranquila", "guardia_campeon": 0.9384, "guardia_mano": 0.9384, "nuevas": 2, "campeon": false, "ms": 201}}
+{"n": 260, "ms_aprender": 402, "neurona": {"estudio": 446, "guardia": 146, "fase": "tranquila", "guardia_campeon": 0.9384, "guardia_mano": 0.9384, "nuevas": 2, "campeon": false, "ms": 282}}
+{"n": 261, "ms_aprender": 142, "neurona": {"estudio": 448, "guardia": 146, "fase": "tranquila", "guardia_campeon": 0.9384, "guardia_mano": 0.9384, "nuevas": 2, "campeon": false, "ms": 42}}
+{"n": 262, "ms_aprender": 297, "neurona": {"estudio": 448, "guardia": 148, "fase": "tranquila", "guardia_campeon": 0.9324, "guardia_mano": 0.9324, "nuevas": 2, "campeon": false, "ms": 168}}
+{"n": 263, "ms_aprender": 531, "neurona": {"estudio": 450, "guardia": 148, "fase": "tranquila", "guardia_campeon": 0.9324, "guardia_mano": 0.9324, "nuevas": 2, "campeon": false, "ms": 407}}
+{"n": 264, "ms_aprender": 235, "neurona": {"estudio": 452, "guardia": 148, "fase": "tranquila", "guardia_campeon": 0.9324, "guardia_mano": 0.9324, "nuevas": 2, "campeon": false, "ms": 61}}
+{"n": 265, "ms_aprender": 241, "neurona": {"estudio": 454, "guardia": 148, "fase": "tranquila", "guardia_campeon": 0.9324, "guardia_mano": 0.9324, "nuevas": 2, "campeon": false, "ms": 133}}
+{"n": 266, "ms_aprender": 727, "neurona": {"estudio": 454, "guardia": 150, "fase": "tranquila", "guardia_campeon": 0.9333, "guardia_mano": 0.9333, "nuevas": 2, "campeon": false, "ms": 603}}
+{"n": 267, "ms_aprender": 364, "neurona": {"estudio": 454, "guardia": 152, "fase": "tranquila", "guardia_campeon": 0.9342, "guardia_mano": 0.9342, "nuevas": 2, "campeon": false, "ms": 231}}
+{"n": 268, "ms_aprender": 148, "neurona": {"estudio": 456, "guardia": 152, "fase": "tranquila", "guardia_campeon": 0.9342, "guardia_mano": 0.9342, "nuevas": 2, "campeon": false, "ms": 36}}
+{"n": 269, "ms_aprender": 331, "neurona": {"estudio": 458, "guardia": 152, "fase": "tranquila", "guardia_campeon": 0.9342, "guardia_mano": 0.9342, "nuevas": 2, "campeon": false, "ms": 197}}
+{"n": 270, "ms_aprender": 288, "neurona": {"estudio": 458, "guardia": 153, "fase": "tranquila", "guardia_campeon": 0.9281, "guardia_mano": 0.9281, "nuevas": 1, "campeon": false, "ms": 183}}
+{"n": 271, "ms_aprender": 848, "neurona": {"estudio": 458, "guardia": 155, "fase": "tranquila", "guardia_campeon": 0.929, "guardia_mano": 0.929, "nuevas": 2, "campeon": false, "ms": 724}}
+{"n": 272, "ms_aprender": 580, "neurona": {"estudio": 459, "guardia": 155, "fase": "tranquila", "guardia_campeon": 0.929, "guardia_mano": 0.929, "nuevas": 1, "campeon": false, "ms": 430}}
+{"n": 273, "ms_aprender": 455, "neurona": {"estudio": 461, "guardia": 155, "fase": "tranquila", "guardia_campeon": 0.929, "guardia_mano": 0.929, "nuevas": 2, "campeon": false, "ms": 311}}
+{"n": 274, "ms_aprender": 279, "neurona": {"estudio": 461, "guardia": 157, "fase": "tranquila", "guardia_campeon": 0.9236, "guardia_mano": 0.9236, "nuevas": 2, "campeon": false, "ms": 48}}
+{"n": 275, "ms_aprender": 290, "neurona": {"estudio": 461, "guardia": 159, "fase": "tranquila", "guardia_campeon": 0.9182, "guardia_mano": 0.9182, "nuevas": 2, "campeon": false, "ms": 199}}
+{"n": 276, "ms_aprender": 419, "neurona": {"estudio": 463, "guardia": 159, "fase": "tranquila", "guardia_campeon": 0.9182, "guardia_mano": 0.9182, "nuevas": 2, "campeon": false, "ms": 302}}
+{"n": 277, "ms_aprender": 275, "neurona": {"estudio": 464, "guardia": 159, "fase": "tranquila", "guardia_campeon": 0.9182, "guardia_mano": 0.9182, "nuevas": 1, "campeon": false, "ms": 169}}
+{"n": 278, "ms_aprender": 314, "neurona": {"estudio": 466, "guardia": 159, "fase": "tranquila", "guardia_campeon": 0.9182, "guardia_mano": 0.9182, "nuevas": 2, "campeon": false, "ms": 176}}
+{"n": 279, "ms_aprender": 411, "neurona": {"estudio": 468, "guardia": 159, "fase": "tranquila", "guardia_campeon": 0.9182, "guardia_mano": 0.9182, "nuevas": 2, "campeon": false, "ms": 292}}

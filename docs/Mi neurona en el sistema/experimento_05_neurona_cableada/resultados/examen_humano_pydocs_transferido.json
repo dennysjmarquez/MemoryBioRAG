@@ -1,0 +1,33 @@
+{
+ "a_mano": {
+  "n": 164,
+  "r1": 42.07,
+  "r5": 56.1,
+  "mrr": 0.481
+ },
+ "neurona": {
+  "n": 164,
+  "r1": 37.2,
+  "r5": 56.1,
+  "mrr": 0.452
+ },
+ "gana": 2,
+ "pierde": 10,
+ "casos_ganados": [
+  "¿Cuáles son las reglas para las variables locales y globales en Python?",
+  "¿Cómo puedo escribir una función sin parámetros (invocación mediante referencia)?"
+ ],
+ "casos_perdidos": [
+  "¿Por qué los cálculos de punto flotante son tan inexactos?",
+  "¿Cómo obtengo la salida de PyErr_Print() (o cualquier cosa que se imprime a stdout/stderr)?",
+  "¿Qué conjuntos de herramientas de GUI existen para Python?",
+  "¿Cómo implementar objetos persistentes en Python?",
+  "¿Por qué los valores por defecto se comparten entre objetos?",
+  "¿Cómo puedo pasar parámetros por palabra clave u opcionales de una función a otra?",
+  "¿Por qué cambiando la lista 'y' cambia, también, la lista 'x'?",
+  "¿Qué es self?",
+  "¿Cómo puedo comprobar si un objeto es una instancia de una clase dada o de una subclase de la misma?",
+  "¿Cómo puedo obtener una lista de todas las instancias de una clase dada?"
+ ],
+ "salen_del_top5": 0
+}
