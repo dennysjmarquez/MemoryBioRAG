@@ -1,0 +1,22 @@
+examen: 4051 preguntas (3241 estudio / 810 guardia, por nodo)  | QA (solo nota): 875  | carga 9s
+pesos base en el examen: R@1 71.49  (estudio 71.93 / guardia 69.73)   en el QA: R@1 90.17
+
+NOTA EN EL QA (las búsquedas de la gente; la neurona nunca vio sus respuestas)
+  pesos base (hoy)                   R@1  90.17  R@5  98.63  +0  /-0   (sale top5: 0) 
+                                     cruce_idi= 50.0 dormido=100.0 literal= 99.6 por_tema= 63.1 pregunta_= 95.4 sinonimo= 56.4 typo= 73.8 variante_= 81.5
+  A sueño R1 (paso 170)              R@1  92.57  R@5  98.74  +39 /-18  (sale top5: 9) | guardia 79.78 vs base 69.73 | 50s
+                                     cruce_idi= 75.0 dormido= 98.5 literal= 98.6 por_tema= 63.1 pregunta_= 96.9 sinonimo= 65.5 typo= 93.8 variante_= 90.8
+  A sueño R2 (paso 580)              R@1  95.31  R@5  99.20  +49 /-4   (sale top5: 6) | guardia 85.86 vs base 69.73 | 297s
+                                     cruce_idi= 87.5 dormido=100.0 literal= 99.4 por_tema= 81.5 pregunta_= 96.9 sinonimo= 63.6 typo= 98.5 variante_= 96.9
+  B en vivo R1 (respuesta en el momento) R@1  93.14  R@5  98.97  +35 /-9   (sale top5: 6) | duda 80  con fallos cerca 80  ascensos 14  reinicios 0 | ms/consulta mediana 0.0 p95 126.8 max 207
+                                     cruce_idi= 75.0 dormido=100.0 literal= 99.2 por_tema= 69.2 pregunta_= 93.8 sinonimo= 61.8 typo= 93.8 variante_= 92.3
+  B en vivo R1 (pesos al final)      R@1  92.91  R@5  98.74  +38 /-14  (sale top5: 8) 
+                                     cruce_idi= 75.0 dormido= 98.5 literal= 98.8 por_tema= 66.2 pregunta_= 96.9 sinonimo= 63.6 typo= 95.4 variante_= 90.8
+  corrección aprendida por aguja (R1, + = el peso base la subestimaba):
+   pred_score=-0.98  tematico_g=-0.81  hub_match=-0.68  latcad=-0.57  asoc=-0.47  episodio_score=-0.41  dim_score=-0.32  grupo_score=+0.25  match_exacto=+0.93  sin95=+0.94  sinonimos_ratio=+1.36  jsd=+1.52  campo_score=+2.15  ppmi_score=+2.34  ncd_score=+2.35  concepto_ratio=+2.37  bm25_norm=+2.97
+  B en vivo R2 (respuesta en el momento) R@1  94.17  R@5  98.97  +39 /-4   (sale top5: 6) | duda 49  con fallos cerca 49  ascensos 15  reinicios 0 | ms/consulta mediana 0.1 p95 381.7 max 2320
+                                     cruce_idi= 75.0 dormido=100.0 literal= 99.4 por_tema= 73.8 pregunta_= 96.9 sinonimo= 63.6 typo= 96.9 variante_= 92.3
+  B en vivo R2 (pesos al final)      R@1  94.63  R@5  98.86  +42 /-3   (sale top5: 8) 
+                                     cruce_idi= 75.0 dormido=100.0 literal= 99.6 por_tema= 75.4 pregunta_= 96.9 sinonimo= 61.8 typo= 96.9 variante_= 96.9
+
+-> /home/user/MemoryBioRAG/docs/Mi neurona en el sistema/experimento_04_autoaprendizaje/resultados/autoaprendizaje_7.json  (404s)

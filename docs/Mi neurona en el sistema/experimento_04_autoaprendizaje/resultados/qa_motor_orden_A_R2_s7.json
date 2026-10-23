@@ -1,0 +1,84 @@
+{
+  "version": "v33.0",
+  "generado_en": "2026-10-23T04:19:17",
+  "elapsed_seconds": 577.63,
+  "casos_file": "casos_qa_baseline_v1.jsonl",
+  "casos_total": 921,
+  "db_src": "snapshots/qa_escape_qcr_20260811.db",
+  "global": {
+    "queries": 875,
+    "recall_at_5": 99.54,
+    "recall_at_1": 94.4,
+    "mrr": 0.9641,
+    "fallos": 4,
+    "negativos_total": 40,
+    "negativos_fp": 0,
+    "negativos_fp_rate": 0.0,
+    "negativos_contaminados": 0,
+    "spreading_activation": 8,
+    "etiquetas_obsoletas_resueltas": 3,
+    "etiquetas_irreparables": 0,
+    "queries_ambiguas": 3,
+    "nodos_dormidos_iniciales": 15,
+    "nodos_restaurados_entre_casos": 65,
+    "orden_no_monotonico": 0
+  },
+  "categorias": {
+    "cruce_idioma": {
+      "total": 8,
+      "recall_at_5": 100.0,
+      "recall_at_1": 62.5,
+      "mrr": 0.8125,
+      "fallos": 0
+    },
+    "dormido": {
+      "total": 65,
+      "recall_at_5": 100.0,
+      "recall_at_1": 100.0,
+      "mrr": 1.0,
+      "fallos": 0
+    },
+    "literal": {
+      "total": 487,
+      "recall_at_5": 100.0,
+      "recall_at_1": 99.38,
+      "mrr": 0.9969,
+      "fallos": 0
+    },
+    "por_tema": {
+      "total": 65,
+      "recall_at_5": 98.46,
+      "recall_at_1": 73.85,
+      "mrr": 0.8338,
+      "fallos": 1
+    },
+    "pregunta_natural": {
+      "total": 65,
+      "recall_at_5": 100.0,
+      "recall_at_1": 96.92,
+      "mrr": 0.9846,
+      "fallos": 0
+    },
+    "sinonimo": {
+      "total": 55,
+      "recall_at_5": 94.55,
+      "recall_at_1": 60.0,
+      "mrr": 0.7209,
+      "fallos": 3
+    },
+    "typo": {
+      "total": 65,
+      "recall_at_5": 100.0,
+      "recall_at_1": 98.46,
+      "mrr": 0.9923,
+      "fallos": 0
+    },
+    "variante_gramatical": {
+      "total": 65,
+      "recall_at_5": 100.0,
+      "recall_at_1": 98.46,
+      "mrr": 0.9885,
+      "fallos": 0
+    }
+  }
+}
