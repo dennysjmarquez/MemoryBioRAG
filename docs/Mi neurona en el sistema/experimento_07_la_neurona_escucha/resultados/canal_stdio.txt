@@ -1,0 +1,11 @@
+# N_VINC=120 python canal_stdio_cliente.py python "tasajera"   (copia del snapshot, PYTHONHASHSEED=1)
+
+## ANTES (master / c66d042)
+líneas en stdout: 199; NO-JSON (corrompen JSON-RPC): 77
+   [PMI] Corpus recalculado: 851 nodos, 16490 pares, 2052.4ms
+   [MemoryBioRAG] Sinapsis establecida: 'historia_tasajera_fumigador_rufino' <--> 'notebooklm-sync-protocol'
+   [MemoryBioRAG] Sinapsis establecida: 'historia_tasajera_fumigador_rufino' <--> 'notebooklm-sync-protocol'
+   ... (77 en total)
+
+## DESPUÉS (_proteger_canal_stdio en core/mcp_server/server.py)
+líneas en stdout: 122; NO-JSON (corrompen JSON-RPC): 0
