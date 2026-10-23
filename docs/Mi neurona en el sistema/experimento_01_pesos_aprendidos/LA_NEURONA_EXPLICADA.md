@@ -295,6 +295,14 @@ La respuesta honesta, para que puedas defenderla ante un auditor:
 
 ---
 
+## 11. Continuación
+
+¿Y si se entrena hasta que el QA llegue a 100 %? Lo mide el [experimento 02](../experimento_02_examen_sellado/README.md):
+- llega a 100 % **memorizando**, y empeora en lo nuevo;
+- con examen sellado y la compuerta "ningún caso baja", las pérdidas casi desaparecen, pero también la mayor parte de la ganancia.
+
+---
+
 ## Reproducir este documento
 
 ```bash

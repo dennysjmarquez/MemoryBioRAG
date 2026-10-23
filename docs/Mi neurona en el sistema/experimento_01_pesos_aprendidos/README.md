@@ -4,6 +4,7 @@
 - **Rama:** `arena/720a0807-memorybiorag`.
 - **Estado:** experimento offline. **No modifica el motor, la DB ni el snapshot.**
 - **Lectura recomendada:** [LA_NEURONA_EXPLICADA.md](LA_NEURONA_EXPLICADA.md) explica cada aguja, la retropropagación en el código, todas las curvas y qué se transfiere a la base de otra persona.
+- **Continuación:** [experimento 02](../experimento_02_examen_sellado/README.md): entrenar hasta 100 %, examen sellado y compuerta "ningún caso baja".
 - **Origen:** los dos videos de esta carpeta (`1--dddd.invento1-/`, `2--dddd.invento2-/`), que cuentan el camino de la neurona de 1943 al transformer, y la pregunta de Dennys: ¿pueden las señales de BioRAG funcionar como neuronas que aprenden?
 
 ---
