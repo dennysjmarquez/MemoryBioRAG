@@ -34,8 +34,33 @@ CÓMO RESPONDE
     puso #1, sigue siendo #1 (las búsquedas literales no pueden empeorar). DB vacía o sin datos suficientes: no hay campeón y el
     motor responde idéntico al de hoy.
 
+PRIMERO NO DAÑAR (margen)
+    La neurona solo puede cambiar el orden de la fórmula si su ventaja supera
+    un margen ε (`MARGENES`): a cada puesto se le suma ε·(k - puesto). El margen
+    es el MENOR con el que el campeón no pierde ningún caso de la guardia que la
+    fórmula acertaba, pierde en total menos del 5 % de lo que gana, cumple el
+    piso y sigue ganando a la fórmula. Se recalibra en cada ciclo; si ningún
+    margen lo logra, el campeón se retira. Así cambia solo donde está segura y
+    la fórmula dudaba. Forzar: BIORAG_NEURONA_MARGEN.
+
+CAPAS DE PROTECCIÓN (cada una con su prueba en tests/test_neurona.py)
+    - Silencio por hilo: el autoexamen no escribe log, accesos ni DMN, y otro
+      hilo (DMN) que busca a la vez no queda en silencio.
+    - Un solo aprendiz: candado no bloqueante; si está ocupada, se salta el ciclo.
+    - Disyuntor: tras errores seguidos, pausa (`pausa` ciclos) y no tumba el motor.
+    - Pesos sanos: NaN/Inf/explosión -> se descartan; si el entrenamiento
+      diverge se vuelve a los pesos anteriores.
+    - Invariante de reorden: mismos nodos, mismos números; si no, la página
+      original. También se permutan los mapas de score del MCP.
+    - Huella del motor: si la fórmula cambió (otra versión de BioRAG), el estado
+      viejo se descarta y se empieza de cero desde los pesos a mano.
+    - Estado estricto: JSON/blob corrupto o de otra forma -> estado nuevo.
+    - Memoria acotada: sin duplicados y con tope por recuerdo (`tope_nodo`).
+    - Presupuesto de tiempo fijo por ciclo.
+
 APAGADO TOTAL: BIORAG_NEURONA=0.
-Evidencia: docs/Mi neurona en el sistema/experimento_04_autoaprendizaje/ y experimento_05_neurona_cableada/.
+Evidencia: docs/Mi neurona en el sistema/experimento_04_autoaprendizaje/, experimento_05_neurona_cableada/
+y experimento_06_capas_de_proteccion/.
 """
 import hashlib
 import io
@@ -44,6 +69,7 @@ import logging
 import math
 import os
 import random
+import threading
 import time
 from contextlib import contextmanager
 
@@ -92,7 +118,80 @@ def _cfg():
         paciencia=_env_int("BIORAG_NEURONA_PACIENCIA", 12),
         despertar=_env_int("BIORAG_NEURONA_DESPERTAR", 150),
         topk=_env_int("BIORAG_NEURONA_TOPK", 5),
+        tope_nodo=_env_int("BIORAG_NEURONA_TOPE_POR_NODO", 4),
+        pausa=_env_float("BIORAG_NEURONA_PAUSA_S", 3600.0),
+        refresco=_env_float("BIORAG_NEURONA_REFRESCO_S", 30.0),
     )
+
+
+# ───────────────────────── capas de protección ─────────────────────────
+# Cada una cubre una falla concreta de "una neurona viva dentro de BioRAG".
+
+_hilo = threading.local()          # silencio por HILO: el DMN y el MCP buscan en paralelo
+_CREAR_CANDADO = threading.Lock()
+
+
+def _candado(self):
+    """Un solo ciclo de aprendizaje a la vez por cerebro (sueño y consolidar pueden coincidir)."""
+    c = self.__dict__.get("_neurona_candado")
+    if c is None:
+        with _CREAR_CANDADO:
+            c = self.__dict__.setdefault("_neurona_candado", threading.Lock())
+    return c
+
+
+def _sano(p):
+    """Pesos utilizables: todos finitos y acotados (un entrenamiento que diverge no entra)."""
+    try:
+        return p is not None and all(np.all(np.isfinite(v)) and float(np.max(np.abs(v))) < 1e3 for v in p.values())
+    except Exception:
+        return False
+
+
+def _en_pausa(self, que):
+    return time.time() < float(self.__dict__.get(f"_neurona_pausa_{que}", 0.0))
+
+
+def _fallo(self, que, e):
+    """Cortacircuitos: 3 fallas seguidas -> esa parte se pausa (el motor sigue como siempre)."""
+    n = int(self.__dict__.get(f"_neurona_fallos_{que}", 0)) + 1
+    self.__dict__[f"_neurona_fallos_{que}"] = n
+    if n >= 3:
+        self.__dict__[f"_neurona_pausa_{que}"] = time.time() + _cfg()["pausa"]
+        self.__dict__[f"_neurona_fallos_{que}"] = 0
+        logger.warning("neurona: %s falló 3 veces seguidas; se pausa %.0fs (%s)", que, _cfg()["pausa"], e)
+    else:
+        logger.warning("neurona: %s falló; el motor sigue igual (%s)", que, e)
+
+
+def _bien(self, que):
+    self.__dict__[f"_neurona_fallos_{que}"] = 0
+
+
+def huella_motor(self):
+    """Huella del COMPORTAMIENTO de la fórmula a mano (no de su código).
+
+    Se pasan entradas fijas por `_calcular_score_hibrido` y por `rasgos` y se
+    resume la salida. Si alguien cambia un peso, una constante o una variable
+    de entorno del motor, la huella cambia y lo aprendido con el motor viejo
+    deja de usarse (se vuelve a aprender desde los pesos a mano).
+    """
+    try:
+        r = np.random.default_rng(12345)
+        salida = [str(F_SIG), str(OCULTAS), str(VERSION)]
+        for i in range(12):
+            kw = dict(bm25_norm=r.random(), dim_score=r.random(), concepto_ratio=r.random(),
+                      sinonimos_ratio=r.random(), score_latente=r.random(), score_cadena=r.random(),
+                      asoc_count=int(r.integers(0, 30)), match_exacto=bool(i % 4 == 0),
+                      grupo_score=r.random(), tematico_score=r.random(), jsd_score=r.random(),
+                      jsd_weight=0.05 if i % 2 else 0.0, pred_score=r.random(), ppmi_score=r.random(),
+                      hub_match=r.random(), ncd_score=r.random(), episodio_score=r.random(),
+                      analogia_score=r.random(), campo_score=r.random(), peso_sinaptico=r.random())
+            salida.append(f"{float(self._calcular_score_hibrido(**kw)):.6f}")
+            salida.append(",".join(f"{x:.6f}" for x in rasgos(kw)))
+        return hashlib.sha256("|".join(salida).encode()).hexdigest()[:16]
+    except Exception:
+        return "desconocida"
 
 
 # ───────────────────────── rasgos y escala ─────────────────────────
@@ -132,6 +231,30 @@ def _correccion(p, X):
     return np.tanh(X @ p["W"].T + p["b"]) @ p["v"]
 
 
+MARGENES = (0.0, 0.25, 0.5, 1.0, 1.5, 2.0, 3.0, 5.0, 8.0)
+
+
+def _margen_valido(m, tope=None):
+    """Un margen negativo haría a la neurona MÁS atrevida que la fórmula: nunca se acepta."""
+    try:
+        m = float(m)
+    except (TypeError, ValueError):
+        return None
+    if not math.isfinite(m) or m < 0 or (tope is not None and m > tope):
+        return None
+    return m
+
+
+def _margen_servir(est):
+    forzado = _margen_valido(os.environ.get("BIORAG_NEURONA_MARGEN") or None)
+    return forzado if forzado is not None else est.margen
+
+
+def _prior(k, margen):
+    """Ventaja por puesto de la fórmula: para subir un puesto hay que ganar por `margen`."""
+    return margen * (k - np.arange(k))
+
+
 def _es_guardia(concepto):
     return int(hashlib.sha256(concepto.encode("utf-8")).hexdigest()[:8], 16) % 5 == 0
 
@@ -141,13 +264,16 @@ def _es_guardia(concepto):
 class _Estado:
     def __init__(self):
         self.campeon = None
+        self.margen = 0.0        # "primero no dañar": ventaja mínima para moverle el puesto a la fórmula
         self.retador = self._nuevo(0)
         self.adam = None
         self.estudio, self.guardia = [], []
         self.stats = dict(version=VERSION, ciclos=0, preguntas=0, ascensos=0, retiros=0,
                           reinicios=0, sin_mejora=0, tranquila=False, nuevas_desde_tranquila=0,
-                          ultimo={})
-        self.sucio = False
+                          descartes=0, purgados=0, ultimo={})
+        self.huella = None
+        self.leido_en = 0.0      # 'actualizado' de la fila que tenemos en RAM (varios procesos)
+        self.mirado_en = 0.0     # última vez que se miró si otro proceso escribió
 
     @staticmethod
     def _nuevo(semilla):
@@ -162,29 +288,52 @@ def _tabla(self):
 
 def _cargar(self):
     est = _Estado()
+    est.huella = huella_motor(self)
+    est.mirado_en = time.time()
     try:
-        filas = dict(self.cursor.execute("SELECT clave, valor FROM neurona_estado").fetchall())
+        filas = {c: (v, t) for c, v, t in self.cursor.execute(
+            "SELECT clave, valor, actualizado FROM neurona_estado").fetchall()}
     except Exception:
-        return est
+        return est  # tabla aún no existe: DB nueva
     try:
         if "pesos" in filas:
-            d = json.loads(filas["pesos"])
-            if d.get("version") == VERSION:
-                est.stats.update(d.get("stats", {}))
-                if d.get("campeon"):
-                    est.campeon = {k: np.array(v) for k, v in d["campeon"].items()}
-                if d.get("retador"):
-                    est.retador = {k: np.array(v) for k, v in d["retador"].items()}
+            est.leido_en = float(filas["pesos"][1] or 0.0)
+            d = json.loads(filas["pesos"][0])
+            if d.get("version") != VERSION or d.get("huella") != est.huella:
+                # El motor cambió (o es otra versión de la neurona): lo aprendido ya no aplica.
+                logger.info("neurona: la fórmula del motor cambió; se vuelve a aprender desde los pesos a mano")
+                est.stats["descartes"] = int(d.get("stats", {}).get("descartes", 0)) + 1
+                return est
+            est.stats.update(d.get("stats", {}))
+            est.margen = _margen_valido(d.get("margen", 0.0), tope=MARGENES[-1])
+            if est.margen is None:
+                raise ValueError("margen inválido en el estado guardado")
+            if d.get("campeon"):
+                est.campeon = {k: np.array(v, dtype=float) for k, v in d["campeon"].items()}
+            if d.get("retador"):
+                est.retador = {k: np.array(v, dtype=float) for k, v in d["retador"].items()}
+            if not _sano(est.campeon):
+                est.campeon = None
+            if not _sano(est.retador):
+                est.retador = _Estado._nuevo(0)
         if "memoria" in filas:
-            z = np.load(io.BytesIO(filas["memoria"]), allow_pickle=False)
+            z = np.load(io.BytesIO(filas["memoria"][0]), allow_pickle=False)
             meta = json.loads(str(z["meta"]))
             for nombre, lista in (("estudio", est.estudio), ("guardia", est.guardia)):
                 for i, m in enumerate(meta[nombre]):
-                    lista.append(dict(cat=m["cat"], nodo=m["nodo"], y=m["y"],
-                                      X=z[f"{nombre}_X_{i}"], base=z[f"{nombre}_b_{i}"]))
+                    X = z[f"{nombre}_X_{i}"].astype(np.float32)
+                    b = z[f"{nombre}_b_{i}"].astype(np.float32)
+                    if X.ndim != 2 or X.shape[1] != len(F_SIG) or len(b) != len(X) or not (0 <= m["y"] < len(b)):
+                        continue  # caso dañado: se ignora, no se adivina
+                    if not (np.all(np.isfinite(X)) and np.all(np.isfinite(b))):
+                        continue
+                    lista.append(dict(cat=m["cat"], nodo=m["nodo"], y=m["y"], q=m.get("q", ""),
+                                      X=X, base=b))
     except Exception as e:
         logger.warning("neurona: estado ilegible, se arranca de los pesos a mano (%s)", e)
-        return _Estado()
+        limpio = _Estado()
+        limpio.huella, limpio.leido_en, limpio.mirado_en = est.huella, est.leido_en, est.mirado_en
+        return limpio
     return est
 
 
@@ -192,7 +341,7 @@ def _guardar(self, est):
     try:
         _tabla(self)
         pesos = json.dumps(dict(
-            version=VERSION, stats=est.stats,
+            version=VERSION, huella=est.huella, stats=est.stats, margen=est.margen,
             campeon={k: v.tolist() for k, v in est.campeon.items()} if est.campeon else None,
             retador={k: v.tolist() for k, v in est.retador.items()}))
         arr, meta = {}, {"estudio": [], "guardia": []}
@@ -200,7 +349,7 @@ def _guardar(self, est):
             for i, c in enumerate(lista):
                 arr[f"{nombre}_X_{i}"] = c["X"].astype(np.float16)
                 arr[f"{nombre}_b_{i}"] = c["base"].astype(np.float32)
-                meta[nombre].append(dict(cat=c["cat"], nodo=c["nodo"], y=int(c["y"])))
+                meta[nombre].append(dict(cat=c["cat"], nodo=c["nodo"], y=int(c["y"]), q=c.get("q", "")))
         buf = io.BytesIO()
         np.savez_compressed(buf, meta=np.array(json.dumps(meta)), **arr)
         ahora = time.time()
@@ -208,14 +357,40 @@ def _guardar(self, est):
             "INSERT OR REPLACE INTO neurona_estado (clave, valor, actualizado) VALUES (?, ?, ?)",
             [("pesos", pesos, ahora), ("memoria", buf.getvalue(), ahora)])
         self.conn.commit()
-        est.sucio = False
+        est.leido_en = ahora
+        return True
     except Exception as e:
+        try:
+            self.conn.rollback()
+        except Exception:
+            pass
         logger.warning("neurona: no se pudo guardar el estado (%s)", e)
+        return False
 
 
 def estado(self):
-    est = getattr(self, "_neurona_estado", None)
+    est = self.__dict__.get("_neurona_estado")
     if est is None:
+        est = _cargar(self)
+        self._neurona_estado = est
+    return est
+
+
+def _refrescar(self, forzar=False):
+    """Varios procesos sobre la misma DB (MCP + CLI): si otro escribió después, se recarga.
+
+    Una lectura por clave primaria cada `refresco` segundos (o forzada antes de aprender).
+    """
+    est = estado(self)
+    ahora = time.time()
+    if not forzar and ahora - est.mirado_en < _cfg()["refresco"]:
+        return est
+    est.mirado_en = ahora
+    try:
+        fila = self.cursor.execute("SELECT actualizado FROM neurona_estado WHERE clave = 'pesos'").fetchone()
+    except Exception:
+        return est
+    if fila and float(fila[0] or 0.0) > est.leido_en + 1e-6:
         est = _cargar(self)
         self._neurona_estado = est
     return est
@@ -229,7 +404,9 @@ def olvidar(self):
         self.conn.commit()
     except Exception:
         pass
-    self._neurona_estado = _Estado()
+    est = _Estado()
+    est.huella = huella_motor(self)
+    self._neurona_estado = est
 
 
 # ───────────────────────── servir: reordenar el top-5 ─────────────────────────
@@ -245,7 +422,14 @@ def _es_su_nombre(frase, concepto):
 
 
 def silencio(self):
-    return bool(getattr(self, "_neurona_silencio", False))
+    """¿Esta búsqueda es de práctica? Solo en el HILO que está practicando con ESTE cerebro."""
+    return getattr(_hilo, "silencio_de", None) is self
+
+
+def entregar_rasgos(self, rasgos_por_concepto):
+    """search.py entrega aquí lo que vio cada aguja (solo se guarda en la búsqueda de práctica)."""
+    if silencio(self):
+        _hilo.rasgos = rasgos_por_concepto
 
 
 def necesita_rasgos(self):
@@ -254,8 +438,10 @@ def necesita_rasgos(self):
         return False
     if silencio(self):
         return True
+    if _en_pausa(self, "reordenar"):
+        return False
     try:
-        return estado(self).campeon is not None
+        return _refrescar(self).campeon is not None
     except Exception:
         return False
 
@@ -263,7 +449,7 @@ def necesita_rasgos(self):
 def reordenar(self, frase, pagina, rasgos_por_concepto):
     """Reordena SOLO los primeros k de la página con el campeón. Nunca lanza."""
     try:
-        if not activa() or silencio(self) or len(pagina) < 2:
+        if not activa() or silencio(self) or len(pagina) < 2 or _en_pausa(self, "reordenar"):
             return pagina
         est = estado(self)
         if est.campeon is None:
@@ -275,10 +461,15 @@ def reordenar(self, frase, pagina, rasgos_por_concepto):
         if not conocidas:
             return pagina
         X = np.array([f[0] for f in conocidas], dtype=float)
-        corr_conocidas = iter(_correccion(est.campeon, X))
+        crudas = _correccion(est.campeon, X)
+        if not np.all(np.isfinite(crudas)):
+            return pagina
+        corr_conocidas = iter(crudas)
         corr = [next(corr_conocidas) if f is not None else None for f in filas]
         media = float(np.mean([c for c in corr if c is not None]))
-        claves = [g(min(max(r[4], _EPS), 50.0)) + (c if c is not None else media) for r, c in zip(top, corr)]
+        prior = _prior(k, _margen_servir(est))
+        claves = [g(min(max(r[4], _EPS), 50.0)) + (c if c is not None else media) + prior[i]
+                  for i, (r, c) in enumerate(zip(top, corr))]
         orden = sorted(range(k), key=lambda i: (-claves[i], i))
         if _es_su_nombre(frase, top[0][0]):
             orden = [0] + [i for i in orden if i != 0]  # regla de identidad
@@ -286,33 +477,70 @@ def reordenar(self, frase, pagina, rasgos_por_concepto):
             return pagina
         scores = sorted((r[4] for r in top), reverse=True)
         nuevo = [tuple(top[i][:4]) + (scores[j],) + tuple(top[i][5:]) for j, i in enumerate(orden)]
+        # Invariante: mismos nodos, mismos números. Si no se cumple, no se toca nada.
+        if sorted(r[0] for r in nuevo) != sorted(r[0] for r in top) or \
+                sorted(r[4] for r in nuevo) != sorted(r[4] for r in top):
+            return pagina
+        _permutar_mapas(self, [r[0] for r in top], [top[i][0] for i in orden])
+        _bien(self, "reordenar")
         return nuevo + list(pagina[k:])
     except Exception as e:
-        logger.warning("neurona: reordenar falló, se devuelve el orden de siempre (%s)", e)
+        _fallo(self, "reordenar", e)
         return pagina
+
+
+def _permutar_mapas(self, antes, despues):
+    """Los consumidores (MCP: gate de ráfaga/certeza, score_base que ve el agente) leen
+    `last_score_base_map` / `last_score_bonus_map` por concepto. Se permutan igual que los
+    scores: cada POSICIÓN conserva exactamente sus números; solo cambia qué recuerdo la ocupa."""
+    for nombre in ("last_score_base_map", "last_score_bonus_map"):
+        mapa = self.__dict__.get(nombre)
+        if not isinstance(mapa, dict):
+            continue
+        valores = [mapa.get(c, _FALTA) for c in antes]
+        nuevo = dict(mapa)
+        for c, v in zip(despues, valores):
+            if v is _FALTA:
+                nuevo.pop(c, None)
+            else:
+                nuevo[c] = v
+        self.__dict__[nombre] = nuevo
+
+
+_FALTA = object()
 
 
 # ───────────────────────── aprender: autoexamen silencioso ─────────────────────────
 
 @contextmanager
 def _en_silencio(self):
-    """Búsquedas de práctica: sin log, sin accesos ACT-R, sin DMN, sin pisar last_*."""
-    guardado = {k: v for k, v in self.__dict__.items() if k.startswith("last_")}
-    self._neurona_silencio = True
+    """Búsqueda de práctica: sin log, sin accesos ACT-R, sin DMN, sin pisar last_*.
+
+    El silencio vale solo en este hilo. Al salir se restauran los last_* que la
+    práctica cambió, pero SOLO si siguen teniendo el valor que dejó la práctica
+    (si otro hilo los escribió mientras tanto, se respeta lo del otro hilo).
+    """
+    antes = {k: v for k, v in self.__dict__.items() if k.startswith("last_")}
+    _hilo.silencio_de, _hilo.rasgos = self, None
     try:
         yield
     finally:
-        self._neurona_silencio = False
-        for k in [k for k in self.__dict__ if k.startswith("last_")]:
-            if k not in guardado:
-                del self.__dict__[k]
-        self.__dict__.update(guardado)
+        _hilo.silencio_de = None
+        for k, v in list(self.__dict__.items()):
+            if not k.startswith("last_") or antes.get(k, _FALTA) is v:
+                continue
+            viejo = antes.get(k, _FALTA)
+            if viejo is _FALTA:
+                self.__dict__.pop(k, None)
+            else:
+                self.__dict__[k] = viejo
 
 
 def _preguntar(self, concepto, consulta, cat, pool_max):
     with _en_silencio(self):
         self.buscar_por_frase(consulta, profundidad="activos", limite=5, ignore_peso_sinaptico=True)
-        pool = dict(getattr(self, "last_neurona_rasgos", {}) or {})
+        pool = dict(_hilo.rasgos or {})
+        _hilo.rasgos = None
     if concepto not in pool or len(pool) < 2:
         return None
     nombres = list(pool)
@@ -321,7 +549,10 @@ def _preguntar(self, concepto, consulta, cat, pool_max):
     nombres = [nombres[i] for i in orden]
     if concepto not in nombres:
         return None
-    return dict(cat=cat, nodo=concepto, y=nombres.index(concepto),
+    X = np.array([pool[n][0] for n in nombres], dtype=np.float32)
+    if not np.all(np.isfinite(X)) or not np.all(np.isfinite(base[orden])):
+        return None
+    return dict(cat=cat, nodo=concepto, q=consulta, y=nombres.index(concepto),
                 X=np.array([pool[n][0] for n in nombres], dtype=np.float32), base=base[orden].astype(np.float32))
 
 
@@ -354,18 +585,53 @@ def _plano(casos):
     return X, base, off, seg, y
 
 
-def _rangos(p, casos, topk):
-    """Puesto (1..k, 0 = fuera del top-k) de la respuesta, sirviendo como en producción:
-    la fórmula elige el top-k y la neurona solo lo reordena."""
-    out = np.zeros(len(casos), dtype=int)
-    for i, c in enumerate(casos):
+def _preparar(p, casos, topk):
+    """Lo caro (top-k de la fórmula y corrección de la red) se calcula una vez por pesos."""
+    prep = []
+    for c in casos:
         top = np.argsort(-c["base"], kind="stable")[:topk]
-        if p is not None:
-            clave = c["base"][top] + _correccion(p, c["X"][top].astype(float))
-            top = top[np.argsort(-clave, kind="stable")]
-        donde = np.nonzero(top == c["y"])[0]
+        corr = _correccion(p, c["X"][top].astype(float)) if p is not None else None
+        prep.append((top, c["base"][top].astype(float), corr, c["y"]))
+    return prep
+
+
+def _rangos_desde(prep, margen=0.0):
+    out = np.zeros(len(prep), dtype=int)
+    for i, (top, base, corr, y) in enumerate(prep):
+        if corr is not None:
+            top = top[np.argsort(-(base + corr + _prior(len(top), margen)), kind="stable")]
+        donde = np.nonzero(top == y)[0]
         out[i] = int(donde[0]) + 1 if len(donde) else 0
     return out
+
+
+def _rangos(p, casos, topk, margen=0.0):
+    """Puesto (1..k, 0 = fuera del top-k) de la respuesta, sirviendo como en producción:
+    la fórmula elige el top-k y la neurona solo lo reordena (con su margen)."""
+    return _rangos_desde(_preparar(p, casos, topk), margen)
+
+
+def _calibrar(p, todos, n_est, r_mano, piso, g_min, t_min, topk):
+    """PRIMERO NO DAÑAR: el menor margen con el que estos pesos
+      - no pierden NINGÚN caso de la guardia que la fórmula acertaba,
+      - en todo el examen pierden menos del 5 % de lo que ganan,
+      - no bajan ninguna categoría (aciertos #1 ni MRR),
+      - y alcanzan los mínimos pedidos de guardia y total.
+    Devuelve (margen, rangos) o (None, None) si ningún margen lo logra."""
+    a_mano = r_mano == 1
+    prep = _preparar(p, todos, topk)
+    for m in MARGENES:
+        r = _rangos_desde(prep, m)
+        a = r == 1
+        pierde, gana = a_mano & ~a, ~a_mano & a
+        if pierde[n_est:].any() or pierde.sum() > 0.05 * gana.sum():
+            continue
+        if not _cumple_piso(_por_cat(r, todos), piso):
+            continue
+        if int(a[n_est:].sum()) < g_min or int(a.sum()) < t_min:
+            continue
+        return m, r
+    return None, None
 
 
 def _por_cat(rangos, casos):
@@ -424,22 +690,26 @@ def _evaluar_y_decidir(est, cfg):
     r_mano = _rangos(None, todos, cfg["topk"])
     a_mano = r_mano == 1
     piso = _por_cat(r_mano, todos)
-    ng = len(est.guardia)
-    g_mano = int(a_mano[len(est.estudio):].sum())
+    ng, n_est = len(est.guardia), len(est.estudio)
+    g_mano, t_mano = int(a_mano[n_est:].sum()), int(a_mano.sum())
 
-    # 1) ¿el campeón sigue cumpliendo el piso con la DB de hoy?
+    # 1) ¿el campeón sigue sin dañar con la DB de hoy? Se recalibra su margen; si
+    #    ningún margen lo deja sin dañar, se retira y vuelven los pesos a mano.
+    campeon_ref = a_mano
     if est.campeon is not None:
-        r_c = _rangos(est.campeon, todos, cfg["topk"])
-        a_c = r_c == 1
-        if not _cumple_piso(_por_cat(r_c, todos), piso) or int(a_c[len(est.estudio):].sum()) < g_mano:
-            est.campeon = None
+        # debe seguir GANANDO a la fórmula (si solo empata, sobra: se retira)
+        m, r_c = _calibrar(est.campeon, todos, n_est, r_mano, piso, g_mano, t_mano + 1, cfg["topk"])
+        if m is None:
+            est.campeon, est.margen = None, 0.0
             est.stats["retiros"] += 1
             est.stats["tranquila"] = False
             est.stats["sin_mejora"] = 0
             res["retiro"] = True
-    campeon_ref = _r1(est.campeon, todos, cfg["topk"]) if est.campeon is not None else a_mano
-    g_ref = int(campeon_ref[len(est.estudio):].sum())
-    t_ref = int(campeon_ref.sum())
+        else:
+            est.margen = m
+            campeon_ref = r_c == 1
+    g_ref, t_ref = int(campeon_ref[n_est:].sum()), int(campeon_ref.sum())
+    res["margen"] = est.margen
 
     if est.stats["tranquila"]:
         if est.stats["nuevas_desde_tranquila"] < cfg["despertar"]:
@@ -451,27 +721,31 @@ def _evaluar_y_decidir(est, cfg):
 
     # 2) el retador estudia (solo el estudio; la guardia nunca)
     P = _plano(est.estudio)
+    respaldo = _copiar(est.retador)
     for _ in range(cfg["pasos"]):
         _paso(est, P, cfg["lr"], cfg["l2"])
-    r_r = _rangos(est.retador, todos, cfg["topk"])
-    a_r = r_r == 1
-    pr = _por_cat(r_r, todos)
-    g_r = int(a_r[len(est.estudio):].sum())
-    t_r = int(a_r.sum())
-    cumple_piso = _cumple_piso(pr, piso)
-    res.update(guardia_mano=g_mano / ng, guardia_retador=g_r / ng, guardia_campeon=g_ref / ng)
+    if not _sano(est.retador):
+        # el entrenamiento divergió (NaN/inf): se descarta este tramo, no entra nada roto
+        est.retador = respaldo if _sano(respaldo) else _Estado._nuevo(est.stats["reinicios"] + 1)
+        est.adam = None
+        est.stats["reinicios"] += 1
+        res.update(fase="estudiando", divergio=True)
+        return res
+    a_r = _rangos(est.retador, todos, cfg["topk"]) == 1     # sin margen: diagnóstico de memorización
+    res.update(guardia_mano=g_mano / ng, guardia_retador=int(a_r[n_est:].sum()) / ng, guardia_campeon=g_ref / ng)
+    m, r_r = (None, None)
+    if _sano(est.retador):
+        m, r_r = _calibrar(est.retador, todos, n_est, r_mano, piso, g_ref, t_ref + 1, cfg["topk"])
 
-    if cumple_piso and g_r >= g_ref and t_r > t_ref:
-        est.campeon = _copiar(est.retador)
+    if m is not None:
+        est.campeon, est.margen = _copiar(est.retador), m
         est.stats["ascensos"] += 1
         est.stats["sin_mejora"] = 0
-        res["fase"] = "ascenso"
-        res["guardia_campeon"] = g_r / ng
+        res.update(fase="ascenso", margen=m, guardia_campeon=int((r_r == 1)[n_est:].sum()) / ng)
     else:
         est.stats["sin_mejora"] += 1
         res["fase"] = "estudiando"
         # anti-memorización: estudia cada vez mejor pero la guardia no lo sigue
-        n_est = len(est.estudio)
         brecha = a_r[:n_est].mean() - a_r[n_est:].mean()
         brecha0 = a_mano[:n_est].mean() - a_mano[n_est:].mean()
         if brecha - brecha0 > .05:
@@ -486,11 +760,40 @@ def _evaluar_y_decidir(est, cfg):
     return res
 
 
-def _meter(lista, caso, maximo, rng):
-    if len(lista) < maximo:
+def _meter(lista, caso, maximo, rng, tope_nodo):
+    """Memoria de examen de tamaño fijo, siempre fresca y sin que un recuerdo la acapare.
+
+    - misma pregunta del mismo recuerdo: se reemplaza (no se duplica);
+    - un recuerdo guardado 100 veces no puede ocupar más de `tope_nodo` lugares
+      (si no, la neurona memorizaría ese recuerdo);
+    - llena: reemplazo al azar.
+    """
+    mios = [i for i, c in enumerate(lista) if c["nodo"] == caso["nodo"]]
+    for i in mios:
+        if lista[i].get("q") == caso.get("q"):
+            lista[i] = caso
+            return
+    if len(mios) >= tope_nodo:
+        lista[rng.choice(mios)] = caso
+    elif len(lista) < maximo:
         lista.append(caso)
     else:
-        lista[rng.randrange(maximo)] = caso  # reemplazo al azar: tamaño fijo, siempre fresco
+        lista[rng.randrange(maximo)] = caso
+
+
+def _purgar_olvidados(self, est, rng, n=20):
+    """Revisa unos pocos casos al azar (costo fijo): si su recuerdo ya no está activo
+    (borrado, fusionado o dormido) el caso sale del examen."""
+    quitados = 0
+    for lista in (est.estudio, est.guardia):
+        for i in sorted(rng.sample(range(len(lista)), min(n, len(lista))), reverse=True):
+            fila = self.cursor.execute(
+                "SELECT 1 FROM largo_plazo WHERE concepto = ? AND estado = 'activo'", (lista[i]["nodo"],)).fetchone()
+            if not fila:
+                lista.pop(i)
+                quitados += 1
+    est.stats["purgados"] = est.stats.get("purgados", 0) + quitados
+    return quitados
 
 
 def practicar(self, conceptos=(), nodos=None, presupuesto_s=None):
@@ -501,18 +804,31 @@ def practicar(self, conceptos=(), nodos=None, presupuesto_s=None):
     """
     if not activa() or silencio(self):
         return {"fase": "apagada"}
+    if _en_pausa(self, "practicar"):
+        return {"fase": "en pausa por fallas"}
+    candado = _candado(self)
+    if not candado.acquire(blocking=False):
+        return {"fase": "ocupada"}  # otro hilo ya está practicando: no se espera, no se bloquea
+    try:
+        return _practicar(self, conceptos, nodos, presupuesto_s)
+    finally:
+        candado.release()
+
+
+def _practicar(self, conceptos, nodos, presupuesto_s):
     t0 = time.time()
     try:
         cfg = _cfg()
         nodos = cfg["nodos"] if nodos is None else nodos
         presupuesto = cfg["presupuesto"] if presupuesto_s is None else presupuesto_s
-        est = estado(self)
+        est = _refrescar(self, forzar=True)
         if est.stats.get("tranquila"):
             nodos = max(1, nodos // 2)  # en el techo solo vigila: mitad de costo
         rng = random.Random(est.stats["ciclos"] * 7919 + 17)
-        nuevas = 0
+        _purgar_olvidados(self, est, rng)
+        nuevas, lenta = 0, 0.0
         for concepto in _nodos_a_examinar(self, conceptos, nodos, rng):
-            if time.time() - t0 > presupuesto:
+            if time.time() - t0 + lenta > presupuesto:
                 break
             fila = self.cursor.execute(
                 "SELECT contenido, COALESCE(sinonimos, '') FROM largo_plazo WHERE concepto = ? AND estado = 'activo'",
@@ -523,15 +839,18 @@ def practicar(self, conceptos=(), nodos=None, presupuesto_s=None):
             qs = preguntas(concepto, fila[0], fila[1])
             rng.shuffle(qs)
             for cat, q in qs[:cfg["preguntas"]]:
-                if time.time() - t0 > presupuesto:
+                # no empezar una pregunta que no cabe en el presupuesto (estimación: la más lenta hasta ahora)
+                if time.time() - t0 + lenta > presupuesto:
                     break
+                tq = time.time()
                 caso = _preguntar(self, concepto, q, cat, cfg["pool"])
+                lenta = max(lenta, time.time() - tq)
                 if caso is None:
                     continue
                 if _es_guardia(concepto):
-                    _meter(est.guardia, caso, cfg["max_guardia"], rng)
+                    _meter(est.guardia, caso, cfg["max_guardia"], rng, cfg["tope_nodo"])
                 else:
-                    _meter(est.estudio, caso, cfg["max_estudio"], rng)
+                    _meter(est.estudio, caso, cfg["max_estudio"], rng, cfg["tope_nodo"])
                 nuevas += 1
         est.stats["ciclos"] += 1
         est.stats["preguntas"] += nuevas
@@ -539,15 +858,16 @@ def practicar(self, conceptos=(), nodos=None, presupuesto_s=None):
         res = _evaluar_y_decidir(est, cfg)
         res.update(nuevas=nuevas, campeon=est.campeon is not None, ms=round((time.time() - t0) * 1000))
         est.stats["ultimo"] = {k: (round(v, 4) if isinstance(v, float) else v) for k, v in res.items()}
-        _guardar(self, est)
+        res["guardado"] = _guardar(self, est)
+        _bien(self, "practicar")
         return res
     except Exception as e:
-        logger.warning("neurona: el ciclo de aprendizaje falló; el motor sigue igual (%s)", e)
+        _fallo(self, "practicar", e)
         return {"fase": "error", "error": str(e)}
 
 
 def resumen(self):
     """Estado legible de la neurona (para herramientas de diagnóstico)."""
     est = estado(self)
-    return dict(activa=activa(), campeon=est.campeon is not None,
+    return dict(activa=activa(), campeon=est.campeon is not None, margen=est.margen,
                 estudio=len(est.estudio), guardia=len(est.guardia), **{k: v for k, v in est.stats.items()})

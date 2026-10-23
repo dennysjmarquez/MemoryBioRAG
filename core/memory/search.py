@@ -2222,7 +2222,7 @@ def buscar_por_frase(self, frase, profundidad="activos", pagina=1, limite=None, 
     # Neurona: reordena SOLO el top-5 final (mismos nodos, mismos scores reasignados).
     # Sin campeón aprendido (DB nueva, BIORAG_NEURONA=0) devuelve la página intacta.
     if _neurona_anotar:
-        self.last_neurona_rasgos = _neurona_rasgos
+        neurona.entregar_rasgos(self, _neurona_rasgos)
         if pagina == 1 and ordenar_por == "relevancia" and not _neurona_silencio:
             pagina_resultados = neurona.reordenar(self, _neurona_frase, pagina_resultados, _neurona_rasgos)
 

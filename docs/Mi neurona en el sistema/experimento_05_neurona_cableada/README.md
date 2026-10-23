@@ -106,3 +106,7 @@ Al responder el costo no es medible: el QA tarda 585 s con campeón frente a 588
 ## Reproducir
 
 `bash correr_validacion.sh` (variables `LAB` y `PY`). Todas las salidas literales del QA están en `resultados/qa_0*.txt|json`, las curvas en `resultados/curva_*.jsonl` y el campeón final en `resultados/campeon_snapshot_474_consolidaciones.json`.
+
+---
+
+**Continúa en el [experimento 06](../experimento_06_capas_de_proteccion/README.md):** capas de protección para cada falla posible (32 pruebas) y el margen "primero no dañar", que corrige el retroceso con preguntas humanas en datos que la neurona nunca vio.

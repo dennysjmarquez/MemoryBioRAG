@@ -7,7 +7,9 @@ el propio recuerdo, consultas con respuesta conocida ("tapar y adivinar").
 
 Es el mismo tipo de preguntas que `scripts/generar_casos_qa.py` (variante, typo,
 sinónimo, pregunta natural, por tema, cruce de idioma), copiado aquí para que el
-motor no dependa de `scripts/` (que no se distribuye con el motor). No genera
+motor no dependa de `scripts/` (que no se distribuye con el motor). Además genera
+preguntas de CONTENIDO (como pregunta una persona que no sabe el nombre del
+recuerdo: palabras de una oración de lo que dice), que el QA no tiene. No genera
 "literal" ni "dormido": esos casos ya los resuelve el motor sin neurona.
 
 Determinista: el azar se siembra con el nombre del concepto, así que el mismo
@@ -16,6 +18,7 @@ Ref: docs/Mi neurona en el sistema/experimento_04_autoaprendizaje/README.md
 """
 import hashlib
 import random
+import re
 
 from core.stopwords import STOPWORDS
 
@@ -52,6 +55,15 @@ PLANTILLAS = (
     "¿Qué tenemos registrado para {}?",
     "Explicame el tema de {}",
     "¿Qué me podés decir sobre {}?",
+)
+
+
+PLANTILLAS_CONTENIDO = (
+    "¿{}?",
+    "¿Por qué {}?",
+    "¿Cómo funciona {}?",
+    "¿Qué pasa con {}?",
+    "{}",
 )
 
 
@@ -102,6 +114,34 @@ def _palabras_clave(texto):
     return sorted(out)
 
 
+def _palabras_en_orden(texto):
+    out = []
+    for w in (texto or "").lower().replace("_", " ").split():
+        w = "".join(ch for ch in w if ch.isalnum())
+        if w and w not in STOPWORDS and len(w) > 2:
+            out.append(w)
+    return out
+
+
+def _preguntas_de_contenido(rng, contenido, nombre_palabras, n=2):
+    """Como pregunta una persona: no sabe cómo se llama el recuerdo, pregunta por lo
+    que DICE. Se toma una oración del contenido y una ventana de 3-5 palabras con
+    significado (en su orden), envuelta en una forma de pregunta."""
+    oraciones = [o for o in re.split(r"(?<=[.!?;:])\s+|\n+", contenido or "") if o.strip()]
+    utiles = []
+    for o in oraciones:
+        ws = [w for w in _palabras_en_orden(o) if w not in nombre_palabras]
+        if len(ws) >= 3:
+            utiles.append(ws)
+    out = []
+    rng.shuffle(utiles)
+    for ws in utiles[:n]:
+        largo = min(len(ws), rng.randint(3, 5))
+        i = rng.randint(0, len(ws) - largo)
+        out.append(("contenido", rng.choice(PLANTILLAS_CONTENIDO).format(" ".join(ws[i:i + largo]))))
+    return out
+
+
 def preguntas(concepto, contenido, sinonimos=""):
     """Lista de (categoria, consulta) con respuesta conocida = `concepto`.
 
@@ -131,6 +171,8 @@ def preguntas(concepto, contenido, sinonimos=""):
     tema = [w for w in _palabras_clave(contenido) if w not in palabras]
     if len(tema) >= 2:
         out.append(("por_tema", " ".join(rng.sample(tema, min(3, len(tema))))))
+
+    out.extend(_preguntas_de_contenido(rng, contenido, set(w.lower() for w in palabras)))
 
     vistas, limpias = set(), []
     for cat, q in out:

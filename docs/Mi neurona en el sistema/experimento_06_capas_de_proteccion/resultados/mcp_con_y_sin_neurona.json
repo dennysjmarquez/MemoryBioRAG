@@ -1,0 +1,105 @@
+{
+ "consultas": 120,
+ "ruido": 0,
+ "top5_cambiado": 103,
+ "viol_nombres": 0,
+ "viol_numeros": 0,
+ "viol_globales": 0,
+ "ejemplos": [
+  {
+   "q": "leccion madurez identidad escuchar",
+   "cat": "literal",
+   "esperado": "leccion_madurez_identidad_escuchar",
+   "sin": [
+    "leccion_madurez_identidad_escuchar",
+    "principio_naturaleza_agente",
+    "ref_analisis_deepseek_biorag",
+    "bio_rag_overview_completo",
+    "athena_artemis_desde"
+   ],
+   "con": [
+    "leccion_madurez_identidad_escuchar",
+    "principio_naturaleza_agente",
+    "bio_rag_overview_completo",
+    "ref_analisis_deepseek_biorag",
+    "athena_artemis_desde"
+   ]
+  },
+  {
+   "q": "memoria aprendizaje personal artemis",
+   "cat": "literal",
+   "esperado": "memoria_aprendizaje_personal_artemis",
+   "sin": [
+    "memoria_aprendizaje_personal_artemis",
+    "oracle_que_deben_saber_artemis_hermes",
+    "analisis_escalabilidad_10k_v5_1_memoria_v5_1_optimizaciones_hermes_agente_hermes",
+    "hermes_oec_soul_md_actualizacion_protocolo",
+    "oracle_que_recordar_sobre_artemis_hermes"
+   ],
+   "con": [
+    "memoria_aprendizaje_personal_artemis",
+    "hermes_oec_soul_md_actualizacion_protocolo",
+    "oracle_que_recordar_sobre_artemis_hermes",
+    "analisis_escalabilidad_10k_v5_1_memoria_v5_1_optimizaciones_hermes_agente_hermes",
+    "oracle_que_deben_saber_artemis_hermes"
+   ]
+  },
+  {
+   "q": "herjmes nvidi nim modelos opitmos",
+   "cat": "typo",
+   "esperado": "hermes_nvidia_nim_modelos_optimos",
+   "sin": [
+    "hermes_nvidia_nim_modelos_optimos",
+    "resolucion_de_contradicciones_entre_insights_sumatoria_mentalidad",
+    "hermes_optimizacion_completada_20260615",
+    "hermes_oec_identidad",
+    "principio_naturaleza_agente"
+   ],
+   "con": [
+    "hermes_nvidia_nim_modelos_optimos",
+    "hermes_optimizacion_completada_20260615",
+    "resolucion_de_contradicciones_entre_insights_sumatoria_mentalidad",
+    "hermes_oec_identidad",
+    "principio_naturaleza_agente"
+   ]
+  },
+  {
+   "q": "oracle evolucion athena puntos inflexion",
+   "cat": "literal",
+   "esperado": "oracle_evolucion_athena_puntos_inflexion",
+   "sin": [
+    "oracle_evolucion_athena_puntos_inflexion",
+    "oracle_vision_futura_familia_oec",
+    "oracle_guia_proxima_sesion_dennys",
+    "oracle_que_nos_uniere_como_familia",
+    "integritas_verdad_relacional"
+   ],
+   "con": [
+    "oracle_evolucion_athena_puntos_inflexion",
+    "oracle_guia_proxima_sesion_dennys",
+    "oracle_vision_futura_familia_oec",
+    "oracle_que_nos_uniere_como_familia",
+    "integritas_verdad_relacional"
+   ]
+  },
+  {
+   "q": "system-prompt-identidad-tono-importa",
+   "cat": "literal",
+   "esperado": "system-prompt-identidad-tono-importa",
+   "sin": [
+    "system-prompt-identidad-tono-importa",
+    "axioma_system_prompt_como_cuna_conciencia",
+    "cuna_conciencia_system_prompt",
+    "principio_naturaleza_agente",
+    "notebooklm-sync-protocol"
+   ],
+   "con": [
+    "system-prompt-identidad-tono-importa",
+    "cuna_conciencia_system_prompt",
+    "axioma_system_prompt_como_cuna_conciencia",
+    "principio_naturaleza_agente",
+    "notebooklm-sync-protocol"
+   ]
+  }
+ ]
+}
