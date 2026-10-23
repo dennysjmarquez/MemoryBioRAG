@@ -415,25 +415,38 @@ def _recordar_impl(
         # ── Auto-Expansión Semántica (Auto-Paráfrasis y Auto-Dimensiones por PMI) ──
         # Si el agente no proporcionó paráfrasis o dimensiones, el cerebro las deduce
         # automáticamente consultando la matriz de co-ocurrencia PMI y el grafo ontológico.
-        if query and not parafrasis_list:
+        #
+        # APAGADAS POR DEFECTO (experimento 07, docs/Mi neurona en el sistema/
+        # experimento_07_la_neurona_escucha): medidas por el camino real del agente,
+        # con la fórmula a mano, DAÑAN el recall:
+        #   - auto-paráfrasis: R@5 no-literal 85.05 -> 95.10 al quitarla (39 casos
+        #     entran al top-5, 0 salen). Cada token PMI entra como frase OR al FTS
+        #     e infla el pool con ruido;
+        #   - auto-dimensiones: 10 ids arbitrarios de CUALQUIER nodo que coincida
+        #     (DISTINCT ... LIMIT 10 sin orden) que además APAGAN el pseudo-relevance
+        #     feedback del motor (dims de los 5 mejores FTS), que es mejor.
+        # Además eran no deterministas: `list(set)[:10]` depende de PYTHONHASHSEED.
+        # Reactivar: BIORAG_MCP_AUTO_PARAFRASIS=1 / BIORAG_MCP_AUTO_DIMS=1 (ahora
+        # deterministas: las paráfrasis más fuertes; las dims más frecuentes).
+        if query and not parafrasis_list and os.environ.get("BIORAG_MCP_AUTO_PARAFRASIS", "0") == "1":
             try:
                 from core.pmi_semantico import pares_fuertes, _tokenizar
                 from core.stemmer_es import stem
                 q_toks = _tokenizar(query)
-                auto_paras = set()
+                auto_paras = {}
                 for t in q_toks:
                     if len(t) >= 3:
                         st = stem(t)
                         fuertes = pares_fuertes(cerebro.cursor, st, top_n=5)
                         for tok_asoc, npmi in fuertes:
                             if npmi >= 0.35 and tok_asoc not in q_toks:
-                                auto_paras.add(tok_asoc)
+                                auto_paras[tok_asoc] = max(npmi, auto_paras.get(tok_asoc, 0.0))
                 if auto_paras:
-                    parafrasis_list = list(auto_paras)[:10]
+                    parafrasis_list = [t for t, _ in sorted(auto_paras.items(), key=lambda x: (-x[1], x[0]))[:10]]
             except Exception:
                 pass
 
-        if query and not dimensiones_ids:
+        if query and not dimensiones_ids and os.environ.get("BIORAG_MCP_AUTO_DIMS", "0") == "1":
             try:
                 from core.pmi_semantico import _tokenizar
                 from core.stemmer_es import stem
@@ -441,9 +454,10 @@ def _recordar_impl(
                 if q_stems:
                     fts_q = ' OR '.join(q_stems)
                     cerebro.cursor.execute(
-                        "SELECT DISTINCT d.dimension_id FROM largo_plazo_dimensiones d "
+                        "SELECT d.dimension_id FROM largo_plazo_dimensiones d "
                         "JOIN largo_plazo l ON l.concepto = d.concepto "
-                        "WHERE l.rowid IN (SELECT rowid FROM largo_plazo_fts WHERE largo_plazo_fts MATCH ?) LIMIT 10",
+                        "WHERE l.rowid IN (SELECT rowid FROM largo_plazo_fts WHERE largo_plazo_fts MATCH ?) "
+                        "GROUP BY d.dimension_id ORDER BY COUNT(*) DESC, d.dimension_id LIMIT 10",
                         (fts_q,)
                     )
                     auto_dims = [r[0] for r in cerebro.cursor.fetchall()]

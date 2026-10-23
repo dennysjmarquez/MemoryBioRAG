@@ -1,0 +1,10 @@
+quitar=['parafrasis']  neurona=0
+categoría                 n     R@1     R@5     MRR
+cruce_idioma              8   62.50  100.00  0.7500
+dormido                  65  100.00  100.00  1.0000
+por_tema                 65   49.23   81.54  0.6254
+pregunta_natural         65   93.85  100.00  0.9641
+sinonimo                 55   56.36   96.36  0.7085
+typo                     65   89.23   98.46  0.9333
+variante_gramatical      65   87.69   93.85  0.9038
+GLOBAL                  388   79.64   95.10  0.8575
