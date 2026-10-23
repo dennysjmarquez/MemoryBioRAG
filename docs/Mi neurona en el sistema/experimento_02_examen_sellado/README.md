@@ -3,6 +3,7 @@
 - **Fecha:** 2026-10-22.
 - **Rama:** `arena/720a0807-memorybiorag`.
 - **Estado:** experimento offline. **No modifica el motor, la DB ni el snapshot.**
+- **Continuación:** [experimento 03](../experimento_03_ideas_conversacion/README.md): las ideas de la conversación con otra IA (re-ranqueo en vivo, pesos campeones, empate técnico, pesos por perfil), medidas.
 - **Viene de:** [experimento 01](../experimento_01_pesos_aprendidos/README.md) y su [explicación](../experimento_01_pesos_aprendidos/LA_NEURONA_EXPLICADA.md). Usa las mismas señales, el mismo modelo R2 y los mismos datos.
 
 ---
