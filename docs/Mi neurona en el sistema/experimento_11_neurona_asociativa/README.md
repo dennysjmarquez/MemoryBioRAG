@@ -5,7 +5,9 @@
 > verdad** tienen que ver, que venga **ya calibrada de fábrica** (como nacemos con neuronas listas),
 > que **no** se entrene con la memoria de la persona y que funcione en **cualquier** memoria.
 >
-> **Hay una versión 2 más abajo (PARTE 2, sección V2.0).** Responde a la revisión externa de la v1,
+![La neurona asociativa de BioRAG — anatomía](figuras/01_anatomia.png)
+
+> **Hay una versión 2 más abajo (PARTE 2, sección V2.0).** Todos los dibujos están en la sección V2.14. Responde a la revisión externa de la v1,
 > agrega 4 memorias (español, portugués, código y chat), el tiempo y las etiquetas. Lo de esta parte
 > es la v1 y queda como historia.
 >
@@ -376,6 +378,8 @@ python variantes.py    # ~3 min: piso sin mirar + tamaños de techo
 > **Estado:** experimento. **No se cambió ni una línea del motor. No se tocó ninguna DB real.** La
 > memoria de Dennys se leyó desde una **copia** del snapshot, solo lectura. El hash del snapshot sigue
 > igual (`104dd290…`).
+
+![Anatomía de la neurona asociativa](figuras/01_anatomia.png)
 
 ## V2.0. En pocas líneas
 
@@ -757,6 +761,8 @@ python variantes.py                               # ~1 min: ¿qué se puede apre
 | `fabrica.py` | Todo el experimento |
 | `variantes.py` | ¿Qué se puede aprender? (sección V2.6.1) |
 | `test_neurona_asociativa.py` | Las 31 pruebas |
+| `datos_figuras.py` | Saca de la **copia** de tu memoria los pocos números que los dibujos necesitan → `resultados/figuras_dennys.json` (sin textos de recuerdos) |
+| `dibujar.py` | Dibuja las 12 figuras de `figuras/` solo desde `resultados/*.json` (no necesita ninguna DB) |
 | `pesos_fabrica.json` | Los pesos de nacimiento (corrección con escala 0 = apagada) |
 | `resultados/*.json` | Todos los números de este README |
 
@@ -772,3 +778,69 @@ python variantes.py                               # ~1 min: ¿qué se puede apre
    "que no se entrene con el corpus de la persona", por eso pregunto.
 3. **Capa de candidatos** para el 31 % de enlaces humanos que hoy no llegan (cambio del motor).
 4. **Muestra a mano** de ~100 pares (opcional) para medir precisión real.
+
+---
+
+## V2.14. La neurona en dibujos
+
+Mismo estilo que los dibujos de la primera neurona de BioRAG (la del ranking). Cada número sale de
+`resultados/*.json`; se redibujan con `python dibujar.py`.
+
+### 1. Anatomía: qué mira, cómo suma y cómo decide
+![Anatomía](figuras/01_anatomia.png)
+
+Las 12 agujas miran el par. Cada color es la parte del hipocampo que imitan. Solo 5 pesan en el piso:
+la línea gruesa es su peso. El tiempo y las etiquetas pasan por una **llave** (× fiabilidad). El Σ
+suma, la curva lo vuelve un número de 0 a 1 (la fuerza) y la **competencia** deja a cada recuerdo con
+sus 10 socios más fuertes. La parte que aprende está dibujada, pero **apagada**.
+
+### 2. De tu hipocampo a la neurona
+![Hipocampo](figuras/02_hipocampo.png)
+
+### 3. Un par real de tu memoria, paso a paso
+![Un par paso a paso](figuras/03_un_par_paso_a_paso.png)
+
+Uno de tus enlaces a mano. Casi no comparten palabras (parecido .04), pero comparten una pista rara
+(.50) y se guardaron cerca en el tiempo (.44 ya pasado por la llave). El piso suma
+−1 + 0.08 + 0.10 + 0.50 + 1.74 + 0.23 = **1.65**, y eso da fuerza **.84**: queda 3º de 129.
+
+### 4. El banco: qué separa cada aguja en cada memoria
+![Banco de agujas](figuras/04_banco_agujas.png)
+
+### 5. La huella en tu memoria
+![Huella](figuras/05_huella_en_tu_memoria.png)
+
+Para cada aguja, el valor típico de **tus** enlaces (verde) y el de lo que Gemini sacó a cuarentena
+(rojo). Las que más separan son `pistas_raras`, `mutuo` y `semantica`. `hub` sale más alto en lo
+humano; por eso el piso no lo usa para restar.
+
+### 6. Las llaves de auto-regulación
+![Auto-regulación](figuras/06_auto_regulacion.png)
+
+### 7. Examen «nunca vista»
+![Nunca vista](figuras/07_examen_nunca_vista.png)
+
+### 8. Tu memoria: tres jueces
+![Tres jueces](figuras/08_tu_memoria_tres_jueces.png)
+
+A la izquierda, el peso que usa el motor hoy pone tus enlaces **abajo** (.271); la neurona los pone
+arriba (.868). En el medio, tus enlaces (verde) se van a fuerzas altas y lo que Gemini descartó (rojo)
+se queda abajo. A la derecha, de todos los tipos de conexión que existen, los manuales son los más
+fuertes por lejos.
+
+### 9. Competencia
+![Competencia](figuras/09_competencia.png)
+
+La espiral es el recuerdo de tu captura del Neuro-Visor: sus 129 conexiones, más cerca del centro =
+más fuerte. Las ★ son tus 4 enlaces. A la derecha, con el mismo cupo de socios, la neurona conserva
+muchos más de tus enlaces que el peso de hoy (84 % vs 26 % con K = 10).
+
+### 10. Tu captura: puestos v1 → v2
+![Puestos](figuras/10_neuro_visor_puestos.png)
+
+### 11. La balanza: por qué la parte que aprende queda apagada
+![Balanza](figuras/11_balanza_aprender.png)
+
+### 12. Lo que todavía le falta
+![Lo que falta](figuras/12_lo_que_falta.png)
+
