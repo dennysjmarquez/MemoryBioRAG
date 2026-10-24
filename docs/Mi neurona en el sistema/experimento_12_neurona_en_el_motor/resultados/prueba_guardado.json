@@ -1,0 +1,122 @@
+{
+ "recuerdos": {
+  "neurona_asociativa_cableada_motor": {
+   "mismas_sinapsis": true,
+   "n": 51,
+   "segundos_apagada": 1.608,
+   "segundos_encendida": 2.046,
+   "por_tipo": {
+    "sinonimo_explicito": {
+     "n": 51,
+     "mano_mediana": 0.9,
+     "neurona_mediana": 0.696,
+     "neurona_min": 0.637,
+     "neurona_max": 0.778
+    }
+   }
+  },
+  "qa_baseline_antes_cableado": {
+   "mismas_sinapsis": true,
+   "n": 73,
+   "segundos_apagada": 0.273,
+   "segundos_encendida": 0.234,
+   "por_tipo": {
+    "co_nombre": {
+     "n": 2,
+     "mano_mediana": 0.51,
+     "neurona_mediana": 0.752,
+     "neurona_min": 0.744,
+     "neurona_max": 0.761
+    },
+    "sinonimo_explicito": {
+     "n": 69,
+     "mano_mediana": 0.9,
+     "neurona_mediana": 0.708,
+     "neurona_min": 0.634,
+     "neurona_max": 0.847
+    },
+    "pmi_hebbiano": {
+     "n": 2,
+     "mano_mediana": 0.52,
+     "neurona_mediana": 0.706,
+     "neurona_min": 0.7,
+     "neurona_max": 0.711
+    }
+   }
+  },
+  "hormiguita_gemini_cuarentena_revision": {
+   "mismas_sinapsis": true,
+   "n": 37,
+   "segundos_apagada": 0.126,
+   "segundos_encendida": 0.15,
+   "por_tipo": {
+    "pmi_hebbiano": {
+     "n": 9,
+     "mano_mediana": 0.54,
+     "neurona_mediana": 0.679,
+     "neurona_min": 0.634,
+     "neurona_max": 0.794
+    },
+    "sinonimo_explicito": {
+     "n": 28,
+     "mano_mediana": 0.9,
+     "neurona_mediana": 0.762,
+     "neurona_min": 0.697,
+     "neurona_max": 0.83
+    }
+   }
+  },
+  "athena_identidad_reflexion_octubre": {
+   "mismas_sinapsis": true,
+   "n": 213,
+   "segundos_apagada": 0.46,
+   "segundos_encendida": 0.545,
+   "por_tipo": {
+    "sinonimo_explicito": {
+     "n": 206,
+     "mano_mediana": 0.9,
+     "neurona_mediana": 0.676,
+     "neurona_min": 0.634,
+     "neurona_max": 0.841
+    },
+    "pmi_hebbiano": {
+     "n": 7,
+     "mano_mediana": 0.57,
+     "neurona_mediana": 0.646,
+     "neurona_min": 0.634,
+     "neurona_max": 0.728
+    }
+   }
+  },
+  "plugin_opencode_sesion_idle": {
+   "mismas_sinapsis": true,
+   "n": 56,
+   "segundos_apagada": 0.177,
+   "segundos_encendida": 0.237,
+   "por_tipo": {
+    "sinonimo_explicito": {
+     "n": 45,
+     "mano_mediana": 0.9,
+     "neurona_mediana": 0.765,
+     "neurona_min": 0.638,
+     "neurona_max": 0.875
+    },
+    "pmi_hebbiano": {
+     "n": 11,
+     "mano_mediana": 0.56,
+     "neurona_mediana": 0.639,
+     "neurona_min": 0.634,
+     "neurona_max": 0.702
+    }
+   }
+  }
+ },
+ "alcance_apagada": [
+  400,
+  430
+ ],
+ "alcance_encendida": [
+  101,
+  430
+ ]
+}

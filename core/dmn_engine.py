@@ -583,7 +583,11 @@ def podar_ltd_guiado(cerebro, temperatura=None, peso_umbral=0.05):
     if temperatura is None:
         temperatura = TERMODINAMICA_TEMP
     cur = cerebro.cursor
-    cur.execute("SELECT origen, destino FROM sinapsis WHERE peso < ?", (float(peso_umbral),))
+    from core.memory.constants import SQL_NO_ES_DEL_AGENTE
+    cur.execute(
+        "SELECT origen, destino FROM sinapsis WHERE peso < ? AND " + SQL_NO_ES_DEL_AGENTE,
+        (float(peso_umbral),),
+    )
     cands = sorted({(r[0], r[1]) for r in cur.fetchall() if r[0] and r[1]})
     if not cands:
         return 0

@@ -1,0 +1,92 @@
+{
+ "sinapsis_sinonimo_explicito_en_la_db": 5863,
+ "recuerdos_con_ese_tipo": 256,
+ "max_por_recuerdo_en_la_db": 231,
+ "terminos_mas_comunes": [
+  [
+   "biorag",
+   158
+  ],
+  [
+   "athena",
+   77
+  ],
+  [
+   "dennys",
+   76
+  ],
+  [
+   "leccion",
+   65
+  ],
+  [
+   "principio",
+   48
+  ],
+  [
+   "identidad",
+   45
+  ],
+  [
+   "artemis",
+   39
+  ],
+  [
+   "dimensiones",
+   34
+  ],
+  [
+   "memoria",
+   32
+  ],
+  [
+   "agente",
+   28
+  ]
+ ],
+ "enlaces_humanos": 381,
+ "reglas": {
+  "hoy": {
+   "pares": 34335,
+   "max_por_recuerdo": 525,
+   "fuerza_mediana": 0.431,
+   "humanos_encontrados": 220
+  },
+  "palabra completa": {
+   "pares": 19335,
+   "max_por_recuerdo": 276,
+   "fuerza_mediana": 0.44,
+   "humanos_encontrados": 183
+  },
+  "palabra completa + raro (<= 10)": {
+   "pares": 3873,
+   "max_por_recuerdo": 48,
+   "fuerza_mediana": 0.521,
+   "humanos_encontrados": 138
+  },
+  "palabra completa + raro + tope 10": {
+   "pares": 2896,
+   "max_por_recuerdo": 22,
+   "fuerza_mediana": 0.536,
+   "humanos_encontrados": 122
+  },
+  "hoy + neurona (top 5)": {
+   "pares": 3059,
+   "max_por_recuerdo": 24,
+   "fuerza_mediana": 0.711,
+   "humanos_encontrados": 148
+  },
+  "hoy + neurona (top 10)": {
+   "pares": 5979,
+   "max_por_recuerdo": 62,
+   "fuerza_mediana": 0.601,
+   "humanos_encontrados": 172
+  },
+  "hoy + neurona (top 20)": {
+   "pares": 11614,
+   "max_por_recuerdo": 156,
+   "fuerza_mediana": 0.528,
+   "humanos_encontrados": 196
+  }
+ }
+}

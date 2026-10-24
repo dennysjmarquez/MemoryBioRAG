@@ -435,7 +435,7 @@ def ciclo_sueno_consolidacion(self):
         SET peso = ROUND(MAX(0.0, peso * 0.95), 3)
         WHERE ultimo_uso IS NOT NULL
           AND ultimo_uso < strftime('%s', 'now') - 604800
-    """)
+          AND """ + constants.SQL_NO_ES_DEL_AGENTE)
     # Podar sinapsis muertas (F4: guiado termodinamico si flag ON).
     try:
         from core.dmn_engine import TERMODINAMICA_DMN, podar_ltd_guiado
@@ -446,9 +446,9 @@ def ciclo_sueno_consolidacion(self):
         try:
             podar_ltd_guiado(self)
         except Exception:
-            self.cursor.execute("DELETE FROM sinapsis WHERE peso < 0.05")
+            self.cursor.execute("DELETE FROM sinapsis WHERE peso < 0.05 AND " + constants.SQL_NO_ES_DEL_AGENTE)
     else:
-        self.cursor.execute("DELETE FROM sinapsis WHERE peso < 0.05")
+        self.cursor.execute("DELETE FROM sinapsis WHERE peso < 0.05 AND " + constants.SQL_NO_ES_DEL_AGENTE)
 
     # 3. Poda selectiva por umbral de fuerza (Dormir recuerdos <= 0.05)
     # Snapshot ANTES de dormir (para detectar quiénes se duermen)

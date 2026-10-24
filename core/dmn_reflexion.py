@@ -50,6 +50,8 @@ import urllib.request
 import urllib.error
 import sqlite3
 
+from core.memory.constants import TIPOS_SINAPSIS_AGENTE
+
 logger = logging.getLogger("BioRAG.DMN.Reflexion")
 
 # --- Configuración ---------------------------------------------------------
@@ -285,6 +287,11 @@ def _pre_filtrar_conexiones(seed_contenido, sinapsis_directas, sinapsis_latentes
         tipo = s.get("tipo", "")
         contenido_dest = s.get("contenido_destino", "")
         destino = s.get("destino", "")
+
+        # SKIP: enlace decidido por el agente (intocable)
+        if tipo in TIPOS_SINAPSIS_AGENTE:
+            mantenidas_directas.append(s)
+            continue
 
         # SKIP: conexión fuerte
         if peso >= UMBRAL_PRE_FILTRADO_PESO_ALTO:
@@ -758,6 +765,9 @@ def _aplicar_veredicto(cerebro, veredicto):
                 )
             elif tipo == "sinapsis_directa":
                 origen, _, destino = ref.partition("->")
+                if _es_enlace_del_agente(cursor, origen, destino):
+                    logger.info(f"[DMN Fase2] {id_} es enlace del agente: no se borra")
+                    return False
                 cursor.execute(
                     "DELETE FROM sinapsis WHERE origen = ? AND destino = ?",
                     (origen, destino),
@@ -802,6 +812,9 @@ def _aplicar_veredicto(cerebro, veredicto):
             except (TypeError, ValueError):
                 nuevo_peso = 0.5
             origen, _, destino = ref.partition("->")
+            if _es_enlace_del_agente(cursor, origen, destino):
+                logger.info(f"[DMN Fase2] {id_} es enlace del agente: peso intacto")
+                return False
             cursor.execute(
                 "UPDATE sinapsis SET peso = ? WHERE origen = ? AND destino = ?",
                 (nuevo_peso, origen, destino),
@@ -842,6 +855,15 @@ def _aplicar_veredicto(cerebro, veredicto):
         return False
 
 
+def _es_enlace_del_agente(cursor, origen, destino):
+    """True si la sinapsis directa origen→destino la decidió el agente (intocable)."""
+    cursor.execute(
+        "SELECT tipo FROM sinapsis WHERE origen = ? AND destino = ?", (origen, destino)
+    )
+    fila = cursor.fetchone()
+    return bool(fila) and fila[0] in TIPOS_SINAPSIS_AGENTE
+
+
 def _mover_a_cuarentena(concepto, destino, tabla, cerebro, motivo="", confianza=0.0, origen="ciclo_daemon"):
     """
     Soft-delete: mueve una sinapsis a sinapsis_cuarentena antes de borrarla.
@@ -863,6 +885,9 @@ def _mover_a_cuarentena(concepto, destino, tabla, cerebro, motivo="", confianza=
         if not row:
             return False
         tipo, peso = row
+        if tipo in TIPOS_SINAPSIS_AGENTE:
+            logger.info(f"[Hormiguita] {concepto}→{destino} es enlace del agente: no se toca")
+            return False
         datos_extra = None
         delete_sql = "DELETE FROM sinapsis WHERE origen = ? AND destino = ?"
     else:  # sinapsis_latentes
@@ -1208,11 +1233,15 @@ def _aplicar_veredicto_nodo(concepto, veredicto, cerebro, origen_llamada="ciclo_
 
         # --- SINAPSIS DIRECTA ---
         elif capa == "sinapsis_directa" and accion == "eliminar" and confianza >= UMBRAL_CONFIANZA_ELIMINAR:
-            _mover_a_cuarentena(concepto, ref, "sinapsis", cerebro, justificacion, confianza, origen=origen_llamada)
+            if not _mover_a_cuarentena(concepto, ref, "sinapsis", cerebro, justificacion, confianza, origen=origen_llamada):
+                return False  # no existía o es enlace del agente: sin mutación
             reindexar.update((concepto, ref))  # vecinos cambiaron
             logger.info(f"[Hormiguita] SINAP -{concepto}→{ref} ({confianza:.2f}): {justificacion}")
 
         elif capa == "sinapsis_directa" and accion == "reponderar" and confianza >= UMBRAL_CONFIANZA_ACEPTAR:
+            if _es_enlace_del_agente(cursor, concepto, ref):
+                logger.info(f"[Hormiguita] {concepto}→{ref} es enlace del agente: peso intacto")
+                return False
             if peso_sugerido is not None:
                 nuevo_peso = min(max(float(peso_sugerido), 0.0), 1.0)
                 cursor.execute(

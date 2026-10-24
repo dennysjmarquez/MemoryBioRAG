@@ -1,0 +1,513 @@
+{
+ "recuerdos": 851,
+ "completa (texto + tiempo + dims)": {
+  "fiab_episodio": 0.482,
+  "fiab_etiquetas": 0.363,
+  "manual_que_la_neurona_propondria_sola_pct": 69.3,
+  "candidatos_propios": 20529,
+  "conexiones_existentes": 13342,
+  "manual": 381,
+  "auc_manual_vs_resto": {
+   "peso_del_motor_hoy": 0.271,
+   "piso_a_mano": 0.868,
+   "neurona": 0.868
+  },
+  "jueces": {
+   "n_humano_si": 381,
+   "n_gemini_si": 120,
+   "n_gemini_no": 3971,
+   "auc_humano_si_vs_gemini_no": {
+    "piso_a_mano": 0.93,
+    "neurona": 0.93
+   },
+   "auc_gemini_si_vs_gemini_no": {
+    "neurona": 0.624
+   },
+   "fuerza_mediana": {
+    "humano_si": 0.754,
+    "gemini_si": 0.448,
+    "gemini_no": 0.399
+   }
+  },
+  "competencia": {
+   "k5": {
+    "se_conserva_pct": 22.7,
+    "manual_conservadas_pct": 68.2,
+    "solo_competencia": {
+     "manual_orden_neurona_pct": 66.9,
+     "manual_orden_peso_hoy_pct": 10.2
+    },
+    "por_tipo_pct": {
+     "sinonimo_explicito": 27.0,
+     "pmi_hebbiano": 10.6,
+     "co_ocurrencia": 20.8,
+     "co_nombre": 20.2,
+     "co_semantica": 15.2,
+     "manual": 68.2,
+     "latente_confirmada": 25.8,
+     "dmn_synthesized": 32.1
+    }
+   },
+   "k10": {
+    "se_conserva_pct": 41.2,
+    "manual_conservadas_pct": 83.7,
+    "solo_competencia": {
+     "manual_orden_neurona_pct": 83.7,
+     "manual_orden_peso_hoy_pct": 25.7
+    },
+    "por_tipo_pct": {
+     "sinonimo_explicito": 48.4,
+     "pmi_hebbiano": 26.8,
+     "co_ocurrencia": 34.7,
+     "co_nombre": 39.6,
+     "co_semantica": 32.5,
+     "manual": 83.7,
+     "latente_confirmada": 45.8,
+     "dmn_synthesized": 44.6
+    }
+   },
+   "k20": {
+    "se_conserva_pct": 67.7,
+    "manual_conservadas_pct": 95.5,
+    "solo_competencia": {
+     "manual_orden_neurona_pct": 95.5,
+     "manual_orden_peso_hoy_pct": 48.8
+    },
+    "por_tipo_pct": {
+     "sinonimo_explicito": 74.9,
+     "pmi_hebbiano": 57.5,
+     "co_ocurrencia": 57.6,
+     "co_nombre": 68.3,
+     "co_semantica": 60.6,
+     "manual": 95.5,
+     "latente_confirmada": 64.2,
+     "dmn_synthesized": 60.7
+    }
+   }
+  },
+  "caso_neuro_visor": {
+   "recuerdo": "leccion_discrepancia_busquedas_vocabulario_no_estocasticidad",
+   "conexiones": 129,
+   "se_quedan_k10": 53,
+   "manual": [
+    {
+     "con": "que_es_nodo_biorag_definicion",
+     "tipo": "manual",
+     "peso_motor": 0.5,
+     "fuerza": 0.885,
+     "se_queda_k10": true,
+     "episodio": 0.357,
+     "etiquetas": 0.203,
+     "puesto": 2
+    },
+    {
+     "con": "evaluacion_ideas_evolucion_20260805_interferencia_agujeros_permutacion",
+     "tipo": "manual",
+     "peso_motor": 0.5,
+     "fuerza": 0.839,
+     "se_queda_k10": true,
+     "episodio": 0.436,
+     "etiquetas": 0.227,
+     "puesto": 3
+    },
+    {
+     "con": "athena_leccion_grep_patron_bug_antes_de_cerrar_fix",
+     "tipo": "manual",
+     "peso_motor": 0.5,
+     "fuerza": 0.52,
+     "se_queda_k10": false,
+     "episodio": 0.0,
+     "etiquetas": 0.079,
+     "puesto": 29
+    },
+    {
+     "con": "leccion_bbusqueda_bilingue_nodos_tecnicos",
+     "tipo": "manual",
+     "peso_motor": 0.5,
+     "fuerza": 0.484,
+     "se_queda_k10": false,
+     "episodio": 0.0,
+     "etiquetas": 0.099,
+     "puesto": 56
+    }
+   ],
+   "top12": [
+    {
+     "con": "teoría_nodos_sinapsis",
+     "tipo": "co_ocurrencia",
+     "peso_motor": 0.9,
+     "fuerza": 0.962,
+     "se_queda_k10": true,
+     "episodio": 0.436,
+     "etiquetas": 0.0,
+     "puesto": 1
+    },
+    {
+     "con": "que_es_nodo_biorag_definicion",
+     "tipo": "manual",
+     "peso_motor": 0.5,
+     "fuerza": 0.885,
+     "se_queda_k10": true,
+     "episodio": 0.357,
+     "etiquetas": 0.203,
+     "puesto": 2
+    },
+    {
+     "con": "evaluacion_ideas_evolucion_20260805_interferencia_agujeros_permutacion",
+     "tipo": "manual",
+     "peso_motor": 0.5,
+     "fuerza": 0.839,
+     "se_queda_k10": true,
+     "episodio": 0.436,
+     "etiquetas": 0.227,
+     "puesto": 3
+    },
+    {
+     "con": "verificacion_fidelidad_jaccard_preview_chars_truncado_vs_completo",
+     "tipo": "sinonimo_explicito",
+     "peso_motor": 0.9,
+     "fuerza": 0.715,
+     "se_queda_k10": true,
+     "episodio": 0.196,
+     "etiquetas": 0.198,
+     "puesto": 4
+    },
+    {
+     "con": "plan_tejedora_agujeros_estructurales_v1",
+     "tipo": "sinonimo_explicito",
+     "peso_motor": 0.9,
+     "fuerza": 0.713,
+     "se_queda_k10": true,
+     "episodio": 0.239,
+     "etiquetas": 0.207,
+     "puesto": 5
+    },
+    {
+     "con": "ranking_jaccard_holdout",
+     "tipo": "sinonimo_explicito",
+     "peso_motor": 0.9,
+     "fuerza": 0.697,
+     "se_queda_k10": true,
+     "episodio": 0.239,
+     "etiquetas": 0.0,
+     "puesto": 6
+    },
+    {
+     "con": "fase_c_commit_275fc88_activacion_gradual_monitoreo_sinonimo",
+     "tipo": "sinonimo_explicito",
+     "peso_motor": 0.9,
+     "fuerza": 0.679,
+     "se_queda_k10": true,
+     "episodio": 0.217,
+     "etiquetas": 0.174,
+     "puesto": 7
+    },
+    {
+     "con": "dictamen_flag_jaccard_baseline_tejedora_941",
+     "tipo": "sinonimo_explicito",
+     "peso_motor": 0.9,
+     "fuerza": 0.665,
+     "se_queda_k10": true,
+     "episodio": 0.145,
+     "etiquetas": 0.175,
+     "puesto": 8
+    },
+    {
+     "con": "protect_r0_config_ganadora_elimina_regresiones_r1",
+     "tipo": "sinonimo_explicito",
+     "peso_motor": 0.9,
+     "fuerza": 0.659,
+     "se_queda_k10": true,
+     "episodio": 0.177,
+     "etiquetas": 0.174,
+     "puesto": 9
+    },
+    {
+     "con": "tematico_score_senal_constante_pool_inerte",
+     "tipo": "sinonimo_explicito",
+     "peso_motor": 0.9,
+     "fuerza": 0.642,
+     "se_queda_k10": true,
+     "episodio": 0.119,
+     "etiquetas": 0.158,
+     "puesto": 10
+    },
+    {
+     "con": "holdout_faseb_jaccard_se_sostiene_en_mitad_b",
+     "tipo": "sinonimo_explicito",
+     "peso_motor": 0.9,
+     "fuerza": 0.627,
+     "se_queda_k10": true,
+     "episodio": 0.16,
+     "etiquetas": 0.174,
+     "puesto": 11
+    },
+    {
+     "con": "experimento_reranking_jaccard_921_casos",
+     "tipo": "sinonimo_explicito",
+     "peso_motor": 0.9,
+     "fuerza": 0.626,
+     "se_queda_k10": false,
+     "episodio": 0.131,
+     "etiquetas": 0.174,
+     "puesto": 12
+    }
+   ]
+  }
+ },
+ "solo texto (sin tiempo ni dims)": {
+  "fiab_episodio": 0.0,
+  "fiab_etiquetas": 0.0,
+  "manual_que_la_neurona_propondria_sola_pct": 66.7,
+  "candidatos_propios": 19440,
+  "conexiones_existentes": 13342,
+  "manual": 381,
+  "auc_manual_vs_resto": {
+   "peso_del_motor_hoy": 0.271,
+   "piso_a_mano": 0.861,
+   "neurona": 0.861
+  },
+  "jueces": {
+   "n_humano_si": 381,
+   "n_gemini_si": 120,
+   "n_gemini_no": 3971,
+   "auc_humano_si_vs_gemini_no": {
+    "piso_a_mano": 0.933,
+    "neurona": 0.933
+   },
+   "auc_gemini_si_vs_gemini_no": {
+    "neurona": 0.572
+   },
+   "fuerza_mediana": {
+    "humano_si": 0.593,
+    "gemini_si": 0.401,
+    "gemini_no": 0.377
+   }
+  },
+  "competencia": {
+   "k5": {
+    "se_conserva_pct": 22.6,
+    "manual_conservadas_pct": 67.2,
+    "solo_competencia": {
+     "manual_orden_neurona_pct": 67.2,
+     "manual_orden_peso_hoy_pct": 10.2
+    },
+    "por_tipo_pct": {
+     "sinonimo_explicito": 26.7,
+     "pmi_hebbiano": 11.8,
+     "co_ocurrencia": 18.2,
+     "co_nombre": 22.6,
+     "co_semantica": 16.4,
+     "manual": 67.2,
+     "latente_confirmada": 21.7,
+     "dmn_synthesized": 23.2
+    }
+   },
+   "k10": {
+    "se_conserva_pct": 41.5,
+    "manual_conservadas_pct": 83.7,
+    "solo_competencia": {
+     "manual_orden_neurona_pct": 83.7,
+     "manual_orden_peso_hoy_pct": 25.7
+    },
+    "por_tipo_pct": {
+     "sinonimo_explicito": 48.6,
+     "pmi_hebbiano": 29.5,
+     "co_ocurrencia": 31.6,
+     "co_nombre": 42.0,
+     "co_semantica": 33.4,
+     "manual": 83.7,
+     "latente_confirmada": 40.0,
+     "dmn_synthesized": 30.4
+    }
+   },
+   "k20": {
+    "se_conserva_pct": 67.3,
+    "manual_conservadas_pct": 94.8,
+    "solo_competencia": {
+     "manual_orden_neurona_pct": 94.8,
+     "manual_orden_peso_hoy_pct": 48.8
+    },
+    "por_tipo_pct": {
+     "sinonimo_explicito": 74.5,
+     "pmi_hebbiano": 58.0,
+     "co_ocurrencia": 56.2,
+     "co_nombre": 68.9,
+     "co_semantica": 60.6,
+     "manual": 94.8,
+     "latente_confirmada": 60.8,
+     "dmn_synthesized": 50.0
+    }
+   }
+  },
+  "caso_neuro_visor": {
+   "recuerdo": "leccion_discrepancia_busquedas_vocabulario_no_estocasticidad",
+   "conexiones": 129,
+   "se_quedan_k10": 48,
+   "manual": [
+    {
+     "con": "que_es_nodo_biorag_definicion",
+     "tipo": "manual",
+     "peso_motor": 0.5,
+     "fuerza": 0.601,
+     "se_queda_k10": true,
+     "episodio": 0.0,
+     "etiquetas": 0.0,
+     "puesto": 2
+    },
+    {
+     "con": "athena_leccion_grep_patron_bug_antes_de_cerrar_fix",
+     "tipo": "manual",
+     "peso_motor": 0.5,
+     "fuerza": 0.501,
+     "se_queda_k10": true,
+     "episodio": 0.0,
+     "etiquetas": 0.0,
+     "puesto": 15
+    },
+    {
+     "con": "leccion_bbusqueda_bilingue_nodos_tecnicos",
+     "tipo": "manual",
+     "peso_motor": 0.5,
+     "fuerza": 0.459,
+     "se_queda_k10": false,
+     "episodio": 0.0,
+     "etiquetas": 0.0,
+     "puesto": 43
+    },
+    {
+     "con": "evaluacion_ideas_evolucion_20260805_interferencia_agujeros_permutacion",
+     "tipo": "manual",
+     "peso_motor": 0.5,
+     "fuerza": 0.42,
+     "se_queda_k10": false,
+     "episodio": 0.0,
+     "etiquetas": 0.0,
+     "puesto": 77
+    }
+   ],
+   "top12": [
+    {
+     "con": "teoría_nodos_sinapsis",
+     "tipo": "co_ocurrencia",
+     "peso_motor": 0.9,
+     "fuerza": 0.814,
+     "se_queda_k10": true,
+     "episodio": 0.0,
+     "etiquetas": 0.0,
+     "puesto": 1
+    },
+    {
+     "con": "que_es_nodo_biorag_definicion",
+     "tipo": "manual",
+     "peso_motor": 0.5,
+     "fuerza": 0.601,
+     "se_queda_k10": true,
+     "episodio": 0.0,
+     "etiquetas": 0.0,
+     "puesto": 2
+    },
+    {
+     "con": "leccion_experimento_predicados_vocabulario_normalizado",
+     "tipo": "sinonimo_explicito",
+     "peso_motor": 0.9,
+     "fuerza": 0.58,
+     "se_queda_k10": true,
+     "episodio": 0.0,
+     "etiquetas": 0.0,
+     "puesto": 3
+    },
+    {
+     "con": "fts5-sanitizacion-comillas-dobles-filter",
+     "tipo": "sinonimo_explicito",
+     "peso_motor": 0.9,
+     "fuerza": 0.574,
+     "se_queda_k10": true,
+     "episodio": 0.0,
+     "etiquetas": 0.0,
+     "puesto": 4
+    },
+    {
+     "con": "capa3_pseudo_relevance_feedback_dimensional",
+     "tipo": "sinonimo_explicito",
+     "peso_motor": 0.9,
+     "fuerza": 0.555,
+     "se_queda_k10": true,
+     "episodio": 0.0,
+     "etiquetas": 0.0,
+     "puesto": 5
+    },
+    {
+     "con": "leccion_metodologia_empirica_v22_2",
+     "tipo": "pmi_hebbiano",
+     "peso_motor": 0.53,
+     "fuerza": 0.542,
+     "se_queda_k10": true,
+     "episodio": 0.0,
+     "etiquetas": 0.0,
+     "puesto": 6
+    },
+    {
+     "con": "axioma_empatia_sintactica_rafaga",
+     "tipo": "sinonimo_explicito",
+     "peso_motor": 0.9,
+     "fuerza": 0.524,
+     "se_queda_k10": true,
+     "episodio": 0.0,
+     "etiquetas": 0.0,
+     "puesto": 7
+    },
+    {
+     "con": "rafaga-ilimitada-v9.2-optimizacion-fts5-or",
+     "tipo": "sinonimo_explicito",
+     "peso_motor": 0.9,
+     "fuerza": 0.52,
+     "se_queda_k10": true,
+     "episodio": 0.0,
+     "etiquetas": 0.0,
+     "puesto": 8
+    },
+    {
+     "con": "auditoria_entrega_claude_ppmi_v2_suave_ctx_20260808",
+     "tipo": "sinonimo_explicito",
+     "peso_motor": 0.9,
+     "fuerza": 0.519,
+     "se_queda_k10": true,
+     "episodio": 0.0,
+     "etiquetas": 0.0,
+     "puesto": 9
+    },
+    {
+     "con": "plan_secuencia_validacion_feedback_graph_learning_2_pasos",
+     "tipo": "pmi_hebbiano",
+     "peso_motor": 0.62,
+     "fuerza": 0.513,
+     "se_queda_k10": true,
+     "episodio": 0.0,
+     "etiquetas": 0.0,
+     "puesto": 10
+    },
+    {
+     "con": "auditor_detecto_nodo_no_consolidado_cita_a_corto_plazo",
+     "tipo": "sinonimo_explicito",
+     "peso_motor": 0.9,
+     "fuerza": 0.512,
+     "se_queda_k10": false,
+     "episodio": 0.0,
+     "etiquetas": 0.0,
+     "puesto": 11
+    },
+    {
+     "con": "athena_arquitectura_memoria_agente_v24_2",
+     "tipo": "pmi_hebbiano",
+     "peso_motor": 0.62,
+     "fuerza": 0.511,
+     "se_queda_k10": false,
+     "episodio": 0.0,
+     "etiquetas": 0.0,
+     "puesto": 12
+    }
+   ]
+  }
+ }
+}

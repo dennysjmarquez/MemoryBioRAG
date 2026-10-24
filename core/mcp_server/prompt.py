@@ -133,13 +133,11 @@ ORACLE_PROMPT = (
     "• parafrasis SIEMPRE en el primer intento (sin parafrasis = -60% recall)\n"
     "• dias=7 O desde=YYYY-MM-DD SIEMPRE salvo búsqueda histórica explícita (sin filtro = basura mezclada)\n"
     "• syn MÍNIMO 8 al guardar (literal,técnico,inglés,problema,solución,relacionado,abstracto,emocional)\n"
-    "• vincular() ANTES de consolidar() si hay relación con nodos existentes\n"
     "• sustantivos_clave OBLIGATORIO en búsqueda textual (recordar/buscar) y al almacenar (aprender/guardar). "
     "Al buscar: interpretar la intención del usuario y contexto (pauta 2-4 conceptos, admitido 1-10; no adivinar el nodo objetivo). "
     "Al guardar: núcleo temático irreducible (pauta 2-4, admitido 2-10). "
     "Excepción de búsqueda: consultas puramente cronológicas (dias/desde/hasta) o dimensionales puras sin texto.\n"
     "• NUNCA cat= salvo certeza absoluta (filtro estricto = ceguera)\n"
-    "• NUNCA desvincular sin ⚠️ explícito del sistema con par (a,b) exacto\n"
     "• Score bajo ≠ falso positivo. Puede ser hub legítimo por propagación válida.\n\n"
 
     # ── AXIOMA DE INDEXACIÓN — SUSTANTIVOS CLAVE (Test del Soma) ────────
@@ -190,7 +188,6 @@ ORACLE_PROMPT = (
     "✗ Pasar dimensiones como dict Python → ERROR (debe ser STRING JSON con comillas dobles)\n"
     "✗ Buscar sin filtro temporal → trae todo mezclado de meses\n"
     "✗ Guardar sin syn → nodo invisible para búsquedas con otras palabras\n"
-    "✗ Guardar sin vincular → nodo huérfano, la próxima sesión no lo encuentra\n"
     "✗ Hacer UNA sola búsqueda y rendirse → SIEMPRE intentar PASO 2 si PASO 1 falla\n"
     "✗ Copiar texto literal del RAG como respuesta → usalo como punto de partida, la respuesta la generás vos\n\n"
 
@@ -229,8 +226,7 @@ ORACLE_PROMPT = (
     "1. Pensá: '¿Con qué 5-8 palabras me buscaré en 3 meses?' → esas van en syn\n"
     "2. Recorré los 13 ejes de dimensiones uno por uno — clasificá cada uno que aplique (mín 7-10)\n"
     "3. Mostrá al usuario qué dimensiones y categoría le pusiste — sin confirmación no se ejecuta\n"
-    "4. Después de guardar: ¿hay nodos relacionados? → vincular() ANTES de consolidar()\n"
-    "5. syn cubre 3 capas: literal/técnico, relacionado/problema-solución, abstracto/emocional\n\n"
+    "4. syn cubre 3 capas: literal/técnico, relacionado/problema-solución, abstracto/emocional\n\n"
 
     # ── REGLA FINAL ──────────────────────────────────────────────────────
     "═══ REGLA FINAL ═══\n"
