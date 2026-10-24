@@ -844,3 +844,30 @@ muchos más de tus enlaces que el peso de hoy (84 % vs 26 % con K = 10).
 ### 12. Lo que todavía le falta
 ![Lo que falta](figuras/12_lo_que_falta.png)
 
+
+---
+
+## V2.15. Decisiones de Dennys (2026-10-24)
+
+1. **La neurona es cerrada: no aprende más.** Ni en fábrica ni dentro de la memoria de cada persona.
+   En palabras de Dennys: la neurona *ya sabe* cómo hacer la sinapsis; tiene la fórmula. Coincide con
+   los datos de la sección V2.6: una corrección aprendida dañó una memoria nueva. La maquinaria de
+   entrenamiento queda solo como herramienta de laboratorio; `pesos_fabrica.json` sigue con escala 0.
+   *Nota:* lo que sigue cambiando son las **sinapsis** del grafo (Hebb, sueño, desuso), como en el
+   cerebro. La **regla** que decide si nace una sinapsis queda fija.
+2. **Sí a la muestra marcada a mano.** La hoja de 100 pares está en `etiquetado/` (ver su `LEEME.md`).
+   No se sube a git porque muestra trozos de recuerdos personales y el repo es público.
+3. **`vincular_por_sinonimos`: arreglarlo antes de cablear.** Medido en la copia del snapshot:
+
+   | Medida | Valor |
+   |---|---|
+   | Sinapsis `sinonimo_explicito` | **5,863** de 13,920 (42 %) |
+   | Peso con el que nacen | .90 todas, sin mirar nada más |
+   | Recuerdo con más sinapsis de este tipo | `version_actual_biorag`: **231** |
+   | Mediana por recuerdo (de los 256 que tienen) / percentil 90 | 10 / 64 |
+   | Fuerza mediana que les da la neurona | .456 (lo que Gemini descartó: .40; lo humano: .754) |
+
+   La causa está en `core/sinapsis.py` (`vincular_por_sinonimos`): busca cada sinónimo como un
+   **pedazo de texto** (`LIKE '%término%'`) dentro del nombre y los sinónimos de **todos** los
+   recuerdos. No tiene tope. Así, un término corto o común une un recuerdo con decenas de otros.
+   El arreglo va como cambio aislado, con QA antes y después, y no borra nada de lo que ya existe.
