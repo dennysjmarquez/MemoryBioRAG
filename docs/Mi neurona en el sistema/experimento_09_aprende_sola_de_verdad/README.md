@@ -145,6 +145,20 @@ El intento 1 sacaba 97.5 % en su propio control, pero con solo 56 recuerdos de c
 optimista: en la QA rindió peor. v34.1 tiene un control 2.4 veces más grande y variado; su nota
 (89.3 %) es más baja y más honesta.
 
+## 3b. ¿Cambió cómo ordena? No: verificado
+
+Una misma neurona ya entrenada (campeona activa), tres copias idénticas de la DB y 600 búsquedas de
+la QA (300 por el camino crudo y 300 por el del agente):
+
+| Comparación | Resultado |
+|---|---|
+| v34.0 contra v34.1, neurona encendida | **7116 resultados, 0 diferencias** (todos los campos, números a 6 decimales) |
+| v34.1 con neurona contra sin neurona (control) | la neurona cambia el orden en 328 de 600 búsquedas (1.er lugar en 20) |
+
+La campeona trabaja, y con los mismos pesos las dos versiones sirven exactamente lo mismo: v34.1 solo
+cambia **cómo junta su examen**, no cómo ordena. Script: `verificar_ranking_identico.py`; salida:
+`resultados/ranking_identico.txt`.
+
 ## 4. Lo que esto NO dice
 
 - No dice que v34.1 mejore la QA del snapshot: **la iguala** a igual número de prácticas. La ganancia

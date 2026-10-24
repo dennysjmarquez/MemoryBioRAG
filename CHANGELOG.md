@@ -1,5 +1,59 @@
 # BioRAG Changelog
 
+## [v34.1] — 2026-10-24 — La neurona aprende sola de verdad en una memoria nueva
+
+**Sin cambios de API ni de ranking. Cambia solo *qué practica* la neurona en cada consolidación: una memoria nueva enciende la neurona en ~20 consolidaciones (antes: nunca), con la QA oficial igual. La búsqueda, el piso, la guardia, el ascenso y las 18 capas de protección no se modificaron.**
+
+### Cambios principales
+
+- **La neurona practica 1 vez por consolidación** (`consolidar`, `sueno`, `contexto_fin`), no por cada `aprender` (que deja el recuerdo en corto plazo). Se corrigió el texto de `despertar_neurona.sh --estado` y del README, que decían "por guardado".
+- **Usa el presupuesto que ya tenía:** hasta **8 recuerdos × 7 preguntas** por práctica (`BIORAG_NEURONA_NODOS` 2 → 8, `BIORAG_NEURONA_PREGUNTAS` 2 → 7), siempre dentro del mismo tope de **3 s** (`BIORAG_NEURONA_PRESUPUESTO_S`). El costo sigue fijo: no crece con el tamaño de la memoria.
+- **Preguntas a lo ancho:** primero la 1.ª pregunta de cada recuerdo, luego la 2.ª... Si el tope de 3 s corta (memoria grande), las preguntas quedan repartidas entre muchos recuerdos distintos.
+- **Repasa primero lo que falta:** al completar con recuerdos al azar se prefieren los del grupo del examen (estudio o guardia) al que más le faltan preguntas (`_le_falta`). Sin sesgo cuando ninguno falta. Sigue en ≤ 4·n consultas.
+- **Caminos balanceados:** agente y crudo se alternan con un contador de todo el ciclo (con un número impar de preguntas por recuerdo se desbalanceaban).
+- **`despertar_neurona.sh --estado`:** pantalla en lenguaje claro para cualquier persona (etapa, barras de avance, historial, resumen).
+- Archivos: `core/memory/neurona.py` (`_cfg`, `_nodos_a_examinar`, `_le_falta`, `_practicar`), `scripts/despertar_neurona.py`, `tests/test_neurona.py`, `docs/Mi neurona en el sistema/experimento_09_aprende_sola_de_verdad/`.
+
+### Validación y Métricas Observadas
+
+- **Memoria nueva que crece** (5 recuerdos y 1 consolidación por sesión, 80 sesiones): examen listo en la sesión **16** y neurona trabajando desde la **21** (60/80 sesiones, 0 retiros). v34.0: nunca (20/7 de 150/40). Tiempo por consolidación: 0.65 s → 2.15 s (tope 3 s).
+- **QA oficial (921 casos)** sobre copia del snapshot canónico, a igual número de prácticas (561): Recall@5 **100.00%**, Recall@1 **94.74%** (v34.0: 94.86%), MRR **0.968** (v34.0: 0.969), FP **0/40**, `[GATE] OK`. Ninguna categoría por debajo de la fórmula a mano. Diferencia: 1 caso de 875.
+- **Camino del agente (MCP, 875):** R@1 94.74%, R@5 99.54% (v34.0: 94.97% / 99.54%).
+- **Intento descartado y documentado:** 8 × 7 preguntando recuerdo por recuerdo bajó la QA a R@1 93.26% (examen con 212 recuerdos distintos en vez de 312).
+- **Pytest:** 407 pruebas aprobadas (5 nuevas: preferencia por el grupo que falta, recién consolidados primero y nunca dormidos, costo fijo al elegir con 50 o 50 000 recuerdos, preguntas a lo ancho). La prueba existente de los dos caminos detectó el desbalance.
+- **Ranking intacto (verificado):** con una misma neurona ya entrenada (campeona activa, que reordena 328 de las 600 búsquedas frente a la fórmula), v34.0 y v34.1 hacen 600 búsquedas de la QA (300 por el camino crudo y 300 por el del agente) y devuelven los mismos 7116 resultados con los mismos puntajes: **0 diferencias**. Las funciones que sirven, protegen y deciden ascensos no cambiaron; solo `_cfg`, `_nodos_a_examinar`, `_le_falta` (nueva) y el bucle de `_practicar`.
+
+---
+
+## [v34.0] — 2026-10-24 — La Neurona de BioRAG
+
+**Versión mayor: por primera vez una pieza aprendida puede cambiar el orden de los resultados. Una neurona pequeña (29 → 6 tanh → 1, 186 pesos) aprende sola, mientras se usa, a ordenar mejor el top-k. Empieza siendo exactamente la fórmula a mano y nunca puede quedar por debajo de ella. La API MCP no cambia. Se apaga con `BIORAG_NEURONA=0`.**
+
+### Cambios principales
+
+- **La neurona** (`core/memory/neurona.py`): corrección aditiva `c(x) = vᵀ·tanh(Wx + b)` sobre el logit del puntaje de la fórmula, con 29 entradas ("agujas"): las 17 señales de la fórmula a mano más 12 de contexto y del agente (convergencia, campo donde apareció la consulta, peso sináptico, `sustantivos_clave`, camino del candidato). Con `c(x) = 0` el motor es idéntico. Tras reordenar, los recuerdos y puntajes servidos son los mismos (solo se reasignan por puesto): ningún umbral del motor ve números distintos.
+- **Autoexamen** (`core/memory/neurona_examen.py`): al consolidar, cada recuerdo se hace sus propias preguntas (variante gramatical, typo, sinónimo, cruce de idioma, pregunta natural, por tema) y el motor las contesta en silencio por los dos caminos (agente MCP y crudo). Aprende al consolidar o dormir, **nunca al buscar**. Sin feedback y sin registrar lo que usa el agente.
+- **Campeón y retador con guardia:** el 20 % de los recuerdos (por hash, sin azar) es de guardia y nunca se estudia. Un retador asciende solo si no pierde casos de guardia, no baja ninguna categoría ni camino frente a la fórmula, no cede más de 1 caso frente al campeón saliente y gana de verdad. Si el campeón deja de cumplir, se retira y vuelve la fórmula.
+- **18 capas de protección:** vista única (desfase 0), anti-memorización, piso por categoría y camino, piso contra el campeón (τ = 1), margen "primero no dañar" autocalibrado, piso de R@5, invariante de reorden, regla de identidad, pesos sanos, disyuntor, candado no bloqueante, silencio por hilo, huella del motor, estado estricto, refresco entre procesos, tope por recuerdo, purga de borrados y dormidos, DB vacía = fórmula.
+- **Techo y despertar:** tras 12 ciclos sin mejorar queda "tranquila" (mitad de costo); vuelve a estudiar con 150 preguntas nuevas.
+- **Nuevo script** `scripts/despertar_neurona.sh` / `.py`: práctica acelerada sobre los recuerdos que ya existen (`--estado`, `--ciclos`, `--minutos`, `--hasta-techo`, `--olvidar --si`); hace respaldo y solo escribe la tabla `neurona_estado`.
+- **MCP `recordar`:** auto-paráfrasis y auto-dimensiones apagadas por defecto (dejaban 39 casos fuera del Top-5); se reactivan con `BIORAG_MCP_AUTO_PARAFRASIS=1` y `BIORAG_MCP_AUTO_DIMS=1`.
+- **MCP stdio limpio:** los `print()` del motor van a stderr (77 líneas no JSON → 0).
+- **Sin corte por antigüedad por defecto** (`BIORAG_STALE_HARD_CUTOFF=0`).
+- Experimentos 01 a 08 versionados en `docs/Mi neurona en el sistema/`.
+
+### Validación y Métricas Observadas
+
+- **QA oficial (921 casos)** sobre copia del snapshot canónico, tras `despertar_neurona.sh` (500 ciclos, 17 min, 6 ascensos, 0 retiros): Recall@5 99.89% → **100.00%**, Recall@1 91.66% → **94.06%**, MRR 0.949 → **0.964**, FP **0/40**, `[GATE] OK`. Ninguna categoría baja; R@1 sube en por_tema (63.08 → 78.46), cruce_idioma (62.50 → 75.00), typo (87.69 → 93.85), pregunta_natural, sinónimo y variante gramatical.
+- **Camino del agente (MCP, 875):** R@1 92.34% → **94.97%** (+24 / −1 en el primer lugar), R@5 99.09% → 99.31%.
+- **Corpus nunca visto (python-docs-es):** neutra (R@1 45.68 → 45.06, R@5 59.88 → 60.49).
+- **Invariantes:** 120 búsquedas MCP con y sin neurona, 0 violaciones. **Desfase** estudio/servicio: 0 de 289.
+- **Costo por ciclo:** p50 1.6 s, p95 3.5 s, sin importar el tamaño de la memoria.
+- **Pytest:** 402 pruebas aprobadas (45 de la neurona + 6 del despertar).
+- **Higiene de base de datos:** todas las mediciones sobre copias; el snapshot canónico y la DB viva no se modificaron.
+
+---
+
 ## [v33.0] — 2026-10-14 — Protocolo cognitivo simétrico de sustantivos_clave, validación fail-fast y estabilidad de recuperación
 
 **BREAKING CHANGE en herramientas de búsqueda MCP: `recordar` y `buscar` exigen obligatoriamente `sustantivos_clave` en consultas textuales en tiempo de ejecución. El agente debe interpretar la intención del usuario y proporcionar los conceptos temáticos centrales. Se introducen contratos simétricos de escritura y recuperación, validación fail-fast previa a la base de datos y la regla unificada sobre el nombre del nodo.**
