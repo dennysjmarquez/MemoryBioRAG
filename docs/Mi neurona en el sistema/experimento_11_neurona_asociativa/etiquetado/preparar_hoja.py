@@ -51,7 +51,9 @@ PLANTILLA = r"""<!doctype html>
  .num{color:#f2c14e;font-weight:bold}
  .dos{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:10px 0}
  .rec h3{margin:0 0 6px;font-size:14px;color:#4fd1e8;word-break:break-all}
- .rec p{margin:0;font-size:13px;color:#c9d4e8;line-height:1.4}
+ .rec p{margin:0;font-size:13px;color:#c9d4e8;line-height:1.45;white-space:pre-wrap;word-wrap:break-word;
+        max-height:65vh;overflow-y:auto;background:#0d1a33;border-radius:8px;padding:8px}
+ .largo{font-size:11px;color:#8fa3c4;margin-top:4px}
  .bot button{margin:4px 6px 0 0;padding:8px 14px;border-radius:8px;border:1px solid #2a3b5c;
              background:#1b2a48;color:#e8eef8;cursor:pointer;font-size:14px}
  .bot button.sel{background:#5ee08f;color:#0b1426;font-weight:bold}
@@ -92,7 +94,9 @@ for (const d of DATOS) {
     const r = document.createElement("div"); r.className = "rec";
     const t3 = document.createElement("h3"); t3.textContent = n;
     const p = document.createElement("p"); p.textContent = t;
-    r.appendChild(t3); r.appendChild(p); dos.appendChild(r); }
+    const lg = document.createElement("div"); lg.className = "largo";
+    lg.textContent = "texto completo · " + t.length + " caracteres" + (t.length > 1500 ? " · desliza dentro del cuadro para leer todo" : "");
+    r.appendChild(t3); r.appendChild(p); r.appendChild(lg); dos.appendChild(r); }
   c.appendChild(dos);
   const bot = document.createElement("div"); bot.className = "bot";
   for (const [v, txt] of OPC) {
@@ -124,10 +128,10 @@ document.getElementById("bajar").onclick = () => {
 """
 
 
-def resumen(texto, n=240):
+def completo(texto):
+    """El recuerdo ENTERO, sin cortar y con sus saltos de línea (para poder validarlo de verdad)."""
     cuerpo = texto.split(". ", 1)[1] if ". " in texto else texto
-    cuerpo = " ".join(cuerpo.split())
-    return cuerpo[:n] + ("…" if len(cuerpo) > n else "")
+    return cuerpo.strip()
 
 
 def main():
@@ -183,9 +187,9 @@ def main():
         w.writerow(["id", "recuerdo_A", "que_dice_A", "recuerdo_B", "que_dice_B",
                     "tu_respuesta (si / no / momento / contradicen / nose)", "nota (opcional)"])
         for n, (g, a, b, fz, t) in enumerate(filas, 1):
-            w.writerow([n, con[a], resumen(textos[a]), con[b], resumen(textos[b]), "", ""])
+            w.writerow([n, con[a], completo(textos[a]), con[b], completo(textos[b]), "", ""])
             clave[n] = {"grupo": g, "a": con[a], "b": con[b], "fuerza": round(fz, 3), "tipo_hoy": t}
-    datos = [{"id": n, "a": con[a], "ta": resumen(textos[a], 400), "b": con[b], "tb": resumen(textos[b], 400)}
+    datos = [{"id": n, "a": con[a], "ta": completo(textos[a]), "b": con[b], "tb": completo(textos[b])}
              for n, (g, a, b, fz, t) in enumerate(filas, 1)]
     html = PLANTILLA.replace("__DATOS__", json.dumps(datos, ensure_ascii=False).replace("</", "<\\/"))
     with open(os.path.join(AQUI, "hoja_para_dennys.html"), "w", encoding="utf-8") as fh:
