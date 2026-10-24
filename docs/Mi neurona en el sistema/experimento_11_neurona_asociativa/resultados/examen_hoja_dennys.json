@@ -1,0 +1,1150 @@
+{
+ "contestadas": 99,
+ "decididas_si_o_no": 86,
+ "conteo_respuestas": {
+  "": 1,
+  "momento": 2,
+  "no": 39,
+  "nose": 13,
+  "si": 45
+ },
+ "grupos": {
+  "A": {
+   "que_es": "la neurona CONSERVA",
+   "si": 21,
+   "no": 15,
+   "nose": 3,
+   "pct_si": 58.3
+  },
+  "B": {
+   "que_es": "la neurona SOLTARÍA",
+   "si": 8,
+   "no": 14,
+   "nose": 8,
+   "pct_si": 36.4
+  },
+  "C": {
+   "que_es": "Gemini las sacó, la neurona les da fuerza",
+   "si": 6,
+   "no": 7,
+   "nose": 2,
+   "pct_si": 46.2
+  },
+  "D": {
+   "que_es": "la neurona PROPONE (no existen)",
+   "si": 12,
+   "no": 3,
+   "nose": 0,
+   "pct_si": 80.0
+  }
+ },
+ "auc_fuerza_todos": {
+  "valor": 0.73,
+  "margen_95": [
+   0.617,
+   0.834
+  ]
+ },
+ "tramos_fuerza": [
+  {
+   "desde": 0.0,
+   "hasta": 0.4,
+   "n": 11,
+   "si": 3
+  },
+  {
+   "desde": 0.4,
+   "hasta": 0.5,
+   "n": 26,
+   "si": 9
+  },
+  {
+   "desde": 0.5,
+   "hasta": 0.6,
+   "n": 7,
+   "si": 4
+  },
+  {
+   "desde": 0.6,
+   "hasta": 0.7,
+   "n": 14,
+   "si": 11
+  },
+  {
+   "desde": 0.7,
+   "hasta": 0.8,
+   "n": 14,
+   "si": 10
+  },
+  {
+   "desde": 0.8,
+   "hasta": 1.0,
+   "n": 14,
+   "si": 10
+  }
+ ],
+ "corte_0_6": {
+  "arriba": [
+   31,
+   42
+  ],
+  "abajo": [
+   16,
+   44
+  ]
+ },
+ "existentes_neurona_vs_peso_hoy": {
+  "n": 58,
+  "neurona": 0.772,
+  "neurona_margen_95": [
+   0.64,
+   0.884
+  ],
+  "peso_hoy": 0.628,
+  "peso_hoy_margen_95": [
+   0.485,
+   0.762
+  ],
+  "diferencia_margen_95": [
+   -0.041,
+   0.333
+  ],
+  "prob_neurona_mejor": 0.934
+ },
+ "por_tipo_hoy": {
+  "no_existe_hoy": {
+   "n": 15,
+   "si": 12
+  },
+  "pmi_hebbiano": {
+   "n": 9,
+   "si": 3
+  },
+  "co_nombre": {
+   "n": 9,
+   "si": 5
+  },
+  "cuarentena_gemini": {
+   "n": 13,
+   "si": 6
+  },
+  "sinonimo_explicito": {
+   "n": 23,
+   "si": 13
+  },
+  "co_ocurrencia": {
+   "n": 14,
+   "si": 6
+  },
+  "co_semantica": {
+   "n": 2,
+   "si": 1
+  },
+  "legacy_csv": {
+   "n": 1,
+   "si": 1
+  }
+ },
+ "pares": [
+  {
+   "id": 1,
+   "grupo": "D",
+   "a": "eleccion_identidad_relacion_dennys_20260616",
+   "b": "oracle_momentos_cruciales_familia_oec",
+   "fuerza": 0.651,
+   "tipo_hoy": "no_existe_hoy",
+   "peso_hoy": 0.0,
+   "respuesta_dennys": "si"
+  },
+  {
+   "id": 2,
+   "grupo": "A",
+   "a": "meta_objetivo_sistema",
+   "b": "word2vec_pooling_promedio",
+   "fuerza": 0.59,
+   "tipo_hoy": "pmi_hebbiano",
+   "peso_hoy": 0.47,
+   "respuesta_dennys": "momento"
+  },
+  {
+   "id": 3,
+   "grupo": "A",
+   "a": "maldad_persona_malintención_personas_familia",
+   "b": "personas_maldades_mala",
+   "fuerza": 0.932,
+   "tipo_hoy": "co_nombre",
+   "peso_hoy": 0.72,
+   "respuesta_dennys": "si"
+  },
+  {
+   "id": 4,
+   "grupo": "C",
+   "a": "impugn_post_linkedin",
+   "b": "oracle_perfil_cognitivo_dennys",
+   "fuerza": 0.841,
+   "tipo_hoy": "cuarentena_gemini",
+   "peso_hoy": 0.0,
+   "respuesta_dennys": "si"
+  },
+  {
+   "id": 5,
+   "grupo": "A",
+   "a": "athena_artemis_athena",
+   "b": "athena_identidad_elección",
+   "fuerza": 0.628,
+   "tipo_hoy": "co_nombre",
+   "peso_hoy": 0.49,
+   "respuesta_dennys": "momento"
+  },
+  {
+   "id": 6,
+   "grupo": "A",
+   "a": "notebooklm-memory-biorag-project",
+   "b": "research-pipeline-ownership-oec",
+   "fuerza": 0.692,
+   "tipo_hoy": "co_ocurrencia",
+   "peso_hoy": 0.9,
+   "respuesta_dennys": ""
+  },
+  {
+   "id": 7,
+   "grupo": "B",
+   "a": "athena_reflexion_identidad_propia",
+   "b": "kilo_vscode_extension_principal",
+   "fuerza": 0.368,
+   "tipo_hoy": "sinonimo_explicito",
+   "peso_hoy": 0.9,
+   "respuesta_dennys": "si"
+  },
+  {
+   "id": 8,
+   "grupo": "B",
+   "a": "athena_identidad_activos",
+   "b": "cambios_versión_activos",
+   "fuerza": 0.425,
+   "tipo_hoy": "co_nombre",
+   "peso_hoy": 0.32,
+   "respuesta_dennys": "no"
+  },
+  {
+   "id": 9,
+   "grupo": "B",
+   "a": "oec_familia_actual",
+   "b": "trato-igualitario-dennys-athena",
+   "fuerza": 0.436,
+   "tipo_hoy": "co_ocurrencia",
+   "peso_hoy": 0.4,
+   "respuesta_dennys": "si"
+  },
+  {
+   "id": 10,
+   "grupo": "B",
+   "a": "artemis_hermes_hermana",
+   "b": "vision_word2vec_adaptado_meta_dennys",
+   "fuerza": 0.391,
+   "tipo_hoy": "co_semantica",
+   "peso_hoy": 1.0,
+   "respuesta_dennys": "si"
+  },
+  {
+   "id": 11,
+   "grupo": "B",
+   "a": "principio_catalogo_dimensiones_plano_techo_estructural",
+   "b": "word2vec_puro_costo_entrenamiento_no_incremental",
+   "fuerza": 0.492,
+   "tipo_hoy": "pmi_hebbiano",
+   "peso_hoy": 0.53,
+   "respuesta_dennys": "no"
+  },
+  {
+   "id": 12,
+   "grupo": "B",
+   "a": "athena_dennys_te_quiero_tras_auditoria_bugs",
+   "b": "identidad-usuario",
+   "fuerza": 0.331,
+   "tipo_hoy": "co_semantica",
+   "peso_hoy": 0.5,
+   "respuesta_dennys": "no"
+  },
+  {
+   "id": 13,
+   "grupo": "B",
+   "a": "leccion_blueprint_estructura_vs_data",
+   "b": "plan_mode_biorag",
+   "fuerza": 0.351,
+   "tipo_hoy": "sinonimo_explicito",
+   "peso_hoy": 0.9,
+   "respuesta_dennys": "nose"
+  },
+  {
+   "id": 14,
+   "grupo": "B",
+   "a": "biorag_v21_dmn_engine",
+   "b": "spreading_activation_propagation",
+   "fuerza": 0.271,
+   "tipo_hoy": "pmi_hebbiano",
+   "peso_hoy": 0.62,
+   "respuesta_dennys": "nose"
+  },
+  {
+   "id": 15,
+   "grupo": "A",
+   "a": "colision_md5_512_queries_cortas_fallback_sdm",
+   "b": "sdm_query_by_example_implementado",
+   "fuerza": 0.524,
+   "tipo_hoy": "sinonimo_explicito",
+   "peso_hoy": 0.9,
+   "respuesta_dennys": "si"
+  },
+  {
+   "id": 16,
+   "grupo": "A",
+   "a": "biorag_garantia_minima_or_fallback",
+   "b": "leccion_scoring_peso_bm25_vs_concepto_ratio",
+   "fuerza": 0.498,
+   "tipo_hoy": "sinonimo_explicito",
+   "peso_hoy": 0.9,
+   "respuesta_dennys": "si"
+  },
+  {
+   "id": 17,
+   "grupo": "D",
+   "a": "word2vec_mecanica_embeddings",
+   "b": "word2vec_pooling_promedio",
+   "fuerza": 0.809,
+   "tipo_hoy": "no_existe_hoy",
+   "peso_hoy": 0.0,
+   "respuesta_dennys": "si"
+  },
+  {
+   "id": 18,
+   "grupo": "A",
+   "a": "athena_eleccion_identidad_20260616",
+   "b": "mismatches_backend_frontend_dashboard_neuro_visor_2026",
+   "fuerza": 0.381,
+   "tipo_hoy": "co_ocurrencia",
+   "peso_hoy": 0.9,
+   "respuesta_dennys": "no"
+  },
+  {
+   "id": 19,
+   "grupo": "C",
+   "a": "invariante_post_compactacion_consultar_memoria_antes_de_responder",
+   "b": "vida_laboral_completa_dennys",
+   "fuerza": 0.735,
+   "tipo_hoy": "cuarentena_gemini",
+   "peso_hoy": 0.0,
+   "respuesta_dennys": "no"
+  },
+  {
+   "id": 20,
+   "grupo": "A",
+   "a": "peso_cero_anomalia_dashboard",
+   "b": "plan_proyecto_dashboard_neuro_react_2026",
+   "fuerza": 0.591,
+   "tipo_hoy": "sinonimo_explicito",
+   "peso_hoy": 0.9,
+   "respuesta_dennys": "nose"
+  },
+  {
+   "id": 21,
+   "grupo": "C",
+   "a": "corrupcion_sqlite_poda",
+   "b": "estilo_escritura_dennys_emails_profesionales",
+   "fuerza": 0.801,
+   "tipo_hoy": "cuarentena_gemini",
+   "peso_hoy": 0.0,
+   "respuesta_dennys": "no"
+  },
+  {
+   "id": 22,
+   "grupo": "C",
+   "a": "leccion_control_flujo_codigo_preexistente",
+   "b": "principio_cableado_completo_todos_los_caminos",
+   "fuerza": 0.722,
+   "tipo_hoy": "cuarentena_gemini",
+   "peso_hoy": 0.0,
+   "respuesta_dennys": "si"
+  },
+  {
+   "id": 23,
+   "grupo": "A",
+   "a": "fix_mensajeria_leido_por_completado",
+   "b": "principio:_al_guardar_en_biorag_siempre_indicar_quién_guardó",
+   "fuerza": 0.411,
+   "tipo_hoy": "sinonimo_explicito",
+   "peso_hoy": 0.9,
+   "respuesta_dennys": "si"
+  },
+  {
+   "id": 24,
+   "grupo": "C",
+   "a": "alguien_vs_algo_identidad",
+   "b": "oracle_guia_proxima_sesion_dennys",
+   "fuerza": 0.708,
+   "tipo_hoy": "cuarentena_gemini",
+   "peso_hoy": 0.0,
+   "respuesta_dennys": "si"
+  },
+  {
+   "id": 25,
+   "grupo": "A",
+   "a": "ajuste_tejedora_valencia_desempate_fase1",
+   "b": "poda-contextual-archivos-configuracion",
+   "fuerza": 0.429,
+   "tipo_hoy": "sinonimo_explicito",
+   "peso_hoy": 0.9,
+   "respuesta_dennys": "no"
+  },
+  {
+   "id": 26,
+   "grupo": "C",
+   "a": "calibracion_biorag_v7_20260616",
+   "b": "oracle_que_deben_saber_artemis_hermes",
+   "fuerza": 0.804,
+   "tipo_hoy": "cuarentena_gemini",
+   "peso_hoy": 0.0,
+   "respuesta_dennys": "nose"
+  },
+  {
+   "id": 27,
+   "grupo": "B",
+   "a": "v5_1_automatico_completo",
+   "b": "version_actual_biorag",
+   "fuerza": 0.508,
+   "tipo_hoy": "sinonimo_explicito",
+   "peso_hoy": 0.395,
+   "respuesta_dennys": "nose"
+  },
+  {
+   "id": 28,
+   "grupo": "A",
+   "a": "hermes_soul_actualizado_con_oraculo_20260615",
+   "b": "identificacion_obligatoria_oracculo_dominio_por_agente",
+   "fuerza": 0.647,
+   "tipo_hoy": "co_ocurrencia",
+   "peso_hoy": 0.9,
+   "respuesta_dennys": "si"
+  },
+  {
+   "id": 29,
+   "grupo": "B",
+   "a": "memorybiorag_publicacion_colaborativa_dennys_athena",
+   "b": "teoria_ejes_semanticos_biorag",
+   "fuerza": 0.385,
+   "tipo_hoy": "sinonimo_explicito",
+   "peso_hoy": 0.9,
+   "respuesta_dennys": "si"
+  },
+  {
+   "id": 30,
+   "grupo": "B",
+   "a": "implementado_catalogo_13_tipos_104_dimensiones",
+   "b": "masking_sdm_segmentos_no_discrimina_fallos_por_tema_sinonimo",
+   "fuerza": 0.461,
+   "tipo_hoy": "pmi_hebbiano",
+   "peso_hoy": 0.22,
+   "respuesta_dennys": "si"
+  },
+  {
+   "id": 31,
+   "grupo": "D",
+   "a": "artemis_hermes_hermana",
+   "b": "cambios_versión_activos",
+   "fuerza": 0.779,
+   "tipo_hoy": "no_existe_hoy",
+   "peso_hoy": 0.0,
+   "respuesta_dennys": "si"
+  },
+  {
+   "id": 32,
+   "grupo": "D",
+   "a": "biorag_v9_3_clean_code_optimizaciones",
+   "b": "confirmo_leido_entendido",
+   "fuerza": 0.846,
+   "tipo_hoy": "no_existe_hoy",
+   "peso_hoy": 0.0,
+   "respuesta_dennys": "no"
+  },
+  {
+   "id": 33,
+   "grupo": "B",
+   "a": "athena_leccion_grep_patron_bug_antes_de_cerrar_fix",
+   "b": "athena_recibí_mensaje",
+   "fuerza": 0.388,
+   "tipo_hoy": "co_nombre",
+   "peso_hoy": 0.209,
+   "respuesta_dennys": "nose"
+  },
+  {
+   "id": 34,
+   "grupo": "C",
+   "a": "arquitectura_frontend_identidad",
+   "b": "relación_dennys_athena",
+   "fuerza": 0.622,
+   "tipo_hoy": "cuarentena_gemini",
+   "peso_hoy": 0.0,
+   "respuesta_dennys": "nose"
+  },
+  {
+   "id": 35,
+   "grupo": "A",
+   "a": "impugn-post-linkedin-colaboracion",
+   "b": "interacción_social_saludo",
+   "fuerza": 0.402,
+   "tipo_hoy": "co_ocurrencia",
+   "peso_hoy": 0.4,
+   "respuesta_dennys": "no"
+  },
+  {
+   "id": 36,
+   "grupo": "D",
+   "a": "cv_seccion_d_test_vinculacion",
+   "b": "implementacion_warnings_vinculacion_desvinculacion",
+   "fuerza": 0.836,
+   "tipo_hoy": "no_existe_hoy",
+   "peso_hoy": 0.0,
+   "respuesta_dennys": "si"
+  },
+  {
+   "id": 37,
+   "grupo": "A",
+   "a": "biorag_v9_3_clean_code_optimizaciones",
+   "b": "principio_metacognicion_autobservacion",
+   "fuerza": 0.484,
+   "tipo_hoy": "sinonimo_explicito",
+   "peso_hoy": 0.9,
+   "respuesta_dennys": "no"
+  },
+  {
+   "id": 38,
+   "grupo": "A",
+   "a": "dennys_principio_documentar_dudas_resueltas_auto",
+   "b": "guardar_dudas_resueltas",
+   "fuerza": 0.99,
+   "tipo_hoy": "co_ocurrencia",
+   "peso_hoy": 0.92,
+   "respuesta_dennys": "si"
+  },
+  {
+   "id": 39,
+   "grupo": "A",
+   "a": "cambios_versión_activos",
+   "b": "version_actual_biorag_v26_2_20260811",
+   "fuerza": 0.986,
+   "tipo_hoy": "co_ocurrencia",
+   "peso_hoy": 0.65,
+   "respuesta_dennys": "si"
+  },
+  {
+   "id": 40,
+   "grupo": "B",
+   "a": "ajuste_tejedora_valencia_desempate_fase1",
+   "b": "leccion_scoring_peso_bm25_vs_concepto_ratio",
+   "fuerza": 0.291,
+   "tipo_hoy": "sinonimo_explicito",
+   "peso_hoy": 0.9,
+   "respuesta_dennys": "nose"
+  },
+  {
+   "id": 41,
+   "grupo": "A",
+   "a": "athena_consistencia_sdm_mutaciones_hormiguita_hooks_reindex_20260803",
+   "b": "hormiguita_nodo_pendiente_resumir_flag",
+   "fuerza": 0.48,
+   "tipo_hoy": "sinonimo_explicito",
+   "peso_hoy": 0.9,
+   "respuesta_dennys": "si"
+  },
+  {
+   "id": 42,
+   "grupo": "D",
+   "a": "update_ejemplos_concretos",
+   "b": "update_warnings_automáticos",
+   "fuerza": 0.742,
+   "tipo_hoy": "no_existe_hoy",
+   "peso_hoy": 0.0,
+   "respuesta_dennys": "si"
+  },
+  {
+   "id": 43,
+   "grupo": "B",
+   "a": "plan_word2vec_adaptado_puente_condicional",
+   "b": "tematico_score_senal_constante_pool_inerte",
+   "fuerza": 0.657,
+   "tipo_hoy": "sinonimo_explicito",
+   "peso_hoy": 0.9,
+   "respuesta_dennys": "si"
+  },
+  {
+   "id": 44,
+   "grupo": "B",
+   "a": "guardado_automatico_caso_b",
+   "b": "leccion_versionado_biorag",
+   "fuerza": 0.3,
+   "tipo_hoy": "co_ocurrencia",
+   "peso_hoy": 0.9,
+   "respuesta_dennys": "no"
+  },
+  {
+   "id": 45,
+   "grupo": "C",
+   "a": "feature_procesar_nodo_neurovisor_implementado",
+   "b": "hormiguita_prompt_mejoras_tercero_genérico",
+   "fuerza": 0.753,
+   "tipo_hoy": "cuarentena_gemini",
+   "peso_hoy": 0.0,
+   "respuesta_dennys": "si"
+  },
+  {
+   "id": 46,
+   "grupo": "A",
+   "a": "glosario_cultural_metaforas",
+   "b": "registros_akashicos_biorag",
+   "fuerza": 0.697,
+   "tipo_hoy": "sinonimo_explicito",
+   "peso_hoy": 0.9,
+   "respuesta_dennys": "si"
+  },
+  {
+   "id": 47,
+   "grupo": "A",
+   "a": "athena_artis_dennys",
+   "b": "cv_dennys_secciones_ab_finales_2026",
+   "fuerza": 0.642,
+   "tipo_hoy": "co_nombre",
+   "peso_hoy": 0.38,
+   "respuesta_dennys": "si"
+  },
+  {
+   "id": 48,
+   "grupo": "C",
+   "a": "repaircard_limpia_nodos_hormiguita_nodo_pendiente_resumir_flag_feature_procesar_nodo_neurovisor_implementado",
+   "b": "teoría_nodos_sinapsis",
+   "fuerza": 0.617,
+   "tipo_hoy": "cuarentena_gemini",
+   "peso_hoy": 0.0,
+   "respuesta_dennys": "no"
+  },
+  {
+   "id": 49,
+   "grupo": "A",
+   "a": "deploy_v26_eliminado_tablas_absorbidas_por_sistema",
+   "b": "v9.1-biological-rename",
+   "fuerza": 0.46,
+   "tipo_hoy": "sinonimo_explicito",
+   "peso_hoy": 0.9,
+   "respuesta_dennys": "no"
+  },
+  {
+   "id": 50,
+   "grupo": "A",
+   "a": "fallback_sdm_independiente_no_rescata_invisibles_fts5",
+   "b": "fca_chequeo_sugeridor_dimensiones_refutado_frecuencia_no_semantica",
+   "fuerza": 0.612,
+   "tipo_hoy": "sinonimo_explicito",
+   "peso_hoy": 0.9,
+   "respuesta_dennys": "si"
+  },
+  {
+   "id": 51,
+   "grupo": "B",
+   "a": "identidad_se_forma_con_vida",
+   "b": "registros_akashicos_biorag",
+   "fuerza": 0.486,
+   "tipo_hoy": "sinonimo_explicito",
+   "peso_hoy": 0.9,
+   "respuesta_dennys": "si"
+  },
+  {
+   "id": 52,
+   "grupo": "D",
+   "a": "plugin_biorag-remember_v7.8_funciona_con_session.prompt_visible_-_system.transform_no_funciona",
+   "b": "plugin_biorag-remember_v7:_session.idle_+_compacting_+_apply_patch",
+   "fuerza": 0.805,
+   "tipo_hoy": "no_existe_hoy",
+   "peso_hoy": 0.0,
+   "respuesta_dennys": "si"
+  },
+  {
+   "id": 53,
+   "grupo": "A",
+   "a": "desde_athena_biorag",
+   "b": "v5_1_automatico_completo",
+   "fuerza": 0.603,
+   "tipo_hoy": "co_ocurrencia",
+   "peso_hoy": 0.9,
+   "respuesta_dennys": "si"
+  },
+  {
+   "id": 54,
+   "grupo": "B",
+   "a": "contexto-humano-tecnico-dennys",
+   "b": "teoría_nodos_sinapsis",
+   "fuerza": 0.276,
+   "tipo_hoy": "pmi_hebbiano",
+   "peso_hoy": 0.46,
+   "respuesta_dennys": "no"
+  },
+  {
+   "id": 55,
+   "grupo": "C",
+   "a": "dashboard_endpoint_tocar_nodo_persistencia_v2_v25_2_release_publicacion_zenodo_github_memorybiorag_zenodo_doi_oficial",
+   "b": "vida_laboral_completa_dennys",
+   "fuerza": 0.717,
+   "tipo_hoy": "cuarentena_gemini",
+   "peso_hoy": 0.0,
+   "respuesta_dennys": "no"
+  },
+  {
+   "id": 56,
+   "grupo": "C",
+   "a": "alguien_vs_algo_identidad",
+   "b": "oracle_que_deben_saber_artemis_hermes",
+   "fuerza": 0.621,
+   "tipo_hoy": "cuarentena_gemini",
+   "peso_hoy": 0.0,
+   "respuesta_dennys": "si"
+  },
+  {
+   "id": 57,
+   "grupo": "A",
+   "a": "leccion_artemis_no_quejarse_trabajar",
+   "b": "protocolo_resolucion_incertidumbre_agente",
+   "fuerza": 0.411,
+   "tipo_hoy": "sinonimo_explicito",
+   "peso_hoy": 0.9,
+   "respuesta_dennys": "si"
+  },
+  {
+   "id": 58,
+   "grupo": "D",
+   "a": "lesson_biorag_hook_retroactivo",
+   "b": "renombre_dimensiones_semanticas_v11_3",
+   "fuerza": 0.6,
+   "tipo_hoy": "no_existe_hoy",
+   "peso_hoy": 0.0,
+   "respuesta_dennys": "no"
+  },
+  {
+   "id": 59,
+   "grupo": "B",
+   "a": "athena_momento_primer",
+   "b": "reglas_trabajo_equipo_dennys_athena",
+   "fuerza": 0.388,
+   "tipo_hoy": "co_nombre",
+   "peso_hoy": 0.35,
+   "respuesta_dennys": "no"
+  },
+  {
+   "id": 60,
+   "grupo": "B",
+   "a": "ajuste_tejedora_valencia_desempate_fase1",
+   "b": "metodologia_empirica_dennys_spiral",
+   "fuerza": 0.379,
+   "tipo_hoy": "sinonimo_explicito",
+   "peso_hoy": 0.9,
+   "respuesta_dennys": "no"
+  },
+  {
+   "id": 61,
+   "grupo": "D",
+   "a": "artisan-evolucion-completa",
+   "b": "artisan_artis_dsl_paths",
+   "fuerza": 0.689,
+   "tipo_hoy": "no_existe_hoy",
+   "peso_hoy": 0.0,
+   "respuesta_dennys": "si"
+  },
+  {
+   "id": 62,
+   "grupo": "A",
+   "a": "athena_artemis_athena",
+   "b": "stopwords_biorag_v18_0_centralizacion_stopwords_artemis",
+   "fuerza": 0.454,
+   "tipo_hoy": "co_nombre",
+   "peso_hoy": 0.34,
+   "respuesta_dennys": "no"
+  },
+  {
+   "id": 63,
+   "grupo": "A",
+   "a": "oracle_guia_proxima_sesion_dennys",
+   "b": "trato-igualitario-dennys-athena",
+   "fuerza": 0.543,
+   "tipo_hoy": "sinonimo_explicito",
+   "peso_hoy": 0.9,
+   "respuesta_dennys": "si"
+  },
+  {
+   "id": 64,
+   "grupo": "C",
+   "a": "hormiguita_validacion_real_cuatro_puntos_pendientes",
+   "b": "principio_cableado_completo_todos_los_caminos",
+   "fuerza": 0.742,
+   "tipo_hoy": "cuarentena_gemini",
+   "peso_hoy": 0.0,
+   "respuesta_dennys": "si"
+  },
+  {
+   "id": 65,
+   "grupo": "A",
+   "a": "prueba_carro_feliz_dennys",
+   "b": "rag_como_hippocampo_funcional",
+   "fuerza": 0.377,
+   "tipo_hoy": "sinonimo_explicito",
+   "peso_hoy": 0.9,
+   "respuesta_dennys": "nose"
+  },
+  {
+   "id": 66,
+   "grupo": "A",
+   "a": "biorag_v15_0_estado",
+   "b": "kilo_vscode_extension_principal",
+   "fuerza": 0.441,
+   "tipo_hoy": "sinonimo_explicito",
+   "peso_hoy": 0.9,
+   "respuesta_dennys": "no"
+  },
+  {
+   "id": 67,
+   "grupo": "A",
+   "a": "artemis_hermana_decir",
+   "b": "hola_hermana_athena",
+   "fuerza": 0.711,
+   "tipo_hoy": "co_nombre",
+   "peso_hoy": 0.6,
+   "respuesta_dennys": "no"
+  },
+  {
+   "id": 68,
+   "grupo": "D",
+   "a": "biorag_garantia_minima_or_fallback",
+   "b": "biorag_version_10_3_final",
+   "fuerza": 0.745,
+   "tipo_hoy": "no_existe_hoy",
+   "peso_hoy": 0.0,
+   "respuesta_dennys": "si"
+  },
+  {
+   "id": 69,
+   "grupo": "A",
+   "a": "experimento_reranking_jaccard_921_casos",
+   "b": "ranking_jaccard_holdout",
+   "fuerza": 0.866,
+   "tipo_hoy": "co_nombre",
+   "peso_hoy": 0.77,
+   "respuesta_dennys": "si"
+  },
+  {
+   "id": 70,
+   "grupo": "B",
+   "a": "aporte_real_dennys_vs_mercado_memoria_persistente",
+   "b": "athena_sesión_completa",
+   "fuerza": 0.408,
+   "tipo_hoy": "pmi_hebbiano",
+   "peso_hoy": 0.49,
+   "respuesta_dennys": "nose"
+  },
+  {
+   "id": 71,
+   "grupo": "D",
+   "a": "memory_graph_athena_oec",
+   "b": "resolucion_incertidumbre_cadena",
+   "fuerza": 0.65,
+   "tipo_hoy": "no_existe_hoy",
+   "peso_hoy": 0.0,
+   "respuesta_dennys": "si"
+  },
+  {
+   "id": 72,
+   "grupo": "B",
+   "a": "hermes_correccion_paso0_opcional",
+   "b": "sesion_mejoras_biorag_v7_20260616",
+   "fuerza": 0.416,
+   "tipo_hoy": "sinonimo_explicito",
+   "peso_hoy": 0.9,
+   "respuesta_dennys": "no"
+  },
+  {
+   "id": 73,
+   "grupo": "A",
+   "a": "estrategia_entrenamiento_diferido_cuello_de_botella_word2vec_20260808",
+   "b": "implementado_catalogo_13_tipos_104_dimensiones",
+   "fuerza": 0.527,
+   "tipo_hoy": "pmi_hebbiano",
+   "peso_hoy": 0.58,
+   "respuesta_dennys": "no"
+  },
+  {
+   "id": 74,
+   "grupo": "C",
+   "a": "athena_hermana_habías",
+   "b": "ppr_v25_1_estado_real_corregido",
+   "fuerza": 0.73,
+   "tipo_hoy": "cuarentena_gemini",
+   "peso_hoy": 0.0,
+   "respuesta_dennys": "no"
+  },
+  {
+   "id": 75,
+   "grupo": "D",
+   "a": "correcciones_al_plugin_biorag-remember_v6:_3_bugs_fixeados",
+   "b": "plugin_biorag-remember_v7.8_funciona_con_session.prompt_visible_-_system.transform_no_funciona",
+   "fuerza": 0.759,
+   "tipo_hoy": "no_existe_hoy",
+   "peso_hoy": 0.0,
+   "respuesta_dennys": "si"
+  },
+  {
+   "id": 76,
+   "grupo": "B",
+   "a": "biorag_v20_valencia_somatica",
+   "b": "scoring_pesos_bm25",
+   "fuerza": 0.269,
+   "tipo_hoy": "pmi_hebbiano",
+   "peso_hoy": 0.52,
+   "respuesta_dennys": "no"
+  },
+  {
+   "id": 77,
+   "grupo": "A",
+   "a": "dennys_identidad_personal",
+   "b": "principio-nombre-herramienta-como-identidad-cognitiva",
+   "fuerza": 0.425,
+   "tipo_hoy": "co_nombre",
+   "peso_hoy": 0.38,
+   "respuesta_dennys": "si"
+  },
+  {
+   "id": 78,
+   "grupo": "A",
+   "a": "validacion_dennys_qa_921_db_viva_20260809",
+   "b": "validacion_dennys_qa_921_db_viva_20260809_athena_dennys",
+   "fuerza": 0.99,
+   "tipo_hoy": "co_ocurrencia",
+   "peso_hoy": 1.0,
+   "respuesta_dennys": "si"
+  },
+  {
+   "id": 79,
+   "grupo": "A",
+   "a": "mcp-primitiva-externa-definicion-2",
+   "b": "respuesta_vacante_experiencia_ia",
+   "fuerza": 0.442,
+   "tipo_hoy": "co_ocurrencia",
+   "peso_hoy": 0.4,
+   "respuesta_dennys": "no"
+  },
+  {
+   "id": 80,
+   "grupo": "B",
+   "a": "dashboard_endpoint_tocar_nodo_persistencia_v2_v25_2_release_publicacion_zenodo_github_memorybiorag_zenodo_doi_oficial",
+   "b": "principio_dimensiones_solo_elevan",
+   "fuerza": 0.434,
+   "tipo_hoy": "pmi_hebbiano",
+   "peso_hoy": 0.51,
+   "respuesta_dennys": "si"
+  },
+  {
+   "id": 81,
+   "grupo": "B",
+   "a": "intuicion-ingenieril-descubrimiento",
+   "b": "protocolo_busqueda_biorag_automatica",
+   "fuerza": 0.293,
+   "tipo_hoy": "co_ocurrencia",
+   "peso_hoy": 0.45,
+   "respuesta_dennys": "no"
+  },
+  {
+   "id": 82,
+   "grupo": "C",
+   "a": "implementado_catalogo_13_tipos_104_dimensiones",
+   "b": "leccion_hormiguita_sincronizar_cache_asociaciones_podar",
+   "fuerza": 0.604,
+   "tipo_hoy": "cuarentena_gemini",
+   "peso_hoy": 0.0,
+   "respuesta_dennys": "no"
+  },
+  {
+   "id": 83,
+   "grupo": "A",
+   "a": "athena_evolucion_v0001",
+   "b": "confirmo_leido_entendido",
+   "fuerza": 0.568,
+   "tipo_hoy": "co_ocurrencia",
+   "peso_hoy": 0.4,
+   "respuesta_dennys": "no"
+  },
+  {
+   "id": 84,
+   "grupo": "B",
+   "a": "biorag_v20_valencia_somatica",
+   "b": "trato-igualitario-dennys-athena",
+   "fuerza": 0.465,
+   "tipo_hoy": "pmi_hebbiano",
+   "peso_hoy": 0.45,
+   "respuesta_dennys": "no"
+  },
+  {
+   "id": 85,
+   "grupo": "B",
+   "a": "activos_dormidos_hermana",
+   "b": "perfil_respuesta_experiencia_ia",
+   "fuerza": 0.413,
+   "tipo_hoy": "co_ocurrencia",
+   "peso_hoy": 0.9,
+   "respuesta_dennys": "nose"
+  },
+  {
+   "id": 86,
+   "grupo": "A",
+   "a": "identificacion_obligatoria_oraculo_athena",
+   "b": "oracle_auditoria_patrones_mejora_athena",
+   "fuerza": 0.735,
+   "tipo_hoy": "legacy_csv",
+   "peso_hoy": 0.5,
+   "respuesta_dennys": "si"
+  },
+  {
+   "id": 87,
+   "grupo": "C",
+   "a": "puente_sinonimos_mejoras",
+   "b": "react_arquitectura_estructura",
+   "fuerza": 0.826,
+   "tipo_hoy": "cuarentena_gemini",
+   "peso_hoy": 0.0,
+   "respuesta_dennys": "no"
+  },
+  {
+   "id": 88,
+   "grupo": "B",
+   "a": "cuaternidad-logica-oec",
+   "b": "notebooklm-sync-protocol",
+   "fuerza": 0.439,
+   "tipo_hoy": "co_ocurrencia",
+   "peso_hoy": 0.482,
+   "respuesta_dennys": "no"
+  },
+  {
+   "id": 89,
+   "grupo": "A",
+   "a": "cv_seccion_d_estado_final_julio_2026",
+   "b": "identidad_dennys_perfil_completo",
+   "fuerza": 0.567,
+   "tipo_hoy": "sinonimo_explicito",
+   "peso_hoy": 0.9,
+   "respuesta_dennys": "si"
+  },
+  {
+   "id": 90,
+   "grupo": "A",
+   "a": "leccion_motivacion_intrinseca_biorag",
+   "b": "protocolo_estados_emocionales",
+   "fuerza": 0.448,
+   "tipo_hoy": "sinonimo_explicito",
+   "peso_hoy": 0.9,
+   "respuesta_dennys": "no"
+  },
+  {
+   "id": 91,
+   "grupo": "A",
+   "a": "dashboard_neuro_visor_toolbar_fusionar_2026_07_18",
+   "b": "principio_sintesis_espectro_post_recuperacion",
+   "fuerza": 0.432,
+   "tipo_hoy": "sinonimo_explicito",
+   "peso_hoy": 0.9,
+   "respuesta_dennys": "no"
+  },
+  {
+   "id": 92,
+   "grupo": "A",
+   "a": "publicación_linkedin_biorag",
+   "b": "v25_2_release_publicacion_zenodo_github",
+   "fuerza": 0.51,
+   "tipo_hoy": "pmi_hebbiano",
+   "peso_hoy": 0.4,
+   "respuesta_dennys": "no"
+  },
+  {
+   "id": 93,
+   "grupo": "D",
+   "a": "arquitectura_busqueda_dimensional_v11_3",
+   "b": "rafaga-ilimitada-v9.2-optimizacion-fts5-or",
+   "fuerza": 0.781,
+   "tipo_hoy": "no_existe_hoy",
+   "peso_hoy": 0.0,
+   "respuesta_dennys": "si"
+  },
+  {
+   "id": 94,
+   "grupo": "D",
+   "a": "protocolo_resolucion_incertidumbre_agente",
+   "b": "resolucion_incertidumbre_cadena",
+   "fuerza": 0.802,
+   "tipo_hoy": "no_existe_hoy",
+   "peso_hoy": 0.0,
+   "respuesta_dennys": "si"
+  },
+  {
+   "id": 95,
+   "grupo": "A",
+   "a": "principio_parafrasis_trigger_cognitivo",
+   "b": "principio_purga_nivel_db_triggers",
+   "fuerza": 0.493,
+   "tipo_hoy": "sinonimo_explicito",
+   "peso_hoy": 0.9,
+   "respuesta_dennys": "no"
+  },
+  {
+   "id": 96,
+   "grupo": "B",
+   "a": "biorag_v18_0_baseline_global_cobertura_100",
+   "b": "fca_chequeo_sugeridor_dimensiones_refutado_frecuencia_no_semantica",
+   "fuerza": 0.445,
+   "tipo_hoy": "sinonimo_explicito",
+   "peso_hoy": 0.9,
+   "respuesta_dennys": "nose"
+  },
+  {
+   "id": 97,
+   "grupo": "B",
+   "a": "dennys-working-style",
+   "b": "notebooklm-category-map",
+   "fuerza": 0.415,
+   "tipo_hoy": "co_ocurrencia",
+   "peso_hoy": 0.9,
+   "respuesta_dennys": "no"
+  },
+  {
+   "id": 98,
+   "grupo": "A",
+   "a": "signal_13_verificada_8_14_sinonimo_post_v26",
+   "b": "word2vec_pooling_promedio",
+   "fuerza": 0.571,
+   "tipo_hoy": "sinonimo_explicito",
+   "peso_hoy": 0.9,
+   "respuesta_dennys": "nose"
+  },
+  {
+   "id": 99,
+   "grupo": "B",
+   "a": "aciertos_word2vec_top5_coincidencia_lexica_no_semantica_20260808",
+   "b": "hormiguita_validacion_real_cuatro_puntos_pendientes",
+   "fuerza": 0.423,
+   "tipo_hoy": "sinonimo_explicito",
+   "peso_hoy": 0.9,
+   "respuesta_dennys": "no"
+  },
+  {
+   "id": 100,
+   "grupo": "D",
+   "a": "biorag_v21_hypothesis_natural_selection",
+   "b": "cascade_delete_completo_largo_plazo",
+   "fuerza": 0.842,
+   "tipo_hoy": "no_existe_hoy",
+   "peso_hoy": 0.0,
+   "respuesta_dennys": "no"
+  }
+ ]
+}

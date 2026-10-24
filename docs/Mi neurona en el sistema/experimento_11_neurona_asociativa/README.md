@@ -925,3 +925,48 @@ de cablear sería peor y habría que deshacerlo después. El plan pasa a ser:
 3. Medir también la calidad del grafo, no solo el QA (el peso de las sinapsis casi no pesa en el
    ranking del QA).
 4. Después, la neurona reemplaza a la hormiguita.
+
+---
+
+## V2.17. El examen de Dennys: 100 pares marcados a mano
+
+Dennys marcó 99 de los 100 pares sin saber qué opinaba la neurona ni de dónde salía cada par.
+Contestó 47 sí (45 sí + 2 "mismo momento"), 39 no y 13 no sé. Los "no sé" no cuentan.
+Lo reproduce `etiquetado/analizar_hoja.py`, que guarda `resultados/examen_hoja_dennys.json`
+(sin textos de recuerdos). La neurona **no aprendió nada** de estas respuestas: sigue cerrada.
+
+| Grupo | Sí | No | No sé | % sí | Lectura |
+|---|---|---|---|---|---|
+| A · la neurona conserva | 21 | 15 | 3 | **58 %** | Precisión real más baja que en el laboratorio |
+| B · la neurona soltaría | 8 | 14 | 8 | **36 %** | Más de un tercio de lo que soltaría es bueno |
+| C · Gemini las sacó, la neurona las quería | 6 | 7 | 2 | 46 % | **Empate** con Gemini |
+| D · la neurona propone (no existen hoy) | 12 | 3 | 0 | **80 %** | Lo mejor del examen |
+
+**¿La fuerza separa lo bueno de lo malo?** Sí, de forma moderada: AUC **0.73** (margen 0.62–0.83).
+
+| Fuerza | Sí |
+|---|---|
+| menos de 0.6 | 16 de 44 (36 %) |
+| 0.6 o más | 31 de 42 (**74 %**) |
+
+**En las sinapsis que ya existen** (58 pares con sí/no): neurona AUC **0.77** contra **0.63** del
+peso de hoy. La neurona gana en el 93 % de los remuestreos, pero el margen de la diferencia
+(−0.04 a 0.33) todavía cruza el cero. Con 58 pares es una señal fuerte, no una prueba firme.
+
+### Qué decide este examen
+
+1. **Cablear la neurona para que ponga el PESO de cada sinapsis: sí.** Ordena mejor que el peso de hoy.
+2. **Que la neurona CORTE sinapsis (cupo K): no, por ahora.** El grupo B dice que perderíamos
+   buenas conexiones. Primero solo pone el peso; no borra nada. Eso respeta "nunca bajar el recall".
+3. **Reemplazar a la hormiguita: todavía no.** En los desacuerdos quedaron 6 a 7, con solo 13 pares.
+   Gemini se queda hasta que haya más evidencia.
+4. **Que la neurona proponga conexiones nuevas: sí, con cuidado.** 12 de 15 fueron buenas
+   (son pocos pares).
+5. **Capa de contradicción: no hace falta ahora.** Cero pares marcados como "se contradicen".
+
+**Dato extra, honesto:** juntando A y B según su tamaño real, cerca de la **mitad de las sinapsis que
+existen hoy no le parecen relacionadas a Dennys**. El grafo tiene mucho ruido, y por eso importa que
+la neurona ponga el peso.
+
+**Lo que este examen no puede decir:** son 100 pares. Los porcentajes tienen margen de error ancho.
+Sirve para tomar decisiones de diseño, no para anunciar un número final.
