@@ -1207,7 +1207,43 @@ PYTHON=.venv/bin/python ./scripts/despertar_neurona.sh
 
 El snapshot congelado oficial (`snapshots/`) se rechaza, porque es la referencia de la QA.
 
-**Qué muestra:** el estado ANTES y DESPUÉS (campeón sí/no, margen, examen, ascensos, retiros, fase) y los aciertos en primer lugar de la **guardia** (el 20 % de recuerdos que la neurona nunca estudia), fórmula contra neurona. Si no encuentra una mejora segura no asciende a nadie, y el motor queda exactamente igual a la fórmula a mano.
+**Qué muestra:** el estado ANTES y DESPUÉS (o, con `--estado`, el estado actual) en palabras de cualquier persona, sin jerga. Si no encuentra una mejora segura no asciende a nadie, y el motor queda exactamente igual a la fórmula a mano. Ejemplo real de `--estado` en una memoria que acaba de empezar:
+
+```text
+  ESTADO DE TU NEURONA
+  ────────────────────────────────────────────────────────────────────────────
+  ¿Está encendida?              ✅ sí
+  ¿Ya mejora tus búsquedas?     ⏳ todavía no: se usa la fórmula de siempre (fórmula a mano)
+  Etapa                         1 de 3 · Juntando preguntas
+                                todavía no tiene suficientes preguntas para presentar su examen.
+
+  SU EXAMEN (preguntas que ella misma se hace con tus recuerdos)
+    Para estudiar               [░░░░░░░░░░░░░░░░░░░░]    5 de 150
+    De control (nunca estudia)  [░░░░░░░░░░░░░░░░░░░░]    0 de 40
+
+  SU HISTORIAL
+    Veces que practicó          3     (1 vez cada vez que guardas o consolidas)
+    Última práctica             hace un momento
+    Veces que aprobó            0
+    Veces que la quitaron       0     ✅ bien
+
+  👉 En resumen: está viva y aprendiendo. Le faltan 145 para estudiar y 40 de control.
+     Cada vez que guardas algo practica unos segundos. Para acelerar:
+     ./scripts/despertar_neurona.sh --minutos 20
+```
+
+Cómo leerlo:
+
+| Línea | Qué significa |
+|---|---|
+| **¿Ya mejora tus búsquedas?** | ⏳ *todavía no*: tus búsquedas salen con la fórmula a mano. 🏆 *sí*: la neurona ya ordena tus resultados. |
+| **Etapa** | **1 · Juntando preguntas** → **2 · Presentando su examen** (ya tiene preguntas; solo se activa si mejora sin dañar nada) → **3 · Trabajando**. |
+| **Para estudiar / De control** | Las preguntas que la neurona se hace con tus recuerdos. Las *de control* (el 20 % de recuerdos, la "guardia") nunca las estudia: sirven para comprobar que aprendió y no memorizó. Necesita 150 y 40. |
+| **Veces que practicó** | Sube 1 con cada guardado o consolidación. Si sube, está viva. |
+| **Última práctica** | Cuándo guardó por última vez lo aprendido. |
+| **Veces que aprobó / que la quitaron** | Aprobó = pasó a trabajar. La quitaron = empeoraba algo y volvió sola a la fórmula; debe quedar en 0. |
+| **Aciertos en 1er lugar** *(cuando ya trabaja)* | En sus preguntas de control: fórmula contra neurona. |
+| **Prudencia** *(cuando ya trabaja)* | El margen "primero no dañar": solo cambia el orden si está segura. |
 
 **Verificado (2026-10-24), sobre una copia del snapshot canónico (~900 recuerdos):** 500 ciclos en 1017 s, 6 ascensos y 0 retiros. En la guardia, el primer lugar pasa de 77.8 % (fórmula) a 87.0 % (neurona). Después, la QA oficial sobre esa copia: **R@1 91.66 → 94.06 %, R@5 99.89 → 100 %, MRR .949 → .964, FP 0/40, GATE OK**, ninguna categoría por debajo del piso. Salida completa en `docs/Mi neurona en el sistema/experimento_07_la_neurona_escucha/resultados/despertar/`.
 
