@@ -131,6 +131,16 @@ salvo que se pida. `BIORAG_STALE_HARD_CUTOFF` pasa a `0` por defecto (`core/mcp_
 cambia (el corte nunca disparaba); lo que cambia es que ya no puede encenderse solo si alguien
 corrige el JOIN. El JOIN y las marcas "stale" de 90 días siguen sin tocar (otra decisión).
 
+## 5b. Despertar (práctica acelerada) y QA oficial después (v34.0)
+
+`scripts/despertar_neurona.sh` corre la misma práctica que el uso normal (autoexamen + campeón/retador con guardia), pero seguida, sobre la DB destino. Se probó sobre una **copia** del snapshot canónico (`PYTHONHASHSEED=1`, 500 ciclos):
+
+- **1017 s, 6 ascensos** (ciclos 83, 84, 85, 89, 91 y 204), **0 retiros**, termina en techo con margen 2.0.
+- **Guardia** (20 % que nunca estudia), primer lugar: fórmula 77.8 % → neurona **87.0 %**.
+- **QA oficial sobre esa copia:** R@5 99.89 → **100.00 %**, R@1 91.66 → **94.06 %**, MRR .949 → **.964**, FP 0/40, GATE OK. Ninguna categoría baja (typo R@5 98.46 → 100; cruce R@1 62.50 → 75.00; por_tema 63.08 → 78.46).
+
+Salida textual: `resultados/despertar/despertar_500.txt` y `resultados/despertar/qa_tras_despertar.txt`. El piso es la tabla oficial de la fórmula a mano.
+
 ## 6. Reproducir
 
 ```bash
@@ -146,6 +156,7 @@ N_VINC=120 python canal_stdio_cliente.py "$(which python)" tasajera
 ```
 
 ## 7. Archivos
+- `../../../scripts/despertar_neurona.py` (+ `.sh`) — despertar; ver README principal, "Despertar la neurona".
 - `evaluar_camino_mcp.py` — QA por `recordar` (+ ablaciones `--quitar`, `--casos`, `--sin`).
 - `medir_desfase_v5.py` — desfase entre lo estudiado y lo servido.
 - `mcp_con_y_sin_neurona_v5.py` — invariantes del MCP con la vista de 10.
