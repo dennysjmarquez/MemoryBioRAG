@@ -73,7 +73,7 @@ La neurona aprende **cuánto vale cada aguja según el contexto** y corrige el o
 | **Qué produce** | Una **corrección residual** c(x) que se **suma** al score de la fórmula. Con c(x) = 0 el motor es idéntico al de siempre: los pesos a mano son el **ancla** y el **piso**. |
 | **Qué aprende** | *Learning to rank* por lista: entropía cruzada sobre el softmax del top-k, es decir, "que la respuesta correcta quede primera". |
 | **De dónde saca las respuestas correctas** | **Autosupervisión**. Cuando un recuerdo se consolida, la respuesta correcta se conoce: es ese recuerdo. El recuerdo se hace sus propias preguntas y el motor las responde en silencio. |
-| **Cuándo aprende** | **Al guardar** (consolidar o dormir), nunca al buscar. Así la búsqueda no paga el entrenamiento. |
+| **Cuándo aprende** | **Al consolidar** (cuando un recuerdo pasa de corto a largo plazo: `consolidar`, `sueno` o `contexto_fin`), nunca al buscar. Así la búsqueda no paga el entrenamiento. Una práctica por consolidación, sin importar cuántos `aprender` hubo antes. |
 | **Cómo decide si lo aprendido sirve** | **Campeón y retador**: el retador estudia; solo reemplaza al campeón si gana en un examen que **nunca estudió** (la guardia) y no daña ninguna categoría. |
 | **Cuánto cuesta** | **Fijo por operación**: 2 recuerdos × 2 preguntas por ciclo, tope de 3 s y memoria de examen de tamaño fijo. El costo no crece con el tamaño de la memoria. |
 | **Dónde vive** | `core/memory/neurona.py` (la neurona) y `core/memory/neurona_examen.py` (el autoexamen). Su estado se guarda en la tabla `neurona_estado` de la misma DB. |
@@ -299,7 +299,7 @@ Todo se midió sobre **copias** del snapshot canónico (nunca sobre el original 
 
 ### 8. Cómo se usa
 
-- **Viene encendida** y no requiere nada: aprende sola al guardar y al dormir.
+- **Viene encendida** y no requiere nada: aprende sola cada vez que se consolida la memoria (consolidar, dormir o cerrar sesión). Guardar con `aprender` deja el recuerdo en corto plazo; la práctica llega al consolidar.
 - **Apagarla del todo:** `BIORAG_NEURONA=0` (el motor vuelve a ser exactamente la fórmula a mano).
 - **Memorias que ya tienen muchos recuerdos:** ver [Despertar la neurona](#despertar-la-neurona-práctica-acelerada).
 - **Ver su estado:** `./scripts/despertar_neurona.sh --estado`.
@@ -1222,13 +1222,14 @@ El snapshot congelado oficial (`snapshots/`) se rechaza, porque es la referencia
     De control (nunca estudia)  [░░░░░░░░░░░░░░░░░░░░]    0 de 40
 
   SU HISTORIAL
-    Veces que practicó          3     (1 vez cada vez que guardas o consolidas)
+    Veces que practicó          3     (1 vez por cada consolidación de la memoria)
     Última práctica             hace un momento
     Veces que aprobó            0
     Veces que la quitaron       0     ✅ bien
 
   👉 En resumen: está viva y aprendiendo. Le faltan 145 para estudiar y 40 de control.
-     Cada vez que guardas algo practica unos segundos. Para acelerar:
+     Practica unos segundos cada vez que se consolida la memoria (consolidar,
+     dormir o cerrar sesión; guardar solo no basta). Para acelerar:
      ./scripts/despertar_neurona.sh --minutos 20
 ```
 
@@ -1239,7 +1240,7 @@ Cómo leerlo:
 | **¿Ya mejora tus búsquedas?** | ⏳ *todavía no*: tus búsquedas salen con la fórmula a mano. 🏆 *sí*: la neurona ya ordena tus resultados. |
 | **Etapa** | **1 · Juntando preguntas** → **2 · Presentando su examen** (ya tiene preguntas; solo se activa si mejora sin dañar nada) → **3 · Trabajando**. |
 | **Para estudiar / De control** | Las preguntas que la neurona se hace con tus recuerdos. Las *de control* (el 20 % de recuerdos, la "guardia") nunca las estudia: sirven para comprobar que aprendió y no memorizó. Necesita 150 y 40. |
-| **Veces que practicó** | Sube 1 con cada guardado o consolidación. Si sube, está viva. |
+| **Veces que practicó** | Sube 1 con cada **consolidación** (`consolidar`, `sueno` o cerrar sesión con `contexto_fin`). `aprender` deja el recuerdo en corto plazo y no cuenta hasta que se consolida: 10 `aprender` + 1 `consolidar` = 1 práctica. Si sube, está viva. |
 | **Última práctica** | Cuándo guardó por última vez lo aprendido. |
 | **Veces que aprobó / que la quitaron** | Aprobó = pasó a trabajar. La quitaron = empeoraba algo y volvió sola a la fórmula; debe quedar en 0. |
 | **Aciertos en 1er lugar** *(cuando ya trabaja)* | En sus preguntas de control: fórmula contra neurona. |

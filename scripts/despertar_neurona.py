@@ -146,7 +146,7 @@ def _linea(titulo, r, db_path=None):
     print(f"    De control (nunca estudia)  {_barra(guardia, metas[1])}")
     print("")
     print("  SU HISTORIAL")
-    print(f"    Veces que practicó          {ciclos:<6}(1 vez cada vez que guardas o consolidas)")
+    print(f"    Veces que practicó          {ciclos:<6}(1 vez por cada consolidación de la memoria)")
     print(f"    Última práctica             {_hace(ultima) if db_path else '—'}")
     print(f"    Veces que aprobó            {ascensos}")
     aviso = "✅ bien" if retiros == 0 else "⚠️  la quitaron por empeorar algo; volvió sola a la fórmula"
@@ -166,7 +166,8 @@ def _linea(titulo, r, db_path=None):
             faltan.append(f"{metas[1] - guardia} de control")
         print(f"  👉 En resumen: {'está viva y aprendiendo' if ciclos else 'todavía no ha practicado'}. "
               f"Le faltan {' y '.join(faltan)}.")
-        print("     Cada vez que guardas algo practica unos segundos. Para acelerar:")
+        print("     Practica unos segundos cada vez que se consolida la memoria (consolidar,")
+        print("     dormir o cerrar sesión; guardar solo no basta). Para acelerar:")
         print("     ./scripts/despertar_neurona.sh --minutos 20")
     elif num == 2:
         print("  👉 En resumen: ya junta suficientes preguntas; ahora practica y se examina sola.")
@@ -243,7 +244,7 @@ def main(argv=None):
             _linea("AHORA", neurona.resumen(db), db_path)
             return 0
 
-        print(f"\nPracticando hasta {a.ciclos} veces seguidas (cada una = lo que hace sola tras un guardado)...")
+        print(f"\nPracticando hasta {a.ciclos} veces seguidas (cada una = lo que hace sola tras una consolidación)...")
         t0 = time.time()
         r, hechos = {}, 0
         for i in range(a.ciclos):
