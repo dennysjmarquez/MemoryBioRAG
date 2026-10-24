@@ -1,9 +1,9 @@
 """BioRAG — Despertar la neurona: N ciclos de práctica seguidos sobre los recuerdos que ya existen.
 
 POR QUÉ EXISTE
-    La neurona (core/memory/neurona.py) aprende sola cada vez que se consolida un
-    recuerdo: dos recuerdos x dos preguntas por consolidación, costo fijo. En una
-    memoria nueva eso alcanza. En una memoria que YA tiene cientos de recuerdos y
+    La neurona (core/memory/neurona.py) aprende sola cada vez que se consolida la
+    memoria: hasta 8 recuerdos x 7 preguntas por consolidación dentro de 3 s, costo
+    fijo. En una memoria nueva eso alcanza. En una memoria que YA tiene cientos de recuerdos y
     recibe pocos nuevos, juntar el examen y ascender el primer campeón puede tardar
     semanas. Este script hace en minutos lo mismo que haría el uso:
 
@@ -192,7 +192,7 @@ def _respaldo(db_path):
 def main(argv=None):
     ap = argparse.ArgumentParser(description="Despertar la neurona de BioRAG (práctica acelerada).")
     ap.add_argument("db", nargs="?", default=None, help="ruta a la DB (default: BIORAG_PATH o la de producción)")
-    ap.add_argument("--ciclos", type=int, default=500, help="ciclos de práctica (default 500, ~15 min con ~900 nodos)")
+    ap.add_argument("--ciclos", type=int, default=500, help="ciclos de práctica (default 500, ~22 min con ~900 nodos)")
     ap.add_argument("--minutos", type=float, default=None, help="tope de tiempo; corta al cumplirse")
     ap.add_argument("--hasta-techo", action="store_true",
                     help="cortar en el primer techo (por defecto sigue: tras el techo puede despertar y ascender otra vez)")

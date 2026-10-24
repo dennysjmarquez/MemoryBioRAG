@@ -752,7 +752,7 @@ def ciclo_sueno_consolidacion(self):
     print("[MemoryBioRAG] Proceso de consolidación y equilibrio sináptico completado con éxito.")
 
     # Neurona: aprende en vivo de los recuerdos recién consolidados (costo fijo:
-    # examina BIORAG_NEURONA_NODOS recuerdos sin importar el tamaño de la DB).
+    # examina hasta BIORAG_NEURONA_NODOS recuerdos dentro de 3 s, sin importar el tamaño de la DB).
     try:
         from core.memory import neurona
 

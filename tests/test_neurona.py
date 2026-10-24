@@ -468,6 +468,77 @@ def test_numero_de_busquedas_acotado(chica, monkeypatch):
     assert len(llamadas) <= cfg["nodos"] * cfg["preguntas"]
 
 
+class _SoloCursor:
+    """Lo único que `_nodos_a_examinar` necesita del motor: un cursor sobre `largo_plazo`."""
+    def __init__(self, n, dormidos=()):
+        self.con = sqlite3.connect(":memory:")
+        self.con.execute("CREATE TABLE largo_plazo (concepto TEXT, estado TEXT)")
+        self.con.executemany("INSERT INTO largo_plazo VALUES (?, ?)",
+                             [(f"recuerdo_{i:04d}", "dormido" if i in dormidos else "activo") for i in range(n)])
+        self.consultas = 0
+        dueño = self
+
+        class Cur:
+            def execute(self, *a):
+                dueño.consultas += 1
+                return dueño.con.execute(*a)
+        self.cursor = Cur()
+
+
+def test_le_falta_elige_el_grupo_mas_corto():
+    cfg = dict(min_estudio=150, min_guardia=40)
+    est = __import__("types").SimpleNamespace(estudio=[], guardia=[])
+    assert N._le_falta(est, cfg) is None                 # los dos vacíos: al azar, sin sesgo
+    est.estudio = [{}] * 100
+    assert N._le_falta(est, cfg) is True                 # a la guardia le falta más
+    est.guardia = [{}] * 39
+    assert N._le_falta(est, cfg) is False                # ahora le falta más al estudio
+    est.estudio, est.guardia = [{}] * 150, [{}] * 40
+    assert N._le_falta(est, cfg) is None                 # completos: al azar
+
+
+def test_repasa_primero_el_grupo_que_falta():
+    db = _SoloCursor(2000)
+    import random
+    for prefiere, al_azar in ((True, .2), (False, .8)):
+        mios = []
+        for semilla in range(20):
+            elegidos = N._nodos_a_examinar(db, [], 12, random.Random(semilla), prefiere)
+            assert len(elegidos) == 12 and len(set(elegidos)) == 12
+            mios.append(sum(N._es_guardia(c) == prefiere for c in elegidos) / 12)
+        promedio = sum(mios) / len(mios)
+        assert promedio >= min(.95, 3 * al_azar), (prefiere, promedio)  # guardia: ~.75 frente a .20 al azar
+
+
+def test_recien_consolidados_van_primero_y_sin_dormidos():
+    db = _SoloCursor(500, dormidos=set(range(0, 500, 2)))
+    nuevos = ["recuerdo_0001", "recuerdo_0003"]
+    elegidos = N._nodos_a_examinar(db, nuevos, 12, __import__("random").Random(1), True)
+    assert set(nuevos) <= set(elegidos[:2])
+    assert all(int(c[-4:]) % 2 == 1 for c in elegidos)  # nunca un dormido
+
+
+def test_costo_fijo_al_elegir_aunque_la_db_crezca():
+    for n_db in (50, 50_000):
+        db = _SoloCursor(n_db)
+        N._nodos_a_examinar(db, [], 8, __import__("random").Random(2), True)
+        assert db.consultas <= 1 + 4 * 8                 # nunca más de 4·n consultas
+
+
+def test_pregunta_a_lo_ancho(chica, monkeypatch):
+    """Si el presupuesto corta, las preguntas quedan repartidas entre recuerdos distintos
+    (no 7 al mismo): primero la 1ª de cada recuerdo, luego la 2ª..."""
+    vistos, real = [], N._preguntar
+
+    def espia(self, concepto, q, cat, modo="crudo", limite_agente=10):
+        vistos.append(concepto)
+        return real(self, concepto, q, cat, modo, limite_agente)
+    monkeypatch.setattr(N, "_preguntar", espia)
+    N.practicar(chica, [k for k, _ in NODOS[:8]], nodos=8, presupuesto_s=60)
+    distintos = len(dict.fromkeys(vistos))
+    assert distintos >= 6 and len(set(vistos[:distintos])) == distintos   # una ronda completa antes de repetir
+
+
 def test_presupuesto_de_tiempo(chica):
     t0 = time.time()
     res = N.practicar(chica, [], presupuesto_s=0.0)
