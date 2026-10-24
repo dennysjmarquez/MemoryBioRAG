@@ -1,0 +1,3 @@
+[console_scripts]
+biorag = biorag:main
+biorag-mcp = mcp_server:main
