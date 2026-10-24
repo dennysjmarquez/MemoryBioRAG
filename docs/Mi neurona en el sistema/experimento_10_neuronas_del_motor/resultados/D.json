@@ -1,0 +1,96 @@
+{
+ "preguntas": 2060,
+ "segundos": 1461,
+ "grupos": {
+  "activa": {
+   "oportunidades": 620031,
+   "utiles": 2144,
+   "tasa_por_mil": 3.46
+  },
+  "activa:co_nombre": {
+   "oportunidades": 46865,
+   "utiles": 297,
+   "tasa_por_mil": 6.34
+  },
+  "activa:co_ocurrencia": {
+   "oportunidades": 251170,
+   "utiles": 617,
+   "tasa_por_mil": 2.46
+  },
+  "activa:co_semantica": {
+   "oportunidades": 22037,
+   "utiles": 183,
+   "tasa_por_mil": 8.3
+  },
+  "activa:dmn_synthesized": {
+   "oportunidades": 2023,
+   "utiles": 12,
+   "tasa_por_mil": 5.93
+  },
+  "activa:latente_confirmada": {
+   "oportunidades": 6006,
+   "utiles": 6,
+   "tasa_por_mil": 1.0
+  },
+  "activa:legacy_csv": {
+   "oportunidades": 828,
+   "utiles": 2,
+   "tasa_por_mil": 2.42
+  },
+  "activa:manual": {
+   "oportunidades": 9290,
+   "utiles": 123,
+   "tasa_por_mil": 13.24
+  },
+  "activa:manual_v7": {
+   "oportunidades": 599,
+   "utiles": 0,
+   "tasa_por_mil": 0.0
+  },
+  "activa:pmi_hebbiano": {
+   "oportunidades": 70299,
+   "utiles": 124,
+   "tasa_por_mil": 1.76
+  },
+  "activa:sinonimo_explicito": {
+   "oportunidades": 210628,
+   "utiles": 780,
+   "tasa_por_mil": 3.7
+  },
+  "activa:test": {
+   "oportunidades": 286,
+   "utiles": 0,
+   "tasa_por_mil": 0.0
+  },
+  "cuarentena_restaurada": {
+   "oportunidades": 40101,
+   "utiles": 36,
+   "tasa_por_mil": 0.9
+  },
+  "cuarentena_restaurada:sinapsis": {
+   "oportunidades": 19927,
+   "utiles": 12,
+   "tasa_por_mil": 0.6
+  },
+  "cuarentena_restaurada:sinapsis_latentes": {
+   "oportunidades": 20174,
+   "utiles": 24,
+   "tasa_por_mil": 1.19
+  },
+  "cuarentena_vigente": {
+   "oportunidades": 120130,
+   "utiles": 192,
+   "tasa_por_mil": 1.6
+  },
+  "cuarentena_vigente:sinapsis": {
+   "oportunidades": 82770,
+   "utiles": 150,
+   "tasa_por_mil": 1.81
+  },
+  "cuarentena_vigente:sinapsis_latentes": {
+   "oportunidades": 37360,
+   "utiles": 42,
+   "tasa_por_mil": 1.12
+  }
+ }
+}
