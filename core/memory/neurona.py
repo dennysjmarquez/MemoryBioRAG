@@ -12,10 +12,12 @@ CUÁNDO APRENDE (en vivo, costo fijo)
     El recuerdo se hace sus propias preguntas (`neurona_examen.py`), el motor las
     responde en silencio (sin log, sin accesos, sin tocar el DMN) y la neurona
     aprende de lo que falló. Cada ciclo examina un número FIJO de recuerdos
-    (`BIORAG_NEURONA_NODOS`, 2; `BIORAG_NEURONA_PREGUNTAS`, 2) con un presupuesto de tiempo fijo, y la memoria
-    de examen tiene tamaño fijo. El costo es el mismo con 10 o con un millón
-    de recuerdos. Si hay menos recuerdos nuevos que huecos, repasa recuerdos
-    viejos elegidos al azar por rowid (O(log N), sin recorrer la tabla).
+    (`BIORAG_NEURONA_NODOS`, 8; `BIORAG_NEURONA_PREGUNTAS`, 7) dentro de un
+    presupuesto de tiempo fijo (3 s), y la memoria de examen tiene tamaño fijo.
+    El costo es el mismo con 10 o con un millón de recuerdos. Si hay menos
+    recuerdos nuevos que huecos, repasa recuerdos viejos elegidos al azar por
+    rowid (O(log N), sin recorrer la tabla), primero los del grupo del examen
+    (estudio o guardia) al que más le faltan preguntas.
 
 PISO Y TECHO (que aprenda, no que memorice)
     - Piso: ninguna categoría del examen puede quedar con menos aciertos que
@@ -139,8 +141,12 @@ def activa():
 
 def _cfg():
     return dict(
-        nodos=_env_int("BIORAG_NEURONA_NODOS", 2),
-        preguntas=_env_int("BIORAG_NEURONA_PREGUNTAS", 2),
+        # Cuánto practica tras cada consolidación. Topes fijos (no dependen del tamaño
+        # de la DB) y además el presupuesto de tiempo corta antes si las búsquedas son
+        # lentas. Todas las preguntas del recuerdo (no todas sirven: si la respuesta
+        # queda fuera del top se descartan), así se llenan sus `tope_nodo` lugares.
+        nodos=_env_int("BIORAG_NEURONA_NODOS", 8),
+        preguntas=_env_int("BIORAG_NEURONA_PREGUNTAS", 7),
         presupuesto=_env_float("BIORAG_NEURONA_PRESUPUESTO_S", 3.0),
         limite_agente=_env_int("BIORAG_NEURONA_LIMITE_AGENTE", 10),
         max_estudio=_env_int("BIORAG_NEURONA_MAX_ESTUDIO", 1200),
@@ -637,23 +643,46 @@ def _preguntar(self, concepto, consulta, cat, modo="crudo", limite_agente=10):
                 X=v["X"].astype(np.float32), base=v["base"].astype(np.float32))
 
 
-def _nodos_a_examinar(self, conceptos, n, rng):
+def _nodos_a_examinar(self, conceptos, n, rng, prefiere=None):
+    """Qué recuerdos examinar en este ciclo (como mucho `n`, costo fijo).
+
+    Primero los recién consolidados. Si sobran lugares, recuerdos activos al azar;
+    `prefiere` (True = de guardia, False = de estudio, None = cualquiera) pone primero
+    los del grupo al que más le faltan preguntas: el que repasa lo que menos tiene.
+    Nunca más de 4·n consultas a la DB, sin importar su tamaño.
+    """
     elegidos = [c for c in dict.fromkeys(c.lower().strip() for c in conceptos if c)]
     rng.shuffle(elegidos)
     elegidos = elegidos[:n]
     try:
         tope = self.cursor.execute("SELECT MAX(rowid) FROM largo_plazo").fetchone()[0] or 0
-        intentos = 0
-        while len(elegidos) < n and tope and intentos < 4 * n:
+        primero, despues, intentos = [], [], 0
+        while len(elegidos) + len(primero) < n and tope and intentos < 4 * n:
             intentos += 1
             fila = self.cursor.execute(
                 "SELECT concepto FROM largo_plazo WHERE rowid >= ? AND estado = 'activo' LIMIT 1",
                 (rng.randint(1, tope),)).fetchone()
-            if fila and fila[0] not in elegidos:
-                elegidos.append(fila[0])
+            if not fila or fila[0] in elegidos or fila[0] in primero or fila[0] in despues:
+                continue
+            if prefiere is None or _es_guardia(fila[0]) == prefiere:
+                primero.append(fila[0])
+            else:
+                despues.append(fila[0])
+        elegidos += primero
+        elegidos += despues[:max(0, n - len(elegidos))]
     except Exception:
         pass
     return elegidos
+
+
+def _le_falta(est, cfg):
+    """¿A qué grupo del examen le falta más para su mínimo? True = guardia, False = estudio,
+    None = a ninguno (o a los dos por igual): entonces se elige al azar, sin sesgo."""
+    fg = max(0.0, 1.0 - len(est.guardia) / max(1, cfg["min_guardia"]))
+    fe = max(0.0, 1.0 - len(est.estudio) / max(1, cfg["min_estudio"]))
+    if fg == fe:
+        return None
+    return fg > fe
 
 
 def _plano(casos):
@@ -942,33 +971,41 @@ def _practicar(self, conceptos, nodos, presupuesto_s):
             nodos = max(1, nodos // 2)  # en el techo solo vigila: mitad de costo
         rng = random.Random(est.stats["ciclos"] * 7919 + 17)
         _purgar_olvidados(self, est, rng)
-        nuevas, lenta = 0, 0.0
-        for concepto in _nodos_a_examinar(self, conceptos, nodos, rng):
-            if time.time() - t0 + lenta > presupuesto:
-                break
+        from core.memory.neurona_examen import preguntas
+        # Preguntas A LO ANCHO: primero la 1ª de cada recuerdo, luego la 2ª de cada uno...
+        # Si el presupuesto corta (DB grande, búsquedas lentas) las preguntas quedan
+        # repartidas entre muchos recuerdos distintos y no amontonadas en uno o dos:
+        # así la neurona conoce más recuerdos y no se acostumbra a pocos. En una DB
+        # chica (rápida) alcanza para todas igual.
+        listas = []
+        for concepto in _nodos_a_examinar(self, conceptos, nodos, rng, _le_falta(est, cfg)):
             fila = self.cursor.execute(
                 "SELECT contenido, COALESCE(sinonimos, '') FROM largo_plazo WHERE concepto = ? AND estado = 'activo'",
                 (concepto,)).fetchone()
             if not fila:
                 continue
-            from core.memory.neurona_examen import preguntas
             qs = preguntas(concepto, fila[0], fila[1])
             rng.shuffle(qs)
-            for i_q, (cat, q) in enumerate(qs[:cfg["preguntas"]]):
-                modo = MODOS[(i_q + est.stats["ciclos"]) % len(MODOS)]  # aprende los dos caminos
-                # no empezar una pregunta que no cabe en el presupuesto (estimación: la más lenta hasta ahora)
-                if time.time() - t0 + lenta > presupuesto:
-                    break
-                tq = time.time()
-                caso = _preguntar(self, concepto, q, cat, modo, cfg["limite_agente"])
-                lenta = max(lenta, time.time() - tq)
-                if caso is None:
-                    continue
-                if _es_guardia(concepto):
-                    _meter(est.guardia, caso, cfg["max_guardia"], rng, cfg["tope_nodo"])
-                else:
-                    _meter(est.estudio, caso, cfg["max_estudio"], rng, cfg["tope_nodo"])
-                nuevas += 1
+            listas.append((concepto, qs[:cfg["preguntas"]]))
+        orden = [(c, qs[r]) for r in range(max(0, cfg["preguntas"])) for c, qs in listas if r < len(qs)]
+        nuevas, lenta, turno = 0, 0.0, 0
+        for concepto, (cat, q) in orden:
+            # no empezar una pregunta que no cabe en el presupuesto (estimación: la más lenta hasta ahora)
+            if time.time() - t0 + lenta > presupuesto:
+                break
+            # aprende los dos caminos por igual: se alterna en todo el ciclo
+            modo = MODOS[(turno + est.stats["ciclos"]) % len(MODOS)]
+            turno += 1
+            tq = time.time()
+            caso = _preguntar(self, concepto, q, cat, modo, cfg["limite_agente"])
+            lenta = max(lenta, time.time() - tq)
+            if caso is None:
+                continue
+            if _es_guardia(concepto):
+                _meter(est.guardia, caso, cfg["max_guardia"], rng, cfg["tope_nodo"])
+            else:
+                _meter(est.estudio, caso, cfg["max_estudio"], rng, cfg["tope_nodo"])
+            nuevas += 1
         est.stats["ciclos"] += 1
         est.stats["preguntas"] += nuevas
         est.stats["nuevas_desde_tranquila"] += nuevas

@@ -51,7 +51,8 @@ def _respaldos(p):
 
 def test_estado_solo_mira(db, capsys):
     assert D.main([db, "--estado"]) == 0
-    assert "ANTES" in capsys.readouterr().out
+    out = capsys.readouterr().out
+    assert "ESTADO DE TU NEURONA" in out and "¿Ya mejora tus búsquedas?" in out
     assert _filas_neurona(db) is None          # no creó ni escribió nada
     assert _respaldos(db) == []                 # ni respaldo
 
