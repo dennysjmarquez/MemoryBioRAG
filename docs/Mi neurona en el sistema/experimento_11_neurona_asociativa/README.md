@@ -1017,3 +1017,13 @@ algún día se corta, será con K = 20 y medido.
 
 Donde la fuerza alta sí falla es en **C** (6 a 7): son justo los pares que Gemini leyó y descartó.
 Por eso Gemini se queda por ahora.
+
+---
+
+## V2.19. La neurona ya está en el motor → experimento 12
+
+El cableado está documentado en `../experimento_12_neurona_en_el_motor/README.md`. En resumen:
+- La neurona decide el **peso de nacimiento** de cada sinapsis (`peso = 0.5 + 0.5·fuerza`).
+- No crea ni corta ninguna sinapsis.
+- QA idéntico, incluso repesando todas las sinapsis automáticas de una copia.
+- En los 6 vecinos que usa la expansión, los enlaces manuales pasan de 86 a 142.

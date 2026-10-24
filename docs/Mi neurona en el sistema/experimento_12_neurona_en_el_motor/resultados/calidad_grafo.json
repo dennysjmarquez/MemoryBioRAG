@@ -1,0 +1,22 @@
+{
+ "antes": {
+  "examen_si_entre_los_6": 11,
+  "examen_no_entre_los_6": 13,
+  "examen_si_total": 29,
+  "examen_no_total": 29,
+  "manuales_entre_los_6": 86,
+  "manuales_total": 390,
+  "auc_peso_examen": 0.628,
+  "pares_elegidos": 4295
+ },
+ "despues": {
+  "examen_si_entre_los_6": 14,
+  "examen_no_entre_los_6": 9,
+  "examen_si_total": 29,
+  "examen_no_total": 29,
+  "manuales_entre_los_6": 142,
+  "manuales_total": 390,
+  "auc_peso_examen": 0.738,
+  "pares_elegidos": 3564
+ }
+}
