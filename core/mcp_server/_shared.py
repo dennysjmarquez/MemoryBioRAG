@@ -23,9 +23,15 @@ STALE_DAYS = int(os.environ.get('BIORAG_STALE_DAYS', '90'))
 Resultados stale no se entregan como información vigente.
 Protegidos: categories Principle, Profile, Personal, Relation no se marcan stale."""
 
-STALE_HARD_CUTOFF_DAYS = int(os.environ.get('BIORAG_STALE_HARD_CUTOFF', '365'))
+STALE_HARD_CUTOFF_DAYS = int(os.environ.get('BIORAG_STALE_HARD_CUTOFF', '0'))
 """Días después de los cuales un nodo se excluye de resultados (a menos que
-esté en categoría protegida). 0 = sin cutoff."""
+esté en categoría protegida). 0 = sin cutoff (DEFAULT).
+
+Decisión de Dennys (oct-2026): BioRAG es memoria de largo plazo; no esconde
+recuerdos por fecha salvo que el usuario lo pida con esta variable. Antes el
+default era 365, pero nunca disparó: el JOIN de search.py apunta a la tabla
+`categorias` (la real es `categories(name)`), así que no había edades. Con 0
+el corte no puede encenderse solo aunque ese JOIN se corrija."""
 
 MAX_ASOCIACIONES_FLAT = int(os.environ.get('BIORAG_MAX_ASOCIACIONES_FLAT', '12'))
 """Máximo de nombres de asociaciones planas expuestos por nodo en la respuesta de

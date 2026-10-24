@@ -1,0 +1,10 @@
+quitar=['sustantivos']  neurona=0
+categoría                 n     R@1     R@5     MRR
+cruce_idioma              8   37.50   62.50  0.4792
+dormido                  65   96.92   98.46  0.9769
+por_tema                 65   33.85   58.46  0.4428
+pregunta_natural         65   75.38   90.77  0.8103
+sinonimo                 55   54.55   96.36  0.6930
+typo                     65   72.31   84.62  0.7731
+variante_gramatical      65   67.69   83.08  0.7385
+GLOBAL                  388   66.49   84.54  0.7349

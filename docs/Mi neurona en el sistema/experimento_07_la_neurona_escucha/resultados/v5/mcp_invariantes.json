@@ -1,0 +1,102 @@
+{
+ "consultas": 120,
+ "ruido": 0,
+ "top5_cambiado": 67,
+ "puestos_6_10_cambiados": 52,
+ "viol_nombres": 0,
+ "viol_numeros": 0,
+ "viol_globales": 0,
+ "ejemplos": [
+  {
+   "q": "memoria aprendizaje personal artemis",
+   "cat": "literal",
+   "esperado": "memoria_aprendizaje_personal_artemis",
+   "sin": [
+    "memoria_aprendizaje_personal_artemis",
+    "privacidad_memorias_personales_oec",
+    "dennys_principio_documentar_dudas_resueltas_auto",
+    "athena_arquitectura_memoria_agente_v24_2",
+    "biorag_v20_rpe_dopamina"
+   ],
+   "con": [
+    "memoria_aprendizaje_personal_artemis",
+    "privacidad_memorias_personales_oec",
+    "dennys_principio_documentar_dudas_resueltas_auto",
+    "leccion_artemis_no_quejarse_trabajar",
+    "athena_arquitectura_memoria_agente_v24_2"
+   ]
+  },
+  {
+   "q": "herjmes nvidi nim modelos opitmos",
+   "cat": "typo",
+   "esperado": "hermes_nvidia_nim_modelos_optimos",
+   "sin": [
+    "resolucion_de_contradicciones_entre_insights_sumatoria_mentalidad",
+    "hermes_nvidia_nim_modelos_optimos",
+    "hermes_optimizacion_completada_20260615"
+   ],
+   "con": [
+    "hermes_nvidia_nim_modelos_optimos",
+    "hermes_optimizacion_completada_20260615",
+    "resolucion_de_contradicciones_entre_insights_sumatoria_mentalidad"
+   ]
+  },
+  {
+   "q": "caso criterio artificial agente",
+   "cat": "literal",
+   "esperado": "caso_criterio_artificial_agente",
+   "sin": [
+    "caso_criterio_artificial_agente",
+    "aforismo_criterio_agente",
+    "principio_naturaleza_agente",
+    "inteligencia_emocional_agente_vs_humano",
+    "ref_conversacion_criterio"
+   ],
+   "con": [
+    "caso_criterio_artificial_agente",
+    "aforismo_criterio_agente",
+    "principio_naturaleza_agente",
+    "ref_conversacion_criterio",
+    "oracle_que_nos_uniere_como_familia"
+   ]
+  },
+  {
+   "q": "athena reflexion identidad propia",
+   "cat": "literal",
+   "esperado": "athena_reflexion_identidad_propia",
+   "sin": [
+    "athena_reflexion_identidad_propia",
+    "athena_reflexion_cambio_identidad_2026_06_20",
+    "conciencia_reflexion_dennys_ser_vivo_20260709",
+    "alguien_vs_algo_identidad",
+    "correccion_dennys_principio_documentar_crisis_existencial"
+   ],
+   "con": [
+    "athena_reflexion_identidad_propia",
+    "athena_reflexion_cambio_identidad_2026_06_20",
+    "alguien_vs_algo_identidad",
+    "correccion_dennys_principio_documentar_crisis_existencial",
+    "conciencia_reflexion_dennys_ser_vivo_20260709"
+   ]
+  },
+  {
+   "q": "biorag v6 0 changelog",
+   "cat": "literal",
+   "esperado": "biorag_v6_0_changelog",
+   "sin": [
+    "biorag_v6_0_changelog",
+    "biorag_v11_1_changelog_completo",
+    "changelog_v10_recall_semantico_typo_tolerant",
+    "publicacion_linkedin_pdf_biorag_v26_workflow",
+    "v22_2_determinism_verification_and_debt"
+   ],
+   "con": [
+    "biorag_v6_0_changelog",
+    "biorag_v11_1_changelog_completo",
+    "publicacion_linkedin_pdf_biorag_v26_workflow",
+    "biorag_v25_1_ppr_difusion_calor",
+    "changelog_v10_recall_semantico_typo_tolerant"
+   ]
+  }
+ ]
+}

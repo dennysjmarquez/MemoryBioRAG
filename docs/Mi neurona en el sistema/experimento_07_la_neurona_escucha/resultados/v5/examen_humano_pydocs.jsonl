@@ -1,0 +1,164 @@
+{"query": "¿Por qué Python usa indentación para agrupar declaraciones?", "esperado": "indentacion_corchetes_inicio_fin", "seccion": "design"}
+{"query": "¿Por qué los cálculos de punto flotante son tan inexactos?", "esperado": "flotante_coma_precision_operaciones", "seccion": "design"}
+{"query": "¿Por qué las cadenas de caracteres de Python son inmutables?", "esperado": "cantidad_actividad_cambiara_cosa", "seccion": "design"}
+{"query": "¿Por qué debe usarse 'self' explícitamente en las definiciones y llamadas de métodos?", "esperado": "metodo_instancia_self_variables", "seccion": "design"}
+{"query": "¿Por qué no puedo usar una tarea en una expresión?", "esperado": "partir_walrus_expresion_572", "seccion": "design"}
+{"query": "¿Por qué Python usa métodos para alguna funcionalidad (por ejemplo, list.index()) pero funciones para otra (por ejemplo, len(list))?", "esperado": "leo_dice_len_contenedor", "seccion": "design"}
+{"query": "¿Por qué join() es un método de cadena de caracteres en lugar de un método de lista o tupla?", "esperado": "cadenas_literal_cadena_secuencia", "seccion": "design"}
+{"query": "¿Qué tan rápido van las excepciones?", "esperado": "try_dict_key_getvalue", "seccion": "design"}
+{"query": "¿Por qué no hay un *switch* o una declaración *case* en Python?", "esperado": "casos_invocar_metodos_prefijo", "seccion": "design"}
+{"query": "¿No puede emular hilos en el intérprete en lugar de confiar en una implementación de hilos específica del sistema operativo?", "esperado": "marco_pila_subprocesos_stackless", "seccion": "design"}
+{"query": "¿Por qué las expresiones lambda no pueden contener sentencias?", "esperado": "expresiones_lambda_declaraciones_local", "seccion": "design"}
+{"query": "¿Se puede compilar Python en código máquina, C o algún otro lenguaje?", "esperado": "cython_http_nuitka_prometedor", "seccion": "design"}
+{"query": "¿Cómo gestiona Python la memoria?", "esperado": "implementacion_inaccesibles_ciclos_pypy", "seccion": "design"}
+{"query": "¿Por qué CPython no utiliza un esquema de recolección de basura más tradicional?", "esperado": "portatil_transparente_malloc_free", "seccion": "design"}
+{"query": "¿Por qué no se libera toda la memoria cuando sale CPython?", "esperado": "desasignan_sale_asignados_imposibles", "seccion": "design"}
+{"query": "¿Por qué hay tipos de datos separados de tuplas y listas?", "esperado": "listas_tuplas_operan_elementos", "seccion": "design"}
+{"query": "¿Cómo se implementan las listas en Python?", "esperado": "longitud_matriz_tamaño_elementos", "seccion": "design"}
+{"query": "¿Cómo se implementan los diccionarios en CPython?", "esperado": "diccionarios_hash_clave_podria", "seccion": "design"}
+{"query": "¿Por qué las claves del diccionario deben ser inmutables?", "esperado": "hash_valor_clave_diccionario", "seccion": "design"}
+{"query": "¿Por qué list.sort() no retorna la lista ordenada?", "esperado": "copia_lista_ordena_ordenada", "seccion": "design"}
+{"query": "¿Cómo se especifica y aplica una especificación de interfaz en Python?", "esperado": "especificacion_interfaz_abc_pruebas", "seccion": "design"}
+{"query": "¿Por qué no hay goto?", "esperado": "goto_bucle_utilizar_excepciones", "seccion": "design"}
+{"query": "¿Por qué las cadenas de caracteres sin formato (r-strings) no pueden terminar con una barra diagonal inversa?", "esperado": "barras_barra_invertida_caracteres", "seccion": "design"}
+{"query": "¿Por qué Python no tiene una declaración \"with\" para las asignaciones de atributos?", "esperado": "ejecucion_bloque_miembro_atributo", "seccion": "design"}
+{"query": "¿Por qué los generadores no admiten la declaración with?", "esperado": "generador_finalizacion_envuelvalo_contextlib", "seccion": "design"}
+{"query": "¿Por qué se requieren dos puntos para las declaraciones if/while/def/class?", "esperado": "dos_puntos_experimental_observe", "seccion": "design"}
+{"query": "¿Por qué Python permite comas al final de las listas y tuplas?", "esperado": "agregar_coma_final_permitir", "seccion": "design"}
+{"query": "¿Puedo crear mis propias funciones en C?", "esperado": "contengan_explicado_documento_extending", "seccion": "extending"}
+{"query": "¿Puedo crear mis propias funciones en C++?", "esperado": "compatibilidad_encontradas_coloca_extern", "seccion": "extending"}
+{"query": "¿Cómo puedo ejecutar declaraciones arbitrarias de Python desde C?", "esperado": "pyrun_simplestring_syntaxerror_pythonrun", "seccion": "extending"}
+{"query": "¿Cómo puedo evaluar una expresión arbitraria de Python desde C?", "esperado": "simbolo_eval_input_analiza", "seccion": "extending"}
+{"query": "¿Cómo extraigo valores C de un objeto Python?", "esperado": "pytuple_tamaño_getitem_pybytes", "seccion": "extending"}
+{"query": "¿Cómo puedo llamar un método de un objeto desde C?", "esperado": "pyobject_llamar_objeto_argumento", "seccion": "extending"}
+{"query": "¿Cómo obtengo la salida de PyErr_Print() (o cualquier cosa que se imprime a stdout/stderr)?", "esperado": "write_sys_rastreo_personalizado", "seccion": "extending"}
+{"query": "¿Cómo accedo al módulo escrito en Python desde C?", "esperado": "modulo_importo_sys_modules", "seccion": "extending"}
+{"query": "¿Cómo hago una interface a objetos C++ desde Python?", "esperado": "hacerlo_empieza_embedding_document", "seccion": "extending"}
+{"query": "He agregado un módulo usando el archivo de configuración y el *make* falla. ¿Porque?", "esperado": "linea_build_reparar_prolijo", "seccion": "extending"}
+{"query": "¿Cómo puedo depurar una extensión?", "esperado": "gdb_cargadas_verificacion_cargue", "seccion": "extending"}
+{"query": "Quiero compilar un módulo Python en mi sistema Linux, pero me faltan algunos archivos . ¿Por qué?", "esperado": "empaquetadas_python2_archivos_necesarios", "seccion": "extending"}
+{"query": "¿Cómo digo \"entrada incompleta\" desde \"entrada inválida\"?", "esperado": "comportamiento_interprete_prompt_entrada", "seccion": "extending"}
+{"query": "¿Cómo encuentro símbolos g++ __builtin_new o __pure_virtual?", "esperado": "extension_recompilar_link_mymodule", "seccion": "extending"}
+{"query": "¿Puedo crear una clase objeto con algunos métodos implementado en C y otros en Python (por ejemplo a través de la herencia)?", "esperado": "heredar_integradas_boost_bpl", "seccion": "extending"}
+{"query": "¿Qué es Python?", "esperado": "incorpora_dinamico_combina_destacado", "seccion": "general"}
+{"query": "¿Que es la *Python Software Foundation*?", "esperado": "foundation_organizacion_psf_donaciones", "seccion": "general"}
+{"query": "¿Hay restricciones de *copyright* sobre el uso de Python?", "esperado": "derechos_autor_comerciales_psf", "seccion": "general"}
+{"query": "¿Por qué se creó Python en primer lugar?", "esperado": "tenia_experiencia_lenguaje_amoeba", "seccion": "general"}
+{"query": "¿Para qué es bueno Python?", "esperado": "archivos_analisis_index_disponible", "seccion": "general"}
+{"query": "¿Cómo funciona el esquema numérico de versiones de Python?", "esperado": "version_release_versiones_sufijo", "seccion": "general"}
+{"query": "¿Cómo obtengo una copia del código fuente de Python?", "esperado": "codigo_fuente_reciente_tar", "seccion": "general"}
+{"query": "¿Cómo consigo documentación sobre Python?", "esperado": "documentacion_docs_restructuredtext_sphinx", "seccion": "general"}
+{"query": "Nunca he programado antes. ¿Hay un tutorial de Python?", "esperado": "numerosos_tutoriales_beginner_principiantes", "seccion": "general"}
+{"query": "¿Hay un *newsgroup* o una lista de correo dedicada a Python?", "esperado": "noticias_comp_lang_correo", "seccion": "general"}
+{"query": "¿Cómo obtengo una versión de prueba *beta* de Python?", "esperado": "anunciados_comp_lang_feed", "seccion": "general"}
+{"query": "¿Cómo envío un reporte de *bug* y parches para Python?", "esperado": "reportar_bug_parche_rastreador", "seccion": "general"}
+{"query": "¿Hay algún artículo publicado sobre Python que pueda referir?", "esperado": "citar_libro_publicado_1991", "seccion": "general"}
+{"query": "¿Hay libros sobre Python?", "esperado": "pythonbooks_librerias_excluir_refieran", "seccion": "general"}
+{"query": "¿En qué parte del mundo está ubicado www.python.org?", "esperado": "infraestructura_ubicada_gestionada_infraestructure", "seccion": "general"}
+{"query": "¿Por qué se llama Python?", "esperado": "van_rossum_leyendo_monty", "seccion": "general"}
+{"query": "¿Cuán estable es Python?", "esperado": "versiones_meses_lanzamientos_estabilidad", "seccion": "general"}
+{"query": "¿Cuánta gente usa Python?", "esperado": "decenas_miles_usuarios_exacta", "seccion": "general"}
+{"query": "¿Hay proyectos significativos hechos con Python?", "esperado": "https_www_empresas_zope", "seccion": "general"}
+{"query": "¿Qué nuevos desarrollos se esperan para Python en el futuro?", "esperado": "conocer_pep_documentos_dev", "seccion": "general"}
+{"query": "¿Es razonable proponer cambios incompatibles a Python?", "esperado": "millones_invalide_fraccion_proporcionar", "seccion": "general"}
+{"query": "¿Python es un buen lenguaje para principiantes?", "esperado": "estudiantes_tipado_primer_programacion", "seccion": "general"}
+{"query": "¿Qué conjuntos de herramientas de GUI existen para Python?", "esperado": "tcl_guiprogramming_platform_frameworks", "seccion": "gui"}
+{"query": "¿Cómo congelo las aplicaciones de Tkinter?", "esperado": "aplicaciones_congelar_bibliotecas_tcl", "seccion": "gui"}
+{"query": "¿Puedo tener eventos Tk manejados mientras espero por *I/O*?", "esperado": "siquiera_entrada_salida_llamada", "seccion": "gui"}
+{"query": "No puedo hacer que los atajos de teclado funcionen en Tkinter: ¿por qué?", "esperado": "queja_widget_teclado_consulte", "seccion": "gui"}
+{"query": "¿Qué es Python?", "esperado": "programacion_escuelas_secundarias_aprender", "seccion": "installed"}
+{"query": "¿Por qué Python está instalado en mi máquina?", "esperado": "instalado_haber_instalacion_compaq", "seccion": "installed"}
+{"query": "¿Puedo eliminar Python?", "esperado": "vino_quitarlo_dañar_aplicacion", "seccion": "installed"}
+{"query": "¿Cómo encuentro un módulo o aplicación para ejecutar la tarea X?", "esperado": "aprendera_capaz_google_busqueda", "seccion": "library"}
+{"query": "¿Dónde está el fichero fuente *math.py* (*socket.py*, *regex.py*, etc.)?", "esperado": "fuente_dinamicamente_modulos_escritos", "seccion": "library"}
+{"query": "¿Cómo hago ejecutable un script Python en Unix?", "esperado": "interprete_chmod_scriptfile_env", "seccion": "library"}
+{"query": "¿Hay un paquete curses/termcap para Python?", "esperado": "distribucion_curses_cursores_soporte", "seccion": "library"}
+{"query": "¿Por qué no funcionan mis manejadores de señales?", "esperado": "manejador_señales_declarado_argumentos", "seccion": "library"}
+{"query": "¿Cómo pruebo un programa o un componente Python?", "esperado": "testing_agradable_programa_accesos", "seccion": "library"}
+{"query": "¿Cómo creo documentación a partir de los docstrings?", "esperado": "docstrings_epydoc_http_sphinx", "seccion": "library"}
+{"query": "¿Cómo consigo presionar una única tecla cada vez?", "esperado": "directo_cursores_curses_aprenderlo", "seccion": "library"}
+{"query": "¿Cómo programo usando hilos?", "esperado": "modulo_threading_thread_convenientes", "seccion": "library"}
+{"query": "Ninguno de mis hilos parece funcionar: ¿por qué?", "esperado": "hilo_hilos_sleep_cola", "seccion": "library"}
+{"query": "¿Cómo puedo dividir trabajo entre un grupo de hilos?", "esperado": "concurrent_futures_queue_cola", "seccion": "library"}
+{"query": "¿Qué tipos de mutación de valores globales son *thread-safe*?", "esperado": "bytecode_exacto_operaciones_atomicas", "seccion": "library"}
+{"query": "¿Podemos deshacernos del *Global Interpreter Lock*?", "esperado": "gil_filename_path_shutil", "seccion": "library"}
+{"query": "¿Cómo copio un fichero?", "esperado": "shutil_volumenes_wikipedia_resource", "seccion": "library"}
+{"query": "¿Cómo leo (o escribo) datos binarios?", "esperado": "binarios_datos_texto_bytes", "seccion": "library"}
+{"query": "No consigo usar os.read() en un *pipe* creado con os.popen(); ¿por qué?", "esperado": "read_fichero_representando_popen", "seccion": "library"}
+{"query": "¿Cómo accedo al puerto serial (RS232)?", "esperado": "win32_osx_ironpython_groups", "seccion": "library"}
+{"query": "¿Por qué al cerrar sys.stdout (stdin, stderr) realmente no se cierran?", "esperado": "fichero_close_marca_descriptor", "seccion": "library"}
+{"query": "¿Qué herramientas de Python existen para WWW?", "esperado": "capitulos_titulados_netdata_lado", "seccion": "library"}
+{"query": "¿Qué modulo debería usar para generación de HTML?", "esperado": "coleccion_enlaces_wiki_webprogramming", "seccion": "library"}
+{"query": "¿Cómo envío correo desde un script Python?", "esperado": "aqui_sendmail_veces_usr", "seccion": "library"}
+{"query": "¿Cómo evito el bloqueo en el método *connect()* de un *socket*?", "esperado": "select_socket_connect_errno", "seccion": "library"}
+{"query": "¿Hay paquetes para interfaces a bases de datos en Python?", "esperado": "hashes_disco_datos_bases", "seccion": "library"}
+{"query": "¿Cómo implementar objetos persistentes en Python?", "esperado": "pickle_soluciona_ventanas_shelve", "seccion": "library"}
+{"query": "¿Cómo genero números aleatorios en Python?", "esperado": "random_rango_generadores_selecciona", "seccion": "library"}
+{"query": "¿Existe un depurador a nivel de código fuente con puntos de interrupción, depuración paso a paso, etc?", "esperado": "pdb_depurador_pythonwin_ide", "seccion": "programming"}
+{"query": "¿Existe alguna herramienta que ayude a encontrar errores o realizar análisis estático?", "esperado": "pylint_pyflakes_comprobaciones_mypy", "seccion": "programming"}
+{"query": "¿Cómo puedo crear un binario independiente a partir de un programa Python?", "esperado": "modulos_freeze_multiplataforma_pyinstaller", "seccion": "programming"}
+{"query": "¿Existen estándares de código o una guía de estilo para programas Python?", "esperado": "estilo_requerido_documentado_nucleo", "seccion": "programming"}
+{"query": "¿Por qué obtengo un *UnboundLocalError* cuando la variable tiene un valor?", "esperado": "unboundlocalerror_variable_ambito_aplicacion", "seccion": "programming"}
+{"query": "¿Cuáles son las reglas para las variables locales y globales en Python?", "esperado": "globales_global_efectos_secundarios", "seccion": "programming"}
+{"query": "¿Por qué las funciones lambda definidas en un bucle con diferentes valores devuelven todas el mismo resultado?", "esperado": "bucle_funciones_lambda_devuelven", "seccion": "programming"}
+{"query": "¿Cómo puedo compartir variables globales entre módulos?", "esperado": "canonica_modulo_config_cfg", "seccion": "programming"}
+{"query": "¿Cuáles son las \"buenas prácticas\" para usar import en un módulo?", "esperado": "modulos_importacion_importaciones_mover", "seccion": "programming"}
+{"query": "¿Por qué los valores por defecto se comparten entre objetos?", "esperado": "funcion_mydict_defecto_none", "seccion": "programming"}
+{"query": "¿Cómo puedo pasar parámetros por palabra clave u opcionales de una función a otra?", "esperado": "recopila_argumentos_especificadores_posicionales", "seccion": "programming"}
+{"query": "¿Cuál es la diferencia entre argumentos y parámetros?", "esperado": "parametros_argumentos_invocamos_func", "seccion": "programming"}
+{"query": "¿Por qué cambiando la lista 'y' cambia, también, la lista 'x'?", "esperado": "variables_referencian_objeto_operaciones", "seccion": "programming"}
+{"query": "¿Cómo puedo escribir una función sin parámetros (invocación mediante referencia)?", "esperado": "tupla_resultados_casi_pasando", "seccion": "programming"}
+{"query": "¿Cómo se puede hacer una función de orden superior en Python?", "esperado": "ambitos_anidados_invocables_invocable", "seccion": "programming"}
+{"query": "¿Cómo copio un objeto en Python?", "esperado": "copy_deepcopy_copiar_copiarse", "seccion": "programming"}
+{"query": "¿Cómo puedo encontrar los métodos o atributos de un objeto?", "esperado": "dir_ordenados_alfabeticamente_atributos", "seccion": "programming"}
+{"query": "¿Cómo puede mi código descubrir el nombre de un objeto?", "esperado": "nombre_nombres_gato_conoce", "seccion": "programming"}
+{"query": "¿Qué ocurre con la precedencia del operador coma?", "esperado": "coma_operador_operadores_asignacion", "seccion": "programming"}
+{"query": "¿Existe un equivalente al operador ternario de C \"?:\"?", "esperado": "sintaxis_introdujera_expresion_logicos", "seccion": "programming"}
+{"query": "¿Es posible escribir expresiones en una línea de forma ofuscada en Python?", "esperado": "anidando_lambda_examina_creados", "seccion": "programming"}
+{"query": "¿Qué hace la barra (/) en medio de la lista de parámetros de una función?", "esperado": "slash_parametros_unicamente_posicionales", "seccion": "programming"}
+{"query": "¿Cómo puedo especificar enteros hexadecimales y octales?", "esperado": "especificar_octal_minuscula_mayuscula", "seccion": "programming"}
+{"query": "¿Por qué -22 // 10 devuelve -3?", "esperado": "tenga_signo_quieres_190", "seccion": "programming"}
+{"query": "¿Cómo puedo obtener un atributo int literal en lugar de SyntaxError?", "esperado": "literal_obtiene_punto_separar", "seccion": "programming"}
+{"query": "¿Cómo convierto una cadena a un número?", "esperado": "int_144_numero_eval", "seccion": "programming"}
+{"query": "¿Cómo puedo convertir un número a una cadena?", "esperado": "144_representacion_format_produce", "seccion": "programming"}
+{"query": "¿Cómo puedo modificar una cadena in situ?", "esperado": "quieras_crearla_modificar_unicode", "seccion": "programming"}
+{"query": "¿Cómo puedo usar cadenas para invocar funciones/métodos?", "esperado": "cadenas_principal_tecnica_getattr", "seccion": "programming"}
+{"query": "¿Existe un equivalente a chomp() en Perl para eliminar nuevas líneas al final de las cadenas?", "esperado": "rstrip_linea_lineas_vacias", "seccion": "programming"}
+{"query": "¿Existe un equivalente a scanf() o a sscanf() ?", "esperado": "analisis_sintactico_espacios_split", "seccion": "programming"}
+{"query": "Mi programa es muy lento. ¿Cómo puedo acelerarlo?", "esperado": "rendimiento_trucos_rapido_cython", "seccion": "programming"}
+{"query": "¿Cuál es la forma más eficiente de concatenar muchas cadenas conjuntamente?", "esperado": "str_concatenacion_acumular_seria", "seccion": "programming"}
+{"query": "¿Cómo convertir entre tuplas y listas?", "esperado": "tuple_seq_convierte_iterable", "seccion": "programming"}
+{"query": "¿Qué es un índice negativo?", "esperado": "positivos_negativos_indices_seq", "seccion": "programming"}
+{"query": "¿Cómo puedo iterar sobre una secuencia en orden inverso?", "esperado": "reversed_transformara_original_inverso", "seccion": "programming"}
+{"query": "¿Cómo eliminar duplicados de una lista?", "esperado": "lista_duplicados_rapido_eliminacion", "seccion": "programming"}
+{"query": "¿Cómo se puede hacer un array en Python?", "esperado": "listas_arrays_lisp_analogo", "seccion": "programming"}
+{"query": "¿Cómo puedo crear una lista multidimensional?", "esperado": "lista_conteniendo_longitud_numpy", "seccion": "programming"}
+{"query": "¿Por qué hacer lo siguiente, a_tuple[i] += ['item'], lanza una excepción cuando la suma funciona?", "esperado": "asignacion_aumentada_apunta_iadd", "seccion": "programming"}
+{"query": "Quiero hacer una ordenación compleja: ¿Puedes hacer una transformada Schwartziana (Schwartzian Transform) en Python?", "esperado": "atribuida_randal_schwartz_comunidad", "seccion": "programming"}
+{"query": "¿Cómo puedo ordenar una lista a partir de valores de otra lista?", "esperado": "unir_iterador_resultando_extrae", "seccion": "programming"}
+{"query": "¿Qué es una clase?", "esperado": "clase_class_especificos_buzon", "seccion": "programming"}
+{"query": "¿Qué es un método?", "esperado": "normalmente_name_arguments_definen", "seccion": "programming"}
+{"query": "¿Qué es self?", "esperado": "self_metodo_meth_invocado", "seccion": "programming"}
+{"query": "¿Cómo puedo comprobar si un objeto es una instancia de una clase dada o de una subclase de la misma?", "esperado": "isinstance_obj_clases_clase", "seccion": "programming"}
+{"query": "¿Qué es la delegación?", "esperado": "delegacion_metodo_self_setattr", "seccion": "programming"}
+{"query": "¿Cómo invoco a un método definido en una clase base desde una clase derivada que la extiende?", "esperado": "super_determinara_self_mro", "seccion": "programming"}
+{"query": "¿Cómo puedo organizar mi código para hacer que sea más sencillo modificar la clase base?", "esperado": "base_alias_derivar_disponibilidad", "seccion": "programming"}
+{"query": "¿Cómo puedo crear datos estáticos de clase y métodos estáticos de clase?", "esperado": "estaticos_clase_count_self", "seccion": "programming"}
+{"query": "¿Como puedo sobrecargar constructores (o métodos) en Python?", "esperado": "spam_guion_classname_close", "seccion": "programming"}
+{"query": "¿Cómo puedo obtener una lista de todas las instancias de una clase dada?", "esperado": "seguimiento_instancias_programar_manteniendo", "seccion": "programming"}
+{"query": "¿Por qué el resultado de id() no parece ser único?", "esperado": "entero_vida_objeto_frecuentemente", "seccion": "programming"}
+{"query": "¿Cuándo puedo fiarme de pruebas de identidad con el operador *is*?", "esperado": "identidad_pruebas_igualdad_none", "seccion": "programming"}
+{"query": "¿Cómo puede una subclase controlar qué datos se almacenan en una instancia inmutable?", "esperado": "subclasifica_inmutable_anular_alterar", "seccion": "programming"}
+{"query": "¿Cómo cacheo llamadas de método?", "esperado": "cached_property_lru_cache", "seccion": "programming"}
+{"query": "¿Cómo creo un fichero .pyc?", "esperado": "fichero_pyc_pycache_foo", "seccion": "programming"}
+{"query": "¿Cómo puedo encontrar el nombre del módulo en uso?", "esperado": "mirando_name_script_probarse", "seccion": "programming"}
+{"query": "¿Cómo podría tener módulos que se importan mutuamente entre ellos?", "esperado": "foo_bar_globals_import", "seccion": "programming"}
+{"query": "Cuando edito un módulo importado y lo reimporto los cambios no tienen efecto. ¿Por qué sucede esto?", "esperado": "modulo_importa_basico_clase", "seccion": "programming"}
+{"query": "¿Cómo ejecutar un programa Python en Windows?", "esperado": "simbolo_ventana_script_comando", "seccion": "windows"}
+{"query": "¿Cómo hacer que los scripts de Python sean ejecutables?", "esperado": "extension_ejecutar_scripts_foo", "seccion": "windows"}
+{"query": "¿Por qué Python tarda en comenzar?", "esperado": "configurados_identica_antivirus_lecturas", "seccion": "windows"}
+{"query": "¿Es un archivo *.pyd lo mismo que una DLL?", "esperado": "pyd_dll_foo_pyinit", "seccion": "windows"}
+{"query": "¿Cómo puedo integrar Python en una aplicación de Windows?", "esperado": "archivo_dll_enlace_swig", "seccion": "windows"}
+{"query": "¿Cómo puedo evitar que mi editor inserte pestañas en mi archivo fuente de Python?", "esperado": "pestañas_espacios_size_errores", "seccion": "windows"}
+{"query": "¿Cómo verifico una pulsación de tecla sin bloquearla?", "esperado": "msvcrt_kbhit_presionado_getch", "seccion": "windows"}
+{"query": "¿Cómo resuelvo el error de api-ms-win-crt-runtime-l1-1-0.dll no encontrado?", "esperado": "ocurrir_hayan_instaladas_microsoft", "seccion": "windows"}

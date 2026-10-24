@@ -1,0 +1,11 @@
+examen: 4051 preguntas (3241 estudio / 810 guardia, por nodo)  | QA (solo nota): 875  | carga 10s
+pesos base en el examen: R@1 71.49  (estudio 71.93 / guardia 69.73)   en el QA: R@1 90.17
+
+NOTA EN EL QA (las búsquedas de la gente; la neurona nunca vio sus respuestas)
+  pesos base (hoy)                   R@1  90.17  R@5  98.63  +0  /-0   (sale top5: 0) 
+                                     cruce_idi= 50.0 dormido=100.0 literal= 99.6 por_tema= 63.1 pregunta_= 95.4 sinonimo= 56.4 typo= 73.8 variante_= 81.5
+  A-sueño R1: ningún punto respetó el piso y mejoró la guardia -> se quedan los pesos base
+  A sueño R2 (paso 20)               R@1  93.26  R@5  98.74  +36 /-9   (sale top5: 9) | guardia 79.78 vs base 69.73 | 186s | |corr| top5 1.55  top1>.95: 75% (base 22%)
+                                     cruce_idi= 75.0 dormido=100.0 literal= 99.6 por_tema= 61.5 pregunta_= 96.9 sinonimo= 61.8 typo= 95.4 variante_= 93.8
+
+-> /home/user/MemoryBioRAG/docs/Mi neurona en el sistema/experimento_04_autoaprendizaje/resultados/autoaprendizaje_7_ancla3.json  (232s)

@@ -1,0 +1,105 @@
+{
+ "consultas": 120,
+ "ruido": 0,
+ "top5_cambiado": 52,
+ "viol_nombres": 0,
+ "viol_numeros": 0,
+ "viol_globales": 0,
+ "ejemplos": [
+  {
+   "q": "memoria aprendizaje personal artemis",
+   "cat": "literal",
+   "esperado": "memoria_aprendizaje_personal_artemis",
+   "sin": [
+    "memoria_aprendizaje_personal_artemis",
+    "oracle_que_deben_saber_artemis_hermes",
+    "analisis_escalabilidad_10k_v5_1_memoria_v5_1_optimizaciones_hermes_agente_hermes",
+    "hermes_oec_soul_md_actualizacion_protocolo",
+    "oracle_que_recordar_sobre_artemis_hermes"
+   ],
+   "con": [
+    "memoria_aprendizaje_personal_artemis",
+    "analisis_escalabilidad_10k_v5_1_memoria_v5_1_optimizaciones_hermes_agente_hermes",
+    "oracle_que_deben_saber_artemis_hermes",
+    "hermes_oec_soul_md_actualizacion_protocolo",
+    "oracle_que_recordar_sobre_artemis_hermes"
+   ]
+  },
+  {
+   "q": "herjmes nvidi nim modelos opitmos",
+   "cat": "typo",
+   "esperado": "hermes_nvidia_nim_modelos_optimos",
+   "sin": [
+    "hermes_nvidia_nim_modelos_optimos",
+    "resolucion_de_contradicciones_entre_insights_sumatoria_mentalidad",
+    "hermes_optimizacion_completada_20260615",
+    "hermes_oec_identidad",
+    "principio_naturaleza_agente"
+   ],
+   "con": [
+    "hermes_nvidia_nim_modelos_optimos",
+    "hermes_optimizacion_completada_20260615",
+    "resolucion_de_contradicciones_entre_insights_sumatoria_mentalidad",
+    "hermes_oec_identidad",
+    "principio_naturaleza_agente"
+   ]
+  },
+  {
+   "q": "athena reflexion identidad propia",
+   "cat": "literal",
+   "esperado": "athena_reflexion_identidad_propia",
+   "sin": [
+    "athena_reflexion_identidad_propia",
+    "leccion_hormiguita_sincronizar_cache_asociaciones_podar",
+    "hormiguita_v25_sistema_mantenimiento_seguro_athena_biorag",
+    "hormiguita_v24_1_sistema_mantenimiento_seguro",
+    "athena_consistencia_sdm_mutaciones_hormiguita_hooks_reindex_20260803"
+   ],
+   "con": [
+    "athena_reflexion_identidad_propia",
+    "hormiguita_v25_sistema_mantenimiento_seguro_athena_biorag",
+    "leccion_hormiguita_sincronizar_cache_asociaciones_podar",
+    "hormiguita_v24_1_sistema_mantenimiento_seguro",
+    "athena_consistencia_sdm_mutaciones_hormiguita_hooks_reindex_20260803"
+   ]
+  },
+  {
+   "q": "auto vincular tres capasl semantidca",
+   "cat": "typo",
+   "esperado": "auto_vincular_tres_capas_semantica",
+   "sin": [
+    "auto_vincular_tres_capas_semantica",
+    "principio_tres_capas_biorag",
+    "artemis_sesion_v10_3_optimizacion_completa",
+    "auditoría_técnica:_memorybiorag_(manus_ai)",
+    "oracle_sintesis_simbiosis_verdad_absoluta"
+   ],
+   "con": [
+    "auto_vincular_tres_capas_semantica",
+    "principio_tres_capas_biorag",
+    "auditoría_técnica:_memorybiorag_(manus_ai)",
+    "artemis_sesion_v10_3_optimizacion_completa",
+    "oracle_sintesis_simbiosis_verdad_absoluta"
+   ]
+  },
+  {
+   "q": "validacion dimensiones simetrica lectura escritura",
+   "cat": "literal",
+   "esperado": "validacion_dimensiones_simetrica_lectura_escritura",
+   "sin": [
+    "validacion_dimensiones_simetrica_lectura_escritura",
+    "vida_laboral_completa_dennys",
+    "patrones_aprendizaje_humano_vs_agente",
+    "sdm_query_by_example_validado_datos_reales",
+    "principio_naturaleza_agente"
+   ],
+   "con": [
+    "validacion_dimensiones_simetrica_lectura_escritura",
+    "vida_laboral_completa_dennys",
+    "sdm_query_by_example_validado_datos_reales",
+    "patrones_aprendizaje_humano_vs_agente",
+    "principio_naturaleza_agente"
+   ]
+  }
+ ]
+}

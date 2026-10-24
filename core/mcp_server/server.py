@@ -1,4 +1,4 @@
-"""BioRAG MCP Server v33.0 — Memoria compartida OEC via Model Context Protocol.
+"""BioRAG MCP Server v34.0 — Memoria compartida OEC via Model Context Protocol.
 
 Expone la corteza biologica de BioRAG como herramientas MCP para que
 cualquier IDE/CLI (OpenCode, VS Code, Cursor, Cline) se conecte a la
@@ -105,9 +105,57 @@ def _build_server():
 
 # --- Entry point ------------------------------------------------------------
 
+class _StdoutProtegido:
+    """`sys.stdout` en modo stdio: `.buffer` es el canal JSON-RPC; todo lo demás es stderr.
+
+    `mcp.server.stdio.stdio_server` escribe el protocolo en `sys.stdout.buffer`.
+    Cualquier `print()` del motor (`[PMI] ...`, `Sinapsis establecida ...`) va a
+    `write()`, que aquí termina en stderr: el log sigue visible y el protocolo
+    queda limpio.
+    """
+
+    def __init__(self, canal, humano):
+        self.buffer = canal
+        self._humano = humano
+
+    def write(self, texto):
+        return self._humano.write(texto)
+
+    def flush(self):
+        self._humano.flush()
+
+    def __getattr__(self, nombre):
+        return getattr(self._humano, nombre)
+
+
+def _proteger_canal_stdio() -> bool:
+    """En stdio, el stdout del proceso ES el canal JSON-RPC: nadie más puede escribir ahí.
+
+    Bug reproducido (experimento 07): los `print()` del motor iban al mismo fd 1
+    con un búfer de bloque propio; se acumulaban sin verse y se volcaban de golpe
+    en medio del stream (120 `vincular` seguidos => 77 líneas no-JSON en el canal).
+    Arreglo en la raíz, independiente de qué módulo imprima:
+      1. el fd 1 real se duplica y queda SOLO para el protocolo;
+      2. el fd 1 pasa a apuntar a stderr (prints de C, de hijos como el daemon);
+      3. `sys.stdout` = `_StdoutProtegido`: `.buffer` -> canal, `write` -> stderr.
+    Si algo falla, no se toca nada (el server arranca como antes).
+    """
+    try:
+        sys.stdout.flush()
+        canal = os.fdopen(os.dup(sys.stdout.fileno()), "wb")
+        os.dup2(sys.stderr.fileno(), sys.stdout.fileno())
+        sys.stdout = _StdoutProtegido(canal, sys.stderr)
+        return True
+    except Exception as exc:  # pragma: no cover - plataforma sin dup/dup2
+        sys.stderr.write(f"BioRAG MCP: no se pudo aislar el canal stdio ({exc})\n")
+        return False
+
+
 def main(argv: Optional[list[str]] = None) -> int:
     argv = argv or sys.argv[1:]
     use_sse = "--sse" in argv
+    if not use_sse:
+        _proteger_canal_stdio()  # antes de construir el server y de lanzar el daemon
     port = 8080
     for i, a in enumerate(argv):
         if a == "--port" and i + 1 < len(argv):

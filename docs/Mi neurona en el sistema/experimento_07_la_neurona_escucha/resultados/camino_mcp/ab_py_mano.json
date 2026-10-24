@@ -1,0 +1,2237 @@
+{
+ "neurona_env": "0",
+ "quitar": [],
+ "neurona": {
+  "activa": false,
+  "campeon": true,
+  "margen": 1.0,
+  "estudio": 477,
+  "guardia": 152,
+  "version": 1,
+  "ciclos": 285,
+  "preguntas": 838,
+  "ascensos": 20,
+  "retiros": 1,
+  "reinicios": 0,
+  "sin_mejora": 11,
+  "tranquila": false,
+  "nuevas_desde_tranquila": 436,
+  "descartes": 0,
+  "purgados": 37,
+  "ultimo": {
+   "estudio": 477,
+   "guardia": 152,
+   "margen": 1.0,
+   "guardia_mano": 0.875,
+   "guardia_retador": 0.9539,
+   "guardia_campeon": 0.9211,
+   "fase": "estudiando",
+   "nuevas": 3,
+   "campeon": true,
+   "ms": 406
+  }
+ },
+ "segundos": 36,
+ "tabla": {
+  "humana_design": {
+   "n": 27,
+   "r1": 29.63,
+   "r5": 51.85,
+   "mrr": 0.3809
+  },
+  "humana_extending": {
+   "n": 15,
+   "r1": 0.0,
+   "r5": 13.33,
+   "mrr": 0.05
+  },
+  "humana_general": {
+   "n": 21,
+   "r1": 19.05,
+   "r5": 57.14,
+   "mrr": 0.3413
+  },
+  "humana_gui": {
+   "n": 4,
+   "r1": 50.0,
+   "r5": 75.0,
+   "mrr": 0.625
+  },
+  "humana_installed": {
+   "n": 2,
+   "r1": 50.0,
+   "r5": 100.0,
+   "mrr": 0.625
+  },
+  "humana_library": {
+   "n": 25,
+   "r1": 36.0,
+   "r5": 48.0,
+   "mrr": 0.4033
+  },
+  "humana_programming": {
+   "n": 60,
+   "r1": 41.67,
+   "r5": 58.33,
+   "mrr": 0.4792
+  },
+  "humana_windows": {
+   "n": 8,
+   "r1": 25.0,
+   "r5": 75.0,
+   "mrr": 0.5
+  },
+  "GLOBAL": {
+   "n": 162,
+   "r1": 31.48,
+   "r5": 53.09,
+   "mrr": 0.3999
+  }
+ },
+ "casos": [
+  {
+   "id": null,
+   "cat": "humana_design",
+   "q": "¿Por qué Python usa indentación para agrupar declaraciones?",
+   "sk": "qu,python,indentaci",
+   "esperado": "indentacion_corchetes_inicio_fin",
+   "puesto": 1,
+   "top5": [
+    "indentacion_corchetes_inicio_fin",
+    "estudiantes_tipado_primer_programacion"
+   ]
+  },
+  {
+   "id": null,
+   "cat": "humana_design",
+   "q": "¿Por qué los cálculos de punto flotante son tan inexactos?",
+   "sk": "qu,lculos,punto",
+   "esperado": "flotante_coma_precision_operaciones",
+   "puesto": 0,
+   "top5": [
+    "int_144_numero_eval",
+    "numero_complejo",
+    "entero_vida_objeto_frecuentemente",
+    "numerosos_tutoriales_beginner_principiantes",
+    "binarios_datos_texto_bytes"
+   ]
+  },
+  {
+   "id": null,
+   "cat": "humana_design",
+   "q": "¿Por qué las cadenas de caracteres de Python son inmutables?",
+   "sk": "qu,cadenas,caracteres",
+   "esperado": "cantidad_actividad_cambiara_cosa",
+   "puesto": 0,
+   "top5": [
+    "quieras_crearla_modificar_unicode",
+    "cadena_con_triple_comilla",
+    "barras_barra_invertida_caracteres",
+    "archivos_analisis_index_disponible",
+    "codificacion_de_texto"
+   ]
+  },
+  {
+   "id": null,
+   "cat": "humana_design",
+   "q": "¿Por qué debe usarse 'self' explícitamente en las definiciones y llamadas de métodos?",
+   "sk": "qu,debe,usarse",
+   "esperado": "metodo_instancia_self_variables",
+   "puesto": 1,
+   "top5": [
+    "metodo_instancia_self_variables"
+   ]
+  },
+  {
+   "id": null,
+   "cat": "humana_design",
+   "q": "¿Por qué no puedo usar una tarea en una expresión?",
+   "sk": "qu,tarea,expresi",
+   "esperado": "partir_walrus_expresion_572",
+   "puesto": 3,
+   "top5": [
+    "expresion_generadora",
+    "sintaxis_introdujera_expresion_logicos",
+    "partir_walrus_expresion_572",
+    "manejador_señales_declarado_argumentos",
+    "expresion"
+   ]
+  },
+  {
+   "id": null,
+   "cat": "humana_design",
+   "q": "¿Por qué Python usa métodos para alguna funcionalidad (por ejemplo, list.index()) pero funciones para otra (por ejemplo, len(list))?",
+   "sk": "qu,python,funcionalidad",
+   "esperado": "leo_dice_len_contenedor",
+   "puesto": 0,
+   "top5": [
+    "pytuple_tamaño_getitem_pybytes",
+    "delegacion_metodo_self_setattr",
+    "rendimiento_trucos_rapido_cython",
+    "testing_agradable_programa_accesos",
+    "funcion_clave"
+   ]
+  },
+  {
+   "id": null,
+   "cat": "humana_design",
+   "q": "¿Por qué join() es un método de cadena de caracteres en lugar de un método de lista o tupla?",
+   "sk": "qu,join,cadena",
+   "esperado": "cadenas_literal_cadena_secuencia",
+   "puesto": 0,
+   "top5": [
+    "pyobject_llamar_objeto_argumento",
+    "str_concatenacion_acumular_seria"
+   ]
+  },
+  {
+   "id": null,
+   "cat": "humana_design",
+   "q": "¿Qué tan rápido van las excepciones?",
+   "sk": "qu,pido,van",
+   "esperado": "try_dict_key_getvalue",
+   "puesto": 0,
+   "top5": [
+    "tenia_experiencia_lenguaje_amoeba"
+   ]
+  },
+  {
+   "id": null,
+   "cat": "humana_design",
+   "q": "¿Por qué no hay un *switch* o una declaración *case* en Python?",
+   "sk": "qu,hay,switch",
+   "esperado": "casos_invocar_metodos_prefijo",
+   "puesto": 0,
+   "top5": [
+    "tupla_resultados_casi_pasando",
+    "modulos_importacion_importaciones_mover",
+    "spam_guion_classname_close",
+    "delegacion_metodo_self_setattr",
+    "indentacion_corchetes_inicio_fin"
+   ]
+  },
+  {
+   "id": null,
+   "cat": "humana_design",
+   "q": "¿No puede emular hilos en el intérprete en lugar de confiar en una implementación de hilos específica del sistema operativo?",
+   "sk": "emular,hilos,int",
+   "esperado": "marco_pila_subprocesos_stackless",
+   "puesto": 0,
+   "top5": [
+    "bytecode",
+    "bytecode_exacto_operaciones_atomicas",
+    "interpretado",
+    "bloqueo_global_del_interprete",
+    "maquina_virtual"
+   ]
+  },
+  {
+   "id": null,
+   "cat": "humana_design",
+   "q": "¿Por qué las expresiones lambda no pueden contener sentencias?",
+   "sk": "qu,expresiones,lambda",
+   "esperado": "expresiones_lambda_declaraciones_local",
+   "puesto": 0,
+   "top5": [
+    "generador_asincronico",
+    "interactivo"
+   ]
+  },
+  {
+   "id": null,
+   "cat": "humana_design",
+   "q": "¿Se puede compilar Python en código máquina, C o algún otro lenguaje?",
+   "sk": "compilar,python,digo",
+   "esperado": "cython_http_nuitka_prometedor",
+   "puesto": 4,
+   "top5": [
+    "fichero_pyc_pycache_foo",
+    "modulos_freeze_multiplataforma_pyinstaller",
+    "goto_bucle_utilizar_excepciones",
+    "cython_http_nuitka_prometedor",
+    "bytecode"
+   ]
+  },
+  {
+   "id": null,
+   "cat": "humana_design",
+   "q": "¿Cómo gestiona Python la memoria?",
+   "sk": "mo,gestiona,python",
+   "esperado": "implementacion_inaccesibles_ciclos_pypy",
+   "puesto": 6,
+   "top5": [
+    "infraestructura_ubicada_gestionada_infraestructure",
+    "desasignan_sale_asignados_imposibles",
+    "entero_vida_objeto_frecuentemente",
+    "clase_class_especificos_buzon",
+    "recoleccion_de_basura"
+   ]
+  },
+  {
+   "id": null,
+   "cat": "humana_design",
+   "q": "¿Por qué CPython no utiliza un esquema de recolección de basura más tradicional?",
+   "sk": "qu,cpython,utiliza",
+   "esperado": "portatil_transparente_malloc_free",
+   "puesto": 0,
+   "top5": [
+    "implementacion_inaccesibles_ciclos_pypy",
+    "referencia_prestada"
+   ]
+  },
+  {
+   "id": null,
+   "cat": "humana_design",
+   "q": "¿Por qué no se libera toda la memoria cuando sale CPython?",
+   "sk": "qu,libera,sale",
+   "esperado": "desasignan_sale_asignados_imposibles",
+   "puesto": 2,
+   "top5": [
+    "implementacion_inaccesibles_ciclos_pypy",
+    "desasignan_sale_asignados_imposibles",
+    "recoleccion_de_basura",
+    "bloqueo_global_del_interprete"
+   ]
+  },
+  {
+   "id": null,
+   "cat": "humana_design",
+   "q": "¿Por qué hay tipos de datos separados de tuplas y listas?",
+   "sk": "qu,hay,tipos",
+   "esperado": "listas_tuplas_operan_elementos",
+   "puesto": 0,
+   "top5": [
+    "hashable",
+    "hash_valor_clave_diccionario",
+    "variables_referencian_objeto_operaciones"
+   ]
+  },
+  {
+   "id": null,
+   "cat": "humana_design",
+   "q": "¿Cómo se implementan las listas en Python?",
+   "sk": "mo,implementan,listas",
+   "esperado": "longitud_matriz_tamaño_elementos",
+   "puesto": 0,
+   "top5": [
+    "pytuple_tamaño_getitem_pybytes",
+    "buscador_de_entradas_de_ruta",
+    "secuencia",
+    "funcion_generica",
+    "meta_buscadores_de_ruta"
+   ]
+  },
+  {
+   "id": null,
+   "cat": "humana_design",
+   "q": "¿Cómo se implementan los diccionarios en CPython?",
+   "sk": "mo,implementan,diccionarios",
+   "esperado": "diccionarios_hash_clave_podria",
+   "puesto": 1,
+   "top5": [
+    "diccionarios_hash_clave_podria"
+   ]
+  },
+  {
+   "id": null,
+   "cat": "humana_design",
+   "q": "¿Por qué las claves del diccionario deben ser inmutables?",
+   "sk": "qu,claves,diccionario",
+   "esperado": "hash_valor_clave_diccionario",
+   "puesto": 1,
+   "top5": [
+    "hash_valor_clave_diccionario",
+    "diccionarios_hash_clave_podria",
+    "inmutable",
+    "diccionario",
+    "hashable"
+   ]
+  },
+  {
+   "id": null,
+   "cat": "humana_design",
+   "q": "¿Por qué list.sort() no retorna la lista ordenada?",
+   "sk": "qu,list,sort",
+   "esperado": "copia_lista_ordena_ordenada",
+   "puesto": 2,
+   "top5": [
+    "pytuple_tamaño_getitem_pybytes",
+    "copia_lista_ordena_ordenada",
+    "funcion_clave",
+    "rendimiento_trucos_rapido_cython",
+    "concurrent_futures_queue_cola"
+   ]
+  },
+  {
+   "id": null,
+   "cat": "humana_design",
+   "q": "¿Cómo se especifica y aplica una especificación de interfaz en Python?",
+   "sk": "mo,especifica,aplica",
+   "esperado": "especificacion_interfaz_abc_pruebas",
+   "puesto": 2,
+   "top5": [
+    "pytuple_tamaño_getitem_pybytes",
+    "especificacion_interfaz_abc_pruebas",
+    "incorpora_dinamico_combina_destacado"
+   ]
+  },
+  {
+   "id": null,
+   "cat": "humana_design",
+   "q": "¿Por qué no hay goto?",
+   "sk": "qu,hay,goto",
+   "esperado": "goto_bucle_utilizar_excepciones",
+   "puesto": 1,
+   "top5": [
+    "goto_bucle_utilizar_excepciones"
+   ]
+  },
+  {
+   "id": null,
+   "cat": "humana_design",
+   "q": "¿Por qué las cadenas de caracteres sin formato (r-strings) no pueden terminar con una barra diagonal inversa?",
+   "sk": "qu,cadenas,caracteres",
+   "esperado": "barras_barra_invertida_caracteres",
+   "puesto": 1,
+   "top5": [
+    "barras_barra_invertida_caracteres"
+   ]
+  },
+  {
+   "id": null,
+   "cat": "humana_design",
+   "q": "¿Por qué Python no tiene una declaración \"with\" para las asignaciones de atributos?",
+   "sk": "qu,python,declaraci",
+   "esperado": "ejecucion_bloque_miembro_atributo",
+   "puesto": 6,
+   "top5": [
+    "asignacion_aumentada_apunta_iadd",
+    "spam_guion_classname_close",
+    "nombre_nombres_gato_conoce",
+    "coma_operador_operadores_asignacion",
+    "estaticos_clase_count_self"
+   ]
+  },
+  {
+   "id": null,
+   "cat": "humana_design",
+   "q": "¿Por qué los generadores no admiten la declaración with?",
+   "sk": "qu,generadores,admiten",
+   "esperado": "generador_finalizacion_envuelvalo_contextlib",
+   "puesto": 5,
+   "top5": [
+    "generador_asincronico",
+    "generador",
+    "iterador_generador",
+    "iterador_generador_asincronico",
+    "generador_finalizacion_envuelvalo_contextlib"
+   ]
+  },
+  {
+   "id": null,
+   "cat": "humana_design",
+   "q": "¿Por qué se requieren dos puntos para las declaraciones if/while/def/class?",
+   "sk": "qu,requieren,dos",
+   "esperado": "dos_puntos_experimental_observe",
+   "puesto": 1,
+   "top5": [
+    "dos_puntos_experimental_observe",
+    "nombre_nombres_gato_conoce"
+   ]
+  },
+  {
+   "id": null,
+   "cat": "humana_design",
+   "q": "¿Por qué Python permite comas al final de las listas y tuplas?",
+   "sk": "qu,python,permite",
+   "esperado": "agregar_coma_final_permitir",
+   "puesto": 1,
+   "top5": [
+    "agregar_coma_final_permitir",
+    "pytuple_tamaño_getitem_pybytes",
+    "rendimiento_trucos_rapido_cython",
+    "asignacion_aumentada_apunta_iadd",
+    "especificacion_interfaz_abc_pruebas"
+   ]
+  },
+  {
+   "id": null,
+   "cat": "humana_extending",
+   "q": "¿Puedo crear mis propias funciones en C?",
+   "sk": "crear,propias,funciones",
+   "esperado": "contengan_explicado_documento_extending",
+   "puesto": 2,
+   "top5": [
+    "funcion_clave",
+    "contengan_explicado_documento_extending",
+    "archivo_dll_enlace_swig",
+    "casos_invocar_metodos_prefijo",
+    "gil_filename_path_shutil"
+   ]
+  },
+  {
+   "id": null,
+   "cat": "humana_extending",
+   "q": "¿Puedo crear mis propias funciones en C++?",
+   "sk": "crear,propias,funciones",
+   "esperado": "compatibilidad_encontradas_coloca_extern",
+   "puesto": 0,
+   "top5": [
+    "funcion_clave",
+    "contengan_explicado_documento_extending",
+    "archivo_dll_enlace_swig",
+    "casos_invocar_metodos_prefijo",
+    "gil_filename_path_shutil"
+   ]
+  },
+  {
+   "id": null,
+   "cat": "humana_extending",
+   "q": "¿Cómo puedo ejecutar declaraciones arbitrarias de Python desde C?",
+   "sk": "mo,ejecutar,declaraciones",
+   "esperado": "pyrun_simplestring_syntaxerror_pythonrun",
+   "puesto": 0,
+   "top5": [
+    "foo_bar_globals_import"
+   ]
+  },
+  {
+   "id": null,
+   "cat": "humana_extending",
+   "q": "¿Cómo puedo evaluar una expresión arbitraria de Python desde C?",
+   "sk": "mo,evaluar,expresi",
+   "esperado": "simbolo_eval_input_analiza",
+   "puesto": 0,
+   "top5": [
+    "future"
+   ]
+  },
+  {
+   "id": null,
+   "cat": "humana_extending",
+   "q": "¿Cómo extraigo valores C de un objeto Python?",
+   "sk": "mo,extraigo,valores",
+   "esperado": "pytuple_tamaño_getitem_pybytes",
+   "puesto": 0,
+   "top5": [
+    "tupla_resultados_casi_pasando",
+    "spam_guion_classname_close",
+    "hashable",
+    "nombre_nombres_gato_conoce"
+   ]
+  },
+  {
+   "id": null,
+   "cat": "humana_extending",
+   "q": "¿Cómo puedo llamar un método de un objeto desde C?",
+   "sk": "mo,llamar,objeto",
+   "esperado": "pyobject_llamar_objeto_argumento",
+   "puesto": 0,
+   "top5": [
+    "metodo",
+    "casos_invocar_metodos_prefijo",
+    "delegacion_metodo_self_setattr"
+   ]
+  },
+  {
+   "id": null,
+   "cat": "humana_extending",
+   "q": "¿Cómo obtengo la salida de PyErr_Print() (o cualquier cosa que se imprime a stdout/stderr)?",
+   "sk": "mo,obtengo,salida",
+   "esperado": "write_sys_rastreo_personalizado",
+   "puesto": 4,
+   "top5": [
+    "gancho_a_entrada_de_ruta",
+    "buscador_de_entradas_de_ruta",
+    "archivo_binario",
+    "write_sys_rastreo_personalizado",
+    "archivo_de_texto"
+   ]
+  },
+  {
+   "id": null,
+   "cat": "humana_extending",
+   "q": "¿Cómo accedo al módulo escrito en Python desde C?",
+   "sk": "mo,accedo,dulo",
+   "esperado": "modulo_importo_sys_modules",
+   "puesto": 0,
+   "top5": [
+    "modulo_de_extension",
+    "fuente_dinamicamente_modulos_escritos",
+    "modulo_importa_basico_clase",
+    "modulos_freeze_multiplataforma_pyinstaller"
+   ]
+  },
+  {
+   "id": null,
+   "cat": "humana_extending",
+   "q": "¿Cómo hago una interface a objetos C++ desde Python?",
+   "sk": "mo,interface,objetos",
+   "esperado": "hacerlo_empieza_embedding_document",
+   "puesto": 0,
+   "top5": [
+    "objeto_archivo",
+    "incorpora_dinamico_combina_destacado",
+    "hashes_disco_datos_bases",
+    "testing_agradable_programa_accesos",
+    "tipado_de_pato"
+   ]
+  },
+  {
+   "id": null,
+   "cat": "humana_extending",
+   "q": "He agregado un módulo usando el archivo de configuración y el *make* falla. ¿Porque?",
+   "sk": "agregado,dulo,usando",
+   "esperado": "linea_build_reparar_prolijo",
+   "puesto": 0,
+   "top5": [
+    "modulos_freeze_multiplataforma_pyinstaller"
+   ]
+  },
+  {
+   "id": null,
+   "cat": "humana_extending",
+   "q": "¿Cómo puedo depurar una extensión?",
+   "sk": "mo,depurar,extensi",
+   "esperado": "gdb_cargadas_verificacion_cargue",
+   "puesto": 0,
+   "top5": [
+    "pdb_depurador_pythonwin_ide"
+   ]
+  },
+  {
+   "id": null,
+   "cat": "humana_extending",
+   "q": "Quiero compilar un módulo Python en mi sistema Linux, pero me faltan algunos archivos . ¿Por qué?",
+   "sk": "compilar,dulo,python",
+   "esperado": "empaquetadas_python2_archivos_necesarios",
+   "puesto": 0,
+   "top5": [
+    "archivo_dll_enlace_swig",
+    "rendimiento_trucos_rapido_cython"
+   ]
+  },
+  {
+   "id": null,
+   "cat": "humana_extending",
+   "q": "¿Cómo digo \"entrada incompleta\" desde \"entrada inválida\"?",
+   "sk": "mo,digo,entrada",
+   "esperado": "comportamiento_interprete_prompt_entrada",
+   "puesto": 0,
+   "top5": []
+  },
+  {
+   "id": null,
+   "cat": "humana_extending",
+   "q": "¿Cómo encuentro símbolos g++ __builtin_new o __pure_virtual?",
+   "sk": "mo,mbolos,__builtin_new",
+   "esperado": "extension_recompilar_link_mymodule",
+   "puesto": 0,
+   "top5": [
+    "clase_base_abstracta",
+    "hashes_disco_datos_bases",
+    "base_alias_derivar_disponibilidad",
+    "hash_based_pyc",
+    "tenga_signo_quieres_190"
+   ]
+  },
+  {
+   "id": null,
+   "cat": "humana_extending",
+   "q": "¿Puedo crear una clase objeto con algunos métodos implementado en C y otros en Python (por ejemplo a través de la herencia)?",
+   "sk": "crear,clase,objeto",
+   "esperado": "heredar_integradas_boost_bpl",
+   "puesto": 0,
+   "top5": [
+    "delegacion_metodo_self_setattr"
+   ]
+  },
+  {
+   "id": null,
+   "cat": "humana_general",
+   "q": "¿Que es la *Python Software Foundation*?",
+   "sk": "python,software,foundation",
+   "esperado": "foundation_organizacion_psf_donaciones",
+   "puesto": 1,
+   "top5": [
+    "foundation_organizacion_psf_donaciones",
+    "archivos_analisis_index_disponible",
+    "pdb_depurador_pythonwin_ide",
+    "codigo_fuente_reciente_tar",
+    "https_www_empresas_zope"
+   ]
+  },
+  {
+   "id": null,
+   "cat": "humana_general",
+   "q": "¿Hay restricciones de *copyright* sobre el uso de Python?",
+   "sk": "hay,restricciones,copyright",
+   "esperado": "derechos_autor_comerciales_psf",
+   "puesto": 0,
+   "top5": [
+    "hash_valor_clave_diccionario"
+   ]
+  },
+  {
+   "id": null,
+   "cat": "humana_general",
+   "q": "¿Por qué se creó Python en primer lugar?",
+   "sk": "qu,cre,python",
+   "esperado": "tenia_experiencia_lenguaje_amoeba",
+   "puesto": 0,
+   "top5": [
+    "expresiones_lambda_declaraciones_local",
+    "fichero_pyc_pycache_foo",
+    "docstring",
+    "funcion_mydict_defecto_none",
+    "modulos_freeze_multiplataforma_pyinstaller"
+   ]
+  },
+  {
+   "id": null,
+   "cat": "humana_general",
+   "q": "¿Para qué es bueno Python?",
+   "sk": "qu,bueno,python",
+   "esperado": "archivos_analisis_index_disponible",
+   "puesto": 0,
+   "top5": [
+    "modulos_importacion_importaciones_mover",
+    "gil_filename_path_shutil",
+    "testing_agradable_programa_accesos",
+    "spam_guion_classname_close",
+    "especificacion_interfaz_abc_pruebas"
+   ]
+  },
+  {
+   "id": null,
+   "cat": "humana_general",
+   "q": "¿Cómo funciona el esquema numérico de versiones de Python?",
+   "sk": "mo,funciona,esquema",
+   "esperado": "version_release_versiones_sufijo",
+   "puesto": 0,
+   "top5": [
+    "portatil_transparente_malloc_free",
+    "millones_invalide_fraccion_proporcionar"
+   ]
+  },
+  {
+   "id": null,
+   "cat": "humana_general",
+   "q": "¿Cómo obtengo una copia del código fuente de Python?",
+   "sk": "mo,obtengo,copia",
+   "esperado": "codigo_fuente_reciente_tar",
+   "puesto": 4,
+   "top5": [
+    "bytecode",
+    "fichero_pyc_pycache_foo",
+    "docstrings_epydoc_http_sphinx",
+    "codigo_fuente_reciente_tar",
+    "modulos_freeze_multiplataforma_pyinstaller"
+   ]
+  },
+  {
+   "id": null,
+   "cat": "humana_general",
+   "q": "¿Cómo consigo documentación sobre Python?",
+   "sk": "mo,consigo,documentaci",
+   "esperado": "documentacion_docs_restructuredtext_sphinx",
+   "puesto": 2,
+   "top5": [
+    "docstrings_epydoc_http_sphinx",
+    "documentacion_docs_restructuredtext_sphinx",
+    "rendimiento_trucos_rapido_cython",
+    "testing_agradable_programa_accesos",
+    "codigo_fuente_reciente_tar"
+   ]
+  },
+  {
+   "id": null,
+   "cat": "humana_general",
+   "q": "Nunca he programado antes. ¿Hay un tutorial de Python?",
+   "sk": "nunca,programado,hay",
+   "esperado": "numerosos_tutoriales_beginner_principiantes",
+   "puesto": 1,
+   "top5": [
+    "numerosos_tutoriales_beginner_principiantes",
+    "tupla_resultados_casi_pasando",
+    "spam_guion_classname_close",
+    "contador_de_referencias",
+    "indentacion_corchetes_inicio_fin"
+   ]
+  },
+  {
+   "id": null,
+   "cat": "humana_general",
+   "q": "¿Hay un *newsgroup* o una lista de correo dedicada a Python?",
+   "sk": "hay,newsgroup,lista",
+   "esperado": "noticias_comp_lang_correo",
+   "puesto": 2,
+   "top5": [
+    "estudiantes_tipado_primer_programacion",
+    "noticias_comp_lang_correo"
+   ]
+  },
+  {
+   "id": null,
+   "cat": "humana_general",
+   "q": "¿Cómo obtengo una versión de prueba *beta* de Python?",
+   "sk": "mo,obtengo,versi",
+   "esperado": "anunciados_comp_lang_feed",
+   "puesto": 2,
+   "top5": [
+    "version_release_versiones_sufijo",
+    "anunciados_comp_lang_feed"
+   ]
+  },
+  {
+   "id": null,
+   "cat": "humana_general",
+   "q": "¿Cómo envío un reporte de *bug* y parches para Python?",
+   "sk": "mo,env,reporte",
+   "esperado": "reportar_bug_parche_rastreador",
+   "puesto": 1,
+   "top5": [
+    "reportar_bug_parche_rastreador"
+   ]
+  },
+  {
+   "id": null,
+   "cat": "humana_general",
+   "q": "¿Hay algún artículo publicado sobre Python que pueda referir?",
+   "sk": "hay,alg,art",
+   "esperado": "citar_libro_publicado_1991",
+   "puesto": 1,
+   "top5": [
+    "citar_libro_publicado_1991"
+   ]
+  },
+  {
+   "id": null,
+   "cat": "humana_general",
+   "q": "¿Hay libros sobre Python?",
+   "sk": "hay,libros,python",
+   "esperado": "pythonbooks_librerias_excluir_refieran",
+   "puesto": 8,
+   "top5": [
+    "numerosos_tutoriales_beginner_principiantes",
+    "contengan_explicado_documento_extending",
+    "tupla_resultados_casi_pasando",
+    "millones_invalide_fraccion_proporcionar",
+    "modulos_importacion_importaciones_mover"
+   ]
+  },
+  {
+   "id": null,
+   "cat": "humana_general",
+   "q": "¿En qué parte del mundo está ubicado www.python.org?",
+   "sk": "qu,mundo,est",
+   "esperado": "infraestructura_ubicada_gestionada_infraestructure",
+   "puesto": 0,
+   "top5": [
+    "documentacion_docs_restructuredtext_sphinx",
+    "tcl_guiprogramming_platform_frameworks",
+    "codigo_fuente_reciente_tar",
+    "anunciados_comp_lang_feed",
+    "https_www_empresas_zope"
+   ]
+  },
+  {
+   "id": null,
+   "cat": "humana_general",
+   "q": "¿Por qué se llama Python?",
+   "sk": "qu,llama,python",
+   "esperado": "van_rossum_leyendo_monty",
+   "puesto": 7,
+   "top5": [
+    "metodo_especial",
+    "referencia_fuerte",
+    "archivo_dll_enlace_swig",
+    "compatibilidad_encontradas_coloca_extern",
+    "descriptor"
+   ]
+  },
+  {
+   "id": null,
+   "cat": "humana_general",
+   "q": "¿Cuán estable es Python?",
+   "sk": "cu,estable,python",
+   "esperado": "versiones_meses_lanzamientos_estabilidad",
+   "puesto": 3,
+   "top5": [
+    "dos_puntos_experimental_observe",
+    "future",
+    "versiones_meses_lanzamientos_estabilidad",
+    "bytecode",
+    "foo_bar_globals_import"
+   ]
+  },
+  {
+   "id": null,
+   "cat": "humana_general",
+   "q": "¿Cuánta gente usa Python?",
+   "sk": "cu,nta,gente",
+   "esperado": "decenas_miles_usuarios_exacta",
+   "puesto": 0,
+   "top5": [
+    "goto_bucle_utilizar_excepciones"
+   ]
+  },
+  {
+   "id": null,
+   "cat": "humana_general",
+   "q": "¿Hay proyectos significativos hechos con Python?",
+   "sk": "hay,proyectos,significativos",
+   "esperado": "https_www_empresas_zope",
+   "puesto": 0,
+   "top5": [
+    "estudiantes_tipado_primer_programacion"
+   ]
+  },
+  {
+   "id": null,
+   "cat": "humana_general",
+   "q": "¿Qué nuevos desarrollos se esperan para Python en el futuro?",
+   "sk": "qu,nuevos,desarrollos",
+   "esperado": "conocer_pep_documentos_dev",
+   "puesto": 3,
+   "top5": [
+    "version_release_versiones_sufijo",
+    "especificacion_interfaz_abc_pruebas",
+    "conocer_pep_documentos_dev"
+   ]
+  },
+  {
+   "id": null,
+   "cat": "humana_general",
+   "q": "¿Es razonable proponer cambios incompatibles a Python?",
+   "sk": "razonable,proponer,cambios",
+   "esperado": "millones_invalide_fraccion_proporcionar",
+   "puesto": 2,
+   "top5": [
+    "api_provisional",
+    "millones_invalide_fraccion_proporcionar"
+   ]
+  },
+  {
+   "id": null,
+   "cat": "humana_general",
+   "q": "¿Python es un buen lenguaje para principiantes?",
+   "sk": "python,buen,lenguaje",
+   "esperado": "estudiantes_tipado_primer_programacion",
+   "puesto": 4,
+   "top5": [
+    "rendimiento_trucos_rapido_cython",
+    "especificacion_interfaz_abc_pruebas",
+    "indentacion_corchetes_inicio_fin",
+    "estudiantes_tipado_primer_programacion",
+    "flotante_coma_precision_operaciones"
+   ]
+  },
+  {
+   "id": null,
+   "cat": "humana_gui",
+   "q": "¿Qué conjuntos de herramientas de GUI existen para Python?",
+   "sk": "qu,conjuntos,herramientas",
+   "esperado": "tcl_guiprogramming_platform_frameworks",
+   "puesto": 2,
+   "top5": [
+    "spam_guion_classname_close",
+    "tcl_guiprogramming_platform_frameworks"
+   ]
+  },
+  {
+   "id": null,
+   "cat": "humana_gui",
+   "q": "¿Cómo congelo las aplicaciones de Tkinter?",
+   "sk": "mo,congelo,aplicaciones",
+   "esperado": "aplicaciones_congelar_bibliotecas_tcl",
+   "puesto": 1,
+   "top5": [
+    "aplicaciones_congelar_bibliotecas_tcl",
+    "estudiantes_tipado_primer_programacion"
+   ]
+  },
+  {
+   "id": null,
+   "cat": "humana_gui",
+   "q": "¿Puedo tener eventos Tk manejados mientras espero por *I/O*?",
+   "sk": "eventos,tk,manejados",
+   "esperado": "siquiera_entrada_salida_llamada",
+   "puesto": 0,
+   "top5": [
+    "queja_widget_teclado_consulte",
+    "noticias_comp_lang_correo",
+    "estudiantes_tipado_primer_programacion",
+    "parametros_argumentos_invocamos_func",
+    "iterable"
+   ]
+  },
+  {
+   "id": null,
+   "cat": "humana_gui",
+   "q": "No puedo hacer que los atajos de teclado funcionen en Tkinter: ¿por qué?",
+   "sk": "atajos,teclado,funcionen",
+   "esperado": "queja_widget_teclado_consulte",
+   "puesto": 1,
+   "top5": [
+    "queja_widget_teclado_consulte",
+    "aplicaciones_congelar_bibliotecas_tcl",
+    "tcl_guiprogramming_platform_frameworks",
+    "siquiera_entrada_salida_llamada",
+    "estudiantes_tipado_primer_programacion"
+   ]
+  },
+  {
+   "id": null,
+   "cat": "humana_installed",
+   "q": "¿Por qué Python está instalado en mi máquina?",
+   "sk": "qu,python,est",
+   "esperado": "instalado_haber_instalacion_compaq",
+   "puesto": 1,
+   "top5": [
+    "instalado_haber_instalacion_compaq",
+    "maquina_virtual",
+    "interprete_chmod_scriptfile_env",
+    "bytecode",
+    "vino_quitarlo_dañar_aplicacion"
+   ]
+  },
+  {
+   "id": null,
+   "cat": "humana_installed",
+   "q": "¿Puedo eliminar Python?",
+   "sk": "eliminar,python",
+   "esperado": "vino_quitarlo_dañar_aplicacion",
+   "puesto": 4,
+   "top5": [
+    "positivos_negativos_indices_seq",
+    "desasignan_sale_asignados_imposibles",
+    "referencia_prestada",
+    "vino_quitarlo_dañar_aplicacion",
+    "lista_duplicados_rapido_eliminacion"
+   ]
+  },
+  {
+   "id": null,
+   "cat": "humana_library",
+   "q": "¿Cómo encuentro un módulo o aplicación para ejecutar la tarea X?",
+   "sk": "mo,dulo,aplicaci",
+   "esperado": "aprendera_capaz_google_busqueda",
+   "puesto": 0,
+   "top5": [
+    "gil_filename_path_shutil",
+    "modulos_importacion_importaciones_mover",
+    "canonica_modulo_config_cfg",
+    "rendimiento_trucos_rapido_cython",
+    "modulos_freeze_multiplataforma_pyinstaller"
+   ]
+  },
+  {
+   "id": null,
+   "cat": "humana_library",
+   "q": "¿Dónde está el fichero fuente *math.py* (*socket.py*, *regex.py*, etc.)?",
+   "sk": "nde,est,fichero",
+   "esperado": "fuente_dinamicamente_modulos_escritos",
+   "puesto": 2,
+   "top5": [
+    "fichero_pyc_pycache_foo",
+    "fuente_dinamicamente_modulos_escritos"
+   ]
+  },
+  {
+   "id": null,
+   "cat": "humana_library",
+   "q": "¿Cómo hago ejecutable un script Python en Unix?",
+   "sk": "mo,ejecutable,script",
+   "esperado": "interprete_chmod_scriptfile_env",
+   "puesto": 1,
+   "top5": [
+    "interprete_chmod_scriptfile_env",
+    "spam_guion_classname_close",
+    "modulos_freeze_multiplataforma_pyinstaller"
+   ]
+  },
+  {
+   "id": null,
+   "cat": "humana_library",
+   "q": "¿Hay un paquete curses/termcap para Python?",
+   "sk": "hay,paquete,curses",
+   "esperado": "distribucion_curses_cursores_soporte",
+   "puesto": 1,
+   "top5": [
+    "distribucion_curses_cursores_soporte",
+    "archivos_analisis_index_disponible",
+    "aprendera_capaz_google_busqueda"
+   ]
+  },
+  {
+   "id": null,
+   "cat": "humana_library",
+   "q": "¿Por qué no funcionan mis manejadores de señales?",
+   "sk": "qu,funcionan,manejadores",
+   "esperado": "manejador_señales_declarado_argumentos",
+   "puesto": 1,
+   "top5": [
+    "manejador_señales_declarado_argumentos"
+   ]
+  },
+  {
+   "id": null,
+   "cat": "humana_library",
+   "q": "¿Cómo pruebo un programa o un componente Python?",
+   "sk": "mo,pruebo,programa",
+   "esperado": "testing_agradable_programa_accesos",
+   "puesto": 0,
+   "top5": [
+    "especificacion_interfaz_abc_pruebas",
+    "pdb_depurador_pythonwin_ide",
+    "variables_referencian_objeto_operaciones",
+    "fichero_pyc_pycache_foo"
+   ]
+  },
+  {
+   "id": null,
+   "cat": "humana_library",
+   "q": "¿Cómo creo documentación a partir de los docstrings?",
+   "sk": "mo,creo,documentaci",
+   "esperado": "docstrings_epydoc_http_sphinx",
+   "puesto": 1,
+   "top5": [
+    "docstrings_epydoc_http_sphinx",
+    "testing_agradable_programa_accesos",
+    "rendimiento_trucos_rapido_cython"
+   ]
+  },
+  {
+   "id": null,
+   "cat": "humana_library",
+   "q": "¿Cómo consigo presionar una única tecla cada vez?",
+   "sk": "mo,consigo,presionar",
+   "esperado": "directo_cursores_curses_aprenderlo",
+   "puesto": 0,
+   "top5": [
+    "queja_widget_teclado_consulte",
+    "entrada_de_ruta",
+    "msvcrt_kbhit_presionado_getch",
+    "slash_parametros_unicamente_posicionales",
+    "spam_guion_classname_close"
+   ]
+  },
+  {
+   "id": null,
+   "cat": "humana_library",
+   "q": "¿Cómo programo usando hilos?",
+   "sk": "mo,programo,usando",
+   "esperado": "modulo_threading_thread_convenientes",
+   "puesto": 0,
+   "top5": [
+    "hilo_hilos_sleep_cola",
+    "directo_cursores_curses_aprenderlo",
+    "lbyl",
+    "gil_filename_path_shutil"
+   ]
+  },
+  {
+   "id": null,
+   "cat": "humana_library",
+   "q": "Ninguno de mis hilos parece funcionar: ¿por qué?",
+   "sk": "hilos,parece,funcionar",
+   "esperado": "hilo_hilos_sleep_cola",
+   "puesto": 1,
+   "top5": [
+    "hilo_hilos_sleep_cola",
+    "bytecode_exacto_operaciones_atomicas",
+    "archivo_dll_enlace_swig"
+   ]
+  },
+  {
+   "id": null,
+   "cat": "humana_library",
+   "q": "¿Cómo puedo dividir trabajo entre un grupo de hilos?",
+   "sk": "mo,dividir,trabajo",
+   "esperado": "concurrent_futures_queue_cola",
+   "puesto": 0,
+   "top5": [
+    "hilo_hilos_sleep_cola",
+    "gil_filename_path_shutil"
+   ]
+  },
+  {
+   "id": null,
+   "cat": "humana_library",
+   "q": "¿Qué tipos de mutación de valores globales son *thread-safe*?",
+   "sk": "qu,tipos,mutaci",
+   "esperado": "bytecode_exacto_operaciones_atomicas",
+   "puesto": 0,
+   "top5": [
+    "tupla_resultados_casi_pasando"
+   ]
+  },
+  {
+   "id": null,
+   "cat": "humana_library",
+   "q": "¿Podemos deshacernos del *Global Interpreter Lock*?",
+   "sk": "podemos,deshacernos,global",
+   "esperado": "gil_filename_path_shutil",
+   "puesto": 0,
+   "top5": [
+    "bytecode_exacto_operaciones_atomicas"
+   ]
+  },
+  {
+   "id": null,
+   "cat": "humana_library",
+   "q": "¿Cómo copio un fichero?",
+   "sk": "mo,copio,fichero",
+   "esperado": "shutil_volumenes_wikipedia_resource",
+   "puesto": 0,
+   "top5": [
+    "modulo_importa_basico_clase",
+    "modulos_importacion_importaciones_mover",
+    "especificador_de_modulo",
+    "modulo_threading_thread_convenientes",
+    "modulo_de_extension"
+   ]
+  },
+  {
+   "id": null,
+   "cat": "humana_library",
+   "q": "¿Cómo leo (o escribo) datos binarios?",
+   "sk": "mo,leo,escribo",
+   "esperado": "binarios_datos_texto_bytes",
+   "puesto": 3,
+   "top5": [
+    "archivo_de_texto",
+    "modulos_freeze_multiplataforma_pyinstaller",
+    "binarios_datos_texto_bytes"
+   ]
+  },
+  {
+   "id": null,
+   "cat": "humana_library",
+   "q": "No consigo usar os.read() en un *pipe* creado con os.popen(); ¿por qué?",
+   "sk": "consigo,os,read",
+   "esperado": "read_fichero_representando_popen",
+   "puesto": 1,
+   "top5": [
+    "read_fichero_representando_popen",
+    "objeto_archivo"
+   ]
+  },
+  {
+   "id": null,
+   "cat": "humana_library",
+   "q": "¿Cómo accedo al puerto serial (RS232)?",
+   "sk": "mo,accedo,puerto",
+   "esperado": "win32_osx_ironpython_groups",
+   "puesto": 0,
+   "top5": [
+    "codificacion_de_texto",
+    "generador_asincronico",
+    "generador"
+   ]
+  },
+  {
+   "id": null,
+   "cat": "humana_library",
+   "q": "¿Por qué al cerrar sys.stdout (stdin, stderr) realmente no se cierran?",
+   "sk": "qu,cerrar,sys",
+   "esperado": "fichero_close_marca_descriptor",
+   "puesto": 1,
+   "top5": [
+    "fichero_close_marca_descriptor"
+   ]
+  },
+  {
+   "id": null,
+   "cat": "humana_library",
+   "q": "¿Qué herramientas de Python existen para WWW?",
+   "sk": "qu,herramientas,python",
+   "esperado": "capitulos_titulados_netdata_lado",
+   "puesto": 0,
+   "top5": [
+    "tcl_guiprogramming_platform_frameworks",
+    "versiones_meses_lanzamientos_estabilidad",
+    "rendimiento_trucos_rapido_cython",
+    "pdb_depurador_pythonwin_ide",
+    "modulos_freeze_multiplataforma_pyinstaller"
+   ]
+  },
+  {
+   "id": null,
+   "cat": "humana_library",
+   "q": "¿Qué modulo debería usar para generación de HTML?",
+   "sk": "qu,modulo,deber",
+   "esperado": "coleccion_enlaces_wiki_webprogramming",
+   "puesto": 0,
+   "top5": [
+    "modulos_importacion_importaciones_mover",
+    "generador_asincronico",
+    "generador",
+    "iterador_generador_asincronico",
+    "iterador_generador"
+   ]
+  },
+  {
+   "id": null,
+   "cat": "humana_library",
+   "q": "¿Cómo envío correo desde un script Python?",
+   "sk": "mo,env,correo",
+   "esperado": "aqui_sendmail_veces_usr",
+   "puesto": 0,
+   "top5": [
+    "ejecucion_bloque_miembro_atributo"
+   ]
+  },
+  {
+   "id": null,
+   "cat": "humana_library",
+   "q": "¿Cómo evito el bloqueo en el método *connect()* de un *socket*?",
+   "sk": "mo,evito,bloqueo",
+   "esperado": "select_socket_connect_errno",
+   "puesto": 1,
+   "top5": [
+    "select_socket_connect_errno"
+   ]
+  },
+  {
+   "id": null,
+   "cat": "humana_library",
+   "q": "¿Hay paquetes para interfaces a bases de datos en Python?",
+   "sk": "hay,paquetes,interfaces",
+   "esperado": "hashes_disco_datos_bases",
+   "puesto": 0,
+   "top5": [
+    "clase_base_abstracta",
+    "archivos_analisis_index_disponible",
+    "aprendera_capaz_google_busqueda"
+   ]
+  },
+  {
+   "id": null,
+   "cat": "humana_library",
+   "q": "¿Cómo implementar objetos persistentes en Python?",
+   "sk": "mo,implementar,objetos",
+   "esperado": "pickle_soluciona_ventanas_shelve",
+   "puesto": 4,
+   "top5": [
+    "delegacion_metodo_self_setattr",
+    "metaclase",
+    "estudiantes_tipado_primer_programacion",
+    "pickle_soluciona_ventanas_shelve",
+    "asignacion_aumentada_apunta_iadd"
+   ]
+  },
+  {
+   "id": null,
+   "cat": "humana_library",
+   "q": "¿Cómo genero números aleatorios en Python?",
+   "sk": "mo,genero,meros",
+   "esperado": "random_rango_generadores_selecciona",
+   "puesto": 1,
+   "top5": [
+    "random_rango_generadores_selecciona"
+   ]
+  },
+  {
+   "id": null,
+   "cat": "humana_programming",
+   "q": "¿Existe un depurador a nivel de código fuente con puntos de interrupción, depuración paso a paso, etc?",
+   "sk": "existe,depurador,nivel",
+   "esperado": "pdb_depurador_pythonwin_ide",
+   "puesto": 1,
+   "top5": [
+    "pdb_depurador_pythonwin_ide"
+   ]
+  },
+  {
+   "id": null,
+   "cat": "humana_programming",
+   "q": "¿Existe alguna herramienta que ayude a encontrar errores o realizar análisis estático?",
+   "sk": "existe,herramienta,ayude",
+   "esperado": "pylint_pyflakes_comprobaciones_mypy",
+   "puesto": 0,
+   "top5": [
+    "configurados_identica_antivirus_lecturas",
+    "codificacion_de_la_configuracion_regional",
+    "linea_build_reparar_prolijo",
+    "gdb_cargadas_verificacion_cargue",
+    "pestañas_espacios_size_errores"
+   ]
+  },
+  {
+   "id": null,
+   "cat": "humana_programming",
+   "q": "¿Cómo puedo crear un binario independiente a partir de un programa Python?",
+   "sk": "mo,crear,binario",
+   "esperado": "modulos_freeze_multiplataforma_pyinstaller",
+   "puesto": 1,
+   "top5": [
+    "modulos_freeze_multiplataforma_pyinstaller",
+    "rendimiento_trucos_rapido_cython",
+    "fichero_pyc_pycache_foo"
+   ]
+  },
+  {
+   "id": null,
+   "cat": "humana_programming",
+   "q": "¿Existen estándares de código o una guía de estilo para programas Python?",
+   "sk": "existen,est,ndares",
+   "esperado": "estilo_requerido_documentado_nucleo",
+   "puesto": 0,
+   "top5": [
+    "rendimiento_trucos_rapido_cython",
+    "modulos_freeze_multiplataforma_pyinstaller",
+    "pdb_depurador_pythonwin_ide",
+    "variables_referencian_objeto_operaciones",
+    "gil_filename_path_shutil"
+   ]
+  },
+  {
+   "id": null,
+   "cat": "humana_programming",
+   "q": "¿Por qué obtengo un *UnboundLocalError* cuando la variable tiene un valor?",
+   "sk": "qu,obtengo,variable",
+   "esperado": "unboundlocalerror_variable_ambito_aplicacion",
+   "puesto": 2,
+   "top5": [
+    "spam_guion_classname_close",
+    "unboundlocalerror_variable_ambito_aplicacion"
+   ]
+  },
+  {
+   "id": null,
+   "cat": "humana_programming",
+   "q": "¿Cuáles son las reglas para las variables locales y globales en Python?",
+   "sk": "cu,reglas,variables",
+   "esperado": "globales_global_efectos_secundarios",
+   "puesto": 4,
+   "top5": [
+    "iterador_generador_asincronico",
+    "iterador_generador",
+    "indicador_de_tipo",
+    "globales_global_efectos_secundarios",
+    "argumento"
+   ]
+  },
+  {
+   "id": null,
+   "cat": "humana_programming",
+   "q": "¿Por qué las funciones lambda definidas en un bucle con diferentes valores devuelven todas el mismo resultado?",
+   "sk": "qu,funciones,lambda",
+   "esperado": "bucle_funciones_lambda_devuelven",
+   "puesto": 1,
+   "top5": [
+    "bucle_funciones_lambda_devuelven"
+   ]
+  },
+  {
+   "id": null,
+   "cat": "humana_programming",
+   "q": "¿Cómo puedo compartir variables globales entre módulos?",
+   "sk": "mo,compartir,variables",
+   "esperado": "canonica_modulo_config_cfg",
+   "puesto": 2,
+   "top5": [
+    "foo_bar_globals_import",
+    "canonica_modulo_config_cfg",
+    "testing_agradable_programa_accesos",
+    "globales_global_efectos_secundarios",
+    "espacio_de_nombres"
+   ]
+  },
+  {
+   "id": null,
+   "cat": "humana_programming",
+   "q": "¿Cuáles son las \"buenas prácticas\" para usar import en un módulo?",
+   "sk": "cu,buenas,pr",
+   "esperado": "modulos_importacion_importaciones_mover",
+   "puesto": 8,
+   "top5": [
+    "especificador_de_modulo",
+    "modulo_threading_thread_convenientes",
+    "modulo_importo_sys_modules",
+    "modulo_de_extension",
+    "modulo"
+   ]
+  },
+  {
+   "id": null,
+   "cat": "humana_programming",
+   "q": "¿Por qué los valores por defecto se comparten entre objetos?",
+   "sk": "qu,valores,defecto",
+   "esperado": "funcion_mydict_defecto_none",
+   "puesto": 0,
+   "top5": [
+    "metaclase",
+    "spam_guion_classname_close"
+   ]
+  },
+  {
+   "id": null,
+   "cat": "humana_programming",
+   "q": "¿Cómo puedo pasar parámetros por palabra clave u opcionales de una función a otra?",
+   "sk": "mo,pasar,par",
+   "esperado": "recopila_argumentos_especificadores_posicionales",
+   "puesto": 1,
+   "top5": [
+    "recopila_argumentos_especificadores_posicionales",
+    "parametro",
+    "slash_parametros_unicamente_posicionales",
+    "hash_valor_clave_diccionario",
+    "pyobject_llamar_objeto_argumento"
+   ]
+  },
+  {
+   "id": null,
+   "cat": "humana_programming",
+   "q": "¿Cuál es la diferencia entre argumentos y parámetros?",
+   "sk": "cu,diferencia,argumentos",
+   "esperado": "parametros_argumentos_invocamos_func",
+   "puesto": 4,
+   "top5": [
+    "parametro",
+    "recopila_argumentos_especificadores_posicionales",
+    "slash_parametros_unicamente_posicionales",
+    "parametros_argumentos_invocamos_func",
+    "argumento"
+   ]
+  },
+  {
+   "id": null,
+   "cat": "humana_programming",
+   "q": "¿Por qué cambiando la lista 'y' cambia, también, la lista 'x'?",
+   "sk": "qu,cambiando,lista",
+   "esperado": "variables_referencian_objeto_operaciones",
+   "puesto": 1,
+   "top5": [
+    "variables_referencian_objeto_operaciones",
+    "hash_valor_clave_diccionario"
+   ]
+  },
+  {
+   "id": null,
+   "cat": "humana_programming",
+   "q": "¿Cómo puedo escribir una función sin parámetros (invocación mediante referencia)?",
+   "sk": "mo,escribir,funci",
+   "esperado": "tupla_resultados_casi_pasando",
+   "puesto": 1,
+   "top5": [
+    "tupla_resultados_casi_pasando",
+    "implementacion_inaccesibles_ciclos_pypy",
+    "variables_referencian_objeto_operaciones",
+    "funcion_mydict_defecto_none",
+    "alcances_anidados"
+   ]
+  },
+  {
+   "id": null,
+   "cat": "humana_programming",
+   "q": "¿Cómo se puede hacer una función de orden superior en Python?",
+   "sk": "mo,funci,orden",
+   "esperado": "ambitos_anidados_invocables_invocable",
+   "puesto": 0,
+   "top5": [
+    "modulos_importacion_importaciones_mover",
+    "copia_lista_ordena_ordenada",
+    "spam_guion_classname_close",
+    "archivo_dll_enlace_swig",
+    "gil_filename_path_shutil"
+   ]
+  },
+  {
+   "id": null,
+   "cat": "humana_programming",
+   "q": "¿Cómo copio un objeto en Python?",
+   "sk": "mo,copio,objeto",
+   "esperado": "copy_deepcopy_copiar_copiarse",
+   "puesto": 0,
+   "top5": [
+    "objetos_tipo_binarios",
+    "objeto_archivo",
+    "pyobject_llamar_objeto_argumento",
+    "entero_vida_objeto_frecuentemente",
+    "iterador_asincronico"
+   ]
+  },
+  {
+   "id": null,
+   "cat": "humana_programming",
+   "q": "¿Cómo puedo encontrar los métodos o atributos de un objeto?",
+   "sk": "mo,atributos,objeto",
+   "esperado": "dir_ordenados_alfabeticamente_atributos",
+   "puesto": 0,
+   "top5": [
+    "metodo",
+    "casos_invocar_metodos_prefijo",
+    "delegacion_metodo_self_setattr"
+   ]
+  },
+  {
+   "id": null,
+   "cat": "humana_programming",
+   "q": "¿Cómo puede mi código descubrir el nombre de un objeto?",
+   "sk": "mo,digo,descubrir",
+   "esperado": "nombre_nombres_gato_conoce",
+   "puesto": 1,
+   "top5": [
+    "nombre_nombres_gato_conoce"
+   ]
+  },
+  {
+   "id": null,
+   "cat": "humana_programming",
+   "q": "¿Qué ocurre con la precedencia del operador coma?",
+   "sk": "qu,ocurre,precedencia",
+   "esperado": "coma_operador_operadores_asignacion",
+   "puesto": 0,
+   "top5": [
+    "asignacion_aumentada_apunta_iadd"
+   ]
+  },
+  {
+   "id": null,
+   "cat": "humana_programming",
+   "q": "¿Existe un equivalente al operador ternario de C \"?:\"?",
+   "sk": "existe,equivalente,operador",
+   "esperado": "sintaxis_introdujera_expresion_logicos",
+   "puesto": 0,
+   "top5": [
+    "variables_referencian_objeto_operaciones",
+    "asignacion_aumentada_apunta_iadd"
+   ]
+  },
+  {
+   "id": null,
+   "cat": "humana_programming",
+   "q": "¿Es posible escribir expresiones en una línea de forma ofuscada en Python?",
+   "sk": "posible,escribir,expresiones",
+   "esperado": "anidando_lambda_examina_creados",
+   "puesto": 0,
+   "top5": [
+    "simbolo_ventana_script_comando",
+    "especificacion_interfaz_abc_pruebas"
+   ]
+  },
+  {
+   "id": null,
+   "cat": "humana_programming",
+   "q": "¿Qué hace la barra (/) en medio de la lista de parámetros de una función?",
+   "sk": "qu,barra,medio",
+   "esperado": "slash_parametros_unicamente_posicionales",
+   "puesto": 2,
+   "top5": [
+    "parametro",
+    "slash_parametros_unicamente_posicionales",
+    "recopila_argumentos_especificadores_posicionales",
+    "argumento",
+    "pyobject_llamar_objeto_argumento"
+   ]
+  },
+  {
+   "id": null,
+   "cat": "humana_programming",
+   "q": "¿Cómo puedo especificar enteros hexadecimales y octales?",
+   "sk": "mo,especificar,enteros",
+   "esperado": "especificar_octal_minuscula_mayuscula",
+   "puesto": 0,
+   "top5": [
+    "int_144_numero_eval"
+   ]
+  },
+  {
+   "id": null,
+   "cat": "humana_programming",
+   "q": "¿Por qué -22 // 10 devuelve -3?",
+   "sk": "qu,22,10",
+   "esperado": "tenga_signo_quieres_190",
+   "puesto": 0,
+   "top5": [
+    "super_determinara_self_mro",
+    "dir_ordenados_alfabeticamente_atributos",
+    "entero_vida_objeto_frecuentemente",
+    "ambitos_anidados_invocables_invocable",
+    "select_socket_connect_errno"
+   ]
+  },
+  {
+   "id": null,
+   "cat": "humana_programming",
+   "q": "¿Cómo puedo obtener un atributo int literal en lugar de SyntaxError?",
+   "sk": "mo,obtener,atributo",
+   "esperado": "literal_obtiene_punto_separar",
+   "puesto": 1,
+   "top5": [
+    "literal_obtiene_punto_separar",
+    "expresion",
+    "docstring"
+   ]
+  },
+  {
+   "id": null,
+   "cat": "humana_programming",
+   "q": "¿Cómo convierto una cadena a un número?",
+   "sk": "mo,convierto,cadena",
+   "esperado": "int_144_numero_eval",
+   "puesto": 1,
+   "top5": [
+    "int_144_numero_eval",
+    "144_representacion_format_produce",
+    "barras_barra_invertida_caracteres",
+    "binarios_datos_texto_bytes",
+    "comprension_de_listas"
+   ]
+  },
+  {
+   "id": null,
+   "cat": "humana_programming",
+   "q": "¿Cómo puedo convertir un número a una cadena?",
+   "sk": "mo,convertir,mero",
+   "esperado": "144_representacion_format_produce",
+   "puesto": 1,
+   "top5": [
+    "144_representacion_format_produce",
+    "binarios_datos_texto_bytes",
+    "int_144_numero_eval"
+   ]
+  },
+  {
+   "id": null,
+   "cat": "humana_programming",
+   "q": "¿Cómo puedo modificar una cadena in situ?",
+   "sk": "mo,modificar,cadena",
+   "esperado": "quieras_crearla_modificar_unicode",
+   "puesto": 1,
+   "top5": [
+    "quieras_crearla_modificar_unicode",
+    "str_concatenacion_acumular_seria"
+   ]
+  },
+  {
+   "id": null,
+   "cat": "humana_programming",
+   "q": "¿Cómo puedo usar cadenas para invocar funciones/métodos?",
+   "sk": "mo,cadenas,invocar",
+   "esperado": "cadenas_principal_tecnica_getattr",
+   "puesto": 0,
+   "top5": [
+    "casos_invocar_metodos_prefijo",
+    "delegacion_metodo_self_setattr",
+    "cadenas_literal_cadena_secuencia",
+    "testing_agradable_programa_accesos",
+    "rendimiento_trucos_rapido_cython"
+   ]
+  },
+  {
+   "id": null,
+   "cat": "humana_programming",
+   "q": "¿Existe un equivalente a chomp() en Perl para eliminar nuevas líneas al final de las cadenas?",
+   "sk": "existe,equivalente,chomp",
+   "esperado": "rstrip_linea_lineas_vacias",
+   "puesto": 0,
+   "top5": [
+    "cadenas_literal_cadena_secuencia"
+   ]
+  },
+  {
+   "id": null,
+   "cat": "humana_programming",
+   "q": "¿Existe un equivalente a scanf() o a sscanf() ?",
+   "sk": "existe,equivalente,scanf",
+   "esperado": "analisis_sintactico_espacios_split",
+   "puesto": 1,
+   "top5": [
+    "analisis_sintactico_espacios_split"
+   ]
+  },
+  {
+   "id": null,
+   "cat": "humana_programming",
+   "q": "Mi programa es muy lento. ¿Cómo puedo acelerarlo?",
+   "sk": "programa,lento,mo",
+   "esperado": "rendimiento_trucos_rapido_cython",
+   "puesto": 1,
+   "top5": [
+    "rendimiento_trucos_rapido_cython"
+   ]
+  },
+  {
+   "id": null,
+   "cat": "humana_programming",
+   "q": "¿Cuál es la forma más eficiente de concatenar muchas cadenas conjuntamente?",
+   "sk": "cu,eficiente,concatenar",
+   "esperado": "str_concatenacion_acumular_seria",
+   "puesto": 1,
+   "top5": [
+    "str_concatenacion_acumular_seria"
+   ]
+  },
+  {
+   "id": null,
+   "cat": "humana_programming",
+   "q": "¿Cómo convertir entre tuplas y listas?",
+   "sk": "mo,convertir,tuplas",
+   "esperado": "tuple_seq_convierte_iterable",
+   "puesto": 0,
+   "top5": [
+    "pytuple_tamaño_getitem_pybytes",
+    "listas_arrays_lisp_analogo",
+    "agregar_coma_final_permitir",
+    "asignacion_aumentada_apunta_iadd",
+    "hashable"
+   ]
+  },
+  {
+   "id": null,
+   "cat": "humana_programming",
+   "q": "¿Qué es un índice negativo?",
+   "sk": "qu,ndice,negativo",
+   "esperado": "positivos_negativos_indices_seq",
+   "puesto": 1,
+   "top5": [
+    "positivos_negativos_indices_seq",
+    "tenga_signo_quieres_190",
+    "longitud_matriz_tamaño_elementos"
+   ]
+  },
+  {
+   "id": null,
+   "cat": "humana_programming",
+   "q": "¿Cómo puedo iterar sobre una secuencia en orden inverso?",
+   "sk": "mo,iterar,secuencia",
+   "esperado": "reversed_transformara_original_inverso",
+   "puesto": 3,
+   "top5": [
+    "copia_lista_ordena_ordenada",
+    "tuple_seq_convierte_iterable",
+    "reversed_transformara_original_inverso",
+    "rendimiento_trucos_rapido_cython"
+   ]
+  },
+  {
+   "id": null,
+   "cat": "humana_programming",
+   "q": "¿Cómo eliminar duplicados de una lista?",
+   "sk": "mo,eliminar,duplicados",
+   "esperado": "lista_duplicados_rapido_eliminacion",
+   "puesto": 1,
+   "top5": [
+    "lista_duplicados_rapido_eliminacion"
+   ]
+  },
+  {
+   "id": null,
+   "cat": "humana_programming",
+   "q": "¿Cómo se puede hacer un array en Python?",
+   "sk": "mo,array,python",
+   "esperado": "listas_arrays_lisp_analogo",
+   "puesto": 1,
+   "top5": [
+    "listas_arrays_lisp_analogo",
+    "binarios_datos_texto_bytes",
+    "modulos_freeze_multiplataforma_pyinstaller"
+   ]
+  },
+  {
+   "id": null,
+   "cat": "humana_programming",
+   "q": "¿Cómo puedo crear una lista multidimensional?",
+   "sk": "mo,crear,lista",
+   "esperado": "lista_conteniendo_longitud_numpy",
+   "puesto": 1,
+   "top5": [
+    "lista_conteniendo_longitud_numpy",
+    "listas_arrays_lisp_analogo",
+    "asignacion_aumentada_apunta_iadd",
+    "metaclase",
+    "funcion_clave"
+   ]
+  },
+  {
+   "id": null,
+   "cat": "humana_programming",
+   "q": "¿Por qué hacer lo siguiente, a_tuple[i] += ['item'], lanza una excepción cuando la suma funciona?",
+   "sk": "qu,siguiente,a_tuple",
+   "esperado": "asignacion_aumentada_apunta_iadd",
+   "puesto": 1,
+   "top5": [
+    "asignacion_aumentada_apunta_iadd"
+   ]
+  },
+  {
+   "id": null,
+   "cat": "humana_programming",
+   "q": "Quiero hacer una ordenación compleja: ¿Puedes hacer una transformada Schwartziana (Schwartzian Transform) en Python?",
+   "sk": "ordenaci,compleja,puedes",
+   "esperado": "atribuida_randal_schwartz_comunidad",
+   "puesto": 8,
+   "top5": [
+    "copia_lista_ordena_ordenada",
+    "copy_deepcopy_copiar_copiarse",
+    "variables_referencian_objeto_operaciones",
+    "rendimiento_trucos_rapido_cython",
+    "funcion_clave"
+   ]
+  },
+  {
+   "id": null,
+   "cat": "humana_programming",
+   "q": "¿Cómo puedo ordenar una lista a partir de valores de otra lista?",
+   "sk": "mo,ordenar,lista",
+   "esperado": "unir_iterador_resultando_extrae",
+   "puesto": 0,
+   "top5": [
+    "copia_lista_ordena_ordenada",
+    "rendimiento_trucos_rapido_cython",
+    "hash_valor_clave_diccionario"
+   ]
+  },
+  {
+   "id": null,
+   "cat": "humana_programming",
+   "q": "¿Qué es una clase?",
+   "sk": "qu,clase",
+   "esperado": "clase_class_especificos_buzon",
+   "puesto": 3,
+   "top5": [
+    "clase",
+    "clase_base_abstracta",
+    "clase_class_especificos_buzon",
+    "clase_de_nuevo_estilo",
+    "metaclase"
+   ]
+  },
+  {
+   "id": null,
+   "cat": "humana_programming",
+   "q": "¿Qué es un método?",
+   "sk": "qu",
+   "esperado": "normalmente_name_arguments_definen",
+   "puesto": 0,
+   "top5": [
+    "metodo",
+    "metodo_especial",
+    "delegacion_metodo_self_setattr",
+    "self_metodo_meth_invocado",
+    "orden_de_resolucion_de_metodos"
+   ]
+  },
+  {
+   "id": null,
+   "cat": "humana_programming",
+   "q": "¿Qué es self?",
+   "sk": "qu,self",
+   "esperado": "self_metodo_meth_invocado",
+   "puesto": 1,
+   "top5": [
+    "self_metodo_meth_invocado",
+    "delegacion_metodo_self_setattr",
+    "super_determinara_self_mro",
+    "metodo",
+    "estaticos_clase_count_self"
+   ]
+  },
+  {
+   "id": null,
+   "cat": "humana_programming",
+   "q": "¿Cómo puedo comprobar si un objeto es una instancia de una clase dada o de una subclase de la misma?",
+   "sk": "mo,comprobar,objeto",
+   "esperado": "isinstance_obj_clases_clase",
+   "puesto": 3,
+   "top5": [
+    "clase_class_especificos_buzon",
+    "hash_valor_clave_diccionario",
+    "isinstance_obj_clases_clase",
+    "especificacion_interfaz_abc_pruebas",
+    "funcion_mydict_defecto_none"
+   ]
+  },
+  {
+   "id": null,
+   "cat": "humana_programming",
+   "q": "¿Qué es la delegación?",
+   "sk": "qu,delegaci",
+   "esperado": "delegacion_metodo_self_setattr",
+   "puesto": 1,
+   "top5": [
+    "delegacion_metodo_self_setattr"
+   ]
+  },
+  {
+   "id": null,
+   "cat": "humana_programming",
+   "q": "¿Cómo invoco a un método definido en una clase base desde una clase derivada que la extiende?",
+   "sk": "mo,invoco,definido",
+   "esperado": "super_determinara_self_mro",
+   "puesto": 0,
+   "top5": [
+    "estudiantes_tipado_primer_programacion"
+   ]
+  },
+  {
+   "id": null,
+   "cat": "humana_programming",
+   "q": "¿Cómo puedo organizar mi código para hacer que sea más sencillo modificar la clase base?",
+   "sk": "mo,organizar,digo",
+   "esperado": "base_alias_derivar_disponibilidad",
+   "puesto": 0,
+   "top5": [
+    "testing_agradable_programa_accesos",
+    "variables_referencian_objeto_operaciones"
+   ]
+  },
+  {
+   "id": null,
+   "cat": "humana_programming",
+   "q": "¿Cómo puedo crear datos estáticos de clase y métodos estáticos de clase?",
+   "sk": "mo,crear,datos",
+   "esperado": "estaticos_clase_count_self",
+   "puesto": 0,
+   "top5": [
+    "delegacion_metodo_self_setattr",
+    "clase_base_abstracta"
+   ]
+  },
+  {
+   "id": null,
+   "cat": "humana_programming",
+   "q": "¿Como puedo sobrecargar constructores (o métodos) en Python?",
+   "sk": "sobrecargar,constructores,python",
+   "esperado": "spam_guion_classname_close",
+   "puesto": 1,
+   "top5": [
+    "spam_guion_classname_close",
+    "funcion_clave"
+   ]
+  },
+  {
+   "id": null,
+   "cat": "humana_programming",
+   "q": "¿Cómo puedo obtener una lista de todas las instancias de una clase dada?",
+   "sk": "mo,obtener,lista",
+   "esperado": "seguimiento_instancias_programar_manteniendo",
+   "puesto": 4,
+   "top5": [
+    "estaticos_clase_count_self",
+    "hash_valor_clave_diccionario",
+    "especificacion_interfaz_abc_pruebas",
+    "seguimiento_instancias_programar_manteniendo",
+    "funcion_mydict_defecto_none"
+   ]
+  },
+  {
+   "id": null,
+   "cat": "humana_programming",
+   "q": "¿Por qué el resultado de id() no parece ser único?",
+   "sk": "qu,resultado,id",
+   "esperado": "entero_vida_objeto_frecuentemente",
+   "puesto": 0,
+   "top5": [
+    "cadenas_literal_cadena_secuencia",
+    "modulos_freeze_multiplataforma_pyinstaller",
+    "van_rossum_leyendo_monty",
+    "simbolo_ventana_script_comando",
+    "archivo_dll_enlace_swig"
+   ]
+  },
+  {
+   "id": null,
+   "cat": "humana_programming",
+   "q": "¿Cuándo puedo fiarme de pruebas de identidad con el operador *is*?",
+   "sk": "cu,ndo,fiarme",
+   "esperado": "identidad_pruebas_igualdad_none",
+   "puesto": 1,
+   "top5": [
+    "identidad_pruebas_igualdad_none"
+   ]
+  },
+  {
+   "id": null,
+   "cat": "humana_programming",
+   "q": "¿Cómo puede una subclase controlar qué datos se almacenan en una instancia inmutable?",
+   "sk": "mo,subclase,controlar",
+   "esperado": "subclasifica_inmutable_anular_alterar",
+   "puesto": 0,
+   "top5": [
+    "clase_class_especificos_buzon"
+   ]
+  },
+  {
+   "id": null,
+   "cat": "humana_programming",
+   "q": "¿Cómo cacheo llamadas de método?",
+   "sk": "mo,cacheo,llamadas",
+   "esperado": "cached_property_lru_cache",
+   "puesto": 2,
+   "top5": [
+    "metodo",
+    "cached_property_lru_cache",
+    "archivo_dll_enlace_swig",
+    "iterador",
+    "diccionario"
+   ]
+  },
+  {
+   "id": null,
+   "cat": "humana_programming",
+   "q": "¿Cómo creo un fichero .pyc?",
+   "sk": "mo,creo,fichero",
+   "esperado": "fichero_pyc_pycache_foo",
+   "puesto": 1,
+   "top5": [
+    "fichero_pyc_pycache_foo"
+   ]
+  },
+  {
+   "id": null,
+   "cat": "humana_programming",
+   "q": "¿Cómo puedo encontrar el nombre del módulo en uso?",
+   "sk": "mo,nombre,dulo",
+   "esperado": "mirando_name_script_probarse",
+   "puesto": 0,
+   "top5": [
+    "modulo_de_extension",
+    "modulo_threading_thread_convenientes",
+    "especificador_de_modulo",
+    "modulo",
+    "canonica_modulo_config_cfg"
+   ]
+  },
+  {
+   "id": null,
+   "cat": "humana_programming",
+   "q": "¿Cómo podría tener módulos que se importan mutuamente entre ellos?",
+   "sk": "mo,podr,dulos",
+   "esperado": "foo_bar_globals_import",
+   "puesto": 1,
+   "top5": [
+    "foo_bar_globals_import",
+    "modulo_importa_basico_clase",
+    "fichero_pyc_pycache_foo",
+    "modulos_importacion_importaciones_mover"
+   ]
+  },
+  {
+   "id": null,
+   "cat": "humana_programming",
+   "q": "Cuando edito un módulo importado y lo reimporto los cambios no tienen efecto. ¿Por qué sucede esto?",
+   "sk": "edito,dulo,importado",
+   "esperado": "modulo_importa_basico_clase",
+   "puesto": 8,
+   "top5": [
+    "especificador_de_modulo",
+    "modulo_threading_thread_convenientes",
+    "modulo_de_extension",
+    "modulo",
+    "canonica_modulo_config_cfg"
+   ]
+  },
+  {
+   "id": null,
+   "cat": "humana_windows",
+   "q": "¿Cómo ejecutar un programa Python en Windows?",
+   "sk": "mo,ejecutar,programa",
+   "esperado": "simbolo_ventana_script_comando",
+   "puesto": 2,
+   "top5": [
+    "extension_ejecutar_scripts_foo",
+    "simbolo_ventana_script_comando",
+    "modulos_freeze_multiplataforma_pyinstaller",
+    "archivo_dll_enlace_swig",
+    "gil_filename_path_shutil"
+   ]
+  },
+  {
+   "id": null,
+   "cat": "humana_windows",
+   "q": "¿Cómo hacer que los scripts de Python sean ejecutables?",
+   "sk": "mo,scripts,python",
+   "esperado": "extension_ejecutar_scripts_foo",
+   "puesto": 0,
+   "top5": [
+    "spam_guion_classname_close",
+    "modulos_freeze_multiplataforma_pyinstaller",
+    "ejecucion_bloque_miembro_atributo",
+    "interprete_chmod_scriptfile_env",
+    "simbolo_ventana_script_comando"
+   ]
+  },
+  {
+   "id": null,
+   "cat": "humana_windows",
+   "q": "¿Por qué Python tarda en comenzar?",
+   "sk": "qu,python,tarda",
+   "esperado": "configurados_identica_antivirus_lecturas",
+   "puesto": 1,
+   "top5": [
+    "configurados_identica_antivirus_lecturas",
+    "interprete_chmod_scriptfile_env",
+    "estudiantes_tipado_primer_programacion"
+   ]
+  },
+  {
+   "id": null,
+   "cat": "humana_windows",
+   "q": "¿Es un archivo *.pyd lo mismo que una DLL?",
+   "sk": "archivo,pyd,dll",
+   "esperado": "pyd_dll_foo_pyinit",
+   "puesto": 2,
+   "top5": [
+    "archivo_dll_enlace_swig",
+    "pyd_dll_foo_pyinit"
+   ]
+  },
+  {
+   "id": null,
+   "cat": "humana_windows",
+   "q": "¿Cómo puedo integrar Python en una aplicación de Windows?",
+   "sk": "mo,integrar,python",
+   "esperado": "archivo_dll_enlace_swig",
+   "puesto": 2,
+   "top5": [
+    "vino_quitarlo_dañar_aplicacion",
+    "archivo_dll_enlace_swig"
+   ]
+  },
+  {
+   "id": null,
+   "cat": "humana_windows",
+   "q": "¿Cómo puedo evitar que mi editor inserte pestañas en mi archivo fuente de Python?",
+   "sk": "mo,evitar,editor",
+   "esperado": "pestañas_espacios_size_errores",
+   "puesto": 1,
+   "top5": [
+    "pestañas_espacios_size_errores"
+   ]
+  },
+  {
+   "id": null,
+   "cat": "humana_windows",
+   "q": "¿Cómo verifico una pulsación de tecla sin bloquearla?",
+   "sk": "mo,verifico,pulsaci",
+   "esperado": "msvcrt_kbhit_presionado_getch",
+   "puesto": 2,
+   "top5": [
+    "queja_widget_teclado_consulte",
+    "msvcrt_kbhit_presionado_getch",
+    "copia_lista_ordena_ordenada",
+    "simbolo_ventana_script_comando"
+   ]
+  },
+  {
+   "id": null,
+   "cat": "humana_windows",
+   "q": "¿Cómo resuelvo el error de api-ms-win-crt-runtime-l1-1-0.dll no encontrado?",
+   "sk": "mo,resuelvo,error",
+   "esperado": "ocurrir_hayan_instaladas_microsoft",
+   "puesto": 0,
+   "top5": [
+    "configurados_identica_antivirus_lecturas",
+    "codificacion_de_la_configuracion_regional",
+    "linea_build_reparar_prolijo",
+    "gdb_cargadas_verificacion_cargue",
+    "select_socket_connect_errno"
+   ]
+  }
+ ]
+}

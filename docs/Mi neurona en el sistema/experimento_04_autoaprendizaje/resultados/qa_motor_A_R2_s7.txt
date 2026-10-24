@@ -1,0 +1,75 @@
+[neurona] R2 desde /home/user/MemoryBioRAG/docs/Mi neurona en el sistema/experimento_04_autoaprendizaje/resultados/pesos/A_R2_semilla7.npz
+Creating isolated database copy at: /home/user/MemoryBioRAG/MemoryBioRAG_Data/memory_biorag_qa_temp.db
+Loaded 921 test cases.
+
+Exporting failed cases to: /home/user/MemoryBioRAG/docs/Mi neurona en el sistema/experimento_04_autoaprendizaje/resultados/qa_motor_A_R2_s7_fallidos.jsonl
+Cleaning up temporary database copy at /home/user/MemoryBioRAG/MemoryBioRAG_Data/memory_biorag_qa_temp.db...
+
+================================================================================
+                      BIORAG QA EVALUATION REPORT
+================================================================================
+Total time elapsed: 568.68 seconds
+--------------------------------------------------------------------------------
+Category               | Total  | Recall@5  | Recall@1  | MRR      | Errors/FPs
+--------------------------------------------------------------------------------
+ambiguo                | 6      | N/A       | N/A       | N/A      | 0          (100.0% de cobertura sobre queries con etiqueta contradictoria; fuera del Recall global)
+cruce_idioma           | 8      |  100.00% |  100.00% |  1.000 | 0         
+dormido                | 65     |  100.00% |  100.00% |  1.000 | 0         
+literal                | 487    |  100.00% |   99.38% |  0.997 | 0         
+negativo               | 40     | N/A       | N/A       | N/A      | 0          (0.0% FP sobre 40 válidos; 0 contaminados)
+por_tema               | 65     |  100.00% |   84.62% |  0.906 | 0         
+pregunta_natural       | 65     |  100.00% |   96.92% |  0.985 | 0         
+sinonimo               | 55     |   94.55% |   63.64% |  0.739 | 3         
+typo                   | 65     |  100.00% |   98.46% |  0.992 | 0         
+variante_gramatical    | 65     |  100.00% |   96.92% |  0.981 | 0         
+--------------------------------------------------------------------------------
+GLOBAL SUMMARY (Retrieval) | 875    |   99.66% |   95.66% |  0.972 | 3         
+GLOBAL SUMMARY (Noise/FP) | 40     | N/A       | N/A       | N/A      | 0          (0.00% FP sobre 40 válidos; 0 contaminados)
+SPREADING ACTIVATION   | 8/921 queries (0.9%)
+AISLAMIENTO POR CASO   | 64 mutaciones de estado revertidas (15 nodos arrancaron dormidos)
+================================================================================
+
+DATASET (salud de las etiquetas oro):
+--------------------------------------------------------------------------------
+  3 etiqueta(s) obsoleta(s) resuelta(s) contra la DB:
+    [0268] lección:_guardar_todo_lo_importante_inmediatamente,_no_esperar
+         -> lección:_guardar_todo_lo_importante_inmediatamente_y_no_esperar
+    [0368] plugin_biorag-remember_v8.4_-_solo_session.idle,_sin_conteo_de_edits
+         -> plugin_biorag-remember_v8.4_-_solo_session.idle_y_sin_conteo_de_edits
+    [0371] plugin_v7.1_fix:_session.idle_es_un_event,_no_un_hook
+         -> plugin_v7.1_fix:_session.idle_es_un_event_y_no_un_hook
+  3 query(s) con etiqueta contradictoria -> reclasificadas como 'ambiguo':
+    'biorag' -> ['auto-consulta-permanente-biorag', 'protocolo_busqueda_biorag_automatica']
+    'compromiso' -> ['compromiso-real-athena-clave-de-confianza', 'principio-memoria-hibrida-agente-naturalidad']
+    'dimensiones' -> ['cuando_usar_dimensiones_biorag', 'fix_busqueda_solo_dimensiones_sin_texto']
+--------------------------------------------------------------------------------
+
+SAMPLE FAILURES BY CATEGORY FOR ACTIONABLE DIAGNOSIS:
+================================================================================
+
+[Category: ambiguo] (0 total failures)
+----------------------------------------
+
+[Category: dormido] (0 total failures)
+----------------------------------------
+
+[Category: sinonimo] (3 total failures)
+----------------------------------------
+  #1 [ID 0514] Query: "perfil"
+      Expected:  dennys-identidad-profunda
+      Returned:  ['dennys_perfil_gustos', 'perfil_creador_rag_ruta', 'notebooklm_perfil_dennys_id'] (scores: [1.0, 1.0, 1.0])
+      Reason:    Expected concept not found in top 5 results
+  #2 [ID 0638] Query: "memoria compartida"
+      Expected:  mentalidad_biorag_para_agentes
+      Returned:  ['principio_firma_cada_recuerdo', 'regla_firma_autoria_memoria', 'norma_atribucion_autoria_memoria_compartida_oec'] (scores: [1.0, 1.0, 1.0])
+      Reason:    Expected concept not found in top 5 results
+  #3 [ID 0734] Query: "regla"
+      Expected:  plan_mode_biorag
+      Returned:  ['método_pilares_redacción', 'guardado_automatico_caso_b', 'regla_cero_inferencia'] (scores: [1.0, 1.0, 1.0])
+      Reason:    Expected concept not found in top 5 results
+================================================================================
+Note: All failed cases have been saved to /home/user/MemoryBioRAG/docs/Mi neurona en el sistema/experimento_04_autoaprendizaje/resultados/qa_motor_A_R2_s7_fallidos.jsonl for full debug analysis.
+
+Métricas exportadas a: /home/user/MemoryBioRAG/docs/Mi neurona en el sistema/experimento_04_autoaprendizaje/resultados/qa_motor_A_R2_s7.json
+
+[GATE] OK — dentro de umbrales

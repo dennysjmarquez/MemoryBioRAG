@@ -1,15 +1,17 @@
 # BioRAG — Memoria Cognitiva Biomimética y Simbólica para Agentes de IA
 
-> **Versión Oficial:** v33.0
+> **Versión Oficial:** v34.0
 > **Paradigma:** Motor Python + SQLite FTS5. **Sin embeddings densos, GPU ni llamadas a APIs externas** en el path de búsqueda.
-> **Motor:** Arquitectura modularizada (18 submódulos `core/memory/` + 15 submódulos `core/mcp_server/` + fachada delgada) + SQLite FTS5 WAL + PPMI-SVD (100 dimensiones) + espacio semántico de 13 ejes + grafo sináptico Hebbiano + SDM (2048 bits) + calibración conforme + activación ACT-R + Concept Hubs + validación simétrica fail-fast de sustantivos clave.
+> **Motor:** Arquitectura modularizada (18 submódulos `core/memory/` + 15 submódulos `core/mcp_server/` + fachada delgada) + SQLite FTS5 WAL + PPMI-SVD (100 dimensiones) + espacio semántico de 13 ejes + grafo sináptico Hebbiano + SDM (2048 bits) + calibración conforme + activación ACT-R + Concept Hubs + validación simétrica fail-fast de sustantivos clave + **neurona de reordenamiento que aprende sola** (29 señales → 6 ocultas → 1 corrección, con piso en la fórmula a mano).
 > **Idiomas:** Español e inglés (stemming bilingüe, expansión simbólica con WordNet, Concept Hubs de 5 ángulos y Domain Dict).
 
 **BioRAG** es una memoria simbólica persistente para agentes de IA que aborda la pérdida de contexto entre sesiones mediante recuperación híbrida. “Biomimética” describe una inspiración de diseño; no significa que el motor simule literalmente un cerebro humano. Los resultados de rendimiento se limitan a los benchmarks y snapshots indicados.
 
 ---
 
-## 📊 Métricas de la suite oficial (v33.0 · 2026-10-14)
+## 📊 Métricas de la suite oficial (v33.0 · 2026-10-14 · vigentes en v34.0)
+
+> **v34.0:** con una DB nueva, o sin campeón, la neurona no actúa y estos números se mantienen **idénticos** (son el piso). Con el campeón ya aprendido sobre la copia del snapshot (`despertar_neurona.sh`, 500 ciclos), la misma suite da **Recall@5 100.00 % · Recall@1 94.06 % (823/875) · MRR 0.964 · FP 0/40**, sin ninguna categoría por debajo del piso. Detalle en [La Neurona de BioRAG](#-novedades-de-la-versión-v340--la-neurona-de-biorag).
 
 Evaluación sobre el snapshot congelado oficial canónico (**921 casos totales en suite QA**):
 - **Archivo:** `snapshots/qa_escape_qcr_20260811.db`
@@ -23,7 +25,7 @@ Evaluación sobre el snapshot congelado oficial canónico (**921 casos totales e
 | **MRR (Mean Reciprocal Rank)** | **0.950** | Posición recíproca promedio ponderada (0.9497 sin redondear; métrica complementaria observada). |
 | **Falsos positivos** | **0/40 (0.00%)** | Calibración conforme efectiva en los 40 controles negativos del benchmark (FP rate observada 0.00%). |
 | **Casos ambiguos (contradictorios)** | **6 casos (2 con cobertura parcial)** | Evaluados por separado del Recall global; 2 casos no cubren al menos una de las etiquetas contradictorias. |
-| **Tests unitarios** | **317/317 aprobados** | Cobertura completa de invariantes, validación pre-DB fail-fast, contratos MCP, normalización y catálogo. |
+| **Tests unitarios** | **397/397 aprobados** (v34.0) | Cobertura completa de invariantes, validación pre-DB fail-fast, contratos MCP, normalización, catálogo, las 17 capas de protección de la neurona y el script de despertar. |
 | **Suite Concept Hub** | **5/5 TOP-1 (100.00%)** | Precisión perfecta en los 5 casos de prueba de puentes asociativos registrados. |
 | **Abismo léxico (EXP-Q)** | **3/3 Pool · 2/3 Top-5 · 1/3 Top-1** | 3/3 descubiertos en pool de grafo; 2/3 en Top-5 (pos #1 y #4) y 1/3 en Top-1 (pos #1). |
 | **Sinónimos · Recall@5 / Recall@1** | **100% (55/55) / 56.36%** | Cobertura total en Top-5; el 43.64% restante queda entre Top-2 y Top-5. |
@@ -38,6 +40,304 @@ Evaluación sobre el snapshot congelado oficial canónico (**921 casos totales e
 > - **Recall@1 (91.77%)** y **MRR (0.9497)** son métricas complementarias observadas en el benchmark sobre este corpus congelado, no umbrales que el gate imponga ni garantías universales para cualquier consulta arbitraria.
 > - **R@5 = 100.00% (875/875):** Demuestra empíricamente que el conjunto híbrido (FTS5 BM25 + Sustantivos Clave + Grafo Sináptico Hebbiano + PPMI-SVD + Concept Hubs + Reranker Multicampo) logra **cobertura completa (875/875) dentro de la ventana Top-5 de trabajo del agente en este corpus evaluado**.
 > - **R@1 = 91.77% (803/875):** Refleja la precisión exacta del primer candidato. En tareas con solapamiento léxico directo (`literal`, `pregunta_natural`), R@1 supera el 95%–99%. En tareas donde el vocabulario difiere radicalmente (`sinonimo` 56.36%, `por_tema` 63.08%), el sistema ubica el recuerdo dentro del Top-5 pero no siempre en Top-1. R@1 representa el área de optimización continua para el desempate fino sin embeddings densos.
+
+---
+
+## 🧠 Novedades de la Versión v34.0 — La Neurona de BioRAG
+
+<p align="center">
+  <img src="docs/Mi%20neurona%20en%20el%20sistema/imagenes/neurona_biorag.jpg" alt="La neurona de BioRAG: 29 agujas que convergen en un cuerpo con 6 neuronas ocultas, protegido por un escudo, cuyo axón ordena los resultados" width="100%">
+</p>
+<p align="center"><em>La neurona de BioRAG (ilustración). Agujas doradas: las señales de la fórmula. Agujas celestes: lo que aporta el agente. Los seis orbes: las neuronas ocultas. El escudo: las capas de protección. Las tarjetas: los resultados que ordena.</em></p>
+
+> **En una frase:** BioRAG ahora tiene una pequeña neurona que **aprende sola, mientras se usa, a ordenar mejor los primeros resultados**. Empieza siendo exactamente la fórmula a mano y **nunca puede quedar por debajo de ella**.
+
+La versión **v34.0** es mayor porque cambia el **comportamiento del ranking**: por primera vez una pieza aprendida puede mover el orden de lo que recibe el agente. También cambian tres valores por defecto del servidor MCP (ver [Otros cambios de la v34.0](#otros-cambios-de-la-v340)). La API no se rompe: las llamadas MCP son las mismas.
+
+### 1. Por qué existe
+
+La fórmula de BioRAG suma 17 señales ("agujas") con **pesos fijos puestos a mano**: BM25 vale 0.25, el Concept Hub 0.20, PPMI 0.15… Esos pesos son buenos en promedio, pero **la importancia de cada aguja depende del contexto**:
+- En una búsqueda literal manda BM25.
+- En una búsqueda por sinónimo, BM25 casi no aporta y pesan más los sinónimos, el PPMI y el grafo.
+- Cuando el agente manda `sustantivos_clave`, la evidencia en ese campo vale más que una coincidencia suelta en el contenido.
+
+Un peso fijo no puede capturar eso. Por eso la fórmula llegaba al Top-5 en el 100 % de los casos, pero el **primer lugar** fallaba en las categorías difíciles: sinónimo 56 %, por tema 63 %.
+
+La neurona aprende **cuánto vale cada aguja según el contexto** y corrige el orden **solo cuando está segura**.
+
+### 2. Qué tipo de neurona es
+
+| Pregunta | Respuesta |
+|---|---|
+| **Arquitectura** | Perceptrón multicapa chico: **29 entradas → 6 neuronas ocultas (tanh) → 1 salida**. **186 pesos** en total (W 6×29, b 6, v 6). |
+| **Qué produce** | Una **corrección residual** c(x) que se **suma** al score de la fórmula. Con c(x) = 0 el motor es idéntico al de siempre: los pesos a mano son el **ancla** y el **piso**. |
+| **Qué aprende** | *Learning to rank* por lista: entropía cruzada sobre el softmax del top-k, es decir, "que la respuesta correcta quede primera". |
+| **De dónde saca las respuestas correctas** | **Autosupervisión**. Cuando un recuerdo se consolida, la respuesta correcta se conoce: es ese recuerdo. El recuerdo se hace sus propias preguntas y el motor las responde en silencio. |
+| **Cuándo aprende** | **Al guardar** (consolidar o dormir), nunca al buscar. Así la búsqueda no paga el entrenamiento. |
+| **Cómo decide si lo aprendido sirve** | **Campeón y retador**: el retador estudia; solo reemplaza al campeón si gana en un examen que **nunca estudió** (la guardia) y no daña ninguna categoría. |
+| **Cuánto cuesta** | **Fijo por operación**: 2 recuerdos × 2 preguntas por ciclo, tope de 3 s y memoria de examen de tamaño fijo. El costo no crece con el tamaño de la memoria. |
+| **Dónde vive** | `core/memory/neurona.py` (la neurona) y `core/memory/neurona_examen.py` (el autoexamen). Su estado se guarda en la tabla `neurona_estado` de la misma DB. |
+
+**La inspiración biológica (es inspiración, no simulación):**
+
+| En el cerebro | En BioRAG |
+|---|---|
+| Dendritas que reciben señales | Las **29 agujas**: 17 de la fórmula y 12 de lo que pasó después y de lo que aporta el agente |
+| Interneuronas | Las **6 neuronas ocultas**, que combinan agujas (por ejemplo: "sinónimo alto + BM25 bajo + vino del agente") |
+| Axón que modula | La **corrección** que reordena el top-k |
+| Consolidación durante el sueño (*replay* del hipocampo) | Aprende **al consolidar**, repasando recuerdos |
+| *Primum non nocere* | El **margen "primero no dañar"** |
+| Homeostasis | **Piso** (no bajar de la fórmula) y **techo** (dejar de entrenar cuando ya no mejora y despertar si algo cambia) |
+
+### 3. Anatomía exacta
+
+<p align="center"><img src="docs/Mi%20neurona%20en%20el%20sistema/imagenes/anatomia_neurona.png" alt="Anatomía de la neurona: 29 señales con sus nombres, 6 neuronas ocultas tanh, suma de corrección y regla de orden" width="100%"></p>
+
+**Las 17 agujas de la fórmula a mano** (las mismas que suma `_calcular_score_hibrido`):
+
+| Aguja (`código`) | Qué mide |
+|---|---|
+| BM25 léxico (`bm25_norm`) | Coincidencia de palabras (FTS5), normalizada |
+| dimensiones (`dim_score`) | Coincidencia en los 13 ejes semánticos |
+| palabras en el nombre (`concepto_ratio`) | Cuánto de la consulta está en el nombre del recuerdo |
+| sinónimos (`sinonimos_ratio`) | Cuánto de la consulta está en sus sinónimos |
+| latente / cadena (`latcad`) | Conexiones latentes o en cadena del grafo (la mayor de las dos) |
+| grupo (`grupo_score`) | Pertenencia a un grupo temático |
+| temático (`tematico_g`) | Afinidad temática (solo cuenta si hay evidencia léxica) |
+| asociaciones (`asoc`) | Grado en el grafo sináptico (asociaciones / 20, tope 1) |
+| predicados (`pred_score`) | Roles semánticos (SRL) |
+| PPMI-SVD (`ppmi_score`) | Similitud vectorial PPMI+SVD (100 dims) |
+| Concept Hub (`hub_match`) | Coincidencia por puentes de 5 ángulos |
+| compresión (`ncd_score`) | Distancia de compresión normalizada |
+| episodio (`episodio_score`) | Cercanía temporal (mismo episodio) |
+| campo semántico (`campo_score`) | Atracción del campo semántico |
+| Jensen-Shannon (`jsd`) | Divergencia de distribuciones |
+| match exacto (`match_exacto`) | La consulta es el nombre del recuerdo |
+| sinónimo casi exacto (`sin95`) | Sinónimos ≥ 0.95 |
+
+**Las 12 señales de la vista y del agente** (lo que pasa *después* de la fórmula y el contexto de la búsqueda):
+
+| Señal (`código`) | Qué mide |
+|---|---|
+| bono de convergencia (`bono_conv`) | Bono multicampo que recibió, normalizado (/0.085, tope 1.5) |
+| evidencia por campo (`ev_concepto`, `ev_sinonimos`, `ev_sustantivos`, `ev_contenido`) | En qué campos del recuerdo apareció la consulta, incluidos los `sustantivos_clave` |
+| peso sináptico (`peso`) | El peso del recuerdo (0–1) |
+| ¿score con peso? (`con_peso`) | Si el score servido incluye el peso (camino MCP) |
+| ¿vino del agente? (`con_agente`) | Si la búsqueda trae `sustantivos_clave` del agente |
+| origen (`or_lexico`, `or_hub`, `or_no_literal`) | Por dónde llegó el candidato: léxico aprendido, Concept Hub o un camino no literal |
+| sin rasgos (`sin_rasgos`) | Bandera: candidato inyectado sin pasar por la fórmula (sus 17 agujas van en 0) |
+
+### 4. La matemática, paso a paso
+
+**Símbolos**
+
+| Símbolo | Significado |
+|---|---|
+| $k$ | Cuántos resultados ve quien busca: 5 por defecto, 10 por el MCP (tope `topk_max` = 10) |
+| $x_i \in \mathbb{R}^{29}$ | Las 29 señales del resultado en el puesto $i$ |
+| $\text{score}_i$ | El score que la fórmula a mano le dio y que se sirvió |
+| $W, b, v$ | Los pesos de la neurona ($6 \times 29$, $6$, $6$) |
+| $c(x)$ | La corrección que propone la neurona |
+| $\varepsilon$ | El margen "primero no dañar" |
+| $y$ | El puesto donde está la respuesta correcta (en el autoexamen) |
+
+**1) La escala de la fórmula.** El score se lleva a logit, que es la escala natural para sumar evidencias. Por encima de 1 se prolonga en recta para que los matches exactos (que superan 1) no se recorten:
+
+$$
+g(s)=\begin{cases}\ln\dfrac{s}{1-s} & s<1-\epsilon_0\\[6pt] \ln\dfrac{1-\epsilon_0}{\epsilon_0}+\dfrac{s-(1-\epsilon_0)}{\epsilon_0(1-\epsilon_0)} & s\ge 1-\epsilon_0\end{cases}\qquad \epsilon_0=10^{-4},\quad s\in[10^{-4},\,50]
+$$
+
+**2) La corrección de la neurona:**
+
+$$
+c(x)=v^{\top}\tanh(Wx+b)
+$$
+
+**3) Cómo sirve (reordena el top-k).** Cada resultado del top-k recibe una clave, y el top-k se ordena por esa clave de mayor a menor:
+
+$$
+\text{clave}_i \;=\; g(\text{score}_i)\;+\;c(x_i)\;+\;\varepsilon\,(k-i),\qquad i=0,\dots,k-1
+$$
+
+El término $\varepsilon(k-i)$ es la **ventaja de la fórmula**: para subir un puesto, la neurona tiene que ganar por más de $\varepsilon$. Después del reorden, **los recuerdos y los scores son los mismos**: el score más alto se le asigna al nuevo primero, el segundo al nuevo segundo, y así. Por eso ningún umbral absoluto del motor (abstención, GABA, ráfaga, certeza, falsos positivos) ve números distintos.
+
+**Regla de identidad:** si la consulta *es* el nombre de un recuerdo (con "_" = espacio) y la fórmula ya lo puso primero, sigue primero.
+
+**4) Cómo aprende.** En el autoexamen se conoce el puesto $y$ de la respuesta correcta. La probabilidad que la neurona le da es un softmax sobre el top-k servido:
+
+$$
+p_i=\frac{e^{\,g(\text{score}_i)+c(x_i)}}{\sum_{j<k} e^{\,g(\text{score}_j)+c(x_j)}},\qquad
+\mathcal{L}=-\frac{1}{n}\sum_{\text{casos}}\ln p_y\;+\;\frac{\lambda}{2}\lVert\theta\rVert^2,\quad \lambda=10^{-3}
+$$
+
+El gradiente se calcula a mano (retropropagación exacta, con $\partial\mathcal{L}/\partial s_i = p_i-\mathbb{1}[i=y]$) y se aplica con **Adam**: $\beta_1=0.9$, $\beta_2=0.999$, tasa $0.03$, **30 pasos por ciclo**. Si un paso produce NaN, infinito o pesos mayores a $10^3$, se descarta y se vuelve a los pesos anteriores.
+
+**5) La guardia (el examen que nunca se estudia).** Un recuerdo es de guardia si
+
+$$
+\text{sha256}(\text{nombre})_{[0:8]} \bmod 5 = 0
+$$
+
+Eso es el **20 %**, siempre los mismos y sin azar. Sus preguntas nunca entran al entrenamiento: solo sirven para juzgar.
+
+**6) ¿Asciende el retador? (la calibración "primero no dañar").** Se prueban los márgenes $\varepsilon \in \{0, 0.25, 0.5, 1, 1.5, 2, 3, 5, 8\}$ de menor a mayor. Se elige el **menor** con el que se cumplen **todas** estas condiciones:
+
+1. **Cero pérdidas en la guardia:** ningún caso de guardia que la fórmula ponía primero deja de estarlo.
+2. **Pérdidas totales ≤ 5 % de las ganancias** (en primer lugar).
+3. **El Top-5 tampoco baja:** ningún caso de guardia sale del Top-5 y, en total, salen como mucho el 5 % de los que entran.
+4. **Piso por categoría y por camino:** ninguna categoría del examen baja en R@1, MRR ni R@5, ni por el camino del agente ni por el crudo.
+5. **Gana de verdad:** supera a la fórmula, o al campeón actual, en aciertos totales y no empeora la guardia.
+
+Si ningún margen cumple, no asciende. Si el **campeón** deja de cumplir algún día (porque la memoria cambió), **se retira** y vuelve la fórmula a mano.
+
+**7) Anti-memorización:**
+
+$$
+\text{brecha}=\big(\text{acierto}_{\text{estudio}}-\text{acierto}_{\text{guardia}}\big)_{\text{retador}}-\big(\text{acierto}_{\text{estudio}}-\text{acierto}_{\text{guardia}}\big)_{\text{fórmula}}
+$$
+
+Si la brecha supera 0.05, el retador está memorizando lo que estudió en vez de generalizar. Entonces **no asciende** (aunque un margen grande lo deje "sin dañar") y se reinicia.
+
+**8) Techo y despertar.** Tras **12 ciclos** sin mejorar, la neurona queda "tranquila": solo vigila, con la mitad del costo. Cuando entran **150 preguntas nuevas**, despierta y vuelve a estudiar.
+
+### 5. El ciclo de vida
+
+<p align="center"><img src="docs/Mi%20neurona%20en%20el%20sistema/imagenes/ciclo_de_vida.png" alt="Ciclo de vida de la neurona: consolidar, autoexamen, búsqueda silenciosa, vista, examen 80/20, estudio, ascenso, campeón en servicio, techo y despertar" width="100%"></p>
+
+**El autoexamen.** Cada recuerdo genera sus propias preguntas, de forma determinista (el azar se siembra con su nombre):
+- **variante gramatical** ("leccion backup bases datos");
+- **typo** ("leccion backpu bkase dyatos");
+- **sinónimo** ("leccion backup base informacion");
+- **cruce de idioma** ("insight backup repository inputs");
+- **pregunta natural** ("¿Cómo se hace leccion backup base datos?");
+- **por tema** ("restaurar probando cada");
+- **contenido**: como pregunta alguien que no sabe el nombre ("¿copia cada noche?").
+
+No genera preguntas literales ni de dormidos, porque esas el motor ya las resuelve.
+
+**Los dos caminos.** La neurona practica por los dos caminos reales, alternando:
+- **agente**: como llega por el MCP `recordar`. Pide 3× candidatos, aplica convergencia sobre los 10 que verá el agente, usa el peso sináptico y los `sustantivos_clave` que un agente sacaría de la consulta.
+- **crudo**: el motor solo, como la QA.
+
+El piso es **por categoría y por camino**: ninguno de los dos puede bajar.
+
+**Desfase 0.** Una sola función, `vista()`, arma lo que ve la neurona **desde la página tal como se sirve**. El autoexamen guarda esa vista y el servicio corrige esa misma vista, así que lo que se aprende y lo que se usa es idéntico **por construcción**. Medido: 0 de 289 consultas reales con desfase (la v4 tenía 46.7 %).
+
+### 6. Las capas de protección
+
+Cada capa cubre una falla concreta de "una neurona viva dentro de una memoria". Cada una tiene su prueba en `tests/test_neurona.py`.
+
+| Falla posible | Capa que la cubre |
+|---|---|
+| Aprender de una búsqueda distinta a la que se sirve | **Vista única** (desfase 0) |
+| Memorizar en vez de aprender | **Guardia del 20 %** + regla anti-memorización |
+| Empeorar alguna categoría | **Piso** por categoría y camino (R@1, MRR, R@5); el campeón que daña se **retira** |
+| Cambiar el orden con poca seguridad | **Margen "primero no dañar"** auto-calibrado |
+| Sacar un buen resultado del Top-5 (vista de 10) | Piso de R@5 + cero salidas de guardia del Top-5 |
+| Cambiar los números que miran los umbrales | **Invariante de reorden**: mismos nodos y mismos scores; si no se cumple, se sirve la página original. Los mapas de score del MCP se permutan igual |
+| Romper búsquedas literales | **Regla de identidad** |
+| Entrenamiento que diverge (NaN, infinito) | **Pesos sanos**: se descartan y vuelven los anteriores |
+| Errores repetidos | **Disyuntor**: 3 fallas seguidas → esa parte se pausa 1 h; el motor sigue igual |
+| Dos aprendizajes a la vez (sueño + consolidar) | **Candado no bloqueante**: si está ocupada, se salta el ciclo |
+| El autoexamen ensucia logs, accesos o el DMN | **Silencio por hilo**; otro hilo que busca a la vez no queda en silencio |
+| Cambia la fórmula del motor (otra versión) | **Huella del motor**: lo aprendido se descarta y se empieza de cero |
+| Estado corrupto en la DB | **Estado estricto**: si no se puede leer, se arranca limpio |
+| Varios procesos sobre la misma DB (MCP + CLI) | **Refresco** por marca de tiempo |
+| Un recuerdo acapara el examen | **Tope por recuerdo** (4) y memoria de tamaño fijo |
+| Recuerdos borrados o dormidos en el examen | **Purga** al azar (20 por ciclo, costo fijo) |
+| DB vacía o con pocos datos | Sin campeón: **el motor responde idéntico al de siempre** |
+
+### 7. Resultados (para auditar)
+
+Todo se midió sobre **copias** del snapshot canónico (nunca sobre el original ni sobre la DB viva) y está versionado en `docs/Mi neurona en el sistema/`.
+
+<p align="center"><img src="docs/Mi%20neurona%20en%20el%20sistema/imagenes/curva_aprendizaje.png" alt="Curva de aprendizaje: aciertos en la guardia de la fórmula contra la neurona durante 500 ciclos, y latencia por ciclo" width="100%"></p>
+
+<p align="center"><img src="docs/Mi%20neurona%20en%20el%20sistema/imagenes/qa_por_categoria.png" alt="QA oficial por categoría: piso de la fórmula a mano contra la neurona" width="100%"></p>
+
+**QA oficial (921 casos) sobre una copia del snapshot, después de `./scripts/despertar_neurona.sh` (500 ciclos, 17 min, 6 ascensos, 0 retiros):**
+
+| Categoría (n) | R@5 piso → neurona | R@1 piso → neurona | MRR piso → neurona |
+|---|---|---|---|
+| cruce_idioma (8) | 100 → 100 | 62.50 → **75.00** | .740 → **.875** |
+| dormido (65) | 100 → 100 | 100 → 100 | 1.000 → 1.000 |
+| literal (487) | 100 → 100 | 99.59 → 99.59 | .998 → .998 |
+| por_tema (65) | 100 → 100 | 63.08 → **78.46** | .772 → **.872** |
+| pregunta_natural (65) | 100 → 100 | 93.85 → **96.92** | .964 → **.985** |
+| sinonimo (55) | 100 → 100 | 56.36 → **60.00** | .721 → **.742** |
+| typo (65) | 98.46 → **100** | 87.69 → **93.85** | .924 → **.964** |
+| variante_gramatical (65) | 100 → 100 | 87.69 → **90.77** | .932 → **.947** |
+| **GLOBAL (875)** | 99.89 → **100.00** | 91.66 → **94.06** | .949 → **.964** |
+| negativos (40) | FP 0/40 → **0/40** | | |
+
+*Piso = la tabla oficial con la fórmula a mano (la misma que da una DB sin campeón). Ninguna categoría baja en ninguna de las tres métricas; GATE OK. Salida textual: `docs/Mi neurona en el sistema/experimento_07_la_neurona_escucha/resultados/despertar/`.*
+
+<p align="center"><img src="docs/Mi%20neurona%20en%20el%20sistema/imagenes/camino_mcp_y_desfase.png" alt="Camino real del agente por MCP y desfase v4 contra v5" width="100%"></p>
+
+| Medición | Resultado |
+|---|---|
+| **Camino real del agente** (`recordar` por MCP, 875 casos) | R@1 **92.34 → 94.97**, R@5 99.09 → 99.31, MRR .951 → .967. En el primer lugar: +24 casos mejoran, 1 empeora |
+| **Corpus nunca visto** (python-docs-es, por MCP) | Neutra: R@1 45.68 → 45.06, R@5 59.88 → 60.49 (+0 / −1 en el primer lugar) |
+| **Desfase** (lo que estudia frente a lo que sirve) | **0 de 289** (la v4 tenía 46.7 %) |
+| **Invariantes** (120 búsquedas MCP con y sin neurona) | **0 violaciones**: mismos nodos, mismos números, mismos umbrales |
+| **Costo por ciclo** | p50 1.6 s, p95 3.5 s, sin importar el tamaño de la memoria |
+| **Pruebas** | 397 pruebas unitarias aprobadas (40 de la neurona + 6 del despertar) |
+
+**Lo que NO logra (dicho claro):**
+- **No es "cero pérdidas" en consultas nunca vistas.** Por el camino del agente, 1 caso baja del primer lugar y 1 sale del Top-5 (del 3 al 6), frente a 24 que suben. En python-docs-es pierde 1 caso.
+- **En un corpus que nunca vio, es neutra.** La gran mejora en ese corpus (R@1 31 → 46 %) vino del arreglo del MCP, no de la neurona.
+- **En una DB nueva no hace nada al principio.** Necesita juntar un examen mínimo (150 casos de estudio y 40 de guardia) antes de poder ascender un campeón. Mientras tanto el motor es exactamente la fórmula a mano.
+
+### 8. Cómo se usa
+
+- **Viene encendida** y no requiere nada: aprende sola al guardar y al dormir.
+- **Apagarla del todo:** `BIORAG_NEURONA=0` (el motor vuelve a ser exactamente la fórmula a mano).
+- **Memorias que ya tienen muchos recuerdos:** ver [Despertar la neurona](#despertar-la-neurona-práctica-acelerada).
+- **Ver su estado:** `./scripts/despertar_neurona.sh --estado`.
+- **Borrar lo aprendido:** `./scripts/despertar_neurona.sh --olvidar --si`.
+
+| Variable | Default | Qué controla |
+|---|---|---|
+| `BIORAG_NEURONA` | `1` | `0` = apagada del todo |
+| `BIORAG_NEURONA_NODOS` / `_PREGUNTAS` | `2` / `2` | Recuerdos y preguntas por ciclo |
+| `BIORAG_NEURONA_PRESUPUESTO_S` | `3.0` | Tope de tiempo por ciclo (no empieza preguntas que no caben) |
+| `BIORAG_NEURONA_TOPK` / `_TOPK_MAX` | `5` / `10` | Vista por defecto y tope de la vista |
+| `BIORAG_NEURONA_LIMITE_AGENTE` | `10` | Cuántos ve el agente por el MCP (camino "agente") |
+| `BIORAG_NEURONA_MIN_ESTUDIO` / `_MIN_GUARDIA` | `150` / `40` | Examen mínimo para empezar a entrenar |
+| `BIORAG_NEURONA_MAX_ESTUDIO` / `_MAX_GUARDIA` | `1200` / `300` | Tamaño fijo de la memoria de examen |
+| `BIORAG_NEURONA_TOPE_POR_NODO` | `4` | Máximo de casos de un mismo recuerdo |
+| `BIORAG_NEURONA_PASOS` / `_LR` / `_L2` | `30` / `0.03` / `0.001` | Entrenamiento por ciclo (Adam) |
+| `BIORAG_NEURONA_PACIENCIA` / `_DESPERTAR` | `12` / `150` | Ciclos sin mejora hasta el techo / preguntas nuevas para despertar |
+| `BIORAG_NEURONA_MARGEN` | (auto) | Forzar el margen ε (≥ 0) |
+| `BIORAG_NEURONA_PAUSA_S` / `_REFRESCO_S` | `3600` / `30` | Pausa del disyuntor / cada cuánto mira si otro proceso escribió |
+
+**Simbología de los dibujos:**
+- 🟡 **dorado**: las 17 agujas de la fórmula a mano;
+- 🔵 **celeste**: las 12 señales de la vista y del agente;
+- 🟣 **violeta**: las 6 neuronas ocultas (tanh), el examen y el estudio;
+- 🟢 **verde**: la corrección, el ascenso y el campeón en servicio;
+- 🔴 **rojo**: lo que estaba mal antes (MCP con auto-paráfrasis, desfase de la v4) o un límite (presupuesto de tiempo).
+
+### 9. La historia: siete experimentos
+
+| # | Experimento | Qué se aprendió |
+|---|---|---|
+| 01 | [Pesos aprendidos](docs/Mi%20neurona%20en%20el%20sistema/experimento_01_pesos_aprendidos/) | Los pesos a mano no son óptimos: aprenderlos mejora el R@1 |
+| 02 | [Examen sellado](docs/Mi%20neurona%20en%20el%20sistema/experimento_02_examen_sellado/) | Medir sobre casos nunca vistos; sin eso, una "mejora" puede ser memoria |
+| 03 | [Ideas de la conversación](docs/Mi%20neurona%20en%20el%20sistema/experimento_03_ideas_conversacion/) | En una búsqueda real nadie dice cuál era la respuesta correcta → hace falta autoexamen |
+| 04 | [Autoaprendizaje](docs/Mi%20neurona%20en%20el%20sistema/experimento_04_autoaprendizaje/) | El recuerdo se pregunta a sí mismo; campeón y retador con guardia |
+| 05 | [Neurona cableada](docs/Mi%20neurona%20en%20el%20sistema/experimento_05_neurona_cableada/) | Aprende en vivo al consolidar, con costo fijo |
+| 06 | [Capas de protección](docs/Mi%20neurona%20en%20el%20sistema/experimento_06_capas_de_proteccion/) | 21 modos de falla cubiertos; margen "primero no dañar" |
+| 07 | [La neurona escucha](docs/Mi%20neurona%20en%20el%20sistema/experimento_07_la_neurona_escucha/) | Desfase 0, los dos caminos, vista de 10, piso de R@5; y el camino MCP arreglado |
+
+Las figuras se regeneran con `python "docs/Mi neurona en el sistema/imagenes/generar_figuras.py"`: los nombres de las señales salen del código y las curvas de los resultados versionados.
+
+### Otros cambios de la v34.0
+
+- **MCP `recordar`: auto-paráfrasis y auto-dimensiones apagadas por defecto.** Medido por el camino real del agente, bajaban el recall: con ellas, 39 casos quedaban fuera del Top-5. Se reactivan con `BIORAG_MCP_AUTO_PARAFRASIS=1` y `BIORAG_MCP_AUTO_DIMS=1`, que ahora son deterministas. Las paráfrasis y dimensiones que manda el agente se usan siempre.
+- **MCP stdio limpio.** Los `print()` del motor iban al canal JSON-RPC y podían corromper la sesión del IDE: tras 120 `vincular`, 77 líneas no eran JSON. Ahora van a stderr: 0 líneas corruptas.
+- **Sin corte por antigüedad por defecto** (`BIORAG_STALE_HARD_CUTOFF=0`). BioRAG es memoria de largo plazo y no esconde recuerdos por fecha salvo que se pida. Antes el valor era 365, pero nunca llegaba a aplicarse por un JOIN a una tabla mal nombrada; ahora no puede encenderse solo.
+- **Nuevo script** `scripts/despertar_neurona.sh` (ver la zona de operaciones).
 
 ---
 
@@ -862,6 +1162,44 @@ Verificado (2026-08-10): 688 nodos → 4.3s; 846 nodos → 7.2s; contador `ppmi_
 
 El script muestra el estado ANTES/DESPUES (tokens, nodos, con_vector, última reindex, acumulados) y reentrena en segundos. Verificado (2026-08-10): 846 nodos en 7.2s, contador reseteado a 0.
 
+#### Despertar la neurona (práctica acelerada)
+
+La neurona de BioRAG (ver [La Neurona de BioRAG](#-novedades-de-la-versión-v340--la-neurona-de-biorag)) aprende sola cada vez que se consolida un recuerdo: 2 recuerdos × 2 preguntas por consolidación, con costo fijo. En una memoria nueva eso alcanza. En una memoria que **ya tiene cientos de recuerdos** y recibe pocos nuevos, juntar el examen y ascender el primer campeón puede tardar semanas.
+
+Este script hace **en minutos lo mismo que haría el uso**: repite N veces `neurona.practicar(db, [])`, exactamente lo que corre tras cada consolidación, con las mismas protecciones (guardia, piso por categoría, margen "primero no dañar" y retiro si daña algo). No es otro entrenamiento.
+
+```bash
+# Sobre la DB de producción (o la de BIORAG_PATH)
+./scripts/despertar_neurona.sh
+
+# Sobre cualquier DB (copia, evaluación)
+./scripts/despertar_neurona.sh ruta/copia.db
+./scripts/despertar_neurona.sh ruta/copia.db --ciclos 300     # default 500 (~15 min con ~900 recuerdos)
+./scripts/despertar_neurona.sh ruta/copia.db --minutos 10     # tope de tiempo
+./scripts/despertar_neurona.sh ruta/copia.db --hasta-techo    # cortar en el primer techo
+
+# Solo mirar el estado (no escribe nada)
+./scripts/despertar_neurona.sh --estado
+
+# Deshacer: borrar lo aprendido (vuelve la fórmula a mano)
+./scripts/despertar_neurona.sh --olvidar --si
+
+# Otro intérprete (p. ej. un venv)
+PYTHON=.venv/bin/python ./scripts/despertar_neurona.sh
+```
+
+**Qué escribe:** solo la tabla `neurona_estado`. Verificado sobre una copia del snapshot: con la DB ya abierta, 40 ciclos cambian `neurona_estado` y las otras 48 tablas quedan idénticas. Abrir la DB, como cualquier arranque de BioRAG, corre además el arranque normal del motor (por ejemplo, la síntesis DMN E10). Antes de escribir hace un **respaldo** con la API backup de SQLite (`<db>.antes_despertar_<fecha>.db`), salvo `--sin-respaldo`.
+
+**Dónde correrlo:** sobre la **misma DB que vas a usar**. Lo aprendido es de esa memoria: un campeón entrenado en otra DB y copiado daña, y el piso lo termina retirando. Lo recomendado:
+1. Correrlo sobre una copia y medir con tu QA sobre esa copia (`BIORAG_PATH=copia.db ./scripts/run_qa_suite.sh`).
+2. Si te convence, correrlo sobre la real.
+
+El snapshot congelado oficial (`snapshots/`) se rechaza, porque es la referencia de la QA.
+
+**Qué muestra:** el estado ANTES y DESPUÉS (campeón sí/no, margen, examen, ascensos, retiros, fase) y los aciertos en primer lugar de la **guardia** (el 20 % de recuerdos que la neurona nunca estudia), fórmula contra neurona. Si no encuentra una mejora segura no asciende a nadie, y el motor queda exactamente igual a la fórmula a mano.
+
+**Verificado (2026-10-24), sobre una copia del snapshot canónico (~900 recuerdos):** 500 ciclos en 1017 s, 6 ascensos y 0 retiros. En la guardia, el primer lugar pasa de 77.8 % (fórmula) a 87.0 % (neurona). Después, la QA oficial sobre esa copia: **R@1 91.66 → 94.06 %, R@5 99.89 → 100 %, MRR .949 → .964, FP 0/40, GATE OK**, ninguna categoría por debajo del piso. Salida completa en `docs/Mi neurona en el sistema/experimento_07_la_neurona_escucha/resultados/despertar/`.
+
 #### Comando para el ciclo de sueño completo
 
 Consolida corto_plazo + corre el fold-in/full automático según condiciones + SDM:
@@ -1250,7 +1588,7 @@ graph TD
 > v28.0 agrega por encima el **Canal 2** (asociaciones_enriquecidas del grafo sináptico real, sin tocar
 > `score_hibrido`), el **QCR Gate** (puerta de cobertura de consulta, umbral de capa 0.60) y la señal
 > **ADN Conceptual (v29, APAGADA por defecto)** — descritos en la sección
-> [Canal 2 Integrado](#-canal-2-integrado-asociaciones-enriquecidas-del-grafo-sináptico-real-v280).
+> [Canal 2 Integrado](#-canal-2-integrado-asociaciones-enriquecidas-del-grafo-sináptico-real-v281).
 
 ---
 
@@ -1514,6 +1852,7 @@ graph TD
   1. Consulta la matriz de co-ocurrencia PMI ($\text{NPMI} \ge 0.35$) y deduce auto-paráfrasis asociativas (ej: `"arquitectura frontend"` $\rightarrow$ `['angul', 'formulario', 'decodificada']`).
   2. Realiza traversal en `largo_plazo_dimensiones` para auto-detectar las dimensiones ontológicas activas del dominio.
   3. Inyecta estas señales en el motor de 8 señales, aumentando el score de relevancia (ej: de 0.6500 a 0.7376) automáticamente sin requerir intervención del usuario o del agente.
+* **Estado actual: APAGADA por defecto** (experimento 07, `docs/Mi neurona en el sistema/experimento_07_la_neurona_escucha/`). Subir el *score* no es encontrar mejor: medida por el camino real del agente (`recordar`), la auto-paráfrasis baja el recall (QA: R@5 no-literal 85.05 % → 95.10 % al quitarla, 39 casos entran al top-5 y 0 salen; corpus no visto python-docs-es: R@1 31.48 % → 45.68 %). Las auto-dimensiones eligen 10 ids arbitrarios y apagan el *pseudo-relevance feedback* del motor (las dimensiones de los 5 mejores FTS), que es mejor. Además eran no deterministas (`list(set)[:10]`). Reactivar: `BIORAG_MCP_AUTO_PARAFRASIS=1`, `BIORAG_MCP_AUTO_DIMS=1` (ahora deterministas). Las paráfrasis y dimensiones que manda el agente se usan siempre.
 
 #### Fase 8: Pasada 4 — Resonancia PMI Hebbiana en Auto-Vinculación (`core/sinapsis.py`)
 * **Objetivo y Aporte**: Cerrar la brecha entre Memoria Episódica (hipocampo) y Memoria Semántica (neocorteza). El sistema recordaba episodios específicos (ej. `"Ese día implementé formularios anidados en Angular"`), pero no clasificaba automáticamente los conceptos nuevos en sus categorías implícitas (no sabía que `Angular` $\in$ `Frontend`).
@@ -2458,7 +2797,9 @@ Ver tabla de defaults al inicio del README. Resumen:
 | Variable | Default | Descripción |
 |---|---|---|
 | `BIORAG_STALE_DAYS` | `90` | Días después de los cuales un nodo se marca `stale`. El agente no debe entregarlo como información vigente. Protegidos: Principle, Profile, Personal, Relation |
-| `BIORAG_STALE_HARD_CUTOFF` | `365` | Días después de los cuales un nodo se excluye automáticamente de resultados (excepto categorías protegidas). `0` = sin cutoff |
+| `BIORAG_STALE_HARD_CUTOFF` | `0` | Días después de los cuales un nodo se excluye automáticamente de resultados (excepto categorías protegidas). `0` = sin cutoff (default: BioRAG no esconde recuerdos por fecha salvo que lo pidas) |
+| `BIORAG_MCP_AUTO_PARAFRASIS` / `BIORAG_MCP_AUTO_DIMS` | `0` / `0` | Auto-expansión del MCP `recordar` (apagada desde v34.0: medido, bajaba el recall) |
+| `BIORAG_NEURONA` | `1` | Neurona de reordenamiento (`0` = apagada; el motor es exactamente la fórmula a mano). Resto de variables `BIORAG_NEURONA_*`: ver sección "La Neurona de BioRAG" → "Cómo se usa" |
 
 ### Fallback Simbólico (v18.0)
 
@@ -2617,6 +2958,21 @@ En v13.4 el catálogo tenía **7 ejes × 73 sub-valores**: emoción (qué se sie
 ---
 
 ## Historial de Versiones
+
+### v34.0 — La Neurona de BioRAG: reordenamiento que aprende solo, con piso en la fórmula a mano (Octubre 2026)
+
+**Objetivo:** Que el orden del top-k aprenda del uso cuánto vale cada aguja según el contexto, sin poder quedar nunca por debajo de los pesos a mano, con costo fijo por operación y sin que el usuario corra nada.
+
+**Implementación:**
+- **Neurona residual** (`core/memory/neurona.py`): 29 señales (17 agujas de la fórmula + 12 de la vista y del agente) → 6 ocultas tanh → 1 corrección sumada al logit del score servido. Reordena solo el top-k (5, o 10 por el MCP), con los mismos nodos y los mismos scores.
+- **Autoexamen** (`core/memory/neurona_examen.py`): al consolidar, el recuerdo se hace sus propias preguntas (variante, typo, sinónimo, cruce de idioma, pregunta natural, tema, contenido) y el motor responde en silencio por los dos caminos (agente/MCP y crudo/QA).
+- **Campeón/retador con guardia del 20 %** (por hash), piso por categoría y camino (R@1, MRR, R@5), margen "primero no dañar" auto-calibrado, anti-memorización, techo y despertar, retiro automático si daña.
+- **Desfase 0**: una sola vista para aprender y servir.
+- **17 capas de protección**, cada una con su prueba (40 pruebas de la neurona).
+- **`scripts/despertar_neurona.sh`**: la misma práctica, acelerada, para memorias que ya tienen muchos recuerdos.
+- **MCP:** auto-paráfrasis y auto-dimensiones apagadas por defecto (medido), canal stdio limpio, `BIORAG_STALE_HARD_CUTOFF=0` por defecto.
+
+**Validación reportada:** QA oficial (921 casos) sobre copia del snapshot canónico tras `despertar_neurona.sh` (500 ciclos): Recall@5 100.00 % (875/875), Recall@1 94.06 %, MRR 0.964, FP 0/40, GATE OK, ninguna categoría por debajo del piso de la fórmula a mano (R@1 91.66 %, MRR 0.949). Con DB nueva o sin campeón, resultados idénticos a v33.0. Camino real del agente (MCP, 875 casos): R@1 92.34 → 94.97 %. Desfase 0/289. 397/397 pruebas unitarias. Evidencia completa: `docs/Mi neurona en el sistema/` (experimentos 01–07).
 
 ### v33.0 — Protocolo Cognitivo Simétrico de Sustantivos Clave, Validación Fail-Fast y Compatibilidad MCP (Octubre 2026)
 
@@ -3084,7 +3440,7 @@ Revolución del paradigma de recuperación sin embeddings mediante arquitectura 
 4. **SDM 1024-bit (Kanerva 1988)**: Proyección determinista, Hamming distance, 14 bits de diferencia (98.63%)
 5. **Context Window**: Búfer de memoria de trabajo (deque maxlen=10), bonus +0.05
 6. **Engine 8 Señales**: BM25, Jaccard, PMI, SLS, Dimensional, SDM, LTP/LTD, Context
-7. **Auto-Expansión Semántica**: Paráfrasis automática vía PMI sin intervención del agente
+7. **Auto-Expansión Semántica**: Paráfrasis automática vía PMI sin intervención del agente *(apagada por defecto desde v34.0 en el MCP `recordar`: medido, bajaba el recall; `BIORAG_MCP_AUTO_PARAFRASIS=1` la reactiva)*
 8. **Resonancia PMI Hebbiana**: Auto-vinculación en escritura
 9. **Commit Atómico Unificado**: Transacción única en ciclo de sueño
 10. **Homeostasis Energética**: Inhibición Lateral 100% autorregulada

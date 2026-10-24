@@ -1,0 +1,11 @@
+quitar=['dims', 'parafrasis', 'peso', 'pool', 'sustantivos']  neurona=0
+categoría                 n     R@1     R@5     MRR
+humana_design            27   51.85   62.96  0.5568
+humana_extending         15   13.33   20.00  0.1667
+humana_general           21   33.33   57.14  0.4444
+humana_gui                4   75.00   75.00  0.7500
+humana_installed          2   50.00  100.00  0.6250
+humana_library           25   56.00   56.00  0.5600
+humana_programming       60   51.67   66.67  0.5792
+humana_windows            8   25.00   75.00  0.5000
+GLOBAL                  162   45.68   59.88  0.5177

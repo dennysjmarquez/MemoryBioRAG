@@ -1,0 +1,41 @@
+casos: 872 | semilla: 11
+
+I1. RE-RANQUEO EN VIVO, POR CONSULTA, partiendo de los pesos a mano
+  versión                                                 R@1    R@5   gana/pierde 1.º (sale top-5)
+  pesos a mano (hoy)                                    90.14  98.62   +0   -0   (0)
+  4 vueltas, nota = coincidencia de señales             88.53  96.56   +4   -18  (19)
+  4 vueltas, nota = margen de confianza                 87.39  92.32   +18  -42  (59)
+  4 vueltas, ORÁCULO: conoce la respuesta (no existe en vivo)  94.72  99.66   +40  -0   (0)
+  50 vueltas, nota = coincidencia de señales            83.72  92.89   +10  -66  (50)
+  50 vueltas, nota = margen de confianza                87.96  90.94   +16  -35  (71)
+  50 vueltas, ORÁCULO: conoce la respuesta (no existe en vivo)  99.54 100.00   +82  -0   (0)
+
+I2. PESOS CAMPEONES PERSISTENTES (orden aleatorio fijo; respuesta ANTES de conocer el resultado)
+  versión                                                 R@1    R@5   gana/pierde 1.º (sale top-5)
+  sin respuesta, guardar si mejora la nota de señales   80.16  92.78   +9   -96  (52)
+  sin respuesta, guardar si mejora el margen            91.97  98.05   +37  -21  (15)
+  con feedback + repetición (últimas 100), en línea     91.17  98.05   +26  -17  (13)
+     pesos finales aplicados a todo (memoria 100)       92.55  98.85   +39  -18  (8)
+     (pesos guardados 18 veces)
+  con feedback + repetición (últimas 300), en línea     93.00  98.51   +33  -8   (9)
+     pesos finales aplicados a todo (memoria 300)       93.58  98.62   +40  -10  (10)
+     (pesos guardados 5 veces)
+
+I3. EMPATE TÉCNICO: si R2 deja 1.º y 2.º a menos de ε, se entrega el orden de los pesos a mano
+  versión                                                 R@1    R@5   gana/pierde 1.º (sale top-5)
+  R2 sin empate técnico                                 94.04  98.74   +40  -6   (10)
+  ε = 0.01 (delega en 3 consultas)                      94.04  98.74   +40  -6   (10)
+  ε = 0.05 (delega en 9 consultas)                      94.15  98.62   +40  -5   (10)
+  ε = 0.1 (delega en 12 consultas)                      94.15  98.74   +40  -5   (9)
+  ε = 0.2 (delega en 21 consultas)                      94.04  98.97   +39  -5   (7)
+  ε = 0.5 (delega en 35 consultas)                      93.81  98.85   +36  -4   (7)
+
+I4. PESOS POR TIPO DE CONSULTA (una R2 por perfil)
+  versión                                                 R@1    R@5   gana/pierde 1.º (sale top-5)
+  perfiles: {'exacto': 600, 'corta': 56, 'larga': 216}
+  una sola R2 para todo                                 94.04  98.74   +40  -6   (10)
+  una R2 por perfil                                     93.69  98.74   +41  -10  (11)
+
+I5. GANANCIA NETA SOLO SI EL CASO PERDIDO SIGUE EN EL TOP-5
+  versión                                                 R@1    R@5   gana/pierde 1.º (sale top-5)
+  R2 baja del 1.º puesto 6 casos; siguen en el top-5: 5 (0504, 0640, 0708, 0709, 0735); salen: 0596
