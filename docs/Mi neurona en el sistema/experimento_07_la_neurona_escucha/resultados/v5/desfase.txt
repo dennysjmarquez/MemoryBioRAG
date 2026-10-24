@@ -1,0 +1,14 @@
+{
+ "agente": {
+  "comparados": 145,
+  "sin_vista": 5,
+  "distintos": 0,
+  "desfase_%": 0.0
+ },
+ "crudo": {
+  "comparados": 144,
+  "sin_vista": 6,
+  "distintos": 0,
+  "desfase_%": 0.0
+ }
+}

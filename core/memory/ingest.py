@@ -180,4 +180,12 @@ def consolidar_concepto(self, concepto):
     self.cursor.execute(
         "DELETE FROM corto_plazo_predicados WHERE concepto = ?", (key,)
     )
+    # Neurona: este recuerdo se hace sus propias preguntas y la neurona aprende
+    # en vivo (costo fijo, en silencio). Nunca rompe la escritura.
+    try:
+        from core.memory import neurona
+
+        neurona.practicar(self, [key])
+    except Exception:
+        pass
     return True

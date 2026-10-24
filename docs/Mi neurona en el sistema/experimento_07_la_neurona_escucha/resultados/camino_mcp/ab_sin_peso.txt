@@ -1,0 +1,10 @@
+quitar=['peso']  neurona=0
+categoría                 n     R@1     R@5     MRR
+cruce_idioma              8   37.50   75.00  0.5042
+dormido                  65   96.92   98.46  0.9769
+por_tema                 65   33.85   61.54  0.4569
+pregunta_natural         65   76.92   90.77  0.8190
+sinonimo                 55   54.55   98.18  0.6948
+typo                     65   75.38   86.15  0.7885
+variante_gramatical      65   66.15   78.46  0.7179
+GLOBAL                  388   67.01   85.05  0.7387

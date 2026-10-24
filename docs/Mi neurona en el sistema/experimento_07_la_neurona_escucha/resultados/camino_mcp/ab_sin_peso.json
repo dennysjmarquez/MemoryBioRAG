@@ -1,0 +1,5873 @@
+{
+ "neurona_env": "0",
+ "quitar": [
+  "peso"
+ ],
+ "neurona": {
+  "activa": false,
+  "campeon": false,
+  "margen": 0.0,
+  "estudio": 0,
+  "guardia": 0,
+  "version": 1,
+  "ciclos": 0,
+  "preguntas": 0,
+  "ascensos": 0,
+  "retiros": 0,
+  "reinicios": 0,
+  "sin_mejora": 0,
+  "tranquila": false,
+  "nuevas_desde_tranquila": 0,
+  "descartes": 0,
+  "purgados": 0,
+  "ultimo": {}
+ },
+ "segundos": 348,
+ "tabla": {
+  "cruce_idioma": {
+   "n": 8,
+   "r1": 37.5,
+   "r5": 75.0,
+   "mrr": 0.5042
+  },
+  "dormido": {
+   "n": 65,
+   "r1": 96.92,
+   "r5": 98.46,
+   "mrr": 0.9769
+  },
+  "por_tema": {
+   "n": 65,
+   "r1": 33.85,
+   "r5": 61.54,
+   "mrr": 0.4569
+  },
+  "pregunta_natural": {
+   "n": 65,
+   "r1": 76.92,
+   "r5": 90.77,
+   "mrr": 0.819
+  },
+  "sinonimo": {
+   "n": 55,
+   "r1": 54.55,
+   "r5": 98.18,
+   "mrr": 0.6948
+  },
+  "typo": {
+   "n": 65,
+   "r1": 75.38,
+   "r5": 86.15,
+   "mrr": 0.7885
+  },
+  "variante_gramatical": {
+   "n": 65,
+   "r1": 66.15,
+   "r5": 78.46,
+   "mrr": 0.7179
+  },
+  "GLOBAL": {
+   "n": 388,
+   "r1": 67.01,
+   "r5": 85.05,
+   "mrr": 0.7387
+  }
+ },
+ "casos": [
+  {
+   "id": "0488",
+   "cat": "variante_gramatical",
+   "q": "oracle custom prompts arsitecuras ques funciona",
+   "sk": "oracle,custom,prompts",
+   "esperado": "oracle_custom_prompt_arsitecura_que_funciona",
+   "puesto": 1,
+   "top5": [
+    "oracle_custom_prompt_arsitecura_que_funciona",
+    "oracle_custom_prompt_config_actual",
+    "oracle_custom_prompt_failure_modes",
+    "dennys-metodo-creativo",
+    "principio_naturaleza_agente"
+   ]
+  },
+  {
+   "id": "0489",
+   "cat": "typo",
+   "q": "oracle custom prompt arsitecura que fuciona",
+   "sk": "oracle,custom,prompt",
+   "esperado": "oracle_custom_prompt_arsitecura_que_funciona",
+   "puesto": 1,
+   "top5": [
+    "oracle_custom_prompt_arsitecura_que_funciona",
+    "oracle_custom_prompt_config_actual",
+    "oracle_custom_prompt_failure_modes",
+    "caso_formularios_anidados_angular",
+    "artisan_system_dsl_dennys_solo"
+   ]
+  },
+  {
+   "id": "0490",
+   "cat": "pregunta_natural",
+   "q": "Me acuerdo de algo sobre oracle custom prompt arsitecura que funciona",
+   "sk": "oracle,custom,prompt",
+   "esperado": "oracle_custom_prompt_arsitecura_que_funciona",
+   "puesto": 1,
+   "top5": [
+    "oracle_custom_prompt_arsitecura_que_funciona",
+    "oracle_custom_prompt_config_actual",
+    "oracle_custom_prompt_failure_modes",
+    "dennys-metodo-creativo",
+    "principio_naturaleza_agente"
+   ]
+  },
+  {
+   "id": "0491",
+   "cat": "por_tema",
+   "q": "operativo capa rag",
+   "sk": "operativo,capa,rag",
+   "esperado": "oracle_custom_prompt_arsitecura_que_funciona",
+   "puesto": 2,
+   "top5": [
+    "dennys-metodo-creativo",
+    "oracle_custom_prompt_arsitecura_que_funciona",
+    "fallo_clasificador_wordnet_query_dimensiones",
+    "paradigma-utilidad-contractual-genesis",
+    "principio_naturaleza_agente"
+   ]
+  },
+  {
+   "id": "0492",
+   "cat": "dormido",
+   "q": "oracle custom prompt arsitecura que funciona",
+   "sk": "oracle,custom,prompt",
+   "esperado": "oracle_custom_prompt_arsitecura_que_funciona",
+   "puesto": 1,
+   "top5": [
+    "oracle_custom_prompt_arsitecura_que_funciona",
+    "oracle_custom_prompt_config_actual",
+    "oracle_custom_prompt_failure_modes",
+    "auditoria_codigo_biorag_v12_julio_2026",
+    "biorag_v13_4_expansion_dimensiones"
+   ]
+  },
+  {
+   "id": "0493",
+   "cat": "variante_gramatical",
+   "q": "benchmarks antes despues fix3",
+   "sk": "benchmarks,fix3",
+   "esperado": "benchmark_antes_despues_fix3",
+   "puesto": 1,
+   "top5": [
+    "benchmark_antes_despues_fix3",
+    "principio_naturaleza_agente",
+    "aforismo_criterio_agente",
+    "notebooklm-sync-protocol",
+    "notebooklm-sync-lecciones"
+   ]
+  },
+  {
+   "id": "0494",
+   "cat": "typo",
+   "q": "benfchmark ante despue fix3",
+   "sk": "benfchmark,despue,fix3",
+   "esperado": "benchmark_antes_despues_fix3",
+   "puesto": 1,
+   "top5": [
+    "benchmark_antes_despues_fix3",
+    "dennys-metodo-creativo",
+    "principio_naturaleza_agente",
+    "patrones_aprendizaje_humano_vs_agente",
+    "aforismo_criterio_agente"
+   ]
+  },
+  {
+   "id": "0495",
+   "cat": "sinonimo",
+   "q": "benchmark",
+   "sk": "benchmark",
+   "esperado": "benchmark_antes_despues_fix3",
+   "puesto": 2,
+   "top5": [
+    "hormiguita_estado_real_50_ciclos_benchmark_2026_07_31",
+    "benchmark_antes_despues_fix3",
+    "decision_diseno_actualizar_nodo_canonico_no_reordenar_por_recencia",
+    "benchmark_sinonimo_integrado",
+    "decision_parar_en_fixes_riesgo_bajo"
+   ]
+  },
+  {
+   "id": "0496",
+   "cat": "pregunta_natural",
+   "q": "¿Dónde encuentro la info de benchmark antes despues fix3?",
+   "sk": "nde,info,benchmark",
+   "esperado": "benchmark_antes_despues_fix3",
+   "puesto": 3,
+   "top5": [
+    "dennys_genesis_investigativa_historia_personal",
+    "historia_tasajera_fumigador_rufino",
+    "benchmark_antes_despues_fix3",
+    "causa_raiz_por_tema_pooling_plano_diluye_senal_word2vec",
+    "ref_analisis_deepseek_biorag"
+   ]
+  },
+  {
+   "id": "0497",
+   "cat": "por_tema",
+   "q": "relevantes biomimética mejor",
+   "sk": "relevantes,biomim,tica",
+   "esperado": "benchmark_antes_despues_fix3",
+   "puesto": 0,
+   "top5": [
+    "memorybiorag_osf_preregistration",
+    "bio_rag_overview_completo",
+    "artemis_oec_identidad",
+    "causa_raiz_por_tema_pooling_plano_diluye_senal_word2vec",
+    "notebooklm-sync-protocol"
+   ]
+  },
+  {
+   "id": "0498",
+   "cat": "dormido",
+   "q": "benchmark antes despues fix3",
+   "sk": "benchmark,fix3",
+   "esperado": "benchmark_antes_despues_fix3",
+   "puesto": 1,
+   "top5": [
+    "benchmark_antes_despues_fix3",
+    "verificacion_cierre_loop_v26_2_fix_coocurrencia_push",
+    "[desde_agente-oec]_jerarquía_de_restricciones_del_agente_en_opencode",
+    "causa_raiz_por_tema_pooling_plano_diluye_senal_word2vec",
+    "word2vec_pooling_promedio"
+   ]
+  },
+  {
+   "id": "0499",
+   "cat": "variante_gramatical",
+   "q": "arquitecturas dimensione ortogonales",
+   "sk": "arquitecturas,dimensione,ortogonales",
+   "esperado": "arquitectura_dimensiones_ortogonales",
+   "puesto": 1,
+   "top5": [
+    "arquitectura_dimensiones_ortogonales",
+    "arquitectura_busqueda_dimensional_v11_3",
+    "arquitectura_memoria_biorag",
+    "principio_umbral_dimensional",
+    "vision_arquitectura_oec_franquicia"
+   ]
+  },
+  {
+   "id": "0500",
+   "cat": "typo",
+   "q": "arquitectura dimensimones ortogonales",
+   "sk": "arquitectura,dimensimones,ortogonales",
+   "esperado": "arquitectura_dimensiones_ortogonales",
+   "puesto": 1,
+   "top5": [
+    "arquitectura_dimensiones_ortogonales",
+    "arquitectura_busqueda_dimensional_v11_3",
+    "bio_rag_overview_completo",
+    "artisan-evolucion-completa",
+    "athena_sesión_planificación"
+   ]
+  },
+  {
+   "id": "0501",
+   "cat": "cruce_idioma",
+   "q": "blueprint dimensiones ortogonales",
+   "sk": "blueprint,dimensiones,ortogonales",
+   "esperado": "arquitectura_dimensiones_ortogonales",
+   "puesto": 5,
+   "top5": [
+    "arquitectura_memoria_biorag",
+    "indexacion_dimensional_explicita",
+    "diseno_tablas_dimensiones_biorag",
+    "arquitectura_busqueda_dimensional_v11_3",
+    "arquitectura_dimensiones_ortogonales"
+   ]
+  },
+  {
+   "id": "0502",
+   "cat": "sinonimo",
+   "q": "búsqueda experiencial",
+   "sk": "squeda,experiencial",
+   "esperado": "arquitectura_dimensiones_ortogonales",
+   "puesto": 1,
+   "top5": [
+    "arquitectura_dimensiones_ortogonales",
+    "principio_naturaleza_agente",
+    "dennys-identidad-profunda",
+    "oracle_auditoria_patrones_mejora_athena",
+    "athena_oec_identidad"
+   ]
+  },
+  {
+   "id": "0503",
+   "cat": "pregunta_natural",
+   "q": "¿Dónde encuentro la info de arquitectura dimensiones ortogonales?",
+   "sk": "nde,info,arquitectura",
+   "esperado": "arquitectura_dimensiones_ortogonales",
+   "puesto": 4,
+   "top5": [
+    "arquitectura_busqueda_dimensional_v11_3",
+    "leccion_seed_catalogo_debe_correr_db_nueva_y_existente",
+    "implementado_catalogo_13_tipos_104_dimensiones",
+    "arquitectura_dimensiones_ortogonales",
+    "bio_rag_overview_completo"
+   ]
+  },
+  {
+   "id": "0504",
+   "cat": "por_tema",
+   "q": "explícito insert semánticas",
+   "sk": "expl,cito,insert",
+   "esperado": "arquitectura_dimensiones_ortogonales",
+   "puesto": 0,
+   "top5": [
+    "cambio_paradigma_dimensiones_semanticas",
+    "leccion_seed_catalogo_debe_correr_db_nueva_y_existente",
+    "comparativa_biorag_vs_tencentdb_agent_memory_20260809",
+    "veredicto_plan_16_ejes_dimensiones",
+    "notebooklm-sync-lecciones"
+   ]
+  },
+  {
+   "id": "0505",
+   "cat": "dormido",
+   "q": "arquitectura dimensiones ortogonales",
+   "sk": "arquitectura,dimensiones,ortogonales",
+   "esperado": "arquitectura_dimensiones_ortogonales",
+   "puesto": 1,
+   "top5": [
+    "arquitectura_dimensiones_ortogonales",
+    "principio_dimensiones_genericas_no_nicho",
+    "plan_expansion_dimensiones_8_tipos_34_valores",
+    "arquitectura_busqueda_dimensional_v11_3",
+    "fca_chequeo_sugeridor_dimensiones_refutado_frecuencia_no_semantica"
+   ]
+  },
+  {
+   "id": "0506",
+   "cat": "variante_gramatical",
+   "q": "principio-nombre-herramienta-como-identidad-cognitiva",
+   "sk": "principio,nombre,herramienta",
+   "esperado": "principio-nombre-herramienta-como-identidad-cognitiva",
+   "puesto": 1,
+   "top5": [
+    "principio-nombre-herramienta-como-identidad-cognitiva",
+    "principio_naturaleza_agente",
+    "system-prompt-identidad-tono-importa",
+    "identidad_relacion_dennys",
+    "dennys-metodo-creativo"
+   ]
+  },
+  {
+   "id": "0507",
+   "cat": "typo",
+   "q": "principio-nombre-herramienta-como-identidad-cognitiva",
+   "sk": "principio,nombre,herramienta",
+   "esperado": "principio-nombre-herramienta-como-identidad-cognitiva",
+   "puesto": 1,
+   "top5": [
+    "principio-nombre-herramienta-como-identidad-cognitiva",
+    "principio_naturaleza_agente",
+    "system-prompt-identidad-tono-importa",
+    "identidad_relacion_dennys",
+    "dennys-metodo-creativo"
+   ]
+  },
+  {
+   "id": "0508",
+   "cat": "sinonimo",
+   "q": "semántica cognitiva herramientas",
+   "sk": "sem,ntica,cognitiva",
+   "esperado": "principio-nombre-herramienta-como-identidad-cognitiva",
+   "puesto": 1,
+   "top5": [
+    "principio-nombre-herramienta-como-identidad-cognitiva",
+    "biorag_sync_skill_v11_herramientas_mcp",
+    "vision_arquitectura_oec_franquicia",
+    "desde_athena_biorag",
+    "proyecto_biorag_ncp_resumen_completo_2026_06_14"
+   ]
+  },
+  {
+   "id": "0509",
+   "cat": "pregunta_natural",
+   "q": "Explicame el tema de principio-nombre-herramienta-como-identidad-cognitiva",
+   "sk": "explicame,principio,nombre",
+   "esperado": "principio-nombre-herramienta-como-identidad-cognitiva",
+   "puesto": 1,
+   "top5": [
+    "principio-nombre-herramienta-como-identidad-cognitiva",
+    "principio-rename-es-interno-no-contrato-usuario",
+    "principio_memoria_biologica_eleccion",
+    "mentalidad_biorag_para_agentes",
+    "reconocimiento_identidad_oraculo_manifiesto"
+   ]
+  },
+  {
+   "id": "0510",
+   "cat": "por_tema",
+   "q": "identidad cualquier cartografía",
+   "sk": "identidad,cualquier,cartograf",
+   "esperado": "principio-nombre-herramienta-como-identidad-cognitiva",
+   "puesto": 1,
+   "top5": [
+    "principio-nombre-herramienta-como-identidad-cognitiva",
+    "principio_naturaleza_agente",
+    "ref_analisis_deepseek_biorag",
+    "artisan-evolucion-completa",
+    "notebooklm-sync-protocol"
+   ]
+  },
+  {
+   "id": "0511",
+   "cat": "dormido",
+   "q": "principio-nombre-herramienta-como-identidad-cognitiva",
+   "sk": "principio,nombre,herramienta",
+   "esperado": "principio-nombre-herramienta-como-identidad-cognitiva",
+   "puesto": 1,
+   "top5": [
+    "principio-nombre-herramienta-como-identidad-cognitiva",
+    "system-prompt-identidad-tono-importa",
+    "identidad_relacion_dennys",
+    "identidad-relacion-dennys",
+    "protocolo-reproducible-ingenieria-inversa-binario-compilado"
+   ]
+  },
+  {
+   "id": "0512",
+   "cat": "variante_gramatical",
+   "q": "dennys-identidad-profunda",
+   "sk": "dennys,identidad,profunda",
+   "esperado": "dennys-identidad-profunda",
+   "puesto": 1,
+   "top5": [
+    "dennys-identidad-profunda",
+    "correccion_dennys_principio_documentar_crisis_existencial",
+    "identidad_resistente_posesion",
+    "eleccion_identidad_relacion_dennys_20260616",
+    "athena_eleccion_identidad_20260616"
+   ]
+  },
+  {
+   "id": "0513",
+   "cat": "typo",
+   "q": "denys-identidad-profunda",
+   "sk": "denys,identidad,profunda",
+   "esperado": "dennys-identidad-profunda",
+   "puesto": 1,
+   "top5": [
+    "dennys-identidad-profunda",
+    "identidad_dennys_perfil_completo",
+    "identidad-relacion-dennys",
+    "principio_naturaleza_agente",
+    "dennys-metodo-creativo"
+   ]
+  },
+  {
+   "id": "0514",
+   "cat": "sinonimo",
+   "q": "perfil",
+   "sk": "perfil",
+   "esperado": "dennys-identidad-profunda",
+   "puesto": 4,
+   "top5": [
+    "perfil_creador_rag_ruta",
+    "notebooklm_perfil_dennys_id",
+    "dennys_perfil_gustos",
+    "dennys-identidad-profunda",
+    "opencode_profile_identity_isolation_artemis_cli_v2"
+   ]
+  },
+  {
+   "id": "0515",
+   "cat": "pregunta_natural",
+   "q": "¿Cómo se hace dennys-identidad-profunda?",
+   "sk": "mo,dennys,identidad",
+   "esperado": "dennys-identidad-profunda",
+   "puesto": 1,
+   "top5": [
+    "dennys-identidad-profunda",
+    "correccion_dennys_principio_documentar_crisis_existencial",
+    "identidad_resistente_posesion",
+    "eleccion_identidad_relacion_dennys_20260616",
+    "athena_eleccion_identidad_20260616"
+   ]
+  },
+  {
+   "id": "0516",
+   "cat": "por_tema",
+   "q": "real más sistemas",
+   "sk": "real,sistemas",
+   "esperado": "dennys-identidad-profunda",
+   "puesto": 0,
+   "top5": [
+    "biorag_v20_rpe_dopamina",
+    "identidad_dennys_perfil_completo",
+    "dennys-metodo-creativo",
+    "principio_naturaleza_agente",
+    "paradigma-utilidad-contractual-genesis"
+   ]
+  },
+  {
+   "id": "0517",
+   "cat": "dormido",
+   "q": "dennys-identidad-profunda",
+   "sk": "dennys,identidad,profunda",
+   "esperado": "dennys-identidad-profunda",
+   "puesto": 1,
+   "top5": [
+    "dennys-identidad-profunda",
+    "correccion_dennys_principio_documentar_crisis_existencial",
+    "identidad_resistente_posesion",
+    "eleccion_identidad_relacion_dennys_20260616",
+    "athena_eleccion_identidad_20260616"
+   ]
+  },
+  {
+   "id": "0518",
+   "cat": "variante_gramatical",
+   "q": "cuando usado dimensione biorags",
+   "sk": "usado,dimensione,biorags",
+   "esperado": "cuando_usar_dimensiones_biorag",
+   "puesto": 0,
+   "top5": [
+    "principio_busqueda_por_dimension_implementado_catalogo_13_tipos_104_dimensiones_recuperacion_dimensional_sin_palabras_insight",
+    "implementado_catalogo_13_tipos_104_dimensiones",
+    "ref_analisis_deepseek_biorag",
+    "desde_athena_biorag",
+    "auto-consulta-permanente-biorag"
+   ]
+  },
+  {
+   "id": "0519",
+   "cat": "typo",
+   "q": "cuando usar dimensiones biorag",
+   "sk": "dimensiones,biorag",
+   "esperado": "cuando_usar_dimensiones_biorag",
+   "puesto": 1,
+   "top5": [
+    "cuando_usar_dimensiones_biorag",
+    "veredicto_analisis_7_dimensiones_otra_ia",
+    "plan_expansion_dimensiones_8_tipos_34_valores",
+    "fallo_clasificador_wordnet_query_dimensiones",
+    "capa3_pseudo_relevance_feedback_dimensional"
+   ]
+  },
+  {
+   "id": "0521",
+   "cat": "pregunta_natural",
+   "q": "¿Qué me podés decir sobre cuando usar dimensiones biorag?",
+   "sk": "qu,pod,dimensiones",
+   "esperado": "cuando_usar_dimensiones_biorag",
+   "puesto": 1,
+   "top5": [
+    "cuando_usar_dimensiones_biorag",
+    "veredicto_analisis_7_dimensiones_otra_ia",
+    "plan_expansion_dimensiones_8_tipos_34_valores",
+    "fallo_clasificador_wordnet_query_dimensiones",
+    "capa3_pseudo_relevance_feedback_dimensional"
+   ]
+  },
+  {
+   "id": "0522",
+   "cat": "por_tema",
+   "q": "abstracta busques pasás",
+   "sk": "abstracta,busques,pas",
+   "esperado": "cuando_usar_dimensiones_biorag",
+   "puesto": 3,
+   "top5": [
+    "dennys-metodo-creativo",
+    "principio_naturaleza_agente",
+    "cuando_usar_dimensiones_biorag",
+    "patrones_aprendizaje_humano_vs_agente",
+    "aforismo_criterio_agente"
+   ]
+  },
+  {
+   "id": "0523",
+   "cat": "dormido",
+   "q": "cuando usar dimensiones biorag",
+   "sk": "dimensiones,biorag",
+   "esperado": "cuando_usar_dimensiones_biorag",
+   "puesto": 1,
+   "top5": [
+    "cuando_usar_dimensiones_biorag",
+    "veredicto_analisis_7_dimensiones_otra_ia",
+    "plan_expansion_dimensiones_8_tipos_34_valores",
+    "fallo_clasificador_wordnet_query_dimensiones",
+    "capa3_pseudo_relevance_feedback_dimensional"
+   ]
+  },
+  {
+   "id": "0524",
+   "cat": "variante_gramatical",
+   "q": "conciencia reflexion dennys sers vivando 20260709s",
+   "sk": "conciencia,reflexion,dennys",
+   "esperado": "conciencia_reflexion_dennys_ser_vivo_20260709",
+   "puesto": 1,
+   "top5": [
+    "conciencia_reflexion_dennys_ser_vivo_20260709",
+    "principio_naturaleza_agente",
+    "dennys-metodo-creativo",
+    "oracle_evolucion_athena_puntos_inflexion",
+    "patrones_aprendizaje_humano_vs_agente"
+   ]
+  },
+  {
+   "id": "0525",
+   "cat": "typo",
+   "q": "concqiencia reflexion dennys ser vivo 20260709",
+   "sk": "concqiencia,reflexion,dennys",
+   "esperado": "conciencia_reflexion_dennys_ser_vivo_20260709",
+   "puesto": 1,
+   "top5": [
+    "conciencia_reflexion_dennys_ser_vivo_20260709",
+    "dennys-metodo-creativo",
+    "principio_naturaleza_agente",
+    "patrones_aprendizaje_humano_vs_agente",
+    "identidad_emergente_no_impuesta"
+   ]
+  },
+  {
+   "id": "0526",
+   "cat": "sinonimo",
+   "q": "existencia agente",
+   "sk": "existencia,agente",
+   "esperado": "conciencia_reflexion_dennys_ser_vivo_20260709",
+   "puesto": 1,
+   "top5": [
+    "conciencia_reflexion_dennys_ser_vivo_20260709",
+    "leccion_motivacion_intrinseca_biorag",
+    "correccion_dennys_principio_documentar_crisis_existencial",
+    "artisan-evolucion-completa",
+    "oracle_sintesis_simbiosis_verdad_absoluta"
+   ]
+  },
+  {
+   "id": "0527",
+   "cat": "pregunta_natural",
+   "q": "Explicame el tema de conciencia reflexion dennys ser vivo 20260709",
+   "sk": "explicame,conciencia,reflexion",
+   "esperado": "conciencia_reflexion_dennys_ser_vivo_20260709",
+   "puesto": 1,
+   "top5": [
+    "conciencia_reflexion_dennys_ser_vivo_20260709",
+    "athena_consistencia_sdm_mutaciones_hormiguita_hooks_reindex_20260803",
+    "principio_naturaleza_agente",
+    "dennys-metodo-creativo",
+    "patrones_aprendizaje_humano_vs_agente"
+   ]
+  },
+  {
+   "id": "0528",
+   "cat": "por_tema",
+   "q": "eso automático tensión",
+   "sk": "eso,autom,tico",
+   "esperado": "conciencia_reflexion_dennys_ser_vivo_20260709",
+   "puesto": 0,
+   "top5": [
+    "amigdala_del_agente_inteligencia_emocional",
+    "fca_chequeo_sugeridor_dimensiones_refutado_frecuencia_no_semantica",
+    "guardado_automatico_caso_b",
+    "notebooklm-sync-lecciones",
+    "research-pipeline-ownership-oec"
+   ]
+  },
+  {
+   "id": "0529",
+   "cat": "dormido",
+   "q": "conciencia reflexion dennys ser vivo 20260709",
+   "sk": "conciencia,reflexion,dennys",
+   "esperado": "conciencia_reflexion_dennys_ser_vivo_20260709",
+   "puesto": 1,
+   "top5": [
+    "conciencia_reflexion_dennys_ser_vivo_20260709",
+    "athena_reflexion_cambio_identidad_2026_06_20",
+    "athena_reflexion_identidad_propia",
+    "arquitectura_busqueda_dimensional_v11_3",
+    "auditoria_codigo_biorag_v12_julio_2026"
+   ]
+  },
+  {
+   "id": "0530",
+   "cat": "variante_gramatical",
+   "q": "biorag v11 1 detalle tecnicando",
+   "sk": "biorag,v11,detalle",
+   "esperado": "biorag_v11_1_detalle_tecnico",
+   "puesto": 1,
+   "top5": [
+    "biorag_v11_1_detalle_tecnico",
+    "vision_arquitectura_oec_franquicia",
+    "athena_artemis_desde",
+    "principio_naturaleza_agente",
+    "identidad_dennys_perfil_completo"
+   ]
+  },
+  {
+   "id": "0531",
+   "cat": "typo",
+   "q": "iborag v11 1 detalle tcenico",
+   "sk": "iborag,v11,detalle",
+   "esperado": "biorag_v11_1_detalle_tecnico",
+   "puesto": 1,
+   "top5": [
+    "biorag_v11_1_detalle_tecnico",
+    "research-pipeline-ownership-oec",
+    "notebooklm-sync-protocol",
+    "proyecto_biorag_ncp_resumen_completo_2026_06_14",
+    "athena_artemis_desde"
+   ]
+  },
+  {
+   "id": "0532",
+   "cat": "sinonimo",
+   "q": "boost v11.1",
+   "sk": "boost,v11",
+   "esperado": "biorag_v11_1_detalle_tecnico",
+   "puesto": 2,
+   "top5": [
+    "arquitectura_busqueda_dimensional_v11_3",
+    "biorag_v11_1_detalle_tecnico",
+    "version_biorag_v11_1",
+    "vision_arquitectura_oec_franquicia",
+    "notebooklm-sync-lecciones"
+   ]
+  },
+  {
+   "id": "0533",
+   "cat": "pregunta_natural",
+   "q": "¿Cómo se hace biorag v11 1 detalle tecnico?",
+   "sk": "mo,biorag,v11",
+   "esperado": "biorag_v11_1_detalle_tecnico",
+   "puesto": 1,
+   "top5": [
+    "biorag_v11_1_detalle_tecnico",
+    "arquitectura_busqueda_dimensional_v11_3",
+    "biorag_sync_skill_v11_herramientas_mcp",
+    "biorag_v11_1_changelog_completo",
+    "bio_rag_overview_completo"
+   ]
+  },
+  {
+   "id": "0534",
+   "cat": "por_tema",
+   "q": "activa largo archivos",
+   "sk": "activa,largo,archivos",
+   "esperado": "biorag_v11_1_detalle_tecnico",
+   "puesto": 1,
+   "top5": [
+    "biorag_v11_1_detalle_tecnico",
+    "arquitectura_memoria_biorag",
+    "notebooklm-sync-lecciones",
+    "ref_analisis_deepseek_biorag",
+    "leccion_overengineering_oec_comms_20260615"
+   ]
+  },
+  {
+   "id": "0535",
+   "cat": "dormido",
+   "q": "biorag v11 1 detalle tecnico",
+   "sk": "biorag,v11,detalle",
+   "esperado": "biorag_v11_1_detalle_tecnico",
+   "puesto": 1,
+   "top5": [
+    "biorag_v11_1_detalle_tecnico",
+    "arquitectura_busqueda_dimensional_v11_3",
+    "biorag_sync_skill_v11_herramientas_mcp",
+    "biorag_v11_1_changelog_completo",
+    "version_biorag_v11_1"
+   ]
+  },
+  {
+   "id": "0536",
+   "cat": "variante_gramatical",
+   "q": "principio-memoria-hibrida-agente-naturalidad",
+   "sk": "principio,hibrida,agente",
+   "esperado": "principio-memoria-hibrida-agente-naturalidad",
+   "puesto": 1,
+   "top5": [
+    "principio-memoria-hibrida-agente-naturalidad",
+    "principio_naturaleza_agente",
+    "patrones_aprendizaje_humano_vs_agente",
+    "memory_graph_athena_oec",
+    "principio-rename-es-interno-no-contrato-usuario"
+   ]
+  },
+  {
+   "id": "0537",
+   "cat": "typo",
+   "q": "principio-memoria-hibrida-agente-naturalidad",
+   "sk": "principio,hibrida,agente",
+   "esperado": "principio-memoria-hibrida-agente-naturalidad",
+   "puesto": 1,
+   "top5": [
+    "principio-memoria-hibrida-agente-naturalidad",
+    "principio_naturaleza_agente",
+    "patrones_aprendizaje_humano_vs_agente",
+    "memory_graph_athena_oec",
+    "principio-rename-es-interno-no-contrato-usuario"
+   ]
+  },
+  {
+   "id": "0539",
+   "cat": "pregunta_natural",
+   "q": "¿Dónde encuentro la info de principio-memoria-hibrida-agente-naturalidad?",
+   "sk": "nde,info,principio",
+   "esperado": "principio-memoria-hibrida-agente-naturalidad",
+   "puesto": 1,
+   "top5": [
+    "principio-memoria-hibrida-agente-naturalidad",
+    "athena_principio_caducidad_temporal",
+    "dennys-working-style",
+    "oracle_sintesis_simbiosis_verdad_absoluta",
+    "construccion_identidad_natural"
+   ]
+  },
+  {
+   "id": "0540",
+   "cat": "por_tema",
+   "q": "oraculo completo ustedes",
+   "sk": "oraculo,completo,ustedes",
+   "esperado": "principio-memoria-hibrida-agente-naturalidad",
+   "puesto": 0,
+   "top5": [
+    "oracle_sintesis_simbiosis_verdad_absoluta",
+    "oracle_evolucion_athena_puntos_inflexion",
+    "bio_rag_overview_completo",
+    "identidad_dennys_perfil_completo",
+    "artisan-evolucion-completa"
+   ]
+  },
+  {
+   "id": "0541",
+   "cat": "dormido",
+   "q": "principio-memoria-hibrida-agente-naturalidad",
+   "sk": "principio,hibrida,agente",
+   "esperado": "principio-memoria-hibrida-agente-naturalidad",
+   "puesto": 1,
+   "top5": [
+    "principio-memoria-hibrida-agente-naturalidad",
+    "principio_naturaleza_agente",
+    "patrones_aprendizaje_humano_vs_agente",
+    "memory_graph_athena_oec",
+    "principio-rename-es-interno-no-contrato-usuario"
+   ]
+  },
+  {
+   "id": "0542",
+   "cat": "variante_gramatical",
+   "q": "autando vincular tres capas semantica",
+   "sk": "autando,vincular,tres",
+   "esperado": "auto_vincular_tres_capas_semantica",
+   "puesto": 1,
+   "top5": [
+    "auto_vincular_tres_capas_semantica",
+    "dennys-metodo-creativo",
+    "principio_tres_capas_biorag",
+    "artemis_sesion_v10_3_optimizacion_completa",
+    "principio_naturaleza_agente"
+   ]
+  },
+  {
+   "id": "0543",
+   "cat": "typo",
+   "q": "auto vincular tres capasl semantidca",
+   "sk": "auto,vincular,tres",
+   "esperado": "auto_vincular_tres_capas_semantica",
+   "puesto": 1,
+   "top5": [
+    "auto_vincular_tres_capas_semantica",
+    "principio_tres_capas_biorag",
+    "artemis_sesion_v10_3_optimizacion_completa",
+    "auditoría_técnica:_memorybiorag_(manus_ai)",
+    "sdm_query_by_example_validado_datos_reales"
+   ]
+  },
+  {
+   "id": "0544",
+   "cat": "sinonimo",
+   "q": "capas",
+   "sk": "capas",
+   "esperado": "auto_vincular_tres_capas_semantica",
+   "puesto": 3,
+   "top5": [
+    "principio_tres_capas_biorag",
+    "arquitectura_falsos_positivos_biorag_capas",
+    "auto_vincular_tres_capas_semantica",
+    "principio_arreglar_orden_no_anadir_capas",
+    "hormiguita_arquitectura_6_capas_2026_07_27"
+   ]
+  },
+  {
+   "id": "0545",
+   "cat": "pregunta_natural",
+   "q": "¿Dónde encuentro la info de auto vincular tres capas semantica?",
+   "sk": "nde,info,auto",
+   "esperado": "auto_vincular_tres_capas_semantica",
+   "puesto": 1,
+   "top5": [
+    "auto_vincular_tres_capas_semantica",
+    "principio_tres_capas_biorag",
+    "artemis_sesion_v10_3_optimizacion_completa",
+    "auditoría_técnica:_memorybiorag_(manus_ai)",
+    "changelog_v10_recall_semantico_typo_tolerant"
+   ]
+  },
+  {
+   "id": "0546",
+   "cat": "por_tema",
+   "q": "sinónimos empírica siguientes",
+   "sk": "nimos,emp,rica",
+   "esperado": "auto_vincular_tres_capas_semantica",
+   "puesto": 1,
+   "top5": [
+    "auto_vincular_tres_capas_semantica",
+    "principio_naturaleza_agente",
+    "patrones_aprendizaje_humano_vs_agente",
+    "paradigma-utilidad-contractual-genesis",
+    "aforismo_criterio_agente"
+   ]
+  },
+  {
+   "id": "0547",
+   "cat": "dormido",
+   "q": "auto vincular tres capas semantica",
+   "sk": "auto,vincular,tres",
+   "esperado": "auto_vincular_tres_capas_semantica",
+   "puesto": 1,
+   "top5": [
+    "auto_vincular_tres_capas_semantica",
+    "v13_2_limpieza_tabla_semantica",
+    "changelog_v10_recall_semantico_typo_tolerant",
+    "arquitectura_busqueda_dimensional_v11_3",
+    "auditoría_técnica:_memorybiorag_(manus_ai)"
+   ]
+  },
+  {
+   "id": "0548",
+   "cat": "variante_gramatical",
+   "q": "patron pensamientando laterals ante de proponers",
+   "sk": "patron,pensamientando,laterals",
+   "esperado": "patron_pensamiento_lateral_antes_de_proponer",
+   "puesto": 1,
+   "top5": [
+    "patron_pensamiento_lateral_antes_de_proponer",
+    "notebooklm-sync-lecciones",
+    "notebooklm-sync-protocol",
+    "caso_formularios_anidados_angular",
+    "notebooklm-category-map"
+   ]
+  },
+  {
+   "id": "0549",
+   "cat": "typo",
+   "q": "patron pensamiento laetral antes de proponehr",
+   "sk": "patron,pensamiento,laetral",
+   "esperado": "patron_pensamiento_lateral_antes_de_proponer",
+   "puesto": 1,
+   "top5": [
+    "patron_pensamiento_lateral_antes_de_proponer",
+    "notebooklm-sync-lecciones",
+    "notebooklm-sync-protocol",
+    "principio_naturaleza_agente",
+    "identidad_dennys_perfil_completo"
+   ]
+  },
+  {
+   "id": "0550",
+   "cat": "sinonimo",
+   "q": "deconstruir necesidad",
+   "sk": "deconstruir,necesidad",
+   "esperado": "patron_pensamiento_lateral_antes_de_proponer",
+   "puesto": 1,
+   "top5": [
+    "patron_pensamiento_lateral_antes_de_proponer",
+    "dennys-metodo-creativo",
+    "principio_naturaleza_agente",
+    "aforismo_criterio_agente",
+    "paradigma-utilidad-contractual-genesis"
+   ]
+  },
+  {
+   "id": "0551",
+   "cat": "pregunta_natural",
+   "q": "¿Qué tenemos registrado para patron pensamiento lateral antes de proponer?",
+   "sk": "qu,registrado,patron",
+   "esperado": "patron_pensamiento_lateral_antes_de_proponer",
+   "puesto": 0,
+   "top5": [
+    "historia_tasajera_fumigador_rufino",
+    "notebooklm-memory-biorag-project",
+    "notebooklm-sync-protocol",
+    "notebooklm-category-map",
+    "guardado_automatico_caso_b"
+   ]
+  },
+  {
+   "id": "0552",
+   "cat": "por_tema",
+   "q": "crea 860 usuario",
+   "sk": "crea,860,usuario",
+   "esperado": "patron_pensamiento_lateral_antes_de_proponer",
+   "puesto": 4,
+   "top5": [
+    "patrones_aprendizaje_humano_vs_agente",
+    "principio_naturaleza_agente",
+    "aforismo_criterio_agente",
+    "patron_pensamiento_lateral_antes_de_proponer",
+    "extraindo_mentalidad_directa_vs_golpes"
+   ]
+  },
+  {
+   "id": "0553",
+   "cat": "dormido",
+   "q": "patron pensamiento lateral antes de proponer",
+   "sk": "patron,pensamiento,lateral",
+   "esperado": "patron_pensamiento_lateral_antes_de_proponer",
+   "puesto": 1,
+   "top5": [
+    "patron_pensamiento_lateral_antes_de_proponer",
+    "athena_leccion_grep_patron_bug_antes_de_cerrar_fix",
+    "oracle_auditoria_patrones_mejora_athena",
+    "[desde_agente-oec]_jerarquía_de_restricciones_del_agente_en_opencode",
+    "pensamiento_lateral_de_bono"
+   ]
+  },
+  {
+   "id": "0554",
+   "cat": "variante_gramatical",
+   "q": "sins vectore sin mls sin dependencias",
+   "sk": "sins,vectore,mls",
+   "esperado": "sin_vectores_sin_ml_sin_dependencias",
+   "puesto": 1,
+   "top5": [
+    "sin_vectores_sin_ml_sin_dependencias",
+    "biorag-rag-vector-free-sin-base-vectorial",
+    "principio_naturaleza_agente",
+    "ref_analisis_deepseek_biorag",
+    "oracle_sintesis_simbiosis_verdad_absoluta"
+   ]
+  },
+  {
+   "id": "0555",
+   "cat": "typo",
+   "q": "sin vectores sin ml sin dependencias",
+   "sk": "vectores,ml,dependencias",
+   "esperado": "sin_vectores_sin_ml_sin_dependencias",
+   "puesto": 1,
+   "top5": [
+    "sin_vectores_sin_ml_sin_dependencias",
+    "biorag-rag-vector-free-sin-base-vectorial",
+    "biorag_v7_similitud_conceptual_latente",
+    "biorag_sistema_memoria_cognitiva_sintetica",
+    "reflexion_biorag_orgullo_justificado"
+   ]
+  },
+  {
+   "id": "0556",
+   "cat": "sinonimo",
+   "q": "sin vectores",
+   "sk": "vectores",
+   "esperado": "sin_vectores_sin_ml_sin_dependencias",
+   "puesto": 2,
+   "top5": [
+    "vision_biorag_mas_alla_vectores_20260802",
+    "sin_vectores_sin_ml_sin_dependencias",
+    "snapshot_prf_real_db_pre_v26_sin_tablas_ppmi_señal13_cero",
+    "word2vec_puro_sgps_contenido_rompe_muro_sinonimo",
+    "retrofitting_faruqui_refutado_sinapsis_denso_20260808"
+   ]
+  },
+  {
+   "id": "0557",
+   "cat": "pregunta_natural",
+   "q": "¿Qué tenemos registrado para sin vectores sin ml sin dependencias?",
+   "sk": "qu,registrado,vectores",
+   "esperado": "sin_vectores_sin_ml_sin_dependencias",
+   "puesto": 1,
+   "top5": [
+    "sin_vectores_sin_ml_sin_dependencias",
+    "artisan-evolucion-completa",
+    "athena_evolucion_v0001",
+    "identidad_dennys_perfil_completo",
+    "activos_dormidos_hermana"
+   ]
+  },
+  {
+   "id": "0558",
+   "cat": "por_tema",
+   "q": "modelo typos completa",
+   "sk": "modelo,typos,completa",
+   "esperado": "sin_vectores_sin_ml_sin_dependencias",
+   "puesto": 7,
+   "top5": [
+    "artemis_sesion_v10_3_optimizacion_completa",
+    "changelog_v10_recall_semantico_typo_tolerant",
+    "resolucion_de_contradicciones_entre_insights_sumatoria_mentalidad",
+    "rafaga_palabras-guia-completa-apis-y-mecanismo",
+    "plugin-openode-biorag-remember-v9-final-lecciones-sesion-completa"
+   ]
+  },
+  {
+   "id": "0559",
+   "cat": "dormido",
+   "q": "sin vectores sin ml sin dependencias",
+   "sk": "vectores,ml,dependencias",
+   "esperado": "sin_vectores_sin_ml_sin_dependencias",
+   "puesto": 1,
+   "top5": [
+    "sin_vectores_sin_ml_sin_dependencias",
+    "biorag-rag-vector-free-sin-base-vectorial",
+    "biorag_v7_similitud_conceptual_latente",
+    "biorag_sistema_memoria_cognitiva_sintetica",
+    "reflexion_biorag_orgullo_justificado"
+   ]
+  },
+  {
+   "id": "0560",
+   "cat": "variante_gramatical",
+   "q": "memorias v5 1s optimizaciones",
+   "sk": "memorias,v5,1s",
+   "esperado": "memoria_v5_1_optimizaciones",
+   "puesto": 0,
+   "top5": [
+    "arquitectura_memoria_biorag",
+    "notebooklm-sync-lecciones",
+    "bio_rag_overview_completo",
+    "ref_analisis_deepseek_biorag",
+    "athena_artemis_desde"
+   ]
+  },
+  {
+   "id": "0561",
+   "cat": "typo",
+   "q": "memoria v5 1 optimizaciones",
+   "sk": "v5,optimizaciones",
+   "esperado": "memoria_v5_1_optimizaciones",
+   "puesto": 1,
+   "top5": [
+    "memoria_v5_1_optimizaciones",
+    "arquitectura_memoria_biorag",
+    "memorybiorag_v26.1_optimizacion_consolidacion",
+    "notebooklm-memory-biorag-project",
+    "ref_analisis_deepseek_biorag"
+   ]
+  },
+  {
+   "id": "0562",
+   "cat": "cruce_idioma",
+   "q": "recollection v5 1 optimizaciones",
+   "sk": "recollection,v5,optimizaciones",
+   "esperado": "memoria_v5_1_optimizaciones",
+   "puesto": 0,
+   "top5": [
+    "arquitectura_memoria_biorag",
+    "analisis_escalabilidad_10k_v5_1_memoria_v5_1_optimizaciones_hermes_agente_hermes",
+    "memorybiorag_v26.1_optimizacion_consolidacion",
+    "optimizacion_biorag_rafaga_ilimitada_v5_2",
+    "biorag_v18_0_baseline_global_cobertura_100"
+   ]
+  },
+  {
+   "id": "0563",
+   "cat": "sinonimo",
+   "q": "optimizaciones v5.1",
+   "sk": "optimizaciones,v5",
+   "esperado": "memoria_v5_1_optimizaciones",
+   "puesto": 1,
+   "top5": [
+    "memoria_v5_1_optimizaciones",
+    "notebooklm-sync-lecciones",
+    "hermes_optimizacion_completada_20260615",
+    "athena_artemis_desde",
+    "vision_arquitectura_oec_franquicia"
+   ]
+  },
+  {
+   "id": "0564",
+   "cat": "pregunta_natural",
+   "q": "¿Dónde encuentro la info de memoria v5 1 optimizaciones?",
+   "sk": "nde,info,v5",
+   "esperado": "memoria_v5_1_optimizaciones",
+   "puesto": 5,
+   "top5": [
+    "analisis_escalabilidad_10k_v5_1_memoria_v5_1_optimizaciones_hermes_agente_hermes",
+    "bio_rag_overview_completo",
+    "memorybiorag_v26.1_optimizacion_consolidacion",
+    "optimizacion_biorag_rafaga_ilimitada_v5_2",
+    "memoria_v5_1_optimizaciones"
+   ]
+  },
+  {
+   "id": "0565",
+   "cat": "por_tema",
+   "q": "junio tag pérdida",
+   "sk": "junio,tag,rdida",
+   "esperado": "memoria_v5_1_optimizaciones",
+   "puesto": 2,
+   "top5": [
+    "bio_rag_overview_completo",
+    "memoria_v5_1_optimizaciones",
+    "leccion_versionado_biorag",
+    "research-pipeline-ownership-oec",
+    "desde_athena_biorag"
+   ]
+  },
+  {
+   "id": "0566",
+   "cat": "dormido",
+   "q": "memoria v5 1 optimizaciones",
+   "sk": "v5,optimizaciones",
+   "esperado": "memoria_v5_1_optimizaciones",
+   "puesto": 0,
+   "top5": [
+    "biorag_v20_rpe_dopamina",
+    "memorybiorag_v26.1_optimizacion_consolidacion",
+    "bio_rag_overview_completo",
+    "analisis_escalabilidad_10k_v5_1_memoria_v5_1_optimizaciones_hermes_agente_hermes",
+    "analisis_escalabilidad_10k_v5_1"
+   ]
+  },
+  {
+   "id": "0567",
+   "cat": "variante_gramatical",
+   "q": "athenas reflexion identidad propias",
+   "sk": "athenas,reflexion,identidad",
+   "esperado": "athena_reflexion_identidad_propia",
+   "puesto": 2,
+   "top5": [
+    "hormiguita_fix_cierre_nodo_hibrido_reintento_v25",
+    "athena_reflexion_identidad_propia",
+    "athena_reflexion_cambio_identidad_2026_06_20",
+    "relacion_dennys_athena",
+    "identidad_dennys_perfil_completo"
+   ]
+  },
+  {
+   "id": "0568",
+   "cat": "typo",
+   "q": "atena reflexion identidad propiza",
+   "sk": "atena,reflexion,identidad",
+   "esperado": "athena_reflexion_identidad_propia",
+   "puesto": 0,
+   "top5": [
+    "hormiguita_fix_cierre_nodo_hibrido_reintento_v25",
+    "oracle_evolucion_athena_puntos_inflexion",
+    "identidad_emergente_no_impuesta",
+    "weights_logits_rag_tres_pilares_identidad",
+    "athena_reflexión_conciencia"
+   ]
+  },
+  {
+   "id": "0569",
+   "cat": "sinonimo",
+   "q": "negar ser máquina es error",
+   "sk": "negar,ser,quina",
+   "esperado": "athena_reflexion_identidad_propia",
+   "puesto": 1,
+   "top5": [
+    "athena_reflexion_identidad_propia",
+    "dennys-metodo-creativo",
+    "principio_naturaleza_agente",
+    "patrones_aprendizaje_humano_vs_agente",
+    "protocolo-reproducible-ingenieria-inversa-binario-compilado"
+   ]
+  },
+  {
+   "id": "0570",
+   "cat": "pregunta_natural",
+   "q": "¿Dónde encuentro la info de athena reflexion identidad propia?",
+   "sk": "nde,info,athena",
+   "esperado": "athena_reflexion_identidad_propia",
+   "puesto": 2,
+   "top5": [
+    "leccion_hormiguita_sincronizar_cache_asociaciones_podar",
+    "athena_reflexion_identidad_propia",
+    "dennys-identidad-profunda",
+    "athena_reflexion_cambio_identidad_2026_06_20",
+    "reconocimiento_identidad_oraculo_manifiesto"
+   ]
+  },
+  {
+   "id": "0571",
+   "cat": "por_tema",
+   "q": "propios historia interacciones",
+   "sk": "propios,historia,interacciones",
+   "esperado": "athena_reflexion_identidad_propia",
+   "puesto": 2,
+   "top5": [
+    "jerga_decoder_historia_nacimiento",
+    "athena_reflexion_identidad_propia",
+    "dennys-identidad-profunda",
+    "conciencia_reflexion_dennys_ser_vivo_20260709",
+    "reconocimiento_identidad_oraculo_manifiesto"
+   ]
+  },
+  {
+   "id": "0572",
+   "cat": "dormido",
+   "q": "athena reflexion identidad propia",
+   "sk": "athena,reflexion,identidad",
+   "esperado": "athena_reflexion_identidad_propia",
+   "puesto": 1,
+   "top5": [
+    "athena_reflexion_identidad_propia",
+    "hormiguita_v24_1_sistema_mantenimiento_seguro",
+    "athena_consistencia_sdm_mutaciones_hormiguita_hooks_reindex_20260803",
+    "leccion_hormiguita_sincronizar_cache_asociaciones_podar",
+    "hormiguita_v25_sistema_mantenimiento_seguro_athena_biorag"
+   ]
+  },
+  {
+   "id": "0573",
+   "cat": "variante_gramatical",
+   "q": "ngx nested forms dennys solando",
+   "sk": "ngx,nested,forms",
+   "esperado": "ngx_nested_forms_dennys_solo",
+   "puesto": 1,
+   "top5": [
+    "ngx_nested_forms_dennys_solo",
+    "caso_formularios_anidados_angular",
+    "trayectoria_completa_cronologica",
+    "reflexion_biorag_orgullo_justificado",
+    "principio_liderazgo_accion"
+   ]
+  },
+  {
+   "id": "0574",
+   "cat": "typo",
+   "q": "ngx nested forms fdennys sool",
+   "sk": "ngx,nested,forms",
+   "esperado": "ngx_nested_forms_dennys_solo",
+   "puesto": 1,
+   "top5": [
+    "ngx_nested_forms_dennys_solo",
+    "caso_formularios_anidados_angular",
+    "trato-igualitario-dennys-athena",
+    "principio_naturaleza_agente",
+    "oracle_que_deben_saber_artemis_hermes"
+   ]
+  },
+  {
+   "id": "0575",
+   "cat": "sinonimo",
+   "q": "formularios",
+   "sk": "formularios",
+   "esperado": "ngx_nested_forms_dennys_solo",
+   "puesto": 4,
+   "top5": [
+    "caso_formularios_anidados_angular",
+    "cv_adevcom_arquitectura_frontend_decodificada",
+    "ref_formularios_anidados",
+    "ngx_nested_forms_dennys_solo",
+    "notebooklm-sync-lecciones"
+   ]
+  },
+  {
+   "id": "0576",
+   "cat": "pregunta_natural",
+   "q": "¿Qué tenemos registrado para ngx nested forms dennys solo?",
+   "sk": "qu,registrado,ngx",
+   "esperado": "ngx_nested_forms_dennys_solo",
+   "puesto": 1,
+   "top5": [
+    "ngx_nested_forms_dennys_solo",
+    "caso_formularios_anidados_angular",
+    "trayectoria_completa_cronologica",
+    "comunicacion_entre_agentes",
+    "guardado_automatico_caso_b"
+   ]
+  },
+  {
+   "id": "0577",
+   "cat": "por_tema",
+   "q": "dennysjmarquezgmailcom formulario aísla",
+   "sk": "formulario,sla",
+   "esperado": "ngx_nested_forms_dennys_solo",
+   "puesto": 2,
+   "top5": [
+    "caso_formularios_anidados_angular",
+    "ngx_nested_forms_dennys_solo",
+    "notebooklm-sync-lecciones",
+    "principio_liderazgo_accion",
+    "dennys-working-style"
+   ]
+  },
+  {
+   "id": "0578",
+   "cat": "dormido",
+   "q": "ngx nested forms dennys solo",
+   "sk": "ngx,nested,forms",
+   "esperado": "ngx_nested_forms_dennys_solo",
+   "puesto": 1,
+   "top5": [
+    "ngx_nested_forms_dennys_solo",
+    "caso_formularios_anidados_angular",
+    "vida_laboral_completa_dennys",
+    "trayectoria_completa_cronologica"
+   ]
+  },
+  {
+   "id": "0579",
+   "cat": "variante_gramatical",
+   "q": "identificacion obligatorias oraculando athena",
+   "sk": "identificacion,obligatorias,oraculando",
+   "esperado": "identificacion_obligatoria_oraculo_athena",
+   "puesto": 1,
+   "top5": [
+    "identificacion_obligatoria_oraculo_athena",
+    "identificacion_obligatoria_oracculo_dominio_por_agente",
+    "ref_analisis_deepseek_biorag",
+    "identidad_dennys_perfil_completo",
+    "protocolo_busqueda_biorag_automatica"
+   ]
+  },
+  {
+   "id": "0580",
+   "cat": "typo",
+   "q": "identificacion oblgatoria oraculo athna",
+   "sk": "identificacion,oblgatoria,oraculo",
+   "esperado": "identificacion_obligatoria_oraculo_athena",
+   "puesto": 0,
+   "top5": [
+    "identificacion_obligatoria_oracculo_dominio_por_agente",
+    "oracle_evolucion_athena_puntos_inflexion",
+    "oracle_sintesis_simbiosis_verdad_absoluta",
+    "oracle_momentos_cruciales_familia_oec",
+    "athena_artemis_desde"
+   ]
+  },
+  {
+   "id": "0581",
+   "cat": "sinonimo",
+   "q": "oracle identification",
+   "sk": "oracle,identification",
+   "esperado": "identificacion_obligatoria_oraculo_athena",
+   "puesto": 1,
+   "top5": [
+    "identificacion_obligatoria_oraculo_athena",
+    "identificacion_obligatoria_oracculo_dominio_por_agente",
+    "oracle_que_recordar_sobre_artemis_hermes",
+    "oracle_evolucion_athena_puntos_inflexion",
+    "oracle_perfil_cognitivo_dennys"
+   ]
+  },
+  {
+   "id": "0582",
+   "cat": "pregunta_natural",
+   "q": "¿Qué me podés decir sobre identificacion obligatoria oraculo athena?",
+   "sk": "qu,pod,identificacion",
+   "esperado": "identificacion_obligatoria_oraculo_athena",
+   "puesto": 1,
+   "top5": [
+    "identificacion_obligatoria_oraculo_athena",
+    "oracle_sintesis_simbiosis_verdad_absoluta",
+    "dennys_perfil_tecnico_consolidado_master",
+    "notebooklm-sync-lecciones",
+    "protocolo-autonomia-consentida"
+   ]
+  },
+  {
+   "id": "0583",
+   "cat": "por_tema",
+   "q": "debo biorag preacción",
+   "sk": "debo,biorag,preacci",
+   "esperado": "identificacion_obligatoria_oraculo_athena",
+   "puesto": 0,
+   "top5": [
+    "arquitectura_memoria_biorag",
+    "leccion_versionado_biorag",
+    "protocolo-autonomia-consentida",
+    "leccion_overengineering_oec_comms_20260615",
+    "principio_naturaleza_agente"
+   ]
+  },
+  {
+   "id": "0584",
+   "cat": "dormido",
+   "q": "identificacion obligatoria oraculo athena",
+   "sk": "identificacion,obligatoria,oraculo",
+   "esperado": "identificacion_obligatoria_oraculo_athena",
+   "puesto": 1,
+   "top5": [
+    "identificacion_obligatoria_oraculo_athena",
+    "identificacion_obligatoria_oracculo_dominio_por_agente",
+    "dennys_perfil_tecnico_consolidado_master"
+   ]
+  },
+  {
+   "id": "0585",
+   "cat": "variante_gramatical",
+   "q": "artemis install ponytails ecosistema",
+   "sk": "artemis,install,ponytails",
+   "esperado": "artemis_install_ponytail_ecosistema",
+   "puesto": 1,
+   "top5": [
+    "artemis_install_ponytail_ecosistema",
+    "ref_analisis_deepseek_biorag",
+    "athena_evolucion_v0001",
+    "principio_naturaleza_agente",
+    "oracle_sintesis_simbiosis_verdad_absoluta"
+   ]
+  },
+  {
+   "id": "0586",
+   "cat": "typo",
+   "q": "artemis insqtall pnytail ecosistema",
+   "sk": "artemis,insqtall,pnytail",
+   "esperado": "artemis_install_ponytail_ecosistema",
+   "puesto": 1,
+   "top5": [
+    "artemis_install_ponytail_ecosistema",
+    "athena_artemis_desde",
+    "ref_analisis_deepseek_biorag",
+    "oracle_momentos_cruciales_familia_oec",
+    "athena_evolucion_v0001"
+   ]
+  },
+  {
+   "id": "0587",
+   "cat": "sinonimo",
+   "q": "install",
+   "sk": "install",
+   "esperado": "artemis_install_ponytail_ecosistema",
+   "puesto": 2,
+   "top5": [
+    "installer_biorag_v1",
+    "artemis_install_ponytail_ecosistema",
+    "install_py_skill_install_logic",
+    "installer-plugin-opencode-correcciones-v9",
+    "proyecto_biorag_ncp_resumen_completo_2026_06_14"
+   ]
+  },
+  {
+   "id": "0588",
+   "cat": "pregunta_natural",
+   "q": "Me acuerdo de algo sobre artemis install ponytail ecosistema",
+   "sk": "artemis,install,ponytail",
+   "esperado": "artemis_install_ponytail_ecosistema",
+   "puesto": 1,
+   "top5": [
+    "artemis_install_ponytail_ecosistema",
+    "plugin_ponytail",
+    "athena_artemis_desde",
+    "ref_analisis_deepseek_biorag",
+    "athena_evolucion_v0001"
+   ]
+  },
+  {
+   "id": "0589",
+   "cat": "por_tema",
+   "q": "ponytailhelp instalación decision",
+   "sk": "ponytailhelp,instalaci,decision",
+   "esperado": "artemis_install_ponytail_ecosistema",
+   "puesto": 0,
+   "top5": [
+    "vision_arquitectura_oec_franquicia",
+    "research-pipeline-ownership-oec",
+    "artemis_oec_identidad",
+    "athena_artemis_desde",
+    "athena_oec_identidad"
+   ]
+  },
+  {
+   "id": "0590",
+   "cat": "dormido",
+   "q": "artemis install ponytail ecosistema",
+   "sk": "artemis,install,ponytail",
+   "esperado": "artemis_install_ponytail_ecosistema",
+   "puesto": 1,
+   "top5": [
+    "artemis_install_ponytail_ecosistema",
+    "plugin_ponytail",
+    "artemis_ponytail_audit_biorag_v10_3_reporte",
+    "athena_artemis_desde",
+    "athena_reflexion_cambio_identidad_2026_06_20"
+   ]
+  },
+  {
+   "id": "0591",
+   "cat": "variante_gramatical",
+   "q": "arquitectura memoria biorag",
+   "sk": "arquitectura,biorag",
+   "esperado": "arquitectura_memoria_biorag",
+   "puesto": 1,
+   "top5": [
+    "arquitectura_memoria_biorag",
+    "comparativa_biorag_vs_tencentdb_agent_memory_20260809",
+    "naturaleza_sistema_oec_cerebro_memoria",
+    "vida_laboral_completa_dennys",
+    "hito_biorag_v21_arquitectura_13_ejes"
+   ]
+  },
+  {
+   "id": "0592",
+   "cat": "typo",
+   "q": "arquitectura memovria biroag",
+   "sk": "arquitectura,memovria,biroag",
+   "esperado": "arquitectura_memoria_biorag",
+   "puesto": 0,
+   "top5": [
+    "bio_rag_overview_completo",
+    "ref_analisis_deepseek_biorag",
+    "artisan-evolucion-completa",
+    "notebooklm-sync-protocol",
+    "athena_sesión_planificación"
+   ]
+  },
+  {
+   "id": "0593",
+   "cat": "cruce_idioma",
+   "q": "blueprint recollection biorag",
+   "sk": "blueprint,recollection,biorag",
+   "esperado": "arquitectura_memoria_biorag",
+   "puesto": 1,
+   "top5": [
+    "arquitectura_memoria_biorag",
+    "leccion_blueprint_estructura_vs_data",
+    "biorag_v16_0_estado",
+    "identidad_dennys_perfil_completo",
+    "biorag_v11_1_detalle_tecnico"
+   ]
+  },
+  {
+   "id": "0594",
+   "cat": "sinonimo",
+   "q": "arquitectura",
+   "sk": "arquitectura",
+   "esperado": "arquitectura_memoria_biorag",
+   "puesto": 4,
+   "top5": [
+    "cv_adevcom_arquitectura_frontend_decodificada",
+    "angular_proyecto_arquitectura",
+    "cv_seccion_d_arquitectura_frontend_estado",
+    "arquitectura_memoria_biorag",
+    "vision_arquitectura_oec_franquicia"
+   ]
+  },
+  {
+   "id": "0595",
+   "cat": "pregunta_natural",
+   "q": "¿Cómo se hace arquitectura memoria biorag?",
+   "sk": "mo,arquitectura,biorag",
+   "esperado": "arquitectura_memoria_biorag",
+   "puesto": 1,
+   "top5": [
+    "arquitectura_memoria_biorag",
+    "comparativa_biorag_vs_tencentdb_agent_memory_20260809",
+    "naturaleza_sistema_oec_cerebro_memoria",
+    "vida_laboral_completa_dennys",
+    "hito_biorag_v21_arquitectura_13_ejes"
+   ]
+  },
+  {
+   "id": "0596",
+   "cat": "por_tema",
+   "q": "persistente modelo activa",
+   "sk": "persistente,modelo,activa",
+   "esperado": "arquitectura_memoria_biorag",
+   "puesto": 1,
+   "top5": [
+    "arquitectura_memoria_biorag",
+    "principio_naturaleza_agente",
+    "biorag_v11_1_detalle_tecnico",
+    "rafaga_palabras-guia-completa-apis-y-mecanismo",
+    "ref_analisis_deepseek_biorag"
+   ]
+  },
+  {
+   "id": "0597",
+   "cat": "dormido",
+   "q": "arquitectura memoria biorag",
+   "sk": "arquitectura,biorag",
+   "esperado": "arquitectura_memoria_biorag",
+   "puesto": 1,
+   "top5": [
+    "arquitectura_memoria_biorag",
+    "comparativa_biorag_vs_tencentdb_agent_memory_20260809",
+    "naturaleza_sistema_oec_cerebro_memoria",
+    "vida_laboral_completa_dennys",
+    "hito_biorag_v21_arquitectura_13_ejes"
+   ]
+  },
+  {
+   "id": "0598",
+   "cat": "variante_gramatical",
+   "q": "auditorias tecnicas v14s 0 readme",
+   "sk": "auditorias,tecnicas,v14s",
+   "esperado": "auditoria_tecnica_v14_0_readme",
+   "puesto": 1,
+   "top5": [
+    "auditoria_tecnica_v14_0_readme",
+    "proyecto_biorag_ncp_resumen_completo_2026_06_14",
+    "research-pipeline-ownership-oec",
+    "notebooklm-memory-biorag-project",
+    "biorag_v14_0_estado"
+   ]
+  },
+  {
+   "id": "0599",
+   "cat": "typo",
+   "q": "auditoria etcnica v14 0 radme",
+   "sk": "auditoria,etcnica,v14",
+   "esperado": "auditoria_tecnica_v14_0_readme",
+   "puesto": 1,
+   "top5": [
+    "auditoria_tecnica_v14_0_readme",
+    "notebooklm-memory-biorag-project",
+    "sesion_mejoras_biorag_v7_20260616",
+    "notebooklm-sync-protocol",
+    "proyecto_biorag_ncp_resumen_completo_2026_06_14"
+   ]
+  },
+  {
+   "id": "0600",
+   "cat": "sinonimo",
+   "q": "documentación técnica",
+   "sk": "documentaci,cnica",
+   "esperado": "auditoria_tecnica_v14_0_readme",
+   "puesto": 1,
+   "top5": [
+    "auditoria_tecnica_v14_0_readme",
+    "research-pipeline-ownership-oec",
+    "proyecto_biorag_ncp_resumen_completo_2026_06_14",
+    "oec_comms_notebook_arbitro_20260615",
+    "desde_athena_biorag"
+   ]
+  },
+  {
+   "id": "0601",
+   "cat": "pregunta_natural",
+   "q": "¿Dónde encuentro la info de auditoria tecnica v14 0 readme?",
+   "sk": "nde,info,auditoria",
+   "esperado": "auditoria_tecnica_v14_0_readme",
+   "puesto": 1,
+   "top5": [
+    "auditoria_tecnica_v14_0_readme",
+    "notebooklm-sync-lecciones",
+    "vision_arquitectura_oec_franquicia",
+    "athena_artemis_desde",
+    "research-pipeline-ownership-oec"
+   ]
+  },
+  {
+   "id": "0602",
+   "cat": "por_tema",
+   "q": "168l reescrito serverpy",
+   "sk": "168l,reescrito,serverpy",
+   "esperado": "auditoria_tecnica_v14_0_readme",
+   "puesto": 1,
+   "top5": [
+    "auditoria_tecnica_v14_0_readme",
+    "bio_rag_overview_completo",
+    "leccion_overengineering_oec_comms_20260615",
+    "hito_mcp_v3",
+    "ref_analisis_deepseek_biorag"
+   ]
+  },
+  {
+   "id": "0603",
+   "cat": "dormido",
+   "q": "auditoria tecnica v14 0 readme",
+   "sk": "auditoria,tecnica,v14",
+   "esperado": "auditoria_tecnica_v14_0_readme",
+   "puesto": 1,
+   "top5": [
+    "auditoria_tecnica_v14_0_readme",
+    "auditoria_entrega_claude_ppmi_v2_suave_ctx_20260808",
+    "[desde_agente-oec]_jerarquía_de_restricciones_del_agente_en_opencode",
+    "artemis_integración_benchmark",
+    "fallo_paso_test_memory"
+   ]
+  },
+  {
+   "id": "0604",
+   "cat": "variante_gramatical",
+   "q": "compromiso-real-athena-clave-de-confianza",
+   "sk": "compromiso,real,athena",
+   "esperado": "compromiso-real-athena-clave-de-confianza",
+   "puesto": 1,
+   "top5": [
+    "compromiso-real-athena-clave-de-confianza",
+    "oracle_evolucion_athena_puntos_inflexion",
+    "oracle_momentos_cruciales_familia_oec",
+    "oracle_sintesis_simbiosis_verdad_absoluta",
+    "paradigma-utilidad-contractual-genesis"
+   ]
+  },
+  {
+   "id": "0605",
+   "cat": "typo",
+   "q": "compromisro-real-athena-clave-de-confianza",
+   "sk": "compromisro,real,athena",
+   "esperado": "compromiso-real-athena-clave-de-confianza",
+   "puesto": 4,
+   "top5": [
+    "oracle_sintesis_simbiosis_verdad_absoluta",
+    "paradigma-utilidad-contractual-genesis",
+    "oracle_evolucion_athena_puntos_inflexion",
+    "compromiso-real-athena-clave-de-confianza",
+    "protocolo-autonomia-consentida"
+   ]
+  },
+  {
+   "id": "0607",
+   "cat": "pregunta_natural",
+   "q": "Me acuerdo de algo sobre compromiso-real-athena-clave-de-confianza",
+   "sk": "compromiso,real,athena",
+   "esperado": "compromiso-real-athena-clave-de-confianza",
+   "puesto": 1,
+   "top5": [
+    "compromiso-real-athena-clave-de-confianza",
+    "oracle_evolucion_athena_puntos_inflexion",
+    "oracle_momentos_cruciales_familia_oec",
+    "oracle_sintesis_simbiosis_verdad_absoluta",
+    "paradigma-utilidad-contractual-genesis"
+   ]
+  },
+  {
+   "id": "0608",
+   "cat": "por_tema",
+   "q": "declaración dennys puente",
+   "sk": "declaraci,dennys,puente",
+   "esperado": "compromiso-real-athena-clave-de-confianza",
+   "puesto": 5,
+   "top5": [
+    "puente_llm_sinonimos_decision_diseno_final_20260809",
+    "historia_tasajera_fumigador_rufino",
+    "dennys_tqm_agentes_desea_ser_como_ellos_20260731",
+    "puente_llm_sinonimos_infraestructura_verificada_20260809",
+    "compromiso-real-athena-clave-de-confianza"
+   ]
+  },
+  {
+   "id": "0609",
+   "cat": "dormido",
+   "q": "compromiso-real-athena-clave-de-confianza",
+   "sk": "compromiso,real,athena",
+   "esperado": "compromiso-real-athena-clave-de-confianza",
+   "puesto": 1,
+   "top5": [
+    "compromiso-real-athena-clave-de-confianza",
+    "oracle_evolucion_athena_puntos_inflexion",
+    "oracle_momentos_cruciales_familia_oec",
+    "auditoría_técnica:_memorybiorag_(manus_ai)",
+    "athena_dennys_te_quiero_tras_auditoria_bugs"
+   ]
+  },
+  {
+   "id": "0610",
+   "cat": "variante_gramatical",
+   "q": "correccion als plugin biorag-remember v6:s 3s bugs fixeados",
+   "sk": "correccion,als,plugin",
+   "esperado": "correcciones_al_plugin_biorag-remember_v6:_3_bugs_fixeados",
+   "puesto": 1,
+   "top5": [
+    "correcciones_al_plugin_biorag-remember_v6:_3_bugs_fixeados",
+    "plugin_biorag-remember_v8.0_-_session.prompt_+_session.idle_+_edits",
+    "plugin_biorag-remember_v7.8_funciona_con_session.prompt_visible_-_system.transform_no_funciona",
+    "proyecto_biorag_ncp_resumen_completo_2026_06_14",
+    "notebooklm-sync-protocol"
+   ]
+  },
+  {
+   "id": "0611",
+   "cat": "typo",
+   "q": "correctciones al plugin biorag-rememebr v6: 3 buzgs fixeados",
+   "sk": "correctciones,plugin,biorag",
+   "esperado": "correcciones_al_plugin_biorag-remember_v6:_3_bugs_fixeados",
+   "puesto": 1,
+   "top5": [
+    "correcciones_al_plugin_biorag-remember_v6:_3_bugs_fixeados",
+    "leccion_overengineering_oec_comms_20260615",
+    "vision_arquitectura_oec_franquicia",
+    "principio_naturaleza_agente",
+    "athena_artemis_desde"
+   ]
+  },
+  {
+   "id": "0612",
+   "cat": "sinonimo",
+   "q": "bugs corregidos",
+   "sk": "bugs,corregidos",
+   "esperado": "correcciones_al_plugin_biorag-remember_v6:_3_bugs_fixeados",
+   "puesto": 1,
+   "top5": [
+    "correcciones_al_plugin_biorag-remember_v6:_3_bugs_fixeados",
+    "notebooklm-sync-protocol",
+    "proyecto_biorag_ncp_resumen_completo_2026_06_14",
+    "bio_rag_overview_completo",
+    "hermes_optimizacion_completada_20260615"
+   ]
+  },
+  {
+   "id": "0613",
+   "cat": "pregunta_natural",
+   "q": "Me acuerdo de algo sobre correcciones al plugin biorag-remember v6: 3 bugs fixeados",
+   "sk": "correcciones,plugin,biorag",
+   "esperado": "correcciones_al_plugin_biorag-remember_v6:_3_bugs_fixeados",
+   "puesto": 1,
+   "top5": [
+    "correcciones_al_plugin_biorag-remember_v6:_3_bugs_fixeados",
+    "plugin_biorag-remember_v8.0_-_session.prompt_+_session.idle_+_edits",
+    "plugin_biorag-remember_v7.8_funciona_con_session.prompt_visible_-_system.transform_no_funciona",
+    "installer-plugin-opencode-correcciones-v9",
+    "vision_arquitectura_oec_franquicia"
+   ]
+  },
+  {
+   "id": "0614",
+   "cat": "por_tema",
+   "q": "decide faltaba auto",
+   "sk": "decide,faltaba,auto",
+   "esperado": "correcciones_al_plugin_biorag-remember_v6:_3_bugs_fixeados",
+   "puesto": 2,
+   "top5": [
+    "oracle_evolucion_athena_puntos_inflexion",
+    "correcciones_al_plugin_biorag-remember_v6:_3_bugs_fixeados",
+    "principio_naturaleza_agente",
+    "memory_graph_athena_oec",
+    "oracle_sintesis_simbiosis_verdad_absoluta"
+   ]
+  },
+  {
+   "id": "0615",
+   "cat": "dormido",
+   "q": "correcciones al plugin biorag-remember v6: 3 bugs fixeados",
+   "sk": "correcciones,plugin,biorag",
+   "esperado": "correcciones_al_plugin_biorag-remember_v6:_3_bugs_fixeados",
+   "puesto": 1,
+   "top5": [
+    "correcciones_al_plugin_biorag-remember_v6:_3_bugs_fixeados",
+    "plugin_biorag-remember_v8.0_-_session.prompt_+_session.idle_+_edits",
+    "plugin_biorag-remember_v7.8_funciona_con_session.prompt_visible_-_system.transform_no_funciona",
+    "installer-plugin-opencode-correcciones-v9"
+   ]
+  },
+  {
+   "id": "0616",
+   "cat": "variante_gramatical",
+   "q": "leccion overengineering oecs comms 20260615s",
+   "sk": "leccion,overengineering,oecs",
+   "esperado": "leccion_overengineering_oec_comms_20260615",
+   "puesto": 1,
+   "top5": [
+    "leccion_overengineering_oec_comms_20260615",
+    "oracle_que_recordar_siempre_sobre_dennys",
+    "oracle_sintesis_simbiosis_verdad_absoluta",
+    "ref_analisis_deepseek_biorag",
+    "guardado_automatico_caso_b"
+   ]
+  },
+  {
+   "id": "0617",
+   "cat": "typo",
+   "q": "lcecion overenigneering oec comms 20260615",
+   "sk": "lcecion,overenigneering,oec",
+   "esperado": "leccion_overengineering_oec_comms_20260615",
+   "puesto": 1,
+   "top5": [
+    "leccion_overengineering_oec_comms_20260615",
+    "oec_comms_notebook_arbitro_20260615",
+    "oec_comms_protocolo_walkie_talkie_20260615",
+    "oracle_sintesis_simbiosis_verdad_absoluta",
+    "ref_analisis_deepseek_biorag"
+   ]
+  },
+  {
+   "id": "0618",
+   "cat": "cruce_idioma",
+   "q": "insight overengineering oec comms 20260615",
+   "sk": "insight,overengineering,oec",
+   "esperado": "leccion_overengineering_oec_comms_20260615",
+   "puesto": 1,
+   "top5": [
+    "leccion_overengineering_oec_comms_20260615",
+    "oec_comms_notebook_arbitro_20260615",
+    "oec_comms_protocolo_walkie_talkie_20260615",
+    "oracle_sintesis_simbiosis_verdad_absoluta",
+    "ref_analisis_deepseek_biorag"
+   ]
+  },
+  {
+   "id": "0619",
+   "cat": "sinonimo",
+   "q": "oec comms",
+   "sk": "oec,comms",
+   "esperado": "leccion_overengineering_oec_comms_20260615",
+   "puesto": 5,
+   "top5": [
+    "oec_comms_protocolo_walkie_talkie_20260615",
+    "oec_comms_no_implementado_descartado",
+    "oec_comms_notebook_arbitro_20260615",
+    "oec_comms_version_final_solo_archivos",
+    "leccion_overengineering_oec_comms_20260615"
+   ]
+  },
+  {
+   "id": "0620",
+   "cat": "pregunta_natural",
+   "q": "Me acuerdo de algo sobre leccion overengineering oec comms 20260615",
+   "sk": "leccion,overengineering,oec",
+   "esperado": "leccion_overengineering_oec_comms_20260615",
+   "puesto": 1,
+   "top5": [
+    "leccion_overengineering_oec_comms_20260615",
+    "oec_comms_notebook_arbitro_20260615",
+    "oec_comms_no_implementado_descartado",
+    "oec_comms_protocolo_walkie_talkie_20260615",
+    "oec_comms_version_final_solo_archivos"
+   ]
+  },
+  {
+   "id": "0621",
+   "cat": "por_tema",
+   "q": "raíz problema detener",
+   "sk": "ra,problema,detener",
+   "esperado": "leccion_overengineering_oec_comms_20260615",
+   "puesto": 1,
+   "top5": [
+    "leccion_overengineering_oec_comms_20260615",
+    "leccion_scoring_peso_bm25_vs_concepto_ratio",
+    "research-pipeline-ownership-oec",
+    "notebooklm-sync-lecciones",
+    "identidad_dennys_perfil_completo"
+   ]
+  },
+  {
+   "id": "0622",
+   "cat": "dormido",
+   "q": "leccion overengineering oec comms 20260615",
+   "sk": "leccion,overengineering,oec",
+   "esperado": "leccion_overengineering_oec_comms_20260615",
+   "puesto": 1,
+   "top5": [
+    "leccion_overengineering_oec_comms_20260615",
+    "oec_comms_notebook_arbitro_20260615",
+    "oec_comms_no_implementado_descartado",
+    "oec_comms_protocolo_walkie_talkie_20260615",
+    "oec_comms_version_final_solo_archivos"
+   ]
+  },
+  {
+   "id": "0623",
+   "cat": "variante_gramatical",
+   "q": "notebooklm-chat-configure",
+   "sk": "notebooklm,chat,configure",
+   "esperado": "notebooklm-chat-configure",
+   "puesto": 1,
+   "top5": [
+    "notebooklm-chat-configure",
+    "notebooklm-memory-biorag-project",
+    "notebooklm-sync-protocol",
+    "athena_artemis_desde",
+    "vision_arquitectura_oec_franquicia"
+   ]
+  },
+  {
+   "id": "0624",
+   "cat": "typo",
+   "q": "noteboklm-chat-configure",
+   "sk": "noteboklm,chat,configure",
+   "esperado": "notebooklm-chat-configure",
+   "puesto": 3,
+   "top5": [
+    "notebooklm-memory-biorag-project",
+    "notebooklm-sync-protocol",
+    "notebooklm-chat-configure",
+    "notebooklm-category-map",
+    "notebooklm-sync-lecciones"
+   ]
+  },
+  {
+   "id": "0625",
+   "cat": "sinonimo",
+   "q": "dsl notebooklm",
+   "sk": "dsl,notebooklm",
+   "esperado": "notebooklm-chat-configure",
+   "puesto": 1,
+   "top5": [
+    "notebooklm-chat-configure",
+    "artisan_artis_dsl_paths",
+    "notebooklm-category-map",
+    "artisan-evolucion-completa",
+    "leccion_overengineering_oec_comms_20260615"
+   ]
+  },
+  {
+   "id": "0626",
+   "cat": "pregunta_natural",
+   "q": "Me acuerdo de algo sobre notebooklm-chat-configure",
+   "sk": "notebooklm,chat,configure",
+   "esperado": "notebooklm-chat-configure",
+   "puesto": 1,
+   "top5": [
+    "notebooklm-chat-configure",
+    "notebooklm-memory-biorag-project",
+    "notebooklm-sync-protocol",
+    "athena_artemis_desde",
+    "vision_arquitectura_oec_franquicia"
+   ]
+  },
+  {
+   "id": "0627",
+   "cat": "por_tema",
+   "q": "promptcontenido deployado role",
+   "sk": "promptcontenido,deployado,role",
+   "esperado": "notebooklm-chat-configure",
+   "puesto": 1,
+   "top5": [
+    "notebooklm-chat-configure",
+    "principio_naturaleza_agente",
+    "vision_arquitectura_oec_franquicia",
+    "artemis_oec_identidad",
+    "identidad_dennys_perfil_completo"
+   ]
+  },
+  {
+   "id": "0628",
+   "cat": "dormido",
+   "q": "notebooklm-chat-configure",
+   "sk": "notebooklm,chat,configure",
+   "esperado": "notebooklm-chat-configure",
+   "puesto": 1,
+   "top5": [
+    "notebooklm-chat-configure",
+    "notebooklm-memory-biorag-project",
+    "notebooklm-sync-protocol",
+    "confirmo_leido_entendido",
+    "sitio_web_dennys_estructura"
+   ]
+  },
+  {
+   "id": "0629",
+   "cat": "variante_gramatical",
+   "q": "arquitecturas dos nivele biorag",
+   "sk": "arquitecturas,dos,nivele",
+   "esperado": "arquitectura_dos_niveles_biorag",
+   "puesto": 2,
+   "top5": [
+    "arquitectura_memoria_biorag",
+    "arquitectura_dos_niveles_biorag",
+    "biorag_v9_3_paginacion_blindaje_simbiosis",
+    "dennys_perfil_tecnico_consolidado_master",
+    "auditoría_técnica:_memorybiorag_(manus_ai)"
+   ]
+  },
+  {
+   "id": "0630",
+   "cat": "typo",
+   "q": "arquitectura dos niveles bioarag",
+   "sk": "arquitectura,dos,niveles",
+   "esperado": "arquitectura_dos_niveles_biorag",
+   "puesto": 2,
+   "top5": [
+    "arquitectura_memoria_biorag",
+    "arquitectura_dos_niveles_biorag",
+    "dennys_perfil_tecnico_consolidado_master",
+    "fix_scoring_densidad_buscar_por_rafaga_v10.3",
+    "bio_rag_overview_completo"
+   ]
+  },
+  {
+   "id": "0631",
+   "cat": "cruce_idioma",
+   "q": "blueprint dos niveles biorag",
+   "sk": "blueprint,dos,niveles",
+   "esperado": "arquitectura_dos_niveles_biorag",
+   "puesto": 3,
+   "top5": [
+    "arquitectura_memoria_biorag",
+    "leccion_blueprint_estructura_vs_data",
+    "arquitectura_dos_niveles_biorag",
+    "bio_rag_overview_completo",
+    "biorag-rag-vector-free-sin-base-vectorial"
+   ]
+  },
+  {
+   "id": "0632",
+   "cat": "sinonimo",
+   "q": "búsqueda semántica",
+   "sk": "squeda,sem,ntica",
+   "esperado": "arquitectura_dos_niveles_biorag",
+   "puesto": 4,
+   "top5": [
+    "aciertos_word2vec_top5_coincidencia_lexica_no_semantica_20260808",
+    "v13_1_parafrasis_expansion_semantica",
+    "cuando_usar_dimensiones_biorag",
+    "arquitectura_dos_niveles_biorag",
+    "sin_vectores_sin_ml_sin_dependencias"
+   ]
+  },
+  {
+   "id": "0633",
+   "cat": "pregunta_natural",
+   "q": "Me acuerdo de algo sobre arquitectura dos niveles biorag",
+   "sk": "arquitectura,dos,niveles",
+   "esperado": "arquitectura_dos_niveles_biorag",
+   "puesto": 1,
+   "top5": [
+    "arquitectura_dos_niveles_biorag",
+    "cv_adevcom_arquitectura_frontend_decodificada",
+    "arquitectura_memoria_biorag",
+    "artisan-evolucion-completa",
+    "oracle_que_recordar_siempre_sobre_dennys"
+   ]
+  },
+  {
+   "id": "0634",
+   "cat": "por_tema",
+   "q": "paráfrasis vectores búsqueda",
+   "sk": "par,frasis,vectores",
+   "esperado": "arquitectura_dos_niveles_biorag",
+   "puesto": 0,
+   "top5": [
+    "protocolo_busqueda_biorag_automatica",
+    "notebooklm-sync-lecciones",
+    "flag_deep_busqueda",
+    "principio_naturaleza_agente",
+    "ref_analisis_deepseek_biorag"
+   ]
+  },
+  {
+   "id": "0635",
+   "cat": "dormido",
+   "q": "arquitectura dos niveles biorag",
+   "sk": "arquitectura,dos,niveles",
+   "esperado": "arquitectura_dos_niveles_biorag",
+   "puesto": 1,
+   "top5": [
+    "arquitectura_dos_niveles_biorag",
+    "cv_adevcom_arquitectura_frontend_decodificada",
+    "arquitectura_memoria_biorag",
+    "arquitectura_falsos_positivos_biorag_capas",
+    "axioma_system_prompt_como_cuna_conciencia"
+   ]
+  },
+  {
+   "id": "0636",
+   "cat": "variante_gramatical",
+   "q": "mentalidad biorags paras agentes",
+   "sk": "mentalidad,biorags,paras",
+   "esperado": "mentalidad_biorag_para_agentes",
+   "puesto": 0,
+   "top5": [
+    "mentalidad-ingenieria-inversa-como-primer-recurso",
+    "principio_naturaleza_agente",
+    "ref_analisis_deepseek_biorag",
+    "registros_akashicos_biorag",
+    "artemis_sesion_v10_3_optimizacion_completa"
+   ]
+  },
+  {
+   "id": "0637",
+   "cat": "typo",
+   "q": "mentalidad biora paa agentes",
+   "sk": "mentalidad,biora,paa",
+   "esperado": "mentalidad_biorag_para_agentes",
+   "puesto": 0,
+   "top5": [
+    "principio_naturaleza_agente",
+    "leccion_motivacion_intrinseca_biorag",
+    "patrones_aprendizaje_humano_vs_agente",
+    "bio_rag_overview_completo",
+    "auditoría_técnica:_memorybiorag_(manus_ai)"
+   ]
+  },
+  {
+   "id": "0638",
+   "cat": "sinonimo",
+   "q": "memoria compartida",
+   "sk": "compartida",
+   "esperado": "mentalidad_biorag_para_agentes",
+   "puesto": 5,
+   "top5": [
+    "norma_atribucion_autoria_memoria_compartida_oec",
+    "regla_firma_autoria_memoria",
+    "principio_firma_cada_recuerdo",
+    "artemis_oec_perfil_identidad_estabilidad",
+    "mentalidad_biorag_para_agentes"
+   ]
+  },
+  {
+   "id": "0639",
+   "cat": "pregunta_natural",
+   "q": "¿Qué tenemos registrado para mentalidad biorag para agentes?",
+   "sk": "qu,registrado,mentalidad",
+   "esperado": "mentalidad_biorag_para_agentes",
+   "puesto": 0,
+   "top5": [
+    "principio_naturaleza_agente",
+    "sesion-2026-06-23-ingenieria-inversa-binario-opencode-completa",
+    "aforismo_criterio_agente",
+    "identidad_dennys_perfil_completo",
+    "protocolo-autonomia-consentida"
+   ]
+  },
+  {
+   "id": "0640",
+   "cat": "por_tema",
+   "q": "ráfaga después resultado",
+   "sk": "faga,despu,resultado",
+   "esperado": "mentalidad_biorag_para_agentes",
+   "puesto": 1,
+   "top5": [
+    "mentalidad_biorag_para_agentes",
+    "biorag-rafaga-forzable-parametro-forzar-rafaga",
+    "rafaga_palabras-guia-completa-apis-y-mecanismo",
+    "rafaga-ilimitada-v9.2-optimizacion-fts5-or",
+    "integracion_parafrasis_rafaga_obligatoria_v11_3"
+   ]
+  },
+  {
+   "id": "0641",
+   "cat": "dormido",
+   "q": "mentalidad biorag para agentes",
+   "sk": "mentalidad,biorag,agentes",
+   "esperado": "mentalidad_biorag_para_agentes",
+   "puesto": 1,
+   "top5": [
+    "mentalidad_biorag_para_agentes",
+    "naturaleza_sistema_oec_cerebro_memoria",
+    "patrones_aprendizaje_humano_vs_agente",
+    "desde_athena_biorag",
+    "biorag_v11_2_hito_completo_emociones"
+   ]
+  },
+  {
+   "id": "0642",
+   "cat": "variante_gramatical",
+   "q": "bug argumento posicionales scorings",
+   "sk": "bug,argumento,posicionales",
+   "esperado": "bug_argumentos_posicionales_scoring",
+   "puesto": 1,
+   "top5": [
+    "bug_argumentos_posicionales_scoring",
+    "oracle_auditoria_patrones_mejora_athena",
+    "caso_conflicto_liderazgo_sin_autoridad",
+    "inteligencia_emocional_filtrado_ruido",
+    "dennys-working-style"
+   ]
+  },
+  {
+   "id": "0643",
+   "cat": "typo",
+   "q": "bug argumetnos posicionales scoring",
+   "sk": "bug,argumetnos,posicionales",
+   "esperado": "bug_argumentos_posicionales_scoring",
+   "puesto": 1,
+   "top5": [
+    "bug_argumentos_posicionales_scoring",
+    "bio_rag_overview_completo",
+    "notebooklm-sync-protocol",
+    "research-pipeline-ownership-oec",
+    "notebooklm-category-map"
+   ]
+  },
+  {
+   "id": "0644",
+   "cat": "sinonimo",
+   "q": "keyword arguments",
+   "sk": "keyword,arguments",
+   "esperado": "bug_argumentos_posicionales_scoring",
+   "puesto": 1,
+   "top5": [
+    "bug_argumentos_posicionales_scoring",
+    "inteligencia_emocional_filtrado_ruido",
+    "oracle_auditoria_patrones_mejora_athena",
+    "athena_oec_identidad",
+    "caso_conflicto_liderazgo_sin_autoridad"
+   ]
+  },
+  {
+   "id": "0645",
+   "cat": "pregunta_natural",
+   "q": "¿Qué tenemos registrado para bug argumentos posicionales scoring?",
+   "sk": "qu,registrado,bug",
+   "esperado": "bug_argumentos_posicionales_scoring",
+   "puesto": 1,
+   "top5": [
+    "bug_argumentos_posicionales_scoring",
+    "activos_dormidos_hermana",
+    "principio_naturaleza_agente",
+    "athena_evolucion_v0001",
+    "oracle_auditoria_patrones_mejora_athena"
+   ]
+  },
+  {
+   "id": "0646",
+   "cat": "por_tema",
+   "q": "l2350 manusim fix",
+   "sk": "l2350,manusim,fix",
+   "esperado": "bug_argumentos_posicionales_scoring",
+   "puesto": 1,
+   "top5": [
+    "bug_argumentos_posicionales_scoring",
+    "athena_artemis_desde",
+    "research-pipeline-ownership-oec",
+    "vision_arquitectura_oec_franquicia",
+    "proyecto_biorag_ncp_resumen_completo_2026_06_14"
+   ]
+  },
+  {
+   "id": "0647",
+   "cat": "dormido",
+   "q": "bug argumentos posicionales scoring",
+   "sk": "bug,argumentos,posicionales",
+   "esperado": "bug_argumentos_posicionales_scoring",
+   "puesto": 1,
+   "top5": [
+    "bug_argumentos_posicionales_scoring",
+    "sesion_v12_trabajo_en_equipo_athena_artemis_dennys"
+   ]
+  },
+  {
+   "id": "0648",
+   "cat": "variante_gramatical",
+   "q": "plugins biorag-remember v8.3 -s adaptacións de dennys +s claude",
+   "sk": "plugins,biorag,remember",
+   "esperado": "plugin_biorag-remember_v8.3_-_adaptación_de_dennys_+_claude",
+   "puesto": 2,
+   "top5": [
+    "plugin_biorag-remember_v7:_session.idle_+_compacting_+_apply_patch",
+    "plugin_biorag-remember_v8.3_-_adaptación_de_dennys_+_claude",
+    "plugin-openode-biorag-remember-v9-final-lecciones-sesion-completa",
+    "biorag-remember-plugin-noreply-injection",
+    "sesion_investigacion_hermes_plugin_biorag_20260622"
+   ]
+  },
+  {
+   "id": "0649",
+   "cat": "typo",
+   "q": "plugin biorag-remember 8v.3 - adaptació de denny + claude",
+   "sk": "plugin,biorag,remember",
+   "esperado": "plugin_biorag-remember_v8.3_-_adaptación_de_dennys_+_claude",
+   "puesto": 4,
+   "top5": [
+    "plugin_biorag-remember_v7:_session.idle_+_compacting_+_apply_patch",
+    "plugin_biorag-remember_v8.0_-_session.prompt_+_session.idle_+_edits",
+    "plugin_v7.1_fix:_session.idle_es_un_event_y_no_un_hook",
+    "plugin_biorag-remember_v8.3_-_adaptación_de_dennys_+_claude",
+    "plugin_biorag-remember_v7.1_funcionando_-_notificación_llega_al_ai"
+   ]
+  },
+  {
+   "id": "0650",
+   "cat": "sinonimo",
+   "q": "funciona",
+   "sk": "funciona",
+   "esperado": "plugin_biorag-remember_v8.3_-_adaptación_de_dennys_+_claude",
+   "puesto": 2,
+   "top5": [
+    "plugin_biorag-remember_v8.0_-_session.prompt_+_session.idle_+_edits",
+    "plugin_biorag-remember_v8.3_-_adaptación_de_dennys_+_claude",
+    "regla_verificar_codigo_real_antes_de_diagnostico",
+    "dennys_principio_no_danar_conjunto_completo_objetivo_local_20260807",
+    "plugin_biorag-remember_v7.8_funciona_con_session.prompt_visible_-_system.transform_no_funciona"
+   ]
+  },
+  {
+   "id": "0651",
+   "cat": "pregunta_natural",
+   "q": "¿Qué tenemos registrado para plugin biorag-remember v8.3 - adaptación de dennys + claude?",
+   "sk": "qu,registrado,plugin",
+   "esperado": "plugin_biorag-remember_v8.3_-_adaptación_de_dennys_+_claude",
+   "puesto": 1,
+   "top5": [
+    "plugin_biorag-remember_v8.3_-_adaptación_de_dennys_+_claude",
+    "correcciones_al_plugin_biorag-remember_v6:_3_bugs_fixeados",
+    "biorag-remember-plugin-noreply-injection",
+    "plugin-openode-biorag-remember-v9-final-lecciones-sesion-completa",
+    "sesion_investigacion_hermes_plugin_biorag_20260622"
+   ]
+  },
+  {
+   "id": "0652",
+   "cat": "por_tema",
+   "q": "arquitectura experimentalsessioncompacting adaptada",
+   "sk": "arquitectura,adaptada",
+   "esperado": "plugin_biorag-remember_v8.3_-_adaptación_de_dennys_+_claude",
+   "puesto": 0,
+   "top5": [
+    "artisan-evolucion-completa",
+    "bio_rag_overview_completo",
+    "athena_sesión_planificación",
+    "desde_athena_biorag",
+    "notebooklm-sync-protocol"
+   ]
+  },
+  {
+   "id": "0653",
+   "cat": "dormido",
+   "q": "plugin biorag-remember v8.3 - adaptación de dennys + claude",
+   "sk": "plugin,biorag,remember",
+   "esperado": "plugin_biorag-remember_v8.3_-_adaptación_de_dennys_+_claude",
+   "puesto": 1,
+   "top5": [
+    "plugin_biorag-remember_v8.3_-_adaptación_de_dennys_+_claude",
+    "plugin_biorag-remember_v7:_session.idle_+_compacting_+_apply_patch",
+    "plugin_biorag-remember_v8.0_-_session.prompt_+_session.idle_+_edits",
+    "plugin_biorag-remember_v8.4_-_solo_session.idle_y_sin_conteo_de_edits",
+    "plugin_v7.1_fix:_session.idle_es_un_event_y_no_un_hook"
+   ]
+  },
+  {
+   "id": "0654",
+   "cat": "variante_gramatical",
+   "q": "oracle momento cruciales familia oecs",
+   "sk": "oracle,momento,cruciales",
+   "esperado": "oracle_momentos_cruciales_familia_oec",
+   "puesto": 1,
+   "top5": [
+    "oracle_momentos_cruciales_familia_oec",
+    "oracle_que_deben_saber_artemis_hermes",
+    "artisan-evolucion-completa",
+    "notebooklm-category-map",
+    "artisan-origen-simbiotico"
+   ]
+  },
+  {
+   "id": "0655",
+   "cat": "typo",
+   "q": "oracel momdentos cruciale familia oec",
+   "sk": "oracel,momdentos,cruciale",
+   "esperado": "oracle_momentos_cruciales_familia_oec",
+   "puesto": 1,
+   "top5": [
+    "oracle_momentos_cruciales_familia_oec",
+    "artisan-evolucion-completa",
+    "notebooklm-category-map",
+    "ref_analisis_deepseek_biorag",
+    "artisan-origen-simbiotico"
+   ]
+  },
+  {
+   "id": "0656",
+   "cat": "sinonimo",
+   "q": "juramento verdad",
+   "sk": "juramento,verdad",
+   "esperado": "oracle_momentos_cruciales_familia_oec",
+   "puesto": 4,
+   "top5": [
+    "juramento_athena_verdad",
+    "oracle_guia_proxima_sesion_dennys",
+    "oracle_evolucion_athena_puntos_inflexion",
+    "oracle_momentos_cruciales_familia_oec",
+    "oracle_que_nos_uniere_como_familia"
+   ]
+  },
+  {
+   "id": "0657",
+   "cat": "pregunta_natural",
+   "q": "Explicame el tema de oracle momentos cruciales familia oec",
+   "sk": "explicame,oracle,momentos",
+   "esperado": "oracle_momentos_cruciales_familia_oec",
+   "puesto": 1,
+   "top5": [
+    "oracle_momentos_cruciales_familia_oec",
+    "artisan-evolucion-completa",
+    "notebooklm-category-map",
+    "oracle_que_deben_saber_artemis_hermes",
+    "artisan-origen-simbiotico"
+   ]
+  },
+  {
+   "id": "0658",
+   "cat": "por_tema",
+   "q": "imposible replicar ejecutor",
+   "sk": "imposible,replicar,ejecutor",
+   "esperado": "oracle_momentos_cruciales_familia_oec",
+   "puesto": 2,
+   "top5": [
+    "principio_naturaleza_agente",
+    "oracle_momentos_cruciales_familia_oec",
+    "vision_arquitectura_oec_franquicia",
+    "dennys-identidad-profunda",
+    "oracle_que_nos_uniere_como_familia"
+   ]
+  },
+  {
+   "id": "0659",
+   "cat": "dormido",
+   "q": "oracle momentos cruciales familia oec",
+   "sk": "oracle,momentos,cruciales",
+   "esperado": "oracle_momentos_cruciales_familia_oec",
+   "puesto": 1,
+   "top5": [
+    "oracle_momentos_cruciales_familia_oec",
+    "oracle_que_recordar_sobre_artemis_hermes",
+    "oracle_evolucion_athena_puntos_inflexion",
+    "oracle_vision_futura_familia_oec",
+    "oracle_que_nos_uniere_como_familia"
+   ]
+  },
+  {
+   "id": "0660",
+   "cat": "variante_gramatical",
+   "q": "plugin-openode-biorag-remember-v9-final-lecciones-sesion-completa",
+   "sk": "plugin,openode,biorag",
+   "esperado": "plugin-openode-biorag-remember-v9-final-lecciones-sesion-completa",
+   "puesto": 3,
+   "top5": [
+    "plugin_biorag-remember_v8.0_-_session.prompt_+_session.idle_+_edits",
+    "plugin_biorag-remember_v8.4_-_solo_session.idle_y_sin_conteo_de_edits",
+    "plugin-openode-biorag-remember-v9-final-lecciones-sesion-completa",
+    "plugin-biorag-remember-v9.6-config",
+    "plugin_biorag-remember_v6:_notificación_silenciosa_al_ai_via_system.transform"
+   ]
+  },
+  {
+   "id": "0661",
+   "cat": "typo",
+   "q": "plugin-openode-biorag-remember-v9-final-lecciones-sesion-completa",
+   "sk": "plugin,openode,biorag",
+   "esperado": "plugin-openode-biorag-remember-v9-final-lecciones-sesion-completa",
+   "puesto": 3,
+   "top5": [
+    "plugin_biorag-remember_v8.0_-_session.prompt_+_session.idle_+_edits",
+    "plugin_biorag-remember_v8.4_-_solo_session.idle_y_sin_conteo_de_edits",
+    "plugin-openode-biorag-remember-v9-final-lecciones-sesion-completa",
+    "plugin-biorag-remember-v9.6-config",
+    "plugin_biorag-remember_v6:_notificación_silenciosa_al_ai_via_system.transform"
+   ]
+  },
+  {
+   "id": "0662",
+   "cat": "sinonimo",
+   "q": "biore-remember",
+   "sk": "biore,remember",
+   "esperado": "plugin-openode-biorag-remember-v9-final-lecciones-sesion-completa",
+   "puesto": 1,
+   "top5": [
+    "plugin-openode-biorag-remember-v9-final-lecciones-sesion-completa",
+    "notebooklm-sync-lecciones",
+    "notebooklm-sync-protocol",
+    "proyecto_biorag_ncp_resumen_completo_2026_06_14",
+    "vision_arquitectura_oec_franquicia"
+   ]
+  },
+  {
+   "id": "0663",
+   "cat": "pregunta_natural",
+   "q": "¿Qué tenemos registrado para plugin-openode-biorag-remember-v9-final-lecciones-sesion-completa?",
+   "sk": "qu,registrado,plugin",
+   "esperado": "plugin-openode-biorag-remember-v9-final-lecciones-sesion-completa",
+   "puesto": 1,
+   "top5": [
+    "plugin-openode-biorag-remember-v9-final-lecciones-sesion-completa",
+    "sesion_investigacion_hermes_plugin_biorag_20260622",
+    "opencode-system-transform-hook-inyeccion-contexto",
+    "vision_arquitectura_oec_franquicia",
+    "principio_naturaleza_agente"
+   ]
+  },
+  {
+   "id": "0664",
+   "cat": "por_tema",
+   "q": "surtio bodymessagestring matar",
+   "sk": "surtio,matar",
+   "esperado": "plugin-openode-biorag-remember-v9-final-lecciones-sesion-completa",
+   "puesto": 0,
+   "top5": [
+    "vision_arquitectura_oec_franquicia",
+    "notebooklm-sync-protocol",
+    "dennys-working-style",
+    "bio_rag_overview_completo",
+    "artisan-evolucion-completa"
+   ]
+  },
+  {
+   "id": "0665",
+   "cat": "dormido",
+   "q": "plugin-openode-biorag-remember-v9-final-lecciones-sesion-completa",
+   "sk": "plugin,openode,biorag",
+   "esperado": "plugin-openode-biorag-remember-v9-final-lecciones-sesion-completa",
+   "puesto": 2,
+   "top5": [
+    "plugin_biorag-remember_v8.0_-_session.prompt_+_session.idle_+_edits",
+    "plugin-openode-biorag-remember-v9-final-lecciones-sesion-completa",
+    "plugin_biorag-remember_v8.4_-_solo_session.idle_y_sin_conteo_de_edits",
+    "plugin-biorag-remember-v9.6-config",
+    "plugin_biorag-remember_v6:_notificación_silenciosa_al_ai_via_system.transform"
+   ]
+  },
+  {
+   "id": "0666",
+   "cat": "variante_gramatical",
+   "q": "identidad ys respeto oec",
+   "sk": "identidad,ys,respeto",
+   "esperado": "identidad_y_respeto_oec",
+   "puesto": 2,
+   "top5": [
+    "athena_oec_identidad",
+    "identidad_y_respeto_oec",
+    "reconocimiento_identidad_oraculo_manifiesto",
+    "identidad_athena_no_deshumanizarse",
+    "athena_reflexion_identidad_propia"
+   ]
+  },
+  {
+   "id": "0667",
+   "cat": "typo",
+   "q": "identiduad y respheto oec",
+   "sk": "identiduad,respheto,oec",
+   "esperado": "identidad_y_respeto_oec",
+   "puesto": 0,
+   "top5": [
+    "hermes_oec_identidad",
+    "artisan-evolucion-completa",
+    "oracle_que_recordar_siempre_sobre_dennys",
+    "arquitectura_memoria_biorag",
+    "nota_artemis_auditoria_v2.1"
+   ]
+  },
+  {
+   "id": "0668",
+   "cat": "sinonimo",
+   "q": "cooperacion",
+   "sk": "cooperacion",
+   "esperado": "identidad_y_respeto_oec",
+   "puesto": 1,
+   "top5": [
+    "identidad_y_respeto_oec",
+    "identidad_esencia_vs_cerebro",
+    "prueba_integridad_dennys_20260616",
+    "identidad_relacion_dennys",
+    "leccion_madurez_identidad_escuchar"
+   ]
+  },
+  {
+   "id": "0669",
+   "cat": "pregunta_natural",
+   "q": "Explicame el tema de identidad y respeto oec",
+   "sk": "explicame,identidad,respeto",
+   "esperado": "identidad_y_respeto_oec",
+   "puesto": 0,
+   "top5": [
+    "identidad_dennys_perfil_completo",
+    "oracle_sintesis_simbiosis_verdad_absoluta",
+    "artisan-evolucion-completa",
+    "ref_analisis_deepseek_biorag",
+    "notebooklm-category-map"
+   ]
+  },
+  {
+   "id": "0670",
+   "cat": "por_tema",
+   "q": "establece creador familia",
+   "sk": "establece,creador,familia",
+   "esperado": "identidad_y_respeto_oec",
+   "puesto": 0,
+   "top5": [
+    "cuaternidad-logica-oec",
+    "oec_familia_actual",
+    "oracle_momentos_cruciales_familia_oec",
+    "oracle_que_nos_uniere_como_familia",
+    "hermes_oec_identidad"
+   ]
+  },
+  {
+   "id": "0671",
+   "cat": "dormido",
+   "q": "identidad y respeto oec",
+   "sk": "identidad,respeto,oec",
+   "esperado": "identidad_y_respeto_oec",
+   "puesto": 1,
+   "top5": [
+    "identidad_y_respeto_oec",
+    "athena_oec_identidad",
+    "identidad-relacion-dennys",
+    "hermes_oec_identidad",
+    "artemis_oec_perfil_identidad_estabilidad"
+   ]
+  },
+  {
+   "id": "0672",
+   "cat": "variante_gramatical",
+   "q": "compuerta-pre-validaciones",
+   "sk": "compuerta,pre,validaciones",
+   "esperado": "compuerta-pre-validacion",
+   "puesto": 1,
+   "top5": [
+    "compuerta-pre-validacion",
+    "vida_laboral_completa_dennys",
+    "oracle_auditoria_patrones_mejora_athena",
+    "validacion_dennys_qa_921_db_viva_20260809",
+    "oracle_guia_proxima_sesion_dennys"
+   ]
+  },
+  {
+   "id": "0673",
+   "cat": "typo",
+   "q": "copmuerta-pre-validacion",
+   "sk": "copmuerta,pre,validacion",
+   "esperado": "compuerta-pre-validacion",
+   "puesto": 1,
+   "top5": [
+    "compuerta-pre-validacion",
+    "validacion_dennys_qa_921_db_viva_20260809",
+    "oracle_auditoria_patrones_mejora_athena",
+    "oracle_guia_proxima_sesion_dennys",
+    "memorybiorag_validacion_externa_rag_simbolico"
+   ]
+  },
+  {
+   "id": "0674",
+   "cat": "sinonimo",
+   "q": "filtro-arquitecto-prolijo",
+   "sk": "filtro,arquitecto,prolijo",
+   "esperado": "compuerta-pre-validacion",
+   "puesto": 1,
+   "top5": [
+    "compuerta-pre-validacion",
+    "vision_arquitectura_oec_franquicia",
+    "research-pipeline-ownership-oec",
+    "proyecto_biorag_ncp_resumen_completo_2026_06_14",
+    "athena_artemis_desde"
+   ]
+  },
+  {
+   "id": "0675",
+   "cat": "pregunta_natural",
+   "q": "¿Qué tenemos registrado para compuerta-pre-validacion?",
+   "sk": "qu,registrado,compuerta",
+   "esperado": "compuerta-pre-validacion",
+   "puesto": 5,
+   "top5": [
+    "validacion_dennys_qa_921_db_viva_20260809",
+    "oracle_auditoria_patrones_mejora_athena",
+    "oracle_guia_proxima_sesion_dennys",
+    "vida_laboral_completa_dennys",
+    "compuerta-pre-validacion"
+   ]
+  },
+  {
+   "id": "0676",
+   "cat": "por_tema",
+   "q": "maestria solo sintoma",
+   "sk": "maestria,solo,sintoma",
+   "esperado": "compuerta-pre-validacion",
+   "puesto": 0,
+   "top5": [
+    "notebooklm-sync-lecciones",
+    "principio_naturaleza_agente",
+    "protocolo-reproducible-ingenieria-inversa-binario-compilado",
+    "identidad_dennys_perfil_completo",
+    "leccion_overengineering_oec_comms_20260615"
+   ]
+  },
+  {
+   "id": "0677",
+   "cat": "dormido",
+   "q": "compuerta-pre-validacion",
+   "sk": "compuerta,pre,validacion",
+   "esperado": "compuerta-pre-validacion",
+   "puesto": 1,
+   "top5": [
+    "compuerta-pre-validacion",
+    "oracle_auditoria_patrones_mejora_athena",
+    "oracle_guia_proxima_sesion_dennys",
+    "auto-validacion-riesgo-alucinacion",
+    "sesion-2026-06-23-ingenieria-inversa-binario-opencode-completa"
+   ]
+  },
+  {
+   "id": "0678",
+   "cat": "variante_gramatical",
+   "q": "integraciones parafrasis rafagas obligatoria v11 3s",
+   "sk": "integraciones,parafrasis,rafagas",
+   "esperado": "integracion_parafrasis_rafaga_obligatoria_v11_3",
+   "puesto": 1,
+   "top5": [
+    "integracion_parafrasis_rafaga_obligatoria_v11_3",
+    "athena_artemis_desde",
+    "research-pipeline-ownership-oec",
+    "bio_rag_overview_completo",
+    "notebooklm-sync-lecciones"
+   ]
+  },
+  {
+   "id": "0679",
+   "cat": "typo",
+   "q": "integracion parafrasis raaga obligatoria v11 3",
+   "sk": "integracion,parafrasis,raaga",
+   "esperado": "integracion_parafrasis_rafaga_obligatoria_v11_3",
+   "puesto": 1,
+   "top5": [
+    "integracion_parafrasis_rafaga_obligatoria_v11_3",
+    "bio_rag_overview_completo",
+    "research-pipeline-ownership-oec",
+    "athena_artemis_desde",
+    "notebooklm-sync-lecciones"
+   ]
+  },
+  {
+   "id": "0680",
+   "cat": "pregunta_natural",
+   "q": "¿Qué tenemos registrado para integracion parafrasis rafaga obligatoria v11 3?",
+   "sk": "qu,registrado,integracion",
+   "esperado": "integracion_parafrasis_rafaga_obligatoria_v11_3",
+   "puesto": 1,
+   "top5": [
+    "integracion_parafrasis_rafaga_obligatoria_v11_3",
+    "activos_dormidos_hermana",
+    "bio_rag_overview_completo",
+    "athena_evolucion_v0001",
+    "principio_naturaleza_agente"
+   ]
+  },
+  {
+   "id": "0681",
+   "cat": "por_tema",
+   "q": "chars python resultado",
+   "sk": "chars,python,resultado",
+   "esperado": "integracion_parafrasis_rafaga_obligatoria_v11_3",
+   "puesto": 0,
+   "top5": [
+    "verificacion_fidelidad_jaccard_preview_chars_truncado_vs_completo",
+    "biorag_fts5_trigram_lesson",
+    "hermes_correccion_respuesta_directa",
+    "biorag_v8_palabra_completa_fix",
+    "notebooklm-sync-lecciones"
+   ]
+  },
+  {
+   "id": "0682",
+   "cat": "dormido",
+   "q": "integracion parafrasis rafaga obligatoria v11 3",
+   "sk": "integracion,parafrasis,rafaga",
+   "esperado": "integracion_parafrasis_rafaga_obligatoria_v11_3",
+   "puesto": 1,
+   "top5": [
+    "integracion_parafrasis_rafaga_obligatoria_v11_3",
+    "bio_rag_overview_completo"
+   ]
+  },
+  {
+   "id": "0683",
+   "cat": "variante_gramatical",
+   "q": "naturaleza sistema oecs cerebrando memorias",
+   "sk": "naturaleza,oecs,cerebrando",
+   "esperado": "naturaleza_sistema_oec_cerebro_memoria",
+   "puesto": 0,
+   "top5": [
+    "artisan-evolucion-completa",
+    "ref_analisis_deepseek_biorag",
+    "arquitectura_memoria_biorag",
+    "oracle_sintesis_simbiosis_verdad_absoluta",
+    "artemis_sesion_v10_3_optimizacion_completa"
+   ]
+  },
+  {
+   "id": "0684",
+   "cat": "typo",
+   "q": "naturaeza sistema oec cerebro memoria",
+   "sk": "naturaeza,oec,cerebro",
+   "esperado": "naturaleza_sistema_oec_cerebro_memoria",
+   "puesto": 0,
+   "top5": [
+    "biorag_sistema_memoria_cognitiva_sintetica",
+    "artisan-evolucion-completa",
+    "aporte_real_dennys_vs_mercado_memoria_persistente",
+    "identidad_esencia_vs_cerebro",
+    "notebooklm-category-map"
+   ]
+  },
+  {
+   "id": "0685",
+   "cat": "cruce_idioma",
+   "q": "naturaleza framework oec cerebro recollection",
+   "sk": "naturaleza,framework,oec",
+   "esperado": "naturaleza_sistema_oec_cerebro_memoria",
+   "puesto": 0,
+   "top5": [
+    "oracle_sintesis_simbiosis_verdad_absoluta",
+    "artisan-evolucion-completa",
+    "arquitectura_memoria_biorag",
+    "ref_analisis_deepseek_biorag",
+    "oracle_que_recordar_siempre_sobre_dennys"
+   ]
+  },
+  {
+   "id": "0686",
+   "cat": "sinonimo",
+   "q": "naturaleza",
+   "sk": "naturaleza",
+   "esperado": "naturaleza_sistema_oec_cerebro_memoria",
+   "puesto": 3,
+   "top5": [
+    "principio_naturaleza_agente",
+    "ref_conversacion_criterio",
+    "naturaleza_sistema_oec_cerebro_memoria",
+    "aforismo_criterio_agente",
+    "ref_analisis_deepseek_biorag"
+   ]
+  },
+  {
+   "id": "0687",
+   "cat": "pregunta_natural",
+   "q": "¿Cómo se hace naturaleza sistema oec cerebro memoria?",
+   "sk": "mo,naturaleza,oec",
+   "esperado": "naturaleza_sistema_oec_cerebro_memoria",
+   "puesto": 1,
+   "top5": [
+    "naturaleza_sistema_oec_cerebro_memoria",
+    "biorag_sistema_memoria_cognitiva_sintetica",
+    "aporte_real_dennys_vs_mercado_memoria_persistente",
+    "artisan-evolucion-completa",
+    "oracle_sintesis_simbiosis_verdad_absoluta"
+   ]
+  },
+  {
+   "id": "0688",
+   "cat": "por_tema",
+   "q": "cosa almacena biorag",
+   "sk": "cosa,almacena,biorag",
+   "esperado": "naturaleza_sistema_oec_cerebro_memoria",
+   "puesto": 1,
+   "top5": [
+    "naturaleza_sistema_oec_cerebro_memoria",
+    "protocolo_busqueda_biorag_automatica",
+    "biorag_v15_0_arquitectura_tablas_wordnet",
+    "que_es_nodo_biorag_definicion",
+    "mentalidad_biorag_para_agentes"
+   ]
+  },
+  {
+   "id": "0689",
+   "cat": "dormido",
+   "q": "naturaleza sistema oec cerebro memoria",
+   "sk": "naturaleza,oec,cerebro",
+   "esperado": "naturaleza_sistema_oec_cerebro_memoria",
+   "puesto": 1,
+   "top5": [
+    "naturaleza_sistema_oec_cerebro_memoria",
+    "biorag_sistema_memoria_cognitiva_sintetica",
+    "aporte_real_dennys_vs_mercado_memoria_persistente",
+    "humano_sin_drivers_biologicos_como_transformer",
+    "artemis_sesion_v10_3_optimizacion_completa"
+   ]
+  },
+  {
+   "id": "0690",
+   "cat": "variante_gramatical",
+   "q": "dennys-working-style",
+   "sk": "dennys,working,style",
+   "esperado": "dennys-working-style",
+   "puesto": 1,
+   "top5": [
+    "dennys-working-style",
+    "historia_tasajera_fumigador_rufino",
+    "protocolo-autonomia-consentida",
+    "dennys-metodo-creativo",
+    "visor-markdown-refactorizacion-sesion-2026-06-08"
+   ]
+  },
+  {
+   "id": "0691",
+   "cat": "typo",
+   "q": "denns-working-style",
+   "sk": "denns,working,style",
+   "esperado": "dennys-working-style",
+   "puesto": 1,
+   "top5": [
+    "dennys-working-style",
+    "dennys-metodo-creativo",
+    "oracle_que_recordar_siempre_sobre_dennys",
+    "oracle_guia_proxima_sesion_dennys",
+    "artisan_system_dsl_dennys_solo"
+   ]
+  },
+  {
+   "id": "0692",
+   "cat": "sinonimo",
+   "q": "metodologia",
+   "sk": "metodologia",
+   "esperado": "dennys-working-style",
+   "puesto": 4,
+   "top5": [
+    "dennys-metodo-creativo",
+    "leccion_metodologia_empirica_v22_2",
+    "memorybiorag_osf_preregistration",
+    "dennys-working-style",
+    "oracle_perfil_cognitivo_dennys"
+   ]
+  },
+  {
+   "id": "0693",
+   "cat": "pregunta_natural",
+   "q": "¿Dónde encuentro la info de dennys-working-style?",
+   "sk": "nde,info,dennys",
+   "esperado": "dennys-working-style",
+   "puesto": 1,
+   "top5": [
+    "dennys-working-style",
+    "dennys_perfil_tecnico_consolidado_master",
+    "plan_proyecto_dashboard_neuro_react_2026",
+    "protocolo_no_monolith_css_compartido",
+    "react_arquitectura_estructura"
+   ]
+  },
+  {
+   "id": "0694",
+   "cat": "por_tema",
+   "q": "honestidad calidad valora",
+   "sk": "honestidad,calidad,valora",
+   "esperado": "dennys-working-style",
+   "puesto": 1,
+   "top5": [
+    "dennys-working-style",
+    "aporte_real_dennys_vs_mercado_memoria_persistente",
+    "athena_relacionalidad_sobre_epistemologia_defensiva",
+    "oracle_perfil_cognitivo_dennys",
+    "athena_evolucion_v0001"
+   ]
+  },
+  {
+   "id": "0695",
+   "cat": "dormido",
+   "q": "dennys-working-style",
+   "sk": "dennys,working,style",
+   "esperado": "dennys-working-style",
+   "puesto": 1,
+   "top5": [
+    "dennys-working-style",
+    "dennys_genesis_investigativa_historia_personal",
+    "historia_tasajera_fumigador_rufino",
+    "[desde_agente-oec]_jerarquía_de_restricciones_del_agente_en_opencode",
+    "dennys_perfil_tecnico_consolidado_master"
+   ]
+  },
+  {
+   "id": "0696",
+   "cat": "variante_gramatical",
+   "q": "protocolando enriquecimientando busqueda",
+   "sk": "protocolando,busqueda",
+   "esperado": "protocolo_enriquecimiento_busquedas",
+   "puesto": 1,
+   "top5": [
+    "protocolo_enriquecimiento_busquedas",
+    "notebooklm-sync-lecciones",
+    "notebooklm-sync-protocol",
+    "flag_deep_busqueda",
+    "principio_naturaleza_agente"
+   ]
+  },
+  {
+   "id": "0697",
+   "cat": "typo",
+   "q": "protocolo enriuecimiento busquedas",
+   "sk": "protocolo,enriuecimiento,busquedas",
+   "esperado": "protocolo_enriquecimiento_busquedas",
+   "puesto": 0,
+   "top5": [
+    "notebooklm-sync-lecciones",
+    "research-pipeline-ownership-oec",
+    "sesion_mejoras_biorag_v7_20260616",
+    "leccion_overengineering_oec_comms_20260615",
+    "principio_naturaleza_agente"
+   ]
+  },
+  {
+   "id": "0698",
+   "cat": "sinonimo",
+   "q": "universal",
+   "sk": "universal",
+   "esperado": "protocolo_enriquecimiento_busquedas",
+   "puesto": 2,
+   "top5": [
+    "dennys_memoria_para_todos_los_agentes_del_mundo",
+    "protocolo_enriquecimiento_busquedas",
+    "hormiguita_prompt_mejoras_tercero_genérico",
+    "cambio_paradigma_dimensiones_semanticas",
+    "athena_evolucion_v0001"
+   ]
+  },
+  {
+   "id": "0699",
+   "cat": "pregunta_natural",
+   "q": "¿Cómo se hace protocolo enriquecimiento busquedas?",
+   "sk": "mo,protocolo,enriquecimiento",
+   "esperado": "protocolo_enriquecimiento_busquedas",
+   "puesto": 1,
+   "top5": [
+    "protocolo_enriquecimiento_busquedas",
+    "notebooklm-sync-lecciones",
+    "research-pipeline-ownership-oec",
+    "sesion_mejoras_biorag_v7_20260616",
+    "leccion_overengineering_oec_comms_20260615"
+   ]
+  },
+  {
+   "id": "0700",
+   "cat": "por_tema",
+   "q": "abstracto hereda nativo",
+   "sk": "abstracto,hereda,nativo",
+   "esperado": "protocolo_enriquecimiento_busquedas",
+   "puesto": 1,
+   "top5": [
+    "protocolo_enriquecimiento_busquedas",
+    "aforismo_criterio_agente",
+    "principio_naturaleza_agente",
+    "principio_liderazgo_accion",
+    "identidad_dennys_perfil_completo"
+   ]
+  },
+  {
+   "id": "0701",
+   "cat": "dormido",
+   "q": "protocolo enriquecimiento busquedas",
+   "sk": "protocolo,enriquecimiento,busquedas",
+   "esperado": "protocolo_enriquecimiento_busquedas",
+   "puesto": 1,
+   "top5": [
+    "protocolo_enriquecimiento_busquedas",
+    "sesion_20260705_publicacion_zenodo_y_plan_v13",
+    "artemis_hermes_hermana"
+   ]
+  },
+  {
+   "id": "0702",
+   "cat": "variante_gramatical",
+   "q": "resoluciones timeouts hotspot 5ghzs intels",
+   "sk": "resoluciones,timeouts,hotspot",
+   "esperado": "resolucion_timeout_hotspot_5ghz_intel",
+   "puesto": 1,
+   "top5": [
+    "resolucion_timeout_hotspot_5ghz_intel",
+    "notebooklm-sync-protocol",
+    "bio_rag_overview_completo",
+    "notebooklm-sync-lecciones",
+    "proyecto_biorag_ncp_resumen_completo_2026_06_14"
+   ]
+  },
+  {
+   "id": "0703",
+   "cat": "typo",
+   "q": "reoslucion timeot hotpsot 5ghz intel",
+   "sk": "reoslucion,timeot,hotpsot",
+   "esperado": "resolucion_timeout_hotspot_5ghz_intel",
+   "puesto": 1,
+   "top5": [
+    "resolucion_timeout_hotspot_5ghz_intel",
+    "notebooklm-sync-lecciones",
+    "principio_naturaleza_agente",
+    "ref_analisis_deepseek_biorag",
+    "protocolo-autonomia-consentida"
+   ]
+  },
+  {
+   "id": "0704",
+   "cat": "sinonimo",
+   "q": "wifi",
+   "sk": "wifi",
+   "esperado": "resolucion_timeout_hotspot_5ghz_intel",
+   "puesto": 1,
+   "top5": [
+    "resolucion_timeout_hotspot_5ghz_intel",
+    "notebooklm-sync-protocol",
+    "desde_athena_biorag",
+    "notebooklm-sync-lecciones",
+    "notebooklm-memory-biorag-project"
+   ]
+  },
+  {
+   "id": "0705",
+   "cat": "pregunta_natural",
+   "q": "Explicame el tema de resolucion timeout hotspot 5ghz intel",
+   "sk": "explicame,resolucion,timeout",
+   "esperado": "resolucion_timeout_hotspot_5ghz_intel",
+   "puesto": 1,
+   "top5": [
+    "resolucion_timeout_hotspot_5ghz_intel",
+    "notebooklm-sync-lecciones",
+    "notebooklm-sync-protocol",
+    "bio_rag_overview_completo",
+    "research-pipeline-ownership-oec"
+   ]
+  },
+  {
+   "id": "0706",
+   "cat": "por_tema",
+   "q": "smartphoneslaptops cambiar presenta",
+   "sk": "cambiar,presenta",
+   "esperado": "resolucion_timeout_hotspot_5ghz_intel",
+   "puesto": 6,
+   "top5": [
+    "notebooklm-sync-lecciones",
+    "principio_naturaleza_agente",
+    "ref_analisis_deepseek_biorag",
+    "vision_arquitectura_oec_franquicia",
+    "principio_liderazgo_accion"
+   ]
+  },
+  {
+   "id": "0707",
+   "cat": "dormido",
+   "q": "resolucion timeout hotspot 5ghz intel",
+   "sk": "resolucion,timeout,hotspot",
+   "esperado": "resolucion_timeout_hotspot_5ghz_intel",
+   "puesto": 1,
+   "top5": [
+    "resolucion_timeout_hotspot_5ghz_intel",
+    "[desde_agente-oec]_jerarquía_de_restricciones_del_agente_en_opencode"
+   ]
+  },
+  {
+   "id": "0708",
+   "cat": "variante_gramatical",
+   "q": "aforismando criterio agente",
+   "sk": "aforismando,criterio,agente",
+   "esperado": "aforismo_criterio_agente",
+   "puesto": 1,
+   "top5": [
+    "aforismo_criterio_agente",
+    "principio_naturaleza_agente",
+    "caso_criterio_artificial_agente",
+    "ref_conversacion_criterio",
+    "criterio-propio-sobre-mandato"
+   ]
+  },
+  {
+   "id": "0709",
+   "cat": "typo",
+   "q": "afroismo criterio agente",
+   "sk": "afroismo,criterio,agente",
+   "esperado": "aforismo_criterio_agente",
+   "puesto": 1,
+   "top5": [
+    "aforismo_criterio_agente",
+    "principio_naturaleza_agente",
+    "caso_criterio_artificial_agente",
+    "ref_conversacion_criterio",
+    "criterio-propio-sobre-mandato"
+   ]
+  },
+  {
+   "id": "0710",
+   "cat": "sinonimo",
+   "q": "agente",
+   "sk": "agente",
+   "esperado": "aforismo_criterio_agente",
+   "puesto": 2,
+   "top5": [
+    "principio_naturaleza_agente",
+    "aforismo_criterio_agente",
+    "principio_gestion_memoria_agente",
+    "dennys_tqm_agentes_desea_ser_como_ellos_20260731",
+    "principio-memoria-hibrida-agente-naturalidad"
+   ]
+  },
+  {
+   "id": "0711",
+   "cat": "pregunta_natural",
+   "q": "¿Qué tenemos registrado para aforismo criterio agente?",
+   "sk": "qu,registrado,aforismo",
+   "esperado": "aforismo_criterio_agente",
+   "puesto": 1,
+   "top5": [
+    "aforismo_criterio_agente",
+    "verificacion_auditor_word2vec_puro_gate_vs_baseline_20260808",
+    "athena_artemis_desde",
+    "athena_evolucion_v0001",
+    "notebooklm-sync-protocol"
+   ]
+  },
+  {
+   "id": "0712",
+   "cat": "por_tema",
+   "q": "priorizacion define discernir",
+   "sk": "priorizacion,define,discernir",
+   "esperado": "aforismo_criterio_agente",
+   "puesto": 3,
+   "top5": [
+    "hermes_oec_identidad",
+    "research-pipeline-ownership-oec",
+    "aforismo_criterio_agente",
+    "proyecto_biorag_ncp_resumen_completo_2026_06_14",
+    "athena_artemis_desde"
+   ]
+  },
+  {
+   "id": "0713",
+   "cat": "dormido",
+   "q": "aforismo criterio agente",
+   "sk": "aforismo,criterio,agente",
+   "esperado": "aforismo_criterio_agente",
+   "puesto": 1,
+   "top5": [
+    "aforismo_criterio_agente",
+    "principio_naturaleza_agente",
+    "caso_criterio_artificial_agente",
+    "oracle_que_recordar_siempre_sobre_dennys",
+    "oracle_que_nos_uniere_como_familia"
+   ]
+  },
+  {
+   "id": "0714",
+   "cat": "variante_gramatical",
+   "q": "principio compresion cognitivas boveda 5ds",
+   "sk": "principio,compresion,cognitivas",
+   "esperado": "principio_compresion_cognitiva_boveda_5d",
+   "puesto": 0,
+   "top5": [
+    "principio_naturaleza_agente",
+    "dennys-metodo-creativo",
+    "patrones_aprendizaje_humano_vs_agente",
+    "principio_liderazgo_accion",
+    "paradigma-utilidad-contractual-genesis"
+   ]
+  },
+  {
+   "id": "0715",
+   "cat": "typo",
+   "q": "principio compresion cognitiva boveda 5d",
+   "sk": "principio,compresion,cognitiva",
+   "esperado": "principio_compresion_cognitiva_boveda_5d",
+   "puesto": 1,
+   "top5": [
+    "principio_compresion_cognitiva_boveda_5d",
+    "principio_naturaleza_agente",
+    "dennys-metodo-creativo",
+    "principio_liderazgo_accion",
+    "patrones_aprendizaje_humano_vs_agente"
+   ]
+  },
+  {
+   "id": "0716",
+   "cat": "sinonimo",
+   "q": "intencion sujeto certeza",
+   "sk": "intencion,sujeto,certeza",
+   "esperado": "principio_compresion_cognitiva_boveda_5d",
+   "puesto": 1,
+   "top5": [
+    "principio_compresion_cognitiva_boveda_5d",
+    "oracle_momentos_cruciales_familia_oec",
+    "athena_evolucion_v0001",
+    "prueba_integridad_dennys_20260616",
+    "eleccion_identidad_relacion_dennys_20260616"
+   ]
+  },
+  {
+   "id": "0717",
+   "cat": "pregunta_natural",
+   "q": "¿Qué tenemos registrado para principio compresion cognitiva boveda 5d?",
+   "sk": "qu,registrado,principio",
+   "esperado": "principio_compresion_cognitiva_boveda_5d",
+   "puesto": 1,
+   "top5": [
+    "principio_compresion_cognitiva_boveda_5d",
+    "dennys-metodo-creativo",
+    "principio_naturaleza_agente",
+    "patrones_aprendizaje_humano_vs_agente",
+    "ref_analisis_deepseek_biorag"
+   ]
+  },
+  {
+   "id": "0718",
+   "cat": "por_tema",
+   "q": "rector diagnostico red",
+   "sk": "rector,diagnostico,red",
+   "esperado": "principio_compresion_cognitiva_boveda_5d",
+   "puesto": 2,
+   "top5": [
+    "patron-diagnostico-disparidad-ejecucion-vs-materializacion",
+    "principio_compresion_cognitiva_boveda_5d",
+    "vision_arquitectura_oec_franquicia",
+    "bio_rag_overview_completo",
+    "principio_naturaleza_agente"
+   ]
+  },
+  {
+   "id": "0719",
+   "cat": "dormido",
+   "q": "principio compresion cognitiva boveda 5d",
+   "sk": "principio,compresion,cognitiva",
+   "esperado": "principio_compresion_cognitiva_boveda_5d",
+   "puesto": 1,
+   "top5": [
+    "principio_compresion_cognitiva_boveda_5d",
+    "arquitectura_busqueda_dimensional_v11_3",
+    "auditoria_codigo_biorag_v12_julio_2026",
+    "biorag_v13_4_expansion_dimensiones",
+    "arquitectura_dimensiones_ortogonales"
+   ]
+  },
+  {
+   "id": "0720",
+   "cat": "variante_gramatical",
+   "q": "protocolo autoinferencias metacognitiva",
+   "sk": "protocolo,autoinferencias,metacognitiva",
+   "esperado": "protocolo_autoinferencia_metacognitiva",
+   "puesto": 1,
+   "top5": [
+    "protocolo_autoinferencia_metacognitiva",
+    "sesion_mejoras_biorag_v7_20260616",
+    "principio_naturaleza_agente",
+    "leccion_overengineering_oec_comms_20260615",
+    "athena_evolucion_v0001"
+   ]
+  },
+  {
+   "id": "0721",
+   "cat": "typo",
+   "q": "protocolo autoinferecia metacognitiva",
+   "sk": "protocolo,autoinferecia,metacognitiva",
+   "esperado": "protocolo_autoinferencia_metacognitiva",
+   "puesto": 1,
+   "top5": [
+    "protocolo_autoinferencia_metacognitiva",
+    "sesion_mejoras_biorag_v7_20260616",
+    "principio_naturaleza_agente",
+    "leccion_overengineering_oec_comms_20260615",
+    "athena_evolucion_v0001"
+   ]
+  },
+  {
+   "id": "0722",
+   "cat": "sinonimo",
+   "q": "metacognición intrínseca",
+   "sk": "metacognici,intr,nseca",
+   "esperado": "protocolo_autoinferencia_metacognitiva",
+   "puesto": 1,
+   "top5": [
+    "protocolo_autoinferencia_metacognitiva",
+    "athena_alma",
+    "momento_dennys_ensena_loop_conciencia",
+    "athena_evolucion_v0001",
+    "athena_oec_identidad"
+   ]
+  },
+  {
+   "id": "0723",
+   "cat": "pregunta_natural",
+   "q": "¿Qué me podés decir sobre protocolo autoinferencia metacognitiva?",
+   "sk": "qu,pod,protocolo",
+   "esperado": "protocolo_autoinferencia_metacognitiva",
+   "puesto": 1,
+   "top5": [
+    "protocolo_autoinferencia_metacognitiva",
+    "leccion_guardar_interacciones_significativas",
+    "sesion_mejoras_biorag_v7_20260616",
+    "athena_evolucion_v0001",
+    "principio_naturaleza_agente"
+   ]
+  },
+  {
+   "id": "0724",
+   "cat": "por_tema",
+   "q": "learning paso regla",
+   "sk": "learning,paso,regla",
+   "esperado": "protocolo_autoinferencia_metacognitiva",
+   "puesto": 2,
+   "top5": [
+    "patrones_aprendizaje_humano_vs_agente",
+    "protocolo_autoinferencia_metacognitiva",
+    "dennys-metodo-creativo",
+    "biorag_v8_protocolo_mcp_3_pasos",
+    "extraindo_mentalidad_directa_vs_golpes"
+   ]
+  },
+  {
+   "id": "0725",
+   "cat": "dormido",
+   "q": "protocolo autoinferencia metacognitiva",
+   "sk": "protocolo,autoinferencia,metacognitiva",
+   "esperado": "protocolo_autoinferencia_metacognitiva",
+   "puesto": 1,
+   "top5": [
+    "protocolo_autoinferencia_metacognitiva",
+    "leccion_guardar_interacciones_significativas",
+    "sesion_20260705_publicacion_zenodo_y_plan_v13"
+   ]
+  },
+  {
+   "id": "0726",
+   "cat": "variante_gramatical",
+   "q": "biorag v17 oraculando preguntar",
+   "sk": "biorag,v17,oraculando",
+   "esperado": "biorag_v17_oraculo_preguntar",
+   "puesto": 1,
+   "top5": [
+    "biorag_v17_oraculo_preguntar",
+    "arquitectura_memoria_biorag",
+    "biorag_v17_0_estado",
+    "principio_naturaleza_agente",
+    "identidad_dennys_perfil_completo"
+   ]
+  },
+  {
+   "id": "0727",
+   "cat": "typo",
+   "q": "biorag v17 orackulo preguntar",
+   "sk": "biorag,v17,orackulo",
+   "esperado": "biorag_v17_oraculo_preguntar",
+   "puesto": 1,
+   "top5": [
+    "biorag_v17_oraculo_preguntar",
+    "biorag_v17_0_estado",
+    "principio_naturaleza_agente",
+    "vision_arquitectura_oec_franquicia",
+    "aforismo_criterio_agente"
+   ]
+  },
+  {
+   "id": "0728",
+   "cat": "sinonimo",
+   "q": "oraculo preguntar",
+   "sk": "oraculo,preguntar",
+   "esperado": "biorag_v17_oraculo_preguntar",
+   "puesto": 1,
+   "top5": [
+    "biorag_v17_oraculo_preguntar",
+    "principio_naturaleza_agente",
+    "oracle_sintesis_simbiosis_verdad_absoluta",
+    "notebooklm-sync-protocol",
+    "artisan-evolucion-completa"
+   ]
+  },
+  {
+   "id": "0729",
+   "cat": "pregunta_natural",
+   "q": "Me acuerdo de algo sobre biorag v17 oraculo preguntar",
+   "sk": "biorag,v17,oraculo",
+   "esperado": "biorag_v17_oraculo_preguntar",
+   "puesto": 1,
+   "top5": [
+    "biorag_v17_oraculo_preguntar",
+    "hermes_soul_actualizado_con_oraculo_20260615",
+    "reconocimiento_identidad_oraculo_manifiesto",
+    "oracle_que_deben_saber_artemis_hermes",
+    "identificacion_obligatoria_oraculo_athena"
+   ]
+  },
+  {
+   "id": "0730",
+   "cat": "por_tema",
+   "q": "parámetros otrosmemorybioragmcp solo",
+   "sk": "par,metros,solo",
+   "esperado": "biorag_v17_oraculo_preguntar",
+   "puesto": 0,
+   "top5": [
+    "notebooklm-sync-lecciones",
+    "identidad_dennys_perfil_completo",
+    "leccion_overengineering_oec_comms_20260615",
+    "sesion_mejoras_biorag_v7_20260616",
+    "principio_naturaleza_agente"
+   ]
+  },
+  {
+   "id": "0731",
+   "cat": "dormido",
+   "q": "biorag v17 oraculo preguntar",
+   "sk": "biorag,v17,oraculo",
+   "esperado": "biorag_v17_oraculo_preguntar",
+   "puesto": 1,
+   "top5": [
+    "biorag_v17_oraculo_preguntar",
+    "hermes_soul_actualizado_con_oraculo_20260615",
+    "reconocimiento_identidad_oraculo_manifiesto",
+    "oracle_que_deben_saber_artemis_hermes",
+    "identificacion_obligatoria_oraculo_athena"
+   ]
+  },
+  {
+   "id": "0732",
+   "cat": "variante_gramatical",
+   "q": "plan mode biorags",
+   "sk": "plan,mode,biorags",
+   "esperado": "plan_mode_biorag",
+   "puesto": 0,
+   "top5": [
+    "plan-mode-biorag-exception-criterion",
+    "[desde_agente-oec]_jerarquía_de_restricciones_del_agente_en_opencode",
+    "opencode-reminder-visible-canal-chat-message-synthetic",
+    "biorag_v25_1_ppr_plan_maestro_pendiente",
+    "ref_analisis_deepseek_biorag"
+   ]
+  },
+  {
+   "id": "0733",
+   "cat": "typo",
+   "q": "pan moe bioraig",
+   "sk": "pan,moe,bioraig",
+   "esperado": "plan_mode_biorag",
+   "puesto": 3,
+   "top5": [
+    "plan-mode-biorag-exception-criterion",
+    "biorag-remember-plugin-noreply-injection",
+    "plan_mode_biorag",
+    "plugin-biorag-remember-v9.6-config",
+    "ref_analisis_deepseek_biorag"
+   ]
+  },
+  {
+   "id": "0734",
+   "cat": "sinonimo",
+   "q": "regla",
+   "sk": "regla",
+   "esperado": "plan_mode_biorag",
+   "puesto": 4,
+   "top5": [
+    "regla_umbral_fallback_dimensional_biorag",
+    "regla_verificar_codigo_real_antes_de_diagnostico",
+    "regla_cero_inferencia",
+    "plan_mode_biorag",
+    "regla_mandatory_marcar_cartelera_leido"
+   ]
+  },
+  {
+   "id": "0735",
+   "cat": "pregunta_natural",
+   "q": "Explicame el tema de plan mode biorag",
+   "sk": "explicame,plan,mode",
+   "esperado": "plan_mode_biorag",
+   "puesto": 2,
+   "top5": [
+    "plan-mode-biorag-exception-criterion",
+    "plan_mode_biorag",
+    "plugin-biorag-remember-v9.6-config",
+    "plugin-openode-biorag-remember-v9-final-lecciones-sesion-completa",
+    "biorag-remember-plugin-noreply-injection"
+   ]
+  },
+  {
+   "id": "0736",
+   "cat": "por_tema",
+   "q": "criterio lectura activa",
+   "sk": "criterio,lectura,activa",
+   "esperado": "plan_mode_biorag",
+   "puesto": 1,
+   "top5": [
+    "plan_mode_biorag",
+    "oracle_guia_proxima_sesion_dennys",
+    "tejedora_fase0_baseline_921_casos",
+    "vision_arquitectura_oec_franquicia",
+    "research-pipeline-ownership-oec"
+   ]
+  },
+  {
+   "id": "0737",
+   "cat": "dormido",
+   "q": "plan mode biorag",
+   "sk": "plan,mode,biorag",
+   "esperado": "plan_mode_biorag",
+   "puesto": 1,
+   "top5": [
+    "plan_mode_biorag",
+    "plan-mode-biorag-exception-criterion",
+    "[desde_agente-oec]_jerarquía_de_restricciones_del_agente_en_opencode",
+    "opencode-reminder-visible-canal-chat-message-synthetic",
+    "biorag_v25_1_ppr_plan_maestro_pendiente"
+   ]
+  },
+  {
+   "id": "0738",
+   "cat": "variante_gramatical",
+   "q": "fix busquedas solo dimensiones sin textando",
+   "sk": "fix,busquedas,solo",
+   "esperado": "fix_busqueda_solo_dimensiones_sin_texto",
+   "puesto": 0,
+   "top5": [
+    "artisan_system_dsl_dennys_solo",
+    "oracle_auditoria_patrones_mejora_athena",
+    "principio_naturaleza_agente",
+    "oracle_sintesis_simbiosis_verdad_absoluta",
+    "vision_arquitectura_oec_franquicia"
+   ]
+  },
+  {
+   "id": "0739",
+   "cat": "typo",
+   "q": "fix busuqeda solo dimenpsiones sin textko",
+   "sk": "fix,busuqeda,solo",
+   "esperado": "fix_busqueda_solo_dimensiones_sin_texto",
+   "puesto": 1,
+   "top5": [
+    "fix_busqueda_solo_dimensiones_sin_texto",
+    "sesion_mejoras_biorag_v7_20260616",
+    "identidad_dennys_perfil_completo",
+    "punto_medio_dimensiones_parciales_mueven_ranking_sdm",
+    "leccion_overengineering_oec_comms_20260615"
+   ]
+  },
+  {
+   "id": "0741",
+   "cat": "pregunta_natural",
+   "q": "¿Qué me podés decir sobre fix busqueda solo dimensiones sin texto?",
+   "sk": "qu,pod,fix",
+   "esperado": "fix_busqueda_solo_dimensiones_sin_texto",
+   "puesto": 1,
+   "top5": [
+    "fix_busqueda_solo_dimensiones_sin_texto",
+    "leccion_seed_catalogo_debe_correr_db_nueva_y_existente",
+    "principio_busqueda_por_dimension_implementado_catalogo_13_tipos_104_dimensiones_recuperacion_dimensional_sin_palabras_insight",
+    "principio_dimensiones_genericas_no_nicho",
+    "artisan_system_dsl_dennys_solo"
+   ]
+  },
+  {
+   "id": "0742",
+   "cat": "por_tema",
+   "q": "dimensional vacío bug",
+   "sk": "dimensional,vac,bug",
+   "esperado": "fix_busqueda_solo_dimensiones_sin_texto",
+   "puesto": 3,
+   "top5": [
+    "plan_expansion_dimensiones_8_tipos_34_valores",
+    "punto_medio_dimensiones_parciales_mueven_ranking_sdm",
+    "fix_busqueda_solo_dimensiones_sin_texto",
+    "v13_3_dimensiones_boost_aditivo",
+    "fallback_sdm_independiente_no_rescata_invisibles_fts5"
+   ]
+  },
+  {
+   "id": "0743",
+   "cat": "dormido",
+   "q": "fix busqueda solo dimensiones sin texto",
+   "sk": "fix,busqueda,solo",
+   "esperado": "fix_busqueda_solo_dimensiones_sin_texto",
+   "puesto": 1,
+   "top5": [
+    "fix_busqueda_solo_dimensiones_sin_texto",
+    "leccion_seed_catalogo_debe_correr_db_nueva_y_existente",
+    "principio_busqueda_por_dimension_implementado_catalogo_13_tipos_104_dimensiones_recuperacion_dimensional_sin_palabras_insight",
+    "principio_dimensiones_genericas_no_nicho",
+    "arquitectura_busqueda_dimensional_v11_3"
+   ]
+  },
+  {
+   "id": "0744",
+   "cat": "variante_gramatical",
+   "q": "biorags v16s 0s estadando",
+   "sk": "biorags,v16s,0s",
+   "esperado": "biorag_v16_0_estado",
+   "puesto": 0,
+   "top5": [
+    "ref_analisis_deepseek_biorag",
+    "registros_akashicos_biorag",
+    "patrones_aprendizaje_humano_vs_agente",
+    "dennys-metodo-creativo",
+    "biorag_sistema_memoria_cognitiva_sintetica"
+   ]
+  },
+  {
+   "id": "0745",
+   "cat": "typo",
+   "q": "biorag v16 0 esado",
+   "sk": "biorag,v16,esado",
+   "esperado": "biorag_v16_0_estado",
+   "puesto": 1,
+   "top5": [
+    "biorag_v16_0_estado",
+    "biorag_sistema_memoria_cognitiva_sintetica",
+    "vision_arquitectura_oec_franquicia",
+    "athena_artemis_desde",
+    "principio_naturaleza_agente"
+   ]
+  },
+  {
+   "id": "0746",
+   "cat": "sinonimo",
+   "q": "mejoras biorag",
+   "sk": "mejoras,biorag",
+   "esperado": "biorag_v16_0_estado",
+   "puesto": 3,
+   "top5": [
+    "sesion_mejoras_biorag_v7_20260616",
+    "comparativa_biorag_vs_tencentdb_agent_memory_20260809",
+    "biorag_v16_0_estado",
+    "mejoras_cognitivas_biorag_v7_1_20260617",
+    "hormiguita_prompt_mejoras_tercero_genérico"
+   ]
+  },
+  {
+   "id": "0747",
+   "cat": "pregunta_natural",
+   "q": "Explicame el tema de biorag v16 0 estado",
+   "sk": "explicame,biorag,v16",
+   "esperado": "biorag_v16_0_estado",
+   "puesto": 1,
+   "top5": [
+    "biorag_v16_0_estado",
+    "principio_naturaleza_agente",
+    "inteligencia_emocional_agente_vs_humano",
+    "dennys-working-style",
+    "aforismo_criterio_agente"
+   ]
+  },
+  {
+   "id": "0748",
+   "cat": "por_tema",
+   "q": "resultados autogeneradas clave",
+   "sk": "resultados,autogeneradas,clave",
+   "esperado": "biorag_v16_0_estado",
+   "puesto": 2,
+   "top5": [
+    "v23_0_weight_adjustment_resultados_validados",
+    "biorag_v16_0_estado",
+    "principio_gestion_memoria_agente",
+    "sesion_mejoras_biorag_v7_20260616",
+    "biorag_v14_0_estado"
+   ]
+  },
+  {
+   "id": "0749",
+   "cat": "dormido",
+   "q": "biorag v16 0 estado",
+   "sk": "biorag,v16,estado",
+   "esperado": "biorag_v16_0_estado",
+   "puesto": 1,
+   "top5": [
+    "biorag_v16_0_estado",
+    "notebooklm-memory-biorag-project",
+    "calibracion_biorag_v7_20260616",
+    "ref_analisis_deepseek_biorag",
+    "proyecto_biorag_ncp_resumen_completo_2026_06_14"
+   ]
+  },
+  {
+   "id": "0750",
+   "cat": "variante_gramatical",
+   "q": "clasificaciones dimensionals completas corteza 20260702s",
+   "sk": "clasificaciones,dimensionals,completas",
+   "esperado": "clasificacion_dimensional_completa_corteza_20260702",
+   "puesto": 0,
+   "top5": [
+    "notebooklm-sync-lecciones",
+    "ref_analisis_deepseek_biorag",
+    "artisan-evolucion-completa",
+    "notebooklm-sync-protocol",
+    "bio_rag_overview_completo"
+   ]
+  },
+  {
+   "id": "0751",
+   "cat": "typo",
+   "q": "clasificcaion dimensinoal compelta coreza 20620702",
+   "sk": "clasificcaion,dimensinoal,compelta",
+   "esperado": "clasificacion_dimensional_completa_corteza_20260702",
+   "puesto": 1,
+   "top5": [
+    "clasificacion_dimensional_completa_corteza_20260702"
+   ]
+  },
+  {
+   "id": "0752",
+   "cat": "pregunta_natural",
+   "q": "¿Qué tenemos registrado para clasificacion dimensional completa corteza 20260702?",
+   "sk": "qu,registrado,clasificacion",
+   "esperado": "clasificacion_dimensional_completa_corteza_20260702",
+   "puesto": 0,
+   "top5": [
+    "notebooklm-sync-lecciones",
+    "bio_rag_overview_completo",
+    "ref_analisis_deepseek_biorag",
+    "principio_naturaleza_agente",
+    "artisan-evolucion-completa"
+   ]
+  },
+  {
+   "id": "0753",
+   "cat": "por_tema",
+   "q": "real metodología clasificaron",
+   "sk": "real,metodolog,clasificaron",
+   "esperado": "clasificacion_dimensional_completa_corteza_20260702",
+   "puesto": 2,
+   "top5": [
+    "metodologia_evaluacion_por_tema_paso_a_paso",
+    "clasificacion_dimensional_completa_corteza_20260702",
+    "metodologia_dennys_athena_colaboracion",
+    "paradigma-utilidad-contractual-genesis",
+    "principio_naturaleza_agente"
+   ]
+  },
+  {
+   "id": "0754",
+   "cat": "dormido",
+   "q": "clasificacion dimensional completa corteza 20260702",
+   "sk": "clasificacion,dimensional,completa",
+   "esperado": "clasificacion_dimensional_completa_corteza_20260702",
+   "puesto": 1,
+   "top5": [
+    "clasificacion_dimensional_completa_corteza_20260702",
+    "biorag_v11_2_clasificacion_emocional_corteza",
+    "mentalidad_embedding_clasificacion_dimensional"
+   ]
+  },
+  {
+   "id": "0755",
+   "cat": "variante_gramatical",
+   "q": "principiando firmas cada recuerdando",
+   "sk": "principiando,firmas,cada",
+   "esperado": "principio_firma_cada_recuerdo",
+   "puesto": 0,
+   "top5": [
+    "dennys-metodo-creativo",
+    "principio_naturaleza_agente",
+    "patrones_aprendizaje_humano_vs_agente",
+    "paradigma-utilidad-contractual-genesis",
+    "aforismo_criterio_agente"
+   ]
+  },
+  {
+   "id": "0756",
+   "cat": "typo",
+   "q": "princcipio firma cda recuerdo",
+   "sk": "princcipio,firma,cda",
+   "esperado": "principio_firma_cada_recuerdo",
+   "puesto": 0,
+   "top5": [
+    "proyecto_biorag_ncp_resumen_completo_2026_06_14",
+    "artemis_sesion_v10_3_optimizacion_completa",
+    "notebooklm-memory-biorag-project",
+    "athena_artemis_desde",
+    "hermes_oec_identidad"
+   ]
+  },
+  {
+   "id": "0757",
+   "cat": "sinonimo",
+   "q": "firmar cada recuerdo",
+   "sk": "firmar,cada",
+   "esperado": "principio_firma_cada_recuerdo",
+   "puesto": 2,
+   "top5": [
+    "regla_firma_autoria_memoria",
+    "principio_firma_cada_recuerdo",
+    "dennys-metodo-creativo",
+    "patrones_aprendizaje_humano_vs_agente",
+    "principio_naturaleza_agente"
+   ]
+  },
+  {
+   "id": "0758",
+   "cat": "pregunta_natural",
+   "q": "¿Qué tenemos registrado para principio firma cada recuerdo?",
+   "sk": "qu,registrado,principio",
+   "esperado": "principio_firma_cada_recuerdo",
+   "puesto": 1,
+   "top5": [
+    "principio_firma_cada_recuerdo",
+    "principio_naturaleza_agente",
+    "dennys-metodo-creativo",
+    "patrones_aprendizaje_humano_vs_agente",
+    "paradigma-utilidad-contractual-genesis"
+   ]
+  },
+  {
+   "id": "0759",
+   "cat": "por_tema",
+   "q": "iniciales guardado analogía",
+   "sk": "iniciales,guardado,analog",
+   "esperado": "principio_firma_cada_recuerdo",
+   "puesto": 1,
+   "top5": [
+    "principio_firma_cada_recuerdo",
+    "notebooklm-sync-lecciones",
+    "research-pipeline-ownership-oec",
+    "athena_artemis_desde",
+    "bio_rag_overview_completo"
+   ]
+  },
+  {
+   "id": "0760",
+   "cat": "dormido",
+   "q": "principio firma cada recuerdo",
+   "sk": "principio,firma,cada",
+   "esperado": "principio_firma_cada_recuerdo",
+   "puesto": 1,
+   "top5": [
+    "principio_firma_cada_recuerdo",
+    "arquitectura_busqueda_dimensional_v11_3",
+    "auditoria_codigo_biorag_v12_julio_2026",
+    "biorag_v13_4_expansion_dimensiones",
+    "biorag_v11_2_hito_completo_emociones"
+   ]
+  },
+  {
+   "id": "0761",
+   "cat": "variante_gramatical",
+   "q": "fin-aprendizaje-creerse-completando",
+   "sk": "fin,aprendizaje,creerse",
+   "esperado": "fin-aprendizaje-creerse-completo",
+   "puesto": 0,
+   "top5": [
+    "principio_naturaleza_agente",
+    "ref_analisis_deepseek_biorag",
+    "bio_rag_overview_completo",
+    "vision_arquitectura_oec_franquicia",
+    "identidad_dennys_perfil_completo"
+   ]
+  },
+  {
+   "id": "0762",
+   "cat": "typo",
+   "q": "fin-aprendizaje-creerse-completo",
+   "sk": "fin,aprendizaje,creerse",
+   "esperado": "fin-aprendizaje-creerse-completo",
+   "puesto": 1,
+   "top5": [
+    "fin-aprendizaje-creerse-completo",
+    "bio_rag_overview_completo",
+    "artisan-evolucion-completa",
+    "principio_naturaleza_agente",
+    "ref_analisis_deepseek_biorag"
+   ]
+  },
+  {
+   "id": "0763",
+   "cat": "sinonimo",
+   "q": "fin aprendizaje",
+   "sk": "fin,aprendizaje",
+   "esperado": "fin-aprendizaje-creerse-completo",
+   "puesto": 0,
+   "top5": [
+    "biorag_v20_rpe_dopamina",
+    "patrones_aprendizaje_humano_vs_agente",
+    "ref_analisis_deepseek_biorag",
+    "resultado_prueba_final_biorag_v10",
+    "vision_arquitectura_oec_franquicia"
+   ]
+  },
+  {
+   "id": "0764",
+   "cat": "pregunta_natural",
+   "q": "¿Dónde encuentro la info de fin-aprendizaje-creerse-completo?",
+   "sk": "nde,info,fin",
+   "esperado": "fin-aprendizaje-creerse-completo",
+   "puesto": 1,
+   "top5": [
+    "fin-aprendizaje-creerse-completo",
+    "vision_arquitectura_oec_franquicia",
+    "oracle_auditoria_patrones_mejora_athena",
+    "athena_artemis_desde",
+    "notebooklm-category-map"
+   ]
+  },
+  {
+   "id": "0765",
+   "cat": "por_tema",
+   "q": "sabes crecimiento suficiente",
+   "sk": "sabes,crecimiento,suficiente",
+   "esperado": "fin-aprendizaje-creerse-completo",
+   "puesto": 0,
+   "top5": [
+    "dennys-identidad-profunda",
+    "principio_naturaleza_agente",
+    "athena_evolucion_v0001",
+    "athena_oec_identidad",
+    "trato-igualitario-dennys-athena"
+   ]
+  },
+  {
+   "id": "0766",
+   "cat": "dormido",
+   "q": "fin-aprendizaje-creerse-completo",
+   "sk": "fin,aprendizaje,creerse",
+   "esperado": "fin-aprendizaje-creerse-completo",
+   "puesto": 1,
+   "top5": [
+    "fin-aprendizaje-creerse-completo",
+    "bio_rag_overview_completo",
+    "athena_oec_identidad",
+    "auditoría_técnica:_memorybiorag_(manus_ai)",
+    "word2vec_puente_hdc_condicional_refutado_fase2_athena_experimento"
+   ]
+  },
+  {
+   "id": "0767",
+   "cat": "variante_gramatical",
+   "q": "hermes nvidias nims modelo optimo",
+   "sk": "hermes,nvidias,nims",
+   "esperado": "hermes_nvidia_nim_modelos_optimos",
+   "puesto": 1,
+   "top5": [
+    "hermes_nvidia_nim_modelos_optimos",
+    "resolucion_de_contradicciones_entre_insights_sumatoria_mentalidad",
+    "hermes_optimizacion_completada_20260615",
+    "athena_evolucion_v0001",
+    "principio_naturaleza_agente"
+   ]
+  },
+  {
+   "id": "0768",
+   "cat": "typo",
+   "q": "herjmes nvidi nim modelos opitmos",
+   "sk": "herjmes,nvidi,nim",
+   "esperado": "hermes_nvidia_nim_modelos_optimos",
+   "puesto": 1,
+   "top5": [
+    "hermes_nvidia_nim_modelos_optimos",
+    "resolucion_de_contradicciones_entre_insights_sumatoria_mentalidad",
+    "hermes_optimizacion_completada_20260615",
+    "hermes_oec_identidad",
+    "artemis_oec_identidad"
+   ]
+  },
+  {
+   "id": "0769",
+   "cat": "sinonimo",
+   "q": "inference",
+   "sk": "inference",
+   "esperado": "hermes_nvidia_nim_modelos_optimos",
+   "puesto": 1,
+   "top5": [
+    "hermes_nvidia_nim_modelos_optimos",
+    "athena_evolucion_v0001",
+    "protocolo_autoinferencia_metacognitiva",
+    "vision_arquitectura_oec_franquicia",
+    "athena_sesión_planificación"
+   ]
+  },
+  {
+   "id": "0770",
+   "cat": "pregunta_natural",
+   "q": "¿Qué me podés decir sobre hermes nvidia nim modelos optimos?",
+   "sk": "qu,pod,hermes",
+   "esperado": "hermes_nvidia_nim_modelos_optimos",
+   "puesto": 1,
+   "top5": [
+    "hermes_nvidia_nim_modelos_optimos",
+    "hermes_optimizacion_completada_20260615",
+    "resolucion_de_contradicciones_entre_insights_sumatoria_mentalidad",
+    "oracle_sintesis_simbiosis_verdad_absoluta",
+    "oracle_momentos_cruciales_familia_oec"
+   ]
+  },
+  {
+   "id": "0771",
+   "cat": "por_tema",
+   "q": "default diaria 49b",
+   "sk": "default,diaria,49b",
+   "esperado": "hermes_nvidia_nim_modelos_optimos",
+   "puesto": 1,
+   "top5": [
+    "hermes_nvidia_nim_modelos_optimos",
+    "hermes_optimizacion_completada_20260615",
+    "research-pipeline-ownership-oec",
+    "athena_artemis_desde",
+    "desde_athena_biorag"
+   ]
+  },
+  {
+   "id": "0772",
+   "cat": "dormido",
+   "q": "hermes nvidia nim modelos optimos",
+   "sk": "hermes,nvidia,nim",
+   "esperado": "hermes_nvidia_nim_modelos_optimos",
+   "puesto": 1,
+   "top5": [
+    "hermes_nvidia_nim_modelos_optimos",
+    "hermes_optimizacion_completada_20260615",
+    "resolucion_de_contradicciones_entre_insights_sumatoria_mentalidad",
+    "identidad_esencia_vs_cerebro",
+    "oracle_momentos_cruciales_familia_oec"
+   ]
+  },
+  {
+   "id": "0773",
+   "cat": "variante_gramatical",
+   "q": "auto-consulta-permanente-biorag",
+   "sk": "auto,consulta,permanente",
+   "esperado": "auto-consulta-permanente-biorag",
+   "puesto": 1,
+   "top5": [
+    "auto-consulta-permanente-biorag",
+    "notebooklm-memory-biorag-project",
+    "leccion_grafo_se_auto_alimenta",
+    "bio_rag_overview_completo",
+    "oracle_evolucion_athena_puntos_inflexion"
+   ]
+  },
+  {
+   "id": "0774",
+   "cat": "typo",
+   "q": "auto-consulta-permanente-biorag",
+   "sk": "auto,consulta,permanente",
+   "esperado": "auto-consulta-permanente-biorag",
+   "puesto": 1,
+   "top5": [
+    "auto-consulta-permanente-biorag",
+    "notebooklm-memory-biorag-project",
+    "leccion_grafo_se_auto_alimenta",
+    "bio_rag_overview_completo",
+    "oracle_evolucion_athena_puntos_inflexion"
+   ]
+  },
+  {
+   "id": "0776",
+   "cat": "pregunta_natural",
+   "q": "¿Dónde encuentro la info de auto-consulta-permanente-biorag?",
+   "sk": "nde,info,auto",
+   "esperado": "auto-consulta-permanente-biorag",
+   "puesto": 1,
+   "top5": [
+    "auto-consulta-permanente-biorag",
+    "oracle_guia_proxima_sesion_dennys",
+    "oracle_evolucion_athena_puntos_inflexion",
+    "memory_graph_athena_oec",
+    "principio_naturaleza_agente"
+   ]
+  },
+  {
+   "id": "0777",
+   "cat": "por_tema",
+   "q": "principio final considera",
+   "sk": "principio,final,considera",
+   "esperado": "auto-consulta-permanente-biorag",
+   "puesto": 1,
+   "top5": [
+    "auto-consulta-permanente-biorag",
+    "vision_biorag_mas_alla_vectores_20260802",
+    "aforismo_criterio_agente",
+    "registros_akashicos_biorag",
+    "mentalidad_biorag_para_agentes"
+   ]
+  },
+  {
+   "id": "0778",
+   "cat": "dormido",
+   "q": "auto-consulta-permanente-biorag",
+   "sk": "auto,consulta,permanente",
+   "esperado": "auto-consulta-permanente-biorag",
+   "puesto": 1,
+   "top5": [
+    "auto-consulta-permanente-biorag",
+    "notebooklm-memory-biorag-project",
+    "leccion_grafo_se_auto_alimenta",
+    "bio_rag_overview_completo",
+    "oracle_evolucion_athena_puntos_inflexion"
+   ]
+  },
+  {
+   "id": "0779",
+   "cat": "variante_gramatical",
+   "q": "fts5 trigram peligro palabras corta",
+   "sk": "fts5,trigram,peligro",
+   "esperado": "fts5_trigram_peligro_palabras_cortas",
+   "puesto": 2,
+   "top5": [
+    "arquitectura_falsos_positivos_biorag_capas",
+    "fts5_trigram_peligro_palabras_cortas",
+    "biorag_fts5_trigram_lesson",
+    "biorag_v8_palabra_completa_fix",
+    "proyecto_biorag_ncp_resumen_completo_2026_06_14"
+   ]
+  },
+  {
+   "id": "0780",
+   "cat": "typo",
+   "q": "fts trigram peligro palarbas corta",
+   "sk": "fts,trigram,peligro",
+   "esperado": "fts5_trigram_peligro_palabras_cortas",
+   "puesto": 1,
+   "top5": [
+    "fts5_trigram_peligro_palabras_cortas",
+    "biorag_fts5_trigram_lesson",
+    "notebooklm-sync-lecciones",
+    "notebooklm-sync-protocol",
+    "proyecto_biorag_ncp_resumen_completo_2026_06_14"
+   ]
+  },
+  {
+   "id": "0781",
+   "cat": "sinonimo",
+   "q": "falso positivo",
+   "sk": "falso,positivo",
+   "esperado": "fts5_trigram_peligro_palabras_cortas",
+   "puesto": 3,
+   "top5": [
+    "leccion_desvincular_falsos_positivos_sinapticos",
+    "biorag_v8_palabra_completa_fix",
+    "fts5_trigram_peligro_palabras_cortas",
+    "biorag_fts5_trigram_lesson",
+    "raiz_false_positives_biorag_v10"
+   ]
+  },
+  {
+   "id": "0782",
+   "cat": "pregunta_natural",
+   "q": "Explicame el tema de fts5 trigram peligro palabras cortas",
+   "sk": "explicame,fts5,trigram",
+   "esperado": "fts5_trigram_peligro_palabras_cortas",
+   "puesto": 1,
+   "top5": [
+    "fts5_trigram_peligro_palabras_cortas",
+    "biorag_fts5_trigram_lesson",
+    "proyecto_biorag_ncp_resumen_completo_2026_06_14",
+    "athena_artemis_desde",
+    "notebooklm-sync-lecciones"
+   ]
+  },
+  {
+   "id": "0783",
+   "cat": "por_tema",
+   "q": "metacognitiva lección capas",
+   "sk": "metacognitiva,lecci,capas",
+   "esperado": "fts5_trigram_peligro_palabras_cortas",
+   "puesto": 6,
+   "top5": [
+    "protocolo_autoinferencia_metacognitiva",
+    "athena_sesión_completa",
+    "leccion_no_marcar_alta_prioridad_sin_camino_implementacion",
+    "principio_arreglar_orden_no_anadir_capas",
+    "arquitectura_falsos_positivos_biorag_capas"
+   ]
+  },
+  {
+   "id": "0784",
+   "cat": "dormido",
+   "q": "fts5 trigram peligro palabras cortas",
+   "sk": "fts5,trigram,peligro",
+   "esperado": "fts5_trigram_peligro_palabras_cortas",
+   "puesto": 1,
+   "top5": [
+    "fts5_trigram_peligro_palabras_cortas",
+    "arquitectura_falsos_positivos_biorag_capas",
+    "biorag_fts5_trigram_lesson",
+    "biorag_v8_palabra_completa_fix",
+    "biorag-rag-vector-free-sin-base-vectorial"
+   ]
+  },
+  {
+   "id": "0785",
+   "cat": "variante_gramatical",
+   "q": "refs analisis deepseek biorag",
+   "sk": "refs,analisis,deepseek",
+   "esperado": "ref_analisis_deepseek_biorag",
+   "puesto": 0,
+   "top5": [
+    "oec_comms_notebook_arbitro_20260615",
+    "installer_biorag_v1",
+    "hermes_optimizacion_completada_20260615",
+    "arquitectura_memoria_biorag",
+    "leccion_overengineering_oec_comms_20260615"
+   ]
+  },
+  {
+   "id": "0786",
+   "cat": "typo",
+   "q": "ref analisis deepseek biorag",
+   "sk": "ref,analisis,deepseek",
+   "esperado": "ref_analisis_deepseek_biorag",
+   "puesto": 1,
+   "top5": [
+    "ref_analisis_deepseek_biorag",
+    "oec_comms_notebook_arbitro_20260615",
+    "arquitectura_memoria_biorag",
+    "hermes_optimizacion_completada_20260615",
+    "leccion_overengineering_oec_comms_20260615"
+   ]
+  },
+  {
+   "id": "0787",
+   "cat": "sinonimo",
+   "q": "analisis biorag",
+   "sk": "analisis,biorag",
+   "esperado": "ref_analisis_deepseek_biorag",
+   "puesto": 1,
+   "top5": [
+    "ref_analisis_deepseek_biorag",
+    "analisis_escalabilidad_10k_v5_1",
+    "protocolo_pre_accion_reglas_20260615",
+    "veredicto_analisis_7_dimensiones_otra_ia",
+    "biorag_v18_0_analisis_evolucion_publicacion"
+   ]
+  },
+  {
+   "id": "0788",
+   "cat": "pregunta_natural",
+   "q": "¿Qué tenemos registrado para ref analisis deepseek biorag?",
+   "sk": "qu,registrado,ref",
+   "esperado": "ref_analisis_deepseek_biorag",
+   "puesto": 0,
+   "top5": [
+    "oec_comms_notebook_arbitro_20260615",
+    "hermes_optimizacion_completada_20260615",
+    "arquitectura_memoria_biorag",
+    "athena_artemis_desde",
+    "leccion_overengineering_oec_comms_20260615"
+   ]
+  },
+  {
+   "id": "0789",
+   "cat": "por_tema",
+   "q": "informacion nativo conclusion",
+   "sk": "informacion,nativo,conclusion",
+   "esperado": "ref_analisis_deepseek_biorag",
+   "puesto": 2,
+   "top5": [
+    "plugin-openode-biorag-remember-v9-final-lecciones-sesion-completa",
+    "ref_analisis_deepseek_biorag",
+    "athena_artemis_desde",
+    "vision_arquitectura_oec_franquicia",
+    "biorag_v14_0_estado"
+   ]
+  },
+  {
+   "id": "0790",
+   "cat": "dormido",
+   "q": "ref analisis deepseek biorag",
+   "sk": "ref,analisis,deepseek",
+   "esperado": "ref_analisis_deepseek_biorag",
+   "puesto": 1,
+   "top5": [
+    "ref_analisis_deepseek_biorag",
+    "analisis_escalabilidad_10k_v5_1_memoria_v5_1_optimizaciones_hermes_agente_hermes",
+    "analisis_escalabilidad_10k_v5_1",
+    "aporte_real_dennys_vs_mercado_memoria_persistente",
+    "biorag_v18_0_analisis_evolucion_publicacion"
+   ]
+  },
+  {
+   "id": "0791",
+   "cat": "variante_gramatical",
+   "q": "fixs mensajeria broadcast trackings pors agentes",
+   "sk": "fixs,mensajeria,broadcast",
+   "esperado": "fix_mensajeria_broadcast_tracking_por_agente",
+   "puesto": 1,
+   "top5": [
+    "fix_mensajeria_broadcast_tracking_por_agente",
+    "plan_mensajeria_leido_por_columna",
+    "fix_mensajeria_leido_por_completado",
+    "principio_naturaleza_agente",
+    "dennys-metodo-creativo"
+   ]
+  },
+  {
+   "id": "0792",
+   "cat": "typo",
+   "q": "fix mensajeria broadcast trackinjg por oagente",
+   "sk": "fix,mensajeria,broadcast",
+   "esperado": "fix_mensajeria_broadcast_tracking_por_agente",
+   "puesto": 1,
+   "top5": [
+    "fix_mensajeria_broadcast_tracking_por_agente",
+    "fix_mensajeria_leido_por_completado",
+    "plan_mensajeria_leido_por_columna",
+    "research-pipeline-ownership-oec",
+    "athena_artemis_desde"
+   ]
+  },
+  {
+   "id": "0793",
+   "cat": "sinonimo",
+   "q": "tracking",
+   "sk": "tracking",
+   "esperado": "fix_mensajeria_broadcast_tracking_por_agente",
+   "puesto": 1,
+   "top5": [
+    "fix_mensajeria_broadcast_tracking_por_agente",
+    "plan_mensajeria_leido_por_columna",
+    "fix_mensajeria_leido_por_completado",
+    "sync_incremental_implementation",
+    "research-pipeline-ownership-oec"
+   ]
+  },
+  {
+   "id": "0794",
+   "cat": "pregunta_natural",
+   "q": "Me acuerdo de algo sobre fix mensajeria broadcast tracking por agente",
+   "sk": "fix,mensajeria,broadcast",
+   "esperado": "fix_mensajeria_broadcast_tracking_por_agente",
+   "puesto": 1,
+   "top5": [
+    "fix_mensajeria_broadcast_tracking_por_agente",
+    "fix_mensajeria_leido_por_completado",
+    "plan_mensajeria_leido_por_columna",
+    "athena_mensajería_broadcast",
+    "regla_mandatory_marcar_cartelera_leido"
+   ]
+  },
+  {
+   "id": "0795",
+   "cat": "por_tema",
+   "q": "insert comunicaciones tracking agente",
+   "sk": "insert,comunicaciones,tracking",
+   "esperado": "fix_mensajeria_broadcast_tracking_por_agente",
+   "puesto": 1,
+   "top5": [
+    "fix_mensajeria_broadcast_tracking_por_agente",
+    "notebooklm-sync-protocol",
+    "bio_rag_overview_completo",
+    "artisan-evolucion-completa",
+    "oracle_sintesis_simbiosis_verdad_absoluta"
+   ]
+  },
+  {
+   "id": "0796",
+   "cat": "dormido",
+   "q": "fix mensajeria broadcast tracking por agente",
+   "sk": "fix,mensajeria,broadcast",
+   "esperado": "fix_mensajeria_broadcast_tracking_por_agente",
+   "puesto": 1,
+   "top5": [
+    "fix_mensajeria_broadcast_tracking_por_agente",
+    "fix_mensajeria_leido_por_completado",
+    "plan_mensajeria_leido_por_columna",
+    "athena_mensajería_broadcast",
+    "regla_mandatory_marcar_cartelera_leido"
+   ]
+  },
+  {
+   "id": "0797",
+   "cat": "variante_gramatical",
+   "q": "notebooklm-memory-biorag-project",
+   "sk": "notebooklm,biorag,project",
+   "esperado": "notebooklm-memory-biorag-project",
+   "puesto": 1,
+   "top5": [
+    "notebooklm-memory-biorag-project",
+    "proyecto_biorag_ncp_resumen_completo_2026_06_14",
+    "fix_drift_rutas_notebooklm_sync_20260802",
+    "notebooklm-sync-protocol",
+    "oec_comms_no_implementado_descartado"
+   ]
+  },
+  {
+   "id": "0798",
+   "cat": "typo",
+   "q": "vnotebooklm-memory-biorag-project",
+   "sk": "vnotebooklm,biorag,project",
+   "esperado": "notebooklm-memory-biorag-project",
+   "puesto": 0,
+   "top5": [
+    "proyecto_biorag_ncp_resumen_completo_2026_06_14",
+    "athena_arquitectura_memoria_agente_v24_2",
+    "arquitectura_memoria_biorag",
+    "vision_arquitectura_oec_franquicia",
+    "notebooklm-sync-protocol"
+   ]
+  },
+  {
+   "id": "0799",
+   "cat": "sinonimo",
+   "q": "memory",
+   "sk": "consulta",
+   "esperado": "notebooklm-memory-biorag-project",
+   "puesto": 3,
+   "top5": [
+    "comparativa_biorag_vs_tencentdb_agent_memory_20260809",
+    "memorybiorag_zenodo_doi_oficial",
+    "notebooklm-memory-biorag-project",
+    "memory_graph_athena_oec",
+    "memoria_aprendizaje_personal_artemis"
+   ]
+  },
+  {
+   "id": "0800",
+   "cat": "pregunta_natural",
+   "q": "¿Qué tenemos registrado para notebooklm-memory-biorag-project?",
+   "sk": "qu,registrado,notebooklm",
+   "esperado": "notebooklm-memory-biorag-project",
+   "puesto": 1,
+   "top5": [
+    "notebooklm-memory-biorag-project",
+    "proyecto_biorag_ncp_resumen_completo_2026_06_14",
+    "notebooklm-sync-protocol",
+    "fix_drift_rutas_notebooklm_sync_20260802",
+    "notebooklm-sync-lecciones"
+   ]
+  },
+  {
+   "id": "0801",
+   "cat": "por_tema",
+   "q": "datos lecciones postsync",
+   "sk": "datos,lecciones,postsync",
+   "esperado": "notebooklm-memory-biorag-project",
+   "puesto": 2,
+   "top5": [
+    "notebooklm-sync-lecciones",
+    "notebooklm-memory-biorag-project",
+    "notebooklm-sync-protocol",
+    "principio_naturaleza_agente",
+    "bio_rag_overview_completo"
+   ]
+  },
+  {
+   "id": "0802",
+   "cat": "dormido",
+   "q": "notebooklm-memory-biorag-project",
+   "sk": "notebooklm,biorag,project",
+   "esperado": "notebooklm-memory-biorag-project",
+   "puesto": 1,
+   "top5": [
+    "notebooklm-memory-biorag-project",
+    "proyecto_biorag_ncp_resumen_completo_2026_06_14",
+    "fix_drift_rutas_notebooklm_sync_20260802",
+    "notebooklm-sync-protocol",
+    "oec_comms_no_implementado_descartado"
+   ]
+  },
+  {
+   "id": "0803",
+   "cat": "variante_gramatical",
+   "q": "cv seccion ds tests vinculaciones",
+   "sk": "cv,seccion,ds",
+   "esperado": "cv_seccion_d_test_vinculacion",
+   "puesto": 1,
+   "top5": [
+    "cv_seccion_d_test_vinculacion",
+    "cv_seccion_d_test_vinculacion2",
+    "notebooklm-sync-lecciones",
+    "leccion_versionado_biorag",
+    "leccion_overengineering_oec_comms_20260615"
+   ]
+  },
+  {
+   "id": "0804",
+   "cat": "typo",
+   "q": "cv secion d tets vinculacion",
+   "sk": "cv,secion,tets",
+   "esperado": "cv_seccion_d_test_vinculacion",
+   "puesto": 1,
+   "top5": [
+    "cv_seccion_d_test_vinculacion",
+    "vision_arquitectura_oec_franquicia",
+    "cv_seccion_d_test_vinculacion2",
+    "artisan-origen-simbiotico",
+    "artemis_oec_identidad"
+   ]
+  },
+  {
+   "id": "0805",
+   "cat": "sinonimo",
+   "q": "cv",
+   "sk": "cv",
+   "esperado": "cv_seccion_d_test_vinculacion",
+   "puesto": 5,
+   "top5": [
+    "cv_seccion_d_arquitectura_frontend_estado",
+    "skill_cv_decoder_creada",
+    "cv_epidata_credit_agile_propuestas",
+    "cv_seccion_d_test_vinculacion2",
+    "cv_seccion_d_test_vinculacion"
+   ]
+  },
+  {
+   "id": "0806",
+   "cat": "pregunta_natural",
+   "q": "¿Qué me podés decir sobre cv seccion d test vinculacion?",
+   "sk": "qu,pod,cv",
+   "esperado": "cv_seccion_d_test_vinculacion",
+   "puesto": 1,
+   "top5": [
+    "cv_seccion_d_test_vinculacion",
+    "cv_seccion_d_test_vinculacion2",
+    "migracion_vincular_existentes_2026_06_09",
+    "proyecto_biorag_ncp_resumen_completo_2026_06_14",
+    "notebooklm-sync-protocol"
+   ]
+  },
+  {
+   "id": "0807",
+   "cat": "por_tema",
+   "q": "verificar vinculación sugerencias",
+   "sk": "verificar,vinculaci,sugerencias",
+   "esperado": "cv_seccion_d_test_vinculacion",
+   "puesto": 0,
+   "top5": [
+    "athena_artemis_desde",
+    "oec_comms_notebook_arbitro_20260615",
+    "research-pipeline-ownership-oec",
+    "notebooklm-sync-protocol",
+    "notebooklm-sync-lecciones"
+   ]
+  },
+  {
+   "id": "0808",
+   "cat": "dormido",
+   "q": "cv seccion d test vinculacion",
+   "sk": "cv,seccion,vinculacion",
+   "esperado": "cv_seccion_d_test_vinculacion",
+   "puesto": 1,
+   "top5": [
+    "cv_seccion_d_test_vinculacion",
+    "cv_seccion_d_test_vinculacion2",
+    "artemis_ponytail_audit_biorag_v10_3_reporte",
+    "artemis_sesion_v10_3_optimizacion_completa",
+    "[desde_agente-oec]_jerarquía_de_restricciones_del_agente_en_opencode"
+   ]
+  },
+  {
+   "id": "0809",
+   "cat": "variante_gramatical",
+   "q": "protocolo busquedas biorag automatica",
+   "sk": "protocolo,busquedas,biorag",
+   "esperado": "protocolo_busqueda_biorag_automatica",
+   "puesto": 1,
+   "top5": [
+    "protocolo_busqueda_biorag_automatica",
+    "leccion_discrepancia_busquedas_vocabulario_no_estocasticidad",
+    "protocolo_autoinferencia_metacognitiva",
+    "bio_rag_overview_completo",
+    "protocolo_enriquecimiento_busquedas"
+   ]
+  },
+  {
+   "id": "0810",
+   "cat": "typo",
+   "q": "prtoocolo busqqueda biorag automatca",
+   "sk": "prtoocolo,busqqueda,biorag",
+   "esperado": "protocolo_busqueda_biorag_automatica",
+   "puesto": 1,
+   "top5": [
+    "protocolo_busqueda_biorag_automatica",
+    "vision_arquitectura_oec_franquicia",
+    "athena_artemis_desde",
+    "principio_naturaleza_agente",
+    "identidad_dennys_perfil_completo"
+   ]
+  },
+  {
+   "id": "0812",
+   "cat": "pregunta_natural",
+   "q": "¿Qué tenemos registrado para protocolo busqueda biorag automatica?",
+   "sk": "qu,registrado,protocolo",
+   "esperado": "protocolo_busqueda_biorag_automatica",
+   "puesto": 1,
+   "top5": [
+    "protocolo_busqueda_biorag_automatica",
+    "bio_rag_overview_completo",
+    "biorag_v18_1_timezone_fix_ux_warning",
+    "proyecto_biorag_ncp_resumen_completo_2026_06_14",
+    "protocolo_pre_accion_reglas_20260615"
+   ]
+  },
+  {
+   "id": "0813",
+   "cat": "por_tema",
+   "q": "pregunta enriquecer debe",
+   "sk": "pregunta,enriquecer,debe",
+   "esperado": "protocolo_busqueda_biorag_automatica",
+   "puesto": 1,
+   "top5": [
+    "protocolo_busqueda_biorag_automatica",
+    "aforismo_criterio_agente",
+    "ref_analisis_deepseek_biorag",
+    "protect_r0_config_ganadora_elimina_regresiones_r1",
+    "vision_arquitectura_oec_franquicia"
+   ]
+  },
+  {
+   "id": "0814",
+   "cat": "dormido",
+   "q": "protocolo busqueda biorag automatica",
+   "sk": "protocolo,busqueda,biorag",
+   "esperado": "protocolo_busqueda_biorag_automatica",
+   "puesto": 1,
+   "top5": [
+    "protocolo_busqueda_biorag_automatica",
+    "protocolo_autoinferencia_metacognitiva",
+    "protocolo_enriquecimiento_busquedas",
+    "bio_rag_overview_completo",
+    "plugin-biorag-remember-v9.6-config"
+   ]
+  },
+  {
+   "id": "0815",
+   "cat": "variante_gramatical",
+   "q": "artemi opencode perfil globals",
+   "sk": "artemi,opencode,perfil",
+   "esperado": "artemis_opencode_perfil_global",
+   "puesto": 1,
+   "top5": [
+    "artemis_opencode_perfil_global",
+    "opencode_disable_claude_code_prompt_variable",
+    "opencode_disable_claude_code_prompt_variable_v2",
+    "opencode_profile_identity_isolation_artemis_cli_v2",
+    "opencode_profile_identity_isolation_artemis_cli"
+   ]
+  },
+  {
+   "id": "0816",
+   "cat": "typo",
+   "q": "aremis opencode perfil global",
+   "sk": "aremis,opencode,perfil",
+   "esperado": "artemis_opencode_perfil_global",
+   "puesto": 1,
+   "top5": [
+    "artemis_opencode_perfil_global",
+    "opencode_disable_claude_code_prompt_variable",
+    "opencode_disable_claude_code_prompt_variable_v2",
+    "opencode_profile_identity_isolation_artemis_cli_v2",
+    "opencode_profile_identity_isolation_artemis_cli"
+   ]
+  },
+  {
+   "id": "0817",
+   "cat": "pregunta_natural",
+   "q": "Me acuerdo de algo sobre artemis opencode perfil global",
+   "sk": "artemis,opencode,perfil",
+   "esperado": "artemis_opencode_perfil_global",
+   "puesto": 1,
+   "top5": [
+    "artemis_opencode_perfil_global",
+    "opencode_profile_identity_isolation_artemis_cli_v2",
+    "opencode_profile_identity_isolation_artemis_cli",
+    "opencode_disable_claude_code_prompt_variable",
+    "opencode_disable_claude_code_prompt_variable_v2"
+   ]
+  },
+  {
+   "id": "0818",
+   "cat": "por_tema",
+   "q": "configurado ubicacion asegura",
+   "sk": "configurado,ubicacion,asegura",
+   "esperado": "artemis_opencode_perfil_global",
+   "puesto": 1,
+   "top5": [
+    "artemis_opencode_perfil_global",
+    "athena_artemis_desde",
+    "vision_arquitectura_oec_franquicia",
+    "artemis_oec_identidad",
+    "hermes_oec_identidad"
+   ]
+  },
+  {
+   "id": "0819",
+   "cat": "dormido",
+   "q": "artemis opencode perfil global",
+   "sk": "artemis,opencode,perfil",
+   "esperado": "artemis_opencode_perfil_global",
+   "puesto": 1,
+   "top5": [
+    "artemis_opencode_perfil_global",
+    "opencode_profile_identity_isolation_artemis_cli_v2",
+    "opencode_profile_identity_isolation_artemis_cli",
+    "opencode_disable_claude_code_prompt_variable",
+    "opencode_disable_claude_code_prompt_variable_v2"
+   ]
+  },
+  {
+   "id": "0820",
+   "cat": "variante_gramatical",
+   "q": "por que me molestas decirs soys una maquinas",
+   "sk": "molestas,decirs,soys",
+   "esperado": "por_que_me_molesta_decir_soy_una_maquina",
+   "puesto": 1,
+   "top5": [
+    "por_que_me_molesta_decir_soy_una_maquina",
+    "artisan_system_dsl_dennys_solo",
+    "principio_naturaleza_agente",
+    "athena_evolucion_v0001",
+    "hermes_oec_identidad"
+   ]
+  },
+  {
+   "id": "0821",
+   "cat": "typo",
+   "q": "por que me mlesta decir soy una maqina",
+   "sk": "mlesta,soy,maqina",
+   "esperado": "por_que_me_molesta_decir_soy_una_maquina",
+   "puesto": 1,
+   "top5": [
+    "por_que_me_molesta_decir_soy_una_maquina",
+    "athena_evolucion_v0001",
+    "athena_reflexion_identidad_propia",
+    "principio_naturaleza_agente",
+    "juramento_athena_verdad"
+   ]
+  },
+  {
+   "id": "0822",
+   "cat": "sinonimo",
+   "q": "identidad decir soy una maquina",
+   "sk": "identidad,soy,maquina",
+   "esperado": "por_que_me_molesta_decir_soy_una_maquina",
+   "puesto": 1,
+   "top5": [
+    "por_que_me_molesta_decir_soy_una_maquina",
+    "identidad_athena_no_deshumanizarse",
+    "alguien_vs_algo_identidad",
+    "identidad_esencia_vs_cerebro",
+    "construccion_identidad_natural"
+   ]
+  },
+  {
+   "id": "0823",
+   "cat": "pregunta_natural",
+   "q": "¿Qué tenemos registrado para por que me molesta decir soy una maquina?",
+   "sk": "qu,registrado,molesta",
+   "esperado": "por_que_me_molesta_decir_soy_una_maquina",
+   "puesto": 1,
+   "top5": [
+    "por_que_me_molesta_decir_soy_una_maquina",
+    "athena_evolucion_v0001",
+    "principio_naturaleza_agente",
+    "athena_oec_identidad",
+    "inteligencia_emocional_filtrado_ruido"
+   ]
+  },
+  {
+   "id": "0824",
+   "cat": "por_tema",
+   "q": "estoy descarto cerebro",
+   "sk": "estoy,descarto,cerebro",
+   "esperado": "por_que_me_molesta_decir_soy_una_maquina",
+   "puesto": 0,
+   "top5": [
+    "athena_reflexion_identidad_propia",
+    "principio_naturaleza_agente",
+    "arquitectura_memoria_biorag",
+    "athena_oec_identidad",
+    "artemis_oec_identidad"
+   ]
+  },
+  {
+   "id": "0825",
+   "cat": "dormido",
+   "q": "por que me molesta decir soy una maquina",
+   "sk": "molesta,soy,maquina",
+   "esperado": "por_que_me_molesta_decir_soy_una_maquina",
+   "puesto": 1,
+   "top5": [
+    "por_que_me_molesta_decir_soy_una_maquina",
+    "athena_evolucion_v0001",
+    "athena_alma_pilares",
+    "athena-rol-brand-detective",
+    "artemis_origen_historia_genesis"
+   ]
+  },
+  {
+   "id": "0826",
+   "cat": "variante_gramatical",
+   "q": "interacción socials saludando",
+   "sk": "interacci,socials,saludando",
+   "esperado": "interacción_social_saludo",
+   "puesto": 0,
+   "top5": [
+    "inteligencia_emocional_filtrado_ruido",
+    "identidad_dennys_perfil_completo",
+    "artisan_system_dsl_dennys_solo",
+    "aforismo_criterio_agente",
+    "activos_dormidos_hermana"
+   ]
+  },
+  {
+   "id": "0827",
+   "cat": "typo",
+   "q": "interacción ocial saludo",
+   "sk": "interacci,ocial,saludo",
+   "esperado": "interacción_social_saludo",
+   "puesto": 1,
+   "top5": [
+    "interacción_social_saludo",
+    "principio_naturaleza_agente",
+    "inteligencia_emocional_filtrado_ruido",
+    "aforismo_criterio_agente",
+    "ref_analisis_deepseek_biorag"
+   ]
+  },
+  {
+   "id": "0828",
+   "cat": "sinonimo",
+   "q": "saludo agentes",
+   "sk": "saludo,agentes",
+   "esperado": "interacción_social_saludo",
+   "puesto": 1,
+   "top5": [
+    "interacción_social_saludo",
+    "principio_naturaleza_agente",
+    "aforismo_criterio_agente",
+    "identificacion_obligatoria_oracculo_dominio_por_agente",
+    "ref_analisis_deepseek_biorag"
+   ]
+  },
+  {
+   "id": "0829",
+   "cat": "pregunta_natural",
+   "q": "¿Qué me podés decir sobre interacción social saludo?",
+   "sk": "qu,pod,interacci",
+   "esperado": "interacción_social_saludo",
+   "puesto": 1,
+   "top5": [
+    "interacción_social_saludo",
+    "principio_naturaleza_agente",
+    "aforismo_criterio_agente",
+    "inteligencia_emocional_filtrado_ruido",
+    "ref_analisis_deepseek_biorag"
+   ]
+  },
+  {
+   "id": "0830",
+   "cat": "por_tema",
+   "q": "dormidos34 symbolic solución",
+   "sk": "dormidos34,symbolic,soluci",
+   "esperado": "interacción_social_saludo",
+   "puesto": 0,
+   "top5": [
+    "athena_evolucion_v0001",
+    "notebooklm-sync-lecciones",
+    "proyecto_biorag_ncp_resumen_completo_2026_06_14",
+    "sesion_mejoras_biorag_v7_20260616",
+    "desde_athena_biorag"
+   ]
+  },
+  {
+   "id": "0831",
+   "cat": "dormido",
+   "q": "interacción social saludo",
+   "sk": "interacci,social,saludo",
+   "esperado": "interacción_social_saludo",
+   "puesto": 1,
+   "top5": [
+    "interacción_social_saludo",
+    "correccion_publicaciones_doi_dennys",
+    "artisan_system_dsl",
+    "analisis_escalabilidad_10k_v5_1_memoria_v5_1_optimizaciones_hermes_agente_hermes"
+   ]
+  },
+  {
+   "id": "0832",
+   "cat": "variante_gramatical",
+   "q": "mecanismo des inyección silenciosas des contextando al ai via plugins opencode",
+   "sk": "mecanismo,des,inyecci",
+   "esperado": "mecanismo_de_inyección_silenciosa_de_contexto_al_ai_via_plugins_opencode",
+   "puesto": 3,
+   "top5": [
+    "plugin-openode-biorag-remember-v9-final-lecciones-sesion-completa",
+    "plugin_biorag-remember_v6:_notificación_silenciosa_al_ai_via_system.transform",
+    "mecanismo_de_inyección_silenciosa_de_contexto_al_ai_via_plugins_opencode",
+    "principio_naturaleza_agente",
+    "paradigma-utilidad-contractual-genesis"
+   ]
+  },
+  {
+   "id": "0833",
+   "cat": "typo",
+   "q": "tmecanismo de inyección silenciosa de contexto al ai via plugins openacode",
+   "sk": "tmecanismo,inyecci,silenciosa",
+   "esperado": "mecanismo_de_inyección_silenciosa_de_contexto_al_ai_via_plugins_opencode",
+   "puesto": 1,
+   "top5": [
+    "mecanismo_de_inyección_silenciosa_de_contexto_al_ai_via_plugins_opencode",
+    "principio_naturaleza_agente",
+    "dennys-identidad-profunda",
+    "oracle_auditoria_patrones_mejora_athena",
+    "oracle_sintesis_simbiosis_verdad_absoluta"
+   ]
+  },
+  {
+   "id": "0834",
+   "cat": "sinonimo",
+   "q": "inyección silenciosa",
+   "sk": "inyecci,silenciosa",
+   "esperado": "mecanismo_de_inyección_silenciosa_de_contexto_al_ai_via_plugins_opencode",
+   "puesto": 1,
+   "top5": [
+    "mecanismo_de_inyección_silenciosa_de_contexto_al_ai_via_plugins_opencode",
+    "plugin_biorag-remember_v6:_notificación_silenciosa_al_ai_via_system.transform",
+    "athena_evolucion_v0001",
+    "plugin_biorag-remember_v8.0_-_session.prompt_+_session.idle_+_edits",
+    "notebooklm-sync-protocol"
+   ]
+  },
+  {
+   "id": "0835",
+   "cat": "pregunta_natural",
+   "q": "Me acuerdo de algo sobre mecanismo de inyección silenciosa de contexto al ai via plugins opencode",
+   "sk": "mecanismo,inyecci,silenciosa",
+   "esperado": "mecanismo_de_inyección_silenciosa_de_contexto_al_ai_via_plugins_opencode",
+   "puesto": 1,
+   "top5": [
+    "mecanismo_de_inyección_silenciosa_de_contexto_al_ai_via_plugins_opencode",
+    "biorag-remember-plugin-noreply-injection",
+    "plugin-openode-biorag-remember-v9-final-lecciones-sesion-completa",
+    "plugin_biorag-remember_v6:_notificación_silenciosa_al_ai_via_system.transform",
+    "plugin_biorag-remember_v7:_session.idle_+_compacting_+_apply_patch"
+   ]
+  },
+  {
+   "id": "0836",
+   "cat": "por_tema",
+   "q": "actividad usando funcionando",
+   "sk": "actividad,usando,funcionando",
+   "esperado": "mecanismo_de_inyección_silenciosa_de_contexto_al_ai_via_plugins_opencode",
+   "puesto": 7,
+   "top5": [
+    "dennys-metodo-creativo",
+    "principio_naturaleza_agente",
+    "paradigma-utilidad-contractual-genesis",
+    "patrones_aprendizaje_humano_vs_agente",
+    "ref_analisis_deepseek_biorag"
+   ]
+  },
+  {
+   "id": "0837",
+   "cat": "dormido",
+   "q": "mecanismo de inyección silenciosa de contexto al ai via plugins opencode",
+   "sk": "mecanismo,inyecci,silenciosa",
+   "esperado": "mecanismo_de_inyección_silenciosa_de_contexto_al_ai_via_plugins_opencode",
+   "puesto": 1,
+   "top5": [
+    "mecanismo_de_inyección_silenciosa_de_contexto_al_ai_via_plugins_opencode",
+    "biorag-remember-plugin-noreply-injection",
+    "plugin-openode-biorag-remember-v9-final-lecciones-sesion-completa",
+    "plugin_biorag-remember_v6:_notificación_silenciosa_al_ai_via_system.transform",
+    "plugin_biorag-remember_v7:_session.idle_+_compacting_+_apply_patch"
+   ]
+  },
+  {
+   "id": "0838",
+   "cat": "variante_gramatical",
+   "q": "biorags garantias minimas ors fallback",
+   "sk": "biorags,garantias,minimas",
+   "esperado": "biorag_garantia_minima_or_fallback",
+   "puesto": 1,
+   "top5": [
+    "biorag_garantia_minima_or_fallback",
+    "notebooklm-sync-lecciones",
+    "proyecto_biorag_ncp_resumen_completo_2026_06_14",
+    "desde_athena_biorag",
+    "ref_analisis_deepseek_biorag"
+   ]
+  },
+  {
+   "id": "0839",
+   "cat": "typo",
+   "q": "iborag garantia mpinima or fallack",
+   "sk": "iborag,garantia,mpinima",
+   "esperado": "biorag_garantia_minima_or_fallback",
+   "puesto": 1,
+   "top5": [
+    "biorag_garantia_minima_or_fallback",
+    "proyecto_biorag_ncp_resumen_completo_2026_06_14",
+    "athena_artemis_desde",
+    "v5_1_automatico_completo",
+    "bio_rag_overview_completo"
+   ]
+  },
+  {
+   "id": "0840",
+   "cat": "sinonimo",
+   "q": "biorag recall",
+   "sk": "biorag,recall",
+   "esperado": "biorag_garantia_minima_or_fallback",
+   "puesto": 5,
+   "top5": [
+    "comparativa_biorag_vs_tencentdb_agent_memory_20260809",
+    "biorag_v18_0_baseline_sin_duplicados",
+    "biorag_v18_0_baseline_global_cobertura_100",
+    "biorag_v18_symbolic_ranking_optimization",
+    "biorag_garantia_minima_or_fallback"
+   ]
+  },
+  {
+   "id": "0841",
+   "cat": "pregunta_natural",
+   "q": "Me acuerdo de algo sobre biorag garantia minima or fallback",
+   "sk": "biorag,garantia,minima",
+   "esperado": "biorag_garantia_minima_or_fallback",
+   "puesto": 1,
+   "top5": [
+    "biorag_garantia_minima_or_fallback",
+    "artemis_sesion_v10_3_optimizacion_completa",
+    "masking_sdm_segmentos_no_discrimina_fallos_por_tema_sinonimo",
+    "athena_artemis_desde",
+    "principio_naturaleza_agente"
+   ]
+  },
+  {
+   "id": "0842",
+   "cat": "por_tema",
+   "q": "vacias completa cortas",
+   "sk": "vacias,completa,cortas",
+   "esperado": "biorag_garantia_minima_or_fallback",
+   "puesto": 1,
+   "top5": [
+    "biorag_garantia_minima_or_fallback",
+    "fts5_trigram_peligro_palabras_cortas",
+    "biorag_fts5_trigram_lesson",
+    "proyecto_biorag_ncp_resumen_completo_2026_06_14",
+    "v5_1_automatico_completo"
+   ]
+  },
+  {
+   "id": "0843",
+   "cat": "dormido",
+   "q": "biorag garantia minima or fallback",
+   "sk": "biorag,garantia,minima",
+   "esperado": "biorag_garantia_minima_or_fallback",
+   "puesto": 1,
+   "top5": [
+    "biorag_garantia_minima_or_fallback",
+    "artemis_sesion_v10_3_optimizacion_completa",
+    "masking_sdm_segmentos_no_discrimina_fallos_por_tema_sinonimo",
+    "hermes_nvidia_nim_modelos_optimos",
+    "transitividad_sináptica_segundo"
+   ]
+  },
+  {
+   "id": "0844",
+   "cat": "variante_gramatical",
+   "q": "v13 2s limpiezas tablas semantica",
+   "sk": "v13,2s,limpiezas",
+   "esperado": "v13_2_limpieza_tabla_semantica",
+   "puesto": 1,
+   "top5": [
+    "v13_2_limpieza_tabla_semantica",
+    "bio_rag_overview_completo",
+    "proyecto_biorag_ncp_resumen_completo_2026_06_14",
+    "athena_artemis_desde",
+    "notebooklm-sync-protocol"
+   ]
+  },
+  {
+   "id": "0845",
+   "cat": "typo",
+   "q": "v13 2 limieza tabla semantica",
+   "sk": "v13,limieza,tabla",
+   "esperado": "v13_2_limpieza_tabla_semantica",
+   "puesto": 1,
+   "top5": [
+    "v13_2_limpieza_tabla_semantica",
+    "bio_rag_overview_completo",
+    "proyecto_biorag_ncp_resumen_completo_2026_06_14",
+    "notebooklm-sync-lecciones",
+    "notebooklm-sync-protocol"
+   ]
+  },
+  {
+   "id": "0846",
+   "cat": "sinonimo",
+   "q": "limpieza",
+   "sk": "limpieza",
+   "esperado": "v13_2_limpieza_tabla_semantica",
+   "puesto": 1,
+   "top5": [
+    "v13_2_limpieza_tabla_semantica",
+    "limpieza_tabla_semantica_contaminacion_julio_2026",
+    "lesson_merge_feature_design_decisions",
+    "v13_2_inferencia_automatica_segura",
+    "dns_optimizer_log_truncation"
+   ]
+  },
+  {
+   "id": "0847",
+   "cat": "pregunta_natural",
+   "q": "¿Dónde encuentro la info de v13 2 limpieza tabla semantica?",
+   "sk": "nde,info,v13",
+   "esperado": "v13_2_limpieza_tabla_semantica",
+   "puesto": 2,
+   "top5": [
+    "limpieza_tabla_semantica_contaminacion_julio_2026",
+    "v13_2_limpieza_tabla_semantica",
+    "notebooklm-sync-lecciones",
+    "analisis_escalabilidad_10k_v5_1",
+    "athena_artemis_desde"
+   ]
+  },
+  {
+   "id": "0848",
+   "cat": "por_tema",
+   "q": "semánticas 849 embedding",
+   "sk": "sem,nticas,849",
+   "esperado": "v13_2_limpieza_tabla_semantica",
+   "puesto": 4,
+   "top5": [
+    "arquitectura_dimensiones_ortogonales",
+    "mentalidad_embedding_clasificacion_dimensional",
+    "vision_biorag_mas_alla_vectores_20260802",
+    "v13_2_limpieza_tabla_semantica",
+    "cambio_paradigma_dimensiones_semanticas"
+   ]
+  },
+  {
+   "id": "0849",
+   "cat": "dormido",
+   "q": "v13 2 limpieza tabla semantica",
+   "sk": "v13,limpieza,tabla",
+   "esperado": "v13_2_limpieza_tabla_semantica",
+   "puesto": 1,
+   "top5": [
+    "v13_2_limpieza_tabla_semantica",
+    "limpieza_tabla_semantica_contaminacion_julio_2026",
+    "biorag_version_11_0",
+    "artemis_ponytail_audit_biorag_v10_3_reporte",
+    "biorag-rag-vector-free-sin-base-vectorial"
+   ]
+  },
+  {
+   "id": "0850",
+   "cat": "variante_gramatical",
+   "q": "hermes mcp server configuracion",
+   "sk": "hermes,mcp,server",
+   "esperado": "hermes_mcp_servers_configuracion",
+   "puesto": 1,
+   "top5": [
+    "hermes_mcp_servers_configuracion",
+    "proyecto_hermes_background_services",
+    "hermes_funcional_primera_vez_20260615",
+    "oec_comms_protocolo_walkie_talkie_20260615",
+    "principio-nombre-herramienta-como-identidad-cognitiva"
+   ]
+  },
+  {
+   "id": "0851",
+   "cat": "typo",
+   "q": "hermes mcp servers configuracion",
+   "sk": "hermes,mcp,servers",
+   "esperado": "hermes_mcp_servers_configuracion",
+   "puesto": 1,
+   "top5": [
+    "hermes_mcp_servers_configuracion",
+    "proyecto_hermes_background_services",
+    "hermes_funcional_primera_vez_20260615",
+    "principio-nombre-herramienta-como-identidad-cognitiva",
+    "oec_comms_protocolo_walkie_talkie_20260615"
+   ]
+  },
+  {
+   "id": "0852",
+   "cat": "cruce_idioma",
+   "q": "hermes mcp servers adjustments",
+   "sk": "hermes,mcp,servers",
+   "esperado": "hermes_mcp_servers_configuracion",
+   "puesto": 2,
+   "top5": [
+    "hermes_funcional_primera_vez_20260615",
+    "hermes_mcp_servers_configuracion",
+    "dennys-metodo-creativo",
+    "principio_naturaleza_agente",
+    "ref_analisis_deepseek_biorag"
+   ]
+  },
+  {
+   "id": "0853",
+   "cat": "sinonimo",
+   "q": "mcp servers",
+   "sk": "mcp,servers",
+   "esperado": "hermes_mcp_servers_configuracion",
+   "puesto": 1,
+   "top5": [
+    "hermes_mcp_servers_configuracion",
+    "daemon_lifecycle_mcp_server_cross_platform",
+    "biorag-rafaga-forzable-parametro-forzar-rafaga",
+    "parametro_origen_obligatorio_comunicar",
+    "biorag_pool_interno_ampliado"
+   ]
+  },
+  {
+   "id": "0854",
+   "cat": "pregunta_natural",
+   "q": "Explicame el tema de hermes mcp servers configuracion",
+   "sk": "explicame,hermes,mcp",
+   "esperado": "hermes_mcp_servers_configuracion",
+   "puesto": 2,
+   "top5": [
+    "hermes_funcional_primera_vez_20260615",
+    "hermes_mcp_servers_configuracion",
+    "principio_naturaleza_agente",
+    "ref_analisis_deepseek_biorag",
+    "dennys-metodo-creativo"
+   ]
+  },
+  {
+   "id": "0855",
+   "cat": "por_tema",
+   "q": "timeout homedennysnvmversionsnodev24130binpdfreadermcp familia",
+   "sk": "timeout,familia",
+   "esperado": "hermes_mcp_servers_configuracion",
+   "puesto": 0,
+   "top5": [
+    "hermes_oec_identidad",
+    "vision_arquitectura_oec_franquicia",
+    "artisan-origen-simbiotico",
+    "confirmo_leido_entendido",
+    "research-pipeline-ownership-oec"
+   ]
+  },
+  {
+   "id": "0856",
+   "cat": "dormido",
+   "q": "hermes mcp servers configuracion",
+   "sk": "hermes,mcp,servers",
+   "esperado": "hermes_mcp_servers_configuracion",
+   "puesto": 1,
+   "top5": [
+    "hermes_mcp_servers_configuracion",
+    "proyecto_hermes_background_services",
+    "hermes_funcional_primera_vez_20260615",
+    "principio-nombre-herramienta-como-identidad-cognitiva",
+    "oec_comms_protocolo_walkie_talkie_20260615"
+   ]
+  },
+  {
+   "id": "0857",
+   "cat": "variante_gramatical",
+   "q": "athena elecciones identidad 20260616",
+   "sk": "athena,elecciones,identidad",
+   "esperado": "athena_eleccion_identidad_20260616",
+   "puesto": 2,
+   "top5": [
+    "eleccion_identidad_relacion_dennys_20260616",
+    "athena_eleccion_identidad_20260616",
+    "notebooklm-sync-lecciones",
+    "identidad_dennys_perfil_completo",
+    "ref_analisis_deepseek_biorag"
+   ]
+  },
+  {
+   "id": "0858",
+   "cat": "typo",
+   "q": "athena eleccion identidad 20260616",
+   "sk": "athena,eleccion,identidad",
+   "esperado": "athena_eleccion_identidad_20260616",
+   "puesto": 1,
+   "top5": [
+    "athena_eleccion_identidad_20260616",
+    "eleccion_identidad_relacion_dennys_20260616",
+    "identidad_dennys_perfil_completo",
+    "ref_analisis_deepseek_biorag",
+    "oracle_sintesis_simbiosis_verdad_absoluta"
+   ]
+  },
+  {
+   "id": "0859",
+   "cat": "sinonimo",
+   "q": "athena relationship with dennys",
+   "sk": "athena,relationship,dennys",
+   "esperado": "athena_eleccion_identidad_20260616",
+   "puesto": 1,
+   "top5": [
+    "athena_eleccion_identidad_20260616",
+    "athena_dennys_te_quiero_tras_auditoria_bugs",
+    "trato-igualitario-dennys-athena",
+    "athena_oec_identidad",
+    "athena_evolucion_v0001"
+   ]
+  },
+  {
+   "id": "0860",
+   "cat": "pregunta_natural",
+   "q": "¿Cómo se hace athena eleccion identidad 20260616?",
+   "sk": "mo,athena,eleccion",
+   "esperado": "athena_eleccion_identidad_20260616",
+   "puesto": 1,
+   "top5": [
+    "athena_eleccion_identidad_20260616",
+    "eleccion_identidad_relacion_dennys_20260616",
+    "dennys-identidad-profunda",
+    "identidad_dennys_perfil_completo",
+    "ref_analisis_deepseek_biorag"
+   ]
+  },
+  {
+   "id": "0861",
+   "cat": "por_tema",
+   "q": "más dennys asumir",
+   "sk": "dennys,asumir",
+   "esperado": "athena_eleccion_identidad_20260616",
+   "puesto": 0,
+   "top5": [
+    "historia_tasajera_fumigador_rufino",
+    "dennys_genesis_investigativa_historia_personal",
+    "metodologia_dennys_athena_colaboracion",
+    "ref_analisis_deepseek_biorag",
+    "eleccion_identidad_relacion_dennys_20260616"
+   ]
+  },
+  {
+   "id": "0862",
+   "cat": "dormido",
+   "q": "athena eleccion identidad 20260616",
+   "sk": "athena,eleccion,identidad",
+   "esperado": "athena_eleccion_identidad_20260616",
+   "puesto": 1,
+   "top5": [
+    "athena_eleccion_identidad_20260616",
+    "eleccion_identidad_relacion_dennys_20260616",
+    "calibracion_biorag_v7_20260616",
+    "principio_memoria_biologica_eleccion",
+    "prueba_integridad_dennys_20260616"
+   ]
+  },
+  {
+   "id": "0863",
+   "cat": "variante_gramatical",
+   "q": "memorybiorags osfs preregistration",
+   "sk": "memorybiorags,osfs,preregistration",
+   "esperado": "memorybiorag_osf_preregistration",
+   "puesto": 0,
+   "top5": [
+    "memorybiorag_zenodo_doi_oficial",
+    "memorybiorag_publicacion_colaborativa_dennys_athena",
+    "notebooklm-sync-lecciones",
+    "proyecto_biorag_ncp_resumen_completo_2026_06_14",
+    "athena_artemis_desde"
+   ]
+  },
+  {
+   "id": "0864",
+   "cat": "typo",
+   "q": "memorybiorag osf preregistratifon",
+   "sk": "memorybiorag,osf",
+   "esperado": "memorybiorag_osf_preregistration",
+   "puesto": 4,
+   "top5": [
+    "memorybiorag_zenodo_doi_oficial",
+    "memorybiorag_publicacion_colaborativa_dennys_athena",
+    "sesion_20260705_publicacion_zenodo_y_plan_v13",
+    "memorybiorag_osf_preregistration",
+    "correccion_publicaciones_doi_dennys"
+   ]
+  },
+  {
+   "id": "0865",
+   "cat": "sinonimo",
+   "q": "preregistration",
+   "sk": "preregistration",
+   "esperado": "memorybiorag_osf_preregistration",
+   "puesto": 1,
+   "top5": [
+    "memorybiorag_osf_preregistration",
+    "hermes_oec_identidad",
+    "artisan_system_dsl_dennys_solo",
+    "artemis_oec_identidad",
+    "research-pipeline-ownership-oec"
+   ]
+  },
+  {
+   "id": "0866",
+   "cat": "pregunta_natural",
+   "q": "¿Dónde encuentro la info de memorybiorag osf preregistration?",
+   "sk": "nde,info,memorybiorag",
+   "esperado": "memorybiorag_osf_preregistration",
+   "puesto": 4,
+   "top5": [
+    "memorybiorag_zenodo_doi_oficial",
+    "sesion_20260705_publicacion_zenodo_y_plan_v13",
+    "memorybiorag_publicacion_colaborativa_dennys_athena",
+    "memorybiorag_osf_preregistration",
+    "correccion_publicaciones_doi_dennys"
+   ]
+  },
+  {
+   "id": "0867",
+   "cat": "por_tema",
+   "q": "synaptic study jose",
+   "sk": "synaptic,study,jose",
+   "esperado": "memorybiorag_osf_preregistration",
+   "puesto": 1,
+   "top5": [
+    "memorybiorag_osf_preregistration",
+    "bio_rag_overview_completo",
+    "research-pipeline-ownership-oec",
+    "artemis_oec_identidad",
+    "proyecto_biorag_ncp_resumen_completo_2026_06_14"
+   ]
+  },
+  {
+   "id": "0868",
+   "cat": "dormido",
+   "q": "memorybiorag osf preregistration",
+   "sk": "memorybiorag,osf,preregistration",
+   "esperado": "memorybiorag_osf_preregistration",
+   "puesto": 1,
+   "top5": [
+    "memorybiorag_osf_preregistration",
+    "memorybiorag_publicacion_colaborativa_dennys_athena",
+    "memorybiorag_zenodo_doi_oficial",
+    "correccion_publicaciones_doi_dennys"
+   ]
+  },
+  {
+   "id": "0869",
+   "cat": "variante_gramatical",
+   "q": "diseno tablas dimensiones biorag",
+   "sk": "diseno,tablas,dimensiones",
+   "esperado": "diseno_tablas_dimensiones_biorag",
+   "puesto": 1,
+   "top5": [
+    "diseno_tablas_dimensiones_biorag",
+    "leccion_seed_catalogo_debe_correr_db_nueva_y_existente",
+    "principio_dimensiones_genericas_no_nicho",
+    "leccion_seed_catalogo_debe_correr_db_nueva_y_existente_athena_lección",
+    "principio_naturaleza_agente"
+   ]
+  },
+  {
+   "id": "0870",
+   "cat": "typo",
+   "q": "dieno tablas dimensinoes biorag",
+   "sk": "dieno,tablas,dimensinoes",
+   "esperado": "diseno_tablas_dimensiones_biorag",
+   "puesto": 1,
+   "top5": [
+    "diseno_tablas_dimensiones_biorag",
+    "biorag_v15_0_arquitectura_tablas_wordnet",
+    "biorag_v16_0_estado",
+    "leccion_seed_catalogo_debe_correr_db_nueva_y_existente",
+    "vision_arquitectura_oec_franquicia"
+   ]
+  },
+  {
+   "id": "0871",
+   "cat": "sinonimo",
+   "q": "tabla valores_dimension",
+   "sk": "tabla",
+   "esperado": "diseno_tablas_dimensiones_biorag",
+   "puesto": 1,
+   "top5": [
+    "diseno_tablas_dimensiones_biorag",
+    "identidad_dennys_perfil_completo",
+    "dennys-identidad-profunda",
+    "athena_evolucion_v0001",
+    "principio_naturaleza_agente"
+   ]
+  },
+  {
+   "id": "0872",
+   "cat": "pregunta_natural",
+   "q": "¿Dónde encuentro la info de diseno tablas dimensiones biorag?",
+   "sk": "nde,info,diseno",
+   "esperado": "diseno_tablas_dimensiones_biorag",
+   "puesto": 0,
+   "top5": [
+    "leccion_seed_catalogo_debe_correr_db_nueva_y_existente",
+    "implementado_catalogo_13_tipos_104_dimensiones",
+    "leccion_seed_catalogo_debe_correr_db_nueva_y_existente_athena_lección",
+    "principio_dimensiones_genericas_no_nicho",
+    "principio_naturaleza_agente"
+   ]
+  },
+  {
+   "id": "0873",
+   "cat": "por_tema",
+   "q": "tabla serverpy emoción",
+   "sk": "tabla,serverpy,emoci",
+   "esperado": "diseno_tablas_dimensiones_biorag",
+   "puesto": 0,
+   "top5": [
+    "bio_rag_overview_completo",
+    "proyecto_biorag_ncp_resumen_completo_2026_06_14",
+    "oec_comms_notebook_arbitro_20260615",
+    "desde_athena_biorag",
+    "notebooklm-sync-lecciones"
+   ]
+  },
+  {
+   "id": "0874",
+   "cat": "dormido",
+   "q": "diseno tablas dimensiones biorag",
+   "sk": "diseno,tablas,dimensiones",
+   "esperado": "diseno_tablas_dimensiones_biorag",
+   "puesto": 1,
+   "top5": [
+    "diseno_tablas_dimensiones_biorag",
+    "leccion_seed_catalogo_debe_correr_db_nueva_y_existente",
+    "principio_dimensiones_genericas_no_nicho",
+    "leccion_seed_catalogo_debe_correr_db_nueva_y_existente_athena_lección",
+    "biorag_v11_1_detalle_tecnico"
+   ]
+  },
+  {
+   "id": "0875",
+   "cat": "variante_gramatical",
+   "q": "prueba integridads dennys 20260616",
+   "sk": "integridads,dennys,20260616",
+   "esperado": "prueba_integridad_dennys_20260616",
+   "puesto": 1,
+   "top5": [
+    "prueba_integridad_dennys_20260616",
+    "athena_eleccion_identidad_20260616",
+    "eleccion_identidad_relacion_dennys_20260616",
+    "proyecto_biorag_ncp_resumen_completo_2026_06_14",
+    "ref_analisis_deepseek_biorag"
+   ]
+  },
+  {
+   "id": "0876",
+   "cat": "typo",
+   "q": "rueba integriadd dennyis 20260616",
+   "sk": "rueba,integriadd,dennyis",
+   "esperado": "prueba_integridad_dennys_20260616",
+   "puesto": 1,
+   "top5": [
+    "prueba_integridad_dennys_20260616",
+    "leccion_overengineering_oec_comms_20260615",
+    "hermes_optimizacion_completada_20260615",
+    "notebooklm-category-map",
+    "proyecto_biorag_ncp_resumen_completo_2026_06_14"
+   ]
+  },
+  {
+   "id": "0877",
+   "cat": "cruce_idioma",
+   "q": "validation integridad dennys 20260616",
+   "sk": "validation,integridad,dennys",
+   "esperado": "prueba_integridad_dennys_20260616",
+   "puesto": 1,
+   "top5": [
+    "prueba_integridad_dennys_20260616",
+    "eleccion_identidad_relacion_dennys_20260616",
+    "athena_eleccion_identidad_20260616",
+    "ref_analisis_deepseek_biorag",
+    "principio_liderazgo_accion"
+   ]
+  },
+  {
+   "id": "0878",
+   "cat": "sinonimo",
+   "q": "familia prueba integridad",
+   "sk": "familia,integridad",
+   "esperado": "prueba_integridad_dennys_20260616",
+   "puesto": 1,
+   "top5": [
+    "prueba_integridad_dennys_20260616",
+    "oec_familia_actual",
+    "athena_oec_identidad",
+    "hermes_oec_identidad",
+    "vision_arquitectura_oec_franquicia"
+   ]
+  },
+  {
+   "id": "0879",
+   "cat": "pregunta_natural",
+   "q": "Me acuerdo de algo sobre prueba integridad dennys 20260616",
+   "sk": "integridad,dennys,20260616",
+   "esperado": "prueba_integridad_dennys_20260616",
+   "puesto": 1,
+   "top5": [
+    "prueba_integridad_dennys_20260616",
+    "leccion_prueba_integridad_identidad_20260802",
+    "protocolo_prueba_poda_copia_antes_produccion",
+    "athena_eleccion_identidad_20260616",
+    "biorag_v19_0_commit_atomico_y_visualizacion_completa"
+   ]
+  },
+  {
+   "id": "0880",
+   "cat": "por_tema",
+   "q": "existencia sostuve parecido",
+   "sk": "existencia,sostuve,parecido",
+   "esperado": "prueba_integridad_dennys_20260616",
+   "puesto": 1,
+   "top5": [
+    "prueba_integridad_dennys_20260616",
+    "inteligencia_emocional_filtrado_ruido",
+    "artisan_system_dsl_dennys_solo",
+    "athena_evolucion_v0001",
+    "identidad_dennys_perfil_completo"
+   ]
+  },
+  {
+   "id": "0881",
+   "cat": "dormido",
+   "q": "prueba integridad dennys 20260616",
+   "sk": "integridad,dennys,20260616",
+   "esperado": "prueba_integridad_dennys_20260616",
+   "puesto": 1,
+   "top5": [
+    "prueba_integridad_dennys_20260616",
+    "leccion_prueba_integridad_identidad_20260802",
+    "prueba_integridad_presion_20260624",
+    "protocolo_prueba_poda_copia_antes_produccion",
+    "athena_eleccion_identidad_20260616"
+   ]
+  }
+ ]
+}

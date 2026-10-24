@@ -1,0 +1,41 @@
+casos positivos evaluables: 875  | esperado fuera del pool: 0  | candidatos totales: 228432
+
+RESULTADO EN TEST (5 folds por nodo; rango ANTES del post-proceso)
+modelo                          R@1    R@5    MRR R@1 train  gana/pierde vs M0 (R@1)
+M0 manual (hoy)               90.17  98.63  0.936     90.18  +0 / -0  (pierde top-5: 0)
+P perceptrón puro             92.34  98.86  0.950     92.89  +38 / -19  (pierde top-5: 9)
+R1 manual+lineal              92.69  98.74  0.953     93.69  +36 / -14  (pierde top-5: 8)
+R2 manual+capa oculta         93.94  98.86  0.960     95.52  +41 / -8  (pierde top-5: 10)
+R3 manual+compuerta           93.37  98.51  0.956     94.26  +40 / -12  (pierde top-5: 10)
+
+R@1 por categoría (test):
+                             cruce_idi   dormido   literal  por_tema pregunta_  sinonimo      typo variante_
+M0 manual (hoy)                  50.00    100.00     99.59     63.08     95.38     56.36     73.85     81.54
+P perceptrón puro                75.00     98.46     98.56     63.08     96.92     63.64     92.31     90.77
+R1 manual+lineal                 62.50     98.46     99.18     67.69     95.38     61.82     92.31     90.77
+R2 manual+capa oculta            75.00    100.00     99.59     72.31     96.92     63.64     95.38     90.77
+R3 manual+compuerta              62.50    100.00     98.97     75.38     96.92     61.82     93.85     89.23
+
+R2 con la corrección atenuada (lambda): ganancia frente a casos perdidos
+  lambda=0.25  R@1  93.60  +34 / -4  (pierde top-5: 7)
+  lambda=0.50  R@1  93.71  +37 / -6  (pierde top-5: 9)
+  lambda=0.75  R@1  93.83  +40 / -8  (pierde top-5: 9)
+
+R1: corrección media aprendida sobre cada señal (positivo = el manual la subestima):
+  asoc             -1.192
+  tematico_g       -1.133
+  pred_score       -0.754
+  hub_match        -0.123
+  dim_score        -0.018
+  episodio_score   +0.170
+  latcad           +0.177
+  sin95            +0.232
+  grupo_score      +0.250
+  ncd_score        +0.996
+  jsd              +1.019
+  sinonimos_ratio  +1.333
+  match_exacto     +1.806
+  campo_score      +2.264
+  ppmi_score       +2.672
+  concepto_ratio   +2.713
+  bm25_norm        +4.016

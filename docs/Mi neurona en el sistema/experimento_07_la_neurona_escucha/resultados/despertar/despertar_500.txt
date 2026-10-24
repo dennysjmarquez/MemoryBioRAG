@@ -1,0 +1,52 @@
+================================================================================
+BioRAG — Despertar la neurona
+================================================================================
+DB: /tmp/q/desp/mis_900.db
+
+  ANTES
+    campeón activo ......... no (motor = fórmula a mano)
+    margen 'no dañar' ...... 0.0
+    examen (estudio/guardia) 0 / 0
+    ciclos · ascensos · retiros  0 · 0 · 0
+    fase ................... —
+
+Practicando 500 ciclos (cada ciclo = lo que corre tras una consolidación)...
+  ciclo   25  juntando examen    examen 38/14      62 s
+  ciclo   50  juntando examen    examen 86/27     271 s
+  ciclo   75  juntando examen    examen 134/40     333 s
+  ciclo   83  ASCENSO  margen 1.5  guardia #1 73.2 % -> 87.8 %
+  ciclo   84  ASCENSO  margen 0.5  guardia #1 73.2 % -> 90.2 %
+  ciclo   85  ASCENSO  margen 0.25  guardia #1 73.2 % -> 92.7 %
+  ciclo   89  ASCENSO  margen 1.0  guardia #1 72.7 % -> 88.6 %
+  ciclo   91  ASCENSO  margen 0.5  guardia #1 72.7 % -> 90.9 %
+  ciclo  100  estudiando         examen 181/50     400 s
+  ciclo  125  tranquila          examen 212/57     449 s
+  ciclo  150  tranquila          examen 236/63     485 s
+  ciclo  175  tranquila          examen 261/68     521 s
+  ciclo  200  tranquila          examen 276/74     567 s
+  ciclo  204  ASCENSO  margen 2.0  guardia #1 73.1 % -> 84.6 %
+  ciclo  225  tranquila          examen 299/85     618 s
+  ciclo  250  tranquila          examen 322/98     658 s
+  ciclo  275  tranquila          examen 347/102     698 s
+  ciclo  300  tranquila          examen 368/111     741 s
+  ciclo  325  tranquila          examen 396/120     780 s
+  ciclo  350  tranquila          examen 422/127     817 s
+  ciclo  375  tranquila          examen 441/137     852 s
+  ciclo  400  tranquila          examen 465/142     880 s
+  ciclo  425  estudiando         examen 496/145     919 s
+  ciclo  450  tranquila          examen 526/149     952 s
+  ciclo  475  tranquila          examen 542/155     984 s
+  ciclo  500  tranquila          examen 560/162    1017 s
+
+  DESPUÉS
+    campeón activo ......... sí
+    margen 'no dañar' ...... 2.0
+    examen (estudio/guardia) 560 / 162
+    ciclos · ascensos · retiros  500 · 6 · 0
+    fase ................... tranquila (techo)
+    guardia #1: fórmula 77.8 %  ->  neurona 87.0 %
+
+500 ciclos en 1017 s.
+La 'guardia' es el examen propio de la neurona (20 % de recuerdos que nunca estudia),
+no la QA. Para medir con tu QA, corré esto sobre una copia y luego la suite sobre esa copia.
+================================================================================

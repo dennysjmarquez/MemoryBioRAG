@@ -1,0 +1,11 @@
+quitar=[]  neurona=1
+categoría                 n     R@1     R@5     MRR
+humana_design            27   48.15   59.26  0.5247
+humana_extending         15   13.33   20.00  0.1667
+humana_general           21   38.10   57.14  0.4683
+humana_gui                4   75.00   75.00  0.7500
+humana_installed          2   50.00  100.00  0.6250
+humana_library           25   52.00   56.00  0.5400
+humana_programming       60   50.00   68.33  0.5681
+humana_windows            8   37.50   75.00  0.5625
+GLOBAL                  162   45.06   59.88  0.5113

@@ -1,0 +1,84 @@
+{
+  "version": "v33.0",
+  "generado_en": "2026-10-23T12:23:48",
+  "elapsed_seconds": 757.96,
+  "casos_file": "casos_qa_baseline_v1.jsonl",
+  "casos_total": 921,
+  "db_src": "/home/user/lab_neurona/uso_124.db",
+  "global": {
+    "queries": 875,
+    "recall_at_5": 100.0,
+    "recall_at_1": 93.83,
+    "mrr": 0.9631,
+    "fallos": 0,
+    "negativos_total": 40,
+    "negativos_fp": 0,
+    "negativos_fp_rate": 0.0,
+    "negativos_contaminados": 0,
+    "spreading_activation": 8,
+    "etiquetas_obsoletas_resueltas": 3,
+    "etiquetas_irreparables": 0,
+    "queries_ambiguas": 3,
+    "nodos_dormidos_iniciales": 15,
+    "nodos_restaurados_entre_casos": 64,
+    "orden_no_monotonico": 0
+  },
+  "categorias": {
+    "cruce_idioma": {
+      "total": 8,
+      "recall_at_5": 100.0,
+      "recall_at_1": 75.0,
+      "mrr": 0.875,
+      "fallos": 0
+    },
+    "dormido": {
+      "total": 65,
+      "recall_at_5": 100.0,
+      "recall_at_1": 100.0,
+      "mrr": 1.0,
+      "fallos": 0
+    },
+    "literal": {
+      "total": 487,
+      "recall_at_5": 100.0,
+      "recall_at_1": 98.36,
+      "mrr": 0.9914,
+      "fallos": 0
+    },
+    "por_tema": {
+      "total": 65,
+      "recall_at_5": 100.0,
+      "recall_at_1": 84.62,
+      "mrr": 0.9141,
+      "fallos": 0
+    },
+    "pregunta_natural": {
+      "total": 65,
+      "recall_at_5": 100.0,
+      "recall_at_1": 96.92,
+      "mrr": 0.9846,
+      "fallos": 0
+    },
+    "sinonimo": {
+      "total": 55,
+      "recall_at_5": 100.0,
+      "recall_at_1": 56.36,
+      "mrr": 0.7067,
+      "fallos": 0
+    },
+    "typo": {
+      "total": 65,
+      "recall_at_5": 100.0,
+      "recall_at_1": 93.85,
+      "mrr": 0.9692,
+      "fallos": 0
+    },
+    "variante_gramatical": {
+      "total": 65,
+      "recall_at_5": 100.0,
+      "recall_at_1": 93.85,
+      "mrr": 0.9628,
+      "fallos": 0
+    }
+  }
+}

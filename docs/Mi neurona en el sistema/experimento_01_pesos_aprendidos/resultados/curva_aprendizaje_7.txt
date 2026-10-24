@@ -1,0 +1,20 @@
+
+A. CURVA DE APRENDIZAJE (R2, test en nodos nunca vistos, partición 7)
+   M0 manual: R@1 90.17
+   fracción casos train    R@1  gana/pierde vs M0
+         5%          36  90.86  +40 / -34
+        10%          70  92.80  +36 / -13
+        25%         169  93.03  +41 / -16
+        50%         342  93.83  +42 / -10
+       100%         700  93.94  +41 / -8
+
+B. CATEGORÍA NUNCA VISTA (R2 entrenado sin esa categoría, evaluado solo en ella)
+   categoría               n      M0  R2 sin verla  R2 viéndola  gana/pierde (sin verla)
+   cruce_idioma            8   50.00         62.50        75.00  +1 / -0
+   dormido                65  100.00        100.00       100.00  +0 / -0
+   literal               487   99.59         99.59        99.59  +0 / -0
+   por_tema               65   63.08         27.69        72.31  +4 / -27
+   pregunta_natural       65   95.38         96.92        96.92  +2 / -1
+   sinonimo               55   56.36         60.00        63.64  +5 / -3
+   typo                   65   73.85         93.85        95.38  +13 / -0
+   variante_gramatical    65   81.54         89.23        90.77  +7 / -2

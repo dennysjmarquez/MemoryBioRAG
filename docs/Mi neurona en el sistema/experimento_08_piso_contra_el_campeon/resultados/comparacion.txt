@@ -1,0 +1,31 @@
+1. DETERMINISMO
+   la regla actúa por primera vez en B en el ciclo — (nunca)
+   ciclos anteriores con alguna diferencia A≠B: 0  -> idénticos: la comparación es limpia
+
+2. PRÁCTICA (500 ciclos, presupuesto sin corte)
+   A: ascensos 8 [86, 87, 95, 103, 208, 307, 407, 413] · retiros 0 · vetos 0 [] · guardia mano 0.7771 → campeón 0.92 · margen 1.0
+   B: ascensos 8 [86, 87, 95, 103, 208, 307, 407, 413] · retiros 0 · vetos 0 [] · guardia mano 0.7771 → campeón 0.92 · margen 1.0
+
+3. QA OFICIAL (motor directo, 875) — R@5 / R@1 / MRR
+   categoría              piso R@1 |                      A |                      B | ΔR@1 B−A
+   cruce_idioma              62.50 | 100.00  87.50 0.938    | 100.00  87.50 0.938    | +0.00
+   dormido                  100.00 | 100.00 100.00 1.000    | 100.00 100.00 1.000    | +0.00
+   literal                   99.59 | 100.00  99.59 0.998    | 100.00  99.59 0.998    | +0.00
+   por_tema                  63.08 | 100.00  84.62 0.913    | 100.00  84.62 0.913    | +0.00
+   pregunta_natural          93.85 | 100.00  96.92 0.985    | 100.00  96.92 0.985    | +0.00
+   sinonimo                  56.36 | 100.00  60.00 0.735    | 100.00  60.00 0.735    | +0.00
+   typo                      87.69 | 100.00  98.46 0.992    | 100.00  98.46 0.992    | +0.00
+   variante_gramatical       87.69 | 100.00  96.92 0.981    | 100.00  96.92 0.981    | +0.00
+   GLOBAL                      nan | 100.00  95.43 0.972    | 100.00  95.43 0.972    | +0.00
+
+4. CAMINO DEL AGENTE (recordar por MCP, 875) — R@5 / R@1 / MRR
+   cruce_idioma           | A 100.00 100.00 1.000 (8/8) | B 100.00 100.00 1.000 (8/8) | ΔR@1 +0.00
+   dormido                | A 100.00 100.00 1.000 (65/65) | B 100.00 100.00 1.000 (65/65) | ΔR@1 +0.00
+   literal                | A 100.00  99.59 0.998 (485/487) | B 100.00  99.59 0.998 (485/487) | ΔR@1 +0.00
+   por_tema               | A  98.46  80.00 0.875 (52/65) | B  98.46  80.00 0.875 (52/65) | ΔR@1 +0.00
+   pregunta_natural       | A 100.00  96.92 0.985 (63/65) | B 100.00  96.92 0.985 (63/65) | ΔR@1 +0.00
+   sinonimo               | A  96.36  60.00 0.725 (33/55) | B  96.36  60.00 0.725 (33/55) | ΔR@1 +0.00
+   typo                   | A 100.00  98.46 0.992 (64/65) | B 100.00  98.46 0.992 (64/65) | ΔR@1 +0.00
+   variante_gramatical    | A 100.00  95.38 0.973 (62/65) | B 100.00  95.38 0.973 (62/65) | ΔR@1 +0.00
+   GLOBAL                 | A  99.66  95.09 0.969 (832/875) | B  99.66  95.09 0.969 (832/875) | ΔR@1 +0.00
+   #1 de B frente a A: +0 / −0

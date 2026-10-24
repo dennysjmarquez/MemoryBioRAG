@@ -1,0 +1,30 @@
+{
+ "a_mano": {
+  "n": 164,
+  "r1": 42.07,
+  "r5": 56.1,
+  "mrr": 0.481
+ },
+ "neurona": {
+  "n": 164,
+  "r1": 41.46,
+  "r5": 56.1,
+  "mrr": 0.471
+ },
+ "gana": 4,
+ "pierde": 5,
+ "casos_ganados": [
+  "¿Puedo crear mis propias funciones en C?",
+  "Nunca he programado antes. ¿Hay un tutorial de Python?",
+  "¿Cómo puedo crear un binario independiente a partir de un programa Python?",
+  "¿Por qué Python tarda en comenzar?"
+ ],
+ "casos_perdidos": [
+  "¿Por qué join() es un método de cadena de caracteres en lugar de un método de lista o tupla?",
+  "¿Cómo consigo documentación sobre Python?",
+  "¿Podemos deshacernos del *Global Interpreter Lock*?",
+  "¿Cómo puedo encontrar los métodos o atributos de un objeto?",
+  "¿Qué es self?"
+ ],
+ "salen_del_top5": 0
+}

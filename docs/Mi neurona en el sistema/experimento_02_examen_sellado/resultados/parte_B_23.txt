@@ -1,0 +1,18 @@
+casos: 875 | semilla de partición: 23
+
+PARTE B. Examen sellado + parada temprana + compuerta 'ningún caso baja' (5 rotaciones)
+  rotación 0: paró en el paso 2300 | λ sin pérdidas = 0.00 | margen sin pérdidas = 0.0 | ambas: λ=0.00, margen=0.0 | λ con nombre exacto protegido = 0.00
+  rotación 1: paró en el paso  625 | λ sin pérdidas = 0.00 | margen sin pérdidas = 0.05 | ambas: λ=1.00, margen=0.05 | λ con nombre exacto protegido = 0.00
+  rotación 2: paró en el paso 1150 | λ sin pérdidas = 0.00 | margen sin pérdidas = 0.0 | ambas: λ=0.00, margen=0.0 | λ con nombre exacto protegido = 0.05
+  rotación 3: paró en el paso  575 | λ sin pérdidas = 0.00 | margen sin pérdidas = 0.0 | ambas: λ=0.15, margen=0.05 | λ con nombre exacto protegido = 0.00
+  rotación 4: paró en el paso  200 | λ sin pérdidas = 0.00 | margen sin pérdidas = 0.0 | ambas: λ=0.00, margen=0.0 | λ con nombre exacto protegido = 0.00
+
+  RESULTADO EN EL EXAMEN SELLADO (875 preguntas, cada una vista una sola vez)
+  versión                               R@1    R@5  gana / pierde 1.º  (sale del top-5)
+  pesos a mano (hoy)                  90.17  98.63
+  neurona sin compuerta               93.94  98.97  +41 / -8  (8)
+  compuerta λ                         90.17  98.63  +0 / -0  (0)
+  compuerta de margen (solo si duda)  90.86  98.51  +6 / -0  (3)
+  compuerta λ + margen                91.20  98.63  +9 / -0  (3)
+  compuerta λ + nombre exacto         90.63  98.74  +4 / -0  (0)
+  pierde (neurona sin compuerta): 0040, 0488, 0504, 0688, 0708, 0735, 0842, 0846
