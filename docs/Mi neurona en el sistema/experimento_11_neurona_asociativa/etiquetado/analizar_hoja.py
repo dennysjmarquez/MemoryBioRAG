@@ -98,6 +98,18 @@ def main():
     print(f"   fuerza ≥ 0.6: {int(y[m].sum())}/{int(m.sum())} sí ({100 * y[m].mean():.0f} %) · "
           f"< 0.6: {int(y[~m].sum())}/{int((~m).sum())} ({100 * y[~m].mean():.0f} %)")
 
+    print("\n   Tabla completa fuerza × respuesta, por grupo (cuenta TODO, también 'no sé' y vacías):")
+    out["tabla_contingencia"] = {}
+    for g in "ABCD":
+        for nom, cond in (("<0.6", lambda x: x < 0.6), (">=0.6", lambda x: x >= 0.6)):
+            cnt = {}
+            for i in clave:
+                if clave[i]["grupo"] == g and cond(clave[i]["fuerza"]):
+                    r = resp.get(i, "") or "vacía"
+                    cnt[r] = cnt.get(r, 0) + 1
+            out["tabla_contingencia"][f"{g} {nom}"] = cnt
+            print(f"     {g} fuerza {nom:>5}: " + " · ".join(f"{k} {v}" for k, v in sorted(cnt.items())))
+
     ex = [k for k, i in enumerate(ids) if clave[i]["grupo"] in "AB"]
     fe, ye = fz[ex], y[ex]
     pe = np.array([peso.get((clave[ids[k]]["a"], clave[ids[k]]["b"]), 0.0) for k in ex])

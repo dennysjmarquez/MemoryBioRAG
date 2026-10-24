@@ -93,6 +93,39 @@
    44
   ]
  },
+ "tabla_contingencia": {
+  "A <0.6": {
+   "momento": 1,
+   "si": 8,
+   "no": 14,
+   "nose": 3
+  },
+  "A >=0.6": {
+   "si": 11,
+   "momento": 1,
+   "vacía": 1,
+   "no": 1
+  },
+  "B <0.6": {
+   "si": 7,
+   "no": 14,
+   "nose": 8
+  },
+  "B >=0.6": {
+   "si": 1
+  },
+  "C <0.6": {},
+  "C >=0.6": {
+   "si": 6,
+   "no": 7,
+   "nose": 2
+  },
+  "D <0.6": {},
+  "D >=0.6": {
+   "si": 12,
+   "no": 3
+  }
+ },
  "existentes_neurona_vs_peso_hoy": {
   "n": 58,
   "neurona": 0.772,

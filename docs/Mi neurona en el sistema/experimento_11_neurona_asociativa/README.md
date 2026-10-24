@@ -970,3 +970,50 @@ la neurona ponga el peso.
 
 **Lo que este examen no puede decir:** son 100 pares. Los porcentajes tienen margen de error ancho.
 Sirve para tomar decisiones de diseño, no para anunciar un número final.
+
+---
+
+## V2.18. Revisión del examen: tabla completa y tres dudas aclaradas
+
+Una revisión externa del examen dudó de tres números. Esta es la verificación, con la tabla completa
+(`etiquetado/analizar_hoja.py` ahora la imprime y la guarda en `tabla_contingencia`):
+
+| Grupo | Fuerza | sí | mismo momento | no | no sé | vacía |
+|---|---|---|---|---|---|---|
+| A · conserva | < 0.6 | 8 | 1 | **14** | 3 | 0 |
+| A · conserva | ≥ 0.6 | 11 | 1 | **1** | 0 | 1 |
+| B · soltaría | < 0.6 | 7 | 0 | 14 | 8 | 0 |
+| B · soltaría | ≥ 0.6 | 1 | 0 | 0 | 0 | 0 |
+| C · desacuerdo con Gemini | ≥ 0.6 | 6 | 0 | 7 | 2 | 0 |
+| D · propone | ≥ 0.6 | 12 | 0 | 3 | 0 | 0 |
+
+**1. "74 % con fuerza ≥ 0.6" es correcto.** Con fuerza ≥ 0.6 hay 31 sí y 11 no, no 2. Los "no" son
+los pares 19, 21, 32, 48, 55, 58, 67, 74, 82, 87 y 100: siete de C, tres de D y uno de A.
+
+**2. "0.77 contra 0.63" es otra medida que la de V2.8.1.** Es el AUC sobre los 58 pares de la hoja
+que ya existen (A+B) y que Dennys contestó con sí o no. El "0.868 contra 0.271" de V2.8.1 es enlaces
+manuales contra todo lo demás, en la DB entera. El margen de 0.77/0.63 es ancho y la diferencia cruza
+el cero (V2.17).
+
+**3. "Cerca de la mitad de las sinapsis automáticas no le parecen relacionadas" se sostiene, con
+margen ancho.** A y B juntos son **todas** las sinapsis no manuales que existen hoy (5,172 + 7,780 =
+12,952). La estimación pondera cada grupo por su tamaño real. Resultado: **45 % buenas** (margen
+32–59 %), o sea cerca de 55 % no relacionadas. Vale solo para las sinapsis automáticas: las manuales
+no entraron en la hoja.
+
+### Lo que la tabla enseña (lo más importante de esta revisión)
+
+En las sinapsis que **ya existen** (A+B), la fuerza absoluta separa muy bien:
+
+| Fuerza | sí (incl. mismo momento) | no |
+|---|---|---|
+| ≥ 0.6 | **13** | **1** (93 %) |
+| < 0.6 | 16 | 28 (36 %) |
+
+La precisión baja de A (58 %) no viene de la fuerza. Viene de la regla **top-10**, que conserva los 10
+mejores de cada recuerdo aunque sean débiles. **La neurona no está mal; la regla de cortar sí.**
+Esto confirma la decisión: al cablear, la neurona **pone el peso con su fuerza** y no corta nada. Si
+algún día se corta, será con K = 20 y medido.
+
+Donde la fuerza alta sí falla es en **C** (6 a 7): son justo los pares que Gemini leyó y descartó.
+Por eso Gemini se queda por ahora.
