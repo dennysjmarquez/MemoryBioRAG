@@ -871,3 +871,57 @@ muchos más de tus enlaces que el peso de hoy (84 % vs 26 % con K = 10).
    **pedazo de texto** (`LIKE '%término%'`) dentro del nombre y los sinónimos de **todos** los
    recuerdos. No tiene tope. Así, un término corto o común une un recuerdo con decenas de otros.
    El arreglo va como cambio aislado, con QA antes y después, y no borra nada de lo que ya existe.
+
+---
+
+## V2.16. Para qué sirve la hoja, y qué pasó con `vincular_por_sinonimos`
+
+### La hoja de 100 pares: para qué es
+
+La neurona es cerrada: **tus respuestas no la cambian**. Usarlas para mover sus pesos sería
+entrenarla con tu memoria, y eso quedó prohibido. La hoja es un **examen**, no una clase. Sirve para
+cuatro decisiones:
+
+| Grupo | Pregunta que responde | Qué hacemos con la respuesta |
+|---|---|---|
+| A · lo que la neurona conserva | ¿Lo que se queda es bueno? | Da la **precisión real**, el número para un auditor |
+| B · lo que soltaría | ¿Perderías algo bueno? | Decide el **cupo K** (10 o 20 socios). Si en B hay muchos "sí", K sube |
+| C · desacuerdos con Gemini | ¿Quién tenía razón? | Decide si la neurona puede **reemplazar a la hormiguita** |
+| D · conexiones nuevas | ¿Vale la pena que proponga? | Decide si se enciende "la neurona propone" o solo juzga lo que el motor trae |
+
+Y si marcas muchos `contradicen`, eso dice que hace falta la capa de contradicción.
+
+### `vincular_por_sinonimos`: lo medí y cambié de opinión
+
+`medir_sinonimos.py` simula, sobre la copia de tu memoria, qué sinapsis crearía cada regla con los
+sinónimos de cada recuerdo (`resultados/sinonimos.json`):
+
+| Regla | Pares | Máx. por recuerdo | Fuerza mediana | Enlaces humanos que encuentra |
+|---|---|---|---|---|
+| Hoy (pedazo de texto, sin tope) | 34,335 | 525 | .431 | 220 / 381 |
+| Palabra completa | 19,335 | 276 | .440 | 183 / 381 |
+| Palabra completa + ignorar términos en más de 10 recuerdos | 3,873 | 48 | .521 | 138 / 381 |
+| … + tope de 10 por guardado | 2,896 | 22 | .536 | 122 / 381 |
+| **Hoy + la neurona decide (top 5)** | 3,059 | 24 | **.711** | **148 / 381** |
+| **Hoy + la neurona decide (top 10)** | 5,979 | 62 | .601 | **172 / 381** |
+| Hoy + la neurona decide (top 20) | 11,614 | 156 | .528 | 196 / 381 |
+
+Lectura simple:
+- El problema **no** es tanto el "pedazo de texto". Son los **términos de tema** (`biorag` toca
+  226 recuerdos, `athena` 104, `leccion` 94, `dennys` 92). No son sinónimos: son temas.
+- Arreglarlo **a mano** (palabra completa, ignorar temas, tope) quita ruido, pero **pierde enlaces
+  buenos**: de 220 humanos encontrados baja a 122. Eso rompe la regla "nunca bajar el recall".
+- Con **el mismo volumen** (~3,000 pares), **la neurona encuentra más enlaces humanos que el arreglo
+  a mano** (148 contra 122), y con mucha más fuerza (.71 contra .54).
+
+**Conclusión:** el arreglo de `vincular_por_sinonimos` **es la neurona**. Un arreglo a mano antes
+de cablear sería peor y habría que deshacerlo después. El plan pasa a ser:
+1. Cablear la neurona en una copia, empezando por los dos puntos donde más sinapsis nacen al guardar
+   (`vincular_por_sinonimos` y `auto_vincular`). Ella decide el **peso** con que nace cada sinapsis.
+   Primero sin cortar nada.
+2. QA antes y después. El "antes" ya está medido: `resultados/qa_base_antes_de_cablear.txt`
+   (copia del snapshot, `PYTHONHASHSEED=1`): **R@5 100 %, R@1 91.89 %, MRR .950, 0 % falsos
+   positivos, gate OK**.
+3. Medir también la calidad del grafo, no solo el QA (el peso de las sinapsis casi no pesa en el
+   ranking del QA).
+4. Después, la neurona reemplaza a la hormiguita.
