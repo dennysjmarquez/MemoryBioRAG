@@ -36,7 +36,9 @@
 14. [Cómo reproducir las mediciones](#14-cómo-reproducir-las-mediciones)
 15. [La neurona asociativa (aporte de la conversación con Manus)](#15-la-neurona-asociativa-aporte-de-la-conversación-con-manus)
 
-Anexos: [A — Conversación completa Dennys ↔ Manus](anexo_A_conversacion_dennys_manus.md)
+16. [Lo que queda claro: la neurona asociativa en una página](#16-lo-que-queda-claro-la-neurona-asociativa-en-una-página)
+
+Anexos: [A — Conversación completa Dennys ↔ Manus](anexo_A_conversacion_dennys_manus.md) · [B — Segunda parte: neurona universal y momento de la sinapsis](anexo_B_conversacion_dennys_manus_2.md)
 
 ---
 
@@ -976,3 +978,79 @@ El paso 1 de la sección 12 (banco de calibración) se amplía:
    un parámetro que no aporta por uno que sí, o volver obligatorio uno existente. **Dennys lo habla
    con su agente y decide.**
 4. Recién después: piso a mano → modo aprendiz → neurona encima → relevo (sección 12, pasos 2–7).
+
+---
+
+## 16. Lo que queda claro: la neurona asociativa en una página
+
+> Después de la segunda parte de la conversación con Manus ([Anexo B](anexo_B_conversacion_dennys_manus_2.md)),
+> Dennys cerró esa vía y pidió aclarar todo entre él y su agente, **claro, preciso y conciso**.
+> Esta sección es la versión limpia: lo que se queda, lo que se descarta y por qué.
+
+### 16.1 La neurona, en una frase
+
+> **Una sola neurona, dentro del motor, que mira dos recuerdos (A y B) a través de sus agujas y
+> decide: conectar, reforzar, dejar, debilitar o mandar a cuarentena. Reemplaza para siempre a la
+> hormiguita. El agente y el MCP quedan igual (salvo algún parámetro que la neurona necesite).**
+
+### 16.2 Los 4 enchufes (no hay que inventar momentos nuevos)
+
+El motor **ya tiene** los lugares donde nacen y se revisan las sinapsis. La neurona se enchufa en
+ellos, reemplazando las reglas fijas ("si se parecen ≥ 0.4, conectar"):
+
+| Momento | Qué pasa hoy | Qué hace la neurona | ¿Escribe en el grafo? |
+|---|---|---|---|
+| **1. Al guardar** (consolidar a largo plazo) | `auto_vincular` y compañía conectan por reglas fijas (Jaccard, nombre, PMI, sinónimos) | El motor trae pocos candidatos (como ya hace); la neurona decide cuáles se conectan y con qué fuerza | Sí, pero **como propuesta** (peso bajo) |
+| **2. Al buscar** | Ráfaga y spreading recorren el grafo | Solo usa la decisión ya tomada: no expande por conexiones que la neurona marcó como ruido | **No** (buscar no cambia la memoria) |
+| **3. En el sueño / consolidación** | LTD baja ×0.95 las conexiones sin uso | Con la evidencia del autoexamen, refuerza o debilita propuestas y conexiones viejas | Sí, pocas por ciclo (costo fijo) |
+| **4. Saneamiento** (lo que hacía la hormiguita) | Gemini decide "padre-hijo, ¿sí o no?" | La neurona revisa padre + hijos, por lotes, en el sueño | Sí: debilitar o **cuarentena**, nunca borrar |
+
+**La misma neurona en los 4:** lo que no merece estar conectado tampoco se expande en una búsqueda
+(idea de Manus que se queda: coherencia entre guardar y recuperar).
+
+### 16.3 La neurona "de fábrica" y los pesos en duro (cómo encaja con el molde)
+
+Dennys: *"puede venir preentrenada, pero sí, tiene que tener sus pesos en duro"*. Se ordena así:
+
+```
+1. Piso a mano (Dennys)        ← reglas que ya existen + las que Dennys calibre en el banco
+2. Pesos de fábrica            ← entrenados en el corpus de Dennys, SOLO con agujas universales
+3. Ajuste local con techo      ← cada DB aprende un poco encima, con su autoexamen
+4. Guardia                     ← si 2 o 3 no ganan el examen local, manda el piso
+```
+
+**Por qué puede servir para cualquier corpus:** si las agujas son **universales y normalizadas**
+(parecido 0–1, ¿comparten entidades?, ¿mismo episodio?, ¿se activan juntos?, ¿ayudó?, ¿trajo
+ruido?) y **nunca palabras** ("servidor", "memoria"), la neurona aprende *cómo se ve una asociación*,
+no *de qué habla tu corpus*. Eso sí viaja.
+
+**La prueba que hay que hacer (no basta con creerlo):** entrenar en el corpus de Dennys y medir en
+otro corpus distinto. El Exp 08 mostró que el campeón del ranking **no** viajó bien, pero ese
+aprendía cosas del corpus; esta neurona solo vería agujas universales, así que tiene mejor chance.
+La guardia queda igual: si de fábrica no gana el examen local, no trabaja.
+
+### 16.4 Lo que se descarta de lo que se habló
+
+| Se dijo | Se descarta porque |
+|---|---|
+| "Eliminar" conexiones (Manus) | Norma: nunca borrar. Máximo: cuarentena reversible. |
+| Registrar en cada búsqueda "qué fue útil" (Manus) | Norma: sin feedback y sin registrar lo que usó el agente. La evidencia sale del **autoexamen**. |
+| Expandir automáticamente "todo lo relacionado" en cada búsqueda | Primero la neurona limpia el grafo; la expansión (neurona de saltos) va después y **solo si no baja el recall**. Hoy un salto ciego trae ~215 candidatos (medición B). |
+| "Nunca habrá ruido" / "perfección absoluta" | Se mantiene como **meta**; la medida es: menos ruido, medido, sin perder recall. |
+| Neuronas de enrutamiento, admisión, etc. | No se descartan, pero **no ahora**: primero esta. |
+
+### 16.5 Qué tiene que dar Dennys a la neurona (el "agua correcta")
+
+Lo que hoy **ya hay** y sirve: parecido de contenido, PPMI, sinónimos, dimensiones, vecinos en
+común, categoría, grado, peso y tipo de la conexión, utilidad medible por autoexamen.
+
+Lo que **falta** para que conecte "como un cerebro" (sección 15.3): **entidades núcleo**
+(`sustantivos_clave`, casi vacío en el snapshot), **relaciones quién-qué-a-qué** (`predicados`, 12 %),
+**episodio** (no hay id de episodio) y **contradicción** (no existe). Esas son las que, si hace falta,
+entran por el MCP.
+
+### 16.6 Próximo paso (para conversar antes de hacer)
+
+**Banco de agujas del par A–B**, solo lectura sobre la copia: para cada aguja, cuánto separa las
+conexiones útiles de las de ruido (usando la medición D como etiqueta). Con eso Dennys elige las
+agujas y arma el piso. Nada del motor cambia en ese paso.
