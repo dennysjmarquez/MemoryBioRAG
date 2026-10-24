@@ -1,0 +1,10 @@
+ciclo   86 fase=ascenso margen=2.0 retiro=False veto_campeon=False
+ciclo   87 fase=ascenso margen=0.25 retiro=False veto_campeon=False
+ciclo   95 fase=ascenso margen=1.5 retiro=False veto_campeon=False
+ciclo  103 fase=ascenso margen=2.0 retiro=False veto_campeon=False
+ciclo  208 fase=ascenso margen=3.0 retiro=False veto_campeon=False
+ciclo  307 fase=ascenso margen=1.5 retiro=False veto_campeon=False
+ciclo  407 fase=ascenso margen=1.5 retiro=False veto_campeon=False
+ciclo  413 fase=ascenso margen=1.0 retiro=False veto_campeon=False
+{"activa": true, "campeon": true, "margen": 1.0, "estudio": 687, "guardia": 175, "version": 2, "ciclos": 500, "preguntas": 1132, "ascensos": 8, "retiros": 0, "reinicios": 63, "sin_mejora": 12, "tranquila": true, "nuevas_desde_tranquila": 127, "descartes": 0, "purgados": 0, "ultimo": {"estudio": 687, "guardia": 175, "margen": 1.0, "fase": "tranquila", "guardia_campeon": 0.92, "guardia_mano": 0.7771, "nuevas": 2, "campeon": true, "ms": 249}}
+500 ciclos en 1050 s

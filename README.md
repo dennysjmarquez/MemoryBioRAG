@@ -25,7 +25,7 @@ Evaluación sobre el snapshot congelado oficial canónico (**921 casos totales e
 | **MRR (Mean Reciprocal Rank)** | **0.950** | Posición recíproca promedio ponderada (0.9497 sin redondear; métrica complementaria observada). |
 | **Falsos positivos** | **0/40 (0.00%)** | Calibración conforme efectiva en los 40 controles negativos del benchmark (FP rate observada 0.00%). |
 | **Casos ambiguos (contradictorios)** | **6 casos (2 con cobertura parcial)** | Evaluados por separado del Recall global; 2 casos no cubren al menos una de las etiquetas contradictorias. |
-| **Tests unitarios** | **397/397 aprobados** (v34.0) | Cobertura completa de invariantes, validación pre-DB fail-fast, contratos MCP, normalización, catálogo, las 17 capas de protección de la neurona y el script de despertar. |
+| **Tests unitarios** | **402/402 aprobados** (v34.0) | Cobertura completa de invariantes, validación pre-DB fail-fast, contratos MCP, normalización, catálogo, las 18 capas de protección de la neurona y el script de despertar. |
 | **Suite Concept Hub** | **5/5 TOP-1 (100.00%)** | Precisión perfecta en los 5 casos de prueba de puentes asociativos registrados. |
 | **Abismo léxico (EXP-Q)** | **3/3 Pool · 2/3 Top-5 · 1/3 Top-1** | 3/3 descubiertos en pool de grafo; 2/3 en Top-5 (pos #1 y #4) y 1/3 en Top-1 (pos #1). |
 | **Sinónimos · Recall@5 / Recall@1** | **100% (55/55) / 56.36%** | Cobertura total en Top-5; el 43.64% restante queda entre Top-2 y Top-5. |
@@ -187,6 +187,13 @@ Eso es el **20 %**, siempre los mismos y sin azar. Sus preguntas nunca entran al
 3. **El Top-5 tampoco baja:** ningún caso de guardia sale del Top-5 y, en total, salen como mucho el 5 % de los que entran.
 4. **Piso por categoría y por camino:** ninguna categoría del examen baja en R@1, MRR ni R@5, ni por el camino del agente ni por el crudo.
 5. **Gana de verdad:** supera a la fórmula, o al campeón actual, en aciertos totales y no empeora la guardia.
+6. **Piso contra el campeón** *(experimento 08)*: no le quita al campeón saliente lo que ya lograba. En ninguna categoría y camino puede quedar por debajo de él por más de $\tau$ casos, en ninguna de las tres métricas:
+
+$$
+m_{\text{retador}}(\text{cat}) \;\ge\; m_{\text{campeón}}(\text{cat}) - \tau,\qquad m\in\{\text{aciertos \#1},\ \textstyle\sum 1/\text{puesto},\ \text{aciertos top-5}\},\quad \tau=1
+$$
+
+   La tolerancia de un caso evita que la neurona se trabe por el ruido de un solo caso; dos o más casos cedidos en una categoría vetan el ascenso.
 
 Si ningún margen cumple, no asciende. Si el **campeón** deja de cumplir algún día (porque la memoria cambió), **se retira** y vuelve la fórmula a mano.
 
@@ -232,6 +239,7 @@ Cada capa cubre una falla concreta de "una neurona viva dentro de una memoria". 
 | Aprender de una búsqueda distinta a la que se sirve | **Vista única** (desfase 0) |
 | Memorizar en vez de aprender | **Guardia del 20 %** + regla anti-memorización |
 | Empeorar alguna categoría | **Piso** por categoría y camino (R@1, MRR, R@5); el campeón que daña se **retira** |
+| Un retador gana en total cediendo una categoría que el campeón ya resolvía | **Piso contra el campeón**: más de 1 caso cedido en cualquier categoría y camino veta el ascenso |
 | Cambiar el orden con poca seguridad | **Margen "primero no dañar"** auto-calibrado |
 | Sacar un buen resultado del Top-5 (vista de 10) | Piso de R@5 + cero salidas de guardia del Top-5 |
 | Cambiar los números que miran los umbrales | **Invariante de reorden**: mismos nodos y mismos scores; si no se cumple, se sirve la página original. Los mapas de score del MCP se permutan igual |
@@ -281,7 +289,7 @@ Todo se midió sobre **copias** del snapshot canónico (nunca sobre el original 
 | **Desfase** (lo que estudia frente a lo que sirve) | **0 de 289** (la v4 tenía 46.7 %) |
 | **Invariantes** (120 búsquedas MCP con y sin neurona) | **0 violaciones**: mismos nodos, mismos números, mismos umbrales |
 | **Costo por ciclo** | p50 1.6 s, p95 3.5 s, sin importar el tamaño de la memoria |
-| **Pruebas** | 397 pruebas unitarias aprobadas (40 de la neurona + 6 del despertar) |
+| **Pruebas** | 402 pruebas unitarias aprobadas (45 de la neurona + 6 del despertar) |
 
 **Lo que NO logra (dicho claro):**
 - **No es "cero pérdidas" en consultas nunca vistas.** Por el camino del agente, 1 caso baja del primer lugar y 1 sale del Top-5 (del 3 al 6), frente a 24 que suben. En python-docs-es pierde 1 caso.
@@ -309,6 +317,7 @@ Todo se midió sobre **copias** del snapshot canónico (nunca sobre el original 
 | `BIORAG_NEURONA_PASOS` / `_LR` / `_L2` | `30` / `0.03` / `0.001` | Entrenamiento por ciclo (Adam) |
 | `BIORAG_NEURONA_PACIENCIA` / `_DESPERTAR` | `12` / `150` | Ciclos sin mejora hasta el techo / preguntas nuevas para despertar |
 | `BIORAG_NEURONA_MARGEN` | (auto) | Forzar el margen ε (≥ 0) |
+| `BIORAG_NEURONA_TOL_CAMPEON` | `1` | Casos que un retador puede ceder frente al campeón en una categoría (τ) |
 | `BIORAG_NEURONA_PAUSA_S` / `_REFRESCO_S` | `3600` / `30` | Pausa del disyuntor / cada cuánto mira si otro proceso escribió |
 
 **Simbología de los dibujos:**
@@ -318,7 +327,7 @@ Todo se midió sobre **copias** del snapshot canónico (nunca sobre el original 
 - 🟢 **verde**: la corrección, el ascenso y el campeón en servicio;
 - 🔴 **rojo**: lo que estaba mal antes (MCP con auto-paráfrasis, desfase de la v4) o un límite (presupuesto de tiempo).
 
-### 9. La historia: siete experimentos
+### 9. La historia: ocho experimentos
 
 | # | Experimento | Qué se aprendió |
 |---|---|---|
@@ -329,6 +338,7 @@ Todo se midió sobre **copias** del snapshot canónico (nunca sobre el original 
 | 05 | [Neurona cableada](docs/Mi%20neurona%20en%20el%20sistema/experimento_05_neurona_cableada/) | Aprende en vivo al consolidar, con costo fijo |
 | 06 | [Capas de protección](docs/Mi%20neurona%20en%20el%20sistema/experimento_06_capas_de_proteccion/) | 21 modos de falla cubiertos; margen "primero no dañar" |
 | 07 | [La neurona escucha](docs/Mi%20neurona%20en%20el%20sistema/experimento_07_la_neurona_escucha/) | Desfase 0, los dos caminos, vista de 10, piso de R@5; y el camino MCP arreglado |
+| 08 | [Piso contra el campeón](docs/Mi%20neurona%20en%20el%20sistema/experimento_08_piso_contra_el_campeon/) | Un retador ya no puede ganar cediendo una categoría; A/B determinista: en datos reales la regla nunca tuvo que actuar |
 
 Las figuras se regeneran con `python "docs/Mi neurona en el sistema/imagenes/generar_figuras.py"`: los nombres de las señales salen del código y las curvas de los resultados versionados.
 
@@ -2968,11 +2978,11 @@ En v13.4 el catálogo tenía **7 ejes × 73 sub-valores**: emoción (qué se sie
 - **Autoexamen** (`core/memory/neurona_examen.py`): al consolidar, el recuerdo se hace sus propias preguntas (variante, typo, sinónimo, cruce de idioma, pregunta natural, tema, contenido) y el motor responde en silencio por los dos caminos (agente/MCP y crudo/QA).
 - **Campeón/retador con guardia del 20 %** (por hash), piso por categoría y camino (R@1, MRR, R@5), margen "primero no dañar" auto-calibrado, anti-memorización, techo y despertar, retiro automático si daña.
 - **Desfase 0**: una sola vista para aprender y servir.
-- **17 capas de protección**, cada una con su prueba (40 pruebas de la neurona).
+- **18 capas de protección**, cada una con su prueba (45 pruebas de la neurona), incluida el **piso contra el campeón** (experimento 08).
 - **`scripts/despertar_neurona.sh`**: la misma práctica, acelerada, para memorias que ya tienen muchos recuerdos.
 - **MCP:** auto-paráfrasis y auto-dimensiones apagadas por defecto (medido), canal stdio limpio, `BIORAG_STALE_HARD_CUTOFF=0` por defecto.
 
-**Validación reportada:** QA oficial (921 casos) sobre copia del snapshot canónico tras `despertar_neurona.sh` (500 ciclos): Recall@5 100.00 % (875/875), Recall@1 94.06 %, MRR 0.964, FP 0/40, GATE OK, ninguna categoría por debajo del piso de la fórmula a mano (R@1 91.66 %, MRR 0.949). Con DB nueva o sin campeón, resultados idénticos a v33.0. Camino real del agente (MCP, 875 casos): R@1 92.34 → 94.97 %. Desfase 0/289. 397/397 pruebas unitarias. Evidencia completa: `docs/Mi neurona en el sistema/` (experimentos 01–07).
+**Validación reportada:** QA oficial (921 casos) sobre copia del snapshot canónico tras `despertar_neurona.sh` (500 ciclos): Recall@5 100.00 % (875/875), Recall@1 94.06 %, MRR 0.964, FP 0/40, GATE OK, ninguna categoría por debajo del piso de la fórmula a mano (R@1 91.66 %, MRR 0.949). Con DB nueva o sin campeón, resultados idénticos a v33.0. Camino real del agente (MCP, 875 casos): R@1 92.34 → 94.97 %. Desfase 0/289. 402/402 pruebas unitarias. Evidencia completa: `docs/Mi neurona en el sistema/` (experimentos 01–08).
 
 ### v33.0 — Protocolo Cognitivo Simétrico de Sustantivos Clave, Validación Fail-Fast y Compatibilidad MCP (Octubre 2026)
 
