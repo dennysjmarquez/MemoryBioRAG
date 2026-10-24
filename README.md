@@ -2459,7 +2459,7 @@ Ver tabla de defaults al inicio del README. Resumen:
 | Variable | Default | Descripción |
 |---|---|---|
 | `BIORAG_STALE_DAYS` | `90` | Días después de los cuales un nodo se marca `stale`. El agente no debe entregarlo como información vigente. Protegidos: Principle, Profile, Personal, Relation |
-| `BIORAG_STALE_HARD_CUTOFF` | `365` | Días después de los cuales un nodo se excluye automáticamente de resultados (excepto categorías protegidas). `0` = sin cutoff |
+| `BIORAG_STALE_HARD_CUTOFF` | `0` | Días después de los cuales un nodo se excluye automáticamente de resultados (excepto categorías protegidas). `0` = sin cutoff (default: BioRAG no esconde recuerdos por fecha salvo que lo pidas) |
 
 ### Fallback Simbólico (v18.0)
 

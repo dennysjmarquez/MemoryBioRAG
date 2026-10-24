@@ -115,7 +115,7 @@ mismos números por posición, mismas decisiones globales).
 - La neurona no ve las paráfrasis/dimensiones que inventaba el MCP (ahora apagadas) ni la
   ráfaga (sucede después de ella).
 
-## 5. Caducidad del MCP (hallazgo #7, no tocado)
+## 5. Caducidad del MCP (hallazgo #7, decidido)
 
 `core/mcp_server/search.py` (bloque "CADUCIDAD TEMPORAL") hace `JOIN categorias c ... c.nombre`;
 la tabla real es `categories(name)`. La consulta falla siempre, la excepción se traga y:
@@ -124,6 +124,12 @@ la tabla real es `categories(name)`. La consulta falla siempre, la excepción se
   de 2026-06-20), pero **arreglar el JOIN activaría desde junio de 2027 la exclusión de
   lecciones y arquitectura del MCP**. Eso es decisión de diseño (¿debe la memoria esconder
   lecciones viejas?), no un arreglo mecánico: queda para Dennys.
+
+**Decisión de Dennys: no.** BioRAG es memoria de largo plazo y no esconde recuerdos por fecha
+salvo que se pida. `BIORAG_STALE_HARD_CUTOFF` pasa a `0` por defecto (`core/mcp_server/_shared.py`,
+`.env.example`, README), con `tests/test_mcp_sin_caducidad.py` fijándolo. Hoy el comportamiento no
+cambia (el corte nunca disparaba); lo que cambia es que ya no puede encenderse solo si alguien
+corrige el JOIN. El JOIN y las marcas "stale" de 90 días siguen sin tocar (otra decisión).
 
 ## 6. Reproducir
 
