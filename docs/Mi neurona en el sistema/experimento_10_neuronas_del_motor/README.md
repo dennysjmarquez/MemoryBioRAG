@@ -37,6 +37,7 @@
 15. [La neurona asociativa (aporte de la conversación con Manus)](#15-la-neurona-asociativa-aporte-de-la-conversación-con-manus)
 
 16. [Lo que queda claro: la neurona asociativa en una página](#16-lo-que-queda-claro-la-neurona-asociativa-en-una-página)
+17. [La neurona como intermediaria, y cómo lo hace el hipocampo](#17-la-neurona-como-intermediaria-y-cómo-lo-hace-el-hipocampo)
 
 Anexos: [A — Conversación completa Dennys ↔ Manus](anexo_A_conversacion_dennys_manus.md) · [B — Segunda parte: neurona universal y momento de la sinapsis](anexo_B_conversacion_dennys_manus_2.md)
 
@@ -1054,3 +1055,60 @@ entran por el MCP.
 **Banco de agujas del par A–B**, solo lectura sobre la copia: para cada aguja, cuánto separa las
 conexiones útiles de las de ruido (usando la medición D como etiqueta). Con eso Dennys elige las
 agujas y arma el piso. Nada del motor cambia en ese paso.
+
+---
+
+## 17. La neurona como intermediaria, y cómo lo hace el hipocampo
+
+> Dennys: *"Cuando se hace la sinapsis por detrás, le pasas la información a la neurona y ella ve con
+> qué puede asociarlo, como la intermediaria. El motor busca asociaciones y la neurona dice sí o no,
+> según las agujas que ya tiene conectadas, igual que un humano. Hay que buscar la réplica de cómo
+> funciona esa parte del hipocampo."*
+
+### 17.1 La regla: el motor busca, la neurona decide
+
+Hoy, en **cada** lugar donde nace una sinapsis, el motor hace dos cosas seguidas:
+
+```
+1. BUSCAR candidatos   (rápido: FTS, sinónimos, nombre, PMI, vecinos…)
+2. DECIDIR con una regla fija   ("si se parecen ≥ 0.4 → conectar")
+```
+
+La neurona **reemplaza solo el paso 2**. El paso 1 (la velocidad del motor) queda igual. Ella es la
+**intermediaria**: recibe A + cada candidato B con sus agujas, y responde sí / no / con qué fuerza.
+
+### 17.2 Dónde nacen hoy las sinapsis (los puntos donde se enchufa)
+
+**Dos familias:** las **directas** (`sinapsis`, 13,920) y las **latentes** — las "paralelas" que
+recordaba Dennys — (`sinapsis_latentes`, 8,893): conexiones de dos pasos que el motor deduce
+(A–B y B–C ⇒ A~C), con peso atenuado.
+
+| Dónde nace | Archivo | Tipo que crea | Regla fija de hoy |
+|---|---|---|---|
+| Al pasar a largo plazo | `core/sinapsis.py` (`auto_vincular`) | `co_ocurrencia`, `co_nombre`, `co_semantica`, `pmi_hebbiano` | Jaccard ≥ .4 + cierre triádico; nombre ≥ 30 %; sinónimos; NPMI ≥ .35 |
+| Sinónimos declarados | `core/sinapsis.py` (`vincular_por_sinonimos`) | `sinonimo_explicito` | Comparten un sinónimo |
+| En la misma sesión | `core/memory/consolidation.py` L102/L159 | `co_ocurrencia` (0.4) | Se guardaron juntos |
+| Durante una búsqueda | `core/memory/rafaga.py` L349 | `rafaga_rememb` (0.6) | La palabra buscada es también un recuerdo |
+| Aprendizaje léxico | `core/lexical_learning.py` L317 | léxica | Formas de la misma palabra |
+| Sueño (vacíos) | `core/sueno_vacios.py` L280/L307 | directas y latentes | Candidatos de un mismo hueco |
+| DMN | `core/dmn_engine.py` L128/L331/L339 | `dmn_synthesized`, latentes | Síntesis del DMN |
+| Inferencia transitiva | `core/inferencia_transitiva.py` L238 | latentes | Caminos de 2 pasos |
+| El usuario / agente | `core/memory/synapses.py` (`vincular`) | `manual` | Decisión humana → **la neurona no la toca** |
+
+### 17.3 Cómo lo hace el hipocampo (versión simple y fiel)
+
+| Parte del hipocampo | Qué hace | En BioRAG |
+|---|---|---|
+| **Corteza entorrinal** (la entrada) | Entrega al hipocampo los rasgos ya procesados de la experiencia: qué, dónde, cuándo | Las **agujas** (calculadas por el motor) |
+| **Giro dentado** | **Separa** recuerdos parecidos para que no se mezclen: dos recuerdos que comparten una palabra no quedan pegados | **Falta.** Hoy una palabra compartida basta para conectar. La neurona tiene que aprender a **no** conectar por coincidencias superficiales (penalizar palabras comunes y nodos "hub") |
+| **CA3** | Red **autoasociativa**: une lo que se activa junto y **completa** un recuerdo desde una pista parcial | Las sinapsis, el spreading, la cadena, la SDM (**ya existe**) |
+| **CA1** | **Compara** lo que CA3 propone con lo que llega de afuera; si no coincide, frena (detector de novedad / desajuste) | **La neurona**: compara la conexión propuesta contra la evidencia (agujas) y decide |
+| **Regla de Hebb + tercer factor** (dopamina/novedad) | Una conexión se fortalece si se activan juntos **y** además "importó" | Coactivación **+ utilidad medida en el autoexamen** |
+| **Repetición en el sueño** (*replay*) | De noche repasa lo del día: refuerza lo útil, pasa a memoria estable | Consolidación / sueño + autoexamen (**ya existe**) |
+
+**Conclusión:** BioRAG ya tiene la "CA3" (conectar y completar) y el "sueño". Le faltan el **giro
+dentado** (separar lo parecido pero distinto) y la **CA1** (el juez que compara propuesta vs.
+evidencia). **La neurona asociativa es esas dos piezas**, enchufada en los puntos de la tabla 17.2,
+aprendiendo con la regla de Hebb **más un tercer factor** (la utilidad del autoexamen).
+
+Límite honesto: es una réplica **funcional** (qué hace cada parte), no física.
