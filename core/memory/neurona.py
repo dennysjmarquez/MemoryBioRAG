@@ -60,6 +60,14 @@ PRIMERO NO DAÑAR (margen)
     margen lo logra, el campeón se retira. Así cambia solo donde está segura y
     la fórmula dudaba. Forzar: BIORAG_NEURONA_MARGEN.
 
+PISO CONTRA EL CAMPEÓN (experimento 08)
+    El piso de la fórmula impide hundirse; no impide que un retador le gane al
+    campeón en total cediendo una categoría. Por eso, además, un retador no
+    asciende si en alguna categoría del examen queda por debajo del campeón
+    saliente en más de `tol_campeon` casos (R@1, MRR y R@5; por defecto 1). La
+    tolerancia de un caso evita que la neurona se trabe por el ruido de un
+    solo caso. BIORAG_NEURONA_TOL_CAMPEON.
+
 CAPAS DE PROTECCIÓN (cada una con su prueba en tests/test_neurona.py)
     - Silencio por hilo: el autoexamen no escribe log, accesos ni DMN, y otro
       hilo (DMN) que busca a la vez no queda en silencio.
@@ -74,10 +82,13 @@ CAPAS DE PROTECCIÓN (cada una con su prueba en tests/test_neurona.py)
     - Estado estricto: JSON/blob corrupto o de otra forma -> estado nuevo.
     - Memoria acotada: sin duplicados y con tope por recuerdo (`tope_nodo`).
     - Presupuesto de tiempo fijo por ciclo.
+    - Piso contra el campeón: un retador no le quita al campeón más de
+      `tol_campeon` casos en ninguna categoría y camino.
 
 APAGADO TOTAL: BIORAG_NEURONA=0.
 Evidencia: docs/Mi neurona en el sistema/experimento_04_autoaprendizaje/, experimento_05_neurona_cableada/
-experimento_06_capas_de_proteccion/ y experimento_07_la_neurona_escucha/.
+experimento_06_capas_de_proteccion/, experimento_07_la_neurona_escucha/ y
+experimento_08_piso_contra_el_campeon/.
 """
 import hashlib
 import io
@@ -146,6 +157,7 @@ def _cfg():
         tope_nodo=_env_int("BIORAG_NEURONA_TOPE_POR_NODO", 4),
         pausa=_env_float("BIORAG_NEURONA_PAUSA_S", 3600.0),
         refresco=_env_float("BIORAG_NEURONA_REFRESCO_S", 30.0),
+        tol_campeon=max(0, _env_int("BIORAG_NEURONA_TOL_CAMPEON", 1)),  # casos por categoría
     )
 
 
@@ -680,13 +692,17 @@ def _rangos(p, casos, topk, margen=0.0):
     return _rangos_desde(_preparar(p, casos, topk), margen)
 
 
-def _calibrar(p, todos, n_est, r_mano, piso, g_min, t_min, topk):
+def _calibrar(p, todos, n_est, r_mano, piso, g_min, t_min, topk, piso_campeon=None, tol=1, motivo=None):
     """PRIMERO NO DAÑAR: el menor margen con el que estos pesos
       - no pierden NINGÚN caso de la guardia que la fórmula acertaba,
       - en todo el examen pierden menos del 5 % de lo que ganan,
       - no bajan ninguna categoría (aciertos #1 ni MRR),
+      - si hay campeón (`piso_campeon`), no quedan por debajo de él en ninguna
+        categoría por más de `tol` casos,
       - y alcanzan los mínimos pedidos de guardia y total.
-    Devuelve (margen, rangos) o (None, None) si ningún margen lo logra."""
+    Devuelve (margen, rangos) o (None, None) si ningún margen lo logra. Si se pasa
+    `motivo` (dict), anota motivo["campeon"] = True cuando algún margen cumplía todo
+    menos el piso contra el campeón (para saber cuántas veces la regla actuó)."""
     a_mano = r_mano == 1
     t5_mano = (r_mano >= 1) & (r_mano <= 5)
     prep = _preparar(p, todos, topk)
@@ -703,9 +719,14 @@ def _calibrar(p, todos, n_est, r_mano, piso, g_min, t_min, topk):
         sale5, entra5 = t5_mano & ~t5, ~t5_mano & t5
         if sale5[n_est:].any() or sale5.sum() > 0.05 * entra5.sum():
             continue
-        if not _cumple_piso(_por_cat(r, todos), piso):
+        pc = _por_cat(r, todos)
+        if not _cumple_piso(pc, piso):
             continue
         if int(a[n_est:].sum()) < g_min or int(a.sum()) < t_min:
+            continue
+        if piso_campeon is not None and not _cumple_campeon(pc, piso_campeon, tol):
+            if motivo is not None:
+                motivo["campeon"] = True
             continue
         return m, r
     return None, None
@@ -720,6 +741,13 @@ def _por_cat(rangos, casos):
         en5 = 1 <= r <= 5
         d[c["cat"]] = (a1 + int(r == 1), rr + (1.0 / r if en5 else 0.0), a5 + int(en5))
     return d
+
+
+def _cumple_campeon(pc, campeon, tol):
+    """Por categoría, el retador no queda debajo del campeón saliente por más de `tol`
+    casos en aciertos #1, en suma de 1/puesto (MRR) ni en aciertos del top-5."""
+    cero = (0, 0.0, 0)
+    return all(pc.get(k, cero)[i] >= v[i] - tol - 1e-9 for k, v in campeon.items() for i in range(len(v)))
 
 
 def _r1(p, casos, topk):
@@ -775,6 +803,7 @@ def _evaluar_y_decidir(est, cfg):
     # 1) ¿el campeón sigue sin dañar con la DB de hoy? Se recalibra su margen; si
     #    ningún margen lo deja sin dañar, se retira y vuelven los pesos a mano.
     campeon_ref = a_mano
+    piso_campeon = None                    # por categoría, lo que el campeón saliente ya logra
     if est.campeon is not None:
         # debe seguir GANANDO a la fórmula (si solo empata, sobra: se retira)
         m, r_c = _calibrar(est.campeon, todos, n_est, r_mano, piso, g_mano, t_mano + 1, cfg["topk_max"])
@@ -787,6 +816,7 @@ def _evaluar_y_decidir(est, cfg):
         else:
             est.margen = m
             campeon_ref = r_c == 1
+            piso_campeon = _por_cat(r_c, todos)
     g_ref, t_ref = int(campeon_ref[n_est:].sum()), int(campeon_ref.sum())
     res["margen"] = est.margen
 
@@ -820,7 +850,11 @@ def _evaluar_y_decidir(est, cfg):
     memoriza = brecha - brecha0 > .05
     m, r_r = (None, None)
     if _sano(est.retador) and not memoriza:
-        m, r_r = _calibrar(est.retador, todos, n_est, r_mano, piso, g_ref, t_ref + 1, cfg["topk_max"])
+        motivo = {}
+        m, r_r = _calibrar(est.retador, todos, n_est, r_mano, piso, g_ref, t_ref + 1, cfg["topk_max"],
+                           piso_campeon, cfg["tol_campeon"], motivo)
+        if m is None and motivo.get("campeon"):
+            res["veto_campeon"] = True     # ganaba en total, pero cedía una categoría al campeón
 
     if m is not None:
         est.campeon, est.margen = _copiar(est.retador), m

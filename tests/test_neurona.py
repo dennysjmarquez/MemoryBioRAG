@@ -591,3 +591,84 @@ def test_con_vista_de_10_el_r5_no_puede_bajar():
     assert not (t5_mano & ~t5)[len(estudio):].any()
     sin = N._rangos(p, todos, 10, 0.0)                     # sin margen sí lo sacaría: la capa es necesaria
     assert (r_mano[len(estudio):] == 5).all() and (sin[len(estudio):] > 5).sum() >= 10
+
+
+# ───────────────── piso contra el campeón (experimento 08) ─────────────────
+
+def _pesos_rasgo(j, fuerza=3.0):
+    """Pesos a mano: suben a quien tenga alto el rasgo j."""
+    W = np.zeros((N.OCULTAS, len(N.F_SIG)))
+    W[0, j] = 5.0
+    return {"W": W, "b": np.zeros(N.OCULTAS), "v": np.array([fuerza] + [0.0] * (N.OCULTAS - 1))}
+
+
+def _caso_rasgo(cat, nodo, j=None):
+    """La fórmula pone la respuesta 2.ª (2.0 vs 1.9); si j no es None, el rasgo j la delata."""
+    X = np.zeros((8, len(N.F_SIG)), dtype=np.float32)
+    if j is not None:
+        X[1, j] = 1.0
+    return dict(cat=cat, nodo=nodo, q=nodo, y=1, X=X,
+                base=np.array([2.0, 1.9, 1.0, .5, 0, -.5, -1, -1.5], dtype=np.float32))
+
+
+def _estado_trueque(c_gana_est, c_gana_gua, c_resto=0):
+    """cat "a": solo el retador (rasgo 0) acierta. cat "c": solo el campeón (rasgo 1) acierta
+    en `c_gana_*` casos. El retador gana más en total pero cede "c": el trueque del exp. 08."""
+    est = N._Estado()
+    est.estudio = [_caso_rasgo("a", f"a{i}", 0) for i in range(200)] + \
+                  [_caso_rasgo("c", f"c{i}", 1) for i in range(c_gana_est)] + \
+                  [_caso_rasgo("c", f"cr{i}") for i in range(c_resto)]
+    est.guardia = [_caso_rasgo("a", f"ga{i}", 0) for i in range(50)] + \
+                  [_caso_rasgo("c", f"gc{i}", 1) for i in range(c_gana_gua)] + \
+                  [_caso_rasgo("c", f"gcr{i}") for i in range(c_resto // 4)]
+    est.campeon, est.margen = _pesos_rasgo(1), 0.0
+    est.retador = _pesos_rasgo(0)
+    return est
+
+
+def test_cumple_campeon_tolera_exactamente_tol_casos():
+    camp = {"x": (10, 8.0, 12), "y": (5, 4.0, 5)}
+    assert N._cumple_campeon({"x": (10, 8.0, 12), "y": (5, 4.0, 5)}, camp, 1)
+    assert N._cumple_campeon({"x": (9, 7.5, 12), "y": (6, 5.0, 5)}, camp, 1)      # cede 1: tolerado
+    assert not N._cumple_campeon({"x": (8, 7.0, 12), "y": (9, 9.0, 5)}, camp, 1)  # cede 2 en #1
+    assert not N._cumple_campeon({"x": (10, 8.0, 10), "y": (5, 4.0, 5)}, camp, 1)  # cede 2 en top-5
+    assert not N._cumple_campeon({"x": (9, 7.5, 12), "y": (5, 4.0, 5)}, camp, 0)  # tol 0: nada
+    assert not N._cumple_campeon({"y": (5, 4.0, 5)}, camp, 1)                     # categoría ausente = 0
+
+
+def test_retador_que_gana_en_total_cediendo_una_categoria_no_asciende(monkeypatch):
+    monkeypatch.setattr(N, "_paso", lambda *a, **k: None)       # el retador no cambia al estudiar
+    est = _estado_trueque(60, 15)
+    campeon = _copiar_pesos(est.campeon)
+    res = N._evaluar_y_decidir(est, N._cfg())
+    assert not res.get("retiro") and res.get("fase") != "ascenso"
+    assert res.get("veto_campeon") is True
+    assert all(np.array_equal(est.campeon[k], campeon[k]) for k in campeon)    # sigue el mismo campeón
+
+
+def test_sin_la_regla_ese_mismo_retador_ascendia(monkeypatch):
+    """Control: con tolerancia enorme (regla apagada) el MISMO caso asciende. Sin este control,
+    el test anterior podría pasar por otra capa y no por el piso contra el campeón."""
+    monkeypatch.setattr(N, "_paso", lambda *a, **k: None)
+    monkeypatch.setenv("BIORAG_NEURONA_TOL_CAMPEON", "1000000")
+    est = _estado_trueque(60, 15)
+    res = N._evaluar_y_decidir(est, N._cfg())
+    assert res.get("fase") == "ascenso" and not res.get("veto_campeon")
+    assert est.campeon["W"][0, 0] == 5.0                        # el nuevo campeón es el retador
+
+
+@pytest.mark.parametrize("tol, asciende", [("1", True), ("0", False)])
+def test_ceder_un_solo_caso_se_tolera_con_tol_1(monkeypatch, tol, asciende):
+    """El campeón acierta UN caso de "c" que el retador no: con tol 1 el retador asciende
+    (no se traba por el ruido de un caso); con tol 0, no."""
+    monkeypatch.setattr(N, "_paso", lambda *a, **k: None)
+    monkeypatch.setenv("BIORAG_NEURONA_TOL_CAMPEON", tol)
+    est = _estado_trueque(1, 0, c_resto=40)
+    res = N._evaluar_y_decidir(est, N._cfg())
+    assert not res.get("retiro")
+    assert (res.get("fase") == "ascenso") is asciende
+    assert bool(res.get("veto_campeon")) is (not asciende)
+
+
+def _copiar_pesos(p):
+    return {k: v.copy() for k, v in p.items()}
