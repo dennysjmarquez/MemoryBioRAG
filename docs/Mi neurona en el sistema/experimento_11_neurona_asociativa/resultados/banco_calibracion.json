@@ -1,0 +1,173 @@
+{
+ "noticias": {
+  "parecido": {
+   "auc": 0.859,
+   "media_si": 0.231,
+   "media_no": 0.08
+  },
+  "semantica": {
+   "auc": 0.9,
+   "media_si": 0.605,
+   "media_no": 0.23
+  },
+  "rareza_max": {
+   "auc": 0.72,
+   "media_si": 0.597,
+   "media_no": 0.484
+  },
+  "rareza_media": {
+   "auc": 0.675,
+   "media_si": 0.439,
+   "media_no": 0.394
+  },
+  "pistas_raras": {
+   "auc": 0.612,
+   "media_si": 0.237,
+   "media_no": 0.108
+  },
+  "cobertura": {
+   "auc": 0.811,
+   "media_si": 0.279,
+   "media_no": 0.119
+  },
+  "mutuo": {
+   "auc": 0.85,
+   "media_si": 0.634,
+   "media_no": 0.321
+  },
+  "vecinos": {
+   "auc": 0.838,
+   "media_si": 0.353,
+   "media_no": 0.05
+  },
+  "hub": {
+   "auc": 0.512,
+   "media_si": 0.675,
+   "media_no": 0.664
+  },
+  "una_sola": {
+   "auc": 0.369,
+   "media_si": 0.04,
+   "media_no": 0.302
+  },
+  "corto": {
+   "auc": 0.545,
+   "media_si": 0.14,
+   "media_no": 0.099
+  }
+ },
+ "diccionario": {
+  "parecido": {
+   "auc": 0.922,
+   "media_si": 0.321,
+   "media_no": 0.101
+  },
+  "semantica": {
+   "auc": 0.698,
+   "media_si": 0.521,
+   "media_no": 0.358
+  },
+  "rareza_max": {
+   "auc": 0.881,
+   "media_si": 0.808,
+   "media_no": 0.559
+  },
+  "rareza_media": {
+   "auc": 0.819,
+   "media_si": 0.743,
+   "media_no": 0.541
+  },
+  "pistas_raras": {
+   "auc": 0.829,
+   "media_si": 0.492,
+   "media_no": 0.181
+  },
+  "cobertura": {
+   "auc": 0.809,
+   "media_si": 0.368,
+   "media_no": 0.187
+  },
+  "mutuo": {
+   "auc": 0.926,
+   "media_si": 0.846,
+   "media_no": 0.514
+  },
+  "vecinos": {
+   "auc": 0.594,
+   "media_si": 0.231,
+   "media_no": 0.14
+  },
+  "hub": {
+   "auc": 0.436,
+   "media_si": 0.648,
+   "media_no": 0.702
+  },
+  "una_sola": {
+   "auc": 0.323,
+   "media_si": 0.457,
+   "media_no": 0.811
+  },
+  "corto": {
+   "auc": 0.545,
+   "media_si": 0.765,
+   "media_no": 0.751
+  }
+ },
+ "relatos": {
+  "parecido": {
+   "auc": 0.961,
+   "media_si": 0.179,
+   "media_no": 0.045
+  },
+  "semantica": {
+   "auc": 0.968,
+   "media_si": 0.634,
+   "media_no": 0.204
+  },
+  "rareza_max": {
+   "auc": 0.891,
+   "media_si": 0.807,
+   "media_no": 0.582
+  },
+  "rareza_media": {
+   "auc": 0.808,
+   "media_si": 0.567,
+   "media_no": 0.463
+  },
+  "pistas_raras": {
+   "auc": 0.905,
+   "media_si": 0.725,
+   "media_no": 0.238
+  },
+  "cobertura": {
+   "auc": 0.91,
+   "media_si": 0.151,
+   "media_no": 0.056
+  },
+  "mutuo": {
+   "auc": 0.969,
+   "media_si": 0.857,
+   "media_no": 0.383
+  },
+  "vecinos": {
+   "auc": 0.92,
+   "media_si": 0.382,
+   "media_no": 0.047
+  },
+  "hub": {
+   "auc": 0.452,
+   "media_si": 0.635,
+   "media_no": 0.68
+  },
+  "una_sola": {
+   "auc": 0.4,
+   "media_si": 0.003,
+   "media_no": 0.203
+  },
+  "corto": {
+   "auc": 0.5,
+   "media_si": 0.0,
+   "media_no": 0.0
+  }
+ }
+}

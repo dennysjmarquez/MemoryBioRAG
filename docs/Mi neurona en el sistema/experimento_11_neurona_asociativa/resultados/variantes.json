@@ -1,0 +1,59 @@
+{
+ "A_piso_sin_mirar": {
+  "noticias": {
+   "auc_piso_sin_mirar": 0.841,
+   "pesos_elegidos": {
+    "mutuo": 3,
+    "parecido": 3,
+    "rareza_max": 2,
+    "semantica": 1,
+    "vecinos": 0
+   },
+   "auc_piso_del_archivo": 0.866
+  },
+  "diccionario": {
+   "auc_piso_sin_mirar": 0.867,
+   "pesos_elegidos": {
+    "mutuo": 2,
+    "parecido": 3,
+    "rareza_max": 1,
+    "semantica": 3,
+    "vecinos": 2
+   },
+   "auc_piso_del_archivo": 0.906
+  },
+  "relatos": {
+   "auc_piso_sin_mirar": 0.982,
+   "pesos_elegidos": {
+    "mutuo": 3,
+    "parecido": 3,
+    "rareza_max": 2,
+    "semantica": 3,
+    "vecinos": 2
+   },
+   "auc_piso_del_archivo": 0.981
+  }
+ },
+ "B_techo": {
+  "techo_3.0_l2_0.001": {
+   "noticias": 0.866,
+   "diccionario": 0.867,
+   "relatos": 0.975
+  },
+  "techo_1.0_l2_0.001": {
+   "noticias": 0.878,
+   "diccionario": 0.903,
+   "relatos": 0.981
+  },
+  "techo_1.0_l2_0.01": {
+   "noticias": 0.866,
+   "diccionario": 0.905,
+   "relatos": 0.981
+  },
+  "techo_0.5_l2_0.01": {
+   "noticias": 0.866,
+   "diccionario": 0.906,
+   "relatos": 0.981
+  }
+ }
+}
