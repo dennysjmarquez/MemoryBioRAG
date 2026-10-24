@@ -34,6 +34,9 @@
 12. [Orden de trabajo](#12-orden-de-trabajo)
 13. [Preguntas abiertas para Dennys](#13-preguntas-abiertas-para-dennys)
 14. [Cómo reproducir las mediciones](#14-cómo-reproducir-las-mediciones)
+15. [La neurona asociativa (aporte de la conversación con Manus)](#15-la-neurona-asociativa-aporte-de-la-conversación-con-manus)
+
+Anexos: [A — Conversación completa Dennys ↔ Manus](anexo_A_conversacion_dennys_manus.md)
 
 ---
 
@@ -64,7 +67,12 @@
    `manual` lleva a la respuesta correcta **13.2** veces, una `co_semantica` **8.3**, una
    `pmi_hebbiano` **1.8** y el azar **1.2**. Las que la hormiguita tiene en cuarentena: **1.6**
    (la mitad que las activas, pero no cero: 192 veces habrían unido un resultado con la respuesta).
-9. **Una neurona pre-entrenada en el corpus de Dennys no es garantía para otro corpus.** Ya lo
+9. **La neurona de sinapsis crece y pasa a ser la neurona asociativa** (sección 15, aporte de la
+   conversación con Manus): además de sanar conexiones, decide **cuáles deben formarse**, por varias
+   características compartidas y por experiencia. El inventario muestra que el motor ya da muchas
+   agujas **de parecido**, pero las **estructurales** (entidades núcleo, relaciones quién-qué-a-qué,
+   episodio, contradicción) están vacías o no existen: ahí va el cambio del MCP que propuso Dennys.
+10. **Una neurona pre-entrenada en el corpus de Dennys no es garantía para otro corpus.** Ya lo
    medimos en el Exp 08: un campeón transferido **perjudicó**. Puede viajar de fábrica como
    **retadora**, pero solo trabaja si **gana el examen local**.
 
@@ -657,6 +665,15 @@ Cada paso: **primero se conversa**, después se mide.
    aprendizaje?
 6. ¿Prender el pre-filtro determinista de la hormiguita (ya existe, apagado) como primer piso
    mientras tanto? Evitaría que Gemini vuelva a cortar `sinonimo_explicito`.
+7. ¿Qué **nombre** lleva: Neurona Asociativa, de Salud Sináptica o de Plasticidad del Grafo?
+8. ¿Puedes correr en tu DB viva (solo lectura) el conteo de cobertura de `sustantivos_clave` y
+   `predicados`? (Te paso el comando.)
+9. Para las agujas estructurales que faltan: ¿**cambiar** un parámetro del MCP que no aporte, o
+   **volver obligatorio** `predicados`? (La norma dice "sin trabajo extra para el agente".)
+10. ¿Se crea una tabla aparte de **sinapsis candidatas** (zona de crecimiento), o se usa un campo de
+    estado en `sinapsis`?
+11. ¿Las nuevas ideas (neurona de consolidación, de contradicción, de abstención) entran a la lista
+    de candidatos?
 
 ---
 
@@ -682,6 +699,24 @@ motor crudo. **No modifican el motor.**
 > detrás de otra sobre la **misma** copia (A → B → C → D). El efecto es mínimo, pero para una
 > auditoría estricta conviene usar una copia fresca por script.
 
+Conteo de cobertura de agujas (sección 15.3). Es **solo lectura**; Dennys lo puede correr en su DB
+viva sin riesgo (abre la base en modo `ro`):
+
+```bash
+python3 - <<'PY'
+import sqlite3
+c = sqlite3.connect("file:RUTA/A/biorag.db?mode=ro", uri=True)   # mode=ro: no escribe nada
+q = lambda s: c.execute(s).fetchone()[0]
+A = "estado='activo'"
+print("activos          ", q(f"SELECT COUNT(*) FROM largo_plazo WHERE {A}"))
+print("sustantivos_clave", q(f"SELECT COUNT(*) FROM largo_plazo WHERE {A} AND COALESCE(sustantivos_clave,'') NOT IN ('','[]')"))
+print("predicados       ", q(f"SELECT COUNT(DISTINCT p.concepto) FROM predicados p JOIN largo_plazo l ON l.concepto=p.concepto WHERE l.{A}"))
+print("dimensiones      ", q(f"SELECT COUNT(DISTINCT d.concepto) FROM largo_plazo_dimensiones d JOIN largo_plazo l ON l.concepto=d.concepto WHERE l.{A}"))
+print("sinonimos        ", q(f"SELECT COUNT(*) FROM largo_plazo WHERE {A} AND COALESCE(sinonimos,'')<>''"))
+print("valencia         ", q(f"SELECT COUNT(*) FROM largo_plazo WHERE {A} AND COALESCE(valencia_somatica,0)<>0"))
+PY
+```
+
 Consultas usadas para la sección 9.2 (sobre la copia, solo lectura):
 
 ```sql
@@ -693,3 +728,251 @@ SELECT COUNT(*) FROM sinapsis_cuarentena q
  WHERE restaurado = 1
    AND EXISTS (SELECT 1 FROM sinapsis s WHERE s.origen = q.origen AND s.destino = q.destino);
 ```
+
+---
+
+## 15. La neurona asociativa (aporte de la conversación con Manus)
+
+> Fuente: conversación de Dennys con Manus AI, 2026-10-24, guardada **completa** en
+> [`anexo_A_conversacion_dennys_manus.md`](anexo_A_conversacion_dennys_manus.md).
+> Dennys la trajo como información de primera mano. Aquí va el análisis científico: qué se adopta,
+> qué ya existe en BioRAG (medido en la copia del snapshot), qué falta y qué hay que ajustar a las
+> normas del proyecto.
+
+### 15.1 La idea en una frase
+
+> **Que las sinapsis se formen y se mantengan como en un cerebro: por varias características
+> compartidas a la vez y por experiencia, no por una palabra suelta ni por reglas mecánicas.**
+
+Con esto la neurona de sinapsis de la sección 9 crece y pasa a tener **dos mitades**:
+
+| Mitad | Qué decide | Equivale a |
+|---|---|---|
+| **Salud sináptica** | ¿Esta conexión que ya existe ayuda o estorba? → reforzar / dejar / atenuar / cuarentena | Poda sináptica (lo que hoy hace la hormiguita con Gemini) |
+| **Asociación** | ¿Estos dos recuerdos deberían conectarse? → proponer / probar / consolidar / rechazar | Plasticidad hebbiana (lo que hoy hacen reglas fijas: `co_nombre`, `pmi_hebbiano`, etc.) |
+
+Nombres propuestos por Manus: **Neurona de Salud Sináptica**, **Neurona de Plasticidad del Grafo**,
+**Neurona Asociativa**. El nombre lo elige Dennys.
+
+### 15.2 La intuición clave de Dennys (y por qué los datos le dan la razón)
+
+Dennys: *"Una neurona humana no conecta por una palabra, ni dos, ni tres, sino por ciertas
+características únicas que dicen 'esto tiene que ver con esto'. Si mi motor no ofrece esas
+características, estamos jodidos. Entonces agarro el MCP, quito un parámetro que no sirve o meto
+otro, pongo en cada fila los datos que hacen falta, y encima mis pesos en duro y la neurona."*
+
+Manus lo confirmó con la frase que resume todo: **"una neurona solo puede aprender sobre las agujas
+que recibe; si las agujas son pobres, solo aprenderá ruido con apariencia de inteligencia."**
+
+Los datos del motor lo confirman:
+
+- Hoy casi todas las sinapsis nacen de **coincidencia de palabras** (`co_nombre`: palabras del
+  nombre; `co_ocurrencia`: Jaccard de contenido; `pmi_hebbiano`: palabras que salen juntas en el
+  corpus; `co_semantica`: sinónimos compartidos). Son reglas mecánicas con un umbral fijo.
+- En la medición D, las conexiones `pmi_hebbiano` llevan a la respuesta apenas **1.5 veces más que
+  el azar**, y `latente_confirmada` **igual que el azar**. Las que puso una persona (`manual`),
+  **11 veces más**. O sea: **cuando la conexión la decide alguien que entiende, sirve mucho más**.
+  Eso es lo que la neurona asociativa tiene que aprender a imitar con evidencia local.
+
+### 15.3 Inventario: ¿qué características ya le da el motor a una neurona asociativa?
+
+Se tomó la lista de características que propuso Manus, `X(A, B)`, y se buscó cada una en el código y
+en la copia del snapshot (851 recuerdos activos; solo conteos, solo lectura).
+
+| Característica (Manus) | ¿Existe en BioRAG? | Dónde | ¿Cuántos recuerdos la tienen? |
+|---|---|---|---|
+| Similitud de contenido | **Sí** | Jaccard con IDF (`sinapsis._peso_similitud`), FTS5 | 851 / 851 |
+| Similitud PPMI | **Sí** | Vectores PPMI (`ppmi_vectorizer.py`) | todos |
+| Sinónimos compartidos | **Sí** | `largo_plazo.sinonimos` | 821 / 851 (96 %) |
+| Dimensiones en común | **Sí** | `largo_plazo_dimensiones` (`_dimensiones_comunes`) | 762 / 851 (90 %) |
+| Vecinos en común (cierre triádico) | **Sí** | `sinapsis._vecinos_comunes` | todos los conectados |
+| Misma categoría | **Sí** | `largo_plazo.categoria` (11 categorías) | 851 / 851 |
+| Grado de A y de B (sobreconexión) | **Sí**, se calcula | `sinapsis` | todos |
+| Distancia en el grafo | **Sí**, se calcula | `sinapsis` / `sinapsis_latentes.saltos` | todos |
+| Peso actual, tipo, último uso | **Sí** | `sinapsis.peso/tipo/ultimo_uso` | último uso: 3,457 / 13,920 sinapsis (25 %) |
+| Reciprocidad | **Se puede calcular** | `sinapsis` guarda origen→destino; mirar si existe la vuelta | todos |
+| Proximidad temporal / mismo episodio | **Parcial** | `creado_en`; `episodes._expandir_episodio_temporal` (ventana de horas). No hay "id de episodio". | `creado_en`: 850 / 851 |
+| Coactivación (recuperados juntos) | **Parcial** | `log_busquedas.conceptos_top` (top de cada búsqueda, 7 días), `nodo_accesos_historial`, sesión de consolidación | se llena con el uso |
+| Frecuencia conjunta | **No guardada** | Se podría contar desde `log_busquedas` | — |
+| **Entidades / conceptos núcleo** | **Casi vacía** | `largo_plazo.sustantivos_clave` (se guarda desde v25) | **6 / 851 (0.7 %)** |
+| **Relaciones / predicados** (quién hizo qué a qué) | **Escasa** | tabla `predicados` (sujeto, acción, objeto, contexto) | **102 / 851 (12 %)** |
+| Valencia (importancia emocional) | Escasa | `largo_plazo.valencia_somatica` | 95 / 851 (11 %) |
+| Utilidad / ruido observado | **Medible, no guardada** | Autoexamen (medición D) | — |
+| **Contradicción entre A y B** | **No existe** | Solo es una instrucción al agente en el prompt del MCP | — |
+| Justificación de la IA externa | Histórica | `sinapsis_cuarentena.motivo` (hormiguita) | 6,870 decisiones |
+
+**Lectura científica:**
+
+1. **Dennys tenía razón:** el motor ya da muchas agujas **de parecido** (contenido, PPMI, sinónimos,
+   dimensiones, vecinos), pero las agujas **estructurales** — las que dicen *"esto tiene que ver con
+   esto"*: entidades núcleo, relaciones quién-qué-a-qué, episodio, contradicción — están **vacías,
+   escasas o no existen**. Con solo agujas de parecido, la neurona aprendería "una versión
+   sofisticada de la coincidencia de palabras" (Manus).
+2. **Ojo con el snapshot:** `sustantivos_clave` se guarda recién desde la v25 y casi todos los
+   recuerdos del snapshot son anteriores; en la DB viva de Dennys la cobertura puede ser mayor.
+   Hay que medirlo antes de decidir (Dennys corre el conteo, no se toca su DB desde aquí).
+3. Los parámetros **ya existen en el MCP** (`sustantivos_clave` es obligatorio al guardar desde v25;
+   `predicados` existe y es opcional). El problema no es que falten, es que **no se llenan siempre**.
+
+### 15.4 ¿Los datos nuevos entran por el MCP o los calcula el motor?
+
+Dennys propuso tocar el MCP (cambiar parámetros, agregar datos por fila). Manus propuso que las
+características se calculen dentro del motor y el MCP solo muestre el resultado. **Los dos tienen
+razón, en capas distintas:**
+
+| Capa | Qué es | Quién la produce |
+|---|---|---|
+| **Dato crudo** del recuerdo (sus entidades, su relación quién-qué-a-qué, su episodio) | Lo que **solo el agente sabe** en el momento de guardar | **MCP** (`aprender`) — es la "una sola mente": el agente aporta lo que entiende |
+| **Característica del par** A–B (¿comparten entidades?, ¿misma relación?, ¿mismo episodio?) | Una comparación entre dos filas | **Motor** (un módulo tipo `rasgos_de_asociacion(a, b)`) |
+| **Decisión** (conectar, reforzar, atenuar) | La neurona | **Motor** |
+
+**Choque con una norma, para decidir Dennys:** la regla dice *"nada de trabajo extra para el
+agente"*. Agregar parámetros sería trabajo extra. La salida que el mismo Dennys propuso: **cambiar
+un parámetro que no sirve por uno que sí** (trabajo neto cero), o **hacer obligatorio uno que ya
+existe** (`predicados`). Antes hay que medir qué parámetros del MCP casi no aportan.
+
+### 15.5 Lo que se adopta de Manus (encaja con el molde)
+
+1. **Pesos duros + corrección aprendida:** `salud_final = salud_base + corrección`. Es exactamente
+   el molde de la sección 3. Las fórmulas de ejemplo de Manus (0.25 · contenido + 0.20 · PPMI …) son
+   **solo ejemplos**: el piso real sale del banco de calibración y lo firma Dennys.
+2. **Dos salidas: fuerza y confianza.** `A ── peso 0.82, confianza 0.91 ── B`. Útil: una conexión
+   nueva puede tener fuerza alta pero confianza baja (poca evidencia) y quedarse "en prueba".
+3. **Estados progresivos de una conexión:**
+   `observada → propuesta → en prueba (cuarentena) → activa débil → consolidada / reforzada`, y hacia
+   atrás `activa → debilitada → cuarentena → bloqueada`. Una mala evaluación nunca borra una conexión
+   histórica.
+4. **Observar en la búsqueda, decidir en la consolidación ("sueño").** Una consulta aislada no
+   deforma la memoria. Esto ya es la regla de la v34.1: 1 práctica por consolidación.
+5. **Zona de crecimiento separada:** una tabla tipo `sinapsis_candidatas` (con `veces_observada`,
+   `veces_util`, `veces_ruido`, `estado`, `confianza`) para que `sinapsis` siga siendo la memoria
+   estable. **Es un cambio de esquema → lo decide Dennys.**
+6. **La IA externa pasa a ser solo una proponente.** Si la hormiguita queda como herramienta
+   opcional, Gemini **propone** y la neurona local **decide** con evidencia de esta DB. Nunca más
+   autoridad final.
+7. **Aprender también lo negativo:** pares útiles, coincidencias superficiales, contradicciones,
+   relaciones posibles pero irrelevantes. **Ya tenemos ejemplos gratis:** las 2,681 que la hormiguita
+   cortó y el examen devolvió ("esto no se corta"), y la medición D (útil / ruido por tipo).
+8. **El ranking queda intacto.** La neurona asociativa trabaja **antes**: limpia y hace crecer el
+   material que usa el motor.
+
+### 15.6 Lo que hay que ajustar a las normas de BioRAG (honestidad científica)
+
+| Lo que se dijo | Ajuste |
+|---|---|
+| Manus: "eliminar" / "bloqueada o eliminada" | Norma de Dennys: **nunca borrar**. Lo máximo es **cuarentena o bloqueo reversible**. |
+| Dennys: "nunca va a haber ruido" | El propio Manus lo corrigió: se puede **reducir mucho**, no eliminar. Y en una pregunta dada, hasta las mejores conexiones (`manual`) llevan a la respuesta 13 de cada 1,000 veces (medición D): siempre habrá conexiones que **en esa pregunta** no sirven. La meta es **menos ruido, medido**, sin perder recall. |
+| Manus: aprender de "¿la respuesta fue útil?" en búsquedas reales | Norma: **sin feedback** del agente. Se reemplaza por el **autoexamen** (preguntas con respuesta conocida), que ya corre. `log_busquedas.util` **no** se usa. |
+| Manus: "29 entradas → 6 ocultas → 1 decisión" | Es la imagen de referencia que Dennys mostró. La forma exacta de la neurona asociativa se define después del banco, con costo fijo. |
+| Fórmulas con pesos de ejemplo | No son un piso. El piso sale del banco. |
+
+### 15.7 El sistema terminado (la visión, tal como la dibujaron Dennys y Manus)
+
+```
+CONSULTA
+   │
+   ▼
+Neurona de enrutamiento ── ¿qué rutas/capas activar?           (sección 7, candidato 4)
+   │
+   ├── FTS5/BM25 ── PPMI ── Grafo sináptico (sano, plástico)
+   ▼
+Unión de candidatos
+   │
+   ▼
+Neurona de admisión ── ¿qué evidencia sirve? ¿cuántos?          (sección 7, candidato 3)
+   │
+   ▼
+Ranking actual (intacto) ──► Neurona de reranking v34 (intacta)
+   │
+   ▼
+Contexto para el agente (MCP)
+
+En paralelo, durante la consolidación ("sueño"):
+autoexamen ──► práctica ──► neurona de ranking · neurona asociativa · neurona de consolidación
+                                     │
+                                     ▼
+                         grafo plástico y corregible
+```
+
+**Familia de neuronas** que se nombró (cada una con el molde completo: agujas, piso, corrección,
+examen, guardia, techo, memoria propia, huella de compatibilidad, capacidad de retirarse):
+
+| Neurona | Estado en este plan |
+|---|---|
+| Ranking (v34) | **Existe.** No se toca. |
+| Asociativa (salud + asociación) | **Primera en construirse** (sección 9 + esta sección). |
+| Saltos / expansión de contexto | Candidato 2. Después de la asociativa. |
+| Admisión (largo de lista) | Candidato 3. |
+| Enrutamiento (qué capas correr) | Candidato 4. |
+| Sinónimos / dimensiones | Candidato 5 (lo otro que hace la hormiguita). |
+| Consolidación | Nueva idea: qué pasa de corto a largo plazo. |
+| Contradicción | Nueva idea: necesita primero la aguja "contradicción", que hoy no existe. |
+| Abstención | Nueva idea (ojo: E13 de abstención fue descartado antes; revisar por qué). |
+
+### 15.8 ¿A qué se parece? (la analogía, para presentar el proyecto)
+
+Manus lo describió así, y encaja con lo que BioRAG ya tiene:
+
+> **"Un hipocampo artificial simbólico, apoyado por un grafo de memoria plástico, con pequeñas
+> neuronas aprendidas que controlan recuperación, asociación, consolidación y poda."**
+>
+> Técnicamente: **"un sistema neurosimbólico de memoria asociativa con plasticidad local y grafo
+> persistente."**
+>
+> En simple: **"una memoria artificial que no solo guarda recuerdos, sino que aprende qué recuerdos
+> se relacionan, qué caminos sirven para encontrarlos y qué conexiones deben desaparecer."**
+
+| Función del cerebro | Qué hace | Pieza de BioRAG que **ya existe** | Lo que agrega la neurona asociativa |
+|---|---|---|---|
+| Hipocampo: completar un recuerdo desde una pista parcial | Recuperar "aquello del servidor que fallaba" | Capas de búsqueda, trigramas, sinónimos, **SDM** (memoria distribuida dispersa) | — |
+| Memoria asociativa / ensambles | Un recuerdo trae a otro | Sinapsis, **spreading activation**, evocación en cadena | Que las conexiones sean **aprendidas** |
+| Plasticidad hebbiana | Lo que se activa junto se conecta | `pmi_hebbiano`, `co_ocurrencia` de sesión, `rafaga_rememb` (reglas fijas) | Decidir **con evidencia** si conectar |
+| Poda sináptica | Lo que no sirve se debilita | LTD de sinapsis (×0.95, borra < .05), hormiguita | Podar por **utilidad**, no por significado |
+| Consolidación en el sueño | De provisional a estable | Corto → largo plazo, `sueno`, DMN | La práctica de todas las neuronas |
+| Inhibición | Frenar el ruido | GABA, umbrales | Atenuar conexiones ruidosas |
+| Olvido | Dormir lo que no se usa | LTD de nodos, estado dormido | — |
+
+Límite honesto (lo dijo Manus y se mantiene): **el parecido es funcional, no físico**. *"Como un
+avión: no tiene plumas, pero reproduce el principio del vuelo de otra manera."*
+
+### 15.9 La visión de Dennys (registrada tal cual)
+
+> *"Esto es como un cerebro, por lo menos la parte del cerebro que guarda información. Como si
+> agarraras la mecánica del cerebro humano y la tuvieras ahí usando el mismo motor, la velocidad del
+> motor, siendo modular y colocando donde tienen que ir las piezas clave. […] Las RAM embebidas serán
+> para consultar documentos estáticos; para una memoria y un cerebro —guardar y recuperar
+> información— lo voy a lograr. Y creo que somos los primeros. […] Puede llegar a ser un estándar
+> para las memorias. […] Quién sabe si mañana le metemos un chip más que guarde información así,
+> documentos completos tipo modular."* — Dennys
+
+Lo que Manus agregó como dirección técnica para que sea un **estándar de memoria para máquinas**
+(agentes personales, robots, embebidos, industria, asistentes offline, memorias de empresa):
+
+- **Formalizar:** el formato de memoria, la interfaz de las neuronas, las características de las
+  sinapsis, el proceso de consolidación, la protección contra ruido, la persistencia y la
+  interoperabilidad entre módulos.
+- **Memoria estática** (manuales, documentos fijos) **+ memoria dinámica** (experiencias,
+  preferencias, eventos) en el mismo motor.
+- **Documentos guardados de forma modular:** identidad, conceptos, episodios, relaciones,
+  fragmentos, vectores, metadatos, historial de utilidad; poder recuperar el documento entero, un
+  módulo, el concepto, el episodio, los recuerdos conectados **y por qué se recuperó**.
+- *"Almacenamiento: guarda y devuelve. Memoria: guarda, relaciona, recuerda, refuerza, distingue,
+  recupera y olvida."*
+
+Nota de la científica del proyecto: el **formato de memoria** y la **interfaz de las neuronas** ya
+están empezando a existir en este experimento (el molde de la sección 3 es, en la práctica, la
+primera versión de esa interfaz). Cada neurona nueva que siga el molde suma a ese estándar.
+
+### 15.10 Cómo cambia el orden de trabajo
+
+El paso 1 de la sección 12 (banco de calibración) se amplía:
+
+1. **Inventario de agujas** (hecho en 15.3 sobre el snapshot) → falta que **Dennys** corra el mismo
+   conteo en su DB viva (solo lectura) para ver la cobertura real de `sustantivos_clave` y
+   `predicados`.
+2. **Banco de agujas del par A–B:** medir cuánto separa cada característica las conexiones útiles de
+   las de ruido (con los datos de la medición D como etiqueta).
+3. **Propuesta de cambio en el MCP** (si el banco muestra que faltan agujas estructurales): cambiar
+   un parámetro que no aporta por uno que sí, o volver obligatorio uno existente. **Dennys lo habla
+   con su agente y decide.**
+4. Recién después: piso a mano → modo aprendiz → neurona encima → relevo (sección 12, pasos 2–7).
