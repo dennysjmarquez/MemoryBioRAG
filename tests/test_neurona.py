@@ -493,9 +493,23 @@ def _vista_servida(c, monkeypatch, consulta, **kw):
 @pytest.mark.parametrize("modo", N.MODOS)
 def test_el_examen_ve_exactamente_lo_que_se_sirve(chica, monkeypatch, modo):
     from core.memory.neurona_examen import sustantivos_de
-    q = "insight backup repository inputs"          # devuelve varios recuerdos: hay qué ordenar
+    # Hacen falta VARIOS resultados (con uno solo no hay nada que ordenar y no hay vista).
+    # Antes se usaba la pregunta de cruce de idioma del autoexamen ("insight backup
+    # repository inputs"): da 3 resultados flojos aquí, pero depende del entorno
+    # (WordNet/OMW, versión de Python/SQLite) y en otra máquina el recuerdo no entraba
+    # → caso None. Ahora: dos recuerdos hermanos que comparten "backup" y una consulta
+    # literal en español, que no depende de traducción ni de diccionarios instalados.
+    monkeypatch.setenv("BIORAG_NEURONA", "0")
+    memory_service.aprender(chica, "backup_fotos_familia", "Backup de las fotos de la familia en un disco externo cada mes.")
+    memory_service.aprender(chica, "backup_correo_trabajo", "Backup del correo del trabajo exportado cada semana a un archivo.")
+    monkeypatch.setenv("BIORAG_NEURONA", "1")
+    q = "backup cada noche"
     caso = N._preguntar(chica, "leccion_backup_base_datos", q, "literal", modo, 10)
-    assert caso is not None and caso["cat"] == f"literal@{modo}"
+    if caso is None:  # diagnóstico legible si algún entorno vuelve a colapsar la página
+        r = chica.buscar_por_frase(q, profundidad="activos", limite=10)
+        r = r[0] if isinstance(r, tuple) else r
+        pytest.fail(f"sin caso para {q!r}; la búsqueda devolvió {[x[0] for x in (r or [])]}")
+    assert caso["cat"] == f"literal@{modo}"
     if modo == "agente":
         kw = dict(limite=30, convergencia_limite=10, sustantivos_clave_boost=sustantivos_de(q))
     else:
