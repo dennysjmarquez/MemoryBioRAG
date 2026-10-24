@@ -5,6 +5,10 @@
 > verdad** tienen que ver, que venga **ya calibrada de fábrica** (como nacemos con neuronas listas),
 > que **no** se entrene con la memoria de la persona y que funcione en **cualquier** memoria.
 >
+> **Hay una versión 2 más abajo (PARTE 2, sección V2.0).** Responde a la revisión externa de la v1,
+> agrega 4 memorias (español, portugués, código y chat), el tiempo y las etiquetas. Lo de esta parte
+> es la v1 y queda como historia.
+>
 > **Estado:** experimento. **No se cambió ni una línea del motor. No se tocó ninguna DB real.** La
 > memoria de Dennys se leyó desde una **copia** del snapshot, solo lectura.
 
@@ -355,3 +359,416 @@ python variantes.py    # ~3 min: piso sin mirar + tamaños de techo
 2. Medir el QA antes y después en la copia del snapshot. Si algo baja, no entra.
 3. Después, medir el corte por competencia (K = 10 / 20).
 4. Más adelante: la capa de **episodio** (la que más falta le hace).
+
+
+---
+---
+
+# PARTE 2 — Versión 2 (la neurona entrenada "hasta ya no decir más")
+
+> **Después de la v1, Dennys pidió:** *"Ponle ganas… haz esto perfecto, entrénalo hasta ya no decir
+> más. Y ponle siempre su techo para que no memorice, sino que aprenda."* Además mandó una revisión
+> externa de la v1. Esta parte responde punto por punto a esa revisión (sección V2.0.2).
+>
+> Todo lo de arriba (secciones 0–13) es la **v1** y se deja tal cual, como historia. Donde la v2
+> dice otra cosa, **manda la v2**.
+>
+> **Estado:** experimento. **No se cambió ni una línea del motor. No se tocó ninguna DB real.** La
+> memoria de Dennys se leyó desde una **copia** del snapshot, solo lectura. El hash del snapshot sigue
+> igual (`104dd290…`).
+
+## V2.0. En pocas líneas
+
+### V2.0.1 Resultado
+
+| Pregunta | Respuesta corta |
+|---|---|
+| ¿Qué cambió de la v1 a la v2? | De 3 a **7 memorias de fábrica**: inglés, **español**, **portugués**, **código** y **chat**; textos largos y muy cortos. Se agregaron 2 agujas nuevas, **episodio** (el momento en que se guardó) y **etiquetas** (las dims). Las dos se **auto-regulan**. Además: un entrenamiento por **competencia** con regla de "nunca bajo el piso" memoria por memoria, **31 pruebas automáticas** y un **segundo juez** (Gemini). |
+| ¿Funciona en una memoria que nunca vio? | Sí. En cada vuelta se calibra con 6 memorias y se examina en la 7ª, sin mirarla. AUC: **.882 / .902 / .994 / .927 / .911 / .997 / .962**. |
+| ¿Y en la memoria real de Dennys? | Pone los enlaces humanos por encima del resto: AUC **.868** (v1: .859; el peso de hoy: **.271**). Contra lo que Gemini sacó a cuarentena: AUC **.930**. |
+| ¿Cuánto conserva de lo humano? | Cada recuerdo se queda con sus 10 mejores socios. Así se queda el **41 %** de las conexiones y el **84 %** de las humanas; con el peso de hoy, en el mismo cupo, el **26 %**. Con 20 socios: **68 %** de las conexiones y **96 %** de las humanas. |
+| ¿El "episodio" sirvió? | Sí, en tu captura del Neuro-Visor. Un enlace humano que en la v1 quedaba en el puesto 68 de 129 ahora queda **3º**: se guardaron cerca en el tiempo. |
+| ¿La parte que "aprende" ayuda? | **No, y ahora sé por qué.** La entrené hasta que ya no tuvo más que decir (sección V2.6). Cada memoria **sola** sí tiene algo que aprender (hasta **+4.5 puntos**), pero lo que le sirve a una **empeora** a otra. Una corrección "de fábrica" que sirva para todas no existe con estas agujas. Por la regla "nunca bajo el piso", **queda apagada**. Lo que viaja de una memoria a otra es el **instinto** (el piso). |
+| ¿Es perfecta? | **No.** Sería mentirte. Es la mejor que pude armar con lo que el motor tiene hoy, y está probada a fondo. Lo que le falta está medido (sección V2.9): el **31 %** de los enlaces humanos ni siquiera llegarían a ser candidatos, y faltan predicados, contradicción y utilidad. |
+| ¿Ya está en el motor? | **No.** El paso siguiente es cablearla en una copia y pasar el QA. Va con tu permiso. |
+
+### V2.0.2 La revisión externa, punto por punto
+
+| La revisión dijo | Qué hice en la v2 | Resultado |
+|---|---|---|
+| "La parte aprendida casi no aporta" | La entrené a fondo y de otra forma: por competencia, con homeostasis ("cuidar a la que va peor") y con 3 agujas de contexto (pesos que dependen del tipo de memoria) | Confirmado y explicado: lo aprendible es **propio de cada memoria**. De fábrica queda apagada (sección V2.6) |
+| "La verdad de BioRAG es incompleta" | Agregué un **segundo juez**: lo que la hormiguita (Gemini) sacó a cuarentena (3,971 pares) y lo que confirmó (120) | Humano-sí vs Gemini-no: **.930**. Sigue sin ser una muestra etiquetada a mano (sección V2.11) |
+| "Le faltan episodio, dims, predicados, contradicción, utilidad" | Agregué **episodio** (`creado_en`) y **etiquetas** (dims), auto-reguladas | En Dennys: solo texto .861 → con tiempo y dims **.868**. Faltan predicados, contradicción y utilidad (sección V2.9) |
+| "Solo elige entre candidatos ya propuestos" | La neurona propone también a los **vecinos de tiempo**. Medí qué parte de la verdad llega a ser candidata | En Dennys, **69 %** de los enlaces humanos. El 31 % restante no llega (sección V2.9) |
+| "Solo 3 memorias" | **7** memorias + 1 probada y sacada, en 4 lenguas (en, es, pt, Python) | Sección V2.3 |
+| "`corto` confunde" | Se quitó del código; queda la nota histórica | — |
+| "Faltan tests" | **31 pruebas**: forma, rango, sin NaN, simetría A/B, determinismo, memoria vacía/mínima, textos iguales, sin vocabulario común, tiempo al azar, competencia, techo, nunca-bajo-el-piso, guardar/cargar, versión, velocidad | `python -m pytest -q test_neurona_asociativa.py` → **31 passed** |
+
+---
+
+## V2.1. Qué hace un humano cuando guarda y enlaza (y qué copiamos)
+
+Cuando guardas algo nuevo, el **hipocampo** decide con qué recuerdos viejos se une:
+
+| Parte del cerebro | Qué hace | En esta neurona |
+|---|---|---|
+| **Corteza entorrinal** | Le entrega al hipocampo un resumen de lo que vives | Las **agujas**: cada par de recuerdos se describe con 12 números |
+| **Giro dentado** | Separa lo parecido pero distinto. Le da peso a lo **raro** | `rareza_max`, `rareza_media`, `pistas_raras` |
+| **CA3** | Completa patrones: mismos "vecinos" → se asocian | `vecinos`, `cobertura` (y el grafo del motor) |
+| **CA1 + inhibición lateral** | Compara y decide; solo ganan los mejores socios | `mutuo` y la regla de **competencia** |
+| **Células de tiempo** (entorrinal lateral, CA1) | Lo que vives junto se une aunque no se parezca | **`episodio`** (v2) |
+| **Corteza prefrontal (esquemas)** | Encaja lo nuevo en categorías que ya tienes | **`etiquetas`** (v2): las dims del motor |
+| **Homeostasis** | Una neurona que se dispara con todo pierde fuerza | `hub` |
+| **Nacer con circuitos listos** | Venimos calibrados para reconocer qué se parece | **Piso de fábrica** congelado |
+| **Neuromodulación por contexto** | La misma señal vale distinto según la situación | Agujas de **contexto** + auto-regulación de `episodio` y `etiquetas` |
+
+---
+
+## V2.2. Las agujas
+
+Una aguja es un número de 0 a 1 sobre un **par** de recuerdos. Son **universales**: no miran *qué*
+palabras hay, sino *cómo* se relacionan los dos recuerdos **dentro de su propia memoria**. No usan
+ninguna lista de palabras de ningún idioma (`agujas.py`).
+
+| Aguja | Qué pregunta |
+|---|---|
+| `parecido` | ¿Se parecen sus palabras? (coseno tf-idf) |
+| `semantica` | ¿Se parecen en significado aunque usen otras palabras? (LSA de 100 dimensiones) |
+| `rareza_max` | ¿Cuál es la pista compartida más rara? |
+| `rareza_media` | ¿Qué tan raras son, en promedio, las pistas compartidas? |
+| `pistas_raras` | ¿Cuántas pistas raras distintas comparten? |
+| `cobertura` | ¿Qué parte de lo importante del más corto está en el otro? |
+| `mutuo` | ¿A está entre los más cercanos de B **y** B entre los de A? (0 si no comparten nada) |
+| `vecinos` | ¿Tienen los mismos vecinos cercanos? |
+| `hub` | ¿Alguno de los dos se parece "a todo"? |
+| `una_sola` | ¿Se tocan por **una sola** palabra? |
+| **`episodio`** (v2) | ¿Se guardaron cerca en el tiempo? (a unos 10 recuerdos de distancia en el orden de llegada) |
+| **`etiquetas`** (v2) | ¿Comparten etiquetas gruesas (dims)? |
+
+**Auto-regulación de `episodio` y `etiquetas`.** Cada memoria mide **sola**, sin verdad y sin que
+nadie le diga nada, si en **ella** el tiempo o las etiquetas coinciden con lo que dice el texto.
+Compara el parecido de texto de los pares que el reloj junta contra pares al azar. Si no coinciden,
+la aguja se apaga. Si la memoria no tiene tiempo o etiquetas, vale 0. Así la neurona **nunca
+confía a ciegas en el reloj**. Hay una prueba automática que lo verifica: con un orden al azar, la
+fiabilidad queda en ~0.
+
+| Memoria | Fiabilidad del tiempo | Fiabilidad de las etiquetas |
+|---|---|---|
+| noticias (Reuters, orden real de llegada) | .095 (casi apagada) | — |
+| charla (chat real) | .737 | — |
+| noticias_es (fecha real) | .275 | — |
+| diccionario / relatos / machado | — | .481 / .319 / .243 |
+| **Dennys** (`creado_en`, dims) | **.482** | **.363** |
+
+**Contexto** (solo lo ve la parte que aprende): `largo` (textos cortos o largos), `fiab_episodio`
+y `fiab_etiquetas`. Son los "pesos que dependen del contexto".
+
+`corto` (v1) se probó, no separaba nada (AUC ~.50) y se quitó.
+
+---
+
+## V2.3. Las memorias de fábrica (donde "nace" la neurona)
+
+Cada una tiene una verdad conocida de "sí tienen que ver" (`corpus.py`). Solo se usa **tiempo real**
+(nunca inventado). Las etiquetas siempre son **más gruesas** que la verdad, igual que las dims.
+
+| Memoria | Lengua | Qué es | "Sí" cuando… | Recuerdos | Palabras (mediana) | Pares | Sí |
+|---|---|---|---|---|---|---|---|
+| noticias | en | Reuters | mismo tema | 2,000 | 112 | 47,175 | 26.5 % |
+| diccionario | en | WordNet | relación directa | 2,000 | **14** | 40,225 | 2.9 % |
+| relatos | en | Brown, trozos de 150 palabras | mismo texto | 1,200 | 150 | 27,195 | 5.8 % |
+| **codigo** | Python | métodos de la librería estándar (sin el nombre de la clase) | misma clase | 1,500 | 34 | 31,223 | 6.9 % |
+| **charla** | en | chat real (NPS), ventanas de 10 mensajes, sin nombres de usuario | misma sala y día | 1,048 | 39 | 24,746 | 23.2 % |
+| **noticias_es** | **es** | agencia EFE (CESS-ESP), con fecha | misma noticia | 712 | 126 | 16,359 | 6.4 % |
+| **machado** | **pt** | obra de Machado de Assis | misma obra | 1,134 | 150 | 25,782 | 8.9 % |
+
+**Probada y sacada:** `reportes`, títulos de fallas de 5 programas, "sí" si son del mismo programa.
+Todas las agujas daban AUC ~.55–.65. La verdad era demasiado gruesa: dos fallas de Firefox no tienen
+por qué tener que ver. Usarla habría enseñado a la neurona algo falso.
+
+Los pares son los que un motor **propondría**: comparten raíz o son vecinos semánticos, hasta 30 por
+recuerdo. Si la memoria tiene tiempo, se suman los 2 guardados justo antes y justo después.
+
+---
+
+## V2.4. Banco de calibración: qué separa cada aguja
+
+AUC = probabilidad de que un par que **sí** tiene que ver saque más que uno que **no**. 0.5 es azar
+(`resultados/banco_calibracion.json`).
+
+| Aguja | noticias | diccionario | relatos | codigo | charla | noticias_es | machado |
+|---|---|---|---|---|---|---|---|
+| `parecido` | .869 | .922 | .961 | .895 | .631 | .934 | .906 |
+| `semantica` | .907 | .698 | .968 | .899 | .669 | .970 | .935 |
+| `rareza_max` | .738 | .881 | .891 | .858 | .586 | .864 | .793 |
+| `rareza_media` | .693 | .819 | .808 | .760 | .567 | .793 | .779 |
+| `pistas_raras` | .620 | .829 | .905 | .817 | .564 | .888 | .818 |
+| `cobertura` | .824 | .809 | .910 | .877 | .607 | .914 | .755 |
+| `mutuo` | .862 | .926 | .969 | .909 | .629 | .936 | .909 |
+| `vecinos` | .841 | .594 | .920 | .851 | .658 | .952 | .904 |
+| `hub` | .514 | .436 | .456 | .402 | .500 | .483 | .528 |
+| `una_sola` | .372 | .323 | .400 | .274 | .383 | .382 | .435 |
+| `episodio` | .485 | — | — | — | **.993** | **.979** | — |
+| `etiquetas` | — | .768 | .928 | — | — | — | .755 |
+
+(— = la memoria no tiene esa señal; la aguja vale 0.)
+
+Lectura simple:
+- En el **chat**, el texto casi no sirve (~.63) y el **momento** lo es todo (.993). Es como una
+  conversación humana: lo que se dijo en la misma charla va junto aunque hable de otra cosa.
+- En el **diccionario** (textos de 14 palabras) manda la **rareza**. En las noticias manda el
+  **significado**.
+- Ninguna aguja gana sola en todas.
+
+---
+
+## V2.5. El piso a mano (el instinto de nacimiento)
+
+Pesos enteros elegidos por el banco de las 7 memorias. Se sube peso por peso, arrancando de cero.
+Los signos están fijos por biología: las agujas que suman van de 0 a 4 y `hub`/`una_sola` solo pueden
+restar. El objetivo es el AUC promedio:
+
+```
+z = −1 + 2·parecido + 1·semantica + 1·rareza_max + 4·episodio + 1·etiquetas
+fuerza = 1 / (1 + e^−z)
+```
+
+- Las agujas que quedaron en 0 no sumaban nada **encima** de estas: dicen lo mismo con otras
+  palabras. La parte que aprende sí las ve todas.
+- El sesgo (−1) no cambia el orden. Solo decide cuándo una fuerza llega a "conectar" (≥ .80): se eligió
+  para que en fábrica esa marca acierte el 80 % o más.
+- `episodio` pesa 4, pero viene multiplicado por su fiabilidad. En una memoria donde el tiempo no
+  dice nada, pesa casi 0.
+
+**¿Por qué "desde cero"?** Probé 3 formas de elegir el piso. Cada una se juzgó igual: calibrar con 6
+memorias y examinar en la 7ª, las 7 veces (promedio / peor memoria):
+
+| Procedimiento | Promedio | Peor |
+|---|---|---|
+| Piso de la v1 + agujas nuevas, sin recalibrar | .9125 | .74 |
+| Recalibrar arrancando del piso de la v1 | .9233 | .827 |
+| **Recalibrar desde cero** (el que queda) | **.9394** | **.882** |
+
+**El sesgo (cuándo "conectar")** se elige con una regla de precisión, no a ojo. Con −1, en la fábrica,
+lo que pasa de .80 acierta en promedio el **85 %** (y encuentra el 35 % de lo verdadero). La marca
+de .80 solo agrega socios seguros: la decisión principal es la competencia (sección V2.7).
+
+---
+
+## V2.6. La parte que aprende: entrenada "hasta ya no decir más"
+
+Encima del piso va una red chiquita: 12 agujas + 3 de contexto → 6 neuronas → 1 número, que se
+**suma** al piso, acotada a **±1 (techo)**. Se entrena **solo en la fábrica**; en la memoria de la
+persona no aprende nada.
+
+**Cómo se entrena (v2)** (`neurona_asociativa.entrenar`):
+- **Por competencia:** aprende lo mismo que después decide. Dentro de un mismo recuerdo, el socio que
+  sí tiene que ver debe ganarle al que no.
+- **Guardia:** el 20 % de los recuerdos de cada memoria nunca se estudia.
+- **Nunca bajo el piso:** solo se guarda una versión que, en la guardia de **cada** memoria, ordena
+  igual o mejor que el piso solo. Si ninguna lo logra, queda **apagada**.
+- **Cuidar a la que va peor (homeostasis):** la memoria a la que le va peor recibe más atención.
+- **Techo:** ±1. Para cuando la guardia deja de mejorar.
+
+### V2.6.1 ¿Qué se puede aprender? (`variantes.py` → `resultados/variantes.json`)
+
+Puntos de "AUC por recuerdo" ganados en la guardia (×100):
+
+| Memoria | **A. Entrenando con esa memoria sola** | **B. Todas juntas** | **C. Todas juntas, cuidando a la peor** |
+|---|---|---|---|
+| noticias | +1.94 | +1.16 | +0.98 |
+| diccionario | +1.90 | **−0.43** | **−1.06** |
+| relatos | +0.14 | +0.08 | +0.08 |
+| codigo | +0.49 | +0.06 | +0.05 |
+| charla | **+4.55** | **−0.73** | +0.71 |
+| noticias_es | +0.05 | −0.01 | +0.03 |
+| machado | +1.39 | +0.66 | +0.75 |
+
+**Lectura (lo importante de este experimento):**
+- Cada memoria, **sola**, tiene algo que aprender (A). El chat hasta +4.5 puntos.
+- Pero **juntas** (B), lo que ayuda a las noticias **perjudica** al diccionario y al chat.
+- Si se cuida a la que va peor (C), se salva el chat pero el diccionario cae más. Es una balanza: no
+  hay posición en la que **todas** ganen.
+- Con la regla "nunca bajo el piso", la corrección de fábrica queda **apagada** (escala 0 en
+  `pesos_fabrica.json`).
+
+**Y una prueba más dura:** en el examen "nunca vista" hubo vueltas donde la corrección **sí** pasó la
+regla en las 6 memorias de estudio. Aun así, en la 7ª que no conocía **empeoró** (diccionario
+.902 → .883). Pasar la guardia en memorias conocidas **no garantiza** no hacer daño en una nueva. Por
+eso no la enciendo.
+
+**Conclusión honesta:** lo **universal** ya está en el piso. Lo que queda por aprender es **propio
+de cada memoria**, y aprenderlo en la fábrica sería memorizar. Si algún día la neurona aprende, tiene
+que ser **dentro** de la memoria de cada persona, con su techo. Eso choca con "no se entrena con el
+corpus de la persona", así que es **tu decisión** (sección V2.13).
+
+---
+
+## V2.7. La decisión: competencia
+
+- **El umbral fijo no viaja:** en la memoria de Dennys, la v1 marcaba "no" al 94 % de lo existente.
+- **La regla que queda es competencia.** Cada recuerdo conserva sus **K socios de mayor fuerza** (como
+  las neuronas reales, que se quedan con sus entradas más fuertes). Además entra todo lo que pase de
+  .80. Nunca deja a un recuerdo solo.
+
+**Dos formas de medir el orden.** El AUC "de todo junto" compara pares de recuerdos distintos. El
+AUC "por recuerdo" compara solo los socios de un **mismo** recuerdo, que es lo que la competencia
+decide de verdad. Casi siempre dan igual (noticias: .882 de todo junto, .893 por recuerdo). El
+entrenamiento de la v2 usa el segundo, porque es el que importa.
+
+Examen "nunca vista", K = 10 (piso calibrado sin mirar la memoria):
+
+| Memoria | Se queda con | Conserva de lo verdadero | Precisión (todo → competencia) |
+|---|---|---|---|
+| noticias | 27 % | 58 % | .27 → .57 |
+| diccionario | 37 % | 95 % | .03 → .08 |
+| relatos | 27 % | **100 %** | .06 → .22 |
+| codigo | 30 % | 91 % | .07 → .21 |
+| charla | 25 % | 76 % | .23 → .71 |
+| noticias_es | 26 % | **100 %** | .06 → .25 |
+| machado | 27 % | 95 % | .09 → .32 |
+
+---
+
+## V2.8. El examen real: la memoria de Dennys (nunca vista)
+
+Español técnico, otro dominio, nunca vista para nada (ni para pesos, ni para elegir nada).
+851 recuerdos activos y 13,342 conexiones entre ellos (`resultados/examen_dennys.json`).
+
+### V2.8.1 Tres jueces
+
+| Comparación | Peso de hoy | v1 | **v2 solo texto** | **v2 completa** (texto + tiempo + dims) |
+|---|---|---|---|---|
+| Enlaces **humanos** vs el resto | .271 | .859 | .861 | **.868** |
+| Enlaces **humanos** vs lo que **Gemini** sacó a cuarentena (3,971) | — | — | .933 | **.930** |
+| Lo que **Gemini confirmó** (120) vs lo que sacó | — | — | .572 | .624 |
+
+- **Lo humano gana claro.** Fuerza mediana: humanos **.75**, confirmados por Gemini .45, sacados por
+  Gemini .40.
+- **Con Gemini coincide poco** en lo que Gemini *confirmó* (.624). La neurona no está copiando a
+  Gemini, y tampoco debe: la persona es mejor juez. Gemini confirmó solo 120 pares; es una muestra chica.
+
+### V2.8.2 Competencia en la memoria de Dennys
+
+| K por recuerdo | Se queda con | Humanas conservadas (neurona) | Humanas conservadas (peso de hoy, mismo cupo) |
+|---|---|---|---|
+| 5 | 23 % | **68 %** | 10 % |
+| 10 | 41 % | **84 %** | 26 % |
+| 20 | 68 % | **96 %** | 49 % |
+
+Con K = 10 y K = 20, qué parte se queda de cada tipo:
+
+| Tipo | K = 10 | K = 20 |
+|---|---|---|
+| manual | **83.7 %** | **95.5 %** |
+| sinonimo_explicito | 48.4 % | 74.9 % |
+| latente_confirmada | 45.8 % | 64.2 % |
+| dmn_synthesized | 44.6 % | 60.7 % |
+| co_nombre | 39.6 % | 68.3 % |
+| co_ocurrencia | 34.7 % | 57.6 % |
+| co_semantica | 32.5 % | 60.6 % |
+| pmi_hebbiano | 26.8 % | 57.5 % |
+
+### V2.8.3 Tu captura del Neuro-Visor
+
+`leccion_discrepancia_busquedas_vocabulario_no_estocasticidad`: 129 conexiones, 4 humanas.
+
+| Enlace humano | Puesto v1 | **Puesto v2** | Qué cambió |
+|---|---|---|---|
+| que_es_nodo_biorag_definicion | 2 | **2** | — |
+| evaluacion_ideas_evolucion_20260805_interferencia_agujeros_permutacion | 68 | **3** ✅ | `episodio` .44: se guardaron cerca en el tiempo |
+| athena_leccion_grep_patron_bug_antes_de_cerrar_fix | 63 | **29** | Subió, pero sigue fuera del top 10 (fuerza .52) |
+| leccion_bbusqueda_bilingue_nodos_tecnicos | 11 | **56** ❌ | Bajó: no tiene señal de tiempo (episodio 0) y socios guardados cerca le pasaron por encima |
+
+Lo digo claro: una mejoró muchísimo y otra **empeoró**. El tiempo ayuda, pero también trae
+compañeros del mismo día que no siempre son los correctos.
+
+---
+
+## V2.9. Lo que todavía le falta (medido)
+
+| Falta | Cuánto pesa | Qué haría falta |
+|---|---|---|
+| **Medir candidatos en la fábrica** | En noticias y charla, solo llega a ser candidato el 24 % y el 16 % de lo "verdadero". No es un fallo: ahí "verdadero" es "mismo tema" o "misma sala", y casi todos esos pares no tienen nada que ver entre sí. Esa medida solo sirve donde la verdad es fina (diccionario 82 %, relatos 88 %, noticias_es 97 %) | — |
+| **Candidatos** | De los 381 enlaces humanos, la neurona propondría sola el **69 %** (67 % sin tiempo). El otro **31 %** ni llega a ser candidato | Una vía de "lo que el agente tenía abierto/en mente" que no dependa del texto. Necesita un cambio del motor y tu permiso |
+| **Predicados** ("A causa B") | La tabla `predicados` existe, pero la neurona todavía no la usa | Aguja de predicados |
+| **Contradicción** | Dos recuerdos opuestos se parecen mucho en texto | Capa de contradicción |
+| **Utilidad** | Si una conexión ayudó a encontrar algo | Ya existe la medición D (exp 10); falta convertirla en aguja **sin** pedirle trabajo al agente |
+| **Tiempo fiable** | `creado_en` de los recuerdos de Dennys cubre solo 53 días; puede venir de migraciones | Revisar si `creado_en` es la fecha real de guardado |
+| **Escala del motor** | Este experimento usa matrices densas de N×N: van bien hasta unos 2,000 recuerdos, no para 50,000 | Un **"modo motor"**: solo los K vecinos de cada recuerdo (disperso), al día cuando entra uno nuevo. Es trabajo de ingeniería, no de neurona |
+
+---
+
+## V2.10. Cómo se enchufa en el motor (plan, no hecho)
+
+- **El motor sigue buscando candidatos como hoy.** La neurona solo reemplaza la **regla fija** de los
+  puntos donde nace una sinapsis (`auto_vincular`, `vincular_por_sinonimos`, consolidación, ráfaga,
+  aprendizaje léxico, sueño de vacíos, DMN, inferencia transitiva; lista en el exp 10).
+- **El peso que nace** deja de ser una regla por tipo (en tu captura, `sinonimo_explicito` y
+  `co_ocurrencia` nacieron con .90 y las manuales con .50) y pasa a ser la **fuerza** de la neurona. Lo que el agente une a mano no se toca.
+- **Estados, nunca borrar:** propuesta → a prueba → activa → consolidada → debilitada → cuarentena.
+- **Primer cableado: re-pesar sin cortar nada.** La competencia (K = 20 conserva el 96 % de lo
+  humano) se mide después y por separado.
+- **QA antes y después** en la copia del snapshot. Si un número baja, no entra.
+- **Agente y MCP iguales.** No se le pide nada nuevo al agente.
+
+---
+
+## V2.11. Honestidad (lo que este experimento NO prueba)
+
+- **No hay una muestra etiquetada a mano.** Las verdades en tu DB son los 381 enlaces humanos y los
+  juicios de Gemini; ninguna es perfecta. Una muestra de ~100 pares marcados por ti (sí / no /
+  "es del mismo momento" / "se contradicen") daría la precisión real. Es opcional; no lo hago sin
+  que lo pidas.
+- **El tiempo de Dennys puede estar "contaminado".** El 95 % de los enlaces humanos se crearon a
+  menos de 1 hora de sus recuerdos, y `creado_en` cubre solo 53 días. Puede que el tiempo ayude en
+  parte porque el agente enlaza en el mismo momento en que guarda (algo circular). Por eso doy los
+  dos números: completo **.868** y solo texto **.861**. La mejora del tiempo es chica y honesta.
+- **No se midió la búsqueda (QA).** Hasta que eso pase, **no** digo que mejora el sistema. Digo que
+  ordena las conexiones mucho mejor que el peso de hoy.
+- **Son 7 memorias de fábrica**, en 4 lenguas, más la tuya. Es buena señal de que es universal, pero
+  no es "cualquier memoria del mundo".
+- **Miré los números de Dennys** de las agujas nuevas una vez, mientras diseñaba. No los usé para
+  elegir nada: el piso lo eligió el banco de fábrica con un procedimiento fijo (sección V2.5). Lo dejo
+  escrito por transparencia.
+- **La corrección de fábrica está apagada.** La neurona de hoy es el piso: un instinto de 5 pesos
+  bien elegidos, que se auto-regula con el tiempo y las dims.
+
+---
+
+## V2.12. Cómo repetirlo
+
+Hace falta: numpy y nltk (las del motor). Los corpus de NLTK `reuters`, `wordnet`, `brown`,
+`cess_esp`, `nps_chat`, `machado` y `problem_reports` van en `/tmp/e11/nltk_data`. Una **copia** del
+snapshot va en `/tmp/e11/dennys.db` (nunca la DB real).
+
+```bash
+cd "docs/Mi neurona en el sistema/experimento_11_neurona_asociativa"
+python -m pytest -q test_neurona_asociativa.py   # 31 pruebas, ~1 s, no necesitan datos
+python fabrica.py                                 # ~3-5 min: banco, nunca vista, fábrica, Dennys
+python variantes.py                               # ~1 min: ¿qué se puede aprender?
+```
+
+| Archivo | Qué es |
+|---|---|
+| `agujas.py` | Las 12 agujas + 3 de contexto, la auto-regulación y los candidatos |
+| `corpus.py` | Las memorias con su verdad (y la de Dennys con sus jueces) |
+| `neurona_asociativa.py` | Piso, corrección, entrenamiento por competencia, competencia, guardar/cargar |
+| `fabrica.py` | Todo el experimento |
+| `variantes.py` | ¿Qué se puede aprender? (sección V2.6.1) |
+| `test_neurona_asociativa.py` | Las 31 pruebas |
+| `pesos_fabrica.json` | Los pesos de nacimiento (corrección con escala 0 = apagada) |
+| `resultados/*.json` | Todos los números de este README |
+
+---
+
+## V2.13. Decisiones que te tocan a ti
+
+1. **Cablear en una copia del motor**, primero solo re-pesando las sinapsis que nacen, sin cortar
+   nada, y medir QA antes/después. *(Mi recomendación: sí, es el siguiente paso.)*
+2. **¿Puede la neurona aprender dentro de cada memoria?** Con techo y con la misma regla "nunca bajo
+   el piso", usando solo lo que ya pasa normalmente: los enlaces que el agente crea al guardar, sin
+   trabajo extra. La sección V2.6 muestra que ahí sí hay qué aprender (de +0.05 a +4.5 puntos según la memoria). Choca con
+   "que no se entrene con el corpus de la persona", por eso pregunto.
+3. **Capa de candidatos** para el 31 % de enlaces humanos que hoy no llegan (cambio del motor).
+4. **Muestra a mano** de ~100 pares (opcional) para medir precisión real.

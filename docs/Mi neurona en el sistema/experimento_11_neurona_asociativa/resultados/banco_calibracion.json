@@ -1,173 +1,170 @@
 {
  "noticias": {
-  "parecido": {
-   "auc": 0.859,
-   "media_si": 0.231,
-   "media_no": 0.08
-  },
-  "semantica": {
-   "auc": 0.9,
-   "media_si": 0.605,
-   "media_no": 0.23
-  },
-  "rareza_max": {
-   "auc": 0.72,
-   "media_si": 0.597,
-   "media_no": 0.484
-  },
-  "rareza_media": {
-   "auc": 0.675,
-   "media_si": 0.439,
-   "media_no": 0.394
-  },
-  "pistas_raras": {
-   "auc": 0.612,
-   "media_si": 0.237,
-   "media_no": 0.108
-  },
-  "cobertura": {
-   "auc": 0.811,
-   "media_si": 0.279,
-   "media_no": 0.119
-  },
-  "mutuo": {
-   "auc": 0.85,
-   "media_si": 0.634,
-   "media_no": 0.321
-  },
-  "vecinos": {
-   "auc": 0.838,
-   "media_si": 0.353,
-   "media_no": 0.05
-  },
-  "hub": {
-   "auc": 0.512,
-   "media_si": 0.675,
-   "media_no": 0.664
-  },
-  "una_sola": {
-   "auc": 0.369,
-   "media_si": 0.04,
-   "media_no": 0.302
-  },
-  "corto": {
-   "auc": 0.545,
-   "media_si": 0.14,
-   "media_no": 0.099
+  "idioma": "en",
+  "recuerdos": 2000,
+  "pares": 47175,
+  "si_pct": 26.5,
+  "palabras_mediana": 112,
+  "fiab_episodio": 0.095,
+  "fiab_etiquetas": null,
+  "cobertura_candidatos": 0.236,
+  "auc_por_aguja": {
+   "parecido": 0.869,
+   "semantica": 0.907,
+   "rareza_max": 0.738,
+   "rareza_media": 0.693,
+   "pistas_raras": 0.62,
+   "cobertura": 0.824,
+   "mutuo": 0.862,
+   "vecinos": 0.841,
+   "hub": 0.514,
+   "una_sola": 0.372,
+   "episodio": 0.485,
+   "etiquetas": 0.5
   }
  },
  "diccionario": {
-  "parecido": {
-   "auc": 0.922,
-   "media_si": 0.321,
-   "media_no": 0.101
-  },
-  "semantica": {
-   "auc": 0.698,
-   "media_si": 0.521,
-   "media_no": 0.358
-  },
-  "rareza_max": {
-   "auc": 0.881,
-   "media_si": 0.808,
-   "media_no": 0.559
-  },
-  "rareza_media": {
-   "auc": 0.819,
-   "media_si": 0.743,
-   "media_no": 0.541
-  },
-  "pistas_raras": {
-   "auc": 0.829,
-   "media_si": 0.492,
-   "media_no": 0.181
-  },
-  "cobertura": {
-   "auc": 0.809,
-   "media_si": 0.368,
-   "media_no": 0.187
-  },
-  "mutuo": {
-   "auc": 0.926,
-   "media_si": 0.846,
-   "media_no": 0.514
-  },
-  "vecinos": {
-   "auc": 0.594,
-   "media_si": 0.231,
-   "media_no": 0.14
-  },
-  "hub": {
-   "auc": 0.436,
-   "media_si": 0.648,
-   "media_no": 0.702
-  },
-  "una_sola": {
-   "auc": 0.323,
-   "media_si": 0.457,
-   "media_no": 0.811
-  },
-  "corto": {
-   "auc": 0.545,
-   "media_si": 0.765,
-   "media_no": 0.751
+  "idioma": "en",
+  "recuerdos": 2000,
+  "pares": 40225,
+  "si_pct": 2.9,
+  "palabras_mediana": 14,
+  "fiab_episodio": null,
+  "fiab_etiquetas": 0.481,
+  "cobertura_candidatos": 0.815,
+  "auc_por_aguja": {
+   "parecido": 0.922,
+   "semantica": 0.698,
+   "rareza_max": 0.881,
+   "rareza_media": 0.819,
+   "pistas_raras": 0.829,
+   "cobertura": 0.809,
+   "mutuo": 0.926,
+   "vecinos": 0.594,
+   "hub": 0.436,
+   "una_sola": 0.323,
+   "episodio": 0.5,
+   "etiquetas": 0.768
   }
  },
  "relatos": {
-  "parecido": {
-   "auc": 0.961,
-   "media_si": 0.179,
-   "media_no": 0.045
-  },
-  "semantica": {
-   "auc": 0.968,
-   "media_si": 0.634,
-   "media_no": 0.204
-  },
-  "rareza_max": {
-   "auc": 0.891,
-   "media_si": 0.807,
-   "media_no": 0.582
-  },
-  "rareza_media": {
-   "auc": 0.808,
-   "media_si": 0.567,
-   "media_no": 0.463
-  },
-  "pistas_raras": {
-   "auc": 0.905,
-   "media_si": 0.725,
-   "media_no": 0.238
-  },
-  "cobertura": {
-   "auc": 0.91,
-   "media_si": 0.151,
-   "media_no": 0.056
-  },
-  "mutuo": {
-   "auc": 0.969,
-   "media_si": 0.857,
-   "media_no": 0.383
-  },
-  "vecinos": {
-   "auc": 0.92,
-   "media_si": 0.382,
-   "media_no": 0.047
-  },
-  "hub": {
-   "auc": 0.452,
-   "media_si": 0.635,
-   "media_no": 0.68
-  },
-  "una_sola": {
-   "auc": 0.4,
-   "media_si": 0.003,
-   "media_no": 0.203
-  },
-  "corto": {
-   "auc": 0.5,
-   "media_si": 0.0,
-   "media_no": 0.0
+  "idioma": "en",
+  "recuerdos": 1200,
+  "pares": 27195,
+  "si_pct": 5.8,
+  "palabras_mediana": 150,
+  "fiab_episodio": null,
+  "fiab_etiquetas": 0.319,
+  "cobertura_candidatos": 0.881,
+  "auc_por_aguja": {
+   "parecido": 0.961,
+   "semantica": 0.968,
+   "rareza_max": 0.891,
+   "rareza_media": 0.808,
+   "pistas_raras": 0.905,
+   "cobertura": 0.91,
+   "mutuo": 0.969,
+   "vecinos": 0.92,
+   "hub": 0.456,
+   "una_sola": 0.4,
+   "episodio": 0.5,
+   "etiquetas": 0.928
+  }
+ },
+ "codigo": {
+  "idioma": "python",
+  "recuerdos": 1500,
+  "pares": 31223,
+  "si_pct": 6.9,
+  "palabras_mediana": 34,
+  "fiab_episodio": null,
+  "fiab_etiquetas": null,
+  "cobertura_candidatos": 0.682,
+  "auc_por_aguja": {
+   "parecido": 0.895,
+   "semantica": 0.899,
+   "rareza_max": 0.858,
+   "rareza_media": 0.76,
+   "pistas_raras": 0.817,
+   "cobertura": 0.877,
+   "mutuo": 0.909,
+   "vecinos": 0.851,
+   "hub": 0.402,
+   "una_sola": 0.274,
+   "episodio": 0.5,
+   "etiquetas": 0.5
+  }
+ },
+ "charla": {
+  "idioma": "en",
+  "recuerdos": 1048,
+  "pares": 24746,
+  "si_pct": 23.2,
+  "palabras_mediana": 39,
+  "fiab_episodio": 0.737,
+  "fiab_etiquetas": null,
+  "cobertura_candidatos": 0.159,
+  "auc_por_aguja": {
+   "parecido": 0.631,
+   "semantica": 0.669,
+   "rareza_max": 0.586,
+   "rareza_media": 0.567,
+   "pistas_raras": 0.564,
+   "cobertura": 0.607,
+   "mutuo": 0.629,
+   "vecinos": 0.658,
+   "hub": 0.5,
+   "una_sola": 0.383,
+   "episodio": 0.993,
+   "etiquetas": 0.5
+  }
+ },
+ "noticias_es": {
+  "idioma": "es",
+  "recuerdos": 712,
+  "pares": 16359,
+  "si_pct": 6.4,
+  "palabras_mediana": 126,
+  "fiab_episodio": 0.275,
+  "fiab_etiquetas": null,
+  "cobertura_candidatos": 0.97,
+  "auc_por_aguja": {
+   "parecido": 0.934,
+   "semantica": 0.97,
+   "rareza_max": 0.864,
+   "rareza_media": 0.793,
+   "pistas_raras": 0.888,
+   "cobertura": 0.914,
+   "mutuo": 0.936,
+   "vecinos": 0.952,
+   "hub": 0.483,
+   "una_sola": 0.382,
+   "episodio": 0.979,
+   "etiquetas": 0.5
+  }
+ },
+ "machado": {
+  "idioma": "pt",
+  "recuerdos": 1134,
+  "pares": 25782,
+  "si_pct": 8.9,
+  "palabras_mediana": 150,
+  "fiab_episodio": null,
+  "fiab_etiquetas": 0.243,
+  "cobertura_candidatos": 0.599,
+  "auc_por_aguja": {
+   "parecido": 0.906,
+   "semantica": 0.935,
+   "rareza_max": 0.793,
+   "rareza_media": 0.779,
+   "pistas_raras": 0.818,
+   "cobertura": 0.755,
+   "mutuo": 0.909,
+   "vecinos": 0.904,
+   "hub": 0.528,
+   "una_sola": 0.435,
+   "episodio": 0.5,
+   "etiquetas": 0.755
   }
  }
 }

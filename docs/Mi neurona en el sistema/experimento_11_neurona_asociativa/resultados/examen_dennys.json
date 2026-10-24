@@ -1,1204 +1,513 @@
 {
  "recuerdos": 851,
- "conexiones_existentes": 13342,
- "manual": 381,
- "auc_manual_vs_resto": {
-  "peso_del_motor_hoy": 0.271,
-  "piso_a_mano": 0.859,
-  "neurona": 0.859
- },
- "por_tipo": {
-  "sinonimo_explicito": {
-   "n": 5728,
-   "peso_motor_medio": 0.88,
-   "fuerza_media": 0.086,
-   "conectar_pct": 2.2,
-   "debil_pct": 2.8,
-   "no_pct": 95.1
+ "completa (texto + tiempo + dims)": {
+  "fiab_episodio": 0.482,
+  "fiab_etiquetas": 0.363,
+  "manual_que_la_neurona_propondria_sola_pct": 69.3,
+  "candidatos_propios": 20529,
+  "conexiones_existentes": 13342,
+  "manual": 381,
+  "auc_manual_vs_resto": {
+   "peso_del_motor_hoy": 0.271,
+   "piso_a_mano": 0.868,
+   "neurona": 0.868
   },
-  "pmi_hebbiano": {
-   "n": 2317,
-   "peso_motor_medio": 0.5,
-   "fuerza_media": 0.043,
-   "conectar_pct": 0.5,
-   "debil_pct": 0.9,
-   "no_pct": 98.7
+  "jueces": {
+   "n_humano_si": 381,
+   "n_gemini_si": 120,
+   "n_gemini_no": 3971,
+   "auc_humano_si_vs_gemini_no": {
+    "piso_a_mano": 0.93,
+    "neurona": 0.93
+   },
+   "auc_gemini_si_vs_gemini_no": {
+    "neurona": 0.624
+   },
+   "fuerza_mediana": {
+    "humano_si": 0.754,
+    "gemini_si": 0.448,
+    "gemini_no": 0.399
+   }
   },
-  "co_ocurrencia": {
-   "n": 2080,
-   "peso_motor_medio": 0.68,
-   "fuerza_media": 0.104,
-   "conectar_pct": 6.0,
-   "debil_pct": 2.0,
-   "no_pct": 92.0
+  "competencia": {
+   "k5": {
+    "se_conserva_pct": 22.7,
+    "manual_conservadas_pct": 68.2,
+    "solo_competencia": {
+     "manual_orden_neurona_pct": 66.9,
+     "manual_orden_peso_hoy_pct": 10.2
+    },
+    "por_tipo_pct": {
+     "sinonimo_explicito": 27.0,
+     "pmi_hebbiano": 10.6,
+     "co_ocurrencia": 20.8,
+     "co_nombre": 20.2,
+     "co_semantica": 15.2,
+     "manual": 68.2,
+     "latente_confirmada": 25.8,
+     "dmn_synthesized": 32.1
+    }
+   },
+   "k10": {
+    "se_conserva_pct": 41.2,
+    "manual_conservadas_pct": 83.7,
+    "solo_competencia": {
+     "manual_orden_neurona_pct": 83.7,
+     "manual_orden_peso_hoy_pct": 25.7
+    },
+    "por_tipo_pct": {
+     "sinonimo_explicito": 48.4,
+     "pmi_hebbiano": 26.8,
+     "co_ocurrencia": 34.7,
+     "co_nombre": 39.6,
+     "co_semantica": 32.5,
+     "manual": 83.7,
+     "latente_confirmada": 45.8,
+     "dmn_synthesized": 44.6
+    }
+   },
+   "k20": {
+    "se_conserva_pct": 67.7,
+    "manual_conservadas_pct": 95.5,
+    "solo_competencia": {
+     "manual_orden_neurona_pct": 95.5,
+     "manual_orden_peso_hoy_pct": 48.8
+    },
+    "por_tipo_pct": {
+     "sinonimo_explicito": 74.9,
+     "pmi_hebbiano": 57.5,
+     "co_ocurrencia": 57.6,
+     "co_nombre": 68.3,
+     "co_semantica": 60.6,
+     "manual": 95.5,
+     "latente_confirmada": 64.2,
+     "dmn_synthesized": 60.7
+    }
+   }
   },
-  "co_nombre": {
-   "n": 1491,
-   "peso_motor_medio": 0.42,
-   "fuerza_media": 0.095,
-   "conectar_pct": 3.4,
-   "debil_pct": 3.6,
-   "no_pct": 93.1
-  },
-  "co_semantica": {
-   "n": 1147,
-   "peso_motor_medio": 0.57,
-   "fuerza_media": 0.062,
-   "conectar_pct": 2.6,
-   "debil_pct": 1.5,
-   "no_pct": 95.9
-  },
-  "manual": {
-   "n": 381,
-   "peso_motor_medio": 0.5,
-   "fuerza_media": 0.493,
-   "conectar_pct": 36.5,
-   "debil_pct": 12.9,
-   "no_pct": 50.7
-  },
-  "latente_confirmada": {
-   "n": 120,
-   "peso_motor_medio": 0.4,
-   "fuerza_media": 0.038,
-   "conectar_pct": 1.7,
-   "debil_pct": 0.0,
-   "no_pct": 98.3
-  },
-  "dmn_synthesized": {
-   "n": 56,
-   "peso_motor_medio": 0.3,
-   "fuerza_media": 0.194,
-   "conectar_pct": 10.7,
-   "debil_pct": 7.1,
-   "no_pct": 82.1
-  },
-  "legacy_csv": {
-   "n": 13,
-   "peso_motor_medio": 0.5,
-   "fuerza_media": 0.304,
-   "conectar_pct": 0.0,
-   "debil_pct": 30.8,
-   "no_pct": 69.2
-  },
-  "manual_v7": {
-   "n": 8,
-   "peso_motor_medio": 0.72,
-   "fuerza_media": 0.389,
-   "conectar_pct": 37.5,
-   "debil_pct": 0.0,
-   "no_pct": 62.5
-  },
-  "test": {
-   "n": 1,
-   "peso_motor_medio": 0.9,
-   "fuerza_media": 0.546,
-   "conectar_pct": 0.0,
-   "debil_pct": 100.0,
-   "no_pct": 0.0
+  "caso_neuro_visor": {
+   "recuerdo": "leccion_discrepancia_busquedas_vocabulario_no_estocasticidad",
+   "conexiones": 129,
+   "se_quedan_k10": 53,
+   "manual": [
+    {
+     "con": "que_es_nodo_biorag_definicion",
+     "tipo": "manual",
+     "peso_motor": 0.5,
+     "fuerza": 0.885,
+     "se_queda_k10": true,
+     "episodio": 0.357,
+     "etiquetas": 0.203,
+     "puesto": 2
+    },
+    {
+     "con": "evaluacion_ideas_evolucion_20260805_interferencia_agujeros_permutacion",
+     "tipo": "manual",
+     "peso_motor": 0.5,
+     "fuerza": 0.839,
+     "se_queda_k10": true,
+     "episodio": 0.436,
+     "etiquetas": 0.227,
+     "puesto": 3
+    },
+    {
+     "con": "athena_leccion_grep_patron_bug_antes_de_cerrar_fix",
+     "tipo": "manual",
+     "peso_motor": 0.5,
+     "fuerza": 0.52,
+     "se_queda_k10": false,
+     "episodio": 0.0,
+     "etiquetas": 0.079,
+     "puesto": 29
+    },
+    {
+     "con": "leccion_bbusqueda_bilingue_nodos_tecnicos",
+     "tipo": "manual",
+     "peso_motor": 0.5,
+     "fuerza": 0.484,
+     "se_queda_k10": false,
+     "episodio": 0.0,
+     "etiquetas": 0.099,
+     "puesto": 56
+    }
+   ],
+   "top12": [
+    {
+     "con": "teoría_nodos_sinapsis",
+     "tipo": "co_ocurrencia",
+     "peso_motor": 0.9,
+     "fuerza": 0.962,
+     "se_queda_k10": true,
+     "episodio": 0.436,
+     "etiquetas": 0.0,
+     "puesto": 1
+    },
+    {
+     "con": "que_es_nodo_biorag_definicion",
+     "tipo": "manual",
+     "peso_motor": 0.5,
+     "fuerza": 0.885,
+     "se_queda_k10": true,
+     "episodio": 0.357,
+     "etiquetas": 0.203,
+     "puesto": 2
+    },
+    {
+     "con": "evaluacion_ideas_evolucion_20260805_interferencia_agujeros_permutacion",
+     "tipo": "manual",
+     "peso_motor": 0.5,
+     "fuerza": 0.839,
+     "se_queda_k10": true,
+     "episodio": 0.436,
+     "etiquetas": 0.227,
+     "puesto": 3
+    },
+    {
+     "con": "verificacion_fidelidad_jaccard_preview_chars_truncado_vs_completo",
+     "tipo": "sinonimo_explicito",
+     "peso_motor": 0.9,
+     "fuerza": 0.715,
+     "se_queda_k10": true,
+     "episodio": 0.196,
+     "etiquetas": 0.198,
+     "puesto": 4
+    },
+    {
+     "con": "plan_tejedora_agujeros_estructurales_v1",
+     "tipo": "sinonimo_explicito",
+     "peso_motor": 0.9,
+     "fuerza": 0.713,
+     "se_queda_k10": true,
+     "episodio": 0.239,
+     "etiquetas": 0.207,
+     "puesto": 5
+    },
+    {
+     "con": "ranking_jaccard_holdout",
+     "tipo": "sinonimo_explicito",
+     "peso_motor": 0.9,
+     "fuerza": 0.697,
+     "se_queda_k10": true,
+     "episodio": 0.239,
+     "etiquetas": 0.0,
+     "puesto": 6
+    },
+    {
+     "con": "fase_c_commit_275fc88_activacion_gradual_monitoreo_sinonimo",
+     "tipo": "sinonimo_explicito",
+     "peso_motor": 0.9,
+     "fuerza": 0.679,
+     "se_queda_k10": true,
+     "episodio": 0.217,
+     "etiquetas": 0.174,
+     "puesto": 7
+    },
+    {
+     "con": "dictamen_flag_jaccard_baseline_tejedora_941",
+     "tipo": "sinonimo_explicito",
+     "peso_motor": 0.9,
+     "fuerza": 0.665,
+     "se_queda_k10": true,
+     "episodio": 0.145,
+     "etiquetas": 0.175,
+     "puesto": 8
+    },
+    {
+     "con": "protect_r0_config_ganadora_elimina_regresiones_r1",
+     "tipo": "sinonimo_explicito",
+     "peso_motor": 0.9,
+     "fuerza": 0.659,
+     "se_queda_k10": true,
+     "episodio": 0.177,
+     "etiquetas": 0.174,
+     "puesto": 9
+    },
+    {
+     "con": "tematico_score_senal_constante_pool_inerte",
+     "tipo": "sinonimo_explicito",
+     "peso_motor": 0.9,
+     "fuerza": 0.642,
+     "se_queda_k10": true,
+     "episodio": 0.119,
+     "etiquetas": 0.158,
+     "puesto": 10
+    },
+    {
+     "con": "holdout_faseb_jaccard_se_sostiene_en_mitad_b",
+     "tipo": "sinonimo_explicito",
+     "peso_motor": 0.9,
+     "fuerza": 0.627,
+     "se_queda_k10": true,
+     "episodio": 0.16,
+     "etiquetas": 0.174,
+     "puesto": 11
+    },
+    {
+     "con": "experimento_reranking_jaccard_921_casos",
+     "tipo": "sinonimo_explicito",
+     "peso_motor": 0.9,
+     "fuerza": 0.626,
+     "se_queda_k10": false,
+     "episodio": 0.131,
+     "etiquetas": 0.174,
+     "puesto": 12
+    }
+   ]
   }
  },
- "competencia": {
-  "k5": {
-   "se_conserva_pct": 22.3,
-   "manual_conservadas_neurona_pct": 67.2,
-   "solo_competencia": {
-    "se_conserva_pct": 22.3,
-    "manual_orden_neurona_pct": 67.2,
-    "manual_orden_peso_hoy_pct": 10.2
+ "solo texto (sin tiempo ni dims)": {
+  "fiab_episodio": 0.0,
+  "fiab_etiquetas": 0.0,
+  "manual_que_la_neurona_propondria_sola_pct": 66.7,
+  "candidatos_propios": 19440,
+  "conexiones_existentes": 13342,
+  "manual": 381,
+  "auc_manual_vs_resto": {
+   "peso_del_motor_hoy": 0.271,
+   "piso_a_mano": 0.861,
+   "neurona": 0.861
+  },
+  "jueces": {
+   "n_humano_si": 381,
+   "n_gemini_si": 120,
+   "n_gemini_no": 3971,
+   "auc_humano_si_vs_gemini_no": {
+    "piso_a_mano": 0.933,
+    "neurona": 0.933
    },
-   "por_tipo_pct": {
-    "sinonimo_explicito": 26.1,
-    "pmi_hebbiano": 11.5,
-    "co_ocurrencia": 17.2,
-    "co_nombre": 24.7,
-    "co_semantica": 16.2,
-    "manual": 67.2,
-    "latente_confirmada": 18.3,
-    "dmn_synthesized": 23.2
+   "auc_gemini_si_vs_gemini_no": {
+    "neurona": 0.572
+   },
+   "fuerza_mediana": {
+    "humano_si": 0.593,
+    "gemini_si": 0.401,
+    "gemini_no": 0.377
    }
   },
-  "k10": {
-   "se_conserva_pct": 40.8,
-   "manual_conservadas_neurona_pct": 82.9,
-   "solo_competencia": {
-    "se_conserva_pct": 40.8,
-    "manual_orden_neurona_pct": 82.9,
-    "manual_orden_peso_hoy_pct": 25.7
+  "competencia": {
+   "k5": {
+    "se_conserva_pct": 22.6,
+    "manual_conservadas_pct": 67.2,
+    "solo_competencia": {
+     "manual_orden_neurona_pct": 67.2,
+     "manual_orden_peso_hoy_pct": 10.2
+    },
+    "por_tipo_pct": {
+     "sinonimo_explicito": 26.7,
+     "pmi_hebbiano": 11.8,
+     "co_ocurrencia": 18.2,
+     "co_nombre": 22.6,
+     "co_semantica": 16.4,
+     "manual": 67.2,
+     "latente_confirmada": 21.7,
+     "dmn_synthesized": 23.2
+    }
    },
-   "por_tipo_pct": {
-    "sinonimo_explicito": 48.1,
-    "pmi_hebbiano": 27.7,
-    "co_ocurrencia": 29.8,
-    "co_nombre": 44.1,
-    "co_semantica": 33.1,
-    "manual": 82.9,
-    "latente_confirmada": 32.5,
-    "dmn_synthesized": 37.5
+   "k10": {
+    "se_conserva_pct": 41.5,
+    "manual_conservadas_pct": 83.7,
+    "solo_competencia": {
+     "manual_orden_neurona_pct": 83.7,
+     "manual_orden_peso_hoy_pct": 25.7
+    },
+    "por_tipo_pct": {
+     "sinonimo_explicito": 48.6,
+     "pmi_hebbiano": 29.5,
+     "co_ocurrencia": 31.6,
+     "co_nombre": 42.0,
+     "co_semantica": 33.4,
+     "manual": 83.7,
+     "latente_confirmada": 40.0,
+     "dmn_synthesized": 30.4
+    }
+   },
+   "k20": {
+    "se_conserva_pct": 67.3,
+    "manual_conservadas_pct": 94.8,
+    "solo_competencia": {
+     "manual_orden_neurona_pct": 94.8,
+     "manual_orden_peso_hoy_pct": 48.8
+    },
+    "por_tipo_pct": {
+     "sinonimo_explicito": 74.5,
+     "pmi_hebbiano": 58.0,
+     "co_ocurrencia": 56.2,
+     "co_nombre": 68.9,
+     "co_semantica": 60.6,
+     "manual": 94.8,
+     "latente_confirmada": 60.8,
+     "dmn_synthesized": 50.0
+    }
    }
   },
-  "k20": {
-   "se_conserva_pct": 66.6,
-   "manual_conservadas_neurona_pct": 94.2,
-   "solo_competencia": {
-    "se_conserva_pct": 66.6,
-    "manual_orden_neurona_pct": 94.2,
-    "manual_orden_peso_hoy_pct": 48.8
-   },
-   "por_tipo_pct": {
-    "sinonimo_explicito": 74.0,
-    "pmi_hebbiano": 57.2,
-    "co_ocurrencia": 53.6,
-    "co_nombre": 69.7,
-    "co_semantica": 60.9,
-    "manual": 94.2,
-    "latente_confirmada": 52.5,
-    "dmn_synthesized": 44.6
-   }
+  "caso_neuro_visor": {
+   "recuerdo": "leccion_discrepancia_busquedas_vocabulario_no_estocasticidad",
+   "conexiones": 129,
+   "se_quedan_k10": 48,
+   "manual": [
+    {
+     "con": "que_es_nodo_biorag_definicion",
+     "tipo": "manual",
+     "peso_motor": 0.5,
+     "fuerza": 0.601,
+     "se_queda_k10": true,
+     "episodio": 0.0,
+     "etiquetas": 0.0,
+     "puesto": 2
+    },
+    {
+     "con": "athena_leccion_grep_patron_bug_antes_de_cerrar_fix",
+     "tipo": "manual",
+     "peso_motor": 0.5,
+     "fuerza": 0.501,
+     "se_queda_k10": true,
+     "episodio": 0.0,
+     "etiquetas": 0.0,
+     "puesto": 15
+    },
+    {
+     "con": "leccion_bbusqueda_bilingue_nodos_tecnicos",
+     "tipo": "manual",
+     "peso_motor": 0.5,
+     "fuerza": 0.459,
+     "se_queda_k10": false,
+     "episodio": 0.0,
+     "etiquetas": 0.0,
+     "puesto": 43
+    },
+    {
+     "con": "evaluacion_ideas_evolucion_20260805_interferencia_agujeros_permutacion",
+     "tipo": "manual",
+     "peso_motor": 0.5,
+     "fuerza": 0.42,
+     "se_queda_k10": false,
+     "episodio": 0.0,
+     "etiquetas": 0.0,
+     "puesto": 77
+    }
+   ],
+   "top12": [
+    {
+     "con": "teoría_nodos_sinapsis",
+     "tipo": "co_ocurrencia",
+     "peso_motor": 0.9,
+     "fuerza": 0.814,
+     "se_queda_k10": true,
+     "episodio": 0.0,
+     "etiquetas": 0.0,
+     "puesto": 1
+    },
+    {
+     "con": "que_es_nodo_biorag_definicion",
+     "tipo": "manual",
+     "peso_motor": 0.5,
+     "fuerza": 0.601,
+     "se_queda_k10": true,
+     "episodio": 0.0,
+     "etiquetas": 0.0,
+     "puesto": 2
+    },
+    {
+     "con": "leccion_experimento_predicados_vocabulario_normalizado",
+     "tipo": "sinonimo_explicito",
+     "peso_motor": 0.9,
+     "fuerza": 0.58,
+     "se_queda_k10": true,
+     "episodio": 0.0,
+     "etiquetas": 0.0,
+     "puesto": 3
+    },
+    {
+     "con": "fts5-sanitizacion-comillas-dobles-filter",
+     "tipo": "sinonimo_explicito",
+     "peso_motor": 0.9,
+     "fuerza": 0.574,
+     "se_queda_k10": true,
+     "episodio": 0.0,
+     "etiquetas": 0.0,
+     "puesto": 4
+    },
+    {
+     "con": "capa3_pseudo_relevance_feedback_dimensional",
+     "tipo": "sinonimo_explicito",
+     "peso_motor": 0.9,
+     "fuerza": 0.555,
+     "se_queda_k10": true,
+     "episodio": 0.0,
+     "etiquetas": 0.0,
+     "puesto": 5
+    },
+    {
+     "con": "leccion_metodologia_empirica_v22_2",
+     "tipo": "pmi_hebbiano",
+     "peso_motor": 0.53,
+     "fuerza": 0.542,
+     "se_queda_k10": true,
+     "episodio": 0.0,
+     "etiquetas": 0.0,
+     "puesto": 6
+    },
+    {
+     "con": "axioma_empatia_sintactica_rafaga",
+     "tipo": "sinonimo_explicito",
+     "peso_motor": 0.9,
+     "fuerza": 0.524,
+     "se_queda_k10": true,
+     "episodio": 0.0,
+     "etiquetas": 0.0,
+     "puesto": 7
+    },
+    {
+     "con": "rafaga-ilimitada-v9.2-optimizacion-fts5-or",
+     "tipo": "sinonimo_explicito",
+     "peso_motor": 0.9,
+     "fuerza": 0.52,
+     "se_queda_k10": true,
+     "episodio": 0.0,
+     "etiquetas": 0.0,
+     "puesto": 8
+    },
+    {
+     "con": "auditoria_entrega_claude_ppmi_v2_suave_ctx_20260808",
+     "tipo": "sinonimo_explicito",
+     "peso_motor": 0.9,
+     "fuerza": 0.519,
+     "se_queda_k10": true,
+     "episodio": 0.0,
+     "etiquetas": 0.0,
+     "puesto": 9
+    },
+    {
+     "con": "plan_secuencia_validacion_feedback_graph_learning_2_pasos",
+     "tipo": "pmi_hebbiano",
+     "peso_motor": 0.62,
+     "fuerza": 0.513,
+     "se_queda_k10": true,
+     "episodio": 0.0,
+     "etiquetas": 0.0,
+     "puesto": 10
+    },
+    {
+     "con": "auditor_detecto_nodo_no_consolidado_cita_a_corto_plazo",
+     "tipo": "sinonimo_explicito",
+     "peso_motor": 0.9,
+     "fuerza": 0.512,
+     "se_queda_k10": false,
+     "episodio": 0.0,
+     "etiquetas": 0.0,
+     "puesto": 11
+    },
+    {
+     "con": "athena_arquitectura_memoria_agente_v24_2",
+     "tipo": "pmi_hebbiano",
+     "peso_motor": 0.62,
+     "fuerza": 0.511,
+     "se_queda_k10": false,
+     "episodio": 0.0,
+     "etiquetas": 0.0,
+     "puesto": 12
+    }
+   ]
   }
- },
- "caso_neuro_visor": {
-  "recuerdo": "leccion_discrepancia_busquedas_vocabulario_no_estocasticidad",
-  "conexiones": 129,
-  "conectar": 1,
-  "debil": 1,
-  "no": 127,
-  "manual_conservadas": 1,
-  "manual_total": 4,
-  "se_quedan_k10": 56,
-  "manual_se_quedan_k10": 2,
-  "todas": [
-   {
-    "con": "teoría_nodos_sinapsis",
-    "tipo": "co_ocurrencia",
-    "peso_motor": 0.9,
-    "fuerza": 0.986,
-    "decision": "conectar",
-    "se_queda_con_competencia_k10": true
-   },
-   {
-    "con": "que_es_nodo_biorag_definicion",
-    "tipo": "manual",
-    "peso_motor": 0.5,
-    "fuerza": 0.575,
-    "decision": "debil",
-    "se_queda_con_competencia_k10": true
-   },
-   {
-    "con": "fts5-sanitizacion-comillas-dobles-filter",
-    "tipo": "sinonimo_explicito",
-    "peso_motor": 0.9,
-    "fuerza": 0.399,
-    "decision": "no",
-    "se_queda_con_competencia_k10": true
-   },
-   {
-    "con": "leccion_experimento_predicados_vocabulario_normalizado",
-    "tipo": "sinonimo_explicito",
-    "peso_motor": 0.9,
-    "fuerza": 0.355,
-    "decision": "no",
-    "se_queda_con_competencia_k10": true
-   },
-   {
-    "con": "principio_paráfrasis_nivel_dios",
-    "tipo": "sinonimo_explicito",
-    "peso_motor": 0.9,
-    "fuerza": 0.213,
-    "decision": "no",
-    "se_queda_con_competencia_k10": true
-   },
-   {
-    "con": "axioma_empatia_sintactica_rafaga",
-    "tipo": "sinonimo_explicito",
-    "peso_motor": 0.9,
-    "fuerza": 0.186,
-    "decision": "no",
-    "se_queda_con_competencia_k10": true
-   },
-   {
-    "con": "mentalidad_empatia_sintactica_rag",
-    "tipo": "sinonimo_explicito",
-    "peso_motor": 0.9,
-    "fuerza": 0.184,
-    "decision": "no",
-    "se_queda_con_competencia_k10": true
-   },
-   {
-    "con": "rafaga-ilimitada-v9.2-optimizacion-fts5-or",
-    "tipo": "sinonimo_explicito",
-    "peso_motor": 0.9,
-    "fuerza": 0.145,
-    "decision": "no",
-    "se_queda_con_competencia_k10": true
-   },
-   {
-    "con": "auditoria_busqueda_abril_2026_diagnostico",
-    "tipo": "sinonimo_explicito",
-    "peso_motor": 0.9,
-    "fuerza": 0.131,
-    "decision": "no",
-    "se_queda_con_competencia_k10": true
-   },
-   {
-    "con": "auto_vincular_tres_capas_semantica",
-    "tipo": "sinonimo_explicito",
-    "peso_motor": 0.9,
-    "fuerza": 0.125,
-    "decision": "no",
-    "se_queda_con_competencia_k10": true
-   },
-   {
-    "con": "leccion_bbusqueda_bilingue_nodos_tecnicos",
-    "tipo": "manual",
-    "peso_motor": 0.5,
-    "fuerza": 0.124,
-    "decision": "no",
-    "se_queda_con_competencia_k10": true
-   },
-   {
-    "con": "stemmer_no_determinista_entornos_nltk_vs_fallback_20260808",
-    "tipo": "sinonimo_explicito",
-    "peso_motor": 0.9,
-    "fuerza": 0.12,
-    "decision": "no",
-    "se_queda_con_competencia_k10": true
-   },
-   {
-    "con": "arquitectura_dos_niveles_biorag",
-    "tipo": "sinonimo_explicito",
-    "peso_motor": 0.9,
-    "fuerza": 0.119,
-    "decision": "no",
-    "se_queda_con_competencia_k10": true
-   },
-   {
-    "con": "biorag_v8_dynamic_multiplicator",
-    "tipo": "sinonimo_explicito",
-    "peso_motor": 0.9,
-    "fuerza": 0.118,
-    "decision": "no",
-    "se_queda_con_competencia_k10": true
-   },
-   {
-    "con": "verificacion_fidelidad_jaccard_preview_chars_truncado_vs_completo",
-    "tipo": "sinonimo_explicito",
-    "peso_motor": 0.9,
-    "fuerza": 0.118,
-    "decision": "no",
-    "se_queda_con_competencia_k10": false
-   },
-   {
-    "con": "leccion_metodologia_empirica_v22_2",
-    "tipo": "pmi_hebbiano",
-    "peso_motor": 0.53,
-    "fuerza": 0.113,
-    "decision": "no",
-    "se_queda_con_competencia_k10": true
-   },
-   {
-    "con": "ranking_jaccard_holdout",
-    "tipo": "sinonimo_explicito",
-    "peso_motor": 0.9,
-    "fuerza": 0.104,
-    "decision": "no",
-    "se_queda_con_competencia_k10": true
-   },
-   {
-    "con": "protocolo_parafrasis_uso",
-    "tipo": "sinonimo_explicito",
-    "peso_motor": 0.9,
-    "fuerza": 0.102,
-    "decision": "no",
-    "se_queda_con_competencia_k10": true
-   },
-   {
-    "con": "capa3_pseudo_relevance_feedback_dimensional",
-    "tipo": "sinonimo_explicito",
-    "peso_motor": 0.9,
-    "fuerza": 0.094,
-    "decision": "no",
-    "se_queda_con_competencia_k10": false
-   },
-   {
-    "con": "fallo_clasificador_wordnet_query_dimensiones",
-    "tipo": "sinonimo_explicito",
-    "peso_motor": 0.9,
-    "fuerza": 0.091,
-    "decision": "no",
-    "se_queda_con_competencia_k10": false
-   },
-   {
-    "con": "biorag_v8_rafaga_remembrecia",
-    "tipo": "sinonimo_explicito",
-    "peso_motor": 0.9,
-    "fuerza": 0.083,
-    "decision": "no",
-    "se_queda_con_competencia_k10": true
-   },
-   {
-    "con": "plan_secuencia_validacion_feedback_graph_learning_2_pasos",
-    "tipo": "pmi_hebbiano",
-    "peso_motor": 0.62,
-    "fuerza": 0.081,
-    "decision": "no",
-    "se_queda_con_competencia_k10": true
-   },
-   {
-    "con": "athena_arquitectura_memoria_agente_v24_2",
-    "tipo": "pmi_hebbiano",
-    "peso_motor": 0.62,
-    "fuerza": 0.08,
-    "decision": "no",
-    "se_queda_con_competencia_k10": false
-   },
-   {
-    "con": "athena_leccion_auditoria_bugs_cuarentena_y_ltd",
-    "tipo": "pmi_hebbiano",
-    "peso_motor": 0.58,
-    "fuerza": 0.078,
-    "decision": "no",
-    "se_queda_con_competencia_k10": false
-   },
-   {
-    "con": "integracion_parafrasis_rafaga_obligatoria_v11_3",
-    "tipo": "sinonimo_explicito",
-    "peso_motor": 0.9,
-    "fuerza": 0.074,
-    "decision": "no",
-    "se_queda_con_competencia_k10": true
-   },
-   {
-    "con": "tematico_score_senal_constante_pool_inerte",
-    "tipo": "sinonimo_explicito",
-    "peso_motor": 0.9,
-    "fuerza": 0.073,
-    "decision": "no",
-    "se_queda_con_competencia_k10": false
-   },
-   {
-    "con": "rafaga_palabras-guia-completa-apis-y-mecanismo",
-    "tipo": "sinonimo_explicito",
-    "peso_motor": 0.9,
-    "fuerza": 0.072,
-    "decision": "no",
-    "se_queda_con_competencia_k10": true
-   },
-   {
-    "con": "biorag_v22_prf_capa_3",
-    "tipo": "sinonimo_explicito",
-    "peso_motor": 0.9,
-    "fuerza": 0.069,
-    "decision": "no",
-    "se_queda_con_competencia_k10": true
-   },
-   {
-    "con": "biorag_razonamiento_analitico_versiones",
-    "tipo": "sinonimo_explicito",
-    "peso_motor": 0.9,
-    "fuerza": 0.068,
-    "decision": "no",
-    "se_queda_con_competencia_k10": true
-   },
-   {
-    "con": "auditoria_entrega_claude_ppmi_v2_suave_ctx_20260808",
-    "tipo": "sinonimo_explicito",
-    "peso_motor": 0.9,
-    "fuerza": 0.063,
-    "decision": "no",
-    "se_queda_con_competencia_k10": false
-   },
-   {
-    "con": "biorag_v18_0_estado",
-    "tipo": "sinonimo_explicito",
-    "peso_motor": 0.9,
-    "fuerza": 0.063,
-    "decision": "no",
-    "se_queda_con_competencia_k10": false
-   },
-   {
-    "con": "fix_scoring_densidad_buscar_por_rafaga_v10.3",
-    "tipo": "sinonimo_explicito",
-    "peso_motor": 0.9,
-    "fuerza": 0.062,
-    "decision": "no",
-    "se_queda_con_competencia_k10": true
-   },
-   {
-    "con": "lección_audit_búsqueda_sistemático_v10",
-    "tipo": "sinonimo_explicito",
-    "peso_motor": 0.9,
-    "fuerza": 0.056,
-    "decision": "no",
-    "se_queda_con_competencia_k10": true
-   },
-   {
-    "con": "v22_2_determinism_verification_and_debt",
-    "tipo": "sinonimo_explicito",
-    "peso_motor": 0.9,
-    "fuerza": 0.056,
-    "decision": "no",
-    "se_queda_con_competencia_k10": false
-   },
-   {
-    "con": "artemis_sesion_v10_3_optimizacion_completa",
-    "tipo": "sinonimo_explicito",
-    "peso_motor": 0.9,
-    "fuerza": 0.055,
-    "decision": "no",
-    "se_queda_con_competencia_k10": true
-   },
-   {
-    "con": "biorag_v18_0_baseline_global_cobertura_100",
-    "tipo": "sinonimo_explicito",
-    "peso_motor": 0.9,
-    "fuerza": 0.053,
-    "decision": "no",
-    "se_queda_con_competencia_k10": false
-   },
-   {
-    "con": "hormiguita_estado_real_50_ciclos_benchmark_2026_07_31",
-    "tipo": "sinonimo_explicito",
-    "peso_motor": 0.9,
-    "fuerza": 0.053,
-    "decision": "no",
-    "se_queda_con_competencia_k10": false
-   },
-   {
-    "con": "leccion_despertar_coherente_nodos_dormidos_biorag",
-    "tipo": "sinonimo_explicito",
-    "peso_motor": 0.9,
-    "fuerza": 0.053,
-    "decision": "no",
-    "se_queda_con_competencia_k10": true
-   },
-   {
-    "con": "bio_rag_overview_completo",
-    "tipo": "sinonimo_explicito",
-    "peso_motor": 0.9,
-    "fuerza": 0.052,
-    "decision": "no",
-    "se_queda_con_competencia_k10": false
-   },
-   {
-    "con": "biorag_v18_0_baseline_determinista",
-    "tipo": "sinonimo_explicito",
-    "peso_motor": 0.9,
-    "fuerza": 0.05,
-    "decision": "no",
-    "se_queda_con_competencia_k10": true
-   },
-   {
-    "con": "leccion_bayesian_bm25_rechazado_fuerza_bruta",
-    "tipo": "sinonimo_explicito",
-    "peso_motor": 0.9,
-    "fuerza": 0.05,
-    "decision": "no",
-    "se_queda_con_competencia_k10": true
-   },
-   {
-    "con": "principio_parafrasis_trigger_cognitivo",
-    "tipo": "sinonimo_explicito",
-    "peso_motor": 0.9,
-    "fuerza": 0.045,
-    "decision": "no",
-    "se_queda_con_competencia_k10": true
-   },
-   {
-    "con": "v13_1_parafrasis_expansion_semantica",
-    "tipo": "sinonimo_explicito",
-    "peso_motor": 0.9,
-    "fuerza": 0.045,
-    "decision": "no",
-    "se_queda_con_competencia_k10": false
-   },
-   {
-    "con": "capas_pipeline_no_se_reemplazan_entre_si",
-    "tipo": "sinonimo_explicito",
-    "peso_motor": 0.9,
-    "fuerza": 0.044,
-    "decision": "no",
-    "se_queda_con_competencia_k10": true
-   },
-   {
-    "con": "puente_llm_sinonimos_veredicto_refutado_invariante_cero_llm",
-    "tipo": "sinonimo_explicito",
-    "peso_motor": 0.9,
-    "fuerza": 0.042,
-    "decision": "no",
-    "se_queda_con_competencia_k10": false
-   },
-   {
-    "con": "hormiguita_v25_sistema_mantenimiento_seguro_athena_biorag",
-    "tipo": "pmi_hebbiano",
-    "peso_motor": 0.64,
-    "fuerza": 0.04,
-    "decision": "no",
-    "se_queda_con_competencia_k10": false
-   },
-   {
-    "con": "vocabulario_predicados_diseno_sujetos_libres",
-    "tipo": "sinonimo_explicito",
-    "peso_motor": 0.9,
-    "fuerza": 0.04,
-    "decision": "no",
-    "se_queda_con_competencia_k10": true
-   },
-   {
-    "con": "leccion_desvincular_falsos_positivos_sinapticos",
-    "tipo": "sinonimo_explicito",
-    "peso_motor": 0.9,
-    "fuerza": 0.039,
-    "decision": "no",
-    "se_queda_con_competencia_k10": true
-   },
-   {
-    "con": "auditor_detecto_nodo_no_consolidado_cita_a_corto_plazo",
-    "tipo": "sinonimo_explicito",
-    "peso_motor": 0.9,
-    "fuerza": 0.036,
-    "decision": "no",
-    "se_queda_con_competencia_k10": false
-   },
-   {
-    "con": "biorag_v18_0_baseline_sin_duplicados",
-    "tipo": "sinonimo_explicito",
-    "peso_motor": 0.9,
-    "fuerza": 0.036,
-    "decision": "no",
-    "se_queda_con_competencia_k10": true
-   },
-   {
-    "con": "biorag_v17_oraculo_preguntar",
-    "tipo": "sinonimo_explicito",
-    "peso_motor": 0.9,
-    "fuerza": 0.035,
-    "decision": "no",
-    "se_queda_con_competencia_k10": true
-   },
-   {
-    "con": "leccion_trazabilidad_db_eval_antes_de_reportar_auditor",
-    "tipo": "sinonimo_explicito",
-    "peso_motor": 0.9,
-    "fuerza": 0.035,
-    "decision": "no",
-    "se_queda_con_competencia_k10": false
-   },
-   {
-    "con": "version_actual_biorag_v26_2_20260811",
-    "tipo": "sinonimo_explicito",
-    "peso_motor": 0.9,
-    "fuerza": 0.035,
-    "decision": "no",
-    "se_queda_con_competencia_k10": false
-   },
-   {
-    "con": "biorag_v15_0_clasificacion_simbolica",
-    "tipo": "sinonimo_explicito",
-    "peso_motor": 0.9,
-    "fuerza": 0.034,
-    "decision": "no",
-    "se_queda_con_competencia_k10": true
-   },
-   {
-    "con": "tematico_score_mide_pool_no_query_biorag",
-    "tipo": "sinonimo_explicito",
-    "peso_motor": 0.9,
-    "fuerza": 0.034,
-    "decision": "no",
-    "se_queda_con_competencia_k10": false
-   },
-   {
-    "con": "plan_tejedora_agujeros_estructurales_v1",
-    "tipo": "sinonimo_explicito",
-    "peso_motor": 0.9,
-    "fuerza": 0.033,
-    "decision": "no",
-    "se_queda_con_competencia_k10": false
-   },
-   {
-    "con": "roadmap_eco_sinaptico_por_tema",
-    "tipo": "pmi_hebbiano",
-    "peso_motor": 0.53,
-    "fuerza": 0.033,
-    "decision": "no",
-    "se_queda_con_competencia_k10": false
-   },
-   {
-    "con": "v5_1_automatico_completo",
-    "tipo": "sinonimo_explicito",
-    "peso_motor": 0.9,
-    "fuerza": 0.033,
-    "decision": "no",
-    "se_queda_con_competencia_k10": false
-   },
-   {
-    "con": "visceral_disambiguation_protocol",
-    "tipo": "sinonimo_explicito",
-    "peso_motor": 0.9,
-    "fuerza": 0.033,
-    "decision": "no",
-    "se_queda_con_competencia_k10": true
-   },
-   {
-    "con": "leccion_claim_passed_sin_artefacto_reproducible",
-    "tipo": "sinonimo_explicito",
-    "peso_motor": 0.9,
-    "fuerza": 0.032,
-    "decision": "no",
-    "se_queda_con_competencia_k10": false
-   },
-   {
-    "con": "implementacion_clasificacion_simbolica_wordnet_biorag",
-    "tipo": "sinonimo_explicito",
-    "peso_motor": 0.9,
-    "fuerza": 0.031,
-    "decision": "no",
-    "se_queda_con_competencia_k10": true
-   },
-   {
-    "con": "principio_tres_capas_biorag",
-    "tipo": "sinonimo_explicito",
-    "peso_motor": 0.9,
-    "fuerza": 0.031,
-    "decision": "no",
-    "se_queda_con_competencia_k10": true
-   },
-   {
-    "con": "athena_leccion_grep_patron_bug_antes_de_cerrar_fix",
-    "tipo": "manual",
-    "peso_motor": 0.5,
-    "fuerza": 0.03,
-    "decision": "no",
-    "se_queda_con_competencia_k10": false
-   },
-   {
-    "con": "principio_cableado_completo_todos_los_caminos",
-    "tipo": "pmi_hebbiano",
-    "peso_motor": 0.66,
-    "fuerza": 0.03,
-    "decision": "no",
-    "se_queda_con_competencia_k10": false
-   },
-   {
-    "con": "principio_dimensiones_solo_elevan",
-    "tipo": "sinonimo_explicito",
-    "peso_motor": 0.9,
-    "fuerza": 0.029,
-    "decision": "no",
-    "se_queda_con_competencia_k10": false
-   },
-   {
-    "con": "principio_señales_distribucionales_vs_especificas",
-    "tipo": "sinonimo_explicito",
-    "peso_motor": 0.9,
-    "fuerza": 0.029,
-    "decision": "no",
-    "se_queda_con_competencia_k10": false
-   },
-   {
-    "con": "biorag_v20_0_circuito_cerrado",
-    "tipo": "pmi_hebbiano",
-    "peso_motor": 0.52,
-    "fuerza": 0.028,
-    "decision": "no",
-    "se_queda_con_competencia_k10": false
-   },
-   {
-    "con": "evaluacion_ideas_evolucion_20260805_interferencia_agujeros_permutacion",
-    "tipo": "manual",
-    "peso_motor": 0.5,
-    "fuerza": 0.025,
-    "decision": "no",
-    "se_queda_con_competencia_k10": false
-   },
-   {
-    "con": "td_001_sinapsis_like_referencia_sin_fix_20260809",
-    "tipo": "pmi_hebbiano",
-    "peso_motor": 0.56,
-    "fuerza": 0.025,
-    "decision": "no",
-    "se_queda_con_competencia_k10": false
-   },
-   {
-    "con": "biorag_garantia_minima_or_fallback",
-    "tipo": "sinonimo_explicito",
-    "peso_motor": 0.9,
-    "fuerza": 0.024,
-    "decision": "no",
-    "se_queda_con_competencia_k10": true
-   },
-   {
-    "con": "dashboard_fallida_umbral_dual_count_score",
-    "tipo": "sinonimo_explicito",
-    "peso_motor": 0.9,
-    "fuerza": 0.024,
-    "decision": "no",
-    "se_queda_con_competencia_k10": true
-   },
-   {
-    "con": "leccion_syn_obligatorio_aprender",
-    "tipo": "sinonimo_explicito",
-    "peso_motor": 0.9,
-    "fuerza": 0.024,
-    "decision": "no",
-    "se_queda_con_competencia_k10": false
-   },
-   {
-    "con": "vision_biorag_mas_alla_vectores_20260802",
-    "tipo": "sinonimo_explicito",
-    "peso_motor": 0.9,
-    "fuerza": 0.024,
-    "decision": "no",
-    "se_queda_con_competencia_k10": false
-   },
-   {
-    "con": "principio_catalogo_dimensiones_plano_techo_estructural",
-    "tipo": "sinonimo_explicito",
-    "peso_motor": 0.9,
-    "fuerza": 0.023,
-    "decision": "no",
-    "se_queda_con_competencia_k10": false
-   },
-   {
-    "con": "auditoria_tecnica_v14_0_readme",
-    "tipo": "sinonimo_explicito",
-    "peso_motor": 0.9,
-    "fuerza": 0.022,
-    "decision": "no",
-    "se_queda_con_competencia_k10": false
-   },
-   {
-    "con": "fase_c_commit_275fc88_activacion_gradual_monitoreo_sinonimo",
-    "tipo": "sinonimo_explicito",
-    "peso_motor": 0.9,
-    "fuerza": 0.022,
-    "decision": "no",
-    "se_queda_con_competencia_k10": false
-   },
-   {
-    "con": "fix_fecha_sin_query_recordar",
-    "tipo": "sinonimo_explicito",
-    "peso_motor": 0.9,
-    "fuerza": 0.022,
-    "decision": "no",
-    "se_queda_con_competencia_k10": false
-   },
-   {
-    "con": "regla_umbral_fallback_dimensional_biorag",
-    "tipo": "sinonimo_explicito",
-    "peso_motor": 0.9,
-    "fuerza": 0.021,
-    "decision": "no",
-    "se_queda_con_competencia_k10": true
-   },
-   {
-    "con": "biorag_v18_symbolic_ranking_optimization",
-    "tipo": "sinonimo_explicito",
-    "peso_motor": 0.9,
-    "fuerza": 0.02,
-    "decision": "no",
-    "se_queda_con_competencia_k10": true
-   },
-   {
-    "con": "dictamen_flag_jaccard_baseline_tejedora_941",
-    "tipo": "sinonimo_explicito",
-    "peso_motor": 0.9,
-    "fuerza": 0.02,
-    "decision": "no",
-    "se_queda_con_competencia_k10": false
-   },
-   {
-    "con": "raiz_false_positives_biorag_v10",
-    "tipo": "sinonimo_explicito",
-    "peso_motor": 0.9,
-    "fuerza": 0.019,
-    "decision": "no",
-    "se_queda_con_competencia_k10": true
-   },
-   {
-    "con": "experimento_reranking_jaccard_921_casos",
-    "tipo": "sinonimo_explicito",
-    "peso_motor": 0.9,
-    "fuerza": 0.018,
-    "decision": "no",
-    "se_queda_con_competencia_k10": false
-   },
-   {
-    "con": "protect_r0_config_ganadora_elimina_regresiones_r1",
-    "tipo": "sinonimo_explicito",
-    "peso_motor": 0.9,
-    "fuerza": 0.018,
-    "decision": "no",
-    "se_queda_con_competencia_k10": false
-   },
-   {
-    "con": "fallback_sdm_independiente_no_rescata_invisibles_fts5",
-    "tipo": "sinonimo_explicito",
-    "peso_motor": 0.9,
-    "fuerza": 0.017,
-    "decision": "no",
-    "se_queda_con_competencia_k10": false
-   },
-   {
-    "con": "leccion_control_flujo_codigo_preexistente",
-    "tipo": "pmi_hebbiano",
-    "peso_motor": 0.58,
-    "fuerza": 0.016,
-    "decision": "no",
-    "se_queda_con_competencia_k10": false
-   },
-   {
-    "con": "sdm_query_by_example_implementado",
-    "tipo": "sinonimo_explicito",
-    "peso_motor": 0.9,
-    "fuerza": 0.016,
-    "decision": "no",
-    "se_queda_con_competencia_k10": true
-   },
-   {
-    "con": "metodologia_evaluacion_por_tema_paso_a_paso",
-    "tipo": "sinonimo_explicito",
-    "peso_motor": 0.9,
-    "fuerza": 0.015,
-    "decision": "no",
-    "se_queda_con_competencia_k10": false
-   },
-   {
-    "con": "aciertos_word2vec_top5_coincidencia_lexica_no_semantica_20260808",
-    "tipo": "sinonimo_explicito",
-    "peso_motor": 0.9,
-    "fuerza": 0.013,
-    "decision": "no",
-    "se_queda_con_competencia_k10": false
-   },
-   {
-    "con": "arquitectura_falsos_positivos_biorag_capas",
-    "tipo": "sinonimo_explicito",
-    "peso_motor": 0.9,
-    "fuerza": 0.013,
-    "decision": "no",
-    "se_queda_con_competencia_k10": false
-   },
-   {
-    "con": "holdout_faseb_jaccard_se_sostiene_en_mitad_b",
-    "tipo": "sinonimo_explicito",
-    "peso_motor": 0.9,
-    "fuerza": 0.013,
-    "decision": "no",
-    "se_queda_con_competencia_k10": false
-   },
-   {
-    "con": "lesson_stemming_fts5_redundant",
-    "tipo": "sinonimo_explicito",
-    "peso_motor": 0.9,
-    "fuerza": 0.013,
-    "decision": "no",
-    "se_queda_con_competencia_k10": true
-   },
-   {
-    "con": "word2vec_puente_hdc_condicional_refutado_fase2",
-    "tipo": "sinonimo_explicito",
-    "peso_motor": 0.9,
-    "fuerza": 0.013,
-    "decision": "no",
-    "se_queda_con_competencia_k10": false
-   },
-   {
-    "con": "arquitectura_dimensiones_ortogonales",
-    "tipo": "sinonimo_explicito",
-    "peso_motor": 0.9,
-    "fuerza": 0.012,
-    "decision": "no",
-    "se_queda_con_competencia_k10": true
-   },
-   {
-    "con": "bayesian_bm25_calibracion_sigmoid_biorag",
-    "tipo": "sinonimo_explicito",
-    "peso_motor": 0.9,
-    "fuerza": 0.012,
-    "decision": "no",
-    "se_queda_con_competencia_k10": true
-   },
-   {
-    "con": "changelog_v10_recall_semantico_typo_tolerant",
-    "tipo": "sinonimo_explicito",
-    "peso_motor": 0.9,
-    "fuerza": 0.012,
-    "decision": "no",
-    "se_queda_con_competencia_k10": true
-   },
-   {
-    "con": "fts5_trigram_peligro_palabras_cortas",
-    "tipo": "sinonimo_explicito",
-    "peso_motor": 0.9,
-    "fuerza": 0.012,
-    "decision": "no",
-    "se_queda_con_competencia_k10": true
-   },
-   {
-    "con": "sin_vectores_sin_ml_sin_dependencias",
-    "tipo": "sinonimo_explicito",
-    "peso_motor": 0.9,
-    "fuerza": 0.012,
-    "decision": "no",
-    "se_queda_con_competencia_k10": false
-   },
-   {
-    "con": "verificacion_cierre_loop_v26_2_fix_coocurrencia_push",
-    "tipo": "sinonimo_explicito",
-    "peso_motor": 0.9,
-    "fuerza": 0.011,
-    "decision": "no",
-    "se_queda_con_competencia_k10": false
-   },
-   {
-    "con": "auditoria_codigo_biorag_v12_julio_2026",
-    "tipo": "sinonimo_explicito",
-    "peso_motor": 0.9,
-    "fuerza": 0.01,
-    "decision": "no",
-    "se_queda_con_competencia_k10": false
-   },
-   {
-    "con": "biorag_v18_qa_baseline_hardening_verification",
-    "tipo": "sinonimo_explicito",
-    "peso_motor": 0.9,
-    "fuerza": 0.01,
-    "decision": "no",
-    "se_queda_con_competencia_k10": true
-   },
-   {
-    "con": "causa_raiz_por_tema_pooling_plano_diluye_senal_word2vec",
-    "tipo": "sinonimo_explicito",
-    "peso_motor": 0.9,
-    "fuerza": 0.01,
-    "decision": "no",
-    "se_queda_con_competencia_k10": false
-   },
-   {
-    "con": "principio_multiples_vias_mismo_destino",
-    "tipo": "sinonimo_explicito",
-    "peso_motor": 0.9,
-    "fuerza": 0.01,
-    "decision": "no",
-    "se_queda_con_competencia_k10": true
-   },
-   {
-    "con": "v13_3_dimensiones_boost_aditivo",
-    "tipo": "sinonimo_explicito",
-    "peso_motor": 0.9,
-    "fuerza": 0.01,
-    "decision": "no",
-    "se_queda_con_competencia_k10": false
-   },
-   {
-    "con": "invariante_post_compactacion_consultar_memoria_antes_de_responder",
-    "tipo": "pmi_hebbiano",
-    "peso_motor": 0.55,
-    "fuerza": 0.009,
-    "decision": "no",
-    "se_queda_con_competencia_k10": false
-   },
-   {
-    "con": "punto_medio_dimensiones_parciales_mueven_ranking_sdm",
-    "tipo": "sinonimo_explicito",
-    "peso_motor": 0.9,
-    "fuerza": 0.009,
-    "decision": "no",
-    "se_queda_con_competencia_k10": false
-   },
-   {
-    "con": "backfill_predicados_restaura_parcial_no_84_62_y_canibaliza_con_jaccard",
-    "tipo": "sinonimo_explicito",
-    "peso_motor": 0.9,
-    "fuerza": 0.008,
-    "decision": "no",
-    "se_queda_con_competencia_k10": false
-   },
-   {
-    "con": "fix_wordnet_grupos_distinct_bridge_table",
-    "tipo": "sinonimo_explicito",
-    "peso_motor": 0.9,
-    "fuerza": 0.008,
-    "decision": "no",
-    "se_queda_con_competencia_k10": true
-   },
-   {
-    "con": "principio_umbral_dimensional",
-    "tipo": "sinonimo_explicito",
-    "peso_motor": 0.9,
-    "fuerza": 0.008,
-    "decision": "no",
-    "se_queda_con_competencia_k10": true
-   },
-   {
-    "con": "sdm_query_by_example_validado",
-    "tipo": "sinonimo_explicito",
-    "peso_motor": 0.9,
-    "fuerza": 0.008,
-    "decision": "no",
-    "se_queda_con_competencia_k10": false
-   },
-   {
-    "con": "sdm_query_by_example_validado_datos_reales",
-    "tipo": "sinonimo_explicito",
-    "peso_motor": 0.9,
-    "fuerza": 0.008,
-    "decision": "no",
-    "se_queda_con_competencia_k10": false
-   },
-   {
-    "con": "biorag_fts5_trigram_lesson",
-    "tipo": "sinonimo_explicito",
-    "peso_motor": 0.9,
-    "fuerza": 0.007,
-    "decision": "no",
-    "se_queda_con_competencia_k10": true
-   },
-   {
-    "con": "biorag_v18_2_categoria_dominante_fix",
-    "tipo": "sinonimo_explicito",
-    "peso_motor": 0.9,
-    "fuerza": 0.007,
-    "decision": "no",
-    "se_queda_con_competencia_k10": false
-   },
-   {
-    "con": "decision_fca_reticulo_galois_senal_por_tema",
-    "tipo": "sinonimo_explicito",
-    "peso_motor": 0.9,
-    "fuerza": 0.007,
-    "decision": "no",
-    "se_queda_con_competencia_k10": false
-   },
-   {
-    "con": "sdm_segmento_dimensiones_fix_revertido_por_regresion_recall_20260803",
-    "tipo": "sinonimo_explicito",
-    "peso_motor": 0.9,
-    "fuerza": 0.007,
-    "decision": "no",
-    "se_queda_con_competencia_k10": false
-   },
-   {
-    "con": "v13_4_dimensiones_en_resultados",
-    "tipo": "sinonimo_explicito",
-    "peso_motor": 0.9,
-    "fuerza": 0.007,
-    "decision": "no",
-    "se_queda_con_competencia_k10": false
-   },
-   {
-    "con": "biorag_v25_1_ppr_plan_maestro_pendiente",
-    "tipo": "sinonimo_explicito",
-    "peso_motor": 0.9,
-    "fuerza": 0.006,
-    "decision": "no",
-    "se_queda_con_competencia_k10": false
-   },
-   {
-    "con": "biorag_v8_palabra_completa_fix",
-    "tipo": "sinonimo_explicito",
-    "peso_motor": 0.9,
-    "fuerza": 0.006,
-    "decision": "no",
-    "se_queda_con_competencia_k10": false
-   },
-   {
-    "con": "fca_chequeo_sugeridor_dimensiones_refutado_frecuencia_no_semantica",
-    "tipo": "sinonimo_explicito",
-    "peso_motor": 0.9,
-    "fuerza": 0.006,
-    "decision": "no",
-    "se_queda_con_competencia_k10": false
-   },
-   {
-    "con": "leccion_scoring_peso_bm25_vs_concepto_ratio",
-    "tipo": "sinonimo_explicito",
-    "peso_motor": 0.9,
-    "fuerza": 0.006,
-    "decision": "no",
-    "se_queda_con_competencia_k10": false
-   },
-   {
-    "con": "masking_sdm_segmentos_no_discrimina_fallos_por_tema_sinonimo",
-    "tipo": "sinonimo_explicito",
-    "peso_motor": 0.9,
-    "fuerza": 0.006,
-    "decision": "no",
-    "se_queda_con_competencia_k10": false
-   },
-   {
-    "con": "por_tema_recall_weight",
-    "tipo": "sinonimo_explicito",
-    "peso_motor": 0.9,
-    "fuerza": 0.006,
-    "decision": "no",
-    "se_queda_con_competencia_k10": false
-   },
-   {
-    "con": "puente_sinonimos_mejoras",
-    "tipo": "pmi_hebbiano",
-    "peso_motor": 0.53,
-    "fuerza": 0.006,
-    "decision": "no",
-    "se_queda_con_competencia_k10": false
-   },
-   {
-    "con": "protocolo_verificacion_preaccion_dinamico",
-    "tipo": "sinonimo_explicito",
-    "peso_motor": 0.9,
-    "fuerza": 0.005,
-    "decision": "no",
-    "se_queda_con_competencia_k10": true
-   },
-   {
-    "con": "recall_global_boost",
-    "tipo": "sinonimo_explicito",
-    "peso_motor": 0.9,
-    "fuerza": 0.005,
-    "decision": "no",
-    "se_queda_con_competencia_k10": false
-   },
-   {
-    "con": "sesion_investigacion_hermes_plugin_biorag_20260622",
-    "tipo": "sinonimo_explicito",
-    "peso_motor": 0.9,
-    "fuerza": 0.005,
-    "decision": "no",
-    "se_queda_con_competencia_k10": false
-   },
-   {
-    "con": "biorag_v7_similitud_conceptual_latente",
-    "tipo": "sinonimo_explicito",
-    "peso_motor": 0.9,
-    "fuerza": 0.004,
-    "decision": "no",
-    "se_queda_con_competencia_k10": false
-   },
-   {
-    "con": "boost_dimensional_toco_techo_discriminacion_evidencia",
-    "tipo": "sinonimo_explicito",
-    "peso_motor": 0.9,
-    "fuerza": 0.004,
-    "decision": "no",
-    "se_queda_con_competencia_k10": false
-   },
-   {
-    "con": "colision_md5_512_queries_cortas_fallback_sdm",
-    "tipo": "sinonimo_explicito",
-    "peso_motor": 0.9,
-    "fuerza": 0.004,
-    "decision": "no",
-    "se_queda_con_competencia_k10": false
-   },
-   {
-    "con": "plugin-biorag-remember-v9.6-config",
-    "tipo": "sinonimo_explicito",
-    "peso_motor": 0.9,
-    "fuerza": 0.004,
-    "decision": "no",
-    "se_queda_con_competencia_k10": false
-   }
-  ]
  }
 }

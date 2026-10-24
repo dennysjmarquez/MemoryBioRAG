@@ -1,59 +1,495 @@
 {
- "A_piso_sin_mirar": {
-  "noticias": {
-   "auc_piso_sin_mirar": 0.841,
-   "pesos_elegidos": {
-    "mutuo": 3,
-    "parecido": 3,
-    "rareza_max": 2,
-    "semantica": 1,
-    "vecinos": 0
-   },
-   "auc_piso_del_archivo": 0.866
-  },
-  "diccionario": {
-   "auc_piso_sin_mirar": 0.867,
-   "pesos_elegidos": {
-    "mutuo": 2,
-    "parecido": 3,
-    "rareza_max": 1,
-    "semantica": 3,
-    "vecinos": 2
-   },
-   "auc_piso_del_archivo": 0.906
-  },
-  "relatos": {
-   "auc_piso_sin_mirar": 0.982,
-   "pesos_elegidos": {
-    "mutuo": 3,
-    "parecido": 3,
-    "rareza_max": 2,
-    "semantica": 3,
-    "vecinos": 2
-   },
-   "auc_piso_del_archivo": 0.981
-  }
+ "A_cada_memoria_sola": {
+  "noticias": 0.0194,
+  "diccionario": 0.019,
+  "relatos": 0.0014,
+  "codigo": 0.0049,
+  "charla": 0.0455,
+  "noticias_es": 0.0005,
+  "machado": 0.0139
  },
- "B_techo": {
-  "techo_3.0_l2_0.001": {
-   "noticias": 0.866,
-   "diccionario": 0.867,
-   "relatos": 0.975
+ "B_todas_juntas": [
+  {
+   "paso": 100,
+   "noticias": 0.0127,
+   "diccionario": -0.013,
+   "relatos": -0.0002,
+   "codigo": -0.0004,
+   "charla": -0.0193,
+   "noticias_es": -0.0013,
+   "machado": 0.0041,
+   "peor": -0.0193,
+   "promedio": -0.0025
   },
-  "techo_1.0_l2_0.001": {
-   "noticias": 0.878,
-   "diccionario": 0.903,
-   "relatos": 0.981
+  {
+   "paso": 200,
+   "noticias": 0.011,
+   "diccionario": -0.0087,
+   "relatos": 0.0004,
+   "codigo": 0.001,
+   "charla": -0.0123,
+   "noticias_es": -0.0004,
+   "machado": 0.0056,
+   "peor": -0.0123,
+   "promedio": -0.0005
   },
-  "techo_1.0_l2_0.01": {
-   "noticias": 0.866,
-   "diccionario": 0.905,
-   "relatos": 0.981
+  {
+   "paso": 300,
+   "noticias": 0.0112,
+   "diccionario": -0.0056,
+   "relatos": 0.0006,
+   "codigo": 0.001,
+   "charla": -0.0106,
+   "noticias_es": -0.0003,
+   "machado": 0.0062,
+   "peor": -0.0106,
+   "promedio": 0.0004
   },
-  "techo_0.5_l2_0.01": {
-   "noticias": 0.866,
-   "diccionario": 0.906,
-   "relatos": 0.981
+  {
+   "paso": 400,
+   "noticias": 0.0112,
+   "diccionario": -0.0061,
+   "relatos": 0.0006,
+   "codigo": 0.001,
+   "charla": -0.0085,
+   "noticias_es": -0.0003,
+   "machado": 0.0066,
+   "peor": -0.0085,
+   "promedio": 0.0006
+  },
+  {
+   "paso": 500,
+   "noticias": 0.011,
+   "diccionario": -0.0043,
+   "relatos": 0.0005,
+   "codigo": 0.0009,
+   "charla": -0.0086,
+   "noticias_es": -0.0002,
+   "machado": 0.007,
+   "peor": -0.0086,
+   "promedio": 0.0009
+  },
+  {
+   "paso": 600,
+   "noticias": 0.0108,
+   "diccionario": -0.0047,
+   "relatos": 0.0006,
+   "codigo": 0.0012,
+   "charla": -0.0084,
+   "noticias_es": -0.0002,
+   "machado": 0.0067,
+   "peor": -0.0084,
+   "promedio": 0.0009
+  },
+  {
+   "paso": 700,
+   "noticias": 0.011,
+   "diccionario": -0.0046,
+   "relatos": 0.0006,
+   "codigo": 0.0013,
+   "charla": -0.0081,
+   "noticias_es": -0.0002,
+   "machado": 0.0069,
+   "peor": -0.0081,
+   "promedio": 0.001
+  },
+  {
+   "paso": 800,
+   "noticias": 0.0104,
+   "diccionario": -0.0039,
+   "relatos": 0.0008,
+   "codigo": 0.0014,
+   "charla": -0.0079,
+   "noticias_es": -0.0001,
+   "machado": 0.0068,
+   "peor": -0.0079,
+   "promedio": 0.0011
+  },
+  {
+   "paso": 900,
+   "noticias": 0.0111,
+   "diccionario": -0.0045,
+   "relatos": 0.0007,
+   "codigo": 0.0009,
+   "charla": -0.0075,
+   "noticias_es": -0.0001,
+   "machado": 0.0069,
+   "peor": -0.0075,
+   "promedio": 0.0011
+  },
+  {
+   "paso": 1000,
+   "noticias": 0.0109,
+   "diccionario": -0.0041,
+   "relatos": 0.0005,
+   "codigo": 0.0012,
+   "charla": -0.0084,
+   "noticias_es": -0.0002,
+   "machado": 0.0069,
+   "peor": -0.0084,
+   "promedio": 0.001
+  },
+  {
+   "paso": 1100,
+   "noticias": 0.0115,
+   "diccionario": -0.0046,
+   "relatos": 0.0007,
+   "codigo": 0.0009,
+   "charla": -0.0076,
+   "noticias_es": -0.0001,
+   "machado": 0.007,
+   "peor": -0.0076,
+   "promedio": 0.0011
+  },
+  {
+   "paso": 1200,
+   "noticias": 0.0107,
+   "diccionario": -0.004,
+   "relatos": 0.0006,
+   "codigo": 0.0012,
+   "charla": -0.0078,
+   "noticias_es": -0.0001,
+   "machado": 0.0067,
+   "peor": -0.0078,
+   "promedio": 0.001
+  },
+  {
+   "paso": 1300,
+   "noticias": 0.0104,
+   "diccionario": -0.0042,
+   "relatos": 0.0006,
+   "codigo": 0.0015,
+   "charla": -0.008,
+   "noticias_es": -0.0002,
+   "machado": 0.0069,
+   "peor": -0.008,
+   "promedio": 0.001
+  },
+  {
+   "paso": 1400,
+   "noticias": 0.0114,
+   "diccionario": -0.004,
+   "relatos": 0.0007,
+   "codigo": 0.0008,
+   "charla": -0.0079,
+   "noticias_es": -0.0001,
+   "machado": 0.0071,
+   "peor": -0.0079,
+   "promedio": 0.0011
+  },
+  {
+   "paso": 1500,
+   "noticias": 0.0111,
+   "diccionario": -0.004,
+   "relatos": 0.0007,
+   "codigo": 0.0011,
+   "charla": -0.008,
+   "noticias_es": -0.0001,
+   "machado": 0.007,
+   "peor": -0.008,
+   "promedio": 0.0011
+  },
+  {
+   "paso": 1600,
+   "noticias": 0.0113,
+   "diccionario": -0.0049,
+   "relatos": 0.0007,
+   "codigo": 0.0009,
+   "charla": -0.008,
+   "noticias_es": -0.0001,
+   "machado": 0.0068,
+   "peor": -0.008,
+   "promedio": 0.001
+  },
+  {
+   "paso": 1700,
+   "noticias": 0.0112,
+   "diccionario": -0.0041,
+   "relatos": 0.0006,
+   "codigo": 0.0013,
+   "charla": -0.0085,
+   "noticias_es": -0.0001,
+   "machado": 0.0067,
+   "peor": -0.0085,
+   "promedio": 0.001
+  },
+  {
+   "paso": 1800,
+   "noticias": 0.0105,
+   "diccionario": -0.0047,
+   "relatos": 0.0007,
+   "codigo": 0.0012,
+   "charla": -0.0081,
+   "noticias_es": -0.0001,
+   "machado": 0.0069,
+   "peor": -0.0081,
+   "promedio": 0.0009
+  },
+  {
+   "paso": 1900,
+   "noticias": 0.0112,
+   "diccionario": -0.005,
+   "relatos": 0.0006,
+   "codigo": 0.0011,
+   "charla": -0.0083,
+   "noticias_es": -0.0001,
+   "machado": 0.0066,
+   "peor": -0.0083,
+   "promedio": 0.0009
+  },
+  {
+   "paso": 2000,
+   "noticias": 0.0116,
+   "diccionario": -0.0043,
+   "relatos": 0.0008,
+   "codigo": 0.0006,
+   "charla": -0.0073,
+   "noticias_es": -0.0001,
+   "machado": 0.0066,
+   "peor": -0.0073,
+   "promedio": 0.0011
   }
- }
+ ],
+ "C_todas_juntas_cuidando": [
+  {
+   "paso": 100,
+   "noticias": 0.0127,
+   "diccionario": -0.013,
+   "relatos": -0.0002,
+   "codigo": -0.0004,
+   "charla": -0.0193,
+   "noticias_es": -0.0013,
+   "machado": 0.0041,
+   "peor": -0.0193,
+   "promedio": -0.0025
+  },
+  {
+   "paso": 200,
+   "noticias": 0.0096,
+   "diccionario": -0.0084,
+   "relatos": 0.0008,
+   "codigo": 0.0001,
+   "charla": 0.002,
+   "noticias_es": 0.0002,
+   "machado": 0.0067,
+   "peor": -0.0084,
+   "promedio": 0.0016
+  },
+  {
+   "paso": 300,
+   "noticias": -0.0028,
+   "diccionario": 0.0117,
+   "relatos": -0.001,
+   "codigo": -0.0059,
+   "charla": -0.014,
+   "noticias_es": -0.0011,
+   "machado": -0.0027,
+   "peor": -0.014,
+   "promedio": -0.0023
+  },
+  {
+   "paso": 400,
+   "noticias": 0.0102,
+   "diccionario": -0.0146,
+   "relatos": 0.0007,
+   "codigo": -0.001,
+   "charla": 0.0082,
+   "noticias_es": 0.0003,
+   "machado": 0.007,
+   "peor": -0.0146,
+   "promedio": 0.0015
+  },
+  {
+   "paso": 500,
+   "noticias": -0.0048,
+   "diccionario": 0.0138,
+   "relatos": -0.0013,
+   "codigo": -0.0095,
+   "charla": -0.014,
+   "noticias_es": -0.0012,
+   "machado": -0.0039,
+   "peor": -0.014,
+   "promedio": -0.003
+  },
+  {
+   "paso": 600,
+   "noticias": 0.0093,
+   "diccionario": -0.0108,
+   "relatos": 0.0007,
+   "codigo": 0.0006,
+   "charla": 0.007,
+   "noticias_es": 0.0003,
+   "machado": 0.0079,
+   "peor": -0.0108,
+   "promedio": 0.0021
+  },
+  {
+   "paso": 700,
+   "noticias": -0.0048,
+   "diccionario": 0.0135,
+   "relatos": -0.0012,
+   "codigo": -0.009,
+   "charla": -0.0142,
+   "noticias_es": -0.001,
+   "machado": -0.0037,
+   "peor": -0.0142,
+   "promedio": -0.0029
+  },
+  {
+   "paso": 800,
+   "noticias": 0.0092,
+   "diccionario": -0.0106,
+   "relatos": 0.0007,
+   "codigo": 0.0009,
+   "charla": 0.0077,
+   "noticias_es": 0.0003,
+   "machado": 0.0072,
+   "peor": -0.0106,
+   "promedio": 0.0022
+  },
+  {
+   "paso": 900,
+   "noticias": -0.0031,
+   "diccionario": 0.0133,
+   "relatos": -0.001,
+   "codigo": -0.0091,
+   "charla": -0.0125,
+   "noticias_es": -0.0008,
+   "machado": -0.002,
+   "peor": -0.0125,
+   "promedio": -0.0022
+  },
+  {
+   "paso": 1000,
+   "noticias": 0.0088,
+   "diccionario": -0.0097,
+   "relatos": 0.0006,
+   "codigo": 0.0012,
+   "charla": 0.0054,
+   "noticias_es": 0.0003,
+   "machado": 0.0074,
+   "peor": -0.0097,
+   "promedio": 0.002
+  },
+  {
+   "paso": 1100,
+   "noticias": -0.0031,
+   "diccionario": 0.013,
+   "relatos": -0.0011,
+   "codigo": -0.0083,
+   "charla": -0.0126,
+   "noticias_es": -0.0007,
+   "machado": -0.0024,
+   "peor": -0.0126,
+   "promedio": -0.0022
+  },
+  {
+   "paso": 1200,
+   "noticias": 0.0092,
+   "diccionario": -0.0108,
+   "relatos": 0.0008,
+   "codigo": 0.0007,
+   "charla": 0.0076,
+   "noticias_es": 0.0003,
+   "machado": 0.0074,
+   "peor": -0.0108,
+   "promedio": 0.0022
+  },
+  {
+   "paso": 1300,
+   "noticias": -0.0042,
+   "diccionario": 0.0138,
+   "relatos": -0.0013,
+   "codigo": -0.0093,
+   "charla": -0.013,
+   "noticias_es": -0.0008,
+   "machado": -0.0033,
+   "peor": -0.013,
+   "promedio": -0.0026
+  },
+  {
+   "paso": 1400,
+   "noticias": 0.0097,
+   "diccionario": -0.0098,
+   "relatos": 0.0007,
+   "codigo": 0.0009,
+   "charla": 0.0055,
+   "noticias_es": 0.0003,
+   "machado": 0.0073,
+   "peor": -0.0098,
+   "promedio": 0.0021
+  },
+  {
+   "paso": 1500,
+   "noticias": -0.0027,
+   "diccionario": 0.0126,
+   "relatos": -0.0011,
+   "codigo": -0.0081,
+   "charla": -0.0125,
+   "noticias_es": -0.0007,
+   "machado": -0.0016,
+   "peor": -0.0125,
+   "promedio": -0.002
+  },
+  {
+   "paso": 1600,
+   "noticias": 0.0096,
+   "diccionario": -0.0112,
+   "relatos": 0.0008,
+   "codigo": 0.0008,
+   "charla": 0.0079,
+   "noticias_es": 0.0003,
+   "machado": 0.0075,
+   "peor": -0.0112,
+   "promedio": 0.0022
+  },
+  {
+   "paso": 1700,
+   "noticias": -0.004,
+   "diccionario": 0.014,
+   "relatos": -0.0012,
+   "codigo": -0.0095,
+   "charla": -0.012,
+   "noticias_es": -0.0008,
+   "machado": -0.0031,
+   "peor": -0.012,
+   "promedio": -0.0024
+  },
+  {
+   "paso": 1800,
+   "noticias": 0.0081,
+   "diccionario": -0.009,
+   "relatos": 0.0005,
+   "codigo": 0.0021,
+   "charla": 0.0032,
+   "noticias_es": 0.0002,
+   "machado": 0.0071,
+   "peor": -0.009,
+   "promedio": 0.0017
+  },
+  {
+   "paso": 1900,
+   "noticias": -0.0022,
+   "diccionario": 0.0119,
+   "relatos": -0.0011,
+   "codigo": -0.007,
+   "charla": -0.0118,
+   "noticias_es": -0.0008,
+   "machado": -0.0019,
+   "peor": -0.0118,
+   "promedio": -0.0018
+  },
+  {
+   "paso": 2000,
+   "noticias": 0.0098,
+   "diccionario": -0.0106,
+   "relatos": 0.0008,
+   "codigo": 0.0005,
+   "charla": 0.0071,
+   "noticias_es": 0.0003,
+   "machado": 0.0075,
+   "peor": -0.0106,
+   "promedio": 0.0022
+  }
+ ]
 }
