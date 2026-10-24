@@ -1,0 +1,16 @@
+Verificación: ¿v34.1 cambió cómo la neurona ordena las búsquedas? (2026-10-24)
+
+1. Neurona entrenada con despertar_neurona.sh --ciclos 140 sobre una copia del snapshot:
+   campeona activa (margen 1.0), control 76.2 % -> 87.5 %.
+2. Tres copias idénticas de esa DB. 600 búsquedas de casos_qa_baseline_v1.jsonl
+   (300 al azar, semilla 7; cada una por el camino crudo y por el del agente).
+
+   v34.0 (df9c829), neurona encendida : campeon True margen 1.0 busquedas 600
+   v34.1 (9af28c2), neurona encendida : campeon True margen 1.0 busquedas 600
+   v34.1, neurona APAGADA (BIORAG_NEURONA=0) como control
+
+Resultado:
+   v34.0 vs v34.1      : 7116 resultados comparados (todos los campos, números a 6 decimales) -> 0 diferencias
+   neurona sí vs no    : la neurona cambia el orden en 328 de 600 búsquedas (1er lugar en 20)
+
+Conclusión: la campeona trabaja, y con los mismos pesos v34.0 y v34.1 sirven exactamente lo mismo.

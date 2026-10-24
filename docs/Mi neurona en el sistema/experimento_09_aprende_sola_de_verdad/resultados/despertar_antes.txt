@@ -1,0 +1,98 @@
+================================================================================
+BioRAG — Despertar la neurona
+================================================================================
+DB: /tmp/q/e09/antes.db
+
+  ANTES
+  ────────────────────────────────────────────────────────────────────────────
+  ¿Está encendida?              ✅ sí
+  ¿Ya mejora tus búsquedas?     ⏳ todavía no: se usa la fórmula de siempre (fórmula a mano)
+  Etapa                         1 de 3 · Juntando preguntas
+                                todavía no tiene suficientes preguntas para presentar su examen.
+
+  SU EXAMEN (preguntas que ella misma se hace con tus recuerdos)
+    Para estudiar               [░░░░░░░░░░░░░░░░░░░░]    0 de 150
+    De control (nunca estudia)  [░░░░░░░░░░░░░░░░░░░░]    0 de 40
+
+  SU HISTORIAL
+    Veces que practicó          0     (1 vez por cada consolidación de la memoria)
+    Última práctica             — (todavía nunca)
+    Veces que aprobó            0
+    Veces que la quitaron       0     ✅ bien
+
+  👉 En resumen: todavía no ha practicado. Le faltan 150 para estudiar y 40 de control.
+     Practica unos segundos cada vez que se consolida la memoria (consolidar,
+     dormir o cerrar sesión; guardar solo no basta). Para acelerar:
+     ./scripts/despertar_neurona.sh --minutos 20
+  ────────────────────────────────────────────────────────────────────────────
+
+Practicando hasta 100000 veces seguidas (cada una = lo que hace sola tras una consolidación)...
+  práctica   25  juntando preguntas para estudiar   46  de control  13      55 s
+  práctica   50  juntando preguntas para estudiar   98  de control  25     118 s
+  práctica   75  juntando preguntas para estudiar  142  de control  33     180 s
+  práctica   86  🏆 APROBÓ: aciertos en 1er lugar (control) 77.5 % → 77.5 %
+  práctica   87  🏆 APROBÓ: aciertos en 1er lugar (control) 77.5 % → 87.5 %
+  práctica   92  🏆 APROBÓ: aciertos en 1er lugar (control) 76.7 % → 83.7 %
+  práctica   94  🏆 APROBÓ: aciertos en 1er lugar (control) 78.7 % → 87.2 %
+  práctica   95  🏆 APROBÓ: aciertos en 1er lugar (control) 78.7 % → 87.2 %
+  práctica  100  presentando examen para estudiar  181  de control  51     235 s
+  práctica  125  en su mejor nivel  para estudiar  209  de control  60     287 s
+  práctica  150  en su mejor nivel  para estudiar  233  de control  64     318 s
+  práctica  175  en su mejor nivel  para estudiar  258  de control  68     355 s
+  práctica  200  en su mejor nivel  para estudiar  273  de control  74     402 s
+  práctica  225  en su mejor nivel  para estudiar  298  de control  85     442 s
+  práctica  250  en su mejor nivel  para estudiar  322  de control  93     478 s
+  práctica  275  en su mejor nivel  para estudiar  345  de control  98     517 s
+  práctica  300  en su mejor nivel  para estudiar  372  de control 106     563 s
+  práctica  311  🏆 APROBÓ: aciertos en 1er lugar (control) 78.9 % → 89.9 %
+  práctica  312  🏆 APROBÓ: aciertos en 1er lugar (control) 78.4 % → 90.1 %
+  práctica  325  en su mejor nivel  para estudiar  403  de control 114     611 s
+  práctica  350  en su mejor nivel  para estudiar  430  de control 115     653 s
+  práctica  375  en su mejor nivel  para estudiar  455  de control 122     689 s
+  práctica  400  en su mejor nivel  para estudiar  476  de control 128     724 s
+  práctica  421  🏆 APROBÓ: aciertos en 1er lugar (control) 77.6 % → 93.3 %
+  práctica  424  🏆 APROBÓ: aciertos en 1er lugar (control) 78.1 % → 93.4 %
+  práctica  425  presentando examen para estudiar  496  de control 137     771 s
+  práctica  429  🏆 APROBÓ: aciertos en 1er lugar (control) 76.4 % → 91.4 %
+  práctica  430  🏆 APROBÓ: aciertos en 1er lugar (control) 76.4 % → 92.1 %
+  práctica  438  🏆 APROBÓ: aciertos en 1er lugar (control) 75.4 % → 91.5 %
+  práctica  439  🏆 APROBÓ: aciertos en 1er lugar (control) 75.4 % → 92.3 %
+  práctica  449  🏆 APROBÓ: aciertos en 1er lugar (control) 75.7 % → 85.4 %
+  práctica  450  presentando examen para estudiar  535  de control 144     829 s
+  práctica  454  🏆 APROBÓ: aciertos en 1er lugar (control) 75.7 % → 85.4 %
+  práctica  460  🏆 APROBÓ: aciertos en 1er lugar (control) 75.8 % → 85.9 %
+  práctica  461  🏆 APROBÓ: aciertos en 1er lugar (control) 75.5 % → 86.1 %
+  práctica  469  🏆 APROBÓ: aciertos en 1er lugar (control) 75.5 % → 91.4 %
+  práctica  471  🏆 APROBÓ: aciertos en 1er lugar (control) 75.5 % → 91.4 %
+  práctica  475  presentando examen para estudiar  574  de control 153     886 s
+  práctica  500  en su mejor nivel  para estudiar  603  de control 157     923 s
+  práctica  525  en su mejor nivel  para estudiar  626  de control 167     958 s
+  práctica  550  en su mejor nivel  para estudiar  641  de control 178    1004 s
+  práctica  561  se cumplieron los 17.0 min
+
+  DESPUÉS
+  ────────────────────────────────────────────────────────────────────────────
+  ¿Está encendida?              ✅ sí
+  ¿Ya mejora tus búsquedas?     🏆 sí, la neurona ordena tus resultados
+  Etapa                         3 de 3 · Trabajando (en su mejor nivel)
+                                ya mejora tus búsquedas y llegó a su techo: ahora solo vigila.
+
+  SU EXAMEN (preguntas que ella misma se hace con tus recuerdos)
+    Para estudiar               [████████████████████]  645  ✅ suficientes (necesitaba 150)
+    De control (nunca estudia)  [████████████████████]  179  ✅ suficientes (necesitaba 40)
+
+  SU HISTORIAL
+    Veces que practicó          561   (1 vez por cada consolidación de la memoria)
+    Última práctica             hace un momento
+    Veces que aprobó            19
+    Veces que la quitaron       0     ✅ bien
+    Aciertos en 1er lugar       fórmula 74.3 %  →  neurona 89.9 %   (en sus preguntas de control)
+    Prudencia                   solo cambia el orden si está segura (margen 2.0)
+
+  👉 En resumen: la neurona está activa y mejorando tus búsquedas.
+  ────────────────────────────────────────────────────────────────────────────
+
+561 ciclos de práctica en 1020 s.
+Las preguntas 'de control' son el examen propio de la neurona (20 % de recuerdos que nunca
+estudia), no la QA. Para medir con tu QA, corré esto sobre una copia y luego la suite sobre esa copia.
+================================================================================

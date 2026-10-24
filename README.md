@@ -1,6 +1,6 @@
 # BioRAG — Memoria Cognitiva Biomimética y Simbólica para Agentes de IA
 
-> **Versión Oficial:** v34.0
+> **Versión Oficial:** v34.1
 > **Paradigma:** Motor Python + SQLite FTS5. **Sin embeddings densos, GPU ni llamadas a APIs externas** en el path de búsqueda.
 > **Motor:** Arquitectura modularizada (18 submódulos `core/memory/` + 15 submódulos `core/mcp_server/` + fachada delgada) + SQLite FTS5 WAL + PPMI-SVD (100 dimensiones) + espacio semántico de 13 ejes + grafo sináptico Hebbiano + SDM (2048 bits) + calibración conforme + activación ACT-R + Concept Hubs + validación simétrica fail-fast de sustantivos clave + **neurona de reordenamiento que aprende sola** (29 señales → 6 ocultas → 1 corrección, con piso en la fórmula a mano).
 > **Idiomas:** Español e inglés (stemming bilingüe, expansión simbólica con WordNet, Concept Hubs de 5 ángulos y Domain Dict).
@@ -25,7 +25,7 @@ Evaluación sobre el snapshot congelado oficial canónico (**921 casos totales e
 | **MRR (Mean Reciprocal Rank)** | **0.950** | Posición recíproca promedio ponderada (0.9497 sin redondear; métrica complementaria observada). |
 | **Falsos positivos** | **0/40 (0.00%)** | Calibración conforme efectiva en los 40 controles negativos del benchmark (FP rate observada 0.00%). |
 | **Casos ambiguos (contradictorios)** | **6 casos (2 con cobertura parcial)** | Evaluados por separado del Recall global; 2 casos no cubren al menos una de las etiquetas contradictorias. |
-| **Tests unitarios** | **402/402 aprobados** (v34.0) | Cobertura completa de invariantes, validación pre-DB fail-fast, contratos MCP, normalización, catálogo, las 18 capas de protección de la neurona y el script de despertar. |
+| **Tests unitarios** | **407/407 aprobados** (v34.1) | Cobertura completa de invariantes, validación pre-DB fail-fast, contratos MCP, normalización, catálogo, las 18 capas de protección de la neurona y el script de despertar. |
 | **Suite Concept Hub** | **5/5 TOP-1 (100.00%)** | Precisión perfecta en los 5 casos de prueba de puentes asociativos registrados. |
 | **Abismo léxico (EXP-Q)** | **3/3 Pool · 2/3 Top-5 · 1/3 Top-1** | 3/3 descubiertos en pool de grafo; 2/3 en Top-5 (pos #1 y #4) y 1/3 en Top-1 (pos #1). |
 | **Sinónimos · Recall@5 / Recall@1** | **100% (55/55) / 56.36%** | Cobertura total en Top-5; el 43.64% restante queda entre Top-2 y Top-5. |
@@ -40,6 +40,48 @@ Evaluación sobre el snapshot congelado oficial canónico (**921 casos totales e
 > - **Recall@1 (91.77%)** y **MRR (0.9497)** son métricas complementarias observadas en el benchmark sobre este corpus congelado, no umbrales que el gate imponga ni garantías universales para cualquier consulta arbitraria.
 > - **R@5 = 100.00% (875/875):** Demuestra empíricamente que el conjunto híbrido (FTS5 BM25 + Sustantivos Clave + Grafo Sináptico Hebbiano + PPMI-SVD + Concept Hubs + Reranker Multicampo) logra **cobertura completa (875/875) dentro de la ventana Top-5 de trabajo del agente en este corpus evaluado**.
 > - **R@1 = 91.77% (803/875):** Refleja la precisión exacta del primer candidato. En tareas con solapamiento léxico directo (`literal`, `pregunta_natural`), R@1 supera el 95%–99%. En tareas donde el vocabulario difiere radicalmente (`sinonimo` 56.36%, `por_tema` 63.08%), el sistema ubica el recuerdo dentro del Top-5 pero no siempre en Top-1. R@1 representa el área de optimización continua para el desempate fino sin embeddings densos.
+
+---
+
+## 🌱 Novedades de la Versión v34.1 — La neurona aprende sola de verdad
+
+> **En una frase:** con v34.0, una memoria **nueva** casi nunca llegaba a encender la neurona. Con v34.1 lo logra en unas **20 consolidaciones**, sin perder nada en la QA oficial.
+
+### Cuánto tarda en aprender sola (v34.1)
+
+La neurona practica **1 vez por cada consolidación** de la memoria (`consolidar`, `sueno` o cerrar sesión con `contexto_fin`). `aprender` deja el recuerdo en corto plazo y todavía no cuenta: 10 `aprender` + 1 `consolidar` = 1 práctica.
+
+En v34.0 cada práctica hacía **2 preguntas a 2 recuerdos**: usaba 0.4 s de los 3 s que tiene permitidos. Medido con una memoria nueva que crece (5 recuerdos y 1 consolidación por sesión), en 80 sesiones juntó 20 preguntas de estudio y 7 de control. Necesita 150 y 40, así que **nunca** se encendía.
+
+v34.1 cambia solo **qué practica en cada consolidación**:
+
+1. **Usa el tiempo que ya tenía:** hasta **8 recuerdos × 7 preguntas**, siempre dentro de los mismos **3 s**. El costo sigue fijo: no crece con el tamaño de la memoria.
+2. **Pregunta a lo ancho:** primero la 1.ª pregunta de los 8 recuerdos, luego la 2.ª de los 8... Si los 3 s se acaban (memoria grande, búsquedas más lentas), las preguntas quedan repartidas entre muchos recuerdos distintos y no amontonadas en dos. Así conoce más recuerdos y no se acostumbra a pocos.
+3. **Repasa primero lo que le falta:** al elegir recuerdos al azar, empieza por el grupo del examen (estudio o control) al que más le faltan preguntas.
+
+| Memoria nueva, 5 recuerdos por sesión | v34.0 | **v34.1** |
+|---|---|---|
+| Examen listo (150 estudio + 40 control) | nunca | **sesión 16** |
+| La neurona empieza a trabajar | nunca | **sesión 21** |
+| Sesiones trabajando (de 80) | 0 | **60** (0 retiros) |
+| Tiempo por consolidación | 0.65 s | 2.15 s (tope 3 s) |
+
+**¿Se pierde algo? No.** QA oficial sobre una copia del snapshot, con el mismo número de prácticas (561):
+
+| | R@5 | R@1 | MRR | FP | Agente (MCP) R@1 / R@5 |
+|---|---|---|---|---|---|
+| Fórmula a mano (piso) | 99.89 | 91.66 | .949 | 0/40 | 92.34 / 99.09 |
+| v34.0 | 100 | 94.86 | .969 | 0/40 | 94.97 / 99.54 |
+| **v34.1** | **100** | **94.74** | **.968** | **0/40** | **94.74 / 99.54** |
+
+La diferencia es 1 caso de 875, el ruido normal entre dos entrenamientos. Ninguna categoría queda por debajo de la fórmula y el GATE da OK.
+
+**Lo honesto:**
+- **Primer intento descartado:** el primer diseño (8 × 7 preguntando recuerdo por recuerdo) bajó la QA a R@1 93.26: conocía un tercio menos de recuerdos. De ahí sale "a lo ancho".
+- **Memoria muy chica:** con solo 2 recuerdos por sesión, el motor duerme los que no se usan y quedan ~25 despiertos. Con tan pocos la fórmula alcanza y la neurona no se enciende, que es lo correcto.
+- **Despertar:** a igual tiempo hace menos prácticas (cada una usa sus 3 s). `despertar_neurona.sh` mantiene su default de 500 prácticas (ahora ~22 min con ~900 recuerdos).
+
+Todo el detalle, con las salidas textuales: [Experimento 09 — Que aprenda sola de verdad](docs/Mi%20neurona%20en%20el%20sistema/experimento_09_aprende_sola_de_verdad/). Pruebas nuevas en `tests/test_neurona.py`: preferencia por el grupo que falta, recién consolidados primero y nunca dormidos, costo fijo al elegir (DB de 50 o 50 000 recuerdos) y preguntas a lo ancho.
 
 ---
 
@@ -73,9 +115,9 @@ La neurona aprende **cuánto vale cada aguja según el contexto** y corrige el o
 | **Qué produce** | Una **corrección residual** c(x) que se **suma** al score de la fórmula. Con c(x) = 0 el motor es idéntico al de siempre: los pesos a mano son el **ancla** y el **piso**. |
 | **Qué aprende** | *Learning to rank* por lista: entropía cruzada sobre el softmax del top-k, es decir, "que la respuesta correcta quede primera". |
 | **De dónde saca las respuestas correctas** | **Autosupervisión**. Cuando un recuerdo se consolida, la respuesta correcta se conoce: es ese recuerdo. El recuerdo se hace sus propias preguntas y el motor las responde en silencio. |
-| **Cuándo aprende** | **Al guardar** (consolidar o dormir), nunca al buscar. Así la búsqueda no paga el entrenamiento. |
+| **Cuándo aprende** | **Al consolidar** (cuando un recuerdo pasa de corto a largo plazo: `consolidar`, `sueno` o `contexto_fin`), nunca al buscar. Así la búsqueda no paga el entrenamiento. Una práctica por consolidación, sin importar cuántos `aprender` hubo antes. |
 | **Cómo decide si lo aprendido sirve** | **Campeón y retador**: el retador estudia; solo reemplaza al campeón si gana en un examen que **nunca estudió** (la guardia) y no daña ninguna categoría. |
-| **Cuánto cuesta** | **Fijo por operación**: 2 recuerdos × 2 preguntas por ciclo, tope de 3 s y memoria de examen de tamaño fijo. El costo no crece con el tamaño de la memoria. |
+| **Cuánto cuesta** | **Fijo por operación**: hasta 8 recuerdos × 7 preguntas por ciclo, siempre dentro de un tope de 3 s, y memoria de examen de tamaño fijo. El costo no crece con el tamaño de la memoria. |
 | **Dónde vive** | `core/memory/neurona.py` (la neurona) y `core/memory/neurona_examen.py` (el autoexamen). Su estado se guarda en la tabla `neurona_estado` de la misma DB. |
 
 **La inspiración biológica (es inspiración, no simulación):**
@@ -290,7 +332,7 @@ Todo se midió sobre **copias** del snapshot canónico (nunca sobre el original 
 | **Desfase** (lo que estudia frente a lo que sirve) | **0 de 289** (la v4 tenía 46.7 %) |
 | **Invariantes** (120 búsquedas MCP con y sin neurona) | **0 violaciones**: mismos nodos, mismos números, mismos umbrales |
 | **Costo por ciclo** | p50 1.6 s, p95 3.5 s, sin importar el tamaño de la memoria |
-| **Pruebas** | 402 pruebas unitarias aprobadas (45 de la neurona + 6 del despertar) |
+| **Pruebas** | 407 pruebas unitarias aprobadas (50 de la neurona + 6 del despertar; v34.0: 402) |
 
 **Lo que NO logra (dicho claro):**
 - **No es "cero pérdidas" en consultas nunca vistas.** Por el camino del agente, 1 caso baja del primer lugar y 1 sale del Top-5 (del 3 al 6), frente a 24 que suben. En python-docs-es pierde 1 caso.
@@ -299,7 +341,7 @@ Todo se midió sobre **copias** del snapshot canónico (nunca sobre el original 
 
 ### 8. Cómo se usa
 
-- **Viene encendida** y no requiere nada: aprende sola al guardar y al dormir.
+- **Viene encendida** y no requiere nada: aprende sola cada vez que se consolida la memoria (consolidar, dormir o cerrar sesión). Guardar con `aprender` deja el recuerdo en corto plazo; la práctica llega al consolidar.
 - **Apagarla del todo:** `BIORAG_NEURONA=0` (el motor vuelve a ser exactamente la fórmula a mano).
 - **Memorias que ya tienen muchos recuerdos:** ver [Despertar la neurona](#despertar-la-neurona-práctica-acelerada).
 - **Ver su estado:** `./scripts/despertar_neurona.sh --estado`.
@@ -308,7 +350,7 @@ Todo se midió sobre **copias** del snapshot canónico (nunca sobre el original 
 | Variable | Default | Qué controla |
 |---|---|---|
 | `BIORAG_NEURONA` | `1` | `0` = apagada del todo |
-| `BIORAG_NEURONA_NODOS` / `_PREGUNTAS` | `2` / `2` | Recuerdos y preguntas por ciclo |
+| `BIORAG_NEURONA_NODOS` / `_PREGUNTAS` | `8` / `7` | Recuerdos y preguntas por ciclo (topes; el presupuesto de 3 s corta antes si las búsquedas son lentas). Hasta v34.0 eran `2` / `2` |
 | `BIORAG_NEURONA_PRESUPUESTO_S` | `3.0` | Tope de tiempo por ciclo (no empieza preguntas que no caben) |
 | `BIORAG_NEURONA_TOPK` / `_TOPK_MAX` | `5` / `10` | Vista por defecto y tope de la vista |
 | `BIORAG_NEURONA_LIMITE_AGENTE` | `10` | Cuántos ve el agente por el MCP (camino "agente") |
@@ -328,7 +370,7 @@ Todo se midió sobre **copias** del snapshot canónico (nunca sobre el original 
 - 🟢 **verde**: la corrección, el ascenso y el campeón en servicio;
 - 🔴 **rojo**: lo que estaba mal antes (MCP con auto-paráfrasis, desfase de la v4) o un límite (presupuesto de tiempo).
 
-### 9. La historia: ocho experimentos
+### 9. La historia: nueve experimentos
 
 | # | Experimento | Qué se aprendió |
 |---|---|---|
@@ -340,6 +382,7 @@ Todo se midió sobre **copias** del snapshot canónico (nunca sobre el original 
 | 06 | [Capas de protección](docs/Mi%20neurona%20en%20el%20sistema/experimento_06_capas_de_proteccion/) | 21 modos de falla cubiertos; margen "primero no dañar" |
 | 07 | [La neurona escucha](docs/Mi%20neurona%20en%20el%20sistema/experimento_07_la_neurona_escucha/) | Desfase 0, los dos caminos, vista de 10, piso de R@5; y el camino MCP arreglado |
 | 08 | [Piso contra el campeón](docs/Mi%20neurona%20en%20el%20sistema/experimento_08_piso_contra_el_campeon/) | Un retador ya no puede ganar cediendo una categoría; A/B determinista: en datos reales la regla nunca tuvo que actuar |
+| 09 | [Que aprenda sola de verdad](docs/Mi%20neurona%20en%20el%20sistema/experimento_09_aprende_sola_de_verdad/) | v34.1: 1 práctica por consolidación; preguntar a lo ancho dentro de los 3 s. Una DB nueva enciende la neurona en ~20 consolidaciones; la QA queda igual |
 
 Las figuras se regeneran con `python "docs/Mi neurona en el sistema/imagenes/generar_figuras.py"`: los nombres de las señales salen del código y las curvas de los resultados versionados.
 
@@ -1175,7 +1218,7 @@ El script muestra el estado ANTES/DESPUES (tokens, nodos, con_vector, última re
 
 #### Despertar la neurona (práctica acelerada)
 
-La neurona de BioRAG (ver [La Neurona de BioRAG](#-novedades-de-la-versión-v340--la-neurona-de-biorag)) aprende sola cada vez que se consolida un recuerdo: 2 recuerdos × 2 preguntas por consolidación, con costo fijo. En una memoria nueva eso alcanza. En una memoria que **ya tiene cientos de recuerdos** y recibe pocos nuevos, juntar el examen y ascender el primer campeón puede tardar semanas.
+La neurona de BioRAG (ver [La Neurona de BioRAG](#-novedades-de-la-versión-v340--la-neurona-de-biorag)) aprende sola cada vez que se consolida la memoria: hasta 8 recuerdos × 7 preguntas por consolidación, dentro de 3 s, con costo fijo. En una memoria nueva con uso normal eso alcanza (examen listo en ~15 consolidaciones, ver [Cuánto tarda en aprender sola](#cuánto-tarda-en-aprender-sola-v341)). En una memoria que **ya tiene cientos de recuerdos** y recibe pocos nuevos, juntar el examen y ascender el primer campeón puede tardar semanas.
 
 Este script hace **en minutos lo mismo que haría el uso**: repite N veces `neurona.practicar(db, [])`, exactamente lo que corre tras cada consolidación, con las mismas protecciones (guardia, piso por categoría, margen "primero no dañar" y retiro si daña algo). No es otro entrenamiento.
 
@@ -1185,7 +1228,7 @@ Este script hace **en minutos lo mismo que haría el uso**: repite N veces `neur
 
 # Sobre cualquier DB (copia, evaluación)
 ./scripts/despertar_neurona.sh ruta/copia.db
-./scripts/despertar_neurona.sh ruta/copia.db --ciclos 300     # default 500 (~15 min con ~900 recuerdos)
+./scripts/despertar_neurona.sh ruta/copia.db --ciclos 300     # default 500 (~22 min con ~900 recuerdos)
 ./scripts/despertar_neurona.sh ruta/copia.db --minutos 10     # tope de tiempo
 ./scripts/despertar_neurona.sh ruta/copia.db --hasta-techo    # cortar en el primer techo
 
@@ -1207,7 +1250,44 @@ PYTHON=.venv/bin/python ./scripts/despertar_neurona.sh
 
 El snapshot congelado oficial (`snapshots/`) se rechaza, porque es la referencia de la QA.
 
-**Qué muestra:** el estado ANTES y DESPUÉS (campeón sí/no, margen, examen, ascensos, retiros, fase) y los aciertos en primer lugar de la **guardia** (el 20 % de recuerdos que la neurona nunca estudia), fórmula contra neurona. Si no encuentra una mejora segura no asciende a nadie, y el motor queda exactamente igual a la fórmula a mano.
+**Qué muestra:** el estado ANTES y DESPUÉS (o, con `--estado`, el estado actual) en palabras de cualquier persona, sin jerga. Si no encuentra una mejora segura no asciende a nadie, y el motor queda exactamente igual a la fórmula a mano. Ejemplo real de `--estado` en una memoria que acaba de empezar:
+
+```text
+  ESTADO DE TU NEURONA
+  ────────────────────────────────────────────────────────────────────────────
+  ¿Está encendida?              ✅ sí
+  ¿Ya mejora tus búsquedas?     ⏳ todavía no: se usa la fórmula de siempre (fórmula a mano)
+  Etapa                         1 de 3 · Juntando preguntas
+                                todavía no tiene suficientes preguntas para presentar su examen.
+
+  SU EXAMEN (preguntas que ella misma se hace con tus recuerdos)
+    Para estudiar               [░░░░░░░░░░░░░░░░░░░░]    5 de 150
+    De control (nunca estudia)  [░░░░░░░░░░░░░░░░░░░░]    0 de 40
+
+  SU HISTORIAL
+    Veces que practicó          3     (1 vez por cada consolidación de la memoria)
+    Última práctica             hace un momento
+    Veces que aprobó            0
+    Veces que la quitaron       0     ✅ bien
+
+  👉 En resumen: está viva y aprendiendo. Le faltan 145 para estudiar y 40 de control.
+     Practica unos segundos cada vez que se consolida la memoria (consolidar,
+     dormir o cerrar sesión; guardar solo no basta). Para acelerar:
+     ./scripts/despertar_neurona.sh --minutos 20
+```
+
+Cómo leerlo:
+
+| Línea | Qué significa |
+|---|---|
+| **¿Ya mejora tus búsquedas?** | ⏳ *todavía no*: tus búsquedas salen con la fórmula a mano. 🏆 *sí*: la neurona ya ordena tus resultados. |
+| **Etapa** | **1 · Juntando preguntas** → **2 · Presentando su examen** (ya tiene preguntas; solo se activa si mejora sin dañar nada) → **3 · Trabajando**. |
+| **Para estudiar / De control** | Las preguntas que la neurona se hace con tus recuerdos. Las *de control* (el 20 % de recuerdos, la "guardia") nunca las estudia: sirven para comprobar que aprendió y no memorizó. Necesita 150 y 40. |
+| **Veces que practicó** | Sube 1 con cada **consolidación** (`consolidar`, `sueno` o cerrar sesión con `contexto_fin`). `aprender` deja el recuerdo en corto plazo y no cuenta hasta que se consolida: 10 `aprender` + 1 `consolidar` = 1 práctica. Si sube, está viva. |
+| **Última práctica** | Cuándo guardó por última vez lo aprendido. |
+| **Veces que aprobó / que la quitaron** | Aprobó = pasó a trabajar. La quitaron = empeoraba algo y volvió sola a la fórmula; debe quedar en 0. |
+| **Aciertos en 1er lugar** *(cuando ya trabaja)* | En sus preguntas de control: fórmula contra neurona. |
+| **Prudencia** *(cuando ya trabaja)* | El margen "primero no dañar": solo cambia el orden si está segura. |
 
 **Verificado (2026-10-24), sobre una copia del snapshot canónico (~900 recuerdos):** 500 ciclos en 1017 s, 6 ascensos y 0 retiros. En la guardia, el primer lugar pasa de 77.8 % (fórmula) a 87.0 % (neurona). Después, la QA oficial sobre esa copia: **R@1 91.66 → 94.06 %, R@5 99.89 → 100 %, MRR .949 → .964, FP 0/40, GATE OK**, ninguna categoría por debajo del piso. Salida completa en `docs/Mi neurona en el sistema/experimento_07_la_neurona_escucha/resultados/despertar/`.
 
