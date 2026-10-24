@@ -38,6 +38,7 @@
 
 16. [Lo que queda claro: la neurona asociativa en una página](#16-lo-que-queda-claro-la-neurona-asociativa-en-una-página)
 17. [La neurona como intermediaria, y cómo lo hace el hipocampo](#17-la-neurona-como-intermediaria-y-cómo-lo-hace-el-hipocampo)
+18. [Caso real del Neuro-Visor: un recuerdo con 168 conexiones](#18-caso-real-del-neuro-visor-un-recuerdo-con-168-conexiones)
 
 Anexos: [A — Conversación completa Dennys ↔ Manus](anexo_A_conversacion_dennys_manus.md) · [B — Segunda parte: neurona universal y momento de la sinapsis](anexo_B_conversacion_dennys_manus_2.md)
 
@@ -550,9 +551,13 @@ evidencia muestra que estorban. Eso es **potenciar** el cerebro, no recortarlo.
 **atenuar** (bajar el peso un poco) o, con mucha evidencia, **cuarentena** (reversible).
 **Nunca borra.**
 
-**Protegidas (no las toca nunca, salvo que Dennys diga otra cosa):** `manual`, `manual_v7`,
-`sinonimo_explicito` (las declaró el usuario/agente), y la conexión que dejaría a un recuerdo con
-menos de 5 conexiones.
+**Protegidas (no las toca nunca, salvo que Dennys diga otra cosa):** `manual`, `manual_v7` (las
+unió el usuario/agente a propósito), y la conexión que dejaría a un recuerdo con menos de 5
+conexiones.
+
+> ⚠️ **Corrección (sección 18):** en la primera versión de este documento `sinonimo_explicito`
+> figuraba como protegida. **Se retira**: el usuario declara los sinónimos de **un** recuerdo, no la
+> conexión entre dos; la conexión la crea el motor por coincidencia de **una** palabra. Ver 18.
 
 **Agujas candidatas** (Dennys elige cuáles entran; todas baratas y locales):
 
@@ -1112,3 +1117,81 @@ evidencia). **La neurona asociativa es esas dos piezas**, enchufada en los punto
 aprendiendo con la regla de Hebb **más un tercer factor** (la utilidad del autoexamen).
 
 Límite honesto: es una réplica **funcional** (qué hace cada parte), no física.
+
+---
+
+## 18. Caso real del Neuro-Visor: un recuerdo con 168 conexiones
+
+> Dennys mandó una captura del dashboard (Neuro-Visor v32.3), del recuerdo
+> `leccion_discrepancia_busquedas_vocabulario_no_estocasticidad`: **168 sinapsis directas y 58
+> latentes**. Casi todas son `sinonimo_explicito` con peso **0.90**, último uso **"nunca"**, hacia
+> recuerdos como `bio_final_dennys_linkedin_2026`, `dennys_no_lo_olvides_gratitud_oracion_dia5` o
+> `axioma_empatia_sintactica_rafaga`. Más abajo, `pmi_hebbiano` débiles hacia
+> `opera_gx_botones_fix_settings_reset` o `negociacion_salarial_remoto_latam_tecnicas`. Entre las
+> latentes: `test_lap10`, `qwen2api_instalacion_native_sin_docker`, `matriz_decoracion_csd_xfce`.
+
+### 18.1 Lo que dice el snapshot del repo (solo lectura)
+
+El mismo recuerdo existe en `snapshots/qa_escape_qcr_20260811.db` (más viejo que la DB viva):
+
+| Dato | Valor |
+|---|---|
+| Conexiones directas | **134** (113 `sinonimo_explicito` · 12 `pmi_hebbiano` · 7 `manual` · 1 `co_semantica` · 1 `co_ocurrencia`) |
+| Latentes | 39 |
+| Conexiones de un recuerdo típico | mediana **23.5**; el 90 % tiene ≤ 72; solo **5** recuerdos tienen ≥ 150 |
+| `sinonimo_explicito` en todo el grafo | **5,863 de 13,904 (42 %)**, todas con peso ~0.90 (el más alto) |
+
+### 18.2 La causa exacta: una palabra basta
+
+`vincular_por_sinonimos` (`core/sinapsis.py` L440) hace, **por cada sinónimo** del recuerdo:
+
+```sql
+SELECT concepto FROM largo_plazo
+ WHERE estado='activo' AND concepto != ?
+   AND (concepto LIKE '%<sinónimo>%' OR sinonimos LIKE '%<sinónimo>%')
+```
+
+y conecta **todo** lo que encuentra, con peso fijo **0.90** y **sin límite** de cantidad. Es
+coincidencia de **un pedazo de texto** (LIKE con `%`: "score" también encuentra "scoring").
+
+Lo que trae cada sinónimo de este recuerdo:
+
+| Sinónimo | Recuerdos que conecta | Ejemplo |
+|---|---:|---|
+| `recall` | **49** | `plugin-biorag-remember-v9.6-config` |
+| `query` | 29 | `fix_fecha_sin_query_recordar` |
+| `score` | 23 | `auditoria_codigo_biorag_v12_julio_2026` |
+| `fts5` | 20 | `v5_1_automatico_completo` |
+| `búsqueda` | 18 | `visceral_disambiguation_protocol` |
+| `jaccard` | 17 | `biorag_v8_dynamic_multiplicator` |
+| `ranking` | 15 | `biorag_v18_symbolic_ranking_optimization` |
+| `vocabulario` | 11 | `protocolo_parafrasis_uso` |
+| (los otros 12) | 0–7 | — |
+| **Total distintos** | **142** | |
+
+**Lectura:** esto es exactamente lo que Dennys describió: *"enlazados por palabras, mecánicamente,
+sin inteligencia"*. En términos del hipocampo (sección 17), es la falta del **giro dentado**: una sola
+palabra compartida y genérica ("recall", "query") pega recuerdos que no tienen que ver.
+
+### 18.3 Lo que esto cambia en el plan
+
+1. **`sinonimo_explicito` deja de estar protegida** (corrección en 9.5). Y el pre-filtro de la
+   hormiguita, que la trata como "siempre válida", está equivocado en este punto.
+2. **Pero no se corta a ciegas.** En la medición D, en promedio, `sinonimo_explicito` lleva a la
+   respuesta **3 veces más que el azar**, y cuando Gemini cortó 1,423 de ellas, la mitad tuvo que
+   volver. Además entran a los vectores PPMI. Hay conexiones buenas mezcladas con las malas; separar
+   unas de otras es **el trabajo de la neurona**, no de una regla.
+3. **Agujas que este caso pide** (para el banco):
+   - **cuántos recuerdos trae la palabra que creó la conexión** (`recall` → 49 = palabra genérica;
+     un sinónimo que trae 1–3 recuerdos = pista fuerte). Es la aguja "giro dentado";
+   - **si la coincidencia es palabra completa o un pedazo** ("score" dentro de "scoring");
+   - **cuántas conexiones tienen A y B** (hubs);
+   - **cuántos sinónimos comparten de verdad** (1 genérico vs. varios específicos);
+   - si la conexión **se usó alguna vez** (aquí: "nunca" en casi todas).
+4. **Un candidato a arreglo en el creador** (para conversar, **no** hecho): que
+   `vincular_por_sinonimos` tenga tope y no conecte por palabras que traen demasiados recuerdos. Sería
+   un cambio aislado (Regla 13) con QA antes/después. Pero ojo: cambia los vectores PPMI y puede mover
+   el recall; por eso se discute primero y se mide en copia.
+5. **Este recuerdo es un caso de prueba perfecto** para el banco: 134–168 conexiones, la mayoría
+   por una palabra, con pocas que de verdad tienen que ver (las 7 `manual`, y algunas como
+   `memoria_grafo_recuperacion`). La neurona debería aprender a quedarse con esas.
