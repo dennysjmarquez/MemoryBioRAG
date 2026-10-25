@@ -1,0 +1,148 @@
+{
+ "agente_por_peso": {
+  "0.2-0.5": 5,
+  "<0.2": 4,
+  ">=0.5": 566
+ },
+ "agente_ya_usados": 18,
+ "agente_en_cuarentena": [
+  [
+   "manual",
+   11,
+   4
+  ],
+  [
+   "manual_v7",
+   4,
+   1
+  ]
+ ],
+ "agente_cuando_se_crearon": {
+  "minutos_despues_<=10min": 108,
+  "mas_tarde": 23,
+  "al_guardar_<=10s": 251
+ },
+ "cuarentena_por_tipo": [
+  [
+   "pmi_hebbiano",
+   1677,
+   483
+  ],
+  [
+   "latente",
+   1424,
+   480
+  ],
+  [
+   "sinonimo_explicito",
+   1423,
+   745
+  ],
+  [
+   "co_ocurrencia",
+   1310,
+   647
+  ],
+  [
+   "co_semantica",
+   504,
+   99
+  ],
+  [
+   "co_nombre",
+   455,
+   190
+  ],
+  [
+   "latente_confirmada",
+   60,
+   30
+  ],
+  [
+   "manual",
+   11,
+   4
+  ],
+  [
+   "manual_v7",
+   4,
+   1
+  ],
+  [
+   "legacy_csv",
+   2,
+   2
+  ]
+ ],
+ "canal2_composicion": {
+  "sinonimo_explicito": 1356,
+  "manual": 685,
+  "co_semantica": 488,
+  "co_ocurrencia": 356,
+  "co_nombre": 148,
+  "pmi_hebbiano": 118,
+  "legacy_csv": 16,
+  "manual_v7": 6
+ },
+ "canal2_examen": {
+  "no_visible_si": 40,
+  "no_visible_no": 31,
+  "visible_si": 5,
+  "visible_no": 8
+ },
+ "examen_hoy_con_hormiguita": {
+  "quedan_si": 26,
+  "quedan_no": 29
+ },
+ "examen_por_umbral": {
+  "-1": {
+   "quedan_si": 30,
+   "quedan_no": 36
+  },
+  "0.4": {
+   "quedan_si": 27,
+   "quedan_no": 28
+  },
+  "0.5": {
+   "quedan_si": 18,
+   "quedan_no": 11
+  },
+  "0.6": {
+   "quedan_si": 15,
+   "quedan_no": 8
+  }
+ },
+ "examen_pares_medibles": 66,
+ "canal2_con_filtro_neurona": {
+  "None": {
+   "huecos": 3173,
+   "automaticos": 2466,
+   "del_agente": 691,
+   "nodos_sin_vecinos": 22,
+   "examen_visibles": {
+    "si": 5,
+    "no": 8
+   }
+  },
+  "0.5": {
+   "huecos": 2588,
+   "automaticos": 1876,
+   "del_agente": 694,
+   "nodos_sin_vecinos": 103,
+   "examen_visibles": {
+    "si": 9,
+    "no": 1
+   }
+  },
+  "0.6": {
+   "huecos": 2024,
+   "automaticos": 1303,
+   "del_agente": 698,
+   "nodos_sin_vecinos": 225,
+   "examen_visibles": {
+    "si": 10,
+    "no": 1
+   }
+  }
+ }
+}
