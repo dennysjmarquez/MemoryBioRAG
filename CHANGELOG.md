@@ -1,5 +1,23 @@
 # BioRAG Changelog
 
+## [Sin publicar] — La neurona en la QA
+
+**Solo herramientas de medición: el motor, la API MCP y las bases no cambian.**
+
+- **`evaluar_qa.py` muestra la neurona de ranking** (módulo nuevo `scripts/qa_neurona.py`):
+  - **Aviso antes de medir:** qué base mide, si tiene neurona y si tu DB viva sí la tiene (la lee en solo lectura, sin abrir el motor sobre ella). Si la neurona está en otra base, lo dice y nombra el parámetro para verla. Cada base tiene su propia neurona.
+  - **Dos columnas en la misma corrida:** el orden de la fórmula sola y el que sirvió el motor con la neurona. Un espía envuelve `neurona.reordenar` y no cambia ningún resultado. Cada fila de la tabla termina con `🧠 ±pp (fórmula sola …)` y debajo sale el bloque **LA NEURONA EN ESTA QA** (R@1 y MRR por categoría, respuestas que suben o bajan del 1er lugar, ms por decisión).
+  - **Control de daño en el gate:** R@5 idéntico, total en 1er lugar que no baja y ninguna categoría con más de `BIORAG_QA_NEURONA_TOL_CASOS` (1) casos perdidos en 1er lugar.
+  - **`--con-neurona`** (`--ciclos`, `--minutos`): entrena una neurona en la copia temporal con la misma práctica de `despertar_neurona` y la mide. La base original no se toca.
+  - `qa_metrics.json` gana el bloque `neurona`; las claves de siempre no cambian.
+- **`despertar_neurona.py`:** su bucle de práctica pasa a `practicar_seguido()`, el mismo que usa la QA. Lo que imprime no cambia.
+- **`run_qa_suite.sh`:** exporta `BIORAG_QA_ORIGEN` (la base original; la QA solo ve la copia).
+- **Validación (snapshot oficial, misma máquina, `PYTHONHASHSEED=1`):**
+  - Sin neurona, la tabla queda idéntica a la del código anterior: R@5 100 · R@1 91.89 · MRR 0.950 · FP 0/40.
+  - Con `--con-neurona`: R@1 91.89 → 94.97 · MRR 0.950 → 0.970, con R@5 y FP iguales. 27 respuestas suben al 1er lugar y ninguna baja. GATE OK.
+  - La columna "fórmula sola" coincide con la corrida sin neurona en todas las categorías.
+  - 26 pruebas nuevas en `tests/test_qa_neurona.py`.
+
 ## [v35.0] — 2026-10-25 — La Neurona Asociativa (sináptica)
 
 **Versión mayor por su contenido científico: BioRAG tiene su segunda neurona, la que decide si dos recuerdos de verdad tienen que ver. Queda construida, calibrada de fábrica, examinada y cerrada (no aprende), pero todavía no decide dentro del motor. Ranking sin cambios. La API MCP no cambia sus herramientas; solo se quitaron las sugerencias de vincular/desvincular. Los enlaces que hace el agente ya no los borra el sistema.**

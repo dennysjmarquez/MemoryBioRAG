@@ -12,8 +12,11 @@ from pathlib import Path
 
 # Add workspace root to sys.path
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 from core.memory_store import SQLiteMemoryBioRAG
+from core.memory import neurona
+import qa_neurona as QN
 
 
 def _normalizar_token(texto):
@@ -100,8 +103,9 @@ def _tokens_corpus(db):
     return tokens
 
 
-def run_evaluation():
+def run_evaluation(argv=None):
     base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    args = QN.leer_argumentos(sys.argv[1:] if argv is None else argv)
 
     # Cargar .env.local automáticamente si existe
     env_local = os.path.join(base_dir, ".env.local")
@@ -119,7 +123,7 @@ def run_evaluation():
     src_db = os.environ.get('BIORAG_PATH') or os.path.join(base_dir, "MemoryBioRAG_Data", "memory_biorag.db")
 
     temp_db = os.path.join(base_dir, "MemoryBioRAG_Data", "memory_biorag_qa_temp.db")
-    cases_filename = sys.argv[1] if len(sys.argv) > 1 else "casos_qa_baseline_v1.jsonl"
+    cases_filename = args.casos
     cases_file = os.path.join(base_dir, "scripts", cases_filename)
     failed_file = os.environ.get(
         "BIORAG_QA_FAILED_CASES",
@@ -148,6 +152,8 @@ def run_evaluation():
     finally:
         conn_dst.close()
         conn_src.close()
+    # Lo que la neurona dejó guardado en la base medida (leído de la copia, sin el motor)
+    guardada_origen = QN.leer_guardada(temp_db)
 
 
     
@@ -162,6 +168,42 @@ def run_evaluation():
     
     # Initialize BioRAG against the temp DB copy
     db = SQLiteMemoryBioRAG(db_path=temp_db)
+
+    # ── Neurona de ranking (scripts/qa_neurona.py) ──────────────────────────
+    # Cada base tiene su propia neurona. Se dice ANTES de medir qué neurona hay en la
+    # base medida y en tu DB viva, y con --con-neurona se entrena una en la copia.
+    origen_qa = os.environ.get("BIORAG_QA_ORIGEN") or src_db  # run_qa_suite.sh mide una copia: aquí va la original
+    ruta_viva = os.environ.get("BIORAG_QA_DB_VIVA") or os.path.join(base_dir, "MemoryBioRAG_Data", "memory_biorag.db")
+    viva, viva_vale = None, False
+    if not QN.misma_db(ruta_viva, origen_qa):
+        viva = QN.leer_guardada(ruta_viva)  # solo lectura, sin abrir el motor sobre tu DB viva
+        if viva and viva.get("campeon"):
+            viva_vale = QN.vale_para_este_motor(viva, neurona.VERSION, neurona.huella_motor(db))
+    entrenada_aqui = None
+    if args.con_neurona:
+        if not neurona.activa():
+            print("[ERROR] --con-neurona con BIORAG_NEURONA=0: la neurona está apagada en este entorno.")
+            sys.exit(2)
+        if neurona.resumen(db).get("campeon"):
+            print("--con-neurona: esta base ya tiene su neurona entrenada; se mide tal cual (no se practica).")
+        else:
+            from despertar_neurona import practicar_seguido
+            print(f"\n--con-neurona: entrenando una neurona en la COPIA temporal (hasta {args.ciclos} prácticas"
+                  f"{f', tope {args.minutos} min' if args.minutos else ''}). La base original no se toca.")
+            print("Es la misma práctica de despertar_neurona: preguntas que la neurona se hace con los")
+            print("recuerdos de la base; nunca ve las preguntas de esta QA.")
+            _r, _hechos, _seg = practicar_seguido(db, args.ciclos, args.minutos)
+            entrenada_aqui = dict(ciclos=_hechos, segundos=round(_seg, 1))
+    estado_neurona = neurona.resumen(db)
+    neurona_actua = bool(estado_neurona.get("activa") and estado_neurona.get("campeon"))
+    aviso_neurona = QN.lineas_aviso(dict(
+        activa=neurona.activa(), medida=estado_neurona, entrenada_aqui=entrenada_aqui,
+        origen=origen_qa, origen_es_snapshot=QN.es_snapshot(origen_qa, base_dir),
+        guardada_origen=guardada_origen, viva=viva, viva_vale=viva_vale, ruta_viva=ruta_viva,
+        base_dir=base_dir))
+    print("")
+    print("\n".join(aviso_neurona))
+    print("")
 
     # Tokens del corpus para detectar controles negativos contaminados
     # (autorreferencia: el corpus documenta las mismas queries negativas).
@@ -264,6 +306,11 @@ def run_evaluation():
         1 for _e, _p in estado_inicial_nodos.values() if _e == "dormido"
     )
 
+    # Las dos columnas: orden de la fórmula (antes de la neurona) y orden servido
+    espia = QN.Espia(neurona)
+    espia.__enter__()
+    comparacion = QN.Comparacion()
+
     for case in cases:
         case_id = case["id"]
         category = case["categoria"]
@@ -315,6 +362,7 @@ def run_evaluation():
             
         # 2. Execute query
         profundidad = "profundo" if (deep or category == "dormido" or category == "negativo") else "activos"
+        espia.nueva_busqueda()
         results, total = db.buscar_por_frase(query, profundidad=profundidad, limite=5, ignore_peso_sinaptico=True)
         
         # Track spreading activation usage
@@ -368,6 +416,7 @@ def run_evaluation():
         else:
             # Normal or awakening case
             found_at = -1
+            no_desperto = False
             for idx, concept in enumerate(returned):
                 if concept == expected:
                     found_at = idx + 1
@@ -393,6 +442,7 @@ def run_evaluation():
                             "error": f"Node found but remained dormant (state is {row[0] if row else 'None'})"
                         })
                         # Revert stats change since awakening failed
+                        no_desperto = True
                         stats[category]["hits_at_5"] -= 1
                         if found_at == 1:
                             stats[category]["hits_at_1"] -= 1
@@ -407,11 +457,28 @@ def run_evaluation():
                     "error": "Expected concept not found in top 5 results"
                 })
 
+            # Neurona: mismo caso, dos órdenes (si no despertó, no cuenta para ninguno)
+            orden_formula, _servido, coherente = espia.ordenes(returned)
+            cuenta = not no_desperto
+            comparacion.anotar(
+                category,
+                QN.puesto(orden_formula, expected) if cuenta else 0,
+                found_at if (cuenta and found_at > 0) else 0,
+                orden_formula != returned,
+                coherente,
+            )
+
         # Aislar el caso siguiente del estado que este caso dejó en la DB
         nodos_restaurados_total += _restaurar_estado_nodos(db, estado_inicial_nodos)
 
     elapsed_time = time.time() - start_time
+    espia.__exit__(None, None, None)
     db.conn.close()
+
+    res_neurona = comparacion.resumen()
+    tiempos_neurona = QN.tiempos(espia.ms)
+    tol_neurona = QN.tolerancia_casos()
+    motivos_neurona = QN.control_de_dano(res_neurona, tol_neurona)
     
     # Export failed cases to JSONL
     print(f"\nExporting failed cases to: {failed_file}")
@@ -431,6 +498,8 @@ def run_evaluation():
     print("                      BIORAG QA EVALUATION REPORT")
     print("="*80)
     print(f"Total time elapsed: {elapsed_time:.2f} seconds")
+    print("-"*80)
+    print("\n".join(aviso_neurona))
     print("-"*80)
     print(f"{'Category':<22} | {'Total':<6} | {'Recall@5':<9} | {'Recall@1':<9} | {'MRR':<8} | {'Errors/FPs':<10}")
     print("-"*80)
@@ -467,7 +536,9 @@ def run_evaluation():
             recall_1 = (stat["hits_at_1"] / cnt) * 100 if cnt > 0 else 0
             mrr = stat["reciprocal_rank_sum"] / cnt if cnt > 0 else 0
             num_failures = cnt - stat["hits_at_5"] if cat != "dormido" else len(failures_by_category[cat])
-            print(f"{cat:<22} | {cnt:<6} | {recall_5:>7.2f}% | {recall_1:>7.2f}% | {mrr:>6.3f} | {num_failures:<10}")
+            sufijo = ("  " + QN.sufijo_fila(res_neurona["categorias"][cat])
+                      if neurona_actua and cat in res_neurona["categorias"] else "")
+            print(f"{cat:<22} | {cnt:<6} | {recall_5:>7.2f}% | {recall_1:>7.2f}% | {mrr:>6.3f} | {num_failures:<10}{sufijo}")
             
     print("-"*80)
     global_recall_5 = (total_hits_at_5 / total_queries) * 100 if total_queries > 0 else 0
@@ -476,12 +547,17 @@ def run_evaluation():
     global_validos = total_negatives - total_contaminados
     global_fp_rate = (total_false_positives / global_validos) * 100 if global_validos > 0 else 0.0
     
-    print(f"{'GLOBAL SUMMARY (Retrieval)':<22} | {total_queries:<6} | {global_recall_5:>7.2f}% | {global_recall_1:>7.2f}% | {global_mrr:>6.3f} | {total_queries - total_hits_at_5:<10}")
+    sufijo = "  " + QN.sufijo_fila(res_neurona["global_"]) if neurona_actua else ""
+    print(f"{'GLOBAL SUMMARY (Retrieval)':<22} | {total_queries:<6} | {global_recall_5:>7.2f}% | {global_recall_1:>7.2f}% | {global_mrr:>6.3f} | {total_queries - total_hits_at_5:<10}{sufijo}")
     print(f"{'GLOBAL SUMMARY (Noise/FP)':<22} | {total_negatives:<6} | {'N/A':<9} | {'N/A':<9} | {'N/A':<8} | {total_false_positives:<10} ({global_fp_rate:.2f}% FP sobre {global_validos} válidos; {total_contaminados} contaminados)")
     print(f"{'SPREADING ACTIVATION':<22} | {spreading_activation_count}/{len(cases)} queries ({spreading_activation_count/len(cases)*100:.1f}%)")
     print(f"{'AISLAMIENTO POR CASO':<22} | {nodos_restaurados_total} mutaciones de estado revertidas "
           f"({nodos_dormidos_iniciales} nodos arrancaron dormidos)")
     print("="*80)
+    if neurona_actua:
+        print("")
+        print("\n".join(QN.lineas_resultado(res_neurona, tiempos_neurona, motivos_neurona, tol_neurona)))
+        print("="*80)
 
     # ── Salud del dataset: etiquetas que el evaluador tuvo que reparar ──────
     if etiquetas_obsoletas or etiquetas_irreparables or queries_ambiguas:
@@ -578,6 +654,25 @@ def run_evaluation():
             if cat not in ("negativo", "ambiguo") and st["total"]
         },
     }
+    metrics["neurona"] = {
+        "activa": neurona.activa(),
+        "actuo": neurona_actua,
+        "entrenada_en_la_copia": entrenada_aqui,
+        "origen": origen_qa,
+        "origen_es_snapshot": QN.es_snapshot(origen_qa, base_dir),
+        "base_medida": {k: estado_neurona.get(k) for k in
+                        ("campeon", "margen", "ciclos", "ascensos", "retiros", "tranquila", "estudio", "guardia")},
+        "db_viva": (None if viva is None else {
+            "ruta": ruta_viva, "campeon": viva.get("campeon"), "vale_para_este_motor": viva_vale,
+            "ciclos": (viva.get("stats") or {}).get("ciclos"),
+            "ascensos": (viva.get("stats") or {}).get("ascensos"),
+            "retiros": (viva.get("stats") or {}).get("retiros")}),
+        "columnas": {"categorias": res_neurona["categorias"], "global": res_neurona["global_"]},
+        "cambios": res_neurona["cambios"],
+        "incoherentes": res_neurona["incoherentes"],
+        "tiempos": tiempos_neurona,
+        "control_de_dano": {"tolerancia_casos": tol_neurona, "motivos": motivos_neurona},
+    }
     metrics["global"]["orden_no_monotonico"] = sum(
         1
         for _f in (f for _fs in failures_by_category.values() for f in _fs)
@@ -608,6 +703,10 @@ def _evaluar_gate(metrics, base_dir):
       BIORAG_QA_MAX_REGRESION_PP=2.0  caída máxima por categoría vs. baseline, en pp
       BIORAG_QA_BASELINE=qa_metrics_baseline.json  baseline en scripts/ (si no existe,
                                       solo se avisa; no se compara por categoría)
+      BIORAG_QA_NEURONA_TOL_CASOS=1 casos en 1er lugar que la neurona puede perder por
+                                      categoría (solo cuenta si la neurona actuó; además
+                                      su Recall@5 debe ser idéntico y su total de aciertos
+                                      en 1er lugar no puede bajar; ver qa_neurona.py)
     """
     if os.environ.get("BIORAG_QA_GATE", "1") != "1":
         return True, ["gate desactivado (BIORAG_QA_GATE=0)"]
@@ -630,6 +729,8 @@ def _evaluar_gate(metrics, base_dir):
             f"FP {g['negativos_fp_rate']:.2f}% > máximo {max_fp:.2f}% "
             f"({g['negativos_fp']}/{g['negativos_total'] - g['negativos_contaminados']} negativos válidos)"
         )
+    # Neurona de ranking: no puede dañar (ver qa_neurona.control_de_dano)
+    reasons.extend(metrics.get("neurona", {}).get("control_de_dano", {}).get("motivos", []))
 
     baseline_name = os.environ.get("BIORAG_QA_BASELINE", "qa_metrics_baseline.json")
     baseline_path = os.path.join(base_dir, "scripts", baseline_name)
@@ -671,6 +772,11 @@ if __name__ == "__main__":
         print("experimento) y esperabas este resultado, relaja o apaga el gate con:")
         print("  BIORAG_QA_GATE=0 ./scripts/run_qa_suite.sh")
         print("  BIORAG_QA_MIN_RECALL5=95.0 BIORAG_QA_MAX_FALLOS=42 ./scripts/run_qa_suite.sh")
+        if any(r.startswith("neurona:") for r in reasons):
+            print("\nSi lo que falla es la NEURONA: el motor sin ella (la fórmula sola) está en la")
+            print("columna 'fórmula' del bloque LA NEURONA EN ESTA QA. Para medir sin neurona:")
+            print("  BIORAG_NEURONA=0 python scripts/evaluar_qa.py")
+            print("Tolerancia por categoría (casos en 1er lugar): BIORAG_QA_NEURONA_TOL_CASOS=1")
         print("!" * 80)
         sys.exit(1)
     if reasons:

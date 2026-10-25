@@ -179,6 +179,40 @@ def _linea(titulo, r, db_path=None):
     print("  " + "─" * 76)
 
 
+def practicar_seguido(db, ciclos, minutos=None, hasta_techo=False, cada=25):
+    """La práctica acelerada: `ciclos` veces `neurona.practicar(db, [])`, mostrando el avance.
+
+    Es el único bucle de práctica de los scripts: lo usan este script y la QA oficial
+    (`evaluar_qa.py --con-neurona`), así las dos entrenan exactamente igual.
+    Devuelve (último resultado, ciclos hechos, segundos).
+    """
+    from core.memory import neurona
+    t0 = time.time()
+    r, hechos = {}, 0
+    for i in range(ciclos):
+        r = neurona.practicar(db, [])
+        hechos = i + 1
+        f = str(r.get("fase", ""))
+        if f == "ascenso":
+            print(f"  práctica {hechos:4d}  🏆 APROBÓ: aciertos en 1er lugar (control) "
+                  f"{_pct(r.get('guardia_mano'))} → {_pct(r.get('guardia_campeon'))}")
+        elif r.get("retiro"):
+            print(f"  práctica {hechos:4d}  ⚠️  la quitaron: empeoraba algo; vuelve la fórmula a mano")
+        elif cada and hechos % cada == 0:
+            print(f"  práctica {hechos:4d}  {_FASE_CLARA.get(f, f):18s} para estudiar {r.get('estudio', 0):>4}  "
+                  f"de control {r.get('guardia', 0):>3}  {time.time() - t0:6.0f} s")
+        if f in ("error", "apagada", "en pausa por fallas"):
+            print(f"  la práctica se detuvo: {r}")
+            break
+        if hasta_techo and f.startswith("tranquila (techo)"):
+            print(f"  práctica {hechos:4d}  llegó a su mejor nivel (techo)")
+            break
+        if minutos is not None and time.time() - t0 > 60 * minutos:
+            print(f"  práctica {hechos:4d}  se cumplieron los {minutos} min")
+            break
+    return r, hechos, time.time() - t0
+
+
 def _respaldo(db_path):
     destino = f"{db_path}.antes_despertar_{time.strftime('%Y%m%d_%H%M%S')}.db"
     src = sqlite3.connect(db_path)
@@ -245,34 +279,12 @@ def main(argv=None):
             return 0
 
         print(f"\nPracticando hasta {a.ciclos} veces seguidas (cada una = lo que hace sola tras una consolidación)...")
-        t0 = time.time()
-        r, hechos = {}, 0
-        for i in range(a.ciclos):
-            r = neurona.practicar(db, [])
-            hechos = i + 1
-            f = str(r.get("fase", ""))
-            if f == "ascenso":
-                print(f"  práctica {hechos:4d}  🏆 APROBÓ: aciertos en 1er lugar (control) "
-                      f"{_pct(r.get('guardia_mano'))} → {_pct(r.get('guardia_campeon'))}")
-            elif r.get("retiro"):
-                print(f"  práctica {hechos:4d}  ⚠️  la quitaron: empeoraba algo; vuelve la fórmula a mano")
-            elif hechos % a.cada == 0:
-                print(f"  práctica {hechos:4d}  {_FASE_CLARA.get(f, f):18s} para estudiar {r.get('estudio', 0):>4}  "
-                      f"de control {r.get('guardia', 0):>3}  {time.time() - t0:6.0f} s")
-            if f in ("error", "apagada", "en pausa por fallas"):
-                print(f"  la práctica se detuvo: {r}")
-                break
-            if a.hasta_techo and f.startswith("tranquila (techo)"):
-                print(f"  práctica {hechos:4d}  llegó a su mejor nivel (techo)")
-                break
-            if a.minutos is not None and time.time() - t0 > 60 * a.minutos:
-                print(f"  práctica {hechos:4d}  se cumplieron los {a.minutos} min")
-                break
+        _r, hechos, segundos = practicar_seguido(db, a.ciclos, a.minutos, a.hasta_techo, a.cada)
 
         despues = neurona.resumen(db)
         print("")
         _linea("DESPUÉS", despues, db_path)
-        print(f"\n{hechos} ciclos de práctica en {time.time() - t0:.0f} s.")
+        print(f"\n{hechos} ciclos de práctica en {segundos:.0f} s.")
         if not despues.get("campeon"):
             print("Sin campeón: con estos recuerdos la neurona todavía no encontró una mejora segura.\n"
                   "El motor queda exactamente igual a la fórmula a mano (nada se pierde). Seguirá\n"

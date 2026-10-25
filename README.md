@@ -14,6 +14,8 @@
 > **v34.0:** con una DB nueva, o sin campeón, la neurona no actúa y estos números se mantienen **idénticos** (son el piso). Con el campeón ya aprendido sobre la copia del snapshot (`despertar_neurona.sh`, 500 ciclos), la misma suite da **Recall@5 100.00 % · Recall@1 94.06 % (823/875) · MRR 0.964 · FP 0/40**, sin ninguna categoría por debajo del piso. Detalle en [La Neurona de BioRAG](#-novedades-de-la-versión-v340--la-neurona-de-biorag).
 >
 > **v35.0:** la QA oficial sale **idéntica** antes y después de todos los cambios de la v35 (Recall@5 100.00 % · Recall@1 91.89 % · MRR 0.950 · FP 0/40, misma máquina y semilla). Detalle en [La Neurona Asociativa](#-novedades-de-la-versión-v350--la-neurona-asociativa-sináptica).
+>
+> **Cada base tiene su propia neurona.** La neurona aprende con los recuerdos de la base donde vive y se guarda dentro de ella. Esta tabla mide una copia del snapshot oficial, que no trae neurona entrenada: por eso muestra la fórmula a mano sola (el piso), aunque tu neurona esté trabajando en tu DB viva. La QA ahora lo dice antes de medir y nombra el parámetro para verla: `python scripts/evaluar_qa.py --con-neurona`. Detalle en [La neurona en la QA](#la-neurona-en-la-qa-cada-base-tiene-la-suya).
 
 Evaluación sobre el snapshot congelado oficial canónico (**921 casos totales en suite QA**):
 - **Archivo:** `snapshots/qa_escape_qcr_20260811.db`
@@ -1522,7 +1524,7 @@ PYTHON=.venv/bin/python ./scripts/despertar_neurona.sh
 **Qué escribe:** solo la tabla `neurona_estado`. Verificado sobre una copia del snapshot: con la DB ya abierta, 40 ciclos cambian `neurona_estado` y las otras 48 tablas quedan idénticas. Abrir la DB, como cualquier arranque de BioRAG, corre además el arranque normal del motor (por ejemplo, la síntesis DMN E10). Antes de escribir hace un **respaldo** con la API backup de SQLite (`<db>.antes_despertar_<fecha>.db`), salvo `--sin-respaldo`.
 
 **Dónde correrlo:** sobre la **misma DB que vas a usar**. Lo aprendido es de esa memoria: un campeón entrenado en otra DB y copiado daña, y el piso lo termina retirando. Lo recomendado:
-1. Correrlo sobre una copia y medir con tu QA sobre esa copia (`BIORAG_PATH=copia.db ./scripts/run_qa_suite.sh`).
+1. Correrlo sobre una copia y medir con tu QA sobre esa copia (`BIORAG_PATH=copia.db ./scripts/run_qa_suite.sh`). Para el snapshot oficial, la QA lo hace en un solo paso: `python scripts/evaluar_qa.py --con-neurona` (ver [La neurona en la QA](#la-neurona-en-la-qa-cada-base-tiene-la-suya)).
 2. Si te convence, correrlo sobre la real.
 
 El snapshot congelado oficial (`snapshots/`) se rechaza, porque es la referencia de la QA.
@@ -1587,6 +1589,82 @@ BIORAG_PATH=scripts/snapshot_prf_real.db python3 scripts/evaluar_qa.py
 ```
 
 > Resultado verificado (2026-08-10): reentrenando el snapshot `snapshot_prf_real.db` (688 nodos) la señal #13 se activa y sinonimo sube de **70.49% → 81.97%** y GLOBAL R@5 de **95.57% → 96.37%**. Los vectores no se auto-calibran por copiar la DB: hay que reentrenarlos o partir de una DB que ya los tenga entrenados.
+
+#### La neurona en la QA (cada base tiene la suya)
+
+La neurona de ranking aprende con los recuerdos de **la base donde vive** y guarda lo aprendido dentro de ella (tabla `neurona_estado`). No viaja entre bases: la de tu DB viva no está en el snapshot, y una copiada a otra base daña (el piso la retira). Por eso la QA oficial, que mide una copia del snapshot, muestra la fórmula a mano sola aunque tu neurona esté trabajando.
+
+Desde ahora `evaluar_qa.py` (y `run_qa_suite.sh`, que le pasa los argumentos) hace tres cosas más:
+
+1. **Dice la verdad antes de medir:** qué base mide, si tiene neurona y si tu DB viva sí la tiene. Lee tu DB viva en solo lectura, sin abrir el motor sobre ella. Si la neurona está en otra base, nombra el parámetro para verla.
+2. **Mide las dos columnas en la misma corrida:** el orden de la fórmula sola (antes de la neurona) y el que sirvió el motor (después). Mismas preguntas, misma base, mismo instante: solo cambia quién ordena el top-5. Un "espía" envuelve `neurona.reordenar` y anota los dos órdenes, sin cambiar ningún resultado.
+3. **Vigila que no dañe** (entra al gate): Recall@5 idéntico, el total de aciertos en 1er lugar no baja y ninguna categoría pierde más de `BIORAG_QA_NEURONA_TOL_CASOS` casos en 1er lugar (default 1, el mismo piso que la neurona se exige a sí misma).
+
+```bash
+# Ver la neurona en la QA del snapshot: entrena una en la COPIA temporal y la mide.
+# Misma práctica que despertar_neurona (500 prácticas, ~20-25 min más). El snapshot no se toca.
+python scripts/evaluar_qa.py --con-neurona
+python scripts/evaluar_qa.py --con-neurona --minutos 10      # con tope de tiempo
+./scripts/run_qa_suite.sh --qa-only --con-neurona
+
+# Medir tu propia memoria con tu propia neurona (la QA mide una copia; tu DB no se toca)
+BIORAG_PATH=MemoryBioRAG_Data/memory_biorag.db python scripts/evaluar_qa.py
+```
+
+Lo que sale cuando la base medida **no** tiene neurona pero tu DB viva sí (corrida real del 2026-10-25; aquí la "DB viva" es una copia del snapshot con 500 prácticas):
+
+```text
+🧠 NEURONA DE RANKING
+   Base medida:  snapshots/qa_escape_qcr_20260811.db  (snapshot oficial; se mide una copia temporal)
+   Neurona:      ⏳ esta base no tiene una neurona entrenada
+                 → la tabla es la FÓRMULA A MANO SOLA (el piso)
+   Tu neurona:   🏆 ACTIVA en tu DB viva (/tmp/qa/snap_train.db)
+                 entrenada con esa memoria · 500 prácticas · aprobó 10 veces · la quitaron 0
+                 en su examen de control acierta el 1er lugar: fórmula 68.7 % → neurona 86.7 %
+   Cada base tiene su propia neurona: lo que aprendió tu DB viva no viaja a la
+   copia que mide esta QA. Por eso aquí no se ve (y eso es correcto).
+   Para ver la neurona en esta QA (sin tocar ninguna base original):
+     python scripts/evaluar_qa.py --con-neurona
+       → entrena una neurona en la copia temporal y la mide (unos 20-25 min más)
+     BIORAG_PATH=/tmp/qa/snap_train.db python scripts/evaluar_qa.py
+       → mide tu propia memoria con tu propia neurona
+```
+
+Lo que sale cuando la base medida **sí** tiene neurona (la misma copia; corrida real): la tabla de siempre muestra lo que sirve el motor y, al final de cada fila, cuánto cambió la neurona el 1er lugar. Debajo, el detalle:
+
+```text
+cruce_idioma           | 8      |  100.00% |   75.00% |  0.875 | 0           🧠 +12.50 pp (fórmula sola 62.50%)
+dormido                | 65     |  100.00% |  100.00% |  1.000 | 0           🧠 = igual (fórmula sola 100.00%)
+literal                | 487    |  100.00% |   99.79% |  0.999 | 0           🧠 +0.20 pp (fórmula sola 99.59%)
+por_tema               | 65     |  100.00% |   78.46% |  0.872 | 0           🧠 +15.38 pp (fórmula sola 63.08%)
+pregunta_natural       | 65     |  100.00% |   95.38% |  0.977 | 0           🧠 +1.53 pp (fórmula sola 93.85%)
+sinonimo               | 55     |  100.00% |   61.82% |  0.742 | 0           🧠 +5.46 pp (fórmula sola 56.36%)
+typo                   | 65     |  100.00% |   93.85% |  0.967 | 0           🧠 +4.62 pp (fórmula sola 89.23%)
+variante_gramatical    | 65     |  100.00% |   93.85% |  0.965 | 0           🧠 +4.62 pp (fórmula sola 89.23%)
+GLOBAL SUMMARY (Retrieval) | 875    |  100.00% |   94.40% |  0.966 | 0           🧠 +2.51 pp (fórmula sola 91.89%)
+
+LA NEURONA EN ESTA QA (misma base, mismas preguntas; solo cambia quién ordena el top-5)
+  Recall@5 y falsos positivos: idénticos (la neurona solo reordena los mismos 5).
+  Búsquedas que la neurona reordenó: 398 de 875.
+  La respuesta correcta SUBIÓ al 1er lugar en 27 y BAJÓ del 1er lugar en 5 (neto +22).
+  Mejoró su puesto en 39 · empeoró en 11.
+  Tiempo de la neurona por búsqueda: mediana 0.12 ms · 95 % bajo 0.17 ms · peor 2.06 ms.
+  Control de daño: ✅ pasa (ninguna categoría pierde más de 1 caso en 1er lugar; en total no baja)
+```
+
+**Cómo se comprobó que la medición es correcta (2026-10-25, misma máquina, `PYTHONHASHSEED=1`):**
+
+| Corrida | Qué se midió | Resultado |
+|---|---|---|
+| 1 | Código anterior, snapshot | R@5 100 · R@1 91.89 · MRR 0.950 · FP 0/40 |
+| 2 | Código nuevo, snapshot (con el aviso) | tabla **idéntica** a la corrida 1, línea por línea |
+| 3 | Código nuevo, copia con neurona | columna "fórmula sola" = corrida 1 en **todas** las categorías (R@1 y MRR); con neurona R@1 94.40 · MRR 0.966; R@5 y FP iguales |
+| 4 | La misma copia con `BIORAG_NEURONA=0` | tabla = columna "fórmula sola" de la corrida 3 |
+| 5 | Código nuevo, snapshot, `--con-neurona` (500 prácticas en la copia, 23 min) | R@1 91.89 → **94.97** · MRR 0.950 → 0.970 · R@5 y FP iguales · 27 respuestas suben al 1er lugar y ninguna baja · GATE OK · el snapshot conserva su sha256 |
+
+Ninguna base original se escribe: el estado de tu DB viva se lee en solo lectura y `--con-neurona` practica sobre la copia temporal, que se borra al terminar. La copia de la corrida 3 tiene el mismo sha256 antes y después de la QA. El bloque `neurona` de `qa_metrics.json` trae las dos columnas por categoría, los cambios, los tiempos y el control de daño, listos para CI. Salidas completas de las 5 corridas: `docs/Mi neurona en el sistema/qa_con_neurona_20261025/`.
+
+**Límites:** cuánto mejora depende de la neurona que se entrenó. La práctica tiene un tope de 3 s por ciclo, así que cada entrenamiento puede salir algo distinto, sobre todo en otra máquina: en la misma máquina, dos entrenamientos de 500 prácticas dieron R@1 94.40 % (corrida 3) y 94.97 % (corrida 5). Compara siempre las dos columnas de la misma corrida. Las preguntas de la QA se escribieron para el snapshot, así que sobre tu DB viva algunas respuestas no existen o significan otra cosa: allí la QA sirve para comparar fórmula sola contra neurona, no para compararse con la tabla oficial.
 
 ---
 
@@ -1844,6 +1922,9 @@ cp scripts/qa_metrics.json scripts/qa_metrics_baseline.json
 | `BIORAG_QA_RESOLVER_ETIQUETAS` | Resolver etiquetas oro obsoletas contra la DB evaluada | `1` |
 | `BIORAG_QA_ETIQUETA_DIFUSA` | Ratio mínimo de la resolución difusa de etiquetas | `0.94` |
 | `BIORAG_QA_ETIQUETA_MARGEN` | Margen mínimo sobre el segundo candidato | `0.02` |
+| `BIORAG_QA_NEURONA_TOL_CASOS` | Casos en 1er lugar que la neurona puede perder por categoría (solo si actuó; además R@5 idéntico y total en 1er lugar sin bajar) | `1` |
+| `BIORAG_QA_DB_VIVA` | DB viva cuya neurona se lee (solo lectura) para el aviso de la QA | `MemoryBioRAG_Data/memory_biorag.db` |
+| `BIORAG_QA_ORIGEN` | Base original que se mide (lo pone `run_qa_suite.sh`, porque la QA solo ve la copia) | `BIORAG_PATH` |
 | `BIORAG_ORDEN_MONOTONICO` | Re-sort final de `buscar_por_frase` por score | `1` |
 
 **Implementación real de cada mecanismo:**

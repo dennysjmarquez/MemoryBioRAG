@@ -31,6 +31,9 @@ if [ ! -f "$SRC_DB" ]; then
     echo "ERROR: No existe la base de datos origen: $SRC_DB" >&2
     exit 1
 fi
+# evaluar_qa.py solo ve la copia (BIORAG_PATH se reescribe abajo): así sabe cuál es la
+# base original, para decir si es el snapshot oficial y qué neurona tiene (qa_neurona.py).
+export BIORAG_QA_ORIGEN="$SRC_DB"
 
 # 3. Copia aislada FRESCA por fase (R3: DB fresca por configuración — ninguna fase
 # ve escrituras de otra (medido: el eval hub auto-crea sinapsis). El original nunca se toca.
