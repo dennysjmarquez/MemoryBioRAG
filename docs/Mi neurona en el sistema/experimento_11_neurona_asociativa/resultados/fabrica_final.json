@@ -1,0 +1,485 @@
+{
+ "noticias": {
+  "pares": 47175,
+  "si_tienen_que_ver_pct": 26.5,
+  "motor_hoy_conecta_todo": {
+   "precision": 0.265,
+   "recall": 1.0,
+   "conecta_pct": 100.0
+  },
+  "regla_jaccard_0.4": {
+   "auc": 0.834,
+   "precision": 0.828,
+   "recall": 0.029,
+   "conecta_pct": 0.9
+  },
+  "piso_a_mano": {
+   "auc": 0.889,
+   "auc_por_recuerdo": 0.893,
+   "conectar": {
+    "precision": 0.898,
+    "recall": 0.093,
+    "conecta_pct": 2.8
+   },
+   "competencia_k5": {
+    "precision": 0.642,
+    "recall": 0.36,
+    "conecta_pct": 14.8
+   },
+   "competencia_k10": {
+    "precision": 0.574,
+    "recall": 0.602,
+    "conecta_pct": 27.7
+   },
+   "competencia_k20": {
+    "precision": 0.467,
+    "recall": 0.915,
+    "conecta_pct": 51.9
+   }
+  },
+  "neurona": {
+   "auc": 0.889,
+   "auc_semillas": [
+    0.889
+   ],
+   "auc_por_recuerdo": 0.893,
+   "auc_por_recuerdo_semillas": [
+    0.893
+   ],
+   "conectar": {
+    "precision": 0.898,
+    "recall": 0.093,
+    "conecta_pct": 2.8
+   },
+   "competencia_k5": {
+    "precision": 0.642,
+    "recall": 0.36,
+    "conecta_pct": 14.8
+   },
+   "competencia_k10": {
+    "precision": 0.574,
+    "recall": 0.602,
+    "conecta_pct": 27.7
+   },
+   "competencia_k20": {
+    "precision": 0.467,
+    "recall": 0.915,
+    "conecta_pct": 51.9
+   }
+  }
+ },
+ "diccionario": {
+  "pares": 40225,
+  "si_tienen_que_ver_pct": 2.9,
+  "motor_hoy_conecta_todo": {
+   "precision": 0.029,
+   "recall": 1.0,
+   "conecta_pct": 100.0
+  },
+  "regla_jaccard_0.4": {
+   "auc": 0.843,
+   "precision": 0.603,
+   "recall": 0.038,
+   "conecta_pct": 0.2
+  },
+  "piso_a_mano": {
+   "auc": 0.934,
+   "auc_por_recuerdo": 0.933,
+   "conectar": {
+    "precision": 0.458,
+    "recall": 0.424,
+    "conecta_pct": 2.7
+   },
+   "competencia_k5": {
+    "precision": 0.151,
+    "recall": 0.868,
+    "conecta_pct": 16.7
+   },
+   "competencia_k10": {
+    "precision": 0.087,
+    "recall": 0.949,
+    "conecta_pct": 31.8
+   },
+   "competencia_k20": {
+    "precision": 0.049,
+    "recall": 0.985,
+    "conecta_pct": 58.1
+   }
+  },
+  "neurona": {
+   "auc": 0.934,
+   "auc_semillas": [
+    0.934
+   ],
+   "auc_por_recuerdo": 0.933,
+   "auc_por_recuerdo_semillas": [
+    0.933
+   ],
+   "conectar": {
+    "precision": 0.458,
+    "recall": 0.424,
+    "conecta_pct": 2.7
+   },
+   "competencia_k5": {
+    "precision": 0.151,
+    "recall": 0.868,
+    "conecta_pct": 16.7
+   },
+   "competencia_k10": {
+    "precision": 0.087,
+    "recall": 0.949,
+    "conecta_pct": 31.8
+   },
+   "competencia_k20": {
+    "precision": 0.049,
+    "recall": 0.985,
+    "conecta_pct": 58.1
+   }
+  }
+ },
+ "relatos": {
+  "pares": 27195,
+  "si_tienen_que_ver_pct": 5.8,
+  "motor_hoy_conecta_todo": {
+   "precision": 0.058,
+   "recall": 1.0,
+   "conecta_pct": 100.0
+  },
+  "regla_jaccard_0.4": {
+   "auc": 0.915,
+   "precision": 0.0,
+   "recall": 0.0,
+   "conecta_pct": 0.0
+  },
+  "piso_a_mano": {
+   "auc": 0.994,
+   "auc_por_recuerdo": 0.994,
+   "conectar": {
+    "precision": 1.0,
+    "recall": 0.241,
+    "conecta_pct": 1.4
+   },
+   "competencia_k5": {
+    "precision": 0.426,
+    "recall": 0.987,
+    "conecta_pct": 13.5
+   },
+   "competencia_k10": {
+    "precision": 0.22,
+    "recall": 0.999,
+    "conecta_pct": 26.5
+   },
+   "competencia_k20": {
+    "precision": 0.116,
+    "recall": 1.0,
+    "conecta_pct": 50.3
+   }
+  },
+  "neurona": {
+   "auc": 0.994,
+   "auc_semillas": [
+    0.994
+   ],
+   "auc_por_recuerdo": 0.994,
+   "auc_por_recuerdo_semillas": [
+    0.994
+   ],
+   "conectar": {
+    "precision": 1.0,
+    "recall": 0.241,
+    "conecta_pct": 1.4
+   },
+   "competencia_k5": {
+    "precision": 0.426,
+    "recall": 0.987,
+    "conecta_pct": 13.5
+   },
+   "competencia_k10": {
+    "precision": 0.22,
+    "recall": 0.999,
+    "conecta_pct": 26.5
+   },
+   "competencia_k20": {
+    "precision": 0.116,
+    "recall": 1.0,
+    "conecta_pct": 50.3
+   }
+  }
+ },
+ "codigo": {
+  "pares": 31223,
+  "si_tienen_que_ver_pct": 6.9,
+  "motor_hoy_conecta_todo": {
+   "precision": 0.069,
+   "recall": 1.0,
+   "conecta_pct": 100.0
+  },
+  "regla_jaccard_0.4": {
+   "auc": 0.9,
+   "precision": 0.734,
+   "recall": 0.109,
+   "conecta_pct": 1.0
+  },
+  "piso_a_mano": {
+   "auc": 0.928,
+   "auc_por_recuerdo": 0.926,
+   "conectar": {
+    "precision": 0.719,
+    "recall": 0.291,
+    "conecta_pct": 2.8
+   },
+   "competencia_k5": {
+    "precision": 0.355,
+    "recall": 0.801,
+    "conecta_pct": 15.6
+   },
+   "competencia_k10": {
+    "precision": 0.208,
+    "recall": 0.918,
+    "conecta_pct": 30.3
+   },
+   "competencia_k20": {
+    "precision": 0.117,
+    "recall": 0.988,
+    "conecta_pct": 58.0
+   }
+  },
+  "neurona": {
+   "auc": 0.928,
+   "auc_semillas": [
+    0.928
+   ],
+   "auc_por_recuerdo": 0.926,
+   "auc_por_recuerdo_semillas": [
+    0.926
+   ],
+   "conectar": {
+    "precision": 0.719,
+    "recall": 0.291,
+    "conecta_pct": 2.8
+   },
+   "competencia_k5": {
+    "precision": 0.355,
+    "recall": 0.801,
+    "conecta_pct": 15.6
+   },
+   "competencia_k10": {
+    "precision": 0.208,
+    "recall": 0.918,
+    "conecta_pct": 30.3
+   },
+   "competencia_k20": {
+    "precision": 0.117,
+    "recall": 0.988,
+    "conecta_pct": 58.0
+   }
+  }
+ },
+ "charla": {
+  "pares": 24746,
+  "si_tienen_que_ver_pct": 23.2,
+  "motor_hoy_conecta_todo": {
+   "precision": 0.232,
+   "recall": 1.0,
+   "conecta_pct": 100.0
+  },
+  "regla_jaccard_0.4": {
+   "auc": 0.627,
+   "precision": 0.75,
+   "recall": 0.004,
+   "conecta_pct": 0.1
+  },
+  "piso_a_mano": {
+   "auc": 0.924,
+   "auc_por_recuerdo": 0.923,
+   "conectar": {
+    "precision": 0.979,
+    "recall": 0.57,
+    "conecta_pct": 13.5
+   },
+   "competencia_k5": {
+    "precision": 0.963,
+    "recall": 0.59,
+    "conecta_pct": 14.2
+   },
+   "competencia_k10": {
+    "precision": 0.725,
+    "recall": 0.779,
+    "conecta_pct": 24.9
+   },
+   "competencia_k20": {
+    "precision": 0.438,
+    "recall": 0.906,
+    "conecta_pct": 48.0
+   }
+  },
+  "neurona": {
+   "auc": 0.924,
+   "auc_semillas": [
+    0.924
+   ],
+   "auc_por_recuerdo": 0.923,
+   "auc_por_recuerdo_semillas": [
+    0.923
+   ],
+   "conectar": {
+    "precision": 0.979,
+    "recall": 0.57,
+    "conecta_pct": 13.5
+   },
+   "competencia_k5": {
+    "precision": 0.963,
+    "recall": 0.59,
+    "conecta_pct": 14.2
+   },
+   "competencia_k10": {
+    "precision": 0.725,
+    "recall": 0.779,
+    "conecta_pct": 24.9
+   },
+   "competencia_k20": {
+    "precision": 0.438,
+    "recall": 0.906,
+    "conecta_pct": 48.0
+   }
+  }
+ },
+ "noticias_es": {
+  "pares": 16359,
+  "si_tienen_que_ver_pct": 6.4,
+  "motor_hoy_conecta_todo": {
+   "precision": 0.064,
+   "recall": 1.0,
+   "conecta_pct": 100.0
+  },
+  "regla_jaccard_0.4": {
+   "auc": 0.915,
+   "precision": 0.0,
+   "recall": 0.0,
+   "conecta_pct": 0.0
+  },
+  "piso_a_mano": {
+   "auc": 0.997,
+   "auc_por_recuerdo": 0.997,
+   "conectar": {
+    "precision": 0.954,
+    "recall": 0.783,
+    "conecta_pct": 5.2
+   },
+   "competencia_k5": {
+    "precision": 0.473,
+    "recall": 0.976,
+    "conecta_pct": 13.1
+   },
+   "competencia_k10": {
+    "precision": 0.249,
+    "recall": 0.999,
+    "conecta_pct": 25.5
+   },
+   "competencia_k20": {
+    "precision": 0.129,
+    "recall": 1.0,
+    "conecta_pct": 49.2
+   }
+  },
+  "neurona": {
+   "auc": 0.997,
+   "auc_semillas": [
+    0.997
+   ],
+   "auc_por_recuerdo": 0.997,
+   "auc_por_recuerdo_semillas": [
+    0.997
+   ],
+   "conectar": {
+    "precision": 0.954,
+    "recall": 0.783,
+    "conecta_pct": 5.2
+   },
+   "competencia_k5": {
+    "precision": 0.473,
+    "recall": 0.976,
+    "conecta_pct": 13.1
+   },
+   "competencia_k10": {
+    "precision": 0.249,
+    "recall": 0.999,
+    "conecta_pct": 25.5
+   },
+   "competencia_k20": {
+    "precision": 0.129,
+    "recall": 1.0,
+    "conecta_pct": 49.2
+   }
+  }
+ },
+ "machado": {
+  "pares": 25782,
+  "si_tienen_que_ver_pct": 8.9,
+  "motor_hoy_conecta_todo": {
+   "precision": 0.089,
+   "recall": 1.0,
+   "conecta_pct": 100.0
+  },
+  "regla_jaccard_0.4": {
+   "auc": 0.758,
+   "precision": 0.0,
+   "recall": 0.0,
+   "conecta_pct": 0.0
+  },
+  "piso_a_mano": {
+   "auc": 0.962,
+   "auc_por_recuerdo": 0.958,
+   "conectar": {
+    "precision": 0.947,
+    "recall": 0.023,
+    "conecta_pct": 0.2
+   },
+   "competencia_k5": {
+    "precision": 0.502,
+    "recall": 0.807,
+    "conecta_pct": 14.4
+   },
+   "competencia_k10": {
+    "precision": 0.315,
+    "recall": 0.953,
+    "conecta_pct": 27.0
+   },
+   "competencia_k20": {
+    "precision": 0.171,
+    "recall": 0.993,
+    "conecta_pct": 51.7
+   }
+  },
+  "neurona": {
+   "auc": 0.962,
+   "auc_semillas": [
+    0.962
+   ],
+   "auc_por_recuerdo": 0.958,
+   "auc_por_recuerdo_semillas": [
+    0.958
+   ],
+   "conectar": {
+    "precision": 0.947,
+    "recall": 0.023,
+    "conecta_pct": 0.2
+   },
+   "competencia_k5": {
+    "precision": 0.502,
+    "recall": 0.807,
+    "conecta_pct": 14.4
+   },
+   "competencia_k10": {
+    "precision": 0.315,
+    "recall": 0.953,
+    "conecta_pct": 27.0
+   },
+   "competencia_k20": {
+    "precision": 0.171,
+    "recall": 0.993,
+    "conecta_pct": 51.7
+   }
+  }
+ }
+}

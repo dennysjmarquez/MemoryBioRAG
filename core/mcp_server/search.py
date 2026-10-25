@@ -54,37 +54,6 @@ def _serializar_asociaciones(asociaciones, asociados, max_items) -> dict:
     return {"total": total, "items": nombres, "truncada": False}
 
 
-def _encontrar_arista_origen(cerebro, concepto_fp, items, origen_scores):
-    """Busca en la tabla sinapsis la arista real que conecta un nodo indirecto (falso positivo candidato)
-    con un nodo de match directo. Retorna el concepto origen si existe la arista, None si no."""
-    # Obtener todos los conceptos que llegaron por match directo
-    directos = set()
-    for item in items:
-        c = item.get("concepto", "")
-        o = origen_scores.get(c)
-        if o and isinstance(o, tuple) and o[0] in ("literal", "concepto", "parafrasis", "protegido", "semantica"):
-            directos.add(c)
-    if not directos:
-        return None
-    # Buscar en sinapsis cuál de los directos tiene arista con el falso positivo
-    placeholders = ",".join("?" * len(directos))
-    try:
-        cerebro.cursor.execute(
-            f"SELECT origen, destino, peso FROM sinapsis "
-            f"WHERE (origen = ? AND destino IN ({placeholders})) "
-            f"OR (destino = ? AND origen IN ({placeholders})) "
-            f"ORDER BY peso ASC LIMIT 1",
-            (concepto_fp,) + tuple(directos) + (concepto_fp,) + tuple(directos)
-        )
-        row = cerebro.cursor.fetchone()
-        if row:
-            # Retornar el nodo directo (no el FP)
-            return row[1] if row[0] == concepto_fp else row[0]
-    except Exception:
-        pass
-    return None
-
-
 def _confianza_calibrada(cerebro, score) -> float:
     """Probabilidad calibrada (Platt) del score crudo, o el score si no hay calibrador."""
     try:
@@ -874,60 +843,6 @@ def _recordar_impl(
         if dimensiones_dict:
             trazabilidad["dimensiones_solicitadas"] = {k: len(v) for k, v in dimensiones_dict.items()}
 
-        # ── WARNING DE DESVINCULACIÓN (falsos positivos sinápticos) ──
-        # Principio: solo alertar sobre nodos que llegaron por PROPAGACIÓN SINÁPTICA
-        # indirecta (cadena, latente, vecino BFS), nunca sobre matches directos (FTS5, LIKE, etc.).
-        # El warning incluye la arista exacta (par a,b) para que el agente sepa qué cortar.
-        if query and items:
-            origen_scores = getattr(cerebro, "last_origen_scores", {})
-            vecinos_trazabilidad = getattr(cerebro, "last_vecinos_trazabilidad", {})
-            for item in items:
-                score = item.get("score_hibrido", 0)
-                concepto = item.get("concepto", "")
-                
-                # 1. Match directo (FTS5, LIKE, concepto, sinónimos, paráfrasis, protegido) → nunca alertar
-                origen_info = origen_scores.get(concepto)
-                if origen_info:
-                    origen_tipo = origen_info[0] if isinstance(origen_info, tuple) else origen_info
-                    if origen_tipo in ("literal", "concepto", "parafrasis", "protegido", "semantica", "typo", "dimensional_fallback"):
-                        continue
-                
-                # 2. Nodo que llegó por CADENA (spreading activation multi-hop por sinapsis)
-                if origen_info and isinstance(origen_info, tuple) and origen_info[0] == "cadena":
-                    if score < 0.35:
-                        # Buscar la arista real que lo conecta al grafo de resultados directos
-                        arista_origen = _encontrar_arista_origen(cerebro, concepto, items, origen_scores)
-                        if arista_origen:
-                            _warnings.append(
-                                f"⚠️ '{concepto}' (score {score}) llegó por evocación en cadena (spreading activation) "
-                                f"a través de una sinapsis desde '{arista_origen}'. "
-                                f"Si no tienen relación lógica, desvinculá con: "
-                                f"biorag_desvincular(a='{arista_origen}', b='{concepto}')."
-                            )
-                
-                # 3. Nodo que llegó por SIMILITUD LATENTE (Jaccard + red sináptica)
-                elif origen_info and isinstance(origen_info, tuple) and origen_info[0] == "latente":
-                    if score < 0.35:
-                        arista_origen = _encontrar_arista_origen(cerebro, concepto, items, origen_scores)
-                        if arista_origen:
-                            _warnings.append(
-                                f"⚠️ '{concepto}' (score {score}) llegó por similitud latente (Jaccard + red sináptica) "
-                                f"conectado a '{arista_origen}'. "
-                                f"Si no tienen relación lógica, desvinculá con: "
-                                f"biorag_desvincular(a='{arista_origen}', b='{concepto}')."
-                            )
-                
-                # 4. Nodo que llegó por EXPANSIÓN DE VECINOS (BFS en red sináptica)
-                elif concepto in vecinos_trazabilidad:
-                    origen_bfs, peso_arista = vecinos_trazabilidad[concepto]
-                    if peso_arista < 0.5 and score < 0.4:
-                        _warnings.append(
-                            f"⚠️ '{concepto}' (score {score}) llegó por expansión de vecinos (BFS) "
-                            f"a través de sinapsis débil (peso {peso_arista}) desde '{origen_bfs}'. "
-                            f"Si no tienen relación lógica, desvinculá con: "
-                            f"biorag_desvincular(a='{origen_bfs}', b='{concepto}')."
-                        )
-
         resultado = json.dumps({
             "total": total,
             "pagina_actual": pagina,
@@ -1262,14 +1177,8 @@ def register(mcp: Any) -> None:
             "═══════════════════════════════════════════════════════\n"
             "HIGIENE — FALSOS POSITIVOS SINÁPTICOS\n"
             "═══════════════════════════════════════════════════════\n"
-            "Un falso positivo sináptico es un nodo que apareció en resultados NO por coincidencia\n"
-            "textual con tu query, sino porque fue arrastrado por una conexión (sinapsis) indirecta.\n"
-            "El sistema detecta estos casos automáticamente y emite un ⚠️ con el par exacto de\n"
-            "nodos (a, b) que deberías desvincular. Solo actuá sobre esos warnings explícitos.\n"
             "NUNCA desvincules un nodo solo porque tiene score bajo — un nodo con score 0.15\n"
             "puede ser un hub legítimo de identidad recuperado por propagación válida.\n"
-            "Si desvinculás sin el warning del sistema, podés romper la topología del grafo.\n"
-            "VINCULÁ nodos relacionados cuando aprendés. Si no vinculás, el nodo queda huérfano.\n"
         ),
     )
     def biorag_recordar(

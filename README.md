@@ -1,8 +1,8 @@
 # BioRAG — Memoria Cognitiva Biomimética y Simbólica para Agentes de IA
 
-> **Versión Oficial:** v34.1
+> **Versión Oficial:** v35.0
 > **Paradigma:** Motor Python + SQLite FTS5. **Sin embeddings densos, GPU ni llamadas a APIs externas** en el path de búsqueda.
-> **Motor:** Arquitectura modularizada (18 submódulos `core/memory/` + 15 submódulos `core/mcp_server/` + fachada delgada) + SQLite FTS5 WAL + PPMI-SVD (100 dimensiones) + espacio semántico de 13 ejes + grafo sináptico Hebbiano + SDM (2048 bits) + calibración conforme + activación ACT-R + Concept Hubs + validación simétrica fail-fast de sustantivos clave + **neurona de reordenamiento que aprende sola** (29 señales → 6 ocultas → 1 corrección, con piso en la fórmula a mano).
+> **Motor:** Arquitectura modularizada (18 submódulos `core/memory/` + 15 submódulos `core/mcp_server/` + fachada delgada) + SQLite FTS5 WAL + PPMI-SVD (100 dimensiones) + espacio semántico de 13 ejes + grafo sináptico Hebbiano + SDM (2048 bits) + calibración conforme + activación ACT-R + Concept Hubs + validación simétrica fail-fast de sustantivos clave + **neurona de reordenamiento que aprende sola** (29 señales → 6 ocultas → 1 corrección, con piso en la fórmula a mano) + **neurona asociativa cerrada de fábrica** (5 agujas → fuerza 0–1: ¿dos recuerdos tienen que ver?; examinada, aún no decide en el motor) + enlaces del agente intocables.
 > **Idiomas:** Español e inglés (stemming bilingüe, expansión simbólica con WordNet, Concept Hubs de 5 ángulos y Domain Dict).
 
 **BioRAG** es una memoria simbólica persistente para agentes de IA que aborda la pérdida de contexto entre sesiones mediante recuperación híbrida. “Biomimética” describe una inspiración de diseño; no significa que el motor simule literalmente un cerebro humano. Los resultados de rendimiento se limitan a los benchmarks y snapshots indicados.
@@ -12,6 +12,8 @@
 ## 📊 Métricas de la suite oficial (v33.0 · 2026-10-14 · vigentes en v34.0)
 
 > **v34.0:** con una DB nueva, o sin campeón, la neurona no actúa y estos números se mantienen **idénticos** (son el piso). Con el campeón ya aprendido sobre la copia del snapshot (`despertar_neurona.sh`, 500 ciclos), la misma suite da **Recall@5 100.00 % · Recall@1 94.06 % (823/875) · MRR 0.964 · FP 0/40**, sin ninguna categoría por debajo del piso. Detalle en [La Neurona de BioRAG](#-novedades-de-la-versión-v340--la-neurona-de-biorag).
+>
+> **v35.0:** la QA oficial sale **idéntica** antes y después de todos los cambios de la v35 (Recall@5 100.00 % · Recall@1 91.89 % · MRR 0.950 · FP 0/40, misma máquina y semilla). Detalle en [La Neurona Asociativa](#-novedades-de-la-versión-v350--la-neurona-asociativa-sináptica).
 
 Evaluación sobre el snapshot congelado oficial canónico (**921 casos totales en suite QA**):
 - **Archivo:** `snapshots/qa_escape_qcr_20260811.db`
@@ -25,7 +27,7 @@ Evaluación sobre el snapshot congelado oficial canónico (**921 casos totales e
 | **MRR (Mean Reciprocal Rank)** | **0.950** | Posición recíproca promedio ponderada (0.9497 sin redondear; métrica complementaria observada). |
 | **Falsos positivos** | **0/40 (0.00%)** | Calibración conforme efectiva en los 40 controles negativos del benchmark (FP rate observada 0.00%). |
 | **Casos ambiguos (contradictorios)** | **6 casos (2 con cobertura parcial)** | Evaluados por separado del Recall global; 2 casos no cubren al menos una de las etiquetas contradictorias. |
-| **Tests unitarios** | **407/407 aprobados** (v34.1) | Cobertura completa de invariantes, validación pre-DB fail-fast, contratos MCP, normalización, catálogo, las 18 capas de protección de la neurona y el script de despertar. |
+| **Tests unitarios** | **430/430 aprobados** (v35.0) | Cobertura completa de invariantes, validación pre-DB fail-fast, contratos MCP, normalización, catálogo, las 18 capas de protección de la neurona, el script de despertar, la neurona asociativa, los enlaces del agente intocables y el MCP sin sugerencias de enlace. |
 | **Suite Concept Hub** | **5/5 TOP-1 (100.00%)** | Precisión perfecta en los 5 casos de prueba de puentes asociativos registrados. |
 | **Abismo léxico (EXP-Q)** | **3/3 Pool · 2/3 Top-5 · 1/3 Top-1** | 3/3 descubiertos en pool de grafo; 2/3 en Top-5 (pos #1 y #4) y 1/3 en Top-1 (pos #1). |
 | **Sinónimos · Recall@5 / Recall@1** | **100% (55/55) / 56.36%** | Cobertura total en Top-5; el 43.64% restante queda entre Top-2 y Top-5. |
@@ -40,6 +42,257 @@ Evaluación sobre el snapshot congelado oficial canónico (**921 casos totales e
 > - **Recall@1 (91.77%)** y **MRR (0.9497)** son métricas complementarias observadas en el benchmark sobre este corpus congelado, no umbrales que el gate imponga ni garantías universales para cualquier consulta arbitraria.
 > - **R@5 = 100.00% (875/875):** Demuestra empíricamente que el conjunto híbrido (FTS5 BM25 + Sustantivos Clave + Grafo Sináptico Hebbiano + PPMI-SVD + Concept Hubs + Reranker Multicampo) logra **cobertura completa (875/875) dentro de la ventana Top-5 de trabajo del agente en este corpus evaluado**.
 > - **R@1 = 91.77% (803/875):** Refleja la precisión exacta del primer candidato. En tareas con solapamiento léxico directo (`literal`, `pregunta_natural`), R@1 supera el 95%–99%. En tareas donde el vocabulario difiere radicalmente (`sinonimo` 56.36%, `por_tema` 63.08%), el sistema ubica el recuerdo dentro del Top-5 pero no siempre en Top-1. R@1 representa el área de optimización continua para el desempate fino sin embeddings densos.
+
+---
+
+## 🧬 Novedades de la Versión v35.0 — La Neurona Asociativa (sináptica)
+
+<p align="center">
+  <img src="docs/Mi%20neurona%20en%20el%20sistema/imagenes/neurona_asociativa_biorag.jpg" alt="La neurona asociativa de BioRAG: un cuerpo dentro de la silueta de un hipocampo, cinco dendritas que tocan dos recuerdos y un puente de luz que nace entre ellos" width="100%">
+</p>
+<p align="center"><em>La neurona asociativa de BioRAG (ilustración). El cuerpo vive dentro de la silueta de un hipocampo, la parte del cerebro que decide qué se une con qué. Sus cinco dendritas (oro: el texto; celeste: el tiempo; verde: las etiquetas) tocan dos recuerdos. Arriba nace la sinapsis entre ellos. Los hilos grises del fondo son las conexiones con ruido que la neurona sabe reconocer.</em></p>
+
+> **En una frase:** BioRAG ya tiene su **segunda neurona**. Mira dos recuerdos y responde una sola pregunta: **¿de verdad tienen que ver?** Nace calibrada de fábrica, no aprende de tu memoria, decide en tiempo constante y **ya está examinada**, también por una persona a mano.
+
+**Estado honesto al cerrar la v35.** La neurona está **construida, calibrada, examinada y cerrada**, pero **todavía no decide nada dentro del motor**:
+- Se probó que pusiera el peso de nacimiento de cada sinapsis (`dd85fcf`). La búsqueda dio exactamente igual, así que **se revirtió** (`76fe11c`).
+- Se probó en una simulación que cortara sinapsis al nacer. **Baja el recall con cualquier umbral**, así que se descartó.
+- Su lugar natural, ya medido en una copia, es **elegir qué asociaciones ve el agente**. Queda para la próxima versión, medido antes y después.
+
+La v35 sí cambia dos cosas en el motor (ver [Otros cambios de la v35.0](#otros-cambios-de-la-v350)):
+- los **enlaces que hace el agente** ya **no los borra nunca** el sistema;
+- el servidor MCP **ya no le sugiere** al agente qué vincular ni qué desvincular.
+
+| Pieza | Estado en v35.0 |
+|---|---|
+| Neurona asociativa (`core/neurona_asociativa.py`) | ✅ Construida, cerrada (no aprende), con pruebas propias |
+| ¿Decide dentro del motor? | ⏸️ Todavía no. Probado y revertido (peso); probado y descartado (cortar) |
+| Enlaces del agente (`manual`, `manual_v7`) | ✅ **Intocables** para el sistema; solo `desvincular` los borra |
+| Sugerencias MCP de vincular / desvincular | ✅ **Quitadas** (las herramientas `vincular` y `desvincular` siguen) |
+| QA oficial antes y después de todos los cambios | ✅ **Idéntica**: Recall@5 100.00 % · Recall@1 91.89 % · MRR 0.950 · FP 0/40 · `[GATE] OK` |
+| Pruebas | ✅ **430/430** |
+
+![El viaje de la neurona asociativa](docs/Mi%20neurona%20en%20el%20sistema/experimento_13_enlaces_del_agente_y_ruido/figuras/02_el_viaje.png)
+
+### 1. Por qué existe
+
+BioRAG guarda recuerdos y los **une** con sinapsis (el grafo). En la memoria de Dennys hay **851 recuerdos activos y 13,342 conexiones**. Casi todas las crean **cinco reglas automáticas**:
+
+| Regla automática | Sinapsis que creó |
+|---|---:|
+| `sinonimo_explicito` (comparten un sinónimo) | 5,863 (42 %) |
+| `pmi_hebbiano` (aparecen juntas) | 2,359 |
+| `co_ocurrencia` | 2,108 |
+| `co_nombre` (se parecen en el nombre) | 1,558 |
+| `co_semantica` | 1,226 |
+
+Esas reglas unen por coincidencias. Ninguna se pregunta **si los dos recuerdos de verdad tienen que ver**. Lo medimos de tres formas:
+
+1. **Examen a mano.** Dennys juzgó 99 pares de su memoria. Entre las sinapsis automáticas, cerca del **45 % son buenas** (margen 32–59 %). Más o menos la mitad es ruido.
+2. **El peso de hoy no separa nada.** Con el peso que reciben hoy, los 381 enlaces hechos por personas quedan **por debajo** del resto (AUC **0.271**, peor que tirar una moneda).
+3. **El único juez hoy es la hormiguita**, que le pregunta a Gemini. Es una API externa: cuesta dinero, necesita internet, puede responder distinto ante el mismo par y además se equivoca. De 15 pares que Gemini sacó, Dennys dijo que **6 sí tenían que ver**.
+
+**En el cerebro**, quien decide qué se une con qué es el **hipocampo**. Funciona por partes:
+- la **corteza entorrinal** le trae las señales;
+- el **giro dentado** separa lo que se parece pero no es lo mismo;
+- **CA3** guarda la red de asociaciones;
+- **CA1** compara y decide.
+
+BioRAG ya tenía la entrada (las señales) y la red (el grafo y la SDM). **Le faltaba el juez.** Esta neurona es ese juez.
+
+![De tu hipocampo a la neurona](docs/Mi%20neurona%20en%20el%20sistema/experimento_11_neurona_asociativa/figuras/02_hipocampo.png)
+
+### 2. Qué tipo de neurona es
+
+| Pregunta | Respuesta |
+|---|---|
+| **Arquitectura** | **Una neurona logística**: 5 entradas ("agujas") → Σ → curva sigmoide → **fuerza** de 0 a 1. Son **6 números** en total (un sesgo y 5 pesos). |
+| **Qué responde** | ¿Los recuerdos A y B tienen que ver? `fuerza ≥ 0.6` = sí con confianza; `< 0.6` = dudoso. |
+| **De dónde salen sus pesos** | **De fábrica**. Se calibraron a mano sobre **7 memorias públicas** muy distintas (noticias en inglés y en español, un diccionario, relatos, código Python, un chat real y la obra de Machado de Assis en portugués). Cada una trae su propia verdad, por ejemplo "mismo tema" o "misma clase". |
+| **Qué aprende de tu memoria** | **Nada.** Es **cerrada**: nace calibrada, como las neuronas con las que nacemos. No memoriza tu memoria ni la de nadie. |
+| **Qué sí mide de cada memoria** | Solo lo necesario para leerla: la rareza de cada raíz, un espacio semántico de 100 dimensiones y **dos llaves**. Las llaves dicen si en *esa* memoria el tiempo y las etiquetas coinciden con el texto. Todo se mide solo, sin respuestas correctas. |
+| **Idiomas** | Cualquiera. Usa raíces de 7 letras y no tiene listas de palabras de ningún idioma. |
+| **Cuánto cuesta** | Cada decisión entre dos recuerdos es de **tiempo constante**: no depende del tamaño de la memoria. El estado se arma una vez sobre un máximo de **2,000 recuerdos** y se rehace cuando la memoria crece un 10 %. Solo usa numpy, sin GPU ni APIs. |
+| **Dónde vive** | `core/neurona_asociativa.py` (versión `asoc-1`). Si algún día la llama el motor, guarda su estado en dos tablas propias: `neurona_asociativa_estado` y `neurona_asociativa_raices`. |
+| **Interruptor** | `BIORAG_NEURONA_ASOCIATIVA=0` la apaga. En v35 el motor no la llama, así que hoy no cambia nada. |
+
+![La neurona asociativa del motor: cómo decide](docs/Mi%20neurona%20en%20el%20sistema/experimento_13_enlaces_del_agente_y_ruido/figuras/01_neurona_del_motor.png)
+
+**La inspiración biológica (es inspiración, no simulación):**
+
+| En el cerebro | En la neurona asociativa |
+|---|---|
+| Corteza entorrinal (trae la información) | Las **agujas**: lo que se mide del par |
+| Giro dentado (separa lo parecido de lo igual) | `rareza_max`: compartir una pista **rara** vale más que compartir una palabra común |
+| Corteza (significado) | `parecido` y `semantica` |
+| **Células de tiempo** (lo que se vive junto se une) | `episodio`: guardados cerca en el tiempo. Es la aguja que más pesa (×4) |
+| Esquemas de la corteza prefrontal | `etiquetas`: dims compartidas |
+| CA1 (compara y decide) | El Σ y la curva: la **fuerza** |
+| CA3 (la red de asociaciones) | El grafo y la SDM que **ya existían** en BioRAG |
+| Homeostasis (no dejar que algo domine todo) | Las **llaves**: el tiempo y las etiquetas valen solo si en esa memoria coinciden con el texto |
+
+### 3. La fórmula: un piso a mano, calibrado y cerrado
+
+```
+z      = −1 + 2·parecido + 1·semantica + 1·rareza_max + 4·episodio·llave_tiempo + 1·etiquetas·llave_dims
+fuerza = 1 / (1 + e^−z)
+```
+
+| Aguja | Pregunta que hace | Peso | Por qué ese peso |
+|---|---|---:|---|
+| `parecido` | ¿Usan las mismas palabras? (coseno tf-idf de raíces) | 2 | La señal más estable en las 7 memorias |
+| `semantica` | ¿Significan lo mismo? (LSA, 100 dimensiones) | 1 | Rescata pares que dicen lo mismo con otras palabras |
+| `rareza_max` | ¿Comparten una pista muy rara? | 1 | Compartir "nefrona" dice más que compartir "sistema" |
+| `episodio` | ¿Se guardaron cerca en el tiempo? | 4 | Es lo que más pesa en el cerebro. Solo vale si la llave dice que en *esa* memoria el tiempo coincide con el texto (en la de Dennys, la llave vale 0.48). Si pasaron más de 7 días reales, no cuenta. |
+| `etiquetas` | ¿Comparten dims? | 1 | Igual, con su propia llave (0.36 en la de Dennys) |
+
+Se midieron **12 agujas**. Solo 5 entran en la fórmula, porque las otras 7 no ayudaban en las 7 memorias a la vez. También se descartaron, con pruebas:
+- **Competencia** (cada recuerdo se queda con sus K socios más fuertes): conserva pares débiles y suelta buenos.
+- **Coacceso** (recuerdos que se piden juntos): AUC 0.459, no separa.
+
+La neurona **tiene una parte que puede aprender, pero queda apagada.** Probamos una corrección aprendida sobre la fórmula:
+- con cada memoria por separado ganaba hasta +4.55 puntos;
+- con todas juntas, lo que una ganaba otra lo perdía (la "balanza").
+
+Para servir en cualquier memoria, **la fórmula a mano es mejor**. La corrección queda en escala 0, por decisión de Dennys: la neurona asociativa **no aprende**.
+
+![El banco de agujas](docs/Mi%20neurona%20en%20el%20sistema/experimento_11_neurona_asociativa/figuras/04_banco_agujas.png)
+
+![La balanza: por qué la parte que aprende queda apagada](docs/Mi%20neurona%20en%20el%20sistema/experimento_11_neurona_asociativa/figuras/11_balanza_aprender.png)
+
+### 4. Cómo se examinó
+
+**4.1. En memorias que nunca vio.** Para cada memoria se volvió a calibrar la fórmula **sin mirarla** (con las otras 6) y después se le tomó examen. La AUC es la probabilidad de que un par que sí tiene que ver saque más fuerza que uno que no: 0.5 es azar y 1.0 es perfecto.
+
+| Memoria | Idioma | Pares | Sí tienen que ver | Regla simple (Jaccard) | **Neurona** |
+|---|---|---:|---:|---:|---:|
+| noticias (Reuters) | en | 47,175 | 26.5 % | 0.834 | **0.882** |
+| diccionario (WordNet) | en | 40,225 | 2.9 % | 0.843 | **0.902** |
+| relatos (Brown) | en | 27,195 | 5.8 % | 0.915 | **0.994** |
+| código (librería de Python) | Python | 31,223 | 6.9 % | 0.900 | **0.927** |
+| chat real (NPS) | en | 24,746 | 23.2 % | 0.627 | **0.911** |
+| noticias (EFE) | es | 16,359 | 6.4 % | 0.915 | **0.997** |
+| Machado de Assis | pt | 25,782 | 8.9 % | 0.758 | **0.962** |
+
+Promedio **0.939**; el peor caso es **0.882**. En las 7 memorias, la neurona supera a la regla simple.
+
+![Examen en memorias nunca vistas](docs/Mi%20neurona%20en%20el%20sistema/experimento_11_neurona_asociativa/figuras/07_examen_nunca_vista.png)
+
+**4.2. En la memoria real de Dennys, que tampoco vio.** En la DB hay dos jueces: lo que unió una persona o el agente (381 enlaces) y lo que juzgó Gemini.
+
+| Prueba | Peso de hoy | **Neurona** |
+|---|---:|---:|
+| Enlaces humanos vs el resto (AUC) | 0.271 | **0.868** |
+| Enlaces humanos vs lo que Gemini sacó (AUC) | — | **0.930** |
+| Fuerza típica (mediana): humanos / Gemini confirmó / Gemini sacó | — | **0.75** / 0.45 / 0.40 |
+
+![Tu memoria: tres jueces](docs/Mi%20neurona%20en%20el%20sistema/experimento_11_neurona_asociativa/figuras/08_tu_memoria_tres_jueces.png)
+
+**4.3. Examen a mano.** Dennys leyó los 100 pares con el texto completo de cada recuerdo y contestó 99.
+
+| Resultado | Valor |
+|---|---|
+| AUC de la fuerza en los 99 pares | **0.73** (margen 0.62–0.83) |
+| Pares con fuerza **≥ 0.6** | 31 «sí» de 42 (74 %) |
+| Pares con fuerza **< 0.6** | 16 «sí» de 44 (36 %) |
+| Sinapsis que **ya existen** con fuerza ≥ 0.6 | **13 buenas, 1 mala** |
+| Sinapsis existentes: neurona vs peso de hoy (AUC) | **0.77** vs 0.63 |
+| Pares que **no existen** y la neurona propone | **12 «sí» de 15** (80 %) |
+| Sinapsis automáticas buenas (estimado) | ~45 % (32–59 %) |
+
+La neurona no es perfecta, pero **juzga como una persona mucho mejor que el peso de hoy**, y encuentra enlaces buenos que hoy no existen.
+
+### 5. Qué se probó dentro del motor, y por qué hoy no decide
+
+Todo se midió con la QA oficial (875 búsquedas), en **copias** del snapshot. Nunca se tocó la DB real.
+
+**5.1. Poner el peso de nacimiento (experimento 12) → revertido.** Con la neurona fijando el peso de cada sinapsis nueva, la QA salió **idéntica**, incluso repesando todas las sinapsis automáticas de una copia. La búsqueda casi no mira ese peso. Ordenar mejor los enlaces no es buscar mejor. Como no se podía demostrar una mejora, Dennys pidió revertirlo (`76fe11c`).
+
+**5.2. Cortar sinapsis al nacer (experimento 13) → descartado.** Se simuló la neurona dejando nacer solo las sinapsis con fuerza suficiente, con la hormiguita apagada:
+
+| Escenario | Sinapsis automáticas | Recall@5 | Recall@1 | MRR | Fallos | Pares del examen que quedan (buenos / malos) |
+|---|---:|---:|---:|---:|---:|---|
+| Hoy (con hormiguita) | 13,114 | **100.00 %** | 91.89 % | 0.950 | 0 | 26 / 29 |
+| Hormiguita apagada | 15,864 | **100.00 %** | **92.00 %** | **0.951** | 0 | 30 / 36 |
+| La neurona corta < 0.40 | 10,261 | 99.89 % | 91.77 % | 0.949 | 1 | 27 / 28 |
+| La neurona corta < 0.50 | 3,847 | 99.66 % | 91.77 % | 0.948 | 3 | 18 / 11 |
+| La neurona corta < 0.60 | 1,684 | 99.43 % | 91.66 % | 0.947 | 5 | 15 / 8 |
+| Sin sinapsis automáticas | 0 | 99.43 % | 91.77 % | 0.948 | 5 | — |
+
+![¿El ruido ayuda a buscar?](docs/Mi%20neurona%20en%20el%20sistema/experimento_13_enlaces_del_agente_y_ruido/figuras/03_el_ruido_y_la_busqueda.png)
+
+Lo que enseñó:
+- **El "ruido" ayuda a buscar.** Sin las sinapsis automáticas se pierden 5 búsquedas.
+- **Cortar baja el recall con cualquier umbral.** La regla de BioRAG es que el recall nunca baja, así que la neurona **no debe borrar**.
+- **Apagar la hormiguita no bajó nada** (incluso sube un poco el primer puesto: por tema pasa de 63.08 % a 64.62 %). Es una simulación; la hormiguita **sigue igual en v35**.
+
+**5.3. Su lugar: lo que ve el agente (medido, todavía no aplicado).** Junto a cada resultado, BioRAG le muestra al agente las **asociaciones** del recuerdo (el "canal 2"). Eso **no toca el ranking**. Si la neurona eligiera cuáles mostrar:
+
+| Asociaciones mostradas | Total | Automáticas | Del agente | Recuerdos sin vecinos | Pares del examen visibles (buenos / malos) |
+|---|---:|---:|---:|---:|---|
+| Hoy | 3,173 | 2,466 | 691 | 22 | 5 / 8 |
+| La neurona filtra ≥ 0.50 | 2,588 | 1,876 | 694 | 103 | **9 / 1** |
+| La neurona filtra ≥ 0.60 | 2,024 | 1,303 | 698 | 225 | 10 / 1 |
+
+![Lo que ve el agente](docs/Mi%20neurona%20en%20el%20sistema/experimento_13_enlaces_del_agente_y_ruido/figuras/04_lo_que_ve_el_agente.png)
+
+La muestra es chica (10 a 13 pares) y parte del examen se eligió con la fuerza de la neurona. Es una **señal**, no una prueba firme. Por eso queda como el **próximo paso**, con su propia medición.
+
+### 6. Por qué debe existir
+
+1. **Para quitar a Gemini del grafo.** Hoy la limpieza depende de una API externa que cuesta, necesita internet y no siempre responde lo mismo. La neurona es local, gratis, determinista y de tiempo constante. Además separa los enlaces humanos de lo que Gemini sacó con AUC **0.930**.
+2. **Para que el agente vea asociaciones buenas.** Hoy, de los pares del examen que el agente llega a ver, hay más malos que buenos (5 / 8). Con la neurona filtrando, 9 / 1.
+3. **Para proponer lo que falta.** El 31 % de los enlaces humanos nunca llega a ser candidato de ninguna regla automática. De los pares que la neurona propuso y no existían, Dennys aprobó el **80 %**.
+4. **Para arreglar `vincular_por_sinonimos`**, la regla que más sinapsis crea (42 %). Con sus 5 mejores por recuerdo, la neurona encuentra **148** de los 381 enlaces humanos (fuerza media 0.711). Un arreglo a mano encontraba 122 (0.536).
+5. **Porque cualquier memoria la puede usar desde el día uno.** Viene calibrada de fábrica y no necesita QA, ni respuestas correctas, ni entrenamiento. Sirve para una DB vacía de un tercero.
+
+Cada uno de estos pasos irá **por separado**: un cambio a la vez, con la QA antes y después, y la regla de que el recall nunca baja.
+
+### Otros cambios de la v35.0
+
+**Los enlaces del agente son intocables (`8c7d476`).** Lo que une el agente (`vincular`, o `vincular_con` en `aprender`/`guardar`; tipos `manual` y `manual_v7`) es una decisión informada: el agente buscó antes de guardar (`busqueda_previa`). Antes, 9 de esos enlaces habían bajado de 0.5 por el decaimiento. Ahora el sistema los salta en todos los procesos que pueden debilitar o borrar:
+
+| Proceso | Antes | v35 |
+|---|---|---|
+| Decaimiento del peso | Bajaba | No los toca |
+| Borrado por peso < 0.05 | Podía borrarlos | No los toca |
+| Poda LTD guiada | Podía podarlos | No los toca |
+| Hormiguita: prefiltro, cuarentena, borrar o repesar | Podía sacarlos | No los toca |
+| `desvincular` (el agente lo pide) | Borra | **Borra** (la decisión sigue siendo del agente) |
+
+**El MCP ya no sugiere qué vincular ni qué desvincular (`0182ad4`).** Se quitaron los mensajes que empujaban al agente a crear o borrar enlaces. Las herramientas `vincular` y `desvincular` siguen en el MCP, y `vincular_con` en `aprender` no cambió. El agente decide solo, con lo que encontró en su búsqueda previa.
+
+**Pruebas nuevas:**
+- `tests/test_neurona_asociativa_motor.py` (fiel al experimento 11, costo constante, techo de la muestra y que guardar sigue usando los pesos a mano);
+- `tests/test_enlaces_del_agente_intocables.py` (9 pruebas);
+- `tests/test_sin_sugerencias_de_enlace.py` (4 pruebas).
+
+Total: **430/430**. La QA oficial quedó **idéntica** antes y después de todos los cambios v35, con el mismo snapshot y la misma semilla (`PYTHONHASHSEED=1`).
+
+### Límites (lo que no está probado)
+
+- Se calibró con 7 memorias públicas y se examinó con **una** memoria personal. Faltan más memorias reales.
+- El examen a mano lo hizo **una persona** con 99 pares. Parte de los pares se eligió con la propia fuerza de la neurona, lo que puede favorecerla.
+- La QA oficial mide si el recuerdo correcto sale en la búsqueda, **no** la calidad de las asociaciones ni el peso. Por eso el experimento 12 salió "igual".
+- Lo de la hormiguita apagada y el filtro del canal 2 se midió **en copias**. Ninguno está en el motor.
+- No se comparó todavía *agente + BioRAG* contra *agente + base de datos vectorial*.
+- El hipocampo es **inspiración**, no simulación.
+
+### Dónde está todo
+
+| Qué | Dónde |
+|---|---|
+| Diseño: el molde y dónde nacen las sinapsis | [Experimento 10 — Neuronas del motor](docs/Mi%20neurona%20en%20el%20sistema/experimento_10_neuronas_del_motor/) |
+| Construcción, calibración, exámenes y las 12 figuras | [Experimento 11 — La neurona asociativa](docs/Mi%20neurona%20en%20el%20sistema/experimento_11_neurona_asociativa/) |
+| Peso de nacimiento (revertido) | [Experimento 12 — La neurona en el motor](docs/Mi%20neurona%20en%20el%20sistema/experimento_12_neurona_en_el_motor/) |
+| Enlaces del agente, ruido, cortar al nacer, canal 2 y cierre | [Experimento 13 — Enlaces del agente y ruido](docs/Mi%20neurona%20en%20el%20sistema/experimento_13_enlaces_del_agente_y_ruido/) |
+| La neurona | `core/neurona_asociativa.py` |
+
+Las figuras se redibujan sin ninguna DB:
+- `python dibujar.py` en la carpeta del experimento 11;
+- `python dibujar.py` en la carpeta del experimento 13.
+
+**Con esto, el tema de la neurona asociativa queda cerrado en la v35.**
 
 ---
 
@@ -370,7 +623,7 @@ Todo se midió sobre **copias** del snapshot canónico (nunca sobre el original 
 - 🟢 **verde**: la corrección, el ascenso y el campeón en servicio;
 - 🔴 **rojo**: lo que estaba mal antes (MCP con auto-paráfrasis, desfase de la v4) o un límite (presupuesto de tiempo).
 
-### 9. La historia: nueve experimentos
+### 9. La historia: trece experimentos (01–09 esta neurona; 10–13 la [neurona asociativa](#-novedades-de-la-versión-v350--la-neurona-asociativa-sináptica))
 
 | # | Experimento | Qué se aprendió |
 |---|---|---|
@@ -383,6 +636,10 @@ Todo se midió sobre **copias** del snapshot canónico (nunca sobre el original 
 | 07 | [La neurona escucha](docs/Mi%20neurona%20en%20el%20sistema/experimento_07_la_neurona_escucha/) | Desfase 0, los dos caminos, vista de 10, piso de R@5; y el camino MCP arreglado |
 | 08 | [Piso contra el campeón](docs/Mi%20neurona%20en%20el%20sistema/experimento_08_piso_contra_el_campeon/) | Un retador ya no puede ganar cediendo una categoría; A/B determinista: en datos reales la regla nunca tuvo que actuar |
 | 09 | [Que aprenda sola de verdad](docs/Mi%20neurona%20en%20el%20sistema/experimento_09_aprende_sola_de_verdad/) | v34.1: 1 práctica por consolidación; preguntar a lo ancho dentro de los 3 s. Una DB nueva enciende la neurona en ~20 consolidaciones; la QA queda igual |
+| 10 | [Neuronas del motor](docs/Mi%20neurona%20en%20el%20sistema/experimento_10_neuronas_del_motor/) | v35: el molde de las neuronas modulares y el mapa de dónde nacen las sinapsis; se estudió la hormiguita (Gemini) |
+| 11 | [La neurona asociativa](docs/Mi%20neurona%20en%20el%20sistema/experimento_11_neurona_asociativa/) | v35: 5 agujas calibradas de fábrica en 7 memorias; AUC 0.88–0.997 en memorias nunca vistas; examen a mano de Dennys AUC 0.73; la parte que aprende queda apagada |
+| 12 | [La neurona en el motor](docs/Mi%20neurona%20en%20el%20sistema/experimento_12_neurona_en_el_motor/) | v35: poner el peso de nacimiento deja la QA idéntica → revertido |
+| 13 | [Enlaces del agente y ruido](docs/Mi%20neurona%20en%20el%20sistema/experimento_13_enlaces_del_agente_y_ruido/) | v35: los enlaces del agente, intocables; el ruido ayuda a buscar; cortar al nacer baja el recall; su lugar es lo que ve el agente. Cierre de la neurona asociativa |
 
 Las figuras se regeneran con `python "docs/Mi neurona en el sistema/imagenes/generar_figuras.py"`: los nombres de las señales salen del código y las curvas de los resultados versionados.
 

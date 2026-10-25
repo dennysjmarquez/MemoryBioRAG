@@ -337,32 +337,7 @@ def _aprender_impl(
             msg += f" Dimensiones nuevas auto-creadas: {', '.join(dim_meta['dimensiones_creadas'])} (auto_generada=1, confianza=0.7)."
         msg += " Usa 'consolidar' para fijar a largo plazo."
 
-        # ── WARNING DE VINCULACIÓN ──────────────────────────────────
         _warnings = []
-        if sinapsis_count == 0:
-            _warnings.append(f"⚠️ sinapsis=0 — '{clave}' no tiene conexiones. ¿Hay nodos relacionados? Vinculalos con biorag_vincular().")
-
-        # Buscar nodos similares para sugerir vinculación
-        _sugerencias = []
-        try:
-            # Dividir por underscores y guiones, luego filtrar tokens cortos
-            tokens = set(t for t in re.split(r'[_\-\s]+', clave.lower()) if len(t) > 2)
-            if len(tokens) > 1:
-                # Buscar nodos que compartan tokens con el concepto
-                condiciones = " OR ".join(["concepto LIKE ?" for _ in tokens])
-                params_sug = [f"%{t}%" for t in tokens]
-                cerebro.cursor.execute(
-                    f"SELECT concepto FROM largo_plazo WHERE ({condiciones}) AND concepto != ? LIMIT 5",
-                    params_sug + [clave]
-                )
-                _sugerencias = [r[0] for r in cerebro.cursor.fetchall() if r[0] != clave]
-        except Exception:
-            pass
-
-        if _sugerencias:
-            _warnings.append(f"⚠️ ¿'{clave}' tiene relación con estos nodos? Si sí, vinculalos: {', '.join(_sugerencias[:3])}")
-        else:
-            _warnings.append(f"⚠️ ¿'{clave}' tiene relación con otros nodos existentes? Si sí, vinculalos ANTES de consolidar.")
 
         # ── WARNING DE SYN (sin sinónimos el nodo es invisible) ─────
         if not syn:
@@ -497,12 +472,6 @@ def register(mcp: Any) -> None:
     @mcp.tool(
         name="aprender",
         description=(
-            "VIOLACIÓN CRÍTICA — NO GUARDAR SIN VINCULAR:\n"
-            "Si guardás un nodo que tiene relación con otros nodos existentes, VINCULALO con biorag_vincular() ANTES de consolidar.\n"
-            "Si no vinculás, el nodo queda huérfano. La otra sesión no lo encuentra. Se pierde tiempo, se confunde, se crean nodos duplicados.\n"
-            "REGLA: Antes de consolidar, preguntate: '¿Estos nodos tienen relación?' Si sí, vinculalos.\n"
-            "Ejemplo: Si guardás 'cv_adevcom_arquitectura' y ya existe 'cv_seccion_d_estado', vinculalos:\n"
-            "  biorag_vincular(a='cv_adevcom_arquitectura', b='cv_seccion_d_estado')\n\n"
             "GUARDAR EN BIORAG NO ES COPIAR TEXTO. ES PENSAR CÓMO SE RECUPERA.\n"
             "Si no pensás en recuperabilidad, el nodo se pierde. Esto es MALO para la memoria y MALO para los agentes.\n\n"
             "Guarda algo nuevo en la memoria temporal de BioRAG. El nombre se convierte en clave limpia automáticamente (snake_case). El sistema conecta el nodo con otros relacionados solo.\n\n"

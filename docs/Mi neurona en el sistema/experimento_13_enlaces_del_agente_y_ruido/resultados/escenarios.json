@@ -1,0 +1,74 @@
+{
+ "hoy": {
+  "r5": 100.0,
+  "r1": 91.89,
+  "mrr": 0.95,
+  "fallos": 0,
+  "enlaces_automaticos": 13114,
+  "examen": {
+   "quedan_si": 26,
+   "quedan_no": 29
+  },
+  "gate_ok": true
+ },
+ "hormiguita_apagada": {
+  "r5": 100.0,
+  "r1": 92.0,
+  "mrr": 0.951,
+  "fallos": 0,
+  "enlaces_automaticos": 15864,
+  "examen": {
+   "quedan_si": 30,
+   "quedan_no": 36
+  },
+  "gate_ok": true
+ },
+ "neurona_040": {
+  "r5": 99.89,
+  "r1": 91.77,
+  "mrr": 0.949,
+  "fallos": 1,
+  "enlaces_automaticos": 10261,
+  "examen": {
+   "quedan_si": 27,
+   "quedan_no": 28
+  },
+  "gate_ok": true
+ },
+ "neurona_050": {
+  "r5": 99.66,
+  "r1": 91.77,
+  "mrr": 0.948,
+  "fallos": 3,
+  "enlaces_automaticos": 3847,
+  "examen": {
+   "quedan_si": 18,
+   "quedan_no": 11
+  },
+  "gate_ok": true
+ },
+ "neurona_060": {
+  "r5": 99.43,
+  "r1": 91.66,
+  "mrr": 0.947,
+  "fallos": 5,
+  "enlaces_automaticos": 1684,
+  "examen": {
+   "quedan_si": 15,
+   "quedan_no": 8
+  },
+  "gate_ok": true
+ },
+ "sin_automaticos": {
+  "r5": 99.43,
+  "r1": 91.77,
+  "mrr": 0.948,
+  "fallos": 5,
+  "enlaces_automaticos": 0,
+  "examen": {
+   "quedan_si": 0,
+   "quedan_no": 0
+  },
+  "gate_ok": true
+ }
+}

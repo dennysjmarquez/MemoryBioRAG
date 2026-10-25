@@ -1,0 +1,1232 @@
+{
+ "fuente": "copia del snapshot qa_escape_qcr_20260811.db (solo lectura)",
+ "cajas": [
+  0.0,
+  0.025,
+  0.05,
+  0.075,
+  0.1,
+  0.125,
+  0.15,
+  0.175,
+  0.2,
+  0.225,
+  0.25,
+  0.275,
+  0.3,
+  0.325,
+  0.35,
+  0.375,
+  0.4,
+  0.425,
+  0.45,
+  0.475,
+  0.5,
+  0.525,
+  0.55,
+  0.575,
+  0.6,
+  0.625,
+  0.65,
+  0.675,
+  0.7,
+  0.725,
+  0.75,
+  0.775,
+  0.8,
+  0.825,
+  0.85,
+  0.875,
+  0.9,
+  0.925,
+  0.95,
+  0.975,
+  1.0
+ ],
+ "hist_fuerza_por_juez": {
+  "humano_si": [
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   2,
+   0,
+   0,
+   1,
+   5,
+   12,
+   12,
+   16,
+   24,
+   14,
+   11,
+   12,
+   12,
+   10,
+   13,
+   11,
+   13,
+   6,
+   15,
+   11,
+   13,
+   12,
+   15,
+   17,
+   28,
+   21,
+   36,
+   36,
+   3
+  ],
+  "gemini_si": [
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   2,
+   21,
+   3,
+   0,
+   6,
+   9,
+   8,
+   13,
+   12,
+   14,
+   7,
+   3,
+   4,
+   5,
+   5,
+   1,
+   1,
+   1,
+   1,
+   2,
+   1,
+   0,
+   1,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0
+  ],
+  "gemini_no": [
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   292,
+   498,
+   93,
+   110,
+   435,
+   586,
+   581,
+   423,
+   306,
+   191,
+   108,
+   83,
+   49,
+   30,
+   30,
+   19,
+   19,
+   23,
+   13,
+   12,
+   21,
+   9,
+   14,
+   12,
+   2,
+   1,
+   4,
+   2,
+   1,
+   4
+  ]
+ },
+ "fuerza_por_tipo": {
+  "co_nombre": {
+   "n": 1491,
+   "q": [
+    0.276,
+    0.356,
+    0.412,
+    0.477,
+    0.606
+   ]
+  },
+  "co_ocurrencia": {
+   "n": 2080,
+   "q": [
+    0.302,
+    0.389,
+    0.446,
+    0.53,
+    0.745
+   ]
+  },
+  "co_semantica": {
+   "n": 1147,
+   "q": [
+    0.269,
+    0.276,
+    0.375,
+    0.437,
+    0.569
+   ]
+  },
+  "dmn_synthesized": {
+   "n": 56,
+   "q": [
+    0.361,
+    0.429,
+    0.471,
+    0.701,
+    0.885
+   ]
+  },
+  "latente_confirmada": {
+   "n": 120,
+   "q": [
+    0.279,
+    0.374,
+    0.448,
+    0.506,
+    0.601
+   ]
+  },
+  "manual": {
+   "n": 381,
+   "q": [
+    0.463,
+    0.544,
+    0.754,
+    0.902,
+    0.95
+   ]
+  },
+  "pmi_hebbiano": {
+   "n": 2317,
+   "q": [
+    0.298,
+    0.384,
+    0.429,
+    0.475,
+    0.533
+   ]
+  },
+  "sinonimo_explicito": {
+   "n": 5728,
+   "q": [
+    0.359,
+    0.405,
+    0.456,
+    0.522,
+    0.626
+   ]
+  }
+ },
+ "caso_neuro_visor": [
+  {
+   "con": "teoría_nodos_sinapsis",
+   "tipo": "co_ocurrencia",
+   "peso_motor": 0.9,
+   "fuerza": 0.962,
+   "k10": true
+  },
+  {
+   "con": "que_es_nodo_biorag_definicion",
+   "tipo": "manual",
+   "peso_motor": 0.5,
+   "fuerza": 0.885,
+   "k10": true
+  },
+  {
+   "con": "evaluacion_ideas_evolucion_20260805_interferencia_agujeros_permutacion",
+   "tipo": "manual",
+   "peso_motor": 0.5,
+   "fuerza": 0.839,
+   "k10": true
+  },
+  {
+   "con": "verificacion_fidelidad_jaccard_preview_chars_truncado_vs_completo",
+   "tipo": "sinonimo_explicito",
+   "peso_motor": 0.9,
+   "fuerza": 0.715,
+   "k10": true
+  },
+  {
+   "con": "plan_tejedora_agujeros_estructurales_v1",
+   "tipo": "sinonimo_explicito",
+   "peso_motor": 0.9,
+   "fuerza": 0.713,
+   "k10": true
+  },
+  {
+   "con": "ranking_jaccard_holdout",
+   "tipo": "sinonimo_explicito",
+   "peso_motor": 0.9,
+   "fuerza": 0.697,
+   "k10": true
+  },
+  {
+   "con": "fase_c_commit_275fc88_activacion_gradual_monitoreo_sinonimo",
+   "tipo": "sinonimo_explicito",
+   "peso_motor": 0.9,
+   "fuerza": 0.679,
+   "k10": true
+  },
+  {
+   "con": "dictamen_flag_jaccard_baseline_tejedora_941",
+   "tipo": "sinonimo_explicito",
+   "peso_motor": 0.9,
+   "fuerza": 0.665,
+   "k10": true
+  },
+  {
+   "con": "protect_r0_config_ganadora_elimina_regresiones_r1",
+   "tipo": "sinonimo_explicito",
+   "peso_motor": 0.9,
+   "fuerza": 0.659,
+   "k10": true
+  },
+  {
+   "con": "tematico_score_senal_constante_pool_inerte",
+   "tipo": "sinonimo_explicito",
+   "peso_motor": 0.9,
+   "fuerza": 0.642,
+   "k10": true
+  },
+  {
+   "con": "holdout_faseb_jaccard_se_sostiene_en_mitad_b",
+   "tipo": "sinonimo_explicito",
+   "peso_motor": 0.9,
+   "fuerza": 0.627,
+   "k10": true
+  },
+  {
+   "con": "experimento_reranking_jaccard_921_casos",
+   "tipo": "sinonimo_explicito",
+   "peso_motor": 0.9,
+   "fuerza": 0.626,
+   "k10": false
+  },
+  {
+   "con": "tematico_score_mide_pool_no_query_biorag",
+   "tipo": "sinonimo_explicito",
+   "peso_motor": 0.9,
+   "fuerza": 0.614,
+   "k10": false
+  },
+  {
+   "con": "backfill_predicados_restaura_parcial_no_84_62_y_canibaliza_con_jaccard",
+   "tipo": "sinonimo_explicito",
+   "peso_motor": 0.9,
+   "fuerza": 0.613,
+   "k10": false
+  },
+  {
+   "con": "fts5-sanitizacion-comillas-dobles-filter",
+   "tipo": "sinonimo_explicito",
+   "peso_motor": 0.9,
+   "fuerza": 0.595,
+   "k10": true
+  },
+  {
+   "con": "auditor_detecto_nodo_no_consolidado_cita_a_corto_plazo",
+   "tipo": "sinonimo_explicito",
+   "peso_motor": 0.9,
+   "fuerza": 0.583,
+   "k10": true
+  },
+  {
+   "con": "leccion_experimento_predicados_vocabulario_normalizado",
+   "tipo": "sinonimo_explicito",
+   "peso_motor": 0.9,
+   "fuerza": 0.58,
+   "k10": true
+  },
+  {
+   "con": "auditoria_entrega_claude_ppmi_v2_suave_ctx_20260808",
+   "tipo": "sinonimo_explicito",
+   "peso_motor": 0.9,
+   "fuerza": 0.579,
+   "k10": false
+  },
+  {
+   "con": "capa3_pseudo_relevance_feedback_dimensional",
+   "tipo": "sinonimo_explicito",
+   "peso_motor": 0.9,
+   "fuerza": 0.579,
+   "k10": true
+  },
+  {
+   "con": "invariante_post_compactacion_consultar_memoria_antes_de_responder",
+   "tipo": "pmi_hebbiano",
+   "peso_motor": 0.55,
+   "fuerza": 0.573,
+   "k10": true
+  },
+  {
+   "con": "leccion_metodologia_empirica_v22_2",
+   "tipo": "pmi_hebbiano",
+   "peso_motor": 0.53,
+   "fuerza": 0.554,
+   "k10": true
+  },
+  {
+   "con": "rafaga-ilimitada-v9.2-optimizacion-fts5-or",
+   "tipo": "sinonimo_explicito",
+   "peso_motor": 0.9,
+   "fuerza": 0.542,
+   "k10": true
+  },
+  {
+   "con": "athena_arquitectura_memoria_agente_v24_2",
+   "tipo": "pmi_hebbiano",
+   "peso_motor": 0.62,
+   "fuerza": 0.538,
+   "k10": false
+  },
+  {
+   "con": "axioma_empatia_sintactica_rafaga",
+   "tipo": "sinonimo_explicito",
+   "peso_motor": 0.9,
+   "fuerza": 0.537,
+   "k10": true
+  },
+  {
+   "con": "plan_secuencia_validacion_feedback_graph_learning_2_pasos",
+   "tipo": "pmi_hebbiano",
+   "peso_motor": 0.62,
+   "fuerza": 0.537,
+   "k10": true
+  },
+  {
+   "con": "version_actual_biorag_v26_2_20260811",
+   "tipo": "sinonimo_explicito",
+   "peso_motor": 0.9,
+   "fuerza": 0.534,
+   "k10": false
+  },
+  {
+   "con": "bio_rag_overview_completo",
+   "tipo": "sinonimo_explicito",
+   "peso_motor": 0.9,
+   "fuerza": 0.525,
+   "k10": false
+  },
+  {
+   "con": "hormiguita_estado_real_50_ciclos_benchmark_2026_07_31",
+   "tipo": "sinonimo_explicito",
+   "peso_motor": 0.9,
+   "fuerza": 0.522,
+   "k10": false
+  },
+  {
+   "con": "athena_leccion_grep_patron_bug_antes_de_cerrar_fix",
+   "tipo": "manual",
+   "peso_motor": 0.5,
+   "fuerza": 0.52,
+   "k10": false
+  },
+  {
+   "con": "principio_catalogo_dimensiones_plano_techo_estructural",
+   "tipo": "sinonimo_explicito",
+   "peso_motor": 0.9,
+   "fuerza": 0.517,
+   "k10": false
+  },
+  {
+   "con": "arquitectura_dos_niveles_biorag",
+   "tipo": "sinonimo_explicito",
+   "peso_motor": 0.9,
+   "fuerza": 0.51,
+   "k10": true
+  },
+  {
+   "con": "auto_vincular_tres_capas_semantica",
+   "tipo": "sinonimo_explicito",
+   "peso_motor": 0.9,
+   "fuerza": 0.508,
+   "k10": true
+  },
+  {
+   "con": "leccion_bayesian_bm25_rechazado_fuerza_bruta",
+   "tipo": "sinonimo_explicito",
+   "peso_motor": 0.9,
+   "fuerza": 0.508,
+   "k10": true
+  },
+  {
+   "con": "stemmer_no_determinista_entornos_nltk_vs_fallback_20260808",
+   "tipo": "sinonimo_explicito",
+   "peso_motor": 0.9,
+   "fuerza": 0.507,
+   "k10": false
+  },
+  {
+   "con": "decision_fca_reticulo_galois_senal_por_tema",
+   "tipo": "sinonimo_explicito",
+   "peso_motor": 0.9,
+   "fuerza": 0.506,
+   "k10": false
+  },
+  {
+   "con": "leccion_trazabilidad_db_eval_antes_de_reportar_auditor",
+   "tipo": "sinonimo_explicito",
+   "peso_motor": 0.9,
+   "fuerza": 0.505,
+   "k10": true
+  },
+  {
+   "con": "fallo_clasificador_wordnet_query_dimensiones",
+   "tipo": "sinonimo_explicito",
+   "peso_motor": 0.9,
+   "fuerza": 0.504,
+   "k10": false
+  },
+  {
+   "con": "principio_paráfrasis_nivel_dios",
+   "tipo": "sinonimo_explicito",
+   "peso_motor": 0.9,
+   "fuerza": 0.504,
+   "k10": true
+  },
+  {
+   "con": "athena_leccion_auditoria_bugs_cuarentena_y_ltd",
+   "tipo": "pmi_hebbiano",
+   "peso_motor": 0.58,
+   "fuerza": 0.503,
+   "k10": false
+  },
+  {
+   "con": "biorag_v8_dynamic_multiplicator",
+   "tipo": "sinonimo_explicito",
+   "peso_motor": 0.9,
+   "fuerza": 0.503,
+   "k10": true
+  },
+  {
+   "con": "puente_llm_sinonimos_veredicto_refutado_invariante_cero_llm",
+   "tipo": "sinonimo_explicito",
+   "peso_motor": 0.9,
+   "fuerza": 0.503,
+   "k10": false
+  },
+  {
+   "con": "word2vec_puente_hdc_condicional_refutado_fase2",
+   "tipo": "sinonimo_explicito",
+   "peso_motor": 0.9,
+   "fuerza": 0.503,
+   "k10": false
+  },
+  {
+   "con": "biorag_v17_oraculo_preguntar",
+   "tipo": "sinonimo_explicito",
+   "peso_motor": 0.9,
+   "fuerza": 0.5,
+   "k10": true
+  },
+  {
+   "con": "biorag_v18_0_estado",
+   "tipo": "sinonimo_explicito",
+   "peso_motor": 0.9,
+   "fuerza": 0.5,
+   "k10": false
+  },
+  {
+   "con": "v22_2_determinism_verification_and_debt",
+   "tipo": "sinonimo_explicito",
+   "peso_motor": 0.9,
+   "fuerza": 0.5,
+   "k10": false
+  },
+  {
+   "con": "auditoria_busqueda_abril_2026_diagnostico",
+   "tipo": "sinonimo_explicito",
+   "peso_motor": 0.9,
+   "fuerza": 0.498,
+   "k10": true
+  },
+  {
+   "con": "mentalidad_empatia_sintactica_rag",
+   "tipo": "sinonimo_explicito",
+   "peso_motor": 0.9,
+   "fuerza": 0.498,
+   "k10": true
+  },
+  {
+   "con": "principio_señales_distribucionales_vs_especificas",
+   "tipo": "sinonimo_explicito",
+   "peso_motor": 0.9,
+   "fuerza": 0.494,
+   "k10": false
+  },
+  {
+   "con": "v13_1_parafrasis_expansion_semantica",
+   "tipo": "sinonimo_explicito",
+   "peso_motor": 0.9,
+   "fuerza": 0.494,
+   "k10": false
+  },
+  {
+   "con": "lección_audit_búsqueda_sistemático_v10",
+   "tipo": "sinonimo_explicito",
+   "peso_motor": 0.9,
+   "fuerza": 0.492,
+   "k10": true
+  },
+  {
+   "con": "artemis_sesion_v10_3_optimizacion_completa",
+   "tipo": "sinonimo_explicito",
+   "peso_motor": 0.9,
+   "fuerza": 0.491,
+   "k10": true
+  },
+  {
+   "con": "rafaga_palabras-guia-completa-apis-y-mecanismo",
+   "tipo": "sinonimo_explicito",
+   "peso_motor": 0.9,
+   "fuerza": 0.487,
+   "k10": false
+  },
+  {
+   "con": "biorag_v20_0_circuito_cerrado",
+   "tipo": "pmi_hebbiano",
+   "peso_motor": 0.52,
+   "fuerza": 0.486,
+   "k10": false
+  },
+  {
+   "con": "integracion_parafrasis_rafaga_obligatoria_v11_3",
+   "tipo": "sinonimo_explicito",
+   "peso_motor": 0.9,
+   "fuerza": 0.486,
+   "k10": true
+  },
+  {
+   "con": "biorag_v18_0_baseline_global_cobertura_100",
+   "tipo": "sinonimo_explicito",
+   "peso_motor": 0.9,
+   "fuerza": 0.485,
+   "k10": false
+  },
+  {
+   "con": "leccion_bbusqueda_bilingue_nodos_tecnicos",
+   "tipo": "manual",
+   "peso_motor": 0.5,
+   "fuerza": 0.484,
+   "k10": false
+  },
+  {
+   "con": "vision_biorag_mas_alla_vectores_20260802",
+   "tipo": "sinonimo_explicito",
+   "peso_motor": 0.9,
+   "fuerza": 0.484,
+   "k10": false
+  },
+  {
+   "con": "protocolo_parafrasis_uso",
+   "tipo": "sinonimo_explicito",
+   "peso_motor": 0.9,
+   "fuerza": 0.483,
+   "k10": true
+  },
+  {
+   "con": "leccion_claim_passed_sin_artefacto_reproducible",
+   "tipo": "sinonimo_explicito",
+   "peso_motor": 0.9,
+   "fuerza": 0.48,
+   "k10": false
+  },
+  {
+   "con": "verificacion_cierre_loop_v26_2_fix_coocurrencia_push",
+   "tipo": "sinonimo_explicito",
+   "peso_motor": 0.9,
+   "fuerza": 0.479,
+   "k10": false
+  },
+  {
+   "con": "aciertos_word2vec_top5_coincidencia_lexica_no_semantica_20260808",
+   "tipo": "sinonimo_explicito",
+   "peso_motor": 0.9,
+   "fuerza": 0.477,
+   "k10": false
+  },
+  {
+   "con": "biorag_v18_0_baseline_sin_duplicados",
+   "tipo": "sinonimo_explicito",
+   "peso_motor": 0.9,
+   "fuerza": 0.471,
+   "k10": false
+  },
+  {
+   "con": "sdm_segmento_dimensiones_fix_revertido_por_regresion_recall_20260803",
+   "tipo": "sinonimo_explicito",
+   "peso_motor": 0.9,
+   "fuerza": 0.471,
+   "k10": false
+  },
+  {
+   "con": "fallback_sdm_independiente_no_rescata_invisibles_fts5",
+   "tipo": "sinonimo_explicito",
+   "peso_motor": 0.9,
+   "fuerza": 0.47,
+   "k10": false
+  },
+  {
+   "con": "vocabulario_predicados_diseno_sujetos_libres",
+   "tipo": "sinonimo_explicito",
+   "peso_motor": 0.9,
+   "fuerza": 0.469,
+   "k10": true
+  },
+  {
+   "con": "biorag_razonamiento_analitico_versiones",
+   "tipo": "sinonimo_explicito",
+   "peso_motor": 0.9,
+   "fuerza": 0.468,
+   "k10": true
+  },
+  {
+   "con": "biorag_v18_0_baseline_determinista",
+   "tipo": "sinonimo_explicito",
+   "peso_motor": 0.9,
+   "fuerza": 0.467,
+   "k10": true
+  },
+  {
+   "con": "biorag_v22_prf_capa_3",
+   "tipo": "sinonimo_explicito",
+   "peso_motor": 0.9,
+   "fuerza": 0.465,
+   "k10": true
+  },
+  {
+   "con": "fix_scoring_densidad_buscar_por_rafaga_v10.3",
+   "tipo": "sinonimo_explicito",
+   "peso_motor": 0.9,
+   "fuerza": 0.465,
+   "k10": true
+  },
+  {
+   "con": "sdm_query_by_example_validado_datos_reales",
+   "tipo": "sinonimo_explicito",
+   "peso_motor": 0.9,
+   "fuerza": 0.465,
+   "k10": false
+  },
+  {
+   "con": "td_001_sinapsis_like_referencia_sin_fix_20260809",
+   "tipo": "pmi_hebbiano",
+   "peso_motor": 0.56,
+   "fuerza": 0.465,
+   "k10": false
+  },
+  {
+   "con": "leccion_desvincular_falsos_positivos_sinapticos",
+   "tipo": "sinonimo_explicito",
+   "peso_motor": 0.9,
+   "fuerza": 0.464,
+   "k10": false
+  },
+  {
+   "con": "principio_cableado_completo_todos_los_caminos",
+   "tipo": "pmi_hebbiano",
+   "peso_motor": 0.66,
+   "fuerza": 0.464,
+   "k10": false
+  },
+  {
+   "con": "causa_raiz_por_tema_pooling_plano_diluye_senal_word2vec",
+   "tipo": "sinonimo_explicito",
+   "peso_motor": 0.9,
+   "fuerza": 0.463,
+   "k10": false
+  },
+  {
+   "con": "principio_dimensiones_solo_elevan",
+   "tipo": "sinonimo_explicito",
+   "peso_motor": 0.9,
+   "fuerza": 0.463,
+   "k10": false
+  },
+  {
+   "con": "visceral_disambiguation_protocol",
+   "tipo": "sinonimo_explicito",
+   "peso_motor": 0.9,
+   "fuerza": 0.462,
+   "k10": true
+  },
+  {
+   "con": "auditoria_tecnica_v14_0_readme",
+   "tipo": "sinonimo_explicito",
+   "peso_motor": 0.9,
+   "fuerza": 0.458,
+   "k10": false
+  },
+  {
+   "con": "principio_parafrasis_trigger_cognitivo",
+   "tipo": "sinonimo_explicito",
+   "peso_motor": 0.9,
+   "fuerza": 0.457,
+   "k10": true
+  },
+  {
+   "con": "capas_pipeline_no_se_reemplazan_entre_si",
+   "tipo": "sinonimo_explicito",
+   "peso_motor": 0.9,
+   "fuerza": 0.454,
+   "k10": true
+  },
+  {
+   "con": "hormiguita_v25_sistema_mantenimiento_seguro_athena_biorag",
+   "tipo": "pmi_hebbiano",
+   "peso_motor": 0.64,
+   "fuerza": 0.453,
+   "k10": false
+  },
+  {
+   "con": "principio_tres_capas_biorag",
+   "tipo": "sinonimo_explicito",
+   "peso_motor": 0.9,
+   "fuerza": 0.452,
+   "k10": true
+  },
+  {
+   "con": "biorag_v8_rafaga_remembrecia",
+   "tipo": "sinonimo_explicito",
+   "peso_motor": 0.9,
+   "fuerza": 0.448,
+   "k10": true
+  },
+  {
+   "con": "implementacion_clasificacion_simbolica_wordnet_biorag",
+   "tipo": "sinonimo_explicito",
+   "peso_motor": 0.9,
+   "fuerza": 0.446,
+   "k10": true
+  },
+  {
+   "con": "biorag_v15_0_clasificacion_simbolica",
+   "tipo": "sinonimo_explicito",
+   "peso_motor": 0.9,
+   "fuerza": 0.445,
+   "k10": true
+  },
+  {
+   "con": "punto_medio_dimensiones_parciales_mueven_ranking_sdm",
+   "tipo": "sinonimo_explicito",
+   "peso_motor": 0.9,
+   "fuerza": 0.445,
+   "k10": false
+  },
+  {
+   "con": "v5_1_automatico_completo",
+   "tipo": "sinonimo_explicito",
+   "peso_motor": 0.9,
+   "fuerza": 0.444,
+   "k10": false
+  },
+  {
+   "con": "auditoria_codigo_biorag_v12_julio_2026",
+   "tipo": "sinonimo_explicito",
+   "peso_motor": 0.9,
+   "fuerza": 0.439,
+   "k10": false
+  },
+  {
+   "con": "biorag_v25_1_ppr_plan_maestro_pendiente",
+   "tipo": "sinonimo_explicito",
+   "peso_motor": 0.9,
+   "fuerza": 0.438,
+   "k10": false
+  },
+  {
+   "con": "fca_chequeo_sugeridor_dimensiones_refutado_frecuencia_no_semantica",
+   "tipo": "sinonimo_explicito",
+   "peso_motor": 0.9,
+   "fuerza": 0.438,
+   "k10": false
+  },
+  {
+   "con": "bayesian_bm25_calibracion_sigmoid_biorag",
+   "tipo": "sinonimo_explicito",
+   "peso_motor": 0.9,
+   "fuerza": 0.436,
+   "k10": true
+  },
+  {
+   "con": "sin_vectores_sin_ml_sin_dependencias",
+   "tipo": "sinonimo_explicito",
+   "peso_motor": 0.9,
+   "fuerza": 0.436,
+   "k10": false
+  },
+  {
+   "con": "dashboard_fallida_umbral_dual_count_score",
+   "tipo": "sinonimo_explicito",
+   "peso_motor": 0.9,
+   "fuerza": 0.434,
+   "k10": false
+  },
+  {
+   "con": "regla_umbral_fallback_dimensional_biorag",
+   "tipo": "sinonimo_explicito",
+   "peso_motor": 0.9,
+   "fuerza": 0.434,
+   "k10": false
+  },
+  {
+   "con": "leccion_control_flujo_codigo_preexistente",
+   "tipo": "pmi_hebbiano",
+   "peso_motor": 0.58,
+   "fuerza": 0.433,
+   "k10": false
+  },
+  {
+   "con": "masking_sdm_segmentos_no_discrimina_fallos_por_tema_sinonimo",
+   "tipo": "sinonimo_explicito",
+   "peso_motor": 0.9,
+   "fuerza": 0.433,
+   "k10": false
+  },
+  {
+   "con": "raiz_false_positives_biorag_v10",
+   "tipo": "sinonimo_explicito",
+   "peso_motor": 0.9,
+   "fuerza": 0.432,
+   "k10": false
+  },
+  {
+   "con": "leccion_syn_obligatorio_aprender",
+   "tipo": "sinonimo_explicito",
+   "peso_motor": 0.9,
+   "fuerza": 0.431,
+   "k10": false
+  },
+  {
+   "con": "v13_3_dimensiones_boost_aditivo",
+   "tipo": "sinonimo_explicito",
+   "peso_motor": 0.9,
+   "fuerza": 0.431,
+   "k10": false
+  },
+  {
+   "con": "metodologia_evaluacion_por_tema_paso_a_paso",
+   "tipo": "sinonimo_explicito",
+   "peso_motor": 0.9,
+   "fuerza": 0.43,
+   "k10": false
+  },
+  {
+   "con": "changelog_v10_recall_semantico_typo_tolerant",
+   "tipo": "sinonimo_explicito",
+   "peso_motor": 0.9,
+   "fuerza": 0.429,
+   "k10": false
+  },
+  {
+   "con": "fix_fecha_sin_query_recordar",
+   "tipo": "sinonimo_explicito",
+   "peso_motor": 0.9,
+   "fuerza": 0.429,
+   "k10": false
+  },
+  {
+   "con": "arquitectura_falsos_positivos_biorag_capas",
+   "tipo": "sinonimo_explicito",
+   "peso_motor": 0.9,
+   "fuerza": 0.428,
+   "k10": false
+  },
+  {
+   "con": "colision_md5_512_queries_cortas_fallback_sdm",
+   "tipo": "sinonimo_explicito",
+   "peso_motor": 0.9,
+   "fuerza": 0.427,
+   "k10": false
+  },
+  {
+   "con": "roadmap_eco_sinaptico_por_tema",
+   "tipo": "pmi_hebbiano",
+   "peso_motor": 0.53,
+   "fuerza": 0.425,
+   "k10": false
+  },
+  {
+   "con": "arquitectura_dimensiones_ortogonales",
+   "tipo": "sinonimo_explicito",
+   "peso_motor": 0.9,
+   "fuerza": 0.423,
+   "k10": false
+  },
+  {
+   "con": "biorag_garantia_minima_or_fallback",
+   "tipo": "sinonimo_explicito",
+   "peso_motor": 0.9,
+   "fuerza": 0.422,
+   "k10": false
+  },
+  {
+   "con": "biorag_v18_qa_baseline_hardening_verification",
+   "tipo": "sinonimo_explicito",
+   "peso_motor": 0.9,
+   "fuerza": 0.421,
+   "k10": true
+  },
+  {
+   "con": "biorag_v18_symbolic_ranking_optimization",
+   "tipo": "sinonimo_explicito",
+   "peso_motor": 0.9,
+   "fuerza": 0.418,
+   "k10": false
+  },
+  {
+   "con": "fts5_trigram_peligro_palabras_cortas",
+   "tipo": "sinonimo_explicito",
+   "peso_motor": 0.9,
+   "fuerza": 0.418,
+   "k10": true
+  },
+  {
+   "con": "leccion_despertar_coherente_nodos_dormidos_biorag",
+   "tipo": "sinonimo_explicito",
+   "peso_motor": 0.9,
+   "fuerza": 0.416,
+   "k10": false
+  },
+  {
+   "con": "sdm_query_by_example_validado",
+   "tipo": "sinonimo_explicito",
+   "peso_motor": 0.9,
+   "fuerza": 0.416,
+   "k10": false
+  },
+  {
+   "con": "sdm_query_by_example_implementado",
+   "tipo": "sinonimo_explicito",
+   "peso_motor": 0.9,
+   "fuerza": 0.414,
+   "k10": false
+  },
+  {
+   "con": "biorag_v18_2_categoria_dominante_fix",
+   "tipo": "sinonimo_explicito",
+   "peso_motor": 0.9,
+   "fuerza": 0.41,
+   "k10": false
+  },
+  {
+   "con": "principio_umbral_dimensional",
+   "tipo": "sinonimo_explicito",
+   "peso_motor": 0.9,
+   "fuerza": 0.41,
+   "k10": true
+  },
+  {
+   "con": "sesion_investigacion_hermes_plugin_biorag_20260622",
+   "tipo": "sinonimo_explicito",
+   "peso_motor": 0.9,
+   "fuerza": 0.41,
+   "k10": true
+  },
+  {
+   "con": "v13_4_dimensiones_en_resultados",
+   "tipo": "sinonimo_explicito",
+   "peso_motor": 0.9,
+   "fuerza": 0.409,
+   "k10": false
+  },
+  {
+   "con": "lesson_stemming_fts5_redundant",
+   "tipo": "sinonimo_explicito",
+   "peso_motor": 0.9,
+   "fuerza": 0.404,
+   "k10": true
+  },
+  {
+   "con": "principio_multiples_vias_mismo_destino",
+   "tipo": "sinonimo_explicito",
+   "peso_motor": 0.9,
+   "fuerza": 0.4,
+   "k10": false
+  },
+  {
+   "con": "leccion_scoring_peso_bm25_vs_concepto_ratio",
+   "tipo": "sinonimo_explicito",
+   "peso_motor": 0.9,
+   "fuerza": 0.398,
+   "k10": false
+  },
+  {
+   "con": "boost_dimensional_toco_techo_discriminacion_evidencia",
+   "tipo": "sinonimo_explicito",
+   "peso_motor": 0.9,
+   "fuerza": 0.394,
+   "k10": false
+  },
+  {
+   "con": "por_tema_recall_weight",
+   "tipo": "sinonimo_explicito",
+   "peso_motor": 0.9,
+   "fuerza": 0.392,
+   "k10": false
+  },
+  {
+   "con": "biorag_fts5_trigram_lesson",
+   "tipo": "sinonimo_explicito",
+   "peso_motor": 0.9,
+   "fuerza": 0.39,
+   "k10": true
+  },
+  {
+   "con": "plugin-biorag-remember-v9.6-config",
+   "tipo": "sinonimo_explicito",
+   "peso_motor": 0.9,
+   "fuerza": 0.386,
+   "k10": false
+  },
+  {
+   "con": "protocolo_verificacion_preaccion_dinamico",
+   "tipo": "sinonimo_explicito",
+   "peso_motor": 0.9,
+   "fuerza": 0.379,
+   "k10": true
+  },
+  {
+   "con": "biorag_v7_similitud_conceptual_latente",
+   "tipo": "sinonimo_explicito",
+   "peso_motor": 0.9,
+   "fuerza": 0.375,
+   "k10": false
+  },
+  {
+   "con": "fix_wordnet_grupos_distinct_bridge_table",
+   "tipo": "sinonimo_explicito",
+   "peso_motor": 0.9,
+   "fuerza": 0.371,
+   "k10": false
+  },
+  {
+   "con": "recall_global_boost",
+   "tipo": "sinonimo_explicito",
+   "peso_motor": 0.9,
+   "fuerza": 0.369,
+   "k10": false
+  },
+  {
+   "con": "puente_sinonimos_mejoras",
+   "tipo": "pmi_hebbiano",
+   "peso_motor": 0.53,
+   "fuerza": 0.358,
+   "k10": false
+  },
+  {
+   "con": "biorag_v8_palabra_completa_fix",
+   "tipo": "sinonimo_explicito",
+   "peso_motor": 0.9,
+   "fuerza": 0.352,
+   "k10": false
+  }
+ ],
+ "par_ejemplo": {
+  "a": "leccion_discrepancia_busquedas_vocabulario_no_estocasticidad",
+  "b": "evaluacion_ideas_evolucion_20260805_interferencia_agujeros_permutacion",
+  "agujas": {
+   "parecido": 0.0397,
+   "semantica": 0.0975,
+   "rareza_max": 0.5009,
+   "rareza_media": 0.3752,
+   "pistas_raras": 0.0,
+   "cobertura": 0.084,
+   "mutuo": 0.1791,
+   "vecinos": 0.0,
+   "hub": 0.3376,
+   "una_sola": 0.0,
+   "episodio": 0.4362,
+   "etiquetas": 0.2268
+  },
+  "fuerza": 0.8388
+ },
+ "medianas_agujas": {
+  "parecido": {
+   "humano_si": 0.123,
+   "gemini_no": 0.014
+  },
+  "semantica": {
+   "humano_si": 0.399,
+   "gemini_no": 0.048
+  },
+  "rareza_max": {
+   "humano_si": 0.692,
+   "gemini_no": 0.406
+  },
+  "rareza_media": {
+   "humano_si": 0.469,
+   "gemini_no": 0.371
+  },
+  "pistas_raras": {
+   "humano_si": 0.632,
+   "gemini_no": 0.0
+  },
+  "cobertura": {
+   "humano_si": 0.149,
+   "gemini_no": 0.031
+  },
+  "mutuo": {
+   "humano_si": 0.599,
+   "gemini_no": 0.077
+  },
+  "vecinos": {
+   "humano_si": 0.2,
+   "gemini_no": 0.0
+  },
+  "hub": {
+   "humano_si": 0.785,
+   "gemini_no": 0.645
+  },
+  "una_sola": {
+   "humano_si": 0.0,
+   "gemini_no": 0.0
+  },
+  "episodio": {
+   "humano_si": 0.072,
+   "gemini_no": 0.0
+  },
+  "etiquetas": {
+   "humano_si": 0.153,
+   "gemini_no": 0.057
+  }
+ },
+ "fiab_episodio": 0.482,
+ "fiab_etiquetas": 0.363
+}

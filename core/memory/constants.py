@@ -305,3 +305,13 @@ def normalizar_sustantivos_clave(raw: str) -> str:
             seen.add(t)
             unique.append(t)
     return ",".join(unique)
+
+
+# ── Enlaces decididos por el agente: intocables para los procesos automáticos ──
+# 'manual' = vincular_con (aprender) y la herramienta vincular; 'manual_v7' =
+# vínculos manuales de versiones anteriores. El agente los creó sabiendo el
+# contenido, así que ningún proceso automático los borra ni les baja el peso:
+# ni el desgaste de consolidación, ni la poda/LTD, ni la hormiguita.
+# Solo el agente puede quitarlos, a propósito, con la herramienta desvincular.
+TIPOS_SINAPSIS_AGENTE = ("manual", "manual_v7")
+SQL_NO_ES_DEL_AGENTE = "tipo NOT IN ('manual', 'manual_v7')"
