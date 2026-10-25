@@ -152,7 +152,7 @@ Nota: en las copias no se reconstruye el índice SDM (igual en todas). La depend
 - `medir.py`: mide los enlaces del agente, la hormiguita, el canal 2 y el examen por umbral → `resultados/mediciones.json`.
 - `resultados/qa_*.txt`: salida literal de cada QA.
 - `resultados/escenarios.json`: las cifras de cada QA en un solo archivo (las lee `dibujar.py`).
-- `dibujar.py`: las 4 figuras de cierre → `figuras/` (sin ninguna DB).
+- `dibujar.py`: las 5 figuras de cierre → `figuras/` (sin ninguna DB).
 
 ## 7. Después de este experimento: revertido el peso y cierre de la neurona (v35.0)
 
@@ -172,3 +172,7 @@ La neurona tal como está en `core/neurona_asociativa.py`: 5 agujas, el Σ con s
 ![El ruido y la búsqueda](figuras/03_el_ruido_y_la_busqueda.png)
 
 ![Lo que ve el agente](figuras/04_lo_que_ve_el_agente.png)
+
+![Dónde va en el motor](figuras/05_donde_va_en_el_motor.png)
+
+Lo que funciona hoy (línea llena) y los tres lugares pendientes donde puede entrar la neurona (línea punteada violeta): ① filtrar el canal 2, ② reemplazar a la hormiguita, ③ revisar los sinónimos y proponer enlaces que faltan.

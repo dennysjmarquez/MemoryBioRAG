@@ -146,6 +146,14 @@ fuerza = 1 / (1 + e^−z)
 | `episodio` | ¿Se guardaron cerca en el tiempo? | 4 | Es lo que más pesa en el cerebro. Solo vale si la llave dice que en *esa* memoria el tiempo coincide con el texto (en la de Dennys, la llave vale 0.48). Si pasaron más de 7 días reales, no cuenta. |
 | `etiquetas` | ¿Comparten dims? | 1 | Igual, con su propia llave (0.36 en la de Dennys) |
 
+**Un par real, paso a paso.** Es uno de los enlaces que Dennys puso a mano. Casi no comparten palabras (`parecido` 0.04), pero comparten una pista rara (0.50) y se guardaron cerca en el tiempo (0.44, ya pasado por la llave). La suma da z = 1.65, y eso da una **fuerza de 0.84**. A la izquierda se ven las 12 agujas medidas; en la suma entran solo las 5 de la fórmula. La nota de abajo ("top 10") viene de la competencia del experimento, que el motor no usa.
+
+![Un par real, paso a paso](docs/Mi%20neurona%20en%20el%20sistema/experimento_11_neurona_asociativa/figuras/03_un_par_paso_a_paso.png)
+
+**Las llaves: cada memoria decide sola si confía en el reloj y en las etiquetas.** La llave compara qué tan parecidos son, por texto, los recuerdos que el reloj (o las etiquetas) junta, contra pares al azar. No usa ninguna respuesta correcta. Si no hay relación, la llave se cierra: con un reloj al azar da casi 0, y una prueba automática lo verifica. Por eso el tiempo cuenta casi entero en un chat (llave 0.74), casi nada en noticias (0.10) y a la mitad en la memoria de Dennys (0.48).
+
+![Las llaves de auto-regulación](docs/Mi%20neurona%20en%20el%20sistema/experimento_11_neurona_asociativa/figuras/06_auto_regulacion.png)
+
 Se midieron **12 agujas**. Solo 5 entran en la fórmula, porque las otras 7 no ayudaban en las 7 memorias a la vez. También se descartaron, con pruebas:
 - **Competencia** (cada recuerdo se queda con sus K socios más fuertes): conserva pares débiles y suelta buenos.
 - **Coacceso** (recuerdos que se piden juntos): AUC 0.459, no separa.
@@ -187,6 +195,10 @@ Promedio **0.939**; el peor caso es **0.882**. En las 7 memorias, la neurona sup
 | Fuerza típica (mediana): humanos / Gemini confirmó / Gemini sacó | — | **0.75** / 0.45 / 0.40 |
 
 ![Tu memoria: tres jueces](docs/Mi%20neurona%20en%20el%20sistema/experimento_11_neurona_asociativa/figuras/08_tu_memoria_tres_jueces.png)
+
+**La huella:** para cada aguja, el valor típico de los enlaces humanos (verde) y el de lo que Gemini sacó (rojo). Cuanto más larga la barra, más ayuda esa aguja a distinguirlos. Las que más separan son `pistas_raras`, `mutuo` y `semantica`.
+
+![La huella en tu memoria](docs/Mi%20neurona%20en%20el%20sistema/experimento_11_neurona_asociativa/figuras/05_huella_en_tu_memoria.png)
 
 **4.3. Examen a mano.** Dennys leyó los 100 pares con el texto completo de cada recuerdo y contestó 99.
 
@@ -240,6 +252,10 @@ La muestra es chica (10 a 13 pares) y parte del examen se eligió con la fuerza 
 
 ### 6. Por qué debe existir
 
+El mapa muestra lo que funciona hoy (línea llena) y los tres lugares donde la neurona puede entrar (línea punteada violeta). Ninguno está hecho todavía; irán de a uno. El ranking no se toca.
+
+![Dónde va la neurona asociativa en el motor](docs/Mi%20neurona%20en%20el%20sistema/experimento_13_enlaces_del_agente_y_ruido/figuras/05_donde_va_en_el_motor.png)
+
 1. **Para quitar a Gemini del grafo.** Hoy la limpieza depende de una API externa que cuesta, necesita internet y no siempre responde lo mismo. La neurona es local, gratis, determinista y de tiempo constante. Además separa los enlaces humanos de lo que Gemini sacó con AUC **0.930**.
 2. **Para que el agente vea asociaciones buenas.** Hoy, de los pares del examen que el agente llega a ver, hay más malos que buenos (5 / 8). Con la neurona filtrando, 9 / 1.
 3. **Para proponer lo que falta.** El 31 % de los enlaces humanos nunca llega a ser candidato de ninguna regla automática. De los pares que la neurona propuso y no existían, Dennys aprobó el **80 %**.
@@ -277,6 +293,10 @@ Total: **430/430**. La QA oficial quedó **idéntica** antes y después de todos
 - Lo de la hormiguita apagada y el filtro del canal 2 se midió **en copias**. Ninguno está en el motor.
 - No se comparó todavía *agente + BioRAG* contra *agente + base de datos vectorial*.
 - El hipocampo es **inspiración**, no simulación.
+
+Lo que ya tiene y lo que todavía le falta, medido y no supuesto. El 69 % de los enlaces humanos la neurona los propondría sola; el 31 % restante ni siquiera llega a ser candidato de ninguna regla:
+
+![Lo que todavía le falta](docs/Mi%20neurona%20en%20el%20sistema/experimento_11_neurona_asociativa/figuras/12_lo_que_falta.png)
 
 ### Dónde está todo
 
