@@ -101,43 +101,6 @@ import os as _os
 _CIERRE_TRIADICO = _os.getenv("BIORAG_CIERRE_TRIADICO", "1") == "1"
 
 
-class _PesoNeurona:
-    """v35: la neurona asociativa decide el PESO con que nace cada sinapsis.
-
-    Las reglas de siempre siguen decidiendo QUÉ sinapsis se crean (no se crea ni se corta
-    ninguna de más). La neurona solo cambia el peso de nacimiento: peso = 0.5 + 0.5·fuerza.
-    Se crea perezosa (solo si hay alguna sinapsis que pesar). Si la neurona está apagada
-    (BIORAG_NEURONA_ASOCIATIVA=0) o falla, devuelve el peso a mano de siempre.
-    Ver core/neurona_asociativa.py."""
-
-    def __init__(self, cerebro, concepto, contenido=None):
-        self._args = (cerebro.cursor, concepto, contenido)
-        self._juez = None
-        self._ya = {}
-
-    def __call__(self, destino, contenido_destino, peso_mano):
-        if destino in self._ya:
-            return self._ya[destino] if self._ya[destino] is not None else peso_mano
-        self._ya[destino] = None
-        if self._juez is None:
-            try:
-                from core.neurona_asociativa import Juez
-                self._juez = Juez(*self._args)
-            except Exception:
-                self._juez = False
-        if self._juez is False:
-            return peso_mano
-        try:
-            f = self._juez.fuerza(destino, contenido_destino)
-        except Exception:
-            f = None
-        if f is None:
-            return peso_mano
-        from core.neurona_asociativa import peso_desde_fuerza
-        self._ya[destino] = peso_desde_fuerza(f)
-        return self._ya[destino]
-
-
 def auto_vincular(cerebro, concepto, contenido, umbral=0.4):
     if not concepto and not contenido:
         return []
@@ -176,7 +139,6 @@ def auto_vincular(cerebro, concepto, contenido, umbral=0.4):
 
     MAX_FANOUT = 30  # Límite de sinapsis por nodo en una sola pasada
     vinculados = []
-    pesar = _PesoNeurona(cerebro, concepto, contenido)  # v35: peso de nacimiento = neurona
     dirty = set()  # Reindex SDM selectivo: extremos de sinapsis NUEVAS
     for conc_exist, cont_exist in existentes:
         if len(vinculados) >= MAX_FANOUT:
@@ -203,7 +165,7 @@ def auto_vincular(cerebro, concepto, contenido, umbral=0.4):
                 if vec_comunes == 0 and dim_comunes == 0 and sinap_existentes > 5:
                     continue  # Rechazar: puente espurio entre dominios distintos
 
-            peso = pesar(conc_exist, cont_exist, sim)
+            peso = sim
             # Reindex SDM selectivo: marcar dirty solo si la sinapsis es NUEVA
             # (el ON CONFLICT DO UPDATE no distingue insert de update)
             cerebro.cursor.execute(
@@ -258,7 +220,6 @@ def auto_vincular(cerebro, concepto, contenido, umbral=0.4):
                 nombre_overlap = sum(1 for w in palabras_nombre if w in conc_exist.lower()) / len(palabras_nombre)
                 if nombre_overlap >= 0.3:
                     peso_link = round(min(1.0, nombre_overlap * 0.7 + peso_exist * 0.3), 2)
-                    peso_link = pesar(conc_exist, cont_exist, peso_link)
                     cerebro.cursor.execute(
                         "SELECT 1 FROM sinapsis WHERE origen = ? AND destino = ?",
                         (concepto, conc_exist)
@@ -320,7 +281,6 @@ def auto_vincular(cerebro, concepto, contenido, umbral=0.4):
                         overlap = len(inter) / min(len(tokens_sin), len(tokens_exist_sin))
                         if overlap >= umbral:
                             peso_link = round(min(1.0, overlap * 0.6 + peso_exist * 0.4), 2)
-                            peso_link = pesar(conc_exist, None, peso_link)
                             cerebro.cursor.execute(
                                 "SELECT 1 FROM sinapsis WHERE origen = ? AND destino = ?",
                                 (concepto, conc_exist)
@@ -385,7 +345,6 @@ def auto_vincular(cerebro, concepto, contenido, umbral=0.4):
                         avg_pmi = sum(pmi_matches) / len(pmi_matches)
                         peso_link = round(min(1.0, avg_pmi * 0.75 + peso_exist * 0.25), 2)
                         if peso_link >= 0.35:
-                            peso_link = pesar(conc_exist, cont_exist, peso_link)
                             cerebro.cursor.execute(
                                 "SELECT 1 FROM sinapsis WHERE origen = ? AND destino = ?",
                                 (concepto, conc_exist)
@@ -486,8 +445,6 @@ def vincular_por_sinonimos(cerebro, concepto, sinonimos, peso=0.9):
 
     vinculados = []
     dirty = set()  # Reindex SDM selectivo: extremos de sinapsis NUEVAS
-    pesar = _PesoNeurona(cerebro, concepto)  # v35: peso de nacimiento = neurona
-    peso_mano = peso
     for termino in terminos:
         # ponytail: solo buscar en concepto y sinonimos, NO en contenido
         # Evita falsos positivos cuando el término aparece de pasada en el contenido
@@ -497,7 +454,6 @@ def vincular_por_sinonimos(cerebro, concepto, sinonimos, peso=0.9):
             (concepto, f"%{termino}%", f"%{termino}%")
         )
         for (conc_exist,) in cerebro.cursor.fetchall():
-            peso = pesar(conc_exist, None, peso_mano)
             cerebro.cursor.execute(
                 "SELECT 1 FROM sinapsis WHERE origen = ? AND destino = ?",
                 (concepto, conc_exist)

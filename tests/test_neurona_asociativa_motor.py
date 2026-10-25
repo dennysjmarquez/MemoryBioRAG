@@ -1,15 +1,16 @@
-"""v35 — Neurona asociativa en el motor: decide el PESO de nacimiento de las sinapsis.
+"""Neurona asociativa en el motor (core/neurona_asociativa.py).
 
-Garantías que se prueban:
+Historia: en v35 (dd85fcf) la neurona ponía el PESO de nacimiento de las sinapsis.
+El experimento 13 mostró que eso no aporta (el QA no ve pesos) y Dennys lo rechazó:
+el cableado de pesos se revirtió. Hoy la neurona decide QUÉ asociaciones automáticas
+ve el agente (canal 2, ver tests/test_canal2_neurona.py); no toca el guardado.
+
+Garantías que se prueban aquí:
   1. Fiel al experimento 11: la fuerza del motor = la del experimento (mismas agujas, mismo piso).
-  2. No crea ni corta sinapsis: con la neurona encendida o apagada nacen EXACTAMENTE las mismas.
-  3. Peso siempre entre 0.5 y 1.0, y en el mismo orden que la fuerza.
-  4. Apagada (BIORAG_NEURONA_ASOCIATIVA=0) = peso a mano de siempre, idéntico.
-  5. Si falla, se aparta: el guardado sigue y usa el peso a mano.
-  6. Nunca baja una sinapsis que ya existía (ON CONFLICT ... MAX).
-  7. Memoria vacía o mínima: peso a mano (no inventa nada).
-  8. El estado se rehace solo cuando la memoria crece; tiene techo de costo.
-  9. Guardia de tiempo: recuerdos separados por más de 7 días reales no "se vivieron juntos".
+  2. Guardar NO usa la neurona: las sinapsis nacen con los pesos a mano de siempre.
+  3. Memoria vacía o mínima: la neurona se aparta (no inventa nada).
+  4. El estado se rehace solo cuando la memoria crece; tiene techo de costo.
+  5. Guardia de tiempo: recuerdos separados por más de 7 días reales no "se vivieron juntos".
 """
 import importlib.util
 import math
@@ -125,7 +126,7 @@ def test_mismo_tema_pesa_mas_que_otro_tema(cz):
     assert np.mean(mismo) > np.mean(otro) + 0.1
 
 
-# 2, 3, 4 ───────────────────────────────────────────────────────────────────────
+# 2 ─────────────────────────────────────────────────────────────────────────────
 def _guardar(c, concepto, contenido, syn):
     c.percibir_corto_plazo(concepto, contenido, syn, "General", None)
     auto_vincular(c, concepto, contenido)
@@ -133,7 +134,7 @@ def _guardar(c, concepto, contenido, syn):
     return _sinapsis(c, concepto)
 
 
-def test_mismas_sinapsis_encendida_o_apagada(tmp_path, monkeypatch):
+def test_guardar_usa_pesos_a_mano_aunque_la_neurona_este_encendida(tmp_path, monkeypatch):
     resultados = {}
     for modo in ("0", "1"):
         monkeypatch.setenv("BIORAG_NEURONA_ASOCIATIVA", modo)
@@ -143,49 +144,12 @@ def test_mismas_sinapsis_encendida_o_apagada(tmp_path, monkeypatch):
         resultados[modo] = _guardar(c, "pan_de_masa_madre", "pan casero con masa madre harina y horno", "cocina, pan")
     apagada, encendida = resultados["0"], resultados["1"]
     assert apagada, "la prueba necesita que se creen sinapsis"
-    assert set(apagada) == set(encendida)                       # 2. no crea ni corta
-    assert all(0.5 <= p <= 1.0 for p in encendida.values())     # 3. rango
-    sin_mano = [p for (d, t), p in apagada.items() if t == "sinonimo_explicito"]
-    assert sin_mano and all(p == 0.9 for p in sin_mano)         # 4. apagada = 0.9 de siempre
-    sin_neu = {d: p for (d, t), p in encendida.items() if t == "sinonimo_explicito"}
-    assert len(set(sin_neu.values())) > 1                       # la neurona distingue
+    assert apagada == encendida                                  # mismas sinapsis, mismos pesos
+    sin_mano = [p for (d, t), p in encendida.items() if t == "sinonimo_explicito"]
+    assert sin_mano and all(p == 0.9 for p in sin_mano)          # 0.9 de siempre
 
 
-def test_peso_ordenado_como_la_fuerza():
-    fs = np.linspace(0, 1, 50)
-    ps = [na.peso_desde_fuerza(f) for f in fs]
-    assert ps == sorted(ps) and ps[0] == 0.5 and ps[-1] == 1.0
-    assert na.peso_desde_fuerza(0.6) == pytest.approx(0.80)
-
-
-# 5 ─────────────────────────────────────────────────────────────────────────────
-def test_si_falla_se_aparta_y_el_guardado_sigue(cz, monkeypatch):
-    def explota(*a, **k):
-        raise RuntimeError("falla a propósito")
-    monkeypatch.setattr(na.Juez, "agujas", explota)
-    s = _guardar(cz, "pan_integral", "pan integral con harina y horno", "cocina")
-    assert s
-    assert all(p == 0.9 for (d, t), p in s.items() if t == "sinonimo_explicito")
-
-
-def test_si_falla_la_construccion_se_aparta(cz, monkeypatch):
-    def explota(*a, **k):
-        raise RuntimeError("falla a propósito")
-    monkeypatch.setattr(na, "estado", explota)
-    s = _guardar(cz, "pan_frances", "pan frances con harina y horno", "cocina")
-    assert s and all(p == 0.9 for (d, t), p in s.items() if t == "sinonimo_explicito")
-
-
-# 6 ─────────────────────────────────────────────────────────────────────────────
-def test_nunca_baja_una_sinapsis_existente(cz):
-    cz.cursor.execute("INSERT INTO sinapsis (origen, destino, peso, tipo, creado_en) "
-                      "VALUES ('pan_dulce', 'cocina_0_1', 0.97, 'manual', 1)")
-    cz.conn.commit()
-    s = _guardar(cz, "pan_dulce", "pan dulce con harina azucar y horno", "cocina")
-    assert s[("cocina_0_1", "manual")] == pytest.approx(0.97)
-
-
-# 7 ─────────────────────────────────────────────────────────────────────────────
+# 3 ─────────────────────────────────────────────────────────────────────────────
 def test_memoria_minima_usa_peso_a_mano(tmp_path, monkeypatch):
     monkeypatch.setenv("BIORAG_NEURONA_ASOCIATIVA", "1")
     na._CACHE.clear()
@@ -206,7 +170,7 @@ def test_memoria_vacia_no_rompe(tmp_path, monkeypatch):
     _guardar(c, "primer_recuerdo", "el primer recuerdo de todos", "inicio")
 
 
-# 8 ─────────────────────────────────────────────────────────────────────────────
+# 4 ─────────────────────────────────────────────────────────────────────────────
 def test_estado_se_rehace_solo_al_crecer(cz):
     e1 = na.estado(cz.cursor)
     sello1 = dict(cz.cursor.execute("SELECT clave, valor FROM neurona_asociativa_estado").fetchall())["sello"]
@@ -237,7 +201,7 @@ def test_muestra_tiene_techo(cz, monkeypatch):
     assert est.n == 20
 
 
-# 9 ─────────────────────────────────────────────────────────────────────────────
+# 5 ─────────────────────────────────────────────────────────────────────────────
 def test_guardia_de_tiempo(cz):
     est = na.estado(cz.cursor)
     if est.fiab_episodio <= 0:
