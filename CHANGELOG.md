@@ -43,7 +43,7 @@
 - **Canal 2 (lo que ve el agente), medido en copia:** si la neurona filtra con ≥ 0.50, los pares del examen visibles pasan de 5 buenos / 8 malos a 9 / 1. Queda pendiente para la próxima versión.
 - **QA oficial (921 casos), snapshot canónico, `PYTHONHASHSEED=1`:** idéntica antes y después de todos los cambios v35. Recall@5 **100.00 %**, Recall@1 **91.89 %**, MRR **0.950**, FP **0/40**, `[GATE] OK`, mismas cifras por categoría.
 - **Pytest:** 430 aprobadas. Archivos nuevos: `test_neurona_asociativa_motor.py`, `test_enlaces_del_agente_intocables.py` (9), `test_sin_sugerencias_de_enlace.py` (4).
-- Documentación: README (sección v35.0 con figuras) y `docs/Mi neurona en el sistema/experimento_10…13`. Figuras de cierre: `experimento_13_enlaces_del_agente_y_ruido/dibujar.py`.
+- Documentación: README (sección v35.0 con figuras) y `docs/Mi neurona en el sistema/experimento_10…13`. Figuras de cierre (5, incluido el mapa de dónde va la neurona en el motor): `experimento_13_enlaces_del_agente_y_ruido/dibujar.py`. El README muestra también 9 de las 12 figuras del experimento 11; no muestra la anatomía ni la competencia, porque dibujan partes que el motor no usa.
 
 ---
 

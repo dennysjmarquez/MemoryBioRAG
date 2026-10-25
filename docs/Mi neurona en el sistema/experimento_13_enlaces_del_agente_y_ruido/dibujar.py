@@ -63,9 +63,9 @@ def _caja(ax, x, y, w, h, color=PANEL, borde=LINEA, lw=1.6, ls="-", r=0.25, z=2)
                                 fc=color, ec=borde, lw=lw, ls=ls, zorder=z))
 
 
-def _flecha(ax, a, b, color=TENUE, lw=1.8, ls="-", rad=0.0):
+def _flecha(ax, a, b, color=TENUE, lw=1.8, ls="-", rad=0.0, cs=None):
     ax.add_patch(FancyArrowPatch(a, b, arrowstyle="-|>", mutation_scale=14, color=color, lw=lw,
-                                 ls=ls, connectionstyle=f"arc3,rad={rad}", zorder=3))
+                                 ls=ls, connectionstyle=cs or f"arc3,rad={rad}", zorder=3))
 
 
 def _lienzo(w, h, xl, yl):
@@ -272,9 +272,74 @@ def fig_agente():
     _guardar(fig, "04_lo_que_ve_el_agente.png")
 
 
+# ───────────────────────── 5. dónde va en el motor (pendiente) ─────────────────────────
+def fig_donde():
+    fig, ax = _lienzo(16, 9.2, (0, 16), (0, 9.2))
+    ax.text(8, 8.85, "DÓNDE VA LA NEURONA ASOCIATIVA EN EL MOTOR — lo que hay hoy y lo que queda pendiente",
+            ha="center", fontsize=16, weight="bold")
+    ax.text(8, 8.42, "Línea llena = funciona hoy (v35).  Línea punteada violeta = pendiente, un paso a la vez, "
+            "con QA antes y después.  El ranking no se toca.", ha="center", color=TENUE, fontsize=10)
+
+    def caja(x, y, w, h, titulo, sub, borde, ls="-", fc=PANEL, ct=TINTA):
+        _caja(ax, x, y, w, h, color=fc, borde=borde, ls=ls)
+        ax.text(x + w / 2, y + h - 0.32, titulo, ha="center", va="center", fontsize=10.5,
+                weight="bold", color=ct)
+        ax.text(x + w / 2, y + (h - 0.45) / 2, sub, ha="center", va="center", fontsize=8.4, color=TENUE)
+
+    ax.text(0.3, 7.75, "AL GUARDAR", color=ORO, fontsize=11, weight="bold")
+    caja(0.3, 6.0, 2.2, 1.5, "Agente", "busca antes\n(recordar)", AZUL)
+    caja(3.1, 6.0, 2.6, 1.5, "aprender", "busqueda_previa\n+ vincular_con", AZUL)
+    caja(6.3, 6.65, 3.0, 0.95, "enlaces del agente", "manual · intocables (v35)", VERDE)
+    caja(6.3, 5.25, 3.0, 1.2, "5 reglas automáticas", "sinónimo · PMI · co-ocurrencia\nco-nombre · co-semántica", ORO)
+    caja(10.2, 5.4, 2.6, 2.2, "GRAFO", "sinapsis + SDM\n(como CA3)\n13,342 conexiones\nen la memoria de Dennys", CIAN)
+    caja(13.4, 5.4, 2.3, 2.2, "hormiguita", "Gemini limpia el grafo\n(API externa)\nsigue en v35", ROJO)
+    _flecha(ax, (2.5, 6.75), (3.1, 6.75))
+    _flecha(ax, (5.7, 7.0), (6.3, 7.12), color=VERDE)
+    _flecha(ax, (5.7, 6.4), (6.3, 5.85), color=ORO)
+    _flecha(ax, (9.3, 7.12), (10.2, 6.9), color=VERDE)
+    _flecha(ax, (9.3, 5.85), (10.2, 6.0), color=ORO)
+    _flecha(ax, (13.4, 6.5), (12.8, 6.5), color=ROJO)
+
+    ax.text(0.3, 4.25, "AL BUSCAR", color=CIAN, fontsize=11, weight="bold")
+    caja(0.3, 2.5, 2.2, 1.5, "Agente", "recordar", AZUL)
+    caja(3.1, 2.5, 3.4, 1.5, "RANKING (intacto)", "fórmula a mano +\nneurona del ranking (v34)", AZUL)
+    caja(7.1, 2.5, 2.4, 1.5, "top-5", "los recuerdos\nencontrados", AZUL)
+    caja(10.2, 2.5, 2.6, 1.5, "canal 2", "5 asociaciones por\nrecuerdo, peso ≥ 0.5", CIAN)
+    caja(13.4, 2.5, 2.0, 1.5, "el agente ve", "hoy: 5 buenos /\n8 malos\n(pares de tu examen)", AZUL)
+    _flecha(ax, (2.5, 3.25), (3.1, 3.25))
+    _flecha(ax, (6.5, 3.25), (7.1, 3.25))
+    _flecha(ax, (9.5, 3.25), (10.2, 3.25))
+    _flecha(ax, (12.8, 3.25), (13.4, 3.25))
+    _flecha(ax, (11.5, 5.4), (11.5, 4.0), color=CIAN)
+
+    nx, ny = 7.4, 0.25
+    _caja(ax, nx, ny, 3.6, 1.75, color="#1b1640", borde=VIOLETA, ls="--", lw=2.2)
+    ax.add_patch(Circle((nx + 0.55, ny + 0.9), 0.32, color=VIOLETA, zorder=4))
+    ax.text(nx + 2.05, ny + 1.35, "NEURONA ASOCIATIVA", ha="center", fontsize=10.5, weight="bold", color=VIOLETA)
+    ax.text(nx + 2.05, ny + 0.72, "cerrada · examinada\nlista, sin cablear", ha="center", va="center",
+            fontsize=8.6, color=TINTA)
+    _flecha(ax, (nx + 3.6, ny + 1.2), (11.0, 2.5), color=VIOLETA, ls="--", lw=2.0)
+    ax.text(11.9, 1.75, "① filtra el canal 2 (≥ 0.5)\n   medido en copia: 9 / 1  → próximo paso",
+            fontsize=8.6, color=VIOLETA, weight="bold")
+    _flecha(ax, (nx + 3.6, ny + 0.55), (15.62, 5.4), color=VIOLETA, ls="--", lw=1.6,
+            cs="angle,angleA=0,angleB=90,rad=0.3")
+    ax.text(15.5, 4.7, "② reemplaza a\nla hormiguita", ha="right", va="center", fontsize=8.6,
+            color=VIOLETA, weight="bold")
+    _flecha(ax, (nx, ny + 0.9), (6.8, 5.25), color=VIOLETA, ls="--", lw=1.4,
+            cs="angle,angleA=180,angleB=90,rad=0.3")
+    ax.text(3.2, 4.55, "③ revisa los sinónimos y propone\n    enlaces que faltan (80 % aprobados)",
+            fontsize=8.6, color=VIOLETA, weight="bold")
+
+    ax.text(0.3, 1.45, "Probado y dejado fuera:", fontsize=9.5, weight="bold", color=TINTA)
+    ax.text(0.3, 0.95, "✗ poner el peso de nacimiento (QA idéntica → revertido)", fontsize=8.8, color=NARANJA)
+    ax.text(0.3, 0.5, "✗ cortar sinapsis al nacer (baja el recall)", fontsize=8.8, color=ROJO)
+    _guardar(fig, "05_donde_va_en_el_motor.png")
+
+
 if __name__ == "__main__":
     print("Dibujando figuras de cierre de la neurona asociativa (v35)…")
     fig_motor()
     fig_viaje()
     fig_ruido()
     fig_agente()
+    fig_donde()
