@@ -605,15 +605,17 @@ def _palabras_hub(texto: str) -> dict:
     return {t: stem(t) for t in llenas}
 
 
-def _expandir_a_escala(query_text: str, conn: sqlite3.Connection, threshold: float) -> Optional[dict]:
+def _puntajes_por_recuerdo(query_text: str, conn: sqlite3.Connection):
+    """Parecido de cada RECUERDO activado por la pregunta, de mayor a menor:
+    [(parecido, hub_id, puentes_que_coinciden), ...] y el índice. ([], None) si nada."""
     if not query_text or not query_text.strip():
-        return None
+        return [], None
     q_pal = _palabras_hub(query_text)
     if not q_pal:
-        return None
+        return [], None
     idx = _indice_hubs(conn)
     if not idx or not idx["H"]:
-        return None
+        return [], None
     H = idx["H"]
     inv_s, inv_t = idx["inv_s"], idx["inv_t"]
 
@@ -633,7 +635,7 @@ def _expandir_a_escala(query_text: str, conn: sqlite3.Connection, threshold: flo
     for st in q_s:
         candidatos |= inv_s.get(st, set())
     if not candidatos:
-        return None
+        return [], idx
 
     def vista(q, w_q, W_q, b, inv):
         inter = q & b
@@ -674,10 +676,13 @@ def _expandir_a_escala(query_text: str, conn: sqlite3.Connection, threshold: flo
         previo = por_recuerdo.get(d["canonical"])
         if previo is None or (hub_score, hub_id) > (previo[0], previo[1]):
             por_recuerdo[d["canonical"]] = (hub_score, hub_id, matcheados)
-    if not por_recuerdo:
-        return None
+    return sorted(por_recuerdo.values(), key=lambda x: (-x[0], x[1])), idx
 
-    puntajes = sorted(por_recuerdo.values(), key=lambda x: (-x[0], x[1]))
+
+def _expandir_a_escala(query_text: str, conn: sqlite3.Connection, threshold: float) -> Optional[dict]:
+    puntajes, idx = _puntajes_por_recuerdo(query_text, conn)
+    if not puntajes:
+        return None
     s_top, hub_top, matcheados_top = puntajes[0]
     T = HUB_TEMPERATURA if HUB_TEMPERATURA > 0 else 0.10
     ventaja = 1.0 / sum(math.exp((s - s_top) / T) for s, _, _ in puntajes)
