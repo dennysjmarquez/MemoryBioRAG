@@ -151,3 +151,24 @@ Nota: en las copias no se reconstruye el índice SDM (igual en todas). La depend
 - `preparar_copias.py`: arma las copias y `fuerzas.json`.
 - `medir.py`: mide los enlaces del agente, la hormiguita, el canal 2 y el examen por umbral → `resultados/mediciones.json`.
 - `resultados/qa_*.txt`: salida literal de cada QA.
+- `resultados/escenarios.json`: las cifras de cada QA en un solo archivo (las lee `dibujar.py`).
+- `dibujar.py`: las 4 figuras de cierre → `figuras/` (sin ninguna DB).
+
+## 7. Después de este experimento: revertido el peso y cierre de la neurona (v35.0)
+
+1. **Se revirtió el peso de nacimiento** (`76fe11c`). Lo había agregado el experimento 12 (`dd85fcf`). La QA no ve pesos y Dennys rechazó "la neurona solo pone el peso". `core/sinapsis.py` volvió a los pesos a mano de v34.1.
+2. **Se mantienen** los cambios 1 (sin sugerencias de enlace) y 2 (enlaces del agente intocables).
+3. **QA tras revertir** (snapshot canónico, `PYTHONHASHSEED=1`): Recall@5 100.00 %, Recall@1 91.89 %, MRR 0.950, FP 0/40, `[GATE] OK`. La tabla por categoría es **idéntica** a la de antes de todos los cambios v35. Pytest: 430 aprobadas.
+4. **La neurona queda cerrada**: construida, calibrada, examinada y sin decidir en el motor. Próximo paso propuesto, por separado y con QA antes y después: el filtro del canal 2 (sección 4). Su arreglo incluye un contador y un corte automático, y rehacer el estado en el sueño, también cuando la memoria se achica.
+
+### Figuras de cierre
+
+![La neurona del motor](figuras/01_neurona_del_motor.png)
+
+La neurona tal como está en `core/neurona_asociativa.py`: 5 agujas, el Σ con sesgo −1, la curva y el corte de 0.6 con lo que dijo el examen de Dennys. Al contrario del dibujo del experimento 11, aquí no hay competencia ni parte que aprende: no existen en la versión del motor.
+
+![El viaje](figuras/02_el_viaje.png)
+
+![El ruido y la búsqueda](figuras/03_el_ruido_y_la_busqueda.png)
+
+![Lo que ve el agente](figuras/04_lo_que_ve_el_agente.png)

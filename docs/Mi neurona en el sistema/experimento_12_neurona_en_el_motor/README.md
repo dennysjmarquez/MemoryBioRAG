@@ -1,5 +1,10 @@
 # Experimento 12: la neurona asociativa entra al motor
 
+> ⚠️ **Histórico: este cambio se revirtió** (commit `76fe11c`, v35.0). La QA salió idéntica, es decir,
+> no hubo mejora demostrable, y Dennys rechazó que la neurona solo pusiera el peso. Hoy el motor **no**
+> llama a la neurona y `core/sinapsis.py` usa los pesos a mano de siempre. El cierre está en
+> `../experimento_13_enlaces_del_agente_y_ruido/README.md` (sección 7) y en la sección v35.0 del README principal.
+
 > **En una frase:** cuando el motor crea una sinapsis, ahora **la neurona decide con qué fuerza
 > nace**. El motor sigue decidiendo **qué** sinapsis se crean, igual que antes. No se crea ni se corta
 > ninguna de más.

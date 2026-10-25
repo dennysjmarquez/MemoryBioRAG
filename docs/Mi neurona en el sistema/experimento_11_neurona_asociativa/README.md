@@ -1027,3 +1027,16 @@ El cableado está documentado en `../experimento_12_neurona_en_el_motor/README.m
 - No crea ni corta ninguna sinapsis.
 - QA idéntico, incluso repesando todas las sinapsis automáticas de una copia.
 - En los 6 vecinos que usa la expansión, los enlaces manuales pasan de 86 a 142.
+
+---
+
+## V2.20. Cierre (v35.0, 2026-10-25): la neurona queda cerrada y fuera del motor
+
+V2.19 decía "la neurona ya está en el motor". **Ya no es así.**
+- El peso de nacimiento (experimento 12, `dd85fcf`) se **revirtió** en `76fe11c`: la QA salía idéntica y no había mejora demostrable.
+- Cortar sinapsis al nacer baja el recall con cualquier umbral (experimento 13), así que tampoco se hace.
+- La neurona queda **construida, calibrada, examinada y cerrada** (no aprende) en `core/neurona_asociativa.py`, lista para su próximo lugar: elegir qué asociaciones ve el agente (canal 2).
+
+Todo el resumen, con figuras: sección **v35.0** del README principal y la sección 7 de `../experimento_13_enlaces_del_agente_y_ruido/README.md`.
+
+Nota sobre las figuras de aquí: `01_anatomia.png` y `09_competencia.png` muestran la **competencia** (K = 10) y la parte que aprende (apagada). Son partes del experimento. La versión del motor no las usa; su dibujo fiel es `../experimento_13_enlaces_del_agente_y_ruido/figuras/01_neurona_del_motor.png`.

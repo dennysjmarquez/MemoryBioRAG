@@ -1,5 +1,52 @@
 # BioRAG Changelog
 
+## [v35.0] — 2026-10-25 — La Neurona Asociativa (sináptica)
+
+**Versión mayor por su contenido científico: BioRAG tiene su segunda neurona, la que decide si dos recuerdos de verdad tienen que ver. Queda construida, calibrada de fábrica, examinada y cerrada (no aprende), pero todavía no decide dentro del motor. Ranking sin cambios. La API MCP no cambia sus herramientas; solo se quitaron las sugerencias de vincular/desvincular. Los enlaces que hace el agente ya no los borra el sistema.**
+
+### La neurona asociativa (`core/neurona_asociativa.py`, versión `asoc-1`)
+
+- **Una neurona logística de 5 agujas** (`parecido`, `semantica`, `rareza_max`, `episodio`, `etiquetas`): `z = −1 + 2·parecido + 1·semantica + 1·rareza_max + 4·episodio·llave + 1·etiquetas·llave`, `fuerza = 1/(1+e^−z)`. El tiempo y las dims pasan por una **llave**: valen solo si en esa memoria coinciden con el texto, algo que se mide solo y sin respuestas correctas. Guardia de 7 días reales para `episodio`.
+- **Calibrada de fábrica y cerrada**: piso a mano calibrado sobre 7 memorias públicas (noticias en/es, WordNet, Brown, código Python, chat NPS, Machado de Assis en pt). La corrección aprendida queda en escala 0, porque lo que gana en una memoria lo pierde en otra (la "balanza").
+- **Costo**: cada decisión entre dos recuerdos es de tiempo constante. El estado se arma sobre ≤ 2000 recuerdos y se rehace al crecer un 10 %. Solo numpy. Interruptor `BIORAG_NEURONA_ASOCIATIVA=0`.
+- **En v35 el motor no la llama.** El cableado de peso de nacimiento (`dd85fcf`) se **revirtió** (`76fe11c`): la QA salía idéntica, así que no había mejora demostrable. `core/sinapsis.py` quedó como en v34.1.
+
+### Otros cambios
+
+- **Enlaces del agente intocables** (`8c7d476`). Los tipos `manual` y `manual_v7` (`vincular`, `vincular_con`) quedan fuera de cinco procesos:
+  - el decaimiento;
+  - el borrado por peso < 0.05;
+  - la poda LTD guiada;
+  - el prefiltro y la cuarentena de la hormiguita;
+  - el borrado o repesado de la hormiguita.
+  
+  Solo `desvincular` los borra. Constantes nuevas `TIPOS_SINAPSIS_AGENTE` y `SQL_NO_ES_DEL_AGENTE` en `core/memory/constants.py`.
+- **MCP sin sugerencias de enlace** (`0182ad4`). Se quitaron los mensajes que empujaban al agente a vincular o desvincular. Las herramientas `vincular`/`desvincular` y `vincular_con` en `aprender`/`guardar` siguen iguales.
+
+### Validación y Métricas Observadas
+
+- **Fábrica, memorias nunca vistas** (se calibra sin mirarla): AUC 0.882 / 0.902 / 0.994 / 0.927 / 0.911 / 0.997 / 0.962. Promedio 0.939; supera a la regla Jaccard en las 7.
+- **Memoria de Dennys** (851 recuerdos, 13,342 conexiones):
+  - enlaces humanos vs el resto: AUC **0.868** (peso de hoy: 0.271);
+  - humanos vs lo que Gemini sacó: **0.930**.
+- **Examen a mano de Dennys** (99 pares con texto completo):
+  - AUC **0.73** (0.62–0.83);
+  - sinapsis existentes con fuerza ≥ 0.6: 13 buenas y 1 mala;
+  - pares nuevos propuestos: 80 % aprobados;
+  - sinapsis automáticas buenas: ~45 % (32–59 %).
+- **Simulación en copias, con la hormiguita apagada** (experimento 13):
+  - hormiguita apagada: R@5 100 %, R@1 92.00 %;
+  - cortar al nacer con < 0.40 / 0.50 / 0.60: R@5 99.89 / 99.66 / 99.43 %;
+  - sin sinapsis automáticas: 99.43 %.
+  
+  Conclusión: el "ruido" ayuda a buscar y la neurona no debe borrar.
+- **Canal 2 (lo que ve el agente), medido en copia:** si la neurona filtra con ≥ 0.50, los pares del examen visibles pasan de 5 buenos / 8 malos a 9 / 1. Queda pendiente para la próxima versión.
+- **QA oficial (921 casos), snapshot canónico, `PYTHONHASHSEED=1`:** idéntica antes y después de todos los cambios v35. Recall@5 **100.00 %**, Recall@1 **91.89 %**, MRR **0.950**, FP **0/40**, `[GATE] OK`, mismas cifras por categoría.
+- **Pytest:** 430 aprobadas. Archivos nuevos: `test_neurona_asociativa_motor.py`, `test_enlaces_del_agente_intocables.py` (9), `test_sin_sugerencias_de_enlace.py` (4).
+- Documentación: README (sección v35.0 con figuras) y `docs/Mi neurona en el sistema/experimento_10…13`. Figuras de cierre: `experimento_13_enlaces_del_agente_y_ruido/dibujar.py`.
+
+---
+
 ## [v34.1] — 2026-10-24 — La neurona aprende sola de verdad en una memoria nueva
 
 **Sin cambios de API ni de ranking. Cambia solo *qué practica* la neurona en cada consolidación: una memoria nueva enciende la neurona en ~20 consolidaciones (antes: nunca), con la QA oficial igual. La búsqueda, el piso, la guardia, el ascenso y las 18 capas de protección no se modificaron.**

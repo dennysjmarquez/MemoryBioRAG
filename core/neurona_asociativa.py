@@ -1,11 +1,21 @@
-"""Neurona asociativa del motor (v35): decide con qué PESO nace cada sinapsis.
+"""Neurona asociativa de BioRAG (v35): ¿dos recuerdos de verdad tienen que ver?
 
 Viene del experimento 11 (`docs/Mi neurona en el sistema/experimento_11_neurona_asociativa/`).
 Es la misma fórmula, ya cerrada: nace calibrada de fábrica y NO aprende de la memoria del
-usuario. En el motor hace UNA sola cosa:
+usuario. Dados dos recuerdos devuelve una FUERZA de 0 a 1.
+
+ESTADO EN v35.0 (cierre, 2026-10-25): construida, calibrada, examinada y cerrada, pero el
+motor NO la llama. Se probó que pusiera el peso de nacimiento de cada sinapsis (commit
+dd85fcf, experimento 12): la QA salió idéntica, así que se revirtió (76fe11c) y
+`core/sinapsis.py` volvió a los pesos a mano. Cortar sinapsis al nacer baja el recall
+(experimento 13), así que tampoco hace eso. Su lugar propuesto, medido en copia y pendiente:
+elegir qué asociaciones ve el agente (canal 2). Ver README, sección v35.0.
+
+Lo que sigue describe la conversión a peso tal como se diseñó (y se probó) en el experimento 12;
+`peso_desde_fuerza` y `Juez.peso` se conservan para ese uso futuro:
 
     Cuando el motor decide crear una sinapsis (con sus reglas de siempre), la neurona
-    decide con qué fuerza nace. No crea ni corta sinapsis: el conjunto de conexiones es
+    decidiría con qué fuerza nace. No crea ni corta sinapsis: el conjunto de conexiones es
     exactamente el mismo de antes; solo cambia el peso.
 
     fuerza = 1 / (1 + e^-z)

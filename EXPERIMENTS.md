@@ -16,6 +16,8 @@ Este documento es el registro científico de BioRAG v25.x: qué se probó, qué 
 | Fix de segmento SDM de dimensiones | v25.1 | **REVERTIDO** | Regresión de recall medido en la misma sesión |
 | Signal #12 (Predicados SRL) sostiene +13.85pp | v23.1–v25.2 | **REFUTADO** | El +13.85pp histórico era un snapshot parcial; el backfill completo canibaliza la señal |
 | Re-ranking jaccard léxico rescata candidatos hundidos | v25.2 | **GANADOR** | +13.85pp por_tema, +16.92pp R@1, holdout 50/50 sostiene, cero regresiones con protect-r0 |
+| Neurona asociativa de fábrica (5 agujas) juzga si dos recuerdos tienen que ver | v35.0 | **CONFIRMADA, cerrada** | AUC 0.88–0.997 en memorias nunca vistas; 0.868 en la memoria real (peso de hoy 0.271). Ver Hipótesis F |
+| La neurona fija el peso de nacimiento / corta al nacer | v35.0 | **REVERTIDO / DESCARTADO** | Peso: QA idéntica. Cortar: R@5 baja con cualquier umbral. Ver Hipótesis F |
 
 ---
 
@@ -507,3 +509,32 @@ Límite conocido: el tope +10 es arbitrario: rescata casos con rank real
 ≤15, no rescata casos más profundos (ej. "buscar", rank real 21, no
 resuelto). Subir el tope rescataría más casos a costa de ventanas de
 respuesta más grandes — no evaluado el trade-off de subirlo más.
+
+---
+
+## Hipótesis F — La neurona asociativa: ¿dos recuerdos de verdad tienen que ver? (v35, 24/25-oct-2026)
+
+Detalle completo, scripts y salidas textuales: `docs/Mi neurona en el sistema/experimento_10…13`. Resumen en la sección v35.0 del README.
+
+| Hipótesis | Veredicto | Evidencia clave |
+|---|---|---|
+| Una fórmula a mano de 5 agujas, calibrada en 7 memorias públicas, separa pares relacionados en memorias que nunca vio | **CONFIRMADA** | AUC 0.882–0.997 en cada memoria calibrando sin mirarla (promedio 0.939); supera a Jaccard en las 7 |
+| Esa neurona juzga la memoria real de una persona mejor que el peso actual | **CONFIRMADA** | Humanos vs resto 0.868 (peso de hoy 0.271); examen a mano de 99 pares AUC 0.73 (0.62–0.83); existentes 0.77 vs 0.63 |
+| Una corrección aprendida sobre el piso generaliza a cualquier memoria | **DESCARTADA** | Cada memoria sola gana hasta +4.55; juntas, lo que gana una lo pierde otra ("balanza"). Queda en escala 0 |
+| Competencia (top-K socios por recuerdo) como regla de corte | **DESCARTADA** | Conserva pares débiles y suelta buenos (en el examen, la precisión baja de A viene del top-10, no de la fuerza) |
+| Coacceso como aguja | **DESCARTADA** | AUC 0.459 |
+| La neurona fijando el peso de nacimiento de cada sinapsis mejora la búsqueda | **REVERTIDA** | QA idéntica, incluso repesando todo en una copia: la búsqueda casi no mira el peso (`dd85fcf` → `76fe11c`) |
+| La neurona cortando sinapsis al nacer (sin hormiguita) mantiene el recall | **DESCARTADA** | R@5 99.89 / 99.66 / 99.43 % con < 0.40 / 0.50 / 0.60 (hoy 100 %). Sin sinapsis automáticas: 99.43 % |
+| Apagar la hormiguita (Gemini) daña la búsqueda | **REFUTADA (en simulación)** | R@5 100 %, R@1 91.89 → 92.00 %, por_tema 63.08 → 64.62 %. No aplicado: la hormiguita sigue en v35 |
+| La neurona filtrando el canal 2 (asociaciones que ve el agente) muestra menos ruido | **PROMETEDORA, pendiente** | Pares del examen visibles 5 buenos / 8 malos → 9 / 1 con ≥ 0.50. Muestra chica y con sesgo de selección parcial |
+
+### Lecciones de método
+
+1. **Ordenar bien los enlaces no es buscar mejor.** La QA mide si el recuerdo correcto sale, no la calidad del grafo. Una mejora en el grafo necesita su propia medida (examen a mano, lo que ve el agente).
+2. **El "ruido" del grafo tiene valor para el recall.** Las sinapsis automáticas que una persona juzgaría flojas rescatan búsquedas. Una neurona que borra baja el recall; una que elige qué mostrar, no.
+3. **Pre-entrenada ≠ entrenada en tu corpus.** Calibrar con la verdad de la propia memoria del usuario habría inflado los números. Se calibró en memorias públicas y se examinó en la del usuario, que nunca se usó para ajustar.
+4. **Un cambio sin mejora demostrable se revierte**, aunque sea bonito (regla de la bitácora).
+
+### Estado al cierre
+
+La neurona queda construida, calibrada, examinada y **cerrada** (no aprende). El motor **no la llama** en v35. Próximo paso propuesto, uno a la vez y con QA antes y después: el filtro del canal 2. Después, reemplazar la hormiguita.
