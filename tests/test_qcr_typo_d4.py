@@ -83,6 +83,10 @@ def test_todos_cercanos_caso_0733():
 
 
 def test_off_remueve_on_rescata(tmp_path, monkeypatch):
+    # Aísla el mecanismo QCR-typo. Con BIORAG_ESCALA=1 (v35.1) hay un segundo camino
+    # legítimo: las palabras que la memoria no conoce activan el rescate simbólico, que
+    # también encuentra a «a» (ver test_con_escala_el_rescate_simbolico_encuentra_a).
+    monkeypatch.setenv("BIORAG_ESCALA", "0")
     c = _db(tmp_path, "d4.db")
     _score_por_concepto(monkeypatch, {
         "a_topico_qcr": 0.9, "c_topico_qcr": 0.8, "d_topico_qcr": 0.9})
@@ -103,6 +107,7 @@ def test_off_remueve_on_rescata(tmp_path, monkeypatch):
 
 
 def test_piso_respeta_bajo_umbral(tmp_path, monkeypatch):
+    monkeypatch.setenv("BIORAG_ESCALA", "0")  # aísla el piso de QCR-typo (ver arriba)
     c = _db(tmp_path, "d4b.db")
     _score_por_concepto(monkeypatch, {
         "a_topico_qcr": 0.20, "c_topico_qcr": 0.8, "d_topico_qcr": 0.1})
@@ -110,4 +115,21 @@ def test_piso_respeta_bajo_umbral(tmp_path, monkeypatch):
     res, _ = c.buscar_por_frase(QUERY, limite=5)
     dev = [r[0] for r in res]
     assert "a_topico_qcr" not in dev
+    c.cerrar_sistema()
+
+
+def test_con_escala_el_rescate_simbolico_encuentra_a(tmp_path, monkeypatch):
+    """v35.1: «betay», «gamme», «delta» no existen (o casi) en la memoria → typo.
+    El rescate simbólico trae a «a» (la respuesta correcta a la pregunta con typos)
+    con o sin QCR-typo, y el control «d» (1 cercana + 3 lejanas) nunca entra."""
+    monkeypatch.setenv("BIORAG_ESCALA", "1")
+    c = _db(tmp_path, "d4e.db")
+    _score_por_concepto(monkeypatch, {
+        "a_topico_qcr": 0.9, "c_topico_qcr": 0.8, "d_topico_qcr": 0.9})
+    for activa in (False, True):
+        monkeypatch.setattr(constants, "QCR_TYPO_ACTIVA", activa)
+        res, _ = c.buscar_por_frase(QUERY, limite=5)
+        dev = [r[0] for r in res]
+        assert "a_topico_qcr" in dev
+        assert "d_topico_qcr" not in dev
     c.cerrar_sistema()

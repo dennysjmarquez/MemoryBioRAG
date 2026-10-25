@@ -1,0 +1,1 @@
+{"categoria": "sinonimo", "id": "0805", "query": "cv", "expected": "cv_seccion_d_test_vinculacion", "returned": ["cv_seccion_d_estado_final_julio_2026", "cv_adevcom_arquitectura_frontend_decodificada", "cv_click_result_arquitectura_frontend_decodificada"], "scores": [0.5645, 0.5469, 0.5444], "error": "Expected concept not found in top 5 results"}

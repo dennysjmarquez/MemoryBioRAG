@@ -1,0 +1,20 @@
+limpio: 2214 párrafos citaban preguntas de la QA y se excluyeron
+[PMI] Corpus recalculado: 852 nodos, 16494 pares, 1880.8ms
+  200/3000 53s
+  400/3000 107s
+  600/3000 157s
+  800/3000 214s
+  1000/3000 277s
+  1200/3000 343s
+  1400/3000 406s
+  1600/3000 474s
+  1800/3000 543s
+  2000/3000 617s
+  2200/3000 696s
+  2400/3000 773s
+  2600/3000 852s
+  2800/3000 936s
+  3000/3000 1025s
+LISTO tipo=tema insertados=3000/3000 nodos_totales=3866 1025s
+rellenos con dimensiones del vecino real más parecido: 2989 de 3000
+BUILD_3K_FIN

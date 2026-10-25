@@ -1,0 +1,45 @@
+0497 por_tema 'relevantes biomimética mejor' oro: benchmark_antes_despues_fix3
+    S0.db      candidato=True capa=('literal', 0.0) score_base=0.4072 puesto=2
+    T1000d.db  candidato=False capa=None score_base=None puesto=None
+0534 por_tema 'activa largo archivos' oro: biorag_v11_1_detalle_tecnico
+    S0.db      candidato=True capa=('literal', 0.0) score_base=0.4618 puesto=2
+    T1000d.db  candidato=False capa=None score_base=None puesto=None
+0765 por_tema 'sabes crecimiento suficiente' oro: fin-aprendizaje-creerse-completo
+    S0.db      candidato=True capa=('literal', 0.0) score_base=0.3487 puesto=2
+    T1000d.db  candidato=True capa=('literal', 0.0) score_base=None puesto=None
+0518 variante 'cuando usado dimensione biorags' oro: cuando_usar_dimensiones_biorag
+    S0.db      candidato=True capa=('literal', 0.0) score_base=0.4093 puesto=2
+    T1000d.db  candidato=True capa=('latente', 0.235) score_base=None puesto=None
+0548 variante 'patron pensamientando laterals ante de proponers' oro: patron_pensamiento_lateral_antes_de_prop
+    S0.db      candidato=True capa=('simbolico', 0.9186) score_base=0.5253 puesto=1
+    T1000d.db  candidato=True capa=('literal', 0.0) score_base=None puesto=None
+0560 variante 'memorias v5 1s optimizaciones' oro: memoria_v5_1_optimizaciones
+    S0.db      candidato=True capa=('simbolico', 0.7188) score_base=0.4188 puesto=3
+    T1000d.db  candidato=True capa=('simbolico', 0.7188) score_base=None puesto=None
+0683 variante 'naturaleza sistema oecs cerebrando memorias' oro: naturaleza_sistema_oec_cerebro_memoria
+    S0.db      candidato=True capa=('simbolico', 0.725) score_base=0.5201 puesto=1
+    T1000d.db  candidato=True capa=('literal', 0.0) score_base=None puesto=None
+0702 variante 'resoluciones timeouts hotspot 5ghzs intels' oro: resolucion_timeout_hotspot_5ghz_intel
+    S0.db      candidato=True capa=('simbolico', 0.8683) score_base=0.4936 puesto=1
+    T1000d.db  candidato=True capa=('literal', 0.0) score_base=None puesto=None
+0803 variante 'cv seccion ds tests vinculaciones' oro: cv_seccion_d_test_vinculacion
+    S0.db      candidato=True capa=('literal', 0.0) score_base=0.4292 puesto=1
+    T1000d.db  candidato=True capa=('literal', 0.0) score_base=None puesto=None
+0592 typo 'arquitectura memovria biroag' oro: arquitectura_memoria_biorag
+    S0.db      candidato=True capa=('simbolico', 0.625) score_base=0.454 puesto=2
+    T1000d.db  candidato=True capa=('semantica', 0.3333333333333333) score_base=None puesto=None
+0605 typo 'compromisro-real-athena-clave-de-confianza' oro: compromiso-real-athena-clave-de-confianz
+    S0.db      candidato=True capa=('semantica', 0.3333333333333333) score_base=0.3444 puesto=5
+    T1000d.db  candidato=True capa=('semantica', 0.3333333333333333) score_base=None puesto=None
+0637 typo 'mentalidad biora paa agentes' oro: mentalidad_biorag_para_agentes
+    S0.db      candidato=True capa=('literal', 0.0) score_base=0.5207 puesto=1
+    T1000d.db  candidato=True capa=('semantica', 0.75) score_base=None puesto=None
+0804 typo 'cv secion d tets vinculacion' oro: cv_seccion_d_test_vinculacion
+    S0.db      candidato=True capa=('simbolico', 0.7143) score_base=0.3834 puesto=1
+    T1000d.db  candidato=True capa=('simbolico', 0.7143) score_base=None puesto=None
+0734 sinonimo 'regla' oro: plan_mode_biorag
+    S0.db      candidato=True capa=('literal', 0.0) score_base=0.7306 puesto=5
+    T1000d.db  candidato=True capa=('literal', 0.0) score_base=None puesto=None
+0805 sinonimo 'cv' oro: cv_seccion_d_test_vinculacion
+    S0.db      candidato=True capa=('unicode', 0.0) score_base=0.513 puesto=5
+    T1000d.db  candidato=True capa=('unicode', 0.0) score_base=None puesto=None

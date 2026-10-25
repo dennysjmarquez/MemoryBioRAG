@@ -1,0 +1,111 @@
+Creating isolated database copy at: /home/user/MemoryBioRAG/MemoryBioRAG_Data/memory_biorag_qa_temp.db
+Loaded 921 test cases.
+
+🧠 NEURONA DE RANKING
+   Base medida:  /tmp/v/T3000r.db  (NO es el snapshot oficial; se mide una copia temporal)
+   Neurona:      ⛔ apagada en este entorno (BIORAG_NEURONA=0)
+                 → la tabla es la FÓRMULA A MANO SOLA (el piso)
+
+
+Exporting failed cases to: /tmp/v/fallos_T3000r_off.jsonl
+Cleaning up temporary database copy at /home/user/MemoryBioRAG/MemoryBioRAG_Data/memory_biorag_qa_temp.db...
+
+================================================================================
+                      BIORAG QA EVALUATION REPORT
+================================================================================
+Total time elapsed: 1318.84 seconds
+--------------------------------------------------------------------------------
+🧠 NEURONA DE RANKING
+   Base medida:  /tmp/v/T3000r.db  (NO es el snapshot oficial; se mide una copia temporal)
+   Neurona:      ⛔ apagada en este entorno (BIORAG_NEURONA=0)
+                 → la tabla es la FÓRMULA A MANO SOLA (el piso)
+--------------------------------------------------------------------------------
+Category               | Total  | Recall@5  | Recall@1  | MRR      | Errors/FPs
+--------------------------------------------------------------------------------
+ambiguo                | 6      | N/A       | N/A       | N/A      | 0          (100.0% de cobertura sobre queries con etiqueta contradictoria; fuera del Recall global)
+cruce_idioma           | 8      |  100.00% |   62.50% |  0.750 | 0         
+dormido                | 65     |  100.00% |  100.00% |  1.000 | 0         
+literal                | 487    |  100.00% |   99.59% |  0.998 | 0         
+negativo               | 40     | N/A       | N/A       | N/A      | 0          (0.0% FP sobre 40 válidos; 0 contaminados)
+por_tema               | 65     |   96.92% |   61.54% |  0.747 | 2         
+pregunta_natural       | 65     |  100.00% |   93.85% |  0.967 | 0         
+sinonimo               | 55     |   96.36% |   56.36% |  0.717 | 2         
+typo                   | 65     |   96.92% |   86.15% |  0.904 | 2         
+variante_gramatical    | 65     |   98.46% |   92.31% |  0.950 | 1         
+--------------------------------------------------------------------------------
+GLOBAL SUMMARY (Retrieval) | 875    |   99.20% |   91.77% |  0.947 | 7         
+GLOBAL SUMMARY (Noise/FP) | 40     | N/A       | N/A       | N/A      | 0          (0.00% FP sobre 40 válidos; 0 contaminados)
+SPREADING ACTIVATION   | 4/921 queries (0.4%)
+AISLAMIENTO POR CASO   | 64 mutaciones de estado revertidas (15 nodos arrancaron dormidos)
+================================================================================
+
+DATASET (salud de las etiquetas oro):
+--------------------------------------------------------------------------------
+  3 etiqueta(s) obsoleta(s) resuelta(s) contra la DB:
+    [0268] lección:_guardar_todo_lo_importante_inmediatamente,_no_esperar
+         -> lección:_guardar_todo_lo_importante_inmediatamente_y_no_esperar
+    [0368] plugin_biorag-remember_v8.4_-_solo_session.idle,_sin_conteo_de_edits
+         -> plugin_biorag-remember_v8.4_-_solo_session.idle_y_sin_conteo_de_edits
+    [0371] plugin_v7.1_fix:_session.idle_es_un_event,_no_un_hook
+         -> plugin_v7.1_fix:_session.idle_es_un_event_y_no_un_hook
+  3 query(s) con etiqueta contradictoria -> reclasificadas como 'ambiguo':
+    'biorag' -> ['auto-consulta-permanente-biorag', 'protocolo_busqueda_biorag_automatica']
+    'compromiso' -> ['compromiso-real-athena-clave-de-confianza', 'principio-memoria-hibrida-agente-naturalidad']
+    'dimensiones' -> ['cuando_usar_dimensiones_biorag', 'fix_busqueda_solo_dimensiones_sin_texto']
+--------------------------------------------------------------------------------
+
+SAMPLE FAILURES BY CATEGORY FOR ACTIONABLE DIAGNOSIS:
+================================================================================
+
+[Category: ambiguo] (0 total failures)
+----------------------------------------
+
+[Category: dormido] (0 total failures)
+----------------------------------------
+
+[Category: por_tema] (2 total failures)
+----------------------------------------
+  #1 [ID 0516] Query: "real más sistemas"
+      Expected:  dennys-identidad-profunda
+      Returned:  ['biorag_v20_rpe_dopamina', 'principio_naturaleza_agente', 'identidad_dennys_perfil_completo'] (scores: [0.519, 0.378, 0.371])
+      Reason:    Expected concept not found in top 5 results
+  #2 [ID 0681] Query: "chars python resultado"
+      Expected:  integracion_parafrasis_rafaga_obligatoria_v11_3
+      Returned:  ['fix_kilo_resource_exhausted_biorag_oraculo_max_chars', 'verificacion_fidelidad_jaccard_preview_chars_truncado_vs_completo', 'relleno_tema_01870_doc_readme_md_resultados_total_cerebro'] (scores: [0.47, 0.425, 0.393])
+      Reason:    Expected concept not found in top 5 results
+
+[Category: sinonimo] (2 total failures)
+----------------------------------------
+  #1 [ID 0734] Query: "regla"
+      Expected:  plan_mode_biorag
+      Returned:  ['regla_verificar_codigo_real_antes_de_diagnostico', 'regla_umbral_fallback_dimensional_biorag', 'regla_cero_inferencia'] (scores: [0.798, 0.785, 0.769])
+      Reason:    Expected concept not found in top 5 results
+  #2 [ID 0805] Query: "cv"
+      Expected:  cv_seccion_d_test_vinculacion
+      Returned:  ['cv_seccion_d_estado_final_julio_2026', 'cv_adevcom_arquitectura_frontend_decodificada', 'cv_click_result_arquitectura_frontend_decodificada'] (scores: [0.565, 0.547, 0.544])
+      Reason:    Expected concept not found in top 5 results
+
+[Category: typo] (2 total failures)
+----------------------------------------
+  #1 [ID 0531] Query: "iborag v11 1 detalle tcenico"
+      Expected:  biorag_v11_1_detalle_tecnico
+      Returned:  ['proyecto_biorag_ncp_resumen_completo_2026_06_14', 'research-pipeline-ownership-oec', 'athena_artemis_desde'] (scores: [0.394, 0.388, 0.386])
+      Reason:    Expected concept not found in top 5 results
+  #2 [ID 0804] Query: "cv secion d tets vinculacion"
+      Expected:  cv_seccion_d_test_vinculacion
+      Returned:  ['vision_arquitectura_oec_franquicia', 'artemis_oec_identidad', 'research-pipeline-ownership-oec'] (scores: [0.383, 0.379, 0.366])
+      Reason:    Expected concept not found in top 5 results
+
+[Category: variante_gramatical] (1 total failures)
+----------------------------------------
+  #1 [ID 0826] Query: "interacción socials saludando"
+      Expected:  interacción_social_saludo
+      Returned:  ['notebooklm-sync-lecciones', 'vision_arquitectura_oec_franquicia', 'protocolo-autonomia-consentida'] (scores: [0.389, 0.374, 0.374])
+      Reason:    Expected concept not found in top 5 results
+================================================================================
+Note: All failed cases have been saved to /tmp/v/fallos_T3000r_off.jsonl for full debug analysis.
+
+Métricas exportadas a: /tmp/v/met_T3000r_off.json
+
+[GATE] OK — gate desactivado (BIORAG_QA_GATE=0)
+QA_FIN T3000r_off rc=0
