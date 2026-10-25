@@ -1600,18 +1600,28 @@ Desde ahora `evaluar_qa.py` (y `run_qa_suite.sh`, que le pasa los argumentos) ha
 2. **Mide las dos columnas en la misma corrida:** el orden de la fórmula sola (antes de la neurona) y el que sirvió el motor (después). Mismas preguntas, misma base, mismo instante: solo cambia quién ordena el top-5. Un "espía" envuelve `neurona.reordenar` y anota los dos órdenes, sin cambiar ningún resultado.
 3. **Vigila que no dañe** (entra al gate): Recall@5 idéntico, el total de aciertos en 1er lugar no baja y ninguna categoría pierde más de `BIORAG_QA_NEURONA_TOL_CASOS` casos en 1er lugar (default 1, el mismo piso que la neurona se exige a sí misma).
 
+Cómo se decide si se entrena:
+
+| Comando | La base medida YA tiene neurona | La base medida NO tiene neurona |
+|---|---|---|
+| `./scripts/run_qa_suite.sh` (el de siempre) | la usa tal cual, sin entrenar: tabla con 🧠 | tabla de siempre + el aviso |
+| `./scripts/run_qa_suite.sh --con-neurona` | la usa tal cual, sin entrenar: tabla con 🧠 | **pregunta**: cuánto tardaría y "¿La entreno ahora? [s/N]". *s* → entrena en la copia y sigue la prueba; *n* o Enter → tabla de siempre |
+| `... --con-neurona --si` | igual | entrena sin preguntar (CI o scripts) |
+
+Sin una persona frente a la terminal (CI, tubería), `--con-neurona` no pregunta ni entrena: nadie dijo que sí. Para eso está `--si`.
+
 ```bash
-# Ver la neurona en la QA del snapshot: entrena una en la COPIA temporal y la mide.
-# Misma práctica que despertar_neurona (500 prácticas, ~20-25 min más). El snapshot no se toca.
-python scripts/evaluar_qa.py --con-neurona
-python scripts/evaluar_qa.py --con-neurona --minutos 10      # con tope de tiempo
-./scripts/run_qa_suite.sh --qa-only --con-neurona
+# Tu QA de siempre, con la opción de ver la neurona (pregunta antes de entrenar)
+./scripts/run_qa_suite.sh --con-neurona
+./scripts/run_qa_suite.sh --qa-only --con-neurona               # solo la QA de 921 casos
+python scripts/evaluar_qa.py --con-neurona --minutos 10         # con tope de tiempo
+python scripts/evaluar_qa.py --con-neurona --si                 # sin preguntar
 
 # Medir tu propia memoria con tu propia neurona (la QA mide una copia; tu DB no se toca)
 BIORAG_PATH=MemoryBioRAG_Data/memory_biorag.db python scripts/evaluar_qa.py
 ```
 
-Lo que sale cuando la base medida **no** tiene neurona pero tu DB viva sí (corrida real del 2026-10-25; aquí la "DB viva" es una copia del snapshot con 500 prácticas):
+Lo que sale cuando la base medida **no** tiene neurona pero tu DB viva sí (corrida real del 2026-10-25; aquí la "DB viva" es una copia del snapshot con 111 prácticas):
 
 ```text
 🧠 NEURONA DE RANKING
@@ -1619,15 +1629,30 @@ Lo que sale cuando la base medida **no** tiene neurona pero tu DB viva sí (corr
    Neurona:      ⏳ esta base no tiene una neurona entrenada
                  → la tabla es la FÓRMULA A MANO SOLA (el piso)
    Tu neurona:   🏆 ACTIVA en tu DB viva (/tmp/qa/snap_train.db)
-                 entrenada con esa memoria · 500 prácticas · aprobó 10 veces · la quitaron 0
-                 en su examen de control acierta el 1er lugar: fórmula 68.7 % → neurona 86.7 %
+                 entrenada con esa memoria · 111 prácticas · aprobó 3 veces · la quitaron 0
+                 en su examen de control acierta el 1er lugar: fórmula 78.8 % → neurona 95.5 %
    Cada base tiene su propia neurona: lo que aprendió tu DB viva no viaja a la
    copia que mide esta QA. Por eso aquí no se ve (y eso es correcto).
    Para ver la neurona en esta QA (sin tocar ninguna base original):
      python scripts/evaluar_qa.py --con-neurona
-       → entrena una neurona en la copia temporal y la mide (unos 20-25 min más)
+       → pregunta si quieres entrenar una en la copia temporal y la mide
      BIORAG_PATH=/tmp/qa/snap_train.db python scripts/evaluar_qa.py
        → mide tu propia memoria con tu propia neurona
+```
+
+Lo que pregunta `--con-neurona` cuando la base medida no tiene neurona (corrida real con `./scripts/run_qa_suite.sh --qa-only --con-neurona`):
+
+```text
+🧠 Usaste --con-neurona, pero esta base no tiene una neurona entrenada.
+   Para verla en la tabla hay que entrenarla primero:
+     · hasta 500 prácticas, como máximo ~25 min (cada una dura hasta 3 s;
+       con ~900 recuerdos, 500 prácticas tardaron 23 min).
+     · necesita por lo menos unos 3 min para juntar su examen y aprobarlo; con menos
+       puede no aprobar, y entonces la tabla sale igual que siempre.
+     · se entrena en la copia temporal: tu base no se toca.
+   Después sigue la prueba con los mismos 921 casos.
+   Si dices que no, sale la tabla de siempre (sin neurona).
+¿La entreno ahora? [s/N]:
 ```
 
 Lo que sale cuando la base medida **sí** tiene neurona (la misma copia; corrida real): la tabla de siempre muestra lo que sirve el motor y, al final de cada fila, cuánto cambió la neurona el 1er lugar. Debajo, el detalle:
@@ -1661,10 +1686,13 @@ LA NEURONA EN ESTA QA (misma base, mismas preguntas; solo cambia quién ordena e
 | 3 | Código nuevo, copia con neurona | columna "fórmula sola" = corrida 1 en **todas** las categorías (R@1 y MRR); con neurona R@1 94.40 · MRR 0.966; R@5 y FP iguales |
 | 4 | La misma copia con `BIORAG_NEURONA=0` | tabla = columna "fórmula sola" de la corrida 3 |
 | 5 | Código nuevo, snapshot, `--con-neurona` (500 prácticas en la copia, 23 min) | R@1 91.89 → **94.97** · MRR 0.950 → 0.970 · R@5 y FP iguales · 27 respuestas suben al 1er lugar y ninguna baja · GATE OK · el snapshot conserva su sha256 |
+| 6 | `./scripts/run_qa_suite.sh --qa-only --con-neurona`, respuesta **n** | pregunta y no entrena; tabla **idéntica** a la corrida 1; suite FINALIZADA CON ÉXITO |
+| 7 | `./scripts/run_qa_suite.sh --qa-only` sobre una copia que ya tiene neurona (5 min de `despertar`) | **no entrena**: usa la que hay; R@1 91.89 → 95.20 · MRR 0.950 → 0.971 · control de daño pasa |
+| 8 | `--con-neurona --minutos 5`, respuesta **s** | pregunta, entrena 110 prácticas y sigue: R@1 91.89 → 94.97 · GATE OK |
 
-Ninguna base original se escribe: el estado de tu DB viva se lee en solo lectura y `--con-neurona` practica sobre la copia temporal, que se borra al terminar. La copia de la corrida 3 tiene el mismo sha256 antes y después de la QA. El bloque `neurona` de `qa_metrics.json` trae las dos columnas por categoría, los cambios, los tiempos y el control de daño, listos para CI. Salidas completas de las 5 corridas: `docs/Mi neurona en el sistema/qa_con_neurona_20261025/`.
+Ninguna base original se escribe: el estado de tu DB viva se lee en solo lectura y `--con-neurona` practica sobre la copia temporal, que se borra al terminar. La copia de la corrida 3 tiene el mismo sha256 antes y después de la QA. El bloque `neurona` de `qa_metrics.json` trae las dos columnas por categoría, los cambios, los tiempos y el control de daño, listos para CI. Salidas completas de las corridas: `docs/Mi neurona en el sistema/qa_con_neurona_20261025/`.
 
-**Límites:** cuánto mejora depende de la neurona que se entrenó. La práctica tiene un tope de 3 s por ciclo, así que cada entrenamiento puede salir algo distinto, sobre todo en otra máquina: en la misma máquina, dos entrenamientos de 500 prácticas dieron R@1 94.40 % (corrida 3) y 94.97 % (corrida 5). Compara siempre las dos columnas de la misma corrida. Las preguntas de la QA se escribieron para el snapshot, así que sobre tu DB viva algunas respuestas no existen o significan otra cosa: allí la QA sirve para comparar fórmula sola contra neurona, no para compararse con la tabla oficial.
+**Límites:** cuánto mejora depende de la neurona que se entrenó. La práctica tiene un tope de 3 s por ciclo, así que cada entrenamiento puede salir algo distinto, sobre todo en otra máquina: en la misma máquina, dos entrenamientos de 500 prácticas dieron R@1 94.40 % (corrida 3) y 94.97 % (corrida 5), y dos de 5 minutos dieron 95.20 % (corrida 7) y 94.97 % (corrida 8). Más prácticas no garantizan más aciertos en esta QA. Compara siempre las dos columnas de la misma corrida. Las preguntas de la QA se escribieron para el snapshot, así que sobre tu DB viva algunas respuestas no existen o significan otra cosa: allí la QA sirve para comparar fórmula sola contra neurona, no para compararse con la tabla oficial.
 
 ---
 

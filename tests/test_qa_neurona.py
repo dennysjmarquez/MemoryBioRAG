@@ -7,6 +7,7 @@ Cada prueba es una falla concreta que debe estar cubierta:
   C. Las dos columnas y el control de daño (R@5 idéntico, total en 1er lugar, tolerancia por categoría).
   D. El aviso dice la verdad en cada situación (y nombra el parámetro para ver la neurona).
   E. Argumentos de evaluar_qa.py compatibles con el uso de siempre.
+  F. --con-neurona PREGUNTA antes de entrenar (sí/no, sin terminal, --si).
 """
 import hashlib
 import importlib.util
@@ -327,6 +328,69 @@ def test_argumentos_compatibles():
     assert a.casos == "casos_qa.jsonl"
     a = QN.leer_argumentos(["--con-neurona", "--ciclos", "40", "--minutos", "5"])
     assert a.con_neurona and a.ciclos == 40 and a.minutos == 5.0
+
+
+# ───────────────────────── F. --con-neurona pregunta antes de entrenar ─────────────────────────
+
+def _pregunta(respuesta=None, terminal=True, auto_si=False, minutos=None):
+    vistas, dichas = [], []
+
+    def entrada(prompt):
+        vistas.append(prompt)
+        if isinstance(respuesta, BaseException):
+            raise respuesta
+        return respuesta
+
+    r = QN.quiere_entrenar(500, minutos, 3.0, 921, auto_si=auto_si, entrada=entrada,
+                           es_terminal=terminal, imprimir=dichas.append)
+    return r, vistas, "\n".join(dichas)
+
+
+def test_con_neurona_pregunta_y_explica_cuanto_tarda():
+    (si, motivo), vistas, texto = _pregunta("s")
+    assert si and motivo == "acepto" and vistas == ["¿La entreno ahora? [s/N]: "]
+    assert "no tiene una neurona entrenada" in texto and "como máximo ~25 min" in texto
+    assert "por lo menos unos 3 min" in texto and "921 casos" in texto
+    assert "tu base no se toca" in texto and "tabla de siempre" in texto
+
+
+def test_con_neurona_acepta_varias_formas_de_decir_si():
+    for r in ("s", "S", "si", "Sí", " yes ", "y"):
+        assert _pregunta(r)[0] == (True, "acepto"), r
+
+
+def test_con_neurona_no_enter_o_cancelar_es_no():
+    for r in ("n", "no", "", "quizas", EOFError(), KeyboardInterrupt()):
+        assert _pregunta(r)[0] == (False, "rechazo"), r
+
+
+def test_con_neurona_sin_terminal_no_pregunta_ni_entrena():
+    (si, motivo), vistas, texto = _pregunta("s", terminal=False)
+    assert (si, motivo) == (False, "sin_terminal") and vistas == [] and texto == ""
+
+
+def test_con_neurona_si_entrena_sin_preguntar():
+    (si, motivo), vistas, _ = _pregunta(None, terminal=False, auto_si=True)
+    assert (si, motivo) == (True, "si_flag") and vistas == []
+
+
+def test_con_neurona_con_minutos_dice_el_tope():
+    _, _, texto = _pregunta("n", minutos=10)
+    assert "tope de 10 min" in texto
+
+
+def test_aviso_dice_que_paso_con_la_pregunta():
+    t = _ctx(decision_entrenar="rechazo")
+    assert "Elegiste no entrenarla" in t and "Para ver la neurona" not in t
+    t = _ctx(decision_entrenar="sin_terminal")
+    assert "no se entrenó" in t and "--con-neurona --si" in t
+    t = _ctx()
+    assert "pregunta si quieres entrenar" in t
+
+
+def test_argumento_si():
+    assert QN.leer_argumentos(["--con-neurona", "--si"]).si
+    assert not QN.leer_argumentos(["--con-neurona"]).si
 
 
 def test_despertar_y_la_qa_comparten_el_mismo_bucle():

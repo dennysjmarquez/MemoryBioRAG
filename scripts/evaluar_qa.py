@@ -180,13 +180,17 @@ def run_evaluation(argv=None):
         if viva and viva.get("campeon"):
             viva_vale = QN.vale_para_este_motor(viva, neurona.VERSION, neurona.huella_motor(db))
     entrenada_aqui = None
+    decision_entrenar = None
     if args.con_neurona:
         if not neurona.activa():
             print("[ERROR] --con-neurona con BIORAG_NEURONA=0: la neurona está apagada en este entorno.")
             sys.exit(2)
         if neurona.resumen(db).get("campeon"):
-            print("--con-neurona: esta base ya tiene su neurona entrenada; se mide tal cual (no se practica).")
+            print("--con-neurona: esta base ya tiene su neurona entrenada; se usa tal cual (no se entrena).")
         else:
+            _entrenar, decision_entrenar = QN.quiere_entrenar(
+                args.ciclos, args.minutos, neurona._cfg()["presupuesto"], len(cases), auto_si=args.si)
+        if decision_entrenar in ("si_flag", "acepto"):
             from despertar_neurona import practicar_seguido
             print(f"\n--con-neurona: entrenando una neurona en la COPIA temporal (hasta {args.ciclos} prácticas"
                   f"{f', tope {args.minutos} min' if args.minutos else ''}). La base original no se toca.")
@@ -200,7 +204,7 @@ def run_evaluation(argv=None):
         activa=neurona.activa(), medida=estado_neurona, entrenada_aqui=entrenada_aqui,
         origen=origen_qa, origen_es_snapshot=QN.es_snapshot(origen_qa, base_dir),
         guardada_origen=guardada_origen, viva=viva, viva_vale=viva_vale, ruta_viva=ruta_viva,
-        base_dir=base_dir))
+        base_dir=base_dir, decision_entrenar=decision_entrenar))
     print("")
     print("\n".join(aviso_neurona))
     print("")
@@ -658,6 +662,7 @@ def run_evaluation(argv=None):
         "activa": neurona.activa(),
         "actuo": neurona_actua,
         "entrenada_en_la_copia": entrenada_aqui,
+        "con_neurona_decision": decision_entrenar,
         "origen": origen_qa,
         "origen_es_snapshot": QN.es_snapshot(origen_qa, base_dir),
         "base_medida": {k: estado_neurona.get(k) for k in

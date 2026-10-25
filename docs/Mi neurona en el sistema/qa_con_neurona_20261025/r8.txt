@@ -1,0 +1,134 @@
+s
+Creating isolated database copy at: /home/user/MemoryBioRAG/MemoryBioRAG_Data/memory_biorag_qa_temp.db
+Loaded 921 test cases.
+
+🧠 Usaste --con-neurona, pero esta base no tiene una neurona entrenada.
+   Para verla en la tabla hay que entrenarla primero:
+     · hasta 500 prácticas, con tope de 5 min (lo pediste con --minutos).
+     · necesita por lo menos unos 3 min para juntar su examen y aprobarlo; con menos
+       puede no aprobar, y entonces la tabla sale igual que siempre.
+     · se entrena en la copia temporal: tu base no se toca.
+   Después sigue la prueba con los mismos 921 casos.
+   Si dices que no, sale la tabla de siempre (sin neurona).
+¿La entreno ahora? [s/N]: 
+--con-neurona: entrenando una neurona en la COPIA temporal (hasta 500 prácticas, tope 5.0 min). La base original no se toca.
+Es la misma práctica de despertar_neurona: preguntas que la neurona se hace con los
+recuerdos de la base; nunca ve las preguntas de esta QA.
+  práctica   25  juntando preguntas para estudiar   42  de control  13      71 s
+  práctica   50  juntando preguntas para estudiar   98  de control  28     132 s
+  práctica   75  juntando preguntas para estudiar  145  de control  41     202 s
+  práctica   78  🏆 APROBÓ: aciertos en 1er lugar (control) 70.7 % → 73.2 %
+  práctica   79  🏆 APROBÓ: aciertos en 1er lugar (control) 70.7 % → 75.6 %
+  práctica   80  🏆 APROBÓ: aciertos en 1er lugar (control) 70.7 % → 80.5 %
+  práctica   81  🏆 APROBÓ: aciertos en 1er lugar (control) 71.4 % → 81.0 %
+  práctica   82  🏆 APROBÓ: aciertos en 1er lugar (control) 71.4 % → 88.1 %
+  práctica   83  🏆 APROBÓ: aciertos en 1er lugar (control) 71.4 % → 81.0 %
+  práctica  100  en su mejor nivel  para estudiar  187  de control  51     273 s
+  práctica  110  se cumplieron los 5.0 min
+
+🧠 NEURONA DE RANKING
+   Base medida:  snapshots/qa_escape_qcr_20260811.db  (snapshot oficial; se mide una copia temporal)
+   Neurona:      🏆 ACTIVA — entrenada en esta copia con --con-neurona (110 prácticas, 5 min)
+                 Aprendió con preguntas que ella misma se hace con los recuerdos;
+                 nunca vio las preguntas de esta QA.
+                 en su examen de control acierta el 1er lugar: fórmula 71.0 % → neurona 82.3 %
+   La tabla muestra lo que sirve el motor (fórmula + neurona). Al final de cada
+   fila: 🧠 cuánto cambió la neurona el 1er lugar frente a la fórmula sola.
+
+
+Exporting failed cases to: /tmp/qa/r8_f.jsonl
+Cleaning up temporary database copy at /home/user/MemoryBioRAG/MemoryBioRAG_Data/memory_biorag_qa_temp.db...
+
+================================================================================
+                      BIORAG QA EVALUATION REPORT
+================================================================================
+Total time elapsed: 701.16 seconds
+--------------------------------------------------------------------------------
+🧠 NEURONA DE RANKING
+   Base medida:  snapshots/qa_escape_qcr_20260811.db  (snapshot oficial; se mide una copia temporal)
+   Neurona:      🏆 ACTIVA — entrenada en esta copia con --con-neurona (110 prácticas, 5 min)
+                 Aprendió con preguntas que ella misma se hace con los recuerdos;
+                 nunca vio las preguntas de esta QA.
+                 en su examen de control acierta el 1er lugar: fórmula 71.0 % → neurona 82.3 %
+   La tabla muestra lo que sirve el motor (fórmula + neurona). Al final de cada
+   fila: 🧠 cuánto cambió la neurona el 1er lugar frente a la fórmula sola.
+--------------------------------------------------------------------------------
+Category               | Total  | Recall@5  | Recall@1  | MRR      | Errors/FPs
+--------------------------------------------------------------------------------
+ambiguo                | 6      | N/A       | N/A       | N/A      | 2          (66.7% de cobertura sobre queries con etiqueta contradictoria; fuera del Recall global)
+cruce_idioma           | 8      |  100.00% |  100.00% |  1.000 | 0           🧠 +37.50 pp (fórmula sola 62.50%)
+dormido                | 65     |  100.00% |  100.00% |  1.000 | 0           🧠 = igual (fórmula sola 100.00%)
+literal                | 487    |  100.00% |   99.59% |  0.998 | 0           🧠 = igual (fórmula sola 99.59%)
+negativo               | 40     | N/A       | N/A       | N/A      | 0          (0.0% FP sobre 40 válidos; 0 contaminados)
+por_tema               | 65     |  100.00% |   81.54% |  0.888 | 0           🧠 +18.46 pp (fórmula sola 63.08%)
+pregunta_natural       | 65     |  100.00% |   96.92% |  0.985 | 0           🧠 +3.07 pp (fórmula sola 93.85%)
+sinonimo               | 55     |  100.00% |   60.00% |  0.726 | 0           🧠 +3.64 pp (fórmula sola 56.36%)
+typo                   | 65     |  100.00% |   93.85% |  0.967 | 0           🧠 +4.62 pp (fórmula sola 89.23%)
+variante_gramatical    | 65     |  100.00% |   96.92% |  0.985 | 0           🧠 +7.69 pp (fórmula sola 89.23%)
+--------------------------------------------------------------------------------
+GLOBAL SUMMARY (Retrieval) | 875    |  100.00% |   94.97% |  0.969 | 0           🧠 +3.08 pp (fórmula sola 91.89%)
+GLOBAL SUMMARY (Noise/FP) | 40     | N/A       | N/A       | N/A      | 0          (0.00% FP sobre 40 válidos; 0 contaminados)
+SPREADING ACTIVATION   | 8/921 queries (0.9%)
+AISLAMIENTO POR CASO   | 64 mutaciones de estado revertidas (15 nodos arrancaron dormidos)
+================================================================================
+
+LA NEURONA EN ESTA QA (misma base, mismas preguntas; solo cambia quién ordena el top-5)
+--------------------------------------------------------------------------------
+Category               | 1er lugar (R@1): fórmula → neurona   | MRR: fórmula → neurona
+--------------------------------------------------------------------------------
+cruce_idioma           |  62.50% → 100.00%  (+37.50 pp)       | 0.740 → 1.000
+dormido                | 100.00% → 100.00%  (+0.00 pp)        | 1.000 → 1.000
+literal                |  99.59% →  99.59%  (+0.00 pp)        | 0.998 → 0.998
+por_tema               |  63.08% →  81.54%  (+18.46 pp)       | 0.771 → 0.888
+pregunta_natural       |  93.85% →  96.92%  (+3.07 pp)        | 0.964 → 0.985
+sinonimo               |  56.36% →  60.00%  (+3.64 pp)        | 0.722 → 0.726
+typo                   |  89.23% →  93.85%  (+4.62 pp)        | 0.936 → 0.967
+variante_gramatical    |  89.23% →  96.92%  (+7.69 pp)        | 0.940 → 0.985
+--------------------------------------------------------------------------------
+GLOBAL                 |  91.89% →  94.97%  (+3.08 pp)        | 0.950 → 0.969
+--------------------------------------------------------------------------------
+  Recall@5 y falsos positivos: idénticos (la neurona solo reordena los mismos 5).
+  Búsquedas que la neurona reordenó: 470 de 875.
+  La respuesta correcta SUBIÓ al 1er lugar en 29 y BAJÓ del 1er lugar en 2 (neto +27).
+  Mejoró su puesto en 37 · empeoró en 11.
+  Tiempo de la neurona por búsqueda: mediana 0.11 ms · 95 % bajo 0.16 ms · peor 0.32 ms.
+  Control de daño: ✅ pasa (ninguna categoría pierde más de 1 caso en 1er lugar; en total no baja)
+================================================================================
+
+DATASET (salud de las etiquetas oro):
+--------------------------------------------------------------------------------
+  3 etiqueta(s) obsoleta(s) resuelta(s) contra la DB:
+    [0268] lección:_guardar_todo_lo_importante_inmediatamente,_no_esperar
+         -> lección:_guardar_todo_lo_importante_inmediatamente_y_no_esperar
+    [0368] plugin_biorag-remember_v8.4_-_solo_session.idle,_sin_conteo_de_edits
+         -> plugin_biorag-remember_v8.4_-_solo_session.idle_y_sin_conteo_de_edits
+    [0371] plugin_v7.1_fix:_session.idle_es_un_event,_no_un_hook
+         -> plugin_v7.1_fix:_session.idle_es_un_event_y_no_un_hook
+  3 query(s) con etiqueta contradictoria -> reclasificadas como 'ambiguo':
+    'biorag' -> ['auto-consulta-permanente-biorag', 'protocolo_busqueda_biorag_automatica']
+    'compromiso' -> ['compromiso-real-athena-clave-de-confianza', 'principio-memoria-hibrida-agente-naturalidad']
+    'dimensiones' -> ['cuando_usar_dimensiones_biorag', 'fix_busqueda_solo_dimensiones_sin_texto']
+--------------------------------------------------------------------------------
+
+SAMPLE FAILURES BY CATEGORY FOR ACTIONABLE DIAGNOSIS:
+================================================================================
+
+[Category: ambiguo] (2 total failures)
+----------------------------------------
+  #1 [ID 0520] Query: "dimensiones"
+      Expected:  ['cuando_usar_dimensiones_biorag', 'fix_busqueda_solo_dimensiones_sin_texto']
+      Returned:  ['punto_medio_dimensiones_parciales_mueven_ranking_sdm', 'principio_dimensiones_genericas_no_nicho', 'veredicto_analisis_7_dimensiones_otra_ia'] (scores: [0.752, 0.745, 0.733])
+      Reason:    Query ambigua: ninguno de los esperados contradictorios apareció en top 5
+  #2 [ID 0740] Query: "dimensiones"
+      Expected:  ['cuando_usar_dimensiones_biorag', 'fix_busqueda_solo_dimensiones_sin_texto']
+      Returned:  ['punto_medio_dimensiones_parciales_mueven_ranking_sdm', 'principio_dimensiones_genericas_no_nicho', 'veredicto_analisis_7_dimensiones_otra_ia'] (scores: [0.752, 0.745, 0.733])
+      Reason:    Query ambigua: ninguno de los esperados contradictorios apareció en top 5
+
+[Category: dormido] (0 total failures)
+----------------------------------------
+================================================================================
+Note: All failed cases have been saved to /tmp/qa/r8_f.jsonl for full debug analysis.
+
+Métricas exportadas a: /tmp/qa/r8_metrics.json
+
+[GATE] OK — métricas dentro de los umbrales de la baseline oficial

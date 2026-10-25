@@ -365,9 +365,16 @@ def lineas_aviso(ctx):
     elif viva and viva.get("campeon"):
         L.append(f"   Tu DB viva ({ruta_viva}) tiene una neurona, pero entrenada con otra versión")
         L.append("   del motor: allí tampoco se usa; se vuelve a entrenar sola con el uso.")
-    L.append("   Para ver la neurona en esta QA (sin tocar ninguna base original):")
-    L.append("     python scripts/evaluar_qa.py --con-neurona")
-    L.append("       → entrena una neurona en la copia temporal y la mide (unos 20-25 min más)")
+    decision = ctx.get("decision_entrenar")
+    if decision == "rechazo":
+        L.append("   Elegiste no entrenarla ahora: la tabla es la de siempre (fórmula a mano sola).")
+    elif decision == "sin_terminal":
+        L.append("   Pediste --con-neurona, pero no hay una persona para responder la pregunta")
+        L.append("   (corrida sin terminal): no se entrenó. Para entrenar sin preguntar: --con-neurona --si")
+    else:
+        L.append("   Para ver la neurona en esta QA (sin tocar ninguna base original):")
+        L.append("     python scripts/evaluar_qa.py --con-neurona")
+        L.append("       → pregunta si quieres entrenar una en la copia temporal y la mide")
     if viva_activa:
         L.append(f"     BIORAG_PATH={ruta_viva} python scripts/evaluar_qa.py")
         L.append("       → mide tu propia memoria con tu propia neurona")
@@ -419,6 +426,59 @@ def lineas_resultado(res, t, motivos, tol_casos):
 
 # ───────────────────────── --con-neurona ─────────────────────────
 
+MINUTOS_PRUEBA_500 = 23     # 500 prácticas sobre el snapshot (~900 recuerdos), 2026-10-25
+MINUTOS_PRIMER_ASCENSO = 3  # en esas corridas aprobó su examen por primera vez hacia la práctica 70
+
+
+def lineas_pregunta(ciclos, minutos, presupuesto_s, n_casos):
+    """Lo que se le explica a la persona antes de entrenar (en palabras simples)."""
+    tope = minutos if minutos is not None else ciclos * presupuesto_s / 60.0
+    L = ["",
+         "🧠 Usaste --con-neurona, pero esta base no tiene una neurona entrenada.",
+         "   Para verla en la tabla hay que entrenarla primero:"]
+    if minutos is not None:
+        L.append(f"     · hasta {ciclos} prácticas, con tope de {minutos:g} min (lo pediste con --minutos).")
+    else:
+        L.append(f"     · hasta {ciclos} prácticas, como máximo ~{tope:.0f} min (cada una dura hasta {presupuesto_s:g} s;")
+        L.append(f"       con ~900 recuerdos, 500 prácticas tardaron {MINUTOS_PRUEBA_500} min).")
+    L.append(f"     · necesita por lo menos unos {MINUTOS_PRIMER_ASCENSO} min para juntar su examen y aprobarlo; "
+             f"con menos")
+    L.append("       puede no aprobar, y entonces la tabla sale igual que siempre.")
+    L.append("     · se entrena en la copia temporal: tu base no se toca.")
+    L.append(f"   Después sigue la prueba con los mismos {n_casos} casos.")
+    L.append("   Si dices que no, sale la tabla de siempre (sin neurona).")
+    return L
+
+
+SI = {"s", "si", "sí", "y", "yes"}
+
+
+def quiere_entrenar(ciclos, minutos, presupuesto_s, n_casos, auto_si=False,
+                    entrada=input, es_terminal=None, imprimir=print):
+    """¿Se entrena? Devuelve (sí/no, motivo): 'si_flag', 'acepto', 'rechazo' o 'sin_terminal'.
+
+    Sin una persona frente a la terminal (CI, tubería) no se pregunta ni se entrena:
+    nadie dijo que sí. Para eso está --si.
+    """
+    if auto_si:
+        return True, "si_flag"
+    if es_terminal is None:
+        try:
+            import sys
+            es_terminal = sys.stdin.isatty()
+        except Exception:
+            es_terminal = False
+    if not es_terminal:
+        return False, "sin_terminal"
+    for linea in lineas_pregunta(ciclos, minutos, presupuesto_s, n_casos):
+        imprimir(linea)
+    try:
+        resp = entrada("¿La entreno ahora? [s/N]: ")
+    except (EOFError, KeyboardInterrupt):
+        imprimir("")
+        return False, "rechazo"
+    return (True, "acepto") if str(resp).strip().lower() in SI else (False, "rechazo")
+
 def leer_argumentos(argv):
     """Argumentos de evaluar_qa.py. El archivo de casos sigue siendo el 1er argumento opcional."""
     import argparse
@@ -428,8 +488,11 @@ def leer_argumentos(argv):
     ap.add_argument("casos", nargs="?", default="casos_qa_baseline_v1.jsonl",
                     help="archivo de casos en scripts/ (default casos_qa_baseline_v1.jsonl)")
     ap.add_argument("--con-neurona", action="store_true",
-                    help="si la base medida no tiene neurona, entrena una en la copia temporal antes de medir "
-                         "(la misma práctica de despertar_neurona; no toca la base original)")
+                    help="si la base medida no tiene neurona, PREGUNTA si quieres entrenar una en la copia "
+                         "temporal antes de medir (la misma práctica de despertar_neurona; no toca la base "
+                         "original). Si ya tiene neurona, la usa sin entrenar")
+    ap.add_argument("--si", action="store_true",
+                    help="con --con-neurona: entrenar sin preguntar (para CI o scripts sin terminal)")
     ap.add_argument("--ciclos", type=int, default=500,
                     help="prácticas para --con-neurona (default 500, como despertar_neurona)")
     ap.add_argument("--minutos", type=float, default=None,

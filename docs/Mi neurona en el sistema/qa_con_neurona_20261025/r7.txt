@@ -1,0 +1,131 @@
+Usando BIORAG_PATH explícito como origen: /tmp/qa/snap_train.db
+Creando copia aislada fresca desde: /tmp/qa/snap_train.db
+BIORAG_PATH exportado a copia aislada: /home/user/MemoryBioRAG/MemoryBioRAG_Data/memory_biorag_qa_run.db
+================================================================================
+          INICIANDO SUITE INTEGRAL DE CALIDAD Y REGRESIÓN BIORAG
+================================================================================
+
+Creando copia aislada fresca desde: /tmp/qa/snap_train.db
+─── [5/5] EVALUACIÓN GLOBAL QA (921 Casos de Regresión Canónica) ───────────────
+Creating isolated database copy at: /home/user/MemoryBioRAG/MemoryBioRAG_Data/memory_biorag_qa_temp.db
+Loaded 921 test cases.
+
+🧠 NEURONA DE RANKING
+   Base medida:  /tmp/qa/snap_train.db  (NO es el snapshot oficial; se mide una copia temporal)
+   Neurona:      🏆 ACTIVA — entrenada con esta misma base
+                 111 prácticas · aprobó 3 veces · la quitaron 0
+                 en su examen de control acierta el 1er lugar: fórmula 78.8 % → neurona 95.5 %
+   La tabla muestra lo que sirve el motor (fórmula + neurona). Al final de cada
+   fila: 🧠 cuánto cambió la neurona el 1er lugar frente a la fórmula sola.
+   ⚠ Las preguntas de esta QA se escribieron para el snapshot oficial: en otra base
+     algunas respuestas no existen o significan otra cosa, y el gate oficial está
+     calibrado para el snapshot. No compares esta tabla con la del README;
+     compara las dos columnas de aquí (fórmula sola → con neurona): misma base,
+     mismas preguntas, misma corrida.
+
+
+Exporting failed cases to: /tmp/qa/r7_f.jsonl
+Cleaning up temporary database copy at /home/user/MemoryBioRAG/MemoryBioRAG_Data/memory_biorag_qa_temp.db...
+
+================================================================================
+                      BIORAG QA EVALUATION REPORT
+================================================================================
+Total time elapsed: 713.85 seconds
+--------------------------------------------------------------------------------
+🧠 NEURONA DE RANKING
+   Base medida:  /tmp/qa/snap_train.db  (NO es el snapshot oficial; se mide una copia temporal)
+   Neurona:      🏆 ACTIVA — entrenada con esta misma base
+                 111 prácticas · aprobó 3 veces · la quitaron 0
+                 en su examen de control acierta el 1er lugar: fórmula 78.8 % → neurona 95.5 %
+   La tabla muestra lo que sirve el motor (fórmula + neurona). Al final de cada
+   fila: 🧠 cuánto cambió la neurona el 1er lugar frente a la fórmula sola.
+   ⚠ Las preguntas de esta QA se escribieron para el snapshot oficial: en otra base
+     algunas respuestas no existen o significan otra cosa, y el gate oficial está
+     calibrado para el snapshot. No compares esta tabla con la del README;
+     compara las dos columnas de aquí (fórmula sola → con neurona): misma base,
+     mismas preguntas, misma corrida.
+--------------------------------------------------------------------------------
+Category               | Total  | Recall@5  | Recall@1  | MRR      | Errors/FPs
+--------------------------------------------------------------------------------
+ambiguo                | 6      | N/A       | N/A       | N/A      | 2          (66.7% de cobertura sobre queries con etiqueta contradictoria; fuera del Recall global)
+cruce_idioma           | 8      |  100.00% |   75.00% |  0.875 | 0           🧠 +12.50 pp (fórmula sola 62.50%)
+dormido                | 65     |  100.00% |  100.00% |  1.000 | 0           🧠 = igual (fórmula sola 100.00%)
+literal                | 487    |  100.00% |   99.59% |  0.998 | 0           🧠 = igual (fórmula sola 99.59%)
+negativo               | 40     | N/A       | N/A       | N/A      | 0          (0.0% FP sobre 40 válidos; 0 contaminados)
+por_tema               | 65     |  100.00% |   83.08% |  0.901 | 0           🧠 +20.00 pp (fórmula sola 63.08%)
+pregunta_natural       | 65     |  100.00% |   96.92% |  0.985 | 0           🧠 +3.07 pp (fórmula sola 93.85%)
+sinonimo               | 55     |  100.00% |   60.00% |  0.734 | 0           🧠 +3.64 pp (fórmula sola 56.36%)
+typo                   | 65     |  100.00% |   96.92% |  0.985 | 0           🧠 +7.69 pp (fórmula sola 89.23%)
+variante_gramatical    | 65     |  100.00% |   98.46% |  0.988 | 0           🧠 +9.23 pp (fórmula sola 89.23%)
+--------------------------------------------------------------------------------
+GLOBAL SUMMARY (Retrieval) | 875    |  100.00% |   95.20% |  0.971 | 0           🧠 +3.31 pp (fórmula sola 91.89%)
+GLOBAL SUMMARY (Noise/FP) | 40     | N/A       | N/A       | N/A      | 0          (0.00% FP sobre 40 válidos; 0 contaminados)
+SPREADING ACTIVATION   | 8/921 queries (0.9%)
+AISLAMIENTO POR CASO   | 64 mutaciones de estado revertidas (15 nodos arrancaron dormidos)
+================================================================================
+
+LA NEURONA EN ESTA QA (misma base, mismas preguntas; solo cambia quién ordena el top-5)
+--------------------------------------------------------------------------------
+Category               | 1er lugar (R@1): fórmula → neurona   | MRR: fórmula → neurona
+--------------------------------------------------------------------------------
+cruce_idioma           |  62.50% →  75.00%  (+12.50 pp)       | 0.740 → 0.875
+dormido                | 100.00% → 100.00%  (+0.00 pp)        | 1.000 → 1.000
+literal                |  99.59% →  99.59%  (+0.00 pp)        | 0.998 → 0.998
+por_tema               |  63.08% →  83.08%  (+20.00 pp)       | 0.771 → 0.901
+pregunta_natural       |  93.85% →  96.92%  (+3.07 pp)        | 0.964 → 0.985
+sinonimo               |  56.36% →  60.00%  (+3.64 pp)        | 0.722 → 0.734
+typo                   |  89.23% →  96.92%  (+7.69 pp)        | 0.936 → 0.985
+variante_gramatical    |  89.23% →  98.46%  (+9.23 pp)        | 0.940 → 0.989
+--------------------------------------------------------------------------------
+GLOBAL                 |  91.89% →  95.20%  (+3.31 pp)        | 0.950 → 0.971
+--------------------------------------------------------------------------------
+  Recall@5 y falsos positivos: idénticos (la neurona solo reordena los mismos 5).
+  Búsquedas que la neurona reordenó: 416 de 875.
+  La respuesta correcta SUBIÓ al 1er lugar en 31 y BAJÓ del 1er lugar en 2 (neto +29).
+  Mejoró su puesto en 38 · empeoró en 7.
+  Tiempo de la neurona por búsqueda: mediana 0.11 ms · 95 % bajo 0.16 ms · peor 0.29 ms.
+  Control de daño: ✅ pasa (ninguna categoría pierde más de 1 caso en 1er lugar; en total no baja)
+================================================================================
+
+DATASET (salud de las etiquetas oro):
+--------------------------------------------------------------------------------
+  3 etiqueta(s) obsoleta(s) resuelta(s) contra la DB:
+    [0268] lección:_guardar_todo_lo_importante_inmediatamente,_no_esperar
+         -> lección:_guardar_todo_lo_importante_inmediatamente_y_no_esperar
+    [0368] plugin_biorag-remember_v8.4_-_solo_session.idle,_sin_conteo_de_edits
+         -> plugin_biorag-remember_v8.4_-_solo_session.idle_y_sin_conteo_de_edits
+    [0371] plugin_v7.1_fix:_session.idle_es_un_event,_no_un_hook
+         -> plugin_v7.1_fix:_session.idle_es_un_event_y_no_un_hook
+  3 query(s) con etiqueta contradictoria -> reclasificadas como 'ambiguo':
+    'biorag' -> ['auto-consulta-permanente-biorag', 'protocolo_busqueda_biorag_automatica']
+    'compromiso' -> ['compromiso-real-athena-clave-de-confianza', 'principio-memoria-hibrida-agente-naturalidad']
+    'dimensiones' -> ['cuando_usar_dimensiones_biorag', 'fix_busqueda_solo_dimensiones_sin_texto']
+--------------------------------------------------------------------------------
+
+SAMPLE FAILURES BY CATEGORY FOR ACTIONABLE DIAGNOSIS:
+================================================================================
+
+[Category: ambiguo] (2 total failures)
+----------------------------------------
+  #1 [ID 0520] Query: "dimensiones"
+      Expected:  ['cuando_usar_dimensiones_biorag', 'fix_busqueda_solo_dimensiones_sin_texto']
+      Returned:  ['punto_medio_dimensiones_parciales_mueven_ranking_sdm', 'principio_dimensiones_genericas_no_nicho', 'veredicto_analisis_7_dimensiones_otra_ia'] (scores: [0.752, 0.745, 0.733])
+      Reason:    Query ambigua: ninguno de los esperados contradictorios apareció en top 5
+  #2 [ID 0740] Query: "dimensiones"
+      Expected:  ['cuando_usar_dimensiones_biorag', 'fix_busqueda_solo_dimensiones_sin_texto']
+      Returned:  ['punto_medio_dimensiones_parciales_mueven_ranking_sdm', 'principio_dimensiones_genericas_no_nicho', 'veredicto_analisis_7_dimensiones_otra_ia'] (scores: [0.752, 0.745, 0.733])
+      Reason:    Query ambigua: ninguno de los esperados contradictorios apareció en top 5
+
+[Category: dormido] (0 total failures)
+----------------------------------------
+================================================================================
+Note: All failed cases have been saved to /tmp/qa/r7_f.jsonl for full debug analysis.
+
+Métricas exportadas a: /tmp/qa/r7_metrics.json
+
+[GATE] OK — métricas dentro de los umbrales de la baseline oficial
+
+================================================================================
+          SUITE DE EVALUACIÓN BIORAG FINALIZADA CON ÉXITO
+================================================================================
+Limpiando copia temporal...
