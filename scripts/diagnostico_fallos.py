@@ -7,6 +7,8 @@ búsqueda fallida para clasificar la causa:
 
   ETIQUETA_VIEJA    la respuesta esperada ya no existe en esta base.
   FUERA_DEL_POOL    la respuesta ni siquiera está entre los 40 primeros: falla de recuperación.
+  CONTAMINACION_QA  le gana un recuerdo que HABLA de la propia QA: cita el número del caso o
+                    tiene escrita la pregunta con su error (typo/variante) tal cual.
   RECUERDO_NUEVO    le gana un recuerdo creado DESPUÉS del snapshot que tiene tantas o más
                     palabras de la pregunta: la pregunta se escribió antes de que existiera
                     (competencia legítima, no necesariamente un error del motor).
@@ -70,7 +72,11 @@ def fecha_corte_snapshot():
     return corte, conceptos
 
 
-def ficha(cur, concepto, q_palabras):
+def plano(texto):
+    return " ".join(re.findall(r"[a-z0-9ñ]+", norm(texto)))
+
+
+def ficha(cur, concepto, q_palabras, caso_id="", query="", categoria=""):
     fila = cur.execute(
         "SELECT concepto, COALESCE(sinonimos,''), COALESCE(contenido,''), creado_en, estado "
         "FROM largo_plazo WHERE concepto = ?", (concepto,)).fetchone()
@@ -83,6 +89,10 @@ def ficha(cur, concepto, q_palabras):
         "creado": fila[3],
         "estado": fila[4],
         "palabras_de_la_pregunta": len(q_palabras & palabras(texto)),
+        "cita_el_caso": bool(caso_id and re.search(rf"\b{re.escape(caso_id)}\b", texto)
+                             and re.search(r"\b(qa|caso|casos)\b", norm(texto))),
+        "tiene_la_pregunta": bool(categoria in ("typo", "variante") and query
+                                  and plano(query) in plano(texto)),
     }
 
 
@@ -151,7 +161,7 @@ def main():
                 origen = db.last_origen_scores or {}
                 n5 = [r[0] for r in top5]
                 n40 = [r[0] for r in pool]
-                ganadores = [x for x in (ficha(cur, c, q_pal) for c in n5[:3]) if x]
+                ganadores = [x for x in (ficha(cur, c, q_pal, f["id"], query, cat) for c in n5[:3]) if x]
                 for g in ganadores:
                     g["nuevo"] = bool(corte and g["creado"] and float(g["creado"]) > float(corte)
                                       and g["concepto"] not in del_snapshot)
@@ -164,6 +174,9 @@ def main():
                     info["causa"] = "HOY_PASA"
                 elif not info["puesto40"]:
                     info["causa"] = "FUERA_DEL_POOL"
+                elif any(g["cita_el_caso"] or g["tiene_la_pregunta"]
+                         for g in ganadores if g["concepto"] != oro):
+                    info["causa"] = "CONTAMINACION_QA"
                 elif any(g["nuevo"] for g in fuerte):
                     info["causa"] = "RECUERDO_NUEVO"
                 elif any(g["largo"] >= FACTOR_GIGANTE * max(oro_f["largo"], 1) for g in fuerte):
@@ -189,6 +202,10 @@ def main():
               f"{o['palabras_de_la_pregunta']} palabras de la pregunta | {o['largo']} letras | {fecha(o['creado'])}")
         for i, g in enumerate(r["ganadores"], 1):
             marca = " (NUEVO)" if g["nuevo"] else ""
+            if g["cita_el_caso"]:
+                marca += " (CITA ESTE CASO DE LA QA)"
+            if g["tiene_la_pregunta"]:
+                marca += " (TIENE LA PREGUNTA ESCRITA)"
             print(f"   gana {i}: {g['concepto'][:55]}  | {g['palabras_de_la_pregunta']} palabras | "
                   f"{g['largo']} letras | {fecha(g['creado'])}{marca} | {g['origen']}")
     print("\n" + "=" * 78)
