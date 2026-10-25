@@ -191,10 +191,16 @@ def test_08_query_coincide_bridge_recupera_canonical(test_db):
     crear_hub(conn, "hub_busqueda", "nodo_canónico_demo", description="Hub de recuperación")
     agregar_bridges(conn, "hub_busqueda", BRIDGES_5_VALIDOS)
     
-    exp = expandir_query_con_hub("trabajos antes de programar", conn, threshold=0.20)
+    exp = expandir_query_con_hub("como arreglar la falla", conn, threshold=0.20)
     assert exp is not None
     assert "nodo_canónico_demo" in exp["canonical_nodes"]
     assert exp["hub_id"] == "hub_busqueda"
+
+    # v35.2: antes esta prueba usaba "trabajos antes de programar", que no comparte
+    # ninguna palabra con contenido con los puentes: el hub viejo la emparejaba solo por
+    # la palabra vacía "de" (sin el "de" daba None). Compartir solo palabras vacías no es
+    # una coincidencia.
+    assert expandir_query_con_hub("trabajos antes de programar", conn, threshold=0.20) is None
 
 
 def test_09_compatibilidad_formato_legacy(test_db):

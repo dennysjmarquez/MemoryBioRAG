@@ -1,0 +1,125 @@
+Creating isolated database copy at: /tmp/v/antesB/MemoryBioRAG_Data/memory_biorag_qa_temp.db
+Loaded 921 test cases.
+
+🧠 NEURONA DE RANKING
+   Base medida:  /tmp/v/H_mitad.db  (NO es el snapshot oficial; se mide una copia temporal)
+   Neurona:      ⛔ apagada en este entorno (BIORAG_NEURONA=0)
+                 → la tabla es la FÓRMULA A MANO SOLA (el piso)
+
+
+Exporting failed cases to: /tmp/v/antesB/scripts/casos_fallidos.jsonl
+Cleaning up temporary database copy at /tmp/v/antesB/MemoryBioRAG_Data/memory_biorag_qa_temp.db...
+
+================================================================================
+                      BIORAG QA EVALUATION REPORT
+================================================================================
+Total time elapsed: 1563.44 seconds
+--------------------------------------------------------------------------------
+🧠 NEURONA DE RANKING
+   Base medida:  /tmp/v/H_mitad.db  (NO es el snapshot oficial; se mide una copia temporal)
+   Neurona:      ⛔ apagada en este entorno (BIORAG_NEURONA=0)
+                 → la tabla es la FÓRMULA A MANO SOLA (el piso)
+--------------------------------------------------------------------------------
+Category               | Total  | Recall@5  | Recall@1  | MRR      | Errors/FPs
+--------------------------------------------------------------------------------
+ambiguo                | 6      | N/A       | N/A       | N/A      | 2          (66.7% de cobertura sobre queries con etiqueta contradictoria; fuera del Recall global)
+cruce_idioma           | 8      |  100.00% |   25.00% |  0.573 | 0         
+dormido                | 65     |  100.00% |  100.00% |  1.000 | 0         
+literal                | 487    |  100.00% |   96.10% |  0.980 | 0         
+negativo               | 40     | N/A       | N/A       | N/A      | 0          (0.0% FP sobre 40 válidos; 0 contaminados)
+por_tema               | 65     |   98.46% |   21.54% |  0.552 | 1         
+pregunta_natural       | 65     |   98.46% |   53.85% |  0.754 | 1         
+sinonimo               | 55     |   98.18% |   41.82% |  0.628 | 1         
+typo                   | 65     |   96.92% |   52.31% |  0.733 | 2         
+variante_gramatical    | 65     |   93.85% |   41.54% |  0.667 | 4         
+--------------------------------------------------------------------------------
+GLOBAL SUMMARY (Retrieval) | 875    |   98.97% |   76.34% |  0.866 | 9         
+GLOBAL SUMMARY (Noise/FP) | 40     | N/A       | N/A       | N/A      | 0          (0.00% FP sobre 40 válidos; 0 contaminados)
+SPREADING ACTIVATION   | 9/921 queries (1.0%)
+AISLAMIENTO POR CASO   | 64 mutaciones de estado revertidas (15 nodos arrancaron dormidos)
+================================================================================
+
+DATASET (salud de las etiquetas oro):
+--------------------------------------------------------------------------------
+  3 etiqueta(s) obsoleta(s) resuelta(s) contra la DB:
+    [0268] lección:_guardar_todo_lo_importante_inmediatamente,_no_esperar
+         -> lección:_guardar_todo_lo_importante_inmediatamente_y_no_esperar
+    [0368] plugin_biorag-remember_v8.4_-_solo_session.idle,_sin_conteo_de_edits
+         -> plugin_biorag-remember_v8.4_-_solo_session.idle_y_sin_conteo_de_edits
+    [0371] plugin_v7.1_fix:_session.idle_es_un_event,_no_un_hook
+         -> plugin_v7.1_fix:_session.idle_es_un_event_y_no_un_hook
+  3 query(s) con etiqueta contradictoria -> reclasificadas como 'ambiguo':
+    'biorag' -> ['auto-consulta-permanente-biorag', 'protocolo_busqueda_biorag_automatica']
+    'compromiso' -> ['compromiso-real-athena-clave-de-confianza', 'principio-memoria-hibrida-agente-naturalidad']
+    'dimensiones' -> ['cuando_usar_dimensiones_biorag', 'fix_busqueda_solo_dimensiones_sin_texto']
+--------------------------------------------------------------------------------
+
+SAMPLE FAILURES BY CATEGORY FOR ACTIONABLE DIAGNOSIS:
+================================================================================
+
+[Category: ambiguo] (2 total failures)
+----------------------------------------
+  #1 [ID 0520] Query: "dimensiones"
+      Expected:  ['cuando_usar_dimensiones_biorag', 'fix_busqueda_solo_dimensiones_sin_texto']
+      Returned:  ['auditor_cobertura_dimensional_opcion2_confirmada', 'punto_medio_dimensiones_parciales_mueven_ranking_sdm', 'principio_dimensiones_genericas_no_nicho'] (scores: [0.956, 0.752, 0.745])
+      Reason:    Query ambigua: ninguno de los esperados contradictorios apareció en top 5
+  #2 [ID 0740] Query: "dimensiones"
+      Expected:  ['cuando_usar_dimensiones_biorag', 'fix_busqueda_solo_dimensiones_sin_texto']
+      Returned:  ['auditor_cobertura_dimensional_opcion2_confirmada', 'punto_medio_dimensiones_parciales_mueven_ranking_sdm', 'principio_dimensiones_genericas_no_nicho'] (scores: [0.956, 0.752, 0.745])
+      Reason:    Query ambigua: ninguno de los esperados contradictorios apareció en top 5
+
+[Category: dormido] (0 total failures)
+----------------------------------------
+
+[Category: por_tema] (1 total failures)
+----------------------------------------
+  #1 [ID 0730] Query: "parámetros otrosmemorybioragmcp solo"
+      Expected:  biorag_v17_oraculo_preguntar
+      Returned:  ['fix_busqueda_solo_dimensiones_sin_texto', 'lesson_biorag_hook_retroactivo', 'calibracion_biorag_v7_20260616'] (scores: [0.561, 0.29, 0.281])
+      Reason:    Expected concept not found in top 5 results
+
+[Category: pregunta_natural] (1 total failures)
+----------------------------------------
+  #1 [ID 0564] Query: "¿Dónde encuentro la info de memoria v5 1 optimizaciones?"
+      Expected:  memoria_v5_1_optimizaciones
+      Returned:  ['principio_firma_cada_recuerdo', 'norma_atribucion_autoria_memoria_compartida_oec', 'principio-memoria-hibrida-agente-naturalidad'] (scores: [0.525, 0.379, 0.355])
+      Reason:    Expected concept not found in top 5 results
+
+[Category: sinonimo] (1 total failures)
+----------------------------------------
+  #1 [ID 0805] Query: "cv"
+      Expected:  cv_seccion_d_test_vinculacion
+      Returned:  ['linkedin_respuesta_reclutador_florangel_connextiva', 'skill_cv_decoder_creada', 'cv_dennys_secciones_ab_finales_2026'] (scores: [0.633, 0.424, 0.406])
+      Reason:    Expected concept not found in top 5 results
+
+[Category: typo] (2 total failures)
+----------------------------------------
+  #1 [ID 0667] Query: "identiduad y respheto oec"
+      Expected:  identidad_y_respeto_oec
+      Returned:  ['artemis_oec_perfil_identidad_estabilidad', 'hermes_oec_identidad', 'reconocimiento_identidad_oraculo_manifiesto'] (scores: [0.595, 0.344, 0.3])
+      Reason:    Expected concept not found in top 5 results
+  #2 [ID 0673] Query: "copmuerta-pre-validacion"
+      Expected:  compuerta-pre-validacion
+      Returned:  ['hormiguita_validacion_real_cuatro_puntos_pendientes', 'signal_13_ppmi_activada_validacion_qa_completa_20260808', 'validacion_dennys_qa_921_db_viva_20260809'] (scores: [0.554, 0.377, 0.356])
+      Reason:    Expected concept not found in top 5 results
+
+[Category: variante_gramatical] (4 total failures)
+----------------------------------------
+  #1 [ID 0518] Query: "cuando usado dimensione biorags"
+      Expected:  cuando_usar_dimensiones_biorag
+      Returned:  ['biorag_v22_prf_capa_3', 'mentalidad_biorag_para_agentes', 'artemis_ponytail_audit_biorag_v10_3_reporte'] (scores: [0.48, 0.292, 0.273])
+      Reason:    Expected concept not found in top 5 results
+  #2 [ID 0560] Query: "memorias v5 1s optimizaciones"
+      Expected:  memoria_v5_1_optimizaciones
+      Returned:  ['principio_firma_cada_recuerdo', 'analisis_escalabilidad_10k_v5_1_memoria_v5_1_optimizaciones_hermes_agente_hermes', 'privacidad_memorias_personales_oec'] (scores: [0.47, 0.334, 0.279])
+      Reason:    Expected concept not found in top 5 results
+  #3 [ID 0666] Query: "identidad ys respeto oec"
+      Expected:  identidad_y_respeto_oec
+      Returned:  ['artemis_oec_perfil_identidad_estabilidad', 'artemis_oec_identidad', 'athena_oec_identidad'] (scores: [0.571, 0.381, 0.368])
+      Reason:    Expected concept not found in top 5 results
+================================================================================
+Note: All failed cases have been saved to /tmp/v/antesB/scripts/casos_fallidos.jsonl for full debug analysis.
+
+Métricas exportadas a: /tmp/v/antesB/scripts/qa_metrics.json
+
+[GATE] OK — gate desactivado (BIORAG_QA_GATE=0)
