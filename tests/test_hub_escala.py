@@ -201,3 +201,14 @@ def test_palabras_de_funcion_que_cambian_el_sentido_cuentan():
 def test_palabras_que_estan_en_casi_todos_los_puentes_no_deciden_solas():
     conn = _base([TRABAJO] + RIVALES_PROGRAMADOR + _relleno_realista(400))
     assert ch.expandir_query_con_hub("que de", conn) is None
+
+
+def test_el_tipo_de_puente_no_hace_ganar_a_un_puente_que_explica_menos():
+    # Caso real (base viva, 1087 hubs): los rivales eran puentes "sinónimo" (×1.5)
+    # que solo compartían "programador"; el correcto, "ingenuo" (antes ×0.85), contenía la
+    # pregunta entera. Con ingenuo ×0.85 el hub no decidía.
+    rivales_sinonimo = [(h, c, [(t, "sinonimo") for t, _ in p]) for h, c, p in RIVALES_PROGRAMADOR]
+    conn = _base([TRABAJO] + rivales_sinonimo + _relleno_realista(400))
+    r = ch.expandir_query_con_hub("qué hacía antes de ser programador", conn)
+    assert r is not None and r["hub_id"] == "trabajo_previo"
+    assert r["hub_confidence"] >= 0.40

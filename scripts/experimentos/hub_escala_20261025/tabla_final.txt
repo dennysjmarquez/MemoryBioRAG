@@ -33,3 +33,15 @@ H-todos (866 hubs)
    typo                 R@1  69.23 →  92.31   R@5 100.00 → 100.00
    variante_gramatical  R@1  72.31 →  93.85   R@5  96.92 → 100.00
 
+
+v35.3 + ingenuo ×1.0 (2026-10-26) — causa del paraf_1 confirmada en la base viva con
+scripts/diagnostico_hub.py: el correcto era puente "ingenuo" (×0.85) y los rivales
+"sinónimo" (×1.5). Cambio: ANGLE_MULT_HUB["ingenuo"] 0.85 -> 1.0 (solo hub a escala).
+QA fórmula, PYTHONHASHSEED=1, R@1 / R@5 / MRR / fallos:
+  Snapshot  93.14 / 100   / .9573 / 0   ->  93.14 / 100 / .9573 / 0   (idéntico)
+  H_mitad   93.03 / 100   / .9569 / 0   ->  93.03 / 100 / .9569 / 0   (idéntico)
+  H_todos   93.83 / 99.89 / .9613 / 1   ->  93.83 / 100 / .9619 / 0   (cruce_idioma R@5 87.5 -> 100)
+  FP 0/40 en las tres. Abismo 5/5 en snap, H_mitad, H_todos, H_vivo_sinonimo.
+  Generalización 10/10 con rivales sinónimo, problema y situación.
+Descartado: quitar el multiplicador a todos los tipos (H_todos R@1 93.83 -> 93.49,
+cruce_idioma R@1 87.5 -> 62.5).

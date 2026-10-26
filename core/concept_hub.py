@@ -508,7 +508,16 @@ def _jaccard(set_a: set, set_b: set) -> float:
 #   5. Índice invertido en memoria, reconstruido solo cuando cambian las tablas del hub
 #      (huella de ~1 ms): cada búsqueda mira solo los hubs que comparten alguna palabra.
 #
-# Lo demás es lo de siempre: multiplicador por ángulo, bonus de consenso, umbral 0.40 y
+#   6. Ningún tipo de puente castiga. v29 multiplicaba sinónimo ×1.5, problema ×1.2,
+#      solución ×1.1, situación ×1.0 e INGENUO ×0.85: el único por debajo de 1 era justo el
+#      de las preguntas dichas a lo ingenuo, la razón de ser del hub. Una coincidencia
+#      perfecta con un puente ingenuo nunca podía igualar a una perfecta de otro tipo, y en
+#      la base viva un puente "sinónimo" que solo compartía "programador" casi empataba con
+#      el ingenuo que contenía la pregunta entera ("qué hacía antes de ser programador").
+#      Ingenuo pasa a ×1.0 (neutro). Los impulsos se mantienen: el ×1.5 del sinónimo es lo
+#      que rescata las preguntas en otro idioma (medido: quitarlo baja cruce_idioma).
+#
+# Lo demás es lo de siempre: multiplicador por tipo, bonus de consenso, umbral 0.40 y
 # todo lo que el motor hace después con el hub (expansión, señal #14, paso por el QCR,
 # promoción competitiva al TOP1).
 # Ablación: BIORAG_HUB_ESCALA=0 vuelve exactamente al cálculo anterior.
@@ -518,7 +527,7 @@ ANGLE_MULT_HUB = {
     "problema": 1.2,
     "solucion": 1.1,
     "situacion": 1.0,
-    "ingenuo": 0.85,
+    "ingenuo": 1.0,     # v35.3: era 0.85 (punto 6)
     "legacy": 1.0,
 }
 HUB_TEMPERATURA = float(os.environ.get("BIORAG_HUB_TEMPERATURA", "0.10"))
