@@ -306,8 +306,7 @@ def _calcular_score_hibrido(self, bm25_norm=0.0, dim_score=0.0,
                             ncd_score: float = 0.0,
                             episodio_score: float = 0.0,
                             analogia_score: float = 0.0,
-                            campo_score: float = 0.0,
-                            sinonimos_calidad: float = 1.0):
+                            campo_score: float = 0.0):
     """Score hibrido: senales + JSD + Predicados + PPMI + Hub.
     grupo_score: similitud por grupo semántico WordNet (coseno binario).
     tematico_score: similitud temática por ausencia/presencia de dimensiones (IDF).
@@ -315,10 +314,7 @@ def _calcular_score_hibrido(self, bm25_norm=0.0, dim_score=0.0,
     jsd_score: Jensen-Shannon Divergence como similitud [0,1].
     jsd_weight: peso de JSD en la fórmula (0.0 = desactivado, 0.05 = default activo).
     pred_score: matching de query tokens contra predicados SRL [0,1].
-    ppmi_score: similitud vectorial PPMI+SVD+Retrofitting normalizada [0,1]. Signal #13 (v26.0).
-    sinonimos_calidad: cuánto VALE la coincidencia de sinónimos, en (0,1]. Gradúa el
-        bono del piso de sinónimos (ver core/fallback_simbolico.calidad_sinonimo).
-        1.0 = comportamiento anterior exacto (el bono no cambia)."""
+    ppmi_score: similitud vectorial PPMI+SVD+Retrofitting normalizada [0,1]. Signal #13 (v26.0)."""
     asoc_norm = min(1.0, asoc_count / 20.0)
     peso_norm = min(1.0, peso_sinaptico)
 
@@ -383,11 +379,7 @@ def _calcular_score_hibrido(self, bm25_norm=0.0, dim_score=0.0,
         # Bono aditivo en espacio logit: diferencia entre target_logit y 0
         # Equivalente a añadir log(target/(1-target)) al logit
         target_logit = math.log(target / (1.0 - target))
-        # El bono se gradúa por la CALIDAD del sinónimo (rareza del alias ×
-        # posición en la lista). Antes era constante: todo nodo que declaraba la
-        # palabra recibía el mismo empujón a ~0.70, así que 17 nodos quedaban
-        # empatados y decidía BM25. Con calidad=1.0 esto es idéntico a antes.
-        bonus = target_logit * max(0.0, min(1.0, sinonimos_calidad))
+        bonus = target_logit  # bono para llevar score base 0.5 -> target
         score = 1.0 / (1.0 + math.exp(-(logit + bonus)))
 
     return round(min(1.0, max(0.0, score)), 4)

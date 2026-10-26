@@ -427,8 +427,7 @@ class SQLiteMemoryBioRAG:
                                 ncd_score: float = 0.0,
                                 episodio_score: float = 0.0,
                                 analogia_score: float = 0.0,
-                                campo_score: float = 0.0,
-                                sinonimos_calidad: float = 1.0):
+                                campo_score: float = 0.0):
         return scoring._calcular_score_hibrido(
             self,
             bm25_norm=bm25_norm,
@@ -452,7 +451,6 @@ class SQLiteMemoryBioRAG:
             episodio_score=episodio_score,
             analogia_score=analogia_score,
             campo_score=campo_score,
-            sinonimos_calidad=sinonimos_calidad,
         )
 
 
