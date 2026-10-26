@@ -130,6 +130,16 @@ CONVERGENCIA_EVIDENCIA_ACTIVA = str(_convergencia_activa_raw).lower() in (
     '1', 'true', 'yes', 'on'
 )
 
+# Graduación del bono del piso de sinónimos por rareza del alias × posición en
+# la lista (core/fallback_simbolico.calidad_sinonimo). Sin esto, todo nodo que
+# declara la palabra recibe el mismo empujón a ~0.70 y el empate lo decide BM25,
+# que premia el nombre sobre el alias: medido, 17 nodos empatados para «perfil»
+# en la base viva y R@1 de `sinonimo` cayendo con el tamaño del corpus.
+# Con 1 el bono es constante (comportamiento anterior, exacto).
+SINONIMOS_CALIDAD = str(os.environ.get('BIORAG_SINONIMOS_CALIDAD', '0')).lower() in (
+    '1', 'true', 'yes', 'on'
+)
+
 # Tope configurable: mantiene acotada la señal nueva frente al score híbrido. También
 # acepta el nombre de Spec 007; el alias EVIDENCIA sigue teniendo precedencia
 # cuando la variable pública de la spec no se especifica.

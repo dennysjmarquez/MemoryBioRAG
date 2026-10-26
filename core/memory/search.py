@@ -1550,8 +1550,54 @@ def buscar_por_frase(self, frase, profundidad="activos", pagina=1, limite=None, 
     # Prepare normalized query tokens for symbolic scoring and the optional
     # field-convergence reranker. Each paraphrase is an alternative, not extra
     # query mass: the best per-field coverage is used (no dilution by union).
-    from core.fallback_simbolico import _tokenizar_normalizado, score_simbolico_concepto, score_simbolico_sinonimos
+    from core.fallback_simbolico import (
+        _tokenizar_normalizado,
+        calidad_sinonimo,
+        score_simbolico_concepto,
+        score_simbolico_sinonimos,
+    )
     tokens_query = _tokenizar_normalizado(query)
+
+    # ── Rareza de los alias en TODO el corpus (solo con SINONIMOS_CALIDAD) ──
+    # POR QUÉ aquí: el bono del piso de sinónimos (scoring.py) empuja por igual a
+    # todo nodo que declara la palabra, así que con el corpus grande deciden los
+    # empates. Para graduarlo hace falta saber cuántos nodos declaran cada token,
+    # y eso no lo puede saber un nodo solo: se cuenta sobre el corpus completo.
+    # Coste: una lectura de la columna `sinonimos` por consulta, cacheada por
+    # (data_version, total_changes) — la misma llave barata del hub.
+    _df_tokens_query: dict[str, int] = {}
+    _n_corpus_sinonimos = 0
+    if constants.SINONIMOS_CALIDAD and tokens_query:
+        try:
+            _clave = (
+                self.cursor.execute("PRAGMA data_version").fetchone()[0],
+                self.cursor.connection.total_changes,
+            )
+        except Exception:
+            _clave = None
+        _cache_df = getattr(self, "_cache_df_sinonimos", None)
+        if _cache_df is not None and _clave is not None and _cache_df[0] == _clave:
+            _df_corpus, _n_corpus_sinonimos = _cache_df[1], _cache_df[2]
+        else:
+            _df_corpus, _n_corpus_sinonimos = {}, 0
+            try:
+                self.cursor.execute("SELECT COALESCE(sinonimos, '') FROM largo_plazo")
+                _vistos: dict[str, int] = {}
+                for (fila_sin,) in self.cursor.fetchall():
+                    _n_corpus_sinonimos += 1
+                    if not fila_sin:
+                        continue
+                    for _tok in _tokenizar_normalizado(fila_sin):
+                        _vistos[_tok] = _vistos.get(_tok, 0) + 1
+                _df_corpus = _vistos
+            except sqlite3.Error:
+                _df_corpus, _n_corpus_sinonimos = {}, 0
+            if _clave is not None:
+                self._cache_df_sinonimos = (_clave, _df_corpus, _n_corpus_sinonimos)
+        _df_tokens_query = {
+            t: _df_corpus.get(t, n) for t in tokens_query
+            for n in (_n_corpus_sinonimos or 1,)
+        }
     convergencia_query_token_set = set(tokens_query)
     convergencia_query_sets = []
     calcular_evidencia_multicampo = None
@@ -1717,6 +1763,15 @@ def buscar_por_frase(self, frase, profundidad="activos", pagina=1, limite=None, 
         sinonimos_s_score = score_simbolico_sinonimos(tokens_query, sinonimos_str)
         sinonimos_ratio = max(resultados_semantica.get(concepto, 0.0), sinonimos_s_score)
 
+        # Calidad del sinónimo (rareza del alias × posición). Solo gradúa el BONO
+        # del piso; `sinonimos_ratio` no se toca, así que las compuertas que
+        # dependen de >= 0.95 siguen disparando igual.
+        sinonimos_calidad = 1.0
+        if constants.SINONIMOS_CALIDAD and sinonimos_ratio >= 0.95 and tokens_query:
+            sinonimos_calidad = calidad_sinonimo(
+                tokens_query, sinonimos_str, _df_tokens_query, _n_corpus_sinonimos
+            ) or 1.0
+
         # Fix Grupo C v2 (2026-08-13): el piso de sinónimos (memory_store.py:3170,
         # sinonimos_ratio >= 0.95) no disparaba cuando la query es 100% stopword
         # (ej. "buscar") — score_simbolico_sinonimos recibe tokens_query vacío
@@ -1819,6 +1874,7 @@ def buscar_por_frase(self, frase, profundidad="activos", pagina=1, limite=None, 
             peso_sinaptico=0.0 if ignore_peso_sinaptico else peso,
             concepto_ratio=concepto_ratio,
             sinonimos_ratio=sinonimos_ratio,
+            sinonimos_calidad=sinonimos_calidad,
             score_latente=score_latente,
             score_cadena=score_cadena,
             asoc_count=len([v for v in (asociaciones or "").split(",") if v.strip()]),

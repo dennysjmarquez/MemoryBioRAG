@@ -7,6 +7,7 @@ Agnóstico al dominio del usuario y bilingüe real (ES + EN) con graceful degrad
 """
 
 from __future__ import annotations
+import math
 import os
 import re
 import unicodedata
@@ -400,5 +401,74 @@ def score_simbolico_sinonimos(tokens_query: set[str], sinonimos: str) -> float:
             return score_lev
             
     return _calcular_cobertura_fuzzy(tokens_query, tokens_s)
+
+
+def aliases_de(sinonimos: str) -> list[str]:
+    """Parte el campo `sinonimos` en alias individuales.
+
+    POR QUÉ existe: `score_simbolico_sinonimos` mira el campo como una bolsa de
+    palabras, así que pierde dos hechos que el autor sí escribió: CUÁNTOS alias
+    hay y EN QUÉ ORDEN van. Medido en la base viva (2026-10-26): 17 nodos
+    declaran «perfil» en su campo de sinónimos y los 17 puntúan exactamente 1.0;
+    el desempate se va a BM25, que premia llevar la palabra en el nombre.
+    """
+    if not sinonimos:
+        return []
+    return [a.strip() for a in re.split(r"[,;|\n]+", sinonimos) if a.strip()]
+
+
+def calidad_sinonimo(
+    tokens_query: set[str],
+    sinonimos: str,
+    df_por_token: Optional[dict[str, int]] = None,
+    n_nodos: int = 0,
+    decaimiento_posicion: float = 0.25,
+) -> float:
+    """Cuánto VALE este nodo como respuesta, según cómo declara el alias. (0,1].
+
+    POR QUÉ existe: la señal de sinónimos es binaria. Con un corpus pequeño
+    casi nadie empata; al crecer, el número de nodos que declaran la misma
+    palabra crece y el empate decide por BM25 (nombre > alias). Medido con
+    crecimiento controlado sobre `sinonimo` (61 casos): R@1 pasa de 0.803 con
+    150 nodos a 0.525 con 866, mientras los empatados van de 2 a 16.
+
+    Dos hechos verificables, ninguno inventado por la neurona:
+      1. RAREZA — un alias declarado por 1 de 1000 nodos es más específico que
+         uno declarado por 300. IDF relativo: log(1+N/df)/log(1+N), en (0,1].
+      2. POSICIÓN — el autor escribe primero el alias que mejor representa al
+         nodo. El alias en posición k vale 1/(1+dec*(k-1)).
+
+    Sin `df_por_token` devuelve solo el factor de posición. Nunca devuelve 0
+    para un alias que sí coincide: la señal no desaparece, solo se gradúa.
+    """
+    if not tokens_query or not sinonimos:
+        return 0.0
+    lista = aliases_de(sinonimos)
+    if not lista:
+        return 0.0
+
+    mejor = 0.0
+    for pos, alias in enumerate(lista, start=1):
+        toks = _tokenizar_normalizado(alias)
+        if not toks:
+            continue
+        coincide = all(t in toks for t in tokens_query)
+        if not coincide and len(tokens_query) == 1:
+            coincide = mejor_similitud_levenshtein(tokens_query, toks) >= 0.95
+        if not coincide:
+            continue
+        factor_pos = 1.0 / (1.0 + decaimiento_posicion * (pos - 1))
+        rareza = 1.0
+        if df_por_token and n_nodos > 1:
+            ratios = []
+            for t in tokens_query:
+                df = max(1, int(df_por_token.get(t, n_nodos)))
+                ratios.append(
+                    math.log1p(n_nodos / df) / math.log1p(n_nodos)
+                )
+            rareza = min(ratios) if ratios else 1.0
+        mejor = max(mejor, factor_pos * rareza)
+
+    return mejor
 
 
