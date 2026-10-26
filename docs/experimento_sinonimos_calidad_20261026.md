@@ -87,8 +87,57 @@ un extra pequeño proporcional a la calidad (`bonus += c · calidad`, con `c` �
 en logit). Todos conservan su altura; el alias mejor escrito recibe un empujón
 que los demás no tienen.
 
-## Archivos
+## Intento 2: el piso igual para todos, empujón encima (TAMBIÉN NEGATIVO)
+
+Variante medida en la base viva, `scripts/barrido_bonus_sinonimos.py`, sobre
+`sinonimo` (61 casos) y `por_tema` (65):
+
+    bonus = logit(0.70 + 0.10·ppmi) + extra · calidad
+
+con `extra` en espacio logit, `calidad` = rareza del alias × posición.
+
+| extra | sinonimo R@5 | sinonimo R@1 | fallos | por_tema R@5 |
+|---:|---:|---:|---:|---:|
+| −3.0 | 0.443 | 0.328 | 34 | 0.785 |
+| **0.0 (actual)** | **0.656** | **0.361** | **21** | 0.785 |
+| +1.0 | 0.623 | 0.328 | 23 | 0.785 |
+| +2.0 | 0.623 | 0.295 | 23 | 0.785 |
+| +3.0 | 0.623 | 0.311 | 23 | 0.785 |
+
+`por_tema` no se mueve en ningún valor: el cambio es local a `sinonimo`.
+
+### Por qué también falla
+
+El bono se aplica en logit y el score se recorta a 1.0. Sumar a todos **acerca a
+todos al techo**, y cerca del techo la logística aplana: se pierde gradiente otra
+vez, ahora por saturación. Restar (`extra` negativo) es peor todavía, porque el
+piso es lo que hace visible al nodo de alias puro.
+
+Conclusión: **el piso de sinónimos ya está en su punto.** No es una perilla
+descalibrada, es una perilla agotada. Dos experimentos independientes lo
+confirman (repartir el piso, y sumar encima del piso).
+
+## Lo que esto significa para el diagnóstico
+
+El bono de sinónimos no es el cuello de botella. El cuello está en otro sitio:
+
+- Con el motor desnudo y `profundidad='activos'`, el nodo correcto **no entra al
+  top-5 en 21 de 61 casos** (R@5 0.656). No está mal puntuado: no llega.
+- Con la neurona de ranking, la QA real sube a R@5 0.8909 en esa categoría. O
+  sea: **la neurona ya es la que rescata estos casos**, no la ecuación a mano.
+- Los 491 nodos nuevos de la base viva comparten vocabulario con los viejos, así
+  que la colisión crece. A igual tamaño (866 nodos), la base viva falla 17 y el
+  snapshot 3.
+
+La siguiente palanca no es "puntuar mejor el alias": es **dar a la neurona el
+hecho que la ecuación no puede usar**. La calidad del alias (rareza × posición)
+es un rasgo disponible y hoy no se le ofrece. Como rasgo, si no aporta, el
+entrenamiento deja su peso en cero y no hay regresión; si aporta, la neurona lo
+usa donde la fórmula global no llega. Eso es exactamente "neurona donde el código
+no llegaría".
+
 
 - `scripts/experimento_crecimiento_corpus.py` — crecimiento controlado.
 - `scripts/crecimiento_corpus_resultado.json` — curva del snapshot.
 - `scripts/crecimiento_viva_resultado.json` — curva de la base viva.
+- `scripts/barrido_bonus_sinonimos.py` — barrido del extra de sinónimos (intento 2).
