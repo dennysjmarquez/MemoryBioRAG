@@ -141,3 +141,84 @@ no llegaría".
 - `scripts/crecimiento_corpus_resultado.json` — curva del snapshot.
 - `scripts/crecimiento_viva_resultado.json` — curva de la base viva.
 - `scripts/barrido_bonus_sinonimos.py` — barrido del extra de sinónimos (intento 2).
+
+---
+
+## 3. Auditoría externa: la medición definitiva (2026-10-26)
+
+Un auditor revisó esta rama y señaló que el punto 11 del informe anterior era
+imposible. Tenía razón. Medido y verificado:
+
+### 3.1 La neurona no puede cambiar el R@5
+
+`core/memory/search.py:2288` — `neurona.reordenar(...)` recibe
+`pagina_resultados`, que ya está recortada a `limite`. Sus propias palabras:
+«reordena SOLO el top-5 final (mismos nodos, mismos scores reasignados)». No
+cambia QUIÉN entra; cambia el orden de los que ya entraron.
+
+QA oficial sobre la base viva (1357 nodos, 921 casos):
+
+| | sin neurona (`BIORAG_NEURONA=0`) | con neurona |
+|---|---:|---:|
+| global R@5 | 99.20 | 99.20 |
+| global R@1 | 91.09 | 92.46 |
+| global MRR | 0.9432 | 0.9516 |
+| global fallos | 7 | 7 |
+| **sinonimo** R@5 | **89.09** | **89.09** |
+| **sinonimo** R@1 | **52.73** | **52.73** |
+| sinonimo fallos | 6 | 6 |
+
+**El 89.09 % lo logra la fórmula, no la neurona.** En `sinonimo` la neurona no
+aporta nada, ni en R@1. Donde sí aporta es en el global (R@1 +1.37, MRR +0.0084).
+
+El «65.6 % sin neurona» del informe anterior **no es comparable**: salía de un
+script propio con 61 casos (la QA resuelve 3 etiquetas contradictorias y quedan
+55), búsqueda con 50 resultados y otra profundidad. Mezclar ambas cifras fue un
+error de método.
+
+### 3.2 Los 6 fallos están fuera del alcance de la neurona
+
+Puesto real del nodo correcto, `PYTHONHASHSEED=1`, hasta 200 resultados:
+
+| ID | consulta | estado | puesto (activos) | puesto (profundo) |
+|---|---|---|---:|---:|
+| 0514 | perfil | activo | 9 | 9 |
+| 0674 | filtro-arquitecto-prolijo | activo | 18 | 18 |
+| 0692 | metodologia | activo | 6 | 5 |
+| 0710 | agente | activo | 6 | 6 |
+| 0734 | regla | **dormido** | fuera | 21 |
+| 0805 | cv | activo | 13 | 13 |
+
+Ninguno está en el top-5. La neurona solo ve el top-5. **No puede arreglar
+ninguno de los 6.** El problema de `sinonimo` es de GENERACIÓN (quién llega),
+no de ORDEN. La guía lo dice en la sección 10: «La neurona solo reordena lo que
+llegó. Si la respuesta no entra al pool, encontrarla es trabajo de otra pieza».
+
+### 3.3 El dato propuesto no separa a los empatados
+
+La rareza del alias es un único número por palabra: los 17 nodos que declaran
+`perfil` reciben exactamente el mismo. Solo variaba la posición en la lista.
+Medido antes de implementar: correcto solo en el tope pasa de 21/61 a 26/61 —
+cinco casos, y 32 seguían empatados. Insuficiente para justificar el coste.
+
+### 3.4 Añadir una aguja NO es gratis: borra todas las neuronas
+
+`core/memory/neurona.py:234` incluye `rasgos(kw)` en `huella_motor`, y
+`neurona.py:391` descarta los pesos guardados si la huella no coincide. Una aguja
+nueva cambia `rasgos()` → cambia la huella → **todas las bases reentrenan**. El
+«es lo único que se toca» del informe anterior era falso.
+
+### 3.5 Defecto de reproducibilidad, corregido
+
+`scripts/barrido_bonus_sinonimos.py` escribía siempre el mismo JSON: la segunda
+corrida sobreescribió la primera y quedaron 2 de los 5 valores que reporta este
+documento. Corregido: cada corrida deja un fichero con fecha y con si la neurona
+estaba activa o no.
+
+### 3.6 Qué queda en pie
+
+- El diagnóstico: el número de `sinonimo` depende del contenido de la base
+  (a 150 nodos ya falla 13 de 61; el tamaño pesa menos que el solapamiento).
+- Los dos experimentos negativos y sus reversiones.
+- El cambio de objetivo: **no es el orden, es la generación**. Antes de tocar la
+  neurona hay que hacer que el correcto entre al top-5.

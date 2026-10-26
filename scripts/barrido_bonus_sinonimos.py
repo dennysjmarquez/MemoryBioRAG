@@ -102,9 +102,25 @@ def main() -> int:
         print(fila + f"   ({time.time()-t0:.0f}s)")
         resultados.append({"extra": valor, **por_cat})
 
-    salida = os.path.join(RAIZ, "scripts/barrido_bonus_sinonimos.json")
+    # Sin huella de la corrida pasada, la primera corrida se perdía: el JSON se
+    # sobreescribía y la doc acababa reportando valores que nadie podía verificar.
+    # Ahora cada corrida deja su propio fichero y dice con qué configuración se
+    # hizo (neurona sí/no), para que el número sea reproducible por un tercero.
+    import datetime
+
+    sello = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
+    neurona_on = os.environ.get("BIORAG_NEURONA", "1") != "0"
+    traza = {
+        "fecha": sello,
+        "db": args.db,
+        "categorias": args.categorias,
+        "neuron": "activa" if neurona_on else "apagada",
+        "casos": len(casos),
+        "resultados": resultados,
+    }
+    salida = os.path.join(RAIZ, f"scripts/barrido_bonus_sinonimos_{sello}_neurona_{'on' if neurona_on else 'off'}.json")
     with open(salida, "w", encoding="utf-8") as f:
-        json.dump(resultados, f, indent=2, ensure_ascii=False)
+        json.dump(traza, f, indent=2, ensure_ascii=False)
     print(f"-> {salida}")
     return 0
 
