@@ -72,7 +72,7 @@ Qué lo hace "vivo": no que tenga sinapsis ni que se parezca a un cerebro, sino 
 | E3 | Léxico mental | P6: puentes de palabras (prolijo ↔ prolijidad) |
 | E4 | Que el resultado no dependa de la base; arreglar el nacimiento de enlaces por alias | Llegada garantizada (§2.2.1); conexiones con criterio |
 | E5 | Neuronas en puntos estratégicos | Por orden: asociativa (juez de enlaces), vigencia (P2, P3), "¿nuevo o actualización?" |
-| Después | **Neurona de intención** (§2) | La pieza clave: subir lo que se quiere al primer puesto |
+| Después | **Neurona de razonamiento** (§2b) + **neurona de intención** (§2) | La brújula: entender qué se pide y subirlo al primer puesto |
 | Después | Ráfaga natural con pistas (P7) y recuerdo escalonado (P4) | Recordar como un humano, con ventaja de silicio |
 
 Detalle técnico de E5 (dónde hace falta criterio neuronal): `../arquitectura_neuro_simbolica/README.md`, §6.
