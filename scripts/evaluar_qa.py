@@ -39,6 +39,110 @@ def _clave_etiqueta(texto):
     return re.sub(r'[^a-z0-9]+', '', _normalizar_token(texto))
 
 
+def _clave_texto(texto):
+    """Clave de comparación de TEXTO LIBRE: minúsculas, sin tildes, separadores unidos.
+
+    Distinta de `_clave_etiqueta` (que borra TODO lo no alfanumérico y por tanto no
+    sirve para buscar una frase dentro de un campo). Aquí los separadores `_`, `-` y
+    los espacios se convierten en un solo espacio, porque el nombre de un nodo usa
+    `_` y el alias usa `-` o `,`: `pre-validacion` y `pre_validacion` son lo mismo.
+    """
+    limpio = re.sub(r'[_,;\s\-]+', ' ', _normalizar_token(texto or ''))
+    return limpio.strip()
+
+
+def clasificar_casos_sinonimo(db, cases):
+    """Separa los casos `sinonimo` en OBSOLETOS y AMBIGUOS, contra la base medida.
+
+    POR QUÉ existe (etapa E1, decisión de Dennys 2026-10-26): en la base viva, 6 de
+    los 7 fallos venían del EXAMEN, no del buscador. Cinco eran una palabra suelta
+    que decenas de recuerdos declaran (`agente`: 110 recuerdos son respuesta válida);
+    con una sola palabra genérica ni una persona sabe cuál se quiere. Contarlos como
+    fallos del motor no mide el motor: mide el dataset.
+
+    REGLAS FIJADAS ANTES DE MEDIR (no se ajustan después de ver resultados):
+      1. OBSOLETA — el recuerdo esperado YA NO declara esa palabra como alias en la
+         base que se mide (comparación normalizada: minúsculas, sin tildes).
+      2. AMBIGUA — 2 o más recuerdos distintos declaran la palabra como alias o la
+         llevan en el nombre. Se reporta cuántos son.
+      3. Se calculan aquí, en tiempo de QA, contra la base medida. `casos_qa.jsonl`
+         NO se toca: el examen queda igual.
+
+    Un caso puede cumplir las dos. Se devuelven las dos marcas por caso; la QA
+    honesta excluye la UNIÓN y cada bloque lista los suyos (con la marca si es ambas).
+
+    Devuelve: {case_id: {"obsoleta": bool, "ambigua": bool, "n_ambigua": int,
+                         "detalle": str}}
+    """
+    clave_nombre = {}
+    clave_alias = {}
+    for concepto, sinonimos in db.cursor.execute(
+        "SELECT concepto, COALESCE(sinonimos, '') FROM largo_plazo"
+    ).fetchall():
+        clave_nombre[concepto] = _clave_texto((concepto or '').replace('_', ' ').replace('-', ' '))
+        clave_alias[concepto] = _clave_texto(sinonimos or '')
+
+    marcas = {}
+    for caso in cases:
+        if caso.get("categoria") != "sinonimo":
+            continue
+        esperado = caso.get("concepto_esperado")
+        if not esperado:
+            continue
+        clave_q = _clave_texto(caso.get("query", ""))
+        if not clave_q:
+            continue
+
+        alias_del_esperado = clave_alias.get(esperado)
+        # Si el nodo esperado no existe en la base que se mide, tampoco puede
+        # declarar el alias: cuenta como OBSOLETA (y el informe de etiquetas
+        # irreparables lo sigue diciendo por su cuenta). Dejarlo dentro de la QA
+        # honesta sería contar como fallo del buscador un caso imposible.
+        inexistente = alias_del_esperado is None
+        obsoleta = bool(inexistente or clave_q not in alias_del_esperado)
+
+        # Cuántos nodos distintos reclaman la palabra (alias o nombre).
+        reclamantes = [
+            c for c in clave_nombre
+            if clave_q in clave_alias.get(c, "") or clave_q in clave_nombre.get(c, "")
+        ]
+        n_ambigua = len(reclamantes)
+        ambigua = n_ambigua >= 2
+
+        partes = []
+        if inexistente:
+            partes.append("el esperado no existe en esta base")
+        elif obsoleta:
+            partes.append("el esperado no declara la palabra como alias")
+        if ambigua:
+            partes.append(f"{n_ambigua} recuerdos reclaman la palabra")
+        marcas[caso["id"]] = {
+            "obsoleta": obsoleta,
+            "ambigua": ambigua,
+            "n_ambigua": n_ambigua,
+            "detalle": "; ".join(partes) if partes else "",
+        }
+    return marcas
+
+
+def _tabla_honesta(registros):
+    """Agrega los registros por caso en la tabla de la QA HONESTA.
+
+    `registros`: [{"categoria", "hit5", "hit1", "rr"}] de los casos que produjeron
+    un veredicto de recuperación (ni negativos ni queries ambiguas).
+    """
+    por_cat = defaultdict(lambda: {"n": 0, "h5": 0, "h1": 0, "rr": 0.0})
+    for reg in registros:
+        if reg["apartado"]:
+            continue
+        m = por_cat[reg["categoria"]]
+        m["n"] += 1
+        m["h5"] += reg["hit5"]
+        m["h1"] += reg["hit1"]
+        m["rr"] += reg["rr"]
+    return por_cat
+
+
 def _restaurar_estado_nodos(db, estado_inicial):
     """Restaura `estado` y `peso_sinaptico` de los nodos que el caso anterior modificó.
 
@@ -208,6 +312,13 @@ def run_evaluation(argv=None):
     print("")
     print("\n".join(aviso_neurona))
     print("")
+
+    # ── E1: QA honesta (obsoletas y ambiguas) ──────────────────────────────
+    # Se calcula UNA vez, al principio, sobre la copia recién abierta: antes de que
+    # ningún caso despierte nodos ni escriba pesos. Así la clasificación es
+    # determinista y no depende del orden de los casos.
+    marcas_honesta = clasificar_casos_sinonimo(db, cases)
+    honesta_registros = []
 
     # Tokens del corpus para detectar controles negativos contaminados
     # (autorreferencia: el corpus documenta las mismas queries negativas).
@@ -472,6 +583,19 @@ def run_evaluation(argv=None):
                 coherente,
             )
 
+            # E1: veredicto de este caso para la QA honesta. Se guarda el resultado
+            # FINAL (después de descontar el fallo de despertar), para que la
+            # clasificación no pueda "mejorar" un caso que en realidad falló.
+            _marca = marcas_honesta.get(case_id)
+            honesta_registros.append({
+                "id": case_id,
+                "categoria": category,
+                "hit5": bool(cuenta and found_at != -1),
+                "hit1": bool(cuenta and found_at == 1),
+                "rr": (1.0 / found_at) if (cuenta and found_at != -1) else 0.0,
+                "apartado": bool(_marca and (_marca["obsoleta"] or _marca["ambigua"])),
+            })
+
         # Aislar el caso siguiente del estado que este caso dejó en la DB
         nodos_restaurados_total += _restaurar_estado_nodos(db, estado_inicial_nodos)
 
@@ -562,6 +686,86 @@ def run_evaluation(argv=None):
         print("")
         print("\n".join(QN.lineas_resultado(res_neurona, tiempos_neurona, motivos_neurona, tol_neurona)))
         print("="*80)
+
+    # ── E1: QA HONESTA, lado a lado con la clásica ─────────────────────────
+    # POR QUÉ se imprime aparte y no se reemplaza nada: la GATE sigue usando la QA
+    # clásica (todos los casos) hasta que Dennys diga otra cosa. Aquí solo se dice,
+    # con números, cuánto del resultado depende del examen y no del buscador.
+    honesta_por_cat = _tabla_honesta(honesta_registros)
+    obsoletas = [c for c in cases if c.get("id") in marcas_honesta and marcas_honesta[c["id"]]["obsoleta"]]
+    ambiguas = [c for c in cases if c.get("id") in marcas_honesta and marcas_honesta[c["id"]]["ambigua"]]
+    apartados_ids = {
+        c["id"] for c in cases
+        if c.get("id") in marcas_honesta
+        and (marcas_honesta[c["id"]]["obsoleta"] or marcas_honesta[c["id"]]["ambigua"])
+    }
+    ambas = [c for c in cases if c.get("id") in marcas_honesta
+             and marcas_honesta[c["id"]]["obsoleta"] and marcas_honesta[c["id"]]["ambigua"]]
+    total_sinonimo = sum(1 for c in cases if c.get("categoria") == "sinonimo")
+
+    print("")
+    print("=" * 80)
+    print("   QA HONESTA (E1) — misma búsqueda, distinto conjunto de casos")
+    print("=" * 80)
+    print("  Se apartan SOLO casos 'sinonimo', con reglas fijadas antes de medir:")
+    print("    OBSOLETA: el recuerdo esperado ya no declara la palabra como alias")
+    print("              en ESTA base (normalizado: minúsculas, sin tildes).")
+    print("    AMBIGUA : 2 o más recuerdos reclaman la palabra (alias o nombre).")
+    print("  El examen (casos_qa.jsonl) NO se toca. La GATE sigue usando la CLÁSICA.")
+    print(f"  Apartados: {len(apartados_ids)} de {total_sinonimo} casos 'sinonimo' "
+          f"({len(obsoletas)} obsoletos, {len(ambiguas)} ambiguos, {len(ambas)} con las dos marcas).")
+    print("-" * 80)
+    print(f"{'Categoría':<22} | {'CLÁSICA n':>10} {'R@5':>7} {'R@1':>7} | {'HONESTA n':>10} {'R@5':>7} {'R@1':>7}")
+    print("-" * 80)
+    h_total_n = h_total_5 = h_total_1 = 0
+    h_rr = 0.0
+    for cat in sorted(stats.keys()):
+        if cat in ("negativo", "ambiguo"):
+            continue
+        st = stats[cat]
+        if not st["total"]:
+            continue
+        c5 = (st["hits_at_5"] / st["total"] * 100) if st["total"] else 0.0
+        c1 = (st["hits_at_1"] / st["total"] * 100) if st["total"] else 0.0
+        h = honesta_por_cat.get(cat, {"n": 0, "h5": 0, "h1": 0, "rr": 0.0})
+        h5 = (h["h5"] / h["n"] * 100) if h["n"] else 0.0
+        h1 = (h["h1"] / h["n"] * 100) if h["n"] else 0.0
+        h_total_n += h["n"]
+        h_total_5 += h["h5"]
+        h_total_1 += h["h1"]
+        h_rr += h["rr"]
+        print(f"{cat:<22} | {st['total']:>10} {c5:>6.2f}% {c1:>6.2f}% | "
+              f"{h['n']:>10} {h5:>6.2f}% {h1:>6.2f}%")
+    print("-" * 80)
+    h_r5 = (h_total_5 / h_total_n * 100) if h_total_n else 0.0
+    h_r1 = (h_total_1 / h_total_n * 100) if h_total_n else 0.0
+    h_mrr = (h_rr / h_total_n) if h_total_n else 0.0
+    print(f"{'GLOBAL (recuperación)':<22} | {total_queries:>10} {global_recall_5:>6.2f}% "
+          f"{global_recall_1:>6.2f}% | {h_total_n:>10} {h_r5:>6.2f}% {h_r1:>6.2f}%")
+    print(f"{'fallos':<22} | {total_queries - total_hits_at_5:>10} {'':>7} {'':>7} | "
+          f"{h_total_n - h_total_5:>10}")
+    print("=" * 80)
+
+    # ── Los dos bloques, caso por caso, con su motivo ──────────────────────
+    # Se listan TAMBIÉN las que hoy pasan: si solo se listaran las que fallan,
+    # parecería un truco para maquillar el número.
+    resultado_por_id = {r["id"]: r for r in honesta_registros}
+    if apartados_ids:
+        for titulo, lista in (("OBSOLETAS", obsoletas), ("AMBIGUAS", ambiguas)):
+            if not lista:
+                continue
+            pasan = sum(1 for c in lista if resultado_por_id.get(c["id"], {}).get("hit5"))
+            print(f"\n{titulo} ({len(lista)}) — pasan hoy {pasan}, fallan hoy {len(lista) - pasan}:")
+            for c in lista:
+                m = marcas_honesta[c["id"]]
+                reg = resultado_por_id.get(c["id"], {})
+                estado = "PASA " if reg.get("hit5") else "FALLA"
+                if reg.get("hit1"):
+                    estado = "TOP1 "
+                extra = " (también ambigua)" if (m["obsoleta"] and m["ambigua"] and titulo == "OBSOLETAS") else ""
+                print(f"  [{c['id']}] {estado} {c.get('query')!r} -> {c.get('concepto_esperado')}")
+                print(f"        motivo: {m['detalle']}{extra}")
+        print("=" * 80)
 
     # ── Salud del dataset: etiquetas que el evaluador tuvo que reparar ──────
     if etiquetas_obsoletas or etiquetas_irreparables or queries_ambiguas:
@@ -657,6 +861,45 @@ def run_evaluation(argv=None):
             for cat, st in sorted(stats.items())
             if cat not in ("negativo", "ambiguo") and st["total"]
         },
+    }
+    # E1: la QA honesta va al JSON aparte, sin cambiar la GATE (que sigue mirando
+    # la clásica). Así el número honesto se puede seguir en el tiempo sin que un
+    # cambio de examen lo mueva.
+    metrics["qa_honesta"] = {
+        "apartados": len(apartados_ids),
+        "sinonimo_total": total_sinonimo,
+        "obsoletas": len(obsoletas),
+        "ambiguas": len(ambiguas),
+        "con_las_dos_marcas": len(ambas),
+        "global": {
+            "queries": h_total_n,
+            "recall_at_5": round(h_r5, 2),
+            "recall_at_1": round(h_r1, 2),
+            "mrr": round(h_mrr, 4),
+            "fallos": h_total_n - h_total_5,
+        },
+        "categorias": {
+            cat: {
+                "total": h["n"],
+                "recall_at_5": round((h["h5"] / h["n"] * 100) if h["n"] else 0.0, 2),
+                "recall_at_1": round((h["h1"] / h["n"] * 100) if h["n"] else 0.0, 2),
+                "mrr": round((h["rr"] / h["n"]) if h["n"] else 0.0, 4),
+                "fallos": h["n"] - h["h5"],
+            }
+            for cat, h in sorted(honesta_por_cat.items()) if h["n"]
+        },
+        "casos_apartados": [
+            {
+                "id": c["id"],
+                "query": c.get("query"),
+                "esperado": c.get("concepto_esperado"),
+                "obsoleta": marcas_honesta[c["id"]]["obsoleta"],
+                "ambigua": marcas_honesta[c["id"]]["ambigua"],
+                "n_ambigua": marcas_honesta[c["id"]]["n_ambigua"],
+                "pasa_hoy": bool(resultado_por_id.get(c["id"], {}).get("hit5")),
+            }
+            for c in cases if c.get("id") in apartados_ids
+        ],
     }
     metrics["neurona"] = {
         "activa": neurona.activa(),
