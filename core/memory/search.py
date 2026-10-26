@@ -210,7 +210,11 @@ def buscar_por_frase(self, frase, profundidad="activos", pagina=1, limite=None, 
     if os.environ.get("BIORAG_HUB_ENABLED", "1") != "0":
         try:
             from core.concept_hub import expandir_query_con_hub
-            hub_expansion = expandir_query_con_hub(frase_limpia, self.conn, threshold=0.40)
+            # Umbral: el calibrado (0.55) por defecto. Antes estaba fijado en
+            # 0.40 con una señal de Jaccard crudo que disparaba con UNA palabra
+            # común compartida; medido sobre la suite QA canónica eso daba 154
+            # disparos y 8 aciertos (precisión 5,2 %). Override: BIORAG_HUB_UMBRAL.
+            hub_expansion = expandir_query_con_hub(frase_limpia, self.conn)
             if hub_expansion and hub_expansion.get("expanded_terms") and _necesita_expansion:
                 hub_terms = " ".join(hub_expansion["expanded_terms"])
                 frase = frase + " " + hub_terms
