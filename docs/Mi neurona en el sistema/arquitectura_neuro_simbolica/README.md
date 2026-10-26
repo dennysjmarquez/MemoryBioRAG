@@ -2,6 +2,8 @@
 
 **Fecha:** 2026-10-26 · **Rol:** auditor (sesión `arena/6459e2d0`) · **Base de código:** master `f8c2b16`
 
+> **Visión de diseño (Dennys, 2026-10-26):** [Cómo recuerda BioRAG](../vision_como_recuerda_biorag/README.md). Cada etapa y cada neurona se evalúa contra esa visión.
+
 ## 1. El enfoque
 
 BioRAG no apunta a una red neuronal grande que lo haga todo. Es un **motor simbólico
