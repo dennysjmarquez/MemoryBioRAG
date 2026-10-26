@@ -103,3 +103,89 @@ tests/test_metricas_historial.py  -> 1 failed, 1 passed
 pytest tests/ -> 505 passed
 sha256 snapshots/qa_escape_qcr_20260811.db -> 104dd2902aaf (intacto)
 ```
+
+## 6. ¿Dónde hace falta criterio neuronal? (investigación 2026-10-26)
+
+Pregunta de Dennys: ¿en qué puntos del motor una regla fija decide mal y haría falta
+criterio? Solo se mide, no se cambia nada. Las mediciones son de solo lectura sobre el
+snapshot y sobre una copia de la base viva (1357 recuerdos, fuera del repo).
+Script reproducible: `scripts/experimentos/criterio_neuronal_20261026/medir.py`.
+
+### 6.1 Hallazgo principal: los enlaces por alias se crean sin ningún criterio
+
+Al guardar un recuerdo con alias, `core/sinapsis.py:440` (`vincular_por_sinonimos`)
+crea un enlace **fuerte (0.9) y protegido** hacia **todo** recuerdo cuyo nombre o alias
+**contiene** ese texto (`LIKE %alias%`). El alias `ia` "está" en `memoria`, `guia` y
+`dennys_identidad`.
+
+| | snapshot (866) | base viva (1357) |
+|---|---:|---:|
+| enlaces por alias | 5.863 (42,2 % del grafo) | **15.219 (45,5 %)** |
+| con un extremo que ya no existe | 0 | **738** |
+| creados por un alias de ≤ 3 letras | 383 | **3.148** |
+| creados por un alias que alcanza ≥ 20 recuerdos | 3.098 | **9.167** |
+| el alias coincide como palabra entera | 4.171 | 8.093 |
+| enlaces por recuerdo: mediana / máximo | 24 / 270 | 35 / **633** |
+| alcance de `ia` / `id` | 395 / 386 | **718 / 661** |
+
+- Los recuerdos crecieron ×1,6 y los enlaces por alias ×2,6. Los creados por alias
+  cortos crecieron ×8. **El grafo crece más rápido que la memoria**: es una causa
+  concreta del mecanismo 3 de §3 y de los nodos muy conectados que tapan al correcto
+  en EXP-Q.
+- Estos enlaces también sirven de "diccionario de sinónimos" para otros procesos
+  (`scripts/retrofit_ppmi_svd.py`, `core/inferencia_transitiva.py`), así que el ruido
+  se propaga.
+- Dos capas:
+  - **Error de código** (universal): comparar por "contiene" en vez de por alias o
+    palabra entera, y los enlaces que quedan colgando de recuerdos que ya no existen.
+    Se arregla con código.
+  - **Criterio** (depende del contenido): aun con palabra entera, `leccion` une 72
+    recuerdos. Si dos recuerdos que comparten un alias de verdad tienen que ver, lo
+    decide la **neurona asociativa**, que ya está construida y cerrada pero sin
+    cablear. Este es su primer punto natural de enganche.
+- Cuidado (exp13): parte del "ruido" ayuda a buscar; sin enlaces automáticos había 5
+  fallos. No se borra nada. Primero se cambia cómo nacen los enlaces nuevos, y se mide
+  con la QA en copias.
+
+### 6.2 Vigencia: "¿cuál es la última versión de X?" (Reto 1)
+
+La base viva tiene más de 13 recuerdos con versiones de BioRAG (v10.3 … v34.0, y
+`version_actual_biorag` dice v35.0). El motor no sabe que uno **reemplaza** a otro:
+decide solo por palabras, y la recencia pesa 0,04.
+
+```
+>> ¿cuál es la última versión de biorag?
+   1. 0.934  2026-10-04  ultima_version_biorag          (dice v32.3: VIEJO)
+   2. 0.767  2026-10-07  version_actual_biorag_v32_4_20261007
+   3. 0.753  2026-07-08  biorag_v14_0_estado
+   4. 0.749  2026-10-14  version_actual_biorag          (dice v35.0: el correcto)
+>> biorag latest version
+   1. 0.718  2026-07-08  biorag_v14_0_estado            (julio)
+```
+
+Hacen falta dos habilidades:
+1. **Intención**: la pregunta pide lo más reciente ("última", "actual", "ahora",
+   "latest"). El piso es una lista de palabras ES/EN; la neurona aprende las demás
+   formas de pedirlo.
+2. **Familia en el tiempo**: estos recuerdos hablan de lo mismo en distintos momentos.
+   La verdad para entrenar sale gratis de la propia base: hay 183 recuerdos con versión
+   en el nombre y familias con fechas (v26.2 < v26.3 < v26.4).
+
+Piso: el comportamiento de hoy. La neurona solo sube al más reciente de la familia
+**dentro del top-5**, nunca saca al resto.
+
+### 6.3 Ranking de lugares para criterio neuronal
+
+| # | Punto | Qué decide hoy una regla fija | Evidencia | Verdad para entrenar | Tipo |
+|---|---|---|---|---|---|
+| 1 | Nacimiento de enlaces por alias (`sinapsis.py:440`) | "contiene el texto → enlace 0.9" | §6.1 | pares de la neurona asociativa (ya calibrada) | arreglo de código + neurona **cerrada** (asociativa) |
+| 2 | Vigencia en la búsqueda | nada (recencia 0,04) | §6.2 | familias con versión y fecha de la propia base | intención **cerrada** + familia **viva** con piso |
+| 3 | Filtro del canal 2 del sueño | todo enlace del canal 2 entra | exp13: 5 buenos / 8 malos → 9 / 1 | exp13 | neurona cerrada (asociativa) |
+| 4 | ¿Recuerdo nuevo o actualización? (al guardar) | similitud ≥ 0,05 fija, top-3 (`write.py:35`) | más de 9 copias `version_actual_biorag*` | las mismas familias de #2 | viva, solo propone; nunca borra ni fusiona |
+| 5 | Saltos del grafo | BFS con *fan* suave | EXP-Q #33 / #91 | — | **esperar**: medir de nuevo después de #1 |
+| — | Olvido / dormir | ACT-R con umbrales fijos | 0734 (una regla) dormido | **no hay** sin feedback, y feedback está prohibido | **no** poner neurona |
+| — | Umbral conforme, hub, entrada léxica | — | sanos o reparados | — | no hace falta |
+
+**Orden recomendado:** primero el arreglo de código de #1 (y medir cuánto mejora el
+grafo solo con eso). Después, la neurona asociativa como juez de #1 y #3 (la misma
+neurona en dos puntos). Luego #2, que es el Reto 1.
