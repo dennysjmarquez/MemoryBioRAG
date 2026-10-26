@@ -222,3 +222,98 @@ estaba activa o no.
 - Los dos experimentos negativos y sus reversiones.
 - El cambio de objetivo: **no es el orden, es la generación**. Antes de tocar la
   neurona hay que hacer que el correcto entre al top-5.
+
+---
+
+## 4. Diagnóstico de los 6 fallos. Condiciones de la QA (veredicto P1 del auditor)
+
+### 4.0 Correcciones aceptadas
+
+- **0734 «regla» no estaba dormido en la QA.** `evaluar_qa.py` pone el nodo
+  esperado en `activo` antes de preguntar (`UPDATE ... SET estado='activo'`) y
+  restaura el estado después de cada caso. La medición anterior no lo hacía, así
+  que los puestos de la tabla 3.2 no eran comparables. Repetidos aquí con el
+  mismo protocolo: 0734 sube a puesto **21**, no «fuera».
+- **«13 de 61 a 150 nodos» salió de un script propio, no de la QA oficial.**
+  Queda como indicio, no como cifra. No se corre la QA de 13 minutos porque no
+  cambia ninguna decisión (indicación del auditor).
+- No se propone que la neurona vea más allá del top-5: ya se probó y se descartó.
+
+### 4.1 No todos los fallos son iguales
+
+Censo sobre la base viva (1357 nodos): cuántos recuerdos declaran la palabra en
+el nombre y cuántos en el alias.
+
+| ID | consulta | en nombre | en alias | veredicto |
+|---|---|---:|---:|---|
+| 0514 | perfil | 19 | 25 | **ambiguo**, no forzable |
+| 0692 | metodologia | 7 | 14 | **ambiguo**, no forzable |
+| 0710 | agente | 33 | 110 | **ambiguo**, no forzable |
+| 0734 | regla | 30 | 73 | **ambiguo**, no forzable |
+| 0805 | cv | 20 | 34 | **ambiguo**, no forzable |
+| 0674 | filtro-arquitecto-prolijo | 0 | 0 | **fallo real** |
+
+Los cinco primeros son una palabra suelta que decenas de recuerdos declaran. Con
+`agente` y nada más, 110 recuerdos son respuestas legítimas. Pedir R@1 ahí es un
+defecto del banco, no del cerebro.
+
+### 4.2 Puesto real, con el protocolo de la QA
+
+| ID | consulta | puesto | esperado |
+|---|---|---:|---|
+| 0514 | perfil | 9 | dennys-identidad-profunda |
+| 0674 | filtro-arquitecto-prolijo | 18 | compuerta-pre-validacion |
+| 0692 | metodologia | 6 | dennys-working-style |
+| 0710 | agente | 6 | aforismo_criterio_agente |
+| 0734 | regla | 21 | plan_mode_biorag |
+| 0805 | cv | 13 | cv_seccion_d_test_vinculacion |
+
+### 4.3 0674: el fallo real, y por qué pierde
+
+La consulta `filtro-arquitecto-prolijo` contra el nodo `compuerta-pre-validacion`
+(nombre: `compuerta-pre-validacion`; alias: `pre-validacion,compuerta,juicio-accion,filtro-de-impacto`).
+
+Desglose de los 5 primeros:
+
+| # | concepto | score | bm25 | concepto | sinónimo | grupo |
+|---|---|---:|---:|---:|---:|---:|
+| 1 | v13_filtro_temporal_pre_hoc_indices | 0.290 | 0.000 | **0.333** | 0.333 | 1.000 |
+| 2 | bio_profesional_dennys_arquitecto_frontend | 0.287 | 0.000 | **0.333** | 0.333 | 1.000 |
+| 3 | sesgos_ats_pantalla_filtrado_candidatos | 0.270 | 0.000 | 0.250 | 0.333 | 1.000 |
+| 4 | identidad_dennys_perfil_completo | 0.241 | 0.000 | 0.000 | 0.333 | 1.000 |
+| 5 | ajuste_tejedora_valencia_desempate_fase1 | 0.234 | 0.000 | 0.000 | 0.333 | 1.000 |
+| **18** | **compuerta-pre-validacion** | **0.187** | **0.000** | **0.000** | 0.333 | 1.000 |
+
+La causa, medida palabra por palabra:
+
+| palabra | en nombre | en alias | en texto |
+|---|---:|---:|---:|
+| filtro | 1 | 14 | 81 |
+| arquitecto | 1 | 4 | 9 |
+| **prolijo** | **0** | **0** | **0** |
+
+- **`prolijo` no existe en la base, en ninguna forma.** El motor tiene que decidir
+  con 2 de 3 palabras.
+- El «filtro» del nodo correcto vive en el **alias** (`filtro-de-impacto`);
+  el de sus rivales vive en el **nombre**. `concepto_ratio` mira el nombre, así
+  que el correcto saca 0.000 y los rivales 0.333. Eso decide el orden.
+- `grupo` vale **1.000 en los cinco**. No distingue nada.
+
+**Conclusión honesta:** 0674 no es un empate ambiguo, pero tampoco se arregla
+reordenando ni con la neurona (puesto 18). Se arregla si (a) el nodo declara el
+alias que la persona usa, o (b) algo une `prolijo` con `juicio-accion` /
+`filtro-de-impacto`. Es un problema de puente léxico, no de orden.
+
+### 4.4 Banco de agujas: dos señales están saturadas (295 candidatos top-5, 61 casos)
+
+| señal | al máximo | % |
+|---|---:|---:|
+| `sinonimos_ratio` | 194 | **65.8 %** |
+| `grupo_score` | 189 | **64.1 %** |
+| `concepto_ratio` | 96 | 32.5 % |
+
+Dos de las agujas valen lo mismo para dos tercios de los candidatos. Esto es la
+explicación medible de por qué el resultado depende de la base: cuando dos
+tercios empatan en las dos señales principales, decide la tercera, y la tercera
+premia el nombre sobre el alias. La guía lo advierte (paso 4): señales que no
+separan producen «ruido con apariencia de inteligencia».
