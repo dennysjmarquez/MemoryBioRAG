@@ -44,6 +44,22 @@ auditado a fondo en esta pasada; no se afirma nada).
 - `core/rrf_fusion.py`: 0 usos.
 - `core/feedback_implicito.py`: solo lo usa un script. Además choca con la norma "sin sistemas de feedback".
 - `core/memory/neurona_puentes.py`: está en la rama del operario, apagado. Aprende peor que la regla sola (AUC .814 vs .922).
+- `core/calibracion.py` está **a medias** (revisado 2026-10-26, pregunta de Dennys):
+  - **En uso** (vía `core/memory/umbral.py` → MCP `buscar` y `calibrar`): `UmbralConforme`,
+    `CalibradorPlatt`, `calibracion_isotonica`. Son el sistema "saber que no sabe"
+    (FP 0/40) y la confianza que ve el agente.
+  - **Importadas pero nunca llamadas** (`search.py:34`, `memory_store.py:13`):
+    `zscore_por_query`, `fusion_rrf`, `FusionLogistica`, `mmr`.
+  - **Sin importar en ningún lado** (ni en `core/`, ni en `scripts/`, ni en `tests/`):
+    `dunning_llr`, `retrofit_normalizado`, `energia_dirichlet`.
+  - Tres de las que no se usan sirven a hallazgos de esta auditoría, sin conectarlas a
+    ciegas:
+    - `FusionLogistica` como **herramienta de diagnóstico** (no para reemplazar
+      pesos, porque los pesos a mano son el piso): dice qué señal de la fórmula no
+      se distingue de cero (E4).
+    - `dunning_llr` como criterio para que nazca un enlace (§6.1).
+    - `retrofit_normalizado` contra el arrastre de los nodos con cientos de enlaces
+      por alias en los vectores PPMI (§6.1).
 
 ## 3. Por qué el resultado varía según la base: tres mecanismos medidos
 
