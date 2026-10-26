@@ -1,0 +1,47 @@
+QA oficial 921 casos · fórmula sola (BIORAG_NEURONA=0) · PYTHONHASHSEED=1 · R@1 / R@5 (antes → después)
+
+S0 (snapshot, 6 hubs)
+   GLOBAL               R@1  92.57 →  93.14   R@5 100.00 → 100.00   MRR 0.954 → 0.957   FP 0 → 0
+   cruce_idioma         R@1  62.50 →  62.50   R@5 100.00 → 100.00
+   dormido              R@1 100.00 → 100.00   R@5 100.00 → 100.00
+   literal              R@1  99.59 →  99.59   R@5 100.00 → 100.00
+   por_tema             R@1  69.23 →  69.23   R@5 100.00 → 100.00
+   pregunta_natural     R@1  93.85 →  96.92   R@5 100.00 → 100.00
+   sinonimo             R@1  56.36 →  56.36   R@5 100.00 → 100.00
+   typo                 R@1  90.77 →  92.31   R@5 100.00 → 100.00
+   variante_gramatical  R@1  90.77 →  93.85   R@5 100.00 → 100.00
+
+H-mitad (436 hubs)
+   GLOBAL               R@1  76.34 →  93.03   R@5  98.97 → 100.00   MRR 0.866 → 0.957   FP 0 → 0
+   cruce_idioma         R@1  25.00 →  75.00   R@5 100.00 → 100.00
+   dormido              R@1 100.00 → 100.00   R@5 100.00 → 100.00
+   literal              R@1  96.10 →  99.59   R@5 100.00 → 100.00
+   por_tema             R@1  21.54 →  69.23   R@5  98.46 → 100.00
+   pregunta_natural     R@1  53.85 →  93.85   R@5  98.46 → 100.00
+   sinonimo             R@1  41.82 →  56.36   R@5  98.18 → 100.00
+   typo                 R@1  52.31 →  92.31   R@5  96.92 → 100.00
+   variante_gramatical  R@1  41.54 →  93.85   R@5  93.85 → 100.00
+
+H-todos (866 hubs)
+   GLOBAL               R@1  80.91 →  93.83   R@5  99.20 →  99.89   MRR 0.892 → 0.961   FP 0 → 0
+   cruce_idioma         R@1  62.50 →  87.50   R@5  87.50 →  87.50
+   dormido              R@1  98.46 → 100.00   R@5 100.00 → 100.00
+   literal              R@1  90.55 →  99.59   R@5 100.00 → 100.00
+   por_tema             R@1  27.69 →  72.31   R@5  96.92 → 100.00
+   pregunta_natural     R@1  80.00 →  98.46   R@5  98.46 → 100.00
+   sinonimo             R@1  65.45 →  58.18   R@5  98.18 → 100.00
+   typo                 R@1  69.23 →  92.31   R@5 100.00 → 100.00
+   variante_gramatical  R@1  72.31 →  93.85   R@5  96.92 → 100.00
+
+
+v35.3 + ingenuo ×1.0 (2026-10-26) — causa del paraf_1 confirmada en la base viva con
+scripts/diagnostico_hub.py: el correcto era puente "ingenuo" (×0.85) y los rivales
+"sinónimo" (×1.5). Cambio: ANGLE_MULT_HUB["ingenuo"] 0.85 -> 1.0 (solo hub a escala).
+QA fórmula, PYTHONHASHSEED=1, R@1 / R@5 / MRR / fallos:
+  Snapshot  93.14 / 100   / .9573 / 0   ->  93.14 / 100 / .9573 / 0   (idéntico)
+  H_mitad   93.03 / 100   / .9569 / 0   ->  93.03 / 100 / .9569 / 0   (idéntico)
+  H_todos   93.83 / 99.89 / .9613 / 1   ->  93.83 / 100 / .9619 / 0   (cruce_idioma R@5 87.5 -> 100)
+  FP 0/40 en las tres. Abismo 5/5 en snap, H_mitad, H_todos, H_vivo_sinonimo.
+  Generalización 10/10 con rivales sinónimo, problema y situación.
+Descartado: quitar el multiplicador a todos los tipos (H_todos R@1 93.83 -> 93.49,
+cruce_idioma R@1 87.5 -> 62.5).

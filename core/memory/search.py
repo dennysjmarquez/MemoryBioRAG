@@ -21,6 +21,7 @@ import numpy as np
 from core.stemmer_es import _quitar_acentos
 from core.memory import constants
 from core.memory import neurona
+from core.memory import escala as _escala
 
 logger = logging.getLogger("BioRAG.MemoryStore")
 
@@ -639,27 +640,55 @@ def buscar_por_frase(self, frase, profundidad="activos", pagina=1, limite=None, 
             filtros_fb.append(f"categoria = {cat_id_fb2}")
         where_fb = ("WHERE " + " AND ".join(filtros_fb)) if filtros_fb else ""
         try:
-            self.cursor.execute(
-                f"SELECT rowid, concepto, contenido, peso_sinaptico, estado, asociaciones FROM largo_plazo {where_fb} ORDER BY rowid LIMIT {sql_limit}"
+            _ids_17 = (
+                _escala.rowids_por_parecido(self.cursor, query, where_fb, (), sql_limit)
+                if _escala.activa() else None
             )
+            if _ids_17 is None:
+                self.cursor.execute(
+                    f"SELECT rowid, concepto, contenido, peso_sinaptico, estado, asociaciones FROM largo_plazo {where_fb} ORDER BY rowid LIMIT {sql_limit}"
+                )
+            else:
+                # v35.1 (escala): los más parecidos por trigramas, no los primeros guardados.
+                self.cursor.execute(
+                    f"SELECT rowid, concepto, contenido, peso_sinaptico, estado, asociaciones FROM largo_plazo "
+                    f"WHERE rowid IN ({','.join('?' * len(_ids_17))}) ORDER BY rowid",
+                    tuple(_ids_17),
+                )
             filas = self.cursor.fetchall()
             query_words = re.findall(r'\w{3,}', query.lower())
             query_words_filtradas = [w for w in query_words if len(w) >= 4]
             if not query_words_filtradas:
                 query_words_filtradas = [w for w in query_words if len(w) >= 4]
             qw_cortas = [w for w in query_words_filtradas if len(w) <= 5]
+            # v35.1 (escala): el parecido difuso es para palabras que la memoria NO conoce
+            # (typos/variantes). Una palabra real que la memoria sí conoce solo empata con
+            # ella misma o sus flexiones (mismo comienzo de 3 letras: memorias ↔ memoria, usado ↔ usar), nunca
+            # con otra palabra real parecida (rector ≠ vector). Sin esto, la ventana por
+            # parecido trae recuerdos con «vector» que le ganan a la respuesta que tiene
+            # «rector» literal (caso 0718). Ver core/memory/escala.py.
+            _conocidas_17 = set()
+            if _escala.activa():
+                _qn_17 = {w: _escala.sin_tildes(w) for w in query_words_filtradas}
+                _raras_17 = set(_escala.palabras_desconocidas(self.cursor, list(_qn_17.values())))
+                _conocidas_17 = {w for w, n in _qn_17.items() if n not in _raras_17}
             candidatos = []
             for row in filas:
                 texto = f"{row[1]} {row[2]}".lower()
                 text_words = re.findall(r'\w{3,}', texto)
+                _tw_n = [_escala.sin_tildes(tw) for tw in text_words] if _conocidas_17 else None
                 total_score = 0.0
                 for qw in query_words_filtradas:
                     qt = set(qw[i:i+3] for i in range(len(qw) - 2))
                     if not qt:
                         continue
+                    _pool_tw = text_words
+                    if qw in _conocidas_17:
+                        _raiz = _qn_17[qw][:3]
+                        _pool_tw = [tw for tw, n in zip(text_words, _tw_n) if n.startswith(_raiz)]
                     best = max(
                         (len(qt & set(tw[i:i+3] for i in range(len(tw) - 2))) / len(qt)
-                         for tw in text_words if len(tw) >= 3),
+                         for tw in _pool_tw if len(tw) >= 3),
                         default=0.0
                     )
                     total_score += best
@@ -905,6 +934,12 @@ def buscar_por_frase(self, frase, profundidad="activos", pagina=1, limite=None, 
         return len(_q_toks_fb & _d_toks) / len(_q_toks_fb) if _q_toks_fb else 0.0
     _max_cov_fb = max((_calc_strict_cov(_r) for _r in todos), default=0.0) if _q_toks_fb else 0.0
     _fb_activo = len(todos) < 3 or (len(_q_toks_fb) >= 2 and _max_cov_fb < 0.60)
+    # v35.1 (escala): la cobertura de OTRO recuerdo no debe apagar el rescate. Si la
+    # pregunta trae palabras que la memoria no conoce (typo/variante), el rescate corre
+    # sin importar cuántos recuerdos haya. Ver core/memory/escala.py.
+    if not _fb_activo and not modo_estricto and _escala.activa():
+        if _escala.palabras_desconocidas(self.cursor, _q_toks_fb):
+            _fb_activo = True
 
     if not modo_estricto and _fb_activo and len(query) >= 3:
         try:
@@ -915,12 +950,26 @@ def buscar_por_frase(self, frase, profundidad="activos", pagina=1, limite=None, 
                 cat_id_fb = self._resolver_categoria_id(categoria)
                 cat_filter = f" AND categoria = {cat_id_fb}" if estado_filter else f"WHERE categoria = {cat_id_fb}"
 
-            self.cursor.execute(
-                f"SELECT rowid, concepto, contenido, peso_sinaptico, "
-                f"estado, asociaciones, sinonimos "
-                f"FROM largo_plazo {estado_filter}{cat_filter} "
-                f"LIMIT 1000"
+            _ids_fb = (
+                _escala.rowids_por_parecido(self.cursor, query, f"{estado_filter}{cat_filter}", (), 1000)
+                if _escala.activa() else None
             )
+            if _ids_fb is None:
+                self.cursor.execute(
+                    f"SELECT rowid, concepto, contenido, peso_sinaptico, "
+                    f"estado, asociaciones, sinonimos "
+                    f"FROM largo_plazo {estado_filter}{cat_filter} "
+                    f"LIMIT 1000"
+                )
+            else:
+                # v35.1 (escala): los 1000 MÁS PARECIDOS, no los 1000 primeros guardados.
+                self.cursor.execute(
+                    f"SELECT rowid, concepto, contenido, peso_sinaptico, "
+                    f"estado, asociaciones, sinonimos "
+                    f"FROM largo_plazo WHERE rowid IN ({','.join('?' * len(_ids_fb))}) "
+                    f"ORDER BY rowid",
+                    tuple(_ids_fb),
+                )
             candidatos_fb = self.cursor.fetchall()
             if candidatos_fb:
                 fb_results = buscar_fallback_simbolico(
@@ -1196,6 +1245,7 @@ def buscar_por_frase(self, frase, profundidad="activos", pagina=1, limite=None, 
     # Only trigger if FTS5 returned ≥3 results (semantic query, not noise).
     # This captures domain-specific dims (identidad_artificial, intencion_documentar)
     # that WordNet cannot classify from surface words.
+    _dims_inferidas = False  # v35.1 (escala): ¿las dimensiones las dio el agente o se infirieron aquí?
     if not dimensiones_ids and frase.strip() and len(fts5_conceptos) >= 3:
         try:
             top_fts5_conceptos = fts5_conceptos[:5]
@@ -1210,6 +1260,7 @@ def buscar_por_frase(self, frase, profundidad="activos", pagina=1, limite=None, 
                 pseudo_dims = [row[0] for row in self.cursor.fetchall()]
                 if pseudo_dims:
                     dimensiones_ids = pseudo_dims
+                    _dims_inferidas = True
         except Exception:
             pass  # Silently skip
 
@@ -1871,12 +1922,23 @@ def buscar_por_frase(self, frase, profundidad="activos", pagina=1, limite=None, 
                 matches_qcr = sum(1 for t in q_tokens_qcr if t in text_target)
                 ratio_qcr = matches_qcr / len(q_tokens_qcr)
             origen_tipo, score_capa = origen_scores.get(conc, ("literal", 0.0))
+            # v35.1 (escala): un candidato que entró SOLO por dimensiones INFERIDAS (las
+            # dimensiones de los 5 primeros resultados de texto, que en una memoria grande
+            # suelen ser OTROS recuerdos) no puede saltarse el filtro de palabras. Es
+            # evidencia de segunda mano: en el experimento de escala, recuerdos genéricos
+            # sin ninguna palabra de la pregunta pasaban así (coseno 0.45 → 0.77 al crecer
+            # la memoria) y desplazaban a la respuesta. Con dimensiones dadas por el agente,
+            # el escape sigue igual. Ver core/memory/escala.py.
+            _escape_dim_inferido = (
+                origen_tipo == "dimensional_fallback" and _dims_inferidas and _escala.activa()
+            )
             if ratio_qcr >= _qcr_umbral or (
                 origen_tipo in (
                     "semantica", "simbolico", "expansion", "dimensional_fallback",
                     "typo", "concepto", "lexico_aprendido",
                 )
                 and score_capa >= QCR_ESCAPE_CAPA_MIN
+                and not _escape_dim_inferido
             ) or (
                 # Fase B (resonancia dimensional): escape calibrado T=0.45
                 # (40 neg max 0.0; Q-01 0.488). OFF = cortocircuito.

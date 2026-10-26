@@ -37,6 +37,7 @@ Autor: Athena-OEC & Artemis-OEC
 Versión del producto: consultar el archivo raíz `VERSION` (fuente única).
 """
 
+import os
 import re
 import math
 import time
@@ -465,6 +466,286 @@ def _jaccard(set_a: set, set_b: set) -> float:
     return inter / union if union > 0 else 0.0
 
 
+# ─── v35.2 HUB A ESCALA: neuronas de concepto que funcionan con 6 o con 6000 hubs ───
+#
+# Por qué existe esto. El hub nació (v29) como un puñado de conceptos curados (10–17)
+# para cruzar el abismo léxico: preguntas que no comparten palabras con el recuerdo.
+# Desde que `aprender` crea un hub con 5 puentes por CADA recuerdo, una base real tiene
+# cientos o miles de hubs, pero la fórmula seguía siendo la de 17: cada palabra valía
+# lo mismo y el mejor hub se lo llevaba todo. Con 866 hubs el hub se disparaba en 875
+# de las 921 preguntas de la QA, una palabra común ("regla", "cv") que aparece en
+# decenas de puentes daba confianza 1.0 a un hub cualquiera, y su recuerdo se forzaba
+# al TOP1. Además releía y tokenizaba todos los puentes en cada búsqueda (~0.5 s).
+#
+# Cómo lo resuelve el cerebro, y cómo lo resolvemos aquí:
+#   1. Efecto abanico (ACT-R, Anderson 1974) / sobrecarga de pista (Watkins & Watkins
+#      1975): una pista asociada a muchos recuerdos activa a cada uno con menos fuerza,
+#      S_ji = S − ln(abanico_j). Con S = ln(H) es el IDF de la recuperación de información.
+#      Cada palabra pesa ln(1 + (H − abanico + 0.5)/(abanico + 0.5)) (siempre positivo,
+#      también con 1 solo hub).
+#      Palabras de función ("antes", "dónde", "que", "de"): en una paráfrasis pueden cambiar
+#      el sentido ("qué hacía ANTES de ser programador"), así que cuentan, pero aportan
+#      como mucho 1 bit: el peso de una palabra que parte la memoria en dos mitades,
+#      ln(1 + (H − H/2 + .5)/(H/2 + .5)) = ln 2. Menos si en ESTA base son aún más comunes.
+#      El tope existe porque los puentes son frases cortas y telegráficas: ahí "dónde"
+#      parece rara y, sin tope, pesaría como una palabra de contenido. Tampoco abren
+#      candidatos: compartir solo palabras de función no es una coincidencia.
+#      (v35.2 las quitaba con la lista de la búsqueda por texto: "qué hacía antes de ser
+#      programador" quedaba en {ser, programador} y, en la base viva, cualquier puente con
+#      "programador" empataba con el correcto y el hub no decidía.)
+#   2. Priming por repetición > priming morfológico: la palabra idéntica cuenta entera; la
+#      misma familia (solo la raíz: programador / programación) cuenta la mitad.
+#   3. Completar un patrón exige parecido, no solo inclusión: la "cobertura del puente" se
+#      reemplaza por el coseno (Ochiai, √(cobertura_pregunta × cobertura_puente)). Un puente
+#      diminuto ("algo no tiene identidad") contenido en la pregunta vale solo lo que
+#      explica de ella.
+#   4. Elección de Luce / recuperación de ACT-R: un recuerdo se recupera por su ventaja
+#      sobre los rivales, no solo por su parecido: ventaja = e^(s/T) / Σ e^(s_k/T) entre los
+#      RECUERDOS activados (dos hubs que apuntan al mismo recuerdo son aliados, no rivales).
+#      Si 10 recuerdos empatan, cada uno tiene 0.1 y ninguno se impone (antes ganaba el
+#      primero en orden alfabético). confianza = parecido × ventaja; con un ganador claro,
+#      ventaja ≈ 1 y nada cambia.
+#   5. Índice invertido en memoria, reconstruido solo cuando cambian las tablas del hub
+#      (huella de ~1 ms): cada búsqueda mira solo los hubs que comparten alguna palabra.
+#
+#   6. Ningún tipo de puente castiga. v29 multiplicaba sinónimo ×1.5, problema ×1.2,
+#      solución ×1.1, situación ×1.0 e INGENUO ×0.85: el único por debajo de 1 era justo el
+#      de las preguntas dichas a lo ingenuo, la razón de ser del hub. Una coincidencia
+#      perfecta con un puente ingenuo nunca podía igualar a una perfecta de otro tipo, y en
+#      la base viva un puente "sinónimo" que solo compartía "programador" casi empataba con
+#      el ingenuo que contenía la pregunta entera ("qué hacía antes de ser programador").
+#      Ingenuo pasa a ×1.0 (neutro). Los impulsos se mantienen: el ×1.5 del sinónimo es lo
+#      que rescata las preguntas en otro idioma (medido: quitarlo baja cruce_idioma).
+#
+# Lo demás es lo de siempre: multiplicador por tipo, bonus de consenso, umbral 0.40 y
+# todo lo que el motor hace después con el hub (expansión, señal #14, paso por el QCR,
+# promoción competitiva al TOP1).
+# Ablación: BIORAG_HUB_ESCALA=0 vuelve exactamente al cálculo anterior.
+
+ANGLE_MULT_HUB = {
+    "sinonimo": 1.5,
+    "problema": 1.2,
+    "solucion": 1.1,
+    "situacion": 1.0,
+    "ingenuo": 1.0,     # v35.3: era 0.85 (punto 6)
+    "legacy": 1.0,
+}
+HUB_TEMPERATURA = float(os.environ.get("BIORAG_HUB_TEMPERATURA", "0.10"))
+_INDICE_HUBS: dict = {}
+
+
+def _hub_escala_activa() -> bool:
+    return os.environ.get("BIORAG_HUB_ESCALA", "1") != "0"
+
+
+def _firma_hubs(conn: sqlite3.Connection) -> tuple:
+    """Huella barata de las 3 tablas del hub: cambia con cualquier alta, baja o edición
+    (texto, ángulo, peso, recuerdo canónico, nodos). Cuesta ~1 ms con miles de puentes."""
+    b = conn.execute(
+        "SELECT COUNT(*), COALESCE(MAX(bridge_id), 0), COALESCE(SUM(LENGTH(bridge_text) * bridge_id), 0), "
+        "COALESCE(SUM(weight * bridge_id), 0), "
+        "COALESCE(SUM(bridge_id * CASE angle WHEN 'sinonimo' THEN 1 WHEN 'problema' THEN 2 "
+        "WHEN 'solucion' THEN 3 WHEN 'situacion' THEN 4 WHEN 'ingenuo' THEN 5 ELSE 6 END), 0), "
+        "COALESCE(SUM(LENGTH(hub_id) * bridge_id), 0) FROM concept_hub_bridges"
+    ).fetchone()
+    h = conn.execute(
+        "SELECT COUNT(*), COALESCE(SUM((LENGTH(hub_id) + 31 * LENGTH(canonical_node)) * rowid), 0), "
+        "COALESCE(SUM((unicode(canonical_node) + 7 * unicode(substr(canonical_node, -1))) * rowid), 0) "
+        "FROM concept_hubs"
+    ).fetchone()
+    n = conn.execute(
+        "SELECT COUNT(*), COALESCE(SUM((LENGTH(hub_id) + 31 * LENGTH(node_concepto)) * rowid), 0), "
+        "COALESCE(SUM((unicode(node_concepto) + 7 * unicode(substr(node_concepto, -1))) * rowid), 0) "
+        "FROM concept_hub_nodes"
+    ).fetchone()
+    return tuple(b) + tuple(h) + tuple(n)
+
+
+def _indice_hubs(conn: sqlite3.Connection) -> dict:
+    """Índice invertido de los puentes (palabra → hubs), con el abanico de cada palabra."""
+    try:
+        ruta = next((r[2] for r in conn.execute("PRAGMA database_list") if r[1] == "main"), "") or f"mem:{id(conn)}"
+        firma = _firma_hubs(conn)
+    except sqlite3.Error:
+        return {}
+    clave = (ruta, firma)
+    idx = _INDICE_HUBS.get(ruta)
+    if idx is not None and idx["clave"] == clave:
+        return idx
+
+    hubs: dict = {}
+    for hub_id, canonical, bridge_text, weight, angle, nodos_str in conn.execute("""
+        SELECT h.hub_id, h.canonical_node,
+               b.bridge_text, b.weight, b.angle,
+               GROUP_CONCAT(DISTINCT n.node_concepto) as nodos
+        FROM concept_hubs h
+        LEFT JOIN concept_hub_bridges b ON h.hub_id = b.hub_id
+        LEFT JOIN concept_hub_nodes n ON h.hub_id = n.hub_id
+        GROUP BY h.hub_id, b.bridge_text
+    """):
+        d = hubs.setdefault(hub_id, {"canonical": canonical, "bridges": [], "nodos": set()})
+        if bridge_text:
+            pal = _palabras_hub(bridge_text)
+            if pal:
+                d["bridges"].append((set(pal), set(pal.values()), weight or 1.0,
+                                     ANGLE_MULT_HUB.get(angle or "legacy", 1.0), bridge_text))
+        if nodos_str:
+            d["nodos"].update(x.strip() for x in nodos_str.split(","))
+
+    inv_s: dict = {}
+    inv_t: dict = {}
+    for hub_id, d in hubs.items():
+        if not d["bridges"]:
+            continue
+        for t in set().union(*(b[0] for b in d["bridges"])):
+            inv_t.setdefault(t, set()).add(hub_id)
+        for st in set().union(*(b[1] for b in d["bridges"])):
+            inv_s.setdefault(st, set()).add(hub_id)
+    idx = {
+        "clave": clave,
+        "hubs": hubs,
+        "inv_s": inv_s,
+        "inv_t": inv_t,
+        "H": sum(1 for d in hubs.values() if d["bridges"]),
+    }
+    if len(_INDICE_HUBS) > 16:
+        _INDICE_HUBS.clear()
+    _INDICE_HUBS[ruta] = idx
+    return idx
+
+
+def _palabras_hub(texto: str) -> dict:
+    """Todas las palabras → su raíz (misma normalización que _tokenizar). Las de función
+    también: cuánto pesan lo decide _puntajes_por_recuerdo (máximo 1 bit)."""
+    from core.stemmer_es import stem
+    return {t: stem(t) for t in _tokenizar(texto)}
+
+
+_FUNCION_HUB: dict = {}
+
+
+def _palabras_funcion() -> tuple:
+    """(palabras de función, sus raíces). Se calcula una vez."""
+    if not _FUNCION_HUB:
+        from core.stopwords import STOPWORDS_ES
+        from core.stemmer_es import stem
+        _FUNCION_HUB["t"] = frozenset(STOPWORDS_ES)
+        _FUNCION_HUB["s"] = frozenset(stem(w) for w in STOPWORDS_ES)
+    return _FUNCION_HUB["t"], _FUNCION_HUB["s"]
+
+
+def _puntajes_por_recuerdo(query_text: str, conn: sqlite3.Connection):
+    """Parecido de cada RECUERDO activado por la pregunta, de mayor a menor:
+    [(parecido, hub_id, puentes_que_coinciden), ...] y el índice. ([], None) si nada."""
+    if not query_text or not query_text.strip():
+        return [], None
+    q_pal = _palabras_hub(query_text)
+    if not q_pal:
+        return [], None
+    idx = _indice_hubs(conn)
+    if not idx or not idx["H"]:
+        return [], None
+    H = idx["H"]
+    inv_s, inv_t = idx["inv_s"], idx["inv_t"]
+
+    fun_t, fun_s = _palabras_funcion()
+    UN_BIT = math.log(2.0)
+
+    def es_funcion(inv, x):
+        return x in fun_t or (inv is inv_s and x in fun_s)
+
+    def peso(inv, x):
+        f = max(1, len(inv.get(x, ())))
+        w = math.log(1.0 + (H - f + 0.5) / (f + 0.5))
+        return min(w, UN_BIT) if es_funcion(inv, x) else w
+
+    q_t = set(q_pal)
+    q_s = set(q_pal.values())
+    wt = {t: peso(inv_t, t) for t in q_t}
+    ws = {st: peso(inv_s, st) for st in q_s}
+    W_qt, W_qs = sum(wt.values()), sum(ws.values())
+
+    candidatos = set()
+    for t in q_t:
+        if not es_funcion(inv_t, t):
+            candidatos |= inv_t.get(t, set())
+    for st in q_s:
+        if not es_funcion(inv_s, st):
+            candidatos |= inv_s.get(st, set())
+    if not candidatos:
+        return [], idx
+
+    def vista(q, w_q, W_q, b, inv):
+        inter = q & b
+        if not inter:
+            return 0.0, 0.0, 0.0
+        w_i = sum(w_q[x] for x in inter)
+        W_b = sum(w_q.get(x) or peso(inv, x) for x in b)
+        union = W_q + W_b - w_i
+        return (w_i / union if union > 0 else 0.0,
+                w_i / W_q if W_q > 0 else 0.0,
+                w_i / W_b if W_b > 0 else 0.0)
+
+    # Competencia entre RECUERDOS: dos hubs que apuntan al mismo recuerdo son aliados.
+    por_recuerdo: dict = {}
+    for hub_id in candidatos:
+        d = idx["hubs"][hub_id]
+        mejor = 0.0
+        matcheados = []
+        for b_t, b_s, b_w, mult, b_text in d["bridges"]:
+            jt, rqt, rbt = vista(q_t, wt, W_qt, b_t, inv_t)
+            js, rqs, rbs = vista(q_s, ws, W_qs, b_s, inv_s)
+            if not (jt or js):
+                continue
+            # Palabra idéntica cuenta entera; misma familia (solo raíz), la mitad.
+            # Cobertura del puente → coseno (Ochiai, √(cob_pregunta × cob_puente)): un puente
+            # diminuto contenido en la pregunta vale solo lo que explica de ella.
+            rq = (rqt + rqs) / 2
+            cos = (math.sqrt(rqt * rbt) + math.sqrt(rqs * rbs)) / 2
+            sim = max((jt + js) / 2, 0.80 * rq, 0.80 * cos)
+            sc = sim * b_w * mult
+            if sc > mejor:
+                mejor = sc
+            if sim > 0.10:
+                matcheados.append(b_text)
+        hub_score = min(1.0, mejor + min(1.0, len(matcheados) / 3.0) * 0.2)
+        if hub_score <= 0:
+            continue
+        previo = por_recuerdo.get(d["canonical"])
+        if previo is None or (hub_score, hub_id) > (previo[0], previo[1]):
+            por_recuerdo[d["canonical"]] = (hub_score, hub_id, matcheados)
+    return sorted(por_recuerdo.values(), key=lambda x: (-x[0], x[1])), idx
+
+
+def _expandir_a_escala(query_text: str, conn: sqlite3.Connection, threshold: float) -> Optional[dict]:
+    puntajes, idx = _puntajes_por_recuerdo(query_text, conn)
+    if not puntajes:
+        return None
+    s_top, hub_top, matcheados_top = puntajes[0]
+    T = HUB_TEMPERATURA if HUB_TEMPERATURA > 0 else 0.10
+    ventaja = 1.0 / sum(math.exp((s - s_top) / T) for s, _, _ in puntajes)
+    confianza = s_top * ventaja
+    if confianza < threshold - 1e-6:
+        return None
+
+    d = idx["hubs"][hub_top]
+    expanded_terms = []
+    for bridge in matcheados_top:
+        expanded_terms.extend(_tokenizar(bridge))
+    for nodo in d["nodos"]:
+        expanded_terms.extend(_tokenizar(nodo.replace("_", " ")))
+    expanded_terms.extend(_tokenizar(d["canonical"].replace("_", " ")))
+    return {
+        "canonical_nodes": [d["canonical"]] + [n for n in d["nodos"] if n != d["canonical"]],
+        "expanded_terms": list(set(expanded_terms)),
+        "hub_confidence": confianza,
+        "hub_id": hub_top,
+        "bridges_matched": matcheados_top,
+        "hub_parecido": s_top,
+        "hub_ventaja": ventaja,
+    }
+
+
 def expandir_query_con_hub(query_text: str, conn: sqlite3.Connection, threshold: float = 0.40) -> Optional[dict]:
     """
     Dado un query, busca bridges de todos los hubs y retorna expansión semántica.
@@ -478,6 +759,9 @@ def expandir_query_con_hub(query_text: str, conn: sqlite3.Connection, threshold:
             - bridges_matched: list[str] — bridges que matchearon
         None si no hay match significativo.
     """
+    if _hub_escala_activa():
+        return _expandir_a_escala(query_text, conn, threshold)
+
     if not query_text or not query_text.strip():
         return None
 

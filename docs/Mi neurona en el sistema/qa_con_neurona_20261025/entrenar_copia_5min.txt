@@ -1,0 +1,64 @@
+================================================================================
+BioRAG — Despertar la neurona
+================================================================================
+DB: /tmp/qa/snap_train.db
+
+  ANTES
+  ────────────────────────────────────────────────────────────────────────────
+  ¿Está encendida?              ✅ sí
+  ¿Ya mejora tus búsquedas?     ⏳ todavía no: se usa la fórmula de siempre (fórmula a mano)
+  Etapa                         1 de 3 · Juntando preguntas
+                                todavía no tiene suficientes preguntas para presentar su examen.
+
+  SU EXAMEN (preguntas que ella misma se hace con tus recuerdos)
+    Para estudiar               [░░░░░░░░░░░░░░░░░░░░]    0 de 150
+    De control (nunca estudia)  [░░░░░░░░░░░░░░░░░░░░]    0 de 40
+
+  SU HISTORIAL
+    Veces que practicó          0     (1 vez por cada consolidación de la memoria)
+    Última práctica             — (todavía nunca)
+    Veces que aprobó            0
+    Veces que la quitaron       0     ✅ bien
+
+  👉 En resumen: todavía no ha practicado. Le faltan 150 para estudiar y 40 de control.
+     Practica unos segundos cada vez que se consolida la memoria (consolidar,
+     dormir o cerrar sesión; guardar solo no basta). Para acelerar:
+     ./scripts/despertar_neurona.sh --minutos 20
+  ────────────────────────────────────────────────────────────────────────────
+
+Practicando hasta 500 veces seguidas (cada una = lo que hace sola tras una consolidación)...
+  práctica   25  juntando preguntas para estudiar   46  de control  12      64 s
+  práctica   50  juntando preguntas para estudiar  105  de control  28     129 s
+  práctica   71  🏆 APROBÓ: aciertos en 1er lugar (control) 79.1 % → 93.0 %
+  práctica   72  🏆 APROBÓ: aciertos en 1er lugar (control) 80.0 % → 95.6 %
+  práctica   75  presentando examen para estudiar  158  de control  46     202 s
+  práctica   84  🏆 APROBÓ: aciertos en 1er lugar (control) 81.6 % → 100.0 %
+  práctica  100  en su mejor nivel  para estudiar  204  de control  58     269 s
+  práctica  111  se cumplieron los 5.0 min
+
+  DESPUÉS
+  ────────────────────────────────────────────────────────────────────────────
+  ¿Está encendida?              ✅ sí
+  ¿Ya mejora tus búsquedas?     🏆 sí, la neurona ordena tus resultados
+  Etapa                         3 de 3 · Trabajando (en su mejor nivel)
+                                ya mejora tus búsquedas y llegó a su techo: ahora solo vigila.
+
+  SU EXAMEN (preguntas que ella misma se hace con tus recuerdos)
+    Para estudiar               [████████████████████]  227  ✅ suficientes (necesitaba 150)
+    De control (nunca estudia)  [████████████████████]   66  ✅ suficientes (necesitaba 40)
+
+  SU HISTORIAL
+    Veces que practicó          111   (1 vez por cada consolidación de la memoria)
+    Última práctica             hace un momento
+    Veces que aprobó            3
+    Veces que la quitaron       0     ✅ bien
+    Aciertos en 1er lugar       fórmula 78.8 %  →  neurona 95.5 %   (en sus preguntas de control)
+    Prudencia                   solo cambia el orden si está segura (margen 1.0)
+
+  👉 En resumen: la neurona está activa y mejorando tus búsquedas.
+  ────────────────────────────────────────────────────────────────────────────
+
+111 ciclos de práctica en 300 s.
+Las preguntas 'de control' son el examen propio de la neurona (20 % de recuerdos que nunca
+estudia), no la QA. Para medir con tu QA, corré esto sobre una copia y luego la suite sobre esa copia.
+================================================================================

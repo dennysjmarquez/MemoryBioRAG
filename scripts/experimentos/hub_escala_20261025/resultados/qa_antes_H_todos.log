@@ -1,0 +1,121 @@
+Creating isolated database copy at: /tmp/v/antesA/MemoryBioRAG_Data/memory_biorag_qa_temp.db
+Loaded 921 test cases.
+
+🧠 NEURONA DE RANKING
+   Base medida:  /tmp/v/H_todos.db  (NO es el snapshot oficial; se mide una copia temporal)
+   Neurona:      ⛔ apagada en este entorno (BIORAG_NEURONA=0)
+                 → la tabla es la FÓRMULA A MANO SOLA (el piso)
+
+
+Exporting failed cases to: /tmp/v/antesA/scripts/casos_fallidos.jsonl
+Cleaning up temporary database copy at /tmp/v/antesA/MemoryBioRAG_Data/memory_biorag_qa_temp.db...
+
+================================================================================
+                      BIORAG QA EVALUATION REPORT
+================================================================================
+Total time elapsed: 1821.16 seconds
+--------------------------------------------------------------------------------
+🧠 NEURONA DE RANKING
+   Base medida:  /tmp/v/H_todos.db  (NO es el snapshot oficial; se mide una copia temporal)
+   Neurona:      ⛔ apagada en este entorno (BIORAG_NEURONA=0)
+                 → la tabla es la FÓRMULA A MANO SOLA (el piso)
+--------------------------------------------------------------------------------
+Category               | Total  | Recall@5  | Recall@1  | MRR      | Errors/FPs
+--------------------------------------------------------------------------------
+ambiguo                | 6      | N/A       | N/A       | N/A      | 2          (66.7% de cobertura sobre queries con etiqueta contradictoria; fuera del Recall global)
+cruce_idioma           | 8      |   87.50% |   62.50% |  0.750 | 1         
+dormido                | 65     |  100.00% |   98.46% |  0.992 | 0         
+literal                | 487    |  100.00% |   90.55% |  0.953 | 0         
+negativo               | 40     | N/A       | N/A       | N/A      | 0          (0.0% FP sobre 40 válidos; 0 contaminados)
+por_tema               | 65     |   96.92% |   27.69% |  0.577 | 2         
+pregunta_natural       | 65     |   98.46% |   80.00% |  0.890 | 1         
+sinonimo               | 55     |   98.18% |   65.45% |  0.760 | 1         
+typo                   | 65     |  100.00% |   69.23% |  0.833 | 0         
+variante_gramatical    | 65     |   96.92% |   72.31% |  0.842 | 2         
+--------------------------------------------------------------------------------
+GLOBAL SUMMARY (Retrieval) | 875    |   99.20% |   80.91% |  0.892 | 7         
+GLOBAL SUMMARY (Noise/FP) | 40     | N/A       | N/A       | N/A      | 0          (0.00% FP sobre 40 válidos; 0 contaminados)
+SPREADING ACTIVATION   | 9/921 queries (1.0%)
+AISLAMIENTO POR CASO   | 64 mutaciones de estado revertidas (15 nodos arrancaron dormidos)
+================================================================================
+
+DATASET (salud de las etiquetas oro):
+--------------------------------------------------------------------------------
+  3 etiqueta(s) obsoleta(s) resuelta(s) contra la DB:
+    [0268] lección:_guardar_todo_lo_importante_inmediatamente,_no_esperar
+         -> lección:_guardar_todo_lo_importante_inmediatamente_y_no_esperar
+    [0368] plugin_biorag-remember_v8.4_-_solo_session.idle,_sin_conteo_de_edits
+         -> plugin_biorag-remember_v8.4_-_solo_session.idle_y_sin_conteo_de_edits
+    [0371] plugin_v7.1_fix:_session.idle_es_un_event,_no_un_hook
+         -> plugin_v7.1_fix:_session.idle_es_un_event_y_no_un_hook
+  3 query(s) con etiqueta contradictoria -> reclasificadas como 'ambiguo':
+    'biorag' -> ['auto-consulta-permanente-biorag', 'protocolo_busqueda_biorag_automatica']
+    'compromiso' -> ['compromiso-real-athena-clave-de-confianza', 'principio-memoria-hibrida-agente-naturalidad']
+    'dimensiones' -> ['cuando_usar_dimensiones_biorag', 'fix_busqueda_solo_dimensiones_sin_texto']
+--------------------------------------------------------------------------------
+
+SAMPLE FAILURES BY CATEGORY FOR ACTIONABLE DIAGNOSIS:
+================================================================================
+
+[Category: ambiguo] (2 total failures)
+----------------------------------------
+  #1 [ID 0520] Query: "dimensiones"
+      Expected:  ['cuando_usar_dimensiones_biorag', 'fix_busqueda_solo_dimensiones_sin_texto']
+      Returned:  ['arquitectura_busqueda_dimensional_v11_3', 'punto_medio_dimensiones_parciales_mueven_ranking_sdm', 'principio_dimensiones_genericas_no_nicho'] (scores: [0.956, 0.752, 0.745])
+      Reason:    Query ambigua: ninguno de los esperados contradictorios apareció en top 5
+  #2 [ID 0740] Query: "dimensiones"
+      Expected:  ['cuando_usar_dimensiones_biorag', 'fix_busqueda_solo_dimensiones_sin_texto']
+      Returned:  ['arquitectura_busqueda_dimensional_v11_3', 'punto_medio_dimensiones_parciales_mueven_ranking_sdm', 'principio_dimensiones_genericas_no_nicho'] (scores: [0.956, 0.752, 0.745])
+      Reason:    Query ambigua: ninguno de los esperados contradictorios apareció en top 5
+
+[Category: cruce_idioma] (1 total failures)
+----------------------------------------
+  #1 [ID 0501] Query: "blueprint dimensiones ortogonales"
+      Expected:  arquitectura_dimensiones_ortogonales
+      Returned:  ['indexacion_dimensional_explicita', 'principio_busqueda_por_dimension', 'leccion_blueprint_estructura_vs_data'] (scores: [0.488, 0.326, 0.323])
+      Reason:    Expected concept not found in top 5 results
+
+[Category: dormido] (0 total failures)
+----------------------------------------
+
+[Category: por_tema] (2 total failures)
+----------------------------------------
+  #1 [ID 0730] Query: "parámetros otrosmemorybioragmcp solo"
+      Expected:  biorag_v17_oraculo_preguntar
+      Returned:  ['principio_neutro_solo_sin_carga_emocional', 'leccion_parametro_emocion_proposito_real', 'biorag-rafaga-forzable-parametro-forzar-rafaga'] (scores: [0.538, 0.35, 0.319])
+      Reason:    Expected concept not found in top 5 results
+  #2 [ID 0830] Query: "dormidos34 symbolic solución"
+      Expected:  interacción_social_saludo
+      Returned:  ['patron_pensamiento_lateral_antes_de_proponer', 'dennys_perfil_tecnico_consolidado_master', 'memorybiorag_validacion_externa_rag_simbolico'] (scores: [0.496, 0.239, 0.23])
+      Reason:    Expected concept not found in top 5 results
+
+[Category: pregunta_natural] (1 total failures)
+----------------------------------------
+  #1 [ID 0503] Query: "¿Dónde encuentro la info de arquitectura dimensiones ortogonales?"
+      Expected:  arquitectura_dimensiones_ortogonales
+      Returned:  ['arquitectura_busqueda_dimensional_v11_3', 'fca_chequeo_sugeridor_dimensiones_refutado_frecuencia_no_semantica', 'plan_expansion_dimensiones_8_tipos_34_valores'] (scores: [0.584, 0.375, 0.366])
+      Reason:    Expected concept not found in top 5 results
+
+[Category: sinonimo] (1 total failures)
+----------------------------------------
+  #1 [ID 0805] Query: "cv"
+      Expected:  cv_seccion_d_test_vinculacion
+      Returned:  ['cv_seccion_d_arquitectura_frontend_estado', 'cv_seccion_d_estado_final_julio_2026', 'cv_epidata_credit_agile_propuestas'] (scores: [0.705, 0.534, 0.516])
+      Reason:    Expected concept not found in top 5 results
+
+[Category: variante_gramatical] (2 total failures)
+----------------------------------------
+  #1 [ID 0518] Query: "cuando usado dimensione biorags"
+      Expected:  cuando_usar_dimensiones_biorag
+      Returned:  ['biorag_v22_prf_capa_3', 'mentalidad_biorag_para_agentes', 'artemis_ponytail_audit_biorag_v10_3_reporte'] (scores: [0.48, 0.292, 0.273])
+      Reason:    Expected concept not found in top 5 results
+  #2 [ID 0666] Query: "identidad ys respeto oec"
+      Expected:  identidad_y_respeto_oec
+      Returned:  ['alguien_vs_algo_identidad', 'athena_reflexion_identidad_propia', 'identidad_esencia_vs_cerebro'] (scores: [0.572, 0.372, 0.364])
+      Reason:    Expected concept not found in top 5 results
+================================================================================
+Note: All failed cases have been saved to /tmp/v/antesA/scripts/casos_fallidos.jsonl for full debug analysis.
+
+Métricas exportadas a: /tmp/v/antesA/scripts/qa_metrics.json
+
+[GATE] OK — gate desactivado (BIORAG_QA_GATE=0)
