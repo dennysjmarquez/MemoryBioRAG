@@ -1,0 +1,38 @@
+[
+  {
+    "T": 150,
+    "semilla": 0,
+    "n_real": 150,
+    "n": 61,
+    "r1": 0.8032786885245902,
+    "r5": 1.0,
+    "puesto_mediana": 1,
+    "puesto_media": 1.2622950819672132,
+    "fuera_top50": 0,
+    "empatados_mediana": 2
+  },
+  {
+    "T": 400,
+    "semilla": 0,
+    "n_real": 400,
+    "n": 61,
+    "r1": 0.6557377049180327,
+    "r5": 0.9672131147540983,
+    "puesto_mediana": 1,
+    "puesto_media": 1.7377049180327868,
+    "fuera_top50": 0,
+    "empatados_mediana": 8
+  },
+  {
+    "T": 866,
+    "semilla": 0,
+    "n_real": 866,
+    "n": 61,
+    "r1": 0.5245901639344263,
+    "r5": 0.9016393442622951,
+    "puesto_mediana": 1,
+    "puesto_media": 2.4262295081967213,
+    "fuera_top50": 0,
+    "empatados_mediana": 16
+  }
+]
