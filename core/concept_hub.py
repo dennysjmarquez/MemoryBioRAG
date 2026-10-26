@@ -961,6 +961,18 @@ MARGEN_AMBIGUEDAD = 0.08
 # aplica (una cobertura cuasi perfecta no necesita desempate).
 CONFIANZA_INDISCUTIBLE = 0.90
 
+# Temperatura de la competencia (Luce) para ESTE motor. No se reutiliza
+# HUB_TEMPERATURA (0.10) porque está calibrada para la escala del motor a
+# escala, donde las similitudes se reparten en un rango más ancho. Aquí los
+# candidatos se comprimen cerca de 1.0, así que el equivalente en dureza es
+# mucho menor. Calibrado con dos escenarios medidos:
+#   (A) consulta legítima, 4 recuerdos competidores a 0.98 frente al correcto
+#       a 1.00 -> debe ACEPTAR.
+#   (B) «regla» sola, 1086 recuerdos empatados exactamente -> debe RECHAZAR.
+# A=0.477 y B=0.0014 con 0.02 (A falla); A=0.713 y B=0.0014 con 0.01 (ambos).
+# Override: export BIORAG_HUB_TEMP_IDF=...
+HUB_TEMP_IDF = float(os.environ.get("BIORAG_HUB_TEMP_IDF", "0.01"))
+
 
 class _IndiceBridges:
     """Vocabulario de bridges precalculado para una versión concreta de las tablas.
@@ -974,27 +986,47 @@ class _IndiceBridges:
 >>>>>>> Stashed changes
     """
 
-    __slots__ = ("sello", "filas", "idf", "idf_max", "nodos", "n_por_hub")
+    __slots__ = ("sello", "clave", "filas", "idf", "idf_max", "nodos", "n_por_hub", "inv")
 
-    def __init__(self, sello, filas, idf, idf_max, nodos, n_por_hub):
+    def __init__(self, sello, filas, idf, idf_max, nodos, n_por_hub, inv, clave=None):
         self.sello = sello
+        # Llave BARATA (sin recorrer tablas): permite responder "no cambió nada"
+        # en microsegundos. La huella completa solo se paga cuando esta cambia.
+        self.clave = clave
         self.filas = filas
         self.idf = idf
         self.idf_max = idf_max
         self.nodos = nodos
         self.n_por_hub = n_por_hub
+        # Índice invertido stem -> posiciones de `filas`. Sin él, cada consulta
+        # recorría TODOS los puentes: medido 11.85 ms a 3001 hubs y creciendo
+        # lineal con el cerebro. Con él, el coste depende solo de cuántos
+        # puentes comparten alguna palabra con la consulta.
+        self.inv = inv
+
+
+def _ruta_db(conn: sqlite3.Connection) -> str:
+    try:
+        for _, nombre, r in conn.execute("PRAGMA database_list").fetchall():
+            if nombre == "main":
+                return r or f":memory:{id(conn)}"
+    except sqlite3.Error:
+        pass
+    return f":memory:{id(conn)}"
 
 
 def _sello_bridges(conn: sqlite3.Connection):
-    """Identifica la versión del contenido de hubs. None si las tablas no existen."""
+    """Huella de las tablas del hub para invalidar la caché del vocabulario.
+
+    Se usa `_firma_hubs` (v35.2), que ya recorre texto, ángulo, peso, canónico y
+    nodos: cualquier alta, baja o edición cambia la huella. La versión anterior
+    de esta función solo miraba CONTES y MAX(bridge_id), así que un UPDATE que
+    no cambiara el número de filas (por ejemplo, corregir el ángulo de un
+    puente) dejaba la caché con los datos viejos y el hub decidía con
+    información obsoleta. Devuelve None si las tablas no existen.
+    """
     try:
-        n_br, max_br = conn.execute(
-            "SELECT COUNT(*), COALESCE(MAX(bridge_id), 0) FROM concept_hub_bridges"
-        ).fetchone()
-        n_h, max_h = conn.execute(
-            "SELECT COUNT(*), COALESCE(MAX(ROWID), 0) FROM concept_hubs"
-        ).fetchone()
-        n_n = conn.execute("SELECT COUNT(*) FROM concept_hub_nodes").fetchone()[0]
+        sello = _firma_hubs(conn)
     except sqlite3.OperationalError:
         return None
     try:
@@ -1004,16 +1036,46 @@ def _sello_bridges(conn: sqlite3.Connection):
                 ruta = r or f":memory:{id(conn)}"
     except sqlite3.Error:
         ruta = f":memory:{id(conn)}"
-    return (ruta, int(n_h or 0), int(max_h or 0), int(n_br or 0), int(max_br or 0), int(n_n or 0))
+    return (ruta,) + tuple(sello)
+
+
+def _clave_barata(conn: sqlite3.Connection):
+    """Llave de O(1) para saber si hace falta revisar la huella completa.
+
+    `total_changes` sube con cualquier fila escrita por ESTA conexión;
+    `PRAGMA data_version` cambia cuando OTRA conexión confirma cambios. Juntas
+    cubren los dos caminos por los que las tablas del hub pueden cambiar, sin
+    recorrer una sola fila. Medido: la huella completa costaba 3.2 ms con 1087
+    hubs y 18 ms con 6001, en CADA consulta; con esta llave delante, el coste
+    pasa a microsegundos mientras nadie escriba.
+    """
+    try:
+        dv = conn.execute("PRAGMA data_version").fetchone()[0]
+    except sqlite3.Error:
+        dv = -1
+    try:
+        tc = conn.total_changes
+    except sqlite3.Error:
+        tc = -1
+    return (int(dv), int(tc))
 
 
 def _indice_bridges(conn: sqlite3.Connection) -> Optional[_IndiceBridges]:
     """Construye (o reutiliza de la caché) el vocabulario de bridges."""
+    clave = _clave_barata(conn)
+    ruta = _ruta_db(conn)
+
+    # Camino rápido (O(1)): nada se escribió desde la última vez.
+    cache = _CACHE_BRIDGES.get(ruta)
+    if cache is not None and cache.clave == clave:
+        return cache
+
     sello = _sello_bridges(conn)
     if sello is None:
         return None
     cache = _CACHE_BRIDGES.get(sello[0])
     if cache is not None and cache.sello == sello:
+        cache.clave = clave            # mismo contenido: solo se refresca la llave
         return cache
 
     nodos: Dict[str, List[str]] = {}
@@ -1053,10 +1115,13 @@ def _indice_bridges(conn: sqlite3.Connection) -> Optional[_IndiceBridges]:
     idf_max = math.log(n + 1.0) + 1.0
 
     n_por_hub: Dict[str, int] = {}
-    for hub_id, _s, _w, _a, _t in filas:
+    inv: Dict[str, List[int]] = {}
+    for i, (hub_id, stems, _w, _a, _t) in enumerate(filas):
         n_por_hub[hub_id] = n_por_hub.get(hub_id, 0) + 1
+        for st in stems:
+            inv.setdefault(st, []).append(i)
 
-    idx = _IndiceBridges(sello, filas, idf, idf_max, nodos, n_por_hub)
+    idx = _IndiceBridges(sello, filas, idf, idf_max, nodos, n_por_hub, inv, clave)
     _CACHE_BRIDGES[sello[0]] = idx
     return idx
 
@@ -1066,14 +1131,17 @@ def invalidar_cache_bridges() -> None:
     _CACHE_BRIDGES.clear()
 
 
-# Multiplicadores por ángulo semántico. Sin cambios respecto a la versión
-# anterior: están calibrados contra el snapshot QA.
+# Multiplicadores por ángulo semántico. Deben coincidir con ANGLE_MULT_HUB de
+# la v35.2/v35.3 para que los dos motores no discrepen sobre el mismo puente.
+# `ingenuo` era 0.85 y pasó a 1.0 en el commit d776a49: el puente ingenuo es a
+# menudo el único que contiene la pregunta entera, y castigarlo lo hacía perder
+# frente a rivales "sinónimo" (×1.5) que solo compartían una palabra.
 _ANGLE_MULT = {
     "sinonimo": 1.5,
     "problema": 1.2,
     "solucion": 1.1,
     "situacion": 1.0,
-    "ingenuo": 0.85,
+    "ingenuo": 1.0,
     "legacy": 1.0,
 }
 
@@ -1144,8 +1212,14 @@ def _expandir_por_cobertura_idf(query_text: str, conn: sqlite3.Connection,
 
     fuera_vocab = sum(1 for s in query_stems if s not in idx.idf) / len(query_stems)
 
+    # Solo los puentes que comparten alguna palabra con la consulta.
+    candidatos_idx = set()
+    for st in query_stems:
+        candidatos_idx.update(idx.inv.get(st, ()))
+
     acumulados: Dict[str, list] = {}
-    for hub_id, stems, weight, angle, texto in idx.filas:
+    for i in candidatos_idx:
+        hub_id, stems, weight, angle, texto = idx.filas[i]
         com = stems & query_stems
         if not com:
             continue
@@ -1178,24 +1252,62 @@ def _expandir_por_cobertura_idf(query_text: str, conn: sqlite3.Connection,
     if not acumulados:
         return None
 
-    n_hubs = len(acumulados)
-    candidatos = []
+    # CONFIANZA POR HUB. Evidencia convergente: solo las bridges que ya pasaron
+    # el umbral suman consenso, y el bono nunca puede duplicar al mejor match.
+    # Antes, tres coincidencias de UNA palabra regalaban +0.20 fijo.
+    # El bono LLENA HUECO, no aplana. Antes se sumaba en seco y saturaba:
+    # un hub con 0.98 y dos puentes coincidentes subía a 1.0 igual que el
+    # mejor, y la confianza dejaba de distinguir al correcto de sus rivales
+    # (medido: cuatro recuerdos empatados a 1.0 en el caso sintético más duro).
+    # Sumando solo la fracción libre, el orden se conserva siempre:
+    #   1.00 -> 1.000 ; 0.98 -> 0.9827 ; 0.60 -> 0.653
+    por_hub = {}
     for hub_id, entrada in acumulados.items():
-        # Evidencia convergente: solo las bridges que ya pasaron el umbral suman
-        # consenso, y el bono nunca puede duplicar al mejor match. Antes, tres
-        # coincidencias de UNA palabra regalaban +0.20 fijo.
-        consenso = min(1.0, len(entrada["matched"]) / 3.0) * 0.2
-        consenso = min(consenso, 0.5 * entrada["mejor"])
-        conf = min(1.0, entrada["mejor"] + consenso)
-        candidatos.append((conf, hub_id, entrada))
+        fraccion = min(1.0, len(entrada["matched"]) / 3.0) * 0.2
+        mejor = entrada["mejor"]
+        por_hub[hub_id] = (mejor + (1.0 - min(1.0, mejor)) * fraccion, entrada)
 
-    # Orden determinista: confianza DESC y, a igual confianza, hub_id ASC. Antes
-    # ganaba el primero que devolvía el GROUP BY (orden de inserción), lo que
-    # hacía no determinista la respuesta final cuando varios hubs empataban.
-    candidatos.sort(key=lambda x: (-x[0], x[1]))
+    # ALIADOS: se compite por RECUERDO, no por hub. Dos hubs que apuntan al
+    # mismo nodo canónico son dos caminos a la misma memoria, no rivales. La
+    # v35.2 a escala ya lo midió y su test lo exige; aquí se adopta igual.
+    por_recuerdo = {}
+    for hub_id, (conf, entrada) in por_hub.items():
+        canon = (idx.nodos.get(hub_id) or [None])[0]
+        if not canon:
+            continue
+        previo = por_recuerdo.get(canon)
+        if previo is None or (conf, hub_id) > (previo[0], previo[1]):
+            por_recuerdo[canon] = (conf, hub_id, entrada)
 
-    mejor_conf, mejor_hub, mejor_entrada = candidatos[0]
-    segundo_conf = candidatos[1][0] if n_hubs > 1 else 0.0
+    if not por_recuerdo:
+        return None
+
+    # Orden determinista: confianza DESC y, a igual confianza, canónico ASC.
+    grupos = sorted(((c, canon, h, e) for canon, (c, h, e) in por_recuerdo.items()),
+                    key=lambda x: (-x[0], x[1]))
+
+    parecido, canonical, mejor_hub, mejor_entrada = grupos[0]
+    segundo = grupos[1][0] if len(grupos) > 1 else 0.0
+
+    # COMPETENCIA ENTRE RECUERDOS (Luce, como la v35.2 a escala).
+    #
+    # Por qué hace falta. La cobertura IDF es un cociente: mide qué fracción de
+    # la consulta explica un puente, no si esa explicación es informativa en
+    # términos absolutos. Con una consulta de UNA palabra común, esa palabra es
+    # el 100 % de la masa y la cobertura da 1.0 aunque esté en mil puentes. La
+    # ventaja mide lo contrario: cuánto destaca el mejor frente a la multitud.
+    # Si mil recuerdos explican la consulta igual de bien, nadie destaca y no
+    # hay derecho a promocionar a ninguno. Medido: «regla» sola devolvía un
+    # recuerdo cualquiera con confianza 1.0 a 1087 hubs; ahora devuelve None.
+    T = HUB_TEMP_IDF if HUB_TEMP_IDF > 0 else 0.01
+    ventaja = 1.0
+    if len(grupos) > 1:
+        try:
+            ventaja = 1.0 / sum(math.exp(min(60.0, (c - parecido) / T))
+                                for c, _, _, _ in grupos)
+        except OverflowError:
+            ventaja = 0.0
+    mejor_conf = min(1.0, parecido * ventaja)
 
     if mejor_conf < umbral - 1e-6:
         return None
@@ -1203,18 +1315,14 @@ def _expandir_por_cobertura_idf(query_text: str, conn: sqlite3.Connection,
     # Guard de ambigüedad REAL. En la versión anterior la condición exigía
     # `conf < umbral` y por tanto nunca podía cumplirse dentro de la rama que
     # expandía: era código muerto que aparentaba proteger.
-    if (mejor_conf - segundo_conf) < MARGEN_AMBIGUEDAD and mejor_conf < CONFIANZA_INDISCUTIBLE:
-        logger.debug(
-            "[ConceptHub] match ambiguo descartado: %s=%.3f vs %s=%.3f",
-            mejor_hub, mejor_conf,
-            candidatos[1][1] if n_hubs > 1 else "-", segundo_conf,
-        )
+    if (parecido - segundo) < MARGEN_AMBIGUEDAD and parecido < CONFIANZA_INDISCUTIBLE:
+        logger.debug("[ConceptHub] match ambiguo descartado: %s=%.3f vs %.3f",
+                     mejor_hub, parecido, segundo)
         return None
 
-    all_nodos = idx.nodos.get(mejor_hub) or []
+    all_nodos = idx.nodos.get(mejor_hub) or [canonical]
     if not all_nodos:
         return None
-    canonical = all_nodos[0]
 
     matched_ordenado = sorted(mejor_entrada["matched"], key=lambda x: -x[0])
     bridges_txt = [t for _sc, t in matched_ordenado]
@@ -1233,6 +1341,10 @@ def _expandir_por_cobertura_idf(query_text: str, conn: sqlite3.Connection,
         "hub_confidence": mejor_conf,
         "hub_id": mejor_hub,
         "bridges_matched": bridges_txt,
+        # Contrato común con la v35.2 a escala: quien consuma el hub no debe
+        # tener que saber qué motor está puesto.
+        "hub_parecido": parecido,
+        "hub_ventaja": ventaja,
     }
 
 
