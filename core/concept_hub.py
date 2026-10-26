@@ -482,8 +482,17 @@ def _jaccard(set_a: set, set_b: set) -> float:
 #      1975): una pista asociada a muchos recuerdos activa a cada uno con menos fuerza,
 #      S_ji = S − ln(abanico_j). Con S = ln(H) es el IDF de la recuperación de información.
 #      Cada palabra pesa ln(1 + (H − abanico + 0.5)/(abanico + 0.5)) (siempre positivo,
-#      también con 1 solo hub). Las palabras vacías ("de", "que") no cuentan: compartir
-#      solo palabras vacías no es una coincidencia.
+#      también con 1 solo hub).
+#      Palabras de función ("antes", "dónde", "que", "de"): en una paráfrasis pueden cambiar
+#      el sentido ("qué hacía ANTES de ser programador"), así que cuentan, pero aportan
+#      como mucho 1 bit: el peso de una palabra que parte la memoria en dos mitades,
+#      ln(1 + (H − H/2 + .5)/(H/2 + .5)) = ln 2. Menos si en ESTA base son aún más comunes.
+#      El tope existe porque los puentes son frases cortas y telegráficas: ahí "dónde"
+#      parece rara y, sin tope, pesaría como una palabra de contenido. Tampoco abren
+#      candidatos: compartir solo palabras de función no es una coincidencia.
+#      (v35.2 las quitaba con la lista de la búsqueda por texto: "qué hacía antes de ser
+#      programador" quedaba en {ser, programador} y, en la base viva, cualquier puente con
+#      "programador" empataba con el correcto y el hub no decidía.)
 #   2. Priming por repetición > priming morfológico: la palabra idéntica cuenta entera; la
 #      misma familia (solo la raíz: programador / programación) cuenta la mitad.
 #   3. Completar un patrón exige parecido, no solo inclusión: la "cobertura del puente" se
@@ -597,12 +606,23 @@ def _indice_hubs(conn: sqlite3.Connection) -> dict:
 
 
 def _palabras_hub(texto: str) -> dict:
-    """Palabras con contenido (sin vacías) → su raíz. Misma normalización que _tokenizar."""
-    from core.stopwords import STOPWORDS_ES
+    """Todas las palabras → su raíz (misma normalización que _tokenizar). Las de función
+    también: cuánto pesan lo decide _puntajes_por_recuerdo (máximo 1 bit)."""
     from core.stemmer_es import stem
-    toks = _tokenizar(texto)
-    llenas = {t for t in toks if t not in STOPWORDS_ES} or toks
-    return {t: stem(t) for t in llenas}
+    return {t: stem(t) for t in _tokenizar(texto)}
+
+
+_FUNCION_HUB: dict = {}
+
+
+def _palabras_funcion() -> tuple:
+    """(palabras de función, sus raíces). Se calcula una vez."""
+    if not _FUNCION_HUB:
+        from core.stopwords import STOPWORDS_ES
+        from core.stemmer_es import stem
+        _FUNCION_HUB["t"] = frozenset(STOPWORDS_ES)
+        _FUNCION_HUB["s"] = frozenset(stem(w) for w in STOPWORDS_ES)
+    return _FUNCION_HUB["t"], _FUNCION_HUB["s"]
 
 
 def _puntajes_por_recuerdo(query_text: str, conn: sqlite3.Connection):
@@ -619,9 +639,16 @@ def _puntajes_por_recuerdo(query_text: str, conn: sqlite3.Connection):
     H = idx["H"]
     inv_s, inv_t = idx["inv_s"], idx["inv_t"]
 
+    fun_t, fun_s = _palabras_funcion()
+    UN_BIT = math.log(2.0)
+
+    def es_funcion(inv, x):
+        return x in fun_t or (inv is inv_s and x in fun_s)
+
     def peso(inv, x):
         f = max(1, len(inv.get(x, ())))
-        return math.log(1.0 + (H - f + 0.5) / (f + 0.5))
+        w = math.log(1.0 + (H - f + 0.5) / (f + 0.5))
+        return min(w, UN_BIT) if es_funcion(inv, x) else w
 
     q_t = set(q_pal)
     q_s = set(q_pal.values())
@@ -631,9 +658,11 @@ def _puntajes_por_recuerdo(query_text: str, conn: sqlite3.Connection):
 
     candidatos = set()
     for t in q_t:
-        candidatos |= inv_t.get(t, set())
+        if not es_funcion(inv_t, t):
+            candidatos |= inv_t.get(t, set())
     for st in q_s:
-        candidatos |= inv_s.get(st, set())
+        if not es_funcion(inv_s, st):
+            candidatos |= inv_s.get(st, set())
     if not candidatos:
         return [], idx
 
