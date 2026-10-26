@@ -94,6 +94,13 @@ def main():
 
         informe = []
         for query, esperado, hub_esperado in preguntas:
+            # Prueba de solo lectura: ¿qué decidiría el hub si el TIPO de puente no multiplicara?
+            original = dict(ch.ANGLE_MULT_HUB)
+            ch.ANGLE_MULT_HUB.update({k: 1.0 for k in original})
+            ch._INDICE_HUBS.clear()
+            sin_tipo = con_modo(True, lambda: ch.expandir_query_con_hub(query, conn))
+            ch.ANGLE_MULT_HUB.update(original)
+            ch._INDICE_HUBS.clear()
             nuevo = con_modo(True, lambda: ch.expandir_query_con_hub(query, conn))
             viejo = con_modo(False, lambda: ch.expandir_query_con_hub(query, conn))
             puntajes, idx = con_modo(True, lambda: ch._puntajes_por_recuerdo(query, conn))
@@ -115,6 +122,7 @@ def main():
                 return f"{r['hub_id']}  (confianza {r['hub_confidence']:.2f})"
             print(f"  Hub NUEVO decide: {decision(nuevo)}")
             print(f"  Hub VIEJO decidía: {decision(viejo)}")
+            print(f"  PRUEBA sin multiplicar por tipo de puente: {decision(sin_tipo)}")
             print(f"\n  Recuerdos que compiten en el hub nuevo ({len(puntajes)} activados; se muestran {min(CUANTOS, len(puntajes))}):")
             print(f"  {'#':>2}  {'parecido':>8}  {'porción':>7}  {'nodos':>5}  hub  →  puente que coincidió")
             filas = []
@@ -126,7 +134,12 @@ def main():
                 if i <= CUANTOS:
                     marca = " ←esperado" if hub_esperado and hub_id == hub_esperado else ""
                     print(f"  {i:>2}  {s:8.3f}  {p / total:7.1%}  {len(d['nodos']):>5}  {hub_id}{marca}")
-                    print(f"  {'':>30}→ {corto(matcheados[0] if matcheados else '', 64)}")
+                    tipo = "?"
+                    if matcheados:
+                        mult = next((b[3] for b in d["bridges"] if b[4] == matcheados[0]), None)
+                        tipo = {1.5: "sinónimo ×1.5", 1.2: "problema ×1.2", 1.1: "solución ×1.1",
+                                1.0: "situación ×1.0", 0.85: "ingenuo ×0.85"}.get(mult, str(mult))
+                    print(f"  {'':>30}→ [{tipo}] {corto(matcheados[0] if matcheados else '', 56)}")
             if hub_esperado and hub_esperado not in [f["hub"] for f in filas[:CUANTOS]]:
                 pos = next((f for f in filas if f["hub"] == hub_esperado), None)
                 print(f"  (hub esperado {hub_esperado}: " +
@@ -143,6 +156,7 @@ def main():
             informe.append({"query": query, "esperado": esperado, "hub_esperado": hub_esperado,
                             "nuevo": nuevo and {k: nuevo[k] for k in ("hub_id", "hub_confidence", "hub_parecido", "hub_ventaja")},
                             "viejo": viejo and {k: viejo[k] for k in ("hub_id", "hub_confidence")},
+                            "sin_tipo": sin_tipo and {k: sin_tipo[k] for k in ("hub_id", "hub_confidence")},
                             "competidores": filas[:25], "top5_nuevo": top5_nuevo, "top5_viejo": top5_viejo})
         cerebro.cerrar_sistema()
         if salida_json:
