@@ -507,6 +507,70 @@ Cada pregunta trae a **sus hermanos como competidores difíciles**. Así aprende
 
 ---
 
+## 2l. La "capa definitiva": segunda neurona de ranking condicionada por la consulta (Dennys, 2026-10-27)
+
+> Dennys: *"Pasarle la query original como una aguja más, porque es la única forma de que aprenda: cuando le escriban algo, sabrá qué es lo que se está buscando."*
+> *"El re-ranqueo actual déjalo, está bien. Lo que vamos a sumar es otra capa definitiva."*
+> *"Más neuronas ocultas, más parámetros, entrenarla con miles de millones de preguntas. Las puedes generar tú misma usando el MCP: invocas `recordar` con los parámetros obligatorios, ves lo que devuelve el motor de verdad y lo vuelcas como entrenamiento. Con mi base, con cualquier otra base, con bases armadas de internet. Así sirve para cualquier base, porque aprende a identificar en la query los síntomas del recuerdo más certero."*
+> *"¿Cómo lo han hecho los demás? Hay que investigarlo."*
+
+**Corrección del auditor a §2k:** el entrenamiento actual **sí** pone rivales. La pérdida compara al correcto contra todo el pool que devuelve el motor. Lo que falta son rivales **elegidos a propósito**: mismo tema, distinta intención.
+
+### Cómo lo hace la industria (fuentes)
+
+| Pieza | Quién / dónde | Qué copiamos |
+|---|---|---|
+| **Ranking en cascada**: etapas sucesivas, cada una más precisa sobre menos candidatos | Wang, Lin & Metzler, SIGIR 2011 ([Google Research](https://research.google/pubs/a-cascade-ranking-model-for-efficient-ranked-retrieval/)) | La capa 1 (neurona actual) queda intacta. La **capa 2** solo actúa sobre el top-5/10 que deja la capa 1 |
+| **La consulta entra como interacción, no como texto**: una matriz "término de la consulta × término del documento" con coincidencias exactas y su posición, que la red resume a tamaño fijo. **Modelo local, sin embeddings** | Microsoft, Mitra, Diaz & Craswell 2017, modelo *Duet* ([PDF](https://www.microsoft.com/en-us/research/wp-content/uploads/2016/10/wwwfp0192-mitra.pdf)) | Encaja con la regla "sin embeddings": la query entra como coincidencias por término y por campo |
+| **Datos sintéticos**: generar preguntas para cada documento, pasarlas por el **buscador real** y usar lo que devuelve como **competidores difíciles** | InPars / InPars-v2 ([arXiv](https://arxiv.org/abs/2301.01820)), Promptagator | Es exactamente la idea de Dennys: generar con `recordar` del MCP y entrenar con lo que el motor devuelve de verdad |
+
+### Diseño propuesto
+
+**1. Cómo entra la query (la "aguja" de Dennys, hecha para que una red la pueda leer).** Una cadena de texto no es un número; si se pasa tal cual, la red no aprende nada. Se convierte en dos bloques de tamaño fijo:
+- **Interacción consulta × candidato:** por cada término de la consulta (hasta N huecos), qué tipo de coincidencia tiene en cada campo del recuerdo:
+  - campos: nombre, sustantivos clave, sinónimos, contenido, dimensiones;
+  - tipos: exacta, raíz, sinónimo o ninguna;
+  - también dónde aparece.
+  Esto cambia **por candidato**, y es lo que le permite decidir cuál encaja mejor.
+- **Síntomas de la consulta** (iguales para todos los candidatos, pero se combinan con lo anterior en la capa oculta):
+  - superlativo temporal ("la última", "la primera");
+  - negación o resultado ("no funcionó", "falló");
+  - causa ("por qué");
+  - general frente a específico (¿nombra lo que añade un hijo?);
+  - pide estado ("vigente", "obsoleto").
+- **Más las señales de §2k:** nivel en la familia, exceso, recencia en la familia y epistemia.
+
+**2. Tamaño.** Más grande que la actual, pero sigue siendo pequeña: unas 100–150 entradas, 32–64 ocultas, **unos 5.000–10.000 pesos**. Corre en microsegundos y en tiempo constante, así que respeta "nada pesado".
+
+**3. Datos de entrenamiento (camino InPars, adaptado):**
+- **Generador programático** a partir de los metadatos de cada base: familias, fechas de modificación, epistemia, lo que distingue a cada hijo, paráfrasis por plantilla y errores de tipeo.
+  - Cada pregunta se pasa por `recordar` del MCP **con los parámetros obligatorios** (sustantivos clave incluidos), sobre **copias**. Es como se reprodujo hoy el caso de la versión: mismos parámetros, scores idénticos.
+  - Se guarda lo que ve la capa 2, para que entrene y sirva con lo mismo (desfase 0, como la neurona actual).
+- **Bases:** la viva (copia, nunca se sube), el snapshot y **bases sintéticas** construidas con texto público en español de licencia libre. Así aprende *síntomas* y no las manías de una sola base.
+- **Cantidad:** no hacen falta miles de millones. Para unos 10.000 pesos bastan **cientos de miles a pocos millones** de ejemplos. Lo que importa es la **variedad** (intenciones, familias, bases), no la cifra.
+- **Límite honesto:** el auditor puede escribir a mano cientos o algunos miles de preguntas naturales, que quedan para el **examen sellado**. No hay acceso a un LLM para generar millones de paráfrasis de calidad; para eso está el generador programático.
+- **Etiquetas solo donde son fiables:** "la última" se saca de la fecha; "el padre" de la contención; "el obsoleto" de la epistemia. **"Funcionó / falló" solo si quedó dicho al guardar**: lo que no se puede etiquetar no se entrena.
+
+**4. Seguros de la capa 2 (los de siempre, más uno):**
+- piso = el orden de la capa 1; techo; guardia; examen sellado;
+- funciona desde una base vacía, sin embeddings;
+- QA oficial sin bajar nada (snapshot y viva);
+- **nuevo:** se evalúa en **bases que nunca vio al entrenar**. Esa es la prueba de que sirve "para cualquier base".
+
+**5. Requisitos previos:**
+- fecha de modificación (C1);
+- suite de competencia (§2h §6) como línea base;
+- y que el correcto **llegue** al top-10. Si llega en el 50, ninguna capa de ranking lo arregla (E4).
+
+**Orden (con el OK de Dennys, después de E2b):**
+1. Especificación de entradas y del generador.
+2. Prueba en seco del generador sobre copias.
+3. Línea base de la capa 1 en la suite.
+4. Entrenar la capa 2.
+5. Comparar con todos los seguros.
+
+---
+
 ## 3. El orden para llegar (paso a pasito)
 
 | Etapa | Qué | Relación con la visión |
