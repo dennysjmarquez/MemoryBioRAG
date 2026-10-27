@@ -1,0 +1,35 @@
+{
+  "aviso": "Diagnóstico parcial: faltan las 11 palabras de ráfaga y las 4 paráfrasis; NO es la llamada real.",
+  "parametros": {
+    "query": "biorag version ultima orden nodos externos",
+    "sustantivos_clave": "biorag,version,nodos,orden",
+    "limite": 5,
+    "forzar_rafaga": false,
+    "rafaga_palabras": null,
+    "parafrasis": null
+  },
+  "metodo": "_recordar_impl (MCP); profundidad activos y límite 5; la interfaz MCP no expone ignore_peso_sinaptico",
+  "puesto_version_actual": 2,
+  "top5": [
+    {
+      "concepto": "version_actual_biorag_v32_3_20261003",
+      "score_hibrido": 0.5021
+    },
+    {
+      "concepto": "version_actual_biorag",
+      "score_hibrido": 0.4928
+    },
+    {
+      "concepto": "version_actual_biorag_v34_0_20261024",
+      "score_hibrido": 0.4789
+    },
+    {
+      "concepto": "version_actual_biorag_v32_4_20261007",
+      "score_hibrido": 0.4672
+    },
+    {
+      "concepto": "version_actual_biorag_v26_3_20260811",
+      "score_hibrido": 0.4391
+    }
+  ]
+}

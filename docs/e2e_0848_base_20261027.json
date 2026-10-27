@@ -1,0 +1,254 @@
+{
+  "snapshot": {
+    "0848_sin_ruido": {
+      "5": {
+        "consulta": "semánticas 849 embedding",
+        "limite": 5,
+        "estado_original": "activo",
+        "puesto": 4,
+        "score": 0.3861,
+        "candidatos": 129,
+        "top5": [
+          [
+            "mentalidad_embedding_clasificacion_dimensional",
+            0.4006
+          ],
+          [
+            "arquitectura_dimensiones_ortogonales",
+            0.3989
+          ],
+          [
+            "vision_biorag_mas_alla_vectores_20260802",
+            0.3979
+          ],
+          [
+            "v13_2_limpieza_tabla_semantica",
+            0.3861
+          ],
+          [
+            "auditoria_tecnica_v14_0_readme",
+            0.368
+          ]
+        ]
+      },
+      "50": {
+        "consulta": "semánticas 849 embedding",
+        "limite": 50,
+        "estado_original": "activo",
+        "puesto": 4,
+        "score": 0.3861,
+        "candidatos": 129,
+        "top5": [
+          [
+            "mentalidad_embedding_clasificacion_dimensional",
+            0.4006
+          ],
+          [
+            "arquitectura_dimensiones_ortogonales",
+            0.3989
+          ],
+          [
+            "vision_biorag_mas_alla_vectores_20260802",
+            0.3979
+          ],
+          [
+            "v13_2_limpieza_tabla_semantica",
+            0.3861
+          ],
+          [
+            "cambio_paradigma_dimensiones_semanticas",
+            0.3803
+          ]
+        ]
+      }
+    },
+    "0848_con_zzqx": {
+      "5": {
+        "consulta": "semánticas 849 embedding zzqx",
+        "limite": 5,
+        "estado_original": "activo",
+        "puesto": 1,
+        "score": 0.4388,
+        "candidatos": 129,
+        "top5": [
+          [
+            "v13_2_limpieza_tabla_semantica",
+            0.4388
+          ],
+          [
+            "mentalidad_embedding_clasificacion_dimensional",
+            0.4148
+          ],
+          [
+            "vision_biorag_mas_alla_vectores_20260802",
+            0.41
+          ],
+          [
+            "vision_word2vec_adaptado_meta_dennys",
+            0.4026
+          ],
+          [
+            "arquitectura_dimensiones_ortogonales",
+            0.4013
+          ]
+        ]
+      },
+      "50": {
+        "consulta": "semánticas 849 embedding zzqx",
+        "limite": 50,
+        "estado_original": "activo",
+        "puesto": 1,
+        "score": 0.4388,
+        "candidatos": 129,
+        "top5": [
+          [
+            "v13_2_limpieza_tabla_semantica",
+            0.4388
+          ],
+          [
+            "teoria_ejes_semanticos_biorag",
+            0.4186
+          ],
+          [
+            "mentalidad_embedding_clasificacion_dimensional",
+            0.4148
+          ],
+          [
+            "leccion_emocion_como_espacio_semantico_categorico",
+            0.4148
+          ],
+          [
+            "vision_biorag_mas_alla_vectores_20260802",
+            0.41
+          ]
+        ]
+      }
+    }
+  },
+  "viva": {
+    "0848_sin_ruido": {
+      "5": {
+        "consulta": "semánticas 849 embedding",
+        "limite": 5,
+        "estado_original": "dormido",
+        "puesto": null,
+        "score": null,
+        "candidatos": 683,
+        "top5": [
+          [
+            "biorag_si_tiene_motor_vectorial_propio_no_externo_20260815",
+            0.4428
+          ],
+          [
+            "vision_biorag_mas_alla_vectores_20260802",
+            0.3948
+          ],
+          [
+            "mentalidad_embedding_clasificacion_dimensional",
+            0.3938
+          ],
+          [
+            "panorama_proyectos_memoria_agentes_similares_biorag",
+            0.3931
+          ],
+          [
+            "cambio_paradigma_dimensiones_semanticas",
+            0.3811
+          ]
+        ]
+      },
+      "50": {
+        "consulta": "semánticas 849 embedding",
+        "limite": 50,
+        "estado_original": "dormido",
+        "puesto": 6,
+        "score": 0.3732,
+        "candidatos": 683,
+        "top5": [
+          [
+            "biorag_si_tiene_motor_vectorial_propio_no_externo_20260815",
+            0.4428
+          ],
+          [
+            "vision_biorag_mas_alla_vectores_20260802",
+            0.3948
+          ],
+          [
+            "mentalidad_embedding_clasificacion_dimensional",
+            0.3938
+          ],
+          [
+            "panorama_proyectos_memoria_agentes_similares_biorag",
+            0.3931
+          ],
+          [
+            "cambio_paradigma_dimensiones_semanticas",
+            0.3811
+          ]
+        ]
+      }
+    },
+    "0848_con_zzqx": {
+      "5": {
+        "consulta": "semánticas 849 embedding zzqx",
+        "limite": 5,
+        "estado_original": "dormido",
+        "puesto": null,
+        "score": null,
+        "candidatos": 683,
+        "top5": [
+          [
+            "biorag_si_tiene_motor_vectorial_propio_no_externo_20260815",
+            0.4575
+          ],
+          [
+            "aciertos_word2vec_top5_coincidencia_lexica_no_semantica_20260808",
+            0.4547
+          ],
+          [
+            "principio_emulacion_semantica_por_clusters_declarativos",
+            0.4514
+          ],
+          [
+            "vision_neocortex_memoria_asociativa_redactada",
+            0.4364
+          ],
+          [
+            "panorama_proyectos_memoria_agentes_similares_biorag",
+            0.4121
+          ]
+        ]
+      },
+      "50": {
+        "consulta": "semánticas 849 embedding zzqx",
+        "limite": 50,
+        "estado_original": "dormido",
+        "puesto": 5,
+        "score": 0.4272,
+        "candidatos": 683,
+        "top5": [
+          [
+            "biorag_si_tiene_motor_vectorial_propio_no_externo_20260815",
+            0.4575
+          ],
+          [
+            "aciertos_word2vec_top5_coincidencia_lexica_no_semantica_20260808",
+            0.4547
+          ],
+          [
+            "principio_emulacion_semantica_por_clusters_declarativos",
+            0.4514
+          ],
+          [
+            "vision_neocortex_memoria_asociativa_redactada",
+            0.4364
+          ],
+          [
+            "v13_2_limpieza_tabla_semantica",
+            0.4272
+          ]
+        ]
+      }
+    }
+  }
+}

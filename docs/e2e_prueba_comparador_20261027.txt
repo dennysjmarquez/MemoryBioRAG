@@ -1,0 +1,21 @@
+AUTOPRUEBA: misma corrida en ambos lados
+Fallos honestos recuperados (0): []
+
+=== COMPARACIÓN DE MÉTRICAS (pytest se valida aparte) ===
+CUMPLE MÉTRICAS MEDIDAS
+
+COMPARACIÓN PARCIAL: no es veredicto final
+Fallos honestos recuperados (0): []
+
+=== COMPARACIÓN DE MÉTRICAS (pytest se valida aparte) ===
+PARCIAL: 1/4 parejas; NO constituye el veredicto final.
+CUMPLE MÉTRICAS MEDIDAS
+
+CONTROLES SIMULADOS: clasificación, FP, R@1 y R@5
+
+=== COMPARACIÓN DE MÉTRICAS (pytest se valida aparte) ===
+NO CUMPLE
+- snapshot normal: clasificación honesta distinta; no comparable
+- snapshot normal candidato: FP no es 0/40 con 40 controles válidos
+- snapshot normal: baja R@1 honesta global
+- snapshot normal: baja R@5 honesta por_tema (64→62/65)

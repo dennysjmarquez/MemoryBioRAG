@@ -1,0 +1,7 @@
+{
+  "comando": "PYTHONHASHSEED=0 python -m pytest -q (sin BIORAG_NEURONA exportada)",
+  "copia_aislada": true,
+  "exit_code": 0,
+  "passed": 550,
+  "log": "e2e_pytest_candidato_20261027.log"
+}
