@@ -379,6 +379,33 @@ Lo demás son reglas a mano, rápidas y explicables.
 
 ---
 
+## 2i. Idea de Dennys: el nodo principal siempre por encima de sus aristas (2026-10-27)
+
+> *"Un nodo principal tiene aristas vinculadas a las demás cosas de ese nodo. Esas aristas nunca deberían aparecer por encima del nodo principal, ni al ordenar ni en la búsqueda. Siempre por debajo."*
+
+**Datos de la viva (copia):**
+- El canónico `version_actual_biorag` tiene **181 enlaces**, el mayor de su familia; v34 tiene 63, v32.3 tiene 24 y v32.4 tiene 28.
+- Está unido por enlaces **manuales** a v34.0 (0,85 y 0,5), v32.4, v32.3, v32.2 y v26.4.
+- En el top-10 de la búsqueda real hay 13 pares enlazados de 45 posibles.
+- **Con esta regla, el canónico subiría al #1.**
+
+**Opinión del auditor: idea prometedora. Es el paso 2–3 de §2h con un criterio concreto ("cabeza de familia"). Antes de construirla hay que resolver tres riesgos:**
+1. **Las preguntas específicas.** En "¿qué se hizo en la v34?", la v34 debe ganar aunque esté enlazada al canónico. Excepción: si la consulta nombra algo que **solo** tiene la arista (por ejemplo, "v34"), la arista va primero. La regla aplica cuando se pide la familia en general.
+2. **Quién es "principal".** No puede ser solo el número de enlaces:
+   - ese número crece con la base;
+   - el 45 % son enlaces de alias sin control;
+   - en la viva hay un nodo con 629 enlaces que ni siquiera existe.
+   Hay que definirlo de forma estable en cualquier base. Candidatos: que las aristas apunten a él con enlaces manuales o estructurales; que su nombre sea la raíz del de las otras; o que sea el más conectado **dentro de la familia encontrada**, no en toda la base.
+3. **Los hubs genéricos.** Un nodo enorme ("biorag") no debe subir por encima de todo. Límites:
+   - solo reordena dentro de los resultados ya encontrados (no trae nada de fuera);
+   - solo si el principal también coincide con la identidad de la consulta.
+
+**Lo que no resuelve sola:** `ultima_version_biorag` (que todavía dice v32.3) **no está enlazado** al canónico, así que seguiría compitiendo. Sigue haciendo falta limpiar al guardar (C6).
+
+**Siguiente paso propuesto (con el OK de Dennys):** simulación de solo lectura, sin tocar el motor. Aplicar la regla sobre los resultados de la QA del snapshot y de la viva, y contar cuántos casos **ganan** y cuántos **pierden** el #1. Si pierde casos, ajustar los tres límites; si no pierde ninguno, pasa a experimento formal.
+
+---
+
 ## 3. El orden para llegar (paso a pasito)
 
 | Etapa | Qué | Relación con la visión |
