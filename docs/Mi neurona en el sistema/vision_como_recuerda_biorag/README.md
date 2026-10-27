@@ -406,6 +406,46 @@ Lo demás son reglas a mano, rápidas y explicables.
 
 ---
 
+## 2j. La relación que ordena: contención de identidad + "bajar solo si se nombra lo que el hijo añade" (2026-10-27)
+
+> Dennys: *"La clave está en el ordenamiento, en la relación que se usa para ordenar. Pero los otros nodos también son padres enlazados con otros; si digo que las aristas de un padre nunca pasan por encima, hay algo que no me cuadra."*
+
+**Por qué no cuadra:** los enlaces del grafo son **simétricos**. Si A está unido a B, B está unido a A, así que todos son "padre" de todos. Con una relación simétrica se pueden formar grupos, pero **no se puede ordenar**. Para ordenar hace falta una relación con **dirección**: que diga quién está por encima de quién.
+
+**La relación con dirección que ya existe en los datos: la contención de identidad.**
+- A es padre de B si **toda la identidad de A está dentro de la de B**, y B añade algo más.
+- Identidad = nombre y sustantivos clave.
+- Ejemplo: `version_actual_biorag` ⊂ `version_actual_biorag_v34_0_…`. La v34 es "la versión actual de biorag" **más "v34"**.
+
+Medido en la viva (solo lectura): `version_actual_biorag` y `ultima_version_biorag` resultan **padres** de v34, v33, v32.4, v32.3 y v26.3. Coincide con los enlaces manuales que había puesto el agente.
+
+**La regla de orden (propuesta):**
+1. Se parte de los recuerdos cuya identidad está **completa** en la consulta. Ese es el nivel que se pide.
+2. **Se baja a un hijo solo si la consulta nombra lo que ese hijo añade** sobre su padre ("v34"). Si no lo nombra, los hijos van **debajo** del padre: es la idea de Dennys, pero relativa a la consulta.
+3. Entre hermanos del mismo nivel, desempata **el último guardado** (fecha de modificación).
+
+**Comprobación sobre los nodos reales:**
+
+| Consulta | Nivel pedido | Resultado de la regla |
+|---|---|---|
+| `biorag version ultima orden nodos externos` (la real) | `version_actual_biorag` y `ultima_version_biorag` (hermanos) | Desempate por fecha → **`version_actual_biorag`** ✓ (hoy sale #4) |
+| `biorag version ultima` | igual | **`version_actual_biorag`** ✓ (hoy sale #2) |
+| `qué se hizo en la versión v34` | la consulta nombra "v34", lo que añade el hijo | Se baja → **v34** ✓ |
+
+**Condiciones honestas (sin ellas falla):**
+- **Puente léxico "última" ≈ "actual" ≈ "vigente"** (E3). En la prueba se puso a mano. Sin él, el único padre completo es `ultima_version_biorag`, que dice v32.3, y ganaría el viejo.
+- **Sustantivos clave que digan la identidad de verdad.** Los del canónico (`protocolo, sustantivos`) no la dicen; en la prueba se usó solo el nombre.
+- **Fecha de modificación real** para desempatar entre hermanos (C1). Aquí funcionó con `creado_en` por casualidad: el 10-14 es posterior al 10-04.
+- Los números de versión deben normalizarse ("v34" = "34").
+
+**Ventajas frente a "el principal arriba" por número de enlaces:**
+- No depende del número de enlaces, ni de los alias sin control, ni del tamaño de la base.
+- El nodo gigante "biorag" no sube por encima de todo: en cuanto la consulta nombra "version", que es lo que añaden sus hijos, se baja a ellos.
+
+**Siguiente paso (con el OK de Dennys):** la simulación de solo lectura sobre la QA del snapshot y de la viva (ganan / pierden el #1), ahora con esta regla.
+
+---
+
 ## 3. El orden para llegar (paso a pasito)
 
 | Etapa | Qué | Relación con la visión |
