@@ -692,6 +692,23 @@ El agente ya escribe el tipo al guardar, en las dimensiones de `aprender`:
 
 **El cuello de botella no es la neurona, son los datos.** La epistemia solo está en 132 de 866 recuerdos (15 %) y la escala en 128. Sin el tipo escrito, ninguna neurona puede saber cuál "funcionó". En la viva la cobertura está por medir.
 
+### Prueba en la memoria real: el ejemplo A–D ya existe (snapshot, solo lectura, 2026-10-27)
+Medido así: grupos de 4 a 12 recuerdos que comparten una palabra del nombre o de los alias; tipo = epistemia, `accion_fallar`, intención y escala.
+- **470 grupos de tema; en 251 hay 3 o más tipos distintos.** El problema de ChatGPT no es teórico: está por toda la memoria.
+- **El 48 % de los miembros no tiene ningún tipo escrito** (1.359 de 2.821). Es el techo actual de lo que una neurona puede aprender.
+- **Ejemplo real, tema "determinista":**
+
+| Recuerdo | Tipo guardado | Pregunta que lo pide |
+|---|---|---|
+| `vision_word2vec_adaptado_meta_dennys` | decisión, general, **me explicaron** | "¿qué nos propusieron?" (A) |
+| `stemmer_no_determinista_entornos_nltk_vs_fallback_20260808` | **solución, verificada**, general | "¿qué solución funcionó?" (C) |
+| `leccion_discrepancia_busquedas_vocabulario_no_estocasticidad` | **aprendizaje**, lo apliqué, verificada | "¿qué aprendimos?" |
+| `puente_llm_sinonimos_veredicto_refutado_invariante_cero_llm` | **fallo**, decisión, verificada | "¿qué probamos que no funcionó?" |
+| `biorag_v18_0_baseline_determinista` | solución, fallo | (mezcla: tipo ambiguo) |
+| `artis_oec_dennys_solo` y otros dos | **sin tipo** | no se puede etiquetar |
+
+Cada grupo así da varias preguntas de contraste con respuestas distintas, que es justo lo que pide §2l–§2o. Con una sola base salen cientos de grupos, y con más bases, miles.
+
 ### Lo que entra a la capa 2 (tres bloques)
 1. **Lo que pide la pista** (igual para todos los candidatos): los síntomas del texto ("la última", "la primera", "funcionó", "falló", "por qué", "en general"), las dimensiones que mandó el agente y `ordenar_por`. Todo se traduce **al mismo vocabulario de tipos que las dimensiones**, para que "lo que pide" y "lo que es" hablen el mismo idioma (Morris 1977).
 2. **Lo que es cada candidato:** sus dimensiones de tipo (epistemia, acción, intención, escala), su categoría, su posición en el tiempo **dentro de su familia** (con fecha de modificación, C1), su nivel en la familia (§2j) y el resultado, si quedó dicho.
