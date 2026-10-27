@@ -1,0 +1,11 @@
+Creating isolated database copy at: /tmp/biorag_qa_temp_144117.db
+  origen intacto: sha256 a61913ce074c (mode=ro&immutable=1)
+Loaded 921 test cases.
+
+🧠 NEURONA DE RANKING
+   Base medida:  /tmp/viva_e2c.db  (NO es el snapshot oficial; se mide una copia temporal)
+   Neurona:      ⛔ apagada en este entorno (BIORAG_NEURONA=0)
+                 → la tabla es la FÓRMULA A MANO SOLA (el piso)
+
+[TRACE] 1.8 Snap: 1 → ['dns_optimizer_path']
+[TRACE] 1.8 Snap: 1 → ['v27_epistemic_gate_blast_radius_verificado_20260812']

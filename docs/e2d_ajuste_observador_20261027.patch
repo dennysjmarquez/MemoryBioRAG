@@ -1,0 +1,101 @@
+--- a/scripts/censo_tematico_e2d.py
++++ b/scripts/censo_tematico_e2d.py
+@@ -28,6 +28,7 @@
+ 
+ 
+ RAIZ = Path(__file__).resolve().parents[1]
++RUTA_QA = str(RAIZ / "scripts" / "evaluar_qa.py")
+ if str(RAIZ) not in sys.path:
+     sys.path.insert(0, str(RAIZ))
+ 
+@@ -100,6 +101,7 @@
+         self.llamadas = 0
+         self.en_busqueda = 0
+         self.fuera_de_busqueda = 0
++        self.fuera_en_censo_nativo = 0
+         self.compuerta_cerrada = 0
+         self.lista_vacia = 0
+         self.medias = array("d")
+@@ -107,13 +109,22 @@
+         self.errores = []
+         self.cantidad_errores = 0
+ 
+-    def observar(self, locales, tematico):
+-        """No conservar frames, listas ni referencias a la base: solo números."""
+-        self.llamadas += 1
++    def observar(self, locales, tematico, *, huella=False, en_censo_nativo=False):
++        """No conservar frames, listas ni referencias a la base: solo números.
++
++        La QA calcula una huella de la fórmula antes de instalar su censo. Esa
++        huella llama a la fórmula 12 veces, pero no son búsquedas ni pares reales.
++        Se cuentan aparte SOLO si provienen de huella_motor y no pasan por el
++        censo nativo; cualquier otro origen fuera de búsqueda invalida la corrida.
++        """
+         if locales is None:
+             self.fuera_de_busqueda += 1
+-            self._error("llamada fuera de buscar_por_frase")
++            if en_censo_nativo:
++                self.fuera_en_censo_nativo += 1
++            if not huella or en_censo_nativo:
++                self._error("llamada fuera de búsqueda de origen inesperado o en el censo QA")
+             return
++        self.llamadas += 1
+         self.en_busqueda += 1
+         try:
+             tipo, media, pares = leer_media(locales, tematico)
+@@ -147,9 +158,11 @@
+             fila["porcentaje_de_medias"] = fila["llamadas"] / n * 100 if n else None
+         return {
+             "unidad": "llamadas a la fórmula por candidato y consulta; no candidatos únicos",
++            "llamadas_observadas_total_incluida_huella": self.llamadas + self.fuera_de_busqueda,
+             "llamadas_formula": self.llamadas,
+             "llamadas_en_busqueda": self.en_busqueda,
+             "llamadas_fuera_de_busqueda": self.fuera_de_busqueda,
++            "llamadas_fuera_en_censo_nativo": self.fuera_en_censo_nativo,
+             "compuerta_no_ejecutada": self.compuerta_cerrada,
+             "compuerta_ejecutada_lista_vacia": self.lista_vacia,
+             "compuerta_ejecutada_con_media": n,
+@@ -172,15 +185,26 @@
+         }
+ 
+ 
+-def crear_observador(original, codigo_busqueda, censo):
++def crear_observador(original, codigo_busqueda, censo, codigos_huella=()):
+     """Lee el frame de búsqueda y delega sin modificar argumentos ni retorno."""
+     def observado(self, **kw):
+         frame = sys._getframe(1)
++        es_huella = False
++        en_censo_nativo = False
+         while frame is not None and frame.f_code is not codigo_busqueda:
++            es_huella = es_huella or frame.f_code in codigos_huella
++            en_censo_nativo = en_censo_nativo or (
++                frame.f_code.co_name == "_hibrido_censado"
++                and frame.f_code.co_filename == RUTA_QA
++            )
+             frame = frame.f_back
+         try:
+-            censo.observar(frame.f_locals if frame is not None else None,
+-                           float(kw.get("tematico_score", 0.0) or 0.0))
++            censo.observar(
++                frame.f_locals if frame is not None else None,
++                float(kw.get("tematico_score", 0.0) or 0.0),
++                huella=es_huella,
++                en_censo_nativo=en_censo_nativo,
++            )
+         finally:
+             # No guardar el frame. La fórmula y su retorno son los originales.
+             del frame
+@@ -239,11 +263,12 @@
+ 
+     from core.memory_store import SQLiteMemoryBioRAG
+     from core.memory.search import buscar_por_frase
++    from core.memory import neurona
+ 
+     original = SQLiteMemoryBioRAG._calcular_score_hibrido
+     censo = CensoCrudo()
+     SQLiteMemoryBioRAG._calcular_score_hibrido = crear_observador(
+-        original, buscar_por_frase.__code__, censo
++        original, buscar_por_frase.__code__, censo, (neurona.huella_motor.__code__,)
+     )
+     argv_original = sys.argv
+     error_qa = None
