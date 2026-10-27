@@ -879,6 +879,36 @@ Otra IA propuso usar el caso real (`version_actual_biorag` en el puesto 4) como 
 
 ---
 
+## 2r. El mandato: resolver de verdad la competencia entre recuerdos (Dennys, 2026-10-27, para después)
+
+> Dennys: *"Son como dos laterales, pero son el mismo problema, hay que resolverlo. Tienes que investigar incluso en internet, en papers, todo. Hacer algo de verdad de ingeniería: ingenioso, sublime, perfecto, delicado. Búscate cómo funciona el cerebro humano en realidad, y de esa parte del cerebro saca ideas para nosotros. Y si hace falta alimentarla con alguna aguja que no tenemos, se crea. Cuando te toque, investiga otra vez el proyecto entero y repasa sus archivos principales, porque cuando crece el contexto ciertas cosas se olvidan. Tenemos la fórmula, que es la neurona. ¿Cómo programamos la neurona? Ahí está el point."*
+
+### Las dos caras del mismo problema (ya guardadas)
+| Cara | Ejemplo | Dónde está |
+|---|---|---|
+| **Mismo tema, distinto TIPO de recuerdo** | ChatGPT: A (te lo explicaron), B (otra solución parecida), C (lo aplicaste y funcionó), D (una investigación). Pregunta: "¿qué solución funcionó la última vez?" | §2n |
+| **Misma familia, distinto ESTADO o versión** | Caso de la versión: v34 en el #1 y el canónico v35 en el #4 | §2g, §2h, §2j, §2q |
+
+En los dos, la pregunta trae **qué se busca** (tipo, estado, momento) y los candidatos comparten casi todas las palabras. La similitud no basta: hay que elegir por **encaje con la intención**.
+
+### Protocolo del auditor cuando llegue el momento (después de v36.0)
+1. **Releer el proyecto entero** antes de diseñar nada: motor (`core/memory/search.py`, `scoring.py`, `neurona.py`), MCP (`core/mcp_server/search.py`, `write.py`, `prompt.py`), esquema de la base, la guía `GUIA_CREAR_UNA_NEURONA.md`, el mapa `arquitectura_neuro_simbolica/README.md` y este documento completo.
+2. **Investigar a fondo, con fuentes verificadas:**
+   - **Cerebro:** control de la recuperación en la prefrontal (Badre y Wagner), supresión de competidores (Wimber 2015; Anderson), orientación de recuperación (Rugg y Wilding), separación y completado de patrones en el hipocampo, contexto temporal (Howard y Kahana), y el monitoreo posterior a la recuperación ("¿esto es lo que buscaba?").
+   - **Ingeniería:** ranking en cascada, aprendizaje por lista con rivales difíciles, modelos de interacción sin embeddings (Duet), tipo de respuesta esperado (Li y Roth), predicción de si una consulta tiene respuesta (para decidir "no lo tengo") y datos sintéticos generados con el buscador real (InPars).
+   - De cada fuente: qué dice, qué copiamos y qué no sirve en BioRAG (sin vectores, sin feedback).
+3. **Inventario de agujas.** Qué entradas existen hoy, cuáles faltan y cuáles se crean. Candidatas conocidas: fecha de modificación (C1), identidad escrita del recuerdo (C7), tipo pedido frente a tipo del candidato (§2n), contención en la familia (§2j), exclusividad del tipo frente a los rivales. Si falta una, **se crea** en el guardado o en el motor, con su propia prueba y sin dañar la lógica de negocio (arquitectura hexagonal).
+4. **Diseño** de la neurona de razonamiento (§2q): entradas, tamaño por curva de validación, pérdida por lista, decisión de relevancia y seguros.
+5. **Examen sellado** con las dos caras del problema, en bases que nunca vio y en varios idiomas (§2p). La QA oficial no puede bajar.
+6. **Comparación justa:** agente + BioRAG frente a agente + base vectorial, con las mismas preguntas. Es la prueba de la tesis de Dennys ("BioRAG es un cerebro, no una base vectorial").
+
+### La visión de Dennys
+> *"La base vectorial es obsoleta; nuestro sistema es mejor. Las bases vectoriales quedarán para recuperar documentos estáticos, pero para el resto no van a servir."*
+
+**Lectura honesta del auditor:** las bases vectoriales son buenas para encontrar lo **parecido**. La apuesta de BioRAG es elegir lo **adecuado para la intención**, que es justo donde lo parecido falla (las dos caras de arriba). La comparación justa del paso 6 es la que lo demostrará con números.
+
+---
+
 ## 3. El orden para llegar (paso a pasito)
 
 | Etapa | Qué | Relación con la visión |
