@@ -714,6 +714,42 @@ El agente ya escribe el tipo al guardar, en las dimensiones de `aprender`:
 
 ---
 
+## 2o. Que la neurona aprenda a razonar "¿qué me están preguntando?" (Dennys, 2026-10-27, para después)
+
+**Lo que pide Dennys, con sus palabras:**
+- *"Tengo este paquete aquí. Ya lo ordené. Me están preguntando tal cosa. ¿Cuál es el recuerdo con el que me están preguntando?"*. No el más relacionado, sino **el que se pide**, porque puede haber otros recuerdos que también tienen que ver.
+- *"Todo tiene señales. Las pistas son el entrenamiento; ella las deducirá con el descenso de gradiente."* Nuestro trabajo es darle pistas, no escribir todas las reglas a mano.
+- **No es para su base:** tiene que aprender la habilidad de discernir, para cualquier base. Se puede crear una base nueva o usar una copia de la viva.
+- **Una sola mente:** aunque el canónico no salga #1, si llega en los primeros 5 su información llega igual, y el agente también discierne.
+- **Arquitectura hexagonal** (puertos y adaptadores), para no dañar nunca la lógica de negocio.
+
+**La lectura científica (del auditor):**
+
+1. **Sí: el gradiente encuentra las pistas, pero solo entre las que le llegan.** Una red aprende a pesar y combinar sus entradas; no puede inventar un dato que no recibe.
+   - Si "la última" no entra como señal, o el recuerdo no tiene fecha de modificación, ningún entrenamiento lo arregla.
+   - Por eso el diseño **no es escribir reglas**, sino **darle entradas completas y crudas**: cada palabra de la pista cruzada con cada campo del candidato, los tipos guardados (§2n), su lugar en la familia y en el tiempo, y cuántos rivales comparten cada cosa. **Que el gradiente decida qué importa.**
+   - Menos reglas a mano y más entradas honestas. El piso (capa 1) sigue debajo por seguridad.
+
+2. **"Razonar" aquí quiere decir comparar dentro del paquete.** La capa 2 no puntúa cada recuerdo solo: mira **el grupo entero de candidatos a la vez** y decide cuál es el pedido.
+   - En ingeniería: entradas relativas al grupo (§2m, §2n) y pérdida por lista (*listwise*), que compara a todos los candidatos de una pregunta entre sí.
+   - Sigue siendo pequeña y de tiempo constante: el grupo son 10 candidatos.
+
+3. **Dos métricas, porque es una sola mente:**
+   - **R@5 = lo que le llega al agente.** Si el correcto llega, el agente puede discernir; ese es el piso que nunca baja.
+   - **R@1 = lo que la capa 2 debe ganar:** que el pedido quede primero, para que el agente no tenga que adivinar.
+
+4. **Bases de entrenamiento:** una copia de la viva (nunca se sube), el snapshot y bases nuevas creadas para entrenar (§2l). El examen final se hace en bases que no vio.
+
+5. **Arquitectura hexagonal, bien dicha:** las dependencias apuntan **hacia adentro**.
+   - El núcleo (la lógica de negocio del motor) no sabe nada de las neuronas.
+   - Cada neurona es un **adaptador** que se enchufa a un **puerto** que define el núcleo; hoy ese puerto es `reordenar(frase, candidatos)`.
+   - Se cambia o se apaga el adaptador sin tocar el núcleo, como ya pasa con `BIORAG_NEURONA=0`.
+   - La capa 2 sería un adaptador más en el mismo puerto, detrás de la capa 1.
+
+**Estado:** guardado. Va después de E2b → E3 → E4, junto con §2l–§2n, y con el OK de Dennys.
+
+---
+
 ## 3. El orden para llegar (paso a pasito)
 
 | Etapa | Qué | Relación con la visión |
