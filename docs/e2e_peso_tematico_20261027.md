@@ -106,6 +106,7 @@ No se debe comparar este puesto 3 directamente con el puesto 4 de la llamada rea
 
 - **Pytest completo del candidato, copia aislada:** `550 passed in 421.46s`. `PYTHONHASHSEED=0`, sin exportar `BIORAG_NEURONA=0`, para no inutilizar las pruebas neuronales. [Salida completa](e2e_pytest_candidato_20261027.log).
 - **Script autónomo previo:** `tests/test_tematico_score_regression.py` exige aporte positivo con evidencia léxica. Pasa con el original, falla con el candidato y vuelve a pasar después de revertir. Pytest recoge cero pruebas de ese archivo. No se modificó ni se presenta su fallo como fallo de pytest. [Original](e2e_prueba_tematico_original_20261027.log) / [candidato](e2e_prueba_tematico_candidato_20261027.log) / [revertido](e2e_prueba_tematico_revertido_20261027.log).
+- **CI de GitHub, con el motor revertido:** en la [ejecución 40590290416](https://github.com/dennysjmarquez/MemoryBioRAG/actions/runs/40590290416), Python 3.11 y 3.12 pasaron; Python 3.10 falló en «Install Dependencies», antes de ejecutar pytest. Hay una incompatibilidad verificable: `requirements.txt` fija NumPy 2.4.6, cuyos metadatos exigen Python ≥3.11. No fue posible leer el log detallado desde este entorno para confirmar que fuese el primer error de esa ejecución; no se cambió la configuración de CI.
 
 ## 7. Veredicto
 
