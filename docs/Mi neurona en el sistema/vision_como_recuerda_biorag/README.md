@@ -275,6 +275,110 @@ El agente "supo" la respuesta correcta (v35.0) porque leyó el contenido, pero *
 
 ---
 
+## 2h. Investigación a fondo: ¿qué separa dos recuerdos que comparten todo? (2026-10-27)
+
+### Lo que pidió Dennys (resumen fiel)
+
+- *"Tienes un nodo y otro que comparte las mismas palabras, todo igualito. ¿Qué lo diferencia?"* Esto no pasa solo con las versiones: pasa con dos, tres o más recuerdos que compiten porque tienen las mismas palabras. Dennys lo intentó con los sustantivos clave, pero también pueden coincidir.
+- **Cómo descarta un humano:** *"los otros recuerdos hablan de lo que busco, mencionan lo que busco, pero tienen otras cosas que no tienen que ver"*. Gana **"el que más simple tiene que ver con lo que estoy buscando"**; los demás son complementarios.
+  - Ejemplo de la playa: viaje + playa + "la pasé muy rico" descarta los viajes a la playa sin esa vivencia. Si hubo cinco viajes buenos, desempata **el último que se guardó**.
+- **El taller:** *"¿cuál fue la última vez que clavé clavos?"* Las actividades se solapan; debe salir la última **guardada**, no la última **a la que se accedió**.
+- *"Lo último que traes a la mente se empodera, y es verdad"* (Dennys lo emuló así), *"pero en este caso falla, porque no fue lo último que se guardó"*.
+- *"Si guardaste un nodo que habla de la versión pero trata de otra cosa, aparecería por encima del canónico. Ahí falta algo y no lo deduzco."*
+- **Instrucción:** *"No hacerlo a la ligera. Si lo haces a la ligera, conseguirás los primeros que te salgan."*
+
+### 1. La prueba reproducida sobre la base viva (dump del 2026-10-26, copia)
+
+Llamada idéntica a la del agente (`biorag_recordar`, mismos parámetros) sobre una copia de la viva. **Se reproduce exactamente**: v34.0 0.5398, v32.4 0.4671, v32.3 0.4645, `version_actual_biorag` 0.4614 (puesto 4), v26.3 0.4181.
+
+Variantes medidas (cada una sobre una copia nueva):
+
+| Llamada | Puesto del canónico `version_actual_biorag` | Qué sale el #1 |
+|---|---:|---|
+| La real (ruido + ráfaga + paráfrasis) | **4** | v34.0 |
+| La real con `dias=30` | **4** | v34.0 (la ventana no lo saca) |
+| La real con `ordenar_por="recencia"` | **4** | v34.0; con ráfaga **el orden no cambió a fechas** (observado) |
+| `"biorag version ultima"` (limpia) | **2** | `ultima_version_biorag`, **un nodo viejo que dice v32.3** |
+| Limpia con `ordenar_por="recencia"` | fuera del top 6 | v34.0, y luego recuerdos **ajenos pero recientes** (linkedin, recetas…) |
+| `"version actual biorag"` | **1** (score 1.0) | el canónico |
+
+**La última fila explica el diseño original:** el recuerdo `decision_diseno_actualizar_nodo_canonico_no_reordenar_por_recencia` (2026-08-11) dice que el canónico gana **por coincidencia exacta del nombre** (piso 0,95). Funciona si el agente escribe "versión **actual**". Si escribe "**última**", ya no.
+
+### 2. Las causas encontradas (verificadas, no supuestas)
+
+| # | Causa | Prueba |
+|---|---|---|
+| C1 | **Actualizar un recuerdo no deja fecha de "último guardado".** `actualizar` solo cambia `creado_en` si `sobrescribir=True`; la fusión al dormir solo toca `ultimo_acceso` | En la viva, el canónico ya dice **v35.0**, pero su `creado_en` es **2026-10-14**. Más viejo que v34.0 (2026-10-24) |
+| C2 | **`ultimo_acceso` no significa "lo último que recordé".** Cada evocación lo pone también en **todos los vecinos** por sinapsis (`search.py:2529`) | Casi toda la familia de versiones tiene `ultimo_acceso` = 2026-10-25 18:55–18:56: el mismo minuto |
+| C3 | **La señal de recencia de la fórmula está muerta.** `temporal` (peso 0,04) nunca se pasa: siempre vale 0 | Ninguna llamada a `_calcular_score_hibrido` le pasa `temporal` |
+| C4 | **`ordenar_por="recencia"` ordena todo el conjunto, no la familia** | Trae recuerdos ajenos pero recientes por encima (tabla anterior). Es exactamente lo que temía Dennys |
+| C5 | **Hueco léxico: "última" ≠ "actual"** | Con "actual" el canónico sale #1; con "última", #2 a #4 |
+| C6 | **Tres recuerdos "generales" dicen ser el actual:** `version_actual_biorag` (v35), `ultima_version_biorag` (v32.3, viejo) y `biorag_version_11_0`. Además, los archivados conservan "actual" en el nombre | Al guardar nadie decidió "¿nuevo o actualización?" |
+| C7 | **Los sustantivos clave del canónico no dicen qué es** | `version,biorag,protocolo,sustantivos`: **idénticos** a los de v33.0. No dicen "vigente" ni "actual" |
+| C8 | **Ruido de la consulta + castigo oculto del temático** | El canónico tiene `sinonimos_ratio`=0,5, así que temático=0 (castigo de E2); v34 cobra temático 1,0 y dimensiones 0,83 frente a 0,53 |
+
+**Conclusión honesta:** no hay una sola causa ni un solo truco. Son **tres capas** que fallan a la vez: lo que se **guarda** (C1, C2, C6, C7), lo que el agente **pide** (C5, C8) y cómo el motor **elige** (C3, C4).
+
+### 3. Prueba de la idea "gana el más simple" (exceso de rasgos)
+
+Dennys propone que gana el que menos "cosas que no tienen que ver" tiene. Se midió sobre esta familia el **exceso**: rasgos de identidad del recuerdo (nombre + sustantivos clave) que la consulta no pide.
+
+| Recuerdo | Exceso | Creado |
+|---|---:|---|
+| `biorag_version_11_0` | **0,00** | 07-04 (v11, viejísimo) |
+| `ultima_version_biorag` | **0,00** | 10-04 (dice v32.3) |
+| `version_actual_biorag_v26_3` | 0,50 | 08-11 |
+| `version_actual_biorag` (el correcto) | 0,60 | 10-14 |
+| `..._v34_0` | 0,67 | 10-24 |
+
+**Resultado:** la idea es buena para **descartar lo que trata de otra cosa** (la comparativa con TencentDB y la decisión de diseño quedan al fondo). Pero **sola no basta**: los recuerdos "más simples" son generales **y viejos**. Hace falta el segundo paso de Dennys, **desempatar por el último guardado**, y para eso falta la fecha (C1).
+
+### 4. Qué dice la ciencia (fuentes)
+
+| Hallazgo | Fuente | Qué copiamos |
+|---|---|---|
+| No importa cuánto coincide la pista, sino su **valor diagnóstico**: cuánto especifica **solo** al objetivo frente a los competidores | Nairne 2002; Goh & Lu 2011, *Memory & Cognition* ([link](https://link.springer.com/article/10.3758/s13421-011-0133-9)) | Puntuar **en relación con los rivales**, no en absoluto. Es la idea de Dennys del "exceso" |
+| Recordar tiene dos fases: **recuperación controlada** (traer) y **selección posterior** (elegir entre los activados) | Badre & Wagner 2007, resumido en ([link](https://www.mindomax.com/proactive-interference-old-memories-never-die-they-attack)) | Un paso de **selección por meta** después de buscar |
+| La recencia es **relativa al contexto actual**: lo reciente se parece más al contexto de ahora | Howard & Kahana 2002, TCM ([link](https://memory.psych.upenn.edu/files/pubs/HowaKaha02.pdf)) | Recencia **dentro de la familia del tema**, no en toda la base (C4) |
+| Al recordar, la prefrontal **suprime los rasgos únicos de los competidores** | Wimber et al. 2015, *Nature Neuroscience* ([link](https://www.nature.com/articles/nn.3973)) | Inhibición de vecinos (§2d) |
+| Con la tarea **"recuerda la asociación más reciente"**, el cerebro separa a los competidores en fases distintas del ritmo theta | Kerrén et al. 2022, *eLife* ([link](https://elifesciences.org/articles/80633)) | Elegir "lo más reciente" es un **proceso de control propio**, no un efecto secundario |
+| Al guardar algo parecido a lo que ya existe: si la sorpresa es pequeña, **se actualiza** el recuerdo; si es grande, **se crea uno nuevo** | Teorías de estado latente ([link](https://pmc.ncbi.nlm.nih.gov/articles/PMC11259430/)); Sinclair & Barense ([link](https://learnmem.cshlp.org/content/25/8/369.full)) | **"¿Nuevo o actualización?" al guardar.** Es la raíz de C6 |
+
+### 5. El sistema propuesto: "selección por meta" (general, no solo para versiones)
+
+| Paso | Qué hace | Equivalente en el cerebro | Pieza |
+|---|---|---|---|
+| **0. Al guardar** | Decidir **nuevo o actualización**. Registrar la **fecha de última modificación del contenido** (columna nueva, solo añade). Las versiones viejas quedan unidas como **"estado anterior de"** el canónico, sin borrar nada | Actualización por error de predicción | Regla a mano + neurona que solo **propone** (§6.1 del mapa, punto 4) |
+| **1. Traer** | La búsqueda de hoy (no cambia) | Recuperación controlada | Motor actual |
+| **2. Agrupar en familias** | Juntar los candidatos que comparten la **identidad** de la consulta (nombre y sustantivos clave). Lo que solo la **menciona** en el texto no entra en la familia | Separación de patrones | Regla a mano |
+| **3. Elegir por meta** | Si la meta es "la última / la actual / la vigente": dentro de la familia, gana **la modificación más reciente**. Si es "lo que más encaja": gana el de **mayor valor diagnóstico** (más coincidencia propia, menos exceso) | Selección prefrontal; recencia relativa al contexto | El agente declara la meta (parámetro MCP) o el motor la detecta (lista cerrada → neurona de intención §2b) |
+| **4. Inhibir** | El ganador baja a sus casi duplicados | Supresión de competidores | §2d |
+
+**Respuesta a "¿qué los separa?":**
+- Las **palabras** solo dicen de qué **familia** es el recuerdo.
+- **Dentro de la familia** separan tres cosas: la **meta** (qué se pide), el **valor diagnóstico** (lo que solo ese recuerdo tiene frente a los otros) y el **tiempo de guardado**, bien registrado.
+- Y si dos recuerdos empatan en todo eso, el fallo está al guardar: o son el mismo, o uno es versión del otro.
+
+**Dónde haría falta una neurona** (lo que una regla no alcanza):
+1. Decidir si un texto libre pertenece a una familia aunque use otras palabras ("última" ≈ "actual" ≈ "vigente": léxico E3 + intención §2b).
+2. Decidir al guardar si algo es nuevo o una actualización.
+
+Lo demás son reglas a mano, rápidas y explicables.
+
+### 6. Cómo se experimentaría (general, sin parches por caso)
+
+1. **Suite de competencia generada desde cualquier base:** familias de 3 o más recuerdos que comparten identidad. Dos tipos de pregunta:
+   - "**la última** de esta familia": lo correcto es la modificación más reciente;
+   - "la familia + **un rasgo que solo tiene uno**": lo correcto es ese recuerdo.
+   Mide R@1. Como se genera de la propia base, sirve igual en el snapshot, en la viva y en bases nuevas.
+2. Medir **hoy** esa suite (línea base) en el snapshot y en la viva.
+3. Probar **un paso cada vez**, en este orden: fecha de modificación (paso 0, solo datos) → familias + meta "última" (pasos 2 y 3) → valor diagnóstico → inhibición.
+4. Cada paso: QA completa en las dos bases, sin bajar nada, sobre copias, con el OK de Dennys.
+
+**Estado:** investigación terminada; **no se ha tocado código ni ninguna base**. Se retoma cuando el operario cierre la etapa actual (E2b), dentro de E4/E5.
+
+---
+
 ## 3. El orden para llegar (paso a pasito)
 
 | Etapa | Qué | Relación con la visión |
