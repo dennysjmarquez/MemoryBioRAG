@@ -1,0 +1,151 @@
+{
+  "base": "snapshot",
+  "esperado": "v13_2_limpieza_tabla_semantica",
+  "consultas": {
+    "limpia": {
+      "consulta": "semánticas embedding",
+      "palabras": 2,
+      "candidatos": 122,
+      "puesto_esperado": 1,
+      "score_esperado": 0.6143,
+      "top5": [
+        [
+          "v13_2_limpieza_tabla_semantica",
+          0.6143
+        ],
+        [
+          "teoria_ejes_semanticos_biorag",
+          0.5489
+        ],
+        [
+          "aciertos_word2vec_top5_coincidencia_lexica_no_semantica_20260808",
+          0.5433
+        ],
+        [
+          "mentalidad_embedding_clasificacion_dimensional",
+          0.4148
+        ],
+        [
+          "arquitectura_dimensiones_ortogonales",
+          0.3765
+        ]
+      ]
+    },
+    "examen_0848": {
+      "consulta": "semánticas 849 embedding",
+      "palabras": 3,
+      "candidatos": 129,
+      "puesto_esperado": 4,
+      "score_esperado": 0.3861,
+      "top5": [
+        [
+          "mentalidad_embedding_clasificacion_dimensional",
+          0.4006
+        ],
+        [
+          "arquitectura_dimensiones_ortogonales",
+          0.3989
+        ],
+        [
+          "vision_biorag_mas_alla_vectores_20260802",
+          0.3979
+        ],
+        [
+          "v13_2_limpieza_tabla_semantica",
+          0.3861
+        ],
+        [
+          "cambio_paradigma_dimensiones_semanticas",
+          0.3803
+        ]
+      ]
+    },
+    "ruido_inventado": {
+      "consulta": "semánticas zzqx embedding",
+      "palabras": 3,
+      "candidatos": 128,
+      "puesto_esperado": 4,
+      "score_esperado": 0.386,
+      "top5": [
+        [
+          "mentalidad_embedding_clasificacion_dimensional",
+          0.4006
+        ],
+        [
+          "arquitectura_dimensiones_ortogonales",
+          0.399
+        ],
+        [
+          "vision_biorag_mas_alla_vectores_20260802",
+          0.3979
+        ],
+        [
+          "v13_2_limpieza_tabla_semantica",
+          0.386
+        ],
+        [
+          "cambio_paradigma_dimensiones_semanticas",
+          0.3803
+        ]
+      ]
+    },
+    "ruido_real": {
+      "consulta": "semánticas embedding julio",
+      "palabras": 3,
+      "candidatos": 147,
+      "puesto_esperado": 5,
+      "score_esperado": 0.3949,
+      "top5": [
+        [
+          "auditoria_tecnica_v14_0_readme",
+          0.4494
+        ],
+        [
+          "biorag_v14_0_estado",
+          0.4045
+        ],
+        [
+          "cambio_paradigma_dimensiones_semanticas",
+          0.4026
+        ],
+        [
+          "arquitectura_dimensiones_ortogonales",
+          0.4
+        ],
+        [
+          "v13_2_limpieza_tabla_semantica",
+          0.3949
+        ]
+      ]
+    },
+    "solo_2_palabras_ok": {
+      "consulta": "limpieza semántica tabla embedding",
+      "palabras": 4,
+      "candidatos": 249,
+      "puesto_esperado": 1,
+      "score_esperado": 0.8394,
+      "top5": [
+        [
+          "v13_2_limpieza_tabla_semantica",
+          0.8394
+        ],
+        [
+          "limpieza_tabla_semantica_contaminacion_julio_2026",
+          0.4896
+        ],
+        [
+          "cambio_paradigma_dimensiones_semanticas",
+          0.4528
+        ],
+        [
+          "principio_purga_nivel_db_triggers",
+          0.4425
+        ],
+        [
+          "v13_1_parafrasis_expansion_semantica",
+          0.4275
+        ]
+      ]
+    }
+  }
+}

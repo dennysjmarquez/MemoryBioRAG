@@ -276,6 +276,76 @@ def _tokens_corpus(db):
     return tokens
 
 
+def _copiar_base_para_qa(src_db, temp_db):
+    """Copia la base que se va a medir SIN tocar el original. (Higiene E2b)
+
+    POR QUÉ existe (hallazgo del auditor, E2b-C): al medir el snapshot, la copia
+    se hacía abriendo el original con `mode=ro`, y SQLite, para leer una base en
+    WAL, CREA el `-shm` (y a veces el `-wal`) al lado del fichero. Resultado: la
+    QA del snapshot dejaba basura junto al snapshot y podía moverle el sha256.
+
+    Cómo se evita:
+      * Si no hay `-wal`, se abre con `immutable=1`: SQLite no toca el directorio.
+      * Si hay `-wal` (base recién escrita), `immutable=1` IGNORARÍA esas
+        transacciones y se copiaría una base vieja; ahí se abre con `mode=ro` y
+        se anotan los sidecars que aparezcan para borrarlos después.
+      * La copia de trabajo va a un temporal del sistema, no al repo.
+
+    Devuelve {"modo", "sha_antes", "sha_despues", "sidecars_borrados"}.
+    """
+    import hashlib
+    import tempfile
+
+    src_db = str(src_db)
+    temp_db = str(temp_db)
+    sidecars = [src_db + "-wal", src_db + "-shm"]
+    previos = {p: os.path.exists(p) for p in sidecars}
+
+    def _sha(ruta):
+        h = hashlib.sha256()
+        with open(ruta, "rb") as f:
+            for bloque in iter(lambda: f.read(1 << 20), b""):
+                h.update(bloque)
+        return h.hexdigest()
+
+    sha_antes = _sha(src_db)
+    modo = "mode=ro" if previos[src_db + "-wal"] else "mode=ro&immutable=1"
+    uri = Path(src_db).expanduser().resolve().as_uri() + "?" + modo
+
+    os.makedirs(os.path.dirname(temp_db) or ".", exist_ok=True)
+    for ext in ("", "-wal", "-shm"):
+        if os.path.exists(temp_db + ext):
+            try:
+                os.remove(temp_db + ext)
+            except OSError:
+                pass
+
+    conn_src = sqlite3.connect(uri, uri=True)
+    conn_dst = sqlite3.connect(temp_db)
+    try:
+        conn_src.backup(conn_dst)
+    finally:
+        conn_dst.close()
+        conn_src.close()
+
+    # Solo se borra lo que ha aparecido por nuestra culpa; lo que ya estaba, se respeta.
+    borrados = []
+    for p in sidecars:
+        if not previos[p] and os.path.exists(p):
+            try:
+                os.remove(p)
+                borrados.append(os.path.basename(p))
+            except OSError:
+                pass
+
+    return {
+        "modo": modo,
+        "sha_antes": sha_antes,
+        "sha_despues": _sha(src_db),
+        "sidecars_borrados": borrados,
+    }
+
+
 def run_evaluation(argv=None):
     base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
     args = QN.leer_argumentos(sys.argv[1:] if argv is None else argv)
@@ -295,7 +365,12 @@ def run_evaluation(argv=None):
 
     src_db = os.environ.get('BIORAG_PATH') or os.path.join(base_dir, "MemoryBioRAG_Data", "memory_biorag.db")
 
-    temp_db = os.path.join(base_dir, "MemoryBioRAG_Data", "memory_biorag_qa_temp.db")
+    # La copia de trabajo va fuera del repo: la QA no debe dejar ficheros suyos
+    # en el árbol de trabajo ni junto a las bases que mide (higiene E2b-C).
+    import tempfile as _tempfile
+    temp_db = os.environ.get("BIORAG_QA_TEMP_DB") or os.path.join(
+        _tempfile.gettempdir(), f"biorag_qa_temp_{os.getpid()}.db"
+    )
     cases_filename = args.casos
     cases_file = os.path.join(base_dir, "scripts", cases_filename)
     failed_file = os.environ.get(
@@ -315,16 +390,15 @@ def run_evaluation(argv=None):
                 os.remove(f)
             except OSError:
                 pass
-    # La fuente es de solo lectura: la copia de respaldo incluye las transacciones
-    # confirmadas del WAL sin ejecutar wal_checkpoint ni escribir en la DB origen.
-    src_uri = Path(src_db).expanduser().resolve().as_uri() + "?mode=ro"
-    conn_src = sqlite3.connect(src_uri, uri=True)
-    conn_dst = sqlite3.connect(temp_db)
-    try:
-        conn_src.backup(conn_dst)
-    finally:
-        conn_dst.close()
-        conn_src.close()
+    # La fuente es de solo lectura: la copia incluye las transacciones confirmadas
+    # del WAL sin ejecutar wal_checkpoint ni escribir en la DB origen.
+    info_copia = _copiar_base_para_qa(src_db, temp_db)
+    if info_copia["sha_antes"] != info_copia["sha_despues"]:
+        print("  [AVISO] la base de origen CAMBIÓ de sha256 al copiarla "
+              f"({info_copia['sha_antes'][:12]} -> {info_copia['sha_despues'][:12]})")
+    print(f"  origen intacto: sha256 {info_copia['sha_despues'][:12]} ({info_copia['modo']})"
+          + (f"; sidecars borrados: {', '.join(info_copia['sidecars_borrados'])}"
+             if info_copia["sidecars_borrados"] else ""))
     # Lo que la neurona dejó guardado en la base medida (leído de la copia, sin el motor)
     guardada_origen = QN.leer_guardada(temp_db)
 
@@ -503,6 +577,38 @@ def run_evaluation(argv=None):
         1 for _e, _p in estado_inicial_nodos.values() if _e == "dormido"
     )
 
+    # ── E2b: tolerancia al ruido (SOLO diagnóstico, apagado por defecto) ──────
+    # Con BIORAG_QA_RUIDO=zzqx, cada consulta se lanza con esa palabra pegada al
+    # final. El token se añade SOLO a la búsqueda: `query` sigue intacta para el
+    # control de ambiguas y para los informes. Sirve para medir cuánto aguanta el
+    # motor una palabra que no existe en ningún recuerdo.
+    RUIDO = os.environ.get("BIORAG_QA_RUIDO", "").strip()
+
+    def _consulta_buscada(q):
+        return f"{q} {RUIDO}" if RUIDO else q
+
+    # ── E2b: censo del temático (SOLO diagnóstico, apagado por defecto) ───────
+    # Cuenta cuántos candidatos cobran la señal temática y cuántos la cobran
+    # saturada a 1.0. No toca el cálculo: envuelve y devuelve el mismo valor.
+    CENSO_TEMATICO = os.environ.get("BIORAG_QA_TEMATICO_CENSO", "") == "1"
+    censo = {"candidatos": 0, "con_tematico": 0, "saturados": 0, "bloqueados": 0}
+    if CENSO_TEMATICO:
+        _hibrido_original = type(db)._calcular_score_hibrido
+
+        def _hibrido_censado(self, **kw):
+            censo["candidatos"] += 1
+            _t = float(kw.get("tematico_score", 0.0) or 0.0)
+            _s = float(kw.get("sinonimos_ratio", 0.0) or 0.0)
+            if _t > 0:
+                censo["con_tematico"] += 1
+                if _t == 1.0:
+                    censo["saturados"] += 1
+            elif _s >= 0.5:
+                censo["bloqueados"] += 1
+            return _hibrido_original(self, **kw)
+
+        type(db)._calcular_score_hibrido = _hibrido_censado
+
     # Las dos columnas: orden de la fórmula (antes de la neurona) y orden servido
     espia = QN.Espia(neurona)
     espia.__enter__()
@@ -529,7 +635,8 @@ def run_evaluation(argv=None):
             golds = sorted(golds_por_query[query.strip().lower()])
             stats["ambiguo"]["total"] += 1
             _res, _tot = db.buscar_por_frase(
-                query, profundidad="activos", limite=5, ignore_peso_sinaptico=True
+                _consulta_buscada(query), profundidad="activos", limite=5,
+                ignore_peso_sinaptico=True
             )
             _devueltos = [r[0] for r in _res]
             _cubierto = [g for g in golds if g in _devueltos]
@@ -560,7 +667,7 @@ def run_evaluation(argv=None):
         # 2. Execute query
         profundidad = "profundo" if (deep or category == "dormido" or category == "negativo") else "activos"
         espia.nueva_busqueda()
-        results, total = db.buscar_por_frase(query, profundidad=profundidad, limite=5, ignore_peso_sinaptico=True)
+        results, total = db.buscar_por_frase(_consulta_buscada(query), profundidad=profundidad, limite=5, ignore_peso_sinaptico=True)
         
         # Track spreading activation usage
         if hasattr(db, 'last_parent_map') and db.last_parent_map:
@@ -700,9 +807,22 @@ def run_evaluation(argv=None):
                 f.write(json.dumps(fail_record, ensure_ascii=False) + "\n")
                 
     # Cleanup temp database
+    if CENSO_TEMATICO:
+        _ct, _sat = censo["con_tematico"], censo["saturados"]
+        _pct = (_sat / _ct * 100) if _ct else 0.0
+        print(f"[CENSO TEMATICO] candidatos puntuados: {censo['candidatos']} | "
+              f"cobran la senal: {_ct} | saturados a 1.0: {_sat} ({_pct:.2f}%) | "
+              f"a 0 con sinonimos_ratio>=0.5: {censo['bloqueados']}")
+    if RUIDO:
+        print(f"[RUIDO] cada consulta se lanzo con la palabra inexistente '{RUIDO}'")
+
     print(f"Cleaning up temporary database copy at {temp_db}...")
-    if os.path.exists(temp_db):
-        os.remove(temp_db)
+    for ext in ("", "-wal", "-shm"):
+        if os.path.exists(temp_db + ext):
+            try:
+                os.remove(temp_db + ext)
+            except OSError:
+                pass
         
     # Generate report
     print("\n" + "="*80)
@@ -1075,6 +1195,12 @@ def run_evaluation(argv=None):
         "incoherentes": res_neurona["incoherentes"],
         "tiempos": tiempos_neurona,
         "control_de_dano": {"tolerancia_casos": tol_neurona, "motivos": motivos_neurona},
+    }
+    # E2b: se deja constancia en el JSON de si esta corrida llevaba palabra de
+    # ruido y del censo del temático, para que las cifras sean interpretables.
+    metrics["e2b"] = {
+        "ruido": RUIDO or None,
+        "censo_tematico": censo if CENSO_TEMATICO else None,
     }
     metrics["global"]["orden_no_monotonico"] = sum(
         1

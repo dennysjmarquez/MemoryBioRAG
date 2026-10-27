@@ -216,3 +216,83 @@ def test_la_referencia_se_abre_inmutable_si_no_hay_wal():
     fuente = open(os.path.join(RAIZ, "scripts", "evaluar_qa.py"), encoding="utf-8").read()
     assert '"&immutable=1"' in fuente
     assert 'os.path.exists(str(ruta_referencia) + "-wal")' in fuente
+
+
+# ── Higiene E2b-C: la QA no debe tocar la base que mide ───────────────────
+
+def _base_con_filas(ruta, wal=False):
+    import sqlite3
+    con = sqlite3.connect(ruta)
+    if wal:
+        con.execute("PRAGMA journal_mode=WAL")
+    con.execute("CREATE TABLE t (x TEXT)")
+    con.executemany("INSERT INTO t VALUES (?)", [("a",), ("b",)])
+    con.commit()
+    con.close()
+
+
+def test_copia_no_toca_la_base_limpia(tmp_path):
+    """Sin -wal: se abre immutable, el original no se toca y no aparecen sidecars."""
+    import hashlib
+
+    origen = tmp_path / "origen.db"
+    _base_con_filas(str(origen))
+    for ext in ("-wal", "-shm"):
+        if (str(origen) + ext) and os.path.exists(str(origen) + ext):
+            os.remove(str(origen) + ext)
+    sha = hashlib.sha256(origen.read_bytes()).hexdigest()
+
+    destino = tmp_path / "copia.db"
+    info = EQ._copiar_base_para_qa(origen, destino)
+
+    assert "immutable=1" in info["modo"]
+    assert info["sha_antes"] == info["sha_despues"] == sha
+    assert not os.path.exists(str(origen) + "-wal")
+    assert not os.path.exists(str(origen) + "-shm")
+
+    import sqlite3
+    con = sqlite3.connect(destino)
+    assert con.execute("SELECT COUNT(*) FROM t").fetchone()[0] == 2
+    con.close()
+
+
+def test_copia_con_wal_no_pierde_datos_ni_deja_basura(tmp_path):
+    """Con -wal vivo: hay que leerlo (mode=ro) y borrar solo lo que aparezca."""
+    origen = tmp_path / "origen_wal.db"
+    con = sqlite3.connect(origen)
+    con.execute("PRAGMA journal_mode=WAL")
+    con.execute("CREATE TABLE t (x TEXT)")
+    con.execute("INSERT INTO t VALUES ('wal_vivo')")
+    con.commit()
+    # se deja ABIERTA: la fila vive en el -wal, no en el .db
+    assert os.path.exists(str(origen) + "-wal")
+
+    destino = tmp_path / "copia_wal.db"
+    info = EQ._copiar_base_para_qa(origen, destino)
+    con.close()
+
+    assert "immutable" not in info["modo"], "con -wal vivo, immutable perdería las filas"
+    ver = sqlite3.connect(destino)
+    assert ver.execute("SELECT COUNT(*) FROM t").fetchone()[0] == 1
+    ver.close()
+
+
+# ── E2b: banderas de diagnóstico (apagadas por defecto) ───────────────────
+
+def test_la_palabra_de_ruido_solo_entra_en_la_busqueda():
+    """El ruido no debe tocar `query`: el control de ambiguas y los informes
+    siguen leyendo la consulta original."""
+    fuente = open(os.path.join(RAIZ, "scripts", "evaluar_qa.py"), encoding="utf-8").read()
+    assert 'RUIDO = os.environ.get("BIORAG_QA_RUIDO", "").strip()' in fuente
+    # las dos búsquedas del arnés pasan por el envoltorio
+    assert fuente.count("_consulta_buscada(query)") == 2
+    # y ninguna búsqueda usa `query` a pelo
+    assert "buscar_por_frase(query," not in fuente.replace("buscar_por_frase(query, profundidad", "")
+
+
+def test_el_censo_del_tematico_esta_apagado_por_defecto():
+    """El censo envuelve el score; solo si se pide explícitamente."""
+    fuente = open(os.path.join(RAIZ, "scripts", "evaluar_qa.py"), encoding="utf-8").read()
+    assert 'CENSO_TEMATICO = os.environ.get("BIORAG_QA_TEMATICO_CENSO", "") == "1"' in fuente
+    # el espía devuelve el MISMO valor que el cálculo original
+    assert "return _hibrido_original(self, **kw)" in fuente
