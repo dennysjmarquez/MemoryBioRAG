@@ -93,6 +93,34 @@ No se debe sustituir el resultado de la QA por el de 50. Las salidas completas
 están en [`antes`](e2c_0848_antes_20261027.json) y
 [`candidato`](e2c_0848_despues_20261027.json).
 
+### Hallazgos del auditor: por qué ocurre
+
+1. **0848 con dos palabras extra.** Al añadir `zzqx` a la consulta que ya
+   contiene `849`, la cobertura de alias del esperado es **0,475**: por debajo
+   de 0,5. Con las demás condiciones de la compuerta cumplidas, el temático se
+   activa. En el snapshot el esperado pasa del 4.º al **1.º**. Un control
+   posterior de E2d observó **0,475**, media previa **0,593972**, 15 parejas y
+   temático **1,0**; el top-5 y sus scores coincidieron con y sin observador.
+   En cambio, `semánticas zzqx embedding`, sin `849`, tiene cobertura 0,6333 y
+   mantiene la compuerta cerrada. El control usa `limite=5`; no sustituye la
+   prueba E2b de `limite=50`. La [salida literal](e2d_control_0848_20261027.log)
+   conserva las cuatro consultas. La evidencia muestra que la compuerta puede
+   dejar fuera al nodo con mejor coincidencia de alias y dejarlo entrar cuando
+   su cobertura empeora. En la viva, con `limite=5`, el caso continúa fuera
+   del top-5.
+2. **0634 en el snapshot.** El auditor encontró rivales con cobertura de alias
+   **0,667**: están entre 0,5 y 0,95, sin el bono de alias y con el temático
+   apagado en el motor original. Al quitar la compuerta pueden cobrarlo y el
+   esperado sale del top-5. Verifiqué sobre el snapshot inmutable que los tres
+   rivales mostrados en el log tienen cobertura simbólica **0,6667**. Mover la
+   frontera por sí solo no resuelve el problema general de la señal.
+3. **Saturación y significado.** La fórmula `min(1.0, media(sims) * 3.0)`
+   satura cuando la media alcanza **1/3**. Esas similitudes se calculan entre el
+   candidato y otros candidatos de `todos[:15]`, no directamente contra la
+   consulta. La distribución previa al ×3 se investiga en
+   [E2d](e2d_investigacion_tematica_20261027.md); el 0848 queda como fallo
+   conocido, sin reescribir el caso.
+
 ## Pytest
 
 Sobre una copia aislada del código candidato, con las dependencias fijadas y sin
