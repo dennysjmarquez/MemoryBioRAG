@@ -39,6 +39,8 @@
 4. **Compatibilidad:** qué cambia para el agente y el MCP (si nada, se dice).
 5. **Versión de Python (decidir antes de etiquetar).** El CI falla en Python 3.10 al instalar dependencias: `requirements.txt` fija `numpy==2.4.6`, que exige Python ≥3.11, pero `pyproject.toml` declara `requires-python = ">=3.10"` y la matriz del CI incluye 3.10. Python 3.10 llega a fin de soporte en octubre de 2026. **Decisión de Dennys (2026-10-27): Python ≥3.11.** Lo aplica el operador en un commit aparte del motor, en 4 sitios: `.github/workflows/ci.yml:16` (quitar 3.10), `pyproject.toml:10` (`>=3.11`), `pyproject.toml:31` (quitar el clasificador 3.10) e `install.py:1518-1519` (`(3, 11)` y "Python 3.11+ requerido"). El README no menciona la versión de Python; la nota va en las Novedades de v36.0.
 
+6. **Versión del paquete.** `pyproject.toml` dice `version = "34.0.0"` (atrasada: `VERSION` es v35.0). Al publicar, el auditor la pone en `36.0.0` junto con `VERSION`, README y `CHANGELOG.md`.
+
 ## Reglas del README
 - Se **añade**; nunca se recorta ni se divide.
 - Se actualiza la línea "Versión Oficial", la tabla de métricas vigentes y el recuento de pruebas.
