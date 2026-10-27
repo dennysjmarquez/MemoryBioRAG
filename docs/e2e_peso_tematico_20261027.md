@@ -4,7 +4,7 @@
 
 ## 1. Cambio autorizado
 
-Se ensayó un único cambio en el numerador de `_calcular_score_hibrido`, en `core/memory/scoring.py`. Ya fue revertido; solo continúa en el árbol aislado que termina las mediciones:
+Se ensayó un único cambio en el numerador de `_calcular_score_hibrido`, en `core/memory/scoring.py`. El motor ya fue revertido; las mediciones del candidato se hicieron en un árbol aislado:
 
 ```diff
 -            0.08 * tematico_score_gated +      # Similitud temática (gate per-candidate)
@@ -18,7 +18,7 @@ La [prueba directa](e2e_prueba_peso_20261027.txt) comprueba que el aporte temát
 ## 2. Protocolo y criterios
 
 - Cuatro parejas: snapshot y copia de la viva; cada una sin ruido y con la palabra `zzqx`.
-- Examen oficial de 921 casos, el mismo arnés y los mismos datos en ambas versiones. Se fija `PYTHONHASHSEED=0` desde el inicio y `BIORAG_NEURONA=0`; se usa el censo nativo del arnés solo en ambas mediciones con ruido.
+- Examen oficial de 921 casos, el mismo arnés y los mismos datos en ambas versiones. Se fija `PYTHONHASHSEED=0` desde el inicio y `BIORAG_NEURONA=0`; se usa el censo nativo del arnés solo en las mediciones con ruido, tanto en la referencia como en el candidato.
 - La QA usa copias independientes y restaura los estados de los nodos entre casos. La búsqueda ordinaria se hace como el examen, con `limite=5` e `ignore_peso_sinaptico=True`; el arnés conserva sus excepciones preexistentes para casos dormidos y negativos.
 - Aceptar solo si en **cada pareja** ninguna categoría baja en R@5 honesta, R@1 honesta global no baja, FP es 0/40 con 40 controles válidos y el pytest completo pasa. Si no, se revierte el cambio. No se corrige ningún otro peso.
 - El gate clásico con ruido puede fallar por sus umbrales absolutos aun en la referencia: la decisión E2e es la comparación emparejada indicada arriba. Se conservarán sus salidas tal cual.
