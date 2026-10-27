@@ -742,7 +742,7 @@ El agente ya escribe el tipo al guardar, en las dimensiones de `aprender`:
 
 5. **Arquitectura hexagonal, bien dicha:** las dependencias apuntan **hacia adentro**.
    - El núcleo (la lógica de negocio del motor) no sabe nada de las neuronas.
-   - Cada neurona es un **adaptador** que se enchufa a un **puerto** que define el núcleo; hoy ese puerto es `reordenar(frase, candidatos)`.
+   - Cada neurona es un **adaptador** que se enchufa a un **puerto** que define el núcleo; hoy ese puerto es `neurona.reordenar(self, frase, pagina, v)` (`core/memory/neurona.py:538`), y "nunca lanza".
    - Se cambia o se apaga el adaptador sin tocar el núcleo, como ya pasa con `BIORAG_NEURONA=0`.
    - La capa 2 sería un adaptador más en el mismo puerto, detrás de la capa 1.
 
