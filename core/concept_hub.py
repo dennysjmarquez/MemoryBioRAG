@@ -746,7 +746,8 @@ def _expandir_a_escala(query_text: str, conn: sqlite3.Connection, threshold: flo
     }
 
 
-def expandir_query_con_hub(query_text: str, conn: sqlite3.Connection, threshold: float = 0.40) -> Optional[dict]:
+def expandir_query_con_hub(query_text: str, conn: sqlite3.Connection,
+                           threshold: Optional[float] = None) -> Optional[dict]:
     """
     Dado un query, busca bridges de todos los hubs y retorna expansión semántica.
 
@@ -759,6 +760,17 @@ def expandir_query_con_hub(query_text: str, conn: sqlite3.Connection, threshold:
             - bridges_matched: list[str] — bridges que matchearon
         None si no hay match significativo.
     """
+    # Un solo punto de entrada, dos motores con umbrales calibrados distintos.
+    # `threshold=None` significa "usa el de fábrica de cada motor": 0.55 para
+    # idf (cobertura IDF) y 0.40 para escala/legacy (parecido ponderado).
+    # Antes la firma traía 0.40 fijo, así que el motor idf jamás usaba su
+    # umbral calibrado: se comportaba como si no estuviera calibrado.
+    if _hub_motor_idf():
+        return _expandir_por_cobertura_idf(query_text, conn, threshold)
+
+    if threshold is None:
+        threshold = 0.40
+
     if _hub_escala_activa():
         return _expandir_a_escala(query_text, conn, threshold)
 
@@ -890,6 +902,450 @@ def expandir_query_con_hub(query_text: str, conn: sqlite3.Connection, threshold:
         }
 
     return None
+
+
+def _hub_motor_idf() -> bool:
+    """Qué señal decide el hub.
+
+    'escala' (por defecto): la v35.2, índice invertido con pesos por rareza,
+    probada con 1086 hubs reales (tests/test_hub_escala.py). Es la que escala
+    al cerebro grande.
+    'idf': cobertura IDF sobre la masa informativa de la consulta. Medida en el
+    snapshot de 6 hubs: 2 disparos / 2 aciertos (100 %) frente a 32 / 3 (9,4 %)
+    de la de escala. NO está probada a 1086 hubs: por eso no es la de fábrica.
+    Override: export BIORAG_HUB_MOTOR=idf
+    """
+    return (os.environ.get("BIORAG_HUB_MOTOR") or "escala").strip().lower() == "idf"
+
+
+# ─── VOCABULARIO DE BRIDGES: CACHÉ + IDF ───────────────────────────────────
+#
+# Por qué existe (auditoría 2026-10-25).
+#
+# 1) COSTE. La versión anterior tokenizaba y aplicaba stemming a TODAS las
+#    bridges en CADA consulta. Medido sobre el código real: 0.086 ms por
+#    bridge -> 0.43 s por consulta con 5 025 bridges (~30 % del tiempo de la
+#    suite QA) y crecimiento LINEAL con el cerebro. El stemming de una bridge
+#    no cambia entre consultas: se calcula una vez por versión de las tablas.
+#
+# 2) PRECISIÓN. La versión anterior medía el parecido con Jaccard crudo y
+#    `rec_b * 0.8`, de modo que UNA sola palabra compartida bastaba para que
+#    el hub disparase (`sim > 0.10`). Como las palabras comunes son las que más
+#    se comparten, el mecanismo disparaba por ruido: medido sobre la suite QA
+#    de 921 casos con el snapshot canónico, disparaba 154 veces y solo 8
+#    apuntaban al nodo correcto (precisión 5,2 %). Con cobertura ponderada por
+#    IDF y umbral 0.50: 3 disparos, 2 correctos (66,7 %). Con 0.55: 2 disparos,
+#    2 correctos (100 %), sin perder ninguno de los 5 casos de la suite de
+#    Concept Hubs, cuyas coberturas son 1.000 / 1.000 / 1.000 / 1.000 / 0.788.
+#
+# La señal nueva es la COBERTURA IDF de la consulta: qué fracción del contenido
+# *informativo* de la consulta explica la bridge. Una palabra rara compartida
+# pesa mucho; una palabra común compartida pesa poco. Es el mismo principio de
+# especificidad (idf) que ya usan QCR y la aguja `rareza_max` de la neurona
+# asociativa. Un hub es evidencia convergente, no un veredicto.
+
+_CACHE_BRIDGES: Dict[str, "_IndiceBridges"] = {}
+
+# Umbral por defecto de cobertura IDF. Calibrado sobre la suite QA canónica
+# (921 casos) contra la precisión observada; ver tabla del bloque anterior.
+# Override: export BIORAG_HUB_UMBRAL=0.55
+UMBRAL_COBERTURA_DEFECTO = 0.55
+
+# Margen mínimo frente al segundo hub para aceptar una expansión. Si dos hubs
+# explican la consulta casi igual, la consulta es ambigua y expandir sería
+# adivinar. Medido: los 5 casos de la suite tienen márgenes de 1.000, 1.000,
+# 1.000, 1.000 y 0.614, así que 0.08 no los afecta.
+MARGEN_AMBIGUEDAD = 0.08
+
+# Por encima de esta confianza el match es tan concluyente que el margen no
+# aplica (una cobertura cuasi perfecta no necesita desempate).
+CONFIANZA_INDISCUTIBLE = 0.90
+
+# Temperatura de la competencia (Luce) para ESTE motor. No se reutiliza
+# HUB_TEMPERATURA (0.10) porque está calibrada para la escala del motor a
+# escala, donde las similitudes se reparten en un rango más ancho. Aquí los
+# candidatos se comprimen cerca de 1.0, así que el equivalente en dureza es
+# mucho menor. Calibrado con dos escenarios medidos:
+#   (A) consulta legítima, 4 recuerdos competidores a 0.98 frente al correcto
+#       a 1.00 -> debe ACEPTAR.
+#   (B) «regla» sola, 1086 recuerdos empatados exactamente -> debe RECHAZAR.
+# A=0.477 y B=0.0014 con 0.02 (A falla); A=0.713 y B=0.0014 con 0.01 (ambos).
+# Override: export BIORAG_HUB_TEMP_IDF=...
+HUB_TEMP_IDF = float(os.environ.get("BIORAG_HUB_TEMP_IDF", "0.01"))
+
+
+class _IndiceBridges:
+    """Vocabulario de bridges precalculado para una versión concreta de las tablas.
+
+    filas:   [(hub_id, frozenset(stems), weight, angle, texto)] — tokenizado UNA vez.
+    idf:     {stem: idf} sobre el corpus de bridges (df = nº de bridges que la usan).
+    idf_max: idf de un stem que no aparece en ninguna bridge (máxima especificidad
+             y, por tanto, máxima penalización cuando la consulta lo pide y la
+             bridge no lo explica).
+    nodos:   {hub_id: [nodos del hub]}, canonical primero.
+>>>>>>> Stashed changes
+    """
+
+    __slots__ = ("sello", "clave", "filas", "idf", "idf_max", "nodos", "n_por_hub", "inv")
+
+    def __init__(self, sello, filas, idf, idf_max, nodos, n_por_hub, inv, clave=None):
+        self.sello = sello
+        # Llave BARATA (sin recorrer tablas): permite responder "no cambió nada"
+        # en microsegundos. La huella completa solo se paga cuando esta cambia.
+        self.clave = clave
+        self.filas = filas
+        self.idf = idf
+        self.idf_max = idf_max
+        self.nodos = nodos
+        self.n_por_hub = n_por_hub
+        # Índice invertido stem -> posiciones de `filas`. Sin él, cada consulta
+        # recorría TODOS los puentes: medido 11.85 ms a 3001 hubs y creciendo
+        # lineal con el cerebro. Con él, el coste depende solo de cuántos
+        # puentes comparten alguna palabra con la consulta.
+        self.inv = inv
+
+
+def _ruta_db(conn: sqlite3.Connection) -> str:
+    try:
+        for _, nombre, r in conn.execute("PRAGMA database_list").fetchall():
+            if nombre == "main":
+                return r or f":memory:{id(conn)}"
+    except sqlite3.Error:
+        pass
+    return f":memory:{id(conn)}"
+
+
+def _sello_bridges(conn: sqlite3.Connection):
+    """Huella de las tablas del hub para invalidar la caché del vocabulario.
+
+    Se usa `_firma_hubs` (v35.2), que ya recorre texto, ángulo, peso, canónico y
+    nodos: cualquier alta, baja o edición cambia la huella. La versión anterior
+    de esta función solo miraba CONTES y MAX(bridge_id), así que un UPDATE que
+    no cambiara el número de filas (por ejemplo, corregir el ángulo de un
+    puente) dejaba la caché con los datos viejos y el hub decidía con
+    información obsoleta. Devuelve None si las tablas no existen.
+    """
+    try:
+        sello = _firma_hubs(conn)
+    except sqlite3.OperationalError:
+        return None
+    try:
+        ruta = ""
+        for _, nombre, r in conn.execute("PRAGMA database_list").fetchall():
+            if nombre == "main":
+                ruta = r or f":memory:{id(conn)}"
+    except sqlite3.Error:
+        ruta = f":memory:{id(conn)}"
+    return (ruta,) + tuple(sello)
+
+
+def _clave_barata(conn: sqlite3.Connection):
+    """Llave de O(1) para saber si hace falta revisar la huella completa.
+
+    `total_changes` sube con cualquier fila escrita por ESTA conexión;
+    `PRAGMA data_version` cambia cuando OTRA conexión confirma cambios. Juntas
+    cubren los dos caminos por los que las tablas del hub pueden cambiar, sin
+    recorrer una sola fila. Medido: la huella completa costaba 3.2 ms con 1087
+    hubs y 18 ms con 6001, en CADA consulta; con esta llave delante, el coste
+    pasa a microsegundos mientras nadie escriba.
+    """
+    try:
+        dv = conn.execute("PRAGMA data_version").fetchone()[0]
+    except sqlite3.Error:
+        dv = -1
+    try:
+        tc = conn.total_changes
+    except sqlite3.Error:
+        tc = -1
+    return (int(dv), int(tc))
+
+
+def _indice_bridges(conn: sqlite3.Connection) -> Optional[_IndiceBridges]:
+    """Construye (o reutiliza de la caché) el vocabulario de bridges."""
+    clave = _clave_barata(conn)
+    ruta = _ruta_db(conn)
+
+    # Camino rápido (O(1)): nada se escribió desde la última vez.
+    cache = _CACHE_BRIDGES.get(ruta)
+    if cache is not None and cache.clave == clave:
+        return cache
+
+    sello = _sello_bridges(conn)
+    if sello is None:
+        return None
+    cache = _CACHE_BRIDGES.get(sello[0])
+    if cache is not None and cache.sello == sello:
+        cache.clave = clave            # mismo contenido: solo se refresca la llave
+        return cache
+
+    nodos: Dict[str, List[str]] = {}
+    for hub_id, canonical, nodos_str in conn.execute(
+        """SELECT h.hub_id, h.canonical_node,
+                  GROUP_CONCAT(DISTINCT n.node_concepto) AS nodos
+           FROM concept_hubs h
+           LEFT JOIN concept_hub_nodes n ON h.hub_id = n.hub_id
+           GROUP BY h.hub_id"""
+    ).fetchall():
+        lista: List[str] = []
+        if nodos_str:
+            lista = [x.strip() for x in nodos_str.split(",") if x.strip()]
+        if canonical:
+            lista = [canonical] + [x for x in lista if x != canonical]
+        nodos[hub_id] = lista
+
+    filas: List[Tuple[str, frozenset, float, str, str]] = []
+    df: Dict[str, int] = {}
+    for hub_id, bridge_text, weight, angle in conn.execute(
+        "SELECT hub_id, bridge_text, COALESCE(weight, 1.0), COALESCE(angle, 'legacy') "
+        "FROM concept_hub_bridges ORDER BY bridge_id"
+    ).fetchall():
+        if not bridge_text or hub_id not in nodos:
+            continue
+        stems = frozenset(_tokenizar_stems(bridge_text))
+        if not stems:
+            continue
+        for s in stems:
+            df[s] = df.get(s, 0) + 1
+        filas.append((hub_id, stems, float(weight or 1.0), angle or "legacy", bridge_text))
+
+    n = len(filas)
+    if n == 0:
+        return None
+    idf = {s: math.log((n + 1.0) / (d + 1.0)) + 1.0 for s, d in df.items()}
+    idf_max = math.log(n + 1.0) + 1.0
+
+    n_por_hub: Dict[str, int] = {}
+    inv: Dict[str, List[int]] = {}
+    for i, (hub_id, stems, _w, _a, _t) in enumerate(filas):
+        n_por_hub[hub_id] = n_por_hub.get(hub_id, 0) + 1
+        for st in stems:
+            inv.setdefault(st, []).append(i)
+
+    idx = _IndiceBridges(sello, filas, idf, idf_max, nodos, n_por_hub, inv, clave)
+    _CACHE_BRIDGES[sello[0]] = idx
+    return idx
+
+
+def invalidar_cache_bridges() -> None:
+    """Vacía la caché de vocabulario (tests, o tras reescribir hubs en caliente)."""
+    _CACHE_BRIDGES.clear()
+
+
+# Multiplicadores por ángulo semántico. Deben coincidir con ANGLE_MULT_HUB de
+# la v35.2/v35.3 para que los dos motores no discrepen sobre el mismo puente.
+# `ingenuo` era 0.85 y pasó a 1.0 en el commit d776a49: el puente ingenuo es a
+# menudo el único que contiene la pregunta entera, y castigarlo lo hacía perder
+# frente a rivales "sinónimo" (×1.5) que solo compartían una palabra.
+_ANGLE_MULT = {
+    "sinonimo": 1.5,
+    "problema": 1.2,
+    "solucion": 1.1,
+    "situacion": 1.0,
+    "ingenuo": 1.0,
+    "legacy": 1.0,
+}
+
+
+def _umbral_cobertura(threshold: Optional[float]) -> float:
+    if threshold is not None:
+        try:
+            return float(threshold)
+        except (TypeError, ValueError):
+            pass
+    raw = os.environ.get("BIORAG_HUB_UMBRAL")
+    if raw:
+        try:
+            return float(raw)
+        except (TypeError, ValueError):
+            logger.warning("BIORAG_HUB_UMBRAL=%r no es numérico; se usa %.2f",
+                           raw, UMBRAL_COBERTURA_DEFECTO)
+    return UMBRAL_COBERTURA_DEFECTO
+
+
+def _expandir_por_cobertura_idf(query_text: str, conn: sqlite3.Connection,
+                                threshold: Optional[float] = None) -> Optional[dict]:
+    """Busca bridges de todos los hubs y retorna la expansión semántica.
+
+    Decisión (auditoría 2026-10-25). Una bridge es evidencia, no un veredicto:
+    solo cuenta si explica una fracción relevante del contenido informativo de
+    la consulta, medida con IDF (cobertura IDF). El umbral por defecto (0.55)
+    está calibrado contra la suite QA canónica.
+
+    Returns:
+        dict con canonical_nodes, expanded_terms, hub_confidence, hub_id,
+        bridges_matched. None si no hay match significativo, o si el match es
+        ambiguo (dos hubs lo explican casi igual).
+    """
+    if not query_text or not query_text.strip():
+        return None
+
+    umbral = _umbral_cobertura(threshold)
+    query_stems = _tokenizar_stems(query_text)
+    if not query_stems:
+        return None
+
+    idx = _indice_bridges(conn)
+    if idx is None:
+        return None
+
+    # Peso IDF de cada stem de la consulta. Un stem ausente del vocabulario de
+    # bridges es máximamente específico y la bridge no lo explica: entra en el
+    # denominador con idf máximo, lo que baja la cobertura. Es el comportamiento
+    # correcto (no se puede "acertar" ignorando la parte rara de la consulta).
+    pesos = {s: idx.idf.get(s, idx.idf_max) for s in query_stems}
+    total = sum(pesos.values()) or 1e-9
+
+    # Neurona de Puentes: adaptador opcional que dice CUÁNTO creerse un puente
+    # que YA pasó la compuerta. No puede abrir ni cerrar la compuerta (eso lo
+    # decide la cobertura, que está calibrada y auditada): solo atenúa el peso.
+    # Neutra por construcción (v=0 -> 1.0), así que mientras no esté entrenada
+    # el resultado es idéntico al de no tenerla. Si falla, sigue el motor.
+    _neurona = None
+    try:
+        from core.memory import neurona_puentes as _npu
+        if _npu.activa():
+            _p = _npu.cargar(conn)
+            if not _npu.es_neutra(_p):
+                _neurona = _p
+    except Exception:
+        _neurona = None
+
+    fuera_vocab = sum(1 for s in query_stems if s not in idx.idf) / len(query_stems)
+
+    # Solo los puentes que comparten alguna palabra con la consulta.
+    candidatos_idx = set()
+    for st in query_stems:
+        candidatos_idx.update(idx.inv.get(st, ()))
+
+    acumulados: Dict[str, list] = {}
+    for i in candidatos_idx:
+        hub_id, stems, weight, angle, texto = idx.filas[i]
+        com = stems & query_stems
+        if not com:
+            continue
+        cobertura = sum(pesos[s] for s in com) / total
+        if cobertura < umbral:
+            continue
+        entrada = acumulados.get(hub_id)
+        if entrada is None:
+            entrada = {"mejor": 0.0, "matched": []}
+            acumulados[hub_id] = entrada
+        confianza = 1.0
+        if _neurona is not None:
+            try:
+                from core.memory import neurona_puentes as _npu
+                idfs = [pesos[s] for s in com]
+                confianza = _npu.multiplicador_params(_neurona, _npu.rasgos_puente(
+                    cobertura=cobertura,
+                    idf_medio=(sum(idfs) / len(idfs)) / idx.idf_max,
+                    idf_total=cobertura,
+                    n_query=len(query_stems), n_puente=len(stems),
+                    n_matched=len(com), fuera_vocab=fuera_vocab,
+                    angulo=angle, margen=0.0, peso=weight))
+            except Exception:
+                confianza = 1.0
+        score_bridge = cobertura * weight * confianza * _ANGLE_MULT.get(angle, 1.0)
+        if score_bridge > entrada["mejor"]:
+            entrada["mejor"] = score_bridge
+        entrada["matched"].append((score_bridge, texto))
+
+    if not acumulados:
+        return None
+
+    # CONFIANZA POR HUB. Evidencia convergente: solo las bridges que ya pasaron
+    # el umbral suman consenso, y el bono nunca puede duplicar al mejor match.
+    # Antes, tres coincidencias de UNA palabra regalaban +0.20 fijo.
+    # El bono LLENA HUECO, no aplana. Antes se sumaba en seco y saturaba:
+    # un hub con 0.98 y dos puentes coincidentes subía a 1.0 igual que el
+    # mejor, y la confianza dejaba de distinguir al correcto de sus rivales
+    # (medido: cuatro recuerdos empatados a 1.0 en el caso sintético más duro).
+    # Sumando solo la fracción libre, el orden se conserva siempre:
+    #   1.00 -> 1.000 ; 0.98 -> 0.9827 ; 0.60 -> 0.653
+    por_hub = {}
+    for hub_id, entrada in acumulados.items():
+        fraccion = min(1.0, len(entrada["matched"]) / 3.0) * 0.2
+        mejor = entrada["mejor"]
+        por_hub[hub_id] = (mejor + (1.0 - min(1.0, mejor)) * fraccion, entrada)
+
+    # ALIADOS: se compite por RECUERDO, no por hub. Dos hubs que apuntan al
+    # mismo nodo canónico son dos caminos a la misma memoria, no rivales. La
+    # v35.2 a escala ya lo midió y su test lo exige; aquí se adopta igual.
+    por_recuerdo = {}
+    for hub_id, (conf, entrada) in por_hub.items():
+        canon = (idx.nodos.get(hub_id) or [None])[0]
+        if not canon:
+            continue
+        previo = por_recuerdo.get(canon)
+        if previo is None or (conf, hub_id) > (previo[0], previo[1]):
+            por_recuerdo[canon] = (conf, hub_id, entrada)
+
+    if not por_recuerdo:
+        return None
+
+    # Orden determinista: confianza DESC y, a igual confianza, canónico ASC.
+    grupos = sorted(((c, canon, h, e) for canon, (c, h, e) in por_recuerdo.items()),
+                    key=lambda x: (-x[0], x[1]))
+
+    parecido, canonical, mejor_hub, mejor_entrada = grupos[0]
+    segundo = grupos[1][0] if len(grupos) > 1 else 0.0
+
+    # COMPETENCIA ENTRE RECUERDOS (Luce, como la v35.2 a escala).
+    #
+    # Por qué hace falta. La cobertura IDF es un cociente: mide qué fracción de
+    # la consulta explica un puente, no si esa explicación es informativa en
+    # términos absolutos. Con una consulta de UNA palabra común, esa palabra es
+    # el 100 % de la masa y la cobertura da 1.0 aunque esté en mil puentes. La
+    # ventaja mide lo contrario: cuánto destaca el mejor frente a la multitud.
+    # Si mil recuerdos explican la consulta igual de bien, nadie destaca y no
+    # hay derecho a promocionar a ninguno. Medido: «regla» sola devolvía un
+    # recuerdo cualquiera con confianza 1.0 a 1087 hubs; ahora devuelve None.
+    T = HUB_TEMP_IDF if HUB_TEMP_IDF > 0 else 0.01
+    ventaja = 1.0
+    if len(grupos) > 1:
+        try:
+            ventaja = 1.0 / sum(math.exp(min(60.0, (c - parecido) / T))
+                                for c, _, _, _ in grupos)
+        except OverflowError:
+            ventaja = 0.0
+    mejor_conf = min(1.0, parecido * ventaja)
+
+    if mejor_conf < umbral - 1e-6:
+        return None
+
+    # Guard de ambigüedad REAL. En la versión anterior la condición exigía
+    # `conf < umbral` y por tanto nunca podía cumplirse dentro de la rama que
+    # expandía: era código muerto que aparentaba proteger.
+    if (parecido - segundo) < MARGEN_AMBIGUEDAD and parecido < CONFIANZA_INDISCUTIBLE:
+        logger.debug("[ConceptHub] match ambiguo descartado: %s=%.3f vs %.3f",
+                     mejor_hub, parecido, segundo)
+        return None
+
+    all_nodos = idx.nodos.get(mejor_hub) or [canonical]
+    if not all_nodos:
+        return None
+
+    matched_ordenado = sorted(mejor_entrada["matched"], key=lambda x: -x[0])
+    bridges_txt = [t for _sc, t in matched_ordenado]
+
+    expanded_terms: List[str] = []
+    for bridge in bridges_txt:
+        expanded_terms.extend(list(_tokenizar(bridge)))
+    for nodo in all_nodos:
+        expanded_terms.extend(list(_tokenizar(nodo.replace("_", " "))))
+    expanded_terms.extend(list(_tokenizar(canonical.replace("_", " "))))
+    expanded_terms = list(dict.fromkeys(expanded_terms))
+
+    return {
+        "canonical_nodes": all_nodos,
+        "expanded_terms": expanded_terms,
+        "hub_confidence": mejor_conf,
+        "hub_id": mejor_hub,
+        "bridges_matched": bridges_txt,
+        # Contrato común con la v35.2 a escala: quien consuma el hub no debe
+        # tener que saber qué motor está puesto.
+        "hub_parecido": parecido,
+        "hub_ventaja": ventaja,
+    }
 
 
 # ─── HUBS CANÓNICOS INICIALES (Con los 5 Ángulos Estructurados) ───

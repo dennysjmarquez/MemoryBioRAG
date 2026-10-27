@@ -77,3 +77,7 @@ scripts/*.db
 scripts/snapshot_prf_real.db-shm
 
 scripts/snapshot_prf_real.db-wal
+
+# Volcados de la base viva subidos desde Google Drive para medir (nunca al repo)
+google_drive/
+*.sql

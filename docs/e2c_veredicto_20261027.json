@@ -1,0 +1,10 @@
+{
+  "proceso_completo": true,
+  "pytest_verde": true,
+  "comparacion_exit_code": 1,
+  "criterios_cumplidos": false,
+  "motor_revertido": true,
+  "motivos": [
+    "La comparación de las métricas falla o no es evaluable; ver e2c_comparacion_20261027.txt"
+  ]
+}
