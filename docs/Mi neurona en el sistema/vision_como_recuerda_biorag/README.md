@@ -509,6 +509,8 @@ Cada pregunta trae a **sus hermanos como competidores difíciles**. Así aprende
 
 ## 2l. La "capa definitiva": segunda neurona de ranking condicionada por la consulta (Dennys, 2026-10-27)
 
+> **El problema en una frase (Dennys, 2026-10-27):** el sistema confunde **semejanza conceptual** con **relevancia de intención**. La capa definitiva es la neurona que, **en la etapa final de ordenar**, mira los candidatos que llegaron, entiende qué se quiere averiguar y pone en el **top-1** el recuerdo adecuado. Necesita dos cosas: que el correcto **llegue** a los candidatos (motor, E4) y que los recuerdos tengan su **tipo escrito** (§2n). Si las pistas no alcanzan para elegir, lo dice (empate real) en vez de inventar un ganador.
+
 > Dennys: *"Pasarle la query original como una aguja más, porque es la única forma de que aprenda: cuando le escriban algo, sabrá qué es lo que se está buscando."*
 > *"El re-ranqueo actual déjalo, está bien. Lo que vamos a sumar es otra capa definitiva."*
 > *"Más neuronas ocultas, más parámetros, entrenarla con miles de millones de preguntas. Las puedes generar tú misma usando el MCP: invocas `recordar` con los parámetros obligatorios, ves lo que devuelve el motor de verdad y lo vuelcas como entrenamiento. Con mi base, con cualquier otra base, con bases armadas de internet. Así sirve para cualquier base, porque aprende a identificar en la query los síntomas del recuerdo más certero."*
