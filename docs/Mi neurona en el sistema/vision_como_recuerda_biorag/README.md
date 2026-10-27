@@ -273,6 +273,19 @@ El agente "supo" la respuesta correcta (v35.0) porque leyó el contenido, pero *
 
 **Prueba de aceptación:** esta misma llamada debe devolver `version_actual_biorag` en el **#1**, tanto en el snapshot como en la viva, sin que baje ninguna cifra de la QA. Antes de construir nada, se mide sobre una copia de la viva qué devuelven hoy `ordenar_por="recencia"` y la consulta sin ruido. Eso confirma o descarta la capa 1.
 
+### Propuesta externa evaluada: tres parches (2026-10-27)
+Otra IA acertó en el diagnóstico (semejanza conceptual frente a relevancia de intención), pero propuso tres parches. El auditor los rechaza tal como vienen, porque son reglas para este caso y no sirven para cualquier base:
+
+| Parche propuesto | Por qué no así | La versión general que sí |
+|---|---|---|
+| **"Veto atómico":** si la pregunta trae "última / versión / actual / orden", bajar los términos "históricos" | Lista fija de palabras y "histórico" sin definir. En otra base u otro idioma no sirve | Los síntomas de la pregunta entran como señales que la capa 2 aprende (§2l, §2n) |
+| **Decaimiento ×0,65** a los nodos con fecha en el nombre (`_20261024`) | Depende de cómo se nombró el recuerdo: el canónico gana solo porque no tiene fecha en el nombre. Y hundiría a v34 cuando la pregunta es "¿qué se hizo en la v34?" | Fecha de modificación real (C1) + familia (§2j), aplicada **solo** si se pide "la última" |
+| **`is_canonical` con piso fijo** | Etiqueta a mano y empujón fijo: rompe "el ranking no se toca" y no escala | Contención de identidad (§2j) + estado "vigente" escrito al guardar (§2n) |
+
+**Dos causas medidas que esa propuesta no ve:**
+1. **C8, el temático:** el canónico no recibe esa señal por su coincidencia de alias, y v34 sí. Es la misma señal que se investiga en **E2d** (siempre da 1,0). Arreglarla de raíz puede ayudar a este caso sin ningún parche.
+2. **El ruido en la consulta:** el agente escribió "biorag version ultima **orden nodos externos**". Tres de esas palabras no hablan de la versión. E2b midió que cada palabra de más puede tumbar al recuerdo bueno. Es parte de "una sola mente": el agente debería separar la pregunta de la versión de la pregunta del orden.
+
 ---
 
 ## 2h. Investigación a fondo: ¿qué separa dos recuerdos que comparten todo? (2026-10-27)
@@ -509,6 +522,8 @@ Cada pregunta trae a **sus hermanos como competidores difíciles**. Así aprende
 
 ## 2l. La "capa definitiva": segunda neurona de ranking condicionada por la consulta (Dennys, 2026-10-27)
 
+> **El problema en una frase (Dennys, 2026-10-27):** el sistema confunde **semejanza conceptual** con **relevancia de intención**. La capa definitiva es la neurona que, **en la etapa final de ordenar**, mira los candidatos que llegaron, entiende qué se quiere averiguar y pone en el **top-1** el recuerdo adecuado. Necesita dos cosas: que el correcto **llegue** a los candidatos (motor, E4) y que los recuerdos tengan su **tipo escrito** (§2n). Si las pistas no alcanzan para elegir, lo dice (empate real) en vez de inventar un ganador.
+
 > Dennys: *"Pasarle la query original como una aguja más, porque es la única forma de que aprenda: cuando le escriban algo, sabrá qué es lo que se está buscando."*
 > *"El re-ranqueo actual déjalo, está bien. Lo que vamos a sumar es otra capa definitiva."*
 > *"Más neuronas ocultas, más parámetros, entrenarla con miles de millones de preguntas. Las puedes generar tú misma usando el MCP: invocas `recordar` con los parámetros obligatorios, ves lo que devuelve el motor de verdad y lo vuelcas como entrenamiento. Con mi base, con cualquier otra base, con bases armadas de internet. Así sirve para cualquier base, porque aprende a identificar en la query los síntomas del recuerdo más certero."*
@@ -692,6 +707,32 @@ El agente ya escribe el tipo al guardar, en las dimensiones de `aprender`:
 
 **El cuello de botella no es la neurona, son los datos.** La epistemia solo está en 132 de 866 recuerdos (15 %) y la escala en 128. Sin el tipo escrito, ninguna neurona puede saber cuál "funcionó". En la viva la cobertura está por medir.
 
+### Prueba en la memoria real: el ejemplo A–D ya existe (snapshot, solo lectura, 2026-10-27)
+Medido así: grupos de 4 a 12 recuerdos que comparten una palabra del nombre o de los alias; tipo = epistemia, `accion_fallar`, intención y escala.
+- **470 grupos de tema; en 251 hay 3 o más tipos distintos.** El problema de ChatGPT no es teórico: está por toda la memoria.
+- **El 48 % de los miembros no tiene ningún tipo escrito** (1.359 de 2.821). Es el techo actual de lo que una neurona puede aprender.
+- **Ejemplo real, tema "determinista":**
+
+| Recuerdo | Tipo guardado | Pregunta que lo pide |
+|---|---|---|
+| `vision_word2vec_adaptado_meta_dennys` | decisión, general, **me explicaron** | "¿qué nos propusieron?" (A) |
+| `stemmer_no_determinista_entornos_nltk_vs_fallback_20260808` | **solución, verificada**, general | "¿qué solución funcionó?" (C) |
+| `leccion_discrepancia_busquedas_vocabulario_no_estocasticidad` | **aprendizaje**, lo apliqué, verificada | "¿qué aprendimos?" |
+| `puente_llm_sinonimos_veredicto_refutado_invariante_cero_llm` | **fallo**, decisión, verificada | "¿qué probamos que no funcionó?" |
+| `biorag_v18_0_baseline_determinista` | solución, fallo | (mezcla: tipo ambiguo) |
+| `artis_oec_dennys_solo` y otros dos | **sin tipo** | no se puede etiquetar |
+
+Cada grupo así da varias preguntas de contraste con respuestas distintas, que es justo lo que pide §2l–§2o. Con una sola base salen cientos de grupos, y con más bases, miles.
+
+### Ejemplo de entrenamiento n.º 1: el caso de la versión (propuesta externa contrastada, 2026-10-27)
+Otra IA propuso usar el caso real (`version_actual_biorag` en el puesto 4) como primer ejemplo: registrar la llamada MCP real, los 10 candidatos y la respuesta verificada, y armar preguntas de contraste sobre el mismo grupo ("versión actual" → canónico; "primera neurona" → v34; "DimensionHub" → v32.4; "cambios de la 32.3" → v32.3). **Coincide con §2l–§2o y se adopta**, con cinco precisiones de quien conoce el sistema:
+
+1. **Los nombres mienten, así que la neurona no debe verlos.** Los nodos viejos se llaman `version_actual_biorag_v34_0...` porque fueron "la actual" en su día. "version_actual" está en todos los nombres de la familia y no distingue a ninguno. Al entrenar, los conceptos se **anonimizan** (se renombran al azar en cada ejemplo), para que aprenda de señales y no de nombres.
+2. **La pista se registra por partes:** consulta original, paráfrasis, ráfaga y sustantivos van separados (§2m, "la pista completa"). La consulta real llevaba ruido ("orden nodos externos"), así que se guardan **la real y una versión limpia**, cada una con la misma respuesta.
+3. **La respuesta "versión actual" necesita la fecha de modificación (C1).** Hoy el canónico dice v35.0 en su contenido, pero su `creado_en` es del 14-10, anterior al de v34. Sin C1 y sin el estado "vigente", la etiqueta tendría que ponerse a mano, y eso no escala.
+4. **Las preguntas de contraste no se escriben a mano:** salen solas de la **familia** (§2j). El padre responde "la actual o la general"; cada hijo responde "lo que solo él tiene", es decir su número de versión y lo que añade. Así se generan para cualquier familia de cualquier base.
+5. **La fórmula `S_nuevo = S_actual + Δ(q, r)` ya es el molde de BioRAG:** piso (capa 1) más una corrección acotada con techo y guardia, igual que `neurona.py` (`_base` + `_correccion`). La capa 2 repite ese molde con la consulta dentro.
+
 ### Lo que entra a la capa 2 (tres bloques)
 1. **Lo que pide la pista** (igual para todos los candidatos): los síntomas del texto ("la última", "la primera", "funcionó", "falló", "por qué", "en general"), las dimensiones que mandó el agente y `ordenar_por`. Todo se traduce **al mismo vocabulario de tipos que las dimensiones**, para que "lo que pide" y "lo que es" hablen el mismo idioma (Morris 1977).
 2. **Lo que es cada candidato:** sus dimensiones de tipo (epistemia, acción, intención, escala), su categoría, su posición en el tiempo **dentro de su familia** (con fecha de modificación, C1), su nivel en la familia (§2j) y el resultado, si quedó dicho.
@@ -747,6 +788,59 @@ El agente ya escribe el tipo al guardar, en las dimensiones de `aprender`:
    - La capa 2 sería un adaptador más en el mismo puerto, detrás de la capa 1.
 
 **Estado:** guardado. Va después de E2b → E3 → E4, junto con §2l–§2n, y con el OK de Dennys.
+
+---
+
+## 2p. Carta blanca después del motor, una neurona "muy buena" y un cerebro sin idioma (Dennys, 2026-10-27)
+
+**Lo que decide Dennys:**
+- Cuando el operador termine y el motor esté bien, el auditor tiene **carta blanca** para la capa definitiva, paso a paso.
+- Tiene que ser una inteligencia **muy bien entrenada**, con los parámetros que haga falta, porque es una capa de raciocinio.
+- La **neurona 2 (asociativa)** sigue sin cablear. Queda así por ahora y se conecta en la fase de neuronas.
+- A la neurona se le entrega la **consulta original**: de ahí sale su percepción de qué se busca. Su trabajo es el **top-1**, y debajo lo relacionado con lo que se busca.
+- *"La única forma de que no se logre es que no se conecte bien, que no le entren las agujas que tienen que entrarle o que no se entrene como tiene que ser."*
+- **Es un cerebro: no puede estar casado con ningún idioma.** Lo usará cualquiera, también un chino o un coreano. **Toda pieza atada a un idioma está mal y hay que corregirla.**
+
+### Cuántos parámetros (respuesta del auditor)
+- No hay estándar, pero sí un método: **el tamaño lo decide la curva de validación.** Se empieza pequeño y se agranda (más unidades ocultas, más capas) **mientras mejore en bases que no vio**. Cuando deja de mejorar, más parámetros solo memorizan (sobreajuste).
+- **Los parámetros siguen a los datos.** Regla práctica: muchos más ejemplos que pesos (orden de 10 a 1). Con cientos de miles de ejemplos, de 10.000 a 100.000 pesos es razonable. Si los datos crecen, la red puede crecer.
+- "Muy buena" no significa "enorme": significa **entradas completas** (§2n, §2o) + **datos variados de muchas bases e idiomas** + **examen en bases nunca vistas**. Sigue corriendo en microsegundos.
+
+### Auditoría de idioma del motor (medida, 2026-10-27, solo lectura)
+| Pieza | Estado | Qué pasa con otros idiomas |
+|---|---|---|
+| `core/stemmer_es.py` | Snowball solo español e inglés | Ruso, coreano, chino, etc.: sin raíces, así que "versión/versiones" no se unen |
+| `core/stopwords.py` | Listas fijas en español e inglés | En otros idiomas, las palabras vacías cuentan como contenido (más ruido, E2b) |
+| `core/fallback_simbolico.py` (tokenizador `\w{2,}` + quitar tildes NFKD) | Pensado para escritura latina | **Chino:** sin espacios, "我的记忆系统" queda como **un solo token** y no hay coincidencia parcial. **Japonés:** quitar marcas une palabras distintas ("ガラス" vidrio y "カラス" cuervo dan el **mismo** token) y borra los kana sueltos. Coreano y ruso se tokenizan bien |
+| `core/clasificador_wordnet.py` (OMW) | Multilingüe, pero muy disperso en español (ya medido) | Cobertura desigual por idioma |
+| E3 propuesta con RLA-ES | Diccionario **solo en español** | **Choca con este principio:** E3 se rediseña |
+
+### Qué cambia en el plan
+1. **E3 deja de ser "diccionario español"** y pasa a ser **léxico independiente del idioma**:
+   - el idioma entra como **puerto** con **adaptadores** (es/en hoy, cualquier otro enchufable, arquitectura hexagonal);
+   - lo que no depende del idioma, primero: sinónimos aprendidos **del propio corpus** del usuario (coocurrencia/PPMI, ya existe en el motor), n-gramas de caracteres para escrituras sin espacios (estándar en búsqueda china y japonesa) y quitar tildes **solo** en escritura latina;
+   - los diccionarios (RLA-ES u otros) quedan como adaptadores opcionales, nunca obligatorios.
+2. **QA multilingüe mínima** antes de cambiar nada: casos sintéticos en chino, japonés, coreano, ruso e inglés sobre una base de prueba. Línea base primero, después cada cambio, con la regla de no bajar nada.
+3. **La capa definitiva** se entrena con bases en varios idiomas, y sus "síntomas" (última, falló...) se aprenden de los datos, **nunca de listas de palabras**.
+
+### ¿Si aprende en español, sabrá hacerlo en chino? (pregunta de Dennys, 2026-10-27)
+**Depende de qué le entre.** Hay dos tipos de entradas:
+
+| Tipo de entrada | Ejemplos | ¿Pasa a otro idioma? |
+|---|---|---|
+| **Neutras al idioma** | ¿esta palabra de la pista coincide exacta, por raíz o por sinónimo con el nombre, los alias o el texto? ¿cuántos rivales también la tienen? tipo guardado (epistemia, resultado), fecha dentro de la familia, nivel en la familia, dimensiones | **Sí.** No contienen palabras, solo relaciones. "La pista que solo cumple uno decide" vale igual en chino |
+| **Palabras concretas** | "última", "falló", "por qué" | **No por sí solas.** Una red que solo vio "última" no conoce "最新" ni "latest" |
+
+**Diseño que resuelve esto (una sola mente):** el agente es un modelo de lenguaje que ya entiende el idioma del usuario. Él traduce la intención a **parámetros neutros** que ya existen o se pueden añadir: dimensiones, `ordenar_por`, tipo pedido ("lo vigente", "lo que falló"). La neurona lee esos parámetros y las relaciones neutras, no palabras sueltas. Las palabras de la consulta entran solo como **coincidencias**, nunca como vocabulario aprendido.
+- Así la neurona entrenada en español funciona en chino sin reentrenar, porque lo que aprendió son relaciones.
+- Además se entrena y se examina con bases en varios idiomas (§2p) para comprobarlo, sin darlo por hecho.
+- **Analogía honesta:** un humano bilingüe razona igual en los dos idiomas, pero no entiende una palabra china que nunca aprendió. El razonamiento se transfiere; el vocabulario no. Por eso el vocabulario lo pone el agente y el razonamiento la neurona.
+
+**Datos (OK de Dennys):** se puede usar una copia de su memoria o bases construidas por el auditor con miles de recuerdos, donde la respuesta correcta se conoce porque se diseñó así: se arma la pista y se indica a qué recuerdo debe llegar. **Tamaño:** parámetros = pesos; más unidades ocultas dan más pesos; se agranda mientras mejore en bases no vistas (ver arriba).
+
+**E3 aprobada por Dennys como "léxico independiente del idioma"** (no el diccionario solo en español).
+
+**Estado:** guardado. La auditoría de idioma entra en la etapa del motor (antes de v36). La capa definitiva, después, con carta blanca.
 
 ---
 

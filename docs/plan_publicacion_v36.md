@@ -32,7 +32,7 @@
    - E1: QA honesta (obsoletas y ambiguas, aparte);
    - E2 y E2b: diagnóstico del 0848, tolerancia al ruido, temático saturado, la QA ya no deja archivos junto al snapshot;
    - E2c y siguientes: las reparaciones del motor que se aprueben;
-   - E3: léxico mental, si se aprueba;
+   - E3: léxico independiente del idioma (aprobada por Dennys el 2026-10-27; sustituye al diccionario solo en español);
    - E4: que el motor no dependa de la base;
    - fecha de modificación (C1), si entra.
 3. **Métricas antes y después** en el snapshot y en una copia de la viva: R@5, R@1, MRR y FP; QA clásica y honesta; con y sin ruido. Y el recuento de pruebas.
