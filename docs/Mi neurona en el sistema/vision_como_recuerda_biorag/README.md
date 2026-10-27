@@ -782,6 +782,42 @@ Cada grupo así da varias preguntas de contraste con respuestas distintas, que e
 
 ---
 
+## 2p. Carta blanca después del motor, una neurona "muy buena" y un cerebro sin idioma (Dennys, 2026-10-27)
+
+**Lo que decide Dennys:**
+- Cuando el operador termine y el motor esté bien, el auditor tiene **carta blanca** para la capa definitiva, paso a paso.
+- Tiene que ser una inteligencia **muy bien entrenada**, con los parámetros que haga falta, porque es una capa de raciocinio.
+- La **neurona 2 (asociativa)** sigue sin cablear. Queda así por ahora y se conecta en la fase de neuronas.
+- A la neurona se le entrega la **consulta original**: de ahí sale su percepción de qué se busca. Su trabajo es el **top-1**, y debajo lo relacionado con lo que se busca.
+- *"La única forma de que no se logre es que no se conecte bien, que no le entren las agujas que tienen que entrarle o que no se entrene como tiene que ser."*
+- **Es un cerebro: no puede estar casado con ningún idioma.** Lo usará cualquiera, también un chino o un coreano. **Toda pieza atada a un idioma está mal y hay que corregirla.**
+
+### Cuántos parámetros (respuesta del auditor)
+- No hay estándar, pero sí un método: **el tamaño lo decide la curva de validación.** Se empieza pequeño y se agranda (más unidades ocultas, más capas) **mientras mejore en bases que no vio**. Cuando deja de mejorar, más parámetros solo memorizan (sobreajuste).
+- **Los parámetros siguen a los datos.** Regla práctica: muchos más ejemplos que pesos (orden de 10 a 1). Con cientos de miles de ejemplos, de 10.000 a 100.000 pesos es razonable. Si los datos crecen, la red puede crecer.
+- "Muy buena" no significa "enorme": significa **entradas completas** (§2n, §2o) + **datos variados de muchas bases e idiomas** + **examen en bases nunca vistas**. Sigue corriendo en microsegundos.
+
+### Auditoría de idioma del motor (medida, 2026-10-27, solo lectura)
+| Pieza | Estado | Qué pasa con otros idiomas |
+|---|---|---|
+| `core/stemmer_es.py` | Snowball solo español e inglés | Ruso, coreano, chino, etc.: sin raíces, así que "versión/versiones" no se unen |
+| `core/stopwords.py` | Listas fijas en español e inglés | En otros idiomas, las palabras vacías cuentan como contenido (más ruido, E2b) |
+| `core/fallback_simbolico.py` (tokenizador `\w{2,}` + quitar tildes NFKD) | Pensado para escritura latina | **Chino:** sin espacios, "我的记忆系统" queda como **un solo token** y no hay coincidencia parcial. **Japonés:** quitar marcas une palabras distintas ("ガラス" vidrio y "カラス" cuervo dan el **mismo** token) y borra los kana sueltos. Coreano y ruso se tokenizan bien |
+| `core/clasificador_wordnet.py` (OMW) | Multilingüe, pero muy disperso en español (ya medido) | Cobertura desigual por idioma |
+| E3 propuesta con RLA-ES | Diccionario **solo en español** | **Choca con este principio:** E3 se rediseña |
+
+### Qué cambia en el plan
+1. **E3 deja de ser "diccionario español"** y pasa a ser **léxico independiente del idioma**:
+   - el idioma entra como **puerto** con **adaptadores** (es/en hoy, cualquier otro enchufable, arquitectura hexagonal);
+   - lo que no depende del idioma, primero: sinónimos aprendidos **del propio corpus** del usuario (coocurrencia/PPMI, ya existe en el motor), n-gramas de caracteres para escrituras sin espacios (estándar en búsqueda china y japonesa) y quitar tildes **solo** en escritura latina;
+   - los diccionarios (RLA-ES u otros) quedan como adaptadores opcionales, nunca obligatorios.
+2. **QA multilingüe mínima** antes de cambiar nada: casos sintéticos en chino, japonés, coreano, ruso e inglés sobre una base de prueba. Línea base primero, después cada cambio, con la regla de no bajar nada.
+3. **La capa definitiva** se entrena con bases en varios idiomas, y sus "síntomas" (última, falló...) se aprenden de los datos, **nunca de listas de palabras**.
+
+**Estado:** guardado. La auditoría de idioma entra en la etapa del motor (antes de v36). La capa definitiva, después, con carta blanca.
+
+---
+
 ## 3. El orden para llegar (paso a pasito)
 
 | Etapa | Qué | Relación con la visión |
