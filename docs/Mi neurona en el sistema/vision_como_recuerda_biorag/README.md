@@ -444,6 +444,13 @@ Medido en la viva (solo lectura): `version_actual_biorag` y `ultima_version_bior
 
 **Siguiente paso (con el OK de Dennys):** la simulación de solo lectura sobre la QA del snapshot y de la viva (ganan / pierden el #1), ahora con esta regla.
 
+**Objeción de Dennys (2026-10-27):** *"Si caigo en un nodo y sus aristas no pueden estar por encima, pero lo que busco está en las aristas y no en ese nodo…"*
+
+Respuesta: por eso la regla **no es fija**, sino relativa a la consulta.
+- **Si la consulta nombra lo que la arista añade** ("v34", o "neurona" si está en sus sustantivos clave), se baja a esa arista y **va primero**.
+- **Si no lo nombra**, el padre va primero y sus aristas **justo debajo** (puestos 2 a 5), no perdidas en el 50. Es el recuerdo escalonado (P4): primero lo general y enseguida el detalle.
+- **Condición:** que cada recuerdo diga en sus sustantivos clave lo que lo distingue de su padre. Si no lo dice, nadie puede bajar a él, ni humano ni motor.
+
 ---
 
 ## 3. El orden para llegar (paso a pasito)
