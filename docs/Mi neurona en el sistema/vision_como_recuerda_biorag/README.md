@@ -273,6 +273,19 @@ El agente "supo" la respuesta correcta (v35.0) porque leyó el contenido, pero *
 
 **Prueba de aceptación:** esta misma llamada debe devolver `version_actual_biorag` en el **#1**, tanto en el snapshot como en la viva, sin que baje ninguna cifra de la QA. Antes de construir nada, se mide sobre una copia de la viva qué devuelven hoy `ordenar_por="recencia"` y la consulta sin ruido. Eso confirma o descarta la capa 1.
 
+### Propuesta externa evaluada: tres parches (2026-10-27)
+Otra IA acertó en el diagnóstico (semejanza conceptual frente a relevancia de intención), pero propuso tres parches. El auditor los rechaza tal como vienen, porque son reglas para este caso y no sirven para cualquier base:
+
+| Parche propuesto | Por qué no así | La versión general que sí |
+|---|---|---|
+| **"Veto atómico":** si la pregunta trae "última / versión / actual / orden", bajar los términos "históricos" | Lista fija de palabras y "histórico" sin definir. En otra base u otro idioma no sirve | Los síntomas de la pregunta entran como señales que la capa 2 aprende (§2l, §2n) |
+| **Decaimiento ×0,65** a los nodos con fecha en el nombre (`_20261024`) | Depende de cómo se nombró el recuerdo: el canónico gana solo porque no tiene fecha en el nombre. Y hundiría a v34 cuando la pregunta es "¿qué se hizo en la v34?" | Fecha de modificación real (C1) + familia (§2j), aplicada **solo** si se pide "la última" |
+| **`is_canonical` con piso fijo** | Etiqueta a mano y empujón fijo: rompe "el ranking no se toca" y no escala | Contención de identidad (§2j) + estado "vigente" escrito al guardar (§2n) |
+
+**Dos causas medidas que esa propuesta no ve:**
+1. **C8, el temático:** el canónico no recibe esa señal por su coincidencia de alias, y v34 sí. Es la misma señal que se investiga en **E2d** (siempre da 1,0). Arreglarla de raíz puede ayudar a este caso sin ningún parche.
+2. **El ruido en la consulta:** el agente escribió "biorag version ultima **orden nodos externos**". Tres de esas palabras no hablan de la versión. E2b midió que cada palabra de más puede tumbar al recuerdo bueno. Es parte de "una sola mente": el agente debería separar la pregunta de la versión de la pregunta del orden.
+
 ---
 
 ## 2h. Investigación a fondo: ¿qué separa dos recuerdos que comparten todo? (2026-10-27)
