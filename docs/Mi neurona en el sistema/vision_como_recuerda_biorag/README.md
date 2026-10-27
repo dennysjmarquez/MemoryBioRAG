@@ -459,7 +459,7 @@ Respuesta: por eso la regla **no es fija**, sino relativa a la consulta.
 
 ### Lo que la neurona ve y aprende hoy (verificado en el código)
 
-- **Entradas por candidato:** las 17 "agujas" de la fórmula (`core/memory/neurona.py:242`) más lo que pasa después (bono de convergencia, evidencia por campo, peso, origen, si el agente mandó sustantivos). **No ve la intención de la consulta, ni la familia, ni el tiempo.**
+- **Entradas por candidato:** las 17 "agujas" de la fórmula (`core/memory/neurona.py:242`) más lo que pasa después (bono de convergencia, evidencia por campo, peso, origen, si el agente mandó sustantivos). **No ve la intención de la consulta ni la familia.** *(Corrección 2026-10-27: sí recibe una señal de tiempo, `episodio_score`, entre las 17 agujas. Lo que le falta es relacionar la intención temporal de la pregunta con el tiempo del candidato.)*
 - **Una de sus 17 agujas está muerta:** el temático vale 1,0 en el 100 % de los candidatos que lo reciben (medido en E2). **La recencia no existe** (C3).
 - **Examen:** cada pregunta sale de **un** recuerdo y su respuesta es ese mismo recuerdo (`neurona_examen.py:145`). **Nunca le enseña** "mismo tema, distinta intención": no hay competidores difíciles de la misma familia.
 - **Alcance:** reordena el top-5 a top-10. En el caso de la versión, el correcto estaba en el #4, **dentro de su alcance**. No lo subió porque **no tenía con qué distinguirlo**.
@@ -578,7 +578,7 @@ Dennys trajo tres respuestas de otras IAs y pidió guardarlo para hacerlo despu�
 **La frase que la capa 2 debe aprender (Dennys la marca como LA clave):**
 > "El cerebro no necesita recuperar simplemente algo relacionado con el problema. Necesita recuperar el recuerdo que mejor encaja con lo que intentas averiguar en este momento."
 
-Dicho en términos de ingeniería: la relevancia es una función de **(consulta, recuerdo)**, no del recuerdo solo. **La prueba que lo demuestra es el cambio de ganador:** con el MISMO grupo de candidatos, al cambiar la pregunta ("la última", "la primera", "la que falló", "la general") debe cambiar el #1. Si no cambia, no lo aprendió.
+Dicho en términos de ingeniería: la relevancia es una función de **(consulta, recuerdo)**, no del recuerdo solo. **La prueba que lo demuestra es el cambio de ganador:** con el MISMO grupo de candidatos, cuando preguntas distintas tienen **respuestas de referencia distintas** ("la última", "la primera", "la que falló", "la general"), el #1 debe ser el de cada una. Si dos preguntas tienen la misma respuesta correcta, el #1 no tiene por qué cambiar. *(Precisión aceptada de una revisión externa, 2026-10-27.)*
 
 ### Opinión 1: revisión del código (coincide con §2l)
 - **Confirmado contra el código:**
@@ -607,7 +607,7 @@ Dicho en términos de ingeniería: la relevancia es una función de **(consulta,
 - Describe cómo lo hacen los Transformers con vectores densos. **Choca con la regla de BioRAG:** sin embeddings y nada pesado.
 - **Lo aprovechable, traducido a BioRAG:**
   - **Entrenamiento con tríos** (consulta, recuerdo correcto, recuerdo parecido pero incorrecto) y ajuste de pesos por el error: es exactamente la pérdida por pares con rivales difíciles de §2l.
-  - **"Atención" simbólica:** cada término de la consulta pesa sobre cada campo del candidato (nombre, sustantivos, sinónimos, texto) según el tipo de coincidencia. Es la matriz de interacción local de Duet (§2l): atención, pero sin vectores.
+  - **Correspondencia simbólica consulta↔candidato** (no se le llama "atención", porque no es ese mecanismo): cada término de la consulta se cruza con cada campo del candidato (nombre, sustantivos, sinónimos, texto) según el tipo de coincidencia. Es la matriz de interacción local de Duet (§2l), sin embeddings. Contar coincidencias no basta: un "no" en "la que no funcionó" cambia lo que se pide, y eso tiene que ser una señal propia.
   - Sus ejemplos ("la marcha del carro" frente a "marcha de protesta") son de **sentido de la palabra**. En BioRAG eso lo dan los sustantivos clave y las dimensiones (P4, moto frente a moto de agua), no un vector.
 - **Se rechaza:**
   - embeddings densos (regla de Dennys);
@@ -624,6 +624,32 @@ El cerebro nace con la infraestructura ya cableada y después solo se le mete in
 | Afinarse con la experiencia | Ajuste local opcional sobre su base, siempre con piso (capa 1), techo y examen sellado. |
 
 Lo que viene de fábrica no es el contenido, sino **la habilidad de discernir**: leer los síntomas de la pregunta y elegir entre rivales parecidos. Por eso se entrena con muchas bases distintas y se examina en bases que nunca vio.
+
+### La clave (respuesta a Dennys, 2026-10-27)
+
+**1. La "pregunta" no es solo el texto: es todo lo que manda el agente.**
+- `recordar` recibe query, paráfrasis, sustantivos clave, dimensiones, ráfaga, `ordenar_por` y `dias`/`desde`.
+- El agente ya hace el trabajo de la corteza prefrontal: `prompt.py` le obliga a pensar qué busca antes de armar la query.
+- Por eso la capa 2 debe leer **la pista completa**, no solo la frase. Es la "una sola mente" (P6): el agente decide la intención y la neurona la reconoce en los candidatos.
+
+**2. Lo que decide no es lo que coincide, sino lo que distingue.**
+- Si 5 candidatos comparten "biorag versión", esas palabras no ayudan a elegir y deben pesar casi cero.
+- Lo que decide es la parte de la pista que **solo cumple uno de los rivales**: "última", "falló", "v34", la dimensión `intencion_aprender`...
+- Es el valor diagnóstico relativo (Nairne 2002; Goh y Lu 2011, §2h). Por eso las entradas de la capa 2 deben ser **relativas al grupo de candidatos** (¿este cumple algo que los demás no?), no absolutas.
+- Esto es lo que la neurona tiene que aprender a hacer: **mirar a los rivales para saber qué parte de la pregunta importa.**
+
+**3. Búsquedas sin texto (verificado en `core/mcp_server/search.py`, líneas 181–182 y 325–345):**
+- **Solo cronológica** (`dias`/`desde`, sin query ni dimensiones): es una consulta SQL ordenada por `creado_en`. La intención es "lo que pasó en ese tiempo" y ya está dicha; la capa 2 no debe tocarla.
+- **Solo por dimensiones:** las dimensiones **son** la pista. Vale la misma regla: cruzar las dimensiones pedidas con las de cada candidato y pesar las que distinguen entre rivales.
+- Dennys pidió no mezclar el diseño de la búsqueda por dimensiones con esto. Solo se anota que la capa 2 debe aceptar una pista sin texto. Antes de diseñar hay que verificar cómo corre hoy la neurona con `frase=""`.
+
+**4. Correcciones aceptadas de la revisión externa:**
+- la neurona actual sí ve tiempo (`episodio_score`), corregido en §2k;
+- el cambio de ganador solo se exige cuando las respuestas de referencia son distintas;
+- se habla de "correspondencia simbólica", no de "atención";
+- **las etiquetas nunca salen del #1 del propio motor** (sería enseñarle sus errores). El MCP aporta los candidatos y las señales; la respuesta correcta sale de datos verificables (fecha, contención, epistemia, resultado dicho al guardar);
+- epistemia (hipótesis/verificada/obsoleta) y resultado (funcionó/falló/no probado) son dos cosas distintas;
+- pasar en bases reservadas demuestra que generaliza **a lo evaluado**, no a "cualquier base imaginable". Se dice así.
 
 **Estado:** guardado para después. Va detrás de E2b → E3 → E4, como dice §2l. No se toca nada hasta el OK de Dennys.
 
