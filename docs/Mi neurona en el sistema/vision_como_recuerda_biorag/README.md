@@ -177,6 +177,49 @@ No lee archivo por archivo: el contexto reduce las opciones y el ganador aplasta
 
 ---
 
+## 2f. Cuando dos recuerdos comparten TODAS las palabras: coordenadas, no etiquetas (para después)
+
+> Dennys (2026-10-27): *"Yo ya había intentado resolver esto con los sustantivos clave. Pero puede pasar que dos recuerdos tengan los mismos sinónimos, sustantivos clave y palabras clave. ¿Cómo se soluciona?"*
+> *"De aquí saldrá la clave de nuestro problema. Hay que experimentar lo que más posibilidades tenga."*
+> **Estado:** guardado para experimentar **después** de E2–E4.
+
+### Lo que explicó la otra IA (resumen fiel)
+
+1. **El cerebro no busca por palabras, sino por coordenadas.** Al guardar, el hipocampo crea una **firma multidimensional**: las palabras más **cuándo** pasó, el **estado interno** (hambre, ritmo, qué pensabas justo antes) y el **contexto**. Dos recuerdos con "mamá, comida, cocina" quedan en sitios distintos del mapa.
+2. **Geometría.** Dos recuerdos pueden compartir algunos ejes (las palabras) y separarse mucho en otros (contexto, orden, emoción).
+3. **El orden de disparo (código de fase).** "Guardar las llaves en la mesa al llegar" y "buscarlas en la mesa al salir" tienen los mismos sustantivos. Los separa **el orden de los hechos** y el ritmo cerebral (ondas theta y gamma).
+4. **Conclusión de la otra IA:** cuando las palabras empatan, desempatan **el tiempo, el estado del momento y el orden de los hechos**.
+
+**Nota del auditor:**
+- La idea central (codificación relacional y contexto temporal) es ciencia establecida.
+- La imagen de "vectores en un espacio tridimensional" es una simplificación.
+- El papel exacto del código de fase al desempatar recuerdos sigue en investigación.
+- Para BioRAG no hacen falta vectores: las **coordenadas pueden ser simbólicas**.
+
+### Traducción a BioRAG: las coordenadas que ya tenemos y las que faltan
+
+| Coordenada del cerebro | Qué hay hoy en BioRAG | Estado medido |
+|---|---|---|
+| **Qué** (palabras, sustantivos clave, sinónimos) | Sí: es casi todo lo que usa el ranking | Es justo la coordenada que empata |
+| **Cuándo** (firma de tiempo) | `creado_en`, `ultimo_uso`, familias de versiones | Existe, pero casi no ordena: recencia 0,04 (P2, vigencia) |
+| **Relación: quién hizo qué a qué** (el verbo separa "guardar" de "buscar") | Tabla `predicados` (sujeto, acción, objeto, contexto) y señal nº 12 | **Parcial:** en el snapshot hay 187 predicados en **102 de 866** recuerdos (12 %). La señal compara palabras sueltas, **no los papeles** (sujeto, acción, objeto) |
+| **Contexto y motivo** (para qué se guardó) | Dimensiones semánticas | Existe; por medir cuánto separa |
+| **Orden de los hechos** (antes y después) | Por verificar en el código si hay enlaces "antes/después" entre episodios | Desconocido |
+| **Estado interno** (qué se estaba pensando) | El proyecto o la sesión en curso (ver §2e, foco de la conversación) | No existe |
+
+**Regla que se deduce:** si dos recuerdos coinciden en **todas** las coordenadas (qué, cuándo, relación, contexto), no son dos recuerdos: es **el mismo** repetido, o **una versión nueva** del mismo. Eso no lo arregla el buscador, sino la consolidación (fusionar) o la vigencia (quedarse con el último).
+
+### Experimentos, ordenados por posibilidad de éxito
+
+1. **Coordenada "cuándo":** desempatar por tiempo dentro de la misma familia (vigencia). Ya hay un fallo medido: v32.3 frente a v35.0.
+2. **Coordenada "relación":** medir si comparar sujeto, acción y objeto (no palabras sueltas) separa casos que hoy empatan. Antes hay que ampliar la cobertura de predicados del 12 % (con cuidado: el backfill de 2026-08-04 ya demostró que puede canibalizar el re-ranking jaccard).
+3. **Firma diferenciadora** (§2d): lo que solo tiene ese recuerdo frente a sus vecinos.
+4. **Orden de los hechos:** solo si se confirma que existe o que se puede construir sin registrar el uso del agente.
+
+Mismas reglas: QA primero, un cambio cada vez, nunca bajar el recall, igual en cualquier base, experimentos sobre copias.
+
+---
+
 ## 3. El orden para llegar (paso a pasito)
 
 | Etapa | Qué | Relación con la visión |
