@@ -8,6 +8,14 @@
 - **Quién lo escribe:** el **auditor** redacta la documentación de v36.0 (README, `CHANGELOG.md`, `VERSION`) en su rama. Dennys revisa y fusiona.
 - **Cómo:** los cambios que entraron sin documentar van **dentro** de la sección v36.0, como parte de ella, **sin numerarlos como versiones** sueltas.
 
+## Orden aceptado por Dennys (2026-10-27)
+1. El operador cierra el motor: E2c → E3 → E4. **No toca README, `VERSION` ni `CHANGELOG.md`.**
+2. El auditor redacta v36.0 en su rama con las métricas finales.
+3. Dennys fusiona la rama del auditor con la del operador.
+4. El auditor audita la rama combinada (pytest, QA de control y documentos).
+5. Dennys pasa a master (PR #12) y pone la etiqueta v36.0.
+6. **Después** empiezan las neuronas (asociativa + capa definitiva, visión §2l–§2o), que serán la v37. Así la v36 sirve de base fija de comparación y de punto de regreso.
+
 ## Qué entra en "Novedades de la versión v36.0"
 1. **Cambios del motor que entraron a master después de v35.0 sin documentar** (fusión `f8c2b16`), descritos dentro de v36.0, sin número de versión:
 
