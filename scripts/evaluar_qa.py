@@ -39,6 +39,179 @@ def _clave_etiqueta(texto):
     return re.sub(r'[^a-z0-9]+', '', _normalizar_token(texto))
 
 
+def _clave_texto(texto):
+    """Clave de comparación de TEXTO LIBRE: minúsculas, sin tildes, separadores unidos.
+
+    Distinta de `_clave_etiqueta` (que borra TODO lo no alfanumérico y por tanto no
+    sirve para buscar una frase dentro de un campo). Aquí los separadores `_`, `-` y
+    los espacios se convierten en un solo espacio, porque el nombre de un nodo usa
+    `_` y el alias usa `-` o `,`: `pre-validacion` y `pre_validacion` son lo mismo.
+    """
+    limpio = re.sub(r'[_,;\s\-]+', ' ', _normalizar_token(texto or ''))
+    return limpio.strip()
+
+
+# ── E1: reglas de la QA honesta (fijadas por el auditor, 2026-10-26) ──────────
+# UMBRAL_AMBIGUA_R5 = "más de 5 reclamantes": con 5 o menos TODOS caben en el
+# top-5, así que el caso no lo puede fallar el motor por ser ambiguo. Se decidió
+# DESPUÉS de ver los resultados de la primera entrega de E1 y se dice así en el
+# informe: no es una regla previa, es una decisión consciente de Dennys.
+UMBRAL_AMBIGUA_R5 = 5
+UMBRAL_AMBIGUA_R1 = 2
+
+
+def _palabras(texto):
+    """Palabras normalizadas completas. `pre-validacion` -> ['pre','validacion']."""
+    return [p for p in _clave_texto(texto).split() if p]
+
+
+def _nodo_declara(concepto, sinonimos, palabras_q):
+    """¿Este nodo reclama la consulta? Regla ESTRICTA, sin buscar dentro de palabras.
+
+    Dos formas, y solo dos:
+      - ALIAS COMPLETO: un alias del campo `sinonimos` es exactamente la consulta
+        (`filtro-arquitecto-prolijo` == `filtro-arquitecto-prolijo`).
+      - PALABRA ENTERA EN EL NOMBRE: la consulta aparece como palabras completas y
+        seguidas en el nombre del nodo (`perfil` dentro de `dennys_perfil_gustos`).
+
+    POR QUÉ no se usa "contiene": con substring, `agente` reclamaba 119 nodos
+    (exacto: 32) porque entraba dentro de `agentes`, `agencia`... y `oracle
+    identification` salía ambigua con un solo reclamante real. La regla anterior
+    medía parecido de letras, no la palabra.
+    """
+    if not palabras_q:
+        return False
+    for alias in re.split(r'[,;|\n]+', sinonimos or ''):
+        if _palabras(alias) == palabras_q:
+            return True
+    palabras_nombre = _palabras((concepto or '').replace('_', ' ').replace('-', ' '))
+    n = len(palabras_q)
+    if n > len(palabras_nombre):
+        return False
+    return any(palabras_nombre[i:i + n] == palabras_q for i in range(len(palabras_nombre) - n + 1))
+
+
+def _mapa_declaraciones(con):
+    """{concepto: sinonimos} de una base, para clasificar sin abrir el motor."""
+    return {
+        concepto: (sinonimos or '')
+        for concepto, sinonimos in con.execute(
+            "SELECT concepto, COALESCE(sinonimos, '') FROM largo_plazo"
+        ).fetchall()
+    }
+
+
+def clasificar_casos_sinonimo(db, cases, ruta_referencia=None):
+    """Separa los casos `sinonimo` en OBSOLETOS y AMBIGUOS.
+
+    POR QUÉ existe (etapa E1, decisión de Dennys 2026-10-26): en la base viva, 6 de
+    los 7 fallos venían del EXAMEN, no del buscador. Contarlos como fallos del motor
+    no mide el motor: mide el dataset.
+
+    REGLAS (las del auditor, aplicadas al pie de la letra):
+      1. OBSOLETA — el recuerdo esperado SÍ declaraba la palabra en el snapshot de
+         origen y YA NO la declara en la base que se mide. Si se mide el propio
+         snapshot, son 0 por construcción.
+      2. AMBIGUA — 2 o más recuerdos reclaman la palabra, con la regla estricta de
+         `_nodo_declara` (alias completo o palabra entera en el nombre).
+      3. Se aparta POR MÉTRICA: para R@5 solo cuentan como ambiguas las de más de
+         `UMBRAL_AMBIGUA_R5` reclamantes; para R@1, desde `UMBRAL_AMBIGUA_R1`.
+      4. Se calcula en tiempo de QA contra la base medida. `casos_qa.jsonl` no se
+         toca.
+
+    `ruta_referencia`: DB del snapshot de origen. Sin ella no se puede afirmar
+    "YA NO" y `obsoleta` queda en False (no se inventa).
+
+    Devuelve {case_id: {"obsoleta", "n_reclamantes", "ambigua_r5", "ambigua_r1",
+                        "detalle"}}.
+    """
+    medido = _mapa_declaraciones(db.cursor)
+    referencia = {}
+    if ruta_referencia:
+        try:
+            # Solo lectura, e INMUTABLE cuando el fichero está limpio: sin esto
+            # SQLite puede crear -wal/-shm al lado del snapshot y cambiarle el
+            # sha256. Ya pasó una vez en esta etapa (lo detectó el auditor).
+            # PERO immutable=1 hace que SQLite IGNORE un -wal existente: en una
+            # base recién escrita (que vive en WAL) se leería vacía. Por eso solo
+            # se usa cuando no hay sidecar.
+            _modo = "mode=ro"
+            if not os.path.exists(str(ruta_referencia) + "-wal"):
+                _modo += "&immutable=1"
+            con_ref = sqlite3.connect(f"file:{ruta_referencia}?{_modo}", uri=True)
+            try:
+                referencia = _mapa_declaraciones(con_ref)
+            finally:
+                con_ref.close()
+        except sqlite3.Error:
+            referencia = {}
+
+    marcas = {}
+    for caso in cases:
+        if caso.get("categoria") != "sinonimo":
+            continue
+        esperado = caso.get("concepto_esperado")
+        if not esperado:
+            continue
+        palabras_q = _palabras(caso.get("query", ""))
+        if not palabras_q:
+            continue
+
+        # 1) OBSOLETA: declaraba en el origen y ya no declara aquí.
+        declaraba_antes = bool(
+            referencia and esperado in referencia
+            and _nodo_declara(esperado, referencia[esperado], palabras_q)
+        )
+        declara_ahora = bool(
+            esperado in medido and _nodo_declara(esperado, medido[esperado], palabras_q)
+        )
+        obsoleta = bool(declaraba_antes and not declara_ahora)
+
+        # 2) AMBIGUA: cuántos nodos la reclaman en la base medida.
+        n_reclamantes = sum(
+            1 for concepto, sinonimos in medido.items()
+            if _nodo_declara(concepto, sinonimos, palabras_q)
+        )
+
+        # 3) Umbral por métrica.
+        ambigua_r5 = n_reclamantes > UMBRAL_AMBIGUA_R5
+        ambigua_r1 = n_reclamantes >= UMBRAL_AMBIGUA_R1
+
+        partes = []
+        if obsoleta:
+            partes.append("el esperado declaraba el alias en el snapshot y ya no en esta base")
+        if n_reclamantes:
+            partes.append(f"{n_reclamantes} recuerdos reclaman la palabra")
+        marcas[caso["id"]] = {
+            "obsoleta": obsoleta,
+            "n_reclamantes": n_reclamantes,
+            "ambigua_r5": ambigua_r5,
+            "ambigua_r1": ambigua_r1,
+            "detalle": "; ".join(partes) if partes else "",
+        }
+    return marcas
+
+
+def _tabla_honesta(registros, metrica="r5"):
+    """Agrega por categoría lo que queda al apartar según LA MÉTRICA pedida.
+
+    `metrica` es "r5" o "r1": una pregunta puede contar para el R@5 y no para el
+    R@1 (por ejemplo, 4 recuerdos declaran la palabra: todos caben en el top-5,
+    pero solo uno puede ser el primero).
+    """
+    campo_apartado = "apartado_r5" if metrica == "r5" else "apartado_r1"
+    por_cat = defaultdict(lambda: {"n": 0, "h5": 0, "h1": 0, "rr": 0.0})
+    for reg in registros:
+        if reg.get(campo_apartado):
+            continue
+        m = por_cat[reg["categoria"]]
+        m["n"] += 1
+        m["h5"] += reg["hit5"]
+        m["h1"] += reg["hit1"]
+        m["rr"] += reg["rr"]
+    return por_cat
+
+
 def _restaurar_estado_nodos(db, estado_inicial):
     """Restaura `estado` y `peso_sinaptico` de los nodos que el caso anterior modificó.
 
@@ -103,6 +276,76 @@ def _tokens_corpus(db):
     return tokens
 
 
+def _copiar_base_para_qa(src_db, temp_db):
+    """Copia la base que se va a medir SIN tocar el original. (Higiene E2b)
+
+    POR QUÉ existe (hallazgo del auditor, E2b-C): al medir el snapshot, la copia
+    se hacía abriendo el original con `mode=ro`, y SQLite, para leer una base en
+    WAL, CREA el `-shm` (y a veces el `-wal`) al lado del fichero. Resultado: la
+    QA del snapshot dejaba basura junto al snapshot y podía moverle el sha256.
+
+    Cómo se evita:
+      * Si no hay `-wal`, se abre con `immutable=1`: SQLite no toca el directorio.
+      * Si hay `-wal` (base recién escrita), `immutable=1` IGNORARÍA esas
+        transacciones y se copiaría una base vieja; ahí se abre con `mode=ro` y
+        se anotan los sidecars que aparezcan para borrarlos después.
+      * La copia de trabajo va a un temporal del sistema, no al repo.
+
+    Devuelve {"modo", "sha_antes", "sha_despues", "sidecars_borrados"}.
+    """
+    import hashlib
+    import tempfile
+
+    src_db = str(src_db)
+    temp_db = str(temp_db)
+    sidecars = [src_db + "-wal", src_db + "-shm"]
+    previos = {p: os.path.exists(p) for p in sidecars}
+
+    def _sha(ruta):
+        h = hashlib.sha256()
+        with open(ruta, "rb") as f:
+            for bloque in iter(lambda: f.read(1 << 20), b""):
+                h.update(bloque)
+        return h.hexdigest()
+
+    sha_antes = _sha(src_db)
+    modo = "mode=ro" if previos[src_db + "-wal"] else "mode=ro&immutable=1"
+    uri = Path(src_db).expanduser().resolve().as_uri() + "?" + modo
+
+    os.makedirs(os.path.dirname(temp_db) or ".", exist_ok=True)
+    for ext in ("", "-wal", "-shm"):
+        if os.path.exists(temp_db + ext):
+            try:
+                os.remove(temp_db + ext)
+            except OSError:
+                pass
+
+    conn_src = sqlite3.connect(uri, uri=True)
+    conn_dst = sqlite3.connect(temp_db)
+    try:
+        conn_src.backup(conn_dst)
+    finally:
+        conn_dst.close()
+        conn_src.close()
+
+    # Solo se borra lo que ha aparecido por nuestra culpa; lo que ya estaba, se respeta.
+    borrados = []
+    for p in sidecars:
+        if not previos[p] and os.path.exists(p):
+            try:
+                os.remove(p)
+                borrados.append(os.path.basename(p))
+            except OSError:
+                pass
+
+    return {
+        "modo": modo,
+        "sha_antes": sha_antes,
+        "sha_despues": _sha(src_db),
+        "sidecars_borrados": borrados,
+    }
+
+
 def run_evaluation(argv=None):
     base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
     args = QN.leer_argumentos(sys.argv[1:] if argv is None else argv)
@@ -122,7 +365,12 @@ def run_evaluation(argv=None):
 
     src_db = os.environ.get('BIORAG_PATH') or os.path.join(base_dir, "MemoryBioRAG_Data", "memory_biorag.db")
 
-    temp_db = os.path.join(base_dir, "MemoryBioRAG_Data", "memory_biorag_qa_temp.db")
+    # La copia de trabajo va fuera del repo: la QA no debe dejar ficheros suyos
+    # en el árbol de trabajo ni junto a las bases que mide (higiene E2b-C).
+    import tempfile as _tempfile
+    temp_db = os.environ.get("BIORAG_QA_TEMP_DB") or os.path.join(
+        _tempfile.gettempdir(), f"biorag_qa_temp_{os.getpid()}.db"
+    )
     cases_filename = args.casos
     cases_file = os.path.join(base_dir, "scripts", cases_filename)
     failed_file = os.environ.get(
@@ -142,16 +390,15 @@ def run_evaluation(argv=None):
                 os.remove(f)
             except OSError:
                 pass
-    # La fuente es de solo lectura: la copia de respaldo incluye las transacciones
-    # confirmadas del WAL sin ejecutar wal_checkpoint ni escribir en la DB origen.
-    src_uri = Path(src_db).expanduser().resolve().as_uri() + "?mode=ro"
-    conn_src = sqlite3.connect(src_uri, uri=True)
-    conn_dst = sqlite3.connect(temp_db)
-    try:
-        conn_src.backup(conn_dst)
-    finally:
-        conn_dst.close()
-        conn_src.close()
+    # La fuente es de solo lectura: la copia incluye las transacciones confirmadas
+    # del WAL sin ejecutar wal_checkpoint ni escribir en la DB origen.
+    info_copia = _copiar_base_para_qa(src_db, temp_db)
+    if info_copia["sha_antes"] != info_copia["sha_despues"]:
+        print("  [AVISO] la base de origen CAMBIÓ de sha256 al copiarla "
+              f"({info_copia['sha_antes'][:12]} -> {info_copia['sha_despues'][:12]})")
+    print(f"  origen intacto: sha256 {info_copia['sha_despues'][:12]} ({info_copia['modo']})"
+          + (f"; sidecars borrados: {', '.join(info_copia['sidecars_borrados'])}"
+             if info_copia["sidecars_borrados"] else ""))
     # Lo que la neurona dejó guardado en la base medida (leído de la copia, sin el motor)
     guardada_origen = QN.leer_guardada(temp_db)
 
@@ -208,6 +455,26 @@ def run_evaluation(argv=None):
     print("")
     print("\n".join(aviso_neurona))
     print("")
+
+    # ── E1: QA honesta (obsoletas y ambiguas) ──────────────────────────────
+    # Se calcula UNA vez, al principio, sobre la copia recién abierta: antes de que
+    # ningún caso despierte nodos ni escriba pesos. Así la clasificación es
+    # determinista y no depende del orden de los casos.
+    # Referencia = snapshot de origen, para poder afirmar "YA NO declara".
+    # Si se está midiendo el propio snapshot, son la misma base y salen 0.
+    ruta_ref_honesta = os.environ.get(
+        "BIORAG_QA_REFERENCIA",
+        os.path.join(base_dir, "snapshots", "qa_escape_qcr_20260811.db"),
+    )
+    misma_base = (
+        ruta_ref_honesta
+        and os.path.exists(ruta_ref_honesta)
+        and os.path.abspath(ruta_ref_honesta) == os.path.abspath(src_db)
+    )
+    if not os.path.exists(ruta_ref_honesta) or misma_base:
+        ruta_ref_honesta = None
+    marcas_honesta = clasificar_casos_sinonimo(db, cases, ruta_ref_honesta)
+    honesta_registros = []
 
     # Tokens del corpus para detectar controles negativos contaminados
     # (autorreferencia: el corpus documenta las mismas queries negativas).
@@ -310,6 +577,38 @@ def run_evaluation(argv=None):
         1 for _e, _p in estado_inicial_nodos.values() if _e == "dormido"
     )
 
+    # ── E2b: tolerancia al ruido (SOLO diagnóstico, apagado por defecto) ──────
+    # Con BIORAG_QA_RUIDO=zzqx, cada consulta se lanza con esa palabra pegada al
+    # final. El token se añade SOLO a la búsqueda: `query` sigue intacta para el
+    # control de ambiguas y para los informes. Sirve para medir cuánto aguanta el
+    # motor una palabra que no existe en ningún recuerdo.
+    RUIDO = os.environ.get("BIORAG_QA_RUIDO", "").strip()
+
+    def _consulta_buscada(q):
+        return f"{q} {RUIDO}" if RUIDO else q
+
+    # ── E2b: censo del temático (SOLO diagnóstico, apagado por defecto) ───────
+    # Cuenta cuántos candidatos cobran la señal temática y cuántos la cobran
+    # saturada a 1.0. No toca el cálculo: envuelve y devuelve el mismo valor.
+    CENSO_TEMATICO = os.environ.get("BIORAG_QA_TEMATICO_CENSO", "") == "1"
+    censo = {"candidatos": 0, "con_tematico": 0, "saturados": 0, "bloqueados": 0}
+    if CENSO_TEMATICO:
+        _hibrido_original = type(db)._calcular_score_hibrido
+
+        def _hibrido_censado(self, **kw):
+            censo["candidatos"] += 1
+            _t = float(kw.get("tematico_score", 0.0) or 0.0)
+            _s = float(kw.get("sinonimos_ratio", 0.0) or 0.0)
+            if _t > 0:
+                censo["con_tematico"] += 1
+                if _t == 1.0:
+                    censo["saturados"] += 1
+            elif _s >= 0.5:
+                censo["bloqueados"] += 1
+            return _hibrido_original(self, **kw)
+
+        type(db)._calcular_score_hibrido = _hibrido_censado
+
     # Las dos columnas: orden de la fórmula (antes de la neurona) y orden servido
     espia = QN.Espia(neurona)
     espia.__enter__()
@@ -336,7 +635,8 @@ def run_evaluation(argv=None):
             golds = sorted(golds_por_query[query.strip().lower()])
             stats["ambiguo"]["total"] += 1
             _res, _tot = db.buscar_por_frase(
-                query, profundidad="activos", limite=5, ignore_peso_sinaptico=True
+                _consulta_buscada(query), profundidad="activos", limite=5,
+                ignore_peso_sinaptico=True
             )
             _devueltos = [r[0] for r in _res]
             _cubierto = [g for g in golds if g in _devueltos]
@@ -367,7 +667,7 @@ def run_evaluation(argv=None):
         # 2. Execute query
         profundidad = "profundo" if (deep or category == "dormido" or category == "negativo") else "activos"
         espia.nueva_busqueda()
-        results, total = db.buscar_por_frase(query, profundidad=profundidad, limite=5, ignore_peso_sinaptico=True)
+        results, total = db.buscar_por_frase(_consulta_buscada(query), profundidad=profundidad, limite=5, ignore_peso_sinaptico=True)
         
         # Track spreading activation usage
         if hasattr(db, 'last_parent_map') and db.last_parent_map:
@@ -472,6 +772,20 @@ def run_evaluation(argv=None):
                 coherente,
             )
 
+            # E1: veredicto de este caso para la QA honesta. Se guarda el resultado
+            # FINAL (después de descontar el fallo de despertar), para que la
+            # clasificación no pueda "mejorar" un caso que en realidad falló.
+            _marca = marcas_honesta.get(case_id)
+            honesta_registros.append({
+                "id": case_id,
+                "categoria": category,
+                "hit5": bool(cuenta and found_at != -1),
+                "hit1": bool(cuenta and found_at == 1),
+                "rr": (1.0 / found_at) if (cuenta and found_at != -1) else 0.0,
+                "apartado_r5": bool(_marca and (_marca["obsoleta"] or _marca["ambigua_r5"])),
+                "apartado_r1": bool(_marca and (_marca["obsoleta"] or _marca["ambigua_r1"])),
+            })
+
         # Aislar el caso siguiente del estado que este caso dejó en la DB
         nodos_restaurados_total += _restaurar_estado_nodos(db, estado_inicial_nodos)
 
@@ -493,9 +807,22 @@ def run_evaluation(argv=None):
                 f.write(json.dumps(fail_record, ensure_ascii=False) + "\n")
                 
     # Cleanup temp database
+    if CENSO_TEMATICO:
+        _ct, _sat = censo["con_tematico"], censo["saturados"]
+        _pct = (_sat / _ct * 100) if _ct else 0.0
+        print(f"[CENSO TEMATICO] candidatos puntuados: {censo['candidatos']} | "
+              f"cobran la senal: {_ct} | saturados a 1.0: {_sat} ({_pct:.2f}%) | "
+              f"a 0 con sinonimos_ratio>=0.5: {censo['bloqueados']}")
+    if RUIDO:
+        print(f"[RUIDO] cada consulta se lanzo con la palabra inexistente '{RUIDO}'")
+
     print(f"Cleaning up temporary database copy at {temp_db}...")
-    if os.path.exists(temp_db):
-        os.remove(temp_db)
+    for ext in ("", "-wal", "-shm"):
+        if os.path.exists(temp_db + ext):
+            try:
+                os.remove(temp_db + ext)
+            except OSError:
+                pass
         
     # Generate report
     print("\n" + "="*80)
@@ -562,6 +889,135 @@ def run_evaluation(argv=None):
         print("")
         print("\n".join(QN.lineas_resultado(res_neurona, tiempos_neurona, motivos_neurona, tol_neurona)))
         print("="*80)
+
+    # ── E1: QA HONESTA, lado a lado con la clásica ─────────────────────────
+    # POR QUÉ se imprime aparte y no se reemplaza nada: la GATE sigue usando la QA
+    # clásica (todos los casos) hasta que Dennys diga otra cosa. Aquí solo se dice,
+    # con números, cuánto del resultado depende del examen y no del buscador.
+    tabla_r5 = _tabla_honesta(honesta_registros, "r5")
+    tabla_r1 = _tabla_honesta(honesta_registros, "r1")
+    obsoletas = [c for c in cases if marcas_honesta.get(c.get("id"), {}).get("obsoleta")]
+    ambiguous = [
+        c for c in cases
+        if marcas_honesta.get(c.get("id"), {}).get("ambigua_r1")
+    ]
+    apartados_r5 = [
+        c for c in cases
+        if marcas_honesta.get(c.get("id"), {}).get("obsoleta")
+        or marcas_honesta.get(c.get("id"), {}).get("ambigua_r5")
+    ]
+    apartados_r1 = [
+        c for c in cases
+        if marcas_honesta.get(c.get("id"), {}).get("obsoleta")
+        or marcas_honesta.get(c.get("id"), {}).get("ambigua_r1")
+    ]
+    ambas = [c for c in cases if marcas_honesta.get(c.get("id"), {}).get("obsoleta")
+             and marcas_honesta.get(c.get("id"), {}).get("ambigua_r1")]
+    total_sinonimo = sum(1 for c in cases if c.get("categoria") == "sinonimo")
+    resultado_por_id = {r["id"]: r for r in honesta_registros}
+
+    print("")
+    print("=" * 88)
+    print("   QA HONESTA (E1) — misma búsqueda, distinto conjunto de casos")
+    print("=" * 88)
+    print("  Reglas del auditor (no se ajustan después de ver resultados):")
+    print("    OBSOLETA: el esperado declaraba la palabra en el SNAPSHOT de origen")
+    print("              (alias completo o palabra entera del nombre) y YA NO la")
+    print("              declara en la base que se mide.")
+    print("    AMBIGUA : 2 o más recuerdos la reclaman. Se compara ESTRICTO:")
+    print("              alias completo o palabra entera dentro del nombre. Sin")
+    print("              'contiene' (con substring, 'agente' reclamaba 119 nodos).")
+    print(f"    UMBRAL  : para R@5 se aparta solo con MÁS DE {UMBRAL_AMBIGUA_R5} reclamantes")
+    print(f"              (con 5 o menos, todos caben en el top-5); para R@1 desde")
+    print(f"              {UMBRAL_AMBIGUA_R1}. Se aparta POR MÉTRICA.")
+    print("    NOTA    : ese umbral se decidió DESPUÉS de ver la primera medición de")
+    print("              E1. Es una decisión consciente de Dennys, no una regla previa.")
+    print("  El examen (casos_qa.jsonl) NO se toca. La GATE sigue usando la CLÁSICA.")
+    if ruta_ref_honesta:
+        print(f"  Referencia para OBSOLETA: {os.path.basename(ruta_ref_honesta)}")
+    else:
+        print("  Referencia para OBSOLETA: la base medida es el propio snapshot -> 0 por definición.")
+    print(f"  Casos 'sinonimo': {total_sinonimo}. Obsoletas: {len(obsoletas)}. "
+          f"Ambiguas: {len(ambiguous)}. Ambas marcas: {len(ambas)}.")
+    reubicados = sum(
+        1 for c in apartados_r1
+        if c.get("query", "").strip().lower() in queries_ambiguas
+    )
+    print(f"  Apartados -> R@5: {len(apartados_r5)} | R@1: {len(apartados_r1)}  "
+          f"(sobre los {total_sinonimo} casos del JSONL; la fila 'sinonimo' tiene "
+          f"{stats['sinonimo']['total']} porque {reubicados} de los apartados ya iban a 'ambiguo')")
+    print("-" * 88)
+    print(f"{'Categoría':<20} | {'CLÁSICA':>18} | {'HONESTA R@5':>20} | {'HONESTA R@1':>20}")
+    print(f"{'':<20} | {'n':>6} {'R@5':>5} {'R@1':>5} | {'n':>6} {'R@5':>6} {'ap.':>5} | {'n':>6} {'R@1':>6} {'ap.':>5}")
+    print("-" * 88)
+    h = {"r5_n": 0, "r5_h5": 0, "r1_n": 0, "r1_h1": 0, "r1_rr": 0.0}
+    cl_n = cl_h5 = cl_h1 = 0
+    apart_r5_por_cat = defaultdict(int)
+    apart_r1_por_cat = defaultdict(int)
+    for c in apartados_r5:
+        apart_r5_por_cat[c.get("categoria")] += 1
+    for c in apartados_r1:
+        apart_r1_por_cat[c.get("categoria")] += 1
+    for cat in sorted(stats.keys()):
+        if cat in ("negativo", "ambiguo"):
+            continue
+        st = stats[cat]
+        if not st["total"]:
+            continue
+        c5 = (st["hits_at_5"] / st["total"] * 100) if st["total"] else 0.0
+        c1 = (st["hits_at_1"] / st["total"] * 100) if st["total"] else 0.0
+        cl_n += st["total"]; cl_h5 += st["hits_at_5"]; cl_h1 += st["hits_at_1"]
+        t5 = tabla_r5.get(cat, {"n": 0, "h5": 0, "h1": 0, "rr": 0.0})
+        t1 = tabla_r1.get(cat, {"n": 0, "h5": 0, "h1": 0, "rr": 0.0})
+        r5 = (t5["h5"] / t5["n"] * 100) if t5["n"] else 0.0
+        r1 = (t1["h1"] / t1["n"] * 100) if t1["n"] else 0.0
+        h["r5_n"] += t5["n"]; h["r5_h5"] += t5["h5"]
+        h["r1_n"] += t1["n"]; h["r1_h1"] += t1["h1"]; h["r1_rr"] += t1["rr"]
+        print(f"{cat:<20} | {st['total']:>6} {c5:>4.1f}% {c1:>4.1f}% | "
+              f"{t5['n']:>6} {r5:>5.1f}% {apart_r5_por_cat.get(cat, 0):>5} | "
+              f"{t1['n']:>6} {r1:>5.1f}% {apart_r1_por_cat.get(cat, 0):>5}")
+    print("-" * 88)
+    g5 = (h["r5_h5"] / h["r5_n"] * 100) if h["r5_n"] else 0.0
+    g1 = (h["r1_h1"] / h["r1_n"] * 100) if h["r1_n"] else 0.0
+    g_mrr = (h["r1_rr"] / h["r1_n"]) if h["r1_n"] else 0.0
+    c5g = (cl_h5 / cl_n * 100) if cl_n else 0.0
+    c1g = (cl_h1 / cl_n * 100) if cl_n else 0.0
+    print(f"{'GLOBAL (recuperación)':<20} | {cl_n:>6} {c5g:>4.1f}% {c1g:>4.1f}% | "
+          f"{h['r5_n']:>6} {g5:>5.1f}% {sum(apart_r5_por_cat.values()):>5} | "
+          f"{h['r1_n']:>6} {g1:>5.1f}% {sum(apart_r1_por_cat.values()):>5}")
+    # "fallos" = no entró al top-5. La columna R@1 no tiene "fallos": lo que no
+    # llega al primer puesto NO es un fallo de recuperación, es un puesto peor.
+    # Se dice aparte para no inflar un número con una etiqueta equivocada.
+    print(f"{'fallos (fuera del top-5)':<20} | {cl_n - cl_h5:>6} {'':>5} {'':>5} | "
+          f"{h['r5_n'] - h['r5_h5']:>6} {'':>6} {'':>5} | {'':>6}")
+    print(f"{'no llegó al 1er puesto':<20} | {cl_n - cl_h1:>6} {'':>5} {'':>5} | "
+          f"{'':>6} {'':>6} {'':>5} | {h['r1_n'] - h['r1_h1']:>6}")
+    print(f"{'MRR':<20} | {'':>6} {'':>5} {'':>5} | {'':>6} {'':>6} {'':>5} | "
+          f"{'':>6} {g_mrr:>6.4f}")
+    print("=" * 88)
+
+    # ── Los bloques, caso por caso, con su motivo ──────────────────────────
+    # Se listan TAMBIÉN las que hoy pasan: si solo se listaran las que fallan,
+    # parecería un truco para maquillar el número.
+    if obsoletas:
+        pasan = sum(1 for c in obsoletas if resultado_por_id.get(c["id"], {}).get("hit5"))
+        print(f"\nOBSOLETAS ({len(obsoletas)}) — pasan hoy {pasan}, fallan hoy {len(obsoletas) - pasan}:")
+        for c in obsoletas:
+            reg = resultado_por_id.get(c["id"], {})
+            estado = "TOP1 " if reg.get("hit1") else ("PASA " if reg.get("hit5") else "FALLA")
+            print(f"  [{c['id']}] {estado} {c.get('query')!r} -> {c.get('concepto_esperado')}")
+            print(f"        motivo: {marcas_honesta[c['id']]['detalle']}")
+    if ambiguous:
+        pasan = sum(1 for c in ambiguous if resultado_por_id.get(c["id"], {}).get("hit5"))
+        print(f"\nAMBIGUAS ({len(ambiguous)}) — pasan hoy {pasan}, fallan hoy {len(ambiguous) - pasan}:")
+        for c in sorted(ambiguous, key=lambda x: -marcas_honesta[x["id"]]["n_reclamantes"]):
+            m = marcas_honesta[c["id"]]
+            reg = resultado_por_id.get(c["id"], {})
+            estado = "TOP1 " if reg.get("hit1") else ("PASA " if reg.get("hit5") else "FALLA")
+            marca = " [solo R@1: 5 o menos reclamantes]" if not m["ambigua_r5"] else ""
+            print(f"  [{c['id']}] {estado} {c.get('query')!r} -> {c.get('concepto_esperado')}")
+            print(f"        {m['n_reclamantes']} recuerdos reclaman la palabra{marca}")
+    print("-" * 88)
 
     # ── Salud del dataset: etiquetas que el evaluador tuvo que reparar ──────
     if etiquetas_obsoletas or etiquetas_irreparables or queries_ambiguas:
@@ -658,6 +1114,68 @@ def run_evaluation(argv=None):
             if cat not in ("negativo", "ambiguo") and st["total"]
         },
     }
+    # E1: la QA honesta va al JSON aparte, sin cambiar la GATE (que sigue mirando
+    # la clásica). Así el número honesto se puede seguir en el tiempo sin que un
+    # cambio de examen lo mueva.
+    metrics["qa_honesta"] = {
+        "reglas": {
+            "obsoleta": "declaraba el alias en el snapshot de origen y ya no en la base medida",
+            "ambigua": "2+ recuerdos reclaman la palabra (alias completo o palabra entera del nombre)",
+            "umbral_r5": f"mas de {UMBRAL_AMBIGUA_R5} reclamantes",
+            "umbral_r1": f"{UMBRAL_AMBIGUA_R1} o mas reclamantes",
+            "decidido": "DESPUES de ver la primera medicion de E1 (decision de Dennys)",
+            "referencia": os.path.basename(ruta_ref_honesta) if ruta_ref_honesta else None,
+        },
+        "sinonimo_total": total_sinonimo,
+        "obsoletas": len(obsoletas),
+        "ambiguas": len(ambiguous),
+        "con_las_dos_marcas": len(ambas),
+        "apartados_r5": len(apartados_r5),
+        "apartados_r1": len(apartados_r1),
+        "global_r5": {
+            "queries": h["r5_n"],
+            "recall_at_5": round(g5, 2),
+            "fallos": h["r5_n"] - h["r5_h5"],
+        },
+        "global_r1": {
+            "queries": h["r1_n"],
+            "recall_at_1": round(g1, 2),
+            "mrr": round(g_mrr, 4),
+            # No es un "fallo": es un puesto peor. La tabla ya lo llama así.
+            "no_top1": h["r1_n"] - h["r1_h1"],
+        },
+        "categorias": {
+            cat: {
+                "r5": {
+                    "total": tabla_r5.get(cat, {"n": 0, "h5": 0})["n"],
+                    "recall_at_5": round(
+                        (tabla_r5[cat]["h5"] / tabla_r5[cat]["n"] * 100) if tabla_r5.get(cat, {}).get("n") else 0.0, 2),
+                    "apartados": apart_r5_por_cat.get(cat, 0),
+                },
+                "r1": {
+                    "total": tabla_r1.get(cat, {"n": 0, "h1": 0})["n"],
+                    "recall_at_1": round(
+                        (tabla_r1[cat]["h1"] / tabla_r1[cat]["n"] * 100) if tabla_r1.get(cat, {}).get("n") else 0.0, 2),
+                    "apartados": apart_r1_por_cat.get(cat, 0),
+                },
+            }
+            for cat in sorted(set(list(tabla_r5.keys()) + list(tabla_r1.keys())))
+        },
+        "casos_apartados": [
+            {
+                "id": c["id"],
+                "query": c.get("query"),
+                "esperado": c.get("concepto_esperado"),
+                "obsoleta": marcas_honesta[c["id"]]["obsoleta"],
+                "n_reclamantes": marcas_honesta[c["id"]]["n_reclamantes"],
+                "apartado_r5": c in apartados_r5,
+                "apartado_r1": c in apartados_r1,
+                "pasa_hoy": bool(resultado_por_id.get(c["id"], {}).get("hit5")),
+            }
+            for c in cases if c.get("id") in marcas_honesta
+            and (c in apartados_r5 or c in apartados_r1)
+        ],
+    }
     metrics["neurona"] = {
         "activa": neurona.activa(),
         "actuo": neurona_actua,
@@ -677,6 +1195,12 @@ def run_evaluation(argv=None):
         "incoherentes": res_neurona["incoherentes"],
         "tiempos": tiempos_neurona,
         "control_de_dano": {"tolerancia_casos": tol_neurona, "motivos": motivos_neurona},
+    }
+    # E2b: se deja constancia en el JSON de si esta corrida llevaba palabra de
+    # ruido y del censo del temático, para que las cifras sean interpretables.
+    metrics["e2b"] = {
+        "ruido": RUIDO or None,
+        "censo_tematico": censo if CENSO_TEMATICO else None,
     }
     metrics["global"]["orden_no_monotonico"] = sum(
         1
