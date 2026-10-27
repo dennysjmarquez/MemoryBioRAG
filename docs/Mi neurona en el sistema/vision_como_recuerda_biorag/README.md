@@ -842,6 +842,19 @@ Otra IA propuso usar el caso real (`version_actual_biorag` en el puesto 4) como 
 
 **Estado:** guardado. La auditoría de idioma entra en la etapa del motor (antes de v36). La capa definitiva, después, con carta blanca.
 
+### Pendiente: el mínimo de 2 letras y las palabras de una sola letra (Dennys, 2026-10-27, para después)
+
+**El hueco (hallado al auditar B1 de la E3).** Los sustantivos clave del MCP exigen al menos 2 caracteres. En chino, japonés y coreano **un solo carácter ya es una palabra completa** (水 "agua", 本 "libro", 문 "puerta"). Por eso, en la QA multilingüe, 14 consultas (1 china, 9 japonesas, 4 coreanas) se siguen rechazando aunque B1 abra la puerta a otros alfabetos.
+
+**Decisión de Dennys:** no se arregla en B1. Las 14 quedan rechazadas y visibles en la QA, marcadas como "pendiente del hueco 1".
+
+> Dennys: *"Ya veremos qué hacer luego. El mínimo de letras existe para que no se busquen los conectores en español e inglés, como «mi», «la» y cosas así. Quizás otra neurona o algún método que sepa cuándo desactivar eso cuando se manda la query."*
+
+**Ideas para cuando toque (sin decidir):**
+- **Regla Unicode:** "mínimo 2 caracteres, o 1 carácter ancho" (`east_asian_width` W/F). Es simple y general, pero solo mira la forma de la letra, no si la palabra es un conector.
+- **Conectores por estadística de la propia base, sin listas por idioma:** una palabra que aparece en casi todos los recuerdos es un conector ("la", "de", "の", "的"), en cualquier idioma; una rara es informativa, aunque tenga una sola letra (水). Es la idea clásica de la frecuencia inversa en documentos (IDF), que el motor ya usa en otras piezas. Respeta "un cerebro sin idioma" y además sustituiría con el tiempo las listas fijas de `core/stopwords.py` (español e inglés).
+- **Neurona o método que decida** si una palabra corta es informativa según la consulta y la base: la idea de Dennys. Va con las neuronas (v37) si la estadística no basta.
+
 ---
 
 ## 2q. La neurona de razonamiento recibe la consulta y las agujas del motor (Dennys, 2026-10-27, para después)
