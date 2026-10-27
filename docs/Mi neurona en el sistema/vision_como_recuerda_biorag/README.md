@@ -655,6 +655,65 @@ Lo que viene de fábrica no es el contenido, sino **la habilidad de discernir**:
 
 ---
 
+## 2n. Con qué alimentar la neurona para que elija "lo que intentas averiguar" (investigación, 2026-10-27, para después)
+
+Dennys: *"La clave es saber con qué la vamos a alimentar para que esto suceda."* El ejemplo de ChatGPT: cuatro recuerdos sobre el mismo problema:
+- **A**: alguien te explicó una solución;
+- **B**: otra solución para un problema parecido;
+- **C**: aplicaste una solución y funcionó;
+- **D**: una investigación con una explicación.
+
+La pregunta: *"¿qué aprendimos la última vez y qué solución funcionó?"*. Es el mismo problema que el de "la última versión de BioRAG".
+
+### La respuesta en una línea
+**Se la alimenta con qué TIPO de recuerdo pide la pregunta, qué TIPO de recuerdo es cada candidato, y si ese tipo lo tiene solo él o también sus rivales.** El tema compartido no sirve para elegir; el tipo pedido sí.
+
+### Qué dice la ciencia y qué hace la industria
+| Fuente | Qué dice | Qué copiamos |
+|---|---|---|
+| **Orientación de recuperación** (Rugg y Wilding 2000, *Trends in Cognitive Sciences*) | Antes de recordar, el cerebro fija **qué tipo de información busca**, y la misma pista se procesa distinto según esa meta. | La pregunta se traduce primero a "qué tipo de recuerdo pido". |
+| **Procesamiento apropiado para la transferencia** (Morris, Bransford y Franks 1977) | Se recuerda mejor cuando lo que se busca **coincide con cómo se guardó**. Ninguna forma de guardar es la mejor en abstracto. | El tipo se escribe **al guardar** y se pide **en el mismo vocabulario** al buscar. |
+| **Tipo de respuesta esperado** en sistemas de pregunta-respuesta (Li y Roth 2002) | Clasifican la pregunta en tipos de respuesta para quedarse solo con los candidatos de ese tipo: 98,8 % en tipos gruesos y 95 % en finos, con 5.500 preguntas de entrenamiento. Moldovan 2002: cuando falla el tipo, los candidatos salen vacíos (28,2 %) o equivocados (8,2 %). | Es la pieza que falta: el "tipo pedido" filtra y ordena a los rivales que comparten tema. |
+
+### Lo que BioRAG YA guarda (verificado en el snapshot, 866 recuerdos)
+El agente ya escribe el tipo al guardar, en las dimensiones de `aprender`:
+
+| Lo que pide la pregunta | Dónde está en BioRAG | Recuerdos en el snapshot |
+|---|---|---|
+| "alguien me explicó" (A) | `epistemia=reportada_externa`, `accion_comunicacion` | 5 · 35 |
+| "lo apliqué / funcionó" (C) | `epistemia=directa_experiencial` / `verificada`; `intencion_solucionar` / `resolver` | 28 / 96 · 102 / 79 |
+| "falló / no funcionó" | `accion_fallar` | 28 |
+| "una investigación, una explicación" (D) | `epistemia=inferida` / `hipotetica`; `intencion_aprender` | 2 / 1 · 121 |
+| "lo general" frente a "un caso" | `escala_abstraccion`: principio / patrón frente a instancia | 37 / 47 · 39 |
+| "lo que aprendimos de un fallo" | categoría `Lesson` ("fallos resueltos, soluciones aplicadas") | 241 |
+| "quién hizo qué a qué" | `predicados` (sujeto, acción, objeto) | 187 en 102 recuerdos |
+| "la última vez" | `creado_en`; `coordenada_secuencia_relativa` | todos · 16 |
+| otra solución del mismo problema (B) | lo que añade cada hijo (sustantivos, §2j) | — |
+
+**El cuello de botella no es la neurona, son los datos.** La epistemia solo está en 132 de 866 recuerdos (15 %) y la escala en 128. Sin el tipo escrito, ninguna neurona puede saber cuál "funcionó". En la viva la cobertura está por medir.
+
+### Lo que entra a la capa 2 (tres bloques)
+1. **Lo que pide la pista** (igual para todos los candidatos): los síntomas del texto ("la última", "la primera", "funcionó", "falló", "por qué", "en general"), las dimensiones que mandó el agente y `ordenar_por`. Todo se traduce **al mismo vocabulario de tipos que las dimensiones**, para que "lo que pide" y "lo que es" hablen el mismo idioma (Morris 1977).
+2. **Lo que es cada candidato:** sus dimensiones de tipo (epistemia, acción, intención, escala), su categoría, su posición en el tiempo **dentro de su familia** (con fecha de modificación, C1), su nivel en la familia (§2j) y el resultado, si quedó dicho.
+3. **La relación, medida contra los rivales:** por cada tipo pedido, ¿lo tiene este candidato? ¿cuántos rivales también lo tienen? Si lo tienen todos, no cuenta; si solo lo tiene uno, decide (valor diagnóstico, §2h). A eso se suma el puntaje de la capa 1 como piso.
+
+### Cómo aprende (y de dónde salen las respuestas correctas)
+- **Generador:** en una base, toma un grupo de rivales que comparten tema; elige un tipo que **solo uno** de ellos tiene; arma la pregunta con el tema más el síntoma de ese tipo (plantillas y variantes); y la respuesta correcta es el que tiene ese tipo.
+- **Contraste:** el mismo grupo con otro tipo da otra respuesta correcta. Eso le enseña a cambiar de ganador según lo que se pide.
+- La pregunta pasa por `recordar` del MCP, sobre una copia y con los parámetros obligatorios, para ver los candidatos reales. **La respuesta correcta sale del tipo guardado, nunca del #1 del motor.**
+- **Pérdida** por pares o por lista (*learning to rank*). **Examen** en bases reservadas y con frases que no usó al entrenar.
+
+### El caso de la versión visto así
+- "¿Cuál es la última versión de BioRAG?": el tema "biorag versión" lo comparten todos y vale 0; el tipo pedido es "la última y vigente dentro de la familia".
+- **Hallazgo honesto:** hoy el canónico tiene `creado_en` del 14-10 y v34 del 24-10, aunque el contenido del canónico ya dice v35.0. **Con estos datos, hasta una neurona perfecta elegiría v34 por fecha.** Primero hay que arreglar el dato: fecha de modificación (C1) y estado vigente. Después, la neurona aprende a usarlo.
+
+### Qué hacer al guardar (sin trabajo extra para el agente)
+`aprender` ya exige dimensiones. Basta con que, entre ellas, vayan la **epistemia** y el **resultado** (funcionó, falló o no probado) cuando se conozcan. Se propone para hablarlo después, sin tocar todavía `prompt.py`.
+
+**Estado:** investigación guardada. Va después de E2b → E3 → E4 y con el OK de Dennys. El primer paso, cuando toque, es medir la cobertura de tipos en la viva (solo lectura, sobre una copia).
+
+---
+
 ## 3. El orden para llegar (paso a pasito)
 
 | Etapa | Qué | Relación con la visión |
