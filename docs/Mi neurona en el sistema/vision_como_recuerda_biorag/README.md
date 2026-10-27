@@ -151,6 +151,32 @@ Candidatos a estudiar, en orden:
 
 ---
 
+## 2e. Si el cerebro fuera un buscador: los tres pasos (para después)
+
+> Idea de Dennys (2026-10-27): *"hay que emular esto: buscar, agregar lo que nos faltaría o usar lo que tenemos para sintetizarlo"*. Se guarda como idea para después de E2–E4.
+
+Explicación traída por Dennys de otra IA. Ante una consulta, el cerebro hace en milisegundos:
+
+1. **Filtra por contexto, no por palabra suelta.** La prefrontal agrega un "filtro invisible": dónde estás, cómo te sientes y la conversación reciente. Por eso "banco" ya sabe si es para sentarse o para el dinero.
+2. **Activa todo en paralelo y pondera.** Cada rasgo compartido suma, y el recuerdo con más encaje recibe una "descarga masiva".
+3. **Inhibe el ruido.** Apenas el ganador toma la delantera, apaga a los competidores que compartían las mismas palabras.
+
+No lee archivo por archivo: el contexto reduce las opciones y el ganador aplasta a los demás antes de llegar a la conciencia.
+
+### Qué tenemos, qué falta y con qué se sintetiza
+
+| Paso del cerebro | Qué ya tiene BioRAG | Qué falta | Cómo sintetizarlo (a estudiar) |
+|---|---|---|---|
+| **1a. Contexto que trae el que pregunta** | El agente envía dimensiones y sustantivos clave (P5, P6) | Medir cuánto pesan de verdad al ordenar | Que la intención (§2b) los use como filtro, no solo como suma |
+| **1b. Contexto de la conversación reciente** | Existe `corto_plazo` (lo recién guardado, antes de dormir) | Un "foco" de la sesión que incline la búsqueda hacia el tema en curso (por verificar en el código si algo así ya existe) | Foco **solo en memoria y solo durante la sesión**, sin registrar el uso del agente (regla de Dennys). Si guardar algo choca con esa regla, se consulta antes |
+| **2. Activación en paralelo y ponderación** | **Existe:** la fórmula de 14 señales y el grafo de sinapsis | La "descarga masiva": hoy el ganador gana por poco y no se amplifica | Amplificar la diferencia cuando un candidato encaja claramente mejor (sin tocar los pesos a mano: se suma encima, con piso y techo) |
+| **3. Inhibición del ruido** | Parcial: la abstención ("saber que no sabe", FP 0/40) | El ganador no apaga a sus vecinos parecidos | Inhibición entre vecinos en el top final (§2d, punto 3), con desempate por tiempo y contexto |
+| **Consulta ambigua** | La abstención | Decir *por qué* es ambigua y entre qué opciones | Devolver las opciones distintas (no 500 parecidas) para que el agente pregunte o elija |
+
+**Relación con lo anterior:** el paso 2 es lo que hoy hace el motor. Los pasos 1 y 3 son lo que nos falta para que funcione como un cerebro. La verificación del encaje (§2d) es lo que une los tres.
+
+---
+
 ## 3. El orden para llegar (paso a pasito)
 
 | Etapa | Qué | Relación con la visión |
