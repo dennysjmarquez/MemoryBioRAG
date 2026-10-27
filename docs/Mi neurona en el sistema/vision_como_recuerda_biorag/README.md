@@ -869,6 +869,14 @@ Otra IA propuso usar el caso real (`version_actual_biorag` en el puesto 4) como 
 
 **Cuándo:** después de que el operador cierre E3 y E4 y se publique v36.0. Es la primera neurona de v37.
 
+**Opinión externa que trajo Dennys (2026-10-27), contrastada por el auditor.** Otra IA usa el caso de la versión (v34 0,5398 en el #1, el canónico v35 0,4614 en el #4) para describir una "neurona auditora" que mira los candidatos y pregunta *"¿cuál de estos es la verdad actual que se pide?"*.
+- **Coincide** con §2g, §2l y §2q: la similitud no es lo mismo que la relevancia de intención, y el juicio va al final, sobre los candidatos del motor.
+- **Matices del auditor:**
+  - BioRAG no usa vectores ni coseno: el v34 ganó por coincidencias léxicas, dimensiones y la señal temática (causas C1–C8, §2h).
+  - "Apagar lo histórico" solo vale cuando la pregunta pide el estado actual. Como regla fija es un callejón sin salida (§2j); tiene que depender de la consulta.
+  - "Top 1 forzado" no: la neurona parte del orden recibido como piso y, si duda, no decide.
+  - Para que sepa cuál es "el actual", el recuerdo tiene que tener su fecha de modificación (C1) y su identidad escrita (C7, §2n). Sin esos datos, ninguna neurona puede deducirlo.
+
 ---
 
 ## 3. El orden para llegar (paso a pasito)
