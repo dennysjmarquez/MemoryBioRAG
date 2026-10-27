@@ -1515,8 +1515,8 @@ def install() -> None:
 
     # 1. Prerequisites
     _step("Verificando requisitos...")
-    if sys.version_info < (3, 10):
-        _fail("Python 3.10+ requerido")
+    if sys.version_info < (3, 11):
+        _fail("Python 3.11+ requerido")
         _info("Descarga: https://python.org/downloads/")
         sys.exit(1)
     _ok(f"Python {sys.version_info.major}.{sys.version_info.minor}.{sys.version_info.micro}")

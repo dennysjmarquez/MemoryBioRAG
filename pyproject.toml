@@ -7,7 +7,7 @@ name = "memory-biorag"
 version = "34.0.0"
 description = "BioRAG — Memoria cognitiva biomimética persistente para agentes de IA"
 readme = "README.md"
-requires-python = ">=3.10"
+requires-python = ">=3.11"
 license = { text = "Apache-2.0" }
 authors = [
     { name = "Dennys José Márquez Reyes", email = "dennysjmarquez@gmail.com" }
@@ -28,7 +28,6 @@ classifiers = [
     "Intended Audience :: Science/Research",
     "License :: OSI Approved :: Apache Software License",
     "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
     "Topic :: Scientific/Engineering :: Artificial Intelligence"
