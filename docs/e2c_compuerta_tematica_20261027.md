@@ -6,8 +6,7 @@ del top-5. Eso incumple el criterio de Dennys. La línea del motor ya fue
 restaurada, sin ajustes adicionales; el archivo coincide con `2dff937`.
 
 Las otras tres QA comenzaron antes de revertir, con el candidato ya cargado en
-memoria. Ya terminaron la viva sin ruido y el snapshot con ruido; solo queda la
-viva con ruido para completar las salidas. Eso no puede cambiar el rechazo.
+memoria. Las cuatro terminaron; el resultado completo confirma el rechazo.
 
 ## Cambio candidato
 
@@ -115,6 +114,36 @@ activar `BIORAG_NEURONA=0` para pytest:
 
 ## QA antes / candidato
 
+### Las cuatro corridas: resultados globales honestos
+
+| Base | R@5 antes → candidato | R@1 antes → candidato | Fallos R@5 antes → candidato | FP candidato |
+|---|---:|---:|---:|---:|
+| snapshot sin ruido | **100,00 → 99,88 %** | 95,31 → 95,90 % | **0 → 1** | 0/40 |
+| snapshot con `zzqx` | 97,34 → 97,69 % | 88,63 → 89,45 % | 23 → 20 | 0/40 |
+| viva sin ruido | **99,88 → 99,54 %** | 93,53 → 94,47 % | **1 → 4** | 0/40 |
+| viva con `zzqx` | 96,63 → 97,10 % | 88,12 → 88,71 % | 29 → 25 | 0/40 |
+
+La R@1 global subió y los 40 negativos fueron válidos, sin FP, en las cuatro
+corridas. Eso no compensa las caídas de R@5 por categoría, que eran prohibidas.
+
+### R@5 honesta por categoría
+
+| Categoría | Snapshot sin ruido | Viva sin ruido | Snapshot con `zzqx` | Viva con `zzqx` |
+|---|---:|---:|---:|---:|
+| cruce_idioma | 100 → 100 | 100 → 100 | 62,50 → 62,50 | 62,50 → 62,50 |
+| dormido | 100 → 100 | 100 → 100 | 98,46 → 98,46 | 98,46 → 98,46 |
+| literal | 100 → 100 | 100 → 100 | 99,38 → 99,38 | 98,56 → 99,18 |
+| **por_tema** | **100 → 98,46** | **98,46 → 96,92** | 95,38 → 95,38 | 92,31 → 92,31 |
+| pregunta_natural | 100 → 100 | 100 → 100 | 98,46 → 98,46 | 100 → 100 |
+| sinonimo | 100 → 100 | 100 → 100 | 88,89 → 95,56 | 85,37 → 87,80 |
+| **typo** | 100 → 100 | **100 → 98,46** | 93,85 → 93,85 | 96,92 → 96,92 |
+| **variante_gramatical** | 100 → 100 | **100 → 98,46** | 95,38 → 95,38 | 92,31 → 92,31 |
+
+Son porcentajes antes → candidato. Los denominadores y las marcas de los casos
+apartados coinciden; la [comparación completa](e2c_comparacion_20261027.txt)
+incluye aciertos y totales. El monitor dejó un motivo genérico en su JSON, pero
+la comparación **sí es evaluable** y enumera las cuatro bajadas concretas.
+
 ### Snapshot sin ruido: regresión que obliga a revertir
 
 | Medida | Antes | Candidato |
@@ -178,5 +207,28 @@ umbrales fijos, no contra la baseline con ruido de E2c.
 [métricas](e2c_qa_snapshot_ruido_20261027.json) ·
 [fallos](e2c_qa_snapshot_ruido_fallos_20261027.jsonl).
 
-**Pendiente:** la viva con ruido sigue corriendo con el candidato ya cargado en
-memoria. Al terminar se agregarán su salida y la comparación de las cuatro QA.
+### Viva con `zzqx`
+
+| Medida | Antes | Candidato |
+|---|---:|---:|
+| R@5 honesta global | 96,63 % (861) | 97,10 % (861) |
+| R@5 honesta `literal` | 98,56 % (487) | 99,18 % (487) |
+| R@5 honesta `sinonimo` | 85,37 % (41) | 87,80 % (41) |
+| R@1 honesta global | 88,12 % (850) | 88,71 % (850) |
+| FP negativos | 0/40 | 0/40 |
+
+Las otras seis categorías de R@5 honesta no bajaron. El 0848 permaneció fuera
+del top-5 con `limite=5`. El gate clásico terminó en rojo tanto antes como con
+el candidato, por sus umbrales fijos.
+
+[Salida completa](e2c_qa_viva_ruido_20261027.log) ·
+[métricas](e2c_qa_viva_ruido_20261027.json) ·
+[fallos](e2c_qa_viva_ruido_fallos_20261027.jsonl).
+
+## Cierre
+
+**Rechazado y revertido** por las caídas de R@5 honesta sin ruido. El candidato
+mejoró varias cifras y pasó pytest, pero no cumplió la condición de no perder en
+ninguna categoría. El motor vuelve al estado anterior; no se hizo ningún ajuste
+adicional. El snapshot y la copia de la viva conservaron sus SHA-256 y no
+quedaron `-wal`/`-shm` junto a las fuentes.
