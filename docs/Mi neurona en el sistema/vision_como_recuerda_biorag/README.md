@@ -844,6 +844,33 @@ Otra IA propuso usar el caso real (`version_actual_biorag` en el puesto 4) como 
 
 ---
 
+## 2q. La neurona de razonamiento recibe la consulta y las agujas del motor (Dennys, 2026-10-27, para después)
+
+> Dennys: *"Ya quiero probarla, pero hay que esperar a que el operario termine su parte. La idea es pasarle la query junto con la lista de resultados del motor (las demás agujas) para que ella evalúe, decida si la pregunta es relevante y suba el ítem correcto al top 1, considerando que después vendrá la neurona de re-ranking."*
+
+**Qué cambia respecto a §2b y §2l:** la brújula (§2b) y la capa definitiva (§2l) pasan a ser **una sola neurona**: la de razonamiento. Ya no convierte el texto en intención **antes** de buscar; actúa **después**, sobre lo que el motor devolvió. Así no depende del idioma (§2p): lee coincidencias y relaciones, no palabras.
+
+**Sus tres tareas:**
+
+| Tarea | Qué significa | Con qué se entrena |
+|---|---|---|
+| **1. Evaluar** | Mira la consulta frente a cada aguja (interacción consulta × candidato de §2l, señales de §2k, tipo escrito de §2n) | Ejemplos consulta + ráfaga → recuerdo correcto (§2n, ejemplo n.º 1) |
+| **2. Decidir si es relevante** | ¿Alguna aguja responde de verdad a lo que se pregunta? Si ninguna encaja, lo dice ("no tengo ese recuerdo") en vez de forzar un ganador | Los controles negativos de la QA (FP 0/40) y preguntas generadas sin respuesta en la base |
+| **3. Subir el correcto al top-1** | Elige uno y deja los relacionados debajo | Pérdida por lista contra rivales difíciles de la misma familia (§2j, §2l) |
+
+**Dónde va en la cadena (decisión pendiente de Dennys).** La neurona de ranking **ya existe** (capa 1, `neurona.reordenar`, entrenada). Hay dos órdenes posibles:
+
+| Orden | Cómo funciona | Riesgo |
+|---|---|---|
+| **A. Motor → ranking → razonamiento** (recomendado por el auditor) | La de razonamiento ve el orden del ranking como una aguja más (su piso) y tiene la última palabra | Ninguno nuevo; es la cascada de §2l |
+| **B. Motor → razonamiento → ranking** | La de razonamiento elige el top-1 y el ranking ordena solo del 2 en adelante | Si el ranking pudiera mover el top-1, desharía la decisión; hay que fijarlo. Además, la de razonamiento no ve lo que el ranking aprendió |
+
+**Seguros:** los de §2.3 y §2l: piso = orden anterior, techo, guardia, examen sellado, bases que nunca vio, QA oficial sin bajar nada. Si duda, no decide.
+
+**Cuándo:** después de que el operador cierre E3 y E4 y se publique v36.0. Es la primera neurona de v37.
+
+---
+
 ## 3. El orden para llegar (paso a pasito)
 
 | Etapa | Qué | Relación con la visión |
@@ -853,7 +880,7 @@ Otra IA propuso usar el caso real (`version_actual_biorag` en el puesto 4) como 
 | E3 | Léxico mental | P6: puentes de palabras (prolijo ↔ prolijidad) |
 | E4 | Que el resultado no dependa de la base; arreglar el nacimiento de enlaces por alias | Llegada garantizada (§2.2.1); conexiones con criterio |
 | E5 | Neuronas en puntos estratégicos | Por orden: asociativa (juez de enlaces), vigencia (P2, P3), "¿nuevo o actualización?" |
-| Después | **Neurona de razonamiento** (§2b) + **neurona de intención** (§2) | La brújula: entender qué se pide y subirlo al primer puesto |
+| Después (v37) | **Neurona de razonamiento** (§2b, §2l, §2q): recibe la consulta y las agujas del motor, decide si alguna es relevante y sube la correcta al top-1 | La brújula: entender qué se pide y subirlo al primer puesto |
 | Después | Ráfaga natural con pistas (P7) y recuerdo escalonado (P4) | Recordar como un humano, con ventaja de silicio |
 
 Detalle técnico de E5 (dónde hace falta criterio neuronal): `../arquitectura_neuro_simbolica/README.md`, §6.
