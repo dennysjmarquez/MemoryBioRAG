@@ -6,8 +6,8 @@ del top-5. Eso incumple el criterio de Dennys. La línea del motor ya fue
 restaurada, sin ajustes adicionales; el archivo coincide con `2dff937`.
 
 Las otras tres QA comenzaron antes de revertir, con el candidato ya cargado en
-memoria. La de viva sin ruido ya terminó; las dos con ruido continúan para
-completar las salidas solicitadas. Sus resultados no pueden cambiar el rechazo.
+memoria. Ya terminaron la viva sin ruido y el snapshot con ruido; solo queda la
+viva con ruido para completar las salidas. Eso no puede cambiar el rechazo.
 
 ## Cambio candidato
 
@@ -139,6 +139,9 @@ Salida literal del caso que bajó:
 [métricas](e2c_qa_snapshot_normal_20261027.json) ·
 [fallos](e2c_qa_snapshot_normal_fallos_20261027.jsonl).
 
+El gate clásico del arnés imprime `[GATE] OK`, pero usa otros umbrales. No
+sustituye el criterio más estricto de E2c: esta bajada obliga a rechazar.
+
 ### Viva sin ruido
 
 | Medida | Antes | Candidato |
@@ -158,5 +161,22 @@ no compensa ninguna de esas bajadas bajo el criterio acordado.
 [métricas](e2c_qa_viva_normal_20261027.json) ·
 [fallos](e2c_qa_viva_normal_fallos_20261027.jsonl).
 
-**Pendiente:** las dos mediciones con ruido siguen corriendo con el candidato ya
-cargado en memoria. Al terminar se agregarán sus salidas y la comparación.
+### Snapshot con `zzqx`
+
+| Medida | Antes | Candidato |
+|---|---:|---:|
+| R@5 honesta global | 97,34 % (865) | 97,69 % (865) |
+| R@5 honesta `sinonimo` | 88,89 % (45) | 95,56 % (45) |
+| R@1 honesta global | 88,63 % (853) | 89,45 % (853) |
+| FP negativos | 0/40 | 0/40 |
+
+Las otras siete categorías de R@5 honesta no bajaron. El gate clásico terminó en
+rojo tanto en la baseline con ruido como con el candidato: compara contra otros
+umbrales fijos, no contra la baseline con ruido de E2c.
+
+[Salida completa](e2c_qa_snapshot_ruido_20261027.log) ·
+[métricas](e2c_qa_snapshot_ruido_20261027.json) ·
+[fallos](e2c_qa_snapshot_ruido_fallos_20261027.jsonl).
+
+**Pendiente:** la viva con ruido sigue corriendo con el candidato ya cargado en
+memoria. Al terminar se agregarán su salida y la comparación de las cuatro QA.
