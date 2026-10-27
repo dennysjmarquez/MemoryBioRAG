@@ -220,6 +220,61 @@ Mismas reglas: QA primero, un cambio cada vez, nunca bajar el recall, igual en c
 
 ---
 
+## 2g. Caso real: "la última versión" (Dennys, 2026-10-27)
+
+> *"Debemos conseguirle la lógica a todo e implementar un sistema adecuado, bien sea que exista o adaptando lo que tenemos, para solucionar esto de una buena vez. El truco está entre lo que manda obligatoriamente el agente en el MCP y el motor."*
+
+### La prueba (consulta real por MCP sobre la base viva)
+
+El agente llamó a `biorag_recordar` así:
+- `query="biorag version ultima orden nodos externos"`;
+- `rafaga_palabras` con 11 palabras;
+- 4 paráfrasis (reglas, protocolo, patrón exitoso, preferencias de Dennys);
+- `sustantivos_clave=biorag,version,nodos,orden`;
+- `forzar_rafaga=true`.
+
+| # | Recuerdo devuelto | Score | ¿Es el vigente? |
+|---:|---|---:|---|
+| 1 | `version_actual_biorag_v34_0_20261024` (v34.0) | 0.5398 | no |
+| 2 | `version_actual_biorag_v32_4_20261007` (v32.4) | 0.4671 | no |
+| 3 | `version_actual_biorag_v32_3_20261003` (v32.3) | 0.4645 | no |
+| **4** | **`version_actual_biorag` (v35.0)** | 0.4614 | **SÍ: el que se quería** |
+| 5 | `version_actual_biorag_v26_3_20260811` (v26.3) | 0.4181 | no |
+
+El agente "supo" la respuesta correcta (v35.0) porque leyó el contenido, pero **el cerebro no la entregó primero**.
+
+### Por qué falla: tres capas (análisis del auditor)
+
+**1. Los datos no dicen cuál está vigente.**
+- El diseño es actualizar el nodo canónico `version_actual_biorag` en su sitio. Está documentado en el recuerdo `decision_diseno_actualizar_nodo_canonico_no_reordenar_por_recencia`.
+- Las versiones archivadas **conservan "actual" en su nombre** (`version_actual_biorag_v34_0...`), así que compiten como si fueran actuales.
+- **No existe una fecha de "última actualización"**: la tabla `largo_plazo` solo tiene `creado_en` y `ultimo_acceso`. Verificado en el snapshot: el canónico es **el más viejo** de su familia (creado 2026-07-04), mientras los archivados son posteriores.
+- **Consecuencia comprobada en el código:** `ordenar_por="recencia"` ordena por `creado_en` (`core/memory/search.py:2121`), así que pondría el canónico **el último**. El diseño "actualizar en su sitio" y la recencia por creación se contradicen.
+
+**2. El motor trata "última" como una palabra más.**
+- "Última", "actual" y "vigente" no se interpretan como **intención** (P3).
+- La recencia pesa 0,04.
+- Ya estaba medido en §6 del mapa (v32.3 en el #1 y v35.0 en el #4): es el mismo fallo.
+
+**3. El contrato agente → MCP no tiene un canal para la intención.**
+- El agente no puede decir "quiero el vigente". Solo puede añadir palabras.
+- Lo que añadió fue ruido (*orden, nodos externos*, paráfrasis de reglas y preferencias). Medido en E2: **una sola palabra que no aplica baja el recuerdo correcto del 1º al 4º.**
+
+### Solución propuesta (por capas, para decidir con Dennys después de E2b)
+
+| Capa | Qué | Quién lo hace | Riesgo |
+|---|---|---|---|
+| **A. Datos: vigencia explícita** | Una fecha de **última actualización del contenido** y una relación **"reemplazado por"** desde cada versión archivada hacia el canónico, creadas al guardar (sin borrar nada) | El motor, al ejecutar `aprender` | Bajo (solo añade). Requiere cambiar el esquema → OK de Dennys |
+| **B. Contrato MCP: el agente declara la intención** | Un modo `ordenar_por="vigente"` (o un parámetro de intención temporal). El prompt enseña: *"la última / la actual / la vigente" → vigente* | El agente (metacognición: él ya sabe lo que pide el usuario) | Muy bajo. Es determinista y no toca el ranking a mano: reordena la familia ya encontrada |
+| **C. El cerebro lo entiende solo (respaldo)** | Si el agente no lo declara: primero una lista cerrada de palabras de intención (piso a mano); después, la **neurona de vigencia** (§6.2 del mapa) aprende la familia en el tiempo | El motor | Medio. Va con los seguros de §2.3 |
+| **D. Ruido en la consulta** | Que las palabras que no aplican no tumben al correcto | El motor (resultado de E2b) | Se decide con los datos de E2b |
+
+**Orden recomendado:** **A + B primero**: dan el resultado correcto de forma determinista y en cualquier base. Luego **C**, para que el cerebro lo entienda aunque el agente no lo diga. **D** sale de E2b.
+
+**Prueba de aceptación:** esta misma llamada debe devolver `version_actual_biorag` en el **#1**, tanto en el snapshot como en la viva, sin que baje ninguna cifra de la QA. Antes de construir nada, se mide sobre una copia de la viva qué devuelven hoy `ordenar_por="recencia"` y la consulta sin ruido. Eso confirma o descarta la capa 1.
+
+---
+
 ## 3. El orden para llegar (paso a pasito)
 
 | Etapa | Qué | Relación con la visión |
