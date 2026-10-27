@@ -1,0 +1,16 @@
+{
+  "proceso_completo": true,
+  "pytest_verde": true,
+  "comparacion_exit_code": 1,
+  "criterios_cumplidos": false,
+  "motor_revertido": true,
+  "sha_motor_final": "14411fceb5e81e73607736e830fff846b3d9ea9007ffdbc6100b3a4c87327830",
+  "motivos": [
+    "snapshot normal: baja R@5 honesta por_tema (65→64/65)",
+    "snapshot normal: baja R@5 honesta variante_gramatical (65→64/65)",
+    "viva normal: baja R@5 honesta por_tema (64→63/65)",
+    "viva normal: baja R@5 honesta typo (65→64/65)",
+    "viva normal: baja R@5 honesta variante_gramatical (65→64/65)"
+  ],
+  "sha_informe": "b4ee4d38688da336e7b21620a0599987b149f9c014cd62dfc6365bc861e012bd"
+}

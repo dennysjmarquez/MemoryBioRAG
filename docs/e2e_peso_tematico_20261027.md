@@ -1,6 +1,6 @@
 # E2e — Anulación del aporte temático
 
-**Estado: RECHAZADO y revertido.** Las dos parejas sin ruido incumplen los criterios; las dos parejas con `zzqx` siguen en curso para completar la evidencia.
+**Estado: RECHAZADO y revertido según los criterios E2e.**
 
 ## 1. Cambio autorizado
 
@@ -29,22 +29,54 @@ El arnés y el examen de referencia y candidato son idénticos por SHA-256. Las 
 
 ## 3. QA completa
 
-### Sin ruido: antes → candidato
+### Global honesta — antes → candidato (%)
 
-| Medida | Snapshot | Copia viva |
+| Escenario | R@5 | R@1 | FP válidos |
+|---|---:|---:|---:|
+| Snapshot, sin ruido | 100.00 → 99.77 | 95.31 → 95.78 | 0/40 → 0/40 |
+| Copia viva, sin ruido | 99.88 → 99.54 | 93.53 → 94.24 | 0/40 → 0/40 |
+| Snapshot, `zzqx` | 97.34 → 97.69 | 88.63 → 89.45 | 0/40 → 0/40 |
+| Copia viva, `zzqx` | 96.63 → 97.10 | 88.12 → 88.71 | 0/40 → 0/40 |
+
+### Sin ruido — R@5 honesta por categoría, antes → candidato
+
+| Categoría | Snapshot % (aciertos/total) | Copia viva % (aciertos/total) |
 |---|---:|---:|
-| R@5 honesta global | 100,00 → 99,77 % | 99,88 → 99,54 % |
-| R@1 honesta global | 95,31 → 95,78 % | 93,53 → 94,24 % |
-| FP | 0/40 → 0/40 | 0/40 → 0/40 |
-| `por_tema`, R@5 honesta | 65/65 → 64/65 | 64/65 → 63/65 |
-| `typo`, R@5 honesta | 65/65 → 65/65 | 65/65 → 64/65 |
-| `variante_gramatical`, R@5 honesta | 65/65 → 64/65 | 65/65 → 64/65 |
+| cruce_idioma | 100.00 → 100.00 (8→8/8) | 100.00 → 100.00 (8→8/8) |
+| dormido | 100.00 → 100.00 (65→65/65) | 100.00 → 100.00 (65→65/65) |
+| literal | 100.00 → 100.00 (487→487/487) | 100.00 → 100.00 (487→487/487) |
+| por_tema | 100.00 → 98.46 (65→64/65) | 98.46 → 96.92 (64→63/65) |
+| pregunta_natural | 100.00 → 100.00 (65→65/65) | 100.00 → 100.00 (65→65/65) |
+| sinonimo | 100.00 → 100.00 (45→45/45) | 100.00 → 100.00 (41→41/41) |
+| typo | 100.00 → 100.00 (65→65/65) | 100.00 → 98.46 (65→64/65) |
+| variante_gramatical | 100.00 → 98.46 (65→64/65) | 100.00 → 98.46 (65→64/65) |
 
-Las demás categorías no bajaron en estas dos parejas. En snapshot salieron los casos honestos **0634** y **0518**. En la copia viva se recuperó el **0848**, pero salieron **0513**, **0516**, **0518** y **0634**: cuatro nuevos fallos y uno recuperado. La condición «ninguna categoría baja» falla aunque R@1 mejore y FP siga en cero.
+### Con `zzqx` — R@5 honesta por categoría, antes → candidato
 
-Se revirtió inmediatamente la única línea; la fórmula del árbol de trabajo vuelve a tener SHA-256 `14411fceb5e81e73607736e830fff846b3d9ea9007ffdbc6100b3a4c87327830`, idéntica a la referencia.
+| Categoría | Snapshot % (aciertos/total) | Copia viva % (aciertos/total) |
+|---|---:|---:|
+| cruce_idioma | 62.50 → 62.50 (5→5/8) | 62.50 → 62.50 (5→5/8) |
+| dormido | 98.46 → 98.46 (64→64/65) | 98.46 → 98.46 (64→64/65) |
+| literal | 99.38 → 99.38 (484→484/487) | 98.56 → 99.18 (480→483/487) |
+| por_tema | 95.38 → 95.38 (62→62/65) | 92.31 → 92.31 (60→60/65) |
+| pregunta_natural | 98.46 → 98.46 (64→64/65) | 100.00 → 100.00 (65→65/65) |
+| sinonimo | 88.89 → 95.56 (40→43/45) | 85.37 → 87.80 (35→36/41) |
+| typo | 93.85 → 93.85 (61→61/65) | 96.92 → 96.92 (63→63/65) |
+| variante_gramatical | 95.38 → 95.38 (62→62/65) | 92.31 → 92.31 (60→60/65) |
 
-Las dos parejas **con `zzqx` siguen pendientes**; se están completando en árboles aislados para no perder la evidencia. Comparaciones parciales: [snapshot](e2e_comparacion_parcial_snapshot_normal_20261027.txt) y [copia viva](e2e_comparacion_parcial_viva_normal_20261027.txt). También: [comparador](e2e_comparar_20261027.py) y [prueba del comparador](e2e_prueba_comparador_20261027.txt). Los JSON, fallos y logs `e2e_base_*` y `e2e_candidato_*` se completan al finalizar cada corrida.
+### Casos honestos nuevos y recuperados
+
+Se muestran los identificadores que cambiaron de acierto a fallo, o al revés. No son los casos apartados de la QA honesta.
+
+| Escenario | Fallos nuevos | Fallos recuperados |
+|---|---|---|
+| Snapshot, sin ruido | 0518 (variante_gramatical), 0634 (por_tema) | ninguno |
+| Copia viva, sin ruido | 0513 (typo), 0516 (por_tema), 0518 (variante_gramatical), 0634 (por_tema) | 0848 (por_tema) |
+| Snapshot, `zzqx` | ninguno | 0638 (sinonimo), 0650 (sinonimo), 0781 (sinonimo) |
+| Copia viva, `zzqx` | 0258 (literal) | 0043 (literal), 0090 (literal), 0212 (literal), 0214 (literal), 0587 (sinonimo) |
+
+Comparación íntegra, con denominadores y razones: [salida](e2e_comparacion_20261027.txt), [JSON](e2e_comparacion_veredicto_20261027.json) y [comparador](e2e_comparar_20261027.py). [Prueba del comparador](e2e_prueba_comparador_20261027.txt).
+Los JSON, fallos y logs originales llevan prefijos `e2e_base_*` y `e2e_candidato_*`.
 
 ## 4. Caso 0848, límite 5
 
@@ -74,3 +106,16 @@ No se debe comparar este puesto 3 directamente con el puesto 4 de la llamada rea
 
 - **Pytest completo del candidato, copia aislada:** `550 passed in 421.46s`. `PYTHONHASHSEED=0`, sin exportar `BIORAG_NEURONA=0`, para no inutilizar las pruebas neuronales. [Salida completa](e2e_pytest_candidato_20261027.log).
 - **Script autónomo previo:** `tests/test_tematico_score_regression.py` exige aporte positivo con evidencia léxica. Pasa con el original, falla con el candidato y vuelve a pasar después de revertir. Pytest recoge cero pruebas de ese archivo. No se modificó ni se presenta su fallo como fallo de pytest. [Original](e2e_prueba_tematico_original_20261027.log) / [candidato](e2e_prueba_tematico_candidato_20261027.log) / [revertido](e2e_prueba_tematico_revertido_20261027.log).
+
+## 7. Veredicto
+
+El candidato queda rechazado y el motor fue **revertido byte a byte** a la fórmula de referencia. Se cierra E2 sin más ajustes; el 0848 en la copia viva queda conocido según §4.
+
+Razones de rechazo:
+- snapshot normal: baja R@5 honesta por_tema (65→64/65)
+- snapshot normal: baja R@5 honesta variante_gramatical (65→64/65)
+- viva normal: baja R@5 honesta por_tema (64→63/65)
+- viva normal: baja R@5 honesta typo (65→64/65)
+- viva normal: baja R@5 honesta variante_gramatical (65→64/65)
+
+[Veredicto verificable](e2e_veredicto_20261027.json). No se hizo merge.
