@@ -1,0 +1,23 @@
+
+=== viva normal ===
+FP antes/candidato: 0/40 → 0/40; contaminados 0 → 0
+R@5 honesta global: 99.88% → 99.54%; fallos 1 → 4; n=861
+R@1 honesta global: 93.53% → 94.24%; no top-1 55 → 49; n=850
+Categoría                 R@5 honesta antes → candidato (aciertos / total)
+cruce_idioma             100.00% → 100.00% (  8 →   8 /   8)
+dormido                  100.00% → 100.00% ( 65 →  65 /  65)
+literal                  100.00% → 100.00% (487 → 487 / 487)
+por_tema                  98.46% →  96.92% ( 64 →  63 /  65) BAJA
+pregunta_natural         100.00% → 100.00% ( 65 →  65 /  65)
+sinonimo                 100.00% → 100.00% ( 41 →  41 /  41)
+typo                     100.00% →  98.46% ( 65 →  64 /  65) BAJA
+variante_gramatical      100.00% →  98.46% ( 65 →  64 /  65) BAJA
+Fallos honestos nuevos (4): [('0513', 'typo'), ('0516', 'por_tema'), ('0518', 'variante_gramatical'), ('0634', 'por_tema')]
+Fallos honestos recuperados (1): [('0848', 'por_tema')]
+
+=== COMPARACIÓN DE MÉTRICAS (pytest se valida aparte) ===
+PARCIAL: 1/4 parejas; NO constituye el veredicto final.
+NO CUMPLE
+- viva normal: baja R@5 honesta por_tema (64→63/65)
+- viva normal: baja R@5 honesta typo (65→64/65)
+- viva normal: baja R@5 honesta variante_gramatical (65→64/65)

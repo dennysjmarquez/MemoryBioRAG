@@ -1,6 +1,6 @@
 # E2e — Anulación del aporte temático
 
-**Estado: RECHAZADO y revertido.** La primera pareja ya incumple los criterios; las otras tres siguen en curso para completar la evidencia.
+**Estado: RECHAZADO y revertido.** Las dos parejas sin ruido incumplen los criterios; las dos parejas con `zzqx` siguen en curso para completar la evidencia.
 
 ## 1. Cambio autorizado
 
@@ -29,19 +29,22 @@ El arnés y el examen de referencia y candidato son idénticos por SHA-256. Las 
 
 ## 3. QA completa
 
-### Resultado suficiente para rechazar: snapshot, sin ruido
+### Sin ruido: antes → candidato
 
-| Medida | Antes | Candidato |
+| Medida | Snapshot | Copia viva |
 |---|---:|---:|
-| R@5 honesta global | 100,00 % | 99,77 % |
-| R@1 honesta global | 95,31 % | 95,78 % |
-| FP | 0/40 | 0/40 |
-| `por_tema`, R@5 honesta | 65/65 | 64/65 |
-| `variante_gramatical`, R@5 honesta | 65/65 | 64/65 |
+| R@5 honesta global | 100,00 → 99,77 % | 99,88 → 99,54 % |
+| R@1 honesta global | 95,31 → 95,78 % | 93,53 → 94,24 % |
+| FP | 0/40 → 0/40 | 0/40 → 0/40 |
+| `por_tema`, R@5 honesta | 65/65 → 64/65 | 64/65 → 63/65 |
+| `typo`, R@5 honesta | 65/65 → 65/65 | 65/65 → 64/65 |
+| `variante_gramatical`, R@5 honesta | 65/65 → 64/65 | 65/65 → 64/65 |
 
-Los casos honestos nuevos fuera del top 5 son **0634** (`por_tema`) y **0518** (`variante_gramatical`). La condición «ninguna categoría baja» falla aunque R@1 mejore y FP siga en cero. Por eso se revirtió inmediatamente la única línea; la fórmula del árbol de trabajo vuelve a tener SHA-256 `14411fceb5e81e73607736e830fff846b3d9ea9007ffdbc6100b3a4c87327830`, idéntica a la referencia.
+Las demás categorías no bajaron en estas dos parejas. En snapshot salieron los casos honestos **0634** y **0518**. En la copia viva se recuperó el **0848**, pero salieron **0513**, **0516**, **0518** y **0634**: cuatro nuevos fallos y uno recuperado. La condición «ninguna categoría baja» falla aunque R@1 mejore y FP siga en cero.
 
-Las otras tres parejas **siguen pendientes**; se están completando en árboles aislados para no perder la evidencia. [Comparación parcial](e2e_comparacion_parcial_snapshot_normal_20261027.txt), [JSON](e2e_veredicto_parcial_snapshot_normal_20261027.json), [comparador](e2e_comparar_20261027.py) y [prueba del comparador](e2e_prueba_comparador_20261027.txt). Los JSON, fallos y logs `e2e_base_*` y `e2e_candidato_*` se completan al finalizar cada corrida.
+Se revirtió inmediatamente la única línea; la fórmula del árbol de trabajo vuelve a tener SHA-256 `14411fceb5e81e73607736e830fff846b3d9ea9007ffdbc6100b3a4c87327830`, idéntica a la referencia.
+
+Las dos parejas **con `zzqx` siguen pendientes**; se están completando en árboles aislados para no perder la evidencia. Comparaciones parciales: [snapshot](e2e_comparacion_parcial_snapshot_normal_20261027.txt) y [copia viva](e2e_comparacion_parcial_viva_normal_20261027.txt). También: [comparador](e2e_comparar_20261027.py) y [prueba del comparador](e2e_prueba_comparador_20261027.txt). Los JSON, fallos y logs `e2e_base_*` y `e2e_candidato_*` se completan al finalizar cada corrida.
 
 ## 4. Caso 0848, límite 5
 
@@ -70,4 +73,4 @@ No se debe comparar este puesto 3 directamente con el puesto 4 de la llamada rea
 ## 6. Pruebas
 
 - **Pytest completo del candidato, copia aislada:** `550 passed in 421.46s`. `PYTHONHASHSEED=0`, sin exportar `BIORAG_NEURONA=0`, para no inutilizar las pruebas neuronales. [Salida completa](e2e_pytest_candidato_20261027.log).
-- **Script autónomo previo:** `tests/test_tematico_score_regression.py` exige aporte positivo con evidencia léxica. Pasa con el original y falla con el candidato, como corresponde al cambio ensayado. Pytest recoge cero pruebas de ese archivo. No se modificó ni se presenta su fallo como fallo de pytest. [Original](e2e_prueba_tematico_original_20261027.log) / [candidato](e2e_prueba_tematico_candidato_20261027.log).
+- **Script autónomo previo:** `tests/test_tematico_score_regression.py` exige aporte positivo con evidencia léxica. Pasa con el original, falla con el candidato y vuelve a pasar después de revertir. Pytest recoge cero pruebas de ese archivo. No se modificó ni se presenta su fallo como fallo de pytest. [Original](e2e_prueba_tematico_original_20261027.log) / [candidato](e2e_prueba_tematico_candidato_20261027.log) / [revertido](e2e_prueba_tematico_revertido_20261027.log).
