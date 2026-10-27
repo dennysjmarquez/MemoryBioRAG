@@ -724,6 +724,15 @@ Medido así: grupos de 4 a 12 recuerdos que comparten una palabra del nombre o d
 
 Cada grupo así da varias preguntas de contraste con respuestas distintas, que es justo lo que pide §2l–§2o. Con una sola base salen cientos de grupos, y con más bases, miles.
 
+### Ejemplo de entrenamiento n.º 1: el caso de la versión (propuesta externa contrastada, 2026-10-27)
+Otra IA propuso usar el caso real (`version_actual_biorag` en el puesto 4) como primer ejemplo: registrar la llamada MCP real, los 10 candidatos y la respuesta verificada, y armar preguntas de contraste sobre el mismo grupo ("versión actual" → canónico; "primera neurona" → v34; "DimensionHub" → v32.4; "cambios de la 32.3" → v32.3). **Coincide con §2l–§2o y se adopta**, con cinco precisiones de quien conoce el sistema:
+
+1. **Los nombres mienten, así que la neurona no debe verlos.** Los nodos viejos se llaman `version_actual_biorag_v34_0...` porque fueron "la actual" en su día. "version_actual" está en todos los nombres de la familia y no distingue a ninguno. Al entrenar, los conceptos se **anonimizan** (se renombran al azar en cada ejemplo), para que aprenda de señales y no de nombres.
+2. **La pista se registra por partes:** consulta original, paráfrasis, ráfaga y sustantivos van separados (§2m, "la pista completa"). La consulta real llevaba ruido ("orden nodos externos"), así que se guardan **la real y una versión limpia**, cada una con la misma respuesta.
+3. **La respuesta "versión actual" necesita la fecha de modificación (C1).** Hoy el canónico dice v35.0 en su contenido, pero su `creado_en` es del 14-10, anterior al de v34. Sin C1 y sin el estado "vigente", la etiqueta tendría que ponerse a mano, y eso no escala.
+4. **Las preguntas de contraste no se escriben a mano:** salen solas de la **familia** (§2j). El padre responde "la actual o la general"; cada hijo responde "lo que solo él tiene", es decir su número de versión y lo que añade. Así se generan para cualquier familia de cualquier base.
+5. **La fórmula `S_nuevo = S_actual + Δ(q, r)` ya es el molde de BioRAG:** piso (capa 1) más una corrección acotada con techo y guardia, igual que `neurona.py` (`_base` + `_correccion`). La capa 2 repite ese molde con la consulta dentro.
+
 ### Lo que entra a la capa 2 (tres bloques)
 1. **Lo que pide la pista** (igual para todos los candidatos): los síntomas del texto ("la última", "la primera", "funcionó", "falló", "por qué", "en general"), las dimensiones que mandó el agente y `ordenar_por`. Todo se traduce **al mismo vocabulario de tipos que las dimensiones**, para que "lo que pide" y "lo que es" hablen el mismo idioma (Morris 1977).
 2. **Lo que es cada candidato:** sus dimensiones de tipo (epistemia, acción, intención, escala), su categoría, su posición en el tiempo **dentro de su familia** (con fecha de modificación, C1), su nivel en la familia (§2j) y el resultado, si quedó dicho.
