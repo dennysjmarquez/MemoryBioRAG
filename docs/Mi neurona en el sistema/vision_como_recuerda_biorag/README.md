@@ -63,6 +63,38 @@ Qué lo hace "vivo": no que tenga sinapsis ni que se parezca a un cerebro, sino 
 
 ---
 
+## 2b. La neurona de razonamiento: la brújula (Dennys, 2026-10-26)
+
+> *"El ser humano tiene algo que razona, porque entiende qué le quieren pedir. El cerebro lo hace con sinapsis, química y electricidad; nosotros tenemos que traducir eso al plano en el que estamos."*
+
+**Equivalente biológico:** la **corteza prefrontal**. No guarda los recuerdos; mantiene **el objetivo** ("qué me están pidiendo") y desde arriba **inclina** al hipocampo para que gane el recuerdo que sirve. Esa es la función que hay que traducir.
+
+**Qué haría en BioRAG:** antes de buscar, convierte el texto del agente en una **intención estructurada**:
+
+| Pieza de la intención | Ejemplo |
+|---|---|
+| **Qué** (tema o familia) | "versión de BioRAG", "el vaso" |
+| **Cómo** (tipo de pedido) | la última · todas · cuándo · por qué · cómo se hace · lo contrario |
+| **Alcance** | uno solo · unos pocos · seguir hilando (P4, P7) |
+
+El motor usa esa intención para decidir qué subir al primer puesto. La neurona de intención de §2 es la que **ejecuta** ese plan sobre los candidatos.
+
+### Tres caminos para conseguirla
+
+| Camino | Ventaja | Riesgo |
+|---|---|---|
+| **A. Traerla entrenada de internet** (un modelo de lenguaje pequeño en español) | Ya "entiende" idioma | Es una red pesada frente a la regla "nada pesado"; no sabe nada de BioRAG; depende de terceros (licencia, tamaño) |
+| **B. Construirla desde cero** | Es nuestra, pequeña y explicable | Necesita muchísimos ejemplos para entender lenguaje |
+| **C. Destilación: una IA grande enseña, una neurona pequeña aprende** | La IA grande genera y etiqueta **millones** de pedidos fuera de línea; la neurona pequeña aprende a imitarla y corre dentro del cerebro en tiempo constante | Hay que diseñar bien qué aprende y examinarla con preguntas que nunca vio |
+
+**Recomendación del auditor:** el camino **C**, porque traduce la "química" de un modelo grande a nuestro plano (pequeño, rápido, con seguros) sin meter una red pesada en el motor. El camino A puede servir **solo como maestro** de C, no dentro del motor.
+
+**Requisitos:** los mismos seguros de §2.3. Además:
+- si la neurona no está segura de la intención, **no decide**: el motor sigue con el ranking a mano;
+- la decisión final entre A, B y C es de Dennys, cuando lleguemos (después de E4).
+
+---
+
 ## 2c. Cómo evita el cerebro que lleguen 500 recuerdos (y qué copiamos)
 
 Pregunta de Dennys: *"¿qué sistema hay detrás que evita que, al recordar, compitan 100, 200 o 500 recuerdos parecidos? Yo siempre traigo el mismo recuerdo porque tiene características que otros no tienen."*
@@ -82,6 +114,40 @@ La intuición es correcta. La neurociencia lo explica con cinco mecanismos que t
 **¿Y si dos recuerdos tienen las mismas características?** También pasa en el humano. Por ejemplo, "¿dónde dejé el carro hoy y dónde ayer?". El desempate lo dan el **tiempo** (el más reciente) y el **contexto**. Cuando ni eso alcanza, el humano confunde o mezcla. Por eso la vigencia y el contexto son piezas obligatorias, no adornos.
 
 **Lección para el diseño:** el cerebro no evita la competencia teniendo "infinitas" características. La evita **guardando separado** lo parecido, **debilitando** las pistas comunes, **usando el contexto y el tiempo** y **dejando que un ganador apague** a los demás.
+
+---
+
+## 2d. La clave según Dennys: saber que lo buscado COINCIDE con el recuerdo (para después)
+
+> *"Un mismo recuerdo puede tener las mismas señales de hacer match, pero ¿qué lo separa? No es tanto separarlo, sino **cómo saber que lo que se quiere buscar coincide con el recuerdo**. Ahí es donde está la clave. Lo tenemos que emular, sintetizar eso a nuestro sistema. Si lo logramos, tendríamos esto resuelto."*
+> **Estado:** anotado para conversarlo y hacerlo **después** del trabajo actual (E2–E4). No se mezcla con lo que se está haciendo.
+
+**Diagnóstico de Dennys:** el sistema léxico no es malo; **no se ha podido calibrar como tiene que ser**. El cerebro también trabaja con señales, pero sabe **cuál coincide de verdad**.
+
+### Los cuatro mecanismos que hay que sintetizar
+
+(Explicación traída por Dennys de otra IA, contrastada con §2c.)
+
+| # | Mecanismo del cerebro | Qué hace | Traducción posible a BioRAG |
+|---|---|---|---|
+| 1 | **Separación de patrones** | Lo casi idéntico se guarda en neuronas distintas, como un código de barras: un solo dígito distinto lo hace otra cosa | Al guardar: **cada recuerdo con su firma única** (lo que lo distingue de sus vecinos), no solo sus palabras |
+| 2 | **Compleción de patrones** | Con una fracción de la pista se enciende **el recuerdo completo** | Al buscar: **medir el encaje del patrón completo** (cuánto de la pista explica el recuerdo y cuánto del recuerdo explica la pista), no sumar coincidencias sueltas |
+| 3 | **Inhibición lateral** ("el rey de la colina") | El recuerdo que mejor encaja **apaga** a sus vecinos parecidos | El ganador claro **baja a sus rivales parecidos**; si no hay ganador claro, se dice (abstención o desempate por tiempo y contexto) |
+| 4 | **Olvido inducido por recuperación** | Tras elegir A sobre B, el cerebro debilita a B para el futuro | **Con cuidado:** choca con las reglas "sin feedback" y "sin registrar el uso del agente". Solo se haría como **consolidación al dormir** sobre la propia base, nunca espiando al agente, y con el OK de Dennys |
+
+### La pregunta que hay que responder con pruebas
+
+Hoy el motor suma señales (palabras, sinónimos, dimensiones, grafo) y gana quien suma más. El cerebro no suma: **verifica el encaje**. La pregunta para el trabajo futuro:
+
+> **¿Cómo sabe el motor que la consulta coincide con ESTE recuerdo y no con su vecino que comparte las mismas señales?**
+
+Candidatos a estudiar, en orden:
+1. **Firma diferenciadora por recuerdo** (lo que solo él tiene frente a sus vecinos más cercanos), calculada al guardar o al dormir.
+2. **Encaje en las dos direcciones** (pista → recuerdo y recuerdo → pista), con penalización por lo que la consulta pide y el recuerdo **no** tiene.
+3. **Inhibición entre vecinos** en el top final: si dos candidatos se parecen mucho, gana el que tiene la firma que la consulta menciona.
+4. Una neurona que **aprenda a verificar el encaje** (la "neurona de razonamiento" de §2b, con los seguros de §2.3).
+
+**Mismas reglas de siempre:** QA primero; cada cambio aislado; nunca bajar el recall; igual en cualquier base; experimentos sobre copias.
 
 ---
 
