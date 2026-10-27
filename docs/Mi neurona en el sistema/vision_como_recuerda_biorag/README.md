@@ -453,6 +453,60 @@ Respuesta: por eso la regla **no es fija**, sino relativa a la consulta.
 
 ---
 
+## 2k. Reentrenar la neurona de ranking para que ordene "por lo que se intenta averiguar" (2026-10-27)
+
+> Dennys: *"El cerebro no necesita recuperar simplemente algo relacionado con el problema. Necesita recuperar el recuerdo que mejor encaja con lo que intentas averiguar en este momento. Ahí está el entrenamiento de la neurona."* (Idea contrastada con otra IA, que revisó el repositorio.)
+
+### Lo que la neurona ve y aprende hoy (verificado en el código)
+
+- **Entradas por candidato:** las 17 "agujas" de la fórmula (`core/memory/neurona.py:242`) más lo que pasa después (bono de convergencia, evidencia por campo, peso, origen, si el agente mandó sustantivos). **No ve la intención de la consulta, ni la familia, ni el tiempo.**
+- **Una de sus 17 agujas está muerta:** el temático vale 1,0 en el 100 % de los candidatos que lo reciben (medido en E2). **La recencia no existe** (C3).
+- **Examen:** cada pregunta sale de **un** recuerdo y su respuesta es ese mismo recuerdo (`neurona_examen.py:145`). **Nunca le enseña** "mismo tema, distinta intención": no hay competidores difíciles de la misma familia.
+- **Alcance:** reordena el top-5 a top-10. En el caso de la versión, el correcto estaba en el #4, **dentro de su alcance**. No lo subió porque **no tenía con qué distinguirlo**.
+
+### Opinión del auditor
+
+**La idea es correcta y es el sitio adecuado: la misma neurona, no una tercera.** Pero el orden importa: una neurona solo aprende de lo que ve. **Si se reentrena sin darle señales nuevas, aprenderá lo mismo.** Hacen falta dos cosas, en este orden:
+
+**1. Darle ojos: señales nuevas, a mano, simbólicas y de tiempo constante** (salen de §2h y §2j):
+
+| Señal nueva | Qué le dice | De dónde sale |
+|---|---|---|
+| Nivel en la familia | ¿Es el padre o un hijo? ¿La consulta nombra lo que añade el hijo? | Contención de identidad (§2j) |
+| Exceso | Cuánto de su identidad **no** pide la consulta | §2h punto 3 |
+| Recencia dentro de la familia | ¿Es la última modificación de su familia? | Fecha de modificación (C1) |
+| Intención temporal | ¿La consulta pide "la última / la actual / la vigente"? | Lista cerrada primero (E3 / §2b después) |
+| **Estado epistémico** | ¿Es verificado, hipotético u obsoleto? | **Ya existe**: la dimensión `epistemia` (`directa_experiencial, verificada, inferida, reportada_externa, hipotetica, obsoleta`), que el agente pone al guardar |
+
+La última fila es la respuesta al ejemplo *"¿qué solución **no funcionó**?"*. La diferencia entre "hipótesis", "probado y funcionó" y "probado y falló" **no se puede deducir de las palabras**. Tiene que quedar dicha **al guardar**, y BioRAG ya tiene dónde: las dimensiones. Habría que ver si hace falta añadir "resultado: funcionó / falló". Una neurona que lea el texto libre para deducirlo es el camino C de §2b (destilación), para más adelante.
+
+**2. Enseñarle con exámenes nuevos, generados desde cualquier base** (es la "suite de competencia" de §2h §6):
+- "**La última** de esta familia" → la modificación más reciente.
+- "La familia **en general**" → el padre.
+- "La familia + **lo que solo tiene un hijo**" → ese hijo.
+- "La familia + **verificado / hipotético / obsoleto**" → el que tiene ese estado.
+
+Cada pregunta trae a **sus hermanos como competidores difíciles**. Así aprende *por qué* en una pregunta gana el padre y en otra el hijo.
+
+**Reglas que no cambian:**
+- Piso a mano, techo y guardia.
+- Examen sellado con preguntas nunca vistas.
+- Constante en el tiempo y funcional desde una base vacía.
+- Sin embeddings.
+- Cambiar las entradas obliga a **subir la VERSION de la neurona** y a reentrenar: los pesos actuales no valen para entradas distintas.
+- Se compara contra el campeón actual. Solo se promueve si gana en la suite nueva **y** no baja nada en la QA oficial (snapshot y viva).
+
+**Límite honesto:** la neurona solo reordena lo que el motor ya trajo al top-5 / top-10. Si el correcto no llega (EXP-Q: puestos 33 y 91), primero hay que garantizar que llegue (E4).
+
+**Orden propuesto (con el OK de Dennys, después de E2b):**
+1. Auditar el vector de entrada actual y retirar las agujas muertas, medido en las dos bases.
+2. Construir la suite de competencia y medir la línea base de hoy.
+3. Añadir las señales una a una, como fórmula a mano primero.
+4. Reentrenar la neurona encima con los exámenes nuevos.
+5. Comparar contra el campeón.
+
+---
+
 ## 3. El orden para llegar (paso a pasito)
 
 | Etapa | Qué | Relación con la visión |
