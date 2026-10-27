@@ -129,7 +129,16 @@ def clasificar_casos_sinonimo(db, cases, ruta_referencia=None):
     referencia = {}
     if ruta_referencia:
         try:
-            con_ref = sqlite3.connect(f"file:{ruta_referencia}?mode=ro", uri=True)
+            # Solo lectura, e INMUTABLE cuando el fichero está limpio: sin esto
+            # SQLite puede crear -wal/-shm al lado del snapshot y cambiarle el
+            # sha256. Ya pasó una vez en esta etapa (lo detectó el auditor).
+            # PERO immutable=1 hace que SQLite IGNORE un -wal existente: en una
+            # base recién escrita (que vive en WAL) se leería vacía. Por eso solo
+            # se usa cuando no hay sidecar.
+            _modo = "mode=ro"
+            if not os.path.exists(str(ruta_referencia) + "-wal"):
+                _modo += "&immutable=1"
+            con_ref = sqlite3.connect(f"file:{ruta_referencia}?{_modo}", uri=True)
             try:
                 referencia = _mapa_declaraciones(con_ref)
             finally:
@@ -1012,7 +1021,8 @@ def run_evaluation(argv=None):
             "queries": h["r1_n"],
             "recall_at_1": round(g1, 2),
             "mrr": round(g_mrr, 4),
-            "fallos": h["r1_n"] - h["r1_h1"],
+            # No es un "fallo": es un puesto peor. La tabla ya lo llama así.
+            "no_top1": h["r1_n"] - h["r1_h1"],
         },
         "categorias": {
             cat: {

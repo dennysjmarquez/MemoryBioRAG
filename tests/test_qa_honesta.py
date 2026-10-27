@@ -194,3 +194,25 @@ def test_el_informe_declara_que_el_umbral_se_decidio_despues():
     assert "UMBRAL_AMBIGUA_R5 = 5" in fuente
     assert "UMBRAL_AMBIGUA_R1 = 2" in fuente
     assert "ese umbral se decidió DESPUÉS de ver la primera medición" in fuente
+
+
+# ── Menores de la revisión de E1b ─────────────────────────────────────────
+
+def test_json_usa_no_top1_y_no_llama_fallos_al_puesto():
+    """El JSON no debe llamar 'fallos' a lo que es 'no llegó al primer puesto'."""
+    fuente = open(os.path.join(RAIZ, "scripts", "evaluar_qa.py"), encoding="utf-8").read()
+    bloque = fuente[fuente.index('"global_r1"'):fuente.index('"categorias"', fuente.index('"global_r1"'))]
+    assert '"no_top1"' in bloque
+    assert '"fallos"' not in bloque
+
+
+def test_la_referencia_se_abre_inmutable_si_no_hay_wal():
+    """Abrir el snapshot sin immutable puede crearle -wal y cambiarle el sha256.
+
+    Se usa immutable=1 SOLO si no hay sidecar -wal: con immutable, SQLite ignora
+    un -wal existente y una base recién escrita se leería vacía (lo detectó el
+    propio test de la regla 1 al fallar).
+    """
+    fuente = open(os.path.join(RAIZ, "scripts", "evaluar_qa.py"), encoding="utf-8").read()
+    assert '"&immutable=1"' in fuente
+    assert 'os.path.exists(str(ruta_referencia) + "-wal")' in fuente
