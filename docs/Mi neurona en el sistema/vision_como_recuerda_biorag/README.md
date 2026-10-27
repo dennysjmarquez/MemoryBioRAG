@@ -63,6 +63,28 @@ Qué lo hace "vivo": no que tenga sinapsis ni que se parezca a un cerebro, sino 
 
 ---
 
+## 2c. Cómo evita el cerebro que lleguen 500 recuerdos (y qué copiamos)
+
+Pregunta de Dennys: *"¿qué sistema hay detrás que evita que, al recordar, compitan 100, 200 o 500 recuerdos parecidos? Yo siempre traigo el mismo recuerdo porque tiene características que otros no tienen."*
+
+La intuición es correcta. La neurociencia lo explica con cinco mecanismos que trabajan juntos:
+
+| Mecanismo (cerebro) | Qué hace | Equivalente en BioRAG | Estado |
+|---|---|---|---|
+| **Separación de patrones** (giro dentado del hipocampo) | Guarda experiencias parecidas con códigos **distintos y escasos**: pocas neuronas por recuerdo | Concepto único, sustantivos clave, dimensiones | Existe; los enlaces por alias que unen todo (45 %) **van en contra** de esto |
+| **La pista con más rasgos diferenciadores gana** (diagnosticidad de la pista) | Pesa lo que distingue, no lo que comparten todos | Rareza de las palabras de la consulta | Parcial |
+| **Sobrecarga de pista** (efecto abanico) | Una pista unida a muchos recuerdos se debilita sola: "biorag" no sirve para elegir entre 200 | Hoy "biorag" tiene 170 dueños en el snapshot y 203 en la viva | Por medir y corregir (E4) |
+| **El contexto es parte del recuerdo** (especificidad de codificación, Tulving) | Se recuerda mejor cuando la pista trae el mismo contexto con que se guardó | Dimensiones, motivo del recuerdo (P5) | Existe |
+| **Competencia con inhibición** (corteza prefrontal) | El ganador **apaga** a los rivales parecidos (olvido inducido por recuperación) | Ranking + abstención; neurona de razonamiento (§2b) | Parcial |
+| **Recencia y frecuencia** (ACT-R) | Lo usado hace poco o muchas veces está más disponible | ACT-R ya existe en el olvido, pero casi no ordena (P2) | Por hacer (vigencia) |
+| **Recuerdo por pasos** | No llegan 500: llega uno, trae pistas y se va hilando (memoria de trabajo limitada) | Recuerdo escalonado y ráfaga natural (P4, P7) | Por hacer |
+
+**¿Y si dos recuerdos tienen las mismas características?** También pasa en el humano. Por ejemplo, "¿dónde dejé el carro hoy y dónde ayer?". El desempate lo dan el **tiempo** (el más reciente) y el **contexto**. Cuando ni eso alcanza, el humano confunde o mezcla. Por eso la vigencia y el contexto son piezas obligatorias, no adornos.
+
+**Lección para el diseño:** el cerebro no evita la competencia teniendo "infinitas" características. La evita **guardando separado** lo parecido, **debilitando** las pistas comunes, **usando el contexto y el tiempo** y **dejando que un ganador apague** a los demás.
+
+---
+
 ## 3. El orden para llegar (paso a pasito)
 
 | Etapa | Qué | Relación con la visión |
