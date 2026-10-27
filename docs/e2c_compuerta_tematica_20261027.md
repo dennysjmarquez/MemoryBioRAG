@@ -5,9 +5,9 @@
 del top-5. Eso incumple el criterio de Dennys. La línea del motor ya fue
 restaurada, sin ajustes adicionales; el archivo coincide con `2dff937`.
 
-Las otras tres QA comenzaron antes de revertir y continúan con el candidato ya
-cargado en memoria, para completar las salidas solicitadas. Sus resultados no
-pueden cambiar el rechazo.
+Las otras tres QA comenzaron antes de revertir, con el candidato ya cargado en
+memoria. La de viva sin ruido ya terminó; las dos con ruido continúan para
+completar las salidas solicitadas. Sus resultados no pueden cambiar el rechazo.
 
 ## Cambio candidato
 
@@ -139,5 +139,24 @@ Salida literal del caso que bajó:
 [métricas](e2c_qa_snapshot_normal_20261027.json) ·
 [fallos](e2c_qa_snapshot_normal_fallos_20261027.jsonl).
 
-**Pendiente:** las otras tres mediciones siguen corriendo con el candidato ya
+### Viva sin ruido
+
+| Medida | Antes | Candidato |
+|---|---:|---:|
+| R@5 honesta global | 99,88 % (861) | 99,54 % (861) |
+| R@5 honesta `por_tema` | **98,46 % (65)** | **96,92 % (65)** |
+| R@5 honesta `typo` | **100,00 % (65)** | **98,46 % (65)** |
+| R@5 honesta `variante_gramatical` | **100,00 % (65)** | **98,46 % (65)** |
+| R@1 honesta global | 93,53 % (850) | 94,47 % (850) |
+| FP negativos | 0/40 | 0/40 |
+
+El 0848 dejó de fallar, pero entraron dos fallos de `por_tema` (0516 y 0634),
+uno de `typo` (0513) y uno de `variante_gramatical` (0518). La mejora puntual
+no compensa ninguna de esas bajadas bajo el criterio acordado.
+
+[Salida completa](e2c_qa_viva_normal_20261027.log) ·
+[métricas](e2c_qa_viva_normal_20261027.json) ·
+[fallos](e2c_qa_viva_normal_fallos_20261027.jsonl).
+
+**Pendiente:** las dos mediciones con ruido siguen corriendo con el candidato ya
 cargado en memoria. Al terminar se agregarán sus salidas y la comparación.
