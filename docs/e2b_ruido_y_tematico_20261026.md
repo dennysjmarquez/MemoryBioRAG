@@ -8,9 +8,12 @@ temporal. **Sin reparar el ranking.**
 **Regla cumplida:** cero código del motor. Todo sobre copias. `casos_qa.jsonl` no
 se ha tocado.
 
+**Revisión del auditor (27-10-2026): APROBADO CON CAMBIOS.** Esta actualización
+corrige solo el informe; no cambia la QA ni el motor.
+
 ---
 
-## 0. Antes de los números: un intento que descarté
+## 0. Antes de los números: dos intentos descartados
 
 Mi primer intento fue copiar el bucle del arnés en un script propio. La copia daba
 un baseline peor que el arnés (R@5 clásica 98,3 frente a 100,0 en el snapshot).
@@ -21,24 +24,31 @@ condiciones son las de siempre: mismas restauraciones, misma resolución de
 etiquetas, mismo trato de las ambiguas.
 
 También descarté un segundo intento: instrumentar `_calcular_score_hibrido` para
-ver las señales de cada candidato. **El espía cambiaba el resultado** (el esperado
-pasaba de 1.º a 6.º solo por estar espiado), así que sus números no valen. Todo lo
-que sigue está medido con la **API pública** del motor o con el arnés oficial, sin
-meter mano dentro. El script del intento se ha borrado para que nadie lo reutilice
-por error.
+ver las señales de cada candidato. En esa prueba el esperado salió 6.º en vez de
+1.º. **Causa no identificada; script descartado** y sus cifras no se usan. No se
+puede concluir que envolver la fórmula, por sí solo, cambie el resultado: el
+auditor comprobó que el envoltorio usado para el censo **no cambia la QA**.
+Las cifras publicadas proceden de la API pública o del arnés oficial; el censo de
+este último sí envuelve la fórmula y devuelve su mismo valor.
 
 Banderas añadidas, **apagadas por defecto**:
 - `BIORAG_QA_RUIDO=zzqx` — añade esa palabra **solo a la búsqueda**; `query` queda
   intacta para el control de ambiguas y para los informes.
-- `BIORAG_QA_TEMATICO_CENSO=1` — cuenta candidatos y saturación sin cambiar ningún
-  valor (envuelve y devuelve el mismo score).
+- `BIORAG_QA_TEMATICO_CENSO=1` — cuenta llamadas a la fórmula y saturación sin
+  cambiar el valor devuelto.
 
 ---
 
 ## A. Tolerancia al ruido
 
 QA oficial completa (921 casos, `BIORAG_NEURONA=0`), normal contra
-`BIORAG_QA_RUIDO=zzqx`. Todo lo demás idéntico.
+`BIORAG_QA_RUIDO=zzqx`. Las dos corridas **con ruido**, snapshot y viva, llevaron
+además el censo temático activo; las de referencia sin ruido no lo llevaban.
+
+El auditor comparó en el **snapshot con ruido** el censo activo y apagado:
+obtuvo las mismas métricas y los mismos **32 registros de fallos**. Son los
+**28** del resumen clásico de la tabla más **4 ambiguos**, que la QA muestra
+aparte y excluye del recall global. No son 32 fallos del recall clásico.
 
 | | snapshot sin ruido | snapshot con ruido | viva sin ruido | viva con ruido |
 |---|---:|---:|---:|---:|
@@ -52,8 +62,8 @@ QA oficial completa (921 casos, `BIORAG_NEURONA=0`), normal contra
 | FP negativos | 0/40 | 0/40 | 0/40 | 0/40 |
 
 **Una sola palabra inexistente cuesta**: −3,20 pp de R@5 y −6,51 pp de R@1 en el
-snapshot; −3,89 y −5,38 en la viva. Y **los falsos positivos no se mueven** (0/40
-en las cuatro corridas): el ruido no inventa respuestas, solo descoloca las buenas.
+snapshot; −3,89 y −5,38 en la viva. En estos controles **los falsos positivos no
+se mueven**: 0/40 en las cuatro corridas.
 
 ### Dónde pega, por categoría (honesta R@5)
 
@@ -100,70 +110,78 @@ Todas piden lo mismo; solo cambian las palabras.
 
 **Lo que dicen estos números, en orden de importancia:**
 
-1. **No es la palabra inventada: es cualquier palabra de más.** Con `julio`, que
-   existe en el corpus, el esperado también se cae (puesto 5 en el snapshot).
-   El auditor tenía razón y el fenómeno es más general de lo que parecía.
-2. **La caída es un acantilado, no una pendiente.** De 0,6143 a 0,3860: −0,228 de
-   golpe (−37 %) por una sola palabra. Un nodo que gana por 0,065 pasa a perder.
-3. **La causa está en dos umbrales que saltan juntos.** La cobertura de alias es una
-   proporción: con dos palabras, acertar las dos es 2/2 = 1,00; acertar dos de tres
-   es 0,633.
+1. **No hace falta que la palabra sea inventada.** Con `julio`, que existe en el
+   corpus, el esperado también cae (puesto 5 en el snapshot). Eso no demuestra
+   que ocurra con cualquier palabra adicional.
+2. **La caída observada es grande.** De 0,6143 a 0,3860: −0,228 de golpe (−37 %)
+   por una palabra de ruido. Un nodo que gana por 0,065 pasa a perder.
+3. **La consulta limpia gana rozando el límite del premio.** En el alias del
+   esperado, `semánticas` frente a `semántica` coincide con 0,90 y `embedding`
+   con 1,00: **(0,90 + 1,00) / 2 = 0,95**, no 2/2 = 1,00. Con `zzqx`, la
+   cobertura baja a **0,6333**. Lo comprobé con la función simbólica y el alias
+   del snapshot abierto en lectura inmutable.
    - `sinonimos_ratio >= 0.95` → **bono en espacio logit**
-     (`core/memory/scoring.py:377-386`). A 0,633 el bono **desaparece entero**.
-     Ese bono es el que subía al nodo de 0,39 a 0,61.
+     (`core/memory/scoring.py:377-386`). La consulta limpia lo alcanza justo; con
+     0,6333 el bono **desaparece entero**. No se ha aislado cuánto de la caída
+     total del score corresponde al bono y cuánto a otras señales.
    - `sinonimos_ratio < 0.5` → **compuerta del temático**
-     (`core/memory/search.py:1749`). A 0,633 la compuerta **le apaga** la señal
-     (0,08 de peso, ≈ +0,046 de score).
-   O sea: al nodo que casi acierta se le castiga **dos veces** por el mismo token
-   — pierde un premio y pierde una señal.
-4. **Depende del largo de la consulta, no del tamaño de la base.** Una palabra de
-   más en 2 palabras rompe el 33 % de la cobertura; en una consulta de 4 palabras
-   (`limpieza semántica tabla embedding`) el nodo sigue en el puesto 1 pese a
-   quedarse a 0,84 de cobertura. Las consultas cortas son las frágiles.
-5. **Pero el daño sí cambia según la base** (esto es material para E4): con la
-   misma palabra inventada, el número de candidatos pasa de 122 a 128 en el
-   snapshot (**×1,05**) y de 129 a **683** en la viva (**×5,3**). El mismo token
-   inexistente abre la puerta a 554 candidatos más solo en la base grande. `zzqx`
-   sola devuelve 0 candidatos en las dos bases: el estropicio aparece al mezclarla
-   con palabras que sí existen.
+     (`core/memory/search.py:1749`). Tanto 0,95 como 0,6333 quedan fuera: para
+     este nodo el temático ya estaba apagado en la consulta limpia y sigue apagado
+     con ruido. **El ruido no cruza esa segunda compuerta.** El trato desigual
+     frente a otros candidatos que sí pueden cobrarlo sigue existiendo.
+4. **La consulta corta es frágil en este ejemplo.** La de cuatro palabras
+   (`limpieza semántica tabla embedding`) también queda en el puesto 1, pero usa
+   otras palabras: no aísla el efecto del largo. Su score es 0,8394; no es una
+   cobertura de 0,84. Su cobertura simbólica de alias en el snapshot es 1,00.
+5. **El daño observado sí cambia según la base** (material para E4): con la misma
+   palabra inventada, los candidatos pasan de 122 a 128 en el snapshot (**×1,05**)
+   y de 129 a **683** en la viva (**×5,3**). Son 554 candidatos más en la viva.
+   Esto compara bases distintas; no demuestra que el tamaño, por sí solo, sea la
+   causa. `zzqx` sola devuelve 0 candidatos en las dos bases: el efecto aparece
+   al mezclarla con palabras que sí existen.
 
-### A3. Por qué gana el rival del 0848
+### A3. Qué se observa entre el esperado y el rival del 0848
 
 | | gana | esperado |
 |---|---|---|
 | consulta limpia (snapshot) | — | **0,6143, puesto 1**, 0,065 por encima del segundo |
 | con una palabra de más | 0,4006 | **0,3860, puesto 4**, en un pelotón de 0,38–0,40 |
 
-En la consulta limpia el esperado gana por el bono de alias. Al desaparecer el
-bono, queda dentro del pelotón y lo decide el desempate: BM25 y el temático. Ahí
-pierde, porque el temático **se le apaga a él** (ratio alto) y **no a los demás**.
+En la consulta limpia el esperado gana y recibe el bono de alias; con ruido el
+bono deja de aplicar y queda dentro del pelotón. El temático está apagado para
+él en **ambas** consultas. Puede favorecer a rivales que pasen la compuerta, pero
+el censo global no mide cuánto aportó cada señal a este cambio de puesto.
 
 ---
 
 ## B. El temático está saturado
 
-Censo medido dentro de la QA oficial, candidato a candidato (bandera
-`BIORAG_QA_TEMATICO_CENSO=1`, que no altera ningún valor):
+Censo medido dentro de la QA oficial (`BIORAG_QA_TEMATICO_CENSO=1`). Aunque el
+log dice «candidatos puntuados», el contador suma **llamadas a la fórmula**: un
+mismo candidato puede aparecer varias veces. No son candidatos únicos.
 
-| base | candidatos puntuados | cobran el temático | saturados a **exactamente 1,0** | a 0 con `sinonimos_ratio >= 0.5` |
+| base | llamadas a la fórmula | llamadas con temático positivo | de ellas, temático **exactamente 1,0** | temático 0 y `sinonimos_ratio >= 0.5` |
 |---|---:|---:|---:|---:|
 | snapshot | 293.768 | 204.781 | **204.781 (100,00 %)** | 2.544 |
 | viva | 773.259 | 559.586 | **559.586 (100,00 %)** | 3.201 |
 
-Medido en las corridas **con** la palabra de ruido (que infla el número de
-candidatos, sobre todo en la viva: ahí el censo es 2,6 veces el del snapshot).
-El conteo exacto depende de dónde se enganche el espía; el hecho —**saturación
-del 100 % en las dos bases**— sale igual que en la cuenta del auditor
-(145.744 / 5.442): no hay un solo candidato que cobre la señal sin cobrarla al
-máximo.
+Medido en las corridas **con** ruido: el número de llamadas en la viva es unas
+2,6 veces el del snapshot. La última columna cuenta llamadas con esas dos
+condiciones; por sí sola no demuestra que la compuerta de alias sea la única
+razón de cada cero.
 
-**El 100 % de los que cobran la señal la cobran al máximo.** No gradúa nada: es un
-+0,08 fijo para quien pasa la compuerta y un 0 para quien no. Y el que queda fuera
-es, precisamente, el que mejor coincide en alias.
+Como referencia, en su censo del snapshot **sin ruido**, el auditor informó
+145.744 candidatos con temático positivo, todos a 1,0, y 5.442 con
+`sinonimos_ratio >= 0.5`. Su punto de conteo es distinto: los totales no se
+comparan como si midieran lo mismo. En ambos censos, el **100 % de las señales
+positivas medidas** está saturado.
 
-Es decir: la señal que se llama «temática» **no mide parecido temático**, mide
-«¿pasaste la compuerta?». Mientras siga saturada, no ordena: solo reparte un
-premio fijo y un castigo oculto.
+En estas corridas la señal no gradúa entre quienes la cobran. El peso nominal es
+0,08 en la suma antes de normalizar; eso **no equivale necesariamente a +0,08**
+en el score final. La compuerta excluye a los nodos con `sinonimos_ratio >= 0.5`.
+
+La señal saturada no distingue el grado de parecido entre quienes la cobran, pero
+sí puede cambiar el orden al premiar a unos y excluir a otros.
 
 ---
 
@@ -195,20 +213,39 @@ al terminar. Dos pruebas nuevas lo cubren (base limpia y base con `-wal` vivo).
   de la consulta. Ahí hay trabajo para E4.
 - **La reparación que Dennys tiene que decidir** (no ejecutada): quitar el castigo
   oculto del temático. Las dos opciones que se ven desde aquí, sin tocar el resto:
-  1. que la compuerta no mire `sinonimos_ratio` (que un nodo con buen alias sea el
-     que MÁS cobra, no el que no cobra); o
+  1. que la compuerta no mire `sinonimos_ratio` (que un nodo con buen alias pueda
+     cobrar la señal si cumple las demás condiciones); o
   2. dejar el temático sin compuerta y que el propio `tematico_score` gradúe
      (hoy sería igual, porque está saturado: primero habría que hacer que gradúe).
   La opción 1 es un cambio de una línea y la QA es el juez. **No se toca sin OK.**
 - **El acantilado del bono de alias (0,95)** es un segundo candidato, más
   ambicioso: convertir ese umbral en una rampa. No se propone para esta entrega.
 
+## E. Aclaración: 540 frente a 542 pruebas
+
+Informé **540** pruebas en verde; el auditor obtuvo **542** en el commit
+`789a70d`. Para comprobarlo repetí la suite sobre una copia aislada de ese commit,
+con las dependencias fijadas, Python 3.11.2 y pytest 9.1.1, sin activar
+`BIORAG_NEURONA=0`:
+
+```text
+/tmp/biorag-e2b-venv/bin/python -m pytest tests -q -rs
+542 passed in 101.29s (0:01:41)
+```
+
+La cifra comprobada es **542 aprobadas**. No tengo el registro de la corrida en
+que informé 540, así que la causa de la diferencia queda **sin identificar**.
+Esta repetición no es una nueva corrida de la QA de 921 casos.
+
 ## Resumen para Dennys
 
-1. El ruido no es un caso del examen: **cualquier palabra de más tira al recuerdo
-   bueno**, sea inventada o real.
-2. La causa es que **la cobertura de alias y el temático usan umbrales de todo o
-   nada**, y un token los cruza en los dos sentidos.
-3. El temático **vale lo mismo para todos** (1,0 exacto): no ordena, solo premia a
-   los que pasan la compuerta y castiga al de mejor alias.
-4. La QA ya **no deja basura** junto al snapshot.
+1. Una palabra adicional **puede** bajar al recuerdo bueno; ocurre tanto con el
+   ruido inventado probado como con `julio`.
+2. El esperado limpio tiene alias **0,95 justo** y recibe el premio; con `zzqx`
+   baja a 0,6333 y lo pierde. El temático ya estaba apagado en ambos casos.
+3. En las dos corridas con ruido, todas las **llamadas con temático positivo**
+   recibieron 1,0; el censo cuenta llamadas, no candidatos únicos.
+4. La QA ya **no deja basura** junto al snapshot. El auditor confirmó que el
+   censo no cambió la QA del snapshot.
+5. **542 pruebas aprobadas**, verificadas sobre una copia de `789a70d`. El
+   temático sigue sin tocarse hasta el OK de Dennys.
