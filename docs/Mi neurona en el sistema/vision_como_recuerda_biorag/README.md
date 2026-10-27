@@ -823,6 +823,23 @@ Otra IA propuso usar el caso real (`version_actual_biorag` en el puesto 4) como 
 2. **QA multilingüe mínima** antes de cambiar nada: casos sintéticos en chino, japonés, coreano, ruso e inglés sobre una base de prueba. Línea base primero, después cada cambio, con la regla de no bajar nada.
 3. **La capa definitiva** se entrena con bases en varios idiomas, y sus "síntomas" (última, falló...) se aprenden de los datos, **nunca de listas de palabras**.
 
+### ¿Si aprende en español, sabrá hacerlo en chino? (pregunta de Dennys, 2026-10-27)
+**Depende de qué le entre.** Hay dos tipos de entradas:
+
+| Tipo de entrada | Ejemplos | ¿Pasa a otro idioma? |
+|---|---|---|
+| **Neutras al idioma** | ¿esta palabra de la pista coincide exacta, por raíz o por sinónimo con el nombre, los alias o el texto? ¿cuántos rivales también la tienen? tipo guardado (epistemia, resultado), fecha dentro de la familia, nivel en la familia, dimensiones | **Sí.** No contienen palabras, solo relaciones. "La pista que solo cumple uno decide" vale igual en chino |
+| **Palabras concretas** | "última", "falló", "por qué" | **No por sí solas.** Una red que solo vio "última" no conoce "最新" ni "latest" |
+
+**Diseño que resuelve esto (una sola mente):** el agente es un modelo de lenguaje que ya entiende el idioma del usuario. Él traduce la intención a **parámetros neutros** que ya existen o se pueden añadir: dimensiones, `ordenar_por`, tipo pedido ("lo vigente", "lo que falló"). La neurona lee esos parámetros y las relaciones neutras, no palabras sueltas. Las palabras de la consulta entran solo como **coincidencias**, nunca como vocabulario aprendido.
+- Así la neurona entrenada en español funciona en chino sin reentrenar, porque lo que aprendió son relaciones.
+- Además se entrena y se examina con bases en varios idiomas (§2p) para comprobarlo, sin darlo por hecho.
+- **Analogía honesta:** un humano bilingüe razona igual en los dos idiomas, pero no entiende una palabra china que nunca aprendió. El razonamiento se transfiere; el vocabulario no. Por eso el vocabulario lo pone el agente y el razonamiento la neurona.
+
+**Datos (OK de Dennys):** se puede usar una copia de su memoria o bases construidas por el auditor con miles de recuerdos, donde la respuesta correcta se conoce porque se diseñó así: se arma la pista y se indica a qué recuerdo debe llegar. **Tamaño:** parámetros = pesos; más unidades ocultas dan más pesos; se agranda mientras mejore en bases no vistas (ver arriba).
+
+**E3 aprobada por Dennys como "léxico independiente del idioma"** (no el diccionario solo en español).
+
 **Estado:** guardado. La auditoría de idioma entra en la etapa del motor (antes de v36). La capa definitiva, después, con carta blanca.
 
 ---
