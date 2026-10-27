@@ -571,6 +571,64 @@ Cada pregunta trae a **sus hermanos como competidores difíciles**. Así aprende
 
 ---
 
+## 2m. Tres opiniones externas contrastadas + "el cableado de fábrica" (Dennys, 2026-10-27, para después)
+
+Dennys trajo tres respuestas de otras IAs y pidió guardarlo para hacerlo después. Aquí está qué se adopta, qué no y por qué, contrastado con el código real.
+
+**La frase que la capa 2 debe aprender (Dennys la marca como LA clave):**
+> "El cerebro no necesita recuperar simplemente algo relacionado con el problema. Necesita recuperar el recuerdo que mejor encaja con lo que intentas averiguar en este momento."
+
+Dicho en términos de ingeniería: la relevancia es una función de **(consulta, recuerdo)**, no del recuerdo solo. **La prueba que lo demuestra es el cambio de ganador:** con el MISMO grupo de candidatos, al cambiar la pregunta ("la última", "la primera", "la que falló", "la general") debe cambiar el #1. Si no cambia, no lo aprendió.
+
+### Opinión 1: revisión del código (coincide con §2l)
+- **Confirmado contra el código:**
+  - 29 entradas y 6 ocultas;
+  - la `frase` solo se usa en `_es_su_nombre()`;
+  - el entrenamiento ya usa como rivales los candidatos del motor;
+  - faltan los rivales **elegidos a propósito**: mismo tema, distinta intención.
+- **Se adopta:**
+  - auditar el vector de entrada completo antes de diseñar;
+  - el campeón queda intacto mientras se prueba;
+  - una batería de candidatos difíciles;
+  - medir R@1, MRR, R@5 y FP en el snapshot y en una copia de la viva.
+- **Se adopta y se subraya:** "verificada" no significa "funcionó"; una prueba también verifica un fallo. El resultado (funcionó/falló) tiene que quedar dicho al guardar para poder entrenarlo.
+
+### Opinión 2: neurociencia (coincide con las fuentes de §2h)
+- **Coincide con lo investigado:**
+  - control de la búsqueda (PFC) + recuperación asociativa (hipocampo), en la línea de Badre y Wagner 2007;
+  - lo que decide es lo que distingue al recuerdo de sus rivales, no solo el parecido (Nairne 2002; Goh y Lu 2011).
+- **Dos ideas que se suman al plan:**
+  1. **Separación de patrones al guardar.** Diferenciar los recuerdos parecidos en el momento de escribirlos (nuevo frente a actualización, qué añade cada hijo) es el paso 0 de §2h. Sin eso, la capa 2 no tiene con qué distinguirlos.
+  2. **Verificar la ambigüedad.** Si la evidencia no alcanza para elegir, no se debe inventar un #1: se reconoce la ambigüedad y el agente sigue empujando con más pistas. Es el recuerdo por etapas (P3) y la "una sola mente" (P6). La capa 2 puede dar, además del orden, una señal de "empate real".
+- **Rapidez no es exactitud:** lo primero que llega no siempre es lo correcto. Por eso se mide R@1 con preguntas de intención, no solo R@5.
+- *Nota:* el trabajo de Nature Neuroscience de abril de 2026 que cita **no está verificado por el auditor**. No se usa como base.
+
+### Opinión 3: atención y embeddings (genérica; solo sirve una parte)
+- Describe cómo lo hacen los Transformers con vectores densos. **Choca con la regla de BioRAG:** sin embeddings y nada pesado.
+- **Lo aprovechable, traducido a BioRAG:**
+  - **Entrenamiento con tríos** (consulta, recuerdo correcto, recuerdo parecido pero incorrecto) y ajuste de pesos por el error: es exactamente la pérdida por pares con rivales difíciles de §2l.
+  - **"Atención" simbólica:** cada término de la consulta pesa sobre cada campo del candidato (nombre, sustantivos, sinónimos, texto) según el tipo de coincidencia. Es la matriz de interacción local de Duet (§2l): atención, pero sin vectores.
+  - Sus ejemplos ("la marcha del carro" frente a "marcha de protesta") son de **sentido de la palabra**. En BioRAG eso lo dan los sustantivos clave y las dimensiones (P4, moto frente a moto de agua), no un vector.
+- **Se rechaza:**
+  - embeddings densos (regla de Dennys);
+  - aprender de clics o retroalimentación de uso (regla: nada de sistemas de feedback ni registro del uso del agente).
+
+### El cableado de fábrica (la analogía de Dennys)
+El cerebro nace con la infraestructura ya cableada y después solo se le mete información. En BioRAG:
+
+| Cerebro | BioRAG |
+|---|---|
+| Cableado de nacimiento | El motor (SQLite + fórmula a mano): fijo, rápido y el mismo en cualquier base. |
+| Instinto que viene de fábrica | La **capa 2 pre-entrenada** con miles de situaciones de muchas bases. Viaja **cerrada** en el repo, como la neurona asociativa, y funciona desde una base vacía. |
+| Experiencia de vida | Los recuerdos de cada usuario: el contenido que llena el cableado. |
+| Afinarse con la experiencia | Ajuste local opcional sobre su base, siempre con piso (capa 1), techo y examen sellado. |
+
+Lo que viene de fábrica no es el contenido, sino **la habilidad de discernir**: leer los síntomas de la pregunta y elegir entre rivales parecidos. Por eso se entrena con muchas bases distintas y se examina en bases que nunca vio.
+
+**Estado:** guardado para después. Va detrás de E2b → E3 → E4, como dice §2l. No se toca nada hasta el OK de Dennys.
+
+---
+
 ## 3. El orden para llegar (paso a pasito)
 
 | Etapa | Qué | Relación con la visión |
