@@ -1028,6 +1028,38 @@ La otra IA aceptó las correcciones: tres errores suyos (fórmula inventada, cif
    - **Indicio previo (§2n):** en el snapshot ya hay 470 grupos de tema, y en 251 de ellos aparecen 3 o más tipos distintos según `epistemia` y las dimensiones de acción. Falta medir si esa separación alcanza.
    - **Es el primer paso medible del protocolo de §2r (paso 3).**
 
+**Sexta aportación externa (2026-10-28): el mapa "learning to rank".** Dennys la trajo de otro asistente, como teoría, no como verdad ("la verdad de todo la decides tú"). El auditor la contrasta con lo ya guardado.
+
+*Lo que dice, en corto:*
+- Lo que buscamos existe y está estudiado: es un **reranker aprendido** (*learning to rank*).
+- Hay dos ramas:
+  - **sobre señales numéricas**, como la neurona 1 (29 → 6 → 1): RankNet (red) y LambdaMART (árboles de boosting, rápidos, interpretables y fuertes con señales tabulares);
+  - **sobre texto** (*cross-encoders*), que leen consulta y documento juntos.
+- La receta de entrenamiento que más rinde: cada ejemplo es un grupo (consulta, el correcto y varios negativos difíciles sacados del buscador de primera etapa), con pérdida *listwise* (softmax sobre el grupo).
+- Lo más cercano a "entender la intención" son los **rerankers que siguen instrucciones**. Un método de 2026 fabrica pares donde, con otra instrucción, **el ganador y el negativo intercambian etiquetas**.
+- Para tener muchos ejemplos: Promptagator e InPars generan consultas sintéticas y las filtran.
+- Partir los datos **por consulta** y dejar una validación que el ajuste nunca toque.
+
+*Qué se adopta y qué no:*
+
+| Punto | Decisión | Por qué |
+|---|---|---|
+| La familia correcta es *learning to rank* sobre señales | **Adoptado** (ya era el camino) | La neurona 1 es eso. La capa 2 también lo será: señales neutras, sin texto. |
+| **LambdaMART como línea base que la neurona debe batir** | **Adoptado**, solo en investigación | Rigor científico: si unos árboles estándar ganan a la red pequeña, la red no se justifica. Vive fuera del motor (como el entrenamiento de la neurona 1). Al motor solo entra lo que gane, y solo si cumple las reglas: tiempo constante, sin dependencias pesadas, piso y techo. |
+| Pérdida *listwise* sobre el grupo (consulta + correcto + negativos difíciles) | **Adoptado** | Encaja con §2k: los negativos difíciles los fabrica el propio motor (los que quedan arriba sin ser el correcto). |
+| Mezclar negativos difíciles con negativos fáciles de otras consultas | **Adoptado con medida** | Una fracción pequeña de fáciles; la proporción se decide con la validación, no a ojo. |
+| **Pares que intercambian etiquetas al cambiar la intención** | **Adoptado: es la pieza más valiosa** | Son los "pares gemelos" de §2s, ahora del lado de la intención: mismos candidatos A–D, distinta intención ("¿qué funcionó?" frente a "¿qué descartamos?"), distinto ganador. Obligan a la neurona a mirar la intención y no solo el parecido. **Se fabrican por construcción, sin un LLM**, si la prueba de dimensiones (quinta aportación, punto 2) confirma que el tipo de cada recuerdo se puede leer. |
+| La intención como canal aparte que pasa el agente | **Adoptado como parámetro neutro** | Ya estaba (cuarta aportación, parte 1). Pero va como **valor cerrado** (por ejemplo, solución que funcionó / propuesta / descartada / teoría), **nunca como texto libre**: el texto ataría la neurona a un idioma y exigiría un modelo de texto. |
+| Aguja nueva que pide lo anterior | **Anotado** | Para que la intención sirva, cada candidato necesita su **tipo** como señal (derivado de `epistemia` y dimensiones, o `tipo_evidencia` si no alcanza). Se suma a las agujas de §2s: fecha C1, triada C-A-R, identidad escrita. |
+| Consultas sintéticas con filtro de "la consulta recupera su documento" | **Adoptado con corrección** | Si exigimos que la consulta ya traiga su recuerdo en el top-1, solo quedan casos que el motor ya resuelve y no queda nada que aprender. El filtro correcto para la capa 2 es: **el objetivo está entre los candidatos** (lo que la capa 2 ve), aunque no esté primero. |
+| Partir por consulta + validación intocable | **Adoptado y reforzado** | Además de partir por consulta, se deja **una base entera que nunca se ve** (hold-out por base, §2s), para probar el objetivo fijo: "el mismo resultado en cualquier base". |
+| *Cross-encoders* que leen texto | **No adoptado** como arquitectura | Pesados, atados al idioma y sin tiempo constante. Solo se toma su receta de entrenamiento. |
+| "Con ~921 casos el riesgo es el sobreajuste" | **Matiz** | Los datos no se limitan a la QA: se construyen (resuelto / competido / insuficiente, pares gemelos), miles si hace falta. El riesgo de sobreajuste sigue siendo real; por eso existe la validación intocable. |
+| Rankers profundos con preentrenamiento que superan a los árboles con pocos datos etiquetados | **Anotado, sin decidir** | Es una hipótesis que solo se decide midiendo contra la línea base LambdaMART. |
+| Citas de neurociencia de `bio_problema_actual.md` | **Sin verificar** | El propio asistente lo dice, y ese archivo no está en el repo. |
+
+**Postura del auditor.** Nada de esto cambia el orden: primero el motor (E3–E4) y la publicación v36.0; después la capa 2 (v37), con este mapa como guía. La regla del inventor vale aquí: **nada es "imposible"**, solo **"todavía no medido"**. Cada idea se prueba contra la línea base y contra el piso del ranking actual.
+
 ---
 
 ## 3. El orden para llegar (paso a pasito)
