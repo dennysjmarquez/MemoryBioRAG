@@ -10,6 +10,7 @@
 
 ## Orden aceptado por Dennys (2026-10-27)
 1. El operador cierra el motor: E2c → E3 → E4. **No toca README, `VERSION` ni `CHANGELOG.md`.**
+   - **Después de E4, modularización fase 2 (decisión de Dennys, 2026-10-28):** el operador separa en subpaquetes (`core/lexico/`, `core/memory/busqueda/`, `ranking/`, `neuronas/`, `sueno/`), un paquete por cambio, dejando la ruta vieja como puente y con las 4 QA **idénticas**. La fase 1 (un README con el mapa de cada carpeta de `core/` y `scripts/mapa_dependencias_core.py`) ya está hecha en la rama del auditor (`b7df96a`). Reglas: Constitución, Pilares 9–11.
 2. El auditor redacta v36.0 en su rama con las métricas finales.
 3. Dennys fusiona la rama del auditor con la del operador.
 4. El auditor audita la rama combinada (pytest, QA de control y documentos).
@@ -40,6 +41,8 @@
 5. **Versión de Python (decidir antes de etiquetar).** El CI falla en Python 3.10 al instalar dependencias: `requirements.txt` fija `numpy==2.4.6`, que exige Python ≥3.11, pero `pyproject.toml` declara `requires-python = ">=3.10"` y la matriz del CI incluye 3.10. Python 3.10 llega a fin de soporte en octubre de 2026. **Decisión de Dennys (2026-10-27): Python ≥3.11.** Lo aplica el operador en un commit aparte del motor, en 4 sitios: `.github/workflows/ci.yml:16` (quitar 3.10), `pyproject.toml:10` (`>=3.11`), `pyproject.toml:31` (quitar el clasificador 3.10) e `install.py:1518-1519` (`(3, 11)` y "Python 3.11+ requerido"). El README no menciona la versión de Python; la nota va en las Novedades de v36.0.
 
 6. **Versión del paquete.** `pyproject.toml` dice `version = "34.0.0"` (atrasada: `VERSION` es v35.0). Al publicar, el auditor la pone en `36.0.0` junto con `VERSION`, README y `CHANGELOG.md`.
+
+7. **Estructura del código:** la modularización (fase 1 y fase 2) se describe en las Novedades: qué se movió, por qué, y que la QA quedó idéntica.
 
 ## Reglas del README
 - Se **añade**; nunca se recorta ni se divide.
