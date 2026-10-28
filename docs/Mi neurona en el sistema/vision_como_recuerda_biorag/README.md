@@ -986,6 +986,27 @@ La otra IA aceptó las correcciones: tres errores suyos (fórmula inventada, cif
 
    Se mide aparte el **rechazo indebido** (dijo "insuficiente" teniendo el correcto con evidencia) con un tope fijado antes del examen. Se reporta la curva **cobertura frente a acierto** (cuántas veces decide y cuántas acierta cuando decide), la medida estándar de la predicción con rechazo.
 
+**Cuarta aportación externa (traída por Dennys, 2026-10-27): dónde vive la neurona, de dónde sale la intención y cómo se entrena.**
+
+| Propuesta | Decisión del auditor |
+|---|---|
+| **Neurona aparte del re-ranker**, con su propia señal de entrenamiento y la capacidad de abstenerse | **Se adopta.** Es el orden A de §2q: motor → ranking → razonamiento |
+| **Salida = una decisión, no solo una lista**: recuperar / pedir contexto / abstenerse | **Se adopta, unida a las tres salidas.** "Competido" = **pedir contexto**: el MCP devuelve los candidatos en disputa y **lo que los distingue** (por ejemplo, "A es una propuesta, C se aplicó y funcionó"), y el agente decide o vuelve a preguntar. Es la "una sola mente": el cerebro no inventa, el agente completa |
+| Intención en cascada: (1) la explícita del agente; (2) la deducida de verbos de la consulta ("funcionó", "propusimos"); (3) sin señal, no reordenar | **(1) y (3) se adoptan. (2) se rechaza:** leer verbos ata al idioma (§2p) |
+| **Campo explícito `tipo_evidencia`** (hipótesis / procedimiento / resultado / explicación / preferencia / restricción) | **Primero se deriva de lo que ya existe** (`epistemia` y dimensiones de acción/intención, §2n). Exigir un campo nuevo al agente es trabajo extra (regla de Dennys). Solo si lo derivado no alcanza en la suite de competencia, se propone como **lista cerrada de valores neutros** (identificadores, no palabras de un idioma). Los recuerdos sin dimensiones (89 de 851 en el snapshot, 196 de 1.195 en la viva) son el hueco a medir |
+| **Sondas contrastivas automáticas**: en un grupo que comparte sustantivos, la respuesta es el del tipo pedido y los demás son distractores | **Ya está en el plan** (generador de §2l, contrastes de la familia §2j, pares gemelos). Se adopta su formulación |
+| Etiquetas desde el uso del agente o correcciones del usuario | **Se rechaza:** regla de Dennys, nada de feedback ni de registro del uso |
+| **Regla de identidad**: si la consulta es el nombre literal del recuerdo y ya está en el #1, la neurona no lo mueve | **Se adopta como seguro** |
+| Guardia por hash, piso si la confianza es baja, traza "por qué ganó C" | **Se adopta.** La traza solo a pedido, en la QA y en diagnósticos |
+| Tres métricas: R@1, precisión de la abstención y utilidad de "pedir contexto" | **Se adopta, adaptada.** La utilidad de "pedir contexto" se mide **en simulación**, sin feedback: ¿el par en disputa contiene al correcto y la diferencia mostrada es la verdadera? Junto con el rechazo indebido ya fijado |
+
+**Correcciones de datos:**
+- La neurona asociativa **no se descartó por no mejorar la QA**: está construida y calibrada, y su conexión al motor está **pendiente** (escala 0).
+- BioRAG ya no es "bilingüe" como objetivo: la meta es **independiente del idioma** (E3).
+- El archivo `bio_problema_actual.md` que cita no está en el repositorio.
+
+**Postura honesta que se adopta:** no declarar superioridad universal. Lo que se defiende es ganar **en su terreno**: memoria persistente de agentes, explicable, local, sin GPU y que sabe decir "no lo tengo". En la búsqueda semántica abierta sobre cualquier corpus no hace falta competir.
+
 ---
 
 ## 3. El orden para llegar (paso a pasito)
