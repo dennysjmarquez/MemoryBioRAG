@@ -1104,6 +1104,39 @@ La otra IA aceptó las correcciones: tres errores suyos (fórmula inventada, cif
 - Un interruptor que apague **los 5 sitios**, o uno por sitio, para saber cuál ayuda y cuál estorba. El valor por defecto no cambia.
 - Si WordNet no aporta, se desenchufa como adaptador opcional (hexagonal), no se borra. Si aporta en algún sitio, ese sitio es el rival que la solución propia debe batir.
 
+### Qué está atado a WordNet (revisado el 2026-10-28) — quitarlo sin dañar nada
+
+Dennys: "si no hace falta se quita, pero hay que ver que no esté asociado a otras cosas y dañe". El código muestra **seis ataduras**:
+
+1. **La neurona 1 lo usa como entrada.** `grupo_score` es una de las 17 señales de la fórmula que la neurona recibe (`core/memory/neurona.py:110-112`, `F_FORMULA`). Quitar WordNet deja esa entrada en 0: es un **desfase** respecto a lo que la neurona aprendió. Hay que medirla con la entrada a 0 y, si baja, reentrenarla una vez (con OK de Dennys).
+2. **La fórmula a mano le da peso.** `0.10 * grupo_score` en `core/memory/scoring.py:351` (10 % del puntaje) y `grupo: 0.03` en `core/rrf_fusion.py:42`. Si la señal desaparece, ese peso queda muerto o se reparte; las dos opciones se miden y se aprueban como cualquier cambio del ranking.
+3. **`core/fallback_simbolico.py` no es solo WordNet.** También da el tokenizador, Levenshtein y las stopwords normalizadas que usan `search.py`, `scoring.py`, `rafaga.py` y `evidence_convergence.py`. Solo se quitan las **llamadas** a WordNet, nunca el módulo.
+4. **NLTK sigue haciendo falta.** El stemmer (`core/stemmer_es.py`) usa NLTK. Lo que podría salir son los **datos** de WordNet/OMW y su carga (~3 s al arrancar cada herramienta según la auditoría F5), no la librería.
+5. **Tablas de la base.** `grupos_semanticos` y `nodo_grupos_semanticos` (`core/memory/schema.py:200-223`) se llenan al guardar y al consolidar (`ingest.py:160`, `consolidation.py:363`, `write.py:1142`). Se dejaría de llenarlas; **no se borran** (las bases viejas las tienen y la regla es no tocar datos).
+6. **Usos menores.** El calentamiento al arrancar (`core/memory_store.py:21-26`, `core/mcp_server/server.py:45-48`) y el campo `wordnet_lexnames` de la reflexión (`core/dmn_reflexion.py:510-559`). Hay 2 archivos de pruebas que lo nombran (`tests/test_neurona.py`, `tests/test_tematico_score_regression.py`).
+
+**Orden seguro:** interruptor por sitio (valor por defecto sin cambio) → medir cada sitio por separado con las 4 QA + multilingüe + MCP, con la neurona encendida y apagada → quitar solo lo que no aporta → la neurona, si hace falta, se reentrena una vez. Nunca todo de golpe.
+
+### ¿Existe un "WordNet para todos los idiomas"? (consulta del 2026-10-28)
+
+| Recurso | Idiomas | Contras para BioRAG |
+|---|---|---|
+| **Open Multilingual Wordnet (OMW)**, ya instalado vía NLTK | Grandes para ~26 idiomas, pequeños para ~57 ([ACL P13-1133](https://aclanthology.org/P13-1133.pdf)) | Cobertura desigual (ya medido: disperso en español); cada idioma con su licencia |
+| **ConceptNet 5.7** ([conceptnet.io](https://conceptnet.io/)) | Sinónimos y traducciones en 80+ idiomas, sacados de Wiktionary y OMW | Licencia CC BY-SA 4.0 (obliga a compartir igual lo derivado); ~5,6 GB; la última versión es de 2019 |
+| **Wiktextract / Kaikki** (Wiktionary) | Miles de idiomas (10,5 M de entradas, ~6,6 GB) | Calidad muy desigual; CC BY-SA; enorme para una memoria local |
+| **BabelNet** | El más grande | Licencia restringida para uso comercial |
+| *Numberbatch* | 78 idiomas | Son **vectores densos**: fuera de la filosofía del proyecto |
+
+**Veredicto del auditor:** existen recursos más amplios que WordNet, pero **ninguno es "WordNet para todos los idiomas" con calidad pareja**. Todos son fijos (no aprenden de la memoria), pesados y con licencias que pesan sobre un producto. Ninguno se recomienda como pieza central; como mucho, un **adaptador opcional** que se mide como cualquier otro.
+
+### ¿Hace falta para la visión neuronal (motor de código + neuronas)?
+
+WordNet hace **dos trabajos distintos**, y la respuesta es distinta para cada uno:
+1. **Ensanchar la búsqueda con sinónimos** (que el recuerdo correcto llegue a los candidatos). **Esta función sí hace falta** (es la dificultad n.º 2 de §2s: "el objetivo tiene que llegar a los candidatos"), pero **no un diccionario fijo**. Las fuentes mejores no dependen del idioma: el agente reformulando con sus propios sinónimos (una sola mente), los puentes y `sinonimos` que escribe al guardar, y la coocurrencia aprendida de la propia memoria.
+2. **Dar una "clase de sentido" como señal de orden** (`grupo_score`). **Para la neurona de razonamiento, una señal así es valiosa**, pero debe ser **neutra al idioma**. Sus candidatas ya existen: las dimensiones (13 ejes), la categoría, `epistemia` y, si no alcanza, `tipo_evidencia` (§2s).
+
+**Conclusión:** WordNet **no es necesario** para la visión. Lo necesario son sus dos funciones, hechas de forma neutral al idioma y aprendida. Cuándo y cómo quitarlo lo decide la medición del orden seguro de arriba.
+
 ---
 
 ## 3. El orden para llegar (paso a pasito)
