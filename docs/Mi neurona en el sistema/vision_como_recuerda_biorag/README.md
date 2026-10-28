@@ -1067,6 +1067,28 @@ La otra IA aceptó las correcciones: tres errores suyos (fórmula inventada, cif
 
 **Postura del auditor.** Nada de esto cambia el orden: primero el motor (E3–E4) y la publicación v36.0; después la capa 2 (v37), con este mapa como guía. La regla del inventor vale aquí: **nada es "imposible"**, solo **"todavía no medido"**. Cada idea se prueba contra la línea base y contra el piso del ranking actual.
 
+**Séptima aportación externa (2026-10-28): siete lugares para neuronas pequeñas.** Dennys la trajo como teoría para cuando llegue el momento. Dice que BioRAG no necesita una red grande, sino **neuronas pequeñas y explicables donde SQLite/FTS5 no puede decidir solo**, y propone siete puntos, un esquema en cascada, seis artículos y tres experimentos.
+
+| Propuesta | Decisión | Por qué / dónde encaja |
+|---|---|---|
+| Neuronas pequeñas solo donde la fórmula no alcanza | **Ya adoptado** | Es la tesis de §0 ("la IA correcta en el lugar correcto") y el Pilar 11 (piso, techo, guardianes). Confirma el rumbo |
+| **Puntuador de relevancia** (combinar texto, recencia, importancia, conexiones) | **Ya existe** | Es la neurona 1 (29 → 6 → 1), que suma encima de la fórmula a mano. Medido en la viva: R@1 91,09 → 92,46 |
+| **Selector de recuerdos** (qué 3–10 traer *ahora*) | **Adoptado: es la capa 2 (v37)** | Coincide con la neurona de razonamiento: decidir qué encaja con lo que se quiere averiguar, con salida resuelto / competido / insuficiente (§2q–§2s). El número variable de recuerdos ya es el principio P7 (ráfaga natural) más la abstención |
+| **Detector de relaciones** (¿dos recuerdos deben conectarse?) | **Ya existe, sin cablear** | Es la neurona asociativa (neurona 2). Su lugar pendiente: reemplazar a la hormiguita o filtrar qué asociaciones ve el agente (P6) |
+| **Consolidación** (agrupar recuerdos repetidos en uno) | **Adoptado con límite** | **Nunca fusionar ni borrar** recuerdos (regla de Dennys), y las versiones viejas importan (el caso de la versión). Lo útil es **detectar** casi-duplicados y versiones y marcarlos o enlazarlos; eso también alimenta la aguja de identidad de la capa 2 |
+| **Sueño y olvido** (qué dormir, reforzar o dejar decaer) | **Aplazado: falta evidencia** | Ya lo hacen fórmulas (ACT-R, LTP/LTD, dormancia). Una neurona aquí solo entra si una medición muestra que la fórmula falla, y nunca si baja el recall (el olvido mal hecho pierde recuerdos) |
+| **Clasificador de intención** (pregunta, guarda, corrige, asocia) | **No adoptado tal cual** | Elegir la herramienta es trabajo del agente ("BioRAG no piensa, el agente piensa"). La intención **de recuerdo** (qué tipo de información se busca) sí entra, pero como **parámetro neutro que pasa el agente** (cuarta y sexta aportación), no como clasificador de texto, que ataría el cerebro a un idioma |
+| **Selector de tipo de memoria** (episódica, semántica, entre agentes) | **Aplazado** | Los mensajes entre agentes ya son herramientas aparte. Separar episódica de semántica es un experimento posible después de v37, si se mide una ganancia |
+| Esquema en cascada (intención → FTS → puntuador → selector → actualización) | **Ya es el diseño** | Coincide con la cascada de §2s (Wang, Lin y Metzler 2011): motor rápido primero, neurona después. Diferencia: la intención viene del agente |
+| **Experimento 1** (FTS solo frente a FTS + neurona) | **Ya hecho** | La QA muestra la neurona en dos columnas (PR #11) |
+| **Experimento 2** (¿el refuerzo LTP/LTD mejora o mete ruido?) | **Adoptado** | Entra en la regla de "medir cada pieza" (como WordNet, §2t, y la hormiguita): interruptor y medida con las 4 QA |
+| **Experimento 3** (elegir primero el tipo de memoria) | **Aplazado** | Igual que el selector de tipo |
+| Frase de contribución ("sistema biomimético… con módulos neuronales ligeros…") | **Útil, con un matiz** | Sin reclamar primicias. Y por honestidad: la reflexión de la hormiguita (`core/dmn_reflexion.py`) puede usar un LLM externo opcional; la búsqueda no usa ninguno |
+
+**Artículos citados (no verificados por el auditor; leer antes de usarlos):** RAG (Lewis et al., NeurIPS 2020, conocido); Selfmem (NeurIPS 2023, "memory selector", el más cercano a la capa 2); *Memory in the LLM Era* (arXiv 2604.01707); ARM, memoria con recuerdo y decaimiento (arXiv 2601.02428); el *survey* de redes con memoria aumentada (arXiv 2312.06141); NMRet.
+
+**Qué cambia en el plan:** nada del orden. Suma dos cosas: (1) **detectar** casi-duplicados y versiones como aguja de la capa 2, sin fusionar; (2) **medir el aporte de LTP/LTD** junto con WordNet y la hormiguita, antes de diseñar neuronas nuevas.
+
 ## 2t. Superar a WordNet: sinónimos "nivel dios" o una solución propia (Dennys, 2026-10-28, para después)
 
 **La visión de Dennys:** más adelante, mejorar lo que hoy hace WordNet hasta un nivel muy superior, con WordNet, con algo equivalente mejor o con **una solución propia**, decidido **por la medida de este proyecto**.
