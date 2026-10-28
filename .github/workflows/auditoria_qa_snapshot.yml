@@ -1,0 +1,171 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# Auditoría: QA oficial del SNAPSHOT en servidores de GitHub (B3 frente a B4a)
+# ─────────────────────────────────────────────────────────────────────────────
+# POR QUÉ EXISTE
+#   Las máquinas de trabajo (Arena) se reinician cada ~50 min y las QA oficiales
+#   tardan más. GitHub Actions no se reinicia. Dennys autorizó (2026-10-28) correr
+#   aquí las 2 QA del snapshot. La base viva NUNCA se sube: sus 2 QA se corren en
+#   las máquinas de trabajo.
+#
+# QUÉ HACE
+#   1. Toma el código del operador fijado por SHA (CODIGO_SHA), sin moverse.
+#   2. Variante "b3": el código tal cual (motor B3).
+#      Variante "b4a": el mismo código + el parche resguardado
+#      docs/e3b4a_diff_aplicado_20261028.patch, con huellas verificadas.
+#   3. Corre scripts/evaluar_qa.py sin ruido y con ruido "zzqx", igual que en
+#      docs/e3b3_inicio_qa_oficial_20261028.txt.
+#   4. Compara B3 contra B4a EN EL MISMO ENTORNO (comparación emparejada), y
+#      además B3-de-GitHub contra B3-de-Arena (docs/e3b3_snapshot_*.json) para
+#      ver si el resultado se repite en otra máquina.
+#
+# ENTORNO
+#   Contenedor debian:bookworm = Python 3.11.2 + SQLite 3.40.1, las mismas
+#   versiones que las máquinas de trabajo. Dependencias fijadas con
+#   requirements.txt (lección 2026-09-12: cambiar versiones mueve la QA).
+#
+# QUÉ NO HACE
+#   No toca el motor del repo, ni ci.yml, ni ninguna base. Solo corre en push a la
+#   rama del auditor (o a mano). Herramienta temporal de la auditoría E3: se
+#   retira antes del tag v36.0 si no se decide conservarla.
+# ─────────────────────────────────────────────────────────────────────────────
+name: Auditoria QA snapshot (B3 vs B4a)
+
+on:
+  push:
+    branches: [ "arena/6459e2d0-memorybiorag" ]
+    paths: [ ".github/workflows/auditoria_qa_snapshot.yml" ]
+  workflow_dispatch:
+
+env:
+  CODIGO_SHA: 4d8306155246e6f4bea4d28e9151cbd6630bad7f
+  SHA_SNAPSHOT: 104dd2902aaf24c3ce93624492ea95a719acbdcca50f4f6bc123ac8317749796
+  SHA_SEARCH_B4A: f4479e7db7673c264176a48d467ab7c32411ea67a8cb39ad8daf4a4089677286
+  SHA_STORE_B4A: b7e7219caf0f801ce60a9531dc7dca982fe57142dd20450e85e124a048db5168
+  SHA_TEST_B4A: 68f89c4cf8b54a141da95cf373672fe610b52222036f4334caf570aac03c4181
+
+jobs:
+  qa:
+    name: QA ${{ matrix.variante }} / ${{ matrix.escenario }}
+    runs-on: ubuntu-latest
+    container: debian:bookworm
+    timeout-minutes: 300
+    strategy:
+      fail-fast: false
+      matrix:
+        variante: [ b3, b4a ]
+        escenario: [ normal, ruido ]
+    steps:
+      - name: Instalar Python del sistema (3.11.2 / SQLite 3.40.1)
+        run: |
+          apt-get update -qq
+          apt-get install -y -qq python3 python3-venv git ca-certificates >/dev/null
+          python3 -c "import sys, sqlite3; print(sys.version); print('sqlite', sqlite3.sqlite_version)"
+
+      - name: Código del operador fijado por SHA
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ env.CODIGO_SHA }}
+          lfs: false
+
+      - name: Dependencias fijadas
+        run: |
+          python3 -m venv /opt/venv
+          /opt/venv/bin/pip install -q -r requirements.txt
+
+      - name: Aplicar parche B4a (solo variante b4a) y verificar huellas
+        run: |
+          git config --global --add safe.directory "$GITHUB_WORKSPACE"
+          if [ "${{ matrix.variante }}" = "b4a" ]; then
+            git apply docs/e3b4a_diff_aplicado_20261028.patch
+            echo "$SHA_SEARCH_B4A  core/memory/search.py"         | sha256sum -c -
+            echo "$SHA_STORE_B4A  core/memory_store.py"           | sha256sum -c -
+            echo "$SHA_TEST_B4A  tests/test_prefijo_ancho_b4a.py" | sha256sum -c -
+          fi
+          echo "$SHA_SNAPSHOT  snapshots/qa_escape_qcr_20260811.db" | sha256sum -c -
+          mkdir -p salida
+          {
+            echo "variante=${{ matrix.variante }} escenario=${{ matrix.escenario }}"
+            echo "codigo=$CODIGO_SHA"
+            date -u +"inicio=%Y-%m-%dT%H:%M:%SZ"
+            python3 -c "import sys, sqlite3; print('python', sys.version.split()[0], 'sqlite', sqlite3.sqlite_version)"
+            sha256sum core/memory/search.py core/memory_store.py scripts/evaluar_qa.py \
+                      scripts/casos_qa_baseline_v1.jsonl snapshots/qa_escape_qcr_20260811.db
+          } > salida/huellas_inicio.txt
+          cat salida/huellas_inicio.txt
+
+      - name: QA oficial (921 casos)
+        run: |
+          export PYTHONHASHSEED=0 BIORAG_NEURONA=0
+          export BIORAG_PATH=snapshots/qa_escape_qcr_20260811.db
+          export BIORAG_DMN_ESTADO_PATH="$RUNNER_TEMP/estado_hormiga.json"
+          export BIORAG_QA_TEMP_DB="$RUNNER_TEMP/copia_qa.db"
+          export BIORAG_QA_METRICS="$PWD/salida/metricas.json"
+          export BIORAG_QA_FAILED_CASES="$PWD/salida/fallos.jsonl"
+          if [ "${{ matrix.escenario }}" = "ruido" ]; then
+            export BIORAG_QA_RUIDO=zzqx BIORAG_QA_TEMATICO_CENSO=1
+          fi
+          set +e
+          /opt/venv/bin/python -u scripts/evaluar_qa.py > salida/qa.log 2>&1
+          code=$?
+          set -e
+          # El gate clásico puede devolver 1 con ruido (ya conocido en B3); la
+          # decisión se toma comparando categorías, no por el código de salida.
+          echo "exit_code=$code" >> salida/huellas_inicio.txt
+          tail -n 60 salida/qa.log
+          test -s salida/metricas.json
+
+      - name: Huellas al final (deben ser iguales a las del inicio)
+        run: |
+          sha256sum core/memory/search.py core/memory_store.py snapshots/qa_escape_qcr_20260811.db \
+            | tee salida/huellas_fin.txt
+          echo "$SHA_SNAPSHOT  snapshots/qa_escape_qcr_20260811.db" | sha256sum -c -
+
+      - name: Guardar resultados
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: qa_${{ matrix.variante }}_${{ matrix.escenario }}
+          path: salida/
+
+  comparar:
+    name: Comparar B3 vs B4a (mismo entorno) y B3 GitHub vs B3 Arena
+    needs: qa
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ env.CODIGO_SHA }}
+          lfs: false
+      - uses: actions/download-artifact@v4
+        with:
+          path: resultados
+      - name: Comparación por categoría
+        run: |
+          python3 - <<'EOF'
+          import json, os, sys
+          sys.path.insert(0, ".")
+          from scripts.comprobar_igualdad_qa_b3 import comprobar_escenario
+          def cargar(p):
+              with open(p, encoding="utf-8") as f:
+                  return json.load(f)
+          lineas, fallo = ["## Auditoría QA snapshot: B3 vs B4a", ""], False
+          for esc in ("normal", "ruido"):
+              b3 = cargar(f"resultados/qa_b3_{esc}/metricas.json")
+              b4 = cargar(f"resultados/qa_b4a_{esc}/metricas.json")
+              arena = cargar(f"docs/e3b3_snapshot_{esc}_20261028.json")
+              emp = comprobar_escenario(b3, b4)
+              rep = comprobar_escenario(arena, b3)
+              fallo |= bool(emp)
+              h3, h4 = b3["qa_honesta"], b4["qa_honesta"]
+              lineas += [f"### snapshot {esc}",
+                         f"- B3 GitHub: R@5 {h3['global_r5']} / R@1 {h3['global_r1']} / FP {b3['global']['negativos_fp']}/{b3['global']['negativos_total']}",
+                         f"- B4a GitHub: R@5 {h4['global_r5']} / R@1 {h4['global_r1']} / FP {b4['global']['negativos_fp']}/{b4['global']['negativos_total']}",
+                         f"- B3 vs B4a (mismo entorno): {'IGUALES' if not emp else 'DIFERENCIAS: ' + '; '.join(emp)}",
+                         f"- B3 Arena vs B3 GitHub (¿se repite en otra máquina?): {'IGUALES' if not rep else 'DIFERENCIAS: ' + '; '.join(rep)}",
+                         ""]
+          texto = "\n".join(lineas)
+          print(texto)
+          with open(os.environ["GITHUB_STEP_SUMMARY"], "a", encoding="utf-8") as f:
+              f.write(texto + "\n")
+          sys.exit(1 if fallo else 0)
+          EOF
