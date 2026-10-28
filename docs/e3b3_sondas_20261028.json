@@ -1,0 +1,473 @@
+{
+  "python": "3.11.2 (main, Apr  8 2026, 01:58:00) [GCC 12.2.0]",
+  "unicode": "14.0.0",
+  "nltk": "3.9.4",
+  "snapshot_sha": "104dd2902aaf24c3ce93624492ea95a719acbdcca50f4f6bc123ac8317749796",
+  "sondas": [
+    {
+      "etiqueta": "pedida",
+      "texto": "바다 등대",
+      "clave": "farol_costero",
+      "actual": {
+        "aceptado": false,
+        "validos_de_cinco": 4,
+        "razones": [
+          "\"바다 등대\" (< 2 palabras de contenido real)",
+          "Faltan bridges para los ángulos: ['sinonimo']"
+        ]
+      },
+      "candidato": {
+        "aceptado": true,
+        "validos_de_cinco": 5,
+        "razones": []
+      }
+    },
+    {
+      "etiqueta": "pedida",
+      "texto": "우산 가게",
+      "clave": "farol_costero",
+      "actual": {
+        "aceptado": false,
+        "validos_de_cinco": 4,
+        "razones": [
+          "\"우산 가게\" (< 2 palabras de contenido real)",
+          "Faltan bridges para los ángulos: ['sinonimo']"
+        ]
+      },
+      "candidato": {
+        "aceptado": true,
+        "validos_de_cinco": 5,
+        "razones": []
+      }
+    },
+    {
+      "etiqueta": "pedida",
+      "texto": "海岸的灯塔",
+      "clave": "farol_costero",
+      "actual": {
+        "aceptado": false,
+        "validos_de_cinco": 4,
+        "razones": [
+          "\"海岸的灯塔\" (< 2 palabras de contenido real)",
+          "Faltan bridges para los ángulos: ['sinonimo']"
+        ]
+      },
+      "candidato": {
+        "aceptado": true,
+        "validos_de_cinco": 5,
+        "razones": []
+      }
+    },
+    {
+      "etiqueta": "pedida",
+      "texto": "灯塔",
+      "clave": "farol_costero",
+      "actual": {
+        "aceptado": false,
+        "validos_de_cinco": 4,
+        "razones": [
+          "\"灯塔\" (< 2 palabras de contenido real)",
+          "Faltan bridges para los ángulos: ['sinonimo']"
+        ]
+      },
+      "candidato": {
+        "aceptado": false,
+        "validos_de_cinco": 4,
+        "razones": [
+          "\"灯塔\" (< 2 unidades de contenido)",
+          "Faltan bridges para los ángulos: ['sinonimo']"
+        ]
+      }
+    },
+    {
+      "etiqueta": "pedida",
+      "texto": "海辺の灯台",
+      "clave": "farol_costero",
+      "actual": {
+        "aceptado": false,
+        "validos_de_cinco": 4,
+        "razones": [
+          "\"海辺の灯台\" (< 2 palabras de contenido real)",
+          "Faltan bridges para los ángulos: ['sinonimo']"
+        ]
+      },
+      "candidato": {
+        "aceptado": true,
+        "validos_de_cinco": 5,
+        "razones": []
+      }
+    },
+    {
+      "etiqueta": "pedida",
+      "texto": "que con",
+      "clave": "farol_costero",
+      "actual": {
+        "aceptado": false,
+        "validos_de_cinco": 4,
+        "razones": [
+          "\"que con\" (< 2 palabras de contenido real)",
+          "Faltan bridges para los ángulos: ['sinonimo']"
+        ]
+      },
+      "candidato": {
+        "aceptado": false,
+        "validos_de_cinco": 4,
+        "razones": [
+          "\"que con\" (< 2 unidades de contenido)",
+          "Faltan bridges para los ángulos: ['sinonimo']"
+        ]
+      }
+    },
+    {
+      "etiqueta": "pedida",
+      "texto": "go to",
+      "clave": "farol_costero",
+      "actual": {
+        "aceptado": false,
+        "validos_de_cinco": 4,
+        "razones": [
+          "\"go to\" (< 2 palabras de contenido real)",
+          "Faltan bridges para los ángulos: ['sinonimo']"
+        ]
+      },
+      "candidato": {
+        "aceptado": false,
+        "validos_de_cinco": 4,
+        "razones": [
+          "\"go to\" (< 2 unidades de contenido)",
+          "Faltan bridges para los ángulos: ['sinonimo']"
+        ]
+      }
+    },
+    {
+      "etiqueta": "pedida",
+      "texto": "??? @@@",
+      "clave": "farol_costero",
+      "actual": {
+        "aceptado": true,
+        "validos_de_cinco": 5,
+        "razones": []
+      },
+      "candidato": {
+        "aceptado": false,
+        "validos_de_cinco": 4,
+        "razones": [
+          "\"??? @@@\" (< 2 unidades de contenido)",
+          "Faltan bridges para los ángulos: ['sinonimo']"
+        ]
+      }
+    }
+  ],
+  "extras": [
+    {
+      "etiqueta": "extra",
+      "texto": "x q",
+      "clave": "farol_costero",
+      "actual": {
+        "aceptado": false,
+        "validos_de_cinco": 4,
+        "razones": [
+          "\"x q\" (< 2 palabras de contenido real)",
+          "Faltan bridges para los ángulos: ['sinonimo']"
+        ]
+      },
+      "candidato": {
+        "aceptado": false,
+        "validos_de_cinco": 4,
+        "razones": [
+          "\"x q\" (< 2 unidades de contenido)",
+          "Faltan bridges para los ángulos: ['sinonimo']"
+        ]
+      }
+    },
+    {
+      "etiqueta": "extra",
+      "texto": "once lunas",
+      "clave": "farol_costero",
+      "actual": {
+        "aceptado": true,
+        "validos_de_cinco": 5,
+        "razones": []
+      },
+      "candidato": {
+        "aceptado": true,
+        "validos_de_cinco": 5,
+        "razones": []
+      }
+    },
+    {
+      "etiqueta": "extra",
+      "texto": "the and",
+      "clave": "farol_costero",
+      "actual": {
+        "aceptado": true,
+        "validos_de_cinco": 5,
+        "razones": []
+      },
+      "candidato": {
+        "aceptado": true,
+        "validos_de_cinco": 5,
+        "razones": []
+      }
+    },
+    {
+      "etiqueta": "extra",
+      "texto": "１２３４",
+      "clave": "farol_costero",
+      "actual": {
+        "aceptado": false,
+        "validos_de_cinco": 4,
+        "razones": [
+          "\"１２３４\" (< 2 palabras de contenido real)",
+          "Faltan bridges para los ángulos: ['sinonimo']"
+        ]
+      },
+      "candidato": {
+        "aceptado": true,
+        "validos_de_cinco": 5,
+        "razones": []
+      }
+    },
+    {
+      "etiqueta": "extra",
+      "texto": "哈哈哈哈",
+      "clave": "farol_costero",
+      "actual": {
+        "aceptado": false,
+        "validos_de_cinco": 4,
+        "razones": [
+          "\"哈哈哈哈\" (< 2 palabras de contenido real)",
+          "Faltan bridges para los ángulos: ['sinonimo']"
+        ]
+      },
+      "candidato": {
+        "aceptado": true,
+        "validos_de_cinco": 5,
+        "razones": []
+      }
+    },
+    {
+      "etiqueta": "extra",
+      "texto": "1234 5678",
+      "clave": "farol_costero",
+      "actual": {
+        "aceptado": true,
+        "validos_de_cinco": 5,
+        "razones": []
+      },
+      "candidato": {
+        "aceptado": true,
+        "validos_de_cinco": 5,
+        "razones": []
+      }
+    },
+    {
+      "etiqueta": "extra",
+      "texto": "jaja jaja",
+      "clave": "farol_costero",
+      "actual": {
+        "aceptado": true,
+        "validos_de_cinco": 5,
+        "razones": []
+      },
+      "candidato": {
+        "aceptado": true,
+        "validos_de_cinco": 5,
+        "razones": []
+      }
+    },
+    {
+      "etiqueta": "extra",
+      "texto": "ガラス",
+      "clave": "farol_costero",
+      "actual": {
+        "aceptado": false,
+        "validos_de_cinco": 4,
+        "razones": [
+          "\"ガラス\" (< 2 palabras de contenido real)",
+          "Faltan bridges para los ángulos: ['sinonimo']"
+        ]
+      },
+      "candidato": {
+        "aceptado": false,
+        "validos_de_cinco": 4,
+        "razones": [
+          "\"ガラス\" (< 2 unidades de contenido)",
+          "Faltan bridges para los ángulos: ['sinonimo']"
+        ]
+      }
+    },
+    {
+      "etiqueta": "extra",
+      "texto": "ガラス",
+      "clave": "farol_costero",
+      "actual": {
+        "aceptado": false,
+        "validos_de_cinco": 4,
+        "razones": [
+          "\"ガラス\" (< 2 palabras de contenido real)",
+          "Faltan bridges para los ángulos: ['sinonimo']"
+        ]
+      },
+      "candidato": {
+        "aceptado": false,
+        "validos_de_cinco": 4,
+        "razones": [
+          "\"ガラス\" (< 2 unidades de contenido)",
+          "Faltan bridges para los ángulos: ['sinonimo']"
+        ]
+      }
+    },
+    {
+      "etiqueta": "extra",
+      "texto": "海辺の灯台",
+      "clave": "海辺の灯台",
+      "actual": {
+        "aceptado": false,
+        "validos_de_cinco": 4,
+        "razones": [
+          "\"海辺の灯台\" (< 2 palabras de contenido real)",
+          "Faltan bridges para los ángulos: ['sinonimo']"
+        ]
+      },
+      "candidato": {
+        "aceptado": false,
+        "validos_de_cinco": 4,
+        "razones": [
+          "\"海辺の灯台\" (es una variación morfológica del nombre del nodo — un puente debe usar vocabulario diferente)",
+          "Faltan bridges para los ángulos: ['sinonimo']"
+        ]
+      }
+    },
+    {
+      "etiqueta": "extra",
+      "texto": "faro costero the",
+      "clave": "faro_costero",
+      "actual": {
+        "aceptado": true,
+        "validos_de_cinco": 5,
+        "razones": []
+      },
+      "candidato": {
+        "aceptado": true,
+        "validos_de_cinco": 5,
+        "razones": []
+      }
+    },
+    {
+      "etiqueta": "extra",
+      "texto": "水",
+      "clave": "farol_costero",
+      "actual": {
+        "aceptado": false,
+        "validos_de_cinco": 4,
+        "razones": [
+          "\"水\" (< 2 palabras de contenido real)",
+          "Faltan bridges para los ángulos: ['sinonimo']"
+        ]
+      },
+      "candidato": {
+        "aceptado": false,
+        "validos_de_cinco": 4,
+        "razones": [
+          "\"水\" (< 2 unidades de contenido)",
+          "Faltan bridges para los ángulos: ['sinonimo']"
+        ]
+      }
+    },
+    {
+      "etiqueta": "extra",
+      "texto": "문",
+      "clave": "farol_costero",
+      "actual": {
+        "aceptado": false,
+        "validos_de_cinco": 4,
+        "razones": [
+          "\"문\" (< 2 palabras de contenido real)",
+          "Faltan bridges para los ángulos: ['sinonimo']"
+        ]
+      },
+      "candidato": {
+        "aceptado": false,
+        "validos_de_cinco": 4,
+        "razones": [
+          "\"문\" (< 2 unidades de contenido)",
+          "Faltan bridges para los ángulos: ['sinonimo']"
+        ]
+      }
+    }
+  ],
+  "qa_case": {
+    "categoria": "cruce_idioma",
+    "query": "blueprint recollection biorag",
+    "concepto_esperado": "arquitectura_memoria_biorag",
+    "deep": false,
+    "notes": "Bilingual mapping check",
+    "id": "0593"
+  },
+  "bridges_reales": [
+    {
+      "id_qa": "0593",
+      "hub": "hub_arquitectura_memoria",
+      "clave_anti_destino": "arquitectura_memoria",
+      "canonical": "arquitectura_memoria_biorag",
+      "angle": "sinonimo",
+      "text": "blueprint of recollection and cognitive persistence tiers",
+      "actual": true,
+      "candidato": true
+    },
+    {
+      "id_qa": "0593",
+      "hub": "hub_arquitectura_memoria",
+      "clave_anti_destino": "arquitectura_memoria",
+      "canonical": "arquitectura_memoria_biorag",
+      "angle": "problema",
+      "text": "duda sobre como se estructura la persistencia frente a la sesion activa",
+      "actual": true,
+      "candidato": true
+    },
+    {
+      "id_qa": "0593",
+      "hub": "hub_arquitectura_memoria",
+      "clave_anti_destino": "arquitectura_memoria",
+      "canonical": "arquitectura_memoria_biorag",
+      "angle": "solucion",
+      "text": "dos niveles de memoria con conversacion activa y base persistente",
+      "actual": true,
+      "candidato": true
+    },
+    {
+      "id_qa": "0593",
+      "hub": "hub_arquitectura_memoria",
+      "clave_anti_destino": "arquitectura_memoria",
+      "canonical": "arquitectura_memoria_biorag",
+      "angle": "situacion",
+      "text": "diseno de corteza operativa para retener informacion entre conversaciones",
+      "actual": true,
+      "candidato": true
+    },
+    {
+      "id_qa": "0593",
+      "hub": "hub_arquitectura_memoria",
+      "clave_anti_destino": "arquitectura_memoria",
+      "canonical": "arquitectura_memoria_biorag",
+      "angle": "ingenuo",
+      "text": "how the recollection and long term brain blueprint works in english",
+      "actual": true,
+      "candidato": true
+    }
+  ],
+  "resumen_snapshot": {
+    "bridges": 30,
+    "hubs": 6,
+    "diferencias": []
+  },
+  "metadatos": {
+    "referencia_git": "88f71bbbee9e340511d777b1b56d5d7ee8139802",
+    "momento": "antes de aplicar; módulo candidato temporal",
+    "clave_neutral": "farol_costero",
+    "codigo_candidato_sha256": "50cdced5342eb255abcd1ea9ab0781ab677ec518b173bc3855a32c0be9b618cf",
+    "pruebas_sha256": "9b4d70a224b974d28441628b0e3acb37951dd1920140542bfb962157bfae0c88",
+    "fuente": "sondas con validador real; no es QA oficial"
+  }
+}

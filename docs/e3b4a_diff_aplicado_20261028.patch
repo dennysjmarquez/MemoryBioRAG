@@ -1,0 +1,129 @@
+diff --git a/core/memory/search.py b/core/memory/search.py
+index dabb6181ab43a1ee50fa9eb6e8906df8e7ca23f7..83dea177bf86ac879a21d47b5b7cee4749b072bd 100644
+--- a/core/memory/search.py
++++ b/core/memory/search.py
+@@ -1156,7 +1156,7 @@ def buscar_por_frase(self, frase, profundidad="activos", pagina=1, limite=None,
+     if not modo_estricto and len(palabras) >= 2:
+         # Compute match count for ALL current candidates
+         match_count_clause = " + ".join(
+-            f"CASE WHEN LOWER(l.contenido) LIKE '%' || ? || '%' THEN 1 ELSE 0 END"
++            f"CASE WHEN PALABRA_INICIO_ANCHO(?, l.contenido) = 1 THEN 1 ELSE 0 END"
+             for _ in palabras
+         )
+         match_params = [w.lower() for w in palabras]
+@@ -2060,7 +2060,7 @@ def buscar_por_frase(self, frase, profundidad="activos", pagina=1, limite=None,
+         gaba_resultados.sort(key=lambda r: r[4], reverse=True)
+         resultados_con_hibrido = gaba_resultados
+ 
+-    # Filtro final con PALABRA_PREFIJO: para queries de una palabra,
++    # Filtro final con PALABRA_INICIO_ANCHO: para queries de una palabra,
+     # exigir que aparezca como prefijo de palabra en contenido (del lado de la DB).
+     # Esto permite "react" -> "reactive" mientras sigue bloqueando falsos positivos de substring
+     # ("culo" no es prefijo de "artículos").
+@@ -2083,8 +2083,8 @@ def buscar_por_frase(self, frase, profundidad="activos", pagina=1, limite=None,
+             placeholders = ",".join("?" * len(conceptos_literal))
+             self.cursor.execute(
+                 f"SELECT concepto FROM largo_plazo WHERE "
+-                f"(PALABRA_PREFIJO(?, concepto) = 1 OR PALABRA_PREFIJO(?, contenido) = 1 OR PALABRA_PREFIJO(?, COALESCE(sinonimos, '')) = 1 "
+-                f"OR PALABRA_PREFIJO(?, COALESCE(sustantivos_clave, '')) = 1) "
++                f"(PALABRA_INICIO_ANCHO(?, concepto) = 1 OR PALABRA_INICIO_ANCHO(?, contenido) = 1 OR PALABRA_INICIO_ANCHO(?, COALESCE(sinonimos, '')) = 1 "
++                f"OR PALABRA_INICIO_ANCHO(?, COALESCE(sustantivos_clave, '')) = 1) "
+                 f"AND concepto IN ({placeholders})",
+                 (token, token, token, token) + tuple(conceptos_literal)
+             )
+diff --git a/core/memory_store.py b/core/memory_store.py
+index e01327be464afe5bc4bde2e9e2136d168eecad8a..816ae360f11163579df73b2bc8028c8645662654 100644
+--- a/core/memory_store.py
++++ b/core/memory_store.py
+@@ -118,6 +118,24 @@ class SQLiteMemoryBioRAG:
+             texto_norm = texto.lower().replace('_', ' ').replace('-', ' ')
+             return 1 if re.search(r'\b' + re.escape(token_norm), texto_norm) else 0
+         self.conn.create_function("PALABRA_PREFIJO", 2, palabra_prefijo)
++
++        def palabra_inicio_ancho(token, texto):
++            """Prefijo en límite habitual o después de un carácter W/F."""
++            import unicodedata
++            if not token or not texto:
++                return 0
++            token_norm = token.lower().replace('_', ' ').replace('-', ' ')
++            texto_norm = texto.lower().replace('_', ' ').replace('-', ' ')
++            patron = re.compile(r'\b' + re.escape(token_norm))
++            pos = texto_norm.find(token_norm)
++            while pos >= 0:
++                if patron.match(texto_norm, pos) or (
++                    pos > 0 and unicodedata.east_asian_width(texto_norm[pos - 1]) in ('W', 'F')
++                ):
++                    return 1
++                pos = texto_norm.find(token_norm, pos + 1)
++            return 0
++        self.conn.create_function("PALABRA_INICIO_ANCHO", 2, palabra_inicio_ancho)
+         self._cat_cache = {}
+         self.cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='largo_plazo'")
+         if not self.cursor.fetchone():
+diff --git a/tests/test_prefijo_ancho_b4a.py b/tests/test_prefijo_ancho_b4a.py
+new file mode 100644
+index 0000000000000000000000000000000000000000..f899493ce9a34053162a98efe68a9af9a7ac249d
+--- /dev/null
++++ b/tests/test_prefijo_ancho_b4a.py
+@@ -0,0 +1,61 @@
++"""B4a: límite por prefijo o anterior W/F, sin listas de idiomas."""
++
++import pytest
++
++from core.memory_store import SQLiteMemoryBioRAG
++
++
++@pytest.fixture(scope="module")
++def cerebro():
++    db = SQLiteMemoryBioRAG(":memory:")
++    yield db
++    db.cerrar_sistema()
++
++
++@pytest.mark.parametrize("token,texto,esperado", [
++    ("play", "displayed", 0),
++    ("lay", "displayed", 0),
++    ("play", "we play chess", 1),
++    ("react", "reactive systems", 1),
++    ("pan", "pan de centeno", 1),
++    ("pan", "empanada", 0),
++    ("мост", "старый мост", 1),
++    ("мост", "мостовой", 1),
++    ("항구", "비 오는 항구를 적었다.", 1),
++    ("바다", "푸른 바다새", 1),
++    ("黑麦面粉", "烘焙面包使用黑麦面粉。", 1),
++    ("全粒粉", "手作りのパンには全粒粉を使った。", 1),
++    ("ラス", "ガラス", 1),
++    ("ＢＣ", "ＡＢＣ", 1),
++    ("２３", "１２３４", 1),
++    ("哈哈", "x哈哈哈", 1),  # Las coincidencias se pueden solapar.
++    ("", "texto", 0),
++    ("texto", None, 0),
++    (None, "texto", 0),
++])
++def test_palabra_inicio_ancho_sqlite(cerebro, token, texto, esperado):
++    (valor,) = cerebro.conn.execute("SELECT PALABRA_INICIO_ANCHO(?, ?)", (token, texto)).fetchone()
++    assert valor == esperado
++
++
++def test_prefijo_original_y_predicados_no_se_sustituyen(cerebro):
++    nuevo, anterior = cerebro.conn.execute(
++        "SELECT PALABRA_INICIO_ANCHO(?, ?), PALABRA_PREFIJO(?, ?)",
++        ("全粒粉", "パンには全粒粉", "全粒粉", "パンには全粒粉"),
++    ).fetchone()
++    assert (nuevo, anterior) == (1, 0)
++
++
++def test_no_se_invierte_consulta_mayor_que_campo(cerebro):
++    (valor,) = cerebro.conn.execute(
++        "SELECT PALABRA_INICIO_ANCHO(?, ?)", ("海岸灯塔是什么意思", "海岸灯塔")
++    ).fetchone()
++    assert valor == 0
++
++
++def test_normalizacion_compartida_sigue_pendiente(cerebro):
++    con_marca, sin_marca = cerebro.conn.execute(
++        "SELECT PALABRA_INICIO_ANCHO(?, ?), PALABRA_INICIO_ANCHO(?, ?)",
++        ("ガ", "カ\u3099ラス", "カ", "カ\u3099ラス"),
++    ).fetchone()
++    assert (con_marca, sin_marca) == (0, 1)

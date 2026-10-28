@@ -26,6 +26,7 @@ from core.mcp_server._shared import (
     _get_cerebro,
     _interceptar,
     _resolver_dimensiones,
+    _sustantivo_valido,
 )
 from core.sinapsis import _tokenizar
 
@@ -232,7 +233,7 @@ def _recordar_impl(
                 }, ensure_ascii=False)
 
             for _sk_term in sk_unicos:
-                if not re.fullmatch(r"[a-z0-9_ñ]{2,15}", _sk_term):
+                if not _sustantivo_valido(_sk_term):
                     return json.dumps({
                         "status": "error",
                         "codigo": "SUSTANTIVOS_CLAVE_FORMATO_INVALIDO",

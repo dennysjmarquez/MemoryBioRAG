@@ -1,0 +1,9 @@
+snapshot 0848_sin_ruido    limite= 5 puesto=   4 score=0.3861 candidatos=129
+snapshot 0848_sin_ruido    limite=50 puesto=   4 score=0.3861 candidatos=129
+snapshot 0848_con_zzqx     limite= 5 puesto=   1 score=0.4388 candidatos=129
+snapshot 0848_con_zzqx     limite=50 puesto=   1 score=0.4388 candidatos=129
+viva     0848_sin_ruido    limite= 5 puesto=None score=  None candidatos=683
+viva     0848_sin_ruido    limite=50 puesto=   6 score=0.3732 candidatos=683
+viva     0848_con_zzqx     limite= 5 puesto=None score=  None candidatos=683
+viva     0848_con_zzqx     limite=50 puesto=   5 score=0.4272 candidatos=683
+Guardado: /home/user/MemoryBioRAG/docs/e2e_0848_base_20261027.json

@@ -1,0 +1,4 @@
+Traceback (most recent call last):
+  File "/home/user/MemoryBioRAG/scripts/comprobar_igualdad_qa_b3.py", line 15, in <module>
+    from scripts.comparar_qa_oficial_b3 import misma_fuente
+ModuleNotFoundError: No module named 'scripts'

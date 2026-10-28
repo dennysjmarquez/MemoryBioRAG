@@ -1,0 +1,11 @@
+Directa, casos diferentes: 0
+MCP A, casos diferentes: 0
+Pendiente hueco 1: 14
+zh: guardados 0→18/20; ganados 18; perdidos 0; rechazos B3 {'SUSTANTIVOS_CLAVE_FORMATO_INVALIDO': 2}
+ja: guardados 0→15/20; ganados 15; perdidos 0; rechazos B3 {'SUSTANTIVOS_CLAVE_FORMATO_INVALIDO': 5}
+ko: guardados 16→16/20; ganados 0; perdidos 0; rechazos B3 {'SUSTANTIVOS_CLAVE_FORMATO_INVALIDO': 4}
+ru: guardados 20→20/20; ganados 0; perdidos 0; rechazos B3 {}
+EXPECTATIVA NO CUMPLIDA: ko: no aumentaron los guardados (16→16)
+Sin regresión en estas mediciones: True
+Aumento en zh/ja/ko: False
+QA oficiales y búsquedas posteriores se validan por separado.
