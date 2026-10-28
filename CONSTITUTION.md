@@ -5,6 +5,16 @@
 
 ---
 
+## 0. La Actitud del Inventor (principio rector)
+
+> **Nada es "imposible", solo "todavía no medido". Y si algo falla, se busca otro camino; no se rinde.**
+
+Es la actitud con la que se trabaja en este proyecto, por encima de cualquier técnica. Dennys Marquez lo resume así: un inventor no dice "no se puede"; si lo hiciera, nada de lo que hoy existe existiría.
+
+- **Prohibido cerrar una idea con "imposible" o "no se puede".** Lo honesto es decir qué falta: un dato, una medida, una pieza ("aguja") que todavía no existe.
+- **Un intento fallido se revierte, la meta no.** El Pilar 1 sigue mandando: si un cambio baja una métrica, se revierte. Pero eso cierra *ese camino*, no el objetivo. Se anota por qué falló y se busca otro.
+- **La ambición se apoya en evidencia.** No se discute la meta; se prueba cada paso con resultados verificables (Pilar 4).
+
 ## 1. Identidad del Proyecto
 
 **MemoryBioRAG** es una arquitectura de memoria cognitiva biomimética y simbólica para agentes de IA.
