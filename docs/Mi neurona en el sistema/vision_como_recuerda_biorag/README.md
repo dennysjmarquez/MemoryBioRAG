@@ -1060,6 +1060,27 @@ La otra IA aceptó las correcciones: tres errores suyos (fórmula inventada, cif
 
 **Postura del auditor.** Nada de esto cambia el orden: primero el motor (E3–E4) y la publicación v36.0; después la capa 2 (v37), con este mapa como guía. La regla del inventor vale aquí: **nada es "imposible"**, solo **"todavía no medido"**. Cada idea se prueba contra la línea base y contra el piso del ranking actual.
 
+## 2t. Superar a WordNet: sinónimos "nivel dios" o una solución propia (Dennys, 2026-10-28, para después)
+
+**La visión de Dennys:** más adelante, mejorar lo que hoy hace WordNet hasta un nivel muy superior, con WordNet, con algo equivalente mejor o con **una solución propia**, decidido **por la medida de este proyecto**.
+
+**Lo que hace hoy WordNet** (`core/fallback_simbolico.py`, capa 2, y `core/clasificador_wordnet.py`):
+- añade sinónimos de lenguaje general cuando la búsqueda literal no alcanza;
+- es **fijo** (no aprende de la memoria del usuario) y está **centrado en el inglés**; su versión multilingüe (OMW) es dispersa en español y desigual en otros idiomas (§2p);
+- también **mete ruido**: en E3A, el falso positivo inglés `en-n02` entró porque WordNet añadió `lay`, que el FTS encontró dentro de "dis**play**ed".
+
+**Opinión del auditor: la mejor apuesta es una solución propia, con WordNet como rival a batir.** Sus fuentes ya existen en el sistema y ninguna depende de un idioma:
+1. **El agente al guardar.** Los campos `sinonimos` y los 5 puentes los escribe el agente, que sabe cualquier idioma. Son sinónimos **hechos a medida de cada recuerdo**, no de un diccionario general.
+2. **La propia memoria.** Las palabras que aparecen juntas en los recuerdos del usuario (coocurrencia/PPMI, ya en el motor) dan equivalencias **de su dominio**, que ningún diccionario conoce.
+3. **El agente al recordar ("una sola mente").** Cuando la primera búsqueda no alcanza, el agente reformula, como hace una persona que "trata de recordar".
+
+**Cómo se decide (rigor, no gusto):**
+- **Línea base:** el motor actual con WordNet. La solución nueva solo entra si la supera.
+- **Medidas:** las categorías `sinonimo` (61 casos) y `cruce_idioma` (8) de la QA oficial; los falsos positivos (los 40 negativos y los negativos multilingües); y el resultado **por idioma** (es, en, ru, ko, zh, ja).
+- **Reglas de siempre:** nunca bajar el piso de la QA; un cambio a la vez; WordNet queda como **adaptador opcional** (arquitectura hexagonal), no se borra sin prueba.
+
+**Cuándo:** después de cerrar el motor (E3–E4) y de publicar v36.0. No se mezcla con la E3.
+
 ---
 
 ## 3. El orden para llegar (paso a pasito)
