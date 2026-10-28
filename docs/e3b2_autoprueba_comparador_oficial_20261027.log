@@ -1,0 +1,20 @@
+--- Control con cuatro archivos idénticos a B1 ---
+snapshot_normal  R@5 100.00→100.00  R@1 95.31→95.31  FP [0, 40]→[0, 40]
+snapshot_ruido   R@5 97.34→97.34  R@1 88.63→88.63  FP [0, 40]→[0, 40]
+viva_normal      R@5 99.88→99.88  R@1 93.53→93.53  FP [0, 40]→[0, 40]
+viva_ruido       R@5 96.63→96.63  R@1 88.12→88.12  FP [0, 40]→[0, 40]
+Pendientes: []
+Comparación oficial: CUMPLE
+Código: 0
+
+--- Control con caída introducida por categoría ---
+snapshot_normal  R@5 100.00→100.00  R@1 95.31→95.31  FP [0, 40]→[0, 40]
+snapshot_ruido   R@5 97.34→97.34  R@1 88.63→88.63  FP [0, 40]→[0, 40]
+viva_normal      R@5 99.88→99.88  R@1 93.53→93.53  FP [0, 40]→[0, 40]
+viva_ruido       R@5 96.63→96.63  R@1 88.12→88.12  FP [0, 40]→[0, 40]
+Pendientes: []
+- viva_normal: bajó literal r5: 487→482/487
+Comparación oficial: NO CUMPLE
+Código: 1
+
+Autoprueba: CUMPLE

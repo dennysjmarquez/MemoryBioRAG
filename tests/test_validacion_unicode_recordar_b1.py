@@ -82,8 +82,8 @@ def test_recordar_conserva_deduplicacion_y_maximo_de_diez(monkeypatch):
     assert obj["cantidad_recibida"] == 11
 
 
-def test_aprender_aun_rechaza_sustantivos_no_latinos(monkeypatch):
-    # B2 queda pendiente: el guardado conserva su validador original.
+def test_aprender_aun_rechaza_sustantivos_de_un_caracter(monkeypatch):
+    # B1 y B2 conservan el mínimo de dos caracteres, también para escrituras anchas.
     monkeypatch.setattr(write, "_get_cerebro", _impedir_base)
     bridges = [
         {"text": "corte intempestivo de comunicacion backend", "angle": "sinonimo"},

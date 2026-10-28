@@ -1,0 +1,44 @@
+diff --git a/core/mcp_server/write.py b/core/mcp_server/write.py
+index 5eb1e32..61fad87 100644
+--- a/core/mcp_server/write.py
++++ b/core/mcp_server/write.py
+@@ -9,7 +9,6 @@ Expone tools de escritura y aprendizaje en BioRAG:
+ """
+ 
+ import json
+-import re
+ import time
+ from typing import Annotated, Any, Optional
+ 
+@@ -21,6 +20,7 @@ from core.mcp_server._shared import (
+     _interceptar,
+     _resolver_dimensiones,
+     _sesiones_activas,
++    _sustantivo_valido,
+ )
+ from core.categorizador import inferir_categoria
+ from core.sinapsis import (
+@@ -230,11 +230,10 @@ def _aprender_impl(
+             "cantidad_recibida": len(sk_unicos),
+         }, ensure_ascii=False)
+ 
+-    # Formato por término (RF-3): 2-15 chars inclusivos, sin espacios, solo
+-    # alfanuméricos + guion bajo. La ñ se preserva (RF-10) y es alfanumérica
+-    # en español — por eso se incluye explícitamente en la clase de caracteres.
++    # Formato por término: 2–15 caracteres tras NFC; solo letras, marcas
++    # y números Unicode, además de guion bajo. Se valida sin cambiar el valor.
+     for _sk_term in sk_unicos:
+-        if not re.fullmatch(r"[a-z0-9_ñ]{2,15}", _sk_term):
++        if not _sustantivo_valido(_sk_term):
+             return json.dumps({
+                 "status": "error",
+                 "codigo": "SUSTANTIVOS_CLAVE_FORMATO_INVALIDO",
+@@ -893,7 +892,7 @@ def register(mcp: Any) -> None:
+             }, ensure_ascii=False)
+ 
+         for _sk_term in sk_unicos:
+-            if not re.fullmatch(r"[a-z0-9_ñ]{2,15}", _sk_term):
++            if not _sustantivo_valido(_sk_term):
+                 return json.dumps({
+                     "status": "error",
+                     "codigo": "SUSTANTIVOS_CLAVE_FORMATO_INVALIDO",
