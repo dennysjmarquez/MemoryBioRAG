@@ -21,6 +21,11 @@ La tesis de ingeniería, en una frase (formulada por otra IA a partir de la idea
 
 **No es tener mucha IA, sino la IA correcta en el lugar correcto.** Lo propio de BioRAG no es una pieza suelta, sino la combinación de todas. Sin reclamar primicias.
 
+**La inclinación, en una frase (Dennys, 2026-10-28):** *"MemoryBioRAG se inclina hacia la inteligencia distribuida y asociativa, no hacia la inteligencia monolítica."*
+- **Distribuida:** el criterio no vive en una sola red grande, sino repartido en un motor rápido y unas pocas neuronas pequeñas, cada una en su punto, con su piso, su techo y sus guardianes. Las piezas son módulos desacoplados (Pilares 9–11).
+- **Asociativa:** recordar es hilar. Un recuerdo trae pistas que llevan a otros (sinapsis, hubs, ráfaga P7), y el agente tira de ellas, como hace una persona.
+- **No monolítica:** ni en el código (nada de archivos gigantes acoplados) ni en la inteligencia (nada de un único modelo que lo decida todo).
+
 **La proyección (Dennys, 2026-10-28):** BioRAG será un **cerebro de silicio** con **inteligencia de criterio en ciertos lugares**, donde van neuronas finamente calibradas, con su piso, su techo y sus guardianes, como la primera neurona (Constitución, Pilar 11).
 - Dennys lo ve como **la evolución de la base de datos vectorial**. Las bases vectoriales quedarán para lo suyo: **grandes documentos embebidos**. La memoria de un agente será un cerebro.
 - La meta es **llegar a lo que hace una base vectorial, pero por otro camino**, y superarlo. Antes no había neuronas en el motor; ahora las hay. Esa es la **inclinación** del proyecto.

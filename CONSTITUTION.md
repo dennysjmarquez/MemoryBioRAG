@@ -23,6 +23,8 @@ Es la actitud con la que se trabaja en este proyecto, por encima de cualquier t�
 - **Motor:** SQLite FTS5 WAL + Factorización PPMI-SVD (100 dims) + Espacio Semántico de 13 Ejes + Grafo Sináptico Hebbiano + Sparse Distributed Memory (SDM 2048-bit) + Calibración Conforme.
 - **Idiomas:** Español + Inglés (stemming bilingüe ES/EN + expansión simbólica vía WordNet + Domain Dict automático).
 
+- **Inclinación:** *"MemoryBioRAG se inclina hacia la inteligencia distribuida y asociativa, no hacia la inteligencia monolítica."* (Dennys Marquez, 2026-10-28). Criterio repartido en un motor rápido y neuronas pequeñas en puntos precisos; recuerdos que se hilan por asociación (ver Pilares 9–11 y la visión §0).
+
 ## 2. El Inverso Fundamental
 
 > **BioRAG no piensa. El agente piensa.**
