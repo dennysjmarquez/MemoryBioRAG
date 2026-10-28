@@ -922,6 +922,36 @@ En los dos, la pregunta trae **qué se busca** (tipo, estado, momento) y los can
 
 ---
 
+## 2s. Opinión externa: siete "neuronas funcionales" para elegir el recuerdo pertinente (traída por Dennys, 2026-10-27, para después)
+
+> Resumen de la propuesta de otra IA: *"La semejanza encuentra candidatos; intención + contexto + evidencia seleccionan el recuerdo que responde a la pregunta."* Propone siete módulos pequeños en cadena: **intención, separación, contexto episódico, evidencia, causa–acción–resultado (C-A-R), relevancia temporal y ambigüedad**. Su ejemplo es el de ChatGPT (§2n): ante "¿qué solución probamos y funcionó?" debe ganar C (aplicada y validada) aunque A (propuesta) tenga más palabras en común. También sitúa a BioRAG en la familia de los sistemas modulares (mezcla de expertos, RAG modular, reranker, neurosimbólico) y sugiere nombres defendibles: "neurona funcional", "micro-experto", "arquitectura cognitiva modular". Las fuentes que cita (Springer, PMC, arXiv) **no las verificó el auditor**.
+
+### Qué tomamos (encaja con lo ya guardado)
+| Idea | Dónde ya está o adónde va |
+|---|---|
+| Semejanza ≠ pertinencia | Problema central de §2l, §2q y §2r |
+| **Ambigüedad con tres salidas: resuelto, competido, insuficiente** | **Se adopta como la salida de la neurona de razonamiento (§2q).** Formaliza el "empate real" de §2l y el "no lo tengo" de §2q. "Insuficiente" puede pedir una ráfaga (P4, P7) en vez de inventar un ganador |
+| Evidencia: propuesta frente a probada frente a fallida | Ya se guarda al escribir: `epistemia` (`directa_experiencial`, `verificada`, `reportada_externa`) y `accion_fallar`, `intencion_solucionar` (§2n) |
+| Tríada causa–acción–resultado | **Aguja nueva candidata** para el inventario de §2r paso 3. Hoy existe en parte: predicados SRL (`pred_score`) y dimensiones de intención/acción |
+| Separación: "comparten casi todo salvo un detalle decisivo" | Es la contención con "lo que añade el hijo" (§2j) y la exclusividad del tipo frente a los rivales (§2n) |
+| Relevancia temporal: versión, vigencia | §2g/§2h (C1 fecha de modificación, C5 última ≠ actual) |
+| Nombres: "neurona funcional", "micro-experto" | Útiles para la documentación pública de v37; sin reclamar primicias |
+
+### Matices del auditor (lo que NO tomamos tal cual)
+1. **Una neurona de intención que lee la consulta ANTES de buscar ata el sistema al idioma.** Según §2p, la intención la traduce el agente (que ya es multilingüe) a parámetros neutros (sustantivos, dimensiones, tipo pedido). La neurona trabaja después, sobre relaciones.
+2. **Listas de palabras marcadoras ("funcionó", "validado", "podría") = atadas al idioma.** Rompe la regla de Dennys. La evidencia se toma de lo que el agente escribe al guardar (`epistemia`, dimensiones), que es neutro.
+3. **Pesos fijos a mano (0,30·resultado + 0,25·relación…) y un `score_final` que sustituye la fórmula:** no. El ranking actual es el piso y las neuronas suman encima con techo; los pesos se aprenden por gradiente con examen sellado (§2o).
+4. **Siete neuronas en cadena:** cada una necesitaría sus propios datos, su prueba y sus seguros, y los errores se encadenan. Propuesta: **separación, contexto, evidencia, C-A-R y temporalidad entran primero como AGUJAS (entradas) de UNA neurona de razonamiento**. Una pasa a ser neurona propia solo si las pruebas demuestran que hace falta. Así se respeta "neuronas donde hagan falta" sin multiplicar piezas.
+5. **Datos inexactos sobre BioRAG:**
+   - "BM25 60 %, sináptico 25 %, riqueza 15 %" no es la fórmula del motor. La verificada es `_calcular_score_hibrido`, con unas 17 señales.
+   - "Suite de 430 pruebas": 430 eran los tests unitarios de v35.0 (hoy más de 600). La QA oficial tiene 921 casos.
+   - "BioRAG v36" con estas neuronas: v36 es el motor robusto; las neuronas van en v37.
+6. **Ya existen piezas relacionadas que hay que revisar antes de crear otras:**
+   - la inhibición lateral GABA, que atenúa a los competidores cuando el top-1 domina;
+   - el umbral conforme de abstención, que en una base nueva no actúa (hallazgo de E3A, anotado para E4).
+
+---
+
 ## 3. El orden para llegar (paso a pasito)
 
 | Etapa | Qué | Relación con la visión |
