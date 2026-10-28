@@ -21,6 +21,13 @@ La tesis de ingeniería, en una frase (formulada por otra IA a partir de la idea
 
 **No es tener mucha IA, sino la IA correcta en el lugar correcto.** Lo propio de BioRAG no es una pieza suelta, sino la combinación de todas. Sin reclamar primicias.
 
+**La proyección (Dennys, 2026-10-28):** BioRAG será un **cerebro de silicio** con **inteligencia de criterio en ciertos lugares**, donde van neuronas finamente calibradas, con su piso, su techo y sus guardianes, como la primera neurona (Constitución, Pilar 11).
+- Dennys lo ve como **la evolución de la base de datos vectorial**. Las bases vectoriales quedarán para lo suyo: **grandes documentos embebidos**. La memoria de un agente será un cerebro.
+- La meta es **llegar a lo que hace una base vectorial, pero por otro camino**, y superarlo. Antes no había neuronas en el motor; ahora las hay. Esa es la **inclinación** del proyecto.
+- **El agente compensa tratando de recordar, y está bien:** el humano da **pistas** y el agente tira de ellas.
+- Por eso **lo relacionado, e incluso algo de ruido, también sirve**: son palabras que el agente saca de los resultados para decidir qué más buscar hasta dar con lo que el usuario quiere. Así se hila todo (P7, la ráfaga natural). La meta del primer lugar no cambia: el recuerdo que mejor encaja va primero; lo demás acompaña como pistas.
+- La forma de construirlo es una **regla de oro**: módulos desacoplados, mentalidad hexagonal, y cada pieza documentada con por qué se creó, por qué ahí y por qué se quitó (Constitución, Pilares 9 y 10).
+
 ---
 
 ## 1. Los principios del recuerdo
@@ -1059,6 +1066,83 @@ La otra IA aceptó las correcciones: tres errores suyos (fórmula inventada, cif
 | Citas de neurociencia de `bio_problema_actual.md` | **Sin verificar** | El propio asistente lo dice, y ese archivo no está en el repo. |
 
 **Postura del auditor.** Nada de esto cambia el orden: primero el motor (E3–E4) y la publicación v36.0; después la capa 2 (v37), con este mapa como guía. La regla del inventor vale aquí: **nada es "imposible"**, solo **"todavía no medido"**. Cada idea se prueba contra la línea base y contra el piso del ranking actual.
+
+## 2t. Superar a WordNet: sinónimos "nivel dios" o una solución propia (Dennys, 2026-10-28, para después)
+
+**La visión de Dennys:** más adelante, mejorar lo que hoy hace WordNet hasta un nivel muy superior, con WordNet, con algo equivalente mejor o con **una solución propia**, decidido **por la medida de este proyecto**.
+
+**Lo que hace hoy WordNet** (`core/fallback_simbolico.py`, capa 2, y `core/clasificador_wordnet.py`):
+- añade sinónimos de lenguaje general cuando la búsqueda literal no alcanza;
+- es **fijo** (no aprende de la memoria del usuario) y está **centrado en el inglés**; su versión multilingüe (OMW) es dispersa en español y desigual en otros idiomas (§2p);
+- también **mete ruido**: en E3A, el falso positivo inglés `en-n02` entró porque WordNet añadió `lay`, que el FTS encontró dentro de "dis**play**ed".
+
+**Opinión del auditor: la mejor apuesta es una solución propia, con WordNet como rival a batir.** Sus fuentes ya existen en el sistema y ninguna depende de un idioma:
+1. **El agente al guardar.** Los campos `sinonimos` y los 5 puentes los escribe el agente, que sabe cualquier idioma. Son sinónimos **hechos a medida de cada recuerdo**, no de un diccionario general.
+2. **La propia memoria.** Las palabras que aparecen juntas en los recuerdos del usuario (coocurrencia/PPMI, ya en el motor) dan equivalencias **de su dominio**, que ningún diccionario conoce.
+3. **El agente al recordar ("una sola mente").** Cuando la primera búsqueda no alcanza, el agente reformula, como hace una persona que "trata de recordar".
+
+**Cómo se decide (rigor, no gusto):**
+- **Línea base:** el motor actual con WordNet. La solución nueva solo entra si la supera.
+- **Medidas:** las categorías `sinonimo` (61 casos) y `cruce_idioma` (8) de la QA oficial; los falsos positivos (los 40 negativos y los negativos multilingües); y el resultado **por idioma** (es, en, ru, ko, zh, ja).
+- **Reglas de siempre:** nunca bajar el piso de la QA; un cambio a la vez; WordNet queda como **adaptador opcional** (arquitectura hexagonal), no se borra sin prueba.
+
+**Cuándo:** después de cerrar el motor (E3–E4) y de publicar v36.0. No se mezcla con la E3.
+
+### Por qué existe WordNet (Dennys, 2026-10-28) y qué dice el código
+
+**El origen, en palabras de Dennys:** cuando el agente pone una palabra, el motor la expande **en varias palabras del mismo sentido** (sinónimos, no uno solo) para ver a cuál le atina, como una persona que, tratando de recordar, prueba "gato", "gatico", "felino"… Se pensó en español e inglés porque una palabra se podía **pasar al inglés** y buscar allí sus sinónimos. Dennys no sabe si hoy aporta al ranking: "eso no lo sé yo". Con la neurona y con el agente usando sus propios sinónimos en cualquier idioma, quizá ya no haga falta. **Se decide midiendo.**
+
+**Dónde vive en el código (revisado el 2026-10-28):**
+
+| # | Sitio | Qué hace | ¿Lo apaga `BIORAG_WORDNET_ENABLED=0`? |
+|---|---|---|---|
+| 1 | `core/memory/search.py:228-262` | Expansión previa: palabras ASCII que **no** tienen sentido en español → hasta 8 sinónimos ingleses | Sí |
+| 2 | `core/memory/search.py:1077-1090` (Capa 4) | Añade hasta 5 sinónimos WordNet y los busca en la columna `sinonimos` | **No** |
+| 3 | `core/memory/search.py:1471+` (Capa 5) | **Señal de ranking**: grupos semánticos (*lexnames*) de la consulta frente a los del recuerdo | Sí |
+| 4 | `core/fallback_simbolico.py:171-266` | Rescate simbólico: sinónimos español + inglés (3 sentidos por palabra) | **No** |
+| 5 | `core/ppmi_hybrid_search.py:166` | Expansión de consultas cortas en la búsqueda PPMI | **No** |
+| — | `core/memory/consolidation.py:181`, `core/dmn_reflexion.py:510` | Clasifica cada recuerdo en grupos WordNet al guardar o al soñar (alimenta el sitio 3) | No aplica |
+| — | `core/fallback_simbolico.py:216-266` | El "pasar al inglés" (traducción con Google) existe, pero está **apagado** por defecto (`BIORAG_TRADUCCION_ACTIVA=0`, solo local) | — |
+
+**Lo que ya se midió (sesión del 2026-09-10, snapshot `qa_escape_qcr_20260811.db`, motor de entonces):** ablación 2×2 de Hub y WordNet. **Apagar WordNet mejoró**: R@5 94,97 → 95,54, R@1 87,77 → 88,11, fallos 44 → 39, FP 0/40, con mejoras en `sinonimo`, `typo` y `variante_gramatical`. Aquella vez se decidió **no quitarlo todavía**. Además, esa medida solo apagaba los sitios 1 y 3.
+
+**Lo que falta (medir antes de opinar):**
+- Repetir la ablación con **el motor actual** y la **QA honesta**: las 4 QA oficiales + la multilingüe + el MCP.
+- Un interruptor que apague **los 5 sitios**, o uno por sitio, para saber cuál ayuda y cuál estorba. El valor por defecto no cambia.
+- Si WordNet no aporta, se desenchufa como adaptador opcional (hexagonal), no se borra. Si aporta en algún sitio, ese sitio es el rival que la solución propia debe batir.
+
+### Qué está atado a WordNet (revisado el 2026-10-28) — quitarlo sin dañar nada
+
+Dennys: "si no hace falta se quita, pero hay que ver que no esté asociado a otras cosas y dañe". El código muestra **seis ataduras**:
+
+1. **La neurona 1 lo usa como entrada.** `grupo_score` es una de las 17 señales de la fórmula que la neurona recibe (`core/memory/neurona.py:110-112`, `F_FORMULA`). Quitar WordNet deja esa entrada en 0: es un **desfase** respecto a lo que la neurona aprendió. Hay que medirla con la entrada a 0 y, si baja, reentrenarla una vez (con OK de Dennys).
+2. **La fórmula a mano le da peso.** `0.10 * grupo_score` en `core/memory/scoring.py:351` (10 % del puntaje). (`core/rrf_fusion.py:42` también nombra un peso `grupo`, pero ese archivo es **huérfano**: nadie lo importa, comprobado con `scripts/mapa_dependencias_core.py --huerfanos`.) Si la señal desaparece, ese peso queda muerto o se reparte; las dos opciones se miden y se aprueban como cualquier cambio del ranking.
+3. **`core/fallback_simbolico.py` no es solo WordNet.** También da el tokenizador, Levenshtein y las stopwords normalizadas que usan `search.py`, `scoring.py`, `rafaga.py` y `evidence_convergence.py`. Solo se quitan las **llamadas** a WordNet, nunca el módulo.
+4. **NLTK sigue haciendo falta.** El stemmer (`core/stemmer_es.py`) usa NLTK. Lo que podría salir son los **datos** de WordNet/OMW y su carga (~3 s al arrancar cada herramienta según la auditoría F5), no la librería.
+5. **Tablas de la base.** `grupos_semanticos` y `nodo_grupos_semanticos` (`core/memory/schema.py:200-223`) se llenan al guardar y al consolidar (`ingest.py:160`, `consolidation.py:363`, `write.py:1142`). Se dejaría de llenarlas; **no se borran** (las bases viejas las tienen y la regla es no tocar datos).
+6. **Usos menores.** El calentamiento al arrancar (`core/memory_store.py:21-26`, `core/mcp_server/server.py:45-48`) y el campo `wordnet_lexnames` de la reflexión (`core/dmn_reflexion.py:510-559`). Hay 2 archivos de pruebas que lo nombran (`tests/test_neurona.py`, `tests/test_tematico_score_regression.py`).
+
+**Orden seguro:** interruptor por sitio (valor por defecto sin cambio) → medir cada sitio por separado con las 4 QA + multilingüe + MCP, con la neurona encendida y apagada → quitar solo lo que no aporta → la neurona, si hace falta, se reentrena una vez. Nunca todo de golpe.
+
+### ¿Existe un "WordNet para todos los idiomas"? (consulta del 2026-10-28)
+
+| Recurso | Idiomas | Contras para BioRAG |
+|---|---|---|
+| **Open Multilingual Wordnet (OMW)**, ya instalado vía NLTK | Grandes para ~26 idiomas, pequeños para ~57 ([ACL P13-1133](https://aclanthology.org/P13-1133.pdf)) | Cobertura desigual (ya medido: disperso en español); cada idioma con su licencia |
+| **ConceptNet 5.7** ([conceptnet.io](https://conceptnet.io/)) | Sinónimos y traducciones en 80+ idiomas, sacados de Wiktionary y OMW | Licencia CC BY-SA 4.0 (obliga a compartir igual lo derivado); ~5,6 GB; la última versión es de 2019 |
+| **Wiktextract / Kaikki** (Wiktionary) | Miles de idiomas (10,5 M de entradas, ~6,6 GB) | Calidad muy desigual; CC BY-SA; enorme para una memoria local |
+| **BabelNet** | El más grande | Licencia restringida para uso comercial |
+| *Numberbatch* | 78 idiomas | Son **vectores densos**: fuera de la filosofía del proyecto |
+
+**Veredicto del auditor:** existen recursos más amplios que WordNet, pero **ninguno es "WordNet para todos los idiomas" con calidad pareja**. Todos son fijos (no aprenden de la memoria), pesados y con licencias que pesan sobre un producto. Ninguno se recomienda como pieza central; como mucho, un **adaptador opcional** que se mide como cualquier otro.
+
+### ¿Hace falta para la visión neuronal (motor de código + neuronas)?
+
+WordNet hace **dos trabajos distintos**, y la respuesta es distinta para cada uno:
+1. **Ensanchar la búsqueda con sinónimos** (que el recuerdo correcto llegue a los candidatos). **Esta función sí hace falta** (es la dificultad n.º 2 de §2s: "el objetivo tiene que llegar a los candidatos"), pero **no un diccionario fijo**. Las fuentes mejores no dependen del idioma: el agente reformulando con sus propios sinónimos (una sola mente), los puentes y `sinonimos` que escribe al guardar, y la coocurrencia aprendida de la propia memoria.
+2. **Dar una "clase de sentido" como señal de orden** (`grupo_score`). **Para la neurona de razonamiento, una señal así es valiosa**, pero debe ser **neutra al idioma**. Sus candidatas ya existen: las dimensiones (13 ejes), la categoría, `epistemia` y, si no alcanza, `tipo_evidencia` (§2s).
+
+**Conclusión:** WordNet **no es necesario** para la visión. Lo necesario son sus dos funciones, hechas de forma neutral al idioma y aprendida. Cuándo y cómo quitarlo lo decide la medición del orden seguro de arriba.
 
 ---
 
