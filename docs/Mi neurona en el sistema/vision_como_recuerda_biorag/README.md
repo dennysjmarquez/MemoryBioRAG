@@ -26,6 +26,8 @@ La tesis de ingeniería, en una frase (formulada por otra IA a partir de la idea
 - **Asociativa:** recordar es hilar. Un recuerdo trae pistas que llevan a otros (sinapsis, hubs, ráfaga P7), y el agente tira de ellas, como hace una persona.
 - **No monolítica:** ni en el código (nada de archivos gigantes acoplados) ni en la inteligencia (nada de un único modelo que lo decida todo).
 
+**La frontera siguiente (octava aportación, 2026-10-28):** *"MemoryBioRAG no aspira solo a recuperar información: aspira a recordar con criterio, distinguiendo evidencia, obsolescencia, procedencia y suficiencia."* De memoria asociativa a **memoria asociativa con juicio**: el motor rápido, pocas neuronas, y ninguna decisión importante sin guardianes.
+
 **La proyección (Dennys, 2026-10-28):** BioRAG será un **cerebro de silicio** con **inteligencia de criterio en ciertos lugares**, donde van neuronas finamente calibradas, con su piso, su techo y sus guardianes, como la primera neurona (Constitución, Pilar 11).
 - Dennys lo ve como **la evolución de la base de datos vectorial**. Las bases vectoriales quedarán para lo suyo: **grandes documentos embebidos**. La memoria de un agente será un cerebro.
 - La meta es **llegar a lo que hace una base vectorial, pero por otro camino**, y superarlo. Antes no había neuronas en el motor; ahora las hay. Esa es la **inclinación** del proyecto.
@@ -1093,6 +1095,22 @@ La otra IA aceptó las correcciones: tres errores suyos (fórmula inventada, cif
 **Artículos citados (no verificados por el auditor; leer antes de usarlos):** RAG (Lewis et al., NeurIPS 2020, conocido); Selfmem (NeurIPS 2023, "memory selector", el más cercano a la capa 2); *Memory in the LLM Era* (arXiv 2604.01707); ARM, memoria con recuerdo y decaimiento (arXiv 2601.02428); el *survey* de redes con memoria aumentada (arXiv 2312.06141); NMRet.
 
 **Qué cambia en el plan:** nada del orden. Suma dos cosas: (1) **detectar** casi-duplicados y versiones como aguja de la capa 2, sin fusionar; (2) **medir el aporte de LTP/LTD** junto con WordNet y la hormiguita, antes de diseñar neuronas nuevas.
+
+**Octava aportación externa (2026-10-28): evaluación científica y "recordar con juicio".** Dennys la trajo de otra IA. Su idea central: la identidad del proyecto ya está clara; ahora falta **demostrar con protocolos externos** que produce ventajas medibles. Propone el experimento *"Cuando la memoria ayuda y cuando estorba"* y una frontera nueva: **recordar con criterio** (válido ahora, reemplazado, hipótesis, de otro agente, sin evidencia suficiente).
+
+| Propuesta | Decisión | Por qué / dónde encaja |
+|---|---|---|
+| **Comparación externa**: contra FTS5/BM25 puro, RAG vectorial y un sistema de memoria conocido | **Adoptado** (ya recomendado) | Es la recomendación n.º 9 del auditor: un banco público de memoria a largo plazo para agentes. Va **después de v36**, con el motor cerrado. Ganar "en su terreno", sin prometer superioridad universal |
+| **Memoria obsoleta o contradictoria** | **Adoptado: ya es el núcleo de la capa 2** | Es el caso de la versión (§2h), la aguja de fecha C1, los pares gemelos y los "insuficientes difíciles" (§2s). Se suma una medida nueva: **tasa de recuerdo obsoleto en el primer lugar** |
+| **Utilidad real** (¿recordar cambia la acción del agente?) | **Adoptado para más adelante** | Se mide **en simulación** y fuera de producción, sin registrar el uso del agente (regla de Dennys). Va después de v37 |
+| **Costo y latencia** (tiempo por consulta, memoria usada) | **Adoptado ya** | La auditoría F5 midió ~3 s de importación + ~2,3 s de construcción por herramienta. Se reportará en v36 (ms por consulta y MB) y es la mejora n.º 4 recomendada (guardar el cerebro en memoria) |
+| **Abstención** ("no hay evidencia suficiente") | **Ya en curso** | Es la E4 (una base nueva no tiene umbral propio) y la salida "insuficiente" de la capa 2 |
+| **Procedencia** (origen, momento, agente, evidencia) | **Parcial: falta decidir una parte** | Ya hay **momento** (`creado_en`) y **tipo de evidencia** (la dimensión `epistemia`). **No hay columna de agente de origen** en `largo_plazo` (revisado en `core/memory/schema.py`). Añadirla sin trabajo extra para el agente (que la ponga el MCP) es una propuesta a decidir por Dennys |
+| **Multiagente adversario** (dos agentes con recuerdos contradictorios) | **Aplazado** | La base existe (mensajes entre agentes); el caso adversario es un experimento posterior |
+| **Experimento "Cuando la memoria ayuda y cuando estorba"**: casos correctos, obsoletos, contradictorios y sin respuesta; tres modos (motor solo, + neurona de razonamiento, + plasticidad); medir top-1, top-5, latencia, memoria, tasa de obsoleto y abstención correcta; **publicar la tabla completa aunque algo no mejore** | **Adoptado: será el examen de v37** | Coincide con los datos por construcción de §2s (resuelto / competido / insuficiente). Publicar resultados negativos ya es costumbre aquí (experimentos 12 y 13). El modo "+ plasticidad" cumple también el experimento 2 de la séptima aportación |
+| **"Recordar con juicio"** | **Adoptado como frontera** | Ya existe la base: `epistemia` distingue `verificada`, `inferida`, `reportada_externa`, `hipotetica` y `obsoleta` (`core/memory/schema.py:929-935`). Falta que el motor y la capa 2 **la usen** para decidir; es parte de la aguja de tipo (§2s) |
+
+**Citas (no verificadas por el auditor):** varias son de 2026 (ICLR 2026, ACL 2026, arXiv 2606–2609, KDD 2026). Leerlas antes de usarlas.
 
 ## 2t. Superar a WordNet: sinónimos "nivel dios" o una solución propia (Dennys, 2026-10-28, para después)
 
