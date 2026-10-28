@@ -1156,7 +1156,7 @@ def buscar_por_frase(self, frase, profundidad="activos", pagina=1, limite=None, 
     if not modo_estricto and len(palabras) >= 2:
         # Compute match count for ALL current candidates
         match_count_clause = " + ".join(
-            f"CASE WHEN LOWER(l.contenido) LIKE '%' || ? || '%' THEN 1 ELSE 0 END"
+            f"CASE WHEN PALABRA_INICIO_ANCHO(?, l.contenido) = 1 THEN 1 ELSE 0 END"
             for _ in palabras
         )
         match_params = [w.lower() for w in palabras]
@@ -2060,7 +2060,7 @@ def buscar_por_frase(self, frase, profundidad="activos", pagina=1, limite=None, 
         gaba_resultados.sort(key=lambda r: r[4], reverse=True)
         resultados_con_hibrido = gaba_resultados
 
-    # Filtro final con PALABRA_PREFIJO: para queries de una palabra,
+    # Filtro final con PALABRA_INICIO_ANCHO: para queries de una palabra,
     # exigir que aparezca como prefijo de palabra en contenido (del lado de la DB).
     # Esto permite "react" -> "reactive" mientras sigue bloqueando falsos positivos de substring
     # ("culo" no es prefijo de "artículos").
@@ -2083,8 +2083,8 @@ def buscar_por_frase(self, frase, profundidad="activos", pagina=1, limite=None, 
             placeholders = ",".join("?" * len(conceptos_literal))
             self.cursor.execute(
                 f"SELECT concepto FROM largo_plazo WHERE "
-                f"(PALABRA_PREFIJO(?, concepto) = 1 OR PALABRA_PREFIJO(?, contenido) = 1 OR PALABRA_PREFIJO(?, COALESCE(sinonimos, '')) = 1 "
-                f"OR PALABRA_PREFIJO(?, COALESCE(sustantivos_clave, '')) = 1) "
+                f"(PALABRA_INICIO_ANCHO(?, concepto) = 1 OR PALABRA_INICIO_ANCHO(?, contenido) = 1 OR PALABRA_INICIO_ANCHO(?, COALESCE(sinonimos, '')) = 1 "
+                f"OR PALABRA_INICIO_ANCHO(?, COALESCE(sustantivos_clave, '')) = 1) "
                 f"AND concepto IN ({placeholders})",
                 (token, token, token, token) + tuple(conceptos_literal)
             )

@@ -118,6 +118,24 @@ class SQLiteMemoryBioRAG:
             texto_norm = texto.lower().replace('_', ' ').replace('-', ' ')
             return 1 if re.search(r'\b' + re.escape(token_norm), texto_norm) else 0
         self.conn.create_function("PALABRA_PREFIJO", 2, palabra_prefijo)
+
+        def palabra_inicio_ancho(token, texto):
+            """Prefijo en límite habitual o después de un carácter W/F."""
+            import unicodedata
+            if not token or not texto:
+                return 0
+            token_norm = token.lower().replace('_', ' ').replace('-', ' ')
+            texto_norm = texto.lower().replace('_', ' ').replace('-', ' ')
+            patron = re.compile(r'\b' + re.escape(token_norm))
+            pos = texto_norm.find(token_norm)
+            while pos >= 0:
+                if patron.match(texto_norm, pos) or (
+                    pos > 0 and unicodedata.east_asian_width(texto_norm[pos - 1]) in ('W', 'F')
+                ):
+                    return 1
+                pos = texto_norm.find(token_norm, pos + 1)
+            return 0
+        self.conn.create_function("PALABRA_INICIO_ANCHO", 2, palabra_inicio_ancho)
         self._cat_cache = {}
         self.cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='largo_plazo'")
         if not self.cursor.fetchone():
