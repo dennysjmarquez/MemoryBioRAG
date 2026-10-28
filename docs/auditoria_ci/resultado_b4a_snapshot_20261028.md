@@ -31,5 +31,12 @@ Fuente: copia reconstruida del volcado de Drive del 26-10-2026 (MD5 `34650056…
 | Escenario | B3 (operador) R@5 / R@1 / FP | B4a (auditor) R@5 / R@1 / FP | Diferencias |
 |---|---|---|---|
 | viva sin ruido | 99,88 / 93,53 / 0 de 40 | 99,88 / 93,53 / 0 de 40 | **NINGUNA (iguales en cada categoría)** |
+| viva con ruido `zzqx` | 96,63 / 88,12 / 0 de 40 | 96,63 / 88,12 / 0 de 40 | **NINGUNA (iguales en cada categoría)** |
 
-SHA-256 del JSON de métricas del auditor (viva sin ruido): `7a7fc51d5da7db08968d26c4bd58933b8cb5984e5f5e54736919d6f64a29ab5e`. No se sube el JSON ni los fallos porque contienen títulos de recuerdos de la base viva.
+SHA-256 de los JSON de métricas del auditor: con ruido `b6e07ab4768a6e390738a4b6020c9c29edf75343048ce4e5aca85c6a39750c9a` (código de salida 1 por la compuerta clásica, igual que en B3); sin ruido: `7a7fc51d5da7db08968d26c4bd58933b8cb5984e5f5e54736919d6f64a29ab5e`. No se sube el JSON ni los fallos porque contienen títulos de recuerdos de la base viva.
+
+## Veredicto del auditor sobre B4a: **APROBADO** (2026-10-28)
+
+Las **4 QA oficiales** son iguales a B3 en cada categoría, con FP 0/40: snapshot sin ruido y con ruido (GitHub Actions), viva sin ruido y con ruido (máquina del auditor). Pruebas: 721/721. Condición para el commit del motor: debe ser **idéntico al parche** `b622ddb` (mismas huellas de `search.py`, `memory_store.py` y el test). Sin merge: el OK final es de Dennys.
+
+**Lección operativa:** la máquina de trabajo de Arena **se congela cuando el agente termina su turno**; los procesos en segundo plano solo avanzan mientras el agente sigue trabajando (comprobado: `etime` de las QA avanzó ~2 min en ~18 min de reloj entre turnos, y normal durante las esperas dentro del turno). Para QA largas, el agente debe **quedarse esperando dentro de su turno** (esperas de hasta 30 min seguidas) hasta que terminen.
