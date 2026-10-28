@@ -950,6 +950,23 @@ En los dos, la pregunta trae **qué se busca** (tipo, estado, momento) y los can
    - la inhibición lateral GABA, que atenúa a los competidores cuando el top-1 domina;
    - el umbral conforme de abstención, que en una base nueva no actúa (hallazgo de E3A, anotado para E4).
 
+### Segunda respuesta de la otra IA y viabilidad (2026-10-27)
+La otra IA aceptó las correcciones: tres errores suyos (fórmula inventada, cifras viejas, siete neuronas sin prueba) y el diseño de **una neurona de razonamiento con agujas** sobre el ranking como piso. Dice que es viable, y que el riesgo real son los datos de entrenamiento. Las tres salidas tienen nombre en la literatura: **clasificación con opción de rechazo** (Chow, 1970).
+
+**Veredicto del auditor: viable.** Las dificultades reales, en orden:
+1. **Agujas que hoy no existen:** fecha de modificación (C1), tríada causa–acción–resultado e identidad escrita (C7). Se crean (§2r paso 3).
+2. **Que el correcto llegue a los candidatos** (E4). Si no llega, ninguna neurona lo arregla.
+3. **Datos para las tres salidas, sin etiquetar a mano.** Idea del auditor: generarlas por construcción.
+   - **Resuelto:** consulta con un único correcto conocido (§2n, ejemplo n.º 1).
+   - **Competido:** los casos ambiguos que E1 apartó de la QA honesta (varios esperados válidos), más pares generados a propósito con dos respuestas igual de correctas.
+   - **Insuficiente:** se toma un caso "resuelto" y, en una COPIA de la base, **se borra el recuerdo correcto**: la respuesta correcta pasa a ser "no lo tengo". Se suman los 40 controles negativos de la QA.
+   - Así hay ejemplos de las tres clases en la proporción que se quiera, y la neurona no aprende a decir siempre "resuelto".
+
+**Ajustes a lo que propuso:**
+- **"Registrar qué aguja empujó cada decisión":** sí como explicación **a pedido**, en la QA y en diagnósticos. **No** como registro del uso del agente en producción (regla de Dennys: nada de logging del uso).
+- **Separación temporal** (entrenar con lo viejo y examinar con lo nuevo): sí, pero la prueba principal sigue siendo **bases que nunca vio** (§2l).
+- **"5–10 agujas":** son las nuevas. Se suman a las de §2l y §2k, unas 100–150 entradas en total.
+
 ---
 
 ## 3. El orden para llegar (paso a pasito)
