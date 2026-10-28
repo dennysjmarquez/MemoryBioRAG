@@ -6,6 +6,18 @@
 
 ---
 
+## 0. The Inventor's Attitude (guiding principle)
+
+> **"Nada es 'imposible', solo 'todavía no medido'. Y si algo falla, busco otro camino, no me rindo."**
+> *Nothing is "impossible", only "not yet measured". If something fails, find another way; never give up.*
+
+This is the attitude every agent must bring to this project, above any technique (see `CONSTITUTION.md` §0):
+- **Never close an idea with "impossible" or "it can't be done".** State what is missing instead: data, a measurement, or a signal ("needle") that does not exist yet.
+- **A failed attempt is reverted, the goal is not.** Zero regressions still rules: a change that lowers any metric is reverted. That closes *that path*, not the objective. Record why it failed and look for another way.
+- **Ambition stands on evidence.** Do not argue the goal; prove every step with verifiable output.
+
+---
+
 ## 1. System Thesis & Architectural Philosophy
 
 MemoryBioRAG is **not** a wrapper around OpenAI, LangChain, or SentenceTransformers. It models biological neocortical and hippocampal memory dynamics:

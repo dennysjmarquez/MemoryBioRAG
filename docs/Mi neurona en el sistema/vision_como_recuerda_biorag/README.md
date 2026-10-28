@@ -13,6 +13,14 @@ El sueño, en palabras de Dennys: *"que tú simplemente digas «papá» y consig
 
 Qué lo hace "vivo": no que tenga sinapsis ni que se parezca a un cerebro, sino que **tiene neuronas que hacen lo que ninguna función fija podría hacer**.
 
+La tesis de ingeniería, en una frase (formulada por otra IA a partir de la idea de Dennys, 2026-10-27): *"Un cerebro no es una red enorme; es un sistema rápido que sabe en qué pocos lugares debe pensar."* Esto quiere decir:
+- el motor rápido resuelve la gran mayoría de los casos;
+- una neurona interviene solo en los difíciles, y si duda, no decide (§2q);
+- cada neurona nueva necesita una razón medible para existir;
+- el sistema puede explicar a pedido por qué recordó.
+
+**No es tener mucha IA, sino la IA correcta en el lugar correcto.** Lo propio de BioRAG no es una pieza suelta, sino la combinación de todas. Sin reclamar primicias.
+
 ---
 
 ## 1. Los principios del recuerdo
@@ -842,6 +850,216 @@ Otra IA propuso usar el caso real (`version_actual_biorag` en el puesto 4) como 
 
 **Estado:** guardado. La auditoría de idioma entra en la etapa del motor (antes de v36). La capa definitiva, después, con carta blanca.
 
+### Pendiente: el mínimo de 2 letras y las palabras de una sola letra (Dennys, 2026-10-27, para después)
+
+**El hueco (hallado al auditar B1 de la E3).** Los sustantivos clave del MCP exigen al menos 2 caracteres. En chino, japonés y coreano **un solo carácter ya es una palabra completa** (水 "agua", 本 "libro", 문 "puerta"). Por eso, en la QA multilingüe, 14 consultas (1 china, 9 japonesas, 4 coreanas) se siguen rechazando aunque B1 abra la puerta a otros alfabetos.
+
+**Decisión de Dennys:** no se arregla en B1. Las 14 quedan rechazadas y visibles en la QA, marcadas como "pendiente del hueco 1".
+
+> Dennys: *"Ya veremos qué hacer luego. El mínimo de letras existe para que no se busquen los conectores en español e inglés, como «mi», «la» y cosas así. Quizás otra neurona o algún método que sepa cuándo desactivar eso cuando se manda la query."*
+
+**Ideas para cuando toque (sin decidir):**
+- **Regla Unicode:** "mínimo 2 caracteres, o 1 carácter ancho" (`east_asian_width` W/F). Es simple y general, pero solo mira la forma de la letra, no si la palabra es un conector.
+- **Conectores por estadística de la propia base, sin listas por idioma:** una palabra que aparece en casi todos los recuerdos es un conector ("la", "de", "の", "的"), en cualquier idioma; una rara es informativa, aunque tenga una sola letra (水). Es la idea clásica de la frecuencia inversa en documentos (IDF), que el motor ya usa en otras piezas. Respeta "un cerebro sin idioma" y además sustituiría con el tiempo las listas fijas de `core/stopwords.py` (español e inglés).
+- **Neurona o método que decida** si una palabra corta es informativa según la consulta y la base: la idea de Dennys. Va con las neuronas (v37) si la estadística no basta.
+
+---
+
+## 2q. La neurona de razonamiento recibe la consulta y las agujas del motor (Dennys, 2026-10-27, para después)
+
+> Dennys: *"Ya quiero probarla, pero hay que esperar a que el operario termine su parte. La idea es pasarle la query junto con la lista de resultados del motor (las demás agujas) para que ella evalúe, decida si la pregunta es relevante y suba el ítem correcto al top 1, considerando que después vendrá la neurona de re-ranking."*
+
+**Qué cambia respecto a §2b y §2l:** la brújula (§2b) y la capa definitiva (§2l) pasan a ser **una sola neurona**: la de razonamiento. Ya no convierte el texto en intención **antes** de buscar; actúa **después**, sobre lo que el motor devolvió. Así no depende del idioma (§2p): lee coincidencias y relaciones, no palabras.
+
+**Sus tres tareas:**
+
+| Tarea | Qué significa | Con qué se entrena |
+|---|---|---|
+| **1. Evaluar** | Mira la consulta frente a cada aguja (interacción consulta × candidato de §2l, señales de §2k, tipo escrito de §2n) | Ejemplos consulta + ráfaga → recuerdo correcto (§2n, ejemplo n.º 1) |
+| **2. Decidir si es relevante** | ¿Alguna aguja responde de verdad a lo que se pregunta? Si ninguna encaja, lo dice ("no tengo ese recuerdo") en vez de forzar un ganador | Los controles negativos de la QA (FP 0/40) y preguntas generadas sin respuesta en la base |
+| **3. Subir el correcto al top-1** | Elige uno y deja los relacionados debajo | Pérdida por lista contra rivales difíciles de la misma familia (§2j, §2l) |
+
+**Dónde va en la cadena (decisión pendiente de Dennys).** La neurona de ranking **ya existe** (capa 1, `neurona.reordenar`, entrenada). Hay dos órdenes posibles:
+
+| Orden | Cómo funciona | Riesgo |
+|---|---|---|
+| **A. Motor → ranking → razonamiento** (recomendado por el auditor) | La de razonamiento ve el orden del ranking como una aguja más (su piso) y tiene la última palabra | Ninguno nuevo; es la cascada de §2l |
+| **B. Motor → razonamiento → ranking** | La de razonamiento elige el top-1 y el ranking ordena solo del 2 en adelante | Si el ranking pudiera mover el top-1, desharía la decisión; hay que fijarlo. Además, la de razonamiento no ve lo que el ranking aprendió |
+
+**Seguros:** los de §2.3 y §2l: piso = orden anterior, techo, guardia, examen sellado, bases que nunca vio, QA oficial sin bajar nada. Si duda, no decide.
+
+**Cuándo:** después de que el operador cierre E3 y E4 y se publique v36.0. Es la primera neurona de v37.
+
+**Opinión externa que trajo Dennys (2026-10-27), contrastada por el auditor.** Otra IA usa el caso de la versión (v34 0,5398 en el #1, el canónico v35 0,4614 en el #4) para describir una "neurona auditora" que mira los candidatos y pregunta *"¿cuál de estos es la verdad actual que se pide?"*.
+- **Coincide** con §2g, §2l y §2q: la similitud no es lo mismo que la relevancia de intención, y el juicio va al final, sobre los candidatos del motor.
+- **Matices del auditor:**
+  - BioRAG no usa vectores ni coseno: el v34 ganó por coincidencias léxicas, dimensiones y la señal temática (causas C1–C8, §2h).
+  - "Apagar lo histórico" solo vale cuando la pregunta pide el estado actual. Como regla fija es un callejón sin salida (§2j); tiene que depender de la consulta.
+  - "Top 1 forzado" no: la neurona parte del orden recibido como piso y, si duda, no decide.
+  - Para que sepa cuál es "el actual", el recuerdo tiene que tener su fecha de modificación (C1) y su identidad escrita (C7, §2n). Sin esos datos, ninguna neurona puede deducirlo.
+
+---
+
+## 2r. El mandato: resolver de verdad la competencia entre recuerdos (Dennys, 2026-10-27, para después)
+
+> Dennys: *"Son como dos laterales, pero son el mismo problema, hay que resolverlo. Tienes que investigar incluso en internet, en papers, todo. Hacer algo de verdad de ingeniería: ingenioso, sublime, perfecto, delicado. Búscate cómo funciona el cerebro humano en realidad, y de esa parte del cerebro saca ideas para nosotros. Y si hace falta alimentarla con alguna aguja que no tenemos, se crea. Cuando te toque, investiga otra vez el proyecto entero y repasa sus archivos principales, porque cuando crece el contexto ciertas cosas se olvidan. Tenemos la fórmula, que es la neurona. ¿Cómo programamos la neurona? Ahí está el point."*
+
+> **La frase guía (de ChatGPT, guardada por Dennys):** *"El cerebro no busca únicamente por el tema de la pregunta; también utiliza lo que necesitas obtener de ese recuerdo."*
+
+> **Dennys, 2026-10-27:** *"Yo quiero confiar en tu criterio personal. No tenemos margen de perder: aquí tenemos que ganar. Para que esto crezca adonde tiene que crecer, tiene que haber una inteligencia por detrás. Hazlo como la primera vez: investigaciones aparte, lo más parecido al motor pero sin tocarlo, para que al cablear todo quede perfectamente igual. No me importa estar dos, cinco o diez días mientras entrenas esa neurona; tiene que quedar perfecta."*
+
+**Compromiso del auditor:**
+- Se construye con el mismo método de la neurona 1: investigación y entrenamiento **fuera del motor**, pero con **exactamente lo que el motor ve** (desfase 0), para que el cableado final sea idéntico a lo entrenado.
+- Las decisiones de diseño son del auditor, con criterio propio y pruebas en la mano. Dennys aporta ideas y opiniones externas; el auditor las contrasta, como en §2s.
+- Se entrena el tiempo que haga falta: no hay prisa, hay que acertar.
+
+### Las dos caras del mismo problema (ya guardadas)
+| Cara | Ejemplo | Dónde está |
+|---|---|---|
+| **Mismo tema, distinto TIPO de recuerdo** | ChatGPT: A (te lo explicaron), B (otra solución parecida), C (lo aplicaste y funcionó), D (una investigación). Pregunta: "¿qué solución funcionó la última vez?" | §2n |
+| **Misma familia, distinto ESTADO o versión** | Caso de la versión: v34 en el #1 y el canónico v35 en el #4 | §2g, §2h, §2j, §2q |
+
+En los dos, la pregunta trae **qué se busca** (tipo, estado, momento) y los candidatos comparten casi todas las palabras. La similitud no basta: hay que elegir por **encaje con la intención**.
+
+### Protocolo del auditor cuando llegue el momento (después de v36.0)
+1. **Releer el proyecto entero** antes de diseñar nada: motor (`core/memory/search.py`, `scoring.py`, `neurona.py`), MCP (`core/mcp_server/search.py`, `write.py`, `prompt.py`), esquema de la base, la guía `GUIA_CREAR_UNA_NEURONA.md`, el mapa `arquitectura_neuro_simbolica/README.md` y este documento completo.
+2. **Investigar a fondo, con fuentes verificadas:**
+   - **Cerebro:** control de la recuperación en la prefrontal (Badre y Wagner), supresión de competidores (Wimber 2015; Anderson), orientación de recuperación (Rugg y Wilding), separación y completado de patrones en el hipocampo, contexto temporal (Howard y Kahana), y el monitoreo posterior a la recuperación ("¿esto es lo que buscaba?").
+   - **Ingeniería:** ranking en cascada, aprendizaje por lista con rivales difíciles, modelos de interacción sin embeddings (Duet), tipo de respuesta esperado (Li y Roth), predicción de si una consulta tiene respuesta (para decidir "no lo tengo") y datos sintéticos generados con el buscador real (InPars).
+   - De cada fuente: qué dice, qué copiamos y qué no sirve en BioRAG (sin vectores, sin feedback).
+3. **Inventario de agujas.** Qué entradas existen hoy, cuáles faltan y cuáles se crean. Candidatas conocidas: fecha de modificación (C1), identidad escrita del recuerdo (C7), tipo pedido frente a tipo del candidato (§2n), contención en la familia (§2j), exclusividad del tipo frente a los rivales. Si falta una, **se crea** en el guardado o en el motor, con su propia prueba y sin dañar la lógica de negocio (arquitectura hexagonal).
+4. **Diseño** de la neurona de razonamiento (§2q): entradas, tamaño por curva de validación, pérdida por lista, decisión de relevancia y seguros.
+5. **Examen sellado** con las dos caras del problema, en bases que nunca vio y en varios idiomas (§2p). La QA oficial no puede bajar.
+6. **Comparación justa:** agente + BioRAG frente a agente + base vectorial, con las mismas preguntas. Es la prueba de la tesis de Dennys ("BioRAG es un cerebro, no una base vectorial").
+
+### La visión de Dennys
+> *"La base vectorial es obsoleta; nuestro sistema es mejor. Las bases vectoriales quedarán para recuperar documentos estáticos, pero para el resto no van a servir."*
+
+**Lectura honesta del auditor:** las bases vectoriales son buenas para encontrar lo **parecido**. La apuesta de BioRAG es elegir lo **adecuado para la intención**, que es justo donde lo parecido falla (las dos caras de arriba). La comparación justa del paso 6 es la que lo demostrará con números.
+
+---
+
+## 2s. Opinión externa: siete "neuronas funcionales" para elegir el recuerdo pertinente (traída por Dennys, 2026-10-27, para después)
+
+> Resumen de la propuesta de otra IA: *"La semejanza encuentra candidatos; intención + contexto + evidencia seleccionan el recuerdo que responde a la pregunta."* Propone siete módulos pequeños en cadena: **intención, separación, contexto episódico, evidencia, causa–acción–resultado (C-A-R), relevancia temporal y ambigüedad**. Su ejemplo es el de ChatGPT (§2n): ante "¿qué solución probamos y funcionó?" debe ganar C (aplicada y validada) aunque A (propuesta) tenga más palabras en común. También sitúa a BioRAG en la familia de los sistemas modulares (mezcla de expertos, RAG modular, reranker, neurosimbólico) y sugiere nombres defendibles: "neurona funcional", "micro-experto", "arquitectura cognitiva modular". Las fuentes que cita (Springer, PMC, arXiv) **no las verificó el auditor**.
+
+### Qué tomamos (encaja con lo ya guardado)
+| Idea | Dónde ya está o adónde va |
+|---|---|
+| Semejanza ≠ pertinencia | Problema central de §2l, §2q y §2r |
+| **Ambigüedad con tres salidas: resuelto, competido, insuficiente** | **Se adopta como la salida de la neurona de razonamiento (§2q).** Formaliza el "empate real" de §2l y el "no lo tengo" de §2q. "Insuficiente" puede pedir una ráfaga (P4, P7) en vez de inventar un ganador |
+| Evidencia: propuesta frente a probada frente a fallida | Ya se guarda al escribir: `epistemia` (`directa_experiencial`, `verificada`, `reportada_externa`) y `accion_fallar`, `intencion_solucionar` (§2n) |
+| Tríada causa–acción–resultado | **Aguja nueva candidata** para el inventario de §2r paso 3. Hoy existe en parte: predicados SRL (`pred_score`) y dimensiones de intención/acción |
+| Separación: "comparten casi todo salvo un detalle decisivo" | Es la contención con "lo que añade el hijo" (§2j) y la exclusividad del tipo frente a los rivales (§2n) |
+| Relevancia temporal: versión, vigencia | §2g/§2h (C1 fecha de modificación, C5 última ≠ actual) |
+| Nombres: "neurona funcional", "micro-experto" | Útiles para la documentación pública de v37; sin reclamar primicias |
+
+### Matices del auditor (lo que NO tomamos tal cual)
+1. **Una neurona de intención que lee la consulta ANTES de buscar ata el sistema al idioma.** Según §2p, la intención la traduce el agente (que ya es multilingüe) a parámetros neutros (sustantivos, dimensiones, tipo pedido). La neurona trabaja después, sobre relaciones.
+2. **Listas de palabras marcadoras ("funcionó", "validado", "podría") = atadas al idioma.** Rompe la regla de Dennys. La evidencia se toma de lo que el agente escribe al guardar (`epistemia`, dimensiones), que es neutro.
+3. **Pesos fijos a mano (0,30·resultado + 0,25·relación…) y un `score_final` que sustituye la fórmula:** no. El ranking actual es el piso y las neuronas suman encima con techo; los pesos se aprenden por gradiente con examen sellado (§2o).
+4. **Siete neuronas en cadena:** cada una necesitaría sus propios datos, su prueba y sus seguros, y los errores se encadenan. Propuesta: **separación, contexto, evidencia, C-A-R y temporalidad entran primero como AGUJAS (entradas) de UNA neurona de razonamiento**. Una pasa a ser neurona propia solo si las pruebas demuestran que hace falta. Así se respeta "neuronas donde hagan falta" sin multiplicar piezas.
+5. **Datos inexactos sobre BioRAG:**
+   - "BM25 60 %, sináptico 25 %, riqueza 15 %" no es la fórmula del motor. La verificada es `_calcular_score_hibrido`, con unas 17 señales.
+   - "Suite de 430 pruebas": 430 eran los tests unitarios de v35.0 (hoy más de 600). La QA oficial tiene 921 casos.
+   - "BioRAG v36" con estas neuronas: v36 es el motor robusto; las neuronas van en v37.
+6. **Ya existen piezas relacionadas que hay que revisar antes de crear otras:**
+   - la inhibición lateral GABA, que atenúa a los competidores cuando el top-1 domina;
+   - el umbral conforme de abstención, que en una base nueva no actúa (hallazgo de E3A, anotado para E4).
+
+### Segunda respuesta de la otra IA y viabilidad (2026-10-27)
+La otra IA aceptó las correcciones: tres errores suyos (fórmula inventada, cifras viejas, siete neuronas sin prueba) y el diseño de **una neurona de razonamiento con agujas** sobre el ranking como piso. Dice que es viable, y que el riesgo real son los datos de entrenamiento. Las tres salidas tienen nombre en la literatura: **clasificación con opción de rechazo** (Chow, 1970).
+
+**Veredicto del auditor: viable.** Las dificultades reales, en orden:
+1. **Agujas que hoy no existen:** fecha de modificación (C1), tríada causa–acción–resultado e identidad escrita (C7). Se crean (§2r paso 3).
+2. **Que el correcto llegue a los candidatos** (E4). Si no llega, ninguna neurona lo arregla.
+3. **Datos para las tres salidas, sin etiquetar a mano.** Idea del auditor: generarlas por construcción.
+   - **Resuelto:** consulta con un único correcto conocido (§2n, ejemplo n.º 1).
+   - **Competido:** los casos ambiguos que E1 apartó de la QA honesta (varios esperados válidos), más pares generados a propósito con dos respuestas igual de correctas.
+   - **Insuficiente:** se toma un caso "resuelto" y, en una COPIA de la base, **se borra el recuerdo correcto**: la respuesta correcta pasa a ser "no lo tengo". Se suman los 40 controles negativos de la QA.
+   - Así hay ejemplos de las tres clases en la proporción que se quiera, y la neurona no aprende a decir siempre "resuelto".
+
+**Ajustes a lo que propuso:**
+- **"Registrar qué aguja empujó cada decisión":** sí como explicación **a pedido**, en la QA y en diagnósticos. **No** como registro del uso del agente en producción (regla de Dennys: nada de logging del uso).
+- **Separación temporal** (entrenar con lo viejo y examinar con lo nuevo): sí, pero la prueba principal sigue siendo **bases que nunca vio** (§2l).
+- **"5–10 agujas":** son las nuevas. Se suman a las de §2l y §2k, unas 100–150 entradas en total.
+
+**Tercera respuesta de la otra IA (2026-10-27): dos aportes que se adoptan.**
+1. **"Insuficiente" se aprende por la razón, no por el hueco.** Riesgo: si la neurona solo ve que falta el nodo, puede aprender un atajo, como desconfiar de todo o detectar un artefacto de la copia. Solución del auditor, que se suma:
+   - **Pares gemelos:** la misma consulta, en la misma base, con y sin el recuerdo correcto. Lo único que cambia es su presencia, así que no hay atajo posible.
+   - **Insuficientes difíciles:** se borra el correcto pero se deja su hermano casi igual. Por ejemplo, se borra la versión actual y quedan las viejas. Ahí lo que debe aprender es que ninguna versión que queda es la actual.
+   - Las agujas ya muestran el porqué: poca evidencia, falta la tríada causa–acción–resultado, rivales parecidos, versión incorrecta.
+2. **Regla de aprobación: "que no se vuelva tímida".** La neurona solo se aprueba si:
+   - el top-1 no baja frente al ranking actual;
+   - **no convierte errores recuperables en "insuficiente"**: si el correcto está en la lista y tiene evidencia, debe elegirlo.
+
+   Se mide aparte el **rechazo indebido** (dijo "insuficiente" teniendo el correcto con evidencia) con un tope fijado antes del examen. Se reporta la curva **cobertura frente a acierto** (cuántas veces decide y cuántas acierta cuando decide), la medida estándar de la predicción con rechazo.
+
+**Cuarta aportación externa (traída por Dennys, 2026-10-27): dónde vive la neurona, de dónde sale la intención y cómo se entrena.**
+
+| Propuesta | Decisión del auditor |
+|---|---|
+| **Neurona aparte del re-ranker**, con su propia señal de entrenamiento y la capacidad de abstenerse | **Se adopta.** Es el orden A de §2q: motor → ranking → razonamiento |
+| **Salida = una decisión, no solo una lista**: recuperar / pedir contexto / abstenerse | **Se adopta, unida a las tres salidas.** "Competido" = **pedir contexto**: el MCP devuelve los candidatos en disputa y **lo que los distingue** (por ejemplo, "A es una propuesta, C se aplicó y funcionó"), y el agente decide o vuelve a preguntar. Es la "una sola mente": el cerebro no inventa, el agente completa |
+| Intención en cascada: (1) la explícita del agente; (2) la deducida de verbos de la consulta ("funcionó", "propusimos"); (3) sin señal, no reordenar | **(1) y (3) se adoptan. (2) se rechaza:** leer verbos ata al idioma (§2p) |
+| **Campo explícito `tipo_evidencia`** (hipótesis / procedimiento / resultado / explicación / preferencia / restricción) | **Primero se deriva de lo que ya existe** (`epistemia` y dimensiones de acción/intención, §2n). Exigir un campo nuevo al agente es trabajo extra (regla de Dennys). Solo si lo derivado no alcanza en la suite de competencia, se propone como **lista cerrada de valores neutros** (identificadores, no palabras de un idioma). Los recuerdos sin dimensiones (89 de 851 en el snapshot, 196 de 1.195 en la viva) son el hueco a medir |
+| **Sondas contrastivas automáticas**: en un grupo que comparte sustantivos, la respuesta es el del tipo pedido y los demás son distractores | **Ya está en el plan** (generador de §2l, contrastes de la familia §2j, pares gemelos). Se adopta su formulación |
+| Etiquetas desde el uso del agente o correcciones del usuario | **Se rechaza:** regla de Dennys, nada de feedback ni de registro del uso |
+| **Regla de identidad**: si la consulta es el nombre literal del recuerdo y ya está en el #1, la neurona no lo mueve | **Se adopta como seguro** |
+| Guardia por hash, piso si la confianza es baja, traza "por qué ganó C" | **Se adopta.** La traza solo a pedido, en la QA y en diagnósticos |
+| Tres métricas: R@1, precisión de la abstención y utilidad de "pedir contexto" | **Se adopta, adaptada.** La utilidad de "pedir contexto" se mide **en simulación**, sin feedback: ¿el par en disputa contiene al correcto y la diferencia mostrada es la verdadera? Junto con el rechazo indebido ya fijado |
+
+**Correcciones de datos:**
+- La neurona asociativa **no se descartó por no mejorar la QA**: está construida y calibrada, y su conexión al motor está **pendiente** (escala 0).
+- BioRAG ya no es "bilingüe" como objetivo: la meta es **independiente del idioma** (E3).
+- El archivo `bio_problema_actual.md` que cita no está en el repositorio.
+
+**Postura honesta que se adopta:** no declarar superioridad universal. Lo que se defiende es ganar **en su terreno**: memoria persistente de agentes, explicable, local, sin GPU y que sabe decir "no lo tengo". En la búsqueda semántica abierta sobre cualquier corpus no hace falta competir.
+
+**Quinta aportación externa (2026-10-27): dos puntos que se adoptan.**
+1. **¿Qué hace la neurona si no llega la intención del agente?** Hay tres opciones: abstenerse siempre, dejar el ranking intacto, o **deducir la ambigüedad del contraste entre los candidatos**. **Se adopta la tercera, como respaldo:**
+   - Si los candidatos se reparten en tipos estructuralmente distintos (por ejemplo, uno con procedimiento y otro con resultado), la neurona sabe que **hay ambigüedad** sin leer la consulta.
+   - Entonces devuelve "competido / pedir contexto" con la diferencia.
+   - Es independiente del idioma y no sustituye la intención del agente: la cubre cuando no llega.
+   - Si tampoco hay contraste claro, se deja el ranking intacto (piso).
+2. **La prueba que decide si hace falta un campo nuevo.** Antes de escribir la neurona hay que comprobar si las dimensiones actuales separan "hipótesis", "procedimiento", "resultado" y "explicación". Es barato: se toman 20–30 grupos de recuerdos que comparten sustantivos clave pero difieren en tipo, y se mira si sus dimensiones los separan.
+   - **Si los separan:** las sondas contrastivas tienen etiqueta sin pedir nada nuevo al agente.
+   - **Si no:** el campo `tipo_evidencia` deja de ser trabajo extra y pasa a ser **estructural**. Se le propone a Dennys con la evidencia en la mano.
+   - **Indicio previo (§2n):** en el snapshot ya hay 470 grupos de tema, y en 251 de ellos aparecen 3 o más tipos distintos según `epistemia` y las dimensiones de acción. Falta medir si esa separación alcanza.
+   - **Es el primer paso medible del protocolo de §2r (paso 3).**
+
+**Sexta aportación externa (2026-10-28): el mapa "learning to rank".** Dennys la trajo de otro asistente, como teoría, no como verdad ("la verdad de todo la decides tú"). El auditor la contrasta con lo ya guardado.
+
+*Lo que dice, en corto:*
+- Lo que buscamos existe y está estudiado: es un **reranker aprendido** (*learning to rank*).
+- Hay dos ramas:
+  - **sobre señales numéricas**, como la neurona 1 (29 → 6 → 1): RankNet (red) y LambdaMART (árboles de boosting, rápidos, interpretables y fuertes con señales tabulares);
+  - **sobre texto** (*cross-encoders*), que leen consulta y documento juntos.
+- La receta de entrenamiento que más rinde: cada ejemplo es un grupo (consulta, el correcto y varios negativos difíciles sacados del buscador de primera etapa), con pérdida *listwise* (softmax sobre el grupo).
+- Lo más cercano a "entender la intención" son los **rerankers que siguen instrucciones**. Un método de 2026 fabrica pares donde, con otra instrucción, **el ganador y el negativo intercambian etiquetas**.
+- Para tener muchos ejemplos: Promptagator e InPars generan consultas sintéticas y las filtran.
+- Partir los datos **por consulta** y dejar una validación que el ajuste nunca toque.
+
+*Qué se adopta y qué no:*
+
+| Punto | Decisión | Por qué |
+|---|---|---|
+| La familia correcta es *learning to rank* sobre señales | **Adoptado** (ya era el camino) | La neurona 1 es eso. La capa 2 también lo será: señales neutras, sin texto. |
+| **LambdaMART como línea base que la neurona debe batir** | **Adoptado**, solo en investigación | Rigor científico: si unos árboles estándar ganan a la red pequeña, la red no se justifica. Vive fuera del motor (como el entrenamiento de la neurona 1). Al motor solo entra lo que gane, y solo si cumple las reglas: tiempo constante, sin dependencias pesadas, piso y techo. |
+| Pérdida *listwise* sobre el grupo (consulta + correcto + negativos difíciles) | **Adoptado** | Encaja con §2k: los negativos difíciles los fabrica el propio motor (los que quedan arriba sin ser el correcto). |
+| Mezclar negativos difíciles con negativos fáciles de otras consultas | **Adoptado con medida** | Una fracción pequeña de fáciles; la proporción se decide con la validación, no a ojo. |
+| **Pares que intercambian etiquetas al cambiar la intención** | **Adoptado: es la pieza más valiosa** | Son los "pares gemelos" de §2s, ahora del lado de la intención: mismos candidatos A–D, distinta intención ("¿qué funcionó?" frente a "¿qué descartamos?"), distinto ganador. Obligan a la neurona a mirar la intención y no solo el parecido. **Se fabrican por construcción, sin un LLM**, si la prueba de dimensiones (quinta aportación, punto 2) confirma que el tipo de cada recuerdo se puede leer. |
+| La intención como canal aparte que pasa el agente | **Adoptado como parámetro neutro** | Ya estaba (cuarta aportación, parte 1). Pero va como **valor cerrado** (por ejemplo, solución que funcionó / propuesta / descartada / teoría), **nunca como texto libre**: el texto ataría la neurona a un idioma y exigiría un modelo de texto. |
+| Aguja nueva que pide lo anterior | **Anotado** | Para que la intención sirva, cada candidato necesita su **tipo** como señal (derivado de `epistemia` y dimensiones, o `tipo_evidencia` si no alcanza). Se suma a las agujas de §2s: fecha C1, triada C-A-R, identidad escrita. |
+| Consultas sintéticas con filtro de "la consulta recupera su documento" | **Adoptado con corrección** | Si exigimos que la consulta ya traiga su recuerdo en el top-1, solo quedan casos que el motor ya resuelve y no queda nada que aprender. El filtro correcto para la capa 2 es: **el objetivo está entre los candidatos** (lo que la capa 2 ve), aunque no esté primero. |
+| Partir por consulta + validación intocable | **Adoptado y reforzado** | Además de partir por consulta, se deja **una base entera que nunca se ve** (hold-out por base, §2s), para probar el objetivo fijo: "el mismo resultado en cualquier base". |
+| *Cross-encoders* que leen texto | **No adoptado** como arquitectura | Pesados, atados al idioma y sin tiempo constante. Solo se toma su receta de entrenamiento. |
+| "Con ~921 casos el riesgo es el sobreajuste" | **Matiz** | Los datos no se limitan a la QA: se construyen (resuelto / competido / insuficiente, pares gemelos), miles si hace falta. El riesgo de sobreajuste sigue siendo real; por eso existe la validación intocable. |
+| Rankers profundos con preentrenamiento que superan a los árboles con pocos datos etiquetados | **Anotado, sin decidir** | Es una hipótesis que solo se decide midiendo contra la línea base LambdaMART. |
+| Citas de neurociencia de `bio_problema_actual.md` | **Sin verificar** | El propio asistente lo dice, y ese archivo no está en el repo. |
+
+**Postura del auditor.** Nada de esto cambia el orden: primero el motor (E3–E4) y la publicación v36.0; después la capa 2 (v37), con este mapa como guía. La regla del inventor vale aquí: **nada es "imposible"**, solo **"todavía no medido"**. Cada idea se prueba contra la línea base y contra el piso del ranking actual.
+
 ---
 
 ## 3. El orden para llegar (paso a pasito)
@@ -853,7 +1071,7 @@ Otra IA propuso usar el caso real (`version_actual_biorag` en el puesto 4) como 
 | E3 | Léxico mental | P6: puentes de palabras (prolijo ↔ prolijidad) |
 | E4 | Que el resultado no dependa de la base; arreglar el nacimiento de enlaces por alias | Llegada garantizada (§2.2.1); conexiones con criterio |
 | E5 | Neuronas en puntos estratégicos | Por orden: asociativa (juez de enlaces), vigencia (P2, P3), "¿nuevo o actualización?" |
-| Después | **Neurona de razonamiento** (§2b) + **neurona de intención** (§2) | La brújula: entender qué se pide y subirlo al primer puesto |
+| Después (v37) | **Neurona de razonamiento** (§2b, §2l, §2q): recibe la consulta y las agujas del motor, decide si alguna es relevante y sube la correcta al top-1 | La brújula: entender qué se pide y subirlo al primer puesto |
 | Después | Ráfaga natural con pistas (P7) y recuerdo escalonado (P4) | Recordar como un humano, con ventaja de silicio |
 
 Detalle técnico de E5 (dónde hace falta criterio neuronal): `../arquitectura_neuro_simbolica/README.md`, §6.

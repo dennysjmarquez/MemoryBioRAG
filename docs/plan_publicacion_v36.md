@@ -31,12 +31,15 @@
 2. **El trabajo del operador** (rama `arena/33a8df67`, PR #12 y los que sigan):
    - E1: QA honesta (obsoletas y ambiguas, aparte);
    - E2 y E2b: diagnóstico del 0848, tolerancia al ruido, temático saturado, la QA ya no deja archivos junto al snapshot;
-   - E2c y siguientes: las reparaciones del motor que se aprueben;
+   - E2c y siguientes: las reparaciones del motor que se aprueben. E2c (quitar el gate del temático) y E2e (peso temático a 0) se **rechazaron y revirtieron** con pruebas; E2d documentó por qué el temático satura. Se cuentan como investigación, no como cambios;
    - E3: léxico independiente del idioma (aprobada por Dennys el 2026-10-27; sustituye al diccionario solo en español);
    - E4: que el motor no dependa de la base;
    - fecha de modificación (C1), si entra.
 3. **Métricas antes y después** en el snapshot y en una copia de la viva: R@5, R@1, MRR y FP; QA clásica y honesta; con y sin ruido. Y el recuento de pruebas.
 4. **Compatibilidad:** qué cambia para el agente y el MCP (si nada, se dice).
+5. **Versión de Python (decidir antes de etiquetar).** El CI falla en Python 3.10 al instalar dependencias: `requirements.txt` fija `numpy==2.4.6`, que exige Python ≥3.11, pero `pyproject.toml` declara `requires-python = ">=3.10"` y la matriz del CI incluye 3.10. Python 3.10 llega a fin de soporte en octubre de 2026. **Decisión de Dennys (2026-10-27): Python ≥3.11.** Lo aplica el operador en un commit aparte del motor, en 4 sitios: `.github/workflows/ci.yml:16` (quitar 3.10), `pyproject.toml:10` (`>=3.11`), `pyproject.toml:31` (quitar el clasificador 3.10) e `install.py:1518-1519` (`(3, 11)` y "Python 3.11+ requerido"). El README no menciona la versión de Python; la nota va en las Novedades de v36.0.
+
+6. **Versión del paquete.** `pyproject.toml` dice `version = "34.0.0"` (atrasada: `VERSION` es v35.0). Al publicar, el auditor la pone en `36.0.0` junto con `VERSION`, README y `CHANGELOG.md`.
 
 ## Reglas del README
 - Se **añade**; nunca se recorta ni se divide.
