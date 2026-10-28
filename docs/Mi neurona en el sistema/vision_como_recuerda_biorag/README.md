@@ -1081,6 +1081,29 @@ La otra IA aceptó las correcciones: tres errores suyos (fórmula inventada, cif
 
 **Cuándo:** después de cerrar el motor (E3–E4) y de publicar v36.0. No se mezcla con la E3.
 
+### Por qué existe WordNet (Dennys, 2026-10-28) y qué dice el código
+
+**El origen, en palabras de Dennys:** cuando el agente pone una palabra, el motor la expande **en varias palabras del mismo sentido** (sinónimos, no uno solo) para ver a cuál le atina, como una persona que, tratando de recordar, prueba "gato", "gatico", "felino"… Se pensó en español e inglés porque una palabra se podía **pasar al inglés** y buscar allí sus sinónimos. Dennys no sabe si hoy aporta al ranking: "eso no lo sé yo". Con la neurona y con el agente usando sus propios sinónimos en cualquier idioma, quizá ya no haga falta. **Se decide midiendo.**
+
+**Dónde vive en el código (revisado el 2026-10-28):**
+
+| # | Sitio | Qué hace | ¿Lo apaga `BIORAG_WORDNET_ENABLED=0`? |
+|---|---|---|---|
+| 1 | `core/memory/search.py:228-262` | Expansión previa: palabras ASCII que **no** tienen sentido en español → hasta 8 sinónimos ingleses | Sí |
+| 2 | `core/memory/search.py:1077-1090` (Capa 4) | Añade hasta 5 sinónimos WordNet y los busca en la columna `sinonimos` | **No** |
+| 3 | `core/memory/search.py:1471+` (Capa 5) | **Señal de ranking**: grupos semánticos (*lexnames*) de la consulta frente a los del recuerdo | Sí |
+| 4 | `core/fallback_simbolico.py:171-266` | Rescate simbólico: sinónimos español + inglés (3 sentidos por palabra) | **No** |
+| 5 | `core/ppmi_hybrid_search.py:166` | Expansión de consultas cortas en la búsqueda PPMI | **No** |
+| — | `core/memory/consolidation.py:181`, `core/dmn_reflexion.py:510` | Clasifica cada recuerdo en grupos WordNet al guardar o al soñar (alimenta el sitio 3) | No aplica |
+| — | `core/fallback_simbolico.py:216-266` | El "pasar al inglés" (traducción con Google) existe, pero está **apagado** por defecto (`BIORAG_TRADUCCION_ACTIVA=0`, solo local) | — |
+
+**Lo que ya se midió (sesión del 2026-09-10, snapshot `qa_escape_qcr_20260811.db`, motor de entonces):** ablación 2×2 de Hub y WordNet. **Apagar WordNet mejoró**: R@5 94,97 → 95,54, R@1 87,77 → 88,11, fallos 44 → 39, FP 0/40, con mejoras en `sinonimo`, `typo` y `variante_gramatical`. Aquella vez se decidió **no quitarlo todavía**. Además, esa medida solo apagaba los sitios 1 y 3.
+
+**Lo que falta (medir antes de opinar):**
+- Repetir la ablación con **el motor actual** y la **QA honesta**: las 4 QA oficiales + la multilingüe + el MCP.
+- Un interruptor que apague **los 5 sitios**, o uno por sitio, para saber cuál ayuda y cuál estorba. El valor por defecto no cambia.
+- Si WordNet no aporta, se desenchufa como adaptador opcional (hexagonal), no se borra. Si aporta en algún sitio, ese sitio es el rival que la solución propia debe batir.
+
 ---
 
 ## 3. El orden para llegar (paso a pasito)
