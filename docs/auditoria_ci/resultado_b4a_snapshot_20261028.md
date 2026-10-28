@@ -23,3 +23,13 @@ MRR: sin ruido 0,9718; con ruido 0,9281 (iguales en B3 y B4a). "IGUALES" signifi
 **Límites de esta evidencia (señalados por el operador, aceptados por el auditor):**
 1. **La huella final del test no se registró.** El flujo verificó `tests/test_prefijo_ancho_b4a.py` al inicio, pero al final solo midió `search.py`, `memory_store.py` y el snapshot. Impacto: ninguno sobre la QA, porque `evaluar_qa.py` no ejecuta ese test; las dos piezas del motor sí se verificaron al final. Se corregirá en la próxima versión del flujo.
 2. **El verde no prueba "B3 Arena = B3 GitHub".** El paso solo falla si B3 ≠ B4a; la comparación con Arena se informa en el resumen sin detener el flujo. La evidencia de esa igualdad es el **texto del resumen** de la corrida ("IGUALES" en los dos escenarios), que cualquiera puede leer en el enlace de arriba; no el color verde. En la próxima versión, esa diferencia también hará fallar el paso.
+
+## Base viva, medida por el auditor en su máquina (Arena)
+
+Fuente: copia reconstruida del volcado de Drive del 26-10-2026 (MD5 `34650056…`), SHA-256 `a61913ce…`, abierta en solo lectura; la QA trabaja en su copia. Código: `4d83061` + parche B4a (huellas `f4479e7d…` / `b7e7219c…`, verificadas al inicio y al final). Python 3.11.2 / SQLite 3.40.1. Comparación con `docs/e3b3_viva_*_20261028.json` mediante `comprobar_escenario`.
+
+| Escenario | B3 (operador) R@5 / R@1 / FP | B4a (auditor) R@5 / R@1 / FP | Diferencias |
+|---|---|---|---|
+| viva sin ruido | 99,88 / 93,53 / 0 de 40 | 99,88 / 93,53 / 0 de 40 | **NINGUNA (iguales en cada categoría)** |
+
+SHA-256 del JSON de métricas del auditor (viva sin ruido): `7a7fc51d5da7db08968d26c4bd58933b8cb5984e5f5e54736919d6f64a29ab5e`. No se sube el JSON ni los fallos porque contienen títulos de recuerdos de la base viva.
