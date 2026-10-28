@@ -19,3 +19,7 @@ MRR: sin ruido 0,9718; con ruido 0,9281 (iguales en B3 y B4a). "IGUALES" signifi
 1. En el snapshot, B4a no cambia nada respecto de B3: piso respetado.
 2. **Reproducibilidad:** B3 medido en GitHub es idéntico, categoría por categoría, a B3 medido en Arena por el operador. El resultado se repite en otra máquina.
 3. Pendiente para cerrar B4a: las 2 QA de la base viva (no se sube a GitHub; se corren en las máquinas de trabajo).
+
+**Límites de esta evidencia (señalados por el operador, aceptados por el auditor):**
+1. **La huella final del test no se registró.** El flujo verificó `tests/test_prefijo_ancho_b4a.py` al inicio, pero al final solo midió `search.py`, `memory_store.py` y el snapshot. Impacto: ninguno sobre la QA, porque `evaluar_qa.py` no ejecuta ese test; las dos piezas del motor sí se verificaron al final. Se corregirá en la próxima versión del flujo.
+2. **El verde no prueba "B3 Arena = B3 GitHub".** El paso solo falla si B3 ≠ B4a; la comparación con Arena se informa en el resumen sin detener el flujo. La evidencia de esa igualdad es el **texto del resumen** de la corrida ("IGUALES" en los dos escenarios), que cualquiera puede leer en el enlace de arriba; no el color verde. En la próxima versión, esa diferencia también hará fallar el paso.
