@@ -1112,6 +1112,24 @@ La otra IA aceptó las correcciones: tres errores suyos (fórmula inventada, cif
 
 **Citas (no verificadas por el auditor):** varias son de 2026 (ICLR 2026, ACL 2026, arXiv 2606–2609, KDD 2026). Leerlas antes de usarlas.
 
+**Regla de éxito del examen de v37 (novena aportación, 2026-10-28; se fija ANTES de ejecutar).** Así se declara si un experimento salió bien:
+
+> *"Una mejora solo cuenta si no degrada el caso base: la neurona puede ganar en casos difíciles, pero no puede empeorar la recuperación literal, aumentar la latencia de forma injustificada ni hacer que un recuerdo obsoleto suba al primer lugar."*
+
+En concreto, para que la regla se pueda medir:
+1. **Ninguna categoría baja** (R@1 y R@5) en ninguna de las 4 QA oficiales, empezando por **literal** (hoy 100 / 99,59 según el README). Ganar en sinónimos o temas cruzados no compensa romper un caso fácil (Pilar 1).
+2. **Falsos positivos:** se mantiene 0/40, y la abstención correcta no baja.
+3. **Recuerdo obsoleto en el primer lugar:** su tasa no sube frente al motor solo.
+4. **Latencia:** se mide la mediana y el p95 por consulta. Cualquier aumento se reporta y debe justificarse con la ganancia. **Propuesta del auditor: como máximo +10 % en el p95** (lo confirma Dennys).
+5. **Base no vista:** el resultado vale en una base que la neurona no vio al entrenar.
+6. **Se publica la tabla completa**, gane o pierda.
+
+**Procedencia (recomendación de la otra IA, igual a la del auditor):** que el MCP guarde **qué agente** creó cada recuerdo como **dato pasivo**, sin trabajo extra para el agente y sin que el cerebro juzgue texto. Sirve después para conflictos entre agentes y auditoría. **Pendiente del OK de Dennys**; si lo da, va como cambio pequeño y aislado después de E4, con migración que no toque los recuerdos existentes.
+
+**Citas:** todas las de las aportaciones externas son **referencias de inspiración, no fundamentos**. La fuerza del proyecto está en sus mediciones.
+
+**Fase de visión: CERRADA (2026-10-28).** Ya están la identidad (distribuida, asociativa, no monolítica), la tesis (motor rápido + pocas neuronas donde se decide), la frontera (recordar con juicio), el examen ("cuando la memoria ayuda y cuando estorba") y la regla de honestidad (publicar también lo que no mejora). No se suman ideas nuevas hasta tener evidencia. Lo que sigue es ejecutar: **B4a → resto de E3 → E4 → Fase 2 → v36.0 → examen de v37**.
+
 ## 2t. Superar a WordNet: sinónimos "nivel dios" o una solución propia (Dennys, 2026-10-28, para después)
 
 **La visión de Dennys:** más adelante, mejorar lo que hoy hace WordNet hasta un nivel muy superior, con WordNet, con algo equivalente mejor o con **una solución propia**, decidido **por la medida de este proyecto**.
