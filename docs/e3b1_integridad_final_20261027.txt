@@ -1,0 +1,22 @@
+E3B1 — auditoría final de integridad
+Comparación tras finalizar las cuatro QA ya iniciadas; no se relanzó ninguna.
+SHA-256 OK: 104dd2902aaf24c3ce93624492ea95a719acbdcca50f4f6bc123ac8317749796  snapshots/qa_escape_qcr_20260811.db
+SHA-256 OK: a61913ce074cd02323c13589040b7ab1e5e4f36b18bbe62c12f9c1d363324e9a  /tmp/viva_e3a.db
+SHA-256 OK: c76a71465f7a9be647094d79f00ffcebd742b00a6c12fa4ae90cf2c3d0654f4c  scripts/casos_qa_baseline_v1.jsonl
+SHA-256 OK: d3665a8e895ba061354ddd7d9c4fe44614956ad79d663433c6ef70e59aa78a6a  scripts/casos_qa_multilingue_e3a.jsonl
+SHA-256 OK: ecadfca36f142e5f9cb00d86cce8c90bff29849c6d482c5034587d8f0a04b1dc  scripts/casos_qa_multilingue_sustantivos_e3a.jsonl
+SHA-256 OK: f7889e213de1a19bb575b2994ec1537758bbfd8c7c8a72a6ad678ade59ff4247  docs/e3b1_diff_candidato_20261027.patch
+Sin WAL en fuente: snapshots/qa_escape_qcr_20260811.db-wal
+Sin WAL en fuente: /tmp/viva_e3a.db-wal
+Diff productivo byte a byte igual al patch medido: SÍ
+VERSION, README, CHANGELOG, aprender, motor, arnés oficial y casos: sin cambios
+Diff productivo sin errores de espacios: SÍ
+MCP B1 corregido: 132 consultas, 118 buscaron, 14 pendientes (rechazos, no abstenciones).
+Comparación multilingüe: CUMPLE; directa 132/132 y EN/ES MCP 44/44 iguales a E3A.
+Pruebas: 626 aprobadas; 90 focalizadas.
+snapshot_normal: métricas por categoría, globales honestas, censo y fallos honestos iguales; FP 0/40.
+snapshot_ruido: métricas por categoría, globales honestas, censo y fallos honestos iguales; FP 0/40.
+viva_normal: métricas por categoría, globales honestas, censo y fallos honestos iguales; FP 0/40.
+viva_ruido: métricas por categoría, globales honestas, censo y fallos honestos iguales; FP 0/40.
+Artefactos B1: sin rastros de mediciones descartadas identificadas ni excepción de ancho.
+Los 14 rechazos en el resultado MCP y el diff verifican que se midió la regla vigente.

@@ -1,0 +1,77 @@
+E3B1 — desglose de las 63 pruebas adicionales
+La referencia E3A terminó con 563 aprobadas: docs/e3a_pytest_auditoria_20261027.log
+El candidato B1 terminó con 626 aprobadas: docs/e3b1_pytest_20261027.log
+Los únicos archivos de test añadidos o modificados desde 04d44ac son los tres siguientes; parametrización cuenta cada variante como prueba separada.
+
+58: tests/test_validacion_unicode_recordar_b1.py — 18 formatos válidos, 17 inválidos, 10 llamadas recordar válidas, 9 inválidas y 4 pruebas de límites/normalización/deduplicación/validación de aprender.
+1: tests/test_qa_multilingue_mcp_b1.py — clasificación de pendiente hueco 1
+4: tests/test_comparar_qa_oficial_b1.py — comprobación del comparador oficial
+Total: 58 + 1 + 4 = 63; 563 + 63 = 626.
+
+Comando: PYTHONHASHSEED=0 python -m pytest --collect-only -q tests/test_validacion_unicode_recordar_b1.py tests/test_qa_multilingue_mcp_b1.py tests/test_comparar_qa_oficial_b1.py
+Salida literal:
+tests/test_validacion_unicode_recordar_b1.py::test_terminos_unicode_validos[\u6d77\u5cb8]
+tests/test_validacion_unicode_recordar_b1.py::test_terminos_unicode_validos[\u706f\u53f0]
+tests/test_validacion_unicode_recordar_b1.py::test_terminos_unicode_validos[\ubc14\ub2f7\uac00]
+tests/test_validacion_unicode_recordar_b1.py::test_terminos_unicode_validos[\u0939\u093f\u0902\u0926\u0940]
+tests/test_validacion_unicode_recordar_b1.py::test_terminos_unicode_validos[\u30ac\u30e9\u30b9]
+tests/test_validacion_unicode_recordar_b1.py::test_terminos_unicode_validos[\u0447\u0430\u0439]
+tests/test_validacion_unicode_recordar_b1.py::test_terminos_unicode_validos[hola]
+tests/test_validacion_unicode_recordar_b1.py::test_terminos_unicode_validos[\xf1and\xfa]
+tests/test_validacion_unicode_recordar_b1.py::test_terminos_unicode_validos[aa]
+tests/test_validacion_unicode_recordar_b1.py::test_terminos_unicode_validos[a1]
+tests/test_validacion_unicode_recordar_b1.py::test_terminos_unicode_validos[dos_palabras]
+tests/test_validacion_unicode_recordar_b1.py::test_terminos_unicode_validos[_a]
+tests/test_validacion_unicode_recordar_b1.py::test_terminos_unicode_validos[__]
+tests/test_validacion_unicode_recordar_b1.py::test_terminos_unicode_validos[aaaaaaaaaaaaaaa]
+tests/test_validacion_unicode_recordar_b1.py::test_terminos_unicode_validos[\uac00\uac00\uac00\uac00\uac00\uac00\uac00\uac00\uac00\uac00\uac00\uac00\uac00\uac00\uac00]
+tests/test_validacion_unicode_recordar_b1.py::test_terminos_unicode_validos[\uff11\uff12]
+tests/test_validacion_unicode_recordar_b1.py::test_terminos_unicode_validos[a\u093e]
+tests/test_validacion_unicode_recordar_b1.py::test_terminos_unicode_validos[a\u0301b]
+tests/test_validacion_unicode_recordar_b1.py::test_terminos_invalidos[\u6c34]
+tests/test_validacion_unicode_recordar_b1.py::test_terminos_invalidos[\u672c]
+tests/test_validacion_unicode_recordar_b1.py::test_terminos_invalidos[\ubb38]
+tests/test_validacion_unicode_recordar_b1.py::test_terminos_invalidos[\u1106\u116e\u11ab]
+tests/test_validacion_unicode_recordar_b1.py::test_terminos_invalidos[\uff11]
+tests/test_validacion_unicode_recordar_b1.py::test_terminos_invalidos[a]
+tests/test_validacion_unicode_recordar_b1.py::test_terminos_invalidos[\u044f]
+tests/test_validacion_unicode_recordar_b1.py::test_terminos_invalidos[]
+tests/test_validacion_unicode_recordar_b1.py::test_terminos_invalidos[foo-bar]
+tests/test_validacion_unicode_recordar_b1.py::test_terminos_invalidos[a b]
+tests/test_validacion_unicode_recordar_b1.py::test_terminos_invalidos[a@b]
+tests/test_validacion_unicode_recordar_b1.py::test_terminos_invalidos[a/b]
+tests/test_validacion_unicode_recordar_b1.py::test_terminos_invalidos[\U0001f600\U0001f600]
+tests/test_validacion_unicode_recordar_b1.py::test_terminos_invalidos[aaaaaaaaaaaaaaaa]
+tests/test_validacion_unicode_recordar_b1.py::test_terminos_invalidos[\uac00\uac00\uac00\uac00\uac00\uac00\uac00\uac00\uac00\uac00\uac00\uac00\uac00\uac00\uac00\uac00]
+tests/test_validacion_unicode_recordar_b1.py::test_terminos_invalidos[\u6c34\u6c34\u6c34\u6c34\u6c34\u6c34\u6c34\u6c34\u6c34\u6c34\u6c34\u6c34\u6c34\u6c34\u6c34\u6c34]
+tests/test_validacion_unicode_recordar_b1.py::test_terminos_invalidos[a\u200bb]
+tests/test_validacion_unicode_recordar_b1.py::test_un_caracter_no_pasa_aunque_sea_ancho
+tests/test_validacion_unicode_recordar_b1.py::test_nfc_solo_cuenta_no_modifica_normalizador_compartido
+tests/test_validacion_unicode_recordar_b1.py::test_recordar_supera_validacion_y_llega_al_motor[\u6d77\u5cb8]
+tests/test_validacion_unicode_recordar_b1.py::test_recordar_supera_validacion_y_llega_al_motor[\u706f\u53f0]
+tests/test_validacion_unicode_recordar_b1.py::test_recordar_supera_validacion_y_llega_al_motor[\ubc14\ub2f7\uac00]
+tests/test_validacion_unicode_recordar_b1.py::test_recordar_supera_validacion_y_llega_al_motor[\u0939\u093f\u0902\u0926\u0940]
+tests/test_validacion_unicode_recordar_b1.py::test_recordar_supera_validacion_y_llega_al_motor[\u30ac\u30e9\u30b9]
+tests/test_validacion_unicode_recordar_b1.py::test_recordar_supera_validacion_y_llega_al_motor[\u0447\u0430\u0439]
+tests/test_validacion_unicode_recordar_b1.py::test_recordar_supera_validacion_y_llega_al_motor[hola]
+tests/test_validacion_unicode_recordar_b1.py::test_recordar_supera_validacion_y_llega_al_motor[\u6d77\u5cb8,\u706f\u5854]
+tests/test_validacion_unicode_recordar_b1.py::test_recordar_supera_validacion_y_llega_al_motor[a1]
+tests/test_validacion_unicode_recordar_b1.py::test_recordar_supera_validacion_y_llega_al_motor[t0,t1,t2,t3,t4,t5,t6,t7,t8,t9]
+tests/test_validacion_unicode_recordar_b1.py::test_recordar_rechaza_formatos_antes_de_abrir_base[\u6c34]
+tests/test_validacion_unicode_recordar_b1.py::test_recordar_rechaza_formatos_antes_de_abrir_base[\u672c]
+tests/test_validacion_unicode_recordar_b1.py::test_recordar_rechaza_formatos_antes_de_abrir_base[\ubb38]
+tests/test_validacion_unicode_recordar_b1.py::test_recordar_rechaza_formatos_antes_de_abrir_base[a]
+tests/test_validacion_unicode_recordar_b1.py::test_recordar_rechaza_formatos_antes_de_abrir_base[\u044f]
+tests/test_validacion_unicode_recordar_b1.py::test_recordar_rechaza_formatos_antes_de_abrir_base[foo-bar]
+tests/test_validacion_unicode_recordar_b1.py::test_recordar_rechaza_formatos_antes_de_abrir_base[a@b]
+tests/test_validacion_unicode_recordar_b1.py::test_recordar_rechaza_formatos_antes_de_abrir_base[aaaaaaaaaaaaaaaa]
+tests/test_validacion_unicode_recordar_b1.py::test_recordar_rechaza_formatos_antes_de_abrir_base[\uac00\uac00\uac00\uac00\uac00\uac00\uac00\uac00\uac00\uac00\uac00\uac00\uac00\uac00\uac00\uac00]
+tests/test_validacion_unicode_recordar_b1.py::test_recordar_conserva_deduplicacion_y_maximo_de_diez
+tests/test_validacion_unicode_recordar_b1.py::test_aprender_aun_rechaza_sustantivos_no_latinos
+tests/test_qa_multilingue_mcp_b1.py::test_marcar_hueco_sin_contar_como_busqueda_o_abstencion
+tests/test_comparar_qa_oficial_b1.py::test_cuando_la_misma_medicion_se_compara_no_inventa_regresion
+tests/test_comparar_qa_oficial_b1.py::test_detecta_caida_honesta_por_categoria_en_r1_y_r5
+tests/test_comparar_qa_oficial_b1.py::test_fallos_honestos_baseline_se_pueden_conciliar
+tests/test_comparar_qa_oficial_b1.py::test_detecta_fp_y_cambio_de_modo
+
+63 tests collected in 5.07s

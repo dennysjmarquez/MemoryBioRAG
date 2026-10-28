@@ -1,0 +1,6 @@
+QA directa, casos diferentes: 0
+MCP EN/ES, respuestas diferentes: 0
+MCP consultas ejecutadas: 118 /132
+MCP pendiente hueco 1: 14 ['ja-05', 'ja-06', 'ja-08', 'ja-10', 'ja-11', 'ja-14', 'ja-15', 'ja-17', 'ja-18', 'ko-05', 'ko-07', 'ko-18', 'ko-20', 'zh-18']
+Comparación multilingüe: CUMPLE
+Las cuatro QA oficiales y pytest se validan aparte.
