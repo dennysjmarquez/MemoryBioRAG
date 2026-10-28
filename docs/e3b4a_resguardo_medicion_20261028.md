@@ -44,5 +44,5 @@ Las horas son las registradas al crear los procesos; `ps` mostró un `btime` var
 - `core/memory/search.py`: `f4479e7db7673c264176a48d467ab7c32411ea67a8cb39ad8daf4a4089677286`.
 - `core/memory_store.py`: `b7e7219caf0f801ce60a9531dc7dca982fe57142dd20450e85e124a048db5168`.
 - `tests/test_prefijo_ancho_b4a.py`: `68f89c4cf8b54a141da95cf373672fe610b52222036f4334caf570aac03c4181`.
-- Las huellas coinciden con las registradas al inicio y después de integrar `7c7abb9`.
+- **Corrección posterior al reinicio:** las huellas fueron comprobadas durante la medición y después de integrar `7c7abb9`. La evidencia examinada para la afirmación anterior era posterior al arranque; no se ha podido corroborar un registro anterior al inicio de las QA originales. Esta corrección no cambia el diff resguardado.
 - El commit real del motor se hará solo si las cuatro QA coinciden con B3. Si hay una baja, se revierte el candidato y se conserva este diff como registro de lo probado y del motivo.
