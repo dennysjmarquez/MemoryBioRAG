@@ -62,6 +62,7 @@ def validar_bridges(bridges: Any, clave: str) -> Tuple[List[Dict[str, Any]], Lis
     Se ejecuta antes de tocar la DB — un rechazo no deja estado a medias.
     """
     import json
+    import unicodedata
     from core.stopwords import STOPWORDS_ES
     from core.stemmer_es import stem
 
@@ -123,10 +124,28 @@ def validar_bridges(bridges: Any, clave: str) -> Tuple[List[Dict[str, Any]], Lis
             rechazados.append("Bridge con texto vacío")
             continue
 
-        words = text.lower().split()
-        content_words = [w for w in words if w not in STOPWORDS_ES and len(w) > 2]
-        if len(content_words) < 2:
-            rechazados.append(f'"{text}" (< 2 palabras de contenido real)')
+        # Tramos máximos de letras, marcas y números Unicode tras NFC.
+        words = []
+        chars = []
+        for char in unicodedata.normalize("NFC", text.lower()):
+            if unicodedata.category(char)[0] in ("L", "M", "N"):
+                chars.append(char)
+            elif chars:
+                words.append("".join(chars))
+                chars = []
+        if chars:
+            words.append("".join(chars))
+
+        content_words = []
+        unidades = 0
+        for word in words:
+            ancha = all(unicodedata.east_asian_width(c) in ("W", "F") for c in word)
+            aporte = len(word) // 2 if ancha else int(len(word) > 2 and word not in STOPWORDS_ES)
+            if aporte:
+                content_words.append(word)
+                unidades += aporte
+        if unidades < 2:
+            rechazados.append(f'"{text}" (< 2 unidades de contenido)')
             continue
 
         # Stemming anti-destinatario

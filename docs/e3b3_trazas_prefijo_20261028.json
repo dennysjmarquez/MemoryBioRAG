@@ -1,0 +1,485 @@
+{
+  "metadatos": {
+    "semilla_sha256": "172b4f541a6b74d1c94fd1e77b3790bc76b9c186e3c56674763e9b0d8c8c6241",
+    "sha256_archivos": {
+      "core/memory/search.py": "a633d7ddbd1c57dafe5e1287ff36b295fbd3b7aadd78d2f2004ce2162b293368",
+      "core/mcp_server/search.py": "797d2b254d7b9b215537ab6c3fe40d8e0c492f7e64bbc0a55d5a773f185663fc",
+      "core/concept_hub.py": "50cdced5342eb255abcd1ea9ab0781ab677ec518b173bc3855a32c0be9b618cf"
+    },
+    "observador": "sys.settrace de solo lectura en dos funciones; sin escribir variables del motor",
+    "reloj_fijo_unix": 1793059200.0,
+    "pythonhashseed": "0",
+    "biorag_neurona": "0",
+    "control": "copia independiente sin traza + respuesta completa de las 414 consultas registradas",
+    "parametros": "FastMCP en proceso; activos, límite público 5, pool interno 15, peso predeterminado, hub ON"
+  },
+  "casos": [
+    {
+      "id": "zh-01",
+      "idioma": "zh",
+      "concepto": "海岸灯塔",
+      "query": "海岸灯塔是什么意思？",
+      "sustantivos_clave": "海岸灯塔",
+      "respuesta_traza_igual_a_control_y_referencia": true,
+      "respuesta_mcp": {
+        "total": 0,
+        "resultados": [],
+        "contingencia_contexto": true,
+        "mensaje": "No se encontraron recuerdos en la corteza. Busca en tu historial de conversacion o contexto actual."
+      },
+      "pasos": {
+        "expansion_hub": {
+          "archivo_linea": "core/memory/search.py:217-218",
+          "valor": {
+            "canonical_nodes": [
+              "海岸灯塔"
+            ],
+            "expanded_terms": [
+              "海岸灯塔是什么意思",
+              "海岸灯塔"
+            ],
+            "hub_confidence": 1.0,
+            "hub_id": "hub_海岸灯塔",
+            "bridges_matched": [
+              "海岸灯塔是什么意思？"
+            ],
+            "hub_parecido": 1.0,
+            "hub_ventaja": 1.0
+          }
+        },
+        "pool_antes_de_score": {
+          "archivo_linea": "core/memory/search.py:1686-1690",
+          "total": 1,
+          "conceptos": [
+            "海岸灯塔"
+          ],
+          "esperado_en_pool": true
+        },
+        "antes_de_promocion_hub": {
+          "archivo_linea": "core/memory/search.py:1976-1981",
+          "total": 1,
+          "candidatos": [
+            {
+              "concepto": "海岸灯塔",
+              "score": 0.3347,
+              "origen": [
+                "literal",
+                0.0
+              ]
+            }
+          ],
+          "esperado": {
+            "concepto": "海岸灯塔",
+            "score": 0.3347,
+            "origen": [
+              "literal",
+              0.0
+            ]
+          }
+        },
+        "decision_promocion": {
+          "archivo_linea": "core/memory/search.py:1979-2001",
+          "ya_existia": true,
+          "hub_gana": true,
+          "score_forzado": 0.95,
+          "score_promocion": 0.95
+        },
+        "despues_de_promocion_hub": {
+          "archivo_linea": "core/memory/search.py:2011-2053",
+          "total": 1,
+          "candidatos": [
+            {
+              "concepto": "海岸灯塔",
+              "score": 0.3347,
+              "origen": [
+                "concept_hub",
+                1.0
+              ]
+            }
+          ],
+          "esperado": {
+            "concepto": "海岸灯塔",
+            "score": 0.3347,
+            "origen": [
+              "concept_hub",
+              1.0
+            ]
+          }
+        },
+        "entrada_filtro_prefijo": {
+          "archivo_linea": "core/memory/search.py:2073-2074",
+          "query_words": [
+            "海岸灯塔是什么意思"
+          ],
+          "total": 1,
+          "candidatos": [
+            {
+              "concepto": "海岸灯塔",
+              "score": 0.3347,
+              "origen": [
+                "concept_hub",
+                1.0
+              ]
+            }
+          ],
+          "esperado": {
+            "concepto": "海岸灯塔",
+            "score": 0.3347,
+            "origen": [
+              "concept_hub",
+              1.0
+            ]
+          }
+        },
+        "clasificacion_prefijo": {
+          "archivo_linea": "core/memory/search.py:2076-2081",
+          "literal_results": [
+            "海岸灯塔"
+          ],
+          "non_literal_results": [],
+          "esperado_tratado_como_literal": true
+        },
+        "respuesta_sql_prefijo": {
+          "archivo_linea": "core/memory/search.py:2084-2092",
+          "validos": [],
+          "esperado_en_validos": false
+        },
+        "despues_filtro_prefijo": {
+          "archivo_linea": "core/memory/search.py:2091-2092",
+          "total": 0,
+          "candidatos": [],
+          "esperado": null
+        },
+        "pagina_motor": {
+          "archivo_linea": "core/memory/search.py:2161-2163",
+          "total": 0,
+          "candidatos": [],
+          "esperado": null
+        },
+        "salida_motor": {
+          "archivo_linea": "core/memory/search.py:2334-2345",
+          "total": 0,
+          "candidatos": [],
+          "esperado": null
+        },
+        "entrada_mcp": {
+          "archivo_linea": "core/mcp_server/search.py:480-495",
+          "conceptos": [],
+          "esperado": false
+        },
+        "gate_mcp": {
+          "archivo_linea": "core/mcp_server/search.py:585-596",
+          "resultados_antes_del_umbral": 0,
+          "umbral_invocado": false
+        }
+      }
+    },
+    {
+      "id": "zh-19",
+      "idioma": "zh",
+      "concepto": "竹笛",
+      "query": "竹笛是什么意思？",
+      "sustantivos_clave": "竹笛",
+      "respuesta_traza_igual_a_control_y_referencia": true,
+      "respuesta_mcp": {
+        "total": 0,
+        "resultados": [],
+        "contingencia_contexto": true,
+        "mensaje": "No se encontraron recuerdos en la corteza. Busca en tu historial de conversacion o contexto actual."
+      },
+      "pasos": {
+        "expansion_hub": {
+          "archivo_linea": "core/memory/search.py:217-218",
+          "valor": {
+            "canonical_nodes": [
+              "竹笛"
+            ],
+            "expanded_terms": [
+              "竹笛是什么意思",
+              "竹笛"
+            ],
+            "hub_confidence": 1.0,
+            "hub_id": "hub_竹笛",
+            "bridges_matched": [
+              "竹笛是什么意思？"
+            ],
+            "hub_parecido": 1.0,
+            "hub_ventaja": 1.0
+          }
+        },
+        "pool_antes_de_score": {
+          "archivo_linea": "core/memory/search.py:1686-1690",
+          "total": 0,
+          "conceptos": [],
+          "esperado_en_pool": false
+        },
+        "antes_de_promocion_hub": {
+          "archivo_linea": "core/memory/search.py:1976-1981",
+          "total": 0,
+          "candidatos": [],
+          "esperado": null
+        },
+        "decision_promocion": {
+          "archivo_linea": "core/memory/search.py:1979-2001",
+          "ya_existia": false,
+          "hub_gana": true,
+          "score_forzado": 0.95,
+          "score_promocion": 0.95
+        },
+        "consulta_canonico": {
+          "archivo_linea": "core/memory/search.py:2004-2010",
+          "recuperado_de_sql": true,
+          "concepto": "竹笛"
+        },
+        "despues_de_promocion_hub": {
+          "archivo_linea": "core/memory/search.py:2011-2053",
+          "total": 1,
+          "candidatos": [
+            {
+              "concepto": "竹笛",
+              "score": 0.95,
+              "origen": [
+                "concept_hub",
+                1.0
+              ]
+            }
+          ],
+          "esperado": {
+            "concepto": "竹笛",
+            "score": 0.95,
+            "origen": [
+              "concept_hub",
+              1.0
+            ]
+          }
+        },
+        "entrada_filtro_prefijo": {
+          "archivo_linea": "core/memory/search.py:2073-2074",
+          "query_words": [
+            "竹笛是什么意思"
+          ],
+          "total": 1,
+          "candidatos": [
+            {
+              "concepto": "竹笛",
+              "score": 0.95,
+              "origen": [
+                "concept_hub",
+                1.0
+              ]
+            }
+          ],
+          "esperado": {
+            "concepto": "竹笛",
+            "score": 0.95,
+            "origen": [
+              "concept_hub",
+              1.0
+            ]
+          }
+        },
+        "clasificacion_prefijo": {
+          "archivo_linea": "core/memory/search.py:2076-2081",
+          "literal_results": [
+            "竹笛"
+          ],
+          "non_literal_results": [],
+          "esperado_tratado_como_literal": true
+        },
+        "respuesta_sql_prefijo": {
+          "archivo_linea": "core/memory/search.py:2084-2092",
+          "validos": [],
+          "esperado_en_validos": false
+        },
+        "despues_filtro_prefijo": {
+          "archivo_linea": "core/memory/search.py:2091-2092",
+          "total": 0,
+          "candidatos": [],
+          "esperado": null
+        },
+        "pagina_motor": {
+          "archivo_linea": "core/memory/search.py:2161-2163",
+          "total": 0,
+          "candidatos": [],
+          "esperado": null
+        },
+        "salida_motor": {
+          "archivo_linea": "core/memory/search.py:2334-2345",
+          "total": 0,
+          "candidatos": [],
+          "esperado": null
+        },
+        "entrada_mcp": {
+          "archivo_linea": "core/mcp_server/search.py:480-495",
+          "conceptos": [],
+          "esperado": false
+        },
+        "gate_mcp": {
+          "archivo_linea": "core/mcp_server/search.py:585-596",
+          "resultados_antes_del_umbral": 0,
+          "umbral_invocado": false
+        }
+      }
+    },
+    {
+      "id": "ja-01",
+      "idioma": "ja",
+      "concepto": "海辺の灯台",
+      "query": "海辺の灯台とは何ですか。",
+      "sustantivos_clave": "海辺の灯台",
+      "respuesta_traza_igual_a_control_y_referencia": true,
+      "respuesta_mcp": {
+        "total": 0,
+        "resultados": [],
+        "contingencia_contexto": true,
+        "mensaje": "No se encontraron recuerdos en la corteza. Busca en tu historial de conversacion o contexto actual."
+      },
+      "pasos": {
+        "expansion_hub": {
+          "archivo_linea": "core/memory/search.py:217-218",
+          "valor": {
+            "canonical_nodes": [
+              "海辺の灯台"
+            ],
+            "expanded_terms": [
+              "海辺の灯台とは何てすか",
+              "海辺の灯台"
+            ],
+            "hub_confidence": 1.0,
+            "hub_id": "hub_海辺の灯台",
+            "bridges_matched": [
+              "海辺の灯台とは何ですか。"
+            ],
+            "hub_parecido": 1.0,
+            "hub_ventaja": 1.0
+          }
+        },
+        "pool_antes_de_score": {
+          "archivo_linea": "core/memory/search.py:1686-1690",
+          "total": 1,
+          "conceptos": [
+            "海辺の灯台"
+          ],
+          "esperado_en_pool": true
+        },
+        "antes_de_promocion_hub": {
+          "archivo_linea": "core/memory/search.py:1976-1981",
+          "total": 1,
+          "candidatos": [
+            {
+              "concepto": "海辺の灯台",
+              "score": 0.3344,
+              "origen": [
+                "literal",
+                0.0
+              ]
+            }
+          ],
+          "esperado": {
+            "concepto": "海辺の灯台",
+            "score": 0.3344,
+            "origen": [
+              "literal",
+              0.0
+            ]
+          }
+        },
+        "decision_promocion": {
+          "archivo_linea": "core/memory/search.py:1979-2001",
+          "ya_existia": true,
+          "hub_gana": true,
+          "score_forzado": 0.95,
+          "score_promocion": 0.95
+        },
+        "despues_de_promocion_hub": {
+          "archivo_linea": "core/memory/search.py:2011-2053",
+          "total": 1,
+          "candidatos": [
+            {
+              "concepto": "海辺の灯台",
+              "score": 0.3344,
+              "origen": [
+                "concept_hub",
+                1.0
+              ]
+            }
+          ],
+          "esperado": {
+            "concepto": "海辺の灯台",
+            "score": 0.3344,
+            "origen": [
+              "concept_hub",
+              1.0
+            ]
+          }
+        },
+        "entrada_filtro_prefijo": {
+          "archivo_linea": "core/memory/search.py:2073-2074",
+          "query_words": [
+            "海辺の灯台とは何ですか"
+          ],
+          "total": 1,
+          "candidatos": [
+            {
+              "concepto": "海辺の灯台",
+              "score": 0.3344,
+              "origen": [
+                "concept_hub",
+                1.0
+              ]
+            }
+          ],
+          "esperado": {
+            "concepto": "海辺の灯台",
+            "score": 0.3344,
+            "origen": [
+              "concept_hub",
+              1.0
+            ]
+          }
+        },
+        "clasificacion_prefijo": {
+          "archivo_linea": "core/memory/search.py:2076-2081",
+          "literal_results": [
+            "海辺の灯台"
+          ],
+          "non_literal_results": [],
+          "esperado_tratado_como_literal": true
+        },
+        "respuesta_sql_prefijo": {
+          "archivo_linea": "core/memory/search.py:2084-2092",
+          "validos": [],
+          "esperado_en_validos": false
+        },
+        "despues_filtro_prefijo": {
+          "archivo_linea": "core/memory/search.py:2091-2092",
+          "total": 0,
+          "candidatos": [],
+          "esperado": null
+        },
+        "pagina_motor": {
+          "archivo_linea": "core/memory/search.py:2161-2163",
+          "total": 0,
+          "candidatos": [],
+          "esperado": null
+        },
+        "salida_motor": {
+          "archivo_linea": "core/memory/search.py:2334-2345",
+          "total": 0,
+          "candidatos": [],
+          "esperado": null
+        },
+        "entrada_mcp": {
+          "archivo_linea": "core/mcp_server/search.py:480-495",
+          "conceptos": [],
+          "esperado": false
+        },
+        "gate_mcp": {
+          "archivo_linea": "core/mcp_server/search.py:585-596",
+          "resultados_antes_del_umbral": 0,
+          "umbral_invocado": false
+        }
+      }
+    }
+  ]
+}

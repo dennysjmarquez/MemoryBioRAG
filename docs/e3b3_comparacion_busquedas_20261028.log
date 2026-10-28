@@ -1,0 +1,10 @@
+Consultas MCP totales: 1260
+Misma base b2: 216 llamadas por versión; respuestas o trazas diferentes 0
+Misma base b3: 414 llamadas por versión; respuestas o trazas diferentes 0
+Base crecida: casos comunes 36
+zh nombre ON/OFF 18/18/18; puente_completo ON/OFF 0/0/18; fragmento_sin_nombre ON/OFF 0/0/18
+ja nombre ON/OFF 15/15/15; puente_completo ON/OFF 0/0/15; fragmento_sin_nombre ON/OFF 0/0/15
+ko nombre ON/OFF 16/16/16; puente_completo ON/OFF 16/16/16; fragmento_sin_nombre ON/OFF 0/0/16
+ru nombre ON/OFF 20/20/20; puente_completo ON/OFF 20/20/20; fragmento_sin_nombre ON/OFF 0/0/20
+Chino/japonés: {'puentes_chino_japones': 33, 'expansion_al_nodo_correcto': 33, 'origen_esperado_concept_hub': 33, 'sin_nodo_en_top5': 33, 'nota': 'la expansión y el origen son trazas internas, no equivalen a un resultado entregado'}
+Sin regresión en búsquedas medidas: True
