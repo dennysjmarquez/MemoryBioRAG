@@ -904,6 +904,15 @@ Otra IA propuso usar el caso real (`version_actual_biorag` en el puesto 4) como 
 
 > Dennys: *"Son como dos laterales, pero son el mismo problema, hay que resolverlo. Tienes que investigar incluso en internet, en papers, todo. Hacer algo de verdad de ingeniería: ingenioso, sublime, perfecto, delicado. Búscate cómo funciona el cerebro humano en realidad, y de esa parte del cerebro saca ideas para nosotros. Y si hace falta alimentarla con alguna aguja que no tenemos, se crea. Cuando te toque, investiga otra vez el proyecto entero y repasa sus archivos principales, porque cuando crece el contexto ciertas cosas se olvidan. Tenemos la fórmula, que es la neurona. ¿Cómo programamos la neurona? Ahí está el point."*
 
+> **La frase guía (de ChatGPT, guardada por Dennys):** *"El cerebro no busca únicamente por el tema de la pregunta; también utiliza lo que necesitas obtener de ese recuerdo."*
+
+> **Dennys, 2026-10-27:** *"Yo quiero confiar en tu criterio personal. No tenemos margen de perder: aquí tenemos que ganar. Para que esto crezca adonde tiene que crecer, tiene que haber una inteligencia por detrás. Hazlo como la primera vez: investigaciones aparte, lo más parecido al motor pero sin tocarlo, para que al cablear todo quede perfectamente igual. No me importa estar dos, cinco o diez días mientras entrenas esa neurona; tiene que quedar perfecta."*
+
+**Compromiso del auditor:**
+- Se construye con el mismo método de la neurona 1: investigación y entrenamiento **fuera del motor**, pero con **exactamente lo que el motor ve** (desfase 0), para que el cableado final sea idéntico a lo entrenado.
+- Las decisiones de diseño son del auditor, con criterio propio y pruebas en la mano. Dennys aporta ideas y opiniones externas; el auditor las contrasta, como en §2s.
+- Se entrena el tiempo que haga falta: no hay prisa, hay que acertar.
+
 ### Las dos caras del mismo problema (ya guardadas)
 | Cara | Ejemplo | Dónde está |
 |---|---|---|
