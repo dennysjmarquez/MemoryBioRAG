@@ -54,6 +54,15 @@ Verifying a fix against the frozen snapshot is **NOT** enough.
 2. **Live DB Copy** (via `sqlite3.backup()`): Verifies real-world resolution against the active, mutating production corpus.
 *If a fix passes on the snapshot but fails on the live copy, it is NOT resolved.*
 
+### Invariant 6: Modular, Decoupled, Hexagonal (golden rule — `CONSTITUTION.md` Pilar 9)
+Nothing monolithic. Every piece (engine layer, neuron, validator, language adapter) lives in its own module with one clear responsibility and talks to others through a small explicit interface. Coupling is harmful: if one piece breaks, everything coupled to it breaks. Keep the brain's domain logic at the center; DB, MCP, dictionaries, languages and neurons are pluggable **ports and adapters**. Decoupling existing code is its own measured change.
+
+### Invariant 7: Document Why (golden rule — `CONSTITUTION.md` Pilar 10)
+Every piece records **what problem it solves, why at that point, and which measurement approved it**. Every removed or disabled piece records **why it was removed**, with evidence. Write so that a non-technical human and any future AI can understand it. If it is not in the repo, it is lost.
+
+### Invariant 8: Every Neuron Has a Floor, a Ceiling and Guardians (`CONSTITUTION.md` Pilar 11)
+No neuron enters the engine without a **floor** (the hand formula stays the guaranteed minimum), a **ceiling** (maximum it can move), **guardians** (checks that switch it off when something does not match) and its own **exam**. Empty-DB safe, constant time, it only **adds** on top of the ranking. The engine's first neuron is the model.
+
 ---
 
 ## 3. The Search Pipeline Anatomy (`core/memory_store.py`)

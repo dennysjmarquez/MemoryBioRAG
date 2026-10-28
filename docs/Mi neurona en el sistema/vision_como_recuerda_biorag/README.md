@@ -21,6 +21,13 @@ La tesis de ingeniería, en una frase (formulada por otra IA a partir de la idea
 
 **No es tener mucha IA, sino la IA correcta en el lugar correcto.** Lo propio de BioRAG no es una pieza suelta, sino la combinación de todas. Sin reclamar primicias.
 
+**La proyección (Dennys, 2026-10-28):** BioRAG será un **cerebro de silicio** con **inteligencia de criterio en ciertos lugares**, donde van neuronas finamente calibradas, con su piso, su techo y sus guardianes, como la primera neurona (Constitución, Pilar 11).
+- Dennys lo ve como **la evolución de la base de datos vectorial**. Las bases vectoriales quedarán para lo suyo: **grandes documentos embebidos**. La memoria de un agente será un cerebro.
+- La meta es **llegar a lo que hace una base vectorial, pero por otro camino**, y superarlo. Antes no había neuronas en el motor; ahora las hay. Esa es la **inclinación** del proyecto.
+- **El agente compensa tratando de recordar, y está bien:** el humano da **pistas** y el agente tira de ellas.
+- Por eso **lo relacionado, e incluso algo de ruido, también sirve**: son palabras que el agente saca de los resultados para decidir qué más buscar hasta dar con lo que el usuario quiere. Así se hila todo (P7, la ráfaga natural). La meta del primer lugar no cambia: el recuerdo que mejor encaja va primero; lo demás acompaña como pistas.
+- La forma de construirlo es una **regla de oro**: módulos desacoplados, mentalidad hexagonal, y cada pieza documentada con por qué se creó, por qué ahí y por qué se quitó (Constitución, Pilares 9 y 10).
+
 ---
 
 ## 1. Los principios del recuerdo
