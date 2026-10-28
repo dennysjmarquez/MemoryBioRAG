@@ -13,6 +13,14 @@ El sueño, en palabras de Dennys: *"que tú simplemente digas «papá» y consig
 
 Qué lo hace "vivo": no que tenga sinapsis ni que se parezca a un cerebro, sino que **tiene neuronas que hacen lo que ninguna función fija podría hacer**.
 
+La tesis de ingeniería, en una frase (formulada por otra IA a partir de la idea de Dennys, 2026-10-27): *"Un cerebro no es una red enorme; es un sistema rápido que sabe en qué pocos lugares debe pensar."* Esto quiere decir:
+- el motor rápido resuelve la gran mayoría de los casos;
+- una neurona interviene solo en los difíciles, y si duda, no decide (§2q);
+- cada neurona nueva necesita una razón medible para existir;
+- el sistema puede explicar a pedido por qué recordó.
+
+**No es tener mucha IA, sino la IA correcta en el lugar correcto.** Lo propio de BioRAG no es una pieza suelta, sino la combinación de todas. Sin reclamar primicias.
+
 ---
 
 ## 1. Los principios del recuerdo
