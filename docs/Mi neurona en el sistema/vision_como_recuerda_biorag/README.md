@@ -1007,6 +1007,18 @@ La otra IA aceptó las correcciones: tres errores suyos (fórmula inventada, cif
 
 **Postura honesta que se adopta:** no declarar superioridad universal. Lo que se defiende es ganar **en su terreno**: memoria persistente de agentes, explicable, local, sin GPU y que sabe decir "no lo tengo". En la búsqueda semántica abierta sobre cualquier corpus no hace falta competir.
 
+**Quinta aportación externa (2026-10-27): dos puntos que se adoptan.**
+1. **¿Qué hace la neurona si no llega la intención del agente?** Hay tres opciones: abstenerse siempre, dejar el ranking intacto, o **deducir la ambigüedad del contraste entre los candidatos**. **Se adopta la tercera, como respaldo:**
+   - Si los candidatos se reparten en tipos estructuralmente distintos (por ejemplo, uno con procedimiento y otro con resultado), la neurona sabe que **hay ambigüedad** sin leer la consulta.
+   - Entonces devuelve "competido / pedir contexto" con la diferencia.
+   - Es independiente del idioma y no sustituye la intención del agente: la cubre cuando no llega.
+   - Si tampoco hay contraste claro, se deja el ranking intacto (piso).
+2. **La prueba que decide si hace falta un campo nuevo.** Antes de escribir la neurona hay que comprobar si las dimensiones actuales separan "hipótesis", "procedimiento", "resultado" y "explicación". Es barato: se toman 20–30 grupos de recuerdos que comparten sustantivos clave pero difieren en tipo, y se mira si sus dimensiones los separan.
+   - **Si los separan:** las sondas contrastivas tienen etiqueta sin pedir nada nuevo al agente.
+   - **Si no:** el campo `tipo_evidencia` deja de ser trabajo extra y pasa a ser **estructural**. Se le propone a Dennys con la evidencia en la mano.
+   - **Indicio previo (§2n):** en el snapshot ya hay 470 grupos de tema, y en 251 de ellos aparecen 3 o más tipos distintos según `epistemia` y las dimensiones de acción. Falta medir si esa separación alcanza.
+   - **Es el primer paso medible del protocolo de §2r (paso 3).**
+
 ---
 
 ## 3. El orden para llegar (paso a pasito)
