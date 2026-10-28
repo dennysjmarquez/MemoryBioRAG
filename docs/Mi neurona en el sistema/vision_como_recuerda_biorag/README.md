@@ -967,6 +967,17 @@ La otra IA aceptó las correcciones: tres errores suyos (fórmula inventada, cif
 - **Separación temporal** (entrenar con lo viejo y examinar con lo nuevo): sí, pero la prueba principal sigue siendo **bases que nunca vio** (§2l).
 - **"5–10 agujas":** son las nuevas. Se suman a las de §2l y §2k, unas 100–150 entradas en total.
 
+**Tercera respuesta de la otra IA (2026-10-27): dos aportes que se adoptan.**
+1. **"Insuficiente" se aprende por la razón, no por el hueco.** Riesgo: si la neurona solo ve que falta el nodo, puede aprender un atajo, como desconfiar de todo o detectar un artefacto de la copia. Solución del auditor, que se suma:
+   - **Pares gemelos:** la misma consulta, en la misma base, con y sin el recuerdo correcto. Lo único que cambia es su presencia, así que no hay atajo posible.
+   - **Insuficientes difíciles:** se borra el correcto pero se deja su hermano casi igual. Por ejemplo, se borra la versión actual y quedan las viejas. Ahí lo que debe aprender es que ninguna versión que queda es la actual.
+   - Las agujas ya muestran el porqué: poca evidencia, falta la tríada causa–acción–resultado, rivales parecidos, versión incorrecta.
+2. **Regla de aprobación: "que no se vuelva tímida".** La neurona solo se aprueba si:
+   - el top-1 no baja frente al ranking actual;
+   - **no convierte errores recuperables en "insuficiente"**: si el correcto está en la lista y tiene evidencia, debe elegirlo.
+
+   Se mide aparte el **rechazo indebido** (dijo "insuficiente" teniendo el correcto con evidencia) con un tope fijado antes del examen. Se reporta la curva **cobertura frente a acierto** (cuántas veces decide y cuántas acierta cuando decide), la medida estándar de la predicción con rechazo.
+
 ---
 
 ## 3. El orden para llegar (paso a pasito)
