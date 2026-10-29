@@ -1241,6 +1241,12 @@ WordNet hace **dos trabajos distintos**, y la respuesta es distinta para cada un
 - Encaje con la neurociencia (inspiración, no prueba): el hipocampo **completa patrones** a partir de pistas parciales; la activación se **propaga** a lo relacionado; recordar e imaginar usan la **misma red** (Schacter y Addis, simulación episódica constructiva), por eso crear necesita lo parecido. La inhibición de competidores al recordar (Wimber et al., 2015) **baja** a los rivales, no los borra. En BioRAG, eso es ordenar.
 - La neuroplasticidad (Hebb, LTP/LTD, poda por desuso) actúa **con el tiempo y por uso** (sinapsis, decaimiento, sueño/consolidación), nunca como un filtro en el momento de recordar.
 
+### Las dos mitades del cerebro BioRAG (Dennys, 2026-10-29)
+- **Completar patrones es lo más potente que debe tener.** Con una pista a medias llegan recuerdos parecidos (o lejanos: la familia del usuario, cómo se hizo algo en otro lado), y el agente **saca conclusiones** de cómo responder.
+- **La brújula** (top 1 / top 5, la neurona de razonamiento) es la otra mitad: cuando se busca algo concreto, lo pone arriba.
+- **Diferencia con una base vectorial:** allí se llega por distancia entre vectores del texto entero. Aquí se llega por varias vías a la vez, como en un cerebro: palabras, sustantivos clave, dimensiones, sinapsis por uso conjunto, tiempo, grafo y neuronas. Además, cada llegada se puede explicar.
+- **Honestidad del auditor:** las bases vectoriales siguen siendo más fuertes cuando el sentido coincide sin palabras compartidas (nuestros puntos débiles medidos: `sinonimo`, `cruce_idioma`). "Superior" se demostrará con la comparación externa y una tabla publicada, no con palabras. Visión fija: mantenerla siempre.
+
 ## 3. El orden para llegar (paso a pasito)
 
 | Etapa | Qué | Relación con la visión |
