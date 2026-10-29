@@ -1249,6 +1249,14 @@ WordNet hace **dos trabajos distintos**, y la respuesta es distinta para cada un
 - **Consecuencia para medir:** la QA oficial mide **una sola consulta**, es decir, mide como a un buscador y subestima el sistema. Los puntos débiles `sinonimo` y `cruce_idioma` son de una sola consulta, no de la mente completa. La comparación externa debe ser **agente + BioRAG contra agente + base vectorial**, con varios intentos permitidos, y contando también intentos y tiempo.
 - **Regla: no matar este ciclo.** Las cosas relacionadas que traen pistas (P7, P11) son el motor de este sistema. Cualquier cambio que las recorte destruye el proyecto, aunque suba la QA de una sola consulta.
 
+### Ejercicio de intuición n.º 1 (2026-10-29, agente real de Dennys por MCP)
+Pregunta sin recuerdo exacto en la base: "una app para los gastos de la casa; intuye cómo la quiero". La hoja de respuestas tenía 10 intuiciones esperadas. Se publica solo el resumen; el contenido personal queda fuera del repo.
+
+- **Resultado:** 5 aciertos completos, 3 parciales y 2 fallos. Además, una lista honesta de lo que no sabía. **La intuición funciona:** con recuerdos parecidos, el agente dedujo cómo diseñar, cómo trabajar con Dennys y el estilo visual.
+- **Los 2 fallos** ("nada monolítico, carpetas ordenadas" y "su stack de frontend") ocurrieron porque **esos recuerdos no llegaron**. En una copia, la búsqueda del agente, que llevaba su propia hipótesis ("apps simples local offline"), no los trae en el top 50. Una búsqueda neutra ("preferencias de Dennys para crear una app") trae el de "no monolítico" en el **puesto 2**. Lección: el agente buscó lo que ya suponía. El cerebro podría ayudar con pistas (P7), y la neurona de razonamiento con la pregunta "¿qué me están preguntando?": aquí, **preferencias del usuario**.
+- **Fidelidad:** una cita era real, pero estaba atribuida a otro recuerdo, y un dato ("X años juntos") no aparece en la copia del 26-10. Es exactamente el caso de P10: **intuición presentada como recuerdo**. Hace falta que el cerebro diga qué tan cerca está cada cosa.
+- **Fricción:** `local-first` fue rechazado como sustantivo clave (no se admite el guion). Es un pendiente menor de usabilidad.
+
 ## 3. El orden para llegar (paso a pasito)
 
 | Etapa | Qué | Relación con la visión |
