@@ -89,6 +89,26 @@ BioRAG es la **memoria externa** del agente — no su cognición. El trabajo cog
 - Funciona con la base vacía, en tiempo constante, y solo **suma** encima del ranking; nunca lo reemplaza.
 - El modelo es la primera neurona del motor: cualquier neurona nueva se construye y calibra igual.
 
+### Pilar 12: El Ruido Útil No se Mata (regla de oro)
+> *"Si quitamos el ruido, nos quedamos con un sistema ciego, típico, normal y común como cualquier buscador. Y esto no lo es."* — Dennys Marquez (2026-10-29)
+
+**La regla:**
+- **Las neuronas (re-ranking, razonamiento) solo ORDENAN.** Nunca quitan, filtran ni vacían la lista.
+- **Ningún cambio** del motor ni del MCP puede dejar al agente sin los recuerdos parecidos o relacionados que acompañan al mejor, aunque suba una métrica de una sola consulta. Si un cambio recorta la lista, tiene que demostrar con medición que **no se pierden las pistas** (además del Pilar 1).
+- **Un "no sé" no vacía la lista.** Si el cerebro no está seguro, **lo dice** (`nivel_certeza`, aviso de brecha) y **sigue mostrando lo parecido**. No lo esconde.
+- El orden importa: lo que mejor encaja va arriba (la brújula es el top-1 / top-5); el ruido útil va debajo, a la vista, pero sin tapar al bueno.
+
+**Por qué:**
+- **BioRAG no es un buscador; es un cerebro.** El agente y el cerebro forman **una sola mente**: el agente intenta recordar, el cerebro le "tira" lo parecido, y lo parecido trae **palabras pista** con las que el agente vuelve a buscar ("gatito" → "gato" → el recuerdo). Así recuerda una persona: casi nunca a la primera; va tirando del hilo hasta dar con el recuerdo, porque el recuerdo está ahí.
+- **Ese ruido ES el hilo.** En el ejercicio n.º 2 (visión §2u), el recuerdo buscado llegó gracias a un vecino que no era la respuesta: fue la pista. Sin ese "ruido", el agente no lo habría encontrado.
+- **La completación de patrones** (traer lo incompleto y lo cercano) es la capacidad más poderosa del sistema, y nace justamente de lo que parece ruido. Un filtro que solo deja "lo exacto" la apaga.
+- **Si se mata el ruido:** sube un número en una prueba de una sola consulta, pero el sistema queda **ciego**: solo encuentra lo que ya se sabe nombrar. Eso es un buscador común, y eso destruye el proyecto.
+
+**Cómo se aplica (sin romper lo demás):**
+- Proteger el ruido útil **no** significa tapar la respuesta con basura: los falsos positivos siguen midiéndose (FP 0/40) y el mejor recuerdo debe estar arriba. Se resuelve **ordenando y diciendo qué tan cerca está cada cosa**, no borrando.
+- Todo filtro existente que hoy recorte la lista (por ejemplo, el filtro de cobertura de palabras, QCR; visión §2u, ejercicio n.º 3) se registra y se conversa con Dennys antes de tocarlo, con medición de pistas conservadas. El OK es siempre suyo.
+- Detalle y ejemplos: `docs/Mi neurona en el sistema/vision_como_recuerda_biorag/README.md` (P10, P11 y §2u).
+
 ## 4. Stack Técnico
 
 | Componente | Tecnología |

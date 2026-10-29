@@ -65,6 +65,12 @@ No neuron enters the engine without a **floor** (the hand formula stays the guar
 
 ---
 
+### Invariant 9: Useful Noise Is Never Killed (golden rule — `CONSTITUTION.md` Pilar 12)
+- **Neurons (re-ranking, reasoning) only ORDER.** They never remove, filter or empty the result list.
+- No engine or MCP change may strip the related / similar memories that come with the best one, even if a single-query metric goes up. A change that shortens the list must prove, by measurement, that the cue memories are kept.
+- A "don't know" never empties the list: the brain says how close it is (`nivel_certeza`, knowledge-gap warning) and still shows the similar memories.
+- **Why:** BioRAG is a brain, not a search engine. Agent + brain are one mind: the agent tries to recall, the brain returns similar memories, and those bring cue words for the next search (pattern completion). That "noise" is the thread that leads to the memory. Kill it and the system becomes blind — an ordinary search engine.
+
 ## 3. The Search Pipeline Anatomy (`core/memory_store.py`)
 
 All retrieval through `buscar_por_frase` flows through three deterministic phases:
