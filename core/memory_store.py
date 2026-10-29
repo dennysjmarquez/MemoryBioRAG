@@ -50,6 +50,7 @@ from core.memory.constants import (
     PPMI_VECTOR_WEIGHT,
     ADN_RANKING_ENABLED, ADN_PESO, ADN_MAX_EXPANSION, ADN_UMBRAL_ASOCIACION,
     _qcr_levenshtein, _qcr_todos_cercanos, normalizar_sustantivos_clave,
+    normalizar_sustantivos_clave_exacto, normalizar_sustantivos_clave_exactos_coherentes,
 )
 from core.memory import comms
 from core.memory import telemetry
@@ -318,7 +319,7 @@ class SQLiteMemoryBioRAG:
     def buscar_recuerdo_profundo(self, concepto):
         return search.buscar_recuerdo_profundo(self, concepto=concepto)
 
-    def percibir_corto_plazo(self, concepto, contenido, sinonimos="", categoria="General", dimensiones=None, predicados=None, valencia_somatica=0.0, sustantivos_clave=""):
+    def percibir_corto_plazo(self, concepto, contenido, sinonimos="", categoria="General", dimensiones=None, predicados=None, valencia_somatica=0.0, sustantivos_clave="", sustantivos_clave_exactos=None):
         return ingest.percibir_corto_plazo(
             self,
             concepto=concepto,
@@ -329,6 +330,7 @@ class SQLiteMemoryBioRAG:
             predicados=predicados,
             valencia_somatica=valencia_somatica,
             sustantivos_clave=sustantivos_clave,
+            sustantivos_clave_exactos=sustantivos_clave_exactos,
         )
 
     def consolidar_concepto(self, concepto):

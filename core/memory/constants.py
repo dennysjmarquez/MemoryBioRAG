@@ -6,6 +6,7 @@ import logging
 import math
 import os
 import re
+import unicodedata
 from core.identidad_unicode import normalizar_identidad
 from core.stemmer_es import _quitar_acentos
 
@@ -309,6 +310,37 @@ def normalizar_sustantivos_clave(raw: str) -> str:
             seen.add(t)
             unique.append(t)
     return ",".join(unique)
+
+
+def normalizar_sustantivos_clave_exacto(raw: str) -> str:
+    """Preserva las marcas en NFC; normaliza presentación y deduplica lo exacto."""
+    raw = normalizar_identidad(raw or "")
+    vistos = set()
+    unicos = []
+    for termino in raw.split(","):
+        termino = unicodedata.normalize("NFC", termino.strip().lower())
+        if termino and termino not in vistos:
+            vistos.add(termino)
+            unicos.append(termino)
+    return ",".join(unicos)
+
+
+def normalizar_sustantivos_clave_exactos_coherentes(exactos: str | None, plegados: str | None) -> str | None:
+    """Retorna exactos NFC solo cuando su pliegue coincide con la columna legacy.
+
+    La columna exacta es metadato paralelo: nunca puede describir un valor
+    distinto del valor plegado que se indexa y consulta. Ausente/incoherente
+    se representa como NULL (no como cadena vacía).
+    """
+    if exactos is None or not str(exactos).strip():
+        return None
+    exactos_norm = normalizar_sustantivos_clave_exacto(str(exactos))
+    if not exactos_norm:
+        return None
+    plegados_actuales = plegados or ""
+    if normalizar_sustantivos_clave(exactos_norm) != plegados_actuales:
+        return None
+    return exactos_norm
 
 
 # ── Enlaces decididos por el agente: intocables para los procesos automáticos ──

@@ -65,6 +65,7 @@ def test_migracion_db_vieja_agrega_columnas(tmp_path):
     # Columnas presentes tras migración
     for tabla in ("corto_plazo", "largo_plazo"):
         assert "sustantivos_clave" in _cols(cerebro, tabla), f"Migración no agregó columna en {tabla}"
+        assert "sustantivos_clave_exactos" in _cols(cerebro, tabla), f"Migración no agregó columna exacta en {tabla}"
     # FTS reconstruida con 4 columnas
     for col in ("concepto", "contenido", "sinonimos", "sustantivos_clave"):
         assert col in _cols(cerebro, "largo_plazo_fts"), f"FTS migrada sin columna {col}"
@@ -73,6 +74,8 @@ def test_migracion_db_vieja_agrega_columnas(tmp_path):
         "SELECT sustantivos_clave FROM largo_plazo WHERE concepto = 'nodo_viejo'"
     ).fetchone()
     assert row[0] == "", f"RF-15 violado: backfill inesperado {row[0]!r}"
+    exacto = cerebro.cursor.execute("SELECT sustantivos_clave_exactos FROM largo_plazo WHERE concepto='nodo_viejo'").fetchone()
+    assert exacto == (None,), f"La columna exacta legacy debe quedar NULL, no migrarse: {exacto!r}"
 
 
 def _cols(cerebro, tabla):
@@ -92,11 +95,13 @@ def _insertar_corto(cerebro, concepto, contenido, sustantivos_clave):
 def test_schema_corto_plazo_tiene_columna(cerebro):
     """Criterio T2: corto_plazo tiene columna sustantivos_clave."""
     assert "sustantivos_clave" in _cols(cerebro, "corto_plazo")
+    assert "sustantivos_clave_exactos" in _cols(cerebro, "corto_plazo")
 
 
 def test_schema_largo_plazo_tiene_columna(cerebro):
     """Criterio T2: largo_plazo tiene columna sustantivos_clave."""
     assert "sustantivos_clave" in _cols(cerebro, "largo_plazo")
+    assert "sustantivos_clave_exactos" in _cols(cerebro, "largo_plazo")
 
 
 def test_fts_tiene_4_columnas(cerebro):
@@ -170,3 +175,44 @@ def test_consolidacion_fts_indexa_sustantivos_clave(cerebro):
     ).fetchone()
     assert row is not None, "Nodo sin fila en largo_plazo_fts"
     assert row[0] == "servidor,timeout", f"FTS no indexó sustantivos_clave; obtenido {row[0]!r}"
+
+def test_ingest_vacio_preserva_plegado_y_exactos_hasta_consolidar(cerebro):
+    """Una percepción vacía conserva ambas columnas; consolidación no convierte NULL/''."""
+    cerebro.percibir_corto_plazo(
+        "lamina_japonesa", "Lámina de prueba", sustantivos_clave="カラス",
+        sustantivos_clave_exactos="ガラス,カラス",
+    )
+    cerebro.percibir_corto_plazo(
+        "lamina_japonesa", "Actualización sin etiquetas", sustantivos_clave="",
+    )
+    fila = cerebro.cursor.execute(
+        "SELECT sustantivos_clave, sustantivos_clave_exactos FROM corto_plazo WHERE concepto=?",
+        ("lamina_japonesa",),
+    ).fetchone()
+    assert fila == ("カラス", "ガラス,カラス")
+
+    assert cerebro.consolidar_concepto("lamina_japonesa")
+    fila = cerebro.cursor.execute(
+        "SELECT sustantivos_clave, sustantivos_clave_exactos FROM largo_plazo WHERE concepto=?",
+        ("lamina_japonesa",),
+    ).fetchone()
+    assert fila == ("カラス", "ガラス,カラス")
+
+
+def test_sin_exactos_se_persiste_null_y_guardian_descarta_incoherencia(cerebro):
+    """Exactos ausentes o que no pliegan al valor legacy se guardan como NULL."""
+    cerebro.percibir_corto_plazo(
+        "sin_exactos", "No se entregaron exactos", sustantivos_clave="perro,gato",
+    )
+    cerebro.percibir_corto_plazo(
+        "exactos_incoherentes", "Exactos no corresponden", sustantivos_clave="perro,gato",
+        sustantivos_clave_exactos="ガラス,カラス",
+    )
+    filas = cerebro.cursor.execute(
+        "SELECT concepto, sustantivos_clave, sustantivos_clave_exactos FROM corto_plazo "
+        "WHERE concepto IN ('sin_exactos', 'exactos_incoherentes') ORDER BY concepto"
+    ).fetchall()
+    assert filas == [
+        ("exactos_incoherentes", "perro,gato", None),
+        ("sin_exactos", "perro,gato", None),
+    ]

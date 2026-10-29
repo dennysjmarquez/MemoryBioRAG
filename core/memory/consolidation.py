@@ -214,7 +214,7 @@ def _clasificar_nodo_wordnet(self, concepto, contenido, sinonimos=""):
 
 
 def fusionar_en_largo_plazo(self, concepto, contenido, sinonimos, cat_id,
-                            val_somatica=0.0, sk_corto=""):
+                            val_somatica=0.0, sk_corto="", sk_exactos=None):
     """Regla única de paso corto → largo plazo para UN concepto.
 
     La usan ``ciclo_sueno_consolidacion`` y ``consolidar_concepto`` para que
@@ -247,7 +247,7 @@ def fusionar_en_largo_plazo(self, concepto, contenido, sinonimos, cat_id,
 
     self.cursor.execute(
         "SELECT peso_sinaptico, contenido, sinonimos, categoria, COALESCE(valencia_somatica, 0.0), "
-        "COALESCE(sustantivos_clave, '') FROM largo_plazo WHERE concepto = ?",
+        "COALESCE(sustantivos_clave, ''), sustantivos_clave_exactos FROM largo_plazo WHERE concepto = ?",
         (concepto,),
     )
     datos_actuales = self.cursor.fetchone()
@@ -270,24 +270,33 @@ def fusionar_en_largo_plazo(self, concepto, contenido, sinonimos, cat_id,
         sinonimos_final = ",".join(sinonimos_exist + sinonimos_nuevos)
         cat_final = datos_actuales[3] or cat_id
         val_final = max(datos_actuales[4], val_somatica or 0.0)
-        # CL-6 (RF-6): sustantivos_clave del largo se sobrescribe SOLO si corto_plazo trae valor no vacío.
-        # Si corto_plazo viene vacío, se preserva el valor ya consolidado en largo_plazo (RF-15).
-        sk_final = (sk_corto or "").strip() if (sk_corto or "").strip() else (datos_actuales[5] or "")
+        # La exacta sigue siempre a la plegada: valor nuevo reemplaza ambas;
+        # entrada vacía conserva ambas columnas actuales.
+        from core.memory_store import normalizar_sustantivos_clave_exactos_coherentes
+        if (sk_corto or "").strip():
+            sk_final = (sk_corto or "").strip()
+            sk_exactos_final = normalizar_sustantivos_clave_exactos_coherentes(sk_exactos, sk_final)
+        else:
+            sk_final = datos_actuales[5] or ""
+            sk_exactos_final = normalizar_sustantivos_clave_exactos_coherentes(datos_actuales[6], sk_final)
 
         self.cursor.execute("""
             UPDATE largo_plazo
-            SET contenido = ?, peso_sinaptico = ?, estado = 'activo', ultimo_acceso = ?, sinonimos = ?, categoria = ?, valencia_somatica = ?, sustantivos_clave = ?
+            SET contenido = ?, peso_sinaptico = ?, estado = 'activo', ultimo_acceso = ?, sinonimos = ?, categoria = ?, valencia_somatica = ?, sustantivos_clave = ?, sustantivos_clave_exactos = ?
             WHERE concepto = ?
-        """, (nuevo_contenido, nuevo_peso, time.time(), sinonimos_final, cat_final, val_final, sk_final, concepto))
+        """, (nuevo_contenido, nuevo_peso, time.time(), sinonimos_final, cat_final, val_final, sk_final, sk_exactos_final, concepto))
         return 'actualizado', peso_anterior, nuevo_peso, cat_final
 
     # Creación de un nuevo nodo en el grafo con peso inicial máximo
     ahora = time.time()
     cat_final = cat_id or 1
+    from core.memory_store import normalizar_sustantivos_clave_exactos_coherentes
+    sk_final = (sk_corto or "").strip()
+    sk_exactos_final = normalizar_sustantivos_clave_exactos_coherentes(sk_exactos, sk_final)
     self.cursor.execute("""
-        INSERT INTO largo_plazo (concepto, categoria, contenido, peso_sinaptico, estado, asociaciones, ultimo_acceso, sinonimos, creado_en, valencia_somatica, sustantivos_clave)
-        VALUES (?, ?, ?, 1.0, 'activo', '', ?, ?, ?, ?, ?)
-    """, (concepto, cat_final, contenido, ahora, sinonimos or "", ahora, val_somatica or 0.0, (sk_corto or "").strip()))
+        INSERT INTO largo_plazo (concepto, categoria, contenido, peso_sinaptico, estado, asociaciones, ultimo_acceso, sinonimos, creado_en, valencia_somatica, sustantivos_clave, sustantivos_clave_exactos)
+        VALUES (?, ?, ?, 1.0, 'activo', '', ?, ?, ?, ?, ?, ?)
+    """, (concepto, cat_final, contenido, ahora, sinonimos or "", ahora, val_somatica or 0.0, sk_final, sk_exactos_final))
     return 'nuevo', 0.0, 1.0, cat_final
 
 
@@ -318,12 +327,12 @@ def ciclo_sueno_consolidacion(self):
     acciones_ciclo = []
 
     # 1. Transferencia y Fusión de Corto a Largo Plazo
-    self.cursor.execute("SELECT concepto, contenido, sinonimos, categoria, COALESCE(valencia_somatica, 0.0), COALESCE(sustantivos_clave, '') FROM corto_plazo")
+    self.cursor.execute("SELECT concepto, contenido, sinonimos, categoria, COALESCE(valencia_somatica, 0.0), COALESCE(sustantivos_clave, ''), sustantivos_clave_exactos FROM corto_plazo")
     recuerdos_sesion = self.cursor.fetchall()
     
-    for concepto, contenido, sinonimos, cat_id, val_somatica, sk_corto in recuerdos_sesion:
+    for concepto, contenido, sinonimos, cat_id, val_somatica, sk_corto, sk_exactos in recuerdos_sesion:
         accion, peso_anterior, nuevo_peso, cat_final = fusionar_en_largo_plazo(
-            self, concepto, contenido, sinonimos, cat_id, val_somatica, sk_corto
+            self, concepto, contenido, sinonimos, cat_id, val_somatica, sk_corto, sk_exactos
         )
         if accion == 'actualizado':
             acciones_ciclo.append({
@@ -364,11 +373,11 @@ def ciclo_sueno_consolidacion(self):
 
     # Auto-vincular cada concepto consolidado (aristas por solapamiento de tokens)
     from core.sinapsis import auto_vincular
-    for concepto, contenido, _, _, _, _ in recuerdos_sesion:
+    for concepto, contenido, *_ in recuerdos_sesion:
         auto_vincular(self, concepto, contenido)
 
     # Clasificación simbólica: WordNet lexnames para cada nodo consolidado
-    for concepto, contenido, sinonimos, _, _, _ in recuerdos_sesion:
+    for concepto, contenido, sinonimos, *_ in recuerdos_sesion:
         self._clasificar_nodo_wordnet(concepto, contenido, sinonimos or "")
 
     # Fase 2: Auto-generar sinapsis por co-ocurrencia

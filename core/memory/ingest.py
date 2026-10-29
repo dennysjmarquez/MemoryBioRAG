@@ -32,16 +32,17 @@ def percibir_corto_plazo(
     predicados=None,
     valencia_somatica=0.0,
     sustantivos_clave="",
+    sustantivos_clave_exactos=None,
 ):
     """Almacena temporalmente una percepción o hecho en la memoria de trabajo (Corto Plazo).
     Si el concepto ya existe en corto plazo, concatena contenido y mergea sinónimos.
     dimensiones: dict {tipo_nombre: [valores]} para indexación de 5 ejes.
     predicados: list[dict] con {sujeto, accion, objeto, contexto} para SRL v16.0.
     valencia_somatica: float [0.0, 1.0] para marcadores somáticos (v20.0).
-    sustantivos_clave: str (v25 spec 001) — centro de gravedad temático, ya normalizado por
-    la tool (aprender/guardar). Sobrescribe el valor previo (no merge): si el tema cambió,
-    los sustantivos se reemplazan (Decisión 2 del plan 001). Aditivo: default '' = nodos
-    legacy sin sustantivos, el comportamiento previo no cambia."""
+    sustantivos_clave plegados y sustantivos_clave_exactos se sustituyen como un par
+    cuando la percepción aporta sustantivos; no se fusionan etiquetas entre notas.
+    Si la percepción no aporta sustantivos, conserva las etiquetas plegadas y exactas
+    ya existentes en corto plazo; para un concepto nuevo, la etiqueta exacta queda NULL."""
     # Solo se transforman datos que entran en esta escritura; no filas antiguas.
     key_original = concepto.lower().strip()
     key_normalizada = normalizar_identidad(concepto).lower().strip()
@@ -57,10 +58,13 @@ def percibir_corto_plazo(
         valencia_somatica = 1.0
 
     self.cursor.execute(
-        "SELECT contenido, sinonimos, categoria FROM corto_plazo WHERE concepto = ?",
+        "SELECT contenido, sinonimos, categoria, COALESCE(sustantivos_clave, ''), sustantivos_clave_exactos "
+        "FROM corto_plazo WHERE concepto = ?",
         (key,),
     )
     existente = self.cursor.fetchone()
+    from core.memory_store import normalizar_sustantivos_clave_exactos_coherentes
+    sk_entrante = sustantivos_clave or ""
     if existente:
         contenido_final = existente[0] + f" | Actualización: {contenido}"
         sinonimos_exist = [
@@ -75,14 +79,29 @@ def percibir_corto_plazo(
         ]
         sinonimos_final = ",".join(sinonimos_exist + sinonimos_nuevos)
         cat_id = existente[2] or cat_id
+        if sk_entrante.strip():
+            sk_final = sk_entrante
+            sk_exactos_final = normalizar_sustantivos_clave_exactos_coherentes(
+                sustantivos_clave_exactos, sk_final
+            )
+        else:
+            # Una llamada sin sustantivos no borra ni el campo plegado ni su exacto.
+            sk_final = existente[3] or ""
+            sk_exactos_final = normalizar_sustantivos_clave_exactos_coherentes(
+                existente[4], sk_final
+            )
     else:
         contenido_final = contenido
         sinonimos_final = sinonimos
+        sk_final = sk_entrante
+        sk_exactos_final = normalizar_sustantivos_clave_exactos_coherentes(
+            sustantivos_clave_exactos, sk_final
+        )
 
     self.cursor.execute(
         """
-        INSERT OR REPLACE INTO corto_plazo (concepto, contenido, timestamp, sinonimos, categoria, valencia_somatica, sustantivos_clave)
-        VALUES (?, ?, ?, ?, ?, ?, ?)
+        INSERT OR REPLACE INTO corto_plazo (concepto, contenido, timestamp, sinonimos, categoria, valencia_somatica, sustantivos_clave, sustantivos_clave_exactos)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
     """,
         (
             key,
@@ -91,7 +110,8 @@ def percibir_corto_plazo(
             sinonimos_final,
             cat_id,
             float(valencia_somatica or 0.0),
-            sustantivos_clave or "",
+            sk_final,
+            sk_exactos_final,
         ),
     )
 
@@ -156,15 +176,15 @@ def consolidar_concepto(self, concepto):
     key = _comprobar_clave_legacy(self, key_original, key_normalizada)
     self.cursor.execute(
         "SELECT contenido, sinonimos, categoria, COALESCE(valencia_somatica, 0.0), "
-        "COALESCE(sustantivos_clave, '') FROM corto_plazo WHERE concepto = ?",
+        "COALESCE(sustantivos_clave, ''), sustantivos_clave_exactos FROM corto_plazo WHERE concepto = ?",
         (key,),
     )
     fila = self.cursor.fetchone()
     if not fila:
         return False
-    contenido, sinonimos, cat_id, val_somatica, sk_corto = fila
+    contenido, sinonimos, cat_id, val_somatica, sk_corto, sk_exactos = fila
 
-    fusionar_en_largo_plazo(self, key, contenido, sinonimos, cat_id, val_somatica, sk_corto)
+    fusionar_en_largo_plazo(self, key, contenido, sinonimos, cat_id, val_somatica, sk_corto, sk_exactos)
     # Propagar dimensiones de corto → largo plazo
     self.cursor.execute(
         """

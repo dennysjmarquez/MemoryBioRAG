@@ -468,6 +468,8 @@ def _crear_estructura_cerebral(self):
     # porque las recreaciones de largo_plazo (needs_recreate) pueden haberla descartado.
     if 'sustantivos_clave' not in lp_cols_v20:
         self.cursor.execute("ALTER TABLE largo_plazo ADD COLUMN sustantivos_clave TEXT DEFAULT ''")
+    if 'sustantivos_clave_exactos' not in lp_cols_v20:
+        self.cursor.execute("ALTER TABLE largo_plazo ADD COLUMN sustantivos_clave_exactos TEXT")
 
     self.cursor.execute("PRAGMA table_info(corto_plazo)")
     cp_cols_v20 = [row[1] for row in self.cursor.fetchall()]
@@ -476,6 +478,8 @@ def _crear_estructura_cerebral(self):
     # v25: sustantivos_clave (T2 spec 001) — solo si falta; sin backfill (RF-15).
     if 'sustantivos_clave' not in cp_cols_v20:
         self.cursor.execute("ALTER TABLE corto_plazo ADD COLUMN sustantivos_clave TEXT DEFAULT ''")
+    if 'sustantivos_clave_exactos' not in cp_cols_v20:
+        self.cursor.execute("ALTER TABLE corto_plazo ADD COLUMN sustantivos_clave_exactos TEXT")
 
     # --- Migración v24.2 (Cuarentena y Prioridad para arquitectura de memoria agente) ---
     self.cursor.execute("PRAGMA table_info(largo_plazo)")
@@ -646,6 +650,8 @@ def _crear_tablas_nuevas_si_faltan(self):
         self.cursor.execute("ALTER TABLE largo_plazo ADD COLUMN fallos_dopamina INTEGER DEFAULT 0")
     if 'sustantivos_clave' not in lp_cols_v20:
         self.cursor.execute("ALTER TABLE largo_plazo ADD COLUMN sustantivos_clave TEXT DEFAULT ''")
+    if 'sustantivos_clave_exactos' not in lp_cols_v20:
+        self.cursor.execute("ALTER TABLE largo_plazo ADD COLUMN sustantivos_clave_exactos TEXT")
 
     self.cursor.execute("PRAGMA table_info(corto_plazo)")
     cp_cols_v20 = [row[1] for row in self.cursor.fetchall()]
@@ -653,6 +659,8 @@ def _crear_tablas_nuevas_si_faltan(self):
         self.cursor.execute("ALTER TABLE corto_plazo ADD COLUMN valencia_somatica REAL DEFAULT 0.0")
     if 'sustantivos_clave' not in cp_cols_v20:
         self.cursor.execute("ALTER TABLE corto_plazo ADD COLUMN sustantivos_clave TEXT DEFAULT ''")
+    if 'sustantivos_clave_exactos' not in cp_cols_v20:
+        self.cursor.execute("ALTER TABLE corto_plazo ADD COLUMN sustantivos_clave_exactos TEXT")
 
     # --- Migración v24.2 (Cuarentena y Prioridad para arquitectura de memoria agente) ---
     if 'fecha_expiracion' not in lp_cols_v20:

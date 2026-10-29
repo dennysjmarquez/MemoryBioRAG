@@ -238,11 +238,12 @@ def _aprender_impl(
 
     # Normalizar (RF-10) + auto-dedup preservando orden (RF-14) ANTES de validar
     # cantidad: los duplicados se eliminan y luego se evalúa el número de únicos.
-    from core.memory_store import normalizar_sustantivos_clave
-    sustantivos_norm = normalizar_sustantivos_clave(str(sustantivos_clave))
-    sk_unicos = [t for t in sustantivos_norm.split(",") if t] if sustantivos_norm else []
+    from core.memory_store import normalizar_sustantivos_clave, normalizar_sustantivos_clave_exacto
+    sustantivos_exactos = normalizar_sustantivos_clave_exacto(str(sustantivos_clave))
+    sk_unicos = [t for t in sustantivos_exactos.split(",") if t] if sustantivos_exactos else []
+    sustantivos_norm = normalizar_sustantivos_clave(sustantivos_exactos)
 
-    # Cantidad (RF-2, RF-9): entre 2 a 10 términos únicos tras dedup
+    # El conteo/deduplicación de entrada es exacto; la columna legacy sigue plegada.
     if len(sk_unicos) < 2 or len(sk_unicos) > 10:
         return json.dumps({
             "status": "error",
@@ -310,7 +311,7 @@ def _aprender_impl(
             except (json.JSONDecodeError, TypeError):
                 predicados_list = None
 
-        cerebro.percibir_corto_plazo(clave, contenido, syn or "", categoria, dimensiones_dict, predicados=predicados_list, valencia_somatica=val_somatica, sustantivos_clave=sustantivos_norm)
+        cerebro.percibir_corto_plazo(clave, contenido, syn or "", categoria, dimensiones_dict, predicados=predicados_list, valencia_somatica=val_somatica, sustantivos_clave=sustantivos_norm, sustantivos_clave_exactos=sustantivos_exactos)
 
         enlaces = auto_vincular(cerebro, clave, contenido)
         sinapsis_count = len(enlaces)
@@ -902,9 +903,14 @@ def register(mcp: Any) -> None:
                 "concepto": clave,
             }, ensure_ascii=False)
 
-        from core.memory_store import normalizar_sustantivos_clave
-        sustantivos_norm = normalizar_sustantivos_clave(str(sustantivos_clave))
-        sk_unicos = [t for t in sustantivos_norm.split(",") if t] if sustantivos_norm else []
+        from core.memory_store import normalizar_sustantivos_clave, normalizar_sustantivos_clave_exacto
+        from core.memory_store import normalizar_sustantivos_clave_exactos_coherentes
+        sustantivos_exactos = normalizar_sustantivos_clave_exacto(str(sustantivos_clave))
+        sk_unicos = [t for t in sustantivos_exactos.split(",") if t] if sustantivos_exactos else []
+        sustantivos_norm = normalizar_sustantivos_clave(sustantivos_exactos)
+        sustantivos_exactos = normalizar_sustantivos_clave_exactos_coherentes(
+            sustantivos_exactos, sustantivos_norm
+        )
 
         if len(sk_unicos) < 2 or len(sk_unicos) > 10:
             return json.dumps({
@@ -946,8 +952,8 @@ def register(mcp: Any) -> None:
 
             # La tabla proviene exclusivamente de _buscar_registro_sustantivos.
             cerebro.cursor.execute(
-                f"UPDATE {tabla} SET sustantivos_clave = ? WHERE concepto = ?",
-                (sustantivos_norm, clave),
+                f"UPDATE {tabla} SET sustantivos_clave = ?, sustantivos_clave_exactos = ? WHERE concepto = ?",
+                (sustantivos_norm, sustantivos_exactos, clave),
             )
             cerebro.conn.commit()
             return json.dumps({
@@ -1081,10 +1087,16 @@ def register(mcp: Any) -> None:
                 updates.append("sinonimos = ?")
                 params.append(sinonimos)
             if sustantivos_clave is not None:
-                from core.memory_store import normalizar_sustantivos_clave
-                sk_norm = normalizar_sustantivos_clave(str(sustantivos_clave))
-                updates.append("sustantivos_clave = ?")
-                params.append(sk_norm)
+                from core.memory_store import (
+                    normalizar_sustantivos_clave,
+                    normalizar_sustantivos_clave_exacto,
+                    normalizar_sustantivos_clave_exactos_coherentes,
+                )
+                exactos = normalizar_sustantivos_clave_exacto(str(sustantivos_clave))
+                sk_norm = normalizar_sustantivos_clave(exactos)
+                exactos = normalizar_sustantivos_clave_exactos_coherentes(exactos, sk_norm)
+                updates.extend(("sustantivos_clave = ?", "sustantivos_clave_exactos = ?"))
+                params.extend((sk_norm, exactos))
             if categoria is not None:
                 cat_id = cerebro._resolver_categoria_id(categoria)
                 updates.append("categoria = ?")

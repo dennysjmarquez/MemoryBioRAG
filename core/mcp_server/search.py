@@ -208,9 +208,10 @@ def _recordar_impl(
     if sustantivos_clave is not None:
         sk_raw = str(sustantivos_clave).strip()
         if sk_raw != "":
-            from core.memory_store import normalizar_sustantivos_clave
-            sustantivos_clave_norm = normalizar_sustantivos_clave(sk_raw)
-            sk_unicos = [t for t in sustantivos_clave_norm.split(",") if t] if sustantivos_clave_norm else []
+            from core.memory_store import normalizar_sustantivos_clave, normalizar_sustantivos_clave_exacto
+            sustantivos_clave_exactos = normalizar_sustantivos_clave_exacto(sk_raw)
+            sk_unicos = [t for t in sustantivos_clave_exactos.split(",") if t] if sustantivos_clave_exactos else []
+            sustantivos_clave_norm = normalizar_sustantivos_clave(sustantivos_clave_exactos)
             if not sk_unicos and query_tiene_texto:
                 return json.dumps({
                     "status": "error",
