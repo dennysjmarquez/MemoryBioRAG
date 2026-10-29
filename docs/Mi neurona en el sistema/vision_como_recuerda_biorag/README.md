@@ -1267,6 +1267,28 @@ Servidor MCP de `master` levantado en proceso sobre una **copia** de la viva (du
 - **Higiene:** un recuerdo tiene pegado en su contenido el log de consolidación ("--- Iniciando Ciclo de Consolidación (Sueño) ---"). Hay que revisarlo después, sin borrar nada.
 - **Advertencia:** cada llamada modifica la copia (sinapsis), igual que en uso real, así que el orden de las llamadas influye.
 
+### Ejercicio n.º 3: todos los parámetros de `recordar`, uno por uno (2026-10-29)
+Mismo montaje que el ejercicio 2 (servidor MCP de `master` `f8c2b16` en proceso, **copia** de la viva sha `a61913ce…`, auto-paráfrasis/auto-dims/autoguardado OFF). Unas 50 llamadas cortas, cada una cambiando un solo parámetro. Para lo que dependía del orden se repitió sobre una copia **fresca**. Se publica solo el resumen; los nombres de recuerdos personales se omiten.
+
+**Lo que funciona como se espera**
+- **Sin query:** `recordar()` devuelve el log cronológico (lo último guardado). `desde`/`hasta` sin query da ese rango. Con solo `dimensiones` entra al modo dimensional: trae recuerdos "por su naturaleza" (p. ej. `{"emocion":["tristeza"],"entidad":["identidad_vinculo"]}` → recuerdos de familia y gratitud), con scores planos (~0,33) y todos `sin_evidencia_directa`.
+- **`deep=True`** busca también en los **162 dormidos** (de 1.357). Un recuerdo dormido cuyo nombre contiene las palabras exactas **no aparece ni en el top 50** con búsqueda normal; con `deep=True` sale **#1 (0,71–0,86)**. Además **recordarlo lo despierta** (pasa a `activo`, peso 0,15): reconsolidación, como en el cerebro. Este era el recuerdo "vecino" que sirvió de pista en el ejercicio 2.
+- **`cat`** correcto reduce el conjunto (627 → 119). **`dias`/`desde`** filtran por fecha de creación. **`modo_estricto`** reduce (278 → 53) y mantiene el #1. **`context_window=1`** agrega `contexto_expandido` con vecinos. **`usar_inferencia`** (por defecto `True`) solo suma unas centésimas (0,334 → 0,362), suficiente para cambiar la etiqueta de `sin_evidencia_directa` a `relacionado_confianza_media`.
+
+**Hallazgos (verificados en código; ninguno se tocó)**
+1. **`asociaciones_max` se ignora en `recordar`.** El esquema lo anuncia, pero la herramienta `recordar` no se lo pasa a `_recordar_impl` (`core/mcp_server/search.py:1416-1422`); solo `buscar` lo pasa (`:1516-1523`). Con `asociaciones_max=40` siguen saliendo 12 (`truncada: true`). Al revés, `buscar` no pasa `dias/desde/hasta/autor/ordenar_por`.
+2. **El formato de `dimensiones` se contradice.** El aviso del propio tool sugiere `dimensiones='intencion_aprender'`, pero ese formato da error: hay que pasar JSON (`{"emocion":["afecto"]}`). Un agente que sigue el aviso falla.
+3. **El filtro QCR deja la lista en 1.** Con 2+ palabras, el filtro de cobertura (`core/memory/search.py:1880-1955`, ≥50 % de las palabras, ponderado por IDF) descarta todo lo que no tiene suficientes palabras de la consulta. "perrito regalar" → **1 resultado** de 1.077 candidatos, aun con `limite=20`; la página 2 sale vacía con "BRECHA… 0 resultados". Es la guarda que da FP 0/40, pero **corta los recuerdos relacionados** que dan pistas (P11). Con 1 palabra no pasa ("perro" → 20 de 63). Es motor; solo se registra para conversar.
+4. **`total` engaña:** informa los candidatos de antes del filtro (1.049) cuando se devuelve 1.
+5. **`ordenar_por=recencia/antiguedad` reemplaza la relevancia en todo el conjunto:** arriba quedan recuerdos de score 0,2 sin relación, y el aviso "BRECHA (score_top=0,26)" se dispara solo porque cambió el orden (se mide sobre el primero ya reordenado). Confirma P2: "lo más reciente" debe ir **dentro del mismo tema**, no sobre todo el conjunto.
+6. **`cat` no filtra del todo:** con `cat="Project"` aparecen en el top 5 recuerdos de categoría Personal y General. Falta ver en código qué capa se lo salta.
+7. **`buscar_por_rol` ignora la query:** con rol, "regla" y "Dennys" dan la misma lista, todos con score 1,0 y `evidencia_directa` (es un filtro sobre la tabla `predicados`, 397 filas, sin ranking). **Rol sin query** cae al modo cronológico (`core/mcp_server/search.py:327`) aunque el motor sí lo soporta (`core/memory/search.py:412`).
+8. **Tolerancia a typos con palabra vacía:** "perro" trae recuerdos técnicos marcados `evidencia_directa` (0,62–0,67) porque contienen "**pero**" (distancia 1). La capa de typos no debería corregir hacia palabras vacías.
+9. **`autor` inexistente** vacía la lista y el aviso dice "BioRAG no encontró nada", cuando el recuerdo existe y lo vació el filtro.
+10. **`parafrasis` y `rafaga_palabras` (sin forzar) no mejoraron** el caso fácil: la paráfrasis bajó el top de 0,585 a 0,547 y encendió "BRECHA"; la ráfaga sin `forzar_rafaga` no se ejecuta si el top ya pasa 0,5.
+
+**Lectura para el plan:** 1, 2, 4, 7 y 9 son de interfaz MCP (cablear, documentar o avisar mejor), no de ranking. 3, 5 y 6 tocan el motor y van a conversación con Dennys antes de cualquier cosa (P11: el ruido útil no se mata). 8 es un caso concreto para el plan de criterio neuronal (E4/E5). Una idea de bajo riesgo para después: cuando un dormido encaja mucho mejor que lo activo, avisar "hay un recuerdo dormido que encaja: probá `deep=True`" (pista, no cambio de orden).
+
 ## 3. El orden para llegar (paso a pasito)
 
 | Etapa | Qué | Relación con la visión |
