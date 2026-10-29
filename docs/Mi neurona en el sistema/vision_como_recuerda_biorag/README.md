@@ -1130,6 +1130,8 @@ En concreto, para que la regla se pueda medir:
 
 **Fase de visión: CERRADA (2026-10-28).** Ya están la identidad (distribuida, asociativa, no monolítica), la tesis (motor rápido + pocas neuronas donde se decide), la frontera (recordar con juicio), el examen ("cuando la memoria ayuda y cuando estorba") y la regla de honestidad (publicar también lo que no mejora). No se suman ideas nuevas hasta tener evidencia. Lo que sigue es ejecutar: **B4a → resto de E3 → E4 → Fase 2 → v36.0 → examen de v37**.
 
+**Decisión abierta para v37 (Dennys, 2026-10-29): ¿reusar la neurona de ranking (neurona 1) o sustituirla?** Dennys duda entre reusarla o dejarla aparte y hacer después una que la sustituya y haga todo lo que necesitamos; "ya veremos cuando llegue el momento". Postura inicial del auditor, que se decidirá con mediciones: **empezar dejándola como piso** (capa 1, tal como se acordó: la capa 2 se AÑADE encima) y **retirarla solo si la neurona de razonamiento demuestra, con la regla de éxito, que hace todo lo que ella hace y mejor**, en las 4 QA y en una base no vista. Así nunca hay un momento sin piso.
+
 ## 2t. Superar a WordNet: sinónimos "nivel dios" o una solución propia (Dennys, 2026-10-28, para después)
 
 **La visión de Dennys:** más adelante, mejorar lo que hoy hace WordNet hasta un nivel muy superior, con WordNet, con algo equivalente mejor o con **una solución propia**, decidido **por la medida de este proyecto**.
