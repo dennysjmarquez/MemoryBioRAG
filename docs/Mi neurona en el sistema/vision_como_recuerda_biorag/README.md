@@ -52,6 +52,7 @@ La tesis de ingeniería, en una frase (formulada por otra IA a partir de la idea
 | P9 | **Aprovechar el silicio** | — | No copiar las limitaciones biológicas: velocidad, exactitud y tiempo constante |
 | P10 | **No es un buscador: siempre trae lo parecido y dice qué tan cerca está** | "Busco algo que nunca hice y me llegan recuerdos parecidos que me dan la idea de cómo hacerlo" | No se vacía la lista: lo exacto se entrega como exacto, y lo parecido como parecido. Ver §2u |
 | P11 | **El ruido útil no se mata** | "Por la sinapsis le llegan cosas que se asemejan y el agente intuye: a Dennys le gusta así, aquí se hace así" | Quitar ruido nunca puede borrar la asociación. Cada recorte se mide también por lo que se pierde de parecido. Ver §2u |
+| P12 | **Observar lo que nace solo** | "Eso lo parió el mismo sistema: se agrupaban en islas, como una base vectorial, pero salió por naturaleza" | Lo que emerge sin que nadie lo programe (islas, hubs, recuerdos que se duermen y despiertan) se **observa, se mide y se documenta** antes de decidir si se usa, se mejora o se deja. Nunca se borra por no entenderlo. Ver §2w |
 
 ---
 
@@ -1312,6 +1313,23 @@ Mismo montaje que el ejercicio 2 (servidor MCP de `master` `f8c2b16` en proceso,
 4. **Higiene:** recuerdos sueltos (sin isla) o islas que se contradicen por fecha (P2) como candidatos a revisar, **sin borrar nada**.
 
 **Qué haría primero (conversar antes):** una medición de solo lectura sobre copias, sin tocar el motor: (a) qué método da islas estables entre sueños y entre bases (LPA con freno, Louvain/Leiden, o filtrar por tipo de conexión); (b) con qué frecuencia el recuerdo buscado está en la misma isla que el #1 o que las pistas de los ejercicios 1–3. Si sirve, se diseña como pieza propia (Pilar 9), con piso, techo y guardianes (Pilar 11), y con el OK de Dennys.
+
+## 2w. Observar lo que nace solo: el cerebro como organismo que evoluciona (Dennys, 2026-10-29)
+
+**Lo que dijo Dennys (resumen fiel):** las islas fueron "algo que parió el mismo sistema". Nadie las diseñó con esa forma: los recuerdos se agruparon solos por parecido, y él sintió que se parecía a una base vectorial, pero era un **comportamiento biológico real, no de mentira**, que salió por naturaleza. Como en la evolución de cualquier organismo, el sistema se adapta y crea cosas. Hay que estar pendientes de **hacia dónde va el cerebro**: qué surge solo, qué se puede reutilizar, mejorar u observar.
+
+**Postura del auditor:**
+- Es una forma correcta y valiosa de trabajar. El caso de las islas lo demuestra con datos: el comportamiento existió, se apagó solo cuando la memoria creció (el grafo se saturó) y nadie lo notó durante semanas, porque nadie lo estaba mirando (ver `../islas_de_recuerdos/README.md`, §3b).
+- Lo que emerge **no se asume bueno ni malo de antemano**: se mide. Las islas de significado resultaron sanas y útiles para asociar, pero no para reordenar (medido en agosto). Las dos cosas son conocimiento.
+
+**Qué emerge hoy en BioRAG (lista inicial, para vigilar):**
+1. **Islas** por sinapsis (apagadas por saturación) y por significado (sanas: 125 en la viva).
+2. **Hubs**: recuerdos que acumulan muchas conexiones (umbral `BIORAG_HUB_UMBRAL`).
+3. **Sueño y despertar**: 162 de 1.357 recuerdos dormidos; recordar uno con `deep=True` lo despierta (ejercicio 3).
+4. **Dimensiones creadas por los agentes** (mundo abierto): 6 hoy, una de ellas en un eje que no le corresponde (`protocolo` en `escala_abstraccion`).
+5. **Sinapsis que nacen solas** (`pmi_hebbiano`, `co_semantica`, `dmn_synthesized`…) y la proporción de cada tipo (hoy `sinonimo_explicito` es casi la mitad del grafo).
+
+**Idea para después (conversar antes): un "observatorio" de solo lectura.** Un script que, sobre una copia, saque cada tanto la foto de estas señales (número y tamaño de islas, hubs, dormidos y despertados, dimensiones nuevas, tipos de sinapsis) y la compare con la anterior. Así se ve hacia dónde va el cerebro y se nota a tiempo cuando algo nace o se apaga. No toca el motor, no escribe en la base y no registra el uso de nadie (solo cuenta la estructura).
 
 ## 3. El orden para llegar (paso a pasito)
 
