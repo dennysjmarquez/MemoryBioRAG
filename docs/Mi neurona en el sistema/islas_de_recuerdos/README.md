@@ -78,6 +78,35 @@ Dennys mandó sacar del catálogo el marcador `migration_autoclustering_v1` y la
 
 **Conclusión:** el cambio del 07-10 dejó el sistema bien (y fue correcto sacar el marcador del catálogo). Las islas del sueño se apagaron por **crecimiento**, no por esa limpieza. La memoria lo contaba todo: se encontró también por MCP (`recordar(query="islas comunidades")` en una copia trae **8 recuerdos de esta investigación en el top 8**).
 
+## 3c. Causa raíz en código: por qué el grafo se saturó (2026-10-29, solo lectura)
+
+Las islas del sueño se ahogaron porque el grafo de sinapsis se llenó de conexiones que **nacen fácil y casi nunca mueren**. Hay dos mecanismos concretos en el código (`master` `f8c2b16`), medidos sobre la copia de la viva:
+
+**1. Las conexiones por sinónimos se crean por subcadena, no por palabra.** `core/sinapsis.py:440-470` (`vincular_por_sinonimos`) une el recuerdo nuevo con todo recuerdo cuyo nombre o sinónimos **contengan** cada sinónimo (`LIKE '%término%'`), con peso 0,9.
+- Un sinónimo corto como "pe" o "je" cae dentro de "**pe**rfil", "ex**pe**rimento" o "mensa**je**".
+- **Ejemplo real:** un recuerdo técnico con sinónimos como `pe`, `je` y `jne` quedó unido a **585** recuerdos. Solo **35** comparten de verdad una palabra completa. **477** uniones vienen de "pe" y **166** de "je".
+- En todo el grafo, de **15.219** conexiones `sinonimo_explicito` (casi la mitad de todas):
+
+| Tipo de unión | Conexiones | % |
+|---|---|---|
+| Comparten una palabra completa | 7.892 | 52 % |
+| Solo por subcadena (accidentales) | 4.027 | 26 % |
+| Apuntan a recuerdos que ya no existen | 738 | 5 % |
+| Sin coincidencia visible hoy | 2.562 | 17 % |
+
+De las 4.027 accidentales, **2.530** vienen solo de términos de 3 letras o menos.
+
+**2. Las conexiones que nunca se usaron no se debilitan jamás.** El sueño solo debilita las sinapsis con `ultimo_uso IS NOT NULL` que no se usan hace 7 días (`core/memory/consolidation.py:432-438`). Pero al **crearse**, la sinapsis queda con `ultimo_uso` vacío (el `INSERT` no lo llena).
+- Resultado: **29.039 de 33.413 sinapsis (87 %)** tienen `ultimo_uso` vacío. Sin contar las manuales, que se protegen a propósito, son **27.318** conexiones **inmunes al olvido**.
+- Por tipo: 13.961 de 15.219 `sinonimo_explicito`, 4.133 de 4.162 `co_semantica`, todas las `dmn_synthesized` (948)…
+- Parece un descuido (lo que nunca se usó es justo lo más "no usado"), pero hay que confirmarlo antes de tocar nada.
+
+**3. Además: 862 sinapsis huérfanas** apuntan a recuerdos que no existen en `largo_plazo` (por ejemplo, un concepto inexistente con 633 conexiones, que encabeza la lista de hubs).
+
+**Lectura biológica:** el cerebro hace dos cosas, **crear** conexiones por el uso y **podarlas/regularlas** (escalado sináptico, olvido de lo que no se usa). BioRAG tiene homeostasis para los **recuerdos** (decaimiento, dormir, inhibición lateral y escalado; `core/memory/consolidation.py:390-528`), pero casi no la tiene para las **conexiones**. Por eso se ahogaron las islas del sueño, y por eso aparecen hubs de cientos de vecinos. Es la regla 3 del Pilar 13.
+
+**Qué NO se hizo:** no se tocó el motor ni ninguna base. Antes de cualquier cambio: conversar con Dennys y medir en copias, con la QA completa y las asociaciones, el efecto de (a) unir por palabra completa en vez de subcadena, (b) dar a las sinapsis nuevas su fecha de nacimiento como `ultimo_uso` para que el olvido las alcance, y (c) revisar las huérfanas **sin borrar las manuales**. Las conexiones forman parte de los vecinos y pistas (Pilar 12), así que cualquier poda se mide también por las pistas que se pierden.
+
 ## 4. Lo que se aprendió y sigue en pie
 
 1. **Construir islas sí; reordenar el top-5 con ellas, no (medido seis veces).** Encaja con el Pilar 12 y con la regla de Dennys: las islas sirven para **asociar y dar pistas**, no para filtrar ni reordenar a la fuerza.
