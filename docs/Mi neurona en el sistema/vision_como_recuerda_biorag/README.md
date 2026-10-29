@@ -50,6 +50,8 @@ La tesis de ingeniería, en una frase (formulada por otra IA a partir de la idea
 | P7 | **La ráfaga debe ser natural** | Un humano no trae 500 recuerdos: trae una partecita, y esa parte trae **pistas** que guían a otras, y se va hilando | La ráfaga entrega unos pocos recuerdos más las pistas (palabras) que llevan a los siguientes |
 | P8 | **Neuronas puente donde una ecuación no alcanza** | — | Neuronas pequeñas y entrenadas en puntos exclusivos, cableadas de verdad |
 | P9 | **Aprovechar el silicio** | — | No copiar las limitaciones biológicas: velocidad, exactitud y tiempo constante |
+| P10 | **No es un buscador: siempre trae lo parecido y dice qué tan cerca está** | "Busco algo que nunca hice y me llegan recuerdos parecidos que me dan la idea de cómo hacerlo" | No se vacía la lista: lo exacto se entrega como exacto, y lo parecido como parecido. Ver §2u |
+| P11 | **El ruido útil no se mata** | "Por la sinapsis le llegan cosas que se asemejan y el agente intuye: a Dennys le gusta así, aquí se hace así" | Quitar ruido nunca puede borrar la asociación. Cada recorte se mide también por lo que se pierde de parecido. Ver §2u |
 
 ---
 
@@ -1211,6 +1213,29 @@ WordNet hace **dos trabajos distintos**, y la respuesta es distinta para cada un
 
 ---
 
+## 2u. "No es un buscador": intuición, ruido útil y saber qué tan cerca está (Dennys, 2026-10-29)
+
+### Lo que dijo Dennys (resumen fiel)
+- BioRAG es un cerebro, "un organismo vivo, de silicio, pero vivo"; no es un buscador, ni un RAG, ni una base vectorial.
+- Cuando el agente no encuentra lo exacto, el cerebro le hace llegar cosas parecidas (por ruido o por la sinapsis), y el agente **intuye**: "a Dennys le gusta así", "aquí las cosas se hacen así", "hice algo parecido, quizás esto". Así aprende un humano, y vale para cualquier tema.
+- Un "no sé" que corta mata esa intuición. El ruido "a veces es bueno": no hay que quitarlo del todo.
+- Teme que hayamos limitado muchas cosas al quitar ruido.
+
+### Postura del auditor
+- **De acuerdo.** Un buscador responde "¿hay coincidencias?"; una mente responde "¿a qué me recuerda esto?". BioRAG debe ser lo segundo.
+- Lo único que el agente necesita además es **saber qué tan cerca está** cada recuerdo (exacto, parecido o lejano), para no presentar una pista como si fuera un hecho. Es la sensación de "lo tengo en la punta de la lengua". El peligro no es la intuición; es confundir intuición con recuerdo.
+- **Nuevo sentido de E4:** no "aprender a decir no sé", sino **"decir qué tan cerca estoy"**. La lista no se vacía (salvo que no exista nada, como en una base vacía).
+
+### Lo que dice el código hoy (verificado en `c695310`)
+- El "no sé" seco existe: `core/mcp_server/search.py:~600` vacía la lista si el mejor resultado no pasa el umbral. Pero está **apagado por defecto** (`BIORAG_CALIBRACION_ACTIVA=0`, `core/memory/umbral.py:269-271`). Hoy el MCP no corta.
+- **El temor de Dennys tiene base:** la QA oficial solo mide si el recuerdo **exacto** sale en el top 5. Varios recortes de "ruido" en `core/memory/search.py` (expansiones que no se hacen, inyección PPMI retirada, etc.) se aceptaron porque subían ese número; **ninguno se midió por lo que se perdía de parecido**.
+- La hormiguita se retiró y la neurona asociativa que la reemplaza **todavía no está cableada**. Hoy la vía de asociación espontánea está apagada.
+
+### Siguiente paso propuesto (conversar antes de hacer nada)
+1. **Medir antes de tocar:** una QA "asociativa". En una copia se quita el recuerdo exacto, y se mide si llegan sus parientes útiles (mismo tema, misma forma de hacer las cosas). Así sabremos con números si limitamos de más.
+2. Recién con esa medida, decidir: marcar cercanía (exacto/parecido/lejano), reservar uno o dos lugares de la ráfaga para asociaciones marcadas como tales, y cablear la neurona asociativa (P7, P10, P11).
+3. Regla para todo recorte futuro: se mide el recuerdo exacto **y** lo que se pierde de parecido.
+
 ## 3. El orden para llegar (paso a pasito)
 
 | Etapa | Qué | Relación con la visión |
@@ -1232,7 +1257,7 @@ Cómo entrenar cualquier neurona: `../GUIA_CREAR_UNA_NEURONA.md`.
 
 Antes de construir cualquier neurona o pieza nueva:
 
-1. ¿Qué principio (P1–P9) cumple?
+1. ¿Qué principio (P1–P11) cumple?
 2. ¿Su infraestructura previa ya existe? (§2.2)
 3. ¿Tiene todos los seguros? (§2.3)
 4. ¿Mejora sin bajar nada, en cualquier base?
