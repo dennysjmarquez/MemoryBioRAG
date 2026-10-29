@@ -71,6 +71,11 @@ No neuron enters the engine without a **floor** (the hand formula stays the guar
 - A "don't know" never empties the list: the brain says how close it is (`nivel_certeza`, knowledge-gap warning) and still shows the similar memories.
 - **Why:** BioRAG is a brain, not a search engine. Agent + brain are one mind: the agent tries to recall, the brain returns similar memories, and those bring cue words for the next search (pattern completion). That "noise" is the thread that leads to the memory. Kill it and the system becomes blind — an ordinary search engine.
 
+### Invariant 10: A Living System: Foster What Emerges (guiding focus — `CONSTITUTION.md` Pilar 13)
+- BioRAG is built as an **organism**, not a rule machine: place a piece and let usage, the agent, sleep and time shape the rest. It has already shown behavior nobody dictated: memory **islands** that formed on their own and faded when the graph saturated, memories that fall asleep and wake up when recalled, synapses born from use.
+- **Every change must foster such behavior emerging naturally (adaptive, evolutionary) instead of imposing it by hand.** Prefer simple local rules over global hand-written orders. Keep catalogs open but legible. Give every emergent mechanism homeostasis so it survives 10× growth. It must emerge from each DB's own data, starting from an empty DB. Observe and measure before using it, and never delete it just because it isn't understood yet. Emergent signals go to association/cues first; they reach ranking only with measurement and Dennys's OK.
+- Mandatory question: *does this let the behavior emerge, or impose it by hand? Does it stay alive when memory grows 10×?* All other invariants still apply.
+
 ## 3. The Search Pipeline Anatomy (`core/memory_store.py`)
 
 All retrieval through `buscar_por_frase` flows through three deterministic phases:

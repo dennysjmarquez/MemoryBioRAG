@@ -1329,6 +1329,8 @@ Mismo montaje que el ejercicio 2 (servidor MCP de `master` `f8c2b16` en proceso,
 4. **Dimensiones creadas por los agentes** (mundo abierto): 6 hoy, una de ellas en un eje que no le corresponde (`protocolo` en `escala_abstraccion`).
 5. **Sinapsis que nacen solas** (`pmi_hebbiano`, `co_semantica`, `dmn_synthesized`…) y la proporción de cada tipo (hoy `sinonimo_explicito` es casi la mitad del grafo).
 
+**Enfoque rector (Dennys, 2026-10-29):** quedó escrito en `CONSTITUTION.md` **Pilar 13, "Un Sistema Vivo: Fomentar lo que Nace Solo"**, y en `AGENTS.md` Invariante 10. Todo lo que se construya debe fomentar que estas conductas nazcan solas, de forma adaptativa y evolutiva, con homeostasis para que no se ahoguen al crecer.
+
 **Idea para después (conversar antes): un "observatorio" de solo lectura.** Un script que, sobre una copia, saque cada tanto la foto de estas señales (número y tamaño de islas, hubs, dormidos y despertados, dimensiones nuevas, tipos de sinapsis) y la compare con la anterior. Así se ve hacia dónde va el cerebro y se nota a tiempo cuando algo nace o se apaga. No toca el motor, no escribe en la base y no registra el uso de nadie (solo cuenta la estructura).
 
 ## 3. El orden para llegar (paso a pasito)
