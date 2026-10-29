@@ -1289,6 +1289,28 @@ Mismo montaje que el ejercicio 2 (servidor MCP de `master` `f8c2b16` en proceso,
 
 **Lectura para el plan:** 1, 2, 4, 7 y 9 son de interfaz MCP (cablear, documentar o avisar mejor), no de ranking. 3, 5 y 6 tocan el motor y van a conversación con Dennys antes de cualquier cosa (P11: el ruido útil no se mata). 8 es un caso concreto para el plan de criterio neuronal (E4/E5). Una idea de bajo riesgo para después: cuando un dormido encaja mucho mejor que lo activo, avisar "hay un recuerdo dormido que encaja: probá `deep=True`" (pista, no cambio de orden).
 
+## 2v. Las islas de recuerdos: auto-clustering (Dennys, 2026-10-29, para después)
+
+**Lo que dijo Dennys (resumen fiel):** los recuerdos se agrupan solos en **islas**, "islas fantasma": cosas parecidas, que tienen que ver con lo mismo o que comparten palabras. Algo parecido a lo vectorial, pero **no en duro**. "Una vez se vio". Es una parte muy importante del sistema; hay que descubrir qué es y qué ventajas se le sacan.
+
+**Qué es hoy, en código (verificado en `master` `f8c2b16`):**
+- `core/auto_clustering.py` (v16.0). En cada **sueño** (consolidación, `core/memory/consolidation.py` ~556-563) corre **Label Propagation (LPA)** sobre el grafo de sinapsis (peso ≥ 0,1). Cada isla con **≥ 5 recuerdos** y **densidad ≥ 0,3** se guarda como una **dimensión emergente** en el eje `dominio`, con nombre `tema_<3 palabras frecuentes>`, y sus recuerdos quedan marcados con esa dimensión. Es la parte "abierta" de las dimensiones: el propio cerebro crea coordenadas nuevas.
+- **Uso en la búsqueda: solo indirecto.** Como son dimensiones, entran al coseno dimensional (`core/memory/search.py` ~1293). Ninguna señal compara "la isla de la consulta" con "la isla del candidato" (ya lo anotaban `docs/AUDITORIA_PROFUNDA_26_MECANISMOS.md` #25 y `docs/AUDITORIA_POSICIONAMIENTO_20260913.md` §4.6: "Islas/LPA huérfano").
+- Otros "clusters" distintos, que no hay que confundir: los clusters **hebbianos de dimensiones** de la SDM (`core/sdm.py`, `db/hebbian_clusters.json`), los **cromosomas** de `core/adn_conceptual.py` (reusan el mismo LPA) y el mapa de **burbujas** del Neuro-Visor (`docs/NEURO_VISOR_DASHBOARD_DOCUMENTACION_COMPLETA.md`).
+
+**Qué pasa hoy en la viva (copia sha `a61913ce…`, solo lectura):**
+- El grafo creció: **1.194 recuerdos activos** y unas **26.000 conexiones** entre ellos (grado medio ≈ 44). Con tantas conexiones, el LPA **inunda todo con una sola etiqueta**: **1 isla de 1.194**, densidad muy por debajo de 0,3 → **0 islas nuevas** por ciclo.
+- Como el sueño solo actualiza las islas si encuentra alguna, la que quedó (`tema_umbral_v28_calibrar`, 5 recuerdos) está **congelada** de un ciclo viejo. Por eso "una vez se vio" y hoy no: con poca memoria las islas salían; con mucha, el método se ahoga.
+- **Las islas sí existen; es el método el que no las ve.** Con otro método clásico de comunidades (Louvain, probado solo como medición, fuera del repo) aparecen **6 islas grandes** (modularidad 0,32) con temas reconocibles: identidad y agentes; motor técnico y lecciones; perfil, postulaciones y frontend; reglas y protocolos; versiones de BioRAG y dimensiones; MCP y herramientas. Sin las conexiones de tipo `sinonimo_explicito` (15.219, la mitad del grafo) salen **11 islas** (modularidad 0,40).
+
+**Ventajas posibles (ideas, todavía no medidas):**
+1. **Pistas por isla (P5, P7):** cuando llega un recuerdo, mostrar 2–3 vecinos de su misma isla como palabras pista. Es ruido útil con sentido (Pilar 12), no al azar.
+2. **Desempate por contexto:** si el agente viene "pensando" en una isla (sus búsquedas anteriores), los recuerdos de esa isla suben un poco (moto vs. moto de agua, P4). Solo **ordena**.
+3. **Búsqueda sin texto por isla:** "tráeme lo de esa isla" como una dimensión más, ya que hoy se guardan como dimensiones.
+4. **Higiene:** recuerdos sueltos (sin isla) o islas que se contradicen por fecha (P2) como candidatos a revisar, **sin borrar nada**.
+
+**Qué haría primero (conversar antes):** una medición de solo lectura sobre copias, sin tocar el motor: (a) qué método da islas estables entre sueños y entre bases (LPA con freno, Louvain/Leiden, o filtrar por tipo de conexión); (b) con qué frecuencia el recuerdo buscado está en la misma isla que el #1 o que las pistas de los ejercicios 1–3. Si sirve, se diseña como pieza propia (Pilar 9), con piso, techo y guardianes (Pilar 11), y con el OK de Dennys.
+
 ## 3. El orden para llegar (paso a pasito)
 
 | Etapa | Qué | Relación con la visión |
