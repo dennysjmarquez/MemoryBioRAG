@@ -1257,6 +1257,16 @@ Pregunta sin recuerdo exacto en la base: "una app para los gastos de la casa; in
 - **Fidelidad:** una cita era real, pero estaba atribuida a otro recuerdo, y un dato ("X años juntos") no aparece en la copia del 26-10. Es exactamente el caso de P10: **intuición presentada como recuerdo**. Hace falta que el cerebro diga qué tan cerca está cada cosa.
 - **Fricción:** `local-first` fue rechazado como sustantivo clave (no se admite el guion). Es un pendiente menor de usabilidad.
 
+### Ejercicio n.º 2: el auditor usa el MCP como agente (2026-10-29)
+Servidor MCP de `master` levantado en proceso sobre una **copia** de la viva (dump del 26-10, sha `a61913ce…`), llamando a `recordar` como un agente. Se publica solo el resumen.
+
+- **El ciclo funciona tal como lo describe Dennys.** Tarea: "escribir como Dennys a un cliente nuevo". La primera búsqueda trajo la metodología correcta en el puesto 1, y sus **vecinos** (asociaciones) traían pistas ("antipatrón de texto", "estilo de carta"). Con esas pistas, la segunda búsqueda trajo **7 recuerdos de estilo** en el top 8. En una búsqueda vaga ("aquella vez que Dennys se emocionó…"), un vecino de la primera respuesta fue la pista, y la tercera búsqueda dio el recuerdo con `evidencia_directa` y score 1.0.
+- **El cerebro trae recuerdos que se contradicen y el agente debe resolver por fecha (P2):** una metodología del 21-09 dice "nombrar el problema del cliente"; una enseñanza del 01-10 dice lo contrario. Hoy nada marca cuál es la vigente.
+- **Ya existe una señal de cercanía:** `nivel_certeza` (`evidencia_directa`, `relacionado_confianza_media`, `sin_evidencia_directa`) y el aviso "BRECHA DE CONOCIMIENTO" cuando el top es menor que 0,5. P10 no parte de cero, pero la etiqueta sale del score y **se equivoca**: un recuerdo muy pertinente, validado por Dennys, salió como `sin_evidencia_directa`.
+- **Ruido que entierra:** una consulta casi literal, sin ráfaga, deja el recuerdo exacto en el **puesto 1**. La misma consulta con una ráfaga de palabras genéricas lo baja al **puesto 16 de 50**: sigue ahí, pero fuera de la vista del top 8. Es un caso exacto para la neurona de razonamiento: ordenar sin quitar.
+- **Higiene:** un recuerdo tiene pegado en su contenido el log de consolidación ("--- Iniciando Ciclo de Consolidación (Sueño) ---"). Hay que revisarlo después, sin borrar nada.
+- **Advertencia:** cada llamada modifica la copia (sinapsis), igual que en uso real, así que el orden de las llamadas influye.
+
 ## 3. El orden para llegar (paso a pasito)
 
 | Etapa | Qué | Relación con la visión |
