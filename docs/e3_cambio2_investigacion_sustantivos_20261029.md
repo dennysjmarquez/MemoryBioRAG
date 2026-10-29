@@ -44,60 +44,78 @@ La normalización de identidad aprobada en Cambio 1 hace NFC y plegado acotado d
 
 **Distinción importante:** estos consumidores hacen equivalencia aproximada local para sus fines; no demuestran que sea seguro destruir la identidad original de una etiqueta. Cambio 2 se limita a la representación/consulta de `sustantivos_clave` y no cambia el texto del recuerdo, sus sinónimos, nombre, stemming, SRL, aprendizaje léxico ni neuronas.
 
-## 3. Propuesta: preservar lo escrito, mantener idéntica la comparación de ranking
+## 3. Rediseño aprobado por el auditor: dos columnas aditivas
 
-**Condición de diseño:** la distinción exacta/aproximada se usa para preservar, contar y deduplicar etiquetas; **no crea dos niveles de relevancia**. En el ranking, la comparación sin marcas debe aportar exactamente lo mismo que aporta hoy. `café`/`cafe` y los datos históricos sin marcas no pueden perder peso, posición o elegibilidad por el cambio. No se da precedencia, bono, desempate ni peso adicional a la etiqueta exacta. Cualquier futuro orden por exactitud sería otro cambio independiente, medido y autorizado por separado.
+La auditoría `docs/auditoria_ci/auditoria_e3_cambio2_investigacion_20261029.md` (rama auditora, `43b11fd`) aprobó el diagnóstico y rechazó la proyección dentro de FTS. Este documento sustituye explícitamente aquel diseño anterior. Se adopta el esquema requerido de **dos columnas**:
 
-1. **Al guardar:** después de la identidad Unicode ya aprobada, preservar las marcas del término en NFC y normalizar solo aspectos no semánticos acordados (minúsculas, espacios periféricos, separadores). Deduplicar y contar por cadena exacta marcada, no por forma sin marcas: `ガラス,カラス` son **dos** etiquetas; dos copias idénticas de `ガラス` siguen contando una. Validar el límite de términos sobre ese conjunto preservado.
-2. **Índice de ranking compatible:** preservar el campo fuente `sustantivos_clave` en tablas SQLite. En la columna SK que consume el mismo FTS/ranker actual, indexar una **proyección derivada** de cada fila: equivalencia histórica por término, con deduplicación de claves proyectadas. Proyectar la consulta con la misma regla. Así `ガラス` y `カラス` guardados juntos conservan dos etiquetas fuente, pero la columna de ranking contiene una sola clave histórica `カラス`; `café`/`cafe` proyectan una vez a `cafe`. Mantener el mismo índice/columna FTS, pesos BM25 (SK 4.0), fórmula, top-k y demás reglas; no añadir una señal de coincidencia exacta.
-3. **Identidad frente a proyección:** la clave FTS aproximada sirve para equiparar consultas/candidatos y mantener el ranking de hoy; nunca se escribe de vuelta en el campo fuente, ni se usa para deduplicar o contar las etiquetas guardadas. La exactitud no aporta score, desempate, precedencia ni nivel separado. Cualquier ranking por exactitud sería un cambio aparte que requeriría autorización y medición.
-4. **Compatibilidad legacy e índice:** no reescribir ni fusionar filas de memoria. La proyección FTS puede requerir reconstruir solo el índice derivado o añadir una ruta equivalente de actualización; antes debe comprobarse el ciclo de vida, coste y atomicidad de triggers. Filas legacy ya plegadas conservan la misma proyección efectiva y candidatos que hoy; las etiquetas perdidas son irrecuperables. No inferir etiquetas originales.
-5. **Regla de compatibilidad por verificar:** no asumir que `NFKD` + borrar todos los combining marks equivale en todos los casos a la semántica efectiva del camino actual (en particular `ñ`, caracteres de marcas combinatorias y comportamiento FTS). Antes de implementar, demostrar que la proyección de cada valor guardado y la proyección de consulta reproducen la expresión/campo de ranking actual, incluso para datos directos/legacy. Si no, definir un helper explícito compatible, separado del valor persistido.
-6. **Rutas:** un futuro cambio debe cubrir `recordar`/`buscar`, `aprender`/`guardar`, `agregar_sustantivos`, ingestión/consolidación, triggers/indexación FTS, QCR y autoexamen sin cambiar otros usos de `_quitar_acentos`. `actualizar` MCP queda pendiente separado, no se incluye ni se declara resuelto por compartir helpers.
+1. **`sustantivos_clave` no cambia:** conserva exactamente la normalización plegada actual, incluso para nuevas escrituras. Continúa siendo la única columna de sustantivos usada por FTS y búsqueda. El SQL FTS, sus triggers, BM25 4.0, QCR, filtros de prefijo, candidatos y fórmula de ranking quedan fuera del diff.
+2. **Nueva `sustantivos_clave_exactos TEXT`:** añadir en `corto_plazo` y `largo_plazo` mediante `ALTER TABLE ... ADD COLUMN`. Sin `DEFAULT` que rellene filas: en una base existente las filas antiguas quedan `NULL`; no se intenta reconstruir la información perdida, no se hace backfill, no se actualiza `sustantivos_clave` y no se reconstruye FTS.
+3. **Entrada, recuento y validación:** una función nueva normaliza la forma exacta en NFC, conserva marcas, deduplica solo duplicados exactos y hace que el límite/cantidad y formato se evalúen sobre esos términos. Así `ガラス,カラス` cuenta dos. En paralelo se ejecuta el normalizador histórico sin cambios para producir el valor de `sustantivos_clave`, que se pasa a las rutas existentes de búsqueda e indexación.
+4. **Escritura y consolidación:** `aprender`/`guardar` persisten ambos campos en corto plazo; `agregar_sustantivos` actualiza ambos en el nodo encontrado; la consolidación copia el exacto a largo plazo mientras conserva la regla actual del campo plegado. Lecturas/escrituras directas antiguas que no suministren exacto no inventan valor. La nueva columna es preservación, no una señal de score ni un cambio de recuperación.
+5. **`actualizar` MCP:** queda expresamente pendiente y fuera de esta propuesta, como pidió el auditor. No se debe afirmar que el exacto se sincroniza al modificar etiquetas mediante esa ruta hasta que se autorice y pruebe por separado.
 
-### Sonda sintética de base mixta — predicción que debe verificarse
+El diseño FTS anterior no se conserva: no hay UDF en triggers, no se cambian los filtros que leen la columna cruda, y no se reconstruye ni modifica el índice. El SQL de ranking vigente sigue leyendo solo `sustantivos_clave` plegado. El archivo patch contiene el diff candidato completo, incluidos tests, pero lleva nombre `NO_APLICAR`: **nada se ha aplicado al motor del PR**.
 
-Base mínima con cuatro filas y los mismos demás campos/estado/score: fila legacy `ave` con SK `カラス`, fila nueva `vidrio` recibida como `ガラス`; fila legacy `cafe_antiguo` con SK `cafe`, fila nueva `cafe_nuevo` recibida como `café`. Los nombres de fila solo identifican fixtures, no cambian la consulta. El ranking de esta sonda se restringe al conjunto de dos filas del par consultado; en cada par se fijan idénticos los demás campos y un desempate estable por ID.
+## 4. Sonda mixta sintética: antes vs. candidata
 
-| Consulta (SK) | Antes: SK efectiva de las dos filas | Rangos antes | Propuesta: guardado exacto | Clave de ranking propuesta | Rangos propuestos |
-|---|---|---|---|---|---|
-| `ガラス` | `カラス` / `カラス` | ave 1, vidrio 2 (empate de score; desempate ID) | `カラス` / `ガラス` | `カラス` / `カラス` | ave 1, vidrio 2 (mismo empate/peso) |
-| `カラス` | `カラス` / `カラス` | ave 1, vidrio 2 (empate de score; desempate ID) | `カラス` / `ガラス` | `カラス` / `カラス` | ave 1, vidrio 2 (mismo empate/peso) |
-| `cafe` | `cafe` / `cafe` | antiguo 1, nuevo 2 (empate de score; desempate ID) | `cafe` / `café` | `cafe` / `cafe` | antiguo 1, nuevo 2 (mismo empate/peso) |
-| `café` | `cafe` / `cafe` | antiguo 1, nuevo 2 (empate de score; desempate ID) | `cafe` / `café` | `cafe` / `cafe` | antiguo 1, nuevo 2 (mismo empate/peso) |
+Se comparó el commit base `cf799c7` con una copia aislada de la candidata. Base recién creada y controlada, sin snapshot ni datos vivos. Cuatro filas: etiqueta antigua `カラス` con exacto `NULL`; fila nueva recibida como `ガラス` (en candidata, campo plegado `カラス` y exacto `ガラス`); etiqueta antigua `cafe` con exacto `NULL`; fila nueva recibida como `café` (campo plegado `cafe`, exacto `café`). Contenido, estado y peso quedan controlados. Ambas rutas buscan el texto de consulta y pasan la misma cadena a `sustantivos_clave_boost`; `activos`, límite 10, `ignore_peso_sinaptico=True`, neurona/hub/WordNet apagados. Se registra el score binario (`float.hex`) y decimal con 17 cifras significativas, sin redondear.
 
-**Interpretación:** antes las etiquetas distintas colapsan durante la escritura, por lo que ambas filas almacenan la misma etiqueta; tras la propuesta se preservan `カラス`/`ガラス` y `cafe`/`café`, pero su clave de ranking sigue siendo la equivalencia histórica, deduplicada por fila. Cada par continúa con dos resultados de igual peso y el mismo orden estable. Son **rangos esperados de un fixture controlado**, no una medición del motor ni una afirmación de que todos los rankings de producción sean invariantes. La prueba implementada deberá registrar scores sin redondear, empates, rangos e IDs; si aparece cualquier diferencia de ranking, la propuesta todavía no satisface el requisito.
+| Consulta | Rangos antes | Scores antes (rango 1 / rango 2) | Rangos candidata | Scores candidata (rango 1 / rango 2) |
+|---|---|---|---|---|
+| `ガラス` | `jp_ave_a` 1, `jp_vidrio_b` 2 | 0.021999999999999999 / 0.021499999999999998 | `jp_ave_a` 1, `jp_vidrio_b` 2 | 0.021999999999999999 / 0.021499999999999998 |
+| `カラス` | `jp_ave_a` 1, `jp_vidrio_b` 2 | 0.0207 / 0.020299999999999999 | `jp_ave_a` 1, `jp_vidrio_b` 2 | 0.0207 / 0.020299999999999999 |
+| `cafe` | `coffee_old_a` 1, `coffee_new_b` 2 (empate) | 0.019599999999999999 / 0.019599999999999999 | `coffee_old_a` 1, `coffee_new_b` 2 (empate) | 0.019599999999999999 / 0.019599999999999999 |
+| `café` | `coffee_old_a` 1, `coffee_new_b` 2 (empate) | 0.0189 / 0.0189 | `coffee_old_a` 1, `coffee_new_b` 2 (empate) | 0.0189 / 0.0189 |
 
-En control aislado con SQLite 3.40.1, FTS5 `trigram` no equiparó automáticamente las variantes japonesas, latinas ni devanagari citadas; no se debe confiar en un plegado implícito del tokenizer. `unicode61` de otra tabla (que no incluye SK) sí equiparó `café`/`cafe` y `क़िला`/`किला`, pero no `ガラス`/`カラス`. La clave de comparación compatible debe ser explícita y medirse con la versión de SQLite de CI/instalación; el microcontrol no sustituye QA.
+Los scores también coinciden bit por bit (`float.hex`) entre las dos ejecuciones para cada ID y consulta. La candidata preserva el exacto en otra columna, mientras el campo plegado que consume FTS queda igual al anterior. Los rangos son la salida **medida de esta sonda sintética**, no una afirmación sobre bases reales ni QA oficial.
 
-## 4. Riesgos de base existente
+## 5. Suite completa en copia
 
-- **Colisiones irreversibles ya persistidas:** distintas etiquetas pudieron convertirse en una durante la deduplicación previa. Ejemplo demostrado por las pruebas B1/B3: entrada `ガラス,カラス` queda como un solo `カラス`; el motor no puede inferir que hubo dos.
-- **Recuerdos distintos hoy indistinguibles por SK:** una fila originalmente etiquetada ガラス y otra カラス pueden tener la misma etiqueta almacenada. La búsqueda por alias devolvería candidatos de ambos; medir FP y posición, no solo recall.
-- **Candidatos y orden:** si la proyección no replica exactamente el campo SK que consume hoy FTS/QCR, puede alterar candidatos, saturar overfetch/top-k o afectar abstención y capas posteriores. No usar una marca de coincidencia exacta para ordenar ni aplicar bono, multiplicador o cambio de umbral; comparar puestos y scores para confirmar equivalencia.
-- **Conteo/validación cambia intencionalmente:** al dejar de colapsar, algunas entradas hoy consideradas duplicadas pueden superar límites; entradas como `ガラス,カラス` pasan de un único término a dos. Casos 1–10 y entradas inválidas deben medirse antes de cambiar los errores del protocolo.
-- **Scripts/consumidores:** autoexamen y herramientas que esperan `[a-z0-9_ñ]` o que normalizan y luego cuentan podrían rechazar/esconder marcas aunque el MCP principal las conserve. Auditar esos contratos; no ensanchar neuronas/dimensiones por accidente.
-- **Tokenización Unicode/FTS:** combinar marcas, NFD/NFC y transliteraciones pueden comportarse de forma distinta por tokenizer y versión SQLite. Probar grafemas precompuestos y descompuestos, varias escrituras y signos sin asumir equivalencia de FTS.
-- **Privacidad y alcance de censo:** no publicar términos, títulos ni filas de la base viva. Publicar únicamente cifras agregadas y hashes autorizados; sondeos con contenido sintético.
-- **Sin migración automática:** preservar intactas filas legacy. Una eventual herramienta de reparación/censo sería una tarea aparte, solo en copia o modo lectura; no reescribir snapshots ni bases vivas durante esta propuesta.
+Se ejecutó la propuesta únicamente en `/home/user/.cache/e3-cambio2-candidato`, copia aislada de `cf799c7`; no se usó la base viva. Entorno: Python 3.11.2, dependencias de `requirements.txt` y WordNet local. Comando exacto ejecutado, **sin `-k` ni filtros**:
 
-## 5. Plan de medición previo a cualquier aplicación
+```bash
+NLTK_DATA="$PWD/MemoryBioRAG_Data/nltk_data" PYTHONPATH=. /home/user/.cache/e3-cambio2-venv/bin/python -m pytest -q tests/
+```
 
-**A. Controles unitarios de normalización/contaje** (fixtures sintéticos):
-- exactos: `café` vs `cafe`, `ガラス` vs `カラス`, `क़िला` vs `किला`, `ñandú` vs `nandu`, NFC vs secuencia NFD, `ガ` precompuesto vs kana + U+3099;
-- verificar que `normalizar_sustantivos_clave("ガラス,カラス")` futuro conserva dos formas exactas y que el conteo/validación ocurre después de deduplicación exacta;
-- conservar signos/comas separadoras, ancho y reglas Unicode aprobadas por Cambio 1; probar entradas en MCP recordar/buscar/aprender/guardar/agregar y consolidación.
+Resultado: **754 passed en 177.62 s**, código de salida 0. El log completo está en `.cache` y no se publica. Sus últimas 12 líneas (el log tiene 12 líneas; por tanto se incluye todo el tail disponible, equivalente a las últimas ~20 solicitadas):
 
-**B. Sonda de búsqueda pareada** (DB sintética, ambas filas gold separadas): guardar etiquetas exactas `ガラス` y `カラス`, y pares `café`/`cafe`, `क़िला`/`किला`; añadir filas simuladas legacy en las que la marca ya se perdió. Consultar cada forma marcada/no marcada con query/SK y registrar coincidencia de origen solo como diagnóstico; nunca usarla para ponderar/ordenar. Comparar resultados por ID, score sin redondear, rangos/R@1/R@5/MRR, falsos positivos, rechazos y estabilidad de orden inverso. Incluir consulta con varios sustantivos y claves proyectadas repetidas.
+```text
+........................................................................ [  9%]
+........................................................................ [ 19%]
+........................................................................ [ 28%]
+........................................................................ [ 38%]
+........................................................................ [ 47%]
+........................................................................ [ 57%]
+........................................................................ [ 66%]
+........................................................................ [ 76%]
+........................................................................ [ 85%]
+........................................................................ [ 95%]
+..................................                                       [100%]
+754 passed in 177.62s (0:02:57)
+```
 
-**C. Censo de compatibilidad de bases** (copias privadas en solo lectura): contar, sin exportar valores, (a) filas y términos SK; (b) términos con marcas `Mn/Mc/Me`; (c) cuántos cambian bajo la función histórica; (d) colisiones entre etiquetas distintas al plegar; (e) duplicados dentro del mismo campo antes/después; (f) cobertura FTS y frecuencia de candidatos exactos/solo alias. Separar corto/largo y snapshot/viva, reportar agregados por escritura/categoría solo si no revelan contenido. No migrar, no actualizar triggers, no escribir snapshot.
+Durante la iteración se corrigió una omisión detectada por tests de migración: el `ALTER TABLE` aditivo debía ejecutarse tanto al crear esquema nuevo como en la ruta de tablas existentes. La suite final completa se volvió a ejecutar después de esa corrección, sin `-k` ni filtros.
 
-**D. Evaluación de recuperación**: baseline frente a candidato en casos por ID y por categoría, directo y MCP; normal y ruido, con hubs ON/OFF donde aplique. Registrar todos los rangos por caso (la QA oficial actual solo entrega agregados/fallos), exact-match/alias-match, R@1/R@5, MRR, FP por categoría y rechazos. Añadir casos deliberados de colisión, datos legacy y consulta sin marca. Mantener los protocolos/umbrales vigentes y revertir cualquier pérdida de rango/recall o aumento FP según autorización. No interpretar el resultado 0/921 de Cambio 1 como evidencia de mejora: solo fue un piso de no regresión.
+## 6. Alcance del patch y límites
 
-**E. Escrituras y compatibilidad:** volver a medir la batería MCP de guardados (referencia Cambio 1: 69/80) con cada escritura exacta preservada; validar consolidación, dedup exacta, límites y lecturas. Probar `actualizar` aparte y documentar el resultado como pendiente independiente hasta que Dennys autorice ese subcambio.
+El diff candidato toca exactamente estos nueve archivos:
 
-No se ejecutó censo de bases ni QA en esta investigación; los pasos anteriores son un plan, no resultados.
+```text
+core/mcp_server/search.py
+core/mcp_server/write.py
+core/memory/consolidation.py
+core/memory/constants.py
+core/memory/ingest.py
+core/memory/schema.py
+core/memory_store.py
+tests/test_sustantivos_clave_schema.py
+tests/test_validacion_unicode_guardado_b2.py
+```
 
-## 6. Límites y decisión pendiente
+La base declarada del diff es el commit completo `cf799c7fcd4acdbe6e46db0e36732513baabc1dd`. Se extrajo ese commit a una copia temporal y allí se comprobó `git apply --check docs/e3_cambio2_propuesta_no_aplicar_20261029.patch` con resultado OK; el patch no se aplicó.
 
-Esta investigación identifica el borrado destructivo al normalizar y plantea separar la etiqueta preservada de una clave de búsqueda aproximada. No demuestra aún beneficios de ranking ni seguridad en la base viva. La vuelta `sin marcas` es necesariamente ambigua para escrituras en que las marcas distinguen palabras. **No hay cambio de motor autorizado aquí**; el siguiente paso es que Dennys revise este análisis y el esquema de diff y decida si autoriza una propuesta de implementación y su medición.
+Confirmación explícita del diff: **NO cambia triggers FTS, `MATCH`/BM25 ni los filtros de `core/memory/search.py` en las líneas 1537, 2095 y 2202**. El archivo `core/memory/search.py` no forma parte del diff; esas líneas mantienen exactamente el SQL base. La modificación en `core/mcp_server/search.py` se limita al preprocesamiento de los términos, y no cambia dichos filtros. En `core/memory/schema.py` solo se añaden columnas con `ALTER TABLE`; no se modifica SQL de creación/actualización de FTS ni triggers.
+
+Esta propuesta preserva información para un posible uso futuro; no ofrece una mejora actual de recall o ranking. Las filas antiguas tienen el nuevo campo `NULL`, y no se pueden recuperar marcas que ya se eliminaron. La sonda demuestra igualdad de scores y rangos en un conjunto mínimo, no reemplaza la QA oficial ni una auditoría de la base viva. No se ejecutó censo ni QA oficial para esta candidata.
+
+**Estado: documento y diff NO APLICAR.** A la espera del OK explícito de Dennys antes de aplicar cualquier cambio de motor o ampliar mediciones. La revisión siguiente debe decidir si autoriza QA oficial; si hubiera una discrepancia de FTS/ranking, detener y revisar antes de tocar la rama.

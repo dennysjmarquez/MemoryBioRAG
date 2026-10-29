@@ -1,79 +1,416 @@
-# DOCUMENTO DE PROPUESTA — NO APLICAR
-# Cambio 2: conservar identidad de sustantivos al guardar; alias sin marcas solo al buscar.
-# Esquema conceptual, NO es un diff ejecutable. Sin OK explícito de Dennys no se modifica el motor.
-# Propuesta de alcance: core/memory/constants.py, core/memory/schema.py,
-# core/memory/search.py y tests sintéticos.
-# `actualizar` MCP queda fuera y pendiente separado.
-
-## core/memory/constants.py — normalización de persistencia propuesta
-
-  def normalizar_sustantivos_clave(raw: str) -> str:
--     """... quitar tildes ..."""
-+     """Normaliza presentación, preservando las marcas Unicode significativas."""
-      raw = normalizar_identidad(raw)
-      sk = [t.strip().lower() for t in raw.split(",") if t.strip()]
--     sk = [t.replace("ñ", "\\x01") for t in sk]
--     sk = [_quitar_acentos(t).replace("\\x01", "ñ") for t in sk]
-+     # NFC/identidad aprobada; NO eliminar marcas en el valor persistido.
-+     # Deduplicar por forma exacta NFC, no por la clave aproximada.
-      seen = set()
-      unique = []
-      for t in sk:
-+         t = unicodedata.normalize("NFC", t)
-          if t not in seen:
-              seen.add(t)
-              unique.append(t)
-      return ",".join(unique)
-
-## core/memory/schema.py + core/memory/search.py — columna FTS como proyección histórica
-
-  # La columna fuente `largo_plazo.sustantivos_clave` conserva tokens exactos NFC.
-  # La columna SK del FTS/ranker actual recibe una vista derivada, no destructiva:
-  projected_sk = deduplicar_en_orden(
-      plegado_historico_compatible(token) for token in source_sk.split(",")
-  )
-  # En INSERT/UPDATE del FTS, proyectar `new.sustantivos_clave` con la misma función.
-  # Para filas existentes, reconstruir solo el índice derivado desde las columnas
-  # fuente, tras verificar backup/coste/atomicidad; no UPDATE a las filas fuente.
-
-  if sustantivos_clave_boost and not modo_estricto:
--     sk_tokens = [_quitar_acentos(t) for t in sustantivos_clave_boost.split(",")]
-+     # La consulta se proyecta con la MISMA regla que la columna SK FTS.
-+     # No se añade otra condición exacta ni un score/bonus por marca.
-+     sk_tokens = deduplicar_en_orden(
-+         plegado_historico_compatible(t)
-+         for t in sustantivos_clave_boost.split(",") if t
-+     )
-      sk_fts = " OR ".join(f'"{_fts_safe_term(t)}"' for t in sk_tokens)
-      ...
-+     # Mismos campo FTS, peso BM25=4.0, fórmula y pipeline de ranking vigentes.
-+     # Garantizar que projection(legacy de BD) reproduce el texto ya indexado,
-+     # o documentar/excluir cualquier incompatibilidad antes de proponer cambios.
+diff --git a/core/mcp_server/search.py b/core/mcp_server/search.py
+--- a/core/mcp_server/search.py
++++ b/core/mcp_server/search.py
+@@ -208,9 +208,10 @@
+     if sustantivos_clave is not None:
+         sk_raw = str(sustantivos_clave).strip()
+         if sk_raw != "":
+-            from core.memory_store import normalizar_sustantivos_clave
+-            sustantivos_clave_norm = normalizar_sustantivos_clave(sk_raw)
+-            sk_unicos = [t for t in sustantivos_clave_norm.split(",") if t] if sustantivos_clave_norm else []
++            from core.memory_store import normalizar_sustantivos_clave, normalizar_sustantivos_clave_exacto
++            sustantivos_clave_exactos = normalizar_sustantivos_clave_exacto(sk_raw)
++            sk_unicos = [t for t in sustantivos_clave_exactos.split(",") if t] if sustantivos_clave_exactos else []
++            sustantivos_clave_norm = normalizar_sustantivos_clave(sustantivos_clave_exactos)
+             if not sk_unicos and query_tiene_texto:
+                 return json.dumps({
+                     "status": "error",
+diff --git a/core/mcp_server/write.py b/core/mcp_server/write.py
+--- a/core/mcp_server/write.py
++++ b/core/mcp_server/write.py
+@@ -238,11 +238,12 @@
+ 
+     # Normalizar (RF-10) + auto-dedup preservando orden (RF-14) ANTES de validar
+     # cantidad: los duplicados se eliminan y luego se evalúa el número de únicos.
+-    from core.memory_store import normalizar_sustantivos_clave
+-    sustantivos_norm = normalizar_sustantivos_clave(str(sustantivos_clave))
+-    sk_unicos = [t for t in sustantivos_norm.split(",") if t] if sustantivos_norm else []
+-
+-    # Cantidad (RF-2, RF-9): entre 2 a 10 términos únicos tras dedup
++    from core.memory_store import normalizar_sustantivos_clave, normalizar_sustantivos_clave_exacto
++    sustantivos_exactos = normalizar_sustantivos_clave_exacto(str(sustantivos_clave))
++    sk_unicos = [t for t in sustantivos_exactos.split(",") if t] if sustantivos_exactos else []
++    sustantivos_norm = normalizar_sustantivos_clave(sustantivos_exactos)
 +
-+## Sonda mixta sintética con rangos esperados (no es medición del motor)
++    # El conteo/deduplicación de entrada es exacto; la columna legacy sigue plegada.
+     if len(sk_unicos) < 2 or len(sk_unicos) > 10:
+         return json.dumps({
+             "status": "error",
+@@ -310,7 +311,7 @@
+             except (json.JSONDecodeError, TypeError):
+                 predicados_list = None
+ 
+-        cerebro.percibir_corto_plazo(clave, contenido, syn or "", categoria, dimensiones_dict, predicados=predicados_list, valencia_somatica=val_somatica, sustantivos_clave=sustantivos_norm)
++        cerebro.percibir_corto_plazo(clave, contenido, syn or "", categoria, dimensiones_dict, predicados=predicados_list, valencia_somatica=val_somatica, sustantivos_clave=sustantivos_norm, sustantivos_clave_exactos=sustantivos_exactos)
+ 
+         enlaces = auto_vincular(cerebro, clave, contenido)
+         sinapsis_count = len(enlaces)
+@@ -902,9 +903,10 @@
+                 "concepto": clave,
+             }, ensure_ascii=False)
+ 
+-        from core.memory_store import normalizar_sustantivos_clave
+-        sustantivos_norm = normalizar_sustantivos_clave(str(sustantivos_clave))
+-        sk_unicos = [t for t in sustantivos_norm.split(",") if t] if sustantivos_norm else []
++        from core.memory_store import normalizar_sustantivos_clave, normalizar_sustantivos_clave_exacto
++        sustantivos_exactos = normalizar_sustantivos_clave_exacto(str(sustantivos_clave))
++        sk_unicos = [t for t in sustantivos_exactos.split(",") if t] if sustantivos_exactos else []
++        sustantivos_norm = normalizar_sustantivos_clave(sustantivos_exactos)
+ 
+         if len(sk_unicos) < 2 or len(sk_unicos) > 10:
+             return json.dumps({
+@@ -946,8 +948,8 @@
+ 
+             # La tabla proviene exclusivamente de _buscar_registro_sustantivos.
+             cerebro.cursor.execute(
+-                f"UPDATE {tabla} SET sustantivos_clave = ? WHERE concepto = ?",
+-                (sustantivos_norm, clave),
++                f"UPDATE {tabla} SET sustantivos_clave = ?, sustantivos_clave_exactos = ? WHERE concepto = ?",
++                (sustantivos_norm, sustantivos_exactos, clave),
+             )
+             cerebro.conn.commit()
+             return json.dumps({
+diff --git a/core/memory/consolidation.py b/core/memory/consolidation.py
+--- a/core/memory/consolidation.py
++++ b/core/memory/consolidation.py
+@@ -214,7 +214,7 @@
+ 
+ 
+ def fusionar_en_largo_plazo(self, concepto, contenido, sinonimos, cat_id,
+-                            val_somatica=0.0, sk_corto=""):
++                            val_somatica=0.0, sk_corto="", sk_exactos=None):
+     """Regla única de paso corto → largo plazo para UN concepto.
+ 
+     La usan ``ciclo_sueno_consolidacion`` y ``consolidar_concepto`` para que
+@@ -247,7 +247,7 @@
+ 
+     self.cursor.execute(
+         "SELECT peso_sinaptico, contenido, sinonimos, categoria, COALESCE(valencia_somatica, 0.0), "
+-        "COALESCE(sustantivos_clave, '') FROM largo_plazo WHERE concepto = ?",
++        "COALESCE(sustantivos_clave, ''), COALESCE(sustantivos_clave_exactos, '') FROM largo_plazo WHERE concepto = ?",
+         (concepto,),
+     )
+     datos_actuales = self.cursor.fetchone()
+@@ -273,21 +273,22 @@
+         # CL-6 (RF-6): sustantivos_clave del largo se sobrescribe SOLO si corto_plazo trae valor no vacío.
+         # Si corto_plazo viene vacío, se preserva el valor ya consolidado en largo_plazo (RF-15).
+         sk_final = (sk_corto or "").strip() if (sk_corto or "").strip() else (datos_actuales[5] or "")
++        sk_exactos_final = sk_exactos if sk_exactos is not None else (datos_actuales[6] or None)
+ 
+         self.cursor.execute("""
+             UPDATE largo_plazo
+-            SET contenido = ?, peso_sinaptico = ?, estado = 'activo', ultimo_acceso = ?, sinonimos = ?, categoria = ?, valencia_somatica = ?, sustantivos_clave = ?
++            SET contenido = ?, peso_sinaptico = ?, estado = 'activo', ultimo_acceso = ?, sinonimos = ?, categoria = ?, valencia_somatica = ?, sustantivos_clave = ?, sustantivos_clave_exactos = ?
+             WHERE concepto = ?
+-        """, (nuevo_contenido, nuevo_peso, time.time(), sinonimos_final, cat_final, val_final, sk_final, concepto))
++        """, (nuevo_contenido, nuevo_peso, time.time(), sinonimos_final, cat_final, val_final, sk_final, sk_exactos_final, concepto))
+         return 'actualizado', peso_anterior, nuevo_peso, cat_final
+ 
+     # Creación de un nuevo nodo en el grafo con peso inicial máximo
+     ahora = time.time()
+     cat_final = cat_id or 1
+     self.cursor.execute("""
+-        INSERT INTO largo_plazo (concepto, categoria, contenido, peso_sinaptico, estado, asociaciones, ultimo_acceso, sinonimos, creado_en, valencia_somatica, sustantivos_clave)
+-        VALUES (?, ?, ?, 1.0, 'activo', '', ?, ?, ?, ?, ?)
+-    """, (concepto, cat_final, contenido, ahora, sinonimos or "", ahora, val_somatica or 0.0, (sk_corto or "").strip()))
++        INSERT INTO largo_plazo (concepto, categoria, contenido, peso_sinaptico, estado, asociaciones, ultimo_acceso, sinonimos, creado_en, valencia_somatica, sustantivos_clave, sustantivos_clave_exactos)
++        VALUES (?, ?, ?, 1.0, 'activo', '', ?, ?, ?, ?, ?, ?)
++    """, (concepto, cat_final, contenido, ahora, sinonimos or "", ahora, val_somatica or 0.0, (sk_corto or "").strip(), sk_exactos))
+     return 'nuevo', 0.0, 1.0, cat_final
+ 
+ 
+@@ -318,12 +319,12 @@
+     acciones_ciclo = []
+ 
+     # 1. Transferencia y Fusión de Corto a Largo Plazo
+-    self.cursor.execute("SELECT concepto, contenido, sinonimos, categoria, COALESCE(valencia_somatica, 0.0), COALESCE(sustantivos_clave, '') FROM corto_plazo")
++    self.cursor.execute("SELECT concepto, contenido, sinonimos, categoria, COALESCE(valencia_somatica, 0.0), COALESCE(sustantivos_clave, ''), COALESCE(sustantivos_clave_exactos, '') FROM corto_plazo")
+     recuerdos_sesion = self.cursor.fetchall()
+     
+-    for concepto, contenido, sinonimos, cat_id, val_somatica, sk_corto in recuerdos_sesion:
++    for concepto, contenido, sinonimos, cat_id, val_somatica, sk_corto, sk_exactos in recuerdos_sesion:
+         accion, peso_anterior, nuevo_peso, cat_final = fusionar_en_largo_plazo(
+-            self, concepto, contenido, sinonimos, cat_id, val_somatica, sk_corto
++            self, concepto, contenido, sinonimos, cat_id, val_somatica, sk_corto, sk_exactos
+         )
+         if accion == 'actualizado':
+             acciones_ciclo.append({
+@@ -364,11 +365,11 @@
+ 
+     # Auto-vincular cada concepto consolidado (aristas por solapamiento de tokens)
+     from core.sinapsis import auto_vincular
+-    for concepto, contenido, _, _, _, _ in recuerdos_sesion:
++    for concepto, contenido, *_ in recuerdos_sesion:
+         auto_vincular(self, concepto, contenido)
+ 
+     # Clasificación simbólica: WordNet lexnames para cada nodo consolidado
+-    for concepto, contenido, sinonimos, _, _, _ in recuerdos_sesion:
++    for concepto, contenido, sinonimos, *_ in recuerdos_sesion:
+         self._clasificar_nodo_wordnet(concepto, contenido, sinonimos or "")
+ 
+     # Fase 2: Auto-generar sinapsis por co-ocurrencia
+diff --git a/core/memory/constants.py b/core/memory/constants.py
+--- a/core/memory/constants.py
++++ b/core/memory/constants.py
+@@ -6,6 +6,7 @@
+ import math
+ import os
+ import re
++import unicodedata
+ from core.identidad_unicode import normalizar_identidad
+ from core.stemmer_es import _quitar_acentos
+ 
+@@ -311,6 +312,19 @@
+     return ",".join(unique)
+ 
+ 
++def normalizar_sustantivos_clave_exacto(raw: str) -> str:
++    """Preserva las marcas en NFC; normaliza presentación y deduplica lo exacto."""
++    raw = normalizar_identidad(raw or "")
++    vistos = set()
++    unicos = []
++    for termino in raw.split(","):
++        termino = unicodedata.normalize("NFC", termino.strip().lower())
++        if termino and termino not in vistos:
++            vistos.add(termino)
++            unicos.append(termino)
++    return ",".join(unicos)
 +
-+| Consulta | Antes: filas SK | Rango antes | Nuevo campo fuente | Proyección FTS | Rango propuesto |
-+|---|---|---|---|---|---|
-+| ガラス | カラス / カラス | legacy カラス #1, nuevo ガラス #2 (empate; ID) | カラス / ガラス | カラス / カラス | #1 / #2, mismo empate |
-+| カラス | カラス / カラス | legacy カラス #1, nuevo ガラス #2 (empate; ID) | カラス / ガラス | カラス / カラス | #1 / #2, mismo empate |
-+| cafe | cafe / cafe | legacy cafe #1, nuevo café #2 (empate; ID) | cafe / café | cafe / cafe | #1 / #2, mismo empate |
-+| café | cafe / cafe | legacy cafe #1, nuevo café #2 (empate; ID) | cafe / café | cafe / cafe | #1 / #2, mismo empate |
 +
-+El score por coincidencia marcada/sin marca debe ser idéntico al que produce la
-+proyección actual. No debe existir preferencia por exactitud.
+ # ── Enlaces decididos por el agente: intocables para los procesos automáticos ──
+ # 'manual' = vincular_con (aprender) y la herramienta vincular; 'manual_v7' =
+ # vínculos manuales de versiones anteriores. El agente los creó sabiendo el
+diff --git a/core/memory/ingest.py b/core/memory/ingest.py
+--- a/core/memory/ingest.py
++++ b/core/memory/ingest.py
+@@ -32,6 +32,7 @@
+     predicados=None,
+     valencia_somatica=0.0,
+     sustantivos_clave="",
++    sustantivos_clave_exactos=None,
+ ):
+     """Almacena temporalmente una percepción o hecho en la memoria de trabajo (Corto Plazo).
+     Si el concepto ya existe en corto plazo, concatena contenido y mergea sinónimos.
+@@ -57,7 +58,7 @@
+         valencia_somatica = 1.0
+ 
+     self.cursor.execute(
+-        "SELECT contenido, sinonimos, categoria FROM corto_plazo WHERE concepto = ?",
++        "SELECT contenido, sinonimos, categoria, COALESCE(sustantivos_clave_exactos, '') FROM corto_plazo WHERE concepto = ?",
+         (key,),
+     )
+     existente = self.cursor.fetchone()
+@@ -75,14 +76,16 @@
+         ]
+         sinonimos_final = ",".join(sinonimos_exist + sinonimos_nuevos)
+         cat_id = existente[2] or cat_id
++        if sustantivos_clave_exactos is None:
++            sustantivos_clave_exactos = existente[3] or None
+     else:
+         contenido_final = contenido
+         sinonimos_final = sinonimos
+ 
+     self.cursor.execute(
+         """
+-        INSERT OR REPLACE INTO corto_plazo (concepto, contenido, timestamp, sinonimos, categoria, valencia_somatica, sustantivos_clave)
+-        VALUES (?, ?, ?, ?, ?, ?, ?)
++        INSERT OR REPLACE INTO corto_plazo (concepto, contenido, timestamp, sinonimos, categoria, valencia_somatica, sustantivos_clave, sustantivos_clave_exactos)
++        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+     """,
+         (
+             key,
+@@ -92,6 +95,7 @@
+             cat_id,
+             float(valencia_somatica or 0.0),
+             sustantivos_clave or "",
++            sustantivos_clave_exactos,
+         ),
+     )
+ 
+@@ -156,15 +160,15 @@
+     key = _comprobar_clave_legacy(self, key_original, key_normalizada)
+     self.cursor.execute(
+         "SELECT contenido, sinonimos, categoria, COALESCE(valencia_somatica, 0.0), "
+-        "COALESCE(sustantivos_clave, '') FROM corto_plazo WHERE concepto = ?",
++        "COALESCE(sustantivos_clave, ''), COALESCE(sustantivos_clave_exactos, '') FROM corto_plazo WHERE concepto = ?",
+         (key,),
+     )
+     fila = self.cursor.fetchone()
+     if not fila:
+         return False
+-    contenido, sinonimos, cat_id, val_somatica, sk_corto = fila
+-
+-    fusionar_en_largo_plazo(self, key, contenido, sinonimos, cat_id, val_somatica, sk_corto)
++    contenido, sinonimos, cat_id, val_somatica, sk_corto, sk_exactos = fila
 +
-+## Tests sintéticos requeridos antes de considerar aplicación
-
-  assert normalizar_sustantivos_clave("café,cafe") == "café,cafe"
-  assert normalizar_sustantivos_clave("ガラス,カラス") == "ガラス,カラス"
-  assert normalizar_sustantivos_clave("क़िला,किला") == "क़िला,किला"
-  assert normalizar_sustantivos_clave("ガラス,ガラス") == "ガラス"
-  # DB nueva: consulta marcada/sin marca y etiquetas fuente distintas generan
-  # la misma proyección FTS y el mismo score/rango que el caso histórico.
-  # Etiqueta exacta no gana precedencia, peso ni desempate en el ranking.
-  # DB legacy: etiqueta ya plegada sigue encontrándose; no se migra ni reescribe.
-  # Añadir pruebas de NFD/NFC, 1–10 términos, validación, FTS/QCR y MCP.
-
-# Fuera de este esquema: `biorag_actualizar` (pendiente separado); no tocar otros
-# consumidores de NFKD (_quitar_acentos, stemmer, fallback simbólico, Jaccard,
-# SRL, escala, aprendizaje léxico), nombres, contenido, sinónimos o base de datos.
++    fusionar_en_largo_plazo(self, key, contenido, sinonimos, cat_id, val_somatica, sk_corto, sk_exactos)
+     # Propagar dimensiones de corto → largo plazo
+     self.cursor.execute(
+         """
+diff --git a/core/memory/schema.py b/core/memory/schema.py
+--- a/core/memory/schema.py
++++ b/core/memory/schema.py
+@@ -468,6 +468,8 @@
+     # porque las recreaciones de largo_plazo (needs_recreate) pueden haberla descartado.
+     if 'sustantivos_clave' not in lp_cols_v20:
+         self.cursor.execute("ALTER TABLE largo_plazo ADD COLUMN sustantivos_clave TEXT DEFAULT ''")
++    if 'sustantivos_clave_exactos' not in lp_cols_v20:
++        self.cursor.execute("ALTER TABLE largo_plazo ADD COLUMN sustantivos_clave_exactos TEXT")
+ 
+     self.cursor.execute("PRAGMA table_info(corto_plazo)")
+     cp_cols_v20 = [row[1] for row in self.cursor.fetchall()]
+@@ -476,6 +478,8 @@
+     # v25: sustantivos_clave (T2 spec 001) — solo si falta; sin backfill (RF-15).
+     if 'sustantivos_clave' not in cp_cols_v20:
+         self.cursor.execute("ALTER TABLE corto_plazo ADD COLUMN sustantivos_clave TEXT DEFAULT ''")
++    if 'sustantivos_clave_exactos' not in cp_cols_v20:
++        self.cursor.execute("ALTER TABLE corto_plazo ADD COLUMN sustantivos_clave_exactos TEXT")
+ 
+     # --- Migración v24.2 (Cuarentena y Prioridad para arquitectura de memoria agente) ---
+     self.cursor.execute("PRAGMA table_info(largo_plazo)")
+@@ -646,6 +650,8 @@
+         self.cursor.execute("ALTER TABLE largo_plazo ADD COLUMN fallos_dopamina INTEGER DEFAULT 0")
+     if 'sustantivos_clave' not in lp_cols_v20:
+         self.cursor.execute("ALTER TABLE largo_plazo ADD COLUMN sustantivos_clave TEXT DEFAULT ''")
++    if 'sustantivos_clave_exactos' not in lp_cols_v20:
++        self.cursor.execute("ALTER TABLE largo_plazo ADD COLUMN sustantivos_clave_exactos TEXT")
+ 
+     self.cursor.execute("PRAGMA table_info(corto_plazo)")
+     cp_cols_v20 = [row[1] for row in self.cursor.fetchall()]
+@@ -653,6 +659,8 @@
+         self.cursor.execute("ALTER TABLE corto_plazo ADD COLUMN valencia_somatica REAL DEFAULT 0.0")
+     if 'sustantivos_clave' not in cp_cols_v20:
+         self.cursor.execute("ALTER TABLE corto_plazo ADD COLUMN sustantivos_clave TEXT DEFAULT ''")
++    if 'sustantivos_clave_exactos' not in cp_cols_v20:
++        self.cursor.execute("ALTER TABLE corto_plazo ADD COLUMN sustantivos_clave_exactos TEXT")
+ 
+     # --- Migración v24.2 (Cuarentena y Prioridad para arquitectura de memoria agente) ---
+     if 'fecha_expiracion' not in lp_cols_v20:
+diff --git a/core/memory_store.py b/core/memory_store.py
+--- a/core/memory_store.py
++++ b/core/memory_store.py
+@@ -50,6 +50,7 @@
+     PPMI_VECTOR_WEIGHT,
+     ADN_RANKING_ENABLED, ADN_PESO, ADN_MAX_EXPANSION, ADN_UMBRAL_ASOCIACION,
+     _qcr_levenshtein, _qcr_todos_cercanos, normalizar_sustantivos_clave,
++    normalizar_sustantivos_clave_exacto,
+ )
+ from core.memory import comms
+ from core.memory import telemetry
+@@ -318,7 +319,7 @@
+     def buscar_recuerdo_profundo(self, concepto):
+         return search.buscar_recuerdo_profundo(self, concepto=concepto)
+ 
+-    def percibir_corto_plazo(self, concepto, contenido, sinonimos="", categoria="General", dimensiones=None, predicados=None, valencia_somatica=0.0, sustantivos_clave=""):
++    def percibir_corto_plazo(self, concepto, contenido, sinonimos="", categoria="General", dimensiones=None, predicados=None, valencia_somatica=0.0, sustantivos_clave="", sustantivos_clave_exactos=None):
+         return ingest.percibir_corto_plazo(
+             self,
+             concepto=concepto,
+@@ -329,6 +330,7 @@
+             predicados=predicados,
+             valencia_somatica=valencia_somatica,
+             sustantivos_clave=sustantivos_clave,
++            sustantivos_clave_exactos=sustantivos_clave_exactos,
+         )
+ 
+     def consolidar_concepto(self, concepto):
+diff --git a/tests/test_sustantivos_clave_schema.py b/tests/test_sustantivos_clave_schema.py
+--- a/tests/test_sustantivos_clave_schema.py
++++ b/tests/test_sustantivos_clave_schema.py
+@@ -65,6 +65,7 @@
+     # Columnas presentes tras migración
+     for tabla in ("corto_plazo", "largo_plazo"):
+         assert "sustantivos_clave" in _cols(cerebro, tabla), f"Migración no agregó columna en {tabla}"
++        assert "sustantivos_clave_exactos" in _cols(cerebro, tabla), f"Migración no agregó columna exacta en {tabla}"
+     # FTS reconstruida con 4 columnas
+     for col in ("concepto", "contenido", "sinonimos", "sustantivos_clave"):
+         assert col in _cols(cerebro, "largo_plazo_fts"), f"FTS migrada sin columna {col}"
+@@ -73,6 +74,8 @@
+         "SELECT sustantivos_clave FROM largo_plazo WHERE concepto = 'nodo_viejo'"
+     ).fetchone()
+     assert row[0] == "", f"RF-15 violado: backfill inesperado {row[0]!r}"
++    exacto = cerebro.cursor.execute("SELECT sustantivos_clave_exactos FROM largo_plazo WHERE concepto='nodo_viejo'").fetchone()
++    assert exacto == (None,), f"La columna exacta legacy debe quedar NULL, no migrarse: {exacto!r}"
+ 
+ 
+ def _cols(cerebro, tabla):
+@@ -92,11 +95,13 @@
+ def test_schema_corto_plazo_tiene_columna(cerebro):
+     """Criterio T2: corto_plazo tiene columna sustantivos_clave."""
+     assert "sustantivos_clave" in _cols(cerebro, "corto_plazo")
++    assert "sustantivos_clave_exactos" in _cols(cerebro, "corto_plazo")
+ 
+ 
+ def test_schema_largo_plazo_tiene_columna(cerebro):
+     """Criterio T2: largo_plazo tiene columna sustantivos_clave."""
+     assert "sustantivos_clave" in _cols(cerebro, "largo_plazo")
++    assert "sustantivos_clave_exactos" in _cols(cerebro, "largo_plazo")
+ 
+ 
+ def test_fts_tiene_4_columnas(cerebro):
+diff --git a/tests/test_validacion_unicode_guardado_b2.py b/tests/test_validacion_unicode_guardado_b2.py
+--- a/tests/test_validacion_unicode_guardado_b2.py
++++ b/tests/test_validacion_unicode_guardado_b2.py
+@@ -5,7 +5,8 @@
+ 
+ from core.mcp_server import search, write
+ from core.mcp_server._shared import _sustantivo_valido
+-from core.memory_store import SQLiteMemoryBioRAG, normalizar_sustantivos_clave
++from core.memory_store import (SQLiteMemoryBioRAG, normalizar_sustantivos_clave,
++                               normalizar_sustantivos_clave_exacto)
+ from scripts.evaluar_qa_guardado_nativo_b2 import cargar_entradas, resumen, texto_tool
+ from scripts.evaluar_qa_multilingue_mcp_e3a import parsear_mcp
+ 
+@@ -76,23 +77,23 @@
+     guardado = llamar(mcp, tool_name, **args)
+     assert guardado["status"] == "ok"
+     clave = concepto.lower().replace(" ", "_")
+-    valor = cerebro.conn.execute("SELECT sustantivos_clave FROM corto_plazo WHERE concepto=?", (clave,)).fetchone()
+-    assert valor == (normalizar_sustantivos_clave(inicial),)
++    valor = cerebro.conn.execute("SELECT sustantivos_clave, sustantivos_clave_exactos FROM corto_plazo WHERE concepto=?", (clave,)).fetchone()
++    assert valor == (normalizar_sustantivos_clave(inicial), normalizar_sustantivos_clave_exacto(inicial))
+ 
+     update = llamar(mcp, "agregar_sustantivos", concepto=concepto, sustantivos_clave=corto)
+     assert update["status"] == "ok"
+     assert update["sustantivos_anteriores"] == normalizar_sustantivos_clave(inicial)
+     assert update["sustantivos_nuevos"] == normalizar_sustantivos_clave(corto)
+-    assert cerebro.conn.execute("SELECT sustantivos_clave FROM corto_plazo WHERE concepto=?", (clave,)).fetchone() == (normalizar_sustantivos_clave(corto),)
++    assert cerebro.conn.execute("SELECT sustantivos_clave, sustantivos_clave_exactos FROM corto_plazo WHERE concepto=?", (clave,)).fetchone() == (normalizar_sustantivos_clave(corto), normalizar_sustantivos_clave_exacto(corto))
+ 
+     assert cerebro.consolidar_concepto(clave)
+     update = llamar(mcp, "agregar_sustantivos", concepto=concepto, sustantivos_clave=largo)
+     assert update["status"] == "ok"
+     assert update["sustantivos_anteriores"] == normalizar_sustantivos_clave(corto)
+     assert update["sustantivos_nuevos"] == normalizar_sustantivos_clave(largo)
+-    assert cerebro.conn.execute("SELECT sustantivos_clave FROM largo_plazo WHERE concepto=?", (clave,)).fetchone() == (normalizar_sustantivos_clave(largo),)
++    assert cerebro.conn.execute("SELECT sustantivos_clave, sustantivos_clave_exactos FROM largo_plazo WHERE concepto=?", (clave,)).fetchone() == (normalizar_sustantivos_clave(largo), normalizar_sustantivos_clave_exacto(largo))
+     esperadas = [term for lista in (inicial, corto, largo)
+-                 for term in normalizar_sustantivos_clave(lista).split(",")]
++                 for term in normalizar_sustantivos_clave_exacto(lista).split(",")]
+     assert llamadas == esperadas
+ 
+ 
+@@ -140,3 +141,23 @@
+     r = resumen(filas)
+     assert r["zh"]["guardados"] == 0 and r["zh"]["primeros_rechazos"] == {"BRIDGES_INVALIDOS": 1}
+     assert r["ru"]["guardados"] == 1 and r["ru"]["primeros_rechazos"] == {}
++
++
++def test_marcas_exactas_se_cuentan_y_se_consolidan_sin_alterar_columna_legacy(ctx):
++    mcp, cerebro = ctx
++    args = dict(
++        concepto="material_lamina", contenido="Una lámina transparente permite ver el interior.",
++        dimensiones=None, cat="General", bridges=BRIDGES,
++        sustantivos_clave="ガラス,カラス", busqueda_previa=True,
++    )
++    respuesta = llamar(mcp, "aprender", **args)
++    assert respuesta["status"] == "ok", respuesta
++    fila = cerebro.conn.execute(
++        "SELECT sustantivos_clave, sustantivos_clave_exactos FROM corto_plazo WHERE concepto='material_lamina'"
++    ).fetchone()
++    assert fila == ("カラス", "ガラス,カラス")
++    assert cerebro.consolidar_concepto("material_lamina")
++    fila = cerebro.conn.execute(
++        "SELECT sustantivos_clave, sustantivos_clave_exactos FROM largo_plazo WHERE concepto='material_lamina'"
++    ).fetchone()
++    assert fila == ("カラス", "ガラス,カラス")
