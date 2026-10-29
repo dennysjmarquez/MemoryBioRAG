@@ -10,7 +10,17 @@ La percepción con sustantivos vacíos **conserva** las etiquetas plegadas y exa
 
 ## 1. QA oficiales de snapshot
 
-Comandos usados para las corridas v2: `scripts/evaluar_qa.py`, `PYTHONHASHSEED=0`, `BIORAG_NEURONA=0`, fuente `snapshots/qa_escape_qcr_20260811.db` (SHA-256 `104dd2902aaf24a3c36f4c7f461340a49eabe40adb345f9ddc3d5246150e0bb9`). Para ruido se añadieron `BIORAG_QA_RUIDO=zzqx` y `BIORAG_QA_TEMATICO_CENSO=1`. El evaluador trabajó sobre copias temporales.
+Entorno de las corridas v2: `PYTHONHASHSEED=0`, `BIORAG_NEURONA=0`, fuente `snapshots/qa_escape_qcr_20260811.db` con SHA-256 `104dd2902aaf24c3ce93624492ea95a719acbdcca50f4f6bc123ac8317749796`; el evaluador trabajó sobre copias temporales. La cadena literal de las invocaciones snapshot no sobrevivió a la caché efímera; comandos de reproducción con esa configuración:
+
+Normal:
+```bash
+PYTHONHASHSEED=0 BIORAG_NEURONA=0 BIORAG_PATH="$PWD/snapshots/qa_escape_qcr_20260811.db" NLTK_DATA="$PWD/MemoryBioRAG_Data/nltk_data" PYTHONPATH=. /home/user/.cache/e3-cambio2-apply/venv/bin/python scripts/evaluar_qa.py
+```
+
+Con ruido:
+```bash
+PYTHONHASHSEED=0 BIORAG_NEURONA=0 BIORAG_PATH="$PWD/snapshots/qa_escape_qcr_20260811.db" BIORAG_QA_RUIDO=zzqx BIORAG_QA_TEMATICO_CENSO=1 NLTK_DATA="$PWD/MemoryBioRAG_Data/nltk_data" PYTHONPATH=. /home/user/.cache/e3-cambio2-apply/venv/bin/python scripts/evaluar_qa.py
+```
 
 La salida textual de ambas corridas v2 coincidió exactamente con B3 en global, categorías, QA honesta y censo; FP `0/40`. Los archivos canónicos de comparación B3 están en `docs/e3b3_snapshot_normal_20261028.log` y `docs/e3b3_snapshot_ruido_20261028.log` (JSON asociados del mismo nombre). Las salidas v2 de snapshot se guardaron en caché efímera y no sobrevivieron a la reconstrucción de la candidata; los resultados completos por categoría se transcriben a continuación, sin atribuir los logs canónicos de B3 como logs crudos de la corrida v2.
 
