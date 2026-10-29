@@ -52,18 +52,47 @@ QA honesta R@1: 853 casos, 88.63%, MRR 0.9281.
 
 El código 1 de ruido es el resultado histórico de B3, no una regresión de Cambio 2: ambas corridas ruido coinciden exactamente con B3, incluidas las métricas por categoría y el FP `0/40`.
 
+### QA honesta por categoría — snapshots
+
+| Categoría | Normal R@5 (n) | Normal R@1 (n) | Ruido R@5 (n) | Ruido R@1 (n) |
+|---|---:|---:|---:|---:|
+| cruce_idioma | 100.00% (8) | 62.50% (8) | 62.50% (8) | 50.00% (8) |
+| dormido | 100.00% (65) | 100.00% (65) | 98.46% (65) | 95.38% (65) |
+| literal | 100.00% (487) | 99.59% (487) | 99.38% (487) | 91.38% (487) |
+| por_tema | 100.00% (65) | 69.23% (65) | 95.38% (65) | 67.69% (65) |
+| pregunta_natural | 100.00% (65) | 96.92% (65) | 98.46% (65) | 93.85% (65) |
+| sinonimo | 100.00% (45; 14 apartados) | 87.88% (33; 28 apartados) | 88.89% (45; 14 apartados) | 78.79% (33; 28 apartados) |
+| typo | 100.00% (65) | 92.31% (65) | 93.85% (65) | 90.77% (65) |
+| variante_gramatical | 100.00% (65) | 93.85% (65) | 95.38% (65) | 84.62% (65) |
+| **Global honesta** | **100.00% (865; 0 fallos)** | **95.31% (853; MRR 0.9718)** | **97.34% (865; 23 fallos)** | **88.63% (853; MRR 0.9281)** |
+
 ## 2. QA oficiales vivas
 
 ### Comandos exactos
 
 Normal:
 ```bash
-PYTHONHASHSEED=0 BIORAG_NEURONA=0 BIORAG_PATH=/tmp/viva_e3a.db BIORAG_QA_ORIGEN=/tmp/viva_e3a.db BIORAG_QA_DB_VIVA=/tmp/viva_e3a.db BIORAG_QA_TEMP_DB=/tmp/e3c2_viva_normal_work.db BIORAG_QA_METRICS=/tmp/e3c2_viva_normal.json BIORAG_QA_FAILED_CASES=/tmp/e3c2_viva_normal_fallos.jsonl BIORAG_DMN_ESTADO_PATH=/tmp/e3c2_dmn_viva_normal.json NLTK_DATA="$PWD/MemoryBioRAG_Data/nltk_data" PYTHONPATH=. /home/user/.cache/e3-cambio2-apply/venv/bin/python scripts/evaluar_qa.py
+set -o pipefail
+export PYTHONHASHSEED=0 BIORAG_NEURONA=0 BIORAG_PATH=/tmp/viva_e3a.db BIORAG_QA_ORIGEN=/tmp/viva_e3a.db BIORAG_QA_DB_VIVA=/tmp/viva_e3a.db
+export BIORAG_QA_TEMP_DB=/tmp/e3c2_viva_normal_work.db BIORAG_QA_METRICS=/tmp/e3c2_viva_normal.json BIORAG_QA_FAILED_CASES=/tmp/e3c2_viva_normal_fallos.jsonl BIORAG_DMN_ESTADO_PATH=/tmp/e3c2_dmn_viva_normal.json
+export NLTK_DATA="$PWD/MemoryBioRAG_Data/nltk_data" PYTHONPATH=.
+/home/user/.cache/e3-cambio2-apply/venv/bin/python scripts/evaluar_qa.py > /tmp/e3c2_viva_normal.log 2>&1
+status=$?
+printf 'EXIT_CODE=%s\nLOG=/tmp/e3c2_viva_normal.log\n' "$status"
+exit "$status"
 ```
 
 Con ruido:
 ```bash
-PYTHONHASHSEED=0 BIORAG_NEURONA=0 BIORAG_PATH=/tmp/viva_e3a.db BIORAG_QA_ORIGEN=/tmp/viva_e3a.db BIORAG_QA_DB_VIVA=/tmp/viva_e3a.db BIORAG_QA_TEMP_DB=/tmp/e3c2_viva_ruido_work.db BIORAG_QA_METRICS=/tmp/e3c2_viva_ruido.json BIORAG_QA_FAILED_CASES=/tmp/e3c2_viva_ruido_fallos.jsonl BIORAG_DMN_ESTADO_PATH=/tmp/e3c2_dmn_viva_ruido.json BIORAG_QA_RUIDO=zzqx BIORAG_QA_TEMATICO_CENSO=1 NLTK_DATA="$PWD/MemoryBioRAG_Data/nltk_data" PYTHONPATH=. /home/user/.cache/e3-cambio2-apply/venv/bin/python scripts/evaluar_qa.py
+set -o pipefail
+export PYTHONHASHSEED=0 BIORAG_NEURONA=0 BIORAG_PATH=/tmp/viva_e3a.db BIORAG_QA_ORIGEN=/tmp/viva_e3a.db BIORAG_QA_DB_VIVA=/tmp/viva_e3a.db
+export BIORAG_QA_TEMP_DB=/tmp/e3c2_viva_ruido_work.db BIORAG_QA_METRICS=/tmp/e3c2_viva_ruido.json BIORAG_QA_FAILED_CASES=/tmp/e3c2_viva_ruido_fallos.jsonl BIORAG_DMN_ESTADO_PATH=/tmp/e3c2_dmn_viva_ruido.json
+export BIORAG_QA_RUIDO=zzqx BIORAG_QA_TEMATICO_CENSO=1
+export NLTK_DATA="$PWD/MemoryBioRAG_Data/nltk_data" PYTHONPATH=.
+/home/user/.cache/e3-cambio2-apply/venv/bin/python scripts/evaluar_qa.py > /tmp/e3c2_viva_ruido.log 2>&1
+status=$?
+printf 'EXIT_CODE=%s\nLOG=/tmp/e3c2_viva_ruido.log\n' "$status"
+exit "$status"
 ```
 
 Salidas de consola completas y JSON medidos: [`e3c2_viva_normal_20261029.log`](e3c2_viva_normal_20261029.log), [`e3c2_viva_normal_20261029.json`](e3c2_viva_normal_20261029.json), [`e3c2_viva_ruido_20261029.log`](e3c2_viva_ruido_20261029.log), [`e3c2_viva_ruido_20261029.json`](e3c2_viva_ruido_20261029.json).
