@@ -1,0 +1,79 @@
+# DOCUMENTO DE PROPUESTA — NO APLICAR
+# Cambio 2: conservar identidad de sustantivos al guardar; alias sin marcas solo al buscar.
+# Esquema conceptual, NO es un diff ejecutable. Sin OK explícito de Dennys no se modifica el motor.
+# Propuesta de alcance: core/memory/constants.py, core/memory/schema.py,
+# core/memory/search.py y tests sintéticos.
+# `actualizar` MCP queda fuera y pendiente separado.
+
+## core/memory/constants.py — normalización de persistencia propuesta
+
+  def normalizar_sustantivos_clave(raw: str) -> str:
+-     """... quitar tildes ..."""
++     """Normaliza presentación, preservando las marcas Unicode significativas."""
+      raw = normalizar_identidad(raw)
+      sk = [t.strip().lower() for t in raw.split(",") if t.strip()]
+-     sk = [t.replace("ñ", "\\x01") for t in sk]
+-     sk = [_quitar_acentos(t).replace("\\x01", "ñ") for t in sk]
++     # NFC/identidad aprobada; NO eliminar marcas en el valor persistido.
++     # Deduplicar por forma exacta NFC, no por la clave aproximada.
+      seen = set()
+      unique = []
+      for t in sk:
++         t = unicodedata.normalize("NFC", t)
+          if t not in seen:
+              seen.add(t)
+              unique.append(t)
+      return ",".join(unique)
+
+## core/memory/schema.py + core/memory/search.py — columna FTS como proyección histórica
+
+  # La columna fuente `largo_plazo.sustantivos_clave` conserva tokens exactos NFC.
+  # La columna SK del FTS/ranker actual recibe una vista derivada, no destructiva:
+  projected_sk = deduplicar_en_orden(
+      plegado_historico_compatible(token) for token in source_sk.split(",")
+  )
+  # En INSERT/UPDATE del FTS, proyectar `new.sustantivos_clave` con la misma función.
+  # Para filas existentes, reconstruir solo el índice derivado desde las columnas
+  # fuente, tras verificar backup/coste/atomicidad; no UPDATE a las filas fuente.
+
+  if sustantivos_clave_boost and not modo_estricto:
+-     sk_tokens = [_quitar_acentos(t) for t in sustantivos_clave_boost.split(",")]
++     # La consulta se proyecta con la MISMA regla que la columna SK FTS.
++     # No se añade otra condición exacta ni un score/bonus por marca.
++     sk_tokens = deduplicar_en_orden(
++         plegado_historico_compatible(t)
++         for t in sustantivos_clave_boost.split(",") if t
++     )
+      sk_fts = " OR ".join(f'"{_fts_safe_term(t)}"' for t in sk_tokens)
+      ...
++     # Mismos campo FTS, peso BM25=4.0, fórmula y pipeline de ranking vigentes.
++     # Garantizar que projection(legacy de BD) reproduce el texto ya indexado,
++     # o documentar/excluir cualquier incompatibilidad antes de proponer cambios.
++
++## Sonda mixta sintética con rangos esperados (no es medición del motor)
++
++| Consulta | Antes: filas SK | Rango antes | Nuevo campo fuente | Proyección FTS | Rango propuesto |
++|---|---|---|---|---|---|
++| ガラス | カラス / カラス | legacy カラス #1, nuevo ガラス #2 (empate; ID) | カラス / ガラス | カラス / カラス | #1 / #2, mismo empate |
++| カラス | カラス / カラス | legacy カラス #1, nuevo ガラス #2 (empate; ID) | カラス / ガラス | カラス / カラス | #1 / #2, mismo empate |
++| cafe | cafe / cafe | legacy cafe #1, nuevo café #2 (empate; ID) | cafe / café | cafe / cafe | #1 / #2, mismo empate |
++| café | cafe / cafe | legacy cafe #1, nuevo café #2 (empate; ID) | cafe / café | cafe / cafe | #1 / #2, mismo empate |
++
++El score por coincidencia marcada/sin marca debe ser idéntico al que produce la
++proyección actual. No debe existir preferencia por exactitud.
++
++## Tests sintéticos requeridos antes de considerar aplicación
+
+  assert normalizar_sustantivos_clave("café,cafe") == "café,cafe"
+  assert normalizar_sustantivos_clave("ガラス,カラス") == "ガラス,カラス"
+  assert normalizar_sustantivos_clave("क़िला,किला") == "क़िला,किला"
+  assert normalizar_sustantivos_clave("ガラス,ガラス") == "ガラス"
+  # DB nueva: consulta marcada/sin marca y etiquetas fuente distintas generan
+  # la misma proyección FTS y el mismo score/rango que el caso histórico.
+  # Etiqueta exacta no gana precedencia, peso ni desempate en el ranking.
+  # DB legacy: etiqueta ya plegada sigue encontrándose; no se migra ni reescribe.
+  # Añadir pruebas de NFD/NFC, 1–10 términos, validación, FTS/QCR y MCP.
+
+# Fuera de este esquema: `biorag_actualizar` (pendiente separado); no tocar otros
+# consumidores de NFKD (_quitar_acentos, stemmer, fallback simbólico, Jaccard,
+# SRL, escala, aprendizaje léxico), nombres, contenido, sinónimos o base de datos.
