@@ -15,3 +15,15 @@
 **Sobre la base mixta (orden 1↔2):** no es una regresión, es la identidad funcionando: con la propuesta, `ｚｑｘｈｎ` y `zqxhn` devuelven exactamente la misma lista. Ambos recuerdos contienen el mismo marcador y no hay gold. Debe documentarse así.
 
 **Después del diff v2 y del OK de Dennys:** las 4 QA oficiales + multilingüe + MCP, como siempre.
+
+## Auditoría de la aplicación: commit `c695310` — **APROBADO** (2026-10-29)
+
+- **Motor = diff v2 autorizado**: los 12 archivos de motor/docs son byte a byte iguales a `0b1bd52` + diff `68439804…`; la única diferencia es la línea del test MCP pedida por el auditor (`sustantivos_clave="ejemplo"`).
+- **CI de la PR**: Python 3.11 y 3.12 en verde. Suite completa reportada: 753 passed (el auditor obtuvo 752 + 1 fallo del test, que es exactamente la línea corregida).
+- **4 QA oficiales = B3/B4a** en global y por categoría, FP 0/40 (informe `4261f71`). **Guardados MCP 69/80**, igual que B3 (zh 18, ja 15, ko 16, ru 20). Multilingüe directa y MCP sin cambios; los 2 FP ingleses siguen (B4b).
+- El JSON agregado no contiene consultas, títulos ni contenidos de la viva (comprobado).
+
+**Límites, dichos con honestidad:**
+1. Las 4 QA oficiales prueban que **no hay daño** (piso), pero **no ejercitan el cambio**: el auditor comprobó que **0 de 921** consultas cambian con `normalizar_identidad` (con o sin `zzqx`). La mejora la demuestran las pruebas unitarias y las sondas sintéticas.
+2. La herramienta MCP `actualizar` no pliega ancho: pendiente pequeño y aislado.
+3. La QA oficial guarda agregados y fallos, no todos los rangos individuales. Guardar el rango por caso será útil también para el examen de v37 (cambio separado, más adelante).
