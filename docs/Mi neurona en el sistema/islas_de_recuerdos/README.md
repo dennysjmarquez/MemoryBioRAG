@@ -107,6 +107,15 @@ De las 4.027 accidentales, **2.530** vienen solo de términos de 3 letras o meno
 
 **Qué NO se hizo:** no se tocó el motor ni ninguna base. Antes de cualquier cambio: conversar con Dennys y medir en copias, con la QA completa y las asociaciones, el efecto de (a) unir por palabra completa en vez de subcadena, (b) dar a las sinapsis nuevas su fecha de nacimiento como `ultimo_uso` para que el olvido las alcance, y (c) revisar las huérfanas **sin borrar las manuales**. Las conexiones forman parte de los vecinos y pistas (Pilar 12), así que cualquier poda se mide también por las pistas que se pierden.
 
+### Postura de Dennys sobre las sinapsis (2026-10-29)
+- **Hay dos tipos de sinapsis.**
+  - **La verdadera sinapsis** la hace el agente en vivo: antes de guardar, busca lo que va a guardar (`aprender` exige `busqueda_previa=True`, `core/mcp_server/write.py:80-103`) y, si encuentra recuerdos relacionados, los **vincula**. Esas conexiones (`manual`, 1.801 en la viva) ya están protegidas del olvido (`constants.SQL_NO_ES_DEL_AGENTE`).
+  - **Las automáticas** se hacen solas por detrás: sinónimos, co-ocurrencia, sueño…
+- **Las automáticas no se matan: se mejoran.** Son las aristas que permiten el **salto** de un recuerdo a otro. Sin ellas no llega el recuerdo vecino y no hay ruido útil (Pilar 12). El código lo confirma: los saltos del grafo usan `sinonimo_explicito` (`core/ppmi_hybrid_search.py:29`, `TIPOS_HOP`), y la inferencia transitiva también.
+- **Ruido sí, ruido tonto no.** Lo que sobra son las uniones accidentales ("pe" dentro de "perfil"), no los sinónimos reales (7.892 que comparten palabra completa).
+- **Orden:** primero el algoritmo, la mecánica y el motor tienen que hacer bien las conexiones; después las neuronas.
+- **La visión:** BioRAG es un grafo y además un cerebro. Cada recuerdo es como una neurona, y las conexiones son el tejido que las une.
+
 ## 4. Lo que se aprendió y sigue en pie
 
 1. **Construir islas sí; reordenar el top-5 con ellas, no (medido seis veces).** Encaja con el Pilar 12 y con la regla de Dennys: las islas sirven para **asociar y dar pistas**, no para filtrar ni reordenar a la fuerza.
