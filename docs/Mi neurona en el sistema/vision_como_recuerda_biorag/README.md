@@ -1236,6 +1236,11 @@ WordNet hace **dos trabajos distintos**, y la respuesta es distinta para cada un
 2. Recién con esa medida, decidir: marcar cercanía (exacto/parecido/lejano), reservar uno o dos lugares de la ráfaga para asociaciones marcadas como tales, y cablear la neurona asociativa (P7, P10, P11).
 3. Regla para todo recorte futuro: se mide el recuerdo exacto **y** lo que se pierde de parecido.
 
+### Regla de Dennys para las neuronas (2026-10-29)
+- **Las neuronas que se creen (re-ranking, razonamiento) solo ORDENAN.** No quitan, no filtran, no vacían. El ruido es necesario: cuando alguien no atina a lo que busca, y sobre todo cuando va a crear algo, busca lo que se le asemeje y le pueda servir.
+- Encaje con la neurociencia (inspiración, no prueba): el hipocampo **completa patrones** a partir de pistas parciales; la activación se **propaga** a lo relacionado; recordar e imaginar usan la **misma red** (Schacter y Addis, simulación episódica constructiva), por eso crear necesita lo parecido. La inhibición de competidores al recordar (Wimber et al., 2015) **baja** a los rivales, no los borra. En BioRAG, eso es ordenar.
+- La neuroplasticidad (Hebb, LTP/LTD, poda por desuso) actúa **con el tiempo y por uso** (sinapsis, decaimiento, sueño/consolidación), nunca como un filtro en el momento de recordar.
+
 ## 3. El orden para llegar (paso a pasito)
 
 | Etapa | Qué | Relación con la visión |
