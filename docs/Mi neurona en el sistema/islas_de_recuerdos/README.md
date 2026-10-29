@@ -64,9 +64,19 @@ Lo que Dennys recuerda como "islas fantasma" son las de la primera columna: **se
 - 13 ejes y 108 valores; **6 creados automáticamente**: `tema_umbral_v28_calibrar` (la isla congelada), `protocolo`, `intencion_analizar`, `dominio_cognitivo`, `accion_documentar` e `intencion_evaluar`.
 - **`protocolo` quedó dentro del eje `escala_abstraccion`** (tipo 18) con 5 recuerdos de protocolos. Un "protocolo" no es una escala de abstracción: parece una entrada del mundo abierto en el eje equivocado. Es el mismo tipo de cosa que "se metió". **Solo se registra; no se toca.**
 - 3 valores sin ningún recuerdo.
-- **Mucho movimiento:** el contador interno de SQLite va por **123.866** dimensiones creadas para 108 que existen (y por 3.915 en ejes, para 13). Algo crea y borra dimensiones en gran cantidad. **Origen todavía no investigado.**
+- **Contador alto, sin pérdida de datos (resuelto el mismo día):** el contador interno de SQLite va por **123.866** para 108 dimensiones (y por 3.915 para 13 ejes). **No se crean ni se borran dimensiones.** Cada vez que se abre el cerebro, el `INSERT OR IGNORE` del catálogo de fábrica (`core/memory/schema.py` ~923, ejes nuevos) "gasta" números aunque no inserte nada: medido sobre una copia, **+29 por apertura** (y +6 en ejes). 123.866 / 29 ≈ 4.270 aperturas. Es inofensivo; solo hace que los ids de las dimensiones nuevas salten.
 
 ---
+
+## 3b. ¿El cambio del 07-10 (lo que Dennys mandó a quitar) estropeó las islas? No.
+
+Dennys mandó sacar del catálogo el marcador `migration_autoclustering_v1` y la isla `auto_umbral_v28_calibrar`, sin recordar que ahí vivían las islas automáticas. Comprobación:
+
+1. **La isla no se borró: se renombró.** Pasó a `tema_umbral_v28_calibrar` con sus recuerdos (recuerdo `flag_migracion_autoclustering_fuera_catalogo`), y sigue en la base.
+2. **El sueño siguió formando islas después del cambio.** La fecha de detección de esa isla (`generado_en`) es **2026-10-11 01:23**, tres días después de la migración (marcada en `migraciones_ejecutadas` el 2026-10-08 00:58), con densidad 0,77. El código del sueño sigue llamando a `detectar_comunidades` en cada consolidación (`core/memory/consolidation.py` ~556).
+3. **Por qué hoy no salen islas nuevas:** el grafo de sinapsis se saturó. Ya en agosto, con 866 recuerdos, el LPA con los parámetros del motor daba **0 comunidades** (`hallazgo_adn_degenerado_grafo_sin_modularidad_20260813`, del 13-08, **antes** del cambio). Hoy, con 1.194 activos y ~26.000 conexiones, da 1 isla gigante. El último bolsón denso que todavía se detectaba (el del umbral v28) fue la última isla.
+
+**Conclusión:** el cambio del 07-10 dejó el sistema bien (y fue correcto sacar el marcador del catálogo). Las islas del sueño se apagaron por **crecimiento**, no por esa limpieza. La memoria lo contaba todo: se encontró también por MCP (`recordar(query="islas comunidades")` en una copia trae **8 recuerdos de esta investigación en el top 8**).
 
 ## 4. Lo que se aprendió y sigue en pie
 
@@ -95,7 +105,6 @@ Todo con el OK de Dennys.
 
 ## 6. Huecos de conocimiento (todavía no investigados)
 
-- Qué crea y borra tantas dimensiones (contador 123.866).
 - Si `protocolo` en `escala_abstraccion` vino del mundo abierto o de otro camino.
 - Para qué se usan hoy los 45 grupos WordNet en la búsqueda.
 - Si existe en el disco de Dennys el documento "Ruta de madurez" que citan los scripts de agosto (no está en el repo).
