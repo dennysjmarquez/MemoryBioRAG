@@ -35,3 +35,7 @@
 - **Al aplicar:** actualizar el docstring de `ingest.percibir_corto_plazo` ("Sobrescribe el valor previo") para la entrada vacía, y declararlo en los resultados.
 
 **Medición esperada después de aplicar:** las 4 QA oficiales iguales a B3; FP 0/40; multilingüe directa y MCP con 132 casos sin cambios; guardados MCP 69/80.
+
+## Decisión de Dennys (2026-10-29)
+- **Opción A aceptada:** una nota sin palabras clave ya no borra las que la memoria tenía en corto plazo.
+- **Idea para DESPUÉS** (no entra en el Cambio 2): Dennys plantea que las palabras clave deberían **fusionarse** cuando una memoria recibe varias notas antes de consolidar. Hoy el contenido y los sinónimos se fusionan, pero las palabras clave se **reemplazan** por las más nuevas (Decisión 2 del plan 001, "si el tema cambió"). Lo mismo hace `agregar_sustantivos`, que funciona en corto y largo plazo; `actualizar` solo funciona en largo plazo. Se tratará como cambio propio: diff, OK de Dennys y medición.
