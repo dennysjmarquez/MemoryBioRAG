@@ -6,6 +6,7 @@ import logging
 import math
 import os
 import re
+from core.identidad_unicode import normalizar_identidad
 from core.stemmer_es import _quitar_acentos
 
 _log_constants = logging.getLogger(__name__)
@@ -295,6 +296,9 @@ def normalizar_sustantivos_clave(raw: str) -> str:
     marcador de control (\x01) antes de `_quitar_acentos` y se restaura después.
     El marcador no es alfanumérico, así que jamás pasa la validación de formato (T3).
     """
+    # Cambio 1 solo unifica ancho/forma canónica antes de separar y validar.
+    # La conservación de marcas al guardar queda para el cambio 2.
+    raw = normalizar_identidad(raw)
     sk = [t.strip().lower() for t in raw.split(",") if t.strip()]
     sk = [t.replace("ñ", "\x01") for t in sk]
     sk = [_quitar_acentos(t).replace("\x01", "ñ") for t in sk]

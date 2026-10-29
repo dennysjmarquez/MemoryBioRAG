@@ -18,6 +18,7 @@ import unicodedata
 from collections import deque
 import numpy as np
 
+from core.identidad_unicode import normalizar_identidad
 from core.stemmer_es import _quitar_acentos
 from core.memory import constants
 from core.memory import neurona
@@ -73,6 +74,13 @@ def buscar_por_frase(self, frase, profundidad="activos", pagina=1, limite=None, 
     Retorna (resultados, total) donde resultados es lista de
     (concepto, contenido, peso, estado, score, asociaciones)
     """
+    # Una sola identidad de entrada para búsqueda, paráfrasis y sustantivos.
+    frase = normalizar_identidad(frase)
+    if parafrasis_list:
+        parafrasis_list = [normalizar_identidad(p) for p in parafrasis_list]
+    if sustantivos_clave_boost:
+        sustantivos_clave_boost = normalizar_identidad(str(sustantivos_clave_boost))
+
     # Neurona (core/memory/neurona.py): las búsquedas de práctica del autoexamen
     # van "en silencio" — no cuentan como actividad del usuario.
     _neurona_silencio = neurona.silencio(self)
@@ -80,7 +88,7 @@ def buscar_por_frase(self, frase, profundidad="activos", pagina=1, limite=None, 
         self.notificar_actividad_usuario()
     _neurona_anotar = neurona.necesita_rasgos(self)
     _neurona_rasgos = {}
-    _neurona_frase = frase  # original: la regla de identidad compara con lo que escribió el usuario
+    _neurona_frase = frase  # consulta del usuario tras identidad, antes de expansiones
     self.last_parent_map = {}  # Reset parent pointers for this search
     # Side-channels for the optional final rank adjustment. The public tuple
     # keeps one coherent score (the score actually used for ordering); consumers

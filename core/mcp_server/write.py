@@ -14,6 +14,7 @@ from typing import Annotated, Any, Optional
 
 from pydantic import Field
 
+from core.identidad_unicode import normalizar_identidad
 from core.mcp_server._shared import (
     VENTANA_CORRECCION,
     _get_cerebro,
@@ -29,6 +30,25 @@ from core.sinapsis import (
     auto_vincular,
     vincular_por_sinonimos,
 )
+
+
+def _buscar_registro_sustantivos(cerebro, concepto: str):
+    """Resuelve clave existente sin renombrar: exacta primero, normalizada después.
+
+    Permite usar la forma nueva para buscar una clave recién creada sin desviar
+    una referencia exacta a una fila antigua. Si existen ambas, usa la exacta;
+    no busca otras equivalencias en todo el corpus.
+    """
+    original = concepto.lower().strip().replace(" ", "_")
+    normalizada = normalizar_identidad(concepto).lower().strip().replace(" ", "_")
+    for clave in dict.fromkeys((original, normalizada)):
+        for tabla in ("largo_plazo", "corto_plazo"):
+            row = cerebro.cursor.execute(
+                f"SELECT sustantivos_clave FROM {tabla} WHERE concepto = ?", (clave,)
+            ).fetchone()
+            if row is not None:
+                return clave, tabla, row[0] or ""
+    return normalizada, None, ""
 
 
 # HELPER: Búsqueda retroactiva de nodos viejos relacionados
@@ -80,6 +100,9 @@ def _aprender_impl(
     busqueda_previa: bool = False,
     vincular_con: Optional[Any] = None,
 ) -> str:
+    # Solo nuevas entradas: la identidad se comparte con búsqueda y validación.
+    clave_original = concepto.lower().replace(" ", "_")
+    concepto = normalizar_identidad(concepto)
     clave = concepto.lower().replace(" ", "_")
 
     # ── VALIDACIÓN OBLIGATORIA (INVARIANTE) — Pre-flight Search ─────
@@ -105,6 +128,10 @@ def _aprender_impl(
             "concepto": clave,
             "parametro_faltante": "busqueda_previa",
         }, ensure_ascii=False)
+
+    contenido = normalizar_identidad(contenido, ancho_solo_letras_numeros=True)
+    if syn is not None:
+        syn = normalizar_identidad(syn, ancho_solo_letras_numeros=True)
 
     # ── VALIDACIÓN OBLIGATORIA — ANTES de tocar la DB ──────────────
     # Rechazar acá, antes de percibir_corto_plazo(), significa que un
@@ -249,6 +276,8 @@ def _aprender_impl(
     cerebro = _get_cerebro()
     try:
         clave = concepto.lower().replace(" ", "_")
+        from core.memory.ingest import _comprobar_clave_legacy
+        clave = _comprobar_clave_legacy(cerebro, clave_original.strip(), clave.strip())
         categoria = cat or inferir_categoria(contenido)
         val_somatica = float(valencia_somatica or 0.0)
         if categoria and str(categoria).lower() in ('principle', 'protocol'):
@@ -859,7 +888,7 @@ def register(mcp: Any) -> None:
             )
         )],
     ) -> str:
-        clave = concepto.lower().strip().replace(" ", "_")
+        clave = normalizar_identidad(concepto).lower().strip().replace(" ", "_")
 
         if not sustantivos_clave or not str(sustantivos_clave).strip():
             return json.dumps({
@@ -907,38 +936,25 @@ def register(mcp: Any) -> None:
 
         cerebro = _get_cerebro()
         try:
-            # 1. Buscar en largo_plazo
-            cerebro.cursor.execute("SELECT sustantivos_clave FROM largo_plazo WHERE concepto = ?", (clave,))
-            row_lp = cerebro.cursor.fetchone()
-            if row_lp is not None:
-                anterior = row_lp[0] or ""
-                cerebro.cursor.execute("UPDATE largo_plazo SET sustantivos_clave = ? WHERE concepto = ?", (sustantivos_norm, clave))
-                cerebro.conn.commit()
+            clave, tabla, anterior = _buscar_registro_sustantivos(cerebro, concepto)
+            if tabla is None:
                 return json.dumps({
-                    "status": "ok",
-                    "concepto": clave,
-                    "sustantivos_anteriores": anterior,
-                    "sustantivos_nuevos": sustantivos_norm,
+                    "status": "error",
+                    "codigo": "NODO_NO_ENCONTRADO",
+                    "mensaje": f"El concepto '{clave}' no existe en la base de datos.",
                 }, ensure_ascii=False)
 
-            # 2. Fallback a corto_plazo
-            cerebro.cursor.execute("SELECT sustantivos_clave FROM corto_plazo WHERE concepto = ?", (clave,))
-            row_cp = cerebro.cursor.fetchone()
-            if row_cp is not None:
-                anterior = row_cp[0] or ""
-                cerebro.cursor.execute("UPDATE corto_plazo SET sustantivos_clave = ? WHERE concepto = ?", (sustantivos_norm, clave))
-                cerebro.conn.commit()
-                return json.dumps({
-                    "status": "ok",
-                    "concepto": clave,
-                    "sustantivos_anteriores": anterior,
-                    "sustantivos_nuevos": sustantivos_norm,
-                }, ensure_ascii=False)
-
+            # La tabla proviene exclusivamente de _buscar_registro_sustantivos.
+            cerebro.cursor.execute(
+                f"UPDATE {tabla} SET sustantivos_clave = ? WHERE concepto = ?",
+                (sustantivos_norm, clave),
+            )
+            cerebro.conn.commit()
             return json.dumps({
-                "status": "error",
-                "codigo": "NODO_NO_ENCONTRADO",
-                "mensaje": f"El concepto '{clave}' no existe en la base de datos.",
+                "status": "ok",
+                "concepto": clave,
+                "sustantivos_anteriores": anterior,
+                "sustantivos_nuevos": sustantivos_norm,
             }, ensure_ascii=False)
         finally:
             cerebro.cerrar_sistema()
@@ -954,25 +970,16 @@ def register(mcp: Any) -> None:
     def biorag_sustantivos(
         concepto: Annotated[str, Field(description="Nombre del nodo a consultar (snake_case).")],
     ) -> str:
-        clave = concepto.lower().strip().replace(" ", "_")
         cerebro = _get_cerebro()
         try:
-            # 1. Buscar en largo_plazo
-            cerebro.cursor.execute("SELECT sustantivos_clave FROM largo_plazo WHERE concepto = ?", (clave,))
-            row = cerebro.cursor.fetchone()
-            if row is None:
-                # 2. Fallback a corto_plazo
-                cerebro.cursor.execute("SELECT sustantivos_clave FROM corto_plazo WHERE concepto = ?", (clave,))
-                row = cerebro.cursor.fetchone()
-
-            if row is None:
+            clave, tabla, val = _buscar_registro_sustantivos(cerebro, concepto)
+            if tabla is None:
                 return json.dumps({
                     "status": "error",
                     "codigo": "NODO_NO_ENCONTRADO",
                     "mensaje": f"El concepto '{clave}' no existe en la base de datos.",
                 }, ensure_ascii=False)
 
-            val = row[0] or ""
             items = [x.strip() for x in val.split(",") if x.strip()] if val else []
             return json.dumps({
                 "status": "ok",

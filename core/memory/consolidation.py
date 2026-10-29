@@ -14,6 +14,7 @@ import os
 import sqlite3
 import time
 
+from core.identidad_unicode import _recortar_sin_perder_espacio_ideografico
 from core.memory import constants
 
 
@@ -256,8 +257,16 @@ def fusionar_en_largo_plazo(self, concepto, contenido, sinonimos, cat_id,
         peso_anterior = datos_actuales[0]
         nuevo_peso = min(1.0, peso_anterior + 0.20)
         nuevo_contenido = (datos_actuales[1] or "") + f" | Actualización: {contenido}"
-        sinonimos_exist = [s.strip() for s in (datos_actuales[2] or "").split(",") if s.strip()]
-        sinonimos_nuevos = [s.strip() for s in (sinonimos or "").split(",") if s.strip() and s.strip() not in sinonimos_exist]
+        sinonimos_exist = [
+            _recortar_sin_perder_espacio_ideografico(s)
+            for s in (datos_actuales[2] or "").split(",") if s.strip()
+        ]
+        claves_exist = {s.strip() for s in sinonimos_exist}
+        sinonimos_nuevos = [
+            _recortar_sin_perder_espacio_ideografico(s)
+            for s in (sinonimos or "").split(",")
+            if s.strip() and s.strip() not in claves_exist
+        ]
         sinonimos_final = ",".join(sinonimos_exist + sinonimos_nuevos)
         cat_final = datos_actuales[3] or cat_id
         val_final = max(datos_actuales[4], val_somatica or 0.0)

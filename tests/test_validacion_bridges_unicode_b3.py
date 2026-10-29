@@ -36,7 +36,7 @@ def _bridges(primero):
     ("memoria artificial", True),
     ("once lunas", True),  # No mezclar stopwords inglesas en el filtro español.
     ("the and", True),  # La lista inglesa no se agrega en B3.
-    ("１２３４", True),  # La regla cuenta números anchos; no infiere significado.
+    ("１２３４", False),  # Ancho → 1234: una sola unidad, igual que la forma normal.
     ("哈哈哈哈", True),
     ("1234 5678", True),
     ("jaja jaja", True),

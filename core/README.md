@@ -39,6 +39,7 @@ agente ─► core/mcp_server/ ─► core/memory_store.py (fachada) ─► core
 
 | Archivo | Qué es | Por qué existe / qué aporta | Se conecta con | Estado |
 |---|---|---|---|---|
+| `identidad_unicode.py` | Identidad compartida: NFC y ancho U+FF00–FFEF; en contenido/sinónimos solo ancho de letras y números | Unir formas equivalentes sin quitar marcas; preservar signos y U+3000 en contenido/sinónimos y su fusión | `memory/search`, `memory/ingest`, `memory/consolidation`, `memory/constants`, `memory_service`, `concept_hub` y MCP | Propuesta E3 v2, pendiente de aprobación y QA; no migra datos. Investigación: `docs/e3_unicode_identidad_investigacion_20261028.md` |
 | `stemmer_es.py` | Reduce palabras a su raíz (Snowball español e inglés) | Que "versión" y "versiones" se unan | Lo usan **11** archivos | Activo. **Solo es/en** |
 | `stopwords.py` | Listas de palabras vacías (conectores) | Que "de", "la", "the" no cuenten como contenido | Lo usan **12** archivos | Activo. **Solo es/en** |
 | `fallback_simbolico.py` | Rescate cuando la búsqueda literal falla: tokenizador, Levenshtein (tipeo), WordNet | Recuperar con errores de tipeo o variantes | `search`, `scoring`, `rafaga`, `evidence_convergence`, `ppmi_hybrid_search` | Activo. Quita tildes (NFKD) pensando en escritura latina |

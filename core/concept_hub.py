@@ -46,6 +46,8 @@ import logging
 import sqlite3
 from typing import Optional, List, Dict, Any, Tuple, Union
 
+from core.identidad_unicode import normalizar_identidad
+
 logger = logging.getLogger("BioRAG.ConceptHub")
 
 
@@ -107,7 +109,8 @@ def validar_bridges(bridges: Any, clave: str) -> Tuple[List[Dict[str, Any]], Lis
             elif isinstance(x, str):
                 items_procesados.append({"text": x.strip(), "angle": "legacy", "weight": 1.0})
 
-    stems_clave = {stem(w) for w in clave.lower().replace("_", " ").split() if len(w) > 2}
+    clave_norm = normalizar_identidad(clave).lower()
+    stems_clave = {stem(w) for w in clave_norm.replace("_", " ").split() if len(w) > 2}
     vistos_textos = set()
     angulos_cubiertos = set()
 
@@ -124,10 +127,11 @@ def validar_bridges(bridges: Any, clave: str) -> Tuple[List[Dict[str, Any]], Lis
             rechazados.append("Bridge con texto vacío")
             continue
 
-        # Tramos máximos de letras, marcas y números Unicode tras NFC.
+        # Contar y comparar la misma identidad, sin alterar el texto devuelto.
+        text_norm = normalizar_identidad(text).lower()
         words = []
         chars = []
-        for char in unicodedata.normalize("NFC", text.lower()):
+        for char in text_norm:
             if unicodedata.category(char)[0] in ("L", "M", "N"):
                 chars.append(char)
             elif chars:
@@ -154,7 +158,6 @@ def validar_bridges(bridges: Any, clave: str) -> Tuple[List[Dict[str, Any]], Lis
             rechazados.append(f'"{text}" (es una variación morfológica del nombre del nodo — un puente debe usar vocabulario diferente)')
             continue
 
-        text_norm = text.lower()
         if text_norm in vistos_textos:
             rechazados.append(f'"{text}" (texto repetido)')
             continue
@@ -340,7 +343,7 @@ def agregar_bridges(conn: sqlite3.Connection, hub_id: str, bridges: Union[List[D
 
     insertados = 0
     for b in bridges_validos:
-        text = b["text"].strip()
+        text = normalizar_identidad(b["text"]).strip()
         angle = b["angle"].strip().lower()
         weight = float(b.get("weight", 1.0))
 

@@ -7,6 +7,20 @@ Extraído de SQLiteMemoryBioRAG siguiendo el patrón A1:
 
 import time
 
+from core.identidad_unicode import normalizar_identidad, _recortar_sin_perder_espacio_ideografico
+
+
+def _comprobar_clave_legacy(self, original, normalizada):
+    """Conserva la clave exacta si ya existe; en caso contrario usa la nueva."""
+    if original == normalizada:
+        return original
+    self.cursor.execute(
+        "SELECT concepto FROM corto_plazo WHERE concepto = ? "
+        "UNION ALL SELECT concepto FROM largo_plazo WHERE concepto = ? LIMIT 1",
+        (original, original),
+    )
+    return original if self.cursor.fetchone() is not None else normalizada
+
 
 def percibir_corto_plazo(
     self,
@@ -28,7 +42,14 @@ def percibir_corto_plazo(
     la tool (aprender/guardar). Sobrescribe el valor previo (no merge): si el tema cambió,
     los sustantivos se reemplazan (Decisión 2 del plan 001). Aditivo: default '' = nodos
     legacy sin sustantivos, el comportamiento previo no cambia."""
-    key = concepto.lower().strip()
+    # Solo se transforman datos que entran en esta escritura; no filas antiguas.
+    key_original = concepto.lower().strip()
+    key_normalizada = normalizar_identidad(concepto).lower().strip()
+    key = _comprobar_clave_legacy(self, key_original, key_normalizada)
+    contenido = normalizar_identidad(contenido, ancho_solo_letras_numeros=True)
+    sinonimos = normalizar_identidad(sinonimos or "", ancho_solo_letras_numeros=True)
+    # Los sustantivos ya llegan normalizados por la herramienta. No recomponer
+    # aquí su salida histórica NFKD: se comparte con la búsqueda actual.
     cat_id = self._resolver_categoria_id(categoria)
 
     # Auto-asignar valencia somática máxima si la categoría es Principle o Protocol
@@ -43,12 +64,14 @@ def percibir_corto_plazo(
     if existente:
         contenido_final = existente[0] + f" | Actualización: {contenido}"
         sinonimos_exist = [
-            s.strip() for s in (existente[1] or "").split(",") if s.strip()
+            _recortar_sin_perder_espacio_ideografico(s)
+            for s in (existente[1] or "").split(",") if s.strip()
         ]
+        claves_exist = {s.strip() for s in sinonimos_exist}
         sinonimos_nuevos = [
-            s.strip()
+            _recortar_sin_perder_espacio_ideografico(s)
             for s in (sinonimos or "").split(",")
-            if s.strip() and s.strip() not in sinonimos_exist
+            if s.strip() and s.strip() not in claves_exist
         ]
         sinonimos_final = ",".join(sinonimos_exist + sinonimos_nuevos)
         cat_id = existente[2] or cat_id
@@ -128,7 +151,9 @@ def consolidar_concepto(self, concepto):
     contenido perdido y filas fantasma en FTS5)."""
     from core.memory.consolidation import fusionar_en_largo_plazo
 
-    key = concepto.lower().strip()
+    key_original = concepto.lower().strip()
+    key_normalizada = normalizar_identidad(concepto).lower().strip()
+    key = _comprobar_clave_legacy(self, key_original, key_normalizada)
     self.cursor.execute(
         "SELECT contenido, sinonimos, categoria, COALESCE(valencia_somatica, 0.0), "
         "COALESCE(sustantivos_clave, '') FROM corto_plazo WHERE concepto = ?",
