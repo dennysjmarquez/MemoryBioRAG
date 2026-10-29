@@ -19,3 +19,19 @@
 - **`actualizar`:** si recibe `sustantivos_clave`, escribe también `normalizar_sustantivos_clave_exacto(...)`. El plegado de ancho sigue fuera de alcance.
 - **Guardián + tests:** en cualquier ruta, o la exacta es `NULL` o `fold(exacta) == plegada`. Añadir los 3 casos de esta sonda como tests.
 - Después: suite completa sin filtros, diff v2 publicado con hash, y solo entonces el OK de Dennys para aplicar y medir las 4 QA (deben dar resultados idénticos).
+
+## Diff v2 (`47f7f60`, SHA-256 `82fa4429…`) — **APROBADO** para aplicar y medir, con el OK de Dennys
+
+- Se aplica limpio sobre `cf799c7` y toca los mismos 9 archivos. `core/memory/search.py` no cambia, ni los FTS/triggers.
+- **Suite completa en mi copia: 757 passed** (168 s, sin filtros).
+- **Las 3 sondas de la auditoría anterior quedan corregidas:**
+  1. Una actualización sin sustantivos ahora conserva las dos columnas: `('カラス', 'ガラス,カラス')`.
+  2. `actualizar` sincroniza las dos columnas: `('perro,gato', 'perro,gato')`.
+  3. La ausencia de exactos queda en `NULL`, y el guardián `normalizar_sustantivos_clave_exactos_coherentes` descarta las exactas incoherentes.
+
+**Un cambio de comportamiento que debe quedar a la vista** (sale de mi propia instrucción, "regla única en consolidación **e ingest**"): en **corto plazo**, una segunda percepción **sin** sustantivos antes **borraba** la columna plegada; ahora la **conserva**. Sonda sobre una base limpia: antes, corto `('',)` → largo `('',)`; con v2, `('vidrio,ventana',)` → `('vidrio,ventana',)`.
+- Lo considero una corrección: una entrada sin datos no debería borrar datos, y así queda igual que la regla RF-15 del largo plazo.
+- **No afecta la búsqueda ni la QA**, que no escribe. Las únicas rutas que llaman sin sustantivos son `auto_guardado` (con sus propias claves `sesion_…`), `memory_service` e `interceptor`.
+- **Al aplicar:** actualizar el docstring de `ingest.percibir_corto_plazo` ("Sobrescribe el valor previo") para la entrada vacía, y declararlo en los resultados.
+
+**Medición esperada después de aplicar:** las 4 QA oficiales iguales a B3; FP 0/40; multilingüe directa y MCP con 132 casos sin cambios; guardados MCP 69/80.
