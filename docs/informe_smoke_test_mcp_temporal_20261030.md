@@ -21,7 +21,9 @@ La respuesta final expuso por separado los canales. El extractor del arnés obse
 
 - `resultados`: `smoke_mcp_reintento_objetivo`, `smoke_mcp_reintento_idempotencia`.
 - `contexto_expandido`: `smoke_mcp_reintento_backoff`, **`smoke_mcp_color_favorito`**.
-- Los campos laterales `asociaciones` y `asociaciones_enriquecidas` también incluyeron el recuerdo sintético del color.
+- Los campos laterales `asociaciones` y `asociaciones_enriquecidas` también incluyeron el recuerdo sintético del color. La respuesta MCP cruda guardada en el JSON lo etiqueta como `tipo_sinapsis: co_nombre` junto a `smoke_mcp_reintento_objetivo` (fuerza de arista `0.53`, peso de vecino `0.98`) y junto a `smoke_mcp_reintento_idempotencia`.
+
+Esto confirma el tipo que informó la respuesta final, pero **no cuándo ni por qué nació la arista**. No hubo snapshots entre llamadas, y el snapshot final del grafo no guardó tipos por fila; el resultado no atribuye la creación a una llamada concreta.
 
 Aunque el smoke solo llamó explícitamente `vincular` para objetivo↔idempotencia y objetivo↔backoff, el snapshot final de la DB temporal contenía seis aristas bidireccionales: esas dos y cuatro aristas adicionales entre los otros pares, incluida la nota de color. **Por tanto, la separación estructural de canales fue observable, pero la expectativa de que el ruido sin valor no apareciera como asociación/contexto no se cumplió.**
 

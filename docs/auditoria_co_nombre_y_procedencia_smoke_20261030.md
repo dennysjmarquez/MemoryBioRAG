@@ -35,7 +35,7 @@ Así, una conexión automática que ya tiene ambas filas permanece automática p
 
 Sí: los nombres pueden influir directamente. En el smoke, nombres como `smoke_mcp_reintento_objetivo` y `smoke_mcp_color_favorito` comparten `smoke`; el token `mcp` no alcanza el mínimo de cuatro letras, pero `smoke` sí. Si el nombre nuevo tiene tres tokens válidos, compartir solo `smoke` ya representa `1/3` y supera el umbral de 30 %. Entre los nombres de reintento se comparte además `reintento`.
 
-Eso hace plausible que un prefijo artificial común contribuya a enlaces `co_nombre`. **No demuestra que las aristas concretas del smoke fueran `co_nombre`:** el JSON de resultados guardó los extremos, pero no guardó `tipo` por arista ni snapshots entre llamadas; además, la consolidación tiene otras rutas automáticas de enlace. No se atribuye retrospectivamente la causa.
+**Corrección aprobada por Dennys:** la respuesta MCP cruda de `recordar_final`, conservada en el JSON, sí etiqueta la asociación enriquecida con `smoke_mcp_color_favorito` como `tipo_sinapsis: co_nombre` (por ejemplo, junto al resultado `smoke_mcp_reintento_objetivo`: `fuerza_arista=0.53`, `peso_vecino=0.98`; también aparece junto a `smoke_mcp_reintento_idempotencia`). Esto confirma el tipo reportado por la respuesta final; corrige la lectura previa que decía que el resultado no mostraba tipos. **No establece cuándo ni por qué nació la arista:** no hubo snapshots entre llamadas ni captura del tipo de cada fila en los snapshots de grafo, y la consolidación contiene otras rutas de enlace. No atribuyo su creación a `aprender`, `consolidar`, `vincular` ni a una causa única.
 
 Para la fixture de la QA:
 
@@ -57,6 +57,8 @@ El campo `commit_codigo` del JSON registra correctamente lo que ejecutó su expr
 **Corrección de procedencia para auditores:** conservar sin reescribir el JSON original (`commit_codigo=41e1793...`) como registro literal; interpretar ese campo como el HEAD observado del checkout, no como versión completa del código. La evidencia de identidad del arnés/launcher es la pareja de SHA-256 y su coincidencia con `ce62e8d`. El smoke usó el working tree, no un checkout limpio de `41e1793`.
 
 ## 5. Observación propuesta para una futura prueba temporal (no ejecutada)
+
+La especificación concreta, con secuencia por llamada, formato de filas y reglas de clasificación de diffs, se publica en `docs/propuesta_snapshot_aristas_mcp_temporal_20261030.md`. El resumen siguiente no la ejecuta:
 
 1. Usar una DB temporal nueva y aislada. Antes y después de cada llamada MCP, tomar un snapshot **de solo lectura de esa DB** con las filas `(origen, destino, tipo, peso, creado_en, ultimo_uso)` de `sinapsis`. Guardar junto al snapshot el número de secuencia, nombre/argumentos de la tool, respuesta MCP cruda, respuesta parseada y error.
 2. Diferenciar filas nuevas de filas existentes cuyo peso/tipo solo cambió. Comparar pares no dirigidos para el inventario de conexiones, pero conservar las dos orientaciones y su tipo para detectar el caso mixto `co_nombre`/`manual`.
