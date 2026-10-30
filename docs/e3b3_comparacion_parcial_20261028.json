@@ -1,0 +1,177 @@
+{
+  "comparacion_completa": false,
+  "metricas_cumplen": false,
+  "pendientes": [
+    "snapshot_ruido",
+    "viva_normal",
+    "viva_ruido"
+  ],
+  "problemas": [],
+  "escenarios": {
+    "snapshot_normal": {
+      "r5_antes": {
+        "queries": 865,
+        "recall_at_5": 100.0,
+        "fallos": 0
+      },
+      "r1_antes": {
+        "queries": 853,
+        "recall_at_1": 95.31,
+        "mrr": 0.9718,
+        "no_top1": 40
+      },
+      "fp_antes": [
+        0,
+        40
+      ],
+      "categorias_honestas": {
+        "cruce_idioma": {
+          "r5": {
+            "total": 8,
+            "antes": 8,
+            "despues": 8,
+            "porcentaje_antes": 100.0,
+            "porcentaje_despues": 100.0
+          },
+          "r1": {
+            "total": 8,
+            "antes": 5,
+            "despues": 5,
+            "porcentaje_antes": 62.5,
+            "porcentaje_despues": 62.5
+          }
+        },
+        "dormido": {
+          "r5": {
+            "total": 65,
+            "antes": 65,
+            "despues": 65,
+            "porcentaje_antes": 100.0,
+            "porcentaje_despues": 100.0
+          },
+          "r1": {
+            "total": 65,
+            "antes": 65,
+            "despues": 65,
+            "porcentaje_antes": 100.0,
+            "porcentaje_despues": 100.0
+          }
+        },
+        "literal": {
+          "r5": {
+            "total": 487,
+            "antes": 487,
+            "despues": 487,
+            "porcentaje_antes": 100.0,
+            "porcentaje_despues": 100.0
+          },
+          "r1": {
+            "total": 487,
+            "antes": 485,
+            "despues": 485,
+            "porcentaje_antes": 99.59,
+            "porcentaje_despues": 99.59
+          }
+        },
+        "por_tema": {
+          "r5": {
+            "total": 65,
+            "antes": 65,
+            "despues": 65,
+            "porcentaje_antes": 100.0,
+            "porcentaje_despues": 100.0
+          },
+          "r1": {
+            "total": 65,
+            "antes": 45,
+            "despues": 45,
+            "porcentaje_antes": 69.23,
+            "porcentaje_despues": 69.23
+          }
+        },
+        "pregunta_natural": {
+          "r5": {
+            "total": 65,
+            "antes": 65,
+            "despues": 65,
+            "porcentaje_antes": 100.0,
+            "porcentaje_despues": 100.0
+          },
+          "r1": {
+            "total": 65,
+            "antes": 63,
+            "despues": 63,
+            "porcentaje_antes": 96.92,
+            "porcentaje_despues": 96.92
+          }
+        },
+        "sinonimo": {
+          "r5": {
+            "total": 45,
+            "antes": 45,
+            "despues": 45,
+            "porcentaje_antes": 100.0,
+            "porcentaje_despues": 100.0
+          },
+          "r1": {
+            "total": 33,
+            "antes": 29,
+            "despues": 29,
+            "porcentaje_antes": 87.88,
+            "porcentaje_despues": 87.88
+          }
+        },
+        "typo": {
+          "r5": {
+            "total": 65,
+            "antes": 65,
+            "despues": 65,
+            "porcentaje_antes": 100.0,
+            "porcentaje_despues": 100.0
+          },
+          "r1": {
+            "total": 65,
+            "antes": 60,
+            "despues": 60,
+            "porcentaje_antes": 92.31,
+            "porcentaje_despues": 92.31
+          }
+        },
+        "variante_gramatical": {
+          "r5": {
+            "total": 65,
+            "antes": 65,
+            "despues": 65,
+            "porcentaje_antes": 100.0,
+            "porcentaje_despues": 100.0
+          },
+          "r1": {
+            "total": 65,
+            "antes": 61,
+            "despues": 61,
+            "porcentaje_antes": 93.85,
+            "porcentaje_despues": 93.85
+          }
+        }
+      },
+      "fallos_honestos_nuevos": [],
+      "fallos_honestos_recuperados": [],
+      "r5_b3": {
+        "queries": 865,
+        "recall_at_5": 100.0,
+        "fallos": 0
+      },
+      "r1_b3": {
+        "queries": 853,
+        "recall_at_1": 95.31,
+        "mrr": 0.9718,
+        "no_top1": 40
+      },
+      "fp_b3": [
+        0,
+        40
+      ]
+    }
+  },
+  "pytest_y_multilingue_se_validan_aparte": true
+}

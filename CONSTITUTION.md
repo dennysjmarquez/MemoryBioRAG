@@ -5,6 +5,16 @@
 
 ---
 
+## 0. La Actitud del Inventor (principio rector)
+
+> **Nada es "imposible", solo "todavía no medido". Y si algo falla, se busca otro camino; no se rinde.**
+
+Es la actitud con la que se trabaja en este proyecto, por encima de cualquier técnica. Dennys Marquez lo resume así: un inventor no dice "no se puede"; si lo hiciera, nada de lo que hoy existe existiría.
+
+- **Prohibido cerrar una idea con "imposible" o "no se puede".** Lo honesto es decir qué falta: un dato, una medida, una pieza ("aguja") que todavía no existe.
+- **Un intento fallido se revierte, la meta no.** El Pilar 1 sigue mandando: si un cambio baja una métrica, se revierte. Pero eso cierra *ese camino*, no el objetivo. Se anota por qué falló y se busca otro.
+- **La ambición se apoya en evidencia.** No se discute la meta; se prueba cada paso con resultados verificables (Pilar 4).
+
 ## 1. Identidad del Proyecto
 
 **MemoryBioRAG** es una arquitectura de memoria cognitiva biomimética y simbólica para agentes de IA.
@@ -58,6 +68,24 @@ BioRAG es la **memoria externa** del agente — no su cognición. El trabajo cog
 ### Pilar 8: Sin Features Fantasma
 - Campos opcionales sin consecuencias reales se convierten en campos fantasma (97% de nodos sin bridges lo demuestran).
 - Si un campo es importante, debe ser obligatorio o tener nudge visible que fuerce su uso.
+
+### Pilar 9: Modular, Desacoplado y Hexagonal (regla de oro)
+> *"Si dañas una cosa, se daña todo lo demás cuando hay harto acoplamiento."* — Dennys Marquez
+- **Nada monolítico.** Cada pieza (capa del motor, neurona, validador, adaptador de idioma) vive en su propio módulo, con una responsabilidad clara.
+- **Evitar el acoplamiento.** Una pieza se comunica con otra por una interfaz pequeña y explícita, nunca leyendo su interior. Quitar o cambiar una pieza no debe romper las demás.
+- **Mentalidad hexagonal:** la lógica del cerebro (el dominio) en el centro; la base de datos, el MCP, los diccionarios, los idiomas y las neuronas, como **puertos y adaptadores** enchufables. Un adaptador se desconecta sin tocar el centro.
+- Si se encuentra código acoplado o monolítico, se anota y se desacopla en un cambio propio, medido como cualquier otro (Pilar 1 y Pilar 2).
+
+### Pilar 10: Todo Documentado: Por Qué se Creó, Por Qué Ahí, Por Qué se Quitó (regla de oro)
+- Cada pieza nueva lleva escrito **qué problema resuelve, por qué en ese punto** del sistema y **con qué medida se aprobó**.
+- Cada pieza que se quita o se apaga lleva escrito **por qué se quitó**, con la evidencia, para que nadie la reinvente sin saberlo.
+- Escrito para que lo entienda **cualquier humano sin mucho conocimiento técnico y cualquier IA futura**. Lenguaje simple; el detalle técnico, aparte.
+- El conocimiento no puede quedar solo en la cabeza de alguien ni en una sesión de chat: si no está en el repo, se pierde.
+
+### Pilar 11: Toda Neurona con Piso, Techo y Guardianes
+- Ninguna neurona entra al motor sin: **piso** (la fórmula a mano sigue siendo el mínimo garantizado), **techo** (cuánto puede mover como máximo), **guardianes** (comprobaciones que la apagan si algo no cuadra) y **examen propio**.
+- Funciona con la base vacía, en tiempo constante, y solo **suma** encima del ranking; nunca lo reemplaza.
+- El modelo es la primera neurona del motor: cualquier neurona nueva se construye y calibra igual.
 
 ## 4. Stack Técnico
 

@@ -1,0 +1,176 @@
+Creating isolated database copy at: /tmp/biorag_qa_temp_2225.db
+  origen intacto: sha256 104dd2902aaf (mode=ro&immutable=1)
+Loaded 921 test cases.
+
+🧠 NEURONA DE RANKING
+   Base medida:  snapshots/qa_escape_qcr_20260811.db  (snapshot oficial; se mide una copia temporal)
+   Neurona:      ⛔ apagada en este entorno (BIORAG_NEURONA=0)
+                 → la tabla es la FÓRMULA A MANO SOLA (el piso)
+
+
+Exporting failed cases to: docs/e3b3_snapshot_normal_fallos_20261028.jsonl
+Cleaning up temporary database copy at /tmp/biorag_qa_temp_2225.db...
+
+================================================================================
+                      BIORAG QA EVALUATION REPORT
+================================================================================
+Total time elapsed: 2219.66 seconds
+--------------------------------------------------------------------------------
+🧠 NEURONA DE RANKING
+   Base medida:  snapshots/qa_escape_qcr_20260811.db  (snapshot oficial; se mide una copia temporal)
+   Neurona:      ⛔ apagada en este entorno (BIORAG_NEURONA=0)
+                 → la tabla es la FÓRMULA A MANO SOLA (el piso)
+--------------------------------------------------------------------------------
+Category               | Total  | Recall@5  | Recall@1  | MRR      | Errors/FPs
+--------------------------------------------------------------------------------
+ambiguo                | 6      | N/A       | N/A       | N/A      | 2          (66.7% de cobertura sobre queries con etiqueta contradictoria; fuera del Recall global)
+cruce_idioma           | 8      |  100.00% |   62.50% |  0.740 | 0         
+dormido                | 65     |  100.00% |  100.00% |  1.000 | 0         
+literal                | 487    |  100.00% |   99.59% |  0.998 | 0         
+negativo               | 40     | N/A       | N/A       | N/A      | 0          (0.0% FP sobre 40 válidos; 0 contaminados)
+por_tema               | 65     |  100.00% |   69.23% |  0.804 | 0         
+pregunta_natural       | 65     |  100.00% |   96.92% |  0.985 | 0         
+sinonimo               | 55     |  100.00% |   56.36% |  0.722 | 0         
+typo                   | 65     |  100.00% |   92.31% |  0.956 | 0         
+variante_gramatical    | 65     |  100.00% |   93.85% |  0.963 | 0         
+--------------------------------------------------------------------------------
+GLOBAL SUMMARY (Retrieval) | 875    |  100.00% |   93.14% |  0.957 | 0         
+GLOBAL SUMMARY (Noise/FP) | 40     | N/A       | N/A       | N/A      | 0          (0.00% FP sobre 40 válidos; 0 contaminados)
+SPREADING ACTIVATION   | 9/921 queries (1.0%)
+AISLAMIENTO POR CASO   | 64 mutaciones de estado revertidas (15 nodos arrancaron dormidos)
+================================================================================
+
+========================================================================================
+   QA HONESTA (E1) — misma búsqueda, distinto conjunto de casos
+========================================================================================
+  Reglas del auditor (no se ajustan después de ver resultados):
+    OBSOLETA: el esperado declaraba la palabra en el SNAPSHOT de origen
+              (alias completo o palabra entera del nombre) y YA NO la
+              declara en la base que se mide.
+    AMBIGUA : 2 o más recuerdos la reclaman. Se compara ESTRICTO:
+              alias completo o palabra entera dentro del nombre. Sin
+              'contiene' (con substring, 'agente' reclamaba 119 nodos).
+    UMBRAL  : para R@5 se aparta solo con MÁS DE 5 reclamantes
+              (con 5 o menos, todos caben en el top-5); para R@1 desde
+              2. Se aparta POR MÉTRICA.
+    NOTA    : ese umbral se decidió DESPUÉS de ver la primera medición de
+              E1. Es una decisión consciente de Dennys, no una regla previa.
+  El examen (casos_qa.jsonl) NO se toca. La GATE sigue usando la CLÁSICA.
+  Referencia para OBSOLETA: la base medida es el propio snapshot -> 0 por definición.
+  Casos 'sinonimo': 61. Obsoletas: 0. Ambiguas: 28. Ambas marcas: 0.
+  Apartados -> R@5: 14 | R@1: 28  (sobre los 61 casos del JSONL; la fila 'sinonimo' tiene 55 porque 6 de los apartados ya iban a 'ambiguo')
+----------------------------------------------------------------------------------------
+Categoría            |            CLÁSICA |          HONESTA R@5 |          HONESTA R@1
+                     |      n   R@5   R@1 |      n    R@5   ap. |      n    R@1   ap.
+----------------------------------------------------------------------------------------
+cruce_idioma         |      8 100.0% 62.5% |      8 100.0%     0 |      8  62.5%     0
+dormido              |     65 100.0% 100.0% |     65 100.0%     0 |     65 100.0%     0
+literal              |    487 100.0% 99.6% |    487 100.0%     0 |    487  99.6%     0
+por_tema             |     65 100.0% 69.2% |     65 100.0%     0 |     65  69.2%     0
+pregunta_natural     |     65 100.0% 96.9% |     65 100.0%     0 |     65  96.9%     0
+sinonimo             |     55 100.0% 56.4% |     45 100.0%    14 |     33  87.9%    28
+typo                 |     65 100.0% 92.3% |     65 100.0%     0 |     65  92.3%     0
+variante_gramatical  |     65 100.0% 93.8% |     65 100.0%     0 |     65  93.8%     0
+----------------------------------------------------------------------------------------
+GLOBAL (recuperación) |    875 100.0% 93.1% |    865 100.0%    14 |    853  95.3%    28
+fallos (fuera del top-5) |      0             |      0              |       
+no llegó al 1er puesto |     60             |                     |     40
+MRR                  |                    |                     |        0.9718
+========================================================================================
+
+AMBIGUAS (28) — pasan hoy 22, fallan hoy 6:
+  [0775] FALLA 'biorag' -> auto-consulta-permanente-biorag
+        170 recuerdos reclaman la palabra
+  [0811] FALLA 'biorag' -> protocolo_busqueda_biorag_automatica
+        170 recuerdos reclaman la palabra
+  [0520] FALLA 'dimensiones' -> cuando_usar_dimensiones_biorag
+        34 recuerdos reclaman la palabra
+  [0740] FALLA 'dimensiones' -> fix_busqueda_solo_dimensiones_sin_texto
+        34 recuerdos reclaman la palabra
+  [0710] PASA  'agente' -> aforismo_criterio_agente
+        29 recuerdos reclaman la palabra
+  [0594] PASA  'arquitectura' -> arquitectura_memoria_biorag
+        26 recuerdos reclaman la palabra
+  [0734] PASA  'regla' -> plan_mode_biorag
+        21 recuerdos reclaman la palabra
+  [0514] PASA  'perfil' -> dennys-identidad-profunda
+        16 recuerdos reclaman la palabra
+  [0692] PASA  'metodologia' -> dennys-working-style
+        11 recuerdos reclaman la palabra
+  [0805] PASA  'cv' -> cv_seccion_d_test_vinculacion
+        11 recuerdos reclaman la palabra
+  [0544] PASA  'capas' -> auto_vincular_tres_capas_semantica
+        7 recuerdos reclaman la palabra
+  [0495] PASA  'benchmark' -> benchmark_antes_despues_fix3
+        6 recuerdos reclaman la palabra
+  [0632] PASA  'búsqueda semántica' -> arquitectura_dos_niveles_biorag
+        6 recuerdos reclaman la palabra
+  [0799] PASA  'memory' -> notebooklm-memory-biorag-project
+        6 recuerdos reclaman la palabra
+  [0619] PASA  'oec comms' -> leccion_overengineering_oec_comms_20260615
+        5 recuerdos reclaman la palabra [solo R@1: 5 o menos reclamantes]
+  [0650] PASA  'funciona' -> plugin_biorag-remember_v8.3_-_adaptación_de_dennys_+_claude
+        5 recuerdos reclaman la palabra [solo R@1: 5 o menos reclamantes]
+  [0656] PASA  'juramento verdad' -> oracle_momentos_cruciales_familia_oec
+        5 recuerdos reclaman la palabra [solo R@1: 5 o menos reclamantes]
+  [0556] PASA  'sin vectores' -> sin_vectores_sin_ml_sin_dependencias
+        4 recuerdos reclaman la palabra [solo R@1: 5 o menos reclamantes]
+  [0575] PASA  'formularios' -> ngx_nested_forms_dennys_solo
+        4 recuerdos reclaman la palabra [solo R@1: 5 o menos reclamantes]
+  [0638] PASA  'memoria compartida' -> mentalidad_biorag_para_agentes
+        4 recuerdos reclaman la palabra [solo R@1: 5 o menos reclamantes]
+  [0781] PASA  'falso positivo' -> fts5_trigram_peligro_palabras_cortas
+        4 recuerdos reclaman la palabra [solo R@1: 5 o menos reclamantes]
+  [0846] TOP1  'limpieza' -> v13_2_limpieza_tabla_semantica
+        4 recuerdos reclaman la palabra [solo R@1: 5 o menos reclamantes]
+  [0746] PASA  'mejoras biorag' -> biorag_v16_0_estado
+        3 recuerdos reclaman la palabra [solo R@1: 5 o menos reclamantes]
+  [0793] TOP1  'tracking' -> fix_mensajeria_broadcast_tracking_por_agente
+        3 recuerdos reclaman la palabra [solo R@1: 5 o menos reclamantes]
+  [0538] FALLA 'compromiso' -> principio-memoria-hibrida-agente-naturalidad
+        2 recuerdos reclaman la palabra [solo R@1: 5 o menos reclamantes]
+  [0587] PASA  'install' -> artemis_install_ponytail_ecosistema
+        2 recuerdos reclaman la palabra [solo R@1: 5 o menos reclamantes]
+  [0606] FALLA 'compromiso' -> compromiso-real-athena-clave-de-confianza
+        2 recuerdos reclaman la palabra [solo R@1: 5 o menos reclamantes]
+  [0686] PASA  'naturaleza' -> naturaleza_sistema_oec_cerebro_memoria
+        2 recuerdos reclaman la palabra [solo R@1: 5 o menos reclamantes]
+----------------------------------------------------------------------------------------
+
+DATASET (salud de las etiquetas oro):
+--------------------------------------------------------------------------------
+  3 etiqueta(s) obsoleta(s) resuelta(s) contra la DB:
+    [0268] lección:_guardar_todo_lo_importante_inmediatamente,_no_esperar
+         -> lección:_guardar_todo_lo_importante_inmediatamente_y_no_esperar
+    [0368] plugin_biorag-remember_v8.4_-_solo_session.idle,_sin_conteo_de_edits
+         -> plugin_biorag-remember_v8.4_-_solo_session.idle_y_sin_conteo_de_edits
+    [0371] plugin_v7.1_fix:_session.idle_es_un_event,_no_un_hook
+         -> plugin_v7.1_fix:_session.idle_es_un_event_y_no_un_hook
+  3 query(s) con etiqueta contradictoria -> reclasificadas como 'ambiguo':
+    'biorag' -> ['auto-consulta-permanente-biorag', 'protocolo_busqueda_biorag_automatica']
+    'compromiso' -> ['compromiso-real-athena-clave-de-confianza', 'principio-memoria-hibrida-agente-naturalidad']
+    'dimensiones' -> ['cuando_usar_dimensiones_biorag', 'fix_busqueda_solo_dimensiones_sin_texto']
+--------------------------------------------------------------------------------
+
+SAMPLE FAILURES BY CATEGORY FOR ACTIONABLE DIAGNOSIS:
+================================================================================
+
+[Category: ambiguo] (2 total failures)
+----------------------------------------
+  #1 [ID 0520] Query: "dimensiones"
+      Expected:  ['cuando_usar_dimensiones_biorag', 'fix_busqueda_solo_dimensiones_sin_texto']
+      Returned:  ['punto_medio_dimensiones_parciales_mueven_ranking_sdm', 'principio_dimensiones_genericas_no_nicho', 'veredicto_analisis_7_dimensiones_otra_ia'] (scores: [0.752, 0.745, 0.733])
+      Reason:    Query ambigua: ninguno de los esperados contradictorios apareció en top 5
+  #2 [ID 0740] Query: "dimensiones"
+      Expected:  ['cuando_usar_dimensiones_biorag', 'fix_busqueda_solo_dimensiones_sin_texto']
+      Returned:  ['punto_medio_dimensiones_parciales_mueven_ranking_sdm', 'principio_dimensiones_genericas_no_nicho', 'veredicto_analisis_7_dimensiones_otra_ia'] (scores: [0.752, 0.745, 0.733])
+      Reason:    Query ambigua: ninguno de los esperados contradictorios apareció en top 5
+
+[Category: dormido] (0 total failures)
+----------------------------------------
+================================================================================
+Note: All failed cases have been saved to docs/e3b3_snapshot_normal_fallos_20261028.jsonl for full debug analysis.
+
+Métricas exportadas a: docs/e3b3_snapshot_normal_20261028.json
+
+[GATE] OK — métricas dentro de los umbrales de la baseline oficial

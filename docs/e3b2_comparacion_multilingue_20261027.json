@@ -1,0 +1,69 @@
+{
+  "directa_diferentes": [],
+  "mcp_a_diferentes": [],
+  "pendiente_hueco_1": [
+    "ja-05",
+    "ja-06",
+    "ja-08",
+    "ja-10",
+    "ja-11",
+    "ja-14",
+    "ja-15",
+    "ja-17",
+    "ja-18",
+    "ko-05",
+    "ko-07",
+    "ko-18",
+    "ko-20",
+    "zh-18"
+  ],
+  "guardado": {
+    "zh": {
+      "intentos": 20,
+      "guardados_b1": 0,
+      "guardados_b2": 0,
+      "primeros_rechazos_b1": {
+        "BRIDGES_INVALIDOS": 20
+      },
+      "primeros_rechazos_b2": {
+        "BRIDGES_INVALIDOS": 20
+      }
+    },
+    "ja": {
+      "intentos": 20,
+      "guardados_b1": 0,
+      "guardados_b2": 0,
+      "primeros_rechazos_b1": {
+        "BRIDGES_INVALIDOS": 20
+      },
+      "primeros_rechazos_b2": {
+        "BRIDGES_INVALIDOS": 20
+      }
+    },
+    "ko": {
+      "intentos": 20,
+      "guardados_b1": 0,
+      "guardados_b2": 16,
+      "primeros_rechazos_b1": {
+        "SUSTANTIVOS_CLAVE_FORMATO_INVALIDO": 17,
+        "BRIDGES_INVALIDOS": 3
+      },
+      "primeros_rechazos_b2": {
+        "BRIDGES_INVALIDOS": 3,
+        "SUSTANTIVOS_CLAVE_FORMATO_INVALIDO": 1
+      }
+    },
+    "ru": {
+      "intentos": 20,
+      "guardados_b1": 0,
+      "guardados_b2": 20,
+      "primeros_rechazos_b1": {
+        "SUSTANTIVOS_CLAVE_FORMATO_INVALIDO": 20
+      },
+      "primeros_rechazos_b2": {}
+    }
+  },
+  "problemas": [],
+  "cumple_multilingue_y_guardado": true,
+  "las_cuatro_qa_y_pytest_se_validan_aparte": true
+}

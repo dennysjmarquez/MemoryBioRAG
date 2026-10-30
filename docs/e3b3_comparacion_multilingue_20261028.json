@@ -1,0 +1,175 @@
+{
+  "directa_casos_diferentes": [],
+  "mcp_a_casos_diferentes": [],
+  "pendiente_hueco_1": [
+    "ja-05",
+    "ja-06",
+    "ja-08",
+    "ja-10",
+    "ja-11",
+    "ja-14",
+    "ja-15",
+    "ja-17",
+    "ja-18",
+    "ko-05",
+    "ko-07",
+    "ko-18",
+    "ko-20",
+    "zh-18"
+  ],
+  "guardados": {
+    "zh": {
+      "intentos": 20,
+      "guardados_b2": 0,
+      "guardados_b3": 18,
+      "ids_ganados": [
+        "zh-01",
+        "zh-02",
+        "zh-03",
+        "zh-04",
+        "zh-05",
+        "zh-06",
+        "zh-07",
+        "zh-08",
+        "zh-09",
+        "zh-10",
+        "zh-12",
+        "zh-13",
+        "zh-14",
+        "zh-15",
+        "zh-16",
+        "zh-18",
+        "zh-19",
+        "zh-20"
+      ],
+      "ids_perdidos": [],
+      "primeros_rechazos_b2": {
+        "BRIDGES_INVALIDOS": 20
+      },
+      "primeros_rechazos_b3": {
+        "SUSTANTIVOS_CLAVE_FORMATO_INVALIDO": 2
+      },
+      "rechazos_b3": [
+        {
+          "id": "zh-11",
+          "codigo": "SUSTANTIVOS_CLAVE_FORMATO_INVALIDO",
+          "termino_nfc": "茶"
+        },
+        {
+          "id": "zh-17",
+          "codigo": "SUSTANTIVOS_CLAVE_FORMATO_INVALIDO",
+          "termino_nfc": "箱"
+        }
+      ]
+    },
+    "ja": {
+      "intentos": 20,
+      "guardados_b2": 0,
+      "guardados_b3": 15,
+      "ids_ganados": [
+        "ja-01",
+        "ja-02",
+        "ja-03",
+        "ja-04",
+        "ja-07",
+        "ja-09",
+        "ja-10",
+        "ja-11",
+        "ja-12",
+        "ja-13",
+        "ja-14",
+        "ja-15",
+        "ja-16",
+        "ja-17",
+        "ja-19"
+      ],
+      "ids_perdidos": [],
+      "primeros_rechazos_b2": {
+        "BRIDGES_INVALIDOS": 20
+      },
+      "primeros_rechazos_b3": {
+        "SUSTANTIVOS_CLAVE_FORMATO_INVALIDO": 5
+      },
+      "rechazos_b3": [
+        {
+          "id": "ja-05",
+          "codigo": "SUSTANTIVOS_CLAVE_FORMATO_INVALIDO",
+          "termino_nfc": "凧"
+        },
+        {
+          "id": "ja-06",
+          "codigo": "SUSTANTIVOS_CLAVE_FORMATO_INVALIDO",
+          "termino_nfc": "橋"
+        },
+        {
+          "id": "ja-08",
+          "codigo": "SUSTANTIVOS_CLAVE_FORMATO_INVALIDO",
+          "termino_nfc": "旅"
+        },
+        {
+          "id": "ja-18",
+          "codigo": "SUSTANTIVOS_CLAVE_FORMATO_INVALIDO",
+          "termino_nfc": "傘"
+        },
+        {
+          "id": "ja-20",
+          "codigo": "SUSTANTIVOS_CLAVE_FORMATO_INVALIDO",
+          "termino_nfc": "羽"
+        }
+      ]
+    },
+    "ko": {
+      "intentos": 20,
+      "guardados_b2": 16,
+      "guardados_b3": 16,
+      "ids_ganados": [],
+      "ids_perdidos": [],
+      "primeros_rechazos_b2": {
+        "BRIDGES_INVALIDOS": 3,
+        "SUSTANTIVOS_CLAVE_FORMATO_INVALIDO": 1
+      },
+      "primeros_rechazos_b3": {
+        "SUSTANTIVOS_CLAVE_FORMATO_INVALIDO": 4
+      },
+      "rechazos_b3": [
+        {
+          "id": "ko-05",
+          "codigo": "SUSTANTIVOS_CLAVE_FORMATO_INVALIDO",
+          "termino_nfc": "연"
+        },
+        {
+          "id": "ko-07",
+          "codigo": "SUSTANTIVOS_CLAVE_FORMATO_INVALIDO",
+          "termino_nfc": "빵"
+        },
+        {
+          "id": "ko-12",
+          "codigo": "SUSTANTIVOS_CLAVE_FORMATO_INVALIDO",
+          "termino_nfc": "물"
+        },
+        {
+          "id": "ko-20",
+          "codigo": "SUSTANTIVOS_CLAVE_FORMATO_INVALIDO",
+          "termino_nfc": "북"
+        }
+      ]
+    },
+    "ru": {
+      "intentos": 20,
+      "guardados_b2": 20,
+      "guardados_b3": 20,
+      "ids_ganados": [],
+      "ids_perdidos": [],
+      "primeros_rechazos_b2": {},
+      "primeros_rechazos_b3": {},
+      "rechazos_b3": []
+    }
+  },
+  "problemas_de_regresion_o_metodo": [],
+  "expectativas_de_aumento_no_cumplidas": [
+    "ko: no aumentaron los guardados (16→16)"
+  ],
+  "sin_regresiones_en_estas_mediciones": true,
+  "aumento_zh_ja_ko_en_los_guardados": false,
+  "qa_oficial_y_busquedas_posteriores_se_miden_aparte": true
+}

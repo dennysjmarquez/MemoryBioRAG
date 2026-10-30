@@ -3,7 +3,9 @@
 import os
 import json
 import logging
+import unicodedata
 from typing import Optional, Dict
+from core.identidad_unicode import normalizar_identidad
 from core.memory_service import get_cerebro as _svc_get_cerebro
 from core.memory_store import SQLiteMemoryBioRAG
 from middleware.auto_guardado import registrar_accion, analizar_y_autoguardar
@@ -86,6 +88,15 @@ QUERIES_BIORAG_INICIO = [
 
 AGENTES_VALIDOS = set()
 """Agentes reconocidos por el sistema (vacío = permite cualquier agente)."""
+
+
+def _sustantivo_valido(termino: str) -> bool:
+    """Valida el formato Unicode sin alterar el término entregado al motor."""
+    s = normalizar_identidad(termino)
+    return (
+        2 <= len(s) <= 15
+        and all(unicodedata.category(c)[0] in "LMN" or c == "_" for c in s)
+    )
 
 
 def _get_cerebro() -> SQLiteMemoryBioRAG:

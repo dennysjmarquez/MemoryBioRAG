@@ -1,0 +1,26 @@
+======================================================================
+  Test de Regresión: tematico_score gate per-candidate
+======================================================================
+
+TEST — tematico_score NO debe saturar sin evidencia léxica
+  Caso: query OOD tipo 'fresa manzana' (bm25=0, concepto=0)
+  tematico_score=1.0 (saturado) NO debe mover el score significativamente
+        score con tematico=1.0: 0.0000
+        score con tematico=0.0: 0.0000
+        delta (aportación tematico): 0.0000
+  OK    tematico_score no satura sin evidencia léxica (delta < 0.05)
+
+TEST — tematico_score DEBE contribuir CON evidencia léxica
+        score con bm25=0.5 + tematico=1.0: 0.1213
+        score con bm25=0.5 + tematico=0.0: 0.0740
+        delta (aportación tematico con bm25): 0.0473
+  OK    tematico_score CONTRIBUYE con evidencia léxica (delta > 0.02)
+
+TEST — tematico_score DEBE contribuir con concepto_ratio > 0
+        score con concepto=0.5 + tematico=1.0: 0.0710
+        score con concepto=0.5 + tematico=0.0: 0.0237
+        delta (aportación tematico con concepto): 0.0473
+  OK    tematico_score CONTRIBUYE con concepto_ratio > 0 (delta > 0.02)
+
+======================================================================
+RESULTADO: TODOS LOS TESTS PASAN — gate per-candidate FUNCIONA

@@ -1,0 +1,122 @@
+E3B4a — huellas de inicio de las cuatro QA
+Archivo preparado: 2026-10-28T13:58:43-04:00 (hora de Venezuela).
+
+Un nuevo reinicio del entorno interrumpió las cuatro corridas anteriores, sin resultados: snapshot y viva con ruido habían arrancado a las 12:54:14; las dos normales, a las 13:01:47. Se relanzaron las cuatro porque las cuatro murieron.
+
+Las bases de trabajo son cuatro copias SQLite aisladas y mutables. El motor y el test NO son cuatro copias de código: las QA leen el mismo árbol compartido. Cada lanzador calculó y verificó por separado estas huellas ANTES de crear su evaluador. La hora procede del reloj del lanzador inmediatamente antes del arranque; no se infiere de ps. Al preparar este archivo se cotejaron otra vez las rutas visibles desde cada proceso.
+
+El SHA de base es el de la FUENTE antes de copiar, no el de la copia temporal que la QA modifica. Fuentes verificadas sin WAL; el evaluador utiliza una copia aislada por proceso.
+
+[snapshot_normal]
+Inicio del evaluador: 2026-10-28T13:57:57-04:00 (Venezuela); PID al inicio: 2465
+Huellas calculadas y comprobadas: 2026-10-28T13:57:57-04:00
+Copia temporal aislada: /tmp/biorag-e3b4-reanudado/snapshot_normal_20261028-135757-693616/copia.db
+SHA-256 core/memory/search.py: f4479e7db7673c264176a48d467ab7c32411ea67a8cb39ad8daf4a4089677286
+SHA-256 core/memory_store.py: b7e7219caf0f801ce60a9531dc7dca982fe57142dd20450e85e124a048db5168
+SHA-256 tests/test_prefijo_ancho_b4a.py: 68f89c4cf8b54a141da95cf373672fe610b52222036f4334caf570aac03c4181
+SHA-256 fuente snapshots/qa_escape_qcr_20260811.db: 104dd2902aaf24c3ce93624492ea95a719acbdcca50f4f6bc123ac8317749796
+Registro local de inicio: docs/e3b4a_qa/_intentos/snapshot_normal/20261028-135757-693616/huellas_inicio.json
+
+[viva_normal]
+Inicio del evaluador: 2026-10-28T13:57:58-04:00 (Venezuela); PID al inicio: 2475
+Huellas calculadas y comprobadas: 2026-10-28T13:57:58-04:00
+Copia temporal aislada: /tmp/biorag-e3b4-reanudado/viva_normal_20261028-135758-047646/copia.db
+SHA-256 core/memory/search.py: f4479e7db7673c264176a48d467ab7c32411ea67a8cb39ad8daf4a4089677286
+SHA-256 core/memory_store.py: b7e7219caf0f801ce60a9531dc7dca982fe57142dd20450e85e124a048db5168
+SHA-256 tests/test_prefijo_ancho_b4a.py: 68f89c4cf8b54a141da95cf373672fe610b52222036f4334caf570aac03c4181
+SHA-256 fuente /tmp/viva_e3a.db: a61913ce074cd02323c13589040b7ab1e5e4f36b18bbe62c12f9c1d363324e9a
+Registro local de inicio: docs/e3b4a_qa/_intentos/viva_normal/20261028-135758-047646/huellas_inicio.json
+
+[snapshot_ruido]
+Inicio del evaluador: 2026-10-28T13:57:58-04:00 (Venezuela); PID al inicio: 2485
+Huellas calculadas y comprobadas: 2026-10-28T13:57:58-04:00
+Copia temporal aislada: /tmp/biorag-e3b4-reanudado/snapshot_ruido_20261028-135758-641116/copia.db
+SHA-256 core/memory/search.py: f4479e7db7673c264176a48d467ab7c32411ea67a8cb39ad8daf4a4089677286
+SHA-256 core/memory_store.py: b7e7219caf0f801ce60a9531dc7dca982fe57142dd20450e85e124a048db5168
+SHA-256 tests/test_prefijo_ancho_b4a.py: 68f89c4cf8b54a141da95cf373672fe610b52222036f4334caf570aac03c4181
+SHA-256 fuente snapshots/qa_escape_qcr_20260811.db: 104dd2902aaf24c3ce93624492ea95a719acbdcca50f4f6bc123ac8317749796
+Registro local de inicio: docs/e3b4a_qa/_intentos/snapshot_ruido/20261028-135758-641116/huellas_inicio.json
+
+[viva_ruido]
+Inicio del evaluador: 2026-10-28T13:57:59-04:00 (Venezuela); PID al inicio: 2495
+Huellas calculadas y comprobadas: 2026-10-28T13:57:59-04:00
+Copia temporal aislada: /tmp/biorag-e3b4-reanudado/viva_ruido_20261028-135759-278484/copia.db
+SHA-256 core/memory/search.py: f4479e7db7673c264176a48d467ab7c32411ea67a8cb39ad8daf4a4089677286
+SHA-256 core/memory_store.py: b7e7219caf0f801ce60a9531dc7dca982fe57142dd20450e85e124a048db5168
+SHA-256 tests/test_prefijo_ancho_b4a.py: 68f89c4cf8b54a141da95cf373672fe610b52222036f4334caf570aac03c4181
+SHA-256 fuente /tmp/viva_e3a.db: a61913ce074cd02323c13589040b7ab1e5e4f36b18bbe62c12f9c1d363324e9a
+Registro local de inicio: docs/e3b4a_qa/_intentos/viva_ruido/20261028-135759-278484/huellas_inicio.json
+
+Al finalizar cada evaluador se volverán a medir estos archivos y la fuente correspondiente. Esas huellas de cierre están pendientes; este documento no anticipa su resultado.
+
+[snapshot_normal — relanzamiento posterior]
+AVISO: intento anterior interrumpido; esta QA se ejecuta completa desde cero con una copia nueva.
+Inicio del evaluador: 2026-10-28T14:46:07-04:00 (Venezuela); PID al inicio: 1603
+Huellas calculadas y comprobadas: 2026-10-28T14:46:07-04:00
+Copia temporal aislada: /tmp/biorag-e3b4-reanudado/snapshot_normal_20261028-144606-986396/copia.db
+SHA-256 core/memory/search.py: f4479e7db7673c264176a48d467ab7c32411ea67a8cb39ad8daf4a4089677286
+SHA-256 core/memory_store.py: b7e7219caf0f801ce60a9531dc7dca982fe57142dd20450e85e124a048db5168
+SHA-256 tests/test_prefijo_ancho_b4a.py: 68f89c4cf8b54a141da95cf373672fe610b52222036f4334caf570aac03c4181
+SHA-256 fuente snapshots/qa_escape_qcr_20260811.db: 104dd2902aaf24c3ce93624492ea95a719acbdcca50f4f6bc123ac8317749796
+Registro local de inicio: docs/e3b4a_qa/_intentos/snapshot_normal/20261028-144606-986396/huellas_inicio.json
+
+
+[viva_normal — relanzamiento posterior]
+AVISO: intento anterior interrumpido; esta QA se ejecuta completa desde cero con una copia nueva.
+Inicio del evaluador: 2026-10-28T14:46:07-04:00 (Venezuela); PID al inicio: 1606
+Huellas calculadas y comprobadas: 2026-10-28T14:46:07-04:00
+Copia temporal aislada: /tmp/biorag-e3b4-reanudado/viva_normal_20261028-144607-279809/copia.db
+SHA-256 core/memory/search.py: f4479e7db7673c264176a48d467ab7c32411ea67a8cb39ad8daf4a4089677286
+SHA-256 core/memory_store.py: b7e7219caf0f801ce60a9531dc7dca982fe57142dd20450e85e124a048db5168
+SHA-256 tests/test_prefijo_ancho_b4a.py: 68f89c4cf8b54a141da95cf373672fe610b52222036f4334caf570aac03c4181
+SHA-256 fuente /home/user/MemoryBioRAG/google_drive/viva_e3a.db: a61913ce074cd02323c13589040b7ab1e5e4f36b18bbe62c12f9c1d363324e9a
+Registro local de inicio: docs/e3b4a_qa/_intentos/viva_normal/20261028-144607-279809/huellas_inicio.json
+
+
+[snapshot_ruido — relanzamiento posterior]
+AVISO: intento anterior interrumpido; esta QA se ejecuta completa desde cero con una copia nueva.
+Inicio del evaluador: 2026-10-28T14:46:07-04:00 (Venezuela); PID al inicio: 1616
+Huellas calculadas y comprobadas: 2026-10-28T14:46:07-04:00
+Copia temporal aislada: /tmp/biorag-e3b4-reanudado/snapshot_ruido_20261028-144607-808999/copia.db
+SHA-256 core/memory/search.py: f4479e7db7673c264176a48d467ab7c32411ea67a8cb39ad8daf4a4089677286
+SHA-256 core/memory_store.py: b7e7219caf0f801ce60a9531dc7dca982fe57142dd20450e85e124a048db5168
+SHA-256 tests/test_prefijo_ancho_b4a.py: 68f89c4cf8b54a141da95cf373672fe610b52222036f4334caf570aac03c4181
+SHA-256 fuente snapshots/qa_escape_qcr_20260811.db: 104dd2902aaf24c3ce93624492ea95a719acbdcca50f4f6bc123ac8317749796
+Registro local de inicio: docs/e3b4a_qa/_intentos/snapshot_ruido/20261028-144607-808999/huellas_inicio.json
+
+
+[viva_ruido — relanzamiento posterior]
+AVISO: intento anterior interrumpido; esta QA se ejecuta completa desde cero con una copia nueva.
+Inicio del evaluador: 2026-10-28T14:46:08-04:00 (Venezuela); PID al inicio: 1626
+Huellas calculadas y comprobadas: 2026-10-28T14:46:08-04:00
+Copia temporal aislada: /tmp/biorag-e3b4-reanudado/viva_ruido_20261028-144608-268694/copia.db
+SHA-256 core/memory/search.py: f4479e7db7673c264176a48d467ab7c32411ea67a8cb39ad8daf4a4089677286
+SHA-256 core/memory_store.py: b7e7219caf0f801ce60a9531dc7dca982fe57142dd20450e85e124a048db5168
+SHA-256 tests/test_prefijo_ancho_b4a.py: 68f89c4cf8b54a141da95cf373672fe610b52222036f4334caf570aac03c4181
+SHA-256 fuente /home/user/MemoryBioRAG/google_drive/viva_e3a.db: a61913ce074cd02323c13589040b7ab1e5e4f36b18bbe62c12f9c1d363324e9a
+Registro local de inicio: docs/e3b4a_qa/_intentos/viva_ruido/20261028-144608-268694/huellas_inicio.json
+
+
+[viva_normal — relanzamiento posterior]
+AVISO: intento anterior interrumpido; esta QA se ejecuta completa desde cero con una copia nueva.
+Inicio del evaluador: 2026-10-28T16:10:11-04:00 (Venezuela); PID al inicio: 1702
+Huellas calculadas y comprobadas: 2026-10-28T16:10:11-04:00
+Copia temporal aislada: /tmp/biorag-e3b4-reanudado/viva_normal_20261028-161011-727952/copia.db
+SHA-256 core/memory/search.py: f4479e7db7673c264176a48d467ab7c32411ea67a8cb39ad8daf4a4089677286
+SHA-256 core/memory_store.py: b7e7219caf0f801ce60a9531dc7dca982fe57142dd20450e85e124a048db5168
+SHA-256 tests/test_prefijo_ancho_b4a.py: 68f89c4cf8b54a141da95cf373672fe610b52222036f4334caf570aac03c4181
+SHA-256 fuente /home/user/MemoryBioRAG/google_drive/viva_e3a.db: a61913ce074cd02323c13589040b7ab1e5e4f36b18bbe62c12f9c1d363324e9a
+Registro local de inicio: docs/e3b4a_qa/_intentos/viva_normal/20261028-161011-727952/huellas_inicio.json
+
+
+[viva_ruido — relanzamiento posterior]
+AVISO: intento anterior interrumpido; esta QA se ejecuta completa desde cero con una copia nueva.
+Inicio del evaluador: 2026-10-28T16:10:12-04:00 (Venezuela); PID al inicio: 1712
+Huellas calculadas y comprobadas: 2026-10-28T16:10:12-04:00
+Copia temporal aislada: /tmp/biorag-e3b4-reanudado/viva_ruido_20261028-161012-069466/copia.db
+SHA-256 core/memory/search.py: f4479e7db7673c264176a48d467ab7c32411ea67a8cb39ad8daf4a4089677286
+SHA-256 core/memory_store.py: b7e7219caf0f801ce60a9531dc7dca982fe57142dd20450e85e124a048db5168
+SHA-256 tests/test_prefijo_ancho_b4a.py: 68f89c4cf8b54a141da95cf373672fe610b52222036f4334caf570aac03c4181
+SHA-256 fuente /home/user/MemoryBioRAG/google_drive/viva_e3a.db: a61913ce074cd02323c13589040b7ab1e5e4f36b18bbe62c12f9c1d363324e9a
+Registro local de inicio: docs/e3b4a_qa/_intentos/viva_ruido/20261028-161012-069466/huellas_inicio.json
+

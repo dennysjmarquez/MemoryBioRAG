@@ -1,0 +1,20 @@
+{
+  "condicion": "iguales por categoría, R@1 y FP 0/40; también se verifica R@5, MRR y censo",
+  "comparacion_completa": false,
+  "iguales": false,
+  "pendientes": [
+    "snapshot_ruido",
+    "viva_ruido"
+  ],
+  "escenarios": {
+    "snapshot_normal": {
+      "iguales": true,
+      "diferencias": []
+    },
+    "viva_normal": {
+      "iguales": true,
+      "diferencias": []
+    }
+  },
+  "fuentes_y_no_regresion_se_verifican_independientemente": true
+}

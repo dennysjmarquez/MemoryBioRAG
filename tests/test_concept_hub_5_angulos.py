@@ -186,11 +186,23 @@ def test_07_actualizar_hub_preserva_bridges(test_db):
 
 
 def test_08_query_coincide_bridge_recupera_canonical(test_db):
-    """8. Una query coincide con el bridge y recupera el canonical_node."""
+    """8. Una query coincide con el bridge y recupera el canonical_node.
+
+    Nota (auditoría 2026-10-25): este test usaba la query «trabajos antes de
+    programar», que NO coincide con ninguna de las 5 bridges de BRIDGES_5_VALIDOS:
+    sólo compartía la stopword «de» con «falla critica de comunicacion». Pasaba
+    por el falso positivo que provocaba `rec_b * 0.8` con sim > 0.10. La query se
+    sustituye por una que sí coincide con el contenido de una bridge, que es lo
+    que el test dice verificar. El caso de la stopword queda cubierto por
+    test_08b como regresión negativa.
+    """
     conn, _ = test_db
     crear_hub(conn, "hub_busqueda", "nodo_canónico_demo", description="Hub de recuperación")
     agregar_bridges(conn, "hub_busqueda", BRIDGES_5_VALIDOS)
-    
+    # v35.2 + auditoría: ambas sesiones llegaron por separado al mismo hallazgo
+    # (la consulta «trabajos antes de programar» solo compartía la palabra vacía
+    # «de»). Se conserva la formulación de v35.2, que además comprueba el caso
+    # negativo justo debajo.
     exp = expandir_query_con_hub("como arreglar la falla", conn, threshold=0.20)
     assert exp is not None
     assert "nodo_canónico_demo" in exp["canonical_nodes"]
@@ -201,6 +213,46 @@ def test_08_query_coincide_bridge_recupera_canonical(test_db):
     # la palabra vacía "de" (sin el "de" daba None). Compartir solo palabras vacías no es
     # una coincidencia.
     assert expandir_query_con_hub("trabajos antes de programar", conn, threshold=0.20) is None
+
+
+def test_08b_stopword_compartida_no_dispara_hub(test_db):
+    """8b. Compartir una stopword NO es evidencia: el hub no debe disparar.
+
+    Regresión del falso positivo que hundía la precisión del hub al 5,2 %
+    (154 disparos / 8 aciertos medidos sobre la suite QA canónica).
+    """
+    conn, _ = test_db
+    crear_hub(conn, "hub_busqueda", "nodo_canónico_demo", description="Hub de recuperación")
+    agregar_bridges(conn, "hub_busqueda", BRIDGES_5_VALIDOS)
+
+    # Sólo comparte «de» con «falla critica de comunicacion».
+    assert expandir_query_con_hub("trabajos antes de programar", conn,
+                                  threshold=0.20) is None
+
+
+def test_08c_umbral_por_defecto_exige_cobertura_real(test_db, monkeypatch):
+    """8c. Con el motor IDF, sin umbral explícito rige el calibrado (0.55).
+
+    El motor de fábrica es `escala` (v35.2, probada con 1086 hubs). Este test
+    cubre la alternativa `idf`, así que la selecciona de forma explícita: un
+    test que depende de cuál motor está puesto no prueba nada, solo fotografía
+    una configuración.
+    """
+    monkeypatch.setenv("BIORAG_HUB_MOTOR", "idf")
+    conn, _ = test_db
+    crear_hub(conn, "hub_busqueda", "nodo_canónico_demo", description="Hub de recuperación")
+    agregar_bridges(conn, "hub_busqueda", BRIDGES_5_VALIDOS)
+
+    # Cobertura real de la bridge «falla critica de comunicacion»: 1 de 3 stems.
+    exp = expandir_query_con_hub("falla critica de comunicacion", conn)
+    assert exp is not None
+    assert exp["hub_confidence"] >= 0.55
+
+    # Coincidencia parcial insuficiente: 3 de 6 stems (< 0.55) no alcanza, y una
+    # consulta sin relación tampoco.
+    assert expandir_query_con_hub("desarrollador revisando logs de produccion "
+                                  "con alertas y metricas", conn) is None
+    assert expandir_query_con_hub("revisando el clima del domingo", conn) is None
 
 
 def test_09_compatibilidad_formato_legacy(test_db):

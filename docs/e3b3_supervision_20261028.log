@@ -1,0 +1,17 @@
+Esperando las cuatro QA originales mediante pidfd; no se reinicia ninguna.
+Esperando las cuatro QA originales mediante pidfd; no se reinicia ninguna.
+Esperando las cuatro QA originales mediante pidfd; no se reinicia ninguna.
+snapshot_normal terminó, código 0
+snapshot_normal ya terminó, código 0
+Esperando las cuatro QA originales mediante pidfd; no se reinicia ninguna.
+viva_normal terminó, código 0
+snapshot_normal ya terminó, código 0
+viva_normal ya terminó, código 0
+Esperando las cuatro QA originales mediante pidfd; no se reinicia ninguna.
+snapshot_ruido terminó, código 1
+viva_ruido terminó, código 1
+/home/user/MemoryBioRAG/snapshots/qa_escape_qcr_20260811.db integridad: ok nodos: 866
+/tmp/viva_e3a.db integridad: ok nodos: 1357
+Comparador oficial, código: 0
+Estado: {"terminado_utc": "2026-10-28T13:26:42Z", "codigos": {"snapshot_normal": 0, "viva_normal": 0, "snapshot_ruido": 1, "viva_ruido": 1}, "huellas_salidas": {"snapshot_normal": {"/home/user/MemoryBioRAG/docs/e3b3_snapshot_normal_20261028.json": "e77479424e8cc98228ae84020cf375b301a75f75f413c060420ebf4bc36695fb", "/home/user/MemoryBioRAG/docs/e3b3_snapshot_normal_fallos_20261028.jsonl": "443485b8bfc4db4592e0f1f9f86386c8fa16f014ef2d860666ad31a0eb29587e", "/home/user/MemoryBioRAG/docs/e3b3_snapshot_normal_20261028.log": "a38307389c940b86ce951ba086bd4157e8667e460d87e84995abab25f8f87209"}, "viva_normal": {"/home/user/MemoryBioRAG/docs/e3b3_viva_normal_20261028.json": "c69b78fe2b0506c41a12ca890b1824260197fa59068f8f03a0617db05d5f5859", "/home/user/MemoryBioRAG/docs/e3b3_viva_normal_fallos_20261028.jsonl": "b785a2f4c42e023b71c7aa4f8330826587c21ad143eca16212caa5b24c779674", "/home/user/MemoryBioRAG/docs/e3b3_viva_normal_20261028.log": "9d8e555a292d7f29a4fbbfd65ad9c09940224a49d0f0fe43eb96d0e2986711af"}, "snapshot_ruido": {"/home/user/MemoryBioRAG/docs/e3b3_snapshot_ruido_20261028.json": "265af4520f3567e1edd2e5a4645f9ac6f443665b7cdaa0cc832c3642ffe85308", "/home/user/MemoryBioRAG/docs/e3b3_snapshot_ruido_fallos_20261028.jsonl": "0f73b098fc46c808145d58a3b02be58bd9299181a08a61a80c9d1a9838911125", "/home/user/MemoryBioRAG/docs/e3b3_snapshot_ruido_20261028.log": "6682596880fb74ec4831c42747be1c85b7e856a1888e33652ad0a974f84512a4"}, "viva_ruido": {"/home/user/MemoryBioRAG/docs/e3b3_viva_ruido_20261028.json": "71fb053e313db9ddd97aeb1a48549bcfc52dab10cdc8752ceb5472ef45f1bee2", "/home/user/MemoryBioRAG/docs/e3b3_viva_ruido_fallos_20261028.jsonl": "3380d453ec7e187c61b7968737b14045f99ade9f49008ddafb7c52ee7546e424", "/home/user/MemoryBioRAG/docs/e3b3_viva_ruido_20261028.log": "3ae1173dd2a31b3edee83bf11f94e7c183841238d547add17e1dcfc294dcc208"}}, "problemas_integridad": [], "comparador_exit": 0, "regresiones_detectadas": [], "revertido": false, "error_reversion": null, "expectativa_aumento_coreano_cumplida": false, "commit_o_push": false}
+Resumen: /home/user/MemoryBioRAG/docs/e3b3_resultado_supervision_20261028.md

@@ -1,0 +1,770 @@
+diff --git a/core/README.md b/core/README.md
+index c823f60562991af2948e256637882f2825bcd593..a9a5b1bf0b0083a0b50bf1a2437849c28971a9b0 100644
+--- a/core/README.md
++++ b/core/README.md
+@@ -39,6 +39,7 @@ agente ─► core/mcp_server/ ─► core/memory_store.py (fachada) ─► core
+ 
+ | Archivo | Qué es | Por qué existe / qué aporta | Se conecta con | Estado |
+ |---|---|---|---|---|
++| `identidad_unicode.py` | Identidad compartida de texto: NFC, ancho U+FF00–FFEF y espacio U+3000 | Unir formas de ancho y marcas canónicas antes de buscar, guardar y validar, sin quitar marcas | `memory/search`, `memory/ingest`, `memory/constants`, `memory_service`, `concept_hub` y MCP | Propuesta E3, pendiente de aprobación y QA; no migra datos. Investigación: `docs/e3_unicode_identidad_investigacion_20261028.md` |
+ | `stemmer_es.py` | Reduce palabras a su raíz (Snowball español e inglés) | Que "versión" y "versiones" se unan | Lo usan **11** archivos | Activo. **Solo es/en** |
+ | `stopwords.py` | Listas de palabras vacías (conectores) | Que "de", "la", "the" no cuenten como contenido | Lo usan **12** archivos | Activo. **Solo es/en** |
+ | `fallback_simbolico.py` | Rescate cuando la búsqueda literal falla: tokenizador, Levenshtein (tipeo), WordNet | Recuperar con errores de tipeo o variantes | `search`, `scoring`, `rafaga`, `evidence_convergence`, `ppmi_hybrid_search` | Activo. Quita tildes (NFKD) pensando en escritura latina |
+diff --git a/core/concept_hub.py b/core/concept_hub.py
+index 79dd3aaafbc19248b18a9b5750932845ef91c16e..6bd9b9b958c56ebe91948b630f9af0bfab3a031b 100644
+--- a/core/concept_hub.py
++++ b/core/concept_hub.py
+@@ -46,6 +46,8 @@ import logging
+ import sqlite3
+ from typing import Optional, List, Dict, Any, Tuple, Union
+ 
++from core.identidad_unicode import normalizar_identidad
++
+ logger = logging.getLogger("BioRAG.ConceptHub")
+ 
+ 
+@@ -107,7 +109,8 @@ def validar_bridges(bridges: Any, clave: str) -> Tuple[List[Dict[str, Any]], Lis
+             elif isinstance(x, str):
+                 items_procesados.append({"text": x.strip(), "angle": "legacy", "weight": 1.0})
+ 
+-    stems_clave = {stem(w) for w in clave.lower().replace("_", " ").split() if len(w) > 2}
++    clave_norm = normalizar_identidad(clave).lower()
++    stems_clave = {stem(w) for w in clave_norm.replace("_", " ").split() if len(w) > 2}
+     vistos_textos = set()
+     angulos_cubiertos = set()
+ 
+@@ -124,10 +127,11 @@ def validar_bridges(bridges: Any, clave: str) -> Tuple[List[Dict[str, Any]], Lis
+             rechazados.append("Bridge con texto vacío")
+             continue
+ 
+-        # Tramos máximos de letras, marcas y números Unicode tras NFC.
++        # Contar y comparar la misma identidad, sin alterar el texto devuelto.
++        text_norm = normalizar_identidad(text).lower()
+         words = []
+         chars = []
+-        for char in unicodedata.normalize("NFC", text.lower()):
++        for char in text_norm:
+             if unicodedata.category(char)[0] in ("L", "M", "N"):
+                 chars.append(char)
+             elif chars:
+@@ -154,7 +158,6 @@ def validar_bridges(bridges: Any, clave: str) -> Tuple[List[Dict[str, Any]], Lis
+             rechazados.append(f'"{text}" (es una variación morfológica del nombre del nodo — un puente debe usar vocabulario diferente)')
+             continue
+ 
+-        text_norm = text.lower()
+         if text_norm in vistos_textos:
+             rechazados.append(f'"{text}" (texto repetido)')
+             continue
+@@ -340,7 +343,7 @@ def agregar_bridges(conn: sqlite3.Connection, hub_id: str, bridges: Union[List[D
+ 
+     insertados = 0
+     for b in bridges_validos:
+-        text = b["text"].strip()
++        text = normalizar_identidad(b["text"]).strip()
+         angle = b["angle"].strip().lower()
+         weight = float(b.get("weight", 1.0))
+ 
+diff --git a/core/identidad_unicode.py b/core/identidad_unicode.py
+new file mode 100644
+index 0000000000000000000000000000000000000000..693fb0eb63f40ab6e18561ef35e11810b053294d
+--- /dev/null
++++ b/core/identidad_unicode.py
+@@ -0,0 +1,32 @@
++"""Identidad Unicode común para entradas de memoria.
++
++Por qué: una consulta y un recuerdo nuevo no deberían separarse solo porque
++se escribieron con ancho completo, medio ancho o marcas combinantes equivalentes.
++Dónde: en las fronteras de consulta, escritura nueva y validación, antes de
++contar o comparar, para que todas usen la misma identidad.
++Conecta con: búsqueda, ingreso de memoria, sustantivos y puentes del Concept Hub.
++
++Esta función no quita marcas ni usa NFKC general. No migra, reindexa ni fusiona
++registros anteriores; las comparaciones aproximadas existentes son otra capa.
++Evidencia de la elección: docs/e3_unicode_identidad_investigacion_20261028.md.
++"""
++
++import unicodedata
++
++
++def normalizar_identidad(texto: str) -> str:
++    """NFC y plegado directo wide/narrow de U+FF00–FFEF y espacio U+3000."""
++    salida = []
++    for char in unicodedata.normalize("NFC", texto):
++        codigo = ord(char)
++        if codigo == 0x3000:
++            salida.append(" ")
++        elif 0xFF00 <= codigo <= 0xFFEF:
++            partes = unicodedata.decomposition(char).split()
++            if partes and partes[0] in ("<wide>", "<narrow>"):
++                salida.extend(chr(int(valor, 16)) for valor in partes[1:])
++            else:
++                salida.append(char)
++        else:
++            salida.append(char)
++    return unicodedata.normalize("NFC", "".join(salida))
+diff --git a/core/mcp_server/_shared.py b/core/mcp_server/_shared.py
+index 5a5e6aa9cce564e32fc76d786b374080aab56d25..267d1dcdb6447c794d85b021d18b068eeacf779f 100644
+--- a/core/mcp_server/_shared.py
++++ b/core/mcp_server/_shared.py
+@@ -5,6 +5,7 @@ import json
+ import logging
+ import unicodedata
+ from typing import Optional, Dict
++from core.identidad_unicode import normalizar_identidad
+ from core.memory_service import get_cerebro as _svc_get_cerebro
+ from core.memory_store import SQLiteMemoryBioRAG
+ from middleware.auto_guardado import registrar_accion, analizar_y_autoguardar
+@@ -91,7 +92,7 @@ AGENTES_VALIDOS = set()
+ 
+ def _sustantivo_valido(termino: str) -> bool:
+     """Valida el formato Unicode sin alterar el término entregado al motor."""
+-    s = unicodedata.normalize("NFC", termino)
++    s = normalizar_identidad(termino)
+     return (
+         2 <= len(s) <= 15
+         and all(unicodedata.category(c)[0] in "LMN" or c == "_" for c in s)
+diff --git a/core/mcp_server/search.py b/core/mcp_server/search.py
+index 0bdc9bfe644cfdae18c826eb16cfe4ff970587d3..bb0481133fc7863a566e0b8a644bd951763cc5c8 100644
+--- a/core/mcp_server/search.py
++++ b/core/mcp_server/search.py
+@@ -17,6 +17,7 @@ from typing import Annotated, Any, Optional, List
+ 
+ from pydantic import Field
+ 
++from core.identidad_unicode import normalizar_identidad
+ from core.mcp_server._shared import (
+     LIMITE_MCP,
+     MAX_ASOCIACIONES_FLAT,
+@@ -147,9 +148,10 @@ def _recordar_impl(
+             return None
+         if not isinstance(s, str):
+             s = str(s)
+-        # Limitar longitud total a 500
++        # Mantener el límite antes de procesar texto de longitud arbitraria.
+         if len(s) > 500:
+             s = s[:500]
++        s = normalizar_identidad(s)
+         # Truncar palabras individuales a 64 caracteres
+         palabras = s.split()
+         palabras_sanas = [p[:64] for p in palabras]
+@@ -164,6 +166,7 @@ def _recordar_impl(
+             parafrasis = str(parafrasis)
+         if len(parafrasis) > 500:
+             parafrasis = parafrasis[:500]
++        parafrasis = normalizar_identidad(parafrasis)
+         partes = parafrasis.split(",")
+         parafrasis = ",".join([_sanitizar_string(p.strip()) for p in partes if p.strip()])
+             
+@@ -173,6 +176,7 @@ def _recordar_impl(
+             rafaga_palabras = str(rafaga_palabras)
+         if len(rafaga_palabras) > 500:
+             rafaga_palabras = rafaga_palabras[:500]
++        rafaga_palabras = normalizar_identidad(rafaga_palabras)
+         partes = rafaga_palabras.split(",")
+         rafaga_palabras = ",".join([_sanitizar_string(p.strip()) for p in partes if p.strip()])
+ 
+diff --git a/core/mcp_server/write.py b/core/mcp_server/write.py
+index 61fad8767f372f0cc02db171906d4e80771216f5..2b630451c3405c3f2ff98d87dc7db6bfddd627a0 100644
+--- a/core/mcp_server/write.py
++++ b/core/mcp_server/write.py
+@@ -14,6 +14,7 @@ from typing import Annotated, Any, Optional
+ 
+ from pydantic import Field
+ 
++from core.identidad_unicode import normalizar_identidad
+ from core.mcp_server._shared import (
+     VENTANA_CORRECCION,
+     _get_cerebro,
+@@ -31,6 +32,25 @@ from core.sinapsis import (
+ )
+ 
+ 
++def _buscar_registro_sustantivos(cerebro, concepto: str):
++    """Resuelve clave existente sin renombrar: exacta primero, normalizada después.
++
++    Permite usar la forma nueva para buscar una clave recién creada sin desviar
++    una referencia exacta a una fila antigua. Si existen ambas, usa la exacta;
++    no busca otras equivalencias en todo el corpus.
++    """
++    original = concepto.lower().strip().replace(" ", "_")
++    normalizada = normalizar_identidad(concepto).lower().strip().replace(" ", "_")
++    for clave in dict.fromkeys((original, normalizada)):
++        for tabla in ("largo_plazo", "corto_plazo"):
++            row = cerebro.cursor.execute(
++                f"SELECT sustantivos_clave FROM {tabla} WHERE concepto = ?", (clave,)
++            ).fetchone()
++            if row is not None:
++                return clave, tabla, row[0] or ""
++    return normalizada, None, ""
++
++
+ # HELPER: Búsqueda retroactiva de nodos viejos relacionados
+ def _buscar_nodos_viejos_relacionados(cerebro, tokens_nuevos, contenido_nuevo, top_k=3, umbral=0.05):
+     """
+@@ -80,6 +100,9 @@ def _aprender_impl(
+     busqueda_previa: bool = False,
+     vincular_con: Optional[Any] = None,
+ ) -> str:
++    # Solo nuevas entradas: la identidad se comparte con búsqueda y validación.
++    clave_original = concepto.lower().replace(" ", "_")
++    concepto = normalizar_identidad(concepto)
+     clave = concepto.lower().replace(" ", "_")
+ 
+     # ── VALIDACIÓN OBLIGATORIA (INVARIANTE) — Pre-flight Search ─────
+@@ -106,6 +129,10 @@ def _aprender_impl(
+             "parametro_faltante": "busqueda_previa",
+         }, ensure_ascii=False)
+ 
++    contenido = normalizar_identidad(contenido)
++    if syn is not None:
++        syn = normalizar_identidad(syn)
++
+     # ── VALIDACIÓN OBLIGATORIA — ANTES de tocar la DB ──────────────
+     # Rechazar acá, antes de percibir_corto_plazo(), significa que un
+     # intento fallido no deja ningún estado a medias: el agente reintenta
+@@ -249,6 +276,17 @@ def _aprender_impl(
+     cerebro = _get_cerebro()
+     try:
+         clave = concepto.lower().replace(" ", "_")
++        from core.memory.ingest import _comprobar_clave_legacy
++        try:
++            _comprobar_clave_legacy(cerebro, clave_original.strip(), clave.strip())
++        except ValueError as exc:
++            return json.dumps({
++                "status": "error",
++                "codigo": "IDENTIDAD_UNICODE_LEGADA",
++                "mensaje": str(exc),
++                "concepto_original": clave_original,
++                "concepto_normalizado": clave,
++            }, ensure_ascii=False)
+         categoria = cat or inferir_categoria(contenido)
+         val_somatica = float(valencia_somatica or 0.0)
+         if categoria and str(categoria).lower() in ('principle', 'protocol'):
+@@ -859,7 +897,7 @@ def register(mcp: Any) -> None:
+             )
+         )],
+     ) -> str:
+-        clave = concepto.lower().strip().replace(" ", "_")
++        clave = normalizar_identidad(concepto).lower().strip().replace(" ", "_")
+ 
+         if not sustantivos_clave or not str(sustantivos_clave).strip():
+             return json.dumps({
+@@ -907,38 +945,25 @@ def register(mcp: Any) -> None:
+ 
+         cerebro = _get_cerebro()
+         try:
+-            # 1. Buscar en largo_plazo
+-            cerebro.cursor.execute("SELECT sustantivos_clave FROM largo_plazo WHERE concepto = ?", (clave,))
+-            row_lp = cerebro.cursor.fetchone()
+-            if row_lp is not None:
+-                anterior = row_lp[0] or ""
+-                cerebro.cursor.execute("UPDATE largo_plazo SET sustantivos_clave = ? WHERE concepto = ?", (sustantivos_norm, clave))
+-                cerebro.conn.commit()
+-                return json.dumps({
+-                    "status": "ok",
+-                    "concepto": clave,
+-                    "sustantivos_anteriores": anterior,
+-                    "sustantivos_nuevos": sustantivos_norm,
+-                }, ensure_ascii=False)
+-
+-            # 2. Fallback a corto_plazo
+-            cerebro.cursor.execute("SELECT sustantivos_clave FROM corto_plazo WHERE concepto = ?", (clave,))
+-            row_cp = cerebro.cursor.fetchone()
+-            if row_cp is not None:
+-                anterior = row_cp[0] or ""
+-                cerebro.cursor.execute("UPDATE corto_plazo SET sustantivos_clave = ? WHERE concepto = ?", (sustantivos_norm, clave))
+-                cerebro.conn.commit()
++            clave, tabla, anterior = _buscar_registro_sustantivos(cerebro, concepto)
++            if tabla is None:
+                 return json.dumps({
+-                    "status": "ok",
+-                    "concepto": clave,
+-                    "sustantivos_anteriores": anterior,
+-                    "sustantivos_nuevos": sustantivos_norm,
++                    "status": "error",
++                    "codigo": "NODO_NO_ENCONTRADO",
++                    "mensaje": f"El concepto '{clave}' no existe en la base de datos.",
+                 }, ensure_ascii=False)
+ 
++            # La tabla proviene exclusivamente de _buscar_registro_sustantivos.
++            cerebro.cursor.execute(
++                f"UPDATE {tabla} SET sustantivos_clave = ? WHERE concepto = ?",
++                (sustantivos_norm, clave),
++            )
++            cerebro.conn.commit()
+             return json.dumps({
+-                "status": "error",
+-                "codigo": "NODO_NO_ENCONTRADO",
+-                "mensaje": f"El concepto '{clave}' no existe en la base de datos.",
++                "status": "ok",
++                "concepto": clave,
++                "sustantivos_anteriores": anterior,
++                "sustantivos_nuevos": sustantivos_norm,
+             }, ensure_ascii=False)
+         finally:
+             cerebro.cerrar_sistema()
+@@ -954,25 +979,16 @@ def register(mcp: Any) -> None:
+     def biorag_sustantivos(
+         concepto: Annotated[str, Field(description="Nombre del nodo a consultar (snake_case).")],
+     ) -> str:
+-        clave = concepto.lower().strip().replace(" ", "_")
+         cerebro = _get_cerebro()
+         try:
+-            # 1. Buscar en largo_plazo
+-            cerebro.cursor.execute("SELECT sustantivos_clave FROM largo_plazo WHERE concepto = ?", (clave,))
+-            row = cerebro.cursor.fetchone()
+-            if row is None:
+-                # 2. Fallback a corto_plazo
+-                cerebro.cursor.execute("SELECT sustantivos_clave FROM corto_plazo WHERE concepto = ?", (clave,))
+-                row = cerebro.cursor.fetchone()
+-
+-            if row is None:
++            clave, tabla, val = _buscar_registro_sustantivos(cerebro, concepto)
++            if tabla is None:
+                 return json.dumps({
+                     "status": "error",
+                     "codigo": "NODO_NO_ENCONTRADO",
+                     "mensaje": f"El concepto '{clave}' no existe en la base de datos.",
+                 }, ensure_ascii=False)
+ 
+-            val = row[0] or ""
+             items = [x.strip() for x in val.split(",") if x.strip()] if val else []
+             return json.dumps({
+                 "status": "ok",
+diff --git a/core/memory/constants.py b/core/memory/constants.py
+index 87b04c74bbd29ffaeeb79b20a8073f2b04227443..65e9d2d502c305c21246735ee428a58cda044dbe 100644
+--- a/core/memory/constants.py
++++ b/core/memory/constants.py
+@@ -6,6 +6,7 @@ import logging
+ import math
+ import os
+ import re
++from core.identidad_unicode import normalizar_identidad
+ from core.stemmer_es import _quitar_acentos
+ 
+ _log_constants = logging.getLogger(__name__)
+@@ -295,6 +296,9 @@ def normalizar_sustantivos_clave(raw: str) -> str:
+     marcador de control (\x01) antes de `_quitar_acentos` y se restaura después.
+     El marcador no es alfanumérico, así que jamás pasa la validación de formato (T3).
+     """
++    # Cambio 1 solo unifica ancho/forma canónica antes de separar y validar.
++    # La conservación de marcas al guardar queda para el cambio 2.
++    raw = normalizar_identidad(raw)
+     sk = [t.strip().lower() for t in raw.split(",") if t.strip()]
+     sk = [t.replace("ñ", "\x01") for t in sk]
+     sk = [_quitar_acentos(t).replace("\x01", "ñ") for t in sk]
+diff --git a/core/memory/ingest.py b/core/memory/ingest.py
+index d85acf00d80b7b0aae98466018695928bbc613d0..0d03ecb99afe6e84fca7ca20c9fc53aa37c9a739 100644
+--- a/core/memory/ingest.py
++++ b/core/memory/ingest.py
+@@ -7,6 +7,24 @@ Extraído de SQLiteMemoryBioRAG siguiendo el patrón A1:
+ 
+ import time
+ 
++from core.identidad_unicode import normalizar_identidad
++
++
++def _comprobar_clave_legacy(self, original, normalizada):
++    """No desviar una escritura si su clave original ya existe en memoria antigua."""
++    if original == normalizada:
++        return
++    self.cursor.execute(
++        "SELECT concepto FROM corto_plazo WHERE concepto = ? "
++        "UNION ALL SELECT concepto FROM largo_plazo WHERE concepto = ? LIMIT 1",
++        (original, original),
++    )
++    if self.cursor.fetchone() is not None:
++        raise ValueError(
++            f"La clave original '{original}' ya existe y normaliza a '{normalizada}'; "
++            "no se escribió ni fusionó ningún recuerdo. Revisar la identidad antes de continuar."
++        )
++
+ 
+ def percibir_corto_plazo(
+     self,
+@@ -28,7 +46,14 @@ def percibir_corto_plazo(
+     la tool (aprender/guardar). Sobrescribe el valor previo (no merge): si el tema cambió,
+     los sustantivos se reemplazan (Decisión 2 del plan 001). Aditivo: default '' = nodos
+     legacy sin sustantivos, el comportamiento previo no cambia."""
+-    key = concepto.lower().strip()
++    # Solo se transforman datos que entran en esta escritura; no filas antiguas.
++    key_original = concepto.lower().strip()
++    key = normalizar_identidad(concepto).lower().strip()
++    _comprobar_clave_legacy(self, key_original, key)
++    contenido = normalizar_identidad(contenido)
++    sinonimos = normalizar_identidad(sinonimos or "")
++    # Los sustantivos ya llegan normalizados por la herramienta. No recomponer
++    # aquí su salida histórica NFKD: se comparte con la búsqueda actual.
+     cat_id = self._resolver_categoria_id(categoria)
+ 
+     # Auto-asignar valencia somática máxima si la categoría es Principle o Protocol
+@@ -128,7 +153,31 @@ def consolidar_concepto(self, concepto):
+     contenido perdido y filas fantasma en FTS5)."""
+     from core.memory.consolidation import fusionar_en_largo_plazo
+ 
+-    key = concepto.lower().strip()
++    key_original = concepto.lower().strip()
++    key_normalizada = normalizar_identidad(concepto).lower().strip()
++    key = key_original
++    if key_original != key_normalizada:
++        self.cursor.execute(
++            "SELECT concepto FROM corto_plazo WHERE concepto IN (?, ?)",
++            (key_original, key_normalizada),
++        )
++        existentes = {fila[0] for fila in self.cursor.fetchall()}
++        if key_original in existentes and key_normalizada in existentes:
++            raise ValueError(
++                "Identidad Unicode ambigua: existen las claves original y normalizada; "
++                "no se consolidó ningún recuerdo."
++            )
++        if key_original not in existentes:
++            if key_normalizada in existentes:
++                self.cursor.execute(
++                    "SELECT 1 FROM largo_plazo WHERE concepto = ? LIMIT 1", (key_original,)
++                )
++                if self.cursor.fetchone() is not None:
++                    raise ValueError(
++                        "Identidad Unicode ambigua: la clave original ya existe en largo plazo "
++                        "y la normalizada está en corto plazo; no se consolidó ningún recuerdo."
++                    )
++            key = key_normalizada
+     self.cursor.execute(
+         "SELECT contenido, sinonimos, categoria, COALESCE(valencia_somatica, 0.0), "
+         "COALESCE(sustantivos_clave, '') FROM corto_plazo WHERE concepto = ?",
+diff --git a/core/memory/search.py b/core/memory/search.py
+index 83dea177bf86ac879a21d47b5b7cee4749b072bd..341c465aecfc41b4b40daf1657f13d8510ddcd38 100644
+--- a/core/memory/search.py
++++ b/core/memory/search.py
+@@ -18,6 +18,7 @@ import unicodedata
+ from collections import deque
+ import numpy as np
+ 
++from core.identidad_unicode import normalizar_identidad
+ from core.stemmer_es import _quitar_acentos
+ from core.memory import constants
+ from core.memory import neurona
+@@ -73,6 +74,13 @@ def buscar_por_frase(self, frase, profundidad="activos", pagina=1, limite=None,
+     Retorna (resultados, total) donde resultados es lista de
+     (concepto, contenido, peso, estado, score, asociaciones)
+     """
++    # Una sola identidad de entrada para búsqueda, paráfrasis y sustantivos.
++    frase = normalizar_identidad(frase)
++    if parafrasis_list:
++        parafrasis_list = [normalizar_identidad(p) for p in parafrasis_list]
++    if sustantivos_clave_boost:
++        sustantivos_clave_boost = normalizar_identidad(str(sustantivos_clave_boost))
++
+     # Neurona (core/memory/neurona.py): las búsquedas de práctica del autoexamen
+     # van "en silencio" — no cuentan como actividad del usuario.
+     _neurona_silencio = neurona.silencio(self)
+@@ -80,7 +88,7 @@ def buscar_por_frase(self, frase, profundidad="activos", pagina=1, limite=None,
+         self.notificar_actividad_usuario()
+     _neurona_anotar = neurona.necesita_rasgos(self)
+     _neurona_rasgos = {}
+-    _neurona_frase = frase  # original: la regla de identidad compara con lo que escribió el usuario
++    _neurona_frase = frase  # consulta del usuario tras identidad, antes de expansiones
+     self.last_parent_map = {}  # Reset parent pointers for this search
+     # Side-channels for the optional final rank adjustment. The public tuple
+     # keeps one coherent score (the score actually used for ordering); consumers
+diff --git a/core/memory_service.py b/core/memory_service.py
+index e64621ef7ba8ee257fac18c70b718d59838b60eb..eb3163f4dcdbb56605581e94260af83ea3f1a369 100644
+--- a/core/memory_service.py
++++ b/core/memory_service.py
+@@ -17,6 +17,7 @@ from __future__ import annotations
+ import threading
+ from typing import Optional
+ 
++from core.identidad_unicode import normalizar_identidad
+ from core.paths import resolve_db_path
+ 
+ _lock = threading.RLock()
+@@ -79,9 +80,12 @@ def aprender(
+     POR QUÉ consolidar por defecto: una interfaz que «aprende» debe dejar el
+     nodo recuperable por FTS/SDM/PPMI, no solo en RAM de trabajo.
+     """
++    concepto_normalizado = normalizar_identidad(concepto)
++    # El ingreso debe ver la forma original para detectar una clave legacy exacta.
+     cerebro.percibir_corto_plazo(
+         concepto, contenido, sinonimos or "", categoria, dimensiones, predicados
+     )
++    concepto = concepto_normalizado
+     if consolidar:
+         cerebro.consolidar_concepto(concepto)
+     return {"ok": True, "concepto": concepto.lower().strip(), "consolidado": consolidar}
+diff --git a/tests/test_identidad_unicode_cambio1.py b/tests/test_identidad_unicode_cambio1.py
+new file mode 100644
+index 0000000000000000000000000000000000000000..c4659207f5bd13206b85747e35c71bdea45a94c3
+--- /dev/null
++++ b/tests/test_identidad_unicode_cambio1.py
+@@ -0,0 +1,258 @@
++"""E3 cambio 1: identidad compartida. La conservación de sustantivos es cambio 2."""
++
++import asyncio
++import unicodedata
++
++import pytest
++
++from core.concept_hub import ANGULOS_OFICIALES, validar_bridges
++from core.identidad_unicode import normalizar_identidad
++from core.memory.constants import normalizar_sustantivos_clave
++from core.memory_store import SQLiteMemoryBioRAG
++from core import memory_service
++from core.mcp_server import search, write
++from core.mcp_server._shared import _sustantivo_valido
++from scripts.evaluar_qa_guardado_nativo_b2 import texto_tool
++from scripts.evaluar_qa_multilingue_mcp_e3a import parsear_mcp
++
++
++@pytest.mark.parametrize("entrada,esperada", [
++    ("ＡＢＣ", "ABC"),
++    ("ｶﾞﾗｽ", "ガラス"),
++    ("カ\u3099ラス", "ガラス"),
++    ("Ｃａｆｅ\u0301", "Café"),
++    ("ａ\u3000ｂ", "a b"),
++    ("ﾡ", "ㄱ"),
++    ("ㅋㅏㄳ", "ㅋㅏㄳ"),
++    ("① ² ™ ﬁ", "① ² ™ ﬁ"),
++    ("カ\u309b", "カ\u309b"),  # La marca espaciada no se interpreta como U+3099.
++])
++def test_identidad_selectiva(entrada, esperada):
++    assert normalizar_identidad(entrada) == esperada
++    assert normalizar_identidad(esperada) == esperada
++
++
++def test_la_funcion_conserva_marcas_y_no_aplica_nfkc_general():
++    assert normalizar_identidad("ガラス") != normalizar_identidad("カラス")
++    assert normalizar_identidad("niño") == normalizar_identidad("nin\u0303o")
++    assert normalizar_identidad("①²™ﬁ") != unicodedata.normalize("NFKC", "①²™ﬁ")
++    assert normalizar_identidad("カ\u309b") != "ガ"
++
++
++def test_bloque_completo_y_espacio_son_idempotentes():
++    for codigo in range(0xFF00, 0xFFF0):
++        actual = normalizar_identidad(chr(codigo))
++        assert normalizar_identidad(actual) == actual
++    assert normalizar_identidad("\u3000") == " "
++
++
++def test_sustantivos_usan_identidad_antes_de_separar_y_validar():
++    assert normalizar_sustantivos_clave("ａｌｆａ，ｂｅｔａ") == "alfa,beta"
++    assert _sustantivo_valido("ａｂ")
++    assert not _sustantivo_valido("－ａ")
++    # Todavía se aplica el normalizador histórico sin marcas y con NFKD:
++    # identidad exacta de sustantivos y su comparación quedan para el cambio 2.
++    assert normalizar_sustantivos_clave("ガラス,カラス") == "カラス"
++    assert normalizar_sustantivos_clave("①①,11") == "11"
++    assert normalizar_sustantivos_clave("ﬁﬁ,fifi") == "fifi"
++
++
++def _puentes(primero, segundo="corte red general"):
++    textos = [primero, segundo, "apagar encender motor", "periodo trabajo rural", "sin luces visibles"]
++    return [{"text": texto, "angle": angulo}
++            for texto, angulo in zip(textos, ANGULOS_OFICIALES)]
++
++
++def test_bridges_cuentan_tras_plegar_y_guardan_el_contrato_de_validacion():
++    for raw in ("１２３４", "ｇｏ\u3000ｔｏ"):
++        validos, _ = validar_bridges(_puentes(raw), "farol_costero")
++        assert all(item["text"] != raw for item in validos)
++    raw = "ｌｕｎａ\u3000ａｚｕｌ"
++    validos, _ = validar_bridges(_puentes(raw), "farol_costero")
++    assert any(item["text"] == raw for item in validos)  # el validador no reescribe el texto devuelto
++
++
++def test_puentes_duplicados_y_antidestinatario_usan_la_misma_identidad():
++    validos, rechazados = validar_bridges(_puentes("ＬＵＮＡ　ＡＺＵＬ", "luna azul"), "farol_costero")
++    assert len(validos) == 4
++    assert any("texto repetido" in motivo for motivo in rechazados)
++    validos, rechazados = validar_bridges(_puentes("ｆａｒｏ ｃｏｓｔｅｒｏ"), "faro_costero")
++    assert all(item["text"] != "ｆａｒｏ ｃｏｓｔｅｒｏ" for item in validos)
++    assert any("variación morfológica" in motivo for motivo in rechazados)
++
++
++@pytest.fixture()
++def cerebro(tmp_path, monkeypatch):
++    monkeypatch.setenv("BIORAG_DMN_ESTADO_PATH", str(tmp_path / "estado.json"))
++    db = SQLiteMemoryBioRAG(str(tmp_path / "memoria.db"))
++    yield db
++    db.cerrar_sistema()
++
++
++def test_escritura_nueva_y_consolidacion_directa(cerebro):
++    cerebro.percibir_corto_plazo("Ｎｕｅｖｏ", "Pieza ｶﾞﾗｽ y Ｃａｆｅ\u0301", sinonimos="ｖａｓｏ，ｔａｚａ")
++    assert cerebro.conn.execute(
++        "SELECT contenido, sinonimos FROM corto_plazo WHERE concepto=?", ("nuevo",)
++    ).fetchone() == ("Pieza ガラス y Café", "vaso,taza")
++    assert cerebro.consolidar_concepto("Ｎｕｅｖｏ")
++    assert cerebro.conn.execute("SELECT concepto FROM largo_plazo WHERE concepto='nuevo'").fetchone() == ("nuevo",)
++
++
++def test_consolidacion_ambigua_no_toca_ninguna_fila(cerebro):
++    cerebro.conn.execute("INSERT INTO corto_plazo(concepto, contenido, timestamp) VALUES (?, ?, 0)", ("ａｂｃ", "viejo"))
++    cerebro.conn.execute("INSERT INTO corto_plazo(concepto, contenido, timestamp) VALUES (?, ?, 0)", ("abc", "nuevo"))
++    cerebro.conn.commit()
++    with pytest.raises(ValueError, match="Identidad Unicode ambigua"):
++        cerebro.consolidar_concepto("ａｂｃ")
++    filas = cerebro.conn.execute("SELECT concepto, contenido FROM corto_plazo ORDER BY concepto").fetchall()
++    assert filas == [("abc", "nuevo"), ("ａｂｃ", "viejo")]
++
++
++def test_consolidacion_no_desvia_una_referencia_antigua_en_largo(cerebro):
++    cerebro.conn.execute(
++        "INSERT INTO largo_plazo(concepto, contenido) VALUES (?, ?)", ("ａｂｃ", "viejo")
++    )
++    cerebro.conn.execute(
++        "INSERT INTO corto_plazo(concepto, contenido, timestamp) VALUES (?, ?, 0)", ("abc", "nuevo")
++    )
++    cerebro.conn.commit()
++    with pytest.raises(ValueError, match="Identidad Unicode ambigua"):
++        cerebro.consolidar_concepto("ａｂｃ")
++    assert cerebro.conn.execute("SELECT concepto, contenido FROM largo_plazo").fetchall() == [("ａｂｃ", "viejo")]
++    assert cerebro.conn.execute("SELECT concepto, contenido FROM corto_plazo").fetchall() == [("abc", "nuevo")]
++
++
++def test_no_se_desvia_ingreso_si_la_clave_antigua_existe(cerebro):
++    cerebro.conn.execute("INSERT INTO corto_plazo(concepto, contenido, timestamp) VALUES (?, ?, 0)",
++                         ("ｌｅｇａｃｙ", "dato antiguo"))
++    cerebro.conn.execute("INSERT INTO corto_plazo(concepto, contenido, timestamp) VALUES (?, ?, 0)",
++                         ("legacy", "dato distinto"))
++    cerebro.conn.commit()
++    with pytest.raises(ValueError, match="no se escribió ni fusionó"):
++        memory_service.aprender(cerebro, "ｌｅｇａｃｙ", "contenido no autorizado")
++    assert cerebro.conn.execute(
++        "SELECT concepto, contenido FROM corto_plazo ORDER BY concepto"
++    ).fetchall() == [("legacy", "dato distinto"), ("ｌｅｇａｃｙ", "dato antiguo")]
++    assert cerebro.conn.execute("SELECT COUNT(*) FROM largo_plazo").fetchone() == (0,)
++
++
++def test_memory_service_usa_la_clave_normalizada_en_la_misma_escritura(cerebro):
++    resultado = memory_service.aprender(cerebro, "Ｐｒｕｅｂａ", "Señal ｃｅｌｅｓｔｅ")
++    assert resultado["concepto"] == "prueba"
++    assert cerebro.conn.execute(
++        "SELECT contenido FROM largo_plazo WHERE concepto='prueba'"
++    ).fetchone() == ("Señal celeste",)
++
++
++def test_busqueda_directa_igual_para_los_dos_anchos_nuevos(cerebro):
++    memory_service.aprender(cerebro, "nodo_unico", "Objeto de ｶﾞﾗｽ azul resistente")
++    argumentos = dict(profundidad="activos", limite=5, ignore_peso_sinaptico=True)
++    medio, _ = cerebro.buscar_por_frase("ｶﾞﾗｽ", **argumentos)
++    normal, _ = cerebro.buscar_por_frase("ガラス", **argumentos)
++    assert [fila[0] for fila in medio] == [fila[0] for fila in normal]
++    assert any(fila[0] == "nodo_unico" for fila in medio)
++
++
++@pytest.fixture()
++def mcp_cerebro(cerebro, monkeypatch):
++    from core.mcp_server.server import _build_server
++    from middleware.auto_guardado import buffer_global
++
++    monkeypatch.setenv("BIORAG_AUTOGUARDADO_HEURISTICO", "0")
++    monkeypatch.setenv("BIORAG_MCP_AUTO_PARAFRASIS", "0")
++    monkeypatch.setenv("BIORAG_MCP_AUTO_DIMS", "0")
++    cerebro._persistente = True
++    monkeypatch.setattr(write, "_get_cerebro", lambda: cerebro)
++    monkeypatch.setattr(search, "_get_cerebro", lambda: cerebro)
++    buffer_global.limpiar()
++    yield _build_server(), cerebro
++    buffer_global.limpiar()
++    cerebro._persistente = False
++
++
++def _llamar(mcp, nombre, **argumentos):
++    return parsear_mcp(texto_tool(asyncio.run(mcp.call_tool(nombre, argumentos))))
++
++
++def test_preflight_rechaza_antes_de_procesar_contenido():
++    import json
++
++    respuesta = json.loads(write._aprender_impl("ｎｕｅｖｏ", None, bridges=None, busqueda_previa=False))
++    assert respuesta["codigo"] == "BUSQUEDA_PREVIA_REQUERIDA"
++
++
++def test_mcp_limita_el_texto_antes_de_normalizar(mcp_cerebro, monkeypatch):
++    mcp, _ = mcp_cerebro
++    llamadas = []
++    real = search.normalizar_identidad
++
++    def medir(texto):
++        llamadas.append(len(texto))
++        return real(texto)
++
++    monkeypatch.setattr(search, "normalizar_identidad", medir)
++    respuesta = _llamar(
++        mcp, "recordar", query="ａｂ " * 400, parafrasis="ｃｄ " * 400,
++        rafaga_palabras="ｅｆ " * 400, sustantivos_clave="test", limite=5,
++    )
++    assert respuesta.get("status") != "error"
++    assert llamadas and max(llamadas) <= 500
++
++
++@pytest.mark.parametrize("tool_name", ["aprender", "guardar"])
++def test_mcp_consulta_y_escritura_nueva_comparten_identidad(mcp_cerebro, monkeypatch, tool_name):
++    mcp, db = mcp_cerebro
++    observadas = []
++    real = db.buscar_por_frase
++
++    def buscar(frase, *args, **kwargs):
++        observadas.append((frase, kwargs.get("parafrasis_list"), kwargs.get("sustantivos_clave_boost")))
++        return real(frase, *args, **kwargs)
++
++    monkeypatch.setattr(db, "buscar_por_frase", buscar)
++    previa = _llamar(mcp, "recordar", query="ａｌｆａ\u3000ｂｅｔａ", sustantivos_clave="ｃａｆｅ",
++                      parafrasis="ｒｏｊｏ，ａｚｕｌ", limite=5, asociados=False)
++    assert previa.get("status") != "error"
++    assert observadas and observadas[0][0] == "alfa beta"
++    assert observadas[0][1] == ["rojo", "azul"]
++    assert observadas[0][2] == "cafe"
++
++    resultado = _llamar(
++        mcp, tool_name, concepto="Ｌｕｚ\u3000Ａｚｕｌ", contenido="Ｃａｆｅ\u0301 y ｶﾞﾗｽ azul",
++        syn="Ｂｅｂｉｄａ，ｆｒｕｔａ", cat="General", dimensiones=None, bridges=_puentes("ｌｕｎａ\u3000ａｚｕｌ"),
++        sustantivos_clave="ｃａｆｅ，ｐａｐｅｌ", busqueda_previa=True,
++    )
++    assert resultado["status"] == "ok"
++    assert resultado["concepto"] == "luz_azul"
++    assert db.conn.execute(
++        "SELECT contenido, sinonimos, sustantivos_clave FROM corto_plazo WHERE concepto='luz_azul'"
++    ).fetchone() == ("Café y ガラス azul", "Bebida,fruta", "cafe,papel")
++    puentes = [row[0] for row in db.conn.execute(
++        "SELECT bridge_text FROM concept_hub_bridges WHERE hub_id='hub_luz_azul' ORDER BY angle"
++    )]
++    assert len(puentes) == 5 and "luna azul" in puentes
++    update = _llamar(mcp, "agregar_sustantivos", concepto="Ｌｕｚ\u3000Ａｚｕｌ", sustantivos_clave="ａｚｕｌ，ｐａｐｅｌ")
++    assert update["status"] == "ok" and update["concepto"] == "luz_azul"
++    lectura = _llamar(mcp, "sustantivos", concepto="Ｌｕｚ\u3000Ａｚｕｌ")
++    assert lectura["status"] == "ok" and lectura["sustantivos_clave"] == "azul,papel"
++
++
++def test_mcp_prioriza_clave_antigua_exacta_si_coexisten_ambas(mcp_cerebro):
++    mcp, db = mcp_cerebro
++    db.conn.execute("INSERT INTO corto_plazo(concepto,contenido,timestamp,sustantivos_clave) VALUES (?, ?, 0, ?)",
++                    ("ｌｅｇａｃｙ", "dato antiguo", "antiguo,valor"))
++    db.conn.execute("INSERT INTO corto_plazo(concepto,contenido,timestamp,sustantivos_clave) VALUES (?, ?, 0, ?)",
++                    ("legacy", "dato nuevo", "nuevo,valor"))
++    db.conn.commit()
++    previa = _llamar(mcp, "recordar", query="ｌｅｇａｃｙ", sustantivos_clave="antiguo", limite=5)
++    assert previa.get("status") != "error"
++    guardado = _llamar(mcp, "aprender", concepto="ｌｅｇａｃｙ", contenido="no debe guardarse",
++                       dimensiones=None, cat="General", bridges=_puentes("luna azul"),
++                       sustantivos_clave="nuevo,valor", busqueda_previa=True)
++    assert guardado["codigo"] == "IDENTIDAD_UNICODE_LEGADA"
++    assert db.conn.execute("SELECT contenido FROM corto_plazo WHERE concepto='legacy'").fetchone() == ("dato nuevo",)
++    lectura = _llamar(mcp, "sustantivos", concepto="ｌｅｇａｃｙ")
++    assert lectura["concepto"] == "ｌｅｇａｃｙ" and lectura["sustantivos_clave"] == "antiguo,valor"
++    cambio = _llamar(mcp, "agregar_sustantivos", concepto="ｌｅｇａｃｙ", sustantivos_clave="otro,valor")
++    assert cambio["concepto"] == "ｌｅｇａｃｙ"
++    assert db.conn.execute("SELECT sustantivos_clave FROM corto_plazo WHERE concepto='legacy'").fetchone() == ("nuevo,valor",)
+diff --git a/tests/test_validacion_bridges_unicode_b3.py b/tests/test_validacion_bridges_unicode_b3.py
+index 8bc4112a5007e702aa842a8d121c3623cd54b9e4..51c12928ea6b1d8dd5a6c64e2ad1be43c2636208 100644
+--- a/tests/test_validacion_bridges_unicode_b3.py
++++ b/tests/test_validacion_bridges_unicode_b3.py
+@@ -36,7 +36,7 @@ def _bridges(primero):
+     ("memoria artificial", True),
+     ("once lunas", True),  # No mezclar stopwords inglesas en el filtro español.
+     ("the and", True),  # La lista inglesa no se agrega en B3.
+-    ("１２３４", True),  # La regla cuenta números anchos; no infiere significado.
++    ("１２３４", False),  # Ancho → 1234: una sola unidad, igual que la forma normal.
+     ("哈哈哈哈", True),
+     ("1234 5678", True),
+     ("jaja jaja", True),

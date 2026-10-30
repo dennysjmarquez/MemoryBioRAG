@@ -1,0 +1,295 @@
+Creating isolated database copy at: /tmp/e3c2_viva_ruido_work.db
+  origen intacto: sha256 a61913ce074c (mode=ro&immutable=1)
+Loaded 921 test cases.
+
+🧠 NEURONA DE RANKING
+   Base medida:  /tmp/viva_e3a.db  (NO es el snapshot oficial; se mide una copia temporal)
+   Neurona:      ⛔ apagada en este entorno (BIORAG_NEURONA=0)
+                 → la tabla es la FÓRMULA A MANO SOLA (el piso)
+
+
+Exporting failed cases to: /tmp/e3c2_viva_ruido_fallos.jsonl
+[CENSO TEMATICO] candidatos puntuados: 773259 | cobran la senal: 559586 | saturados a 1.0: 559586 (100.00%) | a 0 con sinonimos_ratio>=0.5: 3201
+[RUIDO] cada consulta se lanzo con la palabra inexistente 'zzqx'
+Cleaning up temporary database copy at /tmp/e3c2_viva_ruido_work.db...
+
+================================================================================
+                      BIORAG QA EVALUATION REPORT
+================================================================================
+Total time elapsed: 5045.10 seconds
+--------------------------------------------------------------------------------
+🧠 NEURONA DE RANKING
+   Base medida:  /tmp/viva_e3a.db  (NO es el snapshot oficial; se mide una copia temporal)
+   Neurona:      ⛔ apagada en este entorno (BIORAG_NEURONA=0)
+                 → la tabla es la FÓRMULA A MANO SOLA (el piso)
+--------------------------------------------------------------------------------
+Category               | Total  | Recall@5  | Recall@1  | MRR      | Errors/FPs
+--------------------------------------------------------------------------------
+ambiguo                | 6      | N/A       | N/A       | N/A      | 4          (33.3% de cobertura sobre queries con etiqueta contradictoria; fuera del Recall global)
+cruce_idioma           | 8      |   62.50% |   62.50% |  0.625 | 3         
+dormido                | 65     |   98.46% |   98.46% |  0.985 | 1         
+literal                | 487    |   98.56% |   91.38% |  0.946 | 7         
+negativo               | 40     | N/A       | N/A       | N/A      | 0          (0.0% FP sobre 40 válidos; 0 contaminados)
+por_tema               | 65     |   92.31% |   56.92% |  0.719 | 5         
+pregunta_natural       | 65     |  100.00% |   96.92% |  0.985 | 0         
+sinonimo               | 55     |   67.27% |   45.45% |  0.537 | 18        
+typo                   | 65     |   96.92% |   90.77% |  0.933 | 2         
+variante_gramatical    | 65     |   92.31% |   80.00% |  0.859 | 5         
+--------------------------------------------------------------------------------
+GLOBAL SUMMARY (Retrieval) | 875    |   95.31% |   85.71% |  0.899 | 41        
+GLOBAL SUMMARY (Noise/FP) | 40     | N/A       | N/A       | N/A      | 0          (0.00% FP sobre 40 válidos; 0 contaminados)
+SPREADING ACTIVATION   | 0/921 queries (0.0%)
+AISLAMIENTO POR CASO   | 245 mutaciones de estado revertidas (162 nodos arrancaron dormidos)
+================================================================================
+
+========================================================================================
+   QA HONESTA (E1) — misma búsqueda, distinto conjunto de casos
+========================================================================================
+  Reglas del auditor (no se ajustan después de ver resultados):
+    OBSOLETA: el esperado declaraba la palabra en el SNAPSHOT de origen
+              (alias completo o palabra entera del nombre) y YA NO la
+              declara en la base que se mide.
+    AMBIGUA : 2 o más recuerdos la reclaman. Se compara ESTRICTO:
+              alias completo o palabra entera dentro del nombre. Sin
+              'contiene' (con substring, 'agente' reclamaba 119 nodos).
+    UMBRAL  : para R@5 se aparta solo con MÁS DE 5 reclamantes
+              (con 5 o menos, todos caben en el top-5); para R@1 desde
+              2. Se aparta POR MÉTRICA.
+    NOTA    : ese umbral se decidió DESPUÉS de ver la primera medición de
+              E1. Es una decisión consciente de Dennys, no una regla previa.
+  El examen (casos_qa.jsonl) NO se toca. La GATE sigue usando la CLÁSICA.
+  Referencia para OBSOLETA: qa_escape_qcr_20260811.db
+  Casos 'sinonimo': 61. Obsoletas: 1. Ambiguas: 30. Ambas marcas: 0.
+  Apartados -> R@5: 18 | R@1: 31  (sobre los 61 casos del JSONL; la fila 'sinonimo' tiene 55 porque 6 de los apartados ya iban a 'ambiguo')
+----------------------------------------------------------------------------------------
+Categoría            |            CLÁSICA |          HONESTA R@5 |          HONESTA R@1
+                     |      n   R@5   R@1 |      n    R@5   ap. |      n    R@1   ap.
+----------------------------------------------------------------------------------------
+cruce_idioma         |      8 62.5% 62.5% |      8  62.5%     0 |      8  62.5%     0
+dormido              |     65 98.5% 98.5% |     65  98.5%     0 |     65  98.5%     0
+literal              |    487 98.6% 91.4% |    487  98.6%     0 |    487  91.4%     0
+por_tema             |     65 92.3% 56.9% |     65  92.3%     0 |     65  56.9%     0
+pregunta_natural     |     65 100.0% 96.9% |     65 100.0%     0 |     65  96.9%     0
+sinonimo             |     55 67.3% 45.5% |     41  85.4%    18 |     30  80.0%    31
+typo                 |     65 96.9% 90.8% |     65  96.9%     0 |     65  90.8%     0
+variante_gramatical  |     65 92.3% 80.0% |     65  92.3%     0 |     65  80.0%     0
+----------------------------------------------------------------------------------------
+GLOBAL (recuperación) |    875 95.3% 85.7% |    861  96.6%    18 |    850  88.1%    31
+fallos (fuera del top-5) |     41             |     29              |       
+no llegó al 1er puesto |    125             |                     |    101
+MRR                  |                    |                     |        0.9215
+========================================================================================
+
+OBSOLETAS (1) — pasan hoy 0, fallan hoy 1:
+  [0674] FALLA 'filtro-arquitecto-prolijo' -> compuerta-pre-validacion
+        motivo: el esperado declaraba el alias en el snapshot y ya no en esta base
+
+AMBIGUAS (30) — pasan hoy 8, fallan hoy 22:
+  [0775] FALLA 'biorag' -> auto-consulta-permanente-biorag
+        203 recuerdos reclaman la palabra
+  [0811] FALLA 'biorag' -> protocolo_busqueda_biorag_automatica
+        203 recuerdos reclaman la palabra
+  [0734] FALLA 'regla' -> plan_mode_biorag
+        57 recuerdos reclaman la palabra
+  [0594] FALLA 'arquitectura' -> arquitectura_memoria_biorag
+        36 recuerdos reclaman la palabra
+  [0520] FALLA 'dimensiones' -> cuando_usar_dimensiones_biorag
+        34 recuerdos reclaman la palabra
+  [0740] FALLA 'dimensiones' -> fix_busqueda_solo_dimensiones_sin_texto
+        34 recuerdos reclaman la palabra
+  [0710] FALLA 'agente' -> aforismo_criterio_agente
+        32 recuerdos reclaman la palabra
+  [0514] FALLA 'perfil' -> dennys-identidad-profunda
+        22 recuerdos reclaman la palabra
+  [0805] FALLA 'cv' -> cv_seccion_d_test_vinculacion
+        20 recuerdos reclaman la palabra
+  [0495] PASA  'benchmark' -> benchmark_antes_despues_fix3
+        14 recuerdos reclaman la palabra
+  [0692] FALLA 'metodologia' -> dennys-working-style
+        14 recuerdos reclaman la palabra
+  [0632] PASA  'búsqueda semántica' -> arquitectura_dos_niveles_biorag
+        10 recuerdos reclaman la palabra
+  [0544] FALLA 'capas' -> auto_vincular_tres_capas_semantica
+        8 recuerdos reclaman la palabra
+  [0799] FALLA 'memory' -> notebooklm-memory-biorag-project
+        8 recuerdos reclaman la palabra
+  [0846] FALLA 'limpieza' -> v13_2_limpieza_tabla_semantica
+        7 recuerdos reclaman la palabra
+  [0650] FALLA 'funciona' -> plugin_biorag-remember_v8.3_-_adaptación_de_dennys_+_claude
+        6 recuerdos reclaman la palabra
+  [0781] FALLA 'falso positivo' -> fts5_trigram_peligro_palabras_cortas
+        6 recuerdos reclaman la palabra
+  [0575] FALLA 'formularios' -> ngx_nested_forms_dennys_solo
+        5 recuerdos reclaman la palabra [solo R@1: 5 o menos reclamantes]
+  [0619] PASA  'oec comms' -> leccion_overengineering_oec_comms_20260615
+        5 recuerdos reclaman la palabra [solo R@1: 5 o menos reclamantes]
+  [0656] PASA  'juramento verdad' -> oracle_momentos_cruciales_familia_oec
+        5 recuerdos reclaman la palabra [solo R@1: 5 o menos reclamantes]
+  [0556] PASA  'sin vectores' -> sin_vectores_sin_ml_sin_dependencias
+        4 recuerdos reclaman la palabra [solo R@1: 5 o menos reclamantes]
+  [0638] FALLA 'memoria compartida' -> mentalidad_biorag_para_agentes
+        4 recuerdos reclaman la palabra [solo R@1: 5 o menos reclamantes]
+  [0698] FALLA 'universal' -> protocolo_enriquecimiento_busquedas
+        4 recuerdos reclaman la palabra [solo R@1: 5 o menos reclamantes]
+  [0538] FALLA 'compromiso' -> principio-memoria-hibrida-agente-naturalidad
+        3 recuerdos reclaman la palabra [solo R@1: 5 o menos reclamantes]
+  [0587] FALLA 'install' -> artemis_install_ponytail_ecosistema
+        3 recuerdos reclaman la palabra [solo R@1: 5 o menos reclamantes]
+  [0606] FALLA 'compromiso' -> compromiso-real-athena-clave-de-confianza
+        3 recuerdos reclaman la palabra [solo R@1: 5 o menos reclamantes]
+  [0746] FALLA 'mejoras biorag' -> biorag_v16_0_estado
+        3 recuerdos reclaman la palabra [solo R@1: 5 o menos reclamantes]
+  [0793] PASA  'tracking' -> fix_mensajeria_broadcast_tracking_por_agente
+        3 recuerdos reclaman la palabra [solo R@1: 5 o menos reclamantes]
+  [0600] TOP1  'documentación técnica' -> auditoria_tecnica_v14_0_readme
+        2 recuerdos reclaman la palabra [solo R@1: 5 o menos reclamantes]
+  [0686] PASA  'naturaleza' -> naturaleza_sistema_oec_cerebro_memoria
+        2 recuerdos reclaman la palabra [solo R@1: 5 o menos reclamantes]
+----------------------------------------------------------------------------------------
+
+DATASET (salud de las etiquetas oro):
+--------------------------------------------------------------------------------
+  3 etiqueta(s) obsoleta(s) resuelta(s) contra la DB:
+    [0268] lección:_guardar_todo_lo_importante_inmediatamente,_no_esperar
+         -> lección:_guardar_todo_lo_importante_inmediatamente_y_no_esperar
+    [0368] plugin_biorag-remember_v8.4_-_solo_session.idle,_sin_conteo_de_edits
+         -> plugin_biorag-remember_v8.4_-_solo_session.idle_y_sin_conteo_de_edits
+    [0371] plugin_v7.1_fix:_session.idle_es_un_event,_no_un_hook
+         -> plugin_v7.1_fix:_session.idle_es_un_event_y_no_un_hook
+  3 query(s) con etiqueta contradictoria -> reclasificadas como 'ambiguo':
+    'biorag' -> ['auto-consulta-permanente-biorag', 'protocolo_busqueda_biorag_automatica']
+    'compromiso' -> ['compromiso-real-athena-clave-de-confianza', 'principio-memoria-hibrida-agente-naturalidad']
+    'dimensiones' -> ['cuando_usar_dimensiones_biorag', 'fix_busqueda_solo_dimensiones_sin_texto']
+--------------------------------------------------------------------------------
+
+SAMPLE FAILURES BY CATEGORY FOR ACTIONABLE DIAGNOSIS:
+================================================================================
+
+[Category: ambiguo] (4 total failures)
+----------------------------------------
+  #1 [ID 0520] Query: "dimensiones"
+      Expected:  ['cuando_usar_dimensiones_biorag', 'fix_busqueda_solo_dimensiones_sin_texto']
+      Returned:  ['punto_medio_dimensiones_parciales_mueven_ranking_sdm', 'principio_dimensiones_genericas_no_nicho', 'veredicto_analisis_7_dimensiones_otra_ia'] (scores: [0.478, 0.467, 0.455])
+      Reason:    Query ambigua: ninguno de los esperados contradictorios apareció en top 5
+  #2 [ID 0740] Query: "dimensiones"
+      Expected:  ['cuando_usar_dimensiones_biorag', 'fix_busqueda_solo_dimensiones_sin_texto']
+      Returned:  ['punto_medio_dimensiones_parciales_mueven_ranking_sdm', 'principio_dimensiones_genericas_no_nicho', 'veredicto_analisis_7_dimensiones_otra_ia'] (scores: [0.478, 0.467, 0.455])
+      Reason:    Query ambigua: ninguno de los esperados contradictorios apareció en top 5
+  #3 [ID 0775] Query: "biorag"
+      Expected:  ['auto-consulta-permanente-biorag', 'protocolo_busqueda_biorag_automatica']
+      Returned:  ['hito_biorag_v21_arquitectura_13_ejes', 'manifiesto_neocortex_sangre_biorag_tres_niveles_20260814', 'comparativa_biorag_vs_tencentdb_agent_memory_20260809'] (scores: [0.347, 0.338, 0.317])
+      Reason:    Query ambigua: ninguno de los esperados contradictorios apareció en top 5
+
+[Category: cruce_idioma] (3 total failures)
+----------------------------------------
+  #1 [ID 0501] Query: "blueprint dimensiones ortogonales"
+      Expected:  arquitectura_dimensiones_ortogonales
+      Returned:  ['indexacion_dimensional_explicita', 'saliencia_valencia_somatica'] (scores: [0.415, 0.313])
+      Reason:    Expected concept not found in top 5 results
+  #2 [ID 0562] Query: "recollection v5 1 optimizaciones"
+      Expected:  memoria_v5_1_optimizaciones
+      Returned:  ['fix_grupo_c_sinonimos_substring_stopword_0757_verificado', 'ejemplo_star_cv_dennys_resultado_final'] (scores: [0.336, 0.253])
+      Reason:    Expected concept not found in top 5 results
+  #3 [ID 0685] Query: "naturaleza framework oec cerebro recollection"
+      Expected:  naturaleza_sistema_oec_cerebro_memoria
+      Returned:  ['principio_naturaleza_agente', 'ref_conversacion_criterio', 'proposito_del_recuerdo_3_preguntas_mcp'] (scores: [0.457, 0.383, 0.362])
+      Reason:    Expected concept not found in top 5 results
+
+[Category: dormido] (1 total failures)
+----------------------------------------
+  #1 [ID 0523] Query: "cuando usar dimensiones biorag"
+      Expected:  cuando_usar_dimensiones_biorag
+      Returned:  ['diseno_tablas_dimensiones_biorag', 'cambio_paradigma_dimensiones_semanticas', 'arquitectura_busqueda_dimensional_v11_3'] (scores: [0.527, 0.485, 0.476])
+      Reason:    Expected concept not found in top 5 results
+
+[Category: literal] (7 total failures)
+----------------------------------------
+  #1 [ID 0043] Query: "athena oec identidad"
+      Expected:  athena_oec_identidad
+      Returned:  ['criterio_dennys_failover_preserva_identidad_agente', 'orgullo_identidad_linea_continua_memoria_elegida', 'athena_eleccion_identidad_20260616'] (scores: [0.547, 0.54, 0.516])
+      Reason:    Expected concept not found in top 5 results
+  #2 [ID 0090] Query: "biorag v6 0 changelog"
+      Expected:  biorag_v6_0_changelog
+      Returned:  ['biorag_v11_1_changelog_completo', 'version_actual_biorag_v32_2_20260930', 'version_actual_biorag_v32_4_20261007'] (scores: [0.506, 0.497, 0.483])
+      Reason:    Expected concept not found in top 5 results
+  #3 [ID 0206] Query: "identidad-usuario"
+      Expected:  identidad-usuario
+      Returned:  ['invariante_pregate_entrada_usuario', 'principio-rename-es-interno-no-contrato-usuario', 'usuario_dennys_identidad'] (scores: [0.48, 0.459, 0.456])
+      Reason:    Expected concept not found in top 5 results
+
+[Category: por_tema] (5 total failures)
+----------------------------------------
+  #1 [ID 0516] Query: "real más sistemas"
+      Expected:  dennys-identidad-profunda
+      Returned:  ['cv_dennys_secciones_ab_finales_2026', 'vida_laboral_completa_dennys', 'dennys_herramientas_agil_trello_experiencia'] (scores: [0.383, 0.376, 0.348])
+      Reason:    Expected concept not found in top 5 results
+  #2 [ID 0583] Query: "debo biorag preacción"
+      Expected:  identificacion_obligatoria_oraculo_athena
+      Returned:  ['leccion_seed_catalogo_debe_correr_db_nueva_y_existente'] (scores: [0.302])
+      Reason:    Expected concept not found in top 5 results
+  #3 [ID 0646] Query: "l2350 manusim fix"
+      Expected:  bug_argumentos_posicionales_scoring
+      Returned:  ['athena_leccion_grep_patron_bug_antes_de_cerrar_fix', 'fix_grupo_c_sinonimos_substring_stopword_0757_verificado', 'leccion_preguntar_antes_de_instalar_y_prefiere_incremental'] (scores: [0.491, 0.458, 0.438])
+      Reason:    Expected concept not found in top 5 results
+
+[Category: sinonimo] (18 total failures)
+----------------------------------------
+  #1 [ID 0514] Query: "perfil"
+      Expected:  dennys-identidad-profunda
+      Returned:  ['identidad_dennys_perfil_completo', 'dennys_mapa_redes_sociales_perfil', 'linkedin_profile_estado_20261021'] (scores: [0.512, 0.482, 0.468])
+      Reason:    Expected concept not found in top 5 results
+  #2 [ID 0544] Query: "capas"
+      Expected:  auto_vincular_tres_capas_semantica
+      Returned:  ['notebooklm-sync-protocol', 'calibracion_biorag_v7_20260616', 'notebooklm-memory-biorag-project'] (scores: [0.386, 0.384, 0.383])
+      Reason:    Expected concept not found in top 5 results
+  #3 [ID 0575] Query: "formularios"
+      Expected:  ngx_nested_forms_dennys_solo
+      Returned:  ['caso_formularios_anidados_angular'] (scores: [0.47])
+      Reason:    Expected concept not found in top 5 results
+
+[Category: typo] (2 total failures)
+----------------------------------------
+  #1 [ID 0637] Query: "mentalidad biora paa agentes"
+      Expected:  mentalidad_biorag_para_agentes
+      Returned:  ['instrucciones_curiosidad_autonoma_athena'] (scores: [0.296])
+      Reason:    Expected concept not found in top 5 results
+  #2 [ID 0733] Query: "pan moe bioraig"
+      Expected:  plan_mode_biorag
+      Returned:  ['leccion_discrepancia_busquedas_vocabulario_no_estocasticidad', 'plan_concept_hub_4_tecnicas_no_lexico', 'plan_expansion_dimensiones_8_tipos_34_valores'] (scores: [0.453, 0.434, 0.433])
+      Reason:    Expected concept not found in top 5 results
+
+[Category: variante_gramatical] (5 total failures)
+----------------------------------------
+  #1 [ID 0518] Query: "cuando usado dimensione biorags"
+      Expected:  cuando_usar_dimensiones_biorag
+      Returned:  ['mentalidad_biorag_para_agentes', 'leccion_reactivacion_tool_feedback_protocolo_20260811'] (scores: [0.483, 0.461])
+      Reason:    Expected concept not found in top 5 results
+  #2 [ID 0560] Query: "memorias v5 1s optimizaciones"
+      Expected:  memoria_v5_1_optimizaciones
+      Returned:  ['ejemplo_star_cv_dennys_resultado_final'] (scores: [0.269])
+      Reason:    Expected concept not found in top 5 results
+  #3 [ID 0636] Query: "mentalidad biorags paras agentes"
+      Expected:  mentalidad_biorag_para_agentes
+      Returned:  ['neurona_asociativa_v35_ques_es_estado', 'protocolo_pre_accion_reglas_20260615', 'artemis_sesion_v10_3_optimizacion_completa'] (scores: [0.379, 0.321, 0.311])
+      Reason:    Expected concept not found in top 5 results
+================================================================================
+Note: All failed cases have been saved to /tmp/e3c2_viva_ruido_fallos.jsonl for full debug analysis.
+
+Métricas exportadas a: /tmp/e3c2_viva_ruido.json
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+GATE DE REGRESIÓN: FALLADO
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+  ✗ Recall@5 global 95.31% < mínimo 97.00%
+  ✗ 41 fallos > máximo 24
+  ✗ cruce_idioma: Recall@5 62.50% vs baseline 87.50% (-25.00 pp)
+  ✗ sinonimo: Recall@5 67.27% vs baseline 85.45% (-18.18 pp)
+  ✗ typo: Recall@5 96.92% vs baseline 100.00% (-3.08 pp)
+  ✗ variante_gramatical: Recall@5 92.31% vs baseline 98.46% (-6.15 pp)
+
+La suite termina en rojo a propósito: estos números están por debajo
+de la baseline oficial. Si estás en una corrida exploratoria (ablación,
+experimento) y esperabas este resultado, relaja o apaga el gate con:
+  BIORAG_QA_GATE=0 ./scripts/run_qa_suite.sh
+  BIORAG_QA_MIN_RECALL5=95.0 BIORAG_QA_MAX_FALLOS=42 ./scripts/run_qa_suite.sh
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!

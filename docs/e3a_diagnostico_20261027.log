@@ -1,0 +1,408 @@
+[PMI] Corpus recalculado: 1 nodos, 0 pares, 0.2ms
+[PMI] Corpus recalculado: 1 nodos, 0 pares, 0.0ms
+[PMI] Corpus recalculado: 1 nodos, 0 pares, 0.0ms
+[PMI] Corpus recalculado: 1 nodos, 0 pares, 0.0ms
+[PMI] Corpus recalculado: 1 nodos, 0 pares, 0.0ms
+[PMI] Corpus recalculado: 1 nodos, 0 pares, 0.0ms
+[TRACE] 1.8 Snap: 1 → ['ガラス']
+[TRACE] 1.8 Snap: 1 → ['カラス']
+[PMI] Corpus recalculado: 1 nodos, 0 pares, 0.2ms
+[PMI] Corpus recalculado: 1 nodos, 0 pares, 0.0ms
+[PMI] Corpus recalculado: 1 nodos, 0 pares, 0.0ms
+[PMI] Corpus recalculado: 1 nodos, 0 pares, 0.0ms
+[TRACE] 1.8 Snap: 1 → ['烘焙面包']
+[TRACE] 1.8 Snap: 1 → ['手作りのパン']
+[TRACE] 1.8 Snap: 1 → ['pan de centeno']
+{
+  "componentes": [
+    {
+      "texto": "ガラス",
+      "fallback_normalizado": "カラス",
+      "tokens_fallback": [
+        "カラス"
+      ],
+      "stem": "カラス",
+      "tokens_sinapsis": [],
+      "tokens_ppmi": [],
+      "tokens_conceptuales": [],
+      "expresion_aprendida": "",
+      "dimension": null,
+      "grupos_wordnet": []
+    },
+    {
+      "texto": "カラス",
+      "fallback_normalizado": "カラス",
+      "tokens_fallback": [
+        "カラス"
+      ],
+      "stem": "カラス",
+      "tokens_sinapsis": [],
+      "tokens_ppmi": [],
+      "tokens_conceptuales": [],
+      "expresion_aprendida": "",
+      "dimension": null,
+      "grupos_wordnet": []
+    },
+    {
+      "texto": "月亮",
+      "fallback_normalizado": "月亮",
+      "tokens_fallback": [
+        "月亮"
+      ],
+      "stem": "月亮",
+      "tokens_sinapsis": [],
+      "tokens_ppmi": [],
+      "tokens_conceptuales": [],
+      "expresion_aprendida": "",
+      "dimension": null,
+      "grupos_wordnet": []
+    },
+    {
+      "texto": "月",
+      "fallback_normalizado": "月",
+      "tokens_fallback": [],
+      "stem": "月",
+      "tokens_sinapsis": [],
+      "tokens_ppmi": [],
+      "tokens_conceptuales": [],
+      "expresion_aprendida": "",
+      "dimension": null,
+      "grupos_wordnet": []
+    },
+    {
+      "texto": "한국어",
+      "fallback_normalizado": "한국어",
+      "tokens_fallback": [
+        "한국어"
+      ],
+      "stem": "한국어",
+      "tokens_sinapsis": [],
+      "tokens_ppmi": [],
+      "tokens_conceptuales": [],
+      "expresion_aprendida": "",
+      "dimension": null,
+      "grupos_wordnet": []
+    },
+    {
+      "texto": "русский",
+      "fallback_normalizado": "русскии",
+      "tokens_fallback": [
+        "русскии"
+      ],
+      "stem": "русскии",
+      "tokens_sinapsis": [],
+      "tokens_ppmi": [],
+      "tokens_conceptuales": [],
+      "expresion_aprendida": "",
+      "dimension": null,
+      "grupos_wordnet": []
+    },
+    {
+      "texto": "всё",
+      "fallback_normalizado": "все",
+      "tokens_fallback": [
+        "все"
+      ],
+      "stem": "все",
+      "tokens_sinapsis": [],
+      "tokens_ppmi": [],
+      "tokens_conceptuales": [],
+      "expresion_aprendida": "",
+      "dimension": null,
+      "grupos_wordnet": []
+    },
+    {
+      "texto": "все",
+      "fallback_normalizado": "все",
+      "tokens_fallback": [
+        "все"
+      ],
+      "stem": "все",
+      "tokens_sinapsis": [],
+      "tokens_ppmi": [],
+      "tokens_conceptuales": [],
+      "expresion_aprendida": "",
+      "dimension": null,
+      "grupos_wordnet": []
+    },
+    {
+      "texto": "acción",
+      "fallback_normalizado": "accion",
+      "tokens_fallback": [
+        "accion"
+      ],
+      "stem": "accion",
+      "tokens_sinapsis": [
+        "acción"
+      ],
+      "tokens_ppmi": [
+        "accion"
+      ],
+      "tokens_conceptuales": [
+        "acción"
+      ],
+      "expresion_aprendida": "accion",
+      "dimension": "accion",
+      "grupos_wordnet": [
+        "noun.Tops",
+        "noun.act",
+        "noun.attribute",
+        "noun.communication",
+        "noun.possession",
+        "noun.state"
+      ]
+    },
+    {
+      "texto": "action",
+      "fallback_normalizado": "action",
+      "tokens_fallback": [
+        "action"
+      ],
+      "stem": "action",
+      "tokens_sinapsis": [
+        "action"
+      ],
+      "tokens_ppmi": [
+        "action"
+      ],
+      "tokens_conceptuales": [
+        "action"
+      ],
+      "expresion_aprendida": "action",
+      "dimension": "action",
+      "grupos_wordnet": [
+        "noun.act",
+        "noun.artifact",
+        "noun.attribute",
+        "noun.communication",
+        "noun.process",
+        "noun.state",
+        "verb.creation",
+        "verb.social"
+      ]
+    }
+  ],
+  "puentes_japones_sin_espacios": {
+    "puentes": [
+      {
+        "text": "透明な素材を説明する",
+        "angle": "sinonimo"
+      },
+      {
+        "text": "破れやすい容器の問題",
+        "angle": "problema"
+      },
+      {
+        "text": "素材を加工する方法",
+        "angle": "solucion"
+      },
+      {
+        "text": "食器を選ぶ場面について",
+        "angle": "situacion"
+      },
+      {
+        "text": "初心者向けの簡単な説明",
+        "angle": "ingenuo"
+      }
+    ],
+    "validos": 0,
+    "rechazos": [
+      "\"透明な素材を説明する\" (< 2 palabras de contenido real)",
+      "\"破れやすい容器の問題\" (< 2 palabras de contenido real)",
+      "\"素材を加工する方法\" (< 2 palabras de contenido real)",
+      "\"食器を選ぶ場面について\" (< 2 palabras de contenido real)",
+      "\"初心者向けの簡単な説明\" (< 2 palabras de contenido real)",
+      "Faltan bridges para los ángulos: ['problema', 'situacion', 'sinonimo', 'solucion', 'ingenuo']"
+    ]
+  },
+  "mcp_validacion": {
+    "zh": {
+      "sustantivos": "月亮,天空",
+      "aprender": {
+        "status": "error",
+        "codigo": "SUSTANTIVOS_CLAVE_FORMATO_INVALIDO",
+        "termino_invalido": "月亮"
+      },
+      "recordar": {
+        "status": "error",
+        "codigo": "SUSTANTIVOS_CLAVE_FORMATO_INVALIDO",
+        "termino_invalido": "月亮"
+      }
+    },
+    "ja": {
+      "sustantivos": "月光,夜空",
+      "aprender": {
+        "status": "error",
+        "codigo": "SUSTANTIVOS_CLAVE_FORMATO_INVALIDO",
+        "termino_invalido": "月光"
+      },
+      "recordar": {
+        "status": "error",
+        "codigo": "SUSTANTIVOS_CLAVE_FORMATO_INVALIDO",
+        "termino_invalido": "月光"
+      }
+    },
+    "ko": {
+      "sustantivos": "달빛,밤하늘",
+      "aprender": {
+        "status": "error",
+        "codigo": "SUSTANTIVOS_CLAVE_FORMATO_INVALIDO",
+        "termino_invalido": "달빛"
+      },
+      "recordar": {
+        "status": "error",
+        "codigo": "SUSTANTIVOS_CLAVE_FORMATO_INVALIDO",
+        "termino_invalido": "달빛"
+      }
+    },
+    "ru": {
+      "sustantivos": "луна,небо",
+      "aprender": {
+        "status": "error",
+        "codigo": "SUSTANTIVOS_CLAVE_FORMATO_INVALIDO",
+        "termino_invalido": "луна"
+      },
+      "recordar": {
+        "status": "error",
+        "codigo": "SUSTANTIVOS_CLAVE_FORMATO_INVALIDO",
+        "termino_invalido": "луна"
+      }
+    }
+  },
+  "mini_base": {
+    "integridad": "ok",
+    "nodos": 4,
+    "sinapsis": 0,
+    "por_idioma": {
+      "zh": {
+        "recuerdos": 1,
+        "con_grupo_wordnet": 0,
+        "con_sinapsis": 0
+      },
+      "ja": {
+        "recuerdos": 2,
+        "con_grupo_wordnet": 0,
+        "con_sinapsis": 0
+      },
+      "ko": {
+        "recuerdos": 0,
+        "con_grupo_wordnet": 0,
+        "con_sinapsis": 0
+      },
+      "ru": {
+        "recuerdos": 0,
+        "con_grupo_wordnet": 0,
+        "con_sinapsis": 0
+      },
+      "en": {
+        "recuerdos": 0,
+        "con_grupo_wordnet": 0,
+        "con_sinapsis": 0
+      },
+      "es": {
+        "recuerdos": 1,
+        "con_grupo_wordnet": 1,
+        "con_sinapsis": 0
+      }
+    },
+    "sha256_sqlite": "bdecaa314e8f8cfe5f7d319776fdfe018555496c2c309a5cbf79f8f6d5c856ea"
+  },
+  "mini_par_japones": [
+    {
+      "id": "ja-19",
+      "idioma": "ja",
+      "tipo": "contraste_dakuten",
+      "query": "ガラス",
+      "esperado": "ガラス",
+      "rango": 2,
+      "resultados": [
+        {
+          "concepto": "カラス",
+          "score": 0.8549
+        },
+        {
+          "concepto": "ガラス",
+          "score": 0.6737
+        }
+      ],
+      "total_motor": 2,
+      "falso_positivo": null
+    },
+    {
+      "id": "ja-20",
+      "idioma": "ja",
+      "tipo": "contraste_dakuten",
+      "query": "カラス",
+      "esperado": "カラス",
+      "rango": 2,
+      "resultados": [
+        {
+          "concepto": "ガラス",
+          "score": 0.8542
+        },
+        {
+          "concepto": "カラス",
+          "score": 0.6763
+        }
+      ],
+      "total_motor": 2,
+      "falso_positivo": null
+    }
+  ],
+  "ensenar_expresion_japonesa": {
+    "ok": false,
+    "error": "expresion vacia tras normalizar"
+  },
+  "fragmentos_fts": [
+    {
+      "id": "zh-07",
+      "query": "黑麦面粉",
+      "concepto": "烘焙面包",
+      "posicion_subcadena": 7,
+      "palabra_prefijo": false,
+      "fts_bruto": [
+        "烘焙面包"
+      ],
+      "en_pool_antes_del_filtro": true,
+      "origen_antes_del_filtro": [
+        "literal",
+        0.0
+      ],
+      "resultado_final": []
+    },
+    {
+      "id": "ja-07",
+      "query": "全粒粉",
+      "concepto": "手作りのパン",
+      "posicion_subcadena": 9,
+      "palabra_prefijo": false,
+      "fts_bruto": [
+        "手作りのパン"
+      ],
+      "en_pool_antes_del_filtro": true,
+      "origen_antes_del_filtro": [
+        "literal",
+        0.0
+      ],
+      "resultado_final": []
+    },
+    {
+      "id": "es-07",
+      "query": "semillas de girasol",
+      "concepto": "pan de centeno",
+      "posicion_subcadena": 28,
+      "palabra_prefijo": true,
+      "fts_bruto": [
+        "pan de centeno"
+      ],
+      "en_pool_antes_del_filtro": true,
+      "origen_antes_del_filtro": [
+        "simbolico",
+        1.0
+      ],
+      "resultado_final": [
+        "pan de centeno"
+      ]
+    }
+  ]
+}

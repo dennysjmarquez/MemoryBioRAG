@@ -1,0 +1,7 @@
+Al inicio se detectó que varias corridas compartían el archivo auxiliar ignorado
+estado_hormiga.json, creado por los ensayos. Aunque las bases eran copias, se
+detuvieron las cuatro QA antes de obtener métricas; sus resultados parciales no
+se usan. La medición final asigna un estado temporal separado a cada proceso.
+También se repiten la directa, el MCP y el brazo de guardado con estado aislado.
+La referencia B1 se carga desde una copia de write.py del HEAD, verificada por
+SHA-256, sin modificar el árbol candidato. El snapshot y la copia viva no cambiaron.
