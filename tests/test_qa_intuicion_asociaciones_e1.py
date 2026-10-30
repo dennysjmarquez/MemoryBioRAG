@@ -7,6 +7,7 @@ import pytest
 from scripts.evaluar_qa_intuicion_asociaciones_e1 import (
     attribute_two_hop,
     bridge_payload,
+    context_concepts,
     load_gold,
     main_result_concepts,
     metrics_by_channel,
@@ -14,7 +15,7 @@ from scripts.evaluar_qa_intuicion_asociaciones_e1 import (
     percentile,
     response_concepts,
     serialize_report,
-    validate_duplicate_query_objectives,
+    validate_duplicate_query_gold,
     validate_positive_gold,
     validate_route_structure,
     validate_query_gold,
@@ -40,28 +41,58 @@ def test_gold_precongelado_cubre_88_episodios_224_consultas_y_340_nodos():
     assert sum(q["idioma"] == "en" for ep in eps for q in ep["consultas"]) == 52
 
 
-def test_objetivos_de_consultas_repetidas_se_completan_en_la_fixture_compartida():
+def test_objetivos_y_pistas_repetidos_tienen_evidencia_semantica_en_gold():
     episodes = load_gold()
     surface = "how should pending jobs be processed in safe groups?"
     group = [q for ep in episodes for q in ep["consultas"] if q["query"].casefold() == surface]
     assert len(group) == 4
     assert len(set(group[0]["objetivos_principales"])) == 4
+    assert len(set(group[0]["relacionados_utiles"])) == 4
     assert all(set(q["objetivos_principales"]) == set(group[0]["objetivos_principales"]) for q in group)
+    assert all(set(q["relacionados_utiles"]) == set(group[0]["relacionados_utiles"]) for q in group)
+    for q in group:
+        assert set(q["evidencia_objetivos"]) == set(q["objetivos_principales"])
+        assert set(q["evidencia_relacionados_utiles"]) == set(q["relacionados_utiles"])
+        assert all(q["evidencia_objetivos"][c] for c in q["objetivos_principales"])
+        assert all(q["justificacion_relacionados_utiles"][c] for c in q["relacionados_utiles"])
+    abstentions = [q for ep in episodes for q in ep["consultas"] if q["query"].casefold() == "what color was selected for the queue interface?"]
+    assert len(abstentions) == 4
+    assert all(q["espera_abstencion"] and not q["objetivos_principales"] and not q["relacionados_utiles"] for q in abstentions)
+    assert all(q["justificacion_abstencion"] for q in abstentions)
 
 
-def test_validador_rechaza_objetivos_incompletos_para_preguntas_identicas():
+def test_validador_rechaza_objetivos_o_pistas_repetidos_sin_evidencia():
     queries = [
-        {"query": "Same question?", "query_id": "q1", "objetivos_principales": ["a"], "espera_abstencion": False},
-        {"query": " same   question? ", "query_id": "q2", "objetivos_principales": ["b"], "espera_abstencion": False},
+        {"query": "Same question?", "query_id": "q1", "objetivos_principales": ["a"], "relacionados_utiles": [], "espera_abstencion": False,
+         "evidencia_objetivos": {"a": "answer A"}, "justificacion_objetivos": {"a": "A answers the question."},
+         "evidencia_relacionados_utiles": {}, "justificacion_relacionados_utiles": {}},
+        {"query": " same   question? ", "query_id": "q2", "objetivos_principales": ["b"], "relacionados_utiles": [], "espera_abstencion": False,
+         "evidencia_objetivos": {"b": "answer B"}, "justificacion_objetivos": {"b": "B answers the question."},
+         "evidencia_relacionados_utiles": {}, "justificacion_relacionados_utiles": {}},
     ]
+    contents = {"a": "answer A", "b": "answer B", "c": "clue C"}
     with pytest.raises(ValueError, match="Objetivos incompletos"):
-        validate_duplicate_query_objectives(queries)
+        validate_duplicate_query_gold(queries, contents)
     queries[0]["objetivos_principales"] = ["a", "b"]
     queries[1]["objetivos_principales"] = ["a", "b"]
-    validate_duplicate_query_objectives(queries)
-    queries[1]["espera_abstencion"] = True
+    queries[0]["evidencia_objetivos"] = queries[1]["evidencia_objetivos"] = {"a": "answer A", "b": "answer B"}
+    queries[0]["justificacion_objetivos"] = queries[1]["justificacion_objetivos"] = {"a": "A answers it.", "b": "B answers it."}
+    validate_duplicate_query_gold(queries, contents)
+    queries[0]["evidencia_objetivos"]["b"] = "not a literal excerpt"
+    with pytest.raises(ValueError, match="Evidencia/justificación inválida"):
+        validate_duplicate_query_gold(queries, contents)
+    queries[0]["evidencia_objetivos"]["b"] = "answer B"
+    for q in queries:
+        q["relacionados_utiles"] = ["c"]
+    with pytest.raises(ValueError, match="Cada pista repetida requiere evidencia"):
+        validate_duplicate_query_gold(queries, contents)
+    for q in queries:
+        q["evidencia_relacionados_utiles"] = {"c": "clue C"}
+        q["justificacion_relacionados_utiles"] = {"c": "The clue gives relevant context."}
+    validate_duplicate_query_gold(queries, contents)
+    queries[0]["espera_abstencion"] = True
     with pytest.raises(ValueError, match="mezcla gold answerable y abstención"):
-        validate_duplicate_query_objectives(queries)
+        validate_duplicate_query_gold(queries, contents)
 
 
 def test_gold_sin_objetivo_se_distingue_de_etiqueta_omitida():
@@ -122,20 +153,27 @@ def test_validacion_estructural_rechaza_atajo_y_ruta_minima_ambigua():
         validate_route_structure(route, ambiguous)
 
 
-def test_resultados_principales_no_absorben_asociaciones_anidadas():
-    known = {"principal", "lateral_plano", "lateral_enriquecido"}
-    payload = [{
+def test_resultados_y_contexto_solo_cuentan_sus_conceptos_propios():
+    known = {"principal", "contexto", "lateral_plano", "lateral_enriquecido"}
+    result_payload = [{
         "concepto": "principal",
         "asociaciones": {"items": [{"concepto": "lateral_plano"}]},
         "asociaciones_enriquecidas": [{"concepto": "lateral_enriquecido"}],
     }]
-    main = set(main_result_concepts(payload, known))
-    flat = response_concepts(payload[0]["asociaciones"], known)
-    enriched = response_concepts(payload[0]["asociaciones_enriquecidas"], known)
+    context_payload = [{
+        "concepto": "contexto",
+        "asociaciones": [{"concepto": "lateral_plano"}],
+    }]
+    main = set(main_result_concepts(result_payload, known))
+    context = context_concepts(context_payload, known)
+    flat = response_concepts(result_payload[0]["asociaciones"], known)
+    enriched = response_concepts(result_payload[0]["asociaciones_enriquecidas"], known)
     assert main == {"principal"}
+    assert context == {"contexto"}
     assert flat == {"lateral_plano"}
     assert enriched == {"lateral_enriquecido"}
     assert main.isdisjoint(flat | enriched)
+    assert context.isdisjoint(flat)
 
 
 def test_asociacion_anidada_no_cuenta_como_semilla_para_atribucion():
@@ -148,6 +186,18 @@ def test_asociacion_anidada_no_cuenta_como_semilla_para_atribucion():
     out = attribute_two_hop(ep, q, response, adjacency, known | {"otro"}, max_depth=2)
     assert out["estado"] == "no atribuible"
     assert "semillas devueltas" in out["motivo"]
+
+
+def test_asociacion_anidada_en_contexto_no_cuenta_como_exposicion():
+    ep, response, adjacency, known = _case()
+    response["contexto_expandido"] = [{"concepto": "medio", "asociaciones": [{"concepto": "pista"}]}]
+    response["trazabilidad"] = {"rutas_expansion": [{
+        "desde": "objetivo", "hasta": "pista", "ruta": ["objetivo", "medio", "pista"], "saltos": 2,
+    }]}
+    q = {"query_id": "q", "relacionados_utiles": ["pista"], "objetivos_principales": []}
+    out = attribute_two_hop(ep, q, response, adjacency, known, max_depth=2)
+    assert out["estado"] == "no atribuible"
+    assert out["motivo"] == "pista no aparece en contexto_expandido"
 
 
 def test_ruta_en_grafo_y_contexto_sin_traza_efectiva_es_no_atribuible():

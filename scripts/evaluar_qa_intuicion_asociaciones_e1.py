@@ -75,8 +75,8 @@ def canonical_query(query: str) -> str:
     return " ".join(query.casefold().split())
 
 
-def validate_duplicate_query_objectives(queries: list[dict]) -> None:
-    """Exige que una superficie repetida en la fixture compartida etiquete todos sus gold válidos."""
+def validate_duplicate_query_gold(queries: list[dict], node_contents: dict[str, str]) -> None:
+    """Valida todos los objetivos/pistas repetidos con evidencia literal y justificación semántica."""
     if len(queries) < 2:
         return
     surfaces = {canonical_query(q["query"]) for q in queries}
@@ -85,11 +85,32 @@ def validate_duplicate_query_objectives(queries: list[dict]) -> None:
     answerable = {not q["espera_abstencion"] for q in queries}
     if len(answerable) != 1:
         raise ValueError(f"Consulta repetida mezcla gold answerable y abstención: {queries[0]['query_id']}")
-    if not next(iter(answerable)):
-        return
-    all_valid = set().union(*(set(q["objetivos_principales"]) for q in queries))
-    if not all_valid or any(set(q["objetivos_principales"]) != all_valid for q in queries):
-        raise ValueError(f"Objetivos incompletos en consultas indistinguibles: {queries[0]['query_id']}")
+    all_targets = set().union(*(set(q["objetivos_principales"]) for q in queries))
+    all_clues = set().union(*(set(q["relacionados_utiles"]) for q in queries))
+    if next(iter(answerable)):
+        if not all_targets or any(set(q["objetivos_principales"]) != all_targets for q in queries):
+            raise ValueError(f"Objetivos incompletos en consultas indistinguibles: {queries[0]['query_id']}")
+        if any(set(q["relacionados_utiles"]) != all_clues for q in queries):
+            raise ValueError(f"Pistas incompletas en consultas indistinguibles: {queries[0]['query_id']}")
+    elif all_targets or all_clues:
+        raise ValueError(f"Consulta repetida de abstención etiquetó respuestas o pistas: {queries[0]['query_id']}")
+    for q in queries:
+        objective_evidence = q.get("evidencia_objetivos", {})
+        objective_reasons = q.get("justificacion_objetivos", {})
+        clue_evidence = q.get("evidencia_relacionados_utiles", {})
+        clue_reasons = q.get("justificacion_relacionados_utiles", {})
+        if set(objective_evidence) != set(q["objetivos_principales"]) or set(objective_reasons) != set(q["objetivos_principales"]):
+            raise ValueError(f"Cada objetivo repetido requiere evidencia y justificación: {q['query_id']}")
+        if set(clue_evidence) != set(q["relacionados_utiles"]) or set(clue_reasons) != set(q["relacionados_utiles"]):
+            raise ValueError(f"Cada pista repetida requiere evidencia y justificación: {q['query_id']}")
+        for concept, excerpt in objective_evidence.items():
+            if not excerpt or excerpt not in node_contents.get(concept, "") or not objective_reasons[concept].strip():
+                raise ValueError(f"Evidencia/justificación inválida para objetivo repetido {concept}: {q['query_id']}")
+        for concept, excerpt in clue_evidence.items():
+            if not excerpt or excerpt not in node_contents.get(concept, "") or not clue_reasons[concept].strip():
+                raise ValueError(f"Evidencia/justificación inválida para pista repetida {concept}: {q['query_id']}")
+        if not next(iter(answerable)) and not q.get("justificacion_abstencion", "").strip():
+            raise ValueError(f"Abstención repetida requiere justificación: {q['query_id']}")
 
 
 def validate_positive_gold(episode: dict) -> None:
@@ -145,6 +166,7 @@ def load_gold(path: Path = GOLD) -> list[dict]:
     if route_count != 12 or sum(bool(ep["positivo"]) for ep in rows) != 48:
         raise ValueError("El gold debe conservar 48 positivos y 12 rutas etiquetadas de dos saltos")
     query_ids, concepts = set(), set()
+    node_contents: dict[str, str] = {}
     query_groups: dict[str, list[dict]] = defaultdict(list)
     total_queries = 0
     for ep in rows:
@@ -161,6 +183,7 @@ def load_gold(path: Path = GOLD) -> list[dict]:
         if concepts.intersection(local):
             raise ValueError(f"Concepto repetido entre episodios: {ep['episode_id']}")
         concepts.update(local)
+        node_contents.update({n["concepto"]: n["contenido"] for n in ep["nodos"]})
         if ep["ancla"] not in local:
             raise ValueError(f"Ancla fuera del episodio: {ep['episode_id']}")
         for edge in ep["aristas_gold"]:
@@ -191,18 +214,19 @@ def load_gold(path: Path = GOLD) -> list[dict]:
             query_ids.add(q["query_id"])
             if any(t.lower() not in q["query"].lower() for t in q["sustantivos_clave"].split(",")):
                 raise ValueError(f"Término de búsqueda no presente en la pregunta: {q['query_id']}")
-            local_tags = set(q["relacionados_utiles"]) | set(q["ruido_tonto"])
-            if not local_tags <= local:
-                raise ValueError(f"Etiqueta lateral fuera del episodio: {q['query_id']}")
+            if not set(q["ruido_tonto"]) <= local:
+                raise ValueError(f"Etiqueta de ruido fuera del episodio: {q['query_id']}")
             if set(q["objetivos_principales"]) & set(q["ruido_tonto"]):
                 raise ValueError(f"Objetivo y ruido se solapan: {q['query_id']}")
             query_groups[canonical_query(q["query"])].append(q)
     if total_queries != 224:
         raise ValueError(f"Se esperaban 224 consultas lógicas, hay {total_queries}")
     for group in query_groups.values():
-        validate_duplicate_query_objectives(group)
+        validate_duplicate_query_gold(group, node_contents)
         if any(not set(q["objetivos_principales"]) <= concepts for q in group):
             raise ValueError(f"Objetivo gold fuera de la fixture compartida: {group[0]['query_id']}")
+        if any(not set(q["relacionados_utiles"]) <= concepts for q in group):
+            raise ValueError(f"Pista gold fuera de la fixture compartida: {group[0]['query_id']}")
     node_count = sum(len(ep["nodos"]) for ep in rows)
     edge_count = sum(len(ep["aristas_gold"]) for ep in rows)
     if (node_count, edge_count) != (340, 56):
@@ -420,6 +444,11 @@ def main_result_concepts(value, known: set[str]) -> list[str]:
     return concepts
 
 
+def context_concepts(value, known: set[str]) -> set[str]:
+    """Lee únicamente el concepto propio de cada elemento de contexto expandido."""
+    return set(main_result_concepts(value, known))
+
+
 def response_concepts(value, known: set[str]) -> set[str]:
     found: set[str] = set()
     if isinstance(value, dict):
@@ -447,7 +476,7 @@ def attribute_two_hop(ep: dict, q: dict, response: dict, adjacency: dict[str, se
     if max_depth < 2:
         return {"estado": "no atribuible", "motivo": "condición sin expansión de dos saltos"}
     primaries = set(main_result_concepts(response.get("resultados", []), known))
-    context = response_concepts(response.get("contexto_expandido", []), known)
+    context = context_concepts(response.get("contexto_expandido", []), known)
     if candidate not in context:
         return {"estado": "no atribuible", "motivo": "pista no aparece en contexto_expandido"}
     anchor = route["objetivo"]
@@ -647,7 +676,7 @@ async def run_arm(db_path: Path, temp_root: Path, episodes: list[dict], mode: st
             main_results = main_result_concepts(parsed.get("resultados", []), known)
             channels = {
                 "resultados": set(main_results),
-                "contexto_expandido": response_concepts(parsed.get("contexto_expandido", []), known),
+                "contexto_expandido": context_concepts(parsed.get("contexto_expandido", []), known),
                 "asociaciones_enriquecidas": set(),
                 "asociaciones": set(),
             }
