@@ -1,6 +1,20 @@
-"""Tests unitarios puros del diseño E1; no levantan MCP ni abren SQLite."""
+"""Pruebas unitarias de gold, métricas e integridad de atribución; no inician MCP ni abren SQLite."""
+import copy
+import json
+
+import pytest
+
 from scripts.evaluar_qa_intuicion_asociaciones_e1 import (
-    attribute_two_hop, bridge_payload, load_gold, ordered_queries,
+    attribute_two_hop,
+    bridge_payload,
+    load_gold,
+    metrics_by_channel,
+    ordered_queries,
+    percentile,
+    serialize_report,
+    validate_positive_gold,
+    validate_route_structure,
+    validate_query_gold,
 )
 from scripts.analizar_anotaciones_qa_e1 import weighted_kappa
 
@@ -13,12 +27,50 @@ def _case():
     return ep, response, adjacency, {"objetivo", "medio", "pista"}
 
 
-def test_gold_precongelado_cubre_88_episodios_y_224_consultas():
+def test_gold_precongelado_cubre_88_episodios_224_consultas_y_340_nodos():
     eps = load_gold()
     assert len(eps) == 88
     assert sum(len(ep["consultas"]) for ep in eps) == 224
+    assert sum(len(ep["nodos"]) for ep in eps) == 340
+    assert sum(len(ep["aristas_gold"]) for ep in eps) == 56
     assert sum(bool(ep["ruta_2_saltos"]) for ep in eps) == 12
     assert sum(q["idioma"] == "en" for ep in eps for q in ep["consultas"]) == 52
+
+
+def test_gold_sin_objetivo_se_distingue_de_etiqueta_omitida():
+    missing = {"query_id": "q-missing", "objetivos_principales": [], "relacionados_utiles": []}
+    with pytest.raises(ValueError, match="sin answerability/tipo explícitos"):
+        validate_query_gold(missing)
+    abstention = {**missing, "espera_abstencion": True, "respuesta_gold": "abstenerse", "tipo_consulta": "asunto_ausente"}
+    validate_query_gold(abstention)
+    contradictory = {**abstention, "objetivos_principales": ["nodo"]}
+    with pytest.raises(ValueError, match="contradictorio"):
+        validate_query_gold(contradictory)
+
+
+def test_cada_positivo_cumple_diseno_de_apoyos_pistas_y_dos_distractores():
+    positives = [ep for ep in load_gold() if ep["positivo"]]
+    assert positives
+    for ep in positives:
+        validate_positive_gold(ep)
+        nodes = {n["concepto"] for n in ep["nodos"]}
+        distractors = set(ep["consultas"][0]["ruido_tonto"])
+        assert len(ep["recuerdos_apoyo"]) >= 2
+        assert ep["pistas_serendipia_utiles"]
+        assert len(distractors) >= 2
+        assert set(ep["recuerdos_apoyo"]).isdisjoint(distractors)
+        assert set(ep["evidencia_pistas"]) <= nodes
+
+
+def test_falla_gold_positivo_si_se_quitan_apoyos_o_evidencia_de_pista():
+    ep = copy.deepcopy(next(ep for ep in load_gold() if ep["positivo"]))
+    ep["recuerdos_apoyo"] = ep["recuerdos_apoyo"][:1]
+    with pytest.raises(ValueError, match=">=2 recuerdos de apoyo"):
+        validate_positive_gold(ep)
+    ep = copy.deepcopy(next(ep for ep in load_gold() if ep["positivo"]))
+    ep["evidencia_pistas"] = {}
+    with pytest.raises(ValueError, match="justificación y evidencia"):
+        validate_positive_gold(ep)
 
 
 def test_bridges_sinteticos_cumplen_el_contrato_mcp_sin_validacion_humana():
@@ -29,24 +81,87 @@ def test_bridges_sinteticos_cumplen_el_contrato_mcp_sin_validacion_humana():
             assert len(validos) == 5, (node["concepto"], rechazados)
 
 
-def test_dos_saltos_solo_se_atribuyen_con_camino_efectivo_y_semilla_objetivo():
+def test_validacion_estructural_rechaza_atajo_y_ruta_minima_ambigua():
+    route = {"objetivo": "objetivo", "intermedio": "medio", "pista": "pista"}
+    adjacency = {"objetivo": {"medio"}, "medio": {"objetivo", "pista"}, "pista": {"medio"}}
+    assert validate_route_structure(route, adjacency)["estructura_gold_exactamente_2"] is True
+    shortcut = {**adjacency, "objetivo": {"medio", "pista"}, "pista": {"medio", "objetivo"}}
+    with pytest.raises(ValueError, match="único camino mínimo"):
+        validate_route_structure(route, shortcut)
+    ambiguous = {**adjacency, "objetivo": {"medio", "alterno"},
+                 "medio": {"objetivo", "pista"}, "alterno": {"objetivo", "pista"},
+                 "pista": {"medio", "alterno"}}
+    with pytest.raises(ValueError, match="único camino mínimo"):
+        validate_route_structure(route, ambiguous)
+
+
+def test_ruta_en_grafo_y_contexto_sin_traza_efectiva_es_no_atribuible():
     ep, response, adjacency, known = _case()
     q = {"query_id": "q", "relacionados_utiles": ["pista"], "objetivos_principales": []}
     out = attribute_two_hop(ep, q, response, adjacency, known, max_depth=2)
+    assert out["estado"] == "no atribuible"
+    assert "no expone" in out["motivo"]
+    # La mera existencia de la ruta gold en el grafo sigue sin ser evidencia de recorrido.
+    assert adjacency["objetivo"] == {"medio"}
+
+
+def test_atribucion_acepta_solo_traza_mcp_explicita_y_gold_de_dos_saltos():
+    ep, response, adjacency, known = _case()
+    q = {"query_id": "q", "relacionados_utiles": ["pista"], "objetivos_principales": []}
+    response["trazabilidad"] = {"rutas_expansion": [{
+        "desde": "objetivo", "hasta": "pista", "ruta": ["objetivo", "medio", "pista"], "saltos": 2,
+    }]}
+    out = attribute_two_hop(ep, q, response, adjacency, known, max_depth=2)
     assert out["estado"] == "atribuible_2_saltos"
     assert out["ruta_efectiva"] == ["objetivo", "medio", "pista"]
-    response["resultados"] = [{"concepto": "otra_semilla"}]
-    out = attribute_two_hop(ep, q, response, adjacency, known | {"otra_semilla"}, max_depth=2)
-    assert out["estado"] == "no atribuible"
+    response["trazabilidad"]["rutas_expansion"][0]["ruta"] = ["objetivo", "pista"]
+    assert attribute_two_hop(ep, q, response, adjacency, known, max_depth=2)["estado"] == "no atribuible"
 
 
-def test_atajo_efectivo_o_ruta_no_coincidente_se_reporta_no_atribuible():
+def test_dos_saltos_sin_semilla_objetivo_o_sin_ventana_se_reportan_no_atribuible():
     ep, response, adjacency, known = _case()
-    adjacency["objetivo"].add("pista")
-    adjacency["pista"].add("objetivo")
-    out = attribute_two_hop(ep, {}, response, adjacency, known, max_depth=2)
-    assert out["estado"] == "no atribuible"
-    assert "exactamente dos saltos" in out["motivo"]
+    q = {"query_id": "q", "relacionados_utiles": ["pista"], "objetivos_principales": []}
+    assert attribute_two_hop(ep, q, response, adjacency, known, max_depth=1)["estado"] == "no atribuible"
+    response["resultados"] = [{"concepto": "otra_semilla"}]
+    assert attribute_two_hop(ep, q, response, adjacency, known | {"otra_semilla"}, max_depth=2)["estado"] == "no atribuible"
+
+
+def _metric_row(*, objective, useful, noise, channel_values, abstain, ranking, rank):
+    return {
+        "objetivos_principales": objective,
+        "relacionados_utiles": useful,
+        "ruido_tonto": noise,
+        "canales": channel_values,
+        "espera_abstencion": abstain,
+        "ranking_resultados": ranking,
+        "rango_objetivo_resultados": rank,
+        "episode_id": "ep",
+    }
+
+
+def test_metricas_union_no_indexa_clave_inexistente_y_cuenta_abstenciones_explicitas():
+    channels = {"resultados": ["objetivo"], "asociaciones_enriquecidas": ["pista"],
+                "asociaciones": [], "contexto_expandido": ["pista"]}
+    positive = _metric_row(objective=["objetivo"], useful=["pista"], noise=["ruido"],
+                           channel_values=channels, abstain=False, ranking=["objetivo"], rank=1)
+    negative = _metric_row(objective=[], useful=[], noise=["ruido"],
+                           channel_values={k: ["ruido"] if k == "resultados" else [] for k in channels},
+                           abstain=True, ranking=["ruido"], rank=None)
+    report = metrics_by_channel([positive, negative])
+    assert report["union_canales"]["objetivo_visible_consultas"] == 1
+    assert report["union_canales"]["relacionados_utiles_visibles"] == 1
+    assert report["resultados"]["consultas_sin_objetivo"] == 1
+    assert report["resultados"]["falsos_positivos_consultas_sin_objetivo"] == 1
+    assert report["resultados"]["R_at_1"] == 1.0
+
+
+def test_percentiles_y_reporte_son_sincronos_y_json_serializables():
+    assert percentile([3, 1, 2], 0.50) == 2
+    assert percentile([], 0.95) is None
+    payload = serialize_report({"metricas": metrics_by_channel([]), "latencia": {"p50": percentile([4], 0.5)}})
+    assert json.loads(payload)["latencia"]["p50"] == 4
+    with pytest.raises(TypeError):
+        serialize_report({"coroutine_o_objeto_no_json": object()})
 
 
 def test_control_inverso_preserva_orden_interno_de_cada_episodio():

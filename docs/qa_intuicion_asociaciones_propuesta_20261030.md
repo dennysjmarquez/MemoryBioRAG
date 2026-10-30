@@ -66,28 +66,29 @@ Gold implementado como `scripts/casos_qa_intuicion_asociaciones_e1.jsonl` (88 ep
 ```json
 {
   "episode_id": "timeout-01",
-  "query_id": "timeout-01-main",
-  "idioma": "es",
-  "estrato": "pista_1_salto",
-  "query": "¿Qué hacemos si el proveedor se demora y no debemos duplicar el pedido?",
-  "sustantivos_clave": "proveedor,demora,pedido",
-  "objetivos_principales": ["reintento_api_con_backoff"],
-  "relacionados_utiles": ["idempotencia_con_clave", "circuit_breaker"],
-  "pistas_serendipia_utiles": ["limite_de_reintentos_por_proveedor"],
-  "ruido_tonto": ["paleta_colores_dashboard", "receta_cafe_frio"],
-  "rutas_esperadas": [
-    {"concepto": "idempotencia_con_clave", "saltos": 1, "tipo": "manual"}
-  ],
-  "evidencia": {
-    "objetivo": "fragmento literal del recuerdo que responde la pregunta",
-    "pista": "fragmento literal que justifica su utilidad"
-  },
-  "followup_id": "timeout-01-followup",
-  "respuesta_followup": "usar clave idempotente para que los reintentos no dupliquen el efecto"
+  "stratum": "pista_1_salto",
+  "positivo": true,
+  "ancla": "reintento_api_con_backoff",
+  "recuerdos_apoyo": ["idempotencia_con_clave", "registro_de_resultado"],
+  "pistas_serendipia_utiles": ["idempotencia_con_clave"],
+  "justificacion_pistas": {"idempotencia_con_clave": "evita duplicar el efecto de un reintento"},
+  "evidencia_pistas": {"idempotencia_con_clave": "fragmento literal del recuerdo que justifica la utilidad"},
+  "consultas": [{
+    "query_id": "timeout-01-main",
+    "idioma": "es",
+    "tipo_consulta": "principal",
+    "query": "¿Qué hacemos si el proveedor se demora y no debemos duplicar el pedido?",
+    "sustantivos_clave": "proveedor,demora,pedido",
+    "objetivos_principales": ["reintento_api_con_backoff"],
+    "espera_abstencion": false,
+    "respuesta_gold": "contestar",
+    "relacionados_utiles": ["idempotencia_con_clave"],
+    "ruido_tonto": ["paleta_colores_dashboard", "receta_cafe_frio"]
+  }]
 }
 ```
 
-El JSON es ilustrativo, no es un resultado real ni contenido de la DB. Antes de ejecutar se validará automáticamente: IDs únicos; objetivo existente en la fixture; evidencia textual; etiquetas de utilidad/ruido disjuntas; ruta y número de saltos coherentes; términos `sustantivos_clave` presentes en la consulta y sin filtrar el concepto esperado; consultas negativas realmente no contestables.
+El JSON es ilustrativo, no es un resultado real ni contenido de la DB. En el gold congelado vigente, cada consulta distingue explícitamente `contestar` de `abstenerse` mediante `espera_abstencion`, `respuesta_gold` y `tipo_consulta`. Cada positivo valida dos o más recuerdos de apoyo, una o más pistas preetiquetadas con justificación/evidencia literal y dos distractores que no se mezclan con las pistas; cada negativo tiene etiqueta de ausencia/colisión/trampa propia. Se validan automáticamente IDs únicos, membresía de etiquetas, evidencia textual, rutas gold, términos `sustantivos_clave` presentes en la consulta y consultas negativas realmente no contestables.
 
 ### 3.4 Ejemplo de la separación que se quiere probar
 
@@ -122,7 +123,7 @@ La pista útil no se penaliza como falso positivo por quedar fuera del objetivo 
 | D — cadena fija | Secuencia fija de consultas por episodio, mismos parámetros | Medir seguimiento en estado de sesión; ninguna respuesta elige la siguiente consulta. |
 | D-inv — control de orden | Repetición de D en otra copia, invirtiendo el orden de ejecución de episodios y preservando el orden interno de cada cadena | Detectar efectos del orden de ejecución sin convertir la cadena fija en adaptativa. |
 
-A, B, C1, C2, D y D-inv usan copias limpias de la misma plantilla; un proceso MCP independiente por condición. D recorre episodios en orden congelado; D-inv invierte solo el orden de episodios en otra copia, sin alterar la secuencia interna de consultas. Para una pista gold de **exactamente dos saltos**, el gold declara la ruta `objetivo → intermedio → pista`; un validador independiente calcula la ruta mínima efectiva en el grafo final congelado. Se cuenta como recuperación de dos saltos únicamente si la pista aparece en `contexto_expandido` con `context_window=2`. Se reporta aparte cualquier aparición en `resultados`, `asociaciones_enriquecidas` o `asociaciones` (canales de vecinos directos/laterales); ninguna de ellas demuestra por sí sola dos saltos. Si MCP no expone distancia/ruta, la prueba la acredita con el gold y la validación del grafo, no infiriéndola del JSON de salida. Ningún brazo usa `forzar_rafaga=True`; ráfaga queda para otro experimento aprobado.
+A, B, C1, C2, D y D-inv usan copias limpias de la misma plantilla; un proceso MCP independiente por condición. D recorre episodios en orden congelado; D-inv invierte solo el orden de episodios en otra copia, sin alterar la secuencia interna de consultas. Para una pista gold de **exactamente dos saltos**, el gold declara la ruta `objetivo → intermedio → pista`; un validador independiente calcula la ruta mínima estructural en el grafo final congelado, pero eso no prueba el recorrido de `recordar`. Solo se atribuye recuperación de dos saltos si la pista aparece en `contexto_expandido` con `context_window=2`, el objetivo figura como semilla y la respuesta MCP trae una traza explícita `trazabilidad.rutas_expansion` que acredita exactamente la ruta gold recorrida. Si el formato MCP no incluye esa prueba, se informa **«no atribuible»**; no se infiere la ruta por la aparición en contexto o por el grafo offline. Se reporta aparte cualquier aparición en `resultados`, `asociaciones_enriquecidas` o `asociaciones` (canales de vecinos directos/laterales); ninguna de ellas demuestra por sí sola dos saltos. Ningún brazo usa `forzar_rafaga=True`; ráfaga queda para otro experimento aprobado.
 
 ## 5. Métricas y reglas de conteo
 
@@ -148,7 +149,7 @@ Se deduplican conceptos entre canales, pero se conserva el canal de primera apar
 
 ### 5.4 Conteo de invocaciones y escrituras permitidas
 
-Las **224** son consultas lógicas base. La primera pasada ejecuta cada definición una vez en A, B, C1 y C2 (4×224), una vez en D y una vez en D-inv: **224×(4+1+1) = 1.344 llamadas de búsqueda `biorag_recordar`**. Si se repite el protocolo completo `r` veces, son **1.344×r** llamadas; cualquier brazo adicional suma `224×r` por cada condición. Este subtotal no incluye el armado MCP de la fixture: para `N` nodos, `P` episodios y `E` enlaces gold explícitos, una construcción requiere `N` búsquedas preflight + `N` llamadas `biorag_aprender` + `P` llamadas `biorag_consolidar` (una por episodio) + `E` `biorag_vincular`, es decir `2N+P+E` llamadas adicionales. Con el gold implementado (`N=232`, `P=88`, `E=56`) son 608 llamadas de construcción y 1.952 invocaciones en total. Si se reconstruye por réplica, multiplicar también el término de construcción por `r`. La fase adaptativa, si se aprueba después, se contabiliza aparte (§3.2). Publicar siempre consultas lógicas, llamadas por tipo/condición y total efectivo, incluidas fallidas y reintentos.
+Las **224** son consultas lógicas base. La primera pasada ejecuta cada definición una vez en A, B, C1 y C2 (4×224), una vez en D y una vez en D-inv: **224×(4+1+1) = 1.344 llamadas de búsqueda `biorag_recordar`**. Si se repite el protocolo completo `r` veces, son **1.344×r** llamadas; cualquier brazo adicional suma `224×r` por cada condición. Este subtotal no incluye el armado MCP de la fixture: para `N` nodos, `P` episodios y `E` enlaces gold explícitos, una construcción requiere `N` búsquedas preflight + `N` llamadas `biorag_aprender` + `P` llamadas `biorag_consolidar` (una por episodio) + `E` `biorag_vincular`, es decir `2N+P+E` llamadas adicionales. Con el gold implementado (`N=340`, `P=88`, `E=56`) son 824 llamadas de construcción y 2.168 invocaciones en total. Si se reconstruye por réplica, multiplicar también el término de construcción por `r`. La fase adaptativa, si se aprueba después, se contabiliza aparte (§3.2). Publicar siempre consultas lógicas, llamadas por tipo/condición y total efectivo, incluidas fallidas y reintentos.
 
 En la comparación pre/post de una búsqueda, se permiten como escrituras esperadas únicamente las de telemetría/actividad que confirme el código para esa versión (por ejemplo, fila de `log_busquedas`, historial de acceso y actualización de sus parámetros), anotadas por tabla y operación. `recordar` no debe crear, borrar ni cambiar recuerdos, aristas, pesos o estado del grafo. `context_window` no equivale a `deep`; mantener `deep=False`, fixture sin nodos en cuarentena y ráfaga no forzada. Capturar diffs por tabla: toda mutación a `corto_plazo`, `largo_plazo`, sinapsis/grafo o neurona es inesperada salvo que una inspección previa del recorrido MCP identifique y apruebe explícitamente el efecto antes de medir. Registrar aparte cualquier efecto del interceptor MCP/autoguardado; con búfer vacío e inactivo no se acepta guardado heurístico como efecto normal de `recordar`. Una escritura inesperada contamina la corrida; no se borra ni corrige en sitio.
 

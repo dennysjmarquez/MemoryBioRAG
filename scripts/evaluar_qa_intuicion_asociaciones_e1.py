@@ -51,6 +51,62 @@ def fold_text(value: str) -> str:
                    if not unicodedata.combining(c))
 
 
+def validate_query_gold(query: dict) -> None:
+    """Hace explícita la diferencia entre gold answerable y abstención esperada."""
+    has_objective = bool(query.get("objetivos_principales"))
+    if "espera_abstencion" not in query or "respuesta_gold" not in query or "tipo_consulta" not in query:
+        raise ValueError(f"Gold sin answerability/tipo explícitos: {query.get('query_id')}")
+    if query["espera_abstencion"] == has_objective:
+        raise ValueError(f"Gold contradictorio: objetivos y abstención no concuerdan ({query.get('query_id')})")
+    expected = "abstenerse" if query["espera_abstencion"] else "contestar"
+    if query["respuesta_gold"] != expected:
+        raise ValueError(f"respuesta_gold inconsistente ({query.get('query_id')})")
+    allowed_types = {"principal", "seguimiento", "control_negativo", "asunto_ausente", "colision_lexica", "arista_engañosa", "hub_generico"}
+    if query["tipo_consulta"] not in allowed_types:
+        raise ValueError(f"tipo_consulta desconocido ({query.get('query_id')})")
+    answerable_types = {"principal", "seguimiento"}
+    if has_objective != (query["tipo_consulta"] in answerable_types):
+        raise ValueError(f"tipo_consulta contradice la answerability ({query.get('query_id')})")
+    if query["espera_abstencion"] and (query.get("relacionados_utiles") or query.get("objetivos_principales")):
+        raise ValueError(f"Una abstención no puede etiquetar objetivos ni pistas útiles ({query.get('query_id')})")
+
+
+def validate_positive_gold(episode: dict) -> None:
+    if not episode.get("positivo"):
+        return
+    nodes = {n["concepto"]: n for n in episode["nodos"]}
+    supports = episode.get("recuerdos_apoyo", [])
+    noise = {c for q in episode["consultas"] for c in q.get("ruido_tonto", [])}
+    useful = set(episode.get("pistas_serendipia_utiles", []))
+    rationale = episode.get("justificacion_pistas", {})
+    evidence = episode.get("evidencia_pistas", {})
+    if len(set(supports)) < 2 or not set(supports) <= set(nodes):
+        raise ValueError(f"Episodio positivo debe declarar >=2 recuerdos de apoyo: {episode['episode_id']}")
+    if len(noise) < 2 or not noise <= set(nodes) or noise & set(supports):
+        raise ValueError(f"Episodio positivo debe distinguir >=2 distractores de los apoyos: {episode['episode_id']}")
+    if not useful or not useful <= set(supports):
+        raise ValueError(f"Pista útil debe ser un recuerdo de apoyo gold: {episode['episode_id']}")
+    non_clue_supports = set(supports) - useful
+    if set(episode.get("apoyos_no_pista", [])) != non_clue_supports:
+        raise ValueError(f"Apoyos neutrales y pistas útiles deben quedar separados: {episode['episode_id']}")
+    support_reasons = episode.get("justificacion_apoyo", {})
+    if not set(supports) <= set(support_reasons) or any(not support_reasons[x].strip() for x in supports):
+        raise ValueError(f"Cada recuerdo de apoyo requiere una justificación: {episode['episode_id']}")
+    if not useful <= set(rationale) or not useful <= set(evidence):
+        raise ValueError(f"Cada pista útil requiere justificación y evidencia: {episode['episode_id']}")
+    for concept in useful:
+        if not evidence[concept] or evidence[concept] not in nodes[concept]["contenido"]:
+            raise ValueError(f"Evidencia de pista no literal o vacía: {episode['episode_id']} / {concept}")
+    if not all(rationale[c].strip() for c in useful):
+        raise ValueError(f"Justificación vacía para pista útil: {episode['episode_id']}")
+    query_support = set().union(*(
+        set(q.get("objetivos_principales", [])) | set(q.get("relacionados_utiles", []))
+        for q in episode["consultas"]
+    ))
+    if not useful <= query_support:
+        raise ValueError(f"Pista útil no se prueba en consulta principal/seguimiento: {episode['episode_id']}")
+
+
 def load_gold(path: Path = GOLD) -> list[dict]:
     rows = [json.loads(line) for line in path.read_text(encoding="utf-8").splitlines() if line.strip()]
     if len(rows) != 88 or len({x.get("episode_id") for x in rows}) != 88:
@@ -102,8 +158,10 @@ def load_gold(path: Path = GOLD) -> list[dict]:
                 raise ValueError(f"Formato de sustantivos inválido: {n['concepto']}")
             if any(fold_text(t) not in fold_text(n["contenido"]) for t in terms):
                 raise ValueError(f"Sustantivos de escritura no respaldados por el recuerdo: {n['concepto']}")
+        validate_positive_gold(ep)
         for q in ep["consultas"]:
             total_queries += 1
+            validate_query_gold(q)
             if q.get("idioma") not in {"es", "en"}:
                 raise ValueError(f"Idioma ausente o no admitido: {q.get('query_id')}")
             if q["query_id"] in query_ids:
@@ -118,6 +176,10 @@ def load_gold(path: Path = GOLD) -> list[dict]:
                 raise ValueError(f"Objetivo y ruido se solapan: {q['query_id']}")
     if total_queries != 224:
         raise ValueError(f"Se esperaban 224 consultas lógicas, hay {total_queries}")
+    node_count = sum(len(ep["nodos"]) for ep in rows)
+    edge_count = sum(len(ep["aristas_gold"]) for ep in rows)
+    if (node_count, edge_count) != (340, 56):
+        raise ValueError(f"Fixture gold estructural inesperada: nodos={node_count}, aristas={edge_count}")
     language_counts = Counter(q.get("idioma") for ep in rows for q in ep["consultas"])
     if language_counts != Counter({"es": 172, "en": 52}):
         raise ValueError(f"Desglose de idioma gold inesperado: {language_counts}")
@@ -291,6 +353,35 @@ def shortest_path(adjacency: dict[str, set[str]], start: str, goal: str) -> list
     return None
 
 
+def count_shortest_paths(adjacency: dict[str, set[str]], start: str, goal: str) -> tuple[int | None, int]:
+    """Cuenta caminos estructurales mínimos; esto no acredita el recorrido MCP."""
+    distance = {start: 0}
+    ways = {start: 1}
+    queue = deque([start])
+    while queue:
+        node = queue.popleft()
+        for neighbor in adjacency.get(node, ()):
+            next_distance = distance[node] + 1
+            if neighbor not in distance:
+                distance[neighbor] = next_distance
+                ways[neighbor] = ways[node]
+                queue.append(neighbor)
+            elif distance[neighbor] == next_distance:
+                ways[neighbor] += ways[node]
+    return distance.get(goal), ways.get(goal, 0)
+
+
+def validate_route_structure(route: dict, adjacency: dict[str, set[str]]) -> dict:
+    expected = [route["objetivo"], route["intermedio"], route["pista"]]
+    path = shortest_path(adjacency, route["objetivo"], route["pista"])
+    distance, path_count = count_shortest_paths(adjacency, route["objetivo"], route["pista"])
+    if path != expected or distance != 2 or path_count != 1:
+        raise ValueError("La ruta gold no es el único camino mínimo estructural de dos saltos")
+    return {"ruta_gold": expected, "ruta_minima_estructural": path,
+            "distancia_minima_estructural": distance, "caminos_minimos_estructurales": path_count,
+            "estructura_gold_exactamente_2": True}
+
+
 def response_concepts(value, known: set[str]) -> set[str]:
     found: set[str] = set()
     if isinstance(value, dict):
@@ -324,20 +415,32 @@ def attribute_two_hop(ep: dict, q: dict, response: dict, adjacency: dict[str, se
     anchor = route["objetivo"]
     if anchor not in primaries:
         return {"estado": "no atribuible", "motivo": "objetivo/ancla no está entre las semillas devueltas"}
-    path = shortest_path(adjacency, anchor, candidate)
-    if path is None or len(path) - 1 != 2:
-        return {"estado": "no atribuible", "motivo": "ruta efectiva desde el objetivo no tiene exactamente dos saltos", "ruta_efectiva": path}
-    if path != [route["objetivo"], route["intermedio"], route["pista"]]:
-        return {"estado": "no atribuible", "motivo": "la ruta efectiva no coincide con la ruta gold congelada", "ruta_efectiva": path}
-    seed_paths = {seed: shortest_path(adjacency, seed, candidate) for seed in primaries}
-    shortcut = {seed: p for seed, p in seed_paths.items() if p is not None and len(p) - 1 < 2}
-    if shortcut:
-        return {"estado": "no atribuible", "motivo": "otra semilla devuelta ofrece una ruta más corta", "ruta_efectiva": path, "atajos_desde_semillas": shortcut}
+    # La topología local solo prueba que existe una ruta, no que MCP la recorrió.
+    # Se exige una traza explícita devuelta por el propio MCP; hoy el protocolo
+    # disponible no la incluye, así que el estado conservador es «no atribuible».
+    trace_data = response.get("trazabilidad", {})
+    trace_rows = trace_data.get("rutas_expansion", []) if isinstance(trace_data, dict) else []
+    if not isinstance(trace_rows, list):
+        trace_rows = []
+    matching = [item for item in trace_rows if isinstance(item, dict)
+                and item.get("desde") == anchor and item.get("hasta") == candidate]
+    if len(matching) != 1:
+        return {"estado": "no atribuible", "motivo": "MCP no expone una traza única del recorrido efectivo desde el objetivo"}
+    trace = matching[0]
+    path = trace.get("ruta")
+    gold_path = [route["objetivo"], route["intermedio"], route["pista"]]
+    if (not isinstance(path, list) or path != gold_path or trace.get("saltos") != 2
+            or len(path) != 3 or path[0] != anchor or path[-1] != candidate):
+        return {"estado": "no atribuible", "motivo": "la traza MCP no prueba la ruta gold exacta de dos saltos"}
+    if any(step not in known for step in path) or any(
+        path[i + 1] not in adjacency.get(path[i], set()) for i in range(len(path) - 1)
+    ):
+        return {"estado": "no atribuible", "motivo": "la traza reportada no coincide con aristas activas del fixture"}
     return {
         "estado": "atribuible_2_saltos",
-        "motivo": "pista en contexto_expandido y ruta efectiva comprobada desde el objetivo",
+        "motivo": "MCP reportó explícitamente el recorrido objetivo→intermedio→pista",
         "ruta_efectiva": path,
-        "coincide_ruta_gold": path == [route["objetivo"], route["intermedio"], route["pista"]],
+        "coincide_ruta_gold": True,
         "distancia_minima": 2,
     }
 
@@ -397,17 +500,20 @@ async def build_fixture(db_path: Path, temp_root: Path, episodes: list[dict]) ->
     for ep in episodes:
         route = ep.get("ruta_2_saltos")
         if route:
-            path = shortest_path(adjacency, route["objetivo"], route["pista"])
-            route_checks[ep["episode_id"]] = {
-                "ruta_gold": [route["objetivo"], route["intermedio"], route["pista"]],
-                "ruta_efectiva": path,
-                "distancia_minima": len(path) - 1 if path else None,
-                "prevalidada_exactamente_2": path == [route["objetivo"], route["intermedio"], route["pista"]],
-            }
+            try:
+                route_checks[ep["episode_id"]] = validate_route_structure(route, adjacency)
+            except ValueError as exc:
+                raise RuntimeError(f"Fixture sintética ambigua/inválida para {ep['episode_id']}: {exc}") from exc
     return {"integridad": integrity, "sha256_fixture_logica": snapshot_sha256(db_path),
             "nodos_esperados": len(keys), "nodos_activos": len(nodes),
             "llamadas_construccion": len(tool_log), "registro_tools": tool_log,
             "validacion_rutas": route_checks}
+
+
+def visible_in_channel(row: dict, channel: str) -> set[str]:
+    if channel == "union_canales":
+        return set().union(*(set(values) for values in row["canales"].values()))
+    return set(row["canales"][channel])
 
 
 def metrics_by_channel(outputs: list[dict]) -> dict:
@@ -417,8 +523,7 @@ def metrics_by_channel(outputs: list[dict]) -> dict:
         objective_rows = [o for o in outputs if o["objetivos_principales"]]
         numerator_useful = denominator_useful = noise = lateral_total = 0
         for row in outputs:
-            visible = (set().union(*row["canales"].values()) if channel == "union_canales"
-                       else set(row["canales"][channel]))
+            visible = visible_in_channel(row, channel)
             expected_useful = set(row["relacionados_utiles"])
             numerator_useful += len(visible & expected_useful)
             denominator_useful += len(expected_useful)
@@ -427,7 +532,7 @@ def metrics_by_channel(outputs: list[dict]) -> dict:
                 lateral_total += len(visible - set(row["objetivos_principales"]))
         result = {
             "consultas": len(outputs),
-            "objetivo_visible_consultas": sum(bool(set(o["objetivos_principales"]) & set(o["canales"][channel])) for o in objective_rows),
+            "objetivo_visible_consultas": sum(bool(set(o["objetivos_principales"]) & visible_in_channel(o, channel)) for o in objective_rows),
             "relacionados_utiles_visibles": numerator_useful,
             "relacionados_utiles_gold": denominator_useful,
             "recall_relacionados_utiles": numerator_useful / denominator_useful if denominator_useful else None,
@@ -436,9 +541,7 @@ def metrics_by_channel(outputs: list[dict]) -> dict:
         episodes_with_useful_gold = {o["episode_id"] for o in outputs if o["relacionados_utiles"]}
         episodes_with_useful_visible = {
             o["episode_id"] for o in outputs
-            if set(o["relacionados_utiles"]) & (
-                set().union(*o["canales"].values()) if channel == "union_canales" else set(o["canales"][channel])
-            )
+            if set(o["relacionados_utiles"]) & visible_in_channel(o, channel)
         }
         result["episodios_con_pista_util_visible"] = len(episodes_with_useful_visible)
         result["episodios_con_pista_util_gold"] = len(episodes_with_useful_gold)
@@ -454,9 +557,9 @@ def metrics_by_channel(outputs: list[dict]) -> dict:
                 "R_at_5": sum(r is not None and r <= 5 for r in ranks) / len(ranks) if ranks else None,
                 "MRR_at_5": sum((1 / r) if r is not None and r <= 5 else 0 for r in ranks) / len(ranks) if ranks else None,
                 "falsos_positivos_consultas_sin_objetivo": sum(
-                    bool(o["ranking_resultados"]) for o in outputs if not o["objetivos_principales"]
+                    bool(o["ranking_resultados"]) for o in outputs if o["espera_abstencion"]
                 ),
-                "consultas_sin_objetivo": sum(not o["objetivos_principales"] for o in outputs),
+                "consultas_sin_objetivo": sum(o["espera_abstencion"] for o in outputs),
             })
         else:
             result["candidatos_laterales_visibles"] = lateral_total
@@ -465,12 +568,17 @@ def metrics_by_channel(outputs: list[dict]) -> dict:
     return summary
 
 
-async def percentile(values: list[float], p: float) -> float | None:
+def percentile(values: list[float], p: float) -> float | None:
     if not values:
         return None
     ordered = sorted(values)
     index = max(0, min(len(ordered) - 1, int((len(ordered) - 1) * p + 0.999999)))
     return ordered[index]
+
+
+def serialize_report(report: dict) -> str:
+    """Serializa solo datos JSON válidos; rechaza NaN/Infinity y valores no serializables."""
+    return json.dumps(report, ensure_ascii=False, indent=2, allow_nan=False) + "\n"
 
 
 async def run_arm(db_path: Path, temp_root: Path, episodes: list[dict], mode: str,
@@ -518,6 +626,7 @@ async def run_arm(db_path: Path, temp_root: Path, episodes: list[dict], mode: st
                 "episode_id": ep["episode_id"], "query_id": q["query_id"],
                 "stratum": ep["stratum"], "idioma": q["idioma"], "positivo": ep["positivo"], "query": q["query"],
                 "objetivos_principales": q["objetivos_principales"],
+                "espera_abstencion": q["espera_abstencion"], "tipo_consulta": q["tipo_consulta"],
                 "relacionados_utiles": q["relacionados_utiles"], "ruido_tonto": q["ruido_tonto"],
                 "canales": {name: sorted(values) for name, values in channels.items()},
                 "ranking_resultados": [x.get("concepto") for x in parsed.get("resultados", [])
@@ -674,8 +783,9 @@ def run_async(episodes: list[dict], output_path: Path) -> dict:
         logical = sum(len(ep["consultas"]) for ep in episodes)
         total_searches = sum(a["llamadas_recordar_intentadas"] for a in arms.values())
         construction_calls = build_meta["llamadas_construccion"]
-        if logical != 224 or total_searches != 1344 or construction_calls != 608:
-            raise RuntimeError(f"Conteo protocolario inesperado: base={logical}, búsquedas={total_searches}, construcción={construction_calls}")
+        expected_construction = 2 * sum(len(ep["nodos"]) for ep in episodes) + len(episodes) + sum(len(ep["aristas_gold"]) for ep in episodes)
+        if logical != 224 or total_searches != 1344 or construction_calls != expected_construction:
+            raise RuntimeError(f"Conteo protocolario inesperado: base={logical}, búsquedas={total_searches}, construcción={construction_calls}, esperadas={expected_construction}")
         report = {
             "estado": "sin_umbral_aplicado; métricas descriptivas para revisión",
             "gold_sha256": sha256(GOLD),
@@ -688,6 +798,7 @@ def run_async(episodes: list[dict], output_path: Path) -> dict:
                 "llamadas_mcp_totales": total_searches + construction_calls,
                 "reintentos_automaticos": 0,
                 "llamadas_recordar_esperadas": 1344,
+                "llamadas_construccion_esperadas": expected_construction,
             },
             "escrituras_esperadas_recordar": {
                 "log_busquedas": "INSERT de telemetría y UPDATE de params_json por búsqueda textual exitosa",
@@ -708,7 +819,7 @@ def run_async(episodes: list[dict], output_path: Path) -> dict:
             "duracion_total_s": round(time.perf_counter() - started, 3),
         }
         output_path.parent.mkdir(parents=True, exist_ok=True)
-        output_path.write_text(json.dumps(report, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+        output_path.write_text(serialize_report(report), encoding="utf-8")
         return report
 
 
