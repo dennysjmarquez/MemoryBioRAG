@@ -1,4 +1,5 @@
-"""Pruebas puras del arnés N/G/R: no MCP, fixtures, SQLite ni búsquedas."""
+"""Pruebas puras del arnés N/G/R: no MCP real, fixtures, SQLite ni búsquedas."""
+import asyncio
 import copy
 import hashlib
 import json
@@ -6,13 +7,17 @@ from pathlib import Path
 
 import pytest
 
+import scripts.linea_base_segura as harness
 from scripts.linea_base_segura import (
     ARMS,
     audit_fixture_gold,
     audit_names,
+    classify_attempt,
     close_gold_revision,
     file_sha256,
+    guarded_mcp_call,
     mcp_concept_key,
+    persist_evidence,
     require_all_active,
     validate_freeze_approval,
     write_gold_revision,
@@ -156,3 +161,68 @@ def test_freeze_approval_rejects_hash_mismatch_W_and_missing_approval():
     with pytest.raises(PermissionError, match="Falta aprobación"):
         validate_freeze_approval({**valid, "estado": "PENDIENTE"}, "a" * 64, "b" * 64,
                                  repeatability_report=repeatability)
+
+
+def test_mcp_error_response_invalidates_attempt():
+    status = classify_attempt({"status": "error", "mensaje": "rechazado"}, [], [])
+    assert status["invalida"] is True
+    assert status["motivos"][0]["tipo"] == "error_mcp"
+
+
+def test_transport_failure_invalidates_attempt():
+    error = {"fase": "llamada_mcp", "tipo": "ConnectionError", "mensaje": "pipe cerrado"}
+    status = classify_attempt({"status": "transport_error"}, [error], [])
+    assert status["invalida"] is True
+    assert error in status["motivos"]
+
+
+def test_unexpected_mutation_invalidates_attempt_and_persists_diff(tmp_path):
+    diff = {"tablas": ["sinapsis"], "arista_nueva": ["A", "B", "co_nombre", 0.2]}
+    status = classify_attempt({"status": "ok"}, [], ["sinapsis/estado"])
+    path = persist_evidence(tmp_path / "run" / "evidence", "diff", diff)
+    assert status["invalida"] is True
+    assert status["motivos"] == [{"tipo": "mutacion_inesperada", "detalles": ["sinapsis/estado"]}]
+    assert json.loads(path.read_text(encoding="utf-8")) == diff
+
+
+def test_evidence_file_survives_failure_without_temporary_directory_cleanup(tmp_path):
+    evidence_root = tmp_path / "biorag_linea_base_run" / "evidence" / "N0" / "query-1"
+    record = {"response": {"status": "error"}, "exception": "timeout", "db_diff": {"sinapsis": "changed"}}
+    path = persist_evidence(evidence_root, "call", record)
+    assert path.exists()
+    assert json.loads(path.read_text(encoding="utf-8")) == record
+    assert path.parent.exists()
+
+
+@pytest.mark.parametrize("failure_phase", ["startup", "tool", "teardown", "mcp_response"])
+def test_guarded_mcp_call_captures_lifecycle_failures_without_real_mcp(monkeypatch, tmp_path, failure_phase):
+    class FakeMCPProcess:
+        async def __aenter__(self):
+            if failure_phase == "startup":
+                raise OSError("stdio startup failed")
+            return self
+
+        async def call(self, name, arguments):
+            assert name == "recordar"
+            if failure_phase == "tool":
+                raise TimeoutError("tool call timed out")
+            if failure_phase == "mcp_response":
+                return '{"status":"error"}', {"status": "error", "mensaje": "tool rejected"}
+            return '{"status":"ok"}', {"status": "ok"}
+
+        async def __aexit__(self, exc_type, exc, tb):
+            if failure_phase == "teardown":
+                raise OSError("stdio close failed")
+
+    monkeypatch.setattr(harness, "MCPProcess", lambda db, root: FakeMCPProcess())
+    raw, response, errors = asyncio.run(guarded_mcp_call(tmp_path / "unused.db", tmp_path, {}))
+    outcome = classify_attempt(response, errors, [])
+    assert outcome["invalida"] is True
+    if failure_phase == "mcp_response":
+        assert not errors
+        assert response["status"] == "error"
+        assert raw == '{"status":"error"}'
+    elif failure_phase == "teardown":
+        assert errors and raw == '{"status":"ok"}'
+    else:
+        assert errors and response["status"] == "transport_error"

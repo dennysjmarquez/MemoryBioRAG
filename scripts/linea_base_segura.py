@@ -403,6 +403,66 @@ def _graph_cut(graph: dict | None) -> dict | None:
     }
 
 
+def persist_evidence(directory: Path, name: str, payload: dict) -> Path:
+    """Persistencia atómica de evidencia en la raíz temporal; no se borra al fallar."""
+    directory.mkdir(parents=True, exist_ok=True)
+    path = directory / f"{name}.json"
+    temporary = path.with_name(path.name + f".{os.getpid()}.tmp")
+    data = json.dumps(payload, ensure_ascii=False, sort_keys=True, indent=2, default=repr) + "\n"
+    with temporary.open("w", encoding="utf-8") as stream:
+        stream.write(data)
+        stream.flush()
+        os.fsync(stream.fileno())
+    os.replace(temporary, path)
+    return path
+
+
+def classify_attempt(response: dict | None, call_errors: list[dict], unexpected: list[str]) -> dict:
+    """Un error de transporte/MCP o un diff inesperado invalida la corrida, no solo el query."""
+    issues = list(call_errors)
+    response = response or {}
+    status = str(response.get("status", "")).casefold()
+    if response.get("_mcp_is_error") or response.get("isError") or response.get("is_error"):
+        issues.append({"tipo": "error_mcp", "status": status or None})
+    elif status in {"error", "mcp_error", "transport_error", "failed", "exception"}:
+        issues.append({"tipo": "error_mcp", "status": status})
+    if unexpected:
+        issues.append({"tipo": "mutacion_inesperada", "detalles": sorted(set(unexpected))})
+    return {"invalida": bool(issues), "motivos": issues}
+
+
+async def guarded_mcp_call(db_path: Path, temp_root: Path, arguments: dict) -> tuple[str, dict, list[dict]]:
+    """Captura fallos de arranque, tool y teardown sin perder respuesta parcial."""
+    process = MCPProcess(db_path, temp_root)
+    raw = ""
+    response = {}
+    errors = []
+    try:
+        await process.__aenter__()
+    except Exception as exc:
+        errors.append({"fase": "inicio_mcp", "tipo": type(exc).__name__, "mensaje": str(exc)})
+        if hasattr(process, "_stdio"):
+            try:
+                await process.__aexit__(None, None, None)
+            except Exception as cleanup_exc:
+                errors.append({"fase": "limpieza_inicio_mcp", "tipo": type(cleanup_exc).__name__,
+                               "mensaje": str(cleanup_exc)})
+        return raw, {"status": "transport_error", "_mcp_is_error": True,
+                     "mensaje": errors[0]["mensaje"]}, errors
+    try:
+        raw, response = await process.call("recordar", arguments)
+    except Exception as exc:
+        errors.append({"fase": "llamada_mcp", "tipo": type(exc).__name__, "mensaje": str(exc)})
+        response = {"status": "transport_error", "_mcp_is_error": True,
+                    "mensaje": errors[-1]["mensaje"]}
+    try:
+        await process.__aexit__(None, None, None)
+    except Exception as exc:
+        errors.append({"fase": "cierre_mcp", "tipo": type(exc).__name__, "mensaje": str(exc)})
+        response = response or {"status": "transport_error", "_mcp_is_error": True}
+    return raw, response, errors
+
+
 def _edge_diff(before: dict, after: dict) -> dict:
     def edge_map(graph):
         return {(e["origen"], e["destino"]): e for e in graph["aristas_directas"]}
@@ -415,7 +475,7 @@ def _edge_diff(before: dict, after: dict) -> dict:
 
 
 async def prepare_fixture(db_path: Path, temp_root: Path, episodes: list[dict], gold_path: Path) -> dict:
-    """Arma la fixture con MCP real y entrega auditoría; no corre consultas de línea base."""
+    """Arma fixture MCP; toda llamada queda persistida antes de propagar un fallo."""
     db_path = _inside(db_path, temp_root, "DB de fixture")
     if db_path.exists():
         raise FileExistsError(db_path)
@@ -426,27 +486,71 @@ async def prepare_fixture(db_path: Path, temp_root: Path, episodes: list[dict], 
     events = []
     temp_root.mkdir(parents=True, exist_ok=True)
     db_path.parent.mkdir(parents=True, exist_ok=True)
-    # Crear únicamente el archivo vacío dentro del temporal para poder hashear
-    # el estado previo al primer tool MCP; el servidor crea su esquema normal.
+    evidence_root = db_path.parent / (db_path.name + ".evidence")
+    persist_evidence(evidence_root, "run_manifest", {
+        "phase": "fixture_preparation", "gold_sha256": file_sha256(gold_path),
+        "fixture_path": str(db_path), "evidence_root": str(evidence_root),
+    })
     sqlite3.connect(db_path).close()
-    async with MCPProcess(db_path, temp_root) as mcp:
-        async def call(tool: str, args: dict, label: str) -> dict:
-            before_tables = readonly_snapshot(db_path)
-            before_graph = inspect_fixture(db_path, temp_root) if db_path.exists() and db_path.stat().st_size else None
-            raw, parsed = await mcp.call(tool, args)
-            after_tables = readonly_snapshot(db_path)
-            after_graph = inspect_fixture(db_path, temp_root)
-            changed = sorted(k for k in set(before_tables) | set(after_tables) if before_tables.get(k) != after_tables.get(k))
-            events.append({"label": label, "tool": tool, "arguments": args,
-                           "raw_response": raw, "parsed_response": parsed,
-                           "tables_sha256_before": before_tables, "tables_sha256_after": after_tables,
-                           "tables_changed": changed,
-                           "graph_before": _graph_cut(before_graph),
-                           "graph_after": _graph_cut(after_graph),
-                           "edge_diff": _edge_diff(before_graph, after_graph) if before_graph else None,
-                           "graph_sha_after": after_graph["sha256_fixture_logica"]})
-            return parsed
+    mcp = MCPProcess(db_path, temp_root)
+    try:
+        await mcp.__aenter__()
+    except Exception as exc:
+        failure = {"phase": "mcp_startup", "estado": "INVALIDA", "valida": False,
+                   "exception_type": type(exc).__name__, "message": str(exc)}
+        if hasattr(mcp, "_stdio"):
+            try:
+                await mcp.__aexit__(None, None, None)
+            except Exception as cleanup_exc:
+                failure["cleanup_error"] = {"type": type(cleanup_exc).__name__, "message": str(cleanup_exc)}
+        persist_evidence(evidence_root, "run_failure", failure)
+        raise RuntimeError(f"Fixture preparation inválida; evidencia: {evidence_root}") from exc
 
+    async def call(tool: str, args: dict, label: str) -> dict:
+        before_tables = readonly_snapshot(db_path)
+        before_graph = inspect_fixture(db_path, temp_root) if db_path.exists() and db_path.stat().st_size else None
+        call_errors = []
+        try:
+            raw, parsed = await mcp.call(tool, args)
+        except Exception as exc:
+            raw = ""
+            parsed = {"status": "transport_error", "_mcp_is_error": True, "mensaje": str(exc)}
+            call_errors.append({"phase": "tool_call", "exception_type": type(exc).__name__, "message": str(exc)})
+        try:
+            after_tables = readonly_snapshot(db_path)
+        except Exception as exc:
+            after_tables = {}
+            call_errors.append({"phase": "after_table_snapshot", "exception_type": type(exc).__name__, "message": str(exc)})
+        try:
+            after_graph = inspect_fixture(db_path, temp_root)
+        except Exception as exc:
+            after_graph = None
+            call_errors.append({"phase": "after_graph_snapshot", "exception_type": type(exc).__name__, "message": str(exc)})
+        changed = sorted(k for k in set(before_tables) | set(after_tables)
+                         if before_tables.get(k) != after_tables.get(k))
+        event = {
+            "sequence": len(events) + 1, "label": label, "tool": tool, "arguments": args,
+            "raw_response": raw, "parsed_response": parsed, "call_errors": call_errors,
+            "tables_sha256_before": before_tables, "tables_sha256_after": after_tables,
+            "tables_changed": changed, "graph_before": _graph_cut(before_graph),
+            "graph_after": _graph_cut(after_graph),
+            "edge_diff": _edge_diff(before_graph, after_graph) if before_graph and after_graph else None,
+            "graph_sha_after": after_graph["sha256_fixture_logica"] if after_graph else None,
+        }
+        events.append(event)
+        persist_evidence(evidence_root, f"event_{event['sequence']:06d}", event)
+        outcome = classify_attempt(parsed, call_errors, [])
+        if outcome["invalida"]:
+            persist_evidence(evidence_root, "run_failure", {
+                "phase": "mcp_tool_call", "estado": "INVALIDA", "valida": False,
+                "label": label, "sequence": event["sequence"],
+                "outcome": outcome, "event_file": f"event_{event['sequence']:06d}.json",
+            })
+            raise RuntimeError(f"MCP {tool} falló; corrida inválida, evidencia: {evidence_root}")
+        return parsed
+
+    primary_error = None
+    try:
         for episode in episodes:
             for node in episode["nodos"]:
                 query_args = {"query": node["concepto"] + " " + node["contenido"],
@@ -471,6 +575,26 @@ async def prepare_fixture(db_path: Path, temp_root: Path, episodes: list[dict], 
                 linked = await call("vincular", {"a": a, "b": b}, f"vincular:{a}:{b}")
                 if linked.get("status") != "ok":
                     raise RuntimeError(f"Vínculo MCP falló: {a} <-> {b}")
+    except Exception as exc:
+        primary_error = exc
+        persist_evidence(evidence_root, "run_failure", {
+            "phase": "fixture_construction", "estado": "INVALIDA", "valida": False,
+            "exception_type": type(exc).__name__,
+            "message": str(exc), "events_persisted": len(events),
+        })
+        raise
+    finally:
+        try:
+            await mcp.__aexit__(None, None, None)
+        except Exception as exc:
+            persist_evidence(evidence_root, "mcp_teardown_failure", {
+                "estado": "INVALIDA", "valida": False,
+                "exception_type": type(exc).__name__, "message": str(exc),
+                "primary_error_already_recorded": primary_error is not None,
+                "events_persisted": len(events),
+            })
+            if primary_error is None:
+                raise RuntimeError(f"Cierre MCP falló; corrida inválida, evidencia: {evidence_root}") from exc
     graph = inspect_fixture(db_path, temp_root)
     audit = audit_fixture_gold(episodes, graph, names)
     missing = wanted - set(graph["nodos"])
@@ -479,15 +603,16 @@ async def prepare_fixture(db_path: Path, temp_root: Path, episodes: list[dict], 
         audit["gold_nodes_missing"] = sorted(missing)
         audit["congelacion_estructural_permitida"] = False
     audit_sha = hashlib.sha256(_canonical(audit).encode("utf-8")).hexdigest()
-    return {
+    report = {
         "estado": "requiere_revision_gold" if audit["bloqueos_congelacion"] else "listo_para_auditoria_humana",
         "gold_file": str(gold_path.resolve()), "gold_sha256": file_sha256(gold_path),
         "name_preflight": names, "fixture": graph, "graph_audit": audit,
-        "graph_audit_sha256": audit_sha,
-        "fixture_events": events,
-        "baseline_searches_run": 0,
+        "graph_audit_sha256": audit_sha, "fixture_events": events,
+        "evidence_root": str(evidence_root), "baseline_searches_run": 0,
         "nota": "La preparación incluye solo preflight de escritura y construcción MCP; no ejecuta los queries de evaluación.",
     }
+    persist_evidence(evidence_root, "preparation_report", report)
+    return report
 
 
 def _result_row(episode: dict, query: dict, response: dict, raw: str, known: set[str], mode: str) -> dict:
@@ -556,21 +681,33 @@ async def measure_baseline(fixture_path: Path, temp_root: Path, episodes: list[d
     temp_root.mkdir(parents=True, exist_ok=True)
     results: dict[str, list[dict]] = {arm: [] for arm in sorted(ARMS)}
     transitions: dict[str, list[dict]] = {arm: [] for arm in sorted(ARMS)}
-    contaminations = []
-    with tempfile.TemporaryDirectory(prefix="biorag_linea_base_", dir=temp_root) as run_dir:
-        run_root = Path(run_dir).resolve()
-        for arm, config in ARMS.items():
-            if contaminations:
+    invalidations = []
+    # Run roots are intentionally persistent: a failed/contaminated run must leave
+    # the copied DBs and per-call snapshots available for the auditor.
+    run_root = Path(tempfile.mkdtemp(prefix="biorag_linea_base_", dir=temp_root)).resolve()
+    evidence_root = run_root / "evidence"
+    persist_evidence(evidence_root, "run_manifest", {
+        "gold_sha256": gold_sha, "fixture_sha256": fixture_sha,
+        "freeze_manifest_sha256": file_sha256(approval_path),
+        "repeatability_report_sha256": repeatability["_file_sha256"],
+        "graph_review_sha256": graph_review_sha, "fixture_path": str(fixture_path),
+        "arms": sorted(ARMS), "wake_W": "pending_not_run",
+    })
+    for arm, config in ARMS.items():
+        if invalidations:
+            break
+        for episode in episodes:
+            if invalidations:
                 break
-            for episode in episodes:
-                if contaminations:
-                    break
-                for query in episode["consultas"]:
-                    db_path = run_root / arm / (hashlib.sha256(query["query_id"].encode()).hexdigest()[:16] + ".db")
-                    db_path.parent.mkdir(parents=True, exist_ok=True)
+            for query in episode["consultas"]:
+                key = hashlib.sha256(f"{arm}:{query['query_id']}".encode()).hexdigest()[:20]
+                attempt_dir = evidence_root / arm / key
+                db_path = run_root / "db" / arm / (key + ".sqlite")
+                db_path.parent.mkdir(parents=True, exist_ok=True)
+                try:
                     copy_sqlite(fixture_path, db_path)
                     if snapshot_sha256(db_path) != fixture_sha:
-                        raise RuntimeError(f"Copia mutable inicial no coincide: {arm}/{query['query_id']}")
+                        raise RuntimeError("La copia de consulta no coincide con el hash congelado")
                     before_tables = readonly_snapshot(db_path)
                     before_graph = inspect_fixture(db_path, run_root)
                     if arm == "R":
@@ -578,21 +715,23 @@ async def measure_baseline(fixture_path: Path, temp_root: Path, episodes: list[d
                     args = {"query": query["query"], "sustantivos_clave": query["sustantivos_clave"],
                             "limite": 5, **config}
                     if arm == "R":
-                        # Los sustantivos clave están congelados en gold; no hay expansión adaptativa.
                         terms = query["sustantivos_clave"]
                         args["rafaga_palabras"] = terms if isinstance(terms, str) else ",".join(map(str, terms))
+                    persist_evidence(attempt_dir, "before", {
+                        "arm": arm, "episode_id": episode["episode_id"], "query_id": query["query_id"],
+                        "arguments": args, "tables_sha256": before_tables, "graph": _graph_cut(before_graph),
+                        "db_path": str(db_path),
+                    })
                     call_started = time.perf_counter()
-                    transport_error = None
-                    async with MCPProcess(db_path, run_root) as mcp:
-                        try:
-                            raw, response = await mcp.call("recordar", args)
-                        except Exception as exc:
-                            raw = ""
-                            transport_error = f"{type(exc).__name__}: {exc}"
-                            response = {"status": "transport_error", "_mcp_is_error": True,
-                                        "mensaje": transport_error}
+                    raw, response, call_errors = await guarded_mcp_call(db_path, run_root, args)
                     latency_ms = round((time.perf_counter() - call_started) * 1000, 3)
                     output_bytes = len(raw.encode("utf-8"))
+                    call_failure = classify_attempt(response, call_errors, [])
+                    persist_evidence(attempt_dir, "call", {
+                        "raw_response": raw, "parsed_response": response,
+                        "call_errors": call_errors, "call_failure": call_failure,
+                        "latency_ms": latency_ms, "output_bytes": output_bytes,
+                    })
                     after_tables = readonly_snapshot(db_path)
                     after_graph = inspect_fixture(db_path, run_root)
                     changed_tables = sorted(t for t in set(before_tables) | set(after_tables)
@@ -604,51 +743,85 @@ async def measure_baseline(fixture_path: Path, temp_root: Path, episodes: list[d
                                       "despues": after_graph["nodos"].get(c)}
                                      for c in set(before_graph["nodos"]) | set(after_graph["nodos"])
                                      if before_graph["nodos"].get(c) != after_graph["nodos"].get(c)]
-                    if arm != "R" and (edge_changes["insertadas"] or edge_changes["eliminadas"] or edge_changes["actualizadas"] or state_changes):
+                    if arm != "R" and (edge_changes["insertadas"] or edge_changes["eliminadas"]
+                                        or edge_changes["actualizadas"] or state_changes):
                         unexpected.append("sinapsis/estado")
                     if arm == "R" and state_changes:
                         unexpected.append("estado_nodos_modificado_en_brazo_R")
+                    attempt_status = classify_attempt(response, call_errors, unexpected)
+                    diff_record = {
+                        "query_id": query["query_id"], "tables_changed": changed_tables,
+                        "unexpected_tables": sorted(set(unexpected)), "edge_diff": edge_changes,
+                        "state_diff": state_changes,
+                        "mirror_before": before_graph["divergencias_espejo"],
+                        "mirror_after": after_graph["divergencias_espejo"],
+                        "attempt_status": attempt_status,
+                    }
+                    persist_evidence(attempt_dir, "after", {
+                        "tables_sha256": after_tables, "graph": _graph_cut(after_graph),
+                    })
+                    persist_evidence(attempt_dir, "diff", diff_record)
                     transitions[arm].append({"query_id": query["query_id"], "tablas_cambiadas": changed_tables,
                                              "tablas_inesperadas": sorted(set(unexpected)),
                                              "aristas": edge_changes, "estado": state_changes,
                                              "divergencias_espejo_antes": before_graph["divergencias_espejo"],
-                                             "divergencias_espejo_despues": after_graph["divergencias_espejo"]})
+                                             "divergencias_espejo_despues": after_graph["divergencias_espejo"],
+                                             "evidence_dir": str(attempt_dir)})
                     row = _result_row(episode, query, response, raw, known, arm)
-                    row["mcp_is_error"] = bool(response.get("_mcp_is_error"))
-                    row["respuesta_status_error"] = response.get("status") in {"error", "mcp_error", "transport_error"}
-                    row["respuesta_recibida"] = transport_error is None
-                    row["transport_error"] = transport_error
+                    row["mcp_is_error"] = bool(response.get("_mcp_is_error") or response.get("isError") or response.get("is_error"))
+                    row["respuesta_status_error"] = str(response.get("status", "")).casefold() in {
+                        "error", "mcp_error", "transport_error", "failed", "exception"}
+                    row["respuesta_recibida"] = not any(
+                        error.get("fase") in {"inicio_mcp", "llamada_mcp"} for error in call_errors)
+                    row["call_errors"] = call_errors
                     row["latency_ms"] = latency_ms
                     row["output_bytes"] = output_bytes
                     results[arm].append(row)
-                    if unexpected:
-                        contaminations.append({"arm": arm, "query_id": query["query_id"],
-                                               "unexpected": sorted(set(unexpected)),
-                                               "edge_diff": edge_changes, "state_diff": state_changes})
+                    if attempt_status["invalida"]:
+                        invalidations.append({"arm": arm, "query_id": query["query_id"],
+                                              "motivos": attempt_status["motivos"],
+                                              "evidence_dir": str(attempt_dir), "db_path": str(db_path)})
                         break
-        report = {
-            "estado": "contaminada; detener y revisar diffs" if contaminations else "medicion descriptiva; sin umbrales aplicados",
-            "contaminaciones": contaminations,
+                except Exception as exc:
+                    failure = {"arm": arm, "episode_id": episode["episode_id"],
+                               "query_id": query["query_id"], "fase": "preparacion_o_snapshot",
+                               "tipo": type(exc).__name__, "mensaje": str(exc),
+                               "evidence_dir": str(attempt_dir), "db_path": str(db_path)}
+                    persist_evidence(attempt_dir, "harness_exception", failure)
+                    invalidations.append({"arm": arm, "query_id": query["query_id"],
+                                          "motivos": [{"tipo": "error_arnes", "mensaje": str(exc)}],
+                                          "evidence_dir": str(attempt_dir), "db_path": str(db_path)})
+                    break
+    report = {
+            "estado": "INVALIDA; detener y revisar evidencia" if invalidations else "medicion descriptiva; sin umbrales aplicados",
+            "valida": not invalidations,
+            "invalidaciones": invalidations,
+            "evidence_root": str(evidence_root),
+            "run_root_persistente": str(run_root),
             "gold_sha256": gold_sha, "fixture_sha256": fixture_sha,
             "repeatability_report_sha256": repeatability["_file_sha256"],
             "repeatability_mode": repeatability["mode"],
             "freeze_manifest_sha256": file_sha256(approval_path),
             "wake_W": "pendiente; no ejecutado ni incluido",
             "conteo": {"consultas_gold": sum(len(ep["consultas"]) for ep in episodes),
-                       "brazos": list(ARMS), "llamadas_recordar": sum(map(len, results.values()))},
+                       "brazos_planeados": list(ARMS),
+                       "brazos_con_llamadas": [arm for arm, rows in results.items() if rows],
+                       "llamadas_recordar": sum(map(len, results.values()))},
             "metricas_por_brazo": {arm: metrics_by_channel(rows) for arm, rows in results.items()},
             "telemetria_por_brazo": {arm: {
                 "latencia_ms_p50": percentile([row["latency_ms"] for row in rows], 0.50),
                 "latencia_ms_p95": percentile([row["latency_ms"] for row in rows], 0.95),
                 "bytes_salida_total": sum(row["output_bytes"] for row in rows),
-                "fallos_transporte": sum(row["transport_error"] is not None for row in rows),
-                "errores_mcp": sum(row["mcp_is_error"] for row in rows),
+                "fallos_transporte": sum(bool(row["call_errors"]) for row in rows),
+                "errores_mcp": sum(row["mcp_is_error"] or row["respuesta_status_error"] for row in rows),
             } for arm, rows in results.items()},
             "mutaciones_por_brazo": transitions,
             "salidas_por_brazo": results,
         }
+    report_text = serialize_report(report)
+    persist_evidence(evidence_root, "run_report", report)
     output_path.parent.mkdir(parents=True, exist_ok=True)
-    output_path.write_text(serialize_report(report), encoding="utf-8")
+    output_path.write_text(report_text, encoding="utf-8")
     return report
 
 
@@ -722,7 +895,7 @@ def main() -> int:
     report = asyncio.run(measure_baseline(args.fixture, args.temp_root, episodes, args.gold,
                                          args.aprobacion, args.repetibilidad, args.salida))
     print(json.dumps({"estado": report["estado"], "conteo": report["conteo"], "salida": str(args.salida)}, ensure_ascii=False))
-    return 2 if report["contaminaciones"] else 0
+    return 2 if report["invalidaciones"] else 0
 
 
 if __name__ == "__main__":
