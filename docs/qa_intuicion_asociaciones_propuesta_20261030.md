@@ -53,13 +53,11 @@ La fixture incluye consultas en español y un subconjunto en inglés, etiquetada
 
 ### 3.2 Secuencia de consultas
 
-Cada positivo tiene una secuencia fija de tres llamadas MCP, ejecutada en orden y con textos previamente congelados:
+Cada positivo tiene tres **consultas lógicas** preescritas y congeladas: (1) principal, con objetivo explícito en el gold; (2) seguimiento fijo sobre una pista o detalle; y (3) control negativo sobre una asociación engañosa o un dato ausente. Cada negativo tiene dos consultas lógicas: ausencia concreta y trampa de colisión/hub. La secuencia fija no adapta la consulta siguiente a la respuesta recibida.
 
-1. **Consulta principal:** pregunta natural; tiene un objetivo principal explícito en el gold.
-2. **Seguimiento:** pregunta preescrita sobre un detalle o pista que razonablemente pueda surgir del recuerdo principal o de una asociación útil. Permite comprobar si la pista sirve para el paso siguiente, no solo si parece relacionada.
-3. **Control negativo:** consulta sobre una asociación plausible en apariencia, pero que la fixture define como irrelevante/engañosa, o sobre un dato que no existe.
+El conjunto contiene **224 definiciones de consulta base** (48×3 + 40×2), no 224 invocaciones totales del protocolo: cada condición experimental vuelve a ejecutar esas definiciones en su propia copia. El conteo de invocaciones, incluidos brazos y control de orden, queda explícito en §5.4. Las respuestas nunca se usan para reescribir las consultas fijadas.
 
-Cada negativo tiene dos consultas: una ausencia concreta y una trampa de colisión/hub. Total propuesto: **224 llamadas MCP** (48×3 + 40×2). Las consultas no se redactan después de ver resultados. Se guarda un orden inverso de repetición como control de orden, ejecutado en otra copia limpia.
+Una futura fase **adaptativa** sería un experimento distinto y no forma parte de estas 224 definiciones: en una copia limpia, un agente congelado, ciego al gold, recibiría la pista de la búsqueda inicial y elegiría un único seguimiento entre opciones permitidas. Se conservarían prompt, versión del agente, opciones, respuesta MCP y transcript; se informarían por separado sus 48 búsquedas iniciales + 48 seguimientos = **96 invocaciones por réplica**, más los controles/repeticiones que se aprueben. No sustituye ni se mezcla con la cadena fija.
 
 ### 3.3 Esquema del gold
 
@@ -106,11 +104,12 @@ La pista útil no se penaliza como falso positivo por quedar fuera del objetivo 
 
 ### 4.1 Construcción aislada
 
-- Crear desde cero y en carpeta temporal una fixture sintética con `biorag_aprender` y `biorag_vincular` (o la tool equivalente ya registrada); no usar datos de producción ni importar tablas del snapshot.
-- Guardar el hash de la DB sintética inicial, verificar `PRAGMA integrity_check`, cerrar el proceso de escritura y conservar esa copia como plantilla inmutable.
-- Para cada brazo y repetición, copiar la plantilla a un path temporal nuevo; registrar hashes antes/después y las escrituras inevitables de telemetría. No llamar a `biorag_feedback`, `desvincular`, `deep=True` ni herramientas de consolidación durante la búsqueda.
-- Usar reloj fijo, `PYTHONHASHSEED=0`, un `BIORAG_DMN_ESTADO_PATH` temporal exclusivo por proceso y un único proceso MCP por brazo. El servidor debe apuntar siempre al path temporal. La prueba debe fallar si intenta abrir otra ruta.
-- Invocar `biorag_recordar` por el transporte MCP stdio real, comprobar JSON-RPC, conservar stdout crudo (incluidos warnings) y validar que la respuesta no fue truncada. No automatizar guardados ni retroalimentación con los resultados.
+- Construir la fixture desde cero y en temporal mediante tools MCP reales, en este orden: **preflight de búsqueda → aprender → consolidar → vincular**. Para cada nodo, llamar primero `biorag_recordar`/`biorag_buscar` sobre el tema que se va a guardar y evaluar la respuesta; luego llamar `biorag_aprender` con `busqueda_previa=True`, cinco `bridges` válidos (uno por ángulo semántico exigido) y 2–10 `sustantivos_clave`. `aprender` guarda primero en corto plazo, ejecuta `auto_vincular` (y puede crear enlaces por sinónimos); por tanto, registrar esos enlaces automáticos y no asumir que solo existen las aristas del gold.
+- Tras aprender todos los nodos, llamar `biorag_consolidar` para pasarlos a largo plazo; solo después crear las aristas de ruta previstas con `biorag_vincular(a, b)`. Esa tool exige nodos existentes y crea una asociación bidireccional. No pasar `vincular_con` a `aprender` para las aristas gold, para mantener clara la etapa explícita de vinculación.
+- Inspeccionar en modo de solo lectura el grafo sintético final, incluyendo enlaces automáticos y enlaces de bridges. Guardar el hash de la DB, verificar `PRAGMA integrity_check` y congelar una copia plantilla. Una ruta se etiqueta como exactamente dos saltos solo si la distancia mínima entre objetivo y pista es 2 en ese grafo final. Si un enlace automático crea atajo (distancia 1) o hace ambigua la etiqueta, descartar y reconstruir el episodio; no reparar con SQL ni tocar motor/datos fuera de la fixture temporal.
+- Para cada condición y repetición, usar una copia temporal nueva de la plantilla; registrar diffs antes/después. No llamar a `biorag_feedback`, `desvincular`, `deep=True` ni herramientas de escritura durante las búsquedas.
+- Usar reloj fijo, `PYTHONHASHSEED=0`, `BIORAG_DMN_ESTADO_PATH` temporal exclusivo y un proceso MCP por corrida. El servidor debe apuntar siempre al path temporal; fallar si intenta abrir otra ruta.
+- Invocar por transporte MCP stdio real, conservar JSON-RPC/stdout crudos y warnings, y validar que no haya truncamiento. Vaciar y mantener inactivo el búfer de autoguardado durante recuperación; no automatizar guardados ni feedback con resultados.
 
 ### 4.2 Condiciones pareadas
 
@@ -118,10 +117,12 @@ La pista útil no se penaliza como falso positivo por quedar fuera del objetivo 
 |---|---|---|
 | A — objetivo solo | `asociados=False`, `context_window=0`, `limite=5`, `deep=False` | Línea de base de resultado principal. |
 | B — mapa de asociaciones | `asociados=True`, `context_window=0`, `limite=5`, `deep=False` | Medir `asociaciones_enriquecidas` y el campo plano sin contexto BFS. |
-| C — contexto | `asociados=True`, `context_window=1`, `limite=5`, `deep=False` | Medir contexto BFS separado del resultado principal. |
-| D — cadena MCP | Secuencia de tres preguntas fijas; mismos parámetros en cada llamada | Medir si un recuerdo/pista permite resolver el seguimiento y si la exploración genera ruido tonto. |
+| C1 — contexto 1 salto | `asociados=True`, `context_window=1`, `limite=5`, `deep=False` | Canal BFS de un salto. |
+| C2 — contexto 2 saltos | `asociados=True`, `context_window=2`, `limite=5`, `deep=False` | Canal BFS de dos saltos; medir específicamente `contexto_expandido`. |
+| D — cadena fija | Secuencia fija de consultas por episodio, mismos parámetros | Medir seguimiento en estado de sesión; ninguna respuesta elige la siguiente consulta. |
+| D-inv — control de orden | Repetición de D en otra copia, invirtiendo el orden de ejecución de episodios y preservando el orden interno de cada cadena | Detectar efectos del orden de ejecución sin convertir la cadena fija en adaptativa. |
 
-A, B y C parten de copias idénticas. D mantiene una copia temporal durante la secuencia para representar varias búsquedas en una sesión; en paralelo se repite D con una copia nueva por consulta para detectar efectos de estado. En ningún brazo se usa `forzar_rafaga=True`. La ráfaga automática se puede medir después como experimento independiente, no se mezcla con esta comparación.
+A, B, C1 y C2 usan copias idénticas. D conserva una copia aislada durante cada cadena de episodio; D-inv usa copia limpia. Para una pista gold de **exactamente dos saltos**, el gold debe declarar la ruta `objetivo → intermedio → pista`; un validador independiente calcula distancia mínima 2 en el grafo final congelado. Se cuenta como recuperación de dos saltos únicamente si la pista aparece en `contexto_expandido` con `context_window=2`. Se reporta aparte cualquier aparición en `resultados`, `asociaciones_enriquecidas` o `asociaciones` (canales de vecinos directos/laterales); ninguna de ellas demuestra por sí sola dos saltos. Si MCP no expone distancia/ruta, la prueba la acredita con el gold y la validación del grafo, no infiriéndola del JSON de salida. Ningún brazo usa `forzar_rafaga=True`; ráfaga queda para otro experimento aprobado.
 
 ## 5. Métricas y reglas de conteo
 
@@ -145,9 +146,15 @@ Se deduplican conceptos entre canales, pero se conserva el canal de primera apar
 - **Utilidad del seguimiento:** proporción de episodios cuyo objetivo de seguimiento queda visible en `resultados` o en una pista lateral que el agente puede citar; también R@5 del seguimiento en su propia llamada.
 - **Tamaño y coste MCP:** latencia por llamada, bytes/caracteres de salida, tokens si el cliente los informa, tamaño p50/p95/máximo, respuestas JSON incompletas o truncadas.
 
+### 5.4 Conteo de invocaciones y escrituras permitidas
+
+Las **224** son consultas lógicas base. La primera pasada ejecuta cada definición una vez en A, B, C1 y C2 (4×224), una vez en D y una vez en D-inv: **224×(4+1+1) = 1.344 llamadas de búsqueda `biorag_recordar`**. Si se repite el protocolo completo `r` veces, son **1.344×r** llamadas; cualquier brazo adicional suma `224×r` por cada condición. Este subtotal no incluye el armado MCP de la fixture: para `N` nodos y `E` enlaces gold explícitos, una construcción requiere `N` búsquedas preflight + `N` llamadas `biorag_aprender` + 1 `biorag_consolidar` + `E` `biorag_vincular`, es decir `2N+E+1` llamadas adicionales (si se reconstruye por réplica, multiplicar también ese término por `r`). La fase adaptativa, si se aprueba después, se contabiliza aparte (§3.2). Publicar siempre consultas lógicas, llamadas por tipo/condición y total efectivo, incluidas fallidas y reintentos.
+
+En la comparación pre/post de una búsqueda, se permiten como escrituras esperadas únicamente las de telemetría/actividad que confirme el código para esa versión (por ejemplo, fila de `log_busquedas`, historial de acceso y actualización de sus parámetros), anotadas por tabla y operación. `recordar` no debe crear, borrar ni cambiar recuerdos, aristas, pesos o estado del grafo. `context_window` no equivale a `deep`; mantener `deep=False`, fixture sin nodos en cuarentena y ráfaga no forzada. Capturar diffs por tabla: toda mutación a `corto_plazo`, `largo_plazo`, sinapsis/grafo o neurona es inesperada salvo que una inspección previa del recorrido MCP identifique y apruebe explícitamente el efecto antes de medir. Registrar aparte cualquier efecto del interceptor MCP/autoguardado; con búfer vacío e inactivo no se acepta guardado heurístico como efecto normal de `recordar`. Una escritura inesperada contamina la corrida; no se borra ni corrige en sitio.
+
 ### 5.3 Neurona: eje de orden separado
 
-Ejecutar A–D con `BIORAG_NEURONA=0` para la medición principal de asociaciones; opcionalmente repetir una pareja en el modo de neurona que Dennys autorice. En esa pareja:
+Ejecutar A, B, C1, C2 y D con `BIORAG_NEURONA=0` para la medición principal de asociaciones; opcionalmente repetir una pareja en el modo de neurona que Dennys autorice. En esa pareja:
 
 - comparar el mismo pool de candidatos y la misma consulta;
 - registrar cambio de orden, R@1/R@5/MRR y pertenencia del conjunto;
@@ -192,5 +199,6 @@ Los intervalos de confianza se calculan por episodio (bootstrap estratificado) y
 - `core/memory/neurona.py`: invariantes de reordenamiento y vistas de ranking.
 - `scripts/evaluar_qa_multilingue_e3a.py`, `scripts/evaluar_qa_multilingue_mcp_e3a.py` y `tests/test_qa_multilingue_mcp_e3a.py`: patrones existentes de gold congelado, fixture temporal, copias por caso y llamada MCP.
 - `core/mcp_server/README.md`: mapa del adaptador MCP y campos expuestos.
+- `core/mcp_server/write.py`, `core/mcp_server/consolidation.py` y `core/mcp_server/synapses.py`: contrato real de preflight/aprendizaje, consolidación y vinculación MCP.
 
-**No se ejecutó ninguna medición ni se abrió ninguna base de datos en esta investigación.**
+**No se ejecutó ninguna medición ni se abrió ninguna base de datos en esta investigación.** La DB viva y el snapshot no se tocaron; solo se inspeccionó código fuente.
