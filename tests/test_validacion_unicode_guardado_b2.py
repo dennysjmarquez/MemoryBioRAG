@@ -5,7 +5,8 @@ import pytest
 
 from core.mcp_server import search, write
 from core.mcp_server._shared import _sustantivo_valido
-from core.memory_store import SQLiteMemoryBioRAG, normalizar_sustantivos_clave
+from core.memory_store import (SQLiteMemoryBioRAG, normalizar_sustantivos_clave,
+                               normalizar_sustantivos_clave_exacto)
 from scripts.evaluar_qa_guardado_nativo_b2 import cargar_entradas, resumen, texto_tool
 from scripts.evaluar_qa_multilingue_mcp_e3a import parsear_mcp
 
@@ -76,23 +77,23 @@ def test_guardar_y_agregar_nativos_en_corto_y_largo(ctx, monkeypatch, tool_name,
     guardado = llamar(mcp, tool_name, **args)
     assert guardado["status"] == "ok"
     clave = concepto.lower().replace(" ", "_")
-    valor = cerebro.conn.execute("SELECT sustantivos_clave FROM corto_plazo WHERE concepto=?", (clave,)).fetchone()
-    assert valor == (normalizar_sustantivos_clave(inicial),)
+    valor = cerebro.conn.execute("SELECT sustantivos_clave, sustantivos_clave_exactos FROM corto_plazo WHERE concepto=?", (clave,)).fetchone()
+    assert valor == (normalizar_sustantivos_clave(inicial), normalizar_sustantivos_clave_exacto(inicial))
 
     update = llamar(mcp, "agregar_sustantivos", concepto=concepto, sustantivos_clave=corto)
     assert update["status"] == "ok"
     assert update["sustantivos_anteriores"] == normalizar_sustantivos_clave(inicial)
     assert update["sustantivos_nuevos"] == normalizar_sustantivos_clave(corto)
-    assert cerebro.conn.execute("SELECT sustantivos_clave FROM corto_plazo WHERE concepto=?", (clave,)).fetchone() == (normalizar_sustantivos_clave(corto),)
+    assert cerebro.conn.execute("SELECT sustantivos_clave, sustantivos_clave_exactos FROM corto_plazo WHERE concepto=?", (clave,)).fetchone() == (normalizar_sustantivos_clave(corto), normalizar_sustantivos_clave_exacto(corto))
 
     assert cerebro.consolidar_concepto(clave)
     update = llamar(mcp, "agregar_sustantivos", concepto=concepto, sustantivos_clave=largo)
     assert update["status"] == "ok"
     assert update["sustantivos_anteriores"] == normalizar_sustantivos_clave(corto)
     assert update["sustantivos_nuevos"] == normalizar_sustantivos_clave(largo)
-    assert cerebro.conn.execute("SELECT sustantivos_clave FROM largo_plazo WHERE concepto=?", (clave,)).fetchone() == (normalizar_sustantivos_clave(largo),)
+    assert cerebro.conn.execute("SELECT sustantivos_clave, sustantivos_clave_exactos FROM largo_plazo WHERE concepto=?", (clave,)).fetchone() == (normalizar_sustantivos_clave(largo), normalizar_sustantivos_clave_exacto(largo))
     esperadas = [term for lista in (inicial, corto, largo)
-                 for term in normalizar_sustantivos_clave(lista).split(",")]
+                 for term in normalizar_sustantivos_clave_exacto(lista).split(",")]
     assert llamadas == esperadas
 
 
@@ -140,3 +141,43 @@ def test_resumen_distingue_guardados_y_primer_rechazo():
     r = resumen(filas)
     assert r["zh"]["guardados"] == 0 and r["zh"]["primeros_rechazos"] == {"BRIDGES_INVALIDOS": 1}
     assert r["ru"]["guardados"] == 1 and r["ru"]["primeros_rechazos"] == {}
+
+
+def test_marcas_exactas_se_cuentan_y_se_consolidan_sin_alterar_columna_legacy(ctx):
+    mcp, cerebro = ctx
+    args = dict(
+        concepto="material_lamina", contenido="Una lámina transparente permite ver el interior.",
+        dimensiones=None, cat="General", bridges=BRIDGES,
+        sustantivos_clave="ガラス,カラス", busqueda_previa=True,
+    )
+    respuesta = llamar(mcp, "aprender", **args)
+    assert respuesta["status"] == "ok", respuesta
+    fila = cerebro.conn.execute(
+        "SELECT sustantivos_clave, sustantivos_clave_exactos FROM corto_plazo WHERE concepto='material_lamina'"
+    ).fetchone()
+    assert fila == ("カラス", "ガラス,カラス")
+    assert cerebro.consolidar_concepto("material_lamina")
+    fila = cerebro.conn.execute(
+        "SELECT sustantivos_clave, sustantivos_clave_exactos FROM largo_plazo WHERE concepto='material_lamina'"
+    ).fetchone()
+    assert fila == ("カラス", "ガラス,カラス")
+
+
+def test_actualizar_mcp_sincroniza_columna_exacta(ctx):
+    """Actualizar MCP cambia plegado y exacto juntos, sin dejar metadatos obsoletos."""
+    mcp, cerebro = ctx
+    cerebro.percibir_corto_plazo(
+        "nodo_actualizable", "Nodo inicial", sustantivos_clave="カラス",
+        sustantivos_clave_exactos="ガラス,カラス",
+    )
+    assert cerebro.consolidar_concepto("nodo_actualizable")
+
+    resultado = llamar(
+        mcp, "actualizar", concepto="nodo_actualizable", sustantivos_clave="perro,gato",
+    )
+    assert resultado["status"] == "ok", resultado
+    fila = cerebro.conn.execute(
+        "SELECT sustantivos_clave, sustantivos_clave_exactos FROM largo_plazo "
+        "WHERE concepto='nodo_actualizable'"
+    ).fetchone()
+    assert fila == ("perro,gato", "perro,gato")

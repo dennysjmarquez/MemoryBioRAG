@@ -17,6 +17,7 @@ from typing import Annotated, Any, Optional, List
 
 from pydantic import Field
 
+from core.identidad_unicode import normalizar_identidad
 from core.mcp_server._shared import (
     LIMITE_MCP,
     MAX_ASOCIACIONES_FLAT,
@@ -147,9 +148,10 @@ def _recordar_impl(
             return None
         if not isinstance(s, str):
             s = str(s)
-        # Limitar longitud total a 500
+        # Mantener el límite antes de procesar texto de longitud arbitraria.
         if len(s) > 500:
             s = s[:500]
+        s = normalizar_identidad(s)
         # Truncar palabras individuales a 64 caracteres
         palabras = s.split()
         palabras_sanas = [p[:64] for p in palabras]
@@ -164,6 +166,7 @@ def _recordar_impl(
             parafrasis = str(parafrasis)
         if len(parafrasis) > 500:
             parafrasis = parafrasis[:500]
+        parafrasis = normalizar_identidad(parafrasis)
         partes = parafrasis.split(",")
         parafrasis = ",".join([_sanitizar_string(p.strip()) for p in partes if p.strip()])
             
@@ -173,6 +176,7 @@ def _recordar_impl(
             rafaga_palabras = str(rafaga_palabras)
         if len(rafaga_palabras) > 500:
             rafaga_palabras = rafaga_palabras[:500]
+        rafaga_palabras = normalizar_identidad(rafaga_palabras)
         partes = rafaga_palabras.split(",")
         rafaga_palabras = ",".join([_sanitizar_string(p.strip()) for p in partes if p.strip()])
 
@@ -204,9 +208,10 @@ def _recordar_impl(
     if sustantivos_clave is not None:
         sk_raw = str(sustantivos_clave).strip()
         if sk_raw != "":
-            from core.memory_store import normalizar_sustantivos_clave
-            sustantivos_clave_norm = normalizar_sustantivos_clave(sk_raw)
-            sk_unicos = [t for t in sustantivos_clave_norm.split(",") if t] if sustantivos_clave_norm else []
+            from core.memory_store import normalizar_sustantivos_clave, normalizar_sustantivos_clave_exacto
+            sustantivos_clave_exactos = normalizar_sustantivos_clave_exacto(sk_raw)
+            sk_unicos = [t for t in sustantivos_clave_exactos.split(",") if t] if sustantivos_clave_exactos else []
+            sustantivos_clave_norm = normalizar_sustantivos_clave(sustantivos_clave_exactos)
             if not sk_unicos and query_tiene_texto:
                 return json.dumps({
                     "status": "error",

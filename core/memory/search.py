@@ -18,6 +18,7 @@ import unicodedata
 from collections import deque
 import numpy as np
 
+from core.identidad_unicode import normalizar_identidad
 from core.stemmer_es import _quitar_acentos
 from core.memory import constants
 from core.memory import neurona
@@ -73,6 +74,13 @@ def buscar_por_frase(self, frase, profundidad="activos", pagina=1, limite=None, 
     Retorna (resultados, total) donde resultados es lista de
     (concepto, contenido, peso, estado, score, asociaciones)
     """
+    # Una sola identidad de entrada para búsqueda, paráfrasis y sustantivos.
+    frase = normalizar_identidad(frase)
+    if parafrasis_list:
+        parafrasis_list = [normalizar_identidad(p) for p in parafrasis_list]
+    if sustantivos_clave_boost:
+        sustantivos_clave_boost = normalizar_identidad(str(sustantivos_clave_boost))
+
     # Neurona (core/memory/neurona.py): las búsquedas de práctica del autoexamen
     # van "en silencio" — no cuentan como actividad del usuario.
     _neurona_silencio = neurona.silencio(self)
@@ -80,7 +88,7 @@ def buscar_por_frase(self, frase, profundidad="activos", pagina=1, limite=None, 
         self.notificar_actividad_usuario()
     _neurona_anotar = neurona.necesita_rasgos(self)
     _neurona_rasgos = {}
-    _neurona_frase = frase  # original: la regla de identidad compara con lo que escribió el usuario
+    _neurona_frase = frase  # consulta del usuario tras identidad, antes de expansiones
     self.last_parent_map = {}  # Reset parent pointers for this search
     # Side-channels for the optional final rank adjustment. The public tuple
     # keeps one coherent score (the score actually used for ordering); consumers
@@ -1156,7 +1164,7 @@ def buscar_por_frase(self, frase, profundidad="activos", pagina=1, limite=None, 
     if not modo_estricto and len(palabras) >= 2:
         # Compute match count for ALL current candidates
         match_count_clause = " + ".join(
-            f"CASE WHEN LOWER(l.contenido) LIKE '%' || ? || '%' THEN 1 ELSE 0 END"
+            f"CASE WHEN PALABRA_INICIO_ANCHO(?, l.contenido) = 1 THEN 1 ELSE 0 END"
             for _ in palabras
         )
         match_params = [w.lower() for w in palabras]
@@ -2060,7 +2068,7 @@ def buscar_por_frase(self, frase, profundidad="activos", pagina=1, limite=None, 
         gaba_resultados.sort(key=lambda r: r[4], reverse=True)
         resultados_con_hibrido = gaba_resultados
 
-    # Filtro final con PALABRA_PREFIJO: para queries de una palabra,
+    # Filtro final con PALABRA_INICIO_ANCHO: para queries de una palabra,
     # exigir que aparezca como prefijo de palabra en contenido (del lado de la DB).
     # Esto permite "react" -> "reactive" mientras sigue bloqueando falsos positivos de substring
     # ("culo" no es prefijo de "artículos").
@@ -2083,8 +2091,8 @@ def buscar_por_frase(self, frase, profundidad="activos", pagina=1, limite=None, 
             placeholders = ",".join("?" * len(conceptos_literal))
             self.cursor.execute(
                 f"SELECT concepto FROM largo_plazo WHERE "
-                f"(PALABRA_PREFIJO(?, concepto) = 1 OR PALABRA_PREFIJO(?, contenido) = 1 OR PALABRA_PREFIJO(?, COALESCE(sinonimos, '')) = 1 "
-                f"OR PALABRA_PREFIJO(?, COALESCE(sustantivos_clave, '')) = 1) "
+                f"(PALABRA_INICIO_ANCHO(?, concepto) = 1 OR PALABRA_INICIO_ANCHO(?, contenido) = 1 OR PALABRA_INICIO_ANCHO(?, COALESCE(sinonimos, '')) = 1 "
+                f"OR PALABRA_INICIO_ANCHO(?, COALESCE(sustantivos_clave, '')) = 1) "
                 f"AND concepto IN ({placeholders})",
                 (token, token, token, token) + tuple(conceptos_literal)
             )

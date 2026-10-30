@@ -5,6 +5,7 @@ import json
 import logging
 import unicodedata
 from typing import Optional, Dict
+from core.identidad_unicode import normalizar_identidad
 from core.memory_service import get_cerebro as _svc_get_cerebro
 from core.memory_store import SQLiteMemoryBioRAG
 from middleware.auto_guardado import registrar_accion, analizar_y_autoguardar
@@ -91,7 +92,7 @@ AGENTES_VALIDOS = set()
 
 def _sustantivo_valido(termino: str) -> bool:
     """Valida el formato Unicode sin alterar el término entregado al motor."""
-    s = unicodedata.normalize("NFC", termino)
+    s = normalizar_identidad(termino)
     return (
         2 <= len(s) <= 15
         and all(unicodedata.category(c)[0] in "LMN" or c == "_" for c in s)
