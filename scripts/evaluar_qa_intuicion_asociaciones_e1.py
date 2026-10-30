@@ -71,6 +71,27 @@ def validate_query_gold(query: dict) -> None:
         raise ValueError(f"Una abstención no puede etiquetar objetivos ni pistas útiles ({query.get('query_id')})")
 
 
+def canonical_query(query: str) -> str:
+    return " ".join(query.casefold().split())
+
+
+def validate_duplicate_query_objectives(queries: list[dict]) -> None:
+    """Exige que una superficie repetida en la fixture compartida etiquete todos sus gold válidos."""
+    if len(queries) < 2:
+        return
+    surfaces = {canonical_query(q["query"]) for q in queries}
+    if len(surfaces) != 1:
+        raise ValueError("El validador recibió superficies de consulta diferentes")
+    answerable = {not q["espera_abstencion"] for q in queries}
+    if len(answerable) != 1:
+        raise ValueError(f"Consulta repetida mezcla gold answerable y abstención: {queries[0]['query_id']}")
+    if not next(iter(answerable)):
+        return
+    all_valid = set().union(*(set(q["objetivos_principales"]) for q in queries))
+    if not all_valid or any(set(q["objetivos_principales"]) != all_valid for q in queries):
+        raise ValueError(f"Objetivos incompletos en consultas indistinguibles: {queries[0]['query_id']}")
+
+
 def validate_positive_gold(episode: dict) -> None:
     if not episode.get("positivo"):
         return
@@ -124,6 +145,7 @@ def load_gold(path: Path = GOLD) -> list[dict]:
     if route_count != 12 or sum(bool(ep["positivo"]) for ep in rows) != 48:
         raise ValueError("El gold debe conservar 48 positivos y 12 rutas etiquetadas de dos saltos")
     query_ids, concepts = set(), set()
+    query_groups: dict[str, list[dict]] = defaultdict(list)
     total_queries = 0
     for ep in rows:
         expected_queries = 3 if ep["positivo"] else 2
@@ -169,13 +191,18 @@ def load_gold(path: Path = GOLD) -> list[dict]:
             query_ids.add(q["query_id"])
             if any(t.lower() not in q["query"].lower() for t in q["sustantivos_clave"].split(",")):
                 raise ValueError(f"Término de búsqueda no presente en la pregunta: {q['query_id']}")
-            tags = set(q["objetivos_principales"]) | set(q["relacionados_utiles"]) | set(q["ruido_tonto"])
-            if not tags <= local:
-                raise ValueError(f"Etiqueta fuera del episodio: {q['query_id']}")
+            local_tags = set(q["relacionados_utiles"]) | set(q["ruido_tonto"])
+            if not local_tags <= local:
+                raise ValueError(f"Etiqueta lateral fuera del episodio: {q['query_id']}")
             if set(q["objetivos_principales"]) & set(q["ruido_tonto"]):
                 raise ValueError(f"Objetivo y ruido se solapan: {q['query_id']}")
+            query_groups[canonical_query(q["query"])].append(q)
     if total_queries != 224:
         raise ValueError(f"Se esperaban 224 consultas lógicas, hay {total_queries}")
+    for group in query_groups.values():
+        validate_duplicate_query_objectives(group)
+        if any(not set(q["objetivos_principales"]) <= concepts for q in group):
+            raise ValueError(f"Objetivo gold fuera de la fixture compartida: {group[0]['query_id']}")
     node_count = sum(len(ep["nodos"]) for ep in rows)
     edge_count = sum(len(ep["aristas_gold"]) for ep in rows)
     if (node_count, edge_count) != (340, 56):
@@ -382,6 +409,17 @@ def validate_route_structure(route: dict, adjacency: dict[str, set[str]]) -> dic
             "estructura_gold_exactamente_2": True}
 
 
+def main_result_concepts(value, known: set[str]) -> list[str]:
+    """Lee únicamente el campo concepto del objeto principal de cada resultado."""
+    items = value if isinstance(value, (list, tuple)) else [value] if isinstance(value, dict) else []
+    concepts = []
+    for item in items:
+        concept = item.get("concepto") if isinstance(item, dict) else item if isinstance(item, str) else None
+        if isinstance(concept, str) and concept in known:
+            concepts.append(concept)
+    return concepts
+
+
 def response_concepts(value, known: set[str]) -> set[str]:
     found: set[str] = set()
     if isinstance(value, dict):
@@ -408,7 +446,7 @@ def attribute_two_hop(ep: dict, q: dict, response: dict, adjacency: dict[str, se
         return {"estado": "no aplica", "motivo": "pista no está etiquetada como relevante para esta consulta"}
     if max_depth < 2:
         return {"estado": "no atribuible", "motivo": "condición sin expansión de dos saltos"}
-    primaries = response_concepts(response.get("resultados", []), known)
+    primaries = set(main_result_concepts(response.get("resultados", []), known))
     context = response_concepts(response.get("contexto_expandido", []), known)
     if candidate not in context:
         return {"estado": "no atribuible", "motivo": "pista no aparece en contexto_expandido"}
@@ -606,8 +644,9 @@ async def run_arm(db_path: Path, temp_root: Path, episodes: list[dict], mode: st
                 transport_error = parsed["mensaje"]
             latency_ms = round((time.perf_counter() - call_started) * 1000, 3)
             output_bytes = len(raw.encode("utf-8"))
+            main_results = main_result_concepts(parsed.get("resultados", []), known)
             channels = {
-                "resultados": response_concepts(parsed.get("resultados", []), known),
+                "resultados": set(main_results),
                 "contexto_expandido": response_concepts(parsed.get("contexto_expandido", []), known),
                 "asociaciones_enriquecidas": set(),
                 "asociaciones": set(),
@@ -619,8 +658,8 @@ async def run_arm(db_path: Path, temp_root: Path, episodes: list[dict], mode: st
                     channels["asociaciones_enriquecidas"].update(
                         response_concepts(result.get("asociaciones_enriquecidas", []), known)
                     )
-            rank = next((i + 1 for i, x in enumerate(parsed.get("resultados", []))
-                         if isinstance(x, dict) and x.get("concepto") in q["objetivos_principales"]), None)
+            rank = next((i + 1 for i, concept in enumerate(main_results)
+                         if concept in q["objetivos_principales"]), None)
             route_attr = attribute_two_hop(ep, q, parsed, adjacency, known, context_window)
             outputs.append({
                 "episode_id": ep["episode_id"], "query_id": q["query_id"],
@@ -629,8 +668,7 @@ async def run_arm(db_path: Path, temp_root: Path, episodes: list[dict], mode: st
                 "espera_abstencion": q["espera_abstencion"], "tipo_consulta": q["tipo_consulta"],
                 "relacionados_utiles": q["relacionados_utiles"], "ruido_tonto": q["ruido_tonto"],
                 "canales": {name: sorted(values) for name, values in channels.items()},
-                "ranking_resultados": [x.get("concepto") for x in parsed.get("resultados", [])
-                                       if isinstance(x, dict) and x.get("concepto") in known],
+                "ranking_resultados": main_results,
                 "rango_objetivo_resultados": rank,
                 "atribucion_dos_saltos": route_attr,
                 "mcp_is_error": bool(parsed.get("_mcp_is_error")),

@@ -4,8 +4,8 @@
 
 ## Artefactos
 
-- `scripts/casos_qa_intuicion_asociaciones_e1.jsonl`: gold sintético congelado en código fuente: 88 episodios, 48 positivos y 40 controles; 224 consultas lógicas (172 en español, 52 en inglés); 340 nodos y 56 aristas explícitas. Cada consulta declara `espera_abstencion`, `respuesta_gold` y `tipo_consulta`, incluso cuando no tiene objetivo. Cada positivo declara al menos dos recuerdos de apoyo, una o más pistas útiles con evidencia literal/justificación y dos distractores separados.
-- `scripts/evaluar_qa_intuicion_asociaciones_e1.py`: construcción y ejecución futura del protocolo; métricas por canal/idioma/estrato, rangos, latencia y bytes; sin umbrales de éxito ni mutaciones del motor/ranking.
+- `scripts/casos_qa_intuicion_asociaciones_e1.jsonl`: gold sintético congelado en código fuente: 88 episodios, 48 positivos y 40 controles; 224 consultas lógicas (172 en español, 52 en inglés); 340 nodos y 56 aristas explícitas. Cada consulta declara `espera_abstencion`, `respuesta_gold` y `tipo_consulta`, incluso cuando no tiene objetivo. Cada positivo declara al menos dos recuerdos de apoyo, una o más pistas útiles con evidencia literal/justificación y dos distractores separados. Cuando una superficie de consulta se repite en la fixture compartida, cada copia enumera todos los objetivos válidos de ese grupo; el validador rechaza etiquetas incompletas o grupos que mezclen respuesta y abstención.
+- `scripts/evaluar_qa_intuicion_asociaciones_e1.py`: construcción y ejecución futura del protocolo; el canal `resultados` se extrae solo del campo principal `concepto` de cada resultado; las asociaciones anidadas permanecen en sus canales laterales. Incluye métricas por canal/idioma/estrato, rangos, latencia y bytes; sin umbrales de éxito ni mutaciones del motor/ranking.
 - `scripts/qa_stdio_server_intuicion.py`: lanza las tools FastMCP existentes por stdio y exige `BIORAG_PATH` dentro de `BIORAG_QA_TEMP_ROOT`. No arranca el daemon global.
 - `scripts/analizar_anotaciones_qa_e1.py`: calcula acuerdo y diferencias de dos lotes de anotación; no aplica umbral.
 
