@@ -1,7 +1,7 @@
 # Propuesta: QA de intuición y asociaciones
 
 **Fecha:** 2026-10-30
-**Estado:** propuesta de diseño; sin ejecución ni mediciones.
+**Estado:** diseño aprobado; implementación en rama para auditoría; sin ejecución ni mediciones.
 **Alcance:** definir cómo medir si una búsqueda devuelve el recuerdo principal y, aparte, recuerdos relacionados que aportan pistas útiles; distinguirlos del ruido irrelevante o engañoso.
 
 > **Principio de evaluación — el ruido útil no se mata.** Una asociación no es falsa solo porque no sea el objetivo literal de la pregunta. Se conserva y se mide como pista útil cuando ayuda a resolver la tarea o abre una conexión pertinente. Se penaliza por separado el ruido tonto: una asociación sin relación defendible, distractora o engañosa.
@@ -61,7 +61,7 @@ Una futura fase **adaptativa** sería un experimento distinto y no forma parte d
 
 ### 3.3 Esquema del gold
 
-Archivo sugerido: `scripts/casos_qa_intuicion_asociaciones_e1.jsonl`, creado únicamente si se autoriza implementación. Campos por consulta:
+Gold implementado como `scripts/casos_qa_intuicion_asociaciones_e1.jsonl` (88 episodios/224 consultas); sus etiquetas y textos se congelan antes de cualquier medición. Campos por consulta:
 
 ```json
 {
@@ -105,7 +105,7 @@ La pista útil no se penaliza como falso positivo por quedar fuera del objetivo 
 ### 4.1 Construcción aislada
 
 - Construir la fixture desde cero y en temporal mediante tools MCP reales, en este orden: **preflight de búsqueda → aprender → consolidar → vincular**. Para cada nodo, llamar primero `biorag_recordar`/`biorag_buscar` sobre el tema que se va a guardar y evaluar la respuesta; luego llamar `biorag_aprender` con `busqueda_previa=True`, cinco `bridges` válidos (uno por ángulo semántico exigido) y 2–10 `sustantivos_clave`. `aprender` guarda primero en corto plazo, ejecuta `auto_vincular` (y puede crear enlaces por sinónimos); por tanto, registrar esos enlaces automáticos y no asumir que solo existen las aristas del gold.
-- Tras aprender todos los nodos, llamar `biorag_consolidar` para pasarlos a largo plazo; solo después crear las aristas de ruta previstas con `biorag_vincular(a, b)`. Esa tool exige nodos existentes y crea una asociación bidireccional. No pasar `vincular_con` a `aprender` para las aristas gold, para mantener clara la etapa explícita de vinculación.
+- Tras aprender los nodos de cada episodio, llamar `biorag_consolidar` para pasarlos a largo plazo; después crear las aristas gold de ese episodio con `biorag_vincular(a, b)`. Repetir por episodio para limitar contaminación entre fixtures; validar el grafo final incluyendo cualquier enlace automático. Esa tool exige nodos existentes y crea una asociación bidireccional. No pasar `vincular_con` a `aprender` para las aristas gold, para mantener clara la etapa explícita de vinculación.
 - Inspeccionar en modo de solo lectura el grafo sintético final, incluyendo enlaces automáticos y enlaces de bridges. Guardar el hash de la DB, verificar `PRAGMA integrity_check` y congelar una copia plantilla. Una ruta se etiqueta como exactamente dos saltos solo si la distancia mínima entre objetivo y pista es 2 en ese grafo final. Si un enlace automático crea atajo (distancia 1) o hace ambigua la etiqueta, descartar y reconstruir el episodio; no reparar con SQL ni tocar motor/datos fuera de la fixture temporal.
 - Para cada condición y repetición, usar una copia temporal nueva de la plantilla; registrar diffs antes/después. No llamar a `biorag_feedback`, `desvincular`, `deep=True` ni herramientas de escritura durante las búsquedas.
 - Usar reloj fijo, `PYTHONHASHSEED=0`, `BIORAG_DMN_ESTADO_PATH` temporal exclusivo y un proceso MCP por corrida. El servidor debe apuntar siempre al path temporal; fallar si intenta abrir otra ruta.
@@ -122,7 +122,7 @@ La pista útil no se penaliza como falso positivo por quedar fuera del objetivo 
 | D — cadena fija | Secuencia fija de consultas por episodio, mismos parámetros | Medir seguimiento en estado de sesión; ninguna respuesta elige la siguiente consulta. |
 | D-inv — control de orden | Repetición de D en otra copia, invirtiendo el orden de ejecución de episodios y preservando el orden interno de cada cadena | Detectar efectos del orden de ejecución sin convertir la cadena fija en adaptativa. |
 
-A, B, C1 y C2 usan copias idénticas. D conserva una copia aislada durante cada cadena de episodio; D-inv usa copia limpia. Para una pista gold de **exactamente dos saltos**, el gold debe declarar la ruta `objetivo → intermedio → pista`; un validador independiente calcula distancia mínima 2 en el grafo final congelado. Se cuenta como recuperación de dos saltos únicamente si la pista aparece en `contexto_expandido` con `context_window=2`. Se reporta aparte cualquier aparición en `resultados`, `asociaciones_enriquecidas` o `asociaciones` (canales de vecinos directos/laterales); ninguna de ellas demuestra por sí sola dos saltos. Si MCP no expone distancia/ruta, la prueba la acredita con el gold y la validación del grafo, no infiriéndola del JSON de salida. Ningún brazo usa `forzar_rafaga=True`; ráfaga queda para otro experimento aprobado.
+A, B, C1, C2, D y D-inv usan copias limpias de la misma plantilla; un proceso MCP independiente por condición. D recorre episodios en orden congelado; D-inv invierte solo el orden de episodios en otra copia, sin alterar la secuencia interna de consultas. Para una pista gold de **exactamente dos saltos**, el gold declara la ruta `objetivo → intermedio → pista`; un validador independiente calcula la ruta mínima efectiva en el grafo final congelado. Se cuenta como recuperación de dos saltos únicamente si la pista aparece en `contexto_expandido` con `context_window=2`. Se reporta aparte cualquier aparición en `resultados`, `asociaciones_enriquecidas` o `asociaciones` (canales de vecinos directos/laterales); ninguna de ellas demuestra por sí sola dos saltos. Si MCP no expone distancia/ruta, la prueba la acredita con el gold y la validación del grafo, no infiriéndola del JSON de salida. Ningún brazo usa `forzar_rafaga=True`; ráfaga queda para otro experimento aprobado.
 
 ## 5. Métricas y reglas de conteo
 
@@ -148,7 +148,7 @@ Se deduplican conceptos entre canales, pero se conserva el canal de primera apar
 
 ### 5.4 Conteo de invocaciones y escrituras permitidas
 
-Las **224** son consultas lógicas base. La primera pasada ejecuta cada definición una vez en A, B, C1 y C2 (4×224), una vez en D y una vez en D-inv: **224×(4+1+1) = 1.344 llamadas de búsqueda `biorag_recordar`**. Si se repite el protocolo completo `r` veces, son **1.344×r** llamadas; cualquier brazo adicional suma `224×r` por cada condición. Este subtotal no incluye el armado MCP de la fixture: para `N` nodos y `E` enlaces gold explícitos, una construcción requiere `N` búsquedas preflight + `N` llamadas `biorag_aprender` + 1 `biorag_consolidar` + `E` `biorag_vincular`, es decir `2N+E+1` llamadas adicionales (si se reconstruye por réplica, multiplicar también ese término por `r`). La fase adaptativa, si se aprueba después, se contabiliza aparte (§3.2). Publicar siempre consultas lógicas, llamadas por tipo/condición y total efectivo, incluidas fallidas y reintentos.
+Las **224** son consultas lógicas base. La primera pasada ejecuta cada definición una vez en A, B, C1 y C2 (4×224), una vez en D y una vez en D-inv: **224×(4+1+1) = 1.344 llamadas de búsqueda `biorag_recordar`**. Si se repite el protocolo completo `r` veces, son **1.344×r** llamadas; cualquier brazo adicional suma `224×r` por cada condición. Este subtotal no incluye el armado MCP de la fixture: para `N` nodos, `P` episodios y `E` enlaces gold explícitos, una construcción requiere `N` búsquedas preflight + `N` llamadas `biorag_aprender` + `P` llamadas `biorag_consolidar` (una por episodio) + `E` `biorag_vincular`, es decir `2N+P+E` llamadas adicionales. Con el gold implementado (`N=232`, `P=88`, `E=56`) son 608 llamadas de construcción y 1.952 invocaciones en total. Si se reconstruye por réplica, multiplicar también el término de construcción por `r`. La fase adaptativa, si se aprueba después, se contabiliza aparte (§3.2). Publicar siempre consultas lógicas, llamadas por tipo/condición y total efectivo, incluidas fallidas y reintentos.
 
 En la comparación pre/post de una búsqueda, se permiten como escrituras esperadas únicamente las de telemetría/actividad que confirme el código para esa versión (por ejemplo, fila de `log_busquedas`, historial de acceso y actualización de sus parámetros), anotadas por tabla y operación. `recordar` no debe crear, borrar ni cambiar recuerdos, aristas, pesos o estado del grafo. `context_window` no equivale a `deep`; mantener `deep=False`, fixture sin nodos en cuarentena y ráfaga no forzada. Capturar diffs por tabla: toda mutación a `corto_plazo`, `largo_plazo`, sinapsis/grafo o neurona es inesperada salvo que una inspección previa del recorrido MCP identifique y apruebe explícitamente el efecto antes de medir. Registrar aparte cualquier efecto del interceptor MCP/autoguardado; con búfer vacío e inactivo no se acepta guardado heurístico como efecto normal de `recordar`. Una escritura inesperada contamina la corrida; no se borra ni corrige en sitio.
 
@@ -181,7 +181,7 @@ Los intervalos de confianza se calculan por episodio (bootstrap estratificado) y
 
 - El gold se congela antes de ejecutar y se acompaña con evidencia textual y una justificación breve de cada pista útil/ruido tonto.
 - Dos revisores etiquetan las salidas sin ver brazo, score ni rango. Escala: `0=irrelevante/engañoso`, `1=contexto relacionado pero no accionable`, `2=pista útil para el seguimiento`, `3=hallazgo no obvio que cambia o amplía una acción válida`.
-- Se informa acuerdo ordinal (kappa ponderado). Si es <0,60, se revisa la rúbrica y se vuelve a anotar a ciegas; no se modifica el gold para favorecer una condición.
+- Se informa acuerdo ordinal (kappa ponderado). El valor 0,60 queda únicamente como referencia propuesta, no aprobada ni operativa; no dispara revisión ni reanotación hasta que Dennys apruebe el umbral. No se modifica el gold para favorecer una condición.
 - La hoja de revisión conserva consulta, memoria candidata, canal, evidencia del recuerdo, rating y motivo. Los desacuerdos se adjudican y quedan visibles.
 
 ## 8. Entregables de una futura ejecución autorizada
@@ -200,5 +200,7 @@ Los intervalos de confianza se calculan por episodio (bootstrap estratificado) y
 - `scripts/evaluar_qa_multilingue_e3a.py`, `scripts/evaluar_qa_multilingue_mcp_e3a.py` y `tests/test_qa_multilingue_mcp_e3a.py`: patrones existentes de gold congelado, fixture temporal, copias por caso y llamada MCP.
 - `core/mcp_server/README.md`: mapa del adaptador MCP y campos expuestos.
 - `core/mcp_server/write.py`, `core/mcp_server/consolidation.py` y `core/mcp_server/synapses.py`: contrato real de preflight/aprendizaje, consolidación y vinculación MCP.
+- `scripts/evaluar_qa_intuicion_asociaciones_e1.py`, `scripts/qa_stdio_server_intuicion.py` y `scripts/casos_qa_intuicion_asociaciones_e1.jsonl`: arnés MCP stdio, guardas temporales y gold implementado; aún no ejecutados.
+- `docs/implementacion_qa_intuicion_asociaciones_e1.md`: detalle de ruta efectiva, control de orden y escrituras esperadas.
 
 **No se ejecutó ninguna medición ni se abrió ninguna base de datos en esta investigación.** La DB viva y el snapshot no se tocaron; solo se inspeccionó código fuente.
