@@ -87,6 +87,8 @@ def validate_duplicate_query_gold(queries: list[dict], node_contents: dict[str, 
         raise ValueError(f"Consulta repetida mezcla gold answerable y abstención: {queries[0]['query_id']}")
     all_targets = set().union(*(set(q["objetivos_principales"]) for q in queries))
     all_clues = set().union(*(set(q["relacionados_utiles"]) for q in queries))
+    if all_targets & all_clues:
+        raise ValueError(f"Un recuerdo no puede quedar simultáneamente como objetivo y pista: {queries[0]['query_id']}")
     if next(iter(answerable)):
         if not all_targets or any(set(q["objetivos_principales"]) != all_targets for q in queries):
             raise ValueError(f"Objetivos incompletos en consultas indistinguibles: {queries[0]['query_id']}")

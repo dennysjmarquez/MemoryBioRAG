@@ -47,7 +47,7 @@ def test_objetivos_y_pistas_repetidos_tienen_evidencia_semantica_en_gold():
     group = [q for ep in episodes for q in ep["consultas"] if q["query"].casefold() == surface]
     assert len(group) == 4
     assert len(set(group[0]["objetivos_principales"])) == 4
-    assert len(set(group[0]["relacionados_utiles"])) == 4
+    assert len(set(group[0]["relacionados_utiles"])) == 5
     assert all(set(q["objetivos_principales"]) == set(group[0]["objetivos_principales"]) for q in group)
     assert all(set(q["relacionados_utiles"]) == set(group[0]["relacionados_utiles"]) for q in group)
     for q in group:
@@ -59,6 +59,40 @@ def test_objetivos_y_pistas_repetidos_tienen_evidencia_semantica_en_gold():
     assert len(abstentions) == 4
     assert all(q["espera_abstencion"] and not q["objetivos_principales"] and not q["relacionados_utiles"] for q in abstentions)
     assert all(q["justificacion_abstencion"] for q in abstentions)
+
+
+def test_objetivos_repetidos_responden_semanticamente_y_no_solo_por_vocabulario():
+    episodes = load_gold()
+    nodes = {n["concepto"]: n["contenido"].casefold() for ep in episodes for n in ep["nodos"]}
+    grouped = {}
+    for ep in episodes:
+        for q in ep["consultas"]:
+            if q["tipo_consulta"] == "principal" and q["objetivos_principales"]:
+                key = " ".join(q["query"].casefold().split())
+                grouped.setdefault(key, (ep, q))
+    expected_markers = {
+        1: (("idempotencia", "idempotent"), ("duplic",)),
+        2: (("timeout",), ("reintento",)),
+        3: (("batch",), ("pending",)),
+        4: (("cach",), ("invalid", "version")),
+        5: (("certificado",), ("rot",)),
+        6: (("rollback",), ("migr",)),
+        7: (("restore",), ("backup",)),
+        8: (("token",), ("revoc",)),
+        9: (("rate_limit",), ("solicitud",)),
+        10: (("circuit_breaker",), ("servicio",)),
+        11: (("dead letter",), ("message",)),
+        12: (("bloqueo",), ("concurr",)),
+    }
+    for ep, q in grouped.values():
+        index = int(ep["episode_id"].rsplit("-", 1)[1])
+        marker_groups = expected_markers[index]
+        for concept in q["objetivos_principales"]:
+            text = nodes[concept]
+            assert all(any(marker in text for marker in alternatives) for alternatives in marker_groups), (q["query_id"], concept, text)
+    duplicate_orders = next(q for _, q in grouped.values() if "pedidos duplicados" in q["query"].casefold())
+    assert all(("idempotencia" in nodes[c] or "idempotent" in nodes[c]) and "duplic" in nodes[c] for c in duplicate_orders["objetivos_principales"])
+    assert all("reintento" not in nodes[c] or "idempotencia" in nodes[c] or "idempotent" in nodes[c] for c in duplicate_orders["objetivos_principales"])
 
 
 def test_validador_rechaza_objetivos_o_pistas_repetidos_sin_evidencia():

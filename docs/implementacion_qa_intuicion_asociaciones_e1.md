@@ -9,6 +9,16 @@
 - `scripts/qa_stdio_server_intuicion.py`: lanza las tools FastMCP existentes por stdio y exige `BIORAG_PATH` dentro de `BIORAG_QA_TEMP_ROOT`. No arranca el daemon global.
 - `scripts/analizar_anotaciones_qa_e1.py`: calcula acuerdo y diferencias de dos lotes de anotación; no aplica umbral.
 
+## Ejemplos de revisión semántica del gold
+
+La evidencia literal se lee junto con la pregunta; no basta con compartir vocabulario ni con que el recuerdo aparezca en el mismo grupo. Cada objetivo y pista de consulta repetida tiene su fragmento y su justificación por concepto en el JSONL.
+
+- **Objetivo — pedidos duplicados:** «¿Cómo evitar pedidos duplicados si el proveedor demora?» → `qa_pos_direct_01_objetivo`: «reutilizar la misma clave de idempotencia en cada reintento; el proveedor devuelve el resultado previo y no crea un pedido duplicado». Responde al mecanismo causal. Un recuerdo que recomendara únicamente reintentar no se aceptaría como objetivo.
+- **Pista — pedidos duplicados:** `qa_pos_direct_01_apoyo_util`: «la retención de la clave idempotente [debe] cubrir todo el horizonte de reintentos». No sustituye la respuesta principal; añade la condición para que la deduplicación siga vigente durante los reintentos.
+- **Abstención — color de interfaz:** «What color was selected for the queue interface?» → cero objetivos y cero pistas. Razón gold: «no memory in this fixture records a selected interface color; decorative notes do not state the requested value».
+
+La misma revisión ajustó recuerdos objetivo para que respondan literalmente a la intención semántica: invalidar/versionar claves tras actualizar caché, preparar instantánea verificada y rollback para una migración, probar una restauración aislada para verificar backups y revocar/rotar un token expuesto. Las consultas repetidas enumeran únicamente conceptos revisados, con evidencia y razón; no se infiere validez por compartir la pregunta.
+
 ## Ruta efectiva de dos saltos
 
 La fixture se construye exclusivamente en un temporal con llamadas MCP `recordar` (preflight), `aprender`, `consolidar` y `vincular`. El validador posterior lee solo esa fixture y construye el grafo efectivo a partir de sus filas `sinapsis`, incluidas conexiones automáticas y explícitas. Para cada episodio con ruta gold `objetivo → intermedio → pista`, calcula BFS y exige que el gold sea el único camino mínimo estructural de dos saltos; atajos, alternativas mínimas o ausencia de ruta detienen la corrida. Este camino **estructural del grafo** no se presenta como recorrido real de MCP.
