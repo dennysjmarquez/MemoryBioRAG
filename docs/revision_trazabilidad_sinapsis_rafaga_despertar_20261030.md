@@ -80,7 +80,7 @@ Varios upserts de `auto_vincular` actualizan el tipo existente a la señal autom
 Tras puntuar, el escritor considera como máximo los resultados de `scored[:limite]`, exige score ≥0,5, una palabra de ráfaga completa en el nodo y un token de la consulta que también aparezca como concepto activo (`:297-338`). Si se satisfacen esas guardas:
 
 1. Si no existe el par en ninguna dirección, inserta una fila orientada `token_activo → recuerdo`, tipo `rafaga_rememb`, peso 0,6 (`:339-353`).
-2. Si existe, refuerza el peso de las filas en ambas direcciones hasta 0,95 y conserva su tipo (`:339-360`).
+2. Si existe, lee un peso con `fetchone()`, calcula `min(0.95, peso_leído + 0.1)` y asigna ese mismo valor a las filas en ambas direcciones, conservando el tipo (`:339-360`). El tope no es monótono: si el peso leído supera 0,95, el cálculo puede reducirlo a 0,95; si las direcciones tenían pesos diferentes, el `UPDATE` también las iguala usando el peso de la fila leída. Esto describe el comportamiento observado, no una propuesta de reparación.
 3. Marca los extremos como SDM dirty solo para inserciones nuevas (`:365-373`).
 
 La aportación potencial de esa arista es dejar conectado el concepto-token activo con un recuerdo rescatado; el acceso al nodo recuperado y la conectividad posterior pueden depender de esa conexión. El código, por sí solo, no mide si la arista mejora recuperación ni si la asociación es útil o trivial.
@@ -110,7 +110,7 @@ No se encontró una llamada a `_sincronizar_asociaciones` en los escritores dire
 
 ### Consumidores y dependencias
 
-- El BFS y `obtener_asociaciones_enriquecidas` leen `sinapsis` directamente (`core/memory/synapses.py:307-318, 405-480`). El canal enriquecido exige peso ≥0,50 por defecto, omite vecinos dormidos/inexistentes y limita la lista; tipos no reconocidos, incluido `rafaga_rememb`, reciben prioridad de tipo de fallback 9 (`:433-480`). Así, una arista `rafaga_rememb` de 0,6 puede entrar si el nodo ya está activo y cabe en el top. Una arista `dmn_synthesized` con peso predeterminado 0,30 queda fuera de ese canal por el umbral predeterminado, aunque puede ser recorrible por BFS si entra entre los vecinos seleccionados.
+- El BFS y `obtener_asociaciones_enriquecidas` leen `sinapsis` directamente (`core/memory/synapses.py:307-318, 405-480`). El canal enriquecido exige peso ≥0,50 por defecto, omite vecinos dormidos/inexistentes y limita la lista. En el orden del SQL, los tipos no enumerados en el `CASE` —incluido `rafaga_rememb`— caen en `ELSE 9`; en el orden final Python, esos mismos tipos ausentes del diccionario `prioridad_tipo` reciben `get(..., 50)` (`:461-472, 512-524`). Es una discrepancia observada entre los dos niveles de respaldo, no una corrección aplicada. Para `rafaga_rememb`, SQL lo agrupa en prioridad 9 (empatada con `pmi_hebbiano`); Python lo ordena en prioridad 50, después de todos los tipos enumerados, y luego usa el peso para ordenar dentro de ese grupo. La ordenación SQL ocurre antes de deduplicar por raíz/vecino (`:490-503`), de modo que el desempate/selección inicial puede diferir de la prioridad del orden final. Una arista `rafaga_rememb` de 0,6 puede entrar si el nodo ya está activo y cabe en el top. Una arista `dmn_synthesized` con peso predeterminado 0,30 queda fuera de ese canal por el umbral predeterminado, aunque puede ser recorrible por BFS si entra entre los vecinos seleccionados.
 - El campo plano serializado por MCP procede de `largo_plazo.asociaciones` (`core/mcp_server/search.py:731-753, 1142-1156`).
 - El scoring calcula `asoc_count` desde esa columna (`core/memory/search.py:1824-1846`; normalización en `core/memory/scoring.py:318`).
 - `buscar_por_rafaga` lee `l.asociaciones` antes de insertar las nuevas aristas y devuelve resultados con ese valor (`core/memory/rafaga.py:107-115, 198-214, 293-353`). La nueva arista no se añade allí mediante `_sincronizar_asociaciones`. En el handler MCP, el canal enriquecido se consulta después desde `sinapsis` (`core/mcp_server/search.py:719-729`). Por tanto, el código permite discrepancia entre el mapa plano/espejo y el canal enriquecido después de una escritura de ráfaga.
@@ -130,7 +130,8 @@ Para la fixture, el protocolo ya documentado de validar el grafo temporal final 
 - Escritores y guardas descritos arriba para `co_*`, `pmi_hebbiano`, `sinonimo_explicito`, `manual`, `dmn_synthesized`, `rafaga_rememb` y `hipotesis_sueno`.
 - Diferencia entre las dos rutas de despertar (`deep`/BFS y ráfaga), sus incrementos de peso y filtros de nodos activos/dormidos.
 - `sinapsis` es el grafo canónico; el espejo CSV se sincroniza en algunos caminos y no aparece en varios escritores directos descritos.
-- Ráfaga puede reforzar una arista existente conservando su tipo, o insertar una nueva fila dirigida y marcada `rafaga_rememb` bajo sus guardas.
+- Ráfaga puede actualizar una arista existente conservando su tipo, o insertar una nueva fila dirigida y marcada `rafaga_rememb` bajo sus guardas. El cálculo `min(0.95, peso + 0.1)` también puede bajar pesos que excedan 0,95 y escribe el mismo resultado en ambas direcciones.
+- Para tipos no enumerados, el ordenamiento SQL usa prioridad de respaldo 9 y el ordenamiento final Python usa 50; la consulta SQL ordena antes de la deduplicación. No se alteró ninguno de estos comportamientos.
 
 ### No medido / no demostrado
 
