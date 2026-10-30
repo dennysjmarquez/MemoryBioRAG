@@ -15,6 +15,7 @@ import asyncio
 from collections import defaultdict, deque
 import hashlib
 import json
+import math
 import os
 from pathlib import Path
 import re
@@ -22,6 +23,7 @@ import sqlite3
 import sys
 import tempfile
 import time
+import uuid
 from urllib.parse import quote
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -125,7 +127,32 @@ def audit_names(episodes: list[dict]) -> dict:
 
 
 def _table_columns(con: sqlite3.Connection, table: str) -> list[str]:
-    return [row[1] for row in con.execute(f'PRAGMA table_info("{table.replace(chr(34), chr(34)*2)}")')]
+    escaped = table.replace('"', '""')
+    return [row[1] for row in con.execute(f'PRAGMA table_info("{escaped}")')]
+
+
+def snapshot_table_rows(db_path: Path, temp_root: Path) -> dict:
+    """Snapshot read-only de esquema y filas para auditar cambios por PK/campo."""
+    db_path = _inside(db_path, temp_root, "snapshot de filas")
+    uri = "file:" + quote(str(db_path), safe="/") + "?mode=ro"
+    con = sqlite3.connect(uri, uri=True)
+    try:
+        names = [row[0] for row in con.execute(
+            "SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%' ORDER BY name")]
+        snapshot = {}
+        for table in names:
+            escaped = table.replace('"', '""')
+            schema_rows = con.execute(f'PRAGMA table_info("{escaped}")').fetchall()
+            schema = [{"name": r[1], "type": r[2], "notnull": r[3], "default": r[4], "pk": r[5]}
+                      for r in schema_rows]
+            columns = [row["name"] for row in schema]
+            ident = '"' + escaped + '"'
+            rows = [dict(zip(columns, row)) for row in con.execute(f"SELECT * FROM {ident}").fetchall()]
+            rows.sort(key=lambda row: json.dumps(row, ensure_ascii=False, sort_keys=True, default=repr))
+            snapshot[table] = {"schema": schema, "rows": rows}
+        return snapshot
+    finally:
+        con.close()
 
 
 def inspect_fixture(db_path: Path, temp_root: Path) -> dict:
@@ -320,21 +347,88 @@ def close_gold_revision(revision_manifest_path: Path, approved_by: str, graph_re
     return closed
 
 
+def _construction_evidence(db_path: Path, graph: dict) -> dict:
+    evidence_root = db_path.parent / (db_path.name + ".evidence")
+    manifest_path = evidence_root / "run_manifest.json"
+    report_path = evidence_root / "preparation_report.json"
+    if not manifest_path.is_file() or not report_path.is_file():
+        raise ValueError(f"Falta evidencia completa de construcción independiente: {evidence_root}")
+    manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+    report = json.loads(report_path.read_text(encoding="utf-8"))
+    event_paths = sorted(evidence_root.glob("event_[0-9][0-9][0-9][0-9][0-9][0-9].json"))
+    events = [json.loads(path.read_text(encoding="utf-8")) for path in event_paths]
+    construction_id = manifest.get("construction_id")
+    event_sequences = sorted(event.get("sequence") for event in events)
+    if (not construction_id or report.get("construction_id") != construction_id
+            or manifest.get("mcp_session_created_for_this_build") is not True):
+        raise ValueError(f"construction_id/MCP session ausente o inconsistente en {evidence_root}")
+    if Path(manifest.get("fixture_path", "")).resolve() != db_path.resolve() or Path(report.get("fixture_path", "")).resolve() != db_path.resolve():
+        raise ValueError(f"La evidencia no pertenece a esta ruta de fixture: {db_path}")
+    if manifest.get("gold_sha256") != report.get("gold_sha256"):
+        raise ValueError(f"Hash gold no coincide dentro de evidencia: {evidence_root}")
+    if (report.get("fixture", {}).get("sha256_fixture_logica") != graph.get("sha256_fixture_logica")
+            or report.get("fixture_sha256") != graph.get("sha256_fixture_logica")):
+        raise ValueError(f"La evidencia no identifica el contenido de esta DB: {db_path}")
+    if (evidence_root / "run_failure.json").exists() or (evidence_root / "mcp_teardown_failure.json").exists():
+        raise ValueError(f"La preparación MCP figura como inválida: {evidence_root}")
+    if report.get("baseline_searches_run") != 0 or not events or event_sequences != list(range(1, len(events) + 1)):
+        raise ValueError(f"Evidencia MCP incompleta o con búsquedas durante construcción: {evidence_root}")
+    report_events = report.get("fixture_events", [])
+    if len(report_events) != len(events) or any(_canonical(a) != _canonical(b)
+                                                for a, b in zip(report_events, events)):
+        raise ValueError(f"Ledger por llamada no coincide con informe final: {evidence_root}")
+    if any(event.get("construction_id") != construction_id for event in events):
+        raise ValueError(f"Eventos mezclados entre construcciones: {evidence_root}")
+    if any(classify_attempt(event.get("parsed_response"), event.get("call_errors", []), [])["invalida"]
+           for event in events):
+        raise ValueError(f"Ledger de construcción contiene una llamada fallida: {evidence_root}")
+    return {
+        "construction_id": construction_id,
+        "fixture_path": str(db_path.resolve()),
+        "gold_sha256": manifest["gold_sha256"],
+        "event_count": len(events),
+        "run_manifest_sha256": file_sha256(manifest_path),
+        "preparation_report_sha256": file_sha256(report_path),
+        "events_sha256": hashlib.sha256("".join(file_sha256(path) for path in event_paths).encode()).hexdigest(),
+    }
+
+
 def audit_repeatability(first_path: Path, second_path: Path, temp_root: Path) -> dict:
-    """Compara dos construcciones temporales sin elegir la que favorezca búsquedas."""
+    """Exige dos DBs y dos ledgers MCP independientes antes de declarar repetibilidad."""
+    first_path = _inside(first_path, temp_root, "primera fixture")
+    second_path = _inside(second_path, temp_root, "segunda fixture")
+    if first_path == second_path:
+        return {"schema": "fixture_repeatability_v2", "mode": "UNVERIFIED",
+                "independent_builds_verified": False, "identical_structural": False,
+                "failure": "Las rutas deben ser distintas."}
     first = inspect_fixture(first_path, temp_root)
     second = inspect_fixture(second_path, temp_root)
     fields = ("nodos", "aristas_directas", "sinapsis_latentes", "divergencias_espejo")
     differences = {field: {"primera": first[field], "segunda": second[field]}
                    for field in fields if first[field] != second[field]}
+    try:
+        build_1 = _construction_evidence(first_path, first)
+        build_2 = _construction_evidence(second_path, second)
+        independent = (build_1["construction_id"] != build_2["construction_id"]
+                       and build_1["fixture_path"] != build_2["fixture_path"]
+                       and build_1["gold_sha256"] == build_2["gold_sha256"])
+        evidence_failure = None if independent else "Los ledgers no prueban dos construcciones independientes del mismo gold."
+    except (OSError, ValueError, KeyError, TypeError) as exc:
+        build_1 = build_2 = None
+        independent = False
+        evidence_failure = f"{type(exc).__name__}: {exc}"
     return {
-        "schema": "fixture_repeatability_v1",
-        "mode": "REPEATABLE_PAIR",
+        "schema": "fixture_repeatability_v2",
+        "mode": "REPEATABLE_PAIR" if independent else "UNVERIFIED",
+        "independent_builds_verified": independent,
+        "construction_ids": [build_1["construction_id"], build_2["construction_id"]] if independent else [],
+        "build_evidence": [build_1, build_2] if independent else [],
         "fixture_1_sha256": first["sha256_fixture_logica"],
         "fixture_2_sha256": second["sha256_fixture_logica"],
         "identical_structural": not differences,
         "differences": differences,
-        "limitation": "Comparación estructural exacta; los campos temporales se comparan tal como quedaron capturados.",
+        "failure": evidence_failure,
+        "limitation": "Solo se acepta par idéntico con dos rutas, construction_id y ledgers MCP separados del mismo gold.",
     }
 
 
@@ -359,18 +453,30 @@ def validate_freeze_approval(manifest: dict, gold_sha: str, fixture_sha: str,
         if revision_closure.get("graph_review_sha256") != manifest.get("graph_review_sha256"):
             raise ValueError("El cierre gold y el freeze no usan la misma revisión del grafo")
     if repeatability_report is None:
-        raise ValueError("Falta informe de repetibilidad o aprobación explícita de fixture materializada")
+        raise ValueError("Falta informe que pruebe dos construcciones independientes")
     if repeatability_report.get("fixture_1_sha256") != fixture_sha:
         raise ValueError("El informe de repetibilidad no referencia esta fixture")
     mode = repeatability_report.get("mode")
-    if mode == "REPEATABLE_PAIR":
-        if not repeatability_report.get("identical_structural") or not repeatability_report.get("fixture_2_sha256"):
-            raise ValueError("Las dos construcciones difieren; no son línea base pareada")
-    elif mode == "MATERIALIZED_ONLY":
-        if not (repeatability_report.get("not_tested_reason") or "").strip():
-            raise ValueError("Scope materializado requiere explicar que repetibilidad no se probó")
-    else:
-        raise ValueError("Informe de repetibilidad debe ser REPEATABLE_PAIR o MATERIALIZED_ONLY")
+    builds = repeatability_report.get("build_evidence", [])
+    ids = repeatability_report.get("construction_ids", [])
+    if mode != "REPEATABLE_PAIR" or repeatability_report.get("independent_builds_verified") is not True:
+        raise ValueError("La aprobación exige evidencia de dos construcciones independientes")
+    if not repeatability_report.get("fixture_2_sha256"):
+        raise ValueError("Falta hash de la segunda construcción")
+    if not repeatability_report.get("identical_structural"):
+        raise ValueError("Las dos construcciones difieren; no son línea base pareada")
+    if len(builds) != 2 or len(ids) != 2 or ids[0] == ids[1]:
+        raise ValueError("El informe no contiene dos ledgers independientes")
+    if any(build.get("construction_id") != ids[i]
+           or build.get("event_count", 0) < 1
+           or build.get("gold_sha256") != gold_sha
+           or not build.get("run_manifest_sha256")
+           or not build.get("preparation_report_sha256")
+           or not build.get("events_sha256")
+           for i, build in enumerate(builds)):
+        raise ValueError("Evidencia de construcción incompleta o no ligada al gold aprobado")
+    if builds[0].get("fixture_path") == builds[1].get("fixture_path"):
+        raise ValueError("Dos construcciones deben tener rutas de fixture independientes")
     if manifest.get("repeatability_report_sha256") != repeatability_report.get("_file_sha256"):
         raise ValueError("El freeze manifest no fija el hash del informe de repetibilidad")
     expected_arms = sorted(ARMS)
@@ -474,6 +580,207 @@ def _edge_diff(before: dict, after: dict) -> dict:
     }
 
 
+def _safe_json(value):
+    if isinstance(value, bytes):
+        return {"__bytes_hex__": value.hex()}
+    if isinstance(value, dict):
+        return {str(k): _safe_json(v) for k, v in value.items()}
+    if isinstance(value, (list, tuple)):
+        return [_safe_json(v) for v in value]
+    return value
+
+
+def _pk_names(table_state: dict) -> list[str]:
+    return [column["name"] for column in sorted(table_state["schema"], key=lambda c: c["pk"])
+            if column["pk"]]
+
+
+def _keyed_rows(table_state: dict) -> tuple[dict, list[str]]:
+    pk = _pk_names(table_state)
+    if not pk:
+        return {}, pk
+    return {json.dumps([row.get(column) for column in pk], ensure_ascii=False, default=repr): row
+            for row in table_state["rows"]}, pk
+
+
+def _table_delta(before_state: dict | None, after_state: dict | None) -> dict:
+    if before_state is None:
+        return {"schema_before": None, "schema_after": after_state["schema"],
+                "inserted": after_state["rows"], "deleted": [], "updated": []}
+    if after_state is None:
+        return {"schema_before": before_state["schema"], "schema_after": None,
+                "inserted": [], "deleted": before_state["rows"], "updated": []}
+    left, pk_left = _keyed_rows(before_state)
+    right, pk_right = _keyed_rows(after_state)
+    if not pk_left or pk_left != pk_right:
+        before_rows = [json.dumps(row, ensure_ascii=False, sort_keys=True, default=repr) for row in before_state["rows"]]
+        after_rows = [json.dumps(row, ensure_ascii=False, sort_keys=True, default=repr) for row in after_state["rows"]]
+        from collections import Counter
+        b_count, a_count = Counter(before_rows), Counter(after_rows)
+        return {"schema_before": before_state["schema"], "schema_after": after_state["schema"],
+                "inserted": [{"row": json.loads(k), "count": n} for k, n in (a_count-b_count).items()],
+                "deleted": [{"row": json.loads(k), "count": n} for k, n in (b_count-a_count).items()],
+                "updated": [], "pk_error": True}
+    inserted = [right[k] for k in sorted(right.keys() - left.keys())]
+    deleted = [left[k] for k in sorted(left.keys() - right.keys())]
+    updated = []
+    for key in sorted(left.keys() & right.keys()):
+        changes = {field for field in set(left[key]) | set(right[key]) if left[key].get(field) != right[key].get(field)}
+        if changes:
+            updated.append({"key": key, "fields_changed": sorted(changes),
+                            "before": left[key], "after": right[key]})
+    return {"schema_before": before_state["schema"], "schema_after": after_state["schema"],
+            "inserted": inserted, "deleted": deleted, "updated": updated}
+
+
+def validate_row_field_changes(before: dict, after: dict, arm: str, known: set[str]) -> dict:
+    """Whitelist cerrada por tabla, operación, fila y columnas; no acepta solo el nombre de tabla."""
+    allowed_tables = READ_WRITES | (BURST_WRITES - READ_WRITES if arm == "R" else set())
+    tables = set(before) | set(after)
+    deltas = {table: _table_delta(before.get(table), after.get(table)) for table in sorted(tables)
+              if before.get(table) != after.get(table)}
+    violations = []
+
+    def reject(table: str, reason: str, evidence=None):
+        violations.append({"table": table, "reason": reason,
+                           "evidence": _safe_json(evidence) if evidence is not None else None})
+
+    for table, delta in deltas.items():
+        if table not in allowed_tables:
+            reject(table, "tabla/fila/campo fuera de whitelist", delta)
+            continue
+        if delta["schema_before"] != delta["schema_after"]:
+            if not (arm == "R" and table == "sdm_dirty" and delta["schema_before"] is None
+                    and [c["name"] for c in delta["schema_after"]] == ["concepto", "marcado_en"]):
+                reject(table, "cambio de esquema no permitido", delta)
+                continue
+        if delta.get("pk_error"):
+            reject(table, "tabla autorizada sin PK estable", delta)
+            continue
+        if table == "log_busquedas":
+            columns = {c["name"] for c in (delta["schema_after"] or [])}
+            expected = {"id", "query", "resultados_count", "top_score", "creado_en", "util", "params_json", "conceptos_top"}
+            if not {"id", "query", "resultados_count", "creado_en"} <= columns or columns - expected:
+                reject(table, "esquema/campos de log_busquedas desconocidos", delta)
+            if delta["deleted"] or delta["updated"]:
+                reject(table, "log_busquedas solo admite INSERT de filas nuevas", delta)
+            for row in delta["inserted"]:
+                valid = (isinstance(row.get("id"), int) and row.get("id") > 0
+                         and isinstance(row.get("query"), str)
+                         and isinstance(row.get("resultados_count"), int)
+                         and not isinstance(row.get("resultados_count"), bool)
+                         and row.get("resultados_count") >= 0
+                         and (row.get("top_score") is None or _finite_number(row.get("top_score")))
+                         and _finite_number(row.get("creado_en")))
+                if "util" in row:
+                    valid = valid and row["util"] in (None, 0, 1)
+                if row.get("params_json") is not None:
+                    try:
+                        valid = valid and isinstance(json.loads(row["params_json"]), dict)
+                    except (TypeError, json.JSONDecodeError):
+                        valid = False
+                if "conceptos_top" in row:
+                    valid = valid and (row["conceptos_top"] is None or isinstance(row["conceptos_top"], str))
+                if not valid:
+                    reject(table, "fila de telemetría con campo/valor no permitido", row)
+        elif table == "nodo_accesos_historial":
+            columns = [c["name"] for c in (delta["schema_after"] or [])]
+            if columns != ["id", "concepto", "acceso_timestamp"]:
+                reject(table, "esquema/campos de historial de acceso no permitidos", delta)
+            if delta["updated"]:
+                reject(table, "historial de acceso es append/evicción, no UPDATE", delta)
+            inserted_concepts = {row.get("concepto") for row in delta["inserted"]}
+            if any(not isinstance(row.get("id"), int) or row.get("id") < 1
+                   or row.get("concepto") not in known or not _finite_number(row.get("acceso_timestamp"))
+                   for row in delta["inserted"]):
+                reject(table, "fila de acceso con concepto/timestamp inválido", delta["inserted"])
+            after_rows = (after.get(table) or {}).get("rows", [])
+            before_rows = (before.get(table) or {}).get("rows", [])
+            before_counts, after_counts = defaultdict(int), defaultdict(int)
+            inserted_counts, deleted_counts = defaultdict(int), defaultdict(int)
+            for row in before_rows:
+                before_counts[row.get("concepto")] += 1
+            for row in after_rows:
+                after_counts[row.get("concepto")] += 1
+            for row in delta["inserted"]:
+                inserted_counts[row.get("concepto")] += 1
+            for row in delta["deleted"]:
+                deleted_counts[row.get("concepto")] += 1
+            if any(row.get("concepto") not in inserted_concepts for row in delta["deleted"]):
+                reject(table, "evicción de historial sin nueva inserción del mismo concepto", delta["deleted"])
+            for concept in inserted_concepts:
+                expected_total = before_counts[concept] + inserted_counts[concept]
+                expected_deletes = max(0, expected_total - 10)
+                if deleted_counts[concept] != expected_deletes or after_counts[concept] != min(10, expected_total):
+                    reject(table, "evicción no coincide con el búfer de 10 accesos por concepto",
+                           {"concepto": concept, "before": before_counts[concept],
+                            "inserted": inserted_counts[concept], "deleted": deleted_counts[concept],
+                            "after": after_counts[concept], "expected_deleted": expected_deletes})
+            if any(count > 10 for count in after_counts.values()):
+                reject(table, "historial de acceso excede el límite de 10 por concepto", after_rows)
+        elif table == "sinapsis":
+            columns = {c["name"] for c in (delta["schema_after"] or [])}
+            expected = {"origen", "destino", "peso", "tipo", "creado_en", "ultimo_uso"}
+            if columns != expected:
+                reject(table, "esquema/campos de sinapsis cambiaron", delta)
+                continue
+            if delta["deleted"]:
+                reject(table, "ráfaga no tiene permiso para borrar filas sinápticas", delta["deleted"])
+            before_rows = (before.get(table) or {}).get("rows", [])
+            before_pairs = {frozenset((r["origen"], r["destino"])) for r in before_rows}
+            new_endpoints = set()
+            for row in delta["inserted"]:
+                pair = frozenset((row.get("origen"), row.get("destino")))
+                valid = (row.get("origen") in known and row.get("destino") in known
+                         and row.get("origen") != row.get("destino") and pair not in before_pairs
+                         and row.get("tipo") == "rafaga_rememb" and row.get("peso") == 0.6
+                         and _finite_number(row.get("creado_en")) and row.get("ultimo_uso") is None)
+                if not valid:
+                    reject(table, "INSERT sináptico no coincide con campos/valores de ráfaga", row)
+                new_endpoints.update((row.get("origen"), row.get("destino")))
+            old_by_pair = defaultdict(list)
+            for row in before_rows:
+                old_by_pair[frozenset((row["origen"], row["destino"]))].append(row)
+            updated_by_pair = defaultdict(list)
+            for item in delta["updated"]:
+                old, new = item["before"], item["after"]
+                changed_fields = set(item["fields_changed"])
+                pair = frozenset((old["origen"], old["destino"]))
+                if not changed_fields <= {"peso", "ultimo_uso"}:
+                    reject(table, "UPDATE sináptico alteró identidad/tipo/creado_en u otro campo", item)
+                    continue
+                if "peso" in changed_fields:
+                    try:
+                        expected_weights = {min(0.95, float(r["peso"]) + 0.1) for r in old_by_pair[pair]}
+                    except (TypeError, ValueError):
+                        expected_weights = set()
+                    if new.get("peso") not in expected_weights:
+                        reject(table, "UPDATE de peso no coincide con refuerzo de ráfaga (+0.1, tope 0.95)", item)
+                if "ultimo_uso" in changed_fields and not _finite_number(new.get("ultimo_uso")):
+                    reject(table, "ultimo_uso actualizado no es numérico finito", item)
+                updated_by_pair[pair].append(new)
+            for pair, rows in updated_by_pair.items():
+                if len({row.get("peso") for row in rows}) > 1:
+                    reject(table, "direcciones de un par reforzado terminaron con pesos distintos", rows)
+        elif table == "sdm_dirty":
+            columns = {c["name"] for c in (delta["schema_after"] or [])}
+            if columns != {"concepto", "marcado_en"}:
+                reject(table, "esquema/campos de sdm_dirty desconocidos", delta)
+            if delta["deleted"] or delta["updated"]:
+                reject(table, "sdm_dirty solo admite INSERT OR IGNORE", delta)
+            allowed_endpoints = {value for row in deltas.get("sinapsis", {}).get("inserted", [])
+                                 for value in (row.get("origen"), row.get("destino"))}
+            if any(row.get("concepto") not in allowed_endpoints or not _finite_number(row.get("marcado_en"))
+                   for row in delta["inserted"]):
+                reject(table, "sdm_dirty contiene filas sin arista nueva o timestamp válido", delta["inserted"])
+    return {"valid": not violations, "violations": violations,
+            "changes": _safe_json(deltas)}
+
+
+def _finite_number(value) -> bool:
+    return isinstance(value, (int, float)) and not isinstance(value, bool) and math.isfinite(float(value))
+
+
 async def prepare_fixture(db_path: Path, temp_root: Path, episodes: list[dict], gold_path: Path) -> dict:
     """Arma fixture MCP; toda llamada queda persistida antes de propagar un fallo."""
     db_path = _inside(db_path, temp_root, "DB de fixture")
@@ -487,9 +794,12 @@ async def prepare_fixture(db_path: Path, temp_root: Path, episodes: list[dict], 
     temp_root.mkdir(parents=True, exist_ok=True)
     db_path.parent.mkdir(parents=True, exist_ok=True)
     evidence_root = db_path.parent / (db_path.name + ".evidence")
+    construction_id = uuid.uuid4().hex
+    gold_sha = file_sha256(gold_path)
     persist_evidence(evidence_root, "run_manifest", {
-        "phase": "fixture_preparation", "gold_sha256": file_sha256(gold_path),
-        "fixture_path": str(db_path), "evidence_root": str(evidence_root),
+        "phase": "fixture_preparation", "construction_id": construction_id,
+        "gold_sha256": gold_sha, "fixture_path": str(db_path),
+        "evidence_root": str(evidence_root), "mcp_session_created_for_this_build": True,
     })
     sqlite3.connect(db_path).close()
     mcp = MCPProcess(db_path, temp_root)
@@ -529,7 +839,8 @@ async def prepare_fixture(db_path: Path, temp_root: Path, episodes: list[dict], 
         changed = sorted(k for k in set(before_tables) | set(after_tables)
                          if before_tables.get(k) != after_tables.get(k))
         event = {
-            "sequence": len(events) + 1, "label": label, "tool": tool, "arguments": args,
+            "construction_id": construction_id, "sequence": len(events) + 1,
+            "label": label, "tool": tool, "arguments": args,
             "raw_response": raw, "parsed_response": parsed, "call_errors": call_errors,
             "tables_sha256_before": before_tables, "tables_sha256_after": after_tables,
             "tables_changed": changed, "graph_before": _graph_cut(before_graph),
@@ -605,7 +916,9 @@ async def prepare_fixture(db_path: Path, temp_root: Path, episodes: list[dict], 
     audit_sha = hashlib.sha256(_canonical(audit).encode("utf-8")).hexdigest()
     report = {
         "estado": "requiere_revision_gold" if audit["bloqueos_congelacion"] else "listo_para_auditoria_humana",
-        "gold_file": str(gold_path.resolve()), "gold_sha256": file_sha256(gold_path),
+        "gold_file": str(gold_path.resolve()), "gold_sha256": gold_sha,
+        "fixture_path": str(db_path), "construction_id": construction_id,
+        "fixture_sha256": graph["sha256_fixture_logica"],
         "name_preflight": names, "fixture": graph, "graph_audit": audit,
         "graph_audit_sha256": audit_sha, "fixture_events": events,
         "evidence_root": str(evidence_root), "baseline_searches_run": 0,
@@ -670,6 +983,14 @@ async def measure_baseline(fixture_path: Path, temp_root: Path, episodes: list[d
     approval = json.loads(approval_path.read_text(encoding="utf-8"))
     repeatability = json.loads(repeatability_path.read_text(encoding="utf-8"))
     repeatability["_file_sha256"] = file_sha256(repeatability_path)
+    if repeatability.get("mode") != "REPEATABLE_PAIR" or len(repeatability.get("build_evidence", [])) != 2:
+        raise ValueError("No hay dos construcciones independientes para verificar")
+    second_fixture_path = _inside(Path(repeatability["build_evidence"][1]["fixture_path"]),
+                                  temp_root, "segunda fixture de repetibilidad")
+    recomputed_repeatability = audit_repeatability(fixture_path, second_fixture_path, temp_root)
+    supplied_repeatability = {key: value for key, value in repeatability.items() if key != "_file_sha256"}
+    if _canonical(supplied_repeatability) != _canonical(recomputed_repeatability):
+        raise ValueError("El informe de repetibilidad no coincide con dos fixtures/ledgers actuales")
     validate_freeze_approval(approval, gold_sha, fixture_sha, revision_closure,
                              graph_review_sha, repeatability)
     known = set(graph["nodos"])
@@ -709,6 +1030,7 @@ async def measure_baseline(fixture_path: Path, temp_root: Path, episodes: list[d
                     if snapshot_sha256(db_path) != fixture_sha:
                         raise RuntimeError("La copia de consulta no coincide con el hash congelado")
                     before_tables = readonly_snapshot(db_path)
+                    before_rows = snapshot_table_rows(db_path, run_root)
                     before_graph = inspect_fixture(db_path, run_root)
                     if arm == "R":
                         require_all_active(before_graph, known)
@@ -720,6 +1042,9 @@ async def measure_baseline(fixture_path: Path, temp_root: Path, episodes: list[d
                     persist_evidence(attempt_dir, "before", {
                         "arm": arm, "episode_id": episode["episode_id"], "query_id": query["query_id"],
                         "arguments": args, "tables_sha256": before_tables, "graph": _graph_cut(before_graph),
+                        "row_snapshot_schema_counts": {table: {"columns": [c["name"] for c in state["schema"]],
+                                                               "rows": len(state["rows"])}
+                                                        for table, state in before_rows.items()},
                         "db_path": str(db_path),
                     })
                     call_started = time.perf_counter()
@@ -733,11 +1058,12 @@ async def measure_baseline(fixture_path: Path, temp_root: Path, episodes: list[d
                         "latency_ms": latency_ms, "output_bytes": output_bytes,
                     })
                     after_tables = readonly_snapshot(db_path)
+                    after_rows = snapshot_table_rows(db_path, run_root)
                     after_graph = inspect_fixture(db_path, run_root)
                     changed_tables = sorted(t for t in set(before_tables) | set(after_tables)
                                             if before_tables.get(t) != after_tables.get(t))
-                    allowed = BURST_WRITES if arm == "R" else READ_WRITES
-                    unexpected = sorted(set(changed_tables) - allowed)
+                    row_audit = validate_row_field_changes(before_rows, after_rows, arm, known)
+                    unexpected = [f"{item['table']}:{item['reason']}" for item in row_audit["violations"]]
                     edge_changes = _edge_diff(before_graph, after_graph)
                     state_changes = [{"concepto": c, "antes": before_graph["nodos"].get(c),
                                       "despues": after_graph["nodos"].get(c)}
@@ -752,6 +1078,7 @@ async def measure_baseline(fixture_path: Path, temp_root: Path, episodes: list[d
                     diff_record = {
                         "query_id": query["query_id"], "tables_changed": changed_tables,
                         "unexpected_tables": sorted(set(unexpected)), "edge_diff": edge_changes,
+                        "row_field_audit": row_audit,
                         "state_diff": state_changes,
                         "mirror_before": before_graph["divergencias_espejo"],
                         "mirror_after": after_graph["divergencias_espejo"],
@@ -764,6 +1091,7 @@ async def measure_baseline(fixture_path: Path, temp_root: Path, episodes: list[d
                     transitions[arm].append({"query_id": query["query_id"], "tablas_cambiadas": changed_tables,
                                              "tablas_inesperadas": sorted(set(unexpected)),
                                              "aristas": edge_changes, "estado": state_changes,
+                                             "row_field_audit": row_audit,
                                              "divergencias_espejo_antes": before_graph["divergencias_espejo"],
                                              "divergencias_espejo_despues": after_graph["divergencias_espejo"],
                                              "evidence_dir": str(attempt_dir)})
@@ -862,7 +1190,7 @@ def main() -> int:
     measure.add_argument("--temp-root", type=Path, required=True)
     measure.add_argument("--aprobacion", type=Path, required=True)
     measure.add_argument("--repetibilidad", type=Path, required=True,
-                         help="Informe externo de dos fixtures idénticas o de scope materializado aprobado")
+                         help="Informe externo con hashes y ledgers de dos construcciones MCP independientes")
     measure.add_argument("--salida", type=Path, required=True)
     measure.add_argument("--ejecutar-linea-base", action="store_true")
     compare = sub.add_parser("comparar", help="Compara repetibilidad entre dos fixtures ya construidas")
@@ -886,9 +1214,11 @@ def main() -> int:
             raise ValueError("Informe de repetibilidad debe guardarse fuera del repositorio")
         out.parent.mkdir(parents=True, exist_ok=True)
         out.write_text(serialize_report(result), encoding="utf-8")
-        print(json.dumps({"mode": result["mode"], "identical_structural": result["identical_structural"],
+        print(json.dumps({"mode": result["mode"],
+                          "independent_builds_verified": result["independent_builds_verified"],
+                          "identical_structural": result["identical_structural"],
                           "salida": str(out)}, ensure_ascii=False))
-        return 0 if result["identical_structural"] else 2
+        return 0 if result["independent_builds_verified"] and result["identical_structural"] else 2
     if not args.ejecutar_linea_base:
         parser.error("Medición NO ejecutada: requiere --ejecutar-linea-base y manifiesto aprobado")
     episodes = __import__("scripts.evaluar_qa_intuicion_asociaciones_e1", fromlist=["load_gold"]).load_gold(args.gold)
