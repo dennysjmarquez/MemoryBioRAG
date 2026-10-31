@@ -337,6 +337,34 @@ def test_repeatability_rejects_same_build_id_even_if_db_paths_differ(tmp_path, m
     assert result["mode"] == "UNVERIFIED"
 
 
+def test_inspection_guard_accepts_fixture_copy_under_run_root_and_rejects_external_path(tmp_path, monkeypatch):
+    import shutil
+    import sqlite3
+
+    temp_root = tmp_path / "qa-temp"
+    temp_root.mkdir()
+    monkeypatch.setenv("BIORAG_QA_TEMP_ROOT", str(temp_root))
+
+    source = temp_root / "fixture.sqlite"
+    with sqlite3.connect(source) as con:
+        con.execute("CREATE TABLE sample (id INTEGER PRIMARY KEY, value TEXT)")
+        con.execute("INSERT INTO sample VALUES (1, 'isolated')")
+    run_root = temp_root / "execution-001"
+    fixture_copy = run_root / "db" / "R" / "fixture.sqlite"
+    fixture_copy.parent.mkdir(parents=True)
+    shutil.copy2(source, fixture_copy)
+
+    # Se llama al inspector real y se pasa el run_root, no un mock de la guarda.
+    snapshot = harness.snapshot_table_rows(fixture_copy, run_root)
+    assert snapshot["sample"]["rows"] == [{"id": 1, "value": "isolated"}]
+
+    external = tmp_path / "outside.sqlite"
+    with sqlite3.connect(external) as con:
+        con.execute("CREATE TABLE sample (id INTEGER PRIMARY KEY, value TEXT)")
+    with pytest.raises(ValueError, match="fuera de BIORAG_QA_TEMP_ROOT"):
+        harness.snapshot_table_rows(external, run_root)
+
+
 def test_R_row_policy_accepts_only_weight_and_last_use_reforcement():
     before = _fixture_rows()
     after = copy.deepcopy(before)

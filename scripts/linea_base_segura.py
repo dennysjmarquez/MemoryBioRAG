@@ -59,12 +59,17 @@ def _canonical(value) -> str:
 
 
 def _safe_temp_root(root: Path) -> Path:
-    root = root.resolve()
     configured = os.environ.get("BIORAG_QA_TEMP_ROOT")
-    if not configured or Path(configured).resolve() != root:
-        raise RuntimeError("--temp-root debe coincidir con BIORAG_QA_TEMP_ROOT explícito")
-    if root == ROOT or root in ROOT.parents or ROOT in root.parents:
+    if not configured:
+        raise RuntimeError("BIORAG_QA_TEMP_ROOT debe configurarse explícitamente")
+    configured_root = Path(configured).resolve()
+    if configured_root == ROOT or configured_root in ROOT.parents or ROOT in configured_root.parents:
         raise RuntimeError("BIORAG_QA_TEMP_ROOT debe estar fuera del repositorio y sus directorios padre")
+    root = root.resolve()
+    try:
+        root.relative_to(configured_root)
+    except ValueError as exc:
+        raise RuntimeError("--temp-root debe estar dentro de BIORAG_QA_TEMP_ROOT") from exc
     return root
 
 
