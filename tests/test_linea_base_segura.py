@@ -573,3 +573,131 @@ def test_prepare_fixture_sends_empty_dimensions_for_mcp_required_argument(tmp_pa
     learn_call = next(args for name, args in calls if name == "aprender")
     assert learn_call["dimensiones"] == "{}"
     assert report["baseline_searches_run"] == 0
+
+
+def _synthetic_gold_manifest_data(gold_path, gold_sha):
+    return {
+        "schema": "synthetic_gold_manifest_v1",
+        "provenance": "synthetic",
+        "gold_path": str(gold_path.resolve()),
+        "gold_sha256": gold_sha,
+        "original_gold_read": False,
+    }
+
+
+def test_synthetic_gold_manifest_rejects_external_paths_and_hash_mismatch(tmp_path, monkeypatch):
+    temp_root = tmp_path / "qa-temp"
+    temp_root.mkdir()
+    monkeypatch.setenv("BIORAG_QA_TEMP_ROOT", str(temp_root))
+    gold_path = temp_root / "synthetic.jsonl"
+    gold_path.write_text('{"episode_id":"synthetic_1"}\n', encoding="utf-8")
+    gold_sha = file_sha256(gold_path)
+    manifest_path = temp_root / "synthetic_manifest.json"
+    manifest_path.write_text(json.dumps(_synthetic_gold_manifest_data(gold_path, gold_sha)), encoding="utf-8")
+
+    manifest, manifest_sha = harness.validate_synthetic_gold_manifest(manifest_path, gold_path, temp_root)
+    assert manifest["provenance"] == "synthetic"
+    assert manifest_sha == file_sha256(manifest_path)
+
+    external_gold = tmp_path / "outside.jsonl"
+    external_gold.write_text("{}\n", encoding="utf-8")
+    with pytest.raises(ValueError, match="fuera de BIORAG_QA_TEMP_ROOT"):
+        harness.validate_synthetic_gold_manifest(manifest_path, external_gold, temp_root)
+    with pytest.raises(ValueError, match="fuera de BIORAG_QA_TEMP_ROOT"):
+        harness.validate_synthetic_gold_manifest(tmp_path / "outside-manifest.json", gold_path, temp_root)
+
+    wrong = _synthetic_gold_manifest_data(gold_path, "0" * 64)
+    manifest_path.write_text(json.dumps(wrong), encoding="utf-8")
+    with pytest.raises(ValueError, match="Ruta/hash de gold"):
+        harness.validate_synthetic_gold_manifest(manifest_path, gold_path, temp_root)
+    wrong = _synthetic_gold_manifest_data(gold_path, gold_sha)
+    wrong["source_gold_sha256"] = harness.BASE_GOLD_SHA256
+    manifest_path.write_text(json.dumps(wrong), encoding="utf-8")
+    with pytest.raises(ValueError, match="no puede declarar linaje"):
+        harness.validate_synthetic_gold_manifest(manifest_path, gold_path, temp_root)
+
+
+def test_synthetic_approval_is_bound_to_manifest_gold_fixture_graph_and_ledgers():
+    gold_sha, fixture_sha, graph_sha = "a" * 64, "b" * 64, "c" * 64
+    manifest_sha, repeat_sha = "d" * 64, "e" * 64
+    repeatability = _repeatability(fixture_sha, gold_sha, repeat_sha)
+    # In-memory test vector only; it is not saved as an operational approval and starts no arm.
+    approval = {
+        "schema": "synthetic_freeze_approval_v1", "gold_mode": "synthetic_smoke",
+        "estado": "APROBADO", "aprobado_por": "Dennys",
+        "synthetic_gold_manifest_sha256": manifest_sha,
+        "gold_sha256": gold_sha, "fixture_sha256": fixture_sha,
+        "graph_review_sha256": graph_sha, "repeatability_report_sha256": repeat_sha,
+        "arms": sorted(ARMS), "wake_W_included": False,
+    }
+    harness.validate_synthetic_freeze_approval(
+        approval, gold_sha, fixture_sha, graph_sha, repeatability, manifest_sha)
+
+    changed = copy.deepcopy(approval)
+    changed["synthetic_gold_manifest_sha256"] = "f" * 64
+    with pytest.raises(ValueError, match="hash del manifiesto"):
+        harness.validate_synthetic_freeze_approval(
+            changed, gold_sha, fixture_sha, graph_sha, repeatability, manifest_sha)
+    changed = copy.deepcopy(approval)
+    changed["gold_sha256"] = "f" * 64
+    with pytest.raises(ValueError, match="Hashes de gold/fixture"):
+        harness.validate_synthetic_freeze_approval(
+            changed, gold_sha, fixture_sha, graph_sha, repeatability, manifest_sha)
+    changed = copy.deepcopy(approval)
+    changed["fixture_sha256"] = "f" * 64
+    with pytest.raises(ValueError, match="Hashes de gold/fixture"):
+        harness.validate_synthetic_freeze_approval(
+            changed, gold_sha, fixture_sha, graph_sha, repeatability, manifest_sha)
+    changed = copy.deepcopy(approval)
+    changed["graph_review_sha256"] = "f" * 64
+    with pytest.raises(ValueError, match="hash de auditoría del grafo recalculado"):
+        harness.validate_synthetic_freeze_approval(
+            changed, gold_sha, fixture_sha, graph_sha, repeatability, manifest_sha)
+    changed = copy.deepcopy(approval)
+    changed["repeatability_report_sha256"] = "f" * 64
+    with pytest.raises(ValueError, match="freeze manifest"):
+        harness.validate_synthetic_freeze_approval(
+            changed, gold_sha, fixture_sha, graph_sha, repeatability, manifest_sha)
+    changed_repeatability = copy.deepcopy(repeatability)
+    changed_repeatability["build_evidence"][0]["events_sha256"] = ""
+    with pytest.raises(ValueError, match="Evidencia de construcción incompleta"):
+        harness.validate_synthetic_freeze_approval(
+            approval, gold_sha, fixture_sha, graph_sha, changed_repeatability, manifest_sha)
+
+
+def test_synthetic_measurement_without_approval_stops_before_any_arm(tmp_path, monkeypatch):
+    temp_root = tmp_path / "qa-temp"
+    temp_root.mkdir()
+    monkeypatch.setenv("BIORAG_QA_TEMP_ROOT", str(temp_root))
+    gold_path = temp_root / "synthetic.jsonl"
+    gold_path.write_text('{"episode_id":"synthetic_1"}\n', encoding="utf-8")
+    gold_sha = file_sha256(gold_path)
+    synthetic_manifest = temp_root / "synthetic_manifest.json"
+    synthetic_manifest.write_text(json.dumps(_synthetic_gold_manifest_data(gold_path, gold_sha)), encoding="utf-8")
+    fixture_path = temp_root / "build-a.sqlite"
+    approval_path = temp_root / "approval_missing.json"
+    repeatability_path = temp_root / "repeatability.json"
+    arms_started = []
+    monkeypatch.setattr(harness, "guarded_mcp_call", lambda *args, **kwargs: arms_started.append(args))
+
+    with pytest.raises(ValueError, match="fuera de BIORAG_QA_TEMP_ROOT"):
+        asyncio.run(harness.measure_baseline(
+            tmp_path / "external_fixture.sqlite", temp_root, [], gold_path, approval_path, repeatability_path,
+            temp_root / "report.json", gold_mode="synthetic_smoke",
+            synthetic_manifest_path=synthetic_manifest))
+    with pytest.raises(ValueError, match="fuera de BIORAG_QA_TEMP_ROOT"):
+        asyncio.run(harness.measure_baseline(
+            fixture_path, temp_root, [], gold_path, tmp_path / "external_approval.json", repeatability_path,
+            temp_root / "report.json", gold_mode="synthetic_smoke",
+            synthetic_manifest_path=synthetic_manifest))
+    with pytest.raises(ValueError, match="fuera de BIORAG_QA_TEMP_ROOT"):
+        asyncio.run(harness.measure_baseline(
+            fixture_path, temp_root, [], gold_path, approval_path, tmp_path / "external_repeatability.json",
+            temp_root / "report.json", gold_mode="synthetic_smoke",
+            synthetic_manifest_path=synthetic_manifest))
+    with pytest.raises(PermissionError, match="ningún brazo synthetic_smoke se inició"):
+        asyncio.run(harness.measure_baseline(
+            fixture_path, temp_root, [], gold_path, approval_path, repeatability_path,
+            temp_root / "report.json", gold_mode="synthetic_smoke",
+            synthetic_manifest_path=synthetic_manifest))
+    assert arms_started == []

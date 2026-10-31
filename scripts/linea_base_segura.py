@@ -437,6 +437,43 @@ def audit_repeatability(first_path: Path, second_path: Path, temp_root: Path) ->
     }
 
 
+def validate_synthetic_gold_manifest(manifest_path: Path, gold_path: Path,
+                                      temp_root: Path) -> tuple[dict, str]:
+    """Valida procedencia sintética autocontenida; nunca la trata como revisión del gold base."""
+    manifest_path = _inside(manifest_path, temp_root, "manifiesto de gold sintético")
+    gold_path = _inside(gold_path, temp_root, "gold sintético")
+    if gold_path.resolve() == GOLD.resolve():
+        raise ValueError("El modo synthetic_smoke no acepta el gold original")
+    if not manifest_path.is_file() or not gold_path.is_file():
+        raise FileNotFoundError("Falta gold sintético o su manifiesto dentro del temporal")
+    manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+    gold_sha = file_sha256(gold_path)
+    if (manifest.get("schema") != "synthetic_gold_manifest_v1"
+            or manifest.get("provenance") != "synthetic"
+            or manifest.get("original_gold_read") is not False):
+        raise ValueError("Manifiesto synthetic_smoke debe declarar origen sintético y original_gold_read=false")
+    if "source_sha256" in manifest or "source_gold_sha256" in manifest or manifest.get("derived_from_original"):
+        raise ValueError("Gold sintético no puede declarar linaje del gold original")
+    if (Path(manifest.get("gold_path", "")).resolve() != gold_path.resolve()
+            or manifest.get("gold_sha256") != gold_sha):
+        raise ValueError("Ruta/hash de gold no coincide con el manifiesto sintético")
+    return manifest, file_sha256(manifest_path)
+
+
+def validate_synthetic_freeze_approval(approval: dict, gold_sha: str, fixture_sha: str,
+                                      graph_review_sha256: str, repeatability_report: dict,
+                                      synthetic_gold_manifest_sha256: str) -> None:
+    """Gate aislado: aprobación humana posterior ligada a los hashes sintéticos exactos."""
+    if approval.get("schema") != "synthetic_freeze_approval_v1":
+        raise PermissionError("Falta aprobación humana synthetic_smoke con esquema explícito")
+    if approval.get("gold_mode") != "synthetic_smoke":
+        raise PermissionError("La aprobación no autoriza explícitamente synthetic_smoke")
+    if approval.get("synthetic_gold_manifest_sha256") != synthetic_gold_manifest_sha256:
+        raise ValueError("La aprobación no fija el hash del manifiesto de gold sintético")
+    validate_freeze_approval(approval, gold_sha, fixture_sha, None,
+                             graph_review_sha256, repeatability_report)
+
+
 def validate_freeze_approval(manifest: dict, gold_sha: str, fixture_sha: str,
                              revision_closure: dict | None = None,
                              graph_review_sha256: str | None = None,
@@ -957,8 +994,23 @@ def _result_row(episode: dict, query: dict, response: dict, raw: str, known: set
 
 
 async def measure_baseline(fixture_path: Path, temp_root: Path, episodes: list[dict], gold_path: Path,
-                           approval_path: Path, repeatability_path: Path, output_path: Path) -> dict:
+                           approval_path: Path, repeatability_path: Path, output_path: Path, *,
+                           gold_mode: str = "original", synthetic_manifest_path: Path | None = None) -> dict:
+    if gold_mode not in {"original", "synthetic_smoke"}:
+        raise ValueError("gold_mode debe ser original o synthetic_smoke")
     fixture_path = _inside(fixture_path, temp_root, "fixture congelada")
+    synthetic_gold_manifest = None
+    synthetic_gold_manifest_sha256 = None
+    if gold_mode == "synthetic_smoke":
+        gold_path = _inside(gold_path, temp_root, "gold sintético")
+        approval_path = _inside(approval_path, temp_root, "aprobación synthetic_smoke")
+        repeatability_path = _inside(repeatability_path, temp_root, "repetibilidad synthetic_smoke")
+        if synthetic_manifest_path is None:
+            raise ValueError("synthetic_smoke requiere --synthetic-manifest explícito")
+        synthetic_gold_manifest, synthetic_gold_manifest_sha256 = validate_synthetic_gold_manifest(
+            synthetic_manifest_path, gold_path, temp_root)
+        if not approval_path.is_file():
+            raise PermissionError("Falta aprobación real de Dennys; ningún brazo synthetic_smoke se inició")
     output_path = output_path.resolve()
     try:
         output_path.relative_to(ROOT)
@@ -973,19 +1025,22 @@ async def measure_baseline(fixture_path: Path, temp_root: Path, episodes: list[d
         raise RuntimeError(f"Fixture no pasa preflight estructural: {preflight['bloqueos_congelacion']}")
     graph_review_sha = hashlib.sha256(_canonical(preflight).encode("utf-8")).hexdigest()
     gold_sha = file_sha256(gold_path)
-    revision_manifest_path = gold_path.with_suffix(gold_path.suffix + ".revision.json")
     revision_closure = None
-    if gold_sha != BASE_GOLD_SHA256:
-        if not revision_manifest_path.exists():
-            raise ValueError("Gold distinto de la versión base requiere ledger de revisión versionado")
-        closure_path = revision_manifest_path.with_suffix(".closed.json")
-        if not closure_path.exists():
-            raise PermissionError("La revisión de gold no está cerrada antes de búsquedas")
-        revision_closure = json.loads(closure_path.read_text(encoding="utf-8"))
-        revision = json.loads(revision_manifest_path.read_text(encoding="utf-8"))
-        if revision.get("revised_sha256") != gold_sha or revision_closure.get("revision_manifest_sha256") != file_sha256(revision_manifest_path):
-            raise ValueError("Hashes del ledger/cierre no corresponden al gold medido")
-        revision_closure["_file_sha256"] = file_sha256(closure_path)
+    if gold_mode == "original":
+        revision_manifest_path = gold_path.with_suffix(gold_path.suffix + ".revision.json")
+        if gold_sha != BASE_GOLD_SHA256:
+            if not revision_manifest_path.exists():
+                raise ValueError("Gold distinto de la versión base requiere ledger de revisión versionado")
+            closure_path = revision_manifest_path.with_suffix(".closed.json")
+            if not closure_path.exists():
+                raise PermissionError("La revisión de gold no está cerrada antes de búsquedas")
+            revision_closure = json.loads(closure_path.read_text(encoding="utf-8"))
+            revision = json.loads(revision_manifest_path.read_text(encoding="utf-8"))
+            if revision.get("revised_sha256") != gold_sha or revision_closure.get("revision_manifest_sha256") != file_sha256(revision_manifest_path):
+                raise ValueError("Hashes del ledger/cierre no corresponden al gold medido")
+            revision_closure["_file_sha256"] = file_sha256(closure_path)
+    elif synthetic_gold_manifest.get("gold_sha256") != gold_sha:
+        raise ValueError("El gold sintético cambió después de validar su manifiesto")
     fixture_sha = graph["sha256_fixture_logica"]
     approval = json.loads(approval_path.read_text(encoding="utf-8"))
     repeatability = json.loads(repeatability_path.read_text(encoding="utf-8"))
@@ -998,8 +1053,13 @@ async def measure_baseline(fixture_path: Path, temp_root: Path, episodes: list[d
     supplied_repeatability = {key: value for key, value in repeatability.items() if key != "_file_sha256"}
     if _canonical(supplied_repeatability) != _canonical(recomputed_repeatability):
         raise ValueError("El informe de repetibilidad no coincide con dos fixtures/ledgers actuales")
-    validate_freeze_approval(approval, gold_sha, fixture_sha, revision_closure,
-                             graph_review_sha, repeatability)
+    if gold_mode == "synthetic_smoke":
+        validate_synthetic_freeze_approval(approval, gold_sha, fixture_sha,
+                                           graph_review_sha, repeatability,
+                                           synthetic_gold_manifest_sha256)
+    else:
+        validate_freeze_approval(approval, gold_sha, fixture_sha, revision_closure,
+                                 graph_review_sha, repeatability)
     known = set(graph["nodos"])
     if known != {n["concepto"] for ep in episodes for n in ep["nodos"]}:
         raise RuntimeError("La fixture congelada contiene nodos extra/faltantes")
@@ -1193,6 +1253,9 @@ def main() -> int:
     prep.add_argument("--ejecutar-preparacion", action="store_true")
     measure = sub.add_parser("medir", help="Ejecuta N/G/R solo con freeze manifest aprobado por Dennys")
     measure.add_argument("--gold", type=Path, default=GOLD)
+    measure.add_argument("--gold-mode", choices=("original", "synthetic_smoke"), default="original")
+    measure.add_argument("--synthetic-manifest", type=Path,
+                         help="Manifiesto de procedencia sintética requerido por --gold-mode synthetic_smoke")
     measure.add_argument("--fixture", type=Path, required=True)
     measure.add_argument("--temp-root", type=Path, required=True)
     measure.add_argument("--aprobacion", type=Path, required=True)
@@ -1228,9 +1291,16 @@ def main() -> int:
         return 0 if result["independent_builds_verified"] and result["identical_structural"] else 2
     if not args.ejecutar_linea_base:
         parser.error("Medición NO ejecutada: requiere --ejecutar-linea-base y manifiesto aprobado")
-    episodes = __import__("scripts.evaluar_qa_intuicion_asociaciones_e1", fromlist=["load_gold"]).load_gold(args.gold)
-    report = asyncio.run(measure_baseline(args.fixture, args.temp_root, episodes, args.gold,
-                                         args.aprobacion, args.repetibilidad, args.salida))
+    gold_path = args.gold
+    if args.gold_mode == "synthetic_smoke":
+        gold_path = _inside(gold_path, args.temp_root, "gold sintético")
+        if args.synthetic_manifest is None:
+            parser.error("--gold-mode synthetic_smoke requiere --synthetic-manifest explícito")
+    episodes = __import__("scripts.evaluar_qa_intuicion_asociaciones_e1", fromlist=["load_gold"]).load_gold(gold_path)
+    report = asyncio.run(measure_baseline(args.fixture, args.temp_root, episodes, gold_path,
+                                         args.aprobacion, args.repetibilidad, args.salida,
+                                         gold_mode=args.gold_mode,
+                                         synthetic_manifest_path=args.synthetic_manifest))
     print(json.dumps({"estado": report["estado"], "conteo": report["conteo"], "salida": str(args.salida)}, ensure_ascii=False))
     return 2 if report["invalidaciones"] else 0
 
