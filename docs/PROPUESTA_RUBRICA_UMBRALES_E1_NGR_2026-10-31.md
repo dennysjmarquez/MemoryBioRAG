@@ -1,79 +1,112 @@
-# Propuesta de rúbrica y criterios/umbrales para E1 N/G/R
+# Propuesta revisada: rúbrica, trayectorias y umbrales para E1 N/G/R
 
-**Estado:** propuesta para revisión y aprobación de Dennys. No modifica ni cierra el gold, no aprueba operativamente los umbrales y no autoriza preparar fixtures o ejecutar la campaña.
+**Estado:** propuesta para revisión de Dennys. No modifica ni cierra el gold, no aprueba operativamente los umbrales y no autoriza preparar fixtures o ejecutar la campaña.
 
-La aprobación de `e302fcd` es aprobación del **plan**, no autorización de ejecución. Esta propuesta desarrolla la rúbrica previa requerida para una futura campaña E1 completa: 88 episodios y 224 consultas, no un smoke. El smoke sintético de una consulta no cuenta como gold de evaluación ni como validación de estas etiquetas.
+La aprobación de `e302fcd` es aprobación del **plan**, no autorización de ejecución. E1 es la campaña completa de 88 episodios/224 consultas; no es un smoke. El smoke sintético de una consulta no es gold de evaluación ni valida estas etiquetas.
 
 ## 1. Principios de evaluación
 
-1. **El objetivo y las pistas útiles son etiquetas distintas.** Objetivo es lo que responde directamente a la pregunta/decisión. Pista útil aporta una conexión defendible que ayuda a decidir, diagnosticar, recordar una condición, avanzar una acción o ampliar de forma pertinente la solución; no tiene que ser la respuesta literal.
-2. **El ruido útil no se mata.** No llamar ruido a un recuerdo por ser no literal, indirecto, de otro tipo, de menor peso, de baja coincidencia léxica, o por aparecer en una arista/contexto en vez de `resultados`. El grafo puede motivar revisar una relación, pero no decide su etiqueta semántica.
-3. **Ruido tonto requiere evidencia positiva de irrelevancia o daño.** Solo etiquetar así un recuerdo que no ayude a la tarea y sea distractor, contradictorio o engañoso. Si es relacionado pero no aporta una acción o inferencia clara, usar `neutral/contexto`, no `ruido_tonto`. Si no hay base para decidir, usar `no_adjudicado`, nunca completar el vacío como ruido.
-4. **No perder recall por afinar precisión.** No filtrar ni eliminar recuerdos/asociaciones. Medir recall de objetivos y recall de pistas por separado, en todos los canales pertinentes. Una pista útil visible pero no literal no es falso positivo del objetivo ni ruido; es una recuperación útil en una categoría aparte.
-5. Etiquetar la relación **para cada consulta concreta**: el mismo recuerdo puede ser objetivo para una consulta, pista útil para otra y neutral o irrelevante para una tercera. La mera presencia en el mismo episodio no basta.
+1. **Objetivo y pista útil son distintos.** El objetivo responde directamente a la pregunta/decisión. Una pista puede ser indirecta, inesperada o no útil de inmediato y aun así orientar una búsqueda posterior o contribuir a llegar al recuerdo objetivo.
+2. **El ruido útil no se mata.** No llamar ruido a un recuerdo por ser no literal, indirecto, de otro tipo, de menor peso, de baja coincidencia léxica, por no llevar directamente al objetivo ni por aparecer en contexto/asociaciones en vez de `resultados`. No filtrar, borrar, ocultar ni cortar conexiones para mejorar una métrica.
+3. **Ruido tonto requiere evidencia positiva de irrelevancia o daño.** Una pista no se vuelve ruido por no haber sido seguida, por no producir una respuesta inmediata o porque la trayectoria acabó antes de probar su valor. Si está relacionada pero su aporte no se confirma, clasificarla como neutral/potencial/no atribuible, no como ruido.
+4. **No convertir la evaluación en una carrera por recuperar más candidatos.** Separar recuperación de objetivo, descubrimiento de pistas, uso de pistas, resultado final y coste de llamadas. Más búsquedas o más asociaciones visibles no equivalen por sí solas a mejora.
+5. Etiquetar la relación por **consulta y por trayectoria**: un recuerdo puede ser objetivo para una pregunta, puente para una búsqueda posterior, útil tardío para el resultado final o neutral para otra pregunta. La mera pertenencia al episodio o al grafo no basta.
 
-## 2. Rúbrica por recuerdo y consulta
+## 2. Rúbrica semántica: recuerdo, pista y ruido
 
-La anotación semántica se hace viendo la consulta y el texto íntegro del recuerdo; no se muestran tipo, peso, dirección de arista, ranking, score, canal MCP ni brazo. El grafo solo se audita después, por separado, para contrastar afirmaciones estructurales de ruta.
+La anotación se hace sobre la pregunta/tarea y el texto íntegro del recuerdo; no se muestran a los anotadores tipo, peso, dirección de arista, score, ranking, canal MCP ni brazo. Una pista que emerge durante la cadena se evalúa con el historial completo, no solo contra la pregunta inicial.
 
-| Etiqueta primaria | Criterio operativo | No basta para asignarla |
+| Etiqueta | Criterio operativo | No basta para asignarla |
 |---|---|---|
-| **`objetivo`** | El contenido responde directamente a la pregunta o necesidad y sostiene la decisión/acción pedida. Registrar fragmento de evidencia y una justificación de una frase. | Compartir palabras, pertenecer al episodio o ser el nodo nombrado por la ruta.
-| **`pista_util`** | No reemplaza la respuesta principal, pero añade una relación concreta, condición, comprobación, causa, cautela, paso intermedio o dato no obvio que mejora la resolución o una acción válida. Puede ser serendípica si la conexión se explica con evidencia del contenido. | No literalidad, distancia de grafo, tipo/peso de sinapsis ni una asociación sin beneficio explicado.
-| **`neutral_contexto`** | Tiene relación temática o contextual defendible, pero no cambia ni facilita claramente la respuesta/acción para esta consulta. No es falso positivo útil ni ruido dañino. | No debe forzarse a útil o ruido para completar categorías.
-| **`ruido_tonto`** | Es irrelevante respecto de la tarea, o introduce una inferencia/acción falsa, contradictoria o distractora con riesgo de desviar. Registrar qué parte resulta irrelevante o engañosa y por qué. | No ser objetivo, aparecer por un vínculo, tener menor score/peso o ser una asociación indirecta.
-| **`no_adjudicado`** | Evidencia insuficiente, ambigua o desacuerdo todavía no resuelto. Excluirlo de métricas de categoría hasta adjudicarlo. | Un array vacío o la ausencia de comentario no equivalen a “ninguno” ni a ruido.
+| **`objetivo`** | El recuerdo responde directamente a la necesidad actual o contiene la evidencia que permite responder. Registrar fragmento probatorio y justificación. | Compartir palabras, pertenecer al episodio o ser el nodo nombrado por una ruta.
+| **`pista_util`** | Aporta un vínculo, condición, comprobación, causa, cautela o acción que puede ayudar a decidir o a formular una búsqueda posterior. Puede ser útil ahora, más tarde o solo al verse el trayecto completo. | No ser literal, no llevar directamente al objetivo, o no tener efecto inmediato.
+| **`puente_de_busqueda`** | Pista que inspira una consulta posterior semánticamente relacionada. Marcar la consulta siguiente y el fragmento/ID que la motivó, si esto es observable o está declarado por el agente. Puede ser un puente aunque el objetivo no se alcance. | Que la consulta siguiente ocurra después; la sucesión temporal sola no demuestra que la pista la causó.
+| **`utilidad_tardia_confirmada`** | Pista que no fue útil inmediatamente pero que, en el trayecto completo, ayuda a interpretar una búsqueda intermedia o a llegar/justificar el recuerdo objetivo. Requiere adjudicación con evidencia de los pasos posteriores. | La simple presencia previa al objetivo o una similitud léxica.
+| **`potencial_no_confirmado`** | Relación semánticamente plausible, pero la trayectoria no alcanza un punto que permita confirmar su aporte. No se cuenta como pista confirmada ni como ruido. | Que no se haya confirmado en esta trayectoria.
+| **`neutral_contexto`** | Contexto relacionado que no tiene un aporte concreto demostrado en la tarea observada. | No debe forzarse a útil o ruido para completar categorías.
+| **`ruido_tonto`** | Contenido positivamente irrelevante, engañoso, contradictorio o distractor para la tarea/decisión observada; requiere evidencia y motivo. | No ser objetivo, no ser seguido, no producir éxito inmediato, tener menos peso o ser asociación indirecta.
+| **`no_adjudicado`** | Evidencia insuficiente o desacuerdo aún sin resolver. Se excluye de métricas de categoría. | Un array vacío o una etiqueta faltante no equivalen a “ninguno” ni a ruido.
 
-Las etiquetas primarias son mutuamente excluyentes por par consulta–recuerdo. Si un recuerdo responde a la pregunta y además contiene una segunda pista independiente, se anota `objetivo` y se registra esa segunda proposición con evidencia en `detalle_util_adicional`; no se degrada el recuerdo entero a pista ni se cuenta dos veces como objetivo. Si existen varios objetivos suficientes, se anotan todos, con evidencia propia.
+Las etiquetas `objetivo`, `pista_util`, `neutral_contexto` y `ruido_tonto` son por par consulta–recuerdo; una pista puede recibir además etiquetas de trayectoria `puente_de_busqueda` o `utilidad_tardia_confirmada`. Si un recuerdo contiene respuesta y una pista adicional independiente, se mantiene `objetivo` y se anota la proposición adicional aparte; no se degrada el recuerdo ni se duplica el objetivo. El mismo recuerdo puede tener roles distintos en diferentes búsquedas.
 
-Para una consulta realmente sin respuesta/pista conocida, registrar estado explícito `adjudicado_sin_objetivo` / `adjudicado_sin_pista`; dejar listas vacías solo junto a ese estado. `no_adjudicado` es estado distinto. Las métricas de utilidad/ruido no se publican para categorías cuya etiqueta siga vacía o sin adjudicar.
+Para listas vacías, exigir estado explícito `adjudicado_sin_objetivo`, `adjudicado_sin_pista` o equivalente. `no_adjudicado` es distinto. No reportar métricas de utilidad/ruido para categorías vacías no adjudicadas.
 
-## 3. Reglas de inclusión y recall
+## 3. Protocolo propuesto para búsquedas encadenadas con agente y MCP real
 
-- **Objetivos:** medir recuperación en `resultados` por separado (R@1, R@5 y MRR@5); un objetivo que aparece solo en contexto o asociaciones se informa como cobertura lateral y no satisface el R@5 del objetivo principal.
-- **Pistas útiles:** medir sus apariciones en `asociaciones_enriquecidas`, `asociaciones`, `contexto_expandido` y la unión deduplicada, conservando canal y rango original. La unión no permite atribuir a G1/G2 una ruta que el MCP no trazó. Reportar tanto número de pistas como porcentaje de consultas/episodios con al menos una pista recuperada.
-- **Ruido:** informar exposición por separado para `resultados` y canales laterales; nunca mezclar un vecino útil con falsos positivos del objetivo. Un resultado desconocido o no revisado no se cuenta automáticamente como ruido.
-- **Abstención:** en consultas adjudicadas sin respuesta, contar como falso positivo solo una salida principal que presenta como respuesta un recuerdo adjudicado como engañoso/ruido para esa consulta. Una pista/contexto pertinente no invalida una abstención del objetivo; reportar canales por separado.
-- **Sin filtros de grafo:** no borrar, omitir ni rebajar sinapsis para hacer coincidir el gold. No utilizar tipo, peso o literalidad para derivar etiquetas.
+Esta es una **extensión secundaria** de la evaluación fija, no una reinterpretación de las 224 consultas ni una autorización de ejecución. Su objetivo es registrar qué hace el agente con los resultados MCP reales a lo largo de una trayectoria.
 
-Gold E1 candidato: 96 consultas contestables (principal y seguimiento de 48 episodios positivos) y 128 consultas de abstención/control, según su composición actual. Recontar desde el hash de gold que se cierre; cualquier cambio en preguntas/etiquetas modifica denominadores y exige recalcular criterios antes de observar resultados.
+### Semillas y límite de trayectoria
 
-## 4. Criterios y umbrales candidatos para aprobación
+- Propuesta de conjunto: una tarea inicial por episodio, 88 en total: la consulta `principal` de cada episodio positivo (48) y un control preseleccionado por episodio negativo (40), balanceado por estrato. Fijar las 88 semillas en el manifiesto antes de observar salidas.
+- Para cada tarea×brazo, iniciar desde una copia limpia aislada. El agente usa el servidor MCP real y solo la herramienta de búsqueda `recordar`; cada llamada sucesiva conserva el estado de diálogo del agente y la misma copia aislada de esa trayectoria. No llamar `aprender`, `vincular`, herramientas de edición ni despertar nodos.
+- Máximo propuesto: **3 búsquedas MCP por trayectoria** (una inicial y hasta dos seguimientos), sin reintentos automáticos. El agente puede detenerse antes; no hay objetivo de “usar” las tres llamadas. Registrar su motivo de parada. El prompt, modelo/versión, parámetros, herramientas disponibles y política de parada se congelan antes del primer resultado.
+- El agente no ve gold, objetivos, etiquetas ni respuestas esperadas. Recibe solo la tarea y las respuestas reales devueltas por MCP. No se modifica el motor/ranking ni se recortan conexiones para generar una pista “limpia”.
+- Cada transición conserva una ficha compacta del agente —`source_step`, IDs de recuerdos citados si los declara, intención de búsqueda y consulta siguiente—, sin pedir ni registrar razonamiento privado extenso. Esta ficha es una declaración del agente, no prueba de causalidad.
 
-Los valores siguientes son **propuestas a revisar**, no resultados, aprobación operativa ni thresholds incorporados al arnés. Dennys debe aprobarlos o reemplazarlos antes de la campaña y fijarlos junto con rúbrica, hash de gold y plan de análisis. No se adaptan tras observar los resultados. Los umbrales protegen recall y distinguen daños; no son autorización para cambiar motor, ranking o grafo.
+### Trayectoria y evidencia que deben conservarse
 
-| Área | Umbral candidato | Interpretación |
-|---|---|---|
-| **Calidad de adjudicación previa** | 100% de las 224 consultas revisadas por ambos; cero desacuerdos sin resolver; cada etiqueta positiva con evidencia/justificación; cada categoría vacía marcada explícitamente como adjudicada sin casos o pendiente. | Sin cierre si un caso requerido sigue `no_adjudicado`. Un vacío no se transforma en negativo. |
-| **Acuerdo humano** | Acuerdo bruto ≥85% y kappa ponderado ordinal ≥0,70 antes de adjudicación; calcular también por idioma y estrato cuando haya denominador suficiente. | Referencia mínima para que la rúbrica sea aplicable; no se usa para desechar asociaciones útiles ni para sustituir la adjudicación. Si no se alcanza, aclarar la rúbrica y repetir anotación ciega antes del cierre. |
-| **Recall de objetivo** | En cada uno de N0/N1/G1/G2/R: R@5 ≥95% de las consultas contestables (con el E1 actual, al menos 92/96) y no más de **un objetivo adicional perdido** frente a N0 en comparación pareada. | Guardarraíl primario. Una mejora de pistas no compensa una regresión superior en objetivos. R@1/MRR se reportan, no reemplazan R@5. |
-| **Recall de pistas** | En brazos con asociaciones/contexto habilitados (N1/G1/G2/R), recuperar ≥70% de las pistas útiles adjudicadas en la unión de canales y exponer ≥1 pista en ≥75% de consultas principales positivas que tengan una pista gold. | El resultado por canal se mantiene separado. N0 se informa como referencia, no se exige que el brazo sin canal lateral alcance el mismo piso. |
-| **Ruido tonto lateral** | ≤10% de candidatos laterales efectivamente revisados pueden ser `ruido_tonto`; informar también frecuencia por consulta y distribución de neutral/contexto. | Solo cuenta ruido explícitamente adjudicado. `neutral_contexto`, desconocidos y no adjudicados no se reclasifican como útiles ni ruido. |
-| **Controles de abstención** | En las 128 consultas de abstención, ≤5% (máximo 6/128 con la composición actual) con un candidato `ruido_tonto` como primer resultado principal; cero mutaciones no autorizadas. | Una relación útil/contextual no es un falso positivo de objetivo; se publican los canales laterales aparte. |
+Por cada tarea y brazo, mantener una secuencia ordenada e inmutable:
 
-Mostrar numeradores/denominadores, intervalos de confianza por episodio (no tratar consultas del mismo episodio como observaciones independientes), resultados por idioma/estrato y diferencias pareadas. Con el tamaño de E1, intervalos amplios o falta de acuerdo se describen como **inconclusos**, no se “arreglan” cambiando etiquetas. Umbrales de kappa y desempeño son gates propuestos para revisar; no se declara éxito/no éxito hasta la aprobación escrita de Dennys.
+1. Consulta inicial exacta, configuración N/G/R y hashes de copia/fixture.
+2. Para cada paso: `step_id`, consulta exacta y argumentos enviados, proceso/sesión MCP, respuesta cruda y parseada, candidatos completos, canales, rangos/score tal como fueron devueltos, trazas explícitas MCP si existen, errores y tiempos.
+3. Registro del agente entre llamadas: memoria(s) que declara haber usado, intención, consulta siguiente exacta o decisión de parar. No sustituirlo por una explicación generada retrospectivamente.
+4. Cuándo y en qué canal aparece por primera vez cada objetivo; si el agente lo incorpora a su respuesta final; qué evidencia/IDs cita; y resultado final evaluado por los anotadores.
+5. Hashes, eventos, errores y snapshots/diffs disponibles; ninguna discrepancia se corrige en sitio. Las aristas se conservan completas.
 
-## 5. Flujo de dos anotadores y adjudicador
+El **presupuesto aprobado de 2.768 llamadas** cubre solo las dos construcciones y las 224 consultas de una sola llamada en cada uno de cinco brazos. No cubre esta extensión secuencial. Si Dennys la aprueba con el alcance propuesto, su techo adicional sería `88 tareas × 5 brazos × 3 búsquedas = 1.320 llamadas MCP` (menos si el agente para antes), sin reintentos. El techo combinado potencial sería 4.088 solo si el gold no cambia y se aprueban ambos componentes. El uso de modelo/agente, llamadas auxiliares del proveedor y arranque/cierre de procesos se contabiliza aparte del número de herramientas MCP. Todo cambio del conjunto o arms exige recalcular y aprobar el presupuesto antes de ejecutar.
 
-### A. Anotación del gold, antes de observar resultados
+## 4. Qué se observa y qué no se puede atribuir
 
-1. **Dennys congela el protocolo:** aprueba versión de rúbrica, ejemplos frontera, criterios/umbrales, denominadores y hoja de registro. Se asignan dos anotadores independientes y un adjudicador. Ninguno recibe resultados de N/G/R; los anotadores tampoco se comunican ni concilian durante su primera pasada.
-2. **Cegamiento:** entregar a cada anotador la misma consulta y textos de recuerdos necesarios, con IDs seudónimos y orden aleatorio distinto. Ocultar etiquetas gold vigentes, brazo, ranking/score, canal, tipo/peso/orientación de enlaces y comentarios del otro anotador. No pedirles inferir validez por grafo.
-3. **Registro independiente:** cada persona marca respuesta/abstención, uno o más objetivos, pistas útiles, neutral/contexto, ruido solo con evidencia, estado explícito de categorías vacías, fragmento textual y justificación breve. Registrar versión de la hoja, tiempo y anotador. No borrar las decisiones originales.
-4. **Acuerdo y desacuerdos:** calcular acuerdo bruto y kappa ponderado sobre la pasada independiente. El adjudicador revisa todas las discrepancias, todo `no_adjudicado` y cualquier diferencia objetivo↔pista/ruido; consulta la misma evidencia textual, documenta razonamiento y emite decisión final. No se resuelve por mayoría automática ni por tipo/peso.
-5. **Cierre:** si el acuerdo no llega al umbral propuesto, revisar ambigüedades con Dennys y repetir a ciegas antes de resultados. Archivar versiones iniciales, acta de adjudicación, revisión de rúbrica y ledger de cambios. Cerrar el gold incluso si no cambió ningún JSONL, con hash no-op, fecha previa a cualquier resultado y `changed_episode_ids=[]`. Si el gold cambia, crear versión lateral nueva y repetir el cierre; no sobrescribir base ni reinterpretar resultados pasados.
+Clasificar explícitamente cada conclusión:
 
-### B. Revisión ciega de candidatos recuperados, después de una futura medición autorizada
+- **Observado en MCP:** llamada, consulta exacta, respuesta/candidato/canal/rango, orden temporal y aparición de objetivo. Se acredita con log crudo/parseado y hash.
+- **Declarado por el agente:** el registro estructurado dice qué recuerdo usó para componer la siguiente consulta. Prueba lo que el agente declaró, no el mecanismo interno que causó la decisión.
+- **Adjudicado semánticamente:** los revisores juzgan si la pista ofrece un puente defendible a la siguiente búsqueda o ayuda más tarde en la trayectoria. Es una valoración humana sobre el trayecto observado, no una traza de ejecución interna.
+- **Ruta MCP atribuible:** solo si la respuesta contiene traza explícita suficiente (`desde`, `hasta`, ruta/saltos) y concuerda con el grafo activo de la copia. La presencia en `contexto_expandido` o el shortest path calculado offline no demuestra que MCP recorriera esa ruta.
+- **No atribuible:** si falta traza o vínculo verificable entre recuerdo y siguiente consulta, aunque la pista preceda al objetivo. Registrar “no atribuible”, no inferir causalidad por orden temporal, coaparición o similitud textual.
 
-Si se desea juzgar salidas no contempladas en el gold, crear un conjunto de anotación **separado**: deduplicar los pares consulta–recuerdo presentados por cualquier brazo/canal, ocultar brazo, score, rango y etiqueta gold, aleatorizar orden, y hacer que ambos anotadores clasifiquen de forma independiente con la misma rúbrica. El canal se reincorpora solo después de la decisión semántica. El adjudicador resuelve discrepancias y conserva las tres anotaciones. Estas etiquetas evalúan salidas; no reescriben el gold cerrado. Cualquier nueva conclusión que requiera cambiar gold inicia otra versión y campaña, nunca una corrección retrospectiva para favorecer un brazo.
+Una trayectoria puede mostrar que el objetivo aparece después de una pista y que la siguiente consulta del agente se relaciona con ella; se reporta como **contribución compatible observada**, no como prueba de que esa pista fuera necesaria o causara el éxito. Sin una comparación causal autorizada no atribuir causalidad. Esta propuesta no prescribe quitar, ocultar ni cortar recuerdos/conexiones para crear contrafactuales.
 
-## 6. Revisión de Dennys y condición de uso
+## 5. Reglas de medición y umbrales revisados
 
-Pendiente de aprobación explícita de Dennys:
+Los valores siguen siendo propuestas para Dennys. Se evita premiar volumen de búsqueda, precisión aparente obtenida suprimiendo asociaciones, o recall agregado que solo mejora acumulando llamadas.
 
-- rúbrica, ejemplos y tratamiento de neutralidad/ambigüedad;
-- umbrales candidatos de acuerdo, recall de objetivos, recall de pistas y ruido;
-- anotadores, adjudicador, hoja/crosswalk protegido y fechas de cierre;
-- manifiesto de protocolo/umbrales ligado al hash del gold y cerrado antes de observar resultados.
+### Guardarraíl que se mantiene
 
-**Esta entrega es solo documentación.** No se prepararon bases o fixtures, no se inició MCP, no se ejecutaron mediciones ni QA. No se cambió motor, ranking, asociaciones ni gold. No autoriza la campaña aprobada como plan en `e302fcd`. **W sigue pendiente.**
+- Para la campaña fija de una consulta, conservar el guardarraíl de **R@5 del objetivo en `resultados`**: ≥95% de las 96 consultas contestables actuales (al menos 92/96), y no más de un objetivo adicional perdido frente a N0 en el pareo. Calcularlo en la primera búsqueda; una recuperación posterior no borra un fallo inicial ni se mezcla en ese R@5.
+- En la extensión encadenada, informar objetivo encontrado tras llamada 1, 2 o 3 y si el agente lo usó en la respuesta. No sustituir el R@5 inicial por “recuperado alguna vez”. La curva por paso siempre va acompañada del número/coste de llamadas.
+- Ninguna ganancia de pistas compensa una caída del guardarraíl de objetivo. R@1/MRR y canales laterales se presentan aparte.
+
+### Umbrales anteriores retirados como metas de optimización
+
+- **Retirar** `recall de pistas ≥70%` y `cobertura de episodio ≥75%` como criterios de aprobación: podrían incentivar más búsquedas, más salidas o una clasificación permisiva de utilidad. Mantenerlos solo como estadísticas descriptivas, desglosadas por canal, paso y número de llamadas; toda pista tardía o potencial se explica aparte.
+- **Retirar** el máximo porcentual de `ruido_tonto` (antes ≤10%) y el umbral porcentual de ruido en abstenciones (antes ≤5%) como metas de aprobación/ranking. Una proporción depende de qué apareció y cuántas llamadas se hicieron, y puede inducir a suprimir asociaciones. En su lugar, informar conteos y tasas por trayectoria/paso/canal, con denominador de candidatos efectivamente adjudicados, y revisar cada caso perjudicial. `neutral_contexto`, `potencial_no_confirmado` y `no_adjudicado` quedan fuera del numerador de ruido.
+- Un falso recuerdo presentado como respuesta final en una tarea de abstención se marca como **incidente para revisar**, conservando evidencia; no genera permiso para filtrar el grafo. Cualquier llamada o mutación fuera de alcance invalida la ejecución conforme a las guardas, no se “arregla” alterando conexiones.
+
+### Métricas de trayectoria, sin premiar más llamadas
+
+Informar, por tarea, brazo y paso: (a) objetivo en resultados/contexto/asociaciones; (b) primera llamada donde aparece; (c) respuesta final correcta y respaldo citado; (d) pistas previstas e inesperadas, utilidad inmediata/tardía, puente a la siguiente consulta, neutralidad, potencial no confirmado o ruido adjudicado; (e) llamadas acumuladas, consultas repetidas, consulta sin avance y motivo de parada. Publicar `éxito@1`, `éxito@2`, `éxito@3` como una curva descriptiva con coste, sin convertir el valor mayor en éxito automático ni fijar un umbral de éxito por número de búsquedas.
+
+La cobertura de pistas se informa como distribución/recall solo sobre etiquetas cerradas y candidatos adjudicados; no se rellena con negativos por ausencia. El ruido se adjudica con la rúbrica de §2 y con el contexto de la trayectoria completa: que una pista no ayude inmediatamente o no llegue al objetivo no basta para llamarla ruido.
+
+## 6. Dos anotadores independientes y adjudicador
+
+### A. Gold, antes de resultados
+
+1. Dennys aprueba y versiona rúbrica, criterios, umbrales y hoja; designa dos anotadores competentes en español/inglés y un adjudicador. El gold se revisa aunque no cambie el JSONL.
+2. Ambos anotan las mismas consultas y recuerdos relevantes independientemente, con IDs seudónimos y orden distinto. Se ocultan etiquetas existentes, resultados de brazos, ranks/scores/canales, enlaces y tipo/peso del grafo. Registran rol, evidencia, justificación y estado explícito de categorías vacías.
+3. Mantener cada anotación original. Calcular acuerdo bruto y kappa ponderado antes de adjudicar; propuestos ≥85% y ≥0,70 respectivamente, sujetos a aprobación. Si no se alcanzan, aclarar rúbrica y repetir la pasada ciega antes del cierre, nunca después de observar resultados.
+4. El adjudicador resuelve todas las discrepancias objetivo↔pista↔neutral↔ruido y todo caso no adjudicado, basándose en consulta y evidencia textual. Registra decisión y razón; no usa voto automático ni características de sinapsis.
+5. Cerrar el hash y ledger antes de cualquier resultado, incluso con cierre no-op del gold base. Los adjudicadores de resultados posteriores no reescriben el gold cerrado.
+
+### B. Trayectorias y pistas inesperadas, después de una campaña autorizada
+
+Un conjunto distinto presenta a ambos revisores la trayectoria completa en orden temporal, pero oculta brazo, score, rango y orden de preferencia entre brazos. Cada revisor marca: pistas que no estaban en el gold inicial; si inspiraron la consulta siguiente; si el aporte fue inmediato, tardío, puente, potencial no confirmado o neutral; si el objetivo aparece después y si la respuesta final está respaldada. Deben citar pasos/IDs y fragmentos, y separar observación, declaración del agente e inferencia semántica. No etiquetan como ruido una pista porque no sea seguida o no conduzca directamente al objetivo.
+
+El adjudicador resuelve desacuerdos después de conservar ambas etiquetas iniciales. Una relación que solo es temporal o plausible queda “no atribuible” o “potencial”, no causal ni automáticamente útil. El gold y sus métricas originales permanecen congelados; cualquier cambio requiere nueva versión y nueva aprobación antes de otra medición.
+
+## 7. Revisión de Dennys y límites
+
+Pendiente de aprobación explícita de Dennys: rúbrica, umbrales de acuerdo/recall, tratamiento de pistas tardías e inesperadas, alcance de las 88 trayectorias, máximo de tres búsquedas, prompt/modelo/parámetros del agente, política de parada y presupuesto adicional.
+
+**Solo documentación:** no se prepararon bases/fixtures, no se inició MCP, no se ejecutaron agentes, mediciones ni QA. No se modificó motor, ranking, grafo ni gold. La extensión de trayectorias no está incluida en la autorización del plan anterior ni en sus 2.768 llamadas. **W sigue pendiente.**
