@@ -1,0 +1,7 @@
+{
+  "schema": "synthetic_gold_manifest_v1",
+  "provenance": "synthetic",
+  "gold_path": "/tmp/biorag_synthetic_pair_xv6ml5is/synthetic_gold.jsonl",
+  "gold_sha256": "88c55d48a393fbc421caa455b08d92dd5c083c5e4167e31cfc229fb52397a316",
+  "original_gold_read": false
+}

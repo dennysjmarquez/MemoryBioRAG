@@ -1,0 +1,41 @@
+{
+  "schema": "synthetic_fixture_readonly_comparison_v1",
+  "source": "independent read-only SQLite queries against the two synthetic fixtures; no writes performed",
+  "full_fixture_logical_sha256": {
+    "build_a": "dae4e010d9c3af3a40533f87f24c171ad8cbb3591dc4228a928784647f24140a",
+    "build_b": "de8acd58de5abd7e41713042c6ef1219dcec4af70fa65ffdd2bd8426faab5a26",
+    "equal": false
+  },
+  "table_hash_differences": [
+    "grupos_semanticos",
+    "nodo_grupos_semanticos",
+    "sync_log"
+  ],
+  "semantic_group_normalization": {
+    "group_name_sets_equal": true,
+    "group_name_count_each": 22,
+    "joined_memberships_equal": true,
+    "joined_membership_count_each": 63,
+    "build_a_only": [],
+    "build_b_only": []
+  },
+  "sync_log_timestamps": {
+    "build_a": [
+      1793416725.0,
+      1793416725.0,
+      1793416725.0
+    ],
+    "build_b": [
+      1793416728.0,
+      1793416728.0,
+      1793416728.0
+    ],
+    "difference_seconds": [
+      3.0,
+      3.0,
+      3.0
+    ]
+  },
+  "interpretation": "REPEATABLE_PAIR confirms selected structure under fixture_repeatability_v2, not whole-database identity. Group rows differ in numeric IDs/order while normalized group names and memberships are equal; sync_log timestamps vary between builds. Exact full-fixture repeatability is therefore not established.",
+  "decision": "No measurement arms, QA suite, connection deletion, or fixture modification. Stop for review."
+}
