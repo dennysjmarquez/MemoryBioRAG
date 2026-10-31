@@ -68,3 +68,9 @@ La nueva evidencia está en `docs/auditoria_fixtures_sinteticas_v2_mcp_reintento
 La evidencia de los dos intentos anteriores con error permanece intacta en `docs/auditoria_fixtures_sinteticas_v2_mcp_2026-10-30/evidencia/`; su `SHA256SUMS` original sigue verificando. Estos resultados limpios son un nuevo par, no una reclasificación retroactiva de aquellos intentos.
 
 No se ejecutaron brazos de medición, consultas de evaluación ni QA completa. Las etiquetas vacías de `relacionados_utiles` y `ruido_tonto` siguen no adjudicadas; no se calcularon ni presentan métricas de esas categorías. La aprobación de hashes para medir queda pendiente de la revisión posterior.
+
+## Confirmación posterior de disponibilidad (solo lectura)
+
+El 2026-10-31 ambas bases temporales seguían disponibles. Sin iniciar MCP ni escribir en SQLite, se verificaron `PRAGMA integrity_check=ok`, sus hashes físicos y sus hashes lógicos contra los publicados arriba. También se repitió localmente la comparación de repetibilidad sobre las dos DB existentes en modo de solo lectura: volvió a dar `REPEATABLE_PAIR`, con construcciones independientes e identidad estructural.
+
+Se preparó el [manifiesto candidato sin aprobación](manifiesto_candidato_medicion_no_aprobado.json), SHA-256 `11fe45a8d83bef09c0f8e7ffbad774910efbb61c3f5c962c1cc647918c0ace18`. Selecciona build A y conserva build B como comparación; identifica gold y manifiesto operativo, fixture física/lógica, auditoría de grafo, repetibilidad y brazos propuestos `N0/N1/G1/G2/R`. Su esquema es `synthetic_freeze_candidate_v1`, su estado es `CANDIDATO_NO_APROBADO` y `measurement_authorized=false`: no es un manifiesto aceptable por el gate de medición ni concede autorización. Los hashes siguen pendientes de revisión humana; W continúa pendiente. Las etiquetas vacías de utilidad/ruido siguen no adjudicadas y no se evaluaron.
