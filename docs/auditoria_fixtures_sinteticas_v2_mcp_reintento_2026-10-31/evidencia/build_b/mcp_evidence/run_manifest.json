@@ -1,0 +1,8 @@
+{
+  "construction_id": "3c3ace91cf934ff8927e59b8accd046d",
+  "evidence_root": "/tmp/biorag_v2_clean_pair_y77rdhst/build_b/fixture.sqlite.evidence",
+  "fixture_path": "/tmp/biorag_v2_clean_pair_y77rdhst/build_b/fixture.sqlite",
+  "gold_sha256": "5d83616a63be7c73bbea8bb90452091316d7e238835013440a6fd939c13d16d8",
+  "mcp_session_created_for_this_build": true,
+  "phase": "fixture_preparation"
+}

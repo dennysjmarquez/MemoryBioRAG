@@ -1,0 +1,21 @@
+{
+  "command": [
+    "/home/user/MemoryBioRAG/.venv/bin/python",
+    "/home/user/MemoryBioRAG/scripts/linea_base_segura.py",
+    "preparar",
+    "--gold-mode",
+    "synthetic_smoke",
+    "--gold",
+    "/tmp/biorag_v2_clean_pair_y77rdhst/build_b/synthetic_gold_v2.jsonl",
+    "--synthetic-manifest",
+    "/tmp/biorag_v2_clean_pair_y77rdhst/build_b/synthetic_gold_manifest_operational.json",
+    "--db",
+    "/tmp/biorag_v2_clean_pair_y77rdhst/build_b/fixture.sqlite",
+    "--temp-root",
+    "/tmp/biorag_v2_clean_pair_y77rdhst",
+    "--salida",
+    "/tmp/biorag_v2_clean_pair_y77rdhst/build_b/preparation_report_cli.json",
+    "--ejecutar-preparacion"
+  ],
+  "return_code": 0
+}

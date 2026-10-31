@@ -1,0 +1,35 @@
+{
+  "schema": "readonly_table_comparison_v1",
+  "writes_performed": false,
+  "differing_table_sha256": {
+    "grupos_semanticos": {
+      "build_a": "b830076e5ba0070c298ed935134b2f02644e7ca0d4ba3de3f62ebac0932d80ac",
+      "build_b": "da471f543447c253a010cc298b36958253ea5a9e7924abac8f7b881d0a0363de"
+    },
+    "nodo_grupos_semanticos": {
+      "build_a": "cc12689f25d7e193ce4497797cb4f3db89619d126398cc826a649427dea03784",
+      "build_b": "0292900053cb250472e9cf0f689a7be8ec570daa455b9d4b399d7f910030ee6f"
+    },
+    "sync_log": {
+      "build_a": "45b8a7bf6b675ec3373a78a59c05906c84d36b32a2eeeaa0e5e474fb1dba7cd9",
+      "build_b": "6ed5ef323205acc2137a9613bb98f430923f50d4000598e55b8a642afaf041ff"
+    }
+  },
+  "group_names_equal": true,
+  "group_name_count_each": 22,
+  "normalized_memberships_equal": true,
+  "normalized_membership_count_each": 63,
+  "sync_log_timestamps": {
+    "build_a": [
+      1793420364.0,
+      1793420364.0,
+      1793420364.0
+    ],
+    "build_b": [
+      1793420368.0,
+      1793420368.0,
+      1793420368.0
+    ]
+  },
+  "interpretation": "Repeatability comparator covers node/edge/latent/mirror structure, not all tables or byte identity. Numeric group IDs/order vary while normalized group memberships match; sync_log timestamps differ."
+}
