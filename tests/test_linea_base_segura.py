@@ -4,6 +4,7 @@ import copy
 import hashlib
 import json
 from pathlib import Path
+from types import SimpleNamespace
 
 import pytest
 
@@ -848,3 +849,109 @@ def test_synthetic_prefix_risks_are_reported_and_observed_shortcut_is_not_assume
     assert audit["congelacion_estructural_permitida"] is False
     assert "ruta_gold_2_saltos_no_es_unica" in audit["bloqueos_congelacion"]
     assert len(graph["aristas_directas"]) == 3  # la auditoría informa, no elimina la asociación observada
+
+
+def test_harness_report_serialization_handles_complete_report_sets_deterministically():
+    evidence = (Path(__file__).resolve().parents[1]
+                / "docs/auditoria_fixtures_sinteticas_v2_mcp_2026-10-30/evidencia"
+                  "/build_a/mcp_evidence/preparation_report.json")
+    report = json.loads(evidence.read_text(encoding="utf-8"))
+    graph = report["fixture"]
+    active = {name for name, row in graph["nodos"].items() if row["estado"] == "activo"}
+    adjacency = {name: set() for name in active}
+    for edge in graph["aristas_directas"]:
+        a, b = edge["origen"], edge["destino"]
+        if a in active and b in active:
+            adjacency[a].add(b)
+            adjacency[b].add(a)
+    graph["adjacency_activos"] = adjacency
+    report["nota_prueba_legibilidad"] = "revisión ágil: salida UTF-8 legible"
+
+    reversed_report = copy.deepcopy(report)
+    reversed_report["fixture"]["adjacency_activos"] = {
+        name: set(reversed(sorted(neighbors)))
+        for name, neighbors in reversed(list(adjacency.items()))
+    }
+    serialized = harness.serialize_harness_report(report)
+    serialized_reversed = harness.serialize_harness_report(reversed_report)
+
+    assert serialized == serialized_reversed
+    assert serialized.endswith("\n") and "\n  \"" in serialized
+    assert "revisión ágil: salida UTF-8 legible" in serialized
+    assert "\\u00f3" not in serialized
+    decoded = json.loads(serialized)
+    assert len(decoded["fixture_events"]) == 9
+    assert decoded["fixture"]["adjacency_activos"] == {
+        name: sorted(neighbors) for name, neighbors in adjacency.items()
+    }
+    assert decoded["graph_audit"]["rutas_2_saltos"] == []
+
+
+def test_harness_report_serialization_persists_sets_as_json_arrays(tmp_path):
+    report = {"fixture": {"adjacency_activos": {
+        "synthetic_amber": {"synthetic_ivory", "synthetic_cobalt"},
+        "synthetic_cobalt": {"synthetic_amber"},
+    }}}
+    path = persist_evidence(tmp_path, "preparation_report", report)
+    text = path.read_text(encoding="utf-8")
+    assert json.loads(text)["fixture"]["adjacency_activos"] == {
+        "synthetic_amber": ["synthetic_cobalt", "synthetic_ivory"],
+        "synthetic_cobalt": ["synthetic_amber"],
+    }
+    assert "{'synthetic_" not in text
+    assert text == harness.serialize_harness_report(report)
+
+
+def test_prepare_cli_writes_complete_set_report_deterministically_without_mcp(tmp_path, monkeypatch, capsys):
+    evidence = (Path(__file__).resolve().parents[1]
+                / "docs/auditoria_fixtures_sinteticas_v2_mcp_2026-10-30/evidencia"
+                  "/build_a/mcp_evidence/preparation_report.json")
+    report = json.loads(evidence.read_text(encoding="utf-8"))
+    graph = report["fixture"]
+    active = {name for name, row in graph["nodos"].items() if row["estado"] == "activo"}
+    adjacency = {name: set() for name in active}
+    for edge in graph["aristas_directas"]:
+        a, b = edge["origen"], edge["destino"]
+        if a in active and b in active:
+            adjacency[a].add(b)
+            adjacency[b].add(a)
+    graph["adjacency_activos"] = adjacency
+    report["nota_prueba_legibilidad"] = "revisión ágil: salida UTF-8 legible"
+    reversed_report = copy.deepcopy(report)
+    reversed_report["fixture"]["adjacency_activos"] = {
+        name: set(reversed(sorted(neighbors)))
+        for name, neighbors in reversed(list(adjacency.items()))
+    }
+
+    temp_root = tmp_path / "qa-temp"
+    monkeypatch.setenv("BIORAG_QA_TEMP_ROOT", str(temp_root))
+    monkeypatch.setattr(harness, "_load_phase_gold", lambda *args: [])
+    pending = [report, reversed_report]
+
+    async def fake_prepare(*args, **kwargs):
+        return pending.pop(0)
+
+    monkeypatch.setattr(harness, "prepare_fixture", fake_prepare)
+    output_paths = [tmp_path / "preparation-a.json", tmp_path / "preparation-b.json"]
+    for label, output in zip(("a", "b"), output_paths):
+        args = SimpleNamespace(
+            temp_root=temp_root,
+            db=temp_root / label / "fixture.sqlite",
+            gold=temp_root / label / "synthetic_gold_v2.jsonl",
+            gold_mode="synthetic_smoke",
+            synthetic_manifest=temp_root / label / "manifest.json",
+            ejecutar_preparacion=True,
+            salida=output,
+        )
+        assert asyncio.run(harness._prepare_cli(args)) == 0
+
+    first, second = (path.read_text(encoding="utf-8") for path in output_paths)
+    assert first == second
+    assert "revisión ágil: salida UTF-8 legible" in first
+    assert "\\u00f3" not in first
+    decoded = json.loads(first)
+    assert len(decoded["fixture_events"]) == 9
+    assert decoded["fixture"]["adjacency_activos"] == {
+        name: sorted(neighbors) for name, neighbors in adjacency.items()
+    }
+    assert json.loads(capsys.readouterr().out.splitlines()[0])["baseline_searches_run"] == 0

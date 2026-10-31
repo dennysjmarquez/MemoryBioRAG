@@ -667,12 +667,37 @@ def _graph_cut(graph: dict | None) -> dict | None:
     }
 
 
+def _json_report_value(value):
+    """Convierte contenedores del arnés a JSON sin reprs ni orden dependiente del hash."""
+    if isinstance(value, bytes):
+        return {"__bytes_hex__": value.hex()}
+    if isinstance(value, dict):
+        return {str(key): _json_report_value(item)
+                for key, item in sorted(value.items(), key=lambda pair: str(pair[0]))}
+    if isinstance(value, (set, frozenset)):
+        items = [_json_report_value(item) for item in value]
+        return sorted(items, key=lambda item: json.dumps(
+            item, ensure_ascii=False, sort_keys=True, separators=(",", ":"), allow_nan=False))
+    if isinstance(value, (list, tuple)):
+        return [_json_report_value(item) for item in value]
+    return value
+
+
+def serialize_harness_report(report: dict) -> str:
+    """JSON legible y determinista para informes/evidencia del arnés, incluidos sets."""
+    return json.dumps(_json_report_value(report), ensure_ascii=False, sort_keys=True,
+                      indent=2, allow_nan=False) + "\n"
+
+
 def persist_evidence(directory: Path, name: str, payload: dict) -> Path:
     """Persistencia atómica de evidencia en la raíz temporal; no se borra al fallar."""
     directory.mkdir(parents=True, exist_ok=True)
     path = directory / f"{name}.json"
     temporary = path.with_name(path.name + f".{os.getpid()}.tmp")
-    data = json.dumps(payload, ensure_ascii=False, sort_keys=True, indent=2, default=repr) + "\n"
+    if name == "preparation_report":
+        data = serialize_harness_report(payload)
+    else:
+        data = json.dumps(payload, ensure_ascii=False, sort_keys=True, indent=2, default=repr) + "\n"
     with temporary.open("w", encoding="utf-8") as stream:
         stream.write(data)
         stream.flush()
@@ -1372,7 +1397,7 @@ async def _prepare_cli(args) -> int:
     else:
         raise ValueError("Informe de preflight debe guardarse fuera del repositorio")
     out.parent.mkdir(parents=True, exist_ok=True)
-    out.write_text(serialize_report(report), encoding="utf-8")
+    out.write_text(serialize_harness_report(report), encoding="utf-8")
     print(json.dumps({"estado": report["estado"], "gold_sha256": report["gold_sha256"],
                       "fixture_sha256": report["fixture"]["sha256_fixture_logica"],
                       "baseline_searches_run": 0, "salida": str(out)}, ensure_ascii=False))
