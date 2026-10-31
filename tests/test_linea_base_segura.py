@@ -575,6 +575,39 @@ def test_prepare_fixture_sends_empty_dimensions_for_mcp_required_argument(tmp_pa
     assert report["baseline_searches_run"] == 0
 
 
+def _small_synthetic_episode():
+    return {
+        "episode_id": "synthetic_e1", "stratum": "synthetic_smoke",
+        "nodos": [
+            {"concepto": "synthetic_amber", "contenido": "Amber pigment sample for synthetic smoke.",
+             "sustantivos_clave": "amber,pigment"},
+            {"concepto": "synthetic_cobalt", "contenido": "Cobalt pigment sample for synthetic smoke.",
+             "sustantivos_clave": "cobalt,pigment"},
+            {"concepto": "synthetic_ivory", "contenido": "Ivory material sample for synthetic smoke.",
+             "sustantivos_clave": "ivory,material"},
+        ],
+        "aristas_gold": [["synthetic_amber", "synthetic_cobalt"],
+                         ["synthetic_cobalt", "synthetic_ivory"]],
+        "consultas": [{
+            "query_id": "synthetic_q1", "idioma": "en", "query": "cobalt pigment sample",
+            "sustantivos_clave": "cobalt,pigment",
+            "objetivos_principales": ["synthetic_cobalt"],
+            "relacionados_utiles": ["synthetic_amber"], "ruido_tonto": ["synthetic_ivory"],
+            "espera_abstencion": False,
+        }],
+    }
+
+
+def _write_synthetic_gold(temp_root):
+    gold_path = temp_root / "synthetic.jsonl"
+    episode = _small_synthetic_episode()
+    gold_path.write_text(json.dumps(episode, ensure_ascii=False) + "\n", encoding="utf-8")
+    gold_sha = file_sha256(gold_path)
+    manifest_path = temp_root / "synthetic_manifest.json"
+    manifest_path.write_text(json.dumps(_synthetic_gold_manifest_data(gold_path, gold_sha)), encoding="utf-8")
+    return gold_path, manifest_path, [episode]
+
+
 def _synthetic_gold_manifest_data(gold_path, gold_sha):
     return {
         "schema": "synthetic_gold_manifest_v1",
@@ -589,10 +622,8 @@ def test_synthetic_gold_manifest_rejects_external_paths_and_hash_mismatch(tmp_pa
     temp_root = tmp_path / "qa-temp"
     temp_root.mkdir()
     monkeypatch.setenv("BIORAG_QA_TEMP_ROOT", str(temp_root))
-    gold_path = temp_root / "synthetic.jsonl"
-    gold_path.write_text('{"episode_id":"synthetic_1"}\n', encoding="utf-8")
+    gold_path, manifest_path, episodes = _write_synthetic_gold(temp_root)
     gold_sha = file_sha256(gold_path)
-    manifest_path = temp_root / "synthetic_manifest.json"
     manifest_path.write_text(json.dumps(_synthetic_gold_manifest_data(gold_path, gold_sha)), encoding="utf-8")
 
     manifest, manifest_sha = harness.validate_synthetic_gold_manifest(manifest_path, gold_path, temp_root)
@@ -669,11 +700,7 @@ def test_synthetic_measurement_without_approval_stops_before_any_arm(tmp_path, m
     temp_root = tmp_path / "qa-temp"
     temp_root.mkdir()
     monkeypatch.setenv("BIORAG_QA_TEMP_ROOT", str(temp_root))
-    gold_path = temp_root / "synthetic.jsonl"
-    gold_path.write_text('{"episode_id":"synthetic_1"}\n', encoding="utf-8")
-    gold_sha = file_sha256(gold_path)
-    synthetic_manifest = temp_root / "synthetic_manifest.json"
-    synthetic_manifest.write_text(json.dumps(_synthetic_gold_manifest_data(gold_path, gold_sha)), encoding="utf-8")
+    gold_path, synthetic_manifest, episodes = _write_synthetic_gold(temp_root)
     fixture_path = temp_root / "build-a.sqlite"
     approval_path = temp_root / "approval_missing.json"
     repeatability_path = temp_root / "repeatability.json"
@@ -695,9 +722,67 @@ def test_synthetic_measurement_without_approval_stops_before_any_arm(tmp_path, m
             fixture_path, temp_root, [], gold_path, approval_path, tmp_path / "external_repeatability.json",
             temp_root / "report.json", gold_mode="synthetic_smoke",
             synthetic_manifest_path=synthetic_manifest))
+    modified_episodes = copy.deepcopy(episodes)
+    modified_episodes[0]["consultas"][0]["query"] = "different synthetic query"
+    with pytest.raises(ValueError, match="no coinciden exactamente con el gold sintético aprobado"):
+        asyncio.run(harness.measure_baseline(
+            fixture_path, temp_root, modified_episodes, gold_path, approval_path, repeatability_path,
+            temp_root / "report.json", gold_mode="synthetic_smoke",
+            synthetic_manifest_path=synthetic_manifest))
     with pytest.raises(PermissionError, match="ningún brazo synthetic_smoke se inició"):
         asyncio.run(harness.measure_baseline(
-            fixture_path, temp_root, [], gold_path, approval_path, repeatability_path,
+            fixture_path, temp_root, episodes, gold_path, approval_path, repeatability_path,
             temp_root / "report.json", gold_mode="synthetic_smoke",
             synthetic_manifest_path=synthetic_manifest))
     assert arms_started == []
+
+
+def test_synthetic_gold_loader_and_prepare_cli_use_small_gold_without_preparing_fixture(tmp_path, monkeypatch, capsys):
+    from types import SimpleNamespace
+
+    temp_root = tmp_path / "qa-temp"
+    temp_root.mkdir()
+    monkeypatch.setenv("BIORAG_QA_TEMP_ROOT", str(temp_root))
+    gold_path, manifest_path, expected_episodes = _write_synthetic_gold(temp_root)
+    loaded = harness._load_phase_gold(gold_path, temp_root, "synthetic_smoke", manifest_path)
+    assert loaded == expected_episodes
+    with pytest.raises(ValueError, match="88 episodios"):
+        harness._load_phase_gold(gold_path, temp_root, "original")
+
+    db_path = temp_root / "not-created.sqlite"
+    output_path = tmp_path / "reports" / "synthetic-preflight.json"
+    received = {}
+
+    async def stop_before_fixture(db, root, episodes, gold, **kwargs):
+        received.update({"db": db, "root": root, "episodes": episodes,
+                         "gold": gold, "kwargs": kwargs})
+        return {"estado": "synthetic_input_only", "gold_sha256": file_sha256(gold),
+                "fixture": {"sha256_fixture_logica": "f" * 64}}
+
+    monkeypatch.setattr(harness, "prepare_fixture", stop_before_fixture)
+    args = SimpleNamespace(
+        temp_root=temp_root, db=db_path, gold=gold_path, gold_mode="synthetic_smoke",
+        synthetic_manifest=manifest_path, ejecutar_preparacion=True, salida=output_path,
+    )
+    assert asyncio.run(harness._prepare_cli(args)) == 0
+    assert received["episodes"] == expected_episodes
+    assert received["kwargs"] == {"gold_mode": "synthetic_smoke", "synthetic_manifest_path": manifest_path}
+    assert not db_path.exists()
+    assert json.loads(output_path.read_text(encoding="utf-8"))["gold_sha256"] == file_sha256(gold_path)
+    capsys.readouterr()
+
+
+def test_prepare_fixture_synthetic_rejects_episodes_not_from_approved_gold_before_db_creation(tmp_path, monkeypatch):
+    temp_root = tmp_path / "qa-temp"
+    temp_root.mkdir()
+    monkeypatch.setenv("BIORAG_QA_TEMP_ROOT", str(temp_root))
+    gold_path, manifest_path, episodes = _write_synthetic_gold(temp_root)
+    modified = copy.deepcopy(episodes)
+    modified[0]["nodos"][0]["contenido"] += " changed outside the approved file"
+    db_path = temp_root / "must-not-exist.sqlite"
+
+    with pytest.raises(ValueError, match="episodios de preparación no coinciden exactamente"):
+        asyncio.run(harness.prepare_fixture(
+            db_path, temp_root, modified, gold_path, gold_mode="synthetic_smoke",
+            synthetic_manifest_path=manifest_path))
+    assert not db_path.exists()

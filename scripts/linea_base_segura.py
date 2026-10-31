@@ -460,6 +460,104 @@ def validate_synthetic_gold_manifest(manifest_path: Path, gold_path: Path,
     return manifest, file_sha256(manifest_path)
 
 
+def load_synthetic_gold(path: Path) -> list[dict]:
+    """Lee gold reducido autocontenido, con namespace sintético y esquema del arnés."""
+    rows = [json.loads(line) for line in path.read_text(encoding="utf-8").splitlines() if line.strip()]
+    if not 1 <= len(rows) <= 4:
+        raise ValueError("Gold synthetic_smoke debe contener entre 1 y 4 episodios")
+    if any(not isinstance(row, dict) for row in rows):
+        raise ValueError("Cada fila del gold synthetic_smoke debe ser un objeto JSON")
+    episode_ids, query_ids, all_concepts = set(), set(), set()
+    total_nodes = total_queries = 0
+    for episode in rows:
+        eid = episode.get("episode_id")
+        if (not isinstance(eid, str) or not eid.startswith("synthetic_") or eid in episode_ids
+                or episode.get("stratum") != "synthetic_smoke"):
+            raise ValueError("episode_id debe ser único con prefijo synthetic_ y stratum=synthetic_smoke")
+        episode_ids.add(eid)
+        nodes = episode.get("nodos")
+        edges = episode.get("aristas_gold")
+        queries = episode.get("consultas")
+        if not isinstance(nodes, list) or not nodes or not isinstance(edges, list):
+            raise ValueError(f"Episodio sintético incompleto: {eid}")
+        if not isinstance(queries, list) or not 1 <= len(queries) <= 8:
+            raise ValueError(f"Episodio sintético requiere entre 1 y 8 consultas: {eid}")
+        concepts = set()
+        for node in nodes:
+            if not isinstance(node, dict):
+                raise ValueError(f"Cada nodo sintético debe ser objeto JSON: {eid}")
+            concept, content, terms = node.get("concepto"), node.get("contenido"), node.get("sustantivos_clave")
+            if (not isinstance(concept, str) or not concept.startswith("synthetic_") or concept in concepts
+                    or not isinstance(content, str) or not content.strip()
+                    or not isinstance(terms, str)):
+                raise ValueError(f"Nodo sintético incompleto o fuera del namespace: {eid}")
+            tokens = [token.strip() for token in terms.split(",")]
+            if (not 2 <= len(tokens) <= 10
+                    or any(not re.fullmatch(r"[a-zA-Z0-9_]{2,15}", token) for token in tokens)
+                    or any(token.casefold() not in content.casefold() for token in tokens)):
+                raise ValueError(f"sustantivos_clave sintéticos inválidos/no respaldados: {concept}")
+            concepts.add(concept)
+        if all_concepts & concepts:
+            raise ValueError(f"Concepto sintético repetido entre episodios: {eid}")
+        all_concepts.update(concepts)
+        total_nodes += len(nodes)
+        seen_edges = set()
+        for edge in edges:
+            if (not isinstance(edge, list) or len(edge) != 2
+                    or any(not isinstance(endpoint, str) for endpoint in edge)
+                    or edge[0] == edge[1] or not set(edge) <= concepts):
+                raise ValueError(f"Arista sintética inválida: {eid} {edge}")
+            pair = frozenset(edge)
+            if pair in seen_edges:
+                raise ValueError(f"Arista sintética duplicada: {eid} {edge}")
+            seen_edges.add(pair)
+        for query in queries:
+            if not isinstance(query, dict):
+                raise ValueError(f"Cada consulta sintética debe ser objeto JSON: {eid}")
+            qid, surface = query.get("query_id"), query.get("query")
+            if (not isinstance(qid, str) or not qid.startswith("synthetic_") or qid in query_ids
+                    or not isinstance(surface, str) or not surface.strip()
+                    or query.get("idioma") not in {"es", "en"}):
+                raise ValueError(f"Consulta sintética incompleta o fuera del namespace: {eid}")
+            query_ids.add(qid)
+            terms = query.get("sustantivos_clave")
+            query_terms = terms.split(",") if isinstance(terms, str) else []
+            if (not 2 <= len(query_terms) <= 10
+                    or any(not re.fullmatch(r"[a-zA-Z0-9_]{2,15}", token.strip())
+                           or token.strip().casefold() not in surface.casefold()
+                           for token in query_terms)):
+                raise ValueError(f"sustantivos_clave de consulta no aparece en la superficie: {qid}")
+            targets, useful, noise = (query.get(key, []) for key in
+                                      ("objetivos_principales", "relacionados_utiles", "ruido_tonto"))
+            if any(not isinstance(values, list) or any(not isinstance(value, str) for value in values)
+                   or not set(values) <= concepts for values in (targets, useful, noise)):
+                raise ValueError(f"Etiquetas fuera del episodio sintético: {qid}")
+            abstain = query.get("espera_abstencion")
+            if not isinstance(abstain, bool) or (abstain and (targets or useful)):
+                raise ValueError(f"espera_abstencion/etiquetas inconsistentes: {qid}")
+            if not abstain and not targets:
+                raise ValueError(f"Consulta contestable debe tener objetivo sintético: {qid}")
+            if set(targets) & set(noise) or set(useful) & (set(targets) | set(noise)):
+                raise ValueError(f"Objetivos, pistas útiles y ruido se solapan: {qid}")
+            total_queries += 1
+    if total_nodes > 12 or total_queries > 24:
+        raise ValueError("Gold synthetic_smoke supera el límite de 12 nodos/24 consultas")
+    return rows
+
+
+def _load_phase_gold(gold_path: Path, temp_root: Path, gold_mode: str = "original",
+                     synthetic_manifest_path: Path | None = None) -> list[dict]:
+    if gold_mode == "original":
+        return __import__("scripts.evaluar_qa_intuicion_asociaciones_e1", fromlist=["load_gold"]).load_gold(gold_path)
+    if gold_mode != "synthetic_smoke":
+        raise ValueError("gold_mode debe ser original o synthetic_smoke")
+    gold_path = _inside(gold_path, temp_root, "gold sintético")
+    if synthetic_manifest_path is None:
+        raise ValueError("synthetic_smoke requiere --synthetic-manifest explícito")
+    validate_synthetic_gold_manifest(synthetic_manifest_path, gold_path, temp_root)
+    return load_synthetic_gold(gold_path)
+
+
 def validate_synthetic_freeze_approval(approval: dict, gold_sha: str, fixture_sha: str,
                                       graph_review_sha256: str, repeatability_report: dict,
                                       synthetic_gold_manifest_sha256: str) -> None:
@@ -823,9 +921,22 @@ def _finite_number(value) -> bool:
     return isinstance(value, (int, float)) and not isinstance(value, bool) and math.isfinite(float(value))
 
 
-async def prepare_fixture(db_path: Path, temp_root: Path, episodes: list[dict], gold_path: Path) -> dict:
+async def prepare_fixture(db_path: Path, temp_root: Path, episodes: list[dict], gold_path: Path, *,
+                          gold_mode: str = "original",
+                          synthetic_manifest_path: Path | None = None) -> dict:
     """Arma fixture MCP; toda llamada queda persistida antes de propagar un fallo."""
     db_path = _inside(db_path, temp_root, "DB de fixture")
+    if gold_mode == "synthetic_smoke":
+        gold_path = _inside(gold_path, temp_root, "gold sintético")
+        if synthetic_manifest_path is None:
+            raise ValueError("synthetic_smoke requiere --synthetic-manifest explícito")
+        validate_synthetic_gold_manifest(synthetic_manifest_path, gold_path, temp_root)
+        loaded_episodes = load_synthetic_gold(gold_path)
+        if _canonical(episodes) != _canonical(loaded_episodes):
+            raise ValueError("Los episodios de preparación no coinciden exactamente con el gold sintético aprobado")
+        episodes = loaded_episodes
+    elif gold_mode != "original":
+        raise ValueError("gold_mode debe ser original o synthetic_smoke")
     if db_path.exists():
         raise FileExistsError(db_path)
     names = audit_names(episodes)
@@ -1009,6 +1120,10 @@ async def measure_baseline(fixture_path: Path, temp_root: Path, episodes: list[d
             raise ValueError("synthetic_smoke requiere --synthetic-manifest explícito")
         synthetic_gold_manifest, synthetic_gold_manifest_sha256 = validate_synthetic_gold_manifest(
             synthetic_manifest_path, gold_path, temp_root)
+        loaded_episodes = load_synthetic_gold(gold_path)
+        if _canonical(episodes) != _canonical(loaded_episodes):
+            raise ValueError("Los episodios usados no coinciden exactamente con el gold sintético aprobado")
+        episodes = loaded_episodes
         if not approval_path.is_file():
             raise PermissionError("Falta aprobación real de Dennys; ningún brazo synthetic_smoke se inició")
     output_path = output_path.resolve()
@@ -1223,10 +1338,12 @@ async def measure_baseline(fixture_path: Path, temp_root: Path, episodes: list[d
 async def _prepare_cli(args) -> int:
     temp_root = args.temp_root.resolve()
     db_path = _inside(args.db, temp_root, "fixture")
-    episodes = __import__("scripts.evaluar_qa_intuicion_asociaciones_e1", fromlist=["load_gold"]).load_gold(args.gold)
+    episodes = _load_phase_gold(args.gold, temp_root, args.gold_mode, args.synthetic_manifest)
     if not args.ejecutar_preparacion:
         raise PermissionError("La preparación MCP requiere --ejecutar-preparacion y autorización previa")
-    report = await prepare_fixture(db_path, temp_root, episodes, args.gold)
+    report = await prepare_fixture(db_path, temp_root, episodes, args.gold,
+                                   gold_mode=args.gold_mode,
+                                   synthetic_manifest_path=args.synthetic_manifest)
     out = args.salida.resolve()
     try:
         out.relative_to(ROOT)
@@ -1247,6 +1364,9 @@ def main() -> int:
     sub = parser.add_subparsers(dest="fase", required=True)
     prep = sub.add_parser("preparar", help="Construye y audita una fixture temporal; no mide la línea base")
     prep.add_argument("--gold", type=Path, default=GOLD)
+    prep.add_argument("--gold-mode", choices=("original", "synthetic_smoke"), default="original")
+    prep.add_argument("--synthetic-manifest", type=Path,
+                      help="Manifiesto de procedencia sintética requerido por --gold-mode synthetic_smoke")
     prep.add_argument("--db", type=Path, required=True)
     prep.add_argument("--temp-root", type=Path, required=True)
     prep.add_argument("--salida", type=Path, required=True)
@@ -1292,11 +1412,8 @@ def main() -> int:
     if not args.ejecutar_linea_base:
         parser.error("Medición NO ejecutada: requiere --ejecutar-linea-base y manifiesto aprobado")
     gold_path = args.gold
-    if args.gold_mode == "synthetic_smoke":
-        gold_path = _inside(gold_path, args.temp_root, "gold sintético")
-        if args.synthetic_manifest is None:
-            parser.error("--gold-mode synthetic_smoke requiere --synthetic-manifest explícito")
-    episodes = __import__("scripts.evaluar_qa_intuicion_asociaciones_e1", fromlist=["load_gold"]).load_gold(gold_path)
+    episodes = _load_phase_gold(gold_path, args.temp_root, args.gold_mode,
+                                 args.synthetic_manifest)
     report = asyncio.run(measure_baseline(args.fixture, args.temp_root, episodes, gold_path,
                                          args.aprobacion, args.repetibilidad, args.salida,
                                          gold_mode=args.gold_mode,

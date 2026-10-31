@@ -24,15 +24,24 @@ Este documento complementa el diseño aprobado en `propuesta_linea_base_segura_m
 
 ## Modo aislado `synthetic_smoke`
 
-`measure_baseline(..., gold_mode="synthetic_smoke", synthetic_manifest_path=...)` y CLI `medir --gold-mode synthetic_smoke --synthetic-manifest ...` siguen el mismo preflight, comparación de dos ledgers, freeze gate y loops N/G/R definidos; solo sustituyen el control de linaje del gold original por una procedencia sintética explícita. El modo original sigue siendo el default y su lógica de hash, revisión y cierre no se debilita.
+`load_synthetic_gold` es un cargador separado: `preparar --gold-mode synthetic_smoke` y `medir --gold-mode synthetic_smoke` lo usan sin invocar `load_gold` original. Acepta 1–4 episodios, hasta 12 nodos/24 consultas, prefijos `synthetic_`, `stratum=synthetic_smoke`, etiquetas locales y términos literales respaldados por el contenido. El loader original no se altera y sigue requiriendo sus 88 episodios y distribución exacta.
 
-El gold, manifiesto, aprobación, informe de repetibilidad y ambas fixtures tienen que estar bajo `BIORAG_QA_TEMP_ROOT`; la ruta original se rechaza. El `synthetic_gold_manifest_v1` debe declarar `provenance="synthetic"`, `original_gold_read=false`, ruta y SHA-256 exactos, y no puede incluir `source_sha256`/`source_gold_sha256` ni `derived_from_original`. El contenido debe usar el esquema completo del arnés, pero únicamente un corpus de prueba sintético.
+`prepare_fixture(..., gold_mode="synthetic_smoke", synthetic_manifest_path=...)` y `measure_baseline(..., gold_mode="synthetic_smoke", synthetic_manifest_path=...)` vuelven a cargar el gold desde el archivo y comparan canónicamente la lista de episodios recibida con la lista parseada. Una discrepancia falla antes de MCP o de cualquier brazo. En `medir`, el gold, manifiesto, aprobación, informe de repetibilidad y ambas fixtures tienen que estar bajo `BIORAG_QA_TEMP_ROOT`; la ruta del gold original se rechaza. El `synthetic_gold_manifest_v1` debe declarar `provenance="synthetic"`, `original_gold_read=false`, ruta y SHA-256 exactos, y no puede incluir `source_sha256`/`source_gold_sha256` ni `derived_from_original`.
 
 La aprobación no se crea automáticamente. Tras revisión humana del gold, grafo y dos construcciones, Dennys debe confirmar los hashes exactos y emitir un `synthetic_freeze_approval_v1` que incluya `gold_mode="synthetic_smoke"`, `estado="APROBADO"`, `aprobado_por="Dennys"`, `synthetic_gold_manifest_sha256`, `gold_sha256`, `fixture_sha256`, `graph_review_sha256`, `repeatability_report_sha256`, `arms=[N0,N1,G1,G2,R]` y `wake_W_included=false`. El arnés comprueba estas correspondencias con los artefactos actuales antes de crear el run root; si falta la aprobación, ningún brazo arranca. Las pruebas usan vectores sintéticos en memoria para validar la lógica, pero no escriben ni usan una aprobación operacional.
 
-Ejemplo de uso **futuro, no ejecutado** (tras disponer de los manifiestos y una aprobación humana real):
+Ejemplos de uso **futuro, no ejecutados**. La preparación requiere su autorización explícita; la medición requiere además revisión y aprobación real de los hashes:
 
 ```bash
+python scripts/linea_base_segura.py preparar \\
+  --gold-mode synthetic_smoke \\
+  --gold "$BIORAG_QA_TEMP_ROOT/synthetic_gold.jsonl" \\
+  --synthetic-manifest "$BIORAG_QA_TEMP_ROOT/synthetic_gold_manifest.json" \\
+  --db "$BIORAG_QA_TEMP_ROOT/build-a/fixture.sqlite" \\
+  --temp-root "$BIORAG_QA_TEMP_ROOT" \\
+  --salida /ruta/externa/preparation.json \\
+  --ejecutar-preparacion
+
 python scripts/linea_base_segura.py medir \\
   --gold-mode synthetic_smoke \\
   --gold "$BIORAG_QA_TEMP_ROOT/synthetic_gold.jsonl" \\
