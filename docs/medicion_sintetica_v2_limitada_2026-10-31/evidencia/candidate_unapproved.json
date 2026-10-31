@@ -1,0 +1,97 @@
+{
+  "schema": "synthetic_freeze_candidate_v1",
+  "candidate_id": "synthetic_v2_pair_2026-10-31_build_a",
+  "estado": "CANDIDATO_NO_APROBADO",
+  "measurement_authorized": false,
+  "is_measurement_approval": false,
+  "approval_required_after_hash_review": true,
+  "aprobado_por": null,
+  "created_date": "2026-10-31",
+  "gold": {
+    "gold_mode": "synthetic_smoke",
+    "published_version": "synthetic_gold_v2",
+    "published_gold_path": "docs/versiones_gold_sintetico/synthetic_gold_v2.jsonl",
+    "gold_sha256": "5d83616a63be7c73bbea8bb90452091316d7e238835013440a6fd939c13d16d8",
+    "published_version_manifest_path": "docs/versiones_gold_sintetico/synthetic_gold_v2_manifest.json",
+    "published_version_manifest_sha256": "ed433826d89229f75e8af1c57b48c9c4fe3e808e4e14eaa1103ea8cac8d64b1f",
+    "temporary_gold_copy_path": "/tmp/biorag_v2_clean_pair_y77rdhst/build_a/synthetic_gold_v2.jsonl",
+    "operational_synthetic_manifest_path": "/tmp/biorag_v2_clean_pair_y77rdhst/build_a/synthetic_gold_manifest_operational.json",
+    "synthetic_gold_manifest_sha256": "eaa6d4235f07e21daa479433cbe0107b5d5f120a9224a1c2debb3d996c0ad451",
+    "original_gold_read": false
+  },
+  "fixture_selected": {
+    "build": "build_a",
+    "construction_id": "1f72ea5a530245b5ba0616a563be8a0e",
+    "path": "/tmp/biorag_v2_clean_pair_y77rdhst/build_a/fixture.sqlite",
+    "archived_evidence_path": "evidencia/build_a/mcp_evidence/preparation_report.json",
+    "fixture_sha256": "cf9aaf50e0b36007c9c00cc4b7335c47c0d1dda1bd598bef561cdcf9c8bace55",
+    "fixture_file_sha256": "72793a764a131d4ed5d0d8db13fa3e2199abe2b55d03aaedb4c6818bcdb9e14f",
+    "integrity_check": "ok",
+    "repeatability_position": 1
+  },
+  "comparison_fixture": {
+    "build": "build_b",
+    "construction_id": "3c3ace91cf934ff8927e59b8accd046d",
+    "path": "/tmp/biorag_v2_clean_pair_y77rdhst/build_b/fixture.sqlite",
+    "fixture_sha256": "911a275343d51d2264ccb7dbd6ac423709acde1c7a37b087dedeceddc045ba12",
+    "fixture_file_sha256": "8b7afebd73cd852ab47eb8649a463090f4d6fe50c3f99bdf03816f4e8b86671d",
+    "integrity_check": "ok"
+  },
+  "graph_review": {
+    "graph_review_sha256": "659e969a0d2c8d666e2be9f83ab9f70857fb144d77546d8732d32a568e3248ae",
+    "selected_preparation_report_sha256": "54e9de30991c1b544024c245e0f48c05f6aa746996e727ee927a6d7de49c41c7",
+    "archived_report_path": "evidencia/build_a/mcp_evidence/preparation_report.json",
+    "nodes": 3,
+    "active_nodes": 3,
+    "directed_edges": 6,
+    "latent_synapses": 0,
+    "mirror_divergences": 0,
+    "explicit_gold_edges_missing": 0,
+    "declared_two_hop_routes": 0,
+    "observed_directed_edges": [
+      {"origen": "synthetic_amber", "destino": "synthetic_cobalt", "tipo": "co_nombre", "peso": 0.65},
+      {"origen": "synthetic_amber", "destino": "synthetic_ivory", "tipo": "co_nombre", "peso": 0.65},
+      {"origen": "synthetic_cobalt", "destino": "synthetic_amber", "tipo": "co_nombre", "peso": 0.65},
+      {"origen": "synthetic_cobalt", "destino": "synthetic_ivory", "tipo": "co_nombre", "peso": 0.65},
+      {"origen": "synthetic_ivory", "destino": "synthetic_amber", "tipo": "co_nombre", "peso": 0.65},
+      {"origen": "synthetic_ivory", "destino": "synthetic_cobalt", "tipo": "co_nombre", "peso": 0.65}
+    ],
+    "all_observed_connections_retained": true,
+    "structural_gate_clear_for_declared_v2_claims": true,
+    "note": "El estado estructural no constituye revisión humana ni autorización de medición. El grafo completo, con tipo/peso y nodos, está en el informe archivado."
+  },
+  "repeatability": {
+    "report_path": "/tmp/biorag_v2_clean_pair_y77rdhst/repeatability_report.json",
+    "archived_report_path": "evidencia/repeatability_report.json",
+    "repeatability_report_sha256": "b19f0810a58843dc37d8bca1df2d4a8c235698097a651ca5eaf34aad5a9cd456",
+    "schema": "fixture_repeatability_v2",
+    "mode": "REPEATABLE_PAIR",
+    "independent_builds_verified": true,
+    "identical_structural": true,
+    "differences": {},
+    "construction_ids": [
+      "1f72ea5a530245b5ba0616a563be8a0e",
+      "3c3ace91cf934ff8927e59b8accd046d"
+    ],
+    "logical_fixture_hashes_equal": false,
+    "scope_note": "Repetibilidad estructural; las bases completas difieren en hashes lógicos y en tablas grupos_semanticos, nodo_grupos_semanticos y sync_log. No implica identidad byte a byte."
+  },
+  "arms": ["N0", "N1", "G1", "G2", "R"],
+  "arms_status": "PROPUESTOS_NO_APROBADOS_NO_EJECUTADOS",
+  "wake_W_included": false,
+  "W_status": "PENDIENTE",
+  "measurement_status": "PENDIENTE_DE_REVISION_HUMANA_DE_HASHES",
+  "labels": {
+    "relacionados_utiles": "no adjudicados; no es evaluación de utilidad",
+    "ruido_tonto": "no adjudicados; no es evaluación de ruido",
+    "metrics_run": false
+  },
+  "rejection_safety": "No es synthetic_freeze_approval_v1, no tiene estado APROBADO y no autoriza medición; no debe pasarse como aprobación al arnés.",
+  "preparation_and_measurement_actions": {
+    "mcp_started_for_this_check": false,
+    "fixture_preparation_run": false,
+    "measurement_arms_run": false,
+    "full_qa_run": false,
+    "database_write_performed": false
+  }
+}

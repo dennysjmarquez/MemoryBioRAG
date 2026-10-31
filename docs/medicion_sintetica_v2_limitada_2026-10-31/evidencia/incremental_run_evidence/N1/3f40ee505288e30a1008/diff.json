@@ -1,0 +1,215 @@
+{
+  "attempt_status": {
+    "invalida": false,
+    "motivos": []
+  },
+  "edge_diff": {
+    "actualizadas": [],
+    "eliminadas": [],
+    "insertadas": []
+  },
+  "mirror_after": [],
+  "mirror_before": [],
+  "query_id": "synthetic_query_002",
+  "row_field_audit": {
+    "changes": {
+      "log_busquedas": {
+        "deleted": [],
+        "inserted": [
+          {
+            "conceptos_top": "synthetic_cobalt",
+            "creado_en": 1793059200.0,
+            "id": 4,
+            "params_json": "{\"query\": \"cobalt azure\", \"parafrasis\": null, \"rafaga_palabras\": null, \"forzar_rafaga\": false, \"dimensiones\": null, \"deep\": false, \"cat\": null, \"dias\": null, \"desde\": null, \"hasta\": null, \"autor\": null, \"modo_estricto\": false, \"buscar_por_rol\": null, \"usar_inferencia\": true, \"limite\": 5, \"asociados\": true, \"completo\": false, \"context_window\": 0, \"preview_chars\": 1500}",
+            "query": "cobalt azure",
+            "resultados_count": 1,
+            "top_score": 0.3815,
+            "util": null
+          }
+        ],
+        "schema_after": [
+          {
+            "default": null,
+            "name": "id",
+            "notnull": 0,
+            "pk": 1,
+            "type": "INTEGER"
+          },
+          {
+            "default": null,
+            "name": "query",
+            "notnull": 1,
+            "pk": 0,
+            "type": "TEXT"
+          },
+          {
+            "default": null,
+            "name": "resultados_count",
+            "notnull": 1,
+            "pk": 0,
+            "type": "INTEGER"
+          },
+          {
+            "default": null,
+            "name": "top_score",
+            "notnull": 0,
+            "pk": 0,
+            "type": "REAL"
+          },
+          {
+            "default": null,
+            "name": "creado_en",
+            "notnull": 1,
+            "pk": 0,
+            "type": "REAL"
+          },
+          {
+            "default": "NULL",
+            "name": "util",
+            "notnull": 0,
+            "pk": 0,
+            "type": "INTEGER"
+          },
+          {
+            "default": null,
+            "name": "params_json",
+            "notnull": 0,
+            "pk": 0,
+            "type": "TEXT"
+          },
+          {
+            "default": null,
+            "name": "conceptos_top",
+            "notnull": 0,
+            "pk": 0,
+            "type": "TEXT"
+          }
+        ],
+        "schema_before": [
+          {
+            "default": null,
+            "name": "id",
+            "notnull": 0,
+            "pk": 1,
+            "type": "INTEGER"
+          },
+          {
+            "default": null,
+            "name": "query",
+            "notnull": 1,
+            "pk": 0,
+            "type": "TEXT"
+          },
+          {
+            "default": null,
+            "name": "resultados_count",
+            "notnull": 1,
+            "pk": 0,
+            "type": "INTEGER"
+          },
+          {
+            "default": null,
+            "name": "top_score",
+            "notnull": 0,
+            "pk": 0,
+            "type": "REAL"
+          },
+          {
+            "default": null,
+            "name": "creado_en",
+            "notnull": 1,
+            "pk": 0,
+            "type": "REAL"
+          },
+          {
+            "default": "NULL",
+            "name": "util",
+            "notnull": 0,
+            "pk": 0,
+            "type": "INTEGER"
+          },
+          {
+            "default": null,
+            "name": "params_json",
+            "notnull": 0,
+            "pk": 0,
+            "type": "TEXT"
+          },
+          {
+            "default": null,
+            "name": "conceptos_top",
+            "notnull": 0,
+            "pk": 0,
+            "type": "TEXT"
+          }
+        ],
+        "updated": []
+      },
+      "nodo_accesos_historial": {
+        "deleted": [],
+        "inserted": [
+          {
+            "acceso_timestamp": 1793059200.0,
+            "concepto": "synthetic_cobalt",
+            "id": 1
+          }
+        ],
+        "schema_after": [
+          {
+            "default": null,
+            "name": "id",
+            "notnull": 0,
+            "pk": 1,
+            "type": "INTEGER"
+          },
+          {
+            "default": null,
+            "name": "concepto",
+            "notnull": 1,
+            "pk": 0,
+            "type": "TEXT"
+          },
+          {
+            "default": null,
+            "name": "acceso_timestamp",
+            "notnull": 1,
+            "pk": 0,
+            "type": "REAL"
+          }
+        ],
+        "schema_before": [
+          {
+            "default": null,
+            "name": "id",
+            "notnull": 0,
+            "pk": 1,
+            "type": "INTEGER"
+          },
+          {
+            "default": null,
+            "name": "concepto",
+            "notnull": 1,
+            "pk": 0,
+            "type": "TEXT"
+          },
+          {
+            "default": null,
+            "name": "acceso_timestamp",
+            "notnull": 1,
+            "pk": 0,
+            "type": "REAL"
+          }
+        ],
+        "updated": []
+      }
+    },
+    "valid": true,
+    "violations": []
+  },
+  "state_diff": [],
+  "tables_changed": [
+    "log_busquedas",
+    "nodo_accesos_historial"
+  ],
+  "unexpected_tables": []
+}

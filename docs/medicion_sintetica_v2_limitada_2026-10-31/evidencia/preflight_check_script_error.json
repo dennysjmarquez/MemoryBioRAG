@@ -1,0 +1,10 @@
+{
+  "phase": "read-only hash preflight, first attempt before approval and measurement",
+  "exception_type": "KeyError",
+  "message": "'selected_preparation_report_sha256'",
+  "cause": "The verification script looked for the selected report hash under fixture_selected instead of graph_review.",
+  "mcp_started": false,
+  "database_writes": false,
+  "arms_started": false,
+  "resolution": "Corrected the read-only check path; the complete hash/guard verification then passed before creating the approval file."
+}

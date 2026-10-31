@@ -1,0 +1,40 @@
+{
+  "schema": "synthetic_gold_version_manifest_v1",
+  "artifact_role": "nueva versión de gold sintético para smoke test; no es revisión del gold original",
+  "version_id": "synthetic_gold_v2",
+  "created_date": "2026-10-30",
+  "gold_file": "synthetic_gold_v2.jsonl",
+  "gold_sha256": "5d83616a63be7c73bbea8bb90452091316d7e238835013440a6fd939c13d16d8",
+  "previous_synthetic_version": {
+    "version_id": "synthetic_gold_v1",
+    "file": "../auditoria_preparaciones_sinteticas_mcp_2026-10-30/evidencia/synthetic_gold.jsonl",
+    "sha256": "88c55d48a393fbc421caa455b08d92dd5c083c5e4167e31cfc229fb52397a316",
+    "evidence_summary_file": "../auditoria_preparaciones_sinteticas_mcp_2026-10-30/evidencia/pair_summary.json",
+    "evidence_commit": "3413ffc76112823c063083cc72880be883d1016d"
+  },
+  "original_gold": {
+    "read": false,
+    "modified": false,
+    "note": "La versión anterior referenciada arriba es gold sintético, no el gold original."
+  },
+  "change_reason": "La auditoría de v1 observó un enlace directo synthetic_amber–synthetic_ivory, que hacía falsa/no única la ruta declarada de dos saltos. v2 omite esa afirmación de ruta para que un smoke test no contradiga el grafo observado.",
+  "changes_from_previous_synthetic_version": [
+    "Se asignan identificadores episode_id y query_id nuevos para distinguir esta versión.",
+    "Se omite ruta_2_saltos; no se formula requisito de ruta ni de unicidad a dos saltos.",
+    "Se conservan los tres nodos, contenidos, las dos aristas_gold previamente declaradas y la consulta cobalt azure con synthetic_cobalt como objetivo principal.",
+    "relacionados_utiles y ruido_tonto quedan como listas vacías no adjudicadas; no expresan ausencia demostrada de pistas, utilidad, ruido ni resultados relevantes."
+  ],
+  "label_semantics": {
+    "empty_relacionados_utiles": "no adjudicado; no es una evaluación negativa ni demuestra ausencia de asociaciones útiles",
+    "empty_ruido_tonto": "no adjudicado; no demuestra ausencia de ruido ni declara irrelevantes otros nodos",
+    "category_metrics_interpretation": "No presentar métricas de relacionados_utiles o ruido_tonto como evaluación de esas categorías para esta versión."
+  },
+  "graph_handling": "El gold no elimina, filtra ni modifica conexiones. aristas_gold conserva expectativas explícitas de presencia; no es una lista exhaustiva de la adyacencia. La conexión directa adicional observada debe permanecer visible en el grafo y en la auditoría.",
+  "execution_status": {
+    "fixtures_prepared": false,
+    "measurement_arms_run": false,
+    "full_qa_run": false,
+    "hash_approval": "pendiente",
+    "W": "pendiente"
+  }
+}

@@ -1,0 +1,2066 @@
+{
+  "estado": "medicion descriptiva; sin umbrales aplicados",
+  "valida": true,
+  "invalidaciones": [],
+  "evidence_root": "/tmp/biorag_v2_clean_pair_y77rdhst/biorag_linea_base_5p2ahcs_/evidence",
+  "run_root_persistente": "/tmp/biorag_v2_clean_pair_y77rdhst/biorag_linea_base_5p2ahcs_",
+  "gold_sha256": "5d83616a63be7c73bbea8bb90452091316d7e238835013440a6fd939c13d16d8",
+  "fixture_sha256": "cf9aaf50e0b36007c9c00cc4b7335c47c0d1dda1bd598bef561cdcf9c8bace55",
+  "repeatability_report_sha256": "b19f0810a58843dc37d8bca1df2d4a8c235698097a651ca5eaf34aad5a9cd456",
+  "repeatability_mode": "REPEATABLE_PAIR",
+  "freeze_manifest_sha256": "339f0e79688afc0e45a77f260562098ee32e2613402d92e2bd4fad11f6b94dce",
+  "wake_W": "pendiente; no ejecutado ni incluido",
+  "conteo": {
+    "consultas_gold": 1,
+    "brazos_planeados": [
+      "N0",
+      "N1",
+      "G1",
+      "G2",
+      "R"
+    ],
+    "brazos_con_llamadas": [
+      "G1",
+      "G2",
+      "N0",
+      "N1",
+      "R"
+    ],
+    "llamadas_recordar": 5
+  },
+  "metricas_por_brazo": {
+    "G1": {
+      "resultados": {
+        "consultas": 1,
+        "objetivo_visible_consultas": 1,
+        "relacionados_utiles_visibles": 0,
+        "relacionados_utiles_gold": 0,
+        "recall_relacionados_utiles": null,
+        "ruido_tonto_visible": 0,
+        "episodios_con_pista_util_visible": 0,
+        "episodios_con_pista_util_gold": 0,
+        "cobertura_pista_por_episodio": null,
+        "objetivos_evaluables": 1,
+        "R_at_1": 1.0,
+        "R_at_5": 1.0,
+        "MRR_at_5": 1.0,
+        "falsos_positivos_consultas_sin_objetivo": 0,
+        "consultas_sin_objetivo": 0
+      },
+      "asociaciones_enriquecidas": {
+        "consultas": 1,
+        "objetivo_visible_consultas": 0,
+        "relacionados_utiles_visibles": 0,
+        "relacionados_utiles_gold": 0,
+        "recall_relacionados_utiles": null,
+        "ruido_tonto_visible": 0,
+        "episodios_con_pista_util_visible": 0,
+        "episodios_con_pista_util_gold": 0,
+        "cobertura_pista_por_episodio": null,
+        "candidatos_laterales_visibles": 2,
+        "precision_utilidad_gold_parcial": 0.0
+      },
+      "asociaciones": {
+        "consultas": 1,
+        "objetivo_visible_consultas": 0,
+        "relacionados_utiles_visibles": 0,
+        "relacionados_utiles_gold": 0,
+        "recall_relacionados_utiles": null,
+        "ruido_tonto_visible": 0,
+        "episodios_con_pista_util_visible": 0,
+        "episodios_con_pista_util_gold": 0,
+        "cobertura_pista_por_episodio": null,
+        "candidatos_laterales_visibles": 2,
+        "precision_utilidad_gold_parcial": 0.0
+      },
+      "contexto_expandido": {
+        "consultas": 1,
+        "objetivo_visible_consultas": 0,
+        "relacionados_utiles_visibles": 0,
+        "relacionados_utiles_gold": 0,
+        "recall_relacionados_utiles": null,
+        "ruido_tonto_visible": 0,
+        "episodios_con_pista_util_visible": 0,
+        "episodios_con_pista_util_gold": 0,
+        "cobertura_pista_por_episodio": null,
+        "candidatos_laterales_visibles": 2,
+        "precision_utilidad_gold_parcial": 0.0
+      },
+      "union_canales": {
+        "consultas": 1,
+        "objetivo_visible_consultas": 1,
+        "relacionados_utiles_visibles": 0,
+        "relacionados_utiles_gold": 0,
+        "recall_relacionados_utiles": null,
+        "ruido_tonto_visible": 0,
+        "episodios_con_pista_util_visible": 0,
+        "episodios_con_pista_util_gold": 0,
+        "cobertura_pista_por_episodio": null,
+        "candidatos_laterales_visibles": 2,
+        "precision_utilidad_gold_parcial": 0.0
+      }
+    },
+    "G2": {
+      "resultados": {
+        "consultas": 1,
+        "objetivo_visible_consultas": 1,
+        "relacionados_utiles_visibles": 0,
+        "relacionados_utiles_gold": 0,
+        "recall_relacionados_utiles": null,
+        "ruido_tonto_visible": 0,
+        "episodios_con_pista_util_visible": 0,
+        "episodios_con_pista_util_gold": 0,
+        "cobertura_pista_por_episodio": null,
+        "objetivos_evaluables": 1,
+        "R_at_1": 1.0,
+        "R_at_5": 1.0,
+        "MRR_at_5": 1.0,
+        "falsos_positivos_consultas_sin_objetivo": 0,
+        "consultas_sin_objetivo": 0
+      },
+      "asociaciones_enriquecidas": {
+        "consultas": 1,
+        "objetivo_visible_consultas": 0,
+        "relacionados_utiles_visibles": 0,
+        "relacionados_utiles_gold": 0,
+        "recall_relacionados_utiles": null,
+        "ruido_tonto_visible": 0,
+        "episodios_con_pista_util_visible": 0,
+        "episodios_con_pista_util_gold": 0,
+        "cobertura_pista_por_episodio": null,
+        "candidatos_laterales_visibles": 2,
+        "precision_utilidad_gold_parcial": 0.0
+      },
+      "asociaciones": {
+        "consultas": 1,
+        "objetivo_visible_consultas": 0,
+        "relacionados_utiles_visibles": 0,
+        "relacionados_utiles_gold": 0,
+        "recall_relacionados_utiles": null,
+        "ruido_tonto_visible": 0,
+        "episodios_con_pista_util_visible": 0,
+        "episodios_con_pista_util_gold": 0,
+        "cobertura_pista_por_episodio": null,
+        "candidatos_laterales_visibles": 2,
+        "precision_utilidad_gold_parcial": 0.0
+      },
+      "contexto_expandido": {
+        "consultas": 1,
+        "objetivo_visible_consultas": 0,
+        "relacionados_utiles_visibles": 0,
+        "relacionados_utiles_gold": 0,
+        "recall_relacionados_utiles": null,
+        "ruido_tonto_visible": 0,
+        "episodios_con_pista_util_visible": 0,
+        "episodios_con_pista_util_gold": 0,
+        "cobertura_pista_por_episodio": null,
+        "candidatos_laterales_visibles": 2,
+        "precision_utilidad_gold_parcial": 0.0
+      },
+      "union_canales": {
+        "consultas": 1,
+        "objetivo_visible_consultas": 1,
+        "relacionados_utiles_visibles": 0,
+        "relacionados_utiles_gold": 0,
+        "recall_relacionados_utiles": null,
+        "ruido_tonto_visible": 0,
+        "episodios_con_pista_util_visible": 0,
+        "episodios_con_pista_util_gold": 0,
+        "cobertura_pista_por_episodio": null,
+        "candidatos_laterales_visibles": 2,
+        "precision_utilidad_gold_parcial": 0.0
+      }
+    },
+    "N0": {
+      "resultados": {
+        "consultas": 1,
+        "objetivo_visible_consultas": 1,
+        "relacionados_utiles_visibles": 0,
+        "relacionados_utiles_gold": 0,
+        "recall_relacionados_utiles": null,
+        "ruido_tonto_visible": 0,
+        "episodios_con_pista_util_visible": 0,
+        "episodios_con_pista_util_gold": 0,
+        "cobertura_pista_por_episodio": null,
+        "objetivos_evaluables": 1,
+        "R_at_1": 1.0,
+        "R_at_5": 1.0,
+        "MRR_at_5": 1.0,
+        "falsos_positivos_consultas_sin_objetivo": 0,
+        "consultas_sin_objetivo": 0
+      },
+      "asociaciones_enriquecidas": {
+        "consultas": 1,
+        "objetivo_visible_consultas": 0,
+        "relacionados_utiles_visibles": 0,
+        "relacionados_utiles_gold": 0,
+        "recall_relacionados_utiles": null,
+        "ruido_tonto_visible": 0,
+        "episodios_con_pista_util_visible": 0,
+        "episodios_con_pista_util_gold": 0,
+        "cobertura_pista_por_episodio": null,
+        "candidatos_laterales_visibles": 0,
+        "precision_utilidad_gold_parcial": null
+      },
+      "asociaciones": {
+        "consultas": 1,
+        "objetivo_visible_consultas": 0,
+        "relacionados_utiles_visibles": 0,
+        "relacionados_utiles_gold": 0,
+        "recall_relacionados_utiles": null,
+        "ruido_tonto_visible": 0,
+        "episodios_con_pista_util_visible": 0,
+        "episodios_con_pista_util_gold": 0,
+        "cobertura_pista_por_episodio": null,
+        "candidatos_laterales_visibles": 0,
+        "precision_utilidad_gold_parcial": null
+      },
+      "contexto_expandido": {
+        "consultas": 1,
+        "objetivo_visible_consultas": 0,
+        "relacionados_utiles_visibles": 0,
+        "relacionados_utiles_gold": 0,
+        "recall_relacionados_utiles": null,
+        "ruido_tonto_visible": 0,
+        "episodios_con_pista_util_visible": 0,
+        "episodios_con_pista_util_gold": 0,
+        "cobertura_pista_por_episodio": null,
+        "candidatos_laterales_visibles": 0,
+        "precision_utilidad_gold_parcial": null
+      },
+      "union_canales": {
+        "consultas": 1,
+        "objetivo_visible_consultas": 1,
+        "relacionados_utiles_visibles": 0,
+        "relacionados_utiles_gold": 0,
+        "recall_relacionados_utiles": null,
+        "ruido_tonto_visible": 0,
+        "episodios_con_pista_util_visible": 0,
+        "episodios_con_pista_util_gold": 0,
+        "cobertura_pista_por_episodio": null,
+        "candidatos_laterales_visibles": 0,
+        "precision_utilidad_gold_parcial": null
+      }
+    },
+    "N1": {
+      "resultados": {
+        "consultas": 1,
+        "objetivo_visible_consultas": 1,
+        "relacionados_utiles_visibles": 0,
+        "relacionados_utiles_gold": 0,
+        "recall_relacionados_utiles": null,
+        "ruido_tonto_visible": 0,
+        "episodios_con_pista_util_visible": 0,
+        "episodios_con_pista_util_gold": 0,
+        "cobertura_pista_por_episodio": null,
+        "objetivos_evaluables": 1,
+        "R_at_1": 1.0,
+        "R_at_5": 1.0,
+        "MRR_at_5": 1.0,
+        "falsos_positivos_consultas_sin_objetivo": 0,
+        "consultas_sin_objetivo": 0
+      },
+      "asociaciones_enriquecidas": {
+        "consultas": 1,
+        "objetivo_visible_consultas": 0,
+        "relacionados_utiles_visibles": 0,
+        "relacionados_utiles_gold": 0,
+        "recall_relacionados_utiles": null,
+        "ruido_tonto_visible": 0,
+        "episodios_con_pista_util_visible": 0,
+        "episodios_con_pista_util_gold": 0,
+        "cobertura_pista_por_episodio": null,
+        "candidatos_laterales_visibles": 2,
+        "precision_utilidad_gold_parcial": 0.0
+      },
+      "asociaciones": {
+        "consultas": 1,
+        "objetivo_visible_consultas": 0,
+        "relacionados_utiles_visibles": 0,
+        "relacionados_utiles_gold": 0,
+        "recall_relacionados_utiles": null,
+        "ruido_tonto_visible": 0,
+        "episodios_con_pista_util_visible": 0,
+        "episodios_con_pista_util_gold": 0,
+        "cobertura_pista_por_episodio": null,
+        "candidatos_laterales_visibles": 2,
+        "precision_utilidad_gold_parcial": 0.0
+      },
+      "contexto_expandido": {
+        "consultas": 1,
+        "objetivo_visible_consultas": 0,
+        "relacionados_utiles_visibles": 0,
+        "relacionados_utiles_gold": 0,
+        "recall_relacionados_utiles": null,
+        "ruido_tonto_visible": 0,
+        "episodios_con_pista_util_visible": 0,
+        "episodios_con_pista_util_gold": 0,
+        "cobertura_pista_por_episodio": null,
+        "candidatos_laterales_visibles": 0,
+        "precision_utilidad_gold_parcial": null
+      },
+      "union_canales": {
+        "consultas": 1,
+        "objetivo_visible_consultas": 1,
+        "relacionados_utiles_visibles": 0,
+        "relacionados_utiles_gold": 0,
+        "recall_relacionados_utiles": null,
+        "ruido_tonto_visible": 0,
+        "episodios_con_pista_util_visible": 0,
+        "episodios_con_pista_util_gold": 0,
+        "cobertura_pista_por_episodio": null,
+        "candidatos_laterales_visibles": 2,
+        "precision_utilidad_gold_parcial": 0.0
+      }
+    },
+    "R": {
+      "resultados": {
+        "consultas": 1,
+        "objetivo_visible_consultas": 1,
+        "relacionados_utiles_visibles": 0,
+        "relacionados_utiles_gold": 0,
+        "recall_relacionados_utiles": null,
+        "ruido_tonto_visible": 0,
+        "episodios_con_pista_util_visible": 0,
+        "episodios_con_pista_util_gold": 0,
+        "cobertura_pista_por_episodio": null,
+        "objetivos_evaluables": 1,
+        "R_at_1": 1.0,
+        "R_at_5": 1.0,
+        "MRR_at_5": 1.0,
+        "falsos_positivos_consultas_sin_objetivo": 0,
+        "consultas_sin_objetivo": 0
+      },
+      "asociaciones_enriquecidas": {
+        "consultas": 1,
+        "objetivo_visible_consultas": 0,
+        "relacionados_utiles_visibles": 0,
+        "relacionados_utiles_gold": 0,
+        "recall_relacionados_utiles": null,
+        "ruido_tonto_visible": 0,
+        "episodios_con_pista_util_visible": 0,
+        "episodios_con_pista_util_gold": 0,
+        "cobertura_pista_por_episodio": null,
+        "candidatos_laterales_visibles": 2,
+        "precision_utilidad_gold_parcial": 0.0
+      },
+      "asociaciones": {
+        "consultas": 1,
+        "objetivo_visible_consultas": 0,
+        "relacionados_utiles_visibles": 0,
+        "relacionados_utiles_gold": 0,
+        "recall_relacionados_utiles": null,
+        "ruido_tonto_visible": 0,
+        "episodios_con_pista_util_visible": 0,
+        "episodios_con_pista_util_gold": 0,
+        "cobertura_pista_por_episodio": null,
+        "candidatos_laterales_visibles": 2,
+        "precision_utilidad_gold_parcial": 0.0
+      },
+      "contexto_expandido": {
+        "consultas": 1,
+        "objetivo_visible_consultas": 0,
+        "relacionados_utiles_visibles": 0,
+        "relacionados_utiles_gold": 0,
+        "recall_relacionados_utiles": null,
+        "ruido_tonto_visible": 0,
+        "episodios_con_pista_util_visible": 0,
+        "episodios_con_pista_util_gold": 0,
+        "cobertura_pista_por_episodio": null,
+        "candidatos_laterales_visibles": 0,
+        "precision_utilidad_gold_parcial": null
+      },
+      "union_canales": {
+        "consultas": 1,
+        "objetivo_visible_consultas": 1,
+        "relacionados_utiles_visibles": 0,
+        "relacionados_utiles_gold": 0,
+        "recall_relacionados_utiles": null,
+        "ruido_tonto_visible": 0,
+        "episodios_con_pista_util_visible": 0,
+        "episodios_con_pista_util_gold": 0,
+        "cobertura_pista_por_episodio": null,
+        "candidatos_laterales_visibles": 2,
+        "precision_utilidad_gold_parcial": 0.0
+      }
+    }
+  },
+  "telemetria_por_brazo": {
+    "G1": {
+      "latencia_ms_p50": 3309.008,
+      "latencia_ms_p95": 3309.008,
+      "bytes_salida_total": 2850,
+      "fallos_transporte": 0,
+      "errores_mcp": 0
+    },
+    "G2": {
+      "latencia_ms_p50": 3310.578,
+      "latencia_ms_p95": 3310.578,
+      "bytes_salida_total": 2850,
+      "fallos_transporte": 0,
+      "errores_mcp": 0
+    },
+    "N0": {
+      "latencia_ms_p50": 4483.767,
+      "latencia_ms_p95": 4483.767,
+      "bytes_salida_total": 1724,
+      "fallos_transporte": 0,
+      "errores_mcp": 0
+    },
+    "N1": {
+      "latencia_ms_p50": 3126.765,
+      "latencia_ms_p95": 3126.765,
+      "bytes_salida_total": 1977,
+      "fallos_transporte": 0,
+      "errores_mcp": 0
+    },
+    "R": {
+      "latencia_ms_p50": 3008.362,
+      "latencia_ms_p95": 3008.362,
+      "bytes_salida_total": 2293,
+      "fallos_transporte": 0,
+      "errores_mcp": 0
+    }
+  },
+  "mutaciones_por_brazo": {
+    "G1": [
+      {
+        "query_id": "synthetic_query_002",
+        "tablas_cambiadas": [
+          "log_busquedas",
+          "nodo_accesos_historial"
+        ],
+        "tablas_inesperadas": [],
+        "aristas": {
+          "insertadas": [],
+          "eliminadas": [],
+          "actualizadas": []
+        },
+        "estado": [],
+        "row_field_audit": {
+          "valid": true,
+          "violations": [],
+          "changes": {
+            "log_busquedas": {
+              "schema_before": [
+                {
+                  "name": "id",
+                  "type": "INTEGER",
+                  "notnull": 0,
+                  "default": null,
+                  "pk": 1
+                },
+                {
+                  "name": "query",
+                  "type": "TEXT",
+                  "notnull": 1,
+                  "default": null,
+                  "pk": 0
+                },
+                {
+                  "name": "resultados_count",
+                  "type": "INTEGER",
+                  "notnull": 1,
+                  "default": null,
+                  "pk": 0
+                },
+                {
+                  "name": "top_score",
+                  "type": "REAL",
+                  "notnull": 0,
+                  "default": null,
+                  "pk": 0
+                },
+                {
+                  "name": "creado_en",
+                  "type": "REAL",
+                  "notnull": 1,
+                  "default": null,
+                  "pk": 0
+                },
+                {
+                  "name": "util",
+                  "type": "INTEGER",
+                  "notnull": 0,
+                  "default": "NULL",
+                  "pk": 0
+                },
+                {
+                  "name": "params_json",
+                  "type": "TEXT",
+                  "notnull": 0,
+                  "default": null,
+                  "pk": 0
+                },
+                {
+                  "name": "conceptos_top",
+                  "type": "TEXT",
+                  "notnull": 0,
+                  "default": null,
+                  "pk": 0
+                }
+              ],
+              "schema_after": [
+                {
+                  "name": "id",
+                  "type": "INTEGER",
+                  "notnull": 0,
+                  "default": null,
+                  "pk": 1
+                },
+                {
+                  "name": "query",
+                  "type": "TEXT",
+                  "notnull": 1,
+                  "default": null,
+                  "pk": 0
+                },
+                {
+                  "name": "resultados_count",
+                  "type": "INTEGER",
+                  "notnull": 1,
+                  "default": null,
+                  "pk": 0
+                },
+                {
+                  "name": "top_score",
+                  "type": "REAL",
+                  "notnull": 0,
+                  "default": null,
+                  "pk": 0
+                },
+                {
+                  "name": "creado_en",
+                  "type": "REAL",
+                  "notnull": 1,
+                  "default": null,
+                  "pk": 0
+                },
+                {
+                  "name": "util",
+                  "type": "INTEGER",
+                  "notnull": 0,
+                  "default": "NULL",
+                  "pk": 0
+                },
+                {
+                  "name": "params_json",
+                  "type": "TEXT",
+                  "notnull": 0,
+                  "default": null,
+                  "pk": 0
+                },
+                {
+                  "name": "conceptos_top",
+                  "type": "TEXT",
+                  "notnull": 0,
+                  "default": null,
+                  "pk": 0
+                }
+              ],
+              "inserted": [
+                {
+                  "id": 4,
+                  "query": "cobalt azure",
+                  "resultados_count": 1,
+                  "top_score": 0.3815,
+                  "creado_en": 1793059200.0,
+                  "util": null,
+                  "params_json": "{\"query\": \"cobalt azure\", \"parafrasis\": null, \"rafaga_palabras\": null, \"forzar_rafaga\": false, \"dimensiones\": null, \"deep\": false, \"cat\": null, \"dias\": null, \"desde\": null, \"hasta\": null, \"autor\": null, \"modo_estricto\": false, \"buscar_por_rol\": null, \"usar_inferencia\": true, \"limite\": 5, \"asociados\": true, \"completo\": false, \"context_window\": 1, \"preview_chars\": 1500}",
+                  "conceptos_top": "synthetic_cobalt"
+                }
+              ],
+              "deleted": [],
+              "updated": []
+            },
+            "nodo_accesos_historial": {
+              "schema_before": [
+                {
+                  "name": "id",
+                  "type": "INTEGER",
+                  "notnull": 0,
+                  "default": null,
+                  "pk": 1
+                },
+                {
+                  "name": "concepto",
+                  "type": "TEXT",
+                  "notnull": 1,
+                  "default": null,
+                  "pk": 0
+                },
+                {
+                  "name": "acceso_timestamp",
+                  "type": "REAL",
+                  "notnull": 1,
+                  "default": null,
+                  "pk": 0
+                }
+              ],
+              "schema_after": [
+                {
+                  "name": "id",
+                  "type": "INTEGER",
+                  "notnull": 0,
+                  "default": null,
+                  "pk": 1
+                },
+                {
+                  "name": "concepto",
+                  "type": "TEXT",
+                  "notnull": 1,
+                  "default": null,
+                  "pk": 0
+                },
+                {
+                  "name": "acceso_timestamp",
+                  "type": "REAL",
+                  "notnull": 1,
+                  "default": null,
+                  "pk": 0
+                }
+              ],
+              "inserted": [
+                {
+                  "id": 1,
+                  "concepto": "synthetic_cobalt",
+                  "acceso_timestamp": 1793059200.0
+                }
+              ],
+              "deleted": [],
+              "updated": []
+            }
+          }
+        },
+        "divergencias_espejo_antes": [],
+        "divergencias_espejo_despues": [],
+        "evidence_dir": "/tmp/biorag_v2_clean_pair_y77rdhst/biorag_linea_base_5p2ahcs_/evidence/G1/c56c89671d0783fcb516"
+      }
+    ],
+    "G2": [
+      {
+        "query_id": "synthetic_query_002",
+        "tablas_cambiadas": [
+          "log_busquedas",
+          "nodo_accesos_historial"
+        ],
+        "tablas_inesperadas": [],
+        "aristas": {
+          "insertadas": [],
+          "eliminadas": [],
+          "actualizadas": []
+        },
+        "estado": [],
+        "row_field_audit": {
+          "valid": true,
+          "violations": [],
+          "changes": {
+            "log_busquedas": {
+              "schema_before": [
+                {
+                  "name": "id",
+                  "type": "INTEGER",
+                  "notnull": 0,
+                  "default": null,
+                  "pk": 1
+                },
+                {
+                  "name": "query",
+                  "type": "TEXT",
+                  "notnull": 1,
+                  "default": null,
+                  "pk": 0
+                },
+                {
+                  "name": "resultados_count",
+                  "type": "INTEGER",
+                  "notnull": 1,
+                  "default": null,
+                  "pk": 0
+                },
+                {
+                  "name": "top_score",
+                  "type": "REAL",
+                  "notnull": 0,
+                  "default": null,
+                  "pk": 0
+                },
+                {
+                  "name": "creado_en",
+                  "type": "REAL",
+                  "notnull": 1,
+                  "default": null,
+                  "pk": 0
+                },
+                {
+                  "name": "util",
+                  "type": "INTEGER",
+                  "notnull": 0,
+                  "default": "NULL",
+                  "pk": 0
+                },
+                {
+                  "name": "params_json",
+                  "type": "TEXT",
+                  "notnull": 0,
+                  "default": null,
+                  "pk": 0
+                },
+                {
+                  "name": "conceptos_top",
+                  "type": "TEXT",
+                  "notnull": 0,
+                  "default": null,
+                  "pk": 0
+                }
+              ],
+              "schema_after": [
+                {
+                  "name": "id",
+                  "type": "INTEGER",
+                  "notnull": 0,
+                  "default": null,
+                  "pk": 1
+                },
+                {
+                  "name": "query",
+                  "type": "TEXT",
+                  "notnull": 1,
+                  "default": null,
+                  "pk": 0
+                },
+                {
+                  "name": "resultados_count",
+                  "type": "INTEGER",
+                  "notnull": 1,
+                  "default": null,
+                  "pk": 0
+                },
+                {
+                  "name": "top_score",
+                  "type": "REAL",
+                  "notnull": 0,
+                  "default": null,
+                  "pk": 0
+                },
+                {
+                  "name": "creado_en",
+                  "type": "REAL",
+                  "notnull": 1,
+                  "default": null,
+                  "pk": 0
+                },
+                {
+                  "name": "util",
+                  "type": "INTEGER",
+                  "notnull": 0,
+                  "default": "NULL",
+                  "pk": 0
+                },
+                {
+                  "name": "params_json",
+                  "type": "TEXT",
+                  "notnull": 0,
+                  "default": null,
+                  "pk": 0
+                },
+                {
+                  "name": "conceptos_top",
+                  "type": "TEXT",
+                  "notnull": 0,
+                  "default": null,
+                  "pk": 0
+                }
+              ],
+              "inserted": [
+                {
+                  "id": 4,
+                  "query": "cobalt azure",
+                  "resultados_count": 1,
+                  "top_score": 0.3815,
+                  "creado_en": 1793059200.0,
+                  "util": null,
+                  "params_json": "{\"query\": \"cobalt azure\", \"parafrasis\": null, \"rafaga_palabras\": null, \"forzar_rafaga\": false, \"dimensiones\": null, \"deep\": false, \"cat\": null, \"dias\": null, \"desde\": null, \"hasta\": null, \"autor\": null, \"modo_estricto\": false, \"buscar_por_rol\": null, \"usar_inferencia\": true, \"limite\": 5, \"asociados\": true, \"completo\": false, \"context_window\": 2, \"preview_chars\": 1500}",
+                  "conceptos_top": "synthetic_cobalt"
+                }
+              ],
+              "deleted": [],
+              "updated": []
+            },
+            "nodo_accesos_historial": {
+              "schema_before": [
+                {
+                  "name": "id",
+                  "type": "INTEGER",
+                  "notnull": 0,
+                  "default": null,
+                  "pk": 1
+                },
+                {
+                  "name": "concepto",
+                  "type": "TEXT",
+                  "notnull": 1,
+                  "default": null,
+                  "pk": 0
+                },
+                {
+                  "name": "acceso_timestamp",
+                  "type": "REAL",
+                  "notnull": 1,
+                  "default": null,
+                  "pk": 0
+                }
+              ],
+              "schema_after": [
+                {
+                  "name": "id",
+                  "type": "INTEGER",
+                  "notnull": 0,
+                  "default": null,
+                  "pk": 1
+                },
+                {
+                  "name": "concepto",
+                  "type": "TEXT",
+                  "notnull": 1,
+                  "default": null,
+                  "pk": 0
+                },
+                {
+                  "name": "acceso_timestamp",
+                  "type": "REAL",
+                  "notnull": 1,
+                  "default": null,
+                  "pk": 0
+                }
+              ],
+              "inserted": [
+                {
+                  "id": 1,
+                  "concepto": "synthetic_cobalt",
+                  "acceso_timestamp": 1793059200.0
+                }
+              ],
+              "deleted": [],
+              "updated": []
+            }
+          }
+        },
+        "divergencias_espejo_antes": [],
+        "divergencias_espejo_despues": [],
+        "evidence_dir": "/tmp/biorag_v2_clean_pair_y77rdhst/biorag_linea_base_5p2ahcs_/evidence/G2/eafe0df0ff1b4b5c27b7"
+      }
+    ],
+    "N0": [
+      {
+        "query_id": "synthetic_query_002",
+        "tablas_cambiadas": [
+          "log_busquedas",
+          "nodo_accesos_historial"
+        ],
+        "tablas_inesperadas": [],
+        "aristas": {
+          "insertadas": [],
+          "eliminadas": [],
+          "actualizadas": []
+        },
+        "estado": [],
+        "row_field_audit": {
+          "valid": true,
+          "violations": [],
+          "changes": {
+            "log_busquedas": {
+              "schema_before": [
+                {
+                  "name": "id",
+                  "type": "INTEGER",
+                  "notnull": 0,
+                  "default": null,
+                  "pk": 1
+                },
+                {
+                  "name": "query",
+                  "type": "TEXT",
+                  "notnull": 1,
+                  "default": null,
+                  "pk": 0
+                },
+                {
+                  "name": "resultados_count",
+                  "type": "INTEGER",
+                  "notnull": 1,
+                  "default": null,
+                  "pk": 0
+                },
+                {
+                  "name": "top_score",
+                  "type": "REAL",
+                  "notnull": 0,
+                  "default": null,
+                  "pk": 0
+                },
+                {
+                  "name": "creado_en",
+                  "type": "REAL",
+                  "notnull": 1,
+                  "default": null,
+                  "pk": 0
+                },
+                {
+                  "name": "util",
+                  "type": "INTEGER",
+                  "notnull": 0,
+                  "default": "NULL",
+                  "pk": 0
+                },
+                {
+                  "name": "params_json",
+                  "type": "TEXT",
+                  "notnull": 0,
+                  "default": null,
+                  "pk": 0
+                },
+                {
+                  "name": "conceptos_top",
+                  "type": "TEXT",
+                  "notnull": 0,
+                  "default": null,
+                  "pk": 0
+                }
+              ],
+              "schema_after": [
+                {
+                  "name": "id",
+                  "type": "INTEGER",
+                  "notnull": 0,
+                  "default": null,
+                  "pk": 1
+                },
+                {
+                  "name": "query",
+                  "type": "TEXT",
+                  "notnull": 1,
+                  "default": null,
+                  "pk": 0
+                },
+                {
+                  "name": "resultados_count",
+                  "type": "INTEGER",
+                  "notnull": 1,
+                  "default": null,
+                  "pk": 0
+                },
+                {
+                  "name": "top_score",
+                  "type": "REAL",
+                  "notnull": 0,
+                  "default": null,
+                  "pk": 0
+                },
+                {
+                  "name": "creado_en",
+                  "type": "REAL",
+                  "notnull": 1,
+                  "default": null,
+                  "pk": 0
+                },
+                {
+                  "name": "util",
+                  "type": "INTEGER",
+                  "notnull": 0,
+                  "default": "NULL",
+                  "pk": 0
+                },
+                {
+                  "name": "params_json",
+                  "type": "TEXT",
+                  "notnull": 0,
+                  "default": null,
+                  "pk": 0
+                },
+                {
+                  "name": "conceptos_top",
+                  "type": "TEXT",
+                  "notnull": 0,
+                  "default": null,
+                  "pk": 0
+                }
+              ],
+              "inserted": [
+                {
+                  "id": 4,
+                  "query": "cobalt azure",
+                  "resultados_count": 1,
+                  "top_score": 0.3815,
+                  "creado_en": 1793059200.0,
+                  "util": null,
+                  "params_json": "{\"query\": \"cobalt azure\", \"parafrasis\": null, \"rafaga_palabras\": null, \"forzar_rafaga\": false, \"dimensiones\": null, \"deep\": false, \"cat\": null, \"dias\": null, \"desde\": null, \"hasta\": null, \"autor\": null, \"modo_estricto\": false, \"buscar_por_rol\": null, \"usar_inferencia\": true, \"limite\": 5, \"asociados\": false, \"completo\": false, \"context_window\": 0, \"preview_chars\": 1500}",
+                  "conceptos_top": "synthetic_cobalt"
+                }
+              ],
+              "deleted": [],
+              "updated": []
+            },
+            "nodo_accesos_historial": {
+              "schema_before": [
+                {
+                  "name": "id",
+                  "type": "INTEGER",
+                  "notnull": 0,
+                  "default": null,
+                  "pk": 1
+                },
+                {
+                  "name": "concepto",
+                  "type": "TEXT",
+                  "notnull": 1,
+                  "default": null,
+                  "pk": 0
+                },
+                {
+                  "name": "acceso_timestamp",
+                  "type": "REAL",
+                  "notnull": 1,
+                  "default": null,
+                  "pk": 0
+                }
+              ],
+              "schema_after": [
+                {
+                  "name": "id",
+                  "type": "INTEGER",
+                  "notnull": 0,
+                  "default": null,
+                  "pk": 1
+                },
+                {
+                  "name": "concepto",
+                  "type": "TEXT",
+                  "notnull": 1,
+                  "default": null,
+                  "pk": 0
+                },
+                {
+                  "name": "acceso_timestamp",
+                  "type": "REAL",
+                  "notnull": 1,
+                  "default": null,
+                  "pk": 0
+                }
+              ],
+              "inserted": [
+                {
+                  "id": 1,
+                  "concepto": "synthetic_cobalt",
+                  "acceso_timestamp": 1793059200.0
+                }
+              ],
+              "deleted": [],
+              "updated": []
+            }
+          }
+        },
+        "divergencias_espejo_antes": [],
+        "divergencias_espejo_despues": [],
+        "evidence_dir": "/tmp/biorag_v2_clean_pair_y77rdhst/biorag_linea_base_5p2ahcs_/evidence/N0/29e587c735270e2077dd"
+      }
+    ],
+    "N1": [
+      {
+        "query_id": "synthetic_query_002",
+        "tablas_cambiadas": [
+          "log_busquedas",
+          "nodo_accesos_historial"
+        ],
+        "tablas_inesperadas": [],
+        "aristas": {
+          "insertadas": [],
+          "eliminadas": [],
+          "actualizadas": []
+        },
+        "estado": [],
+        "row_field_audit": {
+          "valid": true,
+          "violations": [],
+          "changes": {
+            "log_busquedas": {
+              "schema_before": [
+                {
+                  "name": "id",
+                  "type": "INTEGER",
+                  "notnull": 0,
+                  "default": null,
+                  "pk": 1
+                },
+                {
+                  "name": "query",
+                  "type": "TEXT",
+                  "notnull": 1,
+                  "default": null,
+                  "pk": 0
+                },
+                {
+                  "name": "resultados_count",
+                  "type": "INTEGER",
+                  "notnull": 1,
+                  "default": null,
+                  "pk": 0
+                },
+                {
+                  "name": "top_score",
+                  "type": "REAL",
+                  "notnull": 0,
+                  "default": null,
+                  "pk": 0
+                },
+                {
+                  "name": "creado_en",
+                  "type": "REAL",
+                  "notnull": 1,
+                  "default": null,
+                  "pk": 0
+                },
+                {
+                  "name": "util",
+                  "type": "INTEGER",
+                  "notnull": 0,
+                  "default": "NULL",
+                  "pk": 0
+                },
+                {
+                  "name": "params_json",
+                  "type": "TEXT",
+                  "notnull": 0,
+                  "default": null,
+                  "pk": 0
+                },
+                {
+                  "name": "conceptos_top",
+                  "type": "TEXT",
+                  "notnull": 0,
+                  "default": null,
+                  "pk": 0
+                }
+              ],
+              "schema_after": [
+                {
+                  "name": "id",
+                  "type": "INTEGER",
+                  "notnull": 0,
+                  "default": null,
+                  "pk": 1
+                },
+                {
+                  "name": "query",
+                  "type": "TEXT",
+                  "notnull": 1,
+                  "default": null,
+                  "pk": 0
+                },
+                {
+                  "name": "resultados_count",
+                  "type": "INTEGER",
+                  "notnull": 1,
+                  "default": null,
+                  "pk": 0
+                },
+                {
+                  "name": "top_score",
+                  "type": "REAL",
+                  "notnull": 0,
+                  "default": null,
+                  "pk": 0
+                },
+                {
+                  "name": "creado_en",
+                  "type": "REAL",
+                  "notnull": 1,
+                  "default": null,
+                  "pk": 0
+                },
+                {
+                  "name": "util",
+                  "type": "INTEGER",
+                  "notnull": 0,
+                  "default": "NULL",
+                  "pk": 0
+                },
+                {
+                  "name": "params_json",
+                  "type": "TEXT",
+                  "notnull": 0,
+                  "default": null,
+                  "pk": 0
+                },
+                {
+                  "name": "conceptos_top",
+                  "type": "TEXT",
+                  "notnull": 0,
+                  "default": null,
+                  "pk": 0
+                }
+              ],
+              "inserted": [
+                {
+                  "id": 4,
+                  "query": "cobalt azure",
+                  "resultados_count": 1,
+                  "top_score": 0.3815,
+                  "creado_en": 1793059200.0,
+                  "util": null,
+                  "params_json": "{\"query\": \"cobalt azure\", \"parafrasis\": null, \"rafaga_palabras\": null, \"forzar_rafaga\": false, \"dimensiones\": null, \"deep\": false, \"cat\": null, \"dias\": null, \"desde\": null, \"hasta\": null, \"autor\": null, \"modo_estricto\": false, \"buscar_por_rol\": null, \"usar_inferencia\": true, \"limite\": 5, \"asociados\": true, \"completo\": false, \"context_window\": 0, \"preview_chars\": 1500}",
+                  "conceptos_top": "synthetic_cobalt"
+                }
+              ],
+              "deleted": [],
+              "updated": []
+            },
+            "nodo_accesos_historial": {
+              "schema_before": [
+                {
+                  "name": "id",
+                  "type": "INTEGER",
+                  "notnull": 0,
+                  "default": null,
+                  "pk": 1
+                },
+                {
+                  "name": "concepto",
+                  "type": "TEXT",
+                  "notnull": 1,
+                  "default": null,
+                  "pk": 0
+                },
+                {
+                  "name": "acceso_timestamp",
+                  "type": "REAL",
+                  "notnull": 1,
+                  "default": null,
+                  "pk": 0
+                }
+              ],
+              "schema_after": [
+                {
+                  "name": "id",
+                  "type": "INTEGER",
+                  "notnull": 0,
+                  "default": null,
+                  "pk": 1
+                },
+                {
+                  "name": "concepto",
+                  "type": "TEXT",
+                  "notnull": 1,
+                  "default": null,
+                  "pk": 0
+                },
+                {
+                  "name": "acceso_timestamp",
+                  "type": "REAL",
+                  "notnull": 1,
+                  "default": null,
+                  "pk": 0
+                }
+              ],
+              "inserted": [
+                {
+                  "id": 1,
+                  "concepto": "synthetic_cobalt",
+                  "acceso_timestamp": 1793059200.0
+                }
+              ],
+              "deleted": [],
+              "updated": []
+            }
+          }
+        },
+        "divergencias_espejo_antes": [],
+        "divergencias_espejo_despues": [],
+        "evidence_dir": "/tmp/biorag_v2_clean_pair_y77rdhst/biorag_linea_base_5p2ahcs_/evidence/N1/3f40ee505288e30a1008"
+      }
+    ],
+    "R": [
+      {
+        "query_id": "synthetic_query_002",
+        "tablas_cambiadas": [
+          "log_busquedas",
+          "nodo_accesos_historial"
+        ],
+        "tablas_inesperadas": [],
+        "aristas": {
+          "insertadas": [],
+          "eliminadas": [],
+          "actualizadas": []
+        },
+        "estado": [],
+        "row_field_audit": {
+          "valid": true,
+          "violations": [],
+          "changes": {
+            "log_busquedas": {
+              "schema_before": [
+                {
+                  "name": "id",
+                  "type": "INTEGER",
+                  "notnull": 0,
+                  "default": null,
+                  "pk": 1
+                },
+                {
+                  "name": "query",
+                  "type": "TEXT",
+                  "notnull": 1,
+                  "default": null,
+                  "pk": 0
+                },
+                {
+                  "name": "resultados_count",
+                  "type": "INTEGER",
+                  "notnull": 1,
+                  "default": null,
+                  "pk": 0
+                },
+                {
+                  "name": "top_score",
+                  "type": "REAL",
+                  "notnull": 0,
+                  "default": null,
+                  "pk": 0
+                },
+                {
+                  "name": "creado_en",
+                  "type": "REAL",
+                  "notnull": 1,
+                  "default": null,
+                  "pk": 0
+                },
+                {
+                  "name": "util",
+                  "type": "INTEGER",
+                  "notnull": 0,
+                  "default": "NULL",
+                  "pk": 0
+                },
+                {
+                  "name": "params_json",
+                  "type": "TEXT",
+                  "notnull": 0,
+                  "default": null,
+                  "pk": 0
+                },
+                {
+                  "name": "conceptos_top",
+                  "type": "TEXT",
+                  "notnull": 0,
+                  "default": null,
+                  "pk": 0
+                }
+              ],
+              "schema_after": [
+                {
+                  "name": "id",
+                  "type": "INTEGER",
+                  "notnull": 0,
+                  "default": null,
+                  "pk": 1
+                },
+                {
+                  "name": "query",
+                  "type": "TEXT",
+                  "notnull": 1,
+                  "default": null,
+                  "pk": 0
+                },
+                {
+                  "name": "resultados_count",
+                  "type": "INTEGER",
+                  "notnull": 1,
+                  "default": null,
+                  "pk": 0
+                },
+                {
+                  "name": "top_score",
+                  "type": "REAL",
+                  "notnull": 0,
+                  "default": null,
+                  "pk": 0
+                },
+                {
+                  "name": "creado_en",
+                  "type": "REAL",
+                  "notnull": 1,
+                  "default": null,
+                  "pk": 0
+                },
+                {
+                  "name": "util",
+                  "type": "INTEGER",
+                  "notnull": 0,
+                  "default": "NULL",
+                  "pk": 0
+                },
+                {
+                  "name": "params_json",
+                  "type": "TEXT",
+                  "notnull": 0,
+                  "default": null,
+                  "pk": 0
+                },
+                {
+                  "name": "conceptos_top",
+                  "type": "TEXT",
+                  "notnull": 0,
+                  "default": null,
+                  "pk": 0
+                }
+              ],
+              "inserted": [
+                {
+                  "id": 4,
+                  "query": "cobalt azure",
+                  "resultados_count": 1,
+                  "top_score": 0.3815,
+                  "creado_en": 1793059200.0,
+                  "util": null,
+                  "params_json": "{\"query\": \"cobalt azure\", \"parafrasis\": null, \"rafaga_palabras\": \"cobalt,azure\", \"forzar_rafaga\": true, \"dimensiones\": null, \"deep\": false, \"cat\": null, \"dias\": null, \"desde\": null, \"hasta\": null, \"autor\": null, \"modo_estricto\": false, \"buscar_por_rol\": null, \"usar_inferencia\": true, \"limite\": 5, \"asociados\": true, \"completo\": false, \"context_window\": 0, \"preview_chars\": 1500}",
+                  "conceptos_top": "synthetic_cobalt"
+                }
+              ],
+              "deleted": [],
+              "updated": []
+            },
+            "nodo_accesos_historial": {
+              "schema_before": [
+                {
+                  "name": "id",
+                  "type": "INTEGER",
+                  "notnull": 0,
+                  "default": null,
+                  "pk": 1
+                },
+                {
+                  "name": "concepto",
+                  "type": "TEXT",
+                  "notnull": 1,
+                  "default": null,
+                  "pk": 0
+                },
+                {
+                  "name": "acceso_timestamp",
+                  "type": "REAL",
+                  "notnull": 1,
+                  "default": null,
+                  "pk": 0
+                }
+              ],
+              "schema_after": [
+                {
+                  "name": "id",
+                  "type": "INTEGER",
+                  "notnull": 0,
+                  "default": null,
+                  "pk": 1
+                },
+                {
+                  "name": "concepto",
+                  "type": "TEXT",
+                  "notnull": 1,
+                  "default": null,
+                  "pk": 0
+                },
+                {
+                  "name": "acceso_timestamp",
+                  "type": "REAL",
+                  "notnull": 1,
+                  "default": null,
+                  "pk": 0
+                }
+              ],
+              "inserted": [
+                {
+                  "id": 1,
+                  "concepto": "synthetic_cobalt",
+                  "acceso_timestamp": 1793059200.0
+                }
+              ],
+              "deleted": [],
+              "updated": []
+            }
+          }
+        },
+        "divergencias_espejo_antes": [],
+        "divergencias_espejo_despues": [],
+        "evidence_dir": "/tmp/biorag_v2_clean_pair_y77rdhst/biorag_linea_base_5p2ahcs_/evidence/R/b925c2fa69cb56141fe6"
+      }
+    ]
+  },
+  "salidas_por_brazo": {
+    "G1": [
+      {
+        "condicion": "G1",
+        "episode_id": "synthetic_pair_002",
+        "query_id": "synthetic_query_002",
+        "stratum": "synthetic_smoke",
+        "idioma": "en",
+        "query": "cobalt azure",
+        "objetivos_principales": [
+          "synthetic_cobalt"
+        ],
+        "relacionados_utiles": [],
+        "ruido_tonto": [],
+        "espera_abstencion": false,
+        "ranking_resultados": [
+          "synthetic_cobalt"
+        ],
+        "rango_objetivo_resultados": 1,
+        "canales": {
+          "resultados": [
+            "synthetic_cobalt"
+          ],
+          "contexto_expandido": [
+            "synthetic_amber",
+            "synthetic_ivory"
+          ],
+          "asociaciones_enriquecidas": [
+            "synthetic_amber",
+            "synthetic_ivory"
+          ],
+          "asociaciones": [
+            "synthetic_amber",
+            "synthetic_ivory"
+          ]
+        },
+        "respuesta_parseada": {
+          "total": 1,
+          "pagina_actual": 1,
+          "paginas_totales": 1,
+          "resultados": [
+            {
+              "concepto": "synthetic_cobalt",
+              "contenido": "Cobalt azure colors glass.",
+              "peso_sinaptico": 0.98,
+              "estado": "activo",
+              "score_hibrido": 0.3815,
+              "confianza_calibrada": 0.3505,
+              "nivel_certeza": "relacionado_confianza_media",
+              "edad_dias": 0,
+              "timestamp_creado": 0,
+              "fecha_legible": null,
+              "stale": false,
+              "asociaciones": {
+                "total": 2,
+                "items": [
+                  "synthetic_amber",
+                  "synthetic_ivory"
+                ],
+                "truncada": false
+              },
+              "asociaciones_enriquecidas": [
+                {
+                  "concepto": "synthetic_amber",
+                  "fuerza_arista": 0.65,
+                  "tipo_sinapsis": "co_nombre",
+                  "peso_vecino": 0.98,
+                  "resumen": "Amber ochre preserves pigments."
+                },
+                {
+                  "concepto": "synthetic_ivory",
+                  "fuerza_arista": 0.65,
+                  "tipo_sinapsis": "co_nombre",
+                  "peso_vecino": 0.98,
+                  "resumen": "Ivory carving forms objects."
+                }
+              ],
+              "score_hibrido_base": 0.3505,
+              "bonus_convergencia_multicampo": 0.031
+            }
+          ],
+          "contexto_expandido": [
+            {
+              "concepto": "synthetic_ivory",
+              "contenido": "Ivory carving forms objects.",
+              "peso_sinaptico": 0.98,
+              "estado": "activo",
+              "score_hibrido": 0.3589,
+              "confianza_calibrada": 0.3589,
+              "nivel_certeza": "relacionado_confianza_media",
+              "edad_dias": 0,
+              "timestamp_creado": 0,
+              "fecha_legible": null,
+              "stale": false,
+              "asociaciones": {
+                "total": 2,
+                "items": [
+                  "synthetic_amber",
+                  "synthetic_cobalt"
+                ],
+                "truncada": false
+              },
+              "asociaciones_enriquecidas": []
+            },
+            {
+              "concepto": "synthetic_amber",
+              "contenido": "Amber ochre preserves pigments.",
+              "peso_sinaptico": 0.98,
+              "estado": "activo",
+              "score_hibrido": 0.3589,
+              "confianza_calibrada": 0.3589,
+              "nivel_certeza": "relacionado_confianza_media",
+              "edad_dias": 0,
+              "timestamp_creado": 0,
+              "fecha_legible": null,
+              "stale": false,
+              "asociaciones": {
+                "total": 2,
+                "items": [
+                  "synthetic_cobalt",
+                  "synthetic_ivory"
+                ],
+                "truncada": false
+              },
+              "asociaciones_enriquecidas": []
+            }
+          ],
+          "sinapsis_creadas": [],
+          "profundidad": "activos",
+          "trazabilidad": {
+            "capa_literal": 0.3505,
+            "capa_parafrasis": 0.0,
+            "capa_rafaga": 0,
+            "fallback_dimensional": 0,
+            "match_exacto": false,
+            "total_candidatos_todos": 1
+          },
+          "advertencia_temporal": false
+        },
+        "respuesta_mcp_cruda": "⚠️ parafrasis=None — Sin parafrasis, el recall es ~40%. Generá 3-5 reformulaciones.\n⚠️ dias=None, desde=None — Sin filtro temporal, traés TODO incluyendo cosas viejas.\n⚠️ dimensiones=None — Sin boost semántico. Usá dimensiones cuando busques por propiedades ontológicas (emoción, entidad, acción, cualidad, coordenada, intención, dominio, cualia, epistemia, escala_abstraccion, centralidad_identitaria, textura_experiencial, modalidad). Ejemplo: dimensiones='intencion_aprender' o dimensiones='dominio_tecnico'\n🍽️ BRECHA DE CONOCIMIENTO (score_top=0.35 < 0.5): los resultados sobre 'cobalt azure' casi no cubren lo consultado. Primero probá PASO 2 (ráfaga con rafaga_palabras); si aún no cubre, investigá en fuente externa y GUARDÁ lo aprendido en BioRAG con biorag_aprender ANTES de responder.\n\n{\"total\": 1, \"pagina_actual\": 1, \"paginas_totales\": 1, \"resultados\": [{\"concepto\": \"synthetic_cobalt\", \"contenido\": \"Cobalt azure colors glass.\", \"peso_sinaptico\": 0.98, \"estado\": \"activo\", \"score_hibrido\": 0.3815, \"confianza_calibrada\": 0.3505, \"nivel_certeza\": \"relacionado_confianza_media\", \"edad_dias\": 0, \"timestamp_creado\": 0, \"fecha_legible\": null, \"stale\": false, \"asociaciones\": {\"total\": 2, \"items\": [\"synthetic_amber\", \"synthetic_ivory\"], \"truncada\": false}, \"asociaciones_enriquecidas\": [{\"concepto\": \"synthetic_amber\", \"fuerza_arista\": 0.65, \"tipo_sinapsis\": \"co_nombre\", \"peso_vecino\": 0.98, \"resumen\": \"Amber ochre preserves pigments.\"}, {\"concepto\": \"synthetic_ivory\", \"fuerza_arista\": 0.65, \"tipo_sinapsis\": \"co_nombre\", \"peso_vecino\": 0.98, \"resumen\": \"Ivory carving forms objects.\"}], \"score_hibrido_base\": 0.3505, \"bonus_convergencia_multicampo\": 0.031}], \"contexto_expandido\": [{\"concepto\": \"synthetic_ivory\", \"contenido\": \"Ivory carving forms objects.\", \"peso_sinaptico\": 0.98, \"estado\": \"activo\", \"score_hibrido\": 0.3589, \"confianza_calibrada\": 0.3589, \"nivel_certeza\": \"relacionado_confianza_media\", \"edad_dias\": 0, \"timestamp_creado\": 0, \"fecha_legible\": null, \"stale\": false, \"asociaciones\": {\"total\": 2, \"items\": [\"synthetic_amber\", \"synthetic_cobalt\"], \"truncada\": false}, \"asociaciones_enriquecidas\": []}, {\"concepto\": \"synthetic_amber\", \"contenido\": \"Amber ochre preserves pigments.\", \"peso_sinaptico\": 0.98, \"estado\": \"activo\", \"score_hibrido\": 0.3589, \"confianza_calibrada\": 0.3589, \"nivel_certeza\": \"relacionado_confianza_media\", \"edad_dias\": 0, \"timestamp_creado\": 0, \"fecha_legible\": null, \"stale\": false, \"asociaciones\": {\"total\": 2, \"items\": [\"synthetic_cobalt\", \"synthetic_ivory\"], \"truncada\": false}, \"asociaciones_enriquecidas\": []}], \"sinapsis_creadas\": [], \"profundidad\": \"activos\", \"trazabilidad\": {\"capa_literal\": 0.3505, \"capa_parafrasis\": 0.0, \"capa_rafaga\": 0, \"fallback_dimensional\": 0, \"match_exacto\": false, \"total_candidatos_todos\": 1}, \"advertencia_temporal\": false}",
+        "mcp_is_error": false,
+        "respuesta_status_error": false,
+        "respuesta_recibida": true,
+        "call_errors": [],
+        "latency_ms": 3309.008,
+        "output_bytes": 2850
+      }
+    ],
+    "G2": [
+      {
+        "condicion": "G2",
+        "episode_id": "synthetic_pair_002",
+        "query_id": "synthetic_query_002",
+        "stratum": "synthetic_smoke",
+        "idioma": "en",
+        "query": "cobalt azure",
+        "objetivos_principales": [
+          "synthetic_cobalt"
+        ],
+        "relacionados_utiles": [],
+        "ruido_tonto": [],
+        "espera_abstencion": false,
+        "ranking_resultados": [
+          "synthetic_cobalt"
+        ],
+        "rango_objetivo_resultados": 1,
+        "canales": {
+          "resultados": [
+            "synthetic_cobalt"
+          ],
+          "contexto_expandido": [
+            "synthetic_amber",
+            "synthetic_ivory"
+          ],
+          "asociaciones_enriquecidas": [
+            "synthetic_amber",
+            "synthetic_ivory"
+          ],
+          "asociaciones": [
+            "synthetic_amber",
+            "synthetic_ivory"
+          ]
+        },
+        "respuesta_parseada": {
+          "total": 1,
+          "pagina_actual": 1,
+          "paginas_totales": 1,
+          "resultados": [
+            {
+              "concepto": "synthetic_cobalt",
+              "contenido": "Cobalt azure colors glass.",
+              "peso_sinaptico": 0.98,
+              "estado": "activo",
+              "score_hibrido": 0.4851,
+              "confianza_calibrada": 0.4541,
+              "nivel_certeza": "relacionado_confianza_media",
+              "edad_dias": 0,
+              "timestamp_creado": 0,
+              "fecha_legible": null,
+              "stale": false,
+              "asociaciones": {
+                "total": 2,
+                "items": [
+                  "synthetic_amber",
+                  "synthetic_ivory"
+                ],
+                "truncada": false
+              },
+              "asociaciones_enriquecidas": [
+                {
+                  "concepto": "synthetic_amber",
+                  "fuerza_arista": 0.65,
+                  "tipo_sinapsis": "co_nombre",
+                  "peso_vecino": 0.98,
+                  "resumen": "Amber ochre preserves pigments."
+                },
+                {
+                  "concepto": "synthetic_ivory",
+                  "fuerza_arista": 0.65,
+                  "tipo_sinapsis": "co_nombre",
+                  "peso_vecino": 0.98,
+                  "resumen": "Ivory carving forms objects."
+                }
+              ],
+              "score_hibrido_base": 0.4541,
+              "bonus_convergencia_multicampo": 0.031
+            }
+          ],
+          "contexto_expandido": [
+            {
+              "concepto": "synthetic_ivory",
+              "contenido": "Ivory carving forms objects.",
+              "peso_sinaptico": 0.98,
+              "estado": "activo",
+              "score_hibrido": 0.4107,
+              "confianza_calibrada": 0.4107,
+              "nivel_certeza": "relacionado_confianza_media",
+              "edad_dias": 0,
+              "timestamp_creado": 0,
+              "fecha_legible": null,
+              "stale": false,
+              "asociaciones": {
+                "total": 2,
+                "items": [
+                  "synthetic_amber",
+                  "synthetic_cobalt"
+                ],
+                "truncada": false
+              },
+              "asociaciones_enriquecidas": []
+            },
+            {
+              "concepto": "synthetic_amber",
+              "contenido": "Amber ochre preserves pigments.",
+              "peso_sinaptico": 0.98,
+              "estado": "activo",
+              "score_hibrido": 0.4107,
+              "confianza_calibrada": 0.4107,
+              "nivel_certeza": "relacionado_confianza_media",
+              "edad_dias": 0,
+              "timestamp_creado": 0,
+              "fecha_legible": null,
+              "stale": false,
+              "asociaciones": {
+                "total": 2,
+                "items": [
+                  "synthetic_cobalt",
+                  "synthetic_ivory"
+                ],
+                "truncada": false
+              },
+              "asociaciones_enriquecidas": []
+            }
+          ],
+          "sinapsis_creadas": [],
+          "profundidad": "activos",
+          "trazabilidad": {
+            "capa_literal": 0.3505,
+            "capa_parafrasis": 0.0,
+            "capa_rafaga": 0,
+            "fallback_dimensional": 0,
+            "match_exacto": false,
+            "total_candidatos_todos": 1
+          },
+          "advertencia_temporal": false
+        },
+        "respuesta_mcp_cruda": "⚠️ parafrasis=None — Sin parafrasis, el recall es ~40%. Generá 3-5 reformulaciones.\n⚠️ dias=None, desde=None — Sin filtro temporal, traés TODO incluyendo cosas viejas.\n⚠️ dimensiones=None — Sin boost semántico. Usá dimensiones cuando busques por propiedades ontológicas (emoción, entidad, acción, cualidad, coordenada, intención, dominio, cualia, epistemia, escala_abstraccion, centralidad_identitaria, textura_experiencial, modalidad). Ejemplo: dimensiones='intencion_aprender' o dimensiones='dominio_tecnico'\n🍽️ BRECHA DE CONOCIMIENTO (score_top=0.35 < 0.5): los resultados sobre 'cobalt azure' casi no cubren lo consultado. Primero probá PASO 2 (ráfaga con rafaga_palabras); si aún no cubre, investigá en fuente externa y GUARDÁ lo aprendido en BioRAG con biorag_aprender ANTES de responder.\n\n{\"total\": 1, \"pagina_actual\": 1, \"paginas_totales\": 1, \"resultados\": [{\"concepto\": \"synthetic_cobalt\", \"contenido\": \"Cobalt azure colors glass.\", \"peso_sinaptico\": 0.98, \"estado\": \"activo\", \"score_hibrido\": 0.4851, \"confianza_calibrada\": 0.4541, \"nivel_certeza\": \"relacionado_confianza_media\", \"edad_dias\": 0, \"timestamp_creado\": 0, \"fecha_legible\": null, \"stale\": false, \"asociaciones\": {\"total\": 2, \"items\": [\"synthetic_amber\", \"synthetic_ivory\"], \"truncada\": false}, \"asociaciones_enriquecidas\": [{\"concepto\": \"synthetic_amber\", \"fuerza_arista\": 0.65, \"tipo_sinapsis\": \"co_nombre\", \"peso_vecino\": 0.98, \"resumen\": \"Amber ochre preserves pigments.\"}, {\"concepto\": \"synthetic_ivory\", \"fuerza_arista\": 0.65, \"tipo_sinapsis\": \"co_nombre\", \"peso_vecino\": 0.98, \"resumen\": \"Ivory carving forms objects.\"}], \"score_hibrido_base\": 0.4541, \"bonus_convergencia_multicampo\": 0.031}], \"contexto_expandido\": [{\"concepto\": \"synthetic_ivory\", \"contenido\": \"Ivory carving forms objects.\", \"peso_sinaptico\": 0.98, \"estado\": \"activo\", \"score_hibrido\": 0.4107, \"confianza_calibrada\": 0.4107, \"nivel_certeza\": \"relacionado_confianza_media\", \"edad_dias\": 0, \"timestamp_creado\": 0, \"fecha_legible\": null, \"stale\": false, \"asociaciones\": {\"total\": 2, \"items\": [\"synthetic_amber\", \"synthetic_cobalt\"], \"truncada\": false}, \"asociaciones_enriquecidas\": []}, {\"concepto\": \"synthetic_amber\", \"contenido\": \"Amber ochre preserves pigments.\", \"peso_sinaptico\": 0.98, \"estado\": \"activo\", \"score_hibrido\": 0.4107, \"confianza_calibrada\": 0.4107, \"nivel_certeza\": \"relacionado_confianza_media\", \"edad_dias\": 0, \"timestamp_creado\": 0, \"fecha_legible\": null, \"stale\": false, \"asociaciones\": {\"total\": 2, \"items\": [\"synthetic_cobalt\", \"synthetic_ivory\"], \"truncada\": false}, \"asociaciones_enriquecidas\": []}], \"sinapsis_creadas\": [], \"profundidad\": \"activos\", \"trazabilidad\": {\"capa_literal\": 0.3505, \"capa_parafrasis\": 0.0, \"capa_rafaga\": 0, \"fallback_dimensional\": 0, \"match_exacto\": false, \"total_candidatos_todos\": 1}, \"advertencia_temporal\": false}",
+        "mcp_is_error": false,
+        "respuesta_status_error": false,
+        "respuesta_recibida": true,
+        "call_errors": [],
+        "latency_ms": 3310.578,
+        "output_bytes": 2850
+      }
+    ],
+    "N0": [
+      {
+        "condicion": "N0",
+        "episode_id": "synthetic_pair_002",
+        "query_id": "synthetic_query_002",
+        "stratum": "synthetic_smoke",
+        "idioma": "en",
+        "query": "cobalt azure",
+        "objetivos_principales": [
+          "synthetic_cobalt"
+        ],
+        "relacionados_utiles": [],
+        "ruido_tonto": [],
+        "espera_abstencion": false,
+        "ranking_resultados": [
+          "synthetic_cobalt"
+        ],
+        "rango_objetivo_resultados": 1,
+        "canales": {
+          "resultados": [
+            "synthetic_cobalt"
+          ],
+          "contexto_expandido": [],
+          "asociaciones_enriquecidas": [],
+          "asociaciones": []
+        },
+        "respuesta_parseada": {
+          "total": 1,
+          "pagina_actual": 1,
+          "paginas_totales": 1,
+          "resultados": [
+            {
+              "concepto": "synthetic_cobalt",
+              "contenido": "Cobalt azure colors glass.",
+              "peso_sinaptico": 0.98,
+              "estado": "activo",
+              "score_hibrido": 0.3815,
+              "confianza_calibrada": 0.3505,
+              "nivel_certeza": "relacionado_confianza_media",
+              "edad_dias": 0,
+              "timestamp_creado": 0,
+              "fecha_legible": null,
+              "stale": false,
+              "asociaciones": {
+                "total": 0,
+                "items": [],
+                "truncada": false
+              },
+              "asociaciones_enriquecidas": [],
+              "score_hibrido_base": 0.3505,
+              "bonus_convergencia_multicampo": 0.031
+            }
+          ],
+          "contexto_expandido": [],
+          "sinapsis_creadas": [],
+          "profundidad": "activos",
+          "trazabilidad": {
+            "capa_literal": 0.3505,
+            "capa_parafrasis": 0.0,
+            "capa_rafaga": 0,
+            "fallback_dimensional": 0,
+            "match_exacto": false,
+            "total_candidatos_todos": 1
+          },
+          "advertencia_temporal": false
+        },
+        "respuesta_mcp_cruda": "⚠️ parafrasis=None — Sin parafrasis, el recall es ~40%. Generá 3-5 reformulaciones.\n⚠️ dias=None, desde=None — Sin filtro temporal, traés TODO incluyendo cosas viejas.\n⚠️ asociados=False — No ves las conexiones de los nodos. Usá asociados=True.\n⚠️ dimensiones=None — Sin boost semántico. Usá dimensiones cuando busques por propiedades ontológicas (emoción, entidad, acción, cualidad, coordenada, intención, dominio, cualia, epistemia, escala_abstraccion, centralidad_identitaria, textura_experiencial, modalidad). Ejemplo: dimensiones='intencion_aprender' o dimensiones='dominio_tecnico'\n🍽️ BRECHA DE CONOCIMIENTO (score_top=0.35 < 0.5): los resultados sobre 'cobalt azure' casi no cubren lo consultado. Primero probá PASO 2 (ráfaga con rafaga_palabras); si aún no cubre, investigá en fuente externa y GUARDÁ lo aprendido en BioRAG con biorag_aprender ANTES de responder.\n\n{\"total\": 1, \"pagina_actual\": 1, \"paginas_totales\": 1, \"resultados\": [{\"concepto\": \"synthetic_cobalt\", \"contenido\": \"Cobalt azure colors glass.\", \"peso_sinaptico\": 0.98, \"estado\": \"activo\", \"score_hibrido\": 0.3815, \"confianza_calibrada\": 0.3505, \"nivel_certeza\": \"relacionado_confianza_media\", \"edad_dias\": 0, \"timestamp_creado\": 0, \"fecha_legible\": null, \"stale\": false, \"asociaciones\": {\"total\": 0, \"items\": [], \"truncada\": false}, \"asociaciones_enriquecidas\": [], \"score_hibrido_base\": 0.3505, \"bonus_convergencia_multicampo\": 0.031}], \"contexto_expandido\": [], \"sinapsis_creadas\": [], \"profundidad\": \"activos\", \"trazabilidad\": {\"capa_literal\": 0.3505, \"capa_parafrasis\": 0.0, \"capa_rafaga\": 0, \"fallback_dimensional\": 0, \"match_exacto\": false, \"total_candidatos_todos\": 1}, \"advertencia_temporal\": false}",
+        "mcp_is_error": false,
+        "respuesta_status_error": false,
+        "respuesta_recibida": true,
+        "call_errors": [],
+        "latency_ms": 4483.767,
+        "output_bytes": 1724
+      }
+    ],
+    "N1": [
+      {
+        "condicion": "N1",
+        "episode_id": "synthetic_pair_002",
+        "query_id": "synthetic_query_002",
+        "stratum": "synthetic_smoke",
+        "idioma": "en",
+        "query": "cobalt azure",
+        "objetivos_principales": [
+          "synthetic_cobalt"
+        ],
+        "relacionados_utiles": [],
+        "ruido_tonto": [],
+        "espera_abstencion": false,
+        "ranking_resultados": [
+          "synthetic_cobalt"
+        ],
+        "rango_objetivo_resultados": 1,
+        "canales": {
+          "resultados": [
+            "synthetic_cobalt"
+          ],
+          "contexto_expandido": [],
+          "asociaciones_enriquecidas": [
+            "synthetic_amber",
+            "synthetic_ivory"
+          ],
+          "asociaciones": [
+            "synthetic_amber",
+            "synthetic_ivory"
+          ]
+        },
+        "respuesta_parseada": {
+          "total": 1,
+          "pagina_actual": 1,
+          "paginas_totales": 1,
+          "resultados": [
+            {
+              "concepto": "synthetic_cobalt",
+              "contenido": "Cobalt azure colors glass.",
+              "peso_sinaptico": 0.98,
+              "estado": "activo",
+              "score_hibrido": 0.3815,
+              "confianza_calibrada": 0.3505,
+              "nivel_certeza": "relacionado_confianza_media",
+              "edad_dias": 0,
+              "timestamp_creado": 0,
+              "fecha_legible": null,
+              "stale": false,
+              "asociaciones": {
+                "total": 2,
+                "items": [
+                  "synthetic_amber",
+                  "synthetic_ivory"
+                ],
+                "truncada": false
+              },
+              "asociaciones_enriquecidas": [
+                {
+                  "concepto": "synthetic_amber",
+                  "fuerza_arista": 0.65,
+                  "tipo_sinapsis": "co_nombre",
+                  "peso_vecino": 0.98,
+                  "resumen": "Amber ochre preserves pigments."
+                },
+                {
+                  "concepto": "synthetic_ivory",
+                  "fuerza_arista": 0.65,
+                  "tipo_sinapsis": "co_nombre",
+                  "peso_vecino": 0.98,
+                  "resumen": "Ivory carving forms objects."
+                }
+              ],
+              "score_hibrido_base": 0.3505,
+              "bonus_convergencia_multicampo": 0.031
+            }
+          ],
+          "contexto_expandido": [],
+          "sinapsis_creadas": [],
+          "profundidad": "activos",
+          "trazabilidad": {
+            "capa_literal": 0.3505,
+            "capa_parafrasis": 0.0,
+            "capa_rafaga": 0,
+            "fallback_dimensional": 0,
+            "match_exacto": false,
+            "total_candidatos_todos": 1
+          },
+          "advertencia_temporal": false
+        },
+        "respuesta_mcp_cruda": "⚠️ parafrasis=None — Sin parafrasis, el recall es ~40%. Generá 3-5 reformulaciones.\n⚠️ dias=None, desde=None — Sin filtro temporal, traés TODO incluyendo cosas viejas.\n⚠️ dimensiones=None — Sin boost semántico. Usá dimensiones cuando busques por propiedades ontológicas (emoción, entidad, acción, cualidad, coordenada, intención, dominio, cualia, epistemia, escala_abstraccion, centralidad_identitaria, textura_experiencial, modalidad). Ejemplo: dimensiones='intencion_aprender' o dimensiones='dominio_tecnico'\n🍽️ BRECHA DE CONOCIMIENTO (score_top=0.35 < 0.5): los resultados sobre 'cobalt azure' casi no cubren lo consultado. Primero probá PASO 2 (ráfaga con rafaga_palabras); si aún no cubre, investigá en fuente externa y GUARDÁ lo aprendido en BioRAG con biorag_aprender ANTES de responder.\n\n{\"total\": 1, \"pagina_actual\": 1, \"paginas_totales\": 1, \"resultados\": [{\"concepto\": \"synthetic_cobalt\", \"contenido\": \"Cobalt azure colors glass.\", \"peso_sinaptico\": 0.98, \"estado\": \"activo\", \"score_hibrido\": 0.3815, \"confianza_calibrada\": 0.3505, \"nivel_certeza\": \"relacionado_confianza_media\", \"edad_dias\": 0, \"timestamp_creado\": 0, \"fecha_legible\": null, \"stale\": false, \"asociaciones\": {\"total\": 2, \"items\": [\"synthetic_amber\", \"synthetic_ivory\"], \"truncada\": false}, \"asociaciones_enriquecidas\": [{\"concepto\": \"synthetic_amber\", \"fuerza_arista\": 0.65, \"tipo_sinapsis\": \"co_nombre\", \"peso_vecino\": 0.98, \"resumen\": \"Amber ochre preserves pigments.\"}, {\"concepto\": \"synthetic_ivory\", \"fuerza_arista\": 0.65, \"tipo_sinapsis\": \"co_nombre\", \"peso_vecino\": 0.98, \"resumen\": \"Ivory carving forms objects.\"}], \"score_hibrido_base\": 0.3505, \"bonus_convergencia_multicampo\": 0.031}], \"contexto_expandido\": [], \"sinapsis_creadas\": [], \"profundidad\": \"activos\", \"trazabilidad\": {\"capa_literal\": 0.3505, \"capa_parafrasis\": 0.0, \"capa_rafaga\": 0, \"fallback_dimensional\": 0, \"match_exacto\": false, \"total_candidatos_todos\": 1}, \"advertencia_temporal\": false}",
+        "mcp_is_error": false,
+        "respuesta_status_error": false,
+        "respuesta_recibida": true,
+        "call_errors": [],
+        "latency_ms": 3126.765,
+        "output_bytes": 1977
+      }
+    ],
+    "R": [
+      {
+        "condicion": "R",
+        "episode_id": "synthetic_pair_002",
+        "query_id": "synthetic_query_002",
+        "stratum": "synthetic_smoke",
+        "idioma": "en",
+        "query": "cobalt azure",
+        "objetivos_principales": [
+          "synthetic_cobalt"
+        ],
+        "relacionados_utiles": [],
+        "ruido_tonto": [],
+        "espera_abstencion": false,
+        "ranking_resultados": [
+          "synthetic_cobalt"
+        ],
+        "rango_objetivo_resultados": 1,
+        "canales": {
+          "resultados": [
+            "synthetic_cobalt"
+          ],
+          "contexto_expandido": [],
+          "asociaciones_enriquecidas": [
+            "synthetic_amber",
+            "synthetic_ivory"
+          ],
+          "asociaciones": [
+            "synthetic_amber",
+            "synthetic_ivory"
+          ]
+        },
+        "respuesta_parseada": {
+          "total": 1,
+          "pagina_actual": 1,
+          "paginas_totales": 1,
+          "resultados": [
+            {
+              "concepto": "synthetic_cobalt",
+              "contenido": "Cobalt azure colors glass.",
+              "peso_sinaptico": 0.98,
+              "estado": "activo",
+              "score_hibrido": 0.3815,
+              "confianza_calibrada": 0.3505,
+              "nivel_certeza": "relacionado_confianza_media",
+              "edad_dias": 0,
+              "timestamp_creado": 0,
+              "fecha_legible": null,
+              "stale": false,
+              "asociaciones": {
+                "total": 2,
+                "items": [
+                  "synthetic_amber",
+                  "synthetic_ivory"
+                ],
+                "truncada": false
+              },
+              "asociaciones_enriquecidas": [
+                {
+                  "concepto": "synthetic_amber",
+                  "fuerza_arista": 0.65,
+                  "tipo_sinapsis": "co_nombre",
+                  "peso_vecino": 0.98,
+                  "resumen": "Amber ochre preserves pigments."
+                },
+                {
+                  "concepto": "synthetic_ivory",
+                  "fuerza_arista": 0.65,
+                  "tipo_sinapsis": "co_nombre",
+                  "peso_vecino": 0.98,
+                  "resumen": "Ivory carving forms objects."
+                }
+              ],
+              "score_hibrido_base": 0.3505,
+              "bonus_convergencia_multicampo": 0.031
+            }
+          ],
+          "contexto_expandido": [],
+          "sinapsis_creadas": [],
+          "profundidad": "activos",
+          "trazabilidad": {
+            "capa_literal": 0.3505,
+            "capa_parafrasis": 0.0,
+            "capa_rafaga": 1,
+            "fallback_dimensional": 0,
+            "match_exacto": false,
+            "total_candidatos_todos": 1
+          },
+          "advertencia_temporal": false
+        },
+        "respuesta_mcp_cruda": "⚠️ parafrasis=None — Sin parafrasis, el recall es ~40%. Generá 3-5 reformulaciones.\n⚠️ dias=None, desde=None — Sin filtro temporal, traés TODO incluyendo cosas viejas.\n⚠️ dimensiones=None — Sin boost semántico. Usá dimensiones cuando busques por propiedades ontológicas (emoción, entidad, acción, cualidad, coordenada, intención, dominio, cualia, epistemia, escala_abstraccion, centralidad_identitaria, textura_experiencial, modalidad). Ejemplo: dimensiones='intencion_aprender' o dimensiones='dominio_tecnico'\nℹ️ MODO RÁFAGA ACTIVADO (PASO 2 - RESCATE AMMPLIO): Búsqueda multitérmino de contingencia. El motor amplía la cobertura sobre los 15 términos para rescatar recuerdos con vocabulario distinto. Los scores son más planos para priorizar cobertura sobre precisión fina. Evaluá los resultados en la síntesis.\n🍽️ BRECHA DE CONOCIMIENTO (score_top=0.35 < 0.5): los resultados sobre 'cobalt azure' casi no cubren lo consultado. Primero probá PASO 2 (ráfaga con rafaga_palabras); si aún no cubre, investigá en fuente externa y GUARDÁ lo aprendido en BioRAG con biorag_aprender ANTES de responder.\n\n{\"total\": 1, \"pagina_actual\": 1, \"paginas_totales\": 1, \"resultados\": [{\"concepto\": \"synthetic_cobalt\", \"contenido\": \"Cobalt azure colors glass.\", \"peso_sinaptico\": 0.98, \"estado\": \"activo\", \"score_hibrido\": 0.3815, \"confianza_calibrada\": 0.3505, \"nivel_certeza\": \"relacionado_confianza_media\", \"edad_dias\": 0, \"timestamp_creado\": 0, \"fecha_legible\": null, \"stale\": false, \"asociaciones\": {\"total\": 2, \"items\": [\"synthetic_amber\", \"synthetic_ivory\"], \"truncada\": false}, \"asociaciones_enriquecidas\": [{\"concepto\": \"synthetic_amber\", \"fuerza_arista\": 0.65, \"tipo_sinapsis\": \"co_nombre\", \"peso_vecino\": 0.98, \"resumen\": \"Amber ochre preserves pigments.\"}, {\"concepto\": \"synthetic_ivory\", \"fuerza_arista\": 0.65, \"tipo_sinapsis\": \"co_nombre\", \"peso_vecino\": 0.98, \"resumen\": \"Ivory carving forms objects.\"}], \"score_hibrido_base\": 0.3505, \"bonus_convergencia_multicampo\": 0.031}], \"contexto_expandido\": [], \"sinapsis_creadas\": [], \"profundidad\": \"activos\", \"trazabilidad\": {\"capa_literal\": 0.3505, \"capa_parafrasis\": 0.0, \"capa_rafaga\": 1, \"fallback_dimensional\": 0, \"match_exacto\": false, \"total_candidatos_todos\": 1}, \"advertencia_temporal\": false}",
+        "mcp_is_error": false,
+        "respuesta_status_error": false,
+        "respuesta_recibida": true,
+        "call_errors": [],
+        "latency_ms": 3008.362,
+        "output_bytes": 2293
+      }
+    ]
+  }
+}

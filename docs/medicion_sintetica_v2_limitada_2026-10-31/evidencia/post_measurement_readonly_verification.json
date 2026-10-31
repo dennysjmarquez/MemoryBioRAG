@@ -1,0 +1,35 @@
+{
+  "mcp_started": false,
+  "database_writes": false,
+  "fixtures": {
+    "build_a": {
+      "path": "/tmp/biorag_v2_clean_pair_y77rdhst/build_a/fixture.sqlite",
+      "physical_sha256": "72793a764a131d4ed5d0d8db13fa3e2199abe2b55d03aaedb4c6818bcdb9e14f",
+      "physical_sha256_expected": "72793a764a131d4ed5d0d8db13fa3e2199abe2b55d03aaedb4c6818bcdb9e14f",
+      "physical_hash_unchanged": true,
+      "logical_sha256": "cf9aaf50e0b36007c9c00cc4b7335c47c0d1dda1bd598bef561cdcf9c8bace55",
+      "logical_sha256_expected": "cf9aaf50e0b36007c9c00cc4b7335c47c0d1dda1bd598bef561cdcf9c8bace55",
+      "logical_hash_unchanged": true,
+      "integrity_check": "ok",
+      "nodes": 3,
+      "active_nodes": 3
+    },
+    "build_b": {
+      "path": "/tmp/biorag_v2_clean_pair_y77rdhst/build_b/fixture.sqlite",
+      "physical_sha256": "8b7afebd73cd852ab47eb8649a463090f4d6fe50c3f99bdf03816f4e8b86671d",
+      "physical_sha256_expected": "8b7afebd73cd852ab47eb8649a463090f4d6fe50c3f99bdf03816f4e8b86671d",
+      "physical_hash_unchanged": true,
+      "logical_sha256": "911a275343d51d2264ccb7dbd6ac423709acde1c7a37b087dedeceddc045ba12",
+      "logical_sha256_expected": "911a275343d51d2264ccb7dbd6ac423709acde1c7a37b087dedeceddc045ba12",
+      "logical_hash_unchanged": true,
+      "integrity_check": "ok",
+      "nodes": 3,
+      "active_nodes": 3
+    }
+  },
+  "repeatability_report_sha256": "b19f0810a58843dc37d8bca1df2d4a8c235698097a651ca5eaf34aad5a9cd456",
+  "repeatability_report_sha256_matches_archive": true,
+  "repeatability_recomputed_equal": true,
+  "measurement_report_valid": true,
+  "invalidations": []
+}
