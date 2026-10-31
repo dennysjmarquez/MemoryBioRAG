@@ -1,16 +1,22 @@
-# Propuesta breve: flujo completo del arnés con fixture sintética
+# Revisión de propuesta: arnés completo con gold sintético pequeño
 
-**Estado: propuesta; no ejecutada.** La autorización previa para el smoke limitado no se toma como aprobación de congelación ni como autorización para iniciar una línea base.
+**Estado: propuesta para auditoría; no ejecutada.** La autorización del smoke limitado no cuenta como congelación ni como aprobación para medir.
 
-## Diseño
+## Compatibilidad con las guardas actuales
 
-- Crear un `BIORAG_QA_TEMP_ROOT` nuevo, externo al repositorio. Generar allí un único gold sintético diminuto (un episodio, tres nodos y dos aristas) y conservar su SHA-256. No abrir ni modificar el gold original ni ninguna base original.
-- Ejecutar `prepare_fixture` dos veces desde cero contra el mismo gold sintético: dos archivos SQLite nuevos en rutas distintas, dos sesiones MCP reales y dos `construction_id` distintos. **No** copiar la primera fixture para fabricar la segunda. Conservar para cada construcción el manifiesto, el informe, los eventos MCP y cualquier marcador de fallo.
-- Ejecutar `audit_repeatability` sobre esas dos construcciones y continuar solo si confirma `REPEATABLE_PAIR`, ledgers independientes, hash gold coincidente y estructura repetible. Inspeccionar y registrar la auditoría del grafo antes de pedir aprobación.
-- Si se autoriza después la fase de medición, usar el `measure_baseline` real sin reemplazar validadores ni crear un manifiesto ficticio. Debe existir una aprobación humana explícita de Dennys, ligada a los hashes del gold sintético, la fixture y los informes revisados; la aprobación previa del smoke no basta. Si falta o no coincide, la guarda debe detener la medición y **no** se ejecuta ningún brazo.
-- Con esa aprobación auténtica, medir solo la fixture sintética y sus copias aisladas, usando los brazos exactos configurados por el arnés: N0/N1, G1/G2 y R. Verificar en cada intento los canales por separado (resultados, contexto expandido, asociaciones y asociaciones enriquecidas), diffs por fila/campo y aislamiento de cada copia. W queda excluido.
-- En una base sintética separada, provocar un único fallo MCP controlado. Confirmar que se preservan el evento crudo, el marcador de corrida inválida y sus hashes; detener cualquier medición si aparece un fallo o una mutación inesperada.
+La preparación (`prepare_fixture`) y `audit_repeatability` ya pueden usar un gold sintético autocontenido. La medición completa (`measure_baseline`), en cambio, **no puede usarlo honestamente tal como está**: si su SHA-256 no es `BASE_GOLD_SHA256`, el arnés exige un ledger de revisión y cierre del gold que se deriva del gold original. Fabricar ese ledger para el sintético fingiría una revisión de origen que nunca ocurrió. No se debe crear ese artefacto ni cambiar el SHA del original para franquear la guarda.
 
-## Condiciones de parada
+Por eso, la ruta actual debe parar antes de la medición. Para poder probar después N/G/R de extremo a extremo, propongo añadir al **arnés auxiliar únicamente** un modo explícito `synthetic_smoke`, separado del camino original. No sería una excepción automática por hash ni un relajamiento de `validate_freeze_approval`:
 
-No ejecutar ahora preparación MCP, medición, ni QA. En la futura ejecución, detenerse antes de N/G/R si no hay aprobación real de Dennys o si falla cualquiera de los gates de repetibilidad, grafo o aislamiento. Si falla una llamada, preservar evidencia y marcar la corrida inválida; no reintentar sobre la misma base. No se cambia el motor, el ranking ni las bases originales.
+- El modo exige que el gold, sus manifiestos y las fixtures estén bajo el nuevo `BIORAG_QA_TEMP_ROOT`; los resuelve y comprueba con la guarda de rutas actual. Rechaza rutas fuera del temporal.
+- El gold lleva un `synthetic_gold_manifest_v1` propio: `provenance="synthetic"`, hash exacto, esquema, autoría/procedencia declarada y `original_gold_read=false`; no contiene `source_sha256` ni se presenta como revisión del gold original.
+- El esquema del gold sintético será mínimo pero completo para el arnés: un episodio, tres nodos, dos aristas y consultas/etiquetas sintéticas para calcular canales y métricas. No se reutiliza ningún texto, identificador o etiqueta del corpus original.
+- El modo sigue exigiendo dos llamadas independientes a `prepare_fixture`: dos SQLite nuevas, dos sesiones MCP reales, rutas/`construction_id`/ledgers distintos, mismo hash del gold sintético y estructura repetible. Copiar una construcción no cuenta como segunda.
+- La guarda de medición exige una aprobación **real y posterior** de Dennys sobre los hashes concretos del gold sintético, grafo, par repetible y brazos. Primero se presenta un manifiesto candidato sin aprobación; se detiene la ejecución y se solicita confirmación explícita. Solo tras esa confirmación se registra el artefacto aprobado. No se rellena `aprobado_por` por anticipado ni se reaprovecha la autorización del smoke.
+- Con esa aprobación y sin alterar el camino original, `measure_baseline` usa copias aisladas para los brazos configurados N0/N1, G1/G2 y R; verifica canales separados y diffs por fila/campo. W queda fuera. Un fallo controlado se prueba en otra DB sintética; se verifican el evento, `run_failure.json` y sus hashes, y la corrida se marca inválida.
+
+## Verificación previa y condiciones de parada
+
+Antes de habilitar `synthetic_smoke`, añadir pruebas negativas que demuestren que el camino original no acepta el manifiesto sintético, que el modo sintético rechaza hashes/rutas/ledgers discordantes y que la falta de aprobación no llega a iniciar ningún brazo. Las pruebas positivas deben pasar por los validadores y MCP reales, no reemplazar las guardas con mocks. Un gate sin aprobación debe fallar de forma esperada y conservar su evidencia.
+
+**No ejecutar ahora preparación MCP, prueba ni medición.** No leer ni modificar el gold o bases originales; no cambiar motor ni ranking. Si un MCP falla, preservar la evidencia y no reintentar sobre esa base. W sigue pendiente.
