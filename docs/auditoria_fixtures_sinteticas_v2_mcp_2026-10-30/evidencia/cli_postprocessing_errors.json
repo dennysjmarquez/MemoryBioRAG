@@ -1,0 +1,13 @@
+{
+  "schema": "post_preparation_cli_errors_v1",
+  "phase": "post-preparation output serialization (after MCP fixture construction and evidence persistence)",
+  "exception_type": "TypeError",
+  "message": "Object of type set is not JSON serializable",
+  "origin": "scripts/linea_base_segura.py::_prepare_cli -> serialize_report(report), json.dumps in scripts/evaluar_qa_intuicion_asociaciones_e1.py:650",
+  "exit_code": 1,
+  "builds": [
+    "build_a",
+    "build_b"
+  ],
+  "note": "The successful preparation_report.json, run_manifest.json, and all 9 event files per build had already been persisted. This is not an MCP tool-call error. Build B raw stderr is preserved as cli_stderr.log; build A traceback was captured in the initial tool output and summarized here."
+}
