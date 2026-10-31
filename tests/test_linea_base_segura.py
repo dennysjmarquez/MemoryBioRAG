@@ -723,7 +723,7 @@ def test_synthetic_measurement_without_approval_stops_before_any_arm(tmp_path, m
             temp_root / "report.json", gold_mode="synthetic_smoke",
             synthetic_manifest_path=synthetic_manifest))
     modified_episodes = copy.deepcopy(episodes)
-    modified_episodes[0]["consultas"][0]["query"] = "different synthetic query"
+    modified_episodes[0]["consultas"][0]["query"] = "cobalt pigment sample changed"
     with pytest.raises(ValueError, match="no coinciden exactamente con el gold sintético aprobado"):
         asyncio.run(harness.measure_baseline(
             fixture_path, temp_root, modified_episodes, gold_path, approval_path, repeatability_path,
@@ -786,3 +786,65 @@ def test_prepare_fixture_synthetic_rejects_episodes_not_from_approved_gold_befor
             db_path, temp_root, modified, gold_path, gold_mode="synthetic_smoke",
             synthetic_manifest_path=manifest_path))
     assert not db_path.exists()
+
+
+def test_synthetic_loader_normalizes_missing_result_fields_and_processor_consumes_them(tmp_path, monkeypatch):
+    temp_root = tmp_path / "qa-temp"
+    temp_root.mkdir()
+    monkeypatch.setenv("BIORAG_QA_TEMP_ROOT", str(temp_root))
+    episode = _small_synthetic_episode()
+    query = episode["consultas"][0]
+    query["espera_abstencion"] = True
+    query.pop("objetivos_principales")
+    query.pop("relacionados_utiles")
+    query.pop("ruido_tonto")
+    gold_path = temp_root / "synthetic_fields_missing.jsonl"
+    gold_path.write_text(json.dumps(episode, ensure_ascii=False) + "\n", encoding="utf-8")
+    loaded = harness.load_synthetic_gold(gold_path)
+    normalized = loaded[0]["consultas"][0]
+    assert normalized["objetivos_principales"] == []
+    assert normalized["relacionados_utiles"] == []
+    assert normalized["ruido_tonto"] == []
+
+    row = harness._result_row(
+        loaded[0], normalized,
+        {"resultados": [{"concepto": "synthetic_cobalt"}], "contexto_expandido": []},
+        "synthetic response", {node["concepto"] for node in loaded[0]["nodos"]}, "N0")
+    assert row["ranking_resultados"] == ["synthetic_cobalt"]
+    assert row["rango_objetivo_resultados"] is None
+    assert row["objetivos_principales"] == []
+    assert row["relacionados_utiles"] == []
+    assert row["ruido_tonto"] == []
+    assert row["espera_abstencion"] is True
+
+
+def test_synthetic_prefix_risks_are_reported_and_observed_shortcut_is_not_assumed_away():
+    episode = copy.deepcopy(_small_synthetic_episode())
+    episode["ruta_2_saltos"] = {
+        "objetivo": "synthetic_amber", "intermedio": "synthetic_cobalt", "pista": "synthetic_ivory",
+    }
+    names = audit_names([episode])
+    assert len(names["pares_riesgo_co_nombre"]) == 3
+
+    concepts = [node["concepto"] for node in episode["nodos"]]
+    observed_edges = [
+        {"origen": "synthetic_amber", "destino": "synthetic_cobalt", "peso": 0.5, "tipo": "manual"},
+        {"origen": "synthetic_cobalt", "destino": "synthetic_ivory", "peso": 0.5, "tipo": "manual"},
+        {"origen": "synthetic_amber", "destino": "synthetic_ivory", "peso": 0.1, "tipo": "co_nombre"},
+    ]
+    adjacency = {concept: set() for concept in concepts}
+    for edge in observed_edges:
+        adjacency[edge["origen"]].add(edge["destino"])
+        adjacency[edge["destino"]].add(edge["origen"])
+    graph = {
+        "nodos": {concept: {"concepto": concept, "estado": "activo"} for concept in concepts},
+        "adjacency_activos": adjacency,
+        "aristas_directas": observed_edges,
+        "divergencias_espejo": [],
+        "conteos": {"nodos": 3, "nodos_activos": 3, "nodos_dormidos": 0,
+                    "aristas_directas_dirigidas": 3, "sinapsis_latentes": 0},
+    }
+    audit = audit_fixture_gold([episode], graph, names)
+    assert audit["congelacion_estructural_permitida"] is False
+    assert "ruta_gold_2_saltos_no_es_unica" in audit["bloqueos_congelacion"]
+    assert len(graph["aristas_directas"]) == 3  # la auditoría informa, no elimina la asociación observada

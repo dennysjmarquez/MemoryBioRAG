@@ -12,6 +12,7 @@ from __future__ import annotations
 
 import argparse
 import asyncio
+import copy
 from collections import defaultdict, deque
 import hashlib
 import json
@@ -463,7 +464,11 @@ def validate_synthetic_gold_manifest(manifest_path: Path, gold_path: Path,
 def load_synthetic_gold(path: Path) -> list[dict]:
     """Lee gold reducido autocontenido, con namespace sintético y esquema del arnés."""
     rows = [json.loads(line) for line in path.read_text(encoding="utf-8").splitlines() if line.strip()]
-    if not 1 <= len(rows) <= 4:
+    return _validate_synthetic_gold_rows(rows)
+
+
+def _validate_synthetic_gold_rows(rows: list[dict]) -> list[dict]:
+    if not isinstance(rows, list) or not 1 <= len(rows) <= 4:
         raise ValueError("Gold synthetic_smoke debe contener entre 1 y 4 episodios")
     if any(not isinstance(row, dict) for row in rows):
         raise ValueError("Cada fila del gold synthetic_smoke debe ser un objeto JSON")
@@ -511,6 +516,14 @@ def load_synthetic_gold(path: Path) -> list[dict]:
             if pair in seen_edges:
                 raise ValueError(f"Arista sintética duplicada: {eid} {edge}")
             seen_edges.add(pair)
+        route = episode.get("ruta_2_saltos")
+        if route is not None:
+            if (not isinstance(route, dict) or set(route) != {"objetivo", "intermedio", "pista"}
+                    or any(not isinstance(value, str) or value not in concepts for value in route.values())
+                    or len(set(route.values())) != 3
+                    or [route["objetivo"], route["intermedio"]] not in edges
+                    or [route["intermedio"], route["pista"]] not in edges):
+                raise ValueError(f"ruta_2_saltos inválida/inconsistente: {eid}")
         for query in queries:
             if not isinstance(query, dict):
                 raise ValueError(f"Cada consulta sintética debe ser objeto JSON: {eid}")
@@ -527,7 +540,12 @@ def load_synthetic_gold(path: Path) -> list[dict]:
                            or token.strip().casefold() not in surface.casefold()
                            for token in query_terms)):
                 raise ValueError(f"sustantivos_clave de consulta no aparece en la superficie: {qid}")
-            targets, useful, noise = (query.get(key, []) for key in
+            # These fields are consumed unconditionally by _result_row/metrics;
+            # normalize only their well-defined empty defaults, never infer abstention.
+            query.setdefault("objetivos_principales", [])
+            query.setdefault("relacionados_utiles", [])
+            query.setdefault("ruido_tonto", [])
+            targets, useful, noise = (query[key] for key in
                                       ("objetivos_principales", "relacionados_utiles", "ruido_tonto"))
             if any(not isinstance(values, list) or any(not isinstance(value, str) for value in values)
                    or not set(values) <= concepts for values in (targets, useful, noise)):
@@ -932,7 +950,8 @@ async def prepare_fixture(db_path: Path, temp_root: Path, episodes: list[dict], 
             raise ValueError("synthetic_smoke requiere --synthetic-manifest explícito")
         validate_synthetic_gold_manifest(synthetic_manifest_path, gold_path, temp_root)
         loaded_episodes = load_synthetic_gold(gold_path)
-        if _canonical(episodes) != _canonical(loaded_episodes):
+        supplied_episodes = _validate_synthetic_gold_rows(copy.deepcopy(episodes))
+        if _canonical(supplied_episodes) != _canonical(loaded_episodes):
             raise ValueError("Los episodios de preparación no coinciden exactamente con el gold sintético aprobado")
         episodes = loaded_episodes
     elif gold_mode != "original":
@@ -1121,7 +1140,8 @@ async def measure_baseline(fixture_path: Path, temp_root: Path, episodes: list[d
         synthetic_gold_manifest, synthetic_gold_manifest_sha256 = validate_synthetic_gold_manifest(
             synthetic_manifest_path, gold_path, temp_root)
         loaded_episodes = load_synthetic_gold(gold_path)
-        if _canonical(episodes) != _canonical(loaded_episodes):
+        supplied_episodes = _validate_synthetic_gold_rows(copy.deepcopy(episodes))
+        if _canonical(supplied_episodes) != _canonical(loaded_episodes):
             raise ValueError("Los episodios usados no coinciden exactamente con el gold sintético aprobado")
         episodes = loaded_episodes
         if not approval_path.is_file():
