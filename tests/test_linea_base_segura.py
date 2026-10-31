@@ -525,3 +525,51 @@ def test_guarded_mcp_call_captures_lifecycle_failures_without_real_mcp(monkeypat
         assert errors and raw == '{"status":"ok"}'
     else:
         assert errors and response["status"] == "transport_error"
+
+
+def test_prepare_fixture_sends_empty_dimensions_for_mcp_required_argument(tmp_path, monkeypatch):
+    temp_root = tmp_path / "qa-temp"
+    temp_root.mkdir()
+    monkeypatch.setenv("BIORAG_QA_TEMP_ROOT", str(temp_root))
+    gold_path = temp_root / "synthetic.jsonl"
+    gold_path.write_text("{}\n", encoding="utf-8")
+    fixture_path = temp_root / "build" / "fixture.sqlite"
+    episode = {"episode_id": "synthetic", "nodos": [{
+        "concepto": "amber", "contenido": "Synthetic amber pigment note.",
+        "sustantivos_clave": "amber,pigment",
+    }], "aristas_gold": []}
+    graph = {
+        "nodos": {"amber": {"concepto": "amber", "estado": "activo"}},
+        "aristas_directas": [], "sinapsis_latentes": [], "divergencias_espejo": [],
+        "conteos": {"nodos": 1, "nodos_activos": 1, "nodos_dormidos": 0,
+                    "aristas_directas_dirigidas": 0, "sinapsis_latentes": 0},
+        "tablas_sha256": {}, "sha256_fixture_logica": "a" * 64,
+    }
+    calls = []
+
+    class FakeMCP:
+        async def __aenter__(self):
+            return self
+
+        async def __aexit__(self, *_args):
+            return None
+
+        async def call(self, name, arguments):
+            calls.append((name, copy.deepcopy(arguments)))
+            if name == "recordar":
+                return "{}", {"status": "ok", "resultados": []}
+            if name == "aprender":
+                return "{}", {"status": "ok", "concepto": "amber"}
+            return "{}", {"status": "ok"}
+
+    monkeypatch.setattr(harness, "MCPProcess", lambda *_args: FakeMCP())
+    monkeypatch.setattr(harness, "readonly_snapshot", lambda _path: {})
+    monkeypatch.setattr(harness, "inspect_fixture", lambda *_args: copy.deepcopy(graph))
+    monkeypatch.setattr(harness, "audit_fixture_gold", lambda *_args: {
+        "congelacion_estructural_permitida": True, "bloqueos_congelacion": [],
+    })
+
+    report = asyncio.run(harness.prepare_fixture(fixture_path, temp_root, [episode], gold_path))
+    learn_call = next(args for name, args in calls if name == "aprender")
+    assert learn_call["dimensiones"] == "{}"
+    assert report["baseline_searches_run"] == 0

@@ -880,7 +880,9 @@ async def prepare_fixture(db_path: Path, temp_root: Path, episodes: list[dict], 
                 learned = await call("aprender", {
                     "concepto": node["concepto"], "contenido": node["contenido"],
                     "bridges": bridges, "sustantivos_clave": node["sustantivos_clave"],
-                    "cat": "General", "busqueda_previa": True,
+                    # The live MCP schema requires this argument; empty JSON avoids
+                    # inventing semantic labels for synthetic fixture construction.
+                    "dimensiones": "{}", "cat": "General", "busqueda_previa": True,
                 }, "aprender:" + node["concepto"])
                 if learned.get("status") != "ok" or learned.get("concepto") != node["concepto"]:
                     raise RuntimeError(f"MCP no confirmó aprendizaje de {node['concepto']}: {learned}")
