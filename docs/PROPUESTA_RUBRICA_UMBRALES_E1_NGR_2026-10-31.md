@@ -2,7 +2,7 @@
 
 **Estado:** propuesta para revisión de Dennys. No modifica ni cierra el gold, no aprueba operativamente los umbrales y no autoriza preparar fixtures o ejecutar la campaña.
 
-La aprobación de `e302fcd` es aprobación del **plan**, no autorización de ejecución. E1 es la campaña completa de 88 episodios/224 consultas; no es un smoke. El smoke sintético de una consulta no es gold de evaluación ni valida estas etiquetas.
+La aprobación de `e302fcd` es aprobación del **plan**, no autorización de ejecución. El plan de 2.768 llamadas está **planificado**, no autorizado para ejecutarse, y solo aplica si el gold no cambia. E1 es la campaña completa de 88 episodios/224 consultas; no es un smoke. El smoke sintético de una consulta no es gold de evaluación ni valida estas etiquetas.
 
 ## 1. Principios de evaluación
 
@@ -39,9 +39,9 @@ Esta es una **extensión secundaria** de la evaluación fija, no una reinterpret
 
 - Propuesta de conjunto: una tarea inicial por episodio, 88 en total: la consulta `principal` de cada episodio positivo (48) y un control preseleccionado por episodio negativo (40), balanceado por estrato. Fijar las 88 semillas en el manifiesto antes de observar salidas.
 - Para cada tarea×brazo, iniciar desde una copia limpia aislada. El agente usa el servidor MCP real y solo la herramienta de búsqueda `recordar`; cada llamada sucesiva conserva el estado de diálogo del agente y la misma copia aislada de esa trayectoria. No llamar `aprender`, `vincular`, herramientas de edición ni despertar nodos.
-- Máximo propuesto: **3 búsquedas MCP por trayectoria** (una inicial y hasta dos seguimientos), sin reintentos automáticos. El agente puede detenerse antes; no hay objetivo de “usar” las tres llamadas. Registrar su motivo de parada. El prompt, modelo/versión, parámetros, herramientas disponibles y política de parada se congelan antes del primer resultado.
-- El agente no ve gold, objetivos, etiquetas ni respuestas esperadas. Recibe solo la tarea y las respuestas reales devueltas por MCP. No se modifica el motor/ranking ni se recortan conexiones para generar una pista “limpia”.
-- Cada transición conserva una ficha compacta del agente —`source_step`, IDs de recuerdos citados si los declara, intención de búsqueda y consulta siguiente—, sin pedir ni registrar razonamiento privado extenso. Esta ficha es una declaración del agente, no prueba de causalidad.
+- Máximo propuesto: **3 búsquedas MCP por trayectoria** (una inicial y hasta dos seguimientos), sin reintentos automáticos. Es un límite de presupuesto para esta evaluación, no una definición de cómo debe recordar ni un comportamiento deseable del agente. La sesión compartida que necesitó cuatro llamadas ilustra que el límite puede interrumpir un proceso todavía útil: si se alcanza antes de resolver, marcar `interrumpida_inconclusa_por_presupuesto`, conservar la trayectoria y no concluir “no hay recuerdo”, “no existe pista” ni “falló el agente”. El agente puede parar antes; no hay objetivo de usar las tres llamadas. Registrar el motivo de parada.
+- El prompt, modelo/versión, parámetros, herramientas disponibles y política de parada se congelan antes del primer resultado. El agente no ve gold, objetivos, etiquetas ni respuestas esperadas; recibe la tarea y las respuestas reales de MCP. No se modifica el motor/ranking ni se recortan conexiones para generar una pista “limpia”.
+- Cada transición conserva una ficha compacta del agente —`source_step`, IDs de recuerdos citados si los declara, intención de búsqueda y consulta siguiente—, sin pedir ni registrar razonamiento privado extenso. Retener los mensajes visibles de la interacción, el sobre exacto del tool call y la respuesta MCP en orden. Esta ficha es una declaración del agente, no prueba de causalidad.
 
 ### Trayectoria y evidencia que deben conservarse
 
@@ -53,7 +53,22 @@ Por cada tarea y brazo, mantener una secuencia ordenada e inmutable:
 4. Cuándo y en qué canal aparece por primera vez cada objetivo; si el agente lo incorpora a su respuesta final; qué evidencia/IDs cita; y resultado final evaluado por los anotadores.
 5. Hashes, eventos, errores y snapshots/diffs disponibles; ninguna discrepancia se corrige en sitio. Las aristas se conservan completas.
 
-El **presupuesto aprobado de 2.768 llamadas** cubre solo las dos construcciones y las 224 consultas de una sola llamada en cada uno de cinco brazos. No cubre esta extensión secuencial. Si Dennys la aprueba con el alcance propuesto, su techo adicional sería `88 tareas × 5 brazos × 3 búsquedas = 1.320 llamadas MCP` (menos si el agente para antes), sin reintentos. El techo combinado potencial sería 4.088 solo si el gold no cambia y se aprueban ambos componentes. El uso de modelo/agente, llamadas auxiliares del proveedor y arranque/cierre de procesos se contabiliza aparte del número de herramientas MCP. Todo cambio del conjunto o arms exige recalcular y aprobar el presupuesto antes de ejecutar.
+El **presupuesto planificado, no autorizado, de 2.768 llamadas** cubre solo las dos construcciones y las 224 consultas de una sola llamada en cada uno de cinco brazos. No cubre esta extensión secuencial. Si Dennys la aprueba con el alcance propuesto, su tope adicional sería `88 tareas × 5 brazos × 3 búsquedas = 1.320 llamadas MCP` (menos si el agente para antes), sin reintentos. El techo combinado meramente propuesto sería 4.088 solo si el gold no cambia y se autorizan ambos componentes. El uso de modelo/agente, llamadas auxiliares del proveedor y arranque/cierre de procesos se contabiliza aparte del número de herramientas MCP. Todo cambio del conjunto o arms exige recalcular y obtener autorización antes de ejecutar.
+
+### Mantener N/G/R y detectar ráfaga, despertar o mutaciones en cada paso
+
+`deep=False` no basta para demostrar que no ocurrió una ráfaga ni que el estado quedó intacto. Para cada llamada de cada trayectoria, exigir parámetros efectivos, traza y auditoría antes/después:
+
+| Brazo | Parámetros que deben mantenerse en cada búsqueda |
+|---|---|
+| **N0** | `deep=False`, `asociados=False`, `context_window=0`, `forzar_rafaga=False`, `rafaga_palabras=None`. |
+| **N1** | Igual a N0 salvo `asociados=True`. |
+| **G1/G2** | Igual a N1 con `context_window=1/2`. |
+| **R** | `deep=False`, `asociados=True`, `context_window=0`, `forzar_rafaga=True`; `rafaga_palabras` se deriva por regla congelada de `sustantivos_clave` de esa consulta, no de una instrucción independiente u oculta del agente. Congelar antes cómo obtener esos términos para consultas dinámicas y persistirlos. |
+
+Antes de cada llamada comprobar y registrar que los argumentos realmente enviados coinciden con el manifiesto; no corregirlos en silencio. En N/G, omitir `rafaga_palabras`/enviarlo como `None`: con la interfaz actual pasar términos incluso con `forzar_rafaga=False` puede habilitar el fallback automático. Rechazar llamada N/G si llegan términos de ráfaga o `forzar_rafaga=True`. Registrar respuesta `trazabilidad.capa_rafaga`; si marca actividad en N/G, invalidar y parar. Si falta la traza, no afirmar que la ausencia de capa quedó observada; señalarlo como no verificable y exigir una guarda previa compatible con la versión congelada antes de interpretar el brazo.
+
+En cada paso, sobre la copia propia de `tarea×brazo`, capturar antes/después estado de todos los nodos, filas de recuerdos/sinapsis/`sdm_dirty`, grafo completo, hashes, respuesta MCP y diff por fila/campo. Comprobar integridad/estado antes y después; en **R**, todos los nodos deben estar activos antes de cada llamada y seguirlo después. `N/G` no permiten cambios en sinapsis ni estados; R permite solo mutaciones de ráfaga de su whitelist fija y nunca cambio/despertar de estado. Si aparece un nodo dormido donde R exige activo, `estado` cambia, hay mutación fuera de whitelist, parámetros derivan o se detecta ráfaga en N/G, parar la cadena, conservar evidencia y marcarla inválida/interrumpida; no seguir con el paso siguiente ni alterar conexiones. Los cambios de grafo permitidos de R permanecen en la copia de esa trayectoria para que el siguiente paso refleje el estado observado; no se restauran/filtran entre pasos. Cada otra tarea y brazo parte de copia limpia e independiente.
 
 ## 4. Qué se observa y qué no se puede atribuir
 
@@ -73,9 +88,10 @@ Los valores siguen siendo propuestas para Dennys. Se evita premiar volumen de b�
 
 ### Guardarraíl que se mantiene
 
-- Para la campaña fija de una consulta, conservar el guardarraíl de **R@5 del objetivo en `resultados`**: ≥95% de las 96 consultas contestables actuales (al menos 92/96), y no más de un objetivo adicional perdido frente a N0 en el pareo. Calcularlo en la primera búsqueda; una recuperación posterior no borra un fallo inicial ni se mezcla en ese R@5.
-- En la extensión encadenada, informar objetivo encontrado tras llamada 1, 2 o 3 y si el agente lo usó en la respuesta. No sustituir el R@5 inicial por “recuperado alguna vez”. La curva por paso siempre va acompañada del número/coste de llamadas.
-- Ninguna ganancia de pistas compensa una caída del guardarraíl de objetivo. R@1/MRR y canales laterales se presentan aparte.
+- El piso **R@5 del objetivo ≥95%** sobre las 96 consultas contestables actuales (al menos 92/96) sigue siendo solo un umbral candidato, aún no aprobado por Dennys. Medirlo en `resultados` de la primera búsqueda. Se retira la tolerancia propuesta de “una pérdida”: no hay margen de no-inferioridad aprobado.
+- En toda comparación N/G/R, reportar diferencias pareadas exactas frente a N0 para recall de objetivo y recall/cobertura de pistas útiles adjudicadas, por separado, con numeradores/denominadores por canal/estrato. Cualquier descenso se señala como regresión; no ocultarlo en un promedio ni compensarlo con ganancia de otra categoría. No declarar mejora global si uno de esos recalls disminuye. La interpretación final de Dennys queda pendiente de aprobar el criterio de decisión.
+- En la extensión encadenada, informar objetivo encontrado tras llamada 1, 2 o 3 y si el agente lo usó en la respuesta. No sustituir el R@5 inicial por “recuperado alguna vez”. La curva por paso siempre va acompañada del número/coste de llamadas. Si se alcanza el límite antes de resolver, registrar trayectoria interrumpida/inconclusa, no ausencia de recuerdo.
+- R@1/MRR y canales laterales se presentan aparte; no redefinen el objetivo ni borran pistas útiles.
 
 ### Umbrales anteriores retirados como metas de optimización
 
@@ -95,7 +111,7 @@ La cobertura de pistas se informa como distribución/recall solo sobre etiquetas
 
 1. Dennys aprueba y versiona rúbrica, criterios, umbrales y hoja; designa dos anotadores competentes en español/inglés y un adjudicador. El gold se revisa aunque no cambie el JSONL.
 2. Ambos anotan las mismas consultas y recuerdos relevantes independientemente, con IDs seudónimos y orden distinto. Se ocultan etiquetas existentes, resultados de brazos, ranks/scores/canales, enlaces y tipo/peso del grafo. Registran rol, evidencia, justificación y estado explícito de categorías vacías.
-3. Mantener cada anotación original. Calcular acuerdo bruto y kappa ponderado antes de adjudicar; propuestos ≥85% y ≥0,70 respectivamente, sujetos a aprobación. Si no se alcanzan, aclarar rúbrica y repetir la pasada ciega antes del cierre, nunca después de observar resultados.
+3. Mantener cada anotación original. Como las etiquetas `objetivo`/`pista`/`neutral`/`ruido` son nominales y no tienen un orden ordinal justificado, no usar kappa ponderado. Calcular acuerdo bruto y Cohen κ **no ponderado** para las categorías mutuamente excluyentes; para etiquetas múltiples, informar acuerdo por etiqueta/clase (incluido acuerdo positivo) y conservar tablas de confusión. Los propuestos ≥85% de acuerdo bruto y κ ≥0,70 siguen sujetos a aprobación. Si no se alcanzan, aclarar rúbrica y repetir la pasada ciega antes del cierre, nunca después de observar resultados.
 4. El adjudicador resuelve todas las discrepancias objetivo↔pista↔neutral↔ruido y todo caso no adjudicado, basándose en consulta y evidencia textual. Registra decisión y razón; no usa voto automático ni características de sinapsis.
 5. Cerrar el hash y ledger antes de cualquier resultado, incluso con cierre no-op del gold base. Los adjudicadores de resultados posteriores no reescriben el gold cerrado.
 
