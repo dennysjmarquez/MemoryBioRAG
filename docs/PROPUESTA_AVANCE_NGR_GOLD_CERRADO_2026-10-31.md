@@ -25,6 +25,25 @@ Solo tras autorización expresa para construir:
 - Construir **dos fixtures independientes desde cero**, cada una en su propia DB y sesión MCP stdio. Mismo gold, configuración/entorno/clock fijados y `construction_id` distinto. No clonar A para llamar B independiente.
 - Guardar manifest, respuesta cruda/parseada, error, hashes antes/después, diff por fila/campo y corte completo del grafo después de cada llamada MCP. Conservar aristas directas en ambas direcciones, tipos, pesos, timestamps, latentes, estado activo/dormido, espejo CSV y diferencias.
 - Comparar las dos construcciones antes de congelar. Requerir igualdad estructural en los campos acordados, dos ledgers completos e independientes y mismo hash de gold. Divulgar los hashes lógicos/DB que difieran por metadatos; `REPEATABLE_PAIR` no significa igualdad byte a byte.
+
+### Presupuesto exacto previsto de llamadas MCP
+
+Para el gold E1 candidato actualmente anclado (88 episodios, 340 nodos, 56 aristas Gold y 224 consultas), una llamada MCP significa una invocación de herramienta; no cuenta arranque/cierre de proceso, snapshots locales, SQLite ni comparación local:
+
+| Fase | Cálculo | Llamadas MCP previstas |
+|---|---:|---:|
+| Preparación, construcción A | 340 `recordar` de preflight + 340 `aprender` + 88 `consolidar` + 56 `vincular` | **824** |
+| Preparación, construcción B independiente | Mismo desglose | **824** |
+| **Preparación total (dos construcciones)** | 680 `recordar` + 680 `aprender` + 176 `consolidar` + 112 `vincular` | **1.648** |
+| Medición N0 | 224 consultas × 1 `recordar` | **224** |
+| Medición N1 | 224 consultas × 1 `recordar` | **224** |
+| Medición G1 | 224 consultas × 1 `recordar` | **224** |
+| Medición G2 | 224 consultas × 1 `recordar` | **224** |
+| Medición R | 224 consultas × 1 `recordar` | **224** |
+| **Medición total (cinco brazos)** | 5 × 224 | **1.120** |
+| **Total planeado** | Preparación + medición, sin reintentos | **2.768** |
+
+Es un techo de plan para el gold E1 **sin cambios** y la lista completa N0/N1/G1/G2/R. Si la revisión semántica cambia nodos, aristas, episodios o consultas, recalcular y someter el presupuesto exacto junto al nuevo hash y a la aprobación; no comenzar con esta cifra desactualizada. No hay retries automáticos ni reanudación: cualquier fallo detiene el proceso, conserva evidencia y deja el gasto real en o por debajo del techo de su fase.
 - Tras aprobar explícitamente los hashes, preparar una plantilla seleccionada (por convención, A) y hacer copias limpias por consulta×brazo. Las llamadas no comparten estado mutable. El run guarda su propia copia, y ni el original temporal ni ninguna base original reciben escrituras de los brazos.
 - Eliminar del plan —no del grafo— cualquier condición que dependa de etiquetas aún vacías. Las cuatro vías/canales se conservan separados y se informan por canal.
 
