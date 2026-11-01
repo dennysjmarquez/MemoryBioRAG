@@ -27,6 +27,14 @@ Se descargaron las dos respuestas congeladas desde Drive y se verificaron sus SH
 
 Este control verifica solo que los fragmentos citados aparezcan en el texto presentado: no demuestra que sustenten la categoría, que la interpretación sea correcta, ni que las revisiones sean independientes. La comparación respeta exactamente los caracteres y no coteja todavía si un encabezado retirado cambia el sentido.
 
+## Priorización descriptiva de dudas — 2026-11-01
+
+Se añadió `scripts/auditar_revision_exploratoria_e1.py`, que recibe explícitamente el paquete y las dos respuestas, valida cobertura por pareja, categorías y citas y solo imprime resultados agregados y hashes. No ejecuta MCP ni cambia gold, motor o datos. El analizador falla ante casos o pares duplicados, faltantes o adicionales y categorías no reconocidas. Las citas ausentes o no literales se reportan como tales y no se consideran citas correctas.
+
+Resultado sobre los archivos congelados: de los 33 casos, el primer revisor no asignó respuesta directa a ninguno de los elementos de **6 casos**, mientras que el segundo sí asignó al menos una respuesta directa en cada caso. Estos recuentos describen opiniones exploratorias, no establecen que exista o falte respuesta, que algún agente tenga razón o que el sistema haya perdido recall. Son una prioridad útil para revisar la distinción entre nombrar una técnica, indicar una condición y responder lo que la pregunta pide, sin eliminar pistas indirectas.
+
+Comando (las entradas permanecen privadas y fuera de Git): `python scripts/auditar_revision_exploratoria_e1.py google_drive/paquete_ciego.jsonl google_drive/revision_1.txt google_drive/revision_2.txt`. Pruebas unitarias/sintéticas del analizador, gold E1, arnés y supervisión: **72 passed, 2 subtests passed in 1.35s**. No se ejecutó la campaña ni se llamó al MCP real.
+
 ## Estado y límites
 
 Las dos pasadas son exploratorias/no independientes. Los 28 desacuerdos tienen lecturas preliminares de agente; siguen pendientes. El orden reportado de lectura inicial y cotejo no está demostrado independientemente por sus hashes. Las 128 coincidencias tampoco son automáticamente correctas, ni una garantía de que no cambie el significado al recuperar el original.
