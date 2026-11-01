@@ -1,0 +1,102 @@
+{
+  "N0": {
+    "path": "/tmp/biorag_v2_clean_pair_y77rdhst/biorag_linea_base_5p2ahcs_/db/N0/29e587c735270e2077dd.sqlite",
+    "sha256_after_arm": "cd734c0a69b919e3318399e0f3d3a9975cbe43cf48708dc9712eeb6a88b84316",
+    "bytes": 507904,
+    "evidence_id": "29e587c735270e2077dd",
+    "call_errors": [],
+    "mcp_is_error": false,
+    "tables_changed": [
+      "log_busquedas",
+      "nodo_accesos_historial"
+    ],
+    "tables_unexpected": [],
+    "row_field_audit_valid": true,
+    "row_field_violations": [],
+    "edge_changes": {
+      "insertadas": [],
+      "eliminadas": [],
+      "actualizadas": []
+    }
+  },
+  "N1": {
+    "path": "/tmp/biorag_v2_clean_pair_y77rdhst/biorag_linea_base_5p2ahcs_/db/N1/3f40ee505288e30a1008.sqlite",
+    "sha256_after_arm": "e285a52638cdc26bf42ffd7b4c8f3b39fe230213b8f3df42695ec86e0f3f98b7",
+    "bytes": 507904,
+    "evidence_id": "3f40ee505288e30a1008",
+    "call_errors": [],
+    "mcp_is_error": false,
+    "tables_changed": [
+      "log_busquedas",
+      "nodo_accesos_historial"
+    ],
+    "tables_unexpected": [],
+    "row_field_audit_valid": true,
+    "row_field_violations": [],
+    "edge_changes": {
+      "insertadas": [],
+      "eliminadas": [],
+      "actualizadas": []
+    }
+  },
+  "G1": {
+    "path": "/tmp/biorag_v2_clean_pair_y77rdhst/biorag_linea_base_5p2ahcs_/db/G1/c56c89671d0783fcb516.sqlite",
+    "sha256_after_arm": "c44fd9f79588dac920ac1d07a160cec66728eed1b94de96858c35395fc97f493",
+    "bytes": 507904,
+    "evidence_id": "c56c89671d0783fcb516",
+    "call_errors": [],
+    "mcp_is_error": false,
+    "tables_changed": [
+      "log_busquedas",
+      "nodo_accesos_historial"
+    ],
+    "tables_unexpected": [],
+    "row_field_audit_valid": true,
+    "row_field_violations": [],
+    "edge_changes": {
+      "insertadas": [],
+      "eliminadas": [],
+      "actualizadas": []
+    }
+  },
+  "G2": {
+    "path": "/tmp/biorag_v2_clean_pair_y77rdhst/biorag_linea_base_5p2ahcs_/db/G2/eafe0df0ff1b4b5c27b7.sqlite",
+    "sha256_after_arm": "6a256c66a2e0b9521352b0b72f71ca904c9511d2651cdd223176fa0f18d61048",
+    "bytes": 507904,
+    "evidence_id": "eafe0df0ff1b4b5c27b7",
+    "call_errors": [],
+    "mcp_is_error": false,
+    "tables_changed": [
+      "log_busquedas",
+      "nodo_accesos_historial"
+    ],
+    "tables_unexpected": [],
+    "row_field_audit_valid": true,
+    "row_field_violations": [],
+    "edge_changes": {
+      "insertadas": [],
+      "eliminadas": [],
+      "actualizadas": []
+    }
+  },
+  "R": {
+    "path": "/tmp/biorag_v2_clean_pair_y77rdhst/biorag_linea_base_5p2ahcs_/db/R/b925c2fa69cb56141fe6.sqlite",
+    "sha256_after_arm": "e02221a8a58007075206b767bc43ba0444c8f055f12a89a8b6c9554033f9aab3",
+    "bytes": 507904,
+    "evidence_id": "b925c2fa69cb56141fe6",
+    "call_errors": [],
+    "mcp_is_error": false,
+    "tables_changed": [
+      "log_busquedas",
+      "nodo_accesos_historial"
+    ],
+    "tables_unexpected": [],
+    "row_field_audit_valid": true,
+    "row_field_violations": [],
+    "edge_changes": {
+      "insertadas": [],
+      "eliminadas": [],
+      "actualizadas": []
+    }
+  }
+}

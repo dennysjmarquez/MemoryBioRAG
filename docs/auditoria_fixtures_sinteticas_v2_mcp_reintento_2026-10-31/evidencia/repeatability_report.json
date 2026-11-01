@@ -1,0 +1,35 @@
+{
+  "schema": "fixture_repeatability_v2",
+  "mode": "REPEATABLE_PAIR",
+  "independent_builds_verified": true,
+  "construction_ids": [
+    "1f72ea5a530245b5ba0616a563be8a0e",
+    "3c3ace91cf934ff8927e59b8accd046d"
+  ],
+  "build_evidence": [
+    {
+      "construction_id": "1f72ea5a530245b5ba0616a563be8a0e",
+      "fixture_path": "/tmp/biorag_v2_clean_pair_y77rdhst/build_a/fixture.sqlite",
+      "gold_sha256": "5d83616a63be7c73bbea8bb90452091316d7e238835013440a6fd939c13d16d8",
+      "event_count": 9,
+      "run_manifest_sha256": "739e584c81d9e9b294fa21565595046e4d3bceaa5b71b43f79966ec2f8fdcb6c",
+      "preparation_report_sha256": "54e9de30991c1b544024c245e0f48c05f6aa746996e727ee927a6d7de49c41c7",
+      "events_sha256": "4f08a2de16b4ebbf7b008a7401c93df69f7b8a5ade6356b704dfc13c6f85530d"
+    },
+    {
+      "construction_id": "3c3ace91cf934ff8927e59b8accd046d",
+      "fixture_path": "/tmp/biorag_v2_clean_pair_y77rdhst/build_b/fixture.sqlite",
+      "gold_sha256": "5d83616a63be7c73bbea8bb90452091316d7e238835013440a6fd939c13d16d8",
+      "event_count": 9,
+      "run_manifest_sha256": "b82096a4f3b99f748bb4be69e303069fd642fd76f3dc59c9cd0fdd2be77788c5",
+      "preparation_report_sha256": "9c2fc4c76710f0e0db9094c8dc19ec20cc6606e1213eb5609abac2cd8a359503",
+      "events_sha256": "185886a62de3cae4cac43167471c5ad98aeb70b0d9aa3b1d8e85836239c96793"
+    }
+  ],
+  "fixture_1_sha256": "cf9aaf50e0b36007c9c00cc4b7335c47c0d1dda1bd598bef561cdcf9c8bace55",
+  "fixture_2_sha256": "911a275343d51d2264ccb7dbd6ac423709acde1c7a37b087dedeceddc045ba12",
+  "identical_structural": true,
+  "differences": {},
+  "failure": null,
+  "limitation": "Solo se acepta par idéntico con dos rutas, construction_id y ledgers MCP separados del mismo gold."
+}

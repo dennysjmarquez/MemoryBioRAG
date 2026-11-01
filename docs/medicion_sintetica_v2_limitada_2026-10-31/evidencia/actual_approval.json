@@ -1,0 +1,27 @@
+{
+  "schema": "synthetic_freeze_approval_v1",
+  "gold_mode": "synthetic_smoke",
+  "estado": "APROBADO",
+  "aprobado_por": "Dennys",
+  "approval_basis": "Autorización expresa del usuario en este turno para la medición sintética limitada del candidato identificado por su SHA-256.",
+  "approved_date": "2026-10-31",
+  "candidate_manifest_sha256": "11fe45a8d83bef09c0f8e7ffbad774910efbb61c3f5c962c1cc647918c0ace18",
+  "synthetic_gold_manifest_sha256": "eaa6d4235f07e21daa479433cbe0107b5d5f120a9224a1c2debb3d996c0ad451",
+  "gold_sha256": "5d83616a63be7c73bbea8bb90452091316d7e238835013440a6fd939c13d16d8",
+  "fixture_sha256": "cf9aaf50e0b36007c9c00cc4b7335c47c0d1dda1bd598bef561cdcf9c8bace55",
+  "fixture_file_sha256": "72793a764a131d4ed5d0d8db13fa3e2199abe2b55d03aaedb4c6818bcdb9e14f",
+  "selected_construction_id": "1f72ea5a530245b5ba0616a563be8a0e",
+  "graph_review_sha256": "659e969a0d2c8d666e2be9f83ab9f70857fb144d77546d8732d32a568e3248ae",
+  "repeatability_report_sha256": "b19f0810a58843dc37d8bca1df2d4a8c235698097a651ca5eaf34aad5a9cd456",
+  "arms": [
+    "N0",
+    "N1",
+    "G1",
+    "G2",
+    "R"
+  ],
+  "wake_W_included": false,
+  "scope": "Solo las cinco condiciones sintéticas indicadas; no autoriza línea base real ni QA completa.",
+  "label_scope": "relacionados_utiles y ruido_tonto no adjudicados; no evaluarlos ni interpretar sus métricas.",
+  "approval_status_note": "Aprobación real para medir, emitida por la solicitud explícita del usuario; no es aprobación de utilidad/ruido ni de W."
+}

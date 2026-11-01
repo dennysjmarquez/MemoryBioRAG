@@ -1,0 +1,16 @@
+{
+  "command": [
+    "/home/user/MemoryBioRAG/.venv/bin/python",
+    "/home/user/MemoryBioRAG/scripts/linea_base_segura.py",
+    "comparar",
+    "--primera",
+    "/tmp/biorag_v2_clean_pair_y77rdhst/build_a/fixture.sqlite",
+    "--segunda",
+    "/tmp/biorag_v2_clean_pair_y77rdhst/build_b/fixture.sqlite",
+    "--temp-root",
+    "/tmp/biorag_v2_clean_pair_y77rdhst",
+    "--salida",
+    "/tmp/biorag_v2_clean_pair_y77rdhst/repeatability_report.json"
+  ],
+  "return_code": 0
+}
