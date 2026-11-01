@@ -8,6 +8,8 @@ Retomar los cimientos y el camino hacia las neuronas: comprobar una afirmación 
 
 `core/memory/neurona_puentes.py` describe una compuerta previa de cobertura, un multiplicador entre 0,5 y 1 por defecto, pesos neutros y fallback. `core/concept_hub.py` efectivamente evalúa primero la cobertura; luego multiplica el score del puente por la confianza neuronal, agrupa por hub/recuerdo, aplica competencia y compara la confianza final con el umbral. Si no llega, devuelve `None` para esa expansión.
 
+**Alcance de ruta (precisión posterior):** esta neurona se llama en la ruta opcional `BIORAG_HUB_MOTOR=idf`; el selector usa `escala` por defecto. La prueba llamó directamente la función IDF, no el motor de fábrica. No se comprobó la configuración concreta de la memoria de Dennys. Véase el cotejo de rutas posterior en `docs/auditoria_neurona_puentes_rutas_20261101.md`.
+
 **Conclusión acotada:** que el multiplicador no cierre la primera compuerta no garantiza por sí solo que el hub siga siendo devuelto al final. La atenuación puede intervenir en una segunda decisión con umbral. Esto contradice una lectura fuerte de la frase «la compuerta y el recall quedan intactos» del módulo: la primera compuerta se conserva, pero el efecto posterior sobre la expansión requiere medición. Que el hub devuelva `None` no significa que se hayan eliminado recuerdos ni que toda la búsqueda deje de encontrarlos: podrían existir otras rutas.
 
 El cargador devuelve parámetros neutros si no hay tabla o son inválidos; el hub omite el multiplicador cuando son neutros. La activación, parámetros y contribución en una memoria concreta **no se comprobaron**. También pueden influir la configuración, otros puentes, el ángulo, la competencia y la consulta.
