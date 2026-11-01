@@ -62,4 +62,25 @@ Los apartados “comprobado” describen el código inspeccionado, no que se hay
 5. **No inferir inutilidad ni causalidad.** Reportar tanto asociaciones huérfanas como dimensiones válidas de nodos dormidos; una diferencia entre variantes solo localiza sensibilidad bajo esa lectura. No borrar ni reparar. Si aparece una corrección candidata, presentar evidencia, alcance y diff para aprobación previa.
 6. **Puertas de autorización.** Antes de esta medición, Dennys aprueba el conjunto de consultas, el presupuesto y el manifiesto exactos. Hasta entonces este documento es solo propuesta: no iniciar consultas de medición, QA, MCP o agentes. E1 sigue separado y sin campaña; W continúa pendiente.
 
+### 3.1 Conjunto y presupuesto propuestos — todavía sin ejecutar
+
+**Conjunto fijo:** todas las 921 filas/casos (IDs únicos) de `scripts/casos_qa_baseline_v1.jsonl`, usando el campo `query` tal como está en el archivo. SHA-256 del archivo: `c76a71465f7a9be647094d79f00ffcebd742b00a6c12fa4ae90cf2c3d0654f4c`. Se conservan los 921 casos aunque haya consultas textualmente repetidas; no se copian las consultas al informe para evitar divulgar contenido. Un cambio en archivo o hash invalida este plan hasta nueva aprobación. El archivo solo se inspeccionó por metadatos: sus consultas no se han ejecutado.
+
+**Seis condiciones de lectura, todas sobre el mismo snapshot y el mismo código/parámetros:**
+
+| Código | Lectura propuesta |
+|---|---|
+| C0 | Baseline actual, sin filtrar asociaciones. |
+| C1 | Igual a C0, excepto excluir de la lectura los 10 bridges sin hub padre. |
+| C2 | Igual a C0, excepto excluir de la lectura las dimensiones largo plazo huérfanas; conservar todas las dimensiones con padre válido, incluidas las de nodos dormidos/no activos. |
+| C3 | Leer dimensiones largo plazo solo de nodos con padre `estado='activo'`; excluye tanto huérfanas como válidas no activas. C2 frente a C3 separa la sensibilidad a estas últimas, sin llamarlas inútiles. En ambos casos, `N` de IDF conserva la definición actual de nodos activos. |
+| C4 | Igual a C0, excepto excluir de la lectura las 116 membresías de grupo sin nodo padre. |
+| C5 | Contraste combinado C1+C2+C4, para observar interacción; no es una recomendación de limpieza. |
+
+El contraste funcional queda limitado a recuperación/ordenamiento con `BIORAG_NEURONA=0`, sin entrenamiento. Para `corto_plazo_dimensiones`, que alimenta una decisión asociativa y no constituye aquí un brazo de ranking de búsqueda, se propone un diagnóstico separado: comparar la lectura de dimensiones de `Juez._dims` para los 487 valores de `concepto_esperado` no vacíos y distintos del mismo archivo, con todas las asociaciones frente a la lectura que omite las 17 filas huérfanas. Son **974 lookups** como máximo; únicamente se observa la señal de entrada, no se calcula ni modifica peso alguno. Este contraste no autoriza una conclusión sobre efectos de entrenamiento, que queda fuera de alcance.
+
+**Presupuesto cerrado propuesto:** 921 casos × 6 condiciones = **5.526 evaluaciones locales de consulta**; más 487 conceptos × 2 lecturas = **974 lookups locales**; total máximo **6.500 unidades de evaluación**. Una pasada por caso/condición, sin reintentos automáticos. **0** llamadas MCP, agentes, servicios externos o entrenamiento; no incluye ni inicia la campaña de 2.768 llamadas. No se da una estimación de tiempo de pared sin benchmark previo. El resultado privado registraría por caso cambios en objetivo/rango/pistas (incluidas pérdidas y ganancias), además de agregados; no habrá umbral aprobatorio automático ni se publicarán consultas, recuerdos ni identificadores sensibles.
+
+**Puerta:** se solicita aprobación explícita de Dennys para este archivo/hash, estas seis condiciones, el diagnóstico Juez y el máximo de 6.500 unidades. Hasta recibirla no se ejecutan ni siquiera las evaluaciones de lectura. Si se aprueba, un preflight separado debe verificar que el acceso sea realmente de solo lectura y que los filtros sean efímeros/no persistentes; cualquier escritura de filas, migración, cambio de motor o discrepancia de hash detiene el trabajo y requiere nueva consulta.
+
 **Sanitización:** este documento contiene únicamente tablas, funciones, conteos agregados y razonamiento de código. No incluye recuerdos, valores de filas, IDs de registro, pesos neuronales, identificadores de Drive ni hashes privados.
