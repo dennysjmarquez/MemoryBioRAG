@@ -5,11 +5,11 @@
     "all_presentations_transformed": false,
     "presentation_count_to_compare": 156,
     "requirement": "human adjudicator compares question, presented text, and original text for all presentations, including unchanged ones; records semantic impact before revealing gold role",
-    "source_of_originals": ".private_evidence/e1_blind_review_v1/crosswalk_private_r8.jsonl"
+    "source_of_originals": ".private_evidence/e1_blind_review_v1/crosswalk_private_r10.jsonl"
   },
   "agent_must_not_receive": [
     "this manifest",
-    ".private_evidence/e1_blind_review_v1/crosswalk_private_r8.jsonl",
+    ".private_evidence/e1_blind_review_v1/crosswalk_private_r10.jsonl",
     "gold JSONL",
     "source labels",
     "query evidence/justifications",
@@ -83,7 +83,7 @@
   },
   "private_crosswalk_directory_mode": "0700",
   "private_crosswalk_file_mode": "0600",
-  "private_crosswalk_path": ".private_evidence/e1_blind_review_v1/crosswalk_private_r8.jsonl",
+  "private_crosswalk_path": ".private_evidence/e1_blind_review_v1/crosswalk_private_r10.jsonl",
   "private_crosswalk_sha256": "0fcc1d09422cce8adbe40d2214a91c5079d6af72e8d594fc0b013e0e253c9bde",
   "review_procedure": [
     "The custodian creates two fresh sessions outside the repository and gives each only the agent_package and reviewer_instructions; no manifest, source, repo/history, connectors, crosswalk, or other output.",

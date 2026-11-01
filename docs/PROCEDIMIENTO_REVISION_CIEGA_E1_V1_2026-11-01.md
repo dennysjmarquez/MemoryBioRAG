@@ -7,7 +7,7 @@
 - Paquete para revisor: `docs/paquete_ciego_revision_semantica_e1_v1.jsonl`
 - Manifiesto técnico: `docs/manifiesto_paquete_ciego_revision_semantica_e1_v1.json`
 - Generador reproducible: `scripts/preparar_paquete_ciego_e1.py`
-- Crosswalk operativo con etiquetas e **textos originales**: `.private_evidence/e1_blind_review_v1/crosswalk_private_r7.jsonl` (directorio `0700`, archivo `0600`; no entregar a revisores ni añadir al control de versiones). **No es una barrera de cegamiento contra quien tenga el repositorio:** se reconstruye desde el gold público, el generador y la semilla pública.
+- Crosswalk operativo con etiquetas e **textos originales**: `.private_evidence/e1_blind_review_v1/crosswalk_private_r10.jsonl` (directorio `0700`, archivo `0600`; no entregar a revisores ni añadir al control de versiones). El generador crea el archivo en modo exclusivo y falla si ya existe; cada regeneración debe usar una ruta privada nueva para no sobrescribir evidencia. **No es una barrera de cegamiento contra quien tenga el repositorio:** se reconstruye desde el gold público, el generador y la semilla pública.
 
 Hash SHA-256 del paquete: `c6445643cf8750cd85f841c4f3c8b6211c9ecb2a7e5777a43c56764c98112a90`.
 

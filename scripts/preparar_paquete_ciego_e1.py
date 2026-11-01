@@ -17,7 +17,7 @@ SOURCE = ROOT / "scripts/casos_qa_intuicion_asociaciones_e1.jsonl"
 PUBLIC_PACKAGE = ROOT / "docs/paquete_ciego_revision_semantica_e1_v1.jsonl"
 PUBLIC_MANIFEST = ROOT / "docs/manifiesto_paquete_ciego_revision_semantica_e1_v1.json"
 REVIEW_INSTRUCTIONS = ROOT / "docs/INSTRUCCIONES_REVISOR_CIEGO_E1_V1.md"
-PRIVATE_CROSSWALK = ROOT / ".private_evidence/e1_blind_review_v1/crosswalk_private_r7.jsonl"
+PRIVATE_CROSSWALK = ROOT / ".private_evidence/e1_blind_review_v1/crosswalk_private_r10.jsonl"
 SEED = 20261101
 ADDITIONAL_PER_CASE = 2
 
