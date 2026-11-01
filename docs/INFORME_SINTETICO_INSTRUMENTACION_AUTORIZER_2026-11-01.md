@@ -4,10 +4,10 @@ Fecha: 2026-11-01. Solo se usaron conexiones SQLite `:memory:` con tablas y fila
 
 ## Cambios incluidos en esta revisión
 
-- `scripts/authorizer_supervisor.py`: helper aislado para evento sanitizado, persistencia exclusiva y supervisión de un subprocess. No está importado por `core/` ni aplicado al arnés temporal.
+- `scripts/authorizer_supervisor.py`: helper aislado para evento sanitizado, persistencia exclusiva y supervisión de un subprocess; crea rutas nuevas modo privado y valida resultado contra `run_id`/`worker_id`. No está importado por `core/`.
 - `tests/test_sqlite_authorizer_diagnostic_synthetic.py`: pruebas sintéticas de authorizer, allowlist y TEMP view.
-- `tests/test_authorizer_supervisor_subprocess_synthetic.py`: pruebas subprocess que ejercitan el helper exacto con SQLite `:memory:`.
-- `docs/PROPUESTA_DIFF_SUPERVISOR_AUTORIZER_TEMPORAL_2026-11-01.md`: diff de diseño para cotejar con el arnés; no es un patch aplicado ni se considera directamente ejecutable en él.
+- `tests/test_authorizer_supervisor_subprocess_synthetic.py`: flujo integrado parent/worker que ejercita el helper exacto con SQLite `:memory:` y valida identificadores por corrida.
+- `docs/PROPUESTA_DIFF_SUPERVISOR_AUTORIZER_TEMPORAL_2026-11-01.md`: diff preparado para aplicar tras cotejo. El runner externo `/tmp/biorag_fk_smallcheck_runner.py` no estaba presente, por lo que no se afirma integración efectiva en ese archivo ni compatibilidad con su ciclo de vida real.
 
 - Cada evento denegado incluye solo `phase`, nombre de acción SQLite, clase de base (`main`/`temp`/otra) y marcos Python sanitizados (`archivo`, `función`, `línea`). No registra SQL, argumentos de SQLite, valores, locales ni filas.
 - Conserva el primer evento: el worker lo envía por IPC; el supervisor lo escribe con creación exclusiva, modo `0600` y `fsync`, y **después** solicita la terminación del worker.
@@ -16,7 +16,7 @@ Fecha: 2026-11-01. Solo se usaron conexiones SQLite `:memory:` con tablas y fila
 
 ## Resultados sintéticos
 
-Validación: `python -m py_compile scripts/authorizer_supervisor.py tests/test_authorizer_supervisor_subprocess_synthetic.py` completó sin errores. `python tests/test_sqlite_authorizer_diagnostic_synthetic.py`: **5 pruebas, OK**. `python tests/test_authorizer_supervisor_subprocess_synthetic.py`: **7 pruebas subprocess, OK**. Las pruebas subprocess ejercitaron el helper con Python 3.11.2 / SQLite 3.40.1.
+Validación: `python -m py_compile scripts/authorizer_supervisor.py tests/test_authorizer_supervisor_subprocess_synthetic.py` completó sin errores. `python tests/test_sqlite_authorizer_diagnostic_synthetic.py`: **5 pruebas, OK**. `python tests/test_authorizer_supervisor_subprocess_synthetic.py`: **8 pruebas subprocess, OK**. Las pruebas subprocess ejercitaron el flujo integrado parent/worker con Python 3.11.2 / SQLite `:memory:`. Las 8 pasaron sin datos reales.
 
 1. **Crear y resolver una vista TEMP.** Al crearla, SQLite emitió una acción `SQLITE_CREATE_TEMP_VIEW`, una acción `SQLITE_INSERT` y cinco `SQLITE_UPDATE` asociados al catálogo `temp`. Al resolverla con un `SELECT`, se observaron cero acciones DML contra el catálogo. La prueba resolvió una fila sintética y no publicó su valor.
 2. **Allowlist PRAGMA.** Pasó `database_list` sin argumento y `main.table_info` de una tabla enumerada. Denegó cinco formas fuera de allowlist: `foreign_keys`, `journal_mode`, `data_version`, `query_only` y `temp.table_info`. No imprimió las filas de `database_list`.
@@ -25,16 +25,17 @@ Validación: `python -m py_compile scripts/authorizer_supervisor.py tests/test_a
 5. **Fallo de IPC.** El worker guardó primero el evento y luego se cerró el descriptor de comunicación; el padre recuperó el evento local, detuvo el hijo y no inició otro.
 6. **Fallo de guardado.** Se hicieron fallar las rutas primarias (worker y supervisor); se usó la ruta fallback, se detuvo el hijo y no se inició otro.
 7. **Carrera `select`/`poll`.** De forma determinista se fuerza `select` a no reportar datos, aunque el pipe contiene 110 bytes y el proceso aparece terminado con código cero. El supervisor drena el canal, persiste el evento y rechaza la salida limpia.
-8. **Cierre normal y resultado privado.** El EOF sin eventos se acepta solo con código cero y archivo JSON privado regular con `status: ok`; el caso con resultado inválido se rechaza. Un mensaje parcial al EOF también se rechaza. No se afirma latencia instantánea.
+8. **Cierre normal y resultado privado.** El EOF sin eventos se acepta solo con código cero y archivo JSON privado regular con `status: ok`; el caso con resultado inválido se rechaza. Un mensaje parcial al EOF también se rechaza.
+9. **Vinculación de resultado.** Cada corrida recibe un directorio modo `0700`, un `run_id` y `worker_id` nuevos, con ruta exclusiva de resultado. El caso de archivo antiguo (run_id distinto) y el de otro worker (worker_id distinto) se rechazan aunque estén en la ruta examinada. No se afirma latencia instantánea.
 
 Salida resumida de las pruebas:
 
 ```text
 TEMP view create/resolve: CREATE_TEMP_VIEW=1; catalog DML on temp during create: INSERT=1, UPDATE=5; catalog DML during resolve=0
 Strict PRAGMA allowlist: allowed database_list + listed main.table_info; denied other PRAGMA forms=5
-Synthetic supervisor subprocess: select/poll race drained; normal EOF required private status=ok; partial frame rejected
-IPC failure recovered worker-local event; primary-save failure used fallback; no next worker started
-All 5 diagnostic tests and all 7 subprocess tests — OK
+Synthetic integrated parent/worker: select/poll race drained; normal EOF required private status=ok and matching run_id/worker_id
+Stale prior-run and foreign-worker results rejected; paths unique; partial frame/IPC failures rejected or recovered
+All 5 diagnostic tests and all 8 subprocess tests — OK
 ```
 
 ## Relación —y límites de la inferencia— con el intento anterior

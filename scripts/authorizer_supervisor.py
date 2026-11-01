@@ -13,6 +13,7 @@ import sqlite3
 import stat
 import subprocess
 import time
+import uuid
 from pathlib import Path
 from typing import Any
 
@@ -155,8 +156,55 @@ def _stop_subprocess(proc: subprocess.Popen, grace: float) -> bool:
     return proc.poll() is not None
 
 
-def _private_result_is_valid(path: str | os.PathLike[str]) -> bool:
-    """Accept only a private, regular JSON result record explicitly marked ok."""
+def allocate_execution_paths(root: str | os.PathLike[str]) -> dict[str, str]:
+    """Allocate a fresh private directory and worker-bound artifact paths."""
+    root_path = Path(root)
+    root_path.mkdir(mode=0o700, parents=True, exist_ok=True)
+    if root_path.stat().st_mode & 0o077:
+        raise PermissionError("execution evidence root must be private (mode 0700)")
+    run_id = uuid.uuid4().hex
+    worker_id = f"worker-{uuid.uuid4().hex}"
+    run_dir = root_path / f"run-{run_id}"
+    os.mkdir(run_dir, 0o700)
+    stem = f"{run_id}-{worker_id}"
+    return {
+        "run_id": run_id,
+        "worker_id": worker_id,
+        "run_dir": str(run_dir),
+        "worker_event_path": str(run_dir / f"{stem}-worker-event.json"),
+        "primary_event_path": str(run_dir / f"{stem}-event.json"),
+        "fallback_event_path": str(run_dir / f"{stem}-fallback.json"),
+        "private_result_path": str(run_dir / f"{stem}-result.json"),
+    }
+
+
+def write_private_result_exclusive(path: str | os.PathLike[str],
+                                   run_id: str, worker_id: str,
+                                   status: str = "ok") -> None:
+    """Write a private result envelope bound to this exact run and worker."""
+    target = Path(path)
+    payload = json.dumps({"status": status, "run_id": run_id,
+                          "worker_id": worker_id}, sort_keys=True,
+                         separators=(",", ":")).encode("utf-8")
+    fd = os.open(target, os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o600)
+    try:
+        view = memoryview(payload)
+        while view:
+            view = view[os.write(fd, view):]
+        os.fsync(fd)
+    finally:
+        os.close(fd)
+    dir_fd = os.open(target.parent, os.O_RDONLY)
+    try:
+        os.fsync(dir_fd)
+    finally:
+        os.close(dir_fd)
+
+
+def _private_result_is_valid(path: str | os.PathLike[str],
+                             expected_run_id: str,
+                             expected_worker_id: str) -> bool:
+    """Accept a private result only when its run and worker bindings match."""
     flags = os.O_RDONLY | getattr(os, "O_NOFOLLOW", 0)
     try:
         fd = os.open(path, flags)
@@ -176,7 +224,12 @@ def _private_result_is_valid(path: str | os.PathLike[str]) -> bool:
             chunks.append(chunk)
             remaining -= len(chunk)
         value = json.loads(b"".join(chunks).decode("utf-8"))
-        return isinstance(value, dict) and value.get("status") == "ok"
+        return (
+            isinstance(value, dict)
+            and value.get("status") == "ok"
+            and value.get("run_id") == expected_run_id
+            and value.get("worker_id") == expected_worker_id
+        )
     except (OSError, UnicodeDecodeError, json.JSONDecodeError):
         return False
     finally:
@@ -254,6 +307,7 @@ def supervise_subprocess(proc: subprocess.Popen, event_read_fd: int,
                          primary_event_path: str | os.PathLike[str],
                          fallback_event_path: str | os.PathLike[str],
                          private_result_path: str | os.PathLike[str],
+                         expected_run_id: str, expected_worker_id: str,
                          timeout: float, grace: float = 1.0) -> dict[str, Any]:
     """Watch one worker; clean exit requires EOF, no event, and a private ok result."""
     deadline = time.monotonic() + timeout
@@ -304,7 +358,7 @@ def supervise_subprocess(proc: subprocess.Popen, event_read_fd: int,
                     return _guard_outcome(proc, event,
                                           worker_event_path, primary_event_path,
                                           fallback_event_path, grace)
-                if Path(worker_event_path).exists() or not _private_result_is_valid(private_result_path):
+                if Path(worker_event_path).exists() or not _private_result_is_valid(private_result_path, expected_run_id, expected_worker_id):
                     return {"status": "worker_result_invalid", "worker_stopped": True,
                             "returncode": code, "event_saved_to": None}
                 return {"status": "worker_exit", "worker_stopped": True,
@@ -359,7 +413,7 @@ def supervise_subprocess(proc: subprocess.Popen, event_read_fd: int,
             if event is not None:
                 return _guard_outcome(proc, event, worker_event_path,
                                       primary_event_path, fallback_event_path, grace)
-            if Path(worker_event_path).exists() or not _private_result_is_valid(private_result_path):
+            if Path(worker_event_path).exists() or not _private_result_is_valid(private_result_path, expected_run_id, expected_worker_id):
                 return {"status": "worker_result_invalid", "worker_stopped": True,
                         "returncode": code, "event_saved_to": None}
             return {"status": "worker_exit", "worker_stopped": True,
