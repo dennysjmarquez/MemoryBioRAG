@@ -1,6 +1,8 @@
 # Propuesta revisada: rúbrica, trayectorias y umbrales para E1 N/G/R
 
-**Estado:** propuesta para revisión de Dennys. No modifica ni cierra el gold, no aprueba operativamente los umbrales y no autoriza preparar fixtures o ejecutar la campaña.
+**Estado:** propuesta de rúbrica con decisión posterior registrada. No modifica ni cierra el gold ni autoriza preparar fixtures o ejecutar la campaña.
+
+**Decisión de Dennys (2026-10-31):** usar la rúbrica propuesta; retirar `R@5 ≥95%` como piso de aprobación; reportar toda pérdida de objetivos o pistas; usar el acuerdo entre anotadores como señal para revisar desacuerdos, nunca como aprobación automática. El gold sigue pendiente de revisión y cierre. Esta decisión no autoriza la campaña ni cambia el motor.
 
 La aprobación de `e302fcd` es aprobación del **plan**, no autorización de ejecución. El plan de 2.768 llamadas está **planificado**, no autorizado para ejecutarse, y solo aplica si el gold no cambia. E1 es la campaña completa de 88 episodios/224 consultas; no es un smoke. El smoke sintético de una consulta no es gold de evaluación ni valida estas etiquetas.
 
@@ -88,8 +90,8 @@ Los valores siguen siendo propuestas para Dennys. Se evita premiar volumen de b�
 
 ### Guardarraíl que se mantiene
 
-- El piso **R@5 del objetivo ≥95%** sobre las 96 consultas contestables actuales (al menos 92/96) sigue siendo solo un umbral candidato, aún no aprobado por Dennys. Medirlo en `resultados` de la primera búsqueda. Se retira la tolerancia propuesta de “una pérdida”: no hay margen de no-inferioridad aprobado.
-- En toda comparación N/G/R, reportar diferencias pareadas exactas frente a N0 para recall de objetivo y recall/cobertura de pistas útiles adjudicadas, por separado, con numeradores/denominadores por canal/estrato. Cualquier descenso se señala como regresión; no ocultarlo en un promedio ni compensarlo con ganancia de otra categoría. No declarar mejora global si uno de esos recalls disminuye. La interpretación final de Dennys queda pendiente de aprobar el criterio de decisión.
+- **Retirado por decisión de Dennys:** `R@5 ≥95%` no es piso ni criterio de aprobación.
+- En toda comparación N/G/R, reportar diferencias pareadas exactas frente a N0 para recall de objetivos y recall/cobertura de pistas útiles adjudicadas, por separado, con numeradores/denominadores por canal/estrato. Informar cada pérdida de objetivo o pista, incluidos los casos concretos, sin ocultarla en promedios ni compensarla con ganancias de otra categoría. Estas pérdidas son resultados que deben revisarse; no constituyen por sí solas una aprobación o rechazo automático.
 - En la extensión encadenada, informar objetivo encontrado tras llamada 1, 2 o 3 y si el agente lo usó en la respuesta. No sustituir el R@5 inicial por “recuperado alguna vez”. La curva por paso siempre va acompañada del número/coste de llamadas. Si se alcanza el límite antes de resolver, registrar trayectoria interrumpida/inconclusa, no ausencia de recuerdo.
 - R@1/MRR y canales laterales se presentan aparte; no redefinen el objetivo ni borran pistas útiles.
 
@@ -111,7 +113,7 @@ La cobertura de pistas se informa como distribución/recall solo sobre etiquetas
 
 1. Dennys aprueba y versiona rúbrica, criterios, umbrales y hoja; designa dos anotadores competentes en español/inglés y un adjudicador. El gold se revisa aunque no cambie el JSONL.
 2. Ambos anotan las mismas consultas y recuerdos relevantes independientemente, con IDs seudónimos y orden distinto. Se ocultan etiquetas existentes, resultados de brazos, ranks/scores/canales, enlaces y tipo/peso del grafo. Registran rol, evidencia, justificación y estado explícito de categorías vacías.
-3. Mantener cada anotación original. Como las etiquetas `objetivo`/`pista`/`neutral`/`ruido` son nominales y no tienen un orden ordinal justificado, no usar kappa ponderado. Calcular acuerdo bruto y Cohen κ **no ponderado** para las categorías mutuamente excluyentes; para etiquetas múltiples, informar acuerdo por etiqueta/clase (incluido acuerdo positivo) y conservar tablas de confusión. Los propuestos ≥85% de acuerdo bruto y κ ≥0,70 siguen sujetos a aprobación. Si no se alcanzan, aclarar rúbrica y repetir la pasada ciega antes del cierre, nunca después de observar resultados.
+3. Mantener cada anotación original. Como las etiquetas `objetivo`/`pista`/`neutral`/`ruido` son nominales y no tienen un orden ordinal justificado, no usar kappa ponderado. Calcular acuerdo bruto y Cohen κ **no ponderado** para las categorías mutuamente excluyentes; para etiquetas múltiples, informar acuerdo por etiqueta/clase (incluido acuerdo positivo) y conservar tablas de confusión. Según la decisión de Dennys, estas cifras son descriptivas y sirven para localizar desacuerdos que deben revisarse; no hay umbral de acuerdo que apruebe automáticamente el gold. Aclarar la rúbrica cuando la revisión de discrepancias lo indique, antes de proponer el cierre.
 4. El adjudicador resuelve todas las discrepancias objetivo↔pista↔neutral↔ruido y todo caso no adjudicado, basándose en consulta y evidencia textual. Registra decisión y razón; no usa voto automático ni características de sinapsis.
 5. Cerrar el hash y ledger antes de cualquier resultado, incluso con cierre no-op del gold base. Los adjudicadores de resultados posteriores no reescriben el gold cerrado.
 
@@ -123,6 +125,6 @@ El adjudicador resuelve desacuerdos después de conservar ambas etiquetas inicia
 
 ## 7. Revisión de Dennys y límites
 
-Pendiente de aprobación explícita de Dennys: rúbrica, umbrales de acuerdo/recall, tratamiento de pistas tardías e inesperadas, alcance de las 88 trayectorias, máximo de tres búsquedas, prompt/modelo/parámetros del agente, política de parada y presupuesto adicional.
+Pendiente: revisión humana y cierre versionado del gold; confirmación de dos anotadores independientes y una persona adjudicadora; y decisiones operativas separadas sobre alcance de trayectorias, máximo de búsquedas, prompt/modelo/parámetros, política de parada y presupuesto. El 95% no es un piso y el acuerdo no aprueba automáticamente.
 
 **Solo documentación:** no se prepararon bases/fixtures, no se inició MCP, no se ejecutaron agentes, mediciones ni QA. No se modificó motor, ranking, grafo ni gold. La extensión de trayectorias no está incluida en la autorización del plan anterior ni en sus 2.768 llamadas. **W sigue pendiente.**

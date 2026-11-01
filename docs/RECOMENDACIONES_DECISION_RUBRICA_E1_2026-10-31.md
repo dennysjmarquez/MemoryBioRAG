@@ -1,6 +1,6 @@
 # Recomendaciones concretas para decidir la rúbrica y avanzar con E1
 
-**Para decisión de Dennys.** Esta nota desarrolla el plan E1 original de consultas fijas; no aprueba umbrales ni autoriza ejecución. No presupone que existan anotadores disponibles.
+**Decisión de Dennys (2026-10-31):** usar la rúbrica propuesta, retirar `R@5 ≥95%` como piso de aprobación, informar toda pérdida de objetivos o pistas y tratar el acuerdo como señal para revisar desacuerdos, no como aprobación automática. El gold sigue pendiente de revisión/cierre; no hay anotadores confirmados ni autorización de ejecución.
 
 ## 1. Recomendación de rúbrica, con ejemplos
 
@@ -17,15 +17,13 @@ Usar etiquetas por **recuerdo × consulta**, cada una con una cita del contenido
 
 **Recomendación:** un recuerdo no literal o que no lleva directamente al objetivo nunca se convierte por eso en ruido. Si no se ha confirmado su valor en el trayecto, usar `potencial_no_confirmado` o `neutral_contexto`. Anotar si fue puente, útil tarde o no atribuible. No borrar, filtrar, ocultar ni recortar conexiones para mejorar las cifras.
 
-## 2. Recomendación para decidir umbrales
+## 2. Decisión y protocolo de reporte
 
-Los siguientes valores siguen **sin aprobación**. Recomiendo que Dennys decida cada punto antes del cierre del gold y de ver resultados:
-
-1. **Recall del objetivo:** conservar `R@5 ≥95%` en `resultados` como candidato de piso, no como número aprobado. Con las 96 consultas contestables actuales equivale a por lo menos 92/96. Decidir si mantenerlo, cambiarlo o descartarlo. No mantener la tolerancia propuesta de “una pérdida”: no hay margen aprobado. En comparaciones N/G/R informar cualquier cambio pareado exacto.
-2. **Recall de pistas útiles:** no fijar un mínimo global de 70% ni un piso de cobertura por episodio. Más llamadas o más asociaciones expuestas podrían inflar el número sin mejorar la memoria. Informar recall/cobertura por canal y, en secuencias, por paso; declarar las pistas etiquetadas y las no adjudicadas por separado. Una caída frente al brazo de referencia se reporta como regresión, no se compensa con más objetivos ni con más ruido visible.
-3. **Ruido:** no usar porcentajes máximos de ruido (como 10%) ni de falsos positivos (como 5%) como metas para afinar el sistema. Pueden incentivar supresión de asociaciones. Reportar casos y tasas descriptivas por canal/consulta, con ejemplos y denominadores; adjudicar el supuesto daño. Neutral, no adjudicado y potencial no confirmado no entran al numerador de ruido.
-4. **Principio de comparación:** no declarar una mejora global si baja el recall de objetivos o el de pistas útiles adjudicadas. Mostrar cada dimensión separada, incluidos numeradores/denominadores y regresiones. No promediar para ocultar una pérdida.
-5. **Acuerdo entre anotadores:** las categorías son nominales, sin orden ordinal justificado. Como propuesta para revisión, usar acuerdo bruto y Cohen κ **no ponderado**; publicar también las tablas de confusión y acuerdo por categoría. Los candidatos de ≥85% de acuerdo bruto y κ ≥0,70 no se consideran aprobados hasta que Dennys los confirme o ajuste.
+1. **Objetivos y pistas:** `R@5 ≥95%` queda retirado como piso de aprobación. Reportar cada pérdida pareada de objetivo o pista, por caso y con numeradores/denominadores; no ocultar ni compensar pérdidas mediante promedios u otras categorías. Una pérdida es un hallazgo para revisar, no un rechazo automático.
+2. **Desgloses:** informar recall/cobertura de pistas útiles por canal y, en secuencias, por paso. Distinguir etiquetas adjudicadas y no adjudicadas. No usar mínimos de cobertura, ruido ni porcentajes para filtrar o recortar asociaciones.
+3. **Ruido:** reportar casos y tasas descriptivas por canal/consulta, con denominadores; adjudicar el supuesto daño. Neutral, no adjudicado y potencial no confirmado no entran al numerador de ruido.
+4. **Comparación:** mostrar cada dimensión por separado y no declarar mejora global basándose en promedios que oculten pérdidas.
+5. **Acuerdo:** reportar acuerdo bruto, Cohen κ no ponderado si es estadísticamente interpretable y tablas de confusión por categoría. Son descriptores para localizar desacuerdos; ningún porcentaje o κ constituye aprobación automática. El adjudicador revisa los desacuerdos.
 
 Para la línea base original, mantener las consultas fijas y los cinco brazos `N0/N1/G1/G2/R`. La extensión de cadenas dinámicas del agente queda fuera de este plan. El límite experimental de tres llamadas de aquella propuesta no define cómo debe recordar el agente; si una futura evaluación lo usa y llega al tope sin resolver, la trayectoria será interrumpida/inconclusa, no evidencia de ausencia de recuerdo.
 
@@ -41,10 +39,9 @@ Para la línea base original, mantener las consultas fijas y los cinco brazos `N
 
 ## 4. Decisiones concretas para Dennys
 
-- [ ] Confirmar o editar las definiciones y ejemplos de objetivo, pista útil/tardía, neutral y ruido.
-- [ ] Mantener, ajustar o descartar el umbral candidato de R@5 ≥95%; confirmar que no se usará una tolerancia de una pérdida.
-- [ ] Confirmar que recall de pistas y ruido serán desgloses descriptivos, no porcentajes para filtrar o recortar asociaciones.
-- [ ] Aprobar o ajustar acuerdo bruto ≥85% y Cohen κ no ponderado ≥0,70.
+- [x] Usar la rúbrica propuesta y retirar `R@5 ≥95%` como piso de aprobación.
+- [x] Reportar toda pérdida de objetivos y pistas por caso; el acuerdo entre anotadores es una señal para revisar desacuerdos, no una aprobación automática.
+- [ ] Completar la revisión humana, adjudicar los desacuerdos y proponer el cierre versionado del gold.
 - [ ] Designar a dos anotadores y un adjudicador, o dejar pendiente la designación.
 - [ ] Confirmar el gold E1 completo (88 episodios/224 consultas) o solicitar una nueva versión. En cualquiera de los casos, exigir revisión/cierre hasheado antes de observar resultados, incluso si el archivo no cambia.
 - [ ] Confirmar el plan original de consultas fijas N0/N1/G1/G2/R; no añadir la extensión de cadenas del agente.
