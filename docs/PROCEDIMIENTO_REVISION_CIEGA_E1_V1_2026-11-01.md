@@ -7,7 +7,7 @@
 - Paquete para revisor: `docs/paquete_ciego_revision_semantica_e1_v1.jsonl`
 - Manifiesto técnico: `docs/manifiesto_paquete_ciego_revision_semantica_e1_v1.json`
 - Generador reproducible: `scripts/preparar_paquete_ciego_e1.py`
-- Crosswalk privado con etiquetas e **textos originales**: `.private_evidence/e1_blind_review_v1/crosswalk_private_r6.jsonl` (directorio `0700`, archivo `0600`; no entregar a revisores ni añadir al control de versiones).
+- Crosswalk operativo con etiquetas e **textos originales**: `.private_evidence/e1_blind_review_v1/crosswalk_private_r7.jsonl` (directorio `0700`, archivo `0600`; no entregar a revisores ni añadir al control de versiones). **No es una barrera de cegamiento contra quien tenga el repositorio:** se reconstruye desde el gold público, el generador y la semilla pública.
 
 Hash SHA-256 del paquete: `c6445643cf8750cd85f841c4f3c8b6211c9ecb2a7e5777a43c56764c98112a90`.
 
@@ -30,16 +30,22 @@ No se traduce, parafrasea, normaliza el caso ni se reescribe el contenido restan
 
 ## Verificación de fuga
 
-El generador falló cerrado si no hallaba 33 casos, 33/57 asignaciones, 66 adicionales o 90 asignaciones únicas; si no podía elegir dos candidatos adicionales en un caso; o si detectaba IDs `qa_pos_*`, claves/metadatos gold, títulos numerados o frases de rol revisadas en el paquete. Se comprobaron los esquemas visibles (solo las cuatro claves previstas), la unicidad de códigos y los totales 33/156. El hash del crosswalk se registra únicamente en el manifiesto; su contenido permanece privado.
+El generador falló cerrado si no hallaba 33 casos, 33/57 asignaciones, 66 adicionales o 90 asignaciones únicas; si no podía elegir dos candidatos adicionales en un caso; o si detectaba IDs `qa_pos_*`, claves/metadatos gold, títulos numerados o frases de rol revisadas en el paquete. Se comprobaron los esquemas visibles (solo las cuatro claves previstas), la unicidad de códigos y los totales 33/156. El manifiesto registra el hash del crosswalk para integridad, no como secreto. El gold, el generador y la semilla `20261101` son públicos; cualquier persona con ellos puede reconstruir el crosswalk. Excluir el archivo privado del paquete/commit reduce exposición accidental, pero **no garantiza el cegamiento** si un agente puede leer el repositorio.
 
-Los títulos numerados se quitan porque varios contienen palabras que declaran el rol de origen. El manifest y el crosswalk tampoco se entregan a los revisores: además de documentar la transformación, podrían ayudar a reconstruir la correspondencia con el gold.
+Los títulos numerados se quitan porque varios contienen palabras que declaran el rol de origen. Para las dos pasadas, entregar exactamente estos dos archivos y nada más: el JSONL del paquete y `docs/INSTRUCCIONES_REVISOR_CIEGO_E1_V1.md` (que incluye el hash esperado del paquete). No entregar el manifest, gold, generador, crosswalk, este procedimiento ni esta conversación.
 
-## Disponibilidad de sesiones y decisión de independencia
+## Entrega aislada y sesiones
 
-En este turno solo es identificable **la sesión actual de Arena Agent Mode**. No se expone un ID de sesión independiente ni una segunda sesión de agente separada; la sesión actual además ya tuvo acceso al gold/etiquetas y no es elegible como revisor ciego. Por tanto, no se asignó ni inició ninguna pasada y no se afirma que haya dos agentes disponibles.
+La propuesta de entrega es preparar **dos entornos frescos fuera del checkout/repositorio** (A y B), sin herramientas de navegación o archivos del proyecto, conectores, historial de conversación, memoria compartida ni acceso al crosswalk. A cada uno se le carga únicamente el paquete JSONL y el archivo de instrucciones; las instrucciones verifican el SHA-256 esperado. El custodio conserva el manifest/crosswalk y las respuestas; cada sesión devuelve su respuesta sin ver la de la otra. Se congelan/hashéan ambas salidas antes de cualquier comparación.
 
-Antes de una futura ejecución se debe identificar y registrar dos sesiones distintas, comprobar contextos frescos y aislamiento de memoria/historial, dar a ambas el mismo hash de paquete y rúbrica, negar acceso al gold/crosswalk/manifiesto y mantener oculta la salida de la otra hasta congelar y hashear ambas respuestas. Si no se puede verificar cada punto, cualquier pasada se rotula **exploratoria, no independiente**; no se calcula acuerdo de anotadores ni se usa para adjudicar o cerrar gold.
+Antes de ejecutar, el custodio debe registrar el identificador de sesión de cada entorno, comprobar que no ve el repo/historial ni la otra salida, y guardar hashes de los dos archivos entregados, prompt y respuesta. Si la plataforma no permite inspeccionar o demostrar esas barreras, no declarar independencia. Si aun así se hicieran pasadas, etiquetarlas **exploratorias, no independientes**, sin calcular acuerdo como si fueran independientes ni usarlas para aprobar/cerrar gold.
 
-Cada agente devolvería por artículo una categoría provisional (`respuesta principal`, `pista útil`, `neutral`, `irrelevante/perjudicial` o `evidencia insuficiente`), fragmento textual, vínculo con la consulta, duda y confianza. Un adjudicador humano bilingüe, elegido por Dennys y preferentemente ajeno a las dos revisiones, podría resolver discrepancias después de conservar las respuestas originales. La revisión de agentes no sustituye automáticamente a revisores humanos ni constituye aprobación del gold.
+En este turno solo es identificable **la sesión actual de Arena Agent Mode**; ya tuvo acceso al gold/etiquetas y no es elegible como revisor ciego. No se expone un ID de una segunda sesión fresca y aislada. Por ello, no se asignó ni inició ninguna pasada y no se afirma que haya dos agentes disponibles.
+
+## Adjudicación y revisión de originales
+
+Después de congelar ambas respuestas, un adjudicador humano bilingüe, elegido por Dennys y preferentemente ajeno a las dos revisiones, conserva primero las opiniones ciegas. El manifiesto informa 147 eliminaciones de título, 4 de sufijo y 5 reemplazos del marcador de acción; por tanto, cada presentación fue transformada. Como esos cambios pueden quitar contexto de encabezado o matiz de rol, el adjudicador deberá cotejar la pregunta, el texto presentado y el original mediante el crosswalk para las 156 presentaciones, registrar cuáles transformaciones son materialmente relevantes y si la lectura cambia al recuperar el original. Para evitar anclaje, la vista de adjudicación debe omitir la etiqueta gold; solo se revela después si hace falta resolver el crosswalk y el razonamiento semántico quedó registrado.
+
+Cada agente devolvería por artículo una categoría provisional (`respuesta principal`, `pista útil`, `neutral`, `irrelevante/perjudicial` o `evidencia insuficiente`), fragmento textual, vínculo con la consulta, duda y confianza. La revisión de agentes no sustituye automáticamente a revisores humanos ni constituye aprobación del gold.
 
 **Pasadas iniciadas: 0. Gold modificado: no. Campaña E1 ejecutada: no. Motor/bases modificados: no. W sigue pendiente.**

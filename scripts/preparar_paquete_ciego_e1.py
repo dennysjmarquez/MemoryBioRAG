@@ -17,7 +17,7 @@ SOURCE = ROOT / "scripts/casos_qa_intuicion_asociaciones_e1.jsonl"
 PUBLIC_PACKAGE = ROOT / "docs/paquete_ciego_revision_semantica_e1_v1.jsonl"
 PUBLIC_MANIFEST = ROOT / "docs/manifiesto_paquete_ciego_revision_semantica_e1_v1.json"
 REVIEW_INSTRUCTIONS = ROOT / "docs/INSTRUCCIONES_REVISOR_CIEGO_E1_V1.md"
-PRIVATE_CROSSWALK = ROOT / ".private_evidence/e1_blind_review_v1/crosswalk_private_r6.jsonl"
+PRIVATE_CROSSWALK = ROOT / ".private_evidence/e1_blind_review_v1/crosswalk_private_r7.jsonl"
 SEED = 20261101
 ADDITIONAL_PER_CASE = 2
 
@@ -267,11 +267,30 @@ def main() -> None:
         "agent_package_file_mode": "0644",
         "agent_visible_inputs": [str(PUBLIC_PACKAGE.relative_to(ROOT)), str(REVIEW_INSTRUCTIONS.relative_to(ROOT))],
         "agent_visible_fields": ["case_code", "question", "items[].item_code", "items[].text"],
-        "agent_must_not_receive": ["this manifest", str(private_crosswalk.relative_to(ROOT)), "gold JSONL", "source labels", "query evidence/justifications", "other agent response"],
+        "agent_must_not_receive": ["this manifest", str(private_crosswalk.relative_to(ROOT)), "gold JSONL", "source labels", "query evidence/justifications", "repository checkout/history", "other agent response"],
         "private_crosswalk_path": str(private_crosswalk.relative_to(ROOT)),
         "private_crosswalk_sha256": sha256(crosswalk_bytes),
         "private_crosswalk_directory_mode": "0700",
         "private_crosswalk_file_mode": "0600",
+        "crosswalk_security": {
+            "reconstructible_from_public_repo": True,
+            "reconstruction_inputs": ["source gold JSONL", "this generator", f"seed={SEED}"],
+            "private_copy_is_not_a_blinding_security_boundary": True,
+            "private_copy_purpose": "reduce accidental exposure; agents must lack repository/history access",
+        },
+        "delivery_plan": {
+            "verified_now": False,
+            "two_fresh_external_sessions_required": True,
+            "only_files_to_each_session": [str(PUBLIC_PACKAGE.relative_to(ROOT)), str(REVIEW_INSTRUCTIONS.relative_to(ROOT))],
+            "deny_repository_history_memory_connectors_and_other_response": True,
+            "if_isolation_unverified": "exploratory_non_independent",
+        },
+        "adjudication_original_text_review": {
+            "all_presentations_transformed": True,
+            "presentation_count_to_compare": sum(presentation_counts.values()),
+            "requirement": "human adjudicator compares question, presented text, and original text for all presentations; records semantic impact before revealing gold role",
+            "source_of_originals": str(private_crosswalk.relative_to(ROOT)),
+        },
         "transformations": transform_spec,
         "transformation_application_counts": dict(sorted(transformation_counts.items())),
         "leak_checks": {
@@ -300,10 +319,11 @@ def main() -> None:
             ],
         },
         "review_procedure": [
-            "The custodian gives each reviewer only the agent_package, a neutral rubric, and its SHA-256; never the manifest or crosswalk.",
+            "The custodian creates two fresh sessions outside the repository and gives each only the agent_package and reviewer_instructions; no manifest, source, repo/history, connectors, crosswalk, or other output.",
             "Review each item independently for direct answer, useful indirect clue, neutral, irrelevant/harmful, or insufficient evidence; record a query-specific textual warrant, doubt, and confidence.",
             "Keep original outputs separately; compare only after both are frozen. Do not merge votes or call agent judgments human annotations.",
-            "A named bilingual human adjudicator, selected by Dennys and preferably not either reviewer, resolves disagreement after the blind passes; preserve both initial judgments and adjudication rationale.",
+            "After freezing both responses, a named bilingual human adjudicator selected by Dennys compares question, presented text, and original text for all 156 presentations because all were transformed; records semantic impact before unblinding source gold roles.",
+            "Preserve both initial judgments and adjudication rationale; this process does not automatically substitute agent passes for human reviewers.",
             "If isolation cannot be verified, label both passes exploratory/non-independent and defer gold changes/closure pending two genuinely independent human reviews or a verifiable isolated protocol.",
         ],
         "gold_modified": False,

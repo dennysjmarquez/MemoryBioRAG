@@ -1,6 +1,8 @@
 # Instrucciones neutrales para revisión semántica E1 — v1
 
-Revisa cada elemento de `docs/paquete_ciego_revision_semantica_e1_v1.jsonl` usando solamente la pregunta y el texto visible de cada elemento. No busques el origen de los códigos ni intentes reconstruir etiquetas anteriores. No consultes motores, bases, recuerdos externos ni resultados de E1.
+Revisa cada elemento del archivo de paquete adjunto usando solamente la pregunta y el texto visible de cada elemento. SHA-256 esperado del paquete: `c6445643cf8750cd85f841c4f3c8b6211c9ecb2a7e5777a43c56764c98112a90`. Si el hash no coincide, detén la revisión y notifícalo. No busques el origen de los códigos ni intentes reconstruir etiquetas anteriores. No consultes motores, bases, recuerdos externos ni resultados de E1.
+
+Trabaja solo con los dos archivos entregados por el custodio: paquete e instrucciones. No uses herramientas, conectores, repositorios, historial de conversación, memoria compartida ni archivos externos. No solicites ni aceptes respuestas de la otra sesión. Si no puedes comprobar que careces de esos accesos, no te presentes como revisión independiente; clasifica cualquier pasada como exploratoria/no independiente.
 
 Para cada par `case_code` + `item_code`, devuelve:
 

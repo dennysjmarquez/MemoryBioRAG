@@ -1,12 +1,19 @@
 {
   "additional_candidate_presentations": 66,
   "additional_per_case": 2,
+  "adjudication_original_text_review": {
+    "all_presentations_transformed": true,
+    "presentation_count_to_compare": 156,
+    "requirement": "human adjudicator compares question, presented text, and original text for all presentations; records semantic impact before revealing gold role",
+    "source_of_originals": ".private_evidence/e1_blind_review_v1/crosswalk_private_r7.jsonl"
+  },
   "agent_must_not_receive": [
     "this manifest",
-    ".private_evidence/e1_blind_review_v1/crosswalk_private_r6.jsonl",
+    ".private_evidence/e1_blind_review_v1/crosswalk_private_r7.jsonl",
     "gold JSONL",
     "source labels",
     "query evidence/justifications",
+    "repository checkout/history",
     "other agent response"
   ],
   "agent_package": "docs/paquete_ciego_revision_semantica_e1_v1.jsonl",
@@ -42,6 +49,26 @@
   "campaign_executed": false,
   "case_count": 33,
   "crosswalk_file_count_in_agent_package": 0,
+  "crosswalk_security": {
+    "private_copy_is_not_a_blinding_security_boundary": true,
+    "private_copy_purpose": "reduce accidental exposure; agents must lack repository/history access",
+    "reconstructible_from_public_repo": true,
+    "reconstruction_inputs": [
+      "source gold JSONL",
+      "this generator",
+      "seed=20261101"
+    ]
+  },
+  "delivery_plan": {
+    "deny_repository_history_memory_connectors_and_other_response": true,
+    "if_isolation_unverified": "exploratory_non_independent",
+    "only_files_to_each_session": [
+      "docs/paquete_ciego_revision_semantica_e1_v1.jsonl",
+      "docs/INSTRUCCIONES_REVISOR_CIEGO_E1_V1.md"
+    ],
+    "two_fresh_external_sessions_required": true,
+    "verified_now": false
+  },
   "engine_or_database_changed": false,
   "gold_modified": false,
   "leak_checks": {
@@ -56,17 +83,18 @@
   },
   "private_crosswalk_directory_mode": "0700",
   "private_crosswalk_file_mode": "0600",
-  "private_crosswalk_path": ".private_evidence/e1_blind_review_v1/crosswalk_private_r6.jsonl",
+  "private_crosswalk_path": ".private_evidence/e1_blind_review_v1/crosswalk_private_r7.jsonl",
   "private_crosswalk_sha256": "0fcc1d09422cce8adbe40d2214a91c5079d6af72e8d594fc0b013e0e253c9bde",
   "review_procedure": [
-    "The custodian gives each reviewer only the agent_package, a neutral rubric, and its SHA-256; never the manifest or crosswalk.",
+    "The custodian creates two fresh sessions outside the repository and gives each only the agent_package and reviewer_instructions; no manifest, source, repo/history, connectors, crosswalk, or other output.",
     "Review each item independently for direct answer, useful indirect clue, neutral, irrelevant/harmful, or insufficient evidence; record a query-specific textual warrant, doubt, and confidence.",
     "Keep original outputs separately; compare only after both are frozen. Do not merge votes or call agent judgments human annotations.",
-    "A named bilingual human adjudicator, selected by Dennys and preferably not either reviewer, resolves disagreement after the blind passes; preserve both initial judgments and adjudication rationale.",
+    "After freezing both responses, a named bilingual human adjudicator selected by Dennys compares question, presented text, and original text for all 156 presentations because all were transformed; records semantic impact before unblinding source gold roles.",
+    "Preserve both initial judgments and adjudication rationale; this process does not automatically substitute agent passes for human reviewers.",
     "If isolation cannot be verified, label both passes exploratory/non-independent and defer gold changes/closure pending two genuinely independent human reviews or a verifiable isolated protocol."
   ],
   "reviewer_instructions": "docs/INSTRUCCIONES_REVISOR_CIEGO_E1_V1.md",
-  "reviewer_instructions_sha256": "d99dcfcc5fb8b377cd42c482724eed36cec1a9db6a347b56513fbca0f26a0379",
+  "reviewer_instructions_sha256": "b6f223188e370a2501045619479471aa3b1379850c3b295b0cb461d08f2c1751",
   "seed": 20261101,
   "source": "scripts/casos_qa_intuicion_asociaciones_e1.jsonl",
   "source_sha256": "d91e9ee1437f2695b2278ff06cf2ad202e5d124c500c0f8dc22a6865e0e2497e",
