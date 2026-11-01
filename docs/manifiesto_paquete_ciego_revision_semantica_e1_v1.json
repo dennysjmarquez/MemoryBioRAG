@@ -1,0 +1,106 @@
+{
+  "additional_candidate_presentations": 66,
+  "additional_per_case": 2,
+  "agent_must_not_receive": [
+    "this manifest",
+    ".private_evidence/e1_blind_review_v1/crosswalk_private_r6.jsonl",
+    "gold JSONL",
+    "source labels",
+    "query evidence/justifications",
+    "other agent response"
+  ],
+  "agent_package": "docs/paquete_ciego_revision_semantica_e1_v1.jsonl",
+  "agent_package_file_mode": "0644",
+  "agent_package_sha256": "c6445643cf8750cd85f841c4f3c8b6211c9ecb2a7e5777a43c56764c98112a90",
+  "agent_sessions": {
+    "classification_if_attempted_without_verification": "exploratory_non_independent",
+    "current_session_eligible_as_blind_reviewer": false,
+    "identified_sessions": [
+      "current Arena Agent Mode conversation only; no separate agent-session ID or second isolated session is exposed to this turn"
+    ],
+    "review_passes_started": 0,
+    "second_session_available_and_identified": false,
+    "separation_verified": false,
+    "verification_required": [
+      "two distinct session IDs recorded before assignment",
+      "fresh isolated contexts with shared history/memory disabled or demonstrably inaccessible",
+      "identical package hash and rubric hash supplied to both",
+      "no cross-access to gold, crosswalk, manifest, or other response",
+      "each response frozen and hashed before unblinding/comparison"
+    ]
+  },
+  "agent_visible_fields": [
+    "case_code",
+    "question",
+    "items[].item_code",
+    "items[].text"
+  ],
+  "agent_visible_inputs": [
+    "docs/paquete_ciego_revision_semantica_e1_v1.jsonl",
+    "docs/INSTRUCCIONES_REVISOR_CIEGO_E1_V1.md"
+  ],
+  "campaign_executed": false,
+  "case_count": 33,
+  "crosswalk_file_count_in_agent_package": 0,
+  "engine_or_database_changed": false,
+  "gold_modified": false,
+  "leak_checks": {
+    "all_candidate_codes_unique": true,
+    "all_case_codes_unique": true,
+    "gold_metadata_keys_in_package": false,
+    "numbered_title_prefix_remaining": false,
+    "passed": true,
+    "primary_action_role_phrase_remaining": false,
+    "primary_decision_suffix_remaining": false,
+    "source_concept_id_pattern_found": false
+  },
+  "private_crosswalk_directory_mode": "0700",
+  "private_crosswalk_file_mode": "0600",
+  "private_crosswalk_path": ".private_evidence/e1_blind_review_v1/crosswalk_private_r6.jsonl",
+  "private_crosswalk_sha256": "0fcc1d09422cce8adbe40d2214a91c5079d6af72e8d594fc0b013e0e253c9bde",
+  "review_procedure": [
+    "The custodian gives each reviewer only the agent_package, a neutral rubric, and its SHA-256; never the manifest or crosswalk.",
+    "Review each item independently for direct answer, useful indirect clue, neutral, irrelevant/harmful, or insufficient evidence; record a query-specific textual warrant, doubt, and confidence.",
+    "Keep original outputs separately; compare only after both are frozen. Do not merge votes or call agent judgments human annotations.",
+    "A named bilingual human adjudicator, selected by Dennys and preferably not either reviewer, resolves disagreement after the blind passes; preserve both initial judgments and adjudication rationale.",
+    "If isolation cannot be verified, label both passes exploratory/non-independent and defer gold changes/closure pending two genuinely independent human reviews or a verifiable isolated protocol."
+  ],
+  "reviewer_instructions": "docs/INSTRUCCIONES_REVISOR_CIEGO_E1_V1.md",
+  "reviewer_instructions_sha256": "d99dcfcc5fb8b377cd42c482724eed36cec1a9db6a347b56513fbca0f26a0379",
+  "seed": 20261101,
+  "source": "scripts/casos_qa_intuicion_asociaciones_e1.jsonl",
+  "source_sha256": "d91e9ee1437f2695b2278ff06cf2ad202e5d124c500c0f8dc22a6865e0e2497e",
+  "status": "prepared_not_reviewed",
+  "title": "Blind E1 semantic review package, v1",
+  "total_candidate_presentations": 156,
+  "transformation_application_counts": {
+    "replace_exact_primary_action_marker": 5,
+    "strip_exact_primary_decision_suffix": 4,
+    "strip_numbered_leading_title": 147
+  },
+  "transformations": {
+    "foils": "exactly 2 items per case sampled uniformly without replacement from other nodes in the same episode, excluding that case's flagged concepts; no role-based filtering",
+    "identifiers": "source episode/query/concept IDs and role names replaced by seeded opaque case/item codes; not serialized in agent package",
+    "memory_text": [
+      {
+        "operation": "remove matched leading numbered title, preserve following body verbatim",
+        "regex": "^.{1,90}?\\b[0-9]{1,3}\\s*:\\s*"
+      },
+      {
+        "operation": "remove exact trailing sentence if present",
+        "regex": "\\s*This is the primary decision\\.\\s*$"
+      },
+      {
+        "operation": "replace exact phrase with 'la acción es' to remove the embedded role marker, preserving the action text",
+        "regex": "\\bacción primaria es\\b"
+      }
+    ],
+    "ordering": "sort source cases and available foils before seeded PRNG; sample foils, shuffle items within cases, shuffle cases, then assign opaque codes from the same PRNG stream",
+    "question_text": "copied verbatim from query; no query_id/type/answer/abstention field is emitted",
+    "text_policy": "no translation, paraphrase, lowercasing, or content rewriting beyond the listed transformations"
+  },
+  "under_review_assignments": 90,
+  "under_review_clue_assignments": 57,
+  "under_review_objective_assignments": 33,
+  "unique_queries": 33
+}
