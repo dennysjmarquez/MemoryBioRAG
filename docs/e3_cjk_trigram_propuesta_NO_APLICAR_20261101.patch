@@ -1,0 +1,33 @@
+--- a/core/memory/search.py
++++ b/core/memory/search.py
+@@ -31 +31,2 @@
+-    "dimensional_fallback", "semantica", "unicode", "lexico_aprendido", "sdm"
++    "dimensional_fallback", "semantica", "unicode", "lexico_aprendido", "sdm",
++    "cjk_trigram_or_experimental"
+@@ -1426,0 +1428,26 @@
++
++    # E3 EXPERIMENTO AISLADO (NO APROBADO): candidatos CJK por OR de trigramas.
++    # Solo se ejecuta tras la generación existente; el pool previo no se elimina.
++    if not modo_estricto:
++        _cjk_chars = [
++            ch for ch in frase_fts
++            if ("\u3400" <= ch <= "\u9fff")
++            or ("\uf900" <= ch <= "\ufaff")
++            or ("\u3040" <= ch <= "\u30ff")
++            or ("\uac00" <= ch <= "\ud7af")
++        ]
++        _cjk_trigrams = sorted({"".join(_cjk_chars[i:i + 3]) for i in range(len(_cjk_chars) - 2)})
++        if _cjk_trigrams:
++            _cjk_match = " OR ".join('"' + gram.replace('"', '""') + '"' for gram in _cjk_trigrams)
++            try:
++                self.cursor.execute(sql_con_pc, (_cjk_match,) + tuple(temporal_params) + tuple(pc_params))
++                _cjk_rows = self.cursor.fetchall()
++                _cjk_seen = {r[0] for r in todos}
++                for _cjk_row in _cjk_rows:
++                    if _cjk_row[0] not in _cjk_seen:
++                        todos.append(_cjk_row[:6])
++                        bm25_raw[_cjk_row[1]] = _cjk_row[6]
++                        origen_scores[_cjk_row[1]] = ("cjk_trigram_or_experimental", 0.0)
++                        _cjk_seen.add(_cjk_row[0])
++            except sqlite3.OperationalError:
++                pass
